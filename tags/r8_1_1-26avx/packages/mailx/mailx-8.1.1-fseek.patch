@@ -1,0 +1,17 @@
+--- mailx-8.1.1/def.h.orig	2002-12-10 15:37:03.000000000 +0100
++++ mailx-8.1.1/def.h	2002-12-10 15:34:46.000000000 +0100
+@@ -71,10 +71,10 @@
+ 
+ struct message {
+ 	short	m_flag;			/* flags, see below */
+-	short	m_block;		/* block number of this message */
+-	short	m_offset;		/* offset in block of message */
+-	long	m_size;			/* Bytes in the message */
+-	short	m_lines;		/* Lines in the message */
++	int	m_block;		/* block number of this message */
++	int	m_offset;		/* offset in block of message */
++	int	m_size;			/* Bytes in the message */
++	int	m_lines;		/* Lines in the message */
+ };
+ 
+ /*
