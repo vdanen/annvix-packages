@@ -1,6 +1,7 @@
 %define name	postfix
 %define version	2.0.13
-%define release 6sls
+%define release 7sls
+%define epoch	1
 
 # If set to 0 if official version, 1 if snapshot
 %define experimental	0
@@ -55,7 +56,7 @@ Summary:	Postfix Mail Transport Agent
 Name:		%{name}
 Version:	%{ver}
 Release:	%{release}
-Epoch:		1
+Epoch:		%{epoch}
 License:	IBM Public License
 Group:		System/Servers
 URL:		http://www.postfix.org/
@@ -205,6 +206,7 @@ unset CCARGS AUXLIBS
 make DEBUG="" OPT="$RPM_OPT_FLAGS"
 
 %install
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 # install postfix into the build root
 sh postfix-install -non-interactive \
        install_root=%buildroot \
@@ -408,7 +410,7 @@ done
 /usr/sbin/srv restart postfix 2>&1 > /dev/null || :
 
 %clean
-rm -rf %buildroot
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-, root, root)
@@ -518,6 +520,9 @@ rm -rf %buildroot
 
 
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 2.0.13-7sls
+- minor spec cleanups
+
 * Tue Feb 04 2004 Vincent Danen <vdanen@opensls.org> 2.0.13-6sls
 - supervise scripts
 - remove initscript

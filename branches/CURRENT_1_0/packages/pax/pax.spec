@@ -1,6 +1,6 @@
 %define name	pax
 %define version	3.0
-%define release	5sls
+%define release	6sls
 
 Summary:	POSIX File System Archiver
 Name:		%{name}
@@ -27,13 +27,13 @@ common forms of standard Unix archive (backup) files - CPIO and TAR.
 %make
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p %{buildroot}%{_bindir}
 mkdir -p %{buildroot}%{_mandir}/man1
 %makeinstall_std
 
 %clean
-rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -42,6 +42,9 @@ rm -rf %{buildroot}
 %{_mandir}/man1/*
 
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 3.0-6sls
+- minor spec cleanups
+
 * Tue Dec 30 2003 Vincent Danen <vdanen@opensls.org> 3.0-5sls
 - OpenSLS build
 - tidy spec

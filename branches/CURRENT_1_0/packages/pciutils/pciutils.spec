@@ -1,6 +1,6 @@
 %define name	pciutils
 %define version	2.1.11
-%define release	5sls
+%define release	6sls
 
 Summary:	PCI bus related utilities.
 Name:		%{name}
@@ -28,9 +28,9 @@ kernel version 2.1.82 or newer (supporting the /proc/bus/pci
 interface).
 
 %package devel
-Summary: Linux PCI development library
-Group: Development/C
-Requires: %{name} = %{version}
+Summary:	Linux PCI development library
+Group:		Development/C
+Requires:	%{name} = %{version}
 
 %description devel
 This package contains a library for inspecting and setting
@@ -50,7 +50,7 @@ devices connected to the PCI bus.
 make PREFIX=/usr OPT="$RPM_OPT_FLAGS"
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 install -d $RPM_BUILD_ROOT{%_bindir,%_mandir/man8,%_datadir,%_libdir,%_includedir/pci}
 
 install -s pcimodules lspci setpci $RPM_BUILD_ROOT%_bindir
@@ -58,6 +58,9 @@ install -m 644 pcimodules.man lspci.8 setpci.8 $RPM_BUILD_ROOT%_mandir/man8
 install -m 644 pci.ids $RPM_BUILD_ROOT%_datadir
 install -m 644 lib/libpci.a $RPM_BUILD_ROOT%_libdir
 install -m 644 lib/{pci.h,header.h,config.h} $RPM_BUILD_ROOT%_includedir/pci
+
+%clean
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-, root, root)
@@ -72,10 +75,10 @@ install -m 644 lib/{pci.h,header.h,config.h} $RPM_BUILD_ROOT%_includedir/pci
 %_libdir/*.a
 %_includedir/pci
 
-%clean
-rm -rf $RPM_BUILD_ROOT
-
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 2.1.11-6sls
+- minor spec cleanups
+
 * Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 2.1.11-5sls
 - OpenSLS build
 - tidy spec

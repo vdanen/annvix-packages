@@ -1,6 +1,6 @@
 %define name	passwd
 %define version	0.68
-%define release	3sls
+%define release	4sls
 
 Summary:	The passwd utility for setting/changing passwords using PAM
 Name:		%{name}
@@ -34,7 +34,7 @@ To use passwd, you should have PAM installed on your system.
 %make
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 install -d %buildroot/%_bindir
 install -d %buildroot/%_mandir/man1
 
@@ -46,7 +46,7 @@ rm -f %buildroot%_bindir/{chfn,chsh}
 rm -f %buildroot%_mandir/man1/{chfn.1,chsh.1}
 
 %clean
-rm -fr %buildroot
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -55,6 +55,9 @@ rm -fr %buildroot
 %_mandir/man1/passwd.1*
 		
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 0.68-4sls
+- minor spec cleanups
+
 * Mon Dec 01 2003 Vincent Danen <vdanen@opensls.org> 0.68-3sls
 - OpenSLS build
 - tidy spec

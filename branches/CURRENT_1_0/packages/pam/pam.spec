@@ -1,6 +1,6 @@
 %define name	pam
 %define version	0.77
-%define release	12sls
+%define release	13sls
 
 %define rhrelease	1
 %define pwdb_version	0.62
@@ -184,7 +184,7 @@ CFLAGS="$RPM_OPT_FLAGS -fPIC" \
 make
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p $RPM_BUILD_ROOT%{_includedir}/security
 mkdir -p $RPM_BUILD_ROOT/%{_lib}/security
 make install FAKEROOT=$RPM_BUILD_ROOT LDCONFIG=:
@@ -217,7 +217,7 @@ rm -rf $RPM_BUILD_ROOT/%{_lib}/libpam{.a,c.*} \
   $RPM_BUILD_ROOT%{_datadir}/doc/pam
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post -n %libname -p /sbin/ldconfig
 %postun -n %libname -p /sbin/ldconfig
@@ -260,6 +260,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man3/*
 
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 0.77-13sls
+- minor spec cleanups
+
 * Fri Feb 06 2004 Vincent Danen <vdanen@opensls.org> 0.77-12sls
 - remove %%build_opensls macro
 - fix pam_console config for our removed groups (P600)
