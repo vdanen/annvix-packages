@@ -1,7 +1,7 @@
 %define module	Net_SSLeay
 %define name 	perl-%{module}
 %define version	1.25
-%define release	3sls
+%define release	4sls
 
 Summary:        Net::SSLeay (module for perl)
 Name: 		%{name}
@@ -45,9 +45,6 @@ make test
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
-# is that crazy? keep it the way fpons did anyway
-find $RPM_BUILD_ROOT/%{_prefix} -name "*.al" | xargs rm -f
-
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
@@ -60,6 +57,11 @@ find $RPM_BUILD_ROOT/%{_prefix} -name "*.al" | xargs rm -f
 %{_mandir}/*/*
 
 %changelog
+* Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 1.25-4sls
+- rebuild for perl 5.8.4
+- keep autosplitted method, this package does not handle it well if you
+  remove them (fpons)
+
 * Fri Feb 27 2004 Vincent Danen <vdanen@opensls.org> 1.25-3sls
 - rebuild for new perl
 - P1: don't try doing an external test to bakus.pt because it doesn't seem
