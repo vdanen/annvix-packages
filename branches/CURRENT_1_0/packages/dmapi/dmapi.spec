@@ -1,6 +1,6 @@
 %define	name	dmapi
 %define	version	2.1.0
-%define	release	1mdk
+%define	release	1sls
 
 %define lib_name_orig	libdm
 %define lib_major	0
@@ -10,11 +10,12 @@ Summary:	Data Management API runtime environment.
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
-Source0:	%{name}-%{version}.src.tar.bz2
 License:	GPL
 Group:		System/Kernel and hardware
-BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
 URL:		http://oss.sgi.com/projects/xfs/
+Source0:	%{name}-%{version}.src.tar.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
 BuildRequires:	xfs-devel
 
 %description
@@ -24,7 +25,7 @@ X/Open document:  Systems Management: Data Storage Managment
 (XDSM) API dated February 1997.  This interface is implemented
 by the libdm library.
 
-%package -n	%{lib_name}
+%package -n %{lib_name}
 Summary:	Main library for %{lib_name_orig}
 Group:		System/Libraries
 Provides:	%{lib_name_orig} = %{version}-%{release}
@@ -33,7 +34,7 @@ Provides:	%{lib_name_orig} = %{version}-%{release}
 This package contains the library needed to run programs dynamically
 linked with %{lib_name_orig}.
 
-%package -n	%{lib_name}-devel
+%package -n %{lib_name}-devel
 Summary:	Data Management API static libraries and headers.
 Group:		Development/C
 Requires:	%{lib_name} = %{version}
@@ -55,18 +56,20 @@ the dmapi (runtime) package and the xfsprogs-devel package.
 %make
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 make install DIST_ROOT=%{buildroot}/
 make install-dev DIST_ROOT=%{buildroot}/
 
 # (sb) installed but unpackaged files
-rm -rf $RPM_BUILD_ROOT%{_datadir}/doc/dmapi
+rm -rf %{buildroot}%{_datadir}/doc/dmapi
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %post -n %{lib_name} -p /sbin/ldconfig
 %postun -n %{lib_name} -p /sbin/ldconfig
+
 
 %files -n %{lib_name}
 %defattr(-,root,root)
@@ -84,6 +87,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/*/*
 
 %changelog
+* Sun Feb 29 2004 Vincent Danen <vdanen@opensls.org> 2.1.0-1sls
+- OpenSLS build
+- tidy spec
+
 * Thu Feb 26 2004 Thomas Backlund <tmb@mandrake.org> 2.1.0-1mdk
 - done by Per Øyvind Karlsen
   * 2.1.0
