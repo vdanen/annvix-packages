@@ -8,7 +8,7 @@
 
 # <version>-<release> tags for glibc main package
 %define glibcversion	2.3.2
-%define glibcrelease	14.1sls
+%define glibcrelease	16sls
 # <version>-<release> tags from kernel package where headers were
 # actually extracted from
 %define kheaders_ver	2.4.22
@@ -114,19 +114,18 @@ Release:	%{glibcrelease}
 Epoch:		6
 License:	LGPL
 Group:		System/Libraries
-Url:		http://www.gnu.org/software/glibc/
+URL:		http://www.gnu.org/software/glibc/
 
 # Red Hat tarball
 Source0:	%{source_package}.tar.bz2
 Source1:	glibc-redhat.tar.bz2
 Source2:	glibc-manpages.tar.bz2
 Source3:	glibc-find-requires.sh
-
+Source5:	crypt_blowfish-0.4.5.tar.gz
 # Generated from Kernel-RPM
 Source10:	kernel-headers-%{kheaders_ver}.%{kheaders_rel}.tar.bz2
 Source11:	make_versionh.sh
 Source12:	create_asm_headers.sh
-
 # service --full-restart-all from initscripts 6.91-18mdk
 Source13:	glibc-post-upgrade
 
@@ -222,6 +221,7 @@ Patch38:	glibc-2.3.2-dlerror-fix.patch.bz2
 Patch39:	glibc-2.3.2-iofwide.patch.bz2
 Patch40:	glibc-2.3.2-i586-if-no-cmov.patch.bz2
 Patch41:	glibc-2.3.2-propolice.patch.bz2
+Patch42:	crypt_blowfish-glibc-2.2.diff
 
 # Generated from Kernel RPM
 Patch100:	kernel-headers-include-%{kheaders_ver}.%{kheaders_rel}.patch.bz2
@@ -412,7 +412,7 @@ GNU C library in PDF format.
 %endif
 
 %prep
-%setup -q -n %{source_dir} -a 10 -a 2 -a 1
+%setup -q -n %{source_dir} -a 10 -a 2 -a 1 -a 5
 %patch1 -p1 -b .fhs
 %patch2 -p1 -b .ldd-non-exec
 %patch3 -p1 -b .pthread_create-manpage
@@ -457,6 +457,9 @@ GNU C library in PDF format.
 %patch40 -p1 -b .i586-if-no-cmov
 %if %build_opensls
 %patch41 -p1 -b .propolice
+rm crypt_blowfish-*/crypt.h
+cp -a crypt_blowfish-*/*.[chS] crypt
+%patch42 -p0 -b .blowfish
 %endif
 
 # If we are building enablekernel 2.x.y glibc on older kernel,
@@ -615,10 +618,10 @@ function BuildGlibc() {
     --enable-add-ons=yes --without-cvs \
     --without-tls --without-__thread $ExtraFlags \
     --enable-kernel=$EnableKernel --with-headers=$KernelHeaders ${1+"$@"}
-%if %build_opensls
+%if %build_opensls 
   %make -r CFLAGS="$BuildFlags" PARALLELMFLAGS=
 %else
-  %make -r CFLAGS="$BuildFlags" PARALLELMFLAGS=-s
+   %make -r CFLAGS="$BuildFlags" PARALLELMFLAGS=-s
 %endif
   popd
 }
@@ -1314,9 +1317,16 @@ fi
 %endif
 
 %changelog
-* Sat Dec 06 2003 Vincent Danen <vdanen@opensls.org> 2.3.2-14.1sls
+* Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 2.3.2-16sls
 - OpenSLS build
 - P41: propolice patch; use %%build_opensls macros
+- crypt_blowfish 0.4.5 (from Owl)
+- P42: crypt_blowfish patch for glibc from SUSE
+- note: there is a missing BuildReq somewhere as building segfaults on hades
+
+* Thu Oct  9 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 2.3.2-15mdk
+- Rebuild with latest rpm so that libraries in EXCLUDE_FROM_STRIP are
+  kept intact during symbols extraction for -debug package
 
 * Fri Aug 29 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 2.3.2-14mdk
 - Patch40: Avoid */lib/i686 compiled libraries to be loaded if the
