@@ -1,6 +1,5 @@
 #!/bin/sh
 
-# this writes logs as user nobody into /var/log/supervise/dhcpd; make 
-# sure this directory exists and is writable by nobody!
+# logging for the dhcpd service
 
-exec /sbin/chpst -u nobody /sbin/svlogd -tt /var/log/supervise/dhcpd
+exec /sbin/chpst -u logger /sbin/svlogd -tt /var/log/supervise/dhcpd

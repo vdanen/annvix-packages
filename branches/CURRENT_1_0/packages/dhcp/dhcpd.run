@@ -26,4 +26,4 @@ if [ ! -f $LEASEFILE ]; then
   godown
 fi
 
-exec /usr/sbin/dhcpd -f -cf $CONFIGFILE -lf $LEASEFILE $OPTIONS $INTERFACES 2>&1
+exec /usr/sbin/dhcpd -f -user dhcp -group dhcp -cf $CONFIGFILE -lf $LEASEFILE $OPTIONS $INTERFACES 2>&1
