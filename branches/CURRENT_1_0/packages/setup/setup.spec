@@ -2,7 +2,7 @@
 
 %define name	setup
 %define version 2.5
-%define release 2avx
+%define release 3avx
 
 Summary:	A set of system configuration and setup files
 Name:		%{name}
@@ -84,12 +84,17 @@ fi
 %attr(0644,root,root) %config(missingok,noreplace) /etc/securetty
 %config(noreplace) /etc/csh.login
 %config(noreplace) /etc/csh.cshrc
+%config(noreplace) /etc/sysconfig/ulimits
 %dir /etc/profile.d
 %config(noreplace) /etc/profile.d/*
 %verify(not md5 size mtime) /var/log/lastlog
 %dir /var/lib/rsbac
 
 %changelog
+* Sat Mar 19 2005 Vincent Danen <vdanen@annvix.org> 2.5-3avx
+- add /etc/sysconfig/ulimits to determine defaults for max number of user procs,
+  max number of open files, and max data segment size
+
 * Fri Mar 18 2005 Vincent Danen <vdanen@annvix.org> 2.5-2avx
 - set some limits via limit/ulimit in /etc/profile and /etc/csh.cshrc
   as right now all resources are pretty much unlimited
