@@ -1,7 +1,7 @@
 %define module	libwww-perl
 %define name	perl-%{module}
-%define version 5.69
-%define release 4sls
+%define version 5.79
+%define release 1sls
 
 %define _requires_exceptions Authen::NTLM\\|HTTP::GHTTP\\|Win32
 
@@ -13,7 +13,6 @@ License:	GPL or Artistic
 Group:		Development/Perl
 URL:		http://www.cpan.org
 Source0:	%{module}-%{version}.tar.bz2
-Patch:		%{module}-5.63.empty_header.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-buildroot/
 BuildArch:	noarch
@@ -27,18 +26,14 @@ libwww-perl module for perl
 
 %prep
 %setup -q -n %{module}-%{version}
-%patch -p1
 
 %build
-%{__perl} Makefile.PL INSTALLDIRS=vendor PREFIX=%{_prefix} </dev/null
-%make OPTIMIZE="$RPM_OPT_FLAGS" PREFIX=%{_prefix}
-
-# tests are failing at the moment... due to secure kernel?
-#make test
+%{__perl} Makefile.PL INSTALLDIRS=vendor </dev/null
+%make
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-%makeinstall PREFIX=$RPM_BUILD_ROOT%{_prefix}
+%makeinstall_std
 
 %clean 
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -60,6 +55,11 @@ libwww-perl module for perl
 
 
 %changelog
+* Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 5.79-1sls
+- 5.79
+- remove P0; merged upstream
+- minor spec cleanups
+
 * Fri Feb 27 2004 Vincent Danen <vdanen@opensls.org> 5.69-4sls
 - rebuild for new perl
 - remove %%{prefix} tag
