@@ -1,9 +1,8 @@
 %define name	postgresql
 %define version	7.4.3
-%define release	2avx
+%define release	3avx
 
-%define _requires_exceptions devel(libtcl8.4)
-%define _requires_exceptions devel(libtcl8.4(64bit))
+%define _requires_exceptions devel(libtcl8.4)\\|devel(libtcl8.4(64bit))
 
 %{expand:%%define pyver %(python -c 'import sys;print(sys.version[0:3])')}
 %{expand:%%define perl_version %(rpm -q --qf %{EPOCH}:%{VERSION} perl)}
@@ -641,6 +640,9 @@ rm -f perlfiles.list
 %attr(-,postgres,postgres) %dir %{_libdir}/pgsql/test
 
 %changelog
+* Mon Jul 26 2004 Vincent Danen <vdanen@annvix.org> 7.4.3-3avx
+- fix the requires exceptions
+
 * Wed Jul 21 2004 Vincent Danen <vdanen@annvix.org> 7.4.3-2avx
 - remove unapplied patches; renumber remaining patches
 
