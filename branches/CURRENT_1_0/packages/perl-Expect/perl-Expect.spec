@@ -1,7 +1,7 @@
 %define module	Expect
 %define name	perl-%{module}
 %define version 1.15
-%define release 10avx
+%define release 11avx
 
 Summary:	Expect perl module
 Name: 		%{name}
@@ -50,6 +50,9 @@ make test
 %{_mandir}/*/*
 
 %changelog
+* Wed Feb 02 2005 Vincent Danen <vdanen@annvix.org> 1.15-11avx
+- rebuild against new perl
+
 * Sat Jun 26 2004 Vincent Danen <vdanen@annvix.org> 1.15-10avx
 - Annvix build
 

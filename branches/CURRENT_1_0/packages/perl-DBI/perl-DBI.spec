@@ -1,7 +1,7 @@
 %define module	DBI
 %define name	perl-%{module}
 %define version 1.38
-%define release 5avx
+%define release 6avx
 
 Summary:	The Perl Database Interface by Tim Bunce
 Name:		%{name}
@@ -100,6 +100,9 @@ rm -f $RPM_BUILD_ROOT%{_mandir}/man3pm/DBI::W32ODBC.3pm
 %{_mandir}/man3*/DBI::ProfileDumper::Apache.3pm.*
 
 %changelog
+* Wed Feb 02 2005 Vincent Danen <vdanen@annvix.org> 1.38-6avx
+- rebuild against new perl
+
 * Fri Jun 26 2004 Vincent Danen <vdanen@annvix.org> 1.38-5avx
 - Annvix build
 

@@ -1,7 +1,7 @@
 %define name	perl-%{module}
 %define module	DB_File
 %define version	1.808
-%define release	2avx
+%define release	3avx
 
 %define perl_archlib %(eval "`perl -V:installarchlib`"; echo $installarchlib)
 
@@ -61,6 +61,9 @@ mkdir -p $RPM_BUILD_ROOT/$installarchlib
 %_mandir/man3*/DB_File.*
 
 %changelog
+* Wed Feb 02 2005 Vincent Danen <vdanen@annvix.org> 1.808-3avx
+- rebuild against new perl
+
 * Sat Jun 26 2004 Vincent Danen <vdanen@annvix.org> 1.808-2avx
 - Annvix build
 

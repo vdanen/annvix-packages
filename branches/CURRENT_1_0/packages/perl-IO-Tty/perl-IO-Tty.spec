@@ -1,7 +1,7 @@
 %define	module	IO-Tty
 %define	name	perl-%{module}
 %define	version	1.02
-%define	release	12avx
+%define	release	13avx
 
 Summary:	IO-Tty perl module: interface to pseudo tty's
 Name: 		%{name}
@@ -47,6 +47,9 @@ make test
 %{_mandir}/*/*
 
 %changelog
+* Wed Feb 02 2005 Vincent Danen <vdanen@annvix.org> 1.02-13avx
+- rebuild against new perl
+
 * Sat Jun 26 2004 Vincent Danen <vdanen@annvix.org> 1.02-12avx
 - Annvix build
 

@@ -1,6 +1,6 @@
 %define name	perl-ldap
 %define version 0.31
-%define release 2avx
+%define release 3avx
 
 Summary:	Perl module for ldap
 Name:		%{name}
@@ -52,6 +52,9 @@ make
 %{perl_vendorlib}/Net
 
 %changelog
+* Wed Feb 02 2005 Vincent Danen <vdanen@annvix.org> 0.31-3avx
+- rebuild against new perl
+
 * Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 0.31-2avx
 - Annvix build
 

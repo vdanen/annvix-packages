@@ -1,7 +1,7 @@
 %define name	perl-%{module}
 %define module	Apache-Session
 %define version	1.54
-%define release	10avx
+%define release	11avx
 
 Summary:	%{module}: Apache persistent user sessions
 Name:		%{name}
@@ -54,6 +54,9 @@ find $RPM_BUILD_ROOT%{_prefix} -type f -print | sed "s@^$RPM_BUILD_ROOT@@g" | gr
 %{perl_vendorlib}/Apache/*
 
 %changelog
+* Wed Feb 02 2005 Vincent Danen <vdanen@annvix.org> 1.54-11avx
+- rebuild against new perl
+
 * Sat Jun 26 2004 Vincent Danen <vdanen@annvix.org> 1.54-10avx
 - Annvix build
 

@@ -1,6 +1,6 @@
 %define name	exim
 %define version 4.44
-%define release 1avx
+%define release 2avx
 
 %define build_mysql 0
 %define build_pgsql 0
@@ -286,6 +286,9 @@ fi
 %config(noreplace) %{_sysconfdir}/exim/sa-exim_short.conf
 
 %changelog
+* Wed Feb 02 2005 Vincent Danen <vdanen@annvix.org> 4.44-2avx
+- rebuild against new perl
+
 * Fri Jan 21 2005 Vincent Danen <vdanen@annvix.org> 4.44-1avx
 - 4.44
 - exiscan-acl 4.44-28

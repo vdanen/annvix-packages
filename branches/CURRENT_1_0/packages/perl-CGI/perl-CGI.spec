@@ -1,7 +1,7 @@
 %define module	CGI
 %define name	perl-%{module}
 %define version	3.05
-%define release	2avx
+%define release	3avx
 %define epoch	1
 
 Summary:        Simple Common Gateway Interface class for Perl.
@@ -74,6 +74,9 @@ connections, will see large performance improvements.
 %{_mandir}/man3/CGI::Fast.3pm.*
 
 %changelog
+* Wed Feb 02 2005 Vincent Danen <vdanen@annvix.org> 3.05-3avx
+- rebuild against new perl
+
 * Sat Jun 26 2004 Vincent Danen <vdanen@annvix.org> 3.05-2avx
 - Annvix build
 

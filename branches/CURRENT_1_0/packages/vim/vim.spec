@@ -1,6 +1,6 @@
 %define name	vim
 %define version	6.3
-%define release	1avx
+%define release	2avx
 
 # Notes / Warning :
 # - this package is not prefixable
@@ -354,6 +354,9 @@ update-alternatives --remove vim /usr/bin/vim-enhanced
 %{_bindir}/vimdiff
 
 %changelog
+* Wed Feb 02 2005 Vincent Danen <vdanen@annvix.org> 6.3-2avx
+- rebuild against new perl
+
 * Tue Feb 01 2005 Vincent Danen <vdanen@annvix.org> 6.3-1avx
 - 6.3; patchlevel 54
 - S5: spec mode from Guillaume Rousse
