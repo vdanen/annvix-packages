@@ -1,6 +1,6 @@
 %define name	opensls-ports
 %define version	1.0
-%define release	1sls
+%define release	2sls
 
 %define _portsprefix /usr/local
 
@@ -17,7 +17,7 @@ Source1:	Makefile.ports
 BuildRoot:	%{_tmppath}/%{name}-root
 BuildArch:	noarch
 
-Requires:	make, cvs, curl
+Requires:	make, cvs, curl, rpm-build
 
 
 %description
@@ -45,5 +45,8 @@ install -m 0644 %{SOURCE1} %{buildroot}%{_portsprefix}/ports/Makefile
 %{_portsprefix}/ports/Makefile
 
 %changelog
+* Thu Jun  3 2004 Vincent Danen <vdanen@opensls.org> 1.0-2sls
+- Requires: rpm-build
+
 * Fri May 28 2004 Vincent Danen <vdanen@opensls.org> 1.0-1sls
 - first package
