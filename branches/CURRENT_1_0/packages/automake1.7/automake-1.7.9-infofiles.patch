@@ -21,7 +21,7 @@
  @dircategory Individual utilities
  @direntry
 -* aclocal: (automake)Invoking aclocal.          Generating aclocal.m4.
-+* aclocal1.7: (automake1.7)Invoking aclocal.          Generating aclocal.m4.
++* aclocal-1.7: (automake1.7)Invoking aclocal.          Generating aclocal.m4.
  @end direntry
  
  @ifinfo
