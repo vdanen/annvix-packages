@@ -2,4 +2,4 @@
 
 # logging for the slurpd service
 
-exec /sbin/chpst -u slurpd /sbin/svlogd -tt /var/log/supervise/slurpd
+exec /sbin/chpst -u logger /sbin/svlogd -tt /var/log/supervise/slurpd

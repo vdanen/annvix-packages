@@ -1,6 +1,6 @@
 %define name	openldap
 %define version	2.1.29
-%define release	12avx
+%define release	13avx
 
 %define major 		2
 %define migtools_ver	45
@@ -874,6 +874,10 @@ fi
 # - add cron-job to remove transaction logs (bdb)
 
 %changelog
+* Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 2.1.29-13avx
+- really use logger in the run scripts (have I done a few too many
+  of these today?)
+
 * Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 2.1.29-12avx
 - use logger for logging
 

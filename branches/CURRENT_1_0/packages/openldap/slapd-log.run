@@ -2,4 +2,4 @@
 
 # logging for the slapd service
 
-exec /sbin/chpst -u slapd /sbin/svlogd -tt /var/log/supervise/slapd
+exec /sbin/chpst -u logger /sbin/svlogd -tt /var/log/supervise/slapd
