@@ -10,13 +10,13 @@ To protect your data you should make a backup copy of your
 \fI/var/lib/pgsql/pg_hba.conf\fR file.  You should also dump the contents of
 your database which can be done with the \fBpg_dumpall\fR command like this:
 .IP
-\fB/usr/bin/setuidgid postgres /usr/bin/pg_dumpall -b -o -Fc >$backup\fR
+\fB/sbin/chpst -u postgres /usr/bin/pg_dumpall -b -o -Fc >$backup\fR
 .LP
 where \fI$backup\fR is the backup file to contain the database contents.
 .LP
 To restore the contents of the file, use:
 .IP
-\fB/usr/bin/setuidgid postgres /usr/bin/pg_restore -Fc -o -f $backup\fR
+\fB/sbin/chpst -u postgres /usr/bin/pg_restore -Fc -o -f $backup\fR
 .LP
 This will restore the contents of your backup file to the PostgreSQL
 database.

@@ -1,7 +1,7 @@
 #!/bin/sh
 PATH="/sbin:/usr/sbin:/bin:/usr/bin"
 
-# this runs postgresql supervised
+# this is executed after the run script exits
 
 if [ -f /etc/sysconfig/postgresql ]; then
   . /etc/sysconfig/postgresql
@@ -16,14 +16,4 @@ if [ ! -f $PGDATA/PG_VERSION ] && [ ! -d $PGDATA/base/template1 ]; then
   PGDATA="/var/lib/pgsql/data"
 fi
 
-rm -f /tmp/.s.PGSQL.$PGPORT >/dev/null
-
-if [ "$USETCP" == "1" ]; then
-  OPTS="-i -p $PGPORT"
-fi
-
-if [ "$USESSL" == "1" ] && [ -f $PGDATA/server.crt ]; then
-  OPTS="$OPTS -l"
-fi
-
-exec /sbin/chpst -u postgres /usr/bin/postmaster -D $PGDATA $OPTS 2>&1
+rm -f $PGDATA/postmaster.pid

@@ -1,6 +1,6 @@
 %define name	postgresql
 %define version	7.4.3
-%define release	4avx
+%define release	5avx
 
 %define _requires_exceptions devel(libtcl8.4)\\|devel(libtcl8.4(64bit))
 
@@ -45,6 +45,7 @@ Source20:	postgresql.run
 Source21:	postgresql-log.run
 Source22:	postgresql.sysconfig
 Source23:	01_postgresql.afterboot
+Source24:	postgresql.finish
 Source51:	README.v7.3
 Source52:	upgrade_tips_7.3
 Patch1:		postgresql-7.4-mdk-tighten.patch.bz2
@@ -351,6 +352,7 @@ mkdir -p %{buildroot}%{_srvdir}/postgresql/log
 mkdir -p %{buildroot}%{_srvlogdir}/postgresql
 install -m 0755 %{SOURCE20} %{buildroot}%{_srvdir}/postgresql/run
 install -m 0755 %{SOURCE21} %{buildroot}%{_srvdir}/postgresql/log/run
+install -m 0755 %{SOURCE24} %{buildroot}%{_srvdir}/postgresql/finish
 
 mkdir -p %{buildroot}%{_sysconfdir}/sysconfig
 install -m 0644 %{SOURCE22} %{buildroot}%{_sysconfdir}/sysconfig/postgresql
@@ -582,6 +584,7 @@ rm -f perlfiles.list
 %dir %{_srvdir}/postgresql
 %dir %{_srvdir}/postgresql/log
 %{_srvdir}/postgresql/run
+%{_srvdir}/postgresql/finish
 %{_srvdir}/postgresql/log/run
 %dir %attr(0750,nobody,nogroup) %{_srvlogdir}/postgresql
 %config(noreplace) %{_sysconfdir}/sysconfig/postgresql
@@ -640,6 +643,10 @@ rm -f perlfiles.list
 %attr(-,postgres,postgres) %dir %{_libdir}/pgsql/test
 
 %changelog
+* Mon Sep 20 2004 Vincent Danen <vdanen@annvix.org> 7.4.3-5avx
+- update run scripts and afterboot manpages
+- add a finish script
+
 * Fri Aug 13 2004 Vincent Danen <vdanen@annvix.org> 7.4.3-4avx
 - rebuild against new openssl
 
