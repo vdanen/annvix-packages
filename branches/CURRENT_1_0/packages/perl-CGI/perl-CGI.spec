@@ -1,7 +1,7 @@
 %define module	CGI
 %define name	perl-%{module}
-%define version	3.00
-%define release	4sls
+%define version	3.05
+%define release	1sls
 %define epoch	1
 
 Summary:        Simple Common Gateway Interface class for Perl.
@@ -11,7 +11,7 @@ Release:        %{release}
 Epoch:		%{epoch}
 License:        GPL or Artistic
 Group:          Development/Perl
-URL:            http://stein.cshl.org/WWW/software/CGI
+URL:            http://stein.cshl.org/WWW/software/CGI/
 Source:         CGI.pm-%{version}.tar.bz2
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-buildroot
@@ -74,6 +74,9 @@ connections, will see large performance improvements.
 %{_mandir}/man3/CGI::Fast.3pm.*
 
 %changelog
+* Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 3.05-1sls
+- 3.0.5
+
 * Mon Apr 12 2004 Vincent Danen <vdanen@opensls.org> 3.00-4sls
 - fix epoch in requires
 
