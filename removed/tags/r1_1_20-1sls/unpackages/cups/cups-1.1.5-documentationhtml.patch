@@ -1,0 +1,14 @@
+--- doc/documentation.html.orig	Thu Jan  4 09:38:20 2001
++++ doc/documentation.html	Thu Jan  4 09:46:27 2001
+@@ -66,7 +66,10 @@
+ 
+ 	<LI>Software Security Report (
+ 	<A HREF="ssr.html">HTML</A> |
+-	<A HREF="ssr.pdf">PDF</A> )
++	<A HREF="ssr.pdf">PDF</A> )<p>
++
++	<LI>Support for encrypted connections (
++	<A HREF="ENCRYPTION.txt">TXT</A> )
+ 
+ </UL>
+ 
