@@ -1,8 +1,8 @@
-# $Id: setup.spec,v 1.7 2004/08/19 19:27:16 vdanen Exp $
+# $Id: setup.spec,v 1.8 2004/11/12 16:47:34 vdanen Exp $
 
 %define name	setup
 %define version 2.4
-%define release 14avx
+%define release 15avx
 
 Summary:	A set of system configuration and setup files
 Name:		%{name}
@@ -28,14 +28,14 @@ administration.
 %setup -q
 
 %build
-%make CFLAGS="$RPM_OPT_FLAGS"
+%make CFLAGS="%{optflags}"
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 make install RPM_BUILD_ROOT=%buildroot mandir=%_mandir
 
-rm -rf $RPM_BUILD_ROOT/%{_datadir}/base-passwd $RPM_BUILD_ROOT/%{_sbindir}
-rm -f  `find $RPM_BUILD_ROOT/%{_mandir} -name 'update-passwd*'`
+rm -rf %{buildroot}%{_datadir}/base-passwd %{buildroot}%{_sbindir}
+rm -f  `find %{buildroot}%{_mandir} -name 'update-passwd*'`
 mkdir -p %{buildroot}/var/lib/rsbac
 
 %clean
@@ -46,7 +46,7 @@ mkdir -p %{buildroot}/var/lib/rsbac
 %doc ChangeLog
 %verify(not md5 size mtime) %config(noreplace) /etc/passwd
 %verify(not md5 size mtime) %config(noreplace) /etc/group
-%verify(not md5 size mtime) %config(noreplace) /etc/shadow
+%verify(not md5 size mtime) %attr(0400,root,root) %config(noreplace) /etc/shadow
 %_mandir/man8/*8*
 # find_lang can't find man pages yet :-(
 %lang(cs) %_mandir/cs/man8/*8*
@@ -85,6 +85,9 @@ if [ -x /usr/sbin/nscd ]; then
 fi
 
 %changelog
+* Fri Nov 12 2004 Vincent Danen <vdanen@annvix.org> 2.4-15avx
+- ouch... make sure /etc/shadow is mode 0400
+
 * Thu Aug 19 2004 Vincent Danen <vdanen@annvix.org> 2.4-14avx
 - fix homedir for RSBAC users
 
