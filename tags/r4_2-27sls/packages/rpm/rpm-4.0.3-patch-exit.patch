@@ -1,0 +1,15 @@
+--- rpm-4.0.3/build/parsePrep.c.fred	Sat May  5 00:12:15 2001
++++ rpm-4.0.3/build/parsePrep.c	Tue Jun 12 10:03:26 2001
+@@ -122,11 +122,7 @@
+ 
+ 	sprintf(buf,
+ 		"echo \"Patch #%d (%s):\"\n"
+-		"%s -d < %s | patch -p%d %s -s\n"
+-		"STATUS=$?\n"
+-		"if [ $STATUS -ne 0 ]; then\n"
+-		"  exit $STATUS\n"
+-		"fi",
++		"%s -d < %s | patch -p%d %s -s\n",
+ 		c, /*@-unrecog@*/ (const char *) basename(fn), /*@=unrecog@*/
+ 		zipper,
+ 		fn, strip, args);
