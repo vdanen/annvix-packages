@@ -1,6 +1,6 @@
 %define name	pwdb
-%define version	0.61.2
-%define release	6avx
+%define version	0.62
+%define release	1avx
 
 %define majver		0
 %define lib_name_orig	%mklibname pwdb
@@ -12,8 +12,8 @@ Version:	%{version}
 Release:	%{release}
 License:	GPL
 Group:		System/Libraries
-Source:		pwdb-%{PACKAGE_VERSION}.tar.bz2
-Patch0:		pwdb-0.61-includes.patch.bz2
+Source:		pwdb-%{version}.tar.bz2
+Patch0:		pwdb-0.62-includes.patch.bz2
 
 BuildRoot:	%_tmppath/%name-%version-%release-root
 BuildRequires:	gcc
@@ -122,6 +122,9 @@ ln -sf lib%{name}.so.%{version} $RPM_BUILD_ROOT/%{_lib}/lib%{name}.so.%{majver}
 /%{_lib}/libpwdb.a
 
 %changelog
+* Fri Sep 24 2004 Vincent Danen <vdanen@annvix.org> 0.62-1avx
+- 0.62
+
 * Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 0.61.2-6avx
 - Annvix build
 - remove %%build_propolice macro; pass -fno-stack-protector by default
