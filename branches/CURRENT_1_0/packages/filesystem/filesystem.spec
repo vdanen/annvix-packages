@@ -37,7 +37,7 @@ mkdir -p $RPM_BUILD_ROOT/var/cache/man
 mkdir -p $RPM_BUILD_ROOT/usr/share/games
 mkdir -p $RPM_BUILD_ROOT/etc/security
 mkdir -p $RPM_BUILD_ROOT/etc/profile.d
-mkdir -p $RPM_BUILD_ROOT/var/supervise
+mkdir -p $RPM_BUILD_ROOT/var/service
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -89,7 +89,7 @@ mkdir /mnt/floppy 2>/dev/null ||:
 /var/preserve
 /var/run
 %dir /var/spool
-%dir %attr(1755,root,root) /var/supervise
+%dir %attr(1755,root,root) /var/service
 %attr(0755,root,daemon) %dir /var/spool/lpd
 %attr(775,root,mail) /var/spool/mail
 %attr(1777,root,root) /var/tmp
