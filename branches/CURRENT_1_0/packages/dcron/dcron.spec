@@ -1,6 +1,6 @@
 %define	name	dcron
 %define	version	2.9
-%define	release	9avx
+%define	release	10avx
 
 Summary:	Dillon's Cron Daemon
 Name:		%{name}
@@ -90,9 +90,12 @@ fi
 %dir %{_srvdir}/crond/log
 %{_srvdir}/crond/run
 %{_srvdir}/crond/log/run
-%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/crond
+%dir %attr(0750,logger,logger) %{_srvlogdir}/crond
 
 %changelog
+* Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 2.9-10avx
+- user logger for logging
+
 * Tue Jan 25 2005 Vincent Danen <vdanen@annvix.org> 2.9-9avx
 - drop the buildreq on dietlibc since we don't actually compile with it
 

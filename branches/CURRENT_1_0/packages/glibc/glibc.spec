@@ -3,7 +3,7 @@
 
 # <version>-<release> tags for glibc main package
 %define glibcversion	2.3.2
-%define glibcrelease	25avx
+%define glibcrelease	26avx
 %define epoch		6
 
 # <version>-<release> tags from kernel package where headers were
@@ -1290,7 +1290,7 @@ fi
 %{_srvdir}/nscd/run
 %{_srvdir}/nscd/finish
 %{_srvdir}/nscd/log/run
-%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/nscd
+%dir %attr(0750,logger,logger) %{_srvlogdir}/nscd
 %endif
 
 #
@@ -1320,6 +1320,9 @@ fi
 %endif
 
 %changelog
+* Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 2.3.2-26avx
+- user logger for logging
+
 * Fri Jan 21 2005 Vincent Danen <vdanen@annvix.org> 2.3.2-25avx
 - P44: add SSP/frandom support from HLFS
 - P102: updated sysctl.h which includes [ef]random

@@ -1,6 +1,5 @@
 #!/bin/sh
 
-# this writes logs as user nobody into /var/log/supervise/krb524d; make 
-# sure this directory exists and is writable by nobody!
+# logging for the krb524d service
 
-exec /sbin/chpst -u nobody /sbin/svlogd -tt /var/log/supervise/krb524d
+exec /sbin/chpst -u logger /sbin/svlogd -tt /var/log/supervise/krb524d

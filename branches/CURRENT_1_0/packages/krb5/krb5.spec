@@ -1,6 +1,6 @@
 %define name	krb5
 %define version	1.3.6
-%define release	1avx
+%define release	2avx
 
 %define srcver	1.3
 %define LIBMAJ	1
@@ -464,22 +464,22 @@ strip %{buildroot}%{_bindir}/{ksu,v4rcp}
 %config(noreplace) %{_sysconfdir}/kerberos/krb5kdc/kadm5.acl
 %dir %{_srvdir}/kadmind
 %dir %{_srvdir}/kadmind/log
-%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/kadmind
+%dir %attr(0750,logger,logger) %{_srvlogdir}/kadmind
 %{_srvdir}/kadmind/run
 %{_srvdir}/kadmind/log/run
 %dir %{_srvdir}/kpropd
 %dir %{_srvdir}/kpropd/log
-%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/kpropd
+%dir %attr(0750,logger,logger) %{_srvlogdir}/kpropd
 %{_srvdir}/kpropd/run
 %{_srvdir}/kpropd/log/run
 %dir %{_srvdir}/krb5kdc
 %dir %{_srvdir}/krb5kdc/log
-%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/krb5kdc
+%dir %attr(0750,logger,logger) %{_srvlogdir}/krb5kdc
 %{_srvdir}/krb5kdc/run
 %{_srvdir}/krb5kdc/log/run
 %dir %{_srvdir}/krb524d
 %dir %{_srvdir}/krb524d/log
-%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/krb524d
+%dir %attr(0750,logger,logger) %{_srvlogdir}/krb524d
 %{_srvdir}/krb524d/run
 %{_srvdir}/krb524d/log/run
 %{_infodir}/krb5-admin.info*
@@ -548,7 +548,7 @@ strip %{buildroot}%{_bindir}/{ksu,v4rcp}
 %dir %{_srvdir}/ktelnet
 %dir %{_srvdir}/ktelnet/log
 %dir %{_srvdir}/ktelnet/peers
-%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/ktelnet
+%dir %attr(0750,logger,logger) %{_srvlogdir}/ktelnet
 %{_srvdir}/ktelnet/run
 %{_srvdir}/ktelnet/log/run
 %config(noreplace) %{_srvdir}/ktelnet/peers/0
@@ -574,13 +574,16 @@ strip %{buildroot}%{_bindir}/{ksu,v4rcp}
 %dir %{_srvdir}/kftp
 %dir %{_srvdir}/kftp/log
 %dir %{_srvdir}/kftp/peers
-%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/kftp
+%dir %attr(0750,logger,logger) %{_srvlogdir}/kftp
 %{_srvdir}/kftp/run
 %{_srvdir}/kftp/log/run
 %config(noreplace) %{_srvdir}/kftp/peers/0
 %{_datadir}/afterboot/08_kftp
 
 %changelog
+* Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 1.3.6-2avx
+- user logger for logging
+
 * Wed Dec 22 2004 Vincent Danen <vdanen@annvix.org> 1.3.6-1avx
 - 1.3.6
 - drop P18 and P19 (merged upstream)

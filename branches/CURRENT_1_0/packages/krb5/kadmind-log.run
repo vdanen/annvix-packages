@@ -1,6 +1,5 @@
 #!/bin/sh
 
-# this writes logs as user nobody into /var/log/supervise/kadmind; make 
-# sure this directory exists and is writable by nobody!
+# logging for the kadmind service
 
-exec /sbin/chpst -u nobody /sbin/svlogd -tt /var/log/supervise/kadmind
+exec /sbin/chpst -u logger /sbin/svlogd -tt /var/log/supervise/kadmind

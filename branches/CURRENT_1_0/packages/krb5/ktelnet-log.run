@@ -1,6 +1,5 @@
 #!/bin/sh
 
-# this writes logs as user nobody into /var/log/supervise/ktelnet; make 
-# sure this directory exists and is writable by nobody!
+# logging for the ktelnet service
 
-exec /sbin/chpst -u nobody /sbin/svlogd -tt /var/log/supervise/ktelnet
+exec /sbin/chpst -u logger /sbin/svlogd -tt /var/log/supervise/ktelnet
