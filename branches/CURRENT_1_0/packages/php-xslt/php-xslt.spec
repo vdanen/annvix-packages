@@ -87,6 +87,9 @@ EOF
 %config(noreplace) %{_sysconfdir}/php/%{inifile}
 
 %changelog
+* Thu Jun 03 2004 Vincent Danen <vdanen@opensls.org> 4.3.7-1sls
+- php 4.3.7
+
 * Fri May 07 2004 Vincent Danen <vdanen@opensls.org> 4.3.6-1sls
 - php 4.3.6
 

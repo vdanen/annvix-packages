@@ -89,6 +89,9 @@ rm -f %{buildroot}/%{_prefix}/php.ini-gopear
 %{_bindir}/pear
 
 %changelog
+* Thu Jun 03 2004 Vincent Danen <vdanen@opensls.org> 4.3.7-1sls
+- php 4.3.7
+
 * Fri May 07 2004 Vincent Danen <vdanen@opensls.org> 4.3.6-1sls
 - php 4.3.6
 

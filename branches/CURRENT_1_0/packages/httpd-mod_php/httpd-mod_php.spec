@@ -137,6 +137,9 @@ cd %{extname}
 %{ap_webdoc}/*
 
 %changelog
+* Thu Jun 03 2004 Vincent Danen <vdanen@opensls.org> 2.0.49_4.3.7-1sls
+- php 4.3.7
+
 * Fri May 09 2004 Vincent Danen <vdanen@opensls.org> 2.0.49_4.3.6-1sls
 - build for php 4.3.6 and apache 2.0.49
 
