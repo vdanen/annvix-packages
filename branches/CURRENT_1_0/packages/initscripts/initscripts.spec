@@ -1,6 +1,6 @@
 %define name	initscripts
 %define version	7.06
-%define release	33.1sls
+%define release	34sls
 
 # 	$Id: initscripts.spec,v 1.329 2003/09/22 17:03:40 warly Exp $	
 
@@ -17,7 +17,6 @@ Group:		System/Base
 Url:		http://www.linux-mandrake.com/cgi-bin/cvsweb.cgi/soft/initscripts/
 Source0:	initscripts-%{version}.tar.bz2
 Patch:		initscripts-mdkconf.patch.bz2
-Patch1:		initscripts-supervise.patch.bz2
 Patch2:		initscripts-opensls.patch.bz2
 
 BuildRoot: 	%{_tmppath}/%{name}-root
@@ -54,7 +53,6 @@ deactivate most network interfaces.
 %prep
 %setup -q
 %patch0 -p2
-%patch1 -p1
 %patch2 -p1
 
 %build
@@ -94,6 +92,12 @@ python mandrake/gprintify.py `find %{buildroot}/etc/rc.d -type f` `find %{buildr
 # remove S390 and isdn stuff
 rm -f $RPM_BUILD_ROOT/etc/sysconfig/init.s390 $RPM_BUILD_ROOT/etc/sysconfig/network-scripts/{ifdown-ippp,ifup-ctc,ifup-escon,ifup-ippp,ifup-iucv}
 
+# remove unpackaged files
+rm -f $RPM_BUILD_ROOT/etc/sysconfig/alsa
+rm -f $RPM_BUILD_ROOT/usr/share/alsa/alsa-utils
+rm -f $RPM_BUILD_ROOT/usr/bin/partmon
+rm -f $RPM_BUILD_ROOT/etc/rc.d/init.d/{alsa,dm,partmon,sound}
+
 # we have our own copy of gprintify
 export DONT_GPRINTIFY=1
 
@@ -113,14 +117,6 @@ chmod 664 /var/log/wtmp /var/run/utmp
 %_mypost_service network
 
 %_mypost_service rawdevices
-
-%_mypost_service sound
-
-%_mypost_service partmon
-
-%_mypost_service alsa
-
-%_mypost_service dm
 
 # handle serial installs semi gracefully
 if [ $1 = 0 ]; then
@@ -207,13 +203,6 @@ if [ $1 != 0 ]; then
 		chkconfig --add dm || :
 	fi
 
-	# Handle boot sequence changes on upgrade
-	%initlvl_chg partmon 80 13
-	
-	%initlvl_chg sound 71 18
-	
-	%initlvl_chg alsa 70 17
-	
 fi
 
 %pre
@@ -231,14 +220,6 @@ fi
 %_preun_service network
 
 %_preun_service rawdevices
-
-%_preun_service dm
-
-%_preun_service sound
-
-%_preun_service partmon
-
-%_preun_service alsa
 
 %triggerpostun -- initscripts <= 4.72
 
@@ -354,8 +335,6 @@ rm -rf $RPM_BUILD_ROOT
 #mdk
 %config(noreplace) /etc/sysconfig/usb
 #mdk
-%config(noreplace) /etc/sysconfig/alsa
-#mdk
 %config(noreplace) /etc/profile.d/inputrc.sh
 #mdk
 %config(noreplace) /etc/profile.d/inputrc.csh
@@ -376,7 +355,6 @@ rm -rf $RPM_BUILD_ROOT
 /sbin/minilogd
 /sbin/service
 #mdk
-/usr/share/alsa/
 /sbin/ppp-watch
 %{_mandir}/man*/*
 %lang(cs)	%{_mandir}/cs/man*/*
@@ -415,6 +393,10 @@ rm -rf $RPM_BUILD_ROOT
 # EDIT IN CVS NOT IN SOURCE PACKAGE (NO PATCH ALLOWED).
 
 %changelog
+* Tue Jan 27 2004 Vincent Danen <vdanen@opensls.org> 7.06-34sls
+- remove P1 (supervise functions)
+- remove dm, alsa, sound, partmon initscripts
+
 * Sun Nov 30 2003 Vincent Danen <vdanen@opensls.org> 7.06-33.1sls
 - more OpenSLS branding
 - tidy spec somewhat
