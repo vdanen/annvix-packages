@@ -1,8 +1,6 @@
 %define name	acl
 %define version 2.2.13
-%define release 3sls
-
-%define url	ftp://oss.sgi.com/projects/xfs/download/cmd_tars
+%define release 4sls
 
 %define lib_name_orig	libacl
 %define lib_major	1
@@ -15,7 +13,7 @@ Release:	%{release}
 License:	GPL
 Group:		System/Kernel and hardware
 URL:		http://oss.sgi.com/projects/xfs/
-Source0:	%{url}/%{name}-%{version}.src.tar.bz2
+Source0:	ftp://oss.sgi.com/projects/xfs/download/cmd_tars/%{name}-%{version}.src.tar.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-buildroot
 BuildRequires:	attr-devel
@@ -61,7 +59,7 @@ also want to install %{lib_name}.
 %make
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 make install DIST_ROOT=%{buildroot}/
 make install-dev DIST_ROOT=%{buildroot}/
 make install-lib DIST_ROOT=%{buildroot}/
@@ -70,7 +68,7 @@ rm -rf %{buildroot}%{_docdir}/acl
 %find_lang %{name}
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post -n %{lib_name} -p /sbin/ldconfig
 %postun -n %{lib_name} -p /sbin/ldconfig
@@ -99,6 +97,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/sys/acl.h
 
 %changelog
+* Mon Feb 09 2004 Vincent Danen <vdanen@opensls.org> 2.2.13-4sls
+- more spec cleanups
+
 * Mon Dec 08 2003 Vincent Danen <vdanen@opensls.org> 2.2.13-3sls
 - OpenSLS build
 - tidy spec
