@@ -1,0 +1,28 @@
+--- sfio-1999/src/lib/sfio/makefile.pic	2002-07-22 15:35:56.000000000 -0400
++++ sfio-1999/src/lib/sfio/makefile	2002-07-22 15:47:34.000000000 -0400
+@@ -49,14 +49,23 @@ SFIO_DC=Sfio_dc/sfdcdio.o Sfio_dc/sfdcdo
+ 	Sfio_dc/sfdclzw.o Sfio_dc/sfdcseekable.o Sfio_dc/sfdcslow.o \
+ 	Sfio_dc/sfdcsubstream.o Sfio_dc/sfdctee.o Sfio_dc/sfdcunion.o
+ 
++# PIC variants
++PIC_OBJS = $(OBJS:.o=.pic_o)
++PIC_SFIO_F = $(SFIO_F:.o=.pic_o)
++PIC_SFIO_S = $(SFIO_S:.o=.pic_o)
++PIC_SFIO_DC = $(SFIO_DC:.o=.pic_o)
++
+ .c.o:
+ 	$(CC) -c $(CCFLAGS) $*.c
+ 
++%.pic_o: %.c
++	$(CC) $(CCFLAGS) -fPIC -DPIC -c $< -o $@
++
+ all:	libsfio.a libstdio.a install
+ 
+ # Make sure to set -fPIC flag before building libsfio.so
+-libsfio.so: ast_common.h FEATURE/sfio $(OBJS) mksfio_f mkstdio_s mksfio_dc
+-	$(CC) -shared -Wl,-soname,$(SONAME) -o $@ $(OBJS) $(SFIO_F) $(STDIO_S) $(SFIO_DC) -lc
++libsfio.so: ast_common.h FEATURE/sfio $(PIC_OBJS) $(PIC_SFIO_F) $(PIC_STDIO_S) $(PIC_SFIO_DC) mksfio_f mkstdio_s mksfio_dc
++	$(CC) -shared -Wl,-soname,$(SONAME) -o $@ $(PIC_OBJS) $(PIC_SFIO_F) $(PIC_STDIO_S) $(PIC_SFIO_DC) -lc
+ 
+ libsfio.a: ast_common.h FEATURE/sfio $(OBJS) mksfio_f mkstdio_s mksfio_dc
+ 	$(AR) cr libsfio.a $(OBJS) $(SFIO_F) $(STDIO_S) $(SFIO_DC)
