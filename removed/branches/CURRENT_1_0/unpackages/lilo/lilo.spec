@@ -1,6 +1,6 @@
 %define name	lilo
 %define version 22.5.7.2
-%define release 9sls
+%define release 10sls
 %define epoch	1
 
 Summary:	The boot loader for Linux and other operating systems.
@@ -110,6 +110,10 @@ install bmp2mdk %{buildroot}%{_bindir}/lilo-bmp2mdk
 mkdir -p %{buildroot}/%{_mandir}/man{5,8}/
 install -m644 manPages/*.5 %{buildroot}/%{_mandir}/man5/
 install -m644 manPages/*.8 %{buildroot}/%{_mandir}/man8/
+echo "Choose from the list above or wait for the default boot..." >%{buildroot}/boot/message
+
+# temporary until we get our own graphic:
+rm -f %{buildroot}/boot/message-graphic
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -173,7 +177,8 @@ fi
 %files
 %defattr(-,root,root)
 %doc README* COPYING
-/boot/message-graphic
+#/boot/message-graphic
+/boot/message
 /boot/diag1.img
 /boot/diag2.img
 /sbin/*
@@ -182,6 +187,10 @@ fi
 
 
 %changelog
+* Tue Jun 01 2004 Vincent Danen <vdanen@opensls.org> 22.5.7.2-10sls
+- include /boot/message (text) and don't include the graphic file
+  since it says mdk9.2 (anyone want to make an OpenSLS graphic file?)
+
 * Sat May 22 2004 Thomas Backlund <tmb@iki.fi> 22.5.7.2-9sls
 - Patch25: allow image labels to be 31 chars (was 15), so
   that custom kernels (ex. 2425-12slscustom) won't break
