@@ -1,6 +1,6 @@
 %define name	tripwire
 %define version	2.3.1.2
-%define release	8sls
+%define release	10sls
 
 %define ext	2
 
@@ -25,6 +25,7 @@ Patch2:		tripwire-2.3.1-gcc3.patch.bz2
 Patch3:		tripwire-jbj.patch.bz2
 Patch4:		tripwire-mkstemp.patch.bz2
 Patch5:		tripwire-2.3.1-2-gcc-3.3.patch.bz2
+Patch6:		tripwire-2.3.1-format.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-root
 Buildrequires:	gcc-c++, libstdc++
@@ -72,6 +73,7 @@ cp %{SOURCE3} quickstart.gif
 %patch3 -p1 -b .jbj
 %patch4 -p1 -b .mkstemp
 %patch5 -p0 -b .gcc3.3
+%patch6 -p0 -b .format
 
 %build
 cd src
@@ -84,7 +86,7 @@ touch STLport_r STLport_d
 make release RPM_OPT_FLAGS="$RPM_OPT_FLAGS"
 
 %install
-rm -fr $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 # Install the binaries.
 mkdir -p $RPM_BUILD_ROOT%{_sbindir}
@@ -119,8 +121,9 @@ install -m755 %{SOURCE1} $RPM_BUILD_ROOT/etc/cron.daily/tripwire-check
 
 # Fix permissions on documentation files.
 chmod 644 README Release_Notes ChangeLog COPYING policy/policyguide.txt TRADEMARK quickstart.gif quickstart.txt README.RPM
+
 %clean
-rm -fr $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %attr(-,root,root) %doc README Release_Notes ChangeLog COPYING policy/policyguide.txt TRADEMARK quickstart.gif quickstart.txt README.RPM
@@ -135,6 +138,12 @@ rm -fr $RPM_BUILD_ROOT
 %attr(0755,root,root) %{_sbindir}/*
 
 %changelog
+* Thu Jun 03 2004 Vincent Danen <vdanen@opensls.org> 2.3.1.2-10sls
+- fix format string vuln reported by Paul Herman
+
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 2.3.1.2-9sls
+- minor spec cleanups
+
 * Mon Dec 29 2003 Vincent Danen <vdanen@opensls.org> 2.3.1.2-8sls
 - OpenSLS build
 - tidy spec
