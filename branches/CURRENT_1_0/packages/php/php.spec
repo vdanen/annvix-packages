@@ -1,6 +1,6 @@
 %define name	php
 %define version	4.3.4
-%define release	4sls
+%define release	5sls
 %define epoch	2
 
 %define libversion	432
@@ -125,7 +125,7 @@ Epoch:		%{epoch}
 Group:		Development/Other
 URL:		http://php.net
 PreReq:		php-ini
-Requires:	%libname = %{phpversion}-%{release}
+Requires:	%libname = %{epoch}:%{phpversion}-%{release}
 Provides:	php
 Provides:	php3
 Provides:	php4
@@ -154,7 +154,7 @@ Epoch:		%{epoch}
 Group:		Development/Other
 URL:		http://php.net
 PreReq:		php-ini
-Requires:	%libname = %{phpversion}-%{release}
+Requires:	%libname = %{epoch}:%{phpversion}-%{release}
 Provides:	php
 Provides:	php3
 Provides:	php4
@@ -224,7 +224,7 @@ Provides:	libphp_common430-devel = 4.3.0-%{release}
 Obsoletes:	libphp_common430-devel
 Requires:	libtool
 Requires:	%libname = %{phpversion}-%{release}
-Requires:	php%{libversion} = %{phpversion}-%{release}
+Requires:	php%{libversion} = %{epoch}:%{phpversion}-%{release}
 Requires:	openssl-devel >= 0.9.6
 Requires:	chrpath
 Provides:	php-devel
@@ -623,6 +623,9 @@ update-alternatives --remove php %{_bindir}/php-cli
 %{_includedir}/php
 
 %changelog
+* Tue Apr 13 2004 Vincent Danen <vdanen@opensls.org> 4.3.4-5sls
+- fix epoch in requires
+
 * Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 4.3.4-4sls
 - minor spec cleanups
 
