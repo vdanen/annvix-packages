@@ -1,8 +1,8 @@
-# $Id: setup.spec,v 1.10 2005/03/04 05:39:33 vdanen Exp $
+# $Id: setup.spec,v 1.12 2005/03/18 23:53:09 vdanen Exp $
 
 %define name	setup
-%define version 2.4
-%define release 17avx
+%define version 2.5
+%define release 1avx
 
 Summary:	A set of system configuration and setup files
 Name:		%{name}
@@ -13,7 +13,9 @@ Group:		System/Configuration/Other
 URL:		http://annvix.org/cgi-bin/viewcvs.cgi/tools/setup
 Source:		setup-%{version}.tar.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-root
+BuildRoot:	%{_tmppath}/%{name}-%{version}-root
+
+Requires:	shadow-utils
 
 %description
 The setup package contains a set of very important system
@@ -41,6 +43,14 @@ mkdir -p %{buildroot}/var/lib/rsbac
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
+%post 
+pwconv 2>/dev/null >/dev/null  || :
+grpconv 2>/dev/null >/dev/null  || :
+
+if [ -x /usr/sbin/nscd ]; then
+	nscd -i passwd -i group || :
+fi
+
 %files
 %defattr(-,root,root)
 %doc ChangeLog
@@ -53,6 +63,8 @@ mkdir -p %{buildroot}/var/lib/rsbac
 %lang(et) %{_mandir}/et/man8/*8*
 %lang(eu) %{_mandir}/eu/man8/*8*
 %lang(fr) %{_mandir}/fr/man8/*8*
+%lang(it) %{_mandir}/it/man8/*8*
+%lang(nl) %{_mandir}/nl/man8/*8*
 #%lang(ru) %{_mandir}/ru/man8/*8*
 %lang(uk) %{_mandir}/uk/man8/*8*
 /usr/bin/run-parts
@@ -72,19 +84,23 @@ mkdir -p %{buildroot}/var/lib/rsbac
 %attr(0644,root,root) %config(missingok,noreplace) /etc/securetty
 %config(noreplace) /etc/csh.login
 %config(noreplace) /etc/csh.cshrc
+%dir /etc/profile.d
 %config(noreplace) /etc/profile.d/*
 %verify(not md5 size mtime) /var/log/lastlog
 %dir /var/lib/rsbac
 
-%post 
-pwconv 2>/dev/null >/dev/null  || :
-grpconv 2>/dev/null >/dev/null  || :
-
-if [ -x /usr/sbin/nscd ]; then
-	nscd -i passwd -i group || :
-fi
-
 %changelog
+* Fri Mar 18 2005 Vincent Danen <vdanen@annvix.org> 2.5-1avx
+- csh.cshrc: fix some csh code in csh.cshrc
+- inputrc: redefine PgUp/PgDn so that instead of just cycling through
+  history (like Up/Down arrows), it is possible to type the beginning
+  of a previous command, then cycle through matching history entries
+  (pablo)
+- services: add missing entries and cleanups
+- updated manpages (pablo); dutch translation updated by Richard Rasker
+- requires on shadow-utils for %%post scripts
+- securetty: root can only login on tty1 now
+
 * Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 2.4-17avx
 - bad cut-n-paste job on passwd
 
