@@ -1,7 +1,7 @@
 %define module	Term-ReadLine-Gnu
 %define name	perl-%{module}
 %define version 1.14
-%define release 6sls
+%define release 7sls
 
 Summary:	GNU Readline for perl.
 Name:		%{name}
@@ -56,11 +56,15 @@ perl -pi -e 's!/usr/local/bin/perl!/usr/bin/perl!g' $RPM_BUILD_ROOT%perl_vendora
 %doc README
 %{_mandir}/*/*
 %dir %{perl_vendorarch}/Term
-%{perl_vendorarch}/Term/ReadLine/Gnu*
+%{perl_vendorarch}/Term
 %dir %{perl_vendorarch}/auto/Term
-%{perl_vendorarch}/auto/Term/ReadLine/Gnu
+%{perl_vendorarch}/auto/Term
 
 %changelog
+* Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 1.14-7sls
+- rebuild for perl 5.8.4
+- own dir
+
 * Fri Feb 27 2004 Vincent Danen <vdanen@opensls.org> 1.14-6sls
 - rebuild for new perl
 - don't make test if $DISPLAY is not set (it will fail) (thauvin)
