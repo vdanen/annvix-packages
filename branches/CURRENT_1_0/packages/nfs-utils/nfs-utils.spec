@@ -1,6 +1,6 @@
 %define name	nfs-utils
 %define	version	1.0.5
-%define release	4sls
+%define release	5sls
 
 %define	url	ftp://ftp.kernel.org:/pub/linux/utils/nfs
 
@@ -83,7 +83,7 @@ clients which are mounted on that host.
 make all
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p $RPM_BUILD_ROOT{/sbin,/usr/sbin}
 mkdir -p ${RPM_BUILD_ROOT}%{_mandir}/{man5,man8}
 mkdir -p $RPM_BUILD_ROOT/etc/sysconfig
@@ -108,7 +108,7 @@ install -m 0755 %{SOURCE19} %{buildroot}%{_srvdir}/rpc.mountd/stop
 install -m 0755 %{SOURCE20} %{buildroot}%{_srvdir}/rpc.nfsd/stop
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
 %_post_srv rpc.mountd
@@ -203,6 +203,9 @@ fi
 %dir %attr(0750,nobody,nogroup) %{_srvlogdir}/rpc.statd
 
 %changelog
+* Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 1.0.5-5sls
+- minor spec cleanups
+
 * Tue Jan 27 2004 Vincent Danen <vdanen@opensls.org> 1.0.5-4sls
 - make the supervise scripts more robust
 
