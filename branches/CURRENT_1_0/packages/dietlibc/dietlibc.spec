@@ -1,6 +1,6 @@
 %define name	dietlibc
-%define version 0.27
-%define release 2avx
+%define version 0.28
+%define release 1avx
 
 # This is eventually a biarch package, so no %_lib for diethome
 %define diethome	%{_prefix}/lib/dietlibc
@@ -32,7 +32,7 @@ Patch11:	dietlibc-0.26-amd64-rdtsc.patch.bz2
 Patch12:	dietlibc-0.26-64bit-fixes.patch.bz2
 Patch13:	dietlibc-0.27-x86_64-lseek64.patch.bz2
 # (oe) http://synflood.at/patches/contrapolice/contrapolice-0.3.patch
-Patch14:	dietlibc-0.27-contrapolice.diff.bz2
+Patch14:	dietlibc-0.28-contrapolice.diff.bz2
 Patch15:	dietlibc-0.27-ppc-rdtsc.patch.bz2
 Patch16:	dietlibc-0.27-test-makefile-fix.patch.bz2
 Patch17:	dietlibc-0.27-x86_64-stat64.patch.bz2
@@ -44,6 +44,7 @@ Patch22:	dietlibc-0.27-ppc64-stat64.patch.bz2
 Patch23:	dietlibc-0.27-biarch.patch.bz2
 Patch24:	dietlibc-0.27-quiet.patch.bz2
 Patch25:	dietlibc-0.27-ppc-select.patch.bz2
+Patch26:	dietlibc-0.28-avx-stackgap_off.patch.bz2
 BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
 
 %description
@@ -66,26 +67,28 @@ Small libc for building embedded applications.
 %patch4 -p1 -b .fix-getpriority
 %patch5 -p1 -b .net-ethernet
 %patch6 -p1 -b .rpc-types
-%patch7 -p1 -b .amd64-ioport
-%patch8 -p1 -b .strtol-64bit-fixes
+#%patch7 -p1 -b .amd64-ioport
+#%patch8 -p1 -b .strtol-64bit-fixes
 %patch9 -p1 -b .glibc-nice -E
-%patch10 -p1 -b .locale-macros
-%patch11 -p1 -b .amd64-rdtsc
-%patch12 -p1 -b .tzfile-64bit-fixes
+#%patch10 -p1 -b .locale-macros
+#%patch11 -p1 -b .amd64-rdtsc
+#%patch12 -p1 -b .tzfile-64bit-fixes
 %patch13 -p1 -b .x86_64-lseek64
 # (oe) http://synflood.at/patches/contrapolice/contrapolice-0.3.patch
+# reject
 %patch14 -p1 -b .contrapolice
 %patch15 -p1 -b .ppc-rdtsc
 %patch16 -p1 -b .inettest
 %patch17 -p1 -b .x86_64-stat64
 %patch18 -p1 -b .ppc64-umount
-%patch19 -p1 -b .ppc64-setjmp
-%patch20 -p1 -b .ppc64-endian
+#%patch19 -p1 -b .ppc64-setjmp
+#%patch20 -p1 -b .ppc64-endian
 %patch21 -p1 -b .ppc64-select
 %patch22 -p1 -b .ppc64-stat64
 %patch23 -p1 -b .biarch
 %patch24 -p1 -b .quiet
 %patch25 -p1 -b .ppc-select
+%patch26 -p1 -b .stackgap_off
 
 # fix execute permissions on test scripts
 chmod a+x test/{dirent,inet,stdio,string,stdlib,time}/runtests.sh
@@ -93,6 +96,7 @@ chmod a+x test/{dirent,inet,stdio,string,stdlib,time}/runtests.sh
 %build
 
 %make
+%make "CFLAGS=-pipe -nostdinc -fno-stack-protector"
 
 # make and run the tests
 %if %{build_check}
@@ -130,6 +134,11 @@ make DESTDIR=%{buildroot} install
 %{_mandir}/man*/*
 
 %changelog
+* Wed Feb 02 2005 Vincent Danen <vdanen@annvix.org> 0.28-1avx
+- 0.28
+- drop P7, P8, P10, P11, P12, P19, P20 (merged upstream)
+- P26: disable WANT_STACKGAP as it interferes with our gcc+SSP
+
 * Thu Jan 20 2005 Vincent Danen <vdanen@annvix.org> 0.27-2avx
 - some fixes
 
