@@ -1,25 +1,27 @@
-%define amversion 1.4
-%define name automake
+%define name	automake
 %define version 1.4
-%define prefix %{_prefix}
-%define patchlevel p6
-%define release 23.%patchlevel.mdk
+%define release 0.%patchlevel.25sls
+%define epoch	1
 
-Summary: A GNU tool for automatically creating Makefiles.
-Name: %{name}
-Version: %{version}
-Release: %{release}
-License: GPL
-Group: Development/Other
-Source: ftp://ftp.gnu.org/gnu/automake/%{name}-%{version}-%patchlevel.tar.bz2
-URL: http://sourceware.cygnus.com/automake
-Requires: perl
-Prereq: /sbin/install-info
-BuildArchitectures: noarch
-Packager: Guillaume Cottenceau <gc@mandrakesoft.com>
-BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
-Buildrequires: /usr/bin/perl
-PreReq:	/usr/sbin/update-alternatives
+%define amversion	1.4
+%define patchlevel	p6
+
+Summary:	A GNU tool for automatically creating Makefiles.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+Epoch:		%{epoch}
+License:	GPL
+Group:		Development/Other
+URL:		http://sourceware.cygnus.com/automake
+Source:		ftp://ftp.gnu.org/gnu/automake/%{name}-%{version}-%patchlevel.tar.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
+BuildArch:	noarch
+Buildrequires:	/usr/bin/perl
+
+PreReq:		/usr/sbin/update-alternatives, /sbin/install-info
+Requires:	perl
 
 %define alternatives_install_cmd update-alternatives --install %{_bindir}/automake automake %{_bindir}/automake-%{amversion} 30 --slave %{_bindir}/aclocal aclocal %{_bindir}/aclocal-%{amversion}
 
@@ -41,13 +43,13 @@ perl -pi -e 's/\berror\.test\b//' tests/Makefile
 make check
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
 rm -f $RPM_BUILD_ROOT/%{_bindir}/{automake,aclocal}
 mkdir -p $RPM_BUILD_ROOT/%{_datadir}/aclocal
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
 %_install_info automake.info
@@ -72,6 +74,16 @@ fi
 %dir %{_datadir}/aclocal
 
 %changelog
+* Sun Feb 29 2004 Vincent Danen <vdanen@opensls.org> 1.4-0.p6.25sls
+- remove %%{prefix}
+- more spec cleanups
+
+* Sat Dec 13 2003 Vincent Danen <vdanen@opensls.org> 1.4-0.p6.24sls
+- OpenSLS build
+- tidy spec
+- change naming convention to make more sense regarding patchlevel
+- Epoch: 1 due to release tag change
+
 * Mon May 26 2003 Guillaume Cottenceau <gc@mandrakesoft.com> 1.4-23.p6.mdk
 - own /usr/share/aclocal
 
