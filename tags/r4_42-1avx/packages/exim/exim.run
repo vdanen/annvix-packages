@@ -1,0 +1,13 @@
+#!/bin/sh
+PATH="/sbin:/usr/sbin:/bin:/usr/bin"
+
+# this runs exim supervised
+
+# source sysconfig settings
+if [ -f /etc/sysconfig/exim ]; then
+	. /etc/sysconfig/exim
+else
+	QUEUE=1h
+fi
+
+exec /usr/bin/exim -bd -d $([ -n "$QUEUE" ] && echo -q$QUEUE) 2>&1
