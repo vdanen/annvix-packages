@@ -1,6 +1,6 @@
 %define name	python
 %define version	2.3
-%define release	5sls
+%define release	6sls
 
 %{!?build_opensls:%define build_opensls 0}
 
@@ -8,8 +8,8 @@
 %define dirver  2.3
 
 %define lib_major	%{dirver}
-%define lib_name_orig	%mklibname %name
-%define lib_name	%{lib_name_orig}%{lib_major}
+%define lib_name_orig	libpython
+%define lib_name	%mklibname %{name} %{lib_major}
 
 Summary:	An interpreted, interactive object-oriented programming language
 Name:		%{name}
@@ -341,6 +341,9 @@ rm -f modules-list main.list
 %clean_menus
 
 %changelog
+* Wed Dec 31 2003 Vincent Danen <vdanen@opensls.org> 2.3-6sls
+- sync with 4mdk (gbeauchesne): fix mklibnamification
+
 * Tue Dec 30 2003 Vincent Danen <vdanen@opensls.org> 2.3-5sls
 - get rid of all the emacs stuff
 
