@@ -1,6 +1,6 @@
 %define name	apache2-%{mod_name}
 %define version	%{apache_version}
-%define release	3avx
+%define release	4avx
 
 # Module-Specific definitions
 %define apache_version	2.0.53
@@ -109,7 +109,7 @@ if [ $1 = "1" ]; then
             yes ""|%{_libdir}/ssl/apache2-mod_ssl/gentestcrt.sh >/dev/null 
         popd > /dev/null
     fi
-    %{ADVXdir}/mod_ssl-migrate-20
+    %{_datadir}/ADVX/mod_ssl-migrate-20
 fi
 
 if [ $1 = "2" ]; then
@@ -155,6 +155,9 @@ fi
 %{_mandir}/man8/certwatch.8*
 
 %changelog
+* Fri Mar 18 2005 Vincent Danen <vdanen@annvix.org> 2.0.53-4avx
+- remove ADVX macro
+
 * Fri Mar 18 2005 Vincent Danen <vdanen@annvix.org> 2.0.53-3avx
 - update P0 to make certwatch.c accept an extra argument (the email
   address to send to) and make certwatch.cron handle this as well as
