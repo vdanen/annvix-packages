@@ -1,10 +1,8 @@
 %define name	bind
 %define version	9.2.3
-%define release	4sls
+%define release	5sls
 
 %define their_version	9.2.3
-
-%{!?build_opensls:%global build_opensls 0}
 
 Summary:	A DNS (Domain Name System) server.
 Name:		%{name}
@@ -25,20 +23,17 @@ Source8:	update_bind.pl
 Source9:	ftp://ftp.isc.org/isc/%{name}9/%{version}/%{name}-%{their_version}.tar.gz.asc
 Source10:	bind-chroot.sh
 Source11:	ftp://FTP.RS.INTERNIC.NET/domain/named.root
+Source12:	named.run
+Source13:	named.stop
+Source14:	named-log.run
 Patch1:		bind-9.2.3rc1-fallback-to-second-server.patch.bz2
 Patch2:		bind-9.2.1-libresolv.patch.bz2
 Patch3:		bind-9.2.3rc3-deprecation_msg_shut_up.diff.bz2
-%if !%{build_opensls}
-Patch4:		bind-9.2.3rc4-IDN.diff.bz2
-%endif
 
 BuildRoot:	%{_tmppath}/%{name}-root
 BuildRequires:	openssl-devel
-%if !%{build_opensls}
-BuildRequires:	idnkit-devel
-%endif
 
-Prereq:		/sbin/chkconfig, rpm-helper
+PreReq:		rpm-helper
 Requires:	bind-utils >= %{version}-%{release}
 Obsoletes:	libdns0
 Provides:	libdns0
@@ -101,32 +96,20 @@ BIND versions 9.x.x.
 #%patch -p1 -b .overflow
 %patch2 -p1 -b .libresolv
 %patch3 -p0 -b .deprecation_msg_shut_up
-%if !%{build_opensls}
-%patch4 -p1 -b .IDN
-%endif
+
 (cd contrib/queryperf && autoconf)
 tar xjf %{SOURCE7}
 
 %build
 libtoolize --copy --force; aclocal; autoconf
 
-%if %{build_opensls}
-BUILDIDN=""
-%else
-BUILDIDN="--with-idn"
-%endif
-
 %configure2_5x --localstatedir=/var \
 	--enable-threads \
 	--enable-ipv6 \
-	--with-openssl=%{_includedir}/openssl $BUILDIDN
+	--with-openssl=%{_includedir}/openssl
 
 # override CFLAGS for better security.  Ask Jay...
-%if %{build_opensls}
 make "CFLAGS=-O2 -Wall -pipe -fstack-protector"
-%else
-make "CFLAGS=-O2 -Wall -pipe"
-%endif
 
 #queryperf from the contrib
 cd contrib/queryperf
@@ -139,7 +122,7 @@ rm -rf $RPM_BUILD_ROOT
 pushd doc
 rm -rf html
 popd
-mkdir -p ${RPM_BUILD_ROOT}/etc/{rc.d/init.d,logrotate.d}
+mkdir -p ${RPM_BUILD_ROOT}%{_sysconfdir}/logrotate.d
 mkdir -p ${RPM_BUILD_ROOT}/usr/{bin,lib,sbin,include}
 mkdir -p ${RPM_BUILD_ROOT}/var/named
 mkdir -p ${RPM_BUILD_ROOT}%{_mandir}/{man1,man3,man5,man8}
@@ -153,7 +136,6 @@ cp contrib/named-bootconf/named-bootconf.sh $RPM_BUILD_ROOT/%{_sbindir}/named-bo
 cp contrib/nanny/nanny.pl $RPM_BUILD_ROOT/%{_sbindir}/
 cp contrib/queryperf/queryperf $RPM_BUILD_ROOT/%{_sbindir}/
 cp contrib/queryperf/README ./README.queryperf
-cp %SOURCE2 $RPM_BUILD_ROOT/%{_initrddir}/named
 cp %SOURCE3 $RPM_BUILD_ROOT/%{_sysconfdir}/logrotate.d/named
 
 gcc $RPM_OPT_FLAGS -o $RPM_BUILD_ROOT/%{_sbindir}/dns-keygen %{SOURCE5}
@@ -166,8 +148,14 @@ install -m 644 %{SOURCE11} $RPM_BUILD_ROOT%{_var}/named/named.ca
 cd $RPM_BUILD_ROOT%{_mandir}
 tar xjf %{SOURCE1}
 
-mkdir -p $RPM_BUILD_ROOT/etc/sysconfig
-cp %{SOURCE4} $RPM_BUILD_ROOT/etc/sysconfig/named
+mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig
+cp %{SOURCE4} $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/named
+
+mkdir -p %{buildroot}%{_srvdir}/named/log
+mkdir -p %{buildroot}%{_srvlogdir}/named
+install -m 0750 %{SOURCE12} %{buildroot}%{_srvdir}/named/run
+install -m 0750 %{SOURCE13} %{buildroot}%{_srvdir}/named/stop
+install -m 0750 %{SOURCE14} %{buildroot}%{_srvdir}/named/log/run
 
 cd $RPM_BUILD_DIR/%{name}-%{their_version}
 
@@ -180,35 +168,32 @@ mkdir -p doc/html
 cp -f `find . -type f |grep html |sed -e 's#\/%{name}-%{their_version}##'|grep -v contrib` ${RPM_BUILD_DIR}/%{name}-%{their_version}/doc/html 
 
 %pre
-%_pre_useradd named /var/named /bin/false
+%_pre_useradd named /var/named /bin/false 80
 
 %post
-%_post_service named
+%_post_srv named
 
 echo "You can use the sample named.conf file from the %{_docdir}/%{name}-%{version} directory"
 
-if [ -e /etc/rndc.conf.rpmnew ]; then
+if [ -e %{_sysconfdir}/rndc.conf.rpmnew ]; then
 	/usr/sbin/new_key.pl
 fi
 
-if [ -e /etc/named.conf ]; then
+if [ -e %{_sysconfdir}/named.conf ]; then
 	/usr/sbin/update_bind.pl
 fi
 
-if [ -f /etc/named.boot -a ! -f /etc/named.conf ]; then
+if [ -f %{_sysconfdir}/named.boot -a ! -f %{_sysconfdir}/named.conf ]; then
 	if [ -x /usr/sbin/named-bootconf ]; then
-		cat /etc/named.boot | /usr/sbin/named-bootconf > /etc/named.conf
+		cat %{_sysconfdir}/named.boot | /usr/sbin/named-bootconf > %{_sysconfdir}/named.conf
 	fi
 fi
 
 %preun
-%_preun_service named
+%_preun_srv named
 
 %postun
 %_postun_userdel named
-
-%triggerpostun -- bind < 8.2.2_P5-15
-/sbin/chkconfig --add named
 
 %clean
 rm -rf ${RPM_BUILD_ROOT}
@@ -220,9 +205,14 @@ rm -rf ${RPM_BUILD_ROOT}
 %doc doc/dhcp-dynamic-dns-examples doc/chroot
 %config(noreplace) %{_sysconfdir}/sysconfig/named
 %config(noreplace) %{_sysconfdir}/logrotate.d/named
-%attr(0755,root,root) %config(noreplace) %{_initrddir}/named
 %config(noreplace) %attr(0600,named,named) %{_sysconfdir}/rndc.conf
 %config(noreplace) %attr(0600,named,named) %{_sysconfdir}/rndc.key
+%dir %{_srvdir}/named
+%dir %{_srvdir}/named/log
+%{_srvdir}/named/run
+%{_srvdir}/named/stop
+%{_srvdir}/named/log/run
+%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/named
 
 %attr(0755,root,root) %{_sbindir}/*
 
@@ -257,6 +247,13 @@ rm -rf ${RPM_BUILD_ROOT}
 %{_mandir}/man8/nslookup.8*
 
 %changelog
+* Wed Feb 04 2004 Vincent Danen <vdanen@opensls.org> 9.2.3-5sls
+- remove %%build_opensls macro
+- remove initscript
+- supervise scripts
+- give named static uid/gid 80
+- more cleanups
+
 * Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 9.2.3-4sls
 - OpenSLS build
 - use %%build_opensls macro to turn off IDN support
