@@ -1,6 +1,6 @@
 %define name	modutils
 %define version 2.4.25
-%define release 3sls
+%define release 4sls
 
 %define url ftp://ftp.kernel.org:/pub/linux/utils/kernel/modutils/v2.4
 %define priority 10
@@ -28,7 +28,6 @@ Patch102:	modutils-2.4.22-pre_post_and_usbmouse.patch.bz2
 BuildRoot:	%{_tmppath}/%{name}-buildroot
 BuildRequires:	bison flex zlib-devel gperf glibc-static-devel
 
-Prefix:		%{_prefix}
 Prereq:		/sbin/chkconfig, /usr/sbin/update-alternatives
 ExclusiveOs:	Linux
 Obsoletes:	modules
@@ -61,7 +60,7 @@ things.
 %make dep all
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p $RPM_BUILD_ROOT/lib/modutils
 mkdir -p $RPM_BUILD_ROOT/sbin
 %makeinstall sbindir=$RPM_BUILD_ROOT/sbin
@@ -139,7 +138,7 @@ for i in %{toalternate};do
 done
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -173,6 +172,7 @@ rm -rf $RPM_BUILD_ROOT
 /sbin/*24
 %ifnarch %{ix86}
 /sbin/insmod.static
+/sbin/rmmod.static
 %endif
 
 %{_mandir}/*/*24*
@@ -185,6 +185,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man8/ksyms.8*
 
 %changelog
+* Sun Mar 07 2004 Vincent Danen <vdanen@opensls.org> 2.4.25-4sls
+- minor spec cleanups
+- remove %%prefix
+
 * Mon Dec 01 2003 Vincent Danen <vdanen@opensls.org> 2.4.25-3sls
 - OpenSLS build
 - tidy spec
