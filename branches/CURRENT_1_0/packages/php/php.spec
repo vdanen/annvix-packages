@@ -1,3 +1,18 @@
+%define name	php
+%define version	4.3.4
+%define release	2sls
+
+%define libversion	432
+%define phpversion	%{version}
+%define phprelease	%{release}
+%define libname		%mklibname php_common %{libversion}
+
+%define phpdir		%{_libdir}/php
+%define	peardir		%{_datadir}/pear
+%define	phpsrcdir	%{_usrsrc}/php-devel
+
+%{!?build_propolice:%global build_propolice 0}
+
 %define _requires_exceptions BEGIN\\|mkinstalldirs
 
 # OE: conditional switches
@@ -24,59 +39,51 @@
 %{expand:%%define optflags %{optflags} %([ ! $DEBUG ] && echo '-g3')}
 %endif
 
-%define libversion 432
-%define phpversion 4.3.4
-%define phprelease 1mdk
-%define libname %mklibname php_common %{libversion}
-
-%define phpdir %{_libdir}/php
-%define	peardir %{_datadir}/pear
-%define	phpsrcdir %{_usrsrc}/php-devel
+%if %{build_propolice}
+# symbols from stack protection cause the build to fail so until we figure
+# it out, don't build with -fstack-protector
+%{expand:%%define optflags %{optflags} %(echo '-fno-stack-protector')}
+%endif
 
 #The external_modules definition has been put in the %%build section
 #to clean things a bit
 
 Summary:	The PHP4 scripting language
-Name:		php
+Name:		%{name}
 Version:	%{phpversion}
 Release:	%{phprelease}
-Group:		Development/Other
+Epoch:		2
 License:	PHP License
+Group:		Development/Other
 URL:		http://www.php.net
 Source0:	http://www.php.net/distributions/php-%{version}.tar.bz2
 Source3:	FAQ.php.bz2
 Source4:	php-test.bz2
-
 # wget -O ChangeLog-4.html http://www.php.net/ChangeLog-4.php
 Source5:	ChangeLog-4.html.bz2
-
 Patch0:		php-4.3.0-init.patch.bz2
 Patch1:		php-4.3.4RC3-shared.patch.bz2
-
 Patch2:		php-4.3.0-imap.patch.bz2
 Patch3:		php-4.3.0-info.patch.bz2
 Patch4:		php-4.3.4RC3-64bit.patch.bz2
 Patch5:		php-4.3.4RC3-lib64.patch.bz2
 Patch6:		php-4.3.0-fix-pear.patch.bz2
 Patch7:		php-4.3.2-libtool.patch.bz2
-
 Patch9:		php-4.3.0-credits.patch.bz2
 Patch10:	php-4.3.0-no_egg.patch.bz2
-
 # Stolen from PLD
 #####################################################################
 Patch14:	php-4.3.0-mail.patch.bz2
 Patch15:	php-4.3.0-mcal-shared-lib.patch.bz2
 Patch16:	php-4.3.0-msession-shared-lib.patch.bz2
-
 #####################################################################
 # Stolen from RH
 Patch20:	php-4.3.1-dlopen.patch.bz2
-
 #####################################################################
 # make the tests work better
 Patch30:	php-4.3.3-make_those_darn_tests_work.patch.bz2
 
+BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
 # this is to prevent that it will build against old libs
 BuildConflicts:	%libname
 BuildConflicts:	php_common
@@ -85,11 +92,9 @@ BuildConflicts:	php430-devel-430
 BuildConflicts:	libphp_common430
 BuildConflicts:	php430-devel
 BuildConflicts:	php-devel
-
 # Those two modules have tests that fail
 BuildConflicts:	php-mhash
 BuildConflicts:	php-mbstring
-
 BuildRequires:	chrpath
 BuildRequires:	bison
 BuildRequires:	byacc
@@ -99,9 +104,8 @@ BuildRequires:	glibc-devel
 BuildRequires:	openssl-devel >= 0.9.6, openssl >= 0.9.6
 BuildRequires:	pam-devel
 BuildRequires:	zlib-devel
-BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
+
 Provides: 	ADVXpackage
-Epoch:		2
 
 %description
 PHP4 is an HTML-embeddable scripting language.  PHP offers built-in database
@@ -114,7 +118,7 @@ You can build %{name} with some conditional build swithes;
 (ie. use with rpm --rebuild):
 --with debug   Compile with debugging code
 
-%package	cli
+%package cli
 Group:		Development/Other
 Summary:	Command-line interface to PHP
 URL:		http://php.net
@@ -131,7 +135,7 @@ Obsoletes:	php3
 Provides: 	ADVXpackage
 Epoch:		2
 
-%description	cli
+%description cli
 PHP4 is an HTML-embeddable scripting language.  PHP offers built-in database
 integration for several commercial and non-commercial database management
 systems, so writing a database-enabled script with PHP is fairly simple.  The
@@ -143,7 +147,7 @@ install libphp_common.
 If you need apache module support, you also need to install the mod_php
 package.
 
-%package	cgi
+%package cgi
 Group:		Development/Other
 Summary:	CGI interface to PHP
 URL:		http://php.net
@@ -160,7 +164,7 @@ Obsoletes:	php3
 Provides: 	ADVXpackage
 Epoch:		2
 
-%description	cgi
+%description cgi
 PHP4 is an HTML-embeddable scripting language.  PHP offers built-in database
 integration for several commercial and non-commercial database management
 systems, so writing a database-enabled script with PHP is fairly simple.  The
@@ -172,7 +176,7 @@ install libphp_common.
 If you need apache module support, you also need to install the mod_php
 package.
 
-%package -n	%libname
+%package -n %libname
 Group:		Development/Other
 Summary:	Shared library for php
 URL:		http://www.php.net
@@ -209,7 +213,7 @@ This package provides the common files to run with different
 implementations of PHP. You need this package if you install the php
 standalone package or a webserver with php support (ie: mod_php).
 
-%package -n	php%{libversion}-devel
+%package -n php%{libversion}-devel
 Group:		Development/C
 Summary:	Development package for PHP4
 URL:		http://www.php.net
@@ -618,6 +622,12 @@ update-alternatives --remove php %{_bindir}/php-cli
 %{_includedir}/php
 
 %changelog
+* Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 4.3.4-2sls
+- OpenSLS build
+- tidy spec
+- use %%build_propolice to add -fno-stack-protector until we can sort out
+  the build problems with __guard/etc. symbols
+
 * Tue Nov 04 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 4.3.4-1mdk
 - 4.3.4
 
