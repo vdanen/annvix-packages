@@ -1,6 +1,6 @@
 %define name	tar
 %define version	1.13.25
-%define release	13sls
+%define release	14avx
 
 # rh-1.3.25-4
 %define _bindir /bin
@@ -24,7 +24,7 @@ Patch105:	tar-1.13.22-yIfilter.patch.bz2
 
 Buildroot:	%{_tmppath}/%{name}-root
 
-Prereq:		/sbin/install-info /sbin/rmt
+Prereq:		info-install, rmt
 
 %description
 The GNU tar program saves many files together into one archive and
@@ -93,6 +93,11 @@ rm -f $RPM_BUILD_ROOT/%_libdir/rmt
 
 
 %changelog
+* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 1.13.25-14avx
+- PreReq: info-install rather than /sbin/install-info
+- PreReq: rmt rather than /sbin/rmt
+- Annvix build
+
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 1.13.25-13sls
 - minor spec cleanups
 
