@@ -1,6 +1,7 @@
 %define name	mkinitrd
-%define version 3.5.18
-%define release 1sls
+%define version 3.4.43
+%define release 12sls
+%define epoch	1
 
 %define use_dietlibc 0
 %ifarch %{ix86} x86_64 amd64
@@ -11,16 +12,15 @@ Summary:	Creates an initial ramdisk image for preloading modules
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
+Epoch:		%{epoch}
 License:	GPL
 Group:		System/Kernel and hardware
 URL:		http://www.redhat.com/
 Source:		ftp://ftp.redhat.com/mkinitrd-%{version}.tar.bz2
-Source1:	mkinitrd_helper-3.5.15.1.tar.bz2
-Patch0:		mkinitrd-3.5.18-mdk.patch.bz2
-Patch1:		mkinitrd-3.5.18-mdk-diet.patch.bz2
-Patch2:		mkinitrd-3.5.18-usb.patch.bz2
-Patch3:		mkinitrd-3.5.18-forceusb.patch.bz2
-Patch4:		mkinitrd-3.5.18-scsimult.patch.bz2
+Source1:	mkinitrd_helper2.tar.bz2
+Patch0:		mkinitrd-3.4.43-mdkize.patch.bz2
+Patch1:		mkinitrd-3.1.6-shutup-insmod-busybox.patch.bz2
+Patch2:		mkinitrd-3.4.43-kernel-2.5.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires:	/usr/bin/perl
@@ -51,12 +51,8 @@ ramdisk using information found in the /etc/modules.conf file.
 %prep
 %setup -q -a 1
 %patch0 -p1 -b .mdk
-%if %{use_dietlibc}
-%patch1 -p1 -b .diet
-%endif
-%patch2 -p1 -b .usb
-%patch3 -p1 -b .forceusb
-%patch4 -p1 -b .scsimult
+%patch1 -p0
+%patch2 -p1 -b .kernel25
 perl -pi -e 's/grubby//' Makefile
 
 %build
@@ -85,6 +81,10 @@ rm -f $RPM_BUILD_ROOT%{_mandir}/*/grubby*
 %{_mandir}/*/*
 
 %changelog
+* Tue Jun 15 2004 Vincent Danen <vdanen@opensls.rg> 3.4.43-12sls
+- revert to 3.4.43 because 3.5.18 is not playing nice with our kernels at all
+- Epoch: 1
+
 * Tue May 25 2004 Vincent Danen <vdanen@opensls.rg> 3.5.18-1sls
 - P4: fix "unknown module [x]" error when having more than one scsi_hostadapter
   entry (ie. scsi_hostadapter[x])
