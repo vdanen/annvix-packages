@@ -1,18 +1,26 @@
-Summary: The NIS daemon which binds NIS clients to an NIS domain.
-Name: ypbind
-Version: 1.12
-Release: 3mdk
-Epoch: 3
-License: GPL
-Group: System/Servers
-URL: http://www.linux-nis.org/nis/ypbind-mt/index.html
-Source0: ftp.kernel.org:/pub/linux/utils/net/NIS/ypbind-mt-%{PACKAGE_VERSION}.tar.bz2
-Source1: ypbind.init
-Source2: yp.conf
-Prereq: /sbin/chkconfig, rpm-helper
-Requires: portmap
-Requires: yp-tools
-Buildroot: %{_tmppath}/ypbind-root
+%define name	ypbind
+%define version	1.12
+%define release	4sls
+%define epoch	3
+
+Summary:	The NIS daemon which binds NIS clients to an NIS domain.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+Epoch:		%{epoch}
+License:	GPL
+Group:		System/Servers
+URL: 		http://www.linux-nis.org/nis/ypbind-mt/index.html
+Source0:	ftp.kernel.org:/pub/linux/utils/net/NIS/ypbind-mt-%{PACKAGE_VERSION}.tar.bz2
+Source1:	yp.conf
+Source2:	ypbind.run
+Source3:	ypbind-log.run
+
+Buildroot:	%{_tmppath}/ypbind-root
+
+PreReq:		rpm-helper
+Requires:	portmap
+Requires:	yp-tools
 
 %description
 The Network Information Service (NIS) is a system which provides
@@ -41,44 +49,53 @@ network.
 %make
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
 
 # Rename /usr/sbin to /sbin (cheap way to move ypbind)
 mv $RPM_BUILD_ROOT%{_sbindir} $RPM_BUILD_ROOT/sbin
 strip $RPM_BUILD_ROOT/sbin/ypbind
 
-mkdir -p $RPM_BUILD_ROOT%{_initrddir}
-install -m 755 %{SOURCE1} $RPM_BUILD_ROOT%{_initrddir}/ypbind
-install -m 644 %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/yp.conf
+mkdir -p %{buildroot}%{_sysconfdir}
+install -m 644 %{SOURCE1} $RPM_BUILD_ROOT%{_sysconfdir}/yp.conf
 mkdir -p $RPM_BUILD_ROOT/var/yp/binding
 
-perl -pi -e "s|/etc/rc.d/init.d|%{_initrddir}|" $RPM_BUILD_ROOT%{_initrddir}/*
+mkdir -p %{buildroot}%{_srvdir}/ypbind/log
+mkdir -p %{buildroot}%{_srvlogdir}/ypbind
+install -m 0750 %{SOURCE2} %{buildroot}%{_srvdir}/ypbind/run
+install -m 0750 %{SOURCE3} %{buildroot}%{_srvdir}/ypbind/log/run
 
 # Remove unpackaged files
 rm -rf $RPM_BUILD_ROOT/usr/share/locale/de/LC_MESSAGES/ypbind-mt.mo
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
-
-%_post_service ypbind
+%_post_srv ypbind
 
 %preun
-
-%_preun_service ypbind
+%_preun_srv ypbind
 
 %files
 %defattr(-,root,root)
+%doc README
 /sbin/ypbind
 %{_mandir}/*/*
-%config(noreplace) %{_initrddir}/*
 %config(noreplace) %{_sysconfdir}/yp.conf
 %dir /var/yp/binding
-%doc README
+%dir %{_srvdir}/ypbind
+%dir %{_srvdir}/ypbind/log
+%{_srvdir}/ypbind/run
+%{_srvdir}/ypbind/log/run
+%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/ypbind
 
 %changelog
+* Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 1.12-4sls
+- OpenSLS build
+- tidy spec
+- supervise scripts
+
 * Wed Jul 23 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 1.12-3mdk
 - rebuild
 - use %%make macro
