@@ -1,6 +1,6 @@
 %define name	SysVinit
 %define version 2.85
-%define release 6avx
+%define release 7avx
 %define url	ftp://ftp.cistron.nl/pub/people/miquels/software
 
 Summary:	Programs which control basic system processes.
@@ -79,6 +79,7 @@ chmod 755 $RPM_BUILD_ROOT/usr/bin/utmpdump
 
 # Remove unpacjaged file(s)
 rm -rf	$RPM_BUILD_ROOT/usr/include
+mv %{buildroot}/sbin/init %{buildroot}/sbin/init.sysv
 
 %post
 [ ! -p /dev/initctl ] && rm -f /dev/initctl && mknod --mode=0600 /dev/initctl p || :
@@ -94,7 +95,7 @@ exit 0
 %doc doc/Propaganda doc/Changelog doc/Install
 %doc doc/sysvinit-%{version}.lsm contrib/start-stop-daemon.* 
 /sbin/halt
-/sbin/init
+/sbin/init.sysv
 /sbin/killall5
 /sbin/pidof
 /sbin/poweroff
@@ -113,6 +114,9 @@ exit 0
 %ghost /dev/initctl
 
 %changelog
+* Sat Sep 11 2004 Vincent Danen <vdanen@annvix.org> 2.85-7avx
+- move /sbin/init to /sbin/init.sysv
+
 * Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 2.85-6avx
 - Annvix release
 
