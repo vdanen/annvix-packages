@@ -1,6 +1,6 @@
 %define name	MySQL
-%define version	4.0.15
-%define release	5sls
+%define version	4.0.18
+%define release	1sls
 
 %define major		12
 %define libname_orig	mysql
@@ -21,21 +21,15 @@ Release:	%{release}
 License:	GPL
 Group:		Databases
 URL:            http://www.mysql.com
-Icon:		mysql.gif
 Source:		ftp.free.fr:/pub/MySQL/Downloads/MySQL-4.0/mysql-%{version}.tar.bz2
 Source1:	ftp://ftp.free.fr:/pub/MySQL/Downloads/Manual/manual-split.tar.bz2
 Source2:	mysqld.run
 Source3:	mysqld-log.run
-Patch0:		mysql-4.0.14-init.patch.bz2
-Patch1:		mysql-3.23.42-bench.patch.bz2
-Patch2:		mysql-3.23.51-other-libc.patch.bz2
-Patch3:		mysql-3.23.54a-errno.patch.bz2
-Patch4:		MySQL-4.0.11-fix-test-ssl-include.patch.bz2
-Patch5:		MySQL-4.0.11a-fix_install_scripts.patch.bz2
-Patch6:		all_charset.patch.bz2
-Patch7:		mysql-4.0.13-the.patch.bz2
-Patch8:		mysql-4.0.15-lib64.patch.bz2
-Patch9:		mysql-4.0.13-quotes.patch.bz2
+Source4:	mysqld.sysconfig
+Patch1:		MySQL-4.0.16-fix_install_scripts.patch.bz2
+Patch2:		all_charset.patch.bz2
+Patch3:		mysql-4.0.17-lib64.patch.bz2
+Patch4:		mysql-4.0.18-securityscript.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
 BuildRequires:	bison, db4-devel, glibc-static-devel, libstdc++5-static-devel, automake1.7
@@ -142,23 +136,11 @@ to MySQL basic server.
 
 %prep
 %setup -q -n mysql-%{version}
-%patch0 -p1 -b .server-stop
 
-##%patch1 -b .patch
-##%patch2 -p1 -b .other-libc
-
-#%patch3 -p1 -b .errno
-
-#%patch4 -p1 -b .my_net
-%patch5 -p1 -b .max
-
-%patch6 -p1 -b .charset
-%patch8 -p1 -b .lib64
-# 20030914 warly integrated upstream
-#%patch9 -p1 -b .quotes
-
-# remove this when the regex matching works better in /usr/lib/rpm/perl.req
-perl -pi -e "s|use the option --old_server.|the option --old_server should be used.|g" scripts/mysqlaccess.sh
+%patch1 -p0 -b .max
+%patch2 -p1 -b .charset
+%patch3 -p0 -b .lib64
+%patch4 -p0 -b .sec
 
 # 20021227 warly manual include files not in the archives
 # perl -pi -e 's/\@include reservedwords.texi//' ./Docs/manual.texi
@@ -280,7 +262,7 @@ automake-1.7
 
 BuildMySQL "--enable-shared" \
            "--enable-thread-safe-client" \
-	   "--without-berkeley-db --without-innodb"
+	   "--without-berkeley-db --with-innodb"
 
 nm --numeric-sort sql/mysqld > sql/mysqld.sym
 
@@ -325,7 +307,7 @@ install -m 0750 %{SOURCE3} %{buildroot}%{_srvdir}/mysqld/log/run
 install -m644 $MBD/Docs/mysql.info \
  $RBR%{_infodir}/mysql.info
 
-for file in README COPYING COPYING.LIB Docs/manual_toc.html Docs/manual.html \
+for file in README COPYING Docs/manual_toc.html Docs/manual.html \
     Docs/manual.txt Docs/manual.texi Docs/manual.ps \
     support-files/my-huge.cnf support-files/my-large.cnf \
     support-files/my-medium.cnf support-files/my-small.cnf
@@ -360,6 +342,9 @@ chmod -R og-rw $mysql_datadir/mysql
 rm -rf $RPM_BUILD_ROOT%{_datadir}/info/dir $RPM_BUILD_ROOT/shared-libs.tar
 rm -rf $RPM_BUILD_ROOT%{_datadir}/info/dir $RPM_BUILD_ROOT/shared-libs.tar
 rm -rf $RPM_BUILD_ROOT%{_bindir}/make_win_src_distribution
+
+mkdir -p %{buildroot}%{_sysconfdir}/sysconfig
+install -m 0644 %{SOURCE4} %{buildroot}%{_sysconfdir}/sysconfig/mysqld
 
 %find_lang mysql
 
@@ -531,6 +516,7 @@ fi
 %{_bindir}/mysqld_safe
 %{_bindir}/mysqld_multi
 %{_bindir}/my_print_defaults
+%{_bindir}/myisam_ftdump
 %{_infodir}/mysql.info*
 %config(noreplace) /etc/logrotate.d/mysql
 %dir %attr(-,mysql,mysql) %{_localstatedir}/mysql
@@ -538,6 +524,7 @@ fi
 %dir %attr(-,mysql,mysql) %{_localstatedir}/mysql/test
 %{_datadir}/mysql/binary-configure
 %{_datadir}/mysql/make_binary_distribution
+%{_datadir}/mysql/make_sharedlib_distribution
 %{_datadir}/mysql/mi_test_all
 %{_datadir}/mysql/mi_test_all.res
 %{_datadir}/mysql/my-huge.cnf
@@ -565,6 +552,7 @@ fi
 %{_srvdir}/mysqld/run
 %{_srvdir}/mysqld/log/run
 %dir %attr(0750,nobody,nogroup) %{_srvlogdir}/mysqld
+%config(noreplace) %{_sysconfdir}/sysconfig/mysqld
 
 %files client
 %defattr(-, root, root)
@@ -615,8 +603,22 @@ fi
 %{_srvdir}/mysqld/run
 %{_srvdir}/mysqld/log/run
 %dir %attr(0750,nobody,nogroup) %{_srvlogdir}/mysqld
+%config(noreplace) %{_sysconfdir}/sysconfig/mysqld
 
 %changelog
+* Thu Apr 22 2004 Vincent Danen <vdanen@opensls.org> 4.0.18-1sls
+- 4.0.18
+- drop unused patches: P1, P2, P3, P4, P7, P9
+- drop P0; we do not need to patch the initscript anymore
+- add innodb support
+- renumber patches
+- remove icon
+- patch to fix CAN-2004-0381, CAN-2004-0388
+- fix runscript so $DATADIR is declared before it's used for the pid file
+- add default sysconfig/mysqld file
+- add sysconfig option to log to a file (off by default; works in
+  conjunction with the logrotate.d/mysql file)
+
 * Sun Mar 07 2004 Vincent Danen <vdanen@opensls.org> 4.0.15-5sls
 - minor spec cleanups
 
