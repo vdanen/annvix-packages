@@ -1,15 +1,21 @@
-%define prefix /usr
+%define name	prelude-nids
+%define version	0.8.1
+%define release	2sls
 
-Summary:        Prelude Hybrid Intrusion Detection System - Network Sensor
-Name:           prelude-nids
-Version:        0.8.1
-Release:        1mdk
-License:        GPL
-Group:          Networking/Other
-URL:            http://www.prelude-ids.org/
+%define prefix	/usr
+
+Summary:	Prelude Hybrid Intrusion Detection System - Network Sensor
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		Networking/Other
+URL:		http://www.prelude-ids.org/
 Source:		http://www.prelude-ids.org/download/releases/%{name}-%{version}.tar.gz
-Buildroot:      %{_tmppath}/%{name}-%{version}-root
-BuildRequires:  libprelude-devel flex bison
+
+BuildRoot:	%{_tmppath}/%{name}-%{version}-root
+BuildRequires:	libprelude-devel flex bison
+
 Requires:	libprelude >= 0.8.4
 
 %description
@@ -23,12 +29,12 @@ polymorphic shellcodes detection, ARP misuse detection, and scanning detection.
 It supports IP fragmentation and TCP segmentation to track connections and
 detect stateful events. 
 
-%package        devel
-Summary:        Libraries, includes, etc. to develop Prelude NIDS 
-Group:          Development/C
-Requires:       %{name} = %{version}
-BuildRequires:  libprelude-devel
-Requires:       libprelude
+%package devel
+Summary:	Libraries, includes, etc. to develop Prelude NIDS 
+Group:		Development/C
+Requires:	%{name} = %{version}
+BuildRequires:	libprelude-devel
+Requires:	libprelude
 
 %description devel
 Prelude NIDS is the network-based sensor program part of the Prelude Hybrid IDS
@@ -82,6 +88,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/prelude-nids/*.h
 
 %changelog
+* Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 0.8.1-2sls
+- OpenSLS build
+- tidy spec
+
 * Tue Sep 09 2003 Florin Grad <florin@mandrakesoft.com> 0.8.1-1mdk
 - first mandrake release
 - add the manpage

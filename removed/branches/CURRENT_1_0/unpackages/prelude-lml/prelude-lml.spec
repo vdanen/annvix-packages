@@ -1,16 +1,22 @@
-%define prefix /usr
+%define name	prelude-lml
+%define version	0.8.1
+%define release	2sls
 
-Summary:        Prelude Hybrid Intrusion Detection System - Log Analyzer Sensor
-Name:           prelude-lml
-Version:        0.8.1
-Release:        1mdk
-License:        GPL
-Group:          Networking/Other
-URL:            http://www.prelude-ids.org/
+%define prefix	/usr
+
+Summary:	Prelude Hybrid Intrusion Detection System - Log Analyzer Sensor
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		Networking/Other
+URL:		http://www.prelude-ids.org/
 Source:		http://www.prelude-ids.org/download/releases/%{name}-%{version}.tar.gz
-Buildroot:      %{_tmppath}/%{name}-%{version}-root
-BuildRequires:  libprelude-devel
-BuildRequires:  libpcre-devel
+
+BuildRoot:	%{_tmppath}/%{name}-%{version}-root
+BuildRequires:	libprelude-devel
+BuildRequires:	libpcre-devel
+
 Requires:	libprelude >= 0.8.4
 
 %description
@@ -23,12 +29,12 @@ by using the PCRE library. It can apply logfile-specific analysis through
 plugins such as PAX. It can send an alert to the Prelude Manager when a
 suspicious log entry is detected. 
 
-%package        devel
-Summary:        Libraries, includes, etc. to develop Prelude Log Analyzer Sensor
-Group:          Development/C
-Requires:       %{name} = %{version}
-BuildRequires:  libprelude-devel
-Requires:       libprelude
+%package devel
+Summary:	Libraries, includes, etc. to develop Prelude Log Analyzer Sensor
+Group:		Development/C
+Requires:	%{name} = %{version}
+BuildRequires:	libprelude-devel
+Requires:	libprelude
 
 %description devel
 The Prelude Log Monitoring Lackey (LML) is the host-based sensor program part
@@ -69,6 +75,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/prelude-lml/*.h
 
 %changelog
+* Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 0.8.1-2sls
+- OpenSLS build
+- tidy spec
+
 * Tue Sep 09 2003 Florin Grad <florin@mandrakesoft.com> 0.8.1-1mdk
 - first mandrake release
 
