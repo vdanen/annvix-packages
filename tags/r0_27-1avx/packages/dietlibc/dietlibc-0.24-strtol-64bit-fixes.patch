@@ -1,0 +1,28 @@
+--- dietlibc-0.24/lib/strtol.c.strtol-64bit-fixes	2003-10-16 12:03:44.000000000 +0200
++++ dietlibc-0.24/lib/strtol.c	2004-02-09 16:28:21.000000000 +0100
+@@ -4,7 +4,11 @@
+ #include <limits.h>
+ #include <stdlib.h>
+ 
++#if __WORDSIZE == 64
++#define ABS_LONG_MIN 9223372036854775808UL
++#else
+ #define ABS_LONG_MIN 2147483648UL
++#endif
+ long int strtol(const char *nptr, char **endptr, int base)
+ {
+   int neg=0;
+--- dietlibc-0.24/test/strtol.c.strtol-64bit-fixes	2004-02-09 16:36:05.000000000 +0100
++++ dietlibc-0.24/test/strtol.c	2004-02-09 16:40:21.000000000 +0100
+@@ -54,7 +54,10 @@ main() {
+   assert(strtol(s="9223372036854775808",&c,0)==9223372036854775807 && c==s+19 && errno==ERANGE);
+   assert(strtol(s="922337203685477580777",&c,0)==9223372036854775807 && c==s+21 && errno==ERANGE);
+   assert(strtol(s="9223372036854775810",&c,0)==9223372036854775807 && c==s+19 && errno==ERANGE);
+-  assert(strtol(s="-2147483648",&c,0)==-2147483648 && c==s+11 && errno==0);
++  /* dietlibc would also fail this because we don't set errno to 0
++   * when returning 0x8000000 in non-failure cases on 64-bit platforms.
++   * POSIX says: The strtol() function shall not change the setting of errno if successful. */
++  errno=0; assert(strtol(s="-2147483648",&c,0)==-2147483648 && c==s+11 && errno==0);
+   assert(strtol(s="-9223372036854775808",&c,0)==0x8000000000000000 && c==s+20 && errno==0);
+   assert(strtol(s="-9223372036854775809",&c,0)==0x8000000000000000 && c==s+20 && errno==ERANGE);
+   assert(strtol(s="0x112233445566778899z",&c,0)==9223372036854775807 && c==s+20 && errno==ERANGE);
