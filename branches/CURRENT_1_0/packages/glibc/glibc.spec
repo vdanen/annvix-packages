@@ -3,7 +3,7 @@
 
 # <version>-<release> tags for glibc main package
 %define glibcversion	2.3.2
-%define glibcrelease	24avx
+%define glibcrelease	25avx
 %define epoch		6
 
 # <version>-<release> tags from kernel package where headers were
@@ -174,10 +174,12 @@ Patch40:	glibc-2.3.2-i586-if-no-cmov.patch.bz2
 Patch41:	glibc-2.3.2-propolice.patch.bz2
 Patch42:	crypt_blowfish-glibc-2.2.diff.bz2
 Patch43:	glibc-2.3.2-trustix-tempfile.patch.bz2
+Patch44:	glibc-2.3.2-ssp_frandom-7.patch.bz2
 
 # Generated from Kernel RPM
 Patch100:	kernel-headers-include-%{kheaders_ver}.%{kheaders_rel}.patch.bz2
 Patch101:	kernel-headers-gnu-extensions.patch.bz2
+Patch102:	kernel-headers-2.4.29-sysctl.h.patch.bz2
 
 BuildRoot:	%{_tmppath}/glibc-%{PACKAGE_VERSION}-root
 BuildRequires:	patch, gettext, perl
@@ -455,6 +457,7 @@ rm crypt_blowfish-*/crypt.h
 cp -a crypt_blowfish-*/*.[chS] crypt
 %patch42 -p0 -b .blowfish
 %patch43 -p1 -b .can-2004-0968
+%patch44 -p1 -b .ssp_frandom
 
 # If we are building enablekernel 2.x.y glibc on older kernel,
 # we have to make sure no binaries compiled against that glibc
@@ -472,6 +475,7 @@ pushd kernel-headers/
 TARGET=%{target_cpu}
 %patch100 -p1
 %patch101 -p1
+%patch102 -p1
 %{expand:%(%__cat %{SOURCE11})}
 %{expand:%(%__cat %{SOURCE12})}
 popd
@@ -1316,6 +1320,10 @@ fi
 %endif
 
 %changelog
+* Fri Jan 21 2005 Vincent Danen <vdanen@annvix.org> 2.3.2-25avx
+- P44: add SSP/frandom support from HLFS
+- P102: updated sysctl.h which includes [ef]random
+
 * Mon Dec 20 2004 Vincent Danen <vdanen@annvix.org> 2.3.2-24avx
 - P43: patch from Trustix to fix CAN-2004-0968
 
