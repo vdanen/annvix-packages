@@ -1,12 +1,13 @@
 %define name	curl
-%define version 7.11.1
-%define release	2avx
+%define version 7.12.1
+%define release	1avx
 
-%define major	2
+%define major	3
 %define libname %mklibname %{name} %{major}
 
 # Define to make check (default behavior)
 %define do_check 1
+%define __libtoolize /bin/true
 
 # Enable --with[out] <feature> at rpm command line
 %{?_with_CHECK: %{expand: %%define do_check 1}}
@@ -76,9 +77,6 @@ utilize libcurl.
 %patch1 -p1
 
 %build
-# A dynamic patch using perl but a bit agressive... (fpons)
-perl -pe s/shared_ext/shrext/g -i configure
-
 %configure2_5x --with-ssl
 %make
 
@@ -133,6 +131,11 @@ make check
 %{_mandir}/man3/*
 
 %changelog
+* Tue Aug 17 2004 Vincent Danen <vdanen@annvix.org> 7.12.1-1avx
+- 7.12.1
+- remove fpons' "dynamic patch"
+- set %%__libtoolize to /bin/true
+
 * Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 7.11.1-2avx
 - Annvix build
 
