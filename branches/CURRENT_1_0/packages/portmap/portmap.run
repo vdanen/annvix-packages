@@ -3,4 +3,4 @@ PATH="/sbin:/usr/sbin:/bin:/usr/bin:$PATH"
 
 # this runs portmap under supervise
 
-exec /sbin/portmap 2>&1
+exec /sbin/portmap -d 2>&1
