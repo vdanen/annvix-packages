@@ -1,0 +1,25 @@
+#!/bin/bash
+if [ -f /etc/httpd/conf/ssl/mod_ssl.conf ];then
+  echo "Migrating mod_ssl.conf to Apache 2"
+cat > /etc/httpd/conf.d/40_mod_ssl.conf << EOF
+<IfDefine HAVE_SSL>
+  <IfModule !mod_ssl.c>
+    LoadModule ssl_module    extramodules/mod_ssl.so
+  </IfModule>
+</IfDefine>
+EOF
+cat /etc/httpd/conf/ssl/mod_ssl.conf >> /etc/httpd/conf.d/40_mod_ssl.conf
+perl -pi -e "s|^SSLLog|#SSLLog|;" /etc/httpd/conf.d/40_mod_ssl.conf
+
+fi
+if [ -f /etc/httpd/conf/ssl/ssl.default-vhost.conf ];then
+  echo "Migrating ssl.default-vhost.conf to Apache 2"
+cat > /etc/httpd/conf.d/41_mod_ssl.default-vhost.conf << EOF
+<IfDefine HAVE_SSL>
+  <IfModule !mod_ssl.c>
+    LoadModule ssl_module    extramodules/mod_ssl.so
+  </IfModule>
+</IfDefine>
+EOF
+cat /etc/httpd/conf/ssl/ssl.default-vhost.conf >> /etc/httpd/conf.d/41_mod_ssl.default-vhost.conf
+fi
