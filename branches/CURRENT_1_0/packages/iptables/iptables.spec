@@ -1,6 +1,6 @@
 %define name	iptables
 %define version	1.2.9
-%define release	4avx
+%define release	5avx
 
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 Name:		%{name}
@@ -18,13 +18,14 @@ Source5:	iptables-kernel-headers.tar.bz2
 Patch1:		iptables-1.2.9-stealth_grsecurity.patch.bz2 
 Patch2:		iptables-1.2.8-imq.patch.bz2 
 Patch3:		iptables-1.2.8-libiptc.h.patch.bz2 
+Patch4:		iptables-1.2.9-CAN-2004-0986.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-root
 BuildPrereq:	perl
-BuildRequires:  kernel-source >= 2.4.24-3sls
+BuildRequires:  kernel-source >= 2.4.24-3avx
 
 PreReq:		chkconfig, rpm-helper
-Requires:	kernel >= 2.4.25-3sls
+Requires:	kernel >= 2.4.25-3avx
 Provides:	userspace-ipfilter
 Conflicts:	ipchains
 
@@ -35,12 +36,11 @@ It allows you to set up firewalls and IP masquerading, etc.
 Install iptables if you need to set up firewalling for your
 network.
 
-Install this only if you are using the 2.4 or 2.6 kernels!!
 
 %package ipv6
 Summary:	IPv6 support for iptables
 Group:		System/Kernel and hardware
-Requires:	%name = %version-%release
+Requires:	%{name} = %{version}-%{release}
 Prereq:		chkconfig, rpm-helper
 
 %description ipv6
@@ -54,11 +54,22 @@ IPv6 is the next version of the IP protocol.
 Install iptables-ipv6 if you need to set up firewalling for your
 network and you're using ipv6.
 
+
+%package devel
+Summary:	Development package for iptables
+Group:		Development/C
+Requires:	%{name} = %{version}
+
+%description devel
+The development files for iptables.
+
+
 %prep
 %setup -q -a 5
 %patch1 -p1 -b .stealth
 %patch2 -p1 -b .imq
 %patch3 -p1 -b .libiptc
+%patch4 -p1 -b .can-2004-0986
 
 chmod +x extensions/.IMQ-test
 
@@ -75,7 +86,7 @@ OPT="$RPM_OPT_FLAGS -DNDEBUG"
 %make COPT_FLAGS="$OPT -I linux-2.6/include" LIBDIR=/lib all
 for i in extensions/*.so;do mv $i $i.vanilla;done
 %make clean
-# build against sls headers with pptp_conntrack
+# build against avx headers with pptp_conntrack
 %make COPT_FLAGS="$OPT -I linux-2.4/include" LIBDIR=/lib all experimental
 
 
@@ -83,19 +94,21 @@ for i in extensions/*.so;do mv $i $i.vanilla;done
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 # Dunno why this happens. -- Geoff
 %makeinstall_std BINDIR=/sbin MANDIR=%{_mandir} LIBDIR=/lib COPT_FLAGS="$RPM_OPT_FLAGS -DNETLINK_NFLOG=4" install-experimental
-mv %buildroot/lib/iptables %buildroot/lib/iptables-sls
-mkdir %buildroot/lib/iptables-vanilla
+make install-devel DESTDIR=%{buildroot} KERNEL_DIR=/usr BINDIR=/sbin LIBDIR=%{_libdir} MANDIR=%{_mandir}
+
+mv %{buildroot}/lib/iptables %{buildroot}/lib/iptables-avx
+mkdir %{buildroot}/lib/iptables-vanilla
 cd extensions
 for i in *.so.vanilla;do
 	if cmp -s $i ${i%.vanilla}; then
-    		ln %buildroot/lib/iptables-sls/${i%.vanilla} %buildroot/lib/iptables-vanilla/${i%.vanilla}
+    		ln %{buildroot}/lib/iptables-avx/${i%.vanilla} %{buildroot}/lib/iptables-vanilla/${i%.vanilla}
 	else
-		cp $i %buildroot/lib/iptables-vanilla/${i%.vanilla}
+		cp $i %{buildroot}/lib/iptables-vanilla/${i%.vanilla}
 	fi
 done
 cd ..
-install -c -D -m755 %{SOURCE1} %buildroot%{_initrddir}/iptables
-install -c -D -m755 %{SOURCE2} %buildroot%{_initrddir}/ip6tables
+install -c -D -m755 %{SOURCE1} %{buildroot}%{_initrddir}/iptables
+install -c -D -m755 %{SOURCE2} %{buildroot}%{_initrddir}/ip6tables
 install -c -D -m644 %{SOURCE3} iptables.sample
 install -c -D -m644 %{SOURCE4} ip6tables.sample
 
@@ -110,7 +123,7 @@ if [ $1 = 1 ]; then
     /sbin/service iptables check
 fi
 
-%triggerpostun -- iptables =< 1.2.9-1sls
+%triggerpostun -- iptables =< 1.2.9-1avx
 # fix upgrade from older versions
 /sbin/service iptables check
 
@@ -126,29 +139,43 @@ fi
 
 %files
 %defattr(-,root,root,0755)
+%doc INSTALL INCOMPATIBILITIES iptables.sample
 %config(noreplace) %{_initrddir}/iptables
 /sbin/iptables
 /sbin/iptables-save
 /sbin/iptables-restore
 %{_mandir}/*/iptables*
-%dir /lib/iptables-sls
-/lib/iptables-sls/libipt*
+%dir /lib/iptables-avx
+/lib/iptables-avx/libipt*
 %dir /lib/iptables-vanilla
 /lib/iptables-vanilla/libipt*
-%doc INSTALL INCOMPATIBILITIES iptables.sample
 
 %files ipv6
 %defattr(-,root,root,0755)
+%doc ip6tables.sample
 %config(noreplace) %{_initrddir}/ip6tables
 /sbin/ip6tables
 /sbin/ip6tables-save
 /sbin/ip6tables-restore
 %{_mandir}/*/ip6tables*
-/lib/iptables-sls/libip6t*
+/lib/iptables-avx/libip6t*
 /lib/iptables-vanilla/libip6t*
-%doc INSTALL INCOMPATIBILITIES ip6tables.sample
+
+%files devel
+%defattr(-,root,root,0755)
+%{_includedir}/libipq.h
+%{_libdir}/libipq.a
+%{_libdir}/libiptc.a
+%{_mandir}/man3/*
 
 %changelog
+* Tue Nov 02 2004 Vincent Danen <vdanen@annvix.org> 1.2.9-5avx
+- P4: patch to fix CAN-2004-0986
+- s/sls/avx/
+- remove some docs from ip6tables that are in iptables (which ip6tables
+  requires anyways)
+- add the devel package (florin)
+
 * Thu Jun 24 2004 Vincent Danen <vdanen@annvix.org> 1.2.9-4avx
 - Annvix build
 
