@@ -1,6 +1,6 @@
 %define name	initscripts
-%define version	7.06
-%define release	41avx
+%define version	7.61.1
+%define release	1avx
 
 # 	$Id: initscripts.spec,v 1.329 2003/09/22 17:03:40 warly Exp $	
 
@@ -16,8 +16,8 @@ License:	GPL
 Group:		System/Base
 Url:		http://www.linux-mandrake.com/cgi-bin/cvsweb.cgi/soft/initscripts/
 Source0:	initscripts-%{version}.tar.bz2
-Patch:		initscripts-7.06-mdk-mdkconf.patch.bz2
-Patch2:		initscripts-7.06-avx-annvix.patch.bz2
+Patch:		initscripts-7.61.1-mdk-mdkconf.patch.bz2
+Patch2:		initscripts-7.61.1-avx-annvix.patch.bz2
 
 BuildRoot: 	%{_tmppath}/%{name}-root
 BuildRequires:	glib2-devel, pkgconfig, popt-devel, python
@@ -83,16 +83,13 @@ touch %{buildroot}/var/log/btmp
 %find_lang %{name}
 
 # remove S390 and isdn stuff
-rm -f $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/init.s390 $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/network-scripts/{ifdown-ippp,ifup-ctc,ifup-escon,ifup-ippp,ifup-iucv}
+rm -f $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/init.s390 $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/network-scripts/{ifdown-ippp,ifup-ctc,ifup-escon,ifup-ippp,ifup-iucv,ifup-ipsec,ifdown-ipsec}
 
 # remove unpackaged files
-rm -f $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/alsa
-rm -f $RPM_BUILD_ROOT/usr/share/alsa/alsa-utils
 rm -f $RPM_BUILD_ROOT/usr/bin/partmon
 rm -f $RPM_BUILD_ROOT/usr/sbin/supermount
 rm -f $RPM_BUILD_ROOT/usr/share/man/man8/supermount*
-rm -f $RPM_BUILD_ROOT%{_sysconfdir}/rc.d/init.d/{alsa,dm,partmon,sound,alsa_default}
-rm -f $RPM_BUILD_ROOT%{_sysconfdir}/rc.d/rc.alsa_default
+rm -f $RPM_BUILD_ROOT%{_sysconfdir}/rc.d/init.d/{dm,partmon,sound}
 
 # we have our own copy of gprintify
 export DONT_GPRINTIFY=1
@@ -277,10 +274,10 @@ fi
 %config(noreplace) %{_sysconfdir}/sysconfig/init
 %config(noreplace) %{_sysconfdir}/sysconfig/autofsck
 %{_sysconfdir}/sysconfig/network-scripts/ifdown
-%config(noreplace) /sbin/ifdown
-%config(noreplace) %{_sysconfdir}/sysconfig/network-scripts/ifdown-post
+/sbin/ifdown
+%{_sysconfdir}/sysconfig/network-scripts/ifdown-post
 %{_sysconfdir}/sysconfig/network-scripts/ifup
-%config(noreplace) /sbin/ifup
+/sbin/ifup
 %dir %{_sysconfdir}/sysconfig
 %dir %{_sysconfdir}/sysconfig/console
 %dir %{_sysconfdir}/sysconfig/console/consoletrans
@@ -295,27 +292,27 @@ fi
 %config(noreplace) %{_sysconfdir}/sysconfig/system
 %config(noreplace) %{_sysconfdir}/sysconfig/network-scripts/network-functions
 %config(noreplace) %{_sysconfdir}/sysconfig/network-scripts/network-functions-ipv6
-%config(noreplace) %{_sysconfdir}/sysconfig/network-scripts/init.ipv6-global
+%{_sysconfdir}/sysconfig/network-scripts/init.ipv6-global
 %config(noreplace) %{_sysconfdir}/sysconfig/network-scripts/ifcfg-lo
-%config(noreplace) %{_sysconfdir}/sysconfig/network-scripts/ifup-ipx
-%config(noreplace) %{_sysconfdir}/sysconfig/network-scripts/ifup-post
-%config(noreplace) %{_sysconfdir}/sysconfig/network-scripts/ifdown-ppp
-%config(noreplace) %{_sysconfdir}/sysconfig/network-scripts/ifdown-sl
-%config(noreplace) %{_sysconfdir}/sysconfig/network-scripts/ifup-ppp
-%config(noreplace) %{_sysconfdir}/sysconfig/network-scripts/ifup-sl
-%config(noreplace) %{_sysconfdir}/sysconfig/network-scripts/ifup-routes
-%config(noreplace) %{_sysconfdir}/sysconfig/network-scripts/ifup-plip
-%config(noreplace) %{_sysconfdir}/sysconfig/network-scripts/ifup-plusb
-%config(noreplace) %{_sysconfdir}/sysconfig/network-scripts/ifup-ipv6
-%config(noreplace) %{_sysconfdir}/sysconfig/network-scripts/ifdown-ipv6
-%config(noreplace) %{_sysconfdir}/sysconfig/network-scripts/ifup-sit
-%config(noreplace) %{_sysconfdir}/sysconfig/network-scripts/ifdown-sit
-%config(noreplace) %{_sysconfdir}/sysconfig/network-scripts/ifup-aliases
-%config(noreplace) %{_sysconfdir}/sysconfig/network-scripts/ifdown-aliases
-#%config(noreplace) %{_sysconfdir}/sysconfig/network-scripts/ifup-ippp
-#%config(noreplace) %{_sysconfdir}/sysconfig/network-scripts/ifdown-ippp
-%config(noreplace) %{_sysconfdir}/sysconfig/network-scripts/ifup-wireless
-%config(noreplace) %{_sysconfdir}/X11/prefdm
+%{_sysconfdir}/sysconfig/network-scripts/ifup-ipx
+%{_sysconfdir}/sysconfig/network-scripts/ifup-post
+%{_sysconfdir}/sysconfig/network-scripts/ifdown-ppp
+%{_sysconfdir}/sysconfig/network-scripts/ifdown-sl
+%{_sysconfdir}/sysconfig/network-scripts/ifup-ppp
+%{_sysconfdir}/sysconfig/network-scripts/ifup-sl
+%{_sysconfdir}/sysconfig/network-scripts/ifup-routes
+%{_sysconfdir}/sysconfig/network-scripts/ifup-plip
+%{_sysconfdir}/sysconfig/network-scripts/ifup-plusb
+%{_sysconfdir}/sysconfig/network-scripts/ifup-ipv6
+%{_sysconfdir}/sysconfig/network-scripts/ifdown-ipv6
+%{_sysconfdir}/sysconfig/network-scripts/ifup-sit
+%{_sysconfdir}/sysconfig/network-scripts/ifdown-sit
+%{_sysconfdir}/sysconfig/network-scripts/ifup-aliases
+%{_sysconfdir}/sysconfig/network-scripts/ifdown-aliases
+#%{_sysconfdir}/sysconfig/network-scripts/ifup-ippp
+#%{_sysconfdir}/sysconfig/network-scripts/ifdown-ippp
+%{_sysconfdir}/sysconfig/network-scripts/ifup-wireless
+%{_sysconfdir}/X11/prefdm
 %config(noreplace) %{_sysconfdir}/inittab
 %config(noreplace missingok) %{_sysconfdir}/rc.d/rc[0-9].d/*
 %{_sysconfdir}/init.d
@@ -324,23 +321,23 @@ fi
 %dir %{_sysconfdir}/rc.d/init.d
 %{_sysconfdir}/rc.local
 %{_sysconfdir}/rc.sysinit
-%config(noreplace) %{_sysconfdir}/rc.d/init.d/*
-%config(noreplace) %{_sysconfdir}/rc.d/rc
-%config(noreplace) %{_sysconfdir}/rc.d/rc.local
-%config(noreplace) %{_sysconfdir}/rc.d/rc.sysinit
+%{_sysconfdir}/rc.d/init.d/*
+%{_sysconfdir}/rc.d/rc
+%{_sysconfdir}/rc.d/rc.local
+%{_sysconfdir}/rc.d/rc.sysinit
 %config(noreplace) %{_sysconfdir}/sysctl.conf
-%config(noreplace) %{_sysconfdir}/profile.d/10lang.sh
-%config(noreplace) %{_sysconfdir}/profile.d/10lang.csh
+%{_sysconfdir}/profile.d/10lang.sh
+%{_sysconfdir}/profile.d/10lang.csh
+#mdk
+%dir %{_sysconfdir}/sysconfig/network-scripts/hostname.d
 #mdk
 %config(noreplace) %{_sysconfdir}/sysconfig/usb
 #mdk
-%config(noreplace) %{_sysconfdir}/profile.d/inputrc.sh
+%{_sysconfdir}/profile.d/inputrc.sh
+%{_sysconfdir}/profile.d/inputrc.csh
 #mdk
-%config(noreplace) %{_sysconfdir}/profile.d/inputrc.csh
-#mdk
-%config(noreplace) %{_sysconfdir}/profile.d/tmpdir.sh
-#mdk
-%config(noreplace) %{_sysconfdir}/profile.d/tmpdir.csh
+%{_sysconfdir}/profile.d/tmpdir.sh
+%{_sysconfdir}/profile.d/tmpdir.csh
 /usr/sbin/sys-unconfig
 /sbin/setsysfont
 /bin/doexec
@@ -349,6 +346,7 @@ fi
 %attr(4755,root,root) /usr/sbin/usernetctl
 /sbin/consoletype
 /sbin/getkey
+/sbin/genhostid
 %attr(2755,root,root) /sbin/netreport
 /sbin/initlog
 /sbin/minilogd
@@ -360,6 +358,8 @@ fi
 %lang(et)	%{_mandir}/et/man*/*
 %lang(fi)	%{_mandir}/fi/man*/*
 %lang(fr)	%{_mandir}/fr/man*/*
+%lang(it)	%{_mandir}/it/man*/*
+%lang(pt_BR)	%{_mandir}/pt_BR/man*/*
 %lang(ru)	%{_mandir}/ru/man*/*
 %lang(uk)	%{_mandir}/uk/man*/*
 %dir %attr(775,root,root) /var/run/netreport
@@ -367,23 +367,52 @@ fi
 %dir %{_sysconfdir}/ppp/ip-down.d
 %dir %{_sysconfdir}/ppp/ip-up.d
 %dir %{_sysconfdir}/ppp/peers
-%config(noreplace) %{_sysconfdir}/ppp/ip-up
-%config(noreplace) %{_sysconfdir}/ppp/ip-down
-%config(noreplace) %{_sysconfdir}/ppp/ip-up.ipv6to4
-%config(noreplace) %{_sysconfdir}/ppp/ip-down.ipv6to4
-%config(noreplace) %{_sysconfdir}/ppp/ipv6-up
-%config(noreplace) %{_sysconfdir}/ppp/ipv6-down
+%{_sysconfdir}/ppp/ip-up
+%{_sysconfdir}/ppp/ip-down
+%{_sysconfdir}/ppp/ip-up.ipv6to4
+%{_sysconfdir}/ppp/ip-down.ipv6to4
+%{_sysconfdir}/ppp/ipv6-up
+%{_sysconfdir}/ppp/ipv6-down
 %config(noreplace) %{_sysconfdir}/initlog.conf
 %doc sysconfig.txt sysvinitfiles ChangeLog static-routes-ipv6 ipv6-tunnel.howto ipv6-6to4.howto
 %ghost %attr(0664,root,utmp) /var/log/wtmp
 %ghost %attr(0664,root,utmp) /var/log/btmp
 %ghost %attr(0664,root,utmp) /var/run/utmp
 %config(noreplace) %{_sysconfdir}/modules
-%config(noreplace) %{_sysconfdir}/rc.d/rc.modules
+%{_sysconfdir}/rc.d/rc.modules
 /usr/bin/*
 
 
 %changelog
+* Tue Mar 01 2005 Vincent Danen <vdanen@annvix.org> 7.61.1-1avx
+- rediff our patch
+- drop SELinux stuff
+- try to cleanup some USB stuff since we compile USB HID/keyboard/mouse
+  support directly into our kernel
+- cleanup some devfsd and udev junk
+- sync with mandrake 7.61-22mdk:
+  - (too much to note, so note the important stuff; all flepied unless
+    otherwise noted):
+  - rc.d/init.d/halt: remove sleep and exit in case of powerfail (apcupsd)
+  - rc.sysinit fixes from Luca Bera:
+    - rework creation of device mapper control node so we don't depend on nash
+    - mdadm is preferred over raidtools now, and empty config files are ignored
+    - correctly activate lvm after raid
+    - mount other filesystems once, not twice
+  - modprobe ide-cd and scsi_hostadapter
+  - set TMP and TMPDIR to /tmp to have the same behaviour during and after boot
+  - don't try to mount /dev/pts twice
+  - rc.sysinit: modprobe scsi_hostadapter earleir to be able to use lvm on a
+    second scsi controller
+  - rc.sysinit: fix init of /dev/tty[1-8]
+  - rc.sysinit: fix mount of /dev/pts and /dev/shm
+  - rc.sysinit: avoid activating encrypted swap partitions directly handled by swapon.
+    work with static crypto modules, keep the swap signature (4096 firs bytes) when
+    mounting an encrypted swap
+  - rc.sysinit: don't apply hdparm on software RAID arrays that are in process of
+    background resyncing
+  - don't mark initscripts as config files anymore
+
 * Tue Jul 27 2004 Vincent Danen <vdanen@annvix.org> 7.06-41avx
 - rediffed P2: call supervise directly from init
 - Requires: srv
