@@ -1,5 +1,5 @@
 %define name	openssh
-%define version	3.8.1p1
+%define version	3.9p1
 %define release 1avx
 
 ## Do not apply any unauthorized patches to this package!
@@ -29,7 +29,7 @@ Source5:	04_openssh.afterboot
 Source6:	ssh-client.sh
 Source8:	sshd.run
 Source9:	sshd-log.run
-Patch1:		openssh-3.8.1p1-avx-annvixconf.patch.bz2
+Patch1:		openssh-3.9p1-avx-annvixconf.patch.bz2
 # authorized by Damien Miller <djm@openbsd.com>
 Patch2:		openssh-3.1p1-mdk-check-only-ssl-version.patch.bz2
 
@@ -319,6 +319,13 @@ do_dsa_keygen
 %{_datadir}/afterboot/04_openssh
 
 %changelog
+* Thu Aug 18 2004 Vincent Danen <vdanen@annvix.org> 3.9p1-1avx
+- 3.9p1
+- rediff P1
+- set MaxAuthTries to 4 by default, rather than 6
+- set Protocol to "2" rather than "2,1" by default (it's time people
+  stop using RSA1 or even allowing a fallback)
+
 * Fri Aug 13 2004 Vincent Danen <vdanen@annvix.org> 3.8.1p1-1avx
 - 3.8.1p1
 - patch policy

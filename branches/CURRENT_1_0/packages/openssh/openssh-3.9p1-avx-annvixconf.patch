@@ -1,15 +1,11 @@
---- contrib/redhat/sshd.pam.annvix	2004-02-24 16:57:48.000000000 -0700
-+++ contrib/redhat/sshd.pam	2004-08-13 13:13:30.000000000 -0600
-@@ -1,8 +1,7 @@
+--- contrib/redhat/sshd.pam.annvix	2004-08-19 10:22:53.000000000 -0600
++++ contrib/redhat/sshd.pam	2004-08-19 10:22:53.000000000 -0600
+@@ -1,4 +1,5 @@
  #%PAM-1.0
 +auth       required     pam_listfile.so item=user sense=deny file=/etc/ssh/denyusers.pam
  auth       required     pam_stack.so service=system-auth
  auth       required     pam_nologin.so
  account    required     pam_stack.so service=system-auth
- password   required     pam_stack.so service=system-auth
- session    required     pam_stack.so service=system-auth
--session    required     pam_limits.so
--session    optional     pam_console.so
 --- ssh_config.annvix	2003-08-13 04:37:05.000000000 -0600
 +++ ssh_config	2004-04-29 09:35:25.000000000 -0600
 @@ -35,3 +35,8 @@
@@ -21,20 +17,19 @@
 +  ForwardX11 yes
 +  Protocol 2,1
 +  StrictHostKeyChecking ask
---- sshd_config.annvix	2003-12-30 17:38:32.000000000 -0700
-+++ sshd_config	2004-04-29 09:34:07.000000000 -0600
+--- sshd_config.annvix	2004-05-23 18:36:24.000000000 -0600
++++ sshd_config	2004-08-19 10:27:05.000000000 -0600
 @@ -11,15 +11,15 @@
  # default value.
  
  #Port 22
 -#Protocol 2,1
-+Protocol 2,1
++Protocol 2
  #ListenAddress 0.0.0.0
  #ListenAddress ::
  
  # HostKey for protocol version 1
--#HostKey /etc/ssh/ssh_host_key
-+HostKey /etc/ssh/ssh_host_key
+ #HostKey /etc/ssh/ssh_host_key
  # HostKeys for protocol version 2
 -#HostKey /etc/ssh/ssh_host_rsa_key
 -#HostKey /etc/ssh/ssh_host_dsa_key
@@ -43,16 +38,19 @@
  
  # Lifetime and size of ephemeral version 1 server key
  #KeyRegenerationInterval 1h
-@@ -33,7 +33,7 @@
+@@ -33,9 +33,9 @@
  # Authentication:
  
  #LoginGraceTime 2m
 -#PermitRootLogin yes
 +PermitRootLogin no
  #StrictModes yes
+-#MaxAuthTries 6
++MaxAuthTries 4
  
  #RSAAuthentication yes
-@@ -74,14 +74,14 @@
+ #PubkeyAuthentication yes
+@@ -80,14 +80,14 @@
  
  #AllowTcpForwarding yes
  #GatewayPorts no
