@@ -84,7 +84,7 @@
 # Thomas Backlund <tmb@iki.fi>
 
 %define sublevel	29
-%define avxrelease	1
+%define avxrelease	2
 %define use_patch	0
 
 %{!?build_annvix:%global build_annvix 0}
@@ -115,7 +115,7 @@
 %define avxversion	%{realversion}-%{realrelease}
 %define patches_ver	2.4.%{sublevel}-%{patchversion}
 %define owl_version	ow1
-%define owl_kver	2.4.28
+%define owl_kver	2.4.29
 
 # having different top level names for packges means
 # that you have to remove them by hard :(
@@ -871,7 +871,7 @@ exit 0
 %{_kerneldir}/mm
 %{_kerneldir}/net
 %{_kerneldir}/rsbac
-%{_kerneldir}/linux-%{owl_kver}-%{owl_version}
+%{_kerneldir}/security
 %{_kerneldir}/scripts
 %{_kerneldir}/include/acpi
 %{_kerneldir}/include/asm-generic
@@ -907,6 +907,30 @@ exit 0
 %endif
 
 %changelog
+* Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> 2.4.29-2avx
+- apply 2.4.29-ow1 patch
+- cleanup README.patches.index
+- remove ZY01 (SSP support) as apparently SSP won't protect the
+  kernel (we'll let Owl do this)
+- rediff SL80 to work with RSBAC and HB09 patch [fs/binfmt_elf.c,
+  fs/namei.c, fs/read_write.c]
+- add SL81: adds /dev/frandom and /dev/erandom
+- config changes:
+  - CONFIG_BINFMT_ELF_AOUT=n
+  - CONFIG_FRANDOM=y
+  - CONFIG_HARDEN_STACK=y
+  - CONFIG_HARDEN_STACK_SMART=y
+  - CONFIG_HARDEN_LINK=y
+  - CONFIG_HARDEN_FIFO=y
+  - CONFIG_HARDEN_PROC=y  
+  - CONFIG_HARDEN_RLIMIT_NPROC=y
+  - CONFIG_HARDEN_SHM=n
+- disable CONFIG_HARDEN_* and CONFIG_FRANDOM in BOOT kernels
+- build reiserfs, xfs, ext3 and md[015] support into the BOOT kernel
+  rather than as modules
+- disable DEVFS_FS in BOOT kernels
+- increase BLK_DEV_RAM_SIZE to 32k from 4k for x86_64
+
 * Wed Jan 19 2005 Vincent Danen <vdanen@annvix.org> 2.4.29-1avx
 - 2.4.29
 
