@@ -3,7 +3,7 @@
 %define poptver		1.8
 # You need increase both release and poptrelease
 %define poptrelease	%{release}
-%define release		20sls
+%define release		23sls
 
 %define url		ftp://ftp.rpm.org/pub/rpm/dist/rpm-4.0.x
 %define pyver		%(python -V 2>&1 | cut -f2 -d" " | cut -f1,2 -d".")
@@ -639,6 +639,9 @@ fi
 %{_includedir}/popt.h
 
 %changelog
+* Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 4.2-23sls
+- bump to 23sls so we can upgrade from mdk 9.2+updates
+
 * Tue Dec 02 2003 Vincent Danen <vdanen@opensls.org> 4.2-20sls
 - sync with Mandrake (4.2-22mdk):
   - fix crash in rpmalAllSatisfiesDepend() -- gbeauchesne
