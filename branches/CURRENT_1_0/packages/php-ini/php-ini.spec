@@ -1,6 +1,6 @@
 %define name	php-ini
-%define version	4.3.7
-%define release	2avx
+%define version	4.3.8
+%define release	1avx
 
 Summary:	INI files for PHP
 Name:		%{name}
@@ -9,11 +9,9 @@ Release:	%{release}
 License:	PHP License
 Group:		Development/Other
 URL:		http://www.php.net
-Source0:	php.ini.bz2
+Source0:	php.ini.annvix.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-root
-
-Provides: 	ADVXpackage
 
 %description
 The php-ini package contains the ini files required for PHP.
@@ -23,8 +21,7 @@ The php-ini package contains the ini files required for PHP.
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-mkdir -p %{buildroot}%{_sysconfdir}
-mkdir -p %{buildroot}%{_sysconfdir}/php
+mkdir -p %{buildroot}%{_sysconfdir}/php.d
 mkdir -p %{buildroot}%{_libdir}/php/extensions
 bzcat %{SOURCE0} > %{buildroot}%{_sysconfdir}/php.ini
 
@@ -50,7 +47,7 @@ fi
 
 %files 
 %defattr(-,root,root)
-%dir %{_sysconfdir}/php
+%dir %{_sysconfdir}/php.d
 %dir %{_libdir}/php
 %dir %{_libdir}/php/extensions
 %config(noreplace) %{_sysconfdir}/php.ini
@@ -58,6 +55,23 @@ fi
 %doc %{_docdir}/%{name}-%{version}/*
 
 %changelog
+* Wed Jul 14 2004 Vincent Danen <vdanen@annvix.org> 4.3.8-1avx
+- 4.3.8
+- remove ADVXpackage provides
+- by default, allow_url_fopen is off, as is register_globals
+- move scandir to /etc/php.d
+- update php.ini from 4.3.8 with the following changes (based on
+  php.ini-recommended):
+  - output_buffering = Off
+  - expose_php = Off
+  - error_log = /var/log/httpd/php-error.log
+  - variables_order = "EGPCS"
+  - register_argc_argv = On
+  - magic_quotes_gpc = On
+  - include_path = ".:/usr/lib/php/:/usr/share/pear/"
+  - allow_url_fopen = Off
+  - session.gc_divisor = 100
+
 * Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 4.3.7-2avx
 - Annvix build
 
