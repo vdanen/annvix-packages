@@ -1,8 +1,6 @@
 %define name	groff
 %define version	1.19
-%define release	4sls
-
-%{!?build_opensls:%global build_opensls 0}
+%define release	5sls
 
 # rh-1.18-3
 # deb-1.18-4
@@ -35,11 +33,6 @@ Patch109:	groff-1.19-dashes.patch.bz2
 
 BuildRoot:	%_tmppath/%name-root
 BuildRequires:	autoconf2.5, byacc, texinfo >= 4.3, xpm-devel
-%if !%{build_opensls}
-BuildRequires:	netpbm, netpbm-devel, XFree86-devel
-# For psselect:
-BuildRequires:	psutils
-%endif
 
 Requires:	mktemp groff-for-man
 Obsoletes:	groff-tools
@@ -78,20 +71,6 @@ for creating PostScript font files, the grog utility that can be used
 to automatically determine groff command-line options, and the
 troff-to-ps print filter.
 
-%if !%{build_opensls}
-%package gxditview
-Summary:	An X previewer for groff text processor output
-Group:		Text tools
-
-%description gxditview
-Gxditview displays the groff text processor's output on an X Window
-System display.
-
-If you are going to use groff as a text processor, you should install
-gxditview so that you preview your processed text files in X.  You'll also
-need to install the groff package and the X Window System.
-%endif
-
 %prep
 
 %setup -q
@@ -124,17 +103,11 @@ make depend
 %make 
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 PATH=$PATH:%_prefix/X11R6/bin
 mkdir -p $RPM_BUILD_ROOT{%_prefix,%_infodir,%_bindir,%_docdir/%name/%version/html/momdoc}
 %makeinstall manroot=%buildroot/%_mandir top_builddir=$PWD top_srcdir=$PWD common_words_file=$RPM_BUILD_ROOT%_datadir/%name/%version mkinstalldirs=mkdir
 install -m 644 doc/groff.info* $RPM_BUILD_ROOT/%_infodir
-
-%if !%{build_opensls}
-pushd src/xditview
-%makeinstall DESTDIR=$RPM_BUILD_ROOT
-popd
-%endif
 
 for i in s.tmac mse.tmac m.tmac; do
 	ln -s $i $RPM_BUILD_ROOT%_datadir/groff/%version/tmac/g$i
@@ -215,29 +188,8 @@ for i in $(find $RPM_BUILD_ROOT -empty -type f); do echo " ">> $i;done
 
 mv $RPM_BUILD_ROOT%_docdir/{groff/%version/,%name-%version/}
 
-%files -f groff.list
-%defattr(-,root,root)
-%doc BUG-REPORT COPYING NEWS PROBLEMS README README.A4 TODO VERSION
-%_infodir/groff*
-
-%files for-man -f groff-for-man.list
-%defattr(-,root,root)
-%doc COPYING
-
-%files perl -f groff-perl.list
-%defattr(-,root,root)
-%doc COPYING
-%_libdir/rhs/*/*
-
-%if !%{build_opensls}
-%files gxditview
-%defattr(-,root,root)
-%doc VERSION COPYING
-%config(noreplace) /etc/X11/app-defaults/GXditview
-%_prefix/X11R6/bin/gxditview
-%_prefix/X11R6/lib/X11/app-defaults/GXditview
-%endif
-
+%clean
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
 %_install_info %name
@@ -245,11 +197,25 @@ mv $RPM_BUILD_ROOT%_docdir/{groff/%version/,%name-%version/}
 %preun
 %_remove_install_info %name
 
+%files -f groff.list
+%defattr(-,root,root)
+%doc BUG-REPORT COPYING NEWS PROBLEMS README README.A4 TODO VERSION
+%_infodir/groff*
 
-%clean
-rm -rf $RPM_BUILD_ROOT
+%files for-man -f groff-for-man.list
+%defattr(-,root,root)
+
+%files perl -f groff-perl.list
+%defattr(-,root,root)
+%_libdir/rhs/*/*
+
 
 %changelog
+* Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 1.19-5sls
+- remove %%build_opensls macro
+- minor spec cleanups
+- don't need COPYING in each file
+
 * Mon Dec 08 2003 Vincent Danen <vdanen@opensls.org> 1.19-4sls
 - OpenSLS build
 - tidy spec
