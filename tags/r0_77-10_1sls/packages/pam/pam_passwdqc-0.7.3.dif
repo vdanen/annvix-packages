@@ -1,0 +1,29 @@
+--- Makefile
++++ Makefile	2003/01/16 10:45:29
+@@ -8,7 +8,7 @@
+ MKDIR = mkdir -p
+ INSTALL = install -c
+ CFLAGS = -c -Wall -fPIC -O2
+-LDFLAGS = -s --shared -lpam -lcrypt
++LDFLAGS = -s --shared -Wl,-soname,pam_passwdqc.so -lpam -lxcrypt
+ LDFLAGS_SUN = -s -G -lpam -lcrypt
+ LDFLAGS_HP = -s -b -lpam -lsec
+ 
+@@ -29,7 +29,7 @@
+ MANMODE = 644
+ SECUREDIR = /lib/security
+ MANDIR = /usr/share/man
+-FAKEROOT =
++FAKEROOT = $(DESTDIR)
+ 
+ PROJ = $(LIBSHARED)
+ OBJS = pam_passwdqc.o passwdqc_check.o passwdqc_random.o wordset_4k.o
+@@ -47,7 +47,7 @@
+ 	$(LD) $(LDFLAGS) $(OBJS) -o $(LIBSHARED)
+ 
+ .c.o:
+-	$(CC) $(CFLAGS) $*.c
++	$(CC) $(CFLAGS) -c $*.c
+ 
+ pam_passwdqc.o: passwdqc.h pam_macros.h
+ passwdqc_check.o: passwdqc.h
