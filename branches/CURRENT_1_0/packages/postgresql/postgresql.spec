@@ -1,6 +1,6 @@
 %define name	postgresql
 %define version	7.4.3
-%define release	5avx
+%define release	6avx
 
 %define _requires_exceptions devel(libtcl8.4)\\|devel(libtcl8.4(64bit))
 
@@ -51,6 +51,7 @@ Source52:	upgrade_tips_7.3
 Patch1:		postgresql-7.4-mdk-tighten.patch.bz2
 Patch2:		postgresql-7.4-mdk-pythondir.patch.bz2
 Patch3:		postgresql-7.4.1-mdk-pkglibdir.patch.bz2
+Patch4:		postgresql-7.3.4-CAN-2004-0977.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires:	XFree86-devel bison flex gettext termcap-devel ncurses-devel openssl-devel pam-devel
@@ -234,6 +235,7 @@ system, including regression tests and benchmarks.
 %patch1 -p1 -z .pg_hba
 %patch2 -p1 -b .pythondir
 %patch3 -p0 -b .pkglibdir
+%patch4 -p1 -b .can-2004-0977
 
 %build
 
@@ -643,6 +645,9 @@ rm -f perlfiles.list
 %attr(-,postgres,postgres) %dir %{_libdir}/pgsql/test
 
 %changelog
+* Tue Dec 07 2004 Vincent Danen <vdanen@annvix.org> 7.4.3-6avx
+- P4: patch to fix CAN-2004-0977
+
 * Mon Sep 20 2004 Vincent Danen <vdanen@annvix.org> 7.4.3-5avx
 - update run scripts and afterboot manpages
 - add a finish script
