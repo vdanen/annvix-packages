@@ -1,6 +1,6 @@
 %define name	slang
 %define version 1.4.9
-%define release 7avx
+%define release 8avx
 
 %define docversion	1.4.8
 %define major		1
@@ -106,8 +106,8 @@ rm -rf	%{buildroot}/usr/doc/slang
 
 
 %files -n %{libname}
-%doc COPYING COPYRIGHT README changes.txt README.UTF-8 NEWS
 %defattr(-,root,root)
+%doc COPYING COPYRIGHT README changes.txt README.UTF-8 NEWS
 %{_libdir}/lib*.so.*
 
 %files -n %{libname}-devel
@@ -118,6 +118,9 @@ rm -rf	%{buildroot}/usr/doc/slang
 %{_includedir}/slang/*.h
 
 %changelog
+* Mon Mar 28 2005 Vincent Danen <vdanen@annvix.org> 1.4.9-8avx
+- fix ownership
+
 * Mon Feb 28 2005 Vincent Danen <vdanen@annvix.org> 1.4.9-7avx
 - put docs back in
 - add utf8 patches from SUSE (mpol)
