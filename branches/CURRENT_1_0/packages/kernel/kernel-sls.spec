@@ -84,7 +84,7 @@
 # Thomas Backlund <tmb@iki.fi>
 
 %define sublevel	25
-%define slsrelease	11
+%define slsrelease	12
 %define use_patch	0
 
 %{!?build_opensls:%global build_opensls 0}
@@ -908,8 +908,9 @@ exit 0
 %{_kerneldir}/include/mast.h
 %{_kerneldir}/include/pfkey.h
 %{_kerneldir}/include/pfkeyv2.h
+%{_kerneldir}/include/openswan.h
 %{_kerneldir}/include/zlib
-%{_kerneldir}/README.freeswan
+%{_kerneldir}/README.openswan-2
 %doc README.sls-kernel-sources
 %doc README.OpenSLS
 #endif %build_source
@@ -922,6 +923,16 @@ exit 0
 %endif
 
 %changelog
+* Sat May 22 2004 Thomas Backlund <tmb@iki.fi> 2.4.25-12sls
+- CAN-2004-0394 panic() issue (ZY63)
+- do_fork issue (ZY64)
+- CAN-2004-0424 mcast_mfilter issue (ZY65)
+- make /proc/kmsg group readable by klogd (CA01)
+- drop freeswan patch (DF01)
+- add openswan 2.1.2 (DF02)
+- add openswan nat-traversal support (DF03)
+- update iteraid to 1.44 (MB60, MB61)
+
 * Mon Apr 19 2004 Thomas Backlund <tmb@iki.fi> 2.4.25-11sls
 - CAN-2004-0109 isofs rockridge issue (ZY58)
 - CAN-2004-0133 xfs filesystem issue (ZY59)

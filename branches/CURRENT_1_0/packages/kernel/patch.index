@@ -140,6 +140,8 @@ BJ00_MISSING_PROTOTYPES.desc
 
 
 CA00_CORE.desc
+    CA01_proc_kmsg_readable_as_klogd_group.patch    
+    - makes /proc/kmsg group readable by klogd
     CA05_main-more-args.patch
     - adds support for more kernel boottime args
 
@@ -310,9 +312,11 @@ DA00_DRIVERS.desc
 
 
 
-DF00_FREESWAN.desc
-    DF01_freeswan-2.0.5.patch
-    - adds support for freeswan ipsec vpn
+DF00_OPENSWAN.desc
+    DF02_openswan-2.1.2.kern.patch
+    - add support for openswan ipsec vpn (successor of freeswan)
+    DF03_openswan-2.1.2.natt.patch
+    - add support for ipsec NAT Traversal
 
 
     
@@ -606,9 +610,9 @@ MB00_3RDPARTY_DRIVERS.desc
     - more updates to Promise pdc_ultra and some security fixes
     MB50_ppp-mppe-0.9.6.tar
     - adds support for mppe encrypted pptp
-    MB60_iteraid_1.43.tar
+    MB60_iteraid_1.44.tar
     - adds support for IT8212 RAID controller
-    MB61_iteraid_fix_includes.patch
+    MB61_iteraid_includes.patch
     - correct includes for relocation to 3rdparty
 
 
@@ -655,6 +659,12 @@ ZY50_SECURITY_FIXES.desc
     - CAN-2004-0178 sb_audio issue
     ZY62_CAN-2004-0181.patch
     - CAN-2004-0181 jfs filesystem issue
+    ZY63_panic-sec.patch
+    - CAN-2004-0394 panic() issue (ZY63)
+    ZY64_do_fork-sec.patch
+    - do_fork issue (ZY64)
+    ZY65_mcast_msfilter-sec.patch
+    - CAN-2004-0424 mcast_mfilter issue (ZY65)
     
     
     

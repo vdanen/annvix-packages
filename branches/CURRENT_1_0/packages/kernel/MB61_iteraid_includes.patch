@@ -1,7 +1,6 @@
-diff -Nurp 2425/3rdparty/iteraid.old/iteraid.c 2425/3rdparty/iteraid/iteraid.c
---- 2425/3rdparty/iteraid.old/iteraid.c	2004-04-02 17:59:45.000000000 +0300
-+++ 2425/3rdparty/iteraid/iteraid.c	2004-04-02 18:06:46.000000000 +0300
-@@ -234,9 +234,9 @@ MODULE_DESCRIPTION ("ITE IT8212 RAID Con
+--- 2.4.26/3rdparty/iteraid/iteraid.c.old	2004-04-29 21:31:42.000000000 +0300
++++ 2.4.26/3rdparty/iteraid/iteraid.c	2004-04-29 21:33:17.324572495 +0300
+@@ -245,9 +245,9 @@
  #include <asm/irq.h>
  #include <asm/uaccess.h>
  
@@ -14,7 +13,7 @@ diff -Nurp 2425/3rdparty/iteraid.old/iteraid.c 2425/3rdparty/iteraid/iteraid.c
  
  #include "iteraid.h"
  
-@@ -5941,4 +5941,4 @@ itedev_close(struct inode *inode,  struc
+@@ -5852,4 +5852,4 @@
   * each time a new driver is written.
   */
  static Scsi_Host_Template driver_template = ITERAID;
