@@ -1,6 +1,6 @@
 %define name	SysVinit
 %define version 2.85
-%define release 8avx
+%define release 9avx
 %define url	ftp://ftp.cistron.nl/pub/people/miquels/software
 
 Summary:	Programs which control basic system processes
@@ -13,18 +13,19 @@ URL:		%{url}
 Source:		%{url}/sysvinit-%{version}.tar.bz2
 Source1:	reboot.avx
 Source2:	halt.avx
-Patch2:		sysvinit-2.77-md5-be.patch.bz2
-Patch3:		sysvinit-2.78-halt.patch.bz2
-Patch4:		sysvinit-2.78-autofsck.patch.bz2
-Patch5:		sysvinit-2.84-shutdownlog.patch.bz2
-Patch7:		sysvinit-2.85-walltty.patch.bz2
-Patch8:		sysvinit-2.84-halthelp.patch.bz2
-Patch9:		sysvinit-2.84-lasttime.patch.bz2
-Patch10:	sysvinit-2.84-pidof.patch.bz2
-Patch100:	sysvinit-2.77-shutdown.patch.bz2
-Patch101:	sysvinit-2.83-libcrypt.patch.bz2
-Patch102:	sysvinit-2.83-biarch-utmp.patch.bz2
-Patch105:	sysvinit-disable-respawn-more-quickly.patch.bz2
+Patch0:		sysvinit-2.77-md5-be.patch.bz2
+Patch1:		sysvinit-2.78-halt.patch.bz2
+Patch2:		sysvinit-2.78-autofsck.patch.bz2
+Patch3:		sysvinit-2.84-shutdownlog.patch.bz2
+Patch4:		sysvinit-2.85-walltty.patch.bz2
+Patch5:		sysvinit-2.84-halthelp.patch.bz2
+Patch6:		sysvinit-2.84-lasttime.patch.bz2
+Patch7:		sysvinit-2.84-pidof.patch.bz2
+Patch8:		sysvinit-2.77-shutdown.patch.bz2
+Patch9:		sysvinit-2.83-libcrypt.patch.bz2
+Patch10:	sysvinit-2.83-biarch-utmp.patch.bz2
+Patch11:	sysvinit-disable-respawn-more-quickly.patch.bz2
+Patch12:	sysvinit-2.85-avx-silent_no_runlevel.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-root
 BuildRequires:	glibc-static-devel
@@ -43,20 +44,21 @@ contains some useful utilities to manage the running of the system.
 
 %prep
 %setup -q -n sysvinit-%{version}
-%patch2 -p1 -b .be
-%patch3 -p1 -b .halt
-%patch4 -p1 -b .autofsck
-%patch5 -p1 -b .shutdownlog
-%patch7 -p1 -b .wall
-%patch8 -p1 -b .halthelp
-%patch9 -p1 -b .lasttime
-%patch10 -p1 -b .pidof 
+%patch0 -p1 -b .be
+%patch1 -p1 -b .halt
+%patch2 -p1 -b .autofsck
+%patch3 -p1 -b .shutdownlog
+%patch4 -p1 -b .wall
+%patch5 -p1 -b .halthelp
+%patch6 -p1 -b .lasttime
+%patch7 -p1 -b .pidof 
 
-%patch105 -p0
+%patch11 -p0
 
-%patch100 -p0 -b .shutdown
-%patch101 -p1 -b .libcrypt
-%patch102 -p1 -b .biarch-utmp
+%patch8 -p0 -b .shutdown
+%patch9 -p1 -b .libcrypt
+%patch10 -p1 -b .biarch-utmp
+%patch12 -p1 -b .silent_no_runlevel
 
 %build
 # cpp hack workaround
@@ -87,10 +89,10 @@ rm -rf	%{buildroot}/usr/include
 mv %{buildroot}/sbin/init %{buildroot}/sbin/init.sysv
 mv %{buildroot}%{_mandir}/man8/init.8 %{buildroot}%{_mandir}/man8/init.sysv.8
 rm -f %{buildroot}%{_mandir}/man8/telinit.8
-rm -f %{buildroot}/sbin/{halt,reboot,poweroff}
-rm -f %{buildroot}%{_mandir}/man8/{halt,reboot,poweroff}.8*
-install -m 0750 %{SOURCE1} %{buildroot}/sbin/reboot
-install -m 0750 %{SOURCE2} %{buildroot}/sbin/halt
+#rm -f %{buildroot}/sbin/{halt,reboot,poweroff}
+#rm -f %{buildroot}%{_mandir}/man8/{halt,reboot,poweroff}.8*
+#install -m 0750 %{SOURCE1} %{buildroot}/sbin/reboot
+#install -m 0750 %{SOURCE2} %{buildroot}/sbin/halt
 
 %post
 [ ! -p /dev/initctl ] && rm -f /dev/initctl && mknod --mode=0600 /dev/initctl p || :
@@ -109,6 +111,7 @@ exit 0
 /sbin/killall5
 /sbin/pidof
 /sbin/reboot
+/sbin/poweroff
 /sbin/runlevel
 /sbin/shutdown
 /sbin/sulogin
@@ -123,6 +126,10 @@ exit 0
 %ghost /dev/initctl
 
 %changelog
+* Fri Mar 04 2005 Vincent Danen <vdanen@annvix.org> 2.85-9avx
+- put back halt/reboot/poweroff and use P12 to silence warnings
+- renumber patches
+
 * Sat Feb 12 2005 Vincent Danen <vdanen@annvix.org> 2.85-8avx
 - provide new halt/reboot scripts that are wrappers to shutdown
   (get rid of errors about not knowing the current runlevel due to runit)
