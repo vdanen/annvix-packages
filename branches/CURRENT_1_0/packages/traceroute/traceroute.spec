@@ -1,6 +1,6 @@
 %define name	traceroute
 %define version	1.4a12
-%define release	5sls
+%define release	6sls
 
 Summary:	Traces the route taken by packets over a TCP/IP network.
 Name:		%{name}
@@ -16,8 +16,6 @@ Patch4:		traceroute-1.4a5-autoroute2.patch.bz2
 Patch5:		traceroute-1.4a5-unaligned.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-root
-
-Prefix:		%{_prefix}
 
 %description
 The traceroute utility displays the route used by IP packets on their
@@ -43,14 +41,14 @@ export RPM_OPT_FLAGS="$RPM_OPT_FLAGS -DHAVE_IFF_LOOPBACK -DUSE_KERNEL_ROUTING_TA
 make 
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p ${RPM_BUILD_ROOT}/{%{_sbindir},%{_mandir}/man8}
 
 install traceroute ${RPM_BUILD_ROOT}/%{_sbindir}
 cp traceroute.8 ${RPM_BUILD_ROOT}/%{_mandir}/man8
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -58,6 +56,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man8/traceroute.8.bz2
 
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 1.4a12-6sls
+- minor spec cleanups
+- remove %%prefix
+
 * Wed Dec 17 2003 Vincent Danen <vdanen@opensls.org> 1.4a12-5sls
 - OpenSLS build
 - tidy spec

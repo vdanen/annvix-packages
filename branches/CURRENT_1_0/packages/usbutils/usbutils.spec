@@ -1,6 +1,6 @@
 %define name	usbutils
 %define version 0.11
-%define release 4sls
+%define release 5sls
 
 Summary:	Linux USB utilities
 Name:		%{name}
@@ -15,8 +15,6 @@ Source1:	http://www.linux-usb.org/usb.ids
 Patch0:		usbutils-0.11-fix-classes.patch.bz2 
 
 BuildRoot:	%{_tmppath}/%{name}-buildroot
-
-Prefix:		%{_prefix}
 
 %description
 usbutils contains a utility for inspecting devices connected to the USB bus.
@@ -33,7 +31,7 @@ perl -pe 's/^PHY.*//' %SOURCE1 > usb.ids
 %make
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
 # the latest usb.ids contain entries that usbutils doesn't handle
@@ -41,7 +39,7 @@ rm -f $RPM_BUILD_ROOT{%_includedir/libusb.h,%_libdir/libusb*}
 #perl -pe 's/^PHY.*//' %{SOURCE1} > $RPM_BUILD_ROOT%{_datadir}/usb.ids
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -51,6 +49,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 0.11-5sls
+- minor spec cleanups
+- remove %%prefix
+
 * Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 0.11-4sls
 - OpenSLS build
 - tidy spec
