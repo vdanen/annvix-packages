@@ -1,6 +1,6 @@
 %define name	make
 %define version	3.80
-%define release	7sls
+%define release	8sls
 %define epoch	1
 
 Summary:	A GNU tool which simplifies the build process for users
@@ -77,6 +77,9 @@ done
 %_infodir/make.info*
 
 %changelog
+* Fri May 09 2004 Vincent Danen <vdanen@opensls.org> 3.80-8sls
+- rebuild against new gettext
+
 * Sat Mar 06 2004 Vincent Danen <vdanen@opensls.org> 3.80-7sls
 - minor spec cleanups
 
