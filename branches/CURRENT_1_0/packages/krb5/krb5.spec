@@ -1,6 +1,6 @@
 %define name	krb5
 %define version	1.3
-%define release	7sls
+%define release	8sls
 
 %define srcver	1.3
 %define LIBMAJ	1
@@ -45,49 +45,11 @@ Source35:	krb5kdc.run
 Source36:	krb5kdc-log.run
 Source37:	krb524d.run
 Source38:	krb524d-log.run
-Patch0:		krb5-1.1-db.patch.bz2
-Patch1:		krb5-1.1.1-tiocgltc.patch.bz2
-Patch2:		krb5-1.1.1-libpty.patch.bz2
-Patch3:		krb5-1.1.1-fixinfo.patch.bz2
-Patch4:		krb5-1.1.1-manpages.patch.bz2
-Patch5:		krb5-1.1.1-netkitr.patch.bz2
-Patch6:		krb5-1.2-rlogind.patch.bz2
-Patch7:		krb5-1.2-ksu.patch.bz2
-Patch8:		krb5-1.2-ksu.options.patch.bz2
-Patch9:		krb5-1.2-ksu.man.patch.bz2
-Patch10:	krb5-1.2-quiet.patch.bz2
-Patch11:	krb5-1.1.1-brokenrev.patch.bz2
-Patch12:	krb5-1.2-spelling.patch.bz2
-Patch13:	krb5-1.2.1-term.patch.bz2
-Patch14:	krb5-1.2.1-passive.patch.bz2
-Patch15:	krb5-1.2.1-forward.patch.bz2
-Patch16:	krb5-1.2.1-heap.patch.bz2
-Patch17:	krb5-1.2.2-wragg.patch.bz2
-Patch18:	krb5-1.2.2-statglue.patch.bz2
-Patch19:	krb5-1.2.2-by-address.patch.bz2
-Patch20:	http://lite.mit.edu/krb5-1.2.2-ktany.patch.bz2
-Patch21:	krb5-1.2.2-logauth.patch.bz2
-Patch22:	krb5-1.2.2-size.patch.bz2
-Patch23:	krb5-1.2.5-db2-configure.patch.bz2
-Patch24:	krb5-1.2.2-telnetbanner.patch.bz2
-Patch25:	krb5-1.2.4-pic.patch.bz2
-Patch26:	krb5-1.2.4-tcl-libs.patch.bz2
-Patch27:	krb5-1.2.5-biarch-utmp.patch.bz2
-Patch28:	krb5-1.2.7-deps.patch.bz2
-Patch29:	krb5-1.2.7-namelength.patch
-Patch30:	krb5-1.2.7-errno.patch
-Patch31:	gssftp-patch
-Patch32:	krb5-1.2.7-reject-bad-transited.patch
-Patch33:	krb5-1.2.7-krb524d-double-free.patch
-Patch34:	krb5-1.2.8-princ_access.patch
-Patch35:	krb5-1.2.8-varargs.patch
-Patch36:	krb5-1.3-newline.patch.bz2
-Patch37:	krb5-1.3-telnet.patch.bz2
-# security
-Patch50:	http://web.mit.edu/kerberos/www/advisories/MITKRB5-SA-2003-003-xdr.txt
-Patch51:	http://web.mit.edu/kerberos/www/advisories/MITKRB5-SA-2003-005-patch.txt
-
-Patch52:	kbr5-fix-call-function.patch.bz2
+Patch0:		krb5-1.2.2-telnetbanner.patch.bz2
+Patch1:		krb5-1.2.5-biarch-utmp.patch.bz2
+Patch2:		krb5-1.3-newline.patch.bz2
+Patch3:		krb5-1.3-telnet.patch.bz2
+Patch4:		2004-001-an_to_ln_patch.txt.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-root
 BuildPrereq:	bison, flex, libtermcap-devel, texinfo, tcl
@@ -215,57 +177,14 @@ This version supports kerberos authentication.
 
 %prep
 %setup -q -a 25
-#%patch0  -p0 -b .db
-#%patch1  -p0 -b .tciogltc OK
-#%patch2  -p0 -b .libpty	OK
-#%patch3  -p0 -b .fixinfo
-#%patch4  -p0 -b .manpages
-#%patch5  -p0 -b .netkitr
-#%patch6  -p1 -b .rlogind
-#%patch7  -p1 -b .ksu
-#%patch8 -p1 -b .ksu-options
-#%patch9 -p1 -b .ksu-man
-#%patch10 -p1 -b .quiet
-#%patch11 -p1 -b .brokenrev OK
-#%patch12 -p1 -b .spelling
-#%patch13 -p1 -b .term		OK
-#%patch14 -p1 -b .passive 	OK
-#%patch15 -p1 -b .forward
-#%patch16 -p1 -b .heap
-#%patch17 -p1 -b .wragg
-#%patch18 -p1 -b .statglue	OK
-#%patch19 -p0 -b .by-address
-#%patch20 -p1 -b .ktany
-#%patch21 -p1 -b .logauth
-#%patch22 -p1 -b .size
-#%patch23 -p1 -b .db2-configure
-%patch24 -p1 -b .banner
-#%ifarch ia64 x86_64
-#%patch25 -p1 -b .pic OK
-#%endif
-#%patch26 -p1 -b .tcl-libs
-%patch27 -p1 -b .biarch-utmp
-#%patch28 -p1 -b .deps
-#%patch29 -p1 -b .namelength
-#%patch30 -p1 -b .errno
-#%patch31 -p1 -b .gssftp-patch
-#%patch32 -p1 -b .reject-bad-transited.patch OK
-#%patch33 -p1 -b .double-free OK
-#%patch34 -p1 -b .princ_access
-#%patch35 -p1 -b .varargs
-%patch36 -p1 -b .newline
-%patch37 -p1 -b .telnet
+%patch0 -p1 -b .banner
+%patch1 -p1 -b .biarch-utmp
+%patch2 -p1 -b .newline
+%patch3 -p1 -b .telnet
+pushd src/lib/krb5/os
+%patch4 -p0 -b .2004-001
+popd
 
-# security
-#pushd src/lib/rpc
-#%patch50 -p0 -b .2003-003
-#popd
-#pushd src
-#patch -sp0 -b -z .2003-004-krb4 < ../2003-004-krb4_patchkit/patch.1.2.7
-#%patch51 -p0 -b .2003-005
-#popd
-
-#%patch52 -p1 -b .fix.call.function
 
 #bzcat %{SOURCE19} > src/util/profile/statglue.c
 find . -type f -name "*.fixinfo" -exec rm -fv "{}" ";"
@@ -616,6 +535,10 @@ fi
 %{_srvdir}/kftp/log/run
 
 %changelog
+* Thu Jun 03 2004 Vincent Danen <vdanen@opensls.org> 1.3-8sls
+- remove all un-applied patches; renumber patches
+- P4: fix for MITKRB5-SA-2004-001
+
 * Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 1.3-7sls
 - minor spec cleanups
 
