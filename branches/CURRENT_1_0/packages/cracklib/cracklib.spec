@@ -1,21 +1,28 @@
-%define root crack
-%define maj 2
-%define libname %mklibname %root %maj
+%define name	cracklib
+%define version	2.7
+%define release	18sls
+
+%{!?build_propolice:%global build_propolice 0}
+
+%define root	crack
+%define maj	2
+%define libname	%mklibname %root %maj
 %define libnamedev %libname-devel
 
-Summary: A password-checking library.
-Name: cracklib
-Version: 2.7
-Release: 17mdk
-Group: System/Libraries
-Source: ftp://coast.cs.purdue.edu/pub/tools/unix/libs/cracklib/cracklib_%{version}.tar.bz2
-BuildRequires: words
-Url: ftp://coast.cs.purdue.edu/pub/tools/unix/libs/cracklib/
-License: Artistic
-Patch0: cracklib-2.7-redhat.patch.bz2
-Patch1: cracklib-2.7-makevars.patch.bz2
-Patch2: cracklib-2.7-includes.patch.bz2
-Buildroot: %{_tmppath}/%{name}-root
+Summary:	A password-checking library.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	Artistic
+Group:		System/Libraries
+URL:		ftp://coast.cs.purdue.edu/pub/tools/unix/libs/cracklib/
+Source:		ftp://coast.cs.purdue.edu/pub/tools/unix/libs/cracklib/cracklib_%{version}.tar.bz2
+Patch0:		cracklib-2.7-redhat.patch.bz2
+Patch1:		cracklib-2.7-makevars.patch.bz2
+Patch2:		cracklib-2.7-includes.patch.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-root
+BuildRequires:	words
 
 %description
 CrackLib tests passwords to determine whether they match certain
@@ -40,29 +47,18 @@ install CrackLib, you'll also want to install the cracklib-dicts
 package.
 
 %package -n %libname
+Summary:	A password-checking library.
+Group:		System/Libraries
 Provides:	lib%{root}-devel %{root}-devel = %{version}-%{release}
-Group: System/Libraries
-Summary: A password-checking library.
-Obsoletes: cracklib
+Obsoletes:	cracklib
 
 %description -n %libname
 
 %{see_base}
 
 %package dicts
-Summary: The standard CrackLib dictionaries.
-Group: System/Libraries
-
-%package -n %libnamedev
-Summary: Cracklib link library & header file
-Group: Development/C
-Provides: lib%{root}-devel %{root}-devel = %{version}-%{release} %{root}lib-devel = %{version}-%{release}
-Requires: %{libname} = %version-%release
-Obsoletes: cracklib-devel
-
-%description -n %libnamedev
-The cracklib devel package include the needed library link and
-header files for development.
+Summary:	The standard CrackLib dictionaries.
+Group:		System/Libraries
 
 %description dicts
 The cracklib-dicts package includes the CrackLib dictionaries.
@@ -71,6 +67,18 @@ which is normally put in /usr/share/dict/words.  Cracklib-dicts also contains
 the utilities necessary for the creation of new dictionaries.
 
 If you are installing CrackLib, you should also install cracklib-dicts.
+
+%package -n %libnamedev
+Summary:	Cracklib link library & header file
+Group:		Development/C
+Provides:	lib%{root}-devel %{root}-devel = %{version}-%{release} %{root}lib-devel = %{version}-%{release}
+Requires:	%{libname} = %version-%release
+Obsoletes:	cracklib-devel
+
+%description -n %libnamedev
+The cracklib devel package include the needed library link and
+header files for development.
+
 
 %prep
 %setup -q -n cracklib,2.7
@@ -81,6 +89,10 @@ perl -p -i -e "s/\) -g/\)/" cracklib/Makefile
 chmod -R og+rX .
 
 %build
+%if %{build_propolice}
+RPM_OPT_FLAGS="$RPM_OPT_FLAGS -fno-stack-protector"
+%endif
+
 make all RPM_OPT_FLAGS="$RPM_OPT_FLAGS" \
 	libdir=%{_libdir} datadir=%{_datadir}
 
@@ -116,6 +128,12 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/cracklib_dict*
 
 %changelog
+* Tue Dec 16 2003 Vincent Danen <vdanen@opensls.org> 2.7-18sls
+- OpenSLS build
+- tidy spec
+- use %%build_propolice macro to set -fno-stack-protector because we get
+  build errors if we have it enabled
+
 * Fri Jul 18 2003 Warly <warly@mandrakesoft.com> 2.7-17mdk
 - libification
 
