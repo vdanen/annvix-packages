@@ -1,6 +1,6 @@
 %define name	gnupg
 %define version 1.2.3
-%define release 4sls
+%define release 5sls
 
 Summary:	GNU privacy guard - a free PGP replacement.
 Name:		%{name}
@@ -11,8 +11,8 @@ Group:		File tools
 URL:		http://www.gnupg.org
 Source:		ftp://ftp.gnupg.org/pub/gcrypt/gnupg/%{name}-%{version}.tar.bz2
 Source1:	ftp://ftp.gnupg.org/pub/gcrypt/gnupg/%{name}-%{version}.tar.bz2.sig
-Source2:	mdk-keys.tar.bz2
-Source3:	mdk-keys.tar.bz2.sig
+Source2:	opensls-keys.tar.bz2
+Source3:	opensls-keys.tar.bz2.asc
 Patch0:		gnupg-1.0.7-options.patch.bz2
 Patch1:		gnupg-1.2.2-testsuite.patch.bz2
 Patch2:		gnupg-1.2.3-elgamal.patch.bz2
@@ -45,6 +45,7 @@ make
 make check
 
 %install
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 make DESTDIR=$RPM_BUILD_ROOT install
 
 sed -e "s#../g10/gpg#gpg#" < tools/lspgpot > %{buildroot}%{_bindir}/lspgpot
@@ -72,7 +73,6 @@ tar xvjf %{SOURCE2} -C %{buildroot}%{_sysconfdir}/RPM-GPG-KEYS
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-rm -rf $RPM_BUILD_DIR/%{name}-%{version}
 
 %post
 %_install_info gpg.info
@@ -86,8 +86,7 @@ rm -rf $RPM_BUILD_DIR/%{name}-%{version}
 %files -f %{name}.lang
 %defattr(-,root,root)
 %doc README NEWS THANKS TODO ChangeLog doc/DETAILS doc/FAQ doc/HACKING
-%doc doc/faq.html doc/faq.raw doc/OpenPGP doc/samplekeys.asc
-%doc doc/gpg.sgml doc/gpg.texi doc/gpgv.sgml doc/gpgv.texi
+%doc doc/faq.html doc/OpenPGP doc/samplekeys.asc
 %attr(4755,root,root) %{_bindir}/gpg
 %{_bindir}/gpgv
 %{_bindir}/lspgpot
@@ -103,6 +102,11 @@ rm -rf $RPM_BUILD_DIR/%{name}-%{version}
 %attr(0644,root,root) %{_sysconfdir}/RPM-GPG-KEYS/*.asc
 
 %changelog
+* Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 1.2.3-5sls
+- minor spec cleanups
+- get rid of some docs we don't need
+- use OpenSLS key rather than Mandrake keys
+
 * Tue Dec 02 2003 Vincent Danen <vdanen@opensls.org> 1.2.3-4sls
 - OpenSLS build
 - tidy spec
