@@ -1,6 +1,6 @@
 %define name	openssl
 %define version	0.9.7b
-%define release	7sls
+%define release	8avx
 
 %define maj		0.9.7
 %define libname 	%mklibname %name %maj
@@ -30,7 +30,7 @@ Patch7:		CAN-2004-0112.patch.bz2
 BuildRoot:	%_tmppath/%name-%version-root
 
 Requires:	%libname = %version-%release
-Requires:	/usr/bin/perl
+Requires:	perl
 
 %description
 The openssl certificate management tool and the shared libraries that provide
@@ -198,6 +198,10 @@ ln -sf libcrypto.so.0.* libcrypto.so
 
 
 %changelog
+* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 0.9.7b-8avx
+- require packages not files
+- Annvix build
+
 * Wed Mar 17 2004 Vincent Danen <vdanen@opensls.org> 0.9.7b-7sls
 - remove %%french_policy macro
 - security fixes for CAN-2004-0079 and CAN-2004-0112
