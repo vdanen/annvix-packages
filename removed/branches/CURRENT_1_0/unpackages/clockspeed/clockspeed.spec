@@ -1,6 +1,6 @@
 %define name	clockspeed
 %define version	0.62
-%define release	5avx
+%define release	6avx
 
 Summary:	Clock speed measurement and manipulation
 Name:		%{name}
@@ -110,6 +110,12 @@ install -m 0640 %{SOURCE7} %{buildroot}%{_sysconfdir}/sysconfig/clockspeed
 
 %post
 %_mkafterboot
+%_post_srv clockspeed
+%_post_srv taiclockd
+
+%preun
+%_preun_srv clockspeed
+%_preun_srv taiclockd
 
 %postun
 %_mkafterboot
@@ -158,6 +164,9 @@ install -m 0640 %{SOURCE7} %{buildroot}%{_sysconfdir}/sysconfig/clockspeed
 %{_mandir}/man3/taia_pack.3*
 
 %changelog
+* Wed Jul 14 2004 Vincent Danen <vdanen@annvix.org> 0.62-6avx
+- %%_post_srv and %%_preun_srv macros
+
 * Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 0.62-5avx
 - Annvix build
 
