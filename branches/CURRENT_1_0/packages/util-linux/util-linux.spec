@@ -1,6 +1,6 @@
 %define name	util-linux
 %define version	2.12
-%define release	2sls
+%define release	3avx
 
 # Maintainer util-linux@math.uio.no
 
@@ -553,6 +553,9 @@ fi
 /sbin/losetup
 
 %changelog
+* Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 2.12-3avx
+- Annvix build
+
 * Fri Jun 11 2004 Vincent Danen <vdanen@opensls.org> 2.12-2sls
 - fix PreReq to be dependant on packages, not files
 

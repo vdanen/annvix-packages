@@ -1,6 +1,6 @@
 %define name	uschedule
 %define version	0.7.0
-%define release	2sls
+%define release	3avx
 
 Summary:	Scheduling service
 Name:		%{name}
@@ -76,6 +76,9 @@ popd
 %{_mandir}/man8/*
 
 %changelog
+* Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 0.7.0-3avx
+- Annvix build
+
 * Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 0.7.0-2sls
 - minor spec cleanups
 

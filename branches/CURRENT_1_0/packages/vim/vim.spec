@@ -1,6 +1,6 @@
 %define name	vim
 %define version	6.2
-%define release	14sls
+%define release	15avx
 
 # Notes / Warning :
 # - this package is not prefixable
@@ -333,6 +333,9 @@ update-alternatives --remove vim /usr/bin/vim-enhanced
 %_bindir/vimdiff
 
 %changelog
+* Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 6.2-15avx
+- Annvix build
+
 * Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 6.2-14sls
 - minor spec cleanups
 

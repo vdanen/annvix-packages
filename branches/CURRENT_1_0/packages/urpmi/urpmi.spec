@@ -1,6 +1,6 @@
 %define name	urpmi
 %define version	4.4
-%define release 49sls
+%define release 50avx
 
 %{expand:%%define compat_perl_vendorlib %(perl -MConfig -e 'printf "%%s\n", "%{?perl_vendorlib:1}" ? "%%{perl_vendorlib}" : "$Config{installvendorlib}"')}
 
@@ -210,6 +210,9 @@ $urpm->update_media(nolock => 1, nopubkey => 1);
 %{compat_perl_vendorlib}/urpm/parallel_ssh.pm
 
 %changelog
+* Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 4.4-50avx
+- Annvix build
+
 * Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 4.4-49sls
 - remove %%build_opensls macro
 - minor spec cleanups

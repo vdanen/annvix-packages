@@ -1,6 +1,6 @@
 %define name	unixODBC
 %define version	2.2.6
-%define release	8sls
+%define release	9avx
 
 %define LIBMAJ 	2
 %define libname %mklibname %name %LIBMAJ
@@ -347,6 +347,9 @@ rm -f libodbc-libs.filelist
 %endif
 
 %changelog
+* Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 2.2.6-9avx
+- Annvix build
+
 * Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 2.2.6-8sls
 - minor spec cleanups
 
