@@ -1,6 +1,6 @@
 %define name	clockspeed
 %define version	0.62
-%define release	4sls
+%define release	5avx
 
 Summary:	Clock speed measurement and manipulation
 Name:		%{name}
@@ -158,6 +158,9 @@ install -m 0640 %{SOURCE7} %{buildroot}%{_sysconfdir}/sysconfig/clockspeed
 %{_mandir}/man3/taia_pack.3*
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 0.62-5avx
+- Annvix build
+
 * Tue Jun 15 2004 Vincent Danen <vdanen@opensls.org> 0.62-4sls
 - cron file needs to be executable
 - make exclusive to x86; on amd64 it doesn't work very well

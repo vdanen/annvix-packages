@@ -1,6 +1,6 @@
 %define name	chkrootkit
 %define version	0.43
-%define release	1sls
+%define release	2avx
 
 %define build_diet 1
 
@@ -59,6 +59,9 @@ install strings-static %{buildroot}%{_prefix}/lib/%{name}/strings
 %{_prefix}/lib/%{name}
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 0.43-2avx
+- Annvix build
+
 * Mon May 10 2004 Vincent Danen <vdanen@opensls.org> 0.43-1sls
 - 0.43
 - rediff P0
