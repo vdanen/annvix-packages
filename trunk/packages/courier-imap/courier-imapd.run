@@ -1,7 +1,20 @@
 #!/bin/sh
-PATH="/sbin:/usr/sbin:/bin:/usr/bin:$PATH"
 
-# this runs courier-imap's IMAP daemon under supervise
+# this runs courier-imap's IMAP daemon supervised
+# unfortunately, due to how courier-imap works, we need to jump through
+# hoops in order for it all to work
+
+set -a 
+
+PATH="/sbin:/usr/sbin:/bin:/usr/bin"
+
+# defaults; then source the imap configurations
+PORT="143"
+ADDRESS="0"
+
+[ -f /etc/courier/imapd-ssl ] && . /etc/courier/imapd-ssl
+[ -f /etc/courier/imapd ] && . /etc/courier/imapd
+
 
 # source the imap configuration
 [ -f /etc/courier/imapd ] && . /etc/courier/imapd
@@ -21,9 +34,10 @@ do
     LIBAUTHMODULES="$LIBAUTHMODULES /usr/lib/courier/authlib/$f"
 done
 
-exec /usr/bin/softlimit -m "$MAX_MEMORY" \
-  /usr/bin/tcpserver -c"$CONCURRENCY" -vRhX \
-  -x /etc/tcprules.d/imapd.cdb -l"$HOSTNAME" \
-  0 143 /usr/sbin/imaplogin $LIBAUTHMODULES \
-  /usr/bin/imapd Maildir 2>&1
+IMAP_STARTTLS=$IMAPDSTARTTLS; export IMAP_STARTTLS
+TLS_PROTOCOL=$TLS_STARTTLS_PROTOCOL; export TLS_PROTOCOL
 
+exec /sbin/chpst -m "$MAX_MEMORY" \
+  /sbin/tcpsvd -c"$CONCURRENCY" -v -l"$HOSTNAME" -i./peers \
+  $ADDRESS $PORT /usr/sbin/imaplogin $LIBAUTHMODULES \
+  /usr/bin/imapd Maildir 2>&1

@@ -1,12 +1,10 @@
 %define name	exim
-%define version 4.34
-%define release 1sls
+%define version 4.50
+%define release 1avx
 
 %define build_mysql 0
 %define build_pgsql 0
-%define htmldocver  4.30
-%define exiscanver  4.34-21
-%define saversion   4.0
+%define saversion   4.1
 
 %define alternatives 1
 %define altpriority  40
@@ -21,7 +19,7 @@ Name:		%{name}
 Summary:	The exim mail transfer agent
 Version:	%{version}
 Release:	%{release}
-Copyright:	GPL
+License:	GPL
 Group:		System/Servers
 URL:		http://www.exim.org
 Source:		ftp://ftp.exim.org/pub/exim/exim4/%{name}-%{version}.tar.bz2
@@ -38,13 +36,14 @@ Source11:	http://www.exim.org/ftp/exim4/config.samples.tar.bz2
 Source12:	sa-exim-%{saversion}.tar.gz
 Source13:	exim.run
 Source14:	exim-log.run
-Patch0:		exim-4.33-config.patch.bz2
-Patch1:		http://duncanthrax.net/exiscan-acl/exiscan-acl-%{exiscanver}.patch.bz2
+Patch0:		exim-4.50-avx-config.patch.bz2
 Patch2:		exim-4.22-install.patch.bz2
+Patch3:		exim-4.43-debian-system_pcre.diff.bz2
+Patch4:		exim-4.43-debian-dontoverridecflags.diff.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}
-BuildRequires:	tcp_wrappers-devel, pam-devel, openssl, openssl-devel, XFree86-devel, openldap-devel, lynx
-BuildRequires:	db4-devel >= 4.1
+BuildRequires:	tcp_wrappers-devel, pam-devel, openssl, openssl-devel, openldap-devel, lynx
+BuildRequires:	db4-devel >= 4.1, pcre-devel, perl-devel
 %if %{build_mysql}
 BuildRequires:	libmysql-devel
 %endif
@@ -54,7 +53,7 @@ BuildRequires: postgresql-devel
 
 PreReq:		rpm-helper
 %if %{alternatives}
-PreReq:		/usr/sbin/update-alternatives
+PreReq:		rpm
 %else
 Obsoletes:	sendmail postfix qmail smail
 %endif
@@ -79,18 +78,6 @@ messages per day.
 
 A utility, eximconfig, is included to simplify exim configuration.
 
-%package mon
-Summary:	X11 monitor application for exim
-Group:		Monitoring
-Copyright:	GPL
-Requires:	%{name}, XFree86
-
-%description mon
-The Exim Monitor is an optional supplement to the Exim package. It
-displays information about Exim's processing in an X window, and an
-administrator can perform a number of control actions from the window
-interface.
-
 %package saexim
 Summary:	Exim SpamAssassin at SMTP time plugin
 Group:		System/Servers
@@ -106,8 +93,9 @@ at SMTP time as well as other nasty things like teergrubbing.
 %setup -q -T -D -a 11
 %setup -q -T -D -a 12
 %patch0 -p1 -b .config
-%patch1 -p1 -b .exiscan
 %patch2 -p1 -b .install
+%patch3 -p1 -b .pcre
+%patch4 -p0 -b .cflags
 
 # apply the SA-exim dlopen patch
 cat sa-exim*/localscan_dlopen_exim_4.20_or_better.patch | patch -p1
@@ -115,7 +103,6 @@ cat sa-exim*/localscan_dlopen_exim_4.20_or_better.patch | patch -p1
 %build
 # pre-build setup
 cp src/EDITME Local/Makefile
-cp exim_monitor/EDITME Local/eximon.conf
 
 # modify Local/Makefile for our builds
 %if !%{build_mysql}
@@ -136,6 +123,7 @@ make RPM_OPT_FLAGS="$RPM_OPT_FLAGS"
 
 # build SA-exim
 cd sa-exim*
+perl -pi -e 's|/usr/lib/exim4/local_scan|%{_libdir}/exim|g' INSTALL
 make clean
 make SACONF=/etc/exim/sa-exim.conf CFLAGS="$RPM_OPT_FLAGS" LDFLAGS="-shared -fPIC"
 
@@ -186,10 +174,10 @@ install -m 0755 %{SOURCE14} %{buildroot}%{_srvdir}/exim/log/run
 
 # install SA-exim
 cd sa-exim*
-mkdir -p %{buildroot}%{_prefix}/libexec/exim
-install -m 0644 *.so %{buildroot}%{_prefix}/libexec/exim
+mkdir -p %{buildroot}%{_libdir}/exim
+install -m 0644 *.so %{buildroot}%{_libdir}/exim
 install -m 0644 *.conf %{buildroot}%{_sysconfdir}/exim
-pushd %{buildroot}%{_prefix}/libexec/exim
+pushd %{buildroot}%{_libdir}/exim
 ln -s sa-exim*.so sa-exim.so
 popd
 
@@ -235,7 +223,7 @@ fi
 %doc doc/ChangeLog LICENCE NOTICE README.UPDATING README
 %doc doc util/unknownuser.sh build-Linux-*/transport-filter.pl
 %doc util/cramtest.pl util/logargs.sh
-%doc doc/NewStuff doc/exiscan-acl-spec.txt
+%doc doc/NewStuff doc/Exim4.upgrade doc/*.txt doc/README.SIEVE
 %attr(4755,root,root) %{_bindir}/exim
 %{_bindir}/exim_checkaccess
 %{_bindir}/exim_dumpdb
@@ -284,22 +272,66 @@ fi
 %dir %{_srvdir}/exim/log
 %{_srvdir}/exim/run
 %{_srvdir}/exim/log/run
-%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/exim
-
-%files mon
-%defattr(-,root,root)
-%{_bindir}/eximon
-%{_bindir}/eximon.bin
+%dir %attr(0750,logger,logger) %{_srvlogdir}/exim
 
 %files saexim
 %defattr(-,root,root)
 %doc sa-exim*/*.html sa-exim*/{ACKNOWLEDGEMENTS,INSTALL,LICENSE,TODO}
-%dir %{_prefix}/libexec/exim
-%{_prefix}/libexec/exim/*
+%dir %{_libdir}/exim
+%{_libdir}/exim/*
 %config(noreplace) %{_sysconfdir}/exim/sa-exim.conf
 %config(noreplace) %{_sysconfdir}/exim/sa-exim_short.conf
 
 %changelog
+* Wed Mar 16 2005 Vincent Danen <vdanen@annvix.org> 4.50-1avx
+- 4.50
+- exiscan is now integrated in exim, so drop P1
+- enable support for old demime ACL's but this is deprecated for the
+  mime ACLs so this will be removed in the very near future (keep it
+  for migratory purposes and backwards compatibility) by updating P0
+- add some more docs
+
+* Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 4.44-3avx
+- use logger for logging
+
+* Wed Feb 02 2005 Vincent Danen <vdanen@annvix.org> 4.44-2avx
+- rebuild against new perl
+
+* Fri Jan 21 2005 Vincent Danen <vdanen@annvix.org> 4.44-1avx
+- 4.44
+- exiscan-acl 4.44-28
+- drop P5
+
+* Wed Jan 05 2005 Vincent Danen <vdanen@annvix.org> 4.43-2avx
+- actually apply P3 and P4
+- P5: minor security fixes posted to exim ml by Philip
+
+* Mon Dec 20 2004 Vincent Danen <vdanen@annvix.org> 4.43-1avx
+- 4.43
+- exiscan-acl 4.43-28
+- P3: use system pcre libs
+- P4: don't override cflags
+- remove exim-mon completely
+- BuildRequires: pcre-devel, perl-devel
+- enable IPv6 support
+- enable cyrus-sasl support
+
+* Mon Sep 20 2004 Vincent Danen <vdanen@annvix.org> 4.42-1avx
+- 4.42
+- exiscan-acl 4.42-27
+- update run scripts
+
+* Thu Aug 19 2004 Vincent Danen <vdanen@annvix.org> 4.41-1avx
+- 4.41
+- exiscan-acl 4.41-25
+- sa-exim 4.1
+- move saexim libs from /usr/libexec/exim to %%{_libdir}/exim
+- update the patch location in the sa-exim INSTALL doc
+
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 4.34-2avx
+- Annvix build
+- don't build the X11 monitor (%%build_mon macro)
+
 * Mon May 10 2004 Vincent Danen <vdanen@opensls.org> 4.34-1sls
 - 4.34
 - exiscan-acl 4.34-21

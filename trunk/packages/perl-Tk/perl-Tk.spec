@@ -1,7 +1,7 @@
 %define module	Tk
 %define name	perl-%{module}
-%define version 800.024
-%define release 7sls
+%define version 804.027
+%define release 1avx
 
 %define _requires_exceptions Watch
 
@@ -12,9 +12,9 @@ Release:	%{release}
 License:	GPL or Artistic
 Group:		Development/Perl
 URL:		http://www.cpan.org
-Source:		ftp://sunsite.doc.ic.ac.uk/packages/CPAN/modules/by-module/Tk/Tk%{version}.tar.bz2
+Source:		ftp://sunsite.doc.ic.ac.uk/packages/CPAN/modules/by-module/%{module}/%{module}-%{version}.tar.bz2
 
-Buildroot:	%{_tmppath}/%{name}-buildroot
+BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
 BuildRequires:	perl-devel XFree86-devel
 
 Provides:	perl/tk ptk pTk
@@ -45,7 +45,7 @@ The licences for the various components differ, so check the copyright.
 This is the development package.
 
 %prep
-%setup -q -n Tk%{version}
+%setup -q -n %{module}-%{version}
 find . -type f | xargs perl -pi -e 's|^#!.*/bin/perl\S*|#!/usr/bin/perl|'
 # Make it lib64 aware, avoid patch
 perl -pi -e "s,(/usr/X11(R6|\\*)|\\\$X11|\(\?:)/lib,\1/%{_lib},g" \
@@ -55,19 +55,20 @@ perl -pi -e "s#--center#-c#" ./Tk/MMutil.pm
 
 %build
 %{__perl} Makefile.PL INSTALLDIRS=vendor
-%make OPTIMIZE="$RPM_OPT_FLAGS" LD_RUN_PATH=""
+%make OPTIMIZE="%{optflags}" LD_RUN_PATH=""
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
-%{__chmod} 644 $RPM_BUILD_ROOT%{_mandir}/man3*/*
+%{__chmod} 644 %{buildroot}%{_mandir}/man3*/*
 
 # Remove unpackaged files, add them if you find a use
-rm -f $RPM_BUILD_ROOT%{perl_vendorarch}/{Tie/Watch.pm,Tk/prolog.ps}
-rm -f $RPM_BUILD_ROOT%{_mandir}/man1/{ptk{ed,sh},widget}.1*
+rm -f %{buildroot}%{perl_vendorarch}/{Tie/Watch.pm,Tk/prolog.ps}
+rm -f %{buildroot}%{_mandir}/man1/{ptk{ed,sh},widget}.1*
+rm -f %{buildroot}%{_mandir}/man3/Tie::Watch.3pm*
 
 ## compress all .pm files (as using perl-PerlIO-gzip).
-#find $RPM_BUILD_ROOT -name "*.pm" | xargs gzip -9
+#find %{buildroot} -name "*.pm" | xargs gzip -9
 
 # get rid of all the pod files
 rm -f %{buildroot}%{perl_vendorarch}/Tk.pod
@@ -81,7 +82,7 @@ rm -f %{buildroot}%{perl_vendorarch}/Tk/README.Adjust
 %defattr(-,root,root)
 %doc COPYING ToDo Changes README README.linux
 %{_bindir}/*
-%{_mandir}/man3*/*
+%{_mandir}/man*/*
 %{perl_vendorarch}/Tk.pm*
 %dir %{perl_vendorarch}/Tk
 %{perl_vendorarch}/Tk/*.pm*
@@ -111,6 +112,16 @@ rm -f %{buildroot}%{perl_vendorarch}/Tk/README.Adjust
 
 
 %changelog
+* Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> 800.024-9avx
+- 804.027
+- spec cleanups
+
+* Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> 800.024-9avx
+- rebuild against new perl
+
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 800.024-8avx
+- Annvix build
+
 * Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 800.024-7sls
 - rebuild for perl 5.8.4
 

@@ -1,6 +1,6 @@
 %define name	common-licenses
 %define version 1.0
-%define release 9sls
+%define release 10avx
 
 Summary:	Contains the various common licenses uses by the distribution
 Name:		%{name}
@@ -36,7 +36,10 @@ cp -a %{name} %{buildroot}%{_datadir}
 
 
 %changelog
-* Fri Nov 28 2003 Vincent Danen <vdanen@opensls.org> 1.0-8sls
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 1.0-10avx
+- Annvix build
+
+* Fri Nov 28 2003 Vincent Danen <vdanen@opensls.org> 1.0-9sls
 - minor spec cleanups
 
 * Fri Nov 28 2003 Vincent Danen <vdanen@opensls.org> 1.0-8sls

@@ -1,6 +1,6 @@
 %define name	doxygen
 %define version 1.3.3
-%define release 4sls
+%define release 5avx
 
 Summary:	Doxygen is THE documentation system for C/C++
 Name:		%{name}
@@ -16,7 +16,7 @@ Patch0:		doxygen-1.2.12-fix-latex.patch.bz2
 Patch1:		doxygen-1.2.16-fix-for-qt3.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
-BuildRequires:	XFree86-devel, flex, gcc-c++
+BuildRequires:	flex, gcc-c++
 
 %description
 Doxygen is a documentation system for C, C++ and IDL. It can generate
@@ -63,6 +63,10 @@ install -s bin/doxy* ${RPM_BUILD_ROOT}%{_bindir}
 %{_bindir}/doxysearch
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 1.3.3-5avx
+- Annvix build
+- remove BuildReq on XFree86-devel
+
 * Thu Mar 04 2004 Vincent Danen <vdanen@opensls.org> 1.3.3-4sls
 - remove %%build_opensls macro
 - minor spec cleanups

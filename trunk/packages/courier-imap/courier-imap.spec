@@ -1,6 +1,6 @@
 %define name	courier-imap
 %define version	2.1.2
-%define release	6sls
+%define release	17avx
 
 %define _localstatedir	/var/run
 %define	authdaemondir	%{_localstatedir}/authdaemon.courier-imap
@@ -35,6 +35,7 @@ Source12:	courier-pop3ds-log.run
 Source13:	courier-imap.sysconfig
 Source14:	authdaemond.run
 Source15:	authdaemond-log.run
+Source16:	09_courier-imap.afterboot
 # (fc) 1.4.2-2mdk fix missing command in initrd
 Patch0: 	courier-imap-1.6.1-initrd.patch.bz2
 Patch1:		courier-imap-2.1.2-auto_maildir_creator.patch.bz2
@@ -51,9 +52,9 @@ BuildRequires:	MySQL-devel
 # postgresql subpackage:
 BuildRequires:	postgresql-devel
 
-Requires:	chkconfig, coreutils, gdbm, sed
+Requires:	chkconfig, coreutils, gdbm, sed, ipsvd
 #Requires:	libopenssl0.9.7
-PreReq:		maildirmake++, rpm-helper
+PreReq:		maildirmake++, rpm-helper, afterboot
 Conflicts:	uw-imap, bincimap
 Provides:	imap, imap-server
 
@@ -67,7 +68,7 @@ the full Courier mail server.  Install the Courier package instead.
 %package pop
 Summary:	Courier-IMAP POP servers
 Group:		System/Servers
-Requires:	%{name} = %{version}-%{release}
+Requires:	%{name} = %{version}-%{release}, ipsvd
 Provides:	pop, pop-server
 Conflicts:	uw-imap-pop
 
@@ -302,6 +303,7 @@ echo "MOD_MAILDIR_CREATOR=\"/bin/false\"" >> %{buildroot}%{couriersysconfdir}/po
 echo "MOD_MAILDIR_CREATOR=\"/bin/false\"" >> %{buildroot}%{couriersysconfdir}/pop3d-ssl.dist 
 
 mkdir -p %{buildroot}%{_srvdir}/{courier-imapd,courier-imapds,courier-pop3d,courier-pop3ds,authdaemond}/log
+mkdir -p %{buildroot}%{_srvdir}/{courier-imapd,courier-imapds,courier-pop3d,courier-pop3ds}/peers
 mkdir -p %{buildroot}%{_srvlogdir}/{courier-imapd,courier-imapds,courier-pop3d,courier-pop3ds,authdaemond}
 install -m 0750 %{SOURCE5} %{buildroot}%{_srvdir}/courier-imapd/run
 install -m 0750 %{SOURCE6} %{buildroot}%{_srvdir}/courier-imapd/log/run
@@ -314,6 +316,12 @@ install -m 0750 %{SOURCE12} %{buildroot}%{_srvdir}/courier-pop3ds/log/run
 install -m 0750 %{SOURCE14} %{buildroot}%{_srvdir}/authdaemond/run
 install -m 0750 %{SOURCE15} %{buildroot}%{_srvdir}/authdaemond/log/run
 
+touch %{buildroot}%{_srvdir}/{courier-imapd,courier-imapds,courier-pop3d,courier-pop3ds}/peers/0
+chmod 0644  %{buildroot}%{_srvdir}/{courier-imapd,courier-imapds,courier-pop3d,courier-pop3ds}/peers/0
+
+mkdir -p %{buildroot}%{_datadir}/afterboot
+install -m 0644 %{SOURCE16} %{buildroot}%{_datadir}/afterboot/09_courier-imap
+
 mkdir -p %{buildroot}%{_sysconfdir}/sysconfig
 install -m 0644 %{SOURCE13} %{buildroot}%{_sysconfdir}/sysconfig/imapd
 install -m 0644 %{SOURCE13} %{buildroot}%{_sysconfdir}/sysconfig/imapd-ssl
@@ -324,6 +332,8 @@ install -m 0644 %{SOURCE13} %{buildroot}%{_sysconfdir}/sysconfig/pop3d-ssl
 %{courierdatadir}/sysconftool `cat %{courierdatadir}/configlist` >/dev/null
 %_post_srv courier-imapd
 %_post_srv courier-imapds
+%_post_srv authdaemond
+%_mkafterboot
 
 %create_ghostfile %{_localstatedir}/imapd.pid root root 0600
 %create_ghostfile %{_localstatedir}/imapd.pid.lock root root 0600
@@ -352,27 +362,34 @@ install -m 0644 %{SOURCE13} %{buildroot}%{_sysconfdir}/sysconfig/pop3d-ssl
 %post pgsql
 %{courierdatadir}/sysconftool `cat %{courierdatadir}/configlist.pgsql` >/dev/null
 
+%postun
+%_mkafterboot
+
 %postun ldap
 %_preun_srv courier-imapd
 %_preun_srv courier-imapds
 %_preun_srv courier-pop3d
 %_preun_srv courier-pop3ds
+%_preun_srv authdaemond
 
 %postun mysql
 %_preun_srv courier-imapd
 %_preun_srv courier-imapds
 %_preun_srv courier-pop3d
 %_preun_srv courier-pop3ds
+%_preun_srv authdaemond
 
 %postun pgsql
 %_preun_srv courier-imapd
 %_preun_srv courier-imapds
 %_preun_srv courier-pop3d
 %_preun_srv courier-pop3ds
+%_preun_srv authdaemond
 
 %preun 
 %_preun_srv courier-imapd
 %_preun_srv courier-imapds
+%_preun_srv authdaemond
 
 %preun pop
 %_preun_srv courier-pop3d
@@ -459,21 +476,26 @@ test ! -f %{courierdatadir}/configlist.mysql || %{courierdatadir}/sysconftool-rp
 
 %dir %{_srvdir}/courier-imapd
 %dir %{_srvdir}/courier-imapd/log
+%dir %{_srvdir}/courier-imapd/peers
 %{_srvdir}/courier-imapd/run
 %{_srvdir}/courier-imapd/log/run
-%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/courier-imapd
+%config(noreplace) %{_srvdir}/courier-imapd/peers/0
+%dir %attr(0750,logger,logger) %{_srvlogdir}/courier-imapd
 %dir %{_srvdir}/courier-imapds
 %dir %{_srvdir}/courier-imapds/log
+%dir %{_srvdir}/courier-imapds/peers
 %{_srvdir}/courier-imapds/run
 %{_srvdir}/courier-imapds/log/run
-%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/courier-imapds
+%config(noreplace) %{_srvdir}/courier-imapds/peers/0
+%dir %attr(0750,logger,logger) %{_srvlogdir}/courier-imapds
 %config(noreplace) %{_sysconfdir}/sysconfig/imapd
 %config(noreplace) %{_sysconfdir}/sysconfig/imapd-ssl
 %dir %{_srvdir}/authdaemond
 %dir %{_srvdir}/authdaemond/log
 %{_srvdir}/authdaemond/run
 %{_srvdir}/authdaemond/log/run
-%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/authdaemond
+%dir %attr(0750,logger,logger) %{_srvlogdir}/authdaemond
+%{_datadir}/afterboot/09_courier-imap
 
 %files pop
 %defattr(-, root, root)
@@ -494,14 +516,18 @@ test ! -f %{courierdatadir}/configlist.mysql || %{courierdatadir}/sysconftool-rp
 
 %dir %{_srvdir}/courier-pop3d
 %dir %{_srvdir}/courier-pop3d/log
+%dir %{_srvdir}/courier-pop3d/peers
 %{_srvdir}/courier-pop3d/run
 %{_srvdir}/courier-pop3d/log/run
-%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/courier-pop3d
+%config(noreplace) %{_srvdir}/courier-pop3d/peers/0
+%dir %attr(0750,logger,logger) %{_srvlogdir}/courier-pop3d
 %dir %{_srvdir}/courier-pop3ds
 %dir %{_srvdir}/courier-pop3ds/log
+%dir %{_srvdir}/courier-pop3ds/peers
 %{_srvdir}/courier-pop3ds/run
 %{_srvdir}/courier-pop3ds/log/run
-%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/courier-pop3ds
+%config(noreplace) %{_srvdir}/courier-pop3ds/peers/0
+%dir %attr(0750,logger,logger) %{_srvlogdir}/courier-pop3ds
 %config(noreplace) %{_sysconfdir}/sysconfig/pop3d
 %config(noreplace) %{_sysconfdir}/sysconfig/pop3d-ssl
 
@@ -535,6 +561,47 @@ test ! -f %{courierdatadir}/configlist.mysql || %{courierdatadir}/sysconftool-rp
 %{_mandir}/man1/maildirmake++.1*
 
 %changelog
+* Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 2.1.2-17avx
+- use logger for logging
+
+* Thu Feb 04 2005 Vincent Danen <vdanen@annvix.org> 2.1.2-16avx
+- rebuild against new gdbm
+
+* Wed Jan 05 2005 Vincent Danen <vdanen@annvix.org> 2.1.2-15avx
+- rebuild against new openssl
+
+* Thu Oct 14 2004 Vincent Danen <vdanen@annvix.org> 2.1.2-14avx
+- fix typeo in courier-pop3ds run script
+
+* Wed Oct 13 2004 Vincent Danen <vdanen@annvix.org> 2.1.2-13avx
+- use tcpsvd rather than tcpserver
+- Requires: ipsvd
+- PreReq: afterboot
+- add afterboot snippet
+
+* Mon Sep 20 2004 Vincent Danen <vdanen@annvix.org> 2.1.2-12avx
+- update run scripts
+
+* Thu Aug 19 2004 Vincent Danen <vdanen@annvix.org> 2.1.2-11avx
+- authdaemond needs to restart on upgrades and such also
+
+* Tue Aug 17 2004 Vincent Danen <vdanen@annvix.org> 2.1.2-10avx
+- rebuild against new openssl
+
+* Sat Jul 10 2004 Vincent Danen <vdanen@annvix.org> 2.1.2-9avx
+- fix all of the run scripts; the imap services are reading the config
+  options as env vars so we need to do some monkeying around; also
+  updated them to better match courier-imap's rc scripts (aka everything
+  should work properly now)
+
+* Sat Jul 10 2004 Vincent Danen <vdanen@annvix.org> 2.1.2-8avx
+- fix *ssl runscripts as they need to source the non-ssl configs
+  and then the *ssl configs to work properly
+- respect the PORT and SSLPORT settings in the config files
+
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 2.1.2-7avx
+- Annvix build
+
 * Fri Apr 23 2004 Vincent Danen <vdanen@opensls.org> 2.1.2-6sls
 - P3 makes authdaemond no longer daemonize itself so we can run under
   supervise (thanks Brian Candler)

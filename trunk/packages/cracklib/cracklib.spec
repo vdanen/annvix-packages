@@ -1,8 +1,6 @@
 %define name	cracklib
 %define version	2.7
-%define release	19sls
-
-%{!?build_propolice:%global build_propolice 0}
+%define release	20avx
 
 %define root	crack
 %define maj	2
@@ -90,9 +88,8 @@ perl -p -i -e "s/\) -g/\)/" cracklib/Makefile
 chmod -R og+rX .
 
 %build
-%if %{build_propolice}
+# the libs don't build properly with SSP enabled
 RPM_OPT_FLAGS="$RPM_OPT_FLAGS -fno-stack-protector"
-%endif
 
 make all RPM_OPT_FLAGS="$RPM_OPT_FLAGS" \
 	libdir=%{_libdir} datadir=%{_datadir}
@@ -129,6 +126,10 @@ ln -sf libcrack.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libcrack.so.%{maj}
 %{_libdir}/cracklib_dict*
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 2.7-20avx
+- Annvix build
+- remove %%build_propolice macro; build without ssp by default
+
 * Wed Mar 03 2004 Vincent Danen <vdanen@opensls.org> 2.7-19sls
 - minor spec cleanups
 

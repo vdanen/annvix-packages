@@ -1,6 +1,6 @@
 %define name	bdflush
-%define release 26sls
 %define version 1.5
+%define release 27avx
 %define url	ftp://tsx-11.mit.edu/pub/linux/sources/system/v1.2
 
 Summary:	The process which starts the flushing of dirty buffers back to disk.
@@ -60,6 +60,9 @@ install -m 644 bdflush.8 %{buildroot}/%{_mandir}/man8/update.8
 %{_mandir}/man8/update.8*
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 1.5-27avx
+- Annvix build
+
 * Tue Mar 02 2004 Vincent Danen <vdanen@opensls.org> 1.5-26sls
 - minor spec cleanups
 - since the binary is named update, not bdflush, don't have a manpage named

@@ -1,6 +1,6 @@
 %define name	php-ini
-%define version	4.3.7
-%define release	1sls
+%define version	4.3.10
+%define release	1avx
 
 Summary:	INI files for PHP
 Name:		%{name}
@@ -9,55 +9,71 @@ Release:	%{release}
 License:	PHP License
 Group:		Development/Other
 URL:		http://www.php.net
-Source0:	php.ini.bz2
+Source0:	php.ini.annvix.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-root
 
-Provides: 	ADVXpackage
-
 %description
 The php-ini package contains the ini files required for PHP.
+
+%prep
+%setup -c -T
 
 %build
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-mkdir -p %{buildroot}%{_sysconfdir}
-mkdir -p %{buildroot}%{_sysconfdir}/php
+mkdir -p %{buildroot}%{_sysconfdir}/php.d
 mkdir -p %{buildroot}%{_libdir}/php/extensions
 bzcat %{SOURCE0} > %{buildroot}%{_sysconfdir}/php.ini
 
 perl -pi -e 's|EXTENSIONDIR|%{_libdir}/php/extensions|g' %{buildroot}%{_sysconfdir}/php.ini
 
-mkdir -p %{buildroot}%{_docdir}/%{name}-%{version}
-echo "Thanks to Oden Eriksson for the scan-dir idea!" > \
-        %{buildroot}%{_docdir}/%{name}-%{version}/CREDITS
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-%post
-#Since we use noreplace, we may have an old php.ini file which is not 
-#compatible with the new way of handling extensions. Remove all
-#extensions if that's the case.
-cd %{_sysconfdir}
-if egrep "^(;)*extension(.)*\.so" php.ini >/dev/null; then
-  echo "Converting php.ini to new way of handling extensions"
-  cat php.ini > php-ini.bak
-  egrep -v "^(;)*extension(.)*\.so" php-ini.bak > php.ini
-fi
-
 %files 
 %defattr(-,root,root)
-%dir %{_sysconfdir}/php
+%config(noreplace) %{_sysconfdir}/php.ini
+%dir %{_sysconfdir}/php.d
 %dir %{_libdir}/php
 %dir %{_libdir}/php/extensions
-%config(noreplace) %{_sysconfdir}/php.ini
-%dir %{_docdir}/%{name}-%{version}
-%doc %{_docdir}/%{name}-%{version}/*
 
 %changelog
+* Fri Dec 17 2004 Vincent Danen <vdanen@annvix.org> 4.3.10-1avx
+- spec cleanups
+- remove %%post migratory stuff
+- remove hardened-php changes to php.ini
+
+* Fri Dec 17 2004 Vincent Danen <vdanen@annvix.org> 4.3.10-1avx
+- php 4.3.10
+- update php.ini to accomodate hardened-php directives
+
+* Thu Sep 30 2004 Vincent Danen <vdanen@annvix.org> 4.3.9-1avx
+- php 4.3.9
+
+* Wed Jul 14 2004 Vincent Danen <vdanen@annvix.org> 4.3.8-1avx
+- 4.3.8
+- remove ADVXpackage provides
+- by default, allow_url_fopen is off, as is register_globals
+- move scandir to /etc/php.d
+- update php.ini from 4.3.8 with the following changes (based on
+  php.ini-recommended):
+  - output_buffering = Off
+  - expose_php = Off
+  - error_log = /var/log/httpd/php-error.log
+  - variables_order = "EGPCS"
+  - register_argc_argv = On
+  - magic_quotes_gpc = On
+  - include_path = ".:/usr/lib/php/:/usr/share/pear/"
+  - allow_url_fopen = Off
+  - session.gc_divisor = 100
+
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 4.3.7-2avx
+- Annvix build
+
 * Thu Jun 03 2004 Vincent Danen <vdanen@opensls.org> 4.3.7-1sls
 - 4.3.7
 

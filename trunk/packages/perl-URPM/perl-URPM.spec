@@ -1,6 +1,6 @@
 %define name	perl-URPM
-%define version 0.94
-%define release 13sls
+%define version 1.11
+%define release 1avx
 
 %define real_name URPM
 
@@ -10,6 +10,7 @@
 %{expand:%%define compat_makeinstall_std %(perl -e 'printf "%%s\n", "%{?makeinstall_std:1}" ? "%%makeinstall_std" : "%%{__make} install PREFIX=%%{buildroot}%%{_prefix}"')}
 %{expand:%%define compat_perl_vendorarch %(perl -MConfig -e 'printf "%%s\n", "%{?perl_vendorarch:1}" ? "%%{perl_vendorarch}" : "$Config{installvendorarch}"')}
 %{expand:%%define buildreq_perl_devel %%(perl -e 'printf "%%s\\n", "%_vendor" =~ /mandrake/i ? "perl-devel" : "perl"')}
+%define _require_exceptions perl(URPM::DB)\\|perl(URPM::Package)\\|perl(URPM::Transaction)
 
 Summary:	URPM module for perl
 Name:		%{name}
@@ -24,6 +25,7 @@ BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
 BuildRequires:	%{buildreq_perl_devel} rpm-devel >= 4.0.3 bzip2-devel
 
 Requires:	rpm >= %{rpm_version}, bzip2 >= 1.0
+Requires:	rpmtools >= 5.0.0, perl-base >= 2:5.8.6
 Provides:	perl(URPM::Build) = %{version}-%{release}
 Provides:	perl(URPM::Resolve) = %{version}-%{release}
 Provides:	perl(URPM::Signature) = %{version}-%{release}
@@ -38,7 +40,6 @@ hdlist files and manage them in memory.
 %build
 %{__perl} Makefile.PL INSTALLDIRS=vendor
 %{__make} OPTIMIZE="$RPM_OPT_FLAGS"
-%{__make} test
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -49,15 +50,34 @@ hdlist files and manage them in memory.
 
 %files
 %defattr(-,root,root)
-%doc README
-#%{_mandir}/man3pm/*
+%doc README ChangeLog
 %{compat_perl_vendorarch}/URPM.pm
 %{compat_perl_vendorarch}/URPM
 %dir %{compat_perl_vendorarch}/auto/URPM
 %{compat_perl_vendorarch}/auto/URPM/URPM.so
+%{_mandir}/man3/*
 
 
 %changelog
+* Thu Mar 17 2005 Vincent Danen <vdanen@annvix.org> 1.11-1avx
+- 1.11
+
+* Tue Mar 01 2005 Vincent Danen <vdanen@annvix.org> 1.09-1avx
+- 1.09
+
+* Wed Feb 02 2005 Vincent Danen <vdanen@annvix.org> 1.07-1avx
+- 1.07
+- remove unused requires (rgarciasuarez)
+- include ChangeLog
+- Requires: rpmtools >= 5.0.0
+- Requires: perl-base >= 5.8.6
+
+* Tue Sep 14 2004 Vincent Danen <vdanen@annvix.org> 1.03-1avx
+- 1.03
+
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 0.94-14avx
+- Annvix build
+
 * Sat Jun 11 2004 Vincent Danen <vdanen@opensls.org> 0.94-13sls
 - rebuild for perl 5.8.4
 

@@ -1,10 +1,8 @@
 %define name	pam
 %define version	0.77
-%define release	13sls
+%define release	17avx
 
-%define rhrelease	1
-%define pwdb_version	0.62
-%define db_version	4.1.25
+%define rhrelease	5
 %define libname		%mklibname %name 0
 
 Summary:	A security tool which provides authentication for applications.
@@ -54,6 +52,12 @@ Patch31:	pam-0.77-utmp-dev.patch.bz2
 Patch32:	pam-0.77-pwdb-static.patch.bz2
 Patch33:	pam-0.77-nss-reentrant.patch.bz2
 Patch34:	pam-0.77-dbpam.patch.bz2
+Patch35:	pam-0.77-sigchld.patch.bz2
+Patch36:	pam-0.77-skip-aconf-install.patch.bz2
+Patch37:	pam-0.77-log-changes.patch.bz2
+Patch38:	pam-0.77-64bit.patch.bz2
+Patch39:	pam-0.77-fencepost.patch.bz2
+Patch40:	pam-0.77-grubb_leak.patch.bz2
 
 Patch500:	pam-0.77-mdkconf.patch.bz2
 Patch501:	pam-0.74-loop.patch.bz2
@@ -65,11 +69,14 @@ patch507:	pam-0.75-time-tty.patch.bz2
 # (fc) 0.75-29mdk don't complain when / is owned by root.adm
 Patch508:	Linux-PAM-0.75-pamtimestampadm.patch.bz2
 Patch509:	pam-0.75-biarch-utmp.patch.bz2
-Patch510:	pam-0.77-sigchld.patch.bz2
 Patch511:	pam-0.77-verbose-limits.patch.bz2
 Patch512:	pam-0.77-xauth-groups.patch.bz2
+# (fl) for udev
+Patch513:	pam-0.77-console-setowner.patch.bz2
+# (fl) for /etc/environment
+Patch514:	pam-0.77-environment.patch.bz2
 
-Patch600:	pam-0.77-opensls.patch.bz2
+Patch600:	pam-0.77-annvix.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-root
 BuildRequires:	bison cracklib-devel flex glib-devel pwdb-devel
@@ -101,6 +108,7 @@ Summary:	Development headers and libraries for %{name}
 Group:		Development/Other
 PreReq:		%{libname} = %version-%release
 Provides:	%{name}-devel = %version-%release
+Provides:	lib%{name}-devel = %version-%release
 Obsoletes:	%{name}-devel <= 0.77-10sls
 
 %description -n %{libname}-devel
@@ -149,6 +157,12 @@ cp %{SOURCE4} .
 %patch32 -p1 -b .pwdb-static
 %patch33 -p1 -b .nss-reentrant
 %patch34 -p1 -b .dbpam
+%patch35 -p1 -b .sigchld
+%patch36 -p1 -b .skip-aconf-install
+%patch37 -p1 -b .log-changes
+%patch38 -p1 -b .64bit
+%patch39 -p1 -b .fencepost
+%patch40 -p1 -b .grubb_leak
 
 %patch500 -p1 -b .mdkconf
 %patch501 -p1 -b .loop
@@ -159,19 +173,21 @@ cp %{SOURCE4} .
 %patch507 -p1 -b .time-tty
 %patch508 -p1 -b .pamtimestampadm
 %patch509 -p1 -b .biarch-utmp
-%patch510 -p1 -b .kernel25x
 %patch511 -p1 -b .verbose-limits
 %patch512 -p1 -b .xauth-groups
+%patch513 -p1 -b .console-setowner
+%patch514 -p1 -b .environment
 
-%patch600 -p0 -b .opensls
+%patch600 -p0 -b .annvix
 
 for readme in modules/pam_*/README ; do
 	cp -fv ${readme} doc/txts/README.`dirname ${readme} | sed -e 's|^modules/||'`
 done
+rm -f doc/txts/README
 autoconf
 
 %build
-CFLAGS="$RPM_OPT_FLAGS -fPIC" \
+CFLAGS="%{optflags} -fPIC" \
 ./configure \
 	--prefix=/ \
 	--libdir=/%{_lib} \
@@ -179,30 +195,33 @@ CFLAGS="$RPM_OPT_FLAGS -fPIC" \
 	--mandir=%{_mandir} \
 	--enable-static-libpam \
 	--enable-securedir=/%{_lib}/security \
-	--enable-fakeroot=$RPM_BUILD_ROOT
+	--enable-fakeroot=%{buildroot}
+# really build pam_console_apply_devfs against glib-1.2
+echo "PREFER_GLIB1 = yes" >> Make.Rules
+
 # %%make doesn't work
 make
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p $RPM_BUILD_ROOT%{_includedir}/security
-mkdir -p $RPM_BUILD_ROOT/%{_lib}/security
-make install FAKEROOT=$RPM_BUILD_ROOT LDCONFIG=:
-install -d -m 755 $RPM_BUILD_ROOT/etc/pam.d
-install -m 644 %{SOURCE2} $RPM_BUILD_ROOT/etc/pam.d/other
-install -m 644 %{SOURCE3} $RPM_BUILD_ROOT/etc/pam.d/system-auth
-chmod 644 $RPM_BUILD_ROOT/etc/pam.d/{other,system-auth}
+mkdir -p %{buildroot}%{_includedir}/security
+mkdir -p %{buildroot}/%{_lib}/security
+make install FAKEROOT=%{buildroot} LDCONFIG=:
+install -d -m 755 %{buildroot}/etc/pam.d
+install -m 644 %{SOURCE2} %{buildroot}/etc/pam.d/other
+install -m 644 %{SOURCE3} %{buildroot}/etc/pam.d/system-auth
+chmod 644 %{buildroot}/etc/pam.d/{other,system-auth}
 
 # Install man pages.
-install -d -m 755 $RPM_BUILD_ROOT/%{_mandir}/man3
-install -d -m 755 $RPM_BUILD_ROOT/%{_mandir}/man8
-install -m 644 doc/man/*.3 $RPM_BUILD_ROOT%{_mandir}/man3/
-install -m 644 doc/man/*.8 $RPM_BUILD_ROOT%{_mandir}/man8/
+install -d -m 755 %{buildroot}%{_mandir}/man3
+install -d -m 755 %{buildroot}%{_mandir}/man8
+install -m 644 doc/man/*.3 %{buildroot}%{_mandir}/man3/
+install -m 644 doc/man/*.8 %{buildroot}%{_mandir}/man8/
 
 # Make sure every module built.
 for dir in modules/pam_* ; do
 if [ -d ${dir} ] ; then
-	if ! ls -1 $RPM_BUILD_ROOT/%{_lib}/security/`basename ${dir}`*.so ; then
+	if ! ls -1 %{buildroot}/%{_lib}/security/`basename ${dir}`*.so ; then
 		echo ERROR `basename ${dir}` module did not build.
 		exit 1
 	fi
@@ -210,11 +229,13 @@ fi
 done
 
 #remove unpackaged files
-rm -rf $RPM_BUILD_ROOT/%{_lib}/libpam{.a,c.*} \
-  $RPM_BUILD_ROOT/%{_lib}/security/pam_filter/upperLOWER \
-  $RPM_BUILD_ROOT%{_sysconfdir}/security/chroot.conf \
-  $RPM_BUILD_ROOT%{_prefix}/doc/Linux-PAM \
-  $RPM_BUILD_ROOT%{_datadir}/doc/pam
+rm -rf %{buildroot}/%{_lib}/libpam{.a,c.*} \
+  %{buildroot}/%{_lib}/security/pam_filter/upperLOWER \
+  %{buildroot}%{_sysconfdir}/security/chroot.conf \
+  %{buildroot}%{_prefix}/doc/Linux-PAM \
+  %{buildroot}%{_datadir}/doc/pam
+
+touch %{buildroot}%{_sysconfdir}/environment
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -224,7 +245,9 @@ rm -rf $RPM_BUILD_ROOT/%{_lib}/libpam{.a,c.*} \
 
 %files
 %defattr(-,root,root)
+%doc CHANGELOG Copyright doc/txts/*
 %dir /etc/pam.d
+%config(noreplace) %{_sysconfdir}/environment
 %config(noreplace) /etc/pam.d/other
 %config(noreplace) /etc/pam.d/system-auth
 %config(noreplace) /etc/security/access.conf
@@ -236,6 +259,7 @@ rm -rf $RPM_BUILD_ROOT/%{_lib}/libpam{.a,c.*} \
 %attr(4755,root,root) /sbin/pwdb_chkpwd
 /sbin/unix_chkpwd
 /sbin/pam_console_apply
+/sbin/pam_console_setowner
 /sbin/pam_tally
 /sbin/pam_timestamp_check
 %dir /etc/security/console.apps
@@ -259,7 +283,45 @@ rm -rf $RPM_BUILD_ROOT/%{_lib}/libpam{.a,c.*} \
 %{_includedir}/security/*.h
 %{_mandir}/man3/*
 
+# mdk pam-0.77-26mdk
 %changelog
+* Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 0.77-17avx
+- revert the pam.d/{other,system-auth} changes that crept in from mdk
+  packages
+
+* Tue Mar 01 2005 Vincent Danen <vdanen@annvix.org> 0.77-16avx
+- include some documentation on the various modules
+- rebuild against new glib
+
+* Fri Sep 24 2004 Vincent Danen <vdanen@annvix.org> 0.77-15avx
+- sync with Mandrake 0.77-25mdk:
+  - console.perms: /proc/usb -> /proc/bus/usb (Marcel Pol)
+    [bug #8285] (flepied)
+  - updated P16 to give console perms to rfcomm devices (fcrozat)
+  - manage dri file perms [bug #10876] (flepied)
+  - manage perms of /dev/raw1394 [bug #9240] (flepied)
+  - console.perms more group friendly [bug #3033] (flepied)
+  - merged with rh 0.77-54 (flepied) - without SELINUX support
+  - put back <serial> group in console.perms (flepied)
+  - added /dev/rfcomm* /dev/ircomm* to serial group (Fred Crozat)
+    (flepied)
+  - fixed lookup when a group or a user doesn't exist [bug #11256]
+    (flepied)
+  - add sr* to cdrom group (fcrozat)
+  - implement pam_console_setowner for udev (flepied)    
+  - fixed debug code in pam_console_apply_devfsd (flepied)
+  - added a way to debug pam_console_setowner by setting PAM_DEBUG
+    env variable (flepied)
+  - build pam_console_apply_devfs aainst glib-1.2 (gbeauchesne)
+  - pam_env: don't abort if /etc/environment isn't present (Oded Arbel)
+    (flepied)
+  - create an empty /etc/environment (flepied)
+- remove selinux-related bits from P40 and likewise drop the
+  pam-0.77-closefd.patch which patches against the (unapplied) selinux patch
+
+* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 0.77-14avx
+- Annvix build
+
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 0.77-13sls
 - minor spec cleanups
 

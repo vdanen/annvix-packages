@@ -1,6 +1,6 @@
 %define name	libtermcap
 %define version	2.0.8
-%define release	37sls
+%define release	38avx
 
 %define lib_major	2
 %define lib_name_orig	libtermcap
@@ -143,6 +143,9 @@ fi
 %_includedir/termcap.h
 
 %changelog
+* Wed Jun 23 2004 Vincent Danen <vdanen@annvix.org> 2.0.8-38avx
+- Annvix build
+
 * Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 2.0.8-37sls
 - minor spec cleanups
 

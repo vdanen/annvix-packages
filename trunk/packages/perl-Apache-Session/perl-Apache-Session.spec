@@ -1,18 +1,20 @@
 %define name	perl-%{module}
 %define module	Apache-Session
-%define version	1.54
-%define release	9sls
+%define version	1.6
+%define release	1avx
+%define epoch	1
 
 Summary:	%{module}: Apache persistent user sessions
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
+Epoch:		%{epoch}
 License:	GPL or Artistic
 Group:		Development/Perl
-URL:		http://www.cpan.org
+URL:		http://search.cpan.org/dist/%{module}/
 Source0:	%{module}-%{version}.tar.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-buildroot/
+BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot/
 BuildRequires:	perl-DB_File perl-DBI perl-devel perl-Digest-MD5
 BuildArch:	noarch
 
@@ -31,17 +33,17 @@ gether.
 %setup -q -n %{module}-%{version}
 
 %build
-CFLAGS="$RPM_OPT_FLAGS" %{__perl} Makefile.PL INSTALLDIRS=vendor
+CFLAGS="%{optflags}" %{__perl} Makefile.PL INSTALLDIRS=vendor
 make
 make test
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 eval `perl '-V:installarchlib'`
-mkdir -p $RPM_BUILD_ROOT/$installarchlib
-make PREFIX=$RPM_BUILD_ROOT%{_prefix} install
+mkdir -p %{buildroot}/$installarchlib
+make PREFIX=%{buildroot}%{_prefix} install
 %__os_install_post
-find $RPM_BUILD_ROOT%{_prefix} -type f -print | sed "s@^$RPM_BUILD_ROOT@@g" | grep -v perllocal.pod > %{module}-%{version}-filelist
+find %{buildroot}%{_prefix} -type f -print | sed "s@^%{buildroot}@@g" | grep -v perllocal.pod > %{module}-%{version}-filelist
 
 %clean 
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -54,6 +56,17 @@ find $RPM_BUILD_ROOT%{_prefix} -type f -print | sed "s@^$RPM_BUILD_ROOT@@g" | gr
 %{perl_vendorlib}/Apache/*
 
 %changelog
+* Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> 1.6-1avx
+- 1.6
+- spec cleanups
+- set epoch or rpm thinks that 1.54 > 1.6
+
+* Wed Feb 02 2005 Vincent Danen <vdanen@annvix.org> 1.54-11avx
+- rebuild against new perl
+
+* Sat Jun 26 2004 Vincent Danen <vdanen@annvix.org> 1.54-10avx
+- Annvix build
+
 * Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 1.54-9sls
 - rebuild for perl 5.8.4
 

@@ -1,7 +1,7 @@
 %define module	Net_SSLeay
 %define name 	perl-%{module}
 %define version	1.25
-%define release	4sls
+%define release	8avx
 
 Summary:        Net::SSLeay (module for perl)
 Name: 		%{name}
@@ -57,6 +57,18 @@ make test
 %{_mandir}/*/*
 
 %changelog
+* Wed Feb 02 2005 Vincent Danen <vdanen@annvix.org> 1.25-8avx
+- rebuild against new perl
+
+* Thu Jan 06 2005 Vincent Danen <vdanen@annvix.org> 1.25-7avx
+- rebuild against latest openssl
+
+* Tue Aug 17 2004 Vincent Danen <vdanen@annvix.org> 1.25-6avx
+- rebuild against new openssl
+
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 1.25-5avx
+- Annvix build
+
 * Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 1.25-4sls
 - rebuild for perl 5.8.4
 - keep autosplitted method, this package does not handle it well if you

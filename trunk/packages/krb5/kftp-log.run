@@ -1,6 +1,5 @@
 #!/bin/sh
 
-# this writes logs as user nobody into /var/log/supervise/ftp; make 
-# sure this directory exists and is writable by nobody!
+# logging for the kftp service
 
-exec /usr/bin/setuidgid nobody /usr/bin/multilog t /var/log/supervise/ftp
+exec /sbin/chpst -u logger /sbin/svlogd -tt /var/log/supervise/kftp

@@ -1,6 +1,6 @@
 %define name	byacc
 %define version	1.9
-%define release	16sls
+%define release	17avx
 
 Summary:	A public domain Yacc parser generator.
 Name:		%{name}
@@ -77,6 +77,9 @@ chmod u+w $RPM_BUILD_DIR/%{name}-%{version} -R
 %{_mandir}/man1/*
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@opensls.org> 1.9-17avx
+- Annvix build
+
 * Tue Mar 02 2004 Vincent Danen <vdanen@opensls.org> 1.9-16sls
 - minor spec cleanups
 

@@ -1,16 +1,15 @@
 %define name	cyrus-sasl
-%define version	2.1.15
-%define release	7sls
+%define version	2.1.20
+%define release	1avx
 
 %define major	2
 %define libname	%mklibname sasl %{major}
-%define up_name	cyrus-sasl
 
-Summary:	SASL is the Simple Authentication and Security Layer.
+Summary:	SASL is the Simple Authentication and Security Layer
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
-License:	OSI Approved
+License:	BSD style
 Group:		System/Libraries
 URL:		http://asg.web.cmu.edu/cyrus/download/
 Source0:	ftp://ftp.andrew.cmu.edu/pub/cyrus-mail/%{name}-%{version}.tar.gz
@@ -20,18 +19,19 @@ Source3:        saslauthd.sysconfig
 Source4:	saslauthd.run
 Source5:	saslauthd-log.run
 Source6:	saslauthd.8.bz2
-Patch0:		cyrus-sasl-doc-patch.bz2
-Patch1:		cyrus-sasl-2.1.12-rpath.patch.bz2
-Patch2:		cyrus-sasl-2.1.15-lib64.patch.bz2
+Patch0:		cyrus-sasl-2.1.20-avx-doc.patch.bz2
+Patch1:		cyrus-sasl-2.1.19-mdk-no_rpath.patch.bz2
+Patch2:		cyrus-sasl-2.1.15-mdk-lib64.patch.bz2
+Patch3:		cyrus-sasl-2.1.20-fdr-gssapi-dynamic.patch.bz2
+Patch5:		cyrus-sasl-2.1.19-mdk-pic.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
-BuildRequires:  autoconf, automake, db4-devel, pam-devel, krb5-devel
+BuildRequires:  autoconf, automake1.8, db4-devel, pam-devel, krb5-devel
 BuildRequires:  openssl-devel >= 0.9.6a, libtool >= 1.4
+BuildRequires:	MySQL-devel, postgresql-devel
 %{?!bootstrap:BuildRequires: openldap-devel}
 
-Prefix:		%{_prefix}
-Requires:	%{libname}
-Obsoletes:	cyrus-sasl >= 2.1.0
+Requires:	%{libname} = %{version}
 PreReq:		rpm-helper
 
 %description
@@ -43,7 +43,7 @@ protocol interactions. If its use is negotiated, a security layer is inserted
 between the protocol and the connection. 
 
 %package -n %{libname}
-Summary:	Libraries for SASL a the Simple Authentication and Security Layer.
+Summary:	Libraries for SASL a the Simple Authentication and Security Layer
 Group:		System/Libraries
 
 %description -n %{libname}
@@ -55,9 +55,13 @@ protocol interactions. If its use is negotiated, a security layer is inserted
 between the protocol and the connection. 
 
 %package -n %{libname}-devel
-Summary:	Librairies for SASL a the Simple Authentication and Security Layer.
+Summary:	Librairies for SASL a the Simple Authentication and Security Layer
 Group:		Development/C
-Provides:	libsasl-devel
+%if %{_lib} != lib
+Provides:	libsasl-devel = %{version}
+Provides:	libsasl2-devel = %{version}
+%endif
+Provides:	%{mklibname -d sasl} = %{version}
 Requires:	%{libname} = %{version}
 
 %description -n %{libname}-devel
@@ -172,35 +176,70 @@ Requires:	%{libname} = %{version}
 %description -n %{libname}-plug-ntlm
 This plugin implements the (unsupported) ntlm authentication.
 
+%package -n %{libname}-plug-sql
+Summary:	SASL sql auxprop plugin
+Group:		System/Libraries
+Requires:	%{libname} = %{version}
+
+%description -n %{libname}-plug-sql
+This plugin implements the SQL auxprop authentication method
+supporting MySQL and PostgreSQL.
+
 
 %prep
 %setup -q -n %{name}-%{version}
 %patch0 -p1
-%patch1 -p1
+%patch1 -p1 -b .rpath
 %patch2 -p1 -b .lib64
+%patch3 -p1 -b .gssapi
+%patch5 -p1 -b .pic
+
+rm -f config/ltconfig config/libtool.m4
+libtoolize -f -c
+aclocal-1.8 -I config -I cmulocal
+automake-1.8 -a -c -f
+autoheader
+autoconf -f
+pushd saslauthd
+    rm -f config/ltconfig
+    libtoolize -f -c
+    aclocal-1.8 -I ../config -I ../cmulocal
+    automake-1.8 -a -c -f
+    autoheader
+    autoconf -f
+popd
+
 
 %build
-
 %serverbuild
+# (bluca) trim spaces into CFLAGS or configure will whine
+%ifarch x86_64
+CFLAGS="$CFLAGS -fPIC"
+%endif
+export CFLAGS=`echo ${CFLAGS} | sed -e 's/  */ /'`
 
 export LDFLAGS="-L%{_libdir}"
 
 %{?__cputoolize: %{__cputoolize} -c saslauthd}
-%configure 	--enable-static --enable-shared \
-		--with-plugindir=%{_libdir}/sasl2 \
-		--disable-krb4 \
-		--enable-login \
-		--enable-srp \
-		--enable-srp-setpass \
-		--enable-ntlm \
-		--enable-db4 \
-		--without-mysql \
+%configure \
+	--enable-static --enable-shared \
+	--with-plugindir=%{_libdir}/sasl2 \
+	--disable-krb4 \
+	--enable-login \
+	--enable-srp \
+	--enable-srp-setpass \
+	--enable-ntlm \
+	--enable-db4 \
+	--enable-sql --with-mysql=%{_prefix} --with-pgsql=%{_prefix} \
 %{?!bootstrap:--with-ldap=/usr} \
-		--with-dbpath=/var/lib/sasl2/sasl.db \
-		--with-configdir=%{_libdir}/sasl2 \
-		--with-saslauthd=/var/lib/sasl2 
+	--with-dbpath=/var/lib/sasl2/sasl.db \
+	--with-saslauthd=/var/lib/sasl2 \
+	--with-authdaemond=/var/run/authdaemon.courier-imap/socket
 
 %make
+pushd saslauthd
+    make testsaslauthd
+popd
 
 install saslauthd/LDAP_SASLAUTHD README.ldap
 
@@ -222,9 +261,11 @@ install -m644 */*.8 $RPM_BUILD_ROOT%{_mandir}/man8/
 
 # dbconverter-2 isn't installed by make install
 
-cd utils
-/bin/sh ../libtool --mode=install /usr/bin/install -c dbconverter-2 \
-  $RPM_BUILD_ROOT/%{_sbindir}/dbconverter-2
+pushd utils
+    /bin/sh ../libtool --mode=install /usr/bin/install -c dbconverter-2 \
+      $RPM_BUILD_ROOT/%{_sbindir}/dbconverter-2
+popd
+cp saslauthd/testsaslauthd %{buildroot}%{_sbindir}
 
 mkdir -p %{buildroot}%{_srvdir}/saslauthd/log
 mkdir -p %{buildroot}%{_srvlogdir}/saslauthd
@@ -233,6 +274,16 @@ install -m 0750 %{SOURCE5} %{buildroot}%{_srvdir}/saslauthd/log/run
 
 # fix the horribly broken manpage
 bzcat %{SOURCE6} >%{buildroot}%{_mandir}/man8/saslauthd.8
+
+pushd sample
+    /bin/sh ../libtool --mode=install /usr/bin/install -c client \
+      %{buildroot}%{_sbindir}/sasl-sample-client
+    /bin/sh ../libtool --mode=install /usr/bin/install -c server \
+      %{buildroot}%{_sbindir}/sasl-sample-server
+popd
+
+# multiarch policy
+%multiarch_includes %{buildroot}%{_includedir}/sasl/md5global.h
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -251,14 +302,13 @@ fi
 %preun
 %_preun_srv saslauthd
 
-%post -n %{libname}
-/sbin/ldconfig
+%post -n %{libname} -p /sbin/ldconfig
 
 %postun -n %{libname} -p /sbin/ldconfig
 
 %files
 %defattr(-,root,root)
-%doc COPYING AUTHORS INSTALL NEWS README* ChangeLog sample/{client,server}
+%doc COPYING AUTHORS INSTALL NEWS README* ChangeLog
 %doc doc/{TODO,ONEWS,*.txt,*.html}
 %dir /var/lib/sasl2
 %attr (644,root,root) %config(noreplace) /etc/sysconfig/saslauthd
@@ -274,74 +324,119 @@ fi
 %files -n %{libname}
 %defattr(-,root,root)
 %{_libdir}/libsasl*.so.*
+%dir %{_libdir}/sasl2
 
 %files -n %{libname}-plug-anonymous
 %defattr(-,root,root)
-%{_libdir}/*/libanonymous*.so*
-%{_libdir}/*/libanonymous*.la
+%{_libdir}/sasl2/libanonymous*.so*
+%{_libdir}/sasl2/libanonymous*.la
 
 %files -n %{libname}-plug-otp
 %defattr(-,root,root)
-%{_libdir}/*/libotp*.so.*
-%{_libdir}/*/libotp.so
-%{_libdir}/*/libotp*.la
+%{_libdir}/sasl2/libotp*.so*
+%{_libdir}/sasl2/libotp*.la
 
 %files -n %{libname}-plug-sasldb
 %defattr(-,root,root)
-%{_libdir}/*/libsasldb*.so.*
-%{_libdir}/*/libsasldb.so
-%{_libdir}/*/libsasldb*.la
+%{_libdir}/sasl2/libsasldb*.so*
+%{_libdir}/sasl2/libsasldb*.la
 
 %files -n %{libname}-plug-gssapi
 %defattr(-,root,root)
-%{_libdir}/*/libgssapi*.so.*
-%{_libdir}/*/libgssapi*.so
-%{_libdir}/*/libgssapi*.la
+%{_libdir}/sasl2/libgssapi*.so*
+%{_libdir}/sasl2/libgssapi*.la
 
 %files -n %{libname}-plug-crammd5
 %defattr(-,root,root)
-%{_libdir}/*/libcrammd5*.so*
-%{_libdir}/*/libcrammd5*.la
+%{_libdir}/sasl2/libcrammd5*.so*
+%{_libdir}/sasl2/libcrammd5*.la
 
 %files -n %{libname}-plug-digestmd5
 %defattr(-,root,root)
-%{_libdir}/*/libdigestmd5*.so*
-%{_libdir}/*/libdigestmd5*.la
+%{_libdir}/sasl2/libdigestmd5*.so*
+%{_libdir}/sasl2/libdigestmd5*.la
 
 %files -n %{libname}-plug-plain
 %defattr(-,root,root)
-%{_libdir}/*/libplain*.so*
-%{_libdir}/*/libplain*.la
+%{_libdir}/sasl2/libplain*.so*
+%{_libdir}/sasl2/libplain*.la
 
 #%files -n %{libname}-plug-kerberos4
 #%defattr(-,root,root)
-#%{_libdir}/*/libkerberos4*.so*
+#%{_libdir}/sasl2/libkerberos4*.so*
 
 %files -n %{libname}-plug-login
 %defattr(-,root,root)
-%{_libdir}/*/liblogin*.so*
-%{_libdir}/*/liblogin*.la
+%{_libdir}/sasl2/liblogin*.so*
+%{_libdir}/sasl2/liblogin*.la
 
 %files -n %{libname}-plug-srp
 %defattr(-,root,root)
-%{_libdir}/*/libsrp*.so*
-%{_libdir}/*/libsrp*.la
+%{_libdir}/sasl2/libsrp*.so*
+%{_libdir}/sasl2/libsrp*.la
 
 
 %files -n %{libname}-plug-ntlm
 %defattr(-,root,root)
-%{_libdir}/*/libntlm*.so*
-%{_libdir}/*/libntlm*.la
+%{_libdir}/sasl2/libntlm*.so*
+%{_libdir}/sasl2/libntlm*.la
+
+
+%files -n %{libname}-plug-sql
+%defattr(-,root,root)
+%{_libdir}/sasl2/libsql*.so*
+%{_libdir}/sasl2/libsql*.la
 
 %files -n %{libname}-devel
 %defattr(-,root,root)
 %{_includedir}/*
 %{_libdir}/*.*so
 %{_libdir}/*.*a
-%{_libdir}/*/*.a
+%{_libdir}/sasl2/*.a
 %{_mandir}/man3/*
  
 %changelog
+* Tue Mar 15 2005 Vincent Danen <vdanen@annvix.org> 2.1.20-1avx
+- 2.1.20
+- rediff P0, P3
+- drop P4; merged upstream
+
+* Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 2.1.19-4avx
+- multiarch
+- use automake1.8 (bluca)
+- added the sql plugin and build for mysql/postgres by default
+- added courier authdaemon support (bluca)
+- own %%{_libdir}/sasl2
+- provide libsasl2-devel and lib64sasl2-devel on biarches (bluca)
+- use logger for logging
+
+* Thu Jan 06 2005 Vincent Danen <vdanen@annvix.org> 2.1.19-3avx
+- rebuild against new openssl
+
+* Thu Oct 07 2004 Vincent Danen <vdanen@annvix.org> 2.1.19-2avx
+- P4: fixes CAN-2004-0884
+
+* Mon Sep 20 2004 Vincent Danen <vdanen@annvix.org> 2.1.19-1avx
+- 2.1.19
+- drop %%_prefix
+- patch policy
+- sync with Mandrake 2.1.19-3mdk:
+  - add testsaslauthd (jmdault)
+  - add missing plugin files (jmdault)
+  - reworked P1 and added P3 from fedora (bluca)
+  - recreate autoconf stuff in prep (bluca)
+  - really install sample client and server (bluca)
+  - remove obsoletes on myself and fix library require (bluca)
+
+* Mon Sep 20 2004 Vincent Danen <vdanen@annvix.org> 2.1.15-10avx
+- update run scripts
+
+* Tue Aug 17 2004 Vincent Danen <vdanen@annvix.org> 2.1.15-9avx
+- rebuild against latest openssl
+
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 2.1.15-8avx
+- Annvix build
+
 * Wed Mar 03 2004 Vincent Danen <vdanen@opensls.org> 2.1.15-7sls
 - minor spec cleanups
 

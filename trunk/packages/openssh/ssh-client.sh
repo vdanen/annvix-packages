@@ -1,6 +1,8 @@
 # fix hanging ssh clients on exit
-if test -n "$ZSH_VERSION"; then
+if [ "$SHELL" != "/bin/ksh" ]; then
+  if [ -n "$ZSH_VERSION" ]; then
        setopt hup
-else
+  else
        shopt -s huponexit
+  fi
 fi

@@ -1,6 +1,6 @@
 %define name	rcs
 %define version	5.7
-%define release	8sls
+%define release	9avx
 
 Summary:	Revision Control System (RCS) file version management tools.
 Name:		%{name}
@@ -55,6 +55,9 @@ mv $RPM_BUILD_ROOT/usr/man/* $RPM_BUILD_ROOT%{_mandir}
 %{_mandir}/man5/*
 
 %changelog
+* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 5.7-9avx
+- Annvix build
+
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 5.7-8sls
 - minor spec cleanups
 - remove %%prefix

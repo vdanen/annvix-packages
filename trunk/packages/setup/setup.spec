@@ -1,17 +1,21 @@
-%define name	setup
-%define version 2.4
-%define release 10sls
+# $Id: setup.spec,v 1.14 2005/03/20 07:43:55 vdanen Exp $
 
-Summary:	A set of system configuration and setup files.
+%define name	setup
+%define version 2.5
+%define release 3avx
+
+Summary:	A set of system configuration and setup files
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	Public Domain
 Group:		System/Configuration/Other
-URL:		http://opensls.org/cgi-bin/viewcvs.cgi/tools/setup
+URL:		http://annvix.org/cgi-bin/viewcvs.cgi/tools/setup
 Source:		setup-%{version}.tar.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-root
+BuildRoot:	%{_tmppath}/%{name}-%{version}-root
+
+Requires:	shadow-utils
 
 %description
 The setup package contains a set of very important system
@@ -26,32 +30,43 @@ administration.
 %setup -q
 
 %build
-%make CFLAGS="$RPM_OPT_FLAGS"
+%make CFLAGS="%{optflags}"
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-make install RPM_BUILD_ROOT=%buildroot mandir=%_mandir
+make install RPM_BUILD_ROOT=%{buildroot} mandir=%{_mandir}
 
-rm -rf $RPM_BUILD_ROOT/%{_datadir}/base-passwd $RPM_BUILD_ROOT/%{_sbindir}
-rm -f  `find $RPM_BUILD_ROOT/%{_mandir} -name 'update-passwd*'`
+rm -rf %{buildroot}%{_datadir}/base-passwd %{buildroot}%{_sbindir}
+rm -f  `find %{buildroot}%{_mandir} -name 'update-passwd*'`
+mkdir -p %{buildroot}/var/lib/rsbac
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
+%post 
+pwconv 2>/dev/null >/dev/null  || :
+grpconv 2>/dev/null >/dev/null  || :
+
+if [ -x /usr/sbin/nscd ]; then
+	nscd -i passwd -i group || :
+fi
 
 %files
 %defattr(-,root,root)
 %doc ChangeLog
 %verify(not md5 size mtime) %config(noreplace) /etc/passwd
 %verify(not md5 size mtime) %config(noreplace) /etc/group
-%verify(not md5 size mtime) %config(noreplace) /etc/shadow
-%_mandir/man8/*8*
+%verify(not md5 size mtime) %attr(0400,root,root) %config(noreplace) /etc/shadow
+%{_mandir}/man8/*8*
 # find_lang can't find man pages yet :-(
-%lang(cs) %_mandir/cs/man8/*8*
-%lang(et) %_mandir/et/man8/*8*
-%lang(eu) %_mandir/eu/man8/*8*
-%lang(fr) %_mandir/fr/man8/*8*
-#%lang(ru) %_mandir/ru/man8/*8*
-%lang(uk) %_mandir/uk/man8/*8*
+%lang(cs) %{_mandir}/cs/man8/*8*
+%lang(et) %{_mandir}/et/man8/*8*
+%lang(eu) %{_mandir}/eu/man8/*8*
+%lang(fr) %{_mandir}/fr/man8/*8*
+%lang(it) %{_mandir}/it/man8/*8*
+%lang(nl) %{_mandir}/nl/man8/*8*
+#%lang(ru) %{_mandir}/ru/man8/*8*
+%lang(uk) %{_mandir}/uk/man8/*8*
 /usr/bin/run-parts
 %config(noreplace) /etc/services
 %config(noreplace) /etc/exports
@@ -69,18 +84,54 @@ rm -f  `find $RPM_BUILD_ROOT/%{_mandir} -name 'update-passwd*'`
 %attr(0644,root,root) %config(missingok,noreplace) /etc/securetty
 %config(noreplace) /etc/csh.login
 %config(noreplace) /etc/csh.cshrc
+%config(noreplace) /etc/sysconfig/ulimits
+%dir /etc/profile.d
 %config(noreplace) /etc/profile.d/*
 %verify(not md5 size mtime) /var/log/lastlog
-
-%post 
-pwconv 2>/dev/null >/dev/null  || :
-grpconv 2>/dev/null >/dev/null  || :
-
-if [ -x /usr/sbin/nscd ]; then
-	nscd -i passwd -i group || :
-fi
+%dir /var/lib/rsbac
 
 %changelog
+* Sat Mar 19 2005 Vincent Danen <vdanen@annvix.org> 2.5-3avx
+- add /etc/sysconfig/ulimits to determine defaults for max number of user procs,
+  max number of open files, and max data segment size
+
+* Fri Mar 18 2005 Vincent Danen <vdanen@annvix.org> 2.5-2avx
+- set some limits via limit/ulimit in /etc/profile and /etc/csh.cshrc
+  as right now all resources are pretty much unlimited
+
+* Fri Mar 18 2005 Vincent Danen <vdanen@annvix.org> 2.5-1avx
+- csh.cshrc: fix some csh code in csh.cshrc
+- inputrc: redefine PgUp/PgDn so that instead of just cycling through
+  history (like Up/Down arrows), it is possible to type the beginning
+  of a previous command, then cycle through matching history entries
+  (pablo)
+- services: add missing entries and cleanups
+- updated manpages (pablo); dutch translation updated by Richard Rasker
+- requires on shadow-utils for %%post scripts
+- securetty: root can only login on tty1 now
+
+* Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 2.4-17avx
+- bad cut-n-paste job on passwd
+
+* Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 2.4-16avx
+- add uid/gid 67 for supervise logging (dedicated user is safer than
+  using nobody/nogroup)
+
+* Fri Nov 12 2004 Vincent Danen <vdanen@annvix.org> 2.4-15avx
+- ouch... make sure /etc/shadow is mode 0400
+
+* Thu Aug 19 2004 Vincent Danen <vdanen@annvix.org> 2.4-14avx
+- fix homedir for RSBAC users
+
+* Wed Aug 11 2004 Vincent Danen <vdanen@annvix.org> 2.4-13avx
+- add uid/gid 400, 401, and 402 for RSBAC
+
+* Mon Jun 28 2004 Vincent Danen <vdanen@annvix.org> 2.4-12avx
+- fix the motd
+
+* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 2.4-11avx
+- Annvix build
+
 * Tue Jun 15 2004 Vincent Danen <vdanen@opensls.org> 2.4-10sls
 - include rpm in the default group/passwd/shadow files since on install
   for some reason the rpm user doesn't get created

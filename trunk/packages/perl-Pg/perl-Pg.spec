@@ -1,7 +1,7 @@
 %define module	Pg
 %define name	perl-%{module}
 %define version	2.0.2
-%define release	7sls
+%define release	9avx
 
 Summary:	A libpq-based PostgreSQL interface for Perl
 Name:		%{name}
@@ -58,6 +58,12 @@ export POSTGRES_LIB=`pg_config --libdir`
 %{_mandir}/man3*/*
 
 %changelog
+* Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> 2.0.2-9avx
+- rebuild against new perl
+
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 2.0.2-8avx
+- Annvix build
+
 * Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 2.0.2-7sls
 - rebuild for perl 5.8.4
 

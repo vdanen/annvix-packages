@@ -1,6 +1,6 @@
 %define name	gettext
 %define version 0.14.1
-%define release 1sls
+%define release 2avx
 
 %define major		3
 %define libver		%{major}.4.1
@@ -211,6 +211,9 @@ popd
 %{_infodir}/autosprintf*
 
 %changelog
+* Thu Jun 24 2004 Vincent Danen <vdanen@annvix.org> 0.14.1-2avx
+- Annvix build
+
 * Fri Apr 30 2004 Vincent Danen <vdanen@opensls.org> 0.14.1-1sls
 - 0.14.1
 - rename P5 to P1

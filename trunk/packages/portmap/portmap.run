@@ -1,6 +1,14 @@
 #!/bin/sh
-PATH="/sbin:/usr/sbin:/bin:/usr/bin:$PATH"
+PATH="/sbin:/usr/sbin:/bin:/usr/bin"
 
-# this runs portmap under supervise
+# this runs portmap supervised
 
-exec /sbin/portmap -d 2>&1
+[ -f /etc/sysconfig/portmap ] && . /etc/sysconfig/portmap
+
+if [ -n "${BIND_HOST}" ]; then
+    PARGS="-i ${BIND_HOST}"
+else
+    PARGS=""
+fi
+
+exec /sbin/portmap -d $PARGS 2>&1

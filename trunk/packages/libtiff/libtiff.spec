@@ -1,6 +1,6 @@
 %define name	libtiff
 %define	version	3.5.7
-%define release 13sls
+%define release 15avx
 
 %define lib_version	3.5
 %define lib_major	3
@@ -22,6 +22,11 @@ Patch3:		%{name}-3.5.5-buildroot.patch.bz2
 Patch4:		tiff-v3.5.7-64bit.patch.bz2
 Patch5:		tiff-v3.5.7-x86_64.patch.bz2
 Patch6:		tiff-v3.5.7-deps.patch.bz2
+Patch7:		libtiff-3.5.7-alt-bound.patch.bz2
+Patch8:		libtiff-3.5.7-chris-bound.patch.bz2
+Patch9:		libtiff-3.5.7-bound-fix2.patch.bz2
+Patch10:	libtiff-3.5.x-CAN-2004-0804.patch.bz2
+
 
 BuildRoot:	%_tmppath/%{name}-%{version}-root
 BuildRequires:	libjpeg-devel, 	zlib-devel
@@ -88,6 +93,11 @@ library.
 %patch4 -p1 -b .64bit
 %patch5 -p1 -b .x86_64
 %patch6 -p1 -b .deps
+%patch7 -p1 -b .alt-sec
+%patch8 -p1 -b .chris-sec
+%patch9 -p1 -b .bound-fix2
+%patch10 -p1 -b .CAN-2004-0804
+
 
 %build
 find . -type 'd' -name 'CVS' | xargs rm -fr
@@ -146,6 +156,13 @@ ln -sf %{name}.so.%{lib_version} %{name}.so.%{lib_major}
 %_libdir/*.a
 
 %changelog
+* Wed Oct 20 2004 Vincent Danen <vdanen@annvix.org> 3.5.7-15avx
+- P7-P10: security fixes for CAN-2004-0803, CAN-2004-0804, and
+  CAN-2004-0886
+
+* Wed Jun 23 2004 Vincent Danen <vdanen@annvix.org> 3.5.7-14avx
+- Annvix build
+
 * Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 3.5.7-13sls
 - minor spec cleanups
 

@@ -1,17 +1,19 @@
 #!/bin/sh
-PATH="/sbin:/usr/sbin:/bin:/usr/bin:$PATH"
+PATH="/sbin:/usr/sbin:/bin:/usr/bin"
 
-# this runs slurpd under supervise
+# this runs slurpd supervised
 
 # don't run slurpd if we don't define replogfile
-REPLOG=`grep ^replogfile /etc/openldap/slapd.conf; echo $?`
+	if grep -Eq "^[[:space:]]*replica[[:space:]]+(host|uri)" /etc/openldap/slapd.conf; then
+
+REPLOG=`grep -Eq "^[[:space:]]*replica[[:space:]]+(host|uri)" /etc/openldap/slapd.conf; echo $?`
 if [ "$REPLOG" = "1" ]; then
-  echo "Disabling slurpd because replogfile not found!"
+  echo "Disabling slurpd because replica not found!"
   touch down
-  svc -d /service/slurpd
+  runsvctrl -d /service/slurpd
   touch log/down
-  svc -d /service/slurpd/log
+  runsvcctrl -d /service/slurpd/log
   exit 0
 fi
 
-exec /usr/bin/setuidgid ldap /usr/sbin/slurpd -d
+exec /usr/bin/chpst -u ldap /usr/sbin/slurpd -d

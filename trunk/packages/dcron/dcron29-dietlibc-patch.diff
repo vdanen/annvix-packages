@@ -1,0 +1,288 @@
+diff -dru dcron/Makefile dcron.fjo/Makefile
+--- dcron/Makefile	Tue Dec 17 21:08:49 2002
++++ dcron.fjo/Makefile	Mon Apr 28 21:39:11 2003
+@@ -10,16 +10,27 @@
+ D_OBJS = crontab.o subs.o
+ PROTOS= protos.h
+ DISTTAR= /home/httpd/htdocs/FreeSrc/dcron29.tgz
++STRIP=strip
++DESTDIR=
++BINDIR=/usr/bin
++SBINDIR=/usr/bin
++MANDIR=/usr/man
++CRONTAB_OWNER=root.cron
++CROND_OWNER=root.wheel
++CRONTAB_PERM=4750
++CROND_PERM=0700
++
++.PHONY:	all clean cleano install tar
+ 
+ all:	${PROTOS} crond crontab
+ 
+-crond:	${OBJS}
++crond:	${OBJS} ${PROTOS}
+ 	${CC} ${CFLAGS} -o crond ${OBJS} ${LIB}
+-	strip crond
++	$(STRIP) crond
+ 
+-crontab:  ${D_OBJS}
++crontab:  ${D_OBJS} ${PROTOS}
+ 	${CC} ${CFLAGS} -o crontab ${D_OBJS}
+-	strip crontab
++	$(STRIP) crontab
+ 
+ protos.h: ${SRCS} ${D_SRCS}
+ 	fgrep -h Prototype ${SRCS} ${D_SRCS} >protos.h
+@@ -30,19 +41,19 @@
+ cleano:
+ 	rm -f *.o dcron.tgz $(PROTOS)
+ 
+-install:
+-	rm -f /usr/bin/crond /usr/bin/crontab
+-	cp crond crontab /usr/bin
+-	chown root.wheel /usr/bin/crond
+-	chown root.cron /usr/bin/crontab
+-	chmod 700 /usr/bin/crond
+-	chmod 4750 /usr/bin/crontab
+-	-mkdirs /usr/man/man1
+-	-mkdirs /usr/man/man8
+-	cp crontab.1 /usr/man/man1
+-	cp crond.8 /usr/man/man8
+-	chmod 444 /usr/man/man1/crontab.1
+-	chmod 444 /usr/man/man8/crond.8
++install:	crontab crond
++	mkdir -p $(DESTDIR)$(BINDIR) $(DESTDIR)$(SBINDIR) \
++	$(DESTDIR)$(MANDIR)/man1 $(DESTDIR)$(MANDIR)/man8
++	cp crontab $(DESTDIR)$(BINDIR)
++	cp crond $(DESTDIR)$(SBINDIR)
++	chown $(CRONTAB_OWNER) $(DESTDIR)$(BINDIR)/crontab
++	chown $(CROND_OWNER) $(DESTDIR)$(SBINDIR)/crond
++	chmod $(CRONTAB_PERM) $(DESTDIR)$(BINDIR)/crontab
++	chmod $(CROND_PERM) $(DESTDIR)$(SBINDIR)/crond
++	cp crontab.1 $(DESTDIR)$(MANDIR)/man1
++	cp crond.8 $(DESTDIR)$(MANDIR)/man8
++	chmod 444 $(DESTDIR)$(MANDIR)/man1/crontab.1
++	chmod 444 $(DESTDIR)$(MANDIR)/man8/crond.8
+ 
+ # dillon-specific
+ #
+diff -dru dcron/crond.8 dcron.fjo/crond.8
+--- dcron/crond.8	Wed Feb 10 07:22:37 1999
++++ dcron.fjo/crond.8	Mon Apr 28 21:39:11 2003
+@@ -4,7 +4,7 @@
+ .SH NAME
+ crond \- cron daemon (Dillon's Cron)
+ .SH SYNOPSIS
+-.B crond [-l#] [-d[#]] [-f] [-b] [-c directory]
++.B crond [-l#] [-d[#]] [-f] [-b] [-c directory] [-m mailer] [-p pidfile]
+ .SH OPTIONS
+ .B crond
+ is a background daemon that parses individual crontab files and
+@@ -26,6 +26,14 @@
+ .TP 0.5i
+ .B "-c directory "
+ specify directory containing crontab files.
++.TP 0.5i
++.B "-m mailer "
++specify program for sending mail and additional parameters which should be
++passed to it (default: "/usr/lib/sendmail -t -oem -i").
++.TP 0.5i
++.B "-p pidfile"
++specify file which the pid of crond should be written into (default:
++/var/run/crond.pid).
+ .SH DESCRIPTION
+ .B crond 
+ is responsible for scanning the crontab files and running
+@@ -52,7 +60,8 @@
+ it.  Upon job completion, crond verifies the secureness of the mail file
+ and, if it has been appended to, mails to the file to user.  The
+ .B sendmail
+-program is run under the user's uid to prevent mail related security holes.  
++program or any program specified through commandline switch -m (see above) is
++run under the user's uid to prevent mail related security holes.  
+ Unlike
+ .B crontab
+ , the crond program does not leave an open descriptor to the file for the
+diff -dru dcron/defs.h dcron.fjo/defs.h
+--- dcron/defs.h	Tue Dec 17 21:06:51 2002
++++ dcron.fjo/defs.h	Mon Apr 28 21:39:11 2003
+@@ -49,9 +49,12 @@
+ #ifndef PATH_VI
+ #define PATH_VI		"/usr/bin/vi"	/* location of vi	*/
+ #endif
++#ifndef PIDFILE
++#define PIDFILE		"/var/run/crond.pid"
++#endif
+ 
+ 
+-#define VERSION	"V2.9"
++#define VERSION	"V2.9-fjo2"
+ 
+ typedef struct CronFile {
+     struct CronFile *cf_Next;
+diff -dru dcron/job.c dcron.fjo/job.c
+--- dcron/job.c	Tue Dec 17 21:05:35 2002
++++ dcron.fjo/job.c	Mon Apr 28 21:40:43 2003
+@@ -10,6 +10,9 @@
+ 
+ Prototype void RunJob(CronFile *file, CronLine *line);
+ Prototype void EndJob(CronFile *file, CronLine *line);
++Prototype void GetMailer(char *cmdline);
++
++char **mailer = NULL;
+ 
+ void
+ RunJob(CronFile *file, CronLine *line)
+@@ -30,7 +33,7 @@
+ 
+     if (mailFd >= 0) {
+ 	line->cl_MailFlag = 1;
+-	fdprintf(mailFd, "To: %s\nSubject: cron: %s\n\n", 
++	printffd(mailFd, "To: %s\nSubject: cron: %s\n\n", 
+ 	    file->cf_User,
+ 	    line->cl_Shell
+ 	);
+@@ -91,7 +94,7 @@
+ 	    file->cf_User,
+ 	    line->cl_Shell
+ 	);
+-	fdprintf(1, "Exec failed: /bin/sh -c %s\n", line->cl_Shell);
++	printffd(1, "Exec failed: /bin/sh -c %s\n", line->cl_Shell);
+ 	exit(0);
+     } else if (line->cl_Pid < 0) {
+ 	/*
+@@ -209,13 +212,21 @@
+ 	dup2(1, 2);
+ 	close(mailFd);
+ 
++	if (mailer) {
++	    execv(mailer[0], mailer);
++	    logfd(8, "unable to exec %s, user %s, "
++		"using default mailer " SENDMAIL "\n",
++		mailer[0],
++		file->cf_User
++	    );
++	    free(mailer);
++	}
+ 	execl(SENDMAIL, SENDMAIL, SENDMAIL_ARGS, NULL, NULL);
+ 	/*
+ 	 * note: 8 is a file descriptor
+ 	 */
+-	logfd(8, "unable to exec %s %s, user %s, output to sink null", 
+-	    SENDMAIL,
+-	    SENDMAIL_ARGS,
++	logfd(8,
++	    "unable to exec " SENDMAIL ", user %s, output to sink null\n", 
+ 	    file->cf_User
+ 	);
+ 	exit(0);
+@@ -233,3 +244,40 @@
+     close(mailFd);
+ }
+ 
++/*
++ * GetMailer - parses cmdline argument (-m) and sets mailer (to NULL on failure)
++ */
++
++void
++GetMailer(char *cmdline)
++{
++  int argc = 0; /* number of arguments passed to the mail program */
++  char *space = cmdline;
++
++  while (space) {
++    /*
++     * get memory for the array of strings
++     */
++    if (!(mailer = realloc(mailer, (argc + 2) * sizeof(char*)))) {
++      logfd(8, "realloc failed, using default mailer " SENDMAIL "\n");
++      mailer = NULL;
++      return;
++    }
++
++    /*
++     * eg. cmdline arg (-m) = "/var/qmail/bin/qmail-inject -A -fcron"
++     * mailer[0] = "/var/qmail/bin/qmail-inject"
++     * mailer[1] = "-A"
++     * mailer[2] = "-fcron"
++     */
++    *(mailer + argc) = space;
++    ++argc;
++
++    if ((space = strchr(space, ' '))) *space++ = '\0';
++  }
++
++  /*
++   * mailer[3] = NULL
++   */
++  *(mailer + argc) = NULL;
++}
+diff -dru dcron/main.c dcron.fjo/main.c
+--- dcron/main.c	Tue Dec 17 21:05:44 2002
++++ dcron.fjo/main.c	Mon Apr 28 21:40:18 2003
+@@ -23,6 +23,7 @@
+ short ForegroundOpt;
+ char  *CDir = CRONTABS;
+ int DaemonUid;
++char *pidfile = PIDFILE;
+ 
+ int
+ main(int ac, char **av)
+@@ -58,6 +59,14 @@
+ 	    case 'c':
+ 		CDir = (*ptr) ? ptr : av[++i];
+ 		continue;
++	    case 'm':
++		if (!*ptr) ptr = av[++i];
++		GetMailer(ptr);
++		continue;
++	    case 'p':
++		if (!*ptr) ptr = av[++i];
++		pidfile = ptr;
++		continue;
+ 	    default:
+ 		break;
+ 	    }
+@@ -73,7 +82,7 @@
+         if (i > ac)
+             puts("expected argument for option");
+ 	printf("dcron " VERSION "\n");
+-	printf("dcron -d[#] -l[#] -f -b -c dir\n");
++	printf("dcron -d[#] -l[#] -f -b -c dir -m mailer -p pidfile\n");
+ 	exit(1);
+     }
+ 
+@@ -124,6 +133,12 @@
+         }
+         if (pid > 0)
+             exit(0);
++
++	if ((fd = open(pidfile, O_WRONLY | O_CREAT | O_TRUNC,
++	  S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP)) >= 0) {
++	    printffd(fd, "%i\n", getpid());
++	    close(fd);
++	}
+     }
+ 
+     /* 
+diff -dru dcron/subs.c dcron.fjo/subs.c
+--- dcron/subs.c	Wed Feb 10 07:31:46 1999
++++ dcron.fjo/subs.c	Mon Apr 28 21:39:46 2003
+@@ -11,7 +11,7 @@
+ Prototype void log(int level, const char *ctl, ...);
+ Prototype void log9(const char *ctl, ...);
+ Prototype void logfd(int fd, const char *ctl, ...);
+-Prototype void fdprintf(int fd, const char *ctl, ...);
++Prototype void printffd(int fd, const char *ctl, ...);
+ Prototype int ChangeUser(const char *user, short dochdir);
+ Prototype void vlog(int level, int fd, const char *ctl, va_list va);
+ Prototype int slog(char *buf, const char *ctl, int nmax, va_list va, short useDate);
+@@ -47,7 +47,7 @@
+ }
+ 
+ void 
+-fdprintf(int fd, const char *ctl, ...)
++printffd(int fd, const char *ctl, ...)
+ {
+     va_list va;
+     char buf[2048];

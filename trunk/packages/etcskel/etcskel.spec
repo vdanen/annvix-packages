@@ -1,9 +1,9 @@
 # Defined in CVS makefile.
 %define name	etcskel
 %define version 1.63
-%define release 17sls
+%define release 18avx
 
-Summary:	OpenSLS default files for new users' home directories
+Summary:	Annvix default files for new users' home directories
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -19,7 +19,7 @@ Requires:	bash
 BuildArchitectures: noarch
 
 %description
-The etcskel package is part of the basic OpenSLS system.
+The etcskel package is part of the basic Annvix system.
 
 Etcskel provides the /etc/skel directory's files. These files are then placed
 in every new user's home directory when new accounts are created.
@@ -40,10 +40,17 @@ make install RPM_BUILD_ROOT=$RPM_BUILD_ROOT
 %files
 %defattr(-,root,root)
 %doc ChangeLog
+%dir /etc/skel
 %config(noreplace) /etc/skel/.??*
 %config(noreplace) /etc/skel/tmp
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 1.63-18avx
+- Annvix build
+
+* Thu Mar 04 2004 Vincent Danen <vdanen@opensls.org> 1.63-17sls
+- DIRM: /etc/skel
+
 * Thu Mar 04 2004 Vincent Danen <vdanen@opensls.org> 1.63-17sls
 - more OpenSLS specific
 

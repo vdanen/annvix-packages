@@ -1,6 +1,6 @@
 %define name	freetype2
 %define	version	2.1.4
-%define release	8sls
+%define release	9avx
 
 %define major	6
 %define libname	%mklibname freetype %{major}
@@ -101,6 +101,9 @@ freetype2 package installed.
 %{_libdir}/*.a
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@opensls.org> 2.1.4-9avx
+- Annvix build
+
 * Thu Mar 04 2004 Vincent Danen <vdanen@opensls.org> 2.1.4-8sls
 - minor spec cleanups
 

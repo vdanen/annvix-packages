@@ -1,11 +1,9 @@
 %define name	basesystem
 %define version 1.0
-%define release 5sls
+%define release 7avx
 %define epoch	1
 
-#rh-7.0-2
-
-Summary:	The skeleton package which defines a simple OpenSLS system.
+Summary:	The skeleton package which defines a simple Annvix system.
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -19,20 +17,14 @@ Requires:	setup filesystem sed initscripts console-tools utempter
 Requires:	chkconfig coreutils SysVinit bdflush crontabs dev
 Requires:	e2fsprogs etcskel findutils grep gzip kernel less 
 Requires:	logrotate losetup mingetty modutils mount net-tools passwd procps
-Requires:	psmisc opensls-release rootfiles rpm sash shadow-utils 
+Requires:	psmisc annvix-release rootfiles rpm sash shadow-utils 
 Requires:	stat sysklogd tar termcap time util-linux vim
-Requires:	crond which perl-base common-licenses srv daemontools ucspi-tcp afterboot
+Requires:	crond which perl-base common-licenses srv runit afterboot
 Requires:	bootloader
 Requires:	ldconfig
 Requires:	libgcc >= 3.2-1mdk
 # (gb) Add timezone database here for now before moving it to DrakX
 Requires:	timezone
-%ifarch %ix86
-Requires:	mkbootdisk
-%endif
-%ifarch sparc sparc64
-Requires:	mkbootdisk
-%endif
 # (sb) need pdisk hfsutils mktemp to setup bootloader PPC
 %ifarch ppc
 Requires:	pdisk hfsutils mktemp mkinitrd pmac-utils
@@ -41,12 +33,9 @@ Requires:	pdisk hfsutils mktemp mkinitrd pmac-utils
 %ifarch ia64
 Requires:	mkinitrd
 %endif
-%ifarch x86_64
-Requires:	mkbootdisk
-%endif
 
 %description
-Basesystem defines the components of a basic OpenSLS system (for
+Basesystem defines the components of a basic Annvix system (for
 example, the package installation order to use during bootstrapping).
 Basesystem should be the first package installed on a system, and it
 should never be removed.
@@ -54,6 +43,14 @@ should never be removed.
 %files
 
 %changelog
+* Tue Sep 14 2004 Vincent Danen <vdanen@annvix.org> 1.0-7avx
+- Requires: runit
+- remove Requires: daemontools, ucspi-tcp, mkbootdisk
+
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 1.0-6avx
+- Annvix build
+- Requires: s/opensls-release/annvix-release/
+
 * Sat Mar 13 2004 Vincent Danen <vdanen@opensls.org> 1.0-5sls
 - Requires: s/mandrake-release/opensls-release/
 

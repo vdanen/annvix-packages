@@ -1,6 +1,6 @@
 %define name	readline
 %define version	4.3
-%define	release	9sls
+%define	release	10avx
 
 ## Do not apply library policy!!
 %define lib_major	4
@@ -121,6 +121,9 @@ perl -p -i -e 's|/usr/local/bin/perl|/usr/bin/perl|' doc/texi2html
 /%{_lib}/*so
 
 %changelog
+* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 4.3-10avx
+- Annvix build
+
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 4.3-9sls
 - minor spec cleanups
 

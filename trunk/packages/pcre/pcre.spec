@@ -1,6 +1,6 @@
 %define name	pcre
 %define version	4.5
-%define	release	1sls
+%define	release	2avx
 
 %define major		0
 %define libname_orig	lib%{name}
@@ -111,6 +111,9 @@ ln -s ../../%_lib/lib%{name}.so.%{major}.* .
 %_mandir/man3/*.3*
 
 %changelog
+* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 4.5-2avx
+- Annvix build
+
 * Fri Jun 11 2004 Vincent Danen <vdanen@opensls.org> 4.5-1sls
 - 4.5
 - remove P0

@@ -1,44 +1,54 @@
 %define name	MySQL
-%define version	4.0.18
-%define release	1sls
+%define version	4.1.10a
+%define release	1avx
 
-%define major		12
-%define libname_orig	mysql
-%define libname		%mklibname %{libname_orig} %{major}
+%define major		14
+%define libname		%mklibname mysql %{major}
+%define oldlibname	%mklibname mysql 12
+%define mysqld_user	mysql
 
-%define shared_lib_version	12:0:0
-%define mysqld_user		mysql
-%define var			/var
+%global mk_test		1
+%{?_with_test: %global mk_test 1}
+%{?_without_test: %global mk_test 0}
 
 %define _requires_exceptions perl(this)
 
-%define see_base For a description of MySQL see the base MySQL RPM or http://www.mysql.com
-
-Summary:	MySQL: a very fast and reliable SQL database engine
+Summary:	MySQL is a very fast and reliable SQL database engine
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	GPL
 Group:		Databases
 URL:            http://www.mysql.com
-Source:		ftp.free.fr:/pub/MySQL/Downloads/MySQL-4.0/mysql-%{version}.tar.bz2
-Source1:	ftp://ftp.free.fr:/pub/MySQL/Downloads/Manual/manual-split.tar.bz2
+Source:		ftp://mirror.cpsc.ucalgary.ca/mirror/mysql.com/Downloads/MySQL-4.1/mysql-%{version}.tar.gz
+Source1:	ftp://mirror.cpsc.ucalgary.ca/mirror/mysql.com/Downloads/MySQL-4.1/mysql-%{version}.tar.gz.asc
 Source2:	mysqld.run
 Source3:	mysqld-log.run
 Source4:	mysqld.sysconfig
-Patch1:		MySQL-4.0.16-fix_install_scripts.patch.bz2
-Patch2:		all_charset.patch.bz2
-Patch3:		mysql-4.0.17-lib64.patch.bz2
-Patch4:		mysql-4.0.18-securityscript.patch.bz2
+Source5:	mysqld.finish
+Source6:	05_mysql.afterboot
+Source7:	logrotate.mysqld
+Source8:	my.cnf
+Patch0:		mysql-4.1.10-install_script_mysqld_safe.diff.bz2
+Patch1:		mysql-4.1.3-lib64.diff.bz2
+Patch2:		mysql-4.1.7-manual_split.diff.bz2
+Patch3:		mysql-errno.patch.bz2
+Patch4:		mysql-libdir.patch.bz2
+Patch5:		mysql-4.1.10-libtool.diff.bz2
+Patch6:		mysql-testing.patch.bz2
+# Add fast AMD64 mutexes
+Patch7:		db-4.1.24-amd64-mutexes.diff.bz2
+# NPTL pthreads mutexes are evil
+Patch8:		db-4.1.24-disable-pthreadsmutexes.diff.bz2
+Patch9:		mysql-4.1.9-disable-pthreadsmutexes.diff.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
-BuildRequires:	bison, db4-devel, glibc-static-devel, libstdc++5-static-devel, automake1.7
-BuildRequires:	termcap-devel
-BuildRequires:	ncurses-devel, python, openssl-static-devel, tetex, texinfo, zlib-devel
+BuildRequires:	bison, glibc-static-devel, libstdc++-static-devel, autoconf2.5, automake1.7
+BuildRequires:	termcap-devel, multiarch-utils 
+BuildRequires:	ncurses-devel, python, openssl-static-devel, tetex, texinfo, zlib-devel, readline-devel
 
-Provides:       msqlormysql MySQL-server mysqlserver mysql
-Prereq:  	rpm-helper
-PreReq:		MySQL-common = %{version}-%{release}
+Provides:       MySQL-server
+PreReq:		MySQL-common = %{version}-%{release} rpm-helper runit
 Obsoletes:      mysql MySQL-devel <= 3.23.39
 Conflicts:      MySQL-Max > 4.0.11
 
@@ -61,290 +71,256 @@ news and information about the MySQL software. Also please see the
 documentation and the manual for more information.
 
 %package common
-Summary:	MySQL: common files
+Summary:	MySQL common files
 Group:          Databases
 Prereq:  	rpm-helper
-Requires:       MySQL-client
+Requires:       MySQL-client, perl-DBD-mysql
 
 %description common
 Common files for the MySQL(TM) database server.
 
-%{see_base}
 
 %package client
-Summary:        MySQL - Client
+Summary:        MySQL client
 Group:          Databases
-Obsoletes:      mysql-client
-Provides:       mysql-client 
 Requires:       %{libname} = %{version}-%{release}
 
 %description client
 This package contains the standard MySQL clients.
 
-%{see_base}
 
 %package bench
-Summary:        MySQL - Benchmarks and test system
+Summary:        MySQL benchmarks and test system
 Group:          Databases
-Obsoletes:      mysql-bench
-Provides:       mysql-bench
 Requires:       MySQL-client = %{version}-%{release} perl
 
 %description bench
 This package contains MySQL benchmark scripts and data.
 
-%{see_base}
-
-%package -n %{libname}-devel
-Summary:        MySQL - Development header files and libraries
-Group:          Development/Other
-Obsoletes:      MySQL-devel mysql-devel
-Provides:       MySQL-devel = %{version}-%{release} mysql-devel = %{version}-%{release} %{libname_orig}-devel = %{version}-%{release}
-Requires:       %{libname} = %{version} MySQL-common = %{version}-%{release} MySQL-client = %{version}-%{release}
-Provides:	libmysql-devel
-
-%description -n %{libname}-devel
-This package contains the development header files and libraries
-necessary to develop MySQL client applications.
-
-%{see_base}
 
 %package -n %{libname}
-Summary:        MySQL - Shared libraries
+Summary:        MySQL shared libraries
 Group:          System/Libraries
-Obsoletes:      MySQL-shared-libs MySQL-shared
-Provides:       MySQL-shared-libs = %{version}-%{release} MySQL-shared = %{version}-%{release}
 
 %description -n %{libname}
 This package contains the shared libraries (*.so*) which certain
 languages and applications need to dynamically load and use MySQL.
 
+
+%package -n %{libname}-devel
+Summary:        MySQL development header files and libraries
+Group:          Development/Other
+Obsoletes:      MySQL-devel
+Provides:       MySQL-devel = %{version}-%{release}
+Requires:       %{libname} = %{version} MySQL-common = %{version}-%{release} MySQL-client = %{version}-%{release}
+Provides:	libmysql-devel
+Obsoletes:	%{oldlibname}-devel
+
+%description -n %{libname}-devel
+This package contains the development header files and libraries
+necessary to develop MySQL client applications.
+
+This package also contains the MySQL server as an embedded library.
+
+The embedded MySQL server library makes it possible to run a
+full-featured MySQL server inside the client application.
+The main benefits are increased speed and more simple management
+for embedded applications.
+
+The API is identical for the embedded MySQL version and the
+client/server version.
+
+
 %package Max
-Release:	%{release}
-Summary:	MySQL - server with Berkeley DB and Innodb support
+Summary:	MySQL server with Berkeley DB and Innodb support
 Group:		Databases
-Provides:	mysql-Max = %{version}-%{release}
-Provides:	msqlormysql MySQL-server mysqlserver mysql
-Obsoletes:	mysql-Max
-PreReq:		MySQL-common = %{version}-%{release} rpm-helper
-Conflicts:	MySQL > 4.0.11
+Provides:	MySQL-server
+PreReq:		MySQL-common = %{version}-%{release} rpm-helper runit
 
 %description Max 
 Optional MySQL server binary that supports features
 like transactional tables. You can use it as an alternate
 to MySQL basic server.
 
+
 %prep
 %setup -q -n mysql-%{version}
 
-%patch1 -p0 -b .max
-%patch2 -p1 -b .charset
-%patch3 -p0 -b .lib64
-%patch4 -p0 -b .sec
+%patch0 -p1 -b .install_script_mysqld_safe
+%patch1 -p1 -b .lib64
+%patch2 -p0 -b .manual_split
+%patch3 -p1 -b .errno_as_defines
+%patch4 -p1 -b .libdir
+%patch5 -p0 -b .libtool
+%patch6 -p1 -b .testing
+%patch7 -p1 -b .amd64-mutexes
+%patch8 -p1 -b .pthreadsmutexes
+%patch9 -p0 -b .disable-pthreadsmutexes
 
-# 20021227 warly manual include files not in the archives
-# perl -pi -e 's/\@include reservedwords.texi//' ./Docs/manual.texi
-# perl -pi -e 's/..\/MIRRORS INSTALL-BINARY/INSTALL-BINARY/' ./Docs/Makefile.am
+# fix annoyances
+perl -pi -e "s|AC_PROG_RANLIB|AC_PROG_LIBTOOL|g" configure*
+perl -pi -e "s|^MAX_C_OPTIMIZE.*|MAX_C_OPTIMIZE=\"\"|g" configure*
+perl -pi -e "s|^MAX_CXX_OPTIMIZE.*|MAX_CXX_OPTIMIZE=\"\"|g" configure*
 
-# Run aclocal in order to get an updated libtool.m4 in generated
-# configure script for "new" architectures (aka. x86_64, mips)
-export WANT_AUTOCONF_2_5=1
-aclocal-1.7
-autoconf
-automake-1.7
 
 %build
-%serverbuild
+# Run aclocal in order to get an updated libtool.m4 in generated
+# configure script for "new" architectures (aka. x86_64, mips)
+libtoolize --copy --force; aclocal-1.7; autoconf; automake-1.7
 
-FollowLink() {
-  perl -e '{my $f = shift; $f = readlink $f while (-l $f); print $f, "\n"}' $0
-}
+# XXX: we may need this:
+#%define __libtoolize /bin/true
+
+pushd bdb/dist
+    sh ./s_config
+popd
+
+pushd bdb/build_unix
+    CONFIGURE_TOP="../dist" %configure2_5x --disable-pthreadsmutexes
+    CONFIGURE_TOP="."
+popd
+
+
+%serverbuild
 
 # (gb) We shall always have the fully versioned binary
 # FIXME: Please, please, do tell why you need fully qualified version
 GCC_VERSION=`gcc -dumpversion`
-CFLAGS="$CFLAGS -DHAVE_ERRNO_AS_DEFINE"
+CFLAGS="$CFLAGS"
 %ifarch alpha
-CXXFLAGS="$CXXFLAGS -DHAVE_ERRNO_AS_DEFINE -fPIC"
+CXXFLAGS="$CXXFLAGS -fPIC"
 %else
-CXXFLAGS="$CXXFLAGS -DHAVE_ERRNO_AS_DEFINE"
+CXXFLAGS="$CXXFLAGS"
 %endif
 export MYSQL_BUILD_CC="gcc-$GCC_VERSION"
 export MYSQL_BUILD_CXX="g++-$GCC_VERSION"
 
 export MYSQL_BUILD_CFLAGS="$CFLAGS"
 export MYSQL_BUILD_CXXFLAGS="$CXXFLAGS"
-	
-BuildMySQL() {
-# The --enable-assembler simply does nothing on systems that does not
-# support assembler speedups.
-
-%configure2_5x \
- 	    $* \
-	    --enable-assembler \
-	    --enable-local-infile \
-            --with-mysqld-user=%{mysqld_user} \
-            --with-unix-socket-path=/var/lib/mysql/mysql.sock \
-            --prefix=/ \
-	    --with-extra-charsets=complex \
-            --exec-prefix=%{_prefix} \
-            --libexecdir=%{_sbindir} \
-            --sysconfdir=%{_sysconfdir} \
-            --datadir=%{_datadir} \
-            --localstatedir=%{_localstatedir}/mysql \
-            --infodir=%{_infodir} \
-            --includedir=%{_includedir} \
-            --mandir=%{_mandir} \
-            --program-prefix= ;
-#	    --with-comment=\"%{distribution} MySQL RPM\";
-	    # Add this for more debugging support
-	    # --with-debug
-	    # Add this for MyISAM RAID support:
-	    # --with-raid
-
- # benchdir does not fit in above model. Maybe a separate bench distribution
- %make benchdir_root=$RPM_BUILD_ROOT%{_datadir}
-}
-
-# Use our own copy of glibc
-OTHER_LIBC_DIR=/%{_lib}
-USE_OTHER_LIBC_DIR=""
-if test -d "$OTHER_LIBC_DIR"
-then
-  USE_OTHER_LIBC_DIR="--with-other-libc=$OTHER_LIBC_DIR"
-fi
-
-# Use the build root for temporary storage of the shared libraries.
-
-RBR=$RPM_BUILD_ROOT
-MBD=$RPM_BUILD_DIR/mysql-%{version}
 
 #
 # Use MYSQL_BUILD_PATH so that we can use a dedicated version of gcc
 #
-PATH=${MYSQL_BUILD_PATH:-/bin:/usr/bin}
-export PATH
+export PATH=${MYSQL_BUILD_PATH:-/bin:/usr/bin}	
 
-# We need to build shared libraries separate from mysqld-max because we
-# are using --with-other-libc
+# The --enable-assembler simply does nothing on systems that does not
+# support assembler speedups.
 
-# BuildMySQL "--disable-shared $USE_OTHER_LIBC_DIR --with-berkeley-db --with-innodb --with-mysqld-ldflags='-all-static' --with-server-suffix='-Max'"
-BuildMySQL "--enable-shared --with-berkeley-db --with-innodb --with-openssl --with-server-suffix='-Max'"
+MYSQL_COMMON_CONFIGURE="--prefix=/ \
+	--exec-prefix=%{_prefix} \
+	--libexecdir=%{_sbindir} \
+	--libdir=%{_libdir} \
+	--sysconfdir=%{_sysconfdir} \
+	--datadir=%{_datadir} \
+	--localstatedir=%{_localstatedir}/mysql \
+	--infodir=%{_infodir} \
+	--includedir=%{_includedir} \
+	--mandir=%{_mandir} \
+	--enable-shared \
+	--with-extra-charsets=complex \
+	--enable-assembler \
+	--enable-local-infile \
+	--enable-large-files=yes \
+	--enable-largefile=yes \
+	--without-readline \
+	--without-libwrap \
+	--without-mysqlfs \
+	--with-openssl \
+	--with-berkeley-db \
+	--with-innodb \
+	--without-debug \
+	--with-mysqld-user=%{mysqld_user} \
+	--with-unix-socket-path=%{_localstatedir}/mysql/mysql.sock"
 
-# Save mysqld-max
-mv sql/mysqld sql/mysqld-max
-nm --numeric-sort sql/mysqld-max > sql/mysqld-max.sym
+# make mysqld-max
+%configure2_5x $MYSQL_COMMON_CONFIGURE \
+	--without-extra-tools \
+	--without-docs \
+	--without-man \
+	--without-bench \
+	--with-embedded-server \
+	--with-server-suffix="-Max"
 
-# Save manual to avoid rebuilding
-mv Docs/manual.ps Docs/manual.ps.save
-make distclean
-mv Docs/manual.ps.save Docs/manual.ps
+%make
+%if %{mk_test}
+make check
+make test
+%endif
 
-#now build and save shared libraries
+# tuck away various built files
+make DESTDIR=`pwd`/MAX benchdir_root=%{_datadir} testdir=%{_datadir}/mysql-test install
+nm --numeric-sort MAX%{_sbindir}/mysqld >mysqld-max.sym
+make clean
 
-#  BuildMySQL "--enable-shared --enable-thread-safe-client --without-server "
-#  (cd libmysql/.libs; tar cf $MBD/shared-libs.tar *.so*)
-#  (cd libmysql_r/.libs; tar rf $MBD/shared-libs.tar *.so*)
+# make mysqld
+%configure2_5x $MYSQL_COMMON_CONFIGURE \
+	--enable-thread-safe-client \
+	--without-embedded-server \
+	--with-vio
 
-#  # Save manual to avoid rebuilding
-#  mv Docs/manual.ps Docs/manual.ps.save
-#  make distclean
-#  mv Docs/manual.ps.save Docs/manual.ps
+# benchdir does not fit in the above model
+%make benchdir_root=%{buildroot}%{_datadir}
 
-# RPM:s destroys Makefile.in files, so we generate them here
-automake-1.7
+%if %{mk_test}
+make check
+make test
+%endif
 
-# BuildMySQL "--enable-shared " \
-# 	   "--with-mysqld-ldflags='-all-static'" \
-# 	   "--with-client-ldflags='-all-static'" \
-#  	   "$USE_OTHER_LIBC_DIR" \
-# 	   "--without-berkeley-db --without-innodb"
-
-BuildMySQL "--enable-shared" \
-           "--enable-thread-safe-client" \
-	   "--without-berkeley-db --with-innodb"
-
-nm --numeric-sort sql/mysqld > sql/mysqld.sym
+# tuck away various built files 
+nm --numeric-sort sql/mysqld >mysqld.sym
 
 %install 
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-RBR=$RPM_BUILD_ROOT
-MBD=$RPM_BUILD_DIR/mysql-%{version}
-# Ensure that needed directories exists
-install -d $RBR%{_sysconfdir}/logrotate.d
-install -d $RBR%{_localstatedir}/mysql/mysql
-install -d $RBR%{_datadir}/sql-bench
-install -d $RBR%{_datadir}/mysql-test
-install -d $RBR%{_sbindir}
-install -d $RBR%{_datadir}
-install -d $RBR%{_mandir}
-install -d $RBR%{_includedir}
-install -d $RBR%{_infodir}
-install -d $RBR%{_docdir}/%{name}-%{version}
-install -d $RBR%{_docdir}/%{name}-%{version}/chapter
-install -d $RBR%{_libdir}
+mkdir -p %{buildroot}%{_sysconfdir}/{logrotate.d,sysconfig}
 
-make install DESTDIR=$RBR benchdir_root=%{_datadir}
+mkdir -p %{buildroot}%{_docdir}/%{name}-%{version}/chapter
+mkdir -p %{buildroot}%{_var}/run/mysqld
+mkdir -p %{buildroot}%{_var}/log/mysqld
+mkdir -p %{buildroot}%{_localstatedir}/mysql/{mysql,test,.tmp}
 
-# Install shared libraries (Disable for architectures that don't support it)
-# (cd $RBR%{_libdir}; tar xf $MBD/shared-libs.tar)
+%makeinstall_std benchdir_root=%{_datadir} testdir=%{_datadir}/mysql-test
 
 # install saved mysqld-max
-install -m755 $MBD/sql/mysqld-max $RBR/usr/sbin/mysqld-max
+install -m 0755 MAX%{_sbindir}/mysqld %{buildroot}%{_sbindir}/mysqld-max
+install -m 0755 MAX%{_libdir}/mysql/libmysqld.a %{buildroot}%{_libdir}/libmysqld.a
 
-# install symbol files ( for stack trace resolution)
-install -m644 $MBD/sql/mysqld-max.sym $RBR%{_libdir}/mysql/mysqld-max.sym
-install -m644 $MBD/sql/mysqld.sym $RBR%{_libdir}/mysql/mysqld.sym
+install -m 0644 mysqld-max.sym %{buildroot}%{_libdir}/mysql/mysqld-max.sym
+install -m 0644 mysqld.sym %{buildroot}%{_libdir}/mysql/mysqld.sym
 
-install -m644 $MBD/support-files/mysql-log-rotate $RBR/etc/logrotate.d/mysql
+install -m 0644 %{SOURCE4} %{buildroot}%{_sysconfdir}/sysconfig/mysqld
+install -m 0644 %{SOURCE7} %{buildroot}%{_sysconfdir}/logrotate.d/mysql
+install -m 0644 %{SOURCE8} %{buildroot}%{_sysconfdir}/my.cnf
 
 mkdir -p %{buildroot}%{_srvdir}/mysqld/log
 mkdir -p %{buildroot}%{_srvlogdir}/mysqld
 install -m 0750 %{SOURCE2} %{buildroot}%{_srvdir}/mysqld/run
+install -m 0750 %{SOURCE5} %{buildroot}%{_srvdir}/mysqld/finish
 install -m 0750 %{SOURCE3} %{buildroot}%{_srvdir}/mysqld/log/run
 
 # Install docs
-install -m644 $MBD/Docs/mysql.info \
- $RBR%{_infodir}/mysql.info
+install -m 0644 Docs/mysql.info %{buildroot}%{_infodir}/mysql.info
 
-for file in README COPYING Docs/manual_toc.html Docs/manual.html \
-    Docs/manual.txt Docs/manual.texi Docs/manual.ps \
-    support-files/my-huge.cnf support-files/my-large.cnf \
-    support-files/my-medium.cnf support-files/my-small.cnf
-do
-    b=`basename $file`
-    install -m644 $MBD/$file $RBR%{_docdir}/MySQL-%{version}/$b
-done
+# Fix libraries
+mv %{buildroot}%{_libdir}/mysql/libmysqlclient.* %{buildroot}%{_libdir}/
+mv %{buildroot}%{_libdir}/mysql/libmysqlclient_r.* %{buildroot}%{_libdir}/
+perl -pi -e "s|%{_libdir}/mysql|%{_libdir}|" %{buildroot}%{_libdir}/*.la
 
-pushd $RBR%{_docdir}/MySQL-%{version}/chapter
-tar tyvf %{SOURCE1}
+pushd %{buildroot}%{_bindir}
+    ln -sf mysqlcheck mysqlrepair
+    ln -sf mysqlcheck mysqlanalyze
+    ln -sf mysqlcheck mysqloptimize
 popd
 
-#Fix libraries
-mv $RBR%{_libdir}/mysql/libmysqlclient.* ${RBR}%{_libdir}/
-mv $RBR%{_libdir}/mysql/libmysqlclient_r.* ${RBR}%{_libdir}/
-perl -pi -e "s|%{_libdir}/mysql|%{_libdir}|" \
-	${RBR}%{_libdir}/libmysqlclient.la  ${RBR}%{_libdir}/libmysqlclient_r.la
+rm -f %{buildroot}%{_datadir}/info/dir
+rm -f %{buildroot}%{_bindir}/make_win_src_distribution
+rm -f %{buildroot}%{_bindir}/make_win_binary_distribution
+rm -f %{buildroot}%{_datadir}/mysql/*.spec
+rm -f %{buildroot}%{_datadir}/mysql/{postinstall,preinstall,mysql-log-rotate,mysql.server}
+rm -f %{buildroot}%{_bindir}/client_test
+rm -f %{buildroot}%{_bindir}/mysql_client_test
 
-pushd $RBR%{_bindir}
-ln -sf mysqlcheck mysqlrepair
-ln -sf mysqlcheck mysqlanalyze
-ln -sf mysqlcheck mysqloptimize
-popd
-
-mysql_datadir=$RPM_BUILD_ROOT/%{_localstatedir}/mysql
-# Create data directory if needed
-if test ! -d $mysql_datadir;		then mkdir -p $mysql_datadir; fi
-if test ! -d $mysql_datadir/mysql;	then mkdir $mysql_datadir/mysql; fi
-if test ! -d $mysql_datadir/test;	then mkdir $mysql_datadir/test; fi
-chmod -R og-rw $mysql_datadir/mysql
-
-rm -rf $RPM_BUILD_ROOT%{_datadir}/info/dir $RPM_BUILD_ROOT/shared-libs.tar
-rm -rf $RPM_BUILD_ROOT%{_datadir}/info/dir $RPM_BUILD_ROOT/shared-libs.tar
-rm -rf $RPM_BUILD_ROOT%{_bindir}/make_win_src_distribution
-
-mkdir -p %{buildroot}%{_sysconfdir}/sysconfig
-install -m 0644 %{SOURCE4} %{buildroot}%{_sysconfdir}/sysconfig/mysqld
+mkdir -p %{buildroot}%{_datadir}/afterboot
+install -m 0644 %{SOURCE6} %{buildroot}%{_datadir}/afterboot/05_mysql
 
 %find_lang mysql
 
@@ -370,7 +346,12 @@ cat >> mysql.lang << EOF
 %lang(es) %{_datadir}/mysql/spanish
 %lang(sv) %{_datadir}/mysql/swedish
 %lang(uk) %{_datadir}/mysql/ukrainian
+%lang(sr) %{_datadir}/mysql/serbian
 EOF
+
+%multiarch_binaries %{buildroot}%{_bindir}/mysql_config
+%multiarch_includes %{buildroot}%{_includedir}/mysql/my_config.h
+%multiarch_includes %{buildroot}%{_includedir}/mysql/my_config-ndb.h
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -380,10 +361,13 @@ EOF
 
 %post common
 %_install_info mysql.info
+%_mkafterboot
 
 %post
-# Initiate databases
-/usr/bin/setuidgid mysql mysql_install_db -IN-RPM >/dev/null
+# Initialize database
+export TMPDIR="%{_localstatedir}/mysql/.tmp"
+export TMP="${TMPDIR}"
+/sbin/chpst -u mysql mysql_install_db --rpm --user=mysql >/dev/null
 
 %_post_srv mysqld
 
@@ -398,7 +382,7 @@ fix_privileges()
         datadir=%{_localstatedir}/mysql/
     fi
     cd $datadir/mysql
-    pid_file=$datadir/mysql.pid
+    pid_file=$datadir/mysqld-fix_privileges.pid
     if %{_bindir}/mysqld_safe --skip-grant-tables --skip-networking --pid-file=$pid_file &> /dev/null & then  
         pid=$!
         i=1
@@ -406,7 +390,7 @@ fix_privileges()
             i=$(($i+1))
             sleep 1
         done
-        if [ -f $datadir/mysql.pid ]; then
+        if [ -f $datadir/mysqld-fix_privileges.pid ]; then
             %{_bindir}/mysql_fix_privilege_tables &> /dev/null 
             kill `cat $pid_file` &> /dev/null
             rm -f $pid_file
@@ -418,7 +402,7 @@ fix_privileges()
     fi
 }
 
-if [ "x`svstat /service/mysqld|grep down >/dev/null 2>&1; echo $?`" = "x0" ]; then
+if [ "x`runsvstat /service/mysqld 2>&1|grep down >/dev/null 2>&1; echo $?`" = "x0" ]; then
     fix_privileges
 else
     /usr/sbin/srv stop mysqld &> /dev/null
@@ -427,7 +411,10 @@ else
 fi
 
 %post Max
-/usr/bin/setuidgid mysql mysql_install_db -IN-RPM >/dev/null
+# Initialize database
+export TMPDIR="%{_localstatedir}/mysql/.tmp"
+export TMP="${TMPDIR}"
+/sbin/chpst -u mysql mysql_install_db --rpm --user=mysql >/dev/null
 
 %_post_srv mysqld
 # Allow mysqld_safe to start mysqld and print a message before we exit
@@ -441,7 +428,7 @@ fix_privileges()
         datadir=%{_localstatedir}/mysql/
     fi
     cd $datadir/mysql
-    pid_file=$datadir/mysql.pid
+    pid_file=$datadir/mysqld-fix_privileges.pid
     if %{_bindir}/mysqld_safe --skip-grant-tables --skip-networking --pid-file=$pid_file &> /dev/null & then  
         pid=$!
         i=1
@@ -449,7 +436,7 @@ fix_privileges()
             i=$(($i+1))
             sleep 1
         done
-        if [ -f $datadir/mysql.pid ]; then
+        if [ -f $datadir/mysqld-fix_privileges.pid ]; then
             %{_bindir}/mysql_fix_privilege_tables &> /dev/null 
             kill `cat $pid_file` &> /dev/null
             rm -f $pid_file
@@ -461,13 +448,14 @@ fix_privileges()
     fi
 }
 
-if [ "x`svstat /service/mysqld|grep down >/dev/null 2>&1; echo $?`" = "x0" ]; then
+if [ "x`runsvstat /service/mysqld|grep down >/dev/null 2>&1; echo $?`" = "x0" ]; then
     fix_privileges
 else
     /usr/sbin/srv stop mysqld &> /dev/null
     fix_privileges
     /usr/sbin/srv start mysqld &> /dev/null 
 fi
+
 
 %preun
 %_preun_srv mysqld
@@ -477,82 +465,30 @@ fi
 %preun common
 %_remove_install_info mysql.info
 
+%postun common
+%_mkafterboot
+
 %preun Max
 %_preun_srv mysqld
 
 %post -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
 
-%files common -f mysql.lang
-%defattr(-, root, root) 
-%doc %{_docdir}/MySQL-%{version}/
-%{_bindir}/isamchk
-%{_bindir}/isamlog
-%{_bindir}/pack_isam
-%{_bindir}/myisamchk
-%{_bindir}/myisamlog
-%{_bindir}/myisampack
-%{_bindir}/mysql_fix_privilege_tables
-%{_bindir}/mysql_convert_table_format
-%{_bindir}/mysql_install_db
-%{_bindir}/mysql_setpermission
-%{_bindir}/mysql_explain_log 
-%{_bindir}/mysql_fix_extensions 
-%{_bindir}/mysql_install 
-%{_bindir}/mysql_secure_installation 
-%{_bindir}/mysql_tableinfo 
-%{_bindir}/mysql_waitpid 
-%{_bindir}/mysqlmanager-pwgen 
-%{_bindir}/mysqlmanager
-%{_bindir}/mysqlmanagerc 
-%{_bindir}/mysql_zap
-%{_bindir}/mysqlbug
-%{_bindir}/mysqltest
-%{_bindir}/mysqlhotcopy
-%{_bindir}/perror
-%{_bindir}/replace
-%{_bindir}/resolveip
-%{_bindir}/resolve_stack_dump
-%{_bindir}/mysqld_safe
-%{_bindir}/mysqld_multi
-%{_bindir}/my_print_defaults
-%{_bindir}/myisam_ftdump
-%{_infodir}/mysql.info*
-%config(noreplace) /etc/logrotate.d/mysql
-%dir %attr(-,mysql,mysql) %{_localstatedir}/mysql
-%dir %attr(-,mysql,mysql) %{_localstatedir}/mysql/mysql
-%dir %attr(-,mysql,mysql) %{_localstatedir}/mysql/test
-%{_datadir}/mysql/binary-configure
-%{_datadir}/mysql/make_binary_distribution
-%{_datadir}/mysql/make_sharedlib_distribution
-%{_datadir}/mysql/mi_test_all
-%{_datadir}/mysql/mi_test_all.res
-%{_datadir}/mysql/my-huge.cnf
-%{_datadir}/mysql/my-large.cnf
-%{_datadir}/mysql/my-medium.cnf
-%{_datadir}/mysql/my-small.cnf
-%{_datadir}/mysql/mysql-*.spec
-%{_datadir}/mysql/mysql-log-rotate
-%{_datadir}/mysql/charsets
-%{_datadir}/mysql/mysql.server
-%{_datadir}/mysql/english
-%{_datadir}/mysql/Description.plist
-%{_datadir}/mysql/Info.plist
-%{_datadir}/mysql/StartupParameters.plist
-%{_datadir}/mysql/postinstall
-%{_datadir}/mysql/preinstall
-%{_datadir}/mysql/MySQL-shared-compat.spec
-
 %files
 %defattr(-, root, root) 
 %{_sbindir}/mysqld
 %{_libdir}/mysql/mysqld.sym
-%dir %{_srvdir}/mysqld
-%dir %{_srvdir}/mysqld/log
-%{_srvdir}/mysqld/run
-%{_srvdir}/mysqld/log/run
-%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/mysqld
-%config(noreplace) %{_sysconfdir}/sysconfig/mysqld
+
+%files Max
+%defattr(-, root, root)
+%{_sbindir}/mysqld-max
+%{_libdir}/mysql/mysqld-max.sym
+
+%files bench
+%defattr(-, root, root)
+%doc sql-bench/README
+%{_datadir}/sql-bench
+%{_datadir}/mysql-test
 
 %files client
 %defattr(-, root, root)
@@ -572,40 +508,162 @@ fi
 %{_bindir}/mysqlbinlog
 %{_mandir}/man1/*.1*
 
+%files common -f mysql.lang
+%defattr(-,root,root) 
+%doc README COPYING Docs/*.html Docs/*.txt support-files/*.cnf Docs/manual-split
+%config(noreplace) %{_sysconfdir}/logrotate.d/mysql
+%config(noreplace) %{_sysconfdir}/sysconfig/mysqld
+%config(noreplace) %{_sysconfdir}/my.cnf
+%{_bindir}/isamchk
+%{_bindir}/isamlog
+%{_bindir}/pack_isam
+%{_bindir}/myisamchk
+%{_bindir}/myisamlog
+%{_bindir}/myisampack
+%{_bindir}/mysql_create_system_tables
+%{_bindir}/mysql_fix_privilege_tables
+%{_bindir}/mysql_convert_table_format
+%{_bindir}/mysql_install_db
+%{_bindir}/mysql_setpermission
+%{_bindir}/mysql_explain_log 
+%{_bindir}/mysql_fix_extensions 
+%{_bindir}/mysql_secure_installation 
+%{_bindir}/mysql_tableinfo 
+%{_bindir}/mysql_tzinfo_to_sql
+%{_bindir}/mysql_waitpid 
+%{_bindir}/mysqlmanager-pwgen 
+%{_bindir}/mysqlmanager
+%{_bindir}/mysqlmanagerc 
+%{_bindir}/mysql_zap
+%{_bindir}/mysqlbug
+%{_bindir}/mysqltest
+%{_bindir}/mysqlhotcopy
+%{_bindir}/perror
+%{_bindir}/replace
+%{_bindir}/resolveip
+%{_bindir}/resolve_stack_dump
+%{_bindir}/mysqld_safe
+%{_bindir}/mysqld_multi
+%{_bindir}/my_print_defaults
+%{_bindir}/myisam_ftdump
+%{_infodir}/mysql.info*
+%dir %attr(0711,mysql,mysql) %{_localstatedir}/mysql
+%dir %attr(0711,mysql,mysql) %{_localstatedir}/mysql/mysql
+%dir %attr(0711,mysql,mysql) %{_localstatedir}/mysql/test
+%dir %attr(0711,mysql,mysql) %{_localstatedir}/mysql/.tmp
+%dir %attr(0755,mysql,mysql) %{_var}/run/mysqld
+%dir %attr(0755,mysql,mysql) %{_var}/log/mysqld
+%dir %{_datadir}/mysql
+%{_datadir}/mysql/mi_test_all
+%{_datadir}/mysql/mi_test_all.res
+%{_datadir}/mysql/my-huge.cnf
+%{_datadir}/mysql/my-large.cnf
+%{_datadir}/mysql/my-medium.cnf
+%{_datadir}/mysql/my-small.cnf
+%{_datadir}/mysql/my-innodb-heavy-4G.cnf
+%{_datadir}/mysql/charsets
+%{_datadir}/mysql/english
+%{_datadir}/mysql/Description.plist
+%{_datadir}/mysql/Info.plist
+%{_datadir}/mysql/StartupParameters.plist
+%{_datadir}/mysql/fill_help_tables.sql
+%{_datadir}/mysql/mysql_fix_privilege_tables.sql
+%{_datadir}/mysql/japanese-sjis
+%{_datadir}/mysql/*.ini
+%{_datadir}/afterboot/05_mysql
+%dir %{_libdir}/mysql
+%dir %{_srvdir}/mysqld
+%dir %{_srvdir}/mysqld/log
+%{_srvdir}/mysqld/finish
+%{_srvdir}/mysqld/run
+%{_srvdir}/mysqld/log/run
+%dir %attr(0750,logger,logger) %{_srvlogdir}/mysqld
+
+%files -n %{libname}
+%defattr(-,root,root)
+%{_libdir}/*.so.*
+
 %files -n %{libname}-devel
-%defattr(-, root, root)
+%defattr(-,root,root)
 %doc INSTALL-SOURCE
 %{_bindir}/comp_err
-%{_includedir}/mysql/
-%{_libdir}/mysql/*.a
+%multiarch %{multiarch_bindir}/mysql_config
+%{_bindir}/mysql_config
+%{_includedir}/mysql
+%multiarch %{multiarch_includedir}/mysql/my_config.h
+%multiarch %{multiarch_includedir}/mysql/my_config-ndb.h
+%dir %{_libdir}/mysql
 %{_libdir}/*.la
 %{_libdir}/*.so
 %{_libdir}/*.a
-%{_bindir}/mysql_config
-
-%files -n %{libname}
-%defattr(-, root, root)
-# Shared olibraries (omit for architectures that don't support them)
-%{_libdir}/*.so.*
-
-%files bench
-%defattr(-, root, root)
-%doc sql-bench/README
-%{_datadir}/sql-bench
-%{_datadir}/mysql-test
-
-%files Max
-%defattr(-, root, root)
-%{_sbindir}/mysqld-max
-%{_libdir}/mysql/mysqld-max.sym
-%dir %{_srvdir}/mysqld
-%dir %{_srvdir}/mysqld/log
-%{_srvdir}/mysqld/run
-%{_srvdir}/mysqld/log/run
-%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/mysqld
-%config(noreplace) %{_sysconfdir}/sysconfig/mysqld
+%{_libdir}/mysql/*.a
 
 %changelog
+* Tue Mar 15 2005 Vincent Danen <vdanen@annvix.org> 4.1.10a-1avx
+- 4.0.10a; security fixes for CAN-2005-0709, CAN-2005-0710, CAN-2005-0711
+
+* Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 4.1.10-2avx
+- user logger for logging
+- multiarch
+
+* Fri Feb 25 2005 Vincent Danen <vdanen@annvix.org> 4.1.10-1avx
+- 4.1.10
+- update afterboot snippet with upgrade info
+- by default set --skip-networking in /etc/sysconfig/mysqld so that we don't
+  listen to the network (and note this in afterboot)
+- drop P10; applied upstream
+- use a different pid name for the fix_privileges stuff in %%post (oden)
+- rediff P0, P5 (oden)
+
+* Thu Feb 17 2005 Vincent Danen <vdanen@annvix.org> 4.1.9-1avx
+- 4.1.9
+- major spec cleanups
+- somewhat sync with mdk 4.1.9-8mdk (but with lots of imho useless
+  stuff removed)
+- provide TMPDIR/TMP directory and environment (oden)
+- added rediffed P7 and P8 from latest db-4.1.25 package, plus added
+  P9 to use it in an attempt to address possible nptl issues (oden)
+- P10: fix for CAN-2005-0004
+
+* Wed Jan 05 2005 Vincent Danen <vdanen@annvix.org> 4.0.23-1avx
+- 4.0.23
+
+* Fri Oct 22 2004 Vincent Danen <vdanen@annvix.org> 4.0.21-1avx
+- 4.0.21
+- updated manual-split package
+- include gpg signature and use original sources
+- rediff P1, P3
+- pick a better mirror
+- make runsvstat more silent
+
+* Wed Oct 06 2004 Vincent Danen <vdanen@annvix.org> 4.0.20-5avx
+- fix the scripts; it should now run flawlessly and fix bug #2
+
+* Mon Oct 04 2004 Vincent Danen <vdanen@annvix.org> 4.0.20-4avx
+- add a finish script
+- add an afterboot snippet
+- add our own logrotate script which has everything commented out
+  by default
+
+* Mon Sep 20 2004 Vincent Danen <vdanen@annvix.org> 4.0.20-3avx
+- s/setuidgid/chpst in spec
+- Prereq: runit
+
+* Sun Sep 19 2004 Vincent Danen <vdanen@annvix.org> 4.0.20-2avx
+- updated runscripts
+
+* Fri Aug 13 2004 Vincent Danen <vdanen@annvix.org> 4.0.20-1avx
+- 4.0.20
+- remove P4: security fixes included upstream
+- own directories
+- correct call to tar
+- build both MySQL and MySQL-Max with openssl, rather than just MySQL-Max
+- fix buildrequires for libstdc++-static-devel (gbeauchesne)
+- patch policy
+
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 4.0.18-2avx
+- Annvix build
+
 * Thu Apr 22 2004 Vincent Danen <vdanen@opensls.org> 4.0.18-1sls
 - 4.0.18
 - drop unused patches: P1, P2, P3, P4, P7, P9

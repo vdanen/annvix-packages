@@ -1,7 +1,7 @@
 %define name	perl-%{module}
 %define module	DB_File
-%define version	1.808
-%define release	1sls
+%define version	1.810
+%define release	1avx
 
 %define perl_archlib %(eval "`perl -V:installarchlib`"; echo $installarchlib)
 
@@ -22,18 +22,18 @@ BuildRequires:	db-devel perl-devel
 DB_File is a module which allows Perl programs to make use of the
 facilities provided by Berkeley DB version 1. (DB_File can be built with
 version 2 or 3 of Berkeley DB, but it will only support the 1.x
-features), 
+features).
 
 If you want to make use of the new features available in Berkeley DB
-2.x or 3.x, use the Perl module BerkeleyDB instead. 
+2.x or 3.x, use the Perl module BerkeleyDB instead.
 
-Berkeley DB is a C library which provides a consistent interface to a 
+Berkeley DB is a C library which provides a consistent interface to a
 number of database formats. DB_File provides an interface to all three
 of the database types (hash, btree and recno) currently supported by
 Berkeley DB.
 
 For further details see the documentation included at the end of the
-file DB_File.pm.                
+file DB_File.pm.
 
 %prep
 %setup -q -n %{module}-%{version}
@@ -55,12 +55,21 @@ mkdir -p $RPM_BUILD_ROOT/$installarchlib
 
 %files
 %defattr(-,root,root)
-%doc README
+%doc README Changes
 %{perl_vendorarch}/*.pm
 %{perl_vendorarch}/auto/DB_File
 %_mandir/man3*/DB_File.*
 
 %changelog
+* Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> 1.810-1avx
+- 1.810
+
+* Wed Feb 02 2005 Vincent Danen <vdanen@annvix.org> 1.808-3avx
+- rebuild against new perl
+
+* Sat Jun 26 2004 Vincent Danen <vdanen@annvix.org> 1.808-2avx
+- Annvix build
+
 * Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 1.808-1sls
 - 1.808
 - fix url

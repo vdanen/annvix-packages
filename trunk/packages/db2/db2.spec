@@ -1,6 +1,6 @@
 %define name 	db2
 %define version 2.4.14
-%define release 10sls
+%define release 11avx
 
 Summary:	The BSD database library for C (version 2).
 Name:		%{name}
@@ -19,7 +19,7 @@ Patch2:		db2-2.4.14-db_fileid-64bit-fix.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-root
 
-PreReq:		/sbin/ldconfig
+PreReq:		ldconfig
 %ifnarch ia64
 Conflicts:	glibc < 2.1.90
 %endif
@@ -106,6 +106,9 @@ done
 %{_bindir}/db2_stat
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 2.4.14-11avx
+- Annvix build
+
 * Tue Mar 03 2004 Vincent Danen <vdanen@opensls.org> 2.4.14-10sls
 - minor spec cleanups
 

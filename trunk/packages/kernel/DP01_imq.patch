@@ -465,9 +465,8 @@ diff -urN a/net/core/skbuff.c b/net/core/skbuff.c
  }
  
  /**
-diff -urN a/net/sched/sch_generic.c b/net/sched/sch_generic.c
---- a/net/sched/sch_generic.c	2003-06-25 00:18:32.000000000 +0200
-+++ b/net/sched/sch_generic.c	2003-06-25 00:19:03.000000000 +0200
+--- linux-2.4.28/net/sched/sch_generic.c.dp01.orig	2004-11-17 04:54:22.000000000 -0700
++++ linux-2.4.28/net/sched/sch_generic.c	2004-11-24 22:02:45.000000000 -0700
 @@ -29,6 +29,9 @@
  #include <linux/skbuff.h>
  #include <linux/rtnetlink.h>
@@ -475,10 +474,10 @@ diff -urN a/net/sched/sch_generic.c b/net/sched/sch_generic.c
 +#if defined(CONFIG_IMQ) || defined(CONFIG_IMQ_MODULE)
 +#include <linux/imq.h>
 +#endif
+ #include <linux/list.h>
  #include <net/sock.h>
  #include <net/pkt_sched.h>
- 
-@@ -89,7 +92,11 @@
+@@ -90,7 +93,11 @@
  			spin_unlock(&dev->queue_lock);
  
  			if (!netif_queue_stopped(dev)) {

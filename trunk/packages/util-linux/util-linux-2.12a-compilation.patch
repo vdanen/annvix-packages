@@ -1,0 +1,41 @@
+--- util-linux-2.12a/mount/Makefile.comp	2004-09-02 21:14:08.545534240 +0200
++++ util-linux-2.12a/mount/Makefile	2004-09-02 21:14:35.287468848 +0200
+@@ -1,7 +1,7 @@
+ include ../make_include
+ include ../MCONFIG
+ 
+-DEFINES = -DHAVE_NFS -D_FILE_OFFSET_BITS=64
++DEFINES = -DHAVE_NFS -D_FILE_OFFSET_BITS=64 -D_LARGEFILE64_SOURCE
+ 
+ RPCSVCDIR = rpcsvc
+ RPC_CFLAGS = -Wno-unused 
+--- util-linux-2.12a/partx/addpart.c.comp	2004-09-02 21:14:08.991466448 +0200
++++ util-linux-2.12a/partx/addpart.c	2004-09-02 21:14:35.287468848 +0200
+@@ -3,6 +3,7 @@
+ #include <fcntl.h>
+ #include <stdlib.h>
+ #include <sys/ioctl.h>
++#include <linux/compiler.h>
+ #include <linux/blkpg.h>
+ 
+ int
+--- util-linux-2.12a/partx/delpart.c.comp	2004-09-02 21:14:09.359410512 +0200
++++ util-linux-2.12a/partx/delpart.c	2004-09-02 21:14:35.287468848 +0200
+@@ -3,6 +3,7 @@
+ #include <fcntl.h>
+ #include <stdlib.h>
+ #include <sys/ioctl.h>
++#include <linux/compiler.h>
+ #include <linux/blkpg.h>
+ 
+ int
+--- util-linux-2.12a/partx/partx.c.comp	2004-09-02 21:14:09.741352448 +0200
++++ util-linux-2.12a/partx/partx.c	2004-09-02 21:14:35.288468696 +0200
+@@ -38,6 +38,7 @@
+ #include <unistd.h>
+ #include <sys/ioctl.h>
+ #include <linux/hdreg.h>        /* HDIO_GETGEO */
++#include <linux/compiler.h>
+ #include <linux/blkpg.h>
+ #define BLKGETSIZE _IO(0x12,96)    /* return device size */
+ 

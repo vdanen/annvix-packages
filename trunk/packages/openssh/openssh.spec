@@ -1,6 +1,6 @@
 %define name	openssh
-%define version	3.8p1
-%define release 2sls
+%define version	4.0p1
+%define release 1avx
 
 ## Do not apply any unauthorized patches to this package!
 ## - vdanen 05/18/01
@@ -29,9 +29,9 @@ Source5:	04_openssh.afterboot
 Source6:	ssh-client.sh
 Source8:	sshd.run
 Source9:	sshd-log.run
-Patch1:		openssh-3.8p1-openslsconf.patch.bz2
+Patch1:		openssh-4.0p1-avx-annvixconf.patch.bz2
 # authorized by Damien Miller <djm@openbsd.com>
-Patch2:		openssh-3.1p1-check-only-ssl-version.patch.bz2
+Patch2:		openssh-3.1p1-mdk-check-only-ssl-version.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
 BuildRequires:	groff-for-man, openssl-devel >= 0.9.7, pam-devel, tcp_wrappers-devel, zlib-devel
@@ -46,6 +46,7 @@ BuildRequires:	krb5-devel
 Obsoletes:	ssh
 Provides:	ssh
 PreReq:		openssl >= 0.9.7, afterboot
+Requires:	filesystem >= 2.1.5
 
 %description
 Ssh (Secure Shell) a program for logging into a remote machine and for
@@ -119,7 +120,7 @@ echo "Building with S/KEY support..."
 %endif
 
 %setup -q
-%patch1 -p0 -b .opensls
+%patch1 -p0 -b .avx
 %patch2 -p1 -b .ssl_ver
 
 %build
@@ -149,38 +150,35 @@ make
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-make install DESTDIR=$RPM_BUILD_ROOT/
+make install DESTDIR=%{buildroot}/
 
-install -d $RPM_BUILD_ROOT%{_sysconfdir}/ssh
-install -d $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/
-install -m644 contrib/redhat/sshd.pam $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/sshd
+install -d %{buildroot}%{_sysconfdir}/ssh
+install -d %{buildroot}%{_sysconfdir}/pam.d/
+install -m 0644 contrib/redhat/sshd.pam %{buildroot}%{_sysconfdir}/pam.d/sshd
 
 if [[ -f sshd_config.out ]]; then 
-	install -m600 sshd_config.out $RPM_BUILD_ROOT%{_sysconfdir}/ssh/sshd_config
+	install -m 0600 sshd_config.out %{buildroot}%{_sysconfdir}/ssh/sshd_config
 else 
-	install -m600 sshd_config $RPM_BUILD_ROOT%{_sysconfdir}/ssh/sshd_config
+	install -m 0600 sshd_config %{buildroot}%{_sysconfdir}/ssh/sshd_config
 fi
 
 if [[ -f ssh_config.out ]]; then
-    install -m644 ssh_config.out $RPM_BUILD_ROOT%{_sysconfdir}/ssh/ssh_config
+    install -m 0644 ssh_config.out %{buildroot}%{_sysconfdir}/ssh/ssh_config
 else
-    install -m644 ssh_config $RPM_BUILD_ROOT%{_sysconfdir}/ssh/ssh_config
+    install -m 0644 ssh_config %{buildroot}%{_sysconfdir}/ssh/ssh_config
 fi
 
-install -m640 %{SOURCE4} %{buildroot}%{_sysconfdir}/ssh/denyusers.pam
+install -m 0640 %{SOURCE4} %{buildroot}%{_sysconfdir}/ssh/denyusers.pam
 
-mkdir -p $RPM_BUILD_ROOT%{_libdir}/ssh
+mkdir -p %{buildroot}%{_libdir}/ssh
 
-install -d $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/
+install -d %{buildroot}%{_sysconfdir}/profile.d/
 
-install -m 755 %{SOURCE6} $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/
+install -m 755 %{SOURCE6} %{buildroot}%{_sysconfdir}/profile.d/
 
-bzcat %{SOURCE3} > $RPM_BUILD_ROOT/%{_bindir}/ssh-copy-id
-chmod a+x $RPM_BUILD_ROOT/%{_bindir}/ssh-copy-id
-install -m 644 contrib/ssh-copy-id.1 $RPM_BUILD_ROOT/%{_mandir}/man1/
-
-# create pre-authentication directory
-mkdir -p %{buildroot}/var/empty
+bzcat %{SOURCE3} > %{buildroot}/%{_bindir}/ssh-copy-id
+chmod a+x %{buildroot}/%{_bindir}/ssh-copy-id
+install -m 644 contrib/ssh-copy-id.1 %{buildroot}/%{_mandir}/man1/
 
 rm -f %{buildroot}%{_datadir}/ssh/Ssh.bin
 
@@ -270,18 +268,20 @@ do_dsa_keygen
 %files
 %defattr(-,root,root)
 %doc ChangeLog OVERVIEW README* INSTALL CREDITS LICENCE TODO
-%{_bindir}/ssh-keygen
 %dir %{_sysconfdir}/ssh
+%{_bindir}/ssh-keygen
 %{_bindir}/ssh-keyscan
+%{_bindir}/scp
+%{_libdir}/ssh/ssh-keysign
 %{_mandir}/man1/ssh-keygen.1*
 %{_mandir}/man1/ssh-keyscan.1*
 %{_mandir}/man8/ssh-keysign.8*
-%{_libdir}/ssh/ssh-keysign
-%{_bindir}/scp
 %{_mandir}/man1/scp.1*
 
 %files clients
 %defattr(-,root,root)
+%config(noreplace) %{_sysconfdir}/ssh/ssh_config
+%attr(0755,root,root) %config(noreplace) %{_sysconfdir}/profile.d/ssh-client.sh
 %{_bindir}/ssh
 %{_bindir}/ssh-agent
 %{_bindir}/ssh-add
@@ -295,30 +295,64 @@ do_dsa_keygen
 %{_mandir}/man1/ssh-add.1*
 %{_mandir}/man1/sftp.1*
 %{_mandir}/man5/ssh_config.5*
-%config(noreplace) %{_sysconfdir}/ssh/ssh_config
-%attr(0755,root,root) %config(noreplace) %{_sysconfdir}/profile.d/ssh-client.sh
 
 %files server
 %defattr(-,root,root)
+%attr(0600,root,root) %config(noreplace) %{_sysconfdir}/ssh/sshd_config
+%attr(0600,root,root) %config(noreplace) %{_sysconfdir}/ssh/denyusers.pam
+%attr(0600,root,root) %config(noreplace) %{_sysconfdir}/pam.d/sshd
+%config(noreplace) %{_sysconfdir}/ssh/moduli
 %{_sbindir}/sshd
 %dir %{_libdir}/ssh
 %{_libdir}/ssh/sftp-server
 %{_mandir}/man5/sshd_config.5*
 %{_mandir}/man8/sshd.8*
 %{_mandir}/man8/sftp-server.8*
-%attr(0600,root,root) %config(noreplace) %{_sysconfdir}/ssh/sshd_config
-%attr(0600,root,root) %config(noreplace) %{_sysconfdir}/ssh/denyusers.pam
-%attr(0600,root,root) %config(noreplace) %{_sysconfdir}/pam.d/sshd
 %dir %{_srvdir}/sshd
 %dir %{_srvdir}/sshd/log
 %{_srvdir}/sshd/run
 %{_srvdir}/sshd/log/run
-%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/sshd
-%config(noreplace) %{_sysconfdir}/ssh/moduli
-%dir %attr(0755,root,root) /var/empty
+%dir %attr(0750,logger,logger) %{_srvlogdir}/sshd
 %{_datadir}/afterboot/04_openssh
 
 %changelog
+* Wed Mar 16 2005 Vincent Danen <vdanen@annvix.org> 4.0p1-1avx
+- 4.0p1
+- rediff P1
+
+* Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 3.9p1-7avx
+- use logger for logging
+- spec cleanups
+
+* Thu Jan 06 2005 Vincent Danen <vdanen@annvix.org> 3.9p1-6avx
+- rebuild against new openssl
+
+* Tue Sep 14 2004 Vincent Danen <vdanen@annvix.org> 3.9p1-5avx
+- don't own /var/empty; filesystem does (thus filesystem Requires)
+
+* Sat Sep 11 2004 Vincent Danen <vdanen@annvix.org> 3.9p1-4avx
+- fix bad paths in sshd/log/run
+
+* Sat Sep 11 2004 Vincent Danen <vdanen@annvix.org> 3.9p1-3avx
+- update run scripts
+
+* Thu Sep  2 2004 Vincent Danen <vdanen@annvix.org> 3.9p1-2avx
+- turn AllowTcpForwarding off by default
+
+* Thu Aug 18 2004 Vincent Danen <vdanen@annvix.org> 3.9p1-1avx
+- 3.9p1
+- rediff P1
+- set MaxAuthTries to 4 by default, rather than 6
+- set Protocol to "2" rather than "2,1" by default (it's time people
+  stop using RSA1 or even allowing a fallback)
+
+* Fri Aug 13 2004 Vincent Danen <vdanen@annvix.org> 3.8.1p1-1avx
+- 3.8.1p1
+- patch policy
+
+* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 3.8p1-3avx
+- Annvix build
+
 * Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 3.8p1-2sls
 - modify /etc/pam.d/sshd to use pam_listfile.so first on the auth stack so
   even if UsePAM is enabled, we can still securely use PermitRootLogin

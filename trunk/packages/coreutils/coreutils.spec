@@ -1,6 +1,6 @@
 %define name	coreutils
 %define version	5.0
-%define release	8sls
+%define release	9avx
 
 # fileutils: rh-4.1-4
 # sh-utils:  rh-2.0.12-2
@@ -259,6 +259,9 @@ true
 %_mandir/man*/*
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 5.0-9avx
+- Annvix build
+
 * Mon Mar 02 2004 Vincent Danen <vdanen@opensls.org> 5.0-8sls
 - minor spec cleanups
 - /bin/su is not suid root anymore

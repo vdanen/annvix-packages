@@ -1,7 +1,7 @@
 %define module	Locale-gettext
 %define name	perl-%{module}
 %define version	1.01
-%define release	13sls
+%define release	15avx
 
 Summary:	Internationalization for Perl.
 Name:		%{name}
@@ -55,6 +55,12 @@ make test
 %{_mandir}/*/*
 
 %changelog
+* Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> 1.01-15avx
+- rebuild against new perl
+
+* Sat Jun 26 2004 Vincent Danen <vdanen@annvix.org> 1.01-14avx
+- Annvix build
+
 * Fri May 07 2004 Vincent Danen <vdanen@opensls.org> 1.01-13sls
 - in my "add iconv" patch, tag the SV* as UTF8 when output charset is
   UTF8, to fix #7156 with some modifications in urpmi too (gc)

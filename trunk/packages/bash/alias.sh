@@ -13,7 +13,11 @@
 
 [ -e /etc/sysconfig/system ] && . /etc/sysconfig/system
 
-eval `dircolors --sh /etc/DIR_COLORS`
+if [ -f ~/.dir_colors ]; then
+	eval `dircolors --sh ~/.dir_colors`
+else
+	eval `dircolors --sh /etc/DIR_COLORS`
+fi
 
 # default ls options
 LS_OPTIONS="-F"

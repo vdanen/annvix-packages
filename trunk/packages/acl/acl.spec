@@ -1,6 +1,6 @@
 %define name	acl
-%define version 2.2.22
-%define release 1sls
+%define version 2.2.23
+%define release 2avx
 
 %define lib_name_orig	lib%{name}
 %define lib_major	1
@@ -64,6 +64,8 @@ make install DIST_ROOT=%{buildroot}/
 make install-dev DIST_ROOT=%{buildroot}/
 make install-lib DIST_ROOT=%{buildroot}/
 
+perl -pi -e 's,\s(/%{_lib})(.*attr\.la),%{_libdir}/$2,g' %{buildroot}/%{_libdir}/%{_lib}acl.la
+
 rm -rf %{buildroot}%{_docdir}/acl
 %find_lang %{name}
 
@@ -97,6 +99,14 @@ rm -rf %{buildroot}%{_docdir}/acl
 %{_includedir}/sys/acl.h
 
 %changelog
+* Fri Mar 04 2005 Vincent Danen <vdanen@annvix.org> 2.2.23-2avx
+- if we list the libattr libtool file in our libtool file, at least
+  ensure the location is right (bgmilne)
+
+* Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 2.2.23-1avx
+- 2.2.23
+- Annvix build
+
 * Sun Feb 29 2004 Vincent Danen <vdanen@opensls.org> 2.2.22-1sls
 - 2.2.22
 - libname fixes

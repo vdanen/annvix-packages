@@ -1,6 +1,5 @@
 #!/bin/sh
 
-# this writes logs as user nobody into /var/log/supervise/dhcrelay; make 
-# sure this directory exists and is writable by nobody!
+# logging for the dhcrelay service
 
-exec /usr/bin/setuidgid nobody /usr/bin/multilog t /var/log/supervise/dhcrelay
+exec /sbin/chpst -u logger /sbin/svlogd -tt /var/log/supervise/dhcrelay

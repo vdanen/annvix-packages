@@ -1,6 +1,6 @@
 %define name	ncurses
 %define version	5.3
-%define release	1.20030215.6sls
+%define release	1.20030215.7avx
 
 %define patchdate	20021028
 %define lib_major	5
@@ -32,7 +32,7 @@ Patch17:	ftp://dickey.his.com/ncurses/%{version}/ncurses-5.3-20030215.patch.gz
 BuildRoot:	%{_tmppath}/%{name}-root
 BuildRequires:	sharutils
 
-PreReq:		/sbin/ldconfig
+PreReq:		ldconfig
 
 %description
 The curses library routines are a terminal-independent method of updating
@@ -201,6 +201,10 @@ rm -rf %{buildroot}%{_datadir}/terminfo/terminfo
 %{_mandir}/man3/*
 
 %changelog
+* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 5.3-1.20030215.7avx
+- Require packages not files
+- Annvix build
+
 * Sat Jun 12 2004 Vincent Danen <vdanen@opensls.org> 5.3-1.20030215.6sls
 - own /usr/share/terminfo
 

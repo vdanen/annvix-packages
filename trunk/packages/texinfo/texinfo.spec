@@ -1,21 +1,21 @@
 %define name	texinfo
-%define version	4.6
-%define release	3sls
+%define version	4.8
+%define release	2avx
 
-# rh-4.1-1
-Summary:	Tools needed to create Texinfo format documentation files.
+Summary:	Tools needed to create Texinfo format documentation files
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	GPL
 Group:		Publishing
-URL:		http://www.gnu.org/directory/GNU/texinfo.html
-Source0:	ftp://ftp.gnu.org/pub/gnu/texinfo/%name-%version.tar.bz2
+URL:		http://www.texinfo.org
+Source0:	ftp://ftp.gnu.org/pub/gnu/texinfo/%{name}-%{version}.tar.bz2
 Source1:	info-dir.bz2
 Patch1:		texinfo-3.12h-fix.patch.bz2
-Patch107:	texinfo-4.1-vikeys-segfault-fix.diff.bz2
+Patch2:		texinfo-4.7-vikeys-segfault-fix.patch.bz2
+Patch3:		texinfo-4.7.test.patch.bz2
 
-BuildRoot:	%_tmppath/%name-%version-root
+BuildRoot:	%{_tmppath}/%{name}-%{version}-root
 BuildRequires:	ncurses-devel, zlib-devel
 
 %description
@@ -32,9 +32,10 @@ online and print documentation from the same source file and/or if you are
 going to write documentation for the GNU Project.
 
 %package -n info
-Summary:	A stand-alone TTY-based reader for GNU texinfo documentation.
+Summary:	A stand-alone TTY-based reader for GNU texinfo documentation
 Group:		System/Base
 Prereq:		info-install
+Conflicts:	info-install < 4.7
 
 %description -n info
 The GNU project uses the texinfo file format for much of its
@@ -45,9 +46,10 @@ You should install info, because GNU's texinfo documentation is a valuable
 source of information about the software on your system.
 
 %package -n info-install
-Summary:	Program to update the GNU texinfo documentation main page.
+Summary:	Program to update the GNU texinfo documentation main page
 Group:		System/Base
 Requires:	bzip2
+Conflicts:	info < 4.7
 
 %description -n info-install
 The GNU project uses the texinfo file format for much of its
@@ -57,10 +59,11 @@ program for viewing texinfo files.
 %prep
 %setup -q
 %patch1 -p1
-%patch107 -p1
+%patch2 -p1
+%patch3 -p0
 
 %build
-%configure
+%configure2_5x
 %make 
 rm -f util/install-info
 make -C util LIBS=%{_libdir}/libz.a
@@ -73,22 +76,22 @@ mkdir -p $RPM_BUILD_ROOT/{etc,sbin}
 
 %makeinstall
 pushd $RPM_BUILD_ROOT
-  bzcat %SOURCE1 > .%_sysconfdir/info-dir
-  ln -sf ../../../etc/info-dir $RPM_BUILD_ROOT%_infodir/dir
-  mv -f .%_bindir/install-info ./sbin
-  mkdir -p .%_sysconfdir/X11/wmconfig
+  bzcat %SOURCE1 > .%{_sysconfdir}/info-dir
+  ln -sf ../../../etc/info-dir $RPM_BUILD_ROOT%{_infodir}/dir
+  mv -f .%{_bindir}/install-info ./sbin
+  mkdir -p .%{_sysconfdir}/X11/wmconfig
 popd
 
-%{find_lang} %name
+%{find_lang} %{name}
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
-%_install_info %name
+%_install_info %{name}
 
 %preun
-%_remove_install_info %name
+%_remove_install_info %{name}
 
 %post -n info
 %_install_info info.info
@@ -96,37 +99,52 @@ popd
 %preun -n info
 %_remove_install_info info.info
 
-%files -f %name.lang
+%files -f %{name}.lang
 %defattr(-,root,root)
 %doc AUTHORS ChangeLog INSTALL INTRODUCTION NEWS README TODO
 %doc --parents info/README
-%_bindir/makeinfo
-%_bindir/texindex
-%_bindir/texi2dvi
-%_infodir/info-stnd.info*
-%_infodir/texinfo*
-%_mandir/man1/makeinfo.1*
-%_mandir/man1/texindex.1*
-%_mandir/man1/texi2dvi.1*                         
-%_mandir/man5/texinfo.5*   
-%_datadir/texinfo
+%{_bindir}/makeinfo
+%{_bindir}/texindex
+%{_bindir}/texi2dvi
+%{_bindir}/texi2pdf
+%{_infodir}/info-stnd.info*
+%{_infodir}/texinfo*
+%{_mandir}/man1/makeinfo.1*
+%{_mandir}/man1/texindex.1*
+%{_mandir}/man1/texi2dvi.1*                         
+%{_mandir}/man5/texinfo.5*   
+%{_datadir}/texinfo
 
 %files -n info
 %defattr(-,root,root)
-%_bindir/info
-%_infodir/info.info*
-%_bindir/infokey
+%{_bindir}/info
+%{_infodir}/info.info*
+%{_bindir}/infokey
+%{_mandir}/man1/info.1*
+%{_mandir}/man1/infokey.1*
+%{_mandir}/man5/info.5*
 
 %files -n info-install
 %defattr(-,root,root)
-%config(noreplace) %attr(644,root,root) %_sysconfdir/info-dir
-%_infodir/dir
+%config(noreplace) %attr(644,root,root) %{_sysconfdir}/info-dir
+%{_infodir}/dir
 /sbin/install-info
-%_mandir/man1/info.1*
-%_mandir/man1/install-info.1*
-%_mandir/man5/info.5*
+%{_mandir}/man1/install-info.1*
 
 %changelog
+* Sun Mar 06 2005 Vincent Danen <vdanen@annvix.org> 4.8-2avx
+- fix conflicts on info-install vs. info
+
+* Mon Feb 28 2005 Vincent Danen <vdanen@annvix.org> 4.8-1avx
+- 4.8
+- move info(1) and info(5) from info-install to info
+- P3: fix macros support in texinfo so that groff documentation
+  works (tvignaud)
+- P4: make test robust against environment locales (guillomovitch)
+
+* Sat Jun 19 2004 Vincent Danen <vdanen@annvix.org> 4.6-4avx
+- Annvix build
+
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 4.6-3sls
 - minor spec cleanups
 

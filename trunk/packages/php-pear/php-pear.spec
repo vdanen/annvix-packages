@@ -1,14 +1,14 @@
 %define name	php-%{subname}
 %define version	%{phpversion}
-%define release	1sls
+%define release	2avx
 
-%define phpsource	%{_prefix}/src/php-devel
-%{expand:%(cat /usr/src/php-devel/PHP_BUILD||(echo -e "error: failed build dependencies:\n        php-devel >= 430 (4.3.0) is needed by this package." >/dev/stderr;kill -2 $PPID))}
+%define phpversion	4.3.10
+%define phpsource       %{_prefix}/src/php-devel
+%define phpdir		%{_libdir}/php
+%define peardir		%{_datadir}/pear
 
 %define subname		pear
-%define php_ver_rel	%{phpversion}-%{phprelease}
-#%{expand:%%define thisdate %(date +%Y%m%d)}
-%define go_pear_uri	http://go-pear.org
+%define pear_date	20040506
 
 Summary:	The PHP PEAR files
 Name:		%{name}
@@ -17,18 +17,27 @@ Release:	%{release}
 License:	PHP License
 Group:		Development/Other
 URL:		http://www.php.net
+Source0:	php-pear-%{pear_date}.tar.bz2
+Source1:	fixregistry.php
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
-BuildRequires:	php%{libversion}-devel php-xml lynx perl php-cli
+BuildRequires:	php4-devel php-xml perl php-cli
 BuildArch:	noarch
 
-Requires:	php
+Requires:	php-cli
 Requires:	php-xml
 Requires:	php-xmlrpc
-Provides: 	ADVXpackage
 Provides:	php-pear-Log
+Provides:	php-pear-Mail
 Provides:	php-pear-Mail_Mime
 Provides:	php-pear-Net_Socket
+Provides:	php-pear-Archive_Tar
+Provides:	php-pear-Console_Getopt
+Provides:	php-pear-DB
+Provides:	php-pear-Net_SMTP
+Provides:	php-pear-XML_Parser
+Provides:	php-pear-XML_RPC
+Provides:	php-pear-phpUnit
 
 %description
 PEAR is short for "PHP Extension and Application Repository" and is
@@ -43,22 +52,19 @@ pronounced just like the fruit. The purpose of PEAR is to provide:
       PHP/PEAR community 
 
 %prep
-# We don't have any sources, because we'll fetch them
-%setup -T -c
+%setup -q -n %{name}
 
-# Get the go-pear script
-lynx --source %{go_pear_uri} > go-pear
 
 %build
 # Make sure that there are no < /dev/tty statements in go-pear
 perl -pi -e "s|/dev/tty|php://stdin|;" go-pear
 perl -pi -e 's|detect_install_dirs\(\)|detect_install_dirs("%{buildroot}/usr")|;' go-pear
-perl -pi -e "s|'XML_Parser',|'XML_Parser',\n    'Log',\n    'Mail_Mime',\n    'Net_Socket',\n    |;" go-pear
+perl -pi -e "s|'XML_Parser',|'XML_Parser',\n    'Log',\n    'Mail_Mime',\n    |;" go-pear
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 # Pass default values to go-pear.  This will fetch, build and install PEAR
-install -d %{buildroot}{%{peardir},%{_bindir}}
+mkdir -p %{buildroot}{%{peardir},%{_bindir}}
 yes ""|php -q go-pear
 
 echo "Get all the info on http://pear.php.net" > README
@@ -68,6 +74,16 @@ find %{buildroot}%{peardir} -name ".cvsignore" |\
 	xargs rm -f
 
 # Remove buildroot
+for f in %{buildroot}/%{peardir}/.registry/*.reg
+do
+  php %{SOURCE1} $f %{buildroot}
+done
+
+# Turn generated conf into a global setting
+mkdir -p %{buildroot}%{_sysconfdir}
+grep -v '#' ~/.pearrc >%{buildroot}%{_sysconfdir}/pear.conf
+php %{SOURCE1} %{buildroot}%{_sysconfdir}/pear.conf %{buildroot}
+
 find %{buildroot} -type f|xargs perl -pi -e "s|%{buildroot}||g;"
 
 # Remove empty files
@@ -76,12 +92,16 @@ rm -f %{buildroot}/%{peardir}/.lock
 # Remove unwanted file
 rm -f %{buildroot}/%{_prefix}/php.ini-gopear
 
+# Create the directory that will contain .xml of additional packages
+mkdir %{buildroot}%{peardir}/packages
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files 
 %defattr(-,root,root)
 %doc README
+%config(noreplace) %{_sysconfdir}/pear.conf
 %dir %{peardir}
 %{peardir}/*
 %{peardir}/.filemap
@@ -89,6 +109,29 @@ rm -f %{buildroot}/%{_prefix}/php.ini-gopear
 %{_bindir}/pear
 
 %changelog
+* Sat Feb 26 2005 Vincent Danen <vdanen@annvix.org> 4.3.10-2avx
+- spec cleanups
+
+* Fri Dec 17 2004 Vincent Danen <vdanen@annvix.org> 4.3.10-1avx
+- php 4.3.10
+
+* Thu Sep 30 2004 Vincent Danen <vdanen@annvix.org> 4.3.9-1avx
+- php 4.3.9
+
+* Wed Jul 14 2004 Vincent Danen <vdanen@annvix.org> 4.3.8-1avx
+- php 4.3.8
+- remove ADVXpackage provides
+- point pear config to actual install paths (#6661) (pterjan)
+- provide all included pear packages (pterjan)
+- fix registry (pterjan)
+- use a tarball instead of downloading at build time (pterjan)
+- create %%{peardir}/packages to contain .xml of additional packages
+  (pterjan)
+- Requires: php-cli (pterjan)
+
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 4.3.7-2avx
+- Annvix build
+
 * Thu Jun 03 2004 Vincent Danen <vdanen@opensls.org> 4.3.7-1sls
 - php 4.3.7
 

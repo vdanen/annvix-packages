@@ -1,6 +1,6 @@
 %define name	bison
 %define version 1.875
-%define release 5sls
+%define release 6avx
 
 Summary:	A GNU general-purpose parser generator.
 Name:		%{name}
@@ -16,8 +16,7 @@ Patch1:		bison-1.875-gccerror.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-root
 
-Prereq:		/sbin/install-info
-Prefix:		%{_prefix}
+Prereq:		info-install
 
 %description
 Bison is a general purpose parser generator which converts a grammar
@@ -74,6 +73,11 @@ rm -rf $RPM_BUILD_ROOT/%{_libdir} $RPM_BUILD_ROOT/%{_datadir}/liby.a
 %{_bindir}/*
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> - 1.875-6avx
+- Annvix build
+- require packages not files
+- remove Prefix
+
 * Tue Mar 02 2004 Vincent Danen <vdanen@opensls.org> - 1.875-5sls
 - minor spec cleanups
 

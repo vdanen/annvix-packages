@@ -1,6 +1,6 @@
 %define name	groff
 %define version	1.19
-%define release	5sls
+%define release	6avx
 
 # rh-1.18-3
 # deb-1.18-4
@@ -20,6 +20,7 @@ Patch3:		groff_1.19-0.diff.bz2
 Patch4:		groff-1.18-info.patch.bz2
 Patch5:		groff-1.18-nohtml.patch.bz2
 Patch6:		groff-1.17.2-libsupc++.patch.bz2
+Patch7:		groff-1.19-mkstemp.patch.bz2
 Patch102:	groff-1.16.1-no-lbp-on-alpha.patch.bz2
 Patch107:	groff-1.19-koi8-r.patch.bz2
 # patch to improve working on utf-8 locales;
@@ -32,12 +33,12 @@ Patch108:	groff-1.19-utf8.patch.bz2
 Patch109:	groff-1.19-dashes.patch.bz2
 
 BuildRoot:	%_tmppath/%name-root
-BuildRequires:	autoconf2.5, byacc, texinfo >= 4.3, xpm-devel
+BuildRequires:	autoconf2.5, byacc, texinfo < 4.7, xpm-devel
 
 Requires:	mktemp groff-for-man
 Obsoletes:	groff-tools
 Provides:	groff-tools
-Prereq:		/sbin/install-info
+Prereq:		info-install
 
 %description
 Groff is a document formatting system.  Groff takes standard text and
@@ -78,6 +79,7 @@ troff-to-ps print filter.
 %patch4 -p1
 %patch5 -p1
 %patch6 -p1 -b .libsupc++
+%patch7 -p1 -b .mkstemp
 %ifarch alpha
 %patch102 -p1 -b .alpha
 %endif
@@ -91,6 +93,7 @@ WANT_AUTOCONF_2_5=1 autoconf
 
 %build
 PATH=$PATH:%_prefix/X11R6/bin
+export MAKEINFO=$HOME/cvs/texinfo/makeinfo/makeinfo
 %configure2_5x --enable-japanese
 make top_builddir=$PWD top_srcdir=$PWD
 cd doc
@@ -211,6 +214,11 @@ mv $RPM_BUILD_ROOT%_docdir/{groff/%version/,%name-%version/}
 
 
 %changelog
+* Thu Jun 24 2004 Vincent Danen <vdanen@annvix.org> 1.19-6avx
+- require packages not files
+- Annvix build
+- merge from amd64-branch: build fixes (gbeauchesne)
+
 * Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 1.19-5sls
 - remove %%build_opensls macro
 - minor spec cleanups

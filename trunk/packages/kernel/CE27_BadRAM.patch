@@ -1,22 +1,22 @@
---- linux-2.4.24/mm/bootmem.c.ce27.orig	2004-01-19 19:29:38.972478816 +0100
-+++ linux-2.4.24/mm/bootmem.c	2004-01-19 19:34:39.379809960 +0100
-@@ -263,8 +263,15 @@ static unsigned long __init free_all_boo
- 				if (v & m) {
- 					count++;
- 					ClearPageReserved(page);
+--- linux-2.4.28/mm/bootmem.c.ce27.orig	2002-11-28 16:53:15.000000000 -0700
++++ linux-2.4.28/mm/bootmem.c	2004-11-24 21:00:52.000000000 -0700
+@@ -257,8 +257,15 @@
+ 		if (!test_bit(i, bdata->node_bootmem_map)) {
+ 			count++;
+ 			ClearPageReserved(page);
 +#ifdef CONFIG_BADRAM
-+					if (!PageBad(page)) {
-+						set_page_count(page, 1);
-+						__free_page(page);
-+					}
++		if (!PageBad(page)) {
++				set_page_count(page, 1);
++				__free_page(page);
++		}
 +#else
- 					set_page_count(page, 1);
- 					__free_page(page);
+ 			set_page_count(page, 1);
+ 			__free_page(page);
 +#endif
- 				}
- 			}
- 		} else {
-@@ -283,8 +290,15 @@ static unsigned long __init free_all_boo
+ 		}
+ 	}
+ 	total += count;
+@@ -272,8 +279,15 @@
  	for (i = 0; i < ((bdata->node_low_pfn-(bdata->node_boot_start >> PAGE_SHIFT))/8 + PAGE_SIZE-1)/PAGE_SIZE; i++,page++) {
  		count++;
  		ClearPageReserved(page);
@@ -32,17 +32,17 @@
  	}
  	total += count;
  	bdata->node_bootmem_map = NULL;
---- linux-2.4.24/mm/page_alloc.c.ce27.orig	2004-01-19 19:30:18.879412040 +0100
-+++ linux-2.4.24/mm/page_alloc.c	2004-01-19 19:34:39.380809808 +0100
-@@ -11,6 +11,7 @@
+--- linux-2.4.28/mm/page_alloc.c.ce27.orig	2004-11-17 04:54:22.000000000 -0700
++++ linux-2.4.28/mm/page_alloc.c	2004-11-24 21:01:52.000000000 -0700
+@@ -10,6 +10,7 @@
+  *  Reshaped it to be a zoned allocator, Ingo Molnar, Red Hat, 1999
   *  Discontiguous memory support, Kanoj Sarcar, SGI, Nov 1999
   *  Zone balancing, Kanoj Sarcar, SGI, Jan 2000
-  *  Per-CPU page pool, Ingo Molnar, Red Hat, 2001, 2002
 + *  BadRAM handling, Rick van Rein, Feb 2001
   */
  
  #include <linux/config.h>
-@@ -1023,3 +1024,95 @@ static int __init setup_lower_zone_reser
+@@ -967,3 +968,95 @@
  }
  
  __setup("lower_zone_reserve=", setup_lower_zone_reserve);

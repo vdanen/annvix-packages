@@ -1,7 +1,7 @@
 %define module 	Net-Daemon
 %define name	perl-%{module}
 %define version 0.37
-%define release 6sls
+%define release 8avx
 
 Summary:	%{module} perl module
 Name: 		%{name}
@@ -43,6 +43,12 @@ make
 %{_mandir}/*/*
 
 %changelog
+* Wed Feb 02 2005 Vincent Danen <vdanen@annvix.org> 0.37-8avx
+- rebuild against new perl
+
+* Sat Jun 26 2004 Vincent Danen <vdanen@annvix.org> 0.37-7avx
+- Annvix build
+
 * Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 0.37-6sls
 - rebuild for perl 5.8.4
 

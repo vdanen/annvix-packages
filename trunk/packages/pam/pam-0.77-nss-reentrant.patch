@@ -1,8 +1,5 @@
-o Call re-entrant functions from modutil wherever possible.  Pass the libpam
-  handle around as necessary to accomplish this.
-
---- Linux-PAM-0.77/modules/pam_access/pam_access.c	2003-07-01 14:57:05.000000000 -0400
-+++ Linux-PAM-0.77/modules/pam_access/pam_access.c	2003-07-01 15:03:49.000000000 -0400
+--- Linux-PAM-0.77/modules/pam_access/pam_access.c.nss-reentrant	2004-08-23 10:03:07.528746908 +0200
++++ Linux-PAM-0.77/modules/pam_access/pam_access.c	2004-08-23 10:03:07.753749097 +0200
 @@ -47,6 +47,10 @@
  # include <sys/socket.h>
  #endif
@@ -145,8 +142,8 @@ o Call re-entrant functions from modutil wherever possible.  Pass the libpam
  	return (PAM_SUCCESS);
      } else {
  	_log_err("access denied for user `%s' from `%s'",user,from);
---- Linux-PAM-0.77/modules/pam_group/pam_group.c	2003-07-01 14:57:05.000000000 -0400
-+++ Linux-PAM-0.77/modules/pam_group/pam_group.c	2003-07-01 15:05:33.000000000 -0400
+--- Linux-PAM-0.77/modules/pam_group/pam_group.c.nss-reentrant	2004-08-23 10:03:07.619747793 +0200
++++ Linux-PAM-0.77/modules/pam_group/pam_group.c	2004-08-23 10:03:07.754749106 +0200
 @@ -57,6 +57,7 @@
  
  #include <security/pam_modules.h>
@@ -211,8 +208,8 @@ o Call re-entrant functions from modutil wherever possible.  Pass the libpam
  #endif /* WANT_PWDB */
  
      return retval;
---- Linux-PAM-0.77/modules/pam_lastlog/pam_lastlog.c	2003-07-01 14:57:05.000000000 -0400
-+++ Linux-PAM-0.77/modules/pam_lastlog/pam_lastlog.c	2003-07-01 15:06:03.000000000 -0400
+--- Linux-PAM-0.77/modules/pam_lastlog/pam_lastlog.c.nss-reentrant	2004-08-23 10:03:07.609747696 +0200
++++ Linux-PAM-0.77/modules/pam_lastlog/pam_lastlog.c	2004-08-23 10:03:07.755749116 +0200
 @@ -79,6 +79,7 @@
  
  #include <security/pam_modules.h>
@@ -221,7 +218,7 @@ o Call re-entrant functions from modutil wherever possible.  Pass the libpam
  
  /* some syslogging */
  
-@@ -422,7 +423,7 @@
+@@ -421,7 +422,7 @@
  
      /* what uid? */
  
@@ -230,8 +227,8 @@ o Call re-entrant functions from modutil wherever possible.  Pass the libpam
      if (pwd == NULL) {
  	D(("couldn't identify user %s", user));
  	return PAM_CRED_INSUFFICIENT;
---- Linux-PAM-0.77/modules/pam_limits/pam_limits.c	2003-07-01 14:57:05.000000000 -0400
-+++ Linux-PAM-0.77/modules/pam_limits/pam_limits.c	2003-07-01 15:11:52.000000000 -0400
+--- Linux-PAM-0.77/modules/pam_limits/pam_limits.c.nss-reentrant	2004-08-23 10:03:07.534746966 +0200
++++ Linux-PAM-0.77/modules/pam_limits/pam_limits.c	2004-08-23 10:03:07.756749126 +0200
 @@ -88,6 +88,7 @@
  
  #include <security/pam_modules.h>
@@ -386,8 +383,8 @@ o Call re-entrant functions from modutil wherever possible.  Pass the libpam
      if (retval != LIMITED_OK) {
          return PAM_PERM_DENIED;
      }
---- Linux-PAM-0.77/modules/pam_listfile/pam_listfile.c	2003-07-01 14:57:05.000000000 -0400
-+++ Linux-PAM-0.77/modules/pam_listfile/pam_listfile.c	2003-07-01 15:51:19.000000000 -0400
+--- Linux-PAM-0.77/modules/pam_listfile/pam_listfile.c.nss-reentrant	2004-08-23 10:03:07.700748581 +0200
++++ Linux-PAM-0.77/modules/pam_listfile/pam_listfile.c	2004-08-23 10:03:07.757749135 +0200
 @@ -39,6 +39,7 @@
  
  #include <security/pam_modules.h>
@@ -476,8 +473,8 @@ o Call re-entrant functions from modutil wherever possible.  Pass the libpam
  		if (userinfo == NULL) {
  		    _pam_log(LOG_ERR,LOCAL_LOG_PREFIX "getpwnam(%s) failed",
  			     citemp);
---- Linux-PAM-0.77/modules/pam_mail/pam_mail.c	2003-07-01 14:57:05.000000000 -0400
-+++ Linux-PAM-0.77/modules/pam_mail/pam_mail.c	2003-07-01 15:51:57.000000000 -0400
+--- Linux-PAM-0.77/modules/pam_mail/pam_mail.c.nss-reentrant	2004-08-23 10:03:07.535746976 +0200
++++ Linux-PAM-0.77/modules/pam_mail/pam_mail.c	2004-08-23 10:03:07.758749145 +0200
 @@ -46,6 +46,7 @@
  
  #include <security/pam_modules.h>
@@ -495,8 +492,8 @@ o Call re-entrant functions from modutil wherever possible.  Pass the libpam
  	    if (pwd == NULL) {
  		_log_err(LOG_ERR, "user [%s] unknown", user);
  		_pam_overwrite(*path_mail);
---- Linux-PAM-0.77/modules/pam_mkhomedir/pam_mkhomedir.c	2003-07-01 14:57:05.000000000 -0400
-+++ Linux-PAM-0.77/modules/pam_mkhomedir/pam_mkhomedir.c	2003-07-01 15:53:06.000000000 -0400
+--- Linux-PAM-0.77/modules/pam_mkhomedir/pam_mkhomedir.c.nss-reentrant	2002-02-08 06:20:17.000000000 +0100
++++ Linux-PAM-0.77/modules/pam_mkhomedir/pam_mkhomedir.c	2004-08-23 10:03:07.758749145 +0200
 @@ -51,6 +51,7 @@
  
  #include <security/pam_modules.h>
@@ -514,8 +511,8 @@ o Call re-entrant functions from modutil wherever possible.  Pass the libpam
     if (pwd == NULL)
     {
        D(("couldn't identify user %s", user));
---- Linux-PAM-0.77/modules/pam_rhosts/pam_rhosts_auth.c	2003-07-01 14:57:05.000000000 -0400
-+++ Linux-PAM-0.77/modules/pam_rhosts/pam_rhosts_auth.c	2003-07-01 15:53:39.000000000 -0400
+--- Linux-PAM-0.77/modules/pam_rhosts/pam_rhosts_auth.c.nss-reentrant	2004-08-23 10:03:07.538747005 +0200
++++ Linux-PAM-0.77/modules/pam_rhosts/pam_rhosts_auth.c	2004-08-23 10:03:07.759749155 +0200
 @@ -555,7 +555,7 @@
  
  	/* private group caveat */
@@ -525,8 +522,8 @@ o Call re-entrant functions from modutil wherever possible.  Pass the libpam
  
  	    if (NULL == grp || NULL == grp->gr_name
  		|| strcmp(luser,grp->gr_name)) {
---- Linux-PAM-0.77/modules/pam_securetty/pam_securetty.c	2003-07-01 14:57:05.000000000 -0400
-+++ Linux-PAM-0.77/modules/pam_securetty/pam_securetty.c	2003-07-01 15:54:08.000000000 -0400
+--- Linux-PAM-0.77/modules/pam_securetty/pam_securetty.c.nss-reentrant	2004-08-23 10:03:07.614747744 +0200
++++ Linux-PAM-0.77/modules/pam_securetty/pam_securetty.c	2004-08-23 10:03:07.760749165 +0200
 @@ -34,6 +34,7 @@
  #define PAM_SM_ACCOUNT
  
@@ -535,8 +532,8 @@ o Call re-entrant functions from modutil wherever possible.  Pass the libpam
  
  /* some syslogging */
  
-@@ -102,7 +103,7 @@
- 	uttyname += sizeof(TTY_PREFIX)-1;
+@@ -97,7 +98,7 @@
+ 	return (retval == PAM_CONV_AGAIN ? PAM_INCOMPLETE:PAM_SERVICE_ERR);
      }
  
 -    user_pwd = getpwnam(username);
@@ -544,8 +541,8 @@ o Call re-entrant functions from modutil wherever possible.  Pass the libpam
      if (user_pwd == NULL) {
  	return PAM_IGNORE;
      } else if (user_pwd->pw_uid != 0) { /* If the user is not root,
---- Linux-PAM-0.77/modules/pam_shells/pam_shells.c	2003-07-01 14:57:05.000000000 -0400
-+++ Linux-PAM-0.77/modules/pam_shells/pam_shells.c	2003-07-01 15:54:48.000000000 -0400
+--- Linux-PAM-0.77/modules/pam_shells/pam_shells.c.nss-reentrant	2002-07-13 07:10:54.000000000 +0200
++++ Linux-PAM-0.77/modules/pam_shells/pam_shells.c	2004-08-23 10:03:07.761749174 +0200
 @@ -14,6 +14,7 @@
  #include <stdarg.h>
  #include <stdio.h>
@@ -571,8 +568,8 @@ o Call re-entrant functions from modutil wherever possible.  Pass the libpam
      if (!pw) {
  	return PAM_AUTH_ERR;		/* user doesn't exist */
      }
---- Linux-PAM-0.77/modules/pam_tally/pam_tally.c	2003-07-01 14:57:05.000000000 -0400
-+++ Linux-PAM-0.77/modules/pam_tally/pam_tally.c	2003-07-01 16:00:37.000000000 -0400
+--- Linux-PAM-0.77/modules/pam_tally/pam_tally.c.nss-reentrant	2004-08-23 10:03:07.540747024 +0200
++++ Linux-PAM-0.77/modules/pam_tally/pam_tally.c	2004-08-23 10:03:07.762749184 +0200
 @@ -49,6 +49,7 @@
  /* #define PAM_SM_PASSWORD */
  
@@ -590,8 +587,8 @@ o Call re-entrant functions from modutil wherever possible.  Pass the libpam
        _pam_log(LOG_ERR,MODULE_NAME ": pam_get_uid; no such user %s",user);
        return PAM_USER_UNKNOWN;
      }
---- Linux-PAM-0.77/modules/pam_tally/Makefile	2003-07-01 15:55:51.000000000 -0400
-+++ Linux-PAM-0.77/modules/pam_tally/Makefile	2003-07-01 15:59:46.000000000 -0400
+--- Linux-PAM-0.77/modules/pam_tally/Makefile.nss-reentrant	2001-06-27 08:20:43.000000000 +0200
++++ Linux-PAM-0.77/modules/pam_tally/Makefile	2004-08-23 10:03:07.762749184 +0200
 @@ -44,6 +44,12 @@
  APPLICATION = $(TITLE)
  APPMODE = 755
@@ -618,8 +615,8 @@ o Call re-entrant functions from modutil wherever possible.  Pass the libpam
      
  endif
  
---- Linux-PAM-0.77/modules/pam_unix/pam_unix_acct.c	2003-07-01 14:57:05.000000000 -0400
-+++ Linux-PAM-0.77/modules/pam_unix/pam_unix_acct.c	2003-07-01 16:02:27.000000000 -0400
+--- Linux-PAM-0.77/modules/pam_unix/pam_unix_acct.c.nss-reentrant	2004-08-23 10:03:07.710748678 +0200
++++ Linux-PAM-0.77/modules/pam_unix/pam_unix_acct.c	2004-08-23 10:03:07.763749194 +0200
 @@ -53,6 +53,7 @@
  #define PAM_SM_ACCOUNT
  
@@ -655,8 +652,8 @@ o Call re-entrant functions from modutil wherever possible.  Pass the libpam
  	} else {
  		return PAM_SUCCESS;
  	}
---- Linux-PAM-0.77/modules/pam_unix/pam_unix_passwd.c	2003-07-01 14:57:05.000000000 -0400
-+++ Linux-PAM-0.77/modules/pam_unix/pam_unix_passwd.c	2003-07-01 16:07:38.000000000 -0400
+--- Linux-PAM-0.77/modules/pam_unix/pam_unix_passwd.c.nss-reentrant	2004-08-23 10:03:07.712748698 +0200
++++ Linux-PAM-0.77/modules/pam_unix/pam_unix_passwd.c	2004-08-23 10:03:07.764749204 +0200
 @@ -73,6 +73,8 @@
  #include <security/pam_appl.h>
  #endif				/* LINUX_PAM */
@@ -703,8 +700,8 @@ o Call re-entrant functions from modutil wherever possible.  Pass the libpam
  #ifdef USE_LCKPWDF
  			ulckpwdf();
  #endif
---- Linux-PAM-0.77/modules/pam_unix/support.c	2003-07-01 14:57:05.000000000 -0400
-+++ Linux-PAM-0.77/modules/pam_unix/support.c	2003-07-01 16:14:56.000000000 -0400
+--- Linux-PAM-0.77/modules/pam_unix/support.c.nss-reentrant	2004-08-23 10:03:07.740748970 +0200
++++ Linux-PAM-0.77/modules/pam_unix/support.c	2004-08-23 10:03:07.765749213 +0200
 @@ -23,6 +23,7 @@
  
  #include <security/_pam_macros.h>
@@ -804,8 +801,8 @@ o Call re-entrant functions from modutil wherever possible.  Pass the libpam
  		}
  		if (spwdent)
  			salt = x_strdup(spwdent->sp_pwdp);
---- Linux-PAM-0.77/modules/pam_unix/Makefile	2003-07-01 16:01:32.000000000 -0400
-+++ Linux-PAM-0.77/modules/pam_unix/Makefile	2003-07-01 16:02:12.000000000 -0400
+--- Linux-PAM-0.77/modules/pam_unix/Makefile.nss-reentrant	2004-08-23 10:03:07.638747978 +0200
++++ Linux-PAM-0.77/modules/pam_unix/Makefile	2004-08-23 10:04:39.079637576 +0200
 @@ -48,10 +48,13 @@
  
  EXTRAS += -DCHKPWD_HELPER=\"$(SUPLEMENTED)/$(CHKPWD)\"
@@ -818,12 +815,12 @@ o Call re-entrant functions from modutil wherever possible.  Pass the libpam
 -CFLAGS += $(USE_CRACKLIB) $(USE_LCKPWDF) $(NEED_LCKPWDF) $(EXTRAS)
 -LDLIBS = $(EXTRALS) -lnsl -lcrypt
 +CFLAGS += $(USE_CRACKLIB) $(USE_LCKPWDF) $(NEED_LCKPWDF) $(EXTRAS) $(INCLUDE_PAMMODUTILS)
-+LDLIBS = $(EXTRALS) $(LINK_PAMMODUTILS) -lnsl -lcrypt
++LDLIBS = $(EXTRALS) $(LINK_PAMMODUTILS)
  
  ifdef USE_CRACKLIB
  CRACKLIB = -lcrack
---- Linux-PAM-0.77/modules/pam_unix/support.h	2003-07-01 16:04:42.000000000 -0400
-+++ Linux-PAM-0.77/modules/pam_unix/support.h	2003-07-01 16:04:56.000000000 -0400
+--- Linux-PAM-0.77/modules/pam_unix/support.h.nss-reentrant	2004-08-23 10:03:07.715748727 +0200
++++ Linux-PAM-0.77/modules/pam_unix/support.h	2004-08-23 10:03:07.767749233 +0200
 @@ -140,7 +140,7 @@
  			  struct passwd **ret);
  extern int _unix_comesfromsource(pam_handle_t *pamh,
@@ -833,8 +830,8 @@ o Call re-entrant functions from modutil wherever possible.  Pass the libpam
  extern int _unix_verify_password(pam_handle_t * pamh, const char *name
  			  ,const char *p, unsigned int ctrl);
  extern int _unix_read_password(pam_handle_t * pamh
---- Linux-PAM-0.77/modules/pam_unix/pam_unix_auth.c	2003-07-01 16:06:24.000000000 -0400
-+++ Linux-PAM-0.77/modules/pam_unix/pam_unix_auth.c	2003-07-01 16:06:35.000000000 -0400
+--- Linux-PAM-0.77/modules/pam_unix/pam_unix_auth.c.nss-reentrant	2004-08-23 10:03:07.542747044 +0200
++++ Linux-PAM-0.77/modules/pam_unix/pam_unix_auth.c	2004-08-23 10:03:07.768749242 +0200
 @@ -148,7 +148,7 @@
  
  	/* if this user does not have a password... */
@@ -844,8 +841,8 @@ o Call re-entrant functions from modutil wherever possible.  Pass the libpam
  		D(("user '%s' has blank passwd", name));
  		name = NULL;
  		retval = PAM_SUCCESS;
---- Linux-PAM-0.77/modules/pam_wheel/pam_wheel.c	2003-07-01 14:57:05.000000000 -0400
-+++ Linux-PAM-0.77/modules/pam_wheel/pam_wheel.c	2003-07-01 16:16:07.000000000 -0400
+--- Linux-PAM-0.77/modules/pam_wheel/pam_wheel.c.nss-reentrant	2004-08-23 10:03:07.741748980 +0200
++++ Linux-PAM-0.77/modules/pam_wheel/pam_wheel.c	2004-08-23 10:03:07.768749242 +0200
 @@ -45,6 +45,7 @@
  #define PAM_SM_ACCOUNT
  

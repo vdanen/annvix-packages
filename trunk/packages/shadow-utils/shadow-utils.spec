@@ -1,6 +1,6 @@
 %define name	shadow-utils
 %define version	4.0.3
-%define release	8sls
+%define release	11avx
 
 #rh-20000902-10
 #%define url	ftp://ftp.ists.pwr.wroc.pl/pub/linux/shadow/beta
@@ -34,6 +34,7 @@ Patch8:		shadow-20000826-no-syslog-setlocale.patch.bz2
 Patch9:		shadow-20000902-useradd-LSB-compliance.patch.bz2
 Patch10:	shadow-4.0.3-useradd-umask.patch.bz2
 Patch11:	shadow-4.0.3-Makefile.po.patch.bz2
+Patch12:	shadow-4.0.0-owl-pam_chauthtok.diff.bz2
 # Debian fixes
 patch200:	shadow-014_libmisc_xmalloc.c.diff.bz2
 patch201:	shadow-016_subsystem_shell_fix.diff.bz2
@@ -78,6 +79,7 @@ groupmod commands are used for managing group accounts.
 %patch9 -p1 -b .lsb
 %patch10 -p1 -b .useradd-umask
 %patch11 -p1 -b .makefilepo
+%patch12 -p1 -b .chauthtok_fix
 
 # Debian fixes 
 %patch200 -p1
@@ -164,6 +166,17 @@ rm -rf build-$RPM_ARCH
 %{_mandir}/man8/faillog.8*
 
 %changelog
+* Tue Jun 29 2004 Vincent Danen <vdanen@annvix.org> 4.0.3-11avx
+- P12 (from Owl): Properly check the return value from pam_chauthtok()
+  in libmisc/pwdcheck.c: passwd_check() that is used by chfn and chsh
+  commands.  Thanks to Steve Grubb and Martin Schulze.
+
+* Sun Jun 27 2004 Vincent Danen <vdanen@annvix.org> 4.0.3-10avx
+- Annvix build
+
+* Fri Jun 04 2004 Vincent Danen <vdanen@opensls.org> 4.0.3-9sls
+- make umask for useradd 0066 rather than 0022
+
 * Fri May 07 2004 Vincent Danen <vdanen@opensls.org> 4.0.3-8sls
 - do not copy rpmsave, rpmorig, and .rpmnew files from /etc/skel (warly)
 - major patch cleanup, remove all unapplied patches: P7, P8, P9, P200, P201,

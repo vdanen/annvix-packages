@@ -1,17 +1,17 @@
 %define name	man-pages
-%define version	1.60
-%define release 3sls
+%define version	2.01
+%define release 1avx
 
 %define LANG	en
 
-Summary:	English man (manual) pages from the Linux Documentation Project.
+Summary:	English man (manual) pages from the Linux Documentation Project
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	GPL-style
 Group:		System/Internationalization
 URL:		ftp://ftp.kernel.org/pub/linux/docs/manpages/
-Source:		ftp.kernel.org/pub/linux/docs/manpages/%name-%version.tar.bz2
+Source:		ftp.kernel.org/pub/linux/docs/manpages/%{name}-%{version}.tar.bz2
 Source1:	rpcgen.1
 Source3:	ld.so.8
 Source4:	ldd.1
@@ -27,11 +27,11 @@ Patch4:		man-pages-1.38-quad-feature.patch.bz2
 Patch5:		man-pages-1.53-fix-time.patch.bz2
 Patch6:		man-pages-1.54-biarch-utmp.patch.bz2
 
-BuildRoot:	%_tmppath/%name-%version-root
+BuildRoot:	%{_tmppath}/%{name}-%{version}-root
 BuildArch:	noarch
 BuildRequires:	man => 1.5j-8mdk
 
-Requires:	locales-%LANG, man => 1.5j-8mdk
+Requires:	man => 1.5j-8mdk
 Prereq:		sed, grep, man
 Autoreqprov:	false
 
@@ -54,11 +54,11 @@ following sections:
 %prep
 %setup -q -a 9 -a 8 -a6
 
-cp -a %SOURCE1 man1
-cp -a %SOURCE3 man8
-cp -a %SOURCE4 man1
-cp -a %SOURCE5 man8
-cp -a %SOURCE10 man3
+cp -a %{SOURCE1} man1
+cp -a %{SOURCE3} man8
+cp -a %{SOURCE4} man1
+cp -a %{SOURCE5} man8
+cp -a %{SOURCE10} man3
 
 %patch0 -p1
 %patch4 -p1
@@ -95,27 +95,27 @@ mv man1/README README.GNU-INFOvsMAN
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 set +x
-mkdir -p $RPM_BUILD_ROOT/%_mandir
+mkdir -p %{buildroot}%{_mandir}
 for n in 1 2 3 4 5 6 7 8 9; do
-	mkdir $RPM_BUILD_ROOT/%_mandir/man$n
+	mkdir %{buildroot}%{_mandir}/man$n
 done
 for n in man?/*; do
-	cp -a $n $RPM_BUILD_ROOT/%_mandir/$n
+	cp -a $n %{buildroot}%{_mandir}/$n
 done
 
 set -x
 
-mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/cron.weekly
-cat > $RPM_BUILD_ROOT%{_sysconfdir}/cron.weekly/makewhatis-%LANG.cron << EOF
+mkdir -p %{buildroot}%{_sysconfdir}/cron.weekly
+cat > %{buildroot}%{_sysconfdir}/cron.weekly/makewhatis-%{LANG}.cron << EOF
 #!/bin/bash
-LANG='' /usr/sbin/makewhatis %_mandir/%LANG
+LANG='' /usr/sbin/makewhatis %{_mandir}/%{LANG}
 exit 0
 EOF
-chmod a+x $RPM_BUILD_ROOT%{_sysconfdir}/cron.weekly/makewhatis-%LANG.cron
+chmod a+x %{buildroot}%{_sysconfdir}/cron.weekly/makewhatis-%{LANG}.cron
 
-mkdir -p  $RPM_BUILD_ROOT/var/cache/man/%LANG
-mkdir -p  $RPM_BUILD_ROOT{%_mandir/%LANG,/var/catman/}
-tar xfj %SOURCE11 -C $RPM_BUILD_ROOT/%_mandir
+mkdir -p  %{buildroot}/var/cache/man/%{LANG}
+mkdir -p  %{buildroot}{%{_mandir}/%{LANG},/var/catman/}
+tar xfj %{SOURCE11} -C %{buildroot}%{_mandir}
 
  
 %clean
@@ -123,14 +123,19 @@ tar xfj %SOURCE11 -C $RPM_BUILD_ROOT/%_mandir
 
 %files
 %defattr(0644,root,man,755)
-%doc README* *.Announce
-%dir %_mandir/%LANG
-#%dir /var/cache/man/%LANG
-%_mandir/man?/*
-#%attr(755,root,man)/var/catman/%LANG
-%config(noreplace) %attr(755,root,root)%{_sysconfdir}/cron.weekly/makewhatis-%LANG.cron
+%doc README* *.Announce POSIX-COPYRIGHT
+%config(noreplace) %attr(755,root,root)%{_sysconfdir}/cron.weekly/makewhatis-%{LANG}.cron
+%dir %{_mandir}/%{LANG}
+%{_mandir}/man?/*
 
 %changelog
+* Thu Mar 17 2005 Vincent Danen <vdanen@annvix.org> 2.01-1avx
+- 2.01
+- spec cleanups
+
+* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 1.60-4avx
+- Annvix build
+
 * Sat Mar 06 2004 Vincent Danen <vdanen@opensls.org> 1.60-3sls
 - minor spec cleanups
 - remove icon

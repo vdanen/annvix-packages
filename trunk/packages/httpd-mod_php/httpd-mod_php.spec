@@ -1,30 +1,17 @@
-%define name	%{ap_name}-%{mod_name}
-%define version %{ap_version}_%{phpversion}
-%define release	1sls
-
-%define phpsource	%{_prefix}/src/php-devel
-%{expand:%(cat /usr/src/php-devel/PHP_BUILD||(echo -e "error: failed build dependencies:\n        php-devel >= 430 (4.3.0) is needed by this package." >/dev/stderr;kill -2 $PPID))}
-
-%ifarch x86_64 amd64
-%define dbver	lib64db4.1
-%else
-%define dbver	libdb4.1
-%endif
-%define ldb	-ldb-4.1
+%define name	apache2-%{mod_name}
+%define version %{apache_version}_%{phpversion}
+%define release	1avx
 
 # Module-Specific definitions
+%define apache_version	2.0.53
+%define phpversion	4.3.10
 %define mod_name	mod_php
 %define mod_conf	70_%{mod_name}.conf
 %define mod_so		%{mod_name}4.so
-%define phpsource	/usr/src/php-devel
+%define phpsource	%{_prefix}/src/php-devel
 %define extname		apache2handler
 
-# New ADVX macros
-%define ADVXdir %{_datadir}/ADVX
-%{expand:%(cat %{ADVXdir}/ADVX-build)}
-%{expand:%%global ap_version %(%{apxs} -q ap_version)}
-
-Summary:	The PHP4 HTML-embedded scripting language for use with %{ap_name}.
+Summary:	The PHP4 HTML-embedded scripting language for use with apache2
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -34,43 +21,12 @@ URL:		http://www.php.net/
 Source1:	%{mod_conf}.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-root
-BuildRequires:  %{dbver}-devel
-BuildRequires:	gdbm-devel
-BuildRequires:	byacc
-BuildRequires:	glibc-devel
-BuildRequires:	libtool
-BuildRequires:	openssl-devel
-BuildRequires:	expat-devel
-BuildRequires:	zlib-devel
-BuildRequires:	php%{libversion}-devel
-BuildRequires:	pam-devel libintl
-BuildRequires:	db1-devel
-BuildRequires:	php-devel >= 4.3.0
-# Standard ADVX requires
-BuildRequires:	%{ap_name}-devel >= 2.0.44-1mdk
-BuildPreReq:	ADVX-build >= 9.2
+BuildRequires:	php-devel >= %{phpversion}, apache2-devel >= %{apache_version}
 
-Requires:	%{dbver}
-Requires:	openssl
-Requires:	php-ini
-Provides:	mod_php3
-Provides:	php3
-Provides:	phpfi
-Obsoletes:	mod_php3
-Provides:	php3
-Provides:	phpfi
-Provides:	mod_php
-Provides:	php
-Provides:	php4
-Provides:	php%{libversion}
-Provides:	phpapache
-Provides:	php430
-Obsoletes:	php430
-# Standard ADVX requires
-Prereq:		%{ap_name} = %{ap_version}
-Prereq:		%{ap_name}-conf
-Provides: 	ADVXpackage
-Provides:	AP20package
+Requires:	openssl, php-ini
+Provides:	php, php3, php4, php430, php432, mod_php, mod_php3, phpapache, phpfi
+Obsoletes:	mod_php3, php430
+Prereq:		apache2 >= %{apache_version}, apache2-conf
 
 %description
 PHP is an HTML-embedded scripting language.  PHP attempts to make it
@@ -79,64 +35,85 @@ also offers built-in database integration for several commercial
 and non-commercial database management systems, so writing a
 database-enabled web page with PHP is fairly simple.  The most
 common use of PHP coding is probably as a replacement for CGI
-scripts.  The %{name} module enables the %{ap_name} web server to
+scripts.  The %{name} module enables the apache2 web server to
 understand and process the embedded PHP language in web pages.
 
 This package contains PHP version 4. You'll also need to install the
-%{ap_name} web server.
+apache2 web server.
 
 %prep
 
-[ -e ./%{extname} ] && rm -fr ./%{extname}
-cp -dpR %{phpsource}/sapi/%{extname} .
-cd %{extname}
-
+%setup -c -T
+cp -dpR %{phpsource}/sapi/%{extname}/* .
 cp %{phpsource}/PHP_FAQ.php .
+cp %{phpsource}/internal_functions.c .
+cp sapi_apache2.c mod_php4.c
 
 %build
-cd %{extname}
-#Seems apxs (or libtool) is broken, and we can't use the -o %{mod_so}
-#so instead we rename the 1st code file, and apxs will choose that name
-#for the soname.
 
-cp sapi_apache2.c mod_php4.c
-cp %{phpsource}/internal_functions.c .
-
-%{apxs} \
+%{_sbindir}/apxs2 \
     `php-config --includes` \
     `apr-config --link-ld --libs` \
-    `apu-config --link-ld --libs` \
     -I%{phpsource} \
-    -I. -lphp_common %{ldb}  \
-    -c mod_php4.c apache_config.c php_functions.c  \
+    -I. -lphp_common \
+    -c mod_php4.c apache_config.c php_functions.c \
     internal_functions.c
 
 %install
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
-cd %{extname}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-%ADVXinstlib
-%ADVXinstconf %{SOURCE1} %{mod_conf}
-%ADVXinstdoc %{name}-%{version}
+mkdir -p %{buildroot}%{_libdir}/apache2-extramodules
+mkdir -p %{buildroot}%{_sysconfdir}/httpd/conf.d
+install -m 0755 .libs/*.so %{buildroot}%{_libdir}/apache2-extramodules/
+bzcat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/conf.d/%{mod_conf}
+
+mkdir -p %{buildroot}/var/www/html/addon-modules
+ln -s ../../../../%{_docdir}/%{name}-%{version} %{buildroot}/var/www/html/addon-modules/%{name}-%{version}
 
 %clean
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
-[ -e ./%{extname} ] && rm -fr ./%{extname}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
-%ADVXpost
+%_post_srv httpd2
 
 %postun
-%ADVXpost
+%_post_srv httpd2
 
 %files
 %defattr(-,root,root)
-%doc %{extname}/PHP_FAQ.php 
-%config(noreplace) %{ap_confd}/%{mod_conf}
-%{ap_extralibs}/%{mod_so}
-%{ap_webdoc}/*
+%doc PHP_FAQ.php 
+%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/httpd/conf.d/%{mod_conf}
+%attr(0755,root,root) %{_libdir}/apache2-extramodules/%{mod_so}
+/var/www/html/addon-modules/*
 
 %changelog
+* Sat Feb 26 2005 Vincent Danen <vdanen@annvix.org> 2.0.53_4.3.10-1avx
+- apache 2.0.53
+- remove ADVX stuff
+
+* Thu Dec 16 2004 Vincent Danen <vdanen@annvix.org> 2.0.52_4.3.10-1avx
+- php 4.3.10
+
+* Thu Oct 14 2004 Vincent Danen <vdanen@annvix.org> 2.0.52_4.3.9-1avx
+- 2.0.52
+
+* Thu Sep 30 2004 Vincent Danen <vdanen@annvix.org> 2.0.49_4.3.9-1avx
+- php 4.3.9
+
+* Tue Aug 17 2004 Vincent Danen <vdanen@annvix.org> 2.0.49_4.3.8-3avx
+- rebuild against new openssl
+
+* Wed Jul 14 2004 Vincent Danen <vdanen@annvix.org> 2.0.49_4.3.8-2avx
+- use %%_post_srv rather than %%ADVXpost
+
+* Wed Jul 14 2004 Vincent Danen <vdanen@annvix.org> 2.0.49_4.3.8-1avx
+- php 4.3.8
+- remove ADVXpackage provides
+- don't link against aprutil and db4
+
+* Sun Jun 27 2004 Vincent Danen <vdanen@annvix.org> 2.0.49_4.3.7-2avx
+- Annvix build
+
 * Thu Jun 03 2004 Vincent Danen <vdanen@opensls.org> 2.0.49_4.3.7-1sls
 - php 4.3.7
 

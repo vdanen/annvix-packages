@@ -1,6 +1,6 @@
 %define name	modutils
 %define version 2.4.26
-%define release 2sls
+%define release 3avx
 
 %define url ftp://ftp.kernel.org:/pub/linux/utils/kernel/modutils/v2.4
 %define priority 10
@@ -187,6 +187,9 @@ done
 %{_mandir}/man8/ksyms.8*
 
 %changelog
+* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 2.4.26-3avx
+- Annvix build
+
 * Fri Jun 11 2004 Vincent Danen <vdanen@opensls.org> 2.4.26-2sls
 - PreReq: rpm (for update-alternatives)
 

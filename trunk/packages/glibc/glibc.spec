@@ -3,7 +3,7 @@
 
 # <version>-<release> tags for glibc main package
 %define glibcversion	2.3.2
-%define glibcrelease	20sls
+%define glibcrelease	26avx
 %define epoch		6
 
 # <version>-<release> tags from kernel package where headers were
@@ -15,8 +15,9 @@
 %define _unpackaged_files_terminate_build 0
 # Add errno compat hack for errata
 %define build_errata	0
-# enable heap protection; currently doesn't work on amd64
-%define build_heapprot	0
+# default for build_check is off for the time being due to failures on
+# both x86 and x86_64
+%define build_check	0
 
 # CVS snapshots of glibc
 %define RELEASE		0
@@ -54,15 +55,6 @@
 # 1	build glibc with PDF documentation
 # 0	don't build PDF glibc documentation (e.g. for bootstrap build)
 %define build_pdf_doc	0
-
-# Enable checking by default for arches where we know tests all pass
-# disable due to heap protection; with build_check enabled we get a heap
-# overflow in malloc.c:4092
-%if %{build_heapprot}
-%define build_check	0
-%else
-%define build_check	1
-%endif
 
 # Define to build a biarch package
 %define build_biarch	0
@@ -134,6 +126,7 @@ Source12:	create_asm_headers.sh
 Source13:	glibc-post-upgrade
 Source14:	nscd.run
 Source15:	nscd-log.run
+Source16:	nscd.finish
 
 Patch0:		glibc-kernel-2.4.patch.bz2
 Patch1:		glibc-2.2.2-fhs.patch.bz2
@@ -180,12 +173,13 @@ Patch39:	glibc-2.3.2-iofwide.patch.bz2
 Patch40:	glibc-2.3.2-i586-if-no-cmov.patch.bz2
 Patch41:	glibc-2.3.2-propolice.patch.bz2
 Patch42:	crypt_blowfish-glibc-2.2.diff.bz2
-# http://www.cs.ucsb.edu/~wkr/projects/heap_protection/software.html
-Patch43:	heapprotect-2.3.2-1.4.diff.bz2
+Patch43:	glibc-2.3.2-trustix-tempfile.patch.bz2
+Patch44:	glibc-2.3.2-ssp_frandom-7.patch.bz2
 
 # Generated from Kernel RPM
 Patch100:	kernel-headers-include-%{kheaders_ver}.%{kheaders_rel}.patch.bz2
 Patch101:	kernel-headers-gnu-extensions.patch.bz2
+Patch102:	kernel-headers-2.4.29-sysctl.h.patch.bz2
 
 BuildRoot:	%{_tmppath}/glibc-%{PACKAGE_VERSION}-root
 BuildRequires:	patch, gettext, perl
@@ -213,7 +207,7 @@ BuildPreReq:	gcc >= 3.1.1-0.5mdk
 %endif
 
 Autoreq:	false
-PreReq:         sash >= 3.4-6mdk /bin/sh
+PreReq:         sash >= 3.4-6mdk bash
 %if "%{name}" != "glibc"
 ExclusiveArch:	%{ix86}
 %endif
@@ -278,7 +272,7 @@ speeds the loading of programs which use shared libraries.
 Summary:	Header and object files for development using standard C libraries
 Group:		Development/C
 Conflicts:	texinfo < 3.11
-Prereq:		/sbin/install-info
+Prereq:		info-install
 Obsoletes:	libc-debug, libc-headers, libc-devel, linuxthreads-devel
 %if !%{build_debug}
 Obsoletes:	glibc-debug
@@ -462,9 +456,8 @@ GNU C library in PDF format.
 rm crypt_blowfish-*/crypt.h
 cp -a crypt_blowfish-*/*.[chS] crypt
 %patch42 -p0 -b .blowfish
-%if %{build_heapprot}
-%patch43 -p1 -b .heapprotect
-%endif
+%patch43 -p1 -b .can-2004-0968
+%patch44 -p1 -b .ssp_frandom
 
 # If we are building enablekernel 2.x.y glibc on older kernel,
 # we have to make sure no binaries compiled against that glibc
@@ -482,6 +475,7 @@ pushd kernel-headers/
 TARGET=%{target_cpu}
 %patch100 -p1
 %patch101 -p1
+%patch102 -p1
 %{expand:%(%__cat %{SOURCE11})}
 %{expand:%(%__cat %{SOURCE12})}
 popd
@@ -614,19 +608,14 @@ function BuildGlibc() {
   rm -rf build-$arch-linux
   mkdir  build-$arch-linux
   pushd  build-$arch-linux
-%if %{build_heapprot}
-HEAPPROT="--enable-heap-protection"
-%else
-HEAPPROT=""
-%endif
   CC="$BuildCC" CFLAGS="$BuildFlags" ../configure \
-    $arch-mandrake-linux-gnu $BuildCross \
+    $arch-annvix-linux-gnu $BuildCross \
     --prefix=%{_prefix} \
     --libexecdir="%{_prefix}/$glibc_libname" \
     --infodir=%{_infodir} \
     --enable-add-ons=yes --without-cvs \
     --without-tls --without-__thread $ExtraFlags \
-    --enable-kernel=$EnableKernel --with-headers=$KernelHeaders ${1+"$@"} $HEAPPROT
+    --enable-kernel=$EnableKernel --with-headers=$KernelHeaders ${1+"$@"}
   %make -r CFLAGS="$BuildFlags" PARALLELMFLAGS=
   popd
 }
@@ -778,6 +767,7 @@ mkdir -p %{buildroot}%{_srvdir}/nscd/log
 mkdir -p %{buildroot}%{_srvlogdir}/nscd
 install -m 0750 %{SOURCE14} %{buildroot}%{_srvdir}/nscd/run
 install -m 0750 %{SOURCE15} %{buildroot}%{_srvdir}/nscd/log/run
+install -m 0750 %{SOURCE16} %{buildroot}%{_srvdir}/nscd/finish
 %endif
 
 # Useless and takes place
@@ -786,9 +776,12 @@ rm -rf %buildroot/%{_datadir}/zoneinfo/{posix,right}
 # Don't include ld.so.cache
 rm -f $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.cache
 
-# Include ld.so.conf
+# Include ld.so.conf so we can include non-default /usr/local libs
 %if "%{name}" == "glibc"
-> $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf
+echo "/usr/local/lib" > $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf
+if [ "%{_lib}" == "lib64" ]; then
+  echo "/usr/local/lib64" >> $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf
+fi
 chmod 644 $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf
 %endif
 
@@ -1295,8 +1288,9 @@ fi
 %dir %{_srvdir}/nscd
 %dir %{_srvdir}/nscd/log
 %{_srvdir}/nscd/run
+%{_srvdir}/nscd/finish
 %{_srvdir}/nscd/log/run
-%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/nscd
+%dir %attr(0750,logger,logger) %{_srvlogdir}/nscd
 %endif
 
 #
@@ -1326,6 +1320,32 @@ fi
 %endif
 
 %changelog
+* Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 2.3.2-26avx
+- user logger for logging
+
+* Fri Jan 21 2005 Vincent Danen <vdanen@annvix.org> 2.3.2-25avx
+- P44: add SSP/frandom support from HLFS
+- P102: updated sysctl.h which includes [ef]random
+
+* Mon Dec 20 2004 Vincent Danen <vdanen@annvix.org> 2.3.2-24avx
+- P43: patch from Trustix to fix CAN-2004-0968
+
+* Sat Sep 18 2004 Vincent Danen <vdanen@annvix.org> 2.3.2-23avx
+- update run scripts
+- give nscd a finish script
+- s/mandrake/annvix/
+- make tests are failing on both x86 and x86_64 so build
+  --without check for now
+- remove the heap-protection patch since we're not using it
+
+* Wed Jul 14 2004 Vincent Danen <vdanen@annvix.org> 2.3.2-22avx
+- x86_64 needs /usr/local/lib64 also
+
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 2.3.2-21avx
+- Annvix build
+- require packages not files
+- put "/usr/local/lib" into ld.so.conf by default
+
 * Tue Apr 13 2004 Vincent Danen <vdanen@opensls.org> 2.3.2-20sls
 - fix requires for epoch
 

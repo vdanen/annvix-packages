@@ -1,6 +1,6 @@
 %define name	sharutils
 %define version	4.2.1
-%define release	17sls
+%define release	18avx
 
 #rh-4.2.1-12
 Summary:	The GNU shar utilities for packaging and unpackaging shell archives.
@@ -24,7 +24,7 @@ Patch11:	sharutils-4.2.1-bogus-entries.patch.bz2
 BuildRoot:	%{_tmppath}/%{name}-root
 BuildRequires:	gettext, texinfo
 
-PreReq:		/sbin/install-info
+PreReq:		info-install
 
 %description
 The sharutils package contains the GNU shar utilities, a set of tools
@@ -92,6 +92,10 @@ fi
 %{_mandir}/man?/*
 
 %changelog
+* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 4.2.1-18avx
+- require info-install, not /sbin/install-info
+- Annvix build
+
 * Fri May 07 2004 Vincent Danen <vdanen@opensls.org> 4.2.1-17sls
 - rebuild against new libintl
 

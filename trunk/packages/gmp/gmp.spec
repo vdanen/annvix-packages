@@ -1,6 +1,6 @@
 %define name	gmp
 %define version	4.1.2
-%define release	5sls
+%define release	6avx
 
 %define lib_major	3
 %define lib_name_orig	%mklibname %{name}
@@ -117,6 +117,9 @@ rm -f $RPM_BUILD_ROOT/%{_infodir}/dir
 %{_infodir}/gmp.info*
 
 %changelog
+* Thu Jun 24 2004 Vincent Danen <vdanen@annvix.org> 4.1.2-6avx
+- Annvix build
+
 * Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 4.1.2-5sls
 - minor spec cleanups
 

@@ -1,7 +1,7 @@
 %define module	Authen-SASL
 %define name	perl-%{module}
 %define version 2.04
-%define release 5sls
+%define release 7avx
 
 Summary:	%{module} module for perl
 Name:		%{name}
@@ -43,6 +43,12 @@ make test
 %{perl_vendorlib}/Authen
 
 %changelog
+* Wed Feb 02 2005 Vincent Danen <vdanen@annvix.org> 2.04-7avx
+- rebuild against new perl
+
+* Sat Jun 26 2004 Vincent Danen <vdanen@annvix.org> 2.04-6avx
+- Annvix build
+
 * Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 2.04-5sls
 - rebuild for perl 5.8.4
 

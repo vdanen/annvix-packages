@@ -1,12 +1,12 @@
 %define name	xpm
 %define version	3.4k
-%define release	29sls
+%define release	30avx
 
 %define prefix	/usr/X11R6
 %define	major	4
 %define	LIBVER	4.11
-%define libname %mklibname %name %major
-%define libnamedev %mklibname %name %major -d
+%define libname		%mklibname %name %major
+%define libnamedev	%mklibname %name %major -d
 
 Summary:	A pixmap library for the X Window System
 Name:		%{name}
@@ -104,6 +104,9 @@ ln -sf libXpm.so.%{LIBVER} $RPM_BUILD_ROOT%prefix/%{_lib}/libXpm.so
 %prefix/%{_lib}/libXpm.so
 
 %changelog
+* Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 3.4k-30avx
+- Annvix build
+
 * Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 3.4k-29sls
 - minor spec cleanups
 - remove postscript docs

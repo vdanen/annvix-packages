@@ -1,11 +1,14 @@
 # For more information on nfs tuning, please see the NFS-HOWTO
 # http://nfs.sourceforge.net/nfs-howto/
 
+# For more information on nfs+iptables, see the great docs by
+# Chris Lowth here: http://www.lowth.com/LinWiz/
+
 # Pass any additional options for mountd.
 # MOUNTD_OPTIONS=
 
 # Pin mountd to a given port rather than random one from portmapper
-# MOUNTD_PORT=
+# MOUNTD_PORT=4002
 
 # Don't advertise TCP for mount.
 # MOUNTD_TCP=no
@@ -29,3 +32,14 @@
 # TUNE_QUEUE to yes will set the values to 256kb.
 # TUNE_QUEUE="yes"
 # NFS_QS=262144
+
+# Set fixed ports for lockd
+
+# LOCKD_TCPPORT=4001
+# LOCKD_UDPPORT=4001
+
+# Set fixed port for statd
+# STATD_PORT=4000
+
+# Set statd hostname
+# STATD_HOSTNAME=

@@ -1,10 +1,27 @@
 %define name	libtool
-%define version	1.4.3
-%define release	11sls
+%define version	1.5.12
+%define release	1avx
 
 %define lib_major	3
-%define lib_name_orig	libltdl
-%define lib_name	%mklibname ltdl %{lib_major}
+%define libname_orig	libltdl
+%define libname		%mklibname ltdl %{lib_major}
+%define gcc_ver		%(%{__cc} -dumpversion)
+
+# do "make check" by default
+%define do_check 1
+%{?_without_check: %global do_check 0}
+
+# define biarch platforms
+%define biarches x86_64 ppc64 sparc64
+%ifarch x86_64
+%define alt_arch i586
+%endif
+%ifarch ppc64
+%define alt_arch ppc
+%endif
+%ifarch sparc64
+%define alt_arch sparc
+%endif
 
 Summary:	The GNU libtool, which simplifies the use of shared libraries
 Name:		%{name}
@@ -13,31 +30,25 @@ Release:	%{release}
 License:	GPL
 Group:		Development/Other
 URL:		http://www.gnu.org/software/libtool/libtool.html
-Source:		ftp://ftp.gnu.org/gnu/libtool/libtool-%{version}.tar.bz2
-Source1:	libtool-cputoolize.sh
-# Geoff - patching ltmain.sh not ltmain.in coz that's the file that gets 
-# copied over to the buildroot.
-Patch0:		libtool-1.3.5-mktemp.patch.bz2
-Patch1:		libtool-1.4-nonneg.patch.bz2
-Patch2: 	libtool-1.4.3-relink.patch.bz2
-Patch3:		libtool-1.4.3-lib64.patch.bz2
-Patch4:		libtool-1.4.3-x86_64.patch.bz2
-Patch5: 	libtool-1.4.2-add-x11r6-lib-in-ignores-for-rpath.patch.bz2
-Patch6:		libtool-1.4.2-fix-linkage-of-cxx-code-with-gcc.patch.bz2
-Patch7:		libtool-1.4.2-archive-shared.patch.bz2
-Patch8:		libtool-1.4.3-ltmain-SED.patch.bz2
-# http://mail.gnu.org/archive/html/libtool-patches/2002-12/msg00003.html
-Patch9:		libtool-1.4.3-pass-thread-flags.patch.bz2
-# http://www.daa.com.au/~james/files/libtool-1.4.2-expsym-linux.patch
-Patch10:	libtool-1.4.2-expsym-linux.patch.bz2
-Patch11:	libtool-1.4.3-amd64-alias.patch.bz2
-Patch12:	libtool-1.4.3-libtoolize--config-only.patch.bz2
-Patch13:	libtool-1.4.3-quotes.patch.bz2
+Source:		ftp://ftp.gnu.org/gnu/libtool/libtool-%{version}.tar.gz
+Source1:	ftp://ftp.gnu.org/gnu/libtool/libtool-%{version}.tar.gz.sig
+Source2:	libtool-cputoolize.sh
+# (Abel) Patches please only modify ltmain.in and don't touch ltmain.sh
+# otherwise ltmain.sh will not be regenerated, and patches will be lost
+Patch0:		libtool-1.5.6-relink.patch.bz2
+Patch1:		libtool-1.5.12-lib64.patch.bz2
+Patch2:		libtool-1.5.6-ltmain-SED.patch.bz2
+Patch3:		libtool-1.5.6-libtoolize--config-only.patch.bz2
+Patch4:		libtool-1.5.6-test-dependency.patch.bz2
+Patch5:		libtool-1.5-testfailure.patch.bz2
+Patch6:		libtool-1.5.6-old-libtool.patch.bz2
+Patch7:		libtool-1.5.12-really-pass-thread-flags.patch.bz2
 
-BuildRoot:	%_tmppath/%name-%version-%release-root
+BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root
+BuildRequires:	automake1.8, autoconf2.5
 
-PreReq:		/sbin/install-info
-Requires:	file common-licenses
+PreReq:		info-install
+Requires:	file, gcc = %{gcc_ver}
 
 %description
 The libtool package contains the GNU libtool, a set of shell scripts
@@ -49,77 +60,100 @@ libraries.
 If you are developing programs which will use shared libraries, you
 should install libtool.
 
-%package -n %{lib_name}
+%package -n %{libname}
 Group:		Development/C
 Summary:	Shared library files for libtool
+Provides:	%{libname_orig} = %{version}-%{release}
 
-%description -n %{lib_name}
+%description -n %{libname}
 Shared library files for libtool DLL library from the libtool package.
 
-%package -n %{lib_name}-devel
+%package -n %{libname}-devel
 Group:		Development/C
 Summary:	Development files for libtool
-Requires:	%{name} = %{version}-%{release}
-Requires:	%{lib_name} = %{version}-%{release}
-Provides:	%{lib_name_orig}-devel
-PRovides:	libtool-devel
-Obsoletes:	libtool-devel
+Requires:	%{name} = %{version}
+Requires:	%{libname} = %{version}
+Provides:	%{libname_orig}-devel = %{version}-%{release}
+Provides:	%{name}-devel
 
-%description -n %{lib_name}-devel
+%description -n %{libname}-devel
 Development headers, and files for development from the libtool package.
 
 %prep
 %setup -q
-%patch0 -p1 -b .mktemp
-%patch1 -p1 -b .nonneg
-%patch2 -p1 -b .relink
-%patch3 -p1 -b .lib64
-%patch4 -p1 -b .x86_64
-%patch5 -p0 -b .rpath-ignore-x11r6libdir
-%patch6 -p1 -b .g++-link
-%patch7 -p1 -b .archive-shared
-%patch8 -p1 -b .ltmain-SED
-%patch9 -p1 -b .pass-thread-flags
-#%patch10 -p1 -b .expsym-linux
-%patch11 -p1 -b .amd64-alias
-%patch12 -p1 -b .libtoolize--config-only
-%patch13 -p1 -b .quotes
+%patch0 -p1 -b .relink
+%patch1 -p1 -b .lib64
+%patch2 -p1 -b .ltmain-SED
+%patch3 -p1 -b .libtoolize--config-only
+%patch4 -p1 -b .test-dependency
+%patch5 -p1
+%patch6 -p1 -b .old-libtool
+%patch7 -p1 -b .really-pass-thread-flags
 
-automake --gnu --add-missing
-aclocal
-autoconf
-( cd libltdl ; autoheader ; automake --gnu --add-missing ; \
-  aclocal ; autoconf )
+ACLOCAL=aclocal-1.8 AUTOMAKE=automake-1.8 ./bootstrap
 
 %build
 # don't use configure macro - it forces libtoolize, which is bad -jgarzik
 # Use configure macro but define __libtoolize to be /bin/true -Geoff
 %define __libtoolize /bin/true
-%configure
+# And don't overwrite config.{sub,guess} in this package as well -- Abel
+%define __cputoolize /bin/true
 
-%make -C doc
+### multiarch
+## build alt-arch libtool first
+## NOTE: don't bother to make libtool biarch capable within the same
+## "binary", use the multiarch facility to dispatch to the right script.
+#%ifarch %biarches
+#mkdir -p build-%{alt_arch}-%{_target_os}
+#pushd    build-%{alt_arch}-%{_target_os}
+#linux32 ../configure --prefix=%{_prefix} --build=%{alt_arch}-%{_real_vendor}-%{_target_os}%{?_gnu}
+#linux32 make
+#popd
+#%endif
+#
+#mkdir -p build-%{_target_cpu}-%{_target_os}
+#pushd    build-%{_target_cpu}-%{_target_os}
+#CONFIGURE_TOP=.. %configure2_5x
+###
+
 %make
 
+%if %{do_check}
+set +x
 echo ====================TESTING=========================
-%ifarch ia64 x86_64
+set -x
+#%ifarch ia64
 # - ia64: SIGILL when running hellodl
-# - x86_64: fail in nopic test because we actually try to build a
-#   shared object from objects built without PIC (1 of 82 tests failed)
-make check || echo make check failed
-%else
+#make check || echo make check failed
+#%else
 # all tests must pass here
 make check
-%endif
+#%endif
+set +x
 echo ====================TESTING END=====================
+set -x
 
-( cd demo ; make clean )
+make -C demo clean
+%endif
+#popd
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-%makeinstall
-sed -e "s,@prefix@,%{_prefix}," -e "s,@datadir@,%{_datadir}," %{SOURCE1} \
-  > $RPM_BUILD_ROOT%{_bindir}/cputoolize
-chmod 755 $RPM_BUILD_ROOT%{_bindir}/cputoolize
+%makeinstall_std
+# -C build-%{_target_cpu}-%{_target_os}
+
+sed -e "s,@prefix@,%{_prefix}," -e "s,@datadir@,%{_datadir}," %{SOURCE2} \
+  > %{buildroot}%{_bindir}/cputoolize
+chmod 755 %{buildroot}%{_bindir}/cputoolize
+
+### multiarch
+## biarch support
+#%ifarch %biarches
+#%multiarch_binaries $RPM_BUILD_ROOT%{_bindir}/libtool
+#install -m 755 build-%{alt_arch}-%{_target_os}/libtool $RPM_BUILD_ROOT%{_bindir}/libtool
+#linux32 /bin/sh -c '%multiarch_binaries $RPM_BUILD_ROOT%{_bindir}/libtool'
+#%endif
+###
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -127,41 +161,46 @@ chmod 755 $RPM_BUILD_ROOT%{_bindir}/cputoolize
 %post
 %_install_info %{name}.info
 
-%post -n %{lib_name} -p /sbin/ldconfig
+%post -n %{libname} -p /sbin/ldconfig
 
 %preun
 %_remove_install_info %{name}.info
 
-%postun -n %{lib_name} -p /sbin/ldconfig
+%postun -n %{libname} -p /sbin/ldconfig
 
 %files
 %defattr(-,root,root)
-%doc AUTHORS INSTALL NEWS README
-%doc THANKS TODO ChangeLog*
-%_bindir/*
-%_infodir/libtool.info*
-%dir %_datadir/libtool
-%_datadir/libtool/co*
-%_datadir/libtool/lt*
-%_datadir/aclocal/libtool.m4
+%doc AUTHORS INSTALL NEWS README THANKS TODO ChangeLog*
+%{_bindir}/*
+%{_infodir}/libtool.info*
+%{_datadir}/libtool
+%{_datadir}/aclocal/*.m4
 
-%files -n %{lib_name}
+%files -n %{libname}
 %defattr(-,root,root)
 %doc libltdl/README
-%_libdir/*.so.*
+%{_libdir}/*.so.*
 
-%files -n %{lib_name}-devel
+%files -n %{libname}-devel
 %defattr(-,root,root)
 %doc demo
 %_includedir/*
-%_datadir/libtool/libltdl
-%_datadir/aclocal/ltdl.m4
-%_libdir/*.a
-%_libdir/*.so
-%_libdir/*.la
+%{_libdir}/*.a
+%{_libdir}/*.so
+%{_libdir}/*.la
 
 
 %changelog
+* Mon Feb 28 2005 Vincent Danen <vdanen@annvix.org> 1.5.12-1avx
+- 1.5.12
+- sync all patches with Mandrake 1.5.12-4mdk
+- prepare for multiarch (from gb)
+- /usr/bin/libtool is compiler dependent
+
+* Wed Jun 23 2004 Vincent Danen <vdanen@annvix.org> 1.4.3-12avx
+- require packages not files
+- Annvix build
+
 * Sat Jun 11 2004 Vincent Danen <vdanen@opensls.org> 1.4.3-11sls
 - own /usr/share/libtool
 

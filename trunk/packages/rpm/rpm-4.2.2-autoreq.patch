@@ -169,7 +169,7 @@
 +
 +#
 +# --- .so files.
-+for i in `echo $filelist | tr '[:blank:]' "\n" | egrep '(/usr(/X11R6)?)?/lib(|64)(/gcc-lib/.+)?/[^/]+\.so$'`; do
++for i in `echo $filelist | tr '[:blank:]' "\n" | egrep '(/usr(/X11R6)?)?/lib(|64)(/gcc(-lib)?/.+)?/[^/]+\.so$'`; do
 +    objd=`objdump -p ${i} | grep SONAME`
 +    [ -h ${i} -a -n "${objd}" ] && \
 +    lib64=`if file -L $i 2>/dev/null | grep "ELF 64-bit" >/dev/null; then echo "(64bit)"; fi` && \

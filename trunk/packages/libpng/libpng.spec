@@ -1,6 +1,6 @@
 %define name	libpng
 %define version	1.2.5
-%define release	11sls
+%define release	14avx
 %define epoch	2
 
 %define lib_name_orig	libpng
@@ -17,7 +17,7 @@ Group: 		System/Libraries
 URL: 		http://www.libpng.org/pub/png/libpng.html
 Source: 	ftp://ftp.uu.net/graphics/png/src/%{name}-%{version}.tar.bz2
 Patch0:		libpng-1.2.5-mdkconf.patch.bz2
-Patch1:		libpng-can-2004-0421.patch.bz2
+Patch1:		libpng-1.2.5-all-patches.patch.bz2
 
 BuildRoot: 	%{_tmppath}/%{name}-%{version}-root
 BuildRequires: 	zlib-devel
@@ -73,7 +73,7 @@ Libpng development static libraries.
 %prep
 %setup -q -n %{name}-%{version}
 %patch0 -p1 -b .mdkconf
-%patch1 -p1 -b .can-2004-0421
+%patch1 -p1 -b .secfixes
 ln -s scripts/makefile.linux ./Makefile
 perl -pi -e 's|^prefix=.*|prefix=%{_prefix}|' Makefile
 
@@ -120,6 +120,17 @@ rm -rf $RPM_BUILD_ROOT%{_prefix}/man
 %{_libdir}/libpng*.a
 
 %changelog
+* Wed Aug 04 2004 Vincent Danen <vdanen@annvix.org> 1.2.5-14avx
+- replace P1 and P2 with an official patch from the libpng team, which also
+  fixes CAN-2004-0597, CAN-2004-0598, and CAN-2004-599
+
+* Mon Jun 28 2004 Vincent Danen <vdanen@annvix.org> 1.2.5-13avx
+- P2: security fix for CAN-2002-1363 which I had fixed in mdk a long time
+  ago and which a maintainer for this package never applied to in cooker =(
+
+* Wed Jun 23 2004 Vincent Danen <vdanen@annvix.org> 1.2.5-12avx
+- Annvix build
+
 * Mon Apr 19 2004 Vincent Danen <vdanen@opensls.org> 1.2.5-11sls
 - P1: fix CAN-2004-0421
 

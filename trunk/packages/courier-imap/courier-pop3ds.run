@@ -1,9 +1,18 @@
 #!/bin/sh
+
+# this runs courier-imap's POP3S daemon supervised
+# unfortunately, due to how courier-imap works, we need to jump through
+# hoops in order for it all to work
+
+set -a
+
 PATH="/sbin:/usr/sbin:/bin:/usr/bin:$PATH"
 
-# this runs courier-imap's POP3S daemon under supervise
+# defaults; then source the pop3 configurations
+SSLPORT="995"
+SSLADDRESS="0"
 
-# source the imap configuration
+[ -f /etc/courier/pop3d ] && . /etc/courier/pop3d
 [ -f /etc/courier/pop3d-ssl ] && . /etc/courier/pop3d-ssl
 
 # defaults; can be overwritten by sysconfig
@@ -21,8 +30,11 @@ do
     LIBAUTHMODULES="$LIBAUTHMODULES /usr/lib/courier/authlib/$f"
 done
 
-exec /usr/bin/softlimit -m "$MAX_MEMORY" \
-  /usr/bin/tcpserver -c"$CONCURRENCY" -vRhX \
-  -x /etc/tcprules.d/pop3d-ssl.cdb -l"$HOSTNAME" \
-  0 995 /usr/bin/couriertls -server -tcpd /usr/sbin/pop3login $LIBAUTHMODULES \
+POP3_TLS=1; export POP3_TLS
+POP3_STARTTLS=NO; export POP3_STARTTLS
+POP3_TLS_REQUIRED=0; export POP3_TLS_REQUIRED
+
+exec /sbin/chpst -m "$MAX_MEMORY" \
+  /sbin/tcpsvd -c"$CONCURRENCY" -v -l"$HOSTNAME" -i./peers \
+  $SSLADDRESS $SSLPORT /usr/bin/couriertls -server -tcpd /usr/sbin/pop3login $LIBAUTHMODULES \
   /usr/bin/pop3d Maildir 2>&1

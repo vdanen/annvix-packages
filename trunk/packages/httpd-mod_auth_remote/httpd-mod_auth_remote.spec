@@ -1,24 +1,21 @@
-%define name	%{ap_name}-%{mod_name}
-%define version %{ap_version}_%{mod_version}
-%define release 1sls
+%define name	apache2-%{mod_name}
+%define version %{apache_version}_%{mod_version}
+%define release 1avx
+%define epoch	1
 
 # Module-Specific definitions
+%define apache_version	2.0.53
 %define mod_version	0.1
 %define mod_name	mod_auth_remote
 %define mod_conf	82_%{mod_name}.conf
 %define mod_so		%{mod_name}.so
 %define sourcename	%{mod_name}-%{mod_version}
 
-# New ADVX macros
-%define ADVXdir %{_datadir}/ADVX
-%{expand:%(cat %{ADVXdir}/ADVX-build)}
-%{expand:%%global ap_version %(%{apxs} -q ap_version)}
-
-Summary:	Mod_auth_remote is a DSO module for the %{ap_name} Web server.
+Summary:	Mod_auth_remote is a DSO module for the apache2 Web server
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
-Epoch:		1
+Epoch:		%{epoch}
 License:	GPL
 Group:		System/Servers
 URL:		http://puggy.symonds.net/~srp/stuff/mod_auth_remote/
@@ -27,15 +24,9 @@ Source1:	%{mod_conf}.bz2
 Patch0:		%{sourcename}-register.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-buildroot
-# Standard ADVX requires
-BuildRequires:  ADVX-build >= 9.2
-BuildRequires:  %{ap_name}-devel
+BuildRequires:  apache2-devel >= %{apache_version}
 
-# Standard ADVX requires
-Prereq:		%{ap_name} = %{ap_version}
-Prereq:		%{ap_name}-conf
-Provides: 	ADVXpackage
-Provides:	AP20package
+Prereq:		apache2 >= %{apache_version}, apache2-conf
 
 
 %description
@@ -61,32 +52,40 @@ client is not validated.
 %patch0 -p0
 
 %build
-%{apxs} -c %{mod_name}.c
+%{_sbindir}/apxs2 -c %{mod_name}.c
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-%ADVXinstlib
-%ADVXinstconf %{SOURCE1} %{mod_conf}
-%ADVXinstdoc %{name}-%{version}
+mkdir -p %{buildroot}%{_libdir}/apache2-extramodules
+mkdir -p %{buildroot}%{_sysconfdir}/httpd/conf.d
+install -m 0755 .libs/*.so %{buildroot}%{_libdir}/apache2-extramodules/
+bzcat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/conf.d/%{mod_conf}
+
+mkdir -p %{buildroot}/var/www/html/addon-modules
+ln -s ../../../../%{_docdir}/%{name}-%{version} %{buildroot}/var/www/html/addon-modules/%{name}-%{version}
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-%post
-%ADVXpost
-
-%postun
-%ADVXpost
-
 %files
 %defattr(-,root,root)
-%config(noreplace) %{ap_confd}/%{mod_conf}
-%{ap_extralibs}/%{mod_so}
-%{ap_webdoc}/*
 %doc readme.txt
+%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/httpd/conf.d/%{mod_conf}
+%attr(0755,root,root) %{_libdir}/apache2-extramodules/%{mod_so}
+/var/www/html/addon-modules/*
 
 %changelog
+* Sat Feb 26 2005 Vincent Danen <vdanen@annvix.org> 2.0.53_0.1-1avx
+- apache 2.0.53
+- remove ADVX stuff
+
+* Thu Oct 14 2004 Vincent Danen <vdanen@annvix.org> 2.0.52_0.1-1avx
+- apache 2.0.52
+
+* Sun Jun 27 2004 Vincent Danen <vdanen@annvix.org> 2.0.49_0.1-2avx
+- Annvix build
+
 * Fri May 07 2004 Vincent Danen <vdanen@opensls.org> 2.0.49_0.1-1sls
 - apache 2.0.49
 

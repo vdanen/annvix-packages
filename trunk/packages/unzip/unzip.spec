@@ -1,6 +1,6 @@
 %define name	unzip
 %define version 5.50
-%define release 11sls
+%define release 12avx
 %define src_ver 550
 
 Summary:	Unpacks ZIP files such as those made by pkzip under DOS
@@ -49,7 +49,7 @@ install unix/zipgrep $RPM_BUILD_ROOT%{_bindir}
 
 for i in man/*.1; do install -m 644 $i $RPM_BUILD_ROOT%{_mandir}/man1/; done
 
-cat > README.IMPORTANT.OPENSLS << EOF
+cat > README.IMPORTANT.ANNVIX << EOF
 This version of unzip is a stripped-down version which doesn't include
 the "unreduce" and "unshrink" algorithms. The first one is subject to
 a restrictive copyright by Samuel H. Smith which forbids its use in
@@ -58,7 +58,7 @@ second one (while their licensing would seem to mean that an
 extractor-only program would not be covered).
 
 Since the rest of the code is copyrighted by Info-Zip under a BSD-like
-license, this OpenSLS package is covered by this license.
+license, this Annvix package is covered by this license.
 
 Please note that currently, default compilation of the Info-Zip
 distribution also excludes the unreduce and unshrink code.
@@ -71,13 +71,16 @@ EOF
 
 %files
 %defattr(-,root,root)
-%doc BUGS COPYING.OLD Contents History.* INSTALL README ToDo WHERE README.IMPORTANT.OPENSLS
+%doc BUGS COPYING.OLD Contents History.* INSTALL README ToDo WHERE README.IMPORTANT.ANNVIX
 %doc proginfo/
 %{_bindir}/*
 %{_mandir}/man1/*
 
 
 %changelog
+* Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 5.50-12avx
+- Annvix build
+
 * Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 5.50-11sls
 - minor spec cleanups
 - s/MANDRAKE/OPENSLS/ for important README

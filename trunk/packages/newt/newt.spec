@@ -1,12 +1,11 @@
 %define name	newt
-%define version 0.51.4
-%define release 9sls
+%define version 0.51.6
+%define release 1avx
 
 %define majver		0.51
 %define libname		%mklibname %{name} %{majver}
-%define libdevel	%libname-devel
 
-Summary:	A development library for text mode user interfaces.
+Summary:	A development library for text mode user interfaces
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -16,8 +15,9 @@ Source:		ftp://ftp.redhat.com/pub/redhat/linux/code/newt/newt-%{version}.tar.bz2
 Patch0:		newt-gpm-fix.diff.bz2
 Patch1:		newt-mdkconf.patch.bz2
 Patch2:		newt-0.51.4-fix-wstrlen-for-non-utf8-strings.patch.bz2
+Patch3:		newt-0.51.6-avx-nostatic.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-root
+BuildRoot:	%{_tmppath}/%{name}-%{version}-root
 BuildRequires:	glibc-static-devel, popt-devel, python-devel >= 2.2, slang-devel
 
 Requires:	slang
@@ -31,12 +31,12 @@ etc., to text mode user interfaces.  This package contains a
 /usr/bin/dialog replacement called whiptail.  Newt is based on the
 slang library.
 
-%package -n %libname
-Summary:	Newt windowing toolkit development files library.
+%package -n %{libname}
+Summary:	Newt windowing toolkit development files library
 Group:		Development/C
 Provides:	%{name} = %{version}-%{release}
 
-%description -n %libname
+%description -n %{libname}
 Newt is a programming library for color text mode, widget based user
 interfaces.  Newt can be used to add stacked windows, entry widgets,
 checkboxes, radio buttons, labels, plain text fields, scrollbars,
@@ -44,14 +44,14 @@ etc., to text mode user interfaces.  This package contains the
 shared library needed by programs built with newt. Newt is based on the
 slang library.
 
-%package -n %libdevel
-Summary:	Newt windowing toolkit development files.
+%package -n %{libname}-devel
+Summary:	Newt windowing toolkit development files
 Group:		Development/C
 Requires:	slang-devel %{libname} = %{version}
 Provides:	lib%{name}-devel = %{version}-%{release} %{name}-devel = %{version}-%{release}
 Obsoletes:	%{name}-devel
 
-%description -n %libdevel
+%description -n %{libname}-devel
 The newt-devel package contains the header files and libraries
 necessary for developing applications which use newt.  Newt is
 a development library for text mode user interfaces.  Newt is
@@ -66,8 +66,12 @@ use newt.
 %patch0 -p0
 %patch1 -p0
 %patch2 -p1
+%patch3 -p0 -b .nostatic
 
 %build
+export CFLAGS="%{optflags} -fno-stack-protector"
+export CXXFLAGS="%{optflags} -fno-stack-protector"
+export FFLAGS="%{optflags} -fno-stack-protector"
 %configure --without-gpm-support
 
 %make
@@ -75,20 +79,20 @@ use newt.
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p $RPM_BUILD_ROOT
+mkdir -p %{buildroot}
 %makeinstall
-ln -sf lib%{name}.so.%{version} $RPM_BUILD_ROOT%{_libdir}/lib%{name}.so.%{majver}
+ln -sf lib%{name}.so.%{version} %{buildroot}%{_libdir}/lib%{name}.so.%{majver}
 
-rm -rf  $RPM_BUILD_ROOT%{_libdir}/python{1.5,2.0,2.1,2.2}
+rm -rf  %{buildroot}%{_libdir}/python{1.5,2.0,2.1,2.2,2.3}
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-%post -n %libname -p /sbin/ldconfig
+%post -n %{libname} -p /sbin/ldconfig
 
-%postun -n %libname -p /sbin/ldconfig
+%postun -n %{libname} -p /sbin/ldconfig
 
-%files -n %libname
+%files -n %{libname}
 %defattr (-,root,root)
 %doc CHANGES
 %{_libdir}/libnewt.so.*
@@ -97,9 +101,9 @@ rm -rf  $RPM_BUILD_ROOT%{_libdir}/python{1.5,2.0,2.1,2.2}
 %defattr (-,root,root)
 %doc CHANGES COPYING
 %{_bindir}/whiptail
-%{_libdir}/python2.3/site-packages/
+%{_libdir}/python%{pyver}/site-packages/
 
-%files -n %libdevel
+%files -n %{libname}-devel
 %defattr (-,root,root)
 %doc tutorial.sgml
 %{_includedir}/newt.h
@@ -107,6 +111,16 @@ rm -rf  $RPM_BUILD_ROOT%{_libdir}/python{1.5,2.0,2.1,2.2}
 %{_libdir}/libnewt.so
 
 %changelog
+* Mon Feb 28 2005 Vincent Danen <vdanen@annvix.org> 0.51.6-1avx
+- 0.51.6
+- use %%pyver macro
+- spec cleanups
+- P3: don't compile the test file -static as it freaks out with our
+  __guard symbols and such (from SSP)
+
+* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 0.51.4-10avx
+- Annvix build
+
 * Sun Mar 07 2004 Vincent Danen <vdanen@opensls.org> 0.51.4-9sls
 - minor spec cleanups
 - remove %%build_opensls macro

@@ -1,6 +1,6 @@
 %define name	reiserfsprogs
-%define version	3.6.11
-%define release	2sls
+%define version	3.6.19
+%define release	1avx
 %define epoch	1
 
 Summary:	The utilities to create Reiserfs volume.
@@ -11,7 +11,7 @@ Epoch:		%{epoch}
 License:	GPL
 Group:		System/Kernel and hardware
 URL:		http://www.namesys.com/
-Source0:	ftp://ftp.namesys.com/pub/reiserfsprogs/%name-%version.tar.bz2
+Source0:	ftp://ftp.namesys.com/pub/reiserfsprogs/%{name}-%{version}.tar.bz2
 Patch1:		reiserfsprogs-3.6.2-make-the-force-option-works-in-resize_reiserfs.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-root
@@ -44,17 +44,18 @@ create your own types of directories and files.
 
 %build
 %configure2_5x
-%make OPTFLAGS="%optflags"
+%make OPTFLAGS="%{optflags}"
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p $RPM_BUILD_ROOT%_mandir/man8
+mkdir -p %{buildroot}%{_mandir}/man8
 %makeinstall
-mv $RPM_BUILD_ROOT/{usr/,}sbin
-ln -s mkreiserfs $RPM_BUILD_ROOT/sbin/mkfs.reiserfs
-ln -s reiserfsck $RPM_BUILD_ROOT/sbin/fsck.reiserfs
-ln -s mkreiserfs.8 $RPM_BUILD_ROOT%_mandir/man8/mkfs.reiserfs.8
-ln -s reiserfsck.8 $RPM_BUILD_ROOT%_mandir/man8/fsck.reiserfs.8
+
+mv %{buildroot}/{usr/,}sbin
+ln -s mkreiserfs %{buildroot}/sbin/mkfs.reiserfs
+ln -s reiserfsck %{buildroot}/sbin/fsck.reiserfs
+ln -s mkreiserfs.8 %{buildroot}%{_mandir}/man8/mkfs.reiserfs.8
+ln -s reiserfsck.8 %{buildroot}%{_mandir}/man8/fsck.reiserfs.8
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -63,9 +64,15 @@ ln -s reiserfsck.8 $RPM_BUILD_ROOT%_mandir/man8/fsck.reiserfs.8
 %defattr(-,root,root)
 %doc README ChangeLog COPYING
 /sbin/*
-%_mandir/*/*
+%{_mandir}/*/*
 
 %changelog
+* Sat Mar 05 2005 Vincent Danen <vdanen@annvix.org> 3.6.19-1avx
+- 3.6.19
+
+* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 3.6.11-3avx
+- Annvix build
+
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 3.6.11-2sls
 - minor spec cleanups
 

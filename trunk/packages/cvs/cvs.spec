@@ -1,6 +1,6 @@
 %define name	cvs
-%define version	1.11.17
-%define release	1sls
+%define version	1.11.19
+%define release	2avx
 
 %define url	ftp://ftp.cvshome.org/pub
 %define _requires_exceptions tcsh
@@ -12,24 +12,24 @@ Release:	%{release}
 License:	GPL
 Group:		Development/Other
 URL:		http://www.cvshome.org/
-Source: 	%{url}/cvs-%{version}/cvs-%{version}.tar.bz2
+Source: 	ftp://ftp.cvshome.org/pub/cvs-%{version}/cvs-%{version}.tar.bz2
 Source1: 	cvspserver
 Source2: 	cvs.conf
+Source3: 	ftp://ftp.cvshome.org/pub/cvs-%{version}/cvs-%{version}.tar.bz2.sig
 Source4:	cvs.run
 Source5:	cvs-log.run
-Patch4: 	cvs-1.11.2-zlib.patch.bz2
+Source6:	06_cvspserver.afterboot
+Patch4: 	cvs-1.11.19-zlib.patch.bz2
 Patch6: 	cvs-1.11.15-errno.patch.bz2
 Patch8:		cvs-1.11-ssh.patch.bz2
 Patch11:	cvs-1.11.1-newline.patch.bz2
 Patch12:	cvs-1.11.4-first-login.patch.bz2
-Patch13:	cvs-1.11.2-no-zlib.patch.bz2
-Patch14:	cvs-1.11.17-localid.patch.bz2
 
-BuildRoot:	%_tmppath/%name-%version-%release-root
-BuildRequires:	texinfo, zlib-devel, krb5-devel
+BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
+BuildRequires:	autoconf2.5, texinfo, zlib-devel, krb5-devel
 
-Requires:	/usr/bin/ssh zlib
-Prereq:		/sbin/install-info
+Requires:	ipsvd
+Prereq:		info-install afterboot
 
 %description
 CVS means Concurrent Version System; it is a version control
@@ -59,18 +59,16 @@ control system.
 %patch8 -p1 -b .ssh
 %patch11 -p1 -b .newline
 %patch12 -p1 -b .first-login
-%patch13 -p1 -b .nozlib
-%patch14 -p1 -b .localid
 
 %build
+export SENDMAIL="%{_sbindir}/sendmail"
+
 %serverbuild
 %configure2_5x --with-tmpdir=/tmp
 
 %make
 
 make -C doc info
-
-%{?rpmcheck:make check}
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -79,54 +77,93 @@ bzip2 -f doc/*.ps
 
 %makeinstall
 
-mkdir -p $RPM_BUILD_ROOT%{_sbindir}
-install %{SOURCE1} $RPM_BUILD_ROOT%{_sbindir}
-mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/cvs
-install -m 644 %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/cvs
+mkdir -p %{buildroot}%{_sbindir}
+mkdir -p %{buildroot}%{_sysconfdir}/cvs
+install -m 0755 %{SOURCE1} %{buildroot}%{_sbindir}
+install -m 0644 %{SOURCE2} %{buildroot}%{_sysconfdir}/cvs
 
 # get rid of "no -f" so we don't have a Dep on this nonexistant interpretter
 perl -pi -e 's/no -f/\/bin\/sh/g' %{buildroot}%{_datadir}/cvs/contrib/sccs2rcs
 
-mkdir -p %{buildroot}%{_srvdir}/cvspserver/log
+mkdir -p %{buildroot}%{_srvdir}/cvspserver/{log,peers}
 install -m 0755 %{SOURCE4} %{buildroot}%{_srvdir}/cvspserver/run
 install -m 0755 %{SOURCE5} %{buildroot}%{_srvdir}/cvspserver/log/run
+touch %{buildroot}%{_srvdir}/cvspserver/peers/0
+chmod 0644 %{buildroot}%{_srvdir}/cvspserver/peers/0
 mkdir -p %{buildroot}%{_srvlogdir}/cvspserver
+
+mkdir -p %{buildroot}%{_datadir}/afterboot
+install -m 0644 %{SOURCE6} %{buildroot}%{_datadir}/afterboot/06_cvspserver
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
-%_post_srv cvs
+%_post_srv cvspserver
 %_install_info %{name}.info
 %_install_info cvsclient.info
+%_mkafterboot
 
 %preun
-%_preun_srv cvs
+%_preun_srv cvspserver
 %_remove_install_info %{name}.info
 %_remove_install_info cvsclient.info
+
+%postun
+%_mkafterboot
 
 %files
 %defattr(-,root,root)
 %doc BUGS FAQ MINOR-BUGS NEWS PROJECTS TODO README
 %doc doc/*.ps.bz2
+%dir %{_sysconfdir}/cvs
+%config(noreplace) %{_sysconfdir}/cvs/cvs.conf
 %{_bindir}/cvs
 %{_bindir}/cvsbug
 %{_bindir}/rcs2log
+%{_sbindir}/cvspserver
 %{_mandir}/man1/cvs.1*
 %{_mandir}/man5/cvs.5*
 %{_mandir}/man8/cvsbug.8*
 %{_infodir}/cvs*
 %{_datadir}/cvs
-%{_sbindir}/cvspserver
-%dir %{_sysconfdir}/cvs
-%config(noreplace) %{_sysconfdir}/cvs/cvs.conf
 %dir %{_srvdir}/cvspserver
 %dir %{_srvdir}/cvspserver/log
+%dir %{_srvdir}/cvspserver/peers
 %{_srvdir}/cvspserver/run
 %{_srvdir}/cvspserver/log/run
-%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/cvspserver
+%{_srvdir}/cvspserver/peers/0
+%dir %attr(0750,logger,logger) %{_srvlogdir}/cvspserver
+%{_datadir}/afterboot/06_cvspserver
 
 %changelog
+* Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 1.11.19-2avx
+- no need to lose our cvs.conf; put it back
+
+* Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 1.11.19-1avx
+- 1.11.19
+- use logger for logging
+- remove broken P14 (mdk bug #13118) (flepied)
+
+* Tue Jan 25 2005 Vincent Danen <vdanen@annvix.org> 1.11.17-5avx
+- update the run script; exec tcpsvd so that it will actually stop
+  when we want it to
+- service name is cvspserver, not cvs
+
+* Tue Oct 05 2004 Vincent Danen <vdanen@annvix.org> 1.11.17-4avx
+- switch from tcpserver to tcpsvd
+- Requires: ipsvd
+- add the /service/cvspserver/peers directory to, by default, allow
+  all connections
+- add afterboot snippet
+
+* Mon Sep 20 2004 Vincent Danen <vdanen@annvix.org> 1.11.17-3avx
+- updated run scripts
+
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 1.11.17-2avx
+- Annvix build
+- require packages not files
+
 * Tue Jun 15 2004 Vincent Danen <vdanen@opensls.org> 1.11.17-1sls
 - 1.11.17 (security fixes for CAN-2004-0414, CAN-2004-0146, CAN-2004-0417,
   CAN-2004-0418, CAN-2004-0396)

@@ -1,20 +1,16 @@
-%define name	%{ap_name}-%{mod_name}
-%define version %{ap_version}_%{mod_version}
-%define release 1sls
+%define name	apache2-%{mod_name}
+%define version %{apache_version}_%{mod_version}
+%define release 1avx
 
 # Module-Specific definitions
+%define apache_version	2.0.53
 %define mod_version	2.0
 %define mod_name	mod_auth_shadow
 %define mod_conf	83_%{mod_name}.conf
 %define mod_so		%{mod_name}.so
 %define sourcename	%{mod_name}-%{mod_version}
 
-# New ADVX macros
-%define ADVXdir %{_datadir}/ADVX
-%{expand:%(cat %{ADVXdir}/ADVX-build)}
-%{expand:%%global ap_version %(%{apxs} -q ap_version)}
-
-Summary:	Shadow password authentication for the %{ap_name} web server
+Summary:	Shadow password authentication for the apache2 web server
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -27,18 +23,12 @@ Patch0:		%{sourcename}-register.patch.bz2
 Patch1:		%{sourcename}-makefile.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-buildroot
-# Standard ADVX requires
-BuildRequires:  ADVX-build >= 9.2
-BuildRequires:  %{ap_name}-devel >= 2.0.44-6mdk
+BuildRequires:  apache2-devel >= %{apache_version}
 
-# Standard ADVX requires
-Prereq:		%{ap_name} = %{ap_version}
-Prereq:		%{ap_name}-conf
-Provides: 	ADVXpackage
-Provides:	AP20package
+Prereq:		apache2 >= %{apache_version}, apache2-conf
 
 %description
-%{mod_name} is an %{ap_name} module which authenticates against
+%{mod_name} is an apache2 module which authenticates against
 the /etc/shadow file. You may use this module with a mode 400 
 root:root /etc/shadow file, while your web daemons are running
 under a non-privileged user.
@@ -57,9 +47,13 @@ export PATH="$PATH:/usr/sbin"
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-%ADVXinstlib
-%ADVXinstconf %{SOURCE1} %{mod_conf}
-%ADVXinstdoc %{name}-%{version}
+mkdir -p %{buildroot}%{_libdir}/apache2-extramodules
+mkdir -p %{buildroot}%{_sysconfdir}/httpd/conf.d
+install -m 0755 .libs/*.so %{buildroot}%{_libdir}/apache2-extramodules/
+bzcat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/conf.d/%{mod_conf}
+
+mkdir -p %{buildroot}/var/www/html/addon-modules
+ln -s ../../../../%{_docdir}/%{name}-%{version} %{buildroot}/var/www/html/addon-modules/%{name}-%{version}
 
 install -d %{buildroot}%{_sbindir}
 install -m4755 validate %{buildroot}%{_sbindir}/
@@ -67,21 +61,25 @@ install -m4755 validate %{buildroot}%{_sbindir}/
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-%post
-%ADVXpost
-
-%postun
-%ADVXpost
-
 %files
 %defattr(-,root,root)
 %doc CHANGES INSTALL README
-%{ap_extralibs}/%{mod_so}
-%config(noreplace) %{ap_confd}/%{mod_conf}
-%{ap_webdoc}/*
+%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/httpd/conf.d/%{mod_conf}
+%attr(0755,root,root) %{_libdir}/apache2-extramodules/%{mod_so}
+/var/www/html/addon-modules/*
 %attr(4755,root,root) %{_sbindir}/validate
 
 %changelog
+* Sat Feb 26 2005 Vincent Danen <vdanen@annvix.org> 2.0.53_2.0-1avx
+- apache 2.0.53
+- remove ADVX stuff
+
+* Thu Oct 14 2004 Vincent Danen <vdanen@annvix.org> 2.0.52_2.0-1avx
+- apache 2.0.52
+
+* Sun Jun 27 2004 Vincent Danen <vdanen@annvix.org> 2.0.49_2.0-2avx
+- Annvix build
+
 * Fri May 07 2004 Vincent Danen <vdanen@opensls.org> 2.0.49_2.0-1sls
 - apache 2.0.49
 

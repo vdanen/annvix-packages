@@ -1,13 +1,13 @@
 #!/bin/sh
 PATH="/sbin:/usr/sbin:/bin:/usr/bin:$PATH"
 
-# this runs winbindd under supervise
+# this runs winbindd supervised
 
 godown() {
   touch down
-  svc -d /service/winbindd
+  runsvctrl d /service/winbindd
   touch log/down
-  svc -d /service/winbindd/log
+  runsvctrl d /service/winbindd/log
   exit 0
 }
 

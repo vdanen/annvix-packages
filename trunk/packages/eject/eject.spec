@@ -1,6 +1,6 @@
 %define name	eject
 %define version 2.0.13
-%define release 6sls
+%define release	7avx
 
 Summary:	A program that ejects removable media using software control.
 Name:		%{name}
@@ -51,6 +51,9 @@ mkdir -p $RPM_BUILD_ROOT%{_mandir}/man1
 %_mandir/man1/volname.1*
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 2.0.13-7avx
+- Annvix build
+
 * Thu Mar 04 2004 Vincent Danen <vdanen@opensls.org> 2.0.13-6sls
 - minor spec cleanups
 - remove the supermount patch

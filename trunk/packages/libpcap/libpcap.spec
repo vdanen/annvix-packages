@@ -1,6 +1,6 @@
 %define name	libpcap
 %define version	0.8.3
-%define release	1sls
+%define release	2avx
 %define sname	pcap
 
 %define	major	0
@@ -127,6 +127,9 @@ pushd $RPM_BUILD_ROOT/%{_libdir} && {
 %{_mandir}/man3/pcap.3*
 
 %changelog
+* Wed Jun 23 2004 Vincent Danen <vdanen@annvix.org> 0.8.3-2avx
+- Annvix build
+
 * Fri Apr 30 2004 Vincent Danen <vdanen@opensls.org> 0.8.3-1sls
 - 0.8.3
 - mklibname

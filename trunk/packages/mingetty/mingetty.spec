@@ -1,6 +1,6 @@
 %define name	mingetty
 %define version	1.06
-%define release	2sls
+%define release	5avx
 
 Summary: 	A compact getty program for virtual consoles only.
 Name: 		%{name}
@@ -10,7 +10,7 @@ License: 	GPL
 Group: 		System/Base
 URL:		ftp://jurix.jura.uni-sb.de/pub/linux/source/system/daemon/
 Source0: 	ftp://jurix.jura.uni-sb.de/pub/linux/source/system/daemons/%{name}-%{version}.tar.bz2
-BuildRequires:	dietlibc-devel >= 0.20
+BuildRequires:	dietlibc-devel >= 0.27
 Patch0:		mingetty-1.00-opt.patch.bz2
 
 BuildRoot: 	%{_tmppath}/%{name}-root
@@ -25,14 +25,10 @@ lines (you should use the mgetty program instead for that purpose).
 %patch0 -p1 -b .opt
 
 %build
-%ifarch amd64 x86_64
-%make
-%else
 make \
     CC="diet gcc" \
     CFLAGS="-Os -Wall -pipe -D_GNU_SOURCE -D_BSD_SOURCE" \
     LDFLAGS="-Os -static -s"
-%endif
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -50,6 +46,15 @@ install -m 0644 mingetty.8 %buildroot/%{_mandir}/man8/
 %{_mandir}/man8/*
 
 %changelog
+* Fri Feb 04 2005 Vincent Danen <vdanen@annvix.org> 1.06-5avx
+- rebuild against new dietlibc
+
+* Tue Jan 25 2005 Vincent Danen <vdanen@annvix.org> 1.06-4avx
+- enable x86_64 build
+
+* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 1.06-3avx
+- Annvix build
+
 * Wed Mar 17 2004 Oden Eriksson <oden.eriksson@opensls.org> 1.06-2sls
 - build it against dietlibc for x86 (problems with amd64)
 - nuke %%doc COPYING

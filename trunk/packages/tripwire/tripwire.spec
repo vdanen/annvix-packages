@@ -1,8 +1,6 @@
 %define name	tripwire
 %define version	2.3.1.2
-%define release	10sls
-
-%define ext	2
+%define release	17avx
 
 Summary:	A system integrity assessment tool.
 Name:		%{name}
@@ -18,7 +16,8 @@ Source3:	tripwire.gif
 Source4:	twcfg.txt.in
 Source5:	twinstall.sh.in
 Source6:	twpol.txt.in
-Source7:	README.RPM
+Source7:	twupdate
+Source8:	98_tripwire.afterboot
 Patch0:		tripwire-2.3.0-50-rfc822.patch.bz2
 Patch1:		tripwire-2.3.1-2-fhs.patch.bz2
 Patch2:		tripwire-2.3.1-gcc3.patch.bz2
@@ -28,9 +27,9 @@ Patch5:		tripwire-2.3.1-2-gcc-3.3.patch.bz2
 Patch6:		tripwire-2.3.1-format.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-root
-Buildrequires:	gcc-c++, libstdc++
+Buildrequires:	gcc-c++, libstdc++, libstdc++-static-devel, glibc-static-devel
 
-Requires:	sed, grep >= 2.3, gzip, tar, gawk
+Requires:	sed, grep >= 2.3, gzip, tar, gawk, afterboot
 # Tripwire is NOT 64bit clean, nor endian clean, and only works properly
 # on x86 architecture. The open source code doesn't seem to be maintained,
 # so this is probably unlikely to change.  We exclude non x86 arches.
@@ -54,13 +53,6 @@ Tripwire will report the changes, which will give system
 administrators a clue that they need to enact damage control measures
 immediately if certain files have been altered.
 
-Extra-paranoid Tripwire users will set it up to run once a week and
-e-mail the results to themselves.  Then if the e-mails stop coming,
-you'll know someone has gotten to the Tripwire program...
-
-After installing this package, you should run "/etc/tripwire/twinstall.sh"
-to generate cryptographic keys, and "tripwire --init" to initialize the
-database.
 
 %prep
 %setup -q -n tripwire-2.3.1-2
@@ -83,61 +75,103 @@ rm -rf STLport*
 touch STLport_r STLport_d
 
 # Do not parallelize this with _smp_flags or -j
-make release RPM_OPT_FLAGS="$RPM_OPT_FLAGS"
+# this is a static app and building static apps with SSP is broken right now
+make release RPM_OPT_FLAGS="%{optflags} -fno-stack-protector"
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 # Install the binaries.
-mkdir -p $RPM_BUILD_ROOT%{_sbindir}
-install -m755 bin/*/siggen   $RPM_BUILD_ROOT%{_sbindir}
-install -m755 bin/*/tripwire $RPM_BUILD_ROOT%{_sbindir}
-install -m755 bin/*/twadmin  $RPM_BUILD_ROOT%{_sbindir}
-install -m755 bin/*/twprint  $RPM_BUILD_ROOT%{_sbindir}
+mkdir -p %{buildroot}%{_sbindir}
+install -m 0500 bin/*/siggen   %{buildroot}%{_sbindir}
+install -m 0500 bin/*/tripwire %{buildroot}%{_sbindir}
+install -m 0500 bin/*/twadmin  %{buildroot}%{_sbindir}
+install -m 0500 bin/*/twprint  %{buildroot}%{_sbindir}
 
 # Install the man pages.
-mkdir -p $RPM_BUILD_ROOT%{_mandir}/{man4,man5,man8}
-install -m644 man/man4/*.* $RPM_BUILD_ROOT%{_mandir}/man4/
-install -m644 man/man5/*.* $RPM_BUILD_ROOT%{_mandir}/man5/
-install -m644 man/man8/*.* $RPM_BUILD_ROOT%{_mandir}/man8/
+mkdir -p %{buildroot}%{_mandir}/{man4,man5,man8}
+install -m644 man/man4/*.* %{buildroot}%{_mandir}/man4/
+install -m644 man/man5/*.* %{buildroot}%{_mandir}/man5/
+install -m644 man/man8/*.* %{buildroot}%{_mandir}/man8/
 
 # Install configuration information.
-mkdir -p $RPM_BUILD_ROOT/etc/tripwire
+mkdir -p %{buildroot}%{_sysconfdir}/tripwire
 for infile in %{SOURCE4} %{SOURCE5} %{SOURCE6}; do
 	cat $infile |\
 	sed -e 's|@sbindir@|%{_sbindir}|g' |\
 	sed -e 's|@vardir@|%{_var}|g' >\
-	$RPM_BUILD_ROOT/etc/tripwire/`basename $infile .in`
+	%{buildroot}%{_sysconfdir}/tripwire/`basename $infile .in`
 done
 
-cp -p %{SOURCE7} .
+install -m 0750 %{SOURCE7} %{buildroot}%{_sbindir}
+
+mkdir -p %{buildroot}%{_datadir}/afterboot
+install -m 0644 %{SOURCE8} %{buildroot}%{_datadir}/afterboot/98_tripwire
 
 # Create the reports directory.
-install -d -m700 $RPM_BUILD_ROOT%{_var}/lib/tripwire/report
+install -d -m 0700 %{buildroot}%{_var}/lib/tripwire/report
 
 # Install the cron job.
-install -d -m755 $RPM_BUILD_ROOT/etc/cron.daily
-install -m755 %{SOURCE1} $RPM_BUILD_ROOT/etc/cron.daily/tripwire-check
+install -d -m 0755 %{buildroot}%{_sysconfdir}/cron.daily
+install -m 0750 %{SOURCE1} %{buildroot}%{_sysconfdir}/cron.daily/tripwire-check
 
 # Fix permissions on documentation files.
-chmod 644 README Release_Notes ChangeLog COPYING policy/policyguide.txt TRADEMARK quickstart.gif quickstart.txt README.RPM
+chmod 644 README Release_Notes ChangeLog COPYING policy/policyguide.txt TRADEMARK quickstart.gif quickstart.txt
+
+%post
+%_mkafterboot
+
+%postun
+%_mkafterboot
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
-%attr(-,root,root) %doc README Release_Notes ChangeLog COPYING policy/policyguide.txt TRADEMARK quickstart.gif quickstart.txt README.RPM
-%attr(0755,root,root) %dir /etc/tripwire
-%attr(0755,root,root) %config(noreplace) /etc/tripwire/twinstall.sh
-%attr(0644,root,root) %config(noreplace) /etc/tripwire/twcfg.txt
-%attr(0644,root,root) %config(noreplace) /etc/tripwire/twpol.txt
-%attr(0755,root,root) %config(noreplace) /etc/cron.daily/tripwire-check
-%attr(0755,root,root) %dir /var/lib/tripwire
-%attr(0755,root,root) %dir /var/lib/tripwire/report
+%defattr(-,root,root)
+%doc README Release_Notes ChangeLog COPYING policy/policyguide.txt TRADEMARK quickstart.gif quickstart.txt
+%attr(0700,root,root) %dir %{_sysconfdir}/tripwire
+%attr(0700,root,root) %config(noreplace) %{_sysconfdir}/tripwire/twinstall.sh
+%attr(0600,root,root) %config(noreplace) %{_sysconfdir}/tripwire/twcfg.txt
+%attr(0600,root,root) %config(noreplace) %{_sysconfdir}/tripwire/twpol.txt
+%attr(0750,root,root) %config(noreplace) %{_sysconfdir}/cron.daily/tripwire-check
+%attr(0700,root,root) %dir /var/lib/tripwire
+%attr(0700,root,root) %dir /var/lib/tripwire/report
 %attr(0644,root,root) %{_mandir}/*/*
-%attr(0755,root,root) %{_sbindir}/*
+%attr(0500,root,root) %{_sbindir}/*
+%{_datadir}/afterboot/98_tripwire
 
 %changelog
+* Sat Mar 05 2005 Vincent Danen <vdanen@annvix.org> 2.3.1.2-17avx
+- s/bash2/bash3/ in twpol.txt.in
+
+* Fri Mar 04 2005 Vincent Danen <vdanen@annvix.org> 2.3.1.2-16avx
+- drop /etc/init.d/random and /var/lock/subsys/random from default policy
+  file
+- add /dev/erandom and /dev/frandom to default policy file
+- build with -fno-stack-protector until we fix building static SSP-enabled apps
+
+* Thu Oct 14 2004 Vincent Danen <vdanen@annvix.org> 2.3.1.2-15avx
+- fix some typeos in the default policy
+- fix some space issues in the afterboot snippet
+
+* Wed Oct 13 2004 Vincent Danen <vdanen@annvix.org> 2.3.1.2-14avx
+- add afterboot snippet
+- remove README.RPM
+- add twupdate script
+- fix description (extra-paranoid will run it once a week?!?)
+- update policy file to make it more Annvix specific
+
+* Thu Sep 16 2004 Vincent Danen <vdanen@annvix.org> 2.3.1.2-13avx
+- someone was on crack to make this all other-readable; make permission
+  fixes across the board to make tripwire as tamper-proof as possible
+
+* Mon Jul 05 2004 Vincent Danen <vdanen@annvix.org> 2.3.1.2-12avx
+- BuildRequires: libstdc++-static-devel, glibc-static-devel
+
+* Sat Jun 19 2004 Vincent Danen <vdanen@annvix.org> 2.3.1.2-11avx
+- Annvix build
+
 * Thu Jun 03 2004 Vincent Danen <vdanen@opensls.org> 2.3.1.2-10sls
 - fix format string vuln reported by Paul Herman
 

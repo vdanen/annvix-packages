@@ -1,6 +1,6 @@
 %define name	iproute2
 %define version	2.4.7
-%define release	13sls
+%define release	15avx
 
 # sync: rh-2.4.7-7
 
@@ -29,6 +29,7 @@ Patch102:	iproute2-2.4.7-bashfix.patch.bz2
 Patch103:	iproute2-htb3.6_tc.patch.bz2
 Patch104:	iproute2-2.4.7-now-ss010824-make.patch.bz2
 Patch105:	iproute2-mult-deflt-gateways.patch.bz2
+Patch106:	iproute2-2.4.7-netlink.patch.bz2
 
 BuildRoot:	%_tmppath/%name-%version-%release-root
 
@@ -55,6 +56,7 @@ routing, fast NAT and packet scheduling.
 %patch103 -p1 -b .htb3
 %patch104 -p0 -b .make
 %patch105 -p1 -b .make
+%patch106 -p1 -b .can-2003-0856
 
 %build
 %define optflags -ggdb
@@ -92,6 +94,12 @@ tar xfj %SOURCE2 -C $RPM_BUILD_ROOT/%_mandir/
 %attr(644,root,root) %config(noreplace) %{_sysconfdir}/iproute2/*
 
 %changelog
+* Tue Dec 07 2004 Vincent Danen <vdanen@annvix.org> 2.4.7-15avx
+- P106: patch to fix CAN-2003-0856
+
+* Thu Jun 24 2004 Vincent Danen <vdanen@annvix.org> 2.4.7-14avx
+- Annvix build
+
 * Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 2.4.7-13sls
 - minor spec cleanups
 - remove some *.ps and other unwanted docs

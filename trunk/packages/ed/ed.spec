@@ -1,6 +1,6 @@
 %define name	ed
 %define version	0.2
-%define release	32sls
+%define release	33avx
 
 %define _exec_prefix /
 
@@ -18,7 +18,7 @@ Patch2:		ed-0.2-li18nux-patch.bz2
 
 Buildroot:	%{_tmppath}/%{name}-root
 
-Prereq:		/sbin/install-info
+Prereq:		info-install
 
 %description
 Ed is a line-oriented text editor, used to create, display, and modify
@@ -68,6 +68,10 @@ make check
 %{_mandir}/*/*
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 0.2-33avx
+- Annvix build
+- require packages not files
+
 * Thu Mar 04 2004 Vincent Danen <vdanen@opensls.org> 0.2-32sls
 - minor spec cleanups
 

@@ -1,6 +1,6 @@
 %define name	pure-ftpd
-%define	version 1.0.18
-%define release 1sls
+%define	version 1.0.20
+%define release 1avx
 
 Summary:	Lightweight, fast and secure FTP server
 Name:		%{name}
@@ -9,7 +9,7 @@ Release:	%{release}
 License:	GPL
 Group:		System/Servers
 URL:		http://www.pureftpd.org
-Source:		ftp://download.sourceforge.net/pub/sourceforge/pureftpd/%{name}-%{version}.tar.bz2
+Source:		ftp://ftp.pureftpd.org/pub/pure-ftpd/releases//%{name}-%{version}.tar.bz2
 Source1:	pure-ftpd.init 
 Source2:	pure-ftpd.logrotate
 Source3:	pure-ftpd-xinetd.bz2
@@ -22,7 +22,7 @@ BuildRoot:	%{_tmppath}/%{name}-%{version}
 BuildRequires:	pam-devel, openldap-devel, MySQL-devel, postgresql-devel
 
 PreReq:		rpm-helper
-Provides:	ftp-server ftpserver pure-ftpd
+Provides:	ftp-server ftpserver
 Conflicts:	wu-ftpd, ncftpd, proftpd, anonftp, vsftpd
 
 %description
@@ -59,28 +59,30 @@ This package provides anonymous upload support for pure-ftpd.
 %patch1 -p1 -b .pureconfig
 
 %build
-%configure2_5x	--with-paranoidmsg \
-		--without-capabilities \
-		--with-pam \
-		--with-ldap \
-		--with-mysql \
-		--with-pgsql \
-		--with-puredb \
-		--without-sendfile \
-		--with-altlog \
-		--with-cookie \
-		--with-diraliases \
-		--with-throttling \
-		--with-ratios \
-		--with-quotas \
-		--with-ftpwho \
-		--with-welcomemsg \
-		--with-uploadscript \
-		--with-peruserlimits \
-		--with-virtualhosts \
-		--with-virtualchroot \
-		--with-extauth \
-		--sysconfdir=%{_sysconfdir}/%{name}
+%configure2_5x \
+	--with-paranoidmsg \
+	--without-capabilities \
+	--with-pam \
+	--with-ldap \
+	--with-mysql \
+	--with-pgsql \
+	--with-puredb \
+	--without-sendfile \
+	--with-altlog \
+	--with-cookie \
+	--with-diraliases \
+	--with-throttling \
+	--with-ratios \
+	--with-quotas \
+	--with-ftpwho \
+	--with-welcomemsg \
+	--with-uploadscript \
+	--with-peruserlimits \
+	--with-virtualhosts \
+	--with-virtualchroot \
+	--with-extauth \
+	--with-largefile \
+	--sysconfdir=%{_sysconfdir}/%{name}
 		
 
 %make
@@ -135,6 +137,29 @@ install -m 0755 %{SOURCE5} %{buildroot}%{_srvdir}/pureftpd/log/run
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
+%post
+# ftpusers creation
+if [ ! -f %{_sysconfdir}/ftpusers ]; then
+	touch %{_sysconfdir}/ftpusers
+fi
+
+USERS="root bin daemon adm lp sync shutdown halt mail news uucp operator games nobody"
+for i in $USERS ;do
+        cat %{_sysconfdir}/ftpusers | grep -q "^$i$" || echo $i >> %{_sysconfdir}/ftpusers
+done
+
+%_post_srv pureftpd
+
+%pre
+%_pre_useradd ftp /var/ftp /bin/false 81
+
+%postun
+%_postun_userdel ftp
+
+%preun
+%_preun_srv pureftpd
+
+
 %files
 %defattr(-, root, root)
 %doc FAQ THANKS README.Authentication-Modules README.Windows README.Virtual-Users
@@ -159,7 +184,7 @@ install -m 0755 %{SOURCE5} %{buildroot}%{_srvdir}/pureftpd/log/run
 %{_sbindir}/pure-quotacheck
 %{_sbindir}/pure-authd
 %attr(644,root,root)%{_mandir}/man8/*
-%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/pureftpd
+%dir %attr(0750,logger,logger) %{_srvlogdir}/pureftpd
 %dir %{_srvdir}/pureftpd
 %dir %{_srvdir}/pureftpd/log
 %{_srvdir}/pureftpd/run
@@ -173,29 +198,23 @@ install -m 0755 %{SOURCE5} %{buildroot}%{_srvdir}/pureftpd/log/run
 %defattr(777, root, root)
 %dir /var/ftp/incoming/
 
-%post
-# ftpusers creation
-if [ ! -f %{_sysconfdir}/ftpusers ]; then
-	touch %{_sysconfdir}/ftpusers
-fi
-
-USERS="root bin daemon adm lp sync shutdown halt mail news uucp operator games nobody"
-for i in $USERS ;do
-        cat %{_sysconfdir}/ftpusers | grep -q "^$i$" || echo $i >> %{_sysconfdir}/ftpusers
-done
-
-%_post_srv pure-ftpd
-
-%pre
-%_pre_useradd ftp /var/ftp /bin/false 81
-
-%postun
-%_postun_userdel ftp
-
-%preun
-%_preun_srv pure-ftpd
-
 %changelog
+* Mon Sep 20 2004 Vincent Danen <vdanen@annvix.org> 1.0.19-2avx
+- 1.0.20
+- enable largefile support
+- user logger for logging
+
+* Mon Sep 20 2004 Vincent Danen <vdanen@annvix.org> 1.0.19-2avx
+- update run scripts
+
+* Mon Jul 05 2004 Vincent Danen <vdanen@annvix.org> 1.0.19-1avx
+- fix source url
+- 1.0.19 (fix possible DoS)
+- fix service name in %%_preun_srv and %%_post_srv
+
+* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 1.0.18-2avx
+- Annvix build
+
 * Fri May 07 2004 Vincent Danen <vdanen@opensls.org> 1.0.18-1sls
 - 1.0.18
 

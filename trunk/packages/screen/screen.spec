@@ -1,6 +1,6 @@
 %define name	screen
 %define version	4.0.2
-%define release	1sls
+%define release	2avx
 
 Summary:	A screen manager that supports multiple logins on one terminal
 Name:		%{name}
@@ -24,7 +24,7 @@ BuildRequires:	ncurses-devel
 BuildRequires:	utempter-devel
 BuildRequires:	texinfo
 
-Prereq:		/sbin/install-info
+Prereq:		info-install
 
 %description
 The screen utility allows you to have multiple logins on just one
@@ -114,6 +114,10 @@ echo '  screen ()
 %{_datadir}/screen/
 
 %changelog
+* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 4.0.2-2avx
+- requires info-install rather than /sbin/install-info
+- Annvix build
+
 * Mon May 10 2004 Vincent Danen <vdanen@opensls.org> 4.0.2-1sls
 - 4.0.2
 - linked against new libutempter

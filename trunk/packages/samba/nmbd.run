@@ -1,6 +1,10 @@
 #!/bin/sh
 PATH="/sbin:/usr/sbin:/bin:/usr/bin:$PATH"
 
-# this runs nmbd under supervise
+# this runs nmbd supervised
 
-exec /usr/sbin/nmbd -i 2>&1
+. /usr/share/srv/functions
+
+checkdepends smbd
+
+exec /usr/sbin/nmbd -F -D 2>&1

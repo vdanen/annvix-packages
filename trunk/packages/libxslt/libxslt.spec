@@ -1,8 +1,8 @@
 %define name	libxslt
-%define version	1.0.33
-%define release	3sls
+%define version	1.1.12
+%define release	1avx
 
-%define xml_version_required	2.5.6
+%define xml_version_required	2.6.15
 %define major			1
 %define libname			%mklibname xslt %{major}
 
@@ -20,7 +20,7 @@ Source:		ftp://xmlsoft.org/libxslt-%{version}.tar.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-root
 BuildRequires:	libxml2-devel >= %{xml_version_required}
-BuildRequires:	python-devel >= %{py_ver}
+BuildRequires:	python-devel >= %{pyver}
 BuildRequires:	%{pylibxml2} >= %{xml_version_required}
 
 Requires:	libxml2 >= %{xml_version_required}
@@ -58,7 +58,7 @@ the libxslt-proc package.
 Summary:	Python bindings for the libxslt library
 Group:		Development/Python
 Requires:	%{libname} = %{version}
-Requires:	python >= %{py_ver}
+Requires:	python >= %{pyver}
 Requires:	%{pylibxml2} >= %{xml_version_required}
 
 %description python
@@ -100,8 +100,8 @@ make check
 %makeinstall_std
 
 # remove unpackaged files
-rm -rf $RPM_BUILD_ROOT%{_docdir}/%{name}-%{version} \
-  $RPM_BUILD_ROOT%{_libdir}/python%{py_ver}/site-packages/*.{la,a}
+rm -rf %{buildroot}%{_docdir}/%{name}-%{version} \
+  %{buildroot}%{_libdir}/python%{pyver}/site-packages/*.{la,a}
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -123,8 +123,8 @@ rm -rf $RPM_BUILD_ROOT%{_docdir}/%{name}-%{version} \
 
 %files python
 %defattr(-, root, root)
-%{_libdir}/python%{py_ver}/site-packages/*.so
-%{_libdir}/python%{py_ver}/site-packages/*.py
+%{_libdir}/python%{pyver}/site-packages/*.so
+%{_libdir}/python%{pyver}/site-packages/*.py
 %doc python/libxsltclass.txt
 %doc python/tests/*.py
 
@@ -142,6 +142,13 @@ rm -rf $RPM_BUILD_ROOT%{_docdir}/%{name}-%{version} \
 %{_datadir}/aclocal/*
 
 %changelog
+* Sat Mar 05 2005 Vincent Danen <vdanen@annvix.org> 1.1.12-1avx
+- 1.1.12
+- use %%pyver macro
+
+* Wed Jun 22 2004 Vincent Danen <vdanen@annvix.org> 1.0.33-4avx
+- Annvix build
+
 * Sat Mar 06 2004 Vincent Danen <vdanen@opensls.org> 1.0.33-3sls
 - minor spec cleanups
 

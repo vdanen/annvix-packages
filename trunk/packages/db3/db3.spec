@@ -1,6 +1,6 @@
 %define name	db3
 %define version	3.3.11
-%define release	18sls
+%define release	19avx
 
 %define	__soversion	3.3
 %define	_libdb_a	libdb-%{__soversion}.a
@@ -36,7 +36,7 @@ BuildRequires:	gcc-java >= 3.1.1-0.8mdk
 BuildRequires:	gcj-tools >= 3.1.1-0.8mdk
 %endif
 
-PreReq:		/sbin/ldconfig
+PreReq:		ldconfig
 
 %description
 The Berkeley Database (Berkeley DB) is a programmatic toolkit that provides
@@ -47,7 +47,7 @@ should be installed on all systems.
 %package -n %libdb
 Summary:	The Berkeley DB database library for C.
 Group:		System/Libraries
-PreReq:		/sbin/ldconfig
+PreReq:		ldconfig
 Provides:	db3 = %{version}-%{release}
 
 %description -n %libdb
@@ -59,7 +59,7 @@ should be installed on all systems.
 %package -n %libdbcxx
 Summary:	The Berkeley DB database library for C++.
 Group:		System/Libraries
-PreReq:		/sbin/ldconfig
+PreReq:		ldconfig
 Provides:	db3 = %{version}-%{release}
 
 %description -n %libdbcxx
@@ -75,7 +75,7 @@ Berkeley DB.
 %package -n %libdbjava
 Summary:	The Berkeley DB database library for C++.
 Group:		System/Libraries
-PreReq:		/sbin/ldconfig
+PreReq:		ldconfig
 Provides:	db3 = %{version}-%{release}
 
 %description -n %libdbjava
@@ -91,7 +91,7 @@ Berkeley DB.
 %package -n %libdbtcl
 Summary:	The Berkeley DB database library for TCL.
 Group:		System/Libraries
-PreReq:		/sbin/ldconfig
+PreReq:		ldconfig
 Provides:	db3 = %{version}-%{release}
 
 %description -n %libdbtcl
@@ -354,6 +354,10 @@ rm -rf	$RPM_BUILD_ROOT/usr/docs \
 %{_libdir}/libdb_tcl-3.so
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 3.3.11-19avx
+- Annvix build
+- require packages not files
+
 * Wed Mar 03 2004 Vincent Danen <vdanen@opensls.org> 3.3.11-18sls
 - remove %%build_opensls macro
 - minor spec cleanups

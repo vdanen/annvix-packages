@@ -1,6 +1,6 @@
 %define name	mtools
 %define version	3.9.9
-%define release	4sls
+%define release	6avx
 
 Summary:	Programs for accessing MS-DOS disks without mounting the disks
 Name: 		%{name}
@@ -17,9 +17,9 @@ Patch4: 	mtools-3.9.8-fs.patch.bz2
 Patch5: 	mtools-3.9.9-supermount.patch.bz2
 
 BuildRoot: 	%{_tmppath}/%{name}-root
-BuildRequires: 	XFree86-devel, texinfo
+BuildRequires: 	texinfo
 
-PreReq: 	/sbin/install-info
+PreReq: 	info-install
 
 %description
 Mtools is a collection of utilities for accessing MS-DOS files.
@@ -38,17 +38,17 @@ Mtools should be installed if you need to use MS-DOS disks.
 %patch5 -p1 -b .supermount
 
 %build
-%configure
+%configure --without-x
 make
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p $RPM_BUILD_ROOT/%{_prefix} $RPM_BUILD_ROOT%{_sysconfdir}
+mkdir -p %{buildroot}/%{_prefix} %{buildroot}%{_sysconfdir}
 %makeinstall
-/usr/bin/install -c -m 644 mtools.conf $RPM_BUILD_ROOT%{_sysconfdir}
+/usr/bin/install -c -m 644 mtools.conf %{buildroot}%{_sysconfdir}
 # specific handling for mformat which is setuid root
-rm -f $RPM_BUILD_ROOT%{_bindir}/mformat
-cp -a $RPM_BUILD_ROOT%{_bindir}/mtools $RPM_BUILD_ROOT%{_bindir}/mformat
+rm -f %{buildroot}%{_bindir}/mformat
+cp -a %{buildroot}%{_bindir}/mtools %{buildroot}%{_bindir}/mformat
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -63,7 +63,6 @@ cp -a $RPM_BUILD_ROOT%{_bindir}/mtools $RPM_BUILD_ROOT%{_bindir}/mformat
 %defattr(-,root,root)
 %config(noreplace) %{_sysconfdir}/mtools.conf
 %doc COPYING Changelog README Release.notes mtools.texi
-%{_bindir}/f*
 %{_bindir}/l*
 %{_bindir}/ma*
 %{_bindir}/mb*
@@ -86,6 +85,13 @@ cp -a $RPM_BUILD_ROOT%{_bindir}/mtools $RPM_BUILD_ROOT%{_bindir}/mformat
 %{_infodir}/%{name}.*
 
 %changelog
+* Sat Jan 29 2005 Vincent Danen <vdanen@annvix.org> 3.9.9-6avx
+- build without X support
+
+* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 3.9.9-5avx
+- Require packages not files
+- Annvix build
+
 * Sun Mar 07 2004 Vincent Danen <vdanen@opensls.org> 3.9.9-4sls
 - minor spec cleanups
 

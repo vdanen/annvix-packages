@@ -1,10 +1,10 @@
 %define name	php-%{modname}
 %define version	%{phpversion}
-%define release	1sls
+%define release	2avx
 
-%define phpsource	%{_prefix}/src/php-devel
-%define _docdir		%{_datadir}/doc/%{name}-%{version}
-%{expand:%(cat /usr/src/php-devel/PHP_BUILD||(echo -e "error: failed build dependencies:\n        php-devel >= 430 (4.3.0) is needed by this package." >/dev/stderr;kill -2 $PPID))}
+%define phpversion	4.3.10
+%define phpsource       %{_prefix}/src/php-devel
+%define phpdir		%{_libdir}/php
 
 %define realname	MCRYPT
 %define modname		mcrypt
@@ -12,8 +12,6 @@
 %define soname		%{modname}.so
 %define inifile		29_%{modname}.ini
 %define mod_src		%{modname}.c
-%define rlibs		libmcrypt libltdl
-%define blibs		libmcrypt-devel libltdl-devel
 
 Summary:	The %{realname} module for PHP
 Name:		%{name}
@@ -24,11 +22,10 @@ Group:		System/Servers
 URL:		http://www.php.net
 
 BuildRoot:	%{_tmppath}/%{name}-root
-BuildRequires:  php%{libversion}-devel
-BuildRequires:	%{blibs}
+BuildRequires:  php4-devel
+BuildRequires:	libmcrypt-devel, libtool-devel
 
-Requires:	php%{libversion}
-Provides: 	ADVXpackage
+Requires:	php4
 
 %description
 The %{name} package is a dynamic shared object (DSO) that adds
@@ -36,10 +33,12 @@ The %{name} package is a dynamic shared object (DSO) that adds
 If you need %{realname} support for PHP applications, you will need to 
 install this package in addition to the php package.
 
+
+%prep
+%setup -c -T
+cp -dpR %{phpsource}/extensions/%{dirname}/* .
+
 %build
-[ -e ./%{dirname} ] && rm -fr ./%{dirname}
-cp -dpR %{phpsource}/extensions/%{dirname} .
-cd %{dirname}
 
 # version hack :)
 if [[ -x %{_bindir}/libmcrypt-config ]]; then
@@ -50,26 +49,27 @@ else
 fi
 
 phpize
-%configure --with-mcrypt
+%configure2_5x \
+  --with-mcrypt
+
 %make
 mv modules/*.so .
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-cd %{dirname}
+
 install -d %{buildroot}%{phpdir}/extensions
-install -d %{buildroot}%{_docdir}
-install -d %{buildroot}%{_sysconfdir}/php
+install -d %{buildroot}%{_sysconfdir}/php.d
 
 install -m755 %{soname} %{buildroot}%{phpdir}/extensions/
 
-cat > %{buildroot}%{_docdir}/README <<EOF
+cat > README.%{modname} <<EOF
 The %{name} package contains a dynamic shared object (DSO) for PHP. 
-To activate it, make sure a file /etc/php/%{inifile} is present and
+To activate it, make sure a file /etc/php.d/%{inifile} is present and
 contains the line 'extension = %{soname}'.
 EOF
 
-cat > %{buildroot}%{_sysconfdir}/php/%{inifile} << EOF
+cat > %{buildroot}%{_sysconfdir}/php.d/%{inifile} << EOF
 extension = %{soname}
 
 [mcrypt]
@@ -79,15 +79,34 @@ EOF
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-[ -e ./%{dirname} ] && rm -fr ./%{dirname}
 
 %files 
 %defattr(-,root,root)
-%doc %{_docdir}
+%doc README*
+%config(noreplace) %{_sysconfdir}/php.d/%{inifile}
 %{phpdir}/extensions/%{soname}
-%config(noreplace) %{_sysconfdir}/php/%{inifile}
 
 %changelog
+* Sat Feb 26 2005 Vincent Danen <vdanen@annvix.org> 4.3.10-2avx
+- spec cleanups
+
+* Fri Dec 17 2004 Vincent Danen <vdanen@annvix.org> 4.3.10-1avx
+- php 4.3.10
+
+* Thu Sep 30 2004 Vincent Danen <vdanen@annvix.org> 4.3.9-1avx
+- php 4.3.9
+
+* Wed Jul 14 2004 Vincent Danen <vdanen@annvix.org> 4.3.8-1avx
+- php 4.3.8
+- remove ADVXpackage provides
+- use %%configure2_5x macro (oden)
+- fix invalid BuildRequires (oden)
+- move scandir to /etc/php.d
+- own docdir
+
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 4.3.7-2avx
+- Annvix build
+
 * Thu Jun 03 2004 Vincent Danen <vdanen@opensls.org> 4.3.7-1sls
 - php 4.3.7
 

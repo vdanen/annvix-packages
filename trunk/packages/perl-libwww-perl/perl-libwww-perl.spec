@@ -1,7 +1,7 @@
 %define module	libwww-perl
 %define name	perl-%{module}
-%define version 5.79
-%define release 1sls
+%define version 5.803
+%define release 1avx
 
 %define _requires_exceptions Authen::NTLM\\|HTTP::GHTTP\\|Win32
 
@@ -28,7 +28,7 @@ libwww-perl module for perl
 %setup -q -n %{module}-%{version}
 
 %build
-%{__perl} Makefile.PL INSTALLDIRS=vendor </dev/null
+/usr/bin/yes | %{__perl} Makefile.PL INSTALLDIRS=vendor
 %make
 
 %install
@@ -55,6 +55,16 @@ libwww-perl module for perl
 
 
 %changelog
+* Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> 5.803-1avx
+- 5.803
+- restore installation of GET, HEAD, and POST in /usr/bin (rgarciasuarez)
+
+* Wed Feb 02 2005 Vincent Danen <vdanen@annvix.org> 5.79-3avx
+- rebuild against new perl
+
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 5.79-2avx
+- Annvix build
+
 * Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 5.79-1sls
 - 5.79
 - remove P0; merged upstream

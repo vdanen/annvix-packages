@@ -1,6 +1,6 @@
 %define name	rpm-helper
-%define version	0.9.1
-%define release	5sls
+%define version	0.10
+%define release	10avx
 
 Summary:	Helper scripts for rpm scriptlets
 Name:		%{name}
@@ -9,11 +9,11 @@ Release:	%{release}
 License:	GPL
 Group:		System/Configuration/Packaging
 URL:		http://www.mandrakelinux.com/
-Source0:	%name-%version.tar.bz2
-Patch0:		opensls-supervise.patch.bz2
+Source0:	%{name}-%version.tar.bz2
+Patch0:		rpm-helper-0.9.1-avx-supervise.patch.bz2
 
 BuildArch:	noarch
-BuildRoot:	%_tmppath/%name-buildroot
+BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
 
 Conflicts:	chkconfig < 1.3.4-10mdk
 Requires:	chkconfig, grep, shadow-utils, coreutils
@@ -34,7 +34,7 @@ chmod 755 {add,del}-srv
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-%makeinstall_std LIBDIR=%_datadir/%name
+%makeinstall_std LIBDIR=%{_datadir}/%{name}
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -42,10 +42,32 @@ chmod 755 {add,del}-srv
 %files
 %defattr(-,root,root)
 %doc README* ChangeLog AUTHORS
-%dir %_datadir/%name
-%_datadir/%name/*
+%dir %{_datadir}/%{name}
+%{_datadir}/%{name}/*
 
 %changelog
+* Tue Mar 01 2005 Vincent Danen <vdanen@annvix.org> 0.10-1avx
+- 0.10
+- tidy spec
+
+* Tue Sep 21 2004 Vincent Danen <vdanen@annvix.org> 0.9.1-10avx
+- fix add-srv scriptlet again; we need to grep for "run" not "up"
+
+* Tue Sep 21 2004 Vincent Danen <vdanen@annvix.org> 0.9.1-9avx
+- fix add-srv scriptlet; now we test if a service exists before trying
+  to run runsvstat on it, and we also redirect runsvstat's output to
+  /dev/null to make it prettier
+
+* Sun Sep 19 2004 Vincent Danen <vdanen@annvix.org> 0.9.1-8avx
+- update P0: s/svstat/runsvstat/
+
+* Mon Jul 05 2004 Vincent Danen <vdanen@annvix.org> 0.9.1-7avx
+- fix P0; some services were not restarting on upgrade and it was due
+  to grep not being quiet
+
+* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 0.9.1-6avx
+- Annvix build
+
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 0.9.1-5sls
 - minor spec cleanups
 

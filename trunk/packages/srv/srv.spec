@@ -1,32 +1,32 @@
-%define name	srv
-%define version 0.5
-%define release 1sls
+# $Id: srv.spec,v 1.15 2004/10/06 17:46:19 vdanen Exp $
 
-Summary:	Tool to manage supervise-controlled services.
+%define name	srv
+%define version 0.9
+%define release 3avx
+
+Summary:	Tool to manage runsv-controlled services.
 Name: 		%{name}
 Version:	%{version}
 Release: 	%{release}
 License:	GPL
 Group:		System/Servers
-URL:		http://opensls.org/cgi-bin/viewcvs.cgi/tools/srv/
+URL:		http://annvix.org/cgi-bin/viewcvs.cgi/tools/srv/
 Source:		%{name}-%{version}.tar.bz2
-Source1:	http://em.ca/~bruceg/supervise-scripts/supervise-scripts-3.3.tar.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-root
 
-Requires:	daemontools >= 0.70
+Requires:	runit >= 1.0.4, initscripts >= 7.06-41avx
 Obsoletes:	supervise-scripts
 Provides:	supervise-scripts
 PreReq:		rpm-helper
 
 %description
-A tool to manage supervise-controlled services.
+A tool to manage runsv-controlled services.
 
 
 %prep
 %setup -q
-%setup -q -n %{name}-%{version} -D -T -a1
-
+%setup -q -n %{name}-%{version}
 
 %build
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -34,47 +34,74 @@ mkdir -p %{buildroot}%{_prefix}
 gcc nothing.c -o nothing
 
 %install
-mkdir -p %{buildroot}{%{_bindir},%{_sbindir},%{_mandir}/man8,%{_initrddir}}
+mkdir -p %{buildroot}{/sbin,%{_bindir},%{_sbindir},%{_mandir}/man8,%{_datadir}/srv}
 install -m 0755 srv %{buildroot}%{_sbindir}
-install -m 0755 srv-start %{buildroot}%{_sbindir}
-install -m 0755 srv-stop %{buildroot}%{_sbindir}
-install -m 0755 srv-addinit %{buildroot}%{_sbindir}
-install -m 0755 srv.init %{buildroot}%{_initrddir}/srv
+install -m 0755 srv-start %{buildroot}/sbin
+install -m 0755 srv-stop %{buildroot}/sbin
 install -m 0644 srv.8 %{buildroot}%{_mandir}/man8
 install -m 0755 nothing %{buildroot}%{_bindir}
+install -m 0644 functions %{buildroot}%{_datadir}/srv
+install -m 0644 exceptions %{buildroot}%{_datadir}/srv
 
-# supervise scripts
-
-pushd supervise-scripts-3.3
-make prefix=%{buildroot}%{_prefix} install
-popd
-
-# move manpages to appropriate location
-mkdir -p %{buildroot}%{_mandir}/man1
-mv -f %{buildroot}%{_prefix}/man/man1/* %{buildroot}%{_mandir}/man1
-
-
-%post
-%_post_service srv
-
-
-%preun
-%_preun_service srv
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-rm -rf $RPM_BUILD_DIR/%{name}-%{version}
-
 
 %files
 %defattr(-,root,root)
-%{_sbindir}/*
-%{_bindir}/*
-%config(noreplace) %{_initrddir}/srv
+/sbin/srv-start
+/sbin/srv-stop
+%{_sbindir}/srv
+%{_bindir}/nothing
+%{_datadir}/srv/functions
+%config(noreplace) %{_datadir}/srv/exceptions
 %{_mandir}/man8/srv.8*
-%{_mandir}/man1/*
 
 %changelog
+* Wed Oct 06 2004 Vincent Danen <vdanen@annvix.org> 0.9-3avx
+- add %{_datadir}/srv/exceptions so we can have more services for
+  process killing exceptions than just sshd; so far we have both
+  sshd and mysqld here
+
+* Fri Sep 17 2004 Vincent Danen <vdanen@annvix.org> 0.9-2avx
+- add godown() function for a service to shut itself down if certain
+  requirements (usually configuration-related) are not met
+
+* Sat Sep 11 2004 Vincent Danen <vdanen@annvix.org> 0.9-1avx
+- 0.9
+- overhaul srv to work with runit (runsv) rather than daemontools (supervise);
+  this can use more work but this should be a sufficient transition for now
+
+* Thu Aug 19 2004 Vincent Danen <vdanen@annvix.org> 0.7-2avx
+- make srv *not* kill "rogue" sshd processes as that makes remote
+  upgrades of sshd impossible
+
+* Tue Jul 27 2004 Vincent Danen <vdanen@annvix.org> 0.7-1avx
+- remove srv-addinit and %%post scriptlet to add it to inittab; it's now
+  done in initscripts
+- add logging support to srv (logs to daemon.info)
+- add external functions for run scripts to use (logging and to check
+  for dependencies)
+- add a final "super kill" for processes that fork and supervise can't
+  kill (ie. smbd)
+
+* Wed Jul 14 2004 Vincent Danen <vdanen@annvix.org> 0.6-2avx
+- fix really bad and stupid typeo in srv-stop
+- give some feedback on starting and stopping supervise
+
+* Wed Jul 14 2004 Vincent Danen <vdanen@annvix.org> 0.6-1avx
+- numerous fixes; there was some bad bash going on (this solves
+  the problem with every service taking 15s to shutdown, they should
+  be instant now)
+- it is prefered to run svscan from init so that it can be restarted
+  should something happen, so the initscript is gone
+- don't remove the build directory by default
+- move most of the files in %%{_bindir} to %%{_sbindir} because only
+  root can really do anything with services
+
+* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 0.5-2avx
+- Annvix build
+
 * Tue May 11 2004 Vincent Danen <vdanen@opensls.org> 0.5-1sls
 - 0.5:
   - nice overall status summary

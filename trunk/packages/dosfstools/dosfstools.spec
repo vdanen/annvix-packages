@@ -1,6 +1,6 @@
 %define name	dosfstools
 %define version 2.10
-%define release 1sls
+%define release 2avx
 
 Summary:	Utilities to create and check MS-DOS FAT filesystems.
 Name:		%{name}
@@ -54,6 +54,9 @@ rm -f %{buildroot}/sbin/fsck.*
 %{_mandir}/man8/*
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 2.10-2avx
+- Annvix build
+
 * Fri Apr 30 2004 Vincent Danen <vdanen@opensls.org> 2.10-1sls
 - 2.10
 - ship with 2.4 kernel header (S1) and compile against it (P0) (peroyvind)

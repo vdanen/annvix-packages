@@ -1,6 +1,6 @@
 %define name	strace
 %define version	4.4.98
-%define release	3sls
+%define release	4avx
 #define cvsdate	20030410
 
 Summary:	Tracks and displays system calls associated with a running process.
@@ -50,6 +50,9 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/strace-graph
 %{_mandir}/man1/strace.1*
 
 %changelog
+* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 4.4.98-4avx
+- Annvix build
+
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 4.4.98-3sls
 - minor spec cleanups
 

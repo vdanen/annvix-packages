@@ -1,10 +1,10 @@
 %define name	php-%{modname}
 %define version	%{phpversion}
-%define release	1sls
+%define release	3avx
 
-%define phpsource	%{_prefix}/src/php-devel
-%define _docdir		%{_datadir}/doc/%{name}-%{version}
-%{expand:%(cat /usr/src/php-devel/PHP_BUILD||(echo -e "error: failed build dependencies:\n        php-devel >= 430 (4.3.0) is needed by this package." >/dev/stderr;kill -2 $PPID))}
+%define phpversion	4.3.10
+%define phpsource       %{_prefix}/src/php-devel
+%define phpdir		%{_libdir}/php
 
 %define realname	PostgreSQL
 %define modname		pgsql
@@ -14,8 +14,6 @@
 %define mod_src		pgsql.c
 %define mod_lib		"-lpq -lssl -lcrypto"
 %define mod_def		"-DHAVE_PQESCAPE -DHAVE_PQSETNONBLOCKING -DHAVE_PGSQL_WITH_MULTIBYTE_SUPPORT -DHAVE_PQCMDTUPLES -DCOMPILE_DL_PGSQL -DHAVE_PGSQL"
-%define rlibs		libpq3 libopenssl0.9.7
-%define blibs		postgresql-devel openssl-devel postgresql-libs-devel
 
 Summary:	The %{realname} module for PHP
 Name:		%{name}
@@ -26,11 +24,10 @@ Group:		System/Servers
 URL:		http://www.php.net
 
 BuildRoot:	%{_tmppath}/%{name}-root
-BuildRequires:  php%{libversion}-devel
-BuildRequires:	%{blibs}
+BuildRequires:  php4-devel
+BuildRequires:	postgresql-devel, openssl-devel
 
-Requires:	php%{libversion}
-Provides: 	ADVXpackage
+Requires:	php4
 
 
 %description
@@ -39,44 +36,73 @@ The %{name} package is a dynamic shared object (DSO) that adds
 If you need %{realname} support for PHP applications, you will need to 
 install this package in addition to the php package.
 
-%build
-[ -e ./%{dirname} ] && rm -fr ./%{dirname}
-cp -dpR %{phpsource}/extensions/%{dirname} .
-cd %{dirname}
 
-%{phpsource}/buildext %{modname} %{mod_src} %{mod_lib} %{mod_def}
+%prep
+%setup -c -T
+cp -dpR %{phpsource}/extensions/%{dirname}/* .
+
+%build
+
+phpize
+%configure2_5x \
+  --with-pgsql=shared,%{_prefix}
+
+%make
+mv modules/*.so .
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-cd %{dirname}
 
 install -d %{buildroot}%{phpdir}/extensions
-install -d %{buildroot}%{_docdir}
-install -d %{buildroot}%{_sysconfdir}/php
+install -d %{buildroot}%{_sysconfdir}/php.d
 
 install -m755 %{soname} %{buildroot}%{phpdir}/extensions/
 
-cat > %{buildroot}%{_docdir}/README <<EOF
+cat > README.%{modname} <<EOF
 The %{name} package contains a dynamic shared object (DSO) for PHP. 
-To activate it, make sure a file /etc/php/%{inifile} is present and
+To activate it, make sure a file /etc/php.d/%{inifile} is present and
 contains the line 'extension = %{soname}'.
 EOF
 
-cat > %{buildroot}%{_sysconfdir}/php/%{inifile} << EOF
+cat > %{buildroot}%{_sysconfdir}/php.d/%{inifile} << EOF
 extension = %{soname}
 EOF
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-[ -e ./%{dirname} ] && rm -fr ./%{dirname}
 
 %files 
 %defattr(-,root,root)
-%doc %{_docdir}/README
+%doc README
+%config(noreplace) %{_sysconfdir}/php.d/%{inifile}
 %{phpdir}/extensions/%{soname}
-%config(noreplace) %{_sysconfdir}/php/%{inifile}
 
 %changelog
+* Sat Feb 26 2005 Vincent Danen <vdanen@annvix.org> 4.3.10-3avx
+- spec cleanups
+
+* Thu Jan 06 2005 Vincent Danen <vdanen@annvix.org> 4.3.10-2avx
+- rebuild against latest openssl
+
+* Fri Dec 17 2004 Vincent Danen <vdanen@annvix.org> 4.3.10-1avx
+- php 4.3.10
+
+* Thu Sep 30 2004 Vincent Danen <vdanen@annvix.org> 4.3.9-1avx
+- php 4.3.9
+
+* Fri Aug 13 2004 Vincent Danen <vdanen@annvix.org> 4.3.8-2avx
+- rebuild against new openssl
+
+* Wed Jul 14 2004 Vincent Danen <vdanen@annvix.org> 4.3.8-1avx
+- php 4.3.8
+- remove ADVXpackage provides
+- use phpize and %%configure2_5x macro (oden)
+- move scandir to /etc/php.d
+- docdir
+
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 4.3.7-2avx
+- Annvix build
+
 * Thu Jun 03 2004 Vincent Danen <vdanen@opensls.org> 4.3.7-1sls
 - php 4.3.7
 

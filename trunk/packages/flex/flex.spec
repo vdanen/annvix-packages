@@ -1,6 +1,6 @@
 %define name	flex
 %define version	2.5.4a
-%define release	23sls
+%define release	24avx
 
 Summary:	A tool for creating scanners (text pattern recognizers)
 Name:		%{name}
@@ -75,6 +75,9 @@ ln -s flex.1 flex++.1
 %{_includedir}/FlexLexer.h
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 2.5.4a-24avx
+- Annvix build
+
 * Thu Mar 04 2004 Vincent Danen <vdanen@opensls.org> 2.5.4a-23sls
 - minor spec cleanups
 

@@ -1,9 +1,9 @@
 %define name	python
-%define version	2.3.3
-%define release	1sls
+%define version	2.4
+%define release	2avx
 
-%define docver  2.3.3
-%define dirver  2.3
+%define docver  2.4
+%define dirver  2.4
 
 %define lib_major	%{dirver}
 %define lib_name_orig	libpython
@@ -26,15 +26,13 @@ Source3:	exclude.py
 Patch3:		Python-2.3-no-local-incpath.patch.bz2
 
 # Support */lib64 convention on x86_64, sparc64, etc.
-Patch4:		Python-2.3-lib64.patch.bz2
+Patch4:		Python-2.4-lib64.patch.bz2
 
 # Do handle <asm-XXX/*.h> headers in h2py.py
 # FIXME: incomplete for proper bi-arch support as #if/#else/#endif
 # clauses generally should have been handled
 Patch5:		Python-2.2.2-biarch-headers.patch.bz2
-
-# 64-bit fixes to zipimport module
-Patch6:		Python-2.3-64bit-fixes.patch.bz2
+Patch6:		python-2.4-psf-2005-001.patch.bz2
 
 BuildRoot:	%_tmppath/%name-%version-%release-root
 BuildRequires:	XFree86-devel 
@@ -47,12 +45,12 @@ BuildRequires:	termcap-devel
 BuildRequires:	ncurses-devel 
 BuildRequires:	openssl-devel 
 BuildRequires:	readline-devel 
-BuildRequires:	tix 
+BuildRequires:	tix, tk, tcl 
+BuildRequires:	autoconf2.5
 
 Conflicts:	tkinter < %{version}
-Requires:	%{lib_name} = %{version}-%{release}
-Requires:	%{name}-base = %{version}-%{release}
-Provides:	python = %{dirver}
+Requires:	%{lib_name} = %{version}
+Requires:	%{name}-base = %{version}
 
 %description
 Python is an interpreted, interactive, object-oriented programming
@@ -84,8 +82,8 @@ compared to Tcl, Perl, Scheme or Java.
 %package -n %{lib_name}-devel
 Summary:	The libraries and header files needed for Python development
 Group:		Development/Python
-Requires:	%{name} = %version-%release
-Requires:	%{lib_name} = %{version}-%{release}
+Requires:	%{name} = %version
+Requires:	%{lib_name} = %{version}
 Obsoletes:	%{name}-devel
 Provides:	%{name}-devel = %{version}-%{release}
 Provides:	%{lib_name_orig}-devel = %{version}-%{release}
@@ -104,7 +102,7 @@ documentation.
 %package -n tkinter
 Summary:	A graphical user interface for the Python scripting language
 Group:		Development/Python
-Requires:	python = %version-%release
+Requires:	python = %version, tcl, tk
 
 %description -n tkinter
 The Tkinter (Tk interface) program is an graphical user interface for
@@ -116,19 +114,18 @@ user interface for Python programming.
 %package base
 Summary:	Python base files
 Group:		Development/Python
-Requires:	%{lib_name} = %{version}-%{release}
-Provides:	python-base = %{dirver}
+Requires:	%{lib_name} = %{version}
 
 %description base
 This packages contains the Python part that is used by the base packages
-of a Mandrake Linux distribution.
+of a Annvix distribution.
 
 %prep
 %setup -q -n Python-%{version}
 %patch3 -p1 -b .no-local-incpath
 %patch4 -p1 -b .lib64
 %patch5 -p1 -b .biarch-headers
-%patch6 -p1 -b .64bit-fixes
+%patch6 -p0 -b .can-2005-0089
 autoconf
 
 mkdir html
@@ -148,7 +145,7 @@ export OPT
 
 %make
 # all tests must pass
-make test TESTOPTS="-l -x test_linuxaudiodev"
+make test TESTOPTS="-l -x test_linuxaudiodev -x test_openpty"
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -170,6 +167,9 @@ mkdir -p $RPM_BUILD_ROOT%{_mandir}
 # Provide a libpython%{dirver}.so symlink in /usr/lib/puthon*/config, so that
 # the shared library could be found when -L/usr/lib/python*/config is specified
 (cd $RPM_BUILD_ROOT%{_libdir}/python%{dirver}/config; ln -sf ../../libpython%{lib_major}.so .)
+
+# smtpd proxy
+mv -f %{buildroot}%{_bindir}/smtpd.py %{buildroot}%{_libdir}/python%{dirver}/
 
 # idle
 cp Tools/scripts/idle $RPM_BUILD_ROOT%{_bindir}/idle
@@ -209,21 +209,21 @@ rm -f include.list main.list
 bzcat %{SOURCE2} | sed 's@%%{_libdir}@%{_libdir}@' > include.list
 cat >> modules-list << EOF
 %{_bindir}/python
-%{_bindir}/python2.3
+%{_bindir}/python2.4
 %{_bindir}/pydoc
 %{_mandir}/man1/python*
-%{_libdir}/python*/bsddb/*
-%{_libdir}/python*/curses/*
-%{_libdir}/python*/distutils/*
+%{_libdir}/python*/bsddb/
+%{_libdir}/python*/curses/
+%{_libdir}/python*/distutils/
 %{_libdir}/python*/encodings/*
-%{_libdir}/python*/lib-old/*
-%{_libdir}/python*/logging/*
-%{_libdir}/python*/xml/*
-%{_libdir}/python*/compiler/*
-%{_libdir}/python*/email/*
-%{_libdir}/python*/hotshot/*
+%{_libdir}/python*/lib-old/
+%{_libdir}/python*/logging/
+%{_libdir}/python*/xml/
+%{_libdir}/python*/compiler/
+%{_libdir}/python*/email/
+%{_libdir}/python*/hotshot/
 %{_libdir}/python*/site-packages/README
-%{_libdir}/python*/plat-linux2/*
+%{_libdir}/python*/plat-linux2/
 $MODULESEXTRA
 EOF
 
@@ -231,6 +231,10 @@ LD_LIBRARY_PATH=$RPM_BUILD_ROOT%{_libdir} $RPM_BUILD_ROOT%{_bindir}/python %{SOU
 
 # fix non real scripts
 chmod 644 $RPM_BUILD_ROOT%{_libdir}/python*/test/test_{binascii,grp,htmlparser}.py*
+# fix python library not stripped
+chmod u+w %{buildroot}%{_libdir}/libpython2.4.so.1.0
+
+#%#multiarch_includes %{buildroot}/usr/include/python*/pyconfig.h
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -238,7 +242,6 @@ rm -f modules-list main.list
 
 %files -f main.list
 %defattr(-, root, root, 755)
-%dir %{_libdir}/python*
 %dir %{_libdir}/python*/lib-dynload
 %dir %{_libdir}/python*/site-packages
 
@@ -250,16 +253,17 @@ rm -f modules-list main.list
 %defattr(-, root, root, 755)
 %{_libdir}/libpython*.so
 %dir %{_includedir}/python*
+#%#multiarch %multiarch_includedir/python*/pyconfig.h
 %{_includedir}/python*/*
-%{_libdir}/python*/config/*
-%{_libdir}/python*/test/*
+%{_libdir}/python*/config/
+%{_libdir}/python*/test/
 
 
 %files -n tkinter
 %defattr(-, root, root, 755)
 %dir %{_libdir}/python*/lib-tk
 %{_libdir}/python*/lib-tk/*.py*
-%{_libdir}/python*/lib-dynload/_tkinter.so
+%{_libdir}/python*/lib-dynload/_tkinter*.so
 %{_libdir}/python*/idlelib
 %{_libdir}/python*/site-packages/modulator
 %{_libdir}/python*/site-packages/pynche
@@ -269,11 +273,37 @@ rm -f modules-list main.list
 
 %files base -f include.list
 %defattr(-, root, root, 755)
+%dir %{_libdir}/python*
 
 %post -n %{lib_name} -p /sbin/ldconfig
 %postun -n %{lib_name} -p /sbin/ldconfig
 
 %changelog
+* Wed Feb 09 2005 Vincent Danen <vdanen@annvix.org> 2.4-2avx
+- P6: fix for CAN-2005-0089
+- make test without testing test_openpty since it fails if python is built
+  in a chroot
+
+* Wed Feb 02 2005 Vincent Danen <vdanen@annvix.org> 2.4-1avx
+- 2.4
+- drop P6; applied upstream
+- rediff P3, P4 (misc)
+- multiarch tagging (flepied)
+- tkinter is behaving odd... not sure if it works (not sure if i care)
+
+* Thu Jan 06 2005 Vincent Danen <vdanen@annvix.org> 2.3.4-2avx
+- rebuild against latest openssl
+
+* Tue Aug 17 2004 Vincent Danen <vdanen@annvix.org> 2.3.4-1avx
+- 2.3.4
+- BuildRequires: autoconf2.5, tk, tcl
+- tkinter requires tcl and tk (mdk bug #10278) (misc)
+- s/Mandrake Linux/Annvix/
+- fix [DIRM] (misc)
+
+* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 2.3.3-2avx
+- Annvix build
+
 * Fri May 07 2004 Vincent Danen <vdanen@opensls.org> 2.3.3-1sls
 - 2.3.3
 - add traceback.py* to python-base

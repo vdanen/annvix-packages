@@ -1,6 +1,6 @@
 %define name	less
-%define version	381
-%define release	4sls
+%define version	382
+%define release	1avx
 
 Summary:	A text file browser similar to more, but better.
 Name:		%{name}
@@ -27,15 +27,12 @@ well as forwards.  Since less doesn't have to read the entire input file
 before it starts, less starts up more quickly than text editors (for
 example, vi). 
 
-You should install less because it is a basic utility for viewing text
-files, and you'll use it frequently.
-
 %prep
 %setup -q
 %patch0 -p1
 
 %build
-CFLAGS=$(echo "$RPM_OPT_FLAGS -DHAVE_LOCALE" | sed -e s/-fomit-frame-pointer//)
+CFLAGS=$(echo "%{optflags} -DHAVE_LOCALE" | sed -e s/-fomit-frame-pointer//)
 %configure
 %make 
 
@@ -44,10 +41,10 @@ CFLAGS=$(echo "$RPM_OPT_FLAGS -DHAVE_LOCALE" | sed -e s/-fomit-frame-pointer//)
 %makeinstall
 # faq
 install -m 644 %SOURCE1 .
-install -m 755 %SOURCE2 %buildroot/%_bindir/
+install -m 755 %SOURCE2 %{buildroot}/%{_bindir}/
 
-mv $RPM_BUILD_ROOT%_bindir/{less,less.bin}
-cat << EOF > $RPM_BUILD_ROOT%_bindir/less
+mv %{buildroot}%{_bindir}/{less,less.bin}
+cat << EOF > %{buildroot}%{_bindir}/less
 #!/bin/sh
 
 #export LESSCHARSET="\${LESSCHARSET:-utf-8}"
@@ -55,7 +52,7 @@ export LESSCHARSET="\${LESSCHARSET:-koi8-r}"
 exec less.bin "\$@"
 EOF
 
-install -m 644 less{echo,pipe}.1 $RPM_BUILD_ROOT%_mandir/man1
+install -m 644 less{echo,pipe}.1 %{buildroot}%{_mandir}/man1
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -63,10 +60,17 @@ install -m 644 less{echo,pipe}.1 $RPM_BUILD_ROOT%_mandir/man1
 %files
 %defattr(-,root,root)
 %doc faq_less.html
-%attr(755,root,root)%_bindir/*
-%_mandir/man1/*
+%attr(755,root,root) %{_bindir}/*
+%{_mandir}/man1/*
 
 %changelog
+* Wed Sep 22 2004 Vincent Danen <vdanen@annvix.org> 382-1avx
+- 382
+- spec cleanups
+
+* Wed Jun 23 2004 Vincent Danen <vdanen@annvix.org> 381-5avx
+- Annvix build
+
 * Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 381-4sls
 - minor spec cleanups
 

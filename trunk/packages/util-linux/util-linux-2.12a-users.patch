@@ -1,0 +1,11 @@
+--- util-linux-2.12a/mount/mount.c.users	2004-03-05 02:28:22.000000000 +0100
++++ util-linux-2.12a/mount/mount.c	2004-09-07 15:40:06.334431008 +0200
+@@ -137,7 +137,7 @@
+ #define MS_NOSYS	(MS_NOAUTO|MS_USERS|MS_USER|MS_NETDEV|MS_LOOP)
+ 
+ /* Options that we keep from appearing in the options field in the mtab.  */
+-#define MS_NOMTAB	(MS_REMOUNT|MS_NOAUTO|MS_USERS|MS_USER)
++#define MS_NOMTAB	(MS_REMOUNT|MS_NOAUTO|MS_USER)
+ 
+ /* Options that we make ordinary users have by default.  */
+ #define MS_SECURE	(MS_NOEXEC|MS_NOSUID|MS_NODEV)

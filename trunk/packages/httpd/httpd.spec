@@ -1,6 +1,6 @@
 %define name	apache2
-%define version	2.0.49
-%define release	2sls
+%define version	2.0.53
+%define release	1avx
 
 #
 #(ie. use with rpm --rebuild):
@@ -11,21 +11,14 @@
 #  will _add_ -g3 to CFLAGS, will _add_ --enable-maintainer-mode to 
 #  configure.
 
-# this is only a embryo (different mpm's), someone should merge 
-# the stuff Peter Poeml at suse has done, check here:
-# http://www.deserve-it.com/Cooker/apache2.spec.txt
-# http://ftp.gwdg.de/pub/linux/suse/ftp.suse.com/projects/apache/
-# actually this stuff origins from redhat, not suse and is included
-# in the provided spec file from the tarball, any takers?
+%define mmn	20020903
 
-%define mpm	prefork
 %define dbver	db4
 %define dbmver	db4
 
 # not everyone uses this, so define it here
-%define distribution	OpenSLS
-%define build_debug	1
-%define build_distcache	0
+%define distribution	Annvix
+%define build_debug	0
 
 # commandline overrides:
 # rpm -ba|--rebuild --with 'xxx'
@@ -34,52 +27,41 @@
 
 %if %{build_debug}
 # disable build root strip policy
-%define __spec_install_post %{_libdir}/rpm/brp-compress || :
+%define __spec_install_post %{_prefix}/lib/rpm/brp-compress || :
 
 # This gives extra debuggin and huge binaries
 %{expand:%%define optflags %{optflags} %([ ! $DEBUG ] && echo '-g3')}
 %endif
 
-%define ap_ldap_libs -lldap -llber -lsasl2 -lssl -lcrypto
+%define ap_ldap_libs	-lldap -llber -lsasl2 -lssl -lcrypto
+%define ap_ssl_libs	-lssl -lcrypto
 
-%if %{build_distcache}
-%define ap_ssl_libs -lssl -lcrypto -ldistcache -lnal
-%else
-%define ap_ssl_libs -lssl -lcrypto
-%endif
-
-%define real_version	2.0.49
 %define ap_version	%{version}
 %define ap_release	%{release}
 %define sourcename	httpd-%{version}
+%define srcdir		%{_prefix}/src/apache2-%{version}
 
-#New ADVX macros
-%define ADVXdir %{_datadir}/ADVX
-%{expand:%(cat %{ADVXdir}/ADVX-build)}
+# the name for libapr will be different on 64bit
+%define libapr		%mklibname apr 0
 
-#If you change these, change also ADVX-build
-%define ap_name		apache2
-%define apr_name	%mklibname apr 0
-
-Summary:		The Apache2 web server.
-Name:			%{ap_name}
-Version:		%{ap_version}
-Release:		%{ap_release}
+Summary:		The Apache2 web server
+Name:			apache2
+Version:		%{version}
+Release:		%{release}
 License:		Apache License
 Group:			System/Servers
-URL:			http://www.advx.org
+URL:			http://httpd.apache.org
 Source0:		%{sourcename}.tar.gz
 Source1:		%{sourcename}.tar.gz.asc
-Source2: 		README.ADVX
+Source2: 		apache-2.README.ADVX
 Source3:		apache-old-changelog
 Source4:		apache2_transparent_png_icons.tar.bz2
 Source5: 		gentestcrt.sh.bz2
-Source7:		apache2.run
-Source8:		apache2-log.run
+Source6:		mod_backtrace.c.bz2
+Source7:		mod_whatkilledus.c.bz2
+Source8:		test_char.h.bz2
 # please keep this logic.
 Source30:		30_mod_proxy.conf.bz2
-Source40: 		40_mod_ssl.conf.bz2
-Source41: 		41_mod_ssl.default-vhost.conf.bz2
 Source45: 		45_mod_dav.conf.bz2
 Source46: 		46_mod_ldap.conf.bz2
 Source55:		55_mod_cache.conf.bz2
@@ -87,28 +69,69 @@ Source56:		56_mod_disk_cache.conf.bz2
 Source57:		57_mod_mem_cache.conf.bz2
 Source58:		58_mod_file_cache.conf.bz2
 Source59:		59_mod_deflate.conf.bz2
-Source60:		03_apache2.afterboot
+# Provide a simpler buildconf script
+Source100:		buildconf.bz2
 
-Patch0:			httpd-2.0.46-sslink.patch.bz2
-Patch1:			httpd-2.0.36-suexec.patch.bz2
-Patch2:			httpd-2.0.40-apxs.patch.bz2
+# OE: from Fedora
+# build/scripts patches
+Patch1:			httpd-2.0.49-fdr-apctl.patch.bz2
+Patch2:			httpd-2.0.36-apxs.patch.bz2
+Patch3:			httpd-2.0.51rc2-fdr-linkmods.patch.bz2
+Patch5:			httpd-2.0.45-deplibs.patch.bz2
+Patch6:			httpd-2.0.47-pie.patch.bz2
+Patch7:			httpd-2.0.45-syspcre.patch.bz2
+Patch9:			httpd-2.0.48-vpathinc.patch.bz2
+# Bug fixes
+Patch20:		httpd-2.0.45-encode.patch.bz2
+Patch22:		httpd-2.0.45-davetag.patch.bz2
+Patch25:		httpd-2.0.49-fdr-ldapshm.patch.bz2
+Patch27:		httpd-2.0.46-sslmutex.patch.bz2
+Patch35:		httpd-2.0.46-md5dig.patch.bz2
+Patch39:		httpd-2.0.49-fdr-proxy11.patch.bz2
+Patch40:		httpd-2.0.48-sslpphrase.patch.bz2
+Patch41:		httpd-2.0.48-worker.patch.bz2
+Patch44:		httpd-2.0.48-workerhup.patch.bz2
+Patch45:		httpd-2.0.48-davmisc.patch.bz2
+Patch47:		httpd-2.0.48-vhost.patch.bz2
+Patch48:		httpd-2.0.48-bsd-ipv6-fix.diff.bz2
+Patch53:		httpd-2.0.50-fdr-reclaim.patch.bz2
+# Features/functional changes
+Patch71:		httpd-2.0.40-xfsz.patch.bz2
+Patch72:		httpd-2.0.40-pod.patch.bz2
+Patch73:		httpd-2.0.40-noshmht.patch.bz2
+Patch75:		httpd-2.0.53-fdr-export.diff.bz2
+Patch76:		httpd-2.0.48-dynlimit.patch.bz2
+Patch77:		httpd-2.0.48-dynamic.patch.bz2
+Patch79:		httpd-2.0.48-sslstatus.patch.bz2
+Patch80:		httpd-2.0.48-corelimit.patch.bz2
+Patch82:		httpd-2.0.48-distcache.patch.bz2
+Patch83:		httpd-2.0.48-debuglog.patch.bz2
+Patch84:		httpd-2.0.50-fdr-abench.patch.bz2
+Patch86:		httpd-2.0.51-fdr-sslheader.patch.bz2
+Patch87:		httpd-2.0.48-sslvars2.patch.bz2
+
+Patch88:		httpd-2.0.48-rewritessl.patch.bz2
+
+Patch91:		httpd-2.0.49-headerssl.patch.bz2
+Patch92:		httpd-2.0.49-workerstack.patch.bz2
+Patch93:		httpd-2.0.46-fdr-testhook.patch.bz2
+Patch94:		httpd-2.0.46-fdr-dumpcerts.patch.bz2
+Patch95:		mod_ldap_timeout.patch.bz2
 # OE: prepare for the mod_limitipconn module found here:
 # http://dominia.org/djao/limitipconn.html
-Patch3:			apachesrc.diff.bz2
+Patch101:		apachesrc.diff.bz2
 # JMD: fix suexec path so we can have both versions of Apache and both
 # versions of suexec
-Patch4:			apache2-suexec.patch.bz2
-# OE: http://distcache.sourceforge.net/
-Patch5:			httpd-2.0.48-distcache.patch.bz2
-# OE: http://bitbrook.de/software/mod_log_mysql/
-Patch6:			httpd-2.0.49-mod_log_mysql.diff.bz2
-Patch7:			apache-2.0-can-2004-0488.patch.bz2
-# OE: stolen from redhat
-Patch40:		httpd-2.0.45-cnfdir.patch.bz2
-Patch41:		httpd-2.0.45-parallel.patch.bz2
+Patch102:		apache2-suexec.patch.bz2
+Patch103:		httpd-2.0.49-mod_ldap_cache_file_location.diff.bz2
+# OE: add the metux mpm
+# http://www.sannes.org/metuxmpm/
+Patch104:		httpd-2.0.48-metuxmpm-r8.patch.bz2
 
-BuildRoot:		%{_tmppath}/%{ap_name}-%{version}-buildroot
-BuildPreReq:		ADVX-build >= 9.2
+BuildRoot:		%{_tmppath}/apache2-%{version}-buildroot
+BuildRequires:		apr-devel >= 0.9.5
+BuildRequires:		apr-util-devel >= 0.9.5
+BuildRequires:		pcre-devel
 BuildRequires:		byacc
 BuildRequires:		%{dbver}-devel
 BuildRequires:		gif2png
@@ -121,115 +144,142 @@ BuildRequires:		libtool >= 1.4.2
 BuildRequires:		openssl-devel
 BuildRequires:		perl >= 0:5.600
 BuildRequires:		zlib-devel
-%if %{build_distcache}
-BuildRequires:		libdistcache1 >= 1.4.2
-BuildRequires:		distcache-devel >= 1.4.2
-%endif
+BuildRequires:		autoconf2.5
+BuildRequires:		automake1.7
+BuildRequires:		pkgconfig
+#BuildRequires:		multiarch-utils >= 1.0.3
 BuildConflicts: 	BerkeleyDB-devel
 
-PreReq:			%{ap_name}-conf >= 2.0.46-2mdk
-PreReq:			%{ap_name}-common
-PreReq: 		%{ap_name}-modules = %{ap_version}
-PreReq:			%{apr_name} = %{ap_version}
-PreReq:			afterboot srv rpm-helper
+Prereq:			libapr-util >= 0.9.5-1avx
+Prereq:			%{libapr} >= 1:0.9.5-1avx
+PreReq:			apache2-conf >= 2.0.50-1avx
+PreReq:			apache2-common
+PreReq: 		apache2-modules = %{version}
+PreReq:			srv rpm-helper
 Requires:		libtool  >= 1.4.2
 Provides:		webserver 
 Provides:		apache
-Provides: 		ADVXpackage
-Provides: 		AP20package
 #2.0.45 is binary compatible with 2.0.44, permit use of modules
 #from the old version
-Provides:		%{ap_name} = 2.0.44
+Provides:		apache2 = 2.0.44
 
 
 %description
-This package contains the main binary of %{ap_name}, a powerful, full-featured, 
+This package contains the main binary of apache2, a powerful, full-featured, 
 efficient and freely-available Web server. Apache is also the most popular Web
 server on the Internet.
 
-This version of %{ap_name} is fully modular, and many modules are available in
+This version of apache2 is fully modular, and many modules are available in
 pre-compiled formats, like PHP4 and mod_auth_external.
 
-Check for available Apache2 modules for %{distribution} at:
-http://www.deserve-it.com/modules_for_apache2.html
-(most of them can be installed from the contribs repository)
-
-You can build %{ap_name} with some conditional build swithes;
+You can build apache2 with some conditional build swithes;
 
 (ie. use with rpm --rebuild):
 --with debug   Compile with debugging code
 
+
+%package worker
+Summary:	Apache2 web server (worker mpm)
+Group:		System/Servers
+Prereq:		libapr-util >= 0.9.5-1avx
+Prereq:		%{libapr} >= 1:0.9.5-1avx
+Prereq:		apache2-conf >= 2.0.50-1avx
+Prereq:		apache2-common
+Prereq:		apache2-modules = %{version}
+Provides:	webserver
+Provides:	apache
+# 2.0.45 is binary compatible with 2.0.44, permit use of modules from the old version
+Provides:	apache2 = 2.0.44
+
+%description worker
+This package contains the main binary of apache2, a powerful, full-featured,
+efficient and freely-available Web server.  Apache is also the most popular Web
+server on the Internet.
+
+This version of apache2 is fully modular, and many modules are available in
+pre-compiled format, like PHP4 and mod_auth_external.
+
+I M P O R T A N T
+-----------------
+
+Note that the worker mpm (this package) requires thread-safe modules.  This
+package is totally experimental and may not be stable or suitable at any time,
+in any way, or for any kind of production usage.  Be warned.
+
+
 %package common
-Summary:	Files common for %{ap_name} and %{ap_name}-mod_perl installations
+Summary:	Files common for apache2 and apache2-mod_perl installations
 Group:		System/Servers
 Prereq:		rpm-helper
-Prereq:		%{apr_name} = %{ap_version}
+Prereq:		libapr-util >= 0.9.5-1avx
+Prereq:		%{libapr} >= 1:0.9.5-1avx
 Obsoletes:	apache-common
 Provides:	apache-common
-Provides: 	ADVXpackage
-Provides: 	AP20package
 
 %description common
-This package contains files required for both %{ap_name} and %{ap_name}-mod_perl
-package installations. Install this if you want to install %{ap_name} or/and
-%{ap_name} with mod_perl.
+This package contains files required for both apache2 and apache2-mod_perl
+package installations. Install this if you want to install apache2 or/and
+apache2 with mod_perl.
+
 
 %package modules
-Summary:	Standard modules for %{ap_name}
+Summary:	Standard modules for apache2
 Group:		System/Servers
-Provides:	%{ap_name}-mod_access = %{version}
-Provides:	%{ap_name}-mod_actions = %{version}
-Provides:	%{ap_name}-mod_alias = %{version}
-Provides:	%{ap_name}-mod_asis = %{version}
-Provides:	%{ap_name}-mod_auth = %{version}
-Provides:	%{ap_name}-mod_auth_anon = %{version}
-Provides:	%{ap_name}-mod_auth_dbm = %{version}
-Provides:	%{ap_name}-mod_auth_digest = %{version}
-Provides:	%{ap_name}-mod_autoindex = %{version}
-Provides:	%{ap_name}-mod_case_filter = %{version}
-Provides:	%{ap_name}-mod_case_filter_in = %{version}
-Provides:	%{ap_name}-mod_cern_meta = %{version}
-Provides:	%{ap_name}-mod_cgi = %{version}
-Provides:	%{ap_name}-mod_cgid = %{version}
-Provides:	%{ap_name}-mod_charset_lite = %{version}
-Provides:	%{ap_name}-mod_dir = %{version}
-Provides:	%{ap_name}-mod_env = %{version}
-Provides:	%{ap_name}-mod_expires = %{version}
-Provides:	%{ap_name}-mod_ext_filter = %{version}
-Provides:	%{ap_name}-mod_headers = %{version}
-Provides:	%{ap_name}-mod_imap = %{version}
-Provides:	%{ap_name}-mod_include = %{version}
-Provides:	%{ap_name}-mod_info = %{version}
-Provides:	%{ap_name}-mod_log_config = %{version}
-Provides:	%{ap_name}-mod_logio = %{version}
-Provides:	%{ap_name}-mod_mime = %{version}
-Provides:	%{ap_name}-mod_mime_magic = %{version}
-Provides:	%{ap_name}-mod_negotiation = %{version}
-Provides:	%{ap_name}-mod_rewrite = %{version}
-Provides:	%{ap_name}-mod_setenvif = %{version}
-Provides:	%{ap_name}-mod_speling = %{version}
-Provides:	%{ap_name}-mod_status = %{version}
-Provides:	%{ap_name}-mod_unique_id = %{version}
-Provides:	%{ap_name}-mod_userdir = %{version}
-Provides:	%{ap_name}-mod_usertrack = %{version}
-Provides:	%{ap_name}-mod_vhost_alias = %{version}
-Provides:	ADVXpackage
-Provides:	AP20package
+Provides:	apache2-mod_access = %{version}
+Provides:	apache2-mod_actions = %{version}
+Provides:	apache2-mod_alias = %{version}
+Provides:	apache2-mod_asis = %{version}
+Provides:	apache2-mod_auth = %{version}
+Provides:	apache2-mod_auth_anon = %{version}
+Provides:	apache2-mod_auth_dbm = %{version}
+Provides:	apache2-mod_auth_digest = %{version}
+Provides:	apache2-mod_autoindex = %{version}
+Provides:	apache2-mod_case_filter = %{version}
+Provides:	apache2-mod_case_filter_in = %{version}
+Provides:	apache2-mod_cern_meta = %{version}
+Provides:	apache2-mod_cgi = %{version}
+Provides:	apache2-mod_cgid = %{version}
+Provides:	apache2-mod_charset_lite = %{version}
+Provides:	apache2-mod_dir = %{version}
+Provides:	apache2-mod_env = %{version}
+Provides:	apache2-mod_expires = %{version}
+Provides:	apache2-mod_ext_filter = %{version}
+Provides:	apache2-mod_headers = %{version}
+Provides:	apache2-mod_imap = %{version}
+Provides:	apache2-mod_include = %{version}
+Provides:	apache2-mod_info = %{version}
+Provides:	apache2-mod_log_config = %{version}
+Provides:	apache2-mod_logio = %{version}
+Provides:	apache2-mod_log_forensic = %{version}
+Provides:	apache2-mod_mime = %{version}
+Provides:	apache2-mod_mime_magic = %{version}
+Provides:	apache2-mod_negotiation = %{version}
+Provides:	apache2-mod_rewrite = %{version}
+Provides:	apache2-mod_setenvif = %{version}
+Provides:	apache2-mod_speling = %{version}
+Provides:	apache2-mod_status = %{version}
+Provides:	apache2-mod_unique_id = %{version}
+Provides:	apache2-mod_userdir = %{version}
+Provides:	apache2-mod_usertrack = %{version}
+Provides:	apache2-mod_vhost_alias = %{version}
+Provides:	apache2-mod_dumpio = %{version}
+%if %{build_debug}
+Provides:	apache2-mod_backtrace = %{version}
+Provides:	apache2-mod_whatkilledus = %{version}
+%endif
 
 %description modules
-This package contains standard modules for %{ap_name}. It is required
+This package contains standard modules for apache2. It is required
 for normal operation of the web server.
+
 
 %package mod_dav
 Summary:	Distributed Authoring and Versioning (WebDAV)
 Group:		System/Servers
-Prereq:		%{ap_name}-conf
-Prereq:		%{ap_name}-common
-Prereq:		%{ap_name}-modules = %{ap_version}
-Prereq:		%{apr_name} = %{ap_version}
-Provides:	%{ap_name}-mod_dav_fs = %{version}
-Provides: 	ADVXpackage
-Provides: 	AP20package
+Prereq:		apache2-conf
+Prereq:		apache2-common
+Prereq:		apache2-modules = %{version}
+Provides:	apache2-mod_dav_fs = %{version}
 
 %description mod_dav
 This module provides class 1 and class 2 WebDAV ('Web-based
@@ -239,40 +289,14 @@ This extension to the HTTP protocol allows creating, moving,
 copying, and deleting resources and collections on a remote web
 server.
 
-%package mod_ssl
-Summary:	Strong cryptography using the SSL and TLS protocols
-Group:		System/Servers
-Prereq:		%{ap_name}-conf
-Prereq:		%{ap_name}-common
-Prereq:		%{ap_name}-modules = %{ap_version}
-Prereq:		%{apr_name} = %{ap_version}
-%if %{build_distcache}
-#Requires:	distcache
-Requires:	libdistcache1 >= 1.4.2
-%endif
-Provides: 	ADVXpackage
-Provides: 	AP20package
-
-%description mod_ssl
-This module provides SSL v2/v3 and TLS v1 support for the Apache
-HTTP Server. It was contributed by Ralf S. Engeschall based on
-his mod_ssl project and originally derived from work by Ben
-Laurie.
-
-It also includes ab-ssl, the Apache Benchmarks for SSL.
-
-This module relies on OpenSSL to provide the cryptography engine.
 
 %package mod_ldap
 Summary:	LDAP connection pooling and result caching DSO:s
 Group:		System/Servers
-Prereq:		%{ap_name}-conf
-Prereq:		%{ap_name}-common
-Prereq:		%{ap_name}-modules = %{ap_version}
-Prereq:		%{apr_name} = %{ap_version}
-Provides:	%{ap_name}-mod_auth_ldap.so = %{version}
-Provides: 	ADVXpackage
-Provides: 	AP20package
+Prereq:		apache2-conf
+Prereq:		apache2-common
+Prereq:		apache2-modules = %{version}
+Provides:	apache2-mod_auth_ldap = %{version}
 
 %description mod_ldap
 This module was created to improve the performance of websites
@@ -280,13 +304,13 @@ relying on backend connections to LDAP servers. In addition to the
 functions provided by the standard LDAP libraries, this module
 adds an LDAP connection pool and an LDAP shared memory cache.
 
+
 %package mod_cache
 Summary:	Content cache keyed to URIs
 Group:		System/Servers
-Prereq:		%{ap_name}-conf
-Prereq:		%{ap_name}-common
-Prereq:		%{ap_name}-modules = %{ap_version}
-Prereq:		%{apr_name} = %{ap_version}
+Prereq:		apache2-conf
+Prereq:		apache2-common
+Prereq:		apache2-modules = %{version}
 
 %description mod_cache
 mod_cache implements an RFC 2616 compliant HTTP content cache that
@@ -307,14 +331,14 @@ mod_mem_cache is most useful when used to cache locally generated
 content or to cache backend server content for mod_proxy
 configured for ProxyPass (aka reverse proxy)
 
+
 %package mod_disk_cache
 Summary:	Implements a disk based storage manager
 Group:		System/Servers
-Prereq:		%{ap_name}-conf
-Prereq:		%{ap_name}-common
-Prereq:		%{ap_name}-modules = %{ap_version}
-Prereq:		%{apr_name} = %{ap_version}
-Prereq:		%{ap_name}-mod_cache = %{ap_version}
+Prereq:		apache2-conf
+Prereq:		apache2-common
+Prereq:		apache2-modules = %{version}
+Prereq:		apache2-mod_cache = %{version}
 
 %description mod_disk_cache
 mod_disk_cache implements a disk based storage manager. It is
@@ -323,14 +347,14 @@ primarily of use in conjunction with mod_proxy.
 Content is stored in and retrieved from the cache using URI
 based keys. Content with access protection is not cached.
 
+
 %package mod_mem_cache
 Summary:	Implements a memory based storage manager
 Group:		System/Servers
-Prereq:		%{ap_name}-conf
-Prereq:		%{ap_name}-common
-Prereq:		%{ap_name}-modules = %{ap_version}
-Prereq:		%{apr_name} = %{ap_version}
-Prereq:		%{ap_name}-mod_cache = %{ap_version}
+Prereq:		apache2-conf
+Prereq:		apache2-common
+Prereq:		apache2-modules = %{version}
+Prereq:		apache2-mod_cache = %{version}
 
 %description mod_mem_cache
 This module requires the service of mod_cache. It acts as a
@@ -344,13 +368,13 @@ configured for ProxyPass (aka reverse proxy).
 Content is stored in and retrieved from the cache using URI based
 keys. Content with access protection is not cached.
 
+
 %package mod_file_cache
 Summary:	Caches a static list of files in memory
 Group:		System/Servers
-Prereq:		%{ap_name}-conf
-Prereq:		%{ap_name}-common
-Prereq:		%{ap_name}-modules = %{ap_version}
-Prereq:		%{apr_name} = %{ap_version}
+Prereq:		apache2-conf
+Prereq:		apache2-common
+Prereq:		apache2-modules = %{version}
 
 %description mod_file_cache
 Caching frequently requested files that change very infrequently
@@ -372,13 +396,13 @@ content handler.
 This module is an extension of and borrows heavily from the
 mod_mmap_static module in Apache 1.3.
 
+
 %package mod_deflate
 Summary:	Compress content before it is delivered to the client
 Group:		System/Servers
-Prereq:		%{ap_name}-conf
-Prereq:		%{ap_name}-common
-Prereq:		%{ap_name}-modules = %{ap_version}
-Prereq:		%{apr_name} = %{ap_version}
+Prereq:		apache2-conf
+Prereq:		apache2-common
+Prereq:		apache2-modules = %{version}
 Provides:	mod_gzip
 Obsoletes:	mod_gzip
 
@@ -387,18 +411,18 @@ The mod_deflate module provides the DEFLATE output filter that
 allows output from your server to be compressed before being sent
 to the client over the network.
 
+
 %package mod_proxy
 Summary:	HTTP/1.1 proxy/gateway server
 Group:		System/Servers
-Prereq:		%{ap_name}-conf
-Prereq:		%{ap_name}-common
-Prereq:		%{ap_name}-modules = %{ap_version}
-Prereq:		%{apr_name} = %{ap_version}
-Prereq:		%{ap_name}-mod_cache = %{ap_version}
-Prereq:		%{ap_name}-mod_disk_cache = %{ap_version}
-Provides:	%{ap_name}-mod_proxy_connect = %{ap_version}
-Provides:	%{ap_name}-mod_proxy_ftp = %{ap_version}
-Provides:	%{ap_name}-mod_proxy_http = %{ap_version}
+Prereq:		apache2-conf
+Prereq:		apache2-common
+Prereq:		apache2-modules = %{version}
+Prereq:		apache2-mod_cache = %{version}
+Prereq:		apache2-mod_disk_cache = %{version}
+Provides:	apache2-mod_proxy_connect = %{version}
+Provides:	apache2-mod_proxy_ftp = %{version}
+Provides:	apache2-mod_proxy_http = %{version}
 
 %description mod_proxy
 This module implements a proxy/gateway for Apache. It implements
@@ -415,55 +439,36 @@ Please note that the caching function present in mod_proxy up
 to Apache v2.0.39 has been removed from mod_proxy and is 
 incorporated into a new module, mod_cache.
 
-%package -n %{apr_name}
-Summary:	The Apache Portable Runtime library
-Group:		System/Libraries
-Provides:	libapr apr
-Obsoletes:	libapr apr
-Provides: 	ADVXpackage
-Provides: 	AP20package
-
-%description -n	%{apr_name}
-The Apache Portable Run-time libraries have been designed to provide a
-common interface to low level routines across any platform.
 
 %package devel
+Summary:	Module development tools for the apache2 web server
 Group:		Development/C
-Summary:	Module development tools for the %{ap_name} web server.
 Requires:	perl >= 0:5.600
-#JMD: You *don't* need the apache binaries to develop modules...
-#Requires:	%{ap_name} = %{ap_version}
-#JMD: But you now need ADVX-build...
-Requires:	ADVX-build >= 9.2
-Requires:	%{apr_name} = %{ap_version}
 Requires:	gdbm-devel
 Requires:	expat-devel
 Requires:	glibc-devel
 Requires:	openssl-devel
 Requires:	libtool  >= 1.4.2
-%if %{build_distcache}
-Requires:	distcache-devel >= 1.4.2
-%endif
-Provides:	%{ap_name}-mod_ssl-devel
-Obsoletes:	%{ap_name}-mod_ssl-devel
-Provides:	libapr-devel apr-devel
-Obsoletes:	libapr-devel apr-devel
-Provides: 	ADVXpackage
-Provides: 	AP20package
+Requires:	apr-devel >= 0.9.5
+Requires:	apr-util-devel >= 0.9.5
+Requires:	autoconf2.5
+Requires:	automake1.7
+Requires:	pcre-devel
+Provides:	apache2-mod_ssl-devel
+Obsoletes:	apache2-mod_ssl-devel
 
 %description devel
-The %{ap_name}-devel package contains the source code for the %{ap_name}
+The apache2-devel package contains the source code for the apache2
 Web server and the APXS binary you'll need to build Dynamic
-Shared Objects (DSOs) for %{ap_name}.
+Shared Objects (DSOs) for apache2.
 
-It also provides the includes and linker libraries for development with APR.
-
-If you are installing the %{ap_name} Web server and
+If you are installing the apache2 Web server and
 you want to be able to compile or develop additional modules
-for %{ap_name}, you'll need to install this package.
+for apache2, you'll need to install this package.
+
 
 %package source
-Summary:	The %{ap_name} Source
+Summary:	The apache2 Source
 Group:		Development/C
 #No use to install it if you don't have libgdbm.so and libpthread.so!
 Requires:	db1-devel
@@ -473,39 +478,96 @@ Requires:	db1-devel
 #Requires:	%{dbver}-devel
 Requires:	gdbm-devel
 Requires:	glibc-devel
-Provides: 	ADVXpackage
-Provides: 	AP20package
 
 %description source
-The %{ap_name} Source, including %{distribution} patches. Use this package to
-build %{ap_name}-mod_perl, or your own custom version.
+The apache2 Source, including %{distribution} patches. Use this package to
+build apache2-mod_perl, or your own custom version.
 
 %prep
 
 %setup -q -n %{sourcename}
-%patch0 -p1
-%patch1 -p0
-%patch2 -p0
-%patch3 -p1
-%patch4 -p0
+# "install" the 2 extra modules
+bzcat %{SOURCE6} > modules/experimental/mod_backtrace.c
+bzcat %{SOURCE7} > modules/experimental/mod_whatkilledus.c
+bzcat %{SOURCE8} > modules/experimental/test_char.h
 
-# OE: patch the source anyway, this way one could compile 
-# the mod_ssl module with the distcache support from the 
-# apache-source package, will try this later on.
-%patch5 -p1
+# OE: from Fedora
+%patch1 -p1 -b .apctl.droplet
+%patch2 -p1 -b .apxs.droplet
+%patch3 -p1 -b .linkmods.droplet
+%patch5 -p1 -b .deplibs.droplet
+%patch7 -p1 -b .syspcre.droplet
+%patch9 -p1 -b .vpathinc.droplet
+# no -b to prevent droplets in install root
+%patch20 -p1
+%patch22 -p1 -b .davetag.droplet
+%patch25 -p1 -b .ldapshm.droplet
+%patch27 -p1 -b .sslmutex.droplet
+%patch35 -p1 -b .md5dig.droplet
+%patch39 -p1 -b .proxy11.droplet
+%patch40 -p1 -b .sslpphrase.droplet
+%patch41 -p1 -b .worker.droplet
+%patch44 -p1 -b .workerhup.droplet
+%patch45 -p1 -b .davmisc.droplet
+%patch47 -p1 -b .vhost.droplet
+%patch48 -p1 -b .bsd-ipv6.droplet
+%patch53 -p1 -b .reclaim.droplet
+#
+%patch71 -p1 -b .xfsz.droplet
+%patch72 -p1 -b .pod.droplet
+%patch73 -p1 -b .noshmht.droplet
+%patch75 -p1 -b .export.droplet
+%patch76 -p1 -b .dynlimit.droplet
+%patch77 -p1 -b .dynamic.droplet
+%patch79 -p1 -b .sslstatus.droplet
+%patch80 -p1 -b .corelimit.droplet
+%patch82 -p1 -b .distcache.droplet
+%patch83 -p1 -b .debuglog.droplet
+%patch84 -p1 -b .abench.droplet
+%patch86 -p1 -b .sslheader.droplet
+%patch87 -p1 -b .sslvars2.droplet
+#%patch88 -p1 -b .rewritessl.droplet
+%patch91 -p1 -b .headerssl.droplet
+%patch92 -p1 -b .workerstack.droplet
+%patch93 -p1 -b .testhook.droplot
+%patch94 -p1 -b .dumpcerts.droplet
+%patch95 -p0 -b .mod_ldap_timeout.droplet
+#
+%patch101 -p1 -b .apachesrc.droplet
+%patch102 -p0 -b .apache2-suexec.droplet
+%patch103 -p0 -b .mod_ldap_cache_file_location.droplet
+%patch104 -p1 -b .metuxmpm.droplet
 
-# OE: http://bitbrook.de/software/mod_log_mysql/
-%patch6 -p1
+# Touch mod_ssl expression parser sources to prevent regenerating it
+touch modules/ssl/ssl_expr_*.[chyl]
 
-%patch7 -p1 -b .can-2004-0488
+# Safety check: prevent build if defined MMN does not equal upstream MMN.
+vmmn=`echo MODULE_MAGIC_NUMBER_MAJOR |  cpp -include include/ap_mmn.h | sed -n '/^2/p'`
+if test "x${vmmn}" != "x%{mmn}"; then
+    : Error: Upstream MMN is now ${vmmn}, packaged MMN is %{mmn}.
+    : Update the mmn macro and rebuild.
+    exit 1
+fi
 
-# OE: stolen from redhat
-#%patch40 -p1
-%patch41 -p0
+# Conditionally enable PIE support
+if echo 'static int foo[30000]; int main () { return 0; }' | 
+    gcc -pie -fpie -O2 -xc - -o pietest && 
+    ./pietest; then
+%patch6 -p1 -b .pie
+    : PIE support enabled
+else
+    : WARNING: PIE support not enabled
+fi
+
+# nuke the pietest binary
+rm -f pietest
+
+# don't install or use bundled pcreposix.h
+rm -f include/pcreposix.h
 
 #Fix apxs
-%{__perl} -pi -e 's|\@exp_installbuilddir\@|%{ap_installbuilddir}|;' support/apxs.in
-%{__perl} -pi -e 's|get_vars\("prefix"\)|"%{ap_installbuilddir}"|;' support/apxs.in
+%{__perl} -pi -e 's|\@exp_installbuilddir\@|%{_libdir}/apache2/build|;' support/apxs.in
+%{__perl} -pi -e 's|get_vars\("prefix"\)|"%{_libdir}/apache2/build"|;' support/apxs.in
 %{__perl} -pi -e 's|get_vars\("sbindir"\) . "/envvars"|"\$installbuilddir/envvars"|;' support/apxs.in
 
 #Correct perl paths
@@ -513,11 +575,7 @@ find -type f|xargs perl -pi -e " s|/usr/local/bin/perl|%{__perl}|g; \
         s|/usr/local/bin/perl5|%{__perl}|g; \
         s|/path/to/bin/perl|%{__perl}|g; \
         "
-%{__perl} -pi -e 's|PRODUCT "Apache"|PRODUCT "Apache-AdvancedExtranetServer"|;' \
-	include/ap_release.h
-
-
-%{__perl} -pi -e 's|" PLATFORM "|%{distribution}/%{ap_release}|;' \
+%{__perl} -pi -e 's|" PLATFORM "|%{distribution}/%{release}|;' \
         server/core.c
 
 # use my nice converted transparent png icons
@@ -529,84 +587,27 @@ mv icons/*.png docs/icons/
 
 %{__cat} >> config.layout << EOF
 <Layout ADVX>
-    prefix:        %{ap_prefix}
+    prefix:        %{_sysconfdir}/httpd/2.0
     exec_prefix:   %{_prefix}
     bindir:        %{_bindir}
     sbindir:       %{_sbindir}
     libdir:        %{_libdir}
-    libexecdir:    %{ap_libexecdir}
+    libexecdir:    %{_libdir}/apache2
     mandir:        %{_mandir}
     infodir:       %{_infodir}
-    includedir:    %{ap_includedir}
-    sysconfdir:    %{ap_sysconfdir}
-    datadir:       %{ap_datadir}
-    installbuilddir: %{ap_installbuilddir}
-    errordir:      %{ap_datadir}/error
-    iconsdir:      %{ap_datadir}/icons
-    htdocsdir:     %{ap_htdocsdir}
-    manualdir:     %{ap_htdocsdir}/manual
-    cgidir:        %{ap_datadir}/cgi-bin
+    includedir:    %{_includedir}/apache2
+    sysconfdir:    %{_sysconfdir}/httpd/2.0/conf
+    datadir:       /var/www
+    installbuilddir: %{_libdir}/apache2/build
+    errordir:      /var/www/error
+    iconsdir:      /var/www/icons
+    htdocsdir:     /var/www/html
+    manualdir:     /var/www/html/manual
+    cgidir:        /var/www/cgi-bin
     localstatedir: /var
     runtimedir:    /var/run
-    logfiledir:    %{ap_logfiledir}
-    proxycachedir: %{ap_proxycachedir}
-</Layout>     
-EOF
-
-# OE: we need to do this on APR and APR-UTIL as a
-# work around for stupid PLD logic. (!?)
-
-%{__cat} >> srclib/apr/config.layout << EOF
-<Layout ADVX>
-    prefix:        %{ap_prefix}
-    exec_prefix:   %{_prefix}
-    bindir:        %{_bindir}
-    sbindir:       %{_sbindir}
-    libdir:        %{_libdir}
-    libexecdir:    %{ap_libexecdir}
-    mandir:        %{_mandir}
-    infodir:       %{_infodir}
-    includedir:    %{ap_includedir}
-    sysconfdir:    %{ap_sysconfdir}
-    datadir:       %{ap_datadir}
-    installbuilddir: %{ap_installbuilddir}
-    errordir:      %{ap_datadir}/error
-    iconsdir:      %{ap_datadir}/icons
-    htdocsdir:     %{ap_htdocsdir}
-    manualdir:     %{ap_htdocsdir}/manual
-    cgidir:        %{ap_datadir}/cgi-bin
-    localstatedir: /var
-    runtimedir:    /var/run
-    logfiledir:    %{ap_logfiledir}
-    proxycachedir: %{ap_proxycachedir}
-    libsuffix:     -\${APR_MAJOR_VERSION}
-</Layout>     
-EOF
-
-%{__cat} >> srclib/apr-util/config.layout << EOF
-<Layout ADVX>
-    prefix:        %{ap_prefix}
-    exec_prefix:   %{_prefix}
-    bindir:        %{_bindir}
-    sbindir:       %{_sbindir}
-    libdir:        %{_libdir}
-    libexecdir:    %{ap_libexecdir}
-    mandir:        %{_mandir}
-    infodir:       %{_infodir}
-    includedir:    %{ap_includedir}
-    sysconfdir:    %{ap_sysconfdir}
-    datadir:       %{ap_datadir}
-    installbuilddir: %{ap_installbuilddir}
-    errordir:      %{ap_datadir}/error
-    iconsdir:      %{ap_datadir}/icons
-    htdocsdir:     %{ap_htdocsdir}
-    manualdir:     %{ap_htdocsdir}/manual
-    cgidir:        %{ap_datadir}/cgi-bin
-    localstatedir: /var
-    runtimedir:    /var/run
-    logfiledir:    %{ap_logfiledir}
-    proxycachedir: %{ap_proxycachedir}
-    libsuffix:     -\${APRUTIL_MAJOR_VERSION}
+    logfiledir:    /var/log/httpd
+    proxycachedir: /var/cache/httpd
 </Layout>     
 EOF
 
@@ -614,11 +615,13 @@ EOF
 perl -pi -e "s/DYNAMIC_MODULE_LIMIT 64/DYNAMIC_MODULE_LIMIT 96/;" \
 	include/httpd.h
 
-# update config.{sub,guess}
-%{?__cputoolize: %{__cputoolize} -c srclib/apr}
-%{?__cputoolize: %{__cputoolize} -c srclib/pcre}
-%{?__cputoolize: %{__cputoolize} -c srclib/apr-util/xml/expat}
-%{?__cputoolize: %{__cputoolize} -c srclib/apr-util}
+# don't touch srclib
+perl -pi -e "s|^SUBDIRS = .*|SUBDIRS = os server modules support|g" Makefile.in
+
+# bump server limit
+perl -pi -e "s|DEFAULT_SERVER_LIMIT 256|DEFAULT_SERVER_LIMIT 1024|g" \
+    server/mpm/prefork/prefork.c
+
 
 %build
 #########################################################################################
@@ -627,6 +630,13 @@ perl -pi -e "s/DYNAMIC_MODULE_LIMIT 64/DYNAMIC_MODULE_LIMIT 96/;" \
 
 export WANT_AUTOCONF_2_5="1"
 
+# We need to re-run ./buildconf because of any applied patch(es)
+#./buildconf
+
+# use a minimal buildconf instead
+bzcat %{SOURCE100} > buildconf
+sh ./buildconf
+
 %serverbuild
 
 #JMD: -fno-strict-aliasing -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 is used by mod_perl
@@ -634,34 +644,48 @@ export WANT_AUTOCONF_2_5="1"
 #export CPPFLAGS="-fno-strict-aliasing -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64"
 #JMD: but only when we manage to fix the conflict between HAVE_SENDFILE and
 #JMD: HAVE_LARGEFILE in the APR sources.
-export SSL_BASE="SYSTEM"
+#export SSL_BASE="SYSTEM"
 
 # NOTE! "--enable-modules=all --enable-mods-shared=all" won't 
 # enable _all_ modules, that's why I had to specify all of them...
 
-# We need to re-run ./buildconf because of any applied patch(es)
-./buildconf
+CFLAGS="%{optflags}"
+CPPFLAGS="-DSSL_EXPERIMENTAL_ENGINE"
+if pkg-config openssl; then
+	# configure -C barfs with trailing spaces in CFLAGS
+	CPPFLAGS="$CPPFLAGS `pkg-config --cflags openssl | sed 's/ *$//'`"
+	SSL_LIBS="`pkg-config --libs openssl`"
+fi
+export CFLAGS CPPFLAGS SSL_LIBS
 
-APVARS="--with-mpm=%{mpm} \
+####
+#Copy pre-patched apache2 source so we can package an apache2-source rpm and
+#use it to build mod_perl
+rm -rf ../tmp-%{sourcename}
+install -d ../tmp-%{sourcename}/usr/src
+cp -dpR $RPM_BUILD_DIR/%{sourcename} ../tmp-%{sourcename}%{srcdir}
+
+APVARS="--enable-layout=ADVX \
+    --cache-file=../config.cache \
+    --with-apr=%{_prefix} \
+    --with-apr-util=%{_prefix} \
+    --with-pcre=%{_prefix} \
 %if %{build_debug}
     --enable-debug \
     --enable-maintainer-mode \
+    --enable-exception-hook \
 %endif
-    --with-dbm=%{dbmver} \
-    --with-expat=%{_prefix} \
-    --with-pcre=%{_prefix} \
-    --enable-layout=ADVX \
-    --prefix=%{ap_prefix} \
+    --prefix=%{_sysconfdir}/httpd/2.0 \
     --exec-prefix=%{_prefix} \
     --bindir=%{_bindir} \
     --sbindir=%{_sbindir} \
-    --libexecdir=%{ap_libexecdir} \
-    --sysconfdir=%{ap_sysconfdir} \
+    --libexecdir=%{_libdir}/apache2 \
+    --sysconfdir=%{_sysconfdir}/httpd/2.0/conf \
     --localstatedir=/var \
-    --includedir=%{ap_includedir} \
+    --includedir=%{_includedir}/apache2 \
     --infodir=%{_infodir} \
     --mandir=%{_mandir} \
-    --datadir=%{ap_datadir} \
+    --datadir=/var/www \
     --with-port=80 \
     --with-perl=%{__perl} \
     --enable-access=shared \
@@ -692,8 +716,6 @@ APVARS="--with-mpm=%{mpm} \
     --enable-proxy-connect=shared \
     --enable-proxy-ftp=shared \
     --enable-proxy-http=shared \
-    --enable-ssl=shared \
-    --with-ssl=%{_prefix} \
     --disable-optional-hook-export \
     --disable-optional-hook-import \
     --disable-optional-fn-import \
@@ -710,6 +732,7 @@ APVARS="--with-mpm=%{mpm} \
     --enable-rewrite=shared \
     --enable-log_config=shared \
     --enable-logio=shared \
+    --enable-log_forensic=shared \
     --enable-env=shared \
     --enable-setenvif=shared \
     --enable-mime=shared \
@@ -724,51 +747,79 @@ APVARS="--with-mpm=%{mpm} \
     --enable-alias=shared \
     --enable-auth-ldap=shared \
     --enable-ldap=shared \
-    --with-ldap \
+    --enable-dumpio=shared \
     --enable-forward \
-%ifarch %ix86
-%ifnarch i386 i486
-    --enable-nonportable-atomics=yes \
-%endif
-%endif
-%if %{build_distcache}
-    --enable-distcache \
-%endif
-    --with-program-name=%{ap_progname}"
+    --with-program-name=httpd2"
 
-%configure2_5x $APVARS
+# provide useful info for making some of the modules from 
+# their own source rpm packages
+mkdir build-nothing
+pushd build-nothing
+    ln -s ../configure .
+    %configure2_5x $APVARS \
+        --with-mpm=prefork \
+        --enable-ssl=shared \
+        --with-ssl=%{_prefix}
 
-# OE: avoid linking of *everything* against all libs, mucho gracias suse!
-for lib in ldap lber sasl sasl2 ssl crypto distcache nal; do
-    %{__perl} -pi -e "s|-l$lib||g" build/config_vars.mk
+    # make ab-ssl
+    %make -C support CFLAGS="%{optflags} -DUSE_SSL -DHAVE_OPENSSL" ab
+    cp -p support/ab ../ab-ssl
+
+    # this makes us able to do "apxs2 -c `cat mod_ssl.txt` -lssl -lcrypto" from an external source rpm package
+    grep "^mod_ssl.la" modules/ssl/modules.mk | cut -d\: -f2 | perl -pi -e "s|\.[s]lo|\.c|g" > ../../tmp-%{sourcename}%{srcdir}/modules/ssl/mod_ssl.txt
+    grep "^mod_ldap.la" modules/experimental/modules.mk | cut -d\: -f2 | perl -pi -e "s|\.[s]lo|\.c|g" > ../../tmp-%{sourcename}%{srcdir}/modules/experimental/mod_ldap.txt
+popd
+
+for mpm in prefork worker; do
+    mkdir build-${mpm}
+    pushd build-${mpm}
+        ln -s ../configure .
+        %configure2_5x $APVARS --with-mpm=${mpm}
+
+        # Copy configure flags to a file in the apache2-source rpm.
+        echo "$APVARS --with-mpm=${mpm}" > ../../tmp-%{sourcename}%{srcdir}/APVARS.${mpm}
+
+        # OE: avoid linking of *everything* against all libs, mucho gracias suse!
+        for lib in ldap lber sasl sasl2 ssl crypto; do
+            %{__perl} -pi -e "s|-l$lib||g" build/config_vars.mk
+        done
+
+        %{__sed}  '/SH_LINK.*util_ldap/ s/$/ %{ap_ldap_libs}/' modules/experimental/modules.mk > tmp; %{__mv} tmp modules/experimental/modules.mk
+        %{__sed}  '/SH_LINK.*auth_ldap/ s/$/ %{ap_ldap_libs}/' modules/experimental/modules.mk > tmp; %{__mv} tmp modules/experimental/modules.mk
+        %{__sed}  '/SH_LINK.*mod_ssl/ s/$/ %{ap_ssl_libs}/' modules/ssl/modules.mk > tmp; %{__mv} tmp modules/ssl/modules.mk
+
+        # only build what's required.
+        if ! [ "${mpm}" == "prefork" ]; then
+            %{__perl} -pi -e "s|^MODULE_DIRS = .*|MODULE_DIRS = http mappers|g" build/config_vars.mk
+        fi
+
+        # finally doing the build stage
+        %make
+
+    popd
 done
 
-%{__sed}  '/SH_LINK.*util_ldap/ s/$/ %{ap_ldap_libs}/' modules/experimental/modules.mk > tmp; %{__mv} tmp modules/experimental/modules.mk
-%{__sed}  '/SH_LINK.*auth_ldap/ s/$/ %{ap_ldap_libs}/' modules/experimental/modules.mk > tmp; %{__mv} tmp modules/experimental/modules.mk
-%{__sed}  '/SH_LINK.*mod_ssl/ s/$/ %{ap_ssl_libs}/' modules/ssl/modules.mk > tmp; %{__mv} tmp modules/ssl/modules.mk
+# Verify that the same modules were built into the two httpd binaries
+./build-prefork/httpd2 -l | grep -v prefork > ./prefork.mods
+./build-worker/httpd2 -l | grep -v worker > ./worker.mods
+if ! diff -u prefork.mods worker.mods; then
+    : Different modules built into httpd binaries, will not proceed
+    exit 1
+fi
 
-mv README.distcache modules/ssl/
 
-####
-#Copy pre-patched %{ap_name} source so we can package an %{ap_name}-source rpm and
-#use it to build mod_perl
-rm -rf ../tmp-%{sourcename}
-install -d ../tmp-%{sourcename}/usr/src
-cp -dpR $RPM_BUILD_DIR/%{sourcename} ../tmp-%{sourcename}%{ap_abs_srcdir}
-
-#Copy configure flags to a file in the %{ap_name}-source rpm.
-echo $APVARS > ../tmp-%{sourcename}%{ap_abs_srcdir}/APVARS
-
-# finally doing the build stage
-%make
-
-# make the ab2-ssl addon
-pushd support
-    rm ab .libs/ab ab.lo ab.o
-    make ab CFLAGS="%{optflags} -DUSE_SSL -lcrypto -lssl -I%{_includedir}/openssl -L%{_libdir}"
-    mv ab ab-ssl; mv .libs/ab .libs/ab-ssl; rm ab.lo ab.o
-    make ab
+%if %{build_debug}
+# this won't work..., too bad...
+#    --add-module=experimental:modules/experimental/mod_backtrace.c --enable-backtrace=shared \
+#    --add-module=experimental:modules/experimental/mod_whatkilledus.c --enable-whatkilledus=shared \
+pushd build-prefork
+    cp support/apxs apxs_test; chmod 755 apxs_test
+    perl -pi -e  "s|%{_libdir}/apache2/build|./build|g" apxs_test
+    ./apxs_test -I../include -I../os/unix -I./include `apr-config --includes` -c ../modules/experimental/mod_backtrace.c
+    ./apxs_test -I../include -I../os/unix -I./include `apr-config --includes` -c ../modules/experimental/mod_whatkilledus.c
 popd
+%endif
+
 
 %install
 [ "%{buildroot}" != "/" ] && rm -rf %{buildroot} 
@@ -776,19 +827,31 @@ popd
 # install phase
 #
 
+%if %{build_debug}
+export DONT_STRIP=1
+%endif
+
 install -d %{buildroot}
 
+EXCLUDE_FROM_STRIP="%{buildroot}/%{_sbindir}/httpd2 %{buildroot}/%{_sbindir}/httpd2-worker"
+
 # make mr. lint happy and do some house cleaning...
-pushd ../tmp-%{sourcename}%{ap_abs_srcdir}
-    make clean; rm -rf autom4te.cache icons
+pushd ../tmp-%{sourcename}%{srcdir}
+    rm -rf autom4te.cache icons *.zip
+    # if we delete these we have to maintain an "linux only" patch in %%setup too, mark my words!
+    #rm -rf build/win32 modules/arch support/win32
+    #rm -rf os/beos os/bs2000 os/netware os/os2 os/tpf os/win32
+    #rm -rf server/mpm/beos server/mpm/mpmt_os2 server/mpm/netware server/mpm/winnt
     for f in `find . -type f -name ".orig"` \
 	`find . -type f -name ".deps"` \
 	`find . -type f -name ".indent.pro"` \
 	`find . -type f -name ".gdbinit"` \
-	`find . -type f -name "NW*"`; do
+	`find . -type f -name "NW*"` \
+	`find . -type f -name "*.droplet"` \
+	`find . -type f -name "*.dsp"`; do
 	rm -f $f
     done
-    find . -type f | xargs %{__perl} -pi -e "s|%{_builddir}/%{sourcename}|%{ap_abs_srcdir}|g"
+    find . -type f | xargs %{__perl} -pi -e "s|%{_builddir}/%{sourcename}|%{srcdir}|g"
 popd
 
 # install source
@@ -797,28 +860,30 @@ tar c -C ../tmp-%{sourcename} usr/src | tar x -C %{buildroot}
 # don't fiddle with the initscript!
 export DONT_GPRINTIFY=1
 
-make install \
+pushd build-prefork
+    make install \
 	prefix=%{buildroot}%{_prefix} \
 	bindir=%{buildroot}%{_bindir} \
 	sbindir=%{buildroot}%{_sbindir} \
 	libdir=%{buildroot}%{_libdir} \
-	libexecdir=%{buildroot}%{ap_libexecdir} \
+	libexecdir=%{buildroot}%{_libdir}/apache2 \
 	mandir=%{buildroot}%{_mandir} \
-	sysconfdir=%{buildroot}%{ap_sysconfdir} \
-	includedir=%{buildroot}%{ap_includedir} \
+	sysconfdir=%{buildroot}%{_sysconfdir}/httpd/2.0/conf \
+	includedir=%{buildroot}%{_includedir}/apache2 \
 	localstatedir=%{buildroot}/var \
 	runtimedir=%{buildroot}/var/run \
-	installbuilddir=%{buildroot}%{ap_installbuilddir}  \
-	datadir=%{buildroot}%{ap_datadir} \
-	errordir=%{buildroot}%{ap_datadir}/error \
-	iconsdir=%{buildroot}%{ap_datadir}/icons \
-	htdocsdir=%{buildroot}%{ap_htdocsdir} \
-	manualdir=%{buildroot}%{ap_htdocsdir}/manual \
-	cgidir=%{buildroot}%{ap_datadir}/cgi-bin \
+	installbuilddir=%{buildroot}%{_libdir}/apache2/build  \
+	datadir=%{buildroot}/var/www \
+	errordir=%{buildroot}/var/www/error \
+	iconsdir=%{buildroot}/var/www/icons \
+	htdocsdir=%{buildroot}/var/www/html \
+	manualdir=%{buildroot}/var/www/html/manual \
+	cgidir=%{buildroot}/var/www/cgi-bin \
 	runtimedir=%{buildroot}/var/run \
-	logdir=%{buildroot}%{ap_logfiledir} \
-	logfiledir=%{buildroot}%{ap_logfiledir} \
-	proxycachedir=%{buildroot}%{ap_proxycachedir}
+	logdir=%{buildroot}/var/log/httpd \
+	logfiledir=%{buildroot}/var/log/httpd \
+	proxycachedir=%{buildroot}/var/cache/httpd
+popd
 
 pushd %{buildroot}%{_sbindir}
     rm -f suexec
@@ -832,272 +897,259 @@ popd
 #can simply do "apxs -q VARIABLE" and know, for example, the exact
 #release of apache-devel or the exact directory where the source is
 #located. 
-CVMK="%{buildroot}%{ap_installbuilddir}/config_vars.mk"
-%{__perl} -pi -e "s|%{_builddir}/%{sourcename}|%{ap_abs_srcdir}|g" $CVMK
+CVMK="%{buildroot}%{_libdir}/apache2/build/config_vars.mk"
+%{__perl} -pi -e "s|%{_builddir}/%{sourcename}|%{srcdir}|g" $CVMK
 %{__perl} -pi -e "s|%{buildroot}||g" $CVMK
+%{__perl} -pi -e "s|^EXTRA_INCLUDES.*|EXTRA_INCLUDES = `apr-config --includes` -I%{_includedir}/apache2 -I%{_includedir}/openssl|g" $CVMK
 
 # if the following 3 lines needs to be enabled again, use the ".*" wildcard as in
 # "s|bla bla =.*|bla bla = replaced whatever text after the equal char...|g"
-#%{__perl} -pi -e "s|installbuilddir =.*|installbuilddir = %{ap_installbuilddir}|g" $CVMK
-#%{__perl} -pi -e "s|htdocsdir =.*|htdocsdir = %{ap_htdocsdir}|g" $CVMK
-#%{__perl} -pi -e "s|logfiledir =.*|logfiledir = %{ap_logfiledir}|g" $CVMK
+#%{__perl} -pi -e "s|installbuilddir =.*|installbuilddir = %{_libdir}/apache2/build|g" $CVMK
+#%{__perl} -pi -e "s|htdocsdir =.*|htdocsdir = /var/www/html|g" $CVMK
+#%{__perl} -pi -e "s|logfiledir =.*|logfiledir = /var/log/httpd|g" $CVMK
 
-echo "ap_version = %{ap_version}" >> $CVMK
-echo "ap_release = %{ap_release}" >> $CVMK
+echo "ap_version = %{version}" >> $CVMK
+echo "ap_release = %{release}" >> $CVMK
 
 #########################################################################################
 # fix some bugs and other stuff
 #
+%{__perl} -pi -e "s|%{_builddir}/%{sourcename}|%{srcdir}|g" %{buildroot}%{_libdir}/apache2/build/apr_rules.mk
 
-%{__perl} -p -i -e "s|%{buildroot}||g" %{buildroot}%{_bindir}/ap*-config
-%{__perl} -p -i -e "s|APU_SOURCE_DIR=.*|APU_SOURCE_DIR=\"%{ap_abs_srcdir}/srclib/apr-util\"|g" %{buildroot}%{_bindir}/apu-config
-%{__perl} -p -i -e "s|APU_BUILD_DIR=.*|APU_BUILD_DIR=\"%{ap_abs_srcdir}/srclib/apr-util\"|g" %{buildroot}%{_bindir}/apu-config
-%{__perl} -p -i -e "s|APR_SOURCE_DIR=.*|APR_SOURCE_DIR=\"%{ap_abs_srcdir}/srclib/apr\"|g" %{buildroot}%{_bindir}/apr-config
-%{__perl} -p -i -e "s|-pthread|-lpthread|g" %{buildroot}%{_libdir}/lib*.la
-%{__perl} -pi -e "s|%{_builddir}/%{sourcename}|%{ap_abs_srcdir}|g" %{buildroot}%{ap_installbuilddir}/apr_rules.mk
-
-# OE: make the apu-config file more correct
-for lib in ldap lber sasl sasl2; do
-    %{__perl} -pi -e "s|-l$lib||g" %{buildroot}%{_bindir}/apu-config
-done
-
-mv %{buildroot}%{_sbindir}/envvars %{buildroot}%{ap_installbuilddir}/
+mv %{buildroot}%{_sbindir}/envvars %{buildroot}%{_libdir}/apache2/build/
 
 ##################################################################
 
 # first tuck away the vanilla httpd*.conf file
-cp %{buildroot}%{ap_prefix}/conf/highperformance.conf highperformance.conf
-cp %{buildroot}%{ap_prefix}/conf/httpd2.conf httpd2-VANILLA.conf
-cp %{buildroot}%{ap_prefix}/conf/ssl.conf ssl.conf
-cp %{buildroot}%{ap_prefix}/conf/ssl-std.conf ssl-std.conf
-cp %{buildroot}%{ap_prefix}/conf/highperformance-std.conf highperformance-std.conf
-cp %{buildroot}%{ap_prefix}/conf/httpd-std.conf httpd-std.conf
-rm -rf %{buildroot}%{ap_prefix}/conf
+cp %{buildroot}%{_sysconfdir}/httpd/2.0/conf/highperformance.conf highperformance.conf
+cp %{buildroot}%{_sysconfdir}/httpd/2.0/conf/httpd2.conf httpd2-VANILLA.conf
+cp %{buildroot}%{_sysconfdir}/httpd/2.0/conf/ssl.conf ssl.conf
+cp %{buildroot}%{_sysconfdir}/httpd/2.0/conf/ssl-std.conf ssl-std.conf
+cp %{buildroot}%{_sysconfdir}/httpd/2.0/conf/highperformance-std.conf highperformance-std.conf
+cp %{buildroot}%{_sysconfdir}/httpd/2.0/conf/httpd-std.conf httpd-std.conf
+rm -rf %{buildroot}%{_sysconfdir}/httpd/2.0/conf
 
 # Link with main conf dir
-ln -sf ../conf %{buildroot}%{ap_prefix}/conf
+ln -sf ../conf %{buildroot}%{_sysconfdir}/httpd/2.0/conf
 
 # Link build dir
-ln -s ../../..%{ap_installbuilddir} %{buildroot}%{ap_prefix}/build
+ln -s ../../..%{_libdir}/apache2/build %{buildroot}%{_sysconfdir}/httpd/2.0/build
 
 # Apxs needs this to pickup the right lib for install
-ln -sf ../../..%{_libdir} %{buildroot}%{ap_prefix}/lib
+ln -sf ../../..%{_libdir} %{buildroot}%{_sysconfdir}/httpd/2.0/lib
 
 # Link log directory
-ln -sf ../../..%{ap_logfiledir} %{buildroot}%{ap_prefix}/logs
+ln -sf ../../../var/log/httpd %{buildroot}%{_sysconfdir}/httpd/2.0/logs
 
 # Link modules dir
-ln -sf ../../..%{ap_libexecdir} %{buildroot}%{ap_prefix}/modules
+ln -sf ../../..%{_libdir}/apache2 %{buildroot}%{_sysconfdir}/httpd/2.0/modules
 
 # Link extra modules
-ln -sf ../../..%{ap_extralibs} %{buildroot}%{ap_prefix}/extramodules
+ln -sf ../../..%{_libdir}/apache2-extramodules %{buildroot}%{_sysconfdir}/httpd/2.0/extramodules
 
 ##################################################################
 
-#Move mod_ssl.so to %{ap_extralibs}
-install -d %{buildroot}%{ap_extralibs}
-mv %{buildroot}%{ap_libexecdir}/mod_ssl.so %{buildroot}%{ap_extralibs}
-
-install -d %{buildroot}%{ap_ssldir}
-bzcat %{SOURCE5} > %{buildroot}%{ap_ssldir}/gentestcrt.sh
+install -d %{buildroot}%{_libdir}/apache2-extramodules
 
 # install module conf files for the "conf.d" dir loading structure
-install -d %{buildroot}/%{ap_confd}
-bzcat %{SOURCE30} > %{buildroot}/%{ap_confd}/30_mod_proxy.conf
-bzcat %{SOURCE40} > %{buildroot}/%{ap_confd}/40_mod_ssl.conf
-bzcat %{SOURCE41} > %{buildroot}/%{ap_confd}/41_mod_ssl.default-vhost.conf
-bzcat %{SOURCE45} > %{buildroot}/%{ap_confd}/45_mod_dav.conf
-bzcat %{SOURCE46} > %{buildroot}/%{ap_confd}/46_mod_ldap.conf
-bzcat %{SOURCE55} > %{buildroot}/%{ap_confd}/55_mod_cache.conf
-bzcat %{SOURCE56} > %{buildroot}/%{ap_confd}/56_mod_disk_cache.conf
-bzcat %{SOURCE57} > %{buildroot}/%{ap_confd}/57_mod_mem_cache.conf
-bzcat %{SOURCE58} > %{buildroot}/%{ap_confd}/58_mod_file_cache.conf
-bzcat %{SOURCE59} > %{buildroot}/%{ap_confd}/59_mod_deflate.conf
+install -d %{buildroot}/%{_sysconfdir}/httpd/conf.d
+bzcat %{SOURCE30} > %{buildroot}/%{_sysconfdir}/httpd/conf.d/30_mod_proxy.conf
+bzcat %{SOURCE45} > %{buildroot}/%{_sysconfdir}/httpd/conf.d/45_mod_dav.conf
+bzcat %{SOURCE46} > %{buildroot}/%{_sysconfdir}/httpd/conf.d/46_mod_ldap.conf
+bzcat %{SOURCE55} > %{buildroot}/%{_sysconfdir}/httpd/conf.d/55_mod_cache.conf
+bzcat %{SOURCE56} > %{buildroot}/%{_sysconfdir}/httpd/conf.d/56_mod_disk_cache.conf
+bzcat %{SOURCE57} > %{buildroot}/%{_sysconfdir}/httpd/conf.d/57_mod_mem_cache.conf
+bzcat %{SOURCE58} > %{buildroot}/%{_sysconfdir}/httpd/conf.d/58_mod_file_cache.conf
+bzcat %{SOURCE59} > %{buildroot}/%{_sysconfdir}/httpd/conf.d/59_mod_deflate.conf
 
-install -d %{buildroot}%{ap_sslconf}
-cat > %{buildroot}%{ap_sslconf}/README.test-certificates <<EOF
-Use the %{ap_ssldir}/gentestcrt.sh script to generate your own,
-self-signed certificates to replace the localhost server name.
+%if %{build_debug}
+# fix the mod_backtrace.conf
+
+cat << EOF > %{buildroot}/%{_sysconfdir}/httpd/conf.d/ZZ90_mod_backtrace.conf
+<IfDefine HAVE_BACKTRACE>
+  <IfModule !mod_backtrace.so.c>
+    LoadModule backtrace_module		extramodules/mod_backtrace.so
+  </IfModule>
+</IfDefine>
+
+<IfModule mod_backtrace.c>
+    EnableExceptionHook On
+    BacktraceLog logs/backtrace_log
+</IfModule>
 EOF
 
-install -d %{buildroot}%{ap_davdir}
+# fix the mod_whatkilledus.conf
+cat << EOF > %{buildroot}/%{_sysconfdir}/httpd/conf.d/ZZ91_mod_whatkilledus.conf
+<IfDefine HAVE_WHATKILLEDUS>
+  <IfModule !mod_whatkilledus.so.c>
+    LoadModule whatkilledus_module		extramodules/mod_whatkilledus.so
+  </IfModule>
+</IfDefine>
 
-#Move mod_ldap.so and mod_auth_ldap.so to %{ap_extralibs}
-mv %{buildroot}%{ap_libexecdir}/mod_ldap.so %{buildroot}%{ap_extralibs}
-mv %{buildroot}%{ap_libexecdir}/mod_auth_ldap.so %{buildroot}%{ap_extralibs}
+<IfModule mod_whatkilledus.c>
+    EnableExceptionHook On
+    WhatKilledUsLog logs/whatkilledus_log
+</IfModule>
+EOF
+
+# install the dso's
+install -m0755 modules/experimental/.libs/mod_backtrace.so %{buildroot}%{_libdir}/apache2-extramodules/
+install -m0755 modules/experimental/.libs/mod_whatkilledus.so %{buildroot}%{_libdir}/apache2-extramodules/
+
+# provide log files too
+touch %{buildroot}/var/log/httpd/backtrace_log
+touch %{buildroot}/var/log/httpd/whatkilledus_log
+%endif
+
+install -d %{buildroot}%{_localstatedir}/dav
+
+# Move mod_ldap.so and mod_auth_ldap.so to %{_libdir}/apache2-extramodules
+mv %{buildroot}%{_libdir}/apache2/mod_ldap.so %{buildroot}%{_libdir}/apache2-extramodules
+mv %{buildroot}%{_libdir}/apache2/mod_auth_ldap.so %{buildroot}%{_libdir}/apache2-extramodules
 
 # make libtool a (dangling) symlink
-ln -snf ../../../bin/libtool %{buildroot}%{ap_installbuilddir}/libtool
+ln -snf ../../../bin/libtool %{buildroot}%{_libdir}/apache2/build/libtool
 
 # we only want to provide png files...
-find %{buildroot}%{ap_datadir}/icons -type f -name "*.gif" | xargs rm
+find %{buildroot}/var/www/icons -type f -name "*.gif" | xargs rm
 
 # install missing files
-install -m755 support/split-logfile %{buildroot}%{_sbindir}/split-logfile
-install -m755 support/list_hooks.pl %{buildroot}%{_sbindir}/list_hooks.pl
-install -m755 support/logresolve.pl %{buildroot}%{_sbindir}/logresolve.pl
-install -m755 support/log_server_status %{buildroot}%{_sbindir}/log_server_status
-install -m755 support/.libs/ab-ssl %{buildroot}%{_sbindir}/ab-ssl
+install -m 0755 build-prefork/support/split-logfile %{buildroot}%{_sbindir}/split-logfile
+install -m 0755 support/list_hooks.pl %{buildroot}%{_sbindir}/list_hooks.pl
+install -m 0755 build-prefork/support/logresolve.pl %{buildroot}%{_sbindir}/logresolve.pl
+install -m 0755 build-prefork/support/log_server_status %{buildroot}%{_sbindir}/log_server_status
+install -m 0755 ab-ssl %{buildroot}%{_sbindir}/ab-ssl
 
-cp %{SOURCE2} $RPM_BUILD_DIR/%{sourcename}
+cp %{SOURCE2} $RPM_BUILD_DIR/%{sourcename}/README.ADVX
+cp %{SOURCE3} $RPM_BUILD_DIR/%{sourcename}/
 
-cp %{SOURCE3} $RPM_BUILD_DIR/%{sourcename}
+# Put README.ADVX into apache2-devel so other packages can use it
+cp %{SOURCE2} %{buildroot}/%{_includedir}/apache2/README.ADVX
 
-#Put README.ADVX into %{ap_name}-devel so other packages can use it
-cp %{SOURCE2} %{buildroot}/%{ap_includedir}
+cp %{SOURCE2} README.ADVX
 
-install -d %{buildroot}%{ap_proxycachedir}
+install -d %{buildroot}/var/cache/httpd
 
 #Fix apxs name if necessary
 pushd %{buildroot}%{_sbindir}
-    mv apxs %{apxs_name}
-    rm -rf %{buildroot}%{ap_htdocsdir}/index*
-    rm -rf %{buildroot}%{ap_htdocsdir}/apach*
-    rm -rf %{buildroot}%{_sbindir}/apachectl
-    rm -rf %{buildroot}%{ap_datadir}/cgi-bin/printenv
-    rm -rf %{buildroot}%{ap_datadir}/cgi-bin/test-cgi
+    mv apxs apxs2
+    rm -rf %{buildroot}/var/www/html/index*
+    rm -rf %{buildroot}/var/www/html/apach*
+    rm -rf %{buildroot}/var/www/cgi-bin/printenv
+    rm -rf %{buildroot}/var/www/cgi-bin/test-cgi
 popd
 
-# fix a msec safe cache for the ssl stuff
-install -d %{buildroot}%{ap_proxycachedir}/mod_ssl
-touch %{buildroot}%{ap_proxycachedir}/mod_ssl/scache.dir
-touch %{buildroot}%{ap_proxycachedir}/mod_ssl/scache.pag
-touch %{buildroot}%{ap_proxycachedir}/mod_ssl/scache.sem
+# fix a msec safe cache for the mod_ldap stuff
+touch %{buildroot}/var/cache/httpd/mod_ldap_cache
+
+# install the worker stuff
+install -m0755 build-worker/httpd2 %{buildroot}%{_sbindir}/httpd2-worker
+
+# these won't get stripped for some reason...
+strip %{buildroot}%{_sbindir}/ab
+strip %{buildroot}%{_sbindir}/checkgid
+strip %{buildroot}%{_sbindir}/htdbm
+strip %{buildroot}%{_sbindir}/htdigest
+strip %{buildroot}%{_sbindir}/htpasswd
+strip %{buildroot}%{_sbindir}/logresolve
+strip %{buildroot}%{_sbindir}/rotatelogs
+
+##%multiarch_includes %{buildroot}%{_includedir}/apache2/ap_config_layout.h
 
 #########################################################################################
 # install phase done
 #
 
-# OE: argh!!! it took me a while to find this offending stuff...
-# I _want_ to be able to provide unstripped stuff.
-# Maybe EXCLUDE_FROM_STRIP="%{buildroot}/%{_sbindir}/httpd2" would have worked?
-
-%if !%{build_debug}
-#Strip everything *except httpd2* manually for now...
-#JMD: there must be an easier way...
-%{__strip} -s %{buildroot}/%{ap_libexecdir}/*.so
-%{__strip} -s %{buildroot}/%{ap_extralibs}/*.so
-%{__strip} -s %{buildroot}/%{_libdir}/*.so*
-file %{buildroot}/%{_sbindir}/*|grep linked|grep -v httpd2|cut -f1 -d:| \
-	xargs %{__strip} -s
-%endif
-
-mkdir -p %{buildroot}%{_srvdir}/apache2/log
-mkdir -p %{buildroot}%{_srvlogdir}/apache2
-install -m 0755 %{SOURCE7} %{buildroot}%{_srvdir}/apache2/run
-install -m 0755 %{SOURCE8} %{buildroot}%{_srvdir}/apache2/log/run
-
-mkdir -p %{buildroot}%{_datadir}/afterboot
-install -m 0644 %{SOURCE60} %{buildroot}%{_datadir}/afterboot/03_apache2
-
 # remove manual
-rm -rf %{buildroot}%{ap_htdocsdir}/manual
+rm -rf %{buildroot}/var/www/html/manual
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 #Clean up "install source" and other generated dirs
-[ "../tmp-%{sourcename}%{ap_abs_srcdir}" != "/" ] && rm -rf ../tmp-%{sourcename}%{ap_abs_srcdir}
+[ "../tmp-%{sourcename}%{srcdir}" != "/" ] && rm -rf ../tmp-%{sourcename}%{srcdir}
 [ "../usr/src" != "/" ] && rm -rf ../usr/src
 [ "../tmp-%{sourcename}" != "/" ] && rm -rf ../tmp-%{sourcename}
 
-%post -n %{apr_name} -p /sbin/ldconfig
-%postun -n %{apr_name} -p /sbin/ldconfig
-
 %post mod_proxy
-%ADVXpost
+%_post_srv httpd2
 
 %postun mod_proxy
-%ADVXpost
-
-%post mod_ssl
-if [ $1 = "1" ]; then 
-  #Create a self-signed server key and certificate 
-  #The script checks first if they exists, if yes, it exits, 
-  #otherwise, it creates them.
-  if [ -d %{ap_sslconf} ];then
-    pushd %{ap_sslconf} > /dev/null
-    yes ""|%{ap_ssldir}/gentestcrt.sh >/dev/null 
-    popd > /dev/null
-  fi
-  %{ADVXdir}/mod_ssl-migrate-20
-fi
-%create_ghostfile %{ap_proxycachedir}/mod_ssl/scache.dir  apache root 0600
-%create_ghostfile %{ap_proxycachedir}/mod_ssl/scache.pag  apache root 0600
-%create_ghostfile %{ap_proxycachedir}/mod_ssl/scache.sem  apache root 0600
-%ADVXpost
-
-%postun mod_ssl
-%ADVXpost
+%_post_srv httpd2
 
 %post mod_dav
-%ADVXpost
+%_post_srv httpd2
 
 %postun mod_dav
-%ADVXpost
+%_post_srv httpd2
 
 %post mod_ldap
-%ADVXpost
+%create_ghostfile /var/cache/httpd/mod_ldap_cache apache root 0600
+%_post_srv httpd2
 
 %postun mod_ldap
-%ADVXpost
+%_post_srv httpd2
 
 %post mod_cache
-%ADVXpost
+%_post_srv httpd2
 
 %postun mod_cache
-%ADVXpost
+%_post_srv httpd2
 
 %post mod_disk_cache
-%ADVXpost
+%_post_srv httpd2
 
 %postun mod_disk_cache
-%ADVXpost
+%_post_srv httpd2
 
 %post mod_mem_cache
-%ADVXpost
+%_post_srv httpd2
 
 %postun mod_mem_cache
-%ADVXpost
+%_post_srv httpd2
 
 %post mod_file_cache
-%ADVXpost
+%_post_srv httpd2
 
 %postun mod_file_cache
-%ADVXpost
+%_post_srv httpd2
 
 %post mod_deflate
-%ADVXpost
+%_post_srv httpd2
 
 %postun mod_deflate
-%ADVXpost
-
-%post devel -p /sbin/ldconfig
-%preun devel -p /sbin/ldconfig
+%_post_srv httpd2
 
 %pre common
-%_pre_useradd apache %{ap_datadir} /bin/sh 74
+%_pre_useradd apache /var/www /bin/sh 74
 
 %postun common
 %_postun_userdel apache
 
 %post modules
-%ADVXpost
+%create_ghostfile /var/log/httpd/backtrace_log apache apache 0644
+%create_ghostfile /var/log/httpd/whatkilledus_log apache apache 0644
+%_post_srv httpd2
 
 %post
-#JMD: do *not* use _post_service here, it is used in %{ap_name}-conf, since we
-#can have both %{ap_name} and %{ap_name}-mod_perl
-%_mkafterboot
-%ADVXpost
+#JMD: do *not* use _post_service here, it is used in apache2-conf, since we
+#can have both apache2 and apache2-mod_perl
+%_post_srv httpd2
 
 %postun
 #JMD: do *not* use _post_service here, otherwise it will uninstall
 #apache-mod_perl as well!!
-%_mkafterboot
-%ADVXpost
+%_post_srv httpd2
+
+%post worker
+%_post_srv httpd2
+
+%postun worker
+%_post_srv httpd2
 
 %files
 %defattr(-,root,root)
+%doc README.ADVX
 %doc highperformance.conf
 %doc httpd2-VANILLA.conf
 %doc ssl.conf
@@ -1105,142 +1157,145 @@ fi
 %doc highperformance-std.conf
 %doc httpd-std.conf
 %doc apache-old-changelog
-%{_sbindir}/%{ap_progname}
-%dir %{_srvdir}/apache2
-%dir %{_srvdir}/apache2/log
-%{_srvdir}/apache2/run
-%{_srvdir}/apache2/log/run
-%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/apache2
-%{_datadir}/afterboot/03_apache2
+%{_sbindir}/httpd2
+
+%files worker
+%defattr(-,root,root)
+%doc README.ADVX
+%doc highperformance.conf
+%doc httpd2-VANILLA.conf
+%doc ssl.conf
+%doc ssl-std.conf
+%doc highperformance-std.conf
+%doc httpd-std.conf
+%doc apache-old-changelog
+%{_sbindir}/httpd2-worker
 
 %files modules
 #Do not put apache.apache here, otherwise anyone with web access can 
 #tamper with the files!!!!
 %defattr(-,root,root)
 %doc modules/README*
-%dir %{ap_libexecdir}
-%{ap_libexecdir}/mod_access.so
-%{ap_libexecdir}/mod_actions.so
-%{ap_libexecdir}/mod_alias.so
-%{ap_libexecdir}/mod_asis.so
-%{ap_libexecdir}/mod_auth.so
-%{ap_libexecdir}/mod_auth_anon.so
-%{ap_libexecdir}/mod_auth_dbm.so
-%{ap_libexecdir}/mod_auth_digest.so
-%{ap_libexecdir}/mod_autoindex.so
-%{ap_libexecdir}/mod_case_filter.so
-%{ap_libexecdir}/mod_case_filter_in.so
-%{ap_libexecdir}/mod_cern_meta.so
-%{ap_libexecdir}/mod_cgi.so
-%{ap_libexecdir}/mod_cgid.so
-%{ap_libexecdir}/mod_charset_lite.so
-%{ap_libexecdir}/mod_dir.so
-%{ap_libexecdir}/mod_env.so
-%{ap_libexecdir}/mod_expires.so
-%{ap_libexecdir}/mod_ext_filter.so
-%{ap_libexecdir}/mod_headers.so
-%{ap_libexecdir}/mod_imap.so
-%{ap_libexecdir}/mod_include.so
-%{ap_libexecdir}/mod_info.so
-%{ap_libexecdir}/mod_log_config.so
-%{ap_libexecdir}/mod_logio.so
-%{ap_libexecdir}/mod_mime.so
-%{ap_libexecdir}/mod_mime_magic.so
-%{ap_libexecdir}/mod_negotiation.so
-%{ap_libexecdir}/mod_rewrite.so
-%{ap_libexecdir}/mod_setenvif.so
-%{ap_libexecdir}/mod_speling.so
-%{ap_libexecdir}/mod_status.so
-%{ap_libexecdir}/mod_unique_id.so
-%{ap_libexecdir}/mod_userdir.so
-%{ap_libexecdir}/mod_usertrack.so
-%{ap_libexecdir}/mod_vhost_alias.so
-%{ap_libexecdir}/*.exp
-%dir %{ap_extralibs}
-%dir %{ap_prefix}
-%{ap_prefix}/*
+%dir %{_libdir}/apache2
+%{_libdir}/apache2/mod_access.so
+%{_libdir}/apache2/mod_actions.so
+%{_libdir}/apache2/mod_alias.so
+%{_libdir}/apache2/mod_asis.so
+%{_libdir}/apache2/mod_auth.so
+%{_libdir}/apache2/mod_auth_anon.so
+%{_libdir}/apache2/mod_auth_dbm.so
+%{_libdir}/apache2/mod_auth_digest.so
+%{_libdir}/apache2/mod_autoindex.so
+%{_libdir}/apache2/mod_case_filter.so
+%{_libdir}/apache2/mod_case_filter_in.so
+%{_libdir}/apache2/mod_cern_meta.so
+%{_libdir}/apache2/mod_cgi.so
+%{_libdir}/apache2/mod_cgid.so
+%{_libdir}/apache2/mod_charset_lite.so
+%{_libdir}/apache2/mod_dir.so
+%{_libdir}/apache2/mod_env.so
+%{_libdir}/apache2/mod_expires.so
+%{_libdir}/apache2/mod_ext_filter.so
+%{_libdir}/apache2/mod_headers.so
+%{_libdir}/apache2/mod_imap.so
+%{_libdir}/apache2/mod_include.so
+%{_libdir}/apache2/mod_info.so
+%{_libdir}/apache2/mod_log_config.so
+%{_libdir}/apache2/mod_logio.so
+%{_libdir}/apache2/mod_log_forensic.so
+%{_libdir}/apache2/mod_mime.so
+%{_libdir}/apache2/mod_mime_magic.so
+%{_libdir}/apache2/mod_negotiation.so
+%{_libdir}/apache2/mod_rewrite.so
+%{_libdir}/apache2/mod_setenvif.so
+%{_libdir}/apache2/mod_speling.so
+%{_libdir}/apache2/mod_status.so
+%{_libdir}/apache2/mod_unique_id.so
+%{_libdir}/apache2/mod_userdir.so
+%{_libdir}/apache2/mod_usertrack.so
+%{_libdir}/apache2/mod_vhost_alias.so
+%{_libdir}/apache2/mod_dumpio.so
+%{_libdir}/apache2/httpd.exp
+%dir %{_libdir}/apache2-extramodules
+%dir %{_sysconfdir}/httpd/2.0
+%exclude %{_sysconfdir}/httpd/2.0/build/
+%{_sysconfdir}/httpd/2.0/*
+%if %{build_debug}
+%config(noreplace) %{_sysconfdir}/httpd/conf.d/ZZ90_mod_backtrace.conf
+%config(noreplace) %{_sysconfdir}/httpd/conf.d/ZZ91_mod_whatkilledus.conf
+%{_libdir}/apache2-extramodules/mod_backtrace.so
+%{_libdir}/apache2-extramodules/mod_whatkilledus.so
+%attr(0644,apache,apache) %ghost /var/log/httpd/backtrace_log
+%attr(0644,apache,apache) %ghost /var/log/httpd/whatkilledus_log
+%endif
 
 %files mod_proxy
 %defattr(-,root,root)
 %doc modules/proxy/CHANGES
-%config(noreplace) %{ap_confd}/*_mod_proxy.conf
-%{ap_libexecdir}/mod_proxy_connect.so
-%{ap_libexecdir}/mod_proxy_ftp.so
-%{ap_libexecdir}/mod_proxy_http.so
-%{ap_libexecdir}/mod_proxy.so
-%attr(0770,root,apache) %dir %{ap_proxycachedir}
-
-%files mod_ssl
-%defattr(-,root,root)
-%{_sbindir}/ab-ssl
-%{ap_extralibs}/mod_ssl.so
-%doc modules/ssl/README
-%config(noreplace) %{ap_confd}/*_mod_ssl.conf
-%config(noreplace) %{ap_confd}/*_mod_ssl.default-vhost.conf
-%config(noreplace) %{ap_sslconf}/README*
-%dir %{ap_ssldir}
-%attr(0755,root,root) %{ap_ssldir}/gentestcrt.sh
-##JMD: Not yet, conflicts with the old mod_ssl
-##%dir %{ap_sslconf}
-%attr(0700,root,root) %dir %{ap_proxycachedir}/mod_ssl
-%attr(0600,apache,root) %ghost %{ap_proxycachedir}/mod_ssl/scache.dir
-%attr(0600,apache,root) %ghost %{ap_proxycachedir}/mod_ssl/scache.pag
-%attr(0600,apache,root) %ghost %{ap_proxycachedir}/mod_ssl/scache.sem
+%config(noreplace) %{_sysconfdir}/httpd/conf.d/*_mod_proxy.conf
+%{_libdir}/apache2/mod_proxy_connect.so
+%{_libdir}/apache2/mod_proxy_ftp.so
+%{_libdir}/apache2/mod_proxy_http.so
+%{_libdir}/apache2/mod_proxy.so
+%attr(0770,root,apache) %dir /var/cache/httpd
 
 %files mod_dav
 %defattr(-,root,root)
-%dir %{ap_davdir}
-%config(noreplace) %{ap_confd}/*_mod_dav.conf
-%{ap_libexecdir}/mod_dav.so
-%{ap_libexecdir}/mod_dav_fs.so
+%attr(-,apache,apache) %dir %{_localstatedir}/dav
+%config(noreplace) %{_sysconfdir}/httpd/conf.d/*_mod_dav.conf
+%{_libdir}/apache2/mod_dav.so
+%{_libdir}/apache2/mod_dav_fs.so
 
 %files mod_ldap
 %defattr(-,root,root)
-%{ap_extralibs}/mod_ldap.so
-%{ap_extralibs}/mod_auth_ldap.so
-%config(noreplace) %{ap_confd}/*_mod_ldap.conf
+%config(noreplace) %{_sysconfdir}/httpd/conf.d/*_mod_ldap.conf
+%attr(0600,apache,root) %ghost /var/cache/httpd/mod_ldap_cache
+%{_libdir}/apache2-extramodules/mod_ldap.so
+%{_libdir}/apache2-extramodules/mod_auth_ldap.so
 
 %files mod_cache
 %defattr(-,root,root)
-%config(noreplace) %{ap_confd}/*_mod_cache.conf
-%{ap_libexecdir}/mod_cache.so
+%config(noreplace) %{_sysconfdir}/httpd/conf.d/*_mod_cache.conf
+%{_libdir}/apache2/mod_cache.so
 
 %files mod_disk_cache
 %defattr(-,root,root)
-%config(noreplace) %{ap_confd}/*_mod_disk_cache.conf
-%{ap_libexecdir}/mod_disk_cache.so
+%config(noreplace) %{_sysconfdir}/httpd/conf.d/*_mod_disk_cache.conf
+%{_libdir}/apache2/mod_disk_cache.so
 
 %files mod_mem_cache
 %defattr(-,root,root)
-%config(noreplace) %{ap_confd}/*_mod_mem_cache.conf
-%{ap_libexecdir}/mod_mem_cache.so
+%config(noreplace) %{_sysconfdir}/httpd/conf.d/*_mod_mem_cache.conf
+%{_libdir}/apache2/mod_mem_cache.so
 
 %files mod_file_cache
 %defattr(-,root,root)
-%config(noreplace) %{ap_confd}/*_mod_file_cache.conf
-%{ap_libexecdir}/mod_file_cache.so
+%config(noreplace) %{_sysconfdir}/httpd/conf.d/*_mod_file_cache.conf
+%{_libdir}/apache2/mod_file_cache.so
 
 %files mod_deflate
 %defattr(-,root,root)
-%config(noreplace) %{ap_confd}/*_mod_deflate.conf
-%{ap_libexecdir}/mod_deflate.so
+%config(noreplace) %{_sysconfdir}/httpd/conf.d/*_mod_deflate.conf
+%{_libdir}/apache2/mod_deflate.so
 
 %files common
 #Do not put apache.apache for the rest, otherwise anyone with web access can 
 #tamper with the files!!!!
 %defattr(-,root,root)
 %doc README.ADVX
-%dir %{ap_datadir}/error
-%dir %{ap_datadir}/error/include
-%config(noreplace,missingok) %{ap_datadir}/error/README
-%config(noreplace,missingok) %{ap_datadir}/error/*.var
-%config(noreplace,missingok) %{ap_datadir}/error/include/*.html
-%{ap_datadir}/icons/README*
-%{ap_datadir}/icons/*.png
-%{ap_datadir}/icons/small/README*
-%{ap_datadir}/icons/small/*.png
+%dir /var/www/error
+%dir /var/www/error/include
+%config(noreplace,missingok) /var/www/error/README
+%config(noreplace,missingok) /var/www/error/*.var
+%config(noreplace,missingok) /var/www/error/include/*.html
+/var/www/icons/README*
+/var/www/icons/*.png
+/var/www/icons/small/README*
+/var/www/icons/small/*.png
 %{_mandir}/*/*
 %attr(0755,root,root) %{_sbindir}/ab
+%attr(0755,root,root) %{_sbindir}/ab-ssl
+%attr(0755,root,root) %{_sbindir}/apachectl
 %attr(0755,root,root) %{_sbindir}/checkgid
 %attr(0755,root,root) %{_sbindir}/htdbm
 %attr(0755,root,root) %{_sbindir}/htdigest
@@ -1257,45 +1312,137 @@ fi
 #(By the way, 1333 is the *right* permission.)
 #%attr(1333,apache,apache) %dir /var/apache-mm
 
-%files -n %{apr_name}
-#Do not put apache.apache here, otherwise anyone with web access can 
-#tamper with the files!!!!
-%defattr(-,root,root)
-%doc srclib/apr/CHANGES srclib/apr/README*
-%attr(0755,root,root) %{_libdir}/libapr-*.so.*
-%attr(0755,root,root) %{_libdir}/libaprutil-*.so.*
-
 %files devel
 #Do not put apache.apache here, otherwise anyone with web access can 
 #tamper with the files!!!!
 %defattr(-,root,root)
-%{ap_includedir}
-%attr(0755,root,root) %dir %{ap_installbuilddir}
-%attr(0755,root,root) %dir %{ap_prefix}/build
-%attr(0644,root,root) %{ap_installbuilddir}/*.mk
-%attr(0755,root,root) %{ap_installbuilddir}/*.sh
-%attr(0755,root,root) %{ap_installbuilddir}/envvars
-%attr(0755,root,root) %{ap_installbuilddir}/libtool
-%attr(0755,root,root) %{ap_installbuilddir}/config.nice
+#%multiarch %{multiarch_includedir}/apache2/ap_config_layout.h
+%{_includedir}/apache2
+%attr(0755,root,root) %dir %{_libdir}/apache2/build
+%attr(0755,root,root) %dir %{_sysconfdir}/httpd/2.0/build
+%attr(0644,root,root) %{_libdir}/apache2/build/*.mk
+%attr(0755,root,root) %{_libdir}/apache2/build/*.sh
+%attr(0755,root,root) %{_libdir}/apache2/build/envvars
+%attr(0755,root,root) %{_libdir}/apache2/build/libtool
+%attr(0755,root,root) %{_libdir}/apache2/build/config.nice
 %attr(0755,root,root) %{_sbindir}/envvars-std
-%{apxs}
-%doc srclib/apr/CHANGES srclib/apr/README* srclib/apr/docs/*
-%attr(0755,root,root) %{_bindir}/ap*-config
-%attr(0644,root,root) %{_libdir}/*.exp
-%attr(0755,root,root) %{_libdir}/libapr-*.so
-%attr(0755,root,root) %{_libdir}/libapr-*.la
-%attr(0755,root,root) %{_libdir}/libapr-*.a
-%attr(0755,root,root) %{_libdir}/libaprutil-*.a
-%attr(0755,root,root) %{_libdir}/libaprutil-*.la
-%attr(0755,root,root) %{_libdir}/libaprutil-*.so
+%attr(0755,root,root) %{_sbindir}/apxs2
 
 %files source
 #Do not put apache.apache here, otherwise anyone with web access can 
 #tamper with the files!!!!
 %defattr(-,root,root)
-%{ap_abs_srcdir}
+%{srcdir}
 
 %changelog
+* Fri Feb 25 2005 Vincent Danen <vdanen@annvix.org> 2.0.53-1avx
+- 2.0.53
+- drop P105, P106 (upstream)
+- this isn't really AdvancedExtranetServer anymore...
+- get rid of all ADVX-build stuff
+- put apachectl back in (needed by ZendStudioServer, and possibly other
+  apps)
+- P48: fix for wrongly assuming IPv6 on listen
+- fix the config_vars.mk file again (oden)
+- provide logfiles in the debug build (oden)
+- comment in some multiarch stuff for when we move to it
+- P95: LDAP socket timeout patch (oden)
+
+* Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> 2.0.52-5avx
+- rebuild against new gdbm
+
+* Thu Jan 06 2005 Vincent Danen <vdanen@annvix.org> 2.0.52-4avx
+- rebuild against new openssl
+
+* Wed Nov 10 2004 Vincent Danen <vdanen@annvix.org> 2.0.52-3avx
+- P106: patch to fix CAN-2004-0942
+
+* Fri Nov  5 2004 Vincent Danen <vdanen@annvix.org> 2.0.52-2avx
+- P105: patch to fix CAN-2004-0885
+
+* Thu Oct 14 2004 Vincent Danen <vdanen@annvix.org> 2.0.52-1avx
+- 2.0.52
+- added patches from Fedora: P53, P93, P94
+- updated patches from Fedora: P1, P3, P25, P39, P84, P86
+- dropped patches: P8, P50, P52, P85, P200, P201, P202, P203 (merged
+  upstream), P26, P88 (no longer needed?)
+- move the runscripts and afterboot snippet to apache-conf
+- merge with cooker 2.0.50-7mdk:
+  - lib64 fixes (gbeauchesne)
+  - from oden:
+    - added security fixes to the source for mod_ssl from ASF (P202, P203)
+      that address CAN-2004-0747 and CAN-2004-0809
+    - added security fixes to the source for mod_ssl from SUSE (P200, P201)
+      that address CAN-2004-0748 and CAN-2004-0751
+    - added fix P39 (fedora)
+    - enable mod_log_forensic
+    - drop P46, P48, P49, P51, P53, P54, P55, P81, P89, and P90, these are
+      integrated upstream as well as fixes for CAN-2004-0488 and CAN-2004-0493
+    - move mod_ssl to an external source rpm package
+    - remove distcache stuff as we build it using an external source rpm package
+    - sync with fedora (P7, P55) (2.0.49-7)
+  - from jmd:
+    - use fcntl for mutexes instead of posix mutexes (which won't work on
+      non-NPTL kernels and some older processors), or sysvsem which are not
+      resistant under high load
+    - should fix bug #9101 at last
+    - tested under heavy load: 100,000 hits in 4 minutes, 1000 simultaneous
+      connections, load average went up to 835.40, not a single failed request
+    - tested under NPTL kernel and User-Mode Linux kernel using linuxthreads
+  - from oden:
+    - sync with fedora (P52, P53, P54, P72, P91, P92, P300)
+    - drop P100 in favour of P54
+    - bump server limit again
+    - fix deps
+    - provide a cleaner source package
+    - add the metux mpm (P104)
+    - bump DEFAULT_SERVER_LIMIT for the prefork mpm
+    - use the %%configure2_5x macro
+    - use --enable-exception-hook if a debug build
+    - added P103 (fix mod_ldap cache file location) and add the ghostfile
+    - new P90 (jorton) fix #9120
+    - added S6 and S7 (mod_backtrace and mod_whatkilledus is built if a debug build)
+    - sync with fedroa (P51, P90)
+    - split out the apr suite as apr-0.9.5-1avx and apr-util-0.9.5-1avx
+    - borrowed a lot of stuff from fedora
+    - removed a lot of patches
+    - made a lot of spec file changes
+    - require new ADVX-build >= 10 (and fix #5732)
+
+* Tue Sep 14 2004 Vincent Danen <vdanen@annvix.org> 2.0.49-8avx
+- P9-P13: security patches for CAN-2004-0748, CAN-2004-0751, 
+  CAN-2004-0747, CAN-2004-0786, and CAN-2004-0809
+- updated runscripts
+
+* Thu Aug 19 2004 Vincent Danen <vdanen@annvix.org> 2.0.49-7avx
+- log/run was still logging to /var/log/supervise/apache2 rather than
+  ../httpd2; fixed
+
+* Fri Aug 13 2004 Vincent Danen <vdanen@annvix.org> 2.0.49-6avx
+- rebuild against new openssl
+
+* Wed Jul 14 2004 Vincent Danen <vdanen@annvix.org> 2.0.49-5avx
+- use %%_post_srv rather than %%ADVXctl although this is less
+  than efficient (in either case) because apache will start and
+  stop a dozen times if you upgrade a dozen modules (need hooks
+  in urpmi perhaps?)
+- update the afterboot man-snippet
+- remove ADVX Provides
+- fix __spec_install_post
+- apache2-devel requires pcre-devel
+- don't enable debug by default
+- sync with 2.0.48-6mdk:
+  - /var/lib/dav owned by apache, otherwise mod_dav doesn't work
+    properly (misc)
+  - fix #6308 (mod_ssl error due to incorrect perms) (misc)
+  - fix various [DIRM],[CFLP] (misc)
+
+* Mon Jun 28 2004 Vincent Danen <vdanen@annvix.org> 2.0.49-4avx
+- P8: security fix for CAN-2004-0493
+
+* Sun Jun 27 2004 Vincent Danen <vdanen@annvix.org> 2.0.49-3avx
+- Annvix build
+
 * Thu Jun 03 2004 Vincent Danen <vdanen@opensls.org> 2.0.49-2sls
 - P7: security fix for CAN-2004-0488
 

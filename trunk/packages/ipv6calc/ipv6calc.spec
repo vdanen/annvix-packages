@@ -1,6 +1,6 @@
 %define name	ipv6calc
 %define version	0.46
-%define release	2sls
+%define release	5avx
 
 Summary:	IPv6 address format change and calculation utility
 Name:		%{name}
@@ -65,6 +65,15 @@ install -m0755 ipv6logstats/ipv6logstats %{buildroot}%{_bindir}/
 %attr(0755,root,root) %{_bindir}/ipv6logstats
 
 %changelog
+* Thu Jan 06 2005 Vincent Danen <vdanen@annvix.org> 0.46-5avx
+- rebuild against new openssl
+
+* Tue Aug 17 2004 Vincent Danen <vdanen@annvix.org> 0.46-4avx
+- rebuild against new openssl
+
+* Thu Jun 24 2004 Vincent Danen <vdanen@annvix.org> 0.46-3avx
+- Annvix build
+
 * Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 0.46-2sls
 - minor spec cleanups
 

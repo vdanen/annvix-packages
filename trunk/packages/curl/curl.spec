@@ -1,18 +1,19 @@
 %define name	curl
-%define version 7.11.1
-%define release	1sls
+%define version 7.13.0
+%define release	1avx
 
-%define major	2
+%define major	3
 %define libname %mklibname %{name} %{major}
 
 # Define to make check (default behavior)
 %define do_check 1
+%define __libtoolize /bin/true
 
 # Enable --with[out] <feature> at rpm command line
 %{?_with_CHECK: %{expand: %%define do_check 1}}
 %{?_without_CHECK: %{expand: %%define do_check 0}}
 
-Summary:	Gets a file from a FTP, GOPHER or HTTP server.
+Summary:	Gets a file from a FTP, GOPHER or HTTP server
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -20,8 +21,9 @@ License:	MIT
 Group:		Networking/Other
 URL:		http://curl.haxx.se/
 Source:		http://curl.haxx.se/download/%{name}-%{version}.tar.bz2
-Patch0:		curl-7.5-missingfcntl_h.patch.bz2
 Patch1:		curl-7.10.4-compat-location-trusted.patch.bz2
+Patch2:		curl-7.13.0-64bit-fixes.patch.bz2
+Patch3:		curl-7.13.0-CAN-2005-0490.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-buildroot
 BuildRequires:	bison groff-for-man openssl-devel zlib-devel
@@ -36,10 +38,8 @@ interaction or any kind of interactivity.
 curl offers a busload of useful tricks like proxy support, user
 authentication, ftp upload, HTTP post, file transfer resume and more.
 
-If you wish to install this package, you must also install the curl-lib
-package.
+This version is compiled with SSL (https) support.
 
-NOTE: This version is compiled with SSL (https) support.
 
 %package -n %{libname}
 Summary:	A library of functions for file transfer
@@ -52,7 +52,7 @@ libcurl is a library of functions for sending and receiving files through
 various protocols, including http and ftp.
 
 You should install this package if you plan to use any applications that 
-use libcurl
+use libcurl.
 
 
 %package -n %{libname}-devel
@@ -72,21 +72,32 @@ utilize libcurl.
 
 %prep
 %setup -q -n %{name}-%{version}
-%patch0 -p1
 %patch1 -p1
+%patch2 -p1 -b .64bit-fixes
+%patch3 -p0 -b .can-2005-0490
+
+# fix test517 with correct results according to curl_getdate() specs
+cat > ptrsize.c << EOF
+#include <time.h>
+#include <stdio.h>
+int main(void)
+{
+  printf("%d\n", sizeof(time_t));
+  return 0;
+}
+EOF
+%{__cc} -o ptrsize ptrsize.c
+case `./ptrsize` in
+4) ;;
+8) mv -f ./tests/data/test517{.64,} ;;
+*) exit 1 ;;
+esac
 
 %build
-# A dynamic patch using perl but a bit agressive... (fpons)
-perl -pe s/shared_ext/shrext/g -i configure
-
 %configure2_5x --with-ssl
 %make
 
-skip_tests=
-%ifarch x86_64
-# FIXME: RFC1867 tests hang on this architecture
-skip_tests="9 39 44"
-%endif
+skip_tests="241"
 [ -n "$skip_tests" ] && {
   mkdir ./tests/data/skip/
   for t in $skip_tests; do
@@ -133,6 +144,26 @@ make check
 %{_mandir}/man3/*
 
 %changelog
+* Mon Feb 28 2005 Vincent Danen <vdanen@annvix.org> 7.13.0-1avx
+- 7.13.0
+- P2: 64bit fixes in the testsuite for curl_getdate() with 64bit
+  time_t (gbeauchesne)
+- P3: fix for CAN-2005-0490
+
+* Wed Dec 22 2004 Vincent Danen <vdanen@annvix.org> 7.12.3-1avx
+- 7.12.3
+- remove P0
+- skip new test #241 on both archs
+- skip tests 23 118 119 125 145 201 205 223 517 on x86_64
+
+* Tue Aug 17 2004 Vincent Danen <vdanen@annvix.org> 7.12.1-1avx
+- 7.12.1
+- remove fpons' "dynamic patch"
+- set %%__libtoolize to /bin/true
+
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 7.11.1-2avx
+- Annvix build
+
 * Sat Apr 24 2004 Vincent Danen <vdanen@opensls.org> 7.11.1-1sls
 - 7.11.1
 - drop P2; applied upstream

@@ -1,0 +1,7 @@
+#!/bin/sh
+
+if [ -z $KSYMOOPS_NM ]; then
+    export KSYMOOPS_NM=/usr/bin/ksymoops-gznm
+fi
+
+exec /usr/bin/ksymoops.real $@

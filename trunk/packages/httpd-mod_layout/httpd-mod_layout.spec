@@ -1,20 +1,16 @@
-%define name	%{ap_name}-%{mod_name}
-%define version	%{ap_version}_%{mod_version}
-%define release 1sls
+%define name	apache2-%{mod_name}
+%define version	%{apache_version}_%{mod_version}
+%define release 1avx
 
 # Module-Specific definitions
+%define apache_version	2.0.53
 %define mod_version	4.0.1a
 %define mod_name	mod_layout
 %define mod_conf	15_%{mod_name}.conf
 %define mod_so		%{mod_name}.so
 %define sourcename	%{mod_name}-%{mod_version}
 
-# New ADVX macros
-%define ADVXdir %{_datadir}/ADVX
-%{expand:%(cat %{ADVXdir}/ADVX-build)}
-%{expand:%%global ap_version %(%{apxs} -q ap_version)}
-
-Summary:	Add custom header and/or footers for %{ap_name}
+Summary:	Add custom header and/or footers for apache2
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -26,16 +22,10 @@ Source1:	%{mod_conf}.bz2
 Patch0:		%{mod_name}-%{mod_version}-register.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-buildroot
-# Standard ADVX requires
-BuildRequires:  ADVX-build >= 9.2
-BuildRequires:  %{ap_name}-devel >= 2.0.43-5mdk
+BuildRequires:  apache2-devel >= %{apache_version}
 
 Prereq:		rpm-helper
-# Standard ADVX requires
-Prereq:		%{ap_name} = %{ap_version}
-Prereq:		%{ap_name}-conf
-Provides: 	ADVXpackage
-Provides:	AP20package
+Prereq:		apache2 >= %{apache_version}, apache2-conf
 
 %description
 Mod_Layout creates a framework for doing design. Whether you need
@@ -54,7 +44,7 @@ creating large custom portal sites.
 
 %build
 
-%{apxs} -c mod_layout.c utility.c layout.c
+%{_sbindir}/apxs2 -c mod_layout.c utility.c layout.c
 
 cat > index.html <<EOF
 
@@ -62,7 +52,7 @@ cat > index.html <<EOF
 <a href="http://software.tangent.org/">tangent.org</a> 
 for more information</p>
 
-<p>Meanwhile take a look at the %{ap_confd}/%{mod_conf} file</p>
+<p>Meanwhile take a look at the %{_sysconfdir}/httpd/conf.d/%{mod_conf} file</p>
 
 <-- replace_me -->
 
@@ -71,33 +61,41 @@ EOF
 %install
 [ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
 
-%ADVXinstlib
-%ADVXinstconf %{SOURCE1} %{mod_conf}
-%ADVXinstdoc %{name}-%{version}
+mkdir -p %{buildroot}%{_libdir}/apache2-extramodules
+mkdir -p %{buildroot}%{_sysconfdir}/httpd/conf.d
+install -m 0755 .libs/*.so %{buildroot}%{_libdir}/apache2-extramodules/
+bzcat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/conf.d/%{mod_conf}
+
+mkdir -p %{buildroot}/var/www/html/addon-modules
+ln -s ../../../../%{_docdir}/%{name}-%{version} %{buildroot}/var/www/html/addon-modules/%{name}-%{version}
 
 # make the example work... (ugly, but it works...)
 
 NEW_URL=/addon-modules/%{name}-%{version}/index.html
-perl -pi -e "s|_REPLACE_ME_|$NEW_URL|g" %{buildroot}%{ap_confd}/%{mod_conf}
+perl -pi -e "s|_REPLACE_ME_|$NEW_URL|g" %{buildroot}%{_sysconfdir}/httpd/conf.d/%{mod_conf}
 
 
 %clean
 [ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
 
-%post
-%ADVXpost
-
-%postun
-%ADVXpost
-
 %files
 %defattr(-,root,root)
-%config(noreplace) %{ap_confd}/%{mod_conf}
-%{ap_extralibs}/%{mod_so}
-%{ap_webdoc}/*
 %doc ChangeLog INSTALL README index.html
+%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/httpd/conf.d/%{mod_conf}
+%attr(0755,root,root) %{_libdir}/apache2-extramodules/%{mod_so}
+/var/www/html/addon-modules/*
 
 %changelog
+* Sat Feb 26 2005 Vincent Danen <vdanen@annvix.org> 2.0.53_4.0.1a-1avx
+- apache 2.0.53
+- remove ADVX stuff
+
+* Thu Oct 14 2004 Vincent Danen <vdanen@annvix.org> 2.0.52_4.0.1a-1avx
+- apache 2.0.52
+
+* Sun Jun 27 2004 Vincent Danen <vdanen@annvix.org> 2.0.49_4.0.1a-2avx
+- Annvix build
+
 * Fri May 07 2004 Vincent Danen <vdanen@opensls.org> 2.0.49_4.0.1a-1sls
 - apache 2.0.49
 

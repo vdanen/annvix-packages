@@ -1,6 +1,6 @@
 %define name	cdialog
 %define version	0.9b
-%define release	6sls
+%define release	7avx
 
 %define datetag 20030308
 
@@ -54,6 +54,9 @@ mkdir -p %{buildroot}%{_mandir}/man1
 %{_mandir}/man1/dialog.1.bz2
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 0.9b-7avx
+- Annvix build
+
 * Tue Mar 02 2004 Vincent Danen <vdanen@opensls.org> 0.9b-6sls
 - minor spec cleanups
 

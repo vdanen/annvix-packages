@@ -1,8 +1,11 @@
 %define name	automake%{amversion}
-%define version 1.7.6
-%define release 3sls
+%define version 1.7.9
+%define release 1avx
 
 %define amversion 1.7
+
+%define docheck	0
+%{?_with_check: %global docheck 1}
 
 %define alternatives_install_cmd update-alternatives --install %{_bindir}/automake automake %{_bindir}/automake-%{amversion} 10 --slave %{_bindir}/aclocal aclocal %{_bindir}/aclocal-%{amversion}
 
@@ -14,14 +17,14 @@ License:	GPL
 Group:		Development/Other
 URL:		http://sources.redhat.com/automake/
 Source:		ftp://ftp.gnu.org/gnu/automake/automake-%{version}.tar.bz2
-Patch:		automake-1.7.6-infofiles.patch.bz2
+Patch:		automake-1.7.9-infofiles.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root
 BuildArch:	noarch
 BuildRequires:	autoconf2.5 byacc flex gawk /usr/bin/perl tetex texinfo
 
-PreReq:		/sbin/install-info, /usr/sbin/update-alternatives
-Requires:	/usr/bin/perl, autoconf2.5
+PreReq:		info-install, rpm
+Requires:	perl, autoconf2.5
 Provides:	automake = %{version}-%{release}
 Obsoletes:	automake1.5
 
@@ -36,32 +39,45 @@ Autoconf package.
 
 %prep
 %setup -q -n automake-%{version}
-%patch0 -p0
+%patch0 -p0 -b .parallel
 
 %build
 export WANT_AUTOCONF_2_5=1
 %configure2_5x
-make
-#make check
-makeinfo automake.texi
+%make
+
+%if %{docheck}
+# (Abel) reqd2.test tries to make sure automake won't work if ltmain.sh
+# is not present.  But automake behaviour changed, now it can handle missing
+# libtool file as well, so this test is bogus.
+perl -pi -e 's/reqd2.test//g' tests/Makefile
+make check  # VERBOSE=1
+%endif
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-%makeinstall
-rm -f $RPM_BUILD_ROOT/%{_bindir}/{automake,aclocal}
-rm -f $RPM_BUILD_ROOT/%{_infodir}/*
-install -m 644 %{name}*info* $RPM_BUILD_ROOT/%{_infodir}
+%makeinstall_std
+
+rm -f %{buildroot}%{_bindir}/{automake,aclocal}
+rm -f %{buildroot}%{_infodir}/*
+install -m 0644 automake*info* %{buildroot}%{_infodir}
+
+pushd %{buildroot}%{_infodir}
+    for i in *.info*; do
+        mv $i %{name}${i#automake}
+    done
+popd
+
+mkdir -p %{buildroot}%{_datadir}/aclocal
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
 %_install_info %name.info
-%{alternatives_install_cmd}
-
-# (gc) necessary when we upgrade from a non alternativized package, because it's executed after the old files are removed
-%triggerpostun -- automake1.5
-[ -e %{_bindir}/automake-%{amversion} ] && %{alternatives_install_cmd} || :
+update-alternatives \
+  --install %{_bindir}/automake automake %{_bindir}/automake-%{amversion} 20 \
+  --slave   %{_bindir}/aclocal  aclocal  %{_bindir}/aclocal=%{amversion}
 
 %preun
 %_remove_install_info %name.info
@@ -78,6 +94,17 @@ fi
 %{_datadir}/aclocal*
 
 %changelog
+* Fri Sep 24 2004 Vincent Danen <vdanen@annvix.org> 1.7.9-1avx
+- 1.7.9
+- tune up alternative priority (abel)
+- add -with-check option to enable 'make check' (abel)
+- adjust P0 to refer to the actual command (*-1.7 rather than *1.7) (abel)
+- also owns /usr/share/aclocal (abel)
+
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 1.7.6-4avx
+- Annvix build
+- require packages not files
+
 * Sun Feb 29 2004 Vincent Danen <vdanen@opensls.org> 1.7.6-3sls
 - remove %%{prefix}
 - minor spec cleanups

@@ -1,6 +1,6 @@
 %define name	tcsh
 %define version	6.12
-%define release	8sls
+%define release	9avx
 
 %define rversion %{version}.00
 
@@ -77,6 +77,9 @@ install %{SOURCE1} %buildroot%{_sysconfdir}/profile.d/$(basename %{SOURCE1})
 %_mandir/*/*
 
 %changelog
+* Sat Jun 19 2004 Vincent Danen <vdanen@annvix.org> 6.12-9avx
+- Annvix build
+
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 6.12-8sls
 - minor spec cleanups
 

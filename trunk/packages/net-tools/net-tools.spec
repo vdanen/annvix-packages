@@ -1,6 +1,6 @@
 %define name	net-tools
 %define version 1.60
-%define release 11sls
+%define release 12avx
 
 %define url http://www.tazenda.demon.co.uk/phil/net-tools/
 
@@ -76,6 +76,9 @@ rm -rf %{buildroot}%{_mandir}/{de,pt_BR,fr}
 %{_mandir}/man[158]/*
 
 %changelog
+* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 1.60-12avx
+- Annvix build
+
 * Sun Mar 07 2004 Vincent Danen <vdanen@opensls.org> 1.60-11sls
 - minor spec cleanups
 - remove the non-english manpages

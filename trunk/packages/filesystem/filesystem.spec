@@ -1,23 +1,22 @@
 %define name	filesystem
-%define version	2.1.4
-%define release	3sls
+%define version	2.1.5
+%define release	2avx
 
-Summary:	The basic directory layout for a Linux system.
+Summary:	The basic directory layout for an Annvix system
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	Public Domain
 Group:		System/Base
-Source0:	filesystem-%{version}.tar.bz2
+URL:		http://annvix.org/
 
 Buildroot:	%{_tmppath}/%{name}-root
-BuildArch:	noarch
 
 Requires:	setup
 
 %description
 The filesystem package is one of the basic packages that is installed on
-an OpenSLS system.  Filesystem  contains the basic directory layout
+an Annvix system.  Filesystem  contains the basic directory layout
 for a Linux operating system, including the correct permissions for the
 directories.
 
@@ -25,66 +24,64 @@ directories.
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir $RPM_BUILD_ROOT
+mkdir %{buildroot}
 
-tar xfj %{SOURCE0} -C $RPM_BUILD_ROOT
+# add /sys when we move to kernel 2.6
+pushd %{buildroot}
+  mkdir -p media bin boot \
+    etc/{profile.d,skel,security,ssl,sysconfig} \
+    home initrd lib/modules %{_lib} mnt media opt proc root sbin srv tmp \
+    usr/{bin,etc,include,%{_lib}/gcc-lib,lib/gcc-lib,local/{bin,doc,etc,lib,%{_lib},sbin,src,share/{man/man{1,2,3,4,5,6,7,8,9,n},info},libexec,include,},sbin,share/{doc,info,man/man{1,2,3,4,5,6,7,8,9,n},misc,empty,pixmaps},src,X11R6/{bin,include,lib,%{_lib},man}} \
+    var/{empty,lib/misc,local,lock/subsys,log/supervise,mail,nis,preserve,run,service,spool/lpd,tmp,cache/man,opt,yp}
+
+  ln -snf ../X11R6/bin usr/bin/X11
+  ln -snf ../X11R6/lib/X11 usr/lib/X11
+  ln -snf ../X11R6/%{_lib}/X11 usr/%{_lib}/X11
+  ln -snf ../mail var/spool/mail
+  ln -snf ../var/tmp usr/tmp
+  ln -snf lib/misc var/db
+popd
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-## these scripts should be removed at some point before 1.0-RELEASE; they
-## only exist now for upgrade compatibility for the few people tracking CURRENT
-%pre
-if [ -d /var/db ]; then
-  mv /var/db/* /var/lib/misc 2>/dev/null
-  rm -rf /var/db
-fi
-if [ -d /var/spool/mail ]; then
-  mv /var/spool/mail /var/spool/mail.org
-fi
-
-%post
-if [ -d /var/spool/mail.org ]; then
-  mv /var/spool/mail.org/* /var/mail 2>/dev/null
-  rm -rf /var/spool/mail.org
-fi
 
 %files
 %defattr(0755,root,root)
 /bin
 /boot
-%dir %{_sysconfdir}
-%dir %{_sysconfdir}/profile.d
-%dir %{_sysconfdir}/security
+%dir /etc
+/etc/profile.d
+/etc/security
+/etc/sysconfig
+/etc/ssl
 /home
 /initrd
 /lib
+%if %{_lib} != lib
+/%{_lib}
+%endif
 %dir /mnt
 %dir /media
 %dir /opt
 %attr(555,root,root) /proc
+# when we move to a 2.6 kernel:
+#%attr(555,root,root) /sys
 %attr(750,root,root) /root
 /sbin
 %attr(1777,root,root) /tmp
-%dir /usr
-/usr/[^s]*
-/usr/sbin
-%dir /usr/share
-/usr/share/doc
-%attr(555,root,root) %dir /usr/share/empty
-/usr/share/info
-/usr/share/man
-/usr/share/misc
-/usr/share/pixmaps
-/usr/src
+/usr
 %dir /var
 /var/db
+%dir %attr(0755,root,root) /var/empty
 /var/lib
 /var/local
 %dir %attr(775,root,root) /var/lock
 %attr(755,root,root) /var/lock/subsys
 /var/cache
 /var/log
+%attr(0700,logger,logger) /var/log/supervise
 /var/nis
 /var/opt
 /var/preserve
@@ -99,6 +96,20 @@ fi
 /srv
 
 %changelog
+* Thu Mar 03 2005 Vincent Danen <vdanen@opensls.org> 2.1.5-2avx
+- own /var/log/supervise
+
+* Tue Sep 14 2004 Vincent Danen <vdanen@opensls.org> 2.1.5-1avx
+- 2.1.5
+- remove compatability upgrade scripts
+- follow mdk method of spec simplification
+- make it lib64 aware (so no more noarch)
+- switched to direct build of the directories; drop S0
+- add /etc/ssl, /etc/sysconfig, and /var/empty
+
+* Fri Jun 25 2004 Vincent Danen <vdanen@opensls.org> 2.1.4-4avx
+- Annvix build
+
 * Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 2.1.4-3sls
 - grrr... use some %%pre/%%post scripts to solve moving the symlinks around
 

@@ -1,6 +1,6 @@
 %define	name	dmapi
 %define	version	2.1.0
-%define	release	1sls
+%define	release	2avx
 
 %define lib_name_orig	libdm
 %define lib_major	0
@@ -87,6 +87,9 @@ rm -rf %{buildroot}%{_datadir}/doc/dmapi
 %{_includedir}/*/*
 
 %changelog
+* Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 2.1.0-2avx
+- Annvix build
+
 * Sun Feb 29 2004 Vincent Danen <vdanen@opensls.org> 2.1.0-1sls
 - OpenSLS build
 - tidy spec

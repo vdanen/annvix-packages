@@ -1,6 +1,6 @@
 %define name	mpage
 %define version	2.5.3
-%define release	7sls
+%define release	8avx
 
 Summary:	A tool for printing multiple pages of text on each printed page.
 Name:		%{name}
@@ -61,6 +61,9 @@ cp -a Encodings/* $RPM_BUILD_ROOT%_libdir/%name
 %_datadir/mpage
 
 %changelog
+* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 2.5.3-8avx
+- Annvix build
+
 * Sun Mar 07 2004 Vincent Danen <vdanen@opensls.org> 2.5.3-7sls
 - minor spec cleanups
 

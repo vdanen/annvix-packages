@@ -1,6 +1,6 @@
 %define name	ppp
-%define version	2.4.1
-%define release	14sls
+%define version	2.4.2
+%define release	2avx
 
 Summary:	The PPP daemon and documentation for Linux 1.3.xx and greater.
 Name:		%{name}
@@ -12,26 +12,21 @@ URL:		http://www.samba.org/ppp
 Source0:	ftp://ftp.samba.org/pub/ppp/ppp-%{version}.tar.bz2
 Source1:	ppp-2.3.5-pamd.conf
 Source2:	ppp-2.4.1-mppe-crypto.tar.bz2
-Patch0:		ppp-2.4.1-make.patch.bz2
+Source3:	README.pppoatm
+Source4:	ppp.logrotate
+Patch0:		ppp-2.4.2-make.patch.bz2
 Patch1:		ppp-2.3.6-sample.patch.bz2
-Patch2:		ppp-2.3.9-wtmp.patch.bz2
-Patch4:		ppp-2.3.11-makeopt.patch.bz2
-Patch5:		ppp-options.patch.bz2
-patch6:		ppp-2.3.11-pam_session.patch.bz2
-Patch7:		ppp-2.4.1-pppdump-Makefile.patch.bz2
-Patch8:		ppp-2.4.1-zfree.patch.bz2
-Patch9:		ppp-2.4.1-mppe.patch.bz2
-Patch10:	ppp-2.4.1-includes.patch.bz2
-Patch11:	ppp-2.4.1-libdir.patch.bz2
-Patch12:	ppp-2.4.1-filter.patch.bz2
-Patch13:	ppp-2.4.1-noexttraffic.patch.bz2
-Patch14:	ppp-2.4.1-gcc.patch.bz2
-Patch15:	ppp-2.4.1-varargs.patch.bz2
+Patch2:		ppp-2.4.2-wtmp.patch.bz2
+Patch3:		ppp-2.4.2-makeopt.patch.bz2
+Patch4:		ppp-options.patch.bz2
+Patch5:		ppp-2.4.2-pppdump-Makefile.patch.bz2
+Patch6:		ppp-2.4.1-noexttraffic.patch.bz2
+Patch7:		ppp-2.4.1-pcap.patch.bz2
 #PPPoATM support
-Patch20:	ppp-2.4.1-pppoe.patch.bz2
-Patch21:	ppp-2.4.1-pppoatm.patch.bz2
-#disconnection problem patch
-Patch30:	ppp-2.4.1-disconnection.patch.bz2
+#Patch8:		http://www.sfgoth.com/~mitch/linux/atm/pppoatm/ppp-2.4.1-pppoatm.patch.bz2
+Patch8:		http://linux-usb.sourceforge.net/SpeedTouch/download/pppoatm.diff
+Patch9:		ppp-2.4.2-pie.patch.bz2
+Patch10:	ppp-2.4.2-dontwriteetc.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-root
 BuildRequires:	liblinux-atm-devel
@@ -48,6 +43,14 @@ method for transmitting datagrams over serial point-to-point links.
 
 The ppp package should be installed if your machine need to support
 the PPP protocol.
+
+%package devel
+Summary:	PPP development files
+Group:		Development/C
+Requires:	%{name} = %{version}-%{release}
+
+%description devel
+The development files for PPP.
 
 %package pppoatm
 Summary:	PPP over ATM plugin for %{name}
@@ -67,35 +70,19 @@ PPP over ethernet plugin for %{name}.
 
 %prep
 %setup  -q
+%patch10 -p1 -b .dontwriteetc
 %patch0 -p1 -b .make
 %patch1 -p1 -b .sample
 %patch2 -p1 -b .wtmp
-%patch4 -p0 -b .makeopt
-%patch5 -p1 -b .options
-%patch6 -p1
-%patch7 -p1 -b .pppdump-Makefile
-%patch8 -p1 -b .zfree
-
-# (stew) add mppe functionality for MS pptp VPN dialin account
-%patch9 -p1 -b .mppe
-
-%patch10 -p1 -b .includes
-%patch11 -p1 -b .libdir
-# (gg) add filter capability
-%patch12 -p1 -b .filter
+%patch3 -p1 -b .makeopt
+%patch4 -p1 -b .options
+%patch5 -p1 -b .pppdump-Makefile
 # (gg) add noext-traffic option
-%patch13 -p1 -b .noext
-
-# (Guillaume Rousse) add pppoatm for ADSL modems
-%patch20 -p1 -b .pppoe
-%patch21 -p1 -b .pppoatm
-
-# (Guillaume Rousse) deconnection problems
-%patch30
-
-# fix gcc compilation
-%patch14
-%patch15 -p1 -b .varargs
+%patch6 -p1 -b .noext
+# use pcap-bpf.h instead of net/bpf.h
+%patch7 -p1 -b .pcap
+%patch8 -p1 -b .pppoatm
+%patch9 -p1 -b .pie
 
 tar -xjf %{SOURCE2}
 
@@ -113,52 +100,73 @@ perl -pi -e "s/openssl/openssl -DOPENSSL_NO_SHA1/;" openssl/crypto/sha/Makefile
 CFLAGS="$OPT_FLAGS" CXXFLAGS="$OPT_FLAGS" %configure
 # remove the following line when rebuilding against kernel 2.4 for multilink
 #perl -pi -e "s|-DHAVE_MULTILINK||" pppd/Makefile
+%ifarch amd64 x86_64
+make RPM_OPT_FLAGS="$OPT_FLAGS -DDO_BSD_COMPRESS=0 -fPIC"
+%else
 make RPM_OPT_FLAGS="$OPT_FLAGS -DDO_BSD_COMPRESS=0"
+%endif
 make -C pppd/plugins -f Makefile.linux
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p %{buildroot}/{%{_sbindir},%{_mandir}/man8,%{_sysconfdir}/{ppp/peers,pam.d}}
 
-make install \
+%makeinstall_std \
 	BINDIR=%{buildroot}/%{_sbindir} \
 	MANDIR=%{buildroot}/%{_mandir} \
 	ETCDIR=%{buildroot}/%{_sysconfdir}/ppp \
-	LIBDIR=%{buildroot}%{_libdir} \
-	INSTALL="/usr/bin/install"
+	LIBDIR=%{buildroot}%{_libdir}/pppd/%{version} \
+	INSTALL="%{_bindir}/install"
 
-## it shouldn't be SUID root be default
-#chmod 755 %{buildroot}/usr/sbin/pppd
-# dunno who mde the previous comment, but I (jerome) changed
-# the acces to 4755 in order for kppp and other stuff to work with pppd
+# (florin) strip the binary
+strip %{buildroot}/%{_sbindir}/pppd
+
+# it shouldn't be SUID root be default
+chmod 755 %{buildroot}%{_sbindir}/pppd
 
 chmod go+r scripts/*
 install -m 644 %{SOURCE1} %{buildroot}/%{_sysconfdir}/pam.d/ppp
+install -m 644 %{SOURCE3} %{_builddir}/%{name}-%{version}
 
 # (stew) fix permissions
 chmod 0644 README.MSCHAP80
 
 #mknod %{buildroot}/dev/ppp c 108 0
 
+# Provide pointers for people who expect stuff in old places
+ln -s ../../var/log/ppp/connect-errors %{buildroot}%{_sysconfdir}/ppp/connect-errors
+ln -s ../../var/log/ppp/resolv.conf %{buildroot}%{_sysconfdir}/ppp/resolv.conf
+
+# logrotate
+mkdir -p %{buildroot}%{_sysconfdir}/logrotate.d
+install -m 0644 %{SOURCE4} %{buildroot}%{_sysconfdir}/logrotate.d/ppp
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
-%doc README README.linux README.MSCHAP80 README.cbcp scripts sample
+%doc FAQ PLUGINS README* scripts sample
 %{_sbindir}/chat
 %{_sbindir}/pppdump
-%attr(5755,root,root)	%{_sbindir}/pppd
+%attr(0755,root,root)	%{_sbindir}/pppd
 %attr(0755,root,daemon)	%{_sbindir}/pppstats
 %{_mandir}/man*/*
+%dir %{_libdir}/pppd
 %{_libdir}/pppd/%{version}
 %exclude %{_libdir}/pppd/%{version}/pppoatm.so
-%exclude %{_libdir}/pppd/%{version}/pppoe.so
+%exclude %{_libdir}/pppd/%{version}/rp-pppoe.so
 %dir %{_sysconfdir}/ppp
 %dir %{_sysconfdir}/ppp/peers
-%attr(0600,root,daemon)	%config(noreplace) %{_sysconfdir}/ppp/*-secrets
-%attr(0644,root,daemon)	%config(noreplace) %{_sysconfdir}/ppp/options
+%dir /var/run/ppp
+%attr(0700,root,root) %dir /var/log/ppp
+%attr(0600,root,daemon)	%config(noreplace) %{_sysconfdir}/ppp/*
 %config(noreplace) %{_sysconfdir}/pam.d/ppp
+%config(noreplace) %{_sysconfdir}/logrotate.d/ppp
+
+%files devel
+%defattr(-,root,root)
+%{_includedir}/pppd/*
 
 %files pppoatm
 %defattr(-,root,root)
@@ -166,9 +174,32 @@ chmod 0644 README.MSCHAP80
 
 %files pppoe
 %defattr(-,root,root)
-%{_libdir}/pppd/%{version}/pppoe.so
+%{_libdir}/pppd/%{version}/rp-pppoe.so
 
 %changelog
+* Thu Jan 06 2005 Vincent Danen <vdanen@annvix.org> 2.4.2-2avx
+- rebuild against new openssl
+
+* Tue Aug 17 2004 Vincent Danen <vdanen@annvix.org> 2.4.2-1avx
+- 2.4.2
+- own directories
+- strip suid bit from pppd; we don't need it since users shouldn't
+  be connecting to the internet on a server system
+- pass -fPIC if compiling on x86_64
+- merge with cooker 2.4.2-2mdk (florin):
+  - update the make, makeopt, wtmp patches
+  - remove the pam_sessions, zfree, mppe, includes, libdir, filter
+    pppoe, disconnect, gcc, pcap, varargs obsolete patches
+  - add the include files
+  - add the README.pppoatm FAW PLUGINS files
+  - add the logrotate patch and file (rh)
+  - add the pie, dontwriteetc patches (rh)
+  - use a different pppoatm patch
+
+* Sun Jun 27 2004 Vincent Danen <vdanen@annvix.org> 2.4.1-15avx
+- Annvix build
+- P16: need to include pcap-bpf.h instead of net/bpf.h
+
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 2.4.1-14sls
 - minor spec cleanups
 

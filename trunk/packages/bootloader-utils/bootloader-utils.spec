@@ -1,6 +1,6 @@
 %define name	bootloader-utils
 %define version	1.6
-%define release	6sls
+%define release	9avx
 
 %define _mypost_service() if [ $1 = 1 ]; then /sbin/chkconfig --add %{1}; fi;
 
@@ -12,7 +12,7 @@ License:	GPL
 Group:		System/Kernel and hardware
 URL:		http://www.linux-mandrake.com/cgi-bin/cvsweb.cgi/soft/initscripts/mandrake/loader/
 Source0:	%{name}-%{version}.tar.bz2
-Patch0:		bootloader-utils-1.6-opensls.patch.bz2
+Patch0:		bootloader-utils-1.6-avx-grub.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-buildroot
 
@@ -24,7 +24,7 @@ Utils needed to install/remove a kernel.  Also for updating bootloaders.
 
 %prep
 %setup -q
-%patch0 -p0 -b .opensls
+%patch0 -p1 -b .avx
 
 %build
 make
@@ -65,6 +65,17 @@ make ROOT=%{buildroot} mandir=%{_mandir} install
 
 
 %changelog
+* Sat Feb 05 2005 Vincent Danen <vdanen@annvix.org> 1.6-9avx
+- put back in the parts of the old patch we forgot
+- also don't have detectloader look for lilo.conf
+
+* Fri Feb 04 2005 Vincent Danen <vdanen@annvix.org> 1.6-8avx
+- try to fix installation of grub configuration when /boot is a
+  raid device
+
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 1.6-7avx
+- Annvix build
+
 * Tue Jun 15 2004 Vincent Danen <vdanen@opensls.org> 1.6-6sls
 - look for grub.conf rather than menu.lst
 

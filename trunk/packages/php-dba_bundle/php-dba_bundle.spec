@@ -1,18 +1,16 @@
 %define name	php-%{modname}_bundle
 %define version	%{phpversion}
-%define release	1sls
+%define release	3avx
 
-%define phpsource	%{_prefix}/src/php-devel
-%define _docdir		%{_datadir}/doc/%{name}-%{version}
-%{expand:%(cat /usr/src/php-devel/PHP_BUILD||(echo -e "error: failed build dependencies:\n        php-devel >= 430 (4.3.0) is needed by this package." >/dev/stderr;kill -2 $PPID))}
+%define phpversion	4.3.10
+%define phpsource       %{_prefix}/src/php-devel
+%define phpdir		%{_libdir}/php
 
 %define realname	dba (with cdb, gdbm and db4)
 %define modname		dba
 %define dirname		%{modname}
 %define soname		%{modname}.so
 %define inifile		16_%{modname}.ini
-%define rlibs		libgdbm2 libdb4.1
-%define blibs		gdbm-devel db4-devel
 
 
 Summary:	The %{realname} module for PHP
@@ -24,13 +22,12 @@ Group:		System/Servers
 URL:		http://www.php.net
 
 BuildRoot:	%{_tmppath}/%{name}-root
-BuildRequires:  php%{libversion}-devel
-BuildRequires:	%{blibs}
+BuildRequires:  php4-devel
+BuildRequires:	gdbm-devel db4-devel
 
-Requires:	php%{libversion}
+Requires:	php4
 Provides:       php-dba_gdbm_db2 php-cdb php-db2 php-db3 php-db3 php-db4
 Obsoletes:      php-dba_gdbm_db2 php-cdb php-db2 php-db3 php-db3 php-db4
-Provides: 	ADVXpackage
 
 %description
 The %{name} package is a dynamic shared object (DSO) that adds
@@ -40,10 +37,11 @@ If you need %{realname} support for PHP applications,
 you will need to install this package in addition to the php package.
 
 
+%prep
+%setup -c -T
+cp -dpR %{_usrsrc}/php-devel/extensions/%{dirname}/* .
+
 %build
-[ -e ./%{dirname} ] && rm -fr ./%{dirname}
-cp -dpR %{phpsource}/extensions/%{dirname} .
-cd %{dirname}
 
 #Keep this just in case phpize breaks sometime
 #perl -pi -e 's|#include DB3_INCLUDE_FILE$|#include \"db.h"|g;' *db3.c
@@ -54,7 +52,7 @@ cd %{dirname}
 #	-DDBA_GDBM -DDBA_DB3 -DDB3_INCLUDE_FILE -DDBA_CDB"
 
 phpize
-%configure \
+%configure2_5x \
     --with-gdbm \
     --with-db4 \
     --with-cdb \
@@ -64,41 +62,56 @@ phpize
 %make
 mv modules/*.so .
 
-#########################################################
-## Nothing to be changed after this, except changelog! ##
-#########################################################
-
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-cd %{dirname}
 
 install -d %{buildroot}%{phpdir}/extensions
-install -d %{buildroot}%{_docdir}
-install -d %{buildroot}%{_sysconfdir}/php
+install -d %{buildroot}%{_sysconfdir}/php.d
 
 install -m755 %{soname} %{buildroot}%{phpdir}/extensions/
 
-cat > %{buildroot}%{_docdir}/README <<EOF
+cat > README.%{modname} <<EOF
 The %{name} package contains a dynamic shared object (DSO) for PHP. 
-To activate it, make sure a file /etc/php/%{inifile} is present and
+To activate it, make sure a file /etc/php.d/%{inifile} is present and
 contains the line 'extension = %{soname}'.
 EOF
 
-cat > %{buildroot}%{_sysconfdir}/php/%{inifile} << EOF
+cat > %{buildroot}%{_sysconfdir}/php.d/%{inifile} << EOF
 extension = %{soname}
 EOF
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-[ -e ./%{dirname} ] && rm -fr ./%{dirname}
 
 %files 
 %defattr(-,root,root)
-%doc %{_docdir}/README
+%doc README*
+%config(noreplace) %{_sysconfdir}/php.d/%{inifile}
 %{phpdir}/extensions/%{soname}
-%config(noreplace) %{_sysconfdir}/php/%{inifile}
 
 %changelog
+* Sat Feb 26 2005 Vincent Danen <vdanen@annvix.org> 4.3.10-3avx
+- spec cleanups
+
+* Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> 4.3.10-2avx
+- rebuild against new gdbm
+
+* Thu Dec 16 2004 Vincent Danen <vdanen@annvix.org> 4.3.10-1avx
+- php 4.3.10
+
+* Wed Sep 29 2004 Vincent Danen <vdanen@annvix.org> 4.3.9-1avx
+- php 4.3.9
+
+* Wed Jul 14 2004 Vincent Danen <vdanen@annvix.org> 4.3.8-1avx
+- php 4.3.8
+- remove ADVXpackage provides
+- use the %%configure2_5x macro (oden)
+- move scandir to /etc/php.d
+- own docdir
+
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 4.3.7-2avx
+- Annvix build
+
 * Thu Jun 03 2004 Vincent Danen <vdanen@opensls.org> 4.3.7-1sls
 - php 4.3.7
 

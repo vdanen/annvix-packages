@@ -1,6 +1,6 @@
 %define name	make
 %define version	3.80
-%define release	8sls
+%define release	9avx
 %define epoch	1
 
 Summary:	A GNU tool which simplifies the build process for users
@@ -19,7 +19,7 @@ Patch0:		make-3.80-no-hires-timestamp.patch.bz2
 BuildRoot:	%_tmppath/%name-root
 BuildRequires:	gettext-devel
 
-Prereq:		/sbin/install-info
+Prereq:		info-install
 
 %description
 A GNU tool for controlling the generation of executables and other
@@ -77,6 +77,10 @@ done
 %_infodir/make.info*
 
 %changelog
+* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 3.80-9avx
+- require packages not files
+- Annvix build
+
 * Fri May 09 2004 Vincent Danen <vdanen@opensls.org> 3.80-8sls
 - rebuild against new gettext
 

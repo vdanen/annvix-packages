@@ -1,6 +1,5 @@
 #!/bin/sh
 
-# this writes logs as user nobody into /var/log/supervise/portmap; make 
-# sure this directory exists and is writable by nobody!
+# logging for the portmap service
 
-exec /usr/bin/setuidgid nobody /usr/bin/multilog t /var/log/supervise/portmap
+exec /sbin/chpst -u logger /sbin/svlogd -tt /var/log/supervise/portmap

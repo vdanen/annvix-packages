@@ -2,4 +2,5 @@
 ## locale encoding to UTF-8. If the locale encoding is already
 ## UTF-8 then it makes no difference.
 
-export G_BROKEN_FILENAMES=1
+G_FILENAME_ENCODING="@locale"
+export G_FILENAME_ENCODING

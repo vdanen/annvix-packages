@@ -1,6 +1,6 @@
 %define name	procps
 %define version	3.2.1
-%define release	1sls
+%define release	2avx
 
 Summary:	Utilities for monitoring your system and processes on your system
 Name:		%{name}
@@ -131,6 +131,9 @@ rm -f /etc/psdevtab /etc/psdatabase
 /%_lib/libproc.so
 
 %changelog
+* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 3.2.1-2avx
+- Annvix build
+
 * Fri Jun 11 2004 Vincent Danen <vdanen@opensls.org> 3.2.1-1sls
 - PreReq: coreutils, not /bin/rm
 - 3.2.1

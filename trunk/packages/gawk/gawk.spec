@@ -1,6 +1,6 @@
 %define name	gawk
 %define version	3.1.2
-%define release	4sls
+%define release	5avx
 
 Summary:	The GNU version of the awk text processing utility.
 Name:		%{name}
@@ -19,7 +19,7 @@ Patch4:		gawk-3.1.2-regex.patch.bz2
 BuildRoot:	%{_tmppath}/%{name}-root
 
 Provides:	awk
-PreReq:		/sbin/install-info
+PreReq:		info-install
 
 %description
 The gawk packages contains the GNU version of awk, a text processing
@@ -91,6 +91,10 @@ rm -f $RPM_BUILD_ROOT/bin/pgawk-%{version}
 
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 3.1.2-5avx
+- require packages not files
+- Annvix build
+
 * Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 3.1.2-4sls
 - minor spec cleanups
 - remove %%prefix

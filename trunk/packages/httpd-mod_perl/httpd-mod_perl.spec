@@ -1,73 +1,62 @@
-%define name	%{ap_name}-%{mod_name}
-%define version %{ap_version}_%{mod_version}
-%define release 1sls
+%define name	apache2-%{mod_name}
+%define version %{apache_version}_%{mod_version}
+%define release 0.RC4.1avx
 
 # Module-Specific definitions
-%define mod_version	1.99_11
+%define apache_version	2.0.53
+%define mod_version	2.0.0
 %define mod_name	mod_perl
 %define mod_conf	75_%{mod_name}.conf
 %define mod_so		%{mod_name}.so
-%define sourcename	%{mod_name}-%{mod_version}
+%define sourcename	%{mod_name}-%{mod_version}-RC4
 %{expand:%%define perl_version %(rpm -q --qf '%%{epoch}:%%{version}' perl)}
 
-# New ADVX macros
-%define ADVXdir %{_datadir}/ADVX
-%{expand:%(cat %{ADVXdir}/ADVX-build)}
-%{expand:%%global ap_version %(%{apxs} -q ap_version)}
+%define _requires_exceptions perl(Data::Flow)\\|perl(Carp::Heavy)\\|perl(Apache::FunctionTable)\\|perl(Apache::StructureTable)\\|perl(Apache::TestConfigParse)\\|perl(Apache::TestConfigPerl)\\|perl(Module::Build)
 
-Summary:	An embedded Perl interpreter for the %{ap_name} Web server.
+Summary:	An embedded Perl interpreter for the apache2 Web server
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
-License:	GPL
+License:	Apache License
 Group:		System/Servers
 URL:		http://perl.apache.org/
 Source0:	%{sourcename}.tar.gz
 Source1:	%{sourcename}.tar.gz.asc
 Source2:	%{mod_conf}.bz2
 Source3:	%{name}-startup.pl
-Source4:	%{name}-status.tar.bz2
 Source61:       apache2-mod_perl-testscript.pl
 
 BuildRoot:	%{_tmppath}/%{name}-buildroot
-BuildRequires:	perl-devel
-# JMD: THIS IS NEEDED FOR COMPATIBILITY OTHERWISE MANY FILES WILL CONFLICT
-BuildRequires:	mod_perl-common
-# Standard ADVX requires
-BuildRequires:	ADVX-build >= 9.2
-BuildRequires:	%{ap_name}-devel >= 2.0.43-5mdk
+BuildRequires:	perl-devel >= 5.8.6, apache2-devel >= %{apache_version}, db4-devel
+BuildRequires:	perl-HTML-Parser, perl-Tie-IxHash, perl-URI, perl-libwww-perl, perl-CGI
+BuildRequires:	apache2-mod_cache, apache2-mod_dav, apache2-mod_deflate, apache2-mod_disk_cache
+BuildRequires:	apache2-mod_file_cache, apache2-mod_ldap, apache2-mod_mem_cache, apache2-mod_proxy,
+BuildRequires:	apache2-mod_ssl, apache2-mod_suexec
+
+BuildConflicts:	perl-Apache-Test
 
 Prereq:		perl
-Requires:	apache2-mod_proxy
-Requires:	perl = %{perl_version}
-# Standard ADVX requires
-Prereq:		%{ap_name} = %{ap_version}
-Prereq:		%{ap_name}-conf
-Provides: 	ADVXpackage
-Provides:	AP20package
+Requires:	apache2-mod_proxy, perl = %{perl_version}
+Requires:	perl-Apache-Test >= 1.20
+Prereq:		apache2 >= %{apache_version}, apache2-conf
 Provides:	apache-mod_perl = %{version}
-# rpm v4.2 should pick this up?
-Provides:	perl(Apache2)
-Provides:	perl(Apache::TestConfigParse)
-Provides:	perl(Apache::TestConfigPerl)
 
 %description
-%{name} incorporates a Perl interpreter into the %{ap_name} web server,
+%{name} incorporates a Perl interpreter into the apache2 web server,
 so that the Apache2 web server can directly execute Perl code.
-Mod_perl links the Perl runtime library into the %{ap_name} web server and
-provides an object-oriented Perl interface for %{ap_name}'s C language
+Mod_perl links the Perl runtime library into the apache2 web server and
+provides an object-oriented Perl interface for apache2's C language
 API.  The end result is a quicker CGI script turnaround process, since
 no external Perl interpreter has to be started.
 
-Install %{name} if you're installing the %{ap_name} web server and you'd
+Install %{name} if you're installing the apache2 web server and you'd
 like for it to directly incorporate a Perl interpreter.
 
 %package devel
 Summary:	Files needed for building XS modules that use mod_perl
 Group:		Development/C
-Requires:	%{name} = %{version}-%{release}
-Requires:	%{ap_name}-devel = %{ap_version}
-Requires:	mod_perl-common
+Requires:	%{name} = %{version}
+Requires:	apache2-devel >= %{apache_version}
 
 %description devel 
 The mod_perl-devel package contains the files needed for building XS
@@ -80,64 +69,114 @@ modules that use mod_perl.
 
 # Compile the module.
 %{__perl} Makefile.PL \
-    PREFIX=%{buildroot}%{_prefix} \
-    MP_TRACE=1 \
-    MP_DEBUG=1 \
-    MP_AP_PREFIX=%{_prefix} \
-    MP_USE_DSO=1 \
+    MP_CCOPTS="$(%{_sbindir}/apxs2 -q CFLAGS) -fPIC" \
     MP_INST_APACHE2=1 \
-    MP_APXS=%{apxs}  \
+    MP_APXS=%{_sbindir}/apxs2 \
     MP_APR_CONFIG=%{_bindir}/apr-config \
-    CCFLAGS="%{optflags} -fPIC" \
     INSTALLDIRS=vendor </dev/null 
 
-# Don't use this option with 1.99_05!
-#    MP_CCOPTS="%{optflags} -Werror" \
-
-# we *NEED* these symbols for HTML::Embperl and Apache-ASP!
-export DONT_STRIP=1
+ln -s Apache-mod_perl_guide-1.29/bin bin
 
 %make
+
+# XXX mod_include/SSI does not include files when they are not named .shtml
+mv t/htdocs/includes-registry/test.pl t/htdocs/includes-registry/test.shtml
+mv t/htdocs/includes-registry/cgipm.pl t/htdocs/includes-registry/cgipm.shtml
+sed 's/\.pl/.shtml/' t/htdocs/includes/test.shtml > tmpfile && mv tmpfile t/htdocs/includes/test.shtml
 
 # Run the test suite.
 #  Need to make t/htdocs/perlio because it isn't expecting to be run as
 #  root and will fail tests that try and write files because the server
 #  will have changed it's uid.
-# mkdir t/htdocs/perlio
+mkdir -p t/htdocs/perlio
 chmod 777 t/htdocs/perlio
-%if 0
-make test
-%endif
+
+#
+# fix for bad_scripts.t in 1.99_12
+# [Tue Mar 02 17:28:26 2004] [error] file permissions deny server execution/usr/src/packages/BUILD/modperl-2.0/ModPerl-Registry/t/cgi-bin/r_inherited.pl
+if test -e ModPerl-Registry/t/cgi-bin/r_inherited.pl; then chmod +x ModPerl-Registry/t/cgi-bin/r_inherited.pl; fi
+#
+# 1.99_12_20040302 fix for t/hooks/cleanup.t and t/hooks/cleanup2.t
+# [Tue Mar 02 18:38:41 2004] [error] [client 127.0.0.1] can't open /usr/src/packages/BUILD/modperl-2.0/t/htdocs/hooks/cleanup2: Permission denied at /usr/src/packages/BUILD/modperl-2.0/Apache-Test/lib/Apache/TestUtil.pm line 82.
+mkdir -p t/htdocs/hooks
+chmod 2770 t/htdocs/hooks
+#
+# run test suite:
+#
+#make TEST_VERBOSE=1 APACHE_TEST_PORT=select APACHE_TEST_STARTUP_TIMEOUT=360 test  || {
+#       ps aufx | grep "/usr/sbin/httpd2-prefork -d /usr/src/packages/BUILD/modperl-2.0" \
+#               | grep -v grep | awk '{print $2}' | xargs -r kill
+#       exit 1
+#}
+
+#perl t/TEST -start-httpd -port select -startup_timeout 360 -verbose -httpd_conf /etc/httpd/conf/httpd2.conf
+#perl t/TEST -run-tests || {
+#perl t/TEST -stop-httpd
+#    exit 1
+#}
+#perl t/TEST -stop-httpd
+# in case of failures, see http://perl.apache.org/docs/2.0/user/help/help.html#_C_make_test___Failures
+# then, debug like this:
+# t/TEST -start-httpd
+# tail -F t/logs/*&
+# t/TEST -run-tests -verbose $failed_test
+# t/TEST -stop-httpd
+
+
+# (oe) Sat Jan 22 2005
+# currently these tests fails:
+
+#Failed Test                      Stat Wstat Total Fail  Failed  List of Failed
+#-------------------------------------------------------------------------------
+#t/apache/content_length_header.t  255 65280    27   54 200.00%  1-27
+#t/api/aplog.t                                  36   13  36.11%  24-36
+#t/apr-ext/finfo.t                  29  7424    ??   ??       %  ??
+#t/apr-ext/util.t                   29  7424    ??   ??       %  ??
+#t/apr/finfo.t                     255 65280    ??   ??       %  ??
+#t/apr/util.t                      255 65280    ??   ??       %  ??
+#3 tests skipped.
+#Failed 6/222 test scripts, 97.30% okay. 40/2257 subtests failed, 98.23% okay.
+
+#make \
+#    APACHE_TEST_PORT=select \
+#    APACHE_TEST_STARTUP_TIMEOUT=30 \
+#    APACHE_TEST_COLOR=1 \
+#    TEST_VERBOSE=1 \
+#    APACHE_TEST_HTTPD=%{_sbindir}/httpd2 \
+#    APACHE_TEST_APXS=%{_sbindir}/apxs2 \
+#    test
+
+# kill any stale processes
+#kill -9 `/sbin/pidof %{_sbindir}/httpd2`
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-install -d %{buildroot}%{ap_extralibs}
+mkdir -p %{buildroot}%{_libdir}/apache2-extramodules
+mkdir -p %{buildroot}%{_sysconfdir}/httpd/conf.d
+mkdir -p %{buildroot}%{_sysconfdir}/httpd/conf/addon-modules
+mkdir -p %{buildroot}/var/www/perl
 
 %makeinstall \
-    MODPERL_AP_LIBEXECDIR=%{buildroot}%{ap_extralibs}/ \
-    MODPERL_AP_INCLUDEDIR=$RPM_BUILD_ROOT%{ap_includedir} \
+    MODPERL_AP_LIBEXECDIR=%{buildroot}%{_libdir}/apache2-extramodules \
+    MODPERL_AP_INCLUDEDIR=$RPM_BUILD_ROOT%{_includedir}/apache2 \
     MP_INST_APACHE2=1 \
     INSTALLDIRS=vendor
 
-#make -C faq
-#rm faq/pod2htm*
-#install -m644 faq/*.html %{buildroot}%{_docdir}/%{name}-%{version}
+bzcat %{SOURCE2} > %{buildroot}%{_sysconfdir}/httpd/conf.d/%{mod_conf}
 
-%ADVXinstconf %{SOURCE2} %{mod_conf}
-%ADVXinstdoc %{name}-%{version}
+mkdir -p %{buildroot}%{_var}/www/html/addon-modules
+ln -s ../../../..%{_docdir}/%{name}-%{version} %{buildroot}%{_var}/www/html/addon-modules/%{name}-%{version}
 
-#Remove empty file
+# Remove empty file
 rm -f docs/api/mod_perl-2.0/pm_to_blib
 
-#Add startup file...
-install -d %{buildroot}%{ap_addonconf}
-install -m 755 %{SOURCE3} %{buildroot}%{ap_addonconf}/
+# Add startup file...
+install -m 755 %{SOURCE3} %{buildroot}%{_sysconfdir}/httpd/conf/addon-modules/
 
-install -d %{buildroot}/%{ap_datadir}/perl
-install -m 755 %{SOURCE61} %{buildroot}/%{ap_datadir}/perl
-#Fake Apache::Status
-tar xjf %{SOURCE4} -C %{buildroot}/%{ap_datadir}/perl
+install -d %{buildroot}//var/www/perl
+install -m 755 %{SOURCE61} %{buildroot}/var/www/perl
 
 # install missing required files
 install -m644 xs/tables/current/Apache/StructureTable.pm \
@@ -145,34 +184,68 @@ install -m644 xs/tables/current/Apache/StructureTable.pm \
 install -m644 xs/tables/current/Apache/FunctionTable.pm \
     %{buildroot}%{perl_vendorarch}/Apache2/Apache/
 
+# cleanup
+find %{buildroot}%{perl_archlib} -name perllocal.pod | xargs rm -f
+
+# don't pack the Apache-Test stuff
+rm -rf %{buildroot}%{perl_vendorlib}/Apache
+rm -f %{buildroot}%{perl_vendorlib}/Bundle/ApacheTest.pm
+rm -f %{buildroot}%{_mandir}/man3/Apache::Test*
+rm -f %{buildroot}%{_mandir}/man3/Bundle::ApacheTest.3pm
+
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
-%ADVXpost
+%_post_srv httpd2
 
 %postun
-%ADVXpost
+%_post_srv httpd2
 
 %files -n %{name}
 %defattr(-,root,root)
-%config(noreplace) %{ap_confd}/%{mod_conf}
-%{ap_extralibs}/%{mod_so}
-%{ap_webdoc}/*
-%config(noreplace) %{ap_addonconf}/*
 %doc Changes INSTALL LICENSE README docs todo
+%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/httpd/conf.d/%{mod_conf}
+%attr(0755,root,root) %config(noreplace) %{_sysconfdir}/httpd/conf/addon-modules/*
+%attr(0755,root,root) %{_libdir}/apache2-extramodules/%{mod_so}
+%attr(0755,root,root) /var/www/perl/*.pl
 %{perl_vendorlib}
 %{_mandir}/*/*
-#Fake Apache::Status
-%{ap_datadir}/perl/.modperl2
-%{ap_datadir}/perl/*.pl
+/var/www/html/addon-modules/*
 
 %files devel
 %defattr(-,root,root)
 %{_bindir}/*
-%{ap_includedir}/*
+%{_includedir}/apache2/*
 
 %changelog
+* Wed Feb 02 2005 Vincent Danen <vdanen@annvix.org> 2.0.53_2.0.0-0.RC4.1avx
+- 2.0.0-RC4
+- apache 2.0.53
+- fix license
+- rule out a number of perl requires (ala Mandrake and Fedora)
+- nuke fake Apache::Status as this is included and now works
+- don't include bundled Apache-Test
+- make "make test" work using stuff from Fedora and SUSE (oden)
+  - this only kinda works here; craps out on a SetEnv directive; not sure
+    why so disable for now
+- remove ADVX stuff
+
+* Wed Feb 02 2005 Vincent Danen <vdanen@annvix.org> 2.0.52_1.99_11-2avx
+- rebuild against new perl
+
+* Thu Oct 14 2004 Vincent Danen <vdanen@annvix.org> 2.0.52_1.99_11-1avx
+- apache 2.0.52
+
+* Sat Sep 11 2004 Vincent Danen <vdanen@annvix.org> 2.0.49_1.99_11-3avx
+- rebuild against new perl
+- remove req's on mod_perl-common... apache 1.x is gone
+- BuildRequires: db4-devel
+
+* Sun Jun 27 2004 Vincent Danen <vdanen@annvix.org> 2.0.49_1.99_11-2avx
+- Annvix build
+
 * Fri May 07 2004 Vincent Danen <vdanen@opensls.org> 2.0.49_1.99_11-1sls
 - apache 2.0.49
 

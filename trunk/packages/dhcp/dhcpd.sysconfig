@@ -3,7 +3,8 @@
 # The configuration file to use
 CONFIGFILE="/etc/dhcpd.conf"
 
-# Where to store the lease state information
+# Where to store the lease state information; note that this file
+# needs to be writable by the "dhcp" user
 LEASEFILE="/var/lib/dhcp/dhcpd.leases"
 
 # Define interfaces to limit which network interfaces dhcpd listens on.  The

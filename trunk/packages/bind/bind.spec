@@ -1,8 +1,8 @@
 %define name	bind
-%define version	9.2.3
-%define release	6sls
+%define version	9.3.0
+%define release	4avx
 
-%define their_version	9.2.3
+%define their_version	9.3.0
 
 Summary:	A DNS (Domain Name System) server.
 Name:		%{name}
@@ -26,12 +26,14 @@ Source11:	ftp://FTP.RS.INTERNIC.NET/domain/named.root
 Source12:	named.run
 Source13:	named.stop
 Source14:	named-log.run
-Patch1:		bind-9.2.3rc1-fallback-to-second-server.patch.bz2
-Patch2:		bind-9.2.1-libresolv.patch.bz2
-Patch3:		bind-9.2.3rc3-deprecation_msg_shut_up.diff.bz2
+Patch1:		bind-9.3.0rc2-fallback-to-second-server.patch.bz2
+Patch2:		bind-9.3.0-mdk-libresolv.patch.bz2
+Patch4:		bind-9.2.3-bsdcompat.patch.bz2
+Patch5:		bind-9.3.0beta2-libtool.diff.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-root
 BuildRequires:	openssl-devel
+BuildRequires:	autoconf, autoconf2.5, automake1.7
 
 PreReq:		rpm-helper
 Requires:	bind-utils >= %{version}-%{release}
@@ -91,65 +93,73 @@ library required for DNS (Domain Name Service) development for
 BIND versions 9.x.x.
 
 %prep
-%setup -q  -n %{name}-%{their_version}
+%setup -q  -n %{name}-%{their_version} -a1
 %patch1 -p1 -b .fallback-to-second-server
 #%patch -p1 -b .overflow
 %patch2 -p1 -b .libresolv
-%patch3 -p0 -b .deprecation_msg_shut_up
+%patch4 -p1 -b .bsdcompat
+%patch5 -p1 -b .libtool
 
-(cd contrib/queryperf && autoconf)
-tar xjf %{SOURCE7}
+#(cd contrib/queryperf && autoconf-2.13)
+tar -xjf %{SOURCE7}
 
 %build
-libtoolize --copy --force; aclocal; autoconf
 
-%configure2_5x --localstatedir=/var \
+# (oe) make queryperf from the contrib before bind, makes it easier
+# to determine if it builds or not
+#cd contrib/queryperf
+#mv README README.queryperf
+#sh configure
+#make CFLAGS="%{optflags}"
+#cd -
+
+%configure \
+	--localstatedir=/var \
 	--enable-threads \
 	--enable-ipv6 \
-	--with-openssl=%{_includedir}/openssl
+	--with-openssl=%{_includedir}/openssl \
+	--disable-linux-caps
 
 # override CFLAGS for better security.  Ask Jay...
 make "CFLAGS=-O2 -Wall -pipe -fstack-protector"
 
-#queryperf from the contrib
-cd contrib/queryperf
-sh configure
-make
-cd -
+gcc %{optflags} -o dns-keygen %{SOURCE5}
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 pushd doc
-rm -rf html
+    rm -rf html
 popd
-mkdir -p ${RPM_BUILD_ROOT}%{_sysconfdir}/logrotate.d
+mkdir -p ${RPM_BUILD_ROOT}%{_sysconfdir}/{logrotate.d,sysconfig}
 mkdir -p ${RPM_BUILD_ROOT}/usr/{bin,lib,sbin,include}
-mkdir -p ${RPM_BUILD_ROOT}/var/named
+mkdir -p ${RPM_BUILD_ROOT}%{_var}/{run/named,named}
 mkdir -p ${RPM_BUILD_ROOT}%{_mandir}/{man1,man3,man5,man8}
 mkdir -p ${RPM_BUILD_ROOT}%{_docdir}/
-mkdir -p ${RPM_BUILD_ROOT}/var/run/named 
 
-make DESTDIR=%{buildroot} install
-cp bin/rndc/rndc.conf %{buildroot}%{_sysconfdir}
+%makeinstall_std
+install -m0600 bin/rndc/rndc.conf %{buildroot}%{_sysconfdir}
 touch %{buildroot}%{_sysconfdir}/rndc.key
-cp contrib/named-bootconf/named-bootconf.sh %{buildroot}%{_sbindir}/named-bootconf
-cp contrib/nanny/nanny.pl %{buildroot}%{_sbindir}/
-cp contrib/queryperf/queryperf %{buildroot}%{_sbindir}/
-cp contrib/queryperf/README ./README.queryperf
-cp %SOURCE3 %{buildroot}%{_sysconfdir}/logrotate.d/named
+install -m0755 contrib/named-bootconf/named-bootconf.sh %{buildroot}%{_sbindir}/named-bootconf
+install -m0755 contrib/nanny/nanny.pl %{buildroot}%{_sbindir}/
+#install -m0755 contrib/queryperf/queryperf %{buildroot}%{_sbindir}/
+install -m644 %{SOURCE3} %{buildroot}%{_sysconfdir}/logrotate.d/named
 
-gcc $RPM_OPT_FLAGS -o %{buildroot}%{_sbindir}/dns-keygen %{SOURCE5}
+install -m0755 dns-keygen -D %{buildroot}%{_sbindir}/dns-keygen
 cp %{SOURCE6} %{buildroot}%{_sbindir}
 cp %{SOURCE8} %{buildroot}%{_sbindir}
 cp %{SOURCE10} %{buildroot}%{_sbindir}
 
-install -m 644 %{SOURCE11} %{buildroot}%{_var}/named/named.ca
+echo "; Use \"dig @A.ROOT-SERVERS.NET . ns\" to update this file if it's outdated." >named.cache
+cat %{SOURCE11} >>named.cache
+install -m 644 named.cache %{buildroot}%{_var}/named/named.ca
 
-cd %{buildroot}%{_mandir}
-tar xjf %{SOURCE1}
+#tar -xjf %{SOURCE1} -C %{buildroot}%{_mandir}
+# fix man pages
+mv %{buildroot}%{_mandir}/man8/named.conf.5 %{buildroot}%{_mandir}/man5/
+install -m 0644 man5/resolver.5 %{buildroot}%{_mandir}/man5/
+ln -s resolver.5.bz2 %{buildroot}%{_mandir}/man5/resolv.5.bz2
 
-mkdir -p %{buildroot}%{_sysconfdir}/sysconfig
-cp %{SOURCE4} %{buildroot}%{_sysconfdir}/sysconfig/named
+install -m0644 %{SOURCE4} %{buildroot}%{_sysconfdir}/sysconfig/named
 
 mkdir -p %{buildroot}%{_srvdir}/named/log
 mkdir -p %{buildroot}%{_srvlogdir}/named
@@ -157,11 +167,9 @@ install -m 0750 %{SOURCE12} %{buildroot}%{_srvdir}/named/run
 install -m 0750 %{SOURCE13} %{buildroot}%{_srvdir}/named/stop
 install -m 0750 %{SOURCE14} %{buildroot}%{_srvdir}/named/log/run
 
-cd $RPM_BUILD_DIR/%{name}-%{their_version}
-
 # the following 3 lines is needed to make it short-circuit compliant.
 pushd doc
-rm -rf html
+    rm -rf html
 popd
 
 mkdir -p doc/html
@@ -200,9 +208,10 @@ fi
 
 %files
 %defattr(-,root,root)
-%doc CHANGES README FAQ COPYRIGHT README.queryperf
+%doc CHANGES README FAQ COPYRIGHT
+#%doc contrib/queryperf/README.queryperf
 %doc doc/draft doc/html doc/rfc doc/misc/
-%doc doc/dhcp-dynamic-dns-examples doc/chroot
+%doc doc/dhcp-dynamic-dns-examples doc/chroot doc/trustix
 %config(noreplace) %{_sysconfdir}/sysconfig/named
 %config(noreplace) %{_sysconfdir}/logrotate.d/named
 %config(noreplace) %attr(0600,named,named) %{_sysconfdir}/rndc.conf
@@ -212,10 +221,8 @@ fi
 %{_srvdir}/named/run
 %{_srvdir}/named/stop
 %{_srvdir}/named/log/run
-%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/named
-
+%dir %attr(0750,logger,logger) %{_srvlogdir}/named
 %attr(0755,root,root) %{_sbindir}/*
-
 %{_mandir}/man3/lwres*.3*
 %{_mandir}/man5/named.conf.5*
 %{_mandir}/man5/rndc.conf.5*
@@ -225,7 +232,6 @@ fi
 %{_mandir}/man8/dnssec-*.8*
 %{_mandir}/man8/lwresd.8*
 %{_mandir}/man8/named-*.8*
-
 %attr(-,named,named) %dir /var/named
 %attr(-,named,named) %config %{_var}/named/named.ca
 %attr(-,named,named) %dir /var/run/named
@@ -242,11 +248,45 @@ fi
 %{_bindir}/*
 %{_mandir}/man1/host.1*
 %{_mandir}/man1/dig.1*
+%{_mandir}/man1/nslookup.1*
 %{_mandir}/man8/nsupdate.8*
 %{_mandir}/man5/resolver.5*
-%{_mandir}/man8/nslookup.8*
+%{_mandir}/man5/resolv.5*
 
 %changelog
+* Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 9.3.0-4avx
+- use logger for logging
+
+* Thu Jan 06 2005 Vincent Danen <vdanen@annvix.org> 9.3.0-3avx
+- rebuild against latest openssl
+
+* Tue Dec 21 2004 Vincent Danen <vdanen@annvix.org> 9.3.0-2avx
+- merge with mdk:
+  - fix detection of res_mkquery(), aka file build on e.g. x86_64 (gbeauchesne)
+  - touched S7 and added stuff from trustix to it
+- disable linux capabilities as bind is currently dying with "capset failed";
+  NOTE: this means we can't run bind as an unprivileged user (named) which is not
+  good at all, nor can we chroot it -- hopefully someone smarter than I can configure
+  out how to fix this
+
+* Fri Sep 24 2004 Vincent Danen <vdanen@annvix.org> 9.3.0-1avx
+- 9.3.0
+- drop P3; fixed upstream
+- fix manpage mess (oden)
+- don't build queryperf from contribs right not as it's broken
+
+* Fri Sep 17 2004 Vincent Danen <vdanen@annvix.org> 9.2.3-9avx
+- update run scripts
+
+* Tue Aug 17 2004 Vincent Danen <vdanen@annvix.org> 9.2.3-8avx
+- lots of spec cleanups
+- add the bsdcompat patch - bug #8840 (florin)
+- add note to S11 (named.ca) (oden)
+- use more aclocal and autoconf magic, including P5 (oden)
+
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 9.2.3-7avx
+- Annvix build
+
 * Tue Mar 02 2004 Vincent Danen <vdanen@opensls.org> 9.2.3-6sls
 - minor spec cleanups
 - logrotate uses svc

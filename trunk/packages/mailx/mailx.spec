@@ -1,6 +1,6 @@
 %define name	mailx
 %define version	8.1.1
-%define release	25sls
+%define release	26avx
 
 Summary:	The /bin/mail program, which is used to send mail via shell scripts.
 Name:		%{name}
@@ -76,6 +76,9 @@ ln -sf mail.1 $RPM_BUILD_ROOT%{_mandir}/man1/Mail.1
 %{_mandir}/man1/*
 
 %changelog
+* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 8.1.1-26avx
+- Annvix build
+
 * Sat Mar 06 2004 Vincent Danen <vdanen@opensls.org> 8.1.1-25sls
 - minor spec cleanups
 

@@ -1,0 +1,11 @@
+--- Linux-PAM-0.77/modules/pam_succeed_if/pam_succeed_if.c.64bit	2003-07-22 06:22:25.000000000 +0200
++++ Linux-PAM-0.77/modules/pam_succeed_if/pam_succeed_if.c	2004-05-18 10:08:17.830448525 +0200
+@@ -330,7 +330,7 @@
+ 	const char *user;
+ 	struct passwd *pwd;
+ 	gid_t *grouplist = NULL;
+-	size_t grlistlen = 2;
++	int grlistlen = 2;
+ 	int ret, i, count, use_uid, debug;
+ 	const char *left, *right, *qual;
+ 

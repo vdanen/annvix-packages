@@ -1,6 +1,6 @@
 %define name	patch
 %define version 2.5.9
-%define release 3sls
+%define release 4avx
 
 Summary:	The GNU patch command, for modifying/upgrading files.
 Name:		%{name}
@@ -60,6 +60,9 @@ make "CFLAGS=$RPM_OPT_FLAGS -D_GNU_SOURCE -W -Wall" LDFLAGS=-s
 %{_mandir}/*/*
 
 %changelog
+* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 2.5.9-4avx
+- Annvix build
+
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 2.5.9-3sls
 - minor spec cleanups
 - remove %%prefix

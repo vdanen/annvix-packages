@@ -1,6 +1,6 @@
 %define name	linux-atm
 %define version	2.4.1
-%define release	5sls
+%define release	6avx
 
 %define major		1
 %define libname		lib%{name}
@@ -82,6 +82,9 @@ use %{name}.
 %{_libdir}/*.la
 
 %changelog
+* Wed Jun 23 2004 Vincent Danen <vdanen@annvix.org> 2.4.1-6avx
+- Annvix build
+
 * Sat Mar 06 2004 Vincent Danen <vdanen@opensls.org> 2.4.1-5sls
 - minor spec cleanups
 

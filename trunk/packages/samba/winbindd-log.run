@@ -1,6 +1,5 @@
 #!/bin/sh
 
-# this writes logs as user nobody into /var/log/supervise/winbindd; make 
-# sure this directory exists and is writable by nobody!
+# logging for the winbindd service
 
-exec /usr/bin/setuidgid nobody /usr/bin/multilog t /var/log/supervise/winbindd
+exec /sbin/chpst -u logger /sbin/svlogd -tt /var/log/supervise/winbindd

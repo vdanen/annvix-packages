@@ -1,19 +1,22 @@
 %define name	mktemp
-%define version	1.5
-%define release	13sls
+%define version	1.6
+%define release	1avx
 
-Summary:	A small utility for safely making /tmp files.
+Summary:	A small utility for safely making /tmp files
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	BSD
 Group:		File tools
-URL:		http://www.openbsd.org/
-Source:		ftp://ftp.openbsd.org/pub/OpenBSD/src/usr.bin/mktemp-%{version}.tar.bz2
-Patch:		mktemp-1.5-linux.patch.bz2
-Patch1:		mktemp-1.5-man.patch.bz2
-Patch2:		mktemp-build-nonroot.patch.bz2
-Patch3:		mktemp-1.5-mkdtemp.patch.bz2
+URL:		ftp://ftp.openbsd.org/pub/OpenBSD/src/usr.bin/mktemp/
+Source:		mktemp-%{version}.tar.bz2
+Patch0:		mktemp-1.6-avx-makefile.patch.bz2
+Patch1:		mktemp-1.6-avx-linux.patch.bz2
+
+#Patch:		mktemp-1.5-linux.patch.bz2
+#Patch1:		mktemp-1.5-man.patch.bz2
+#Patch2:		mktemp-build-nonroot.patch.bz2
+#Patch3:		mktemp-1.5-mkdtemp.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-root
 
@@ -26,10 +29,11 @@ Install the mktemp package if you need to use shell scripts or other
 programs which will create and use unique /tmp files.
 
 %prep
-%setup
-%patch -p1
-%patch1 -p1
-%patch2 -p1
+%setup -q
+%patch0 -p0 -b .makefile
+%patch1 -p0 -b .linux
+#%patch1 -p1
+#%patch2 -p1
 
 %build
 CFLAGS="$RPM_OPT_FLAGS" make
@@ -48,6 +52,13 @@ perl -pi -e "s!/usr/man!%{_mandir}!g" Makefile
 %{_mandir}/man1/mktemp.1*
 
 %changelog
+* Thu Sep 23 2004 Vincent Danen <vdanen@annvix.org> 1.6-1avx
+- OpenBSD CVS rev 1.13 (we'll call this 1.6)
+- rework patches and drop those no longer needed
+
+* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 1.5-14avx
+- Annvix build
+
 * Sat Mar 06 2004 Vincent Danen <vdanen@opensls.org> 1.5-13sls
 - minor spec cleanups
 

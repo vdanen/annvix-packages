@@ -1,11 +1,11 @@
 %define name	tar
-%define version	1.13.25
-%define release	13sls
+%define version	1.14
+%define release	1avx
 
-# rh-1.3.25-4
-%define _bindir /bin
+%define rmtrealname	rmt-tar
+%define _bindir		/bin
 
-Summary:	A GNU file archiving program.
+Summary:	A GNU file archiving program
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -13,18 +13,17 @@ License:	GPL
 Group:		Archiving/Backup
 URL:		http://www.gnu.org/software/tar/tar.html
 Source:		ftp://ftp.gnu.org/pub/gnu/tar/tar-%{version}.tar.bz2
-Patch0:		tar-1.13.18-manpage.patch.bz2
-Patch1:		tar-1.13.25-sock.patch.bz2
-Patch7:		tar-1.13.19-error.patch.bz2
-Patch8:		tar-1.13.19-absolutenames.patch.bz2
-Patch9:		tar-1.13.25-automake.patch.bz2
-Patch10:	tar-1.13.25-corruption-fix.patch.bz2 
-Patch11:	tar-dots.patch.bz2
-Patch105:	tar-1.13.22-yIfilter.patch.bz2
+Source1:	%{SOURCE0}.sig
+Source2:	tar-help2man.bz2
+Patch0:		tar-1.14-mdk-sock.patch.bz2
+Patch1:		tar-1.14-mdk-scandir.patch.bz2
+Patch2:		tar-1.14-mdk-doubleslash.patch.bz2
 
 Buildroot:	%{_tmppath}/%{name}-root
 
-Prereq:		/sbin/install-info /sbin/rmt
+Prereq:		info-install
+Provides:	/sbin/rmt
+Conflicts:	rmt < 0.4b37
 
 %description
 The GNU tar program saves many files together into one archive and
@@ -36,63 +35,95 @@ Tar includes multivolume support, automatic archive compression/
 decompression, the ability to perform remote archives and the
 ability to perform incremental and full backups.
 
-If you want to use Tar for remote backups, you'll also need to
-install the rmt package.
-
 You should install the tar package, because you'll find its
 compression and decompression utilities essential for working
 with files.
 
 %prep
 %setup -q
-%patch0 -p1 -b .manpage
-%patch1 -p1 -b .sock
-%patch105 -p1 -b .yIfilter
-%patch7 -p1 -b .err
-%patch9 -p1 -b .automake
-%patch10 -p1
-%patch8 -p1 -b .absn
-%patch11 -p1 -b .dots
+%patch0 -p1 -b .sock
+%patch1 -p1 -b .scandir
+%patch2 -p1 -b .doubleslash
+
+bzcat %{SOURCE2} > ./help2man
+chmod +x ./help2man
 
 %build
-unset LINGUAS || :
-export CFLAGS="$RPM_OPT_FLAGS -DHAVE_STRERROR -D_GNU_SOURCE"
-%configure2_5x  --bindir=/bin --libexecdir=/sbin
-%make LIBS=-lbsd
+%configure2_5x \
+	--enable-backup-scripts \
+	--bindir=%{_bindir} \
+	DEFAULT_RMT_COMMAND="/sbin/rmt"
+
+%make
+
+# thanks to diffutils Makefile rule
+(echo '[NAME]' && sed 's@/\* *@@; s/-/\\-/; q' src/tar.c) | (./help2man -i - -S '%{name} %{version}' src/tar ) | sed 's/^\.B info .*/.B info %{name}/' > %{name}.1
+
 make check
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-%makeinstall
-ln -sf tar $RPM_BUILD_ROOT/bin/gtar
-mkdir -p $RPM_BUILD_ROOT%_mandir/man1
-install -m644 tar.1 $RPM_BUILD_ROOT%_mandir/man1
+%makeinstall_std
+ln -sf tar %{buildroot}%{_bindir}/gtar
+install -D -m644 tar.1 %{buildroot}%_mandir/man1/tar.1
 
 # rmt is provided by rmt ...
-rm -f $RPM_BUILD_ROOT/%_libdir/rmt
+mkdir -p %{buildroot}/sbin
+mv %{buildroot}%{_libexecdir}/rmt %{buildroot}/sbin/%rmtrealname
 
 %find_lang %{name}
 
+%triggerpostun -- rmt < 0.4b37
+if test ! -e /sbin/rmt; then
+    %{_sbindir}/update-alternatives --install /sbin/rmt /sbin/%rmtrealname 10
+fi
+
+
 %post
+%{_sbindir}/update-alternatives --install /sbin/rmt rmt /sbin/%rmtrealname 10
 %_install_info %{name}.info
 
 %preun
 %_remove_install_info %{name}.info
+
+%postun
+%{_sbindir}/update-alternatives --remove rmt /sbin/%rmtrealname
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files -f %{name}.lang
 %defattr(-,root,root)
-%doc NEWS THANKS AUTHORS README
-/bin/tar
-/bin/gtar
-%{_infodir}/tar.info*
-%{_mandir}/man1/tar.1*
+%doc NEWS THANKS AUTHORS README ChangeLog* COPYING TODO
+%{_bindir}/tar
+%{_bindir}/gtar
+%{_sbindir}/backup
+%{_sbindir}/restore
+/sbin/%rmtrealname
+%{_libexecdir}/backup.sh
+%{_libexecdir}/dump-remind
+%{_infodir}/*.info*
+%{_mandir}/man?/*
 
 
 %changelog
+* Fri Aug 13 2004 Vincent Danen <vdanen@annvix.org> 1.14-1avx
+- 1.14
+- patch policy
+- sync with cooker (deaddog):
+  - drop P0, use help2man to generate manpage
+  - drop P105 (-y/-I), since -j/--bzip2 is stabilized and well known now
+  - drop P8, P10: merged upstream
+  - rediff and renumber remaining patches
+  - install scripts as well
+  - use alternatives for rmt
+
+* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 1.13.25-14avx
+- PreReq: info-install rather than /sbin/install-info
+- PreReq: rmt rather than /sbin/rmt
+- Annvix build
+
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 1.13.25-13sls
 - minor spec cleanups
 

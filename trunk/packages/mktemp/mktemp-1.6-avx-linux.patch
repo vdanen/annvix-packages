@@ -1,0 +1,20 @@
+--- mktemp.c.org	2004-09-23 09:38:49.000000000 -0600
++++ mktemp.c	2004-09-23 09:39:40.000000000 -0600
+@@ -27,7 +27,7 @@
+ #include <unistd.h>
+ #include <err.h>
+ 
+-__dead void usage(void);
++void usage(void);
+ 
+ int
+ main(int argc, char *argv[])
+@@ -123,7 +123,7 @@
+ 	exit(0);
+ }
+ 
+-__dead void
++void
+ usage(void)
+ {
+ 	extern char *__progname;

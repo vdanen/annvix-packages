@@ -1,6 +1,6 @@
 %define name	lsof
 %define version	4.68
-%define release	3sls
+%define release	4avx
 
 %define dname	%{name}_%version
 
@@ -62,6 +62,9 @@ cp lsof.8 $RPM_BUILD_ROOT%_mandir/man8
 %_mandir/man8/lsof.8*
 
 %changelog
+* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 4.68-4avx
+- Annvix build
+
 * Sat Mar 06 2004 Vincent Danen <vdanen@opensls.org> 4.68-3sls
 - minor spec cleanups
 

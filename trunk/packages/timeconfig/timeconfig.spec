@@ -1,6 +1,6 @@
 %define name	timeconfig
 %define version	3.2
-%define release	11sls
+%define release	13avx
 
 Summary:	Text mode tools for setting system time parameters.
 Name:		%{name}
@@ -18,7 +18,7 @@ Source6:	timeconfig.apps
 Patch0:		timeconfig-gmt.patch.bz2
 Patch1:		timeconfig-mdkconf.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-root
+BuildRoot:	%{_tmppath}/%{name}-%{version}-root
 BuildRequires:	gettext libnewt-devel popt-devel slang-devel
 
 Requires:	initscripts >= 2.81
@@ -41,14 +41,14 @@ make RPM_OPT_FLAGS="$RPM_OPT_FLAGS"
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-make PREFIX=$RPM_BUILD_ROOT%{_prefix} install
-rm -f $RPM_BUILD_ROOT/usr/lib/zoneinfo
+make PREFIX=%{buildroot}%{_prefix} install
+rm -f %{buildroot}%{_libdir}/zoneinfo
 
 # fix indonesian locale, its language code is 'id' not 'in'.
-mkdir -p $RPM_BUILD_ROOT/usr/share/locale/id/LC_MESSAGES
+mkdir -p %{buildroot}%{_datadir}/locale/id/LC_MESSAGES
 
 # remove unpackaged files
-rm -rf $RPM_BUILD_ROOT%{_mandir}/pt_BR/
+rm -rf %{buildroot}%{_mandir}/pt_BR/
 
 %{find_lang} %{name}
 
@@ -56,15 +56,15 @@ rm -rf $RPM_BUILD_ROOT%{_mandir}/pt_BR/
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
-if [ -L /etc/localtime ]; then
-    _FNAME=`ls -ld /etc/localtime | awk '{ print $11}' | sed 's/lib/share/'`
-    rm /etc/localtime
-    cp -f $_FNAME /etc/localtime
-    if [ -f /etc/sysconfig/clock ]; then
-	grep -q "^ZONE=" /etc/sysconfig/clock && \
-	echo "ZONE=\"$_FNAME\"" | sed -e "s|.*/zoneinfo/||" >> /etc/sysconfig/clock
+if [ -L %{_sysconfdir}/localtime ]; then
+    _FNAME=`ls -ld %{_sysconfdir}/localtime | awk '{ print $11}' | sed 's/lib/share/'`
+    rm %{_sysconfdir}/localtime
+    cp -f $_FNAME %{_sysconfdir}/localtime
+    if [ -f %{_sysconfdir}/sysconfig/clock ]; then
+	grep -q "^ZONE=" %{_sysconfdir}/sysconfig/clock && \
+	echo "ZONE=\"$_FNAME\"" | sed -e "s|.*/zoneinfo/||" >> %{_sysconfdir}/sysconfig/clock
     else
-	echo "ZONE=\"$_FNAME\"" | sed -e "s|.*/zoneinfo/||" >> /etc/sysconfig/clock
+	echo "ZONE=\"$_FNAME\"" | sed -e "s|.*/zoneinfo/||" >> %{_sysconfdir}/sysconfig/clock
     fi
 fi
 
@@ -74,6 +74,12 @@ fi
 %{_mandir}/man*/*
 
 %changelog
+* Mon Feb 28 2005 Vincent Danen <vdanen@annvix.org> 3.2-13avx
+- rebuild against new newt/slang
+
+* Sat Jun 19 2004 Vincent Danen <vdanen@annvix.org> 3.2-12avx
+- Annvix build
+
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 3.2-11sls
 - minor spec cleanups
 

@@ -336,7 +336,7 @@
  #endif /* _PAM_CONSOLE_H */
 --- Linux-PAM-0.77/modules/pam_console/pam_console_apply_devfsd.c.devfsd	2003-07-12 23:36:34.000000000 +0200
 +++ Linux-PAM-0.77/modules/pam_console/pam_console_apply_devfsd.c	2003-07-12 23:36:34.000000000 +0200
-@@ -0,0 +1,104 @@
+@@ -0,0 +1,105 @@
 +/*
 + * Read in the file, and grant ownerships to whoever has the lock.
 + */
@@ -382,8 +382,9 @@
 +	va_list args;
 +	if (debug_p && !debug) return;
 +        va_start(args, format);
-+	fprintf(stderr, format, args);
++	vfprintf(stderr, format, args);
 +	va_end(args);
++    	fprintf(stderr, "\n");
 +}
 +
 +int

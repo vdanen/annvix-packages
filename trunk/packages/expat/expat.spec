@@ -1,6 +1,6 @@
 %define name	expat
 %define version 1.95.6
-%define release 6sls
+%define release 7avx
 
 %define libname_orig	libexpat
 %define major		0
@@ -91,6 +91,9 @@ rm -f $RPM_BUILD_ROOT/%{_mandir}/xmlwf.1*
 %_libdir/libexpat.la
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> - 1.95.6-7avx
+- Annvix build
+
 * Thu Mar 04 2004 Vincent Danen <vdanen@opensls.org> - 1.95.6-6sls
 - minor spec cleanups
 

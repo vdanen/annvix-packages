@@ -1,6 +1,6 @@
 %define name	zlib
 %define version	1.1.4
-%define release 10sls
+%define release 11avx
 
 %define lib_major	1
 %define lib_name	%{name}%{lib_major}
@@ -141,6 +141,9 @@ ln -s ../../lib/libz.so.%{version} $RPM_BUILD_ROOT%{_prefix}/lib/
 %{_mandir}/*/*
 
 %changelog
+* Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 1.1.4-11avx
+- Annvix build
+
 * Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 1.1.4-10sls
 - minor spec cleanups
 

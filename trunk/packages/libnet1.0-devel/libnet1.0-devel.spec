@@ -1,6 +1,9 @@
-%define name	%mklibname net 1.0
+%define name	%{libnet}%{branch}
 %define version 1.0.2a
-%define release 4sls
+%define release 6avx
+
+%define libnet	%mklibname net
+%define branch	1.0
 
 Summary:	A C library for portable packet creation
 Name:		%{name}-devel
@@ -17,7 +20,8 @@ BuildPreReq:	libpcap
 BuildRequires:	libtool
 
 Conflicts:	libnet, %{_lib}net1.1-devel
-Provides:	net-devel = %version-%release
+Provides:	net-devel = %{version}-%{release}
+Provides:	net%{branch}-devel = %{version}-%{release}
 
 %description
 Libnet is an API to help with the construction and handling of network
@@ -45,10 +49,11 @@ find . -type 'd' -name "CVS" -print | xargs /bin/rm -rf
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p $RPM_BUILD_ROOT/%{_prefix}/{bin,%_lib,include}
-mkdir -p $RPM_BUILD_ROOT/%{_mandir}/man3
-make install DESTDIR=$RPM_BUILD_ROOT INSTALL="/usr/bin/install" MAN_PREFIX=%_mandir/man3
-rm -f $RPM_BUILD_ROOT/%{_libdir}/libpwrite
+mkdir -p %{buildroot}/%{_prefix}/{bin,%_lib,include}
+mkdir -p %{buildroot}/%{_mandir}/man3
+
+make install DESTDIR=%{buildroot} INSTALL="/usr/bin/install" MAN_PREFIX=%{_mandir}/man3
+rm -f %{buildroot}/%{_libdir}/libpwrite
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -64,6 +69,13 @@ rm -f $RPM_BUILD_ROOT/%{_libdir}/libpwrite
 %{_includedir}/libnet/*
 
 %changelog
+* Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 1.0.2a-6avx
+- more appropriate provides
+- spec cleanups
+
+* Wed Jun 23 2004 Vincent Danen <vdanen@annvix.org> 1.0.2a-5avx
+- Annvix build
+
 * Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 1.0.2a-4sls
 - minor spec cleanups
 

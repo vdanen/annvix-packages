@@ -4,5 +4,4 @@ PATH="/sbin:/usr/sbin:/bin:/usr/bin:$PATH"
 # this runs swat limiting the server to a maximum of 30 simultaneous 
 # connections. swat.cdb is not required for the service to run
 
-exec /usr/bin/tcpserver -c30 -HRXv -llocalhost -x /etc/tcprules.d/swat.cdb \
-0 901 /usr/sbin/swat 2>&1
+exec /sbin/tcpsvd -c30 -v -llocalhost -i./peers 0 901 /usr/sbin/swat 2>&1

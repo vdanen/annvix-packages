@@ -1,6 +1,6 @@
 %define name	diffutils
 %define version 2.8.4
-%define release 6sls
+%define release 7avx
 
 Summary:	A GNU collection of diff utilities
 Name:		%{name}
@@ -16,7 +16,7 @@ Patch2:		diffutils-2.8.4-i18n.patch.bz2
 BuildRoot:	%{_tmppath}/%{name}-root
 BuildRequires:	autoconf2.5
 
-Prereq:		/sbin/install-info
+Prereq:		info-install
 
 %description
 Diffutils includes four utilities:  diff, cmp, diff3 and sdiff.
@@ -71,6 +71,10 @@ rm -fr $RPM_BUILD_ROOT/%{_infodir}/dir
 %{_infodir}/diff.info*
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 2.8.4-7avx
+- requiere packages not files
+- Annvix build
+
 * Thu Mar 04 2004 Vincent Danen <vdanen@opensls.org> 2.8.4-6sls
 - minor spec cleanups
 

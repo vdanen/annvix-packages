@@ -1,11 +1,11 @@
 %define name			%{cross_prefix}gcc%{package_suffix}
 %define version			3.3.1
-%define release			5sls
+%define release			6avx
 
 %define branch			3.3
 %define branch_tag		%(perl -e 'printf "%%02d%%02d", split(/\\./,shift)' %{branch})
 
-# OpenSLS defaults
+# Annvix defaults
 %define build_ssp		1
 
 %{expand: %{?_without_ssp:	%%global build_ssp 0}}
@@ -213,7 +213,7 @@
 %define libffi_name_orig	%{cross_prefix}libffi
 %define libffi_name		%{libffi_name_orig}%{libffi_major}
 
-%{expand:%%define sls_version %(awk '{print $3}' /etc/opensls-release)}
+%{expand:%%define avx_version %(awk '{print $3}' /etc/annvix-release)}
 
 Summary:	GNU Compiler Collection
 Name:		%{name}
@@ -293,7 +293,7 @@ Patch218: 	gcc33-ia64-libjava-locks.patch.bz2
 Patch219: 	gcc33-rhl-testsuite.patch.bz2
 
 # Stack-Smashing Protector http://www.research.ibm.com/trl/projects/security/ssp/
-Patch300:	gcc-3.3.1-protector-3.3-7.patch.bz2
+Patch300:	gcc-3.3.2-protector-3.3.2-2.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-root
 # Want updated alternatives priorities
@@ -848,9 +848,9 @@ patch -p0 < gcc/p/diffs/gcc-3.3.diff
 %patch116 -p1 -b .gpc
 %patch117 -p1 -b .gpc-serialize-build
 
-# Mandrakezification for bug reports
-perl -pi -e "/bug_report_url/ and s/\"[^\"]+\"/\"<URL:http:\/\/opensls.org\/anthill\/>\"/;" \
-         -e '/version_string/ and s/([0-9]*(\.[0-9]*){1,3}).*(\";)$/\1 \(OpenSLS %{sls_version} %{version}-%{release}\)\3/;' \
+# Annvix information for bug reports
+perl -pi -e "/bug_report_url/ and s/\"[^\"]+\"/\"<URL:http:\/\/annvix.org\/anthill\/>\"/;" \
+         -e '/version_string/ and s/([0-9]*(\.[0-9]*){1,3}).*(\";)$/\1 \(Annvix %{avx_version} %{version}-%{release}\)\3/;' \
          gcc/version.c
 
 # ColorGCC patch
@@ -2123,6 +2123,10 @@ if [ "$1" = "0" ];then /sbin/install-info %{_infodir}/gcc.info.bz2 --dir=%{_info
 %endif
 
 %changelog
+* Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 3.3.1-6avx
+- Annvix build
+- ssp 3.3.2-2; regenerated patch
+
 * Sat Feb 07 2004 Vincent Danen <vdanen@opensls.org> 3.3.1-5sls
 - ssp 3.3-7; regenerated patch
 - s/propolice/ssp/ (aka use the real name)

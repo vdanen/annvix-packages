@@ -1,6 +1,6 @@
 %define name	iputils
 %define version	20%{ver}
-%define release	7sls
+%define release	8avx
 %define ver	020927
 
 Summary:	Network monitoring tools including ping.
@@ -109,6 +109,9 @@ install -c doc/tracepath.8 ${RPM_BUILD_ROOT}%{_mandir}/man8/
 %{_mandir}/man8/*
 
 %changelog
+* Thu Jun 24 2004 Vincent Danen <vdanen@annvix.org> 20020927-8avx
+- Annvix build
+
 * Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 20020927-7sls
 - remove %%build_opensls macro
 - minor spec cleanups

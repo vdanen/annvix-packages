@@ -1,6 +1,6 @@
 %define name	tcltk
 %define version	%{tclvers}
-%define release	3sls
+%define release	5avx
 
 %define tcl_major	8.4
 %define tk_major 	8.4
@@ -467,7 +467,7 @@ rm -rf $RPM_BUILD_ROOT%_libdir/libtixsam*
 chmod +x $RPM_BUILD_ROOT%_libdir/libtix*.so
 
 pushd $RPM_BUILD_ROOT%_bindir
-ln -s tixwish8.1.8.3 tixwish
+ln -s tixwish%{libtix_major} tixwish
 popd
 
 if [ "%_mandir" = "%{_prefix}/share/man" ]; then
@@ -596,6 +596,12 @@ rm -f *.files
 %files -f tcllib.files -n tcllib
 
 %changelog
+* Mon Aug 30 2004 Vincent Danen <vdanen@annvix.org> 8.4.2-5avx
+- fix dangling symlink (tixwish)
+
+* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 8.4.2-4avx
+- Annvix build
+
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 8.4.2-3sls
 - minor spec cleanups
 

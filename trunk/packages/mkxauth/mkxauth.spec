@@ -1,6 +1,8 @@
 %define name	mkxauth
 %define version	1.7
-%define release	10sls
+%define release	11avx
+
+%define _prefix	/usr/X11R6
 
 Summary:	A utility for managing .Xauthority files.
 Name: 		%{name}
@@ -14,8 +16,7 @@ Source: 	%{name}-%{version}.tar.bz2
 BuildRoot: 	%{_tmppath}/%{name}-%{version}-root
 BuildArch:	noarch
 
-Requires: 	/usr/X11R6/bin/xauth textutils fileutils sh-utils procps gzip
-Prefix: 	%{_prefix}/X11R6
+Requires: 	XFree86 textutils fileutils sh-utils procps gzip
 
 %description
 The mkxauth utility helps create and maintain X authentication
@@ -32,7 +33,7 @@ System (a good idea).
 
 %prep
 
-%setup
+%setup -q
 
 %build
 
@@ -53,6 +54,11 @@ install -m 0444 mkxauth.1x.bz2 $RPM_BUILD_ROOT%{_mandir}/man1/mkxauth.1x.bz2
 %{_mandir}/man1/*
 
 %changelog
+* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 1.7-11avx
+- Annvix build
+- require packages not files
+- minor spec cleaning
+
 * Sat Mar 06 2004 Vincent Danen <vdanen@opensls.org> 1.7-10sls
 - minor spec cleanups
 

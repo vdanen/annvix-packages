@@ -570,29 +570,6 @@ diff -Nurp -X /Devel/dontdiff 2425/Documentation/filesystems/Locking ea-0871/Doc
  removexattr:	yes	yes		no
  	Additionally, ->rmdir() has i_zombie on victim and so does ->rename()
  in case when target exists and is a directory.
-diff -Nurp -X /Devel/dontdiff 2425/fs/befs/linuxvfs.c ea-0871/fs/befs/linuxvfs.c
---- 2425/fs/befs/linuxvfs.c	2003-06-13 17:51:37.000000000 +0300
-+++ ea-0871/fs/befs/linuxvfs.c	2004-04-02 20:52:01.000000000 +0300
-@@ -58,8 +58,8 @@ static int parse_options(char *, befs_mo
- static ssize_t befs_listxattr(struct dentry *dentry, char *buffer, size_t size);
- static ssize_t befs_getxattr(struct dentry *dentry, const char *name,
- 			     void *buffer, size_t size);
--static int befs_setxattr(struct dentry *dentry, const char *name, void *value,
--			 size_t size, int flags);
-+static int befs_setxattr(struct dentry *dentry, const char *name,
-+			 const void *value, size_t size, int flags);
- static int befs_removexattr(struct dentry *dentry, const char *name);
- 
- /* slab cache for befs_inode_info objects */
-@@ -693,7 +693,7 @@ befs_getxattr(struct dentry *dentry, con
- 
- static int
- befs_setxattr(struct dentry *dentry, const char *name,
--	      void *value, size_t size, int flags)
-+	      const void *value, size_t size, int flags)
- {
- 	return 0;
- }
 diff -Nurp -X /Devel/dontdiff 2425/fs/Config.in ea-0871/fs/Config.in
 --- 2425/fs/Config.in	2004-04-02 20:49:38.000000000 +0300
 +++ ea-0871/fs/Config.in	2004-04-02 20:52:01.000000000 +0300

@@ -1,32 +1,43 @@
 %define name	autoconf2.5
 %define version	2.59
-%define release 1sls
+%define release 3avx
 %define epoch	1
+
+%define docheck 1
+%{?_without_check: %global docheck 0}
 
 # Factorize uses of autoconf libdir home and
 # handle only one exception in rpmlint
-%define aclibdir %{_prefix}/lib/autoconf
+%define scriptdir %{_datadir}/autotools
 
-Summary:	A GNU tool for automatically configuring source code.
+Summary:	A GNU tool for automatically configuring source code
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 Epoch:		%{epoch}
 License:	GPL
 Group:		Development/Other
-URL:		http://sourceware.cygnus.com/autoconf/
+URL:		http://www.gnu.org/software/autoconf/
 Source:		ftp://ftp.gnu.org/gnu/autoconf/autoconf-%{version}.tar.bz2
-Source2:	special_readme2.5
-Source10:	autoconf-site-start
+Source2:	autoconf_special_readme2.5
+Source3:	autoconf-ac-wrapper.pl
 Patch0:		autoconf-2.58-fix-info.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot/
 BuildArch:	noarch
-BuildRequires:	texinfo
+BuildRequires:	texinfo, m4
 
-Prereq:		/sbin/install-info
-Requires:	gawk, m4, mktemp, /usr/bin/perl
-Requires:	%{aclibdir}/ac-wrapper.pl
+Prereq:		info-install
+Requires:	gawk, m4, mktemp, perl
+# autoconf provides %{aclibdir}/ac-wrapper.pl, which we need
+Requires:	autoconf2.1
+Conflicts:	autoconf <= 1:2.13-22avx
+Provides:	autoconf = %{epoch}:%{version}-%{release}
+
+# for tests
+%if %docheck
+BuildRequires:	flex, bison
+%endif
 
 %description
 GNU's Autoconf is a tool for configuring source code and Makefiles.
@@ -48,27 +59,33 @@ their use.
 
 %prep
 %setup -q -n autoconf-%{version}
-%patch0 -p0
+%patch0 -p1 -b .addinfo
 install -m644 %{SOURCE2} IMPORTANT.README.OpenSLS
 
 %build
 %configure2_5x
-make
+%make
+
+%if %docheck
+make check	# VERBOSE=1
+%endif
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-%makeinstall
-rm -rf $RPM_BUILD_ROOT%{_infodir}/dir
+%makeinstall_std
+
+# automatic autoconf wrapper
+install -D -m 755 %{SOURCE3} $RPM_BUILD_ROOT%{scriptdir}/ac-wrapper.pl
 
 # We don't want to include the standards.info stuff in the package,
 # because it comes from binutils...
 rm -f $RPM_BUILD_ROOT%{_infodir}/standards*
 
-for i in autoconf autoheader autoreconf autoscan autoupdate ifnames autom4te; do
-		mv $RPM_BUILD_ROOT%{_bindir}/$i $RPM_BUILD_ROOT%{_bindir}/$i-2.5x
+# links all scripts to wrapper
+for i in $RPM_BUILD_ROOT%{_bindir}/*; do
+    mv $i ${i}-2.5x
+    ln -s %{scriptdir}/ac-wrapper.pl $i
 done
-# new in 2.5x
-ln -s ../..%{aclibdir}/ac-wrapper.pl $RPM_BUILD_ROOT%{_bindir}/autom4te
 
 mv $RPM_BUILD_ROOT%{_infodir}/autoconf.info $RPM_BUILD_ROOT%{_infodir}/autoconf-2.5x.info
 
@@ -89,8 +106,19 @@ mv $RPM_BUILD_ROOT%{_infodir}/autoconf.info $RPM_BUILD_ROOT%{_infodir}/autoconf-
 %{_datadir}/autoconf
 %{_infodir}/*
 %{_mandir}/*/*
+%{scriptdir}
 
 %changelog
+* Mon Feb 28 2005 Vincent Danen <vdanen@annvix.org> 2.59-3avx
+- requires autconf2.1 for wrapper
+- call this package's autoconf when no configure.in or configure.ac
+  detected
+- so starts the mdk "BIG MOVE" (almost a year later =))
+
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 2.59-2avx
+- Annvix build
+- require packages not files
+
 * Fri May 07 2004 Vincent Danen <vdanen@opensls.org> 2.59-1sls
 - 2.59
 

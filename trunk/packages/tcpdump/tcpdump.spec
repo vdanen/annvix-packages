@@ -1,6 +1,6 @@
 %define name	tcpdump
 %define version	3.8.3
-%define release	1sls
+%define release	2avx
 %define epoch	2
 
 Summary:	A network traffic monitoring tool
@@ -51,6 +51,9 @@ make install DESTDIR=$RPM_BUILD_ROOT
 %{_mandir}/man1/tcpdump.1*
 
 %changelog
+* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 3.8.3-2avx
+- Annvix build
+
 * Fri Jun 11 2004 Vincent Danen <vdanen@opensls.org> 3.8.3-1sls
 - OpenSLS build
 - tidy spec

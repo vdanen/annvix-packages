@@ -1,6 +1,6 @@
 %define name	words
 %define version	2
-%define release	21sls
+%define release	22avx
 
 %define _dict_dir /usr/share/dict/
 
@@ -50,6 +50,9 @@ ln -sf linux.words $RPM_BUILD_ROOT%{_dict_dir}words
 %{_dict_dir}words
 
 %changelog
+* Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 2-22avx
+- Annvix build
+
 * Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 2-21sls
 - minor spec cleanups
 

@@ -1,11 +1,11 @@
 %define name	glib
 %define version	1.2.10
-%define release	13sls
+%define release	15avx
 
 %define libname  %mklibname %{name} %{major}
 %define major    1.2
 
-Summary:	A library of handy utility functions.
+Summary:	A library of handy utility functions
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -17,11 +17,12 @@ Source:		ftp://ftp.gtk.org/pub/gtk/v1.2/%{name}-%{version}.tar.bz2
 Patch0:		glib-1.2.10-isowarning.patch.bz2
 # (fc) 1.2.10-5mdk don't set -L/usr/lib in glib-config
 Patch1:		glib-1.2.10-libdir.patch.bz2
+Patch2:		glib-1.2.10-fdr-gcc34.patch.bz2
+Patch3:		glib-1.2.10-fdr-underquoted.patch.bz2
+Patch4:		glib-1.2.10-mdk-pic.patch.bz2
 
 BuildRoot:	%{_tmppath}/glib-%{version}-root
-
-Provides:	glib
-Obsoletes:	glib
+BuildRequires:	automake1.4
 
 %description
 Glib is a handy library of utility functions. This C
@@ -46,10 +47,10 @@ linked with the glib.
 %package -n %{libname}-devel
 Summary:	GIMP Toolkit and GIMP Drawing Kit support library
 Group:		Development/C
-Requires:	%{libname} = %{version}-%{release}
+Requires:	%{libname} = %{version}
 Requires:	pkgconfig
-Provides:	%{name}-devel = %{version}
-Provides:	lib%{name}-devel = %{version}
+Provides:	%{name}-devel = %{version}-%{release}
+Provides:	lib%{name}-devel = %{version}-%{release}
 Obsoletes:	glib-devel
 
 %description -n %{libname}-devel
@@ -61,9 +62,12 @@ useful data structures.
 %setup -q
 %patch0 -p1 -b .isowarnings
 %patch1 -p1 -b .libdir
+%patch2 -p1 -b .gcc34
+%patch3 -p1 -b .underquoted
+%patch4 -p1 -b .pic
+automake-1.4
 
 %build
-libtoolize --copy --force
 %configure
 
 %make
@@ -72,6 +76,8 @@ make check
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
+
+#%multiarch_binaries %{buildroot}%{_bindir}/glib-config
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -101,9 +107,19 @@ make check
 %{_mandir}/man1/*
 %{_datadir}/aclocal/*
 %{_bindir}/*
+#%multiarch %{multiarch_bindir}/*
 %{_infodir}/%{name}*
 
 %changelog
+* Mon Feb 28 2005 Vincent Danen <vdanen@annvix.org> 1.2.10-15avx
+- P2: fix build with gcc 3.4 (fedora)
+- P3: fix underquoted m4 definitions (fedora)
+- P4: build static glib library with PIC as pam modules need it
+  (gbeauchesne)
+
+* Thu Jun 24 2004 Vincent Danen <vdanen@annvix.org> 1.2.10-14avx
+- Annvix build
+
 * Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 1.2.10-13sls
 - minor spec cleanups
 - remove COPYING from %%{libname}

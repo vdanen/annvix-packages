@@ -1,20 +1,16 @@
-%define name	%{ap_name}-%{mod_name}
-%define version	%{ap_version}_%{mod_version}
-%define release	1sls
+%define name	apache2-%{mod_name}
+%define version	%{apache_version}_%{mod_version}
+%define release	1avx
 
 # Module-Specific definitions
-%define mod_version	2.2.7
+%define apache_version	2.0.53
+%define mod_version	2.2.9
 %define mod_name	mod_auth_external
 %define mod_conf	10_%{mod_name}.conf
 %define mod_so		%{mod_name}.so
 %define sourcename	%{mod_name}-%{mod_version}
 
-# New ADVX macros
-%define ADVXdir	%{_datadir}/ADVX
-%{expand:%(cat %{ADVXdir}/ADVX-build)}
-%{expand:%%global ap_version %(%{apxs} -q ap_version)}
-
-Summary:	An %{ap_name} authentication DSO using external programs
+Summary:	An apache2 authentication DSO using external programs
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -23,83 +19,60 @@ Group:		System/Servers
 URL:		http://www.unixpapa.com/mod_auth_external.html
 Source0:	%{sourcename}.tar.bz2
 Source1:	%{mod_conf}.bz2
-Source2:	pwauth.pam.bz2
-Patch0:		%{mod_name}-2.1.14-pam.patch.bz2
-Patch1:		%{mod_name}-2.2.7-conf.patch.bz2
-Patch2:		%{mod_name}-2.1.14-server.patch.bz2
-Patch4:		%{mod_name}-2.2.7-register.patch.bz2
-Patch5:		mod_auth_external-2.2.3-64bit-fixes.patch.bz2
+Patch0:		%{mod_name}-2.2.9-register.diff.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-buildroot
-BuildRequires:	pam-devel, apache2-devel
-# Standard ADVX requires
-BuildRequires:  ADVX-build >= 9.2
-BuildRequires:  %{ap_name}-devel >= 2.0.43-5mdk
+BuildRequires:  apache2-devel >= %{apache_version}
 
-Prereq:		rpm-helper
-# Standard ADVX requires
-Prereq:		%{ap_name} = %{ap_version}
-Prereq:		%{ap_name}-conf
-Provides: 	ADVXpackage
-Provides:	AP20package
+Prereq:		rpm-helper, apache2 >= %{apache_version}, apache2-conf
+Requires:	pwauth
 
 %description
-An %{ap_name} external authentication module - uses PAM.
+An apache2 external authentication module - uses PAM.
 
 %prep
 %setup -q -n %{sourcename}
 %patch0
-%patch1
-%patch2 -p1
-%patch4 
-%patch5 -p1 -b .64bit-fixes
 
 %build
-%{apxs} -c %{mod_name}.c
-cd pwauth
-%make CFLAGS="%{optflags}" LIB="-lpam -ldl"
+%{_sbindir}/apxs2 -c %{mod_name}.c
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-%ADVXinstlib
-%ADVXinstconf %{SOURCE1} %{mod_conf}
-%ADVXinstdoc %{name}-%{version}
+mkdir -p %{buildroot}%{_libdir}/apache2-extramodules
+mkdir -p %{buildroot}%{_sysconfdir}/httpd/conf.d
+install -m 0755 .libs/*.so %{buildroot}%{_libdir}/apache2-extramodules/
+bzcat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/conf.d/%{mod_conf}
 
-mkdir -p %{buildroot}%{ap_extralibs}
-install -m 755 -s pwauth/pwauth %{buildroot}%{ap_extralibs}/
-install -m 755 -s pwauth/unixgroup %{buildroot}%{ap_extralibs}/
+mkdir -p %{buildroot}/var/www/html/addon-modules
+ln -s ../../../../%{_docdir}/%{name}-%{version} %{buildroot}/var/www/html/addon-modules/%{name}-%{version}
 
-install -d %{buildroot}%{_sysconfdir}/pam.d
-bzcat %{SOURCE2} > %{buildroot}%{_sysconfdir}/pam.d/pwauth
-bzcat %{SOURCE2} > %{buildroot}%{_sysconfdir}/pam.d/unixgroup
-
-mv pwauth/README README.pwauth
-mv pwauth/FORM_AUTH README.pwauth
-mv README mod_auth_external.txt
-chmod 644 AUTHENTICATORS CHANGES INSTALL* README* TODO mod_auth_external.txt
-
-%post
-%ADVXpost
-
-%postun
-%ADVXpost
+chmod 644 AUTHENTICATORS CHANGES INSTALL* README* TODO
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
-%doc AUTHENTICATORS CHANGES INSTALL* README* TODO mod_auth_external.txt
-%config(noreplace) %{ap_confd}/%{mod_conf}
-%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/pam.d/pwauth
-%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/pam.d/unixgroup
-%{ap_extralibs}/%{mod_so}
-%attr(04550,root,apache) %{ap_extralibs}/pwauth
-%attr(04550,root,apache) %{ap_extralibs}/unixgroup
-%{ap_webdoc}/*
+%doc AUTHENTICATORS CHANGES INSTALL* README* TODO
+%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/httpd/conf.d/%{mod_conf}
+%attr(0755,root,root) %{_libdir}/apache2-extramodules/%{mod_so}
+/var/www/html/addon-modules/*
 
 %changelog
+* Fri Feb 25 2005 Vincent Danen <vdanen@annvix.org> 2.0.53_2.2.9-1avx
+- apache 2.0.53
+- mod_auth_external 2.2.9
+- pwauth is an external package
+- get rid of ADVX stuff
+
+* Thu Oct 14 2004 Vincent Danen <vdanen@annvix.org> 2.0.52_2.2.7-1avx
+- apache 2.0.52
+
+* Sun Jun 27 2004 Vincent Danen <vdanen@annvix.org> 2.0.49_2.2.7-2avx
+- Annvix build
+
 * Fri May 07 2004 Vincent Danen <vdanen@opensls.org> 2.0.49_2.2.7-1sls
 - apache 2.0.49
 

@@ -1,16 +1,23 @@
 #!/bin/sh
 #
-# saslauthd	SASL AUTH Daemon
+# saslauthd     SASL AUTH Daemon
 #
-# chkconfig:	2345 40 60
-# description:	SASL AUTH Daemon
-# processname:	saslauthd
-# pidfile:	/var/state/sasl/mux.pid
+# chkconfig:    2345 40 60
+# description:  SASL AUTH Daemon
+# processname:  saslauthd
+# pidfile:      /var/lock/subsys/saslauthd
 
 # $Id: saslauthd.init,v 1.1 2001/05/02 10:55:48 wiget Exp $
 
 # Source function library
 . /etc/rc.d/init.d/functions
+
+#Mux file directory
+MUXDIR="/var/lib/sasl2"
+
+#Postfix spool directory (need to have the mux there as well)
+PFDIR="/var/spool/postfix"
+
 
 # Get service config
 [ -f /etc/sysconfig/saslauthd ] && . /etc/sysconfig/saslauthd
@@ -36,28 +43,46 @@ case "$1" in
   start)
 	# Check if the service is already running?
         if [ ! -f /var/lock/subsys/saslauthd ]; then
-		echo -n $"Starting saslauthd"
+		gprintf "Starting saslauthd"
 		daemon saslauthd $SASLAUTHD_OPTS
 		echo
 	        RETVAL=$?
     		[ $RETVAL -eq 0 ] && touch /var/lock/subsys/saslauthd
 	else
-        	echo -n $"saslauthd already running"
+        	gprintf "saslauthd already running"
 		echo
 	        exit 1
+	fi
+	# Check if Postfix is present and make a hardlink so
+        # smtp auth can work
+	if [ -e $PFDIR -a ! -e $PFDIR$MUXDIR ]; then
+		echo "Creating $PFDIR$MUXDIR"
+		mkdir -p $PFDIR$MUXDIR
+	fi
+        if [ ! -e $PFDIR$MUXDIR/mux ];then
+		if [ ! -e $MUXDIR/mux ];then
+		  gprintf "Mux not ready... Sleeping 1 second\n"
+		  sleep 1
+		fi
+		echo "Creating hardlink from $MUXDIR/mux to $PFDIR$MUXDIR/"
+		ln -f $MUXDIR/mux $PFDIR$MUXDIR/
 	fi
 	;;
   stop)
         # Stop daemons.
 	if [ -f /var/lock/subsys/saslauthd ]; then
-                echo -n $"Stopping saslauthd"
+                gprintf "Stopping saslauthd"
                 killproc saslauthd
 		echo
                 rm -f /var/lock/subsys/saslauthd /var/run/saslauthd.pid >/dev/null 2>&1
         else
-		echo -n $"saslauthd not running"
+		gprintf "saslauthd not running"
 		echo
 	        exit 1
+	fi
+        if [ -e $PFDIR$MUXDIR/mux ];then
+		echo "Deleting $PFDIR$MUXDIR/mux"
+		rm -f $PFDIR$MUXDIR/mux
 	fi
 	;;
   status)
@@ -69,7 +94,7 @@ case "$1" in
 	$0 start
 	;;
   *)
-	echo "$0 {start|stop|restart|status}"
+	gprintf "%s {start|stop|restart|status}\n" "$0"
 	exit 1
 	;;
 esac

@@ -1,7 +1,6 @@
-diff -Nurp -X /Devel/dontdiff acl-0871/Documentation/Configure.help nfsacl-0871/Documentation/Configure.help
---- acl-0871/Documentation/Configure.help	2004-04-02 21:02:50.000000000 +0300
-+++ nfsacl-0871/Documentation/Configure.help	2004-04-02 21:06:08.000000000 +0300
-@@ -17257,6 +17257,13 @@ CONFIG_NFS_DIRECTIO
+--- linux-2.4.28/Documentation/Configure.help.sl21.orig	2004-11-24 19:06:50.000000000 -0700
++++ linux-2.4.28/Documentation/Configure.help	2004-11-24 19:11:16.000000000 -0700
+@@ -17363,6 +17363,13 @@
  
    If unsure, say N.
  
@@ -15,7 +14,7 @@ diff -Nurp -X /Devel/dontdiff acl-0871/Documentation/Configure.help nfsacl-0871/
  Root file system on NFS
  CONFIG_ROOT_NFS
    If you want your Linux box to mount its whole root file system (the
-@@ -17301,6 +17308,13 @@ CONFIG_NFSD_V3
+@@ -17407,6 +17414,13 @@
    If you would like to include the NFSv3 server as well as the NFSv2
    server, say Y here.  If unsure, say Y.
  
@@ -26,13 +25,12 @@ diff -Nurp -X /Devel/dontdiff acl-0871/Documentation/Configure.help nfsacl-0871/
 +  implement the nfsacl protocol extension; see the CONFIG_NFS_ACL
 +  option.  If unsure, say N.
 +
- Provide NFS over TCP server support EXPERIMENTAL
+ Provide NFS over TCP server support
  CONFIG_NFSD_TCP
-   Enable NFS service over TCP connections.  This the officially
-diff -Nurp -X /Devel/dontdiff acl-0871/fs/Config.in nfsacl-0871/fs/Config.in
---- acl-0871/fs/Config.in	2004-04-02 21:02:50.000000000 +0300
-+++ nfsacl-0871/fs/Config.in	2004-04-02 21:06:08.000000000 +0300
-@@ -138,11 +138,13 @@ if [ "$CONFIG_NET" = "y" ]; then
+   If you want your NFS server to support TCP connections, say Y here.
+--- linux-2.4.28/fs/Config.in.sl21.orig	2004-11-24 19:06:50.000000000 -0700
++++ linux-2.4.28/fs/Config.in	2004-11-24 19:13:43.000000000 -0700
+@@ -136,11 +136,13 @@
     dep_tristate 'InterMezzo file system support (replicating fs) (EXPERIMENTAL)' CONFIG_INTERMEZZO_FS $CONFIG_INET $CONFIG_EXPERIMENTAL
     dep_tristate 'NFS file system support' CONFIG_NFS_FS $CONFIG_INET
     dep_mbool '  Provide NFSv3 client support' CONFIG_NFS_V3 $CONFIG_NFS_FS
@@ -43,7 +41,7 @@ diff -Nurp -X /Devel/dontdiff acl-0871/fs/Config.in nfsacl-0871/fs/Config.in
     dep_tristate 'NFS server support' CONFIG_NFSD $CONFIG_INET
     dep_mbool '  Provide NFSv3 server support' CONFIG_NFSD_V3 $CONFIG_NFSD
 +   dep_mbool '    nfsacl protocol extension' CONFIG_NFSD_ACL $CONFIG_NFSD_V3
-    dep_mbool '  Provide NFS server over TCP support (EXPERIMENTAL)' CONFIG_NFSD_TCP $CONFIG_NFSD $CONFIG_EXPERIMENTAL
+    dep_mbool '  Provide NFS server over TCP support' CONFIG_NFSD_TCP $CONFIG_NFSD
  
     if [ "$CONFIG_NFS_FS" = "y" -o "$CONFIG_NFSD" = "y" ]; then
 diff -Nurp -X /Devel/dontdiff acl-0871/fs/lockd/svc.c nfsacl-0871/fs/lockd/svc.c

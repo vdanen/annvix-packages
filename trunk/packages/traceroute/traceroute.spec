@@ -1,6 +1,6 @@
 %define name	traceroute
 %define version	1.4a12
-%define release	6sls
+%define release	7avx
 
 Summary:	Traces the route taken by packets over a TCP/IP network.
 Name:		%{name}
@@ -56,6 +56,9 @@ cp traceroute.8 ${RPM_BUILD_ROOT}/%{_mandir}/man8
 %{_mandir}/man8/traceroute.8.bz2
 
 %changelog
+* Sat Jun 19 2004 Vincent Danen <vdanen@annvix.org> 1.4a12-7avx
+- Annvix build
+
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 1.4a12-6sls
 - minor spec cleanups
 - remove %%prefix

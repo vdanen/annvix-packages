@@ -4,8 +4,8 @@
  if [ -z "$ok" ] ; then
  	echo "WARNING: No real configuration access method is available."
  fi
--echo >>$c "#define PATH_PCI_IDS \"$sharedir/pci.ids\""
-+echo >>$c "#define PATH_PCI_IDS \"$sharedir/hwdata/pci.ids\""
+-echo >>$c "#define PCI_PATH_IDS \"$sharedir/pci.ids\""
++echo >>$c "#define PCI_PATH_IDS \"$sharedir/hwdata/pci.ids\""
  echo >>$c "#define PCILIB_VERSION \"$version\""
  sed '/^#define [^ ]*$/!d;s/^#define \(.*\)/\1=1/' <$c >config.mk
 --- pciutils-2.1.99-test3/lspci.man.pciids	2003-12-27 17:13:47.000000000 -0500

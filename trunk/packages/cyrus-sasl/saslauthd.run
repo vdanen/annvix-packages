@@ -1,7 +1,7 @@
 #!/bin/sh
-PATH="/sbin:/usr/sbin:/bin:/usr/bin:$PATH"
+PATH="/sbin:/usr/sbin:/bin:/usr/bin"
 
-# this runs saslauthd under supervise
+# this runs saslauthd supervised
 
 # Get service config
 [ -f /etc/sysconfig/saslauthd ] && . /etc/sysconfig/saslauthd
@@ -21,4 +21,4 @@ if [ "x$SASL_AUTHMECH" != "x" ] ; then
 	SASLAUTHD_OPTS="$SASLAUTHD_OPTS -a $SASL_AUTHMECH"
 fi
 
-exec /usr/sbin/saslauthd -d $SASLAUTHD_OPTS
+exec /usr/sbin/saslauthd -d $SASLAUTHD_OPTS 2>&1
