@@ -1,26 +1,45 @@
-#Module-Specific definitions
-%define mod_version 1.99_11
-%define release 1mdk
-%define mod_name mod_perl
-%define mod_conf 75_%{mod_name}.conf
-%define mod_so %{mod_name}.so
-%define sourcename %{mod_name}-%{mod_version}
+%define name	%{ap_name}-%{mod_name}
+%define version %{ap_version}_%{mod_version}
+%define release 2sls
+
+# Module-Specific definitions
+%define mod_version	1.99_11
+%define mod_name	mod_perl
+%define mod_conf	75_%{mod_name}.conf
+%define mod_so		%{mod_name}.so
+%define sourcename	%{mod_name}-%{mod_version}
 %{expand:%%define perl_version %(rpm -q perl|sed 's/perl-\([0-9].*\)-.*$/\1/')}
 
-#New ADVX macros
+# New ADVX macros
 %define ADVXdir %{_datadir}/ADVX
 %{expand:%(cat %{ADVXdir}/ADVX-build)}
 %{expand:%%global ap_version %(%{apxs} -q ap_version)}
 
-# Standard Module Definitions
-%define name %{ap_name}-%{mod_name}
-%define version %{ap_version}_%{mod_version}
+Summary:	An embedded Perl interpreter for the %{ap_name} Web server.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		System/Servers
+URL:		http://perl.apache.org/
+Source0:	%{sourcename}.tar.gz
+Source1:	%{sourcename}.tar.gz.asc
+Source2:	%{mod_conf}.bz2
+Source3:	%{name}-startup.pl
+Source4:	%{name}-status.tar.bz2
+Source61:       apache2-mod_perl-testscript.pl
 
-#Standard ADVX requires
-Prereq:		%{ap_name} = %{ap_version}
-Prereq:		%{ap_name}-conf
+BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildRequires:	perl-devel
+# Standard ADVX requires
 BuildRequires:	ADVX-build >= 9.2
 BuildRequires:	%{ap_name}-devel >= 2.0.43-5mdk
+
+Prereq:		perl
+Requires:	perl apache2-mod_proxy
+# Standard ADVX requires
+Prereq:		%{ap_name} = %{ap_version}
+Prereq:		%{ap_name}-conf
 Provides: 	ADVXpackage
 Provides:	AP20package
 Provides:	apache-mod_perl = %{version}
@@ -28,29 +47,6 @@ Provides:	apache-mod_perl = %{version}
 Provides:	perl(Apache2)
 Provides:	perl(Apache::TestConfigParse)
 Provides:	perl(Apache::TestConfigPerl)
-Summary:	An embedded Perl interpreter for the %{ap_name} Web server.
-Name:		%{name}
-Version:	%{version}
-Release:	%{release}
-Group:		System/Servers
-Source0:	%{sourcename}.tar.gz
-Source1:	%{sourcename}.tar.gz.asc
-Source2:	%{mod_conf}.bz2
-Source3:	%{name}-startup.pl
-Source4:	%{name}-status.tar.bz2
-Source61:       apache2-mod_perl-testscript.pl
-License:	GPL
-URL:		http://perl.apache.org/
-Prereq:		perl
-Requires:	perl apache2-mod_proxy
-BuildRequires:	perl-devel
-BuildRoot:	%{_tmppath}/%{name}-buildroot
-#Conflicts:	apache-mod_perl
-#Conflicts:	mod_perl-common
-#Conflicts:	mod_perl-devel
-### JMD: THIS IS NEEDED FOR COMPATIBILITY - 
-### OTHERWISE, MANY FILES WILL CONFLICT
-BuildRequires:  mod_perl-common 
 
 %description
 %{name} incorporates a Perl interpreter into the %{ap_name} web server,
@@ -68,7 +64,6 @@ Summary:	Files needed for building XS modules that use mod_perl
 Group:		Development/C
 Requires:	%{name} = %{version}-%{release}
 Requires:	%{ap_name}-devel = %{ap_version}
-Requires:	mod_perl-common 
 
 %description devel 
 The mod_perl-devel package contains the files needed for building XS
@@ -174,6 +169,11 @@ install -m644 xs/tables/current/Apache/FunctionTable.pm \
 %{ap_includedir}/*
 
 %changelog
+* Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 2.0.48_1.99_11-2sls
+- OpenSLS build
+- tidy spec
+- don't require mod_perl-common for anything because we don't ship apache 1.x
+
 * Fri Nov 14 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.48_1.99_11-1mdk
 - 1.99_11
 
