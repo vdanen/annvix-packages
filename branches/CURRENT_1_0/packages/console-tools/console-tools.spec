@@ -1,8 +1,8 @@
 %define name		console-tools
 %define version		0.2.3
-%define release		50avx
+%define release		51avx
 
-%define	CTVER		%version
+%define	CTVER		%{version}
 %define	CDVER		1999.08.29
 %define MDK_KBD_VER	20030918
 
@@ -57,13 +57,17 @@ Patch16: 	console-tools-gcc33.patch.bz2
 # this patch removes testing of start_unicode, otherwise console font
 # cannot be changed once in utf-8 mode -- pablo
 Patch17: 	console-tools-start_unicode.patch.bz2
-# pactch for a coredump when using compressed font files -- pablo
+# patch for a coredump when using compressed font files -- pablo
 Patch18: 	console-tools-0.2.3-compresscoredump.patch.bz2
+# gcc 3.4
+Patch19:	console-tools-0.2.3-gcc3.4-fix.patch.bz2
+# updated french mac keymap v3 from ftp://ftp.linux-france.org/pub/macintosh/kbd-mac-fr.tar.gz
+Patch20:	console-data-1999.08.29-mac.patch.bz2
 
 BuildRoot:	%_tmppath/%name-%version-%release-root
-BuildRequires:	flex libtool >= 1.3.3
+BuildRequires:	flex libtool >= 1.3.3 automake1.7 automake1.4 autoconf2.5 gettext-devel
 
-Prereq:		chkconfig coreutils sed rpm-helper
+Prereq:		coreutils sed rpm-helper
 PreReq:		%libname = %version-%release
 Obsoletes:	kbd
 Provides:	kbd
@@ -106,9 +110,10 @@ Provides:  	lib%fname-static-devel = %version-%release
 This package contains static libraries for console tools.
 
 %prep
-%setup -n console-tools-%{CTVER} -q -a 1 -a4 -a5
+%setup -n %{name}-%{CTVER} -q -a 1 -a4 -a5
 cd console-data-%{CDVER}
 %patch10 -p1
+%patch20 -p1
 cd ..
 
 %patch5 -p1 -b ._db
@@ -127,6 +132,7 @@ cd ..
 %patch16 -p0
 %patch17 -p1
 %patch18 -p1
+#%patch19 -p1 -b .gcc34
 
 %build
 %serverbuild
@@ -136,13 +142,18 @@ DISABLE_RESIZECONS=
 DISABLE_RESIZECONS=--disable-resizecons
 %endif
 
+aclocal-1.4
+automake-1.4
+export FORCE_AUTOCONF_2_5=1
 CFLAGS="%optflags -D_GNU_SOURCE"
-%configure --enable-localdatadir=%_sysconfdir/sysconfig/console $DISABLE_RESIZECONS
+%configure2_5x --enable-localdatadir=%_sysconfdir/sysconfig/console $DISABLE_RESIZECONS
 %make
 
 cd console-data-%{CDVER}
+aclocal-1.7
+automake-1.7
 CFLAGS="%optflags -D_GNU_SOURCE"
-%configure --enable-localdatadir=%_sysconfdir/sysconfig/console $DISABLE_RESIZECONS
+%configure2_5x --enable-localdatadir=%_sysconfdir/sysconfig/console $DISABLE_RESIZECONS
 %make
 cd -
 
@@ -173,7 +184,8 @@ install -d -m 0755 %buildroot/%_sysconfdir/profile.d
 install -m 0755 %SOURCE7 %buildroot/%_sysconfdir/profile.d/configure_keyboard.sh
 
 install -d -m 0755 %buildroot//bin
-for i in loadkeys consolechars unicode_start; do
+#for i in loadkeys consolechars unicode_start; do
+for i in unicode_start; do
   mv %buildroot/%_bindir/$i %buildroot/bin
   ln -s ../../bin/$i %buildroot/%_bindir/$i
 done
@@ -274,8 +286,6 @@ fi
 %ifarch ppc
 %{kbddir}/keymaps/mac
 %endif
-/bin/consolechars
-/bin/loadkeys
 /bin/unicode_start
 %{_bindir}/charset
 %{_bindir}/chvt
@@ -336,6 +346,15 @@ fi
 %_libdir/*.a
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 0.2.3-50avx
+- sync with cooker 0.2.3-49mdk:
+  - fix gcc-3.4 build (P19) (peroyvind)
+  - force use of automake1.{4,7} and autoconf2.5 (peroyvind)
+  - only put files not linked with /usr/lib libraries in /bin to allow
+    to boot on a separated /usr without error [bug #11042] (flepied)
+  - BuildRequires: gettext-devel (cjw)
+  - P20: update french mac keymap (cjw)
+
 * Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 0.2.3-50avx
 - Annvix build
 
