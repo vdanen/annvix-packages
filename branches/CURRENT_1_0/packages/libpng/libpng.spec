@@ -1,6 +1,6 @@
 %define name	libpng
 %define version	1.2.5
-%define release	9sls
+%define release	10sls
 %define epoch	2
 
 %define lib_name_orig	libpng
@@ -45,7 +45,7 @@ linked with libpng.
 %package -n %{lib_name}-devel
 Summary:	Development tools for programs to manipulate PNG image format files
 Group:		Development/C
-Requires:	%{lib_name} = %version-%release zlib-devel
+Requires:	%{lib_name} = %epoch:%version-%release zlib-devel
 Obsoletes:	%{name}-devel
 Provides:	%{name}-devel = %{version}-%{release}
 Provides:	png-devel = %{version}-%{release}
@@ -62,7 +62,7 @@ libpng package.
 %package -n %{lib_name}-static-devel
 Summary:	Development static libraries
 Group:		Development/C
-Requires:	%{lib_name}-devel = %version-%release zlib-devel
+Requires:	%{lib_name}-devel = %epoch:%version-%release zlib-devel
 Provides:	%{name}-static-devel = %{version}-%{release}
 Provides:	png-static-devel = %{version}-%{release}
 
@@ -118,6 +118,9 @@ rm -rf $RPM_BUILD_ROOT%{_prefix}/man
 %{_libdir}/libpng*.a
 
 %changelog
+* Mon Apr 12 2004 Vincent Danen <vdanen@opensls.org> 1.2.5-10sls
+- fix epoch in requires
+
 * Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 1.2.5-9sls
 - minor spec cleanups
 - get rid of duplicated doc files

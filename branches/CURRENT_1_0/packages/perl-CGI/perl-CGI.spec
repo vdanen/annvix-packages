@@ -1,13 +1,14 @@
 %define module	CGI
 %define name	perl-%{module}
 %define version	3.00
-%define release	3sls
+%define release	4sls
+%define epoch	1
 
 Summary:        Simple Common Gateway Interface class for Perl.
 Name:           %{name}
 Version:        %{version}
 Release:        %{release}
-Epoch:		1
+Epoch:		%{epoch}
 License:        GPL or Artistic
 Group:          Development/Perl
 URL:            http://stein.cshl.org/WWW/software/CGI
@@ -33,7 +34,7 @@ information).
 %package Fast
 Group:		Development/Perl
 Summary: 	CGI Interface for Fast CGI
-Requires:	%{name} = %{version}-%{release}
+Requires:	%{name} = %{epoch}:%{version}-%{release}
 
 %description Fast
 CGI::Fast is a subclass of the CGI object created by CGI.pm. It is
@@ -73,6 +74,9 @@ connections, will see large performance improvements.
 %{_mandir}/man3/CGI::Fast.3pm.*
 
 %changelog
+* Mon Apr 12 2004 Vincent Danen <vdanen@opensls.org> 3.00-4sls
+- fix epoch in requires
+
 * Wed Feb 25 2004 Vincent Danen <vdanen@opensls.org> 3.00-3sls
 - rebuild for new perl
 - small spec cleanups
