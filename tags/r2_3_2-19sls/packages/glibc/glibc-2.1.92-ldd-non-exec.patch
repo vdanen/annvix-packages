@@ -1,0 +1,36 @@
+--- glibc-2.1.92/elf/ldd.bash.in.chmou	Tue Jan  4 17:11:48 2000
++++ glibc-2.1.92/elf/ldd.bash.in	Tue Oct 17 15:27:07 2000
+@@ -32,6 +32,7 @@
+ warn=
+ bind_now=
+ verbose=
++file_magic_regex="ELF [0-9][0-9]*-bit [LM]SB (shared object|dynamic lib)"
+ 
+ while test $# -gt 0; do
+   case "$1" in
+@@ -123,8 +124,11 @@
+     echo "ldd: ${file}:" $"No such file or directory" >&2
+     result=1
+   elif test -r "$file"; then
++    if eval file -L "$file" 2>/dev/null \
++    | sed 10q | egrep -v "$file_magic_regex" > /dev/null; then
+     test -x "$file" || echo 'ldd:' $"\
+ warning: you do not have execution permission for" "\`$file'" >&2
++    fi
+     RTLD=
+     for rtld in ${RTLDLIST}; do
+       if test -x $rtld; then
+@@ -143,7 +147,12 @@
+     fi
+     case $ret in
+     0)
+-      eval $add_env '"$file"' || result=1
++      if [ ! -x "$file" ] && eval file -L "$file" 2>/dev/null \
++      | sed 10q | egrep "$file_magic_regex" > /dev/null; then
++        eval $add_env ${RTLD} '"$file"' || result=1
++      else
++        eval $add_env '"$file"' || result=1
++      fi
+       ;;
+     1)
+       # This can be a non-ELF binary or no binary at all.
