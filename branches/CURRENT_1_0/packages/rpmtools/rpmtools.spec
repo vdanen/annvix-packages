@@ -1,6 +1,6 @@
 %define name	rpmtools
 %define version	4.5
-%define release 14sls
+%define release 15sls
 
 %{expand:%%define rpm_version %(rpm -q --queryformat '%{VERSION}-%{RELEASE}' rpm)}
 
@@ -18,7 +18,6 @@ Source0:	%{name}-%{version}.tar.bz2
 BuildRoot:	%{_tmppath}/%{name}-buildroot
 BuildRequires:	bzip2-devel gcc perl-devel rpm-devel >= 4.0
 
-Prefix:		%{_prefix}
 Requires:	rpm >= %{rpm_version} bzip2 >= 1.0 perl-URPM >= 0.50-2mdk
 Conflicts:	rpmtools-compat <= 2.0 rpmtools-devel <= 2.0
 
@@ -37,13 +36,13 @@ Various tools needed by urpmi and drakxtools for handling rpm files.
 %{make} CFLAGS="$RPM_OPT_FLAGS -DRPM_42"
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %{make} install PREFIX=$RPM_BUILD_ROOT
 %{makeinstall_std} -C packdrake-pm
 rm -f $RPM_BUILD_ROOT%{perl_archlib}/perllocal.pod
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -57,6 +56,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/*/*
 
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 4.5-15sls
+- minor spec cleanups
+- remove %%prefix
+
 * Mon Dec 08 2003 Vincent Danen <vdanen@opensls.org> 4.5-14sls
 - OpenSLS build
 - tidy spec
