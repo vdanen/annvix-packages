@@ -1,6 +1,6 @@
 %define name	squid
 %define version	2.5.STABLE3
-%define release	6sls
+%define release	7sls
 
 %define their_version	2.5.STABLE3
 %define p_url   http://www.squid-cache.org/Versions/v2/2.5/bugs
@@ -9,7 +9,6 @@
 ## Redefine configure values.
 %define         _bindir %{_prefix}/sbin
 %define         _libexecdir %{_libdir}/squid
-%define         _initrddir /etc/rc.d/init.d/
 %define         _sysconfdir /etc/squid
 %define         _localstatedir /var
 
@@ -317,6 +316,9 @@ fi
 %attr(0750,nobody,nogroup) %dir %{_srvlogdir}/squid
 
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 2.5.STABLE3-7sls
+- rebuild
+
 * Fri Feb 06 2004 Vincent Danen <vdanen@opensls.org> 2.5.STABLE3-6sls
 - squid has static uid/gid 83
 - srv macros
