@@ -1,5 +1,16 @@
---- rpm-4.2/scripts/brp-redhat.in.mdk	2000-02-22 04:09:55.000000000 +0100
-+++ rpm-4.2/scripts/brp-redhat.in	2004-01-15 21:10:39.000000000 +0100
+--- rpm-4.2.3/lib/rpmrc.c.mdkconf	2005-01-13 11:56:02.000000000 +0100
++++ rpm-4.2.3/lib/rpmrc.c	2005-01-13 14:22:37.880549782 +0100
+@@ -524,7 +524,7 @@ static void setDefaults(void)
+     addMacro(NULL, "_preScriptEnvironment",NULL, prescriptenviron,RMIL_DEFAULT);
+ 
+     setVarDefault(-1,			"_topdir",
+-		"/usr/src/redhat",	"%{_usr}/src/redhat");
++		"/usr/src/RPM",		"%{_usr}/src/RPM");
+     setVarDefault(-1,			"_tmppath",
+ 		"/var/tmp",		"%{_var}/tmp");
+     setVarDefault(-1,			"_dbpath",
+--- rpm-4.2.3/scripts/brp-redhat.in.mdkconf	2000-02-22 04:09:55.000000000 +0100
++++ rpm-4.2.3/scripts/brp-redhat.in	2005-01-13 14:22:37.875549611 +0100
 @@ -1,13 +1,17 @@
  #!/bin/sh
  
@@ -25,9 +36,9 @@
 +    # Strip even more sections (Mandrake Linux uses GNU binutils).
 +    @RPMCONFIGDIR@/brp-strip-comment-note
 +fi
---- rpm-4.2/scripts/brp-compress.mdk	2004-01-15 21:10:37.000000000 +0100
-+++ rpm-4.2/scripts/brp-compress	2004-01-15 21:13:20.000000000 +0100
-@@ -8,8 +8,8 @@
+--- rpm-4.2.3/scripts/brp-compress.mdkconf	2005-01-13 11:56:11.000000000 +0100
++++ rpm-4.2.3/scripts/brp-compress	2005-01-13 14:22:37.877549679 +0100
+@@ -8,8 +8,8 @@ fi
  cd $RPM_BUILD_ROOT
  
  # Compress man pages
@@ -38,9 +49,9 @@
  
  for d in ./usr/man/man* ./usr/man/*/man* ./usr/info \
  	./usr/share/man/man* ./usr/share/man/*/man* ./usr/share/info \
---- rpm-4.2/scripts/cpanflute.mdk	2001-04-22 10:58:08.000000000 +0200
-+++ rpm-4.2/scripts/cpanflute	2004-01-15 21:10:39.000000000 +0100
-@@ -10,7 +10,7 @@
+--- rpm-4.2.3/scripts/cpanflute.mdkconf	2001-04-22 10:58:22.000000000 +0200
++++ rpm-4.2.3/scripts/cpanflute	2005-01-13 14:22:37.878549713 +0100
+@@ -10,7 +10,7 @@ my $MainDir = '/tmp/cpan';
  
  # set default options, then get options
  my %options=();
@@ -49,19 +60,8 @@
  GetOptions(\%options, "email=s", "n=s", "create") || exit 1;
  
  my $InputFile = $ARGV[0];
---- rpm-4.2/lib/rpmrc.c.mdk	2004-01-15 21:10:38.000000000 +0100
-+++ rpm-4.2/lib/rpmrc.c	2004-01-15 21:10:39.000000000 +0100
-@@ -524,7 +524,7 @@
-     addMacro(NULL, "_preScriptEnvironment",NULL, prescriptenviron,RMIL_DEFAULT);
- 
-     setVarDefault(-1,			"_topdir",
--		"/usr/src/redhat",	"%{_usr}/src/redhat");
-+		"/usr/src/RPM",		"%{_usr}/src/RPM");
-     setVarDefault(-1,			"_tmppath",
- 		"/var/tmp",		"%{_var}/tmp");
-     setVarDefault(-1,			"_dbpath",
---- rpm-4.2/GROUPS.mdk	1999-03-16 21:04:26.000000000 +0100
-+++ rpm-4.2/GROUPS	2004-01-15 21:10:39.000000000 +0100
+--- rpm-4.2.3/GROUPS.mdkconf	1999-03-16 21:04:26.000000000 +0100
++++ rpm-4.2.3/GROUPS	2005-01-13 14:22:37.882549850 +0100
 @@ -1,29 +1,84 @@
 -Amusements/Games
 -Amusements/Graphics
@@ -176,9 +176,9 @@
 +Text tools
 +Toys
 +Video
---- rpm-4.2/rpmrc.in.mdk	2004-01-15 21:10:39.000000000 +0100
-+++ rpm-4.2/rpmrc.in	2004-01-15 21:15:48.000000000 +0100
-@@ -11,56 +11,57 @@
+--- rpm-4.2.3/rpmrc.in.mdkconf	2005-01-13 14:23:56.381224399 +0100
++++ rpm-4.2.3/rpmrc.in	2005-01-13 14:23:15.455832312 +0100
+@@ -11,57 +11,59 @@
  #############################################################
  # Values for RPM_OPT_FLAGS for various platforms
  
@@ -190,6 +190,7 @@
 -optflags: ia64 -O2 -g
 -optflags: x86_64 -O2 -g
 -optflags: amd64 -O2 -g
+-optflags: ia32e -O2 -g
 -
 -optflags: alpha -O2 -g -mieee
 -optflags: alphaev5 -O2 -g -mieee -mcpu=ev5
@@ -237,6 +238,8 @@
 +optflags: athlon -O2 -fomit-frame-pointer -pipe -march=athlon %{debugcflags}
 +optflags: ia64 -O2 -pipe %{debugcflags}
 +optflags: x86_64 -O2 -pipe %{debugcflags}
++optflags: amd64 -O2 -pipe %{debugcflags}
++optflags: ia32e -O2 -pipe %{debugcflags}
 +  
 +  # XXX Please note that -mieee has been added in rpm-3.0.5.
 +optflags: alpha -O2 -mieee -mcpu=ev5 -pipe %{debugcflags}
@@ -285,7 +288,7 @@
  
  #############################################################
  # Canonical arch names and numbers
-@@ -126,6 +127,8 @@
+@@ -128,6 +130,8 @@ arch_canon:    ppc64iseries: ppc64iserie
  arch_canon:	sh: sh		17
  arch_canon:	xtensa: xtensa	18
  
@@ -294,7 +297,7 @@
  #############################################################
  # Canonical OS names and numbers
  
-@@ -164,10 +167,11 @@
+@@ -166,10 +170,11 @@ buildarchtranslate: osfmach3_i586: i386
  buildarchtranslate: osfmach3_i486: i386
  buildarchtranslate: osfmach3_i386: i386
  
@@ -310,7 +313,7 @@
  buildarchtranslate: i386: i386
  
  buildarchtranslate: alphaev5: alpha
-@@ -216,6 +220,7 @@
+@@ -219,6 +224,7 @@ arch_compat: alpha: axp noarch
  
  arch_compat: athlon: i686
  arch_compat: i686: i586
@@ -318,7 +321,7 @@
  arch_compat: i586: i486
  arch_compat: i486: i386
  arch_compat: i386: noarch
-@@ -305,6 +310,7 @@
+@@ -309,6 +315,7 @@ buildarch_compat: ia64: noarch
  
  buildarch_compat: athlon: i686
  buildarch_compat: i686: i586
@@ -326,8 +329,8 @@
  buildarch_compat: i586: i486
  buildarch_compat: i486: i386
  buildarch_compat: i386: noarch
---- rpm-4.2/platform.in.mdk	2003-01-08 21:30:50.000000000 +0100
-+++ rpm-4.2/platform.in	2004-01-15 21:10:39.000000000 +0100
+--- rpm-4.2.3/platform.in.mdkconf	2005-01-13 11:54:58.000000000 +0100
++++ rpm-4.2.3/platform.in	2005-01-13 14:22:37.885549953 +0100
 @@ -90,11 +90,18 @@
  @mandrake@# XXX These values, particularly vendor, need to be regularized, please.
  @mandrake@%_vendor		MandrakeSoft
@@ -495,8 +498,8 @@
 +@mandrake@%_del_shell_helper /usr/share/rpm-helper/del-shell
 +@mandrake@%_preun_shelldel() %_del_shell_helper %{name} $1 \
 +@mandrake@%{nil}
---- rpm-4.2/macros.in.mdk	2004-01-15 21:10:39.000000000 +0100
-+++ rpm-4.2/macros.in	2004-01-15 21:10:39.000000000 +0100
+--- rpm-4.2.3/macros.in.mdkconf	2005-01-13 11:54:58.000000000 +0100
++++ rpm-4.2.3/macros.in	2005-01-13 14:22:37.888550055 +0100
 @@ -81,6 +81,7 @@
  
  # XXX avoid failures if tools are not installed when rpm is built.
@@ -505,7 +508,7 @@
  %__aclocal		aclocal
  %__autoheader		autoheader
  %__automake		automake
-@@ -131,6 +132,14 @@
+@@ -131,6 +132,14 @@ package or when debugging this package.\
  %endif\
  %{nil}
  
@@ -520,7 +523,7 @@
  %_defaultdocdir		%{_usr}/doc
  
  #	The path to the gzip executable (legacy, use %{__gzip} instead).
-@@ -168,7 +177,7 @@
+@@ -168,7 +177,7 @@ package or when debugging this package.\
  %_tmppath		%{_var}/tmp
  
  #	Path to top of build area.
@@ -529,33 +532,7 @@
  
  #	The path to the unzip executable (legacy, use %{__unzip} instead).
  %_unzipbin		%{__unzip}
-@@ -285,6 +294,25 @@
- #
- #%vendor
- 
-+#
-+# Script gets packaged file list on input and buildroot as first parameter.
-+# Returns list of unpackaged files, i.e. files in $RPM_BUILD_ROOT not packaged.
-+#
-+# Note: Disable (by commenting out) for legacy compatibility.
-+%__check_files         @prefix@/lib/rpm/check-files %{buildroot}
-+
-+#
-+# Should unpackaged files in a build root terminate a build?
-+#
-+# Note: The default value should be 0 for legacy compatibility.
-+%_unpackaged_files_terminate_build	1
-+
-+#
-+# Should missing %doc files in the build directory terminate a build?
-+#
-+# Note: The default value should be 0 for legacy compatibility.
-+%_missing_doc_files_terminate_build	1
-+
- #==============================================================================
- # ---- Build configuration macros.
- #
-@@ -321,7 +349,7 @@
+@@ -321,7 +349,7 @@ package or when debugging this package.\
  
  #
  # Use internal dependency generator rather than external helpers?
@@ -564,7 +541,7 @@
  
  #
  # Filter GLIBC_PRIVATE Provides:/Requires:
-@@ -333,8 +361,8 @@
+@@ -333,8 +361,8 @@ package or when debugging this package.\
  # Note: Used iff _use_internal_dependency_generator is zero.
  #%__find_provides	@RPMCONFIGDIR@/rpmdeps --provides
  #%__find_requires	@RPMCONFIGDIR@/rpmdeps --requires
@@ -575,7 +552,7 @@
  #%__find_conflicts	???
  #%__find_obsoletes	???
  
-@@ -965,11 +993,13 @@
+@@ -969,11 +997,13 @@ package or when debugging this package.\
  #------------------------------------------------------------------------------
  # This is an improved version of %configure (from PLD team).
  %configure \
@@ -591,7 +568,7 @@
  	--program-prefix=%{?_program_prefix} \\\
   	--prefix=%{_prefix} \\\
  	--exec-prefix=%{_exec_prefix} \\\
-@@ -1061,28 +1091,34 @@
+@@ -1065,28 +1095,34 @@ done \
    %{-C:cd ${_mydir}; unset _mydir}
  
  #------------------------------------------------------------------------------
@@ -639,9 +616,9 @@
  %perl_sitearch	%(eval "`perl -V:installsitearch`"; echo $installsitearch)
  %perl_archlib	%(eval "`perl -V:installarchlib`"; echo $installarchlib)
  
---- rpm-4.2/installplatform.mdk	2004-01-15 21:10:39.000000000 +0100
-+++ rpm-4.2/installplatform	2004-01-15 21:18:35.000000000 +0100
-@@ -28,18 +28,21 @@
+--- rpm-4.2.3/installplatform.mdkconf	2005-01-13 11:54:58.000000000 +0100
++++ rpm-4.2.3/installplatform	2005-01-13 14:22:37.889550089 +0100
+@@ -28,18 +28,21 @@ OS="`$RPM --eval '%{_os}'`"
  RPMRC_GNU="`$RPM --eval '%{_gnu}'`"
  target_platform="`$RPM --eval '%{?_gnu:%undefine _gnu}%{_target_platform}'|sed -e "$canonarch_sed"`"
  target="`$RPM --eval '%{_target}'|sed -e "$canonarch_sed"`"
@@ -665,7 +642,7 @@
    TARGET_PLATFORM=`echo $target_platform | sed -e $SUBST`
    TARGET=`echo $target | sed -e $SUBST`
    LIB=lib
-@@ -52,7 +55,7 @@
+@@ -52,7 +55,7 @@ for SUBST in $SUBSTS ; do
    RPMRC_OPTFLAGS="`echo $RPMRC_OPTFLAGS | sed -e 's, ,\ ,g'`"
    case $RPMRC_OPTFLAGS in
    *-g*) ;;
@@ -674,7 +651,7 @@
    esac
  
    ARCH_INSTALL_POST='%{nil}'
-@@ -85,7 +88,6 @@
+@@ -85,7 +88,6 @@ for SUBST in $SUBSTS ; do
      ;;
    mandrake)
      VENDORSED='-e s,^@mandrake@,,'
@@ -682,7 +659,7 @@
      ;;
    conectiva)
      VENDORSED='-e s,^@conectiva@,,'
-@@ -103,6 +105,7 @@
+@@ -103,6 +105,7 @@ for SUBST in $SUBSTS ; do
  	-e "s,@ARCH_INSTALL_POST@,$ARCH_INSTALL_POST," \
  	-e "s,@DEFAULTDOCDIR@,$DEFAULTDOCDIR," \
  	-e '/\${\w*:-/!s,\${,%{_,' \
@@ -690,9 +667,9 @@
  	$MULTILIBSED \
  	$VENDORSED \
    | grep -v '^@' \
---- rpm-4.2/rpmpopt.in.mdk	2004-01-15 21:10:39.000000000 +0100
-+++ rpm-4.2/rpmpopt.in	2004-01-15 21:10:39.000000000 +0100
-@@ -147,28 +147,27 @@
+--- rpm-4.2.3/rpmpopt.in.mdkconf	2005-01-13 11:54:58.000000000 +0100
++++ rpm-4.2.3/rpmpopt.in	2005-01-13 14:22:37.891550158 +0100
+@@ -147,28 +147,27 @@ rpm	alias --timecheck	--define '_timeche
  # Popt glue to preserve legacy CLI behavior.
  #
  # XXX popt exec parsing doesn't honor POPT_ARGFLAG_ONEDASH
