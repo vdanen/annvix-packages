@@ -1,6 +1,6 @@
 %define	name	xfsdump
-%define	version	2.2.16
-%define	release	1sls
+%define	version	2.2.21
+%define	release	1avx
 
 Summary:	Administrative utilities for the XFS filesystem.
 Name:		%{name}
@@ -60,6 +60,10 @@ rm -rf %{buildroot}%{_datadir}/doc/xfsdump/
 %{_mandir}/*/*
 
 %changelog
+* Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 2.2.21-1avx
+- 2.2.21
+- Annvix build
+
 * Sun Feb 29 2004 Vincent Danen <vdanen@opensls.org> 2.2.16-1sls
 - OpenSLS build
 - tidy spec
