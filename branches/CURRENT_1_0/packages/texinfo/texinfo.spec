@@ -1,6 +1,6 @@
 %define name	texinfo
 %define version	4.6
-%define release	3sls
+%define release	4avx
 
 # rh-4.1-1
 Summary:	Tools needed to create Texinfo format documentation files.
@@ -127,6 +127,9 @@ popd
 %_mandir/man5/info.5*
 
 %changelog
+* Sat Jun 19 2004 Vincent Danen <vdanen@annvix.org> 4.6-4avx
+- Annvix build
+
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 4.6-3sls
 - minor spec cleanups
 

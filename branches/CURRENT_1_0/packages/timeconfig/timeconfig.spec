@@ -1,6 +1,6 @@
 %define name	timeconfig
 %define version	3.2
-%define release	11sls
+%define release	12avx
 
 Summary:	Text mode tools for setting system time parameters.
 Name:		%{name}
@@ -74,6 +74,9 @@ fi
 %{_mandir}/man*/*
 
 %changelog
+* Sat Jun 19 2004 Vincent Danen <vdanen@annvix.org> 3.2-12avx
+- Annvix build
+
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 3.2-11sls
 - minor spec cleanups
 

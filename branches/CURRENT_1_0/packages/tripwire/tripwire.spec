@@ -1,6 +1,6 @@
 %define name	tripwire
 %define version	2.3.1.2
-%define release	10sls
+%define release	11avx
 
 %define ext	2
 
@@ -138,6 +138,9 @@ chmod 644 README Release_Notes ChangeLog COPYING policy/policyguide.txt TRADEMAR
 %attr(0755,root,root) %{_sbindir}/*
 
 %changelog
+* Sat Jun 19 2004 Vincent Danen <vdanen@annvix.org> 2.3.1.2-11avx
+- Annvix build
+
 * Thu Jun 03 2004 Vincent Danen <vdanen@opensls.org> 2.3.1.2-10sls
 - fix format string vuln reported by Paul Herman
 
