@@ -1,6 +1,6 @@
 %define name	lilo
 %define version 22.5.7.2
-%define release 8sls
+%define release 9sls
 %define epoch	1
 
 Summary:	The boot loader for Linux and other operating systems.
@@ -23,6 +23,7 @@ Patch21:	lilo-22.5.1-graphic.patch.bz2
 Patch22:	lilo-22.5.5-mandir.patch.bz2
 Patch23:	lilo-22.5.7.2-allgraph.patch.bz2
 Patch24:	lilo-22.5.7.2-progress.patch.bz2
+Patch25:	lilo-22.5.8-longer_image_names.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-root
 BuildRequires:	dev86 dev86-devel nasm
@@ -48,6 +49,7 @@ boot other operating systems.
 %patch22 -p1
 %patch23 -p1 -b .allgraph
 %patch24 -p1 -b .progress
+%patch25 -p1
 
 # graphic pictures.
 bzip2 -dc %{SOURCE2} | tar xvf -
@@ -180,6 +182,11 @@ fi
 
 
 %changelog
+* Sat May 22 2004 Thomas Backlund <tmb@iki.fi> 22.5.7.2-9sls
+- Patch25: allow image labels to be 31 chars (was 15), so
+  that custom kernels (ex. 2425-12slscustom) won't break
+  lilo execution with 'there was an error...'
+
 * Tue Mar 02 2004 Vincent Danen <vdanen@opensls.org> 22.5.7.2-8sls
 - Provides: bootloader
 - remove %%build_opensls macros
