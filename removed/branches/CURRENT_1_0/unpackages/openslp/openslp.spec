@@ -1,15 +1,14 @@
 %define	name	openslp
 %define	version	1.0.11
-%define	release	9avx
+%define	release	10avx
 
-%define	major		1
-%define	libname		%mklibname %{name} %{major}
-%define	libname_devel	%mklibname %{name} %{major} -d
+%define	major	1
+%define	libname	%mklibname %{name} %{major}
 
 Summary:	OpenSLP implementation of Service Location Protocol V2 
-Name:		%name
-Version:	%version
-Release:	%release
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
 License:	BSD-like
 Group:		Networking/Other
 URL:		http://www.openslp.org/
@@ -17,7 +16,7 @@ Source0:	ftp://openslp.org/pub/openslp/%{name}-%{version}/%{name}-%{version}.tar
 Source1:	slpd.run
 Source2:	slpd-log.run
 
-BuildRoot:	%{_tmppath}/%{name}-root
+BuildRoot:	%{_tmppath}/%{name}-%{version}-root
 
 PreReq:		rpm-helper
 Requires:	%{libname}
@@ -35,7 +34,7 @@ files and documentation
 %package -n %{libname}
 Summary:	OpenSLP implementation of Service Location Protocol V2
 Group:		System/Libraries
-#Requires:	%name = %version-%release
+#Requires:	%{name} = %{version}-%{release}
 
 %description -n %{libname}
 Service Location Protocol is an IETF standards track protocol that
@@ -49,14 +48,14 @@ files and documentation
 
 This package contains the %libname runtime library.
 
-%package -n %{libname_devel}
+%package -n %{libname}-devel
 Summary:	Development tools for programs which will use the %{name} library
 Group:		Development/C
-Requires:	%{libname} = %version-%release
-Provides:	%{name}-devel = %version-%release
-Provides:	lib%{name}-devel = %version-%release
+Requires:	%{libname} = %{version}-%{release}
+Provides:	%{name}-devel = %{version}-%{release}
+Provides:	lib%{name}-devel = %{version}-%{release}
 
-%description -n %{libname_devel}
+%description -n %{libname}-devel
 The %{name}-devel package includes the header files and static libraries
 necessary for developing programs using the %{name} library.
 
@@ -78,15 +77,8 @@ rm -rf `find -name CVS`
 %makeinstall_std
 #fix doc
 rm -rf installeddoc
-mv %buildroot/%_prefix/doc/%{name}-%{version} installeddoc
+mv %{buildroot}/%_prefix/doc/%{name}-%{version} installeddoc
 rm -rf `find installeddoc -name CVS`
-
-mkdir -p %buildroot/%_sysconfdir/sysconfig/daemons 
-cat <<EOF  > %buildroot/%_sysconfdir/sysconfig/daemons/slpd
-IDENT=slp
-DESCRIPTIVE="SLP Service Agent"
-ONBOOT="yes"
-EOF
 
 mkdir -p %{buildroot}%{_srvdir}/slpd/log
 mkdir -p %{buildroot}%{_srvlogdir}/slpd
@@ -107,35 +99,37 @@ install -m 0750 %{SOURCE2} %{buildroot}%{_srvdir}/slpd/log/run
 %postun -n %{libname} -p /sbin/ldconfig
 
 %Files
-%defattr(644,root,root,755)
+%defattr(-,root,root)
 %doc doc/*
-%config(noreplace) %_sysconfdir/slp.conf
-%config(noreplace) %_sysconfdir/slp.reg
-%config(noreplace) %_sysconfdir/slp.spi
-%config(noreplace) %_sysconfdir/sysconfig/daemons/slpd
-%defattr(755,root,root,755)
-%_sbindir/slpd
-%_bindir/slptool
+%config(noreplace) %{_sysconfdir}/slp.conf
+%config(noreplace) %{_sysconfdir}/slp.reg
+%config(noreplace) %{_sysconfdir}/slp.spi
+%{_sbindir}/slpd
+%{_bindir}/slptool
 %dir %{_srvdir}/slpd
 %dir %{_srvdir}/slpd/log
 %{_srvdir}/slpd/run
 %{_srvdir}/slpd/log/run
-%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/slpd
+%dir %attr(0750,logger,logger) %{_srvlogdir}/slpd
 
 %files -n %{libname}
 %defattr(-,root,root)
 %doc AUTHORS COPYING
-%_libdir/*.so.*
+%{_libdir}/*.so.*
 
-%files -n %{libname_devel}
+%files -n %{libname}-devel
 %defattr(-,root,root)
 %doc ChangeLog COPYING
-%_libdir/*a
-%_libdir/*.so
-%_includedir/*
+%{_libdir}/*a
+%{_libdir}/*.so
+%{_includedir}/*
 
 
 %changelog
+* Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 1.0.11-10avx
+- user logger for logging
+- spec cleanups
+
 * Mon Sep 20 2004 Vincent Danen <vdanen@annvix.org> 1.0.11-9avx
 - update run scripts
 
