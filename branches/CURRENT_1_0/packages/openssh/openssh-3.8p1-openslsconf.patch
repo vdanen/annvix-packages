@@ -1,11 +1,20 @@
 --- contrib/redhat/sshd.pam.opensls	2002-05-09 20:19:23.000000000 -0600
-+++ contrib/redhat/sshd.pam	2004-04-29 09:34:07.000000000 -0600
-@@ -4,5 +4,3 @@
- account    required     /lib/security/pam_stack.so service=system-auth
- password   required     /lib/security/pam_stack.so service=system-auth
- session    required     /lib/security/pam_stack.so service=system-auth
++++ contrib/redhat/sshd.pam	2004-04-29 13:37:25.000000000 -0600
+@@ -1,8 +1,7 @@
+ #%PAM-1.0
+-auth       required     /lib/security/pam_stack.so service=system-auth
+-auth       required     /lib/security/pam_nologin.so
+-account    required     /lib/security/pam_stack.so service=system-auth
+-password   required     /lib/security/pam_stack.so service=system-auth
+-session    required     /lib/security/pam_stack.so service=system-auth
 -session    required     /lib/security/pam_limits.so
 -session    optional     /lib/security/pam_console.so
++auth       required     pam_listfile.so item=user sense=deny file=/etc/ssh/denyusers.pam
++auth       required     pam_stack.so service=system-auth
++auth       required     pam_nologin.so
++account    required     pam_stack.so service=system-auth
++password   required     pam_stack.so service=system-auth
++session    required     pam_stack.so service=system-auth
 --- ssh_config.opensls	2003-08-13 04:37:05.000000000 -0600
 +++ ssh_config	2004-04-29 09:35:25.000000000 -0600
 @@ -35,3 +35,8 @@

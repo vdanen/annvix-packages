@@ -1,13 +1,10 @@
 %define name	openssh
 %define version	3.8p1
-%define release 1sls
+%define release 2sls
 
 ## Do not apply any unauthorized patches to this package!
 ## - vdanen 05/18/01
 ##
-
-# Version of watchdog patch
-%define wversion 3.6p1
 
 # overrides
 %global build_skey	 0
@@ -27,6 +24,8 @@ Source: 	ftp://ftp.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-%{version}.t
 Source2: 	ftp://ftp.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-%{version}.tar.gz.sig
 # ssh-copy-id taken from debian, with "usage" added
 Source3:	ssh-copy-id.bz2 
+Source4:	denyusers.pam
+Source5:	04_openssh.afterboot
 Source6:	ssh-client.sh
 Source8:	sshd.run
 Source9:	sshd-log.run
@@ -46,7 +45,7 @@ BuildRequires:	krb5-devel
 
 Obsoletes:	ssh
 Provides:	ssh
-PreReq:		openssl >= 0.9.7
+PreReq:		openssl >= 0.9.7, afterboot
 
 %description
 Ssh (Secure Shell) a program for logging into a remote machine and for
@@ -168,6 +167,8 @@ else
     install -m644 ssh_config $RPM_BUILD_ROOT%{_sysconfdir}/ssh/ssh_config
 fi
 
+install -m640 %{SOURCE4} %{buildroot}%{_sysconfdir}/ssh/denyusers.pam
+
 mkdir -p $RPM_BUILD_ROOT%{_libdir}/ssh
 
 install -d $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/
@@ -188,6 +189,8 @@ mkdir -p %{buildroot}%{_srvlogdir}/sshd
 install -m 0755 %{SOURCE8} %{buildroot}%{_srvdir}/sshd/run
 install -m 0755 %{SOURCE9} %{buildroot}%{_srvdir}/sshd/log/run
 
+mkdir -p %{buildroot}%{_datadir}/afterboot
+install -m 0644 %{SOURCE5} %{buildroot}%{_datadir}/afterboot/04_openssh
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -255,11 +258,13 @@ do_rsa1_keygen
 do_rsa_keygen
 do_dsa_keygen
 %_post_srv sshd
+%_mkafterboot
 
 %preun server
 %_preun_srv sshd
 
 %postun server
+%_mkafterboot
 %_postun_userdel sshd
 
 %files
@@ -302,6 +307,7 @@ do_dsa_keygen
 %{_mandir}/man8/sshd.8*
 %{_mandir}/man8/sftp-server.8*
 %attr(0600,root,root) %config(noreplace) %{_sysconfdir}/ssh/sshd_config
+%attr(0600,root,root) %config(noreplace) %{_sysconfdir}/ssh/denyusers.pam
 %attr(0600,root,root) %config(noreplace) %{_sysconfdir}/pam.d/sshd
 %dir %{_srvdir}/sshd
 %dir %{_srvdir}/sshd/log
@@ -310,9 +316,17 @@ do_dsa_keygen
 %dir %attr(0750,nobody,nogroup) %{_srvlogdir}/sshd
 %config(noreplace) %{_sysconfdir}/ssh/moduli
 %dir %attr(0755,root,root) /var/empty
-
+%{_datadir}/afterboot/04_openssh
 
 %changelog
+* Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 3.8p1-2sls
+- modify /etc/pam.d/sshd to use pam_listfile.so first on the auth stack so
+  even if UsePAM is enabled, we can still securely use PermitRootLogin
+  without-password without having to worry about it dropping down to a
+  password auth
+- new config file: /etc/ssh/denyusers.pam which contains root by default (S4)
+- include afterboot man-snippet
+
 * Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 3.8p1-1sls
 - 3.8p1
 - rediff P1
