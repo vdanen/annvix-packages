@@ -1,0 +1,544 @@
+<HTML>
+<HEAD>
+<TITLE>Webmonkey: backend: HotWired's XSSI Extensions</TITLE>
+<META name="description" content="A How-to Guide for Web Developers.">
+<META name="keywords" content="Apache, mod_include, Brian Slesinsky, echo, xssi, query stringsdeveloper resource, javascript, webmonkey, developer, development, web development, design, code, geek, warez, free, new, e-commerce, latest, news, tools, info, webmonkey, tutorials, how-to, webmonkey, builder, web builder, page builder, developer resource,developer, development, javascript, webmonkey, web development, design, code, geek, warez, free, new, latest, news, tools, info, tutorials, e-commerce, how-to, builder, web builder, page builder">
+</HEAD>
+<BODY BGCOLOR="#ffffff" TEXT="#000000" link="#0000ff" Vlink="#660099">
+<p>
+<!-- HEADLINE -->
+
+<p>
+<font face="arial, helvetica, sans-serif" size="5">
+<b>
+HotWired's XSSI Extensions</b></font><br>
+
+
+<!-- BYLINE (commented out for PageX) -->
+
+  <font size=2 color="#000000" face="arial, helvetica, sans-serif">by <a href="mailto:webmonkey@wired.com" title="Send mail to W. T. Monkey">W. T. Monkey</a></font>
+
+<!--BODY COPY -->
+<blockquote>
+<font face="verdana, geneva, arial, helvetica, sans-serif" size="2">
+        <p>Apache's <a href="http://www.hotwired.com/webmonkey/html/97/39/index1a.html">XSSI</a> (eXtended server-side includes) is an extremely useful tool for Web developers because it offers a simple, efficient way to do basic Web page scripting. For example, Webmonkey relies heavily on XSSI to control many aspects of the pages you see on the site. In fact, the page you're reading right this second features all kinds of XSSI.
+
+
+
+<p>If you were to try to recreate Webmonkey's pages, however, you'd find yourself outta luck. A lot of what Webmonkey does on its pages is simply not possible with the standard version of <a href="http://www.apache.org/docs/mod/mod_include.html">mod_include</a> (the Apache module that includes XSSI), which has some substantial limitations. To get around some of these limitations, a HotWired engineer, Brian Slesinsky, wrote a special extended version of <TT>mod_include</TT> (no, we don't call it XXSSI).
+
+The Wired version of <TT>mod_include</TT> adds two new directives (<tt>parse_form</tt> and <tt>random</tt>) and extends the existing <tt>echo</tt> directive. 
+
+
+
+<p>With these new commands at our fingertips, we Webmonkeys can perform all kinds of neat little tricks with our pages. To get an idea of some of the things the HotWired <TT>mod_include</TT> can do, read on. If you already know you want it, however, feel free to cut to the chase and <a href="http://www.hotwired.com/webmonkey/99/10/index0a_page3.html">download and install</a> the thing right away. 
+
+</p>
+
+<p>
+<hr>
+NOTE: this module has been compiled into Apache with the PARSE_FORM and
+RANDOM_SSI directives, so everything shown here will work. However, you will
+need to edit your /etc/httpd/conf to activate this module in place of the
+"official" mod_include.so module.
+<hr>
+<p>
+
+
+<font size="3" face="arial, helvetica, sans-serif"><b>What It Can Do</b></font><br>
+
+
+<b>Random Directive</b>
+
+
+
+<p>If you take a look at Webmonkey's <a href="http://www.hotwired.com/webmonkey/" target="new">frontdoor</a>, you'll see the random directive in action. Hit reload a couple of times and keep your eyes on the space right underneath the Search button. See how the image changes each time? That's random directive hard at work. What we did was set a variable and then give it low and high parameters. That way, when the user reloads the page, a different image or piece of text swaps in based on what the random variable comes up with.
+
+
+
+<p>Here's the code that makes it so:
+
+
+
+<blockquote><tt>
+
+&lt;!--#random var="rnd" low="1" high="3" --&gt;<p>
+
+
+
+&lt;!--#if expr="$rnd=1" --&gt;<p>
+
+
+
+-do stuff-<p>
+
+
+
+&lt;!--#elif expr="$rnd=2" --&gt; <p>
+
+
+
+-do stuff-<p>
+
+
+
+&lt;!--#elif expr="$rnd=3" --&gt;<p>
+
+
+
+-do stuff- <p>
+
+
+
+&lt;!--#endif --&gt;<p>
+
+
+
+</tt></blockquote>
+
+
+
+<p>Pretty nifty, eh?
+
+
+
+<p><b>parse_form</b>
+
+
+
+<p>Have you ever noticed how when you're clicking around Web sites, there's always a bunch of seemingly meaningless stuff in the query string (y'know, the random characters that come after the question mark in the URL)? Well, we can't explain all of it since it's not all XSSI (it could be the work of ASP, Perl, or some strange proprietary language). But we can show you what's going on in our query string. Fortunately for you (and us), our use of parse form is fairly simple: We just use it to track pageviews and to dynamically generate a little page layout. To see a nice, straightforward example of this, take a look at the Elbow Grease <a href="http://www.hotwired.com/webmonkey/mail/elbo_archive/">archive</a>.
+
+
+
+<p>Roll your cursor over the links for this month's Elbow Greases. You can see that the URL stays almost exactly the same. But if you look carefully, the part after the question mark is changing. Here's what one of the full URLs looks like:
+
+
+
+<blockquote>
+
+http://www.hotwired.com/webmonkey/mail/elbo_archive/templ.html?M=02&D=15&Y=99
+
+</blockquote>
+
+
+
+<p>Every link is the same except for the stuff that follows the question mark. The HTML file <TT>templ.html</TT> is a template that formats every page the same way.  In that file, we have a <a href="http://www.hotwired.com/webmonkey/html/97/39/index1a.html?tw=backend">virtual include</a> that looks like so: 
+
+
+
+<blockquote>&lt;!--#include virtual="${form_Y}/elbogrease.${form_M}-${form_D}.htmlf" --&gt;
+
+</blockquote>
+
+
+
+<p>Here's what's happening: At the top of <TT>templ.html</TT>, we placed the <TT>&lt;!--#parse_form --&gt;</TT> directive, which says, "Hey, there's something in the query string for me to get!" Then <tt>parse_form</tt> creates variables from the query string, adding "form_" to the beginning (unless you tell it not to). In our query string we have M = 02, D = 15, and Y = 99. After the page has been parsed, our virtual include now looks something like this:
+
+
+
+<blockquote>&lt;!--#include virtual="99/elbogrease.02-15.htmlf" --&gt;</blockquote>
+
+
+
+<p>The virtual include knows which page to get, and you get to read that issue of Elbow Grease you accidentally deleted from your inbox.
+
+
+
+<p>Sounds good, no? Are you jealous? Do you wish you could do something similar with your pages? Well, now you can. For a limited time only, we're passing Brian's hard work along to you (released under the <a href="http://www.hotwired.com/webmonkey/javascript/code_library/license/wpl.html">Webmonkey Public License</a>).
+
+This offer is not available in stores. You need to download and install the HotWired <TT>mod_include</TT> yourself.
+
+
+
+<p>
+
+<p>
+
+<font size="3" face="arial, helvetica, sans-serif"><b>Documentation for parse_form</b></font><br>
+<p>The <tt>parse_form</tt> directive reads form variables from the <tt>QUERY_STRING</tt> and uses them to create environment variables. By separating these variables into pairs (see the example below), it becomes possible to pass more than one piece of information from page to page. To avoid conflicts with existing environment variables, each new variable is prefixed by <tt>form_</tt>. </p>
+
+
+
+<p>To customize the way <tt>parse_form</tt> works, here are two optional parameters (though in most cases they shouldn't be needed):</p>
+
+
+
+<blockquote>
+
+var="<i>varname</i>":<br>
+
+If this parameter is included in the directive, <tt>parse_form</tt> will read the form variables from <i>varname</i> instead of <tt>QUERY_STRING</tt>. You'd use this if you want to use some other variable, such as "PATH_INFO."
+
+
+
+<p>prefix="<i>string</i>"<br>
+
+If this parameter is included, <tt>parse_form</tt> will use <i>string</i> instead of
+
+<tt>form_</tt> as the prefix when creating environment variables. You'd use this if the default <TT>FORM_</TT> conflicts with some other variable you have or if you just feel like it or if you don't want to add <TT>FORM_</TT> to everything.
+
+</blockquote>
+
+
+
+
+
+<p><b>Examples</b>
+
+<p>Now let's take a look at what you can do with these commands. Suppose you set the following variables:
+
+
+
+<blockquote>
+
+<p>&nbsp; <tt>QUERY_STRING = X=3&amp;Y=4</tt></p>
+
+
+
+<p>&nbsp; <tt>FOO = Z=10</tt></p>
+
+</blockquote>
+
+
+
+Then this command ...
+
+
+
+<blockquote><tt>
+
+&nbsp; &lt;!--#parse_form --&gt;
+
+</tt></blockquote>
+
+
+
+... will result in the creation of the following variables: 
+
+
+
+<blockquote><tt>
+
+<p>&nbsp; form_X = 3</p>
+
+
+
+<p>&nbsp; form_Y = 4</p>
+
+</tt></blockquote>
+
+
+
+And this command ...
+
+
+
+<blockquote><tt>
+
+&nbsp; &lt;!--#parse_form var="FOO" prefix="QQQ" --&gt;
+
+</tt></blockquote>
+
+
+
+... will result in the following variable: 
+
+
+
+<blockquote><tt>
+
+&nbsp; QQQZ = 10
+
+</tt></blockquote>
+
+
+
+<p><b>Installation</b></p>
+
+
+
+<p>To enable this extension, simply add "<tt>-DUSE_PARSE_FORM</tt>" to the "<tt>EXTRA_CFLAGS</tt>" section of Apache's Configuration file. </p>
+
+
+
+<p><b>Bugs</b></p>
+
+
+
+<p>If <tt>QUERY_STRING</tt> contains the same variable twice in a row (e.g.,
+
+"X=3&amp;X=4"), <tt>#parse_form</tt> will create two environment variables with the same name.
+
+Only the first instance is accessible from XSSI.
+
+
+
+<p>
+
+<font size="3" face="arial, helvetica, sans-serif"><b>Documentation for #random</b></font><br>
+This new directive makes it possible to set a variable to a random integer in the specified range. 
+
+Here are the parameters you'll use with this directive:
+
+
+
+<blockquote>
+
+var="<i>varname</i>"<br>
+
+This parameter specifies the name of the variable to set. 
+
+
+
+<p>low="<i>integer</i>"<br>
+
+Use this parameter to set the low end of the range. 
+
+
+
+<p>high="<i>integer</i>"<br>
+
+Use this parameter to set the high end of the range. 
+
+</blockquote>
+
+
+
+<p><b>Example</b>
+
+
+
+<p>Here's how you might use this directive:
+
+
+
+<blockquote><tt>
+
+&lt;--#random var="FOO" low="1" high="6" --&gt;</tt><p>
+
+
+
+<tt>Here is a random number between one and six: &lt;--#echo var="FOO"--&gt;.
+
+</tt></blockquote>
+
+
+
+You can combine <tt>#random</tt> with <tt>#if</tt> statements to choose HTML text at random. For example, you could set the page's background color at random with code that would look a little something like this: 
+
+
+
+<blockquote>
+
+&nbsp; <tt>&lt;!--#random var="X" low="1" high="3" --&gt;</tt><p>
+
+
+
+&nbsp; <tt>&lt;!--#if expr="$X=1" --&gt;</tt><p>
+
+
+
+<tt>&lt;body bgcolor=&quot;#ff0000&quot;&gt;</tt><p>
+
+
+
+&nbsp; <tt>&lt;!--#elif expr="$X=2" --&gt;</tt><p>
+
+
+
+<tt>&lt;body bgcolor=&quot;#00ff00&quot;&gt;</tt><p>
+
+
+
+&nbsp; <tt>&lt;!--#elif expr="$X=3" --&gt;</tt><p>
+
+
+
+<tt>&lt;body bgcolor=&quot;#0000ff&quot;&gt;</tt><p>
+
+
+
+&nbsp; <tt>&lt;!--#endif --&gt;</tt>
+
+</blockquote>
+
+
+
+
+
+<p><b>Installation</b>
+
+
+
+<p>To enable this extension, add "<tt>-DUSE_RANDOM_SSI</tt>" to the "<tt>EXTRA_CFLAGS</tt>" section of Apache's Configuration file. 
+
+
+
+
+
+<p><b>Bugs</b>
+
+
+
+<p>There's no safeguard to ensure <i>low</i> &lt;= <i>high.</i> 
+
+
+
+<p>
+
+<font size="3" face="arial, helvetica, sans-serif"><b>Documentation for #echo</b></font><br>
+<tt>#echo</tt> is a standard XSSI directive that simply prints a variable. It goes a little something like this:
+
+
+
+<blockquote>
+
+var="<i>varname</i>" (unchanged)<br>
+
+This is just the name of the variable to be printed. 
+
+</blockquote>
+
+
+
+Brian's extension adds two new options to give you more control over what's printed: 
+
+
+
+<blockquote>
+
+<p>default="<i>string</i>" (new)<br>
+
+If this parameter is set and the variable is undefined, <i>string</i> will be printed instead of "(none)."
+
+
+
+<p>escape="html" (new)<br>
+
+If this parameter is set, the following substitutions will be made when the variable is printed:</p>
+
+
+
+
+
+&nbsp;&nbsp; &lt;&nbsp;&nbsp; becomes&nbsp; &amp;lt;<p>
+
+
+
+&nbsp;&nbsp; >&nbsp;&nbsp; becomes&nbsp; &amp;gt;<p>
+
+
+
+&nbsp;&nbsp; &amp;&nbsp;&nbsp; becomes&nbsp; &amp;amp;<p>
+
+
+
+&nbsp;&nbsp; "&nbsp;&nbsp; becomes&nbsp; &amp;quot;
+
+
+
+</blockquote>
+
+
+
+
+
+<p><b>Example</b></p>
+
+
+
+Suppose this code is executed:
+
+
+
+<blockquote><tt>
+
+&nbsp; &lt;!--#set var="FOO" value="&lt;p&gt;" --&gt;<p>
+
+
+
+&nbsp; &lt;p&gt;First: &lt;!--#echo var="FOO" --&gt;<p>
+
+
+
+&nbsp; &lt;p&gt;Second: &lt;!--#echo var="FOO" escape="html" --&gt;
+
+</tt></blockquote>
+
+
+
+"<a href="http://www.hotwired.com/webmonkey/html/viewsource.html">View Source</a>" will show this:
+
+<blockquote>
+
+<tt>
+
+&nbsp; &lt;p&gt;First: &lt;p&gt;<p>
+
+
+
+&nbsp; &lt;p&gt;Second: &amp;lt;p&amp;gt;
+
+</tt>
+
+</blockquote>
+
+
+
+<p>The output of the first <tt>#echo</tt> gets interpreted as a paragraph tag, while output of the second <tt>#echo</tt> is displayed as plain text.
+
+
+
+<p><b>Bugs</b>
+
+
+
+<p>There's no way to turn off this extension except by editing the C code in mod_include.c.
+
+
+
+<p><br>
+
+And that should do it. You now have the technology to rebuild your pages the Webmonkey way using the HotWired mod_include. Use it in good health!
+
+
+
+<p>
+
+
+<p>
+
+
+<p>
+
+
+<p>
+
+
+<p>
+
+
+<p>
+
+
+<p>
+
+
+<p>
+
+
+<p>
+
+
+<p>
+
+
+<p><br><br clear=all>
+
+<!-- AUTHOR TAGLINE  -->
+
+<font face="arial, helvetica, sans-serif" size=2><i>
+<a href="http://wwww.hotwired.com/webmonkey">W. T. Monkey</a> likes tools and he's nobody's fool. He never bites people. Except for that one time.  And Kristin isn't that upset.</i></font> 
+</blockquote>
+</body>
+</html>
