@@ -1,6 +1,6 @@
 %define name	strace
 %define version	4.4.98
-%define release	1mdk
+%define release	2sls
 #define cvsdate	20030410
 
 Summary:	Tracks and displays system calls associated with a running process.
@@ -50,6 +50,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/strace.1*
 
 %changelog
+* Mon Dec 01 2003 Vincent Danen <vdanen@opensls.org> 4.4.98-2sls
+- OpenSLS build
+
 * Thu Jul 10 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 4.4.98-1mdk
 - 4.4.98
 
