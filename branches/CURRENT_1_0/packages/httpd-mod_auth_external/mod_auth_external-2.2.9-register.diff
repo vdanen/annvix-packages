@@ -1,13 +1,13 @@
---- mod_auth_external.c	2003-10-20 06:55:34.000000000 +0200
-+++ mod_auth_external.c.oden	2003-11-14 13:33:37.000000000 +0100
-@@ -807,9 +807,16 @@
+--- mod_auth_external.c	2004-08-22 21:42:29.000000000 +0200
++++ mod_auth_external.c.oden	2005-02-13 23:22:04.141016702 +0100
+@@ -806,9 +806,16 @@
      return HTTP_UNAUTHORIZED;
  }
  
 +static int extauth_init_handler(apr_pool_t *p, apr_pool_t *plog, apr_pool_t *ptemp,
 +                             server_rec *s)
 +{
-+    ap_add_version_component(p, "mod_auth_external/2.2.7");
++    ap_add_version_component(p, "mod_auth_external/2.2.9");
 +    return OK;
 +}
  
