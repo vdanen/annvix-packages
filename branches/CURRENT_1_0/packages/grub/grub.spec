@@ -1,6 +1,6 @@
 %define name	grub
-%define version 0.93
-%define release 7avx
+%define version 0.95
+%define release 1avx
 
 Summary:	GRand Unified Bootloader
 Name:		%{name}
@@ -9,31 +9,67 @@ Release:	%{release}
 License:	GPL
 Group:		System/Kernel and hardware
 URL:		http://www.gnu.org/software/grub/
-Source0:	ftp://alpha.gnu.org/gnu/grub/%{name}-%{version}.tar.bz2
-Patch0:		grub-0.5.96.1-ezd.patch.bz2
-Patch1:		grub-0.5.96.1-init-config-end--prepatch.patch.bz2
-Patch2:		grub-0.90-i18n-messages-and-keytable2.patch.bz2
-Patch3:		grub-0.91-altconfigfile2.patch.bz2
-Patch4:		grub-0.90-grub-install.patch.bz2
-Patch6:		grub-0.5.96.1-special-raid-devices.patch.bz2
-Patch7:		grub-0.91-nice-magic.patch.bz2
-Patch8:		grub-0.93-gcc33.patch.bz2
-Patch9:		grub-0.93-add-our-own-memcpy.patch.bz2
+Source0:	ftp://alpha.gnu.org/gnu/grub/%{name}-%{version}.tar.gz
+Source1:	annvix-splash.xpm.gz
 
-Patch10:	grub-0.93-configfile.patch
-Patch11:	grub-0.90-symlinkmenulst.patch
-Patch12:	grub-0.90-staticcurses.patch
-Patch13:	grub-0.93-largedisk.patch
-Patch14:	grub-0.93-graphics.patch.bz2
-Patch15:	grub-0.91-splashimagehelp.patch
-Patch16:	grub-0.93-graphics-bootterm.patch
-Patch17:	grub-0.92-hammer.patch
-Patch18:	grub-0.93-autoconf-fix.patch
+# Follow Fedora patching convention... this 100% FDR patching
+
+# let's have some sort of organization for the patches
+# patches 0-19 are for config file related changes (menu.lst->grub.conf)
+Patch0:		grub-0.93-configfile.patch
+Patch1:		grub-0.90-symlinkmenulst.patch
+# patches 20-39 are for grub-install bits
+Patch20:	grub-0.90-install.in.patch
+Patch21:	grub-0.94-installcopyonly.patch
+Patch22:	grub-0.94-addsyncs.patch
+# patches 40-59 are for miscellaneous build related patches
+# link against curses statically
+Patch40:	grub-0.95-staticcurses.patch
+# patches submitted upstream and pending approval
+# change the message so that how to accept changes is clearer (#53846)
+Patch81:	grub-0.93-endedit.patch
+# patches 100-199 are for features proposed but not accepted upstream
+# add support for appending kernel arguments
+Patch100:	grub-0.90-append.patch
+# add support for lilo -R-esque select a new os to boot into
+Patch101:	grub-0.93-once.patch
+# patches 200-299 are for graphics mode related patches
+Patch200:	grub-0.95-graphics.patch
+Patch201:	grub-0.91-splashimagehelp.patch
+Patch202:	grub-0.93-graphics-bootterm.patch
+Patch203:	grub-0.95-hiddenmenu-tweak.patch
+# patches 300-399 are for things already upstream
+Patch300:	grub-0.95-ext2-sparse.patch
+# patches 500+ are for miscellaneous little things
+# support for non-std devs (eg cciss, etc)
+Patch500:	grub-0.93-special-device-names.patch
+# for some reason, using the initrd max part of the setup.S structure
+# causes problems on x86_64 and with 4G/4G
+Patch501:	grub-0.94-initrdmax.patch
+# i2o device support
+Patch503:	grub-0.94-i2o.patch
+# detect cciss/ida/i2o
+Patch504:	grub-0.95-moreraid.patch
+# we need to use O_DIRECT to avoid hitting oddities with caching
+Patch800:	grub-0.95-odirect.patch
+# the 2.6 kernel no longer does geometry fixups.  so now I get to do it
+# instead in userspace everywhere.
+Patch1000:	grub-0.94-geometry-26kernel.patch
+# Support for booting from a RAID1 device
+Patch1100:	grub-0.95-md.patch
+Patch1101:	grub-0.95-md-rework.patch
+# Ignore everything before the XPM header in the bootsplash
+Patch1102:	grub-0.95-xpmjunk.patch
+# Don't go to "graphics" mode unless we find the bootsplash and it's an xpm,
+# and don't print any errors about the missing file while current_term is
+# "graphics".
+Patch1103:	grub-0.95-splash-error-term.patch
 
 BuildRoot:	%{_tmppath}/%{name}-buildroot
-BuildRequires:	ncurses-devel, tetex
+BuildRequires:	ncurses-devel, texinfo, binutils, automake1.7, autoconf2.5
 
-Exclusivearch:	%ix86 amd64 x86_64
+Exclusivearch:	%ix86 x86_64
+Requires:	diffutils, mktemp
 Conflicts:	initscripts <= 6.40.2-15mdk
 Provides:	bootloader
 
@@ -46,44 +82,55 @@ Hurd).
 
 %prep
 %setup -q -n %{name}-%{version}
-%patch0 -p1
-%patch1 -p1
-%patch2 -p1
-%patch3 -p1
-%patch4 -p1
-%patch6 -p1
-%patch7 -p1
-%patch8 -p1
-%patch9 -p1 -z .pix
-%patch10 -p1 -b .10
-%patch11 -p1 -b .11
-%patch12 -p1 -b .12
-%patch13 -p0 -b .13
-%patch14 -p1 -b .14
-%patch15 -p1 -b .15
-%patch16 -p1 -b .16
-%patch17 -p1 -b .17
-%patch18 -p0 -b .autofix
+%patch0 -p1 -b .config
+%patch1 -p1 -b .menulst
+%patch20 -p1 -b .install
+%patch21 -p1 -b .copyonly
+%patch22 -p1 -b .addsync
+%patch40 -p1 -b .static
+%patch81 -p0 -b .endedit
+%patch100 -p1 -b .append
+%patch101 -p1 -b .bootonce
+%patch200 -p1 -b .graphics
+%patch201 -p1 -b .splashhelp
+%patch202 -p1 -b .bootterm
+%patch203 -p1 -b .hidden
+%patch300 -p1 -b .ext2sparse
+%patch500 -p1 -b .raid
+%patch501 -p1 -b .initrdmax
+%patch503 -p1 -b .i2o
+%patch504 -p1 -b .moreraid
+#%patch800 -p1 -b .odirect
+%patch1000 -p1 -b .26geom
+%patch1100 -p1 -b .md
+%patch1101 -p1 -b .md-rework
+%patch1102 -p1 -b .xpmjunk
+%patch1103 -p1 -b .splash-error-term
 
 %build
-rm -f configure && autoconf
-%ifarch amd64 x86_64
-LDFLAGS="-Wl,-static" ; export LDFLAGS
+#WANT_AUTOCONF_2_5=1 autoreconf --install --force
+aclocal-1.7
+WANT_AUTOCONF_2_5=1 autoconf
+automake-1.7 --force-missing
+CFLAGS="-Os -g" ; export CFLAGS
+%ifarch x86_64
+CFLAGS="$CFLAGS -static" ; export CFLAGS
 %endif
-CFLAGS="-Os -g" %configure --sbindir=/sbin --disable-auto-linux-mem-opt
+%configure --sbindir=/sbin --disable-auto-linux-mem-opt
 %make
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-make install DESTDIR=$RPM_BUILD_ROOT/
+%makeinstall sbindir=%{buildroot}/sbin
+mkdir -p %{buildroot}{/boot/grub,%{_sysconfdir}}
 
-rm -f $RPM_BUILD_ROOT%{_infodir}/dir
+rm -f %{buildroot}%{_infodir}/dir
 
-install -d $RPM_BUILD_ROOT/boot/grub
-mv $RPM_BUILD_ROOT%{_datadir}/grub/*/* $RPM_BUILD_ROOT/boot/grub
+install -m 0644 %{SOURCE1} %{buildroot}/boot/grub/
+ln -s ../boot/grub/grub.conf %{buildroot}%{_sysconfdir}/grub.conf
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
 %_install_info %{name}.info
@@ -95,14 +142,31 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root)
-%doc TODO BUGS NEWS ChangeLog docs/menu.lst
+%doc README TODO BUGS NEWS ChangeLog docs/menu.lst
 /boot/grub
-%{_infodir}/*
-%{_mandir}/*/*
+/sbin/grub
+/sbin/grub-install
+/sbin/grub-terminfo
+/sbin/grub-md5-crypt
 %{_bindir}/mbchk
-/sbin/*
+%{_infodir}/grub*
+%{_infodir}/multiboot*
+%{_mandir}/man*/*
+%dir %{_datadir}/grub
+%{_datadir}/grub/*
+%config(noreplace) %{_sysconfdir}/grub.conf
 
 %changelog
+* Fri Feb 04 2005 Vincent Danen <vdanen@opensls.org> 0.95-1avx
+- 0.95
+- remodel to follow the FDR spec completely (only use FDR patches)
+  in an attempt to make graphical splash screens work
+- sync with fedora 0.95-7
+- grub goes graphic... install a graphical bootloader screen
+- add a symlink to grub.conf in /etc
+- don't apply P800 because it seems to make grub not detect devices
+  properly and breaks grub-install
+
 * Thu Jun 24 2004 Vincent Danen <vdanen@opensls.org> 0.93-7avx
 - Annvix build
 
