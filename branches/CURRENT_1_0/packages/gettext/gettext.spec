@@ -1,10 +1,7 @@
 %define name	gettext
 %define version 0.11.5
-%define release 8sls
+%define release 9sls
 
-%{!?build_opensls:%global build_opensls 0}
-
-%define prefix	%{_prefix}
 %define major	2
 %define libver	%{major}.2.0
 %define lib_name %mklibname intl %{major}
@@ -29,9 +26,6 @@ Patch7:		gettext-0.11.5-msgfmt-i18n.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
 BuildRequires:	autoconf2.5, bison, texinfo
-%if !%{build_opensls}
-BuildRequires:	emacs-bin, emacs-el
-%endif
 
 Requires:	%{name}-base = %{version}-%{release}
 Requires:	%{lib_name} = %{version}-%{release}
@@ -76,7 +70,6 @@ Requires:	%{lib_name} = %{version}-%{release}
 The base package which includes the gettext binary.
 
 %prep
-rm -rf $RPM_BUILD_ROOT
 %setup -q -n gettext-%{version}
 %patch1 -p1 -b .jbj
 perl -p -i -e 's/\ arm-\*/\ arm\*-\*/g' config.sub
@@ -94,14 +87,9 @@ find -type f | xargs perl -pi -e 's/HAVE_JAVAC_IN_PATH/HAVE_JAVA_C_IN_PATH/g'
 make
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 rm -f $RPM_BUILD_ROOT%{_infodir}/dir $RPM_BUILD_ROOT%{_includedir}/libintl.h $RPM_BUILD_ROOT%{_libdir}/gettext/gnu.gettext.*
-
-%if !%{build_opensls}
-install -d $RPM_BUILD_ROOT%{_sysconfdir}/emacs/site-start.d
-install -m 644 %{SOURCE1} $RPM_BUILD_ROOT%{_sysconfdir}/emacs/site-start.d/%{name}.el
-%endif
 
 # remove non-standard lc directories
 for i in en@boldquot en@quot ; do rm -rf $RPM_BUILD_ROOT/%{_datadir}/locale/$i; done
@@ -128,7 +116,7 @@ ln -sf ../../%{_lib}/libintl.so.%{libver} .%{_libdir}/libintl.so
 rm -fr $RPM_BUILD_ROOT/%_datadir/locale/locale.alias
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
 %_install_info gettext.info
@@ -142,11 +130,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root)
-%doc README COPYING ABOUT-NLS AUTHORS BUGS DISCLAIM NEWS THANKS TODO htmldoc
-%if !%{build_opensls}
-%config(noreplace) %{_sysconfdir}/emacs/site-start.d/*.el
-%{_datadir}/emacs/site-lisp/*.el*
-%endif
+%doc README COPYING ABOUT-NLS AUTHORS BUGS DISCLAIM NEWS THANKS TODO
 %{_bindir}/msg*
 %{_bindir}/xgettext
 %{_bindir}/autopoint
@@ -159,7 +143,6 @@ rm -rf $RPM_BUILD_ROOT
 
 %files base -f gettext.lang
 %defattr(-,root,root)
-%doc README
 /bin/gettext
 %{_bindir}/gettext
 %{_bindir}/ngettext
@@ -168,13 +151,11 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -n %{lib_name}
 %defattr(-,root,root)
-%doc README
 /%{_lib}/lib*.so.*
 %{_libdir}/lib*-*.*.so
 
 %files devel
 %defattr(-,root,root)
-%doc README COPYING
 %{_libdir}/lib*.a
 %{_libdir}/lib*.la
 # "lib*.so" cannot be used (it should be 'lib[^\.]*\.so' regexp in fact
@@ -187,6 +168,13 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/aclocal/*
 
 %changelog
+* Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 0.11.5-9sls
+- remove %%build_opensls macro
+- remove %%prefix
+- minor spec cleanups
+- remove htmldoc
+- README and COPYING files should not be duplicated in each package
+
 * Sat Dec 13 2003 Vincent Danen <vdanen@opensls.org> 0.11.5-8sls
 - OpenSLS build
 - tidy spec
