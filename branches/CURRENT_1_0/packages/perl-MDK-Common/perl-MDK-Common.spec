@@ -1,5 +1,5 @@
 %define name	perl-MDK-Common
-%define version 1.1.21
+%define version 1.1.22
 %define release 1avx
 
 %ifarch x86_64
@@ -41,7 +41,7 @@ Various verifying scripts created for DrakX
 %setup -q -n %{name}
 
 %build
-make test %build_option
+make %build_option
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -68,6 +68,12 @@ rm -rf %{buildroot}%{_sysconfdir}/emacs
 
 
 %changelog
+* Tue Mar 01 2005 Vincent Danen <vdanen@annvix.org> 1.1.22-1avx
+- 1.1.22
+- don't call "make test" as "make" is doing all that's needed and
+  otherwise MDK/Common.pm is not generated when needed due to missing
+  dependencies (pixel)
+
 * Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> 1.1.21-1avx
 - 1.1.21
 
