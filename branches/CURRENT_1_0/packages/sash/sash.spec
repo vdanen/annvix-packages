@@ -1,6 +1,6 @@
 %define name	sash
 %define version	3.5
-%define release 8sls
+%define release 9avx
 
 Summary:	A statically linked shell, including some built-in basic commands
 Name:		%{name}
@@ -57,6 +57,9 @@ install -m644 sash.1 $RPM_BUILD_ROOT%_mandir/man8/sash.8
 %_mandir/*/*
 
 %changelog
+* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 3.5-9avx
+- Annvix build
+
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 3.5-8sls
 - minor spec cleanups
 

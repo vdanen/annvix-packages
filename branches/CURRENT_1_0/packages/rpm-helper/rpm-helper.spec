@@ -1,6 +1,6 @@
 %define name	rpm-helper
 %define version	0.9.1
-%define release	5sls
+%define release	6avx
 
 Summary:	Helper scripts for rpm scriptlets
 Name:		%{name}
@@ -10,7 +10,7 @@ License:	GPL
 Group:		System/Configuration/Packaging
 URL:		http://www.mandrakelinux.com/
 Source0:	%name-%version.tar.bz2
-Patch0:		opensls-supervise.patch.bz2
+Patch0:		annvix-supervise.patch.bz2
 
 BuildArch:	noarch
 BuildRoot:	%_tmppath/%name-buildroot
@@ -46,6 +46,9 @@ chmod 755 {add,del}-srv
 %_datadir/%name/*
 
 %changelog
+* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 0.9.1-6avx
+- Annvix build
+
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 0.9.1-5sls
 - minor spec cleanups
 

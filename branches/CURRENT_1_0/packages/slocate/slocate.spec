@@ -1,6 +1,6 @@
 %define name	slocate
 %define version	2.7
-%define release	4sls
+%define release	5avx
 
 Summary:	Finds files on a system via a central database.
 Name:		%{name}
@@ -87,7 +87,10 @@ fi
 %config(noreplace) %{_sysconfdir}/updatedb.conf
 
 %changelog
-* Mon Dec 08 2004 Vincent Danen <vdanen@opensls.org> 2.7-4sls
+* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 2.7-5avx
+- Annvix build
+
+* Mon Dec 08 2003 Vincent Danen <vdanen@opensls.org> 2.7-4sls
 - minor spec cleanups
 - assign slocate a static gid of 17 (%%_post_groupadd/%%_preun_groupdel)
 

@@ -1,6 +1,6 @@
 %define name	rsync
 %define version	2.6.2
-%define release	1sls
+%define release	2avx
 
 Summary:	A program for synchronizing files over a network.
 Name:		%{name}
@@ -86,6 +86,9 @@ mkdir -p %{buildroot}%{_srvlogdir}/rsync
 %_mandir/man5/rsyncd.conf.5*
 
 %changelog
+* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 2.6.2-2avx
+- Annvix build
+
 * Mon May 10 2004 Vincent Danen <vdanen@opensls.org> 2.6.2-1sls
 - 2.6.2 (security update for CAN-2004-0426)
 - rediff P1

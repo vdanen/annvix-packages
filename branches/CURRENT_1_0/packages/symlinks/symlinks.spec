@@ -1,6 +1,6 @@
 %define	name	symlinks
 %define	version	1.2
-%define release	17sls
+%define release	18avx
 
 Summary:	A utility which maintains a system's symbolic links.
 Name:		%{name}
@@ -46,6 +46,9 @@ install -m 644 %{name}.8 -D $RPM_BUILD_ROOT%{_mandir}/man8/%{name}.8
 %{_mandir}/man8/%{name}.8*
 
 %changelog
+* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 1.2-18avx
+- Annvix build
+
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 1.2-17sls
 - minor spec cleanups
 

@@ -1,6 +1,6 @@
 %define name	rootfiles
 %define version	9.1
-%define	release	2sls
+%define	release	3avx
 
 Summary:	The basic required files for the root user's directory
 Name:		%{name}
@@ -46,6 +46,9 @@ make install RPM_BUILD_ROOT=%buildroot
 %attr(0700,root,root) /root/tmp/
 
 %changelog
+* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 9.1-3avx
+- Annvix build
+
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 9.1-2sls
 - minor spec cleanups
 - remove the %%pre backup of Xclients files

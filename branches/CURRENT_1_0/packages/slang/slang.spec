@@ -1,6 +1,6 @@
 %define name	slang
 %define version 1.4.9
-%define release 5sls
+%define release 6avx
 
 %define docversion	1.4.8
 %define major		1
@@ -112,6 +112,9 @@ rm -rf	$RPM_BUILD_ROOT/usr/doc/slang/COPYING \
 %{_includedir}/slang/*.h
 
 %changelog
+* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 1.4.9-6avx
+- Annvix build
+
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 1.4.9-5sls
 - minor spec cleanups
 - remove %%build_opensls macro

@@ -1,6 +1,6 @@
 %define name	spamassassin
 %define version	2.63
-%define release	6sls
+%define release	7avx
 
 %define fname	Mail-SpamAssassin
 %define instdir	vendor
@@ -142,6 +142,9 @@ chmod 666 /var/spool/spamassassin/auto-whitelist.db
 %{_mandir}/man3*/*
 
 %changelog
+* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 2.63-7avx
+- Annvix build
+
 * Thu Jun  3 2004 Vincent Danen <vdanen@opensls.org> 2.63-6sls
 - %%post_srv and %%preun_srv
 

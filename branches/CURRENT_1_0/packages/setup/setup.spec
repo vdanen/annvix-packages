@@ -1,14 +1,14 @@
 %define name	setup
 %define version 2.4
-%define release 10sls
+%define release 11avx
 
-Summary:	A set of system configuration and setup files.
+Summary:	A set of system configuration and setup files
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	Public Domain
 Group:		System/Configuration/Other
-URL:		http://opensls.org/cgi-bin/viewcvs.cgi/tools/setup
+URL:		http://annvix.org/cgi-bin/viewcvs.cgi/tools/setup
 Source:		setup-%{version}.tar.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-root
@@ -81,6 +81,9 @@ if [ -x /usr/sbin/nscd ]; then
 fi
 
 %changelog
+* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 2.4-11avx
+- Annvix build
+
 * Tue Jun 15 2004 Vincent Danen <vdanen@opensls.org> 2.4-10sls
 - include rpm in the default group/passwd/shadow files since on install
   for some reason the rpm user doesn't get created

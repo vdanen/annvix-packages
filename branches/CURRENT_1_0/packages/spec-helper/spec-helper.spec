@@ -1,8 +1,8 @@
 %define name	spec-helper
 %define version 0.9.2
-%define release 5sls
+%define release 6avx
 
-%define distrib	OpenSLS
+%define distrib	Annvix
 
 Summary:	Tools to ease the creation of rpm packages
 Name:		%{name}
@@ -43,6 +43,9 @@ make install DESTDIR=$RPM_BUILD_ROOT bindir=%{buildroot}/%{_bindir}
 %{_datadir}/spec-helper
 
 %changelog
+* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 0.9.2-6avx
+- Annvix build
+
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 0.9.2-5sls
 - minor spec cleanups
 - remove %%prefix

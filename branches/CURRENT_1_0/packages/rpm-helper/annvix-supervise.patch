@@ -3,7 +3,7 @@
 @@ -0,0 +1,33 @@
 +#!/bin/sh
 +
-+# OpenSLS script to restart supervised service via rpm scriptlet
++# Annvix script to restart supervised service via rpm scriptlet
 +
 +if [ $# != 3 ]; then
 +    echo "usage: $0 <pkg name> <number installed> <service name>" 1>&2
@@ -39,7 +39,7 @@
 @@ -0,0 +1,21 @@
 +#!/bin/sh
 +
-+# OpenSLS script to remove supervised service via rpm scriptlet
++# Annvix script to remove supervised service via rpm scriptlet
 +
 +if [ $# != 3 ]; then
 +    echo "usage: $0 <pkg name> <number installed> <service name>" 1>&2
@@ -70,7 +70,7 @@
  
  LIBDIR=/usr/share/rpm-helper
  
---- add-group.opensls	2002-12-22 16:08:41.000000000 -0700
+--- add-group.annvix	2002-12-22 16:08:41.000000000 -0700
 +++ add-group	2004-02-03 20:17:46.000000000 -0700
 @@ -11,16 +11,17 @@
  #---------------------------------------------------------------
@@ -93,7 +93,7 @@
  
  if [ -n "$users" ]; then
      SAVED_IFS="$IFS"
---- /add-user.opensls	2002-12-22 14:46:07.000000000 -0700
+--- /add-user.annvix	2002-12-22 14:46:07.000000000 -0700
 +++ add-user	2004-02-03 20:17:50.000000000 -0700
 @@ -11,7 +11,7 @@
  #---------------------------------------------------------------

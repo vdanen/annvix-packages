@@ -1,6 +1,6 @@
 %define name	shorewall
 %define version 2.0.1
-%define release 2sls
+%define release 3avx
 
 %define samples_version	2.0.1
 
@@ -126,6 +126,9 @@ export DONT_GPRINTIFY=1
 %doc %attr(-,root,root) documentation/*
 
 %changelog
+* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 2.0.1-3avx
+- Annvix build
+
 * Sat Jun 12 2004 Vincent Danen <vdanen@opensls.org> 2.0.1-2sls
 - own /usr/share/shorewall
 - small spec cleaning

@@ -1,6 +1,6 @@
 %define name	sysklogd
 %define version	1.4.1
-%define release	10sls
+%define release	11avx
 
 # rh 1.4.1-5
 
@@ -134,6 +134,9 @@ fi
 
 
 %changelog
+* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 1.4.1-11avx
+- Annvix build
+
 * Sat May 08 2004 Vincent Danen <vdanen@opensls.org> 1.4.1-10sls
 - make klogd run as root again until we can make the kernel give mode 440
   perms to /proc/kmsg (and owned root:klogd) so that klogd can actually read

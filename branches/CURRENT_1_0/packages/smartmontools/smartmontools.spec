@@ -1,6 +1,6 @@
 %define name	smartmontools
 %define version 5.26
-%define release 4sls
+%define release 5avx
 
 Summary:	SMARTmontools - for monitoring S.M.A.R.T. disks and devices
 Name:           %{name}
@@ -82,6 +82,9 @@ echo "INTERVAL=1800" > %{buildroot}%{_sysconfdir}/sysconfig/smartd
 
 
 %changelog
+* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 5.26-5avx
+- Annvix build
+
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 5.26-4sls
 - minor spec cleanups
 - srv macros

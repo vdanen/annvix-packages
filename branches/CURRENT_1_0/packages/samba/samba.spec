@@ -14,7 +14,7 @@
 
 %define pkg_name	samba
 %define ver 		3.0.1
-%define rel 		6sls
+%define rel 		7avx
 %define vscanver 	0.3.4
 %define libsmbmajor 	0
 
@@ -56,10 +56,6 @@
 %{?_with_vscan: %define build_vscan 1}
 %endif
 
-# We now do detection of the Mandrake release we are building on:
-#%define build_cooker %(if [ `awk '{print $3}' /etc/mandrake-release` = "Cooker" ];then echo 1; else echo 0; fi)
-#%define build_cooker %(if [[ `cat /etc/mandrake-release|grep Cooker` ]];then echo 1; else echo 0; fi)
-%define build_opensls %(if [[ `cat /etc/mandrake-release|grep OpenSLS` ]];then echo 1; else echo 0; fi)
 %define build_non_default 0
 
 # Default options
@@ -142,7 +138,7 @@
 %global vfsdir examples.bin/VFS
 
 #Standard texts for descriptions:
-%define message_bugzilla() %(echo -e -n "Please file bug reports for this package at the OpenSLS Anthill\\n(http://opensls.org/anthill/) under the product name %{1}")
+%define message_bugzilla() %(echo -e -n "Please file bug reports for this package at the Annvix Anthill\\n(http://annvix.org/anthill/) under the product name %{1}")
 %define message_system %(echo -e -n "NOTE: These packages of samba-%{version}, are provided, parallel installable\\nwith samba-2.2.x, to allow easy migration from samba-2.2.x to samba-%{version},\\nbut are not officially supported")
 
 #check gcc version to disable some optimisations on gcc-3.3.1
@@ -190,10 +186,10 @@ Version:	%{pre_ver}
 Version:	%{source_ver}
 %endif
 %if %have_prelease && !%have_pre
-Release:	1.%{prelease}sls
+Release:	1.%{prelease}avx
 %endif
 %if %have_prelease && %have_pre
-Release:	0.%{pre_pre}.%{prelease}sls
+Release:	0.%{pre_pre}.%{prelease}avx
 %endif
 %if !%have_prelease && !%have_pre
 Release:	%{rel}
@@ -1559,6 +1555,9 @@ update-alternatives --auto smbclient
 %exclude %{_mandir}/man1/smbsh*.1*
 
 %changelog
+* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 3.0.1-7avx
+- Annvix build
+
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 3.0.1-6sls
 - minor spec cleanups
 

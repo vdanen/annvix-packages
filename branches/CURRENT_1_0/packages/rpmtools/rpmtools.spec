@@ -1,6 +1,6 @@
 %define name	rpmtools
 %define version	4.5
-%define release 16sls
+%define release 17avx
 
 %{expand:%%define rpm_version %(rpm -q --queryformat '%{VERSION}-%{RELEASE}' rpm)}
 
@@ -57,6 +57,9 @@ rm -f $RPM_BUILD_ROOT%{perl_archlib}/perllocal.pod
 %{_mandir}/*/*
 
 %changelog
+* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 4.5-17avx
+- Annvix build
+
 * Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 4.5-16sls
 - sync with 20mdk:
   - add some options to gendistrib/genhdlist (thauvin)

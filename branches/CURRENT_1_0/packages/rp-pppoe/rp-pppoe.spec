@@ -1,6 +1,6 @@
 %define name	rp-pppoe
 %define version	3.5
-%define release	5sls
+%define release	6avx
 
 Summary:	ADSL/PPPoE userspace driver
 Name:		%{name}
@@ -75,6 +75,9 @@ rm -rf %{buildroot}/usr/doc
 
 
 %changelog
+* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 3.5-6avx
+- Annvix build
+
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 3.5-5sls
 - minor spec cleanups
 

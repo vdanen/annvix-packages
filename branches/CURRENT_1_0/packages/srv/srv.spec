@@ -1,6 +1,6 @@
 %define name	srv
 %define version 0.5
-%define release 1sls
+%define release 2avx
 
 Summary:	Tool to manage supervise-controlled services.
 Name: 		%{name}
@@ -8,7 +8,7 @@ Version:	%{version}
 Release: 	%{release}
 License:	GPL
 Group:		System/Servers
-URL:		http://opensls.org/cgi-bin/viewcvs.cgi/tools/srv/
+URL:		http://annvix.org/cgi-bin/viewcvs.cgi/tools/srv/
 Source:		%{name}-%{version}.tar.bz2
 Source1:	http://em.ca/~bruceg/supervise-scripts/supervise-scripts-3.3.tar.bz2
 
@@ -75,6 +75,9 @@ rm -rf $RPM_BUILD_DIR/%{name}-%{version}
 %{_mandir}/man1/*
 
 %changelog
+* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 0.5-2avx
+- Annvix build
+
 * Tue May 11 2004 Vincent Danen <vdanen@opensls.org> 0.5-1sls
 - 0.5:
   - nice overall status summary

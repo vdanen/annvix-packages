@@ -1,16 +1,16 @@
 %define name	rpmlint
 %define version 0.59
-%define release 1sls
+%define release 2avx
 
 Summary:	RPM correctness checker
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
-Source0:	%{name}-%{version}.tar.bz2
-Source1:	rpmlint.opensls.config
 License:	GPL
 Group:		Development/Other
 URL:		http://people.mandrakesoft.com/~flepied/projects/rpmlint/
+Source0:	%{name}-%{version}.tar.bz2
+Source1:	rpmlint.annvix.config
 
 BuildRoot:	%{_tmppath}/%{name}-buildroot
 BuildArch:	noarch
@@ -46,6 +46,9 @@ install -m 0644 %{SOURCE1} %{buildroot}%{_sysconfdir}/rpmlint/config
 %config(noreplace) %{_sysconfdir}/rpmlint/config
 
 %changelog
+* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 0.59-2avx
+- Annvix build
+
 * Mon May 31 2004 Vincent Danen <vdanen@opensls.org> 0.59-1sls
 - 0.59
 - include a tailored default config

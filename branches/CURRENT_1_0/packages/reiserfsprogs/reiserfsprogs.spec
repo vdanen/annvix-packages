@@ -1,6 +1,6 @@
 %define name	reiserfsprogs
 %define version	3.6.11
-%define release	2sls
+%define release	3avx
 %define epoch	1
 
 Summary:	The utilities to create Reiserfs volume.
@@ -66,6 +66,9 @@ ln -s reiserfsck.8 $RPM_BUILD_ROOT%_mandir/man8/fsck.reiserfs.8
 %_mandir/*/*
 
 %changelog
+* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 3.6.11-3avx
+- Annvix build
+
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 3.6.11-2sls
 - minor spec cleanups
 

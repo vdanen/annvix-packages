@@ -1,6 +1,6 @@
 %define name	syslinux
 %define version 1.76
-%define release 12sls
+%define release 13avx
 
 %define old_version	1.67
 %define pxelinux_version 2.06
@@ -104,6 +104,9 @@ install -m 0644 ../%{name}-%{pxelinux_version}/memdisk/memdisk $RPM_BUILD_ROOT%{
 %{_libdir}/*
 
 %changelog
+* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 1.76-13avx
+- Annvix build
+
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 1.76-12sls
 - minor spec cleanups
 

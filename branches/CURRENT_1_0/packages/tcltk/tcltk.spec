@@ -1,6 +1,6 @@
 %define name	tcltk
 %define version	%{tclvers}
-%define release	3sls
+%define release	4avx
 
 %define tcl_major	8.4
 %define tk_major 	8.4
@@ -596,6 +596,9 @@ rm -f *.files
 %files -f tcllib.files -n tcllib
 
 %changelog
+* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 8.4.2-4avx
+- Annvix build
+
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 8.4.2-3sls
 - minor spec cleanups
 
