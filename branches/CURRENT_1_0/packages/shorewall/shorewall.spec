@@ -1,10 +1,8 @@
 %define name	shorewall
 %define version 2.0.1
-%define release 1sls
+%define release 2sls
 
 %define samples_version	2.0.1
-%define md5sums_version	%version
-%define ftp_path	ftp://ftp.shorewall.net
 
 Summary:	Shoreline Firewall is an iptables-based firewall for Linux systems.
 Name:		%{name}
@@ -13,9 +11,9 @@ Release:	%{release}
 License:	GPL
 Group:		System/Servers
 URL:		http://www.shorewall.net/
-Source0:	%ftp_path/%{name}-%{version}.tgz
-Source1:	%ftp_path/samples-%{version}/samples-%{samples_version}.tar.bz2
-Source2:	%ftp_path/%{version}.md5sums
+Source0:	ftp://ftp.shorewall.net/%{name}-%{version}.tgz
+Source1:	ftp://ftp.shorewall.net/samples-%{version}/samples-%{samples_version}.tar.bz2
+Source2:	ftp://ftp.shorewall.net/%{version}.md5sums
 Source3:	init.sh.bz2
 Source4:	bogons.bz2
 Source5:	rfc1918.bz2
@@ -120,15 +118,18 @@ export DONT_GPRINTIFY=1
 %config(noreplace) %{_sysconfdir}/%{name}/stopped
 %config(noreplace) %{_sysconfdir}/%{name}/init
 %config(noreplace) %{_sysconfdir}/%{name}/actions
-
 %attr(544,root,root) /sbin/shorewall
-
+%attr(700,root,root) %dir %{_datadir}/%{name}
 %{_datadir}/%{name}/*
 
 %files doc 
 %doc %attr(-,root,root) documentation/*
 
 %changelog
+* Sat Jun 12 2004 Vincent Danen <vdanen@opensls.org> 2.0.1-2sls
+- own /usr/share/shorewall
+- small spec cleaning
+
 * Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 2.0.1-1sls
 - 2.0.1
 - add netmap file
