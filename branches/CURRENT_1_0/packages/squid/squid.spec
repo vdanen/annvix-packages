@@ -1,6 +1,6 @@
 %define name	squid
 %define version	2.5.STABLE7
-%define release	2avx
+%define release	4avx
 
 %define their_version	2.5.STABLE7
 %define p_url   http://www.squid-cache.org/Versions/v2/2.5/bugs
@@ -61,6 +61,8 @@ Patch119:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE7-http
 Patch120:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE7-ftp_datachannel.patch.bz2
 Patch121:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE7-short_icons_urls.patch.bz2
 Patch122:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE7-response_splitting.patch.bz2
+Patch123:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE7-wccp_buffer_overflow.patch.bz2
+Patch124:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE7-oversize_reply_headers.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-root
 BuildRequires:	openldap-devel libsasl-devel openssl-devel >= 0.9.7 pam-devel
@@ -112,6 +114,8 @@ Install squid if you need a proxy caching server.
 %patch120 -p1
 %patch121 -p1
 %patch122 -p1
+%patch123 -p1
+%patch124 -p1
 
 bzcat %{SOURCE10} > helpers/basic_auth/winbind/winbindd_nss.h
 bzcat %{SOURCE10} > helpers/ntlm_auth/winbind/winbindd_nss.h
@@ -383,6 +387,12 @@ fi
 %attr(0750,nobody,nogroup) %dir %{_srvlogdir}/squid
 
 %changelog
+* Tue Feb 01 2005 Vincent Danen <vdanen@annvix.org> 2.5.STABLE7-4avx
+- P123: fix for CAN-2005-0211
+- P124: security fix for oversized reply headers (no CVE name yet)
+- previous fixes have CVE names assigned now: CAN-2005-0173 (P117),
+  CAN-2005-0174 (P118), and CAN-2005-0175 (P122)
+
 * Mon Jan 24 2005 Vincent Danen <vdanen@annvix.org> 2.5.STABLE7-3avx
 - P102-P122: upstream patch fixes including fixes for CAN-2005-0094 and
   CAN-2005-0095
