@@ -1,0 +1,14 @@
+--- coreutils-4.5.3/man/rm.1.manpage	2003-01-16 17:46:05.000000000 +0000
++++ coreutils-4.5.3/man/rm.1	2003-01-16 17:49:28.000000000 +0000
+@@ -47,9 +47,9 @@
+ To remove a file whose name starts with a `-', for example `-foo',
+ use one of these commands:
+ .IP
+-rm.td/rm \fB\-\-\fR \fB\-foo\fR
++\fBrm\fR \fB\-\-\fR \-foo
+ .IP
+-rm.td/rm ./-foo
++\fBrm\fR ./\-foo
+ .PP
+ Note that if you use rm to remove a file, it is usually possible to recover
+ the contents of that file.  If you want more assurance that the contents are

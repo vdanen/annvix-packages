@@ -1,0 +1,27 @@
+--- krb5-1.2.4/src/configure.tcl-libs	2002-02-28 02:16:01.000000000 +0100
++++ krb5-1.2.4/src/configure	2002-07-09 01:06:45.000000000 +0200
+@@ -2235,14 +2235,20 @@ else
+   tcl_dir=$with_tcl
+ fi
+ if test "$with_tcl" != no ; then
+-  
++
++# Assume we are not cross-compiling!
++case $host in
++x86_64-*|sparc64-*) libname=lib64;;
++*) libname=lib;;
++esac
++
+ echo $ac_n "checking for tclConfig.sh""... $ac_c" 1>&6
+ echo "configure:2241: checking for tclConfig.sh" >&5
+-if test -r "$tcl_dir/lib/tclConfig.sh" ; then
+-  tcl_conf="$tcl_dir/lib/tclConfig.sh"
++if test -r "$tcl_dir/$libname/tclConfig.sh" ; then
++  tcl_conf="$tcl_dir/$libname/tclConfig.sh"
+ else
+   tcl_conf=
+-  lib="$tcl_dir/lib"
++  lib="$tcl_dir/$libname"
+     for d in "$lib" "$lib"/tcl7.[0-9] "$lib"/tcl8.[0-9] ; do
+     if test -r "$d/tclConfig.sh" ; then
+       tcl_conf="$tcl_conf $d/tclConfig.sh"

@@ -1,0 +1,14 @@
+--- ed-0.2/ed.info.chmou	Sat Nov 19 13:50:17 1994
++++ ed-0.2/ed.info	Fri Mar  2 00:36:21 2001
+@@ -1,6 +1,11 @@
+ This is Info file ed.info, produced by Makeinfo-1.55 from the input
+ file ed.texinfo.
+ 
++INFO-DIR-SECTION Editors
++START-INFO-DIR-ENTRY
++* GNU/Ed: (ed).   The Command line editor.
++END-INFO-DIR-ENTRY
++
+    This file documents the `ed' command, which has the purpose of
+ editing text files.
+ 

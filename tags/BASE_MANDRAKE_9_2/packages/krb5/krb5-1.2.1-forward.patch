@@ -1,0 +1,27 @@
+Passing in KRB5CCNAME from the parent keeps the child from guessing wrong.
+
+--- krb5-1.2.1/src/appl/bsd/krlogind.c.forward	Tue Sep 12 10:45:26 2000
++++ krb5-1.2.1/src/appl/bsd/krlogind.c	Tue Sep 12 11:14:41 2000
+@@ -700,7 +700,8 @@
+ 	struct sgttyb b;
+ #endif /* POSIX_TERMIOS */
+ 	char environ_term[sizeof(term) + 6];
+-	char *environ[2] = {environ_term, NULL};
++	char environ_ccname[sizeof(environ_term)];
++	char *environ[3] = {environ_term, environ_ccname, NULL};
+ 
+ 	if ((retval = pty_open_slave(line, &t))) {
+ 	    fatal(f, error_message(retval));
+@@ -809,6 +810,12 @@
+         char *cp;
+         if ((cp = strchr(environ_term, '/')))
+             *cp = '\0';
++    }
++
++    memset(environ_ccname, '\0', sizeof(environ_ccname));
++    if(getenv("KRB5CCNAME") != NULL) {
++        snprintf(environ_ccname, sizeof(environ_ccname) - 1,
++		 "KRB5CCNAME=%s", getenv("KRB5CCNAME"));
+     }
+ 
+ #ifdef USE_LOGIN_F

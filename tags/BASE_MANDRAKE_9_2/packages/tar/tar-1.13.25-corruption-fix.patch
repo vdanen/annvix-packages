@@ -1,0 +1,11 @@
+--- tar-1.13.25.orig/src/buffer.c
++++ tar-1.13.25/src/buffer.c
+@@ -419,8 +419,6 @@
+ 	{
+ 	  size_t size = record_size - length;
+ 
+-	  if (size < BLOCKSIZE)
+-	    size = BLOCKSIZE;
+ 	  status = safe_read (STDIN_FILENO, cursor, size);
+ 	  if (status <= 0)
+ 	    break;

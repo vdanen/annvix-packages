@@ -1,0 +1,65 @@
+--- postgresql-7.3.3/config/python.m4.pythondir	2002-09-05 00:54:18.000000000 +0200
++++ postgresql-7.3.3/config/python.m4	2003-08-04 13:57:37.000000000 +0200
+@@ -25,9 +25,11 @@ AC_MSG_CHECKING([Python installation dir
+ python_version=`${PYTHON} -c "import sys; print sys.version[[:3]]"`
+ python_prefix=`${PYTHON} -c "import sys; print sys.prefix"`
+ python_execprefix=`${PYTHON} -c "import sys; print sys.exec_prefix"`
+-python_configdir="${python_execprefix}/lib/python${python_version}/config"
+-python_moduledir="${python_prefix}/lib/python${python_version}/site-packages"
+-python_moduleexecdir="${python_execprefix}/lib/python${python_version}/site-packages"
++pythondir=`$PYTHON -c "from distutils import sysconfig; print sysconfig.get_python_lib(0,0,prefix='$python_prefix')" 2>/dev/null`
++pythonexecdir=`$PYTHON -c "from distutils import sysconfig; print sysconfig.get_python_lib(1,0,prefix='$python_execprefix')" 2>/dev/null`
++python_configdir="${pythondir}/../config"
++python_moduledir="${pythondir}"
++python_moduleexecdir="${pythonexecdir}"
+ python_includespec="-I${python_prefix}/include/python${python_version}"
+ if test "$python_prefix" != "$python_execprefix"; then
+   python_includespec="-I${python_execprefix}/include/python${python_version} $python_includespec"
+@@ -41,10 +43,10 @@ AC_SUBST(python_moduledir)[]dnl
+ AC_SUBST(python_moduleexecdir)[]dnl
+ AC_SUBST(python_includespec)[]dnl
+ # This should be enough of a message.
+-if test "$python_prefix" != "$python_execprefix"; then
+-  AC_MSG_RESULT([$python_prefix/lib/python${python_version} and $python_execprefix/lib/python${python_version}])
++if test "$pythondir != "$pythonexecdir; then
++  AC_MSG_RESULT([$pythondir and $pythonexecdir])
+ else
+-  AC_MSG_RESULT([$python_prefix/lib/python${python_version}])
++  AC_MSG_RESULT([$pythondir])
+ fi
+ ])# _PGAC_CHECK_PYTHON_DIRS
+ 
+--- postgresql-7.3.3/configure.pythondir	2003-05-22 22:17:22.000000000 +0200
++++ postgresql-7.3.3/configure	2003-08-04 13:58:36.000000000 +0200
+@@ -4272,21 +4272,23 @@ echo $ECHO_N "checking Python installati
+ python_version=`${PYTHON} -c "import sys; print sys.version[:3]"`
+ python_prefix=`${PYTHON} -c "import sys; print sys.prefix"`
+ python_execprefix=`${PYTHON} -c "import sys; print sys.exec_prefix"`
+-python_configdir="${python_execprefix}/lib/python${python_version}/config"
+-python_moduledir="${python_prefix}/lib/python${python_version}/site-packages"
+-python_moduleexecdir="${python_execprefix}/lib/python${python_version}/site-packages"
++pythondir=`$PYTHON -c "from distutils import sysconfig; print sysconfig.get_python_lib(0,0,prefix='$python_prefix')" 2>/dev/null`
++pythonexecdir=`$PYTHON -c "from distutils import sysconfig; print sysconfig.get_python_lib(1,0,prefix='$python_execprefix')" 2>/dev/null`
++python_configdir="${pythondir}/../config"
++python_moduledir="${pythondir}"
++python_moduleexecdir="${pythonexecdir}"
+ python_includespec="-I${python_prefix}/include/python${python_version}"
+ if test "$python_prefix" != "$python_execprefix"; then
+   python_includespec="-I${python_execprefix}/include/python${python_version} $python_includespec"
+ fi
+ 
+ # This should be enough of a message.
+-if test "$python_prefix" != "$python_execprefix"; then
+-  echo "$as_me:$LINENO: result: $python_prefix/lib/python${python_version} and $python_execprefix/lib/python${python_version}" >&5
+-echo "${ECHO_T}$python_prefix/lib/python${python_version} and $python_execprefix/lib/python${python_version}" >&6
++if test "$pythondir" != "$pythonexecdir"; then
++  echo "$as_me:$LINENO: result: $pythondir and $pythonexecdir" >&5
++echo "${ECHO_T}$pythondir and $pythonexecdir" >&6
+ else
+-  echo "$as_me:$LINENO: result: $python_prefix/lib/python${python_version}" >&5
+-echo "${ECHO_T}$python_prefix/lib/python${python_version}" >&6
++  echo "$as_me:$LINENO: result: $pythondir" >&5
++echo "${ECHO_T}$pythondir" >&6
+ fi
+ 
+ 

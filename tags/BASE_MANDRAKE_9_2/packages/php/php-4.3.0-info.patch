@@ -1,0 +1,19 @@
+--- php-4.3.0/ext/standard/info.c	2003-01-04 04:30:43.000000000 -0400
++++ php-4.3.0/ext/standard/info.c.mdk	2003-01-04 04:30:43.000000000 -0400
+@@ -316,6 +316,8 @@
+ 	PUTS("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"DTD/xhtml1-transitional.dtd\">\n");
+ 	PUTS("<html>");
+ 	PUTS("<head>\n");
++	PUTS("<meta http-equiv=\"pragma\" content=\"no-cache\">\n");
++       PUTS("<meta http-equiv=\"expires\" content=\"Thu, 1 Jan 1970 00:00:00 GMT\">\n");
+ 	php_info_print_style();
+ 	PUTS("<title>phpinfo()</title>");
+ /*
+@@ -389,6 +391,7 @@
+ 		php_info_print_table_row(2, "Build Date", __DATE__ " " __TIME__ );
+ #ifdef CONFIGURE_COMMAND
+ 		php_info_print_table_row(2, "Configure Command", CONFIGURE_COMMAND );
++		php_info_print_table_row(2, "Extensions listed here are (or will be soon) available as external modules. To install one or all of these, use \"urpmi\" php-EXTENSION_NAME", EXTERNAL_MANDRAKE_MODULES );
+ #endif
+ 		if (sapi_module.pretty_name) {
+ 			php_info_print_table_row(2, "Server API", sapi_module.pretty_name );

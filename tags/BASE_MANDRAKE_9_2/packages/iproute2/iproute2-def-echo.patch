@@ -1,0 +1,13 @@
+--- iproute2/lib/ll_proto.c	Thu May 17 21:36:23 2001
++++ iproute2/lib/ll_proto.c.patched	Thu May 17 21:35:20 2001
+@@ -26,6 +26,10 @@
+ 
+ #include "utils.h"
+ 
++/* missing define in PPC if_ether.h */
++#ifndef ETH_P_ECHO
++#define ETH_P_ECHO     0x0200
++#endif
+ 
+ #define __PF(f,n) { ETH_P_##f, #n },
+ static struct {

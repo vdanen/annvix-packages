@@ -1,0 +1,17 @@
+--- tetex-src-2.0/texk/xdvik/mime.c.orig	2003-02-03 15:00:19.000000000 +0100
++++ tetex-src-2.0/texk/xdvik/mime.c	2003-02-03 15:02:38.000000000 +0100
+@@ -320,13 +320,11 @@
+ 
+     /* See if filename extension is on the mime list: */
+     extension = strrchr(filename, '.');
+-
+-    if (extension == NULL) {
++    if (extension == NULL || *++extension == '\0') {
+ 	if (debug & DBG_HYPER)
+ 	    fprintf(stderr, "No extension, defaulting to %s\n", default_type);
+ 	return default_type;
+     }
+-    extension++;
+     /*
+      * corrupt URLs might have empty extensions; in this case, the
+      * while loop below will not terminate

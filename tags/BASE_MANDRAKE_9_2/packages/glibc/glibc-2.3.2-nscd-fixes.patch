@@ -1,0 +1,134 @@
+--- glibc-2.3.2/nscd/nscd.conf.nscd-fixes	2003-07-25 11:03:08.000000000 -0400
++++ glibc-2.3.2/nscd/nscd.conf	2003-07-25 11:06:26.000000000 -0400
+@@ -24,7 +24,7 @@
+ 
+ #	logfile			/var/log/nscd.log
+ #	threads			6
+-#	server-user		nobody
++	server-user		nscd
+ #	stat-user		somebody
+ 	debug-level		0
+ 
+--- glibc-2.3.2/nscd/nscd.init.nscd-fixes	1999-08-16 21:33:49.000000000 -0400
++++ glibc-2.3.2/nscd/nscd.init	2003-07-25 11:03:09.000000000 -0400
+@@ -1,13 +1,13 @@
+-#!/bin/sh
++#!/bin/bash
+ #
+ # nscd:		Starts the Name Switch Cache Daemon
+ #
+ # chkconfig: - 30 80
+ # description:  This is a daemon which handles passwd and group lookups \
+ #		for running programs and cache the results for the next \
+-#		query.  You should start this daemon only if you use \
+-#		slow Services like NIS or NIS+
+-# processname: nscd
++#		query.  You should start this daemon if you use \
++#		slow naming services like NIS, NIS+, LDAP, or hesiod.
++# processname: /usr/sbin/nscd
+ # config: /etc/nscd.conf
+ #
+ 
+@@ -34,10 +34,9 @@ case $(uname -r) in
+ esac
+ 
+ RETVAL=0
++prog=nscd
+ 
+-# See how we were called.
+-case "$1" in
+-    start)
++function start() {
+ 	secure=""
+ #	for table in passwd group
+ #	do
+@@ -47,38 +46,66 @@ case "$1" in
+ #				secure="$secure -S $table,yes"
+ #		fi
+ #	done
+-        echo -n "Starting Name Switch Cache Daemon: "
+-	daemon nscd $secure
++	echo -n "Starting $prog: "
++	daemon /usr/sbin/nscd $secure
+ 	RETVAL=$?
+-        echo
+-        [ $RETVAL -eq 0 ] && touch /var/lock/subsys/nscd
+-	;;
+-    stop)
+-	echo -n "Stopping Name Switch Cache Daemon: "
++	echo
++	[ $RETVAL -eq 0 ] && touch /var/lock/subsys/nscd
++	return $RETVAL
++}
++
++function stop() {
++	echo -n "Stopping $prog: "
+ 	/usr/sbin/nscd -K
+ 	RETVAL=$?
+ 	if [ $RETVAL -eq 0 ]; then
+ 		rm -f /var/lock/subsys/nscd
+-        	echo nscd
++        # nscd won't be able to remove these if it is running as
++        # a non-privileged user
++		rm -f /var/run/nscd.pid
++		rm -f /var/run/.nscd_socket
++		success "$prog shutdown"
+ 	else
+-		echo
++		failure "$prog shutdown"
+ 	fi
+-	;;
+-  status)
++	echo
++	return $RETVAL
++}
++
++function restart() {
++	stop
++	start
++}
++
++# See how we were called.
++case "$1" in
++    start)
++		start
++		RETVAL=$?
++		;;
++    stop)
++		stop
++		RETVAL=$?
++		;;
++	status)
+         status nscd
+-	RETVAL=$?
+-        ;;
+-  restart)
+-        $0 stop
+-        $0 start
+-	RETVAL=$?
+-	;;
+-  reload)
+-  	killproc -HUP nscd
+-	RETVAL=$?
++		RETVAL=$?
++		;;
++	restart)
++		restart
++		RETVAL=$?
++		;;
++	condrestart)
++		[[ -e /var/lock/subsys/nscd ]] && restart
++		RETVAL=$?
++		;;
++	reload)
++		killproc /usr/sbin/nscd -HUP
++		RETVAL=$?
+         ;;
+     *)
+-	echo "Usage: $0 {start|stop|status|restart}"
+-	;;
++		echo "Usage: $0 {start|stop|status|restart|condrestart|reload}"
++		RETVAL=1
++		;;
+ esac
+ exit $RETVAL

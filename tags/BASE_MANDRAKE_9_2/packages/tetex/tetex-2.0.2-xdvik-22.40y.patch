@@ -1,0 +1,328 @@
+diff -w -uNr tetex-src-2.0.2/texk/xdvik.orig/Makefile.in tetex-src-2.0.2/texk/xdvik/Makefile.in
+--- tetex-src-2.0.2/texk/xdvik.orig/Makefile.in	2003-02-02 19:53:22.000000000 +0100
++++ tetex-src-2.0.2/texk/xdvik/Makefile.in	2003-03-18 23:08:10.000000000 +0100
+@@ -106,6 +106,8 @@
+ 	for p in $(program); do $(INSTALL_LIBTOOL_PROG) $(bindir) $$p; done
+ 	$(INSTALL_SCRIPT) $(srcdir)/$(perlprog) $(scriptdir)/$(perlprog)
+ 	$(INSTALL_SCRIPT) $(srcdir)/xdvi-sh $(scriptdir)/xdvi
++### fix wrong CVS permissions for shell script
++	chmod +x $(srcdir)/xdvizilla
+ 	$(INSTALL_SCRIPT) $(srcdir)/xdvizilla $(scriptdir)/xdvizilla
+ 
+ uninstall-exec:
+@@ -113,10 +115,10 @@
+ 
+ ### //FIXME: add installation for encoding.map here!! (same place where psfonts.map is?)
+ install-data: xdvi.1 t1mapper.1
+-	$(SHELL) $(top_srcdir)/../mkinstalldirs $(man1dir) $(texmf)/xdvi
+ 	$(INSTALL_DATA) xdvi.1 $(man1dir)/xdvi.$(manext)
+ 	$(INSTALL_DATA) $(srcdir)/t1mapper.1 $(man1dir)/t1mapper.$(manext)
+ 	$(INSTALL_DATA) $(srcdir)/xdvizilla.1 $(man1dir)/xdvizilla.$(manext)
++	$(SHELL) $(top_srcdir)/../mkinstalldirs $(man1dir) $(texmf)/xdvi
+ 	$(INSTALL_DATA) $(srcdir)/texmf/xdvi-teTeX.cfg $(texmf)/xdvi/xdvi.cfg
+ 
+ uninstall-data:
+diff -w -uNr tetex-src-2.0.2/texk/xdvik.orig/c-auto.in tetex-src-2.0.2/texk/xdvik/c-auto.in
+--- tetex-src-2.0.2/texk/xdvik.orig/c-auto.in	2003-02-01 20:55:45.000000000 +0100
++++ tetex-src-2.0.2/texk/xdvik/c-auto.in	2002-11-14 23:33:07.000000000 +0100
+@@ -106,6 +106,9 @@
+ /* Define if the memicmp() function is in <string.h> */
+ #undef HAVE_MEMICMP
+ 
++/* Define if you want to compile without toolkit.  */
++#undef NOTOOL
++
+ /* Define if you have the fchdir function.  */
+ #undef HAVE_FCHDIR
+ 
+@@ -175,14 +178,8 @@
+ /* Define if you have the <sys/time.h> header file.  */
+ #undef HAVE_SYS_TIME_H
+ 
+-/* Define if you have the <zlib.h> header file.  */
+-#undef HAVE_ZLIB_H
+-
+ /* Define if you have the m library (-lm).  */
+ #undef HAVE_LIBM
+ 
+ /* Define if you have the www library (-lwww).  */
+ #undef HAVE_LIBWWW
+-
+-/* Define if you have the z library (-lz).  */
+-#undef HAVE_LIBZ
+diff -w -uNr tetex-src-2.0.2/texk/xdvik.orig/dvi-draw.c tetex-src-2.0.2/texk/xdvik/dvi-draw.c
+--- tetex-src-2.0.2/texk/xdvik.orig/dvi-draw.c	2003-01-25 11:16:33.000000000 +0100
++++ tetex-src-2.0.2/texk/xdvik/dvi-draw.c	2003-04-23 02:20:58.000000000 +0200
+@@ -55,6 +55,7 @@
+ static hash_table_type t1fonts_hash;
+ static hash_table_type tfminfo_hash;
+ static hash_table_type fontmaps_hash;
++static hash_table_type font_warn_hash;
+ 
+ typedef enum { FAILURE_BLANK = -2, FAILURE_PK = -1, SUCCESS = 0 } t1font_load_status_t;
+ 
+@@ -3876,7 +3877,7 @@
+ re-start xdvi. See the file texmf.cnf for the default settings of MKTEXTFM and related \
+ variables.\
+ ",
+-"Could not find/load font metrics file %s.tfm - using cmr10.tfm.  Expect ugly output.",
++"Could not find font metrics file %s.tfm; using cmr10.tfm instead.  Expect ugly output.",
+ 		       texname);
+     }
+     
+@@ -4630,11 +4631,34 @@
+ 	    assert(G!=NULL);
+ 	}
+ 	if (G->bits==NULL) {
+-	    /* FIXME: Blank glyph != .notdef. Drop message until I find out how
+-	       .notdef can be detected */
+-
+-	    TRACE_T1((stderr, "Character %d not defined in t1-font %s",ch,
+-		      currinf.fontp->fontname));
++	    if (ch != ' ') {
++		char index[128];
++		char *fontname = xmalloc(strlen(currinf.fontp->fontname) + 128);
++		int dummy = 0;
++
++		sprintf(index, "%d", ch);
++		strcpy(fontname + strlen(currinf.fontp->fontname), index);
++		/* -- janl:
++		   Blank glyph != .notdef (e.g., it could be a space char).
++		   Drop message until I find out how .notdef can be detected.
++		   -- SU 2003/02/24:
++		   I changed this, since dropped characters is an important
++		   thing to warn users about. We try to catch the space char
++		   case by checking for space above (rather lame, since it won't
++		   catch all fonts, but ...)
++		   The only case in which TeX actually uses a space character seems
++		   to be the output of `tex testfont'.
++		*/
++		if (font_warn_hash.size == 0)
++		    font_warn_hash = hash_create(T1FONTS_INITIAL_HASHTABLE_SIZE);
++
++		if (!find_str_int_hash(&font_warn_hash, fontname, &dummy)) {
++		    fprintf(stderr, "%s: Warning: Character %d is mapped to .notdef in font %s\n",
++			    prog, ch, currinf.fontp->fontname);
++		    put_str_int_hash(&font_warn_hash, fontname, dummy);
++		}
++		free(fontname);
++	    }
+ 	    g->addr=-1;
+ 	    return NULL;
+ 	}
+diff -w -uNr tetex-src-2.0.2/texk/xdvik.orig/font-open.c tetex-src-2.0.2/texk/xdvik/font-open.c
+--- tetex-src-2.0.2/texk/xdvik.orig/font-open.c	2002-10-12 18:52:20.000000000 +0200
++++ tetex-src-2.0.2/texk/xdvik/font-open.c	2003-06-06 17:38:55.000000000 +0200
+@@ -56,8 +56,10 @@
+     *dpi_ret = dpi;
+     
+ #ifdef Omega
++    /* for omega, first try 16-bit ovf's, then 8-bit vf's. */
+     name = kpse_find_ovf(font);
+-    if (!name)
++    if (name == NULL)
++	name = kpse_find_vf(font);
+ #else
+     name = kpse_find_vf(font);
+ #endif
+diff -w -uNr tetex-src-2.0.2/texk/xdvik.orig/help-window.h tetex-src-2.0.2/texk/xdvik/help-window.h
+--- tetex-src-2.0.2/texk/xdvik.orig/help-window.h	2001-04-18 16:24:43.000000000 +0200
++++ tetex-src-2.0.2/texk/xdvik/help-window.h	1970-01-01 01:00:00.000000000 +0100
+@@ -1,8 +0,0 @@
+-/* mappings of help texts to resources */
+-#define help_topics_button_label	resource._help_topics_button_label
+-#define help_intro		resource._help_intro 
+-#define help_general		resource._help_general;
+-#define help_hypertex		resource._help_hypertex;
+-#define help_othercommands	resource._help_othercommands;
+-#define help_pagemotion		resource._help_pagemotion;
+-#define help_sourcespecials	resource._help_sourcespecials;
+diff -w -uNr tetex-src-2.0.2/texk/xdvik.orig/mime.c tetex-src-2.0.2/texk/xdvik/mime.c
+--- tetex-src-2.0.2/texk/xdvik.orig/mime.c	2003-08-15 18:46:24.000000000 +0200
++++ tetex-src-2.0.2/texk/xdvik/mime.c	2003-04-05 13:17:01.000000000 +0200
+@@ -396,6 +398,12 @@
+ 	return 0;
+     }
+ 
++    if (memcmp(filename, "file:", strlen("file:")) == 0) {
++	/* it's a local file */
++	viewingcommand = xmalloc(strlen(viewer) + strlen(filename) + 1);
++	sprintf(viewingcommand, viewer, filename + strlen("file:"));
++    }
++    else {
+     /* Turn the (possibly URL) filename into a local file */
+     i = fetch_relative_url(URLbase, filename);
+     if (i < 0)
+@@ -415,6 +423,7 @@
+     else {
+ 	sprintf(viewingcommand, viewer, htex_file_at_index(i));
+     }
++    }
+ 
+     if (debug & DBG_HYPER) 
+ 	fprintf(stderr, "Executing: |/bin/sh -c %s|\n", viewingcommand);
+diff -w -uNr tetex-src-2.0.2/texk/xdvik.orig/sfSelFile.c tetex-src-2.0.2/texk/xdvik/sfSelFile.c
+--- tetex-src-2.0.2/texk/xdvik.orig/sfSelFile.c	2002-10-19 01:15:20.000000000 +0200
++++ tetex-src-2.0.2/texk/xdvik/sfSelFile.c	2003-02-04 13:54:12.000000000 +0100
+@@ -279,13 +279,8 @@
+ {
+     UNUSED(entryShown);
+ 
+-    if (!(S_ISDIR(statBuf->st_mode))) {
+-	if (hideFlag)
+-	    if (entryReal[0] == '.')
++    if ((hideFlag && entryReal[0] == '.') || (!S_ISDIR(statBuf->st_mode) && maskFile(fileMask, entryReal)))
+ 		return 0;
+-	if (maskFile(fileMask, entryReal))
+-	    return 0;
+-    }
+     entryReal[strlen(entryReal)] = SFstatChar(statBuf);
+     return 1;
+ }
+@@ -735,7 +730,7 @@
+ 					   XtNvertDistance, 30,
+ 					   XtNfromHoriz, selFileMask,
+ 					   XtNhorizDistance, 40,
+-					   XtNlabel, "dot files",
++					   XtNlabel, "dot files are:",
+ 					   XtNborderWidth, 0,
+ 					   XtNtop, XtChainTop,
+ 					   XtNbottom, XtChainTop, NULL);
+@@ -747,7 +742,7 @@
+ 					  XtNfromHoriz, selFileLabel,
+ 					  XtNhorizDistance, 2,
+ 					  XtNlabel, "hidden",
+-					  XtNborderWidth, 0,
++					  XtNborderWidth, 1,
+ 					  XtNtop, XtChainTop,
+ 					  XtNbottom, XtChainTop,
+ #if 0	/* missing in R4, says 
+diff -w -uNr tetex-src-2.0.2/texk/xdvik.orig/special.c tetex-src-2.0.2/texk/xdvik/special.c
+--- tetex-src-2.0.2/texk/xdvik.orig/special.c	2002-10-29 21:09:41.000000000 +0100
++++ tetex-src-2.0.2/texk/xdvik/special.c	2003-02-05 00:08:39.000000000 +0100
+@@ -1351,11 +1351,22 @@
+ applicationDoSpecial(char *cp)
+ {
+     char *p;
++    static Boolean warned_about_hdvips_specials = False;
+ 
+     /* Skip white space */
+     while (*cp == ' ' || *cp == '\t')
+ 	++cp;
+ 
++    /* warn about not implemented `hxdvi' specials */
++    if (memcmp(cp, "! /DvipsToPDF", strlen("! /DvipsToPDF")) == 0 && !warned_about_hdvips_specials) {
++	warned_about_hdvips_specials = True;
++	fprintf(stderr, "%s Info:\nIt seems that this file contains hyperref specials for dvips/ps2pdf,\n"
++		"which are currently not supported by xdvik (see also the feature request on:\n"
++		"http://sourceforge.net/tracker/index.php?func=detail&aid=662096&group_id=23164&atid=377583).\n"
++		"Use\n\\usepackage[hypertex]{hyperref}\nin the .tex file for hyperlinks usable by xdvik.\n",
++		prog);
++    }
++    
+     /* PostScript specials */
+ 
+     if (*cp == '"') {
+diff -w -uNr tetex-src-2.0.2/texk/xdvik.orig/stamp-auto.in tetex-src-2.0.2/texk/xdvik/stamp-auto.in
+--- tetex-src-2.0.2/texk/xdvik.orig/stamp-auto.in	2003-02-01 20:34:15.000000000 +0100
++++ tetex-src-2.0.2/texk/xdvik/stamp-auto.in	2002-11-14 23:33:09.000000000 +0100
+@@ -1 +1 @@
+-Sat Feb  1 20:34:15 CET 2003
++Thu Nov 14 22:32:20 GMT 2002
+diff -w -uNr tetex-src-2.0.2/texk/xdvik.orig/util.c tetex-src-2.0.2/texk/xdvik/util.c
+--- tetex-src-2.0.2/texk/xdvik.orig/util.c	2002-11-04 11:51:01.000000000 +0100
++++ tetex-src-2.0.2/texk/xdvik/util.c	2003-04-05 13:17:01.000000000 +0200
+@@ -679,8 +679,9 @@
+ 
+     filename = urlocalize((char *)filename);
+ 
+-    if (URL_aware && (((URLbase != NULL) && htex_is_url(urlocalize(URLbase))) ||
+-		      (htex_is_url(filename)))) {
++    if (URL_aware
++	&& ((URLbase != NULL && htex_is_url(urlocalize(URLbase)))
++	    || htex_is_url(filename))) {
+ 	int i;
+ 	i = fetch_relative_url(URLbase, filename);
+ 	if (i < 0)
+diff -w -uNr tetex-src-2.0.2/texk/xdvik.orig/version.h tetex-src-2.0.2/texk/xdvik/version.h
+--- tetex-src-2.0.2/texk/xdvik.orig/version.h	2003-02-01 20:06:22.000000000 +0100
++++ tetex-src-2.0.2/texk/xdvik/version.h	2003-06-06 17:39:17.000000000 +0200
+@@ -1,4 +1,4 @@
+-#define XDVERSION "22.40v"
++#define XDVERSION "22.40y"
+ #ifdef Omega
+ #define TVERSION XDVERSION" for Omega"
+ #else
+diff -w -uNr tetex-src-2.0.2/texk/xdvik.orig/wwwfetch.c tetex-src-2.0.2/texk/xdvik/wwwfetch.c
+--- tetex-src-2.0.2/texk/xdvik.orig/wwwfetch.c	2002-12-26 23:35:26.000000000 +0100
++++ tetex-src-2.0.2/texk/xdvik/wwwfetch.c	2003-04-05 13:17:01.000000000 +0200
+@@ -312,7 +312,9 @@
+ 	    fprintf(stderr, "www_fetch(%s->%s) returned content-type: %s\n",
+ 		    url, savefile, HTAtom_name(content_type));
+     }
+-    HTRequest_delete(request);
++    /* deleting the request will lead to segfaults in
++       www_info_filter(), www_error_print() etc. */
++/*     HTRequest_delete(request); */
+ 
+ #ifdef DOFORKS
+     exit(1);	/* No cleanup! */
+diff -w -uNr tetex-src-2.0.2/texk/xdvik.orig/xdvi.c tetex-src-2.0.2/texk/xdvik/xdvi.c
+--- tetex-src-2.0.2/texk/xdvik.orig/xdvi.c	2003-01-25 18:21:56.000000000 +0100
++++ tetex-src-2.0.2/texk/xdvik/xdvi.c	2003-04-23 02:22:00.000000000 +0200
+@@ -2091,8 +2091,8 @@
+     "b3", "35.3x50.0cm",
+     "b4", "25.0x35.3cm",
+     "b5", "17.6x25.0cm",
+-    "b6", "13.5x17.6cm",
+-    "b7", "8.8x13.5cm",
++    "b6", "12.5x17.6cm",
++    "b7", "8.8x12.5cm",
+     "\n", "0",
+ 
+     /* ISO `B' formats, Landscape */
+@@ -2101,8 +2101,8 @@
+     "b3r", "50.0x35.3cm",
+     "b4r", "35.3x25.0cm",
+     "b5r", "25.0x17.6cm",
+-    "b6r", "17.6x13.5cm",
+-    "b7r", "13.5x8.8cm",
++    "b6r", "17.6x12.5cm",
++    "b7r", "12.5x8.8cm",
+     "\n", "0",
+ 
+     /* ISO `C' formats, Portrait */
+@@ -2827,6 +2827,8 @@
+     if (resource.t1lib) {
+ 	init_t1();
+     }
++    /* needed so that T1lib can produce tfm's e.g. for cm-super */
++    kpse_set_program_enabled(kpse_tfm_format, True, kpse_src_compile);
+ #endif /* T1LIB */
+ 
+     init_dvi_file();
+diff -w -uNr tetex-src-2.0.2/texk/xdvik.orig/xdvi.man tetex-src-2.0.2/texk/xdvik/xdvi.man
+--- tetex-src-2.0.2/texk/xdvik.orig/xdvi.man	2003-02-01 20:06:23.000000000 +0100
++++ tetex-src-2.0.2/texk/xdvik/xdvi.man	2003-03-23 21:46:46.000000000 +0100
+@@ -1500,7 +1500,20 @@
+ .BR *5 ,
+ referring to the value specified by the corresponding
+ .BI \-mgs n
+-option.
++option. Note that in order to assign magnifier actions to
++the buttons 4 or 5, you need to use the resource
++.B wheelTranslations
++(more about this resource below), e.g.:
++.RS 5
++.nf
++.ft 3
++.sp 1n
++xdvi.wheelTranslations: <Btn4Down>: magnifier(*4)\\n\\
++    <Btn5Down>:	magnifier(*5)\\n
++.sp 1n
++.ft
++.fi
++.RE
+ .PP
+ Holding down the
+ .I CTRL

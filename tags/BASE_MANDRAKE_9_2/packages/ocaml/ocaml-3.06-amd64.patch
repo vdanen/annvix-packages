@@ -1,0 +1,1749 @@
+--- ocaml-3.06/asmcomp/amd64/arch.ml.amd64	2003-07-24 06:37:55.000000000 -0400
++++ ocaml-3.06/asmcomp/amd64/arch.ml	2003-07-24 06:37:55.000000000 -0400
+@@ -0,0 +1,105 @@
++(***********************************************************************)
++(*                                                                     *)
++(*                           Objective Caml                            *)
++(*                                                                     *)
++(*            Xavier Leroy, projet Cristal, INRIA Rocquencourt         *)
++(*                                                                     *)
++(*  Copyright 2000 Institut National de Recherche en Informatique et   *)
++(*  en Automatique.  All rights reserved.  This file is distributed    *)
++(*  under the terms of the Q Public License version 1.0.               *)
++(*                                                                     *)
++(***********************************************************************)
++
++(* $Id: arch.ml,v 1.1 2003/06/30 08:28:44 xleroy Exp $ *)
++
++(* Machine-specific command-line options *)
++
++let command_line_options = []
++
++(* Specific operations for the AMD64 processor *)
++
++open Format
++
++type addressing_mode =
++    Ibased of string * int              (* symbol + displ *)
++  | Iindexed of int                     (* reg + displ *)
++  | Iindexed2 of int                    (* reg + reg + displ *)
++  | Iscaled of int * int                (* reg * scale + displ *)
++  | Iindexed2scaled of int * int        (* reg + reg * scale + displ *)
++
++type specific_operation =
++    Ilea of addressing_mode             (* "lea" gives scaled adds *)
++  | Istore_int of nativeint * addressing_mode (* Store an integer constant *)
++  | Istore_symbol of string * addressing_mode (* Store a symbol *)
++  | Ioffset_loc of int * addressing_mode (* Add a constant to a location *)
++  | Ifloatarithmem of float_operation * addressing_mode
++                                       (* Float arith operation with memory *)
++and float_operation =
++    Ifloatadd | Ifloatsub | Ifloatmul | Ifloatdiv
++
++(* Sizes, endianness *)
++
++let big_endian = false
++
++let size_addr = 8
++let size_int = 8
++let size_float = 8
++
++(* Operations on addressing modes *)
++
++let identity_addressing = Iindexed 0
++
++let offset_addressing addr delta =
++  match addr with
++    Ibased(s, n) -> Ibased(s, n + delta)
++  | Iindexed n -> Iindexed(n + delta)
++  | Iindexed2 n -> Iindexed2(n + delta)
++  | Iscaled(scale, n) -> Iscaled(scale, n + delta)
++  | Iindexed2scaled(scale, n) -> Iindexed2scaled(scale, n + delta)
++
++let num_args_addressing = function
++    Ibased(s, n) -> 0
++  | Iindexed n -> 1
++  | Iindexed2 n -> 2
++  | Iscaled(scale, n) -> 1
++  | Iindexed2scaled(scale, n) -> 2
++
++(* Printing operations and addressing modes *)
++
++let print_addressing printreg addr ppf arg =
++  match addr with
++  | Ibased(s, 0) ->
++      fprintf ppf "\"%s\"" s
++  | Ibased(s, n) ->
++      fprintf ppf "\"%s\" + %i" s n
++  | Iindexed n ->
++      let idx = if n <> 0 then Printf.sprintf " + %i" n else "" in
++      fprintf ppf "%a%s" printreg arg.(0) idx
++  | Iindexed2 n ->
++      let idx = if n <> 0 then Printf.sprintf " + %i" n else "" in
++      fprintf ppf "%a + %a%s" printreg arg.(0) printreg arg.(1) idx
++  | Iscaled(scale, n) ->
++      let idx = if n <> 0 then Printf.sprintf " + %i" n else "" in
++      fprintf ppf "%a  * %i%s" printreg arg.(0) scale idx
++  | Iindexed2scaled(scale, n) ->
++      let idx = if n <> 0 then Printf.sprintf " + %i" n else "" in
++      fprintf ppf "%a + %a * %i%s" printreg arg.(0) printreg arg.(1) scale idx
++
++let print_specific_operation printreg op ppf arg =
++  match op with
++  | Ilea addr -> print_addressing printreg addr ppf arg
++  | Istore_int(n, addr) ->
++      fprintf ppf "[%a] := %nd" (print_addressing printreg addr) arg n
++  | Istore_symbol(lbl, addr) ->
++      fprintf ppf "[%a] := \"%s\"" (print_addressing printreg addr) arg lbl
++  | Ioffset_loc(n, addr) ->
++      fprintf ppf "[%a] +:= %i" (print_addressing printreg addr) arg n
++  | Ifloatarithmem(op, addr) ->
++      let op_name = function
++      | Ifloatadd -> "+f"
++      | Ifloatsub -> "-f"
++      | Ifloatmul -> "*f"
++      | Ifloatdiv -> "/f" in
++      fprintf ppf "%a %s float64[%a]" printreg arg.(0) (op_name op)
++                   (print_addressing printreg addr)
++                   (Array.sub arg 1 (Array.length arg - 1))
+--- ocaml-3.06/asmcomp/amd64/proc.ml.amd64	2003-07-24 06:37:55.000000000 -0400
++++ ocaml-3.06/asmcomp/amd64/proc.ml	2003-07-24 06:37:55.000000000 -0400
+@@ -0,0 +1,199 @@
++(***********************************************************************)
++(*                                                                     *)
++(*                           Objective Caml                            *)
++(*                                                                     *)
++(*            Xavier Leroy, projet Cristal, INRIA Rocquencourt         *)
++(*                                                                     *)
++(*  Copyright 2000 Institut National de Recherche en Informatique et   *)
++(*  en Automatique.  All rights reserved.  This file is distributed    *)
++(*  under the terms of the Q Public License version 1.0.               *)
++(*                                                                     *)
++(***********************************************************************)
++
++(* $Id: proc.ml,v 1.1 2003/06/30 08:28:44 xleroy Exp $ *)
++
++(* Description of the AMD64 processor *)
++
++open Misc
++open Arch
++open Cmm
++open Reg
++open Mach
++
++(* Registers available for register allocation *)
++
++(* Register map:
++    rax         0               rax - r11: Caml function arguments
++    rbx         1               rdi - r9: C function arguments
++    rdi         2               rax: Caml and C function results
++    rsi         3               rbx, rbp, r12-r15 are preserved by C
++    rdx         4
++    rcx         5
++    r8          6
++    r9          7
++    r10		8
++    r11		9
++    rbp         10
++    r12		11
++    r13		12
++    r14         trap pointer
++    r15         allocation pointer
++    
++  xmm0 - xmm15  100 - 115       xmm0 - xmm9: Caml function arguments
++                                xmm0 - xmm7: C function arguments
++                                xmm0: Caml and C function results *)
++
++let int_reg_name =
++  [| "%rax"; "%rbx"; "%rdi"; "%rsi"; "%rdx"; "%rcx"; "%r8"; "%r9"; 
++     "%r10"; "%r11"; "%rbp"; "%r12"; "%r13" |]
++
++let float_reg_name =
++  [| "%xmm0"; "%xmm1"; "%xmm2"; "%xmm3"; "%xmm4"; "%xmm5"; "%xmm6"; "%xmm7"; 
++     "%xmm8"; "%xmm9"; "%xmm10"; "%xmm11";
++     "%xmm12"; "%xmm13"; "%xmm14"; "%xmm15" |]
++
++let num_register_classes = 2
++
++let register_class r =
++  match r.typ with
++    Int -> 0
++  | Addr -> 0
++  | Float -> 1
++
++let num_available_registers = [| 13; 16 |]
++
++let first_available_register = [| 0; 100 |]
++
++let register_name r =
++  if r < 100 then int_reg_name.(r) else float_reg_name.(r - 100)
++
++(* Pack registers starting at %rax so as to reduce the number of REX
++   prefixes and thus improve code density *)
++let rotate_registers = false
++
++(* Representation of hard registers by pseudo-registers *)
++
++let hard_int_reg =
++  let v = Array.create 13 Reg.dummy in
++  for i = 0 to 12 do v.(i) <- Reg.at_location Int (Reg i) done;
++  v
++
++let hard_float_reg =
++  let v = Array.create 16 Reg.dummy in
++  for i = 0 to 15 do v.(i) <- Reg.at_location Float (Reg (100 + i)) done;
++  v
++
++let all_phys_regs =
++  Array.append hard_int_reg hard_float_reg
++
++let phys_reg n =
++  if n < 100 then hard_int_reg.(n) else hard_float_reg.(n - 100)
++
++let rax = phys_reg 0
++let rcx = phys_reg 5
++let rdx = phys_reg 4
++let rxmm15 = phys_reg 115
++
++let stack_slot slot ty =
++  Reg.at_location ty (Stack slot)
++
++(* Instruction selection *)
++
++let word_addressed = false
++
++(* Calling conventions *)
++
++let calling_conventions first_int last_int first_float last_float make_stack
++                        arg =
++  let loc = Array.create (Array.length arg) Reg.dummy in
++  let int = ref first_int in
++  let float = ref first_float in
++  let ofs = ref 0 in
++  for i = 0 to Array.length arg - 1 do
++    match arg.(i).typ with
++      Int | Addr as ty ->
++        if !int <= last_int then begin
++          loc.(i) <- phys_reg !int;
++          incr int
++        end else begin
++          loc.(i) <- stack_slot (make_stack !ofs) ty;
++          ofs := !ofs + size_int
++        end
++    | Float ->
++        if !float <= last_float then begin
++          loc.(i) <- phys_reg !float;
++          incr float
++        end else begin
++          loc.(i) <- stack_slot (make_stack !ofs) Float;
++          ofs := !ofs + size_float
++        end
++  done;
++  (loc, Misc.align !ofs 16)  (* keep stack 16-aligned *)
++
++let incoming ofs = Incoming ofs
++let outgoing ofs = Outgoing ofs
++let not_supported ofs = fatal_error "Proc.loc_results: cannot call"
++
++let loc_arguments arg =
++  calling_conventions 0 9 100 109 outgoing arg
++let loc_parameters arg =
++  let (loc, ofs) = calling_conventions 0 9 100 109 incoming arg in loc
++let loc_results res =
++  let (loc, ofs) = calling_conventions 0 0 100 100 not_supported res in loc
++
++(* C calling convention:
++     first integer args in rdi, rsi, rdx, rcx, r8, r9
++     first float args in xmm0 ... xmm7
++     remaining args on stack.
++   Return value in rax or xmm0. *)
++
++let loc_external_arguments arg =
++  calling_conventions 2 7 100 107 outgoing arg
++let loc_external_results res =
++  let (loc, ofs) = calling_conventions 0 0 100 100 not_supported res in loc
++
++let loc_exn_bucket = rax
++
++(* Registers destroyed by operations *)
++
++let destroyed_at_c_call =         (* rbp, rbx, r12-r15 preserved *)
++  Array.of_list(List.map phys_reg
++    [0;2;3;4;5;6;7;8;9;
++     100;101;102;103;104;105;106;107;
++     108;109;110;111;112;113;114;115])
++
++let destroyed_at_oper = function
++    Iop(Icall_ind | Icall_imm _ | Iextcall(_, true)) -> all_phys_regs
++  | Iop(Iextcall(_, false)) -> destroyed_at_c_call
++  | Iop(Iintop(Idiv | Imod)) -> [| rax; rdx |]
++  | Iop(Istore(Single, _)) -> [| rxmm15 |]
++  | Iop(Ialloc _ | Iintop(Icomp _) | Iintop_imm((Idiv|Imod|Icomp _), _))
++        -> [| rax |]
++  | _ -> [||]
++
++let destroyed_at_raise = all_phys_regs
++
++(* Maximal register pressure *)
++
++let safe_register_pressure = function
++    Iextcall(_,_) -> 0
++  | _ -> 11
++
++let max_register_pressure = function
++    Iextcall(_, _) -> [| 4; 0 |]
++  | Iintop(Idiv | Imod) -> [| 11; 16 |]
++  | Ialloc _ | Iintop(Icomp _) | Iintop_imm((Idiv|Imod|Icomp _), _)
++        -> [| 12; 16 |]
++  | Istore(Single, _) -> [| 13; 15 |]
++  | _ -> [| 13; 16 |]
++
++(* Layout of the stack frame *)
++
++let num_stack_slots = [| 0; 0 |]
++let contains_calls = ref false
++
++(* Calling the assembler *)
++
++let assemble_file infile outfile =
++  Ccomp.command ("as -o " ^ outfile ^ " " ^ infile)
++
+--- ocaml-3.06/asmcomp/amd64/reload.ml.amd64	2003-07-24 06:37:55.000000000 -0400
++++ ocaml-3.06/asmcomp/amd64/reload.ml	2003-07-24 06:37:55.000000000 -0400
+@@ -0,0 +1,113 @@
++(***********************************************************************)
++(*                                                                     *)
++(*                           Objective Caml                            *)
++(*                                                                     *)
++(*            Xavier Leroy, projet Cristal, INRIA Rocquencourt         *)
++(*                                                                     *)
++(*  Copyright 2000 Institut National de Recherche en Informatique et   *)
++(*  en Automatique.  All rights reserved.  This file is distributed    *)
++(*  under the terms of the Q Public License version 1.0.               *)
++(*                                                                     *)
++(***********************************************************************)
++
++(* $Id: reload.ml,v 1.1 2003/06/30 08:28:44 xleroy Exp $ *)
++
++open Cmm
++open Arch
++open Reg
++open Mach
++
++(* Reloading for the AMD64 *)
++
++(* Summary of instruction set constraints: 
++   "S" means either stack or register, "R" means register only.
++   Operation                    Res     Arg1    Arg2
++     Imove                      R       S
++                             or S       R
++     Iconst_int                 S
++     Iconst_float               R
++     Iconst_symbol              S
++     Icall_ind                          R
++     Itailcall_ind                      R
++     Iload                      R       R       R
++     Istore                             R       R
++     Iintop(Icomp)              R       R       S
++                            or  S       S       R
++     Iintop(Imul|Idiv|mod)      R       R       S
++     Iintop(shift)              S       S       R
++     Iintop(others)             R       R       S
++                            or  S       S       R
++     Iintop_imm(Iadd, n)/lea    R       R
++     Iintop_imm(others)         S       S
++     Inegf...Idivf              R       R       S
++     Ifloatofint                R       S
++     Iintoffloat                R       S
++     Ispecific(Ilea)            R       R       R
++     Ispecific(Ifloatarithmem)  R       R       R
++
++   Conditional branches:
++     Iinttest                           S       R
++                                    or  R       S
++     Ifloattest                         R       S
++     other tests                        S
++*)
++
++let stackp r =
++  match r.loc with
++    Stack _ -> true
++  | _ -> false
++
++class reload = object (self)
++
++inherit Reloadgen.reload_generic as super
++
++method reload_operation op arg res =
++  match op with
++    Iintop(Iadd|Isub|Iand|Ior|Ixor|Icomp _|Icheckbound) ->
++      (* One of the two arguments can reside in the stack, but not both *)
++      if stackp arg.(0) && stackp arg.(1)
++      then ([|arg.(0); self#makereg arg.(1)|], res)
++      else (arg, res)
++  | Iintop_imm(Iadd, _) when arg.(0).loc <> res.(0).loc ->
++      (* This add will be turned into a lea; args and results must be
++         in registers *)
++      super#reload_operation op arg res
++  | Iconst_int _ | Iconst_symbol _
++  | Iintop(Idiv | Imod | Ilsl | Ilsr | Iasr)
++  | Iintop_imm(_, _) ->
++      (* The argument(s) and results can be either in register or on stack *)
++      (* Note: Idiv, Imod: arg(0) and res(0) already forced in regs
++               Ilsl, Ilsr, Iasr: arg(1) already forced in regs *)
++      (arg, res)
++  | Iintop(Imul) | Iaddf | Isubf | Imulf | Idivf ->
++      (* First argument (= result) must be in register, second arg
++         can reside in the stack *)
++      if stackp arg.(0)
++      then (let r = self#makereg arg.(0) in ([|r; arg.(1)|], [|r|]))
++      else (arg, res)
++  | Ifloatofint | Iintoffloat ->
++      (* Result must be in register, but argument can be on stack *)
++      (arg, (if stackp res.(0) then [| self#makereg res.(0) |] else res))
++  | _ -> (* Other operations: all args and results in registers *)
++      super#reload_operation op arg res
++
++method reload_test tst arg =
++  match tst with
++    Iinttest cmp ->
++      (* One of the two arguments can reside on stack *)
++      if stackp arg.(0) && stackp arg.(1)
++      then [| self#makereg arg.(0); arg.(1) |]
++      else arg
++  | Ifloattest(_, _) ->
++      (* Second argument can be on stack, first must be in register *)
++      if stackp arg.(0)
++      then [| self#makereg arg.(0); arg.(1) |]
++      else arg
++  | _ ->
++      (* The argument(s) can be either in register or on stack *)
++      arg
++
++end
++
++let fundecl f =
++  (new reload)#fundecl f
+--- ocaml-3.06/asmcomp/amd64/scheduling.ml.amd64	2003-07-24 06:37:55.000000000 -0400
++++ ocaml-3.06/asmcomp/amd64/scheduling.ml	2003-07-24 06:37:55.000000000 -0400
+@@ -0,0 +1,20 @@
++(***********************************************************************)
++(*                                                                     *)
++(*                           Objective Caml                            *)
++(*                                                                     *)
++(*            Xavier Leroy, projet Cristal, INRIA Rocquencourt         *)
++(*                                                                     *)
++(*  Copyright 2000 Institut National de Recherche en Informatique et   *)
++(*  en Automatique.  All rights reserved.  This file is distributed    *)
++(*  under the terms of the Q Public License version 1.0.               *)
++(*                                                                     *)
++(***********************************************************************)
++
++(* $Id: scheduling.ml,v 1.1 2003/06/30 08:28:44 xleroy Exp $ *)
++
++open Schedgen (* to create a dependency *)
++
++(* Scheduling is turned off because the processor schedules dynamically
++   much better than what we could do. *)
++
++let fundecl f = f
+--- ocaml-3.06/asmcomp/amd64/selection.ml.amd64	2003-07-24 06:37:55.000000000 -0400
++++ ocaml-3.06/asmcomp/amd64/selection.ml	2003-07-24 06:37:55.000000000 -0400
+@@ -0,0 +1,229 @@
++(***********************************************************************)
++(*                                                                     *)
++(*                           Objective Caml                            *)
++(*                                                                     *)
++(*            Xavier Leroy, projet Cristal, INRIA Rocquencourt         *)
++(*                                                                     *)
++(*  Copyright 2000 Institut National de Recherche en Informatique et   *)
++(*  en Automatique.  All rights reserved.  This file is distributed    *)
++(*  under the terms of the Q Public License version 1.0.               *)
++(*                                                                     *)
++(***********************************************************************)
++
++(* $Id: selection.ml,v 1.2 2003/06/30 11:29:26 xleroy Exp $ *)
++
++(* Instruction selection for the AMD64 *)
++
++open Misc
++open Arch
++open Proc
++open Cmm
++open Reg
++open Mach
++
++(* Auxiliary for recognizing addressing modes *)
++
++type addressing_expr =
++    Asymbol of string
++  | Alinear of expression
++  | Aadd of expression * expression
++  | Ascale of expression * int
++  | Ascaledadd of expression * expression * int
++
++let rec select_addr exp =
++  match exp with
++    Cconst_symbol s ->
++      (Asymbol s, 0)
++  | Cop((Caddi | Cadda), [arg; Cconst_int m]) ->
++      let (a, n) = select_addr arg in (a, n + m)
++  | Cop((Csubi | Csuba), [arg; Cconst_int m]) ->
++      let (a, n) = select_addr arg in (a, n - m)
++  | Cop((Caddi | Cadda), [Cconst_int m; arg]) ->
++      let (a, n) = select_addr arg in (a, n + m)
++  | Cop(Clsl, [arg; Cconst_int(1|2|3 as shift)]) ->
++      begin match select_addr arg with
++        (Alinear e, n) -> (Ascale(e, 1 lsl shift), n lsl shift)
++      | _ -> (Alinear exp, 0)
++      end
++  | Cop(Cmuli, [arg; Cconst_int(2|4|8 as mult)]) ->
++      begin match select_addr arg with
++        (Alinear e, n) -> (Ascale(e, mult), n * mult)
++      | _ -> (Alinear exp, 0)
++      end
++  | Cop(Cmuli, [Cconst_int(2|4|8 as mult); arg]) ->
++      begin match select_addr arg with
++        (Alinear e, n) -> (Ascale(e, mult), n * mult)
++      | _ -> (Alinear exp, 0)
++      end
++  | Cop((Caddi | Cadda), [arg1; arg2]) ->
++      begin match (select_addr arg1, select_addr arg2) with
++          ((Alinear e1, n1), (Alinear e2, n2)) ->
++              (Aadd(e1, e2), n1 + n2)
++        | ((Alinear e1, n1), (Ascale(e2, scale), n2)) ->
++              (Ascaledadd(e1, e2, scale), n1 + n2)
++        | ((Ascale(e1, scale), n1), (Alinear e2, n2)) ->
++              (Ascaledadd(e2, e1, scale), n1 + n2)
++        | (_, (Ascale(e2, scale), n2)) ->
++              (Ascaledadd(arg1, e2, scale), n2)
++        | ((Ascale(e1, scale), n1), _) ->
++              (Ascaledadd(arg2, e1, scale), n1)
++        | _ ->
++              (Aadd(arg1, arg2), 0)
++      end
++  | arg ->
++      (Alinear arg, 0)
++    
++(* Special constraints on operand and result registers *)
++
++exception Use_default
++
++let rax = phys_reg 0
++let rcx = phys_reg 5
++let rdx = phys_reg 4
++
++let pseudoregs_for_operation op arg res =
++  match op with
++  (* Two-address binary operations: arg.(0) and res.(0) must be the same *)
++    Iintop(Iadd|Isub|Imul|Iand|Ior|Ixor) | Iaddf|Isubf|Imulf|Idivf ->
++      ([|res.(0); arg.(1)|], res)
++  (* One-address unary operations: arg.(0) and res.(0) must be the same *)
++  | Iintop_imm((Iadd|Isub|Imul|Iand|Ior|Ixor|Ilsl|Ilsr|Iasr), _) 
++  | Iabsf | Inegf ->
++      (res, res)
++  | Ispecific(Ifloatarithmem(_,_)) -> 
++      let arg' = Array.copy arg in
++      arg'.(0) <- res.(0);
++      (arg', res)
++  (* For shifts with variable shift count, second arg must be in rcx *)
++  | Iintop(Ilsl|Ilsr|Iasr) ->
++      ([|res.(0); rcx|], res)
++  (* For div and mod, first arg must be in rax, rdx is clobbered,
++     and result is in rax or rdx respectively.
++     Keep it simple, just force second argument in rcx. *)
++  | Iintop(Idiv) ->
++      ([| rax; rcx |], [| rax |])
++  | Iintop(Imod) ->
++      ([| rax; rcx |], [| rdx |])
++  (* For div and mod with immediate operand, arg must not be in rax.
++     Keep it simple, force it in rdx. *)
++  | Iintop_imm((Idiv|Imod), _) ->
++      ([| rdx |], [| rdx |])
++  (* Other instructions are regular *)
++  | _ -> raise Use_default
++
++(* The selector class *)
++
++class selector = object (self)
++
++inherit Selectgen.selector_generic as super
++
++method is_immediate n = n <= 0x7FFFFFFF && n >= -0x80000000
++
++method is_immediate_natint n = n <= Nativeint.of_int(0x7FFFFFFF) && n >= Nativeint.of_int(-0x80000000)
++
++method select_addressing exp =
++  match select_addr exp with
++    (Asymbol s, d) ->
++      (Ibased(s, d), Ctuple [])
++  | (Alinear e, d) ->
++      (Iindexed d, e)
++  | (Aadd(e1, e2), d) ->
++      (Iindexed2 d, Ctuple[e1; e2])
++  | (Ascale(e, scale), d) ->
++      (Iscaled(scale, d), e)
++  | (Ascaledadd(e1, e2, scale), d) ->
++      (Iindexed2scaled(scale, d), Ctuple[e1; e2])
++
++method select_store addr exp =
++  match exp with
++    Cconst_int n when self#is_immediate n ->
++      (Ispecific(Istore_int(Nativeint.of_int n, addr)), Ctuple [])
++  | Cconst_natint n when self#is_immediate_natint n ->
++      (Ispecific(Istore_int(n, addr)), Ctuple [])
++  | Cconst_pointer n when self#is_immediate n ->
++      (Ispecific(Istore_int(Nativeint.of_int n, addr)), Ctuple [])
++  | Cconst_natpointer n when self#is_immediate_natint n ->
++      (Ispecific(Istore_int(n, addr)), Ctuple [])
++  | Cconst_symbol s ->
++      (Ispecific(Istore_symbol(s, addr)), Ctuple [])
++  | _ ->
++      super#select_store addr exp
++
++method select_operation op args =
++  match op with
++  (* Recognize the LEA instruction *)
++    Caddi | Cadda | Csubi | Csuba ->
++      begin match self#select_addressing (Cop(op, args)) with
++        (Iindexed d, _) -> super#select_operation op args
++      | (Iindexed2 0, _) -> super#select_operation op args
++      | (addr, arg) -> (Ispecific(Ilea addr), [arg])
++      end
++  (* Recognize (x / cst) and (x % cst) only if cst is a power of 2. *)
++  | Cdivi ->
++      begin match args with
++        [arg1; Cconst_int n] when self#is_immediate n
++                               && n = 1 lsl (Misc.log2 n) ->
++          (Iintop_imm(Idiv, n), [arg1])
++      | _ -> (Iintop Idiv, args)
++      end
++  | Cmodi ->
++      begin match args with
++        [arg1; Cconst_int n] when self#is_immediate n
++                               && n = 1 lsl (Misc.log2 n) ->
++          (Iintop_imm(Imod, n), [arg1])
++      | _ -> (Iintop Imod, args)
++      end
++  (* Recognize float arithmetic with memory. *)
++  | Caddf ->
++      self#select_floatarith true Iaddf Ifloatadd args
++  | Csubf ->
++      self#select_floatarith false Isubf Ifloatsub args
++  | Cmulf ->
++      self#select_floatarith true Imulf Ifloatmul args
++  | Cdivf ->
++      self#select_floatarith false Idivf Ifloatdiv args
++  (* Recognize store instructions *)
++  | Cstore Word ->
++      begin match args with
++        [loc; Cop(Caddi, [Cop(Cload _, [loc']); Cconst_int n])]
++        when loc = loc' ->
++          let (addr, arg) = self#select_addressing loc in
++          (Ispecific(Ioffset_loc(n, addr)), [arg])
++      | _ ->
++          super#select_operation op args
++      end
++  | _ -> super#select_operation op args
++
++(* Recognize float arithmetic with mem *)
++
++method select_floatarith commutative regular_op mem_op args =
++  match args with
++    [arg1; Cop(Cload (Double|Double_u), [loc2])] ->
++      let (addr, arg2) = self#select_addressing loc2 in
++      (Ispecific(Ifloatarithmem(mem_op, addr)),
++                 [arg1; arg2])
++  | [Cop(Cload (Double|Double_u), [loc1]); arg2] when commutative ->
++      let (addr, arg1) = self#select_addressing loc1 in
++      (Ispecific(Ifloatarithmem(mem_op, addr)),
++                 [arg2; arg1])
++  | [arg1; arg2] ->
++      (regular_op, [arg1; arg2])
++  | _ ->
++      assert false
++
++(* Deal with register constraints *)
++
++method insert_op op rs rd =
++  try
++    let (rsrc, rdst) = pseudoregs_for_operation op rs rd in
++    self#insert_moves rs rsrc;
++    self#insert (Iop op) rsrc rdst;
++    self#insert_moves rdst rd;
++    rd
++  with Use_default ->
++    super#insert_op op rs rd
++
++end
++
++let fundecl f = (new selector)#emit_fundecl f
++
+--- ocaml-3.06/asmcomp/amd64/emit.mlp.amd64	2003-07-24 06:37:55.000000000 -0400
++++ ocaml-3.06/asmcomp/amd64/emit.mlp	2003-07-24 06:44:08.000000000 -0400
+@@ -0,0 +1,681 @@
++(***********************************************************************)
++(*                                                                     *)
++(*                           Objective Caml                            *)
++(*                                                                     *)
++(*            Xavier Leroy, projet Cristal, INRIA Rocquencourt         *)
++(*                                                                     *)
++(*  Copyright 1996 Institut National de Recherche en Informatique et   *)
++(*  en Automatique.  All rights reserved.  This file is distributed    *)
++(*  under the terms of the Q Public License version 1.0.               *)
++(*                                                                     *)
++(***********************************************************************)
++
++(* $Id: emit.mlp,v 1.2 2003/06/30 11:29:26 xleroy Exp $ *)
++
++(* Emission of Intel 386 assembly code *)
++
++open Misc
++open Cmm
++open Arch
++open Proc
++open Reg
++open Mach
++open Linearize
++open Emitaux
++
++(* Tradeoff between code size and code speed *)
++
++let fastcode_flag = ref true
++
++let stack_offset = ref 0
++
++(* Layout of the stack frame *)
++
++let frame_required () =
++  !contains_calls || num_stack_slots.(0) > 0 || num_stack_slots.(1) > 0
++
++let frame_size () =                     (* includes return address *)
++  let sz = (!stack_offset + 8 * (num_stack_slots.(0) + num_stack_slots.(1)) + 8)
++  in Misc.align sz 16
++
++let slot_offset loc cl =
++  match loc with
++    Incoming n -> frame_size() + n
++  | Local n ->
++      if cl = 0
++      then !stack_offset + n * 8
++      else !stack_offset + (num_stack_slots.(0) + n) * 8
++  | Outgoing n -> n
++
++(* Symbols *)
++
++let emit_symbol s =
++  Emitaux.emit_symbol '$' s
++
++(* Output a label *)
++
++let emit_label lbl =
++  emit_string ".L"; emit_int lbl
++
++(* Output a .align directive. *)
++
++let emit_align n =
++  `	.align	{emit_int n}\n`
++  
++let emit_Llabel fallthrough lbl =
++  if not fallthrough && !fastcode_flag then emit_align 4;
++  emit_label lbl
++  
++(* Output a pseudo-register *)
++
++let emit_reg = function
++    { loc = Reg r } ->
++      emit_string (register_name r)
++  | { loc = Stack s } as r ->
++      let ofs = slot_offset s (register_class r) in
++      `{emit_int ofs}(%rsp)`
++  | { loc = Unknown } ->
++      assert false
++
++(* Output a reference to the lower 8, 16 or 32 bits of a register *)
++
++let reg_low_8_name =
++  [| "%al"; "%bl"; "%dil"; "%sil"; "%dl"; "%cl"; "%r8b"; "%r9b"; 
++     "%r10b"; "%r11b"; "%bpl"; "%r12b"; "%r13b" |]
++let reg_low_16_name =
++  [| "%ax"; "%bx"; "%di"; "%si"; "%dx"; "%cx"; "%r8w"; "%r9w"; 
++     "%r10w"; "%r11w"; "%bp"; "%r12w"; "%r13w" |]
++let reg_low_32_name =
++  [| "%eax"; "%ebx"; "%edi"; "%esi"; "%edx"; "%ecx"; "%r8d"; "%r9d"; 
++     "%r10d"; "%r11d"; "%ebp"; "%r12d"; "%r13d" |]
++
++let emit_subreg tbl r =
++  match r.loc with
++    Reg r when r < 13 ->
++      emit_string tbl.(r)
++  | Stack s ->
++      let ofs = slot_offset s (register_class r) in
++      `{emit_int ofs}(%rsp)`
++  | _ ->
++      assert false
++
++let emit_reg8 r = emit_subreg reg_low_8_name r
++let emit_reg16 r = emit_subreg reg_low_16_name r
++let emit_reg32 r = emit_subreg reg_low_32_name r
++
++(* Output an addressing mode *)
++
++let emit_addressing addr r n =
++  match addr with
++    Ibased(s, d) ->
++      `{emit_symbol s}`;
++      if d <> 0 then ` + {emit_int d}`;
++      `(%rip)`
++  | Iindexed d ->
++      if d <> 0 then emit_int d;
++      `({emit_reg r.(n)})`
++  | Iindexed2 d ->
++      if d <> 0 then emit_int d;
++      `({emit_reg r.(n)}, {emit_reg r.(n+1)})`
++  | Iscaled(2, d) ->
++      if d <> 0 then emit_int d;
++      `({emit_reg r.(n)}, {emit_reg r.(n)})`
++  | Iscaled(scale, d) ->
++      if d <> 0 then emit_int d;
++      `(, {emit_reg r.(n)}, {emit_int scale})`
++  | Iindexed2scaled(scale, d) ->
++      if d <> 0 then emit_int d;
++      `({emit_reg r.(n)}, {emit_reg r.(n+1)}, {emit_int scale})`
++
++(* Record live pointers at call points *)
++
++type frame_descr =
++  { fd_lbl: int;                        (* Return address *)
++    fd_frame_size: int;                 (* Size of stack frame *)
++    fd_live_offset: int list }          (* Offsets/regs of live addresses *)
++
++let frame_descriptors = ref([] : frame_descr list)
++
++let record_frame_label live =
++  let lbl = new_label() in
++  let live_offset = ref [] in
++  Reg.Set.iter
++    (function
++        {typ = Addr; loc = Reg r} ->
++          live_offset := ((r lsl 1) + 1) :: !live_offset
++      | {typ = Addr; loc = Stack s} as reg ->
++          live_offset := slot_offset s (register_class reg) :: !live_offset
++      | _ -> ())
++    live;
++  frame_descriptors :=
++    { fd_lbl = lbl;
++      fd_frame_size = frame_size();
++      fd_live_offset = !live_offset } :: !frame_descriptors;
++  lbl
++
++let record_frame live =
++  let lbl = record_frame_label live in `{emit_label lbl}:\n`
++
++let emit_frame fd =
++  `	.quad	{emit_label fd.fd_lbl}\n`;
++  `	.word	{emit_int fd.fd_frame_size}\n`;
++  `	.word	{emit_int (List.length fd.fd_live_offset)}\n`;
++  List.iter
++    (fun n ->
++      `	.word	{emit_int n}\n`)
++    fd.fd_live_offset;
++  emit_align 8
++
++(* Record calls to the GC -- we've moved them out of the way *)
++
++type gc_call =
++  { gc_lbl: label;                      (* Entry label *)
++    gc_return_lbl: label;               (* Where to branch after GC *)
++    gc_frame: label }                   (* Label of frame descriptor *)
++
++let call_gc_sites = ref ([] : gc_call list)
++
++let emit_call_gc gc =
++  `{emit_label gc.gc_lbl}:	call	{emit_symbol "caml_call_gc"}\n`;
++  `{emit_label gc.gc_frame}:	jmp	{emit_label gc.gc_return_lbl}\n`
++
++(* Names for instructions *)
++
++let instr_for_intop = function
++    Iadd -> "addq"
++  | Isub -> "subq"
++  | Imul -> "imulq"
++  | Iand -> "andq"
++  | Ior -> "orq"
++  | Ixor -> "xorq"
++  | Ilsl -> "salq"
++  | Ilsr -> "shrq"
++  | Iasr -> "sarq"
++  | _ -> assert false
++
++let instr_for_floatop = function
++    Iaddf -> "addsd"
++  | Isubf -> "subsd"
++  | Imulf -> "mulsd"
++  | Idivf -> "divsd"
++  | _ -> assert false
++
++let instr_for_floatarithmem = function
++    Ifloatadd -> "addsd"
++  | Ifloatsub -> "subsd"
++  | Ifloatmul -> "mulsd"
++  | Ifloatdiv -> "divsd"
++
++let name_for_cond_branch = function
++    Isigned Ceq -> "e"     | Isigned Cne -> "ne"
++  | Isigned Cle -> "le"     | Isigned Cgt -> "g"
++  | Isigned Clt -> "l"     | Isigned Cge -> "ge"
++  | Iunsigned Ceq -> "e"   | Iunsigned Cne -> "ne"
++  | Iunsigned Cle -> "be"  | Iunsigned Cgt -> "a"
++  | Iunsigned Clt -> "b"  | Iunsigned Cge -> "ae"
++    
++(* Output an = 0 or <> 0 test. *)
++
++let output_test_zero arg =
++  match arg.loc with
++    Reg r -> `	testq	{emit_reg arg}, {emit_reg arg}\n`
++  | _     -> `	cmpq	$0, {emit_reg arg}\n`
++
++(* Output a floating-point compare and branch *)
++
++let emit_float_test cmp neg arg lbl =
++  begin match cmp with
++  | Ceq | Cne -> `	ucomisd	`
++  | _         -> `	comisd	`
++  end;
++  `{emit_reg arg.(1)}, {emit_reg arg.(0)}\n`;
++  let (branch_opcode, need_jp) =
++    match (cmp, neg) with
++      (Ceq, false) -> ("je", true)
++    | (Ceq, true)  -> ("jne", true)
++    | (Cne, false) -> ("jne", true)
++    | (Cne, true)  -> ("je", true)
++    | (Clt, false) -> ("jb", true)
++    | (Clt, true)  -> ("jae", true)
++    | (Cle, false) -> ("jbe", true)
++    | (Cle, true)  -> ("ja", true)
++    | (Cgt, false) -> ("ja", false)
++    | (Cgt, true)  -> ("jbe", false)
++    | (Cge, false) -> ("jae", true)
++    | (Cge, true)  -> ("jb", false) in
++  let branch_if_not_comparable =
++    if cmp = Cne then not neg else neg in
++  if need_jp then
++    if branch_if_not_comparable then begin
++      `	jp	{emit_label lbl}\n`;
++      `	{emit_string branch_opcode}	{emit_label lbl}\n`
++    end else begin
++      let next = new_label() in
++      `	jp	{emit_label next}\n`;
++      `	{emit_string branch_opcode}	{emit_label lbl}\n`;
++      `{emit_label next}:\n`
++    end
++  else begin
++    `	{emit_string branch_opcode}	{emit_label lbl}\n`
++  end
++
++(* Deallocate the stack frame before a return or tail call *)
++
++let output_epilogue () =
++  if frame_required() then begin
++    let n = frame_size() - 8 in
++    `	addq	${emit_int n}, %rsp\n`
++  end
++
++(* Output the assembly code for an instruction *)
++
++(* Name of current function *)
++let function_name = ref ""
++(* Entry point for tail recursive calls *)
++let tailrec_entry_point = ref 0
++(* Label of trap for out-of-range accesses *)
++let range_check_trap = ref 0
++
++let float_constants = ref ([] : (int * string) list)
++
++let emit_instr fallthrough i =
++    match i.desc with
++      Lend -> ()
++    | Lop(Imove | Ispill | Ireload) ->
++        let src = i.arg.(0) and dst = i.res.(0) in
++        if src.loc <> dst.loc then begin
++          if src.typ = Float then
++            `	movsd	{emit_reg src}, {emit_reg dst}\n`
++          else
++              `	movq	{emit_reg src}, {emit_reg dst}\n`
++        end
++    | Lop(Iconst_int n) ->
++        if n = Nativeint.zero then begin
++          match i.res.(0).loc with
++            Reg n -> `	xorq	{emit_reg i.res.(0)}, {emit_reg i.res.(0)}\n`
++          | _     -> `	movq	$0, {emit_reg i.res.(0)}\n`
++        end else if n <= Nativeint.of_int(0x7FFFFFFF) && n >= Nativeint.of_int(-0x80000000) then
++          `	movq	${emit_nativeint n}, {emit_reg i.res.(0)}\n`
++        else
++          `	movabsq	${emit_nativeint n}, {emit_reg i.res.(0)}\n`
++    | Lop(Iconst_float s) ->
++        let f = float_of_string s in
++        if f = 0.0 then
++          `	xorpd	{emit_reg i.res.(0)}, {emit_reg i.res.(0)}\n`
++        else begin
++          let lbl = new_label() in
++          float_constants := (lbl, s) :: !float_constants;
++          `	movlpd	{emit_label lbl}(%rip), {emit_reg i.res.(0)}\n`
++        end
++    | Lop(Iconst_symbol s) ->
++        `	movq	${emit_symbol s}, {emit_reg i.res.(0)}\n`
++    | Lop(Icall_ind) ->
++        `	call	*{emit_reg i.arg.(0)}\n`;
++        record_frame i.live
++    | Lop(Icall_imm s) ->
++        `	call	{emit_symbol s}\n`;
++        record_frame i.live
++    | Lop(Itailcall_ind) ->
++        output_epilogue();
++        `	jmp	*{emit_reg i.arg.(0)}\n`
++    | Lop(Itailcall_imm s) ->
++        if s = !function_name then
++          `	jmp	{emit_label !tailrec_entry_point}\n`
++        else begin
++          output_epilogue();
++          `	jmp	{emit_symbol s}\n`
++        end
++    | Lop(Iextcall(s, alloc)) ->
++        if alloc then begin
++          `	movq	${emit_symbol s}, %rax\n`;
++          `	call	{emit_symbol "caml_c_call"}\n`;
++          record_frame i.live
++        end else begin
++          `	call	{emit_symbol s}\n`
++        end
++    | Lop(Istackoffset n) ->
++        if n < 0
++        then `	addq	${emit_int(-n)}, %rsp\n`
++        else `	subq	${emit_int(n)}, %rsp\n`;
++        stack_offset := !stack_offset + n
++    | Lop(Iload(chunk, addr)) ->
++        let dest = i.res.(0) in
++        begin match chunk with
++          | Word ->
++              `	movq	{emit_addressing addr i.arg 0}, {emit_reg dest}\n`
++          | Byte_unsigned ->
++              `	movzbq	{emit_addressing addr i.arg 0}, {emit_reg dest}\n`
++          | Byte_signed ->
++              `	movsbq	{emit_addressing addr i.arg 0}, {emit_reg dest}\n`
++          | Sixteen_unsigned ->
++              `	movzwq	{emit_addressing addr i.arg 0}, {emit_reg dest}\n`
++          | Sixteen_signed ->
++              `	movswq	{emit_addressing addr i.arg 0}, {emit_reg dest}\n`
++          | Thirtytwo_unsigned ->
++              `	movl	{emit_addressing addr i.arg 0}, {emit_reg32 dest}\n`
++          | Thirtytwo_signed ->
++              `	movslq	{emit_addressing addr i.arg 0}, {emit_reg dest}\n`
++          | Single ->
++            `	cvtss2sd {emit_addressing addr i.arg 0}, {emit_reg dest}\n`
++          | Double | Double_u ->
++            `	movlpd	{emit_addressing addr i.arg 0}, {emit_reg dest}\n`
++        end
++    | Lop(Istore(chunk, addr)) ->
++        begin match chunk with
++          | Word ->
++            `	movq	{emit_reg i.arg.(0)}, {emit_addressing addr i.arg 1}\n`
++          | Byte_unsigned | Byte_signed ->
++            `	movb	{emit_reg8 i.arg.(0)}, {emit_addressing addr i.arg 1}\n`
++          | Sixteen_unsigned | Sixteen_signed ->
++            `	movw	{emit_reg16 i.arg.(0)}, {emit_addressing addr i.arg 1}\n`
++          | Thirtytwo_signed | Thirtytwo_unsigned ->
++            `	movl	{emit_reg32 i.arg.(0)}, {emit_addressing addr i.arg 1}\n`
++          | Single ->
++            `	cvtsd2ss {emit_reg i.arg.(0)}, %xmm15\n`;
++            `	movss	%xmm15, {emit_addressing addr i.arg 1}\n`
++          | Double | Double_u ->
++            `	movlpd	{emit_reg i.arg.(0)}, {emit_addressing addr i.arg 1}\n`
++        end
++    | Lop(Ialloc n) ->
++        if !fastcode_flag then begin
++          let lbl_redo = new_label() in
++          `{emit_label lbl_redo}:	subq	${emit_int n}, %r15\n`;
++          `	cmpq	{emit_symbol "young_limit"}(%rip), %r15\n`;
++          let lbl_call_gc = new_label() in
++          let lbl_frame = record_frame_label i.live in
++          `	jb	{emit_label lbl_call_gc}\n`;
++          `	leaq	8(%r15), {emit_reg i.res.(0)}\n`;
++          call_gc_sites :=
++            { gc_lbl = lbl_call_gc;
++              gc_return_lbl = lbl_redo;
++              gc_frame = lbl_frame } :: !call_gc_sites
++        end else begin
++          begin match n with
++            16  -> `	call	{emit_symbol "caml_alloc1"}\n`
++          | 24 -> `	call	{emit_symbol "caml_alloc2"}\n`
++          | 32 -> `	call	{emit_symbol "caml_alloc3"}\n`
++          | _  -> `	movq	${emit_int n}, %rax\n`;
++                  `	call	{emit_symbol "caml_alloc"}\n`
++          end;
++          `{record_frame i.live}	leaq	8(%r15), {emit_reg i.res.(0)}\n`
++        end
++    | Lop(Iintop(Icomp cmp)) ->
++        `	cmpq	{emit_reg i.arg.(1)}, {emit_reg i.arg.(0)}\n`;
++        let b = name_for_cond_branch cmp in
++        `	set{emit_string b}	%al\n`;
++        `	movzbq	%al, {emit_reg i.res.(0)}\n`
++    | Lop(Iintop_imm(Icomp cmp, n)) ->
++        `	cmpq	${emit_int n}, {emit_reg i.arg.(0)}\n`;
++        let b = name_for_cond_branch cmp in
++        `	set{emit_string b}	%al\n`;
++        `	movzbq	%al, {emit_reg i.res.(0)}\n`
++    | Lop(Iintop Icheckbound) ->
++        if !range_check_trap = 0 then range_check_trap := new_label();
++        `	cmpq	{emit_reg i.arg.(1)}, {emit_reg i.arg.(0)}\n`;
++        `	jbe	{emit_label !range_check_trap}\n`
++    | Lop(Iintop_imm(Icheckbound, n)) ->
++        if !range_check_trap = 0 then range_check_trap := new_label();
++        `	cmpq	${emit_int n}, {emit_reg i.arg.(0)}\n`;
++        `	jbe	{emit_label !range_check_trap}\n`
++    | Lop(Iintop(Idiv | Imod)) ->
++        `	cqto\n`;
++        `	idivq	{emit_reg i.arg.(1)}\n`
++    | Lop(Iintop(Ilsl | Ilsr | Iasr as op)) ->
++        (* We have i.arg.(0) = i.res.(0) and i.arg.(1) = %rcx *)
++        `	{emit_string(instr_for_intop op)}	%cl, {emit_reg i.res.(0)}\n`
++    | Lop(Iintop op) ->
++        (* We have i.arg.(0) = i.res.(0) *)
++        `	{emit_string(instr_for_intop op)}	{emit_reg i.arg.(1)}, {emit_reg i.res.(0)}\n`
++    | Lop(Iintop_imm(Iadd, n)) when i.arg.(0).loc <> i.res.(0).loc ->
++        `	leaq	{emit_int n}({emit_reg i.arg.(0)}), {emit_reg i.res.(0)}\n`
++    | Lop(Iintop_imm(Iadd, 1) | Iintop_imm(Isub, -1)) ->
++        `	incq	{emit_reg i.res.(0)}\n`
++    | Lop(Iintop_imm(Iadd, -1) | Iintop_imm(Isub, 1)) ->
++        `	decq	{emit_reg i.res.(0)}\n`
++    | Lop(Iintop_imm(Idiv, n)) ->
++        (* Note: i.arg.(0) = i.res.(0) = rdx  (cf. selection.ml) *)
++        let l = Misc.log2 n in
++        `	movq	{emit_reg i.arg.(0)}, %rax\n`;
++        `	addq	${emit_int(n-1)}, {emit_reg i.arg.(0)}\n`;
++        `	testq	%rax, %rax\n`;
++        `	cmovns	%rax, {emit_reg i.arg.(0)}\n`;
++        `	sarq	${emit_int l}, {emit_reg i.res.(0)}\n`
++    | Lop(Iintop_imm(Imod, n)) ->
++        (* Note: i.arg.(0) = i.res.(0) = rdx  (cf. selection.ml) *)
++        let l = Misc.log2 n in
++        `	movq	{emit_reg i.arg.(0)}, %rax\n`;
++        `	testq	%rax, %rax\n`;
++        `	leaq	{emit_int(n-1)}(%rax), %rax\n`;
++        `	cmovns	{emit_reg i.arg.(0)}, %rax\n`;
++        `	andq	${emit_int (-n)}, %rax\n`;
++        `	subq	%rax, {emit_reg i.res.(0)}\n`
++    | Lop(Iintop_imm(op, n)) ->
++        (* We have i.arg.(0) = i.res.(0) *)
++        `	{emit_string(instr_for_intop op)}	${emit_int n}, {emit_reg i.res.(0)}\n`
++    | Lop(Inegf) ->
++        `	xorpd	{emit_symbol "caml_negf_mask"}(%rip), {emit_reg i.res.(0)}\n`
++    | Lop(Iabsf) ->
++        `	andpd	{emit_symbol "caml_absf_mask"}(%rip), {emit_reg i.res.(0)}\n`
++    | Lop(Iaddf | Isubf | Imulf | Idivf as floatop) ->
++        `	{emit_string(instr_for_floatop floatop)}	{emit_reg i.arg.(1)}, {emit_reg i.res.(0)}\n`
++    | Lop(Ifloatofint) ->
++        `	cvtsi2sdq	{emit_reg i.arg.(0)}, {emit_reg i.res.(0)}\n`
++    | Lop(Iintoffloat) ->
++        `	cvttsd2siq	{emit_reg i.arg.(0)}, {emit_reg i.res.(0)}\n`
++    | Lop(Ispecific(Ilea addr)) ->
++        `	leaq	{emit_addressing addr i.arg 0}, {emit_reg i.res.(0)}\n`
++    | Lop(Ispecific(Istore_int(n, addr))) ->
++        `	movq	${emit_nativeint n}, {emit_addressing addr i.arg 0}\n`
++    | Lop(Ispecific(Istore_symbol(s, addr))) ->
++        `	movq	${emit_symbol s}, {emit_addressing addr i.arg 0}\n`
++    | Lop(Ispecific(Ioffset_loc(n, addr))) ->
++        `	addq	${emit_int n}, {emit_addressing addr i.arg 0}\n`
++    | Lop(Ispecific(Ifloatarithmem(op, addr))) ->
++        `	{emit_string(instr_for_floatarithmem op)}	{emit_addressing addr i.arg 1}, {emit_reg i.res.(0)}\n`
++    | Lreloadretaddr ->
++        ()
++    | Lreturn ->
++        output_epilogue();
++        `	ret\n`
++    | Llabel lbl ->
++        `{emit_Llabel fallthrough lbl}:\n`
++    | Lbranch lbl ->
++        `	jmp	{emit_label lbl}\n`
++    | Lcondbranch(tst, lbl) ->
++        begin match tst with
++          Itruetest ->
++            output_test_zero i.arg.(0);
++            `	jne	{emit_label lbl}\n`
++        | Ifalsetest ->
++            output_test_zero i.arg.(0);
++            `	je	{emit_label lbl}\n`
++        | Iinttest cmp ->
++            `	cmpq	{emit_reg i.arg.(1)}, {emit_reg i.arg.(0)}\n`;
++            let b = name_for_cond_branch cmp in
++            `	j{emit_string b}	{emit_label lbl}\n`
++        | Iinttest_imm((Isigned Ceq | Isigned Cne | 
++                        Iunsigned Ceq | Iunsigned Cne) as cmp, 0) ->
++            output_test_zero i.arg.(0);
++            let b = name_for_cond_branch cmp in
++            `	j{emit_string b}	{emit_label lbl}\n`
++        | Iinttest_imm(cmp, n) ->
++            `	cmpq	${emit_int n}, {emit_reg i.arg.(0)}\n`;
++            let b = name_for_cond_branch cmp in
++            `	j{emit_string b}	{emit_label lbl}\n`
++        | Ifloattest(cmp, neg) ->
++            emit_float_test cmp neg i.arg lbl
++        | Ioddtest ->
++            `	testb	$1, {emit_reg8 i.arg.(0)}\n`;
++            `	jne	{emit_label lbl}\n`
++        | Ieventest ->
++            `	testb	$1, {emit_reg8 i.arg.(0)}\n`;
++            `	je	{emit_label lbl}\n`
++        end
++    | Lcondbranch3(lbl0, lbl1, lbl2) ->
++            `	cmpq	$1, {emit_reg i.arg.(0)}\n`;
++            begin match lbl0 with
++              None -> ()
++            | Some lbl -> `	jb	{emit_label lbl}\n`
++            end;
++            begin match lbl1 with
++              None -> ()
++            | Some lbl -> `	je	{emit_label lbl}\n`
++            end;
++            begin match lbl2 with
++              None -> ()
++            | Some lbl -> `	jg	{emit_label lbl}\n`
++            end
++    | Lswitch jumptbl ->
++        let lbl = new_label() in
++        `	jmp	*{emit_label lbl}(, {emit_reg i.arg.(0)}, 8)\n`;
++        `	.section .rodata\n`;
++        emit_align 8;
++        `{emit_label lbl}:`;
++        for i = 0 to Array.length jumptbl - 1 do
++          `	.quad	{emit_label jumptbl.(i)}\n`
++        done;
++        `	.text\n`
++    | Lsetuptrap lbl ->
++        `	call	{emit_label lbl}\n`
++    | Lpushtrap ->
++        `	pushq	%r14\n`;
++        `	movq	%rsp, %r14\n`;
++        stack_offset := !stack_offset + 16
++    | Lpoptrap ->
++        `	popq	%r14\n`;
++        `	addq	$8, %rsp\n`;
++        stack_offset := !stack_offset - 16
++    | Lraise ->
++        `	movq	%r14, %rsp\n`;
++        `	popq	%r14\n`;
++        `	ret\n`
++
++let rec emit_all fallthrough i =
++  match i.desc with
++  |  Lend -> ()
++  | _ ->
++      emit_instr fallthrough i;
++      emit_all (Linearize.has_fallthrough i.desc) i.next
++
++(* Emission of the floating-point constants *)
++
++let emit_float_constant (lbl, cst) =
++  `{emit_label lbl}:	.double	{emit_string cst}\n`
++
++(* Emission of the profiling prelude -- FIXME *)
++
++let emit_profile () =
++  match Config.system with
++    "linux_elf" ->
++      `	pushl	%eax\n`;
++      `	movl	%esp, %ebp\n`;
++      `	pushl	%ecx\n`;
++      `	pushl	%edx\n`;
++      `	call	{emit_symbol "mcount"}\n`;
++      `	popl	%edx\n`;
++      `	popl	%ecx\n`;
++      `	popl	%eax\n`
++  | "bsd_elf" ->
++      `	pushl	%eax\n`;
++      `	movl	%esp, %ebp\n`;
++      `	pushl	%ecx\n`;
++      `	pushl	%edx\n`;
++      `	call	.mcount\n`;
++      `	popl	%edx\n`;
++      `	popl	%ecx\n`;
++      `	popl	%eax\n`
++  | _ -> () (*unsupported yet*)
++
++(* Emission of a function declaration *)
++
++let fundecl fundecl =
++  function_name := fundecl.fun_name;
++  fastcode_flag := fundecl.fun_fast;
++  tailrec_entry_point := new_label();
++  stack_offset := 0;
++  float_constants := [];
++  call_gc_sites := [];
++  range_check_trap := 0;
++  `	.text\n`;
++  emit_align 16;
++  `	.globl	{emit_symbol fundecl.fun_name}\n`;
++  `{emit_symbol fundecl.fun_name}:\n`;
++  if !Clflags.gprofile then emit_profile();
++  if frame_required() then begin
++    let n = frame_size() - 8 in
++    `	subq	${emit_int n}, %rsp\n`
++  end;
++  `{emit_label !tailrec_entry_point}:\n`;
++  emit_all true fundecl.fun_body;
++  List.iter emit_call_gc !call_gc_sites;
++  if !range_check_trap > 0 then
++    `{emit_label !range_check_trap}:	call	{emit_symbol "caml_array_bound_error"}\n`;
++    (* Never returns, but useful to have retaddr on stack for debugging *)
++  if !float_constants <> [] then begin
++    `	.section	.rodata.cst8,\"aM\",@progbits,8\n`;
++    List.iter emit_float_constant !float_constants
++  end
++
++(* Emission of data *)
++
++let emit_item = function
++    Cdefine_symbol s ->
++      `	.globl	{emit_symbol s}\n`;
++      `{emit_symbol s}:\n`
++  | Cdefine_label lbl ->
++      `{emit_label (100000 + lbl)}:\n`
++  | Cint8 n ->
++      `	.byte	{emit_int n}\n`
++  | Cint16 n ->
++      `	.word	{emit_int n}\n`
++  | Cint32 n ->
++      `	.long	{emit_nativeint n}\n`
++  | Cint n ->
++      `	.quad	{emit_nativeint n}\n`
++  | Csingle f ->
++      `	.float	{emit_string f}\n`
++  | Cdouble f ->
++      `	.double	{emit_string f}\n`
++  | Csymbol_address s ->
++      `	.quad	{emit_symbol s}\n`
++  | Clabel_address lbl ->
++      `	.quad	{emit_label (100000 + lbl)}\n`
++  | Cstring s ->
++      emit_string_directive "	.ascii	" s
++  | Cskip n ->
++      if n > 0 then `	.space	{emit_int n}\n`
++  | Calign n ->
++      emit_align n
++
++let data l =
++  `	.data\n`;
++  List.iter emit_item l
++
++(* Beginning / end of an assembly file *)
++
++let begin_assembly() =
++  let lbl_begin = Compilenv.current_unit_name() ^ "__data_begin" in
++  `	.data\n`;
++  `	.globl	{emit_symbol lbl_begin}\n`;
++  `{emit_symbol lbl_begin}:\n`;
++  let lbl_begin = Compilenv.current_unit_name() ^ "__code_begin" in
++  `	.text\n`;
++  `	.globl	{emit_symbol lbl_begin}\n`;
++  `{emit_symbol lbl_begin}:\n`
++
++let end_assembly() =
++  let lbl_end = Compilenv.current_unit_name() ^ "__code_end" in
++  `	.text\n`;
++  `	.globl	{emit_symbol lbl_end}\n`;
++  `{emit_symbol lbl_end}:\n`;
++  `	.data\n`;
++  let lbl_end = Compilenv.current_unit_name() ^ "__data_end" in
++  `	.globl	{emit_symbol lbl_end}\n`;
++  `{emit_symbol lbl_end}:\n`;
++  `	.long	0\n`;
++  let lbl = Compilenv.current_unit_name() ^ "__frametable" in
++  `	.globl	{emit_symbol lbl}\n`;
++  `{emit_symbol lbl}:\n`;
++  `	.quad	{emit_int (List.length !frame_descriptors)}\n`;
++  List.iter emit_frame !frame_descriptors;
++  frame_descriptors := []
+--- ocaml-3.06/asmrun/amd64.S.amd64	2003-07-24 06:37:55.000000000 -0400
++++ ocaml-3.06/asmrun/amd64.S	2003-07-24 06:37:55.000000000 -0400
+@@ -0,0 +1,335 @@
++/***********************************************************************/
++/*                                                                     */
++/*                           Objective Caml                            */
++/*                                                                     */
++/*            Xavier Leroy, projet Cristal, INRIA Rocquencourt         */
++/*                                                                     */
++/*  Copyright 2003 Institut National de Recherche en Informatique et   */
++/*  en Automatique.  All rights reserved.  This file is distributed    */
++/*  under the terms of the GNU Library General Public License, with    */
++/*  the special exception on linking described in file ../LICENSE.     */
++/*                                                                     */
++/***********************************************************************/
++
++/* $Id: amd64.S,v 1.1 2003/06/30 08:28:45 xleroy Exp $ */
++
++/* Asm part of the runtime system, AMD64 processor */
++/* Must be preprocessed by cpp */
++
++#define FUNCTION_ALIGN 4
++
++#define FUNCTION(name) \
++        .globl name; \
++        .type  name,@function; \
++        .align FUNCTION_ALIGN; \
++        name:
++
++        .text
++
++/* Allocation */
++
++FUNCTION(caml_call_gc)
++    /* Record lowest stack address and return address */
++        movq    0(%rsp), %rax
++        movq    %rax, caml_last_return_address(%rip)
++        leaq    8(%rsp), %rax
++        movq    %rax, caml_bottom_of_stack(%rip)
++    /* Save young_ptr, caml_exception_pointer */
++	movq	%r15, young_ptr(%rip)
++	movq	%r14, caml_exception_pointer(%rip)
++    /* Build array of registers, save it into caml_gc_regs */
++.L105:  
++        pushq   %r13
++        pushq   %r12
++        pushq   %rbp
++        pushq   %r11
++        pushq   %r10
++        pushq   %r9
++        pushq   %r8
++        pushq   %rcx
++        pushq   %rdx
++        pushq   %rsi
++        pushq   %rdi
++        pushq   %rbx
++        pushq   %rax
++        movq    %rsp, caml_gc_regs
++    /* Save floating-point registers */
++        subq    $(16*8), %rsp
++        movlpd  %xmm0, 0*8(%rsp)
++        movlpd  %xmm1, 1*8(%rsp)
++        movlpd  %xmm2, 2*8(%rsp)
++        movlpd  %xmm3, 3*8(%rsp)
++        movlpd  %xmm4, 4*8(%rsp)
++        movlpd  %xmm5, 5*8(%rsp)
++        movlpd  %xmm6, 6*8(%rsp)
++        movlpd  %xmm7, 7*8(%rsp)
++        movlpd  %xmm8, 8*8(%rsp)
++        movlpd  %xmm9, 9*8(%rsp)
++        movlpd  %xmm10, 10*8(%rsp)
++        movlpd  %xmm11, 11*8(%rsp)
++        movlpd  %xmm12, 12*8(%rsp)
++        movlpd  %xmm13, 13*8(%rsp)
++        movlpd  %xmm14, 14*8(%rsp)
++        movlpd  %xmm15, 15*8(%rsp)
++    /* Call the garbage collector */
++        call    garbage_collection
++    /* Restore all regs used by the code generator */
++        movlpd  0*8(%rsp), %xmm0
++        movlpd  1*8(%rsp), %xmm1
++        movlpd  2*8(%rsp), %xmm2
++        movlpd  3*8(%rsp), %xmm3
++        movlpd  4*8(%rsp), %xmm4
++        movlpd  5*8(%rsp), %xmm5
++        movlpd  6*8(%rsp), %xmm6
++        movlpd  7*8(%rsp), %xmm7
++        movlpd  8*8(%rsp), %xmm8
++        movlpd  9*8(%rsp), %xmm9
++        movlpd  10*8(%rsp), %xmm10
++        movlpd  11*8(%rsp), %xmm11
++        movlpd  12*8(%rsp), %xmm12
++        movlpd  13*8(%rsp), %xmm13
++        movlpd  14*8(%rsp), %xmm14
++        movlpd  15*8(%rsp), %xmm15
++        addq    $(16*8), %rsp
++        popq    %rax
++        popq    %rbx
++        popq    %rdi
++        popq    %rsi
++        popq    %rdx
++        popq    %rcx
++        popq    %r8
++        popq    %r9
++        popq    %r10
++        popq    %r11
++        popq    %rbp
++        popq    %r12
++        popq    %r13
++    /* Restore young_ptr, caml_exception_pointer */
++	movq	young_ptr(%rip), %r15
++	movq	caml_exception_pointer(%rip), %r14
++    /* Return to caller */
++        ret
++
++FUNCTION(caml_alloc1)
++        subq    $16, %r15
++        cmpq    young_limit(%rip), %r15
++        jb      .L100
++        ret
++.L100:
++        movq    0(%rsp), %rax
++        movq    %rax, caml_last_return_address(%rip)
++        leaq    8(%rsp), %rax
++        movq    %rax, caml_bottom_of_stack(%rip)
++	subq	$8, %rsp
++        call    .L105
++	addq	$8, %rsp
++        jmp     caml_alloc1
++
++FUNCTION(caml_alloc2)
++        subq    $24, %r15
++        cmpq    young_limit(%rip), %r15
++        jb      .L101
++        ret
++.L101:
++        movq    0(%rsp), %rax
++        movq    %rax, caml_last_return_address(%rip)
++        leaq    8(%rsp), %rax
++        movq    %rax, caml_bottom_of_stack(%rip)
++	subq	$8, %rsp
++        call    .L105
++	addq	$8, %rsp
++        jmp     caml_alloc2
++
++FUNCTION(caml_alloc3)
++        subq    $32, %r15
++        cmpq    young_limit(%rip), %r15
++        jb      .L102
++        ret
++.L102:
++        movq    0(%rsp), %rax
++        movq    %rax, caml_last_return_address(%rip)
++        leaq    8(%rsp), %rax
++        movq    %rax, caml_bottom_of_stack(%rip)
++	subq	$8, %rsp
++        call    .L105
++	addq	$8, %rsp
++        jmp     caml_alloc3
++
++FUNCTION(caml_alloc)
++        subq    %rax, %r15
++        cmpq    young_limit(%rip), %r15
++        jb      .L103
++        ret
++.L103:
++        pushq   %rax                       /* save desired size */
++        movq    8(%rsp), %rax
++        movq    %rax, caml_last_return_address(%rip)
++        leaq    16(%rsp), %rax
++        movq    %rax, caml_bottom_of_stack(%rip)
++        call    .L105
++        popq    %rax                      /* recover desired size */
++        jmp     caml_alloc
++
++/* Call a C function from Caml */
++
++FUNCTION(caml_c_call)
++    /* Record lowest stack address and return address */
++        popq    %r12
++        movq    %r12, caml_last_return_address(%rip)
++        movq    %rsp, caml_bottom_of_stack(%rip)
++    /* Make the exception handler and alloc ptr available to the C code */
++	movq	%r15, young_ptr(%rip)
++	movq	%r14, caml_exception_pointer(%rip)
++    /* Call the function (address in %rax) */
++        call    *%rax
++    /* Reload alloc ptr */
++	movq	young_ptr(%rip), %r15
++    /* Return to caller */
++	pushq	%r12
++	ret
++
++/* Start the Caml program */
++
++FUNCTION(caml_start_program)
++    /* Save callee-save registers */
++        pushq   %rbx
++        pushq   %rbp
++        pushq   %r12
++        pushq   %r13
++        pushq   %r14
++        pushq   %r15
++	subq	$8, %rsp	/* stack 16-aligned */
++    /* Initial entry point is caml_program */
++        leaq    caml_program(%rip), %r12
++    /* Common code for caml_start_program and callback* */
++.L106:
++    /* Build a callback link */
++	subq	$8, %rsp	/* stack 16-aligned */
++        pushq   caml_gc_regs(%rip)
++        pushq   caml_last_return_address(%rip)
++        pushq   caml_bottom_of_stack(%rip)
++    /* Setup alloc ptr and exception ptr */
++	movq	young_ptr(%rip), %r15
++	movq	caml_exception_pointer(%rip), %r14
++    /* Build an exception handler */
++        lea     .L108(%rip), %r13
++        pushq   %r13
++        pushq   %r14
++        movq    %rsp, %r14
++    /* Call the Caml code */
++        call    *%r12
++.L107:
++    /* Pop the exception handler */
++        popq    %r14
++        popq    %r12    /* dummy register */
++.L109:
++    /* Update alloc ptr and exception ptr */
++	movq	%r15, young_ptr(%rip)
++	movq	%r14, caml_exception_pointer(%rip)
++    /* Pop the callback link, restoring the global variables */
++        popq    caml_bottom_of_stack(%rip)
++        popq    caml_last_return_address(%rip)
++        popq    caml_gc_regs(%rip)
++	addq	$8, %rsp
++    /* Restore callee-save registers. */
++	addq	$8, %rsp
++        popq    %r15
++        popq    %r14
++        popq    %r13
++        popq    %r12
++        popq    %rbp
++        popq    %rbx
++    /* Return to caller. */
++        ret
++.L108:
++    /* Exception handler*/
++    /* Mark the bucket as an exception result and return it */
++        orq     $2, %rax
++        jmp     .L109
++
++/* Raise an exception from C */
++
++FUNCTION(raise_caml_exception)
++        movq    %rdi, %rax
++        movq    caml_exception_pointer(%rip), %rsp
++        popq    caml_exception_pointer(%rip)
++        ret
++
++/* Callback from C to Caml */
++
++FUNCTION(callback_exn)
++    /* Save callee-save registers */
++        pushq   %rbx
++        pushq   %rbp
++        pushq   %r12
++        pushq   %r13
++        pushq   %r14
++        pushq   %r15
++	subq	$8, %rsp	/* stack 16-aligned */
++    /* Initial loading of arguments */
++        movq    %rdi, %rbx      /* closure */
++        movq    %rsi, %rax      /* argument */
++        movq    0(%rbx), %r12   /* code pointer */
++        jmp     .L106
++
++FUNCTION(callback2_exn)
++    /* Save callee-save registers */
++        pushq   %rbx
++        pushq   %rbp
++        pushq   %r12
++        pushq   %r13
++        pushq   %r14
++        pushq   %r15
++	subq	$8, %rsp	/* stack 16-aligned */
++    /* Initial loading of arguments */
++        /* closure stays in %rdi */
++        movq    %rsi, %rax               /* first argument */
++        movq    %rdx, %rbx               /* second argument */
++        leaq    caml_apply2(%rip), %r12  /* code pointer */
++        jmp     .L106
++
++FUNCTION(callback3_exn)
++    /* Save callee-save registers */
++        pushq   %rbx
++        pushq   %rbp
++        pushq   %r12
++        pushq   %r13
++        pushq   %r14
++        pushq   %r15
++	subq	$8, %rsp	/* stack 16-aligned */
++    /* Initial loading of arguments */
++        movq    %rsi, %rax               /* first argument */
++        movq    %rdx, %rbx               /* second argument */
++        movq    %rdi, %rsi               /* closure */
++        movq    %rcx, %rdi               /* third argument */
++        leaq    caml_apply3(%rip), %r12  /* code pointer */
++        jmp     .L106
++
++FUNCTION(caml_array_bound_error)
++    /* Make the exception handler and alloc ptr available to the C code */
++	movq	%r15, young_ptr(%rip)
++	movq	%r14, caml_exception_pointer(%rip)
++	jmp	array_bound_error	
++
++        .data
++        .globl  system__frametable
++        .type   system__frametable,@object
++        .align  8
++system__frametable:
++        .quad   1           /* one descriptor */
++        .quad   .L107       /* return address into callback */
++        .value  -1          /* negative frame size => use callback link */
++        .value  0           /* no roots here */
++        .align  8
++
++	.section	.rodata.cst8,"aM",@progbits,8
++        .globl  caml_negf_mask
++        .type   caml_negf_mask,@object
++        .align  16
++caml_negf_mask:
++	.quad	0x8000000000000000, 0
++        .globl  caml_absf_mask
++        .type   caml_absf_mask,@object
++        .align  16
++caml_absf_mask:
++	.quad	0x7FFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF
+--- ocaml-3.06/asmrun/stack.h.amd64	2001-12-07 08:39:21.000000000 -0500
++++ ocaml-3.06/asmrun/stack.h	2003-07-24 06:37:55.000000000 -0400
+@@ -79,6 +79,11 @@
+ #define Callback_link(sp) ((struct caml_context *)((sp) + 32))
+ #endif
+ 
++#ifdef TARGET_amd64
++#define Saved_return_address(sp) *((long *)((sp) - 8))
++#define Callback_link(sp) ((struct caml_context *)((sp) + 16))
++#endif
++
+ /* Structure of Caml callback contexts */
+ 
+ struct caml_context {
+--- ocaml-3.06/byterun/interp.c.amd64	2002-05-25 04:32:53.000000000 -0400
++++ ocaml-3.06/byterun/interp.c	2003-07-24 06:37:55.000000000 -0400
+@@ -168,6 +168,11 @@ sp is a local copy of the global variabl
+ #define ACCU_REG asm("38")
+ #define JUMPTBL_BASE_REG asm("39")
+ #endif
++#ifdef __x86_64__
++#define PC_REG asm("%r15")
++#define SP_REG asm("%r14")
++#define ACCU_REG asm("%r13")
++#endif
+ #endif
+ 
+ /* Division and modulus madness */
+--- ocaml-3.06/configure.amd64	2003-07-24 06:37:55.000000000 -0400
++++ ocaml-3.06/configure	2003-07-24 06:37:55.000000000 -0400
+@@ -536,6 +536,7 @@ case "$host" in
+   powerpc-*-darwin*)            arch=power; model=ppc; system=rhapsody;;
+   arm*-*-linux*)                arch=arm; system=linux;;
+   ia64-*-linux*)                arch=ia64; system=linux;;
++  x86_64-*-linux*)              arch=amd64; system=linux;;
+ esac
+ 
+ if test -z "$ccoption"; then
+@@ -599,6 +600,7 @@ case "$arch,$model,$system" in
+   arm,*,linux)      aspp='gcc'; asppflags='-c -DSYS_$(SYSTEM)';;
+   ia64,*,linux)     asflags=-xexplicit
+                     aspp='gcc'; asppflags='-c -DSYS_$(SYSTEM) -Wa,-xexplicit';;
++  amd64,*,*)        aspp='gcc'; asppflags='-c -DSYS_$(SYSTEM)';;
+ esac
+ 
+ case "$arch,$model,$system" in

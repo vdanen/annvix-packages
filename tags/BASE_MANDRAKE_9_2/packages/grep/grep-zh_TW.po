@@ -1,0 +1,328 @@
+# grep 2.4.2
+# Copyright (C) 2000 Free Software Foundation, Inc.
+# Jing-Jong Shyue <shyue@sonoma.com.tw>, 2000.
+# Reviewed/modified by Abel Cheung <maddog@linux.org.hk>, 2001.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: grep 2.4.2\n"
+"POT-Creation-Date: 2000-02-02 01:04-0500\n"
+"PO-Revision-Date: 2001-05-02 11:02+0800\n"
+"Last-Translator: Jing-Jong Shyue <shyue@sonoma.com.tw>\n"
+"Language-Team: chinese <zh@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: src/dfa.c:163 src/dfa.c:174 src/dfa.c:185 src/grep.c:902
+msgid "Memory exhausted"
+msgstr "記憶體不足"
+
+#: src/dfa.c:448
+msgid "Unfinished \\ escape"
+msgstr "未完成的 \\ 跳出字元"
+
+#. Cases:
+#. {M} - exact count
+#. {M,} - minimum count, maximum is infinity
+#. {M,N} - M through N
+#: src/dfa.c:581 src/dfa.c:587 src/dfa.c:597 src/dfa.c:605 src/dfa.c:620
+msgid "unfinished repeat count"
+msgstr "未完成的重複記數"
+
+#: src/dfa.c:594 src/dfa.c:611 src/dfa.c:619 src/dfa.c:623
+msgid "malformed repeat count"
+msgstr "異常的重複記數"
+
+#: src/dfa.c:688 src/dfa.c:691 src/dfa.c:718 src/dfa.c:722 src/dfa.c:723
+#: src/dfa.c:726 src/dfa.c:739 src/dfa.c:740
+msgid "Unbalanced ["
+msgstr "不對等的 ["
+
+#: src/dfa.c:886
+msgid "Unbalanced ("
+msgstr "不對等的 ("
+
+#: src/dfa.c:1000
+msgid "No syntax specified"
+msgstr "未指定語法"
+
+#: src/dfa.c:1008
+msgid "Unbalanced )"
+msgstr "不對等的 )"
+
+#: src/dfa.c:1994
+msgid "out of memory"
+msgstr "記憶體不足"
+
+#: src/getopt.c:675
+#, c-format
+msgid "%s: option `%s' is ambiguous\n"
+msgstr "%s：選項 `%s' 含混不清\n"
+
+#: src/getopt.c:700
+#, c-format
+msgid "%s: option `--%s' doesn't allow an argument\n"
+msgstr "%s：選項 `--%s' 不允許參數\n"
+
+#: src/getopt.c:705
+#, c-format
+msgid "%s: option `%c%s' doesn't allow an argument\n"
+msgstr "%s：選項 `%c%s' 不允許參數\n"
+
+#: src/getopt.c:723 src/getopt.c:896
+#, c-format
+msgid "%s: option `%s' requires an argument\n"
+msgstr "%s：選項 `%s' 需要參數\n"
+
+#. --option
+#: src/getopt.c:752
+#, c-format
+msgid "%s: unrecognized option `--%s'\n"
+msgstr "%s：未知的選項 `--%s'\n"
+
+#. +option or -option
+#: src/getopt.c:756
+#, c-format
+msgid "%s: unrecognized option `%c%s'\n"
+msgstr "%s：未知的選項 `%c%s'\n"
+
+#. 1003.2 specifies the format of this message.
+#: src/getopt.c:782
+#, c-format
+msgid "%s: illegal option -- %c\n"
+msgstr "%s：不合法的選項 -- %c\n"
+
+#: src/getopt.c:785
+#, c-format
+msgid "%s: invalid option -- %c\n"
+msgstr "%s：無效的選項 -- %c\n"
+
+#. 1003.2 specifies the format of this message.
+#: src/getopt.c:815 src/getopt.c:945
+#, c-format
+msgid "%s: option requires an argument -- %c\n"
+msgstr "%s：選項需要參數 -- %c\n"
+
+#: src/getopt.c:862
+#, c-format
+msgid "%s: option `-W %s' is ambiguous\n"
+msgstr "%s：選項 `-W %s' 含混不清\n"
+
+#: src/getopt.c:880
+#, c-format
+msgid "%s: option `-W %s' doesn't allow an argument\n"
+msgstr "%s：選項 `-W %s' 不允許參數\n"
+
+#: src/grep.c:185 src/grep.c:200 src/grep.c:293 src/grep.c:399 src/kwset.c:180
+#: src/kwset.c:186 src/obstack.c:471
+msgid "memory exhausted"
+msgstr "記憶體不足"
+
+#: src/grep.c:550 src/grep.c:1441
+msgid "writing output"
+msgstr "寫入輸出"
+
+#: src/grep.c:777
+#, c-format
+msgid "Binary file %s matches\n"
+msgstr "二進位檔 %s 符合\n"
+
+#: src/grep.c:791
+msgid "(standard input)"
+msgstr "(標準輸入)"
+
+#: src/grep.c:887
+#, c-format
+msgid "%s: warning: %s: %s\n"
+msgstr "%s：警告：%s：%s\n"
+
+#: src/grep.c:888
+msgid "recursive directory loop"
+msgstr "遞迴路徑形成了迴圈"
+
+#: src/grep.c:938
+#, c-format
+msgid "Usage: %s [OPTION]... PATTERN [FILE]...\n"
+msgstr "用法：%s [選項]... 樣式 [檔案]...\n"
+
+#: src/grep.c:939
+#, c-format
+msgid "Try `%s --help' for more information.\n"
+msgstr "使用 `%s --help' 以取得更多資訊。\n"
+
+#: src/grep.c:943
+#, c-format
+msgid "Usage: %s [OPTION]... PATTERN [FILE] ...\n"
+msgstr "用法: %s [選項]... 樣式 [檔案] ...\n"
+
+#: src/grep.c:944
+#, c-format
+msgid ""
+"Search for PATTERN in each FILE or standard input.\n"
+"Example: %s -i 'hello world' menu.h main.c\n"
+"\n"
+"Regexp selection and interpretation:\n"
+msgstr ""
+"在每個檔案或標準輸入中找尋符合的樣式 (PATTERN)。\n"
+"範例：%s -i 'hello world' menu.h main.c\n"
+"\n"
+"正規表示法選擇與判斷：\n"
+
+#: src/grep.c:949
+msgid ""
+"  -E, --extended-regexp     PATTERN is an extended regular expression\n"
+"  -F, --fixed-strings       PATTERN is a set of newline-separated strings\n"
+"  -G, --basic-regexp        PATTERN is a basic regular expression\n"
+msgstr ""
+"  -E, --extended-regexp     PATTERN 是擴充的正規表示法\n"
+"  -F, --fixed-strings       PATTERN 是一組以行分隔的字串\n"
+"  -G, --basic-regexp        PATTERN 是基本的正規表示法\n"
+
+#: src/grep.c:953
+msgid ""
+"  -e, --regexp=PATTERN      use PATTERN as a regular expression\n"
+"  -f, --file=FILE           obtain PATTERN from FILE\n"
+"  -i, --ignore-case         ignore case distinctions\n"
+"  -w, --word-regexp         force PATTERN to match only whole words\n"
+"  -x, --line-regexp         force PATTERN to match only whole lines\n"
+"  -z, --null-data           a data line ends in 0 byte, not newline\n"
+msgstr ""
+"  -e, --regexp=PATTERN      使用 PATTERN 為正規表示式\n"
+"  -f, --file=FILE           由 FILE 中取得 PATTERN\n"
+"  -i, --ignore-case         忽略大小寫分辨\n"
+"  -w, --word-regexp         強制整個字符合 PATTERN\n"
+"  -x, --line-regexp         強制整行符合 PATTERN\n"
+"  -z, --null-data           資料行以位元組 0 分隔，而不是新行字元\n"
+
+#: src/grep.c:960
+msgid ""
+"\n"
+"Miscellaneous:\n"
+"  -s, --no-messages         suppress error messages\n"
+"  -v, --invert-match        select non-matching lines\n"
+"  -V, --version             print version information and exit\n"
+"      --help                display this help and exit\n"
+"      --mmap                use memory-mapped input if possible\n"
+msgstr ""
+"\n"
+"雜項:\n"
+"  -s, --no-messages         抑制錯誤訊息\n"
+"  -v, --invert-match        選擇不符合的行\n"
+"  -V, --version             印出版本資訊並離開\n"
+"      --help                顯示這個說明並離開\n"
+"      --mmap                如果可行的話使用記憶體對映(memory-mapped)輸入\n"
+
+#: src/grep.c:968
+msgid ""
+"\n"
+"Output control:\n"
+"  -b, --byte-offset         print the byte offset with output lines\n"
+"  -n, --line-number         print line number with output lines\n"
+"  -H, --with-filename       print the filename for each match\n"
+"  -h, --no-filename         suppress the prefixing filename on output\n"
+"  -q, --quiet, --silent     suppress all normal output\n"
+"      --binary-files=TYPE   assume that binary files are TYPE\n"
+"                            TYPE is 'binary', 'text', or 'without-match'.\n"
+"  -a, --text                equivalent to --binary-files=text\n"
+"  -I                        equivalent to --binary-files=without-match\n"
+"  -d, --directories=ACTION  how to handle directories\n"
+"                            ACTION is 'read', 'recurse', or 'skip'.\n"
+"  -r, --recursive           equivalent to --directories=recurse.\n"
+"  -L, --files-without-match only print FILE names containing no match\n"
+"  -l, --files-with-matches  only print FILE names containing matches\n"
+"  -c, --count               only print a count of matching lines per FILE\n"
+"  -Z, --null                print 0 byte after FILE name\n"
+msgstr ""
+"\n"
+"輸出控制:\n"
+"  -b, --byte-offset         在輸出中同時印出位移位元組數\n"
+"  -n, --line-number         在輸出中同時印出行號\n"
+"  -H, --with-filename       在每一個符合的輸出中印出檔名\n"
+"  -h, --no-filename         抑制檔名的輸出\n"
+"  -q, --quiet, --silent     抑制所有正常的輸出\n"
+"      --binary-files=TYPE   假設所有二進位檔的類型是 TYPE\n"
+"                            TYPE 可以是 'binary'、'text' 或 "
+"'without-match'。\n"
+"  -a, --text                相同於 --binary-files=text\n"
+"  -I                        相同於 --binary-files=without-match\n"
+"  -d, --directories=ACTION  如何處理路徑\n"
+"                            ACTION 可以是 'read'、'recurse' 或 'skip'。\n"
+"  -r, --recursive           相同於 --directories=recurse.\n"
+"  -L, --files-without-match 只列出內容不符合樣式的檔案名稱\n"
+"  -l, --files-with-matches  只列出內容符合樣式的檔案名稱\n"
+"  -c, --count               只列出每個檔案中符合樣式的行總數\n"
+"  -Z, --null                在檔名後印出位元組 0\n"
+
+#: src/grep.c:987
+msgid ""
+"\n"
+"Context control:\n"
+"  -B, --before-context=NUM  print NUM lines of leading context\n"
+"  -A, --after-context=NUM   print NUM lines of trailing context\n"
+"  -C, --context[=NUM]       print NUM (default 2) lines of output context\n"
+"                            unless overridden by -A or -B\n"
+"  -NUM                      same as --context=NUM\n"
+"  -U, --binary              do not strip CR characters at EOL (MSDOS)\n"
+"  -u, --unix-byte-offsets   report offsets as if CRs were not there (MSDOS)\n"
+"\n"
+"`egrep' means `grep -E'.  `fgrep' means `grep -F'.\n"
+"With no FILE, or when FILE is -, read standard input.  If less than\n"
+"two FILEs given, assume -h.  Exit status is 0 if match, 1 if no match,\n"
+"and 2 if trouble.\n"
+msgstr ""
+"\n"
+"列出相關行控制:\n"
+"  -B, --before-context=NUM  印出符合行與之前的 NUM 行\n"
+"  -A, --after-context=NUM   印出符合行與之後的 NUM 行\n"
+"  -C, --context[=NUM]       印出符合行與之前後各 NUM 行 (預設為2)\n"
+"                            除非被 -A 或 -B 選項蓋過\n"
+"  -NUM                      相同於 --context=NUM\n"
+"  -U, --binary              不要在 EOL 中除去 CR 字元 (MSDOS)\n"
+"  -u, --unix-byte-offsets   看成是 CR 字元不存在般回報位移數 (MSDOS)\n"
+"\n"
+"`egrep' 等於 `grep -E'。  `fgrep' 等於 `grep -F'。\n"
+"如果沒有指定檔案或檔案為 '-'，將讀取標準輸入。\n"
+"如果指定少於二個檔案，自動使用 -h (抑制檔名輸出)。\n"
+"若找到符合資料傳回值為 0，找不到則傳回 1，發生錯誤則傳回 2。\n"
+
+#: src/grep.c:1002
+msgid ""
+"\n"
+"Report bugs to <bug-gnu-utils@gnu.org>.\n"
+msgstr ""
+"\n"
+"請回報錯誤到 <bug-gnu-utils@gnu.org>。\n"
+
+#: src/grep.c:1012
+msgid "conflicting matchers specified"
+msgstr "指定了相衝突的選項"
+
+#: src/grep.c:1203 src/grep.c:1210 src/grep.c:1219
+msgid "invalid context length argument"
+msgstr "錯誤的相關行長度參數"
+
+#: src/grep.c:1273
+msgid "unknown directories method"
+msgstr "不明的路徑處理方式"
+
+#: src/grep.c:1358
+msgid "unknown binary-files type"
+msgstr "不明的二進位檔案類別"
+
+#: src/grep.c:1378
+#, c-format
+msgid "%s (GNU grep) %s\n"
+msgstr "%s (GNU grep) %s\n"
+
+#: src/grep.c:1380
+msgid "Copyright 1988, 1992-1999, 2000 Free Software Foundation, Inc.\n"
+msgstr "版權 1988, 1992-1999, 2000 Free Software Foundation, Inc.\n"
+
+#: src/grep.c:1382
+msgid ""
+"This is free software; see the source for copying conditions. There is NO\n"
+"warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n"
+msgstr ""
+"這是自由軟件；請見源始碼的授權條款。它沒有擔保；\n"
+"甚至沒有可售性或適合於特定目的的保証。\n"
