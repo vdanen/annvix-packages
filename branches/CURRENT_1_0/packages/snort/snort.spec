@@ -1,6 +1,6 @@
 %define name	snort
 %define version	2.1.0
-%define release	7avx
+%define release	8avx
 
 # this is so the binaries won't be stripped so people will submit
 # meaningful bugreports
@@ -20,7 +20,7 @@ Source0:	http://www.snort.org/dl/%{name}-%{version}.tar.bz2
 Source1:	snortd.run
 Source2:	snortd-log.run
 Patch1:		snort-2.1.0-lib64.patch.bz2
-Patch2:		snort-2.1.0-logrotate.patch.bz2
+Patch2:		snort-2.1.0-avx-logrotate.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-root
 BuildRequires:	autoconf
@@ -425,6 +425,10 @@ update-alternatives --remove %{name} %{_sbindir}/%{name}-bloat
 %attr(755,root,root) %{_sbindir}/%{name}-bloat
 
 %changelog
+* Fri Sep 17 2004 Vincent Danen <vdanen@annvix.org> 2.1.0-8avx
+- update run scripts
+- update logrotate patch
+
 * Tue Aug 17 2004 Vincent Danen <vdanen@annvix.org> 2.1.0-7avx
 - rebuild against new openssl
 

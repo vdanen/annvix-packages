@@ -1,7 +1,7 @@
 #!/bin/sh
 PATH="/sbin:/usr/sbin:/bin:/usr/bin:$PATH"
 
-# this runs snortd under supervise for a single interface (eth0 by default)
+# this runs snortd supervised for a single interface (eth0 by default)
 
 # Source the local configuration file
 . /etc/sysconfig/snort
