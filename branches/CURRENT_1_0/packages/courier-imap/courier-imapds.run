@@ -38,7 +38,6 @@ if [ "$TLS_CACHEFILE" != "" ]; then
 fi
 
 exec /sbin/chpst -m "$MAX_MEMORY" \
-  /usr/bin/tcpserver -c"$CONCURRENCY" -vRhX \
-  -x /etc/tcprules.d/imapd-ssl.cdb -l"$HOSTNAME" \
+  /sbin/tcpsvd -c"$CONCURRENCY" -v -l"$HOSTNAME" -i./peers \
   $SSLADDRESS $SSLPORT /usr/bin/couriertls -server -tcpd /usr/sbin/imaplogin $LIBAUTHMODULES \
   /usr/bin/imapd Maildir 2>&1

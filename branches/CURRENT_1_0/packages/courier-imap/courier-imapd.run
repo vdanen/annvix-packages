@@ -38,7 +38,6 @@ IMAP_STARTTLS=$IMAPDSTARTTLS; export IMAP_STARTTLS
 TLS_PROTOCOL=$TLS_STARTTLS_PROTOCOL; export TLS_PROTOCOL
 
 exec /sbin/chpst -m "$MAX_MEMORY" \
-  /usr/bin/tcpserver -c"$CONCURRENCY" -vRhX \
-  -x /etc/tcprules.d/imapd.cdb -l"$HOSTNAME" \
+  /sbin/tcpsvd -c"$CONCURRENCY" -v -l"$HOSTNAME" -i./peers \
   $ADDRESS $PORT /usr/sbin/imaplogin $LIBAUTHMODULES \
   /usr/bin/imapd Maildir 2>&1
