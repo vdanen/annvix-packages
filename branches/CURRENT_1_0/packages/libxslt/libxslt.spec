@@ -1,6 +1,6 @@
 %define name	libxslt
 %define version	1.0.33
-%define release	3sls
+%define release	4avx
 
 %define xml_version_required	2.5.6
 %define major			1
@@ -142,6 +142,9 @@ rm -rf $RPM_BUILD_ROOT%{_docdir}/%{name}-%{version} \
 %{_datadir}/aclocal/*
 
 %changelog
+* Wed Jun 22 2004 Vincent Danen <vdanen@annvix.org> 1.0.33-4avx
+- Annvix build
+
 * Sat Mar 06 2004 Vincent Danen <vdanen@opensls.org> 1.0.33-3sls
 - minor spec cleanups
 
