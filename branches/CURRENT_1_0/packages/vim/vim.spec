@@ -1,6 +1,6 @@
 %define name	vim
 %define version	6.2
-%define release	13sls
+%define release	14sls
 
 # Notes / Warning :
 # - this package is not prefixable
@@ -39,8 +39,8 @@ Patch27:	vim-6.1-rpm42.patch.bz2
 Patch28:	vim-6.1-po-mode.patch.bz2
 Patch29:	vim-6.2-spec-mode.diff.bz2
 
-BuildRoot: %_tmppath/%name-%version
-BuildRequires: perl-devel termcap-devel
+BuildRoot:	%_tmppath/%name-%version
+BuildRequires:	perl-devel termcap-devel
 
 %description
 VIM (VIsual editor iMproved) is an updated and improved version of the vi
@@ -160,7 +160,7 @@ ln -s tutor.fr runtime/tutor/tutor.br
 ln -s menu_fr_fr.iso_8859-15.vim runtime/lang/menu_br
 
 %install
-rm -fr $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 [ ! -e mandrake ] && mv vim-%version.%{official_ptchlvl}-patches mandrake
 
@@ -296,8 +296,7 @@ update-alternatives --remove vim /usr/bin/vim-enhanced
 :
 
 %clean
-rm -rf $RPM_BUILD_ROOT
-rm -rf $RPM_BUILD_DIR/$RPM_PACKAGE_NAME
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files common -f vim.lang
 %defattr(-,root,root)
@@ -334,6 +333,9 @@ rm -rf $RPM_BUILD_DIR/$RPM_PACKAGE_NAME
 %_bindir/vimdiff
 
 %changelog
+* Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 6.2-14sls
+- minor spec cleanups
+
 * Mon Jan 12 2004 Vincent Danen <vdanen@opensls.org> 6.2-13sls
 - remove %%build_opensls tags
 

@@ -1,6 +1,6 @@
 %define name	util-linux
 %define version	2.11z
-%define release	8sls
+%define release	9sls
 
 # Maintainer util-linux@math.uio.no
 
@@ -119,8 +119,8 @@ others, Util-linux contains the fdisk configuration tool and the
 login program.
 
 %package -n mount
-Summary: Programs for mounting and unmounting filesystems.
-Group: System/Base
+Summary:	Programs for mounting and unmounting filesystems.
+Group:		System/Base
 
 %description -n mount
 The mount package contains the mount, umount, swapon and swapoff
@@ -132,8 +132,8 @@ from the tree.  Swapon and swapoff, respectively, specify and disable
 devices and files for paging and swapping.
 
 %package -n losetup
-Summary: Programs for setting up and configuring loopback devices.
-Group: System/Configuration/Networking
+Summary:	Programs for setting up and configuring loopback devices.
+Group:		System/Configuration/Networking
 
 %description -n losetup
 Linux supports a special block device called the loop device, which
@@ -250,7 +250,7 @@ pushd sys-utils
 popd
 
 %install
-rm -rf ${RPM_BUILD_ROOT}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p ${RPM_BUILD_ROOT}/{bin,sbin}
 mkdir -p ${RPM_BUILD_ROOT}%{_bindir}
 mkdir -p ${RPM_BUILD_ROOT}%{_infodir}
@@ -332,7 +332,7 @@ rm -f $RPM_BUILD_ROOT/sbin/sln
 %find_lang %name
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
 %_install_info ipc.info
@@ -366,6 +366,7 @@ fi
 /sbin/pivot_root
 %ifnarch s390 s390x
 /sbin/clock
+%{_sbindir}/clock
 %endif
 /sbin/ctrlaltdel
 /sbin/elvtune
@@ -557,6 +558,9 @@ fi
 /sbin/losetup
 
 %changelog
+* Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 2.11z-9sls
+- minor spec cleanups
+
 * Mon Dec 01 2003 Vincent Danen <vdanen@opensls.org> 2.11z-8sls
 - OpenSLS build
 - tidy spec

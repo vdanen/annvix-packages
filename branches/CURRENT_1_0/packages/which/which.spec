@@ -1,6 +1,6 @@
 %define name	which
 %define version	2.14
-%define release	6sls
+%define release	7sls
 
 Summary:	Displays where a particular program in your path is located.
 Name:		%{name}
@@ -33,13 +33,13 @@ the specified program is in your PATH.
 %make
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
 rm -rf %buildroot/%_infodir/dir
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
 %_install_info %{name}.info
@@ -55,6 +55,9 @@ rm -rf $RPM_BUILD_ROOT
 %_infodir/*
 
 %changelog
+* Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 2.14-7sls
+- minor spec cleanups
+
 * Mon Dec 01 2003 Vincent Danen <vdanen@opensls.org> 2.14-6sls
 - OpenSLS build
 - tidy spec

@@ -1,6 +1,6 @@
 %define name	uschedule
 %define version	0.7.0
-%define release	1mdk
+%define release	2sls
 
 Summary:	Scheduling service
 Name:		%{name}
@@ -10,10 +10,11 @@ License:	LGPL
 Group:		System/Servers
 URL:		http://www.ohse.de/uwe/uschedule.html
 Source0:	%{name}-%{version}.tar.gz
-Requires:	daemontools
+
+BuildRoot:	%{_tmppath}/%{name}-%{version}
 BuildRequires:	dietlibc-devel >= 0.20
-Buildroot:	%{_tmppath}/%{name}-%{version}
-Packager:	Oden Eriksson <oden.eriksson@deserve-it.com>
+
+Requires:	daemontools
 
 %description
 uschedule is not cron and uschedule is not at - it does offer
@@ -75,5 +76,8 @@ popd
 %{_mandir}/man8/*
 
 %changelog
+* Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 0.7.0-2sls
+- minor spec cleanups
+
 * Wed Dec 31 2003 Oden Eriksson <oden.eriksson@deserve-it.com> 0.7.0-1mdk
 - initial package

@@ -1,6 +1,6 @@
 %define name	words
 %define version	2
-%define release	20sls
+%define release	21sls
 
 %define _dict_dir /usr/share/dict/
 
@@ -33,14 +33,14 @@ spelling.
 %build
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p $RPM_BUILD_ROOT%{_dict_dir}
 
 cp usr/dict/linux.words $RPM_BUILD_ROOT/%{_dict_dir}
 ln -sf linux.words $RPM_BUILD_ROOT%{_dict_dir}words
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -50,6 +50,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_dict_dir}words
 
 %changelog
+* Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 2-21sls
+- minor spec cleanups
+
 * Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 2-20sls
 - OpenSLS build
 - tidy spec

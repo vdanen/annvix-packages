@@ -1,6 +1,6 @@
 %define name	unixODBC
 %define version	2.2.6
-%define release	7sls
+%define release	8sls
 
 %define LIBMAJ 	2
 %define libname %mklibname %name %LIBMAJ
@@ -143,7 +143,7 @@ perl -pi -e "s@/lib(\"|\b[^/])@/%_lib\1@g if /(kde|qt)_(libdirs|libraries)=/" co
 make
 
 %install
-rm -fr %buildroot
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 # Short Circuit Compliant (tm).
 [ ! -f doc/Makefile ] && {
@@ -264,7 +264,7 @@ rm -f %{buildroot}%{_libdir}/libodbcinstQ.so.1.0.0
 
 
 %clean
-rm -rf $RPM_BUILD_ROOT 
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 rm -f libodbc-libs.filelist
 
 %if %gtk_gui
@@ -347,6 +347,9 @@ rm -f libodbc-libs.filelist
 %endif
 
 %changelog
+* Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 2.2.6-8sls
+- minor spec cleanups
+
 * Mon Jan 12 2004 Vincent Danen <vdanen@opensls.org> 2.2.6-7sls
 - remove %%build_opensls macros
 - sync with 2.2.7-2mdk (sbenedict):
