@@ -1,33 +1,30 @@
-# OE: conditional switches
-#(ie. use with rpm --rebuild):
-#	--with diet	Compile gradm against dietlibc
+%define name	gradm
+%define version	2.0
+%define release	0.5sls
 
-%define build_diet 0
+%define pre_rc		rc3
+%define build_diet	0
 
 # commandline overrides:
 # rpm -ba|--rebuild --with 'xxx'
 %{?_with_diet: %{expand: %%define build_diet 1}}
 
-%define name	gradm
-%define version	2.0
-%define pre_rc  rc3
-%define release	0.4mdk
-
 Summary:	Userspace ACL parsing and authentication for grsecurity
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
+License:	GPL
+Group:		System/Base
+URL:		http://www.grsecurity.net/
 Source0:	%{name}-%{version}-%{pre_rc}.tar.gz
 Source1:	%{name}-%{version}-%{pre_rc}.tar.gz.sign
 Source2:	%{name}-ACL.tar.bz2
 Patch1:		remove_devfs_from_makefile.patch.bz2
-URL:		http://www.grsecurity.net/
-License:	GPL
-Group:		System/Base
-#Requires:	kernel-secure >=2.4.22-0.1mdk
-BuildRequires:	binutils flex findutils byacc bison glibc-static-devel
+
 BuildRoot:	%{_tmppath}/%{name}-buildroot
-Prefix:		%{_prefix}
+BuildRequires:	binutils flex findutils byacc bison glibc-static-devel
+
+#Requires:	kernel-secure >=2.4.22-0.1mdk
 
 %if %{build_diet}
 BuildRequires:	/usr/bin/diet
@@ -41,14 +38,12 @@ ticated via a password to the kernel and parsing ACLs to be
 passed to the kernel.
 
 %prep
-
 %setup -q -n %{name}2 -a2
 
 %patch1 -p1
 
 
 %build
-
 %if %{build_diet}
 # OE: use the power of dietlibc
 # NOTE: currently it just segfaults, but it may work in the future
@@ -87,6 +82,10 @@ fi
 %attr(0644,root,root) %{_mandir}/man8/%{name}.8*
 
 %changelog
+* Fri Jan 23 2004 Vincent Danen <vdanen@opensls.org> 2.0-0.5sls
+- OpenSLS build
+- tidy spec
+- remove %%_prefix
 
 * Tue Dec 30 2003 Michael Scherer <misc@mandrake.org> 2.0-0.4mdk 
 - fix [DIRM] %{_sysconfdir}/grsec
