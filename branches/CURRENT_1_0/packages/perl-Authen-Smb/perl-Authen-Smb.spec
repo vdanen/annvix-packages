@@ -1,7 +1,7 @@
 %define module	Authen-Smb
 %define name	perl-%{module}
 %define version	0.91
-%define release	4sls
+%define release	5sls
 
 Summary:	Authen::Smb Perl module
 Name:		%{name}
@@ -29,11 +29,11 @@ make
 make test
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %{makeinstall_std}
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(644,root,root,755)
@@ -42,6 +42,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man3/*
 
 %changelog
+* Wed Feb 25 2004 Vincent Danen <vdanen@opensls.org> 0.91-5sls
+- rebuild for new perl
+- some spec cleanups
+
 * Sat Jan 31 2004 Vincent Danen <vdanen@opensls.org> 0.91-4sls
 - OpenSLS build
 - tidy spec

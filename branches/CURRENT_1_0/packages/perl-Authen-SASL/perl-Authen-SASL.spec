@@ -1,7 +1,7 @@
 %define module	Authen-SASL
 %define name	perl-%{module}
 %define version 2.04
-%define release 3sls
+%define release 4sls
 
 Summary:	%{module} module for perl
 Name:		%{name}
@@ -29,12 +29,12 @@ Requires:	perl
 make
 make test
 
-%clean 
-rm -rf $RPM_BUILD_ROOT
-
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
+
+%clean
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -43,6 +43,10 @@ rm -rf $RPM_BUILD_ROOT
 %{perl_vendorlib}/Authen
 
 %changelog
+* Wed Feb 25 2004 Vincent Danen <vdanen@opensls.org> 2.04-4sls
+- rebuild for new perl
+- some spec cleanups
+
 * Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 2.04-3sls
 - OpenSLS build
 - tidy spec

@@ -1,7 +1,7 @@
 %define name	perl-%{module}
 %define module	Apache-Session
 %define version	1.54
-%define release	7sls
+%define release	8sls
 
 Summary:	%{module}: Apache persistent user sessions
 Name:		%{name}
@@ -35,16 +35,16 @@ CFLAGS="$RPM_OPT_FLAGS" %{__perl} Makefile.PL INSTALLDIRS=vendor
 make
 make test
 
-%clean 
-rm -rf $RPM_BUILD_ROOT
-
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 eval `perl '-V:installarchlib'`
 mkdir -p $RPM_BUILD_ROOT/$installarchlib
 make PREFIX=$RPM_BUILD_ROOT%{_prefix} install
 %__os_install_post
 find $RPM_BUILD_ROOT%{_prefix} -type f -print | sed "s@^$RPM_BUILD_ROOT@@g" | grep -v perllocal.pod > %{module}-%{version}-filelist
+
+%clean 
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 
 %files
@@ -54,6 +54,10 @@ find $RPM_BUILD_ROOT%{_prefix} -type f -print | sed "s@^$RPM_BUILD_ROOT@@g" | gr
 %{perl_vendorlib}/Apache/*
 
 %changelog
+* Wed Feb 25 2004 Vincent Danen <vdanen@opensls.org> 1.54-8sls
+- rebuild for new perl
+- some spec cleanups
+
 * Sat Jan 03 2004 Vincent Danen <vdanen@opensls.org> 1.54-7sls
 - OpenSLS build
 - tidy spec
