@@ -1,6 +1,6 @@
 %define name	lvm
-%define version 1.0.7
-%define release 3sls
+%define version 1.0.8
+%define release 1sls
 
 Summary:	Logical Volume Manager administration tools
 Name:		%{name}
@@ -8,8 +8,8 @@ Version:	%{version}
 Release:	%{release}
 License:	GPL
 Group:		System/Kernel and hardware
-URL:		http://lvm.msede.com/lvm/
-Source0:	ftp://linux.msede.com/lvm/current/%{name}_%{version}.tar.bz2
+URL:		http://www.sistina.com/products_lvm.htm
+Source0:	ftp://ftp.sistina.com/pub/LVM/1.0/%{name}_%{version}.tar.bz2
 
 Patch1:		LVM-1.0.1-fix-kernel-headers-build.patch.bz2
 Patch2:		LVM-1.0.1-static.patch.bz2
@@ -36,13 +36,13 @@ cd %{version}
 %make
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 cd %{version}
 %makeinstall_std OWNER=$UID GROUP=$GROUPS staticlibdir=%{_libdir}
 rm -rf $RPM_BUILD_ROOT/%{_lib} $RPM_BUILD_ROOT/%{_libdir}
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -53,6 +53,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man8/*
 
 %changelog
+* Fri Mar  5 2004 Thomas Backlund <tmb@mandrake.org> 1.0.8-1sls
+- update to 1.0.8 to match 2.4.25 kernel and support
+  future move to lvm2
+  
 * Fri Jan 23 2004 Vincent Danen <vdanen@opensls.org> 1.0.7-3sls
 - OpenSLS build
 - tidy spec
