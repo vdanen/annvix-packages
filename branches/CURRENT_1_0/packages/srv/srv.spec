@@ -1,6 +1,6 @@
 %define name	srv
-%define version 0.4
-%define release 2sls
+%define version 0.5
+%define release 1sls
 
 Summary:	Tool to manage supervise-controlled services.
 Name: 		%{name}
@@ -75,6 +75,11 @@ rm -rf $RPM_BUILD_DIR/%{name}-%{version}
 %{_mandir}/man1/*
 
 %changelog
+* Tue May 11 2004 Vincent Danen <vdanen@opensls.org> 0.5-1sls
+- 0.5:
+  - nice overall status summary
+  - fixed the handling of services that don't come with a log service
+
 * Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 0.4-2sls
 - fix from Oden to handle restarts better
 
