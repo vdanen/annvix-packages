@@ -1,6 +1,6 @@
 %define name	apache2
 %define version	2.0.49
-%define release	3avx
+%define release	4avx
 
 #
 #(ie. use with rpm --rebuild):
@@ -103,6 +103,7 @@ Patch5:			httpd-2.0.48-distcache.patch.bz2
 # OE: http://bitbrook.de/software/mod_log_mysql/
 Patch6:			httpd-2.0.49-mod_log_mysql.diff.bz2
 Patch7:			apache-2.0-can-2004-0488.patch.bz2
+Patch8:			apache-2.0.49-CAN-2004-0493.patch.bz2
 # OE: stolen from redhat
 Patch40:		httpd-2.0.45-cnfdir.patch.bz2
 Patch41:		httpd-2.0.45-parallel.patch.bz2
@@ -497,7 +498,9 @@ build %{ap_name}-mod_perl, or your own custom version.
 # OE: http://bitbrook.de/software/mod_log_mysql/
 %patch6 -p1
 
+# security
 %patch7 -p1 -b .can-2004-0488
+%patch8 -p0 -b .can-2004-0493
 
 # OE: stolen from redhat
 #%patch40 -p1
@@ -1296,6 +1299,9 @@ fi
 %{ap_abs_srcdir}
 
 %changelog
+* Mon Jun 28 2004 Vincent Danen <vdanen@annvix.org> 2.0.49-4avx
+- P8: security fix for CAN-2004-0493
+
 * Sun Jun 27 2004 Vincent Danen <vdanen@annvix.org> 2.0.49-3avx
 - Annvix build
 
