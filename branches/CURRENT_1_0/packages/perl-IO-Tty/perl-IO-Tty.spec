@@ -1,7 +1,7 @@
 %define	module	IO-Tty
 %define	name	perl-%{module}
 %define	version	1.02
-%define	release	9sls
+%define	release	10sls
 
 Summary:	IO-Tty perl module: interface to pseudo tty's
 Name: 		%{name}
@@ -25,16 +25,16 @@ The IO::Tty and IO::Pty modules provide an interface to pseudo tty's.
 %setup -q -n %{module}-%{version}
 
 %build
-
 CFLAGS="$RPM_OPT_FLAGS" %{__perl} Makefile.PL INSTALLDIRS=vendor
 %make
 make test
 
 %install
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
 %clean 
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(644,root,root,755)
@@ -47,6 +47,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/*/*
 
 %changelog
+* Fri Feb 27 2004 Vincent Danen <vdanen@opensls.org> 1.02-10sls
+- rebuild for new perl
+- minor spec cleanups
+
 * Wed Dec 31 2003 Vincent Danen <vdanen@opensls.org> 1.02-9sls
 - sync with 8mdk (gbeauchesne): fix build on amd64
 

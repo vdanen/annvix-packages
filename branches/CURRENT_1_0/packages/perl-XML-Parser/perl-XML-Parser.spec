@@ -1,7 +1,7 @@
 %define	module	XML-Parser
 %define	name	perl-%{module}
 %define	version	2.34
-%define	release	2sls
+%define	release	3sls
 
 Summary: 	A perl module for parsing XML documents
 Name: 		%{name}
@@ -31,13 +31,13 @@ Needed by eGrail
 %make OPTIMIZE="$RPM_OPT_FLAGS"
 make test
 
-%clean 
-rm -rf $RPM_BUILD_ROOT
-
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 install -m 644 enc/koi8-r.enc $RPM_BUILD_ROOT%{perl_vendorarch}/XML/Parser/Encodings
+
+%clean
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -48,6 +48,10 @@ install -m 644 enc/koi8-r.enc $RPM_BUILD_ROOT%{perl_vendorarch}/XML/Parser/Encod
 
 
 %changelog
+* Fri Feb 27 2004 Vincent Danen <vdanen@opensls.org> 2.34-3sls
+- rebuild for new perl
+- minor spec cleanups
+
 * Mon Dec 13 2003 Vincent Danen <vdanen@opensls.org> 2.34-2sls
 - OpenSLS build
 - tidy spec

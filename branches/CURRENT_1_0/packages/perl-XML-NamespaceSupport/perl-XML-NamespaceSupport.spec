@@ -1,7 +1,7 @@
 %define module	XML-NamespaceSupport
 %define name	perl-%{module}
 %define version 1.08
-%define release 4sls
+%define release 5sls
 
 Summary:	%{module} module for perl
 Name:		%{name}
@@ -35,12 +35,12 @@ chmod 644 Changes MANIFEST README
 make
 make test
 
-%clean 
-rm -rf $RPM_BUILD_ROOT
-
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
+
+%clean
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -50,6 +50,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Fri Feb 27 2004 Vincent Danen <vdanen@opensls.org> 1.08-5sls
+- rebuild for new perl
+- minor spec cleanups
+
 * Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 1.08-4sls
 - OpenSLS build
 - tidy spec
