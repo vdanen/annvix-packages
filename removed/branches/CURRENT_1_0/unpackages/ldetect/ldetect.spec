@@ -1,6 +1,6 @@
 %define name	ldetect
 %define version	0.4.9
-%define release	5sls
+%define release	6avx
 
 Summary:	Light hardware detection library
 Name:		%{name}
@@ -57,6 +57,9 @@ PICFLAGS="-DPIC -fPIC"
 %_libdir/*
 
 %changelog
+* Wed Jun 23 2004 Vincent Danen <vdanen@annvix.org> 0.4.9-6avx
+- Annvix build
+
 * Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 0.4.9-5sls
 - minor spec cleanups
 

@@ -1,6 +1,6 @@
 %define name	ldetect-lst
 %define version 0.1.8
-%define release 12sls
+%define release 13avx
 
 Summary:	Hardware list for the light detection library
 Name:		%{name}
@@ -67,6 +67,9 @@ fi
 %{_bindir}/*
 
 %changelog
+* Wed Jun 23 2004 Vincent Danen <vdanen@annvix.org> 0.1.8-13avx
+- Annvix build
+
 * Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 0.1.8-12sls
 - minor spec cleanups
 
