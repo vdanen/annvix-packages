@@ -1,0 +1,57 @@
+--- mkbootdisk-1.4.5/mkbootdisk.orig	Fri Jul 26 14:13:58 2002
++++ mkbootdisk-1.4.5/mkbootdisk	Fri Jul 26 14:26:51 2002
+@@ -12,6 +12,7 @@
+ unset mkinitrdargs
+ unset kernelargs
+ unset mountopts
++unset appendargs
+ 
+ MOUNTDIR=/tmp/mkbootdisk
+ PATH=/sbin:$PATH
+@@ -22,7 +23,7 @@
+ usage () {
+     cat >&2 <<EOF
+ usage: `basename $0` [--version] [--noprompt] [--mkinitrdargs <args>] 
+-       [--device <devicefile>] [--verbose -v] 
++       [--appendargs <args>] [--device <devicefile>] [--verbose -v] 
+        [--kernelargs <args>] <kernel>
+        (ex: `basename $0` --device /dev/fd1 2.0.31)
+ EOF
+@@ -39,6 +40,10 @@
+ 	    shift
+ 	    mkinitrdargs=$1
+ 	    ;;
++	--appendargs)
++	    shift
++	    appendargs=$1
++	    ;;
+ 	--kernelargs)
+ 	    shift
+ 	    kernelargs=$1
+@@ -108,7 +113,8 @@
+ [ -f /lib/modules/$kernel/fs/msdos.o ] &&
+ 	withfs="$withfs --with msdos"
+ 
+-rootdev=`awk '$1 ~ /^[^#]/ && $2 ~ /^\/$/ { print $1 ; exit }' /etc/fstab`
++# yves from chmou fix loopback devices
++rootdev=`awk '$1 ~ /^[^#]/ && $2 == "/" { print $4 ~ /loop/ ? "/dev/loop7" : $1 }' /etc/fstab`
+ 
+ if [ $(echo $rootdev | cut -c1-6) = "LABEL=" ]; then
+     rootlabel=$(echo $rootdev | cut -c7-)
+@@ -202,14 +208,14 @@
+ timeout 100
+ label linux
+ 	kernel vmlinuz
+-	append $INITRDARG $kernelargs root=$rootdev
++	append $INITRDARG root=$rootdev $appendargs
+ EOF
+ 
+ chmod 644 $MOUNTDIR/syslinux.cfg
+ 
+ cat >> $MOUNTDIR/boot.msg <<EOF
+ 
+-Press <return> (or wait 10 seconds) to boot your Red Hat Linux system from
++Press <return> (or wait 10 seconds) to boot your Mandrake Linux system from
+ $rootdev. You may override the default linux kernel parameters by typing
+ "linux <params>", followed by <return> if you like.
+ 
