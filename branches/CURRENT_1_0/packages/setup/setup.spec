@@ -1,8 +1,8 @@
-# $Id: setup.spec,v 1.6 2004/08/11 22:57:55 vdanen Exp $
+# $Id: setup.spec,v 1.7 2004/08/19 19:27:16 vdanen Exp $
 
 %define name	setup
 %define version 2.4
-%define release 13avx
+%define release 14avx
 
 Summary:	A set of system configuration and setup files
 Name:		%{name}
@@ -36,6 +36,7 @@ make install RPM_BUILD_ROOT=%buildroot mandir=%_mandir
 
 rm -rf $RPM_BUILD_ROOT/%{_datadir}/base-passwd $RPM_BUILD_ROOT/%{_sbindir}
 rm -f  `find $RPM_BUILD_ROOT/%{_mandir} -name 'update-passwd*'`
+mkdir -p %{buildroot}/var/lib/rsbac
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -73,6 +74,7 @@ rm -f  `find $RPM_BUILD_ROOT/%{_mandir} -name 'update-passwd*'`
 %config(noreplace) /etc/csh.cshrc
 %config(noreplace) /etc/profile.d/*
 %verify(not md5 size mtime) /var/log/lastlog
+%dir /var/lib/rsbac
 
 %post 
 pwconv 2>/dev/null >/dev/null  || :
@@ -83,6 +85,9 @@ if [ -x /usr/sbin/nscd ]; then
 fi
 
 %changelog
+* Thu Aug 19 2004 Vincent Danen <vdanen@annvix.org> 2.4-14avx
+- fix homedir for RSBAC users
+
 * Wed Aug 11 2004 Vincent Danen <vdanen@annvix.org> 2.4-13avx
 - add uid/gid 400, 401, and 402 for RSBAC
 
