@@ -1,6 +1,6 @@
 %define name	ppp
 %define version	2.4.1
-%define release	14sls
+%define release	15avx
 
 Summary:	The PPP daemon and documentation for Linux 1.3.xx and greater.
 Name:		%{name}
@@ -27,6 +27,7 @@ Patch12:	ppp-2.4.1-filter.patch.bz2
 Patch13:	ppp-2.4.1-noexttraffic.patch.bz2
 Patch14:	ppp-2.4.1-gcc.patch.bz2
 Patch15:	ppp-2.4.1-varargs.patch.bz2
+Patch16:	ppp-2.4.1-pcap.patch.bz2
 #PPPoATM support
 Patch20:	ppp-2.4.1-pppoe.patch.bz2
 Patch21:	ppp-2.4.1-pppoatm.patch.bz2
@@ -85,6 +86,8 @@ PPP over ethernet plugin for %{name}.
 %patch12 -p1 -b .filter
 # (gg) add noext-traffic option
 %patch13 -p1 -b .noext
+# use pcap-bpf.h instead of net/bpf.h
+%patch16 -p1 -b .pcap
 
 # (Guillaume Rousse) add pppoatm for ADSL modems
 %patch20 -p1 -b .pppoe
@@ -169,6 +172,10 @@ chmod 0644 README.MSCHAP80
 %{_libdir}/pppd/%{version}/pppoe.so
 
 %changelog
+* Sun Jun 27 2004 Vincent Danen <vdanen@annvix.org> 2.4.1-15avx
+- Annvix build
+- P16: need to include pcap-bpf.h instead of net/bpf.h
+
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 2.4.1-14sls
 - minor spec cleanups
 
