@@ -1,6 +1,6 @@
 %define name	mc
 %define version	4.6.0
-%define release	5sls
+%define release	6sls
 
 Summary:	A user-friendly file manager and visual shell
 Name:		%{name}
@@ -65,7 +65,7 @@ perl -p -i -e 's/--repetitive-best/-9/' lib/mc.menu
 make
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 install -d $RPM_BUILD_ROOT%{_sysconfdir}/{pam.d,profile.d,X11/wmconfig}
 
@@ -82,7 +82,7 @@ chmod 755 $RPM_BUILD_ROOT/%{_libdir}/mc/cons.saver
 %{find_lang} %{name}
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files -f %{name}.lang
 %defattr(-, root, root)
@@ -113,6 +113,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/mc/term/*
 
 %changelog
+* Sat Mar 06 2004 Vincent Danen <vdanen@opensls.org> - 4.6.0-6sls
+- minor spec cleanups
+
 * Wed Jan 21 2004 Vincent Danen <vdanen@opensls.org> - 4.6.0-5sls
 - OpenSLS build
 - tidy spec

@@ -1,12 +1,13 @@
 %define name	make
 %define version	3.80
-%define release	6sls
+%define release	7sls
+%define epoch	1
 
 Summary:	A GNU tool which simplifies the build process for users
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
-Epoch:		1
+Epoch:		%{epoch}
 License:	GPL
 Group:		Development/Other
 URL:		http://www.gnu.org/directory/GNU/make.html
@@ -43,7 +44,7 @@ commonly used to simplify the process of installing programs.
 make check
 
 %install
-rm -rf $RPM_BUILD_ROOT/
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %makeinstall
 
@@ -58,7 +59,7 @@ done
 %find_lang %name
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
 %_install_info make.info
@@ -76,6 +77,9 @@ rm -rf $RPM_BUILD_ROOT
 %_infodir/make.info*
 
 %changelog
+* Sat Mar 06 2004 Vincent Danen <vdanen@opensls.org> 3.80-7sls
+- minor spec cleanups
+
 * Mon Dec 08 2003 Vincent Danen <vdanen@opensls.org> 3.80-6sls
 - OpenSLS build
 - tidy spec

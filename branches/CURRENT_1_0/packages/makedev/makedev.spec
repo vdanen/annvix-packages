@@ -1,6 +1,6 @@
 %define name	makedev
 %define version	4.1
-%define release 2sls
+%define release 3sls
 
 # synced with rh-3.3.1-1
 
@@ -18,7 +18,7 @@ URL:		http://cvs.mandrakesoft.com/cgi-bin/cvsweb.cgi/soft/makedev/
 Source:		%name-%version.tar.bz2
 
 BuildRoot:	%_tmppath/%name-root
-BuildArchitectures: noarch
+BuildArch:	noarch
 
 Prereq:		/usr/sbin/groupadd, /usr/sbin/useradd, sed, coreutils, mktemp
 Requires:	bash, perl-base
@@ -44,12 +44,12 @@ to be installed.
 %make
 
 %install
-rm -fr $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p $RPM_BUILD_ROOT%devrootdir
 %makeinstall_std
 
 %clean
-rm -fr $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
 /usr/sbin/useradd -c "virtual console memory owner" -u 69 \
@@ -125,6 +125,9 @@ fi
 %dir %devrootdir
 
 %changelog
+* Sat Mar 06 2004 Vincent Danen <vdanen@opensls.org> 4.1-3sls
+- minor spec cleanups
+
 * Mon Dec 01 2003 Vincent Danen <vdanen@opensls.org> 4.1-2sls
 - OpenSLS build
 - tidy spec

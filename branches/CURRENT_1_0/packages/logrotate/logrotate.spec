@@ -1,6 +1,6 @@
 %define name	logrotate
 %define version	3.6.6
-%define release	3sls
+%define release	4sls
 
 Summary:	Rotates, compresses, and mails system logs
 Name:		%{name}
@@ -28,6 +28,7 @@ weekly, monthly, or when it grows too large.
 %make RPM_OPT_FLAGS="$RPM_OPT_FLAGS"
 
 %install
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 make PREFIX=$RPM_BUILD_ROOT install MANDIR=%{_mandir}
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/%{name}.d
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/cron.daily
@@ -38,7 +39,7 @@ chmod 644 $RPM_BUILD_ROOT%{_sysconfdir}/%{name}.conf
 install -m 755 examples/%{name}.cron $RPM_BUILD_ROOT%{_sysconfdir}/cron.daily/%{name}
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -50,6 +51,9 @@ rm -rf $RPM_BUILD_ROOT
 %attr(0755, root, root) %dir %{_sysconfdir}/%{name}.d
 
 %changelog
+* Sat Mar 06 2004 Vincent Danen <vdanen@opensls.org> 3.6.6-4sls
+- minor spec cleanups
+
 * Sun Nov 30 2003 Vincent Danen <vdanen@opensls.org> 3.6.6-3sls
 - OpenSLS build
 - tidy spec

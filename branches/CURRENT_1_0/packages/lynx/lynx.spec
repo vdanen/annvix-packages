@@ -1,6 +1,7 @@
 %define name	lynx
 %define version 2.8.5
-%define release	0.%{subver}.15sls
+%define release	0.%{subver}.16sls
+%define epoch	1
 
 %define versio_	2-8-5
 %define subver	dev.12
@@ -9,7 +10,7 @@ Summary:	Text based browser for the world wide web
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
-Epoch:		1
+Epoch:		%{epoch}
 License:	GPL
 Group:		Networking/WWW
 URL:		http://lynx.isc.org
@@ -86,7 +87,7 @@ OTHER`
 %make
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std install-help
 
 install -d $RPM_BUILD_ROOT%{_sysconfdir}
@@ -97,7 +98,7 @@ EOF
 %find_lang lynx
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %triggerpostun -- lynx < 2.8.5-0.13mdk.dev.12
 # handle lynx.cfg move from /etc to /usr/share/lynx
@@ -116,6 +117,9 @@ fi
 %{_datadir}/lynx
 
 %changelog
+* Sat Mar 06 2004 Vincent Danen <vdanen@opensls.org> 2.8.5-0.dev.12.16sls
+- minor spec cleanups
+
 * Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 2.8.5-0.dev.12.15sls
 - OpenSLS build
 - tidy spec

@@ -1,6 +1,6 @@
 %define name	mailx
 %define version	8.1.1
-%define release	24sls
+%define release	25sls
 
 Summary:	The /bin/mail program, which is used to send mail via shell scripts.
 Name:		%{name}
@@ -55,7 +55,7 @@ CFLAGS=$(echo $RPM_OPT_FLAGS|sed 's/-O.//g')
 make CFLAGS="$CFLAGS -D_GNU_SOURCE"
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
 mkdir -p $RPM_BUILD_ROOT%{_bindir}
@@ -63,11 +63,11 @@ ln -sf ../../bin/mail $RPM_BUILD_ROOT%{_bindir}/Mail
 ln -sf mail.1 $RPM_BUILD_ROOT%{_mandir}/man1/Mail.1
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
-%attr(755,root,mail)	/bin/mail
+%attr(0755,root,mail)	/bin/mail
 %{_bindir}/Mail
 %dir %{_datadir}/mailx
 %{_datadir}/mailx/mail.help
@@ -76,6 +76,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/*
 
 %changelog
+* Sat Mar 06 2004 Vincent Danen <vdanen@opensls.org> 8.1.1-25sls
+- minor spec cleanups
+
 * Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 8.1.1-24sls
 - OpenSLS build
 - tidy spec

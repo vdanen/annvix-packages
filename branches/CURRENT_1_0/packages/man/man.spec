@@ -1,6 +1,6 @@
 %define name	man
 %define version	1.5k
-%define release	13sls
+%define release	14sls
 
 Summary:	A set of documentation tools:  man, apropos and whatis.
 Name:		%{name}
@@ -116,15 +116,17 @@ install -m 644 %SOURCE3 man/en/
 make CC="gcc -g $RPM_OPT_FLAGS -D_GNU_SOURCE"
 
 %install
-/bin/rm -rf $RPM_BUILD_ROOT
-mkdir -p  $RPM_BUILD_ROOT/usr/{bin,man,sbin}
-mkdir -p  $RPM_BUILD_ROOT/etc/cron.{daily,weekly}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+mkdir -p  $RPM_BUILD_ROOT%{_bindir}
+mkdir -p  $RPM_BUILD_ROOT%{_sbindir}
+mkdir -p  $RPM_BUILD_ROOT%{_mandir}
+mkdir -p  $RPM_BUILD_ROOT%{_sysconfdir}/cron.{daily,weekly}
 perl -pi -e 's!/usr/man!/usr/share/man!g' conf_script
 perl -pi -e 's!mandir = .*$!mandir ='"%{_mandir}"'!g' man2html/Makefile
 make install PREFIX=$RPM_BUILD_ROOT/  mandir=$RPM_BUILD_ROOT/%{_mandir}
 
-install -m755 %SOURCE1 $RPM_BUILD_ROOT/etc/cron.weekly/makewhatis.cron
-install -m755 %SOURCE2 $RPM_BUILD_ROOT/etc/cron.daily/makewhatis.cron
+install -m755 %SOURCE1 $RPM_BUILD_ROOT%{_sysconfdir}/cron.weekly/makewhatis.cron
+install -m755 %SOURCE2 $RPM_BUILD_ROOT%{_sysconfdir}/cron.daily/makewhatis.cron
 
 mkdir -p $RPM_BUILD_ROOT/var/catman{local,X11}
 for i in 1 2 3 4 5 6 7 8 9 n; do
@@ -150,26 +152,26 @@ pushd $RPM_BUILD_ROOT
 popd
 
 /bin/rm -fr $RPM_BUILD_ROOT/%{_mandir}/{de,fr,it,pl}
-perl -pi -e 's!less -is!less -isr!g' $RPM_BUILD_ROOT/etc/man.config
-#perl -pi -e 's!/usr/man!/usr/share/man!g' $RPM_BUILD_ROOT/usr/sbin/makewhatis
+perl -pi -e 's!less -is!less -isr!g' $RPM_BUILD_ROOT%{_sysconfdir}/man.config
+#perl -pi -e 's!/usr/man!/usr/share/man!g' $RPM_BUILD_ROOT%{_sbindir}/makewhatis
 
 # Fix makewhatis perms
-chmod 755 $RPM_BUILD_ROOT/usr/sbin/makewhatis
+chmod 755 $RPM_BUILD_ROOT%{_sbindir}/makewhatis
 
 %clean
-/bin/rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
-%config(noreplace) /etc/cron.weekly/makewhatis.cron
-%config(noreplace) /etc/cron.daily/makewhatis.cron
+%config(noreplace) %{_sysconfdir}/cron.weekly/makewhatis.cron
+%config(noreplace) %{_sysconfdir}/cron.daily/makewhatis.cron
 %attr(2755,root,man)	%_bindir/man
 %_bindir/manpath
 %_bindir/apropos
 %_bindir/whatis
 %_bindir/man2dvi
 %_sbindir/makewhatis
-%config(noreplace) /etc/man.config
+%config(noreplace) %{_sysconfdir}/man.config
 %_mandir/man8/*
 %_mandir/man5/*
 %_mandir/man1/*
@@ -204,6 +206,9 @@ chmod 755 $RPM_BUILD_ROOT/usr/sbin/makewhatis
 
 
 %changelog
+* Sat Mar 06 2004 Vincent Danen <vdanen@mandrakesoft.com> 1.5k-14sls
+- minor spec cleanups
+
 * Mon Dec 02 2003 Vincent Danen <vdanen@mandrakesoft.com> 1.5k-13sls
 - OpenSLS build
 - tidy spec
