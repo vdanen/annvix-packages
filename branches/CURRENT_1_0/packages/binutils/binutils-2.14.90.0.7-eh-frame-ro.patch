@@ -36,8 +36,8 @@
 	* scripttempl/elf.sc (.eh_frame, .gcc_except_table): Move into text
 	segment if all input sections are readonly.
 
---- ld/emultempl/mmo.em.jj	Wed Jul 23 11:08:12 2003
-+++ ld/emultempl/mmo.em	Mon Jul 28 07:14:02 2003
+--- binutils-2.14.90.0.7/ld/emultempl/mmo.em.eh-frame-ro	2003-07-23 17:08:12.000000000 +0200
++++ binutils-2.14.90.0.7/ld/emultempl/mmo.em	2003-11-05 14:23:37.000000000 +0100
 @@ -47,6 +47,8 @@ output_prev_sec_find (lang_output_sectio
         u = lookup->next)
      {
@@ -56,8 +56,8 @@
  
    lang_add_section (&os->children, s, os, file);
  
---- ld/emultempl/pe.em.jj	Wed Jul 23 11:08:12 2003
-+++ ld/emultempl/pe.em	Mon Jul 28 07:14:02 2003
+--- binutils-2.14.90.0.7/ld/emultempl/pe.em.eh-frame-ro	2003-08-21 17:28:48.000000000 +0200
++++ binutils-2.14.90.0.7/ld/emultempl/pe.em	2003-11-05 14:23:37.000000000 +0100
 @@ -1453,6 +1453,8 @@ output_prev_sec_find (lang_output_sectio
         u = lookup->next)
      {
@@ -76,9 +76,9 @@
  
        lang_add_section (&add_child, s, os, file);
  
---- ld/emultempl/elf32.em.jj	Wed Jul 23 11:08:12 2003
-+++ ld/emultempl/elf32.em	Mon Jul 28 07:14:02 2003
-@@ -1010,7 +1010,8 @@ output_rel_find (asection *sec)
+--- binutils-2.14.90.0.7/ld/emultempl/elf32.em.eh-frame-ro	2003-08-21 17:28:48.000000000 +0200
++++ binutils-2.14.90.0.7/ld/emultempl/elf32.em	2003-11-05 14:23:37.000000000 +0100
+@@ -1016,7 +1016,8 @@ output_rel_find (asection *sec, int isdy
    for (u = lang_output_section_statement.head; u; u = lookup->next)
      {
        lookup = &u->output_section_statement;
@@ -86,9 +86,9 @@
 +      if (lookup->constraint != -1
 +	  && strncmp (".rel", lookup->name, 4) == 0)
  	{
- 	  /* Don't place after .rel.plt as doing so results in wrong
- 	     dynamic tags.  Also, place allocated reloc sections before
-@@ -1247,7 +1248,7 @@ gld${EMULATION_NAME}_place_orphan (lang_
+ 	  int lookrela = lookup->name[4] == 'a';
+ 
+@@ -1264,7 +1265,7 @@ gld${EMULATION_NAME}_place_orphan (lang_
  					    (bfd_vma) 0,
  					    (etree_type *) NULL,
  					    (etree_type *) NULL,
@@ -97,8 +97,8 @@
  
    lang_add_section (&os->children, s, os, file);
  
---- ld/scripttempl/elf.sc.jj	Wed Jul 23 11:08:12 2003
-+++ ld/scripttempl/elf.sc	Mon Jul 28 07:14:02 2003
+--- binutils-2.14.90.0.7/ld/scripttempl/elf.sc.eh-frame-ro	2003-10-29 18:37:48.000000000 +0100
++++ binutils-2.14.90.0.7/ld/scripttempl/elf.sc	2003-11-05 14:23:37.000000000 +0100
 @@ -283,6 +283,8 @@ cat <<EOF
    ${CREATE_SHLIB-${SBSS2}}
    ${OTHER_READONLY_SECTIONS}
@@ -119,12 +119,12 @@
    ${WRITABLE_RODATA+${RODATA}}
    ${OTHER_READWRITE_SECTIONS}
    ${TEXT_DYNAMIC-${DYNAMIC}}
---- ld/ldgram.y.jj	Wed Jul 23 11:08:12 2003
-+++ ld/ldgram.y	Mon Jul 28 07:14:02 2003
+--- binutils-2.14.90.0.7/ld/ldgram.y.eh-frame-ro	2003-10-29 18:37:48.000000000 +0100
++++ binutils-2.14.90.0.7/ld/ldgram.y	2003-11-05 14:23:37.000000000 +0100
 @@ -143,14 +143,14 @@ static int error_index;
  %token ORIGIN FILL
  %token LENGTH CREATE_OBJECT_SYMBOLS INPUT GROUP OUTPUT CONSTRUCTORS
- %token ALIGNMOD AT PROVIDE
+ %token ALIGNMOD AT SUBALIGN PROVIDE
 -%type <token> assign_op atype attributes_opt
 +%type <token> assign_op atype attributes_opt sect_constraint
  %type <name>  filename
@@ -138,7 +138,7 @@
  %token EXCLUDE_FILE
  %type <versyms> vers_defns
  %type <versnode> vers_tag
-@@ -828,21 +828,28 @@ opt_at:
+@@ -833,22 +833,29 @@ opt_subalign:
  	|	{ $$ = 0; }
  	;
  
@@ -150,27 +150,28 @@
 +
  section:	NAME 		{ ldlex_expression(); }
  		opt_exp_with_type
- 		opt_at   	{ ldlex_popstate (); ldlex_script (); }
+ 		opt_at
+ 		opt_subalign	{ ldlex_popstate (); ldlex_script (); }
 +		sect_constraint
  		'{'
  			{
  			  lang_enter_output_section_statement($1, $3,
  							      sectype,
--							      0, 0, 0, $4);
-+							      0, 0, 0, $4, $6);
+-							      0, 0, $5, $4);
++							      0, 0, $5, $4, $7);
  			}
  		statement_list_opt
   		'}' { ldlex_popstate (); ldlex_expression (); }
  		memspec_opt memspec_at_opt phdr_opt fill_opt
  		{
  		  ldlex_popstate ();
--		  lang_leave_output_section_statement ($14, $11, $13, $12);
-+		  lang_leave_output_section_statement ($15, $12, $14, $13);
+-		  lang_leave_output_section_statement ($15, $12, $14, $13);
++		  lang_leave_output_section_statement ($16, $13, $15, $14);
  		}
  		opt_comma
  		{}
---- ld/mri.c.jj	Wed Jul 23 11:08:12 2003
-+++ ld/mri.c	Mon Jul 28 07:15:48 2003
+--- binutils-2.14.90.0.7/ld/mri.c.eh-frame-ro	2003-07-23 17:08:12.000000000 +0200
++++ binutils-2.14.90.0.7/ld/mri.c	2003-11-05 14:23:37.000000000 +0100
 @@ -220,7 +220,7 @@ mri_draw_tree (void)
  
  	  lang_enter_output_section_statement (p->name, base,
@@ -180,9 +181,9 @@
  	  base = 0;
  	  tmp = xmalloc (sizeof *tmp);
  	  tmp->next = NULL;
---- ld/ldlang.h.jj	Wed Jul 23 11:08:12 2003
-+++ ld/ldlang.h	Mon Jul 28 07:27:16 2003
-@@ -132,6 +132,8 @@ typedef struct lang_output_section_state
+--- binutils-2.14.90.0.7/ld/ldlang.h.eh-frame-ro	2003-10-29 18:37:48.000000000 +0100
++++ binutils-2.14.90.0.7/ld/ldlang.h	2003-11-05 14:23:37.000000000 +0100
+@@ -134,6 +134,8 @@ typedef struct lang_output_section_state
  
    int subsection_alignment;	/* alignment of components */
    int section_alignment;	/* alignment of start of section */
@@ -191,7 +192,7 @@
  
    union etree_union *load_base;
  
-@@ -394,7 +396,7 @@ extern lang_output_section_statement_typ
+@@ -406,7 +408,7 @@ extern lang_output_section_statement_typ
     bfd_vma block_value,
     etree_type *align,
     etree_type *subalign,
@@ -200,9 +201,9 @@
  extern void lang_final
    (void);
  extern void lang_process
---- ld/ldlang.c.jj	Wed Jul 23 11:08:12 2003
-+++ ld/ldlang.c	Mon Jul 28 07:25:24 2003
-@@ -562,7 +562,7 @@ lang_memory_default (asection *section)
+--- binutils-2.14.90.0.7/ld/ldlang.c.eh-frame-ro	2003-10-29 18:37:48.000000000 +0100
++++ binutils-2.14.90.0.7/ld/ldlang.c	2003-11-05 14:23:37.000000000 +0100
+@@ -591,7 +591,7 @@ lang_memory_default (asection *section)
  }
  
  lang_output_section_statement_type *
@@ -211,7 +212,7 @@
  {
    lang_statement_union_type *u;
    lang_output_section_statement_type *lookup;
-@@ -570,18 +570,26 @@ lang_output_section_find (const char *co
+@@ -599,18 +599,26 @@ lang_output_section_find (const char *co
    for (u = lang_output_section_statement.head; u != NULL; u = lookup->next)
      {
        lookup = &u->output_section_statement;
@@ -241,7 +242,7 @@
    if (lookup == NULL)
      {
        lookup = new_stat (lang_output_section_statement, stat_ptr);
-@@ -594,6 +602,7 @@ lang_output_section_statement_lookup (co
+@@ -623,6 +631,7 @@ lang_output_section_statement_lookup (co
        lookup->next = NULL;
        lookup->bfd_section = NULL;
        lookup->processed = FALSE;
@@ -249,7 +250,7 @@
        lookup->sectype = normal_section;
        lookup->addr_tree = NULL;
        lang_list_init (&lookup->children);
-@@ -613,6 +622,12 @@ lang_output_section_statement_lookup (co
+@@ -642,6 +651,12 @@ lang_output_section_statement_lookup (co
    return lookup;
  }
  
@@ -262,7 +263,7 @@
  static void
  lang_map_flags (flagword flag)
  {
-@@ -1278,6 +1293,30 @@ output_section_callback (lang_wild_state
+@@ -1307,6 +1322,30 @@ output_section_callback (lang_wild_state
      }
  }
  
@@ -293,7 +294,7 @@
  /* This is passed a file name which must have been seen already and
     added to the statement tree.  We will see if it has been opened
     already and had its symbols read.  If not then we'll read it.  */
-@@ -1923,6 +1962,40 @@ lang_place_undefineds (void)
+@@ -2031,6 +2070,40 @@ lang_place_undefineds (void)
      insert_undefined (ptr->name);
  }
  
@@ -334,7 +335,7 @@
  /* Open input files and attach to output sections.  */
  
  static void
-@@ -1943,6 +2016,23 @@ map_input_to_output_sections
+@@ -2051,6 +2124,23 @@ map_input_to_output_sections
  					output_section_statement);
  	  break;
  	case lang_output_section_statement_enum:
@@ -358,7 +359,7 @@
  	  map_input_to_output_sections (s->output_section_statement.children.head,
  					target,
  					&s->output_section_statement);
-@@ -2013,6 +2103,8 @@ strip_excluded_output_sections (void)
+@@ -2121,6 +2211,8 @@ strip_excluded_output_sections (void)
        asection *s;
  
        os = &u->output_section_statement;
@@ -367,7 +368,7 @@
        s = os->bfd_section;
        if (s != NULL && (s->flags & SEC_EXCLUDE) != 0)
  	{
-@@ -3857,13 +3949,15 @@ lang_enter_output_section_statement (con
+@@ -3992,13 +4084,15 @@ lang_enter_output_section_statement (con
  				     bfd_vma block_value,
  				     etree_type *align,
  				     etree_type *subalign,
@@ -385,7 +386,7 @@
  
    /* Add this statement to tree.  */
  #if 0
-@@ -4558,6 +4652,8 @@ lang_record_phdrs (void)
+@@ -4694,6 +4788,8 @@ lang_record_phdrs (void)
  	  struct lang_output_section_phdr_list *pl;
  
  	  os = &u->output_section_statement;
@@ -394,7 +395,7 @@
  
  	  pl = os->phdrs;
  	  if (pl != NULL)
-@@ -4617,7 +4713,8 @@ lang_record_phdrs (void)
+@@ -4753,7 +4849,8 @@ lang_record_phdrs (void)
      {
        struct lang_output_section_phdr_list *pl;
  
@@ -404,18 +405,18 @@
  	continue;
  
        for (pl = u->output_section_statement.phdrs;
-@@ -4684,7 +4781,7 @@ lang_enter_overlay_section (const char *
+@@ -4825,7 +4922,7 @@ lang_enter_overlay_section (const char *
    etree_type *size;
  
    lang_enter_output_section_statement (name, overlay_vma, normal_section,
--				       0, 0, 0, 0);
-+				       0, 0, 0, 0, 0);
+-				       0, 0, overlay_subalign, 0);
++				       0, 0, overlay_subalign, 0, 0);
  
    /* If this is the first section, then base the VMA of future
       sections on this one.  This will work correctly even if `.' is
---- ld/ldlex.l.jj	Wed Jul 23 11:08:12 2003
-+++ ld/ldlex.l	Mon Jul 28 07:14:02 2003
-@@ -299,6 +299,8 @@ V_IDENTIFIER [*?.$_a-zA-Z\[\]\-\!\^]([*?
+--- binutils-2.14.90.0.7/ld/ldlex.l.eh-frame-ro	2003-10-29 18:37:48.000000000 +0100
++++ binutils-2.14.90.0.7/ld/ldlex.l	2003-11-05 14:23:37.000000000 +0100
+@@ -299,6 +299,8 @@ V_IDENTIFIER [*?.$_a-zA-Z\[\]\-\!\^\\]([
  <EXPRESSION,BOTH,SCRIPT>"COPY"		{ RTOKEN(COPY);}
  <EXPRESSION,BOTH,SCRIPT>"INFO"		{ RTOKEN(INFO);}
  <EXPRESSION,BOTH,SCRIPT>"OVERLAY"	{ RTOKEN(OVERLAY);}

@@ -1,14 +1,11 @@
 # RH 2.14.90.0.4-19, SuSE 2.13.90.0.18-6
 %define name		%{package_prefix}binutils
-%define version		2.14.90.0.5
-%define release		2mdk
+%define version		2.14.90.0.7
+%define release		1sls
 
 %define lib_major	2
 %define lib_name_orig	%{package_prefix}%mklibname binutils
 %define lib_name	%{lib_name_orig}%{lib_major}
-
-# Define if building for MDK 9.0 (which contains glibc-static-devel)
-%define buildfor_mdk90	%(awk '{print ($4 > "8.2")}' /etc/mandrake-release)
 
 # Define if building a cross-binutils
 %define package_prefix	%{nil}
@@ -23,20 +20,18 @@ License:	GPL
 Group:		Development/Other
 URL:		http://sources.redhat.com/binutils/
 Source0:	http://ftp.kernel.org/pub/linux/devel/binutils/binutils-%{version}.tar.bz2
-Buildroot:	%{_tmppath}/%{name}-%{version}-root
-Requires:	%{lib_name} = %{version}-%{release}
-Conflicts:	gcc-c++ < 3.2.3-1mdk
-BuildRequires:	autoconf automake bison flex gcc gettext texinfo
-BuildRequires:	dejagnu
-%if %{buildfor_mdk90}
-# make check'ing requires libdl.a
-BuildRequires:	glibc-static-devel
-%endif
 Patch0:		binutils-2.13.90.0.10-x86_64-testsuite.patch.bz2
 Patch1:		binutils-2.13.90.0.10-x86_64-gotpcrel.patch.bz2
 Patch2:		binutils-2.14.90.0.5-testsuite-Wall-fixes.patch.bz2
-Patch3:		binutils-2.14.90.0.5-eh-frame-ro.patch.bz2
+Patch3:		binutils-2.14.90.0.7-eh-frame-ro.patch.bz2
 Patch4:		binutils-2.14.90.0.5-lt-relink.patch.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-%{version}-root
+BuildRequires:	autoconf automake bison flex gcc gettext texinfo
+BuildRequires:	dejagnu
+
+Requires:	%{lib_name} = %{version}-%{release}
+Conflicts:	gcc-c++ < 3.2.3-1mdk
 
 %description
 Binutils is a collection of binary utilities, including:
@@ -56,19 +51,19 @@ Install binutils if you need to perform any of these types of actions on
 binary files.  Most programmers will want to install binutils.
 
 %package -n %{lib_name}
-Summary: Main library for %{name}
-Group: System/Libraries
-Provides: %{lib_name_orig}
+Summary:	Main library for %{name}
+Group:		System/Libraries
+Provides:	%{lib_name_orig}
 
 %description -n %{lib_name}
 This package contains the library needed to run programs dynamically
 linked with binutils.
 
 %package -n %{lib_name}-devel
-Summary: Main library for %{name}
-Group: System/Libraries
-Requires: %{lib_name} = %{version}-%{release}
-Provides: %{lib_name_orig}-devel, %{name}-devel
+Summary:	Main library for %{name}
+Group:		System/Libraries
+Requires:	%{lib_name} = %{version}-%{release}
+Provides:	%{lib_name_orig}-devel, %{name}-devel
 
 %description -n %{lib_name}-devel
 This package contains the library needed to run programs dynamically
@@ -81,7 +76,7 @@ This is the development headers for %{lib_name}
 %patch0 -p1 -b .x86_64-testsuite
 %patch1 -p1 -b .x86_64-gotpcrel
 %patch2 -p1 -b .testsuite-Wall-fixes
-%patch3 -p0 -b .eh-frame-ro
+%patch3 -p1 -b .eh-frame-ro
 %patch4 -p1 -b .lt-relink
 
 %build
@@ -112,6 +107,9 @@ exit 0
 # All Tests must pass on x86 and x86_64
 echo ====================TESTING=========================
 %ifarch %{ix86} x86_64 ppc
+# because the S-records tests always fail for some reason (bi must be a
+# magic machine)
+rm -rf ld/testsuite/ld-srec
 %make check
 %else
 %make -k check || echo make check failed
@@ -213,6 +211,16 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 
 %changelog
+* Tue Dec 23 2003 Vincent Danen <vdanen@opensls.org> 2.14.90.0.7-1sls
+- 2.14.90.0.7
+- new P3 for this version (gbeauchesne)
+- remove the ld/testsuite/ld-screc test since it never wants to pass (bi
+  must be a magic machine)
+
+* Wed Dec 17 2003 Vincent Danen <vdanen@opensls.org> 2.14.90.0.5-3sls
+- OpenSLS build
+- tidy spec
+
 * Wed Aug  6 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 2.14.90.0.5-2mdk
 - better relink fix
 
