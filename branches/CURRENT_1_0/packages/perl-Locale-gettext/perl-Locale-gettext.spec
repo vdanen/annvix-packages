@@ -1,7 +1,7 @@
 %define module	Locale-gettext
 %define name	perl-%{module}
 %define version	1.01
-%define release	12sls
+%define release	13sls
 
 Summary:	Internationalization for Perl.
 Name:		%{name}
@@ -55,6 +55,11 @@ make test
 %{_mandir}/*/*
 
 %changelog
+* Fri May 07 2004 Vincent Danen <vdanen@opensls.org> 1.01-13sls
+- in my "add iconv" patch, tag the SV* as UTF8 when output charset is
+  UTF8, to fix #7156 with some modifications in urpmi too (gc)
+- rebuild against new libintl
+
 * Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 1.01-12sls
 - rebuild for perl 5.8.4
 
