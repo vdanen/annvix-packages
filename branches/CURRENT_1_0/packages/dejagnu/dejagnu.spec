@@ -1,23 +1,31 @@
 %define name	dejagnu
 %define version 1.4.2
-%define release 5mdk
+%define release 6sls
+
+%{!?build_opensls:%global build_opensls 0}
 
 Summary:	A front end for testing other programs.
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 Epoch:		20010912
+Group:		Development/Other
 License:	GPL
 URL:		http://sourceware.cygnus.com
 Source:		%{name}-%{version}.tar.bz2 
 Patch2:		dejagnu-1.4.2-mkargs.patch.bz2
-Group:		Development/Other
-Requires:	common-licenses, tcl >= 8.0, expect >= 5.21
-Prereq:		/sbin/install-info
+
 BuildRoot:	%{_tmppath}/%{name}-%{version}-build
-BuildRequires:	autoconf automake libtool sgml-tools
-BuildRequires:	docbook-utils
-BuildArchitectures: noarch
+BuildRequires:	autoconf automake libtool
+%if !%{build_opensls}
+BuildRequires:	docbook-utils sgml-tools
+%endif
+BuildArch:	noarch
+
+Requires:	common-licenses, tcl >= 8.0, expect >= 5.21
+%if !%{build_opensls}
+Prereq:		/sbin/install-info
+%endif
 
 %description
 DejaGnu is an Expect/Tcl based framework for testing other programs.
@@ -40,6 +48,7 @@ export PATH=$PWD:$PATH
 make check
 )
 
+%if !%{build_opensls}
 (cd doc
   make overview.html
   make overview.ps && bzip2 -9v overview.ps)
@@ -47,12 +56,18 @@ make check
 (cd contrib/bluegnu2.0.3/doc
   ./configure --prefix=%_prefix
   %make)
+%endif
 
 %install
 %makeinstall
 
+%if !%{build_opensls}
 cd contrib/bluegnu2.0.3/doc
 %makeinstall
+%else 
+mkdir -p %{buildroot}%{_mandir}/man1
+install -m 0644 contrib/bluegnu2.0.3/doc/dejagnu.1 %{buildroot}%{_mandir}/man1
+%endif
 
 # Nuke unpackaged files
 rm -f $RPM_BUILD_ROOT%{_libdir}/config.guess
@@ -61,24 +76,35 @@ rm -f $RPM_BUILD_ROOT%{_includedir}/dejagnu.h
 %clean
 rm -rf $RPM_BUILD_ROOT
 
+%if !%{build_opensls}
 %post
 %_install_info %{name}.info
 
 %preun
 %_remove_install_info %{name}.info
+%endif
 
 %files
 %defattr(-,root,root)
 %doc AUTHORS NEWS README TODO
+%if !%{build_opensls}
 %doc doc/overview doc/overview.ps.bz2
+%endif
 %dir %{_datadir}/dejagnu
 %{_datadir}/dejagnu/*
 %{_bindir}/runtest
 %{_mandir}/man1/dejagnu.1*
 %{_mandir}/man1/runtest.1*
+%if !%{build_opensls}
 %{_infodir}/dejagnu.info*
+%endif
 
 %changelog
+* Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 1.4.2-6sls
+- OpenSLS build
+- tidy spec
+- use %%build_opensls macro to not build any doc stuff
+
 * Fri Aug  1 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 1.4.2-5mdk
 - Add new runtest to PATH for make check
 
