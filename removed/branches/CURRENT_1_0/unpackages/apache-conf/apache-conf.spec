@@ -1,6 +1,6 @@
 %define name	apache-conf
 %define version	2.0.49
-%define release	3sls
+%define release	4avx
 
 # OE: conditional switches
 #(ie. use with rpm --rebuild):
@@ -40,7 +40,7 @@ Source11:	DynamicVhosts.conf
 Source12:	VirtualHomePages.conf
 Source14:	favicon.ico.bz2
 Source20:	index.shtml
-Source21:	opensls.html
+Source21:	annvix.html
 Source22:	optim.html
 Source23:	logo.gif
 Source24:	apacheicon.gif
@@ -301,6 +301,10 @@ fi
 %attr(1333,apache,apache) %dir /var/apache-mm
 
 %changelog
+* Sun Jun 27 2004 Vincent Danen <vdanen@annvix.org> 2.0.49-4avx
+- Annvix build
+- new icons (annvix.png and medbutton.png)
+
 * Sun May 09 2004 Vincent Danen <vdanen@opensls.org> 2.0.49-3sls
 - fix logrotate file
 - make sure httpd2 uses /var/run/httpd2.pid and httpd2-perl uses
