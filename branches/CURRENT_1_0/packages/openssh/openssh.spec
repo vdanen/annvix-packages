@@ -1,6 +1,6 @@
 %define name	openssh
 %define version	3.9p1
-%define release 4avx
+%define release 5avx
 
 ## Do not apply any unauthorized patches to this package!
 ## - vdanen 05/18/01
@@ -46,6 +46,7 @@ BuildRequires:	krb5-devel
 Obsoletes:	ssh
 Provides:	ssh
 PreReq:		openssl >= 0.9.7, afterboot
+Requires:	filesystem >= 2.1.5
 
 %description
 Ssh (Secure Shell) a program for logging into a remote machine and for
@@ -178,9 +179,6 @@ install -m 755 %{SOURCE6} $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/
 bzcat %{SOURCE3} > $RPM_BUILD_ROOT/%{_bindir}/ssh-copy-id
 chmod a+x $RPM_BUILD_ROOT/%{_bindir}/ssh-copy-id
 install -m 644 contrib/ssh-copy-id.1 $RPM_BUILD_ROOT/%{_mandir}/man1/
-
-# create pre-authentication directory
-mkdir -p %{buildroot}/var/empty
 
 rm -f %{buildroot}%{_datadir}/ssh/Ssh.bin
 
@@ -315,10 +313,12 @@ do_dsa_keygen
 %{_srvdir}/sshd/log/run
 %dir %attr(0750,nobody,nogroup) %{_srvlogdir}/sshd
 %config(noreplace) %{_sysconfdir}/ssh/moduli
-%dir %attr(0755,root,root) /var/empty
 %{_datadir}/afterboot/04_openssh
 
 %changelog
+* Tue Sep 14 2004 Vincent Danen <vdanen@annvix.org> 3.9p1-5avx
+- don't own /var/empty; filesystem does (thus filesystem Requires)
+
 * Sat Sep 11 2004 Vincent Danen <vdanen@annvix.org> 3.9p1-4avx
 - fix bad paths in sshd/log/run
 
