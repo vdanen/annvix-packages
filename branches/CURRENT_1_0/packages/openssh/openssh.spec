@@ -1,6 +1,6 @@
 %define name	openssh
 %define version	3.9p1
-%define release 6avx
+%define release 7avx
 
 ## Do not apply any unauthorized patches to this package!
 ## - vdanen 05/18/01
@@ -150,35 +150,35 @@ make
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-make install DESTDIR=$RPM_BUILD_ROOT/
+make install DESTDIR=%{buildroot}/
 
-install -d $RPM_BUILD_ROOT%{_sysconfdir}/ssh
-install -d $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/
-install -m644 contrib/redhat/sshd.pam $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/sshd
+install -d %{buildroot}%{_sysconfdir}/ssh
+install -d %{buildroot}%{_sysconfdir}/pam.d/
+install -m 0644 contrib/redhat/sshd.pam %{buildroot}%{_sysconfdir}/pam.d/sshd
 
 if [[ -f sshd_config.out ]]; then 
-	install -m600 sshd_config.out $RPM_BUILD_ROOT%{_sysconfdir}/ssh/sshd_config
+	install -m 0600 sshd_config.out %{buildroot}%{_sysconfdir}/ssh/sshd_config
 else 
-	install -m600 sshd_config $RPM_BUILD_ROOT%{_sysconfdir}/ssh/sshd_config
+	install -m 0600 sshd_config %{buildroot}%{_sysconfdir}/ssh/sshd_config
 fi
 
 if [[ -f ssh_config.out ]]; then
-    install -m644 ssh_config.out $RPM_BUILD_ROOT%{_sysconfdir}/ssh/ssh_config
+    install -m 0644 ssh_config.out %{buildroot}%{_sysconfdir}/ssh/ssh_config
 else
-    install -m644 ssh_config $RPM_BUILD_ROOT%{_sysconfdir}/ssh/ssh_config
+    install -m 0644 ssh_config %{buildroot}%{_sysconfdir}/ssh/ssh_config
 fi
 
-install -m640 %{SOURCE4} %{buildroot}%{_sysconfdir}/ssh/denyusers.pam
+install -m 0640 %{SOURCE4} %{buildroot}%{_sysconfdir}/ssh/denyusers.pam
 
-mkdir -p $RPM_BUILD_ROOT%{_libdir}/ssh
+mkdir -p %{buildroot}%{_libdir}/ssh
 
-install -d $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/
+install -d %{buildroot}%{_sysconfdir}/profile.d/
 
-install -m 755 %{SOURCE6} $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/
+install -m 755 %{SOURCE6} %{buildroot}%{_sysconfdir}/profile.d/
 
-bzcat %{SOURCE3} > $RPM_BUILD_ROOT/%{_bindir}/ssh-copy-id
-chmod a+x $RPM_BUILD_ROOT/%{_bindir}/ssh-copy-id
-install -m 644 contrib/ssh-copy-id.1 $RPM_BUILD_ROOT/%{_mandir}/man1/
+bzcat %{SOURCE3} > %{buildroot}/%{_bindir}/ssh-copy-id
+chmod a+x %{buildroot}/%{_bindir}/ssh-copy-id
+install -m 644 contrib/ssh-copy-id.1 %{buildroot}/%{_mandir}/man1/
 
 rm -f %{buildroot}%{_datadir}/ssh/Ssh.bin
 
@@ -268,18 +268,20 @@ do_dsa_keygen
 %files
 %defattr(-,root,root)
 %doc ChangeLog OVERVIEW README* INSTALL CREDITS LICENCE TODO
-%{_bindir}/ssh-keygen
 %dir %{_sysconfdir}/ssh
+%{_bindir}/ssh-keygen
 %{_bindir}/ssh-keyscan
+%{_bindir}/scp
+%{_libdir}/ssh/ssh-keysign
 %{_mandir}/man1/ssh-keygen.1*
 %{_mandir}/man1/ssh-keyscan.1*
 %{_mandir}/man8/ssh-keysign.8*
-%{_libdir}/ssh/ssh-keysign
-%{_bindir}/scp
 %{_mandir}/man1/scp.1*
 
 %files clients
 %defattr(-,root,root)
+%config(noreplace) %{_sysconfdir}/ssh/ssh_config
+%attr(0755,root,root) %config(noreplace) %{_sysconfdir}/profile.d/ssh-client.sh
 %{_bindir}/ssh
 %{_bindir}/ssh-agent
 %{_bindir}/ssh-add
@@ -293,29 +295,31 @@ do_dsa_keygen
 %{_mandir}/man1/ssh-add.1*
 %{_mandir}/man1/sftp.1*
 %{_mandir}/man5/ssh_config.5*
-%config(noreplace) %{_sysconfdir}/ssh/ssh_config
-%attr(0755,root,root) %config(noreplace) %{_sysconfdir}/profile.d/ssh-client.sh
 
 %files server
 %defattr(-,root,root)
+%attr(0600,root,root) %config(noreplace) %{_sysconfdir}/ssh/sshd_config
+%attr(0600,root,root) %config(noreplace) %{_sysconfdir}/ssh/denyusers.pam
+%attr(0600,root,root) %config(noreplace) %{_sysconfdir}/pam.d/sshd
+%config(noreplace) %{_sysconfdir}/ssh/moduli
 %{_sbindir}/sshd
 %dir %{_libdir}/ssh
 %{_libdir}/ssh/sftp-server
 %{_mandir}/man5/sshd_config.5*
 %{_mandir}/man8/sshd.8*
 %{_mandir}/man8/sftp-server.8*
-%attr(0600,root,root) %config(noreplace) %{_sysconfdir}/ssh/sshd_config
-%attr(0600,root,root) %config(noreplace) %{_sysconfdir}/ssh/denyusers.pam
-%attr(0600,root,root) %config(noreplace) %{_sysconfdir}/pam.d/sshd
 %dir %{_srvdir}/sshd
 %dir %{_srvdir}/sshd/log
 %{_srvdir}/sshd/run
 %{_srvdir}/sshd/log/run
-%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/sshd
-%config(noreplace) %{_sysconfdir}/ssh/moduli
+%dir %attr(0750,logger,logger) %{_srvlogdir}/sshd
 %{_datadir}/afterboot/04_openssh
 
 %changelog
+* Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 3.9p1-7avx
+- use logger for logging
+- spec cleanups
+
 * Thu Jan 06 2005 Vincent Danen <vdanen@annvix.org> 3.9p1-6avx
 - rebuild against new openssl
 
