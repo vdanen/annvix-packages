@@ -14,8 +14,14 @@ compress
 # RPM packages drop log rotation information into this directory
 include /etc/logrotate.d
 
-# no packages own lastlog or wtmp -- we'll rotate them here
+# no packages own lastlog, wtmp, or btmp -- we'll rotate them here
 /var/log/wtmp {
+    monthly
+    create 0664 root utmp
+    rotate 1
+}
+
+/var/log/btmp {
     monthly
     create 0664 root utmp
     rotate 1

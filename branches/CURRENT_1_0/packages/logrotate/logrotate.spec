@@ -1,6 +1,6 @@
 %define name	logrotate
-%define version	3.6.6
-%define release	4sls
+%define version	3.7
+%define release	1sls
 
 Summary:	Rotates, compresses, and mails system logs
 Name:		%{name}
@@ -8,9 +8,9 @@ Version:	%{version}
 Release:	%{release}
 License:	GPL
 Group:		File tools
-URL:		ftp://ftp.redhat.com/pub/redhat/linux/rawhide/SRPMS/SRPMS/
-Source0:	ftp://ftp.redhat.com/pub/redhat/code/logrotate/logrotate-%{PACKAGE_VERSION}.tar.bz2
-Source1:	logrotate.conf.mdk.bz2
+URL:		http://download.fedora.redhat.com/pub/fedora/linux/core/1/i386/os/SRPMS
+Source0:	%{name}-%{version}.tar.bz2
+Source1:	logrotate.conf.opensls.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-buildroot
 BuildRequires:	popt-devel
@@ -26,17 +26,22 @@ weekly, monthly, or when it grows too large.
 
 %build
 %make RPM_OPT_FLAGS="$RPM_OPT_FLAGS"
+#WITH_SELINUX=yes
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-make PREFIX=$RPM_BUILD_ROOT install MANDIR=%{_mandir}
+
+make PREFIX=$RPM_BUILD_ROOT MANDIR=%{_mandir} install
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/%{name}.d
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/cron.daily
+mkdir -p %{buildroot}/var/lib
 
 bzcat %{SOURCE1} > $RPM_BUILD_ROOT%{_sysconfdir}/%{name}.conf
 chmod 644 $RPM_BUILD_ROOT%{_sysconfdir}/%{name}.conf
 
 install -m 755 examples/%{name}.cron $RPM_BUILD_ROOT%{_sysconfdir}/cron.daily/%{name}
+
+touch %{buildroot}/var/lib/logrotate.status
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -44,13 +49,21 @@ install -m 755 examples/%{name}.cron $RPM_BUILD_ROOT%{_sysconfdir}/cron.daily/%{
 %files
 %defattr(-,root,root)
 %doc CHANGES
-%attr(0755, root, root) %{_sbindir}/%{name}
-%attr(0644, root, root) %{_mandir}/man8/%{name}.8*
+%attr(0755, root, root) %{_sbindir}/logrotate
+%attr(0644, root, root) %{_mandir}/man8/logrotate.8*
 %config(noreplace) %attr(0755, root, root) %{_sysconfdir}/cron.daily/%{name}
 %attr(0644, root, root) %config(noreplace) %{_sysconfdir}/%{name}.conf
 %attr(0755, root, root) %dir %{_sysconfdir}/%{name}.d
+%attr(0644, root, root) %verify(not size md5 mtime) %config(noreplace) /var/lib/logrotate.status
 
 %changelog
+* Tue May 11 2004 Vincent Danen <vdanen@opensls.org> 3.7-1sls
+- 3.7 (grabbed from a Fedora SRPM since there doesn't seem to be a home for
+  logrotate anywhere)
+- include rotate support for /var/log/btmp
+- NOTE: this version has hooks for SELinux, but we'll disable it until we
+  get SELinux support all figured out
+
 * Sat Mar 06 2004 Vincent Danen <vdanen@opensls.org> 3.6.6-4sls
 - minor spec cleanups
 
