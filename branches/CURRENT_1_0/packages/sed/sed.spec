@@ -1,14 +1,20 @@
-Summary: A GNU stream text editor.
-Name: sed
-Version: 4.0.7
-Release: 1mdk
-License: GPL
-Group: Editors
-Url: http://www.gnu.org/software/sed/
-Source0: ftp://ftp.gnu.org/pub/gnu/sed/sed-%{version}.tar.bz2
-Patch0: http://oss.software.ibm.com/developer/opensource/linux/patches/i18n/sed-3.02-i18n-0.5.patch.bz2
-Prereq: /sbin/install-info
-Buildroot: %_tmppath/%name-%version-root
+%define name	sed
+%define version	4.0.7
+%define release	2sls
+
+Summary:	A GNU stream text editor.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		Editors
+URL:		http://www.gnu.org/software/sed/
+Source0:	ftp://ftp.gnu.org/pub/gnu/sed/sed-%{version}.tar.bz2
+Patch0:		http://oss.software.ibm.com/developer/opensource/linux/patches/i18n/sed-3.02-i18n-0.5.patch.bz2
+
+Buildroot:	%_tmppath/%name-%version-root
+
+Prereq:		/sbin/install-info
 
 %description
 The sed (Stream EDitor) editor is a stream or batch (non-interactive)
@@ -23,7 +29,7 @@ specified in a script file or from the command line.
 
 %build
 %configure
-make LDFLAGS=-s
+%make LDFLAGS=-s
 make check
 
 %install
@@ -52,6 +58,11 @@ rm -rf $RPM_BUILD_ROOT
 %_mandir/man1/sed.1.bz2
 
 %changelog
+* Mon Dec 01 2003 Vincent Danen <vdanen@opensls.org> 4.0.7-2sls
+- OpenSLS build
+- use %%make macro
+- tidy spec
+
 * Fri Apr 11 2003 Thierry Vignaud <tvignaud@mandrakesoft.com> 4.0.7-1mdk
 - new release
 
