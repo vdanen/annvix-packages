@@ -1,6 +1,6 @@
 %define name	passwd
 %define version	0.68
-%define release	4sls
+%define release	5sls
 
 Summary:	The passwd utility for setting/changing passwords using PAM
 Name:		%{name}
@@ -12,6 +12,7 @@ Group:		System/Base
 URL:		http://www.freebsd.org
 Source0:	passwd-%{version}.tar.bz2
 Patch:		passwd-0.67-manpath.patch.bz2
+Patch1:		passwd-0.68-sec.patch.bz2
 
 BuildRoot:	%_tmppath/%name-root
 BuildRequires:	glib2-devel, libuser-devel, pam-devel, popt-devel
@@ -28,7 +29,8 @@ To use passwd, you should have PAM installed on your system.
 %prep
 
 %setup -q
-%patch -p1 
+%patch -p1
+%patch1 -p0 -b .sec
 
 %build
 %make
@@ -55,6 +57,9 @@ rm -f %buildroot%_mandir/man1/{chfn.1,chsh.1}
 %_mandir/man1/passwd.1*
 		
 %changelog
+* Mon May 17 2004 Vincent Danen <vdanen@opensls.org> 0.68-5sls
+- security fixes from Steve Grubb
+
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 0.68-4sls
 - minor spec cleanups
 

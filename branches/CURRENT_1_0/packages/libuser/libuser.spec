@@ -1,6 +1,6 @@
 %define name	libuser
 %define version	0.51.7
-%define release	9sls
+%define release	10sls
 
 %define python	2.3
 %define major	1
@@ -17,6 +17,7 @@ Patch0:		libuser-0.51.7-apputil-pic.patch.bz2
 Patch1:		libuser-0.51.7-python-module-pic.patch.bz2
 Patch2:		libuser-0.51-modules-pic.patch.bz2
 Patch3:		libuser-nobloodysgml.patch.bz2
+Patch4:		libuser-0.51.7-sec.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-root
 BuildRequires:	gettext, glib2-devel, libldap-devel, libsasl-devel
@@ -61,6 +62,7 @@ files useful for developing applications with libuser.
 %patch1 -p1 -b .python-module-pic
 %patch2 -p1 -b .modules-pic
 %patch3 -p1 -b .nosgml
+%patch4 -p1 -b .sec
 
 %build
 export CFLAGS="$RPM_OPT_FLAGS -DG_DISABLE_ASSERT -I/usr/include/sasl" 
@@ -137,6 +139,9 @@ rm -rf	$RPM_BUILD_ROOT/usr/share/man/man3/userquota.3
 %{_datadir}/gtk-doc/html/*
 
 %changelog
+* Mon May 17 2004 Vincent Danen <vdanen@opensls.org> 0.51.7-10sls
+- security fixes from Steve Grubb
+
 * Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 0.51.7-9sls
 - remove %%build_opensls macro
 - minor spec cleanups
