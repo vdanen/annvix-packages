@@ -1,8 +1,8 @@
 %define name	chkconfig
-%define version	1.3.8
-%define release	6avx
+%define version	1.3.13
+%define release	1avx
 
-Summary:	A system tool for maintaining the /etc/rc*.d hierarchy.
+Summary:	A system tool for maintaining the /etc/rc*.d hierarchy
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -10,22 +10,19 @@ License:	GPL
 Group:		System/Configuration/Boot and Init
 URL:		ftp://ftp.redhat.com/pub/redhat/code/chkconfig/
 Source:		ftp://ftp.redhat.com/pub/redhat/code/chkconfig/chkconfig-%{version}.tar.bz2
-# zh_TW translation -- GEoff
-Source1:	chkconfig.po
 Patch1:		ntsysv-mdkconf.patch.bz2
 Patch3:		chkconfig-runleveldir.patch.bz2
 Patch4:		ntsysv-tvman.patch.bz2
 Patch5:		chkconfig-fix.patch.bz2
-Patch6:		chkconfig-1.3.4-adddelxinetd.patch.bz2
+Patch6:		chkconfig-1.3.11-adddelxinetd.patch.bz2
 Patch7:		chkconfig-1.3.4-list.patch.bz2
 Patch8:		chkconfig-1.3.4-skip-files-with-dot.patch.bz2
-Patch9:		chkconfig-1.3.8-skip-bad-symlinks.patch.bz2
+Patch9:		chkconfig-1.3.11-skip-bad-symlinks.patch.bz2
+Patch10:	chkconfig-1.3.11-fix-errno-xinetddotd.patch.bz2
+Patch11:	chkconfig-1.3.13-lsb.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-root
-BuildRequires:	gettext
-BuildRequires:	newt-devel
-BuildRequires:	popt-devel
-BuildRequires:	slang
+BuildRequires:	gettext, newt-devel, popt-devel, slang
 
 Conflicts:	rpm-helper < 0.6
 
@@ -36,7 +33,7 @@ symbolic links in /etc/rc*.d, to relieve system administrators of some
 of the drudgery of manually editing the symbolic links.
 
 %package -n ntsysv
-Summary:	A system tool for maintaining the /etc/rc*.d hierarchy.
+Summary:	A system tool for maintaining the /etc/rc*.d hierarchy
 Group:		System/Configuration/Boot and Init
 Requires:	chkconfig
 
@@ -47,14 +44,16 @@ the numerous symbolic links in /etc/rc*.d.
 
 %prep
 %setup -q
-%patch1 -p0 
-%patch3 -p1
-%patch4 -p0
-%patch5 -p0
-%patch6 -p1
+%patch1 -p0 -b .mdkconf
+%patch3 -p1 -b .runleveldir
+%patch4 -p0 -b .tvman
+%patch5 -p0 -b .fix
+%patch6 -p1 -b .adddelxinetd
 %patch7 -p1 -b .list
-%patch8 -p1
-%patch9 -p1 -z .pix
+%patch8 -p1 -b .skip-files-with-dot
+%patch9 -p1 -b .pix
+%patch10 -p1 -b .fix-errno-xinetddotd
+%patch11 -p1 -b .lsb
 
 %build
 
@@ -62,7 +61,7 @@ the numerous symbolic links in /etc/rc*.d.
 LIBMHACK=-lm
 %endif
 
-make RPM_OPT_FLAGS="$RPM_OPT_FLAGS" LIBMHACK=$LIBMHACK
+%make RPM_OPT_FLAGS="$RPM_OPT_FLAGS" LIBMHACK=$LIBMHACK
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -83,15 +82,8 @@ mv %{buildroot}%{_datadir}/locale/{in,in_ID}/LC_MESSAGES/* \
 	%{buildroot}%{_datadir}/locale/id/LC_MESSAGES || :
 rm -rf %{buildroot}%{_datadir}/locale/{in,in_ID} || :
 
-mkdir -p %{buildroot}%{_datadir}/locale/zh_TW.Big5/LC_MESSAGES
-msgfmt %SOURCE1 -o %{buildroot}%{_datadir}/locale/zh_TW.Big5/LC_MESSAGES/chkconfig.mo
-
-# Geoff 20020623 -- zh is incorrect for locale and there's nothing in it anyway
-rm -fr %{buildroot}%_datadir/locale/zh
-
 # we use our own alternative system
-rm -f %{buildroot}%{_sbindir}/alternatives %{buildroot}%{_mandir}/man8/alternatives.8*
-rm -f %{buildroot}%{_sbindir}/update-alternatives
+rm -f %{buildroot}%{_sbindir}/{alternatives,update-alternatives} %{buildroot}%{_mandir}/man8/alternatives.8*
 
 %find_lang %{name}
 
@@ -112,6 +104,11 @@ rm -f %{buildroot}%{_sbindir}/update-alternatives
 %{_mandir}/man8/ntsysv.8*
 
 %changelog
+* Mon Feb 28 2005 Vincent Danen <vdanen@annvix.org> 1.3.13-1avx
+- 1.3.13
+- fix LSB logic (flepied)
+- drop the zh po file (S1) and special accomodations
+
 * Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 1.3.8-6avx
 - Annvix build
 

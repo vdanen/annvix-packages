@@ -1,6 +1,6 @@
---- chkconfig-1.3.4/chkconfig.c.chmou	Sat Sep 23 14:35:50 2000
-+++ chkconfig-1.3.4/chkconfig.c	Sat Sep 23 14:37:20 2000
-@@ -63,7 +63,11 @@
+--- chkconfig-1.3.11/chkconfig.c.orig	2004-07-14 01:33:58.000000000 +0200
++++ chkconfig-1.3.11/chkconfig.c	2004-07-14 01:36:15.000000000 +0200
+@@ -52,7 +52,11 @@ static int delService(char * name) {
  	readServiceError(rc, name);
  	return 1;
      }
@@ -13,16 +13,16 @@
  
      for (level = 0; level < 7; level++) {
  	    if (!findServiceEntries(name, level, &globres)) {
-@@ -181,7 +185,11 @@
+@@ -167,7 +171,11 @@ static int addService(char * name) {
  	return 1;
      }
  	
 -    if (s.type == TYPE_XINETD) return 0;
 +    if (s.type == TYPE_XINETD) {
-+            setXinetdService(s, 1);
-+            system("/sbin/service xinetd reload >/dev/null 2>&1");
-+            return 0;
++	    setXinetdService(s, 1);
++	    system("/sbin/service xinetd reload >/dev/null 2>&1");
++	    return 0;
 +    }
-     if (s.isLSB && (s.sPriority == s.kPriority == -1))
+     if (s.isLSB && (s.sPriority == -1) && (s.kPriority == -1))
  		frobDependencies(&s);
      
