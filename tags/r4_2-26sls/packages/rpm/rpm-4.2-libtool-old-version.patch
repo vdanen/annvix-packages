@@ -1,0 +1,15 @@
+--- rpm-4.2/autogen.sh.oldlibtool	2003-01-05 20:24:24.000000000 +0100
++++ rpm-4.2/autogen.sh	2003-04-28 11:43:01.000000000 +0200
+@@ -16,9 +16,9 @@
+ recent versions of libtool/autoconf/automake.
+ "
+ 
+-[ "`libtoolize --version`" != "$LTV" ] && echo "$USAGE" && exit 1
+-[ "`autoconf --version | head -1`" != "$ACV" ] && echo "$USAGE" && exit 1
+-[ "`automake --version | head -1 | sed -e 's/1\.4[a-z]/1.4/'`" != "$AMV" ] && echo "$USAGE" && exit 1
++#[ "`libtoolize --version`" != "$LTV" ] && echo "$USAGE" && exit 1
++#[ "`autoconf --version | head -1`" != "$ACV" ] && echo "$USAGE" && exit 1
++#[ "`automake --version | head -1 | sed -e 's/1\.4[a-z]/1.4/'`" != "$AMV" ] && echo "$USAGE" && exit 1
+ 
+ if [ -d popt ]; then
+     (echo "--- popt"; cd popt; ./autogen.sh --noconfigure "$@")
