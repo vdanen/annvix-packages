@@ -1,6 +1,6 @@
 %define name	rpm-helper
 %define version	0.9.1
-%define release	3sls
+%define release	4sls
 
 Summary:	Helper scripts for rpm scriptlets
 Name:		%{name}
@@ -46,6 +46,9 @@ rm -rf $RPM_BUILD_ROOT
 %_datadir/%name/*
 
 %changelog
+* Tue Feb 03 2004 Vincent Danen <vdanen@opensls.org> 0.9.1-4sls
+- update P0 to add another field to add-group for static gid
+
 * Tue Jan 27 2004 Vincent Danen <vdanen@opensls.org> 0.9.1-3sls
 - P0: adds add-srv and del-srv scripts to manage supervised services, also
   adds a sixth field to add-user so we can force a static uid
