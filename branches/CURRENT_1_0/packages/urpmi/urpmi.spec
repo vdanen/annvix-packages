@@ -1,34 +1,21 @@
 %define name	urpmi
 %define version	4.4
-%define release 48sls
-
-%{!?build_opensls:%global build_opensls 0}
-
-%define group %(perl -e 'printf "%%s\\n", "%_vendor" =~ /mandrake/i ? "System/Configuration/Packaging" : "System Environment/Base"')
+%define release 49sls
 
 %{expand:%%define compat_perl_vendorlib %(perl -MConfig -e 'printf "%%s\n", "%{?perl_vendorlib:1}" ? "%%{perl_vendorlib}" : "$Config{installvendorlib}"')}
-%if %{build_opensls}
+
 %define use_locale	1
 %define allow_gurpmi	0
 %define allow_karun	0
 %define req_webfetch	webfetch
 %define buildreq_locale	perl-MDK-Common-devel
-%else
-%define allow_karun	1
-%{expand:%%define use_locale %%(perl -e 'printf "%%s\\n", "%_vendor" =~ /mandrake/i ? 1 : 0')}
-%{expand:%%define allow_gurpmi %%(perl -e 'printf "%%s\\n", "%_vendor" =~ /mandrake/i ? 1 : 0')}
-%{expand:%%define req_webfetch %%(perl -e 'printf "%%s\\n", "%_vendor" =~ /mandrake/i ? "webfetch" : "curl wget"')}
-%{expand:%%define buildreq_locale %%(perl -e 'printf "%%s\\n", "%_vendor" =~ /mandrake/i ? "perl-MDK-Common-devel" : ""')}
-%{expand:%%define distribution %%(perl -e 'printf "%%s\\n", ("%_vendor" =~ /mandrake/i ? "Mandrake Linux" : "Red Hat Linux")')}
-%{expand:%%define real_release %%(perl -e 'printf "%%s\\n", ("%_vendor" !~ /mandrake/i && ("%release" =~ /(.*?)mdk/)[0] || "%release")')}
-%endif
 
 Summary:	User mode rpm install
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	GPL
-Group:		%{group}
+Group:		System/Configuration/Packaging
 URL:		http://cvs.mandrakesoft.com/cgi-bin/cvsweb.cgi/soft/urpmi
 Source0:	%{name}.tar.bz2
 
@@ -55,14 +42,6 @@ Obsoletes:	grpmi
 gurpmi is a graphical front-end to urpmi
 %endif
 
-#%package -n autoirpm
-#Summary: Auto install of rpm on demand
-#Requires: sh-utils urpmi gurpmi xtest gmessage gurpmi perl
-#Group: %{group}
-#
-#%description -n autoirpm
-#Auto install of rpm on demand
-
 %if %{allow_karun}
 %package -n urpmi-parallel-ka-run
 Summary:	Parallel extensions to urpmi using ka-run
@@ -87,7 +66,7 @@ distributed installation using ssh and scp tools.
 %setup -q -n %{name}
 
 %install
-%{__rm} -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %{__make} PREFIX=%{buildroot} MANDIR=%{buildroot}%{_mandir} install
 %if !%{allow_gurpmi}
 rm -f %{buildroot}%{_sbindir}/gurpmi
@@ -103,14 +82,8 @@ cat <<EOF >%{buildroot}/etc/urpmi/inst.list
 # of being upgraded (typically kernel packages).
 kernel
 kernel-smp
-kernel-secure
-kernel-enterprise
-kernel-linus2.2
-kernel-linus2.4
-kernel22
-kernel22-secure
-kernel22-smp
-hackkernel
+kernel-BOOT
+kernel-build
 EOF
 
 mkdir -p %{buildroot}%{compat_perl_vendorlib}
@@ -153,12 +126,15 @@ title="Software installer" longtitle="Graphical front end to install RPM files" 
 mimetypes="application/x-rpm" \
 multiple_files="true"
 EOF
+%else
+rm -f %{buildroot}%{_bindir}/gurpmi
 %endif
+
 
 %find_lang %{name}
 
 %clean
-rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %preun
 if [ "$1" = "0" ]; then
@@ -174,9 +150,6 @@ use urpm;
 $urpm = new urpm;
 $urpm->read_config;
 $urpm->update_media(nolock => 1, nopubkey => 1);
-
-#%preun -n autoirpm
-#[ -x %{_sbindir}/autoirpm.uninstall ] && %{_sbindir}/autoirpm.uninstall
 
 %if %{allow_gurpmi}
 %post -n gurpmi
@@ -224,20 +197,6 @@ $urpm->update_media(nolock => 1, nopubkey => 1);
 %{compat_perl_vendorlib}/gurpm.pm
 %endif
 
-#%files -n autoirpm
-#%defattr(-,root,root)
-#%dir /var/lib/urpmi/autoirpm.scripts
-#%config(noreplace) /etc/urpmi/autoirpm.deny
-#%{_sbindir}/autoirpm.*
-#%{_mandir}/man?/autoirpm*
-## find_lang isn't able to find man pages yet...
-#%lang(cs) %{_mandir}/cs/man?/autoirpm*
-#%lang(eu) %{_mandir}/eu/man?/autoirpm*
-#%lang(fr) %{_mandir}/fr/man?/autoirpm*
-#%lang(ru) %{_mandir}/ru/man?/autoirpm*
-#%{_bindir}/_irpm
-#%doc README-autoirpm-icons autoirpm.README
-
 %if %{allow_karun}
 %files -n urpmi-parallel-ka-run
 %defattr(-,root,root)
@@ -251,6 +210,10 @@ $urpm->update_media(nolock => 1, nopubkey => 1);
 %{compat_perl_vendorlib}/urpm/parallel_ssh.pm
 
 %changelog
+* Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 4.4-49sls
+- remove %%build_opensls macro
+- minor spec cleanups
+
 * Tue Dec 30 2003 Vincent Danen <vdanen@opensls.org> 4.4-48sls
 - new macro: %%allow_karun which is off for OpenSLS builds
 - fix %%allow_gurpmi macro
