@@ -1,6 +1,6 @@
 %define name	cups
 %define version	1.1.19
-%define release	11sls
+%define release	12sls
 
 %define major	2
 %define libname	%mklibname cups %{major}
@@ -42,6 +42,8 @@ Source13:	http://www.oeh.uni-linz.ac.at/~rupi/pap/pap-docu.pdf.bz2
 Source14:	http://www.linuxprinting.org/download/printing/photo_print.bz2
 Source15:	http://printing.kde.org/downloads/pdfdistiller.bz2
 Source16:	cjktexttops.bz2
+Source20:	cups.run
+Source21:	cups-log.run
 Patch1:		cups-1.1.15-cupsdconf.patch.bz2
 Patch2:		cups-1.1.9-nopassword.patch.bz2
 #Patch4:	cups-1.1.3-mimetypes.patch.bz2
@@ -400,6 +402,13 @@ fi
 EOF
 chmod a+rx $RPM_BUILD_ROOT%{_libdir}/cups/scripts/cupsWebAdmin
 
+%if %{build_opensls}
+mkdir -p %{buildroot}/var/service/cups/log
+mkdir -p %{buildroot}/var/log/supervise/cups
+install -m 0755 %{SOURCE20} %{buildroot}/var/service/cups/run
+install -m 0755 %{SOURCE21} %{buildroot}/var/service/cups/log/run
+rm -f %{buildroot}%{_datadir}/icons/locolor/16x16/apps/cups.png
+%else
 # entry for xinetd (disabled by default)
 install -d $RPM_BUILD_ROOT%{_sysconfdir}/xinetd.d
 cat <<EOF >$RPM_BUILD_ROOT%{_sysconfdir}/xinetd.d/cups-lpd
@@ -430,6 +439,7 @@ longtitle="Web-based administration tool for CUPS, works with every browser. Set
 command="%{_libdir}/cups/scripts/cupsWebAdmin 1>/dev/null 2>/dev/null" \
 icon="%{_iconsdir}/locolor/16x16/apps/cups.png"
 EOF
+%endif
 
 # Install startup script
 install -m 755 cups.startup $RPM_BUILD_ROOT%{_initrddir}/cups
@@ -503,8 +513,10 @@ install -m644 config.h $RPM_BUILD_ROOT%{_includedir}/cups/
 # Let CUPS daemon be automatically started at boot time
 %_post_service cups
 
+%if !%{build_opensls}
 ##menu
 %{update_menus}
+%endif
 
 %post common
 # Set permissions/ownerships for lppasswd
@@ -541,9 +553,11 @@ fi
 %preun -n %{libname}
 /sbin/ldconfig
 
+%if !%{build_opensls}
 %postun
 ## menu
 %{update_menus}
+%endif
 
 %postun -n %{libname}
 /sbin/ldconfig
@@ -571,7 +585,15 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{_sysconfdir}/cups/ssl
 %config(noreplace) %{_initrddir}/cups
 %config(noreplace) %{_sysconfdir}/pam.d/cups
+%if %{build_opensls}
+%dir /var/service/cups
+%dir /var/service/cups/log
+/var/service/cups/run
+/var/service/cups/log/run
+%dir %attr(0750,nobody,nogroup) /var/log/supervise/cups
+%else
 %attr(644,root,root) %config(noreplace) %{_sysconfdir}/xinetd.d/cups-lpd
+%endif
 %dir %{_libdir}/cups
 %{_libdir}/cups/cgi-bin
 %{_libdir}/cups/daemon
@@ -599,9 +621,11 @@ rm -rf $RPM_BUILD_ROOT
 # Because RPM does 'make install' as normal user, this has to be done here
 %dir %attr(0700,lp,root) %{_var}/spool/cups
 %dir %attr(01700,lp,root) %{_var}/spool/cups/tmp
+%if !%{build_opensls}
 # menu entry
 %{_iconsdir}/locolor/16x16/apps/*
 %{_menudir}/*
+%endif
 
 #####cups-common
 %files common
@@ -643,6 +667,10 @@ rm -rf $RPM_BUILD_ROOT
 ##### CHANGELOG #####
 
 %changelog
+* Wed Dec 31 2003 Vincent Danen <vdanen@opensls.org> 1.1.19-12sls
+- don't install menu or xinetd stuff
+- supervise files
+
 * Sat Dec 13 2003 Vincent Danen <vdanen@opensls.org> 1.1.19-11sls
 - OpenSLS build
 - tidy spec (but still needs a lot more cleaning)
