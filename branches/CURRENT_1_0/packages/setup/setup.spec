@@ -1,6 +1,6 @@
 %define name	setup
 %define version 2.4
-%define release 3sls
+%define release 4sls
 
 Summary:	A set of system configuration and setup files.
 Name:		%{name}
@@ -8,16 +8,10 @@ Version:	%{version}
 Release:	%{release}
 License:	Public Domain
 Group:		System/Configuration/Other
-URL:		http://www.linux-mandrake.com/cgi-bin/cvsweb.cgi/soft/setup/
-# get the source from our cvs repository (see
-# http://www.linuxmandrake.com/en/cvs.php3)
+URL:		http://opensls.org/cgi-bin/viewcvs.cgi/tools/setup
 Source:		setup-%{version}.tar.bz2
 
-Buildroot:	%{_tmppath}/%{name}-root
-
-Conflicts:	crontabs <= 1.7-12mdk
-Conflicts:	bash <= 2.05-2mdk
-Conflicts:	kdebase < 2.2.2-41mdk, proftpd < 1.2.5-0.rc1.3mdk, DansGuardian < 2.2.3-4mdk
+BuildRoot:	%{_tmppath}/%{name}-root
 
 %description
 The setup package contains a set of very important system
@@ -86,6 +80,13 @@ if [ -x /usr/sbin/nscd ]; then
 fi
 
 %changelog
+* Sat Jan 31 2004 Vincent Danen <vdanen@opensls.org> 2.4-4sls
+- remove conflicts because none of them are applicable
+- remove groups: uucp, audio, games
+- add groups: admin, cron
+- remove users: uucp, games
+- use a standard motd
+
 * Mon Dec 01 2003 Vincent Danen <vdanen@opensls.org> 2.4-3sls
 - OpenSLS build
 - tidy spec
