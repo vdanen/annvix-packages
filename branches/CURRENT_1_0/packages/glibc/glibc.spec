@@ -3,15 +3,19 @@
 
 # <version>-<release> tags for glibc main package
 %define glibcversion	2.3.2
-%define glibcrelease	18sls
+%define glibcrelease	19sls
+
 # <version>-<release> tags from kernel package where headers were
 # actually extracted from
 %define kheaders_ver	2.4.23
 %define kheaders_rel	0.rc5.2mdk
+
 # Don't care about locales/* and pt_chown
 %define _unpackaged_files_terminate_build 0
 # Add errno compat hack for errata
 %define build_errata	0
+# enable heap protection; currently doesn't work on amd64
+%define build_heapprot	0
 
 # CVS snapshots of glibc
 %define RELEASE		0
@@ -53,7 +57,11 @@
 # Enable checking by default for arches where we know tests all pass
 # disable due to heap protection; with build_check enabled we get a heap
 # overflow in malloc.c:4092
+%if %{build_heapprot}
 %define build_check	0
+%else
+%define build_check	1
+%endif
 
 # Define to build a biarch package
 %define build_biarch	0
@@ -453,7 +461,7 @@ GNU C library in PDF format.
 rm crypt_blowfish-*/crypt.h
 cp -a crypt_blowfish-*/*.[chS] crypt
 %patch42 -p0 -b .blowfish
-%ifarch %{ix86}
+%if %{build_heapprot}
 %patch43 -p1 -b .heapprotect
 %endif
 
@@ -605,7 +613,7 @@ function BuildGlibc() {
   rm -rf build-$arch-linux
   mkdir  build-$arch-linux
   pushd  build-$arch-linux
-%ifarch %{ix86}
+%if %{build_heapprot}
 HEAPPROT="--enable-heap-protection"
 %else
 HEAPPROT=""
@@ -1317,6 +1325,11 @@ fi
 %endif
 
 %changelog
+* Wed Feb 24 2004 Vincent Danen <vdanen@opensls.org> 2.3.2-19sls
+- new build option: build_heapprot which enables or disables heap
+  protection; for now we disable it until the author can get it fixed on
+  amd64
+
 * Sun Feb 08 2004 Vincent Danen <vdanen@opensls.org> 2.3.2-18sls
 - include glibc heap protection (P43); currently unapplied
 - remove %%build_opensls macros
