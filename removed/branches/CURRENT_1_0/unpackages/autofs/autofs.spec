@@ -1,6 +1,6 @@
 %define name	autofs
 %define version 4.0.0
-%define release 0.22sls
+%define release 0.23avx
 
 %define ver	%{version}pre10
 
@@ -36,7 +36,7 @@ BuildRoot:	%{_tmppath}/%{name}-%{ver}-root
 BuildRequires:	openldap-devel
 
 PreReq:		chkconfig, rpm-helper
-Requires:	/bin/bash, mktemp, sed, coreutils, grep, /bin/ps
+Requires:	bash, mktemp, sed, coreutils, grep, procps
 Requires:	nfs-utils-clients, portmap
 
 %description
@@ -122,6 +122,10 @@ fi
 %{_mandir}/*/*
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 4.0.0-0.23avx
+- Annvix build
+- require packages not files
+
 * Wed Mar 03 2004 Vincent Danen <vdanen@opensls.org> 4.0.0-0.22sls
 - spec cleanups
 - fix initscript to work somewhat with supervise (P18)
