@@ -1,10 +1,12 @@
 %define name	bash
-%define version	2.05b
-%define release	17avx
+%define version	3.0
+%define release	1avx
 
-%define i18ndate 20010418
+%define i18ndate 20010626
 
-Summary:	The GNU Bourne Again shell (bash).
+%define build_dietlibc	0
+
+Summary:	The GNU Bourne Again shell (bash)
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -17,38 +19,39 @@ Source2:	dot-bashrc
 Source3:	dot-bash_profile
 Source4:	dot-bash_logout
 Source5:	alias.sh
-Patch0:		bash-2.03-paths.patch.bz2
 Patch1:		bash-2.02-security.patch.bz2
 Patch3:		bash-2.03-profile.patch.bz2
 Patch4:		bash-2.05b-readlinefixes.patch.bz2
-Patch5:		bash-2.04-requires.patch.bz2
 Patch6:		bash-2.04-compat.patch.bz2
-Patch7:		bash-2.04-shellfunc.patch.bz2
 Patch8:		bash-2.05b-ia64.patch.bz2
 Patch9:		bash-2.05-s390x-unwind.patch.bz2
-Patch10:	bash-2.05-ipv6-20010418.patch.bz2
-Patch51:	ftp://ftp.cwru.edu/pub/bash/bash-2.05b-patches/bash205b-001.bz2
-Patch52:	ftp://ftp.cwru.edu/pub/bash/bash-2.05b-patches/bash205b-002.bz2
-Patch53:	ftp://ftp.cwru.edu/pub/bash/bash-2.05b-patches/bash205b-003.bz2
-Patch54:	ftp://ftp.cwru.edu/pub/bash/bash-2.05b-patches/bash205b-004.bz2
-Patch55:	ftp://ftp.cwru.edu/pub/bash/bash-2.05b-patches/bash205b-005.bz2
-Patch56:	ftp://ftp.cwru.edu/pub/bash/bash-2.05b-patches/bash205b-006.bz2
-Patch57:	ftp://ftp.cwru.edu/pub/bash/bash-2.05b-patches/bash205b-007.bz2
+Patch13:	bash-2.05b-dietlibc.patch.bz2
+Patch14:	bash-2.05b-waitpid-WCONTINUED.patch.bz2
+Patch50:	ftp://ftp.cwru.edu/pub/bash/bash-2.05b-patches/bash30-001.bz2
+Patch51:	ftp://ftp.cwru.edu/pub/bash/bash-3.0-patches/bash30-002.bz2
+Patch52:	ftp://ftp.cwru.edu/pub/bash/bash-3.0-patches/bash30-003.bz2
+Patch53:	ftp://ftp.cwru.edu/pub/bash/bash-3.0-patches/bash30-004.bz2
+Patch54:	ftp://ftp.cwru.edu/pub/bash/bash-3.0-patches/bash30-005.bz2
+Patch55:	ftp://ftp.cwru.edu/pub/bash/bash-3.0-patches/bash30-006.bz2
+Patch56:	ftp://ftp.cwru.edu/pub/bash/bash-3.0-patches/bash30-007.bz2
+Patch57:	ftp://ftp.cwru.edu/pub/bash/bash-3.0-patches/bash30-008.bz2
+Patch58:	ftp://ftp.cwru.edu/pub/bash/bash-3.0-patches/bash30-009.bz2
+Patch59:	ftp://ftp.cwru.edu/pub/bash/bash-3.0-patches/bash30-010.bz2
+Patch60:	ftp://ftp.cwru.edu/pub/bash/bash-3.0-patches/bash30-011.bz2
+Patch61:	ftp://ftp.cwru.edu/pub/bash/bash-3.0-patches/bash30-012.bz2
+Patch62:	ftp://ftp.cwru.edu/pub/bash/bash-3.0-patches/bash30-013.bz2
+Patch63:	ftp://ftp.cwru.edu/pub/bash/bash-3.0-patches/bash30-014.bz2
+Patch64:	ftp://ftp.cwru.edu/pub/bash/bash-3.0-patches/bash30-015.bz2
+Patch65:	ftp://ftp.cwru.edu/pub/bash/bash-3.0-patches/bash30-016.bz2
 Patch80:	bash-2.05b-builtins.patch.bz2
 Patch81:	bash-2.05b-configure-destdir.patch.bz2
 Patch90:	bash-2.05b-disable-nontrivial-matches.patch.bz2
-#i18n
-Patch100:	http://oss.software.ibm.com/developer/opensource/linux/patches/i18n/bash-2.05-%i18ndate.patch.bz2
-Patch101:	http://oss.software.ibm.com/developer/opensource/linux/patches/i18n/bash-2.05-readline-%i18ndate.patch.bz2
-Patch102:	http://oss.software.ibm.com/developer/opensource/linux/patches/i18n/bash-2.05-readline-i18n-0.4.patch.bz2
-Patch103:	http://oss.software.ibm.com/developer/opensource/linux/patches/i18n/bash-2.05-i18n-0.5.patch.bz2
 Patch1000:	bash-strcoll-bug.diff.bz2
 Patch1002:	bash-2.05b-completion-fix.diff.bz2
+Patch1003:	bash-2.05b-checkwinsize.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-root
-BuildRequires:	autoconf2.5
-BuildRequires:	byacc
-BuildRequires:	libtermcap-devel
+BuildRequires:	autoconf2.5, bison, libtermcap-devel
 
 Conflicts:	etcskel <= 1.63-11mdk, fileutils < 4.1-5mdk
 
@@ -69,7 +72,6 @@ Tools standard.
 %prep
 %setup -q -n bash-%{version} -a 1
 
-%patch0 -p1 -b .paths
 %patch1 -p1 -b .security
 %patch3 -p1 -b .profile
 %patch4 -p1 -b .readline
@@ -82,63 +84,100 @@ Tools standard.
 %ifarch s390x
 %patch9 -p1 -b .s390x
 %endif
-# 20020328 warly: integrated in mainstream
-#%patch10 -p1 -b .ipv6
-#%patch51 -p0 -b .pl1
-#%patch52 -p0 -b .pl2
-#%patch53 -p0 -b .pl3
-#%patch54 -p0 -b .pl4
-#%patch55 -p0 -b .pl5
-#%patch56 -p0 -b .pl6
 
-%patch51 -p0 -b .pl1
-%patch52 -p0 -b .pl2
-%patch53 -p0 -b .pl3
-%patch54 -p0 -b .pl4
-%patch55 -p0 -b .pl5
-%patch56 -p0 -b .pl6
-%patch57 -p0 -b .pl7
+%patch13 -p1 -b .dietlibc
+%patch14 -p1 -b .waitpid-WCONTINUED
+
+%patch50 -p0 -b .pl1
+%patch51 -p0 -b .pl2
+%patch52 -p0 -b .pl3
+%patch53 -p0 -b .pl4
+%patch54 -p0 -b .pl5
+%patch55 -p0 -b .pl6
+%patch56 -p0 -b .pl7
+%patch57 -p0 -b .pl8
+%patch58 -p0 -b .pl9
+%patch59 -p0 -b .pl10
+%patch60 -p0 -b .pl11
+%patch61 -p0 -b .pl12
+%patch62 -p0 -b .pl13
+%patch63 -p0 -b .pl14
+%patch64 -p0 -b .pl15
+%patch65 -p0 -b .pl16
 
 %patch80 -p0 -b .fix_so
-%patch81 -p1 -b .destdir
+#%patch81 -p1 -b .destdir
 
 %patch90 -p0
 
-#%patch100 -p1 -b .i18n
-#%patch101 -p1 -b .readline-i18n
-#%patch102 -p1 -b .i18n
-#%patch103 -p1 -b .readline-i18n
-
 %patch1000 -p1 -b .strcoll_bugx
-%patch1002 -p1 -b .cmplt
+#%patch1002 -p1 -b .cmplt
+%patch1003 -p1 -b .checkwinsize
 
 echo %{version} > _distribution
 echo %{release} > _patchlevel
-perl -p -i -e s/mdk// _patchlevel
+perl -p -i -e s/avx// _patchlevel
+
+# needed by P13
+autoconf
 
 %build
 libtoolize --copy --force
-%configure --disable-command-timing
-%make -j1 CFLAGS="$RPM_OPT_FLAGS"
+
+# build statically linked bash with dietlibc
+%if %{build_dietlibc}
+# TODO: --enable-minimal-config?
+mkdir bash-static
+pushd bash-static
+export CFLAGS="$RPM_OPT_FLAGS -Os"
+export CONFIGURE_TOP=".."
+%configure2_5x \
+    --disable-command-timing \
+    --enable-dietlibc
+#    --enable-separate-helpfiles \
+#    --disable-nls
+#    --enable-minimal-config \
+%make
+popd
+%endif
+
+# build dynamically linked bash
+mkdir bash-dynamic
+pushd bash-dynamic
+export CFLAGS="$RPM_OPT_FLAGS"
+export CONFIGURE_TOP=".."
+%configure2_5x \
+    --disable-command-timing
+%make CFLAGS="$RPM_OPT_FLAGS"
+# all tests must pass
+make check
+popd
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-%makeinstall
-#Sucks
+%makeinstall -C bash-dynamic
+
+rm -rf %{buildroot}%{_datadir}/locale/en@boldquot/ %{buildroot}%{_datadir}/locale/en@quot/
+
+# Sucks
 chmod +w doc/texinfo.tex
+chmod 755 examples/misc/aliasconv.*
+chmod 755 examples/misc/cshtobash
+chmod 755 %{buildroot}%{_bindir}/bashbug
+
 mv doc/README .
 
 # Take out irritating ^H's from the documentation
-for i in `/bin/ls doc/` ; \
-	do cat doc/$i > $i ; \
-	cat $i | perl -p -e 's/.//g' > doc/$i ; \
-	rm $i ; \
-	done
+for i in `/bin/ls doc/` ; do perl -pi -e 's/.//g' doc/$i ; done
 
-mkdir -p $RPM_BUILD_ROOT/bin
-pushd $RPM_BUILD_ROOT && mv usr/bin/bash bin/bash && popd
-pushd $RPM_BUILD_ROOT/bin && ln -s bash sh && popd
-pushd $RPM_BUILD_ROOT/bin && ln -sf bash bash2 && popd
+mkdir -p %{buildroot}/bin
+pushd %{buildroot} && mv usr/bin/bash bin/bash && popd
+pushd %{buildroot}/bin && ln -s bash sh && popd
+pushd %{buildroot}/bin && ln -sf bash bash3 && popd
+
+%if %{build_dietlibc}
+install -m0755 bash-static/bash %{buildroot}/bin/bash-diet
+%endif
 
 # make manpages for bash builtins as per suggestion in DOC/README
 cd doc
@@ -152,11 +191,13 @@ b
 }
 d
 ' builtins.1 > man.pages
-install -m 644 builtins.1 $RPM_BUILD_ROOT%{_mandir}/man1/builtins.1
+install -m 644 builtins.1 %{buildroot}%{_mandir}/man1/builtins.1
 
 for i in `cat man.pages` ; do
-  echo .so man1/builtins.1 > $RPM_BUILD_ROOT%{_mandir}/man1/$i.1
+  echo .so man1/builtins.1 > %{buildroot}%{_mandir}/man1/$i.1
 done
+
+install -m 644 rbash.1 %{buildroot}%{_mandir}/man1/rbash.1
 
 # now turn man.pages into a filelist for the man subpackage
 
@@ -169,16 +210,20 @@ s/$/.1.bz2/
 
 perl -p -i -e 's!.*/(printf|export|echo|pwd|test|kill).1.bz2!!' ../man.pages
 
-mkdir -p %buildroot/etc/skel
-install -c -m644 %{SOURCE2} %buildroot/etc/skel/.bashrc
-install -c -m644 %{SOURCE3}	%buildroot/etc/skel/.bash_profile
-install -c -m644 %{SOURCE4}	%buildroot/etc/skel/.bash_logout
-install -D -c -m755 %{SOURCE5} %buildroot/etc/profile.d/alias.sh
+mkdir -p %{buildroot}/etc/skel
+install -c -m 0644 %{SOURCE2} %{buildroot}/etc/skel/.bashrc
+install -c -m 0644 %{SOURCE3}	%{buildroot}/etc/skel/.bash_profile
+install -c -m 0644 %{SOURCE4}	%{buildroot}/etc/skel/.bash_logout
+install -D -c -m 0755 %{SOURCE5} %{buildroot}/etc/profile.d/alias.sh
 
-ln -s bash %buildroot/bin/rbash
+ln -s bash %{buildroot}/bin/rbash
 
 # These're provided by other packages
-rm -f %buildroot{%_infodir/dir,%_mandir/man1/{echo,export,kill,printf,pwd,test}.1}
+rm -f %{buildroot}{%_infodir/dir,%{_mandir}/man1/{echo,export,kill,printf,pwd,test}.1}
+
+cd ..
+
+install -c -m 0644 bash-dynamic/doc/bash.info %{buildroot}%{_infodir}/
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -190,16 +235,30 @@ rm -f %buildroot{%_infodir/dir,%_mandir/man1/{echo,export,kill,printf,pwd,test}.
 %config(noreplace) /etc/profile.d/alias.sh
 /bin/rbash
 /bin/bash
-/bin/bash2
+/bin/bash3
+%if %{build_dietlibc}
+/bin/bash-diet
+%endif
 /bin/sh
 %{_infodir}/bash.info*
 %{_mandir}/man1/bash.1*
+%{_mandir}/man1/rbash.1*
 %{_mandir}/man1/builtins.1*
 %{_mandir}/man1/bashbug.1*
 %{_bindir}/bashbug
 
 
 %changelog
+* Fri Mar 04 2005 Vincent Danen <vdanen@annvix.org> 3.0-1avx
+- 3.0
+- BuildRequires: s/byacc/bison/ (stefan)
+- P13: dietlibc support (gb)
+- P12: fix builds with --enable-minimal-config (gb)
+- P14: really check for WCONTINUED support in waitpid() calls (gb)
+- look at user-defined colors in ~/.dir_colors and don't waste resources
+  with DIR_COLORS if it exists (robert.vojta)
+- spec cleanups
+
 * Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 2.05b-17avx
 - Annvix build
 
