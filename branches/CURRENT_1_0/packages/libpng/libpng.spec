@@ -1,19 +1,24 @@
+%define name	libpng
+%define version	1.2.5
+%define release	8sls
+
 %define lib_name_orig	libpng
 %define lib_major	3
 %define lib_name	%mklibname png %{lib_major}
 
 Summary: 	A library of functions for manipulating PNG image format files
-Name: 		libpng
-Version: 	1.2.5
-Release:	7mdk
+Name: 		%{name}
+Version: 	%{version}
+Release:	%{release}
+Epoch: 		2
 License: 	GPL-like
 Group: 		System/Libraries
-BuildRequires: 	zlib-devel
 URL: 		http://www.libpng.org/pub/png/libpng.html
 Source: 	ftp://ftp.uu.net/graphics/png/src/%{name}-%{version}.tar.bz2
 Patch0:		libpng-1.2.5-mdkconf.patch.bz2
-Buildroot: 	%{_tmppath}/%{name}-%{version}-root
-Epoch: 		2
+
+BuildRoot: 	%{_tmppath}/%{name}-%{version}-root
+BuildRequires: 	zlib-devel
 
 %description
 The libpng package contains a library of functions for creating and
@@ -26,50 +31,11 @@ Libpng should be installed if you need to manipulate PNG format image
 files.
 
 %package -n %{lib_name}
-Summary: A library of functions for manipulating PNG image format files.
-Group: System/Libraries
-Obsoletes: %{name}
-Provides: %{name} = %{version}-%{release}
-Conflicts: gdk-pixbuf < 0.11.0-6mdk
-
-# fredl: to allow upgrades to work, list all the libs from 8.1 packages that
-# depends on libpng2:
-Conflicts: Epplets < 0.5-8mdk
-Conflicts: gdk-pixbuf-loaders < 0.16.0-1mdk
-Conflicts: gnome-core < 1.4.0.6-1mdk
-Conflicts: kdeaddons < 2.2.2-2mdk
-Conflicts: kdebase < 2.2.2-37mdk
-Conflicts: kdebase-nsplugins < 2.2.2-37mdk
-Conflicts: kdebindings < 2.2.2-4mdk
-Conflicts: kdegames < 2.2.2-4mdk
-Conflicts: kdegraphics < 2.2.2-4mdk
-Conflicts: kdelibs < 2.2.2-29mdk
-Conflicts: kdelibs-sound < 2.2.2-29mdk
-Conflicts: kdemultimedia < 2.2.2-3mdk
-Conflicts: kdemultimedia-aktion < 2.2.2-3mdk
-Conflicts: kdenetwork < 2.2.2-11mdk
-Conflicts: kdepim < 2.2.2-2mdk
-Conflicts: kdesdk < 2.2.2-4mdk
-Conflicts: kdetoys < 2.2.2-6mdk
-Conflicts: kdeutils < 2.2.2-6mdk
-Conflicts: kdevelop < 2.0.2-4mdk
-Conflicts: koffice < 1.1.1-8mdk
-Conflicts: kvirc < 2.1.1-5mdk
-Conflicts: libSDL_image1.2 < 1.2.1-1mdk
-Conflicts: libclanlib1-png < 0.5.1-5mdk
-Conflicts: libcups1 < 1.1.12-3mdk
-Conflicts: libeel0 < 1.0.2-6mdk
-Conflicts: libfnlib0 < 0.5-2mdk
-Conflicts: libgd1 < 1.8.4-4mdk
-Conflicts: libgtk+2 < 1.3.12-4mdk
-Conflicts: libgtkxmhtml1 < 1.4.1.4-1mdk
-Conflicts: libimlib1 < 1.9.11-8mdk
-Conflicts: libqt2 < 2.3.1-24mdk
-Conflicts: libwraster2 < 0.80.0-2mdk
-Conflicts: linuxconf < 1.26r5-2mdk
-Conflicts: nautilus < 1.0.6-8mdk
-Conflicts: sawfish < 1.0-7mdk
-
+Summary:	A library of functions for manipulating PNG image format files.
+Group:		System/Libraries
+Obsoletes:	%{name}
+Provides:	%{name} = %{version}-%{release}
+Conflicts:	gdk-pixbuf < 0.11.0-6mdk
 
 %description -n %{lib_name}
 This package contains the library needed to run programs dynamically
@@ -153,6 +119,11 @@ rm -rf $RPM_BUILD_ROOT%{_prefix}/man
 rm -rf %buildroot
 
 %changelog
+* Wed Dec 17 2003 Vincent Danen <vdanen@opensls.org> 1.2.5-8sls
+- OpenSLS build
+- tidy spec
+- remove the 8.1-upgrade-conflicts stuff
+
 * Wed Aug 27 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 1.2.5-7mdk
 - Patch0: Nuke DT_RPATH, add correct DT_NEEDED entries
 
