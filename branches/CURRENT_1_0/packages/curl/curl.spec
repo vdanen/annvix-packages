@@ -1,8 +1,9 @@
-%define name curl
+%define name	curl
 %define version 7.10.7
+%define release	3sls
+
 %define real_version 7.10.7
-%define release 2mdk
-%define major 2
+%define major	2
 %define libname %mklibname %{name} %{major}
 
 # Define to make check (default behavior)
@@ -12,20 +13,22 @@
 %{?_with_CHECK: %{expand: %%define do_check 1}}
 %{?_without_CHECK: %{expand: %%define do_check 0}}
 
-Summary: Gets a file from a FTP, GOPHER or HTTP server.
-Name: %{name}
-Version: %{version}
-Release: %{release}
-License: MIT
-Group: Networking/Other
-Source: http://curl.haxx.se/download/%{name}-%{real_version}.tar.bz2
-Patch0: curl-7.5-missingfcntl_h.patch.bz2
-Patch1: curl-7.10.4-compat-location-trusted.patch.bz2
-Patch2: curl-7.10.7-64bit-fixes.patch.bz2
-URL: http://curl.haxx.se/
-Provides: webfetch
-BuildRoot: %{_tmppath}/%{name}-buildroot
-BuildRequires: bison groff-for-man openssl-devel zlib-devel
+Summary:	Gets a file from a FTP, GOPHER or HTTP server.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	MIT
+Group:		Networking/Other
+URL:		http://curl.haxx.se/
+Source:		http://curl.haxx.se/download/%{name}-%{real_version}.tar.bz2
+Patch0:		curl-7.5-missingfcntl_h.patch.bz2
+Patch1:		curl-7.10.4-compat-location-trusted.patch.bz2
+Patch2:		curl-7.10.7-64bit-fixes.patch.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildRequires:	bison groff-for-man openssl-devel zlib-devel
+
+Provides:	webfetch
 
 %description 
 curl is a client to get documents/files from servers, using any of the
@@ -41,10 +44,10 @@ package.
 NOTE: This version is compiled with SSL (https) support.
 
 %package -n %{libname}
-Summary: A library of functions for file transfer
-Group: Networking/Other
-Provides: curl-lib = %{version}-%{release}
-Obsoletes: curl-lib
+Summary:	A library of functions for file transfer
+Group:		Networking/Other
+Provides:	curl-lib = %{version}-%{release}
+Obsoletes:	curl-lib
 
 %description  -n %{libname}
 libcurl is a library of functions for sending and receiving files through 
@@ -55,11 +58,11 @@ use libcurl
 
 
 %package -n %{libname}-devel
-Summary: Header files and static libraries for libcurl
-Group: Networking/Other
-Requires: %{libname} = %{version}
-Provides: %{name}-devel = %{version}-%{release}, lib%{name}-devel
-Obsoletes: %{name}-devel
+Summary:	Header files and static libraries for libcurl
+Group:		Networking/Other
+Requires:	%{libname} = %{version}
+Provides:	%{name}-devel = %{version}-%{release}, lib%{name}-devel
+Obsoletes:	%{name}-devel
 
 %description -n %{libname}-devel
 libcurl is a library of functions for sending and receiving files through
@@ -133,6 +136,10 @@ rm -rf $RPM_BUILD_ROOT
 %doc docs/examples docs/INTERNALS
 
 %changelog
+* Tue Dec 02 2003 Vincent Danen <vdanen@opensls.org> 7.10.7-3sls
+- OpenSLS build
+- tidy spec
+
 * Mon Sep  1 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 7.10.7-2mdk
 - Patch2: Still more 64-bit fixes
 

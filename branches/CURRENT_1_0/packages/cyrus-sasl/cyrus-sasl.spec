@@ -1,35 +1,35 @@
-%define major 2
-%define libname %mklibname sasl %{major}
-%define up_name cyrus-sasl
+%define name	cyrus-sasl
+%define version	2.1.15
+%define release	5sls
 
-Summary: SASL is the Simple Authentication and Security Layer.
-Name: %{up_name}
-Version: 2.1.15
-Release: 4mdk
-Source0: ftp://ftp.andrew.cmu.edu/pub/cyrus-mail/%{up_name}-%{version}.tar.gz
-Source1: ftp://ftp.andrew.cmu.edu/pub/cyrus-mail/%{up_name}-%{version}.tar.gz.sig
+%define major	2
+%define libname	%mklibname sasl %{major}
+%define up_name	cyrus-sasl
+
+Summary:	SASL is the Simple Authentication and Security Layer.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	OSI Approved
+Group:		System/Libraries
+URL:		http://asg.web.cmu.edu/cyrus/download/
+Source0:	ftp://ftp.andrew.cmu.edu/pub/cyrus-mail/%{name}-%{version}.tar.gz
+Source1:	ftp://ftp.andrew.cmu.edu/pub/cyrus-mail/%{name}-%{version}.tar.gz.sig
 Source2:        saslauthd.init
 Source3:        saslauthd.sysconfig
-Patch0:  cyrus-sasl-doc-patch.bz2
-Patch1:	 cyrus-sasl-2.1.12-rpath.patch.bz2
-Patch2: cyrus-sasl-2.1.15-lib64.patch.bz2
+Patch0:		cyrus-sasl-doc-patch.bz2
+Patch1:		cyrus-sasl-2.1.12-rpath.patch.bz2
+Patch2:		cyrus-sasl-2.1.15-lib64.patch.bz2
 
-License: OSI Approved
-Group: System/Libraries
-URL: http://asg.web.cmu.edu/cyrus/download/
 BuildRoot: %{_tmppath}/%{name}-%{version}-buildroot
-Prefix: %{_prefix}
-Requires: %{libname}
-Obsoletes: cyrus-sasl >= 2.1.0
-PreReq: rpm-helper
-BuildRequires:  autoconf
-BuildRequires:  automake
-BuildRequires:  db4-devel
-BuildRequires:  pam-devel
-BuildRequires:  openssl-devel >= 0.9.6a
-BuildRequires:  libtool >= 1.4
-BuildRequires:  krb5-devel
+BuildRequires:  autoconf, automake, db4-devel, pam-devel, krb5-devel
+BuildRequires:  openssl-devel >= 0.9.6a, libtool >= 1.4
 %{?!bootstrap:BuildRequires: openldap-devel}
+
+Prefix:		%{_prefix}
+Requires:	%{libname}
+Obsoletes:	cyrus-sasl >= 2.1.0
+PreReq:		rpm-helper
 
 %description
 SASL is the Simple Authentication and Security Layer, 
@@ -40,9 +40,8 @@ protocol interactions. If its use is negotiated, a security layer is inserted
 between the protocol and the connection. 
 
 %package -n %{libname}
-Summary: Libraries for SASL a the Simple Authentication and Security Layer.
-Group: System/Libraries
-
+Summary:	Libraries for SASL a the Simple Authentication and Security Layer.
+Group:		System/Libraries
 
 %description -n %{libname}
 SASL is the Simple Authentication and Security Layer, 
@@ -53,10 +52,10 @@ protocol interactions. If its use is negotiated, a security layer is inserted
 between the protocol and the connection. 
 
 %package -n %{libname}-devel
-Summary: Librairies for SASL a the Simple Authentication and Security Layer.
-Group: Development/C
-Provides: libsasl-devel
-Requires: %{libname} = %{version}
+Summary:	Librairies for SASL a the Simple Authentication and Security Layer.
+Group:		Development/C
+Provides:	libsasl-devel
+Requires:	%{libname} = %{version}
 
 %description -n %{libname}-devel
 SASL is the Simple Authentication and Security Layer, 
@@ -67,18 +66,18 @@ protocol interactions. If its use is negotiated, a security layer is inserted
 between the protocol and the connection. 
 
 %package -n %{libname}-plug-anonymous
-Summary: SASL ANONYMOUS mechanism plugin
-Group: System/Libraries
-Requires: %{libname} = %{version}
+Summary:	SASL ANONYMOUS mechanism plugin
+Group:		System/Libraries
+Requires:	%{libname} = %{version}
 
 %description -n %{libname}-plug-anonymous
 This plugin implements the SASL ANONYMOUS mechanism,
 used for anonymous authentication.
 
 %package -n %{libname}-plug-crammd5
-Summary: SASL CRAM-MD5 mechanism plugin
-Group: System/Libraries
-Requires: %{libname} = %{version}
+Summary:	SASL CRAM-MD5 mechanism plugin
+Group:		System/Libraries
+Requires:	%{libname} = %{version}
 
 %description -n %{libname}-plug-crammd5
 This plugin implements the SASL CRAM-MD5 mechanism.
@@ -87,9 +86,9 @@ number of protocols; it uses MD5 with a challenge/response system to
 authenticate the user.
 
 %package -n %{libname}-plug-digestmd5
-Summary: SASL DIGEST-MD5 mechanism plugin
-Group: System/Libraries
-Requires: %{libname} = %{version}
+Summary:	SASL DIGEST-MD5 mechanism plugin
+Group:		System/Libraries
+Requires:	%{libname} = %{version}
 
 %description -n %{libname}-plug-digestmd5
 This plugin implements the latest draft of the SASL DIGEST-MD5
@@ -97,17 +96,10 @@ mechanism.  Although not yet finalized, this is likely to become the
 new mandatory-to-implement authentication system in all new protocols.
 It's based on the digest md5 authentication system designed for HTTP.
 
-#%package plug-kerberos4
-#Summary: SASL KERBEROS_V4 mechanism plugin
-
-#%description plug-kerberos4
-#This plugin implements the SASL KERBEROS_V4 mechanism, allowing
-#authentication via kerberos version four.
-
 %package -n %{libname}-plug-plain
-Summary: SASL PLAIN mechanism plugin
-Group: System/Libraries
-Requires: %{libname} = %{version}
+Summary:	SASL PLAIN mechanism plugin
+Group:		System/Libraries
+Requires:	%{libname} = %{version}
 
 %description -n %{libname}-plug-plain
 This plugin implements the SASL PLAIN mechanism.  Although insecure,
@@ -116,9 +108,9 @@ is the only mechanism which gives the server a copy of the user's
 password.
 
 %package -n %{libname}-plug-scrammd5
-Summary: SASL SCRAM-MD5 mechanism plugin
-Group: System/Libraries
-Requires: %{libname} = %{version}
+Summary:	SASL SCRAM-MD5 mechanism plugin
+Group:		System/Libraries
+Requires:	%{libname} = %{version}
 
 %description -n %{libname}-plug-scrammd5
 This plugin implements the SASL SCRAM-MD5 mechanism.  Although
@@ -126,9 +118,9 @@ deprecated (this will be replaced by DIGEST-MD5 at some point), it may
 be useful for the time being.
 
 %package -n %{libname}-plug-login
-Summary: SASL LOGIN mechanism plugin
-Group: System/Libraries
-Requires: %{libname} = %{version}
+Summary:	SASL LOGIN mechanism plugin
+Group:		System/Libraries
+Requires:	%{libname} = %{version}
 
 %description -n %{libname}-plug-login
 This plugin implements the SASL LOGIN mechanism.
@@ -137,49 +129,49 @@ and will be dropped soon.
 Please use the plain plugin instead.
 
 %package -n %{libname}-plug-gssapi
-Summary: SASL GSSAPI mechanism plugin
-Group: System/Libraries
-Requires: %{libname} = %{version}
-Requires: krb5-libs
+Summary:	SASL GSSAPI mechanism plugin
+Group:		System/Libraries
+Requires:	%{libname} = %{version}
+Requires:	krb5-libs
  
 %description -n %{libname}-plug-gssapi
 This plugin implements the SASL GSSAPI (kerberos 5)mechanism.
 
 %package -n %{libname}-plug-otp
-Summary: SASL OTP mechanism plugin
-Group: System/Libraries
-Requires: %{libname} = %{version}
+Summary:	SASL OTP mechanism plugin
+Group:		System/Libraries
+Requires:	%{libname} = %{version}
 
 %description -n %{libname}-plug-otp
 This plugin implements the SASL OTP mechanism.
 
-
 %package -n %{libname}-plug-sasldb
-Summary: SASL sasldb mechanism plugin
-Group: System/Libraries
-Requires: %{libname} = %{version}
+Summary:	SASL sasldb mechanism plugin
+Group:		System/Libraries
+Requires:	%{libname} = %{version}
 
 %description -n %{libname}-plug-sasldb
 This plugin implements the SASL sasldb mechanism.
 
 %package -n %{libname}-plug-srp
-Summary: SASL srp mechanism plugin
-Group: System/Libraries
-Requires: %{libname} = %{version}
+Summary:	SASL srp mechanism plugin
+Group:		System/Libraries
+Requires:	%{libname} = %{version}
 
 %description -n %{libname}-plug-srp
 This plugin implements the srp  mechanism.
 
-
 %package -n %{libname}-plug-ntlm
-Summary: SASL ntlm authentication plugin
-Group: System/Libraries
-Requires: %{libname} = %{version}
+Summary:	SASL ntlm authentication plugin
+Group:		System/Libraries
+Requires:	%{libname} = %{version}
 
 %description -n %{libname}-plug-ntlm
 This plugin implements the (unsupported) ntlm authentication.
+
+
 %prep
-%setup -q -n %{up_name}-%{version}
+%setup -q -n %{name}-%{version}
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1 -b .lib64
@@ -334,6 +326,10 @@ fi
 %{_mandir}/man3/*
  
 %changelog
+* Sat Dec 13 2003 Vincent Danen <vdanen@opensls.org> 2.1.15-5sls
+- OpenSLS build
+- tidy spec
+
 * Thu Aug 07 2003 Florin <florin@mandrakesoft.com> 2.1.15-4mdk
 - update the initscript and the sysconfig files (thx to L.Olivetti)
 

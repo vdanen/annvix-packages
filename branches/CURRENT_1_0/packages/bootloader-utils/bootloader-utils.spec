@@ -1,21 +1,25 @@
+%define name	bootloader-utils
+%define version	1.6
+%define release	4sls
+
 %define _mypost_service() if [ $1 = 1 ]; then /sbin/chkconfig --add %{1}; fi;
 
-Summary: Small utils needed for the kernel
-Name: bootloader-utils
-Version: 1.6
-Release: 3mdk
-Source0: %{name}-%{version}.tar.bz2
-License: GPL
-Group: System/Kernel and hardware
-BuildRoot: %{_tmppath}/%{name}-buildroot
-Prefix: %{_prefix}
-Requires: perl-base
-Prereq: chkconfig
-PreReq: initscripts >= 7.06-21mdk
-Url: http://www.linux-mandrake.com/cgi-bin/cvsweb.cgi/soft/initscripts/mandrake/loader/
+Summary:	Small utils needed for the kernel
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+Source0:	%{name}-%{version}.tar.bz2
+License:	GPL
+Group:		System/Kernel and hardware
+URL:		http://www.linux-mandrake.com/cgi-bin/cvsweb.cgi/soft/initscripts/mandrake/loader/
+
+BuildRoot:	%{_tmppath}/%{name}-buildroot
+
+Prefix:		%{_prefix}
+Requires:	perl-base
+Prereq:		chkconfig, initscripts >= 7.06-21mdk
 
 %description
-
 Utils needed to install/remove a kernel.  Also for updating bootloaders.
 
 %prep
@@ -60,6 +64,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 1.6-4sls
+- OpenSLS build
+- tidy spec
+
 * Wed Sep 17 2003 Thierry Vignaud <tvignaud@mandrakesoft.com> 1.6-3mdk
 - grub: fix finding root partition when fstan has commented out
   entries

@@ -1,16 +1,17 @@
-%define name common-licenses
+%define name	common-licenses
 %define version 1.0
-%define release 7mdk
+%define release 8sls
 
-Summary: Contains the various common licenses uses by the distribution
-Name: %{name}
-Version: %{version}
-Release: %{release}
-Source0: %{name}.tar.bz2
-License: GPL
-Group: System/Base
-BuildRoot: %{_tmppath}/%{name}-buildroot
-BuildArch: noarch
+Summary:	Contains the various common licenses uses by the distribution
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		System/Base
+Source0:	%{name}.tar.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildArch:	noarch
 
 %description
 Contains the various common licenses uses by the distribution. Instead of
@@ -35,6 +36,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+*Fri Nov 28 2003 Vincent Danen <vdanen@opensls.org> 1.0-8sls
+- OpenSLS build
+- tidy spec
+
 * Tue Jul 22 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 1.0-7mdk
 - rebuild
 - drop Prefix tag

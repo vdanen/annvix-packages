@@ -1,12 +1,17 @@
-Name: 		chrpath
-Version: 	0.10
-Release: 	4mdk
-Group: 		Development/Other
+%define name	chrpath
+%define version	0.10
+%define release	5sls
+
 Summary: 	Dynamic library load path (rpath) alterer
-Patch0:		chrpath-0.10-elf64.patch.bz2
-Url:		http://www.tux.org/pub/X-Windows/ftp.hungry.com/chrpath/
-Source:		%Url/%name-%version.tar.bz2
+Name: 		%{name}
+Version: 	%{version}
+Release: 	%{release}
 License: 	GPL
+Group: 		Development/Other
+URL:		http://www.tux.org/pub/X-Windows/ftp.hungry.com/chrpath/
+Source:		%Url/%name-%version.tar.bz2
+Patch0:		chrpath-0.10-elf64.patch.bz2
+
 BuildRoot: 	%{_tmppath}/%{name}-%{version}-buildroot
 
 %description
@@ -38,6 +43,10 @@ rm -rf $RPM_BUILD_ROOT;
 %_mandir/man1/chrpath.1*
 
 %changelog
+* Mon Dec 13 2003 Vincent Danen <vdanen@opensls.org> 0.10-5sls
+- OpenSLS build
+- tidy spec
+
 * Thu Sep  4 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 0.10-4mdk
 - Patch0: ELF64 support from Debian though it's still preferable to
   teach faulty packages adequately.

@@ -1,26 +1,27 @@
-%define name cpio
+%define name	cpio
 %define version 2.5
-%define release 4mdk
+%define release 5sls
 
-Summary: A GNU archiving program.
-Name: %{name}
-Version: %{version}
-Release: %{release}
-License: GPL
-Group: Archiving/Backup
-URL:  http://www.fsf.org/software/cpio
-Source: ftp://prep.ai.mit.edu/pub/gnu/%{name}-%{version}.tar.bz2
-Patch1: cpio-2.5-glibc.patch.bz2
-Patch2: cpio-2.4.2-mtime.patch.bz2
-Patch3: cpio-2.4.2-svr4compat.patch.bz2
-#Patch7: cpio-2.4.2-stdout.patch.bz2
-Patch9: cpio-2.4.2-errorcode.patch.bz2
-Patch10: cpio-2.4.2-fhs.patch.bz2
-Patch11: cpio-2.4.2-man.patch.bz2
-Patch12: cpio-2.5-i18n-0.1.patch.bz2
-Prereq: /sbin/install-info /sbin/rmt
-BuildRequires: texinfo
-Buildroot: %{_tmppath}/%{name}-root-%{version}
+Summary:	A GNU archiving program.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		Archiving/Backup
+URL:		http://www.fsf.org/software/cpio
+Source:		ftp://prep.ai.mit.edu/pub/gnu/%{name}-%{version}.tar.bz2
+Patch1:		cpio-2.5-glibc.patch.bz2
+Patch2:		cpio-2.4.2-mtime.patch.bz2
+Patch3:		cpio-2.4.2-svr4compat.patch.bz2
+Patch9:		cpio-2.4.2-errorcode.patch.bz2
+Patch10:	cpio-2.4.2-fhs.patch.bz2
+Patch11:	cpio-2.4.2-man.patch.bz2
+Patch12:	cpio-2.5-i18n-0.1.patch.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-root-%{version}
+BuildRequires:	texinfo
+
+Prereq:		/sbin/install-info, /sbin/rmt
 
 %description
 GNU cpio copies files into or out of a cpio or tar archive.  Archives
@@ -79,6 +80,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/cpio.1*
 
 %changelog
+* Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 2.5-5sls
+- OpenSLS build
+- tidy spec
+
 * Tue Jul 22 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 2.5-4mdk
 - rebuild
 - drop Prefix tag

@@ -1,27 +1,33 @@
-Summary: A system tool for maintaining the /etc/rc*.d hierarchy.
-Name: chkconfig
-Version: 1.3.8
-Release: 3mdk
-License: GPL
-Group: System/Configuration/Boot and Init
-Url:	ftp://ftp.redhat.com/pub/redhat/code/chkconfig/
-Source: ftp://ftp.redhat.com/pub/redhat/code/chkconfig/chkconfig-%{version}.tar.bz2
+%define name	chkconfig
+%define version	1.3.8
+%define release	4sls
+
+Summary:	A system tool for maintaining the /etc/rc*.d hierarchy.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		System/Configuration/Boot and Init
+URL:		ftp://ftp.redhat.com/pub/redhat/code/chkconfig/
+Source:		ftp://ftp.redhat.com/pub/redhat/code/chkconfig/chkconfig-%{version}.tar.bz2
 # zh_TW translation -- GEoff
-Source1: chkconfig.po
-Patch1: ntsysv-mdkconf.patch.bz2
-Patch3: chkconfig-runleveldir.patch.bz2
-Patch4: ntsysv-tvman.patch.bz2
-Patch5:	chkconfig-fix.patch.bz2
-Patch6: chkconfig-1.3.4-adddelxinetd.patch.bz2
-Patch7: chkconfig-1.3.4-list.patch.bz2
-Patch8: chkconfig-1.3.4-skip-files-with-dot.patch.bz2
-Patch9: chkconfig-1.3.8-skip-bad-symlinks.patch.bz2
-BuildRoot: %{_tmppath}/%{name}-root
+Source1:	chkconfig.po
+Patch1:		ntsysv-mdkconf.patch.bz2
+Patch3:		chkconfig-runleveldir.patch.bz2
+Patch4:		ntsysv-tvman.patch.bz2
+Patch5:		chkconfig-fix.patch.bz2
+Patch6:		chkconfig-1.3.4-adddelxinetd.patch.bz2
+Patch7:		chkconfig-1.3.4-list.patch.bz2
+Patch8:		chkconfig-1.3.4-skip-files-with-dot.patch.bz2
+Patch9:		chkconfig-1.3.8-skip-bad-symlinks.patch.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-root
 BuildRequires:	gettext
 BuildRequires:	newt-devel
 BuildRequires:	popt-devel
 BuildRequires:	slang
-Conflicts: rpm-helper < 0.6
+
+Conflicts:	rpm-helper < 0.6
 
 %description
 Chkconfig is a basic system utility.  It updates and queries runlevel
@@ -30,9 +36,9 @@ symbolic links in /etc/rc*.d, to relieve system administrators of some
 of the drudgery of manually editing the symbolic links.
 
 %package -n ntsysv
-Summary: A system tool for maintaining the /etc/rc*.d hierarchy.
-Group: System/Configuration/Boot and Init
-Requires: chkconfig
+Summary:	A system tool for maintaining the /etc/rc*.d hierarchy.
+Group:		System/Configuration/Boot and Init
+Requires:	chkconfig
 
 %description -n ntsysv
 ntsysv updates and queries runlevel information for system services.
@@ -105,6 +111,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man8/ntsysv.8*
 
 %changelog
+* Fri Nov 28 2003 Vincent Danen <vdanen@opensls.org> 1.3.8-4sls
+- OpenSLS build
+- tidy spec
+
 * Wed Sep  3 2003 Frederic Lepied <flepied@mandrakesoft.com> 1.3.8-3mdk
 - own /etc/init.d /etc/rc.d/*
 

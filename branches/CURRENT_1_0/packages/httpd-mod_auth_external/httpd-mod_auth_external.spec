@@ -1,33 +1,26 @@
-#Module-Specific definitions
-%define mod_version 2.2.7
-%define release 1mdk
-%define mod_name mod_auth_external
-%define mod_conf 10_%{mod_name}.conf
-%define mod_so %{mod_name}.so
-%define sourcename %{mod_name}-%{mod_version}
+%define name	%{ap_name}-%{mod_name}
+%define version	%{ap_version}_%{mod_version}
+%define release	2sls
 
-#New ADVX macros
-%define ADVXdir %{_datadir}/ADVX
+# Module-Specific definitions
+%define mod_version	2.2.7
+%define mod_name	mod_auth_external
+%define mod_conf	10_%{mod_name}.conf
+%define mod_so		%{mod_name}.so
+%define sourcename	%{mod_name}-%{mod_version}
+
+# New ADVX macros
+%define ADVXdir	%{_datadir}/ADVX
 %{expand:%(cat %{ADVXdir}/ADVX-build)}
 %{expand:%%global ap_version %(%{apxs} -q ap_version)}
-
-# Standard Module Definitions
-%define name %{ap_name}-%{mod_name}
-%define version %{ap_version}_%{mod_version}
-
-#Standard ADVX requires
-Prereq:		%{ap_name} = %{ap_version}
-Prereq:		%{ap_name}-conf
-BuildRequires:  ADVX-build >= 9.2
-BuildRequires:  %{ap_name}-devel >= 2.0.43-5mdk
-Provides: 	ADVXpackage
-Provides:	AP20package
 
 Summary:	An %{ap_name} authentication DSO using external programs
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
+License:	Apache License
 Group:		System/Servers
+URL:		http://www.unixpapa.com/mod_auth_external.html
 Source0:	%{sourcename}.tar.bz2
 Source1:	%{mod_conf}.bz2
 Source2:	pwauth.pam.bz2
@@ -36,11 +29,19 @@ Patch1:		%{mod_name}-2.2.7-conf.patch.bz2
 Patch2:		%{mod_name}-2.1.14-server.patch.bz2
 Patch4:		%{mod_name}-2.2.7-register.patch.bz2
 Patch5:		mod_auth_external-2.2.3-64bit-fixes.patch.bz2
-License:	Apache License
-URL:		http://www.unixpapa.com/mod_auth_external.html
-Prereq:		rpm-helper
-BuildRequires:	pam-devel, apache2-devel
+
 BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildRequires:	pam-devel, apache2-devel
+# Standard ADVX requires
+BuildRequires:  ADVX-build >= 9.2
+BuildRequires:  %{ap_name}-devel >= 2.0.43-5mdk
+
+Prereq:		rpm-helper
+# Standard ADVX requires
+Prereq:		%{ap_name} = %{ap_version}
+Prereq:		%{ap_name}-conf
+Provides: 	ADVXpackage
+Provides:	AP20package
 
 %description
 An %{ap_name} external authentication module - uses PAM.
@@ -101,6 +102,10 @@ chmod 644 AUTHENTICATORS CHANGES INSTALL* README* TODO mod_auth_external.txt
 %{ap_webdoc}/*
 
 %changelog
+* Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 2.0.48_2.2.7-2sls
+- OpenSLS build
+- tidy spec
+
 * Fri Nov 14 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.48_2.2.7-1mdk
 - 2.2.7
 - rediffed P1 & P4, drop P3

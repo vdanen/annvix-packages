@@ -1,6 +1,7 @@
 %define name	cdialog
 %define version	0.9b
-%define release	4mdk
+%define release	5sls
+
 %define datetag 20030308
 
 Summary:	A utility for creating TTY dialog boxes.
@@ -8,13 +9,15 @@ Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	GPL
-URL:		http://invisible-island.net/dialog/
 Group:		Development/Other
-BuildRequires:	ncurses-devel
+URL:		http://invisible-island.net/dialog/
 Source:		dialog-%{version}-%{datetag}.tar.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-root
+BuildRequires:	ncurses-devel
+
 Obsoletes:	dialog
 Provides:	dialog
-BuildRoot:	%{_tmppath}/%{name}-root
 
 %description
 Dialog is a utility that allows you to show dialog boxes (containing
@@ -52,6 +55,10 @@ rm -rf $RPM_BUILD_DIR/%{name}-%{version}
 %{_mandir}/man1/dialog.1.bz2
 
 %changelog
+* Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 0.9b-5sls
+- OpenSLS build
+- tidy spec
+
 * Sun Jun  8 2003 Stefan van der Eijk <stefan@eijk.nu> 0.9b-4mdk
 - BuildRequires
 

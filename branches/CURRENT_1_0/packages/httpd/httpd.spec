@@ -1,3 +1,9 @@
+%define name	apache2
+%define version	2.0.48
+%define release	5sls
+
+%{!?build_opensls:%global build_opensls 0}
+
 #
 #(ie. use with rpm --rebuild):
 #
@@ -14,16 +20,19 @@
 # actually this stuff origins from redhat, not suse and is included
 # in the provided spec file from the tarball, any takers?
 
-%define mpm prefork
-
-%define dbver db4
-%define dbmver db4
+%define mpm	prefork
+%define dbver	db4
+%define dbmver	db4
 
 # not everyone uses this, so define it here
+%if %{build_opensls}
+%define distribution OpenSLS
+%else
 %define distribution Mandrake Linux
+%endif
 
-%define build_debug 1
-%define build_distcache 0
+%define build_debug	1
+%define build_distcache	0
 
 # commandline overrides:
 # rpm -ba|--rebuild --with 'xxx'
@@ -47,9 +56,9 @@
 %endif
 
 %define real_version	2.0.48
-%define ap_version	%{real_version}
-%define ap_release	4mdk
-%define sourcename	httpd-%{real_version}
+%define ap_version	%{version}
+%define ap_release	%{release}
+%define sourcename	httpd-%{version}
 
 #New ADVX macros
 %define ADVXdir %{_datadir}/ADVX
@@ -63,22 +72,19 @@ Summary:		The most widely used Web server on the Internet.
 Name:			%{ap_name}
 Version:		%{ap_version}
 Release:		%{ap_release}
+License:		Apache License
 Group:			System/Servers
 URL:			http://www.advx.org
-License:		Apache License
-
 Source0:		%{sourcename}.tar.gz
 Source1:		%{sourcename}.tar.gz.asc
 Source2: 		README.ADVX
 Source3:		apache-old-changelog
 Source4:		apache2_transparent_png_icons.tar.bz2
 Source5: 		gentestcrt.sh.bz2
-
 # JMD: took mod_cgi.c from httpd-2.1-dev since it fixes a nasty
 # bug (and potential DoS attack) [Apache Bug 22030]
 # vdanen: don't apply this because it causes a lot of other problems
 #Source6:		httpd-2.1-dev-mod_cgi.c.bz2
-
 # please keep this logic.
 Source30:		30_mod_proxy.conf.bz2
 Source40: 		40_mod_ssl.conf.bz2
@@ -94,25 +100,21 @@ Source59:		59_mod_deflate.conf.bz2
 Patch0:			httpd-2.0.46-sslink.patch.bz2
 Patch1:			httpd-2.0.36-suexec.patch.bz2
 Patch2:			httpd-2.0.40-apxs.patch.bz2
-
 # OE: prepare for the mod_limitipconn module found here:
 # http://dominia.org/djao/limitipconn.html
 Patch3:			apachesrc.diff.bz2
-
 # JMD: fix suexec path so we can have both versions of Apache and both
 # versions of suexec
 Patch4:			apache2-suexec.patch.bz2
-
 # OE: http://distcache.sourceforge.net/
 Patch5:			httpd-2.0.48-distcache.patch.bz2
-
 # OE: http://bitbrook.de/software/mod_log_mysql/
 Patch6:			httpd-2.0.48-mod_log_mysql.diff.bz2
-
 # OE: stolen from redhat
 Patch40:		httpd-2.0.45-cnfdir.patch.bz2
 Patch41:		httpd-2.0.45-parallel.patch.bz2
 
+BuildRoot:		%{_tmppath}/%{ap_name}-%{version}-buildroot
 BuildPreReq:		ADVX-build >= 9.2
 BuildRequires:		byacc
 BuildRequires:		%{dbver}-devel
@@ -126,29 +128,25 @@ BuildRequires:		libtool >= 1.4.2
 BuildRequires:		openssl-devel
 BuildRequires:		perl >= 0:5.600
 BuildRequires:		zlib-devel
-
 %if %{build_distcache}
 BuildRequires:		libdistcache1 >= 1.4.2
 BuildRequires:		distcache-devel >= 1.4.2
 %endif
+BuildConflicts: 	BerkeleyDB-devel
 
 Prereq:			%{ap_name}-conf >= 2.0.46-2mdk
 Prereq:			%{ap_name}-common
 Prereq: 		%{ap_name}-modules = %{ap_version}
 Prereq:			%{apr_name} = %{ap_version}
 Requires:		libtool  >= 1.4.2
-
-BuildRoot:		%{_tmppath}/%{ap_name}-%{version}-buildroot
 Provides:		webserver 
 Provides:		apache
 Provides: 		ADVXpackage
 Provides: 		AP20package
-
 #2.0.45 is binary compatible with 2.0.44, permit use of modules
 #from the old version
 Provides:		%{ap_name} = 2.0.44
 
-BuildConflicts: 	BerkeleyDB-devel
 
 %description
 This package contains the main binary of %{ap_name}, a powerful, full-featured, 
@@ -158,7 +156,7 @@ server on the Internet.
 This version of %{ap_name} is fully modular, and many modules are available in
 pre-compiled formats, like PHP4 and mod_auth_external.
 
-Check for available Apache2 modules for Mandrake Linux at:
+Check for available Apache2 modules for %{distribution} at:
 http://www.deserve-it.com/modules_for_apache2.html
 (most of them can be installed from the contribs repository)
 
@@ -167,92 +165,92 @@ You can build %{ap_name} with some conditional build swithes;
 (ie. use with rpm --rebuild):
 --with debug   Compile with debugging code
 
-%package		manual
-Summary:		The %{ap_name} Manual
-Group:			System/Servers
-Provides: 		ADVXpackage
-Provides: 		AP20package
+%package manual
+Summary:	The %{ap_name} Manual
+Group:		System/Servers
+Provides: 	ADVXpackage
+Provides: 	AP20package
 #This is to fix a wrong require in MDK9.0
-Obsoletes:		apache-manual <= 1.3.26
-Provides:		apache-manual
+Obsoletes:	apache-manual <= 1.3.26
+Provides:	apache-manual
 
-%description		manual
+%description manual
 This package contains the %{ap_name} server documentation in HTML
 format.
 
-%package		common
-Summary:		Files common for %{ap_name} and %{ap_name}-mod_perl installations
-Group:			System/Servers
-Prereq:			rpm-helper
-Prereq:			%{apr_name} = %{ap_version}
-Obsoletes:		apache-common
-Provides:		apache-common
-Provides: 		ADVXpackage
-Provides: 		AP20package
+%package common
+Summary:	Files common for %{ap_name} and %{ap_name}-mod_perl installations
+Group:		System/Servers
+Prereq:		rpm-helper
+Prereq:		%{apr_name} = %{ap_version}
+Obsoletes:	apache-common
+Provides:	apache-common
+Provides: 	ADVXpackage
+Provides: 	AP20package
 
-%description		common
+%description common
 This package contains files required for both %{ap_name} and %{ap_name}-mod_perl
 package installations. Install this if you want to install %{ap_name} or/and
 %{ap_name} with mod_perl.
 
-%package		modules
-Summary:		Standard modules for %{ap_name}
-Group:			System/Servers
-Provides:		%{ap_name}-mod_access = %{version}
-Provides:		%{ap_name}-mod_actions = %{version}
-Provides:		%{ap_name}-mod_alias = %{version}
-Provides:		%{ap_name}-mod_asis = %{version}
-Provides:		%{ap_name}-mod_auth = %{version}
-Provides:		%{ap_name}-mod_auth_anon = %{version}
-Provides:		%{ap_name}-mod_auth_dbm = %{version}
-Provides:		%{ap_name}-mod_auth_digest = %{version}
-Provides:		%{ap_name}-mod_autoindex = %{version}
-Provides:		%{ap_name}-mod_case_filter = %{version}
-Provides:		%{ap_name}-mod_case_filter_in = %{version}
-Provides:		%{ap_name}-mod_cern_meta = %{version}
-Provides:		%{ap_name}-mod_cgi = %{version}
-Provides:		%{ap_name}-mod_cgid = %{version}
-Provides:		%{ap_name}-mod_charset_lite = %{version}
-Provides:		%{ap_name}-mod_dir = %{version}
-Provides:		%{ap_name}-mod_env = %{version}
-Provides:		%{ap_name}-mod_expires = %{version}
-Provides:		%{ap_name}-mod_ext_filter = %{version}
-Provides:		%{ap_name}-mod_headers = %{version}
-Provides:		%{ap_name}-mod_imap = %{version}
-Provides:		%{ap_name}-mod_include = %{version}
-Provides:		%{ap_name}-mod_info = %{version}
-Provides:		%{ap_name}-mod_log_config = %{version}
-Provides:		%{ap_name}-mod_logio = %{version}
-Provides:		%{ap_name}-mod_mime = %{version}
-Provides:		%{ap_name}-mod_mime_magic = %{version}
-Provides:		%{ap_name}-mod_negotiation = %{version}
-Provides:		%{ap_name}-mod_rewrite = %{version}
-Provides:		%{ap_name}-mod_setenvif = %{version}
-Provides:		%{ap_name}-mod_speling = %{version}
-Provides:		%{ap_name}-mod_status = %{version}
-Provides:		%{ap_name}-mod_unique_id = %{version}
-Provides:		%{ap_name}-mod_userdir = %{version}
-Provides:		%{ap_name}-mod_usertrack = %{version}
-Provides:		%{ap_name}-mod_vhost_alias = %{version}
-Provides: 		ADVXpackage
-Provides: 		AP20package
+%package modules
+Summary:	Standard modules for %{ap_name}
+Group:		System/Servers
+Provides:	%{ap_name}-mod_access = %{version}
+Provides:	%{ap_name}-mod_actions = %{version}
+Provides:	%{ap_name}-mod_alias = %{version}
+Provides:	%{ap_name}-mod_asis = %{version}
+Provides:	%{ap_name}-mod_auth = %{version}
+Provides:	%{ap_name}-mod_auth_anon = %{version}
+Provides:	%{ap_name}-mod_auth_dbm = %{version}
+Provides:	%{ap_name}-mod_auth_digest = %{version}
+Provides:	%{ap_name}-mod_autoindex = %{version}
+Provides:	%{ap_name}-mod_case_filter = %{version}
+Provides:	%{ap_name}-mod_case_filter_in = %{version}
+Provides:	%{ap_name}-mod_cern_meta = %{version}
+Provides:	%{ap_name}-mod_cgi = %{version}
+Provides:	%{ap_name}-mod_cgid = %{version}
+Provides:	%{ap_name}-mod_charset_lite = %{version}
+Provides:	%{ap_name}-mod_dir = %{version}
+Provides:	%{ap_name}-mod_env = %{version}
+Provides:	%{ap_name}-mod_expires = %{version}
+Provides:	%{ap_name}-mod_ext_filter = %{version}
+Provides:	%{ap_name}-mod_headers = %{version}
+Provides:	%{ap_name}-mod_imap = %{version}
+Provides:	%{ap_name}-mod_include = %{version}
+Provides:	%{ap_name}-mod_info = %{version}
+Provides:	%{ap_name}-mod_log_config = %{version}
+Provides:	%{ap_name}-mod_logio = %{version}
+Provides:	%{ap_name}-mod_mime = %{version}
+Provides:	%{ap_name}-mod_mime_magic = %{version}
+Provides:	%{ap_name}-mod_negotiation = %{version}
+Provides:	%{ap_name}-mod_rewrite = %{version}
+Provides:	%{ap_name}-mod_setenvif = %{version}
+Provides:	%{ap_name}-mod_speling = %{version}
+Provides:	%{ap_name}-mod_status = %{version}
+Provides:	%{ap_name}-mod_unique_id = %{version}
+Provides:	%{ap_name}-mod_userdir = %{version}
+Provides:	%{ap_name}-mod_usertrack = %{version}
+Provides:	%{ap_name}-mod_vhost_alias = %{version}
+Provides:	ADVXpackage
+Provides:	AP20package
 
-%description		modules
+%description modules
 This package contains standard modules for %{ap_name}. It is required
 for normal operation of the web server.
 
-%package		mod_dav
-Summary:		Distributed Authoring and Versioning (WebDAV)
-Group:                  System/Servers
-Prereq:			%{ap_name}-conf
-Prereq:			%{ap_name}-common
-Prereq:			%{ap_name}-modules = %{ap_version}
-Prereq:			%{apr_name} = %{ap_version}
-Provides:		%{ap_name}-mod_dav_fs = %{version}
-Provides: 		ADVXpackage
-Provides: 		AP20package
+%package mod_dav
+Summary:	Distributed Authoring and Versioning (WebDAV)
+Group:                 System/Servers
+Prereq:		%{ap_name}-conf
+Prereq:		%{ap_name}-common
+Prereq:		%{ap_name}-modules = %{ap_version}
+Prereq:		%{apr_name} = %{ap_version}
+Provides:	%{ap_name}-mod_dav_fs = %{version}
+Provides: 	ADVXpackage
+Provides: 	AP20package
 
-%description		mod_dav
+%description mod_dav
 This module provides class 1 and class 2 WebDAV ('Web-based
 Distributed Authoring and Versioning') functionality for Apache.
 
@@ -260,21 +258,21 @@ This extension to the HTTP protocol allows creating, moving,
 copying, and deleting resources and collections on a remote web
 server.
 
-%package		mod_ssl
-Summary:		Strong cryptography using the SSL and TLS protocols
-Group:			System/Servers
-Prereq:			%{ap_name}-conf
-Prereq:			%{ap_name}-common
-Prereq:			%{ap_name}-modules = %{ap_version}
-Prereq:			%{apr_name} = %{ap_version}
+%package mod_ssl
+Summary:	Strong cryptography using the SSL and TLS protocols
+Group:		System/Servers
+Prereq:		%{ap_name}-conf
+Prereq:		%{ap_name}-common
+Prereq:		%{ap_name}-modules = %{ap_version}
+Prereq:		%{apr_name} = %{ap_version}
 %if %{build_distcache}
-#Requires:		distcache
-Requires:		libdistcache1 >= 1.4.2
+#Requires:	distcache
+Requires:	libdistcache1 >= 1.4.2
 %endif
-Provides: 		ADVXpackage
-Provides: 		AP20package
+Provides: 	ADVXpackage
+Provides: 	AP20package
 
-%description            mod_ssl
+%description mod_ssl
 This module provides SSL v2/v3 and TLS v1 support for the Apache
 HTTP Server. It was contributed by Ralf S. Engeschall based on
 his mod_ssl project and originally derived from work by Ben
@@ -284,32 +282,32 @@ It also includes ab-ssl, the Apache Benchmarks for SSL.
 
 This module relies on OpenSSL to provide the cryptography engine.
 
-%package		mod_ldap
-Summary:		LDAP connection pooling and result caching DSO:s
-Group:			System/Servers
-Prereq:			%{ap_name}-conf
-Prereq:			%{ap_name}-common
-Prereq:			%{ap_name}-modules = %{ap_version}
-Prereq:			%{apr_name} = %{ap_version}
-Provides:		%{ap_name}-mod_auth_ldap.so = %{version}
-Provides: 		ADVXpackage
-Provides: 		AP20package
+%package mod_ldap
+Summary:	LDAP connection pooling and result caching DSO:s
+Group:		System/Servers
+Prereq:		%{ap_name}-conf
+Prereq:		%{ap_name}-common
+Prereq:		%{ap_name}-modules = %{ap_version}
+Prereq:		%{apr_name} = %{ap_version}
+Provides:	%{ap_name}-mod_auth_ldap.so = %{version}
+Provides: 	ADVXpackage
+Provides: 	AP20package
 
-%description		mod_ldap
+%description mod_ldap
 This module was created to improve the performance of websites
 relying on backend connections to LDAP servers. In addition to the
 functions provided by the standard LDAP libraries, this module
 adds an LDAP connection pool and an LDAP shared memory cache.
 
-%package		mod_cache
-Summary:		Content cache keyed to URIs
-Group:			System/Servers
-Prereq:			%{ap_name}-conf
-Prereq:			%{ap_name}-common
-Prereq:			%{ap_name}-modules = %{ap_version}
-Prereq:			%{apr_name} = %{ap_version}
+%package mod_cache
+Summary:	Content cache keyed to URIs
+Group:		System/Servers
+Prereq:		%{ap_name}-conf
+Prereq:		%{ap_name}-common
+Prereq:		%{ap_name}-modules = %{ap_version}
+Prereq:		%{apr_name} = %{ap_version}
 
-%description		mod_cache
+%description mod_cache
 mod_cache implements an RFC 2616 compliant HTTP content cache that
 can be used to cache either local or proxied content. mod_cache
 requires the services of one or more storage management modules.
@@ -328,32 +326,32 @@ mod_mem_cache is most useful when used to cache locally generated
 content or to cache backend server content for mod_proxy
 configured for ProxyPass (aka reverse proxy)
 
-%package		mod_disk_cache
-Summary:		Implements a disk based storage manager
-Group:			System/Servers
-Prereq:			%{ap_name}-conf
-Prereq:			%{ap_name}-common
-Prereq:			%{ap_name}-modules = %{ap_version}
-Prereq:			%{apr_name} = %{ap_version}
-Prereq:			%{ap_name}-mod_cache = %{ap_version}
+%package mod_disk_cache
+Summary:	Implements a disk based storage manager
+Group:		System/Servers
+Prereq:		%{ap_name}-conf
+Prereq:		%{ap_name}-common
+Prereq:		%{ap_name}-modules = %{ap_version}
+Prereq:		%{apr_name} = %{ap_version}
+Prereq:		%{ap_name}-mod_cache = %{ap_version}
 
-%description		mod_disk_cache
+%description mod_disk_cache
 mod_disk_cache implements a disk based storage manager. It is
 primarily of use in conjunction with mod_proxy.
 
 Content is stored in and retrieved from the cache using URI
 based keys. Content with access protection is not cached.
 
-%package		mod_mem_cache
-Summary:		Implements a memory based storage manager
-Group:			System/Servers
-Prereq:			%{ap_name}-conf
-Prereq:			%{ap_name}-common
-Prereq:			%{ap_name}-modules = %{ap_version}
-Prereq:			%{apr_name} = %{ap_version}
-Prereq:			%{ap_name}-mod_cache = %{ap_version}
+%package mod_mem_cache
+Summary:	Implements a memory based storage manager
+Group:		System/Servers
+Prereq:		%{ap_name}-conf
+Prereq:		%{ap_name}-common
+Prereq:		%{ap_name}-modules = %{ap_version}
+Prereq:		%{apr_name} = %{ap_version}
+Prereq:		%{ap_name}-mod_cache = %{ap_version}
 
-%description		mod_mem_cache
+%description mod_mem_cache
 This module requires the service of mod_cache. It acts as a
 support module for mod_cache and provides a memory based storage
 manager. mod_mem_cache can be configured to operate in two modes:
@@ -365,15 +363,15 @@ configured for ProxyPass (aka reverse proxy).
 Content is stored in and retrieved from the cache using URI based
 keys. Content with access protection is not cached.
 
-%package		mod_file_cache
-Summary:		Caches a static list of files in memory
-Group:			System/Servers
-Prereq:			%{ap_name}-conf
-Prereq:			%{ap_name}-common
-Prereq:			%{ap_name}-modules = %{ap_version}
-Prereq:			%{apr_name} = %{ap_version}
+%package mod_file_cache
+Summary:	Caches a static list of files in memory
+Group:		System/Servers
+Prereq:		%{ap_name}-conf
+Prereq:		%{ap_name}-common
+Prereq:		%{ap_name}-modules = %{ap_version}
+Prereq:		%{apr_name} = %{ap_version}
 
-%description		mod_file_cache
+%description mod_file_cache
 Caching frequently requested files that change very infrequently
 is a technique for reducing server load. mod_file_cache provides
 two techniques for caching frequently requested static files.
@@ -393,35 +391,35 @@ content handler.
 This module is an extension of and borrows heavily from the
 mod_mmap_static module in Apache 1.3.
 
-%package		mod_deflate
-Summary:		Compress content before it is delivered to the client
-Group:			System/Servers
-Prereq:			%{ap_name}-conf
-Prereq:			%{ap_name}-common
-Prereq:			%{ap_name}-modules = %{ap_version}
-Prereq:			%{apr_name} = %{ap_version}
-Provides:		mod_gzip
-Obsoletes:		mod_gzip
+%package mod_deflate
+Summary:	Compress content before it is delivered to the client
+Group:		System/Servers
+Prereq:		%{ap_name}-conf
+Prereq:		%{ap_name}-common
+Prereq:		%{ap_name}-modules = %{ap_version}
+Prereq:		%{apr_name} = %{ap_version}
+Provides:	mod_gzip
+Obsoletes:	mod_gzip
 
-%description		mod_deflate
+%description mod_deflate
 The mod_deflate module provides the DEFLATE output filter that
 allows output from your server to be compressed before being sent
 to the client over the network.
 
-%package		mod_proxy
-Summary:		HTTP/1.1 proxy/gateway server
-Group:			System/Servers
-Prereq:			%{ap_name}-conf
-Prereq:			%{ap_name}-common
-Prereq:			%{ap_name}-modules = %{ap_version}
-Prereq:			%{apr_name} = %{ap_version}
-Prereq:			%{ap_name}-mod_cache = %{ap_version}
-Prereq:			%{ap_name}-mod_disk_cache = %{ap_version}
-Provides:		%{ap_name}-mod_proxy_connect = %{ap_version}
-Provides:		%{ap_name}-mod_proxy_ftp = %{ap_version}
-Provides:		%{ap_name}-mod_proxy_http = %{ap_version}
+%package mod_proxy
+Summary:	HTTP/1.1 proxy/gateway server
+Group:		System/Servers
+Prereq:		%{ap_name}-conf
+Prereq:		%{ap_name}-common
+Prereq:		%{ap_name}-modules = %{ap_version}
+Prereq:		%{apr_name} = %{ap_version}
+Prereq:		%{ap_name}-mod_cache = %{ap_version}
+Prereq:		%{ap_name}-mod_disk_cache = %{ap_version}
+Provides:	%{ap_name}-mod_proxy_connect = %{ap_version}
+Provides:	%{ap_name}-mod_proxy_ftp = %{ap_version}
+Provides:	%{ap_name}-mod_proxy_http = %{ap_version}
 
-%description		mod_proxy
+%description mod_proxy
 This module implements a proxy/gateway for Apache. It implements
 proxying capability for FTP, CONNECT (for SSL), HTTP/0.9,
 HTTP/1.0, and HTTP/1.1. The module can be configured to connect
@@ -436,43 +434,43 @@ Please note that the caching function present in mod_proxy up
 to Apache v2.0.39 has been removed from mod_proxy and is 
 incorporated into a new module, mod_cache.
 
-%package -n		%{apr_name}
-Summary:		The Apache Portable Runtime library
-Group:			System/Libraries
-Provides:		libapr apr
-Obsoletes:		libapr apr
-Provides: 		ADVXpackage
-Provides: 		AP20package
+%package -n %{apr_name}
+Summary:	The Apache Portable Runtime library
+Group:		System/Libraries
+Provides:	libapr apr
+Obsoletes:	libapr apr
+Provides: 	ADVXpackage
+Provides: 	AP20package
 
-%description -n		%{apr_name}
+%description -n	%{apr_name}
 The Apache Portable Run-time libraries have been designed to provide a
 common interface to low level routines across any platform.
 
-%package		devel
-Group:			Development/C
-Summary:		Module development tools for the %{ap_name} web server.
-Requires:		perl >= 0:5.600
+%package devel
+Group:		Development/C
+Summary:	Module development tools for the %{ap_name} web server.
+Requires:	perl >= 0:5.600
 #JMD: You *don't* need the apache binaries to develop modules...
-#Requires:		%{ap_name} = %{ap_version}
+#Requires:	%{ap_name} = %{ap_version}
 #JMD: But you now need ADVX-build...
-Requires:		ADVX-build >= 9.2
-Requires:		%{apr_name} = %{ap_version}
-Requires:		gdbm-devel
-Requires:		expat-devel
-Requires:		glibc-devel
-Requires:		openssl-devel
-Requires:		libtool  >= 1.4.2
+Requires:	ADVX-build >= 9.2
+Requires:	%{apr_name} = %{ap_version}
+Requires:	gdbm-devel
+Requires:	expat-devel
+Requires:	glibc-devel
+Requires:	openssl-devel
+Requires:	libtool  >= 1.4.2
 %if %{build_distcache}
-Requires:		distcache-devel >= 1.4.2
+Requires:	distcache-devel >= 1.4.2
 %endif
-Provides:		%{ap_name}-mod_ssl-devel
-Obsoletes:		%{ap_name}-mod_ssl-devel
-Provides:		libapr-devel apr-devel
-Obsoletes:		libapr-devel apr-devel
-Provides: 		ADVXpackage
-Provides: 		AP20package
+Provides:	%{ap_name}-mod_ssl-devel
+Obsoletes:	%{ap_name}-mod_ssl-devel
+Provides:	libapr-devel apr-devel
+Obsoletes:	libapr-devel apr-devel
+Provides: 	ADVXpackage
+Provides: 	AP20package
 
-%description		devel
+%description devel
 The %{ap_name}-devel package contains the source code for the %{ap_name}
 Web server and the APXS binary you'll need to build Dynamic
 Shared Objects (DSOs) for %{ap_name}.
@@ -483,22 +481,22 @@ If you are installing the %{ap_name} Web server and
 you want to be able to compile or develop additional modules
 for %{ap_name}, you'll need to install this package.
 
-%package		source
-Summary:		The %{ap_name} Source
-Group:			System/Servers
+%package source
+Summary:	The %{ap_name} Source
+Group:		System/Servers
 #No use to install it if you don't have libgdbm.so and libpthread.so!
-Requires:		db1-devel
+Requires:	db1-devel
 #Do not require libdb*-devel, it breaks the upgrade from 9.0 to 9.1.
 #Instead, each Apache module that requires libdb* to compile should add it to its
 #buildrequires
-#Requires:		%{dbver}-devel
-Requires:		gdbm-devel
-Requires:		glibc-devel
-Provides: 		ADVXpackage
-Provides: 		AP20package
+#Requires:	%{dbver}-devel
+Requires:	gdbm-devel
+Requires:	glibc-devel
+Provides: 	ADVXpackage
+Provides: 	AP20package
 
-%description		source
-The %{ap_name} Source, including Mandrake patches. Use this package to
+%description source
+The %{ap_name} Source, including %{distribution} patches. Use this package to
 build %{ap_name}-mod_perl, or your own custom version.
 
 %prep
@@ -1356,6 +1354,10 @@ fi
 %doc README.ADVX
 
 %changelog
+* Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 2.0.48-5sls
+- OpenSLS build
+- tidy spec
+
 * Sun Dec 14 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.48-4mdk
 - fix #6556
 - updated P5

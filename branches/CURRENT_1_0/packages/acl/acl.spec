@@ -1,32 +1,35 @@
-%define name acl
+%define name	acl
 %define version 2.2.13
-%define release 2mdk
-%define url ftp://oss.sgi.com/projects/xfs/download/cmd_tars
+%define release 3sls
 
-%define lib_name_orig libacl
-%define lib_major 1
-%define lib_name %mklibname acl %{lib_major}
+%define url	ftp://oss.sgi.com/projects/xfs/download/cmd_tars
 
-Summary: Command for manipulating access control lists
-Name: %{name}
-Version: %{version}
-Release: %{release}
-Source0: %{url}/%{name}-%{version}.src.tar.bz2
-License: GPL
-Group: System/Kernel and hardware
-BuildRoot: %{_tmppath}/%{name}-buildroot
-URL: http://oss.sgi.com/projects/xfs/
-Requires: %{lib_name} = %{version}-%{release}
+%define lib_name_orig	libacl
+%define lib_major	1
+%define lib_name	%mklibname acl %{lib_major}
+
+Summary:	Command for manipulating access control lists
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		System/Kernel and hardware
+URL:		http://oss.sgi.com/projects/xfs/
+Source0:	%{url}/%{name}-%{version}.src.tar.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-buildroot
 BuildRequires:	attr-devel
+
+Requires:	%{lib_name} = %{version}-%{release}
 
 %description
 This package contains the getfacl and setfacl utilities needed for
 manipulating access control lists.
 
 %package -n %{lib_name}
-Summary: Main library for %{lib_name_orig}
-Group: System/Libraries
-Provides: %{lib_name_orig} = %{version}-%{release}
+Summary:	Main library for %{lib_name_orig}
+Group:		System/Libraries
+Provides:	%{lib_name_orig} = %{version}-%{release}
 
 %description -n %{lib_name}
 This package contains the l%{lib_name_orig} dynamic library which contains
@@ -34,12 +37,12 @@ the POSIX 1003.1e draft standard 17 functions for manipulating access
 control lists.
 
 %package -n %{lib_name}-devel
-Summary: Access control list static libraries and headers.
-Group: Development/C
-Requires: %{lib_name} = %{version}-%{release}
-Provides: %{lib_name_orig}-devel = %{version}-%{release}
-Provides: acl-devel = %{version}-%{release}
-Obsoletes: acl-devel
+Summary:	Access control list static libraries and headers.
+Group:		Development/C
+Requires:	%{lib_name} = %{version}-%{release}
+Provides:	%{lib_name_orig}-devel = %{version}-%{release}
+Provides:	acl-devel = %{version}-%{release}
+Obsoletes:	acl-devel
 
 %description -n %{lib_name}-devel
 This package contains static libraries and header files needed to develop
@@ -96,6 +99,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/sys/acl.h
 
 %changelog
+* Mon Dec 08 2003 Vincent Danen <vdanen@opensls.org> 2.2.13-3sls
+- OpenSLS build
+- tidy spec
+
 * Fri Aug 29 2003 Juan Quintela <quintela@mandrakesoft.com> 2.2.13-2mdk
 - /usr/include/acl belongs to acl-devel.
 

@@ -1,56 +1,35 @@
-%define phpsource       %{_prefix}/src/php-devel
+%define name	%{ap_name}-%{mod_name}
+%define version %{ap_version}_%{phpversion}
+%define release	2sls
+
+%define phpsource	%{_prefix}/src/php-devel
 %{expand:%(cat /usr/src/php-devel/PHP_BUILD||(echo -e "error: failed build dependencies:\n        php-devel >= 430 (4.3.0) is needed by this package." >/dev/stderr;kill -2 $PPID))}
 
-#%#define dbver libdb3.3 
-#%#define ldb -ldb-3.3
-%define dbver libdb4.1
-%define ldb -ldb-4.1
+%define dbver	libdb4.1
+%define ldb	-ldb-4.1
 
-#Module-Specific definitions
-%define release 1mdk
-%define mod_name mod_php
-%define mod_conf 70_%{mod_name}.conf
-%define mod_so %{mod_name}4.so
-%define phpsource /usr/src/php-devel
-%define extname apache2handler
+# Module-Specific definitions
+%define mod_name	mod_php
+%define mod_conf	70_%{mod_name}.conf
+%define mod_so		%{mod_name}4.so
+%define phpsource	/usr/src/php-devel
+%define extname		apache2handler
 
-#New ADVX macros
+# New ADVX macros
 %define ADVXdir %{_datadir}/ADVX
 %{expand:%(cat %{ADVXdir}/ADVX-build)}
 %{expand:%%global ap_version %(%{apxs} -q ap_version)}
 
-# Standard Module Definitions
-%define name %{ap_name}-%{mod_name}
-%define version %{ap_version}_%{phpversion}
-
-#Standard ADVX requires
-Prereq:		%{ap_name} = %{ap_version}
-Prereq:		%{ap_name}-conf
-BuildPreReq:	ADVX-build >= 9.2
-BuildRequires:	%{ap_name}-devel >= 2.0.44-1mdk
-Provides: 	ADVXpackage
-Provides:	AP20package
-
+Summary:	The PHP4 HTML-embedded scripting language for use with %{ap_name}.
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
-Summary:	The PHP4 HTML-embedded scripting language for use with %{ap_name}.
+License:	PHP License
 Group:		System/Servers
 URL:		http://www.php.net/ 
-License:	PHP License
 Source1:	%{mod_conf}.bz2
-#Requires:	libphp_common%{libversion} 
-Requires:	%{dbver}
-#Requires:	libgdbm2
-#Requires:	glibc
-#Requires:	libexpat0
-#Requires:	libtool
-Requires:	openssl
-#Requires:	libldap2
-#Requires:	libsasl2
-#Requires:	pam
-#Requires:	libintl2
-Requires:	php-ini
+
+BuildRoot:	%{_tmppath}/%{name}-root
 BuildRequires:  %{dbver}-devel
 BuildRequires:	gdbm-devel
 BuildRequires:	byacc
@@ -59,12 +38,16 @@ BuildRequires:	libtool
 BuildRequires:	openssl-devel
 BuildRequires:	expat-devel
 BuildRequires:	zlib-devel
-#BuildRequires:	libldap2-devel
-#BuildRequires:	libsasl2-devel
 BuildRequires:	php%{libversion}-devel
 BuildRequires:	pam-devel libintl2
 BuildRequires:	db1-devel
-BuildRoot:	%{_tmppath}/%{name}-root
+# Standard ADVX requires
+BuildRequires:	%{ap_name}-devel >= 2.0.44-1mdk
+BuildPreReq:	ADVX-build >= 9.2
+
+Requires:	%{dbver}
+Requires:	openssl
+Requires:	php-ini
 Provides:	mod_php3
 Provides:	php3
 Provides:	phpfi
@@ -78,6 +61,11 @@ Provides:	php%{libversion}
 Provides:	phpapache
 Provides:	php430
 Obsoletes:	php430
+# Standard ADVX requires
+Prereq:		%{ap_name} = %{ap_version}
+Prereq:		%{ap_name}-conf
+Provides: 	ADVXpackage
+Provides:	AP20package
 
 %description
 PHP is an HTML-embedded scripting language.  PHP attempts to make it
@@ -144,6 +132,10 @@ cd %{extname}
 %{ap_webdoc}/*
 
 %changelog
+* Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 2.0.48_4.3.4-2sls
+- OpenSLS build
+- tidy spec
+
 * Wed Nov 05 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.48_4.3.4-1mdk
 - fix versioning
 

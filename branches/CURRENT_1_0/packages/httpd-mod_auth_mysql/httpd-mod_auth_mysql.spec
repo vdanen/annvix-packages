@@ -1,43 +1,44 @@
-#Module-Specific definitions
-%define mod_version 1.11
-%define release 1mdk
-%define mod_name mod_auth_mysql
-%define mod_conf 12_%{mod_name}.conf
-%define mod_so %{mod_name}.so
-%define sourcename %{mod_name}-%{mod_version}
+%define name	%{ap_name}-%{mod_name}
+%define version %{ap_version}_%{mod_version}
+%define release 2sls
 
-#New ADVX macros
+# Module-Specific definitions
+%define mod_version	1.11
+%define mod_name	mod_auth_mysql
+%define mod_conf	12_%{mod_name}.conf
+%define mod_so		%{mod_name}.so
+%define sourcename	%{mod_name}-%{mod_version}
+
+# New ADVX macros
 %define ADVXdir %{_datadir}/ADVX
 %{expand:%(cat %{ADVXdir}/ADVX-build)}
 %{expand:%%global ap_version %(%{apxs} -q ap_version)}
-
-# Standard Module Definitions
-%define name %{ap_name}-%{mod_name}
-%define version %{ap_version}_%{mod_version}
-
-#Standard ADVX requires
-Prereq:		%{ap_name} = %{ap_version}
-Prereq:		%{ap_name}-conf
-BuildRequires:  ADVX-build >= 9.2
-BuildRequires:  %{ap_name}-devel >= 2.0.44-5mdk
-Provides: 	ADVXpackage
-Provides:	AP20package
 
 Summary:	Basic authentication for the %{ap_name} web server using a MySQL database.
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
+License:	Apache License
 Group:		System/Servers
+URL:		ftp://ftp.kciLink.com/pub/
 Source0:	ftp://ftp.kciLink.com/pub/%{mod_name}.c.bz2
 Source1:	ftp://ftp.kciLink.com/pub/mysql-group-auth.txt.bz2
 Source2:	%{mod_conf}.bz2
 Patch0:		%{mod_name}-1.11-ap2.patch.bz2
 Patch1:		%{mod_name}-1.11-register.patch.bz2
 Patch2:		%{mod_name}-newapi.patch.bz2
-License:	Apache License
-URL:		ftp://ftp.kciLink.com/pub/
-BuildPrereq:	MySQL-devel
+
 BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildPrereq:	MySQL-devel
+# Standard ADVX requires
+BuildRequires:  ADVX-build >= 9.2
+BuildRequires:  %{ap_name}-devel >= 2.0.44-5mdk
+
+# Standard ADVX requires
+Prereq:		%{ap_name} = %{ap_version}
+Prereq:		%{ap_name}-conf
+Provides: 	ADVXpackage
+Provides:	AP20package
 
 %description
 mod_auth_mysql can be used to limit access to documents served by
@@ -81,6 +82,10 @@ cat mod_auth_mysql.c | tail +84 | head -101 | cut -c 4- > mod_auth_mysql.txt
 %{ap_webdoc}/*
 
 %changelog
+* Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 2.0.48_1.11-2sls
+- OpenSLS build
+- tidy spec
+
 * Wed Nov 05 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.48_1.11-1mdk
 - built for apache 2.0.48
 

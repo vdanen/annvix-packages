@@ -1,23 +1,26 @@
-%define release 24mdk
+%define name	bdflush
+%define release 25sls
 %define version 1.5
-%define url ftp://tsx-11.mit.edu/pub/linux/sources/system/v1.2
+%define url	ftp://tsx-11.mit.edu/pub/linux/sources/system/v1.2
 
 Summary:	The process which starts the flushing of dirty buffers back to disk.
-Name:		bdflush
+Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	Public Domain
 Group:		System/Kernel and hardware
+URL:		%{url}
 Source:		%{url}/bdflush-1.5.tar.bz2
 Patch:		bdflush-1.5-axp.patch.bz2
 Patch1:		bdflush-1.5-glibc.patch.bz2
 Patch2:		bdflush-1.5-no-bdflush.patch.bz2
 Patch3:		bdflush-1.5-limit.patch.bz2
 Patch4:		bdflush-1.5_include_errno.patch.bz2
+
 Buildroot:	%{_tmppath}/%{name}-%{version}-buildroot
+
 Obsoletes:	bdflush-lowmem
 Provides:	bdflush-lowmem
-URL:		%{url}
 
 %description
 The bdflush process starts the kernel daemon which flushes dirty
@@ -57,6 +60,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/*/*
 
 %changelog
+* Fri Nov 28 2003 Vincent Danen <vdanen@opensls.org> 1.5-25sls
+- OpenSLS build
+- tidy spec
+
 * Tue Jul 22 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 1.5-24mdk
 - rebuild
 - cosmetics

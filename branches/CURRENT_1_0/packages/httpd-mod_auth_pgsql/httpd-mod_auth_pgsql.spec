@@ -1,39 +1,40 @@
-#Module-Specific definitions
-%define mod_version 2.0.1
-%define release 1mdk
-%define mod_name mod_auth_pgsql
-%define mod_conf 13_%{mod_name}.conf
-%define mod_so %{mod_name}.so
-%define sourcename %{mod_name}-%{mod_version}
+%define name	%{ap_name}-%{mod_name}
+%define version %{ap_version}_%{mod_version}
+%define release 2sls
 
-#New ADVX macros
+# Module-Specific definitions
+%define mod_version	2.0.1
+%define mod_name	mod_auth_pgsql
+%define mod_conf	13_%{mod_name}.conf
+%define mod_so		%{mod_name}.so
+%define sourcename	%{mod_name}-%{mod_version}
+
+# New ADVX macros
 %define ADVXdir %{_datadir}/ADVX
 %{expand:%(cat %{ADVXdir}/ADVX-build)}
 %{expand:%%global ap_version %(%{apxs} -q ap_version)}
-
-# Standard Module Definitions
-%define name %{ap_name}-%{mod_name}
-%define version %{ap_version}_%{mod_version}
-
-#Standard ADVX requires
-Prereq:		%{ap_name} = %{ap_version}
-Prereq:		%{ap_name}-conf
-BuildRequires:  ADVX-build >= 9.2
-BuildRequires:  %{ap_name}-devel >= 2.0.43-5mdk
-Provides: 	ADVXpackage
-Provides:	AP20package
 
 Summary:	Basic authentication for the %{ap_name} web server using a PostgreSQL database.
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
+License:	Apache License
 Group:		System/Servers
+URL:		http://www.giuseppetanzilli.it/mod_auth_pgsql2/
 Source0:	http://www.giuseppetanzilli.it/mod_auth_pgsql2/dist/%{sourcename}.tar.bz2
 Source1:	%{mod_conf}.bz2
-License:	Apache License
-URL:		http://www.giuseppetanzilli.it/mod_auth_pgsql2/
-BuildPrereq:	postgresql-devel postgresql-libs-devel openssl-devel
+
 BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildPrereq:	postgresql-devel postgresql-libs-devel openssl-devel
+# Standard ADVX requires
+BuildRequires:  ADVX-build >= 9.2
+BuildRequires:  %{ap_name}-devel >= 2.0.43-5mdk
+
+# Standard ADVX requires
+Prereq:		%{ap_name} = %{ap_version}
+Prereq:		%{ap_name}-conf
+Provides: 	ADVXpackage
+Provides:	AP20package
 
 %description
 mod_auth_pgsql can be used to limit access to documents served by
@@ -72,6 +73,10 @@ database.
 %doc README INSTALL *.html
 
 %changelog
+* Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 2.0.48_2.0.1-2sls
+- OpenSLS build
+- tidy spec
+
 * Wed Nov 05 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.48_2.0.1-1mdk
 - built for apache 2.0.48
 

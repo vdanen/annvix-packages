@@ -1,70 +1,48 @@
-#
-# NOTE:  This package *must* be built non-root!!!
-#
+%define name	courier-imap
+%define version	2.1.2
+%define release	2sls
+
 %define _localstatedir	/var/run
 %define	authdaemondir	%{_localstatedir}/authdaemon.courier-imap
 %define	courierdatadir	%{_datadir}/courier
 %define	courierlibdir	%{_libdir}/courier
 %define	couriersysconfdir %{_sysconfdir}/courier
 
-# OE:
-# Please have some sane person redo this whole annoying spec file. 
+%define	courier_patch_version 0.42.0
 
-Name:		courier-imap
 Summary:	Courier-IMAP is an IMAP server that uses Maildirs
-Version:	2.1.2
-Release:	1mdk
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
 License:	GPL
 Group:		System/Servers
 URL:		http://www.courier-mta.org
 Source0:	%{name}-%{version}.tar.bz2
 Source1:	courier-imap-sysconftool-rpmupgrade.bz2
-
 # S4 & S5  originates from the works of Carlo Contavalli and can be found here:
 # http://www.commedia.it/ccontavalli/
-%define	courier_patch_version 0.42.0
 Source2:	courier_patch.tar.gz
 Source3:	courier_patch.tar.gz.asc
 Source4:	auto_maildir_creator.bz2
-
 # (fc) 1.4.2-2mdk fix missing command in initrd
 Patch0: 	courier-imap-1.6.1-initrd.patch.bz2
-
 Patch1:		courier-imap-2.1.2-auto_maildir_creator.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
-BuildPreReq:	autoconf2.5
-BuildPreReq:	coreutils
-BuildPreReq:	fam-devel
-BuildPreReq:	gdbm-devel
-BuildPreReq:	libtool
-BuildPreReq:	openssl-devel
-BuildPreReq:	pam-devel
-BuildPreReq:	perl
-BuildPreReq:	sed
-Requires:	chkconfig
-Requires:	coreutils
-Requires:	fam
-Requires:	gdbm
-#Requires:	libopenssl0.9.7
-Requires:	sed
-PreReq:		maildirmake++
-PreReq:		rpm-helper
-
+BuildPreReq:	autoconf2.5, coreutils, libtool, perl, sed
+BuildRequires:	openssl-devel, pam-devel, fam-devel, gdbm-devel
 # ldap subpackage:
 BuildRequires:	openldap-devel
-
 # mysql subpackage:
 BuildRequires:	MySQL-devel 
-
 # postgresql subpackage:
-BuildRequires:	postgresql-devel openssl-devel
+BuildRequires:	postgresql-devel
 
-# uw-imapd and courier can't be installed at the same time
-Conflicts:	uw-imap bincimap
-
-# Some packages require »imap«
-Provides:	imap imap-server
+Requires:	chkconfig, coreutils, fam, gdbm, sed
+#Requires:	libopenssl0.9.7
+PreReq:		maildirmake++, rpm-helper
+Conflicts:	uw-imap, bincimap
+Provides:	imap, imap-server
 
 %description
 Courier-IMAP is an IMAP server for Maildir mailboxes.  This package contains
@@ -73,74 +51,63 @@ mail server package.  This package is a standalone version for use with
 other mail servers.  Do not install this package if you intend to install
 the full Courier mail server.  Install the Courier package instead.
 
-%package	pop
+%package pop
 Summary:	Courier-IMAP POP servers
 Group:		System/Servers
-PreReq:		rpm-helper
-PreReq:		maildirmake++
 Requires:	%{name} = %{version}-%{release}
-Provides:	pop pop-server
+Provides:	pop, pop-server
 Conflicts:	uw-imap-pop
 
-%description	pop
+%description pop
 This package contains the POP servers of the Courier-IMAP
 server suite.
 
-%package	ldap
+%package ldap
 Summary:	Courier-IMAP LDAP authentication driver.
 Group:		System/Servers
-PreReq:		rpm-helper
-PreReq:		maildirmake++
 Requires:	%{name} = %{version}-%{release}
 #Requires:	libldap2
 Conflicts:	%{name}-mysql %{name}-pgsql
 
-%description	ldap
+%description ldap
 This package contains the necessary files to allow Courier-IMAP to
 authenticate from an LDAP directory.  Install this package if you need the
 ability to use an LDAP directory for authentication.
 
-%package	mysql
+%package mysql
 Summary:	Courier-IMAP MySQL authentication driver.
 Group:		System/Servers
-PreReq:		rpm-helper
-PreReq:		maildirmake++
-Requires:	%{name} = %{version}-%{release}
-Requires:	MySQL-shared
+Requires:	%{name} = %{version}-%{release}, MySQL-shared
 Conflicts:	%{name}-ldap %{name}-pgsql
 
-%description	mysql
+%description mysql
 This package contains the necessary files to allow Courier-IMAP to
 authenticate using a MySQL database table.  Install this package if you need
 the ability to use a MySQL database table for authentication.
 
-%package	pgsql
+%package pgsql
 Summary:	Courier-IMAP PostgreSQL authentication driver.
 Group:		System/Servers
-PreReq:		rpm-helper
-PreReq:		maildirmake++
-Requires:	%{name} = %{version}-%{release}
-Requires:	postgresql-libs
+Requires:	%{name} = %{version}-%{release}, postgresql-libs
 Conflicts:	%{name}-ldap %{name}-mysql
 
-%description	pgsql
+%description pgsql
 This package contains the necessary files to allow Courier-IMAP to
 authenticate using a PostgreSQL database table.  Install this package if you
 need the ability to use a PostgreSQL database table for authentication.
 
-%package	utils
+%package utils
 Summary:	Courier-IMAP debugging utils.
 Group:		System/Servers
-PreReq:		maildirmake++
 Requires:	%{name} = %{version}-%{release}
 
-%description	utils
+%description utils
 This package contains the necessary files to debug the authentication
 modules for Courier-IMAP.
 
 You may also as of v1.6.0 use DEBUG_LOGIN.
 
-%package -n	maildirmake++
+%package -n maildirmake++
 Summary:	The maildirmake application by Mr. Sam
 Group:		System/Servers
 Provides:	maildirmake
@@ -155,10 +122,6 @@ maildirmake command.
 %prep
 %setup -q -a2
 %patch0 -p0 -b .initrd
-
-# apply the auto home dir creator patch
-#patch -p1 < courier_patch/courier_%{courier_patch_version}.diff
-
 %patch1 -p1 -b .auto_maildir_creator
 
 %build
@@ -388,44 +351,17 @@ if [ -d %{buildroot} ]; then rm -rf %{buildroot}; fi
 
 %files -f authdaemon.files
 %defattr(-, root, root)
-%doc 00README.NOW.OR.SUFFER
-%doc INSTALL
-%doc INSTALL.html
-%doc NEWS
-%doc README
-%doc index.html
-%doc authlib/authlib.html
-%doc imap/FAQ.html
-%doc imap/README.html
-%doc imap/courierpop3d.html
-%doc imap/imapd.html
-%doc imap/mkimapdcert.html
-%doc imap/mkpop3dcert.html
-%doc imap/BUGS
-%doc imap/ChangeLog
-%doc imap/FAQ
-%doc imap/README.imap
+%doc 00README.NOW.OR.SUFFER INSTALL INSTALL.html NEWS README index.html
+%doc imap/FAQ.html imap/README.html imap/courierpop3d.html imap/imapd.html imap/mkimapdcert.html imap/mkpop3dcert.html
+%doc imap/BUGS imap/ChangeLog imap/FAQ imap/README.imap
 %doc liblock/lockmail.html
-%doc maildir/README.maildirfilter.html
-%doc maildir/README.maildirquota.html
-%doc maildir/README.sharedfolders.html
-%doc maildir/deliverquota.html
-%doc maildir/maildirquota.html
-%doc maildir/README.maildirquota.txt
-%doc maildir/README.sharedfolders.txt
-%doc rfc2045/makemime.html
-%doc rfc2045/reformime.html
-%doc rfc2045/rfc2045.html
-%doc rfc822/ChangeLog.rfc822
-%doc rfc822/rfc822.html
-%doc tcpd/README.couriertls
-%doc tcpd/couriertcpd.html
-%doc tcpd/couriertls.html
+%doc maildir/README.maildirfilter.html maildir/README.maildirquota.html maildir/README.sharedfolders.html maildir/deliverquota.html
+%doc maildir/maildirquota.html maildir/README.maildirquota.txt maildir/README.sharedfolders.txt
+%doc rfc2045/makemime.html rfc2045/reformime.html rfc2045/rfc2045.html rfc822/ChangeLog.rfc822 rfc822/rfc822.html
+%doc tcpd/README.couriertls tcpd/couriertcpd.html tcpd/couriertls.html
 %doc unicode/README.unicode
-%doc userdb/makeuserdb.html
-%doc userdb/userdb.html
-%doc userdb/userdbpw.html
-%doc automatic_maildir_creation_patch
+%doc userdb/makeuserdb.html userdb/userdb.html userdb/userdbpw.html automatic_maildir_creation_patch
+
 %config(noreplace) %{_sysconfdir}/pam.d/imap
 %dir %{couriersysconfdir}
 %attr(600, root, root) %config(noreplace) %{couriersysconfdir}/imapd.dist
@@ -524,6 +460,10 @@ if [ -d %{buildroot} ]; then rm -rf %{buildroot}; fi
 %{_mandir}/man1/maildirmake++.1*
 
 %changelog
+* Thu Dec 04 2003 Vincent Danen <vdanen@opensls.org> 2.1.2-2sls
+- OpenSLS build
+- tidy spec
+
 * Sun Sep 14 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.1.2-1mdk
 - 2.1.2
 - fix invalid-build-requires

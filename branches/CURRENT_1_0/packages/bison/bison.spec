@@ -1,20 +1,23 @@
+%define name	bison
 %define version 1.875
-%define release 3mdk
+%define release 4sls
 
-Summary: A GNU general-purpose parser generator.
-Name: bison
-Version: %{version}
-Release: %{release}
-License: GPL
-Group: Development/Other
-url: http://www.gnu.org/software/bison/bison.html
-Source: http://ftp.gnu.org/gnu/bison/bison-%{version}.tar.bz2
-Patch0: bison-1.32-extfix.patch.bz2
+Summary:	A GNU general-purpose parser generator.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		Development/Other
+URL:		http://www.gnu.org/software/bison/bison.html
+Source:		http://ftp.gnu.org/gnu/bison/bison-%{version}.tar.bz2
+Patch0:		bison-1.32-extfix.patch.bz2
 # (fc) fixx gcc error 
-Patch1: bison-1.875-gccerror.patch.bz2
-Prereq: /sbin/install-info
-Buildroot: %{_tmppath}/%{name}-root
-Prefix: %{_prefix}
+Patch1:		bison-1.875-gccerror.patch.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-root
+
+Prereq:		/sbin/install-info
+Prefix:		%{_prefix}
 
 %description
 Bison is a general purpose parser generator which converts a grammar
@@ -75,6 +78,10 @@ rm -rf $RPM_BUILD_ROOT/%{_libdir} $RPM_BUILD_ROOT/%{_datadir}/liby.a
 rm -rf $RPM_BUILD_ROOT
 
 %changelog
+* Wed Dec 17 2003 Vincent Danen <vdanen@opensls.org> - 1.875-4sls
+- OpenSLS build
+- tidy spec
+
 * Tue Jun 24 2003 Frederic Crozat <fcrozat@mandrakesoft.com> - 1.875-3mdk
 - Patch1: fix gcc error in yyerrlab1
 
