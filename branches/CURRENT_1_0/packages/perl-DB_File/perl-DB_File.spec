@@ -1,7 +1,7 @@
 %define name	perl-%{module}
 %define module	DB_File
-%define version	1.806
-%define release	6sls
+%define version	1.808
+%define release	1sls
 
 %define perl_archlib %(eval "`perl -V:installarchlib`"; echo $installarchlib)
 
@@ -11,7 +11,7 @@ Version:	%{version}
 Release:	%{release}
 License:	GPL or Artistic
 Group:		Development/Perl
-URL:		http://www.cpan.org
+URL:		http://search.cpan.org/dist/DB_File/
 Source0:	%{module}-%{version}.tar.bz2
 Patch:		%{module}-1.805-makefile.patch.bz2
 
@@ -61,6 +61,10 @@ mkdir -p $RPM_BUILD_ROOT/$installarchlib
 %_mandir/man3*/DB_File.*
 
 %changelog
+* Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 1.808-1sls
+- 1.808
+- fix url
+
 * Sat Jan 03 2004 Vincent Danen <vdanen@opensls.org> 1.806-6sls
 - OpenSLS build
 - tidy spec
