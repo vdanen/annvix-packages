@@ -1,6 +1,6 @@
 %define name	courier-imap
 %define version	2.1.2
-%define release	4sls
+%define release	5sls
 
 %define _localstatedir	/var/run
 %define	authdaemondir	%{_localstatedir}/authdaemon.courier-imap
@@ -24,6 +24,15 @@ Source1:	courier-imap-sysconftool-rpmupgrade.bz2
 Source2:	courier_patch.tar.gz
 Source3:	courier_patch.tar.gz.asc
 Source4:	auto_maildir_creator.bz2
+Source5:	courier-imapd.run
+Source6:	courier-imapd-log.run
+Source7:	courier-imapds.run
+Source8:	courier-imapds-log.run
+Source9:	courier-pop3d.run
+Source10:	courier-pop3d-log.run
+Source11:	courier-pop3ds.run
+Source12:	courier-pop3ds-log.run
+Source13:	courier-imap.sysconfig
 # (fc) 1.4.2-2mdk fix missing command in initrd
 Patch0: 	courier-imap-1.6.1-initrd.patch.bz2
 Patch1:		courier-imap-2.1.2-auto_maildir_creator.patch.bz2
@@ -291,9 +300,27 @@ echo "MOD_MAILDIR_CREATOR=\"/bin/false\"" >> %{buildroot}%{couriersysconfdir}/im
 echo "MOD_MAILDIR_CREATOR=\"/bin/false\"" >> %{buildroot}%{couriersysconfdir}/pop3d.dist
 echo "MOD_MAILDIR_CREATOR=\"/bin/false\"" >> %{buildroot}%{couriersysconfdir}/pop3d-ssl.dist 
 
+mkdir -p %{buildroot}%{_srvdir}/{courier-imapd,courier-imapds,courier-pop3d,courier-pop3ds}/log
+mkdir -p %{buildroot}%{_srvlogdir}/{courier-imapd,courier-imapds,courier-pop3d,courier-pop3ds}
+install -m 0750 %{SOURCE5} %{buildroot}%{_srvdir}/courier-imapd/run
+install -m 0750 %{SOURCE6} %{buildroot}%{_srvdir}/courier-imapd/log/run
+install -m 0750 %{SOURCE7} %{buildroot}%{_srvdir}/courier-imapds/run
+install -m 0750 %{SOURCE8} %{buildroot}%{_srvdir}/courier-imapds/log/run
+install -m 0750 %{SOURCE9} %{buildroot}%{_srvdir}/courier-pop3d/run
+install -m 0750 %{SOURCE10} %{buildroot}%{_srvdir}/courier-pop3d/log/run
+install -m 0750 %{SOURCE11} %{buildroot}%{_srvdir}/courier-pop3ds/run
+install -m 0750 %{SOURCE12} %{buildroot}%{_srvdir}/courier-pop3ds/log/run
+
+mkdir -p %{buildroot}%{_sysconfdir}/sysconfig
+install -m 0644 %{SOURCE13} %{buildroot}%{_sysconfdir}/sysconfig/imapd
+install -m 0644 %{SOURCE13} %{buildroot}%{_sysconfdir}/sysconfig/imapd-ssl
+install -m 0644 %{SOURCE13} %{buildroot}%{_sysconfdir}/sysconfig/pop3d
+install -m 0644 %{SOURCE13} %{buildroot}%{_sysconfdir}/sysconfig/pop3d-ssl
+
 %post
 %{courierdatadir}/sysconftool `cat %{courierdatadir}/configlist` >/dev/null
-%_post_service courier-imap
+%_post_srv courier-imapd
+%_post_srv courier-imapds
 
 %create_ghostfile %{_localstatedir}/imapd.pid root root 0600
 %create_ghostfile %{_localstatedir}/imapd.pid.lock root root 0600
@@ -305,6 +332,8 @@ echo "MOD_MAILDIR_CREATOR=\"/bin/false\"" >> %{buildroot}%{couriersysconfdir}/po
 
 %post pop
 %{courierdatadir}/sysconftool `cat %{courierdatadir}/configlist.pop` >/dev/null
+%_post_srv courier-pop3d
+%_post_srv courier-pop3ds
 
 %create_ghostfile %{_localstatedir}/pop3d.pid root root 0600
 %create_ghostfile %{_localstatedir}/pop3d.pid.lock root root 0600
@@ -320,23 +349,31 @@ echo "MOD_MAILDIR_CREATOR=\"/bin/false\"" >> %{buildroot}%{couriersysconfdir}/po
 %post pgsql
 %{courierdatadir}/sysconftool `cat %{courierdatadir}/configlist.pgsql` >/dev/null
 
-%preun ldap
-for file in %{courierlibdir}/{imap,pop3d}{,-ssl}.rc ; do
-	[ -x ${file} ] && ${file} stop
-done
+%postun ldap
+%_preun_srv courier-imapd
+%_preun_srv courier-imapds
+%_preun_srv courier-pop3d
+%_preun_srv courier-pop3ds
 
-%preun mysql
-for file in %{courierlibdir}/{imap,pop3d}{,-ssl}.rc ; do
-	[ -x ${file} ] && ${file} stop
-done
+%postun mysql
+%_preun_srv courier-imapd
+%_preun_srv courier-imapds
+%_preun_srv courier-pop3d
+%_preun_srv courier-pop3ds
 
-%preun pgsql
-for file in %{courierlibdir}/{imap,pop3d}{,-ssl}.rc ; do
-	[ -x ${file} ] && ${file} stop
-done
+%postun pgsql
+%_preun_srv courier-imapd
+%_preun_srv courier-imapds
+%_preun_srv courier-pop3d
+%_preun_srv courier-pop3ds
 
 %preun 
-%_preun_service courier-imap
+%_preun_srv courier-imapd
+%_preun_srv courier-imapds
+
+%preun pop
+%_preun_srv courier-pop3d
+%_preun_srv courier-pop3ds
 
 %triggerpostun -- courier-imap
 test ! -f %{courierdatadir}/configlist || %{courierdatadir}/sysconftool-rpmupgrade `cat %{courierdatadir}/configlist` >/dev/null
@@ -418,6 +455,19 @@ test ! -f %{courierdatadir}/configlist.mysql || %{courierdatadir}/sysconftool-rp
 %ghost %attr(600, root, root) %{_localstatedir}/imapd.pid.lock
 %ghost %attr(600, root, root) %{_localstatedir}/imapd-ssl.pid.lock
 
+%dir %{_srvdir}/courier-imapd
+%dir %{_srvdir}/courier-imapd/log
+%{_srvdir}/courier-imapd/run
+%{_srvdir}/courier-imapd/log/run
+%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/courier-imapd
+%dir %{_srvdir}/courier-imapds
+%dir %{_srvdir}/courier-imapds/log
+%{_srvdir}/courier-imapds/run
+%{_srvdir}/courier-imapds/log/run
+%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/courier-imapds
+%config(noreplace) %{_sysconfdir}/sysconfig/imapd
+%config(noreplace) %{_sysconfdir}/sysconfig/imapd-ssl
+
 %files pop
 %defattr(-, root, root)
 %config(noreplace) %{_sysconfdir}/pam.d/pop3
@@ -434,6 +484,19 @@ test ! -f %{courierdatadir}/configlist.mysql || %{courierdatadir}/sysconftool-rp
 %ghost %attr(600, root, root) %{_localstatedir}/pop3d-ssl.pid
 %ghost %attr(600, root, root) %{_localstatedir}/pop3d.pid.lock
 %ghost %attr(600, root, root) %{_localstatedir}/pop3d-ssl.pid.lock
+
+%dir %{_srvdir}/courier-pop3d
+%dir %{_srvdir}/courier-pop3d/log
+%{_srvdir}/courier-pop3d/run
+%{_srvdir}/courier-pop3d/log/run
+%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/courier-pop3d
+%dir %{_srvdir}/courier-pop3ds
+%dir %{_srvdir}/courier-pop3ds/log
+%{_srvdir}/courier-pop3ds/run
+%{_srvdir}/courier-pop3ds/log/run
+%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/courier-pop3ds
+%config(noreplace) %{_sysconfdir}/sysconfig/pop3d
+%config(noreplace) %{_sysconfdir}/sysconfig/pop3d-ssl
 
 %files ldap -f authdaemon.files.ldap
 %defattr(-, root, root)
@@ -465,6 +528,13 @@ test ! -f %{courierdatadir}/configlist.mysql || %{courierdatadir}/sysconftool-rp
 %{_mandir}/man1/maildirmake++.1*
 
 %changelog
+* Thu Mar 11 2004 Vincent Danen <vdanen@opensls.org> 2.1.2-5sls
+- supervise scripts
+- make all plugins %%postun rather than %%preun and use srv macros to
+  restart services (the previous method was flawed in that it just stopped
+  the service without restarting)
+- default sysconfig files for tuning tcpserver performance
+
 * Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 2.1.2-4sls
 - patch authlib/configure so that builds on amd64 (ignore failed res_query
   error, only shows up on amd64)
