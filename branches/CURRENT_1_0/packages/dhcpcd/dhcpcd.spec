@@ -1,6 +1,6 @@
 %define name	dhcpcd
 %define	version	1.3.22pl4
-%define release	5avx
+%define release	6avx
 
 %define	rversion 1.3.22-pl4
 
@@ -14,7 +14,7 @@ URL:		http://www.phystech.com/download/dhcpcd.html
 Source:		ftp://sunsite.unc.edu/pub/Linux/system/network/daemons/dhcpcd-%{rversion}.tar.bz2
 Patch0:		dhcpcd-1.3.22-pl4-resolvrdv.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-root
+BuildRoot:	%{_tmppath}/%{name}-%{version}-root
 
 %description
 dhcpcd is an implementation of the DHCP  client  specified in
@@ -31,20 +31,20 @@ according to RFC1541 or draft-ietf-dhc-dhcp-09.
 %patch0 -p1 -b .resolvrdv
 
 %build
-%configure
-%make DEFS="$RPM_OPT_FLAGS"
+%configure2_5x
+%make DEFS="%{optflags}"
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p $RPM_BUILD_ROOT/sbin 
-mkdir -p $RPM_BUILD_ROOT/%{_mandir}/man8
-mkdir -p $RPM_BUILD_ROOT/%{_sysconfdir}/dhcpc/
-mkdir -p $RPM_BUILD_ROOT/var/log
+mkdir -p %{buildroot}/sbin 
+mkdir -p %{buildroot}%{_mandir}/man8
+mkdir -p %{buildroot}%{_sysconfdir}/dhcpc/
+mkdir -p %{buildroot}/var/log
 
-install -s -m 755 dhcpcd $RPM_BUILD_ROOT/sbin/dhcpcd
-install -s -m 755 dhcpcd.exe $RPM_BUILD_ROOT/%{_sysconfdir}/dhcpc/
-install -m 644 dhcpcd.8 $RPM_BUILD_ROOT/%{_mandir}/man8/dhcpcd.8
-touch $RPM_BUILD_ROOT/var/log/%{name}.log
+install -s -m 0755 dhcpcd %{buildroot}/sbin/dhcpcd
+install -s -m 0755 dhcpcd.exe %{buildroot}%{_sysconfdir}/dhcpc/
+install -m 0644 dhcpcd.8 %{buildroot}%{_mandir}/man8/dhcpcd.8
+touch %{buildroot}/var/log/%{name}.log
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -61,10 +61,13 @@ fi
 %doc README ChangeLog COPYING INSTALL *.lsm
 %config(noreplace) %{_sysconfdir}/dhcpc/*
 /sbin/dhcpcd
-%{_mandir}/man8/dhcpcd.8.bz2
+%{_mandir}/man8/dhcpcd.8*
 %ghost /var/log/%{name}.log
 
 %changelog
+* Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 1.3.22pl4-6avx
+- spec cleanups
+
 * Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 1.3.22pl4-5avx
 - Annvix build
 
