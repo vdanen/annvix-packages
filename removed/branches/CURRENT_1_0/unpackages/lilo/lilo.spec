@@ -1,9 +1,9 @@
 %define name	lilo
 %define version 22.5.7.2
-%define release 11sls
+%define release 12avx
 %define epoch	1
 
-Summary:	The boot loader for Linux and other operating systems.
+Summary:	The boot loader for Linux and other operating systems
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -12,7 +12,7 @@ Group:		System/Kernel and hardware
 License:	MIT
 URL:		http://brun.dyndns.org/pub/linux/lilo/
 Source:		http://home.san.rr.com/johninsd/pub/linux/lilo/lilo-%{version}.tar.bz2
-Source1:	lilo-OpenSLS-graphics.tar.bz2
+Source1:	lilo-Annvix-graphics.tar.bz2
 #ftp://metalab.unc.edu/pub/Linux/system/boot/lilo/lilo-%{version}.tar.bz2
 #Source: ftp://lrcftp.epfl.ch/pub/linux/local/lilo/
 Patch0:		lilo-21.6-keytab-3mdk.patch.bz2
@@ -28,7 +28,7 @@ Patch25:	lilo-22.5.8-longer_image_names.patch.bz2
 BuildRoot:	%{_tmppath}/%{name}-root
 BuildRequires:	dev86 dev86-devel nasm
 
-PreReq:		/usr/bin/perl
+PreReq:		perl
 Conflicts:	lilo-doc < 22.5.7.2-6mdk
 Exclusivearch:	%{ix86}
 Provides:	bootloader
@@ -81,7 +81,7 @@ mv %{buildroot}%{_sbindir}/* %{buildroot}%{_bindir}
 			progress:405,166,11,14,15 \
 			clear:600,800,64+127 \
 			pos:0,0 \
-	<OpenSLS.bmp >%{buildroot}/boot/message-graphic
+	<Annvix.bmp >%{buildroot}/boot/message-graphic
 
 install bmp2mdk %{buildroot}%{_bindir}/lilo-bmp2mdk
 
@@ -132,7 +132,7 @@ if [ -f /etc/lilo.conf ]; then
           # need a special install=... 
   	  perl -pi -e 's|^install=.*\n||; $_ = "install=text\n$_" if $. == 1' /etc/lilo.conf ;;
         *)
-	  echo "ERROR: unknown lilo scheme, it is DROPPED (please tell dev@opensls.org)"
+	  echo "ERROR: unknown lilo scheme, it is DROPPED (please tell dev@annvix.org)"
 	  sleep 1 ;;
       esac
 
@@ -160,6 +160,11 @@ fi
 
 
 %changelog
+* Mon Jun 28 2004 Vincent Danen <vdanen@annvix.org> 22.5.7.2-12avx
+- Annvix build
+- require packages, not files
+- new graphic for Annvix
+
 * Tue Jun 08 2004 Thomas Backlund <tmb@iki.fi> 22.5.7.2-11sls
 - S1: add OpenSLS graphic to lilo
 - remove /boot/message
