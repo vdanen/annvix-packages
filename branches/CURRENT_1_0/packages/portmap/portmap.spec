@@ -1,6 +1,6 @@
 %define name	portmap
 %define version	4.0
-%define release	23sls
+%define release	24sls
 %define ver	4
 
 Summary:	A program which manages RPC connections
@@ -56,12 +56,10 @@ make FACILITY=LOG_AUTH ZOMBIES='-DIGNORE_SIGCHLD -Dlint' LIBS="-lnsl" RPM_OPT_FL
 rm -rf $RPM_BUILD_ROOT
 mkdir -p $RPM_BUILD_ROOT/sbin
 mkdir -p $RPM_BUILD_ROOT/usr/sbin
-mkdir -p $RPM_BUILD_ROOT/etc/rc.d/init.d
 
 install -m 755 -s portmap $RPM_BUILD_ROOT/sbin
 install -m 755 -s pmap_set $RPM_BUILD_ROOT/usr/sbin
 install -m 755 -s pmap_dump $RPM_BUILD_ROOT/usr/sbin
-install -m 755 %{SOURCE1} $RPM_BUILD_ROOT%{_initrddir}/portmap
 
 mkdir -p $RPM_BUILD_ROOT%{_mandir}/man8
 install -m 644 %{SOURCE2} $RPM_BUILD_ROOT%{_mandir}/man8
@@ -77,16 +75,16 @@ install -m 0755 %{SOURCE6} %{buildroot}/var/service/portmap/log/run
 rm -rf $RPM_BUILD_ROOT
 
 %pre
-%_pre_useradd rpc / /bin/false
+%_pre_useradd rpc / /bin/false 72
 
 %post
-%_post_service portmap
+%_post_srv portmap
 
 %triggerpostun -- portmap <= portmap-4.0-9
 /sbin/chkconfig --add portmap
 
 %preun
-%_preun_service portmap
+%_preun_srv portmap
 
 %postun
 %_postun_userdel rpc
@@ -94,7 +92,6 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(-,root,root)
 %doc README CHANGES BLURB
-%config(noreplace) %{_initrddir}/portmap
 %dir /var/service/portmap
 %dir /var/service/portmap/log
 %dir %attr(0750,nobody,nogroup) /var/log/supervise/portmap
@@ -107,6 +104,11 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Feb 03 2004 Vincent Danen <vdanen@opensls.org> 4.0-24sls
+- remove initscript
+- give rpc static uid/gid 72
+- use srv macros
+
 * Wed Dec 31 2003 Vincent Danen <vdanen@opensls.org> 4.0-23sls
 - supervise files
 
