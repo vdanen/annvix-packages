@@ -1,0 +1,14 @@
+--- wget-1.8.1.orig/src/url.c
++++ wget-1.8.1/src/url.c
+@@ -528,6 +528,11 @@
+   memcpy (*user, str, len);
+   (*user)[len] = '\0';
+ 
++  if (*user)
++    decode_string (*user);
++  if (*passwd)
++    decode_string (*passwd);
++  
+   return 1;
+ }
+ 

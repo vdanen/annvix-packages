@@ -1,0 +1,11 @@
+--- xterm-177/main.c.biarch-utmp	2003-03-23 03:01:40.000000000 +0100
++++ xterm-177/main.c	2003-04-14 12:29:38.000000000 +0200
+@@ -3814,7 +3814,7 @@ spawn(void)
+ 		(void) strncpy(lastlog.ll_host,
+ 			       XDisplayString(screen->display),
+ 			       sizeof(lastlog.ll_host));
+-		time(&lastlog.ll_time);
++		lastlog.ll_time = time(NULL);
+ 		lseek(i, (long) (screen->uid * sizeof(struct lastlog)), 0);
+ 		write(i, (char *) &lastlog, sizeof(struct lastlog));
+ 		close(i);

@@ -1,0 +1,11 @@
+--- XFree86-4.1.0/xc/config/cf/linux.cf.pic	Thu May 31 22:24:14 2001
++++ XFree86-4.1.0/xc/config/cf/linux.cf	Wed Sep 19 17:20:32 2001
+@@ -285,7 +285,7 @@
+  * Build shared libGL and the DRI modules without -fPIC.  This improves
+  * performance.
+  */
+-#if BuildXF86DRI
++#if BuildXF86DRI && !defined(ia64Architecture)
+ #  define BuildLibGlxWithoutPIC	YES
+ #endif
+ 

@@ -1,0 +1,21 @@
+--- lilo-22.5.5/Makefile.pix	2003-06-18 12:22:33.000000000 +0200
++++ lilo-22.5.5/Makefile	2003-06-18 12:23:11.000000000 +0200
+@@ -65,8 +65,7 @@
+ CFG_DIR=/etc
+ BOOT_DIR=/boot
+ USRSBIN_DIR=/usr/sbin
+-MAN_DIR=`if [ -f /usr/bin/manpath ]; then \
+-  manpath | sed "s/:.*//"; else echo /usr/man; fi`
++MAN_DIR=/usr/share/man
+ BUILTIN=1
+ 
+ PCONFIG=`( if [ -r $$ROOT/etc/lilo.defines ]; then \
+@@ -315,7 +314,7 @@
+ 	if [ ! -d $$ROOT$(BOOT_DIR) ]; then mkdir $$ROOT$(BOOT_DIR); fi
+ 	if [ ! -d $$ROOT$(USRSBIN_DIR) ]; then \
+ 	  mkdir -p $$ROOT$(USRSBIN_DIR); fi
+-	if [ ! -d $$ROOT$(MAN_DIR) ]; then mkdir $$ROOT$(MAN_DIR); fi  
++	if [ ! -d $$ROOT$(MAN_DIR) ]; then mkdir -p $$ROOT$(MAN_DIR); fi  
+ 	if [ ! -d $$ROOT$(MAN_DIR)/man5 ]; then \
+ 	  mkdir $$ROOT$(MAN_DIR)/man5; fi  
+ 	if [ ! -d $$ROOT$(MAN_DIR)/man8 ]; then \
