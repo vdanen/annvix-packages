@@ -1,6 +1,6 @@
 %define name	php-%{modname}
 %define version	%{phpversion}
-%define release	2sls
+%define release	3sls
 
 %define phpsource	%{_prefix}/src/php-devel
 %define _docdir		%{_datadir}/doc/%{name}-%{version}
@@ -12,8 +12,13 @@
 %define soname		%{modname}.so
 %define inifile		30_%{modname}.ini
 %define mod_src		%{modname}.c
+%ifarch amd64 x86_64
+%define rlibs		lib64mhash2
+%else
 %define rlibs		libmhash2
-%define blibs		libmhash2-devel
+%endif
+
+%define blibs		libmhash-devel
 
 Summary:	The %{realname} module for PHP
 Name:		%{name}
@@ -77,6 +82,10 @@ EOF
 %config(noreplace) %{_sysconfdir}/php/%{inifile}
 
 %changelog
+* Sat Jan 03 2004 Vincent Danen <vdanen@opensls.org> 4.3.4-3sls
+- fix Reqs/BuildReq's for amd64 (not very clean, but fix in mhash spec
+  later)
+
 * Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 4.3.4-2sls
 - OpenSLS build
 - tidy spec
