@@ -1,0 +1,30 @@
+Status: ok
+
+Include "Rebuild Status" in --detail output.
+
+
+ ----------- Diffstat output ------------
+ ./Detail.c |   11 +++++++++++
+ 1 files changed, 11 insertions(+)
+
+diff ./Detail.c~current~ ./Detail.c
+--- ./Detail.c~current~	2003-12-04 10:05:35.000000000 +1100
++++ ./Detail.c	2003-12-04 10:07:03.000000000 +1100
+@@ -142,6 +142,17 @@ int Detail(char *dev, int brief, int tes
+ 		}
+ 	
+ 		printf("\n");
++		{
++			struct mdstat_ent *ms = mdstat_read();
++			struct mdstat_ent *e;
++			for (e=ms; e; e=e->next)
++				if (e->devnum == array.md_minor) {
++					if (e->percent >= 0)
++						printf(" Rebuild Status : %d%% complete\n\n", e->percent);
++					break;
++				}
++			free_mdstat(ms);
++		}
+ 		printf("    Number   Major   Minor   RaidDevice State\n");
+ 	}
+ 	for (d= 0; d<MD_SB_DISKS; d++) {

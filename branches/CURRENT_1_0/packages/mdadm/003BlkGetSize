@@ -1,0 +1,24 @@
+Status: ok
+
+Fix BLKGETSIZE64 macro
+
+The definition of this macro in the linux kernel is bogus,
+and we copied it.  The third arg is a type, not a size....
+
+
+ ----------- Diffstat output ------------
+ ./mdadm.h |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+diff ./mdadm.h~current~ ./mdadm.h
+--- ./mdadm.h~current~	2003-12-04 10:05:33.000000000 +1100
++++ ./mdadm.h	2003-12-04 10:06:07.000000000 +1100
+@@ -57,7 +57,7 @@ char *strncpy(char *dest, const char *sr
+ #define	MD_MAJOR 9
+ 
+ #ifndef BLKGETSIZE64
+-#define BLKGETSIZE64 _IOR(0x12,114,sizeof(__u64)) /* return device size in bytes (u64 *arg) */
++#define BLKGETSIZE64 _IOR(0x12,114,size_t) /* return device size in bytes (u64 *arg) */
+ #endif
+ 
+ 

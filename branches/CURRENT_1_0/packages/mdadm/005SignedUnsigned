@@ -1,0 +1,317 @@
+Status: devel
+
+Remove lots of signed/unsigned comparison warnings.
+
+
+
+ ----------- Diffstat output ------------
+ ./Assemble.c |   35 ++++++++++++++++++-----------------
+ ./Create.c   |    4 ++--
+ ./Detail.c   |    4 ++--
+ ./Examine.c  |    2 +-
+ ./Monitor.c  |    8 ++++----
+ ./Query.c    |    2 +-
+ ./config.c   |   12 ++++++------
+ ./mdadm.h    |   11 ++++++-----
+ ./util.c     |    4 ++--
+ 9 files changed, 42 insertions(+), 40 deletions(-)
+
+diff ./Assemble.c~current~ ./Assemble.c
+--- ./Assemble.c~current~	2003-12-04 10:07:55.000000000 +1100
++++ ./Assemble.c	2003-12-04 10:44:07.000000000 +1100
+@@ -98,8 +98,8 @@ int Assemble(char *mddev, int mdfd,
+ 	mdp_super_t first_super, super;
+ 	struct {
+ 		char *devname;
+-		int major, minor;
+-		int oldmajor, oldminor;
++		unsigned int major, minor;
++		unsigned int oldmajor, oldminor;
+ 		long long events;
+ 		time_t utime;
+ 		int uptodate;
+@@ -107,16 +107,17 @@ int Assemble(char *mddev, int mdfd,
+ 		int raid_disk;
+ 	} *devices;
+ 	int *best = NULL; /* indexed by raid_disk */
+-	int bestcnt = 0;
+-	int devcnt = 0, okcnt, sparecnt;
+-	int req_cnt;
+-	int i;
++	unsigned int bestcnt = 0;
++	int devcnt = 0;
++	unsigned int okcnt, sparecnt;
++	unsigned int req_cnt;
++	unsigned int i;
+ 	int most_recent = 0;
+ 	int chosen_drive;
+ 	int change = 0;
+ 	int inargv = 0;
+ 	int start_partial_ok = force || devlist==NULL;
+-	int num_devs;
++	unsigned int num_devs;
+ 	mddev_dev_t tmpdev;
+ 	
+ 	vers = md_get_version(mdfd);
+@@ -224,21 +225,21 @@ int Assemble(char *mddev, int mdfd,
+ 					devname);
+ 			continue;
+ 		}
+-		if (ident->super_minor >= 0 &&
++		if (ident->super_minor != UnSet &&
+ 		    (!havesuper || ident->super_minor != super.md_minor)) {
+ 			if (inargv || verbose)
+ 				fprintf(stderr, Name ": %s has wrong super-minor.\n",
+ 					devname);
+ 			continue;
+ 		}
+-		if (ident->level != -10 &&
+-		    (!havesuper|| ident->level != super.level)) {
++		if (ident->level != UnSet &&
++		    (!havesuper|| ident->level != (int)super.level)) {
+ 			if (inargv || verbose)
+ 				fprintf(stderr, Name ": %s has wrong raid level.\n",
+ 					devname);
+ 			continue;
+ 		}
+-		if (ident->raid_disks != -1 &&
++		if (ident->raid_disks != UnSet &&
+ 		    (!havesuper || ident->raid_disks!= super.raid_disks)) {
+ 			if (inargv || verbose)
+ 				fprintf(stderr, Name ": %s requires wrong number of drives.\n",
+@@ -349,16 +350,16 @@ int Assemble(char *mddev, int mdfd,
+ 			    > devices[most_recent].events)
+ 				most_recent = devcnt;
+ 		}
+-		if (super.level == -4) 
++		if ((int)super.level == -4) 
+ 			/* with multipath, the raid_disk from the superblock is meaningless */
+ 			i = devcnt;
+ 		else
+ 			i = devices[devcnt].raid_disk;
+-		if (i>=0 && i < 10000) {
++		if (i < 10000) {
+ 			if (i >= bestcnt) {
+-				int newbestcnt = i+10;
++				unsigned int newbestcnt = i+10;
+ 				int *newbest = malloc(sizeof(int)*newbestcnt);
+-				int c;
++				unsigned int c;
+ 				for (c=0; c < newbestcnt; c++)
+ 					if (c < bestcnt)
+ 						newbest[c] = best[c];
+@@ -392,7 +393,7 @@ int Assemble(char *mddev, int mdfd,
+ 		/* note: we ignore error flags in multipath arrays
+ 		 * as they don't make sense
+ 		 */
+-		if (first_super.level != -4)
++		if ((int)first_super.level != -4)
+ 			if (!(devices[j].state & (1<<MD_DISK_SYNC))) {
+ 				if (!(devices[j].state & (1<<MD_DISK_FAULTY)))
+ 					sparecnt++;
+@@ -494,7 +495,7 @@ int Assemble(char *mddev, int mdfd,
+ 
+ 	for (i=0; i<bestcnt; i++) {
+ 		int j = best[i];
+-		int desired_state;
++		unsigned int desired_state;
+ 
+ 		if (i < super.raid_disks)
+ 			desired_state = (1<<MD_DISK_ACTIVE) | (1<<MD_DISK_SYNC);
+
+diff ./Create.c~current~ ./Create.c
+--- ./Create.c~current~	2003-12-04 10:05:35.000000000 +1100
++++ ./Create.c	2003-12-04 10:22:01.000000000 +1100
+@@ -71,7 +71,7 @@ int Create(char *mddev, int mdfd,
+ 		fprintf(stderr, Name ": Create requires md driver verison 0.90.0 or later\n");
+ 		return 1;
+ 	}
+-	if (level == -10) {
++	if (level == UnSet) {
+ 		fprintf(stderr,
+ 			Name ": a RAID level is needed to create an array.\n");
+ 		return 1;
+@@ -102,7 +102,7 @@ int Create(char *mddev, int mdfd,
+ 	}
+ 
+ 	/* now set some defaults */
+-	if (layout == -1)
++	if (layout == UnSet)
+ 		switch(level) {
+ 		default: /* no layout */
+ 			layout = 0;
+
+diff ./Detail.c~current~ ./Detail.c
+--- ./Detail.c~current~	2003-12-04 10:07:03.000000000 +1100
++++ ./Detail.c	2003-12-04 10:28:27.000000000 +1100
+@@ -200,8 +200,8 @@ int Detail(char *dev, int brief, int tes
+ 				int fd = open(dv, O_RDONLY);
+ 				if (fd >=0 &&
+ 				    load_super(fd, &super) ==0 &&
+-				    super.ctime == array.ctime &&
+-				    super.level == array.level)
++				    (unsigned long)super.ctime == (unsigned long)array.ctime &&
++				    (unsigned int)super.level == (unsigned int)array.level)
+ 					have_super = 1;
+ 			}
+ 		}
+
+diff ./Examine.c~current~ ./Examine.c
+--- ./Examine.c~current~	2003-12-04 10:08:00.000000000 +1100
++++ ./Examine.c	2003-12-04 10:30:31.000000000 +1100
+@@ -162,7 +162,7 @@ int Examine(mddev_dev_t devlist, int bri
+ 			if (calc_sb_csum(&super) == super.sb_csum)
+ 				printf("       Checksum : %x - correct\n", super.sb_csum);
+ 			else
+-				printf("       Checksum : %x - expected %x\n", super.sb_csum, calc_sb_csum(&super));
++				printf("       Checksum : %x - expected %lx\n", super.sb_csum, calc_sb_csum(&super));
+ 			if (SparcAdjust) {
+ 				/* 2.2 sparc put the events in the wrong place
+ 				 * So we copy the tail of the superblock
+
+diff ./Monitor.c~current~ ./Monitor.c
+--- ./Monitor.c~current~	2003-12-04 10:08:05.000000000 +1100
++++ ./Monitor.c	2003-12-04 10:41:20.000000000 +1100
+@@ -191,7 +191,7 @@ int Monitor(mddev_dev_t devlist,
+ 			struct mdstat_ent *mse;
+ 			char *dev = st->devname;
+ 			int fd;
+-			int i;
++			unsigned int i;
+ 
+ 			fd = open(dev, O_RDONLY);
+ 			if (fd < 0) {
+@@ -285,19 +285,19 @@ int Monitor(mddev_dev_t devlist,
+ 					}
+ 				change = newstate ^ st->devstate[i];
+ 				if (st->utime && change && !st->err) {
+-					if (i < array.raid_disks &&
++					if (i < (unsigned)array.raid_disks &&
+ 					    (((newstate&change)&(1<<MD_DISK_FAULTY)) ||
+ 					     ((st->devstate[i]&change)&(1<<MD_DISK_ACTIVE)) ||
+ 					     ((st->devstate[i]&change)&(1<<MD_DISK_SYNC)))
+ 						)
+ 						alert("Fail", dev, dv, mailaddr, alert_cmd);
+-					else if (i>=array.raid_disks &&
++					else if (i >= (unsigned)array.raid_disks &&
+ 						 (disc.major || disc.minor) &&
+ 						 st->devid[i] == MKDEV(disc.major, disc.minor) &&
+ 						 ((newstate&change)&(1<<MD_DISK_FAULTY))
+ 						)
+ 						alert("FailSpare", dev, dv, mailaddr, alert_cmd);
+-					else if (i < array.raid_disks &&
++					else if (i < (unsigned)array.raid_disks &&
+ 						 (((st->devstate[i]&change)&(1<<MD_DISK_FAULTY)) ||
+ 						  ((newstate&change)&(1<<MD_DISK_ACTIVE)) ||
+ 						  ((newstate&change)&(1<<MD_DISK_SYNC)))
+
+diff ./Query.c~current~ ./Query.c
+--- ./Query.c~current~	2003-12-04 10:08:07.000000000 +1100
++++ ./Query.c	2003-12-04 10:29:48.000000000 +1100
+@@ -129,7 +129,7 @@ int Query(char *dev)
+ 			if (md_get_version(fd) >= 9000 &&	
+ 			    ioctl(fd, GET_ARRAY_INFO, &array)>= 0) {
+ 				if (ioctl(fd, GET_DISK_INFO, &disc) >= 0 &&
+-				    MKDEV(disc.major,disc.minor) == stb.st_rdev)
++				    MKDEV((unsigned)disc.major,(unsigned)disc.minor) == stb.st_rdev)
+ 					activity = "active";
+ 				else
+ 					activity = "mismatch";
+
+diff ./config.c~current~ ./config.c
+--- ./config.c~current~	2003-12-04 10:05:35.000000000 +1100
++++ ./config.c	2003-12-04 10:22:01.000000000 +1100
+@@ -265,10 +265,10 @@ void arrayline(char *line)
+ 	mddev_ident_t mi;
+ 
+ 	mis.uuid_set = 0;
+-	mis.super_minor = -1;
+-	mis.level = -10;
+-	mis.raid_disks = -1;
+-	mis.spare_disks = -1;
++	mis.super_minor = UnSet;
++	mis.level = UnSet;
++	mis.raid_disks = UnSet;
++	mis.spare_disks = UnSet;
+ 	mis.devices = NULL;
+ 	mis.devname = NULL;
+ 	mis.spare_group = NULL;
+@@ -299,7 +299,7 @@ void arrayline(char *line)
+ 				if (w[12]==0 || endptr[0]!=0 || mis.super_minor < 0) {
+ 					fprintf(stderr, Name ": invalid super-minor number: %s\n",
+ 						w);
+-					mis.super_minor = -1;
++					mis.super_minor = UnSet;
+ 				}
+ 			}
+ 		} else if (strncasecmp(w, "devices=", 8 ) == 0 ) {
+@@ -453,7 +453,7 @@ mddev_dev_t conf_get_devs(char *conffile
+ 	struct conf_dev *cd;
+ 	int flags = 0;
+ 	static mddev_dev_t dlist = NULL;
+-	int i;
++	unsigned int i;
+ 
+ 	while (dlist) {
+ 		mddev_dev_t t = dlist;
+
+diff ./mdadm.h~current~ ./mdadm.h
+--- ./mdadm.h~current~	2003-12-04 10:07:18.000000000 +1100
++++ ./mdadm.h	2003-12-04 10:30:09.000000000 +1100
+@@ -91,20 +91,21 @@ extern char Version[], Usage[], Help[], 
+  * If multiple fields are present, the intersection of all matching
+  * devices is considered
+  */
++#define UnSet (0xfffe)
+ typedef struct mddev_ident_s {
+ 	char *devname;
+ 	
+ 	int uuid_set;
+ 	__u32 uuid[4];
+ 
+-	int super_minor;	/* -1 if not set */
++	unsigned int super_minor;
+ 
+ 	char *devices;		/* comma separated list of device
+ 				 * names with wild cards
+ 				 */
+-	int level;		/* -10 if not set */
+-	int raid_disks;		/* -1 if not set */
+-	int spare_disks;	/* -1 if not set */
++	int level;
++	unsigned int raid_disks;
++	unsigned int spare_disks;
+ 	char *spare_group;
+ 	struct mddev_ident_s *next;
+ } *mddev_ident_t;
+@@ -200,7 +201,7 @@ extern int load_super(int fd, mdp_super_
+ extern void uuid_from_super(int uuid[4], mdp_super_t *super);
+ extern int same_uuid(int a[4], int b[4]);
+ extern int compare_super(mdp_super_t *first, mdp_super_t *second);
+-extern int calc_sb_csum(mdp_super_t *super);
++extern unsigned long calc_sb_csum(mdp_super_t *super);
+ extern int store_super(int fd, mdp_super_t *super);
+ extern int enough(int level, int raid_disks, int avail_disks);
+ extern int ask(char *mesg);
+
+diff ./util.c~current~ ./util.c
+--- ./util.c~current~	2003-12-04 10:05:35.000000000 +1100
++++ ./util.c	2003-12-04 10:28:50.000000000 +1100
+@@ -369,7 +369,7 @@ int map_name(mapping_t *map, char *name)
+ 			return map->num;
+ 		map++;
+ 	}
+-	return -10;
++	return UnSet;
+ }
+ 
+ /*
+@@ -439,7 +439,7 @@ char *map_dev(int major, int minor)
+ 
+ #endif
+ 
+-int calc_sb_csum(mdp_super_t *super)
++unsigned long calc_sb_csum(mdp_super_t *super)
+ {
+         unsigned int  oldcsum = super->sb_csum;
+ 	unsigned long long newcsum = 0;
