@@ -1,7 +1,6 @@
-%define name ntp 
+%define name	ntp 
 %define version 4.1.2
-%define release 1mdk
-%define realversion 4.1.2
+%define release 2sls
 
 Summary:	Synchronizes system time using the Network Time Protocol (NTP).
 Name:		%{name}
@@ -9,15 +8,17 @@ Version:	%{version}
 Release:	%{release}
 License:	BSD-Style
 Group:		System/Configuration/Other
-Source0:	http://www.eecis.udel.edu/~ntp/ntp_spool/ntp4/%{name}-%{realversion}.tar.bz2
+URL:		http://www.cis.udel.edu/~ntp
+Source0:	http://www.eecis.udel.edu/~ntp/ntp_spool/ntp4/%{name}-%{version}.tar.bz2
 Source1:	ntp.conf
 Source2:	ntp.keys
 Source3:	ntpd.rc
 Patch0:		ntp-4.0.99k-add_time_h.patch.bz2
 Patch1:		ntp-4.1.1-biarch-utmp.patch.bz2
-URL:		http://www.cis.udel.edu/~ntp
+
+BuildRoot:	%{_tmppath}/%{name}-root
+
 PreReq:		rpm-helper
-Buildroot:	%{_tmppath}/%{name}-root
 
 %description
 The Network Time Protocol (NTP) is used to synchronize a computer's time
@@ -31,7 +32,7 @@ Install the ntp package if you need tools for keeping your system's
 time synchronized via the NTP protocol.
 
 %prep 
-%setup -q -n ntp-%{realversion}
+%setup -q -n ntp-%{version}
 %patch0 -p1 -b .add_time
 %patch1 -p1 -b .biarch-utmp
 
@@ -77,6 +78,10 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) /etc/rc.d/init.d/ntpd
 
 %changelog
+* Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 4.1.2-2sls
+- OpenSLS build
+- tidy spec
+
 * Thu Aug 14 2003 Warly <warly@mandrakesoft.com> 4.1.2-1mdk
 - new version
 - add pool.ntp.org as default server

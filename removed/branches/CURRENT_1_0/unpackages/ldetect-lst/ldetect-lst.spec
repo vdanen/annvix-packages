@@ -1,25 +1,27 @@
-%define name ldetect-lst
+%define name	ldetect-lst
 %define version 0.1.8
-%define release 10mdk
+%define release 11sls
 
-Name: %{name}
-Version: %{version}
-Release: %{release}
-Summary: Hardware list for the light detection library
-URL: http://cvs.mandrakesoft.com/cgi-bin/cvsweb.cgi/soft/ldetect-lst/
-Source: %{name}-%{version}.tar.bz2
-Group: System/Libraries
-BuildRoot: %{_tmppath}/%{name}-buildroot
-License: GPL
-Prefix: %{_prefix}
-PreReq: perl-base
-BuildRequires: perl-MDK-Common
-Provides: hwdata
+Summary:	Hardware list for the light detection library
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		System/Libraries
+URL:		http://cvs.mandrakesoft.com/cgi-bin/cvsweb.cgi/soft/ldetect-lst/
+Source:		%{name}-%{version}.tar.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildRequires:	perl-MDK-Common
+
+Prefix:		%{_prefix}
+PreReq:		perl-base
+Provides:	hwdata
 
 %package devel
-Summary: Devel for ldetect-lst
-Group: Development/Perl
-Requires: ldetect-lst = %{version}
+Summary:	Devel for ldetect-lst
+Group:		Development/Perl
+Requires:	ldetect-lst = %{version}
 
 %description
 The hardware device lists provided by this package are used as lookup 
@@ -64,6 +66,10 @@ fi
 %{_bindir}/*
 
 %changelog
+* Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 0.1.8-11sls
+- OpenSLS build
+- tidy spec
+
 * Mon Sep 22 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 0.1.8-10mdk
 - nforce3 nvnet
 

@@ -1,24 +1,26 @@
 %define	name	openslp
 %define	version	1.0.11
-%define	release	4mdk
+%define	release	5sls
 
-%define	major	1
-%define	libname	%mklibname %{name} %{major}
+%define	major		1
+%define	libname		%mklibname %{name} %{major}
 %define	libname_devel	%mklibname %{name} %{major} -d
 
-Name:		%name
-Version: 	%version
-Release:	%release
 Summary:	OpenSLP implementation of Service Location Protocol V2 
+Name:		%name
+Version:	%version
+Release:	%release
 License:	BSD-like
 Group:		Networking/Other
-PreReq:    	/sbin/chkconfig, /sbin/service, rpm-helper
 URL:		http://www.openslp.org/
-BuildRoot:	%{_tmppath}/%{name}-root
 Source0:	ftp://openslp.org/pub/openslp/%{name}-%{version}/%{name}-%{version}.tar.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-root
+
+PreReq:		/sbin/chkconfig, /sbin/service, rpm-helper
 Requires:	%{libname}
 
-%Description
+%description
 Service Location Protocol is an IETF standards track protocol that
 provides a framework to allow networking applications to discover the
 existence, location, and configuration of networked services in
@@ -29,9 +31,9 @@ by RFC 2608 and RFC 2614.  This package include the daemon, libraries, header
 files and documentation
 
 %package -n %{libname}
-Summary:        OpenSLP implementation of Service Location Protocol V2
-Group:          System/Libraries
-#Requires:       %name = %version-%release
+Summary:	OpenSLP implementation of Service Location Protocol V2
+Group:		System/Libraries
+#Requires:	%name = %version-%release
 
 %description -n %{libname}
 Service Location Protocol is an IETF standards track protocol that
@@ -46,11 +48,11 @@ files and documentation
 This package contains the %libname runtime library.
 
 %package -n %{libname_devel}
-Summary:        Development tools for programs which will use the %{name} library
-Group:          Development/C
-Requires:       %{libname} = %version-%release
-Provides:       %{name}-devel = %version-%release
-Provides:       lib%{name}-devel = %version-%release
+Summary:	Development tools for programs which will use the %{name} library
+Group:		Development/C
+Requires:	%{libname} = %version-%release
+Provides:	%{name}-devel = %version-%release
+Provides:	lib%{name}-devel = %version-%release
 
 %description -n %{libname_devel}
 The %{name}-devel package includes the header files and static libraries
@@ -124,6 +126,10 @@ rm -rf %buildroot
 
 
 %changelog
+* Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 1.0.11-5sls
+- OpenSLS build
+- tidy spec
+
 * Tue Jul 15 2003 Laurent MONTEL <lmontel@mandrakesoft.com> 1.0.11-4mdk
 - Fix log directory
 

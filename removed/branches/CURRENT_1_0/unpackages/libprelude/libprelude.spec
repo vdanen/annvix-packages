@@ -1,6 +1,7 @@
 %define	name	libprelude
 %define	version	0.8.5
-%define	release 2mdk
+%define	release 3sls
+
 %define	major	0
 %define libname	%mklibname prelude %{major}
 
@@ -10,14 +11,15 @@ Summary:	Prelude Hybrid Intrusion Detection System Library
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
-URL:		http://www.prelude-ids.org/
 License:	GPL
+Group:		System/Libraries
+URL:		http://www.prelude-ids.org/
 Source0:	%{name}-%{version}.tar.bz2
 Patch0:		libprelude-0.8.5-ltdl_fix.diff.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-%{version}-root
 BuildRequires:  openssl-devel
 BuildRequires:  libltdl-devel
-Group:		System/Libraries
-BuildRoot:	%{_tmppath}/%{name}-%{version}-root
 
 %description
 The Prelude Library is a collection of generic functions providing
@@ -33,8 +35,8 @@ security program into a Prelude sensor.
 %package -n	%{libname}
 Summary:	Prelude Hybrid Intrusion Detection System Library
 Group:          System/Libraries
-Provides: %{name}
-Provides: %{name} = %{version}
+Provides:	%{name}
+Provides:	%{name} = %{version}
 
 %description -n	%{libname}
 The Prelude Library is a collection of generic functions providing
@@ -47,7 +49,7 @@ line, or wide configuration, available from the Manager), and a
 generic plugin API. It allows you to easily turn your favorite
 security program into a Prelude sensor.
 
-%package -n	prelude-tools
+%package -n prelude-tools
 Summary:	The interface for %{libname}
 Group:          Networking/Other
 Requires:	%{libname} = %{version}
@@ -56,7 +58,7 @@ Requires:	%{libname} = %{version}
 Provides a convenient interface for sending alerts to Prelude
 Manager.
 
-%package -n	%{libname}-devel
+%package -n %{libname}-devel
 Summary:	Libraries, includes, etc. to develop Prelude IDS sensors
 Group:		Development/C
 Requires:	%{libname} = %{version}
@@ -133,6 +135,10 @@ mv %{buildroot}/%{_prefix}/%{name}/include/*  %{buildroot}/%{_includedir}/%{name
 %{_includedir}/%{name}
 
 %changelog
+* Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 0.8.5-3sls
+- OpenSLS build
+- tidy spec
+
 * Tue Sep 09 2003 Florin Grad <florin@mandrakesoft.com> 0.8.5-2mdk
 - rename the include dir
 
