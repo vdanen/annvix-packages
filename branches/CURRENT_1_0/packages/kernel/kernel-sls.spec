@@ -84,8 +84,10 @@
 # Thomas Backlund <tmb@iki.fi>
 
 %define sublevel	25
-%define slsrelease	3
+%define slsrelease	4
 %define use_patch	0
+
+%{!?build_opensls:%global build_opensls 0}
 
 # This is only to make life easier for people that creates derivated kernels
 # or to rename the kernels :)
@@ -231,9 +233,9 @@ Patch1:		patch-%realversion-%use_patch.bz2
 %define requires1	modutils >= 2.4.25-3sls
 
 %define requires2	mkinitrd >= 3.4.43-10sls
-%define requires3	bootloader-utils >= 1.6-4sls
+%define requires3	bootloader-utils >= 1.6-5sls
 
-%define conflicts	iptables <= 1.2.8-3sls
+%define conflicts	iptables <= 1.2.9-1sls
 %define kprovides	kernel = %{realversion}
 
 BuildRoot:	%{_tmppath}/%{name}-%{realversion}-build
@@ -918,6 +920,96 @@ exit 0
 %endif
 
 %changelog
+* Fri Mar  5 2004 Thomas Backlund <tmb@mandrake.org> 2.4.25-4sls
+- require atleast bootloader-utils 1.6-5sls
+- conflict older iptables than 1.2.9-2sls
+- BA16_nfs_rpc_call_sync_rename.patch
+  * rename rpc call so it wont conflict
+- BA29_pci-pc_lcall_right.patch
+  * fix lcall
+- BA30_apm_lcall_right.patch
+  * fix lcall
+- BA31_bootsect_lcall_right.patch
+  * fix lcall
+- BA32_setup_lcall_right.patch
+  * fix lcall
+- BA35_doc1000_smp.patch
+  * doc1000 driver does not work with smp
+- BI02_kmap.patch
+  * fix kmap size
+- CE02_autoconf.patch
+  * autoconf magic by Chmouel to keep only one source for all kernels
+- CE07_Makefile_preconfig_target.patch
+  * include version.h in preconfig
+- CE09_boot_kernel.patch
+  * special buildoptions to make bootkernel smaller
+- CE10_boot_kernel_video_tweaks.patch
+  * video fallback if the selected one don't work
+- CE11_i586-if-no-cmov.patch
+  * treat all cpus that does not support cmov as i586
+- DI02_ide_nforce3.patch
+  * support nforce2, nforce3 and amd8111 ide chipsets up to udma133
+- FA01_b_journal_head-1.patch
+  * adds missing journal_head
+- FA02_write_times.patch
+  * fix update inode times
+- FB03_fcntl_O_LARGEFILE.patch
+  * adds O_LARGEFILE check to fcntl
+- FF01_cifs_1.0.3cvs.patch
+  * adds support for cifs protocol (better than smb)
+- FN01_ntfs_2.1.6a.patch
+  * updates ntfs support
+- FN02_ntfs_ksyms_fix.patch
+  * fix ksyms for ntfs and reiserfs
+- FN03_end_buffer_io_async_prototype.patch
+  * add missing prototype
+- FN04_64bits_needs_ULL.patch
+  * update to ULL to support 64bit
+- FR01_reiserfs_sync_fs-4.patch
+  * fix reiserfs sync
+- FR02_reiserfs_data_logging-39.patch
+  * add support for data logging
+- FR03_reiserfs_quota-28.patch
+  * add support for quota
+- FR04_reiserfs_jh-3.patch
+  * fix reiserfs journal head
+- FR05_reiserfs_quota_link_fix.patch
+  * fix resierfs quota link
+- HB02-1_rng_support.patch
+  * add another amd8111 systems manager support
+- HB03_bigger_dmesg_buffer.patch
+  * make larger dmesg buffer
+- HB04_ioctl32_null_conversion.patch
+  * fix ioctl32 null conversion
+- HB05_amd64_exports.patch
+  * add missing exports
+- HB06_specific.patch
+  * disable token ring on amd64
+- HB08_define_fls.patch
+  * add missing fls define
+- HB09_binfmt_name.patch
+  * add names to binfmt
+- HB11_open_ia32_hack.patch
+  * fix fs_open
+- HB15_do_gettimeoffest_safe.patch
+  * add gettimeoffset_safe to timer
+- HB16_expand_stack.patch
+  * fix expand stack
+- HB21-2_cflags_optimize.patch
+  * disable some optimizations
+- HB22_include_lib_config.in.patch
+  * include lib in kernel config
+- HB24_dont_use_do_gettimeoffset_safe.patch
+  * use gettimeoffset instead of gettimeoffset_safe
+- HB28_amd64_boot_kernel.patch
+  * optimize boot kernels for size
+- HB29_amd64_kallsyms.patch
+  * add kallsyms support to amd64
+- HB31_amd64_pcmcia.patch
+  * fix pci mem allocations
+- ND01_forcedeth.patch
+  * add support for nforce ethernet
+
 * Wed Mar  3 2004 Thomas Backlund <tmb@mandrake.org> 2.4.25-3sls
 - AA01_compile_fixes.patch
   * fixes mips specific code
@@ -944,7 +1036,6 @@ exit 0
   * enables ACL on XFS
 - SL51_selinux1.patch
   * adds NSA SELinux 
-- remove %%build_opensls macro (vdanen)
     
 * Mon Mar  1 2004 Thomas Backlund <tmb@mandrake.org> 2.4.25-2sls
 - DF01_freeswan-2.0.5.patch
