@@ -1,6 +1,6 @@
 %define name		console-tools
 %define version		0.2.3
-%define release		48sls
+%define release		49sls
 
 %define	CTVER		%version
 %define	CDVER		1999.08.29
@@ -63,11 +63,11 @@ Patch18: 	console-tools-0.2.3-compresscoredump.patch.bz2
 BuildRoot:	%_tmppath/%name-%version-%release-root
 BuildRequires:	flex libtool >= 1.3.3
 
-Prereq:		/sbin/chkconfig coreutils sed rpm-helper
+Prereq:		chkconfig coreutils sed rpm-helper
 PreReq:		%libname = %version-%release
 Obsoletes:	kbd
 Provides:	kbd
-Requires:	grep, /bin/gawk
+Requires:	grep, gawk
 
 %description
 This package contains utilities to load console fonts and
@@ -336,6 +336,9 @@ fi
 %_libdir/*.a
 
 %changelog
+* Fri Jun 11 2004 Vincent Danen <vdanen@opensls.org> 0.2.3-49sls
+- require packages, not files
+
 * Tue Mar 02 2004 Vincent Danen <vdanen@opensls.org> 0.2.3-48sls
 - minor spec cleanups
 
