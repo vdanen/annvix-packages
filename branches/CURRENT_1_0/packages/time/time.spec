@@ -1,6 +1,6 @@
 %define name	time
 %define version	1.7
-%define release	27sls
+%define release	28avx
 
 Summary:	A GNU utility for monitoring a program's use of system resources.
 Name:		%{name}
@@ -19,7 +19,7 @@ Patch4:		time-1.7-build.patch.bz2
 BuildRoot:	%{_tmppath}/%{name}-root
 BuildRequires:	texinfo
 
-PreReq:		/sbin/install-info
+PreReq:		info-install
 
 %description
 The GNU time utility runs another program, collects information about
@@ -72,6 +72,10 @@ make LDFLAGS=-s
 %_infodir/time.info*
 
 %changelog
+* Sat Jun 19 2004 Vincent Danen <vdanen@annvix.org> 1.7-28avx
+- require info-install rather than a file
+- Annvix build
+
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 1.7-27sls
 - minor spec cleanups
 
