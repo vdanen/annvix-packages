@@ -1,0 +1,69 @@
+diff -Naur exim-4.43/exim_monitor/em_hdr.h exim-4.43.oden/exim_monitor/em_hdr.h
+--- exim-4.43/exim_monitor/em_hdr.h	2004-10-05 10:32:08.000000000 +0200
++++ exim-4.43.oden/exim_monitor/em_hdr.h	2004-11-04 00:29:59.177382959 +0100
+@@ -85,7 +85,7 @@
+ 
+ /* Regular expression include */
+ 
+-#include "pcre/pcre.h"
++#include <pcre.h>
+ 
+ /* Includes from the main source of Exim. We need to have MAXPACKET defined for
+ the benefit of structs.h. One of these days I should tidy up this interface so
+diff -Naur exim-4.43/OS/Makefile-Base exim-4.43.oden/OS/Makefile-Base
+--- exim-4.43/OS/Makefile-Base	2004-10-05 10:32:08.000000000 +0200
++++ exim-4.43.oden/OS/Makefile-Base	2004-11-04 00:29:59.177382959 +0100
+@@ -94,7 +94,7 @@
+ # This is the real default target for all the various exim binaries and
+ # scripts, once the configuring stuff is done.
+ 
+-allexim: config.h buildpcre $(EXIM_MONITOR) exicyclog exinext exiwhat \
++allexim: config.h $(EXIM_MONITOR) exicyclog exinext exiwhat \
+         exigrep eximstats exipick exiqgrep exiqsumm \
+         transport-filter.pl convert4r3 convert4r4 \
+         exim_checkaccess \
+@@ -295,7 +295,7 @@
+         store.o string.o tls.o tod.o transport.o tree.o verify.o \
+         local_scan.o $(EXIM_PERL)
+ 
+-exim:   pcre/libpcre.a lookups/lookups.a auths/auths.a \
++exim:   lookups/lookups.a auths/auths.a \
+         routers/routers.a transports/transports.a \
+         $(OBJ_EXIM) version.c
+ 	@echo " "
+@@ -304,7 +304,7 @@
+ 	$(CC) -c $(CFLAGS) $(INCLUDE) $(IPV6_INCLUDE) $(TLS_INCLUDE) version.c
+ 	rm -f exim
+ 	$(PURIFY) $(LNCC) -o exim $(LFLAGS) $(OBJ_EXIM) version.o \
+-	  pcre/libpcre.a \
++	  -lpcre \
+ 	  routers/routers.a transports/transports.a lookups/lookups.a \
+ 	  auths/auths.a \
+ 	  $(LIBRESOLV) $(LIBS) $(LIBS_EXIM) $(IPV6_LIBS) $(EXTRALIBS) \
+@@ -407,12 +407,12 @@
+ 
+ OBJ_MONBIN = util-spool_in.o util-store.o util-string.o tod.o tree.o $(MONBIN)
+ 
+-eximon.bin: $(EXIMON_EDITME) eximon $(OBJ_MONBIN) pcre/libpcre.a \
++eximon.bin: $(EXIMON_EDITME) eximon $(OBJ_MONBIN) \
+             ../exim_monitor/em_version.c
+ 	$(CC) -o em_version.o -c \
+ 	  $(CFLAGS) $(XINCLUDE) -I. ../exim_monitor/em_version.c
+ 	$(PURIFY) $(LNCC) -o eximon.bin em_version.o $(LFLAGS) $(XLFLAGS) \
+-	$(OBJ_MONBIN) -lXaw -lXmu -lXt -lXext -lX11 pcre/libpcre.a \
++	$(OBJ_MONBIN) -lXaw -lXmu -lXt -lXext -lX11 -lpcre \
+ 	  $(LIBS) $(LIBS_EXIMON) $(EXTRALIBS) $(EXTRALIBS_EXIMON) -lc
+ 	@if [ x"$(STRIP_COMMAND)" != x"" ]; then \
+ 	  echo $(STRIP_COMMAND) eximon.bin; \
+diff -Naur exim-4.43/src/exim.h exim-4.43.oden/src/exim.h
+--- exim-4.43/src/exim.h	2004-10-05 10:32:08.000000000 +0200
++++ exim-4.43.oden/src/exim.h	2004-11-04 00:29:59.178382790 +0100
+@@ -368,7 +368,7 @@
+ 
+ /* The header from the PCRE regex package */
+ 
+-#include "pcre/pcre.h"
++#include <pcre.h>
+ 
+ /* Exim includes are in several files. Note that local_scan.h #includes
+ mytypes.h and store.h, so we don't need to mention them explicitly. */
