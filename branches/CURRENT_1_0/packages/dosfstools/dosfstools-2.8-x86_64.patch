@@ -1,0 +1,22 @@
+--- dosfstools-2.8/mkdosfs/mkdosfs.c.x86_64	2000-11-28 11:23:58.000000000 -0500
++++ dosfstools-2.8/mkdosfs/mkdosfs.c	2002-11-26 13:51:14.000000000 -0500
+@@ -95,7 +95,7 @@
+ /* Use the _llseek system call directly, because there (once?) was a bug in
+  * the glibc implementation of it. */
+ #include <linux/unistd.h>
+-#if defined(__alpha) || defined(__ia64__)
++#if defined(__alpha) || defined(__ia64__) || defined(__x86_64__)
+ /* On alpha, the syscall is simply lseek, because it's a 64 bit system. */
+ static loff_t llseek( int fd, loff_t offset, int whence )
+ {
+--- dosfstools-2.8/dosfsck/io.c.x86_64	2000-11-28 11:22:42.000000000 -0500
++++ dosfstools-2.8/dosfsck/io.c	2002-11-26 13:50:45.000000000 -0500
+@@ -42,7 +42,7 @@ unsigned device_no;
+ /* Use the _llseek system call directly, because there (once?) was a bug in
+  * the glibc implementation of it. */
+ #include <linux/unistd.h>
+-#if defined(__alpha) || defined (__ia64__)
++#if defined(__alpha) || defined (__ia64__) || defined(__x86_64__)
+ /* On alpha, the syscall is simply lseek, because it's a 64 bit system. */
+ static loff_t llseek( int fd, loff_t offset, int whence )
+ {

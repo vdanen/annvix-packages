@@ -1,0 +1,34 @@
+diff -urN cyrus-sasl-2.1.12/configure.in cyrus-sasl-2.1.12-modified/configure.in
+--- cyrus-sasl-2.1.12/configure.in	2003-02-03 19:37:33.000000000 +0100
++++ cyrus-sasl-2.1.12-modified/configure.in	2003-03-06 14:14:52.000000000 +0100
+@@ -80,19 +80,19 @@
+ CMU_C___ATTRIBUTE__
+ 
+ dnl check for -R, etc. switch
+-CMU_GUESS_RUNPATH_SWITCH
++#CMU_GUESS_RUNPATH_SWITCH
+ dnl let's just link against local.  otherwise we never find anything useful.
+-if test "$ac_cv_prog_gcc" = yes; then
++#if test "$ac_cv_prog_gcc" = yes; then
+   dnl xxx we should add -W at some point (but that might scare people)
+-  CFLAGS="-Wall ${CFLAGS}"
+-  GCC_VERSION=`$CC -v 2>&1 | sed -n -e '/version/s/.*version \([[0-9]]\)\..*/\1/p'`
+-  if test "$GCC_VERSION" != "3"; then
+-    CPPFLAGS="${CPPFLAGS} -I/usr/local/include"
+-  fi
+-else
+-  CPPFLAGS="${CPPFLAGS} -I/usr/local/include"
+-fi 
+-CMU_ADD_LIBPATH("/usr/local/lib")
++#  CFLAGS="-Wall ${CFLAGS}"
++#  GCC_VERSION=`$CC -v 2>&1 | sed -n -e '/version/s/.*version \([[0-9]]\)\..*/\1/p'`
++#  if test "$GCC_VERSION" != "3"; then
++#    CPPFLAGS="${CPPFLAGS} -I/usr/local/include"
++#  fi
++#else
++#  CPPFLAGS="${CPPFLAGS} -I/usr/local/include"
++#fi 
++#CMU_ADD_LIBPATH("/usr/local/lib")
+ 
+ AM_DISABLE_STATIC
+ 

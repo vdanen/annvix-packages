@@ -1,0 +1,106 @@
+--- tetex-src-2.0.2/libs/xpdf/xpdf/GfxState.cc.xpdf	2003-01-07 16:33:35.000000000 +0000
++++ tetex-src-2.0.2/libs/xpdf/xpdf/GfxState.cc	2003-03-13 13:42:59.000000000 +0000
+@@ -13,6 +13,7 @@
+ #endif
+ 
+ #include <stddef.h>
++#include <limits.h>
+ #include <math.h>
+ #include <string.h> // for memcpy()
+ #include "gmem.h"
+@@ -776,6 +777,7 @@
+ 					   int indexHighA) {
+   base = baseA;
+   indexHigh = indexHighA;
++  // Checked in GfxIndexedColorSpace::parse
+   lookup = (Guchar *)gmalloc((indexHigh + 1) * base->getNComps() *
+ 			     sizeof(Guchar));
+ }
+@@ -1695,6 +1697,8 @@
+     colorSpace2 = indexedCS->getBase();
+     indexHigh = indexedCS->getIndexHigh();
+     nComps2 = colorSpace2->getNComps();
++    if ((unsigned int)(indexHigh + 1) >= INT_MAX / (nComps2 * sizeof(double)))
++      goto err1;
+     lookup = (double *)gmalloc((indexHigh + 1) * nComps2 * sizeof(double));
+     lookup2 = indexedCS->getLookup();
+     colorSpace2->getDefaultRanges(x, y, indexHigh);
+@@ -1708,6 +1712,8 @@
+     sepCS = (GfxSeparationColorSpace *)colorSpace;
+     colorSpace2 = sepCS->getAlt();
+     nComps2 = colorSpace2->getNComps();
++    if ((unsigned int)(maxPixel + 1) >= INT_MAX / (nComps2 * sizeof(double)))
++      goto err1;
+     lookup = (double *)gmalloc((maxPixel + 1) * nComps2 * sizeof(double));
+     sepFunc = sepCS->getFunc();
+     for (i = 0; i <= maxPixel; ++i) {
+@@ -1718,6 +1724,8 @@
+       }
+     }
+   } else {
++    if ((unsigned int)(maxPixel + 1) >= INT_MAX / (nComps * sizeof(double)))
++      goto err1;
+     lookup = (double *)gmalloc((maxPixel + 1) * nComps * sizeof(double));
+     for (i = 0; i <= maxPixel; ++i) {
+       for (k = 0; k < nComps; ++k) {
+@@ -1812,6 +1820,7 @@
+ 
+ GfxSubpath::GfxSubpath(double x1, double y1) {
+   size = 16;
++  // safe
+   x = (double *)gmalloc(size * sizeof(double));
+   y = (double *)gmalloc(size * sizeof(double));
+   curve = (GBool *)gmalloc(size * sizeof(GBool));
+@@ -1832,6 +1841,7 @@
+ GfxSubpath::GfxSubpath(GfxSubpath *subpath) {
+   size = subpath->size;
+   n = subpath->n;
++  // safe (subpath->size is constrained)
+   x = (double *)gmalloc(size * sizeof(double));
+   y = (double *)gmalloc(size * sizeof(double));
+   curve = (GBool *)gmalloc(size * sizeof(GBool));
+@@ -1843,6 +1853,7 @@
+ 
+ void GfxSubpath::lineTo(double x1, double y1) {
+   if (n >= size) {
++    if ((unsigned int)(size + 16) >= INT_MAX / sizeof (double)) return;
+     size += 16;
+     x = (double *)grealloc(x, size * sizeof(double));
+     y = (double *)grealloc(y, size * sizeof(double));
+@@ -1857,6 +1868,7 @@
+ void GfxSubpath::curveTo(double x1, double y1, double x2, double y2,
+ 			 double x3, double y3) {
+   if (n+3 > size) {
++    if ((unsigned int)(size + 16) >= INT_MAX / sizeof (double)) return;
+     size += 16;
+     x = (double *)grealloc(x, size * sizeof(double));
+     y = (double *)grealloc(y, size * sizeof(double));
+@@ -1885,6 +1897,7 @@
+   size = 16;
+   n = 0;
+   firstX = firstY = 0;
++  // safe
+   subpaths = (GfxSubpath **)gmalloc(size * sizeof(GfxSubpath *));
+ }
+ 
+@@ -1906,6 +1919,7 @@
+   firstY = firstY1;
+   size = size1;
+   n = n1;
++  // not sure
+   subpaths = (GfxSubpath **)gmalloc(size * sizeof(GfxSubpath *));
+   for (i = 0; i < n; ++i)
+     subpaths[i] = subpaths1[i]->copy();
+@@ -2094,8 +2108,10 @@
+     strokePattern = state->strokePattern->copy();
+   }
+   if (lineDashLength > 0) {
+-    lineDash = (double *)gmalloc(lineDashLength * sizeof(double));
+-    memcpy(lineDash, state->lineDash, lineDashLength * sizeof(double));
++    if (lineDashLength < INT_MAX / sizeof (double)) {
++      lineDash = (double *)gmalloc(lineDashLength * sizeof(double));
++      memcpy(lineDash, state->lineDash, lineDashLength * sizeof(double));
++    }
+   }
+   saved = NULL;
+ }

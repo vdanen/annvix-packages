@@ -1,0 +1,14 @@
+--- gnupg-1.2.2/checks/defs.inc.testsuite	2003-05-01 15:17:46.000000000 +0200
++++ gnupg-1.2.2/checks/defs.inc	2003-08-11 23:01:47.000000000 +0200
+@@ -99,9 +99,9 @@ pgmname=`basename $0`
+ [ -z "$srcdir" ] && fatal "not called from make"
+ 
+ # Make sure we have a valid option files even with VPATH builds.
+-if [ -f ./options]; then
++if [ -f ./options ]; then
+   :
+-elif [ -f ./gpg.conf]; then
++elif [ -f ./gpg.conf ]; then
+   :
+ elif [ -f $srcdir/options ]; then
+   cat $srcdir/options >gpg.conf

@@ -1,0 +1,11 @@
+--- configure
++++ configure
+@@ -1422,7 +1422,7 @@
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+   old_LIBS="$LIBS"
+-   LIBS="$LIBS -lwrap $LIBNSL"
++   LIBS="$LIBS -lwrappp $LIBNSL"
+    cat > conftest.$ac_ext <<EOF
+ #line 1428 "configure"
+ #include "confdefs.h"

@@ -1,0 +1,20 @@
+--- mysql-3.23.54a/client/mysql.cc.errno	2002-12-27 18:19:32.000000000 +0100
++++ mysql-3.23.54a/client/mysql.cc	2002-12-27 18:18:51.000000000 +0100
+@@ -27,6 +27,7 @@
+ 
+ #include "client_priv.h"
+ #include <m_ctype.h>
++#include <errno.h>
+ #include <my_dir.h>
+ #ifndef __GNU_LIBRARY__
+ #define __GNU_LIBRARY__		      // Skip warnings in getopt.h
+--- mysql-3.23.54a/libmysql/libmysql.c.errno	2002-12-27 18:20:06.000000000 +0100
++++ mysql-3.23.54a/libmysql/libmysql.c	2002-12-27 18:20:20.000000000 +0100
+@@ -22,6 +22,7 @@
+ #endif
+ #include <my_sys.h>
+ #include <mysys_err.h>
++#include <errno.h>
+ #include <m_string.h>
+ #include <m_ctype.h>
+ #include "mysql.h"

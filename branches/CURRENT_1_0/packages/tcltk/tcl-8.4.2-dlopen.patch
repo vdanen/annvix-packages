@@ -1,0 +1,45 @@
+--- tcl8.4.2/unix/tclLoadDl.c.dlopen	2002-10-10 14:25:53.000000000 +0200
++++ tcl8.4.2/unix/tclLoadDl.c	2003-04-04 19:16:47.000000000 +0200
+@@ -34,6 +34,9 @@
+ #ifndef RTLD_GLOBAL
+ #   define RTLD_GLOBAL 0
+ #endif
++
++#include <errno.h>
++
+ 
+ /*
+  *---------------------------------------------------------------------------
+@@ -67,7 +70,8 @@
+ 				 * this file. */
+ {
+     VOID *handle;
+-    CONST char *native;
++    CONST char *native, *native_so;
++    size_t n;
+ 
+     /* 
+      * First try the full path the user gave us.  This is particularly
+@@ -85,7 +89,21 @@
+ 	Tcl_DString ds;
+ 	char *fileName = Tcl_GetString(pathPtr);
+ 	native = Tcl_UtfToExternalDString(NULL, fileName, -1, &ds);
+-	handle = dlopen(native, RTLD_NOW | RTLD_GLOBAL);
++	n = strlen(native);
++	n += strlen(TCL_SHLIB_EXT);
++	native_so = malloc(++n);
++	if (native_so == NULL) {
++	  Tcl_AppendResult(interp, "couldn't load file \"", fileName, "\": ",strerror(errno), NULL);
++	  return TCL_ERROR;
++	}
++	strcpy(native_so, native);
++	/*
++	 * if the extension for a dynamic lib is not there, add it
++	 */
++	if (strstr(native_so, TCL_SHLIB_EXT) == NULL)
++	  strcat(native_so, TCL_SHLIB_EXT);
++	handle = dlopen(native_so, RTLD_NOW | RTLD_GLOBAL);       /* INTL: Native. */
++	free(native_so);
+ 	Tcl_DStringFree(&ds);
+     }
+     

@@ -1,0 +1,61 @@
+--- ./mount/swapon.c.swapon	2002-11-01 01:38:49.000000000 +0100
++++ ./mount/swapon.c	2002-11-06 08:56:55.000000000 +0100
+@@ -289,7 +302,14 @@
+ 	if (!all && *argv == NULL)
+ 		swapon_usage(stderr, 2);
+ 
++	if (ifexists && (!all || strcmp(program_name, "swapon")))
++	        swapon_usage(stderr, 1);
++
+ 	if (all) {
++	    FILE *swaps;
++		char ** swapList = NULL;
++		int numSwaps = 0;
++		
+ 		read_proc_swaps();
+ 
+ 		fp = setmntent(_PATH_FSTAB, "r");
+@@ -313,7 +327,28 @@
+ 				program_name, _PATH_FSTAB, strerror(errsv));
+ 			exit(2);
+ 		}
++
++		/* don't complain if this doesn't exist, just turn on everything */
++		if ((swaps = fopen("/proc/swaps", "r"))) {
++		        char line[1024];
++			char * chptr;
++
++			/* skip the first line */
++			fgets(line, sizeof(line), swaps);
++
++			while (fgets(line, sizeof(line), swaps)) {
++			    for (chptr = line; !isspace(*chptr); chptr++);
++			    *chptr = '\0';
++
++			    swapList = realloc(swapList, sizeof(*swapList) * 
++					       (numSwaps + 1));
++			    swapList[numSwaps++] = strdup(line);
++			}
++			fclose(swaps);
++		}
++
+ 		while ((fstab = getmntent(fp)) != NULL) {
++		        int i;
+ 			char *special = fstab->mnt_fsname;
+ 
+ 			if (streq(fstab->mnt_type, MNTTYPE_SWAP) &&
+@@ -326,7 +361,13 @@
+ 				     opt = strtok(NULL, ","))
+ 					if (strncmp(opt, "pri=", 4) == 0)
+ 						priority = atoi(opt+4);
+-				status |= do_swapon(special, priority);
++
++				for (i = 0; i < numSwaps; i++)
++				     if (!strcmp(swapList[i], fstab->mnt_fsname)) break;
++          
++				if ((i == numSwaps) && 
++				         (!ifexists || !access(fstab->mnt_fsname, R_OK)))
++				     status |= do_swapon(special, priority);
+ 			}
+ 		}
+ 	}

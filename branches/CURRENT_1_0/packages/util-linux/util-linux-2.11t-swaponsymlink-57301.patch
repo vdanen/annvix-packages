@@ -1,0 +1,21 @@
+--- util-linux-2.11t/mount/swapon.c.swaponsymlink	2002-07-29 15:52:08.000000000 +0200
++++ util-linux-2.11t/mount/swapon.c	2002-07-29 15:55:00.000000000 +0200
+@@ -358,8 +358,16 @@
+ 				    encrypted=1;
+ 				}
+ 				if (encrypted) continue; 
+-				for (i = 0; i < numSwaps; i++)
+-				     if (!strcmp(swapList[i], fstab->mnt_fsname)) break;
++				for (i = 0; i < numSwaps; i++) {
++				     struct stat swapped, swapping;
++ 
++				     if (stat (swapList[i], &swapped) == 0
++					 && stat (fstab->mnt_fsname, &swapping) == 0) {
++				         if (swapped.st_dev == swapping.st_dev
++					     && swapped.st_ino == swapping.st_ino)
++					     break;
++				     }
++				}
+           
+ 				if ((i == numSwaps) && 
+ 				         (!ifexists || !access(fstab->mnt_fsname, R_OK)))

@@ -1,0 +1,44 @@
+--- shadow-20000902/src/userdel.c.vipw	Tue May 22 18:16:18 2001
++++ shadow-20000902/src/userdel.c	Tue May 22 18:18:11 2001
+@@ -775,6 +775,7 @@
+ {
+ 	struct	passwd	*pwd;
+ 	struct	group	*gr;
++	struct  stat    s;
+ 	int	arg;
+ 	int	errors = 0;
+ 
+@@ -790,6 +791,11 @@
+ 
+ 	OPENLOG(Prog);
+ 
++	if(!stat("/etc/ptmp", &s)) {
++		fputs("vipw lockfile (/etc/ptmp) is present.", stderr);
++		fail_exit(1);
++	}
++
+ #ifdef SHADOWPWD
+ 	is_shadow_pwd = spw_file_present();
+ #endif
+--- shadow-20000902/src/useradd.c.vipw	Tue May 22 18:16:18 2001
++++ shadow-20000902/src/useradd.c	Tue May 22 18:16:18 2001
+@@ -1855,6 +1855,7 @@
+ int
+ main(int argc, char **argv)
+ {
++	struct stat s;
+ 	/*
+ 	 * Get my name so that I can use it to report errors.
+ 	 */
+@@ -1874,6 +1875,11 @@
+ 	is_shadow_grp = sgr_file_present();
+ #endif
+ 
++	if(!stat("/etc/ptmp", &s)) {
++		puts("vipw lockfile (/etc/ptmp) is present!");
++		fail_exit(1);
++	}
++	
+ 	/*
+ 	 * The open routines for the NDBM files don't use read-write
+ 	 * as the mode, so we have to clue them in.

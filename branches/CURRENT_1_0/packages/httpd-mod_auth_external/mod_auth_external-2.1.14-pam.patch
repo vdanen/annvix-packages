@@ -1,0 +1,14 @@
+--- pwauth/pwauth.c.mdk	Thu Jan 17 15:47:45 2002
++++ pwauth/pwauth.c	Thu Jan 17 15:48:19 2002
+@@ -658,7 +658,10 @@
+ char login[BFSZ+1], passwd[BFSZ+1];
+ char *c, *strchr();
+ #endif
+-int uid,i;
++#ifdef SERVER_UIDS
++int uid;
++#endif
++int i;
+ int passwd_ok;
+ struct rlimit rlim;
+ 

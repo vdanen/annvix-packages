@@ -1,0 +1,57 @@
+--- src/shutdown.orig	Mon Apr 19 23:29:29 1999
++++ src/shutdown.c	Tue Jan  4 12:46:40 2000
+@@ -15,6 +15,11 @@
+  *
+  * Version:	@(#)shutdown  2.76  19-Apr-1999  miquels@cistron.nl
+  *
++ * Contributor :
++ * 		2000-01-03 Yoann Vandoorselaere <yoann@mandrakesoft.com>
++ *			- Take care of the -a options even if shutdown.allow doesn't exist
++ *
++ *
+  *		This file is part of the sysvinit suite,
+  *		Copyright 1991-1999 Miquel van Smoorenburg.
+  *
+@@ -296,6 +301,8 @@
+   int user_ok = 0;
+   struct sigaction sa;
+ 
++  downusers[0] = NULL;
++
+   /* We can be installed setuid root (executable for a special group) */
+   realuid = getuid();
+   setuid(geteuid());
+@@ -355,20 +362,21 @@
+   			break;	
+   	}
+   }
+-
++  
+   /* Do we need to use the shutdown.allow file ? */
+-  if (useacl && (fp = fopen(SDALLOW, "r")) != NULL) {
+-
+-	/* Read /etc/shutdown.allow. */
+-	i = 0;
+-	while(fgets(buf, 128, fp)) {
+-		if (buf[0] == '#' || buf[0] == '\n') continue;
+-		if (i > 31) continue;
+-		for(sp = buf; *sp; sp++) if (*sp == '\n') *sp = 0;
+-		downusers[i++] = strdup(buf);
++  if ( useacl ) {
++	if ( (fp = fopen(SDALLOW, "r")) != NULL ) {
++		/* Read /etc/shutdown.allow. */
++		i = 0;
++		while(fgets(buf, 128, fp)) {
++			if (buf[0] == '#' || buf[0] == '\n') continue;
++			if (i > 31) continue;
++			for(sp = buf; *sp; sp++) if (*sp == '\n') *sp = 0;
++			downusers[i++] = strdup(buf);
++		}
++		if (i < 32) downusers[i] = 0;
++		fclose(fp);
+ 	}
+-	if (i < 32) downusers[i] = 0;
+-	fclose(fp);
+ 
+ 	/* Now walk through /var/run/utmp to find logged in users. */
+ 	while(!user_ok && (ut = getutent()) != NULL) {

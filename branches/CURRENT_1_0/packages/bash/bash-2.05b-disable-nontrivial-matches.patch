@@ -1,0 +1,13 @@
+--- lib/readline/complete.c.orig	2002-05-07 21:39:32.000000000 +0200
++++ lib/readline/complete.c	2002-07-23 22:19:08.000000000 +0200
+@@ -1351,9 +1351,7 @@
+   if (rl_filename_completion_desired)
+     {
+       filename = tilde_expand (text);
+-      s = (nontrivial_match && rl_completion_mark_symlink_dirs == 0)
+-		? LSTAT (filename, &finfo)
+-		: stat (filename, &finfo);
++      s = stat (filename, &finfo);
+       if (s == 0 && S_ISDIR (finfo.st_mode))
+ 	{
+ 	  if (_rl_complete_mark_directories)

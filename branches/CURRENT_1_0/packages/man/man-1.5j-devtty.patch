@@ -1,0 +1,29 @@
+--- man-1.5j/src/makewhatis.sh.60285	Mon Feb 25 14:08:34 2002
++++ man-1.5j/src/makewhatis.sh	Mon Feb 25 14:08:57 2002
+@@ -137,7 +137,7 @@
+    for mandir in $path
+    do
+      if [ x$verbose != x ]; then
+-	echo "about to enter $mandir" > /dev/tty
++	echo "about to enter $mandir" > /dev/stderr
+      fi
+        here=`pwd`
+        cd $mandir
+@@ -179,7 +179,7 @@
+ 	      entire_line = "";
+ 
+ 	      if (verbose) {
+-		print "adding " filename > "/dev/tty"
++		print "adding " filename > "/dev/stderr"
+ 	      }
+ 	      
+ 	      use_zcat = match(filename,"\\.Z$") ||
+@@ -201,7 +201,7 @@
+ 		pipe_cmd = "zcat " filename;
+ 		# try to avoid suspicious stuff
+ 		if (filename ~ /[;&|`$(]/) {
+-		  print "ignored strange file name " filename " in " curdir > "/dev/tty";
++		  print "ignored strange file name " filename " in " curdir > "/dev/stderr";
+ 		  return;
+ 		}
+ 	      }

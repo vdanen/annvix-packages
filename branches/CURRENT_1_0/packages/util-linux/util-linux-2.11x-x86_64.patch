@@ -1,0 +1,33 @@
+--- ./fdisk/llseek.c.x86_64	2002-10-31 14:44:31.000000000 +0100
++++ ./fdisk/llseek.c	2002-11-06 08:54:56.000000000 +0100
+@@ -25,7 +25,7 @@
+ 
+ #else	/* HAVE_LLSEEK */
+ 
+-#if defined(__alpha__) || defined(__ia64__) || defined(__s390x__)
++#if defined(__alpha__) || defined(__ia64__) || defined(__s390x__) || defined(__x86_64__)
+ 
+ #define my_llseek lseek
+ 
+--- ./lib/md5.h.x86_64	2002-11-02 14:48:00.000000000 +0100
++++ ./lib/md5.h	2002-11-06 08:54:28.000000000 +0100
+@@ -1,7 +1,7 @@
+ #ifndef MD5_H
+ #define MD5_H
+ 
+-#if defined (__alpha__) || defined (__ia64__)
++#if defined (__alpha__) || defined (__ia64__) || defined (__x86_64__)
+ typedef unsigned int uint32;
+ #else
+ typedef unsigned long uint32;
+--- ./misc-utils/whereis.c.x86_64	2001-03-15 11:09:58.000000000 +0100
++++ ./misc-utils/whereis.c	2002-11-06 08:54:28.000000000 +0100
+@@ -66,6 +66,8 @@
+    "/usr/etc",
+    "/lib",
+    "/usr/lib",
++   "/lib64",
++   "/usr/lib64",
+    "/usr/games",
+    "/usr/games/bin",
+    "/usr/games/lib",
