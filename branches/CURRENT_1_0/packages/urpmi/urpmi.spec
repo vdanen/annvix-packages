@@ -1,5 +1,5 @@
 %define name	urpmi
-%define version	4.6.14
+%define version	4.6.20
 %define release 1avx
 
 %{expand:%%define compat_perl_vendorlib %(perl -MConfig -e 'printf "%%s\n", "%{?perl_vendorlib:1}" ? "%%{perl_vendorlib}" : "$Config{installvendorlib}"')}
@@ -22,7 +22,8 @@ BuildRequires:	%{buildreq_locale} bzip2-devel rpm-devel >= 4.0.3 gettext
 BuildArch:	noarch
 
 Requires:	webfetch eject gnupg
-PreReq:		perl-Locale-gettext >= 1.01-7 rpmtools >= 5.0.2 perl-URPM >= 1.04
+PreReq:		perl-Locale-gettext >= 1.01-7 rpmtools >= 5.0.2 perl-URPM >= 1.08
+Conflicts:	curl < 7.13.0
 
 %description
 urpmi takes care of dependencies between rpms, using a pool (or pools) of rpms.
@@ -125,6 +126,7 @@ if (-e "/etc/urpmi/urpmi.cfg") {
 
 %files -f %{name}.lang
 %defattr(-,root,root)
+%doc ChangeLog
 %dir %{_sysconfdir}/urpmi
 %dir /var/lib/urpmi
 %dir /var/cache/urpmi
@@ -173,7 +175,12 @@ if (-e "/etc/urpmi/urpmi.cfg") {
 %{compat_perl_vendorlib}/urpm/parallel_ssh.pm
 
 %changelog
-* Wed Feb 02 2005 Vincent Danen <vdanen@annvix.org> 4.6-1avx
+* Tue Mar 01 2005 Vincent Danen <vdanen@annvix.org> 4.6.20-1avx
+- 4.6.20
+- requires perl-URPM 1.08
+- conflicts curl < 7.13.0
+
+* Wed Feb 02 2005 Vincent Danen <vdanen@annvix.org> 4.6.14-1avx
 - 4.6.14
 - update description
 - PreReq: perl-URPM >= 1.04, rpmtools >= 5.0.2
