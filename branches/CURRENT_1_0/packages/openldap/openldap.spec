@@ -1,6 +1,6 @@
 %define name	openldap
 %define version	2.1.22
-%define release	8sls
+%define release	9sls
 
 %define major 	2
 %define migtools_ver 40
@@ -460,7 +460,7 @@ fi
 
 %post servers
 SLAPD_STATUS=`srv status slapd|grep -q -v up;echo $?`
-[ $SLAPD_STATUS -eq 1 ] && srv stop sldapd
+[ $SLAPD_STATUS -eq 1 ] && srv stop slapd
 # bgmilne: part 2 of gdbm->dbb conversion for data created with 
 # original package for 9.1:
 if [ -n "`find %{_localstatedir}/ldap/*.%{db_conv} 2>&-`" ]
@@ -470,7 +470,7 @@ then
 		echo "Warning: Old ldap backup data in %{_localstatedir}/ldap-rpm-backup"
 		echo "If importing %{_localstatedir}/ldap/rpm-db-backup-%{db_conv}.ldif fails,"
 		echo "please do it manually by running (as root):"
-		echo "# srv stop sldapd"
+		echo "# srv stop slapd"
 		echo "# slapadd -c -l %{_localstatedir}/ldap/rpm-db-backup-%{db_conv}.ldif"
 		echo "# slapindex"
 		echo "# chown ldap.ldap %{_localstatedir}/ldap/*"
@@ -489,7 +489,7 @@ fi
 # openldap-2.0.x->2.1.x on ldbm/dbb backend seems to need reindex regardless:
 slapindex
 chown ldap.ldap -R %{_localstatedir}/ldap/
-[ $SLAPD_STATUS -eq 1 ] && srv start sldapd
+[ $SLAPD_STATUS -eq 1 ] && srv start slapd
 
 # Setup log facility for OpenLDAP
 if [ -f %{_sysconfdir}/syslog.conf ] ;then
@@ -708,6 +708,9 @@ fi
 
 
 %changelog
+* Tue Feb 03 2004 Vincent Danen <vdanen@opensls.org> 2.1.22-9sls
+- s/sldapd/slapd/
+
 * Mon Feb 02 2004 Vincent Danen <vdanen@opensls.org> 2.1.22-8sls
 - logrotate should call srv not service
 
