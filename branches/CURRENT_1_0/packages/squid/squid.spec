@@ -1,10 +1,10 @@
 %define name	squid
-%define version	2.5.STABLE3
-%define release	7sls
+%define version	2.5.STABLE5
+%define release	1sls
 
-%define their_version	2.5.STABLE3
+%define their_version	2.5.STABLE5
 %define p_url   http://www.squid-cache.org/Versions/v2/2.5/bugs
-%define p_name  squid-2.5.stable3
+%define p_name  squid-2.5.stable5
 
 ## Redefine configure values.
 %define         _bindir %{_prefix}/sbin
@@ -316,6 +316,9 @@ fi
 %attr(0750,nobody,nogroup) %dir %{_srvlogdir}/squid
 
 %changelog
+* Mon Mar 29 2004 Vincent Danen <vdanen@opensls.org> 2.5.STABLE5-1sls
+- 2.5.STABLE5 (security fixes; specifically CAN-2004-0189)
+
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 2.5.STABLE3-7sls
 - rebuild
 
