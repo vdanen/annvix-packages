@@ -1,0 +1,39 @@
+diff -Naur include.old/sfio.h include/sfio.h
+--- include.old/sfio.h	Tue Aug 15 03:07:33 2000
++++ include/sfio.h	Tue Aug 15 03:14:35 2000
+@@ -9,9 +9,9 @@
+ */
+ 
+ #if _PACKAGE_ast
+-#include	<ast_std.h>
++#include	<sfio/ast_std.h>
+ #else
+-#include	<ast_common.h>
++#include	<sfio/ast_common.h>
+ 
+ /* to prevent stdio.h from being included */
+ #ifndef __stdio_h__
+diff -Naur include.old/sfio_t.h include/sfio_t.h
+--- include.old/sfio_t.h	Tue Aug 15 03:07:33 2000
++++ include/sfio_t.h	Tue Aug 15 03:15:21 2000
+@@ -21,7 +21,7 @@
+ 	struct _sfpool_s*	pool;	/* the pool containing this	*/ \
+ 	Void_t*			noop;	/* unused for now		*/
+ 
+-#include	"sfio.h"
++#include	<sfio/sfio.h>
+ 
+ /* mode bit to indicate that the structure hasn't been initialized */
+ #define SF_INIT		0000004
+diff -Naur include.old/stdio.h include/stdio.h
+--- include.old/stdio.h	Tue Aug 15 03:07:33 2000
++++ include/stdio.h	Tue Aug 15 03:15:55 2000
+@@ -8,7 +8,7 @@
+ #undef FILE
+ #define FILE		Sfio_t
+ 
+-#include		<sfio.h>
++#include		<sfio/sfio.h>
+ 
+ #define _IOFBF		0
+ #define _IONBF		1
