@@ -1,6 +1,6 @@
 %define name	nmap
 %define version	3.48
-%define release	3sls
+%define release	4avx
 %define epoch	1
 
 Summary:	Network exploration tool and security scanner
@@ -57,6 +57,9 @@ CFLAGS="%{optflags}" ./configure --prefix=%{_prefix} --libdir=%{_libdir} --libex
 %{_mandir}/man1/nmap.*
 
 %changelog
+* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 3.48-4avx
+- Annvix build
+
 * Sun Mar 07 2004 Vincent Danen <vdanen@opensls.org> 3.48-3sls
 - minor spec cleanups
 

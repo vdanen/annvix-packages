@@ -1,6 +1,6 @@
 %define name	mcrypt
 %define version 2.6.4
-%define release 3sls
+%define release 4avx
 
 Summary:	Data encryption/decryption program
 Name:		%{name}
@@ -71,6 +71,9 @@ CBC, ECB, OFB and CFB modes of encryption are supported.
 %{_mandir}/man1/*
 
 %changelog
+* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 2.6.4-4avx
+- Annvix build
+
 * Sat Mar 06 2004 Vincent Danen <vdanen@opensls.org> 2.6.4-3sls
 - minor spec cleanups
 - remove %%prefix

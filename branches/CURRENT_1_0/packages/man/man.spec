@@ -1,6 +1,6 @@
 %define name	man
 %define version	1.5k
-%define release	15sls
+%define release	16avx
 
 Summary:	A set of documentation tools:  man, apropos and whatis.
 Name:		%{name}
@@ -206,6 +206,9 @@ chmod 755 $RPM_BUILD_ROOT%{_sbindir}/makewhatis
 
 
 %changelog
+* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 1.5k-16avx
+- Annvix build
+
 * Tue Jun 15 2004 Vincent Danen <vdanen@opensls.org> 1.5k-15sls
 - include /usr/local/share/man in search path (modified P7)
 

@@ -1,6 +1,6 @@
 %define name	mkinitrd
 %define version 3.4.43
-%define release 12sls
+%define release 13avx
 %define epoch	1
 
 %define use_dietlibc 0
@@ -23,7 +23,7 @@ Patch1:		mkinitrd-3.1.6-shutup-insmod-busybox.patch.bz2
 Patch2:		mkinitrd-3.4.43-kernel-2.5.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root
-BuildRequires:	/usr/bin/perl
+BuildRequires:	perl
 %if %{use_dietlibc}
 BuildRequires:	dietlibc-devel
 %else
@@ -81,6 +81,9 @@ rm -f $RPM_BUILD_ROOT%{_mandir}/*/grubby*
 %{_mandir}/*/*
 
 %changelog
+* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.rg> 3.4.43-13avx
+- Annvix build
+
 * Tue Jun 15 2004 Vincent Danen <vdanen@opensls.rg> 3.4.43-12sls
 - revert to 3.4.43 because 3.5.18 is not playing nice with our kernels at all
 - Epoch: 1

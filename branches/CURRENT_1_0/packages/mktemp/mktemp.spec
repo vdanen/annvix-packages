@@ -1,6 +1,6 @@
 %define name	mktemp
 %define version	1.5
-%define release	13sls
+%define release	14avx
 
 Summary:	A small utility for safely making /tmp files.
 Name:		%{name}
@@ -26,7 +26,7 @@ Install the mktemp package if you need to use shell scripts or other
 programs which will create and use unique /tmp files.
 
 %prep
-%setup
+%setup -q
 %patch -p1
 %patch1 -p1
 %patch2 -p1
@@ -48,6 +48,9 @@ perl -pi -e "s!/usr/man!%{_mandir}!g" Makefile
 %{_mandir}/man1/mktemp.1*
 
 %changelog
+* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 1.5-14avx
+- Annvix build
+
 * Sat Mar 06 2004 Vincent Danen <vdanen@opensls.org> 1.5-13sls
 - minor spec cleanups
 

@@ -1,6 +1,6 @@
 %define name	mkbootdisk
 %define version 1.5.1
-%define release 1sls
+%define release 2avx
 
 Summary: 	Creates an initial ramdisk image for preloading modules.
 Name: 		%{name}
@@ -51,6 +51,9 @@ the system.
 %attr(644,root,root) %{_mandir}/man8/mkbootdisk.8*
 
 %changelog
+* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 1.5.1-2avx
+- Annvix build
+
 * Fri Jun 11 2004 Vincent Danen <vdanen@opensls.org> 1.5.1-1sls
 - 1.5.1
 - Requires: gawk rather than /bin/awk

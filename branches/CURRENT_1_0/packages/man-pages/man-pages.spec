@@ -1,6 +1,6 @@
 %define name	man-pages
 %define version	1.60
-%define release 3sls
+%define release 4avx
 
 %define LANG	en
 
@@ -131,6 +131,9 @@ tar xfj %SOURCE11 -C $RPM_BUILD_ROOT/%_mandir
 %config(noreplace) %attr(755,root,root)%{_sysconfdir}/cron.weekly/makewhatis-%LANG.cron
 
 %changelog
+* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 1.60-4avx
+- Annvix build
+
 * Sat Mar 06 2004 Vincent Danen <vdanen@opensls.org> 1.60-3sls
 - minor spec cleanups
 - remove icon

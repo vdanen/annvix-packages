@@ -1,6 +1,6 @@
 %define name	mingetty
 %define version	1.06
-%define release	2sls
+%define release	3avx
 
 Summary: 	A compact getty program for virtual consoles only.
 Name: 		%{name}
@@ -50,6 +50,9 @@ install -m 0644 mingetty.8 %buildroot/%{_mandir}/man8/
 %{_mandir}/man8/*
 
 %changelog
+* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 1.06-3avx
+- Annvix build
+
 * Wed Mar 17 2004 Oden Eriksson <oden.eriksson@opensls.org> 1.06-2sls
 - build it against dietlibc for x86 (problems with amd64)
 - nuke %%doc COPYING

@@ -1,6 +1,6 @@
 %define name	newt
 %define version 0.51.4
-%define release 9sls
+%define release 10avx
 
 %define majver		0.51
 %define libname		%mklibname %{name} %{majver}
@@ -107,6 +107,9 @@ rm -rf  $RPM_BUILD_ROOT%{_libdir}/python{1.5,2.0,2.1,2.2}
 %{_libdir}/libnewt.so
 
 %changelog
+* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 0.51.4-10avx
+- Annvix build
+
 * Sun Mar 07 2004 Vincent Danen <vdanen@opensls.org> 0.51.4-9sls
 - minor spec cleanups
 - remove %%build_opensls macro

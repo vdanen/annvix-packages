@@ -1,6 +1,6 @@
 %define name 	nss_ldap
 %define version 207
-%define release 6sls
+%define release 7avx
 %define pam_ldap_version 164
 
 Summary:	NSS library and PAM module for LDAP.
@@ -128,6 +128,9 @@ rm -rf %{buildroot}%{_libdir}/libnss_ldap.so.2
 /%_lib/security/*so*
 
 %changelog
+* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 207-7avx
+- Annvix build
+
 * Sun Mar 07 2004 Vincent Danen <vdanen@opensls.org> 207-6sls
 - minor spec cleanups
 - use _srv macros to restart nscd

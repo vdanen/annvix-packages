@@ -1,6 +1,6 @@
 %define name	lynx
 %define version 2.8.5
-%define release	0.%{subver}.16sls
+%define release	0.%{subver}.17avx
 %define epoch	1
 
 %define versio_	2-8-5
@@ -117,6 +117,9 @@ fi
 %{_datadir}/lynx
 
 %changelog
+* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 2.8.5-0.dev.12.17avx
+- Annvix build
+
 * Sat Mar 06 2004 Vincent Danen <vdanen@opensls.org> 2.8.5-0.dev.12.16sls
 - minor spec cleanups
 

@@ -1,6 +1,6 @@
 %define name	mm
 %define version	1.3.0
-%define release	5sls
+%define release	6avx
 
 %define	major		1
 %define libname		%mklibname %name %major
@@ -160,6 +160,9 @@ rm -f %{buildroot}%{_libdir}/*.la
 %{_libdir}/*.a
 
 %changelog
+* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 1.3.0-5avx
+- Annvix build
+
 * Sat Jan 04 2004 Vincent Danen <vdanen@opensls.org> 1.3.0-4sls
 - minor spec cleanups
 - remove %%prefix

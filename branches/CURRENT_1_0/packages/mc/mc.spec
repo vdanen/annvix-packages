@@ -1,6 +1,6 @@
 %define name	mc
 %define version	4.6.0
-%define release	7sls
+%define release	8avx
 
 Summary:	A user-friendly file manager and visual shell
 Name:		%{name}
@@ -117,6 +117,9 @@ chmod 755 $RPM_BUILD_ROOT/%{_libdir}/mc/cons.saver
 %{_datadir}/mc/term/*
 
 %changelog
+* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> - 4.6.0-8avx
+- Annvix build
+
 * Mon May 10 2004 Vincent Danen <vdanen@opensls.org> - 4.6.0-7sls
 - P2 fixes CAN-2004-0226, CAN-2004-0231, CAN-2004-0232
 - P3 don't build ta locale as it breaks build (sbenedict)

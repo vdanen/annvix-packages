@@ -1,6 +1,6 @@
 %define name	logrotate
 %define version	3.7
-%define release	1sls
+%define release	2avx
 
 Summary:	Rotates, compresses, and mails system logs
 Name:		%{name}
@@ -10,7 +10,7 @@ License:	GPL
 Group:		File tools
 URL:		http://download.fedora.redhat.com/pub/fedora/linux/core/1/i386/os/SRPMS
 Source0:	%{name}-%{version}.tar.bz2
-Source1:	logrotate.conf.opensls.bz2
+Source1:	logrotate.conf.annvix.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-buildroot
 BuildRequires:	popt-devel
@@ -57,6 +57,9 @@ touch %{buildroot}/var/lib/logrotate.status
 %attr(0644, root, root) %verify(not size md5 mtime) %config(noreplace) /var/lib/logrotate.status
 
 %changelog
+* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 3.7-2avx
+- Annvix build
+
 * Tue May 11 2004 Vincent Danen <vdanen@opensls.org> 3.7-1sls
 - 3.7 (grabbed from a Fedora SRPM since there doesn't seem to be a home for
   logrotate anywhere)

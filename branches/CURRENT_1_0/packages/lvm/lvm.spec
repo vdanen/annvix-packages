@@ -1,6 +1,6 @@
 %define name	lvm
 %define version 1.0.8
-%define release 1sls
+%define release 2avx
 
 Summary:	Logical Volume Manager administration tools
 Name:		%{name}
@@ -53,6 +53,9 @@ rm -rf $RPM_BUILD_ROOT/%{_lib} $RPM_BUILD_ROOT/%{_libdir}
 %{_mandir}/man8/*
 
 %changelog
+* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 1.0.8-2avx
+- Annvix build
+
 * Fri Mar  5 2004 Thomas Backlund <tmb@mandrake.org> 1.0.8-1sls
 - update to 1.0.8 to match 2.4.25 kernel and support
   future move to lvm2

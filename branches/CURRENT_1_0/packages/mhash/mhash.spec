@@ -1,6 +1,6 @@
 %define name	mhash
 %define version	0.8.18
-%define release	5sls
+%define release	6avx
 
 %define major	2
 %define libname %mklibname %{name} %{major}
@@ -86,6 +86,9 @@ will use the mhash library.
 %{_includedir}/*.h
 
 %changelog
+* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 0.8.18-6avx
+- Annvix build
+
 * Sat Mar 06 2004 Vincent Danen <vdanen@opensls.org> 0.8.18-5sls
 - minor spec cleanups
 

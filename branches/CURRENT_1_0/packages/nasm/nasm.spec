@@ -1,6 +1,6 @@
 %define name	nasm
 %define version	0.98.35
-%define release	4sls
+%define release	5avx
 
 Summary:	The Netwide Assembler, a portable x86 assembler with Intel-like syntax
 Name:		%{name}
@@ -66,6 +66,9 @@ mkdir -p $RPM_BUILD_ROOT/{%{_bindir},%{_infodir},%{_mandir}/man1}
 %{_bindir}/rdf2com
 
 %changelog
+* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 0.98.35-5avx
+- Annvix build
+
 * Sun Mar 07 2004 Vincent Danen <vdanen@opensls.org> 0.98.35-4sls
 - minor spec cleanups
 - remove %%build_opensls macro

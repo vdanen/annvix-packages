@@ -1,6 +1,6 @@
 %define name	nfs-utils
 %define	version	1.0.5
-%define release	5sls
+%define release	6avx
 
 %define	url	ftp://ftp.kernel.org:/pub/linux/utils/nfs
 
@@ -203,6 +203,9 @@ fi
 %dir %attr(0750,nobody,nogroup) %{_srvlogdir}/rpc.statd
 
 %changelog
+* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 1.0.5-6avx
+- Annvix build
+
 * Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 1.0.5-5sls
 - minor spec cleanups
 
