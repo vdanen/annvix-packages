@@ -1,6 +1,6 @@
 %define name	php-%{subname}
 %define version	%{phpversion}
-%define release	2sls
+%define release	3sls
 
 %define phpsource	%{_prefix}/src/php-devel
 %{expand:%(cat /usr/src/php-devel/PHP_BUILD||(echo -e "error: failed build dependencies:\n        php-devel >= 430 (4.3.0) is needed by this package." >/dev/stderr;kill -2 $PPID))}
@@ -56,6 +56,7 @@ perl -pi -e 's|detect_install_dirs\(\)|detect_install_dirs("%{buildroot}/usr")|;
 perl -pi -e "s|'XML_Parser',|'XML_Parser',\n    'Log',\n    'Mail_Mime',\n    'Net_Socket',\n    |;" go-pear
 
 %install
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 # Pass default values to go-pear.  This will fetch, build and install PEAR
 install -d %{buildroot}{%{peardir},%{_bindir}}
 yes ""|php -q go-pear
@@ -76,7 +77,7 @@ rm -f %{buildroot}/%{peardir}/.lock
 rm -f %{buildroot}/%{_prefix}/php.ini-gopear
 
 %clean
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files 
 %defattr(-,root,root)
@@ -88,6 +89,9 @@ rm -f %{buildroot}/%{_prefix}/php.ini-gopear
 %{_bindir}/pear
 
 %changelog
+* Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 4.3.4-3sls
+- minor spec cleanups
+
 * Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 4.3.4-2sls
 - OpenSLS build
 - tidy spec

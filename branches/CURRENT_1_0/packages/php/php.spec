@@ -1,6 +1,7 @@
 %define name	php
 %define version	4.3.4
-%define release	3sls
+%define release	4sls
+%define epoch	2
 
 %define libversion	432
 %define phpversion	%{version}
@@ -52,7 +53,7 @@ Summary:	The PHP4 scripting language
 Name:		%{name}
 Version:	%{phpversion}
 Release:	%{phprelease}
-Epoch:		2
+Epoch:		%{epoch}
 License:	PHP License
 Group:		Development/Other
 URL:		http://www.php.net
@@ -119,8 +120,9 @@ You can build %{name} with some conditional build swithes;
 --with debug   Compile with debugging code
 
 %package cli
-Group:		Development/Other
 Summary:	Command-line interface to PHP
+Epoch:		%{epoch}
+Group:		Development/Other
 URL:		http://php.net
 PreReq:		php-ini
 Requires:	%libname = %{phpversion}-%{release}
@@ -133,7 +135,6 @@ Obsoletes:	php430
 Obsoletes:	php
 Obsoletes:	php3
 Provides: 	ADVXpackage
-Epoch:		2
 
 %description cli
 PHP4 is an HTML-embeddable scripting language.  PHP offers built-in database
@@ -148,8 +149,9 @@ If you need apache module support, you also need to install the mod_php
 package.
 
 %package cgi
-Group:		Development/Other
 Summary:	CGI interface to PHP
+Epoch:		%{epoch}
+Group:		Development/Other
 URL:		http://php.net
 PreReq:		php-ini
 Requires:	%libname = %{phpversion}-%{release}
@@ -162,7 +164,6 @@ Obsoletes:	php430
 Obsoletes:	php
 Obsoletes:	php3
 Provides: 	ADVXpackage
-Epoch:		2
 
 %description cgi
 PHP4 is an HTML-embeddable scripting language.  PHP offers built-in database
@@ -177,8 +178,9 @@ If you need apache module support, you also need to install the mod_php
 package.
 
 %package -n %libname
-Group:		Development/Other
 Summary:	Shared library for php
+Epoch:		%{epoch}
+Group:		Development/Other
 URL:		http://www.php.net
 Provides:	libphp_common = %{phpversion}-%{release}
 Provides:	libphp_common430 = 4.3.0-%{release}
@@ -206,7 +208,6 @@ Obsoletes:	php-common
 Provides:	php-common
 Provides:	php-gettext
 Provides: 	ADVXpackage
-Epoch:		2
 
 %description -n	%libname
 This package provides the common files to run with different
@@ -214,8 +215,9 @@ implementations of PHP. You need this package if you install the php
 standalone package or a webserver with php support (ie: mod_php).
 
 %package -n php%{libversion}-devel
-Group:		Development/C
 Summary:	Development package for PHP4
+Epoch:		%{epoch}
+Group:		Development/C
 URL:		http://www.php.net
 Provides:	libphp_common-devel = %{phpversion}-%{release}
 Provides:	libphp_common430-devel = 4.3.0-%{release}
@@ -228,7 +230,6 @@ Requires:	chrpath
 Provides:	php-devel
 Obsoletes:	php-devel
 Provides: 	ADVXpackage
-Epoch:		2
 
 %description -n	php%{libversion}-devel
 The php-devel package lets you compile dynamic extensions to PHP4. Included
@@ -474,7 +475,7 @@ chrpath -d sapi/cli/php
 chrpath -d sapi/cgi/php
 
 %install
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 # OE: make this somewhat short-circuitable
 if ! [ -f libphp_common.so.%{libversion} ]; then
@@ -578,7 +579,7 @@ ln -snf ../../../bin/libtool %{buildroot}%{phpdir}/build/libtool
 install -m0644 sapi/cli/php.1 %{buildroot}%{_mandir}/man1/
 
 %clean
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post -n %libname -p /sbin/ldconfig
 %postun -n %libname -p /sbin/ldconfig
@@ -622,6 +623,9 @@ update-alternatives --remove php %{_bindir}/php-cli
 %{_includedir}/php
 
 %changelog
+* Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 4.3.4-4sls
+- minor spec cleanups
+
 * Fri Jan 09 2004 Oden Eriksson <oden.eriksson@kvikkjokk.net> 4.3.4-3sls
 - rediff P5; fix lib64 build (aka php-dba_bundle wasn't compiling)
 

@@ -1,6 +1,6 @@
 %define name	php-ini
 %define version	4.3.4
-%define release	4sls
+%define release	5sls
 
 Summary:	INI files for PHP
 Name:		%{name}
@@ -21,7 +21,7 @@ The php-ini package contains the ini files required for PHP.
 %build
 
 %install
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 mkdir -p %{buildroot}%{_sysconfdir}
 mkdir -p %{buildroot}%{_sysconfdir}/php
@@ -35,7 +35,7 @@ echo "Thanks to Oden Eriksson for the scan-dir idea!" > \
         %{buildroot}%{_docdir}/%{name}-%{version}/CREDITS
 
 %clean
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
 #Since we use noreplace, we may have an old php.ini file which is not 
@@ -58,6 +58,9 @@ fi
 %doc %{_docdir}/%{name}-%{version}/*
 
 %changelog
+* Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 4.3.4-5sls
+- minor spec cleanups
+
 * Fri Jan 23 2004 Vincent Danen <vdanen@opensls.org> 4.3.4-4sls
 - no longer noarch due to amd64 vs. x86 libdir changes
 

@@ -1,6 +1,6 @@
 %define	name	php-%{modname}
 %define version	%{phpversion}
-%define release	2sls
+%define release	3sls
 
 %define phpsource	%{_prefix}/src/php-devel
 %define _docdir		%{_datadir}/doc/%{name}-%{version}
@@ -82,8 +82,8 @@ chrpath -d %{soname}
 #########################################################
 
 %install
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 cd %{dirname}
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot} 
 
 install -d %{buildroot}%{phpdir}/extensions
 install -d %{buildroot}%{_docdir}
@@ -102,7 +102,7 @@ extension = %{soname}
 EOF
 
 %clean
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 [ -e ./%{dirname} ] && rm -fr ./%{dirname}
 
 %files 
@@ -112,6 +112,9 @@ EOF
 %config(noreplace) %{_sysconfdir}/php/%{inifile}
 
 %changelog
+* Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 4.3.4-3sls
+- minor spec cleanups
+
 * Fri Dec 18 2003 Vincent Danen <vdanen@opensls.org> 4.3.4-2sls
 - OpenSLS build
 - tidy spec
