@@ -1,15 +1,9 @@
 #!/bin/sh
-PATH="/sbin:/usr/sbin:/bin:/usr/bin:$PATH"
+PATH="/sbin:/usr/sbin:/bin:/usr/bin"
 
-# this runs nscd under supervise
+# this runs nscd supervised
 
-godown() {
-  touch down
-  svc -d /service/nscd
-  touch log/down
-  svc -d /service/nscd/log
-  exit 0
-}
+. /usr/share/srv/functions
 
 if [ ! -f /etc/nscd.conf ]; then
   echo "/etc/nscd.conf required and not found... aborting!"
