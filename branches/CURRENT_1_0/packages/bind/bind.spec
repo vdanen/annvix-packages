@@ -1,6 +1,6 @@
 %define name	bind
 %define version	9.3.0
-%define release	1avx
+%define release	2avx
 
 %define their_version	9.3.0
 
@@ -27,7 +27,7 @@ Source12:	named.run
 Source13:	named.stop
 Source14:	named-log.run
 Patch1:		bind-9.3.0rc2-fallback-to-second-server.patch.bz2
-Patch2:		bind-9.3.0rc2-libresolv.patch.bz2
+Patch2:		bind-9.3.0-mdk-libresolv.patch.bz2
 Patch4:		bind-9.2.3-bsdcompat.patch.bz2
 Patch5:		bind-9.3.0beta2-libtool.diff.bz2
 
@@ -117,7 +117,8 @@ tar -xjf %{SOURCE7}
 	--localstatedir=/var \
 	--enable-threads \
 	--enable-ipv6 \
-	--with-openssl=%{_includedir}/openssl
+	--with-openssl=%{_includedir}/openssl \
+	--disable-linux-caps
 
 # override CFLAGS for better security.  Ask Jay...
 make "CFLAGS=-O2 -Wall -pipe -fstack-protector"
@@ -210,7 +211,7 @@ fi
 %doc CHANGES README FAQ COPYRIGHT
 #%doc contrib/queryperf/README.queryperf
 %doc doc/draft doc/html doc/rfc doc/misc/
-%doc doc/dhcp-dynamic-dns-examples
+%doc doc/dhcp-dynamic-dns-examples doc/chroot doc/trustix
 %config(noreplace) %{_sysconfdir}/sysconfig/named
 %config(noreplace) %{_sysconfdir}/logrotate.d/named
 %config(noreplace) %attr(0600,named,named) %{_sysconfdir}/rndc.conf
@@ -253,6 +254,15 @@ fi
 %{_mandir}/man5/resolv.5*
 
 %changelog
+* Tue Dec 21 2004 Vincent Danen <vdanen@annvix.org> 9.3.0-2avx
+- merge with mdk:
+  - fix detection of res_mkquery(), aka file build on e.g. x86_64 (gbeauchesne)
+  - touched S7 and added stuff from trustix to it
+- disable linux capabilities as bind is currently dying with "capset failed";
+  NOTE: this means we can't run bind as an unprivileged user (named) which is not
+  good at all, nor can we chroot it -- hopefully someone smarter than I can configure
+  out how to fix this
+
 * Fri Sep 24 2004 Vincent Danen <vdanen@annvix.org> 9.3.0-1avx
 - 9.3.0
 - drop P3; fixed upstream
