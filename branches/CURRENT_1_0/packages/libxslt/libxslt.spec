@@ -1,52 +1,29 @@
-%define buildfor $(awk '{print $4}' /etc/mandrake-release)
-%{expand:%%define buildfor7_2 %(A=$(awk '{print $4}' /etc/mandrake-release); if [ "$A" = 7.2 ]; then echo 1; else echo 0; fi)}
-%{expand:%%define buildfor8_0 %(A=$(awk '{print $4}' /etc/mandrake-release); if [ "$A" = 8.0 ]; then echo 1; else echo 0; fi)}
-%{expand:%%define buildfor8_1 %(A=$(awk '{print $4}' /etc/mandrake-release); if [ "$A" = 8.1 ]; then echo 1; else echo 0; fi)}
-%{expand:%%define buildfor8_2 %(A=$(awk '{print $4}' /etc/mandrake-release); if [ "$A" = 8.2 ]; then echo 1; else echo 0; fi)}
-%{expand:%%define buildfor9_0 %(A=$(awk '{print $4}' /etc/mandrake-release); if [ "$A" = 9.0 ]; then echo 1; else echo 0; fi)}
-%{expand:%%define buildfor9_1 %(A=$(awk '{print $4}' /etc/mandrake-release); if [ "$A" = 9.1 ]; then echo 1; else echo 0; fi)}
-%{expand:%%define buildfor9_2 %(A=$(awk '{print $4}' /etc/mandrake-release); if [ "$A" = 9.2 ]; then echo 1; else echo 0; fi)}
+%define name	libxslt
+%define version	1.0.33
+%define release	2sls
 
-%define xml_version_required 2.5.6
-%define major 1
-%define libname %mklibname xslt %{major}
+%define xml_version_required	2.5.6
+%define major			1
+%define libname			%mklibname xslt %{major}
 
-%if %buildfor7_2 || %buildfor8_0
-%define py_ver      2.0
-%endif
-
-%if %buildfor8_1
-%define py_ver      2.1
-%endif
-
-%if %buildfor8_2 || %buildfor9_0 || %buildfor9_1
-%define py_ver      2.2
-%endif
-
-%if %buildfor9_2
 %define py_ver      2.3
-%endif
-
-%if %buildfor9_2
 %define pylibxml2   python-libxml2
-%else
-%define pylibxml2   libxml2-python
-%endif
 
-Summary: Library providing XSLT support
-Name:    libxslt
-Version: 1.0.33
-Release: 1mdk
-License: MIT
-Group: System/Libraries
-Source: ftp://xmlsoft.org/libxslt-%{version}.tar.bz2
-BuildRoot: %{_tmppath}/%{name}-%{version}-root
-Requires: libxml2 >= %{xml_version_required}
-BuildRequires: libxml2-devel >= %{xml_version_required}
-BuildRequires: python-devel >= %{py_ver}
-BuildRequires: %{pylibxml2} >= %{xml_version_required}
+Summary:	Library providing XSLT support
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	MIT
+Group:		System/Libraries
+URL:		http://xmlsoft.org/XSLT/
+Source:		ftp://xmlsoft.org/libxslt-%{version}.tar.bz2
 
-URL: http://xmlsoft.org/XSLT/
+BuildRoot:	%{_tmppath}/%{name}-%{version}-root
+BuildRequires:	libxml2-devel >= %{xml_version_required}
+BuildRequires:	python-devel >= %{py_ver}
+BuildRequires:	%{pylibxml2} >= %{xml_version_required}
+
+Requires:	libxml2 >= %{xml_version_required}
 
 %description
 This C library allows to transform XML files into other XML files
@@ -54,9 +31,9 @@ This C library allows to transform XML files into other XML files
 mechanism.
 
 %package proc
-Summary: XSLT processor using libxslt
-Group: System/Libraries
-Requires: %{libname} = %{version}
+Summary:	XSLT processor using libxslt
+Group:		System/Libraries
+Requires:	%{libname} = %{version}
 
 %description proc
 This package provides an XSLT processor based on the libxslt C library. 
@@ -66,9 +43,9 @@ mechanism.
 
 
 %package -n %{libname}
-Summary: Library providing XSLT support
-Group: System/Libraries
-Requires: libxml2 >= %{xml_version_required}
+Summary:	Library providing XSLT support
+Group:		System/Libraries
+Requires:	libxml2 >= %{xml_version_required}
 
 %description  -n %{libname}
 This C library allows to transform XML files into other XML files
@@ -78,11 +55,11 @@ A xslt processor based on this library, named xsltproc, is provided by
 the libxslt-proc package.
 
 %package python
-Summary: Python bindings for the libxslt library
-Group: Development/Python
-Requires: %{libname} = %{version}
-Requires: python >= %{py_ver}
-Requires: %{pylibxml2} >= %{xml_version_required}
+Summary:	Python bindings for the libxslt library
+Group:		Development/Python
+Requires:	%{libname} = %{version}
+Requires:	python >= %{py_ver}
+Requires:	%{pylibxml2} >= %{xml_version_required}
 
 %description python
 The libxslt-python package contains a module that permits applications
@@ -96,11 +73,11 @@ with XPath functions written in Python.
 
 
 %package -n %{libname}-devel
-Summary: Libraries, includes, etc. to develop XML and HTML applications
-Group: Development/C
-Provides: %{name}-devel = %{version}-%{release}
-Requires: %{libname} = %{version}
-Requires: libxml2-devel >= %{xml_version_required}
+Summary:	Libraries, includes, etc. to develop XML and HTML applications
+Group:		Development/C
+Provides:	%{name}-devel = %{version}-%{release}
+Requires:	%{libname} = %{version}
+Requires:	libxml2-devel >= %{xml_version_required}
 
 %description -n %{libname}-devel
 This C library allows to transform XML files into other XML files
@@ -111,12 +88,7 @@ mechanism.
 %setup -q
 
 %build
-%if %buildfor7_2 || %buildfor8_0 || %buildfor8_1
-%define __libtoolize /bin/true
-%configure
-%else
 %configure2_5x
-%endif
 
 %make 
 
@@ -125,11 +97,7 @@ make check
 %install
 [ -n "$RPM_BUILD_ROOT" -a "$RPM_BUILD_ROOT" != / ] && rm -rf $RPM_BUILD_ROOT
 
-%if %buildfor7_2 || %buildfor8_0 || %buildfor8_1
-make DESTDIR=$RPM_BUILD_ROOT install
-%else
 %makeinstall_std
-%endif
 
 # remove unpackaged files
 rm -rf $RPM_BUILD_ROOT%{_docdir}/%{name}-%{version} \
@@ -175,6 +143,11 @@ rm -rf $RPM_BUILD_ROOT%{_docdir}/%{name}-%{version} \
 %{_datadir}/aclocal/*
 
 %changelog
+* Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 1.0.33-2sls
+- OpenSLS build
+- tidy spec
+- remove support for older mdk versions
+
 * Fri Sep 12 2003 Frederic Crozat <fcrozat@mandrakesoft.com> 1.0.33-1mdk
 - Release 1.0.33
 
