@@ -3,7 +3,7 @@
 %define poptver		1.8.2
 # You need increase both release and poptrelease
 %define poptrelease	%{release}
-%define release		3avx
+%define release		4avx
 
 %define libver		4.2
 %define url		ftp://ftp.rpm.org/pub/rpm/dist/rpm-4.0.x
@@ -680,6 +680,9 @@ fi
 %{_includedir}/popt.h
 
 %changelog
+* Fri Jun 18 2004 Vincent Danen <vdanen@opensls.org> 4.2.2-4avx
+- rebuild with new gcc
+
 * Thu Jun 17 2004 Vincent Danen <vdanen@opensls.org> 4.2.2-3avx
 - Annvix build
 
