@@ -1,0 +1,27 @@
+#!/bin/sh
+
+usage="Usage: ${0##*/} [--version] [--libs] [--cflags]"
+
+if [[ $# -eq 0 ]]; then
+  echo "${usage}" 1>&2
+  exit 1
+fi
+
+while [[ $# -gt 0 ]]; do
+  case $1 in
+  --version)
+    echo "@JDK_VERSION@"
+    ;;
+  --cflags)
+    echo "@JDK_INCLUDES@"
+    ;;
+  --libs)
+    ;;
+  *)
+    echo "${usage}" 1>&2
+    exit 1
+    ;;
+  esac
+  shift
+done
+exit 0

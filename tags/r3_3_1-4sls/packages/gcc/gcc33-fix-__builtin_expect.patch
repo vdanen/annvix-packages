@@ -1,0 +1,96 @@
+2003-08-26  Jakub Jelinek  <jakub@redhat.com>
+
+	* builtins.c (expand_builtin_expect_jump): Save pending_stack_adjust
+	and restore it if returning NULL.
+
+	* gcc.dg/20030826-2.c: New test.
+
+--- gcc-3.3.1/gcc/testsuite/gcc.dg/20030826-2.c.fix-__builtin_expect	2003-09-01 11:30:11.000000000 +0200
++++ gcc-3.3.1/gcc/testsuite/gcc.dg/20030826-2.c	2003-09-01 11:30:11.000000000 +0200
+@@ -0,0 +1,64 @@
++/* { dg-do run } */
++/* { dg-options "-O2 -fomit-frame-pointer" } */
++/* { dg-options "-O2 -fomit-frame-pointer -march=i386" { target i?86-*-* } } */
++
++extern void abort (void);
++extern void exit (int);
++
++struct S
++{
++  int *a;
++  unsigned char *b, c;
++};
++
++int u, v, w;
++
++void
++foo (unsigned short x)
++{
++  u += x;
++}
++
++int
++bar (struct S **x, int *y)
++{
++  w += *y;
++  *y = w + 25;
++  return 0;
++}
++
++int
++baz (struct S **x)
++{
++  struct S *y = *x;
++  unsigned char *a = y->b;
++
++  foo (*a);
++
++  if (__builtin_expect (y->c != 0 || y->a == &v, 0))
++    return 1;
++
++  if (__builtin_expect (*a == 1, 0))
++    {
++      int a, b = bar (x, &a);
++
++      if (a)
++	return b;
++    }
++
++  return 0;
++}
++
++int
++main (void)
++{
++  struct S a, *b = &a;
++  unsigned char c;
++
++  __builtin_memset (b, 0, sizeof (a));
++  a.a = &v;
++  a.b = &c;
++  if (baz (&b) != 1)
++    abort ();
++  exit (0);
++}
+--- gcc-3.3.1/gcc/builtins.c.fix-__builtin_expect	2003-09-01 11:23:55.000000000 +0200
++++ gcc-3.3.1/gcc/builtins.c	2003-09-01 11:30:11.000000000 +0200
+@@ -3758,6 +3758,7 @@ expand_builtin_expect_jump (exp, if_fals
+       && (integer_zerop (arg1) || integer_onep (arg1)))
+     {
+       int num_jumps = 0;
++      int save_pending_stack_adjust = pending_stack_adjust;
+       rtx insn;
+ 
+       /* If we fail to locate an appropriate conditional jump, we'll
+@@ -3854,7 +3855,10 @@ expand_builtin_expect_jump (exp, if_fals
+       /* If no jumps were modified, fail and do __builtin_expect the normal
+ 	 way.  */
+       if (num_jumps == 0)
+-	ret = NULL_RTX;
++	{
++	  ret = NULL_RTX;
++	  pending_stack_adjust = save_pending_stack_adjust;
++	}
+     }
+ 
+   return ret;
