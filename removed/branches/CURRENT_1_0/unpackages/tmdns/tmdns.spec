@@ -1,6 +1,6 @@
 %define name	tmdns
 %define version	0.1
-%define release	15sls
+%define release	16sls
 
 %define _prefix	/
 
@@ -56,10 +56,10 @@ mkdir -p %{buildroot}{/sbin,%{_sysconfdir}}
 install -m 0644 %{SOURCE1} %{buildroot}%{_sysconfdir}/$(basename %{SOURCE1})
 install -m 0755 %{SOURCE3} %{buildroot}/sbin/$(basename %{SOURCE3})
 
-mkdir -p %{buildroot}/var/service/tmdns/log
-install -m 0755 %{SOURCE4} %{buildroot}/var/service/tmdns/run
-install -m 0755 %{SOURCE5} %{buildroot}/var/service/tmdns/log/run
-mkdir -p %{buildroot}/var/log/supervise/tmdns
+mkdir -p %{buildroot}%{_srvdir}/tmdns/log
+install -m 0755 %{SOURCE4} %{buildroot}%{_srvdir}/tmdns/run
+install -m 0755 %{SOURCE5} %{buildroot}%{_srvdir}/tmdns/log/run
+mkdir -p %{buildroot}%{_srvlogdir}/tmdns
 
 %post
 %_post_srv %{name}
@@ -85,6 +85,9 @@ mkdir -p %{buildroot}/var/log/supervise/tmdns
 %endif
 
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 0.1-16sls
+- more macros
+
 * Tue Feb 03 2004 Vincent Danen <vdanen@opensls.org> 0.1-15sls
 - remove initscript
 - macros
