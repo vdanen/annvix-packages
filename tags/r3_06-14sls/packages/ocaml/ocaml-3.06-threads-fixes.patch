@@ -1,0 +1,54 @@
+--- otherlibs/systhreads/posix.c.orig	2002-10-29 17:31:03.000000000 +0100
++++ otherlibs/systhreads/posix.c	2002-10-29 18:18:24.000000000 +0100
+@@ -11,7 +11,7 @@
+ /*                                                                     */
+ /***********************************************************************/
+ 
+-/* $Id: posix.c,v 1.43 2001/12/07 13:40:19 xleroy Exp $ */
++/* $Id: posix.c,v 1.44 2002/10/29 16:00:00 xleroy Exp $ */
+ 
+ /* Thread interface for POSIX 1003.1c threads */
+ 
+@@ -25,6 +25,9 @@
+ #endif
+ #include <signal.h>
+ #include <sys/time.h>
++#ifdef __linux__
++#include <unistd.h>
++#endif
+ #include "alloc.h"
+ #include "backtrace.h"
+ #include "callback.h"
+@@ -257,8 +260,12 @@
+ {
+   struct timeval timeout;
+   sigset_t mask;
++#ifdef __linux__
++  int tickcount = 0;
++#endif
+ 
+-  /* Block all signals so that we don't try to execute a Caml signal handler */
++  /* Block all signals so that we don't try to execute
++     a Caml signal handler */
+   sigfillset(&mask);
+   pthread_sigmask(SIG_BLOCK, &mask, NULL);
+   while(1) {
+@@ -275,6 +282,18 @@
+ #else
+     something_to_do = 1;
+ #endif
++#ifdef __linux__
++    /* Hack around LinuxThreads' non-standard signal handling:
++       if program is killed on a signal, e.g. SIGINT, the current
++       thread will not die on this signal (because of the signal blocking
++       above).  Hence, periodically check that the thread manager (our
++       parent process) still exists. */
++    tickcount++;
++    if (tickcount >= 2000000 / Thread_timeout) { /* every 2 secs approx */
++      tickcount = 0;
++      if (getppid() == 1) pthread_exit(NULL);
++    }
++#endif
+   }
+   return NULL;                  /* prevents compiler warning */
+ }
