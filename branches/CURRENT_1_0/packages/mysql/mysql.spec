@@ -1,6 +1,6 @@
 %define name	MySQL
 %define version	4.0.20
-%define release	3avx
+%define release	4avx
 
 %define major		12
 %define libname_orig	mysql
@@ -26,6 +26,9 @@ Source1:	ftp://ftp.free.fr:/pub/MySQL/Downloads/Manual/manual-split.tar.bz2
 Source2:	mysqld.run
 Source3:	mysqld-log.run
 Source4:	mysqld.sysconfig
+Source5:	mysqld.finish
+Source6:	05_mysql.afterboot
+Source7:	logrotate.mysqld
 Patch1:		MySQL-4.0.16-mdk-fix_install_scripts.patch.bz2
 Patch2:		mysql-mdk-all_charset.patch.bz2
 Patch3:		mysql-4.0.17-mdk-lib64.patch.bz2
@@ -294,11 +297,12 @@ install -m755 $MBD/sql/mysqld-max $RBR/usr/sbin/mysqld-max
 install -m644 $MBD/sql/mysqld-max.sym $RBR%{_libdir}/mysql/mysqld-max.sym
 install -m644 $MBD/sql/mysqld.sym $RBR%{_libdir}/mysql/mysqld.sym
 
-install -m644 $MBD/support-files/mysql-log-rotate $RBR/etc/logrotate.d/mysql
+install -m 0644 %{SOURCE7} $RBR%{_sysconfdir}/logrotate.d/mysql
 
 mkdir -p %{buildroot}%{_srvdir}/mysqld/log
 mkdir -p %{buildroot}%{_srvlogdir}/mysqld
 install -m 0750 %{SOURCE2} %{buildroot}%{_srvdir}/mysqld/run
+install -m 0750 %{SOURCE5} %{buildroot}%{_srvdir}/mysqld/finish
 install -m 0750 %{SOURCE3} %{buildroot}%{_srvdir}/mysqld/log/run
 
 # Install docs
@@ -345,6 +349,9 @@ rm -rf $RPM_BUILD_ROOT%{_bindir}/make_win_binary_distribution
 mkdir -p %{buildroot}%{_sysconfdir}/sysconfig
 install -m 0644 %{SOURCE4} %{buildroot}%{_sysconfdir}/sysconfig/mysqld
 
+mkdir -p %{buildroot}%{_datadir}/afterboot
+install -m 0644 %{SOURCE6} %{buildroot}%{_datadir}/afterboot/05_mysql
+
 %find_lang mysql
 
 cat >> mysql.lang << EOF 
@@ -379,6 +386,7 @@ EOF
 
 %post common
 %_install_info mysql.info
+%_mkafterboot
 
 %post
 # Initiate databases
@@ -476,6 +484,9 @@ fi
 %preun common
 %_remove_install_info mysql.info
 
+%postun common
+%_mkafterboot
+
 %preun Max
 %_preun_srv mysqld
 
@@ -517,7 +528,7 @@ fi
 %{_bindir}/my_print_defaults
 %{_bindir}/myisam_ftdump
 %{_infodir}/mysql.info*
-%config(noreplace) /etc/logrotate.d/mysql
+%config(noreplace) %{_sysconfdir}/logrotate.d/mysql
 %dir %attr(-,mysql,mysql) %{_localstatedir}/mysql
 %dir %attr(-,mysql,mysql) %{_localstatedir}/mysql/mysql
 %dir %attr(-,mysql,mysql) %{_localstatedir}/mysql/test
@@ -542,6 +553,7 @@ fi
 %{_datadir}/mysql/postinstall
 %{_datadir}/mysql/preinstall
 %{_datadir}/mysql/MySQL-shared-compat.spec
+%{_datadir}/afterboot/05_mysql
 
 %files
 %defattr(-, root, root) 
@@ -551,6 +563,7 @@ fi
 %dir %{_srvdir}/mysqld
 %dir %{_srvdir}/mysqld/log
 %{_srvdir}/mysqld/run
+%{_srvdir}/mysqld/finish
 %{_srvdir}/mysqld/log/run
 %dir %attr(0750,nobody,nogroup) %{_srvlogdir}/mysqld
 %config(noreplace) %{_sysconfdir}/sysconfig/mysqld
@@ -609,6 +622,12 @@ fi
 %config(noreplace) %{_sysconfdir}/sysconfig/mysqld
 
 %changelog
+* Mon Oct 04 2004 Vincent Danen <vdanen@annvix.org> 4.0.20-4avx
+- add a finish script
+- add an afterboot snippet
+- add our own logrotate script which has everything commented out
+  by default
+
 * Mon Sep 20 2004 Vincent Danen <vdanen@annvix.org> 4.0.20-3avx
 - s/setuidgid/chpst in spec
 - Prereq: runit
