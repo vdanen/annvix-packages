@@ -1,11 +1,18 @@
-%define their_version 9.2.3
+%define name	bind
+%define version	9.2.3
+%define release	4sls
+
+%define their_version	9.2.3
+
+%{!?build_opensls:%global build_opensls 0}
 
 Summary:	A DNS (Domain Name System) server.
-Name:		bind
-Version:	9.2.3
-Release:	3mdk
-License:	distributable
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	Distributable
 Group:		System/Servers
+URL:		http://www.isc.org/products/BIND/
 Source0:	ftp://ftp.isc.org/isc/%{name}9/%{version}/%{name}-%{their_version}.tar.gz
 Source1:	%{name}-manpages.tar.bz2
 Source2:	named.init
@@ -19,14 +26,18 @@ Source9:	ftp://ftp.isc.org/isc/%{name}9/%{version}/%{name}-%{their_version}.tar.
 Source10:	bind-chroot.sh
 Source11:	ftp://FTP.RS.INTERNIC.NET/domain/named.root
 Patch1:		bind-9.2.3rc1-fallback-to-second-server.patch.bz2
-#Patch:		bind-9.2.1-overflow.patch.bz2
 Patch2:		bind-9.2.1-libresolv.patch.bz2
 Patch3:		bind-9.2.3rc3-deprecation_msg_shut_up.diff.bz2
+%if !%{build_opensls}
 Patch4:		bind-9.2.3rc4-IDN.diff.bz2
-URL:		http://www.isc.org/products/BIND/
+%endif
+
+BuildRoot:	%{_tmppath}/%{name}-root
 BuildRequires:	openssl-devel
+%if !%{build_opensls}
 BuildRequires:	idnkit-devel
-Buildroot:	%{_tmppath}/%{name}-root
+%endif
+
 Prereq:		/sbin/chkconfig, rpm-helper
 Requires:	bind-utils >= %{version}-%{release}
 Obsoletes:	libdns0
@@ -62,8 +73,8 @@ New configuration options: "min-refresh-time", "max-refresh-time",
 Faster lookups, particularly in large zones. 
 
 %package utils
-Summary: Utilities for querying DNS name servers.
-Group: Networking/Other
+Summary:	Utilities for querying DNS name servers.
+Group:		Networking/Other
 
 %description utils
 Bind-utils contains a collection of utilities for querying DNS (Domain
@@ -76,8 +87,8 @@ You should install bind-utils if you need to get information from DNS name
 servers.
 
 %package devel
-Summary: Include files and libraries needed for bind DNS development.
-Group: Development/C
+Summary:	Include files and libraries needed for bind DNS development.
+Group:		Development/C
 
 %description devel
 The bind-devel package contains all the include files and the
@@ -90,21 +101,32 @@ BIND versions 9.x.x.
 #%patch -p1 -b .overflow
 %patch2 -p1 -b .libresolv
 %patch3 -p0 -b .deprecation_msg_shut_up
+%if !%{build_opensls}
 %patch4 -p1 -b .IDN
+%endif
 (cd contrib/queryperf && autoconf)
 tar xjf %{SOURCE7}
 
 %build
 libtoolize --copy --force; aclocal; autoconf
 
+%if %{build_opensls}
+BUILDIDN=""
+%else
+BUILDIDN="--with-idn"
+%endif
+
 %configure2_5x --localstatedir=/var \
 	--enable-threads \
 	--enable-ipv6 \
-	--with-openssl=%{_includedir}/openssl \
-	--with-idn
+	--with-openssl=%{_includedir}/openssl $BUILDIDN
 
 # override CFLAGS for better security.  Ask Jay...
+%if %{build_opensls}
+make "CFLAGS=-O2 -Wall -pipe -fstack-protector"
+%else
 make "CFLAGS=-O2 -Wall -pipe"
+%endif
 
 #queryperf from the contrib
 cd contrib/queryperf
@@ -235,6 +257,12 @@ rm -rf ${RPM_BUILD_ROOT}
 %{_mandir}/man8/nslookup.8*
 
 %changelog
+* Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 9.2.3-4sls
+- OpenSLS build
+- use %%build_opensls macro to turn off IDN support
+- explicitly provide -fstack-protector with %%build_opensls since we don't
+  use standard %%optflags
+
 * Sun Nov 16 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 9.2.3-3mdk
 - rebuilt for reupload
 
