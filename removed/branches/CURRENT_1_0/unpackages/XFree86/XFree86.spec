@@ -1,6 +1,6 @@
 %define name	XFree86
 %define version 4.3
-%define release 27sls
+%define release 28sls
 
 %{!?build_propolice:%global build_propolice 0}
 
@@ -228,7 +228,7 @@ Patch803:	XFree86-4.3-propolice.patch.bz2
 Patch804:	XFree86-4.x-xdm-pam-setcred-security.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-root
-BuildRequires:	zlib-devel flex bison groff pam-devel ncurses-devel perl
+BuildRequires:	zlib-devel flex bison groff pam-devel ncurses-devel perl hwdata
 BuildRequires:	libpng-devel
 %if %{usefreetype2}
 BuildRequires:	freetype2-devel
@@ -1163,6 +1163,9 @@ rm -rf $RPM_BUILD_ROOT%{_sysconfdir}/X11/twm/system.twmrc \
  $RPM_BUILD_ROOT%{x11libdir}/X11/{Options,XF86Config.98} \
  $RPM_BUILD_ROOT%{x11libdir}/X11/fonts/{util,CID,local}
 
+# hwdata contains Cards now
+rm -f %{buildroot}%{x11libdir}/X11/Cards
+
 %post
 for d in misc Speedo Type1 TTF mdk; do
     cd /usr/X11R6/lib/X11/fonts/$d
@@ -1325,9 +1328,9 @@ fi
 %defattr(-,root,root,-)
 %docdir /usr/X11R6/lib/X11/doc
 
-%ifarch %{ix86} alpha sparc
-%doc /usr/X11R6/lib/X11/Cards
-%endif
+#%ifarch %{ix86} alpha sparc
+#%doc /usr/X11R6/lib/X11/Cards
+#%endif
 
 %dir /usr/X11R6/lib/X11
 %dir /etc/X11
@@ -1824,6 +1827,10 @@ fi
 %{x11libdir}/X11/xedit
 
 %changelog
+* Tue May 11 2004 Vincent Danen <vdanen@opensls.org> 4.3-28sls
+- Requires: hwdata
+- remove /usr/X11R6/lib/X11/Cards as hwdata provides it
+
 * Mon May 10 2004 Vincent Danen <vdanen@opensls.org> 4.3-27sls
 - rebuild against new libutempter
 
