@@ -1,6 +1,6 @@
 %define name	cyrus-sasl
 %define version	2.1.19
-%define release	1avx
+%define release	2avx
 
 %define major	2
 %define libname	%mklibname sasl %{major}
@@ -24,6 +24,7 @@ Patch0:		cyrus-sasl-doc-patch.bz2
 Patch1:		cyrus-sasl-2.1.18-mdk-no_rpath.patch.bz2
 Patch2:		cyrus-sasl-2.1.15-mdk-lib64.patch.bz2
 Patch3:		cyrus-sasl-2.1.17-fdr-gssapi-dynamic.patch.bz2
+Patch4:		cyrus-sasl-CAN-2004-0884.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
 BuildRequires:  autoconf, automake1.7, db4-devel, pam-devel, krb5-devel
@@ -178,6 +179,7 @@ This plugin implements the (unsupported) ntlm authentication.
 %patch1 -p1 -b .rpath
 %patch2 -p1 -b .lib64
 %patch3 -p1 -b .gssapi
+%patch4 -p0 -b .can-2004-0884
 
 rm -f config/ltconfig config/libtool.m4
 %__libtoolize -f -c
@@ -365,6 +367,9 @@ fi
 %{_mandir}/man3/*
  
 %changelog
+* Thu Oct 07 2004 Vincent Danen <vdanen@annvix.org> 2.1.19-2avx
+- P4: fixes CAN-2004-0884
+
 * Mon Sep 20 2004 Vincent Danen <vdanen@annvix.org> 2.1.19-1avx
 - 2.1.19
 - drop %%_prefix
