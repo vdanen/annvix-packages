@@ -1,0 +1,23 @@
+#!/bin/sh
+PATH="/sbin:/usr/sbin:/bin:/usr/bin"
+
+# this runs rpc.nfsd supervised
+
+. /usr/share/srv/functions
+
+checkdepends portmap
+
+. /etc/sysconfig/network
+
+[ -f /etc/sysconfig/nfs ] && . /etc/sysconfig/nfs
+
+[ -z "$MOUNTD_NFS_V2" ] && MOUNTD_NFS_V2=auto
+[ -z "$MOUNTD_NFS_V3" ] && MOUNTD_NFS_V3=auto
+[ -z "$NFSDCOUNT" ] && NFSDCOUNT=8
+
+/usr/sbin/rpc.nfsd $NFSDCOUNT 2>&1
+
+# now we need to trick supervise into thinking it's still controlling the service
+
+exec /usr/bin/nothing
+
