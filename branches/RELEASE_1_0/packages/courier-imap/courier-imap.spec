@@ -1,6 +1,6 @@
 %define name	courier-imap
 %define version	2.1.2
-%define release	17avx
+%define release	18avx
 
 %define _localstatedir	/var/run
 %define	authdaemondir	%{_localstatedir}/authdaemon.courier-imap
@@ -328,6 +328,11 @@ install -m 0644 %{SOURCE13} %{buildroot}%{_sysconfdir}/sysconfig/imapd-ssl
 install -m 0644 %{SOURCE13} %{buildroot}%{_sysconfdir}/sysconfig/pop3d
 install -m 0644 %{SOURCE13} %{buildroot}%{_sysconfdir}/sysconfig/pop3d-ssl
 
+# fix location of authlib stuff on x86_64
+%ifarch x86_64 amd64
+find %{buildroot}%{_srvdir} -name run -exec perl -pi -e 's|/usr/lib/courier|/usr/lib64/courier|g' {} \;
+%endif
+
 %post
 %{courierdatadir}/sysconftool `cat %{courierdatadir}/configlist` >/dev/null
 %_post_srv courier-imapd
@@ -561,6 +566,9 @@ test ! -f %{courierdatadir}/configlist.mysql || %{courierdatadir}/sysconftool-rp
 %{_mandir}/man1/maildirmake++.1*
 
 %changelog
+* Sat Apr 02 2005 Vincent Danen <vdanen@annvix.org> 2.1.2-18avx
+- set AUTHDIR in runscriptappropriate on x86_64
+
 * Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 2.1.2-17avx
 - use logger for logging
 
