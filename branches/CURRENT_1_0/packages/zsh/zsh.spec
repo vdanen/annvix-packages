@@ -1,6 +1,6 @@
 %define name	zsh
 %define version	4.1.1
-%define release	4sls
+%define release	5sls
 
 %{!?build_opensls:%define build_opensls 0}
 
@@ -35,7 +35,7 @@ Patch101:	zsh-serial.patch.bz2
 Patch102:	zsh-4.1.0-dev-7-rebootin.patch.bz2
 
 BuildRoot:	%_tmppath/%name-buildroot
-BuildRequires:	gcc libtermcap2-devel texinfo
+BuildRequires:	gcc, libtermcap-devel >= 2.0, texinfo
 %if !%{build_opensls}
 BuildRequires:	yodl
 %endif
@@ -82,11 +82,11 @@ mv %name-%doc_version/Doc/* Doc/
 find | grep '~$' | xargs rm -f
 
 %build
-%ifnarch sparc
-%configure --enable-etcdir=%_sysconfdir --enable-function-subdirs --disable-debug
-%else
-%configure --enable-etcdir=%_sysconfdir --enable-function-subdirs --disable-lfs
+%ifarch sparc
+EXTRA_CONFIGURE_ARGS="--disable-lfs"
 %endif
+
+%configure2_5x --enable-etcdir=%_sysconfdir --enable-function-subdirs --disable-debug $EXTRA_CONFIGURE_ARGS
 
 make all
 
@@ -164,6 +164,9 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 
 %changelog
+* Wed Dec 31 2003 Vincent Danen <vdanen@opensls.org> 4.1.1-5sls
+- fix BuildReq and change %%configure handling
+
 * Wed Dec 03 2003 Vincent Danen <vdanen@opensls.org> 4.1.1-4sls
 - OpenSLS build
 - tidy spec
