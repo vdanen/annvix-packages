@@ -1,6 +1,6 @@
 %define name	perl-ldap
-%define version 0.29
-%define release 3sls
+%define version 0.31
+%define release 1sls
 
 Summary:	Perl module for ldap
 Name:		%{name}
@@ -47,11 +47,15 @@ make
 %defattr(-,root,root)
 %doc CREDITS README RELEASE_NOTES
 %{_mandir}/*/*
-%{perl_vendorlib}/LWP/*
-%{perl_vendorlib}/Bundle/*
-%{perl_vendorlib}/Net/*
+%{perl_vendorlib}/LWP
+%{perl_vendorlib}/Bundle
+%{perl_vendorlib}/Net
 
 %changelog
+* Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 0.31-1sls
+- 0.31
+- own dirs
+
 * Fri Feb 27 2004 Vincent Danen <vdanen@opensls.org> 0.29-3sls
 - rebuild for new perl
 
