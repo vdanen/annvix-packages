@@ -1,8 +1,6 @@
 %define name	tetex
 %define version	2.0.2
-%define release	12sls
-
-%{!?build_opensls:%global build_opensls 0}
+%define release	13sls
 
 %define pkgname		%{name}
 %define docversion	2.0.2
@@ -27,7 +25,6 @@
 # 0 = don't have ghostscript >= 6.01 (e.g. Mandrake Linux 8.0, 7.2, etc.)
 %define haveghost6	1
 
-%{!?build_opensls:%global build_opensls 0}
 %define _unpackaged_files_terminate_build 0
 
 Summary:	The TeX text formatting system
@@ -74,9 +71,6 @@ Patch27:	%{name}-2.0.2-typefacename.patch.bz2
 BuildRoot:	%{_tmppath}/%{name}-%{version}-root
 BuildRequires:	bison, ed, flex, gettext-devel
 BuildRequires:	libncurses-devel, libpng-devel, libxpm-devel, XFree86-devel
-%if !%{build_opensls}
-BuildRequires:	freetype-devel
-%endif
 
 Requires:	tmpwatch, dialog, ed, info-install
 Obsoletes:	cweb
@@ -120,29 +114,6 @@ printing on HP and HP compatible printers), tetex-dvips (for converting
 tetex-xdvi (for previewing .dvi files in X).  If you're not an expert
 at TeX, you'll probably also want to install the tetex-doc package,
 which contains documentation for TeX.
-
-%if !%{build_opensls}
-%package xdvi
-Summary:	An X viewer for DVI files
-Group:		Publishing
-Requires:	tetex = %{PACKAGE_VERSION}
-Requires:	X11R6-contrib
-
-%description xdvi
-Xdvi allows you to preview the TeX text formatting system's output .dvi
-files on an X Window System.
-
-If you are installing teTeX, so that you can use the TeX text formatting    
-system, you will also need to install tetex-xdvi.  In addition, you will
-need to install tetex-afm (a PostScript font converter for TeX),
-tetex-dvilj (for converting .dvi files to HP PCL format for printing on
-HP and HP compatible printers), tetex-dvips (for converting .dvi files to
-PostScript format for printing on PostScript printers), and tetex-latex
-(a higher level formatting package which provides an easier-to-use
-interface for TeX).  If you're not a TeX expert, you'll probably also
-want to install the tetex-doc package, which contains documentation for
-the TeX text formatting system.
-%endif
 
 %package dvips
 Summary:	A DVI to PostScript converter for the TeX text formatting system
@@ -209,25 +180,6 @@ for TeX) and tetex-xdvi (for previewing .dvi files in X).  Unless you're
 an expert at using TeX, you'll probably also want to install the tetex-doc
 package, which includes documentation for TeX.
 
-%if !%{build_opensls}
-%package doc
-Summary:	The documentation files for the TeX text formatting system
-Group:		Books/Other
-
-%description doc
-The tetex-doc package contains documentation for the TeX text
-formatting system.
-
-If you want to use TeX and you're not an expert at it, you should
-install the tetex-doc package.  You'll also need to install the tetex
-package, tetex-afm (a PostScript font converter for TeX), tetex-dvilj
-(for converting .dvi files to HP PCL format for printing on HP and HP
-compatible printers), tetex-dvips (for converting .dvi files to
-PostScript format for printing on PostScript printers), tetex-latex
-(a higher level formatting package which provides an easier-to-use
-interface for TeX) and tetex-xdvi (for previewing .dvi files).
-%endif
-
 %package dvipdfm
 Summary:	A DVI to PDF converter
 Group:		Publishing
@@ -235,18 +187,6 @@ Requires:	tetex = %{PACKAGE_VERSION}, tetex-dvips = %{PACKAGE_VERSION}
 
 %description dvipdfm
 dvidpfm is a DVI to PDF translator for use with TeX.
-
-%if !%{build_opensls}
-%package mfwin
-Summary:	Metafont with output window
-Group:		Publishing
-Requires:	tetex = %{PACKAGE_VERSION}
-
-%description mfwin
-This package contains METAFONT with window support. Install this
-package if you plan to run METAFONT interactively and would like to see
-the font building in a output window.
-%endif
 
 %package devel
 Summary:	Development libraries (kpathsea) for teTeX
@@ -256,26 +196,6 @@ Requires:	tetex = %{PACKAGE_VERSION}
 %description devel
 This package contains C headers and libraries, for developing TeX
 applications using kpathsea library.
-
-%if !%{build_opensls}
-%package -n %{jadename}
-Summary:	TeX macros used by Jade TeX output.
-Version: 	%{jadeversion}
-Release:	%{jaderelease}
-Group:		Publishing
-License: 	Distributable (C) Sebastian Rahtz <s.rahtz@elsevier.co.uk>
-URL: 		http://sourceforge.net/projects/jadetex
-Requires: 	sgml-common >=  0.6.3-2mdk
-Requires: 	tetex >= 1.0.7-51mdk
-Requires: 	tetex-latex >= 1.0.7-51mdk
-Requires: 	tetex-dvips >= 1.0.7-51mdk
-Requires: 	openjade >= 1.3.1
-
-%description -n %{jadename}
-JadeTeX contains the additional LaTeX macros necessary for taking Jade
-TeX output files and processing them as TeX files, to obtain DVI, Postscript
-or PDF files for example.
-%endif
 
 %package -n %{xmltexname}
 Summary:	Namespace-aware XML parser written in TeX.
@@ -316,11 +236,7 @@ HTML files which can be read with any WWW browser.
 
 
 %prep
-%if %{build_opensls}
 %setup -q -n %{name}-src-%{tetexversion} -a 8 -a 9
-%else
-%setup -q -n %{name}-src-%{tetexversion} -a 7 -a 8 -a 9 -a 20
-%endif
 
 %patch0 -p1 -b .texmfcnf
 %patch1 -p1 -b .fmtutil
@@ -330,9 +246,6 @@ HTML files which can be read with any WWW browser.
 %patch6 -p1 -b .epstopdf
 %patch7 -p1 -b .fmtutil1
 %patch8 -p1 -b .22.40y
-%if !%{build_opensls}
-%patch10 -p1 -b .ttf2pk
-%endif
 %patch11 -p1 -b .badscript
 %patch12 -p1 -b .dvipdfm
 %patch13 -p1 -b .xpdf
@@ -351,23 +264,12 @@ cp -p texmf/metafont/config/mf.ini texmf/metafont/config/mf-nowin.ini
 # languages
 %patch22 -p1
 
-%if !%{build_opensls}
-# basque for jadetex
-%patch23 -p1
-%patch24 -p1
-%endif
-
 # passivetex 1.24
 %patch25 -p1
 %patch26 -p1
 
 # typeface.map
 %patch27 -p1
-
-%if !%{build_opensls}
-# ttf2pk
-(cd ttf2pk; autoconf)
-%endif
 
 # cputoolize to get updated config.{sub,guess}
 %{?__cputoolize: %{__cputoolize} -c libs/ncurses}
@@ -389,18 +291,6 @@ sh ./reautoconf
 # Don't use the 'make' macro, it doesn't work, even on comments.
 %make
 
-%if !%{build_opensls}
-# jadetex
-(CURRENTDIR=`pwd`
- cd %{jadename}-%{jadeversion}
- mkdir -p $CURRENTDIR/texmf/tex/jadetex
- install -m 644 dsssl.def dummyels.sty jadetex.cfg jadetex.ini \
-	jadetex.ins jadetex.ltx mlnames.sty ucharacters.sty \
-	pdfjadetex.ini uentities.sty unicode.sty ut1omlgc.fd \
-	$CURRENTDIR/texmf/tex/jadetex
-)
-%endif
-
 # xmltex
 (CURRENTDIR=`pwd`
  mkdir -p $CURRENTDIR/texmf/tex/xmltex/{base,config,passivetex}
@@ -415,17 +305,6 @@ sh ./reautoconf
  )
 )
 
-%if !%{build_opensls}
-# ttf2pk TrueType support (CJK extensions)
-(cd ttf2pk
- mkdir -p extras/{include,lib}
- (cd extras/include; ln -sf ../../../texk/kpathsea .)
- (cd extras/lib; ln -sf ../../../texk/kpathsea/STATIC/libkpathsea.a .)
- ./configure --with-kpathsea-dir=./extras
- make
-)
-%endif
-
 # texi2html 1.64
 (cd texi2html-1.64
 %configure
@@ -434,7 +313,7 @@ make
 )
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p $RPM_BUILD_ROOT%{_datadir}/texmf \
 	$RPM_BUILD_ROOT/var/lib/texmf
 tar cf - texmf | tar xf - -C $RPM_BUILD_ROOT%{_datadir}
@@ -448,13 +327,6 @@ tar cf - texmf | tar xf - -C $RPM_BUILD_ROOT%{_datadir}
 
 export PATH=$RPM_BUILD_ROOT/%{_bindir}:$PATH
 
-%if !%{build_opensls}
-# jadetex man page
-(cd %{jadename}-%{jadeversion}
- install -m 644 jadetex.1 pdfjadetex.1 $RPM_BUILD_ROOT%{_mandir}/man1
-)
-%endif
-
 rm -f $RPM_BUILD_ROOT%{_infodir}/dir
 bzip2 -9f $RPM_BUILD_ROOT%{_infodir}/*info* || true
 
@@ -462,15 +334,6 @@ bzip2 -9f $RPM_BUILD_ROOT%{_infodir}/*info* || true
 
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/cron.daily
 install -m 755 %{SOURCE10} $RPM_BUILD_ROOT%{_sysconfdir}/cron.daily
-
-#
-%if !%{build_opensls}
-# Add TrueType Support ttf2pk (CJK extensions)
-cp -f ttf2pk/ttf2pk ttf2pk/ttf2tfm $RPM_BUILD_ROOT%{_bindir}
-cp -f ttf2pk/ttf2pk.1 ttf2pk/ttf2tfm.1 $RPM_BUILD_ROOT%{_mandir}/man1
-mkdir -p $RPM_BUILD_ROOT%{_datadir}/texmf/ttf2pk
-cp -f ttf2pk/data/* $RPM_BUILD_ROOT%{_datadir}/texmf/ttf2pk
-%endif
 
 # update map files
 TEXMFMAIN=$RPM_BUILD_ROOT%{_datadir}/texmf \
@@ -521,10 +384,6 @@ echo "%attr(755,root,root) %dir /usr/local/share/texmf" >> filelist.full
 
 # subpackages
 grep -v "/doc/" filelist.full | grep latex 	> filelist.latex
-
-%if !%{build_opensls}
-grep -v "/doc/" filelist.full | grep jadetex	> filelist.jadetex
-%endif
 
 grep -v "/doc/" filelist.full | grep xmltex	> filelist.xmltex
 
@@ -590,9 +449,6 @@ EOF
 
 # now files listed only once, i.e. not included in any subpackage, will
 # go in the main package
-%if !%{build_opensls}
-EXTRACAT="filelist.jadetex"
-%endif
 cat filelist.full \
     filelist.latex \
     filelist.xdvi \
@@ -628,7 +484,7 @@ ln -sf ../../..%{_datadir}/texmf/doc $RPM_BUILD_ROOT%{_datadir}/doc/tetex-doc-%{
 bzip2 -cd %{SOURCE21} > $RPM_BUILD_ROOT%{_bindir}/dvipdfpress
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 rm -f filelist.*
 
 # make sure ls-R used by teTeX is updated after an install
@@ -642,13 +498,6 @@ exit 0
 [ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash 2> /dev/null
 /sbin/install-info %{_infodir}/latex.info.bz2 %{_infodir}/dir
 exit 0
-
-%if !%{build_opensls}
-%post xdvi
-[ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash 2> /dev/null
-%{update_menus}
-exit 0
-%endif
 
 %post dvips
 /sbin/install-info %{_infodir}/dvips.info.bz2 %{_infodir}/dir
@@ -667,18 +516,6 @@ exit 0
 %post dvipdfm
 [ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash 2> /dev/null
 exit 0
-
-%if !%{build_opensls}
-%post mfwin
-[ -x /usr/bin/texhash ] && /usr/bin/env - /usr7bin/texhash 2> /dev/null
-exit 0
-%endif
-
-%if !%{build_opensls}
-%post -n %{jadename}
-[ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash 2> /dev/null
-exit 0
-%endif
 
 %post -n %{xmltexname}
 [ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash 2> /dev/null
@@ -699,15 +536,6 @@ exit 0
 [ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash 2> /dev/null
 exit 0
 
-%if !%{build_opensls}
-%postun xdvi
-[ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash 2> /dev/null
-if [ "$1" = "0" ]; then
-%{clean_menus}
-fi
-exit 0
-%endif
-
 %postun dvips
 [ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash 2> /dev/null
 exit 0
@@ -723,18 +551,6 @@ exit 0
 %postun dvipdfm
 [ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash 2> /dev/null
 exit 0
-
-%if !%{build_opensls}
-%postun mfwin
-[ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash 2> /dev/null
-exit 0
-%endif
-
-%if !%{build_opensls}
-%postun -n %{jadename}
-[ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash 2> /dev/null
-exit 0
-%endif
 
 %postun -n %{xmltexname}
 [ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash 2> /dev/null
@@ -773,13 +589,6 @@ fi
 %files -f filelist.latex latex
 %defattr(-,root,root)
 
-%if !%{build_opensls}
-%files -f filelist.xdvi xdvi
-%defattr(-,root,root)
-%{_menudir}/tetex-xdvi
-%{_iconsdir}/*
-%endif
-
 %files -f filelist.dvips dvips
 %defattr(-,root,root)
 
@@ -789,30 +598,12 @@ fi
 %files -f filelist.afm afm
 %defattr(-,root,root)
 
-%if !%{build_opensls}
-%files -f filelist.doc doc
-%defattr(-,root,root)
-%docdir %{_datadir}/doc/tetex-doc-%{docversion}
-%{_datadir}/doc/tetex-doc-%{docversion}
-%endif
-
 %files -f filelist.dvipdfm dvipdfm
 %defattr(-,root,root)
 %attr(755,root,root) %{_bindir}/dvipdfpress
 
-%if !%{build_opensls}
-%files -f filelist.mfwin mfwin
-%defattr(-,root,root)
-%endif
-
 %files -f filelist.devel devel
 %defattr(-,root,root)
-
-%if !%{build_opensls}
-%files -f filelist.jadetex -n %{jadename}
-%defattr(-,root,root)
-%doc %{jadename}-%{jadeversion}/doc/* %{jadename}-%{jadeversion}/ChangeLog
-%endif
 
 %files -f filelist.xmltex -n %{xmltexname}
 %defattr(-,root,root)
@@ -828,6 +619,10 @@ fi
 
 
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 2.0.2-13sls
+- minor spec cleanups
+- remove %%build_opensls macro
+
 * Tue Dec 30 2003 Vincent Danen <vdanen@opensls.org> 2.0.2-12sls
 - don't build jadetex for %%build_opensls
 
