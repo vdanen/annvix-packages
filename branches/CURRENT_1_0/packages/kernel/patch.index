@@ -644,6 +644,20 @@ ZY00_PROPOLICE.desc
 
 
 
+ZY50_SECURITY_FIXES.desc
+    ZY58_CAN-2004-0109.patch
+    - CAN-2004-0109 isofs rockridge issue
+    ZY59_CAN-2004-0133.patch
+    - CAN-2004-0133 xfs filesystem issue
+    ZY60_CAN-2004-0177.patch
+    - CAN-2004-0177 ext3/jbd filesystem issue
+    ZY61_CAN-2004-0178.patch
+    - CAN-2004-0178 sb_audio issue
+    ZY62_CAN-2004-0181.patch
+    - CAN-2004-0181 jfs filesystem issue
+    
+    
+    
 ZZ00_EXTRAS.desc
     ZZ01_fix_bugreport_addresses.patch
     - fix bugreport address to point to OpenSLS, and remove some obsolete info

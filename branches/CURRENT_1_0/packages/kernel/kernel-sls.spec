@@ -84,7 +84,7 @@
 # Thomas Backlund <tmb@iki.fi>
 
 %define sublevel	25
-%define slsrelease	10
+%define slsrelease	11
 %define use_patch	0
 
 %{!?build_opensls:%global build_opensls 0}
@@ -866,6 +866,7 @@ exit 0
 %dir %{_kerneldir}/include
 %{_kerneldir}/.config
 %{_kerneldir}/.need_mrproper
+%{_kerneldir}/3rdparty
 %{_kerneldir}/COPYING
 %{_kerneldir}/CREDITS
 %{_kerneldir}/Documentation
@@ -921,6 +922,13 @@ exit 0
 %endif
 
 %changelog
+* Mon Apr 19 2004 Thomas Backlund <tmb@iki.fi> 2.4.25-11sls
+- CAN-2004-0109 isofs rockridge issue (ZY58)
+- CAN-2004-0133 xfs filesystem issue (ZY59)
+- CAN-2004-0177 ext3/jbd filesystem issue (ZY60)
+- CAN-2004-0178 sb_audio issue (ZY61)
+- CAN-2004-0181 jfs filesystem issue (ZY62)
+
 * Fri Apr  2 2004 Thomas Backlund <tmb@iki.fi> 2.4.25-10sls
 - DI01_2.4.25-libata15.patch
   * adds support for latest libata (SATA support)
