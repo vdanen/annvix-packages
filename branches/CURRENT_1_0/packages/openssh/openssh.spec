@@ -1,6 +1,6 @@
 %define name	openssh
 %define version	3.6.1p2
-%define release 10sls
+%define release 11sls
 
 ## Do not apply any unauthorized patches to this package!
 ## - vdanen 05/18/01
@@ -19,19 +19,14 @@
 %global build_krb5	 0
 %global build_scard	 0
 %global build_watchdog   0
-%global no_x11_askpass	 0
-%global no_gnome_askpass 0
+%global no_x11_askpass	 1
+%global no_gnome_askpass 1
 %{?_with_skey: %{expand: %%global build_skey 1}}
 %{?_with_krb5: %{expand: %%global build_krb5 1}}
 %{?_with_watchdog: %{expand: %%global build_watchdog 1}}
 %{?_with_smartcard: %{expand: %%global build_scard 1}}
 %{?_with_nox11askpass: %{expand: %%global no_x11_askpass 1}}
 %{?_with_nognomeaskpass: %{expand: %%global no_gnome_askpass 1}}
-
-%if %{build_opensls}
-%global no_x11_askpass 1
-%global no_gnome_askpass 1
-%endif
 
 Summary:	OpenSSH free Secure Shell (SSH) implementation
 Name:		%{name}
@@ -46,7 +41,6 @@ Source3:	ssh-copy-id.bz2
 Source4: 	gnome-ssh-askpass.sh
 Source5: 	gnome-ssh-askpass.csh
 Source6:	ssh-client.sh
-Source7:	openssh-xinetd.bz2
 Source8:	sshd.run
 Source9:	sshd-log.run
 # this is never to be applied by default
@@ -92,9 +86,7 @@ Provides:	ssh-clients, sftp
 Summary:	OpenSSH Secure Shell protocol server (sshd)
 PreReq:		%{name} = %{version}-%{release} chkconfig >= 0.9 
 PreReq:		pam >= 0.74
-%if !%{build_8x}
 PreReq:		rpm-helper
-%endif
 %if %{build_skey}
 Requires:	skey
 %endif
@@ -286,9 +278,7 @@ make install DESTDIR=$RPM_BUILD_ROOT/
 
 install -d $RPM_BUILD_ROOT%{_sysconfdir}/ssh
 install -d $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/
-install -d $RPM_BUILD_ROOT%{_initrddir}
 install -m644 contrib/redhat/sshd.pam $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/sshd
-install -m755 contrib/redhat/sshd.init $RPM_BUILD_ROOT%{_initrddir}/sshd
 
 if [[ -f sshd_config.out ]]; then 
 	install -m600 sshd_config.out $RPM_BUILD_ROOT%{_sysconfdir}/ssh/sshd_config
@@ -334,29 +324,17 @@ mkdir -p %{buildroot}/var/empty
 rm -f %{buildroot}%{_datadir}/ssh/Ssh.bin
 %endif
 
-%if %{build_opensls}
-mkdir -p %{buildroot}/var/service/sshd/log
-mkdir -p %{buildroot}/var/log/supervise/sshd
-install -m 0755 %{SOURCE8} %{buildroot}/var/service/sshd/run
-install -m 0755 %{SOURCE9} %{buildroot}/var/service/sshd/log/run
-%else
-# xinetd support (tv)
-mkdir -p $RPM_BUILD_ROOT%_sysconfdir/xinetd.d/
-bzcat %SOURCE7 > $RPM_BUILD_ROOT%_sysconfdir/xinetd.d/sshd-xinetd
-%endif
+mkdir -p %{buildroot}%{_srvdir}/sshd/log
+mkdir -p %{buildroot}%{_srvlogdir}/sshd
+install -m 0755 %{SOURCE8} %{buildroot}%{_srvdir}/sshd/run
+install -m 0755 %{SOURCE9} %{buildroot}%{_srvdir}/sshd/log/run
 
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 %pre server
-%if %{build_8x}
-  grep "^sshd:" %{_sysconfdir}/group >/dev/null || groupadd -g 94 -r sshd
-  grep "^sshd:" %{_sysconfdir}/passwd >/dev/null || useradd -u 94 -g 94 \
-    -s /bin/true -M -r sshd -d /var/empty -c "OpenSSH privsep user"
-%else
-  %_pre_useradd sshd /var/empty /bin/true
-%endif
+%_pre_useradd sshd /var/empty /bin/true
 
 %post server
 # do some key management; taken from the initscript
@@ -417,15 +395,9 @@ do_dsa_keygen() {
 do_rsa1_keygen
 do_rsa_keygen
 do_dsa_keygen
-%_post_service sshd
 
-%preun server
-%_preun_service sshd
-
-%if !%{build_8x}
 %postun server
 %_postun_userdel sshd
-%endif
 
 %if !%{no_x11_askpass}
 %post askpass
@@ -495,19 +467,14 @@ update-alternatives --remove ssh-askpass %{_libdir}/ssh/gnome-ssh-askpass
 %{_mandir}/man8/sftp-server.8*
 %attr(0600,root,root) %config(noreplace) %{_sysconfdir}/ssh/sshd_config
 %attr(0600,root,root) %config(noreplace) %{_sysconfdir}/pam.d/sshd
-%if %{build_opensls}
-%dir /var/service/sshd
-%dir /var/service/sshd/log
-/var/service/sshd/run
-/var/service/sshd/log/run
-%dir %attr(0750,nobody,nogroup) /var/log/supervise/sshd
-%else
-%config(noreplace) %_sysconfdir/xinetd.d/sshd-xinetd
-%endif
+%dir %{_srvdir}/sshd
+%dir %{_srvdir}/sshd/log
+%{_srvdir}/sshd/run
+%{_srvdir}/sshd/log/run
+%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/sshd
 
 
 %config(noreplace) %{_sysconfdir}/ssh/moduli
-%config(noreplace) %{_initrddir}/sshd
 %dir %attr(0755,root,root) /var/empty
 
 %if !%{no_x11_askpass}
@@ -529,6 +496,12 @@ update-alternatives --remove ssh-askpass %{_libdir}/ssh/gnome-ssh-askpass
 %endif
 
 %changelog
+* Fri Jan 23 2004 Vincent Danen <vdanen@opensls.org> 3.6.1p2-11sls
+- remove S7
+- no conditional %%build_opensls anymore
+- service macros
+- remove the initscript
+
 * Wed Dec 31 2003 Vincent Danen <vdanen@opensls.org> 3.6.1p2-10sls
 - include supervise files, remove xinetd files
 
