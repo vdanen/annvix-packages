@@ -1,6 +1,6 @@
 %define name	mcrypt
 %define version 2.6.4
-%define release 2sls
+%define release 3sls
 
 Summary:	Data encryption/decryption program
 Name:		%{name}
@@ -16,8 +16,6 @@ BuildRequires:	libmhash-devel
 BuildRequires:	libmcrypt-devel
 BuildRequires:	libtool-devel
 BuildRequires:	autoconf2.5
-
-Prefix:		%{_prefix}
 
 %description
 A replacement for the old unix crypt(1) command. Mcrypt
@@ -57,14 +55,14 @@ CBC, ECB, OFB and CFB modes of encryption are supported.
 %make
 
 %install
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %makeinstall
 
 %find_lang %name
 
 %clean
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files -f %name.lang
 %defattr(-,root,root)
@@ -73,6 +71,10 @@ CBC, ECB, OFB and CFB modes of encryption are supported.
 %{_mandir}/man1/*
 
 %changelog
+* Sat Mar 06 2004 Vincent Danen <vdanen@opensls.org> 2.6.4-3sls
+- minor spec cleanups
+- remove %%prefix
+
 * Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 2.6.4-2sls
 - OpenSLS build
 - tidy spec
