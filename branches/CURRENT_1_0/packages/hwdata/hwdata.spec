@@ -1,6 +1,6 @@
 %define name	hwdata
-%define version	0.111
-%define release	2avx
+%define version	0.145
+%define release	1avx
 
 Summary:	Hardware identification and configuration data
 Name:		%{name}
@@ -24,6 +24,9 @@ such as the pci.ids database, the XFree86 Cards and MonitorsDb databases.
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 make install DESTDIR=%{buildroot}
 
+# remove hotplug file, we don't use hotplug or support pcmcia
+rm -rf %{buildroot}%{_sysconfdir}/{hotplug,pcmcia}
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
@@ -31,13 +34,15 @@ make install DESTDIR=%{buildroot}
 %defattr(-,root,root)
 %doc LICENSE COPYING
 %dir /usr/share/hwdata
-%dir /etc/pcmcia
-%config /etc/pcmcia/config
 %config /usr/share/hwdata/*
 # This file is screaming to be moved into /usr/share/hwdata sometime <g>
 /usr/X11R6/lib/X11/Cards
 
 %changelog
+* Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> 0.145-1avx
+- 0.145
+- remove config files for pcmcia and hotplug
+
 * Thu Jun 24 2004 Vincent Danen <vdanen@annvix.org> 0.111-2avx
 - Annvix build
 
