@@ -63,6 +63,7 @@ install -m 0755 %{SOURCE3} %{buildroot}/sbin/$(basename %{SOURCE3})
 mkdir -p %{buildroot}/var/service/tmdns/log
 install -m 0755 %{SOURCE4} %{buildroot}/var/service/tmdns/run
 install -m 0755 %{SOURCE5} %{buildroot}/var/service/tmdns/log/run
+mkdir -p %{buildroot}/var/log/supervise/tmdns
 %endif
 
 %post
@@ -86,6 +87,7 @@ install -m 0755 %{SOURCE5} %{buildroot}/var/service/tmdns/log/run
 %dir /var/service/tmdns/log
 /var/service/tmdns/run
 /var/service/tmdns/log/run
+%dir %attr(0750,nobody,nogroup) /var/log/supervise/tmdns
 %endif
 
 %changelog
