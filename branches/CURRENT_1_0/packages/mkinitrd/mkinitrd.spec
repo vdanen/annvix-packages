@@ -1,6 +1,6 @@
 %define name	mkinitrd
 %define version 3.4.43
-%define release 18avx
+%define release 19avx
 %define epoch	1
 
 %define use_dietlibc 0
@@ -88,6 +88,9 @@ rm -f %{buildroot}%{_mandir}/*/grubby*
 %{_mandir}/*/*
 
 %changelog
+* Fri Feb 04 2005 Vincent Danen <vdanen@annvix.rg> 3.4.43-19avx
+- rebuild against new dietlibc
+
 * Wed Jan 19 2005 Vincent Danen <vdanen@annvix.rg> 3.4.43-18avx
 - pull nash out of mkinitrd-4.1.18 (fedora)
 - P4: mdk patches against this version of nash

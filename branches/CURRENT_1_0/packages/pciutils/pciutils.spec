@@ -1,6 +1,6 @@
 %define name	pciutils
 %define version	2.1.99.test8
-%define release	1avx
+%define release	2avx
 
 %define rver	2.1.99-test8
 
@@ -92,6 +92,9 @@ install lib/libpci_loader_a %{buildroot}%{_libdir}/libpci_loader.a
 %{_includedir}/pci
 
 %changelog
+* Fri Feb 04 2005 Vincent Danen <vdanen@annvix.org> 2.1.99-test8-2avx
+- rebuild against new dietlibc
+
 * Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> 2.1.99-test8-1avx
 - 2.1.99-test8
 - sync patches with Fedora (P5, P6)

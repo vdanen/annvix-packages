@@ -1,6 +1,6 @@
 %define	name	ipsvd
 %define	version	0.10.1
-%define	release	1avx
+%define	release	2avx
 
 Summary:	Internet protocol service daemons
 Name:		%{name}
@@ -95,6 +95,9 @@ install -m0644 %{name}-%{version}/man/*.8 %{buildroot}%{_mandir}/man8/
 %attr(0644,root,root) %{_mandir}/man8/tcpsvd.8*
 
 %changelog
+* Fri Feb 04 2005 Vincent Danen <vdanen@annvix.org> 0.10.1-2avx
+- rebuild against new dietlibc
+
 * Thu Jan 20 2005 Vincent Danen <vdanen@annvix.org> 0.10.1-1avx
 - 0.10.0
 - take an updated P0 from mdk but fix it

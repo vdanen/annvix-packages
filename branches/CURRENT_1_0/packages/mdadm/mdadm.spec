@@ -1,6 +1,6 @@
 %define name	mdadm
 %define version	1.6.0
-%define release	4avx
+%define release	5avx
 
 %define use_dietlibc 0
 %ifarch %{ix86}
@@ -90,6 +90,9 @@ install -m 0755 %{SOURCE3} %{buildroot}%{_srvdir}/mdadm/log/run
 %{_srvdir}/mdadm/log/run
 
 %changelog
+* Fri Feb 04 2005 Vincent Danen <vdanen@annvix.org> 1.6.0-5avx
+- rebuild against new dietlibc
+
 * Tue Oct 05 2004 Vincent Danen <vdanen@annvix.org> 1.6.0-4avx
 - rebuild with updated scripts; seems I forgot to increment the revision
 
