@@ -1,6 +1,7 @@
 %define name	basesystem
 %define version 1.0
-%define release 3sls
+%define release 4sls
+%define epoch	1
 
 #rh-7.0-2
 
@@ -8,7 +9,7 @@ Summary:	The skeleton package which defines a simple OpenSLS system.
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
-Epoch:		1
+Epoch:		%{epoch}
 License:	GPL
 Group:		System/Base
 
@@ -20,30 +21,28 @@ Requires:	e2fsprogs etcskel findutils grep gzip kernel less
 Requires:	logrotate losetup mingetty modutils mount net-tools passwd procps
 Requires:	psmisc mandrake-release rootfiles rpm sash shadow-utils 
 Requires:	stat sysklogd tar termcap time util-linux vim
-Requires:	crond which perl-base common-licenses srv daemontools ucspi-tcp
+Requires:	crond which perl-base common-licenses srv daemontools ucspi-tcp afterboot
+Requires:	bootloader
 Requires:	ldconfig
 Requires:	libgcc >= 3.2-1mdk
 # (gb) Add timezone database here for now before moving it to DrakX
 Requires:	timezone
 %ifarch %ix86
-Requires:	lilo mkbootdisk
-%endif
-%ifarch alpha
-Requires:	aboot
+Requires:	mkbootdisk
 %endif
 %ifarch sparc sparc64
-Requires:	silo mkbootdisk
+Requires:	mkbootdisk
 %endif
-# (sb) need pdisk hfsutils ybin mktemp to setup bootloader PPC
+# (sb) need pdisk hfsutils mktemp to setup bootloader PPC
 %ifarch ppc
-Requires:	pdisk hfsutils ybin mktemp mkinitrd pmac-utils
+Requires:	pdisk hfsutils mktemp mkinitrd pmac-utils
 %endif
 # (fg) 20001027 ia64 uses eli as a bootloader
 %ifarch ia64
-Requires:	elilo mkinitrd
+Requires:	mkinitrd
 %endif
 %ifarch x86_64
-Requires:	lilo mkbootdisk
+Requires:	mkbootdisk
 %endif
 
 %description
@@ -55,6 +54,11 @@ should never be removed.
 %files
 
 %changelog
+* Tue Mar 02 2004 Vincent Danen <vdanen@opensls.org> 1.0-4sls
+- Requires: afterboot
+- remove specific requires for bootloaders for multiple archs, instead make
+  sure they all provide "bootloader" and Requires: bootloader
+
 * Sat Jan 31 2004 Vincent Danen <vdanen@opensls.org> 1.0-3sls
 - Requires: crond, not dcron or any specific flavour of cron
 
