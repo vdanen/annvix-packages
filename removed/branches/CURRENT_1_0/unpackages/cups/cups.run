@@ -52,10 +52,10 @@ if !(export LC_ALL=C; /sbin/ifconfig | /bin/egrep "^lo +[^ ]+.*Loopback" > /dev/
   fi
   # Check whether a USB printer is configured and if so, but if the
   # USB printer kernel module not being loaded, load the module.
-  if (/bin/egrep "^[^#]*/dev/usb" /etc/cups/printers.conf > /dev/null 2>&1); then
-	if !(export LC_ALL=C; /sbin/lsmod | /bin/egrep "^printer +" > /dev/null 2>&1); then
+  if (/bin/egrep "^[^#]*DeviceURI.*usb" /etc/cups/printers.conf > /dev/null 2>&1); then
+	if !(export LC_ALL=C; /sbin/lsmod | /bin/egrep "^(printer|usblp) +" > /dev/null 2>&1); then
 	  echo "Loading USB printer kernel module ..."
-	  modprobe printer > /dev/null 2>&1;
+	  modprobe printer usblp > /dev/null 2>&1;
 	  if [ $? -ne 0 ]; then
 	    echo
 	    echo "WARNING: USB printer kernel module could not be loaded, your USB printer may"
@@ -74,4 +74,5 @@ if [ -x /usr/sbin/correctcupsconfig ]; then
   /usr/sbin/correctcupsconfig
 fi
 
-exec /usr/sbin/cupsd -f 2>&1
+exec 2>&1
+exec /usr/sbin/cupsd -f

@@ -1,12 +1,10 @@
 %define name	cups
-%define version	1.1.19
-%define release	13sls
+%define version	1.1.20
+%define release	1sls
 
 %define major	2
 %define libname	%mklibname cups %{major}
 %define real_version %{version}
-
-%{!?build_opensls:%global build_opensls 0}
 
 Summary:	Common Unix Printing System - Server package
 Name:		%{name}
@@ -16,25 +14,17 @@ License:	GPL
 Group:		System/Servers
 URL:		http://www.cups.org
 Source:		ftp://ftp.easysw.com/pub/cups/%{real_version}/%{name}-%{real_version}-source.tar.bz2
-#Source:	ftp://ftp.easysw.com/pub/cups/%{real_version}/cups-cvs20030226.tar.bz2
 # Small C program to get list of all installed PPD files
 Source1:	poll_ppd_base.c.bz2
 # Small C program to list the printer-specific options of a particular printer
 Source2:	lphelp.c.bz2
 # Icon for the Mandrake menu
 Source3:	cups.png.bz2
-# Complete replacement for startup script to have it the
-# Mandrake way
-Source5:	cups.startup.bz2
 # Script for cleaning up the PPD files
 Source6:	cleanppd.pl.bz2
 # Perl script for automatic configuration of CUPS, especially access
 # restrictions and broadcasting
 Source7:	correctcupsconfig.bz2
-# Downdated pstops filter due to problems with multiple page documents
-#Source9:	pstops-1.1.6-3.c.bz2
-# Backend filter for HPOJ from Mark Horn (mark@hornclan.com)
-#Source10:	http://www.hornclan.com/~mark/cups/ptal.2002011801.bz2
 # Backend filter for nprint (Novell client) from Mark Horn
 # (mark@hornclan.com)
 Source11:	http://www.hornclan.com/~mark/cups/nprint.2002011801.bz2
@@ -47,27 +37,13 @@ Source16:	cjktexttops.bz2
 Source20:	cups.run
 Source21:	cups-log.run
 Patch1:		cups-1.1.15-cupsdconf.patch.bz2
-Patch2:		cups-1.1.9-nopassword.patch.bz2
-#Patch4:	cups-1.1.3-mimetypes.patch.bz2
-#Patch5:	cups-1.1.3-mdktestpage.patch.bz2
+Patch2:		cups-1.1.20-nopassword.patch.bz2
 Patch6:		cups-1.1.16-pamconfig.patch.bz2
-#Patch6:	cups-1.1.3-pamconfig.patch.bz2
 Patch7:		cups-1.1.5-documentationhtml.patch.bz2
 Patch8:		cups-1.1.5-ENCRYPTIONtxt.patch.bz2
 Patch9:		cups-1.1.6-lp-lpr.patch.bz2
-#Patch10:	cups-1.1.6-3-cgi-bin.patch.bz2
-#Patch11:	cups-1.1.6-pstoraster-gcc-2.96.patch.bz2
-#Patch12:	cups-1.1.9-ownerships.patch.bz2
-#Patch13:	cups-1.1.9-ipph-ippmaxattrvalues.patch.bz2
-#Patch14:	cups-1.1.13-ipp-security.patch.bz2
-#Patch15:	cups-1.1.15-lib64.patch.bz2
-#Patch16:	cups-1.1.15-background.patch.bz2
-#Patch17:	cups-1.1.15-a2ps-landscape-fix.patch.bz2
-#Patch18:	cups-1.1.17-idefense.patch.bz2
-#Patch19:	cups-1.1.18-usb-serialnumber.patch.bz2
-#Patch20:	cups-1.1.18-hstrerror.patch.bz2
-#Patch21:	cups-1.1.19-ipp.c.patch.bz2
 Patch22:	cups-1.1.19-dont-broadcast-localhost.patch.bz2
+Patch23:	cups-1.1.20-SN-in-printer-id.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-buildroot
 BuildRequires:	autoconf2.5, openssl-devel, pam-devel, libopenslp-devel
@@ -152,20 +128,7 @@ to install this package when one has no serial port printer.
 
 
 %prep
-
-# Released version
-rm -rf $RPM_BUILD_DIR/%{name}-%{real_version}
 %setup -q -n %{name}-%{real_version}
-
-#CVS version
-rm -rf $RPM_BUILD_DIR/%{name}
-#setup -q -n %{name}
-
-# Downdated pstops filter due to problems with multiple page documents
-#bzcat %{SOURCE9} > $RPM_BUILD_DIR/%{name}-%{real_version}/filter/pstops.c
-
-# Do NEVER use cups.suse (this package is for Mandrake)
-#cp -f data/cups.pam data/cups.suse
 
 # Configure CUPS to allow broadcasting and access to the local printers
 # from/to all machines in the local network, but no PPP-connected machines
@@ -175,10 +138,6 @@ rm -rf $RPM_BUILD_DIR/%{name}
 # KUPS also when root has no password (makes CUPS more convenient for
 # home users without network
 %patch2 -p0
-# Apply a bugfix of HPGL recognition in /etc/cups/mime.types
-#patch4 -p0
-# "Mandrakize" test page
-#patch5 -p0
 # Adapt PAM configuration to Linux Mandrake
 %patch6 -p1
 # Link to the instructions for setting up encrypted connections on the
@@ -191,31 +150,6 @@ rm -rf $RPM_BUILD_DIR/%{name}
 # standard input with "lp" or "lpr". This caused problems when printing
 # to a printer on a Windows server via Samba.
 %patch9 -p0
-# Fix bug of cgi-bin directory going into /etc/cups instead of into
-# /usr/lib/cups
-#patch10 -p0
-# Insert missing "#include" directives in the code of "pstoraster". They are
-# needed by gcc 2.96
-#patch11 -p0
-# "make install" tries to change ownerships with the "install" command.
-# Removed these requests to allow the generation of an RPM as non-root.
-#patch12 -p0
-# On an IPP request any attribute of the request was limited to have not
-# more than 100 values. On asking for the data for a particular printer
-# one attribute contains all possible values for the "-o media" option of
-# the CUPS lpr command, which are all possible paper sizes, sources, and
-# types together. The Epson Stylus Photo 1290 (A3/11x17, Roll feeder) and 
-# probably also the Epson Stylus Pro series (bigger than A3/11x17) with the
-# GIMP-Print GhostScript driver provide already too many values. ->
-# Raised the number of allowed values to 500. 
-#patch13 -p0
-#Security fix: Fix potential buffer overflow bug when the IPP backend
-#reads the names of attributes.
-#cd cups
-#patch14 -p0
-#cd ..
-# Fix libdir for 64-bit architectures
-#patch15 -p1 -b .lib64
 mv config-scripts/cups-directories.m4 config-scripts/cups-directories.m4.orig
 cat << EOF > config-scripts/cups-directories.m4
 libdir=%{_libdir}
@@ -224,38 +158,19 @@ cat config-scripts/cups-directories.m4.orig >> \
 	config-scripts/cups-directories.m4
 # Need to regenerate configure script
 WANT_AUTOCONF_2_5=1 autoconf
-# Let the starter process of cupsd only exit when cupsd is ready to listen
-# for requests.
-cd scheduler
-#patch16 
-cd ..
-# Fix bug of some applications (as a2ps) do not print correctly in Landscape
-# orientation.
-#patch17
-# Security fixes based on a report from iDEFENSE.
-#patch18
-# Fix of determination of the printer's serial number in
-# /proc/bus/usb/devices
-#patch19 -p1
-# Fix error reporting when gethostbyname fails
-#patch20 -p0
-# Fix daemon crash when one configures a printer with the web interface or
-# adds a queue with the KDE Printing Manager
-#patch21 -p1
 # Make the CUPS daemon not sending broadcast packages with the host name
 # "localhost". In this case the IP address of the appropriate interface
 # is used.
 %patch22 -p0
+# Recognize also an "SN:" field in the USB printer ID string as the serial
+# number (HP PhotoSmart 7760, bug #6534)
+%patch23 -p0
 
 # Let the Makefile not trying to set file ownerships
 perl -p -i -e "s/ -o \\$.CUPS_USER.//" scheduler/Makefile
 perl -p -i -e "s/ -g \\$.CUPS_GROUP.//" scheduler/Makefile
 perl -p -i -e "s/ -o \\$.CUPS_USER.//" systemv/Makefile
 perl -p -i -e "s/ -g \\$.CUPS_GROUP.//" systemv/Makefile
-
-# Fix a bug in swapping out parts of big images
-#perl -p -i -e 's/cupsTempFd/cupsTempFile/' filter/image.c 
-#perl -p -i -e 's/fdopen\(fd, "wb\+"\)/fopen\(img->cachename, "wb\+"\)/' filter/image.c
 
 # Fix Makefiles for german and french translations
 perl -p -i -e 's:images/:../images/:' doc/de/Makefile doc/fr/Makefile
@@ -266,12 +181,6 @@ perl -p -i -e 's:\#application/octet-stream:application/octet-stream:' conf/mime
 # Load additional tools
 bzcat %{SOURCE1} > poll_ppd_base.c
 bzcat %{SOURCE2} > lphelp.c
-# Load menu icon
-bzcat %{SOURCE3} > cups.png
-# Load Mandrake startup script
-bzcat %{SOURCE5} > cups.startup
-# Load HPOJ backend
-#bzcat %{SOURCE10} > ptal
 # Load nprint backend
 bzcat %{SOURCE11} > nprint
 # Load AppleTalk "pap" backend
@@ -299,7 +208,7 @@ bzcat %{SOURCE16} > cjktexttops
 aclocal
 WANT_AUTOCONF_2_5=1 autoconf
 ./configure --libdir=%{_libdir} --enable-ssl --with-docdir=%{_defaultdocdir}/cups
-%ifarch ia64 x86_64
+%ifarch ia64 x86_64 ppc
 export REAL_CFLAGS="$CFLAGS -fPIC"
 %else
 export REAL_CFLAGS="$CFLAGS"
@@ -323,10 +232,7 @@ gcc -olphelp -I. -I./cups -L./cups -lcups lphelp.c
 ##### INSTALL #####
 
 %install
-rm -rf $RPM_BUILD_ROOT
-%if !%{build_opensls}
-mkdir -p $RPM_BUILD_ROOT%{_initrddir}
-%endif
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 make install BUILDROOT=$RPM_BUILD_ROOT
 	     LOGDIR=$RPM_BUILD_ROOT%{_var}/log/cups \
@@ -379,12 +285,6 @@ install -m 755 cjktexttops $RPM_BUILD_ROOT%{_libdir}/cups/filter/
 rm -f $RPM_BUILD_ROOT%{_datadir}/cups/data/testprint.ps
 ln -s %{_datadir}/printer-testpages/testprint.ps $RPM_BUILD_ROOT%{_datadir}/cups/data/testprint.ps
 
-%if !%{build_opensls}
-# install menu icon
-mkdir -p $RPM_BUILD_ROOT%{_iconsdir}/locolor/16x16/apps/
-install -m 644 cups.png $RPM_BUILD_ROOT%{_iconsdir}/locolor/16x16/apps/
-%endif
-
 # install script to call the web interface from the menu
 install -d $RPM_BUILD_ROOT%{_libdir}/cups/scripts/
 cat <<EOF > $RPM_BUILD_ROOT%{_libdir}/cups/scripts/cupsWebAdmin
@@ -408,50 +308,12 @@ fi
 EOF
 chmod a+rx $RPM_BUILD_ROOT%{_libdir}/cups/scripts/cupsWebAdmin
 
-%if %{build_opensls}
-mkdir -p %{buildroot}/var/service/cups/log
-mkdir -p %{buildroot}/var/log/supervise/cups
-install -m 0755 %{SOURCE20} %{buildroot}/var/service/cups/run
-install -m 0755 %{SOURCE21} %{buildroot}/var/service/cups/log/run
-%else
-# entry for xinetd (disabled by default)
-install -d $RPM_BUILD_ROOT%{_sysconfdir}/xinetd.d
-cat <<EOF >$RPM_BUILD_ROOT%{_sysconfdir}/xinetd.d/cups-lpd
-# default: off
-# description: The cups-lpd mini daemon enable cups accepting jobs from a \
-#       remote LPD client (for example a machine with an older distribution \
-#       than Linux Mandrake 7.2 or with a commercial Unix).
-service printer
-{
-	socket_type	= stream
-	protocol	= tcp
-	wait		= no
-	user		= lp
-	server		= %{_libdir}/cups/daemon/cups-lpd
-	server_args	= -o document-format=application/octet-stream
-	disable		= yes
-}                                                                               
-EOF
+mkdir -p %{buildroot}%{_srvdir}/cups/log
+mkdir -p %{buildroot}%{_srvlogdir}/cups
+install -m 0755 %{SOURCE20} %{buildroot}%{_srvdir}/cups/run
+install -m 0755 %{SOURCE21} %{buildroot}%{_srvdir}/cups/log/run
 
-# install menu entry
-mkdir -p $RPM_BUILD_ROOT%{_menudir}
-
-cat <<EOF > $RPM_BUILD_ROOT%{_menudir}/cups
-?package(cups): needs=X11 \
-section=Configuration/Printing \
-title="CUPS WWW admin tool" \
-longtitle="Web-based administration tool for CUPS, works with every browser. Set the $BROWSER environment variable to choose your preferred browser." \
-command="%{_libdir}/cups/scripts/cupsWebAdmin 1>/dev/null 2>/dev/null" \
-icon="%{_iconsdir}/locolor/16x16/apps/cups.png"
-EOF
-%endif
-
-%if %{build_opensls}
 rm -rf $RPM_BUILD_ROOT%{_initrddir}
-%else
-# Install startup script
-install -m 755 cups.startup $RPM_BUILD_ROOT%{_initrddir}/cups
-%endif
 
 # Install script for automatic CUPS configuration
 bzcat %{SOURCE7} > $RPM_BUILD_ROOT%{_sbindir}/correctcupsconfig
@@ -510,27 +372,16 @@ install -m644 cups/debug.h  $RPM_BUILD_ROOT%{_includedir}/cups/
 install -m644 cups/string.h $RPM_BUILD_ROOT%{_includedir}/cups/
 install -m644 config.h $RPM_BUILD_ROOT%{_includedir}/cups/
 
-# Suppress automatic replacement of "echo" by "gprintf" in the CUPS
-# startup script by RPM. This automatic replacement is broken.
-#export DONT_GPRINTIFY=1
-
 
 ##### PRE/POST INSTALL SCRIPTS #####
 
 %post
 /sbin/ldconfig
 # Let CUPS daemon be automatically started at boot time
-%_post_service cups
+%_post_srv cups
 
-%if !%{build_opensls}
-##menu
-%{update_menus}
-%endif
 
 %post common
-# Set permissions/ownerships for lppasswd
-chown lp.root %{_bindir}/lppasswd
-chmod 4755 %{_bindir}/lppasswd
 # Set up update-alternatives entries
 %{_sbindir}/update-alternatives --install %{_bindir}/lpr lpr %{_bindir}/lpr-cups 10 --slave %{_mandir}/man1/lpr.1.bz2 lpr.1.bz2 %{_mandir}/man1/lpr-cups.1.bz2
 %{_sbindir}/update-alternatives --install %{_bindir}/lpq lpq %{_bindir}/lpq-cups 10 --slave %{_mandir}/man1/lpq.1.bz2 lpq.1.bz2 %{_mandir}/man1/lpq-cups.1.bz2
@@ -545,7 +396,7 @@ chmod 4755 %{_bindir}/lppasswd
 
 %preun
 # Let CUPS daemon not be automatically started at boot time any more
-%_preun_service cups
+%_preun_srv cups
 
 %preun common
 if [ "$1" = 0 ]; then
@@ -562,19 +413,13 @@ fi
 %preun -n %{libname}
 /sbin/ldconfig
 
-%if !%{build_opensls}
-%postun
-## menu
-%{update_menus}
-%endif
-
 %postun -n %{libname}
 /sbin/ldconfig
 
 ##### CLEAN UP #####
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 
 ##### FILE LISTS FOR ALL BINARY PACKAGES #####
@@ -592,19 +437,12 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{_sysconfdir}/cups/ppd
 %config(noreplace) %{_sysconfdir}/cups/printers.conf
 %config(noreplace) %{_sysconfdir}/cups/ssl
-%if !%{build_opensls}
-%config(noreplace) %{_initrddir}/cups
-%endif
 %config(noreplace) %{_sysconfdir}/pam.d/cups
-%if %{build_opensls}
-%dir /var/service/cups
-%dir /var/service/cups/log
-/var/service/cups/run
-/var/service/cups/log/run
-%dir %attr(0750,nobody,nogroup) /var/log/supervise/cups
-%else
-%attr(644,root,root) %config(noreplace) %{_sysconfdir}/xinetd.d/cups-lpd
-%endif
+%dir %{_srvdir}/cups
+%dir %{_srvdir}/cups/log
+%{_srvdir}/cups/run
+%{_srvdir}/cups/log/run
+%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/cups
 %dir %{_libdir}/cups
 %{_libdir}/cups/cgi-bin
 %{_libdir}/cups/daemon
@@ -632,11 +470,6 @@ rm -rf $RPM_BUILD_ROOT
 # Because RPM does 'make install' as normal user, this has to be done here
 %dir %attr(0700,lp,root) %{_var}/spool/cups
 %dir %attr(01700,lp,root) %{_var}/spool/cups/tmp
-%if !%{build_opensls}
-# menu entry
-%{_iconsdir}/locolor/16x16/apps/*
-%{_menudir}/*
-%endif
 
 #####cups-common
 %files common
@@ -647,14 +480,14 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/*cups
 %{_bindir}/lphelp
 %{_bindir}/lpoptions
-%{_bindir}/lppasswd
+%attr(4755,lp,root) %{_bindir}/lppasswd
 %{_bindir}/*able
 %{_bindir}/photo_print
 %{_bindir}/poll_ppd_base
 %{_bindir}/cupstestppd
 %{_datadir}/locale/*/*
-%{_mandir}/*/*
-#{_mandir}/*/*/*
+%{_mandir}/*/*/*
+%{_mandir}/man?/*
 
 #####%{libname}
 %files -n %{libname}
@@ -678,6 +511,24 @@ rm -rf $RPM_BUILD_ROOT
 ##### CHANGELOG #####
 
 %changelog
+* Wed Mar 03 2004 Vincent Danen <vdanen@opensls.org> 1.1.20-1sls
+- 1.1.20
+- remove %%build_opensls macros
+- supervise macros
+- hefty spec cleanups
+- don't chown/chmod in %%post but use %%attr in file list for lppasswd
+- sync with 1.1.20-5mdk:
+  - adapted P2 to restructured code of CUPS 1.1.20 (till)
+  - recognize also an "SN:" field in the USB printer ID string as the serial
+    number (HP PhotoSmart 7760, bug 6534) (till)
+  - let CUPS get compieled with "-fPIC" also on PPC systems, otherwise the
+    CUPS-enabled OpenOffice.org there will not compile (thanks to Christiaan
+    Welvaart)
+  - fix bogus ownership on /usr/share/man/LL (tvignaud)
+  - let startup script also automatically load the "usblp" module of kernel
+    2.6.x (till)
+
+
 * Sat Jan 10 2004 Vincent Danen <vdanen@opensls.org> 1.1.19-13sls
 - don't install initscript
 
