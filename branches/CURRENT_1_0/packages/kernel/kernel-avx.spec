@@ -83,11 +83,10 @@
 #
 # Thomas Backlund <tmb@iki.fi>
 
-%define sublevel	26
-%define avxrelease	5
+%define sublevel	29
+%define avxrelease	1
 %define use_patch	0
 
-%{!?build_opensls:%global build_opensls 0}
 %{!?build_annvix:%global build_annvix 0}
 
 # This is only to make life easier for people that creates derivated kernels
@@ -115,6 +114,8 @@
 %define realversion	2.4.%{sublevel}
 %define avxversion	%{realversion}-%{realrelease}
 %define patches_ver	2.4.%{sublevel}-%{patchversion}
+%define owl_version	ow1
+%define owl_kver	2.4.28
 
 # having different top level names for packges means
 # that you have to remove them by hard :(
@@ -134,7 +135,6 @@
 %define build_doc	0
 %define build_source	1
 
-%define build_10 %(if [ `awk '{print $4}' /etc/opensls-release` = 1.0 ];then echo 1; else echo 0; fi)
 %define build_10 %(if [ `awk '{print $4}' /etc/annvix-release` = 1.0 ];then echo 1; else echo 0; fi)
 
 %define build_BOOT	1
@@ -234,7 +234,7 @@ Patch1:		patch-%realversion-%use_patch.bz2
 
 %define requires1	modutils >= 2.4.25-3avx
 
-%define requires2	mkinitrd >= 3.4.43-10avx
+%define requires2	mkinitrd >= 3.4.43-15avx
 %define requires3	bootloader-utils >= 1.6-5avx
 
 %define conflicts	iptables <= 1.2.9-1avx
@@ -255,15 +255,10 @@ Conflicts:	%conflicts
 #
 
 %description
-This package includes a SECURE version of the Linux %{realversion}
-kernel. This package add options for kernel that make it more secure
-for servers and such. See :
+This is the default Annvix kernel version %{realversion} for single-CPU
+systems. It includes security enhancements such as Owl
+(http://www.openwall.com/linux/) patches and RSBAC (http://www.rsbac.org).
 
-For more info on the secure features, go to:
-http://grsecurity.net/features.php
-
-For instructions for update, see:
-http://www.mandrakesecure.net/en/kernelupdate.php
 
 #
 # kernel-smp: Symmetric MultiProcessing kernel
@@ -278,15 +273,10 @@ Requires:	%requires2
 Requires:	%requires3
 
 %description -n %{kname}-smp-%{avxversion}
-This package includes a SECURE 4GB SMP version of the Linux %{realversion}
-kernel. It is required only on machines with two or more CPUs, although it
-should work fine on single-CPU boxes.
-
-For more info on the secure features, go to:
-http://grsecurity.net/features.php
-
-For instructions for update, see:
-http://www.mandrakesecure.net/en/kernelupdate.php
+This is the default Annvix kernel %{realversion} for 4GB SMP systems. It
+includes security enhancements such as Owl (http://www.openwall.com/linux/)
+patches and RSBAC (http://www.rsbac.org).  It is required only on machines
+with two or more CPUs, although it should work find on single-CPU systems.
 
 
 #
@@ -302,15 +292,9 @@ Requires:	%requires2
 Requires:	%requires3
 
 %description -n %{kname}-build-%{avxversion}
-The kernel package contains the Linux kernel (vmlinuz), the core of your
-Mandrake Linux operating system.  The kernel handles the basic functions
-of the operating system:  memory allocation, process allocation, device
-input and output, etc.
-
-This is a base kernel with no security features enabled.
-
-For instructions for update, see:
-http://www.mandrakesecure.net/en/kernelupdate.php
+This is the "build" Anvix kernel version %{realversion}, which does not
+include any security enhancements and is only suitable for dedicated build
+systems that are otherwise adequately secured and non-public.
 
 
 #
@@ -327,9 +311,6 @@ This package includes a trimmed down version of the Linux kernel.
 This kernel is used on the installation boot disks only and should not
 be used for an installed system, as many features in this kernel are
 turned off because of the size constraints.
-
-For instructions for update, see:
-http://www.mandrakesecure.net/en/kernelupdate.php
 
 
 #
@@ -890,6 +871,7 @@ exit 0
 %{_kerneldir}/mm
 %{_kerneldir}/net
 %{_kerneldir}/rsbac
+%{_kerneldir}/linux-%{owl_kver}-%{owl_version}
 %{_kerneldir}/scripts
 %{_kerneldir}/include/acpi
 %{_kerneldir}/include/asm-generic
@@ -925,6 +907,80 @@ exit 0
 %endif
 
 %changelog
+* Wed Jan 19 2005 Vincent Danen <vdanen@annvix.org> 2.4.29-1avx
+- 2.4.29
+
+* Tue Jan 18 2005 Vincent Danen <vdanen@annvix.org> 2.4.29-0.rc3.1avx
+- 2.4.29-rc3
+- rediff SL61, HB33, DL01
+- update config: CONFIG_SCSI_SATA_AHCI=m
+- add RSBAC bugfixes #6 (General: Various small fixes) (SL69) and #9
+  (General: More small fixes) (SL70)
+- remove SL68; it's meant for a 2.6 kernel and interferes with SL69
+
+* Wed Dec 22 2004 Vincent Danen <vdanen@annvix.org> 2.4.28-6avx
+- revert I2O changes on x86_64 to attempt to isolate what's causing the
+  panics in 4avx and 5avx
+- also revert CONFIG_BLK_DEV_RAM_SIZE since the I2O reversion made no
+  difference
+
+* Sun Dec 19 2004 Vincent Danen <vdanen@annvix.org> 2.4.28-5avx
+- remove DEVFS-related comments from x86_64 (see if this makes a difference
+  because 4avx refuses to boot on x86_64)
+- increase CONFIG_BLK_DEV_RAM_SIZE to 32000 on x86_64 (like x86)
+
+* Sat Dec 18 2004 Vincent Danen <vdanen@annvix.org> 2.4.28-4avx
+- add DEVFS-related comments to x86_64 config (similar to x86)
+- disable CONFG_BLK_DEV_XD in x86
+- disable CONFIG_IDE_TASK_IOCTL in x86
+- increase CONFIG_UNIX98_PTY_COUNT to 2048 in x86 (like x86_64)
+- enable CONFIG_I2O in x86_64
+- Requires: mkinitrd >= 3.4.43-15avx; NOTE: mkinitrd has a temporary
+  fix for something that needs to be found in the kernel...  x86
+  requires "mkdevices /dev" in initrd whereas x86_64 is the reverse
+
+* Sat Dec 18 2004 Vincent Danen <vdanen@annvix.org> 2.4.28-3avx
+- spoke too soon... mkinitrd changes work on x86, but the inverse is true
+  for x86_64.. back to the drawing board
+- normalize differences between x86 and x86_64:
+  - disable CONFIG_KHTTPD in x86
+  - disable CONFIG_PHONE* in x86
+  - enable CONFIG_UDF_RW in x86
+  - disable CONFIG_ARCNET* in x86 (ARCnet)
+  - disable CONFIG_TR* in x86 (Token Ring)
+  - disable CONFIG_HAMRADIO/CONFIG_AX25*/etc. in x86 (Amateur/Packet Radio)
+  - disable CONFIG_INPUT_(GAMEPORT|NS558|LIGHTNING|PCIGAME|CS461X|EMU10K1)
+    in x86 (gameports)
+  - disable all remaning joystick drivers (CONFIG_INPUT_*) in x86 and
+    x86_64
+  - disable CONFIG_QIC02_TAPE in x86
+  - disable CONFIG_RADIO_* in x86 and x86_64
+  - enable CONFIG_AUTOFS_FS module in x86
+  - CONFIG_NFS_FS, CONFIG_LOCKD, and CONFIG_SUNRPC compiled in (not
+    module) on x86_64
+  - disable CONFIG_USB_AUDIO, CONFIG_USB_MIDI
+  - disable CONFIG_USB_EMI26 on x86
+  - disable CONFIG_SOUND
+  - config CONFIG_CRYPTO_SHA256 compiled in (not module) on x86_64
+
+* Fri Dec 17 2004 Vincent Danen <vdanen@annvix.org> 2.4.28-2avx
+- enable CONFIG_USB_{KBD,MOUSE} on x86_64
+- wOOp!  kernels boot now... bloody mkinitrd
+
+* Fri Nov 26 2004 Vincent Danen <vdanen@annvix.org> 2.4.28-1avx
+- 2.4.28
+- remove a bunch of patches that are pretty useless for us
+- add Openwall 2.4.28-ow1 patch
+- build reiserfs, xfs, raid/md, and ext3 support into the BOOT kernel
+  rather than as modules
+- remove and add a bunch of other necessary modules for BOOT
+- remove opensls remnants
+- update RSBAC patch to 2.4.28-v1.2.3 (SL61)
+- rediff CE27, DC35, DF05, DL01, DP01, DU01, FS71, SL21, SL01 (drop befs/linuxvfs support), ZT03
+- update configs
+- remove BG03, BG05, DC47, DC50, DC59, DI01, DI02, DI03, FN04, HB33 (merged upstream)
+- don't apply DU30, HB16, HB25
+
 * Wed Aug 04 2004 Thomas Backlund <tmb@annvix.org> 2.4.26-5avx
 - revert DVD-RW write support for now (DI04)
 
