@@ -1,21 +1,21 @@
-%define name attr
+%define name	attr
 %define version 2.4.7
-%define release 2mdk
+%define release 4sls
 
-%define lib_name_orig %mklibname attr
-%define lib_major 1
-%define lib_name %{lib_name_orig}%{lib_major}
+%define lib_name_orig	%mklibname attr
+%define lib_major	1
+%define lib_name	%{lib_name_orig}%{lib_major}
 
-Summary: Utility for managing filesystem extended attributes.
-Name: %{name}
-Version: %{version}
-Release: %{release}
-Source0: %{name}-%{version}.src.tar.bz2
-License: GPL
-Group: System/Kernel and hardware
-BuildRoot: %{_tmppath}/%{name}-buildroot
-Prefix: %{_prefix}
-URL: http://oss.sgi.com/projects/xfs/
+Summary:	Utility for managing filesystem extended attributes.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		System/Kernel and hardware
+URL:		http://oss.sgi.com/projects/xfs/
+Source0:	%{name}-%{version}.src.tar.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-buildroot
 
 %description
 A set of tools for manipulating extended attributes on filesystem
@@ -24,21 +24,21 @@ An attr(1) command is also provided which is largely compatible
 with the SGI IRIX tool of the same name.
 
 %package -n %{lib_name}
-Summary: Main library for %{lib_name_orig}
-Group: System/Libraries
-Provides: %{lib_name_orig} = %{version}-%{release}
+Summary:	Main library for %{lib_name_orig}
+Group:		System/Libraries
+Provides:	%{lib_name_orig} = %{version}-%{release}
 
 %description -n %{lib_name}
 This package contains the library needed to run programs dynamically
 linked with %{lib_name_orig}.
 
 %package -n %{lib_name}-devel
-Summary: Extended attribute static libraries and headers.
-Group: Development/C
-Requires: %{lib_name} = %{version}
-Provides: %{lib_name_orig}-devel = %{version}-%{release}
-Provides: attr-devel = %{version}-%{release}
-Obsoletes: attr-devel
+Summary:	Extended attribute static libraries and headers.
+Group:		Development/C
+Requires:	%{lib_name} = %{version}
+Provides:	%{lib_name_orig}-devel = %{version}-%{release}
+Provides:	attr-devel = %{version}-%{release}
+Obsoletes:	attr-devel
 
 %description -n %{lib_name}-devel
 This package contains the libraries and header files needed to
@@ -63,16 +63,21 @@ then you'll also want to install attr.
 %make
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 make install DIST_ROOT=%{buildroot}/
 make install-dev DIST_ROOT=%{buildroot}/
 make install-lib DIST_ROOT=%{buildroot}/
+
 # fix conflict with man-pages-1.56
-rm -fr $RPM_BUILD_ROOT{%_mandir/man2,%_datadir/doc}
+rm -rf %{buildroot}{%_mandir/man2,%_datadir/doc}
+
+# Remove unpackaged symlinks
+rm -rf %{buildroot}/%{_lib}/libattr.{a,la}
+
 %find_lang %{name}
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post -n %{lib_name} -p /sbin/ldconfig
 %postun -n %{lib_name} -p /sbin/ldconfig
@@ -100,6 +105,15 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/attr/*
 
 %changelog
+* Tue Feb 24 2004 Vincent Danen <vdanen@opensls.org> 2.4.7-4sls
+- remove %%{_prefix}
+- minor spec cleanups
+- remove unpackaged symlinks (stefan)
+
+* Mon Dec 08 2003 Vincent Danen <vdanen@opensls.org> 2.4.7-3sls
+- OpenSLS build
+- tidy spec
+
 * Fri Aug 29 2003 Juan Quintela <quintela@mandrakesoft.com> 2.4.7-2mdk
 - /usr/include/attr belongs to package.
 
