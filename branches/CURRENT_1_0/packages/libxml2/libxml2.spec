@@ -1,6 +1,6 @@
 %define name	libxml2
 %define version	2.5.11
-%define release	3sls
+%define release	4sls
 
 %define major	2
 %define libname	%mklibname xml %{major}
@@ -130,7 +130,6 @@ rm -rf	$RPM_BUILD_ROOT%{_prefix}/doc \
 
 %files utils
 %defattr(-, root, root)
-%doc AUTHORS ChangeLog README Copyright TODO 
 %{_bindir}/xmlcatalog
 %{_bindir}/xmllint
 %{_mandir}/man1/xmlcatalog*
@@ -138,7 +137,6 @@ rm -rf	$RPM_BUILD_ROOT%{_prefix}/doc \
 
 %files -n %{libname}-python
 %defattr(-, root, root)
-%doc AUTHORS ChangeLog README Copyright TODO 
 %doc python/TODO
 %doc python/libxml2class.txt
 %doc python/tests/*.py
@@ -147,7 +145,6 @@ rm -rf	$RPM_BUILD_ROOT%{_prefix}/doc \
 
 %files -n %{libname}-devel
 %defattr(-, root, root)
-%doc AUTHORS ChangeLog README Copyright TODO 
 %doc doc/html/* 
 %{_bindir}/xml2-config
 %{_libdir}/*a
@@ -160,6 +157,10 @@ rm -rf	$RPM_BUILD_ROOT%{_prefix}/doc \
 %{_datadir}/aclocal/*
 
 %changelog
+* Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 2.5.11-4sls
+- remove duplicate docs
+- more complete fix for CAN-2004-0110
+
 * Mon Mar 01 2004 Vincent Danen <vdanen@opensls.org> 2.5.11-3sls
 - remove %%build_opensls macros
 - P2: fix CAN-2004-0110
