@@ -1,6 +1,6 @@
 %define name	hdparm
-%define version 5.4
-%define release 6avx
+%define version 5.6
+%define release 1avx
 
 Summary:	A utility for displaying and/or setting hard disk parameters.
 Name:		%{name}
@@ -34,9 +34,6 @@ install -D -m 0755 hdparm $RPM_BUILD_ROOT/sbin/hdparm
 install -D -m 0644 hdparm.8 $RPM_BUILD_ROOT%_mandir/man8/hdparm.8
 install -D -m 0644 %SOURCE1 $RPM_BUILD_ROOT/etc/sysconfig/harddisks
 
-# 5.4-3mdk (Abel) Move contrib stuff to tpctl, they are for Thinkpad
-# users only
-#install -m755 contrib/{idectl,ultrabayd} $RPM_BUILD_ROOT%_sbindir
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -49,6 +46,10 @@ install -D -m 0644 %SOURCE1 $RPM_BUILD_ROOT/etc/sysconfig/harddisks
 %config(noreplace) /etc/sysconfig/harddisks
 
 %changelog
+* Wed Aug 25 2004 Vincent Danen <vdanen@annvix.org> 5.6-1avx
+- 5.6
+- update /etc/sysconfig/harddisks with more info
+
 * Thu Jun 24 2004 Vincent Danen <vdanen@annvix.org> 5.4-6avx
 - Annvix build
 
