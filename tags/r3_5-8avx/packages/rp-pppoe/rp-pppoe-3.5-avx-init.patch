@@ -1,0 +1,11 @@
+--- rp-pppoe-3.5/scripts/adsl-init.in.org	2004-07-19 09:24:57.000000000 -0600
++++ rp-pppoe-3.5/scripts/adsl-init.in	2004-07-19 09:24:57.000000000 -0600
+@@ -2,7 +2,7 @@
+ #
+ # adsl                     This script starts or stops an ADSL connection
+ #
+-# chkconfig: 2345 99 01
++# chkconfig: 2345 11 01
+ # description: Connects to ADSL provider
+ #
+ # LIC: GPL
