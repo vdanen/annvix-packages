@@ -1,6 +1,6 @@
 %define name	sysklogd
 %define version	1.4.1
-%define release	8sls
+%define release	9sls
 
 # rh 1.4.1-5
 
@@ -12,11 +12,19 @@ License:	GPL
 Group:		System/Kernel and hardware 
 Source:		ftp://sunsite.unc.edu/pub/Linux/system/daemons/%{name}-%{version}rh.tar.bz2
 Source1:	syslogd.run
-Source2:	syslogd-log.run
-Source3:	klogd.run
-Source4:	klogd-log.run
+Source2:	klogd.run
+Source3:	syslog.logrotate
+Source4:	syslog.conf
+Source5:	syslog.sysconfig
 Patch0:		sysklogd-1.4.1rh-opensls.patch.bz2
 Patch1: 	sysklogd-1.4rh-do_not_use_initlog_when_restarting.patch.bz2
+Patch2:		sysklogd-1.4.1-owl-longjmp.diff
+Patch3:		sysklogd-1.4.1-owl-syslogd-create-mode.patch
+Patch4:		sysklogd-1.4.1-alt-owl-syslogd-killing.diff
+Patch5:		sysklogd-1.4.1-caen-owl-klogd-drop-root.diff
+Patch6:		sysklogd-1.4.1-caen-owl-syslogd-bind.patch
+Patch7:		sysklogd-1.4.1-caen-owl-syslogd-drop-root.patch
+Patch8:		sysklogd-1.4.1-owl-syslogd-crunch_list.diff
 
 BuildRoot:	%{_tmppath}/%{name}-root
 
@@ -34,6 +42,14 @@ places, like sendmail logs, security logs, error logs, etc.
 %setup -q -n %{name}-%{version}rh
 %patch0 -p1 -b .slsconf
 %patch1 -p1 -b .initlog
+%patch2 -p1 -b .longjmp
+%patch3 -p1 -b .createmode
+%patch4 -p1 -b .killing
+%patch5 -p1 -b .klogddroproot
+%patch6 -p1 -b .syslogdbind
+%patch7 -p1 -b .syslogddroproot
+%patch8 -p1 -b .crunch_list
+
 
 %build
 %serverbuild
@@ -46,51 +62,32 @@ mkdir -p $RPM_BUILD_ROOT{%{_sysconfdir},%{_bindir},%{_mandir}/man{5,8},%{_sbindi
 make install TOPDIR=$RPM_BUILD_ROOT MANDIR=$RPM_BUILD_ROOT%{_mandir} \
 	MAN_OWNER=`id -nu`
 
-install -m644 redhat/syslog.conf.rhs $RPM_BUILD_ROOT/etc/syslog.conf
+install -m644 %{SOURCE4} $RPM_BUILD_ROOT%{_sysconfdir}/syslog.conf
 
-mkdir -p $RPM_BUILD_ROOT/etc/{rc.d/init.d,logrotate.d,sysconfig}
-install -m644 redhat/syslog.log $RPM_BUILD_ROOT/etc/logrotate.d/syslog
-install -m644 redhat/syslog $RPM_BUILD_ROOT/etc/sysconfig/syslog
+mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/{logrotate.d,sysconfig}
+install -m644 %{SOURCE3} $RPM_BUILD_ROOT%{_sysconfdir}/logrotate.d/syslog
+install -m644 %{SOURCE5} $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/syslog
 
 chmod 755 $RPM_BUILD_ROOT/sbin/syslogd
 chmod 755 $RPM_BUILD_ROOT/sbin/klogd
 
-mkdir -p %{buildroot}%{_srvdir}/{syslogd,klogd}/log
-mkdir -p %{buildroot}%{_srvlogdir}/{syslogd,klogd}
+mkdir -p %{buildroot}%{_srvdir}/{syslogd,klogd}
 install -m 0750 %{SOURCE1} %{buildroot}%{_srvdir}/syslogd/run
-install -m 0750 %{SOURCE2} %{buildroot}%{_srvdir}/syslogd/log/run
-install -m 0750 %{SOURCE3} %{buildroot}%{_srvdir}/klogd/run
-install -m 0750 %{SOURCE4} %{buildroot}%{_srvdir}/klogd/log/run
+install -m 0750 %{SOURCE2} %{buildroot}%{_srvdir}/klogd/run
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %pre
-# Because RPM do not know the difference about a file or a directory,
-# We need to verify if there is no file with the same name as the directory
-# we want to create for the new logdir architecture.
-# If the name is the same and it is a file, rename it to name.old
-for file in mail cron kernel lpr news daemons; do
-	if [ -f /var/log/$file ]; then 
-		mv -f /var/log/$file /var/log/$file.old \
-		&& mkdir /var/log/$file && mv /var/log/$file.old /var/log/$file/$file.old  
-	fi
-done
+%_pre_useradd syslogd /var/empty /bin/false 85
+%_pre_useradd klogd /var/empty /bin/false 84
 
 %post
-# Create each log directory with logfiles : info, warnings, errors :
-for dir in /var/log/{mail,cron,kernel,lpr,news,daemons}; do
-    [ -d $dir ] || mkdir ${dir}
-    for file in $dir/{info,warnings,errors}; do
-        [ -f $file ] || touch $file && chmod 600 $file
-    done
-done
-
 # Create standard logfiles if they do not exist:
 for file in \
- /var/log/{auth.log,syslog,user.log,messages,secure,spooler,boot.log,explanations};
+ /var/log/{auth.log,syslog,user.log,messages,secure,mail.log,cron,kernel,daemons,boot.log};
 do
-    [ -f $file ] || touch $file && chmod 600 $file
+    [ -f $file ] || touch $file && chmod 620 $file && chown root:syslogd $file
 done
 
 %_post_srv syslogd
@@ -102,9 +99,24 @@ done
 
 %postun
 if [ "$1" -ge "1" ]; then
-	/usr/sbin/srv restart klogd > /dev/null 2>&1
 	/usr/sbin/srv restart syslogd > /dev/null 2>&1
+	/usr/sbin/srv restart klogd > /dev/null 2>&1
 fi	
+
+%triggerpostun -- sysklogd < 1.4.1-9sls
+# we're doing a massive overhaul here so we need to be careful to preserve
+# existing logs while moving them since old dir names are now file names
+for i in \
+  /var/log/{cron,kernel,daemons};
+do
+  if [ -d $i ]; then
+      mv $i $i.old && touch $i && chmod 0620 $i && chown root:syslogd $i
+  fi
+done
+if [ -d "/var/log/mail" ]; then
+  mv /var/log/mail /var/log/mail.old
+  touch /var/log/mail.log && chmod 0620 /var/log/mail.log && chown root:syslogd /var/log/mail.log
+fi
 
 
 %files
@@ -113,27 +125,42 @@ fi
 %config(noreplace) %{_sysconfdir}/syslog.conf
 %config(noreplace) %{_sysconfdir}/sysconfig/syslog
 %config(noreplace) %{_sysconfdir}/logrotate.d/syslog
-/sbin/*
+%attr(0700,root,root) /sbin/*
 %{_mandir}/*/*
 %dir %{_srvdir}/syslogd
-%dir %{_srvdir}/syslogd/log
 %{_srvdir}/syslogd/run
-%{_srvdir}/syslogd/log/run
-%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/syslogd
 %dir %{_srvdir}/klogd
-%dir %{_srvdir}/klogd/log
 %{_srvdir}/klogd/run
-%{_srvdir}/klogd/log/run
-%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/klogd
 
 
 %changelog
+* Thu Apr 22 2004 Vincent Danen <vdanen@opensls.org> 1.4.1-9sls
+- merge patches from 1.4.1-owl8 (openwall) (P2-P8)
+  - fix buffer overflows (re: Steve Grubb) and other issues in
+    crunch_list()
+  - klogd and syslogd both run as user klogd/syslogd respectively; be
+    warned!  All syslog files should be owned by syslogd.syslogd now
+  - logfiles are created mode 0600 rather than 0644
+  - klogd is chrooted to /var/empty
+  - syslogd can be told to bind to a specific interface
+  - numerous other small bugfixes/stability fixes
+- add user/group pairs for syslogd/klogd (85/84)
+- update runscripts
+- change perms of sysklogd and klogd to be 0700
+- include our own logrotate file
+- we don't need logging services for these services so remove them
+- syslog.conf and sysconfig/syslog are source files now, so we can remove P1
+- seriously cleanup syslog.conf; instead of logging to
+  /var/log/[fac]/{info,warning,errors} log to /var/log/[fac] (one
+  file to rule them all, one file to find them... bla)
+- we no longer include facilities for lpr, news, uucp, or mdk config tools
+- trigger script to move dir to dir.old and create our new files to move
+  away from the logdir mechanism 
+
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 1.4.1-8sls
 - minor spec cleanups
 
 * Wed Feb 04 2004 Vincent Danen <vdanen@opensls.org> 1.4.1-7sls
-
-
 - remove initscripts
 - supervise scripts
 - rediff/rename P0; we're using svc to restart syslogd for log rotation
