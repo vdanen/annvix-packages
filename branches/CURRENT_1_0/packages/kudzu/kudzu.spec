@@ -1,5 +1,5 @@
 %define name	kudzu
-%define version	1.1.95
+%define version	1.1.111
 %define release	1avx
 
 Summary:	The Red Hat Linux hardware probing tool
@@ -14,11 +14,7 @@ Patch0:		kudzu-1.1.95-avx-python2.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-root
 BuildPrereq:	pciutils-devel >= 2.1.11-1, python-devel python newt-devel
-%ifarch %{ix86}
-BuildPrereq:	dietlibc
-%endif
 
-Obsoletes:	rhs-hwdiag setconsole
 Prereq:		chkconfig, modutils >= 2.3.11-5, initscripts
 Requires:	pam >= 0.74-17, hwdata, python-base
 %ifarch x86_64 amd64
@@ -88,6 +84,10 @@ install -m 0755 fix-mouse-psaux %{buildroot}%{_sbindir}
 %{_includedir}/kudzu
 
 %changelog
+* Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> - 1.1.95-1avx
+- 1.1.111
+- don't build with dietlibc anymore
+
 * Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> - 1.1.95-1avx
 - 1.1.95
 - update url
