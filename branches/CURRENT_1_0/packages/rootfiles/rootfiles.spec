@@ -1,16 +1,15 @@
 %define name	rootfiles
 %define version	9.1
-%define	release	3avx
+%define	release	4avx
 
 Summary:	The basic required files for the root user's directory
 Name:		%{name}
-# MODIFY IN THE CVS !!
 Version:	%{version}
 Release:	%{release}
 License:	Public Domain
 Group:		System/Base
 Source:		%name-%version.tar.bz2
-Patch0:		rootfiles-rootwarning.patch.bz2
+Patch0:		rootfiles-9.1-avx-rootwarning.patch.bz2
 
 BuildRoot:	%_tmppath/%name-%version-%release-root
 BuildArch:	noarch
@@ -46,6 +45,11 @@ make install RPM_BUILD_ROOT=%buildroot
 %attr(0700,root,root) /root/tmp/
 
 %changelog
+* Mon Jul 19 2004 Vincent Danen <vdanen@annvix.org> 9.1-4avx
+- update P0 so that if one connects via rsync (where logname is undefined)
+  the error doesn't go to STDOUT
+- patch policy
+
 * Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 9.1-3avx
 - Annvix build
 

@@ -3,7 +3,7 @@
 @@ -1,5 +1,10 @@
  # .bashrc
  
-+if [ "`logname`" == "`whoami`" ]; then
++if [ "`logname 2>/dev/null`" == "`whoami`" ]; then
 +  echo ""
 +  echo "Don't login as root; use sudo"
 +fi
