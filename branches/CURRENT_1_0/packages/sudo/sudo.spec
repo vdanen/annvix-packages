@@ -1,15 +1,14 @@
-# use fakeroot -ba sudo.spec to build!
-%define pre p5
+%define name	sudo
+%define version	1.6.7
+%define release	0.p5.2sls
 
-%define build_71 0
-%if %build_71
-%define _sysconfdir /etc
-%endif
+# use fakeroot -ba sudo.spec to build!
+%define pre	p5
 
 Summary:	Allows command execution as root for specified users.
-Name:		sudo
-Version:	1.6.7
-Release:	0.p5.1mdk
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
 Epoch:		1
 License:	GPL
 Group:		System/Base
@@ -21,8 +20,10 @@ Source1:	ftp://ftp.courtesan.com:/pub/sudo/%name-%version%pre.tar.gz.sig
 Source:		ftp://ftp.courtesan.com:/pub/sudo/%name-%version.tar.gz
 Source1:	ftp://ftp.courtesan.com:/pub/sudo/%name-%version.tar.gz.sig
 %endif
+
 BuildRoot:	%_tmppath/%name-%version
 BuildRequires:  pam-devel
+
 Requires:	/etc/pam.d/system-auth
 
 %description
@@ -44,17 +45,8 @@ CFLAGS="$RPM_OPT_FLAGS -D_GNU_SOURCE" \
 if [ -d $RPM_BUILD_ROOT ]; then rm -rf $RPM_BUILD_ROOT; fi
 mkdir -p $RPM_BUILD_ROOT/usr
 
-%if %build_71
-make prefix=$RPM_BUILD_ROOT/usr sysconfdir=$RPM_BUILD_ROOT/etc \
- install_uid=$UID install_gid=$(id -g) sudoers=uid=$UID sudoers_gid=$(id -g) \
- install
-make prefix=$RPM_BUILD_ROOT/usr sysconfdir=$RPM_BUILD_ROOT/etc \
- install_uid=$UID install_gid=$(id -g) sudoers=uid=$UID sudoers_gid=$(id -g) \
- install-sudoers
-%else
 %makeinstall \
 install_uid=$UID install_gid=$(id -g) sudoers=uid=$UID sudoers_gid=$(id -g)
-%endif
 
 mkdir -p $RPM_BUILD_ROOT/var/run/sudo
 chmod 700 $RPM_BUILD_ROOT/var/run/sudo
@@ -97,6 +89,11 @@ if [ -d $RPM_BUILD_ROOT ]; then rm -rf $RPM_BUILD_ROOT; fi
 /var/run/sudo
 
 %changelog
+* Mon Dec 08 2003 Vincent Danen <vdanen@opensls.org> 1:1.6.7-0.p5.2sls
+- OpenSLS build
+- tidy spec
+- remove %%build_71 macro
+
 * Fri Jul 18 2003 Warly <warly@mandrakesoft.com> 1:1.6.7-0.p5.1mdk
 - keed gz format and and site signature
 - new version
