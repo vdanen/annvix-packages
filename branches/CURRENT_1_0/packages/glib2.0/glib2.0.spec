@@ -15,8 +15,8 @@
 %define lib_name	%mklibname %{name}_ %{lib_major}
 
 %define major_version 2
-%define minor_version 4
-%define micro_version 6
+%define minor_version 6
+%define micro_version 3
 
 Summary:	GIMP Toolkit and GIMP Drawing Kit support library
 Name:		%{name}
@@ -25,7 +25,7 @@ Release:	%{release}
 License:	LGPL
 Group:		System/Libraries
 URL:		http://www.gtk.org
-Source0:	ftp://ftp.gnome.org/pub/GNOME/sources/glib/glib-%{version}.tar.bz2
+Source0:	ftp://ftp.gnome.org/pub/GNOME/sources/glib/%{major_version}.%{minor_version}/glib-%{version}.tar.bz2
 Source1:	glib20.sh.bz2
 Source2:	glib20.csh.bz2
 
@@ -168,6 +168,10 @@ chmod a+x  $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/*
 %{_datadir}/glib-%{api_version}
 
 %changelog
+* Mon Feb 28 2005 Vincent Danen <vdanen@annvix.org> 2.6.3-1avx
+- 2.6.3
+- fix download url
+
 * Sun Sep 12 2004 Vincent Danen <vdanen@annvix.org> 2.4.6-1avx
 - 2.4.6
 
