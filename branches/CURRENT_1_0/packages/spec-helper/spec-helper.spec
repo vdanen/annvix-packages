@@ -1,6 +1,6 @@
 %define name	spec-helper
-%define version 0.9.2
-%define release 6avx
+%define version 0.11
+%define release 1avx
 
 %define distrib	Annvix
 
@@ -12,13 +12,13 @@ License:	GPL
 Group:		Development/Other
 URL:		http://www.mandrakelinux.com
 # get the source from our cvs repository (see
-# http://www.linuxmandrake.com/en/cvs.php3)
+# http://www.mandrakelinux.com/en/cvs.php3)
 Source0:	%{name}-%{version}.tar.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
 BuildArch:	noarch
 
-Requires:	perl /sbin/ldconfig findutils /usr/bin/python gettext
+Requires:	perl ldconfig findutils python gettext
 
 %description
 Tools to ease the creation of rpm packages for the %{distrib} distribution.
@@ -31,7 +31,7 @@ Compress man pages using bzip2, strip executables, convert links...
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-make install DESTDIR=$RPM_BUILD_ROOT bindir=%{buildroot}/%{_bindir}
+make install DESTDIR=%{buildroot} bindir=%{buildroot}/%{_bindir}
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -43,6 +43,12 @@ make install DESTDIR=$RPM_BUILD_ROOT bindir=%{buildroot}/%{_bindir}
 %{_datadir}/spec-helper
 
 %changelog
+* Fri Mar 04 2005 Vincent Danen <vdanen@annvix.org> 0.11-1avx
+- 0.11
+  - handle filenames starting with - (flepid)
+  - other cleanups and speedups (tvignaud)
+  - use " around the section name in spec-helper (flepied)
+
 * Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 0.9.2-6avx
 - Annvix build
 
