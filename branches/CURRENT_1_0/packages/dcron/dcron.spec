@@ -1,6 +1,6 @@
 %define	name	dcron
 %define	version	2.9
-%define	release	1sls
+%define	release	2sls
 
 Summary:	Dillon's Cron Daemon
 Name:		%{name}
@@ -18,14 +18,16 @@ Source2:	dcron-log.run
 # ftp://ftp.icm.edu.pl/vol/rzm3/openpkg/current/SRC/dcron-2.9-20031020.src.rpm
 Patch0:		dcron29-dietlibc-patch.diff.bz2
 
+BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildRequires:	dietlibc-devel >= 0.20-1mdk
+
 #PreReq:		MTA vim
 PreReq:		rpm-helper
 PreReq:		srv
 PreReq:		daemontools
 PreReq:		crontabs
 Conflicts:	vixie-cron
-BuildRequires:	dietlibc-devel >= 0.20-1mdk
-BuildRoot:	%{_tmppath}/%{name}-buildroot
+Provides:	crond
 
 %description
 A multiuser cron written from scratch, dcron is follows concepts
@@ -38,7 +40,7 @@ paid to feature development in favor of usability and reliability.
 %patch -p1
 
 %build
-make CC="diet gcc" CFLAGS="-Os -wall"
+make CC="gcc" CFLAGS="%{optflags}"
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -58,11 +60,9 @@ install -d %{buildroot}/var/log/supervise/crond
 install -m0755 %{SOURCE1} %{buildroot}/var/service/crond/run
 install -m0755 %{SOURCE2} %{buildroot}/var/service/crond/log/run
 
-%pre
+%post
 echo "Adding the system crontab to emulate vixie-cron"
 %{_bindir}/crontab %{_sysconfdir}/crontab
-
-%post
 %_post_srv crond
 
 %preun
@@ -87,6 +87,13 @@ echo "Adding the system crontab to emulate vixie-cron"
 %dir %attr(0750,nobody,nogroup) /var/log/supervise/crond
 
 %changelog
+* Sat Jan 31 2004 Vincent Danen <vdanen@opensls.org> 2.9-2sls
+- can't build with dietlibc because we lose the ability to do lookups via
+  NSS which causes problems with LDAP-based users
+- Provides: crond
+- move the %%pre stuff to %%post since crontab doesn't exist before it's
+  installed
+
 * Sat Jan 31 2004 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.9-1sls
 - initial package
 - added P0, S1 & S2
