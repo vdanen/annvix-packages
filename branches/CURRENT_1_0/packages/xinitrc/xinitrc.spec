@@ -1,12 +1,6 @@
-# Don't edit the src.rpm directly.
-# Edit this file in the CVS module xinitrc and use make rpm to build
-# the rpms.
-#
-# $Id: xinitrc.spec,v 1.67 2003/09/04 15:16:36 flepied Exp $
-
 %define name    xinitrc
 %define version 2.4.4
-%define release 78sls
+%define release 79avx
 
 Summary:	The default startup script for the X Window System
 Name:		%{name}
@@ -56,6 +50,9 @@ make install R=$RPM_BUILD_ROOT/
 %config(noreplace) /etc/X11/xinit.d/Mod_Meta_L_Disable
 
 %changelog
+* Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 2.4.4-79avx
+- Annvix build
+
 * Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 2.4.4-78sls
 - minor spec cleanups
 

@@ -1,6 +1,6 @@
 %define name	zsh
 %define version	4.1.1
-%define release	7sls
+%define release	8avx
 %define epoch	1
 
 %define doc_version 4.1.1
@@ -114,6 +114,9 @@ rm -f $RPM_BUILD_ROOT%_bindir/zsh-%full_preversion
 
 
 %changelog
+* Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 4.1.1-8avx
+- Annvix build
+
 * Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 4.1.1-7sls
 - minor spec cleanups
 - don't even process doc files
