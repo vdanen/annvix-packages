@@ -1,8 +1,6 @@
 %define name	python
 %define version	2.3
-%define release	6sls
-
-%{!?build_opensls:%define build_opensls 0}
+%define release	7sls
 
 %define docver  2.3
 %define dirver  2.3
@@ -18,7 +16,6 @@ Release:	%{release}
 License:	Modified CNRI Open Source License
 Group:		Development/Python
 URL:		http://www.python.org/
-Icon:		python-logo.xpm
 
 Source:		http://www.python.org/ftp/python/%{version}/Python-%{version}.tar.bz2
 Source1:	http://www.python.org/ftp/python/doc/%{docver}/html-%{docver}.tar.bz2
@@ -43,9 +40,6 @@ BuildRoot:	%_tmppath/%name-%version-%release-root
 BuildRequires:	XFree86-devel 
 BuildRequires:	blt
 BuildRequires:	db2-devel, db4-devel
-%if !%{build_opensls}
-BuildRequires:	emacs-bin
-%endif
 BuildRequires:	expat-devel
 BuildRequires:	gdbm-devel 
 BuildRequires:	gmp-devel
@@ -108,22 +102,6 @@ python package will also need to be installed.  You'll probably also
 want to install the python-docs package, which contains Python
 documentation.
 
-%if !%{build_opensls}
-%package docs
-Summary:	Documentation for the Python programming language
-Icon:		python-docs-logo.xpm
-Requires:	python = %version-%release
-Group:		Development/Python
-
-%description docs
-The python-docs package contains documentation on the Python
-programming language and interpreter.  The documentation is provided
-in ASCII text files and in LaTeX source files.
-
-Install the python-docs package if you'd like to use the documentation
-for the Python language.
-%endif
-
 %package -n tkinter
 Summary:	A graphical user interface for the Python scripting language
 Group:		Development/Python
@@ -175,7 +153,7 @@ export OPT
 make test TESTOPTS="-l -x test_linuxaudiodev"
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p $RPM_BUILD_ROOT%{_prefix}
 
 # fix Makefile to get rid of reference to distcc
@@ -194,19 +172,6 @@ mkdir -p $RPM_BUILD_ROOT%{_mandir}
 # Provide a libpython%{dirver}.so symlink in /usr/lib/puthon*/config, so that
 # the shared library could be found when -L/usr/lib/python*/config is specified
 (cd $RPM_BUILD_ROOT%{_libdir}/python%{dirver}/config; ln -sf ../../libpython%{lib_major}.so .)
-
-%if !%{build_opensls}
-# emacs, I use it, I want it
-mkdir -p $RPM_BUILD_ROOT%{_datadir}/emacs/site-lisp
-install -m 644 Misc/python-mode.el $RPM_BUILD_ROOT%{_datadir}/emacs/site-lisp
-emacs -batch -f batch-byte-compile $RPM_BUILD_ROOT%{_datadir}/emacs/site-lisp/python-mode.el
-
-install -d $RPM_BUILD_ROOT%{_sysconfdir}/emacs/site-start.d
-cat <<EOF >$RPM_BUILD_ROOT%{_sysconfdir}/emacs/site-start.d/%{name}.el
-(setq auto-mode-alist (cons '("\\\\.py$" . python-mode) auto-mode-alist))
-(autoload 'python-mode "python-mode" "Mode for python files." t)
-EOF
-%endif
 
 # idle
 cp Tools/scripts/idle $RPM_BUILD_ROOT%{_bindir}/idle
@@ -242,22 +207,8 @@ done >> modules-list.full
 sed -e "s|$RPM_BUILD_ROOT||g" < modules-list.full > modules-list
 
 
-# menu support
-mkdir -p $RPM_BUILD_ROOT%{_menudir}
-cat > $RPM_BUILD_ROOT/%{_menudir}/tkinter << EOF
-?package(tkinter): needs=x11 \
-section="Applications/Development/Development environments" \
-title="IDLE" \
-longtitle="IDE for Python" \
-command="%{_bindir}/idle" \
-icon="development_environment_section.png"
-EOF
-
 rm -f include.list main.list
 bzcat %{SOURCE2} | sed 's@%%{_libdir}@%{_libdir}@' > include.list
-%if !%{build_opensls}
-MODULESEXTRA="%{_datadir}/emacs/site-lisp/python-mode.el*"
-%endif
 cat >> modules-list << EOF
 %{_bindir}/python
 %{_bindir}/python2.3
@@ -284,7 +235,7 @@ LD_LIBRARY_PATH=$RPM_BUILD_ROOT%{_libdir} $RPM_BUILD_ROOT%{_bindir}/python %{SOU
 chmod 644 $RPM_BUILD_ROOT%{_libdir}/python*/test/test_{binascii,grp,htmlparser}.py*
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 rm -f modules-list main.list
 
 %files -f main.list
@@ -292,9 +243,6 @@ rm -f modules-list main.list
 %dir %{_libdir}/python*
 %dir %{_libdir}/python*/lib-dynload
 %dir %{_libdir}/python*/site-packages
-%if !%{build_opensls}
-%config(noreplace) %{_sysconfdir}/emacs/site-start.d/%{name}.el
-%endif
 
 %files -n %{lib_name}
 %defattr(-,root,root)
@@ -309,12 +257,6 @@ rm -f modules-list main.list
 %{_libdir}/python*/test/*
 
 
-%if !%{build_opensls}
-%files docs
-%defattr(-,root,root,755)
-%doc html/*
-%endif
-
 %files -n tkinter
 %defattr(-, root, root, 755)
 %dir %{_libdir}/python*/lib-tk
@@ -323,7 +265,6 @@ rm -f modules-list main.list
 %{_libdir}/python*/idlelib
 %{_libdir}/python*/site-packages/modulator
 %{_libdir}/python*/site-packages/pynche
-%{_menudir}/tkinter
 %{_bindir}/idle
 %{_bindir}/pynche
 %{_bindir}/modulator
@@ -334,13 +275,12 @@ rm -f modules-list main.list
 %post -n %{lib_name} -p /sbin/ldconfig
 %postun -n %{lib_name} -p /sbin/ldconfig
 
-%post -n tkinter
-%update_menus
-
-%postun -n tkinter
-%clean_menus
-
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 2.3-7sls
+- minor spec cleanups
+- remove %%build_opensls macro
+- remove menu entry for tkinter
+
 * Wed Dec 31 2003 Vincent Danen <vdanen@opensls.org> 2.3-6sls
 - sync with 4mdk (gbeauchesne): fix mklibnamification
 
