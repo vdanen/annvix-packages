@@ -1,11 +1,11 @@
 %define name	exim
-%define version 4.33
+%define version 4.34
 %define release 1sls
 
 %define build_mysql 0
 %define build_pgsql 0
 %define htmldocver  4.30
-%define exiscanver  4.33-20
+%define exiscanver  4.34-21
 %define saversion   4.0
 
 %define alternatives 1
@@ -41,7 +41,6 @@ Source14:	exim-log.run
 Patch0:		exim-4.33-config.patch.bz2
 Patch1:		http://duncanthrax.net/exiscan-acl/exiscan-acl-%{exiscanver}.patch.bz2
 Patch2:		exim-4.22-install.patch.bz2
-Patch3:		exim-4.33-CAN-2004-0400.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}
 BuildRequires:	tcp_wrappers-devel, pam-devel, openssl, openssl-devel, XFree86-devel, openldap-devel, lynx
@@ -109,7 +108,6 @@ at SMTP time as well as other nasty things like teergrubbing.
 %patch0 -p1 -b .config
 %patch1 -p1 -b .exiscan
 %patch2 -p1 -b .install
-%patch3 -p1 -b .can-2004-0400
 
 # apply the SA-exim dlopen patch
 cat sa-exim*/localscan_dlopen_exim_4.20_or_better.patch | patch -p1
@@ -302,6 +300,11 @@ fi
 %config(noreplace) %{_sysconfdir}/exim/sa-exim_short.conf
 
 %changelog
+* Mon May 10 2004 Vincent Danen <vdanen@opensls.org> 4.34-1sls
+- 4.34
+- exiscan-acl 4.34-21
+- remove P3; integrated upstream
+
 * Sat May 08 2004 Vincent Danen <vdanen@opensls.org> 4.33-1sls
 - 4.33
 - exiscan-acl 4.33-20
