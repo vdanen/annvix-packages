@@ -1,6 +1,6 @@
 %define name	xpm
 %define version	3.4k
-%define release	28sls
+%define release	29sls
 
 %define prefix	/usr/X11R6
 %define	major	4
@@ -80,11 +80,12 @@ cp lib/*.h exports/include/X11
 %make CDEBUGFLAGS="$RPM_OPT_FLAGS" CXXDEBUGFLAGS="$RPM_OPT_FLAGS"
 
 %install
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 make DESTDIR=$RPM_BUILD_ROOT install
 ln -sf libXpm.so.%{LIBVER} $RPM_BUILD_ROOT%prefix/%{_lib}/libXpm.so
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post -n %libname -p /sbin/ldconfig
 %postun -n %libname -p /sbin/ldconfig
@@ -96,14 +97,17 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -n %libnamedev
 %defattr(-,root,root)
-%doc xpm-doc-A4.PS.gz xpm-tutorial.PS.gz xpm-FAQ.html xpm-README.html xpm_examples.tar.bz2
-%doc doc/xpm.PS.gz
+%doc xpm-FAQ.html xpm-README.html xpm_examples.tar.bz2
 %prefix/bin/*
 %prefix/include/X11/*
 %prefix/%{_lib}/libXpm.a
 %prefix/%{_lib}/libXpm.so
 
 %changelog
+* Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 3.4k-29sls
+- minor spec cleanups
+- remove postscript docs
+
 * Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 3.4k-28sls
 - OpenSLS build
 - tidy spec
