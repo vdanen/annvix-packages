@@ -1,6 +1,6 @@
 %define name	XFree86
 %define version 4.3
-%define release 26sls
+%define release 27sls
 
 %{!?build_propolice:%global build_propolice 0}
 
@@ -1824,6 +1824,9 @@ fi
 %{x11libdir}/X11/xedit
 
 %changelog
+* Mon May 10 2004 Vincent Danen <vdanen@opensls.org> 4.3-27sls
+- rebuild against new libutempter
+
 * Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 4.3-26sls
 - minor spec cleanups
 
