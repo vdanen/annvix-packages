@@ -1,6 +1,6 @@
 %define	name	runit
 %define	version	1.0.4
-%define	release	4avx
+%define	release	5avx
 
 Summary:	A UN*X init scheme with service supervision
 Name:		%{name}
@@ -13,7 +13,7 @@ Source0:	%{name}-%{version}.tar.bz2
 Source1:	annvix-runit.tar.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-buildroot
-Requires:	SysVinit >= 2.85-7avx, initscripts, srv
+Requires:	SysVinit >= 2.85-7avx, initscripts, srv, mingetty
 
 Conflicts:	SysVinit <= 2.85-6avx
 
@@ -87,21 +87,7 @@ if [ $1 == "1" ]; then
         rm -f /service/mingetty-tty$i/down
     done
 fi
-%_post_srv mingetty-tty1
-%_post_srv mingetty-tty2
-%_post_srv mingetty-tty3
-%_post_srv mingetty-tty4
-%_post_srv mingetty-tty5
-%_post_srv mingetty-tty6
 
-
-%preun
-%_preun_srv mingetty-tty1
-%_preun_srv mingetty-tty2
-%_preun_srv mingetty-tty3
-%_preun_srv mingetty-tty4
-%_preun_srv mingetty-tty5
-%_preun_srv mingetty-tty6
 
 %files
 %defattr(-,root,root)
@@ -160,6 +146,10 @@ fi
 %attr(0755,root,root) %{_srvdir}/mingetty-tty6/finish
 
 %changelog
+* Tue Sep 14 2004 Vincent Danen <vdanen@annvix.org> 1.0.4-5avx
+- don't ever restart the gettys
+- Requires: mingetty
+
 * Sat Sep 10 2004 Vincent Danen <vdanen@annvix.org> 1.0.4-4avx
 - dammit... works good if you install from remote, but kicks you off your vc
   if you're local, so don't automatically add tty1; the installer will take
