@@ -1,21 +1,25 @@
-%define name slang
+%define name	slang
 %define version 1.4.9
-%define docversion 1.4.8
-%define release 3mdk
-%define major 1
+%define release 4sls
+
+%{!?build_opensls:%global build_opensls 0}
+
+%define docversion	1.4.8
+%define major		1
 %define	lib_name	%mklibname %{name} %{major}
 %define	lib_name_devel	%{lib_name}-devel
 
-Summary: The shared library for the S-Lang extension language.
-Name: %{name}
-Version: %{version}
-Release: %{release}
-License: GPL
-Group: System/Libraries
-Source: ftp://space.mit.edu/pub/davis/slang/slang-%{version}.tar.bz2
-Source1: ftp://space.mit.edu/pub/davis/slang/slang-%{docversion}-doc.tar.bz2
-Url: ftp://space.mit.edu/pub/davis/slang/
-Buildroot: %{_tmppath}/slang-root
+Summary:	The shared library for the S-Lang extension language.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		System/Libraries
+URL:		ftp://space.mit.edu/pub/davis/slang/
+Source:		ftp://space.mit.edu/pub/davis/slang/slang-%{version}.tar.bz2
+Source1:	ftp://space.mit.edu/pub/davis/slang/slang-%{docversion}-doc.tar.bz2
+
+BuildRoot:	%{_tmppath}/slang-root
 
 %description
 S-Lang is an interpreted language and a programming library.  The
@@ -26,10 +30,10 @@ extension language.  S-Lang's syntax resembles C, which makes it easy
 to recode S-Lang procedures in C if you need to.
 
 %package -n %{lib_name}
-Summary: The shared library for the S-Lang extension language.
-Group: System/Libraries
-Provides: slang
-Obsoletes: slang
+Summary:	The shared library for the S-Lang extension language.
+Group:		System/Libraries
+Provides:	slang
+Obsoletes:	slang
 
 %description -n %{lib_name}
 S-Lang is an interpreted language and a programming library.  The
@@ -41,11 +45,11 @@ to recode S-Lang procedures in C if you need to.
 
 
 %package -n %{lib_name_devel}
-Summary: The static library and header files for development using S-Lang.
-Group: Development/C
-Provides: lib%{name}-devel slang-devel
-Obsoletes: slang-devel
-Requires: %{lib_name} = %{version}
+Summary:	The static library and header files for development using S-Lang.
+Group:		Development/C
+Provides:	lib%{name}-devel slang-devel
+Obsoletes:	slang-devel
+Requires:	%{lib_name} = %{version}
 
 %description -n %{lib_name_devel}
 This package contains the S-Lang extension language static libraries
@@ -56,10 +60,11 @@ applications is also included.
 Install the slang-devel package if you want to develop applications
 based on the S-Lang extension language.
 
+%if !%{build_opensls}
 %package doc
-Version: %{docversion}
-Summary: Extra documentation for slang libraries
-Group: Books/Computer books
+Version:	%{docversion}
+Summary:	Extra documentation for slang libraries
+Group:		Books/Computer books
 
 %description doc
 This package contains documentation about S-Lang.
@@ -69,7 +74,7 @@ a program to provide the program with a powerful extension language.
 The S-Lang library, provided in this package, provides the S-Lang
 extension language.  S-Lang's syntax resembles C, which makes it easy
 to recode S-Lang procedures in C if you need to.
-
+%endif
 
 
 %prep
@@ -81,7 +86,9 @@ to recode S-Lang procedures in C if you need to.
 #(peroyvind) passing this to configure does'nt work..
 %make ELF_CFLAGS="$RPM_OPT_FLAGS -fno-strength-reduce -fPIC" elf
 %make all
+%if !%{build_opensls}
 cd doc && tar xjvf %{SOURCE1}
+%endif
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -125,11 +132,18 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_includedir}/slang/
 %{_includedir}/slang/*.h
 
+%if !%{build_opensls}
 %files doc
 %defattr(-,root,root)
 %doc doc COPYING COPYRIGHT README changes.txt NEWS 
+%endif
 
 %changelog
+* Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 1.4.9-4sls
+- OpenSLS build
+- tidy spec
+- use %%build_opensls to prevent building -doc package
+
 * Wed Jul 30 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 1.4.9-3mdk
 - Fix Requires, factor out lib_name
 
