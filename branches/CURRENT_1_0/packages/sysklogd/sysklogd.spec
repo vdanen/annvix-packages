@@ -1,6 +1,6 @@
 %define name	sysklogd
 %define version	1.4.1
-%define release	9sls
+%define release	10sls
 
 # rh 1.4.1-5
 
@@ -134,6 +134,11 @@ fi
 
 
 %changelog
+* Sat May 08 2004 Vincent Danen <vdanen@opensls.org> 1.4.1-10sls
+- make klogd run as root again until we can make the kernel give mode 440
+  perms to /proc/kmsg (and owned root:klogd) so that klogd can actually read
+  from it (otherwise klogd and syslogd consume all the CPU)
+
 * Thu Apr 22 2004 Vincent Danen <vdanen@opensls.org> 1.4.1-9sls
 - merge patches from 1.4.1-owl8 (openwall) (P2-P8)
   - fix buffer overflows (re: Steve Grubb) and other issues in
