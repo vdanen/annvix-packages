@@ -1,6 +1,6 @@
 %define name	urpmi
 %define version	4.6.23
-%define release 1avx
+%define release 2avx
 
 %{expand:%%define compat_perl_vendorlib %(perl -MConfig -e 'printf "%%s\n", "%{?perl_vendorlib:1}" ? "%%{perl_vendorlib}" : "$Config{installvendorlib}"')}
 
@@ -175,6 +175,9 @@ if (-e "/etc/urpmi/urpmi.cfg") {
 %{compat_perl_vendorlib}/urpm/parallel_ssh.pm
 
 %changelog
+* Mon Mar 28 2005 Vincent Danen <vdanen@annvix.org> 4.6.23-2avx
+- sync with 4.6.23-5mdk
+
 * Thu Mar 17 2005 Vincent Danen <vdanen@annvix.org> 4.6.23-1avx
 - 4.6.23
 
