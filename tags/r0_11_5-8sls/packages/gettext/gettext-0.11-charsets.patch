@@ -1,0 +1,15 @@
+--- gettext-0.11/src/po-charset.c.srtxg	Fri Feb  1 14:09:29 2002
++++ gettext-0.11/src/po-charset.c	Fri Feb  1 14:12:44 2002
+@@ -92,6 +92,12 @@
+     "SHIFT_JIS",
+     "JOHAB",
+     "TIS-620",
++  	"WINDOWS-1251", "WINDOWS-1255",
++  	"WINDOWS-1256", "TCVN-5712",
++  	"KOI8-K", "KOI8-T", "ARMSCII-8",
++  	"GEORGIAN-PS", "TSCII", "TSCII-0",  
++    "ISO-8859-9E", "ISO_8859-9E",
++    "ISO-8859-14", "ISO_8859-14",
+     "VISCII",
+     "UTF-8"
+   };
