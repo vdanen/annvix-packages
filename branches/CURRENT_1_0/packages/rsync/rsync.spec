@@ -1,6 +1,6 @@
 %define name	rsync
-%define version	2.5.7
-%define release	4sls
+%define version	2.6.2
+%define release	1sls
 
 Summary:	A program for synchronizing files over a network.
 Name:		%{name}
@@ -9,15 +9,15 @@ Release:	%{release}
 License:	GPL
 Group:		Networking/File transfer
 URL:		http://rsync.samba.org/
-Source:		ftp://rsync.samba.org/pub/rsync/%name-%version.tar.gz.tgz
+Source:		ftp://rsync.samba.org/pub/rsync/%name-%version.tar.gz
 Source1:	rsync.html
 Source2:	rsyncd.conf.html
 Source3:	rsync.xinetd
-Source4:	ftp://rsync.samba.org/pub/rsync/%name-%version.tar.gz.sig.tgz
+Source4:	ftp://rsync.samba.org/pub/rsync/%name-%version.tar.gz.sig
 Source5:	rsync.run
 Source6:	rsync-log.run
 Patch0:		rsync-2.5.4-draksync.patch.bz2
-Patch1:		rsync-2.5.6-nogroup.patch.bz2
+Patch1:		rsync-2.6.0-nogroup.patch.bz2
 
 BuildRoot:	%_tmppath/%name-root
 BuildRequires:	popt-devel
@@ -86,6 +86,10 @@ mkdir -p %{buildroot}%{_srvlogdir}/rsync
 %_mandir/man5/rsyncd.conf.5*
 
 %changelog
+* Mon May 10 2004 Vincent Danen <vdanen@opensls.org> 2.6.2-1sls
+- 2.6.2 (security update for CAN-2004-0426)
+- rediff P1
+
 * Mon Dec 29 2003 Vincent Danen <vdanen@opensls.org> 2.5.7-3sls
 - minor spec cleanups
 - remove %%build_opensls macro
