@@ -1,6 +1,6 @@
 %define name	squid
 %define version	2.5.STABLE5
-%define release	3avx
+%define release	4avx
 
 %define their_version	2.5.STABLE5
 %define p_url   http://www.squid-cache.org/Versions/v2/2.5/bugs
@@ -364,6 +364,9 @@ fi
 %attr(0750,nobody,nogroup) %dir %{_srvlogdir}/squid
 
 %changelog
+* Tue Aug 17 2004 Vincent Danen <vdanen@annvix.org> 2.5.STABLE5-4avx
+- rebuild against new openssl
+
 * Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 2.5.STABLE5-3avx
 - Annvix build
 

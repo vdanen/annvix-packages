@@ -1,6 +1,6 @@
 %define name	snort
 %define version	2.1.0
-%define release	6avx
+%define release	7avx
 
 # this is so the binaries won't be stripped so people will submit
 # meaningful bugreports
@@ -425,6 +425,9 @@ update-alternatives --remove %{name} %{_sbindir}/%{name}-bloat
 %attr(755,root,root) %{_sbindir}/%{name}-bloat
 
 %changelog
+* Tue Aug 17 2004 Vincent Danen <vdanen@annvix.org> 2.1.0-7avx
+- rebuild against new openssl
+
 * Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 2.1.0-6avx
 - Annvix build
 
