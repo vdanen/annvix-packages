@@ -1,6 +1,6 @@
 %define name	%{ap_name}-%{mod_name}
 %define version %{ap_version}
-%define release 2avx
+%define release 1avx
 
 # New ADVX macros
 %define ADVXdir %{_datadir}/ADVX
@@ -46,6 +46,8 @@ same user who is running the web server.
 %setup -c -T -n %{name}
 
 cp %{ap_includedir}/* .
+cp `apr-config --includedir`/* .
+cp `apu-config --includedir`/* .
 
 echo "#define AP_GID_MIN 100"  >> ap_config_auto.h
 echo "#define AP_UID_MIN 100"  >> ap_config_auto.h
@@ -103,6 +105,10 @@ install suexec.8 %{buildroot}%{_mandir}/man8/%{ap_name}-suexec.8
 %{_mandir}/man8/*
 
 %changelog
+* Thu Oct 14 2004 Vincent Danen <vdanen@annvix.org> 2.0.52-1avx
+- apache 2.0.52
+- use ap*-config --includedir to get headers (oden)
+
 * Sun Jun 27 2004 Vincent Danen <vdanen@annvix.org> 2.0.49-2avx
 - Annvix build
 
