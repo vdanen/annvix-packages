@@ -1,0 +1,21 @@
+diff -urN krb5-1.3/src/appl/telnet/telnet/telnet.c krb5-1.3-modified/src/appl/telnet/telnet/telnet.c
+--- krb5-1.3/src/appl/telnet/telnet/telnet.c	2002-11-15 21:21:35.000000000 +0100
++++ krb5-1.3-modified/src/appl/telnet/telnet/telnet.c	2003-07-22 14:39:59.000000000 +0200
+@@ -776,7 +776,7 @@
+ 
+ 	/*ARGSUSED*/
+ static int
+-setupterm(tname, fd, errp)
++setupterm_local(tname, fd, errp)
+ 	char *tname;
+ 	int fd, *errp;
+ {
+@@ -810,7 +810,7 @@
+ 		if (tnamep && tnamep != unknown)
+ 			free(tnamep);
+ 		if ((tname = (char *)env_getvalue((unsigned char *)"TERM")) &&
+-				(setupterm(tname, 1, &err) == 0)) {
++				(setupterm_local(tname, 1, &err) == 0)) {
+ 			tnamep = mklist(termbuf, tname);
+ 		} else {
+ 			if (tname && (strlen(tname) <= 40)) {
