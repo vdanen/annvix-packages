@@ -1,6 +1,6 @@
 %define name	postfix
 %define version	2.0.13
-%define release 5sls
+%define release 6sls
 
 # If set to 0 if official version, 1 if snapshot
 %define experimental	0
@@ -39,10 +39,10 @@
 %{?_with_tls:   %{expand: %%define with_TLS 1}}
 
 # Postfix requires one exlusive uid/gid and a 2nd exclusive gid for its own use.
-%define postfix_uid	35
-%define postfix_gid	35
+%define postfix_uid	78
+%define postfix_gid	78
 %define maildrop_group	postdrop
-%define maildrop_gid	36
+%define maildrop_gid	79
 
 %define CHROOT		/var/spool/postfix
 
@@ -67,6 +67,8 @@ Source6: 	postfix-chroot-setup.awk
 Source8:	ftp://ftp.aet.tu-cottbus.de/pub/postfix_tls/%{tlsno}.tar.gz.sig
 Source9: 	ftp://ftp.aet.tu-cottbus.de/pub/postfix_tls/%{tlsno}.tar.gz
 Source10:	postfix.chroot_info
+Source11:	postfix.run
+Source12:	postfix-log.run
 Patch0:		postfix-2.0.12-config-mdk.patch.bz2
 Patch1:		postfix-alternatives-mdk.patch.bz2
 Patch12:	postfix-smtp_sasl_proto.c.patch.bz2
@@ -104,7 +106,7 @@ Provides:	smtpdaemon, MailTransportAgent
 Requires:	procmail
 # we need the postdrop group (gid 36)
 Requires:	setup >= 2.2.0-26mdk
-PreReq: 	/sbin/chkconfig, /sbin/service, coreutils
+PreReq: 	coreutils
 PreReq: 	rpm-helper >= 0.3
 %if %alternatives
 PreReq:		/usr/sbin/update-alternatives
@@ -229,10 +231,6 @@ bin/postconf -c %buildroot/%{_sysconfdir}/postfix -e \
         "alias_database = hash:%{_sysconfdir}/postfix/aliases" \
 || exit 1
 
-# This installs into the /etc/rc.d/init.d directory
-/bin/mkdir -p %buildroot/%{_sysconfdir}/rc.d/init.d
-install -c %{SOURCE3} %buildroot/etc/rc.d/init.d/postfix
-
 # These set up the chroot directory structure
 mkdir -p %buildroot/%CHROOT/etc
 mkdir -p %buildroot/%CHROOT/%{_lib}
@@ -271,11 +269,15 @@ w
 q
 EOF
 
+mkdir -p %{buildroot}%{_srvdir}/postfix/log
+mkdir -p %{buildroot}%{_srvlogdir}/postfix
+install -m 0750 %{SOURCE11} %{buildroot}%{_srvdir}/postfix/run
+install -m 0750 %{SOURCE12} %{buildroot}%{_srvdir}/postfix/log/run
 
 
 %pre
-%_pre_useradd postfix /var/spool/postfix /bin/false
-%_pre_groupadd %{maildrop_group} postfix
+%_pre_useradd postfix /var/spool/postfix /bin/false %{postfix_uid}
+%_pre_groupadd %{maildrop_group} %{maildrop_gid} postfix
 
 %post
 # upgrade configuration files if necessary
@@ -290,7 +292,7 @@ sh %{_sysconfdir}/postfix/post-install \
 	readme_directory=%{_docdir}/%name-%version/README_FILES \
 	upgrade-package
 
-%_post_service postfix
+%_post_srv postfix
 
 # setup chroot config
 mkdir -p %{CHROOT}/%_sysconfdir
@@ -376,7 +378,7 @@ queue_directory_remove () {
     done
 }
 
-%_preun_service postfix
+%_preun_srv postfix
 
 if [ $1 = 0 ]; then
 	%if %alternatives
@@ -403,7 +405,7 @@ done
 %_postun_groupdel %{maildrop_group}
 
 [ $1 = 0 ] && exit 0
-/sbin/service postfix condrestart 2>&1 > /dev/null || :
+/usr/sbin/srv restart postfix 2>&1 > /dev/null || :
 
 %clean
 rm -rf %buildroot
@@ -431,7 +433,11 @@ rm -rf %buildroot
 #%dir %attr(-, root, root) %{_sysconfdir}/postfix/README_FILES
 #%attr(0644,   root, root) %{_sysconfdir}/postfix/README_FILES/*
 
-%attr(0755, root, root) %config /etc/rc.d/init.d/postfix
+%dir %{_srvdir}/postfix
+%dir %{_srvdir}/postfix/log
+%{_srvdir}/postfix/run
+%{_srvdir}/postfix/log/run
+%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/postfix
 
 %dir                      %verify(not md5 size mtime) %{_var}/spool/postfix
 %dir %attr(-, root, root) %verify(not md5 size mtime) %{_var}/spool/postfix/etc
@@ -512,6 +518,12 @@ rm -rf %buildroot
 
 
 %changelog
+* Tue Feb 04 2004 Vincent Danen <vdanen@opensls.org> 2.0.13-6sls
+- supervise scripts
+- remove initscript
+- postfix has static uid/gid 78, postdrop is static gid 79
+- no more PreReq: chkconfig and service
+
 * Fri Jan 02 2004 Vincent Danen <vdanen@opensls.org> 2.0.13-5sls
 - requires pcre-devel, not libpcre-devel (for amd64)
 
