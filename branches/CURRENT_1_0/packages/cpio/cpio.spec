@@ -1,6 +1,6 @@
 %define name	cpio
 %define version 2.5
-%define release 5sls
+%define release 6sls
 
 Summary:	A GNU archiving program.
 Name:		%{name}
@@ -53,7 +53,7 @@ Install cpio if you need a program to manage file archives.
 %make LDFLAGS=-s
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall bindir=$RPM_BUILD_ROOT/bin mandir=$RPM_BUILD_ROOT/%{_mandir}
 chmod 644 README NEWS
 
@@ -63,7 +63,7 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/rmt
 rm -f $RPM_BUILD_ROOT%{_mandir}/man1/mt.1
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
 %_install_info %{name}.info
@@ -73,13 +73,16 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root)
+%doc README NEWS
 /bin/cpio
 #/bin/mt
-%doc README NEWS
 %{_infodir}/cpio.*
 %{_mandir}/man1/cpio.1*
 
 %changelog
+* Wed Mar 03 2004 Vincent Danen <vdanen@opensls.org> 2.5-6sls
+- minor spec cleanups
+
 * Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 2.5-5sls
 - OpenSLS build
 - tidy spec

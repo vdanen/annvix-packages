@@ -1,6 +1,6 @@
 %define name	curl
 %define version 7.10.7
-%define release	3sls
+%define release	4sls
 
 %define real_version 7.10.7
 %define major	2
@@ -102,11 +102,11 @@ make check
 %endif
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %make install DESTDIR="$RPM_BUILD_ROOT"
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
@@ -116,26 +116,27 @@ rm -rf $RPM_BUILD_ROOT
 %attr(0755,root,root) %{_bindir}/curl
 %attr(0644,root,root) %{_mandir}/man1/curl.1*
 %{_datadir}/curl
-%docdir docs/
 
 %files -n %{libname}
 %defattr(-,root,root)
-%{_libdir}/libcurl.so.*
-%docdir docs/
 %doc docs/BUGS docs/KNOWN_BUGS docs/CONTRIBUTE docs/FAQ CHANGES
 %doc docs/FEATURES docs/RESOURCES docs/TODO docs/THANKS
+%{_libdir}/libcurl.so.*
 
 %files -n %{libname}-devel
 %defattr(-,root,root)
+%doc docs/examples docs/INTERNALS
 %attr(0755,root,root) %{_bindir}/curl-config
 %attr(0644,root,root) %{_mandir}/man1/curl-config.1*
 %{_libdir}/libcurl.so
 %{_includedir}/curl/*
 %{_libdir}/libcurl*a
 %{_mandir}/man3/*
-%doc docs/examples docs/INTERNALS
 
 %changelog
+* Wed Mar 03 2004 Vincent Danen <vdanen@opensls.org> 7.10.7-4sls
+- minor spec cleanups
+
 * Tue Dec 02 2003 Vincent Danen <vdanen@opensls.org> 7.10.7-3sls
 - OpenSLS build
 - tidy spec
