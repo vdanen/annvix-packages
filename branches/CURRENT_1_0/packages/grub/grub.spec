@@ -1,6 +1,6 @@
 %define name	grub
 %define version 0.93
-%define release 5sls
+%define release 6sls
 
 Summary:	GRand Unified Bootloader
 Name:		%{name}
@@ -35,6 +35,7 @@ BuildRequires:	ncurses-devel, tetex
 
 Exclusivearch:	%ix86 amd64 x86_64
 Conflicts:	initscripts <= 6.40.2-15mdk
+Provides:	bootloader
 
 %description
 GRUB is a GPLed bootloader intended to unify bootloading across x86
@@ -102,6 +103,9 @@ rm -rf $RPM_BUILD_ROOT
 /sbin/*
 
 %changelog
+* Tue Mar 02 2004 Vincent Danen <vdanen@opensls.org> 0.93-6sls
+- Provides: bootloader
+
 * Tue Feb 24 2004 Vincent Danen <vdanen@opensls.org> 0.93-5sls
 - remove docs package
 - don't use %%build_opensls
