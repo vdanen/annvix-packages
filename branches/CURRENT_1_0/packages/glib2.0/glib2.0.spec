@@ -1,17 +1,11 @@
 %define name	glib%{api_version}
 %define version	%{major_version}.%{minor_version}.%{micro_version}
-%define release	2sls
-
-%{!?build_opensls:%global build_opensls 0}
+%define release	3sls
 
 # enable_gtkdoc: Toggle if gtkdoc stuff should be rebuilt
 #	0 = no
 #	1 = yes
-%define enable_gtkdoc	1
-
-%if %{build_opensls}
 %define enable_gtkdoc	0
-%endif
 
 %define req_pkgconfig_version	0.12
 
@@ -123,9 +117,7 @@ packages can potentially benefict from the changes.
 make check
 
 %install
-rm -rf $RPM_BUILD_ROOT
-
-
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/profile.d
@@ -135,12 +127,14 @@ chmod a+x  $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/*
 
 %find_lang glib20
 
+
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post -n %{lib_name} -p /sbin/ldconfig
 
 %postun -n %{lib_name} -p /sbin/ldconfig
+
 
 %files -n %{lib_name} -f glib20.lang
 %defattr(-, root, root)
@@ -174,6 +168,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/glib-%{api_version}
 
 %changelog
+* Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 2.2.3-3sls
+- minor spec cleanups
+- remove %%build_opensls macro
+
 * Mon Dec 22 2003 Vincent Danen <vdanen@opensls.org> 2.2.3-2sls
 - OpenSLS build
 
