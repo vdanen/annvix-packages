@@ -1,6 +1,6 @@
 %define name	elfutils
 %define version	0.84
-%define release	2sls
+%define release	3sls
 
 %define major	1
 %define libname	%mklibname %{name} %{major}
@@ -101,7 +101,7 @@ pushd build-%{_target_platform}
 popd
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p $RPM_BUILD_ROOT%{_prefix}
 
 %makeinstall -C build-%{_target_platform}
@@ -117,13 +117,16 @@ chmod +x $RPM_BUILD_ROOT%{_libdir}/elfutils/lib*.so*
   rm -f .%{_includedir}/elfutils/libdwarf.h
   rm -f .%{_libdir}/libasm-%{version}.so
   rm -f .%{_libdir}/libasm.a
+  rm -f .%{_libdir}/libasm.so
   rm -f .%{_libdir}/libdw-%{version}.so
   rm -f .%{_libdir}/libdw.a
+  rm -f .%{_libdir}/libdw.so
   rm -f .%{_libdir}/libdwarf.a
+  rm -f .%{_libdir}/libdwarf.so
 }
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
@@ -176,6 +179,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/libdwarf*.so.*
 
 %changelog
+* Thu Mar 04 2004 Vincent Danen <vdanen@opensls.org> 0.84-3sls
+- minor spec cleanups
+- remove some more unpackaged files
+
 * Mon Dec 08 2003 Vincent Danen <vdanen@opensls.org> 0.84-2sls
 - OpenSLS build
 - tidy spec
