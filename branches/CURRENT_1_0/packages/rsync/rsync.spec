@@ -1,6 +1,6 @@
 %define name	rsync
 %define version	2.6.2
-%define release	3avx
+%define release	4avx
 
 Summary:	A program for synchronizing files over a network.
 Name:		%{name}
@@ -17,6 +17,7 @@ Source5:	rsync.run
 Source6:	rsync-log.run
 Patch0:		rsync-2.5.4-draksync.patch.bz2
 Patch1:		rsync-2.6.0-nogroup.patch.bz2
+Patch2:		rsync-2.6.0-path-sanitize.patch.bz2
 
 BuildRoot:	%_tmppath/%name-root
 BuildRequires:	popt-devel
@@ -36,6 +37,7 @@ Install rsync if you need a powerful mirroring program.
 %setup -q
 %patch0 -p1 -b .draksync
 %patch1 -p1 -b .nogroup
+%patch2 -p1 -b .can-2004-0792
 
 %build
 %serverbuild
@@ -83,6 +85,9 @@ mkdir -p %{buildroot}%{_srvlogdir}/rsync
 %_mandir/man5/rsyncd.conf.5*
 
 %changelog
+* Fri Sep 03 2004 Vincent Danen <vdanen@annvix.org> 2.6.2-4avx
+- P2: security fix for CAN-2004-0792
+
 * Wed Jun 22 2004 Vincent Danen <vdanen@annvix.org> 2.6.2-3avx
 - remove xinetd support
 
