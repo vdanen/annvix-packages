@@ -1,6 +1,6 @@
 %define name	initscripts
 %define version	7.06
-%define release	35sls
+%define release	36sls
 
 # 	$Id: initscripts.spec,v 1.329 2003/09/22 17:03:40 warly Exp $	
 
@@ -93,6 +93,8 @@ python mandrake/gprintify.py `find %{buildroot}%{_sysconfdir}/rc.d -type f` `fin
 #s:%lang(C) ::
 #' >> %{name}.lang
 
+touch %{buildroot}/var/log/btmp
+
 %find_lang %{name}
 
 # remove S390 and isdn stuff
@@ -104,7 +106,8 @@ rm -f $RPM_BUILD_ROOT/usr/share/alsa/alsa-utils
 rm -f $RPM_BUILD_ROOT/usr/bin/partmon
 rm -f $RPM_BUILD_ROOT/usr/sbin/supermount
 rm -f $RPM_BUILD_ROOT/usr/share/man/man8/supermount*
-rm -f $RPM_BUILD_ROOT%{_sysconfdir}/rc.d/init.d/{alsa,dm,partmon,sound}
+rm -f $RPM_BUILD_ROOT%{_sysconfdir}/rc.d/init.d/{alsa,dm,partmon,sound,alsa_default}
+rm -f $RPM_BUILD_ROOT%{_sysconfdir}/rc.d/rc.alsa_default
 
 # we have our own copy of gprintify
 export DONT_GPRINTIFY=1
@@ -114,9 +117,10 @@ export DONT_GPRINTIFY=1
 touch %{_sysconfdir}/sysconfig/i18n
 ##
 touch /var/log/wtmp
+touch /var/log/btmp
 touch /var/run/utmp
-chown root.utmp /var/log/wtmp /var/run/utmp
-chmod 664 /var/log/wtmp /var/run/utmp
+chown root:utmp /var/log/wtmp /var/run/utmp /var/log/btmp
+chmod 664 /var/log/wtmp /var/run/utmp /var/log/btmp
 
 %_mypost_service random
 
@@ -292,6 +296,7 @@ fi
 %config(noreplace) %{_sysconfdir}/sysconfig/network-scripts/ifdown-post
 %{_sysconfdir}/sysconfig/network-scripts/ifup
 %config(noreplace) /sbin/ifup
+%dir %{_sysconfdir}/sysconfig
 %dir %{_sysconfdir}/sysconfig/console
 %dir %{_sysconfdir}/sysconfig/console/consoletrans
 %dir %{_sysconfdir}/sysconfig/console/consolefonts
@@ -385,6 +390,7 @@ fi
 %config(noreplace) %{_sysconfdir}/initlog.conf
 %doc sysconfig.txt sysvinitfiles ChangeLog static-routes-ipv6 ipv6-tunnel.howto ipv6-6to4.howto
 %ghost %attr(0664,root,utmp) /var/log/wtmp
+%ghost %attr(0664,root,utmp) /var/log/btmp
 %ghost %attr(0664,root,utmp) /var/run/utmp
 %config(noreplace) %{_sysconfdir}/modules
 %config(noreplace) %{_sysconfdir}/rc.d/rc.modules
@@ -398,6 +404,40 @@ fi
 # EDIT IN CVS NOT IN SOURCE PACKAGE (NO PATCH ALLOWED).
 
 %changelog
+* Tue May 11 2004 Vincent Danen <vdanen@opensls.org> 7.06-36sls
+- add /var/log/btmp by default
+- rediff P2
+- sync with cooker 7.06-49mdk (only pertinent entries noted):
+  - network service: check actual value of MII_NOT_SUPPORTED instead of only
+    testing if the variable exists (tvignaud)
+  - add Han Boetes patch to set font on every text console, not only the
+    first one (tvignaud)
+  - rc.sysinit: added support for mdadm and lvm2 (bluca)
+  - rc.sysinit: fixed loading of st module (bluca)
+  - rc.local: option not to muck with /etc/issue (this is needed for sites
+    where policy, or law, enforce use of banners before login) (bluca)
+  - init.d/network: reload restarts active interfaces, restarts set boot
+    behaviour (bug #6112) (bluca)
+  - init.d/functions: fix print of multiple pid in status() (bug #6334)
+    (bluca)
+  - halt: added support for lvm2 (found by Navindra Umanee) (flepied)
+  - fix /sbin/setsysfont to work only on current console (Andrey Borzenkov)
+    (flepied)
+  - fix /sbin/setsysfont regarding compressed fonts (Luca Berra) (flepied)
+  - use fixed /sbin/setsysfont in rc (bug #6185) (Andrey Borzenkov)
+    (flepied)
+  - rc.d/rc.sysinit: no more depmod at boot (Nicolas) (flepied)
+  - move proc mounting after font initialization (warly)
+  - do not lock cdrom drive when mounted (warly)
+  - mandrake/usb: mount /proc/bus/usb as usbdevfs for all kernel 2.4/2.6
+    needed by speedtouch alcatel modem in user-mode/kernel-mode (Nicolas)
+    (flepied)
+  - rc.d/rc.sysinit: lookup device-mapper in /proc/misc too (bug #8398)
+    (flepied)
+  - call upsd earlier in halt script (warly)
+- NOTE: this package needs some serious cleaning and should likely be fully
+  branched away from the Mandrake patch (so a single OpenSLS-specific patch)
+
 * Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 7.06-35sls
 - remove supermount
 - minor spec cleanups
