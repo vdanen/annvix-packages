@@ -1,6 +1,6 @@
 %define name	postgresql
 %define version	7.4.3
-%define release	7avx
+%define release	8avx
 
 %define _requires_exceptions devel(libtcl8.4)\\|devel(libtcl8.4(64bit))
 
@@ -54,7 +54,7 @@ Patch3:		postgresql-7.4.1-mdk-pkglibdir.patch.bz2
 Patch4:		postgresql-7.3.4-CAN-2004-0977.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root
-BuildRequires:	XFree86-devel bison flex gettext termcap-devel ncurses-devel openssl-devel pam-devel
+BuildRequires:	bison flex gettext termcap-devel ncurses-devel openssl-devel pam-devel
 BuildRequires:	perl-devel python-devel readline-devel >= 4.3 tk zlib-devel tcl
 
 Requires:	perl sfio
@@ -645,6 +645,10 @@ rm -f perlfiles.list
 %attr(-,postgres,postgres) %dir %{_libdir}/pgsql/test
 
 %changelog
+* Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> 7.4.3-8avx
+- drop BuildRequires on XFree86-devel
+- rebuild against new python and perl
+
 * Thu Jan 06 2005 Vincent Danen <vdanen@annvix.org> 7.4.3-7avx
 - rebuild against latest openssl
 
