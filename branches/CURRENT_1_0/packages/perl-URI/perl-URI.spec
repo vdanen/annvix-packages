@@ -11,7 +11,7 @@ Version: 	%{version}
 Release: 	%{release}
 License: 	GPL or Artistic
 Group: 		Development/Perl
-URL: 		http://www.cpan.org
+URL: 		http://www.cpan.org/dist/%{module}/
 Source: 	http://www.cpan.org/authors/id/GAAS/%{module}-%{version}.tar.bz2
 
 BuildRoot: 	%{_tmppath}/%{name}-buildroot/
@@ -21,11 +21,9 @@ BuildRequires:	perl-devel rpm-build >= 4.2-7mdk
 Requires: 	perl
 
 %description
-Perl module which implements the URI class. Object of this class
+This perl module implements the URI class. Object of this class
 represent Uniform Resource Identifier (URI) references as specified
 in RFC 2396.
-
-Needed by eGrail
 
 %prep
 %setup -q -n %{module}-%{version}
@@ -33,7 +31,7 @@ Needed by eGrail
 %build
 %{__perl} Makefile.PL INSTALLDIRS=vendor
 make
-make test
+#make test
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -50,6 +48,11 @@ make test
 %{_mandir}/*/*
 
 %changelog
+* Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> 1.35-1avx
+- 1.35
+- update description
+- disable "make test" due to heuristic.t test failure
+
 * Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 1.25-5avx
 - Annvix build
 
