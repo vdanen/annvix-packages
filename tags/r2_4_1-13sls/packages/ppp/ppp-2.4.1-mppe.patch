@@ -1,0 +1,3032 @@
+--- ppp-2.4.1/include/linux/ppp-comp.h.mppe	1999-07-23 02:53:29.000000000 -0400
++++ ppp-2.4.1/include/linux/ppp-comp.h	2002-05-21 07:34:50.000000000 -0400
+@@ -28,7 +28,7 @@
+  */
+ 
+ /*
+- *  ==FILEVERSION 980319==
++ *  ==FILEVERSION 990623==
+  *
+  *  NOTE TO MAINTAINERS:
+  *     If you modify this file at all, please set the above date.
+@@ -120,6 +120,7 @@
+  * Don't you just lurve software patents.
+  */
+ 
++#define DECOMP_OK		0	/* no error occured */
+ #define DECOMP_ERROR		-1	/* error detected before decomp. */
+ #define DECOMP_FATALERROR	-2	/* error detected after decomp. */
+ 
+@@ -138,7 +139,7 @@
+  * Max # bytes for a CCP option
+  */
+ 
+-#define CCP_MAX_OPTION_LENGTH	32
++#define CCP_MAX_OPTION_LENGTH	64
+ 
+ /*
+  * Parts of a CCP packet.
+@@ -187,6 +188,20 @@
+ #define DEFLATE_CHK_SEQUENCE	0
+ 
+ /*
++ * Definitions for MPPE.
++ */
++
++#define CI_MPPE			18	/* config. option for MPPE */
++#define CILEN_MPPE		6	/* length of config. option */
++
++/*
++ * Definitions for Stac LZS.
++ */
++
++#define CI_LZS			17	/* config option for Stac LZS */
++#define CILEN_LZS		5	/* length of config option */
++
++/*
+  * Definitions for other, as yet unsupported, compression methods.
+  */
+ 
+--- ppp-2.4.1/include/net/ppp-comp.h.mppe	1998-03-24 22:33:32.000000000 -0500
++++ ppp-2.4.1/include/net/ppp-comp.h	2002-05-21 07:34:50.000000000 -0400
+@@ -109,7 +109,7 @@
+ /*
+  * Max # bytes for a CCP option
+  */
+-#define CCP_MAX_OPTION_LENGTH	32
++#define CCP_MAX_OPTION_LENGTH	64
+ 
+ /*
+  * Parts of a CCP packet.
+@@ -155,6 +155,20 @@
+ #define DEFLATE_CHK_SEQUENCE	0
+ 
+ /*
++ * Definitions for MPPE.
++ */
++
++#define CI_MPPE			18	/* config. option for MPPE */
++#define CILEN_MPPE		6	/* length of config. option */
++
++/*
++ * Definitions for Stac LZS.
++ */
++
++#define CI_LZS			17	/* config option for Stac LZS */
++#define CILEN_LZS		5	/* length of config option */
++
++/*
+  * Definitions for other, as yet unsupported, compression methods.
+  */
+ #define CI_PREDICTOR_1		1	/* config option for Predictor-1 */
+--- ppp-2.4.1/linux/Makefile.top.mppe	2000-04-17 06:39:26.000000000 -0400
++++ ppp-2.4.1/linux/Makefile.top	2002-05-21 07:34:50.000000000 -0400
+@@ -9,6 +9,7 @@
+ INSTALL= install
+ 
+ all:
++	cd openssl; $(MAKE) $(MFLAGS) all
+ 	cd chat; $(MAKE) $(MFLAGS) all
+ 	cd pppd; $(MAKE) $(MFLAGS) all
+ 	cd pppstats; $(MAKE) $(MFLAGS) all
+--- ppp-2.4.1/pppd/plugins/passprompt.c.mppe	2001-03-06 20:33:02.000000000 -0500
++++ ppp-2.4.1/pppd/plugins/passprompt.c	2002-05-21 07:34:50.000000000 -0400
+@@ -30,7 +30,7 @@
+     int p[2];
+     pid_t kid;
+     int readgood, wstat;
+-    size_t red;
++    ssize_t red;
+ 
+     if (promptprog[0] == 0 || access(promptprog, X_OK) < 0)
+ 	return -1;	/* sorry, can't help */
+@@ -71,16 +71,18 @@
+     readgood = 0;
+     do {
+ 	red = read(p[0], passwd + readgood, MAXSECRETLEN-1 - readgood);
+-	if (red == 0)
+-	    break;
+-	if (red < 0) {
++	if (red > 0) {
++		readgood += red;
++		continue;
++	} else if (red == 0) break;
++	else if (errno != EINTR && errno != EAGAIN) {
+ 	    error("Can't read secret from %s: %m", promptprog);
+ 	    readgood = -1;
+ 	    break;
+ 	}
+-	readgood += red;
+     } while (readgood < MAXSECRETLEN - 1);
+-    passwd[readgood] = 0;
++    if (readgood >= 0) passwd[readgood] = 0;
++    else passwd[0] = 0;
+     close(p[0]);
+ 
+     /* now wait for child to exit */
+--- ppp-2.4.1/pppd/Makefile.linux.mppe	2002-05-21 07:34:49.000000000 -0400
++++ ppp-2.4.1/pppd/Makefile.linux	2002-05-21 07:50:32.000000000 -0400
+@@ -9,13 +9,13 @@
+ 
+ PPPDSRCS = main.c magic.c fsm.c lcp.c ipcp.c upap.c chap.c md5.c ccp.c \
+ 	   ipxcp.c auth.c options.c sys-linux.c md4.c chap_ms.c cbcp.c \
+-	   demand.c utils.c multilink.c tdb.c tty.c
++	   demand.c utils.c multilink.c tdb.c tty.c mppe.c extra_crypto.c
+ HEADERS =  callout.h pathnames.h patchlevel.h chap.h md5.h chap_ms.h md4.h \
+-	   ipxcp.h cbcp.h tdb.h
++	   ipxcp.h cbcp.h tdb.h mppe.h extra_crypto.h
+ MANPAGES = pppd.8
+ PPPDOBJS = main.o magic.o fsm.o lcp.o ipcp.o upap.o chap.o md5.o ccp.o \
+ 	   auth.o options.o demand.o utils.o sys-linux.o ipxcp.o multilink.o \
+-	   tdb.o tty.o
++	   tdb.o tty.o mppe.o extra_crypto.o
+ 
+ all: pppd
+ 
+@@ -42,6 +42,28 @@
+ HAVE_CRYPT_H=y
+ endif
+ 
++# Uncomment these lines to use MSLANMAN and MPPE options
++# both need the MS-CHAP protocol above
++# MSLANMAN=y
++MPPE=y
++
++# Uncomment the following for dynamic IP allocation
++#DYNAMIC=y
++
++# Uncomment the following for CBCP support
++# CBCP_SUPPORT=y
++
++# Uncomment these lines to use MSLANMAN and MPPE options
++# both need the MS-CHAP protocol above
++# MSLANMAN=y
++MPPE=y
++
++# Uncomment the following for dynamic IP allocation
++#DYNAMIC=y
++
++# Uncomment the following for CBCP support
++# CBCP_SUPPORT=y
++
+ # Uncomment the next line to include support for PPP packet filtering.
+ # This requires that the libpcap library and headers be installed
+ # and that the kernel driver support PPP packet filtering, which it
+@@ -61,9 +83,10 @@
+ CFLAGS= $(COPTS) $(COMPILE_FLAGS) $(INCLUDE_DIRS)
+ 
+ ifdef CHAPMS
+-CFLAGS   += -DCHAPMS=1
++CFLAGS   += -DCHAPMS=1 -idirafter ../openssl/include
++LIBS     += ../openssl/crypto/sha.a ../openssl/crypto/rc4.a
+ ifndef USE_CRYPT
+-LIBS     := -ldes $(LIBS)
++LIBS     += -ldes $(LIBS)
+ else
+ CFLAGS   += -DUSE_CRYPT=1
+ ifneq ($(wildcard /usr/include/crypt.h),)
+@@ -74,6 +97,9 @@
+ ifdef MSLANMAN
+ CFLAGS   += -DMSLANMAN=1
+ endif
++ifdef MPPE
++CFLAGS   += -DMPPE=1
++endif
+ endif
+ 
+ ifdef HAS_SHADOW
+@@ -93,6 +119,14 @@
+ CFLAGS   += -DLOCKLIB=1
+ endif
+ 
++ifdef DYNAMIC
++CFLAGS   += -DDYNAMIC=1
++endif
++
++ifdef CBCP_SUPPORT
++CFLAGS   += -DCBCP_SUPPORT=1
++endif
++
+ ifdef PLUGIN
+ CFLAGS	+= -DPLUGIN
+ LDFLAGS	+= -Wl,-E
+--- ppp-2.4.1/pppd/auth.c.mppe	2002-05-21 07:34:50.000000000 -0400
++++ ppp-2.4.1/pppd/auth.c	2002-05-21 08:05:49.000000000 -0400
+@@ -74,8 +74,16 @@
+ #ifdef CBCP_SUPPORT
+ #include "cbcp.h"
+ #endif
++#ifdef CHAPMS
++#include "chap_ms.h"
++#endif
+ #include "pathnames.h"
+ 
++#ifdef DYNAMIC
++#define _PATH_DYNAMIC "/etc/ppp/getaddr"
++#endif
++static char xuser[MAXNAMELEN];
++ 
+ static const char rcsid[] = RCSID;
+ 
+ /* Bits in scan_authfile return value */
+@@ -132,6 +140,11 @@
+ /* Hook for a plugin to get the PAP password for authenticating us */
+ int (*pap_passwd_hook) __P((char *user, char *passwd)) = NULL;
+ 
++#ifdef CBCP_SUPPORT
++/* Set if we have done call-back sequences. */
++static int did_callback;
++#endif
++
+ /*
+  * This is used to ensure that we don't start an auth-up/down
+  * script while one is already running.
+@@ -172,7 +185,7 @@
+ 
+ /* Prototypes for procedures local to this file. */
+ 
+-static void network_phase __P((int));
++void network_phase __P((int));
+ static void check_idle __P((void *));
+ static void connect_time_expired __P((void *));
+ static int  plogin __P((char *, char *, char **));
+@@ -211,23 +224,40 @@
+     { "+pap", o_bool, &lcp_wantoptions[0].neg_upap,
+       "Require PAP authentication from peer",
+       OPT_ALIAS | OPT_PRIOSUB | 1, &auth_required },
+-    { "require-chap", o_bool, &lcp_wantoptions[0].neg_chap,
+-      "Require CHAP authentication from peer",
+-      OPT_PRIOSUB | 1, &auth_required },
+-    { "+chap", o_bool, &lcp_wantoptions[0].neg_chap,
+-      "Require CHAP authentication from peer",
+-      OPT_ALIAS | OPT_PRIOSUB | 1, &auth_required },
+-
++    { "require-chap", o_special_noarg, reqchap,
++      "Require CHAP authentication from peer" },
++    { "+chap", o_special_noarg, reqchap,
++      "Require CHAP authentication from peer" },
+     { "refuse-pap", o_bool, &refuse_pap,
+       "Don't agree to auth to peer with PAP", 1 },
+     { "-pap", o_bool, &refuse_pap,
+       "Don't allow PAP authentication with peer", OPT_ALIAS | 1 },
+-
+     { "refuse-chap", o_bool, &refuse_chap,
+       "Don't agree to auth to peer with CHAP", 1 },
+     { "-chap", o_bool, &refuse_chap,
+       "Don't allow CHAP authentication with peer", OPT_ALIAS | 1 },
+-
++    { "refuse-chap-md5", o_bool, &lcp_wantoptions[0].use_digest,
++      "Don't allow md5-digest style CHAP", 0 },
++    { "-chap-md5", o_bool, &lcp_wantoptions[0].use_digest,
++      "Don't allow md5-digest style CHAP", 0 },
++#ifdef CHAPMS
++    { "require-chapms", o_special_noarg, reqchapms,
++      "Require MSCHAP (v1) authentication" },
++    { "+chapms", o_special_noarg, reqchapms,
++      "Require MSCHAP (v1) authentication" },
++    { "refuse-chapms", o_special_noarg, nochapms,
++      "Refuse MSCHAP (v1) authentication" },
++    { "-chapms", o_special_noarg, nochapms,
++      "Refuse MSCHAP (v1) authentication" },
++    { "require-chapms-v2", o_special_noarg, reqchapms_v2,
++      "Require MSCHAP-v2 authentication" },
++    { "+chapms-v2", o_special_noarg, reqchapms_v2,
++      "Require MSCHAP-v2 authentication" },
++    { "refuse-chapms-v2", o_special_noarg, nochapms_v2,
++      "Refuse MSCHAP-v2 authentication" },
++    { "-chapms-v2", o_special_noarg, nochapms_v2,
++      "Refuse MSCHAP-v2 authentication" },
++#endif
+     { "name", o_string, our_name,
+       "Set local name for authentication",
+       OPT_PRIO | OPT_PRIV | OPT_STATIC, NULL, MAXNAMELEN },
+@@ -499,12 +529,15 @@
+ /*
+  * Proceed to the network phase.
+  */
+-static void
++void
+ network_phase(unit)
+     int unit;
+ {
+     lcp_options *go = &lcp_gotoptions[unit];
+-
++#ifdef CBCP_SUPPORT
++    lcp_options *ho = &lcp_hisoptions[unit];
++#endif
++    
+     /*
+      * If the peer had to authenticate, run the auth-up script now.
+      */
+@@ -520,8 +553,9 @@
+     /*
+      * If we negotiated callback, do it now.
+      */
+-    if (go->neg_cbcp) {
++     if ((go->neg_cbcp || ho->neg_cbcp) && !did_callback) {
+ 	new_phase(PHASE_CALLBACK);
++	did_callback = 1;
+ 	(*cbcp_protent.open)(unit);
+ 	return;
+     }
+@@ -617,6 +651,8 @@
+ 	namelen = sizeof(peer_authname) - 1;
+     BCOPY(name, peer_authname, namelen);
+     peer_authname[namelen] = 0;
++    BCOPY(name, xuser, namelen);
++    xuser[namelen] = 0;
+     script_setenv("PEERNAME", peer_authname, 0);
+ 
+     /*
+@@ -1439,6 +1475,29 @@
+ 	if (ret < 0)
+ 	    return 0;
+ 
++#ifdef CHAP_USE_PAP_HOOK
++	/*
++	 * If there is a PAP password hook, let's try to use it to get the
++	 * CHAP secret from the user as well.. This should not stay this way -
++	 * it's just a proof of concept (and isn't used if the plugin isn't 
++	 * loaded. By keeping the secret in memory - it's more likely that 
++	 * the challenge won't time out the second time through (and the user
++	 * doesn't have to keep reentering the password for each challenge 
++	 * attempt.
++	 */
++	if (pap_passwd_hook) {
++		static char passwd[MAXWORDLEN];
++		static char *my_secret = NULL;
++		if (NULL == my_secret) {
++			if ((*pap_passwd_hook)(client, passwd) < 0)
++				return 0;
++			my_secret = passwd;
++		}
++		strncpy(secbuf, my_secret, MAXWORDLEN-1);
++		secbuf[MAXWORDLEN-1] = 0;
++	}
++#endif /* CHAP_USE_PAP_HOOK */			
++
+ 	if (am_server)
+ 	    set_allowed_addrs(unit, addrs, opts);
+ 	else if (opts != 0)
+@@ -1459,6 +1518,61 @@
+     return 1;
+ }
+ 
++#ifdef DYNAMIC
++/*
++ * get_ip_addr_dynamic - scans dynamic-givable address space for
++ * most recently used address for given user.
++ */
++int
++get_ip_addr_dynamic(unit, addr)
++    int unit;
++    u_int32_t *addr;
++{
++    u_int32_t a;
++    struct wordlist *addrs;
++    FILE *fd;
++    int dfd;
++    char command[256];
++    char mypid[40], *s;
++    char address[50];
++    u_int32_t mask;
++    
++    if ((addrs = addresses[unit]) == NULL)
++	return 0;		/* no restriction */
++
++    fd = (FILE *)NULL;
++    for(; addrs != NULL; addrs = addrs->next) {
++	if(strcmp(addrs->word, "*") != 0)
++	    continue;
++	sprintf(mypid, "/var/tmp/ppp_dynamic.%d", getpid());
++	sprintf(command, "%s %s %s %s", _PATH_DYNAMIC, xuser, devnam, mypid);
++	dfd = open("/dev/null", O_RDWR);
++	device_script(command, dfd, dfd);
++	close(dfd);
++	fd = fopen(mypid, "r");
++	if(fd == (FILE *)NULL)
++	  break;
++	if(fgets(address, sizeof(address), fd) == (char *)NULL)
++	  break;
++	if((s = strchr(address, '\n')) != (char *)NULL)
++	  *s = '\0';
++	a = inet_addr(address);
++	if(a == -1L)
++	  break;
++	fclose(fd);
++	unlink(mypid);
++	*addr = a;
++	return 1;
++    }
++    if(fd != (FILE *)NULL)
++    {
++      fclose(fd);
++      unlink(mypid);
++    }
++    return 0;
++}
++#endif
++
+ /*
+  * set_allowed_addrs() - set the list of allowed addresses.
+  * Also looks for `--' indicating options to apply for this peer
+@@ -1730,6 +1844,8 @@
+     char word[MAXWORDLEN];
+     char atfile[MAXWORDLEN];
+     char lsecret[MAXWORDLEN];
++    
++    printf("Looking for secret in %s for client %s server %s\n", filename, client, server);
+ 
+     if (addrs != NULL)
+ 	*addrs = NULL;
+@@ -1752,6 +1868,7 @@
+ 	/*
+ 	 * Got a client - check if it's a match or a wildcard.
+ 	 */
++	printf("Got client %s\n", word);
+ 	got_flag = 0;
+ 	if (client != NULL && strcmp(word, client) != 0 && !ISWILD(word)) {
+ 	    newline = 0;
+@@ -1767,12 +1884,14 @@
+ 	    break;
+ 	if (newline)
+ 	    continue;
++	printf("Got server %s\n", word);
+ 	if (!ISWILD(word)) {
+ 	    if (server != NULL && strcmp(word, server) != 0)
+ 		continue;
+ 	    got_flag |= NONWILD_SERVER;
+ 	}
+ 
++	printf("Got secret %s\n", word);
+ 	/*
+ 	 * Got some sort of a match - see if it's better than what
+ 	 * we have already.
+@@ -1816,6 +1935,7 @@
+ 	for (;;) {
+ 	    if (!getword(f, word, &newline, filename) || newline)
+ 		break;
++	    printf("Got auth_addr %s\n", word);
+ 	    ap = (struct wordlist *)
+ 		    malloc(sizeof(struct wordlist) + strlen(word) + 1);
+ 	    if (ap == NULL)
+--- ppp-2.4.1/pppd/cbcp.c.mppe	2001-03-08 00:11:10.000000000 -0500
++++ ppp-2.4.1/pppd/cbcp.c	2002-05-21 08:09:35.000000000 -0400
+@@ -31,15 +31,24 @@
+ #include "lcp.h"
+ 
+ static const char rcsid[] = RCSID;
++void network_phase __P((int));
+ 
+ /*
+  * Options.
+  */
+ static int setcbcp __P((char **));
++static int setcbcpreq __P((char **));
++static int setnocbcp __P((char **));
+ 
+ static option_t cbcp_option_list[] = {
+     { "callback", o_special, setcbcp,
+       "Ask for callback", OPT_PRIO | OPT_A2STRVAL, &cbcp[0].us_number },
++    { "+callback", o_special_noarg, setcbcpreq,
++      "Ask for callback" },
++    { "nocallback", o_special, setnocbcp,
++      "Don't allow callbacks" },
++    { "-callback", o_special, setnocbcp,
++      "Don't allow callbacks" },
+     { NULL }
+ };
+ 
+@@ -48,7 +57,9 @@
+  */
+ static void cbcp_init      __P((int unit));
+ static void cbcp_open      __P((int unit));
++static void cbcp_close     __P((int unit, char *));	
+ static void cbcp_lowerup   __P((int unit));
++static void cbcp_lowerdown __P((int unit));
+ static void cbcp_input     __P((int unit, u_char *pkt, int len));
+ static void cbcp_protrej   __P((int unit));
+ static int  cbcp_printpkt  __P((u_char *pkt, int len,
+@@ -61,12 +72,12 @@
+     cbcp_input,
+     cbcp_protrej,
+     cbcp_lowerup,
+-    NULL,
++    cbcp_lowerdown,
+     cbcp_open,
+-    NULL,
++    cbcp_close,
+     cbcp_printpkt,
+     NULL,
+-    0,
++    1,
+     "CBCP",
+     NULL,
+     cbcp_option_list,
+@@ -80,23 +91,46 @@
+ /* internal prototypes */
+ 
+ static void cbcp_recvreq __P((cbcp_state *us, char *pckt, int len));
+-static void cbcp_resp __P((cbcp_state *us));
+-static void cbcp_up __P((cbcp_state *us));
+ static void cbcp_recvack __P((cbcp_state *us, char *pckt, int len));
++static void cbcp_recvresp __P((cbcp_state *us, char *pckt, int len));
++static void cbcp_resp __P((cbcp_state *us));
++static void cbcp_req __P((cbcp_state *us));
++static void cbcp_ack __P((cbcp_state *us));
+ static void cbcp_send __P((cbcp_state *us, u_char code, u_char *buf, int len));
++static void cbcp_up __P((cbcp_state *us));
+ 
+ /* option processing */
+ static int
+ setcbcp(argv)
+     char **argv;
+ {
+-    lcp_wantoptions[0].neg_cbcp = 1;
+-    cbcp_protent.enabled_flag = 1;
++    lcp_allowoptions[0].neg_cbcp = 1;
+     cbcp[0].us_number = strdup(*argv);
+     if (cbcp[0].us_number == 0)
+ 	novm("callback number");
+-    cbcp[0].us_type |= (1 << CB_CONF_USER);
+-    cbcp[0].us_type |= (1 << CB_CONF_ADMIN);
++    if (cbcp[0].us_number[0] == '-')
++	cbcp[0].us_type = (1 << CB_CONF_NO);
++    else
++    {
++	cbcp[0].us_type = (1 << CB_CONF_USER);
++	cbcp[0].us_type |= (1 << CB_CONF_ADMIN);
++    }
++    return (1);
++}
++
++static int
++setnocbcp(argv)
++    char **argv;
++{
++    lcp_allowoptions[0].neg_cbcp = lcp_wantoptions[0].neg_cbcp = 0;
++    return (1);
++}
++
++static int
++setcbcpreq(argv)
++    char **argv;
++{
++    lcp_wantoptions[0].neg_cbcp = 1;
+     return (1);
+ }
+ 
+@@ -110,7 +144,8 @@
+     us = &cbcp[iface];
+     memset(us, 0, sizeof(cbcp_state));
+     us->us_unit = iface;
+-    us->us_type |= (1 << CB_CONF_NO);
++    us->us_type = (1 << CB_CONF_NO);
++    us->us_id = 1;
+ }
+ 
+ /* lower layer is up */
+@@ -120,18 +155,60 @@
+ {
+     cbcp_state *us = &cbcp[iface];
+ 
+-    dbglog("cbcp_lowerup");
+-    dbglog("want: %d", us->us_type);
++    if (debug)
++    {
++        dbglog("cbcp_lowerup");
++        dbglog("want: %d", us->us_type);
++
++        if (us->us_type & (1 << CB_CONF_USER))
++            dbglog("phone no: %s", us->us_number);
++    }
++}
+ 
+-    if (us->us_type == CB_CONF_USER)
+-        dbglog("phone no: %s", us->us_number);
++static void
++cbcp_lowerdown(iface)
++    int iface;
++{
++    if(debug)
++        dbglog("cbcp_lowerdown");
+ }
+ 
+ static void
+ cbcp_open(unit)
+     int unit;
+ {
+-    dbglog("cbcp_open");
++    lcp_options *ho = &lcp_hisoptions[unit];
++    lcp_options *ao = &lcp_allowoptions[unit];
++    lcp_options *wo = &lcp_wantoptions[unit];
++    lcp_options *go = &lcp_gotoptions[unit];
++    cbcp_state *us = &cbcp[unit];
++
++    if(debug)
++        dbglog("cbcp_open");
++    if(ao->neg_cbcp)
++    {
++        if(ho->neg_cbcp)
++        {
++           cbcp_req(us);
++           return;
++        }
++    }
++    else if(wo->neg_cbcp)
++    {
++       if(!go->neg_cbcp)
++           lcp_close(0, "Callback required");
++       return;
++    }
++    cbcp_up(us);
++}
++
++static void
++cbcp_close(unit, reason)
++    int unit;
++    char *reason;
++{
++    if(debug)
++        dbglog("cbcp_close: %s", reason);
+ }
+ 
+ /* process an incomming packet */
+@@ -174,11 +251,13 @@
+ 	break;
+ 
+     case CBCP_RESP:
+-	dbglog("CBCP_RESP received");
++        if (id != us->us_id && debug)
++            dbglog("id doesn't match: expected %d recv %d", us->us_id, id);
++        cbcp_recvresp(us, inp, len);
+ 	break;
+ 
+     case CBCP_ACK:
+-	if (id != us->us_id)
++	if (id != us->us_id && debug)
+ 	    dbglog("id doesn't match: expected %d recv %d",
+ 		   us->us_id, id);
+ 
+@@ -298,7 +377,8 @@
+     address[0] = 0;
+ 
+     while (len) {
+-        dbglog("length: %d", len);
++        if (debug)
++            dbglog("length: %d", len);
+ 
+ 	GETCHAR(type, pckt);
+ 	GETCHAR(opt_len, pckt);
+@@ -310,22 +390,22 @@
+ 
+ 	switch(type) {
+ 	case CB_CONF_NO:
+-	    dbglog("no callback allowed");
++	    dbglog("Callback: none");
+ 	    break;
+ 
+ 	case CB_CONF_USER:
+-	    dbglog("user callback allowed");
+ 	    if (opt_len > 4) {
+ 	        GETCHAR(addr_type, pckt);
+ 		memcpy(address, pckt, opt_len - 4);
+ 		address[opt_len - 4] = 0;
+-		if (address[0])
+-		    dbglog("address: %s", address);
++	        dbglog("Callback: user callback, address: '%s'", address);
+ 	    }
++            else
++                dbglog("Callback: user callback");
+ 	    break;
+ 
+ 	case CB_CONF_ADMIN:
+-	    dbglog("user admin defined allowed");
++	    dbglog("Callback: user admin defined");
+ 	    break;
+ 
+ 	case CB_CONF_LIST:
+@@ -347,29 +427,35 @@
+     int len = 0;
+ 
+     cb_type = us->us_allowed & us->us_type;
+-    dbglog("cbcp_resp cb_type=%d", cb_type);
++    if (debug)
++        dbglog("cbcp_resp cb_type=%d", cb_type);
+ 
++    if (!cb_type) {
++        dbglog("Your remote side wanted a callback-type you don't allow -> doing no callback");
++        cb_type = 1 << CB_CONF_NO;
+ #if 0
+-    if (!cb_type)
+         lcp_down(us->us_unit);
+ #endif
++    }
+ 
+     if (cb_type & ( 1 << CB_CONF_USER ) ) {
+-	dbglog("cbcp_resp CONF_USER");
++        if (debug)
++	    dbglog("cbcp_resp CONF_USER");
+ 	PUTCHAR(CB_CONF_USER, bufp);
+-	len = 3 + 1 + strlen(us->us_number) + 1;
++	len = 2 + 1 + strlen(us->us_number);
+ 	PUTCHAR(len , bufp);
+ 	PUTCHAR(5, bufp); /* delay */
+ 	PUTCHAR(1, bufp);
+-	BCOPY(us->us_number, bufp, strlen(us->us_number) + 1);
++	BCOPY(us->us_number, bufp, strlen(us->us_number));
+ 	cbcp_send(us, CBCP_RESP, buf, len);
+ 	return;
+     }
+ 
+     if (cb_type & ( 1 << CB_CONF_ADMIN ) ) {
+-	dbglog("cbcp_resp CONF_ADMIN");
++	if (debug)
++            dbglog("cbcp_resp CONF_ADMIN");
+         PUTCHAR(CB_CONF_ADMIN, bufp);
+-	len = 3;
++	len = 2 + 1;
+ 	PUTCHAR(len, bufp);
+ 	PUTCHAR(5, bufp); /* delay */
+ 	cbcp_send(us, CBCP_RESP, buf, len);
+@@ -377,11 +463,11 @@
+     }
+ 
+     if (cb_type & ( 1 << CB_CONF_NO ) ) {
+-        dbglog("cbcp_resp CONF_NO");
++	if (debug)
++        	dbglog("cbcp_resp CONF_NO");
+ 	PUTCHAR(CB_CONF_NO, bufp);
+-	len = 3;
++	len = 2;
+ 	PUTCHAR(len , bufp);
+-	PUTCHAR(0, bufp);
+ 	cbcp_send(us, CBCP_RESP, buf, len);
+ 	start_networks();
+ 	return;
+@@ -389,6 +475,169 @@
+ }
+ 
+ static void
++cbcp_ack(us)
++    cbcp_state *us;
++{
++    u_char cb_type;
++    u_char buf[256];
++    u_char *bufp = buf;
++    int len = 0;
++
++    cb_type = us->us_allowed & us->us_type;
++    if(debug)
++        dbglog("cbcp_ack cb_type=%d", cb_type);
++
++    if (!cb_type) {
++        dbglog("Your remote side wanted a callback-type you don't allow -> doing no callback");
++        cb_type = 1 << CB_CONF_NO;
++        lcp_close(us->us_unit, "Invalid callback requested");
++        return;
++    }
++
++    if (cb_type & ( 1 << CB_CONF_USER ) ) {
++        if(debug)
++	     dbglog("cbcp_ack CONF_USER");
++	PUTCHAR(CB_CONF_USER, bufp);
++	len = 2 + 1 + strlen(us->us_number);
++	PUTCHAR(len , bufp);
++ 	PUTCHAR(5, bufp); /* delay */
++ 	PUTCHAR(1, bufp);
++ 	BCOPY(us->us_number, bufp, strlen(us->us_number));
++ 	cbcp_send(us, CBCP_ACK, buf, len);
++ 	cbcp_up(us);
++ 	return;
++     }
++ 
++     if (cb_type & ( 1 << CB_CONF_ADMIN ) ) {
++         if(debug)
++ 	     dbglog("cbcp_ack CONF_ADMIN");
++        PUTCHAR(CB_CONF_ADMIN, bufp);
++ 	len = 2 + 1;
++ 	PUTCHAR(len , bufp);
++ 	PUTCHAR(5, bufp); /* delay */
++ 	PUTCHAR(0, bufp);
++ 	cbcp_send(us, CBCP_ACK, buf, len);
++ 	cbcp_up(us);
++ 	return;
++     }
++ 
++     if (cb_type & ( 1 << CB_CONF_NO ) ) {
++         if(debug)
++              dbglog("cbcp_ack CONF_NO");
++ 	PUTCHAR(CB_CONF_NO, bufp);
++ 	len = 2;
++ 	PUTCHAR(len , bufp);
++ 	cbcp_send(us, CBCP_ACK, buf, len);
++ 	cbcp_up(us);
++ 	return;
++     }
++}
++ 
++static void
++cbcp_req(us)
++    cbcp_state *us;
++{
++    u_char cb_type;
++    u_char buf[256];
++    u_char *bufp = buf;
++    int len = 0;
++    
++    cb_type = us->us_type;
++
++    if (cb_type & ( 1 << CB_CONF_USER ) ) {
++        if(debug)
++	    dbglog("cbcp_req CONF_USER");
++	PUTCHAR(CB_CONF_USER, bufp);
++ 	len = 2 + 1 + strlen(us->us_number);
++ 	PUTCHAR(len , bufp);
++ 	PUTCHAR(5, bufp); /* delay */
++ 	PUTCHAR(1, bufp);
++ 	BCOPY(us->us_number, bufp, strlen(us->us_number));
++ 	cbcp_send(us, CBCP_REQ, buf, len);
++ 	return;
++    }
++ 
++    if (cb_type & ( 1 << CB_CONF_ADMIN ) ) {
++        if(debug)
++	    dbglog("cbcp_req CONF_ADMIN");
++        PUTCHAR(CB_CONF_ADMIN, bufp);
++ 	len = 2 + 1;
++ 	PUTCHAR(len , bufp);
++ 	PUTCHAR(5, bufp); /* delay */
++ 	PUTCHAR(0, bufp);
++ 	cbcp_send(us, CBCP_REQ, buf, len);
++ 	return;
++     }
++ 
++     if (cb_type & ( 1 << CB_CONF_NO ) ) {
++         if(debug)
++              dbglog("cbcp_req CONF_NO");
++ 	PUTCHAR(CB_CONF_NO, bufp);
++ 	len = 2;
++ 	PUTCHAR(len , bufp);
++ 	cbcp_send(us, CBCP_REQ, buf, len);
++ 	return;
++    }
++}
++ 
++/* received CBCP request */
++static void
++cbcp_recvresp(us, pckt, pcktlen)
++    cbcp_state *us;
++    char *pckt;
++    int pcktlen;
++{
++    u_char type, opt_len, delay, addr_type;
++    char address[256];
++    int len = pcktlen;
++
++    address[0] = 0;
++
++    if(debug)
++	dbglog("CBCP_RESP received");
++ 
++    while (len) {
++        if(debug)
++            dbglog("length: %d", len);
++
++	GETCHAR(type, pckt);
++ 	GETCHAR(opt_len, pckt);
++ 
++ 	if (opt_len > 2)
++ 	    GETCHAR(delay, pckt);
++ 
++ 	us->us_allowed |= (1 << type);
++ 
++ 	switch(type) {
++ 	case CB_CONF_NO:
++ 	    dbglog("Callback: none");
++ 	    break;
++ 
++ 	case CB_CONF_USER:
++ 	    if (opt_len > 4) {
++ 	        GETCHAR(addr_type, pckt);
++ 		memcpy(address, pckt, opt_len - 4);
++ 		address[opt_len - 4] = 0;
++ 	        dbglog("Callback: user callback, address: '%s'", address);
++ 	    }
++ 	    else
++ 	        dbglog("Callback: user callback");
++ 	    break;
++ 
++ 	case CB_CONF_ADMIN:
++	    dbglog("Callback: user admin defined");
++	    break;
++ 
++ 	case CB_CONF_LIST:
++ 	    break;
++ 	}
++ 	len -= opt_len;
++    }
++ 
++    cbcp_ack(us);
++}
++ 
++static void
+ cbcp_send(us, code, buf, len)
+     cbcp_state *us;
+     u_char code;
+@@ -436,10 +685,14 @@
+ 	    memcpy(address, pckt, opt_len - 4);
+ 	    address[opt_len - 4] = 0;
+ 	    if (address[0])
+-	        dbglog("peer will call: %s", address);
++	        dbglog("Callback: peer will call: '%s'", address);
+ 	}
+-	if (type == CB_CONF_NO)
++	if (type != CB_CONF_NO)
++	{
++	    persist = 0;
++	    lcp_close(0, "Call me back, please");
+ 	    return;
++	}
+     }
+ 
+     cbcp_up(us);
+@@ -450,7 +703,6 @@
+ cbcp_up(us)
+     cbcp_state *us;
+ {
+-    persist = 0;
+-    lcp_close(0, "Call me back, please");
++    network_phase(us->us_unit);
+     status = EXIT_CALLBACK;
+ }
+--- ppp-2.4.1/pppd/ccp.c.mppe	2001-03-08 00:11:11.000000000 -0500
++++ ppp-2.4.1/pppd/ccp.c	2002-05-21 07:34:50.000000000 -0400
+@@ -33,6 +33,9 @@
+ #include "pppd.h"
+ #include "fsm.h"
+ #include "ccp.h"
++#ifdef MPPE
++#include "mppe.h"
++#endif
+ #include <net/ppp-comp.h>
+ 
+ static const char rcsid[] = RCSID;
+@@ -92,6 +95,32 @@
+     { "-predictor1", o_bool, &ccp_wantoptions[0].predictor_1,
+       "don't allow Predictor-1", OPT_ALIAS | OPT_PRIOSUB | OPT_A2CLR,
+       &ccp_allowoptions[0].predictor_1 },
++#ifdef MPPE
++    { "mppe-40", o_special_noarg, setmppe_40,
++      "Allow 40 bit MPPE encryption" }, 
++    { "+mppe-40", o_special_noarg, setmppe_40,
++      "Allow 40 bit MPPE encryption" }, 
++    { "nomppe-40", o_special_noarg, setnomppe_40,
++      "Disallow 40 bit MPPE encryption" }, 
++    { "-mppe-40", o_special_noarg, setnomppe_40,
++      "Disallow 40 bit MPPE encryption" }, 
++    { "mppe-128", o_special_noarg, setmppe_128,
++      "Allow 128 bit MPPE encryption" }, 
++    { "+mppe-128", o_special_noarg, setmppe_128,
++      "Allow 128 bit MPPE encryption" }, 
++    { "nomppe-128", o_special_noarg, setnomppe_128,
++      "Disallow 128 bit MPPE encryption" }, 
++    { "-mppe-128", o_special_noarg, setnomppe_128,
++      "Disallow 128 bit MPPE encryption" }, 
++    { "mppe-stateless", o_special_noarg, setmppe_stateless,
++      "Allow stateless MPPE encryption" }, 
++    { "+mppe-stateless", o_special_noarg, setmppe_stateless,
++      "Allow stateless MPPE encryption" }, 
++    { "nomppe-stateless", o_special_noarg, setnomppe_stateless,
++      "Disallow stateless MPPE encryption" }, 
++    { "-mppe-stateless", o_special_noarg, setnomppe_stateless,
++      "Disallow stateless MPPE encryption" }, 
++#endif
+ 
+     { NULL }
+ };
+@@ -175,7 +204,8 @@
+  * Do we want / did we get any compression?
+  */
+ #define ANY_COMPRESS(opt)	((opt).deflate || (opt).bsd_compress \
+-				 || (opt).predictor_1 || (opt).predictor_2)
++				 || (opt).predictor_1 || (opt).predictor_2 \
++				 || (opt).mppe )
+ 
+ /*
+  * Local state (mainly for handling reset-reqs and reset-acks).
+@@ -312,6 +342,16 @@
+     ccp_allowoptions[0].bsd_bits = BSD_MAX_BITS;
+ 
+     ccp_allowoptions[0].predictor_1 = 1;
++#ifdef MPPE
++    ccp_wantoptions[0].mppe = 0;
++    ccp_wantoptions[0].mppe_stateless = 0;
++    ccp_wantoptions[0].mppe_40 = 0;
++    ccp_wantoptions[0].mppe_128 = 0;
++    ccp_allowoptions[0].mppe_stateless = 1;
++    ccp_allowoptions[0].mppe = 1;
++    ccp_allowoptions[0].mppe_40 = 1;
++    ccp_allowoptions[0].mppe_128 = 1;
++#endif /* MPPE*/
+ }
+ 
+ /*
+@@ -450,7 +490,7 @@
+     fsm *f;
+ {
+     ccp_options *go = &ccp_gotoptions[f->unit];
+-    u_char opt_buf[16];
++    u_char opt_buf[256];
+ 
+     *go = ccp_wantoptions[f->unit];
+     all_rejected[f->unit] = 0;
+@@ -466,6 +506,18 @@
+ 	if (ccp_test(f->unit, opt_buf, CILEN_BSD_COMPRESS, 0) <= 0)
+ 	    go->bsd_compress = 0;
+     }
++#ifdef MPPE
++    if (go->mppe) {
++        opt_buf[0] = CI_MPPE;
++        opt_buf[1] = CILEN_MPPE;
++        opt_buf[2] = 0;
++	/* keysize is 8 here */
++        BCOPY(mppe_master_send_key_40, opt_buf+3, 8);
++        BCOPY(mppe_master_recv_key_40, opt_buf+11, 8);
++        if (ccp_test(f->unit, opt_buf, (2*8)+3, 0) <= 0)
++            go->mppe = 0;
++    }
++#endif /*MPPE*/
+     if (go->deflate) {
+ 	if (go->deflate_correct) {
+ 	    opt_buf[0] = CI_DEFLATE;
+@@ -512,7 +564,8 @@
+     return (go->bsd_compress? CILEN_BSD_COMPRESS: 0)
+ 	+ (go->deflate? CILEN_DEFLATE: 0)
+ 	+ (go->predictor_1? CILEN_PREDICTOR_1: 0)
+-	+ (go->predictor_2? CILEN_PREDICTOR_2: 0);
++	+ (go->predictor_2? CILEN_PREDICTOR_2: 0)
++	+ (go->mppe? CILEN_MPPE: 0);
+ }
+ 
+ /*
+@@ -559,6 +612,41 @@
+ 	    p += CILEN_DEFLATE;
+ 	}
+     }
++#ifdef MPPE
++    if (go->mppe) {
++        u_char opt_buf[64];
++        u_int keysize = 0;
++
++        if(!mppe_allowed)
++            go->mppe_stateless = go->mppe_40 = go->mppe_128 = 0;
++        p[0]=CI_MPPE;
++        p[1]=CILEN_MPPE;
++        p[2]=(go->mppe_stateless ? MPPE_STATELESS : 0);
++        p[3]=0;
++        p[4]=0;
++        p[5]=(go->mppe_40 ? MPPE_40BIT : 0) | (go->mppe_128 ? MPPE_128BIT : 0);
++        if(p[5] & MPPE_40BIT) {
++            keysize = 8;
++            BCOPY(mppe_master_send_key_40, opt_buf+3, keysize);
++            BCOPY(mppe_master_recv_key_40, opt_buf+11, keysize);
++        } else if(p[5] & MPPE_128BIT) {
++            keysize = 16;
++            BCOPY(mppe_master_send_key_128, opt_buf+3, keysize);
++            BCOPY(mppe_master_recv_key_128, opt_buf+19, keysize);
++        }
++        if(p[5] != 0) {
++            opt_buf[0]=CI_MPPE;
++            opt_buf[1]=CILEN_MPPE;
++            opt_buf[2] = (go->mppe_stateless) ? 1 : 0;
++            res = ccp_test(f->unit, opt_buf, (2*keysize)+3, 0);
++        } else {
++            res = -1;
++        }
++        if (res > 0) {
++                p += CILEN_MPPE;
++        }
++    }
++#endif /* MPPE*/
+     if (go->bsd_compress) {
+ 	p[0] = CI_BSD_COMPRESS;
+ 	p[1] = CILEN_BSD_COMPRESS;
+@@ -642,6 +730,22 @@
+ 	    len -= CILEN_DEFLATE;
+ 	}
+     }
++#ifdef MPPE
++    if (go->mppe) {
++        if ( len < CILEN_MPPE
++		|| p[1] != CILEN_MPPE || p[0] != CI_MPPE
++		|| p[2] != (go->mppe_stateless ? MPPE_STATELESS : 0)
++		|| p[3] != 0
++		|| p[4] != 0
++		|| p[5] != ((go->mppe_40 ? MPPE_40BIT : 0) | (go->mppe_128 ? MPPE_128BIT : 0)))
++           return 0;
++        p += CILEN_MPPE;
++        len -= CILEN_MPPE;
++        /* Cope with first/fast ack */
++        if (len == 0)
++            return 1;
++    }
++#endif /* MPPE */
+     if (go->bsd_compress) {
+ 	if (len < CILEN_BSD_COMPRESS
+ 	    || p[0] != CI_BSD_COMPRESS || p[1] != CILEN_BSD_COMPRESS
+@@ -720,6 +824,24 @@
+ 	}
+     }
+ 
++#ifdef MPPE
++    if (len >= CILEN_MPPE && p[0] == CI_MPPE && p[1] == CILEN_MPPE) {
++	no.mppe = 1;
++	if((p[5] & MPPE_128BIT) == 0)
++	    try.mppe_128 = 0;
++	if((p[5] & MPPE_40BIT) == 0)
++            try.mppe_40 = 0;
++	if((p[2] & MPPE_STATELESS) == 0)
++            try.mppe_stateless = 0;
++	if(!try.mppe_128 && !try.mppe_40) {
++            no.mppe = 0;
++            try.mppe = 0;
++	}
++	p += CILEN_MPPE;
++	len -= CILEN_MPPE;
++    }
++#endif /* MPPE */
++
+     if (go->bsd_compress && len >= CILEN_BSD_COMPRESS
+ 	&& p[0] == CI_BSD_COMPRESS && p[1] == CILEN_BSD_COMPRESS) {
+ 	no.bsd_compress = 1;
+@@ -792,6 +914,14 @@
+ 	if (!try.deflate_correct && !try.deflate_draft)
+ 	    try.deflate = 0;
+     }
++#ifdef MPPE
++    if (go->mppe && len >= CILEN_MPPE
++	&& p[0] == CI_MPPE && p[1] == CILEN_MPPE) {
++	try.mppe = 0;
++	p += CILEN_MPPE;
++	len -= CILEN_MPPE;
++    }
++#endif /*MPPE*/
+     if (go->bsd_compress && len >= CILEN_BSD_COMPRESS
+ 	&& p[0] == CI_BSD_COMPRESS && p[1] == CILEN_BSD_COMPRESS) {
+ 	if (p[2] != BSD_MAKE_OPT(BSD_CURRENT_VERSION, go->bsd_bits))
+@@ -905,6 +1035,82 @@
+ 		}
+ 		break;
+ 
++#ifdef MPPE
++	    case CI_MPPE:
++		if (!ao->mppe || clen != CILEN_MPPE) {
++		    newret = CONFREJ;
++		    break;
++		}
++		if(!mppe_allowed)
++		{
++		    newret = CONFREJ;
++		    break;
++		}
++		ho->mppe = 1;
++		if((p[5]&(MPPE_40BIT|MPPE_128BIT)) == (MPPE_40BIT|MPPE_128BIT))
++		{
++		    /* if both are available, select the stronger */
++		    p[5] &= ~MPPE_40BIT;
++		    newret = CONFNAK;
++		}
++		if((p[2] & ~MPPE_STATELESS) != 0
++		   || p[3] != 0
++		   || p[4] != 0
++		   || (p[5] & ~(MPPE_40BIT | MPPE_128BIT)) != 0)
++		{
++    		    ccp_options *wo = &ccp_wantoptions[f->unit];
++		    /* not sure what they want, tell 'em what we got */
++		    p[2] &= MPPE_STATELESS;
++		    p[3] &= 0;
++		    p[4] &= 0;
++		    p[5] &= MPPE_40BIT | MPPE_128BIT;
++		    if(wo->mppe_40)
++		        p[5] |= MPPE_40BIT;
++		    if(wo->mppe_128)
++		        p[5] |= MPPE_128BIT;
++		    newret = CONFNAK;
++		}
++		
++		if((newret == CONFACK) || (newret == CONFNAK))
++		{
++    		    /* 
++		     * The kernel ppp driver needs the session key 
++                     * which is not sent via CCP :( 
++		     */
++		    unsigned int keysize;
++		    unsigned char opt_buf[64];
++		    opt_buf[0] = CI_MPPE;
++		    opt_buf[1] = CILEN_MPPE;
++		    if (p[2] & MPPE_STATELESS) {
++		      ho->mppe_stateless=1;
++		      opt_buf[2] = MPPE_STATELESS;
++		    }
++		    /* push in our send/receive keys */
++		    if(p[5] & MPPE_40BIT) {
++			ho->mppe_40 = 1;
++			keysize = 8;
++		        BCOPY(mppe_master_send_key_40, opt_buf+3, keysize);
++		        BCOPY(mppe_master_recv_key_40, opt_buf+11, keysize);
++		    } else if(p[5] & MPPE_128BIT) {
++			ho->mppe_128 = 1;
++			keysize = 16;
++		        BCOPY(mppe_master_send_key_128, opt_buf+3, keysize);
++		        BCOPY(mppe_master_recv_key_128, opt_buf+19, keysize);
++		    } else {
++		        ho->mppe = 0;
++		        newret = CONFREJ;
++		        break;
++		    }
++		    /* call ioctl and pass this nasty stuff to the kernel */
++		    if (ccp_test(f->unit, opt_buf, (2*keysize)+3, 1) <= 0){
++			ho->mppe = 0;
++			newret = CONFREJ;
++			break;
++		    }
++		}
++		break;
++#endif /* MPPE */
++
+ 	    case CI_BSD_COMPRESS:
+ 		if (!ao->bsd_compress || clen != CILEN_BSD_COMPRESS) {
+ 		    newret = CONFREJ;
+@@ -1026,6 +1232,30 @@
+ 		     (opt->method == CI_DEFLATE_DRAFT? "(old#)": ""),
+ 		     opt->deflate_size);
+ 	break;
++#ifdef MPPE
++    case CI_MPPE:
++	if (opt->mppe_40) {
++	    if (opt->mppe_stateless) {
++		return "MPPE 40 bit, stateless";
++	    } else {
++		return "MPPE 40 bit, non-stateless";
++	    }
++	} else if (opt->mppe_128) {
++	    if (opt->mppe_stateless) {
++		return "MPPE 128 bit, stateless";
++	    } else {
++		return "MPPE 128 bit, non-stateless";
++	    }
++	} else {
++	    if (opt->mppe_stateless) {
++		return "MPPE unknown strength, stateless";
++	    } else {
++		return "MPPE unknown strength, stateless";
++	    }
++	}
++#endif
++    case CI_LZS:
++	return "Stac LZS";
+     case CI_BSD_COMPRESS:
+ 	if (opt2 != NULL && opt2->bsd_bits != opt->bsd_bits)
+ 	    slprintf(result, sizeof(result), "BSD-Compress (%d/%d)",
+@@ -1164,6 +1394,18 @@
+ 		    p += CILEN_PREDICTOR_1;
+ 		}
+ 		break;
++	    case CI_MPPE:
++		if (optlen >= CILEN_MPPE) {
++		    printer(arg, "mppe %x %x %x %x",p[2],p[3],p[4],p[5]);
++		    p += CILEN_MPPE;
++		}
++		break;
++	    case CI_LZS:
++		if (optlen >= CILEN_LZS) {
++		    printer(arg, "lzs %x %x %x", p[2], p[3], p[4]);
++		    p += CILEN_LZS;
++		}
++		break;
+ 	    case CI_PREDICTOR_2:
+ 		if (optlen >= CILEN_PREDICTOR_2) {
+ 		    printer(arg, "predictor 2");
+@@ -1223,6 +1465,9 @@
+ 	    error("Lost compression sync: disabling compression");
+ 	    ccp_close(unit, "Lost compression sync");
+ 	} else {
++	    /* MPPE/MPPC does not requires CCP_RESETREQ */
++	    if (ccp_gotoptions[f->unit].method == CI_MPPE)
++		return;
+ 	    /*
+ 	     * Send a reset-request to reset the peer's compressor.
+ 	     * We don't do that if we are still waiting for an
+--- ppp-2.4.1/pppd/ccp.h.mppe	1998-11-07 01:58:11.000000000 -0500
++++ ppp-2.4.1/pppd/ccp.h	2002-05-21 07:34:50.000000000 -0400
+@@ -34,6 +34,10 @@
+     bool predictor_2;		/* do Predictor-2? */
+     bool deflate_correct;	/* use correct code for deflate? */
+     bool deflate_draft;		/* use draft RFC code for deflate? */
++    bool mppe;			/* do M$ encryption? */
++    bool mppe_40;		/* allow 40 bit encryption */
++    bool mppe_128;		/* allow 128 bit encryption */
++    bool mppe_stateless;	/* allow stateless encryption */
+     u_short bsd_bits;		/* # bits/code for BSD Compress */
+     u_short deflate_size;	/* lg(window size) for Deflate */
+     short method;		/* code for chosen compression method */
+@@ -46,3 +50,8 @@
+ extern ccp_options ccp_hisoptions[];
+ 
+ extern struct protent ccp_protent;
++
++#ifdef MPPE
++size_t mppe_generate_session_key(char *optbuf);
++#endif
++
+--- ppp-2.4.1/pppd/chap.c.mppe	2001-03-08 00:11:11.000000000 -0500
++++ ppp-2.4.1/pppd/chap.c	2002-05-21 07:34:50.000000000 -0400
+@@ -47,6 +47,8 @@
+ #include "pppd.h"
+ #include "chap.h"
+ #include "md5.h"
++#include "fsm.h"
++#include "lcp.h"
+ #ifdef CHAPMS
+ #include "chap_ms.h"
+ #endif
+@@ -113,7 +115,7 @@
+ static void ChapSendStatus __P((chap_state *, int));
+ static void ChapSendChallenge __P((chap_state *));
+ static void ChapSendResponse __P((chap_state *));
+-static void ChapGenChallenge __P((chap_state *));
++void ChapGenChallenge __P((chap_state *));
+ 
+ extern double drand48 __P((void));
+ extern void srand48 __P((long));
+@@ -460,6 +462,7 @@
+     switch (cstate->resp_type) { 
+ 
+     case CHAP_DIGEST_MD5:
++	CHAPDEBUG(("ChapReceiveChallenge: rcvd type CHAP-DIGEST-MD5"));
+ 	MD5Init(&mdContext);
+ 	MD5Update(&mdContext, &cstate->resp_id, 1);
+ 	MD5Update(&mdContext, secret, secret_len);
+@@ -471,8 +474,24 @@
+ 
+ #ifdef CHAPMS
+     case CHAP_MICROSOFT:
++	CHAPDEBUG(("ChapReceiveChallenge: rcvd type MS-CHAP-V1."));
++	if(rchallenge_len != 8)
++	{
++	    CHAPDEBUG(("Invalid challenge length for MS-CHAP-V1"));
++	    return;
++	}
+ 	ChapMS(cstate, rchallenge, rchallenge_len, secret, secret_len);
+ 	break;
++
++    case CHAP_MICROSOFT_V2:
++	CHAPDEBUG(("ChapReceiveChallenge: rcvd type MS-CHAP-V2."));
++	if(rchallenge_len != 16)
++	{
++	    CHAPDEBUG(("Invalid challenge length for MS-CHAP-V2"));
++	    return;
++	}
++	ChapMS_v2(cstate, rchallenge, rchallenge_len, secret, secret_len);
++	break;
+ #endif
+ 
+     default:
+@@ -560,7 +579,8 @@
+ 	/*  generate MD based on negotiated type */
+ 	switch (cstate->chal_type) { 
+ 
+-	case CHAP_DIGEST_MD5:		/* only MD5 is defined for now */
++	case CHAP_DIGEST_MD5:
++	    CHAPDEBUG(("ChapReceiveResponse: rcvd type CHAP-DIGEST-MD5"));
+ 	    if (remmd_len != MD5_SIGNATURE_SIZE)
+ 		break;			/* it's not even the right length */
+ 	    MD5Init(&mdContext);
+@@ -574,6 +594,27 @@
+ 		code = CHAP_SUCCESS;	/* they are the same! */
+ 	    break;
+ 
++#ifdef CHAPMS
++	case CHAP_MICROSOFT:
++	    CHAPDEBUG(("ChapReceiveResponse: rcvd type MS-CHAP-V1"));
++	    if(remmd_len != MS_CHAP_RESPONSE_LEN)
++		break;
++	    if(ChapMS_Resp(cstate, secret, secret_len, remmd) == 0)
++		code = CHAP_SUCCESS;
++	    break;
++
++	case CHAP_MICROSOFT_V2:
++	    CHAPDEBUG(("ChapReceiveResponse: rcvd type MS-CHAP-V2"));
++	    if(remmd_len != MS_CHAP_RESPONSE_LEN)
++		break;
++	    if(ChapMS_v2_Resp(cstate,secret,secret_len,remmd,rhostname) == 0)
++	    {
++		code = CHAP_SUCCESS_R;
++		ChapMS_v2_Auth(cstate, secret, secret_len, remmd, rhostname);
++	    }
++	    break;
++#endif
++
+ 	default:
+ 	    CHAPDEBUG(("unknown digest type %d", cstate->chal_type));
+ 	}
+@@ -582,7 +623,7 @@
+     BZERO(secret, sizeof(secret));
+     ChapSendStatus(cstate, code);
+ 
+-    if (code == CHAP_SUCCESS) {
++    if ((code == CHAP_SUCCESS) || (code == CHAP_SUCCESS_R)) {
+ 	old_state = cstate->serverstate;
+ 	cstate->serverstate = CHAPSS_OPEN;
+ 	if (old_state == CHAPSS_INITIAL_CHAL) {
+@@ -590,10 +631,43 @@
+ 	}
+ 	if (cstate->chal_interval != 0)
+ 	    TIMEOUT(ChapRechallenge, cstate, cstate->chal_interval);
+-	notice("CHAP peer authentication succeeded for %q", rhostname);
+-
++	switch (cstate->chal_type) { 
++	  case CHAP_DIGEST_MD5:
++	    notice("CHAP peer authentication succeeded for %q", rhostname);
++	    break;
++#ifdef CHAPMS
++	  case CHAP_MICROSOFT:
++	    notice("MSCHAP peer authentication succeeded for %q", rhostname);
++	    break;
++	  case CHAP_MICROSOFT_V2:
++	    notice("MSCHAP-v2 peer authentication succeeded for %q", rhostname);
++	    break;
++#endif
++	  default:
++	    notice("CHAP (unknown) peer authentication succeeded for %q", 
++		   rhostname);
++	    break;
++	}
+     } else {
+-	error("CHAP peer authentication failed for remote host %q", rhostname);
++	switch (cstate->chal_type) { 
++	  case CHAP_DIGEST_MD5:
++	    error("CHAP peer authentication failed for remote host %q", 
++		  rhostname);
++	    break;
++#ifdef CHAPMS
++	  case CHAP_MICROSOFT:
++	    error("MSCHAP peer authentication failed for remote host %q", 
++		  rhostname);
++	    break;
++	  case CHAP_MICROSOFT_V2:
++	    error("MSCHAP-v2 peer authentication failed for remote host %q", 
++		  rhostname);
++	    break;
++#endif
++	  default:
++	    error("CHAP (unknown) peer authentication failed for remote host %q", rhostname);
++	    break;
++	}
+ 	cstate->serverstate = CHAPSS_BADAUTH;
+ 	auth_peer_fail(cstate->unit, PPP_CHAP);
+     }
+@@ -712,6 +786,8 @@
+ 
+     if (code == CHAP_SUCCESS)
+ 	slprintf(msg, sizeof(msg), "Welcome to %s.", hostname);
++    else if(code == CHAP_SUCCESS_R)
++	strcpy(msg, cstate->response);
+     else
+ 	slprintf(msg, sizeof(msg), "I don't like you.  Go 'way.");
+     msglen = strlen(msg);
+@@ -721,7 +797,7 @@
+ 
+     MAKEHEADER(outp, PPP_CHAP);	/* paste in a header */
+   
+-    PUTCHAR(code, outp);
++    PUTCHAR(code == CHAP_SUCCESS_R ? CHAP_SUCCESS : code, outp);
+     PUTCHAR(cstate->chal_id, outp);
+     PUTSHORT(outlen, outp);
+     BCOPY(msg, outp, msglen);
+@@ -735,7 +811,7 @@
+  * *cstate are initialized.
+  */
+ 
+-static void
++void
+ ChapGenChallenge(cstate)
+     chap_state *cstate;
+ {
+@@ -743,6 +819,14 @@
+     u_char *ptr = cstate->challenge;
+     int i;
+ 
++#ifdef CHAPMS
++    if(cstate->chal_type == CHAP_MICROSOFT)
++	chal_len = 8;
++    else if(cstate->chal_type == CHAP_MICROSOFT_V2)
++	chal_len = 16;
++    else
++#endif
++
+     /* pick a random challenge length between MIN_CHALLENGE_LENGTH and 
+        MAX_CHALLENGE_LENGTH */  
+     chal_len =  (unsigned) ((drand48() *
+@@ -858,3 +942,13 @@
+ 
+     return len + CHAP_HEADERLEN;
+ }
++
++int
++reqchap(argv)
++        char **argv;
++{
++    lcp_wantoptions[0].neg_chap = 1;
++    lcp_wantoptions[0].use_digest = 1;
++    auth_required = 1;
++    return 1;
++}
+--- ppp-2.4.1/pppd/chap.h.mppe	1999-11-14 20:44:41.000000000 -0500
++++ ppp-2.4.1/pppd/chap.h	2002-05-21 07:34:50.000000000 -0400
+@@ -46,11 +46,13 @@
+ #define MD5_SIGNATURE_SIZE	16	/* 16 bytes in a MD5 message digest */
+ #define CHAP_MICROSOFT		0x80	/* use Microsoft-compatible alg. */
+ #define MS_CHAP_RESPONSE_LEN	49	/* Response length for MS-CHAP */
++#define CHAP_MICROSOFT_V2	0x81	/* use MS-CHAP v2 */
+ 
+ #define CHAP_CHALLENGE		1
+ #define CHAP_RESPONSE		2
+ #define CHAP_SUCCESS		3
+ #define CHAP_FAILURE    	4
++#define CHAP_SUCCESS_R		13	/* Send response, not text message */
+ 
+ /*
+  *  Challenge lengths (for challenges we send) and other limits.
+@@ -117,6 +119,9 @@
+ 
+ void ChapAuthWithPeer __P((int, char *, int));
+ void ChapAuthPeer __P((int, char *, int));
++void ChapGenChallenge __P((chap_state *));
++
++int reqchap(char **);
+ 
+ extern struct protent chap_protent;
+ 
+--- ppp-2.4.1/pppd/chap_ms.c.mppe	1999-08-13 02:46:12.000000000 -0400
++++ ppp-2.4.1/pppd/chap_ms.c	2002-05-21 07:34:50.000000000 -0400
+@@ -49,11 +49,13 @@
+ #include "pppd.h"
+ #include "chap.h"
+ #include "chap_ms.h"
+-#include "md4.h"
+-
+-#ifndef USE_CRYPT
+-#include <des.h>
++#include "openssl/sha.h"
++#include "fsm.h"
++#include "lcp.h"
++#ifdef MPPE
++#include "mppe.h"
+ #endif
++#include "extra_crypto.h"
+ 
+ static const char rcsid[] = RCSID;
+ 
+@@ -65,21 +67,19 @@
+ /* We use MS_CHAP_RESPONSE_LEN, rather than sizeof(MS_ChapResponse),
+    in case this struct gets padded. */
+ 
++typedef struct {
++    u_char PeerChallenge[16];
++    u_char Reserved[8];
++    u_char NTResp[24];
++    u_char Flags;
++} MS_ChapResponse_v2;
+ 
+ static void	ChallengeResponse __P((u_char *, u_char *, u_char *));
+-static void	DesEncrypt __P((u_char *, u_char *, u_char *));
+-static void	MakeKey __P((u_char *, u_char *));
+-static u_char	Get7Bits __P((u_char *, int));
+ static void	ChapMS_NT __P((char *, int, char *, int, MS_ChapResponse *));
+ #ifdef MSLANMAN
+ static void	ChapMS_LANMan __P((char *, int, char *, int, MS_ChapResponse *));
+ #endif
+ 
+-#ifdef USE_CRYPT
+-static void	Expand __P((u_char *, u_char *));
+-static void	Collapse __P((u_char *, u_char *));
+-#endif
+-
+ #ifdef MSLANMAN
+ bool	ms_lanman = 0;    	/* Use LanMan password instead of NT */
+ 			  	/* Has meaning only with MS-CHAP challenges */
+@@ -110,142 +110,6 @@
+ #endif
+ }
+ 
+-
+-#ifdef USE_CRYPT
+-static void
+-DesEncrypt(clear, key, cipher)
+-    u_char *clear;	/* IN  8 octets */
+-    u_char *key;	/* IN  7 octets */
+-    u_char *cipher;	/* OUT 8 octets */
+-{
+-    u_char des_key[8];
+-    u_char crypt_key[66];
+-    u_char des_input[66];
+-
+-    MakeKey(key, des_key);
+-
+-    Expand(des_key, crypt_key);
+-    setkey(crypt_key);
+-
+-#if 0
+-    CHAPDEBUG((LOG_INFO, "DesEncrypt: 8 octet input : %.8B", clear));
+-#endif
+-
+-    Expand(clear, des_input);
+-    encrypt(des_input, 0);
+-    Collapse(des_input, cipher);
+-
+-#if 0
+-    CHAPDEBUG((LOG_INFO, "DesEncrypt: 8 octet output: %.8B", cipher));
+-#endif
+-}
+-
+-#else /* USE_CRYPT */
+-
+-static void
+-DesEncrypt(clear, key, cipher)
+-    u_char *clear;	/* IN  8 octets */
+-    u_char *key;	/* IN  7 octets */
+-    u_char *cipher;	/* OUT 8 octets */
+-{
+-    des_cblock		des_key;
+-    des_key_schedule	key_schedule;
+-
+-    MakeKey(key, des_key);
+-
+-    des_set_key(&des_key, key_schedule);
+-
+-#if 0
+-    CHAPDEBUG((LOG_INFO, "DesEncrypt: 8 octet input : %.8B", clear));
+-#endif
+-
+-    des_ecb_encrypt((des_cblock *)clear, (des_cblock *)cipher, key_schedule, 1);
+-
+-#if 0
+-    CHAPDEBUG((LOG_INFO, "DesEncrypt: 8 octet output: %.8B", cipher));
+-#endif
+-}
+-
+-#endif /* USE_CRYPT */
+-
+-
+-static u_char Get7Bits(input, startBit)
+-    u_char *input;
+-    int startBit;
+-{
+-    register unsigned int	word;
+-
+-    word  = (unsigned)input[startBit / 8] << 8;
+-    word |= (unsigned)input[startBit / 8 + 1];
+-
+-    word >>= 15 - (startBit % 8 + 7);
+-
+-    return word & 0xFE;
+-}
+-
+-#ifdef USE_CRYPT
+-
+-/* in == 8-byte string (expanded version of the 56-bit key)
+- * out == 64-byte string where each byte is either 1 or 0
+- * Note that the low-order "bit" is always ignored by by setkey()
+- */
+-static void Expand(in, out)
+-    u_char *in;
+-    u_char *out;
+-{
+-        int j, c;
+-        int i;
+-
+-        for(i = 0; i < 64; in++){
+-		c = *in;
+-                for(j = 7; j >= 0; j--)
+-                        *out++ = (c >> j) & 01;
+-                i += 8;
+-        }
+-}
+-
+-/* The inverse of Expand
+- */
+-static void Collapse(in, out)
+-    u_char *in;
+-    u_char *out;
+-{
+-        int j;
+-        int i;
+-	unsigned int c;
+-
+-	for (i = 0; i < 64; i += 8, out++) {
+-	    c = 0;
+-	    for (j = 7; j >= 0; j--, in++)
+-		c |= *in << j;
+-	    *out = c & 0xff;
+-	}
+-}
+-#endif
+-
+-static void MakeKey(key, des_key)
+-    u_char *key;	/* IN  56 bit DES key missing parity bits */
+-    u_char *des_key;	/* OUT 64 bit DES key with parity bits added */
+-{
+-    des_key[0] = Get7Bits(key,  0);
+-    des_key[1] = Get7Bits(key,  7);
+-    des_key[2] = Get7Bits(key, 14);
+-    des_key[3] = Get7Bits(key, 21);
+-    des_key[4] = Get7Bits(key, 28);
+-    des_key[5] = Get7Bits(key, 35);
+-    des_key[6] = Get7Bits(key, 42);
+-    des_key[7] = Get7Bits(key, 49);
+-
+-#ifndef USE_CRYPT
+-    des_set_odd_parity((des_cblock *)des_key);
+-#endif
+-
+-#if 0
+-    CHAPDEBUG((LOG_INFO, "MakeKey: 56-bit input : %.7B", key));
+-    CHAPDEBUG((LOG_INFO, "MakeKey: 64-bit output: %.8B", des_key));
+-#endif
+-}
+-
+ static void
+ ChapMS_NT(rchallenge, rchallenge_len, secret, secret_len, response)
+     char *rchallenge;
+@@ -254,34 +118,13 @@
+     int secret_len;
+     MS_ChapResponse    *response;
+ {
+-    int			i;
+-#ifdef __NetBSD__
+-    /* NetBSD uses the libc md4 routines which take bytes instead of bits */
+-    int			mdlen = secret_len * 2;
+-#else
+-    int			mdlen = secret_len * 2 * 8;
+-#endif
+-    MD4_CTX		md4Context;
+     u_char		hash[MD4_SIGNATURE_SIZE];
+-    u_char		unicodePassword[MAX_NT_PASSWORD * 2];
+-
+-    /* Initialize the Unicode version of the secret (== password). */
+-    /* This implicitly supports 8-bit ISO8859/1 characters. */
+-    BZERO(unicodePassword, sizeof(unicodePassword));
+-    for (i = 0; i < secret_len; i++)
+-	unicodePassword[i * 2] = (u_char)secret[i];
+-
+-    MD4Init(&md4Context);
+-    MD4Update(&md4Context, unicodePassword, mdlen);
+-
+-    MD4Final(hash, &md4Context); 	/* Tell MD4 we're done */
+ 
++    NtPasswordHash(secret, secret_len, hash);
+     ChallengeResponse(rchallenge, hash, response->NTResp);
+ }
+ 
+ #ifdef MSLANMAN
+-static u_char *StdText = (u_char *)"KGS!@#$%"; /* key from rasapi32.dll */
+-
+ static void
+ ChapMS_LANMan(rchallenge, rchallenge_len, secret, secret_len, response)
+     char *rchallenge;
+@@ -290,16 +133,9 @@
+     int secret_len;
+     MS_ChapResponse	*response;
+ {
+-    int			i;
+-    u_char		UcasePassword[MAX_NT_PASSWORD]; /* max is actually 14 */
+     u_char		PasswordHash[MD4_SIGNATURE_SIZE];
+ 
+-    /* LANMan password is case insensitive */
+-    BZERO(UcasePassword, sizeof(UcasePassword));
+-    for (i = 0; i < secret_len; i++)
+-       UcasePassword[i] = (u_char)toupper(secret[i]);
+-    DesEncrypt( StdText, UcasePassword + 0, PasswordHash + 0 );
+-    DesEncrypt( StdText, UcasePassword + 7, PasswordHash + 8 );
++    LmPasswordHash(secret, secret_len, PasswordHash);
+     ChallengeResponse(rchallenge, PasswordHash, response->LANManResp);
+ }
+ #endif
+@@ -331,8 +167,209 @@
+     response.UseNT = 1;
+ #endif
+ 
++#ifdef MPPE
++    mppe_gen_master_key(secret, secret_len, rchallenge);
++#endif
++    BCOPY(&response, cstate->response, MS_CHAP_RESPONSE_LEN);
++    cstate->resp_length = MS_CHAP_RESPONSE_LEN;
++}
++
++int
++ChapMS_Resp(cstate, secret, secret_len, remmd)
++    chap_state *cstate;
++    char *secret;
++    int secret_len;
++    u_char *remmd;
++{
++    MS_ChapResponse local;
++    MS_ChapResponse *response = (MS_ChapResponse *)remmd;
++    int i;
++
++    BZERO(&local, sizeof(response));
++
++    if(response->UseNT)
++    {
++      ChapMS_NT(cstate->challenge,cstate->chal_len, secret, secret_len, &local);
++      i = memcmp(local.NTResp, response->NTResp, sizeof(local.NTResp));
++
++#ifdef MPPE
++      if(i == 0)
++        mppe_gen_master_key(secret, secret_len, cstate->challenge);
++#endif
++      return(i);
++    }
++
++#ifdef MSLANMAN
++    ChapMS_LANMan(cstate->challenge, cstate->chal_len, secret, secret_len, 
++		&local);
++    if(memcmp(local.LANManResp, response->LANManResp, 
++	sizeof(local.LANManResp)) == 0) {
++#ifdef MPPE
++      mppe_gen_master_key(secret, secret_len, cstate->challenge);
++#endif
++      return(0);
++    }
++#endif /* MSLANMAN */
++    return(1);
++}
++
++void
++ChallengeHash(PeerChallenge, AuthenticatorChallenge, UserName, Challenge)
++    char *PeerChallenge;
++    char *AuthenticatorChallenge;
++    char *UserName;
++    char *Challenge;
++{
++    SHA_CTX Context;
++    u_char Digest[SHA_DIGEST_LENGTH];
++    char *username;
++    
++    if((username = strrchr(UserName, '\\')) != (char *)NULL)
++      ++username;
++    else
++      username = UserName;
++    SHA1_Init(&Context);
++    SHA1_Update(&Context, PeerChallenge, 16);
++    SHA1_Update(&Context, AuthenticatorChallenge, 16);
++    SHA1_Update(&Context, username, strlen(username));
++    SHA1_Final(Digest, &Context);
++    BCOPY(Digest, Challenge, 8);
++}
++
++void
++ChapMS_v2(cstate, AuthenticatorChallenge, AuthenticatorChallengeLen, Password, PasswordLen)
++    chap_state *cstate;
++    char *AuthenticatorChallenge;
++    int AuthenticatorChallengeLen;
++    char *Password;
++    int PasswordLen;
++{
++    u_char Challenge[8];
++    u_char PasswordHash[MD4_SIGNATURE_SIZE];
++    MS_ChapResponse_v2 response;
++  
++    BZERO(&response, sizeof(response));
++    ChapGenChallenge(cstate);
++    BCOPY(cstate->challenge, response.PeerChallenge, 
++		sizeof(response.PeerChallenge));
++    ChallengeHash(response.PeerChallenge, AuthenticatorChallenge, 
++		cstate->resp_name, Challenge);
++    NtPasswordHash(Password, PasswordLen, PasswordHash);
++    ChallengeResponse(Challenge, PasswordHash, response.NTResp);
+     BCOPY(&response, cstate->response, MS_CHAP_RESPONSE_LEN);
+     cstate->resp_length = MS_CHAP_RESPONSE_LEN;
++#ifdef MPPE
++    mppe_gen_master_key_v2(Password, PasswordLen, response.NTResp, 0);
++#endif
++}
++
++int
++ChapMS_v2_Resp(cstate, Password, PasswordLen, remmd, UserName)
++    chap_state *cstate;
++    char *Password;
++    int PasswordLen;
++    u_char *remmd;
++    char *UserName;
++{
++    u_char Challenge[8];
++    u_char PasswordHash[MD4_SIGNATURE_SIZE];
++    MS_ChapResponse_v2 response, response1;
++    int i;
++  
++    BCOPY(remmd, &response, MS_CHAP_RESPONSE_LEN);
++    ChallengeHash(response.PeerChallenge,cstate->challenge,UserName,Challenge);
++    NtPasswordHash(Password, PasswordLen, PasswordHash);
++    ChallengeResponse(Challenge, PasswordHash, response1.NTResp);
++    i = memcmp(response.NTResp, response1.NTResp, sizeof(response.NTResp));
++#ifdef MPPE
++    if(i == 0)
++      mppe_gen_master_key_v2(Password, PasswordLen, response1.NTResp, 1);
++#endif
++    return(i);
++}
++
++void
++ChapMS_v2_Auth(cstate, Password, PasswordLen, remmd, UserName)
++    chap_state *cstate;
++    char *Password;
++    int  PasswordLen;
++    u_char *remmd;
++    char *UserName;
++{
++    u_char PasswordHash[MD4_SIGNATURE_SIZE];
++    u_char PasswordHashHash[MD4_SIGNATURE_SIZE];
++    u_char Challenge[8];
++    static char Magic1[] = "Magic server to client signing constant";
++    static char Magic2[] = "Pad to make it do more than one iteration";
++
++    SHA_CTX Context;
++    u_char Digest[SHA_DIGEST_LENGTH];
++    MS_ChapResponse_v2 *response = (MS_ChapResponse_v2 *)remmd;
++    char   StrResponse[SHA_DIGEST_LENGTH * 2 + 3], *s;
++    int i;
++    static char HexDigs[] = "0123456789ABCDEF";
++    
++    NtPasswordHash(Password, PasswordLen, PasswordHash);
++    md4(PasswordHash, sizeof(PasswordHash), PasswordHashHash);
++
++    SHA1_Init(&Context);
++    SHA1_Update(&Context, PasswordHashHash, 16);
++    SHA1_Update(&Context, response->NTResp, 24);
++    SHA1_Update(&Context, Magic1, sizeof(Magic1) - 1);
++    SHA1_Final(Digest, &Context);
++
++    ChallengeHash(response->PeerChallenge,cstate->challenge,UserName,Challenge);
++    
++    SHA1_Init(&Context);
++    SHA1_Update(&Context, Digest, SHA_DIGEST_LENGTH);
++    SHA1_Update(&Context, Challenge, 8);
++    SHA1_Update(&Context, Magic2, sizeof(Magic2) - 1);
++    SHA1_Final(Digest, &Context);
++    s = stpcpy(StrResponse, "S=");
++    for(i = 0; i < SHA_DIGEST_LENGTH; ++i) {
++      *s++ = HexDigs[Digest[i] >> 4];
++      *s++ = HexDigs[Digest[i] & 0x0F];
++    }
++    *s = '\0';
++    BCOPY(StrResponse, cstate->response, sizeof(StrResponse));
++    cstate->resp_length = sizeof(StrResponse) - 1;
++}
++
++/*
++ * functions called from config options
++ */
++int 
++reqchapms(char **argv)
++{
++    lcp_wantoptions[0].neg_chap = 1;
++    lcp_wantoptions[0].use_chapms = 1;
++    auth_required = 1;
++
++    return 1;
++}
++
++int 
++nochapms(char **argv)
++{
++    lcp_wantoptions[0].use_chapms = 0;
++    return 1;
++}
++
++int 
++reqchapms_v2(char **argv)
++{
++    lcp_wantoptions[0].neg_chap = 1;
++    lcp_wantoptions[0].use_chapms_v2 = 1;
++    auth_required = 1;
++
++    return 1;
++}
++
++int 
++nochapms_v2(char **argv)
++{
++    lcp_wantoptions[0].use_chapms_v2 = 0;
++    return 1;
+ }
+ 
+ #endif /* CHAPMS */
+--- ppp-2.4.1/pppd/chap_ms.h.mppe	1998-11-07 01:55:39.000000000 -0500
++++ ppp-2.4.1/pppd/chap_ms.h	2002-05-21 07:34:50.000000000 -0400
+@@ -24,10 +24,16 @@
+ 
+ #ifndef __CHAPMS_INCLUDE__
+ 
+-#define MD4_SIGNATURE_SIZE	16	/* 16 bytes in a MD4 message digest */
+-#define MAX_NT_PASSWORD	256	/* Maximum number of (Unicode) chars in an NT password */
+-
+ void ChapMS __P((chap_state *, char *, int, char *, int));
++int  ChapMS_Resp __P((chap_state *, char *, int, u_char *));
++void ChapMS_v2 __P((chap_state *, char *, int, char *, int));
++int  ChapMS_v2_Resp __P((chap_state *, char *, int, u_char *, char *));
++void ChapMS_v2_Auth __P((chap_state *, char *, int, u_char *, char *));
++
++int reqchapms(char **);
++int nochapms(char **);
++int reqchapms_v2(char **);
++int nochapms_v2(char **);
+ 
+ #define __CHAPMS_INCLUDE__
+ #endif /* __CHAPMS_INCLUDE__ */
+--- ppp-2.4.1/pppd/extra_crypto.c.mppe	2002-05-21 07:34:50.000000000 -0400
++++ ppp-2.4.1/pppd/extra_crypto.c	2002-05-21 07:34:50.000000000 -0400
+@@ -0,0 +1,164 @@
++/*
++ * Copyright (c) Tim Hockin, Cobalt Networks Inc. and others
++ *
++ * crypto routines used by multiple c files 
++ */
++#include <stdio.h>
++#include <ctype.h>
++#include <stdlib.h>
++#include <unistd.h>
++#include <string.h>
++#include "extra_crypto.h"
++#include "pppd.h"
++#include "md4.h"
++#ifndef USE_CRYPT
++#include <des.h>
++#endif
++
++/* quick wrapper for easy md4 */
++void
++md4(unsigned char *from, int from_len, unsigned char *to)
++{
++  MD4_CTX Context;
++
++#ifndef __NetBSD__
++  from_len <<= 3; /* bytes->bits */
++#endif
++
++  MD4Init(&Context);
++  MD4Update(&Context, from, from_len);
++  MD4Final(to, &Context);
++}
++
++
++/* Microsoft LANMAN Password hashing */
++static u_char *MSStdText = (u_char *)"KGS!@#$%"; /* key from rasapi32.dll */
++
++void
++LmPasswordHash(char *password, int len, char *hash)
++{
++    int	i;
++    u_char up_pass[MAX_NT_PASSWORD]; /* max is actually 14 */
++
++    /* LANMan password is case insensitive */
++    BZERO(up_pass, sizeof(up_pass));
++    if (len > MAX_NT_PASSWORD)
++      len = MAX_NT_PASSWORD;
++    for (i = 0; i < len; i++)
++       up_pass[i] = (u_char)toupper(password[i]);
++    DesEncrypt(MSStdText, up_pass + 0, hash + 0);
++    DesEncrypt(MSStdText, up_pass + 7, hash + 8);
++}
++
++void
++NtPasswordHash(char *secret, int secret_len, unsigned char *hash)
++{
++    int	i;
++    u_char unicodePassword[MAX_NT_PASSWORD * 2];
++
++    /* Initialize the Unicode version of the secret (== password). */
++    /* This implicitly supports 8-bit ISO8859/1 characters. */
++    BZERO(unicodePassword, sizeof(unicodePassword));
++    for (i = 0; i < secret_len; i++)
++	unicodePassword[i * 2] = (u_char)secret[i];
++
++    /* Unicode is 2 bytes per char */
++    md4(unicodePassword, secret_len * 2, hash);
++}
++
++
++static u_char Get7Bits(unsigned char *input, int startBit)
++{
++    register unsigned int       word;
++
++    word  = (unsigned)input[startBit / 8] << 8;
++    word |= (unsigned)input[startBit / 8 + 1];
++
++    word >>= 15 - (startBit % 8 + 7);
++
++    return word & 0xFE;
++}
++
++
++static void MakeKey(unsigned char *key, unsigned char *des_key)
++{
++    des_key[0] = Get7Bits(key,  0);
++    des_key[1] = Get7Bits(key,  7);
++    des_key[2] = Get7Bits(key, 14);
++    des_key[3] = Get7Bits(key, 21);
++    des_key[4] = Get7Bits(key, 28);
++    des_key[5] = Get7Bits(key, 35);
++    des_key[6] = Get7Bits(key, 42);
++    des_key[7] = Get7Bits(key, 49);
++
++#ifndef USE_CRYPT
++    des_set_odd_parity((des_cblock *)des_key);
++#endif
++}
++
++
++#ifdef USE_CRYPT
++/* in == 8-byte string (expanded version of the 56-bit key)
++ * out == 64-byte string where each byte is either 1 or 0
++ * Note that the low-order "bit" is always ignored by by setkey()
++ */
++static void Expand(unsigned char *in, unsigned char *out)
++{
++        int j, c;
++        int i;
++
++        for(i = 0; i < 64; in++){
++		c = *in;
++                for(j = 7; j >= 0; j--)
++                        *out++ = (c >> j) & 01;
++                i += 8;
++        }
++}
++
++/* The inverse of Expand
++ */
++static void Collapse(unsigned char *in, unsigned char *out)
++{
++        int j;
++        int i;
++	unsigned int c;
++
++	for (i = 0; i < 64; i += 8, out++) {
++	    c = 0;
++	    for (j = 7; j >= 0; j--, in++)
++		c |= *in << j;
++	    *out = c & 0xff;
++	}
++}
++void
++DesEncrypt(unsigned char *clear, unsigned char *key, unsigned char *cipher)
++{
++    u_char des_key[8];
++    u_char crypt_key[66];
++    u_char des_input[66];
++
++    MakeKey(key, des_key);
++
++    Expand(des_key, crypt_key);
++    setkey(crypt_key);
++
++    Expand(clear, des_input);
++    encrypt(des_input, 0);
++    Collapse(des_input, cipher);
++}
++#else /* don't USE_CRYPT */
++void
++DesEncrypt(unsigned char *clear, unsigned char *key, unsigned char *cipher)
++{
++    des_cblock		des_key;
++    des_key_schedule	key_schedule;
++
++    MakeKey(key, des_key);
++
++    des_set_key(&des_key, key_schedule);
++
++    des_ecb_encrypt((des_cblock *)clear, (des_cblock *)cipher, key_schedule, 1);
++}
++#endif /* USE_CRYPT */
++
++
+--- ppp-2.4.1/pppd/extra_crypto.h.mppe	2002-05-21 07:34:50.000000000 -0400
++++ ppp-2.4.1/pppd/extra_crypto.h	2002-05-21 07:34:50.000000000 -0400
+@@ -0,0 +1,16 @@
++#ifndef __EXTRA_CRYPTO_INCLUDE__
++/* 
++ * This is just a bunch of crypto routines that are needed by more than one 
++ * piece of functionality, so they were broken out 
++ */
++
++void md4 __P((unsigned char *, int, unsigned char *));
++void LmPasswordHash __P((char *, int, char *));
++void NtPasswordHash __P((char *, int, unsigned char *));
++void DesEncrypt __P((unsigned char *, unsigned char *, unsigned char *));
++
++#define MAX_NT_PASSWORD		256	/* Max len of a (Unicode) NT passwd */
++#define MD4_SIGNATURE_SIZE	16	/* 16 bytes in a MD4 message digest */
++
++#define __EXTRA_CRYPTO_INCLUDE__
++#endif /* __EXTRA_CRYPTO_INCLUDE__ */
+--- ppp-2.4.1/pppd/ipcp.c.mppe	2001-03-08 00:11:12.000000000 -0500
++++ ppp-2.4.1/pppd/ipcp.c	2002-05-21 07:34:50.000000000 -0400
+@@ -148,6 +148,8 @@
+ 
+     { "ms-dns", 1, (void *)setdnsaddr,
+       "DNS address for the peer's use" },
++    { "dns-addr", 1, setdnsaddr,
++      "DNS address for the peer's use" },
+     { "ms-wins", 1, (void *)setwinsaddr,
+       "Nameserver for SMB over TCP/IP for peer" },
+ 
+@@ -1258,6 +1260,14 @@
+ 	     */
+ 	    GETLONG(tl, p);		/* Parse source address (his) */
+ 	    ciaddr1 = htonl(tl);
++#ifdef DYNAMIC
++	    if(!auth_ip_addr(f->unit, ciaddr1))
++		if(get_ip_addr_dynamic(f->unit, &tl))
++		{
++		    wo->hisaddr = tl;
++		    ciaddr1 = 0;
++		}
++#endif
+ 	    if (ciaddr1 != wo->hisaddr
+ 		&& (ciaddr1 == 0 || !wo->accept_remote)) {
+ 		orc = CONFNAK;
+@@ -1315,6 +1325,14 @@
+ 	     */
+ 	    GETLONG(tl, p);	/* Parse source address (his) */
+ 	    ciaddr1 = htonl(tl);
++#ifdef DYNAMIC
++	    if(!auth_ip_addr(f->unit, ciaddr1))
++		if(get_ip_addr_dynamic(f->unit, &tl))
++		{
++		    wo->hisaddr = tl;
++		    ciaddr1 = 0;
++		}
++#endif
+ 	    if (ciaddr1 != wo->hisaddr
+ 		&& (ciaddr1 == 0 || !wo->accept_remote)) {
+ 		orc = CONFNAK;
+--- ppp-2.4.1/pppd/lcp.c.mppe	2001-03-08 00:11:14.000000000 -0500
++++ ppp-2.4.1/pppd/lcp.c	2002-05-21 07:34:50.000000000 -0400
+@@ -35,6 +35,8 @@
+ 
+ static const char rcsid[] = RCSID;
+ 
++extern bool refuse_chap;
++
+ /*
+  * When the link comes up we want to be able to wait for a short while,
+  * or until seeing some input from the peer, before starting to send
+@@ -327,17 +329,46 @@
+     wo->neg_mru = 1;
+     wo->mru = DEFMRU;
+     wo->neg_asyncmap = 1;
+-    wo->chap_mdtype = CHAP_DIGEST_MD5;
++    wo->use_digest = 1;
++#ifdef CHAPMS
++    if(wo->use_chapms_v2)
++	wo->chap_mdtype = CHAP_MICROSOFT_V2;
++    else if(wo->use_chapms)
++	wo->chap_mdtype = CHAP_MICROSOFT;
++    else
++#endif
++    if(wo->use_digest)
++	wo->chap_mdtype = CHAP_DIGEST_MD5;
++    else
++	refuse_chap = 1;
+     wo->neg_magicnumber = 1;
+     wo->neg_pcompression = 1;
+     wo->neg_accompression = 1;
++#ifdef CBCP_SUPPORT
++    wo->neg_cbcp = 1;
++#else
++    wo->neg_cbcp = 0;
++#endif
+ 
+     BZERO(ao, sizeof(*ao));
+     ao->neg_mru = 1;
+     ao->mru = MAXMRU;
+     ao->neg_asyncmap = 1;
+     ao->neg_chap = 1;
+-    ao->chap_mdtype = CHAP_DIGEST_MD5;
++    ao->use_digest = 1;
++#ifdef CHAPMS
++    ao->use_chapms_v2 = ao->use_chapms = 1;
++    if(ao->use_chapms_v2)
++	ao->chap_mdtype = CHAP_MICROSOFT_V2;
++    else if(ao->use_chapms)
++	ao->chap_mdtype = CHAP_MICROSOFT;
++    else
++#else
++    if(ao->use_digest)
++	ao->chap_mdtype = CHAP_DIGEST_MD5;
++    else
++	refuse_chap = 1;
++#endif
+     ao->neg_upap = 1;
+     ao->neg_magicnumber = 1;
+     ao->neg_pcompression = 1;
+@@ -639,6 +670,18 @@
+      * NB: we only ask for one of CHAP and UPAP, even if we will
+      * accept either.
+      */
++#ifdef CHAPMS
++    if(go->use_chapms_v2)
++	go->chap_mdtype = CHAP_MICROSOFT_V2;
++    else if(go->use_chapms)
++	go->chap_mdtype = CHAP_MICROSOFT;
++    else
++#endif
++    if(go->use_digest)
++	go->chap_mdtype = CHAP_DIGEST_MD5;
++    else
++	go->neg_chap = 0;
++
+     return (LENCISHORT(go->neg_mru && go->mru != DEFMRU) +
+ 	    LENCILONG(go->neg_asyncmap && go->asyncmap != 0xFFFFFFFF) +
+ 	    LENCICHAP(go->neg_chap) +
+@@ -1049,20 +1092,37 @@
+ 	} else if (cishort == PPP_CHAP && cilen == CILEN_CHAP) {
+ 	    GETCHAR(cichar, p);
+ 	    if (go->neg_chap) {
+-		/*
+-		 * We were asking for CHAP/MD5; they must want a different
+-		 * algorithm.  If they can't do MD5, we can ask for M$-CHAP
+-		 * if we support it, otherwise we'll have to stop
+-		 * asking for CHAP.
+-		 */
+-		if (cichar != go->chap_mdtype) {
+-#ifdef CHAPMS
+-		    if (cichar == CHAP_MICROSOFT)
+-			go->chap_mdtype = CHAP_MICROSOFT;
++
++		if (go->chap_mdtype == CHAP_MICROSOFT_V2)
++		{
++		    try.use_chapms_v2 = 0;
++		    if(try.use_chapms)
++			try.chap_mdtype = CHAP_MICROSOFT;
++		    else if(try.use_digest)
++			try.chap_mdtype = CHAP_DIGEST_MD5;
+ 		    else
+-#endif /* CHAPMS */
+ 			try.neg_chap = 0;
+ 		}
++		else if(go->chap_mdtype == CHAP_MICROSOFT)
++		{
++		    try.use_chapms = 0;
++		    if(try.use_digest)
++			try.chap_mdtype = CHAP_DIGEST_MD5;
++		    else
++			try.neg_chap = 0;
++		}
++		else if(go->chap_mdtype == CHAP_DIGEST_MD5)
++		{
++		    try.use_digest = 0;
++		    try.neg_chap = 0;
++		}
++		else
++		    try.neg_chap = 0;
++		if ((cichar != CHAP_MICROSOFT_V2) &&
++		    (cichar != CHAP_MICROSOFT) &&
++		    (cichar != CHAP_DIGEST_MD5))
++		    try.neg_chap = 0;
++
+ 	    } else {
+ 		/*
+ 		 * Stop asking for PAP if we were asking for it.
+@@ -1306,8 +1366,22 @@
+ 	/* Check rejected value. */ \
+ 	if (cishort != val || cichar != digest) \
+ 	    goto bad; \
+-	try.neg = 0; \
+-	try.neg_upap = 0; \
++	switch(digest) \
++	{ \
++	    case CHAP_MICROSOFT_V2: \
++		try.use_chapms_v2 = 0; \
++		break; \
++	    case CHAP_MICROSOFT: \
++		try.use_chapms = 0; \
++		break; \
++	    case CHAP_DIGEST_MD5: \
++		try.use_digest = 0; \
++	} \
++	if(!try.use_chapms_v2 && !try.use_chapms && !try.use_digest) \
++	{ \
++	    try.neg = 0; \
++	    try.neg_upap = 0; \
++	} \
+     }
+ #define REJCILONG(opt, neg, val) \
+     if (go->neg && \
+@@ -1567,9 +1641,10 @@
+ 		if (cichar != CHAP_DIGEST_MD5
+ #ifdef CHAPMS
+ 		    && cichar != CHAP_MICROSOFT
++		    && cichar != CHAP_MICROSOFT_V2
+ #endif
+ 		    ) {
+-		    orc = CONFNAK;
++		    orc = CONFREJ; /* !!! CONFNAK !!! */
+ 		    PUTCHAR(CI_AUTHTYPE, nakp);
+ 		    PUTCHAR(CILEN_CHAP, nakp);
+ 		    PUTSHORT(PPP_CHAP, nakp);
+@@ -1646,6 +1721,23 @@
+ 	    ho->magicnumber = cilong;
+ 	    break;
+ 
++#ifdef CBCP_SUPPORT
++	case CI_CALLBACK:
++	    LCPDEBUG((LOG_INFO, "lcp_reqci: rcvd CBCP"));
++	    if (!ao->neg_cbcp ||
++		cilen != CILEN_CHAR) {
++		orc = CONFREJ;
++		break;
++	    }
++	    GETCHAR(cichar, p);
++	    if(cichar != CBCP_OPT)
++	    {
++		orc = CONFREJ;
++		break;
++	    }
++	    ho->neg_cbcp = 1;
++	    break;
++#endif
+ 
+ 	case CI_PCOMPRESSION:
+ 	    if (!ao->neg_pcompression ||
+@@ -1965,20 +2057,23 @@
+ 		    }
+ 		}
+ 		break;
++#ifdef CBCP_SUPPORT
+ 	    case CI_CALLBACK:
+-		if (olen >= CILEN_CHAR) {
++		if (olen == CILEN_CHAR) {
++    		    u_char cichar;
+ 		    p += 2;
+ 		    printer(arg, "callback ");
+-		    GETCHAR(cishort, p);
+-		    switch (cishort) {
++		    GETCHAR(cichar, p);
++		    switch (cichar) {
+ 		    case CBCP_OPT:
+ 			printer(arg, "CBCP");
+ 			break;
+ 		    default:
+-			printer(arg, "0x%x", cishort);
++			printer(arg, "0x%x", cichar);
+ 		    }
+ 		}
+ 		break;
++#endif
+ 	    case CI_MAGICNUMBER:
+ 		if (olen == CILEN_LONG) {
+ 		    p += 2;
+--- ppp-2.4.1/pppd/lcp.h.mppe	2001-03-08 00:11:14.000000000 -0500
++++ ppp-2.4.1/pppd/lcp.h	2002-05-21 07:34:50.000000000 -0400
+@@ -62,6 +62,9 @@
+     bool neg_mrru;		/* negotiate multilink MRRU */
+     bool neg_ssnhf;		/* negotiate short sequence numbers */
+     bool neg_endpoint;		/* negotiate endpoint discriminator */
++    bool use_digest;
++    bool use_chapms;
++    bool use_chapms_v2;
+     int  mru;			/* Value of MRU */
+     int	 mrru;			/* Value of MRRU, and multilink enable */
+     u_char chap_mdtype;		/* which MD type (hashing algorithm) */
+--- ppp-2.4.1/pppd/mppe.c.mppe	2002-05-21 07:34:50.000000000 -0400
++++ ppp-2.4.1/pppd/mppe.c	2002-05-21 07:34:50.000000000 -0400
+@@ -0,0 +1,229 @@
++/*
++ * mppe - Mucking with PpP Encription
++ *
++ * Copyright (c) 1995 Árpád Magossányi
++ * All rights reserved.
++ *
++ * Copyright (c) 1999 Tim Hockin, Cobalt Networks Inc.
++ *
++ * Redistribution and use in source and binary forms are permitted
++ * provided that the above copyright notice and this paragraph are
++ * duplicated in all such forms and that any documentation,
++ * advertising materials, and other materials related to such
++ * distribution and use acknowledge that the software was developed
++ * by Pedro Roque Marques.  The name of the author may not be used to
++ * endorse or promote products derived from this software without
++ * specific prior written permission.
++ *
++ * THIS SOFTWARE IS PROVIDED ``AS IS'' AND WITHOUT ANY EXPRESS OR
++ * IMPLIED WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED
++ * WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
++ */
++
++#ifdef MPPE
++
++#include <stdio.h>
++#include <sys/types.h>
++#include <string.h>
++#include <ctype.h>
++#include <syslog.h>
++#include <stdlib.h>
++#include <unistd.h>
++#include "pppd.h"
++#include "chap.h"
++#include "fsm.h"
++#include "ccp.h"
++#include "md4.h" 
++#include "openssl/sha.h"
++#include "chap_ms.h"
++#include "extra_crypto.h"
++
++static void
++mppe_get_start_key __P((unsigned char *, unsigned char *, unsigned char *));
++static void
++mppe_get_master_key __P((unsigned char *, unsigned char *, unsigned char *));
++static void
++GetAsymetricStartKey __P((unsigned char *, unsigned char *, int, int, int));
++
++unsigned char mppe_master_send_key_40[8];
++unsigned char mppe_master_recv_key_40[8];
++unsigned char mppe_master_send_key_128[16];
++unsigned char mppe_master_recv_key_128[16];
++unsigned int mppe_allowed = 0;
++
++/*
++ * Pads used in key derivation - from sha1dgst.c
++ */
++static unsigned char  SHApad1[40] =
++  {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
++static unsigned char  SHApad2[40] =
++  {0xF2, 0xF2, 0xF2, 0xF2, 0xF2, 0xF2, 0xF2, 0xF2, 0xF2, 0xF2,
++   0xF2, 0xF2, 0xF2, 0xF2, 0xF2, 0xF2, 0xF2, 0xF2, 0xF2, 0xF2,
++   0xF2, 0xF2, 0xF2, 0xF2, 0xF2, 0xF2, 0xF2, 0xF2, 0xF2, 0xF2,
++   0xF2, 0xF2, 0xF2, 0xF2, 0xF2, 0xF2, 0xF2, 0xF2, 0xF2, 0xF2};
++
++
++/* This is used with chap-ms (v1) */
++void
++mppe_gen_master_key(char *secret, int secret_len, unsigned char *challenge)
++{
++    unsigned char PasswordHash[MD4_SIGNATURE_SIZE];
++    unsigned char PasswordHashHash[MD4_SIGNATURE_SIZE];
++
++    /* 40 bit */
++    LmPasswordHash(secret, secret_len, PasswordHash);
++    BCOPY(PasswordHash, mppe_master_send_key_40, 8);
++    BCOPY(mppe_master_send_key_40, mppe_master_recv_key_40, 8);
++
++    /* 128 bit */
++    NtPasswordHash(secret, secret_len, PasswordHash);
++    md4(PasswordHash, sizeof(PasswordHash), PasswordHashHash);
++    mppe_get_start_key(challenge, PasswordHashHash, mppe_master_send_key_128);
++    BCOPY(mppe_master_send_key_128, mppe_master_recv_key_128, 16);
++
++    mppe_allowed = 1;
++}
++
++
++/* This is used with chap-ms-v2 (per MS' draft RFC) - 2 different keys */
++void
++mppe_gen_master_key_v2(char *secret, int secret_len, unsigned char *response, 
++			int is_server)
++{
++    unsigned char PasswordHash[MD4_SIGNATURE_SIZE];
++    unsigned char PasswordHashHash[MD4_SIGNATURE_SIZE];
++    unsigned char MasterKey[MD4_SIGNATURE_SIZE];
++
++    /* 128 bit - 2 keys */
++    NtPasswordHash(secret, secret_len, PasswordHash);
++    md4(PasswordHash, sizeof(PasswordHash), PasswordHashHash);
++    mppe_get_master_key(PasswordHashHash, response, MasterKey);
++    GetAsymetricStartKey(MasterKey, mppe_master_send_key_128, 16,1, is_server);
++    GetAsymetricStartKey(MasterKey, mppe_master_recv_key_128, 16,0, is_server);
++
++    /* 40 bit - 2 keys */
++    BCOPY(mppe_master_send_key_128, mppe_master_send_key_40, 8);
++    BCOPY(mppe_master_recv_key_128, mppe_master_recv_key_40, 8);
++
++    mppe_allowed = 1;
++}
++
++
++static void
++mppe_get_start_key(unsigned char *Challenge, unsigned char *NtPasswordHashHash,
++			unsigned char *InitialSessionKey)
++{
++    unsigned char Digest[SHA_DIGEST_LENGTH];
++    SHA_CTX Context;
++    
++    SHA1_Init(&Context);
++    SHA1_Update(&Context, NtPasswordHashHash, 16);
++    SHA1_Update(&Context, Challenge, 24);
++    SHA1_Final(Digest, &Context);
++    BCOPY(Digest, InitialSessionKey, 16);
++}
++
++static void
++mppe_get_master_key(unsigned char *PasswordHashHash, unsigned char *NtResponse,
++			unsigned char *MasterKey)
++{
++    unsigned char Digest[SHA_DIGEST_LENGTH];
++    SHA_CTX Context;
++    static char Magic1[] = "This is the MPPE Master Key";
++    
++    BZERO(Digest, sizeof(Digest));
++    
++    SHA1_Init(&Context);
++    SHA1_Update(&Context, PasswordHashHash, 16);
++    SHA1_Update(&Context, NtResponse, 24);
++    SHA1_Update(&Context, Magic1, sizeof(Magic1) - 1);
++    SHA1_Final(Digest, &Context);
++    
++    BCOPY(Digest, MasterKey, 16);
++}
++
++static void
++GetAsymetricStartKey(unsigned char *MasterKey, unsigned char *SessionKey, 
++			int SessionKeyLength, int IsSend, int IsServer)
++{
++    unsigned char Digest[SHA_DIGEST_LENGTH];
++    SHA_CTX Context;
++    char *s;
++    static char Magic2[] = "On the client side, this is the send key; on the server side, it is the receive key.";
++    static char Magic3[] = "On the client side, this is the receive key; on the server side, it is the send key.";
++    
++    BZERO(Digest, sizeof(Digest));
++    if(IsSend)
++    {
++      if(IsServer)
++        s = Magic3;
++      else
++        s = Magic2;
++    }
++    else
++    {
++      if(IsServer)
++        s = Magic2;
++      else
++        s = Magic3;
++    }
++    
++    SHA1_Init(&Context);
++    SHA1_Update(&Context, MasterKey, 16);
++    SHA1_Update(&Context, SHApad1, 40);
++    SHA1_Update(&Context, s, 84);
++    SHA1_Update(&Context, SHApad2, 40);
++    SHA1_Final(Digest, &Context);
++    BCOPY(Digest, SessionKey, SessionKeyLength);
++}
++
++/*
++ * Functions called from config options
++ */
++int
++setmppe_40(char **argv)
++{   
++    ccp_allowoptions[0].mppe = ccp_wantoptions[0].mppe = 1;
++    ccp_allowoptions[0].mppe_40 = ccp_wantoptions[0].mppe_40 = 1;
++    return 1;
++}
++
++int
++setnomppe_40(char **argv)
++{   
++    ccp_allowoptions[0].mppe_40 = ccp_wantoptions[0].mppe_40 = 0;
++    return 1;
++}
++
++int
++setmppe_128(char **argv)
++{   
++    ccp_allowoptions[0].mppe = ccp_wantoptions[0].mppe = 1;
++    ccp_allowoptions[0].mppe_128 = ccp_wantoptions[0].mppe_128 = 1;
++    return 1;
++}
++
++int
++setnomppe_128(char **argv)
++{   
++    ccp_allowoptions[0].mppe_128 = ccp_wantoptions[0].mppe_128 = 0;
++    return 1;
++}
++
++int
++setmppe_stateless(char **argv)
++{
++    ccp_allowoptions[0].mppe_stateless = ccp_wantoptions[0].mppe_stateless = 1;
++    return 1;
++}
++
++int
++setnomppe_stateless(char **argv)
++{
++    ccp_allowoptions[0].mppe_stateless = ccp_wantoptions[0].mppe_stateless = 0;
++    return 1;
++}
++#endif /* MPPE */
+--- ppp-2.4.1/pppd/mppe.h.mppe	2002-05-21 07:34:50.000000000 -0400
++++ ppp-2.4.1/pppd/mppe.h	2002-05-21 07:34:50.000000000 -0400
+@@ -0,0 +1,56 @@
++#ifndef __MPPE_INCLUDE__
++
++typedef struct mppe_state {
++    int    us_unit;	/* Interface unit number */
++    u_char us_id;		/* Current id */
++    u_char us_allowed;
++    int    us_type;
++    char   *us_number;    /* Telefone Number */
++} mppe_state;
++
++
++extern struct protent mppe_protent;
++
++#define MPPE_CONFOPTION 18		/* p[0] */
++#define MPPE_STATELESS  0x01		/* p[2] */
++#define MPPE_40BIT	0x20		/* p[5] */
++#define MPPE_128BIT	0x40		/* p[5] */
++
++#define PPP_MPPE	0x00FD
++
++#define MPPE_BIT_A	0x80
++#define MPPE_BIT_B	0x40
++#define MPPE_BIT_C	0x20
++#define MPPE_BIT_D	0x10
++#define MPPE_BIT_FLUSHED MPPE_BIT_A
++#define MPPE_BIT_ENCRYPTED MPPE_BIT_D
++#define MPPE_CCOUNT	0x0FFF
++
++#define MPPE_40_SALT0	0xD1
++#define MPPE_40_SALT1	0x26
++#define MPPE_40_SALT2	0x9E
++
++#define MPPE_MINLEN 4
++
++#define MPPE_REQ    1
++#define MPPE_RESP   2
++#define MPPE_ACK    3
++
++extern char mppe_master_send_key_40[8];
++extern char mppe_master_send_key_128[16];
++extern char mppe_master_recv_key_40[8];
++extern char mppe_master_recv_key_128[16];
++extern unsigned int mppe_allowed;
++
++void mppe_gen_master_key __P((char *, int, unsigned char *));
++void mppe_gen_master_key_v2 __P((char *, int, unsigned char *, int));
++
++int setmppe_40(char **);
++int setnomppe_40(char **);
++int setmppe_128(char **);
++int setnomppe_128(char **);
++int setmppe_stateless(char **);
++int setnomppe_stateless(char **);
++
++#define __MPPE_INCLUDE__
++#endif /* __MPPE_INCLUDE__ */
+--- ppp-2.4.1/pppd/pppd.8.mppe	2001-03-13 00:54:37.000000000 -0500
++++ ppp-2.4.1/pppd/pppd.8	2002-05-21 07:34:50.000000000 -0400
+@@ -27,9 +27,14 @@
+ and configuring different network-layer protocols.
+ .LP
+ The encapsulation scheme is provided by driver code in the kernel.
+-Pppd provides the basic LCP, authentication support, and an NCP for
++PPPD provides the basic LCP, authentication support, and an NCP for
+ establishing and configuring the Internet Protocol (IP) (called the IP
+ Control Protocol, IPCP).
++.LP
++This version includes support for multilink operations, Microsoft
++specific CHAP authentication algorithms (known as CHAP-MS-V1 and
++CHAP-MS-V2) and transparent encryption (Microsoft Point-to-Point
++Encryption, MPPE) also.
+ .SH FREQUENTLY USED OPTIONS
+ .TP
+ .I <tty_name>
+@@ -72,6 +77,15 @@
+ or include .. as a pathname component.  The format of the options file
+ is described below.
+ .TP
++.B callback \fIphone
++Request client to call back to specified \fIphone\fR number.
++.TP
++.B nocallback
++Don't argee to use callback negotiation.
++.TP
++.B +callback
++Request server to negotiate callback and log negotiated results.
++.TP
+ .B connect \fIscript
+ Use the executable or shell command specified by \fIscript\fR to set
+ up the serial line.  This script would typically use the chat(8)
+@@ -346,6 +360,10 @@
+ option is given, data packets which are rejected by the specified
+ activity filter also count as the link being idle.
+ .TP
++.B ip
++Enable IPCP and IP protocols. You can disable IP negotiation if you
++want to use other protocols only.
++.TP
+ .B ipcp-accept-local
+ With this option, pppd will accept the peer's idea of our local IP
+ address, even if the local IP address was specified in an option.
+@@ -574,7 +592,7 @@
+ currently only available under Linux, and only has any effect if
+ multilink is enabled (see the multilink option).
+ .TP
+-.B ms-dns \fI<addr>
++.B ms-dns \fI<addr>\fR
+ If pppd is acting as a server for Microsoft Windows clients, this
+ option allows pppd to supply one or two DNS (Domain Name Server)
+ addresses to the clients.  The first instance of this option specifies
+@@ -847,7 +865,11 @@
+ .TP
+ .B refuse-chap
+ With this option, pppd will not agree to authenticate itself to the
+-peer using CHAP.
++peer using any CHAP protocol.
++.TP
++.B refuse-chap-md5
++With this option, pppd will not agree to authenticate itself to the
++peer using standard MD5 CHAP.
+ .TP
+ .B refuse-pap
+ With this option, pppd will not agree to authenticate itself to the
+@@ -913,6 +935,48 @@
+ .B xonxoff
+ Use software flow control (i.e. XON/XOFF) to control the flow of data on
+ the serial port.
++.SH MICROSOFT SPECIFIC EXTENSIONS
++This version of PPPD supports some Microsoft-specific extensions such
++as non-standard CHAP algorithms (known as CHAP-MS-V1 and CHAP-MS-V2) and
++transparent encryption of all sending and receiving traffic.
++.LP
++Those options allows to configure PPPD to work with Microsoft extensions of
++standard PPP protocol.
++.TP
++.B require-chapms
++Require the peer to authenticate itself using CHAP [Challenge
++Handshake Authentication Protocol] authentication with Microsoft
++extensions [known as CHAP-MS-V1].
++.TP
++.B require-chapms-v2
++Require the peer to authenticate itself using CHAP authentication
++with Microsoft extensions [known as CHAP-MS-V2].
++.TP
++.B refuse-chapms
++With this option, pppd will not agree to authenticate itself to the
++peer using CHAP-MS-V1.
++.TP
++.B refuse-chapms-v2
++With this option, pppd will not agree to authenticate itself to the
++peer using CHAP-MS-V2.
++.TP
++.B mppe-40
++This option enables use of Microsoft Point-to-point Encryption (MPPE)
++using 40-bit encryption keys. These keys can be used with any Microsoft
++software (Windows 95, Windows 98, Windows NT) because their cryptographic
++strength is relatively low.  This option requires that chapms or chapms-v2
++be enabled.
++.TP
++.B mppe-128
++This option enables use of Microsoft Point-to-Point Encryption (MPPE)
++using 128-bit encryption keys. These keys can be used with software designed
++for domestic usage (within US and Canada).  This option requires that chapms
++or chapms-v2 be enabled.
++.TP
++.B mppe-stateless
++This option negotiates stateless mode for Microsoft Point-to-Point Encryption
++(MPPE), which changes the encryption keys on every packet. The default mode is
++stateful (non-stateless, or single key).
+ .SH OPTIONS FILES
+ Options can be taken from files as well as the command line.  Pppd
+ reads options from the files /etc/ppp/options, ~/.ppprc and
+@@ -1261,9 +1325,40 @@
+ rlogin implementations are not transparent; they will remove the
+ sequence [0xff, 0xff, 0x73, 0x73, followed by any 8 bytes] from the
+ stream.
++.SH EXAMPLES OF MICROSOFT EXTENSIONS
++To enable full-featured Microsoft encryption you must add those options
++to your \fI/etc/ppp/options/fR file:
++.IP
+++chapms
++.br
+++chapms-v2
++.br
++mppe-40
++.br
++mppe-128
++.br
++mppe-stateless
++.LP
++To authentificate client with Microsoft CHAP version 1 or 2, you need to
++use those options:
++.IP
++auth
++.br
+++chap
++.br
+++chapms
++.br
+++chapms-v2
++.LP
++To make possible to authentificate itself with Microsoft CHAP version 1
++or 2, you need to add those options:
++.IP
+++chapms
++.br
+++chapms-v2
+ .SH DIAGNOSTICS
+ .LP
+-Messages are sent to the syslog daemon using facility LOG_DAEMON.
++.Messages are sent to the syslog daemon using facility LOG_DAEMON.
+ (This can be overriden by recompiling pppd with the macro
+ LOG_PPP defined as the desired facility.)  In order to see the error
+ and debug messages, you will need to edit your /etc/syslog.conf file
+--- ppp-2.4.1/pppd/pppd.h.mppe	2002-05-21 07:34:49.000000000 -0400
++++ ppp-2.4.1/pppd/pppd.h	2002-05-21 07:34:50.000000000 -0400
+@@ -27,6 +27,7 @@
+ #define __PPPD_H__
+ 
+ #include <stdio.h>		/* for FILE */
++#include <syslog.h>
+ #include <limits.h>		/* for NGROUPS_MAX */
+ #include <sys/param.h>		/* for MAXPATHLEN and BSD4_4, if defined */
+ #include <sys/types.h>		/* for u_int32_t, if defined */
+@@ -470,6 +471,8 @@
+ 				/* check if IP address is authorized */
+ int  bad_ip_adrs __P((u_int32_t));
+ 				/* check if IP address is unreasonable */
++int  get_ip_addr_dynamic __P((int, u_int32_t *));
++				/* get dynamically-allocated IP address */
+ 
+ /* Procedures exported from demand.c */
+ void demand_conf __P((void));	/* config interface(s) for demand-dial */
+--- ppp-2.4.1/pppstats/Makefile.linux.mppe	1998-03-24 21:21:19.000000000 -0500
++++ ppp-2.4.1/pppstats/Makefile.linux	2002-05-21 07:34:50.000000000 -0400
+@@ -11,7 +11,8 @@
+ COMPILE_FLAGS = -D_linux_ -I../include
+ LIBS =
+ 
+-INSTALL= install -o root -g daemon
++#INSTALL= install -o root -g daemon
++INSTALL= install
+ 
+ CFLAGS = $(COPTS) $(COMPILE_FLAGS)
+ 
+--- ppp-2.4.1/README.MPPE.mppe	2002-05-21 07:34:50.000000000 -0400
++++ ppp-2.4.1/README.MPPE	2002-05-21 07:34:50.000000000 -0400
+@@ -0,0 +1,45 @@
++Just a few quick notes.
++
++MPPE support was started by Árpád Magosányi <mag@bunuel.tii.matav.hu> in 1994,
++and was finished by Tim Hockin, Cobalt Networks Inc. <thockin@cobaltnet.com>
++in 1999.  If you helped, and I don't know it (which could be) please notify
++the maintainer of this code, and it will be rectified.  As far as I know, only i
++Linux is supported (sorry - it's all we had available).
++
++MPPE - Microsoft Point-to-Point Encryption uses rc4 (40 or 128 bit) as a
++bi-directional encryption algorithm.  The keys are based on your MS-CHAP 
++authentication info, so you must use chapms or chapms-v2.  Rc4 is owned by
++RSA Data Security, and you may have to pay to use it, or not use it at all,
++depending on your place of residence.  No author listed in this file claims
++any responsibility for misuse of this software.  Copyright for some code is
++owned by Eric Young (see ./linux/rc4.h for details).  Depending on where you 
++got this code from (either in patch or tar.gz form), you may need to obtain 
++the actual rc4 code from a different site.  The implementation of rc4 found in 
++the SSLeay package, by Eric Young, version 0.6.6.  This package can be found
++at ftp://ftp.psy.uq.oz.au/pub/Crypto/SSL/.  Newer versions than 0.6.6 may
++require some minor source code or header file changes.  Once obtained, copy 
++rc4.h and rc4_enc.c to the linux/ subdir of this package.
++
++This is NOT a particularly secure mode of operation.  For maximum possible 
++security using MPPE, it is advised in the RFC's to use the highest mode of
++encryption that is legal, and to enable stateless mode (which renogotiates
++keys with every packet).  Even with these precautions, MPPE is not very secure,
++but anything is better than nothing, right?
++
++That said, it seems to work pretty well, for what it is.  MSChap-v2 support 
++was added by someone along the way, and MPPE needed some finishing.  It 
++appears to work with Windows (tm) clients, with encryption specified.
++
++How to use it:
++* Compile this pppd, and teh associated kernel modules.
++* Add +chapms and/or +chapms-v2 to your pppd command line.
++* Add mppe-40 and/or mppe-128 and/or mppe-stateless to your pppd command line.
++* Either load ppp_mppe.o manually or put this line in your /etc/conf.modules.
++	alias 	ppp-compress-18 	ppp_mppe
++* Go for it.
++
++
++For further reading:
++	Use the source, Luke.
++	draft-ietf-pppext-mppe-03.txt (any RFC site should have this)
++	draft-ietf-pppext-mppe-keys-00.txt (ditto)
