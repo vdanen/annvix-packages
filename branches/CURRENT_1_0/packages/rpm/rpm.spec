@@ -3,13 +3,13 @@
 %define poptver		1.8
 # You need increase both release and poptrelease
 %define poptrelease	%{release}
-%define release		19sls
+%define release		20sls
 
 %define url		ftp://ftp.rpm.org/pub/rpm/dist/rpm-4.0.x
 %define pyver		%(python -V 2>&1 | cut -f2 -d" " | cut -f1,2 -d".")
 %define lib64arches	x86_64
 
-%define __find_requires %{buildroot}%{rpmdir}/find-requires %{?buildroot:%{buildroot}} %{?_target_cpu:%{_target_cpu}}
+# %define __find_requires %{buildroot}%{rpmdir}/find-requires %{?buildroot:%{buildroot}} %{?_target_cpu:%{_target_cpu}}
 %define __find_provides %{buildroot}%{rpmdir}/find-provides
 
 %define _prefix /usr
@@ -49,7 +49,7 @@ Patch3:		rpm-4.0-bashort.patch.bz2
 Patch5:		rpm-4.2-autoreq.patch.bz2
 Patch8:		rpm-4.2-skipmntpoints.patch.bz2
 Patch10:	rpm-4.0-updates-alternatives.patch.bz2
-Patch13:	rpm-4.2-wait-for-lock.patch.bz2
+Patch13:	rpm-4.2-lock.patch.bz2
 Patch17:	rpm-4.2-gendiff-improved.patch.bz2
 # this patches adds support for RPM_INSTALL_LANG shell variable, with priority
 # over the macro defined in /etc/rpm/macros
@@ -84,13 +84,12 @@ Patch43:	rpm-4.2-configure-xpath.patch.bz2
 # Build .amd64 packages by default on x86-64
 Patch44:	rpm-4.2-amd64.patch.bz2
 Patch45:	rpm-4.2-python-macros.patch.bz2
-Patch47:	rpm-4.0.4-good-lock.patch.bz2
-Patch48:	rpm-4.0.4-debug.patch.bz2
 # Backport from 4.2.1 provides becoming obsoletes bug (fpons)
 Patch49:	rpm-4.2-provides-obsoleted.patch.bz2
 Patch50:	rpm-4.2-python-site-lisp.patch.bz2
+Patch51:	rpm-4.2-rpmal-fix-crash.patch.bz2
 # (vdanen) use stack protection by default
-Patch51:	rpm-4.2-stackmacros.patch.bz2
+Patch52:	rpm-4.2-stackmacros.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-root
 BuildRequires:	autoconf2.5
@@ -260,12 +259,11 @@ bzcat %{SOURCE2} > rpm-spec-mode.el
 %endif
 %patch44 -p1 -b .amd64
 %patch45 -p1 -b .python-macros
-##%patch47 -p1 -b .good-lock
-#%patch48 -p1 -b .debug
 %patch49 -p1 -b .provides
 %patch50 -p1 -b .python-site-lisp
+%patch51 -p1 -b .rpmal-fix-crash
 %if %build_propolice
-%patch51 -p1 -b .stackmacro
+%patch52 -p1 -b .stackmacro
 %endif
 
 autoconf
@@ -435,6 +433,10 @@ if [ -f /var/lib/rpm/packages.rpm ]; then
     /bin/chown rpm.rpm /var/lib/rpm/*.rpm
 elif [ ! -f /var/lib/rpm/Packages ]; then
     /bin/rpm --initdb
+fi
+
+if [ ! -f /var/lib/rpm/RPMLOCK ]; then
+    touch /var/lib/rpm/RPMLOCK
 fi
 
 %postun
@@ -637,6 +639,13 @@ fi
 %{_includedir}/popt.h
 
 %changelog
+* Tue Dec 02 2003 Vincent Danen <vdanen@opensls.org> 4.2-20sls
+- sync with Mandrake (4.2-22mdk):
+  - fix crash in rpmalAllSatisfiesDepend() -- gbeauchesne
+  - new lock scheme by Francois -- flepied
+  - create the RPMLOCK file in %%post -- vdanen
+  - corrected --rebuilddb problem (bug #6395) -- flepied
+
 * Mon Dec 01 2003 Vincent Danen <vdanen@opensls.org> 4.2-19sls
 - rebuild
 - tidy spec
