@@ -1,6 +1,6 @@
 %define name	pam
 %define version	0.77
-%define release	15avx
+%define release	16avx
 
 %define rhrelease	5
 %define libname		%mklibname %name 0
@@ -183,6 +183,7 @@ cp %{SOURCE4} .
 for readme in modules/pam_*/README ; do
 	cp -fv ${readme} doc/txts/README.`dirname ${readme} | sed -e 's|^modules/||'`
 done
+rm -f doc/txts/README
 autoconf
 
 %build
@@ -244,6 +245,7 @@ touch %{buildroot}%{_sysconfdir}/environment
 
 %files
 %defattr(-,root,root)
+%doc CHANGELOG Copyright doc/txts/*
 %dir /etc/pam.d
 %config(noreplace) %{_sysconfdir}/environment
 %config(noreplace) /etc/pam.d/other
@@ -281,7 +283,12 @@ touch %{buildroot}%{_sysconfdir}/environment
 %{_includedir}/security/*.h
 %{_mandir}/man3/*
 
+# mdk pam-0.77-26mdk
 %changelog
+* Tue Mar 01 2005 Vincent Danen <vdanen@annvix.org> 0.77-16avx
+- include some documentation on the various modules
+- rebuild against new glib
+
 * Fri Sep 24 2004 Vincent Danen <vdanen@annvix.org> 0.77-15avx
 - sync with Mandrake 0.77-25mdk:
   - console.perms: /proc/usb -> /proc/bus/usb (Marcel Pol)
