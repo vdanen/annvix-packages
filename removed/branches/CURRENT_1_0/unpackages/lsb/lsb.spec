@@ -1,26 +1,30 @@
-Summary: The skeleton package defining packages needed for LSB compliance.
-Name: lsb
-Version: 1.3
-Release: 7mdk
-License: GPL
-Group: System/Base
-Provides: lsb = %{version}
-URL:	http://www.linuxbase.org
-Source1: lsb-init-functions
+%define name	lsb
+%define version	1.3
+%define release	8sls
 
-BuildRoot       : %{_tmppath}/%{name}-%{version}-root
+Summary:	The skeleton package defining packages needed for LSB compliance.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		System/Base
+URL:		http://www.linuxbase.org
+Source1:	lsb-init-functions
+
+BuildRoot:	%{_tmppath}/%{name}-%{version}-root
 BuildArch:	noarch
-PreReq:		rpm-helper
 
-Requires: pax lsb-release make smtpdaemon ed glibc_lsb
-Requires: XFree86-devel expect lpddaemon perl-DBI glibc-i18ndata
-Requires: vim-enhanced diffutils file gettext chkconfig
-Requires: mtools /etc/sgml csh
+PreReq:		rpm-helper
+Provides:	lsb = %{version}
+Requires:	pax lsb-release make smtpdaemon ed glibc_lsb
+Requires:	XFree86-devel expect lpddaemon perl-DBI glibc-i18ndata
+Requires:	vim-enhanced diffutils file gettext chkconfig
+Requires:	mtools /etc/sgml csh
 
 %description
 The skeleton package defining packages needed for LSB compliance.
 Also contains some directories LSB tests look for that aren't 
-owned by other Mandrake packages, and scripts to re-create the old
+owned by other OpenSLS packages, and scripts to re-create the old
 /sbin/fasthalt and /sbin/fastboot.
  
 Currently, to be able to run the LSB binary test suit successfully, you 
@@ -29,8 +33,8 @@ containing /tmp and /home are mounted with the option 'atime', rather
 than 'noatime'.
 
 You should also note that using the fstab option 'acl' for Posix ACLs 
-will generate 1 test failure.  This is not enabled by default on Mandrake
-Linux.
+will generate 1 test failure.  This is not enabled by default on OpenSLS.
+
  
 %install
 install -d $RPM_BUILD_ROOT/usr/share/nls
@@ -138,6 +142,10 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) /etc/gateways
 
 %changelog
+* Tue Dec 30 2003 Vincent Danen <vdanen@opensls.org> 1.3-8sls
+- OpenSLS build
+- tidy spec
+
 * Mon Jul 28 2003 Stew Benedict <sbenedict@mandrakesoft.com> 1.3-7mdk
 - remove rwho requires
 

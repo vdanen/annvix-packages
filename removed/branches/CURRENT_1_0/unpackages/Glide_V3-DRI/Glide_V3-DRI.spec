@@ -1,7 +1,14 @@
+%define name	Glide_V3-DRI
+%define version	cvs
+%define release	10sls
+
 Summary:	Glide runtime for 3Dfx Voodoo Banshee and Voodoo3 boards
-Name:		Glide_V3-DRI
-Version:	cvs
-Release:	9mdk
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:        3dfx Glide General Public License
+Group:          System/Libraries
+URL:		http://glide.sourceforge.net/
 Source0:        glide3x.2002.04.10.tar.bz2
 Source1:        swlibs.2001.01.26.tar.bz2
 #Debian patches
@@ -16,12 +23,11 @@ Patch32:        glide3x-libtool-patch.bz2
 Patch33:        glide3x-build-multiargs.bz2
 Patch34:        glide3x-debug-vaargs.bz2
 Patch35:        glide3x-preprocessor.bz2
-License:        3dfx Glide General Public License
-Group:          System/Libraries
+
 BuildRoot:      %_tmppath/%name-%version-%release-buildroot
-ExclusiveArch:  %ix86 ia64 alpha
 BuildRequires:	XFree86-devel automake1.7 autoconf2.5
-URL:		http://glide.sourceforge.net/
+
+ExclusiveArch:  %ix86 ia64 alpha
 
 %description 
 This library allows the user to use a 3dfx Interactive Voodoo Banshee
@@ -91,6 +97,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/libglide3.so
 
 %changelog
+* Tue Dec 30 2003 Vincent Danen <vdanen@opensls.org> cvs-10sls
+- OpenSLS build
+- tidy spec
+
 * Thu Sep 04 2003 Per Øyvind Karlsen <peroyvind@linux-mandrake.com> cvs-9mdk
 - rebuild
 
