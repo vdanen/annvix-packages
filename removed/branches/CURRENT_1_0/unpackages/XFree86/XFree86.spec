@@ -1,6 +1,6 @@
 %define name	XFree86
 %define version 4.3
-%define release 24.2sls
+%define release 24.3sls
 
 %{!?build_opensls:%global build_opensls 0}
 %{!?build_propolice:%global build_propolice 0}
@@ -223,6 +223,8 @@ Patch801:	XFree86-4.3-xi-lock.patch.bz2
 Patch802:	XFree86-4.3-font-security.patch.bz2
 # patch for propolice support
 Patch803:	XFree86-4.3-propolice.patch.bz2
+# fix xdm pam_setcred vulnerability (CAN-2003-0690)
+Patch804:	XFree86-4.x-xdm-pam-setcred-security.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-root
 BuildRequires:	zlib-devel flex bison groff pam-devel ncurses-devel perl
@@ -637,6 +639,7 @@ cd -
 #%if %{build_propolice}
 #%patch803 -p0 -b .propolice
 #%endif
+%patch804 -p0 -b .xdm-pam_setcred
 
 # backup the original files (so we can look at them later) and use our own
 cp xc/nls/compose.dir xc/nls/compose.dir.orig
@@ -1132,6 +1135,7 @@ find $RPM_BUILD_ROOT%{x11shlibdir} -type f -maxdepth 1 -name '*.a' -print | egre
 rm -f static-only.list
 find $RPM_BUILD_ROOT%{x11shlibdir} -type f -maxdepth 1 -name '*.a' -print | egrep $FILTER | sed s@$RPM_BUILD_ROOT@@ > static-only.list
 
+%if !%{build_opensls}
 # Menu support
 mkdir -p $RPM_BUILD_ROOT%{_menudir} $RPM_BUILD_ROOT/etc/menu-methods
 install -m 755 %{SOURCE9} $RPM_BUILD_ROOT/etc/menu-methods/twm
@@ -1163,6 +1167,7 @@ cat > %buildroot/%_menudir/X11R6-contrib << EOF
 EOF
 
 install -m 644 %{SOURCE10} $RPM_BUILD_ROOT/etc/X11/twm/system.twmrc-menu
+%endif
 
 #not needed, failsafe use twm
 %if 0
@@ -1228,9 +1233,11 @@ rm -rf $RPM_BUILD_ROOT%{_sysconfdir}/X11/twm/system.twmrc \
 
 %post
 
+%if !%{build_opensls}
 %update_menus
 
 %make_session
+%endif
 
 for d in misc Speedo Type1 TTF mdk; do
     cd /usr/X11R6/lib/X11/fonts/$d
@@ -1245,9 +1252,11 @@ xftcache > /dev/null 2>&1 || :
 
 %postun
 
+%if !%{build_opensls}
 %clean_menus
 
 %make_session
+%endif
 
 %pre
 # here, we put things that we have moved around (like directories)
@@ -1387,13 +1396,15 @@ fi
 %postun xfs
 %_postun_userdel xfs
 
+%if !%{build_opensls}
 %post -n X11R6-contrib
-
 %update_menus
+%endif
 
+%if !%{build_opensls}
 %postun -n X11R6-contrib
-
 %clean_menus
+%endif
 
 %post server
 
@@ -1452,12 +1463,16 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) /etc/pam.d/xserver
 %config(noreplace) /etc/pam.d/xdm
 %config(missingok noreplace) /etc/security/console.apps/xserver
+%if !%{build_opensls}
 %config(noreplace) /etc/X11/twm/system.twmrc-menu
-%config(noreplace) /etc/X11/xsm/system.xsm
 %config(noreplace) /etc/menu-methods/twm
+%endif
+%config(noreplace) /etc/X11/xsm/system.xsm
 %config(noreplace) /etc/logrotate.d/xdm
 
+%if !%{build_opensls}
 %{_menudir}/%{name}
+%endif
 
 %if %{with_new_fontconfig_Xft}
 # XftConfig is no longer present or used
@@ -1898,7 +1913,9 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -n X11R6-contrib
 %defattr(-,root,root,-)
+%if !%{build_opensls}
 %_menudir/X11R6-contrib
+%endif
 /usr/X11R6/bin/ico
 /usr/X11R6/bin/listres
 /usr/X11R6/bin/viewres
@@ -1931,6 +1948,10 @@ rm -rf $RPM_BUILD_ROOT
 %{x11libdir}/X11/xedit
 
 %changelog
+* Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 4.3-24.3sls
+- get rid of the menu stuff so we don't need menu package
+- P804: fix for CAN-2003-0690 (pam_setcred in xdm)
+
 * Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 4.3-24.2sls
 - use %%build_opensls macro to not build -doc package
 - don't build glide stuff
