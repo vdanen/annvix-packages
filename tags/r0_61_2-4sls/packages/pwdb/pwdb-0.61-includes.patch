@@ -1,0 +1,73 @@
+--- pwdb-0.61/libpwdb/posix/pwd.c.includes	1999-09-20 16:01:38.000000000 +0200
++++ pwdb-0.61/libpwdb/posix/pwd.c	2002-06-25 19:18:17.000000000 +0200
+@@ -7,6 +7,7 @@
+  */
+ 
+ #include <stdio.h>
++#include <string.h>
+ 
+ #define PWDB_HARD_CORE 1
+ #include <pwdb/pwdb_public.h>
+--- pwdb-0.61/libpwdb/posix/undefined.c.includes	1999-09-20 16:01:38.000000000 +0200
++++ pwdb-0.61/libpwdb/posix/undefined.c	2002-06-25 19:18:17.000000000 +0200
+@@ -5,6 +5,7 @@
+  */
+ 
+ #include <stdio.h>
++#include <stdlib.h>
+ 
+ #define PWDB_HARD_CORE 1
+ #include <pwdb/pwdb_public.h>
+--- pwdb-0.61/libpwdb/pwdb/pwdb_helper.c.includes	1998-10-06 22:58:43.000000000 +0200
++++ pwdb-0.61/libpwdb/pwdb/pwdb_helper.c	2002-06-25 19:18:17.000000000 +0200
+@@ -14,6 +14,8 @@
+  *
+  */
+ 
++#include <stdlib.h>
++#include <string.h>
+ #include <pwdb/pwdb_public.h>
+ #include "pwdb_module.h"
+ 
+--- pwdb-0.61/libpwdb/radius/radius.c.includes	1998-10-06 22:58:43.000000000 +0200
++++ pwdb-0.61/libpwdb/radius/radius.c	2002-06-25 19:19:58.000000000 +0200
+@@ -1,6 +1,8 @@
+ 
+ /* This is the RADIUS main support file */
+ 
++#include <sys/types.h>
++#include <sys/socket.h>
+ #include "../_pwdb_internal.h"
+ #include "../_pwdb_macros.h"
+ #include "md5.h"
+--- pwdb-0.61/examples/gentest.c.includes	2000-01-06 21:17:44.000000000 +0100
++++ pwdb-0.61/examples/gentest.c	2002-06-25 19:18:17.000000000 +0200
+@@ -1,6 +1,8 @@
+ /* this is a test for generic interface on pwdb */
+ 
+ #include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
+ #include <pwdb/pwdb_public.h>
+ 
+ #define USER  "morgan"
+--- pwdb-0.61/examples/radtest.c.includes	2000-01-06 21:17:44.000000000 +0100
++++ pwdb-0.61/examples/radtest.c	2002-06-25 19:18:17.000000000 +0200
+@@ -3,6 +3,8 @@
+ 
+ #include <pwdb/pwdb_public.h>
+ #include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
+ 
+ #define USERNAME    "bob"
+ #define PASSWORD    "testing"
+--- pwdb-0.61/examples/grouptest.c.includes	2000-01-06 21:17:44.000000000 +0100
++++ pwdb-0.61/examples/grouptest.c	2002-06-25 19:18:17.000000000 +0200
+@@ -1,4 +1,6 @@
+ #include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
+ #include <pwdb/pwdb_public.h>
+ 
+ #define GROUP  "xxxyyy"
