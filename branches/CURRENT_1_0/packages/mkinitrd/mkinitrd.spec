@@ -1,6 +1,6 @@
 %define name	mkinitrd
 %define version 3.4.43
-%define release 13avx
+%define release 14avx
 %define epoch	1
 
 %define use_dietlibc 0
@@ -21,6 +21,7 @@ Source1:	mkinitrd_helper2.tar.bz2
 Patch0:		mkinitrd-3.4.43-mdkize.patch.bz2
 Patch1:		mkinitrd-3.1.6-shutup-insmod-busybox.patch.bz2
 Patch2:		mkinitrd-3.4.43-kernel-2.5.patch.bz2
+Patch3:		mkinitrd-3.4.43-avx-mkdevices.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires:	perl
@@ -53,6 +54,7 @@ ramdisk using information found in the /etc/modules.conf file.
 %patch0 -p1 -b .mdk
 %patch1 -p0
 %patch2 -p1 -b .kernel25
+%patch3 -p1 -b .mkdevices
 perl -pi -e 's/grubby//' Makefile
 
 %build
@@ -81,6 +83,10 @@ rm -f $RPM_BUILD_ROOT%{_mandir}/*/grubby*
 %{_mandir}/*/*
 
 %changelog
+* Fri Dec 17 2004 Vincent Danen <vdanen@annvix.rg> 3.4.43-14avx
+- P3: put back "mkdevices /dev" call which was preventing our kernels
+  from booting properly (the removal is in the mdk patch)
+
 * Tue Jun 22 2004 Vincent Danen <vdanen@annvix.rg> 3.4.43-13avx
 - Annvix build
 
