@@ -1,0 +1,14 @@
+#!/bin/sh
+#
+# Toggle between Apache 2.0 and 1.3
+#
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+SBIN=/usr/sbin
+CONF=/etc/httpd/conf
+
+$SBIN/ADVXctl update
+echo "Enabling Apache 1.3 override"
+touch $CONF/RUN1.3
+$SBIN/ADVXctl update
