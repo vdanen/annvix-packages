@@ -1,6 +1,8 @@
 %define name	timeconfig
 %define version	3.2
-%define release	9sls
+%define release	10sls
+
+%{!?build_opensls:%global build_opensls 0}
 
 Summary:	Text mode tools for setting system time parameters.
 Name:		%{name}
@@ -22,7 +24,9 @@ BuildRoot:	%{_tmppath}/%{name}-root
 BuildRequires:	gettext libnewt-devel popt-devel slang-devel
 
 Requires:	initscripts >= 2.81
+%if !%{build_opensls}
 Requires:	usermode-consoleonly
+%endif
 Prereq:		fileutils, gawk
 
 %description
@@ -47,7 +51,7 @@ rm -f $RPM_BUILD_ROOT/usr/lib/zoneinfo
 # fix indonesian locale, its language code is 'id' not 'in'.
 mkdir -p $RPM_BUILD_ROOT/usr/share/locale/id/LC_MESSAGES
 
-
+%if !%{build_opensls}
 #install menu
 mkdir -p $RPM_BUILD_ROOT/%{_menudir}
 install -m644 %{SOURCE1} $RPM_BUILD_ROOT/%{_menudir}/timeconfig
@@ -66,6 +70,7 @@ install -m644 %{SOURCE5} $RPM_BUILD_ROOT/%{_sysconfdir}/pam.d/timeconfig-auth
 install -m644 %{SOURCE6} $RPM_BUILD_ROOT/%{_sysconfdir}/security/console.apps/timeconfig-auth
 
 ln -fs /usr/bin/consolehelper $RPM_BUILD_ROOT/%{_sbindir}/timeconfig-auth
+%endif
 
 # remove unpackaged files
 rm -rf $RPM_BUILD_ROOT%{_mandir}/pt_BR/
@@ -87,23 +92,32 @@ if [ -L /etc/localtime ]; then
 	echo "ZONE=\"$_FNAME\"" | sed -e "s|.*/zoneinfo/||" >> /etc/sysconfig/clock
     fi
 fi
+%if !%{build_opensls}
 %{update_menus}
+%endif
 
+%if !%{build_opensls}
 %postun
 %{clean_menus}
+%endif
 
 %files -f %{name}.lang
 %defattr(-,root,root)
 %{_sbindir}/*
 %{_mandir}/man*/*
+%if !%{build_opensls}
 %{_menudir}/timeconfig
 %{_iconsdir}/timeconfig.png
 %{_miconsdir}/timeconfig.png
 %{_liconsdir}/timeconfig.png
 %config(noreplace) %{_sysconfdir}/pam.d/timeconfig-auth
 %config(noreplace) %{_sysconfdir}/security/console.apps/timeconfig-auth
+%endif
 
 %changelog
+* Tue Dec 30 2003 Vincent Danen <vdanen@opensls.org> 3.2-10sls
+- remove the console-helper stuff using %%build_opensls
+
 * Mon Dec 01 2003 Vincent Danen <vdanen@opensls.org> 3.2-9sls
 - OpenSLS build
 - tidy spec
