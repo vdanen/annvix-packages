@@ -1,6 +1,6 @@
 %define name	mc
 %define version	4.6.0
-%define release	9avx
+%define release	10avx
 
 Summary:	A user-friendly file manager and visual shell
 Name:		%{name}
@@ -27,6 +27,7 @@ Patch12:	mc-4.6.0-mdk-toolbar-po-mdk.path.bz2
 Patch13:	mc-4.6.0-mdk-CAN-2004-0494.patch.bz2
 Patch14:	mc-4.6.0-mdk-extfs_rpm_info.patch.bz2
 Patch15:	mc-4.6.0-mdk-diff_syntax.patch.bz2
+Patch16:	mc-4.6.0-mdk-wrapper_fix.diff.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-root
 BuildRequires:	libext2fs-devel pam-devel
@@ -60,6 +61,7 @@ cp -f %{SOURCE1} vfs/extfs
 %patch13 -p1 -b .can-2004-0494
 %patch14 -p1 -b .large_syntax
 %patch15 -p1 -b .diff_syntax
+%patch16 -p0 -b .wrapper_fix
 
 %build
 %serverbuild
@@ -138,6 +140,9 @@ chmod 755 $RPM_BUILD_ROOT/%{_libdir}/mc/cons.saver
 %{_datadir}/mc/term/
 
 %changelog
+* Mon Feb 28 2005 Vincent Danen <vdanen@annvix.org> - 4.6.0-10avx
+- P16: make the wrapper script work (oden)
+
 * Tue Sep 07 2004 Vincent Danen <vdanen@annvix.org> - 4.6.0-9avx
 - renumber patches; patch policy
 - update description
