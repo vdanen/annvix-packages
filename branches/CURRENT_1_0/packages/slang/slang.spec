@@ -1,8 +1,6 @@
 %define name	slang
 %define version 1.4.9
-%define release 4sls
-
-%{!?build_opensls:%global build_opensls 0}
+%define release 5sls
 
 %define docversion	1.4.8
 %define major		1
@@ -60,22 +58,6 @@ applications is also included.
 Install the slang-devel package if you want to develop applications
 based on the S-Lang extension language.
 
-%if !%{build_opensls}
-%package doc
-Version:	%{docversion}
-Summary:	Extra documentation for slang libraries
-Group:		Books/Computer books
-
-%description doc
-This package contains documentation about S-Lang.
-S-Lang is an interpreted language and a programming library.  The
-S-Lang language was designed so that it can be easily embedded into
-a program to provide the program with a powerful extension language.
-The S-Lang library, provided in this package, provides the S-Lang
-extension language.  S-Lang's syntax resembles C, which makes it easy
-to recode S-Lang procedures in C if you need to.
-%endif
-
 
 %prep
 %setup -q
@@ -86,12 +68,9 @@ to recode S-Lang procedures in C if you need to.
 #(peroyvind) passing this to configure does'nt work..
 %make ELF_CFLAGS="$RPM_OPT_FLAGS -fno-strength-reduce -fPIC" elf
 %make all
-%if !%{build_opensls}
-cd doc && tar xjvf %{SOURCE1}
-%endif
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p $RPM_BUILD_ROOT%{_includedir}/slang
 make	prefix=$RPM_BUILD_ROOT%{_prefix} \
 	install_lib_dir=$RPM_BUILD_ROOT%{_libdir} \
@@ -115,7 +94,7 @@ rm -rf	$RPM_BUILD_ROOT/usr/doc/slang/COPYING \
 	$RPM_BUILD_ROOT/usr/doc/slang/slangfun.txt
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post -n %{lib_name} -p /sbin/ldconfig
 
@@ -132,13 +111,11 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_includedir}/slang/
 %{_includedir}/slang/*.h
 
-%if !%{build_opensls}
-%files doc
-%defattr(-,root,root)
-%doc doc COPYING COPYRIGHT README changes.txt NEWS 
-%endif
-
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 1.4.9-5sls
+- minor spec cleanups
+- remove %%build_opensls macro
+
 * Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 1.4.9-4sls
 - OpenSLS build
 - tidy spec
