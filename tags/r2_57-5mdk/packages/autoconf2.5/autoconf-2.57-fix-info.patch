@@ -1,0 +1,75 @@
+--- doc/autoconf.texi.gege
++++ doc/autoconf.texi
+@@ -1,9 +1,9 @@
+ \input texinfo @c -*-texinfo-*-
+ @comment ========================================================
+ @comment %**start of header
+-@setfilename autoconf.info
++@setfilename autoconf-2.5x.info
+ @include version.texi
+-@settitle Autoconf
++@settitle Autoconf-2.5x
+ @setchapternewpage odd
+ @setcontentsaftertitlepage
+ @finalout
+@@ -69,6 +69,18 @@
+ 
+ @copying
+ 
++-+-+-+-+- IMPORTANT, PLEASE NOTICE ===> this version is meant to coexist with
++autoconf-2.13 (for backwards compatibility); to that end, the various
++binaries are actually linked to a script which decides which version
++to execute. It tries to be clever and will execute 2.5x if
++`configure.ac' is present, or if `configure.in' contains AC_PREREQ and
++the value's 3 first letters are stringwise greater than '2.1'. You can
++also manually select it by providing the environment variable
++WANT_AUTOCONF_2_5 set to `1' (use WANT_AUTOCONF_2_1 if you want the
++2.13 version). But do not invoke directly autoconf-2.5x or other
++sub-utilities with the -2.5x suffix.
++
++
+ This manual is for @acronym{GNU} Autoconf
+ (version @value{VERSION}, @value{UPDATED}),
+ a package for creating scripts to configure source code packages using
+@@ -97,30 +108,30 @@
+ 
+ @dircategory GNU programming tools
+ @direntry
+-* Autoconf: (autoconf).         Create source code configuration scripts
++* Autoconf-2.5x: (autoconf-2.5x).         Create source code configuration scripts
+ @end direntry
+ 
+ @dircategory Individual utilities
+ @direntry
+-* autoscan: (autoconf)autoscan Invocation.
++* autoscan-2.5x: (autoconf-2.5x)autoscan Invocation.
+                                 Semi-automatic @file{configure.ac} writing
+-* ifnames: (autoconf)ifnames Invocation.
++* ifnames-2.5x: (autoconf-2.5x)ifnames Invocation.
+                                 Listing the conditionals in source code
+-* autoconf: (autoconf)autoconf Invocation.
++* autoconf-2.5x: (autoconf-2.5x)autoconf Invocation.
+                                 How to create configuration scripts
+-* autoreconf: (autoconf)autoreconf Invocation.
++* autoreconf-2.5x: (autoconf-2.5x)autoreconf Invocation.
+                                 Remaking multiple @command{configure} scripts
+-* autoheader: (autoconf)autoheader Invocation.
++* autoheader-2.5x: (autoconf-2.5x)autoheader Invocation.
+                                 How to create configuration templates
+-* autom4te: (autoconf)autom4te Invocation.
++* autom4te-2.5x: (autoconf-2.5x)autom4te Invocation.
+                                 The Autoconf executables backbone
+-* configure: (autoconf)configure Invocation.
++* configure-2.5x: (autoconf-2.5x)configure Invocation.
+                                 Configuring a package
+-* autoupdate: (autoconf)autoupdate Invocation.
++* autoupdate-2.5x: (autoconf-2.5x)autoupdate Invocation.
+                                 Automatic update of @file{configure.ac}
+-* config.status: (autoconf)config.status Invocation.
++* config.status-2.5x: (autoconf-2.5x)config.status Invocation.
+                                 Recreating a configuration
+-* testsuite: (autoconf)testsuite Invocation.
++* testsuite-2.5x: (autoconf-2.5x)testsuite Invocation.
+                                 Running an Autotest test suite
+ @end direntry
+ 
