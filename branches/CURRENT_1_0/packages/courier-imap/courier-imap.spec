@@ -1,6 +1,6 @@
 %define name	courier-imap
 %define version	2.1.2
-%define release	3sls
+%define release	4sls
 
 %define _localstatedir	/var/run
 %define	authdaemondir	%{_localstatedir}/authdaemon.courier-imap
@@ -27,6 +27,7 @@ Source4:	auto_maildir_creator.bz2
 # (fc) 1.4.2-2mdk fix missing command in initrd
 Patch0: 	courier-imap-1.6.1-initrd.patch.bz2
 Patch1:		courier-imap-2.1.2-auto_maildir_creator.patch.bz2
+Patch2:		courier-imap-2.1.1-configure.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
 BuildPreReq:	autoconf2.5, coreutils, libtool, perl, sed
@@ -123,9 +124,12 @@ maildirmake command.
 %setup -q -a2
 %patch0 -p0 -b .initrd
 %patch1 -p1 -b .auto_maildir_creator
+%ifarch amd64 x86_64
+%patch2 -p0 -b .config
+%endif
 
 %build
-
+#(cd authlib; autoreconf)
 %configure2_5x \
     --enable-unicode \
     --enable-workarounds-for-imap-client-bugs \
@@ -145,7 +149,7 @@ maildirmake command.
 #make check
 
 %install
-if [ -d %{buildroot} ]; then rm -rf %{buildroot}; fi
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 mkdir -p %{buildroot}%{_sysconfdir}/pam.d
 
@@ -347,7 +351,7 @@ test ! -f %{courierdatadir}/configlist.ldap || %{courierdatadir}/sysconftool-rpm
 test ! -f %{courierdatadir}/configlist.mysql || %{courierdatadir}/sysconftool-rpmupgrade `cat %{courierdatadir}/configlist.mysql` >/dev/null
 
 %clean
-if [ -d %{buildroot} ]; then rm -rf %{buildroot}; fi
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files -f authdaemon.files
 %defattr(-, root, root)
@@ -396,6 +400,7 @@ if [ -d %{buildroot} ]; then rm -rf %{buildroot}; fi
 %{_mandir}/man8/mkpop3dcert.8*
 %{_mandir}/man8/pw2userdb.8*
 %{_mandir}/man8/user*.8*
+%{_mandir}/man8/vchkpw2userdb.8*
 
 %{courierdatadir}/pw2userdb
 %{courierdatadir}/makeuserdb
@@ -460,6 +465,11 @@ if [ -d %{buildroot} ]; then rm -rf %{buildroot}; fi
 %{_mandir}/man1/maildirmake++.1*
 
 %changelog
+* Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 2.1.2-4sls
+- patch authlib/configure so that builds on amd64 (ignore failed res_query
+  error, only shows up on amd64)
+- minor spec cleanups
+
 * Tue Dec 30 2003 Vincent Danen <vdanen@opensls.org> 2.1.2-3sls
 - remove deps on fam
 
