@@ -1,6 +1,6 @@
 %define name	openldap
 %define version	2.1.22
-%define release	7sls
+%define release	8sls
 
 %define major 	2
 %define migtools_ver 40
@@ -708,6 +708,9 @@ fi
 
 
 %changelog
+* Mon Feb 02 2004 Vincent Danen <vdanen@opensls.org> 2.1.22-8sls
+- logrotate should call srv not service
+
 * Tue Jan 27 2004 Vincent Danen <vdanen@opensls.org> 2.1.22-7sls
 - supervise scripts (still some incomplete calls to old service command in
   the scriptlets; to be done when the others are converted (syslog, nscd))
