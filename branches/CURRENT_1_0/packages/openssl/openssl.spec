@@ -1,6 +1,6 @@
 %define name	openssl
 %define version	0.9.7d
-%define release	2avx
+%define release	3avx
 
 %define maj		0.9.7
 %define libname 	%mklibname %name %maj
@@ -21,6 +21,7 @@ Patch1:		openssl-0.9.7-mdk-ia64-asm.patch.bz2
 Patch2:		openssl-0.9.7b-mdk-optflags.patch.bz2
 # (gb) 0.9.7b-4mdk: Make it lib64 aware. TODO: detect in Configure
 Patch3:		openssl-0.9.7d-mdk-lib64.patch.bz2
+Patch4:		openssl-0.9.7c-CAN-2004-0975.patch.bz2
 
 BuildRoot:	%_tmppath/%name-%version-root
 
@@ -97,6 +98,7 @@ Patches for many networking apps can be found at:
 %patch1 -p1 -b .ia64-asm
 %patch2 -p1 -b .optflags
 %patch3 -p1 -b .lib64
+%patch4 -p1 -b .can-2004-0975
 
 perl -pi -e "s,^(LIB=).+$,\1%{_lib}," Makefile.org
 
@@ -194,6 +196,9 @@ rm -f %{buildroot}%{_mandir}/man7/Modes*
 
 
 %changelog
+* Sat Dec 04 2004 Vincent Danen <vdanen@annvix.org> 0.9.7d-3avx
+- P4: security fix for CAN-2004-0975
+
 * Tue Aug 17 2004 Vincent Danen <vdanen@annvix.org> 0.9.7d-2avx
 - remove "Modes of Des.7" manpage since it's a symlink to des_modes.7
 - change README.Mandrake-manpage to README.Annvix-manpage
