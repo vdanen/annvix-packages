@@ -1,6 +1,6 @@
 %define name	MySQL
-%define version	4.0.18
-%define release	2avx
+%define version	4.0.20
+%define release	1avx
 
 %define major		12
 %define libname_orig	mysql
@@ -26,13 +26,12 @@ Source1:	ftp://ftp.free.fr:/pub/MySQL/Downloads/Manual/manual-split.tar.bz2
 Source2:	mysqld.run
 Source3:	mysqld-log.run
 Source4:	mysqld.sysconfig
-Patch1:		MySQL-4.0.16-fix_install_scripts.patch.bz2
-Patch2:		all_charset.patch.bz2
-Patch3:		mysql-4.0.17-lib64.patch.bz2
-Patch4:		mysql-4.0.18-securityscript.patch.bz2
+Patch1:		MySQL-4.0.16-mdk-fix_install_scripts.patch.bz2
+Patch2:		mysql-mdk-all_charset.patch.bz2
+Patch3:		mysql-4.0.17-mdk-lib64.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
-BuildRequires:	bison, db4-devel, glibc-static-devel, libstdc++5-static-devel, automake1.7
+BuildRequires:	bison, db4-devel, glibc-static-devel, libstdc++-static-devel, automake1.7
 BuildRequires:	termcap-devel
 BuildRequires:	ncurses-devel, python, openssl-static-devel, tetex, texinfo, zlib-devel
 
@@ -140,7 +139,6 @@ to MySQL basic server.
 %patch1 -p0 -b .max
 %patch2 -p1 -b .charset
 %patch3 -p0 -b .lib64
-%patch4 -p0 -b .sec
 
 # 20021227 warly manual include files not in the archives
 # perl -pi -e 's/\@include reservedwords.texi//' ./Docs/manual.texi
@@ -184,6 +182,7 @@ BuildMySQL() {
 	    --enable-assembler \
 	    --enable-local-infile \
             --with-mysqld-user=%{mysqld_user} \
+	    --with-openssl \
             --with-unix-socket-path=/var/lib/mysql/mysql.sock \
             --prefix=/ \
 	    --with-extra-charsets=complex \
@@ -229,7 +228,7 @@ export PATH
 # are using --with-other-libc
 
 # BuildMySQL "--disable-shared $USE_OTHER_LIBC_DIR --with-berkeley-db --with-innodb --with-mysqld-ldflags='-all-static' --with-server-suffix='-Max'"
-BuildMySQL "--enable-shared --with-berkeley-db --with-innodb --with-openssl --with-server-suffix='-Max'"
+BuildMySQL "--enable-shared --with-berkeley-db --with-innodb --with-server-suffix='-Max'"
 
 # Save mysqld-max
 mv sql/mysqld sql/mysqld-max
@@ -317,7 +316,7 @@ do
 done
 
 pushd $RBR%{_docdir}/MySQL-%{version}/chapter
-tar tyvf %{SOURCE1}
+tar tjvf %{SOURCE1}
 popd
 
 #Fix libraries
@@ -342,6 +341,7 @@ chmod -R og-rw $mysql_datadir/mysql
 rm -rf $RPM_BUILD_ROOT%{_datadir}/info/dir $RPM_BUILD_ROOT/shared-libs.tar
 rm -rf $RPM_BUILD_ROOT%{_datadir}/info/dir $RPM_BUILD_ROOT/shared-libs.tar
 rm -rf $RPM_BUILD_ROOT%{_bindir}/make_win_src_distribution
+rm -rf $RPM_BUILD_ROOT%{_bindir}/make_win_binary_distribution
 
 mkdir -p %{buildroot}%{_sysconfdir}/sysconfig
 install -m 0644 %{SOURCE4} %{buildroot}%{_sysconfdir}/sysconfig/mysqld
@@ -522,6 +522,7 @@ fi
 %dir %attr(-,mysql,mysql) %{_localstatedir}/mysql
 %dir %attr(-,mysql,mysql) %{_localstatedir}/mysql/mysql
 %dir %attr(-,mysql,mysql) %{_localstatedir}/mysql/test
+%dir %{_datadir}/mysql
 %{_datadir}/mysql/binary-configure
 %{_datadir}/mysql/make_binary_distribution
 %{_datadir}/mysql/make_sharedlib_distribution
@@ -546,6 +547,7 @@ fi
 %files
 %defattr(-, root, root) 
 %{_sbindir}/mysqld
+%dir %{_libdir}/mysql
 %{_libdir}/mysql/mysqld.sym
 %dir %{_srvdir}/mysqld
 %dir %{_srvdir}/mysqld/log
@@ -577,6 +579,7 @@ fi
 %doc INSTALL-SOURCE
 %{_bindir}/comp_err
 %{_includedir}/mysql/
+%dir %{_libdir}/mysql
 %{_libdir}/mysql/*.a
 %{_libdir}/*.la
 %{_libdir}/*.so
@@ -597,6 +600,7 @@ fi
 %files Max
 %defattr(-, root, root)
 %{_sbindir}/mysqld-max
+%dir %{_libdir}/mysql
 %{_libdir}/mysql/mysqld-max.sym
 %dir %{_srvdir}/mysqld
 %dir %{_srvdir}/mysqld/log
@@ -606,6 +610,15 @@ fi
 %config(noreplace) %{_sysconfdir}/sysconfig/mysqld
 
 %changelog
+* Fri Aug 13 2004 Vincent Danen <vdanen@annvix.org> 4.0.20-1avx
+- 4.0.20
+- remove P4: security fixes included upstream
+- own directories
+- correct call to tar
+- build both MySQL and MySQL-Max with openssl, rather than just MySQL-Max
+- fix buildrequires for libstdc++-static-devel (gbeauchesne)
+- patch policy
+
 * Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 4.0.18-2avx
 - Annvix build
 
