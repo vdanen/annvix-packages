@@ -1,6 +1,6 @@
 %define name	krb5
 %define version	1.3
-%define release	5sls
+%define release	6sls
 
 %define srcver	1.3
 %define LIBMAJ	1
@@ -27,24 +27,24 @@ Source9:	kdc.conf.bz2
 Source10:	kadm5.acl.bz2
 Source11:	krsh.bz2
 Source12:	krlogin.bz2
-Source13:	eklogin.xinetd.bz2
-Source14:	klogin.xinetd.bz2
-Source15:	kshell.xinetd.bz2
-Source16:	telnet-krb5.xinetd.bz2
-Source17:	ftp-krb5.xinetd.bz2
 Source18:	krb5server.init.bz2
 Source19:	statglue.c.bz2
-Source20:	telnet.16.xpm.bz2
-Source21:	telnet.32.xpm.bz2
-Source22:	telnet.48.xpm.bz2
 Source23:	Mandrake-Kerberos-HOWTO.html.bz2
 Source24:	%{name}-%{version}.tar.gz.asc
 Source25:	http://web.mit.edu/kerberos/www/advisories/2003-004-krb4_patchkit.tar.gz
 Source26:	http://web.mit.edu/kerberos/www/advisories/2003-004-krb4_patchkit.sig
-Source27:	telnet.run
-Source28:	telnet-log.run
-Source29:	ftp.run
-Source30:	ftp-log.run
+Source27:	ktelnet.run
+Source28:	ktelnet-log.run
+Source29:	kftp.run
+Source30:	kftp-log.run
+Source31:	kadmind.run
+Source32:	kadmind-log.run
+Source33:	kpropd.run
+Source34:	kpropd-log.run
+Source35:	krb5kdc.run
+Source36:	krb5kdc-log.run
+Source37:	krb524d.run
+Source38:	krb524d-log.run
 Patch0:		krb5-1.1-db.patch.bz2
 Patch1:		krb5-1.1.1-tiocgltc.patch.bz2
 Patch2:		krb5-1.1.1-libpty.patch.bz2
@@ -155,11 +155,7 @@ workstation.
 Summary:	A telnet-server with kerberos support
 Group:		System/Servers
 Requires:	%{libname} = %{version}
-%if %{build_opensls}
 Requires:	ucspi-tcp
-%else
-Requires:	xinetd
-%endif
 Obsoletes:	telnet-server
 Provides:	telnet-server
 
@@ -361,15 +357,8 @@ bzcat %{SOURCE6} > $RPM_BUILD_ROOT/etc/profile.d/krb5.sh
 bzcat %{SOURCE7} > $RPM_BUILD_ROOT/etc/profile.d/krb5.csh
 
 # KDC init script.
-mkdir -p $RPM_BUILD_ROOT/%{_initrddir}
 mkdir -p $RPM_BUILD_ROOT/%{_sbindir}
-
-bzcat %{SOURCE4} > $RPM_BUILD_ROOT/%{_initrddir}/krb5kdc
-bzcat %{SOURCE3} > $RPM_BUILD_ROOT/%{_initrddir}/kadmin
-bzcat %{SOURCE1} > $RPM_BUILD_ROOT/%{_initrddir}/kprop
-bzcat %{SOURCE2} > $RPM_BUILD_ROOT/%{_initrddir}/krb524
 bzcat %{SOURCE8} > $RPM_BUILD_ROOT/%{_sbindir}/kdcrotate
-bzcat %{SOURCE18} > $RPM_BUILD_ROOT/%{_initrddir}/krb5server
 
 # The rest of the binaries and libraries and docs.
 cd src
@@ -382,34 +371,20 @@ make prefix=$RPM_BUILD_ROOT%_prefix \
 # Fixup strange shared library permissions.
 chmod 755 $RPM_BUILD_ROOT%{_libdir}/*.so*
 
-%if %{build_opensls}
-mkdir -p %{buildroot}/var/service/{telnet,ftp}/log
-mkdir -p %{buildroot}/var/log/supervise/{telnet,ftp}
-install -m 0755 %{SOURCE27} %{buildroot}/var/service/telnet/run
-install -m 0755 %{SOURCE28} %{buildroot}/var/service/telnet/log/run
-install -m 0755 %{SOURCE29} %{buildroot}/var/service/ftp/run
-install -m 0755 %{SOURCE30} %{buildroot}/var/service/ftp/log/run
-%else
-# Xinetd configuration files.
-mkdir -p $RPM_BUILD_ROOT/etc/xinetd.d/
-bzcat %{SOURCE16} > $RPM_BUILD_ROOT/etc/xinetd.d/telnet
-bzcat %{SOURCE17} > $RPM_BUILD_ROOT/etc/xinetd.d/ftp
-
-#telnet menu entries
-mkdir -p $RPM_BUILD_ROOT%{_menudir}
-cat << EOF >$RPM_BUILD_ROOT%{_menudir}/telnet
-?package(telnet): command="%{_bindir}/telnet" needs="text" \
-icon="telnet.xpm" section="Networking/Remote access" \
-title="Telnet" longtitle="Telnet client"
-EOF
-
-# icons for telnet client
-mkdir -p $RPM_BUILD_ROOT/%{_miconsdir}
-mkdir -p $RPM_BUILD_ROOT/%{_liconsdir}
-bzcat %{SOURCE20} > $RPM_BUILD_ROOT/%{_miconsdir}/telnet.xpm
-bzcat %{SOURCE21} > $RPM_BUILD_ROOT/%{_iconsdir}/telnet.xpm
-bzcat %{SOURCE22} > $RPM_BUILD_ROOT/%{_liconsdir}/telnet.xpm
-%endif
+mkdir -p %{buildroot}%{_srvdir}/{ktelnet,kftp,kadmind,kpropd,krb5kdc,krb524d}/log
+mkdir -p %{buildroot}%{_srvlogdir}/{ktelnet,kftp,kadmind,kpropd,krb5kdc,krb524d}
+install -m 0755 %{SOURCE27} %{buildroot}%{_srvdir}/ktelnet/run
+install -m 0755 %{SOURCE28} %{buildroot}%{_srvdir}/ktelnet/log/run
+install -m 0755 %{SOURCE29} %{buildroot}%{_srvdir}/kftp/run
+install -m 0755 %{SOURCE30} %{buildroot}%{_srvdir}/kftp/log/run
+install -m 0755 %{SOURCE31} %{buildroot}%{_srvdir}/kadmind/run
+install -m 0755 %{SOURCE32} %{buildroot}%{_srvdir}/kadmind/log/run
+install -m 0755 %{SOURCE33} %{buildroot}%{_srvdir}/kpropd/run
+install -m 0755 %{SOURCE34} %{buildroot}%{_srvdir}/kpropd/log/run
+install -m 0755 %{SOURCE35} %{buildroot}%{_srvdir}/krb5kdc/run
+install -m 0755 %{SOURCE36} %{buildroot}%{_srvdir}/krb5kdc/log/run
+install -m 0755 %{SOURCE37} %{buildroot}%{_srvdir}/krb524d/run
+install -m 0755 %{SOURCE38} %{buildroot}%{_srvdir}/krb524d/log/run
 
 bzcat %{SOURCE23} > $RPM_BUILD_DIR/%{name}-%{version}/doc/Mandrake-Kerberos-HOWTO.html
 
@@ -430,115 +405,53 @@ find %{_builddir}/%{name}-%{version} -name "*\.h" | xargs perl -p -i -e "s|\"com
 %postun -n %{libname} -p /sbin/ldconfig
 
 %post server
-# Remove the init script for older servers.
-[ -x /etc/rc.d/init.d/krb5server ] && /sbin/chkconfig --del krb5server
-# Install the new ones.
-/sbin/chkconfig --add krb5kdc
-/sbin/chkconfig --add kadmin
-/sbin/chkconfig --add krb524
-/sbin/chkconfig --add kprop
+%_post_srv kadmind
+%_post_srv kpropd
+%_post_srv krb5kdc
+%_post_srv krb524d
+
 # Install info pages.
-/sbin/install-info %{_infodir}/krb425.info.bz2 %{_infodir}/dir
-/sbin/install-info %{_infodir}/krb5-admin.info.bz2 %{_infodir}/dir
-/sbin/install-info %{_infodir}/krb5-install.info.bz2 %{_infodir}/dir
+/sbin/install-info %{_infodir}/krb425.info.bz2 %{_infodir}/dir >/dev/null 2>&1
+/sbin/install-info %{_infodir}/krb5-admin.info.bz2 %{_infodir}/dir >/dev/null 2>&1
+/sbin/install-info %{_infodir}/krb5-install.info.bz2 %{_infodir}/dir >/dev/null 2>&1
 
 %preun server
-if [ "$1" = "0" ] ; then
-	/sbin/chkconfig --del krb5kdc
-	/sbin/chkconfig --del kadmin
-	/sbin/chkconfig --del krb524
-	/sbin/chkconfig --del kprop
-	/sbin/service krb5kdc stop > /dev/null 2>&1 || :
-	/sbin/service kadmin stop > /dev/null 2>&1 || :
-	/sbin/service krb524 stop > /dev/null 2>&1 || :
-	/sbin/service kprop stop > /dev/null 2>&1 || :
-#	/sbin/install-info --delete %{_infodir}/krb425.info.gz %{_infodir}/dir
-#	/sbin/install-info --delete %{_infodir}/krb5-admin.info.gz %{_infodir}/dir
-#	/sbin/install-info --delete %{_infodir}/krb5-install.info.gz %{_infodir}/dir
-fi
-
-%postun server
-if [ "$1" -ge 1 ] ; then
-	/sbin/service krb5kdc condrestart > /dev/null 2>&1 || :
-	/sbin/service kadmin condrestart > /dev/null 2>&1 || :
-	/sbin/service krb524 condrestart > /dev/null 2>&1 || :
-	/sbin/service kprop condrestart > /dev/null 2>&1 || :
+%_preun_srv kadmind
+%_preun_srv kpropd
+%_preun_srv krb5kdc
+%_preun_srv krb524d
+if [ "$1" = "0" ]; then
+  /sbin/install-info --delete %{_infodir}/krb425.info.bz2 %{_infodir}/dir >/dev/null 2>&1
+  /sbin/install-info --delete %{_infodir}/krb5-admin.info.bz2 %{_infodir}/dir >/dev/null 2>&1
+  /sbin/install-info --delete %{_infodir}/krb5-install.info.bz2 %{_infodir}/dir >/dev/null 2>&1
 fi
 
 %post workstation
-/sbin/install-info %{_infodir}/krb5-user.info %{_infodir}/dir
-%if !%{build_opensls}
-/sbin/service xinetd reload > /dev/null 2>&1 || :
-%endif
+/sbin/install-info %{_infodir}/krb5-user.info %{_infodir}/dir >/dev/null 2>&1
 
 %preun workstation
 if [ "$1" = "0" ] ; then
-	/sbin/install-info --delete %{_infodir}/krb5-user.info %{_infodir}/dir
+	/sbin/install-info --delete %{_infodir}/krb5-user.info %{_infodir}/dir >/dev/null 2>&1
 fi
 
-%if !%{build_opensls}
-%postun workstation
-/sbin/service xinetd reload > /dev/null 2>&1 || :
-%endif
-
-%if !%{build_opensls}
 %post -n telnet-server-krb5
-/sbin/service xinetd reload > /dev/null 2>&1 || :
-ln -sf /bin/login /usr/sbin/login.krb5
-file="/etc/xinetd.d/telnet"
-if [ ! -f $file ] ; then
-	echo "Can't find xinetd file for telnet."
-	exit 1
-fi
-perl -pi -e "s|/usr/sbin/in\.telnetd|/usr/sbin/telnetd|g" $file
-# We already have the required flags (-a <some_auth_mode>)
-cat $file|egrep -q "server_args.*=.*-a[[:space:]]+.*$" && exit 0
-# Don't have -a <some_auth_mode>, check if we have server_args or not
-cat $file|egrep -q "server_args.*=.*$" && \
-	perl -pi -e "s|(server_args.*=.*$)|\1\ -a\ none|" $file && exit 0
-# Say, no server_args in xinetd file.
-perl -pi -e "s|(server.*=.*/usr/sbin/telnetd.*$)|\1\n\tserver_args\t=\ -a\ none|" $file && exit 0
-%endif
+%_post_srv ktelnet
 
-%if !%{build_opensls}
-%postun -n telnet-server-krb5
-/sbin/service xinetd reload > /dev/null 2>&1 || :
-%endif
+%preun -n telnet-server-krb5
+%_preun_srv ktelnet
 
-%if !%{build_opensls}
-%post -n telnet-client-krb5
-%{update_menus}
-%endif
-
-%if !%{build_opensls}
-%postun -n telnet-client-krb5
-%{clean_menus}
-%endif
-
-%if !%{build_opensls}
 %post -n ftp-server-krb5
-/sbin/service xinetd reload > /dev/null 2>&1 || :
-ln -sf /bin/login /usr/sbin/login.krb5
-file="/etc/xinetd.d/ftp"
-if [ ! -f $file ] ; then
-	echo "Can't find xinetd file for ftp."
-	exit 1
-fi
-%endif
+%_post_srv kftp
 
-%if !%{build_opensls}
-%postun -n ftp-server-krb5
-/sbin/service xinetd reload > /dev/null 2>&1 || :
-%endif
+%preun -n ftp-server-krb5
+%_preun_srv kftp
 
 %files workstation
 %defattr(-,root,root)
-
-%config(noreplace) /etc/profile.d/krb5.sh
-%config(noreplace) /etc/profile.d/krb5.csh
-
 %doc doc/*.html doc/user*.ps.gz src/config-files/services.append
 %attr(0755,root,root) %doc src/config-files/convert-config-files
+%config(noreplace) /etc/profile.d/krb5.sh
+%config(noreplace) /etc/profile.d/krb5.csh
 %{_infodir}/krb5-user.info*
 
 %{_bindir}/gss-client
@@ -590,16 +503,26 @@ fi
 
 %files server
 %defattr(-,root,root)
-
-%attr(0755,root,root) %config(noreplace) %{_initrddir}/krb5kdc
-%attr(0755,root,root) %config(noreplace) %{_initrddir}/kadmin
-%attr(0755,root,root) %config(noreplace) %{_initrddir}/krb524
-%attr(0755,root,root) %config(noreplace) %{_initrddir}/kprop
-%attr(0755,root,root) %config(noreplace) %{_initrddir}/krb5server
-
-%doc doc/admin*.ps.gz doc/*html
-%doc doc/krb425*.ps.gz 
-%doc doc/install*.ps.gz
+%dir %{_srvdir}/kadmind
+%dir %{_srvdir}/kadmind/log
+%dir %attr(0750,nobody,nogroup) /var/log/supervise/kadmind
+%{_srvdir}/kadmind/run
+%{_srvdir}/kadmind/log/run
+%dir %{_srvdir}/kpropd
+%dir %{_srvdir}/kpropd/log
+%dir %attr(0750,nobody,nogroup) /var/log/supervise/kpropd
+%{_srvdir}/kpropd/run
+%{_srvdir}/kpropd/log/run
+%dir %{_srvdir}/krb5kdc
+%dir %{_srvdir}/krb5kdc/log
+%dir %attr(0750,nobody,nogroup) /var/log/supervise/krb5kdc
+%{_srvdir}/krb5kdc/run
+%{_srvdir}/krb5kdc/log/run
+%dir %{_srvdir}/krb524d
+%dir %{_srvdir}/krb524d/log
+%dir %attr(0750,nobody,nogroup) /var/log/supervise/krb524d
+%{_srvdir}/krb524d/run
+%{_srvdir}/krb524d/log/run
 
 %{_infodir}/krb5-admin.info*
 %{_infodir}/krb5-install.info*
@@ -666,26 +589,16 @@ fi
 %defattr(-,root,root)
 %{_sbindir}/telnetd
 %{_mandir}/man8/telnetd.8*
-%if %{build_opensls}
-%dir /var/service/telnet
-%dir /var/service/telnet/log
-%dir %attr(0750,nobody,nogroup) /var/log/supervise/telnet
-/var/service/telnet/run
-/var/service/telnet/log/run
-%else
-%config(noreplace) /etc/xinetd.d/telnet
-%endif
+%dir %{_srvdir}/ktelnet
+%dir %{_srvdir}/ktelnet/log
+%dir %attr(0750,nobody,nogroup) /var/log/supervise/ktelnet
+%{_srvdir}/ktelnet/run
+%{_srvdir}/ktelnet/log/run
 
 %files -n telnet-client-krb5
 %defattr(-,root,root)
 %{_bindir}/telnet
 %{_mandir}/man1/telnet.1*
-%if !%{build_opensls}
-%{_menudir}/telnet
-%{_miconsdir}/telnet.xpm
-%{_iconsdir}/telnet.xpm
-%{_liconsdir}/telnet.xpm
-%endif
 
 %files -n ftp-client-krb5
 %defattr(-,root,root)
@@ -696,17 +609,20 @@ fi
 %defattr(-,root,root)
 %{_sbindir}/ftpd
 %{_mandir}/man8/ftpd.8*
-%if %{build_opensls}
-%dir /var/service/ftp
-%dir /var/service/ftp/log
-%dir %attr(0750,nobody,nogroup) /var/log/supervise/ftp
-/var/service/ftp/run
-/var/service/ftp/log/run
-%else
-%config(noreplace) /etc/xinetd.d/ftp
-%endif
+%dir %{_srvdir}/kftp
+%dir %{_srvdir}/kftp/log
+%dir %attr(0750,nobody,nogroup) /var/log/supervise/kftp
+%{_srvdir}/kftp/run
+%{_srvdir}/kftp/log/run
 
 %changelog
+* Tue Jan 27 2004 Vincent Danen <vdanen@opensls.org> 1.3-6sls
+- supervise macros
+- remove %%build_opensls macros
+- rename supervise files: telnet -> ktelnet, ftp -> kftp
+- remove postscript docs
+- supervise scripts; remove initscripts
+
 * Tue Dec 30 2003 Vincent Danen <vdanen@opensls.org> 1.3-5sls
 - supervise files; no xinetd
 - don't include menu entries or icons
