@@ -1,13 +1,6 @@
 %define name	snort
-%define version	2.1.0
-%define release	9avx
-
-# this is so the binaries won't be stripped so people will submit
-# meaningful bugreports
-
-# diskspace is cheap.  don't ship nude binaries
-# bug reports need info.
-%define __spec_install_post      %{nil}
+%define version	2.3.0
+%define release	1avx
 
 Summary:	An intrusion detection system
 Name:		%{name}
@@ -16,29 +9,29 @@ Release:	%{release}
 License:	GPL
 Group:		Networking/Other
 URL:		http://www.snort.org
-Source0:	http://www.snort.org/dl/%{name}-%{version}.tar.bz2
+Source0:	http://www.snort.org/dl/%{name}-%{version}.tar.gz
 Source1:	snortd.run
 Source2:	snortd-log.run
-Patch1:		snort-2.1.0-lib64.patch.bz2
-Patch2:		snort-2.1.0-avx-logrotate.patch.bz2
+Source3:	http://www.snort.org/dl/%{name}-%{version}.tar.gz.asc
+Source4:	snort.logrotate
+Source5:	snort.sysconfig
+Source6:	snortdb-extra.bz2
+
+Patch1:		snort-2.3.0RC2-lib64.patch.bz2
+Patch2:		snort-2.3.0RC2-clamav.diff.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-root
-BuildRequires:	autoconf
-BuildRequires:	automake
+BuildRequires:	autoconf2.5, automake1.7
 BuildRequires:	libpcap-devel >= 0.6
 BuildRequires:	MySQL-devel
 BuildRequires:	openssl-devel
 BuildRequires:	postgresql-devel
-BuildRequires:	postgresql-libs-devel
 BuildRequires:	texinfo
 BuildRequires:	zlib-devel
 BuildRequires:	pcre-devel
-%ifarch amd64 x86_64
-BuildRequires:	lib64net1.0-devel
-%else
-BuildRequires:	libnet1.0-devel
-%endif
+BuildRequires:	net1.0-devel
 BuildRequires:	chrpath
+BuildRequires:	iptables-devel, clamav-devel
 
 PreReq:		rpm-helper
 Requires:	pcre
@@ -71,10 +64,11 @@ to chose a binary to install.
 the following configurations. We use update-alternatives for this.
 Here are the different packages along with their priorities.
 
-plain(10)					plain+flexresp(11)
-mysql(12)					mysql+flexresp(13)
+plain(10)		plain+flexresp(11)
+mysql(12)		mysql+flexresp(13)
 postgresql(14)		postgresql+flexresp(15)
-bloat(18)					
+bloat(16)
+inline(17)		inline+flexresp(18)
 
 Please see the documentation in %{_docdir}/%{name}-%{version}
 
@@ -126,18 +120,41 @@ Requires:	snort = %{version}
 %description bloat
 Snort compiled with flexresp+mysql+postgresql support.
 
+%package inline
+Summary:	Snort with Flexible Response
+Group:		Networking/Other
+Requires:	snort = %{version}
+Requires:	iptables, clamav, clamav-db
+
+%description inline
+Snort compiled with inline support. 
+
+%package inline+flexresp
+Summary:	Snort with Flexible Response
+Group:		Networking/Other
+Requires:	snort = %{version}
+Requires:	iptables, clamav, clamav-db
+
+%description inline+flexresp
+Snort compiled with inline+flexresp support.
+
+
 %prep
 
 %setup -q -n %{name}-%{version}
-%patch1 -p1 -b .lib64
-%patch2 -p1 -b .svc
+%patch1 -p0 -b .lib64
+%patch2 -p1 -b .clamav
 
 # fix pid file path
 echo "#define _PATH_VARRUN \"/var/run/%{name}\"" >> acconfig.h
 
-libtoolize --copy --force && aclocal && autoheader && automake --add-missing && autoconf
+cp %{SOURCE6} .
 
 %build
+export WANT_AUTOCONF_2_5=1
+rm -f configure
+libtoolize --copy --force && aclocal-1.7 && autoheader && automake-1.7 --add-missing && autoconf --force
+
 
 # build snort
 rm -rf building && mkdir -p building && cd building
@@ -145,7 +162,8 @@ export AM_CFLAGS="-g -O2"
 SNORT_BASE_CONFIG="--prefix=%{_prefix} \
     --libdir=%{_libdir} \
     --mandir=%{_mandir} \
-    --sysconfdir=%{_sysconfdir}/%{name} "
+    --sysconfdir=%{_sysconfdir}/%{name} \
+    --cache-file=../../config.cache "
 
 # there are some strange configure errors
 # when not doing a distclean between major builds.
@@ -157,7 +175,9 @@ mkdir plain; cd plain
     --without-postgresql --disable-postgresql \
     --without-oracle --disable-oracle \
     --without-odbc --disable-odbc \
-    --without-snmp --disable-snmp
+    --without-snmp --disable-snmp \
+    --without-inline --disable-inline \
+    --without-clamav --disable-clamav
 %make
 mv src/%{name} ../%{name}-plain
 #make distclean 
@@ -175,7 +195,9 @@ mkdir plain+flexresp; cd plain+flexresp
     --without-snmp --disable-snmp \
     --enable-flexresp \
     --with-libnet-includes=%{_includedir} \
-    --with-libnet-libraries=%{_libdir}
+    --with-libnet-libraries=%{_libdir} \
+    --without-inline --disable-inline \
+    --without-clamav --disable-clamav
 %make
 mv src/%{name} ../%{name}-plain+flexresp
 # make distclean 
@@ -194,7 +216,9 @@ mkdir mysql+flexresp; cd mysql+flexresp
     --without-snmp --disable-snmp \
     --enable-flexresp \
     --with-libnet-includes=%{_includedir} \
-    --with-libnet-libraries=%{_libdir}
+    --with-libnet-libraries=%{_libdir} \
+    --without-inline --disable-inline \
+    --without-clamav --disable-clamav
 %make
 mv src/%{name} ../%{name}-mysql+flexresp
 # make distclean 
@@ -209,7 +233,9 @@ mkdir mysql; cd mysql
     --without-postgresql --disable-postgresql \
     --without-oracle --disable-oracle \
     --without-odbc --disable-odbc \
-    --without-snmp --disable-snmp
+    --without-snmp --disable-snmp \
+    --without-inline --disable-inline \
+    --without-clamav --disable-clamav
 %make
 mv src/%{name} ../%{name}-mysql
 # make distclean 
@@ -227,7 +253,9 @@ mkdir postgresql+flexresp; cd postgresql+flexresp
     --without-snmp --disable-snmp \
     --enable-flexresp \
     --with-libnet-includes=%{_includedir} \
-    --with-libnet-libraries=%{_libdir}
+    --with-libnet-libraries=%{_libdir} \
+    --without-inline --disable-inline \
+    --without-clamav --disable-clamav
 %make
 mv src/%{name} ../%{name}-postgresql+flexresp
 # make distclean 
@@ -242,7 +270,9 @@ mkdir postgresql; cd postgresql
     --with-postgresql=%{_prefix} \
     --without-oracle --disable-oracle \
     --without-odbc --disable-odbc \
-    --without-snmp --disable-snmp
+    --without-snmp --disable-snmp \
+    --without-inline --disable-inline \
+    --without-clamav --disable-clamav
 %make
 mv src/%{name} ../%{name}-postgresql
 # make distclean 
@@ -261,10 +291,59 @@ mkdir bloat; cd bloat
     --with-openssl=%{_prefix} \
     --enable-flexresp \
     --with-libnet-includes=%{_includedir} \
-    --with-libnet-libraries=%{_libdir}
+    --with-libnet-libraries=%{_libdir} \
+    --with-inline --enable-inline \
+    --with-clamav --enable-clamav \
+    --with-libipq-includes=%{_includedir} \
+    --with-libipq-libraries=%{_libdir} \
+    --with-clamav-includes=%{_includedir} \
+    --with-clamav-defdir=%{_localstatedir}/clamav
 %make
 mv src/%{name} ../%{name}-bloat
 # make distclean
+cd ..
+}
+
+# inline
+{
+mkdir inline; cd inline
+../../configure $SNORT_BASE_CONFIG \
+    --without-mysql --disable-mysql \
+    --without-postgresql --disable-postgresql \
+    --without-oracle --disable-oracle \
+    --without-odbc --disable-odbc \
+    --without-snmp --disable-snmp \
+    --with-inline --enable-inline \
+    --with-clamav --enable-clamav \
+    --with-libipq-includes=%{_includedir} \
+    --with-libipq-libraries=%{_libdir} \
+    --with-clamav-includes=%{_includedir} \
+    --with-clamav-defdir=%{_localstatedir}/clamav
+%make
+mv src/%{name} ../%{name}-inline
+# make distclean 
+cd ..
+}
+
+# inline+flexresp
+{
+mkdir inline+flexresp; cd inline+flexresp
+../../configure $SNORT_BASE_CONFIG \
+    --without-mysql --disable-mysql \
+    --without-postgresql --disable-postgresql \
+    --without-oracle --disable-oracle \
+    --without-odbc --disable-odbc \
+    --without-snmp --disable-snmp \
+    --enable-flexresp \
+    --with-inline --enable-inline \
+    --with-clamav --enable-clamav \
+    --with-libipq-includes=%{_includedir} \
+    --with-libipq-libraries=%{_libdir} \
+    --with-clamav-includes=%{_includedir} \
+    --with-clamav-defdir=%{_localstatedir}/clamav
+%make
+mv src/%{name} ../%{name}-inline+flexresp
+# make distclean 
 cd ..
 }
 
@@ -287,6 +366,8 @@ install %{name}-mysql %{buildroot}%{_sbindir}/%{name}-mysql
 install %{name}-mysql+flexresp %{buildroot}%{_sbindir}/%{name}-mysql+flexresp
 install %{name}-postgresql %{buildroot}%{_sbindir}/%{name}-postgresql
 install %{name}-postgresql+flexresp %{buildroot}%{_sbindir}/%{name}-postgresql+flexresp
+install %{name}-inline %{buildroot}%{_sbindir}/%{name}-inline
+install %{name}-inline+flexresp %{buildroot}%{_sbindir}/%{name}-inline+flexresp
 install %{name}-bloat %{buildroot}%{_sbindir}/%{name}-bloat
 popd
 }
@@ -300,8 +381,8 @@ install -m0644 etc/*.config %{buildroot}/%{_sysconfdir}/%{name}/
 install -m0644 etc/*.map %{buildroot}/%{_sysconfdir}/%{name}/
 install -m0644 rules/*.rules %{buildroot}%{_sysconfdir}/%{name}/rules/
 
-install contrib/rpm/%{name}.sysconfig %{buildroot}/%{_sysconfdir}/sysconfig/%{name}
-install contrib/rpm/%{name}.logrotate %{buildroot}/%{_sysconfdir}/logrotate.d/%{name}
+install -m 0644 %{SOURCE4} %{buildroot}%{_sysconfdir}/logrotate.d/%{name}
+install -m 0644 %{SOURCE5} %{buildroot}%{_sysconfdir}/sysconfig/%{name}
 
 mkdir -p %{buildroot}%{_srvdir}/snortd/log
 mkdir -p %{buildroot}%{_srvlogdir}/snortd
@@ -322,11 +403,15 @@ cp contrib/README doc/README.contrib
 # don't ship this
 rm -rf contrib/rpm
 
+# prevent having to type every blood doc in %%files
+mkdir doc2
+mv doc/README.INLINE doc2/
+
 # strip rpath
 chrpath -d %{buildroot}%{_sbindir}/%{name}-*
 
 # where does this zero file come from? from outer space?
-rm -f doc/README.SNMP.SNMP
+rm -f doc/README.{SNMP.SNMP,clamav.clamav}
 
 %pre
 %_pre_useradd snort /var/log/snort /bin/false 77
@@ -376,10 +461,23 @@ update-alternatives --install %{_sbindir}/%{name} %{name} %{_sbindir}/%{name}-po
 update-alternatives --remove %{name} %{_sbindir}/%{name}-postgresql+flexresp
 
 %post bloat
-update-alternatives --install %{_sbindir}/%{name} %{name} %{_sbindir}/%{name}-bloat 18
+update-alternatives --install %{_sbindir}/%{name} %{name} %{_sbindir}/%{name}-bloat 16
 
 %postun bloat
 update-alternatives --remove %{name} %{_sbindir}/%{name}-bloat
+
+%post inline
+update-alternatives --install %{_sbindir}/%{name} %{name} %{_sbindir}/%{name}-inline 17
+
+%postun inline
+update-alternatives --remove %{name} %{_sbindir}/%{name}-inline
+
+%post inline+flexresp
+update-alternatives --install %{_sbindir}/%{name} %{name} %{_sbindir}/%{name}-inline+flexresp 18
+
+%postun inline+flexresp
+update-alternatives --remove %{name} %{_sbindir}/%{name}-inline+flexresp
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -388,7 +486,7 @@ update-alternatives --remove %{name} %{_sbindir}/%{name}-bloat
 %defattr(-,root,root)
 %doc doc/snort_manual.pdf
 %doc doc/AUTHORS doc/BUGS doc/CREDITS doc/NEWS doc/USAGE doc/README*
-%doc COPYING ChangeLog contrib/*
+%doc COPYING ChangeLog contrib/* snortdb-extra.bz2
 %attr(755,root,root) %{_sbindir}/%{name}-plain
 %attr(755,root,root) %{_mandir}/man8/%{name}.8*
 %attr(755,snort,snort) %dir /var/log/%{name}
@@ -404,27 +502,56 @@ update-alternatives --remove %{name} %{_sbindir}/%{name}-bloat
 %dir %{_srvdir}/snortd/log
 %{_srvdir}/snortd/run
 %{_srvdir}/snortd/log/run
-%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/snortd
+%dir %attr(0750,logger,logger) %{_srvlogdir}/snortd
 
 %files plain+flexresp
+%defattr(-,root,root)
 %attr(755,root,root) %{_sbindir}/%{name}-plain+flexresp
 
 %files mysql
+%defattr(-,root,root)
+%doc schemas/create_mysql
 %attr(755,root,root) %{_sbindir}/%{name}-mysql
 
 %files mysql+flexresp
+%defattr(-,root,root)
+%doc schemas/create_mysql
 %attr(755,root,root) %{_sbindir}/%{name}-mysql+flexresp
 
 %files postgresql
+%defattr(-,root,root)
+%doc schemas/create_postgresql
 %attr(755,root,root) %{_sbindir}/%{name}-postgresql
 
 %files postgresql+flexresp
+%defattr(-,root,root)
+%doc schemas/create_postgresql
 %attr(755,root,root) %{_sbindir}/%{name}-postgresql+flexresp
 
+%files inline
+%defattr(-,root,root)
+%doc doc2/README.INLINE
+%attr(0755,root,root) %{_sbindir}/%{name}-inline
+
+%files inline+flexresp
+%defattr(-,root,root)
+%doc doc2/README.INLINE
+%attr(0755,root,root) %{_sbindir}/%{name}-inline+flexresp
+
 %files bloat
+%defattr(-,root,root)
 %attr(755,root,root) %{_sbindir}/%{name}-bloat
 
 %changelog
+* Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> 2.3.0-1avx
+- 2.3.0
+- use logger for logging
+- strip the binaries (florin)
+- speed up configure by using --cache-file (oden)
+- drop previous P2; no longer needed
+- P2: add inline support (thanks to William Metcalf)
+- bundle the logrotate and sysconfig files
+
 * Thu Jan 06 2005 Vincent Danen <vdanen@annvix.org> 2.1.0-9avx
 - rebuild against latest openssl
 
