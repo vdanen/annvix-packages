@@ -1,6 +1,6 @@
 %define name	prelude-lml
 %define version	0.8.1
-%define release	2sls
+%define release	3sls
 
 %define prefix	/usr
 
@@ -15,7 +15,7 @@ Source:		http://www.prelude-ids.org/download/releases/%{name}-%{version}.tar.gz
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-root
 BuildRequires:	libprelude-devel
-BuildRequires:	libpcre-devel
+BuildRequires:	pcre-devel
 
 Requires:	libprelude >= 0.8.4
 
@@ -53,10 +53,11 @@ The devel headers.
 %build
 export WANT_AUTOCONF_2_5=1
 
-./configure --localstatedir=/var --sysconfdir=/etc --prefix=%prefix
+%configure2_5x --localstatedir=/var
 %make
 
 %install
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
 %clean
@@ -75,6 +76,11 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/prelude-lml/*.h
 
 %changelog
+* Sat Jan 03 2004 Vincent Danen <vdanen@opensls.org> 0.8.1-3sls
+- BuildRequires: pcre-devel, not libpcre-devel (for amd64)
+- use %%configure2_5x to get libs where we want them
+- clean buildroot before install
+
 * Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 0.8.1-2sls
 - OpenSLS build
 - tidy spec
