@@ -1,0 +1,84 @@
+diff -urN bind-9.2.3rc1/bin/dig/dighost.c bind-9.2.3rc1-modified/bin/dig/dighost.c
+--- bind-9.2.3rc1/bin/dig/dighost.c	2003-07-25 06:36:43.000000000 +0200
++++ bind-9.2.3rc1-modified/bin/dig/dighost.c	2003-08-26 16:37:45.000000000 +0200
+@@ -397,7 +397,7 @@
+ 	looknew->identify = ISC_FALSE;
+ 	looknew->identify_previous_line = ISC_FALSE;
+ 	looknew->ignore = ISC_FALSE;
+-	looknew->servfail_stops = ISC_TRUE;
++	looknew->servfail_stops = ISC_FALSE;
+ 	looknew->besteffort = ISC_TRUE;
+ 	looknew->dnssec = ISC_FALSE;
+ 	looknew->udpsize = 0;
+diff -urN bind-9.2.3rc1/bin/dig/host.1 bind-9.2.3rc1-modified/bin/dig/host.1
+--- bind-9.2.3rc1/bin/dig/host.1	2003-03-06 05:38:10.000000000 +0100
++++ bind-9.2.3rc1-modified/bin/dig/host.1	2003-08-26 16:36:54.000000000 +0200
+@@ -111,6 +111,9 @@
+ address or colon-delimited IPv6 address, \fBhost\fR will
+ query for PTR records.
+ .PP
++The \fB-F\fR options is used to force to don't go on the next server
++when the first one return a \fBSERVFAIL\fR.
++.PP
+ The time to wait for a reply can be controlled through the
+ \fB-W\fR and \fB-w\fR options. The
+ \fB-W\fR option makes \fBhost\fR wait for
+diff -urN bind-9.2.3rc1/bin/dig/host.c bind-9.2.3rc1-modified/bin/dig/host.c
+--- bind-9.2.3rc1/bin/dig/host.c	2003-07-25 06:36:44.000000000 +0200
++++ bind-9.2.3rc1-modified/bin/dig/host.c	2003-08-26 16:33:49.000000000 +0200
+@@ -219,6 +219,7 @@
+ "       -t specifies the query type\n"
+ "       -T enables TCP/IP mode\n"
+ "       -v enables verbose output\n"
++"				-F Don't get next server when the first one got a SERVFAIL\n"
+ "       -w specifies to wait forever for a reply\n"
+ "       -W specifies how long to wait for a reply\n", stderr);
+ 	exit(1);
+@@ -563,7 +564,7 @@
+ 
+ 	lookup = make_empty_lookup();
+ 
+-	while ((c = isc_commandline_parse(argc, argv, "ilvwrdt:c:aTCN:R:W:Dn"))
++	while ((c = isc_commandline_parse(argc, argv, "Filvwrdt:c:aTCN:R:W:Dn"))
+ 	       != EOF) {
+ 		switch (c) {
+ 		case 'l':
+@@ -572,6 +573,9 @@
+ 			lookup->rdtypeset = ISC_TRUE;
+ 			fatalexit = 3;
+ 			break;
++		case 'F':
++			lookup->servfail_stops = ISC_TRUE;
++			break;
+ 		case 'v':
+ 		case 'd':
+ 			short_form = ISC_FALSE;
+diff -urN bind-9.2.3rc1/bin/dig/nslookup.c bind-9.2.3rc1-modified/bin/dig/nslookup.c
+--- bind-9.2.3rc1/bin/dig/nslookup.c	2003-07-25 06:36:44.000000000 +0200
++++ bind-9.2.3rc1-modified/bin/dig/nslookup.c	2003-08-26 16:35:51.000000000 +0200
+@@ -67,7 +67,7 @@
+ 	comments = ISC_TRUE, section_question = ISC_TRUE,
+ 	section_answer = ISC_TRUE, section_authority = ISC_TRUE,
+ 	section_additional = ISC_TRUE, recurse = ISC_TRUE,
+-	aaonly = ISC_FALSE;
++	aaonly = ISC_FALSE, fail = ISC_FALSE;
+ static isc_boolean_t in_use = ISC_FALSE;
+ static char defclass[MXRD] = "IN";
+ static char deftype[MXRD] = "A";
+@@ -595,6 +595,8 @@
+ 		usesearch = ISC_TRUE;
+ 	} else if (strncasecmp(opt, "nosearch",5) == 0) {
+ 		usesearch = ISC_FALSE;
++	} else if (strncasecmp(opt, "fail",6) == 0) {
++		fail = ISC_TRUE;
+ 	} else if (strncasecmp(opt, "sil",3) == 0) {
+ 		deprecation_msg = ISC_FALSE;
+ 	} else {
+@@ -638,6 +640,7 @@
+ 		lookup->rdtype = rdtype;
+ 		lookup->rdtypeset = ISC_TRUE;
+ 	}
++	lookup->servfail_stops = fail;
+ 	lookup->rdclass = rdclass;
+ 	lookup->rdclassset = ISC_TRUE;
+ 	lookup->trace = ISC_FALSE;
