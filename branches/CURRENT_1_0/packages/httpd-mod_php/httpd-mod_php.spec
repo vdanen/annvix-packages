@@ -115,6 +115,9 @@ cd %{extname}
 %{ap_webdoc}/*
 
 %changelog
+* Thu Oct 14 2004 Vincent Danen <vdanen@annvix.org> 2.0.52_4.3.9-1avx
+- 2.0.52
+
 * Thu Sep 30 2004 Vincent Danen <vdanen@annvix.org> 2.0.49_4.3.9-1avx
 - php 4.3.9
 
