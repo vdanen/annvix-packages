@@ -1,6 +1,6 @@
 %define name	%{ap_name}-%{mod_name}
 %define version %{ap_version}_%{mod_version}
-%define release 2sls
+%define release 3sls
 
 # Module-Specific definitions
 %define mod_version	1.99_11
@@ -31,6 +31,8 @@ Source61:       apache2-mod_perl-testscript.pl
 
 BuildRoot:	%{_tmppath}/%{name}-buildroot
 BuildRequires:	perl-devel
+# JMD: THIS IS NEEDED FOR COMPATIBILITY OTHERWISE MANY FILES WILL CONFLICT
+BuildRequires:	mod_perl-common
 # Standard ADVX requires
 BuildRequires:	ADVX-build >= 9.2
 BuildRequires:	%{ap_name}-devel >= 2.0.43-5mdk
@@ -64,6 +66,7 @@ Summary:	Files needed for building XS modules that use mod_perl
 Group:		Development/C
 Requires:	%{name} = %{version}-%{release}
 Requires:	%{ap_name}-devel = %{ap_version}
+Requires:	mod_perl-common
 
 %description devel 
 The mod_perl-devel package contains the files needed for building XS
@@ -169,6 +172,9 @@ install -m644 xs/tables/current/Apache/FunctionTable.pm \
 %{ap_includedir}/*
 
 %changelog
+* Sat Jan 03 2004 Vincent Danen <vdanen@opensls.org> 2.0.48_1.99_11-3sls
+- put back the mod_perl-common req's as we are shipping apache 1.x
+
 * Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 2.0.48_1.99_11-2sls
 - OpenSLS build
 - tidy spec
