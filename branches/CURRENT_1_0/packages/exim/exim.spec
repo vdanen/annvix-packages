@@ -1,9 +1,10 @@
 %define name	exim
 %define version 4.34
-%define release 1sls
+%define release 2avx
 
 %define build_mysql 0
 %define build_pgsql 0
+%define build_mon   0
 %define htmldocver  4.30
 %define exiscanver  4.34-21
 %define saversion   4.0
@@ -43,8 +44,11 @@ Patch1:		http://duncanthrax.net/exiscan-acl/exiscan-acl-%{exiscanver}.patch.bz2
 Patch2:		exim-4.22-install.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}
-BuildRequires:	tcp_wrappers-devel, pam-devel, openssl, openssl-devel, XFree86-devel, openldap-devel, lynx
+BuildRequires:	tcp_wrappers-devel, pam-devel, openssl, openssl-devel, openldap-devel, lynx
 BuildRequires:	db4-devel >= 4.1
+%if %{build_mon}
+BuildRequires:	XFree86-devel
+%endif
 %if %{build_mysql}
 BuildRequires:	libmysql-devel
 %endif
@@ -54,7 +58,7 @@ BuildRequires: postgresql-devel
 
 PreReq:		rpm-helper
 %if %{alternatives}
-PreReq:		/usr/sbin/update-alternatives
+PreReq:		rpm
 %else
 Obsoletes:	sendmail postfix qmail smail
 %endif
@@ -79,6 +83,7 @@ messages per day.
 
 A utility, eximconfig, is included to simplify exim configuration.
 
+%if %{build_mon}
 %package mon
 Summary:	X11 monitor application for exim
 Group:		Monitoring
@@ -90,6 +95,7 @@ The Exim Monitor is an optional supplement to the Exim package. It
 displays information about Exim's processing in an X window, and an
 administrator can perform a number of control actions from the window
 interface.
+%endif
 
 %package saexim
 Summary:	Exim SpamAssassin at SMTP time plugin
@@ -115,7 +121,9 @@ cat sa-exim*/localscan_dlopen_exim_4.20_or_better.patch | patch -p1
 %build
 # pre-build setup
 cp src/EDITME Local/Makefile
+%if %{build_mon}
 cp exim_monitor/EDITME Local/eximon.conf
+%endif
 
 # modify Local/Makefile for our builds
 %if !%{build_mysql}
@@ -127,6 +135,9 @@ cp exim_monitor/EDITME Local/eximon.conf
   perl -pi -e 's|LOOKUP_PGSQL=yes|#LOOKUP_PGSQL=yes|g' Local/Makefile
   perl -pi -e 's|-lpq||g' Local/Makefile
   perl -pi -e 's|-I /usr/include/pgsql||g' Local/Makefile
+%endif
+%if !%{build_mon}
+  perl -pi -e 's|EXIM_MONITOR=|#EXIM_MONITOR=|g' Local/Makefile
 %endif
 %ifarch amd64 x86_64
   perl -pi -e 's|X11\)/lib|X11\)/lib64|g' OS/Makefile-Linux
@@ -286,10 +297,12 @@ fi
 %{_srvdir}/exim/log/run
 %dir %attr(0750,nobody,nogroup) %{_srvlogdir}/exim
 
+%if %{build_mon}
 %files mon
 %defattr(-,root,root)
 %{_bindir}/eximon
 %{_bindir}/eximon.bin
+%endif
 
 %files saexim
 %defattr(-,root,root)
@@ -300,6 +313,10 @@ fi
 %config(noreplace) %{_sysconfdir}/exim/sa-exim_short.conf
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 4.34-2avx
+- Annvix build
+- don't build the X11 monitor (%%build_mon macro)
+
 * Mon May 10 2004 Vincent Danen <vdanen@opensls.org> 4.34-1sls
 - 4.34
 - exiscan-acl 4.34-21
