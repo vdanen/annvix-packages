@@ -1,0 +1,120 @@
+--- netpbm-9.24/pnm/Makefile.lib64	2002-02-28 00:23:59.000000000 +0100
++++ netpbm-9.24/pnm/Makefile	2003-07-30 13:24:13.000000000 +0200
+@@ -48,7 +48,10 @@ LIBLIBS =  $(PPMDIR)/$(LIBPPM) $(PGMDIR)
+ ifeq ($(JPEGLIB_DIR),NONE)
+   JPEGLD =
+ else
+-  JPEGLD = -L$(JPEGLIB_DIR) -ljpeg
++  ifneq ($(JPEGLIB_DIR),)
++  JPEGLD = -L$(JPEGLIB_DIR)
++  endif
++  JPEGLD += -ljpeg
+   ifeq ($(NEED_RUNTIME_PATH),Y)
+     JPEGLD += -R$(JPEGLIB_DIR)
+   endif
+@@ -57,7 +60,10 @@ endif
+ ifeq ($(PNGLIB_DIR),NONE)
+   PNGLD =
+ else
+-  PNGLD = -L$(PNGLIB_DIR) -lpng
++  ifneq ($(PNGLIB_DIR),)
++  PNGLD = -L$(PNGLIB_DIR)
++  endif
++  PNGLD += -lpng
+   ifeq ($(NEED_RUNTIME_PATH),Y)
+     PNGLD += -R$(PNGLIB_DIR)
+   endif
+@@ -75,7 +81,10 @@ endif
+ ifeq ($(TIFFLIB_DIR),NONE)
+   TIFFLD =
+ else
+-  TIFFLD = -L$(TIFFLIB_DIR) -ltiff
++  ifneq ($(TIFFLIB_DIR),)
++  TIFFLD = -L$(TIFFLIB_DIR)
++  endif
++  TIFFLD += -ltiff
+   ifeq ($(NEED_RUNTIME_PATH),Y)
+     TIFFLD += -R$(TIFFLIB_DIR)
+   endif
+@@ -84,7 +93,10 @@ endif
+ ifeq ($(ZLIB_DIR),NONE)
+   ZLD =
+ else
+-  ZLD = -L$(ZLIB_DIR) -lz
++  ifneq ($(ZLIB_DIR),)
++  ZLD = -L$(ZLIB_DIR)
++  endif
++  ZLD += -lz
+   ifeq ($(NEED_RUNTIME_PATH),Y)
+     ZLD += -R$(ZLIB_DIR)
+   endif
+@@ -192,7 +204,7 @@ jpegtopnm: %: %.o exif.o $(NETPBMLIBS) $
+ 
+ pnmtojpeg: %: %.o $(NETPBMLIBS) $(LIBOPT)
+ 	$(LD) $(LDFLAGS) -o $@ $@.o `$(LIBOPT) $(NETPBMLIBS)` \
+-	  -L$(JPEGLIB_DIR) -ljpeg $(CDEBUG)
++	  $(JPEGLD) $(CDEBUG)
+ 
+ ifeq ($(URTLIB_DIR),$(URTDIR))
+ # We're using the internal URT library, so make sure it's built
+--- netpbm-9.24/ppm/ppmtompeg/Makefile.lib64	2002-01-27 21:27:48.000000000 +0100
++++ netpbm-9.24/ppm/ppmtompeg/Makefile	2003-07-30 13:19:12.000000000 +0200
+@@ -19,7 +19,10 @@ ifeq ($(JPEGLIB_DIR),NONE)
+   # error messages that tell you we don't have jpeg capability
+   JPEG_MODULE = nojpeg
+ else
+-  JPEGLD = -L$(JPEGLIB_DIR) -ljpeg
++  ifneq ($(JPEGLIB_DIR),)
++  JPEGLD = -L$(JPEGLIB_DIR)
++  endif
++  JPEGLD += -ljpeg
+   # 'jpeg' is a module that accesses J-movies via the JPEG library.
+   JPEG_MODULE = jpeg
+ endif
+--- netpbm-9.24/Makefile.config.in.lib64	2003-07-30 13:19:12.000000000 +0200
++++ netpbm-9.24/Makefile.config.in	2003-07-30 13:19:12.000000000 +0200
+@@ -210,7 +210,7 @@ CFLAGS_SHLIB = 
+ # The TIFF library.  See above.  If you want to build the tiff
+ # converters, you must have the tiff library already installed.
+ 
+-TIFFLIB_DIR = /usr/lib
++TIFFLIB_DIR = 
+ TIFFHDR_DIR = /usr/include/libtiff
+ #NetBSD:
+ #TIFFLIB_DIR = $(LOCALBASE)/lib
+@@ -238,7 +238,7 @@ TIFFLIB_LDFLAGS =
+ # JPEG stuff statically linked in, in which case you won't need 
+ # JPEGLIB_DIR in order to build the Tiff converters.
+ 
+-JPEGLIB_DIR = /usr/lib
++JPEGLIB_DIR = 
+ JPEGHDR_DIR = /usr/include/jpeg
+ # Netbsd:
+ #JPEGLIB_DIR = ${LOCALBASE}/lib
+@@ -257,7 +257,7 @@ JPEGHDR_DIR = /usr/include/jpeg
+ # The PNG library.  See above.  If you want to build the PNG
+ # converters you must have the PNG library already installed.
+ 
+-PNGLIB_DIR = /usr/lib
++PNGLIB_DIR = 
+ PNGHDR_DIR = /usr/include/png
+ # NetBSD:
+ #PNGLIB_DIR = $(LOCALBASE)/lib
+@@ -277,7 +277,7 @@ PNGHDR_DIR = /usr/include/png
+ # NONE for the PNG library, it doesn't matter what you specify here --
+ # it won't get used.
+ 
+-ZLIB_DIR = /usr/lib
++ZLIB_DIR = 
+ ZHDR_DIR = /usr/include
+ 
+ # And the Utah Raster Toolkit (aka URT aka RLE) library:
+@@ -291,7 +291,7 @@ URTLIB_DIR = $(SRCDIR)/urt
+ LINUXSVGAHDR_DIR = NONE
+ LINUXSVGALIB_DIR = NONE
+ 
+-#LINUXSVGALIB_DIR = /usr/lib
++#LINUXSVGALIB_DIR = 
+ #LINUXSVGAHDR_DIR = /usr/include/svgalib
+ 
+ # These are -l options to link in the network libraries.  Often, these are
