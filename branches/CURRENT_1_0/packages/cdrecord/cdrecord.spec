@@ -1,20 +1,20 @@
 %define name	cdrecord
 %define version 2.01
-%define release 0.a18.4sls
+%define release 0.a18.5sls
+%define epoch	4
 
 %define archname cdrtools
 %define dversion 2.01a18
 
-%define mkisofs_ver 2.01
-%define mkisofs_rel %release
-
-%define prefix /usr
+%define mkisofs_ver	2.01
+%define mkisofs_rel	%release
+%define mkisofs_epoch	1
 
 Summary:	A command line CD/DVD-Recorder
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
-Epoch:		4
+Epoch:		%{epoch}
 License:	GPL
 Group:		Archiving/Cd burning
 URL:		http://www.fokus.gmd.de/research/cc/glone/employees/joerg.schilling/private/cdrecord.html
@@ -24,9 +24,8 @@ Patch0:		cdrtools-2.01a15-dvd.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{dversion}-buildroot
 
-Prefix:		%{prefix}
 Requires:	mkisofs
-Prereq:		rpm-helper
+PreReq:		rpm-helper
 Obsoletes:	cdrecord-dvdhack =< 4:2.01-0.a15.2mdk
 Provides:	cdrecord-dvdhack = %{epoch}:%{version}-%{release}
 
@@ -50,7 +49,7 @@ driver similar to the scg driver.
 Summary:	Creates an image of an ISO9660 filesystem.
 Version:	%{mkisofs_ver}
 Release:	%{mkisofs_rel}
-Epoch:		1
+Epoch:		%{mkisofs_epoch}
 Group:		Archiving/Cd burning
 
 %description -n mkisofs
@@ -71,9 +70,9 @@ ln -sf i686-linux-cc.rul RULES/athlon-linux-cc.rul
 ./Gmake
 
 %install
-if [ -d $RPM_BUILD_ROOT ]; then rm -rf $RPM_BUILD_ROOT; fi
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-./Gmake "INS_BASE=$RPM_BUILD_ROOT/%{prefix}" install MANDIR=share/man
+./Gmake "INS_BASE=$RPM_BUILD_ROOT/%{_prefix}" install MANDIR=share/man
 
 rm -f %{buildroot}%{_bindir}/cdda2wav
 rm -f %{buildroot}%{_mandir}/man1/cdda2wav.1*
@@ -84,10 +83,10 @@ mv $RPM_BUILD_ROOT%{_prefix}/lib $RPM_BUILD_ROOT%{_libdir}/
 
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
-%attr(-,root,root) %doc AN-%{dversion} doc/cdrecord.ps doc/isoinfo.ps Changelog README*
+%attr(-,root,root) %doc AN-%{dversion} Changelog README*
 %attr(6755,root,cdwriter) %{_bindir}/cdrecord
 %attr(755,root,cdwriter) %{_bindir}/devdump
 %attr(755,root,cdwriter) %{_bindir}/isodump
@@ -118,6 +117,11 @@ rm -rf $RPM_BUILD_ROOT
 %attr(644,root,root) %{_mandir}/man8/mkhybrid.8*
 
 %changelog
+* Tue Mar 02 2004 Vincent Danen <vdanen@opensls.org> 2.01-0.a18.5sls
+- remove %%prefix
+- minor spec cleanups
+- get rid of .ps docs
+
 * Fri Feb 06 2004 Vincent Danen <vdanen@opensls.org> 2.01-0.a18.4sls
 - remove %%build_opensls macro
 - group cdwriter is already in setup; not needed here
