@@ -1,6 +1,6 @@
 %define name	%{ap_name}-%{mod_name}
 %define version	%{ap_version}
-%define release	1avx
+%define release	2avx
 
 # New ADVX macros
 %define ADVXdir %{_datadir}/ADVX
@@ -150,6 +150,9 @@ fi
 %attr(0600,apache,root) %ghost %{ap_proxycachedir}/mod_ssl/scache.sem
 
 %changelog
+* Fri Nov  5 2004 Vincent Danen <vdanen@annvix.org> 2.0.52-2avx
+- rebuild against new apache2 sources to get the mod_ssl fix
+
 * Thu Oct 14 2004 Vincent Danen <vdanen@annvix.org> 2.0.52-1avx
 - 2.0.52
 
