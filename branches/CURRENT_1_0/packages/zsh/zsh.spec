@@ -1,8 +1,6 @@
 %define name	zsh
 %define version	4.1.1
-%define release	5sls
-
-%{!?build_opensls:%define build_opensls 0}
+%define release	6sls
 
 %define doc_version 4.1.1
 %define url	ftp://ftp.zsh.org/pub/
@@ -36,9 +34,6 @@ Patch102:	zsh-4.1.0-dev-7-rebootin.patch.bz2
 
 BuildRoot:	%_tmppath/%name-buildroot
 BuildRequires:	gcc, libtermcap-devel >= 2.0, texinfo
-%if !%{build_opensls}
-BuildRequires:	yodl
-%endif
 
 Prereq: coreutils grep rpm-helper >= 0.7
 
@@ -53,22 +48,6 @@ lots of other features
 
 Install the zsh package if you'd like to try out a different shell.
 
-%if !%{build_opensls}
-%package doc
-Summary:	The doc package of zsh
-Group:		Books/Computer books
-
-%description doc
-Zsh is a UNIX command interpreter (shell) usable as an
-interactive login shell and as a shell script command
-processor. Of the standard shells, zsh most closely resembles
-ksh but includes many enhancements. Zsh has command-line editing,
-built-in spelling correction, programmable command completion,
-shell functions (with autoloading), a history mechanism, and a
-lots of other features
-
-This package include doc guid examples and manual for zsh.
-%endif
 
 %prep
 %setup -q -a 2 -a 1 -n %name-%full_preversion
@@ -156,14 +135,11 @@ rm -rf $RPM_BUILD_ROOT
 %_libdir/zsh/%{full_preversion}/
 %_datadir/zsh/site-functions/
 
-%if !%{build_opensls}
-%files doc
-%defattr(-,root,root)
-%doc docroot/Documentation/ docroot/Examples/ docroot/Info_html/ docroot/StartupFiles/
-%doc docroot/Zsh_Guide ChangeLog*
-%endif
 
 %changelog
+* Mon Jan 12 2004 Vincent Danen <vdanen@opensls.org> 4.1.1-6sls
+- remove %%build_opensls macro; remove -doc package
+
 * Wed Dec 31 2003 Vincent Danen <vdanen@opensls.org> 4.1.1-5sls
 - fix BuildReq and change %%configure handling
 
