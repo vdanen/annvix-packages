@@ -1,0 +1,93 @@
+--- Linux-PAM-0.77/modules/pam_console/console.perms.mdkconf	2003-12-12 23:32:41.000000000 +0100
++++ Linux-PAM-0.77/modules/pam_console/console.perms	2004-09-20 12:01:45.903644848 +0200
+@@ -19,20 +19,23 @@
+ <xconsole>=:[0-9]\.[0-9] :[0-9]
+ 
+ # device classes -- these are shell-style globs
++<serial>=/dev/ttyS* /dev/rfcomm* /dev/ircomm*
+ <floppy>=/dev/fd[0-1]* \
+ 	 /dev/floppy/* /mnt/floppy*
+ <sound>=/dev/dsp* /dev/audio* /dev/midi* \
+-	/dev/mixer* /dev/sequencer \
+-	/dev/sound/* /dev/beep \
+-	/dev/snd/* 
+-<cdrom>=/dev/cdrom* /dev/cdroms/* /dev/cdwriter* /mnt/cdrom*
++	/dev/mixer* /dev/sequencer* \
++	/dev/sound/* /dev/snd/* /dev/beep \
++        /dev/admm* \
++	/dev/adsp* /dev/aload* /dev/amidi* /dev/dmfm* \
++	/dev/dmmidi* /dev/sndstat
++<cdrom>=/dev/cdrom* /dev/rdvd /dev/ide/*/*/*/*/cd /dev/scsi/*/*/*/*/cd /dev/sr*
+ <pilot>=/dev/pilot
+ <jaz>=/mnt/jaz*
+ <zip>=/mnt/pocketzip* /mnt/zip*
+ <ls120>=/dev/ls120 /mnt/ls120*
+-<scanner>=/dev/scanner /dev/usb/scanner*
++<scanner>=/dev/scanner /dev/usb/scanner* /dev/parport*
+ <rio500>=/dev/usb/rio500
+-<camera>=/mnt/camera* /dev/usb/dc2xx* /dev/usb/mdc800*
++<camera>=/mnt/camera* /dev/usb/dc2xx* /dev/usb/mdc800* /dev/raw1394
+ <memstick>=/mnt/memstick*
+ <flash>=/mnt/flash*
+ <diskonkey>=/mnt/diskonkey*
+@@ -40,34 +43,39 @@
+ <fb>=/dev/fb /dev/fb[0-9]* \
+      /dev/fb/*
+ <kbd>=/dev/kbd
+-<joystick>=/dev/js[0-9]*
++<joystick>=/dev/js[0-9]* /dev/input/js[0-9]*
+ <v4l>=/dev/video* /dev/radio* /dev/winradio* /dev/vtx* /dev/vbi* \
+-      /dev/video/*
++      /dev/video/* /dev/vttuner /dev/rtc
+ <gpm>=/dev/gpmctl
+-<dri>=/dev/nvidia* /dev/3dfx*
++<dri>=/dev/nvidia* /dev/3dfx* /dev/dri/card*
+ <mainboard>=/dev/apm_bios
++<burner>=/dev/scd* /dev/sg* /dev/pcd* /dev/pg* /dev/cdwriter /dev/scsi/*/*/*/*/generic
++<usb>=/dev/usb/dabusb* /dev/usb/mdc800* /dev/usb/rio500 /dev/ttyUSB* \
++      /proc/bus/usb/[0-9][0-9][0-9]/[0-9][0-9][0-9]
+ 
+ # permission definitions
+-<console>  0660 <floppy>     0660 root.floppy
+-<console>  0600 <sound>      0600 root
+-<console>  0600 <cdrom>      0660 root.disk
+-<console>  0600 <pilot>      0660 root.uucp
+-<console>  0600 <jaz>        0660 root.disk
+-<console>  0600 <zip>        0660 root.disk
+-<console>  0600 <ls120>      0660 root.disk
+-<console>  0600 <scanner>    0600 root
+-<console>  0600 <camera>     0600 root
+-<console>  0600 <memstick>   0600 root
+-<console>  0600 <flash>      0600 root
+-<console>  0600 <diskonkey>  0660 root.disk
+-<console>  0600 <rem_ide>    0660 root.disk
+ <console>  0600 <fb>         0600 root
+-<console>  0600 <kbd>        0600 root
+ <console>  0600 <joystick>   0600 root
+-<console>  0600 <v4l>        0600 root
+-<console>  0700 <gpm>	     0700 root
++<console>  0600 <kbd>        0600 root
+ <console>  0600 <mainboard>  0600 root
+-<console>  0600 <rio500>     0600 root
++<console>  0660 <pilot>      0660 root.uucp
++<console>  0660 <sound>      0660 root.audio
++<console>  0660 <burner>     0660 root.cdwriter
++<console>  0660 <camera>     0660 root.usb
++<console>  0660 <cdrom>      0660 root.cdrom
++<console>  0660 <diskonkey>  0660 root.disk
++<console>  0660 <flash>      0660 root.disk
++<console>  0660 <floppy>     0660 root.floppy
++<console>  0660 <jaz>        0660 root.disk
++<console>  0660 <ls120>      0660 root.disk
++<console>  0660 <memstick>   0660 root.disk
++<console>  0660 <rem_ide>    0660 root.disk
++<console>  0660 <scanner>    0660 root.usb
++<console>  0660 <serial>     0660 root.uucp
++<console>  0660 <usb>        0660 root.usb
++<console>  0660 <v4l>        0660 root.video
++<console>  0660 <zip>        0660 root.disk
++<console>  0700 <gpm>	     0700 root
+ 
+ <xconsole> 0600 /dev/console 0600 root.root
+-<xconsole> 0600 <dri>	     0600 root
++<xconsole> 0660 <dri>	     0660 root.video
