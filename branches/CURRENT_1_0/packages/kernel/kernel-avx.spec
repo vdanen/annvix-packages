@@ -84,7 +84,7 @@
 # Thomas Backlund <tmb@iki.fi>
 
 %define sublevel	29
-%define avxrelease	2
+%define avxrelease	3
 %define use_patch	0
 
 %{!?build_annvix:%global build_annvix 0}
@@ -871,8 +871,9 @@ exit 0
 %{_kerneldir}/mm
 %{_kerneldir}/net
 %{_kerneldir}/rsbac
-%{_kerneldir}/security
+#%{_kerneldir}/linux-%{owl_kver}-%{owl_version}
 %{_kerneldir}/scripts
+%{_kerneldir}/security
 %{_kerneldir}/include/acpi
 %{_kerneldir}/include/asm-generic
 %{_kerneldir}/include/asm-i386
@@ -907,6 +908,18 @@ exit 0
 %endif
 
 %changelog
+* Wed Feb 23 2005 Vincent Danen <vdanen@annvix.org> 2.4.29-3avx
+- enable USB and USB keyboard support by default:
+  - CONFIG_USB=y
+  - CONFIG_USB_KBD=y
+  - CONFIG_USB_EHCI_HCD=y  
+  - CONFIG_USB_UHCI=y
+  - CONFIG_USB_UHCI_ALT=y
+  - CONFIG_USB_OHCI=y
+  - CONFIG_INPUT=y
+  - CONFIG_KEYBDEV=y
+  - CONFIG_MOUSEDEV=y
+
 * Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> 2.4.29-2avx
 - apply 2.4.29-ow1 patch
 - cleanup README.patches.index
