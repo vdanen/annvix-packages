@@ -1,5 +1,5 @@
 %define name	perl-URPM
-%define version 1.07
+%define version 1.09
 %define release 1avx
 
 %define real_name URPM
@@ -59,6 +59,9 @@ hdlist files and manage them in memory.
 
 
 %changelog
+* Tue Mar 01 2005 Vincent Danen <vdanen@annvix.org> 1.09-1avx
+- 1.09
+
 * Wed Feb 02 2005 Vincent Danen <vdanen@annvix.org> 1.07-1avx
 - 1.07
 - remove unused requires (rgarciasuarez)
