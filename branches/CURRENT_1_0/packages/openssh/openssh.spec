@@ -1,6 +1,6 @@
 %define name	openssh
 %define version	3.9p1
-%define release 2avx
+%define release 3avx
 
 ## Do not apply any unauthorized patches to this package!
 ## - vdanen 05/18/01
@@ -319,6 +319,9 @@ do_dsa_keygen
 %{_datadir}/afterboot/04_openssh
 
 %changelog
+* Sat Sep 11 2004 Vincent Danen <vdanen@annvix.org> 3.9p1-3avx
+- update run scripts
+
 * Thu Sep  2 2004 Vincent Danen <vdanen@annvix.org> 3.9p1-2avx
 - turn AllowTcpForwarding off by default
 
