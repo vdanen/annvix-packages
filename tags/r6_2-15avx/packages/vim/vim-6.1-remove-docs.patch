@@ -1,0 +1,62 @@
+diff -ru doc.orig/gui.txt doc/gui.txt
+--- doc.orig/gui.txt	2002-10-31 10:06:39.000000000 -0500
++++ runtime/doc/gui.txt	2002-11-01 16:30:30.000000000 -0500
+@@ -16,7 +16,6 @@
+ 
+ Other GUI documentation:
+ |gui_x11.txt|	For specific items of the X11 GUI.
+-|gui_w32.txt|	For specific items of the Win32 GUI.
+ 
+ {Vi does not have any of these commands}
+ 
+diff -ru doc.orig/help.txt doc/help.txt
+--- doc.orig/help.txt	2002-11-01 16:28:34.000000000 -0500
++++ runtime/doc/help.txt	2002-11-01 16:30:37.000000000 -0500
+@@ -139,8 +139,6 @@
+ 
+ GUI ~
+ |gui.txt|	Graphical User Interface (GUI)
+-|gui_w16.txt|	Windows 3.1 GUI
+-|gui_w32.txt|	Win32 GUI
+ |gui_x11.txt|	X11 GUI
+ 
+ Interfaces ~
+@@ -162,19 +160,7 @@
+ |version6.txt|	differences between Vim version 5.7 and 6.x
+ 						*sys-file-list*
+ Remarks about specific systems ~
+-|os_390.txt|	OS/390 Unix
+-|os_amiga.txt|	Amiga
+-|os_beos.txt|	BeOS and BeBox
+-|os_dos.txt|	MS-DOS and MS-Windows NT/95 common items
+-|os_mac.txt|	Macintosh
+-|os_mint.txt|	Atari MiNT
+-|os_msdos.txt|	MS-DOS (plain DOS and DOS box under Windows)
+-|os_os2.txt|	OS/2
+-|os_qnx.txt|	QNX
+-|os_risc.txt|	RISC-OS
+ |os_unix.txt|	Unix
+-|os_vms.txt|	VMS
+-|os_win32.txt|	MS-Windows 95/98/NT
+ 
+ Standard plugins	*standard-plugin-list* ~
+ |pi_netrw.txt|	Reading and writing files over a network
+diff -ru doc.orig/version5.txt doc/version5.txt
+--- doc.orig/version5.txt	2002-11-01 16:28:34.000000000 -0500
++++ runtime/doc/version5.txt	2002-11-01 16:25:47.000000000 -0500
+@@ -424,7 +424,6 @@
+ ------------
+ 
+ Vim can be used on BeOS systems (including the BeBox).  (Olaf Seibert)
+-See |os_beos.txt|.
+ 
+ 
+ Macintosh GUI version					*added-Mac*
+@@ -432,7 +431,6 @@
+ 
+ Vim can now be used on the Macintosh.  (Dany St-Amant)
+ It has not been tested much yet, be careful!
+-See |os_mac.txt|.
+ 
+ 
+ More Vi compatible					*more-compatible*
