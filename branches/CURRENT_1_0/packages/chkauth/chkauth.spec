@@ -1,6 +1,6 @@
 %define name	chkauth
 %define version 0.3
-%define release 3avx
+%define release 4avx
 	
 Summary:	Script to change authentification method (local, NIS, LDAP)
 Name:		%{name}
@@ -9,7 +9,7 @@ Release:	%{release}
 License:	GPL
 Group:		System/Configuration/Boot and Init
 Source0:	%{name}-%{version}.tar.bz2
-Patch0:		chkauth-0.3-pamfix.patch.bz2
+Patch0:		chkauth-0.3-avx-pamfix.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-buildroot
 BuildArch:	noarch
@@ -46,6 +46,11 @@ install chkauth.8 $RPM_BUILD_ROOT/%{_mandir}/man8/
 %{_mandir}/*/*
 
 %changelog
+* Wed Jun 30 2004 Vincent Danen <vdanen@annvix.org> 0.3-4avx
+- fix chkauth to use pam_unix rather than pam_pwdb for password
+  handling in system-auth when using LDAP (so we can use passwd to
+  change LDAP passwords); updated P0
+
 * Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 0.3-3avx
 - Annvix build
 
