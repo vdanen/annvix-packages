@@ -1,9 +1,9 @@
 %define name	%{ap_name}-%{mod_name}
 %define version %{ap_version}_%{mod_version}
-%define release 2sls
+%define release 3sls
 
 # Module-Specific definitions
-%define mod_version	1.0
+%define mod_version	0.1
 %define mod_name	mod_auth_remote
 %define mod_conf	82_%{mod_name}.conf
 %define mod_so		%{mod_name}.so
@@ -18,9 +18,10 @@ Summary:	Mod_auth_remote is a DSO module for the %{ap_name} Web server.
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
+Epoch:		1
 License:	GPL
 Group:		System/Servers
-URL:		http://symonds.net/~srp/stuff/
+URL:		http://puggy.symonds.net/~srp/stuff/mod_auth_remote/
 Source0:	%{sourcename}.tar.bz2
 Source1:	%{mod_conf}.bz2
 Patch0:		%{sourcename}-register.patch.bz2
@@ -86,6 +87,12 @@ client is not validated.
 %doc readme.txt
 
 %changelog
+* Tue Dec 23 2003 Vincent Danen <vdanen@opensls.org> 2.0.48_0.1-3sls
+- new version from author (bugfixes)
+- fix url
+- this is actually 0.1 so bump up the epoch and make the version right
+- rename P0
+
 * Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 2.0.48_1.0-2sls
 - OpenSLS build
 - tidy spec
