@@ -1,6 +1,6 @@
 %define name	snort
 %define version	2.1.0
-%define release	2sls
+%define release	3sls
 
 # this is so the binaries won't be stripped so people will submit
 # meaningful bugreports
@@ -17,6 +17,8 @@ License:	GPL
 Group:		Networking/Other
 URL:		http://www.snort.org
 Source0:	http://www.snort.org/dl/%{name}-%{version}.tar.bz2
+Source1:	snortd.run
+Source2:	snortd-log.run
 Patch1:		snort-2.1.0-lib64.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-root
@@ -273,7 +275,6 @@ install -d %{buildroot}%{_sysconfdir}/logrotate.d
 install -d %{buildroot}/var/log/%{name}
 install -d %{buildroot}/var/run/%{name}
 install -d %{buildroot}%{_sbindir}
-install -d %{buildroot}%{_initrddir}
 install -d %{buildroot}%{_mandir}/man8
 
 {
@@ -297,9 +298,13 @@ install -m0644 etc/*.config %{buildroot}/%{_sysconfdir}/%{name}/
 install -m0644 etc/*.map %{buildroot}/%{_sysconfdir}/%{name}/
 install -m0644 rules/*.rules %{buildroot}%{_sysconfdir}/%{name}/rules/
 
-install contrib/rpm/%{name}d %{buildroot}/%{_initrddir}/
 install contrib/rpm/%{name}.sysconfig %{buildroot}/%{_sysconfdir}/sysconfig/%{name}
 install contrib/rpm/%{name}.logrotate %{buildroot}/%{_sysconfdir}/logrotate.d/%{name}
+
+mkdir -p %{buildroot}%{_srvdir}/snortd/log
+mkdir -p %{buildroot}%{_srvlogdir}/snortd
+install -m 0750 %{SOURCE1} %{buildroot}%{_srvdir}/snortd/run
+install -m 0750 %{SOURCE2} %{buildroot}%{_srvdir}/snortd/log/run
 
 #remove the contrib archive files
 # remove some of the contrib archive files
@@ -322,14 +327,14 @@ chrpath -d %{buildroot}%{_sbindir}/%{name}-*
 rm -f doc/README.SNMP.SNMP
 
 %pre
-%_pre_useradd snort /var/log/snort /bin/false
+%_pre_useradd snort /var/log/snort /bin/false 77
 
 %post
 update-alternatives --install %{_sbindir}/%{name} %{name} %{_sbindir}/%{name}-plain 10
-%_post_service snortd
+%_post_srv snortd
 
 %preun
-%_preun_service snortd
+%_preun_srv snortd
 
 %postun
 %_postun_userdel snort
@@ -392,8 +397,12 @@ update-alternatives --remove %{name} %{_sbindir}/%{name}-bloat
 %attr(644,root,root) %config(noreplace) %{_sysconfdir}/%{name}/rules/*.rules
 %attr(640,root,root) %config(noreplace) %{_sysconfdir}/%{name}/%{name}.conf
 %attr(755,root,root) %config(noreplace) %{_sysconfdir}/logrotate.d/%{name}
-%attr(755,root,root) %config(noreplace) %{_initrddir}/snortd
 %attr(644,root,root) %config /etc/sysconfig/%{name}
+%dir %{_srvdir}/snortd
+%dir %{_srvdir}/snortd/log
+%{_srvdir}/snortd/run
+%{_srvdir}/snortd/log/run
+%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/snortd
 
 %files plain+flexresp
 %attr(755,root,root) %{_sbindir}/%{name}-plain+flexresp
@@ -414,6 +423,11 @@ update-alternatives --remove %{name} %{_sbindir}/%{name}-bloat
 %attr(755,root,root) %{_sbindir}/%{name}-bloat
 
 %changelog
+* Tue Feb 03 2004 Vincent Danen <vdanen@opensls.org> 2.1.0-3sls
+- supervise scripts
+- remove initscript
+- snort has static uid/gid of 77
+
 * Sun Jan 11 2004 Vincent Danen <vdanen@opensls.org> 2.1.0-2sls
 - OpenSLS build
 - tidy spec
