@@ -1,6 +1,6 @@
 %define name	vim
 %define version	6.2
-%define release	15avx
+%define release	16avx
 
 # Notes / Warning :
 # - this package is not prefixable
@@ -38,6 +38,8 @@ Patch26:	vim-6.1-changelog-mode.patch.bz2
 Patch27:	vim-6.1-rpm42.patch.bz2
 Patch28:	vim-6.1-po-mode.patch.bz2
 Patch29:	vim-6.2-spec-mode.diff.bz2
+Patch30:	vim-6.2-CAN-2004-1138.patch.bz2
+Patch31:	vim63-CAN-2005-0069.patch.bz2
 
 BuildRoot:	%_tmppath/%name-%version
 BuildRequires:	perl-devel termcap-devel
@@ -120,6 +122,8 @@ done
 %patch27 -p0
 %patch28 -p0
 %patch29 -p0
+%patch30 -p1
+%patch31 -p1
 
 %build
 
@@ -333,6 +337,10 @@ update-alternatives --remove vim /usr/bin/vim-enhanced
 %_bindir/vimdiff
 
 %changelog
+* Tue Feb 01 2005 Vincent Danen <vdanen@annvix.org> 6.2-16avx
+- P30: fix for CAN-2004-1138
+- P31: fix for CAN-2005-0069
+
 * Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 6.2-15avx
 - Annvix build
 
