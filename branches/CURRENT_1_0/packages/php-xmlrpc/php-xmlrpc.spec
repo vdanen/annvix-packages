@@ -1,6 +1,6 @@
 %define name	php-%{modname}
 %define version	%{phpversion}
-%define release	2avx
+%define release	3avx
 
 %define phpversion	4.3.10
 %define phpsource       %{_prefix}/src/php-devel
@@ -79,6 +79,9 @@ EOF
 %{phpdir}/extensions/%{soname}
 
 %changelog
+* Sat Mar 05 2005 Vincent Danen <vdanen@annvix.org> 4.3.10-3avx
+- rebuild for new libxml2 and libxslt
+
 * Sat Feb 26 2005 Vincent Danen <vdanen@annvix.org> 4.3.10-2avx
 - spec cleanups
 
