@@ -1,6 +1,6 @@
 %define name	%{libnamemajor}
 %define version	0.51
-%define release	6sls
+%define release	7sls
 
 %define realname	xmlrpc
 %define libname		lib%{realname}
@@ -58,7 +58,7 @@ perl -pi -e "s,-L/usr/local/lib\b,," configure
 make
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %makeinstall_std
 
@@ -66,7 +66,7 @@ rm -rf $RPM_BUILD_ROOT
 rm -f $RPM_BUILD_ROOT%{_bindir}/{client,hello_{client,server},memtest,sample,server{,_compliance_test}}
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 
 %post -p /sbin/ldconfig
@@ -87,6 +87,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/lib*.a
 
 %changelog
+* Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 0.51-7sls
+- minor spec cleanups
+
 * Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 0.51-6sls
 - OpenSLS build
 - tidy spec

@@ -1,6 +1,6 @@
 %define name	libpcap
 %define version	0.7.2
-%define release	3sls
+%define release	4sls
 
 %define	major	0
 %define minor	7
@@ -87,7 +87,7 @@ autoconf
 gcc -Wl,-soname,libpcap.so.0 -shared -fpic -o libpcap.so.%{major}.%{minor} *.o
 
 %install
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 mkdir -p $RPM_BUILD_ROOT/{%{_includedir}/net,%{_libdir},%{_mandir}/man3}
 
@@ -101,7 +101,7 @@ pushd $RPM_BUILD_ROOT/%{_libdir} && {
 } && popd
 
 %clean
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post -n %{finalname} -p /sbin/ldconfig
 
@@ -114,18 +114,20 @@ pushd $RPM_BUILD_ROOT/%{_libdir} && {
 %files -n %{finalname}
 %defattr(-,root,root)
 %doc README* CHANGES CREDITS FILES INSTALL.txt
-%doc LICENSE VERSION
+%doc LICENSE VERSION TODO
 %{_libdir}/libpcap.so.*
 
 %files -n %{finalname}-devel
 %defattr(-,root,root)
-%doc TODO
 %{_includedir}/*
 %{_libdir}/libpcap.so
 %{_libdir}/libpcap.a
 %{_mandir}/man3/pcap.3*
 
 %changelog
+* Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 0.7.2-4sls
+- minor spec cleanups
+
 * Tue Dec 09 2003 Vincent Danen <vdanen@opensls.org> 0.7.2-3sls
 - OpenSLS build
 - tidy spec

@@ -1,6 +1,6 @@
 %define name	libtermcap
 %define version	2.0.8
-%define release	36sls
+%define release	37sls
 
 %define lib_major	2
 %define lib_name_orig	libtermcap
@@ -69,8 +69,6 @@ you'll need to install this package.  You'll also need to install the
 libtermcap package.
 
 %prep
-rm -rf $RPM_BUILD_ROOT
-
 %setup -q -n termcap-2.0.8
 %patch0 -p1
 %patch1 -p1
@@ -89,6 +87,7 @@ rm -rf $RPM_BUILD_ROOT
 %make CFLAGS="$RPM_OPT_FLAGS -I."
 
 %install
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 # (gb) They should do proper Makefiles
 
 mkdir -p $RPM_BUILD_ROOT/%{_lib}
@@ -112,7 +111,7 @@ install -m 644 termcap.src $RPM_BUILD_ROOT%{_sysconfdir}/termcap
 rm -f $RPM_BUILD_ROOT%_sysconfdir/termcap
 
 %clean
-rm -fr %buildroot
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 # pixel: KEEP LDCONFIG WITH "-p" OR COME TALK TO ME 
 %post -n %{lib_name} -p /sbin/ldconfig
@@ -144,6 +143,9 @@ fi
 %_includedir/termcap.h
 
 %changelog
+* Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 2.0.8-37sls
+- minor spec cleanups
+
 * Wed Dec 17 2003 Vincent Danen <vdanen@opensls.org> 2.0.8-36sls
 - OpenSLS build
 - tidy spec

@@ -1,6 +1,6 @@
 %define name	libtool
 %define version	1.4.3
-%define release	9sls
+%define release	10sls
 
 %define lib_major	3
 %define lib_name_orig	libltdl
@@ -115,13 +115,14 @@ echo ====================TESTING END=====================
 ( cd demo ; make clean )
 
 %install
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
 sed -e "s,@prefix@,%{_prefix}," -e "s,@datadir@,%{_datadir}," %{SOURCE1} \
   > $RPM_BUILD_ROOT%{_bindir}/cputoolize
 chmod 755 $RPM_BUILD_ROOT%{_bindir}/cputoolize
 
 %clean
-rm -fr %buildroot
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
 %_install_info %{name}.info
@@ -160,6 +161,9 @@ rm -fr %buildroot
 
 
 %changelog
+* Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 1.4.3-10sls
+- minor spec cleanups
+
 * Wed Dec 31 2003 Vincent Danen <vdanen@opensls.org> 1.4.3-9sls
 - sync with 8mdk (gbeauchesne): fix mklibnamification
 

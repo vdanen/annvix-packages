@@ -1,9 +1,6 @@
 %define name	libxcrypt
 %define version	2.0
-%define release	1sls
-
-# neededforbuild  
-# usedforbuild    aaa_base acl attr bash bind-utils bison bzip2 coreutils cpio cpp cvs cyrus-sasl db devs diffutils e2fsprogs file filesystem fillup findutils flex gawk gdbm-devel glibc glibc-devel glibc-locale gpm grep groff gzip info insserv kbd less libacl libattr libgcc libstdc++ libxcrypt m4 make man mktemp modutils ncurses ncurses-devel net-tools netcfg openldap2-client openssl pam pam-devel pam-modules patch permissions popt ps rcs readline sed sendmail shadow strace syslogd sysvinit tar texinfo timezone unzip util-linux vim zlib zlib-devel autoconf automake binutils cracklib gcc gdbm gettext libtool perl rpm
+%define release	2sls
 
 Summary:	Crypt library for DES, MD5, and blowfish
 Name:		%{name}
@@ -42,12 +39,11 @@ necessary to develop your own software using libxcrypt.
 %make
 
 %install
-rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
 # i don't think this is the right way to do this..
 pushd %{buildroot}%{_libdir}
 mv libxcrypt.1.2.0 libxcrypt.so.1.2.0
-rm -f libxcrypt libxcrypt.1
 ln -s libxcrypt.so.1.2.0 libxcrypt.so.1
 ln -s libxcrypt.so.1.2.0 libxcrypt.so
 popd
@@ -56,8 +52,12 @@ mkdir -p %{buildroot}/%{_lib}
 mv -v %{buildroot}%{_libdir}/libxcrypt.so.* %{buildroot}/%{_lib}
 ln -sf ../../%{_lib}/libxcrypt.so.1 %{buildroot}%{_libdir}/libxcrypt.so
 
+# remove unpackaged files
+rm -f %{buildroot}%{_libdir}/libxcrypt
+rm -f %{buildroot}%{_libdir}/libxcrypt.1
+
 %clean
-rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -70,8 +70,12 @@ rm -rf %{buildroot}
 %{_libdir}/libxcrypt.a
 %{_libdir}/libxcrypt.la
 %{_libdir}/libxcrypt.so
+/%{_lib}/libxcrypt.1
 
 %changelog
+* Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 2.0-2sls
+- minor spec cleanups
+
 * Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 2.0-1sls
 - first OpenSLS package
 - based on SUSE's 2.0-32 package

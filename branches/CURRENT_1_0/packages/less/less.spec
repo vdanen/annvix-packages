@@ -1,6 +1,6 @@
 %define name	less
 %define version	381
-%define release	3sls
+%define release	4sls
 
 Summary:	A text file browser similar to more, but better.
 Name:		%{name}
@@ -40,7 +40,7 @@ CFLAGS=$(echo "$RPM_OPT_FLAGS -DHAVE_LOCALE" | sed -e s/-fomit-frame-pointer//)
 %make 
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
 # faq
 install -m 644 %SOURCE1 .
@@ -57,17 +57,19 @@ EOF
 
 install -m 644 less{echo,pipe}.1 $RPM_BUILD_ROOT%_mandir/man1
 
+%clean
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 %files
 %defattr(-,root,root)
 %doc faq_less.html
 %attr(755,root,root)%_bindir/*
 %_mandir/man1/*
 
-
-%clean
-rm -rf $RPM_BUILD_ROOT
-
 %changelog
+* Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 381-4sls
+- minor spec cleanups
+
 * Sun Nov 30 2003 Vincent Danen <vdanen@opensls.org> 381-3sls
 - OpenSLS build
 - tidy spec

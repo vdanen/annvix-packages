@@ -1,6 +1,6 @@
 %define name	libtiff
 %define	version	3.5.7
-%define release 12sls
+%define release 13sls
 
 %define lib_version	3.5
 %define lib_major	3
@@ -110,7 +110,7 @@ cd ..
 COPTS="%{optflags}" make
 
 %install
-rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p %{buildroot}/{%{_bindir},%{_datadir}}
 make install
 install -m644 %{name}/%{name}.so.%{lib_version} %{buildroot}/%{_libdir}
@@ -123,17 +123,15 @@ ln -sf %{name}.so.%{lib_version} %{name}.so.%{lib_major}
 %postun -n %{lib_name} -p /sbin/ldconfig
 
 %clean
-rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files progs
 %defattr(-,root,root,-)
-#%doc Readme
 %_bindir/*
 %_mandir/man1/*
 
 %files -n %{lib_name}
 %defattr(-,root,root,-)
-#%doc Readme
 %_libdir/*.so.*
 
 %files -n %{lib_name}-devel
@@ -145,10 +143,12 @@ rm -rf %{buildroot}
 
 %files -n %{lib_name}-static-devel
 %defattr(-,root,root,-)
-%doc COPYRIGHT README TODO VERSION
 %_libdir/*.a
 
 %changelog
+* Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 3.5.7-13sls
+- minor spec cleanups
+
 * Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 3.5.7-12sls
 - OpenSLS build
 - tidy spec
