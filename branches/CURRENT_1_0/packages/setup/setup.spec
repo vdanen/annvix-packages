@@ -1,6 +1,6 @@
 %define name	setup
 %define version 2.4
-%define release 6sls
+%define release 7sls
 
 Summary:	A set of system configuration and setup files.
 Name:		%{name}
@@ -43,6 +43,7 @@ rm -f  `find $RPM_BUILD_ROOT/%{_mandir} -name 'update-passwd*'`
 %doc ChangeLog
 %verify(not md5 size mtime) %config(noreplace) /etc/passwd
 %verify(not md5 size mtime) %config(noreplace) /etc/group
+%verify(not md5 size mtime) %config(noreplace) /etc/shadow
 %_mandir/man8/*8*
 # find_lang can't find man pages yet :-(
 %lang(cs) %_mandir/cs/man8/*8*
@@ -80,6 +81,10 @@ if [ -x /usr/sbin/nscd ]; then
 fi
 
 %changelog
+* Sat Apr 24 2004 Vincent Danen <vdanen@opensls.org> 2.4-7sls
+- add shadow file because our installer doesn't create one and everyone
+  should be using shadow password anyways
+
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 2.4-6sls
 - minor spec cleanups
 
