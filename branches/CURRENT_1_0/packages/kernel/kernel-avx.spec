@@ -1,5 +1,5 @@
 # -*- Mode: rpm-spec -*-
-# 	$Id: kernel-sls.spec,v 1.1 2004/03/01 00:00:00 tmb@iki.fi $
+# 	$Id: kernel-avx.spec,v 1.1 2004/06/19 00:00:00 tmb@annvix.org $
 
 # First: Get versions names right is complicated (tm)
 # Second: kernel allways have the version & release number in the name
@@ -10,14 +10,14 @@
 # We want to reflect in the kernel naming:
 #   - vanilla kernel in with is based (ex. 2.4.25) 
 #     this version is stored in %realversion
-#   - Number of OpenSLS kernel based on this vanilla kernel (ex. 2sls).
-#     stored in %slsrelease.
+#   - Number of Annvix kernel based on this vanilla kernel (ex. 2avx).
+#     stored in %avxrelease.
 #    
-# That gives us a nice name: 2.4.25-2sls
+# That gives us a nice name: 2.4.25-2avx
 # 
 # As version and release are allways fixed, name of the package is 
 # going to be:
-#        kernel-2.4.25-2sls-1-1sls
+#        kernel-2.4.25-2avx-1-1avx
 #
 # Confused already?
 #
@@ -27,9 +27,9 @@
 #  - vanilla kernel: 2.4.25
 #  - patch name: 2.4.26-pre3
 #    stored in %use_patch
-#  - Number of OpenSLS kernel based in this pre kernel 2sls
+#  - Number of Annvix kernel based in this pre kernel 2avx
 #
-# That gives us a nice name again: 2.4.26-pre3.2sls
+# That gives us a nice name again: 2.4.26-pre3.2avx
 # Problems now are:
 #   - sublevel of vanilla kernel 25 (needed for tar file)
 #   - sublevel of kernel is 26 (needed for prepatch and naming 
@@ -41,12 +41,12 @@
 # 
 # There are still a problem, when real 2.4.26 cames out, it will have
 # a mane like: 
-#              2.4.26-1sls
+#              2.4.26-1avx
 # this name is (for rpm ordering of versions) smaller than:
-#              2.4.26-pre3.2sls
+#              2.4.26-pre3.2avx
 # to fix that we add a 0 to the name (and appear the need of realrelease)
 # in the pre/rc
-# 	       2.4.26-0.pre3.2sls
+# 	       2.4.26-0.pre3.2avx
 #
 # Take one aspirine.  Relax.
 #
@@ -56,27 +56,27 @@
 # easy, but it is an annoyance.
 #
 # Lilo name for this kernel will be:
-#       2426-0.pre3.2sls
+#       2426-0.pre3.2avx
 # And as everybody knows, putting dot's in lilo names is not nice.
 # Then we change the kernel name (for loaders, and directory names only)
 # to a more userfriendly:
-# 		2.4.25pre3-2sls
+# 		2.4.25pre3-2avx
 # That way, smp, enterprise versions continue to have the well known names
 # in the loader of:
 #		2426pre3-2smp
 #
 # For a non pre/rc kernel define (real examples in brakets)
-#     2.4.X.Ysls [2.4.25-2sls]
+#     2.4.X.Yavx [2.4.25-2avx]
 # where
 #	%sublvel = X 	[25]
-#   	%slsrelease = Y [2]
+#   	%avxrelease = Y [2]
 #	%use_patch 0	[0]
 #
 # For a pre/rc kernel do:
-#	2.4.X.0.Y.Zsls [2.4.26-0.pre3.2sls]
+#	2.4.X.0.Y.Zavx [2.4.26-0.pre3.2avx]
 # where
 #	%sublvel = X 	[26]
-#   	%slsrelease = Z [2]
+#   	%avxrelease = Z [2]
 #	%use_patch Y	[pre3]
 #
 # I hope this is all clear now. If you have any doubt, please mail me at:
@@ -84,10 +84,11 @@
 # Thomas Backlund <tmb@iki.fi>
 
 %define sublevel	25
-%define slsrelease	14
+%define avxrelease	15
 %define use_patch	0
 
 %{!?build_opensls:%global build_opensls 0}
+%{!?build_annvix:%global build_annvix 0}
 
 # This is only to make life easier for people that creates derivated kernels
 # or to rename the kernels :)
@@ -100,24 +101,24 @@
 # When we are using a pre/rc patch, the tarball is a sublevel -1
 %if %use_patch
 %define tar_version	2.4.%(expr %sublevel - 1)
-%define patchversion	%{use_patch}sls%{slsrelease}
-%define realrelease	0.%{slsrelease}sls
+%define patchversion	%{use_patch}avx%{avxrelease}
+%define realrelease	0.%{avxrelease}avx
 %else
 %define tar_version	2.4.%sublevel
-%define patchversion	sls%slsrelease
-%define realrelease	%{slsrelease}sls
+%define patchversion	avx%avxrelease
+%define realrelease	%{avxrelease}avx
 %endif
 
 # never touch the folowing two fields
 %define rpmversion	1
-%define rpmrelease	1sls
+%define rpmrelease	1avx
 %define realversion	2.4.%{sublevel}
-%define slsversion	%{realversion}-%{realrelease}
+%define avxversion	%{realversion}-%{realrelease}
 %define patches_ver	2.4.%{sublevel}-%{patchversion}
 
 # having different top level names for packges means
 # that you have to remove them by hard :(
-%define top_dir_name %{kname}-sls
+%define top_dir_name %{kname}-avx
 
 %define build_dir	${RPM_BUILD_DIR}/%top_dir_name
 %define src_dir		%{build_dir}/linux-%tar_version
@@ -134,6 +135,7 @@
 %define build_source	1
 
 %define build_10 %(if [ `awk '{print $4}' /etc/opensls-release` = 1.0 ];then echo 1; else echo 0; fi)
+%define build_10 %(if [ `awk '{print $4}' /etc/annvix-release` = 1.0 ];then echo 1; else echo 0; fi)
 
 %define build_BOOT	1
 %define build_build	1
@@ -180,7 +182,7 @@
 %define target_arch	%(echo %{_arch} | sed -e "s/amd64/x86_64/")
 
 Summary:	The Linux kernel (the core of the Linux operating system).
-Name:		%{kname}-%{slsversion}
+Name:		%{kname}-%{avxversion}
 Version:	%{rpmversion}
 Release:	%{rpmrelease}
 License:	GPL
@@ -202,12 +204,12 @@ NoSource: 0
 %endif
 Source1: linux-%{tar_version}.tar.bz2.info
 
-Source4:	README.sls-kernel-sources
-Source5:	README.OpenSLS
+Source4:	README.annvix-kernel-sources
+Source5:	README.Annvix
 
-Source15:	linux-slsconfig.h
-Source16:	sls-linux-merge-config.awk
-Source17:	sls-linux-merge-modules.awk
+Source15:	linux-annvix-config.h
+Source16:	annvix-linux-merge-config.awk
+Source17:	annvix-linux-merge-modules.awk
 
 Source100:	linux-%{patches_ver}.tar.bz2
 
@@ -230,16 +232,16 @@ Patch1:		patch-%realversion-%use_patch.bz2
 
 # Defines for the things that are needed for all the kernels
 
-%define requires1	modutils >= 2.4.25-3sls
+%define requires1	modutils >= 2.4.25-3avx
 
-%define requires2	mkinitrd >= 3.4.43-10sls
-%define requires3	bootloader-utils >= 1.6-5sls
+%define requires2	mkinitrd >= 3.4.43-10avx
+%define requires3	bootloader-utils >= 1.6-5avx
 
-%define conflicts	iptables <= 1.2.9-1sls
+%define conflicts	iptables <= 1.2.9-1avx
 %define kprovides	kernel = %{realversion}
 
 BuildRoot:	%{_tmppath}/%{name}-%{realversion}-build
-BuildRequires:	gcc >= 3.3.1-5sls
+BuildRequires:	gcc >= 3.3.1-5avx
 
 Provides:	kernel-up, module-info, %kprovides
 Autoreqprov:	no
@@ -267,7 +269,7 @@ http://www.mandrakesecure.net/en/kernelupdate.php
 # kernel-smp: Symmetric MultiProcessing kernel
 #
 
-%package -n %{kname}-smp-%{slsversion}
+%package -n %{kname}-smp-%{avxversion}
 Summary:	The Secured Linux Kernel compiled for SMP machines.
 Group:		System/Kernel and hardware
 Provides:	%kprovides
@@ -275,7 +277,7 @@ Requires:	%requires1
 Requires:	%requires2
 Requires:	%requires3
 
-%description -n %{kname}-smp-%{slsversion}
+%description -n %{kname}-smp-%{avxversion}
 This package includes a SECURE 4GB SMP version of the Linux %{realversion}
 kernel. It is required only on machines with two or more CPUs, although it
 should work fine on single-CPU boxes.
@@ -291,7 +293,7 @@ http://www.mandrakesecure.net/en/kernelupdate.php
 # kernel-build: standard up kernel without security features
 #
 
-%package -n %{kname}-build-%{slsversion}
+%package -n %{kname}-build-%{avxversion}
 Summary:	The Linux kernel compiled without security features.
 Group:		System/Kernel and hardware
 Provides:	%kprovides
@@ -299,7 +301,7 @@ Requires:	%requires1
 Requires:	%requires2
 Requires:	%requires3
 
-%description -n %{kname}-build-%{slsversion}
+%description -n %{kname}-build-%{avxversion}
 The kernel package contains the Linux kernel (vmlinuz), the core of your
 Mandrake Linux operating system.  The kernel handles the basic functions
 of the operating system:  memory allocation, process allocation, device
@@ -315,12 +317,12 @@ http://www.mandrakesecure.net/en/kernelupdate.php
 # kernel-boot: BOOT Kernel
 #
 
-%package -n %{kname}-BOOT-%{slsversion}
+%package -n %{kname}-BOOT-%{avxversion}
 Summary:	The version of the Linux kernel used on installation boot disks.
 Group:		System/Kernel and hardware
 URL:		https://kenobi.mandrakesoft.com/~chmou/kernel/BOOT/
 
-%description -n %{kname}-BOOT-%{slsversion}
+%description -n %{kname}-BOOT-%{avxversion}
 This package includes a trimmed down version of the Linux kernel.
 This kernel is used on the installation boot disks only and should not
 be used for an installed system, as many features in this kernel are
@@ -425,8 +427,8 @@ kheaders_dirs=`echo $PWD/include/{asm-*,linux,sound}`
 pushd %build_dir
 install -d kernel-headers/
 cp -a $kheaders_dirs kernel-headers/
-tar cf kernel-headers-%slsversion.tar kernel-headers/
-bzip2 -9f kernel-headers-%slsversion.tar
+tar cf kernel-headers-%avxversion.tar kernel-headers/
+bzip2 -9f kernel-headers-%avxversion.tar
 rm -rf kernel-headers/
 # build_kheaders
 %endif
@@ -527,8 +529,8 @@ CreateFiles() {
 	echo "%dir %{_modulesdir}/${kversion}/" >> $output
 	echo "%{_modulesdir}/${kversion}/kernel" >> $output
 	echo "%{_modulesdir}/${kversion}/modules.*" >> $output
-	echo "%doc README.sls-kernel-sources" >> $output
-	echo "%doc README.OpenSLS" >> $output
+	echo "%doc README.annvix-kernel-sources" >> $output
+	echo "%doc README.Annvix" >> $output
 }
 
 CreateKernel() {
@@ -778,36 +780,36 @@ exit 0
 /sbin/kernel_remove_initrd %{KVERREL}
 
 # smp kernel
-%preun -n %{kname}-smp-%{slsversion}
+%preun -n %{kname}-smp-%{avxversion}
 /sbin/installkernel %options_preun %{KVERREL}smp
 exit 0
 
-%post -n %{kname}-smp-%{slsversion}
+%post -n %{kname}-smp-%{avxversion}
 /sbin/installkernel %options_post %{KVERREL}smp
 
-%postun -n %{kname}-smp-%{slsversion}
+%postun -n %{kname}-smp-%{avxversion}
 /sbin/kernel_remove_initrd %{KVERREL}smp
 
 # build kernel
-%preun -n %{kname}-build-%{slsversion}
+%preun -n %{kname}-build-%{avxversion}
 /sbin/installkernel %options_preun %{KVERREL}build
 exit 0
 
-%post -n %{kname}-build-%{slsversion}
+%post -n %{kname}-build-%{avxversion}
 /sbin/installkernel %options_post %{KVERREL}build
 
-%postun -n %{kname}-build-%{slsversion}
+%postun -n %{kname}-build-%{avxversion}
 /sbin/kernel_remove_initrd %{KVERREL}build
 
 # BOOT kernel
-%preun -n %{kname}-BOOT-%{slsversion}
+%preun -n %{kname}-BOOT-%{avxversion}
 /sbin/installkernel %options_preun %{KVERREL}BOOT
 exit 0
 
-%post -n %{kname}-BOOT-%{slsversion}
+%post -n %{kname}-BOOT-%{avxversion}
 /sbin/installkernel %options_post %{KVERREL}BOOT
 
-%postun -n %{kname}-BOOT-%{slsversion}
+%postun -n %{kname}-BOOT-%{avxversion}
 /sbin/kernel_remove_initrd %{KVERREL}BOOT
 
 ### kernel source
@@ -847,15 +849,15 @@ exit 0
 %endif
 
 %if %build_smp
-%files -n %{kname}-smp-%{slsversion} -f kernel_files.%{KVERREL}smp
+%files -n %{kname}-smp-%{avxversion} -f kernel_files.%{KVERREL}smp
 %endif
 
 %if %build_build
-%files -n %{kname}-build-%{slsversion} -f kernel_files.%{KVERREL}build
+%files -n %{kname}-build-%{avxversion} -f kernel_files.%{KVERREL}build
 %endif
 
 %if %build_BOOT
-%files -n %{kname}-BOOT-%{slsversion} -f kernel_files.%{KVERREL}BOOT
+%files -n %{kname}-BOOT-%{avxversion} -f kernel_files.%{KVERREL}BOOT
 %endif
 
 %if %build_source
@@ -911,8 +913,8 @@ exit 0
 %{_kerneldir}/include/openswan.h
 %{_kerneldir}/include/zlib
 %{_kerneldir}/README.openswan-2
-%doc README.sls-kernel-sources
-%doc README.OpenSLS
+%doc README.annvix-kernel-sources
+%doc README.Annvix
 #endif %build_source
 %endif
 
@@ -923,6 +925,10 @@ exit 0
 %endif
 
 %changelog
+* Sat Jun 19 2004 Thomas Backlund <tmb@annvix.org> 2.4.25-15avx
+- Update patch CD04 with better logo
+- Switch names to annvix / avx
+
 * Tue Jun 15 2004 Thomas Backlund <tmb@iki.fi> 2.4.25-14sls
 - add OpenSLS mascot Chud as framebuffer logo (CD04)
 - add zisofs support to BOOT kernel for installer
