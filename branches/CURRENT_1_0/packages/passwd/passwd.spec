@@ -1,6 +1,6 @@
 %define name	passwd
 %define version	0.68
-%define release	7avx
+%define release	8avx
 
 Summary:	The passwd utility for setting/changing passwords using PAM
 Name:		%{name}
@@ -14,7 +14,7 @@ Source0:	passwd-%{version}.tar.bz2
 Patch:		passwd-0.67-manpath.patch.bz2
 Patch1:		passwd-0.68-sec.patch.bz2
 
-BuildRoot:	%_tmppath/%name-root
+BuildRoot:	%{_tmppath}/%{name}-%{version}-root
 BuildRequires:	glib2-devel, libuser-devel, pam-devel, popt-devel
 
 Requires:	pam >= 0.59, pwdb >= 0.58, libuser
@@ -37,26 +37,29 @@ To use passwd, you should have PAM installed on your system.
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-install -d %buildroot/%_bindir
-install -d %buildroot/%_mandir/man1
+install -d %{buildroot}%{_bindir}
+install -d %{buildroot}%{_mandir}/man1
 
 %makeinstall_std
 
-install -D -m 644 passwd.pamd %buildroot/%_sysconfdir/pam.d/passwd
-perl -p -i -e 's|use_authtok nullok|use_authtok nullok md5|' %buildroot/%_sysconfdir/pam.d/passwd
-rm -f %buildroot%_bindir/{chfn,chsh}
-rm -f %buildroot%_mandir/man1/{chfn.1,chsh.1}
+install -D -m 644 passwd.pamd %{buildroot}%{_sysconfdir}/pam.d/passwd
+perl -p -i -e 's|use_authtok nullok|use_authtok nullok md5|' %{buildroot}%{_sysconfdir}/pam.d/passwd
+rm -f %{buildroot}%{_bindir}/{chfn,chsh}
+rm -f %{buildroot}%{_mandir}/man1/{chfn.1,chsh.1}
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
-%config(noreplace) %_sysconfdir/pam.d/passwd
-%attr(4511,root,root) %_bindir/passwd
-%_mandir/man1/passwd.1*
+%config(noreplace) %{_sysconfdir}/pam.d/passwd
+%attr(4511,root,root) %{_bindir}/passwd
+%{_mandir}/man1/passwd.1*
 		
 %changelog
+* Mon Feb 28 2005 Vincent Danen <vdanen@annvix.org> 0.68-8avx
+- rebuild against new libuser and glib2
+
 * Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 0.68-7avx
 - Annvix build
 
