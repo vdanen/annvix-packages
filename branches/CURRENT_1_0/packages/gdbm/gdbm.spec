@@ -1,8 +1,8 @@
 %define name	gdbm
-%define version 1.8.0 
-%define release 27avx
+%define version 1.8.3
+%define release 1avx
 
-%define lib_major	2
+%define lib_major	3
 %define lib_name	%mklibname gdbm %{lib_major}
 
 Summary:	A GNU set of database routines which use extensible hashing.
@@ -11,16 +11,14 @@ Version:	%{version}
 Release:	%{release}
 License:	GPL
 Group:		System/Libraries
-Source:		ftp://ftp.gnu.org/pub/gnu/%{name}-%{version}.tar.bz2
+URL:		http://www.gnu.org/software/gdbm/
+Source:		ftp://ftp.gnu.org/pub/gnu/gdbm/%{name}-%{version}.tar.bz2
 Patch0:		gdbm-1.8.0-jbj.patch.bz2
 # (deush) regenerate patch to apply with -p1
-Patch1:		gdbm-1.8.0-asnonroot.patch.bz2
-Patch2:		gdbm-1.8.0-fixinfo.patch.bz2
-# (gb) use standard configure macros in Makefile.in
-Patch3:		gdbm-1.8.0-std-configure-macros.patch.bz2
+Patch1:		gdbm-1.8.3-asnonroot.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-root
-Buildrequires:	texinfo
+Buildrequires:	texinfo autoconf2.5 automake1.7
 
 %description
 Gdbm is a GNU database indexing library, including routines
@@ -51,6 +49,7 @@ Prereq:		/sbin/install-info
 Obsoletes:	%{name}-devel, libgdbm1-devel
 Provides:	%{name}-devel, libgdbm1-devel
 Provides:	%{lib_name}-devel, lib%{name}-devel
+Conflicts:	%{mklibname gdbm 2}-devel
 
 %description -n %{lib_name}-devel
 Gdbm-devel contains the development libraries and header files
@@ -64,12 +63,10 @@ gdbm database library.  You'll also need to install the gdbm package.
 %setup -q
 %patch0 -p1 -b .jbj
 %patch1 -p1
-%patch2 -p1
-%patch3 -p1 -b .std-configure-macros
 
 libtoolize -f
-aclocal
-autoconf
+aclocal-1.7
+FORCE_AUTOCONF_2_5=1 autoconf
 autoheader
 
 %build
@@ -79,8 +76,8 @@ autoheader
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-%makeinstall install-compat includedir=$RPM_BUILD_ROOT%{_includedir}/gdbm
-ln -sf gdbm/gdbm.h $RPM_BUILD_ROOT%{_includedir}/gdbm.h
+%makeinstall install-compat includedir=%{buildroot}%{_includedir}/gdbm man3dir=%{buildroot}%{_mandir}/man3
+ln -sf gdbm/gdbm.h %{buildroot}%{_includedir}/gdbm.h
 
 chmod 644  COPYING INSTALL NEWS README
 
@@ -100,14 +97,14 @@ chmod 644  COPYING INSTALL NEWS README
 
 %files -n %{lib_name}
 %defattr(-,root,root)
-%doc COPYING INSTALL NEWS README
-%{_libdir}/libgdbm.so.*
+%doc  NEWS README
+%{_libdir}/libgdbm*.so.*
 
 %files -n %{lib_name}-devel
 %defattr(-,root,root)
-%{_libdir}/libgdbm.so
-%{_libdir}/libgdbm.la
-%{_libdir}/libgdbm.a
+%{_libdir}/libgdbm*.so
+%{_libdir}/libgdbm*.la
+%{_libdir}/libgdbm*.a
 %dir %{_includedir}/gdbm
 %{_includedir}/gdbm/*.h
 %{_includedir}/gdbm.h
@@ -115,6 +112,16 @@ chmod 644  COPYING INSTALL NEWS README
 %{_mandir}/man3/*
 
 %changelog
+* Thu Jun 24 2004 Vincent Danen <vdanen@annvix.org> 1.8.0-27avx
+- 1.8.3
+- sync with cooker 1.8.3-2mdk:
+  - force the use of autoconf2.5 and automake1.7 (peroyvind)
+  - change major name (daouda)
+  - added compat libs (daouda)
+  - conflicts libgdbm2-devel (gb)
+  - drop P2 and P3
+
+
 * Thu Jun 24 2004 Vincent Danen <vdanen@annvix.org> 1.8.0-27avx
 - Annvix build
 
