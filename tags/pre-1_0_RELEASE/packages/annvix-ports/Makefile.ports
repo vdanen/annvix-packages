@@ -1,0 +1,15 @@
+
+PTREE=/usr/local/ports
+
+checkout:
+	CVSROOT=:pserver:anonymous@cvs.annvix.org:/cvsroot cvs co ports
+
+update:
+	CVSROOT=:pserver:anonymous@cvs.annvix.org:/cvsroot cvs update ports
+
+urpmi:
+	urpmi.addmedia ports file:/$(PTREE)/packages with ./hdlist.cz
+
+hdlist:
+	cd $(PTREE)/packages
+	genhdlist .

@@ -1,0 +1,17 @@
+--- expect5.32/fixline1.expectk	Mon Aug 27 22:31:09 2001
++++ expect5.32/fixline1	Mon Aug 27 22:40:47 2001
+@@ -9,12 +9,13 @@
+ #!expectk ...
+ #!foo/bar/expectk ...
+ #
+-if {0} {
++if {1} {
+     # Original scheme, but this can wire in a platform-specific path
+     regsub "^#!(.*/)*(.*)" [gets stdin] "#!$argv/\\2" line1
+ } else {
+     set header "#!/bin/sh\n"
+     append header "# \\\n"
++    # The below does NOT work for expectk stuff
+     append header {exec expect "$0" ${1+"$@"}}
+ 
+     regsub "^#!(.*/)*(.*)" [gets stdin] $header line1

@@ -1,0 +1,15 @@
+diff -urN krb5-1.3.3/src/krb5-config.in krb5-1.3.3-modified/src/krb5-config.in
+--- krb5-1.3.3/src/krb5-config.in	2003-04-03 21:29:09.000000000 +0200
++++ krb5-1.3.3-modified/src/krb5-config.in	2004-05-11 17:08:22.375760568 +0200
+@@ -173,9 +173,9 @@
+     # Ugly gross hack for our build tree
+     lib_flags=`echo $CC_LINK | sed -e 's/\$(CC)//' \
+ 	    -e 's/\$(PURE)//' \
+-	    -e 's#\$(PROG_RPATH)#'$libdir'#' \
++	    -e 's#\$(PROG_RPATH)##' \
+ 	    -e 's#\$(PROG_LIBPATH)#-L'$libdir'#' \
+-	    -e 's#\$(RPATH_FLAG)#'"$RPATH_FLAG"'#' \
++	    -e 's#\$(RPATH_FLAG)##' \
+ 	    -e 's#\$(LDFLAGS)#'"$LDFLAGS"'#' \
+ 	    -e 's#\$(CFLAGS)#'"$CFLAGS"'#'`
+ 

@@ -1,0 +1,36 @@
+diff -urN ppp-2.4.2/chat/Makefile.linux ppp-2.4.2-modified/chat/Makefile.linux
+--- ppp-2.4.2/chat/Makefile.linux	2004-01-13 04:57:55.000000000 +0100
++++ ppp-2.4.2-modified/chat/Makefile.linux	2004-05-24 14:32:28.792695653 +0200
+@@ -7,7 +7,7 @@
+ CDEFS=	$(CDEF1) $(CDEF2) $(CDEF3) $(CDEF4)
+ 
+ COPTS=	-O2 -g -pipe $(CDEFS)
+-CFLAGS=	$(COPTS) $(CDEFS)
++CFLAGS=	$(RPM_OPT_FLAGS) $(CDEFS)
+ 
+ INSTALL= install
+ 
+diff -urN ppp-2.4.2/pppd/Makefile.linux ppp-2.4.2-modified/pppd/Makefile.linux
+--- ppp-2.4.2/pppd/Makefile.linux	2003-11-27 22:55:19.000000000 +0100
++++ ppp-2.4.2-modified/pppd/Makefile.linux	2004-05-24 14:31:25.427931511 +0200
+@@ -31,7 +31,7 @@
+ 
+ CC = gcc
+ #
+-COPTS = -O2 -pipe -Wall -g
++COPTS = -Wall $(RPM_OPT_FLAGS)
+ LIBS = -lutil
+ 
+ # Uncomment the next 2 lines to include support for Microsoft's
+diff -urN ppp-2.4.2/pppdump/Makefile.linux ppp-2.4.2-modified/pppdump/Makefile.linux
+--- ppp-2.4.2/pppdump/Makefile.linux	1999-07-26 13:09:29.000000000 +0200
++++ ppp-2.4.2-modified/pppdump/Makefile.linux	2004-05-24 14:31:53.391710164 +0200
+@@ -6,7 +6,7 @@
+ all:	pppdump
+ 
+ pppdump: $(OBJS)
+-	$(CC) -o pppdump $(OBJS)
++	$(CC) $(RPM_OPT_FLAGS) -o pppdump $(OBJS)
+ 
+ clean:
+ 	rm -f pppdump $(OBJS) *~

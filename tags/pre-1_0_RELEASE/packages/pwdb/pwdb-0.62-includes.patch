@@ -1,0 +1,42 @@
+--- pwdb-0.62/libpwdb/posix/pwd.c.includes	1999-09-20 16:01:38.000000000 +0200
++++ pwdb-0.62/libpwdb/posix/pwd.c	2004-08-23 12:06:30.124764285 +0200
+@@ -7,6 +7,7 @@
+  */
+ 
+ #include <stdio.h>
++#include <string.h>
+ 
+ #define PWDB_HARD_CORE 1
+ #include <pwdb/pwdb_public.h>
+--- pwdb-0.62/libpwdb/posix/undefined.c.includes	1999-09-20 16:01:38.000000000 +0200
++++ pwdb-0.62/libpwdb/posix/undefined.c	2004-08-23 12:06:30.124764285 +0200
+@@ -5,6 +5,7 @@
+  */
+ 
+ #include <stdio.h>
++#include <stdlib.h>
+ 
+ #define PWDB_HARD_CORE 1
+ #include <pwdb/pwdb_public.h>
+--- pwdb-0.62/libpwdb/pwdb/pwdb_helper.c.includes	2002-12-10 03:21:40.000000000 +0100
++++ pwdb-0.62/libpwdb/pwdb/pwdb_helper.c	2004-08-23 12:07:52.035561168 +0200
+@@ -18,6 +18,8 @@
+  *
+  */
+ 
++#include <stdlib.h>
++#include <string.h>
+ #include "pwdb_public.h"
+ #include "pwdb_module.h"
+ 
+--- pwdb-0.62/libpwdb/radius/radius.c.includes	1998-10-06 22:58:43.000000000 +0200
++++ pwdb-0.62/libpwdb/radius/radius.c	2004-08-23 12:06:30.128764324 +0200
+@@ -1,6 +1,8 @@
+ 
+ /* This is the RADIUS main support file */
+ 
++#include <sys/types.h>
++#include <sys/socket.h>
+ #include "../_pwdb_internal.h"
+ #include "../_pwdb_macros.h"
+ #include "md5.h"

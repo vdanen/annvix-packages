@@ -1,0 +1,11 @@
+--- mc-4.6.0/lib/mc.ext.in.display	2004-02-16 13:05:56.000000000 +0100
++++ mc-4.6.0/lib/mc.ext.in	2004-02-16 13:07:11.000000000 +0100
+@@ -221,7 +221,7 @@
+ 	View=sxpm %f
+ 
+ include/image
+-	Open=if [ "$DISPLAY" = "" ]; then zgv %f; else (ee %f &); fi
++	Open=if [ "$DISPLAY" = "" ]; then zgv %f; else (gqview %f &); fi
+ 	View=%view{ascii} identify %f
+ 	#View=%view{ascii} asciiview %f
+ 

@@ -1,0 +1,14 @@
+diff -Naur smbldap-tools-0.8.7/smbldap_tools.pm smbldap-tools-0.8.7.oden/smbldap_tools.pm
+--- smbldap-tools-0.8.7/smbldap_tools.pm	2005-02-13 21:26:18.000000000 +0100
++++ smbldap-tools-0.8.7.oden/smbldap_tools.pm	2005-02-14 14:45:32.256534212 +0100
+@@ -29,8 +29,8 @@
+ 
+ # ugly funcs using global variables and spawning openldap clients
+ 
+-my $smbldap_conf="/etc/opt/IDEALX/smbldap-tools/smbldap.conf";
+-my $smbldap_bind_conf="/etc/opt/IDEALX/smbldap-tools/smbldap_bind.conf";
++my $smbldap_conf="/etc/smbldap-tools/smbldap.conf";
++my $smbldap_bind_conf="/etc/smbldap-tools/smbldap_bind.conf";
+ use vars       qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
+ use Exporter;
+ $VERSION = 1.00;

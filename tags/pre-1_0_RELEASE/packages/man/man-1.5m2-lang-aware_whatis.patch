@@ -1,0 +1,22 @@
+--- ./src/makewhatis.sh.whatbz2	2004-01-30 21:21:32.000000000 +0100
++++ ./src/makewhatis.sh	2004-01-30 21:24:57.000000000 +0100
+@@ -3,6 +3,7 @@
+ # Created: Sun Jun 14 10:49:37 1992
+ # Revised: Sat Jan  8 14:12:37 1994 by faith@cs.unc.edu
+ # Revised: Sat Mar 23 17:56:18 1996 by micheal@actrix.gen.nz
++# Linux-Mandrake adaptations by Chmouel Boudjnah <chmouel@mandrakesoft.com>
+ # Copyright 1992, 1993, 1994 Rickard E. Faith (faith@cs.unc.edu)
+ # May be freely distributed and modified as long as copyright is retained.
+ #
+@@ -48,6 +49,11 @@
+     fi
+ done
+ DEFMANPATH=$dm
++
++# This file is specific to Linux-Mandrake.
++[ -f /etc/sysconfig/i18n ] && . /etc/sysconfig/i18n
++[ -d /usr/man/$LANG/ ] && DEFMANPATH="$DEFMANPATH:/usr/man/$LANG/"
++
+ dc=
+ for d in /var/cache/man /usr/share/man/preformat /usr/man/preformat /usr/share/man /usr/man
+ do

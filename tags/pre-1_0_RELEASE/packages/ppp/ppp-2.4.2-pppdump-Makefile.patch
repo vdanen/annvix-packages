@@ -1,0 +1,9 @@
+diff -urN ppp-2.4.2/pppdump/Makefile.linux ppp-2.4.2-modified/pppdump/Makefile.linux
+--- ppp-2.4.2/pppdump/Makefile.linux	1999-07-26 13:09:29.000000000 +0200
++++ ppp-2.4.2-modified/pppdump/Makefile.linux	2004-05-24 14:46:17.443768046 +0200
+@@ -14,4 +14,4 @@
+ install:
+ 	mkdir -p $(BINDIR) $(MANDIR)/man8
+ 	$(INSTALL) -s -c pppdump $(BINDIR)
+-	$(INSTALL) -c -m 444 pppdump.8 $(MANDIR)/man8
++	$(INSTALL) -c pppdump.8 $(MANDIR)/man8

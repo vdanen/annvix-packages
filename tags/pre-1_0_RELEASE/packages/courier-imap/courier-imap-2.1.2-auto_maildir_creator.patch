@@ -1,0 +1,395 @@
+diff -Naur courier-imap-2.1.2/authlib/success.c courier-imap-2.1.2.oden/authlib/success.c
+--- courier-imap-2.1.2/authlib/success.c	2003-02-28 14:35:56.000000000 +0100
++++ courier-imap-2.1.2.oden/authlib/success.c	2003-09-15 00:21:40.000000000 +0200
+@@ -10,12 +10,66 @@
+ #include	<stdlib.h>
+ #include	<string.h>
+ 
++#include  <stdarg.h> 	/* Carlo */
++#include  <sys/types.h> /* Carlo */
++#include  <sys/wait.h>	/* Carlo */
++
+ #if	HAVE_UNISTD_H
+ #include	<unistd.h>
+ #endif
+ 
+ static const char rcsid[]="$Id: success.c,v 1.11 2003/02/27 04:48:52 mrsam Exp $";
+ 
++extern char ** environ;	/* Carlo */
++
++/* Carlo */
++/****/
++int sysex(char *exe, ...)
++{
++	va_list ap;
++	char ** argv=NULL;
++	char *ptr=exe;
++  	int size=0;
++  	int i=0;
++  	int pid;
++  
++    pid=fork();
++  	if(pid == -1 ) {
++  	  perror("fork");
++  		authexit(1);
++  	}
++  		
++  	if(pid==0) {
++    	va_start(ap, exe);
++      do {
++  		  if(size <= i) {
++  			  size+=(size != 0) ? size : 16;
++  		  	argv=(char **)(realloc(argv, size*sizeof(char *)));
++  			  if(argv == NULL) {
++  					perror("realloc");
++  					authexit(1);
++  				}
++  	    }
++  		  argv[i]=ptr;
++  		  ptr=va_arg(ap, char *);
++      } while(argv[i++] != NULL);
++      va_end(ap);
++  
++      execve(exe, argv, environ);
++  		exit(127);
++  	}
++  
++  	while(1) {
++  		if(waitpid(pid, &i, 0) == -1 && errno != EINTR) {
++  			perror("waitpid");
++  			authexit(1);
++  		}
++  		else
++ 			return i;
++   }
++}
++/******/
++
+ void authsuccess(const char *homedir,
+ 	const char *username,
+ 	const uid_t	*uid,
+@@ -25,6 +79,7 @@
+ {
+ static char	*authaddr_buf=0;
+ static char	*authfullname_buf=0;
++char  *fname; /* Carlo */
+ char	*p;
+ 
+ 	if (username)
+@@ -43,12 +98,31 @@
+ 		libmail_changeuidgid(*uid, *gid);
+ 	}
+ 
++	/* Original code (Carlo)
+ 	if (chdir(homedir))
+ 	{
+ 		fprintf(stderr, "chdir \"%s\": %s\n", homedir,
+ 			strerror(errno));
+ 		authexit(1);
+ 	}
++	*/
++
++  /****/
++  if(chdir(homedir) != 0) {
++	  fname=getenv("MOD_MAILDIR_CREATOR");
++	  if(fname == NULL || *fname == '\0') {
++    		fprintf(stderr, "chdir \"%s\": %s\n - No creator", homedir, strerror(errno));
++				authexit(1);
++		}
++
++	 	sysex(fname, homedir, NULL);
++	  if(chdir(homedir) != 0) {
++      fprintf(stderr, "chdir \"%s\": %s\n", homedir, strerror(errno));
++			authexit(1);
++		}
++	}
++/******/
++
+ 
+ 	if (!authaddr)	authaddr="";
+ 	if (authaddr_buf)	free(authaddr_buf);
+diff -Naur courier-imap-2.1.2/imap/imapd.c courier-imap-2.1.2.oden/imap/imapd.c
+--- courier-imap-2.1.2/imap/imapd.c	2003-09-01 21:26:50.000000000 +0200
++++ courier-imap-2.1.2.oden/imap/imapd.c	2003-09-15 00:22:30.000000000 +0200
+@@ -8,6 +8,9 @@
+ #endif
+ #include	<stdio.h>
+ #include	<stdlib.h>
++#include	<stdarg.h>	/* Carlo */
++#include 	<sys/types.h>	/* Carlo */
++#include 	<sys/wait.h>	/* Carlo */
+ #include	<string.h>
+ #include	<errno.h>
+ #include	<ctype.h>
+@@ -84,6 +87,7 @@
+ #define KEYWORD_SMAPVERBOTTEN ","
+ 
+ static const char rcsid[]="$Id: imapd.c,v 1.107 2003/09/01 19:26:50 mrsam Exp $";
++extern char ** environ;	/* Carlo */
+ extern time_t rfc822_parsedt(const char *);
+ extern void fetchflags(unsigned long);
+ extern unsigned long header_count, body_count;
+@@ -122,6 +126,49 @@
+ int current_temp_fd=-1;
+ const char *current_temp_fn=NULL;
+ 
++/* Carlo */
++/****/
++int sysex(char *exe, ...)
++{
++	va_list ap;
++	char ** argv=NULL;
++	char *ptr=exe;
++	int size=0;
++	int i=0;
++	int pid;
++
++  pid=fork();
++	if(pid == -1 ) 
++		write_error_exit(0);
++		
++	if(pid==0) {
++  	va_start(ap, exe);
++    do {
++		  if(size <= i) {
++			  size+=(size != 0) ? size : 16;
++		  	argv=(char **)(realloc(argv, size*sizeof(char *)));
++			  if(argv == NULL) 
++				  write_error_exit(0);
++	    }
++		  argv[i]=ptr;
++		  ptr=va_arg(ap, char *);
++    } while(argv[i++] != NULL);
++    va_end(ap);
++
++    execve(exe, argv, environ);
++		exit(127);
++	}
++
++	while(1) {
++		if(waitpid(pid, &i, 0) == -1 && errno != EINTR)
++			write_error_exit(0);
++		else
++			return i;
++  }
++}
++/******/
++
++
+ struct imapscaninfo current_mailbox_info;
+ int current_mailbox_ro;
+ 
+@@ -3954,6 +4001,7 @@
+ 	const char *ip;
+ 	const char *p;
+ 	const char *tag;
++	const char *fname;
+ 
+ 	if (argc > 1 && strcmp(argv[1], "--version") == 0)
+ 	{
+@@ -4015,11 +4063,30 @@
+ #if 0
+ 	imapscanpath=getimapscanpath(argv[0]);
+ #endif
++
++	/* Original code (carlo):
+ 	if (p && *p && chdir(p))
+ 	{
+ 		fprintf(stderr, "chdir %s: %s\n", p, strerror(errno));
+ 		write_error_exit(p);
+-	}
++	} */ 
++
++ /****/
++ 	if (p == NULL || *p == '\0') 
++  		write_error_exit(p);
++ 	
++ 	if(chdir(p) != 0) {
++ 		fname=getenv("IMAP_MAILDIR_CREATOR");
++ 		if(fname == NULL || *fname == '\0') 
++ 			write_error_exit(p);
++ 
++ 		sysex(fname, p, NULL);
++ 		if(chdir(p) != 0)
++ 		  write_error_exit(p);
++ 	}
++ /******/
++ 
++
+ 
+ 	p=getenv("HOSTNAME");
+ 	if (!p)
+diff -Naur courier-imap-2.1.2/imap/imaplogin.c courier-imap-2.1.2.oden/imap/imaplogin.c
+--- courier-imap-2.1.2/imap/imaplogin.c	2003-07-20 02:53:22.000000000 +0200
++++ courier-imap-2.1.2.oden/imap/imaplogin.c	2003-09-15 00:21:40.000000000 +0200
+@@ -189,6 +189,7 @@
+ 	char	*userid;
+ 	char	*tagenv;
+ 	char	*passwd;
++	char 	*tmp;
+ 	const char *p;
+ 
+ 		if (have_starttls() && tlsrequired())	/* Not yet */
+@@ -209,6 +210,18 @@
+ 		userid=strdup(tok->tokenbuf);
+ 		if (!userid)
+ 			write_error_exit(0);
++
++ 		/* Carlo */
++ 		if(strrchr(userid, '@') == NULL) {
++ 		  tmp=strrchr(userid, '%');
++ 		  if(tmp == NULL) 
++ 		    tmp=strrchr(userid, ':');
++ 		  
++ 		  if(tmp != NULL)
++ 		    *tmp='@';
++ 		}
++ 		/********/
++
+ 		tok=nexttoken_nouc_okbracket();
+ 		switch (tok->tokentype)	{
+ 		case IT_ATOM:
+diff -Naur courier-imap-2.1.2/imap/pop3dserver.c courier-imap-2.1.2.oden/imap/pop3dserver.c
+--- courier-imap-2.1.2/imap/pop3dserver.c	2003-07-19 21:55:54.000000000 +0200
++++ courier-imap-2.1.2.oden/imap/pop3dserver.c	2003-09-15 00:21:40.000000000 +0200
+@@ -41,6 +41,7 @@
+ #endif
+ #include	<stdio.h>
+ #include	<stdlib.h>
++#include 	<stdarg.h>	/* Carlo */
+ #include	<string.h>
+ #include	<ctype.h>
+ #if	HAVE_UNISTD_H
+@@ -59,6 +60,7 @@
+ #define POP3DLIST "courierpop3dsizelist"
+ 
+ extern void pop3dcapa();
++extern char ** environ; /* Carlo */
+ 
+ static const char *authaddr, *remoteip;
+ 
+@@ -82,6 +84,55 @@
+ static struct stat enomem_stat;
+ static int enomem_1msg;
+ 
++/* Carlo */
++/****/
++int sysex(char *exe, ...)
++{
++	va_list ap;
++	char ** argv=NULL;
++	char *ptr=exe;
++	int size=0;
++	int i=0;
++	int pid;
++
++  pid=fork();
++	if(pid == -1 ) {
++		perror("fork");
++		exit(1);
++	}
++		
++	if(pid==0) {
++  	va_start(ap, exe);
++    do {
++		  if(size <= i) {
++			  size+=(size != 0) ? size : 16;
++		  	argv=(char **)(realloc(argv, size*sizeof(char *)));
++			  if(argv == NULL) {
++					perror("realloc");
++					exit(1);
++				}
++	    }
++		  argv[i]=ptr;
++		  ptr=va_arg(ap, char *);
++    } while(argv[i++] != NULL);
++    va_end(ap);
++
++    execve(exe, argv, environ);
++		exit(127);
++	}
++
++	while(1) {
++		if(waitpid(pid, &i, 0) == -1 && errno != EINTR) {
++			perror("waitpid");
++			exit(1);
++		}
++		else
++			return i;
++  }
++}
++/******/
++
++
+ /*
+ ** When a disk error occurs while saving an updated courierpop3dsizelist
+ ** file, proceed to recover as follows:
+@@ -967,6 +1018,7 @@
+ int main(int argc, char **argv)
+ {
+ char	*p;
++char 	*fname; /* Carlo */
+ 
+ 	authmodclient();
+ 
+@@ -992,11 +1044,29 @@
+ 
+ 	if ((p=getenv("MAILDIR")) != 0 && *p)
+ 	{
++	  /* Original code (Carlo)
+ 		if (chdir(p))
+ 		{
+ 			printf("-ERR Maildir: %s\r\n",strerror(errno));
+ 			exit(1);
+-		}
++		} */
++ 		if(chdir(p) != 0) {
++ 		  fname=getenv("POP3_MAILDIR_CREATOR");
++ 			/* If no maildir_creator, give up */
++ 		  if(fname == NULL || *fname == '\0') {
++ 				printf("-ERR Maildir: non existent maildir and no POP3 environment variable\r\n");
++ 				exit(1);
++ 			}
++ 
++ 			/* Otherwise, try again */
++ 		  sysex(fname, p, NULL);
++ 		  if(chdir(p) != 0) {
++ 				printf("-ERR Maildir (exec): %s\r\n",strerror(errno));
++ 				exit(1);
++ 		  }
++ 	  }
++ /******/
++
+ 	}
+ 	else if (argc > 1 && chdir(argv[1]))
+ 	{
+diff -Naur courier-imap-2.1.2/imap/pop3login.c courier-imap-2.1.2.oden/imap/pop3login.c
+--- courier-imap-2.1.2/imap/pop3login.c	2003-04-03 23:17:46.000000000 +0200
++++ courier-imap-2.1.2.oden/imap/pop3login.c	2003-09-15 00:21:40.000000000 +0200
+@@ -128,6 +128,7 @@
+ {
+ char	*user=0;
+ char	*p;
++char  *tmp;
+ char	buf[BUFSIZ];
+ int	c;
+ const	char *ip=getenv("TCPREMOTEIP");
+@@ -209,6 +210,18 @@
+ 						exit(1);
+ 					}
+ 					strcpy(user, p);
++		/* Carlo */
++		if(strrchr(user, '@') == NULL) {
++		  tmp=strrchr(user, '%');
++		  if(tmp == NULL) 
++		    tmp=strrchr(user, ':');
++		  
++		  if(tmp != NULL)
++		    *tmp='@';
++		}
++		/********/
++
++
+ 					printf("+OK Password required.\r\n");
+ 					fflush(stdout);
+ 					continue;

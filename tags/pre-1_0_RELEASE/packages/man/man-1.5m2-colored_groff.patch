@@ -1,0 +1,25 @@
+--- ./configure.color	2004-01-30 21:33:27.000000000 +0100
++++ ./configure	2004-01-30 21:33:34.000000000 +0100
+@@ -110,6 +110,9 @@
+       -confdir)
+           setconfdir=true;
+           ;;
++      -compatibility_mode_for_colored_groff )
++          setcompatibility_mode_for_colored_groff=true;
++          ;;
+       -confprefix=*)
+           confprefix=`echo $arg | sed -e 's/-confprefix=//'`
+ 	  ;;
+@@ -540,6 +543,12 @@
+     jnroff="$jnroff -c"
+ fi
+ 
++if [ "x$setcompatibility_mode_for_colored_groff" = "xtrue" ]; then
++	troff="$troff -c"
++	nroff="$nroff -c"
++	jnroff="$jnroff -c"
++fi
++
+ if [ x$default = x ]; then
+   echo ""
+   echo "If you don't have one of the following programs, enter \`missing'."

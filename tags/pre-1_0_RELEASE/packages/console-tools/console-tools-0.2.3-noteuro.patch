@@ -1,0 +1,103 @@
+--- console-data-1999.08.29/keymaps/i386/qwertz/cz-us-qwertz.kmap.old	Wed Aug 29 17:58:53 2001
++++ console-data-1999.08.29/keymaps/i386/qwertz/cz-us-qwertz.kmap	Wed Aug 29 18:14:44 2001
+@@ -32,7 +32,8 @@
+ keycode 15  = Tab Tab Tab Tab VoidSymbol VoidSymbol VoidSymbol VoidSymbol Meta_Tab Meta_Tab Meta_Tab Meta_Tab
+ keycode 16  = q
+ keycode 17  = w
+ keycode 18  = e
++altgr keycode 18  = e
+ keycode 19  = r
+ keycode 20  = t
+ keycode 21  = z
+--- console-data-1999.08.29/keymaps/i386/qwertz/sk-prog-qwertz.kmap.old	Wed Aug 29 17:58:53 2001
++++ console-data-1999.08.29/keymaps/i386/qwertz/sk-prog-qwertz.kmap	Wed Aug 29 18:15:19 2001
+@@ -41,6 +41,7 @@
+ keycode 13 = equal plus dead_acute dead_circumflex VoidSymbol VoidSymbol VoidSymbol VoidSymbol Meta_equal Meta_equal Meta_equal Meta_equal  
+ keycode 14 = Delete Delete Delete Delete VoidSymbol VoidSymbol VoidSymbol VoidSymbol Meta_Delete Meta_Delete Meta_Delete Meta_Delete  
+ keycode 15 = Tab Tab Tab Tab VoidSymbol VoidSymbol VoidSymbol VoidSymbol Meta_Tab Meta_Tab Meta_Tab Meta_Tab  
++altgr keycode 18 = e
+ keycode 26 = bracketleft braceleft bracketleft braceleft Escape VoidSymbol Escape VoidSymbol Meta_bracketleft Meta_bracketleft Meta_bracketleft Meta_bracketleft 
+ keycode 27 = bracketright braceright bracketright braceright Control_bracketright VoidSymbol Control_bracketright VoidSymbol Meta_bracketright Meta_bracketright Meta_bracketright Meta_bracketright 
+ keycode 28 = Return
+--- console-data-1999.08.29/keymaps/i386/qwertz/sk-qwertz.kmap.old	Wed Aug 29 17:58:54 2001
++++ console-data-1999.08.29/keymaps/i386/qwertz/sk-qwertz.kmap	Wed Aug 29 18:15:26 2001
+@@ -42,6 +42,7 @@
+ keycode 13 = equal plus dead_acute dead_circumflex VoidSymbol VoidSymbol VoidSymbol VoidSymbol Meta_equal Meta_equal Meta_equal Meta_equal  
+ keycode 14 = Delete Delete Delete Delete VoidSymbol VoidSymbol VoidSymbol VoidSymbol Meta_Delete Meta_Delete Meta_Delete Meta_Delete  
+ keycode 15 = Tab Tab Tab Tab VoidSymbol VoidSymbol VoidSymbol VoidSymbol Meta_Tab Meta_Tab Meta_Tab Meta_Tab  
++altgr keycode 18 = e 
+ keycode 26 = bracketleft braceleft uacute slash Escape VoidSymbol Escape VoidSymbol Meta_bracketleft Meta_bracketleft Meta_bracketleft Meta_bracketleft 
+ keycode 27 = bracketright braceright adiaeresis parenleft Control_bracketright VoidSymbol Control_bracketright VoidSymbol Meta_bracketright Meta_bracketright Meta_bracketright Meta_bracketright 
+ keycode 28 = Return 
+--- console-data-1999.08.29/keymaps/i386/qwerty/cz-lat2-prog.kmap.old	Wed Aug 29 18:08:23 2001
++++ console-data-1999.08.29/keymaps/i386/qwerty/cz-lat2-prog.kmap	Wed Aug 29 18:05:46 2001
+@@ -38,7 +38,8 @@
+ keycode 15 = Tab Tab Tab Tab VoidSymbol VoidSymbol VoidSymbol VoidSymbol Meta_Tab Meta_Tab Meta_Tab Meta_Tab
+ keycode 16 = q
+ keycode 17 = w
+ keycode 18 = e
++altgr keycode 18 = e 
+ keycode 19 = r
+ keycode 20 = t
+ keycode 21 = y
+--- console-data-1999.08.29/keymaps/i386/qwerty/cz-lat2.kmap.old	Wed Aug 29 18:08:35 2001
++++ console-data-1999.08.29/keymaps/i386/qwerty/cz-lat2.kmap	Wed Aug 29 18:06:51 2001
+@@ -35,7 +35,8 @@
+ keycode 15 = Tab Tab Tab Tab VoidSymbol VoidSymbol VoidSymbol VoidSymbol Meta_Tab Meta_Tab Meta_Tab Meta_Tab
+ keycode 16 = q
+ keycode 17 = w
+ keycode 18 = e
++altgr keycode 18 = e 
+ keycode 19 = r
+ keycode 20 = t
+ keycode 21 = y
+--- console-data-1999.08.29/keymaps/i386/qwerty/lt.kmap.old	Wed Aug 29 17:58:53 2001
++++ console-data-1999.08.29/keymaps/i386/qwerty/lt.kmap	Wed Aug 29 18:10:16 2001
+@@ -203,7 +203,8 @@
+ # Single characters are defined by default.
+ keycode	 16 = +q
+ keycode	 17 = +w
+ keycode	 18 = +e
++altgr keycode	 18 = e 
+ keycode	 19 = +r
+ keycode	 20 = +t
+ keycode	 21 = +y
+--- console-data-1999.08.29/keymaps/i386/qwerty/sk-prog-qwerty.kmap.old	Wed Aug 29 17:58:53 2001
++++ console-data-1999.08.29/keymaps/i386/qwerty/sk-prog-qwerty.kmap	Wed Aug 29 18:13:04 2001
+@@ -41,6 +41,7 @@
+ keycode 13 = equal plus dead_acute dead_circumflex VoidSymbol VoidSymbol VoidSymbol VoidSymbol Meta_equal Meta_equal Meta_equal Meta_equal  
+ keycode 14 = Delete Delete Delete Delete VoidSymbol VoidSymbol VoidSymbol VoidSymbol Meta_Delete Meta_Delete Meta_Delete Meta_Delete  
+ keycode 15 = Tab Tab Tab Tab VoidSymbol VoidSymbol VoidSymbol VoidSymbol Meta_Tab Meta_Tab Meta_Tab Meta_Tab  
++altgr keycode 18 = e 
+ keycode 26 = bracketleft braceleft bracketleft braceleft Escape VoidSymbol Escape VoidSymbol Meta_bracketleft Meta_bracketleft Meta_bracketleft Meta_bracketleft 
+ keycode 27 = bracketright braceright bracketright braceright Control_bracketright VoidSymbol Control_bracketright VoidSymbol Meta_bracketright Meta_bracketright Meta_bracketright Meta_bracketright 
+ keycode 28 = Return
+--- console-data-1999.08.29/keymaps/i386/qwerty/sk-prog.kmap.old	Wed Aug 29 17:58:53 2001
++++ console-data-1999.08.29/keymaps/i386/qwerty/sk-prog.kmap	Wed Aug 29 18:13:29 2001
+@@ -34,7 +34,8 @@
+ keycode 15 = Tab Tab Tab Tab VoidSymbol VoidSymbol VoidSymbol VoidSymbol Meta_Tab Meta_Tab Meta_Tab Meta_Tab  
+ keycode 16 = q 
+ keycode 17 = w 
+ keycode 18 = e
++altgr keycode 18 = e 
+ keycode 19 = r
+ keycode 20 = t
+ keycode 21 = y
+--- console-data-1999.08.29/keymaps/i386/qwerty/sk-qwerty.kmap.old	Wed Aug 29 17:58:53 2001
++++ console-data-1999.08.29/keymaps/i386/qwerty/sk-qwerty.kmap	Wed Aug 29 18:13:56 2001
+@@ -42,6 +42,7 @@
+ keycode 13 = equal plus dead_acute dead_circumflex VoidSymbol VoidSymbol VoidSymbol VoidSymbol Meta_equal Meta_equal Meta_equal Meta_equal  
+ keycode 14 = Delete Delete Delete Delete VoidSymbol VoidSymbol VoidSymbol VoidSymbol Meta_Delete Meta_Delete Meta_Delete Meta_Delete  
+ keycode 15 = Tab Tab Tab Tab VoidSymbol VoidSymbol VoidSymbol VoidSymbol Meta_Tab Meta_Tab Meta_Tab Meta_Tab  
++altgr keycode 18 = e 
+ keycode 26 = bracketleft braceleft uacute slash Escape VoidSymbol Escape VoidSymbol Meta_bracketleft Meta_bracketleft Meta_bracketleft Meta_bracketleft 
+ keycode 27 = bracketright braceright adiaeresis parenleft Control_bracketright VoidSymbol Control_bracketright VoidSymbol Meta_bracketright Meta_bracketright Meta_bracketright Meta_bracketright 
+ keycode 28 = Return 
+--- console-data-1999.08.29/keymaps/i386/include/euro.inc.old	Fri Mar 15 11:17:43 2002
++++ console-data-1999.08.29/keymaps/i386/include/euro.inc	Fri Mar 15 11:18:10 2002
+@@ -8,4 +8,4 @@
+ #
+ 
+ altgr keycode  18 = 0xa4 # currency
+-altgr keycode  46 = 0xa2 # cent
++#altgr keycode  46 = 0xa2 # cent

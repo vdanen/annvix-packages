@@ -1,0 +1,10 @@
+--- xpm-3.4k/lib/XpmI.h.64bit-fixes	2003-11-13 17:07:02.000000000 +0100
++++ xpm-3.4k/lib/XpmI.h	2003-11-13 17:09:32.000000000 +0100
+@@ -83,6 +83,7 @@ extern FILE *popen();
+ #endif
+ 
+ /* the following is defined in X11R6 but not in previous versions */
++#include <X11/Xmd.h>
+ #ifdef __alpha
+ #ifndef LONG64
+ #define LONG64

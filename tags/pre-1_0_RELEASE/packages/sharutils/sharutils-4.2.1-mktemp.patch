@@ -1,0 +1,15 @@
+--- sharutils-4.2.1/src/mailshar.in.orig	Fri May 11 21:45:29 2001
++++ sharutils-4.2.1/src/mailshar.in	Fri May 11 21:50:40 2001
+@@ -33,7 +33,11 @@
+ If none of -MTBzZ are given, -z is automatically selected if *none*
+ of the FILEs have an .arc, .exz, .gif, .z, .gz, .Z, .zip or .zoo suffix."
+ 
+-temp=/usr/tmp/$$.shar
++temp=`mktemp -q /tmp/$0.XXXXXX`
++if [ $? -ne 0 ]; then
++    echo "$0: Can't create temp file, exiting..."
++    exit 1
++fi
+ 
+ ### Decode the options.
+ 
