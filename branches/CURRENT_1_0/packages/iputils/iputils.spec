@@ -1,12 +1,9 @@
 %define name	iputils
 %define version	20%{ver}
-%define release	5sls
+%define release	6sls
+%define ver	020927
 
 %{!?build_opensls:%global build_opensls 0}
-
-%define ver		020927
-%define ipcalcname	ipv6calc
-%define ipcalcversion	0.19
 
 Summary:	Network monitoring tools including ping.
 Name:		%{name}
@@ -17,16 +14,13 @@ Group:		System/Base
 URL:		ftp://ftp.inr.ac.ru/ip-routing/
 Source0:	http://ftp.sunet.se/pub/os/Linux/ip-routing/iputils-ss%ver.tar.bz2
 Source1:	bonding-0.2.tar.bz2
-Source2:	ftp://ftp.bieringer.de/pub/linux/IPv6/ipv6calc/%ipcalcname-%{ipcalcversion}.tar.bz2
 Patch0:		iputils-20001007-rh7.patch.bz2
 Patch1:		iputils-20020927-datalen.patch.bz2
 Patch2:		iputils-20020927-ping_sparcfix.patch.bz2
 Patch3:		iputils-20020124-rdisc-server.patch.bz2 
 Patch4:		iputils-20020124-countermeasures.patch.bz2 
-Patch122:	ipv6calc-0.19-Makefile.patch.bz2
-Patch123:	iputils-20001110-bonding-sockios.patch.bz2
-Patch124:	ipv6calc-0.19-help-arg.patch.bz2
-Patch125:	iputils-20020927-fix-traceroute.patch.bz2
+Patch5:		iputils-20001110-bonding-sockios.patch.bz2
+Patch6:		iputils-20020927-fix-traceroute.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-root
 %if !%{build_opensls}
@@ -41,16 +35,8 @@ command sends a series of ICMP protocol ECHO_REQUEST packets to a
 specified network host and can tell you if that machine is alive and
 receiving network traffic.
 
-ipv6calc is a small utility which formats and calculates IPv6 addresses in
-different ways. It extends the existing address detection on IPv6 initscript 
-setup or make life easier in adding reverse IPv6 zones to DNS
-or using in DNS queries like
- nslookup -q=ANY `ipv6calc -r 3ffe:400:100:f101::1/48`
-See also here for more details: http://www.bieringer.de/linux/IPv6/
-
 %prep
 %setup -q -n %{name} -a 1
-%setup -q -D -T -c -a 2 -n %{name}
 
 rm -f bonding-0.2/ifenslave
 mv -f bonding-0.2/README bonding-0.2/README.ifenslave
@@ -60,21 +46,13 @@ mv -f bonding-0.2/README bonding-0.2/README.ifenslave
 %patch2 -p1 -b .ping_sparcfix
 %patch3 -p1 -b .rdisc
 %patch4 -p1 -b .counter
-
-%patch122 -p0
-%patch123 -p1
-%patch124 -p0 -b .helparg
-%patch125 -p1
+%patch5 -p1 -b .sockios
+%patch6 -p1 -b .fix
 
 %build
 perl -pi -e 's!\$\(MAKE\) -C doc html!!g' Makefile
 %make CCOPT="%optflags"
 %make ifenslave -C bonding-0.2
-
-pushd %{ipcalcname}-%{ipcalcversion} && {
-make clean
-make COPTS="%optflags"
-} && popd
 
 make ifenslave -C bonding-0.2
 %if !%{build_opensls}
@@ -117,9 +95,6 @@ install -c doc/rdisc.8     ${RPM_BUILD_ROOT}%{_mandir}/man8/rdisc.8
 install -c doc/ping.8      ${RPM_BUILD_ROOT}%{_mandir}/man8/
 install -c doc/tracepath.8 ${RPM_BUILD_ROOT}%{_mandir}/man8/
 
-pushd %{ipcalcname}-%{ipcalcversion} && {
-make installonly root=$RPM_BUILD_ROOT
-} && popd
 
 %clean
 rm -rf ${RPM_BUILD_ROOT}
@@ -140,9 +115,12 @@ rm -rf ${RPM_BUILD_ROOT}
 %attr(4755,root,root) %{_sbindir}/traceroute6
 %{_sbindir}/rdisc
 %{_mandir}/man8/*
-/bin/ipv6calc
 
 %changelog
+* Wed Dec 31 2003 Vincent Danen <vdanen@opensls.org> 20020927-6sls
+- remove ipv6calc as it is it's own package now
+- rearrange patches
+
 * Mon Dec 22 2003 Vincent Danen <vdanen@opensls.org> 20020927-5sls
 - OpenSLS build
 - tidy spec
