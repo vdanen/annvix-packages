@@ -1,20 +1,22 @@
-%define name supervise-scripts
+%define name	supervise-scripts
 %define version 3.3
-%define release 6rph
+%define release 7sls
 
-Name: 		%{name}
 Summary:	Utility scripts for use with supervise and svscan.
+Name: 		%{name}
 Version:	%{version}
 Release: 	%{release}
-Copyright:	GPL
+License:	GPL
 Group:		System/Servers
 URL:		http://em.ca/~bruceg/supervise-scripts/
 Source:		%{name}-%{version}.tar.bz2
 Source1:	supervise.init
 Source2:	README.mdk.supervise
 Source3:	supervise-data.tar.bz2
+
 BuildRoot:	%{_tmppath}/%{name}-root
 BuildArch:	noarch
+
 Requires:	daemontools >= 0.70
 
 %description
@@ -36,6 +38,9 @@ includes:  vsftpd, cvspserver, rsync, and proftpd.
 %prep
 %setup -q
 %setup -q -n %{name}-%{version} -D -T -a3
+%if %build_propolice
+echo "propolice on"
+%endif
 
 %build
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -92,6 +97,10 @@ rm -rf $RPM_BUILD_DIR/%{name}-%{version}
 /var/service/proftpd/log/run
 
 %changelog
+* Mon Dec 01 2003 Vincent Danen <vdanen@opensls.org> 3.3-7sls
+- OpenSLS build
+- tidy spec
+
 * Fri Aug  9 2002 Vincent Danen <vdanen@mandrakesoft.com> 3.3-6rph
 - build for 9.0
 
