@@ -1,0 +1,26 @@
+--- nss_ldap-163/configure.in.old	Sun Apr 29 05:49:18 2001
++++ nss_ldap-163/configure.in	Sun Apr 29 13:14:46 2001
+@@ -102,15 +102,15 @@
+ AC_CHECK_LIB(db, main,[LIBS="-ldb $LIBS"],,$LIBS)
+ LIBS="-Wl,-Bdynamic $LIBS"
+ dnl Following checks probably not strictly necessary.
+-dnl AC_CHECK_LIB(crypto, main,[LIBS="-lcrypto $LIBS"],,$LIBS)
+-dnl AC_CHECK_LIB(ssl, main,[LIBS="-lssl $LIBS"],,$LIBS)
+-dnl AC_CHECK_LIB(com_err, main,[LIBS="-lcom_err $LIBS"],,$LIBS)
+-dnl AC_CHECK_LIB(k5crypto, main,[LIBS="-lk5crypto $LIBS"],,$LIBS)
+-dnl AC_CHECK_LIB(krb5, main,[LIBS="-lkrb5 $LIBS"],,$LIBS)
+-dnl AC_CHECK_LIB(krb4, main,[LIBS="-lkrb4 $LIBS"],,$LIBS)
+-dnl AC_CHECK_LIB(sasl, sasl_client_init,[LIBS="-lsasl $LIBS"],,$LIBS)
++AC_CHECK_LIB(crypto, main,[LIBS="-lcrypto $LIBS"],,$LIBS)
++AC_CHECK_LIB(ssl, main,[LIBS="-lssl $LIBS"],,$LIBS)
++AC_CHECK_LIB(com_err, main,[LIBS="-lcom_err $LIBS"],,$LIBS)
++AC_CHECK_LIB(k5crypto, main,[LIBS="-lk5crypto $LIBS"],,$LIBS)
++AC_CHECK_LIB(krb5, main,[LIBS="-lkrb5 $LIBS"],,$LIBS)
++AC_CHECK_LIB(krb4, main,[LIBS="-lkrb4 $LIBS"],,$LIBS)
++AC_CHECK_LIB(sasl, sasl_client_init,[LIBS="-lsasl $LIBS"],,$LIBS)
+ if test -z "$found_ldap_lib" -a \( $with_ldap_lib = auto -o $with_ldap_lib = umich -o $with_ldap_lib = openldap \); then
+-  AC_CHECK_LIB(lber, main)
++  AC_CHECK_LIB(lber, main, [LIBS="-llber $LIBS"],,$LIBS)
+   AC_CHECK_LIB(ldap, main, [LIBS="-lldap $LIBS" found_ldap_lib=yes],,$LIBS)
+ fi
+ if test -z "$found_ldap_lib" -a \( $with_ldap_lib = auto -o $with_ldap_lib = netscape5 \); then
