@@ -1,21 +1,25 @@
-%define url http://prdownloads.sourceforge.net/e2fsprogs
+%define name		e2fsprogs
+%define version		1.34
+%define release		2sls
+
+%define url		http://prdownloads.sourceforge.net/e2fsprogs
 %define	_root_sbindir	/sbin
 %define	_root_libdir	/%_lib
-%define libname %mklibname ext2fs 2
+%define libname		%mklibname ext2fs 2
 
-Summary: Utilities used for the second extended (ext2) filesystem.
-Name: e2fsprogs
-Version: 1.34
-Release: 1mdk
-License: GPL
-Group: System/Kernel and hardware
-Source:	%url/%name-%version.tar.bz2
-Patch4: e2fsprogs-1.23-autoconf.patch.bz2
+Summary:	Utilities used for the second extended (ext2) filesystem.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		System/Kernel and hardware
+Source:		%url/%name-%version.tar.bz2
+Patch4:		e2fsprogs-1.23-autoconf.patch.bz2
 # http://acl.bestbits.at/download.html
-Url: http://e2fsprogs.sourceforge.net/
+Url:		http://e2fsprogs.sourceforge.net/
 Buildroot:	%_tmppath/%name-root
 BuildRequires:	texinfo, autoconf
-Requires: %libname
+Requires:	%libname
 
 %description
 The e2fsprogs package contains a number of utilities for creating,
@@ -33,9 +37,9 @@ performance of an ext2 filesystem.
 
 
 %package -n %libname
-Summary: The librairies for Ext2fs
-Group: System/Libraries
-Requires: e2fsprogs
+Summary:	The libraries for Ext2fs
+Group:		System/Libraries
+Requires:	e2fsprogs
 
 %description -n %libname
 The e2fsprogs package contains a number of utilities for creating,
@@ -51,11 +55,11 @@ filesystem utilities.
 You should install %libname to use tools who use ext2fs features.
 
 %package -n %libname-devel
-Summary: The librairies for Ext2fs
-Group: Development/C
-Requires:  %libname = %version
-Obsoletes: %{name}-devel
-Provides:  %{name}-devel, libext2fs-devel, libe2fsprogs-devel
+Summary:	The libraries for Ext2fs
+Group:		Development/C
+Requires:	%libname = %version
+Obsoletes:	%{name}-devel
+Provides:	%{name}-devel, libext2fs-devel, libe2fsprogs-devel
 
 %description -n %libname-devel
 The e2fsprogs package contains a number of utilities for creating,
@@ -219,7 +223,11 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
-* Mon Aug 18 2004 Thierry Vignaud <tvignaud@mandrakesoft.com> 1.34-1mdk
+* Sun Nov 30 2003 Vincent Danen <vdanen@opensls.org> 1.34-2sls
+- SLS build
+- tidy spec
+
+* Mon Aug 18 2003 Thierry Vignaud <tvignaud@mandrakesoft.com> 1.34-1mdk
 - new release
 
 * Mon Jul 21 2003 Frederic Lepied <flepied@mandrakesoft.com> 1.33-3mdk
