@@ -1,6 +1,6 @@
 %define name	icewm
 %define version	1.2.13
-%define release 0.3.2sls
+%define release 0.3.3sls
 
 %define theirversion	1.2.13pre3
 %define prefix		/usr/X11R6
@@ -13,7 +13,7 @@ License:	LGPL
 Group:		Graphical desktop/Icewm
 URL:		http://www.icewm.org/
 Source:		http://download.sourceforge.net/icewm/icewm-%{theirversion}.tar.bz2
-Source1:	mandrake.xpm.bz2
+Source1:	opensls.xpm.bz2
 Source2:	themes.tar.bz2
 Source3:	%{name}.menu
 Source4:	%{name}.menu-method
@@ -32,6 +32,8 @@ Patch9:		%{name}-1.2.10pre11-default.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-root
 BuildRequires:	XFree86, autoconf2.5, gettext, libpcap-devel, xpm-devel
+
+Requires:	xterm
 
 %description
 Window Manager for X Window System. Can emulate the look of Windows'95, OS/2
@@ -55,10 +57,10 @@ autoconf
 
 #perl -pi -e "s|charset=952|charset=ISO-8895-2|" po/hu.po
 #perl -pi -e "s|charset=iso8859-1|charset=ISO-8895-1|" po/fr.po
-#perl -pi -e "s|icewm.xpm|mandrake.xpm|" src/wmtaskbar.cc
+#perl -pi -e "s|icewm.xpm|opensls.xpm|" src/wmtaskbar.cc
 
 %build
-bzcat %{SOURCE1} > lib/taskbar/mandrake.xpm
+bzcat %{SOURCE1} > lib/taskbar/opensls.xpm
 
 CXXFLAGS="$RPM_OPT_FLAGS" %configure --sysconfdir=/etc \
 --disable-debug --enable-i18n --enable-nls --disable-guievents \
@@ -67,7 +69,7 @@ CXXFLAGS="$RPM_OPT_FLAGS" %configure --sysconfdir=/etc \
 
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 make install \
 	BINDIR=$RPM_BUILD_ROOT%{prefix}/bin \
 	LIBDIR=$RPM_BUILD_ROOT%{prefix}/lib/X11/%{name} \
@@ -130,7 +132,7 @@ cat %{name}.lang >> other.list
 perl -pi -e "s#\# DesktopBackgroundColor=.*#DesktopBackgroundColor=\"\"#" %buildroot/%prefix/lib/X11/icewm/preferences
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %{__rm} -rf /usr/X11R6/lib/X11/icewm/themes/tile
 
@@ -169,6 +171,12 @@ rm -rf $RPM_BUILD_ROOT
 %{_liconsdir}/%{name}.png
 
 %changelog
+* Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 1.2.13-0.3.3sls
+- minor spec cleanups
+- update menu to include xterm
+- we ship one GUI app: xterm, so let's Require it (can't do much without it)
+- make an OpenSLS xpm for the start button
+
 * Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 1.2.13-0.3.2sls
 - OpenSLS build
 - tidy spec
