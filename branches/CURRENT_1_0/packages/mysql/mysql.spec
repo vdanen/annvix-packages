@@ -1,5 +1,5 @@
 %define name	MySQL
-%define version	4.0.21
+%define version	4.0.23
 %define release	1avx
 
 %define major		12
@@ -624,6 +624,9 @@ fi
 %config(noreplace) %{_sysconfdir}/sysconfig/mysqld
 
 %changelog
+* Wed Jan 05 2005 Vincent Danen <vdanen@annvix.org> 4.0.23-1avx
+- 4.0.23
+
 * Fri Oct 22 2004 Vincent Danen <vdanen@annvix.org> 4.0.21-1avx
 - 4.0.21
 - updated manual-split package
