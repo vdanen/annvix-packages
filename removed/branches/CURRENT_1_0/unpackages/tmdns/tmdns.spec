@@ -1,28 +1,31 @@
-%define name tmdns
-%define version 0.1
-%define release 12mdk
-%define _prefix /
+%define name	tmdns
+%define version	0.1
+%define release	13sls
 
-Summary: A Multicast DNS Responder for Linux
-Name: %{name}
-Version: %{version}
-Release: %{release}
-Source0: %{name}-%{version}.tar.bz2
-Source1: tmdns.services
-Source2: tmdns.init
-Source3: update-resolvrdv
-Patch1: tmdns-0.1-paths.patch.bz2
-patch2: tmdns-0.1-local.patch.bz2
-Patch3: tmdns-0.1-libresolv.patch.bz2
-Patch4: tmdns-0.1-64bit-fixes.patch.bz2
-License: GPL
-Group: System/Servers
+%define _prefix	/
+
+Summary:	A Multicast DNS Responder for Linux
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+URL:		http://zeroconf.sourceforge.net/
+Group:		System/Servers
+Source0:	%{name}-%{version}.tar.bz2
+Source1:	tmdns.services
+Source2:	tmdns.init
+Source3:	update-resolvrdv
+Patch1:		tmdns-0.1-paths.patch.bz2
+patch2:		tmdns-0.1-local.patch.bz2
+Patch3:		tmdns-0.1-libresolv.patch.bz2
+Patch4:		tmdns-0.1-64bit-fixes.patch.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-buildroot
 BuildRequires:	autoconf2.5, automake1.7
-BuildRoot: %{_tmppath}/%{name}-buildroot
-Prefix: %{_prefix}
-Url: http://zeroconf.sourceforge.net/
-PreReq: rpm-helper
-Conflicts: bind
+
+Prefix:		%{_prefix}
+PreReq:		rpm-helper
+Conflicts:	bind
 
 %description
 Tmdns is tiny/trivial Multicast DNS Responder for Linux. It should
@@ -69,6 +72,10 @@ rm -rf $RPM_BUILD_ROOT
 /sbin/*
 
 %changelog
+* Sat Dec 13 2003 Vincent Danen <vdanen@opensls.org> 0.1-13sls
+- OpenSLS build
+- tidy spec
+
 * Tue Aug 19 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 0.1-12mdk
 - Patch3: Fix detection of libresolv on AMD64
 - Patch4: Some 64-bit fixes through code inspection

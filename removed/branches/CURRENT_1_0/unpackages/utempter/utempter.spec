@@ -1,23 +1,27 @@
-%define name utempter
+%define name	utempter
+%define version	0.5.2
+%define release	13sls
 
 %define major		0
 %define lib_name_orig	%mklibname utempter
 %define lib_name	%{lib_name_orig}%{major}
 
 
-Summary: Priviledged helper for utmp/wtmp updates
-Name: %name
-Version: 0.5.2
-Release: 12mdk
-License: GPL
-Group: System/Libraries
-URL: 	http://www.redhat.com
-Source: %{name}-%{version}.tar.bz2
-Patch0: utempter-0.5.2-makevars.patch.bz2
-Patch1: utempter-0.5.2-biarch-utmp.patch.bz2
-Prereq: /usr/sbin/groupadd, /sbin/ldconfig, fileutils
-BuildRoot: %{_tmppath}/%{name}-root
-Requires: %{lib_name} = %{version}
+Summary:	Priviledged helper for utmp/wtmp updates
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		System/Libraries
+URL:		http://www.redhat.com
+Source:		%{name}-%{version}.tar.bz2
+Patch0:		utempter-0.5.2-makevars.patch.bz2
+Patch1:		utempter-0.5.2-biarch-utmp.patch.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-root
+
+Prereq:		/usr/sbin/groupadd, /sbin/ldconfig, fileutils
+Requires:	%{lib_name} = %{version}
 
 %description
 Utempter is a utility which allows some non-privileged programs to
@@ -26,8 +30,8 @@ security. Utempter accomplishes this feat by acting as a buffer
 between root and the programs.
 
 %package -n %{lib_name}
-Summary: Library used by %{name}
-Group: System/Libraries
+Summary:	Library used by %{name}
+Group:		System/Libraries
 
 %description -n %{lib_name}
 Libutempter is an library which allows some non-privileged
@@ -36,10 +40,10 @@ security. It accomplishes this feat by acting as a buffer
 between root and the programs.
 
 %package -n %{lib_name}-devel
-Summary: Devel files for %{name}
-Group: Development/C
-Provides: libutempter-devel %{name}-devel
-Requires: %{lib_name} = %{version}
+Summary:	Devel files for %{name}
+Group:		Development/C
+Provides:	libutempter-devel %{name}-devel
+Requires:	%{lib_name} = %{version}
 
 %description -n %{lib_name}-devel
 Header files for writing apps using libutempter
@@ -86,6 +90,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Dec 08 2003 Vincent Danen <vdanen@opensls.org> 0.5.2-13sls
+- OpenSLS build
+- tidy spec
+
 * Thu Jul 31 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 0.5.2-12mdk
 - mklibname
 

@@ -1,18 +1,24 @@
-%define srcver 4
+%define name	zcip
+%define version	4
+%define release	4sls
 
-Summary: Ad-hoc link-local IP autoconfiguration
-Name: zcip
-Version: 4
-Release: 3mdk
-Source0: %{name}-%{srcver}.tar.bz2
-Patch0: zcip-4-alias.patch.bz2
-Patch1: zcip-4-gcc3.patch.bz2
-License: MIT
-Group: System/Configuration/Networking
-URL: http://zeroconf.sourceforge.net/
-BuildRoot: %{_tmppath}/%{name}-buildroot
-BuildRequires: net-devel = 1.0.2a, libpcap-devel, glibc-static-devel
-Prefix: %{_prefix}
+%define srcver	4
+
+Summary:	Ad-hoc link-local IP autoconfiguration
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	MIT
+Group:		System/Configuration/Networking
+URL:		http://zeroconf.sourceforge.net/
+Source0:	%{name}-%{srcver}.tar.bz2
+Patch0:		zcip-4-alias.patch.bz2
+Patch1:		zcip-4-gcc3.patch.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildRequires:	net-devel = 1.0.2a, libpcap-devel, glibc-static-devel
+
+Prefix:		%{_prefix}
 
 %description
 This is an implementation of the ad-hoc link-local IP autoconfiguration
@@ -45,6 +51,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_localstatedir}/zcip
 
 %changelog
+* Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 4-4sls
+- OpenSLS build
+- tidy spec
+
 * Wed Aug 20 2003 Frederic Lepied <flepied@mandrakesoft.com> 4-3mdk
 - rebuild
 

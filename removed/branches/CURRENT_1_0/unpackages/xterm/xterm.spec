@@ -1,19 +1,24 @@
-Summary:	The standard terminal emulator for the X Window System
-Name:		xterm
-Version:	179
-Release:	1mdk
+%define name	xterm
+%define version	179
+%define release	2sls
 
+Summary:	The standard terminal emulator for the X Window System
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	MIT
+Group:		Terminals
+URL:		http://dickey.his.com/xterm
 Source0:	ftp://dickey.his.com/xterm/%name-%version.tar.bz2
 Source1:	xterm-icons.tar.bz2
 Patch1:		xterm-172-alt-meta-mod.patch.bz2
 Patch2:		xterm-177-biarch-utmp.patch.bz2
-Url:		http://dickey.his.com/xterm
-License:	MIT
-Group:		Terminals
-BuildRequires:	XFree86-devel libtermcap-devel
+
 BuildRoot:	%_tmppath/%name-%version-buildroot
+BuildRequires:	XFree86-devel libtermcap-devel
+
 Conflicts:	XFree86 < 3.3.6-13mdk
-Prereq: /usr/sbin/update-alternatives
+Prereq:		/usr/sbin/update-alternatives
 
 %description
 The XTerm program is the standard terminal emulator for the X Window System. It
@@ -102,6 +107,10 @@ update-alternatives --install /usr/X11R6/bin/xvt xvt /usr/X11R6/bin/xterm 18 || 
 %_iconsdir/mini/xterm-terminal.png
 
 %changelog
+* Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 179-2sls
+- OpenSLS build
+- tidy spec
+
 * Wed Jul 02 2003 Thierry Vignaud <tvignaud@mandrakesoft.com> 179-1mdk
 - new release
 
