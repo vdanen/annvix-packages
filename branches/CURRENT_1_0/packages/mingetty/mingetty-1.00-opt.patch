@@ -4,7 +4,7 @@
  DESTDIR=
  CC=gcc
 -CFLAGS=-O2 -Wall -pipe -D_GNU_SOURCE
-+CFLAGS=$(RPM_OPTS) -Wall -D_GNU_SOURCE
++CFLAGS=$(RPM_OPT_FLAGS) -Wall -D_GNU_SOURCE
  MANDIR=/usr/man/man8
  SBINDIR=/sbin
  

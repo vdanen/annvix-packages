@@ -1,16 +1,17 @@
 %define name	mingetty
 %define version	1.00
-%define release	3mdk
+%define release	4sls
 
 Summary: 	A compact getty program for virtual consoles only.
-Name: 		%name
-Version: 	%version
-Release: 	%release
-Group: 		System/Base
+Name: 		%{name}
+Version: 	%{version}
+Release: 	%{release}
 License: 	GPL
+Group: 		System/Base
+URL:		ftp://jurix.jura.uni-sb.de/pub/linux/source/system/daemon/
 Source0: 	ftp://jurix.jura.uni-sb.de/pub/linux/source/system/daemons/%{name}-%{version}.tar.bz2
-Url:		ftp://jurix.jura.uni-sb.de/pub/linux/source/system/daemon/
 Patch0:		mingetty-1.00-opt.patch.bz2
+
 BuildRoot: 	%{_tmppath}/%{name}-root
 
 %description
@@ -42,6 +43,11 @@ rm -rf %buildroot
 %{_mandir}/man8/*
 
 %changelog
+* Mon Dec 01 2003 Vincent Danen <vdanen@opensls.org> 1.00-4sls
+- OpenSLS build
+- tidy spec
+- regen P0 to use RPM_OPT_FLAGS and not RPM_OPTS
+
 * Tue Apr  8 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 1.00-3mdk
 - Rebuild to hande biarch struct utmp
 
