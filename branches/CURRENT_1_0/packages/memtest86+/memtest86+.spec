@@ -1,6 +1,6 @@
 %define name	memtest86+
-%define version	1.11
-%define release	3sls
+%define version	1.15
+%define release	1avx
 
 Summary: 	A stand alone memory test for i386 architecture systems
 Name: 		%{name}
@@ -16,7 +16,7 @@ BuildRoot: 	%{_tmppath}/%{name}-%{version}-root
 BuildRequires: 	dev86
 
 Requires: 	initscripts
-ExclusiveArch: 	%{ix86}
+ExclusiveArch: 	%{ix86} x86_64
 Obsoletes: 	memtest86
 Provides: 	memtest86
 
@@ -55,6 +55,10 @@ install -m755 %{SOURCE1} %{buildroot}%{_datadir}/loader/memtest86
 %{_datadir}/loader/memtest86
 
 %changelog
+* Sat Jun 19 2004 Thomas Backlund <tmb@annvix.org> 1.15-1avx
+- 1.15
+- swith to new name: Annvix / avx
+
 * Sun Apr  8 2004 Thomas Backlund <tmb@iki.fi> 1.11-3sls
 - first OpenSLS specific build
 - tidy spec (vdanen)
