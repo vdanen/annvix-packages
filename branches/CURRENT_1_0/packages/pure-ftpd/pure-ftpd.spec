@@ -1,6 +1,6 @@
 %define name	pure-ftpd
-%define	version 1.0.16b
-%define release 5sls
+%define	version 1.0.18
+%define release 1sls
 
 Summary:	Lightweight, fast and secure FTP server
 Name:		%{name}
@@ -140,7 +140,7 @@ install -m 0755 %{SOURCE5} %{buildroot}%{_srvdir}/pureftpd/log/run
 %doc FAQ THANKS README.Authentication-Modules README.Windows README.Virtual-Users
 %doc README.Debian README README.Contrib README.Configuration-File AUTHORS CONTACT
 %doc HISTORY NEWS README.LDAP README.PGSQL README.MySQL README.Netfilter
-%doc pure-ftpd.png  contrib/pure-vpopauth.pl pureftpd.schema
+%doc pure-ftpd.png  contrib/pure-vpopauth.pl contrib/pure-stat.pl pureftpd.schema
 %config(noreplace) %{_sysconfdir}/%{name}/pure-ftpd.conf
 %config(noreplace) %{_sysconfdir}/%{name}/pureftpd-ldap.conf
 %config(noreplace) %{_sysconfdir}/%{name}/pureftpd-mysql.conf
@@ -196,6 +196,9 @@ done
 %_preun_srv pure-ftpd
 
 %changelog
+* Fri May 07 2004 Vincent Danen <vdanen@opensls.org> 1.0.18-1sls
+- 1.0.18
+
 * Wed Mar 03 2004 Vincent Danen <vdanen@opensls.org> 1.0.16b-5sls
 - pure-config.pl now prints the pure-ftpd commandline instead of executing
   pure-ftpd (better for supervise) (P2)
