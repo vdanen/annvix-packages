@@ -1,0 +1,10 @@
+--- mod_auth_radius.c.orig	2002-08-05 12:51:24.000000000 -0400
++++ mod_auth_radius.c	2002-09-05 08:43:38.000000000 -0400
+@@ -2137,6 +2137,7 @@
+ 	    fclose(fp);
+ 	}
+     }
++    ap_add_version_component(p, "auth_radius/1.7PR1");
+     return OK;
+ }
+ 
