@@ -1,0 +1,44 @@
+diff -urN ppp-2.4.2/pppd/Makefile.linux ppp-2.4.2-modified/pppd/Makefile.linux
+--- ppp-2.4.2/pppd/Makefile.linux	2003-11-27 22:55:19.000000000 +0100
++++ ppp-2.4.2-modified/pppd/Makefile.linux	2004-05-24 13:03:06.854657611 +0200
+@@ -29,10 +29,10 @@
+ include .depend
+ endif
+ 
+-# CC = gcc
++CC = gcc
+ #
+ COPTS = -O2 -pipe -Wall -g
+-LIBS =
++LIBS = -lutil
+ 
+ # Uncomment the next 2 lines to include support for Microsoft's
+ # MS-CHAP authentication protocol.  Also, edit plugins/radius/Makefile.linux.
+@@ -60,7 +60,7 @@
+ USE_TDB=y
+ 
+ HAS_SHADOW=y
+-#USE_PAM=y
++USE_PAM=y
+ #HAVE_INET6=y
+ 
+ # Enable plugins
+@@ -192,16 +192,14 @@
+      CFLAGS += -DMAXOCTETS
+ endif
+ 
+-INSTALL= install -o root
++INSTALL= install
+ 
+ all: $(TARGETS)
+ 
+ install: pppd
+ 	mkdir -p $(BINDIR) $(MANDIR)
+ 	$(EXTRAINSTALL)
+-	$(INSTALL) -s -c -m 555 pppd $(BINDIR)/pppd
+-	if chgrp pppusers $(BINDIR)/pppd 2>/dev/null; then \
+-	  chmod o-rx,u+s $(BINDIR)/pppd; fi
++	$(INSTALL) -m 555 pppd $(BINDIR)/pppd
+ 	$(INSTALL) -c -m 444 pppd.8 $(MANDIR)/man8
+ 
+ pppd: $(PPPDOBJS)
