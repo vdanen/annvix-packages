@@ -1,18 +1,18 @@
 %define module	HTML-Parser
 %define name	perl-%{module}
-%define version 3.31
-%define release 6avx
+%define version 3.45
+%define release 1avx
 
-Summary: 	HTML-Parser module for perl (World_Wide_Web_HTML_HTTP_CGI/HTML)
+Summary: 	Perl module to parse HTML documents
 Name: 		%{name}
 Version: 	%{version}
 Release: 	%{release}
 License: 	GPL or Artistic
 Group: 		Development/Perl
-URL: 		http://www.cpan.org
-Source:		ftp://ftp.cpan.org/pub/perl/CPAN/modules/by-module/HTML/%{module}-%{version}.tar.bz2
+URL: 		http://search.cpan.org/dist/%{module}/
+Source:		ftp://ftp.cpan.org/pub/CPAN/modules/by-module/HTML/%{module}-%{version}.tar.bz2
 
-BuildRoot: 	%{_tmppath}/%{name}-buildroot/
+BuildRoot: 	%{_tmppath}/%{name}-%{version}-buildroot/
 BuildRequires:	perl-devel perl-HTML-Tagset
 
 Requires: 	perl perl-HTML-Tagset >= 3.03
@@ -28,25 +28,29 @@ from HTML documents.
 # compile with default options (prompt() checks for STDIN being a terminal).
 # yes to not ask for automate rebuild
 yes | %{__perl} Makefile.PL INSTALLDIRS=vendor
-%make OPTIMIZE="$RPM_OPT_FLAGS"
+%make OPTIMIZE="%{optflags}"
 make test
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
-%clean 
+%clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
 %doc README TODO Changes
 %{_mandir}/*/*
-%{perl_vendorarch}/auto/HTML/Parser
-%{perl_vendorarch}/HTML/*
+%{perl_vendorarch}/auto/*
+%{perl_vendorarch}/HTML
 
 
 %changelog
+* Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> 3.45-1avx
+- 3.45
+- own dirs (thauvin)
+
 * Wed Feb 02 2005 Vincent Danen <vdanen@annvix.org> 3.31-6avx
 - rebuild against new perl
 
