@@ -1,8 +1,10 @@
 %define name	rpmtools
-%define version	4.5
-%define release 17avx
+%define version	5.0.9
+%define release 1avx
 
 %{expand:%%define rpm_version %(rpm -q --queryformat '%{VERSION}-%{RELEASE}' rpm)}
+# perl-Compress-Zlib is only "suggested"
+%define _requires_exceptions perl(Compress::Zlib)
 
 Summary:	Contains various rpm command-line tools
 Name:		%{name}
@@ -16,7 +18,7 @@ URL:		http://cvs.mandrakesoft.com/cgi-bin/cvsweb.cgi/soft/rpmtools
 Source0:	%{name}-%{version}.tar.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-buildroot
-BuildRequires:	bzip2-devel gcc perl-devel rpm-devel >= 4.0
+BuildRequires:	bzip2-devel gcc perl-devel rpm-devel >= 4.0.3 perl-Compress-Zlib
 
 Requires:	rpm >= %{rpm_version} bzip2 >= 1.0 perl-URPM >= 0.50-2mdk perl-base >= 5.8.4
 Conflicts:	rpmtools-compat <= 2.0 rpmtools-devel <= 2.0
@@ -29,18 +31,13 @@ Various tools needed by urpmi and drakxtools for handling rpm files.
 %setup -q
 
 %build
-(
-  cd packdrake-pm ;
-  %{__perl} Makefile.PL INSTALLDIRS=vendor
-  %{make} OPTIMIZE="$RPM_OPT_FLAGS"
-)
-%{make} CFLAGS="$RPM_OPT_FLAGS -DRPM_42"
+%{__perl} Makefile.PL INSTALLDIRS=vendor
+%make OPTIMIZE="%{optflags}"
+%make test
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-%{make} install PREFIX=$RPM_BUILD_ROOT
-%{makeinstall_std} -C packdrake-pm
-rm -f $RPM_BUILD_ROOT%{perl_archlib}/perllocal.pod
+%makeinstall_std
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -51,12 +48,20 @@ rm -f $RPM_BUILD_ROOT%{perl_archlib}/perllocal.pod
 %{_bindir}/parsehdlist
 %{_bindir}/rpm2header
 %{_bindir}/gendistrib
-%{_bindir}/distriblint
 %{_bindir}/genhdlist
+%{_bindir}/rpm2cpio.pl
 %{perl_vendorlib}/packdrake.pm
+%{perl_vendorlib}/Packdrakeng.pm
+%{perl_vendorlib}/Packdrakeng/zlib.pm
 %{_mandir}/*/*
 
 %changelog
+* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 4.5-17avx
+- 5.0.9 (sync with 1mdk):
+  - add rpm2cpio.pl
+  - BuildRequires: perl-Compress-Zlib
+  - drop the requirement on Compress::Zlib for packdrake
+
 * Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 4.5-17avx
 - Annvix build
 
