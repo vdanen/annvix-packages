@@ -1,0 +1,29 @@
+#!/bin/sh
+#
+# Check Apache 1.3 config file sanity.
+# 
+# Source function library for gprintf.
+. /etc/rc.d/init.d/functions
+
+COMPAT=/usr/share/ADVX/compat
+CONF=/etc/httpd/conf
+
+   if [ ! -e $CONF/httpd-perl.conf -a -e $CONF/httpd-perl.conf.rpmsave ];then
+    gprintf "Recreating httpd-perl.conf from backup file\n"
+    mv $CONF/httpd-perl.conf.rpmsave $CONF/httpd-perl.conf
+   fi
+   if [ ! -e  $CONF/httpd-perl.conf -a -e $COMPAT/httpd-perl.conf ];then
+    gprintf "Recreating httpd-perl.conf from compat file\n"
+    rm -f $CONF/httpd-perl.conf
+    cp $COMPAT/httpd-perl.conf $CONF/httpd-perl.conf
+   fi
+   if [ ! -e  $CONF/httpd.conf -a -e $CONF/httpd.conf.rpmsave ];then
+    gprintf "Recreating httpd.conf from backup file\n"
+    rm -f $CONF/httpd.conf
+    mv $CONF/httpd.conf.rpmsave $CONF/httpd.conf
+   fi
+   if [ ! -e  $CONF/httpd.conf -a -e $COMPAT/httpd.conf ];then
+    gprintf "Recreating httpd.conf from compat file\n"
+    rm -f $CONF/httpd.conf
+    cp $COMPAT/httpd.conf $CONF/httpd.conf
+   fi
