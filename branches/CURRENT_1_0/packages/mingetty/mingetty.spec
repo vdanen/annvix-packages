@@ -1,6 +1,6 @@
 %define name	mingetty
-%define version	1.00
-%define release	5sls
+%define version	1.06
+%define release	1sls
 
 Summary: 	A compact getty program for virtual consoles only.
 Name: 		%{name}
@@ -43,6 +43,9 @@ install -m 0644 mingetty.8 %buildroot/%{_mandir}/man8/
 %{_mandir}/man8/*
 
 %changelog
+* Mon Mar 15 2004 Vincent Danen <vdanen@opensls.org> 1.06-1sls
+- 1.06
+
 * Sat Mar 06 2004 Vincent Danen <vdanen@opensls.org> 1.00-5sls
 - minor spec cleanups
 
