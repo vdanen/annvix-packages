@@ -1,5 +1,5 @@
---- rpm-4.2/platform.in.opensls	2004-01-27 10:53:15.000000000 -0700
-+++ rpm-4.2/platform.in	2004-01-27 10:55:31.000000000 -0700
+--- rpm-4.2/platform.in.opensls	2004-01-31 16:55:37.000000000 -0700
++++ rpm-4.2/platform.in	2004-01-31 16:56:30.000000000 -0700
 @@ -217,7 +217,7 @@
  @mandrake@%{nil}
  @mandrake@
@@ -9,7 +9,7 @@
  @mandrake@%{nil}
  @mandrake@
  @mandrake@%_del_user_helper /usr/share/rpm-helper/del-user
-@@ -239,3 +239,29 @@
+@@ -239,3 +239,32 @@
  @mandrake@%_del_shell_helper /usr/share/rpm-helper/del-shell
  @mandrake@%_preun_shelldel() %_del_shell_helper %{name} $1 \
  @mandrake@%{nil}
@@ -37,5 +37,8 @@
 +@mandrake@
 +@mandrake@%_del_srv_helper /usr/share/rpm-helper/del-srv
 +@mandrake@%_preun_srv() %_del_srv_helper %{name} $1 %{1} \
++@mandrake@%{nil}
++@mandrake@
++@mandrake@%_mkafterboot	if [[ -f %{_datadir}/afterboot/mkafterboot ]]; then %{_datadir}/afterboot/mkafterboot; fi \
 +@mandrake@%{nil}
 +@mandrake@

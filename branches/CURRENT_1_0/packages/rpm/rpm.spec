@@ -3,7 +3,7 @@
 %define poptver		1.8
 # You need increase both release and poptrelease
 %define poptrelease	%{release}
-%define release		27sls
+%define release		28sls
 
 %define url		ftp://ftp.rpm.org/pub/rpm/dist/rpm-4.0.x
 %define pyver		%(python -V 2>&1 | cut -f2 -d" " | cut -f1,2 -d".")
@@ -639,6 +639,9 @@ fi
 %{_includedir}/popt.h
 
 %changelog
+* Sat Jan 31 2004 Vincent Danen <vdanen@opensls.org> 4.2-28sls
+- update P54 for new macro: %%_mkafterboot
+
 * Tue Jan 27 2004 Vincent Danen <vdanen@opensls.org> 4.2-27sls
 - update P54 for new macros: %%_post_srv and %%_preun_srv to manage
   supervise-controlled services
