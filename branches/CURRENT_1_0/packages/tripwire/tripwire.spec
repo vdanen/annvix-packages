@@ -1,6 +1,6 @@
 %define name	tripwire
 %define version	2.3.1.2
-%define release	11avx
+%define release	12avx
 
 %define ext	2
 
@@ -28,7 +28,7 @@ Patch5:		tripwire-2.3.1-2-gcc-3.3.patch.bz2
 Patch6:		tripwire-2.3.1-format.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-root
-Buildrequires:	gcc-c++, libstdc++
+Buildrequires:	gcc-c++, libstdc++, libstdc++-static-devel, glibc-static-devel
 
 Requires:	sed, grep >= 2.3, gzip, tar, gawk
 # Tripwire is NOT 64bit clean, nor endian clean, and only works properly
@@ -138,6 +138,9 @@ chmod 644 README Release_Notes ChangeLog COPYING policy/policyguide.txt TRADEMAR
 %attr(0755,root,root) %{_sbindir}/*
 
 %changelog
+* Mon Jul 05 2004 Vincent Danen <vdanen@annvix.org> 2.3.1.2-12avx
+- BuildRequires: libstdc++-static-devel, glibc-static-devel
+
 * Sat Jun 19 2004 Vincent Danen <vdanen@annvix.org> 2.3.1.2-11avx
 - Annvix build
 
