@@ -1,8 +1,8 @@
-# $Id: setup.spec,v 1.8 2004/11/12 16:47:34 vdanen Exp $
+# $Id: setup.spec,v 1.9 2005/03/03 16:58:38 vdanen Exp $
 
 %define name	setup
 %define version 2.4
-%define release 15avx
+%define release 16avx
 
 Summary:	A set of system configuration and setup files
 Name:		%{name}
@@ -32,7 +32,7 @@ administration.
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-make install RPM_BUILD_ROOT=%buildroot mandir=%_mandir
+make install RPM_BUILD_ROOT=%{buildroot} mandir=%{_mandir}
 
 rm -rf %{buildroot}%{_datadir}/base-passwd %{buildroot}%{_sbindir}
 rm -f  `find %{buildroot}%{_mandir} -name 'update-passwd*'`
@@ -47,14 +47,14 @@ mkdir -p %{buildroot}/var/lib/rsbac
 %verify(not md5 size mtime) %config(noreplace) /etc/passwd
 %verify(not md5 size mtime) %config(noreplace) /etc/group
 %verify(not md5 size mtime) %attr(0400,root,root) %config(noreplace) /etc/shadow
-%_mandir/man8/*8*
+%{_mandir}/man8/*8*
 # find_lang can't find man pages yet :-(
-%lang(cs) %_mandir/cs/man8/*8*
-%lang(et) %_mandir/et/man8/*8*
-%lang(eu) %_mandir/eu/man8/*8*
-%lang(fr) %_mandir/fr/man8/*8*
-#%lang(ru) %_mandir/ru/man8/*8*
-%lang(uk) %_mandir/uk/man8/*8*
+%lang(cs) %{_mandir}/cs/man8/*8*
+%lang(et) %{_mandir}/et/man8/*8*
+%lang(eu) %{_mandir}/eu/man8/*8*
+%lang(fr) %{_mandir}/fr/man8/*8*
+#%lang(ru) %{_mandir}/ru/man8/*8*
+%lang(uk) %{_mandir}/uk/man8/*8*
 /usr/bin/run-parts
 %config(noreplace) /etc/services
 %config(noreplace) /etc/exports
@@ -85,6 +85,10 @@ if [ -x /usr/sbin/nscd ]; then
 fi
 
 %changelog
+* Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 2.4-16avx
+- add uid/gid 67 for supervise logging (dedicated user is safer than
+  using nobody/nogroup)
+
 * Fri Nov 12 2004 Vincent Danen <vdanen@annvix.org> 2.4-15avx
 - ouch... make sure /etc/shadow is mode 0400
 
