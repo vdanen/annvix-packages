@@ -1,6 +1,6 @@
 %define name	ypserv
 %define version	2.11
-%define release 2avx
+%define release 3avx
 
 Summary:	The NIS (Network Information Service) server
 Name:		%{name}
@@ -117,6 +117,9 @@ install -m 0750 %{SOURCE7} %{buildroot}%{_srvdir}/rpc.ypxfrd/log/run
 %dir %attr(0750,nobody,nogroup) %{_srvlogdir}/rpc.ypxfrd
 
 %changelog
+* Fri Sep 17 2004 Vincent Danen <vdanen@annvix.org> 2.11-3avx
+- update run scripts
+
 * Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 2.11-2avx
 - Annvix build
 
