@@ -1,6 +1,6 @@
 %define name	apache-conf
 %define version	2.0.49
-%define release	6avx
+%define release	7avx
 
 # OE: conditional switches
 #(ie. use with rpm --rebuild):
@@ -204,10 +204,10 @@ cat > %{buildroot}%{_sysconfdir}/logrotate.d/%{name} << EOF
     missingok
     nocompress
     prerotate
-	[[ -d /service/apache ]] && svc -h /service/apache; [[ -d /service/apache2 ]] && svc -h /service/apache2
+	[[ -d /service/httpd2 ]] && runsvctrl h /service/httpd2 >/dev/null 2>&1
     endscript
     postrotate
-	[[ -d /service/apache ]] && svc -h /service/apache; [[ -d /service/apache2 ]] && svc -h /service/apache2
+	[[ -d /service/httpd2 ]] && runsvctrl h /service/httpd2 >/dev/null 2>&1
     endscript
 }
 EOF
@@ -301,6 +301,9 @@ fi
 %attr(1333,apache,apache) %dir /var/apache-mm
 
 %changelog
+* Fri Sep 17 2004 Vincent Danen <vdanen@annvix.org> 2.0.49-7avx
+- update logrotate script
+
 * Tue Sep 14 2004 Vincent Danen <vdanen@annvix.org> 2.0.49-6avx
 - by default, set ServerTokens to Prod (from Full) and ServerSignature
   to Off (from On)
