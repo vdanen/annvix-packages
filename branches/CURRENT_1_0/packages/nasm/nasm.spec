@@ -1,35 +1,43 @@
+%define name	nasm
+%define version	0.98.35
+%define release	3sls
+
+%{!?build_opensls:%global build_opensls 0}
+
 Summary:	The Netwide Assembler, a portable x86 assembler with Intel-like syntax
-Name:		nasm
-Version:	0.98.35
-Release:	2mdk
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
 License:	LGPL
 Group:		Development/Other
-
+URL:		http://nasm.2y.net
 Source:		%{name}-%{version}.tar.bz2
 
-URL:		http://nasm.2y.net
 BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildRequires:	groff, texinfo
+%if !%{build_opensls}
 BuildRequires:	ghostscript
-BuildRequires:	groff
-BuildRequires:	texinfo
-
-%package doc
-Summary:	Extensive documentation for NASM
-Group:		Books/Computer books
-Prereq:		/sbin/install-info
-
-%package rdoff
-Summary:	Tools for the RDOFF binary format, sometimes used with NASM
-Group:		Development/Other
+%endif
 
 %description
 NASM is the Netwide Assembler, a free portable assembler for the Intel
 80x86 microprocessor series, using primarily the traditional Intel
 instruction mnemonics and syntax.
 
+%if !%{build_opensls}
+%package doc
+Summary:	Extensive documentation for NASM
+Group:		Books/Computer books
+Prereq:		/sbin/install-info
+
 %description doc
 Extensive documentation for the Netwide Assembler, NASM, in HTML,
 PostScript, RTF and text formats.
+%endif
+
+%package rdoff
+Summary:	Tools for the RDOFF binary format, sometimes used with NASM
+Group:		Development/Other
 
 %description rdoff
 Tools for the operating-system independent RDOFF binary format, which
@@ -43,26 +51,35 @@ include linker, library manager, loader, and information dump.
 %build
 rm -f config.cache config.status config.log
 %configure
+%if %{build_opensls}
+%make
+%make rdf
+%else
 %make everything
+%endif
 
 %install
 rm -rf $RPM_BUILD_ROOT
 mkdir -p $RPM_BUILD_ROOT/{%{_bindir},%{_infodir},%{_mandir}/man1}
 %makeinstall install_rdf
+%if !%{build_opensls}
 cd doc
 install info/* $RPM_BUILD_ROOT/%{_infodir}/
 bzip2 -9f nasmdoc*.txt nasmdoc*.ps||true
 cd html
 ln -sf nasmdoc0.html index.html
+%endif
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
+%if !%{build_opensls}
 %post
 %_install_info nasm.info
 
 %preun
 %_remove_install_info nasm.info
+%endif
 
 %files
 %defattr(-,root,root)
@@ -71,11 +88,15 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/ndisasm
 %{_mandir}/man1/nasm.1*
 %{_mandir}/man1/ndisasm.1*
+%if !%{build_opensls}
 %{_infodir}/nasm.info*
+%endif
 
+%if !%{build_opensls}
 %files doc
 %defattr(-,root,root)
 %doc doc/nasmdoc.ps.bz2 doc/nasmdoc.txt.bz2 doc/nasmdoc.rtf doc/html
+%endif
 
 %files rdoff
 %defattr(-,root,root)
@@ -89,6 +110,11 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/rdf2com
 
 %changelog
+* Wed Dec 17 2003 Vincent Danen <vdanen@opensls.org> 0.98.35-3sls
+- OpenSLS build
+- tidy spec
+- use %%build_opensls to not build -doc pkg
+
 * Mon Jul 21 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 0.98.35-2mdk
 - rebuild
 
