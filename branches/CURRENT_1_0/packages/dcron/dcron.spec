@@ -1,6 +1,6 @@
 %define	name	dcron
 %define	version	2.9
-%define	release	4sls
+%define	release	5sls
 
 Summary:	Dillon's Cron Daemon
 Name:		%{name}
@@ -96,6 +96,10 @@ fi
 %dir %attr(0750,nobody,nogroup) %{_srvlogdir}/crond
 
 %changelog
+* Tue Mar 23 2004 Vincent Danen <vdanen@opensls.org> 2.9-5sls
+- default root crontab can't start with "root" because dcron handles things
+  differently than vixie-cron
+
 * Thu Mar 04 2004 Vincent Danen <vdanen@opensls.org> 2.9-4sls
 - supervise macros
 
