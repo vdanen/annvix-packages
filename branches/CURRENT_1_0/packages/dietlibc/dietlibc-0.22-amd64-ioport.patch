@@ -1,0 +1,11 @@
+--- dietlibc-0.22/include/sys/io.h.amd64-ioport	2001-09-14 20:23:14.000000000 +0200
++++ dietlibc-0.22/include/sys/io.h	2003-10-29 17:27:33.000000000 +0100
+@@ -8,7 +8,7 @@ extern int iopl(int level) __THROW;
+ 
+ #ifndef __STRICT_ANSI__
+ /* anyone have a cleaner solution for this mess? */
+-#ifdef __i386__
++#if defined(__i386__) || defined(__x86_64__)
+ static inline unsigned char inb (unsigned short int port) {
+   unsigned char _v;
+   __asm__ __volatile__ ("inb %w1,%0":"=a" (_v):"Nd" (port));
