@@ -1,6 +1,6 @@
 %define name	dietlibc
 %define version 0.27
-%define release 1avx
+%define release 2avx
 
 # This is eventually a biarch package, so no %_lib for diethome
 %define diethome	%{_prefix}/lib/dietlibc
@@ -130,6 +130,9 @@ make DESTDIR=%{buildroot} install
 %{_mandir}/man*/*
 
 %changelog
+* Thu Jan 20 2005 Vincent Danen <vdanen@annvix.org> 0.27-2avx
+- some fixes
+
 * Thu Jan 20 2005 Vincent Danen <vdanen@annvix.org> 0.27-1avx
 - 0.27
 - re-order patches to match mdk package
