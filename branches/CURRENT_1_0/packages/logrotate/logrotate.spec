@@ -1,6 +1,6 @@
 %define name	logrotate
-%define version	3.7
-%define release	2avx
+%define version	3.7.1
+%define release	1avx
 
 Summary:	Rotates, compresses, and mails system logs
 Name:		%{name}
@@ -25,21 +25,20 @@ weekly, monthly, or when it grows too large.
 %setup -q
 
 %build
-%make RPM_OPT_FLAGS="$RPM_OPT_FLAGS"
-#WITH_SELINUX=yes
+%make RPM_OPT_FLAGS="%{optflags}"
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-make PREFIX=$RPM_BUILD_ROOT MANDIR=%{_mandir} install
-mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/%{name}.d
-mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/cron.daily
+make PREFIX=%{buildroot} MANDIR=%{_mandir} install
+mkdir -p %{buildroot}%{_sysconfdir}/%{name}.d
+mkdir -p %{buildroot}%{_sysconfdir}/cron.daily
 mkdir -p %{buildroot}/var/lib
 
-bzcat %{SOURCE1} > $RPM_BUILD_ROOT%{_sysconfdir}/%{name}.conf
-chmod 644 $RPM_BUILD_ROOT%{_sysconfdir}/%{name}.conf
+bzcat %{SOURCE1} > %{buildroot}%{_sysconfdir}/%{name}.conf
+chmod 644 %{buildroot}%{_sysconfdir}/%{name}.conf
 
-install -m 755 examples/%{name}.cron $RPM_BUILD_ROOT%{_sysconfdir}/cron.daily/%{name}
+install -m 755 examples/%{name}.cron %{buildroot}%{_sysconfdir}/cron.daily/%{name}
 
 touch %{buildroot}/var/lib/logrotate.status
 
@@ -57,6 +56,9 @@ touch %{buildroot}/var/lib/logrotate.status
 %attr(0644, root, root) %verify(not size md5 mtime) %config(noreplace) /var/lib/logrotate.status
 
 %changelog
+* Fri Dec 03 2004 Vincent Danen <vdanen@annvix.org> 3.7.1-1avx
+- 3.7.1
+
 * Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 3.7-2avx
 - Annvix build
 
