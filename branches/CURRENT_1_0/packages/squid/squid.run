@@ -6,7 +6,7 @@ PATH="/sbin:/usr/sbin:/bin:/usr/bin:$PATH"
 if [ -f /etc/sysconfig/squid ]; then
   . /etc/sysconfig/squid
 else
-  SQUID_OPTS="-D -N"
+  SQUID_OPTS="-D"
   SQUID_SHUTDOWN_TIMEOUT=100
 fi
 
@@ -26,4 +26,4 @@ trap '/usr/sbin/squid -k >/dev/null; /usr/sbin/squid -k shutdown >/dev/null' 0
 trap 'exit 2' 1 2 3 15
 
 exec 2>&1
-exec /usr/sbin/squid $SQUID_OPTS
+exec /usr/sbin/squid $SQUID_OPTS -N

@@ -1,6 +1,6 @@
 %define name	squid
 %define version	2.5.STABLE5
-%define release	1sls
+%define release	2sls
 
 %define their_version	2.5.STABLE5
 %define p_url   http://www.squid-cache.org/Versions/v2/2.5/bugs
@@ -20,7 +20,6 @@ License:	GPL
 Group:		System/Servers
 URL:		http://www.squid-cache.org
 Source:		ftp.squid-cache.org:/pub/squid-2/STABLE/%{name}-%{their_version}.tar.bz2
-Source2:	squid.init.bz2
 Source3:	squid.logrotate.bz2
 Source4:	squid.conf.authenticate.bz2
 Source5:	smb.conf.bz2
@@ -32,10 +31,26 @@ Source10:	squid-2.5-samba-2.2.7-winbindd_nss.h.bz2
 Source11:	squid.run
 Source12:	squid-log.run
 Source13:	squid.stop
+Source14:	squid.sysconfig.bz2
 Patch0:		squid-2.5.STABLE2-make.patch.bz2
 Patch1:		squid-2.5-config.patch.bz2
 Patch2:		squid-2.5.STABLE3-user_group.patch.bz2
 Patch3:		squid-2.5.STABLE2-ssl.patch.bz2
+Patch4:		squid-2.5.STABLE5-pipe.patch.bz2
+Patch5:		squid-2.5.STABLE5-warning.patch.bz2
+Patch100:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE5-post_assert.patch.bz2
+Patch101:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE5-digest_blank.patch.bz2
+Patch102:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE5-rfc1035NameUnpack.patch.bz2
+Patch103:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE5-ntlm_assert.patch.bz2
+Patch104:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE5-ldap.patch.bz2
+Patch105:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE5-helper_warning.patch.bz2
+Patch106:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE5-pkgconfig.patch.bz2
+Patch107:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE5-vary.patch.bz2
+Patch108:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE5-lin22_poll.patch.bz2
+Patch109:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE5-version.patch.bz2
+Patch110:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE5-deny_info.patch.bz2
+Patch111:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE5-CONNECT_timeout.patch.bz2
+Patch112:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE5-cache_swap_log.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-root
 BuildRequires:	openldap-devel libsasl-devel openssl-devel >= 0.9.7 pam-devel
@@ -63,6 +78,21 @@ Install squid if you need a proxy caching server.
 %patch2 -p1
 %patch0 -p1
 %patch3 -p1 -b .ssl
+%patch4 -p1 -b .pipe
+%patch5 -p1 -b .warning
+%patch100 -p1
+%patch101 -p1
+%patch102 -p1
+%patch103 -p1
+%patch104 -p1
+%patch105 -p1
+%patch106 -p1
+%patch107 -p1
+%patch108 -p1
+%patch109 -p1
+%patch110 -p1
+%patch111 -p1
+%patch112 -p1
 
 bzcat %{SOURCE10} > helpers/basic_auth/winbind/winbindd_nss.h
 bzcat %{SOURCE10} > helpers/ntlm_auth/winbind/winbindd_nss.h
@@ -76,17 +106,32 @@ perl -p -i -e "s|^icondir.*|icondir = \\$\(libexecdir\)/icons|" icons/Makefile.a
 
 grep -r "local/bin/perl" %{_builddir} |sed -e "s/:.*$//g" | xargs perl -p -i -e "s@local/bin/perl@bin/perl@g"
 
-%configure --enable-poll --enable-snmp --enable-removal-policies="heap,lru" \
-	--enable-useragent-log --enable-carp --enable-async-io \
-	--enable-storeio="aufs,coss,diskd,ufs,null" --enable-htcp \
-	--enable-delay-pools --enable-linux-netfilter --with-pthreads \
+%configure \
+	--enable-poll \
+	--enable-snmp \
+	--enable-removal-policies="heap,lru" \
+	--enable-storeio="aufs,coss,diskd,ufs,null" \
+	--enable-useragent-log \
+	--enable-referer-log \
+	--enable-cachemgr-hostname=localhost \
+	--enable-truncate \
+	--enable-underscores \
+	--enable-carp \
+	--enable-async-io \
+	--enable-htcp \
+	--enable-delay-pools \
+	--enable-linux-netfilter \
 	--enable-ssl \
+	--enable-arp-acl \
 	--enable-auth="basic,digest,ntlm" \
 	--enable-basic-auth-helpers="winbind,multi-domain-NTLM,getpwnam,YP,SMB,PAM,NCSA,MSNT,LDAP" \
 	--enable-ntlm-auth-helpers="SMB,fakeauth,no_check,winbind" \
 	--enable-digest-auth-helpers="password" \
-  --enable-external-acl-helpers="winbind_group"
-#	--enable-auth-modules="LDAP,YP,NCSA,PAM,SASL,SMB,getpwnam,winbind,MSNT,multi-domain-NTLM"  # --enable-icmp
+	--enable-external-acl-helpers="ip_user,ldap_group,unix_group,wbinfo_group,winbind_group" \
+	--with-pthreads \
+	--with-winbind-auth-challenge \
+	--disable-dependency-tracking \
+	--disable-ident-lookups
 
 # Some versions of autoconf fail to detect sys/resource.h correctly;
 # apparently because it generates a compiler warning.
@@ -100,6 +145,7 @@ cat >>include/autoconf.h <<EOF
 EOF
 fi
 
+# move the errors files
 grep -r errors * |grep share | sed -e "s/:.*$//g" | xargs perl -p -i -e "s|usr/share/errors|usr/lib/squid/errors|g" 
 grep -r iconsdir * |grep share | sed -e "s/:.*$//g" | xargs perl -p -i -e "s|usr/share/errors|usr/lib/squid/errors|g" 
 
@@ -127,25 +173,25 @@ ln -fs %{_libexecdir}/errors/English %{buildroot}%{_sysconfdir}/errors
 mkdir -p %{buildroot}%{_srvdir}/squid/log
 mkdir -p %{buildroot}%{_srvlogdir}/squid
 mkdir -p %{buildroot}%{_sysconfdir}/
-mkdir -p %{buildroot}/etc/{logrotate.d,pam.d}
+mkdir -p %{buildroot}/etc/{logrotate.d,pam.d,sysconfig}
 
 install -m 0755 %{SOURCE11} %{buildroot}%{_srvdir}/squid/run
 install -m 0755 %{SOURCE12} %{buildroot}%{_srvdir}/squid/log/run
 #install -m 0755 %{SOURCE13} %{buildroot}%{_srvdir}/squid/stop
 bzcat %{SOURCE3} > %{buildroot}/etc/logrotate.d/squid
+bzcat %{SOURCE14} > %{buildroot}/etc/sysconfig/squid
 
 cp %{_builddir}/%{name}-%{their_version}/helpers/basic_auth/SMB/smb_auth.sh $RPM_BUILD_ROOT/%{_libexecdir}
-#cp %{_builddir}/%{name}-%{their_version}/helpers/basic_auth/SASL/sasl_auth $RPM_BUILD_ROOT/%{_libexecdir}
-#cp %{_builddir}/%{name}-%{their_version}/helpers/basic_auth/SASL/squid_sasl_auth $RPM_BUILD_ROOT/%{_sysconfdir}
-#cp %{_builddir}/%{name}-%{their_version}/helpers/basic_auth/SASL/squid_sasl_auth.conf %{buildroot}%{_sysconfdir}
+cp %{_builddir}/%{name}-%{their_version}/helpers/basic_auth/SASL/squid_sasl_auth $RPM_BUILD_ROOT/%{_libexecdir}
 cp %{_builddir}/%{name}-%{their_version}/helpers/basic_auth/MSNT/msntauth.conf.default %{buildroot}%{_sysconfdir}
-#perl -p -i -e 's|use Authen::Smb|use Authen::Smb::Smb|' $RPM_BUILD_ROOT/%{_libexecdir}/smb_auth.pl
 
 cp ../helpers/basic_auth/LDAP/README %{_builddir}/%{name}-%{their_version}/README.auth_ldap
 mkdir -p %{buildroot}/%{_mandir}/man8
 cp ../helpers/basic_auth/LDAP/*.8 %{buildroot}/%{_mandir}/man8
 cp ../helpers/ntlm_auth/no_check/README.no_check_ntlm_auth %{_builddir}/%{name}-%{their_version}/README.no_check_ntlm_auth
 cp ../helpers/basic_auth/SMB/README %{_builddir}/%{name}-%{their_version}/README.auth_smb
+cp ../helpers/basic_auth/SASL/README %{_builddir}/%{name}-%{their_version}/README.auth_sasl
+cp ../helpers/basic_auth/SASL/squid_sasl_auth.conf %{_builddir}/%{name}-%{their_version}/
 cp ../helpers/basic_auth/MSNT/README.html %{_builddir}/%{name}-%{their_version}/README.auth_msnt.html
 bzcat %{SOURCE4} > %{_builddir}/%{name}-%{their_version}/squid.conf.authenticate
 bzcat %{SOURCE5} > %{_builddir}/%{name}-%{their_version}/smb.conf
@@ -155,7 +201,6 @@ mkdir -p %{buildroot}/%{_libexecdir}/errors/{English,French}
 bzcat %{SOURCE8} > %{buildroot}/%{_libexecdir}/errors/English/ERR_CUSTOM_ACCESS_DENIED
 bzcat %{SOURCE9} > %{buildroot}/%{_libexecdir}/errors/French/ERR_CUSTOM_ACCESS_DENIED
 
-#strip $RPM_BUILD_ROOT/%{_libexecdir}/{msnt_auth,pam_auth,unlinkd,diskd,sasl_auth}
 strip $RPM_BUILD_ROOT/%{_libexecdir}/{msnt_auth,pam_auth,unlinkd,diskd}
 strip $RPM_BUILD_ROOT/%{_libexecdir}/{ncsa_auth,smb_auth,squid_ldap_auth,yp_auth}
 
@@ -173,9 +218,8 @@ mkdir -p %{buildroot}/var/log/squid
 mkdir -p %{buildroot}/var/spool/squid
 
 # some cleaning
-#rm -rf %{buildroot}/etc/%name/squid_sasl_auth
 rm -rf %{buildroot}/%{_libdir}/%name/no_check.pl
-rm -rf %{buildroot}/%{_datadir}/mib.txt
+mv %{buildroot}/%{_datadir}/mib.txt %{_builddir}/%{name}-%{their_version}
 rm -rf %{buildroot}/%{_datadir}/errors
 
 %clean
@@ -183,7 +227,7 @@ rm -rf %{buildroot}/%{_datadir}/errors
 
 
 %pre
-%_pre_useradd squid /var/spool/squid /bin/false 83
+%_pre_useradd squid /var/spool/squid /bin/false 86
 
 for i in /var/log/squid /var/spool/squid ; do
         if [ -d $i ] ; then
@@ -266,7 +310,6 @@ done
      DIR=English
      ;;
  esac
-# ln -sf %{_libexecdir}/errors/$DIR %{_sysconfdir}/errors
 
 %preun
 %_preun_srv squid
@@ -283,6 +326,7 @@ fi
 %config(noreplace) %{_sysconfdir}/*.conf
 %config(noreplace) %{_sysconfdir}/*.default
 %config(noreplace) /etc/pam.d/squid
+%config(noreplace) /etc/sysconfig/squid
 %config(noreplace) /etc/logrotate.d/squid
 %{_sysconfdir}/errors
 %{_libexecdir}/errors
@@ -296,7 +340,7 @@ fi
 %attr(755,root,squid) %{_libexecdir}/msnt_auth
 %attr(755,root,squid) %{_libexecdir}/smb_auth*
 %attr(755,root,squid) %{_libexecdir}/ntlm_auth
-#%attr(755,root,squid) %{_libexecdir}/sasl_auth
+%attr(755,root,squid) %{_libexecdir}/squid_sasl_auth
 %attr(755,root,squid) %{_libexecdir}/squid_ldap_auth
 %attr(755,root,squid) %{_libexecdir}/yp_auth
 %attr(755,root,squid) %{_libexecdir}/wb_auth
@@ -304,6 +348,10 @@ fi
 %attr(755,root,squid) %{_libexecdir}/digest_pw_auth
 %attr(755,root,squid) %{_libexecdir}/wb_ntlmauth
 %attr(755,root,squid) %{_libexecdir}/wb_group
+%attr(755,root,squid) %{_libexecdir}/ip_user_check
+%attr(755,root,squid) %{_libexecdir}/squid_unix_group
+%attr(755,root,squid) %{_libexecdir}/squid_ldap_group
+%attr(755,root,squid) %{_libexecdir}/wbinfo_group.pl
 %{_sbindir}/*
 %{_mandir}/man8/*
 %attr(755,squid,squid) %dir /var/log/squid
@@ -316,6 +364,13 @@ fi
 %attr(0750,nobody,nogroup) %dir %{_srvlogdir}/squid
 
 %changelog
+* Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 2.5.STABLE5-2sls
+- use some rh work (sysconfig, two patches (P4, P5)) (florin)
+- P100 through P112: upstream fixes
+- S14: sysconfig file
+- remove S2: don't need the initscript
+- change squid's uid/gid to 86 (83 taken by nscd)
+
 * Mon Mar 29 2004 Vincent Danen <vdanen@opensls.org> 2.5.STABLE5-1sls
 - 2.5.STABLE5 (security fixes; specifically CAN-2004-0189)
 
