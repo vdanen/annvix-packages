@@ -1,6 +1,6 @@
 %define name	%{ap_name}-%{mod_name}
 %define version	%{ap_version}_%{mod_version}
-%define release 2avx
+%define release 1avx
 
 # Module-Specific definitions
 %define mod_version	4.0.1a
@@ -98,6 +98,9 @@ perl -pi -e "s|_REPLACE_ME_|$NEW_URL|g" %{buildroot}%{ap_confd}/%{mod_conf}
 %doc ChangeLog INSTALL README index.html
 
 %changelog
+* Thu Oct 14 2004 Vincent Danen <vdanen@annvix.org> 2.0.52_4.0.1a-1avx
+- apache 2.0.52
+
 * Sun Jun 27 2004 Vincent Danen <vdanen@annvix.org> 2.0.49_4.0.1a-2avx
 - Annvix build
 

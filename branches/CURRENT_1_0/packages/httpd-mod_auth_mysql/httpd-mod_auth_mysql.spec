@@ -1,6 +1,6 @@
 %define name	%{ap_name}-%{mod_name}
 %define version %{ap_version}_%{mod_version}
-%define release 2avx
+%define release 1avx
 
 # Module-Specific definitions
 %define mod_version	1.11
@@ -82,6 +82,9 @@ cat mod_auth_mysql.c | tail +84 | head -101 | cut -c 4- > mod_auth_mysql.txt
 %{ap_webdoc}/*
 
 %changelog
+* Thu Oct 14 2004 Vincent Danen <vdanen@annvix.org> 2.0.52_1.11-1avx
+- apache 2.0.52
+
 * Sun Jun 27 2004 Vincent Danen <vdanen@annvix.org> 2.0.49_1.11-2avx
 - Annvix build
 

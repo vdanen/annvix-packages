@@ -1,6 +1,6 @@
 %define name	%{ap_name}-%{mod_name}
 %define version %{ap_version}_%{mod_version}
-%define release 2avx
+%define release 1avx
 
 # Module-Specific definitions
 %define mod_version	1.7PR1
@@ -77,6 +77,9 @@ mv mod_auth_radius_apache2.c mod_auth_radius.c
 %doc mod_auth_radius.html
 
 %changelog
+* Thu Oct 14 2004 Vincent Danen <vdanen@annvix.org> 2.0.52_1.7PR1-1avx
+- apache 2.0.52
+
 * Sun Jun 27 2004 Vincent Danen <vdanen@annvix.org> 2.0.49_1.7PR1-2avx
 - Annvix build
 
