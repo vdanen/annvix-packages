@@ -1,8 +1,6 @@
 %define name	newt
 %define version 0.51.4
-%define release 8sls
-
-%{!?build_opensls:%global build_opensls 0}
+%define release 9sls
 
 %define majver		0.51
 %define libname		%mklibname %{name} %{majver}
@@ -70,17 +68,13 @@ use newt.
 %patch2 -p1
 
 %build
-%if %{build_opensls}
 %configure --without-gpm-support
-%else
-%configure --with-gpm-support
-%endif
 
 %make
 %make shared
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p $RPM_BUILD_ROOT
 %makeinstall
 ln -sf lib%{name}.so.%{version} $RPM_BUILD_ROOT%{_libdir}/lib%{name}.so.%{majver}
@@ -88,7 +82,7 @@ ln -sf lib%{name}.so.%{version} $RPM_BUILD_ROOT%{_libdir}/lib%{name}.so.%{majver
 rm -rf  $RPM_BUILD_ROOT%{_libdir}/python{1.5,2.0,2.1,2.2}
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post -n %libname -p /sbin/ldconfig
 
@@ -113,6 +107,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/libnewt.so
 
 %changelog
+* Sun Mar 07 2004 Vincent Danen <vdanen@opensls.org> 0.51.4-9sls
+- minor spec cleanups
+- remove %%build_opensls macro
+
 * Wed Dec 31 2003 Vincent Danen <vdanen@opensls.org> 0.51.4-8sls
 - sync with 7mdk (gbeauchesne): fix mklibnamization
 
