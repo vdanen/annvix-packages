@@ -1,9 +1,9 @@
-\#!/bin/sh
+#!/bin/sh
 PATH="/sbin:/usr/sbin:/bin:/usr/bin:$PATH"
 
 # this is run before supervise kills squid
 
-[ -f /etc/sysconfig/squid ]; then
+if [ -f /etc/sysconfig/squid ]; then
   . /etc/sysconfig/squid
 else
   SQUID_OPTS="-D -N"

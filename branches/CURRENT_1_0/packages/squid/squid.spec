@@ -1,6 +1,6 @@
 %define name	squid
 %define version	2.5.STABLE3
-%define release	4sls
+%define release	5sls
 
 %define their_version	2.5.STABLE3
 %define p_url   http://www.squid-cache.org/Versions/v2/2.5/bugs
@@ -318,6 +318,9 @@ fi
 %attr(0750,nobody,nogroup) %dir %{_srvlogdir}/squid
 
 %changelog
+* Fri Jan 23 2004 Vincent Danen <vdanen@opensls.org> 2.5.STABLE3-5sls
+- fix the run and stop scripts (re: tmb)
+
 * Mon Jan 12 2004 Vincent Danen <vdanen@opensls.org> 2.5.STABLE3-4sls
 - OpenSLS build
 - tidy spec

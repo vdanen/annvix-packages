@@ -1,9 +1,9 @@
-\#!/bin/sh
+#!/bin/sh
 PATH="/sbin:/usr/sbin:/bin:/usr/bin:$PATH"
 
 # this runs squid under supervise
 
-[ -f /etc/sysconfig/squid ]; then
+if [ -f /etc/sysconfig/squid ]; then
   . /etc/sysconfig/squid
 else
   SQUID_OPTS="-D -N"
@@ -18,7 +18,7 @@ CACHE_SWAP=`sed -e 's/#.*//g' /etc/squid/squid.conf | \
 for adir in $CACHE_SWAP; do
     if [ ${adir%:*} != null -a ! -d ${adir#*:}/00 ]; then
 	echo -n "init_cache_dir $adir... "
-	$SQUID -z -F 2>&1
+	/usr/sbin/squid -z -F 2>&1
     fi
 done
 
