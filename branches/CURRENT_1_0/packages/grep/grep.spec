@@ -1,8 +1,7 @@
 %define name	grep
 %define version 2.5.1
-%define release 6sls
+%define release 7sls
 
-%define theirversion 2.5.1
 %define _bindir /bin
 
 Summary:	The GNU versions of grep pattern matching utilities.
@@ -12,15 +11,11 @@ Release:	%{release}
 License:	GPL
 Group:		File tools
 URL:		http://www.gnu.org/software/grep/grep.html
-Source:		ftp://ftp.gnu.org/pub/gnu/grep/%{name}-%{theirversion}.tar.bz2
-# Chinese locale
-Source10:	grep-zh_TW.po.bz2
-Source11:	grep-zh_CN.GB2312.po.bz2
-Patch0:		grep-2.5-factorize-egrep-and-fgrep.patch.bz2
-Patch1:		grep-2.5-i18n-patch.bz2
+Source:		ftp://ftp.gnu.org/pub/gnu/grep/%{name}-%{version}.tar.bz2
+Patch1:		grep-2.5.1-i18n-0.1.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-root
-BuildRequires:	bison gettext pcre-devel texinfo
+BuildRequires:	gettext pcre-devel texinfo
 
 Requires:	/%{_lib}/libpcre.so.0
 
@@ -35,8 +30,7 @@ for searching through text files, for system administration tasks, etc.
 
 
 %prep
-%setup -q -n %{name}-%{theirversion}
-# %patch0 -p0
+%setup -q
 %patch1 -p1 -b .i18n
 
 %build
@@ -50,19 +44,7 @@ for searching through text files, for system administration tasks, etc.
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-%makeinstall
-
-# (gc) works with Patch0: grep-2.4.2-factorize-egrep-and-fgrep.patch.bz2
-# ln -s grep $RPM_BUILD_ROOT/bin/egrep
-# ln -s grep $RPM_BUILD_ROOT/bin/fgrep
-
-mkdir -p $RPM_BUILD_ROOT%_datadir/locale/{zh_TW.Big5,zh_CN.GB2312}/LC_MESSAGES
-
-bzip2 -dc %SOURCE10 > grep-zh_TW.po 
-msgfmt grep-zh_TW.po -o $RPM_BUILD_ROOT%{_datadir}/locale/zh_TW.Big5/LC_MESSAGES/%name.mo
-
-bzip2 -dc %SOURCE11 > grep-zh_CN.po
-msgfmt grep-zh_CN.po -o $RPM_BUILD_ROOT%{_datadir}/locale/zh_CN.GB2312/LC_MESSAGES/%name.mo
+%makeinstall_std
 
 rm -rf %{buildroot}%{_infodir}
 
@@ -73,11 +55,18 @@ rm -rf %{buildroot}%{_infodir}
 
 %files -f %{name}.lang
 %defattr(-,root,root)
-%doc ABOUT-NLS AUTHORS THANKS TODO NEWS README ChangeLog
+%doc AUTHORS THANKS TODO NEWS README ChangeLog
 /bin/*
 %{_mandir}/*/*
 
 %changelog
+* Fri Jun 11 2004 Vincent Danen <vdanen@opensls.org> 2.5.1-7sls
+- drop unapplied P0
+- drop BuildRequires: bison
+- use %%makeinstall_std
+- drop S10 and S11
+- updated P1 from openi18n (re: abel)
+
 * Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 2.5.1-6sls
 - minor spec cleanups
 - get rid of doc package (who needs info pages for grep anyways?!?)
