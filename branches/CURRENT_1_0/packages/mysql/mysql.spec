@@ -1,6 +1,6 @@
 %define name	MySQL
 %define version	4.0.20
-%define release	2avx
+%define release	3avx
 
 %define major		12
 %define libname_orig	mysql
@@ -36,8 +36,7 @@ BuildRequires:	termcap-devel
 BuildRequires:	ncurses-devel, python, openssl-static-devel, tetex, texinfo, zlib-devel
 
 Provides:       msqlormysql MySQL-server mysqlserver mysql
-Prereq:  	rpm-helper
-PreReq:		MySQL-common = %{version}-%{release}
+PreReq:		MySQL-common = %{version}-%{release} rpm-helper runit
 Obsoletes:      mysql MySQL-devel <= 3.23.39
 Conflicts:      MySQL-Max > 4.0.11
 
@@ -125,7 +124,7 @@ Group:		Databases
 Provides:	mysql-Max = %{version}-%{release}
 Provides:	msqlormysql MySQL-server mysqlserver mysql
 Obsoletes:	mysql-Max
-PreReq:		MySQL-common = %{version}-%{release} rpm-helper
+PreReq:		MySQL-common = %{version}-%{release} rpm-helper runit
 Conflicts:	MySQL > 4.0.11
 
 %description Max 
@@ -383,7 +382,7 @@ EOF
 
 %post
 # Initiate databases
-/usr/bin/setuidgid mysql mysql_install_db -IN-RPM >/dev/null
+/sbin/chpst -u mysql mysql_install_db -IN-RPM >/dev/null
 
 %_post_srv mysqld
 
@@ -427,7 +426,7 @@ else
 fi
 
 %post Max
-/usr/bin/setuidgid mysql mysql_install_db -IN-RPM >/dev/null
+/sbin/chpst -u mysql mysql_install_db -IN-RPM >/dev/null
 
 %_post_srv mysqld
 # Allow mysqld_safe to start mysqld and print a message before we exit
@@ -610,6 +609,10 @@ fi
 %config(noreplace) %{_sysconfdir}/sysconfig/mysqld
 
 %changelog
+* Mon Sep 20 2004 Vincent Danen <vdanen@annvix.org> 4.0.20-3avx
+- s/setuidgid/chpst in spec
+- Prereq: runit
+
 * Sun Sep 19 2004 Vincent Danen <vdanen@annvix.org> 4.0.20-2avx
 - updated runscripts
 
