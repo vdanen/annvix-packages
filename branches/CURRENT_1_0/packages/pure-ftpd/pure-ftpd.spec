@@ -1,6 +1,6 @@
 %define name	pure-ftpd
-%define	version 1.0.18
-%define release 2avx
+%define	version 1.0.19
+%define release 1avx
 
 Summary:	Lightweight, fast and secure FTP server
 Name:		%{name}
@@ -9,7 +9,7 @@ Release:	%{release}
 License:	GPL
 Group:		System/Servers
 URL:		http://www.pureftpd.org
-Source:		ftp://download.sourceforge.net/pub/sourceforge/pureftpd/%{name}-%{version}.tar.bz2
+Source:		ftp://ftp.pureftpd.org/pub/pure-ftpd/releases//%{name}-%{version}.tar.bz2
 Source1:	pure-ftpd.init 
 Source2:	pure-ftpd.logrotate
 Source3:	pure-ftpd-xinetd.bz2
@@ -184,7 +184,7 @@ for i in $USERS ;do
         cat %{_sysconfdir}/ftpusers | grep -q "^$i$" || echo $i >> %{_sysconfdir}/ftpusers
 done
 
-%_post_srv pure-ftpd
+%_post_srv pureftpd
 
 %pre
 %_pre_useradd ftp /var/ftp /bin/false 81
@@ -193,9 +193,14 @@ done
 %_postun_userdel ftp
 
 %preun
-%_preun_srv pure-ftpd
+%_preun_srv pureftpd
 
 %changelog
+* Mon Jul 05 2004 Vincent Danen <vdanen@annvix.org> 1.0.19-1avx
+- fix source url
+- 1.0.19 (fix possible DoS)
+- fix service name in %%_preun_srv and %%_post_srv
+
 * Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 1.0.18-2avx
 - Annvix build
 
