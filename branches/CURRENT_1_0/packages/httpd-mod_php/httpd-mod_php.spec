@@ -1,6 +1,6 @@
 %define name	%{ap_name}-%{mod_name}
 %define version %{ap_version}_%{phpversion}
-%define release	3sls
+%define release	4sls
 
 %define phpsource	%{_prefix}/src/php-devel
 %{expand:%(cat /usr/src/php-devel/PHP_BUILD||(echo -e "error: failed build dependencies:\n        php-devel >= 430 (4.3.0) is needed by this package." >/dev/stderr;kill -2 $PPID))}
@@ -45,6 +45,7 @@ BuildRequires:	zlib-devel
 BuildRequires:	php%{libversion}-devel
 BuildRequires:	pam-devel libintl
 BuildRequires:	db1-devel
+BuildRequires:	php-devel >= 4.3.0
 # Standard ADVX requires
 BuildRequires:	%{ap_name}-devel >= 2.0.44-1mdk
 BuildPreReq:	ADVX-build >= 9.2
@@ -136,6 +137,9 @@ cd %{extname}
 %{ap_webdoc}/*
 
 %changelog
+* Tue Feb 24 2004 Vincent Danen <vdanen@opensls.org> 2.0.48_4.3.4-4sls
+- fix the wierd BuildRequires for php-devel
+
 * Tue Jan 06 2004 Vincent Danen <vdanen@opensls.org> 2.0.48_4.3.4-3sls
 - BuildRequires: libintl, not libintl2; db4-devel not libdb4.1-devel (for
   amd64)
