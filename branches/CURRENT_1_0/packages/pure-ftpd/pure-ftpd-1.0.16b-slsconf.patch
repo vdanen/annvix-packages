@@ -1,5 +1,5 @@
---- pure-ftpd-1.0.14.orig/configuration-file/pure-ftpd.conf.in	2003-02-03 00:45:33.000000000 +0100
-+++ pure-ftpd-1.0.14/configuration-file/pure-ftpd.conf.in	2003-02-03 00:50:19.000000000 +0100
+--- pure-ftpd-1.0.16b/configuration-file/pure-ftpd.conf.in.slsconf	2003-08-03 07:30:34.000000000 -0600
++++ pure-ftpd-1.0.16b/configuration-file/pure-ftpd.conf.in	2004-03-03 15:29:26.000000000 -0700
 @@ -9,7 +9,7 @@
  # instead of command-line options, please run the
  # following command :
@@ -7,9 +7,18 @@
 -# @prefix@/sbin/pure-config.pl @prefix@/etc/pure-ftpd.conf
 +# /usr/sbin/pure-config.pl /etc/pure-ftpd/pure-ftpd.conf
  #
- # RPM binary files use another configuration file by default :
- # /etc/sysconfig/pure-ftpd
-@@ -110,23 +110,23 @@ MaxIdleTime                 15
+ # Please don't forget to have a look at documentation at
+ # http://www.pureftpd.org/documentation.html for a complete list of
+@@ -43,7 +43,7 @@
+ 
+ # Fork in background
+ 
+-Daemonize                   yes
++Daemonize                   no
+ 
+ 
+ 
+@@ -107,23 +107,23 @@
  
  # LDAP configuration file (see README.LDAP)
  
@@ -37,7 +46,7 @@
  
  
  # Path to pure-authd socket (see README.Authentication-Modules)
-@@ -137,7 +137,7 @@ MaxIdleTime                 15
+@@ -134,7 +134,7 @@
  
  # If you want to enable PAM authentication, uncomment the following line
  
@@ -46,7 +55,7 @@
  
  
  
-@@ -304,7 +304,7 @@ AnonymousCantUpload         no
+@@ -301,7 +301,7 @@
  # fw.c9x.org - jedi [13/Dec/1975:19:36:39] "GET /ftp/linux.tar.bz2" 200 21809338
  # This log file can then be processed by www traffic analyzers.
  

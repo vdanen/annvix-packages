@@ -1,6 +1,6 @@
 %define name	pure-ftpd
 %define	version 1.0.16b
-%define release 4sls
+%define release 5sls
 
 Summary:	Lightweight, fast and secure FTP server
 Name:		%{name}
@@ -15,7 +15,8 @@ Source2:	pure-ftpd.logrotate
 Source3:	pure-ftpd-xinetd.bz2
 Source4:	pureftpd.run
 Source5:	pureftpd-log.run
-Patch0:		pure-ftpd.mdkconf.patch.bz2
+Patch0:		pure-ftpd-1.0.16b-slsconf.patch.bz2
+Patch1:		pure-ftpd-1.0.16b-pureconfig.patch
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}
 BuildRequires:	pam-devel, openldap-devel, MySQL-devel, postgresql-devel
@@ -54,7 +55,8 @@ This package provides anonymous upload support for pure-ftpd.
 %setup -q -n %{name}-%{version}
 %setup -q -D -T -a 2
 
-%patch -p1 -b .mdkconf
+%patch0 -p1 -b .mdkconf
+%patch1 -p1 -b .pureconfig
 
 %build
 %configure2_5x	--with-paranoidmsg \
@@ -84,6 +86,7 @@ This package provides anonymous upload support for pure-ftpd.
 %make
 
 %install 
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 make install-strip DESTDIR=%{buildroot}
 
 install -d -m 755 %{buildroot}%{_mandir}/man8/
@@ -130,7 +133,7 @@ install -m 0755 %{SOURCE4} %{buildroot}%{_srvdir}/pureftpd/run
 install -m 0755 %{SOURCE5} %{buildroot}%{_srvdir}/pureftpd/log/run
 
 %clean
-rm -rf "%{buildroot}"
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-, root, root)
@@ -193,6 +196,11 @@ done
 %_preun_srv pure-ftpd
 
 %changelog
+* Wed Mar 03 2004 Vincent Danen <vdanen@opensls.org> 1.0.16b-5sls
+- pure-config.pl now prints the pure-ftpd commandline instead of executing
+  pure-ftpd (better for supervise) (P2)
+- by default Daemonize==no in config
+
 * Wed Feb 04 2004 Vincent Danen <vdanen@opensls.org> 1.0.16b-4sls
 - remove %%build_opensls macro
 - remove xinetd stuff
