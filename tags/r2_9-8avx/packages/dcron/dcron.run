@@ -1,0 +1,5 @@
+#!/bin/sh
+
+# this runs crond supervised
+
+exec /usr/sbin/crond -f 2>&1
