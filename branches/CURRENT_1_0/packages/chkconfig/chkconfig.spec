@@ -1,6 +1,6 @@
 %define name	chkconfig
 %define version	1.3.8
-%define release	4sls
+%define release	5sls
 
 Summary:	A system tool for maintaining the /etc/rc*.d hierarchy.
 Name:		%{name}
@@ -65,37 +65,38 @@ LIBMHACK=-lm
 make RPM_OPT_FLAGS="$RPM_OPT_FLAGS" LIBMHACK=$LIBMHACK
 
 %install
-rm -rf $RPM_BUILD_ROOT
-make instroot=$RPM_BUILD_ROOT MANDIR=%{_mandir} install
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+make instroot=%{buildroot} MANDIR=%{_mandir} install
 
-mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/rc.d/init.d
+mkdir -p %{buildroot}%{_sysconfdir}/rc.d/init.d
 for n in 0 1 2 3 4 5 6; do
-    mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/rc.d/rc${n}.d
+    mkdir -p %{buildroot}%{_sysconfdir}/rc.d/rc${n}.d
 done
 
-cd $RPM_BUILD_ROOT%{_sysconfdir}/
+cd %{buildroot}%{_sysconfdir}/
 ln -s rc.d/init.d init.d
 cd -
 
 # corrected indonesian language code (it has changed from 'in' to 'id')
-mkdir -p $RPM_BUILD_ROOT%{_datadir}/locale/id/LC_MESSAGES
-mv $RPM_BUILD_ROOT%{_datadir}/locale/{in,in_ID}/LC_MESSAGES/* \
-	$RPM_BUILD_ROOT%{_datadir}/locale/id/LC_MESSAGES || :
-rm -rf $RPM_BUILD_ROOT%{_datadir}/locale/{in,in_ID} || :
+mkdir -p %{buildroot}%{_datadir}/locale/id/LC_MESSAGES
+mv %{buildroot}%{_datadir}/locale/{in,in_ID}/LC_MESSAGES/* \
+	%{buildroot}%{_datadir}/locale/id/LC_MESSAGES || :
+rm -rf %{buildroot}%{_datadir}/locale/{in,in_ID} || :
 
-mkdir -p $RPM_BUILD_ROOT%{_datadir}/locale/zh_TW.Big5/LC_MESSAGES
-msgfmt %SOURCE1 -o $RPM_BUILD_ROOT%{_datadir}/locale/zh_TW.Big5/LC_MESSAGES/chkconfig.mo
+mkdir -p %{buildroot}%{_datadir}/locale/zh_TW.Big5/LC_MESSAGES
+msgfmt %SOURCE1 -o %{buildroot}%{_datadir}/locale/zh_TW.Big5/LC_MESSAGES/chkconfig.mo
 
 # Geoff 20020623 -- zh is incorrect for locale and there's nothing in it anyway
-rm -fr $RPM_BUILD_ROOT%_datadir/locale/zh
+rm -fr %{buildroot}%_datadir/locale/zh
 
 # we use our own alternative system
-rm -f $RPM_BUILD_ROOT%{_sbindir}/alternatives $RPM_BUILD_ROOT%{_mandir}/man8/alternatives.8*
+rm -f %{buildroot}%{_sbindir}/alternatives %{buildroot}%{_mandir}/man8/alternatives.8*
+rm -f %{buildroot}%{_sbindir}/update-alternatives
 
 %find_lang %{name}
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files -f %{name}.lang
 %defattr(-,root,root)
@@ -111,6 +112,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man8/ntsysv.8*
 
 %changelog
+* Tue Mar 02 2004 Vincent Danen <vdanen@opensls.org> 1.3.8-5sls
+- minor spec cleanups
+
 * Fri Nov 28 2003 Vincent Danen <vdanen@opensls.org> 1.3.8-4sls
 - OpenSLS build
 - tidy spec

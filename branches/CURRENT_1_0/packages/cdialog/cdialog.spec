@@ -1,6 +1,6 @@
 %define name	cdialog
 %define version	0.9b
-%define release	5sls
+%define release	6sls
 
 %define datetag 20030308
 
@@ -34,10 +34,10 @@ Install dialog if you would like to create TTY dialog boxes.
 %configure
 
 %build
-[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %make OPTIM="$RPM_OPT_FLAGS"
 
 %install
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p %{buildroot}%{_bindir}
 mkdir -p %{buildroot}%{_mandir}/man1
 %makeinstall \
@@ -46,7 +46,6 @@ mkdir -p %{buildroot}%{_mandir}/man1
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-rm -rf $RPM_BUILD_DIR/%{name}-%{version}
 
 %files
 %defattr(-,root,root)
@@ -55,6 +54,9 @@ rm -rf $RPM_BUILD_DIR/%{name}-%{version}
 %{_mandir}/man1/dialog.1.bz2
 
 %changelog
+* Tue Mar 02 2004 Vincent Danen <vdanen@opensls.org> 0.9b-6sls
+- minor spec cleanups
+
 * Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 0.9b-5sls
 - OpenSLS build
 - tidy spec

@@ -1,6 +1,6 @@
 %define name	bison
 %define version 1.875
-%define release 4sls
+%define release 5sls
 
 Summary:	A GNU general-purpose parser generator.
 Name:		%{name}
@@ -46,7 +46,7 @@ CFLAGS=$RPM_OPT_FLAGS %configure2_5x datadir=%{_datadir} libdir=%{_datadir}
 %make LDFLAGS=-s
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 #%makeinstall datadir=$RPM_BUILD_ROOT/%{_libdir}
 %makeinstall datadir=$RPM_BUILD_ROOT/%{_datadir} libdir=$RPM_BUILD_ROOT/%{_datadir}
 
@@ -57,15 +57,14 @@ rm -rf $RPM_BUILD_ROOT/%{_libdir} $RPM_BUILD_ROOT/%{_datadir}/liby.a
 
 %find_lang %{name}
 
+%clean
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 %post
 %{_install_info bison.info}
-#/sbin/install-info %{_infodir}bison.info.bz2 %{_infodir}/dir --entry="* bison: (bison).                        The GNU parser generator."
 
 %preun
 %{_remove_install_info bison.info}
-#if [ $1 = 0 ]; then
-#  /sbin/install-info --delete %{_infodir}/bison.info.bz2 %{_prefix}/info/dir --entry="* bison: (bison).                        The GNU parser generator."
-#fi
 
 %files -f %{name}.lang
 %defattr(-,root,root)
@@ -74,10 +73,10 @@ rm -rf $RPM_BUILD_ROOT/%{_libdir} $RPM_BUILD_ROOT/%{_datadir}/liby.a
 %{_infodir}/bison.info*
 %{_bindir}/*
 
-%clean
-rm -rf $RPM_BUILD_ROOT
-
 %changelog
+* Tue Mar 02 2004 Vincent Danen <vdanen@opensls.org> - 1.875-5sls
+- minor spec cleanups
+
 * Wed Dec 17 2003 Vincent Danen <vdanen@opensls.org> - 1.875-4sls
 - OpenSLS build
 - tidy spec

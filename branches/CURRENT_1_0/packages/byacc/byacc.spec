@@ -1,6 +1,6 @@
 %define name	byacc
 %define version	1.9
-%define release	15sls
+%define release	16sls
 
 Summary:	A public domain Yacc parser generator.
 Name:		%{name}
@@ -60,13 +60,13 @@ done
 popd
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
 ( cd $RPM_BUILD_ROOT/usr/bin ; ln -s yacc byacc )
 
 %clean
 chmod u+w $RPM_BUILD_DIR/%{name}-%{version} -R
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -77,6 +77,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/*
 
 %changelog
+* Tue Mar 02 2004 Vincent Danen <vdanen@opensls.org> 1.9-16sls
+- minor spec cleanups
+
 * Wed Dec 17 2003 Vincent Danen <vdanen@opensls.org> 1.9-15sls
 - OpenSLS build
 - tidy spec

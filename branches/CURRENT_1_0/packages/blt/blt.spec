@@ -1,6 +1,6 @@
 %define name	blt
 %define version	2.4z
-%define release	6sls
+%define release	7sls
 
 %define major		2
 %define	libname		%mklibname %{name} %{major}
@@ -90,6 +90,7 @@ autoconf
 %make 
 
 %install
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
 
 ln -sf libBLT.so.2.4 $RPM_BUILD_ROOT%_libdir/libBLT.so
@@ -114,7 +115,7 @@ for i in bitmap graph tabset tree watch; do
 done
 
 %clean
-rm -fr $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post -n %libname -p /sbin/ldconfig
 %postun -n %libname -p /sbin/ldconfig
@@ -145,6 +146,9 @@ rm -fr $RPM_BUILD_ROOT
 %_libdir/*.a
 
 %changelog
+* Tue Mar 02 2004 Vincent Danen <vdanen@opensls.org> 2.4z-7sls
+- minor spec cleanups
+
 * Tue Dec 30 2003 Vincent Danen <vdanen@opensls.org> 2.4z-6sls
 - OpenSLS build
 - tidy spec
