@@ -1,6 +1,6 @@
 %define name	openswan
 %define version	1.0.9
-%define release	1avx
+%define release	2avx
 %define epoch	1
 
 %define their_version	1.0.9
@@ -92,6 +92,7 @@ rm -rf %{buildroot}%{_defaultdocdir}/freeswan
 # remove libdes stuff we don't want:
 rm -f %{buildroot}/usr/include/des.h
 rm -f %{buildroot}/usr/lib/libdes.a
+rm -f %{buildroot}%{_mandir}/man3/des_crypt.3*
 
 # openswan insists on installings libs into /usr/lib regardless of platform, so let's fix it
 %ifarch x86_64 amd64
@@ -130,6 +131,9 @@ popd
 %_post_service ipsec
 
 %changelog
+* Wed Feb 02 2005 Vincent Danen <vdanen@annvix.org> 1.0.9-2avx
+- remove des_crypt.3 as it conflicts with man-pages
+
 * Tue Feb 01 2005 Vincent Danen <vdanen@annvix.org> 1.0.9-1avx
 - 1.0.9 (fixes iDefense security advisory 01.26.05: Openswan XAUTH/PAM
   Buffer Overflow Vulnerability)
