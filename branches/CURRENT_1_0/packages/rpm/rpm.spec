@@ -1,9 +1,11 @@
+%define name		rpm
 %define rpmversion      4.2
 %define poptver		1.8
 # You need increase both release and poptrelease
 %define poptrelease	%{release}
+%define release		19sls
+
 %define url		ftp://ftp.rpm.org/pub/rpm/dist/rpm-4.0.x
-%define release		18mdk
 %define pyver		%(python -V 2>&1 | cut -f2 -d" " | cut -f1,2 -d".")
 %define lib64arches	x86_64
 
@@ -23,17 +25,22 @@
 %define _datadir /usr/share
 %define _defaultdocdir /usr/share/doc
 
+%define build_propolice		1
+%{expand: %{?_without_propolice:	%%define build_propolice 0}}
+%{expand: %{?_with_propolice:		%%define build_propolice 1}}
+
 # Define directory which holds rpm config files, and some binaries actually
 # NOTE: it remains */lib even on lib64 platforms as only one version
 #       of rpm is supported anyway, per architecture
 %define rpmdir %{_prefix}/lib/rpm
 
 Summary:	The RPM package management system
-Name:		rpm
+Name:		%{name}
 Version:	%{rpmversion}
 Release:	%{release}
+License:	GPL
 Group:		System/Configuration/Packaging
-
+URL:            http://www.rpm.org/
 Source:		%{url}/rpm-%{version}.tar.bz2
 Source2:	rpm-spec-mode.el.bz2
 Source3:	filter.sh
@@ -61,40 +68,31 @@ Patch31:	rpm-4.2-syslog.patch.bz2
 Patch32:	rpm-4.2-rpmvercmp.patch.bz2
 Patch33:	rpm-4.2-execvp-error-report.patch.bz2
 Patch36:	rpm-4.2-umask.patch.bz2
-
 # (pablo) improved version of find.lang.sh, from rpm mailing-list.
 # it adds a --all-name switch that allows finding all localized files,
 # whatever the name (useful in addition of --with-gnome/--with-kde to find
 # the different html help directories
 Patch35:	rpm-4.2-find-lang_all-name.patch.bz2
-
 # Workaround nested %%if handling bug (SuSE patch)
 Patch40:	rpm-4.0.4-if.patch.bz2
-
 # Correctly check for PPC 74xx systems
 Patch41:	rpm-4.2-ppc-74xx.patch.bz2
-
 # Don't link against system libs when relinking in %%install
 Patch42:	rpm-4.2-mad-relink.patch.bz2
-
 # Correctly setup X11 paths on lib64 systems
 Patch43:	rpm-4.2-configure-xpath.patch.bz2
-
 # Build .amd64 packages by default on x86-64
 Patch44:	rpm-4.2-amd64.patch.bz2
 Patch45:	rpm-4.2-python-macros.patch.bz2
-
 Patch47:	rpm-4.0.4-good-lock.patch.bz2
-
 Patch48:	rpm-4.0.4-debug.patch.bz2
-
 # Backport from 4.2.1 provides becoming obsoletes bug (fpons)
 Patch49:	rpm-4.2-provides-obsoleted.patch.bz2
-
 Patch50:	rpm-4.2-python-site-lisp.patch.bz2
+# (vdanen) use stack protection by default
+Patch51:	rpm-4.2-stackmacros.patch.bz2
 
-License:	GPL
-Conflicts:	patch < 2.5
+BuildRoot:	%{_tmppath}/%{name}-%{version}-root
 BuildRequires:	autoconf2.5
 BuildRequires:	doxygen
 BuildRequires:	python-devel
@@ -103,6 +101,7 @@ BuildRequires:	automake
 BuildRequires:	glibc-static-devel
 BuildRequires:	elfutils-static-devel
 BuildRequires:	sed >= 4.0.3
+
 Requires:	bzip2 >= 0.9.0c-2
 Requires:	cpio
 Requires:	gawk
@@ -113,10 +112,9 @@ Requires:	popt = %{poptver}-%{poptrelease}
 Requires:	setup >= 2.2.0-8mdk
 Requires:	unzip
 Requires:	elfutils
+Conflicts:	patch < 2.5
 Conflicts:	menu < 2.1.5-29mdk
 Conflicts:	locales < 2.3.1.1
-BuildRoot:	%{_tmppath}/%{name}-%{version}-root
-URL:            http://www.rpm.org/
 PreReq:		rpm-helper >= 0.8
 
 %description
@@ -266,6 +264,9 @@ bzcat %{SOURCE2} > rpm-spec-mode.el
 #%patch48 -p1 -b .debug
 %patch49 -p1 -b .provides
 %patch50 -p1 -b .python-site-lisp
+%if %build_propolice
+%patch51 -p1 -b .stackmacro
+%endif
 
 autoconf
 
@@ -273,6 +274,8 @@ autoconf
 # NOTE: Don't add libdir specification here as rpm data files really
 # have to go to /usr/lib/rpm and we support only one rpm program per
 # architecture
+# (vdanen): don't build rpm with stack protection
+#CPPFLAGS="-I/usr/include/libelf" CFLAGS="$RPM_OPT_FLAGS -fno-stack-protector" CXXFLAGS="$RPM_OPT_FLAGS -fno-stack-protector" ./configure --prefix=%{_prefix} --sysconfdir=/etc --localstatedir=/var --mandir=%{_datadir}/man --infodir=%{_datadir}/info --enable-nls --without-javaglue --enable-posixmutexes --with-python=%{pyver}
 CPPFLAGS="-I/usr/include/libelf" CFLAGS="$RPM_OPT_FLAGS" CXXFLAGS="$RPM_OPT_FLAGS" ./configure --prefix=%{_prefix} --sysconfdir=/etc --localstatedir=/var --mandir=%{_datadir}/man --infodir=%{_datadir}/info --enable-nls --without-javaglue --enable-posixmutexes --with-python=%{pyver}
 perl -p -i -e 's/conftest\.s/conftest\$\$.s/' config.status
 
@@ -634,6 +637,17 @@ fi
 %{_includedir}/popt.h
 
 %changelog
+* Mon Dec 01 2003 Vincent Danen <vdanen@opensls.org> 4.2-19sls
+- rebuild
+- tidy spec
+
+* Fri Oct 24 2003 Vincent Danen <vdanen@mandrakesoft.com> 4.2-18.2mdks
+- fix patch
+
+* Fri Oct 24 2003 Vincent Danen <vdanen@mandrakesoft.com> 4.2-18.1mdks
+- P51: new macros for stack protection; only applied if %%{build_propolice}
+  enabled
+
 * Thu Sep 11 2003 Frederic Lepied <flepied@mandrakesoft.com> 4.2-18mdk
 - really correct lock problem (patch13)
 
