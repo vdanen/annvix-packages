@@ -1,6 +1,6 @@
 %define name	newt
 %define version 0.51.4
-%define release 7sls
+%define release 8sls
 
 %{!?build_opensls:%global build_opensls 0}
 
@@ -49,7 +49,7 @@ slang library.
 %package -n %libdevel
 Summary:	Newt windowing toolkit development files.
 Group:		Development/C
-Requires:	slang-devel libnewt%{majver} = %{version}
+Requires:	slang-devel %{libname} = %{version}
 Provides:	lib%{name}-devel = %{version}-%{release} %{name}-devel = %{version}-%{release}
 Obsoletes:	%{name}-devel
 
@@ -113,6 +113,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/libnewt.so
 
 %changelog
+* Wed Dec 31 2003 Vincent Danen <vdanen@opensls.org> 0.51.4-8sls
+- sync with 7mdk (gbeauchesne): fix mklibnamization
+
 * Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 0.51.4-7sls
 - OpenSLS build
 - tidy spec
