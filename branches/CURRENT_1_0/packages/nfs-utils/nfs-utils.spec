@@ -1,6 +1,6 @@
 %define name	nfs-utils
 %define	version	1.0.6
-%define release	2avx
+%define release	3avx
 
 %define	url	ftp://ftp.kernel.org:/pub/linux/utils/nfs
 
@@ -78,7 +78,7 @@ clients which are mounted on that host.
 # this, please help yourself.
 #
 %serverbuild
-%configure --disable-rquotad
+%configure --disable-rquotad --disable-nfsv4
 make all
 
 %install
@@ -195,6 +195,9 @@ fi
 %dir %attr(0750,nobody,nogroup) %{_srvlogdir}/nfs.statd
 
 %changelog
+* Sat Dec 18 2004 Vincent Danen <vdanen@annvix.org> 1.0.6-3avx
+- signal nfsd with signal 9 rather than 2
+
 * Sat Dec 04 2004 Vincent Danen <vdanen@annvix.org> 1.0.6-2avx
 - P6: patch to fix CAN-2004-1014
 - completely rework runscripts: remove rpc.statd, rpc.mountd, and

@@ -49,7 +49,7 @@ case $MOUNTD_NFS_V3 in
         ;;
 esac
 
-trap '/usr/bin/killall -2 nfsd' 0
+trap '/usr/bin/killall -9 nfsd' 0
 trap 'exit 2' 1 2 3 15
 
 /usr/sbin/exportfs -f 2>&1
