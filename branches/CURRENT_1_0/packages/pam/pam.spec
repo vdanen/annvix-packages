@@ -1,6 +1,6 @@
 %define name	pam
 %define version	0.77
-%define release	13sls
+%define release	14avx
 
 %define rhrelease	1
 %define pwdb_version	0.62
@@ -69,7 +69,7 @@ Patch510:	pam-0.77-sigchld.patch.bz2
 Patch511:	pam-0.77-verbose-limits.patch.bz2
 Patch512:	pam-0.77-xauth-groups.patch.bz2
 
-Patch600:	pam-0.77-opensls.patch.bz2
+Patch600:	pam-0.77-annvix.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-root
 BuildRequires:	bison cracklib-devel flex glib-devel pwdb-devel
@@ -163,7 +163,7 @@ cp %{SOURCE4} .
 %patch511 -p1 -b .verbose-limits
 %patch512 -p1 -b .xauth-groups
 
-%patch600 -p0 -b .opensls
+%patch600 -p0 -b .annvix
 
 for readme in modules/pam_*/README ; do
 	cp -fv ${readme} doc/txts/README.`dirname ${readme} | sed -e 's|^modules/||'`
@@ -260,6 +260,9 @@ rm -rf $RPM_BUILD_ROOT/%{_lib}/libpam{.a,c.*} \
 %{_mandir}/man3/*
 
 %changelog
+* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 0.77-14avx
+- Annvix build
+
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 0.77-13sls
 - minor spec cleanups
 

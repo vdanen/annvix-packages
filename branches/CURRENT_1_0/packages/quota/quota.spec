@@ -1,6 +1,6 @@
 %define name	quota
 %define version 3.09
-%define release 2sls
+%define release 3avx
 
 Summary:	System administration tools for monitoring users' disk usage
 Name:		%{name}
@@ -71,6 +71,9 @@ install -m 644 warnquota.conf %{buildroot}%{_sysconfdir}
 %attr(0644,root,root) %{_mandir}/man8/*
 
 %changelog
+* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 3.09-3avx
+- Annvix build
+
 * Tue Jun 15 2004 Vincent Danen <vdanen@opensls.org> 3.09-2sls
 - OpenSLS build
 - tidy spec

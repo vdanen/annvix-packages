@@ -1,6 +1,6 @@
 %define name	openssh
 %define version	3.8p1
-%define release 2sls
+%define release 3avx
 
 ## Do not apply any unauthorized patches to this package!
 ## - vdanen 05/18/01
@@ -29,7 +29,7 @@ Source5:	04_openssh.afterboot
 Source6:	ssh-client.sh
 Source8:	sshd.run
 Source9:	sshd-log.run
-Patch1:		openssh-3.8p1-openslsconf.patch.bz2
+Patch1:		openssh-3.8p1-annvixconf.patch.bz2
 # authorized by Damien Miller <djm@openbsd.com>
 Patch2:		openssh-3.1p1-check-only-ssl-version.patch.bz2
 
@@ -319,6 +319,9 @@ do_dsa_keygen
 %{_datadir}/afterboot/04_openssh
 
 %changelog
+* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 3.8p1-3avx
+- Annvix build
+
 * Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 3.8p1-2sls
 - modify /etc/pam.d/sshd to use pam_listfile.so first on the auth stack so
   even if UsePAM is enabled, we can still securely use PermitRootLogin

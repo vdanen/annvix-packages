@@ -1,6 +1,6 @@
 %define name	python
 %define version	2.3.3
-%define release	1sls
+%define release	2avx
 
 %define docver  2.3.3
 %define dirver  2.3
@@ -274,6 +274,9 @@ rm -f modules-list main.list
 %postun -n %{lib_name} -p /sbin/ldconfig
 
 %changelog
+* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 2.3.3-2avx
+- Annvix build
+
 * Fri May 07 2004 Vincent Danen <vdanen@opensls.org> 2.3.3-1sls
 - 2.3.3
 - add traceback.py* to python-base

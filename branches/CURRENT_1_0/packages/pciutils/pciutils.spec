@@ -1,6 +1,6 @@
 %define name	pciutils
 %define version	2.1.99.test3
-%define release	1sls
+%define release	2avx
 
 %define rver	2.1.99-test3
 
@@ -93,6 +93,9 @@ install lib/libpci_loader_a $RPM_BUILD_ROOT%{_libdir}/libpci_loader.a
 %_includedir/pci
 
 %changelog
+* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 2.1.99-test3-2avx
+- Annvix build
+
 * Mon Mar 15 2004 Vincent Danen <vdanen@opensls.org> 2.1.99-test3-1sls
 - 2.1.99-test3
 - sync patches with Fedora (support for dietlibc)

@@ -1,6 +1,6 @@
 %define name	postfix
 %define version	2.0.13
-%define release 7sls
+%define release 8avx
 %define epoch	1
 
 # If set to 0 if official version, 1 if snapshot
@@ -520,6 +520,9 @@ done
 
 
 %changelog
+* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 2.0.13-8avx
+- Annvix build
+
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 2.0.13-7sls
 - minor spec cleanups
 

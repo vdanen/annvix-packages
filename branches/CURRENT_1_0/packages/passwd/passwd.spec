@@ -1,6 +1,6 @@
 %define name	passwd
 %define version	0.68
-%define release	6sls
+%define release	7avx
 
 Summary:	The passwd utility for setting/changing passwords using PAM
 Name:		%{name}
@@ -57,6 +57,9 @@ rm -f %buildroot%_mandir/man1/{chfn.1,chsh.1}
 %_mandir/man1/passwd.1*
 		
 %changelog
+* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 0.68-7avx
+- Annvix build
+
 * Fri Jun 11 2004 Vincent Danen <vdanen@opensls.org> 0.68-6sls
 - Requires: libuser, not /etc/libuser.conf
 

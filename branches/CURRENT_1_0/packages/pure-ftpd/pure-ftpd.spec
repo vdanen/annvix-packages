@@ -1,6 +1,6 @@
 %define name	pure-ftpd
 %define	version 1.0.18
-%define release 1sls
+%define release 2avx
 
 Summary:	Lightweight, fast and secure FTP server
 Name:		%{name}
@@ -196,6 +196,9 @@ done
 %_preun_srv pure-ftpd
 
 %changelog
+* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 1.0.18-2avx
+- Annvix build
+
 * Fri May 07 2004 Vincent Danen <vdanen@opensls.org> 1.0.18-1sls
 - 1.0.18
 

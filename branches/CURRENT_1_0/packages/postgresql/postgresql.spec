@@ -1,6 +1,6 @@
 %define name	postgresql
 %define version	7.3.4
-%define release	9sls
+%define release	10avx
 
 %{expand:%%define pyver %(python -c 'import sys;print(sys.version[0:3])')}
 %{expand:%%define perl_version %(rpm -q --qf %{EPOCH}:%{VERSION} perl)}
@@ -669,6 +669,9 @@ rm -f perlfiles.list
 %attr(-,postgres,postgres) %dir %{_libdir}/pgsql/test
 
 %changelog
+* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 7.3.4-10avx
+- Annvix build
+
 * Thu Apr 22 2004 Vincent Danen <vdanen@opensls.org> 7.3.4-9sls
 - include default config files (not .sample) so we can run postgres "out of
   the box" and mark them as %%config

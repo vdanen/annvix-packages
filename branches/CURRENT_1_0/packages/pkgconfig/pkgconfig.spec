@@ -1,6 +1,6 @@
 %define name	pkgconfig
 %define version	0.15.0
-%define release	5sls
+%define release	6avx
 
 Summary:	Pkgconfig helps make building packages easier.
 Name:		%{name}
@@ -49,6 +49,9 @@ mkdir -p $RPM_BUILD_ROOT%{_libdir}/pkgconfig
 %{_mandir}/man1/*
 
 %changelog
+* Tue Jun 22 2004 Vincent Danen <vdanen@opensls.org> 0.15.0-6avx
+- Annvix build
+
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 0.15.0-5sls
 - minor spec cleanups
 

@@ -1,6 +1,6 @@
 %define name	psmisc
 %define version	21.3
-%define release	4sls
+%define release	5avx
 
 Summary:	Utilities for managing processes on your system.
 Name:		%{name}
@@ -51,6 +51,9 @@ mv $RPM_BUILD_ROOT%{_bindir}/fuser $RPM_BUILD_ROOT/sbin/
 %{_mandir}/man1/pstree.1*
 
 %changelog
+* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 21.3-5avx
+- Annvix build
+
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 21.3-4sls
 - minor spec cleanups
 

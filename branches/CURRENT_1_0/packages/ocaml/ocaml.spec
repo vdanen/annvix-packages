@@ -1,6 +1,6 @@
 %define name	ocaml
 %define version	3.06
-%define release	14sls
+%define release	15avx
 
 %define build_ocamlopt	1
 %define build_ocamltk	1
@@ -149,6 +149,9 @@ n="labltk|camlp4|ocamlbrowser|tkanim"
 %{_libdir}/ocaml/camlp4
 
 %changelog
+* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 3.06-15avx
+- Annvix build
+
 * Sun Mar 07 2004 Vincent Danen <vdanen@opensls.org> 3.06-14sls
 - minor spec cleanups
 - remove %%build_opensls macro
