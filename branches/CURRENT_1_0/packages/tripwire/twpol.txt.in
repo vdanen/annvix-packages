@@ -504,7 +504,7 @@ SIG_HI        = 100 ;                # Critical files that are significant point
 ( rulename = "Boot Scripts", severity = $(SIG_HI) )
 {
   /etc/init.d/annvix_consmap		-> $(SEC_CONFIG) ;
-  /etc/init.d/annvix_everytime		-> $(SEC_CONFIG) ;
+  /etc/init.d/annvix_everytme		-> $(SEC_CONFIG) ;
   /etc/init.d/annvix_firstime		-> $(SEC_CONFIG) ;
   /etc/init.d/functions			-> $(SEC_CONFIG) ;
   /etc/init.d/halt			-> $(SEC_CONFIG) ;
@@ -514,7 +514,7 @@ SIG_HI        = 100 ;                # Critical files that are significant point
   /etc/init.d/killall			-> $(SEC_CONFIG) ;
   /etc/init.d/kudzu			-> $(SEC_CONFIG) ;
   /etc/init.d/network			-> $(SEC_CONFIG) ;
-  /etc/init.d/randomr			-> $(SEC_CONFIG) ;
+  /etc/init.d/random			-> $(SEC_CONFIG) ;
   /etc/init.d/rawdevices		-> $(SEC_CONFIG) ;
   /etc/init.d/single			-> $(SEC_CONFIG) ;
   /etc/init.d/usb			-> $(SEC_CONFIG) ;

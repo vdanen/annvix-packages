@@ -20,6 +20,7 @@ the policy file by reading twpolicy(4).
 .LP
 If you need to make changes to the policy and/or configuration files, you can generate
 a cleartext copy again by decrypting the encrypted equivalents.  To do this, execute:
+.LP
 .nf
        cd /etc/tripwire
        twadmin --print-cfgfile > twcfg.txt
@@ -30,6 +31,7 @@ You can redirect the output to any file you like, but the \fBtwinstall.sh\fR scr
 looks for these exact files if you wish to re-run that script to generate the encrypted
 policy and configuration files.  You can, of course, use twadmin(8) directly for this
 purpose as well:
+.LP
 .nf
        cd /etc/tripwire
        twadmin --create-cfgfile --cfgfile ./tw.cfg \

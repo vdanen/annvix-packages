@@ -1,6 +1,6 @@
 %define name	tripwire
 %define version	2.3.1.2
-%define release	14avx
+%define release	15avx
 
 %define ext	2
 
@@ -143,6 +143,10 @@ chmod 644 README Release_Notes ChangeLog COPYING policy/policyguide.txt TRADEMAR
 %{_datadir}/afterboot/98_tripwire
 
 %changelog
+* Thu Oct 14 2004 Vincent Danen <vdanen@annvix.org> 2.3.1.2-15avx
+- fix some typeos in the default policy
+- fix some space issues in the afterboot snippet
+
 * Wed Oct 13 2004 Vincent Danen <vdanen@annvix.org> 2.3.1.2-14avx
 - add afterboot snippet
 - remove README.RPM
