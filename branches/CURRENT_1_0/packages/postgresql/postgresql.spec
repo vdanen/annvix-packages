@@ -1,6 +1,6 @@
 %define name	postgresql
 %define version	7.3.4
-%define release	5sls
+%define release	6sls
 
 %{expand:%%define pyver %(python -c 'import sys;print(sys.version[0:3])')}
 %{expand:%%define perl_version %(rpm -q perl|sed 's/perl-\([0-9].*\)-.*$/\1/')}
@@ -42,6 +42,7 @@ Source15:	postgresql-bashprofile
 Source20:	postgresql.run
 Source21:	postgresql-log.run
 Source22:	postgresql.sysconfig
+Source23:	01_postgresql.afterboot
 Source51:	README.v7.3
 Source52:	upgrade_tips_7.3
 Patch1:		rpm-pgsql-7.2.patch.bz2
@@ -141,7 +142,7 @@ Development library to libecpg.
 Summary:	The programs needed to create and run a PostgreSQL server.
 Group:		Databases
 Provides:	sqlserver
-Prereq:		rpm-helper %{_sbindir}/useradd
+Prereq:		rpm-helper %{_sbindir}/useradd afterboot
 Requires:	postgresql = %{version}-%{release}
 Conflicts:	postgresql < 7.3
 
@@ -379,6 +380,9 @@ install -m 0755 %{SOURCE21} %{buildroot}%{_srvdir}/postgresql/log/run
 mkdir -p %{buildroot}%{_sysconfdir}/sysconfig
 install -m 0644 %{SOURCE22} %{buildroot}%{_sysconfdir}/sysconfig/postgresql
 
+mkdir -p %{buildroot}%{_datadir}/afterboot
+install -m 0644 %{SOURCE23} %{buildroot}%{_datadir}/afterboot/01_postgresql
+
 %find_lang libpq
 %find_lang libecpg
 %find_lang libpgtcl
@@ -411,6 +415,7 @@ chmod 0700 /var/log/postgresql
 
 %post server
 /sbin/ldconfig
+%_mkafterboot
 
 PGDATA="%{pgdata}/data"
 # create the database if it doesn't exist
@@ -440,6 +445,7 @@ fi
 
 %postun server
 /sbin/ldconfig
+%_mkafterboot
 %_postun_userdel postgres
 
 %post -n %{libname} -p /sbin/ldconfig
@@ -601,6 +607,7 @@ rm -f perlfiles.list
 %{_srvdir}/postgresql/log/run
 %dir %attr(0750,nobody,nogroup) %{_srvlogdir}/postgresql
 %config(noreplace) %{_sysconfdir}/sysconfig/postgresql
+%{_datadir}/afterboot/01_postgresql
 
 %files devel
 %defattr(-,root,root)
@@ -661,6 +668,11 @@ rm -f perlfiles.list
 %attr(-,postgres,postgres) %dir %{_libdir}/pgsql/test
 
 %changelog
+* Sat Jan 31 2004 Vincent Danen <vdanen@opensls.org> 7.3.4-6sls
+- add afterboot snippet
+- use %%_mkafterboot macro
+- Requires: afterboot
+
 * Tue Jan 27 2004 Vincent Danen <vdanen@opensls.org> 7.3.4-5sls
 - use srv macros
 - postgres user has static uid/gid of 75
