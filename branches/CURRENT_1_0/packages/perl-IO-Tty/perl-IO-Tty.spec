@@ -1,7 +1,7 @@
 %define	module	IO-Tty
 %define	name	perl-%{module}
 %define	version	1.02
-%define	release	8sls
+%define	release	9sls
 
 Summary:	IO-Tty perl module: interface to pseudo tty's
 Name: 		%{name}
@@ -39,14 +39,17 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(644,root,root,755)
 %doc ChangeLog README
-%dir %{perl_vendorlib}/%{_arch}-linux-thread-multi/auto/IO/Tty
-%{perl_vendorlib}/%{_arch}-linux-thread-multi/auto/IO/Tty/*
-%{perl_vendorlib}/%{_arch}-linux-thread-multi/IO/*.pm
-%dir %{perl_vendorlib}/%{_arch}-linux-thread-multi/IO/Tty
-%{perl_vendorlib}/%{_arch}-linux-thread-multi/IO/Tty/*
+%dir %{perl_vendorarch}/auto/IO/Tty
+%{perl_vendorarch}/auto/IO/Tty/*
+%{perl_vendorarch}/IO/*.pm
+%dir %{perl_vendorarch}/IO/Tty
+%{perl_vendorarch}/IO/Tty/*
 %{_mandir}/*/*
 
 %changelog
+* Wed Dec 31 2003 Vincent Danen <vdanen@opensls.org> 1.02-9sls
+- sync with 8mdk (gbeauchesne): fix build on amd64
+
 * Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 1.02-8sls
 - OpenSLS build
 - tidy spec
