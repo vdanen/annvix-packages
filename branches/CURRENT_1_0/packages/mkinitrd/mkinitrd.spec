@@ -1,6 +1,6 @@
 %define name	mkinitrd
 %define version 3.4.43
-%define release 15avx
+%define release 17avx
 %define epoch	1
 
 %define use_dietlibc 0
@@ -54,7 +54,7 @@ ramdisk using information found in the /etc/modules.conf file.
 %patch0 -p1 -b .mdk
 %patch1 -p0
 %patch2 -p1 -b .kernel25
-%ifarch %{x86}
+%ifarch %{ix86}
 %patch3 -p1 -b .mkdevices
 %endif
 perl -pi -e 's/grubby//' Makefile
@@ -67,14 +67,14 @@ make
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-make BUILDROOT=$RPM_BUILD_ROOT mandir=%{_mandir} install
+make BUILDROOT=%{buildroot} mandir=%{_mandir} install
 %if %{use_dietlibc}
-mkdir -p $RPM_BUILD_ROOT/sbin
-cp mkinitrd_helper-subdir/insmod-busybox/insmod $RPM_BUILD_ROOT/sbin/insmod-DIET
-cp mkinitrd_helper-subdir/insmod-module-init-tools/insmod $RPM_BUILD_ROOT/sbin/insmod-25-DIET
+mkdir -p %{buildroot}/sbin
+cp mkinitrd_helper-subdir/insmod-busybox/insmod %{buildroot}/sbin/insmod-DIET
+cp mkinitrd_helper-subdir/insmod-module-init-tools/insmod %{buildroot}/sbin/insmod-25-DIET
 %endif
-rm -f $RPM_BUILD_ROOT/sbin/{grubby,installkernel,new-kernel-pkg}
-rm -f $RPM_BUILD_ROOT%{_mandir}/*/grubby*
+rm -f %{buildroot}/sbin/{grubby,installkernel,new-kernel-pkg}
+rm -f %{buildroot}%{_mandir}/*/grubby*
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -85,6 +85,12 @@ rm -f $RPM_BUILD_ROOT%{_mandir}/*/grubby*
 %{_mandir}/*/*
 
 %changelog
+* Tue Jan 18 2005 Vincent Danen <vdanen@annvix.rg> 3.4.43-17avx
+- macros
+
+* Sun Dec 19 2004 Vincent Danen <vdanen@annvix.rg> 3.4.43-16avx
+- s/%%{x86}/%%{ix86}/ so we actually apply the patch where needed
+
 * Sat Dec 18 2004 Vincent Danen <vdanen@annvix.rg> 3.4.43-15avx
 - only apply P3 on x86; x86_64 doesn't need it and hangs with it enabled
 
