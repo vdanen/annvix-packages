@@ -1,6 +1,6 @@
 %define name	courier-imap
 %define version	2.1.2
-%define release	8avx
+%define release	9avx
 
 %define _localstatedir	/var/run
 %define	authdaemondir	%{_localstatedir}/authdaemon.courier-imap
@@ -535,6 +535,12 @@ test ! -f %{courierdatadir}/configlist.mysql || %{courierdatadir}/sysconftool-rp
 %{_mandir}/man1/maildirmake++.1*
 
 %changelog
+* Sat Jul 10 2004 Vincent Danen <vdanen@annvix.org> 2.1.2-9avx
+- fix all of the run scripts; the imap services are reading the config
+  options as env vars so we need to do some monkeying around; also
+  updated them to better match courier-imap's rc scripts (aka everything
+  should work properly now)
+
 * Sat Jul 10 2004 Vincent Danen <vdanen@annvix.org> 2.1.2-8avx
 - fix *ssl runscripts as they need to source the non-ssl configs
   and then the *ssl configs to work properly
