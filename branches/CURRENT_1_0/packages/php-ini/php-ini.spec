@@ -1,6 +1,6 @@
 %define name	php-ini
 %define version	4.3.4
-%define release	2sls
+%define release	3sls
 
 Summary:	INI files for PHP
 Name:		%{name}
@@ -28,6 +28,8 @@ mkdir -p %{buildroot}%{_sysconfdir}
 mkdir -p %{buildroot}%{_sysconfdir}/php
 mkdir -p %{buildroot}%{_libdir}/php/extensions
 bzcat %{SOURCE0} > %{buildroot}%{_sysconfdir}/php.ini
+
+perl -pi -e 's|EXTENSIONDIR|%{_libdir}/php/extensions|g' %{buildroot}%{_sysconfdir}/php.ini
 
 mkdir -p %{buildroot}%{_docdir}/%{name}-%{version}
 echo "Thanks to Oden Eriksson for the scan-dir idea!" > \
@@ -57,6 +59,10 @@ fi
 %doc %{_docdir}/%{name}-%{version}/*
 
 %changelog
+* Fri Jan 09 2004 Vincent Danen <vdanen@opensls.org> 4.3.4-3sls
+- replace /usr/lib/php/extensions in php.ini with EXTENSIONDIR so that
+  we can dynamically create the extension dir (amd64)
+
 * Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 4.3.4-2sls
 - OpenSLS build
 - tidy spec
