@@ -1,0 +1,58 @@
+--- rpm-4.2/lib/psm.c.syslog	2003-05-12 08:21:08.000000000 +0200
++++ rpm-4.2/lib/psm.c	2003-05-12 08:38:20.000000000 +0200
+@@ -2112,11 +2115,31 @@
+ 	else
+ 	    rc = rpmdbAdd(rpmtsGetRdb(ts), rpmtsGetTid(ts), fi->h,
+ 				NULL, NULL);
++#if HAVE_SYSLOG_H
++        {
++	  char *s;
++	  
++	  s = headerSprintf(fi->h, "%{NAME}-%{VERSION}-%{RELEASE}",
++			    rpmTagTable, rpmHeaderFormats, NULL);
++	  syslog(LOG_NOTICE, "[RPM] %s installed\n", s);
++	  s = _free(s);
++	 }
++#endif
+ 	break;
+     case PSM_RPMDB_REMOVE:
+ 	if (rpmtsFlags(ts) & RPMTRANS_FLAG_TEST)	break;
+ 	rc = rpmdbRemove(rpmtsGetRdb(ts), rpmtsGetTid(ts), fi->record,
+ 				NULL, NULL);
++#if HAVE_SYSLOG_H
++        {
++	  char *s;
++	  
++	  s = headerSprintf(fi->h, "%{NAME}-%{VERSION}-%{RELEASE}",
++			    rpmTagTable, rpmHeaderFormats, NULL);
++	  syslog(LOG_NOTICE, "[RPM] %s removed\n", s);
++	  s = _free(s);
++	}
++#endif
+ 	break;
+ 
+     default:
+--- rpm-4.2/system.h.syslog	2003-02-14 22:13:14.000000000 +0100
++++ rpm-4.2/system.h	2003-05-12 08:21:08.000000000 +0200
+@@ -9,6 +9,10 @@
+ #include "config.h"
+ #endif
+ 
++#if HAVE_SYSLOG_H
++#include <syslog.h>
++#endif
++
+ #include <sys/types.h>
+ 
+ #if defined(__LCLINT__)
+--- rpm-4.2/configure.ac.syslog	2003-02-14 23:53:37.000000000 +0100
++++ rpm-4.2/configure.ac	2003-05-12 08:21:08.000000000 +0200
+@@ -373,6 +373,8 @@
+ 
+ dnl Checks for libraries.
+ 
++AC_CHECK_HEADERS(syslog.h)
++
+ WITH_ELFUTILS_SUBDIR=
+ WITH_LIBELF_INCLUDE=
+ WITH_LIBELF_LIB=
