@@ -1,6 +1,6 @@
 %define name	flex
 %define version	2.5.4a
-%define release	22sls
+%define release	23sls
 
 Summary:	A tool for creating scanners (text pattern recognizers)
 Name:		%{name}
@@ -36,8 +36,6 @@ You should install flex if you are going to use your system for
 application development.
 
 %prep
-rm -fr $RPM_BUILD_ROOT
-
 %setup -q -n flex-2.5.4
 %patch0 -p1
 %patch1 -p1
@@ -52,7 +50,7 @@ autoconf
 %make
 
 %install
-
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
 
 cd $RPM_BUILD_ROOT%{_bindir}
@@ -66,7 +64,7 @@ ln -s flex.1 lex.1
 ln -s flex.1 flex++.1
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root,755)
@@ -77,6 +75,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/FlexLexer.h
 
 %changelog
+* Thu Mar 04 2004 Vincent Danen <vdanen@opensls.org> 2.5.4a-23sls
+- minor spec cleanups
+
 * Wed Dec 17 2003 Vincent Danen <vdanen@opensls.org> 2.5.4a-22sls
 - OpenSLS build
 - tidy spec

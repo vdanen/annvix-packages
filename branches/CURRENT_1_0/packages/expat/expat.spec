@@ -1,6 +1,6 @@
 %define name	expat
 %define version 1.95.6
-%define release 5sls
+%define release 6sls
 
 %define libname_orig	libexpat
 %define major		0
@@ -18,7 +18,7 @@ Patch:		expat-1.95.6-enum.patch.bz2
 
 BuildRoot:	%_tmppath/%name-%version-%release-root
 
-Requires:   %{libname} = %{version}-%{release}
+Requires:	%{libname} = %{version}-%{release}
 
 %description
 Expat is an XML 1.0 parser written in C by James Clark.  It aims to be
@@ -56,6 +56,7 @@ Development environment for the expat XML parser
 %make
  
 %install
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall mandir=$RPM_BUILD_ROOT/%{_mandir}/man1
 
 install -D -m 0644 doc/reference.html %buildroot%_docdir/%name-%version/reference.html
@@ -63,7 +64,7 @@ install -D -m 0644 doc/reference.html %buildroot%_docdir/%name-%version/referenc
 rm -f $RPM_BUILD_ROOT/%{_mandir}/xmlwf.1*
 
 %clean
-rm -rf %buildroot
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
@@ -90,6 +91,9 @@ rm -rf %buildroot
 %_libdir/libexpat.la
 
 %changelog
+* Thu Mar 04 2004 Vincent Danen <vdanen@opensls.org> - 1.95.6-6sls
+- minor spec cleanups
+
 * Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> - 1.95.6-5sls
 - OpenSLS build
 - tidy spec

@@ -1,6 +1,6 @@
 %define name	file
 %define version	4.03
-%define release	3sls
+%define release	4sls
 
 %define libname %mklibname magic 1
 
@@ -87,7 +87,7 @@ perl -p -i -e 's/sparc/SPARC/g' Magdir/*
 %make
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p $RPM_BUILD_ROOT%{_bindir}
 mkdir -p $RPM_BUILD_ROOT%{_mandir}/{man1,man5}
 mkdir -p $RPM_BUILD_ROOT%{_datadir}/misc
@@ -99,7 +99,7 @@ ln -sf %{_datadir}/misc/%{name}/magic $RPM_BUILD_ROOT%{_datadir}/misc/magic
 %postun -n %libname -p /sbin/ldconfig
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -125,6 +125,9 @@ rm -rf $RPM_BUILD_ROOT
 %_libdir/*.a
 
 %changelog
+* Thu Mar 04 2004 Vincent Danen <vdanen@opensls.org> 4.03-4sls
+- minor spec cleanups
+
 * Tue Dec 02 2003 Vincent Danen <vdanen@opensls.org> 4.03-3sls
 - OpenSLS build
 - tidy spec

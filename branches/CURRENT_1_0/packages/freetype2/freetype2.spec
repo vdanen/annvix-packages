@@ -1,6 +1,6 @@
 %define name	freetype2
 %define	version	2.1.4
-%define release	7sls
+%define release	8sls
 
 %define major	6
 %define libname	%mklibname freetype %{major}
@@ -74,11 +74,11 @@ freetype2 package installed.
 %make
 
 %install
-rm -fr %buildroot
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
 
 %clean
-rm -fr %buildroot
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
@@ -101,6 +101,9 @@ rm -fr %buildroot
 %{_libdir}/*.a
 
 %changelog
+* Thu Mar 04 2004 Vincent Danen <vdanen@opensls.org> 2.1.4-8sls
+- minor spec cleanups
+
 * Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 2.1.4-7sls
 - OpenSLS build
 - tidy spec

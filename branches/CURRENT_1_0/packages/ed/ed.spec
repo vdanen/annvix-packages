@@ -1,6 +1,6 @@
 %define name	ed
 %define version	0.2
-%define release	31sls
+%define release	32sls
 
 %define _exec_prefix /
 
@@ -47,7 +47,7 @@ rm -f regex.*
 make check
 
 %install
-rm -rf %buildroot
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall mandir=%buildroot/%{_mandir}/man1/
 
 %post
@@ -57,7 +57,7 @@ rm -rf %buildroot
 %_remove_install_info %{name}.info
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root,0755)
@@ -68,6 +68,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/*/*
 
 %changelog
+* Thu Mar 04 2004 Vincent Danen <vdanen@opensls.org> 0.2-32sls
+- minor spec cleanups
+
 * Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 0.2-31sls
 - OpenSLS build
 - tidy spec

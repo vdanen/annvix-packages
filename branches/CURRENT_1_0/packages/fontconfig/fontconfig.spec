@@ -1,6 +1,6 @@
 %define name	fontconfig
 %define version	2.2.1
-%define release	7sls
+%define release	8sls
 
 %define fontconfig_major	1
 %define lib_name		%mklibname %{name} %{fontconfig_major}
@@ -83,7 +83,7 @@ will use fontconfig.
 %make
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %makeinstall_std
 
@@ -91,7 +91,7 @@ rm -rf $RPM_BUILD_ROOT
 rm -rf $RPM_BUILD_ROOT%{_datadir}/doc/fontconfig
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
 %{_bindir}/fc-cache -f >/dev/null
@@ -125,6 +125,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man3/*
 
 %changelog
+* Thu Mar 04 2004 Vincent Danen <vdanen@opensls.org> - 2.2.1-8sls
+- minor spec cleanups
+
 * Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> - 2.2.1-7sls
 - OpenSLS build
 - tidy spec
