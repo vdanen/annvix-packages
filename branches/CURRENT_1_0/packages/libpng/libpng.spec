@@ -1,6 +1,6 @@
 %define name	libpng
 %define version	1.2.5
-%define release	11sls
+%define release	12avx
 %define epoch	2
 
 %define lib_name_orig	libpng
@@ -120,6 +120,9 @@ rm -rf $RPM_BUILD_ROOT%{_prefix}/man
 %{_libdir}/libpng*.a
 
 %changelog
+* Wed Jun 23 2004 Vincent Danen <vdanen@annvix.org> 1.2.5-12avx
+- Annvix build
+
 * Mon Apr 19 2004 Vincent Danen <vdanen@opensls.org> 1.2.5-11sls
 - P1: fix CAN-2004-0421
 

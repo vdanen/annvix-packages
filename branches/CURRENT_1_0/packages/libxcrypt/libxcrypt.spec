@@ -1,6 +1,6 @@
 %define name	libxcrypt
 %define version	2.0
-%define release	2sls
+%define release	3avx
 
 Summary:	Crypt library for DES, MD5, and blowfish
 Name:		%{name}
@@ -73,6 +73,9 @@ rm -f %{buildroot}%{_libdir}/libxcrypt.1
 /%{_lib}/libxcrypt.1
 
 %changelog
+* Wed Jun 22 2004 Vincent Danen <vdanen@annvix.org> 2.0-3avx
+- Annvix build
+
 * Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 2.0-2sls
 - minor spec cleanups
 

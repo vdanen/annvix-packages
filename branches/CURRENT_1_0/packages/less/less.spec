@@ -1,6 +1,6 @@
 %define name	less
 %define version	381
-%define release	4sls
+%define release	5avx
 
 Summary:	A text file browser similar to more, but better.
 Name:		%{name}
@@ -67,6 +67,9 @@ install -m 644 less{echo,pipe}.1 $RPM_BUILD_ROOT%_mandir/man1
 %_mandir/man1/*
 
 %changelog
+* Wed Jun 23 2004 Vincent Danen <vdanen@annvix.org> 381-5avx
+- Annvix build
+
 * Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 381-4sls
 - minor spec cleanups
 

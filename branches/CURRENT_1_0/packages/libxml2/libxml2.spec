@@ -1,6 +1,6 @@
 %define name	libxml2
 %define version	2.5.11
-%define release	4sls
+%define release	5avx
 
 %define major	2
 %define libname	%mklibname xml %{major}
@@ -157,6 +157,9 @@ rm -rf	$RPM_BUILD_ROOT%{_prefix}/doc \
 %{_datadir}/aclocal/*
 
 %changelog
+* Wed Jun 23 2004 Vincent Danen <vdanen@annvix.org> 2.5.11-5avx
+- Annvix build
+
 * Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 2.5.11-4sls
 - remove duplicate docs
 - more complete fix for CAN-2004-0110

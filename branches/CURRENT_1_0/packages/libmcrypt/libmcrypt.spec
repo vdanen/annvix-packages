@@ -1,6 +1,6 @@
 %define name	libmcrypt
 %define version	2.5.7
-%define release	7sls
+%define release	8avx
 
 %define major	4
 %define libname	%mklibname mcrypt %{major}
@@ -134,6 +134,9 @@ Install it if you want to develop such applications.
 %{_libdir}/%{name}/*.so
 
 %changelog
+* Wed Jun 23 2004 Vincent Danen <vdanen@annvix.org> 2.5.7-8avx
+- Annvix build
+
 * Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 2.5.7-7sls
 - remove %%prefix
 - minor spec cleanups

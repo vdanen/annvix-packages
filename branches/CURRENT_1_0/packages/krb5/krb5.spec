@@ -1,6 +1,6 @@
 %define name	krb5
 %define version	1.3
-%define release	8sls
+%define release	9avx
 
 %define srcver	1.3
 %define LIBMAJ	1
@@ -535,6 +535,9 @@ fi
 %{_srvdir}/kftp/log/run
 
 %changelog
+* Wed Jun 23 2004 Vincent Danen <vdanen@annvix.org> 1.3-9avx
+- Annvix build
+
 * Thu Jun 03 2004 Vincent Danen <vdanen@opensls.org> 1.3-8sls
 - remove all un-applied patches; renumber patches
 - P4: fix for MITKRB5-SA-2004-001

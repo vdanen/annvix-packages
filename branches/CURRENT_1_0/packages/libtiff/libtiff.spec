@@ -1,6 +1,6 @@
 %define name	libtiff
 %define	version	3.5.7
-%define release 13sls
+%define release 14avx
 
 %define lib_version	3.5
 %define lib_major	3
@@ -146,6 +146,9 @@ ln -sf %{name}.so.%{lib_version} %{name}.so.%{lib_major}
 %_libdir/*.a
 
 %changelog
+* Wed Jun 23 2004 Vincent Danen <vdanen@annvix.org> 3.5.7-14avx
+- Annvix build
+
 * Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 3.5.7-13sls
 - minor spec cleanups
 

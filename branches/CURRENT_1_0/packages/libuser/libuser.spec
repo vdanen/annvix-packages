@@ -1,6 +1,6 @@
 %define name	libuser
 %define version	0.51.7
-%define release	10sls
+%define release	11avx
 
 %define python	2.3
 %define major	1
@@ -139,6 +139,9 @@ rm -rf	$RPM_BUILD_ROOT/usr/share/man/man3/userquota.3
 %{_datadir}/gtk-doc/html/*
 
 %changelog
+* Wed Jun 22 2004 Vincent Danen <vdanen@annvix.org> 0.51.7-11avx
+- Annvix build
+
 * Mon May 17 2004 Vincent Danen <vdanen@opensls.org> 0.51.7-10sls
 - security fixes from Steve Grubb
 

@@ -1,6 +1,6 @@
 %define name	libjpeg
 %define	version	6b
-%define release 34sls
+%define release 35avx
 
 %define lib_major	62
 %define lib_name_orig	libjpeg
@@ -158,6 +158,9 @@ mkdir -p %buildroot/{%{_bindir},%{_libdir},%{_includedir},%{_mandir}/man1}
 %{_mandir}/man1/*
 
 %changelog
+* Wed Jun 23 2004 Vincent Danen <vdanen@annvix.org> 6b-35avx
+- Annvix build
+
 * Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 6b-34sls
 - minor spec cleanups
 - get rid of same docs in multiple packages

@@ -1,6 +1,6 @@
 %define name	%mklibname net 1.0
 %define version 1.0.2a
-%define release 4sls
+%define release 5avx
 
 Summary:	A C library for portable packet creation
 Name:		%{name}-devel
@@ -64,6 +64,9 @@ rm -f $RPM_BUILD_ROOT/%{_libdir}/libpwrite
 %{_includedir}/libnet/*
 
 %changelog
+* Wed Jun 23 2004 Vincent Danen <vdanen@annvix.org> 1.0.2a-5avx
+- Annvix build
+
 * Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 1.0.2a-4sls
 - minor spec cleanups
 
