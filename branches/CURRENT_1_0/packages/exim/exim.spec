@@ -1,11 +1,10 @@
 %define name	exim
-%define version 4.42
+%define version 4.43
 %define release 1avx
 
 %define build_mysql 0
 %define build_pgsql 0
-%define build_mon   0
-%define exiscanver  4.42-27
+%define exiscanver  4.43-28
 %define saversion   4.1
 
 %define alternatives 1
@@ -38,16 +37,15 @@ Source11:	http://www.exim.org/ftp/exim4/config.samples.tar.bz2
 Source12:	sa-exim-%{saversion}.tar.gz
 Source13:	exim.run
 Source14:	exim-log.run
-Patch0:		exim-4.33-config.patch.bz2
+Patch0:		exim-4.43-avx-config.patch.bz2
 Patch1:		http://duncanthrax.net/exiscan-acl/exiscan-acl-%{exiscanver}.patch.bz2
 Patch2:		exim-4.22-install.patch.bz2
+Patch3:		exim-4.43-debian-system_pcre.diff.bz2
+Patch4:		exim-4.43-debian-dontoverridecflags.diff.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}
 BuildRequires:	tcp_wrappers-devel, pam-devel, openssl, openssl-devel, openldap-devel, lynx
-BuildRequires:	db4-devel >= 4.1
-%if %{build_mon}
-BuildRequires:	XFree86-devel
-%endif
+BuildRequires:	db4-devel >= 4.1, pcre-devel, perl-devel
 %if %{build_mysql}
 BuildRequires:	libmysql-devel
 %endif
@@ -82,20 +80,6 @@ messages per day.
 
 A utility, eximconfig, is included to simplify exim configuration.
 
-%if %{build_mon}
-%package mon
-Summary:	X11 monitor application for exim
-Group:		Monitoring
-Copyright:	GPL
-Requires:	%{name}, XFree86
-
-%description mon
-The Exim Monitor is an optional supplement to the Exim package. It
-displays information about Exim's processing in an X window, and an
-administrator can perform a number of control actions from the window
-interface.
-%endif
-
 %package saexim
 Summary:	Exim SpamAssassin at SMTP time plugin
 Group:		System/Servers
@@ -120,9 +104,6 @@ cat sa-exim*/localscan_dlopen_exim_4.20_or_better.patch | patch -p1
 %build
 # pre-build setup
 cp src/EDITME Local/Makefile
-%if %{build_mon}
-cp exim_monitor/EDITME Local/eximon.conf
-%endif
 
 # modify Local/Makefile for our builds
 %if !%{build_mysql}
@@ -134,9 +115,6 @@ cp exim_monitor/EDITME Local/eximon.conf
   perl -pi -e 's|LOOKUP_PGSQL=yes|#LOOKUP_PGSQL=yes|g' Local/Makefile
   perl -pi -e 's|-lpq||g' Local/Makefile
   perl -pi -e 's|-I /usr/include/pgsql||g' Local/Makefile
-%endif
-%if !%{build_mon}
-  perl -pi -e 's|EXIM_MONITOR=|#EXIM_MONITOR=|g' Local/Makefile
 %endif
 %ifarch amd64 x86_64
   perl -pi -e 's|X11\)/lib|X11\)/lib64|g' OS/Makefile-Linux
@@ -297,13 +275,6 @@ fi
 %{_srvdir}/exim/log/run
 %dir %attr(0750,nobody,nogroup) %{_srvlogdir}/exim
 
-%if %{build_mon}
-%files mon
-%defattr(-,root,root)
-%{_bindir}/eximon
-%{_bindir}/eximon.bin
-%endif
-
 %files saexim
 %defattr(-,root,root)
 %doc sa-exim*/*.html sa-exim*/{ACKNOWLEDGEMENTS,INSTALL,LICENSE,TODO}
@@ -313,9 +284,19 @@ fi
 %config(noreplace) %{_sysconfdir}/exim/sa-exim_short.conf
 
 %changelog
-* Mon Sep 20 2004 Vincent Danen <vdanen@annvix.org> 4.41-2avx
+* Mon Dec 20 2004 Vincent Danen <vdanen@annvix.org> 4.43-1avx
+- 4.43
+- exiscan-acl 4.43-28
+- P3: use system pcre libs
+- P4: don't override cflags
+- remove exim-mon completely
+- BuildRequires: pcre-devel, perl-devel
+- enable IPv6 support
+- enable cyrus-sasl support
+
+* Mon Sep 20 2004 Vincent Danen <vdanen@annvix.org> 4.42-1avx
 - 4.42
-- exiscan-acl 4.41-27
+- exiscan-acl 4.42-27
 - update run scripts
 
 * Thu Aug 19 2004 Vincent Danen <vdanen@annvix.org> 4.41-1avx
