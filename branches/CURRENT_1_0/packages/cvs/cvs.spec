@@ -1,9 +1,11 @@
 %define name	cvs
 %define version	1.11.10
-%define release	1sls
+%define release	2sls
 
 %define url	ftp://ftp.cvshome.org/pub
 %define _requires_exceptions tcsh
+
+%{!?build_opensls:%global build_opensls 0}
 
 Summary:	A version control system
 Name:		%{name}
@@ -16,6 +18,8 @@ Source: 	%{url}/cvs-%{version}/cvs-%{version}.tar.bz2
 Source1: 	cvspserver
 Source2: 	cvs.conf
 Source3: 	cvs-xinetd
+Source4:	cvs.run
+Source5:	cvs-log.run
 Patch4: 	cvs-1.11.2-zlib.patch.bz2
 Patch6: 	cvs-1.11.10-errno.patch.bz2
 Patch8:		cvs-1.11-ssh.patch.bz2
@@ -72,8 +76,10 @@ make -C doc info
 %install
 rm -rf $RPM_BUILD_ROOT
 
+%if !%{build_opensls}
 mkdir -p %buildroot/etc/xinetd.d/
 install -m644 %{SOURCE3} %buildroot/etc/xinetd.d/%{name}
+%endif
 bzip2 -f doc/*.ps
 
 %makeinstall
@@ -85,6 +91,13 @@ install -m 644 %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/cvs
 
 # get rid of "no -f" so we don't have a Dep on this nonexistant interpretter
 perl -pi -e 's/no -f/\/bin\/sh/g' %{buildroot}%{_datadir}/cvs/contrib/sccs2rcs
+
+%if %{build_opensls}
+mkdir -p %{buildroot}/var/service/cvspserver/log
+install -m 0755 %{SOURCE4} %{buildroot}/var/service/cvspserver/run
+install -m 0755 %{SOURCE5} %{buildroot}/var/service/cvspserver/log/run
+mkdir -p %{buildroot}/var/log/supervise/cvspserver
+%endif
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -102,7 +115,9 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root)
 %doc BUGS FAQ MINOR-BUGS NEWS PROJECTS TODO README
 %doc doc/*.ps.bz2
+%if !%{build_opensls}
 %config(noreplace) /etc/xinetd.d/%{name}
+%endif
 %{_bindir}/cvs
 %{_bindir}/cvsbug
 %{_bindir}/rcs2log
@@ -113,8 +128,18 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/cvs
 %{_sbindir}/cvspserver
 %config(noreplace) %{_sysconfdir}/cvs/cvs.conf
+%if %{build_opensls}
+%dir /var/service/cvspserver
+%dir /var/service/cvspserver/log
+/var/service/cvspserver/run
+/var/service/cvspserver/log/run
+%dir %attr(0750,nobody,nogroup) /var/log/supervise/cvspserver
+%endif
 
 %changelog
+* Tue Dec 30 2003 Vincent Danen <vdanen@opensls.org> 1.11.10-2sls
+- put supervise run scripts in if %%build_opensls; remove xinetd support
+
 * Tue Dec 09 2003 Vincent Danen <vdanen@opensls.org> 1.11.10-1sls
 - OpenSLS build
 - tidy spec
