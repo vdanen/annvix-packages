@@ -1,0 +1,18 @@
+2002-07-05  Gwenole Beauchesne  <gbeauchesne@mandrakesoft.com>
+
+	* sysdeps/unix/sysv/linux/i386/dl-procinfo.h (_DL_HWCAP_PLATFORM):
+	Compute from actual _DL_PLATFORMS_COUNT.
+	* sysdeps/generic/dl-cache.c (_dl_load_cache_lookup): Do perform
+	the platform check in HWCAP_CHECK even if _dl_platform is NULL.
+
+--- glibc-2.2.5/sysdeps/generic/dl-cache.c.hwcap-check-platform	2001-11-08 02:47:26.000000000 +0100
++++ glibc-2.2.5/sysdeps/generic/dl-cache.c	2002-07-05 15:14:14.000000000 +0200
+@@ -230,7 +230,7 @@ _dl_load_cache_lookup (const char *name)
+ #define HWCAP_CHECK \
+       if (_dl_osversion	&& cache_new->libs[middle].osversion > _dl_osversion) \
+ 	continue;							      \
+-      if (_DL_PLATFORMS_COUNT && platform != -1				      \
++      if (_DL_PLATFORMS_COUNT						      \
+ 	  && (lib->hwcap & _DL_HWCAP_PLATFORM) != 0			      \
+ 	  && (lib->hwcap & _DL_HWCAP_PLATFORM) != platform)		      \
+ 	continue;							      \
