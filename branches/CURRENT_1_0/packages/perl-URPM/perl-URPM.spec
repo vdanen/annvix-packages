@@ -1,5 +1,5 @@
 %define name	perl-URPM
-%define version 1.03
+%define version 1.07
 %define release 1avx
 
 %define real_name URPM
@@ -10,6 +10,7 @@
 %{expand:%%define compat_makeinstall_std %(perl -e 'printf "%%s\n", "%{?makeinstall_std:1}" ? "%%makeinstall_std" : "%%{__make} install PREFIX=%%{buildroot}%%{_prefix}"')}
 %{expand:%%define compat_perl_vendorarch %(perl -MConfig -e 'printf "%%s\n", "%{?perl_vendorarch:1}" ? "%%{perl_vendorarch}" : "$Config{installvendorarch}"')}
 %{expand:%%define buildreq_perl_devel %%(perl -e 'printf "%%s\\n", "%_vendor" =~ /mandrake/i ? "perl-devel" : "perl"')}
+%define _require_exceptions perl(URPM::DB)\\|perl(URPM::Package)\\|perl(URPM::Transaction)
 
 Summary:	URPM module for perl
 Name:		%{name}
@@ -24,6 +25,7 @@ BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
 BuildRequires:	%{buildreq_perl_devel} rpm-devel >= 4.0.3 bzip2-devel
 
 Requires:	rpm >= %{rpm_version}, bzip2 >= 1.0
+Requires:	rpmtools >= 5.0.0, perl-base >= 2:5.8.6
 Provides:	perl(URPM::Build) = %{version}-%{release}
 Provides:	perl(URPM::Resolve) = %{version}-%{release}
 Provides:	perl(URPM::Signature) = %{version}-%{release}
@@ -48,7 +50,7 @@ hdlist files and manage them in memory.
 
 %files
 %defattr(-,root,root)
-%doc README
+%doc README ChangeLog
 %{compat_perl_vendorarch}/URPM.pm
 %{compat_perl_vendorarch}/URPM
 %dir %{compat_perl_vendorarch}/auto/URPM
@@ -57,6 +59,13 @@ hdlist files and manage them in memory.
 
 
 %changelog
+* Wed Feb 02 2005 Vincent Danen <vdanen@annvix.org> 1.07-1avx
+- 1.07
+- remove unused requires (rgarciasuarez)
+- include ChangeLog
+- Requires: rpmtools >= 5.0.0
+- Requires: perl-base >= 5.8.6
+
 * Tue Sep 14 2004 Vincent Danen <vdanen@annvix.org> 1.03-1avx
 - 1.03
 
