@@ -1,10 +1,12 @@
 %define name	cups
 %define version	1.1.19
-%define release	12sls
+%define release	13sls
 
 %define major	2
 %define libname	%mklibname cups %{major}
 %define real_version %{version}
+
+%{!?build_opensls:%global build_opensls 0}
 
 Summary:	Common Unix Printing System - Server package
 Name:		%{name}
@@ -322,7 +324,9 @@ gcc -olphelp -I. -I./cups -L./cups -lcups lphelp.c
 
 %install
 rm -rf $RPM_BUILD_ROOT
+%if !%{build_opensls}
 mkdir -p $RPM_BUILD_ROOT%{_initrddir}
+%endif
 
 make install BUILDROOT=$RPM_BUILD_ROOT
 	     LOGDIR=$RPM_BUILD_ROOT%{_var}/log/cups \
@@ -375,9 +379,11 @@ install -m 755 cjktexttops $RPM_BUILD_ROOT%{_libdir}/cups/filter/
 rm -f $RPM_BUILD_ROOT%{_datadir}/cups/data/testprint.ps
 ln -s %{_datadir}/printer-testpages/testprint.ps $RPM_BUILD_ROOT%{_datadir}/cups/data/testprint.ps
 
+%if !%{build_opensls}
 # install menu icon
 mkdir -p $RPM_BUILD_ROOT%{_iconsdir}/locolor/16x16/apps/
 install -m 644 cups.png $RPM_BUILD_ROOT%{_iconsdir}/locolor/16x16/apps/
+%endif
 
 # install script to call the web interface from the menu
 install -d $RPM_BUILD_ROOT%{_libdir}/cups/scripts/
@@ -407,7 +413,6 @@ mkdir -p %{buildroot}/var/service/cups/log
 mkdir -p %{buildroot}/var/log/supervise/cups
 install -m 0755 %{SOURCE20} %{buildroot}/var/service/cups/run
 install -m 0755 %{SOURCE21} %{buildroot}/var/service/cups/log/run
-rm -f %{buildroot}%{_datadir}/icons/locolor/16x16/apps/cups.png
 %else
 # entry for xinetd (disabled by default)
 install -d $RPM_BUILD_ROOT%{_sysconfdir}/xinetd.d
@@ -441,8 +446,12 @@ icon="%{_iconsdir}/locolor/16x16/apps/cups.png"
 EOF
 %endif
 
+%if %{build_opensls}
+rm -rf $RPM_BUILD_ROOT%{_initrddir}
+%else
 # Install startup script
 install -m 755 cups.startup $RPM_BUILD_ROOT%{_initrddir}/cups
+%endif
 
 # Install script for automatic CUPS configuration
 bzcat %{SOURCE7} > $RPM_BUILD_ROOT%{_sbindir}/correctcupsconfig
@@ -583,7 +592,9 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{_sysconfdir}/cups/ppd
 %config(noreplace) %{_sysconfdir}/cups/printers.conf
 %config(noreplace) %{_sysconfdir}/cups/ssl
+%if !%{build_opensls}
 %config(noreplace) %{_initrddir}/cups
+%endif
 %config(noreplace) %{_sysconfdir}/pam.d/cups
 %if %{build_opensls}
 %dir /var/service/cups
@@ -667,6 +678,9 @@ rm -rf $RPM_BUILD_ROOT
 ##### CHANGELOG #####
 
 %changelog
+* Sat Jan 10 2004 Vincent Danen <vdanen@opensls.org> 1.1.19-13sls
+- don't install initscript
+
 * Wed Dec 31 2003 Vincent Danen <vdanen@opensls.org> 1.1.19-12sls
 - don't install menu or xinetd stuff
 - supervise files
