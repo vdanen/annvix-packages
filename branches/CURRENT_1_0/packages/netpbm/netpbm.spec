@@ -1,6 +1,6 @@
 %define name	netpbm
 %define version 9.24
-%define release 10avx
+%define release 11avx
 
 %define major			9
 %define libname	%mklibname	%{name} %{major}
@@ -23,6 +23,7 @@ Patch1:		netpbm-9.9-time.patch.bz2
 Patch2: 	netpbm-9.24-struct.patch.bz2
 Patch3:		netpbm-9.24-security-ac.patch
 Patch4:		netpbm-9.24-lib64.patch.bz2
+Patch5:		netpbm-9.24-debiansecurity.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-root
 BuildRequires:	flex, png-devel, jpeg-devel, tiff-devel, perl
@@ -93,6 +94,7 @@ need to have the netpbm package installed.
 %patch2 -p1 -b .struct
 %patch3 -p1 -b .security
 %patch4 -p1 -b .lib64
+%patch5 -p1 -b .can-2003-0924
 
 mv shhopt/shhopt.h shhopt/pbmshhopt.h
 perl -pi -e 's|shhopt.h|pbmshhopt.h|g' `find -name "*.c" -o -name "*.h"` ./GNUmakefile
@@ -131,54 +133,54 @@ make \
 rm -f buildtools/try_ldconfig
 ln -sf /bin/true buildtools/try_ldconfig
 
-mkdir -p %buildroot/usr/share/printconf/mf_rules
-cp %{SOURCE1} %buildroot/usr/share/printconf/mf_rules/
+mkdir -p %{buildroot}%{_datadir}/printconf/mf_rules
+cp %{SOURCE1} %{buildroot}%{_datadir}/printconf/mf_rules/
 
-mkdir -p %buildroot/usr/share/printconf/tests
-cp test-images/* %buildroot/usr/share/printconf/tests/
+mkdir -p %{buildroot}%{_datadir}/printconf/tests
+cp test-images/* %{buildroot}%{_datadir}/printconf/tests/
 
 PATH="`pwd`:${PATH}" make install \
-	JPEGINC_DIR=%buildroot/%{_includedir} \
-	PNGINC_DIR=%buildroot/%{_includedir} \
-	TIFFINC_DIR=%buildroot/%{_includedir} \
-	INSTALL_PREFIX=%buildroot/%{_prefix} \
-	INSTALLBINARIES=%buildroot/%{_bindir} \
-	INSTALLHDRS=%buildroot/%{_includedir} \
-	INSTALLLIBS=%buildroot/%{_libdir} \
-	INSTALLSTATICLIBS=%buildroot/%{_libdir} \
-	INSTALLDATA=%buildroot/%{_datadir}/%{name}-%{version} \
-	INSTALLMANUALS1=%buildroot/%{_mandir}/man1 \
-	INSTALLMANUALS3=%buildroot/%{_mandir}/man3 \
-	INSTALLMANUALS5=%buildroot/%{_mandir}/man5
+	JPEGINC_DIR=%{buildroot}%{_includedir} \
+	PNGINC_DIR=%{buildroot}%{_includedir} \
+	TIFFINC_DIR=%{buildroot}%{_includedir} \
+	INSTALL_PREFIX=%{buildroot}%{_prefix} \
+	INSTALLBINARIES=%{buildroot}%{_bindir} \
+	INSTALLHDRS=%{buildroot}%{_includedir} \
+	INSTALLLIBS=%{buildroot}%{_libdir} \
+	INSTALLSTATICLIBS=%{buildroot}%{_libdir} \
+	INSTALLDATA=%{buildroot}%{_datadir}/%{name}-%{version} \
+	INSTALLMANUALS1=%{buildroot}%{_mandir}/man1 \
+	INSTALLMANUALS3=%{buildroot}%{_mandir}/man3 \
+	INSTALLMANUALS5=%{buildroot}%{_mandir}/man5
 
 # Install header files.
-mkdir -p %buildroot/%{_includedir}
-install -m644 pbm/pbm.h %buildroot/%{_includedir}/
-#install -m644 pbmplus.h %buildroot/%{_includedir}/
-install -m644 pgm/pgm.h %buildroot/%{_includedir}/
-install -m644 pnm/pnm.h %buildroot/%{_includedir}/
-install -m644 ppm/ppm.h %buildroot/%{_includedir}/
-install -m644 shhopt/pbmshhopt.h %buildroot/%{_includedir}/
+mkdir -p %{buildroot}%{_includedir}
+install -m644 pbm/pbm.h %{buildroot}%{_includedir}/
+#install -m644 pbmplus.h %{buildroot}%{_includedir}/
+install -m644 pgm/pgm.h %{buildroot}%{_includedir}/
+install -m644 pnm/pnm.h %{buildroot}%{_includedir}/
+install -m644 ppm/ppm.h %{buildroot}%{_includedir}/
+install -m644 shhopt/pbmshhopt.h %{buildroot}%{_includedir}/
 
 # Install the static-only librle.a
-install -m644 urt/{rle,rle_config}.h %buildroot/%{_includedir}/
-install -m644 urt/librle.a %buildroot/%{_libdir}/
+install -m644 urt/{rle,rle_config}.h %{buildroot}%{_includedir}/
+install -m644 urt/librle.a %{buildroot}%{_libdir}/
 
 # Fixup symlinks.
-ln -sf gemtopnm %buildroot/%{_bindir}/gemtopbm
-ln -sf pnmtoplainpnm %buildroot/%{_bindir}/pnmnoraw
-rm -f %buildroot/%{_libdir}/libpbm.so
-rm -f %buildroot/%{_libdir}/libpgm.so
-rm -f %buildroot/%{_libdir}/libpnm.so
-rm -f %buildroot/%{_libdir}/libppm.so
-ln -sf libpbm.so.9 %buildroot/%{_libdir}/libpbm.so
-ln -sf libpgm.so.9 %buildroot/%{_libdir}/libpgm.so
-ln -sf libpnm.so.9 %buildroot/%{_libdir}/libpnm.so
-ln -sf libppm.so.9 %buildroot/%{_libdir}/libppm.so
+ln -sf gemtopnm %{buildroot}%{_bindir}/gemtopbm
+ln -sf pnmtoplainpnm %{buildroot}%{_bindir}/pnmnoraw
+rm -f %{buildroot}%{_libdir}/libpbm.so
+rm -f %{buildroot}%{_libdir}/libpgm.so
+rm -f %{buildroot}%{_libdir}/libpnm.so
+rm -f %{buildroot}%{_libdir}/libppm.so
+ln -sf libpbm.so.9 %{buildroot}%{_libdir}/libpbm.so
+ln -sf libpgm.so.9 %{buildroot}%{_libdir}/libpgm.so
+ln -sf libpnm.so.9 %{buildroot}%{_libdir}/libpnm.so
+ln -sf libppm.so.9 %{buildroot}%{_libdir}/libppm.so
 
 
 # Fixup perl paths in the two scripts that require it.
-perl -pi -e 's^/bin/perl^%{__perl}^' %buildroot/%{_bindir}/{ppmfade,ppmshadow}
+perl -pi -e 's^/bin/perl^%{__perl}^' %{buildroot}%{_bindir}/{ppmfade,ppmshadow}
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -207,11 +209,15 @@ perl -pi -e 's^/bin/perl^%{__perl}^' %buildroot/%{_bindir}/{ppmfade,ppmshadow}
 %attr(755,root,root) %{_bindir}/*
 %{_mandir}/man[15]/*
 %{_datadir}/%{name}-%{version}/*.map
-%_datadir/printconf/mf_rules/*
-%_datadir/printconf/tests/*
+%{_datadir}/printconf/mf_rules/*
+%{_datadir}/printconf/tests/*
 
 
 %changelog
+* Fri Sep 24 2004 Vincent Danen <vdanen@annvix.org> 9.24-11avx
+- include missing security patch for CAN-2003-0924
+- spec cleanups
+
 * Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 9.24-10avx
 - require packages not files
 - Annvix build
