@@ -1,6 +1,6 @@
 %define name	elfutils
-%define version	0.84
-%define release	4avx
+%define version	0.89
+%define release	1avx
 
 %define major	1
 %define libname	%mklibname %{name} %{major}
@@ -19,7 +19,8 @@ Release:	%{release}
 License:	GPL
 Group:		Development/Other
 Source:		elfutils-%{version}.tar.bz2
-Requires:	%{libname} = %{version}-%{release}
+Patch0:		elfutils-0.89-mdk-fixlets.patch.bz2
+Patch1:		elfutils-0.89-gentoo-atime.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-root
 BuildRequires:	gcc >= 3.2, sharutils, libtool-devel
@@ -83,6 +84,8 @@ ELF, and machine-specific ELF handling.
 
 %prep
 %setup -q
+%patch0 -p1 -b .fixlets
+%patch1 -p1 -b .atime
 
 %build
 mkdir build-%{_target_platform}
@@ -115,14 +118,13 @@ chmod +x $RPM_BUILD_ROOT%{_libdir}/elfutils/lib*.so*
   rm -f .%{_includedir}/elfutils/libasm.h
   rm -f .%{_includedir}/elfutils/libdw.h
   rm -f .%{_includedir}/elfutils/libdwarf.h
-  rm -f .%{_libdir}/libasm-%{version}.so
+  rm -f .%{_libdir}/libasm{-%{version},}.so
   rm -f .%{_libdir}/libasm.a
   rm -f .%{_libdir}/libasm.so
-  rm -f .%{_libdir}/libdw-%{version}.so
+  rm -f .%{_libdir}/libdw{-%{version},}.so
   rm -f .%{_libdir}/libdw.a
   rm -f .%{_libdir}/libdw.so
-  rm -f .%{_libdir}/libdwarf.a
-  rm -f .%{_libdir}/libdwarf.so
+  rm -f .%{_libdir}/libdwarf.{a,so}
 }
 
 %clean
@@ -133,7 +135,7 @@ chmod +x $RPM_BUILD_ROOT%{_libdir}/elfutils/lib*.so*
 
 %files
 %defattr(-,root,root)
-%doc README TODO libdwarf/AVAILABLE
+%doc README NEWS TODO libdwarf/AVAILABLE
 %{_bindir}/eu-elflint
 #%{_bindir}/eu-ld
 %{_bindir}/eu-nm
@@ -154,7 +156,7 @@ chmod +x $RPM_BUILD_ROOT%{_libdir}/elfutils/lib*.so*
 %{_includedir}/elfutils/libebl.h
 #%{_libdir}/libasm.so
 #%{_libdir}/libdwarf.so
-%{_libdir}/libebl.so
+#%{_libdir}/libebl.so
 %{_libdir}/libelf.so
 #%{_libdir}/libdw.so
 
@@ -171,14 +173,19 @@ chmod +x $RPM_BUILD_ROOT%{_libdir}/elfutils/lib*.so*
 %{_libdir}/libelf*.so.*
 #%{_libdir}/libasm-%{version}.so
 #%{_libdir}/libasm*.so.*
-%{_libdir}/libebl-%{version}.so
-%{_libdir}/libebl*.so.*
+#%{_libdir}/libebl-%{version}.so
+#%{_libdir}/libebl*.so.*
 #%{_libdir}/libdw-%{version}.so
 #%{_libdir}/libdw*.so.*
 %{_libdir}/libdwarf-%{version}.so
 %{_libdir}/libdwarf*.so.*
 
 %changelog
+* Sun Sep 12 2004 Vincent Danen <vdanen@annvix.org> 0.89-1avx
+- 0.89
+- P0: fix some -Werror issues (gbeauchesne)
+- P1: atime alpha patch, obtained from Gentoo; bug #27372 (stefan)
+
 * Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 0.84-4avx
 - Annvix build
 
