@@ -1,37 +1,36 @@
+%define name	lilo
 %define version 22.5.7.2
-%define release 6mdk
+%define release 7sls
 
-Summary: The boot loader for Linux and other operating systems.
-Name: lilo
-Version: %{version}
-Release: %{release}
-Epoch: 1
-License: MIT
-Group: System/Kernel and hardware
-URL: http://brun.dyndns.org/pub/linux/lilo/
-Source: http://home.san.rr.com/johninsd/pub/linux/lilo/lilo-%{version}.tar.bz2
-Source2: lilo-graphic-pictures.tar.bz2
+%{!?build_opensls:%global build_opensls 0}
+
+Summary:	The boot loader for Linux and other operating systems.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+Epoch:		1
+Group:		System/Kernel and hardware
+License:	MIT
+URL:		http://brun.dyndns.org/pub/linux/lilo/
+Source:		http://home.san.rr.com/johninsd/pub/linux/lilo/lilo-%{version}.tar.bz2
+Source2:	lilo-graphic-pictures.tar.bz2
 #ftp://metalab.unc.edu/pub/Linux/system/boot/lilo/lilo-%{version}.tar.bz2
 #Source: ftp://lrcftp.epfl.ch/pub/linux/local/lilo/
-Patch0: lilo-21.6-keytab-3mdk.patch.bz2
-Patch1: lilo-disks-without-partitions.patch.bz2
-Patch9: lilo-22.5.1-unsafe-and-default-table.patch.bz2
-Patch20: lilo-22.5.7.2-graphic-makefile.patch.bz2
-Patch21: lilo-22.5.1-graphic.patch.bz2
-Patch22: lilo-22.5.5-mandir.patch.bz2
-Patch23: lilo-22.5.7.2-allgraph.patch.bz2
-Patch24: lilo-22.5.7.2-progress.patch.bz2
-Packager: Pixel <pixel@mandrakesoft.com>
-BuildRequires: tetex-latex tetex-dvips tetex-dvipdfm dev86 dev86-devel nasm
-PreReq: /usr/bin/perl
-Conflicts: lilo-doc < 22.5.7.2-6mdk
-Exclusivearch: %{ix86}
-Buildroot: %{_tmppath}/lilo-root
+Patch0:		lilo-21.6-keytab-3mdk.patch.bz2
+Patch1:		lilo-disks-without-partitions.patch.bz2
+Patch9:		lilo-22.5.1-unsafe-and-default-table.patch.bz2
+Patch20:	lilo-22.5.7.2-graphic-makefile.patch.bz2
+Patch21:	lilo-22.5.1-graphic.patch.bz2
+Patch22:	lilo-22.5.5-mandir.patch.bz2
+Patch23:	lilo-22.5.7.2-allgraph.patch.bz2
+Patch24:	lilo-22.5.7.2-progress.patch.bz2
 
-%package doc
-Summary: More doc for %{name}
-Group: System/Kernel and hardware
-Conflicts: lilo < 22.5.7.2-6mdk
+BuildRoot:	%{_tmppath}/%{name}-root
+BuildRequires:	dev86 dev86-devel nasm
+
+PreReq:		/usr/bin/perl
+Conflicts:	lilo-doc < 22.5.7.2-6mdk
+Exclusivearch:	%{ix86}
 
 %description
 LILO (LInux LOader) is a basic system program which boots your Linux
@@ -39,8 +38,16 @@ system.  LILO loads the Linux kernel from a floppy or a hard drive, boots
 the kernel and passes control of the system to the kernel.  LILO can also
 boot other operating systems.
 
+%if !%{build_opensls}
+%package doc
+Summary:	More doc for %{name}
+Group:		System/Kernel and hardware
+Conflicts:	lilo < 22.5.7.2-6mdk
+BuildRequires:	tetex-latex tetex-dvips tetex-dvipdfm
+
 %description doc
 cf %{name} package
+%endif
 
 %prep
 %setup -q
@@ -182,11 +189,19 @@ fi
 %{_bindir}/*
 %{_mandir}/*/*
 
+%if !%{build_opensls}
 %files doc
 %defattr(-,root,root)
 %doc doc/*.pdf CHANGES INCOMPAT QuickInst
+%endif
 
 %changelog
+* Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 22.5.7.2-7sls
+- OpenSLS build
+- tidy spec
+- don't build doc with %%build_opensls
+- fix BuildReq's
+
 * Thu Sep 18 2003 François Pons <fpons@mandrakesoft.com> 22.5.7.2-6mdk
 - added new picture for 9.2 with progress bar integrated inside.
 - fixed critical bug of bmp2mdk generating wrong files if both timer
