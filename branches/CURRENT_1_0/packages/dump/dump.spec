@@ -1,6 +1,8 @@
 %define name	dump
-%define version 0.4b34
-%define release 5avx
+%define version 0.4b37
+%define release 1avx
+
+%define rmtrealname rmt-dump
 
 Summary:	Programs for backing up and restoring filesystems
 Name:		%{name}
@@ -9,17 +11,17 @@ Release:	%{release}
 License:	BSD
 Group:		Archiving/Backup
 URL:		http://sourceforge.net/projects/dump/
-Source: 	http://download.sourceforge.net/dump/dump-%{version}.tar.bz2
-Patch:		dump-nonroot.patch.bz2
-Patch1:		dump-0.4b24-linking.patch.bz2
-Patch2:		dump-0.4b34-check-systypes.patch.bz2
+Source: 	http://osdn.dl.sourceforge.net/pub/sourceforge/d/du/%{name}/%{name}-%{version}.tar.bz2
+Patch:		dump-mdk-nonroot.patch.bz2
+Patch1:		dump-0.4b37-mdk-compile-fix.patch.bz2
+Patch2:		dump-0.4b34-mdk-check-systypes.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-root
-BuildRequires:	e2fsprogs-devel >= 1.15
-BuildRequires:	termcap-devel readline-devel
+BuildRequires:	e2fsprogs-devel >= 1.15, openssl-devel >= 0.9.7a
+BuildRequires:	termcap-devel, readline-devel, zlib-devel, bzip2-devel
 BuildPreReq:	autoconf2.5
 
-Requires:	rmt
+Requires:	rmt = %{version}-%{release}
 
 %description
 The dump package contains both dump and restore.  Dump examines files in
@@ -33,6 +35,7 @@ may also be restored from full or partial backups.
 %package -n rmt
 Summary:	Provides certain programs with access to remote tape devices.
 Group:		Archiving/Backup
+Provides:	/sbin/rmt
 
 %description -n rmt
 The rmt utility provides remote access to tape devices for programs
@@ -42,50 +45,46 @@ restoring files from a backup) and tar (an archiving program).
 %prep
 %setup -q
 %patch0 -p0
-%patch1 -p1 -b .link
 %patch2 -p1 -b .sys-types
 
 %build
-# libcom_err of e2fsprogs and krb5 conflict. Watch this hack. -- Geoff.
-# <hack>
-mkdir %{_lib}
-ln -sf /%{_lib}/libcom_err.so.2 %{_lib}/libcom_err.so
-# </hack>
-
-CFLAGS="$RPM_OPT_FLAGS -L$PWD/%{_lib}" %configure \
+%configure2_5x \
 	--with-manowner=root \
 	--with-mangrp=root \
 	--with-manmode=644 \
-	--enable-rmt
+	--enable-ermt \
+	--disable-kerberos
 
-%make GLIBDIR="-L$PWD/%{_lib}" OPT="$RPM_OPT_FLAGS -Wall -Wpointer-arith -Wstrict-prototypes -Wmissing-prototypes -Wno-char-subscripts"
+%make OPT="$RPM_OPT_FLAGS -Wall -Wpointer-arith -Wstrict-prototypes -Wmissing-prototypes -Wno-char-subscripts"
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p $RPM_BUILD_ROOT/sbin
-mkdir -p ${RPM_BUILD_ROOT}%{_mandir}/man8
 
-make install SBINDIR=$RPM_BUILD_ROOT/sbin BINDIR=$RPM_BUILD_ROOT/sbin MANDIR=${RPM_BUILD_ROOT}%{_mandir}/man8
+make install SBINDIR=%{buildroot}/sbin BINDIR=%{buildroot}/sbin MANDIR=%{buildroot}%{_mandir}/man8
 
-{ cd $RPM_BUILD_ROOT/sbin
-  ln -sf dump rdump
-  ln -sf restore rrestore
-  chmod ug-s rmt
-  cd ..
-  mkdir -p .%{_sysconfdir}
-  > .%{_sysconfdir}/dumpdates
-  cd .%{_sysconfdir}
-  ln -sf ../sbin/rmt rmt
-  cd ..
-}
+# prevent conflict with rmt from tar
+mv %{buildroot}/sbin/rmt %{buildroot}/sbin/%rmtrealname
 
-rm $RPM_BUILD_ROOT%{_mandir}/man8/rdump.8 $RPM_BUILD_ROOT%{_mandir}/man8/rrestore.8
-cd $RPM_BUILD_ROOT%{_mandir}/man8
-ln -sf dump.8 rdump.8
-ln -sf restore.8 rrestore.8
+pushd %{buildroot}
+    mkdir .%{_sysconfdir}
+    > .%{_sysconfdir}/dumpdates
+    ln -s ../sbin/%rmtrealname .%{_sysconfdir}/rmt
+popd
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
+%triggerpostun -n rmt -- rmt < 0.4b36
+if test ! -e /sbin/rmt; then
+    %{_sbindir}/update-alternatives --install /sbin/rmt rmt /sbin/%rmtrealname 20
+fi
+
+%post -n rmt
+%{_sbindir}/update-alternatives --install /sbin/rmt rmt /sbin/%rmtrealname 20
+
+%postun -n rmt
+%{_sbindir}/update-alternatives --remove rmt /sbin/%rmtrealname
+
 
 %files
 %defattr(-,root,root)
@@ -103,11 +102,18 @@ ln -sf restore.8 rrestore.8
 %files -n rmt
 %defattr(-,root,root)
 %doc COPYRIGHT
-/sbin/rmt
-/etc/rmt
+/sbin/%rmtrealname
+%{_sysconfdir}/rmt
 %{_mandir}/man8/rmt.8*
 
 %changelog
+* Thu Aug 18 2004 Vincent Danen <vdanen@annvix.org> 0.4b37-1avx
+- 0.4b37
+- drop P1, krb5 doesn't bundle libcom_err now (deaddog)
+- use alternative for rmt (tar now provides rmt also) (deaddog)
+- new P1: fix build (peroyvind)
+- patch policy
+
 * Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 0.4b34-5avx
 - Annvix build
 
