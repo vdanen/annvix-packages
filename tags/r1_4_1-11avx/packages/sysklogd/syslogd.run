@@ -1,0 +1,12 @@
+#!/bin/sh
+PATH="/sbin:/usr/sbin:/bin:/usr/bin:$PATH"
+
+# this runs syslogd under supervise
+
+if [ -f /etc/sysconfig/syslog ]; then
+  . /etc/sysconfig/syslog
+else
+  SYSLOGD_OPTIONS="-m 0"
+fi
+
+exec /sbin/syslogd -u syslogd -n $SYSLOGD_OPTIONS >/dev/null 2>&1
