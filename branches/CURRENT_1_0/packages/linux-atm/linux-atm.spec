@@ -1,18 +1,20 @@
-%define name		linux-atm
+%define name	linux-atm
+%define version	2.4.1
+%define release	4sls
+
 %define major		1
 %define libname		lib%{name}
 %define fulllibname	%mklibname %{name} %{major}
-%define version		2.4.1
-%define release		3mdk
 
+Summary:	Tools and libraries for ATM
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
-Summary:	Tools and libraries for ATM
 License:	GPL
 Group:		System/Libraries
-Url:		http://linux-atm.sourceforge.net
+URL:		http://linux-atm.sourceforge.net
 Source:		%{name}-%{version}.tar.bz2
+
 BuildRoot:	%{_tmppath}/%{name}-%{version}-build
 BuildRequires:	flex
 
@@ -80,6 +82,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/*.la
 
 %changelog
+* Fri Jan 23 2004 Vincent Danen <vdanen@opensls.org> 2.4.1-4sls
+- OpenSLS build
+- tidy spec
+
 * Fri Aug 08 2003 Guillaume Rousse <guillomovitch@linux-mandrake.com> 2.4.1-3mdk
 - rebuild
 

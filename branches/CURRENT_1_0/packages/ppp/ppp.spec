@@ -1,14 +1,14 @@
 %define name	ppp
 %define version	2.4.1
-%define release	12mdk
+%define release	13sls
 
+Summary:	The PPP daemon and documentation for Linux 1.3.xx and greater.
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
-Summary:	The PPP daemon and documentation for Linux 1.3.xx and greater.
-License:	 BSD/GPL
-Url:		http://www.samba.org/ppp
+License:	BSD/GPL
 Group:		System/Servers
+URL:		http://www.samba.org/ppp
 Source0:	ftp://ftp.samba.org/pub/ppp/ppp-%{version}.tar.bz2
 Source1:	ppp-2.3.5-pamd.conf
 Source2:	ppp-2.4.1-mppe-crypto.tar.bz2
@@ -32,11 +32,13 @@ Patch20:	ppp-2.4.1-pppoe.patch.bz2
 Patch21:	ppp-2.4.1-pppoatm.patch.bz2
 #disconnection problem patch
 Patch30:	ppp-2.4.1-disconnection.patch.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-root
 BuildRequires:	liblinux-atm-devel
 BuildRequires:	libpcap-devel 
 BuildRequires:	openssl-devel >= 0.9.7
 BuildRequires:	pam-devel
-BuildRoot:	%{_tmppath}/%{name}-root
+
 Requires:	glibc >= 2.0.6
 
 %description
@@ -166,6 +168,10 @@ rm -rf %{buildroot}
 %{_libdir}/pppd/%{version}/pppoe.so
 
 %changelog
+* Fri Jan 23 2004 Vincent Danen <vdanen@opensls.org> 2.4.1-13sls
+- OpenSLS build
+- tidy spec
+
 * Wed Aug 13 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 2.4.1-12mdk
 - Patch15: Fix varargs on amd64
 
