@@ -1,0 +1,12 @@
+--- bind-9.2.1/contrib/queryperf/configure.in.libresolv	2001-09-26 20:44:25.000000000 -0400
++++ bind-9.2.1/contrib/queryperf/configure.in	2002-09-27 07:34:04.000000000 -0400
+@@ -36,7 +36,8 @@ AC_DEFUN(AC_TYPE_SOCKLEN_T,
+   fi
+ ])
+ 
+-AC_SEARCH_LIBS(res_mkquery, resolv bind);
++AC_SEARCH_LIBS(res_mkquery, resolv bind)
++AC_SEARCH_LIBS(__res_mkquery, resolv bind)
+ AC_CHECK_LIB(socket, socket)
+ AC_CHECK_LIB(nsl, inet_ntoa)
+ AC_TYPE_SOCKLEN_T
