@@ -1,0 +1,26 @@
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff --exclude='defconfig*' --exclude='log.*' --exclude='log2?' w2/drivers/char/vt.c w1/drivers/char/vt.c
+--- w2/drivers/char/vt.c	2003-08-20 19:14:10.000000000 +0200
++++ w1/drivers/char/vt.c	2003-08-20 20:29:20.000000000 +0200
+@@ -164,7 +164,7 @@ do_kdsk_ioctl(int cmd, struct kbentry *u
+ 
+ 	if (copy_from_user(&tmp, user_kbe, sizeof(struct kbentry)))
+ 		return -EFAULT;
+-	if (i >= NR_KEYS || s >= MAX_NR_KEYMAPS)
++	if (i >= NR_KEYS)
+ 		return -EINVAL;	
+ 
+ 	switch (cmd) {
+@@ -281,10 +281,11 @@ do_kdgkb_ioctl(int cmd, struct kbsentry 
+ 	if (copy_from_user(&tmp, user_kdgkb, sizeof(struct kbsentry)))
+ 		return -EFAULT;
+ 	tmp.kb_string[sizeof(tmp.kb_string)-1] = '\0';
+-	if (tmp.kb_func >= MAX_NR_FUNC)
+-		return -EINVAL;
+ 	i = tmp.kb_func;
+ 
++	if (i >= MAX_NR_FUNC)
++		return -EINVAL;
++
+ 	switch (cmd) {
+ 	case KDGKBSENT:
+ 		sz = sizeof(tmp.kb_string) - 1; /* sz should have been

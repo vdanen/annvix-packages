@@ -1,0 +1,35 @@
+
+
+Fold activate_page_nolock() into activate_page().
+
+=====================================
+
+--- 2.4.19-pre4/mm/swap.c~aa-180-activate_page_cleanup	Tue Mar 26 23:11:35 2002
++++ 2.4.19-pre4-akpm/mm/swap.c	Tue Mar 26 23:11:35 2002
+@@ -36,18 +36,17 @@ pager_daemon_t pager_daemon = {
+ /*
+  * Move an inactive page to the active list.
+  */
+-static inline void activate_page_nolock(struct page * page)
+-{
+-	if (PageLRU(page) && !PageActive(page)) {
+-		del_page_from_inactive_list(page);
+-		add_page_to_active_list(page);
+-	}
+-}
+-
+ void activate_page(struct page * page)
+ {
+ 	spin_lock(&pagemap_lru_lock);
+-	activate_page_nolock(page);
++	if (PageLRU(page)) {
++		if  (!PageActive(page)) {
++			del_page_from_inactive_list(page);
++			add_page_to_active_list(page);
++			ClearPageReferenced(page);
++		} else
++			SetPageReferenced(page);
++	}
+ 	spin_unlock(&pagemap_lru_lock);
+ }
+ 

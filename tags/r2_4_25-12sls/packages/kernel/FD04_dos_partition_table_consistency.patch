@@ -1,0 +1,71 @@
+--- linux-2.4.22/fs/partitions/msdos.c.DOS-partition-table-consistency	2003-11-03 17:07:51.000000000 +0100
++++ linux-2.4.22/fs/partitions/msdos.c	2003-11-03 17:48:55.000000000 +0100
+@@ -71,6 +71,12 @@ static inline int is_extended_partition(
+ 		SYS_IND(p) == LINUX_EXTENDED_PARTITION);
+ }
+ 
++static inline int is_overflow(unsigned int u, unsigned int v)
++{
++	unsigned int s = u + v;
++	return (s < u);
++}
++
+ /*
+  * msdos_partition_name() formats the short partition name into the supplied
+  * buffer, and returns a pointer to that buffer.
+@@ -553,7 +559,7 @@ reread:
+ int msdos_partition(struct gendisk *hd, struct block_device *bdev,
+ 		    unsigned long first_sector, int first_part_minor)
+ {
+-	int i, minor = first_part_minor;
++	int i, j, minor = first_part_minor;
+ 	Sector sect;
+ 	struct partition *p;
+ 	unsigned char *data;
+@@ -575,6 +581,46 @@ int msdos_partition(struct gendisk *hd, 
+ 	p = (struct partition *) (data + 0x1be);
+ 
+ 	/*
++	 * Consistency checks to the partition table:
++	 * <http://www.win.tue.nl/~aeb/partitions/partition_tables-2.html>
++	 *
++	 * No two non-extended partitions overlap. Don't assume
++	 * partitions are ordered towards increasing start sector.
++	 */
++
++	/* Note: START_SECT() & NR_SECTS() return unsigned quantities */
++	err = 0;
++	for (i = 0; !err && i < 4; i++) {
++		struct partition *p1 = &p[i];
++		unsigned int p1_sstart = START_SECT(p1);
++		unsigned int p1_scount = NR_SECTS(p1);
++		if (p1_scount == 0 || is_extended_partition(p1))
++			continue;
++		if (is_overflow(p1_sstart, p1_scount))
++			err = 1;
++		for (j = i + 1; !err && j < 4; j++) {
++			struct partition *p2 = &p[j];
++			unsigned int p2_sstart = START_SECT(p2);
++			unsigned int p2_scount = NR_SECTS(p2);
++			if (p2_scount == 0 || is_extended_partition(p2))
++				continue;
++			if (is_overflow(p2_sstart, p2_scount))
++				err = 1;
++			/* partitions overlap? */
++			else if ((p2_sstart - p1_sstart) < p1_scount)
++				err = 2;
++			else if ((p1_sstart - p2_sstart) < p2_scount)
++				err = 2;
++		}
++	}
++	if (err && !msdos_magic_present(data + 0xfc)) {
++		printk(" inconsistent partition table (%s)\n",
++			   (err == 1 ? "overflow" : (err == 2 ? "overlap" : "unknown")));
++		put_dev_sector(sect);
++		return 1; /* valid partition type but invalid partition table */
++	}
++
++	/*
+ 	 * Look for partitions in two passes:
+ 	 * First find the primary and DOS-type extended partitions.
+ 	 * On the second pass look inside *BSD, Unixware and Solaris partitions.

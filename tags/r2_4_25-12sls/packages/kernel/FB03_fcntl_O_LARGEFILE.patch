@@ -1,0 +1,12 @@
+diff -X ../../KDIFX -burpN -X ../../KDIFX linux-vanilla/fs/fcntl.c linux/fs/fcntl.c
+--- linux-vanilla/fs/fcntl.c	2002-11-30 00:37:11.000000000 +0100
++++ linux/fs/fcntl.c	2002-11-30 09:59:55.000000000 +0100
+@@ -270,7 +270,7 @@ static long do_fcntl(unsigned int fd, un
+ 			set_close_on_exec(fd, arg&1);
+ 			break;
+ 		case F_GETFL:
+-			err = filp->f_flags;
++			err = filp->f_flags & ~O_LARGEFILE;
+ 			break;
+ 		case F_SETFL:
+ 			lock_kernel();

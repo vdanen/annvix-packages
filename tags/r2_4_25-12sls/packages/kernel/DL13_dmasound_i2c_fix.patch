@@ -1,0 +1,50 @@
+diff -ru linux-2.4.21-orig/drivers/sound/dmasound/dac3550a.c linux-2.4.21-i2c/drivers/sound/dmasound/dac3550a.c
+--- linux-2.4.21-orig/drivers/sound/dmasound/dac3550a.c	2003-06-16 09:29:49.000000000 +0200
++++ linux-2.4.21-i2c/drivers/sound/dmasound/dac3550a.c	2003-07-10 14:16:36.000000000 +0200
+@@ -52,14 +52,13 @@
+ };
+ 
+ struct i2c_driver daca_driver = {  
+-	name:		"DAC3550A driver  V " DACA_VERSION,
+-	id:		I2C_DRIVERID_DACA,
+-	flags:		I2C_DF_NOTIFY,
+-	attach_adapter:	&daca_attach_adapter,
+-	detach_client:	&daca_detach_client,
+-	command:	NULL,
+-	inc_use:	NULL, /* &daca_inc_use, */
+-	dec_use:	NULL  /* &daca_dev_use  */
++	.owner          = THIS_MODULE,
++	.name           = "DAC3550A driver  V " DACA_VERSION,
++	.id             = I2C_DRIVERID_DACA,
++	.flags          = I2C_DF_NOTIFY,
++	.attach_adapter = &daca_attach_adapter,
++	.detach_client  = &daca_detach_client,
++	.command        = NULL
+   };
+ 
+ 
+diff -ru linux-2.4.21-orig/drivers/sound/dmasound/tas3001c.c linux-2.4.21-i2c/drivers/sound/dmasound/tas3001c.c
+--- linux-2.4.21-orig/drivers/sound/dmasound/tas3001c.c	2003-06-16 09:29:49.000000000 +0200
++++ linux-2.4.21-i2c/drivers/sound/dmasound/tas3001c.c	2003-07-10 14:20:05.000000000 +0200
+@@ -90,14 +90,13 @@
+ };
+ 
+ struct i2c_driver tas_driver = {  
+-	name:		"TAS3001C driver  V 0.3",
+-	id:		I2C_DRIVERID_TAS,
+-	flags:		I2C_DF_NOTIFY,
+-	attach_adapter:	&tas_attach_adapter,
+-	detach_client:	&tas_detach_client,
+-	command:	NULL,
+-	inc_use:	NULL, /* &tas_inc_use, */
+-	dec_use:	NULL  /* &tas_dev_use  */
++	.owner          = THIS_MODULE,
++	.name           = "TAS3001C driver  V 0.3",
++	.id             = I2C_DRIVERID_TAS,
++	.flags          = I2C_DF_NOTIFY,
++	.attach_adapter = &tas_attach_adapter,
++	.detach_client  = &tas_detach_client,
++	.command        = NULL
+ };
+ 
+ int

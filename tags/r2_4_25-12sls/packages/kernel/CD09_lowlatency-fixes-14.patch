@@ -1,0 +1,269 @@
+--- linux-2.4.24/fs/proc/array.c.cd09.orig	2003-11-28 19:26:21.000000000 +0100
++++ linux-2.4.24/fs/proc/array.c	2004-01-19 19:32:30.157454744 +0100
+@@ -419,6 +419,8 @@ static inline void statm_pte_range(pmd_t
+ 		pte_t page = *pte;
+ 		struct page *ptpage;
+ 
++		cond_resched();
++
+ 		address += PAGE_SIZE;
+ 		pte++;
+ 		if (pte_none(page))
+--- linux-2.4.24/fs/proc/generic.c.cd09.orig	2004-01-19 19:24:01.276816360 +0100
++++ linux-2.4.24/fs/proc/generic.c	2004-01-19 19:32:30.157454744 +0100
+@@ -99,7 +99,9 @@ proc_file_read(struct file * file, char 
+ 				retval = n;
+ 			break;
+ 		}
+-		
++
++		cond_resched();
++
+ 		/* This is a hack to allow mangling of file pos independent
+  		 * of actual bytes read.  Simply place the data at page,
+  		 * return the bytes, and set `start' to the desired offset
+--- linux-2.4.24/fs/jbd/commit.c.cd09.orig	2004-01-19 19:23:58.899177816 +0100
++++ linux-2.4.24/fs/jbd/commit.c	2004-01-19 19:34:33.455710560 +0100
+@@ -257,6 +257,16 @@ write_out_data_locked:
+ 				__journal_remove_journal_head(bh);
+ 				refile_buffer(bh);
+ 				release_buffer_page(bh);
++				if (current->need_resched) {
++					if (commit_transaction->t_sync_datalist)
++						commit_transaction->t_sync_datalist =
++							next_jh;
++					if (bufs)
++						break;
++					spin_unlock(&journal_datalist_lock);
++					cond_resched();
++					goto write_out_data;
++				}
+ 			}
+ 		}
+ 		if (bufs == ARRAY_SIZE(wbuf)) {
+--- linux-2.4.24/fs/dcache.c.cd09.orig	2004-01-19 19:24:01.261818640 +0100
++++ linux-2.4.24/fs/dcache.c	2004-01-19 19:32:30.155455048 +0100
+@@ -72,7 +72,7 @@ static inline void d_free(struct dentry 
+  * d_iput() operation if defined.
+  * Called with dcache_lock held, drops it.
+  */
+-static inline void dentry_iput(struct dentry * dentry)
++static void dentry_iput(struct dentry * dentry)
+ {
+ 	struct inode *inode = dentry->d_inode;
+ 	if (inode) {
+@@ -85,6 +85,7 @@ static inline void dentry_iput(struct de
+ 			iput(inode);
+ 	} else
+ 		spin_unlock(&dcache_lock);
++	cond_resched();
+ }
+ 
+ /* 
+--- linux-2.4.24/fs/buffer.c.cd09.orig	2004-01-19 19:30:18.851416296 +0100
++++ linux-2.4.24/fs/buffer.c	2004-01-19 19:32:30.160454288 +0100
+@@ -251,20 +251,27 @@ static int write_some_buffers(kdev_t dev
+ {
+ 	struct buffer_head *next;
+ 	struct buffer_head *array[NRSYNC];
+-	unsigned int count;
+-	int nr;
++	unsigned int count = 0;
++	int nr, num_sched = 0;
+ 
++restart:
+ 	next = lru_list[BUF_DIRTY];
+ 	nr = nr_buffers_type[BUF_DIRTY];
+-	count = 0;
+ 	while (next && --nr >= 0) {
+ 		struct buffer_head * bh = next;
+ 		next = bh->b_next_free;
+ 
+ 		if (dev != NODEV && bh->b_dev != dev)
+ 			continue;
+-		if (test_and_set_bit(BH_Lock, &bh->b_state))
++		if (test_and_set_bit(BH_Lock, &bh->b_state)) {
++			/*
++			 * FIXME: according to Chris some buggy fs
++			 * submit_bh by hand w/o refiling the bh
++			 * after marking it clean.
++			 */
++			__refile_buffer(bh);
+ 			continue;
++		}
+ 		if (buffer_delay(bh)) {
+ 			if (write_buffer_delay(bh)) {
+ 				if (count)
+@@ -279,13 +286,24 @@ static int write_some_buffers(kdev_t dev
+ 				continue;
+ 
+ 			spin_unlock(&lru_list_lock);
++			cond_resched();
++
+ 			write_locked_buffers(array, count);
+ 			return -EAGAIN;
+ 		}
+ 		unlock_buffer(bh);
+ 		__refile_buffer(bh);
++		if (need_resched() && num_sched < 1) {
++			spin_unlock(&lru_list_lock);
++			__cond_resched();
++			spin_lock(&lru_list_lock);
++			num_sched++;
++			goto restart;
++		}
++
+ 	}
+ 	spin_unlock(&lru_list_lock);
++	cond_resched();
+ 
+ 	if (count)
+ 		write_locked_buffers(array, count);
+@@ -331,9 +349,11 @@ static int wait_for_buffers(kdev_t dev, 
+ 		spin_unlock(&lru_list_lock);
+ 		wait_on_buffer (bh);
+ 		put_bh(bh);
++		cond_resched();
+ 		return -EAGAIN;
+ 	}
+ 	spin_unlock(&lru_list_lock);
++	cond_resched();
+ 	return 0;
+ }
+ 
+@@ -958,6 +978,11 @@ int fsync_buffers_list(struct list_head 
+ 				spin_lock(&lru_list_lock);
+ 			}
+ 		}
++		if (need_resched()) {
++			spin_unlock(&lru_list_lock);
++			__cond_resched();
++			spin_lock(&lru_list_lock);
++		}
+ 	}
+ 
+ 	while (!list_empty(&tmp)) {
+@@ -969,6 +994,7 @@ int fsync_buffers_list(struct list_head 
+ 		if (!buffer_uptodate(bh))
+ 			err = -EIO;
+ 		brelse(bh);
++		cond_resched();
+ 		spin_lock(&lru_list_lock);
+ 	}
+ 	
+@@ -996,6 +1022,7 @@ static int osync_buffers_list(struct lis
+ 	struct buffer_head *bh;
+ 	struct list_head *p;
+ 	int err = 0;
++	int num_sched = 0;
+ 
+ 	spin_lock(&lru_list_lock);
+ 	
+@@ -1012,6 +1039,13 @@ static int osync_buffers_list(struct lis
+ 			spin_lock(&lru_list_lock);
+ 			goto repeat;
+ 		}
++		if (need_resched() && num_sched < 1) {
++			spin_unlock(&lru_list_lock);
++			__cond_resched();
++			spin_lock(&lru_list_lock);
++			num_sched++;
++			goto repeat;
++		}
+ 	}
+ 
+ 	spin_unlock(&lru_list_lock);
+@@ -1051,6 +1085,7 @@ struct buffer_head * getblk(kdev_t dev, 
+ 	for (;;) {
+ 		struct buffer_head * bh;
+ 
++		cond_resched();
+ 		bh = get_hash_table(dev, block, size);
+ 		if (bh) {
+ 			touch_buffer(bh);
+@@ -1227,8 +1262,10 @@ struct buffer_head * bread(kdev_t dev, i
+ 	struct buffer_head * bh;
+ 
+ 	bh = getblk(dev, block, size);
+-	if (buffer_uptodate(bh))
++	if (buffer_uptodate(bh)) {
++		cond_resched();
+ 		return bh;
++	}
+ 	set_bit(BH_Sync, &bh->b_state);
+ 	ll_rw_block(READ, 1, &bh);
+ 	wait_on_buffer(bh);
+--- linux-2.4.24/mm/filemap.c.cd09.orig	2004-01-19 19:30:18.854415840 +0100
++++ linux-2.4.24/mm/filemap.c	2004-01-19 19:32:30.159454440 +0100
+@@ -309,11 +309,7 @@ static int truncate_list_pages(struct li
+ 
+ 			page_cache_release(page);
+ 
+-			if (current->need_resched) {
+-				__set_current_state(TASK_RUNNING);
+-				schedule();
+-			}
+-
++			cond_resched();
+ 			spin_lock(&pagecache_lock);
+ 			goto restart;
+ 		}
+@@ -419,11 +415,8 @@ static int invalidate_list_pages2(struct
+ 		}
+ 
+ 		page_cache_release(page);
+-		if (current->need_resched) {
+-			__set_current_state(TASK_RUNNING);
+-			schedule();
+-		}
+ 
++		cond_resched();
+ 		spin_lock(&pagecache_lock);
+ 		goto restart;
+ 	}
+@@ -634,6 +627,7 @@ int filemap_fdatasync(struct address_spa
+ 			UnlockPage(page);
+ 
+ 		page_cache_release(page);
++		cond_resched();
+ 		spin_lock(&pagecache_lock);
+ 	}
+ 	spin_unlock(&pagecache_lock);
+@@ -766,6 +760,8 @@ static int page_cache_read(struct file *
+ 	struct page **hash = page_hash(mapping, offset);
+ 	struct page *page; 
+ 
++	cond_resched();
++
+ 	spin_lock(&pagecache_lock);
+ 	page = __find_page_nolock(mapping, offset, *hash);
+ 	spin_unlock(&pagecache_lock);
+@@ -1492,6 +1488,9 @@ page_ok:
+ 		offset &= ~PAGE_CACHE_MASK;
+ 
+ 		page_cache_release(page);
++
++		cond_resched();
++
+ 		if (ret == nr && desc->count)
+ 			continue;
+ 		break;
+@@ -3236,6 +3235,8 @@ unlock:
+ 		UnlockPage(page);
+ 		page_cache_release(page);
+ 
++		cond_resched();
++
+ 		if (status < 0)
+ 			break;
+ 	} while (count);
+--- linux-2.4.24/drivers/block/ll_rw_blk.c.cd09.orig	2004-01-19 19:32:30.137457784 +0100
++++ linux-2.4.24/drivers/block/ll_rw_blk.c	2004-01-19 19:32:30.155455048 +0100
+@@ -1301,6 +1301,7 @@ void submit_bh(int rw, struct buffer_hea
+ 	if (block_dump)
+ 		printk(KERN_DEBUG "%s: %s block %lu/%u on %s\n", current->comm, rw == WRITE ? "WRITE" : "READ", bh->b_rsector, count, kdevname(bh->b_rdev));
+ 
++	cond_resched();
+ 	put_bh(bh);
+ 	switch (rw) {
+ 		case WRITE:

@@ -1,0 +1,940 @@
+diff -urNp --exclude CVS --exclude BitKeeper --exclude {arch} --exclude .arch-ids x-ref/fs/buffer.c x/fs/buffer.c
+--- x-ref/fs/buffer.c	2003-12-04 19:55:58.000000000 +0100
++++ x/fs/buffer.c	2003-12-04 19:56:23.000000000 +0100
+@@ -3005,16 +3005,6 @@ int bdflush(void *startup)
+ 
+ 	complete((struct completion *)startup);
+ 
+-	/*
+-	 * FIXME: The ndirty logic here is wrong.  It's supposed to
+-	 * send bdflush back to sleep after writing ndirty buffers.
+-	 * In fact, the test is wrong so bdflush will in fact
+-	 * sleep when bdflush_stop() returns true.
+-	 *
+-	 * FIXME: If it proves useful to implement ndirty properly,
+-	 * then perhaps the value of ndirty should be scaled by the
+-	 * amount of memory in the machine.
+-	 */
+ 	for (;;) {
+ 		int ndirty = bdf_prm.b_un.ndirty;
+ 
+diff -urNp --exclude CVS --exclude BitKeeper --exclude {arch} --exclude .arch-ids x-ref/include/linux/mm.h x/include/linux/mm.h
+--- x-ref/include/linux/mm.h	2003-12-04 19:55:57.000000000 +0100
++++ x/include/linux/mm.h	2003-12-04 19:56:23.000000000 +0100
+@@ -170,9 +170,8 @@ typedef struct page {
+ 	 * we can simply calculate the virtual address. On machines with
+ 	 * highmem some memory is mapped into kernel virtual memory
+ 	 * dynamically, so we need a place to store that address.
+-	 * Note that this field could be 16 bits on x86 ... ;)
+ 	 *
+-	 * Architectures with slow multiplication can define
++	 * Architectures with slow ALU can define
+ 	 * WANT_PAGE_VIRTUAL in asm/page.h
+ 	 */
+ #if defined(CONFIG_HIGHMEM) || defined(WANT_PAGE_VIRTUAL)
+@@ -322,6 +321,7 @@ typedef struct page {
+ #define TryLockPage(page)	test_and_set_bit(PG_locked, &(page)->flags)
+ #define PageChecked(page)	test_bit(PG_checked, &(page)->flags)
+ #define SetPageChecked(page)	set_bit(PG_checked, &(page)->flags)
++
+ #define PageLaunder(page)	test_bit(PG_launder, &(page)->flags)
+ #define SetPageLaunder(page)	set_bit(PG_launder, &(page)->flags)
+ #define ClearPageLaunder(page)	clear_bit(PG_launder, &(page)->flags)
+@@ -359,24 +359,18 @@ static inline void set_page_zone(struct 
+ 	do {						\
+ 		(page)->virtual = (address);		\
+ 	} while(0)
+-
+-#else /* CONFIG_HIGHMEM || WANT_PAGE_VIRTUAL */
+-#define set_page_address(page, address)  do { } while(0)
+-#endif /* CONFIG_HIGHMEM || WANT_PAGE_VIRTUAL */
+-
+-/*
+- * Permanent address of a page. Obviously must never be
+- * called on a highmem page.
+- */
+-#if defined(CONFIG_HIGHMEM) || defined(WANT_PAGE_VIRTUAL)
+-
+ #define page_address(page) ((page)->virtual)
+ 
+ #else /* CONFIG_HIGHMEM || WANT_PAGE_VIRTUAL */
+ 
++#define set_page_address(page, address)  do { } while(0)
++#ifdef CONFIG_DISCONTIGMEM
+ #define page_address(page)						\
+ 	__va( (((page) - page_zone(page)->zone_mem_map) << PAGE_SHIFT)	\
+ 			+ page_zone(page)->zone_start_paddr)
++#else
++#define page_address(page) __va(((page) - mem_map) << PAGE_SHIFT)
++#endif
+ 
+ #endif /* CONFIG_HIGHMEM || WANT_PAGE_VIRTUAL */
+ 
+@@ -538,7 +532,7 @@ static inline int is_page_cache_freeable
+ 	return page_count(page) - !!page->buffers == 1;
+ }
+ 
+-extern int FASTCALL(can_share_swap_page(struct page *));
++extern int FASTCALL(make_exclusive_page(struct page *, int));
+ extern int FASTCALL(remove_exclusive_swap_page(struct page *));
+ 
+ extern void __free_pte(pte_t);
+diff -urNp --exclude CVS --exclude BitKeeper --exclude {arch} --exclude .arch-ids x-ref/include/linux/mmzone.h x/include/linux/mmzone.h
+--- x-ref/include/linux/mmzone.h	2003-12-04 19:55:58.000000000 +0100
++++ x/include/linux/mmzone.h	2003-12-04 19:56:23.000000000 +0100
+@@ -88,35 +88,6 @@ typedef struct zone_struct {
+ 	free_area_t		free_area[MAX_ORDER];
+ 
+ 	/*
+-	 * wait_table		-- the array holding the hash table
+-	 * wait_table_size	-- the size of the hash table array
+-	 * wait_table_shift	-- wait_table_size
+-	 * 				== BITS_PER_LONG (1 << wait_table_bits)
+-	 *
+-	 * The purpose of all these is to keep track of the people
+-	 * waiting for a page to become available and make them
+-	 * runnable again when possible. The trouble is that this
+-	 * consumes a lot of space, especially when so few things
+-	 * wait on pages at a given time. So instead of using
+-	 * per-page waitqueues, we use a waitqueue hash table.
+-	 *
+-	 * The bucket discipline is to sleep on the same queue when
+-	 * colliding and wake all in that wait queue when removing.
+-	 * When something wakes, it must check to be sure its page is
+-	 * truly available, a la thundering herd. The cost of a
+-	 * collision is great, but given the expected load of the
+-	 * table, they should be so rare as to be outweighed by the
+-	 * benefits from the saved space.
+-	 *
+-	 * __wait_on_page() and unlock_page() in mm/filemap.c, are the
+-	 * primary users of these fields, and in mm/page_alloc.c
+-	 * free_area_init_core() performs the initialization of them.
+-	 */
+-	wait_queue_head_t	* wait_table;
+-	unsigned long		wait_table_size;
+-	unsigned long		wait_table_shift;
+-
+-	/*
+ 	 * Discontig memory support fields.
+ 	 */
+ 	struct pglist_data	*zone_pgdat;
+@@ -149,6 +120,32 @@ typedef struct zonelist_struct {
+ 
+ #define GFP_ZONEMASK	0x0f
+ 
++typedef struct wait_table_s {
++	/*
++	 * The purpose of all these is to keep track of the people
++	 * waiting for a page to become available and make them
++	 * runnable again when possible. The trouble is that this
++	 * consumes a lot of space, especially when so few things
++	 * wait on pages at a given time. So instead of using
++	 * per-page waitqueues, we use a waitqueue hash table.
++	 *
++	 * The bucket discipline is to sleep on the same queue when
++	 * colliding and wake all in that wait queue when removing.
++	 * When something wakes, it must check to be sure its page is
++	 * truly available, a la thundering herd. The cost of a
++	 * collision is great, but given the expected load of the
++	 * table, they should be so rare as to be outweighed by the
++	 * benefits from the saved space.
++	 *
++	 * __wait_on_page() and unlock_page() in mm/filemap.c, are the
++	 * primary users of these fields, and in mm/page_alloc.c
++	 * free_area_init_core() performs the initialization of them.
++	 */
++	wait_queue_head_t	* head;
++	unsigned long		shift;
++	unsigned long		size;
++} wait_table_t;
++
+ /*
+  * The pg_data_t structure is used in machines with CONFIG_DISCONTIGMEM
+  * (mostly NUMA machines?) to denote a higher-level memory zone than the
+@@ -172,14 +169,15 @@ typedef struct pglist_data {
+ 	unsigned long node_start_mapnr;
+ 	unsigned long node_size;
+ 	int node_id;
++	wait_table_t wait_table;
+ 	struct pglist_data *node_next;
+ } pg_data_t;
+ 
+ extern int numnodes;
+ extern pg_data_t *pgdat_list;
+ 
+-#define zone_idx(zone)                 ((zone) - (zone)->zone_pgdat->node_zones)
+-#define memclass(pgzone, classzone)    (zone_idx(pgzone) <= zone_idx(classzone))
++#define zone_idx(zone)			((zone) - (zone)->zone_pgdat->node_zones)
++#define memclass(pgzone, classzone)	(zone_idx(pgzone) <= zone_idx(classzone))
+ 
+ /*
+  * The following two are not meant for general usage. They are here as
+diff -urNp --exclude CVS --exclude BitKeeper --exclude {arch} --exclude .arch-ids x-ref/kernel/fork.c x/kernel/fork.c
+--- x-ref/kernel/fork.c	2003-12-04 19:55:57.000000000 +0100
++++ x/kernel/fork.c	2003-12-04 19:56:23.000000000 +0100
+@@ -741,7 +741,8 @@ int do_fork(unsigned long clone_flags, u
+ 	p->lock_depth = -1;		/* -1 = no lock */
+ 	p->start_time = jiffies;
+ 
+-	INIT_LIST_HEAD(&p->local_pages);
++	if (p->local_page.page)
++		BUG();
+ 
+ 	retval = -ENOMEM;
+ 	/* copy all the process information */
+diff -urNp --exclude CVS --exclude BitKeeper --exclude {arch} --exclude .arch-ids x-ref/mm/filemap.c x/mm/filemap.c
+--- x-ref/mm/filemap.c	2003-12-04 19:55:57.000000000 +0100
++++ x/mm/filemap.c	2003-12-04 19:56:23.000000000 +0100
+@@ -762,25 +762,14 @@ static int read_cluster_nonblocking(stru
+ 	return 0;
+ }
+ 
+-/*
+- * Knuth recommends primes in approximately golden ratio to the maximum
+- * integer representable by a machine word for multiplicative hashing.
+- * Chuck Lever verified the effectiveness of this technique:
+- * http://www.citi.umich.edu/techreports/reports/citi-tr-00-1.pdf
+- *
+- * These primes are chosen to be bit-sparse, that is operations on
+- * them can use shifts and additions instead of multiplications for
+- * machines where multiplications are slow.
+- */
+-#if BITS_PER_LONG == 32
+-/* 2^31 + 2^29 - 2^25 + 2^22 - 2^19 - 2^16 + 1 */
+-#define GOLDEN_RATIO_PRIME 0x9e370001UL
+-#elif BITS_PER_LONG == 64
+-/*  2^63 + 2^61 - 2^57 + 2^54 - 2^51 - 2^18 + 1 */
+-#define GOLDEN_RATIO_PRIME 0x9e37fffffffc0001UL
+-#else
+-#error Define GOLDEN_RATIO_PRIME for your wordsize.
+-#endif
++static inline wait_queue_head_t * wait_table_hashfn(struct page * page, wait_table_t * wait_table)
++{
++#define i (((unsigned long) page)/(sizeof(struct page) & ~ (sizeof(struct page) - 1)))
++#define s(x) ((x)+((x)>>wait_table->shift))
++	return wait_table->head + (s(i) & (wait_table->size-1));
++#undef i
++#undef s
++}
+ 
+ /*
+  * In order to wait for pages to become available there must be
+@@ -792,34 +781,10 @@ static int read_cluster_nonblocking(stru
+  * at a cost of "thundering herd" phenomena during rare hash
+  * collisions.
+  */
+-static inline wait_queue_head_t *page_waitqueue(struct page *page)
++static inline wait_queue_head_t * page_waitqueue(struct page *page)
+ {
+-	const zone_t *zone = page_zone(page);
+-	wait_queue_head_t *wait = zone->wait_table;
+-	unsigned long hash = (unsigned long)page;
+-
+-#if BITS_PER_LONG == 64
+-	/*  Sigh, gcc can't optimise this alone like it does for 32 bits. */
+-	unsigned long n = hash;
+-	n <<= 18;
+-	hash -= n;
+-	n <<= 33;
+-	hash -= n;
+-	n <<= 3;
+-	hash += n;
+-	n <<= 3;
+-	hash -= n;
+-	n <<= 4;
+-	hash += n;
+-	n <<= 2;
+-	hash += n;
+-#else
+-	/* On some cpus multiply is faster, on others gcc will do shifts */
+-	hash *= GOLDEN_RATIO_PRIME;
+-#endif
+-	hash >>= zone->wait_table_shift;
+-
+-	return &wait[hash];
++	pg_data_t * pgdat = page_zone(page)->zone_pgdat;
++	return wait_table_hashfn(page, &pgdat->wait_table);
+ }
+ 
+ /*
+@@ -899,7 +864,7 @@ void unlock_page(struct page *page)
+ 	 * pages are being waited on here.
+ 	 */
+ 	if (waitqueue_active(waitqueue))
+-		wake_up_all(waitqueue);
++		wake_up(waitqueue);
+ }
+ 
+ /*
+@@ -912,7 +877,7 @@ static void __lock_page(struct page *pag
+ 	struct task_struct *tsk = current;
+ 	DECLARE_WAITQUEUE(wait, tsk);
+ 
+-	add_wait_queue_exclusive(waitqueue, &wait);
++	add_wait_queue(waitqueue, &wait);
+ 	for (;;) {
+ 		set_task_state(tsk, TASK_UNINTERRUPTIBLE);
+ 		if (PageLocked(page)) {
+diff -urNp --exclude CVS --exclude BitKeeper --exclude {arch} --exclude .arch-ids x-ref/mm/memory.c x/mm/memory.c
+--- x-ref/mm/memory.c	2003-12-04 19:55:58.000000000 +0100
++++ x/mm/memory.c	2003-12-04 19:56:23.000000000 +0100
+@@ -967,15 +967,11 @@ static int do_wp_page(struct mm_struct *
+ 	if (!VALID_PAGE(old_page))
+ 		goto bad_wp_page;
+ 
+-	if (!TryLockPage(old_page)) {
+-		int reuse = can_share_swap_page(old_page);
+-		unlock_page(old_page);
+-		if (reuse) {
+-			flush_cache_page(vma, address);
+-			establish_pte(vma, address, page_table, pte_mkyoung(pte_mkdirty(pte_mkwrite(pte))));
+-			spin_unlock(&mm->page_table_lock);
+-			return 1;	/* Minor fault */
+-		}
++	if (make_exclusive_page(old_page, 1)) {	
++		flush_cache_page(vma, address);
++		establish_pte(vma, address, page_table, pte_mkyoung(pte_mkdirty(pte_mkwrite(pte))));
++		spin_unlock(&mm->page_table_lock);
++		return 1;	/* Minor fault */
+ 	}
+ 
+ 	/*
+@@ -993,6 +989,19 @@ static int do_wp_page(struct mm_struct *
+ 	 * Re-check the pte - we dropped the lock
+ 	 */
+ 	spin_lock(&mm->page_table_lock);
++	/*
++	 * keep the page pinned until we return runnable
++	 * to avoid another thread to skip the break_cow
++	 * path, so we're sure pte_same below check also implys
++	 * that the _contents_ of the old_page didn't changed
++	 * under us (not only that the pagetable is the same).
++	 *
++	 * Since we have the page_table_lock acquired here, if the
++	 * pte is the same it means we're still holding an additional
++	 * reference on the old_page so we can safely
++	 * page_cache_release(old_page) before the "pte_same == true" path.
++	 */
++	page_cache_release(old_page);
+ 	if (pte_same(*page_table, pte)) {
+ 		if (PageReserved(old_page))
+ 			++mm->rss;
+@@ -1005,7 +1014,6 @@ static int do_wp_page(struct mm_struct *
+ 	}
+ 	spin_unlock(&mm->page_table_lock);
+ 	page_cache_release(new_page);
+-	page_cache_release(old_page);
+ 	return 1;	/* Minor fault */
+ 
+ bad_wp_page:
+@@ -1158,9 +1166,8 @@ static int do_swap_page(struct mm_struct
+ 		ret = 2;
+ 	}
+ 
+-	mark_page_accessed(page);
+-
+-	lock_page(page);
++	if (!Page_Uptodate(page))
++		wait_on_page(page);
+ 
+ 	/*
+ 	 * Back out if somebody else faulted in this pte while we
+@@ -1169,7 +1176,6 @@ static int do_swap_page(struct mm_struct
+ 	spin_lock(&mm->page_table_lock);
+ 	if (!pte_same(*page_table, orig_pte)) {
+ 		spin_unlock(&mm->page_table_lock);
+-		unlock_page(page);
+ 		page_cache_release(page);
+ 		return 1;
+ 	}
+@@ -1177,14 +1183,15 @@ static int do_swap_page(struct mm_struct
+ 	/* The page isn't present yet, go ahead with the fault. */
+ 		
+ 	swap_free(entry);
+-	if (vm_swap_full())
+-		remove_exclusive_swap_page(page);
+-
+ 	mm->rss++;
+ 	pte = mk_pte(page, vma->vm_page_prot);
+-	if (write_access && can_share_swap_page(page))
+-		pte = pte_mkdirty(pte_mkwrite(pte));
+-	unlock_page(page);
++	if (make_exclusive_page(page, write_access)) {
++		if (write_access)
++			pte = pte_mkdirty(pte);
++		if (vma->vm_flags & VM_WRITE)
++			pte = pte_mkwrite(pte);
++	}
++	mark_page_accessed(page);
+ 
+ 	flush_page_to_ram(page);
+ 	flush_icache_page(vma, page);
+@@ -1222,8 +1229,8 @@ static int do_anonymous_page(struct mm_s
+ 
+ 		spin_lock(&mm->page_table_lock);
+ 		if (!pte_none(*page_table)) {
+-			page_cache_release(page);
+ 			spin_unlock(&mm->page_table_lock);
++			page_cache_release(page);
+ 			return 1;
+ 		}
+ 		mm->rss++;
+@@ -1231,7 +1238,6 @@ static int do_anonymous_page(struct mm_s
+ 		entry = pte_mkwrite(pte_mkdirty(mk_pte(page, vma->vm_page_prot)));
+ 		if (vm_anon_lru)
+ 			lru_cache_add(page);
+-		mark_page_accessed(page);
+ 	}
+ 
+ 	set_pte(page_table, entry);
+@@ -1312,9 +1318,9 @@ static int do_no_page(struct mm_struct *
+ 			entry = pte_mkwrite(pte_mkdirty(entry));
+ 		set_pte(page_table, entry);
+ 	} else {
++		spin_unlock(&mm->page_table_lock);
+ 		/* One of our sibling threads was faster, back out. */
+ 		page_cache_release(new_page);
+-		spin_unlock(&mm->page_table_lock);
+ 		return 1;
+ 	}
+ 
+diff -urNp --exclude CVS --exclude BitKeeper --exclude {arch} --exclude .arch-ids x-ref/mm/swapfile.c x/mm/swapfile.c
+--- x-ref/mm/swapfile.c	2003-12-04 19:55:57.000000000 +0100
++++ x/mm/swapfile.c	2003-12-04 19:56:23.000000000 +0100
+@@ -226,6 +226,7 @@ void swap_free(swp_entry_t entry)
+  * Check if we're the only user of a swap page,
+  * when the page is locked.
+  */
++static int FASTCALL(exclusive_swap_page(struct page *page));
+ static int exclusive_swap_page(struct page *page)
+ {
+ 	int retval = 0;
+@@ -239,12 +240,13 @@ static int exclusive_swap_page(struct pa
+ 		if (p->swap_map[SWP_OFFSET(entry)] == 1) {
+ 			/* Recheck the page count with the pagecache lock held.. */
+ 			spin_lock(&pagecache_lock);
+-			if (page_count(page) - !!page->buffers == 2)
++			if (PageSwapCache(page) && page_count(page) - !!page->buffers == 2)
+ 				retval = 1;
+ 			spin_unlock(&pagecache_lock);
+ 		}
+ 		swap_info_put(p);
+ 	}
++
+ 	return retval;
+ }
+ 
+@@ -256,21 +258,42 @@ static int exclusive_swap_page(struct pa
+  * work, but we opportunistically check whether
+  * we need to get all the locks first..
+  */
+-int can_share_swap_page(struct page *page)
++int make_exclusive_page(struct page *page, int write)
+ {
+ 	int retval = 0;
+ 
+-	if (!PageLocked(page))
+-		BUG();
+ 	switch (page_count(page)) {
+ 	case 3:
+ 		if (!page->buffers)
+ 			break;
+ 		/* Fallthrough */
+ 	case 2:
++		/* racy fastpath check */
+ 		if (!PageSwapCache(page))
+ 			break;
+-		retval = exclusive_swap_page(page);
++
++		if ((!write && !vm_swap_full()) || TryLockPage(page)) {
++			/*
++			 * Don't remove the page from the swapcache if:
++			 * - it was a read fault and...
++			 * - the swap isn't full
++			 * or if
++			 * - we failed acquiring the page lock
++			 *
++			 * NOTE: if failed acquiring the lock we cannot remove the
++			 * page from the swapcache, but still we can safely takeover
++			 * the page if it's exclusive, see the swapcache check in
++			 * the innermost critical section of exclusive_swap_page().
++			 */
++			retval = exclusive_swap_page(page);
++		} else {
++			/*
++			 * Here we've the page lock acquired and we're asked
++			 * to try to drop this page from the swapcache.
++			 */
++			retval = remove_exclusive_swap_page(page);
++			unlock_page(page);
++		}
+ 		break;
+ 	case 1:
+ 		if (PageReserved(page))
+@@ -299,7 +322,7 @@ int remove_exclusive_swap_page(struct pa
+ 
+ 	entry.val = page->index;
+ 	p = swap_info_get(entry);
+-	if (!p)
++	if (unlikely(!p))
+ 		return 0;
+ 
+ 	/* Is the only swap cache user the cache itself? */
+@@ -308,18 +331,19 @@ int remove_exclusive_swap_page(struct pa
+ 		/* Recheck the page count with the pagecache lock held.. */
+ 		spin_lock(&pagecache_lock);
+ 		if (page_count(page) - !!page->buffers == 2) {
++			if (page->buffers && !try_to_free_buffers(page, 0))
++				/* an anonymous page cannot have page->buffers set */
++				BUG();
+ 			__delete_from_swap_cache(page);
++			swap_entry_free(p, SWP_OFFSET(entry));
+ 			retval = 1;
+ 		}
+ 		spin_unlock(&pagecache_lock);
+ 	}
+ 	swap_info_put(p);
+ 
+-	if (retval) {
+-		block_flushpage(page, 0);
+-		swap_free(entry);
++	if (retval)
+ 		page_cache_release(page);
+-	}
+ 
+ 	return retval;
+ }
+@@ -341,9 +365,7 @@ void free_swap_and_cache(swp_entry_t ent
+ 	}
+ 	if (page) {
+ 		page_cache_get(page);
+-		/* Only cache user (+us), or swap space full? Free it! */
+-		if (page_count(page) - !!page->buffers == 2 || vm_swap_full())
+-			delete_from_swap_cache(page);
++		remove_exclusive_swap_page(page);
+ 		UnlockPage(page);
+ 		page_cache_release(page);
+ 	}
+diff -urNp --exclude CVS --exclude BitKeeper --exclude {arch} --exclude .arch-ids x-ref/mm/vmscan.c x/mm/vmscan.c
+--- x-ref/mm/vmscan.c	2003-12-04 19:55:58.000000000 +0100
++++ x/mm/vmscan.c	2003-12-04 19:56:23.000000000 +0100
+@@ -304,6 +304,7 @@ static inline int swap_out_mm(struct mm_
+ {
+ 	unsigned long address;
+ 	struct vm_area_struct* vma;
++	int tlb_flush = 0;
+ 
+ 	/*
+ 	 * Find the proper vm-area after freezing the vma chain 
+@@ -318,6 +319,7 @@ static inline int swap_out_mm(struct mm_
+ 	}
+ 	vma = find_vma(mm, address);
+ 	if (vma) {
++		tlb_flush = 1;
+ 		if (address < vma->vm_start)
+ 			address = vma->vm_start;
+ 
+@@ -336,6 +338,11 @@ static inline int swap_out_mm(struct mm_
+ 
+ out_unlock:
+ 	spin_unlock(&mm->page_table_lock);
++#ifndef CONFIG_SMP
++	/* in SMP is too costly to send further IPIs */
++	if (tlb_flush)
++		flush_tlb_mm(mm);
++#endif
+ 	return count;
+ }
+ 
+@@ -374,10 +381,30 @@ static int swap_out(zone_t * classzone)
+ 			return 1;
+ 	} while (--counter >= 0);
+ 
++ out:
++	if (unlikely(vm_gfp_debug)) {
++		printk(KERN_NOTICE "swap_out: failed\n");
++		dump_stack();
++	}
+ 	return 0;
+ 
+ empty:
+ 	spin_unlock(&mmlist_lock);
++	goto out;
++}
++
++static int FASTCALL(memclass_related_bhs(struct page * page, zone_t * classzone));
++static int memclass_related_bhs(struct page * page, zone_t * classzone)
++{
++	struct buffer_head * tmp, * bh = page->buffers;
++
++	tmp = bh;
++	do {
++		if (memclass(page_zone(virt_to_page(tmp)), classzone))
++			return 1;
++		tmp = tmp->b_this_page;
++	} while (tmp != bh);
++
+ 	return 0;
+ }
+ 
+@@ -391,6 +418,7 @@ static int shrink_cache(int nr_pages, zo
+ 
+ 	while (max_scan && classzone->nr_inactive_pages && (entry = inactive_list.prev) != &inactive_list) {
+ 		struct page * page;
++		int only_metadata;
+ 
+ 		if (unlikely(current->need_resched)) {
+ 			spin_unlock(&pagemap_lru_lock);
+@@ -415,8 +443,28 @@ static int shrink_cache(int nr_pages, zo
+ 		if (unlikely(!page_count(page)))
+ 			continue;
+ 
+-		if (!memclass(page_zone(page), classzone))
++		only_metadata = 0;
++		if (!memclass(page_zone(page), classzone)) {
++			/*
++			 * Hack to address an issue found by Rik. The problem is that
++			 * highmem pages can hold buffer headers allocated
++			 * from the slab on lowmem, and so if we are working
++			 * on the NORMAL classzone here, it is correct not to
++			 * try to free the highmem pages themself (that would be useless)
++			 * but we must make sure to drop any lowmem metadata related to those
++			 * highmem pages.
++			 */
++			if (page->buffers && page->mapping) { /* fast path racy check */
++				if (unlikely(TryLockPage(page)))
++					continue;
++				if (page->buffers && page->mapping && memclass_related_bhs(page, classzone)) { /* non racy check */
++					only_metadata = 1;
++					goto free_bhs;
++				}
++				UnlockPage(page);
++			}
+ 			continue;
++		}
+ 
+ 		max_scan--;
+ 
+@@ -471,6 +519,7 @@ static int shrink_cache(int nr_pages, zo
+ 		 * the page as well.
+ 		 */
+ 		if (page->buffers) {
++		free_bhs:
+ 			spin_unlock(&pagemap_lru_lock);
+ 
+ 			/* avoid to free a locked page */
+@@ -503,6 +552,10 @@ static int shrink_cache(int nr_pages, zo
+ 					page_cache_release(page);
+ 
+ 					spin_lock(&pagemap_lru_lock);
++					if (only_metadata) {
++						UnlockPage(page);
++						continue;
++					}
+ 				}
+ 			} else {
+ 				/* failed to drop the buffers so stop here */
+@@ -604,22 +657,45 @@ static void refill_inactive(int nr_pages
+ 	entry = active_list.prev;
+ 	while (ratio && entry != &active_list) {
+ 		struct page * page;
++		int related_metadata = 0;
+ 
+ 		page = list_entry(entry, struct page, lru);
+ 		entry = entry->prev;
++
++		if (!memclass(page_zone(page), classzone)) {
++			/*
++			 * Hack to address an issue found by Rik. The problem is that
++			 * highmem pages can hold buffer headers allocated
++			 * from the slab on lowmem, and so if we are working
++			 * on the NORMAL classzone here, it is correct not to
++			 * try to free the highmem pages themself (that would be useless)
++			 * but we must make sure to drop any lowmem metadata related to those
++			 * highmem pages.
++			 */
++			if (page->buffers && page->mapping) { /* fast path racy check */
++				if (unlikely(TryLockPage(page)))
++					continue;
++				if (page->buffers && page->mapping && memclass_related_bhs(page, classzone)) /* non racy check */
++					related_metadata = 1;
++				UnlockPage(page);
++			}
++			if (!related_metadata)
++				continue;
++		}
++
+ 		if (PageTestandClearReferenced(page)) {
+ 			list_del(&page->lru);
+ 			list_add(&page->lru, &active_list);
+ 			continue;
+ 		}
+ 
+-		ratio--;
++		if (!related_metadata)
++			ratio--;
+ 
+ 		del_page_from_active_list(page);
+ 		add_page_to_inactive_list(page);
+ 		SetPageReferenced(page);
+ 	}
+-
+ 	if (entry != &active_list) {
+ 		list_del(&active_list);
+ 		list_add(&active_list, entry);
+@@ -638,8 +714,8 @@ static int shrink_caches(zone_t * classz
+ 
+ 	nr_pages = shrink_cache(nr_pages, classzone, gfp_mask, failed_swapout);
+ 
+-out:
+-        return nr_pages;
++ out:
++	return nr_pages;
+ }
+ 
+ static int check_classzone_need_balance(zone_t * classzone);
+--- 2425/mm/page_alloc.c.cc29.orig	2004-04-02 10:12:33.000000000 +0300
++++ 2425/mm/page_alloc.c	2004-04-02 10:25:18.000000000 +0300
+@@ -129,7 +129,7 @@ static void __free_pages_ok (struct page
+ 		BUG();
+ 	page->flags &= ~((1<<PG_referenced) | (1<<PG_dirty));
+ 
+-	if (current->flags & PF_FREE_PAGES)
++	if (unlikely(order == 0 && current->flags & PF_FREE_PAGES))
+ 		goto local_freelist;
+  back_local_freelist:
+ 
+@@ -198,14 +198,12 @@ static void __free_pages_ok (struct page
+ 	return;
+ 
+  local_freelist:
+-	if (current->nr_local_pages)
++	if (current->local_page.page ||
++	    !memclass(page_zone(page), current->local_page.classzone) ||
++	    in_interrupt())
+ 		goto back_local_freelist;
+-	if (in_interrupt())
+-		goto back_local_freelist;		
+ 
+-	list_add(&page->list, &current->local_pages);
+-	page->index = order;
+-	current->nr_local_pages++;
++	current->local_page.page = page;
+ }
+ 
+ #define MARK_USED(index, order, area) \
+@@ -295,63 +293,39 @@ static struct page * balance_classzone(z
+ 	if (in_interrupt())
+ 		BUG();
+ 
+-	current->allocation_order = order;
+-	current->flags |= PF_MEMALLOC | PF_FREE_PAGES;
++	if (current->local_page.page)
++		BUG();
++	current->local_page.classzone = classzone;
++	current->flags |= PF_MEMALLOC | (!order ? PF_FREE_PAGES : 0);
+ 
+ 	__freed = try_to_free_pages_zone(classzone, gfp_mask);
+ 
+ 	current->flags &= ~(PF_MEMALLOC | PF_FREE_PAGES);
+ 
+-	if (current->nr_local_pages) {
+-		struct list_head * entry, * local_pages;
+-		struct page * tmp;
+-		int nr_pages;
+-
+-		local_pages = &current->local_pages;
+-
+-		if (likely(__freed)) {
+-			/* pick from the last inserted so we're lifo */
+-			entry = local_pages->next;
+-			do {
+-				tmp = list_entry(entry, struct page, list);
+-				if (tmp->index == order && memclass(page_zone(tmp), classzone)) {
+-					list_del(entry);
+-					current->nr_local_pages--;
+-					set_page_count(tmp, 1);
+-					page = tmp;
+-
+-					if (page->buffers)
+-						BUG();
+-					if (page->mapping)
+-						BUG();
+-					if (!VALID_PAGE(page))
+-						BUG();
+-					if (PageLocked(page))
+-						BUG();
+-					if (PageLRU(page))
+-						BUG();
+-					if (PageActive(page))
+-						BUG();
+-					if (PageDirty(page))
+-						BUG();
++	if (current->local_page.page) {
++		page = current->local_page.page;
++		current->local_page.page = NULL;
+ 
+-					break;
+-				}
+-			} while ((entry = entry->next) != local_pages);
+-		}
+-
+-		nr_pages = current->nr_local_pages;
+-		/* free in reverse order so that the global order will be lifo */
+-		while ((entry = local_pages->prev) != local_pages) {
+-			list_del(entry);
+-			tmp = list_entry(entry, struct page, list);
+-			__free_pages_ok(tmp, tmp->index);
+-			if (!nr_pages--)
+-				BUG();
+-		}
+-		current->nr_local_pages = 0;
++		if (order != 0)
++			BUG();
++		set_page_count(page, 1);
++		if (!memclass(page_zone(page), classzone))
++			BUG();
++		if (page->buffers)
++			BUG();
++		if (page->mapping)
++			BUG();
++		if (!VALID_PAGE(page))
++			BUG();
++		if (PageLocked(page))
++			BUG();
++		if (PageLRU(page))
++			BUG();
++		if (PageActive(page))
++			BUG();
++		if (PageDirty(page))
++			BUG();
+ 	}
+-
+ 	*freed = __freed;
+ 	return page;
+ }
+@@ -743,33 +717,45 @@ static inline void build_zonelists(pg_da
+  */
+ #define PAGES_PER_WAITQUEUE	256
+ 
+-static inline unsigned long wait_table_size(unsigned long pages)
++static inline unsigned long wait_table_size(unsigned long pages, unsigned long * shift)
+ {
+ 	unsigned long size = 1;
++	unsigned long __shift = 0;
+ 
+ 	pages /= PAGES_PER_WAITQUEUE;
+ 
+-	while (size < pages)
++	while (size < pages) {
+ 		size <<= 1;
++		__shift++;
++	}
+ 
+ 	/*
+-	 * Once we have dozens or even hundreds of threads sleeping
+-	 * on IO we've got bigger problems than wait queue collision.
+-	 * Limit the size of the wait table to a reasonable size.
++	 * The usage pattern of the queues depends mostly on the I/O,
++	 * not much of the ram size of the machine, so make sure the
++	 * array is large enough on lowmem nodes too.
+ 	 */
+-	size = min(size, 4096UL);
++	size = max(size, 256UL);
++	*shift = max(__shift, 8UL);
+ 
+ 	return size;
+ }
+ 
+ /*
+- * This is an integer logarithm so that shifts can be used later
+- * to extract the more random high bits from the multiplicative
+- * hash function before the remainder is taken.
++ * The per-node waitqueue mechanism uses hashed waitqueues
++ * per zone.
+  */
+-static inline unsigned long wait_table_bits(unsigned long size)
++static inline void wait_table_init(pg_data_t *pgdat)
+ {
+-	return ffz(~size);
++	unsigned long shift, size, i;
++
++	size = wait_table_size(pgdat->node_size, &shift);
++
++	pgdat->wait_table.size = size;
++	pgdat->wait_table.shift = shift;
++	pgdat->wait_table.head = (wait_queue_head_t *) alloc_bootmem_node(pgdat, size * sizeof(wait_queue_head_t));
++
++	for(i = 0; i < size; i++)
++		init_waitqueue_head(pgdat->wait_table.head + i);
+ }
+ 
+ #define LONG_ALIGN(x) (((x)+(sizeof(long))-1)&~((sizeof(long))-1))
+@@ -823,6 +809,8 @@ void __init free_area_init_core(int nid,
+ 	pgdat->node_start_mapnr = (lmem_map - mem_map);
+ 	pgdat->nr_zones = 0;
+ 
++	wait_table_init(pgdat);
++
+ 	offset = lmem_map - mem_map;	
+ 	for (j = 0; j < MAX_NR_ZONES; j++) {
+ 		zone_t *zone = pgdat->node_zones + j;
+@@ -843,26 +831,10 @@ void __init free_area_init_core(int nid,
+ 		zone->zone_pgdat = pgdat;
+ 		zone->free_pages = 0;
+ 		zone->need_balance = 0;
+-		 zone->nr_active_pages = zone->nr_inactive_pages = 0;
+-
+-
++		zone->nr_active_pages = zone->nr_inactive_pages = 0;
+ 		if (!size)
+ 			continue;
+ 
+-		/*
+-		 * The per-page waitqueue mechanism uses hashed waitqueues
+-		 * per zone.
+-		 */
+-		zone->wait_table_size = wait_table_size(size);
+-		zone->wait_table_shift =
+-			BITS_PER_LONG - wait_table_bits(zone->wait_table_size);
+-		zone->wait_table = (wait_queue_head_t *)
+-			alloc_bootmem_node(pgdat, zone->wait_table_size
+-						* sizeof(wait_queue_head_t));
+-
+-		for(i = 0; i < zone->wait_table_size; ++i)
+-			init_waitqueue_head(zone->wait_table + i);
+-
+ 		pgdat->nr_zones = j+1;
+ 
+ 		mask = (realsize / zone_balance_ratio[j]);
+--- 2425/include/linux/sched.h.cc29.orig	2004-02-18 15:36:32.000000000 +0200
++++ 2425/include/linux/sched.h	2004-04-02 10:49:25.000000000 +0300
+@@ -280,6 +280,18 @@ struct user_struct {
+ extern struct user_struct root_user;
+ #define INIT_USER (&root_user)
+ 
++struct zone_struct;
++
++/*
++ * Used when a task if trying to free some pages for its own
++ * use - to prevent other tasks/CPUs from stealing the just-freed
++ * pages.
++ */
++struct local_page {
++	struct page *page;
++	struct zone_struct * classzone;
++};
++
+ struct task_struct {
+ 	/*
+ 	 * offsets of these are hardcoded elsewhere - touch with care
+@@ -325,8 +337,7 @@ struct task_struct {
+ 
+ 	struct task_struct *next_task, *prev_task;
+ 	struct mm_struct *active_mm;
+-	struct list_head local_pages;
+-	unsigned int allocation_order, nr_local_pages;
++	struct local_page local_page;
+ 
+ /* task state */
+ 	struct linux_binfmt *binfmt;

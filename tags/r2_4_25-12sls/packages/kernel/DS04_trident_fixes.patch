@@ -1,0 +1,168 @@
+From: Marc Boucher <marc@linuxant.com>
+Subject: IMPORTANT: fix for trident sound bug in mandrake kernel
+To: quintela@mandrakesoft.com, nplanel@mandrakesoft.com
+Cc: kmika@mandrakesoft.com, vdanen@mandrakesoft.com
+Date: Mon, 1 Sep 2003 02:38:13 -0400
+
+Hi Juan, Nicolas,
+
+The trident ac97 sound driver has a major bug; it does not release
+access to the codec after accessing it, interfering with other devices!
+This was fixed in 2.4.22-ac1 but is present in all other prior kernels,
+including the current 2.4.22.3mdk-1-1mdk (cooker).
+
+Please apply the following fix (approved by Alan Cox; the first chunk
+is critical, the rest - pci_find_device cleanups- a little less) to
+the Mandrake kernel (hopefully in time for 9.2).
+
+Many thanks!
+Marc
+
+Date: Wed, 27 Aug 2003 21:38:45 -0400
+From: Marc Boucher <marc@linuxant.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: +[TRIVIAL] Re: [PATCH] trident ali_ac97_get() not releasing codec properly
+
+On Wed, Aug 27, 2003 at 05:33:45AM -0400, Marc Boucher wrote:
+> Hi Alan,
+>
+> I have found what seems to be another bug in the trident/ali ac97
+> audio driver
+> under 2.4.
+>
+> In ali_ac97_get() a call to acquirecodecaccess(card) is made, but
+> releasecodecaccess() is only called if there is an error
+> (ali_ac97_set()
+> does however properly call releasecodecaccess() for every
+> acquirecodecaccess()).
+>
+> This leads to the 0x4000 bit (ALI_AC97_AUDIO_BUSY) being set
+> but in the successful case never being unset in the ALI_AC97_WRITE
+> register.
+[..]
+
+> Here's a new version of the patch with a few trivial fixes
+> added for pci_find_device() not always being called with a NULL
+> from pointer when searching for different IDs
+> and cleanup to use NULL as argument when the driver always wants
+> to find from the start of the list.
+
+
+On Wed, Aug 27, 2003 at 11:19:01PM +0100, Alan Cox wrote:
+> > 
+> > anyway the serious bug/important issue to fix is the missing
+> > releasecodecaccess() in ali_ac97_get(). can you confirm that I at least
+> > got that one right? ;-)
+> 
+[..]
+> the fix looks right
+
+Good. Updated patch below. Marcelo, please apply.
+
+Thanks
+Marc
+
+
+diff -ur linux-2.4.22/drivers/sound/trident.c linux-2.4.22-mb/drivers/sound/trident.c
+--- linux-2.4.22/drivers/sound/trident.c	2003-08-27 05:09:47.000000000 -0400
++++ linux-2.4.22-mb/drivers/sound/trident.c	2003-08-27 13:09:56.000000000 -0400
+@@ -3015,6 +3015,7 @@
+ 	
+ 	data = inl(TRID_REG(card, address));
+ 
++	releasecodecaccess(card);
+ 	spin_unlock_irqrestore(&card->lock, flags); 
+ 	
+ 	return ((u16) (data >> 16));
+@@ -3156,9 +3157,9 @@
+ 	unsigned char ch;
+ 
+         char temp;
+-        struct pci_dev *pci_dev = NULL;
++        struct pci_dev *pci_dev;
+ 
+-        pci_dev = pci_find_device(PCI_VENDOR_ID_AL, PCI_DEVICE_ID_AL_M1533, pci_dev);
++        pci_dev = pci_find_device(PCI_VENDOR_ID_AL, PCI_DEVICE_ID_AL_M1533, NULL);
+         if (pci_dev == NULL)
+                 return;
+         pci_read_config_byte(pci_dev, 0x61, &temp);
+@@ -3372,16 +3373,16 @@
+ static int ali_close_multi_channels(void)
+ {
+ 	char temp = 0;
+-	struct pci_dev *pci_dev = NULL;
++	struct pci_dev *pci_dev;
+ 
+-        pci_dev = pci_find_device(PCI_VENDOR_ID_AL,PCI_DEVICE_ID_AL_M1533, pci_dev);
++        pci_dev = pci_find_device(PCI_VENDOR_ID_AL,PCI_DEVICE_ID_AL_M1533, NULL);
+         if (pci_dev == NULL)
+                 return -1;
+ 	pci_read_config_byte(pci_dev, 0x59, &temp);
+ 	temp &= ~0x80;
+ 	pci_write_config_byte(pci_dev, 0x59, temp);
+ 	
+-	pci_dev = pci_find_device(PCI_VENDOR_ID_AL, PCI_DEVICE_ID_AL_M7101, pci_dev);
++	pci_dev = pci_find_device(PCI_VENDOR_ID_AL, PCI_DEVICE_ID_AL_M7101, NULL);
+ 	if (pci_dev == NULL)
+                 return -1;
+ 
+@@ -3396,16 +3397,16 @@
+ {
+ 	unsigned long dwValue;
+ 	char temp = 0;
+-	struct pci_dev *pci_dev = NULL;
++	struct pci_dev *pci_dev;
+ 
+-	pci_dev = pci_find_device(PCI_VENDOR_ID_AL, PCI_DEVICE_ID_AL_M1533, pci_dev);
++	pci_dev = pci_find_device(PCI_VENDOR_ID_AL, PCI_DEVICE_ID_AL_M1533, NULL);
+ 	if (pci_dev == NULL)
+                 return -1;
+ 	pci_read_config_byte(pci_dev, 0x59, &temp);
+ 	temp |= 0x80;
+ 	pci_write_config_byte(pci_dev, 0x59, temp);
+ 	
+-	pci_dev = pci_find_device(PCI_VENDOR_ID_AL, PCI_DEVICE_ID_AL_M7101, pci_dev);
++	pci_dev = pci_find_device(PCI_VENDOR_ID_AL, PCI_DEVICE_ID_AL_M7101, NULL);
+  	if (pci_dev == NULL)
+                 return -1;
+ 	pci_read_config_byte(pci_dev, (int)0xB8, &temp);
+@@ -3918,11 +3919,11 @@
+ 
+ static int ali_reset_5451(struct trident_card *card)
+ {
+-	struct pci_dev *pci_dev = NULL;
++	struct pci_dev *pci_dev;
+ 	unsigned int   dwVal;
+ 	unsigned short wCount, wReg;
+ 
+-	pci_dev = pci_find_device(PCI_VENDOR_ID_AL, PCI_DEVICE_ID_AL_M1533, pci_dev);
++	pci_dev = pci_find_device(PCI_VENDOR_ID_AL, PCI_DEVICE_ID_AL_M1533, NULL);
+ 	if (pci_dev == NULL)
+ 		return -1;
+ 	
+@@ -4078,7 +4079,7 @@
+ 	u8 revision;
+ 	int i = 0;
+ 	u16 temp;
+-	struct pci_dev *pci_dev_m1533 = NULL;
++	struct pci_dev *pci_dev_m1533;
+ 	int rc = -ENODEV;
+ 	u64 dma_mask;
+ 
+@@ -4163,7 +4164,7 @@
+ 
+ 		/* Add H/W Volume Control By Matt Wu Jul. 06, 2001 */
+ 		card->hwvolctl = 0;
+-		pci_dev_m1533 = pci_find_device(PCI_VENDOR_ID_AL,PCI_DEVICE_ID_AL_M1533, pci_dev_m1533);
++		pci_dev_m1533 = pci_find_device(PCI_VENDOR_ID_AL,PCI_DEVICE_ID_AL_M1533, NULL);
+ 		rc = -ENODEV;
+ 		if (pci_dev_m1533 == NULL)
+ 			goto out_proc_fs;
+
+
+Regards
+Marc
+
+----- End forwarded message -----
+
