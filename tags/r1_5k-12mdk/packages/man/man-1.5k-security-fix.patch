@@ -1,0 +1,12 @@
+diff -ruN man-1.5k/src/util.c man-1.5l/src/util.c
+--- man-1.5k/src/util.c	2002-07-17 23:17:11.000000000 +0200
++++ man-1.5l/src/util.c	2003-03-09 23:00:03.000000000 +0100
+@@ -261,7 +237,7 @@
+  * The %S parameters are checked for being shell safe.
+  * The %Q parameters are checked for being shell safe inside single quotes.
+  */
+-#define NOT_SAFE "unsafe"
++#define NOT_SAFE "/unsafe/"
+ 
+ static int
+ is_shell_safe(const char *ss, int quoted) {
