@@ -1,0 +1,168 @@
+--- coreutils-5.0/src/date.c.allow_old_options	2003-04-30 17:42:39.000000000 +0100
++++ coreutils-5.0/src/date.c	2003-04-30 18:02:49.000000000 +0100
+@@ -298,7 +298,8 @@
+   int n_args;
+   int status;
+   int option_specified_date;
+-  char const *short_options = (posix2_version () < 200112
++  char const *short_options = (posix2_version () < 200112 ||
++                               !getenv ("POSIXLY_CORRECT")
+ 			       ? COMMON_SHORT_OPTIONS "I::"
+ 			       : COMMON_SHORT_OPTIONS "I:");
+ 
+--- coreutils-5.0/src/expand.c.allow_old_options	2003-04-30 17:42:40.000000000 +0100
++++ coreutils-5.0/src/expand.c	2003-04-30 17:48:14.000000000 +0100
+@@ -540,7 +540,8 @@
+ 	}
+     }
+ 
+-  if (obsolete_tablist && 200112 <= posix2_version ())
++  if (obsolete_tablist && 200112 <= posix2_version () &&
++      getenv ("POSIXLY_CORRECT"))
+     {
+       error (0, 0, _("`-LIST' option is obsolete; use `-t LIST'"));
+       usage (EXIT_FAILURE);
+--- coreutils-5.0/src/fold.c.allow_old_options	2003-04-30 17:42:40.000000000 +0100
++++ coreutils-5.0/src/fold.c	2003-04-30 17:49:51.000000000 +0100
+@@ -513,7 +513,7 @@
+ 	      s[1] = 'w';
+ 	      strcpy (s + 2, a + 1);
+ 	      argv[i] = s;
+-	      if (200112 <= posix2_version ())
++	      if (200112 <= posix2_version () && getenv ("POSIXLY_CORRECT"))
+ 		{
+ 		  error (0, 0, _("`%s' option is obsolete; use `%s'"), a, s);
+ 		  usage (EXIT_FAILURE);
+--- coreutils-5.0/src/head.c.allow_old_options	2002-10-01 09:47:44.000000000 +0100
++++ coreutils-5.0/src/head.c	2003-04-30 17:45:11.000000000 +0100
+@@ -343,7 +343,7 @@
+ 	    }
+ 	}
+ 
+-      if (200112 <= posix2_version ())
++      if (200112 <= posix2_version () && getenv ("POSIXLY_CORRECT"))
+ 	{
+ 	  error (0, 0, _("`-%s' option is obsolete; use `-%c %.*s%.*s%s'"),
+ 		 n_string, count_lines ? 'n' : 'c',
+--- coreutils-5.0/src/nice.c.allow_old_options	2002-08-31 08:25:51.000000000 +0100
++++ coreutils-5.0/src/nice.c	2003-04-30 17:59:14.000000000 +0100
+@@ -103,7 +103,7 @@
+       char *s = argv[i];
+ 
+       if (s[0] == '-' && s[1] == '-' && ISDIGIT (s[2])
+-	  && posix2_version () < 200112)
++	  && (posix2_version () < 200112 || !getenv ("POSIXLY_CORRECT")))
+ 	{
+ 	  if (xstrtol (&s[2], NULL, 10, &adjustment, "") != LONGINT_OK)
+ 	    error (EXIT_FAILURE, 0, _("invalid option `%s'"), s);
+@@ -114,7 +114,7 @@
+ 	}
+       else if (s[0] == '-'
+ 	       && (ISDIGIT (s[1]) || (s[1] == '+' && ISDIGIT (s[2])))
+-	       && posix2_version () < 200112)
++	       && (posix2_version () < 200112 || !getenv ("POSIXLY_CORRECT")))
+ 	{
+ 	  if (s[1] == '+')
+ 	    ++s;
+--- coreutils-5.0/src/od.c.allow_old_options	2002-12-15 14:21:45.000000000 +0000
++++ coreutils-5.0/src/od.c	2003-04-30 18:02:33.000000000 +0100
+@@ -1620,7 +1620,8 @@
+   int width_specified = 0;
+   int n_failed_decodes = 0;
+   int err;
+-  char const *short_options = (posix2_version () < 200112
++  char const *short_options = (posix2_version () < 200112 ||
++			       !getenv ("POSIXLY_CORRECT")
+ 			       ? COMMON_SHORT_OPTIONS "s::w::"
+ 			       : COMMON_SHORT_OPTIONS "s:w:");
+ 
+--- coreutils-5.0/src/pr.c.allow_old_options	2003-04-30 17:42:39.000000000 +0100
++++ coreutils-5.0/src/pr.c	2003-04-30 18:03:35.000000000 +0100
+@@ -924,7 +924,8 @@
+   int old_w = FALSE;
+   int old_s = FALSE;
+   char **file_names;
+-  char const *short_options = (posix2_version () < 200112
++  char const *short_options = (posix2_version () < 200112 ||
++			       !getenv ("POSIXLY_CORRECT")
+ 			       ? COMMON_SHORT_OPTIONS "S::"
+ 			       : COMMON_SHORT_OPTIONS "S:");
+ 
+--- coreutils-5.0/src/sort.c.allow_old_options	2003-04-30 17:42:40.000000000 +0100
++++ coreutils-5.0/src/sort.c	2003-04-30 18:04:53.000000000 +0100
+@@ -2815,7 +2815,7 @@
+   int c = 0;
+   int checkonly = 0, mergeonly = 0, nfiles = 0;
+   int posix_pedantic = (getenv ("POSIXLY_CORRECT") != NULL);
+-  bool obsolete_usage = (posix2_version () < 200112);
++  bool obsolete_usage = (posix2_version () < 200112) || !posix_pedantic;
+   char const *short_options = (obsolete_usage
+ 			       ? COMMON_SHORT_OPTIONS "y::"
+ 			       : COMMON_SHORT_OPTIONS "y:");
+--- coreutils-5.0/src/split.c.allow_old_options	2003-03-11 20:44:40.000000000 +0000
++++ coreutils-5.0/src/split.c	2003-04-30 18:06:36.000000000 +0100
+@@ -465,7 +465,8 @@
+ 	}
+     }
+ 
+-  if (digits_optind && 200112 <= posix2_version ())
++  if (digits_optind && 200112 <= posix2_version ()
++      && getenv ("POSIXLY_CORRECT"))
+     {
+       error (0, 0, _("`-%d' option is obsolete; use `-l %d'"), accum, accum);
+       usage (EXIT_FAILURE);
+--- coreutils-5.0/src/tail.c.allow_old_options	2002-12-14 17:26:21.000000000 +0000
++++ coreutils-5.0/src/tail.c	2003-04-30 18:07:22.000000000 +0100
+@@ -1298,7 +1298,7 @@
+   if (argc < 2)
+     return 0;
+ 
+-  obsolete_usage = (posix2_version () < 200112);
++  obsolete_usage = (posix2_version () < 200112) || !getenv ("POSIXLY_CORRECT");
+ 
+   /* If P starts with `+' and the POSIX version predates 1003.1-2001,
+      or if P starts with `-N' (where N is a digit), or `-l', then it
+--- coreutils-5.0/src/touch.c.allow_old_options	2003-04-30 17:42:39.000000000 +0100
++++ coreutils-5.0/src/touch.c	2003-04-30 18:10:45.000000000 +0100
+@@ -392,7 +392,7 @@
+   /* The obsolete `MMDDhhmm[YY]' form is valid IFF there are
+      two or more non-option arguments.  */
+   if (!date_set && 2 <= argc - optind && !STREQ (argv[optind - 1], "--")
+-      && posix2_version () < 200112)
++      && (posix2_version () < 200112 || !getenv ("POSIXLY_CORRECT")))
+     {
+       if (posixtime (&newtime, argv[optind], PDS_TRAILING_YEAR))
+ 	{
+--- coreutils-5.0/src/unexpand.c.allow_old_options	2003-04-30 17:42:40.000000000 +0100
++++ coreutils-5.0/src/unexpand.c	2003-04-30 18:11:23.000000000 +0100
+@@ -684,7 +684,8 @@
+ 	}
+     }
+ 
+-  if (obsolete_tablist && 200112 <= posix2_version ())
++  if (obsolete_tablist && 200112 <= posix2_version ()
++      && getenv ("POSIXLY_CORRECT"))
+     {
+       error (0, 0,
+ 	     _("`-LIST' option is obsolete; use `--first-only -t LIST'"));
+--- coreutils-5.0/src/uniq.c.allow_old_options	2003-04-30 17:42:40.000000000 +0100
++++ coreutils-5.0/src/uniq.c	2003-04-30 18:13:24.000000000 +0100
+@@ -688,7 +688,7 @@
+ 	  {
+ 	    unsigned long int size;
+ 	    if (optarg[0] == '+'
+-		&& posix2_version () < 200112
++		&& (posix2_version () < 200112 || !getenv ("POSIXLY_CORRECT"))
+ 		&& xstrtoul (optarg, NULL, 10, &size, "") == LONGINT_OK
+ 		&& size <= SIZE_MAX)
+ 	      skip_chars = size;
+@@ -772,7 +772,8 @@
+ 	}
+     }
+ 
+-  if (obsolete_skip_fields && 200112 <= posix2_version ())
++  if (obsolete_skip_fields && 200112 <= posix2_version ()
++      && getenv ("POSIXLY_CORRECT"))
+     {
+       error (0, 0, _("`-%lu' option is obsolete; use `-f %lu'"),
+ 	     (unsigned long) skip_fields, (unsigned long) skip_fields);

@@ -1,0 +1,25 @@
+--- rpm-4.0.4/rpmdb/db3.c.debug	2002-09-12 20:39:00.000000000 +0200
++++ rpm-4.0.4/rpmdb/db3.c	2002-09-12 21:00:08.000000000 +0200
+@@ -1215,6 +1215,10 @@
+ 				? F_WRLCK : F_RDLCK;
+ 		    l.l_pid = 0;
+ 
++		    fprintf(stderr, "trying to get %s lock on %s\n",
++			    (dbi->dbi_mode & (O_RDWR|O_WRONLY))
++			    ? _("exclusive") : _("shared"), dbfile);
++
+ 		    while (1) {
+ 		    rc = fcntl(fdno, F_SETLK, (void *) &l);
+ 		    if (rc) {
+@@ -1232,8 +1236,11 @@
+ 			rpmMessage(RPMMESS_DEBUG,
+ 				_("locked   db index       %s/%s\n"),
+ 				dbhome, dbfile);
++			fprintf(stderr, "got the lock on %s\n", dbfile);
+ 			break;
+ 		    }
++		    fprintf(stderr, "failed to get lock on %s\n", dbfile);
++		    
+ 		    if (!geteuid() || !(dbi->dbi_mode & (O_RDWR|O_WRONLY)) ) {
+ 		      sleep(5);
+ 		    } else {

@@ -1,0 +1,45 @@
+--- util-linux-2.11z/mount/fstab.c.userumount	2002-11-26 04:53:41.000000000 -0500
++++ util-linux-2.11z/mount/fstab.c	2003-04-14 01:31:17.000000000 -0400
+@@ -14,6 +14,7 @@
+ #include "sundries.h"		/* for xmalloc() etc */
+ #include "get_label_uuid.h"
+ #include "nls.h"
++#include "mount_by_label.h"
+ 
+ #define streq(s, t)	(strcmp ((s), (t)) == 0)
+ 
+@@ -250,10 +251,20 @@ getfsspecfile (const char *spec, const c
+ 	mc0 = fstab_head();
+ 
+ 	/* first attempt: names occur precisely as given */
+-	for (mc = mc0->nxt; mc && mc != mc0; mc = mc->nxt)
+-		if (streq (mc->m.mnt_dir, file) &&
+-		    streq (mc->m.mnt_fsname, spec))
++	for (mc = mc0->nxt; mc && mc != mc0; mc = mc->nxt) {
++		if (!streq (mc->m.mnt_dir, file))
++			continue;
++		if (streq (mc->m.mnt_fsname, spec))
+ 			return mc;
++		/* convert any "LABEL=xxx" entries from fstab to /dev/xxx prior comparism */
++		if (!strncmp(mc->m.mnt_fsname, "LABEL=", 6)) {
++			char *spec_from_label;
++			spec_from_label  = get_spec_by_volume_label(&mc->m.mnt_fsname[6]);
++			if (spec_from_label && streq(spec_from_label, spec)) {
++				return mc;
++			}
++		}
++	}
+ 
+ 	/* second attempt: names found after symlink resolution */
+ 	for (mc = mc0->nxt; mc && mc != mc0; mc = mc->nxt)
+--- util-linux-2.11z/mount/Makefile.userumount	2003-04-14 01:28:15.000000000 -0400
++++ util-linux-2.11z/mount/Makefile	2003-04-14 01:32:14.000000000 -0400
+@@ -48,7 +48,7 @@ mount: mount.o fstab.o sundries.o realpa
+ 	$(LINK) $^ -o $@
+ 
+ umount: umount.o fstab.o sundries.o realpath.o mntent.o getusername.o \
+-	get_label_uuid.o version.o $(LIB)/env.o $(LO_OBJS)
++	get_label_uuid.o version.o mount_by_label.o $(LIB)/env.o $(LO_OBJS)
+ 	$(LINK) $^ -o $@
+ 
+ swapon:	swapon.o version.o

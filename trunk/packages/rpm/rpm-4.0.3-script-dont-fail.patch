@@ -1,0 +1,11 @@
+--- rpm-4.0.3/lib/psm.c.fred	Thu May 31 23:32:40 2001
++++ rpm-4.0.3/lib/psm.c	Tue Jun 12 10:01:17 2001
+@@ -1018,7 +1018,7 @@
+ 
+     programArgv = hfd(programArgv, ptt);
+     script = hfd(script, stt);
+-    return rc;
++    return RPMRC_OK;
+ }
+ 
+ /**
