@@ -1,22 +1,11 @@
 %define name	zsh
-%define version	4.1.1
-%define release	8avx
+%define version	4.2.4
+%define release	1avx
 %define epoch	1
 
-%define doc_version 4.1.1
-%define url	ftp://ftp.zsh.org/pub/
+%define doc_version 4.2.4
 
-%define beta	0
-
-%if %beta
-#%{expand:%%define full_preversion %(echo %version-%beta|sed -e 's!dev!dev-!g')}
-%define full_preversion %{expand:%(echo %version-%beta|sed -e 's!dev!dev-!g')}
-%define release	0.%beta.1sls
-%else
-%define full_preversion %version
-%endif
-
-Summary:	A shell with lots of features.
+Summary:	A shell with lots of features
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -24,16 +13,16 @@ Epoch:		%{epoch}
 License:	GPL
 Group:		Shells
 URL:		http://www.zsh.org
-Source0:	%{url}/%name-%{full_preversion}.tar.bz2
-Source1:	%{url}/%name-%doc_version-doc.tar.bz2
+Source0:	http://www.zsh.org/pub/%{name}-%{version}.tar.bz2
 Source2:	zcfg-mdk.tar.bz2
+Source3:	zsh.urpmi_comp.bz2
 Patch1:		zsh-3.1.6-dev-22-path.patch.bz2
 Patch2:		zsh-4.0.1-pre-3-rpmnewopt.patch.bz2
 Patch101:	zsh-serial.patch.bz2
 Patch102:	zsh-4.1.0-dev-7-rebootin.patch.bz2
 
-BuildRoot:	%_tmppath/%name-buildroot
-BuildRequires:	gcc, libtermcap-devel >= 2.0, texinfo
+BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
+BuildRequires:	libtermcap-devel >= 2.0, texinfo, pcre-devel, ncurses-devel
 
 Prereq:		coreutils grep rpm-helper >= 0.7
 
@@ -50,22 +39,25 @@ Install the zsh package if you'd like to try out a different shell.
 
 
 %prep
-%setup -q -a 2 -a 1 -n %name-%full_preversion
-mv %name-%doc_version/Doc/* Doc/
+%setup -q -a 2 -n %{name}-%{version}
 %patch1 -p1
 %patch2 -p1
 %patch101 -p1
 %patch102 -p1
 
+bzcat %{SOURCE3} > Completion/Mandrake/Command/_urpmi
+
 # remove temporary files
 find | grep '~$' | xargs rm -f
+perl -pi -e 's|/usr/local/bin/|%{_bindir}/|' Functions/Misc/{run-help,checkmail,zcalc}
 
 %build
 %ifarch sparc
 EXTRA_CONFIGURE_ARGS="--disable-lfs"
 %endif
 
-%configure2_5x --enable-etcdir=%_sysconfdir --enable-function-subdirs --disable-debug $EXTRA_CONFIGURE_ARGS
+%configure2_5x --enable-etcdir=%{_sysconfdir} --enable-function-subdirs --disable-debug $EXTRA_CONFIGURE_ARGS \
+    --disable-max-jobtable-size --enable-pcre #--with-curses-terminfo
 
 make all
 
@@ -76,44 +68,51 @@ make install-strip DESTDIR=%buildroot
 make install.info DESTDIR=%buildroot
 
 # copy Mandrake Configuration files.
-mkdir -p $RPM_BUILD_ROOT/{bin,etc}
-cp -a zcfg/etc/z* $RPM_BUILD_ROOT%_sysconfdir
-cp -a zcfg/share/zshrc_default %buildroot%_datadir/zsh/%full_preversion/zshrc_default
+mkdir -p %{buildroot}/{bin,etc}
+cp -a zcfg/etc/z* %{buildroot}%{_sysconfdir}
+cp -a zcfg/share/zshrc_default %buildroot%{_datadir}/zsh/%{version}/zshrc_default
 
-# Backward compatibilie should be removed in the others times.
-pushd $RPM_BUILD_ROOT/bin && {
-    mv ..%_bindir/zsh ./zsh
+# Backward compatibility should be removed in the others times.
+pushd %{buildroot}/bin && {
+    mv ..%{_bindir}/zsh ./zsh
 } && popd
 
-rm -f $RPM_BUILD_ROOT%_bindir/zsh-%full_preversion
+rm -f %{buildroot}%{_bindir}/zsh-%{version}
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
-/usr/share/rpm-helper/add-shell %name $1 /bin/zsh
-%_install_info %name.info
+/usr/share/rpm-helper/add-shell %{name} $1 /bin/zsh
+%_install_info %{name}.info
 
 %postun
-/usr/share/rpm-helper/del-shell %name $1 /bin/zsh
-%_remove_install_info %name.info
+/usr/share/rpm-helper/del-shell %{name} $1 /bin/zsh
+%_remove_install_info %{name}.info
 
 %files
 %defattr(-,root,root,0755)
-%doc README
-%config(noreplace) %_sysconfdir/z*
-/bin/%name
-%_mandir/man1/*.1*
-%_infodir/*.info*
-%dir %_datadir/zsh
-%dir %_datadir/zsh/%{full_preversion}/
-%_datadir/zsh/%{full_preversion}/functions
-%_datadir/zsh/%{full_preversion}/zshrc_default
-%_libdir/zsh/%{full_preversion}/
-%_datadir/zsh/site-functions/
+%doc README NEWS
+%config(noreplace) %{_sysconfdir}/z*
+/bin/%{name}
+%{_mandir}/man1/*.1*
+%{_infodir}/*.info*
+%dir %{_datadir}/zsh
+%dir %{_datadir}/zsh/%{version}/
+%{_datadir}/zsh/%{version}/functions
+%{_datadir}/zsh/%{version}/zshrc_default
+%{_datadir}/zsh/site-functions/
+%dir %{_libdir}/zsh
+%{_libdir}/zsh/%{version}/
 
 
 %changelog
+* Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 4.1.1-8avx
+- 4.2.4
+- drop doc sources
+- add urpmi completion
+- use ncurses instead of termcap
+
 * Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 4.1.1-8avx
 - Annvix build
 
