@@ -1,6 +1,6 @@
 %define name	gzip
 %define version	1.2.4a
-%define release 16avx
+%define release 17avx
 
 Summary:	The GNU data compression program
 Name:		%{name}
@@ -20,6 +20,7 @@ Patch6:		gzip-64bit.patch.bz2
 Patch7:		gzip-better-output-when-segfaults.patch.bz2
 Patch8:		gzip-security-fix-filenames-too-long.patch.bz2
 Patch9:		gzip-1.2.4a-znew.patch.bz2
+Patch10:	gzip-1.2.4a-zdiff-CAN-2004-0970.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
 BuildRequires:	texinfo
@@ -43,6 +44,7 @@ program.  Gzipped files have a .gz extension.
 %patch7 -p0
 %patch8 -p1
 %patch9 -p1 -b .znew
+%patch10 -p0 -b .can-2004-0970
 
 %build
 export DEFS="-DNO_ASM"
@@ -52,35 +54,35 @@ make test
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-install -d $RPM_BUILD_ROOT/%{_mandir}
+install -d %{buildroot}%{_mandir}
 
-%makeinstall mandir=$RPM_BUILD_ROOT/%{_mandir}/man1
+%makeinstall mandir=%{buildroot}%{_mandir}/man1
 
-install -d $RPM_BUILD_ROOT/bin
+install -d %{buildroot}/bin
 
-mv -f $RPM_BUILD_ROOT/%{_bindir}/gzip $RPM_BUILD_ROOT/bin/gzip
+mv -f %{buildroot}%{_bindir}/gzip %{buildroot}/bin/gzip
 
-rm -f $RPM_BUILD_ROOT/%{_bindir}/gunzip
-rm -f $RPM_BUILD_ROOT/%{_bindir}/zcat
+rm -f %{buildroot}%{_bindir}/gunzip
+rm -f %{buildroot}%{_bindir}/zcat
 
-ln -f $RPM_BUILD_ROOT/bin/gzip $RPM_BUILD_ROOT/bin/gunzip
-ln -f $RPM_BUILD_ROOT/bin/gzip $RPM_BUILD_ROOT/bin/zcat
-ln -sf ../../bin/gzip $RPM_BUILD_ROOT/%{_bindir}/gzip
-ln -sf ../../bin/gunzip $RPM_BUILD_ROOT/%{_bindir}/gunzip
+ln -f %{buildroot}/bin/gzip %{buildroot}/bin/gunzip
+ln -f %{buildroot}/bin/gzip %{buildroot}/bin/zcat
+ln -sf ../../bin/gzip %{buildroot}%{_bindir}/gzip
+ln -sf ../../bin/gunzip %{buildroot}%{_bindir}/gunzip
 
 for i in zcmp zdiff zforce zgrep zmore znew ; do
-	sed -e "s|$RPM_BUILD_ROOT||g" < $RPM_BUILD_ROOT/%{_bindir}/$i > $RPM_BUILD_ROOT/%{_bindir}/.$i
-	rm -f $RPM_BUILD_ROOT/%{_bindir}/$i
-	mv $RPM_BUILD_ROOT/%{_bindir}/.$i $RPM_BUILD_ROOT/%{_bindir}/$i
-	chmod 755 $RPM_BUILD_ROOT/%{_bindir}/$i
+	sed -e "s|%{buildroot}||g" < %{buildroot}%{_bindir}/$i > %{buildroot}%{_bindir}/.$i
+	rm -f %{buildroot}%{_bindir}/$i
+	mv %{buildroot}%{_bindir}/.$i %{buildroot}%{_bindir}/$i
+	chmod 755 %{buildroot}%{_bindir}/$i
 done
 
-cat > $RPM_BUILD_ROOT/%{_bindir}/zless <<EOF
+cat > %{buildroot}%{_bindir}/zless <<EOF
 #!/bin/sh
 export LESSOPEN="|lesspipe.sh %s"
 less "\$@"
 EOF
-chmod 755 $RPM_BUILD_ROOT/%{_bindir}/zless
+chmod 755 %{buildroot}%{_bindir}/zless
 
 %post
 %_install_info %{name}.info
@@ -100,6 +102,9 @@ chmod 755 $RPM_BUILD_ROOT/%{_bindir}/zless
 %{_infodir}/*
 
 %changelog
+* Tue Jun 29 2004 Vincent Danen <vdanen@annvix.org> 1.2.4a-17avx
+- P10: fix temp file probs in zdiff (CAN-2004-0970)
+
 * Tue Jun 29 2004 Vincent Danen <vdanen@annvix.org> 1.2.4a-16avx
 - change description
 
