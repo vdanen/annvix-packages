@@ -1,6 +1,7 @@
 %define name	dhcp
 %define version	3.0
-%define release	1.rc12.5sls
+%define release	1.rc12.6sls
+%define epoch	2
 
 %define their_version	3.0.1rc12
 %define _catdir		/var/cache/man
@@ -11,7 +12,7 @@ Summary:	The ISC DHCP (Dynamic Host Configuration Protocol) server/relay agent/c
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
-Epoch:		2
+Epoch:		%{epoch}
 License:	Distributable
 Group:		System/Servers
 URL:		http://www.isc.org/dhcp.html
@@ -68,7 +69,7 @@ dhcp-server and/or dhcp-relay packages.
 %package server
 Summary:	The ISC DHCP (Dynamic Host Configuration Protocol) server
 Group:		System/Servers
-Requires:	dhcp-common = %version-%release, /bin/sh
+Requires:	dhcp-common = %epoch:%version-%release, /bin/sh
 Prereq:		rpm-helper
 Obsoletes:	dhcp
 
@@ -84,7 +85,7 @@ network. You will also need to install the base dhcp package.
 %package client
 Summary:	The ISC DHCP (Dynamic Host Configuration Protocol) client
 Group:		System/Servers
-Requires:	dhcp-common = %version-%release, /bin/sh
+Requires:	dhcp-common = %epoch:%version-%release, /bin/sh
 
 %description client
 DHCP client is the Internet Software Consortium (ISC) DHCP client for various
@@ -99,7 +100,7 @@ install the base dhcp package.
 %package relay
 Summary:	The ISC DHCP (Dynamic Host Configuration Protocol) relay
 Group:		System/Servers
-Requires:	dhcp-common = %version-%release /bin/sh
+Requires:	dhcp-common = %epoch:%version-%release /bin/sh
 Prereq:		rpm-helper
 
 %description relay
@@ -114,7 +115,7 @@ starting the server.
 %package devel
 Summary:	Development headers and libraries for the dhcpctl API
 Group:		Development/Other
-Requires:	dhcp-common = %version-%release
+Requires:	dhcp-common = %epoch:%version-%release
 
 %description devel
 DHCP devel contains all of the libraries and headers for developing with th
@@ -146,7 +147,7 @@ echo 'int main() { return sizeof(void *) != 8; }' | gcc -xc - -o is_ptr64
 %make
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p $RPM_BUILD_ROOT%{_bindir}
 
 %makeinstall_std
@@ -174,6 +175,8 @@ touch $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/dhcpd
 touch $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/dhcrelay
 find . -type d -exec chmod 0755 {} \;
 find . -type f -exec chmod 0644 {} \;
+
+rm -rf $RPM_BUILD_DIR/%{name}-%{their_version}/doc/ja_JP.eucJP
 
 mkdir -p %{buildroot}%{_srvdir}/{dhcpd,dhcrelay}/log
 mkdir -p %{buildroot}%{_srvlogdir}/{dhcpd,dhcrelay}
@@ -220,13 +223,14 @@ touch /var/lib/dhcp/dhclient.leases
 rm -rf /var/lib/dhcp/dhclient.leases
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files common
 %defattr(-,root,root)
-%doc  ANONCVS COPYRIGHT CHANGES README RELNOTES
+%doc  README RELNOTES
 %doc  doc contrib
 %dir  %{_localstatedir}/dhcp
+%{_mandir}/man5/dhcp-options.5*
 
 %files server
 %defattr(-,root,root)
@@ -241,7 +245,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man3/omapi.3*
 %{_mandir}/man5/dhcpd.conf.5*
 %{_mandir}/man5/dhcpd.leases.5*
-%{_mandir}/man5/dhcp-options.5*
 %{_mandir}/man5/dhcp-eval.5*
 %{_mandir}/man8/dhcpd.8*
 %config(noreplace) %ghost %{_localstatedir}/dhcp/dhcpd.leases
@@ -280,6 +283,14 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/*
 
 %changelog
+* Thu Mar 04 2004 Vincent Danen <vdanen@opensls.org> 3.0-1.rc12.6sls
+- minor spec cleanups
+- some syncs with 3.0-1.rc13.3mdk:
+  - remove the ja_JP.eucJP redundant directory (florin)
+  - move the dhcp-options manpage to the common package
+  - remove the no longer existing ANONCVS, CHANGES, COPYRIGHT files
+  - add epoch to requires
+
 * Wed Feb 04 2004 Vincent Danen <vdanen@opensls.org> 3.0-1.rc12.5sls
 - remove initscripts
 - supervise scripts
