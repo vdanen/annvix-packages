@@ -1,18 +1,18 @@
 %define name	php-%{modname}
 %define version	%{phpversion}_%{rver}
 %define rver	2.0.4
-%define release	1avx
+%define release	2avx
 
+%define phpversion	4.3.10
 %define phpsource       %{_prefix}/src/php-devel
-%{expand:%(cat /usr/src/php-devel/PHP_BUILD||(echo -e "error: failed build dependencies:\n        php-devel >= 430 (4.3.0) is needed by this package." >/dev/stderr;kill -2 $PPID))}
+%define phpdir		%{_libdir}/php
 
-%define realname	apc (Alternative PHP Cache)
 %define modname		apc
 %define dirname		%{modname}
 %define soname		%{modname}.so
 %define inifile		99_%{modname}.ini
 
-Summary:		The %{realname} module for PHP
+Summary:		The apc (Alternative PHP Cache) module for PHP
 Name:			%{name}
 Version:		%{version}
 Release:		%{release}
@@ -23,9 +23,9 @@ Source0:		APC-%{rver}.tar.bz2
 Source1:		apc.ini.bz2
 
 BuildRoot:		%{_tmppath}/%{name}-root
-BuildRequires:  	php%{libversion}-devel
+BuildRequires:  	php4-devel
 
-Requires:		php%{libversion}
+Requires:		php4
 Conflicts:		php-afterburner php-mmcache
 
 %description
@@ -63,9 +63,9 @@ NOTE!: %{name} has to be loaded last, very important!
 
 phpize
 %configure2_5x \
-    --enable-%{modname}=shared,%{_prefix} \
-    --enable-mmap \
-    --disable-sem
+    --enable-%{modname}=shared,%{_prefix}
+#    --enable-mmap \
+#    --disable-sem
 
 %make
 mv modules/*.so .
@@ -96,11 +96,14 @@ install -m755 %{soname} %{buildroot}%{phpdir}/extensions/
 
 %files 
 %defattr(-,root,root)
-%doc CHANGELOG INSTALL NOTICE README.%{modname} README.apc
+%doc CHANGELOG INSTALL NOTICE README*
 %{phpdir}/extensions/%{soname}
 %config(noreplace) %attr(0644,root,root) %{_sysconfdir}/php.d/%{inifile}
 
 %changelog
+* Sat Feb 26 2005 Vincent Danen <vdanen@annvix.org> 4.3.10_2.0.4-2avx
+- rebuild and cleanups
+
 * Thu Dec 16 2004 Vincent Danen <vdanen@annvix.org> 4.3.10_2.0.4-1avx
 - php 4.3.10
 
