@@ -1,8 +1,8 @@
-# $Id: srv.spec,v 1.7 2004/07/15 01:33:18 vdanen Exp $
+# $Id: srv.spec,v 1.9 2004/07/15 04:29:43 vdanen Exp $
 
 %define name	srv
 %define version 0.6
-%define release 1avx
+%define release 2avx
 
 Summary:	Tool to manage supervise-controlled services.
 Name: 		%{name}
@@ -86,6 +86,10 @@ echo "Adding svscan to inittab if required..."
 %{_mandir}/man1/svc-stop.1*
 
 %changelog
+* Wed Jul 14 2004 Vincent Danen <vdanen@annvix.org> 0.6-2avx
+- fix really bad and stupid typeo in srv-stop
+- give some feedback on starting and stopping supervise
+
 * Wed Jul 14 2004 Vincent Danen <vdanen@annvix.org> 0.6-1avx
 - numerous fixes; there was some bad bash going on (this solves
   the problem with every service taking 15s to shutdown, they should
