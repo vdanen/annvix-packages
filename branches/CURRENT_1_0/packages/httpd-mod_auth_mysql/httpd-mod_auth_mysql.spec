@@ -1,6 +1,6 @@
 %define name	%{ap_name}-%{mod_name}
 %define version %{ap_version}_%{mod_version}
-%define release 2sls
+%define release 3sls
 
 # Module-Specific definitions
 %define mod_version	1.11
@@ -59,14 +59,14 @@ cat mod_auth_mysql.c | tail +84 | head -101 | cut -c 4- > mod_auth_mysql.txt
 %{apxs} -c mod_auth_mysql.c -I%{_includedir}/mysql -Wl,-lmysqlclient
 
 %install
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %ADVXinstlib
 %ADVXinstconf %{SOURCE2} %{mod_conf}
 %ADVXinstdoc %{name}-%{version}
 
 %clean
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
 %ADVXpost
@@ -82,6 +82,9 @@ cat mod_auth_mysql.c | tail +84 | head -101 | cut -c 4- > mod_auth_mysql.txt
 %{ap_webdoc}/*
 
 %changelog
+* Wed Feb 18 2004 Vincent Danen <vdanen@opensls.org> 2.0.48_1.11-3sls
+- little cleanups
+
 * Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 2.0.48_1.11-2sls
 - OpenSLS build
 - tidy spec
