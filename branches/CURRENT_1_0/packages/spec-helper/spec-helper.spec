@@ -1,14 +1,8 @@
 %define name	spec-helper
 %define version 0.9.2
-%define release 4sls
+%define release 5sls
 
-%{!?build_opensls:%global build_opensls 0}
-
-%if %{build_opensls}
 %define distrib	OpenSLS
-%else
-%define distrib	Mandrake Linux
-%endif
 
 Summary:	Tools to ease the creation of rpm packages
 Name:		%{name}
@@ -24,7 +18,6 @@ Source0:	%{name}-%{version}.tar.bz2
 BuildRoot:	%{_tmppath}/%{name}-buildroot
 BuildArch:	noarch
 
-Prefix:		%{_prefix}
 Requires:	perl /sbin/ldconfig findutils /usr/bin/python gettext
 
 %description
@@ -32,16 +25,16 @@ Tools to ease the creation of rpm packages for the %{distrib} distribution.
 Compress man pages using bzip2, strip executables, convert links...
 
 %prep
-%setup
+%setup -q
 
 %build
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 make install DESTDIR=$RPM_BUILD_ROOT bindir=%{buildroot}/%{_bindir}
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -50,6 +43,11 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/spec-helper
 
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 0.9.2-5sls
+- minor spec cleanups
+- remove %%prefix
+- remove %%build_openssls
+
 * Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 0.9.2-4sls
 - OpenSLS build
 - tidy spec
