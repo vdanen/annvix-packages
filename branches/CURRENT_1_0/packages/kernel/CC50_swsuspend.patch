@@ -1,0 +1,33 @@
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff --exclude='defconfig*' --exclude='log.*' --exclude='log2?' w2/mm/vmscan.c w1/mm/vmscan.c
+--- w2/mm/vmscan.c	2003-08-20 19:13:33.000000000 +0200
++++ w1/mm/vmscan.c	2003-08-19 13:02:50.000000000 +0200
+@@ -756,14 +756,17 @@ int try_to_free_pages_zone(zone_t *class
+ 	return 0;
+ }
+ 
+-int try_to_free_pages_zone_swsusp(zone_t *classzone, unsigned int gfp_mask, int priority, int nr_pages)
++int try_to_free_pages_zone_swsusp(zone_t *classzone, unsigned int gfp_mask, int nr_pages)
+ {
++	int tries = vm_passes;
++
+ 	gfp_mask = pf_gfp_mask(gfp_mask);
+ 	do {
+-		nr_pages = shrink_caches(classzone, priority, gfp_mask, nr_pages);
++		int failed_swapout = !(gfp_mask & __GFP_IO);
++		nr_pages = shrink_caches(classzone, gfp_mask, nr_pages, & failed_swapout);
+ 		if (nr_pages <= 0)
+ 			return 1;
+-	} while (--priority);
++	} while (--tries);
+ 
+ 	/* No out of memory call for us! */
+ 	return 0;
+@@ -781,7 +784,7 @@ int try_to_free_pages_swsusp(unsigned in
+ 
+ 	for_each_pgdat(pgdat) {
+ 		zonelist = pgdat->node_zonelists + (gfp_mask & GFP_ZONEMASK);
+-		error |= try_to_free_pages_zone_swsusp(zonelist->zones[0], gfp_mask, 1, amount_needed);
++		error |= try_to_free_pages_zone_swsusp(zonelist->zones[0], gfp_mask, amount_needed);
+ 	}
+ 
+ 	current->flags |= pf_free_pages;

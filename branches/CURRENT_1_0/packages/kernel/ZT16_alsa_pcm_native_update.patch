@@ -1,0 +1,33 @@
+diff -Nurp -X /Data/dontdiff -X /Data/dontdiff2 patched/sound/core/pcm_native.c patched/sound.cvs/core/pcm_native.c
+--- patched/sound/core/pcm_native.c	2003-07-23 13:46:12.000000000 +0300
++++ patched/sound.cvs/core/pcm_native.c	2003-08-31 22:47:16.000000000 +0300
+@@ -2791,7 +2791,8 @@ static struct page * snd_pcm_mmap_status
+ 		return NOPAGE_OOM;
+ 	runtime = substream->runtime;
+ 	page = virt_to_page(runtime->status);
+-	get_page(page);
++	if (!PageReserved(page))
++		get_page(page);
+ 	return page;
+ }
+ 
+@@ -2828,7 +2829,8 @@ static struct page * snd_pcm_mmap_contro
+ 		return NOPAGE_OOM;
+ 	runtime = substream->runtime;
+ 	page = virt_to_page(runtime->control);
+-	get_page(page);
++	if (!PageReserved(page))
++		get_page(page);
+ 	return page;
+ }
+ 
+@@ -2893,7 +2895,8 @@ static struct page * snd_pcm_mmap_data_n
+ 		vaddr = runtime->dma_area + offset;
+ 		page = virt_to_page(vaddr);
+ 	}
+-	get_page(page);
++	if (!PageReserved(page))
++		get_page(page);
+ 	return page;
+ }
+ 

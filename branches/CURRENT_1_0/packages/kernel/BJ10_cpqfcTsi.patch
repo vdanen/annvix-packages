@@ -1,0 +1,11 @@
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff --exclude='defconfig*' --exclude='log.*' --exclude='log2?' w2/drivers/scsi/cpqfcTSi2c.c w1/drivers/scsi/cpqfcTSi2c.c
+--- w2/drivers/scsi/cpqfcTSi2c.c	2003-06-13 16:51:36.000000000 +0200
++++ w1/drivers/scsi/cpqfcTSi2c.c	2003-08-19 02:03:22.000000000 +0200
+@@ -59,7 +59,6 @@ static void tl_i2c_tx_byte(void *GPIOout
+ #define SLAVE_WRITE_ADDRESS	0xA0
+ 
+ 
+-static void i2c_delay(u32 mstime);
+ static void tl_i2c_clock_pulse(u8, void *GPIOout);
+ static u8 tl_read_i2c_data(void *);
+ 

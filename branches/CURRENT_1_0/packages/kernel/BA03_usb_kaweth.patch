@@ -1,0 +1,12 @@
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff --exclude='defconfig*' --exclude='log.*' --exclude='log2?' w2/drivers/usb/kaweth.c w1/drivers/usb/kaweth.c
+--- w2/drivers/usb/kaweth.c	2003-08-20 19:13:47.000000000 +0200
++++ w1/drivers/usb/kaweth.c	2003-08-20 14:41:11.000000000 +0200
+@@ -735,7 +735,7 @@ static int kaweth_start_xmit(struct sk_b
+ 		}
+ 	}
+ 
+-	private_header = __skb_push(skb, 2);
++	private_header = (u16 *)__skb_push(skb, 2);
+ 	*private_header = cpu_to_le16(skb->len-2);
+ 	kaweth->tx_skb = skb;
+ 

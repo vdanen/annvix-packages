@@ -1,0 +1,13 @@
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff bcm5820/include/sound/driver.h alsa/include/sound/driver.h
+--- bcm5820/include/sound/driver.h	2002-04-26 12:49:56.000000000 +0200
++++ alsa/include/sound/driver.h	2002-08-08 13:30:04.000000000 +0200
+@@ -39,8 +39,6 @@
+ #undef CONFIG_SND_DEBUG_MEMORY
+ #endif
+ 
+-#ifdef ALSA_BUILD
+-#include "adriver.h"
+-#endif
++#include <sound/adriver.h>
+ 
+ #include <linux/module.h>

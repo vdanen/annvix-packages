@@ -1,0 +1,12 @@
+diff -uNp t1/fs/buffer.c.cc12.orig t1/fs/buffer.c
+--- t1/fs/buffer.c.cc12.orig	2003-07-31 19:05:45.000000000 +0200
++++ t1/fs/buffer.c	2003-07-31 23:57:46.000000000 +0200
+@@ -764,8 +764,7 @@ static void free_more_memory(void)
+ 	wakeup_bdflush();
+ 	if (likely(suspend_task != current->pid))
+ 		try_to_free_pages(GFP_NOIO);
+-	run_task_queue(&tq_disk);
+ 	yield();
+ }
+ 
+ 

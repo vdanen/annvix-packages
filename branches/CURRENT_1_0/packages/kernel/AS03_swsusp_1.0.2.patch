@@ -1,0 +1,87 @@
+diff -ruN swsusp-1.0.1/include/linux/suspend-debug.h swsusp-1.0.2/include/linux/suspend-debug.h
+--- swsusp-1.0.1/include/linux/suspend-debug.h	2003-07-17 12:20:54.000000000 +1200
++++ swsusp-1.0.2/include/linux/suspend-debug.h	2003-07-17 12:20:59.000000000 +1200
+@@ -6,7 +6,7 @@
+ 
+ #define name_suspend "Suspend Machine:  "
+ #define name_resume  "Resume Machine:   "
+-#define swsusp_version "1.0.1-2_4_21"
++#define swsusp_version "1.0.2-2_4_21"
+ #define name_swsusp  "Swsusp " swsusp_version ": "
+ #define console_suspend " S U S P E N D   T O   D I S K " /* Same length to ensure one overwrites the other */
+ #define console_resume  "R E S U M E   F R O M   D I S K"
+diff -ruN swsusp-1.0.1/kernel/fork.c swsusp-1.0.2/kernel/fork.c
+--- swsusp-1.0.1/kernel/fork.c	2003-06-21 10:16:50.000000000 +1200
++++ swsusp-1.0.2/kernel/fork.c	2003-07-17 12:20:59.000000000 +1200
+@@ -22,6 +22,7 @@
+ #include <linux/namespace.h>
+ #include <linux/personality.h>
+ #include <linux/compiler.h>
++#include <linux/suspend.h>
+ 
+ #include <asm/pgtable.h>
+ #include <asm/pgalloc.h>
+@@ -621,6 +622,11 @@
+ 			goto fork_out;
+ 	}
+ 
++	/* We don't want processes forking in the middle of suspending */
++	if (unlikely(suspend_task))
++		while (suspend_task)
++			yield();
++
+ 	retval = -ENOMEM;
+ 	p = alloc_task_struct();
+ 	if (!p)
+diff -ruN swsusp-1.0.1/kernel/suspend/io.c swsusp-1.0.2/kernel/suspend/io.c
+--- swsusp-1.0.1/kernel/suspend/io.c	2003-07-17 12:20:54.000000000 +1200
++++ swsusp-1.0.2/kernel/suspend/io.c	2003-07-17 12:20:59.000000000 +1200
+@@ -47,7 +47,9 @@
+ 
+ static int prepare_zlib_deflate_memory(void)
+ {
++	trap_page_allocs = 0;
+ 	compression_workspace = vmalloc(zlib_deflate_workspacesize());
++	trap_page_allocs = 1;
+ 	if (!compression_workspace) {
+ 		printk(KERN_WARNING "Failed to allocate %d bytes for deflate workspace\n", zlib_deflate_workspacesize());
+ 		return -ENOMEM;
+diff -ruN swsusp-1.0.1/kernel/suspend/main.c swsusp-1.0.2/kernel/suspend/main.c
+--- swsusp-1.0.1/kernel/suspend/main.c	2003-07-17 12:20:54.000000000 +1200
++++ swsusp-1.0.2/kernel/suspend/main.c	2003-07-17 12:20:59.000000000 +1200
+@@ -1081,28 +1081,29 @@
+ 	orig_mem_free = nr_free_pages();
+ 
+ 	suspend_task = current->pid;
++
+ 	if (resume_status & NORESUME) {
+ 		printk(KERN_WARNING name_swsusp "Resuming disabled as requested.\n");
+ 		if (resume_file[0])
+ 			read_primary_suspend_image(resume_file,1); /* non fatal error ignored */
++		suspend_task = 0;
+ 		kernel_thread(swsusp_mainloop, NULL, CLONE_FS | CLONE_FILES | CLONE_SIGHAND | SIGCHLD);
+-		goto out;
++		console_loglevel = orig_loglevel;
++		return;
+ 	}
+ 
+ 	printlog(SUSPEND_ANY_SECTION, SUSPEND_VERBOSE, name_swsusp "Resuming from %s\n", resume_file);
+ 	if (read_primary_suspend_image(resume_file, 0)) { /* non fatal error (normal swap space) */
++		suspend_task = 0;
+ 		kernel_thread(swsusp_mainloop, NULL, CLONE_FS | CLONE_FILES | CLONE_SIGHAND | SIGCHLD);
+-		goto out;
++		console_loglevel = orig_loglevel;
++		return;
+ 	}		
+ 
+ 	prepare_status(0, 0, "Copying pages back (no status - sensitive!)...");
+ 	
+ 	do_suspend_lowlevel(1);
+ 	BUG();
+-
+-out:
+-	console_loglevel = orig_loglevel;
+-	suspend_task = 0;
+ }
+ 
+ /*

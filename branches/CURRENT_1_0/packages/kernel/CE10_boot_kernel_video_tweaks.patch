@@ -1,0 +1,172 @@
+--- linux/arch/i386/boot/video.S.chmou	Thu Jan 24 13:42:10 2002
++++ linux/arch/i386/boot/video.S	Thu Jan 24 13:42:12 2002
+@@ -128,6 +128,9 @@
+ 
+ 	leaw	badmdt, %si			# Invalid mode ID
+ 	call	prtstr
++#ifdef CONFIG_BOOT_KERNEL
++	jmp	vid1
++#endif
+ vid2:	call	mode_menu
+ vid1:
+ #ifdef CONFIG_VIDEO_RETAIN
+@@ -536,8 +539,12 @@
+ 	int	$0x10
+ 	addb	$VIDEO_FIRST_VESA>>8, %bh
+ 	cmpw	$0x004f, %ax
++#ifdef CONFIG_BOOT_KERNEL
++	jnz	check_vesa_retry
++#else
+ 	jnz	setbad
+ 
++#endif
+ 	movb	(%di), %al			# Check capabilities.
+ 	andb	$0x19, %al
+ 	cmpb	$0x09, %al
+@@ -546,20 +553,40 @@
+ 	movb	(%di), %al			# Check capabilities.
+ 	andb	$0x99, %al
+ 	cmpb	$0x99, %al
+-	jnz	_setbad				# Doh! No linear frame buffer.
+-
++#ifdef CONFIG_BOOT_KERNEL
++	jnz	check_vesa_retry		# Doh! No linear frame buffer.
++	pushw	%bx
++#else
++	jnz	_setbad
++#endif
+ 	subb	$VIDEO_FIRST_VESA>>8, %bh
+ 	orw	$0x4000, %bx			# Use linear frame buffer
+ 	movw	$0x4f02, %ax			# VESA BIOS mode set call
+ 	int	$0x10
+ 	cmpw	$0x004f, %ax			# AL=4f if implemented
+-	jnz	_setbad				# AH=0 if OK
+-
++#ifdef CONFIG_BOOT_KERNEL
++	popw	%bx
++	jnz	check_vesa_retry		# AH=0 if OK
++#else
++	jnz	_setbad
++#endif
+ 	movb	$1, graphic_mode		# flag graphic mode
+ 	movb	$0, do_restore			# no screen restore
+ 	stc
+ 	ret
+ 
++#ifdef CONFIG_BOOT_KERNEL
++check_vesa_retry:
++	movw	%bx,%ax
++	cmpw	$0x120+VIDEO_FIRST_VESA, %ax
++	jae	_setbad
++	and	$0xfff0, %ax
++	cmpw	$0x110+VIDEO_FIRST_VESA, %bx
++	adc	$-3, %bx
++	cmpw	%ax, %bx
++	jae	check_vesa
++#endif
++	
+ _setbad:	jmp	setbad          	# Ugly...
+ 
+ # Recalculate vertical display end registers -- this fixes various
+@@ -1908,9 +1935,13 @@
+ 
+ unknt:		.asciz	"Unknown mode ID. Try again."
+ 
+-badmdt:		.ascii	"You passed an undefined mode number."
++#ifdef CONFIG_BOOT_KERNEL
++badmdt:		.ascii	"Using VGA16 mode"
++#else
++badmdt:		.ascii	"You passed an undefined mode number."	
++#endif
+ 		.byte	0x0d, 0x0a, 0
+-
++	
+ vesaer:		.ascii	"Error: Scanning of VESA modes failed. Please "
+ 		.ascii	"report to <mj@ucw.cz>."
+ 		.byte	0x0d, 0x0a, 0
+--- linux/arch/x86_64/boot/video.S.chmou	Thu Jan 24 13:42:10 2002
++++ linux/arch/x86_64/boot/video.S	Thu Jan 24 13:42:12 2002
+@@ -128,6 +128,9 @@
+ 
+ 	leaw	badmdt, %si			# Invalid mode ID
+ 	call	prtstr
++#ifdef CONFIG_BOOT_KERNEL
++	jmp	vid1
++#endif
+ vid2:	call	mode_menu
+ vid1:
+ #ifdef CONFIG_VIDEO_RETAIN
+@@ -536,8 +539,12 @@
+ 	int	$0x10
+ 	addb	$VIDEO_FIRST_VESA>>8, %bh
+ 	cmpw	$0x004f, %ax
++#ifdef CONFIG_BOOT_KERNEL
++	jnz	check_vesa_retry
++#else
+ 	jnz	setbad
+ 
++#endif
+ 	movb	(%di), %al			# Check capabilities.
+ 	andb	$0x19, %al
+ 	cmpb	$0x09, %al
+@@ -546,20 +553,40 @@
+ 	movb	(%di), %al			# Check capabilities.
+ 	andb	$0x99, %al
+ 	cmpb	$0x99, %al
+-	jnz	_setbad				# Doh! No linear frame buffer.
+-
++#ifdef CONFIG_BOOT_KERNEL
++	jnz	check_vesa_retry		# Doh! No linear frame buffer.
++	pushw	%bx
++#else
++	jnz	_setbad
++#endif
+ 	subb	$VIDEO_FIRST_VESA>>8, %bh
+ 	orw	$0x4000, %bx			# Use linear frame buffer
+ 	movw	$0x4f02, %ax			# VESA BIOS mode set call
+ 	int	$0x10
+ 	cmpw	$0x004f, %ax			# AL=4f if implemented
+-	jnz	_setbad				# AH=0 if OK
+-
++#ifdef CONFIG_BOOT_KERNEL
++	popw	%bx
++	jnz	check_vesa_retry		# AH=0 if OK
++#else
++	jnz	_setbad
++#endif
+ 	movb	$1, graphic_mode		# flag graphic mode
+ 	movb	$0, do_restore			# no screen restore
+ 	stc
+ 	ret
+ 
++#ifdef CONFIG_BOOT_KERNEL
++check_vesa_retry:
++	movw	%bx,%ax
++	cmpw	$0x120+VIDEO_FIRST_VESA, %ax
++	jae	_setbad
++	and	$0xfff0, %ax
++	cmpw	$0x110+VIDEO_FIRST_VESA, %bx
++	adc	$-3, %bx
++	cmpw	%ax, %bx
++	jae	check_vesa
++#endif
++	
+ _setbad:	jmp	setbad          	# Ugly...
+ 
+ # Recalculate vertical display end registers -- this fixes various
+@@ -1908,9 +1935,13 @@
+ 
+ unknt:		.asciz	"Unknown mode ID. Try again."
+ 
+-badmdt:		.ascii	"You passed an undefined mode number."
++#ifdef CONFIG_BOOT_KERNEL
++badmdt:		.ascii	"Using VGA16 mode"
++#else
++badmdt:		.ascii	"You passed an undefined mode number."	
++#endif
+ 		.byte	0x0d, 0x0a, 0
+-
++	
+ vesaer:		.ascii	"Error: Scanning of VESA modes failed. Please "
+ 		.ascii	"report to <mj@ucw.cz>."
+ 		.byte	0x0d, 0x0a, 0

@@ -1,0 +1,73 @@
+diff -ru linux-2.4.21-vanilla/fs/xfs/linux/xfs_super.c linux-2.4.21/fs/xfs/linux/xfs_super.c
+--- linux-2.4.21-vanilla/fs/xfs/linux/xfs_super.c	2003-07-12 00:57:09.000000000 +0200
++++ linux-2.4.21/fs/xfs/linux/xfs_super.c	2003-07-12 14:19:48.000000000 +0200
+@@ -69,6 +69,7 @@
+ 
+ #include <linux/blkdev.h>
+ #include <linux/init.h>
++#include <linux/suspend.h>
+ 
+ STATIC struct quotactl_ops linvfs_qops;
+ STATIC struct super_operations linvfs_sops;
+@@ -438,9 +439,13 @@
+ 	wmb();
+ 	wake_up(&vfsp->vfs_wait_sync_task);
+ 
++	current->flags |= PF_REFRIGERATE; /* swsusp */
+ 	for (;;) {
+ 		set_current_state(TASK_INTERRUPTIBLE);
+ 		schedule_timeout(xfs_syncd_interval);
++		/* swsusp */
++		if (current->flags & PF_FREEZE)
++			refrigerator(PF_IOTHREAD);
+ 		if (vfsp->vfs_flag & VFS_UMOUNT)
+ 			break;
+ 		if (vfsp->vfs_flag & VFS_RDONLY)
+diff -ru linux-2.4.21-vanilla/fs/xfs/pagebuf/page_buf.c linux-2.4.21/fs/xfs/pagebuf/page_buf.c
+--- linux-2.4.21-vanilla/fs/xfs/pagebuf/page_buf.c	2003-07-12 00:57:09.000000000 +0200
++++ linux-2.4.21/fs/xfs/pagebuf/page_buf.c	2003-07-12 14:21:15.000000000 +0200
+@@ -56,6 +56,7 @@
+ #include <linux/locks.h>
+ #include <linux/sysctl.h>
+ #include <linux/proc_fs.h>
++#include <linux/suspend.h>
+ 
+ #include <support/debug.h>
+ #include <support/kmem.h>
+@@ -1953,6 +1954,7 @@
+ 
+ 	pagebuf_daemons[cpu] = 1;
+ 
++	current->flags |= PF_REFRIGERATE; /* swsusp */
+ 	for (;;) {
+ 		add_wait_queue(&pagebuf_iodone_wait[cpu], &wait);
+ 
+@@ -1963,6 +1965,11 @@
+ 		run_task_queue(&pagebuf_iodone_tq[cpu]);
+ 		if (pagebuf_daemons[cpu] == 0)
+ 			break;
++
++		/* swsusp */
++		if (current->flags & PF_FREEZE)
++			refrigerator(PF_IOTHREAD);
++
+ 		__set_current_state(TASK_INTERRUPTIBLE);
+ 	}
+ 
+@@ -2038,11 +2045,16 @@
+ 
+ 	strcpy(current->comm, "pagebufd");
+ 	current->flags |= PF_MEMALLOC;
++	current->flags |= PF_REFRIGERATE; /* swsusp */
+ 
+ 	INIT_LIST_HEAD(&tmp);
+ 	do {
++		/* swsusp */
++		if (current->flags & PF_FREEZE)
++			refrigerator(PF_IOTHREAD);
++
+ 		if (pbd_active == 1) {
+ 			mod_timer(&pb_daemon_timer,
+ 				  jiffies + pb_params.flush_interval.val);
+ 
+ 

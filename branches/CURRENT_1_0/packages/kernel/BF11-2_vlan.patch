@@ -1,0 +1,20 @@
+--- t3/net/8021q/vlanproc.c.bf11-2.orig	2002-10-24 13:58:11.000000000 +0200
++++ t3/net/8021q/vlanproc.c	2002-10-24 23:41:58.000000000 +0200
+@@ -200,7 +200,7 @@ int vlan_proc_rem_dev(struct net_device 
+ 	}
+ 
+ #ifdef VLAN_DEBUG
+-	printk(VLAN_DBG __FUNCTION__ ": dev: %p\n", vlandev);
++	printk(VLAN_DBG ": dev: %p\n", __FUNCTION__, vlandev);
+ #endif
+ 
+ 	/** NOTE:  This will consume the memory pointed to by dent, it seems. */
+@@ -278,7 +278,7 @@ static int vlan_proc_get_vlan_info(char*
+ 	struct vlan_dev_info *dev_info = NULL;
+ 
+ #ifdef VLAN_DEBUG
+-	printk(VLAN_DBG __FUNCTION__ ": cnt == %i\n", cnt);
++	printk(VLAN_DBG  "%s: cnt == %i\n", __FUNCTION__, cnt);
+ #endif
+ 
+ 	if (vlan_name_type == VLAN_NAME_TYPE_RAW_PLUS_VID) {

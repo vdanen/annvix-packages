@@ -1,0 +1,257 @@
+diff -urNp ref/mm/oom_kill.c 2.4.20pre7aa1/mm/oom_kill.c
+--- ref/mm/oom_kill.c	Wed Sep 18 00:26:19 2002
++++ 2.4.20pre7aa1/mm/oom_kill.c	Wed Sep 18 00:29:02 2002
+@@ -21,6 +21,8 @@
+ #include <linux/swapctl.h>
+ #include <linux/timex.h>
+ 
++#if 0		/* Nothing in this file is used */
++
+ /* #define DEBUG */
+ 
+ /**
+@@ -252,3 +254,5 @@ reset:
+ 	first = now;
+ 	count = 0;
+ }
++
++#endif	/* Unused file */
+diff -urNp ref/mm/vmscan.c 2.4.20pre7aa1/mm/vmscan.c
+--- ref/mm/vmscan.c	Wed Sep 18 00:26:19 2002
++++ 2.4.20pre7aa1/mm/vmscan.c	Wed Sep 18 00:31:33 2002
+@@ -322,13 +322,13 @@ out_unlock:
+ 	return count;
+ }
+ 
+-static int FASTCALL(swap_out(unsigned int priority, unsigned int gfp_mask, zone_t * classzone));
+-static int swap_out(unsigned int priority, unsigned int gfp_mask, zone_t * classzone)
++static int FASTCALL(swap_out(zone_t * classzone));
++static int swap_out(zone_t * classzone)
+ {
+ 	int counter, nr_pages = SWAP_CLUSTER_MAX;
+ 	struct mm_struct *mm;
+ 
+-	counter = mmlist_nr;
++	counter = mmlist_nr << 1;
+ 	do {
+ 		if (unlikely(current->need_resched)) {
+ 			__set_current_state(TASK_RUNNING);
+@@ -364,15 +364,15 @@ empty:
+ 	return 0;
+ }
+ 
+-static int FASTCALL(shrink_cache(int nr_pages, zone_t * classzone, unsigned int gfp_mask, int priority));
+-static int shrink_cache(int nr_pages, zone_t * classzone, unsigned int gfp_mask, int priority)
++static void FASTCALL(refill_inactive(int nr_pages, zone_t * classzone));
++static int FASTCALL(shrink_cache(int nr_pages, zone_t * classzone, unsigned int gfp_mask, int * failed_swapout));
++static int shrink_cache(int nr_pages, zone_t * classzone, unsigned int gfp_mask, int * failed_swapout)
+ {
+ 	struct list_head * entry;
+-	int max_scan = nr_inactive_pages / priority;
+-	int max_mapped = min((nr_pages << (10 - priority)), max_scan / 10);
++	int max_scan = (classzone->nr_inactive_pages + classzone->nr_active_pages) / vm_cache_scan_ratio;
++	int max_mapped = vm_mapped_ratio * nr_pages;
+ 
+-	spin_lock(&pagemap_lru_lock);
+-	while (--max_scan >= 0 && (entry = inactive_list.prev) != &inactive_list) {
++	while (max_scan && classzone->nr_inactive_pages && (entry = inactive_list.prev) != &inactive_list) {
+ 		struct page * page;
+ 
+ 		if (unlikely(current->need_resched)) {
+@@ -498,34 +498,49 @@ static int shrink_cache(int nr_pages, zo
+ 		spin_lock(&pagecache_lock);
+ 
+ 		/*
+-		 * this is the non-racy check for busy page.
++		 * This is the non-racy check for busy page.
++		 * It is critical to check PageDirty _after_ we made sure
++		 * the page is freeable so not in use by anybody.
++		 * At this point we're guaranteed that page->buffers is NULL,
++		 * nobody can refill page->buffers under us because we still
++		 * hold the page lock.
+ 		 */
+-		if (!page->mapping || !is_page_cache_freeable(page)) {
++		if (!page->mapping || page_count(page) > 1) {
+ 			spin_unlock(&pagecache_lock);
+ 			UnlockPage(page);
+ page_mapped:
+-			if (--max_mapped >= 0)
+-				continue;
++			if (--max_mapped < 0) {
++				spin_unlock(&pagemap_lru_lock);
+ 
+-			/*
+-			 * Alert! We've found too many mapped pages on the
+-			 * inactive list, so we start swapping out now!
+-			 */
+-			spin_unlock(&pagemap_lru_lock);
+-			swap_out(priority, gfp_mask, classzone);
+-			return nr_pages;
+-		}
++				nr_pages -= kmem_cache_reap(gfp_mask);
++				if (nr_pages <= 0)
++					goto out;
+ 
+-		/*
+-		 * It is critical to check PageDirty _after_ we made sure
+-		 * the page is freeable* so not in use by anybody.
+-		 */
++				shrink_dcache_memory(vm_vfs_scan_ratio, gfp_mask);
++				shrink_icache_memory(vm_vfs_scan_ratio, gfp_mask);
++#ifdef CONFIG_QUOTA
++				shrink_dqcache_memory(vm_vfs_scan_ratio, gfp_mask);
++#endif
++
++				if (!*failed_swapout)
++					*failed_swapout = !swap_out(classzone);
++
++				max_mapped = nr_pages * vm_mapped_ratio;
++
++				spin_lock(&pagemap_lru_lock);
++				refill_inactive(nr_pages, classzone);
++			}
++			continue;
++			
++		}
+ 		if (PageDirty(page)) {
+ 			spin_unlock(&pagecache_lock);
+ 			UnlockPage(page);
+ 			continue;
+ 		}
+ 
++		__lru_cache_del(page);
++
+ 		/* point of no return */
+ 		if (likely(!PageSwapCache(page))) {
+ 			__remove_inode_page(page);
+@@ -538,7 +553,6 @@ page_mapped:
+ 			swap_free(swap);
+ 		}
+ 
+-		__lru_cache_del(page);
+ 		UnlockPage(page);
+ 
+ 		/* effectively free the page here */
+@@ -550,6 +564,7 @@ page_mapped:
+ 	}
+ 	spin_unlock(&pagemap_lru_lock);
+ 
++ out:
+ 	return nr_pages;
+ }
+ 
+@@ -560,13 +575,15 @@ page_mapped:
+  * We move them the other way when we see the
+  * reference bit on the page.
+  */
+-static void refill_inactive(int nr_pages)
++static void refill_inactive(int nr_pages, zone_t * classzone)
+ {
+ 	struct list_head * entry;
++	unsigned long ratio;
++
++	ratio = (unsigned long) nr_pages * classzone->nr_active_pages / (((unsigned long) classzone->nr_inactive_pages * vm_lru_balance_ratio) + 1);
+ 
+-	spin_lock(&pagemap_lru_lock);
+ 	entry = active_list.prev;
+-	while (nr_pages && entry != &active_list) {
++	while (ratio && entry != &active_list) {
+ 		struct page * page;
+ 
+ 		page = list_entry(entry, struct page, lru);
+@@ -583,54 +600,62 @@ static void refill_inactive(int nr_pages
+ 		add_page_to_inactive_list(page);
+ 		SetPageReferenced(page);
+ 	}
+-	spin_unlock(&pagemap_lru_lock);
++	if (entry != &active_list) {
++		list_del(&active_list);
++		list_add(&active_list, entry);
++	}
+ }
+ 
+-static int FASTCALL(shrink_caches(zone_t * classzone, int priority, unsigned int gfp_mask, int nr_pages));
+-static int shrink_caches(zone_t * classzone, int priority, unsigned int gfp_mask, int nr_pages)
++static int FASTCALL(shrink_caches(zone_t * classzone, unsigned int gfp_mask, int nr_pages, int * failed_swapout));
++static int shrink_caches(zone_t * classzone, unsigned int gfp_mask, int nr_pages, int * failed_swapout)
+ {
+-	int chunk_size = nr_pages;
+-	unsigned long ratio;
+-
+ 	nr_pages -= kmem_cache_reap(gfp_mask);
+ 	if (nr_pages <= 0)
+-		return 0;
+-
+-	nr_pages = chunk_size;
+-	/* try to keep the active list 2/3 of the size of the cache */
+-	ratio = (unsigned long) nr_pages * nr_active_pages / ((nr_inactive_pages + 1) * 2);
+-	refill_inactive(ratio);
++		goto out;
+ 
+-	nr_pages = shrink_cache(nr_pages, classzone, gfp_mask, priority);
+-	if (nr_pages <= 0)
+-		return 0;
++	spin_lock(&pagemap_lru_lock);
++	refill_inactive(nr_pages, classzone);
+ 
+-	shrink_dcache_memory(priority, gfp_mask);
+-	shrink_icache_memory(priority, gfp_mask);
+-#ifdef CONFIG_QUOTA
+-	shrink_dqcache_memory(priority, gfp_mask);
+-#endif
++	nr_pages = shrink_cache(nr_pages, classzone, gfp_mask, failed_swapout);
+ 
++ out:
+ 	return nr_pages;
+ }
+ 
++static int check_classzone_need_balance(zone_t * classzone);
++
+ int try_to_free_pages_zone(zone_t *classzone, unsigned int gfp_mask)
+ {
+-	int priority = 6;
+-	int nr_pages = SWAP_CLUSTER_MAX;
+-
+ 	gfp_mask = pf_gfp_mask(gfp_mask);
+-	do {
+-		nr_pages = shrink_caches(classzone, priority, gfp_mask, nr_pages);
+-		if (nr_pages <= 0)
+-			return 1;
+-	} while (--priority);
+ 
+-	/*
+-	 * Hmm.. Cache shrink failed - time to kill something?
+-	 * Mhwahahhaha! This is the part I really like. Giggle.
+-	 */
+-	out_of_memory();
++	for (;;) {
++		int tries = vm_passes;
++		int failed_swapout = !(gfp_mask & __GFP_IO);
++		int nr_pages = SWAP_CLUSTER_MAX;
++
++		do {
++			nr_pages = shrink_caches(classzone, gfp_mask, nr_pages, &failed_swapout);
++			if (nr_pages <= 0)
++				return 1;
++
++			shrink_dcache_memory(vm_vfs_scan_ratio, gfp_mask);
++			shrink_icache_memory(vm_vfs_scan_ratio, gfp_mask);
++#ifdef CONFIG_QUOTA
++			shrink_dqcache_memory(vm_vfs_scan_ratio, gfp_mask);
++#endif
++
++			if (!failed_swapout)
++				failed_swapout = !swap_out(classzone);
++		} while (--tries);
++
++		if (likely(current->pid != 1))
++			break;
++		if (!check_classzone_need_balance(classzone))
++			break;
++		__set_current_state(TASK_RUNNING);
++		yield();
++	}
++
+ 	return 0;
+ }
+ 

@@ -1,0 +1,21 @@
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff q2/drivers/scsi/wd7000.c q1/drivers/scsi/wd7000.c
+--- q2/drivers/scsi/wd7000.c	2001-09-30 21:26:08.000000000 +0200
++++ q1/drivers/scsi/wd7000.c	2002-07-31 00:16:10.000000000 +0200
+@@ -827,9 +827,16 @@ static inline int command_out (Adapter *
+  *  the satisfiability of a request is not dependent on the size of the
+  *  request.
+  */
++
++/* 
++ * Locking in this function is completely broken.
++ * it only works when there are no problems (aka when we don't need
++ * looking).
++ * ToFix: JQ
++ */
+ static inline Scb *alloc_scbs (int needed)
+ {
+-    register Scb *scb, *p;
++    register Scb *scb, *p = NULL;
+     register unsigned long flags;
+     register unsigned long timeout = jiffies + WAITnexttimeout;
+     register unsigned long now;

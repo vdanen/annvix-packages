@@ -1,0 +1,24 @@
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff --exclude='defconfig*' w2/drivers/i2c/i2c-ipmi.c w1/drivers/i2c/i2c-ipmi.c
+--- w2/drivers/i2c/i2c-ipmi.c	2003-08-21 03:10:52.000000000 +0200
++++ w1/drivers/i2c/i2c-ipmi.c	2003-08-21 02:49:35.000000000 +0200
+@@ -60,11 +60,7 @@ static struct ipmi_addr address = {
+ 	IPMI_BMC_CHANNEL,
+ 	{0}
+ };	/* send address */
+-static struct ipmi_msg message;	/* send message */
+-static long msgid;		/* message ID */
+ static int interfaces;		/* number of BMC's found */
+-static int (*rcv_callback)(struct i2c_client *client, unsigned int cmd,
+-                           void *arg);
+ 
+ 
+ /* Dummy adapter... */
+@@ -170,7 +166,7 @@ static void ipmi_register_bmc(int ipmi_i
+ 		return;
+ 	}
+ 
+-	return i2c_add_adapter(&i2c_ipmi_adapter);
++	error = i2c_add_adapter(&i2c_ipmi_adapter);
+ 	if (error) {
+ 		printk(KERN_ERR "i2c-ipmi.o: Adapter registration failed, "
+ 		       "module i2c-ipmi.o is not inserted\n.");

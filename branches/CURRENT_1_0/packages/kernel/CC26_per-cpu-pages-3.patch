@@ -1,0 +1,163 @@
+diff -urNp --exclude CVS --exclude BitKeeper x-ref/include/linux/mmzone.h x/include/linux/mmzone.h
+--- x-ref/include/linux/mmzone.h	2003-07-18 04:46:16.000000000 +0200
++++ x/include/linux/mmzone.h	2003-07-18 04:46:16.000000000 +0200
+@@ -35,6 +35,14 @@ typedef struct zone_watermarks_s {
+ 	unsigned long min, low, high;
+ } zone_watermarks_t;
+ 
++#define MAX_PER_CPU_PAGES ((4*1024*1024) >> PAGE_SHIFT)
++
++typedef struct per_cpu_pages_s {
++	int nr_pages;
++	int max_nr_pages;
++	struct list_head head;
++} ____cacheline_aligned per_cpu_pages_t;
++
+ /*
+  * On machines where it is needed (eg PCs) we divide physical memory
+  * into multiple physical zones. On a PC we have 3 zones:
+@@ -47,6 +55,9 @@ typedef struct zone_struct {
+ 	/*
+ 	 * Commonly accessed fields:
+ 	 */
++#ifdef CONFIG_SMP
++	per_cpu_pages_t		per_cpu_pages[NR_CPUS];
++#endif
+ 	spinlock_t		lock;
+ 	unsigned long		free_pages;
+ 
+diff -uNp t1/mm/page_alloc.c.cc26.orig t1/mm/page_alloc.c
+--- t1/mm/page_alloc.c.cc26.orig	2003-08-01 00:05:19.000000000 +0200
++++ t1/mm/page_alloc.c	2003-08-01 00:08:21.000000000 +0200
+@@ -10,6 +10,7 @@
+  *  Reshaped it to be a zoned allocator, Ingo Molnar, Red Hat, 1999
+  *  Discontiguous memory support, Kanoj Sarcar, SGI, Nov 1999
+  *  Zone balancing, Kanoj Sarcar, SGI, Jan 2000
++ *  Per-CPU page pool, Ingo Molnar, Red Hat, 2001, 2002
+  */
+ 
+ #include <linux/config.h>
+@@ -92,6 +93,20 @@ void do_trap_page_alloc(char * action)
+ }
+ #endif
+ 
++static inline int zone_under_mm_pressure(zone_t * zone)
++{
++	int class_idx = zone_idx(zone);
++
++	while (class_idx < zone->zone_pgdat->nr_zones) {
++		if (unlikely(!zone->size))
++			continue;
++		if (unlikely(zone->free_pages <= zone->watermarks[class_idx].high))
++			return 1;
++		class_idx++;
++	}
++	return 0;
++}
++
+ /*
+  * Freeing function for a buddy system allocator.
+  * Contrary to prior comments, this is *NOT* hairy, and there
+@@ -124,6 +139,9 @@ static void __free_pages_ok (struct page
+ 	free_area_t *area;
+ 	struct page *base;
+ 	zone_t *zone;
++#ifdef CONFIG_SMP
++	per_cpu_pages_t *per_cpu_pages;
++#endif
+ 
+ #ifdef CONFIG_SOFTWARE_SUSPEND
+ 	if (unlikely(trap_page_allocs))
+@@ -160,6 +178,18 @@ static void __free_pages_ok (struct page
+ 
+ 	zone = page_zone(page);
+ 
++#ifdef CONFIG_SMP
++	per_cpu_pages = zone->per_cpu_pages + smp_processor_id();
++	local_irq_save(flags);
++	if (likely(!order && per_cpu_pages->nr_pages < per_cpu_pages->max_nr_pages &&
++		   !zone_under_mm_pressure(zone))) {
++		list_add(&page->list, &per_cpu_pages->head);
++		per_cpu_pages->nr_pages++;
++		local_irq_restore(flags);
++		return;
++	}
++#endif
++
+ 	mask = (~0UL) << order;
+ 	base = zone->zone_mem_map;
+ 	page_idx = page - base;
+@@ -169,7 +199,11 @@ static void __free_pages_ok (struct page
+ 
+ 	area = zone->free_area + order;
+ 
++#ifdef CONFIG_SMP
++	spin_lock(&zone->lock);
++#else
+ 	spin_lock_irqsave(&zone->lock, flags);
++#endif
+ 
+ 	zone->free_pages -= mask;
+ 
+@@ -353,6 +387,9 @@ struct page * __alloc_pages(unsigned int
+ 	zone_t **zone, * classzone;
+ 	struct page * page;
+ 	int freed, class_idx;
++#ifdef CONFIG_SMP
++	per_cpu_pages_t *per_cpu_pages;
++#endif
+ #if CONFIG_SOFTWARE_SUSPEND
+ 	static unsigned int loopcount;
+ 
+@@ -401,6 +401,29 @@ struct page * __alloc_pages(unsigned int
+ 	classzone = *zone;
+ 	class_idx = zone_idx(classzone);
+ 
++#ifdef CONFIG_SMP
++	per_cpu_pages = classzone->per_cpu_pages + smp_processor_id();
++	if (likely(!order && per_cpu_pages->nr_pages)) {
++		unsigned long flags;
++
++		local_irq_save(flags);
++		if (likely(per_cpu_pages->nr_pages)) {
++			page = list_entry(per_cpu_pages->head.next, struct page, list);
++			list_del(&page->list);
++			per_cpu_pages->nr_pages--;
++			local_irq_restore(flags);
++
++			if (page_zone(page) != classzone)
++				BUG();
++			if (per_cpu_pages->nr_pages < 0)
++				BUG();
++			set_page_count(page, 1);
++			return page;
++		}
++		local_irq_restore(flags);
++	}
++#endif
++
+ 	for (;;) {
+ 		zone_t *z = *(zone++);
+ 		if (!z)
+@@ -856,6 +916,21 @@ void __init free_area_init_core(int nid,
+ 			realsize += lower_zone->realsize;
+ 		}
+ 
++#ifdef CONFIG_SMP
++		for (idx = 0; idx < NR_CPUS; idx++) {
++			per_cpu_pages_t *per_cpu_pages = zone->per_cpu_pages + idx;
++
++			INIT_LIST_HEAD(&per_cpu_pages->head);
++			per_cpu_pages->max_nr_pages = realsize / 128;
++			if (per_cpu_pages->max_nr_pages > MAX_PER_CPU_PAGES)
++				per_cpu_pages->max_nr_pages = MAX_PER_CPU_PAGES;
++			else {
++				if (!per_cpu_pages->max_nr_pages)
++					per_cpu_pages->max_nr_pages = 1;
++			}
++		}
++#endif
++
+ 		zone->zone_mem_map = mem_map + offset;
+ 		zone->zone_start_mapnr = offset;
+ 		zone->zone_start_paddr = zone_start_paddr;

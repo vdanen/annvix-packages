@@ -1,0 +1,13 @@
+diff -uNp t1/drivers/char/tty_io.c.ce20.orig t1/drivers/char/tty_io.c
+--- t1/drivers/char/tty_io.c.ce20.orig	2002-11-29 00:53:12.000000000 +0100
++++ t1/drivers/char/tty_io.c	2003-03-05 17:42:30.000000000 +0100
+@@ -1611,7 +1611,7 @@ static int tiocspgrp(struct tty_struct *
+ 		return -ENOTTY;
+ 	if (get_user(pgrp, (pid_t *) arg))
+ 		return -EFAULT;
+-	if (pgrp < 0)
++	if (pgrp <= 0)
+ 		return -EINVAL;
+ 	if (session_of_pgrp(pgrp) != current->session)
+ 		return -EPERM;
+

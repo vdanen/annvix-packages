@@ -1,0 +1,3115 @@
+diff -Nurp -X /Data/dontdiff 5mdk/drivers/media/video/btcx-risc.c patched/drivers/media/video/btcx-risc.c
+--- 5mdk/drivers/media/video/btcx-risc.c	2003-08-15 12:22:46.000000000 +0300
++++ patched/drivers/media/video/btcx-risc.c	2003-08-16 16:10:01.000000000 +0300
+@@ -32,6 +32,8 @@
+ 
+ #include "btcx-risc.h"
+ 
++MODULE_LICENSE("GPL");
++
+ static unsigned int debug = 0;
+ MODULE_PARM(debug,"i");
+ MODULE_PARM_DESC(debug,"debug messages, default is 0 (no)");
+@@ -39,6 +41,8 @@ MODULE_PARM_DESC(debug,"debug messages, 
+ /* ---------------------------------------------------------- */
+ /* allocate/free risc memory                                  */
+ 
++static int memcnt;
++
+ int btcx_riscmem_alloc(struct pci_dev *pci,
+ 		       struct btcx_riscmem *risc,
+ 		       unsigned int size)
+@@ -51,15 +55,24 @@ int btcx_riscmem_alloc(struct pci_dev *p
+ 		return -ENOMEM;
+ 	memset(cpu,0,size);
+ 
++#if 0
+ 	if (risc->cpu && risc->size < size) {
+ 		/* realloc (enlarge buffer) -- copy old stuff */
+ 		memcpy(cpu,risc->cpu,risc->size);
+ 		btcx_riscmem_free(pci,risc);
+ 	}
++#else
++	BUG_ON(NULL != risc->cpu);
++#endif
+ 	risc->cpu  = cpu;
+ 	risc->dma  = dma;
+ 	risc->size = size;
+ 
++	if (debug) {
++		memcnt++;
++		printk("btcx: riscmem alloc size=%d [%d]\n",size,memcnt);
++	}
++
+ 	return 0;
+ }
+ 
+@@ -70,6 +83,10 @@ void btcx_riscmem_free(struct pci_dev *p
+ 		return;
+ 	pci_free_consistent(pci, risc->size, risc->cpu, risc->dma);
+ 	memset(risc,0,sizeof(*risc));
++	if (debug) {
++		memcnt--;
++		printk("btcx: riscmem free [%d]\n",memcnt);
++	}
+ }
+ 
+ /* ---------------------------------------------------------- */
+diff -Nurp -X /Data/dontdiff 5mdk/drivers/media/video/bttv-cards.c patched/drivers/media/video/bttv-cards.c
+--- 5mdk/drivers/media/video/bttv-cards.c	2003-08-15 12:22:04.000000000 +0300
++++ patched/drivers/media/video/bttv-cards.c	2003-08-16 16:10:01.000000000 +0300
+@@ -747,7 +747,7 @@ struct tvcard bttv_tvcards[] = {
+ 	.audiomux	= { 0x21, 0x20, 0x24, 0x2c, 0x29, 0x29 },
+ 	.no_msp34xx	= 1,
+ 	.pll		= PLL_28,
+-	.tuner_type	= -1,
++	.tuner_type	= 1,
+ },{
+ 	.name		= "Askey CPH06X TView99",
+ 	.video_inputs	= 4,
+diff -Nurp -X /Data/dontdiff 5mdk/drivers/media/video/bttv9/bttv.h patched/drivers/media/video/bttv9/bttv.h
+--- 5mdk/drivers/media/video/bttv9/bttv.h	2003-08-15 15:26:54.000000000 +0300
++++ patched/drivers/media/video/bttv9/bttv.h	2003-08-16 16:10:01.000000000 +0300
+@@ -113,6 +113,8 @@
+ #define BTTV_AD_TVK503      0x63
+ #define BTTV_IVC200         0x66
+ #define BTTV_XGUARD         0x67
++#define BTTV_NEBULA_DIGITV  0x68
++#define BTTV_PV143          0x69
+ 
+ /* i2c address list */
+ #define I2C_TSA5522        0xc2
+@@ -250,7 +252,6 @@ extern void bttv9_i2c_call(unsigned int 
+ 
+ 
+ /* i2c */
+-#define I2C_CLIENTS_MAX 16
+ extern void bttv_bit_setscl(void *data, int state);
+ extern void bttv_bit_setsda(void *data, int state);
+ extern void bttv_call_i2c_clients(struct bttv *btv, unsigned int cmd, void *arg);
+diff -Nurp -X /Data/dontdiff 5mdk/drivers/media/video/bttv9/bttvp.h patched/drivers/media/video/bttv9/bttvp.h
+--- 5mdk/drivers/media/video/bttv9/bttvp.h	2003-08-15 15:26:55.000000000 +0300
++++ patched/drivers/media/video/bttv9/bttvp.h	2003-08-16 16:10:01.000000000 +0300
+@@ -24,7 +24,8 @@
+ #ifndef _BTTVP_H_
+ #define _BTTVP_H_
+ 
+-#define BTTV_VERSION_CODE KERNEL_VERSION(0,9,9)
++#include <linux/version.h>
++#define BTTV_VERSION_CODE KERNEL_VERSION(0,9,11)
+ 
+ #include <linux/types.h>
+ #include <linux/wait.h>
+@@ -44,6 +45,13 @@
+ #include <media/audiochip.h>
+ #include <media/tuner.h>
+ #endif
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,69)
++# define irqreturn_t void
++# define IRQ_RETVAL(foobar)
++#endif
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,71)
++# define strlcpy(dest,src,len) strncpy(dest,src,(len)-1)
++#endif
+ 
+ #include "bt848.h"
+ #include "bttv.h"
+@@ -140,6 +148,7 @@ struct bttv_overlay {
+ 	enum v4l2_field        field;
+ 	struct v4l2_clip       *clips;
+ 	int                    nclips;
++	int                    setup_ok;
+ };
+ 
+ struct bttv_fh {
+diff -Nurp -X /Data/dontdiff 5mdk/drivers/media/video/bttv9/bttv9-cards.c patched/drivers/media/video/bttv9/bttv9-cards.c
+--- 5mdk/drivers/media/video/bttv9/bttv9-cards.c	2003-04-16 08:59:22.000000000 +0300
++++ patched/drivers/media/video/bttv9/bttv9-cards.c	2003-08-16 16:10:01.000000000 +0300
+@@ -24,12 +24,13 @@
+ 
+ */
+ 
+-#include <linux/version.h>
++#include <linux/config.h>
+ #include <linux/delay.h>
+ #include <linux/module.h>
+ #include <linux/kmod.h>
+ #include <linux/init.h>
+ #include <linux/pci.h>
++#include <linux/vmalloc.h>
+ 
+ #include <asm/io.h>
+ 
+@@ -151,6 +152,7 @@ static struct CARD {
+ 	{ 0x6606107d, BTTV_WINFAST2000,   "Leadtek WinFast TV 2000" },
+ 	{ 0x6607107d, BTTV_WINFAST2000,   "Leadtek WinFast VC 100" },
+ 	{ 0x263610b4, BTTV_STB2,          "STB TV PCI FM, Gateway P/N 6000704" },
++	{ 0x264510b4, BTTV_STB2,          "STB TV PCI FM, Gateway P/N 6000704" },
+  	{ 0x402010fc, BTTV_GVBCTV3PCI,    "I-O Data Co. GV-BCTV3/PCI" },
+ 	{ 0x405010fc, BTTV_GVBCTV4PCI,    "I-O Data Co. GV-BCTV4/PCI" },
+ 	{ 0x407010fc, BTTV_GVBCTV5PCI,    "I-O Data Co. GV-BCTV5/PCI" },
+@@ -197,20 +199,30 @@ static struct CARD {
+ 	{ 0x401015b0, BTTV_ZOLTRIX_GENIE, "Zoltrix Genie TV / Radio" },
+ 	{ 0x401615b0, BTTV_ZOLTRIX_GENIE, "Zoltrix Genie TV / Radio" },
+ 
++	{ 0x1430aa00, BTTV_PV143,         "Provideo PV143A" },
++	{ 0x1431aa00, BTTV_PV143,         "Provideo PV143B" },
++	{ 0x1432aa00, BTTV_PV143,         "Provideo PV143C" },
++	{ 0x1433aa00, BTTV_PV143,         "Provideo PV143D" },
++
+ 	{ 0x1460aa00, BTTV_PV150,         "Provideo PV150A-1" },
+ 	{ 0x1461aa01, BTTV_PV150,         "Provideo PV150A-2" },
+ 	{ 0x1462aa02, BTTV_PV150,         "Provideo PV150A-3" },
+ 	{ 0x1463aa03, BTTV_PV150,         "Provideo PV150A-4" },
++
+ 	{ 0x1464aa04, BTTV_PV150,         "Provideo PV150B-1" },
+ 	{ 0x1465aa05, BTTV_PV150,         "Provideo PV150B-2" },
+ 	{ 0x1466aa06, BTTV_PV150,         "Provideo PV150B-3" },
+ 	{ 0x1467aa07, BTTV_PV150,         "Provideo PV150B-4" },
+ 
++
+ 	{ 0xa1550000, BTTV_IVC200,        "IVC-200" },
+ 	{ 0xa1550001, BTTV_IVC200,        "IVC-200" },
+ 	{ 0xa1550002, BTTV_IVC200,        "IVC-200" },
+ 	{ 0xa1550003, BTTV_IVC200,        "IVC-200" },	
+ 
++	{ 0x41424344, BTTV_GRANDTEC,      "GrandTec Multi Capture" },
++	{ 0x01020304, BTTV_XGUARD,        "Grandtec Grand X-Guard" },
++	
+     	{ 0x010115cb, BTTV_GMV1,          "AG GMV1" },
+ 	{ 0x010114c7, BTTV_MODTEC_205,    "Modular Technology MM201/MM202/MM205/MM210/MM215 PCTV" },
+ 	{ 0x18501851, BTTV_CHRONOS_VS2,   "FlyVideo 98 (LR50)/ Chronos Video Shuttle II" },
+@@ -221,9 +233,7 @@ static struct CARD {
+ 	{ 0x03116000, BTTV_SENSORAY311,   "Sensoray 311" },
+ 	{ 0x00790e11, BTTV_WINDVR,        "Canopus WinDVR PCI" },
+ 	{ 0xa0fca1a0, BTTV_ZOLTRIX,       "Face to Face Tvmax" },
+-
+-	{ 0x41424344, BTTV_GRANDTEC,      "GrandTec Multi Capture" },
+-	{ 0x01020304, BTTV_XGUARD,        "Grandtec Grand X-Guard" },
++	{ 0x01010071, BTTV_NEBULA_DIGITV, "Nebula Electronics DigiTV" },
+ 	
+ 	// likely broken, vendor id doesn't match the other magic views ...
+ 	//{ 0xa0fca04f, BTTV_MAGICTVIEW063, "Guillemot Maxi TV Video 3" },
+@@ -331,7 +341,7 @@ struct tvcard bttv_tvcards[] = {
+ },{
+ 
+ /* ---- card 0x08 ---------------------------------- */
+-	.name		= "Lifeview FlyVideo II (Bt848) LR26",
++	.name		= "Lifeview FlyVideo II (Bt848) LR26 / MAXI TV Video PCI2 LR26",
+ 	.video_inputs	= 4,
+ 	.audio_inputs	= 1,
+ 	.tuner		= 0,
+@@ -746,7 +756,7 @@ struct tvcard bttv_tvcards[] = {
+ 	.audiomux	= { 0x551400, 0x551200, 0, 0, 0x551c00, 0x551200 },
+ 	.needs_tvaudio	= 1,
+ 	.pll		= PLL_28,
+-	.tuner_type	= -1,
++	.tuner_type	= 1,
+ },{
+ 	.name		= "Pinnacle PCTV Studio/Rave",
+ 	.video_inputs	= 3,
+@@ -1557,6 +1567,8 @@ struct tvcard bttv_tvcards[] = {
+ 	.no_msp34xx     = 1,
+ 	.no_tda9875     = 1,
+ 	.no_tda7432     = 1,   
++	.gpiomask       = 0x01,
++	.audiomux       = { 0, 0, 0, 0, 1 },
+ 	.muxsel         = { 3, 0, 1, 2},
+ 	.needs_tvaudio  = 0, 
+ 	.pll            = PLL_28,
+@@ -1630,8 +1642,8 @@ struct tvcard bttv_tvcards[] = {
+ 	.svhs           = 2,
+ 	.gpiomask       = 0x001e8007,
+ 	.muxsel         = { 2, 3, 1, 0 },
+-                         /* Tuner,      Radio, external, internal, mute, stereo */
+-	.audiomux       = { 0x00060000, 0x000, 0x000000, 0x000000, 0x07, 0x0000 }, /* Sub: 0x00180000 */
++	/*                  Tuner, Radio, external, internal, off,  on */
++	.audiomux       = { 0x08,  0x0f,  0x0a,     0x08,     0x0f, 0x08 },
+ 	.needs_tvaudio  = 0,
+ 	.no_msp34xx     = 1,
+ 	.pll            = PLL_28,
+@@ -1702,6 +1714,91 @@ struct tvcard bttv_tvcards[] = {
+ 	.no_tda9875     = 1,
+         .no_tda7432     = 1,
+ 	.pll            = PLL_28,
++},{
++
++	/* ---- card 0x68 ---------------------------------- */
++	.name           = "Nebula Electronics DigiTV",
++	.video_inputs   = 0,
++	.audio_inputs   = 0,
++	.svhs           = -1,
++	.muxsel         = { 2, 3, 1, 0},
++	.needs_tvaudio  = 0,
++	.no_msp34xx     = 1,
++	.no_tda9875     = 1,
++	.no_tda7432     = 1,
++	.pll            = PLL_28,
++	.tuner_type     = -1,
++},{
++	/* Jorge Boncompte - DTI2 <jorge@dti2.net> */
++	.name           = "ProVideo PV143",
++        .video_inputs   = 4,
++        .audio_inputs   = 0,
++        .tuner          = -1,
++        .svhs           = -1,
++        .gpiomask       = 0,
++        .muxsel         = { 2, 3, 1, 0 },
++        .audiomux       = { 0 },
++        .needs_tvaudio  = 0,
++        .no_msp34xx     = 1,
++        .pll            = PLL_28,
++        .tuner_type     = -1,
++},{
++	/* M.Klahr@phytec.de */
++	.name           = "PHYTEC VD-009-X1 MiniDIN (bt878)",
++	.video_inputs   = 4,
++	.audio_inputs   = 0,
++	.tuner          = -1, /* card has no tuner */
++	.svhs           = 3,
++	.gpiomask       = 0x00, 
++	.muxsel         = { 2, 3, 1, 0},
++	.audiomux       = { 0, 0, 0, 0, 0, 0 }, /* card has no audio */
++	.needs_tvaudio  = 1,
++	.pll            = PLL_28,
++	.tuner_type     = -1,
++},{
++	.name           = "PHYTEC VD-009-X1 Combi (bt878)",
++	.video_inputs   = 4,
++	.audio_inputs   = 0,
++	.tuner          = -1, /* card has no tuner */
++	.svhs           = 3,
++	.gpiomask       = 0x00,
++	.muxsel         = { 2, 3, 1, 1},
++	.audiomux       = { 0, 0, 0, 0, 0, 0 }, /* card has no audio */
++	.needs_tvaudio  = 1,
++	.pll            = PLL_28,
++	.tuner_type     = -1,
++},{
++
++	/* ---- card 0x6c ---------------------------------- */
++	.name           = "PHYTEC VD-009 MiniDIN (bt878)",
++	.video_inputs   = 10,
++	.audio_inputs   = 0,
++	.tuner          = -1, /* card has no tuner */
++	.svhs           = 9,
++	.gpiomask       = 0x00,
++	.gpiomask2      = 0x03, /* gpiomask2 defines the bits used to switch audio
++				   via the upper nibble of muxsel. here: used for
++				   xternal video-mux */
++	.muxsel         = { 0x02, 0x12, 0x22, 0x32, 0x03, 0x13, 0x23, 0x33, 0x01, 0x00 },
++	.audiomux       = { 0, 0, 0, 0, 0, 0 }, /* card has no audio */
++	.needs_tvaudio  = 1,
++	.pll            = PLL_28,
++	.tuner_type     = -1,
++},{
++	.name           = "PHYTEC VD-009 Combi (bt878)",
++	.video_inputs   = 10,
++	.audio_inputs   = 0,
++	.tuner          = -1, /* card has no tuner */
++	.svhs           = 9,
++	.gpiomask       = 0x00,
++	.gpiomask2      = 0x03, /* gpiomask2 defines the bits used to switch audio
++				   via the upper nibble of muxsel. here: used for
++				   xternal video-mux */
++	.muxsel         = { 0x02, 0x12, 0x22, 0x32, 0x03, 0x13, 0x23, 0x33, 0x01, 0x01 },
++	.audiomux       = { 0, 0, 0, 0, 0, 0 }, /* card has no audio */
++	.needs_tvaudio  = 1,
++	.pll            = PLL_28,
++	.tuner_type     = -1,
+ }};
+ 
+ const unsigned int bttv_num_tvcards = ARRAY_SIZE(bttv_tvcards);
+@@ -2368,14 +2465,6 @@ static int terratec_active_radio_upgrade
+  * a look at Pvr/pvr45xxx.EXE (self-extracting zip archive, can be
+  * unpacked with unzip).
+  */
+-static char *firm_altera = "/usr/lib/video4linux/hcwamc.rbf";
+-MODULE_PARM(firm_altera,"s");
+-MODULE_PARM_DESC(firm_altera,"WinTV/PVR firmware "
+-		 "(driver CD => unzip pvr45xxx.exe => hcwamc.rbf)");
+-
+-/* drivers/sound/sound_firmware.c => soundcore.o */
+-extern int mod_firmware_load(const char *fn, char **fp);
+-
+ #define PVR_GPIO_DELAY		10
+ 
+ #define BTTV_ALT_DATA		0x000001
+@@ -2420,6 +2509,16 @@ static int __devinit pvr_altera_load(str
+ 	return 0;
+ }
+ 
++#ifndef CONFIG_FW_LOADER
++/* old 2.4.x way -- via soundcore's mod_firmware_load */
++   
++static char *firm_altera = "/usr/lib/video4linux/hcwamc.rbf";
++MODULE_PARM(firm_altera,"s");
++MODULE_PARM_DESC(firm_altera,"WinTV/PVR firmware "
++		 "(driver CD => unzip pvr45xxx.exe => hcwamc.rbf)");
++
++extern int mod_firmware_load(const char *fn, char **fp);
++
+ int __devinit pvr_boot(struct bttv *btv)
+ {
+ 	u32 microlen;
+@@ -2427,8 +2526,11 @@ int __devinit pvr_boot(struct bttv *btv)
+ 	int result;
+ 
+ 	microlen = mod_firmware_load(firm_altera, (char**) &micro);
+-	if (!microlen)
++	if (!microlen) {
++		printk(KERN_WARNING "bttv%d: altera firmware not found [%s]\n",
++		       btv->nr, firm_altera);
+ 		return -1;
++	}
+ 	
+ 	printk(KERN_INFO "bttv%d: uploading altera firmware [%s] ...\n",
+ 	       btv->nr, firm_altera);
+@@ -2438,6 +2540,26 @@ int __devinit pvr_boot(struct bttv *btv)
+ 	vfree(micro);
+ 	return result;
+ }
++#else
++/* new 2.5.x way -- via hotplug firmware loader */
++
++int __devinit pvr_boot(struct bttv *btv)
++{
++        const struct firmware *fw_entry;
++	struct device *dev = btv->dev->dev;
++	int result;
++
++	result = request_firmware(&fw_entry, "hcwamc.rbf", dev);
++	if (result != 0) {
++		printk(KERN_WARNING "bttv%d: no altera firmware [via hotplug]\n",
++		       btv->nr);
++                return rc;
++        }
++	result = pvr_altera_load(btv, fw_entry->data, fw_entry->size);
++        release_firmware(fw_entry);
++	return result;
++}	
++#endif
+ 
+ /* ----------------------------------------------------------------------- */
+ /* some osprey specific stuff                                              */
+@@ -2688,6 +2810,7 @@ static void __devinit init_PXC200(struct
+ 					    0x00 };
+ 	unsigned int i;
+ 	int tmp;
++	u32 val;
+ 
+ 	/* Initialise GPIO-connevted stuff */
+ 	btwrite(1<<13,BT848_GPIO_OUT_EN); /* Reset pin only */
+@@ -2707,6 +2830,7 @@ static void __devinit init_PXC200(struct
+ 	    setting BT848_ADC_AGC_EN disable the AGC
+ 	    tboult@eecs.lehigh.edu
+ 	*/
++
+ 	btwrite(BT848_ADC_RESERVED|BT848_ADC_AGC_EN, BT848_ADC);
+ 	
+ 	/*	Initialise MAX517 DAC */
+@@ -2718,16 +2842,36 @@ static void __devinit init_PXC200(struct
+ 	 *	same chips - but the R/W bit is included in the address
+ 	 *	argument so the numbers are different */
+ 	
++
+ 	printk(KERN_INFO "Initialising 12C508 PIC chip ...\n");
+ 
++	/* First of all, enable the clock line. This is used in the PXC200-F */
++	val = btread(BT848_GPIO_DMA_CTL);
++	val |= BT848_GPIO_DMA_CTL_GPCLKMODE;
++	btwrite(val, BT848_GPIO_DMA_CTL);
++	
++	/* Then, push to 0 the reset pin long enough to reset the *
++	 * device same as above for the reset line, but not the same
++	 * value sent to the GPIO-connected stuff
++	 * which one is the good one? */
++	btwrite( (1<<2), BT848_GPIO_OUT_EN); /* only the reset pin */
++	btwrite(0, BT848_GPIO_DATA);
++	udelay(10);
++	btwrite(1<<2, BT848_GPIO_DATA);
++
+ 	for (i = 0; i < ARRAY_SIZE(vals); i++) {
+-		tmp=bttv_I2CWrite(btv,0x1E,vals[i],0,1);
+-		printk(KERN_INFO "I2C Write(0x08) = %i\nI2C Read () = %x\n\n",
+-		       tmp,bttv_I2CRead(btv,0x1F,NULL));
++		tmp=bttv_I2CWrite(btv,0x1E,0,vals[i],1);
++		if (tmp != -1) {
++			printk(KERN_INFO
++			       "I2C Write(%2.2x) = %i\nI2C Read () = %2.2x\n\n",
++			       vals[i],tmp,bttv_I2CRead(btv,0x1F,NULL));
+ 	}
++	}
++
+ 	printk(KERN_INFO "PXC200 Initialised.\n");
+ }
+ 
++
+ /* ----------------------------------------------------------------------- */
+ /* Miro Pro radio stuff -- the tea5757 is connected to some GPIO ports     */
+ /*
+diff -Nurp -X /Data/dontdiff 5mdk/drivers/media/video/bttv9/bttv9-driver.c patched/drivers/media/video/bttv9/bttv9-driver.c
+--- 5mdk/drivers/media/video/bttv9/bttv9-driver.c	2003-04-16 08:59:22.000000000 +0300
++++ patched/drivers/media/video/bttv9/bttv9-driver.c	2003-08-16 16:10:01.000000000 +0300
+@@ -24,7 +24,6 @@
+ */
+ 
+ #include <linux/init.h>
+-#include <linux/version.h>
+ #include <linux/module.h>
+ #include <linux/delay.h>
+ #include <linux/errno.h>
+@@ -52,7 +51,7 @@ static unsigned int bigendian=1;
+ #else
+ static unsigned int bigendian=0;
+ #endif
+-static unsigned int radio[4];
++static unsigned int radio[BTTV_MAX];
+ static unsigned int irq_debug = 0;
+ static unsigned int gbuffers = 8;
+ static unsigned int gbufsize = 0x208000;
+@@ -1745,6 +1744,8 @@ static int setup_window(struct bttv_fh *
+ 	struct v4l2_clip *clips = NULL;
+ 	int n,size,retval = 0;
+ 
++	if (NULL == fh->ovfmt)
++		return -EINVAL;
+ 	retval = verify_window(&bttv_tvnorms[btv->tvnorm],win,fixup);
+ 	if (0 != retval)
+ 		return retval;
+@@ -1792,8 +1793,10 @@ static int setup_window(struct bttv_fh *
+ 	
+ 	fh->ov.w       = win->w;
+ 	fh->ov.field   = win->field;
++	fh->ov.setup_ok = 1;
+ 	btv->init.ov.w.width   = win->w.width;
+ 	btv->init.ov.w.height  = win->w.height;
++	btv->init.ov.field     = win->field;
+ 	
+ 	/* update overlay if needed */
+ 	retval = 0;
+@@ -1990,7 +1993,7 @@ static int bttv_s_fmt(struct bttv_fh *fh
+ 		retval = bttv_switch_type(fh,f->type);
+ 		if (0 != retval)
+ 			return retval;
+-		if (fh->vbi.reading || fh->vbi.streaming)
++		if (locked_btres(fh->btv, RESOURCE_VBI))
+ 			return -EBUSY;
+ 		bttv_vbi_try_fmt(fh,f);
+ 		bttv_vbi_setlines(fh,btv,f->fmt.vbi.count[0]);
+@@ -2081,9 +2084,10 @@ static int bttv_do_ioctl(struct inode *i
+ 		if (NULL == fmt)
+ 			return -EINVAL;
+ 		down(&fh->cap.lock);
++		if (fmt->depth != pic->depth && !sloppy) {
+ 		retval = -EINVAL;
+-		if (fmt->depth != pic->depth && !sloppy)
+ 			goto fh_unlock_and_return;
++		}
+ 		fh->ovfmt   = fmt;
+ 		fh->fmt     = fmt;
+ 		btv->init.ovfmt   = fmt;
+@@ -2121,9 +2125,7 @@ static int bttv_do_ioctl(struct inode *i
+ 		struct video_window *win = arg;
+ 		struct v4l2_window w2;
+ 
+-		w2.field = ((u16)(win->height) > bttv_tvnorms[btv->tvnorm].sheight/2)
+-			? V4L2_FIELD_INTERLACED
+-			: V4L2_FIELD_BOTTOM;
++		w2.field = V4L2_FIELD_ANY;
+ 		w2.w.left    = win->x;
+ 		w2.w.top     = win->y;
+ 		w2.w.width   = win->width;
+@@ -2212,11 +2214,7 @@ static int bttv_do_ioctl(struct inode *i
+ 			/* verify args */
+ 			if (NULL == btv->fbuf.base)
+ 				return -EINVAL;
+-			if (fh->ov.w.width <48 ||
+-			    fh->ov.w.height<32 ||
+-			    fh->ov.w.width >bttv_tvnorms[btv->tvnorm].swidth ||
+-			    fh->ov.w.height>bttv_tvnorms[btv->tvnorm].sheight||
+-			    NULL == fh->ovfmt)
++			if (!fh->ov.setup_ok)
+ 				return -EINVAL;
+ 		}
+ 
+@@ -2326,9 +2324,14 @@ static int bttv_do_ioctl(struct inode *i
+ 		struct vbi_format *fmt = (void *) arg;
+ 		struct v4l2_format fmt2;
+ 		
+-		bttv_switch_type(fh,V4L2_BUF_TYPE_VBI_CAPTURE);
++		if (fh->type != V4L2_BUF_TYPE_VBI_CAPTURE) {
++			retval = bttv_switch_type(fh,V4L2_BUF_TYPE_VBI_CAPTURE);
++			if (0 != retval)
++				return retval;
++		}
+ 		bttv_vbi_get_fmt(fh, &fmt2);
+ 		
++		memset(fmt,0,sizeof(*fmt));
+ 		fmt->sampling_rate    = fmt2.fmt.vbi.sampling_rate;
+ 		fmt->samples_per_line = fmt2.fmt.vbi.samples_per_line;
+ 		fmt->sample_format    = VIDEO_PALETTE_RAW;
+@@ -2342,6 +2345,29 @@ static int bttv_do_ioctl(struct inode *i
+ 			fmt->flags   |= V4L2_VBI_INTERLACED;
+ 		return 0;
+ 	}
++	case VIDIOCSVBIFMT:
++	{
++		struct vbi_format *fmt = (void *) arg;
++		struct v4l2_format fmt2;
++
++		retval = bttv_switch_type(fh,V4L2_BUF_TYPE_VBI_CAPTURE);
++		if (0 != retval)
++			return retval;
++		bttv_vbi_get_fmt(fh, &fmt2);
++
++		if (fmt->sampling_rate    != fmt2.fmt.vbi.sampling_rate     ||
++		    fmt->samples_per_line != fmt2.fmt.vbi.samples_per_line  ||
++		    fmt->sample_format    != VIDEO_PALETTE_RAW              ||
++		    fmt->start[0]         != fmt2.fmt.vbi.start[0]          ||
++		    fmt->start[1]         != fmt2.fmt.vbi.start[1]          ||
++		    fmt->count[0]         != fmt->count[1]                  ||
++		    fmt->count[0]         <  1                              ||
++		    fmt->count[0]         >  32 /* VBI_MAXLINES */)
++			return -EINVAL;
++
++		bttv_vbi_setlines(fh,btv,fmt->count[0]);
++		return 0;
++	}
+ 
+         case BTTV_VERSION:
+         case VIDIOCGFREQ:
+@@ -2362,7 +2388,7 @@ static int bttv_do_ioctl(struct inode *i
+ 		if (0 == v4l2)
+ 			return -EINVAL;
+                 strcpy(cap->driver,"bttv");
+-                strncpy(cap->card,btv->video_dev.name,sizeof(cap->card));
++                strlcpy(cap->card,btv->video_dev.name,sizeof(cap->card));
+ 		sprintf(cap->bus_info,"PCI:%s",btv->dev->slot_name);
+ 		cap->version = BTTV_VERSION_CODE;
+ 		cap->capabilities =
+@@ -2421,7 +2447,7 @@ static int bttv_do_ioctl(struct inode *i
+ 		f->index       = index;
+ 		f->type        = type;
+ 		f->pixelformat = bttv_formats[i].fourcc;
+-		strncpy(f->description,bttv_formats[i].name,31);
++		strlcpy(f->description,bttv_formats[i].name,sizeof(f->description));
+ 		return 0;
+ 	}
+ 
+@@ -2763,6 +2789,7 @@ static int bttv_open(struct inode *inode
+ 	file->private_data = fh;
+ 	*fh = btv->init;
+ 	fh->type = type;
++	fh->ov.setup_ok = 0;
+ 	videobuf_queue_init(&fh->cap, &bttv_video_qops,
+ 			    btv->dev, &btv->s_lock,
+ 			    V4L2_BUF_TYPE_VIDEO_CAPTURE,
+@@ -3222,22 +3249,23 @@ bttv_irq_switch_fields(struct bttv *btv)
+ 	spin_unlock(&btv->s_lock);
+ }
+ 
+-static void bttv_irq(int irq, void *dev_id, struct pt_regs * regs)
++static irqreturn_t bttv_irq(int irq, void *dev_id, struct pt_regs * regs)
+ {
+ 	u32 stat,astat;
+ 	u32 dstat;
+ 	int count;
+ 	struct bttv *btv;
++	int handled = 0;
+ 
+ 	btv=(struct bttv *)dev_id;
+ 	count=0;
+-	while (1) 
+-	{
++	while (1) {
+ 		/* get/clear interrupt status bits */
+ 		stat=btread(BT848_INT_STAT);
+ 		astat=stat&btread(BT848_INT_MASK);
+ 		if (!astat)
+-			return;
++			break;
++		handled = 1;
+ 		btwrite(stat,BT848_INT_STAT);
+ 
+ 		/* get device status bits */
+@@ -3300,6 +3328,7 @@ static void bttv_irq(int irq, void *dev_
+ 			       "bttv%d: IRQ lockup, cleared int mask\n", btv->nr);
+ 		}
+ 	}
++	return IRQ_RETVAL(handled);
+ }
+ 
+ 
+diff -Nurp -X /Data/dontdiff 5mdk/drivers/media/video/bttv9/bttv9-if.c patched/drivers/media/video/bttv9/bttv9-if.c
+--- 5mdk/drivers/media/video/bttv9/bttv9-if.c	2003-08-15 12:22:47.000000000 +0300
++++ patched/drivers/media/video/bttv9/bttv9-if.c	2003-08-16 16:10:01.000000000 +0300
+@@ -25,7 +25,6 @@
+     
+ */
+ 
+-#include <linux/version.h>
+ #include <linux/module.h>
+ #include <linux/init.h>
+ 
+@@ -209,6 +208,8 @@ static int attach_inform(struct i2c_clie
+ 
+ void bttv_call_i2c_clients(struct bttv *btv, unsigned int cmd, void *arg)
+ {
++	if (0 != btv->i2c_rc)
++		return;
+ 	i2c_clients_command(&btv->i2c_adap, cmd, arg);
+ }
+ 
+@@ -314,6 +315,7 @@ int __devinit init_bttv_i2c(struct bttv 
+ 
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,66)
+ 	sprintf(btv->i2c_adap.dev.name, "bt848 #%d", btv->nr);
++	btv->i2c_adap.dev.parent = &btv->dev->dev;
+ #else
+ 	sprintf(btv->i2c_adap.name, "bt848 #%d", btv->nr);
+ #endif
+diff -Nurp -X /Data/dontdiff 5mdk/drivers/media/video/bttv9/bttv9-risc.c patched/drivers/media/video/bttv9/bttv9-risc.c
+--- 5mdk/drivers/media/video/bttv9/bttv9-risc.c	2003-04-16 08:59:22.000000000 +0300
++++ patched/drivers/media/video/bttv9/bttv9-risc.c	2003-08-16 16:10:01.000000000 +0300
+@@ -23,7 +23,6 @@
+ 
+ */
+ 
+-#include <linux/version.h>
+ #include <linux/module.h>
+ #include <linux/init.h>
+ #include <linux/pci.h>
+diff -Nurp -X /Data/dontdiff 5mdk/drivers/media/video/bttv9/bttv9-vbi.c patched/drivers/media/video/bttv9/bttv9-vbi.c
+--- 5mdk/drivers/media/video/bttv9/bttv9-vbi.c	2003-04-16 08:59:22.000000000 +0300
++++ patched/drivers/media/video/bttv9/bttv9-vbi.c	2003-08-16 16:10:01.000000000 +0300
+@@ -19,7 +19,6 @@
+     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ */
+ 
+-#include <linux/version.h>
+ #include <linux/module.h>
+ #include <linux/errno.h>
+ #include <linux/fs.h>
+@@ -157,10 +156,13 @@ void bttv_vbi_setlines(struct bttv_fh *f
+ 
+ void bttv_vbi_try_fmt(struct bttv_fh *fh, struct v4l2_format *f)
+ {
+-	u32 start0,start1,count;
++	const struct bttv_tvnorm *tvnorm;
++	u32 start0,start1;
++	s32 count0,count1,count;
+ 	
++	tvnorm = &bttv_tvnorms[fh->btv->tvnorm];
+ 	f->type = V4L2_BUF_TYPE_VBI_CAPTURE;
+-	f->fmt.vbi.sampling_rate    = 35468950;
++	f->fmt.vbi.sampling_rate    = tvnorm->Fsc;
+ 	f->fmt.vbi.samples_per_line = 2048;
+ 	f->fmt.vbi.sample_format    = V4L2_PIX_FMT_GREY;
+ 	f->fmt.vbi.offset           = 244;
+@@ -177,11 +179,13 @@ void bttv_vbi_try_fmt(struct bttv_fh *fh
+ 		start1 = 319;
+ 	}
+ 
+-	count = max(f->fmt.vbi.count[0],f->fmt.vbi.count[1]);
+-	if (f->fmt.vbi.start[0] > start0)
+-		count += f->fmt.vbi.start[0] - start0;
++	count0 = (f->fmt.vbi.start[0] + f->fmt.vbi.count[0]) - start0;
++	count1 = (f->fmt.vbi.start[1] + f->fmt.vbi.count[1]) - start1;
++	count  = max(count0,count1);
+ 	if (count > VBI_MAXLINES)
+ 		count = VBI_MAXLINES;
++	if (count < 1)
++		count = 1;
+ 
+ 	f->fmt.vbi.start[0] = start0;
+ 	f->fmt.vbi.start[1] = start1;
+@@ -191,9 +195,12 @@ void bttv_vbi_try_fmt(struct bttv_fh *fh
+ 
+ void bttv_vbi_get_fmt(struct bttv_fh *fh, struct v4l2_format *f)
+ {
++	const struct bttv_tvnorm *tvnorm;
++
++	tvnorm = &bttv_tvnorms[fh->btv->tvnorm];
+ 	memset(f,0,sizeof(*f));
+ 	f->type = V4L2_BUF_TYPE_VBI_CAPTURE;
+-	f->fmt.vbi.sampling_rate    = 35468950;
++	f->fmt.vbi.sampling_rate    = tvnorm->Fsc;
+ 	f->fmt.vbi.samples_per_line = 2048;
+ 	f->fmt.vbi.sample_format    = V4L2_PIX_FMT_GREY;
+ 	f->fmt.vbi.offset           = 244;
+diff -Nurp -X /Data/dontdiff 5mdk/drivers/media/video/bt832.c patched/drivers/media/video/bt832.c
+--- 5mdk/drivers/media/video/bt832.c	2003-08-15 12:22:40.000000000 +0300
++++ patched/drivers/media/video/bt832.c	2003-08-16 16:10:01.000000000 +0300
+@@ -31,8 +31,14 @@
+ #include <linux/errno.h>
+ #include <linux/slab.h>
+ 
+-#include "id.h"
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
+ #include "audiochip.h"
++#include "id.h"
++#include "i2c-compat.h"
++#else
++#include <media/audiochip.h>
++#include <media/id.h>
++#endif
+ #include "bttv.h"
+ #include "bt832.h"
+ 
+@@ -168,8 +174,12 @@ int bt832_init(struct i2c_client *i2c_cl
+ 
+ 
+ 
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,0)
++static int bt832_attach(struct i2c_adapter *adap, int addr, int kind)
++#else
+ static int bt832_attach(struct i2c_adapter *adap, int addr,
+ 			  unsigned short flags, int kind)
++#endif
+ {
+ 	struct bt832 *t;
+ 
+@@ -184,10 +194,12 @@ static int bt832_attach(struct i2c_adapt
+                 return -ENOMEM;
+ 	memset(t,0,sizeof(*t));
+ 	t->client = client_template;
+-        t->client.data = t;
++        i2c_set_clientdata(&t->client, t);
+         i2c_attach_client(&t->client);
+ 
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
+ 	MOD_INC_USE_COUNT;
++#endif
+ 	if(! bt832_init(&t->client)) {
+ 		bt832_detach(&t->client);
+ 		return -1;
+@@ -198,42 +210,33 @@ static int bt832_attach(struct i2c_adapt
+ 
+ static int bt832_probe(struct i2c_adapter *adap)
+ {
+-	int rc;
+-
+-	printk("bt832_probe\n");
+-
+-	switch (adap->id) {
+-	case I2C_ALGO_BIT | I2C_HW_B_BT848:
+-	case I2C_ALGO_BIT | I2C_HW_B_RIVA:
+-	case I2C_ALGO_SAA7134:
+-		printk("bt832: probing %s i2c adapter [id=0x%x]\n",
+-		       adap->name,adap->id);
+-		rc = i2c_probe(adap, &addr_data, bt832_attach);
+-		break;
+-	default:
+-		printk("bt832: ignoring %s i2c adapter [id=0x%x]\n",
+-		       adap->name,adap->id);
+-		rc = 0;
+-		/* nothing */
+-	}
+-	return rc;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,0)
++	if (adap->class & I2C_ADAP_CLASS_TV_ANALOG)
++		return i2c_probe(adap, &addr_data, bt832_attach);
++#else
++	if (adap->id == (I2C_ALGO_BIT | I2C_HW_B_BT848))
++		return i2c_probe(adap, &addr_data, bt832_attach);
++#endif
++	return 0;
+ }
+ 
+ static int bt832_detach(struct i2c_client *client)
+ {
+-	struct bt832 *t = (struct bt832*)client->data;
++	struct bt832 *t = i2c_get_clientdata(client);
+ 
+ 	printk("bt832: detach.\n");
+ 	i2c_detach_client(client);
+ 	kfree(t);
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
+ 	MOD_DEC_USE_COUNT;
++#endif
+ 	return 0;
+ }
+ 
+ static int
+ bt832_command(struct i2c_client *client, unsigned int cmd, void *arg)
+ {
+-	struct bt832 *t = (struct bt832*)client->data;
++	struct bt832 *t = i2c_get_clientdata(client);
+ 
+ 	printk("bt832: command %x\n",cmd);
+ 
+@@ -267,7 +270,7 @@ static struct i2c_driver driver = {
+ };
+ static struct i2c_client client_template =
+ {
+-        .name   = "bt832",
++	I2C_DEVNAME("bt832"),
+ 	.flags  = I2C_CLIENT_ALLOW_USE,
+         .driver = &driver,
+ };
+@@ -287,3 +290,10 @@ static void bt832_cleanup_module(void)
+ module_init(bt832_init_module);
+ module_exit(bt832_cleanup_module);
+ 
++/*
++ * Overrides for Emacs so that we follow Linus's tabbing style.
++ * ---------------------------------------------------------------------------
++ * Local variables:
++ * c-basic-offset: 8
++ * End:
++ */
+diff -Nurp -X /Data/dontdiff 5mdk/drivers/media/video/cx88-cards.c patched/drivers/media/video/cx88-cards.c
+diff -Nurp -X /Data/dontdiff 5mdk/drivers/media/video/cx88-core.c patched/drivers/media/video/cx88-core.c
+diff -Nurp -X /Data/dontdiff 5mdk/drivers/media/video/cx88.h patched/drivers/media/video/cx88.h
+diff -Nurp -X /Data/dontdiff 5mdk/drivers/media/video/cx88-i2c.c patched/drivers/media/video/cx88-i2c.c
+diff -Nurp -X /Data/dontdiff 5mdk/drivers/media/video/cx88-tvaudio.c patched/drivers/media/video/cx88-tvaudio.c
+diff -Nurp -X /Data/dontdiff 5mdk/drivers/media/video/cx88-video.c patched/drivers/media/video/cx88-video.c
+diff -Nurp -X /Data/dontdiff 5mdk/drivers/media/video/msp3400.c patched/drivers/media/video/msp3400.c
+--- 5mdk/drivers/media/video/msp3400.c	2003-08-15 12:22:40.000000000 +0300
++++ patched/drivers/media/video/msp3400.c	2003-08-16 16:10:01.000000000 +0300
+@@ -1319,9 +1319,15 @@ static int msp_attach(struct i2c_adapter
+ #endif
+ 	msp3400c_setvolume(c,msp->muted,msp->left,msp->right);
+ 
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,66)
++	snprintf(c->dev.name, DEVICE_NAME_SIZE, "MSP34%02d%c-%c%d",
++		 (msp->rev2>>8)&0xff, (msp->rev1&0xff)+'@',
++		 ((msp->rev1>>8)&0xff)+'@', msp->rev2&0x1f);
++#else
+ 	sprintf(c->name,"MSP34%02d%c-%c%d",
+ 		(msp->rev2>>8)&0xff, (msp->rev1&0xff)+'@',
+ 		((msp->rev1>>8)&0xff)+'@', msp->rev2&0x1f);
++#endif
+ 
+ 	if (simple == -1) {
+ 		/* default mode */
+diff -Nurp -X /Data/dontdiff 5mdk/drivers/media/video/rds-saa6588.c patched/drivers/media/video/rds-saa6588.c
+--- 5mdk/drivers/media/video/rds-saa6588.c	1970-01-01 02:00:00.000000000 +0200
++++ patched/drivers/media/video/rds-saa6588.c	2003-08-16 16:10:01.000000000 +0300
+@@ -0,0 +1,134 @@
++/*
++ * poll i2c RDS receiver [Philips saa6588]
++ *
++ */
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++#include <unistd.h>
++#include <fcntl.h>
++#include <errno.h>
++#include <sys/ioctl.h>
++#include <linux/types.h>
++#include <linux/i2c.h>
++
++int debug;
++
++/* ----------------------------------------------------------------- */
++
++char rds_psn[9];
++char rds_txt[65];
++
++void rds_decode(int blkno,int b1, int b2)
++{
++    static int group,spare,c1,c2;
++    
++    switch (blkno) {
++    case 0:
++	if (debug)
++	    fprintf(stderr,"block A - id=%d\n",
++		    (b1 << 8) | b2);
++	break;
++    case 1:
++	if (debug)
++	    fprintf(stderr,"block B - group=%d%c tp=%d pty=%d spare=%d\n",
++		    (b1 >> 4) & 0x0f,
++		    ((b1 >> 3) & 0x01) + 'A',
++		    (b1 >> 2) & 0x01,
++		    ((b1 << 3) & 0x18) | ((b2 >> 5) & 0x07),
++		    b2 & 0x1f);
++	group = (b1 >> 3) & 0x1f;
++	spare = b2 & 0x1f;
++	break;
++    case 2:
++	if (debug)
++	    fprintf(stderr,"block C - 0x%02x 0x%02x\n",b1,b2);
++	c1 = b1;
++	c2 = b2;
++	break;
++    case 3:
++	if (debug)
++	    fprintf(stderr,"block D - 0x%02x 0x%02x\n",b1,b2);
++	switch (group) {
++	case 0:
++	    rds_psn[2*(spare & 0x03)+0] = b1;
++	    rds_psn[2*(spare & 0x03)+1] = b2;
++	    if ((spare & 0x03) == 0x03)
++		fprintf(stderr,"PSN #>%s<#\n",rds_psn);
++	    break;
++	case 4:
++	    rds_txt[4*(spare & 0x0f)+0] = c1;
++	    rds_txt[4*(spare & 0x0f)+1] = c2;
++	    rds_txt[4*(spare & 0x0f)+2] = b1;
++	    rds_txt[4*(spare & 0x0f)+3] = b2;
++	    if ((spare & 0x0f) == 0x0f)
++		fprintf(stderr,"TXT #>%s<#\n",rds_txt);
++	    break;
++	}
++	break;
++    default:
++	fprintf(stderr,"unknown block [%d]\n",blkno);
++    }
++}
++
++int
++main(int argc, char *argv[])
++{
++    int  c,f,rc, no, lastno = -1;
++    unsigned char b[40];
++    char *device = "/dev/i2c-0";
++	
++    /* parse options */
++    while (-1 != (c=getopt(argc,argv,"hvd:"))) {
++	switch (c){
++	case 'd':
++	    if (optarg)
++		device = optarg;
++	    break;
++	case 'v':
++	    debug = 1;
++	    break;
++	case 'h':
++	default:
++	    printf("poll i2c RDS receiver [saa6588] via chardev\n");
++	    printf("usage: %s [ -d i2c-device ]\n",argv[0]);
++	    exit(1);
++	}
++    }
++
++    if (-1 == (f = open(device,O_RDWR))) {
++	fprintf(stderr,"open %s: %s\n",device,strerror(errno));
++	exit(1);
++    }
++    ioctl(f,I2C_SLAVE,0x20 >> 1);
++    for (;;) {
++	memset(b,0,sizeof(b));
++	rc = read(f,b,6);
++	if (6 != rc) {
++	    fprintf(stderr,"oops: read: rc=%d, expected 6 [%s]\n",
++		    rc,strerror(errno));
++	    break;
++	}
++	if (0 == (b[0] & 0x10)) {
++	    fprintf(stderr,"no signal\r");
++	    continue;
++	}
++	if (1 == (b[0] & 0x08)) {
++	    fprintf(stderr,"overflow detected\n");
++	}
++	if (1 == (b[0] & 0x04)) {
++	    fprintf(stderr,"reset detected\n");
++	}
++	if (debug)
++	    fprintf(stderr,"raw: 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x\n",
++		    b[0],b[1],b[2],b[3],b[4],b[5]);
++	no = b[0] >> 5;
++	if (lastno != no) {
++		rds_decode(no, b[1], b[2]);
++		lastno = no;
++	}
++	usleep(10*1000);
++    }
++    close(f);
++    exit(0);
++}
+diff -Nurp -X /Data/dontdiff 5mdk/drivers/media/video/saa7134-cards.c patched/drivers/media/video/saa7134-cards.c
+--- 5mdk/drivers/media/video/saa7134-cards.c	2003-08-15 12:22:46.000000000 +0300
++++ patched/drivers/media/video/saa7134-cards.c	2003-08-16 16:10:01.000000000 +0300
+@@ -29,6 +29,7 @@
+ static char name_mute[]    = "mute";
+ static char name_radio[]   = "Radio";
+ static char name_tv[]      = "Television";
++static char name_tv_mono[] = "TV (mono only)";
+ static char name_comp1[]   = "Composite1";
+ static char name_comp2[]   = "Composite2";
+ static char name_svideo[]  = "S-Video";
+@@ -61,6 +62,11 @@ struct saa7134_board saa7134_boards[] = 
+ 			.vmux = 1,
+ 			.amux = TV,
+ 			.tv   = 1,
++		},{
++			.name = name_tv_mono,
++			.vmux = 1,
++			.amux = LINE2,
++			.tv   = 1,
+ 		}},
+ 	},
+ 	[SAA7134_BOARD_FLYVIDEO3000] = {
+@@ -68,7 +74,7 @@ struct saa7134_board saa7134_boards[] = 
+ 		.name		= "LifeView FlyVIDEO3000",
+ 		.audio_clock	= 0x00200000,
+ 		.tuner_type	= TUNER_PHILIPS_PAL,
+-		.gpiomask       = 0xE000,
++		.gpiomask       = 0xe000,
+ 		.inputs         = {{
+ 			.name = name_tv,
+ 			.vmux = 1,
+@@ -76,6 +82,12 @@ struct saa7134_board saa7134_boards[] = 
+ 			.gpio = 0x8000,
+ 			.tv   = 1,
+ 		},{
++			.name = name_tv_mono,
++			.vmux = 1,
++			.amux = LINE2,
++			.gpio = 0x0000,
++			.tv   = 1,
++		},{
+ 			.name = name_comp1,
+ 			.vmux = 0,
+ 			.amux = LINE2,
+@@ -102,7 +114,7 @@ struct saa7134_board saa7134_boards[] = 
+ 		.name           = "LifeView FlyVIDEO2000",
+ 		.audio_clock    = 0x00200000,
+ 		.tuner_type     = TUNER_LG_PAL_NEW_TAPC,
+-		.gpiomask       = 0x6000,
++		.gpiomask       = 0xe000,
+ 		.inputs         = {{
+ 			.name = name_tv,
+ 			.vmux = 1,
+@@ -128,10 +140,12 @@ struct saa7134_board saa7134_boards[] = 
+                 .radio = {
+                         .name = name_radio,
+                         .amux = LINE2,
++			.gpio = 0x2000,
+                 },
+ 		.mute = {
+ 			.name = name_mute,
+-			.amux = LINE1,
++                        .amux = LINE2,
++			.gpio = 0x8000,
+ 		},
+ 	},
+ 	[SAA7134_BOARD_EMPRESS] = {
+@@ -196,7 +210,7 @@ struct saa7134_board saa7134_boards[] = 
+ 			.tv   = 1,
+ 		},{
+ 			/* workaround for problems with normal TV sound */
+-			.name = "TV (mono only)",
++			.name = name_tv_mono,
+ 			.vmux = 1,
+ 			.amux = LINE2,
+ 			.tv   = 1,
+@@ -276,6 +290,12 @@ struct saa7134_board saa7134_boards[] = 
+ 			.amux = TV,
+ 			.tv   = 1,
+ 		},{
++			/* workaround for problems with normal TV sound */
++			.name = name_tv_mono,
++			.vmux = 1,
++			.amux = LINE2,
++			.tv   = 1,
++		},{
+ 			.name = name_comp1,
+ 			.vmux = 0,
+ 			.amux = LINE2,
+@@ -308,7 +328,7 @@ struct saa7134_board saa7134_boards[] = 
+                 },{
+                         .name = name_tv,
+                         .vmux = 1,
+-                        .amux = TV,
++                        .amux = LINE2,
+                         .tv   = 1,
+                 }},
+         },
+@@ -409,7 +429,55 @@ struct saa7134_board saa7134_boards[] = 
+ 			.tv   = 1,
+ 		}},
+         },
+-	
++	[SAA7134_BOARD_ELSA_500TV] = {
++		.name           = "ELSA EX-VISION 500TV",
++		.audio_clock    = 0x00187de7,
++		.tuner_type     = TUNER_HITACHI_NTSC,
++		.inputs         = {{
++			.name = name_svideo,
++			.vmux = 7,
++			.amux = LINE1,
++		},{
++			.name = name_tv,
++			.vmux = 8,
++			.amux = TV,
++			.tv   = 1,
++		}},
++        },
++	[SAA7134_BOARD_ASUSTeK_TVFM7134] = {
++                .name           = "ASUS TV-FM 7134",
++                .audio_clock    = 0x00187de7,
++                .tuner_type     = TUNER_PHILIPS_FM1216ME_MK3,
++                .need_tda9887   = 1,
++                .inputs         = {{
++                        .name = name_tv,
++                        .vmux = 1,
++                        .amux = TV,
++                        .tv   = 1,
++#if 0 /* untested */
++                },{
++                        .name = name_comp1,
++                        .vmux = 4,
++                        .amux = LINE2,
++                },{
++                        .name = name_comp2,
++                        .vmux = 2,
++                        .amux = LINE2,
++                },{
++                        .name = name_svideo,
++                        .vmux = 6,
++                        .amux = LINE2,
++                },{
++                        .name = "S-Video2",
++                        .vmux = 7,
++                        .amux = LINE2,
++#endif
++                }},
++                .radio = {
++                        .name = name_radio,
++                        .amux = LINE1,
++                },
++        },
+ };
+ const unsigned int saa7134_bcount = ARRAY_SIZE(saa7134_boards);
+ 
+@@ -478,6 +546,24 @@ struct pci_device_id __devinitdata saa71
+ 		.subdevice    = 0x226b,
+ 		.driver_data  = SAA7134_BOARD_ELSA,
+ 	},{
++		.vendor       = PCI_VENDOR_ID_PHILIPS,
++		.device       = PCI_DEVICE_ID_PHILIPS_SAA7130,
++		.subvendor    = 0x1048,
++		.subdevice    = 0x226b,
++		.driver_data  = SAA7134_BOARD_ELSA_500TV,
++	},{
++                .vendor       = PCI_VENDOR_ID_PHILIPS,
++                .device       = PCI_DEVICE_ID_PHILIPS_SAA7134,
++                .subvendor    = PCI_VENDOR_ID_ASUSTEK,
++                .subdevice    = 0x4842,
++                .driver_data  = SAA7134_BOARD_ASUSTeK_TVFM7134,
++	},{
++                .vendor       = PCI_VENDOR_ID_PHILIPS,
++                .device       = PCI_DEVICE_ID_PHILIPS_SAA7134,
++                .subvendor    = PCI_VENDOR_ID_ASUSTEK,
++                .subdevice    = 0x4830,
++                .driver_data  = SAA7134_BOARD_ASUSTeK_TVFM7134,
++        },{
+ 		
+ 		/* --- boards without eeprom + subsystem ID --- */
+                 .vendor       = PCI_VENDOR_ID_PHILIPS,
+@@ -524,6 +610,68 @@ struct pci_device_id __devinitdata saa71
+ MODULE_DEVICE_TABLE(pci, saa7134_pci_tbl);
+ 
+ /* ----------------------------------------------------------- */
++/* flyvideo tweaks                                             */
++
++#if 0
++static struct {
++	char  *model;
++	int   tuner_type;
++} fly_list[0x20] = {
++	/* default catch ... */
++	[ 0 ... 0x1f ] = {
++		.model      = "UNKNOWN",
++		.tuner_type = TUNER_ABSENT,
++	},
++	/* ... the ones known so far */
++	[ 0x05 ] = {
++		.model      = "PAL-BG",
++		.tuner_type = TUNER_LG_PAL_NEW_TAPC,
++	},
++	[ 0x10 ] = {
++		.model      = "PAL-BG / PAL-DK",
++		.tuner_type = TUNER_PHILIPS_PAL,
++	},
++	[ 0x15 ] = {
++		.model      = "NTSC",
++		.tuner_type = TUNER_ABSENT /* FIXME */,
++	},
++};
++#endif
++
++static void board_flyvideo(struct saa7134_dev *dev)
++{
++#if 0
++	u32 value;
++	int index;
++
++	value = dev->gpio_value;
++	index = (value & 0x1f00) >> 8;
++	printk(KERN_INFO "%s: flyvideo: gpio is 0x%x [model=%s,tuner=%d]\n",
++	       dev->name, value, fly_list[index].model,
++	       fly_list[index].tuner_type);
++	dev->tuner_type = fly_list[index].tuner_type;
++#endif
++}
++
++/* ----------------------------------------------------------- */
++
++int saa7134_board_init(struct saa7134_dev *dev)
++{
++	// Always print gpio, often manufacturers encode tuner type and other info.
++	saa_writel(SAA7134_GPIO_GPMODE0 >> 2, 0);
++	dev->gpio_value = saa_readl(SAA7134_GPIO_GPSTATUS0 >> 2);
++	printk(KERN_INFO "%s: board init: gpio is %x\n", dev->name, dev->gpio_value);
++
++	switch (dev->board) {
++	case SAA7134_BOARD_FLYVIDEO2000:
++	case SAA7134_BOARD_FLYVIDEO3000:
++		board_flyvideo(dev);
++		break;
++	}
++	return 0;
++}
++
++/* ----------------------------------------------------------- */
+ /*
+  * Local variables:
+  * c-basic-offset: 8
+diff -Nurp -X /Data/dontdiff 5mdk/drivers/media/video/saa7134-core.c patched/drivers/media/video/saa7134-core.c
+--- 5mdk/drivers/media/video/saa7134-core.c	2003-08-15 12:22:46.000000000 +0300
++++ patched/drivers/media/video/saa7134-core.c	2003-08-16 16:10:01.000000000 +0300
+@@ -2,7 +2,7 @@
+  * device driver for philips saa7134 based TV cards
+  * driver core
+  *
+- * (c) 2001,02 Gerd Knorr <kraxel@bytesex.org> [SuSE Labs]
++ * (c) 2001-03 Gerd Knorr <kraxel@bytesex.org> [SuSE Labs]
+  *
+  *  This program is free software; you can redistribute it and/or modify
+  *  it under the terms of the GNU General Public License as published by
+@@ -403,6 +403,14 @@ void saa7134_buffer_timeout(unsigned lon
+ 	unsigned long flags;
+ 
+ 	spin_lock_irqsave(&dev->slock,flags);
++
++	/* try to reset the hardware (SWRST) */
++	saa_writeb(SAA7134_REGION_ENABLE, 0x00);
++	saa_writeb(SAA7134_REGION_ENABLE, 0x80);
++	saa_writeb(SAA7134_REGION_ENABLE, 0x00);
++
++	/* flag current buffer as failed,
++	   try to start over with the next one. */
+ 	if (q->curr) {
+ 		dprintk("timeout on %p\n",q->curr);
+ 		saa7134_buffer_finish(dev,q,STATE_ERROR);
+@@ -415,7 +423,7 @@ void saa7134_buffer_timeout(unsigned lon
+ 
+ int saa7134_set_dmabits(struct saa7134_dev *dev)
+ {
+-	unsigned long task=0, ctrl=0, irq=0, split = 0;
++	u32 split, task=0, ctrl=0, irq=0;
+ 	enum v4l2_field cap = V4L2_FIELD_ANY;
+ 	enum v4l2_field ov  = V4L2_FIELD_ANY;
+ 
+@@ -475,12 +483,12 @@ int saa7134_set_dmabits(struct saa7134_d
+ 	
+ 	/* set task conditions + field handling */
+ 	if (V4L2_FIELD_HAS_BOTH(cap) || V4L2_FIELD_HAS_BOTH(ov) || cap == ov) {
+-		/* default config -- use full frames:
+-		   odd A, even A, odd B, even B, repeat */
++		/* default config -- use full frames */
+ 		saa_writeb(SAA7134_TASK_CONDITIONS(TASK_A), 0x0d);
+ 		saa_writeb(SAA7134_TASK_CONDITIONS(TASK_B), 0x0d);
+ 		saa_writeb(SAA7134_FIELD_HANDLING(TASK_A),  0x02);
+ 		saa_writeb(SAA7134_FIELD_HANDLING(TASK_B),  0x02);
++		split = 0;
+ 	} else {
+ 		/* split fields between tasks */
+ 		if (V4L2_FIELD_TOP == cap) {
+@@ -509,7 +517,7 @@ int saa7134_set_dmabits(struct saa7134_d
+ 		   SAA7134_MAIN_CTRL_TE5 |
+ 		   SAA7134_MAIN_CTRL_TE6,
+ 		   ctrl);
+-	dprintk("dmabits: task=0x%02lx ctrl=0x%02lx irq=0x%lx split=%s\n",
++	dprintk("dmabits: task=0x%02x ctrl=0x%02x irq=0x%x split=%s\n",
+ 		task, ctrl, irq, split ? "no" : "yes");
+ 
+ 	return 0;
+@@ -547,22 +555,23 @@ static void print_irqstatus(struct saa71
+ 	printk("\n");
+ }
+ 
+-static void saa7134_irq(int irq, void *dev_id, struct pt_regs *regs)
++static irqreturn_t saa7134_irq(int irq, void *dev_id, struct pt_regs *regs)
+ {
+ 	struct saa7134_dev *dev = (struct saa7134_dev*) dev_id;
+ 	unsigned long report,status;
+-	int loop;
++	int loop, handled = 0;
+ 
+ 	for (loop = 0; loop < 10; loop++) {
+ 		report = saa_readl(SAA7134_IRQ_REPORT);
+ 		status = saa_readl(SAA7134_IRQ_STATUS);
+-		saa_writel(SAA7134_IRQ_REPORT,report);
+ 		if (0 == report) {
+ 			if (irq_debug > 1)
+ 				printk(KERN_DEBUG "%s/irq: no (more) work\n",
+ 				       dev->name);
+-			return;
++			goto out;
+ 		}
++		handled = 1;
++		saa_writel(SAA7134_IRQ_REPORT,report);
+ 		if (irq_debug)
+ 			print_irqstatus(dev,loop,report,status);
+ 
+@@ -597,6 +606,9 @@ static void saa7134_irq(int irq, void *d
+ 		saa_writel(SAA7134_IRQ1,0);
+ 		saa_writel(SAA7134_IRQ2,0);
+ 	}
++
++ out:
++	return IRQ_RETVAL(handled);
+ }
+ 
+ /* ------------------------------------------------------------------ */
+@@ -612,8 +624,14 @@ static int saa7134_hwinit(struct saa7134
+ 	saa7134_vbi_init(dev);
+ 	if (card_has_ts(dev))
+ 		saa7134_ts_init(dev);
+-	if (PCI_DEVICE_ID_PHILIPS_SAA7134 == dev->pci->device)
++
++	switch (dev->pci->device) {
++	case PCI_DEVICE_ID_PHILIPS_SAA7134:
++	case PCI_DEVICE_ID_PHILIPS_SAA7133:
++	case PCI_DEVICE_ID_PHILIPS_SAA7135:
+ 		saa7134_oss_init(dev);
++		break;
++	}
+ 	
+ 	/* RAM FIFO config */
+ 	saa_writel(SAA7134_FIFO_SIZE, 0x08070503);
+@@ -648,10 +666,7 @@ static int saa7134_hwinit(struct saa7134
+ 	saa_writeb(SAA7134_SPECIAL_MODE, 0x01);
+ 
+ 	/* set vertical line numbering start (vbi needs this) */
+-	saa_writeb(SAA7134_SOURCE_TIMING1, 0x01);
+ 	saa_writeb(SAA7134_SOURCE_TIMING2, 0x20);
+-//	saa_writeb(SAA7134_SOURCE_TIMING1, 0x00);
+-//	saa_writeb(SAA7134_SOURCE_TIMING2, 0x00);
+ 	
+ 	return 0;
+ }
+@@ -694,18 +709,39 @@ static int __devinit saa7134_initdev(str
+ 		return -ENOMEM;
+ 	memset(dev,0,sizeof(*dev));
+ 
+-	/* pci stuff */
++	/* pci init */
+ 	dev->pci = pci_dev;
+ 	if (pci_enable_device(pci_dev)) {
+ 		err = -EIO;
+ 		goto fail1;
+ 	}
+ 	sprintf(dev->name,"saa%x[%d]",pci_dev->device,saa7134_devcount);
++
++	/* pci quirks */
++	if (pci_pci_problems) {
++		if (pci_pci_problems & PCIPCI_TRITON)
++			printk(KERN_INFO "%s: quirk: PCIPCI_TRITON\n", dev->name);
++		if (pci_pci_problems & PCIPCI_NATOMA)
++			printk(KERN_INFO "%s: quirk: PCIPCI_NATOMA\n", dev->name);
++		if (pci_pci_problems & PCIPCI_VIAETBF)
++			printk(KERN_INFO "%s: quirk: PCIPCI_VIAETBF\n", dev->name);
++		if (pci_pci_problems & PCIPCI_VSFX)
++			printk(KERN_INFO "%s: quirk: PCIPCI_VSFX\n",dev->name);
++#ifdef PCIPCI_ALIMAGIK
++		if (pci_pci_problems & PCIPCI_ALIMAGIK) {
++			printk(KERN_INFO "%s: quirk: PCIPCI_ALIMAGIK -- latency fixup\n",
++			       dev->name);
++			latency = 0x0A;
++		}
++#endif
++	}
+ 	if (UNSET != latency) {
+ 		printk(KERN_INFO "%s: setting pci latency timer to %d\n",
+ 		       dev->name,latency);
+ 		pci_write_config_byte(pci_dev, PCI_LATENCY_TIMER, latency);
+ 	}
++
++	/* print pci info */
+ 	pci_read_config_byte(pci_dev, PCI_CLASS_REVISION, &dev->pci_rev);
+         pci_read_config_byte(pci_dev, PCI_LATENCY_TIMER,  &dev->pci_lat);
+         printk(KERN_INFO "%s: found at %s, rev: %d, irq: %d, "
+@@ -749,7 +785,11 @@ static int __devinit saa7134_initdev(str
+ 	dev->lmmio = ioremap(pci_resource_start(pci_dev,0), 0x1000);
+ 	dev->bmmio = (__u8*)dev->lmmio;
+ 
++	/* register i2c bus */
++	saa7134_i2c_register(dev);
++
+ 	/* initialize hardware */
++	saa7134_board_init(dev);
+ 	saa7134_hwinit(dev);
+ 
+ 	/* get irq */
+@@ -761,8 +801,7 @@ static int __devinit saa7134_initdev(str
+ 		goto fail2;
+ 	}
+ 
+-	/* register i2c bus + load i2c helpers */
+-	saa7134_i2c_register(dev);
++	/* load i2c helpers */
+ 	if (TUNER_ABSENT != dev->tuner_type)
+ 		request_module("tuner");
+ 	if (saa7134_boards[dev->board].need_tda9887)
+@@ -812,20 +851,28 @@ static int __devinit saa7134_initdev(str
+ 	}
+ 
+ 	/* register oss devices */
+-	if (oss && (PCI_DEVICE_ID_PHILIPS_SAA7134 == dev->pci->device)) {
+-		dev->oss.minor_dsp = register_sound_dsp(&saa7134_dsp_fops,dsp_nr);
+-		if (dev->oss.minor_dsp < 0)
++	switch (dev->pci->device) {
++	case PCI_DEVICE_ID_PHILIPS_SAA7134:
++	case PCI_DEVICE_ID_PHILIPS_SAA7133:
++	case PCI_DEVICE_ID_PHILIPS_SAA7135:
++		if (oss) {
++			err = dev->oss.minor_dsp =
++				register_sound_dsp(&saa7134_dsp_fops,dsp_nr);
++			if (err < 0) {
+ 			goto fail7;
++			}
+ 		printk(KERN_INFO "%s: registered device dsp%d\n",
+ 		       dev->name,dev->oss.minor_dsp >> 4);
+ 		
+-		dev->oss.minor_mixer =
++			err = dev->oss.minor_mixer =
+ 			register_sound_mixer(&saa7134_mixer_fops,mixer_nr);
+-		if (dev->oss.minor_mixer < 0)
++			if (err < 0)
+ 			goto fail8;
+ 		printk(KERN_INFO "%s: registered device mixer%d\n",
+ 		       dev->name,dev->oss.minor_mixer >> 4);
+ 	}
++		break;
++	}
+ 
+ 	/* everything worked */
+ 	list_add_tail(&dev->devlist,&saa7134_devlist);
+@@ -834,8 +881,14 @@ static int __devinit saa7134_initdev(str
+ 	return 0;
+ 
+  fail8:
+-	if (oss && (PCI_DEVICE_ID_PHILIPS_SAA7134 == dev->pci->device))
++	switch (dev->pci->device) {
++	case PCI_DEVICE_ID_PHILIPS_SAA7134:
++	case PCI_DEVICE_ID_PHILIPS_SAA7133:
++	case PCI_DEVICE_ID_PHILIPS_SAA7135:
++		if (oss)
+ 		unregister_sound_dsp(dev->oss.minor_dsp);
++		break;
++	}
+  fail7:
+ 	if (card_has_radio(dev))
+ 		video_unregister_device(&dev->radio_dev);
+@@ -847,16 +900,21 @@ static int __devinit saa7134_initdev(str
+  fail4:
+ 	video_unregister_device(&dev->video_dev);
+  fail3:
++	saa7134_i2c_unregister(dev);
+ 	free_irq(pci_dev->irq, dev);
+  fail2:
+-	if (PCI_DEVICE_ID_PHILIPS_SAA7134 == dev->pci->device)
++	switch (dev->pci->device) {
++	case PCI_DEVICE_ID_PHILIPS_SAA7134:
++	case PCI_DEVICE_ID_PHILIPS_SAA7133:
++	case PCI_DEVICE_ID_PHILIPS_SAA7135:
+ 		saa7134_oss_fini(dev);
++		break;
++	}
+ 	if (card_has_ts(dev))
+ 		saa7134_ts_fini(dev);
+ 	saa7134_vbi_fini(dev);
+ 	saa7134_video_fini(dev);
+ 	saa7134_tvaudio_fini(dev);
+-	saa7134_i2c_unregister(dev);
+ 	release_mem_region(pci_resource_start(pci_dev,0),
+ 			   pci_resource_len(pci_dev,0));
+  fail1:
+@@ -868,6 +926,13 @@ static void __devexit saa7134_finidev(st
+ {
+         struct saa7134_dev *dev = pci_get_drvdata(pci_dev);
+ 
++	/* debugging ... */
++	if (irq_debug) {
++		u32 report = saa_readl(SAA7134_IRQ_REPORT);
++		u32 status = saa_readl(SAA7134_IRQ_STATUS);
++		print_irqstatus(dev,42,report,status);
++	}
++
+ 	/* disable peripheral devices */
+ 	saa_writeb(SAA7134_SPECIAL_MODE,0);
+ 
+@@ -877,8 +942,13 @@ static void __devexit saa7134_finidev(st
+ 	saa_writel(SAA7134_MAIN_CTRL,0);
+ 
+ 	/* shutdown subsystems */
+-	if ((PCI_DEVICE_ID_PHILIPS_SAA7134 == dev->pci->device))
++	switch (dev->pci->device) {
++	case PCI_DEVICE_ID_PHILIPS_SAA7134:
++	case PCI_DEVICE_ID_PHILIPS_SAA7133:
++	case PCI_DEVICE_ID_PHILIPS_SAA7135:
+ 		saa7134_oss_fini(dev);
++		break;
++	}
+ 	if (card_has_ts(dev))
+ 		saa7134_ts_fini(dev);
+ 	saa7134_vbi_fini(dev);
+@@ -893,10 +963,16 @@ static void __devexit saa7134_finidev(st
+ 
+ 	/* unregister */
+ 	saa7134_i2c_unregister(dev);
+-	if (oss && (PCI_DEVICE_ID_PHILIPS_SAA7134 == dev->pci->device)) {
++	switch (dev->pci->device) {
++	case PCI_DEVICE_ID_PHILIPS_SAA7134:
++	case PCI_DEVICE_ID_PHILIPS_SAA7133:
++	case PCI_DEVICE_ID_PHILIPS_SAA7135:
++		if (oss) {
+ 		unregister_sound_mixer(dev->oss.minor_mixer);
+ 		unregister_sound_dsp(dev->oss.minor_dsp);
+ 	}
++		break;
++	}
+ 	if (card_has_radio(dev))
+ 		video_unregister_device(&dev->radio_dev);
+ 	video_unregister_device(&dev->vbi_dev);
+diff -Nurp -X /Data/dontdiff 5mdk/drivers/media/video/saa7134.h patched/drivers/media/video/saa7134.h
+--- 5mdk/drivers/media/video/saa7134.h	2003-08-15 15:26:49.000000000 +0300
++++ patched/drivers/media/video/saa7134.h	2003-08-16 16:10:01.000000000 +0300
+@@ -28,14 +28,23 @@
+ #include "tuner.h"
+ #include "audiochip.h"
+ #include "id.h"
++#include "i2c-compat.h"
+ #else
+ #include <media/video-buf.h>
+ #include <media/tuner.h>
+ #include <media/audiochip.h>
+ #include <media/id.h>
+ #endif
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,69)
++# define irqreturn_t void
++# define IRQ_RETVAL(foobar)
++#endif
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,71)
++# define strlcpy(dest,src,len) strncpy(dest,src,(len)-1)
++#endif
+ 
+-#define SAA7134_VERSION_CODE KERNEL_VERSION(0,2,6)
++#include <linux/version.h>
++#define SAA7134_VERSION_CODE KERNEL_VERSION(0,2,8)
+ 
+ #ifndef TRUE
+ # define TRUE (1==1)
+@@ -102,6 +111,7 @@ struct saa7134_tvnorm {
+ 	unsigned int  video_v_stop;
+ 	unsigned int  vbi_v_start;
+ 	unsigned int  vbi_v_stop;
++	unsigned int  src_timing;
+ };
+ 
+ struct saa7134_tvaudio {
+@@ -144,6 +154,8 @@ struct saa7134_format {
+ #define SAA7134_BOARD_MD7134           12
+ #define SAA7134_BOARD_TYPHOON_90031    13
+ #define SAA7134_BOARD_ELSA             14
++#define SAA7134_BOARD_ELSA_500TV       15
++#define SAA7134_BOARD_ASUSTeK_TVFM7134 16
+ 
+ #define SAA7134_INPUT_MAX 8
+ 
+@@ -211,6 +223,7 @@ struct saa7134_thread {
+ 	unsigned int               exit;
+ 	unsigned int               scan1;
+ 	unsigned int               scan2;
++	unsigned int               mode;
+ };
+ 
+ /* buffer for one video/vbi/ts frame */
+@@ -322,6 +335,7 @@ struct saa7134_dev {
+ 	/* config info */
+ 	unsigned int               board;
+ 	unsigned int               tuner_type;
++	unsigned int               gpio_value;
+ 
+ 	/* i2c i/o */
+ 	struct i2c_adapter         i2c_adap;
+@@ -362,6 +376,7 @@ struct saa7134_dev {
+ 	struct saa7134_input       *input;
+ 	struct saa7134_input       *hw_input;
+ 	unsigned int               hw_mute;
++	int                        last_carrier;
+ };
+ 
+ /* ----------------------------------------------------------- */
+@@ -422,6 +437,8 @@ extern struct saa7134_board saa7134_boar
+ extern const unsigned int saa7134_bcount;
+ extern struct pci_device_id __devinitdata saa7134_pci_tbl[];
+ 
++extern int saa7134_board_init(struct saa7134_dev *dev);
++
+ 
+ /* ----------------------------------------------------------- */
+ /* saa7134-i2c.c                                               */
+@@ -470,17 +487,19 @@ void saa7134_irq_vbi_done(struct saa7134
+ /* ----------------------------------------------------------- */
+ /* saa7134-tvaudio.c                                           */
+ 
++int saa7134_tvaudio_rx2mode(u32 rx);
++
+ void saa7134_tvaudio_setmute(struct saa7134_dev *dev);
+ void saa7134_tvaudio_setinput(struct saa7134_dev *dev,
+ 			      struct saa7134_input *in);
+ void saa7134_tvaudio_setvolume(struct saa7134_dev *dev, int level);
+-int saa7134_tvaudio_getstereo(struct saa7134_dev *dev,
+-			      struct saa7134_tvaudio *audio);
++int saa7134_tvaudio_getstereo(struct saa7134_dev *dev);
+ 
+ int saa7134_tvaudio_init(struct saa7134_dev *dev);
+ int saa7134_tvaudio_fini(struct saa7134_dev *dev);
+ int saa7134_tvaudio_do_scan(struct saa7134_dev *dev);
+ 
++int saa_dsp_writel(struct saa7134_dev *dev, int reg, u32 value);
+ 
+ /* ----------------------------------------------------------- */
+ /* saa7134-oss.c                                               */
+diff -Nurp -X /Data/dontdiff 5mdk/drivers/media/video/saa7134-i2c.c patched/drivers/media/video/saa7134-i2c.c
+--- 5mdk/drivers/media/video/saa7134-i2c.c	2003-08-15 12:22:47.000000000 +0300
++++ patched/drivers/media/video/saa7134-i2c.c	2003-08-16 16:10:01.000000000 +0300
+@@ -19,8 +19,6 @@
+  *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+  */
+ 
+-#define __NO_VERSION__ 1
+-
+ #include <linux/init.h>
+ #include <linux/list.h>
+ #include <linux/module.h>
+@@ -393,22 +391,18 @@ saa7134_i2c_scan(struct saa7134_dev *dev
+ void saa7134_i2c_call_clients(struct saa7134_dev *dev,
+ 			      unsigned int cmd, void *arg)
+ {
+-	int i;
+-
+-	for (i = 0; i < I2C_CLIENT_MAX; i++) {
+-		if (NULL == dev->i2c_adap.clients[i])
+-			continue;
+-		if (NULL == dev->i2c_adap.clients[i]->driver->command)
+-			continue;
+-		dev->i2c_adap.clients[i]->driver->command
+-			(dev->i2c_adap.clients[i],cmd,arg);
+-	}
++	i2c_clients_command(&dev->i2c_adap, cmd, arg);
+ }
+ 
+ int saa7134_i2c_register(struct saa7134_dev *dev)
+ {
+ 	dev->i2c_adap = saa7134_adap_template;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,66)
++	strcpy(dev->i2c_adap.dev.name,dev->name);
++	dev->i2c_adap.dev.parent = &dev->pci->dev;
++#else
+ 	strcpy(dev->i2c_adap.name,dev->name);
++#endif
+ 	dev->i2c_adap.algo_data = dev;
+ 	i2c_add_adapter(&dev->i2c_adap);
+ 	
+diff -Nurp -X /Data/dontdiff 5mdk/drivers/media/video/saa7134-oss.c patched/drivers/media/video/saa7134-oss.c
+--- 5mdk/drivers/media/video/saa7134-oss.c	2003-08-15 12:22:46.000000000 +0300
++++ patched/drivers/media/video/saa7134-oss.c	2003-08-16 16:10:01.000000000 +0300
+@@ -19,8 +19,6 @@
+  *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+  */
+ 
+-#define __NO_VERSION__ 1
+-
+ #include <linux/init.h>
+ #include <linux/list.h>
+ #include <linux/module.h>
+@@ -96,8 +94,9 @@ static int dsp_buffer_free(struct saa713
+ 
+ static int dsp_rec_start(struct saa7134_dev *dev)
+ {
+-	int err, fmt, bswap, wswap;
+-	unsigned long control,flags;
++	int err, bswap, sign;
++	u32 fmt, control;
++	unsigned long flags;
+ 
+ 	/* prepare buffer */
+ 	if (0 != (err = videobuf_dma_pci_map(dev->pci,&dev->oss.dma)))
+@@ -112,45 +111,60 @@ static int dsp_rec_start(struct saa7134_
+ 
+ 	/* sample format */
+ 	switch (dev->oss.afmt) {
+-	case AFMT_U8:     fmt = 0x00;         break;
+-	case AFMT_S8:     fmt = 0x00 | 0x04;  break;
++	case AFMT_U8:
++	case AFMT_S8:     fmt = 0x00;  break;
+ 	case AFMT_U16_LE:
+-	case AFMT_U16_BE: fmt = 0x01;         break;
++	case AFMT_U16_BE:
+ 	case AFMT_S16_LE:
+-	case AFMT_S16_BE: fmt = 0x01 | 0x04;  break;
+-/* 4front API specs mention these ones,
+-   the (2.4.15) kernel header hasn't them ... */
+-#ifdef AFMT_S32_LE
+-	case AFMT_S32_LE:
+-	case AFMT_S32_BE: fmt = 0x02 | 0x04;  break;
+-#endif
++	case AFMT_S16_BE: fmt = 0x01;  break;
+ 	default:
+ 		err = -EINVAL;
+ 		goto fail2;
+ 	}
+ 
+ 	switch (dev->oss.afmt) {
++	case AFMT_S8:     
++	case AFMT_S16_LE:
++	case AFMT_S16_BE: sign = 1; break;
++	default:          sign = 0; break;
++	}
++
++	switch (dev->oss.afmt) {
+ 	case AFMT_U16_BE:
+-	case AFMT_S16_BE: bswap = 1; wswap = 0; break;
+-#ifdef AFMT_S32_LE
+-	case AFMT_S32_BE: bswap = 1; wswap = 1; break;
+-#endif
+-	default:          bswap = 0; wswap = 0; break;
++	case AFMT_S16_BE: bswap = 1; break;
++	default:          bswap = 0; break;
+ 	}
+ 
++	switch (dev->pci->device) {
++	case PCI_DEVICE_ID_PHILIPS_SAA7134:
+ 	if (1 == dev->oss.channels)
+ 		fmt |= (1 << 3);
+ 	if (2 == dev->oss.channels)
+ 		fmt |= (3 << 3);
++		if (sign)
++			fmt |= 0x04;
+ 	fmt |= (TV == dev->oss.input) ? 0xc0 : 0x80;
+ 	
+ 	saa_writeb(SAA7134_NUM_SAMPLES0, (dev->oss.blksize & 0x0000ff));
+ 	saa_writeb(SAA7134_NUM_SAMPLES1, (dev->oss.blksize & 0x00ff00) >>  8);
+ 	saa_writeb(SAA7134_NUM_SAMPLES2, (dev->oss.blksize & 0xff0000) >> 16);
+ 	saa_writeb(SAA7134_AUDIO_FORMAT_CTRL, fmt);
+-	dprintk("rec_start: afmt=%d ch=%d  =>  fmt=0x%x swap=%c%c\n",
++		break;
++	case PCI_DEVICE_ID_PHILIPS_SAA7133:
++	case PCI_DEVICE_ID_PHILIPS_SAA7135:
++		if (1 == dev->oss.channels)
++			fmt |= (1 << 4);
++		if (2 == dev->oss.channels)
++			fmt |= (2 << 4);
++		if (!sign)
++			fmt |= 0x04;
++		saa_writel(0x588 >> 2, dev->oss.blksize);
++		saa_writel(0x58c >> 2, 0x543210 | (fmt << 24));
++		break;
++	}
++	dprintk("rec_start: afmt=%d ch=%d  =>  fmt=0x%x swap=%c\n",
+ 		dev->oss.afmt, dev->oss.channels, fmt,
+-		bswap ? 'b' : '-', wswap ? 'w' : '-');
++		bswap ? 'b' : '-');
+ 
+ 	/* dma: setup channel 6 (= AUDIO) */
+ 	control = SAA7134_RS_CONTROL_BURST_16 |
+@@ -158,8 +172,6 @@ static int dsp_rec_start(struct saa7134_
+ 		(dev->oss.pt.dma >> 12);
+ 	if (bswap)
+ 		control |= SAA7134_RS_CONTROL_BSWAP;
+-	if (wswap)
+-		control |= SAA7134_RS_CONTROL_WSWAP;
+ 	saa_writel(SAA7134_RS_BA1(6),0);
+ 	saa_writel(SAA7134_RS_BA2(6),dev->oss.blksize);
+ 	saa_writel(SAA7134_RS_PITCH(6),0);
+@@ -393,10 +405,6 @@ static int dsp_ioctl(struct inode *inode
+ 		case AFMT_U16_BE:
+ 		case AFMT_S16_LE:
+ 		case AFMT_S16_BE:
+-#ifdef AFMT_S32_LE
+-		case AFMT_S32_LE:
+-		case AFMT_S32_BE:
+-#endif
+ 			down(&dev->oss.lock);
+ 			dev->oss.afmt = val;
+ 			if (dev->oss.recording) {
+@@ -419,11 +427,6 @@ static int dsp_ioctl(struct inode *inode
+ 		case AFMT_S16_LE:
+ 		case AFMT_S16_BE:
+ 			return put_user(16, (int*)arg);
+-#ifdef AFMT_S32_LE
+-		case AFMT_S32_LE:
+-		case AFMT_S32_BE:
+-			return put_user(20, (int*)arg);
+-#endif
+ 		default:
+ 			return -EINVAL;
+ 		}
+@@ -502,14 +505,10 @@ struct file_operations saa7134_dsp_fops 
+ /* ------------------------------------------------------------------ */
+ 
+ static int
+-mixer_recsrc(struct saa7134_dev *dev, enum saa7134_audio_in src)
++mixer_recsrc_7134(struct saa7134_dev *dev)
+ {
+-	static const char *iname[] = { "Oops", "TV", "LINE1", "LINE2" };
+ 	int analog_io,rate;
+ 	
+-	dev->oss.count++;
+-	dev->oss.input = src;
+-	dprintk("mixer input = %s\n",iname[dev->oss.input]);
+ 	switch (dev->oss.input) {
+ 	case TV:
+ 		saa_andorb(SAA7134_AUDIO_FORMAT_CTRL, 0xc0, 0xc0);
+@@ -528,8 +527,51 @@ mixer_recsrc(struct saa7134_dev *dev, en
+ }
+ 
+ static int
++mixer_recsrc_7133(struct saa7134_dev *dev)
++{
++	u32 value = 0xbbbbbb;
++	
++	switch (dev->oss.input) {
++	case TV:
++		value = 0xbbbb10;  /* MAIN */
++		break;
++	case LINE1:
++		value = 0xbbbb32;  /* AUX1 */
++		break;
++	case LINE2:
++		value = 0xbbbb54;  /* AUX2 */
++		break;
++	}
++	saa_dsp_writel(dev, 0x46c >> 2, value);
++	return 0;
++}
++
++static int
++mixer_recsrc(struct saa7134_dev *dev, enum saa7134_audio_in src)
++{
++	static const char *iname[] = { "Oops", "TV", "LINE1", "LINE2" };
++
++	dev->oss.count++;
++	dev->oss.input = src;
++	dprintk("mixer input = %s\n",iname[dev->oss.input]);
++
++	switch (dev->pci->device) {
++	case PCI_DEVICE_ID_PHILIPS_SAA7134:
++		mixer_recsrc_7134(dev);
++		break;
++	case PCI_DEVICE_ID_PHILIPS_SAA7133:
++	case PCI_DEVICE_ID_PHILIPS_SAA7135:
++		mixer_recsrc_7133(dev);
++		break;
++	}
++	return 0;
++}
++
++static int
+ mixer_level(struct saa7134_dev *dev, enum saa7134_audio_in src, int level)
+ {
++	switch (dev->pci->device) {
++	case PCI_DEVICE_ID_PHILIPS_SAA7134:
+ 	switch (src) {
+ 	case TV:
+ 		/* nothing */
+@@ -543,9 +585,17 @@ mixer_level(struct saa7134_dev *dev, enu
+ 			   (100 == level) ? 0x00 : 0x20);
+ 		break;
+ 	}
++		break;
++	case PCI_DEVICE_ID_PHILIPS_SAA7133:
++	case PCI_DEVICE_ID_PHILIPS_SAA7135:
++		/* nothing */
++		break;
++	}
+ 	return 0;
+ }
+ 
++/* ------------------------------------------------------------------ */
++
+ static int mixer_open(struct inode *inode, struct file *file)
+ {
+ 	int minor = minor(inode->i_rdev);
+@@ -586,8 +636,8 @@ static int mixer_ioctl(struct inode *ino
+ 	{
+ 		mixer_info info;
+ 		memset(&info,0,sizeof(info));
+-                strncpy(info.id,   "TV audio", sizeof(info.id)-1);
+-                strncpy(info.name, dev->name,  sizeof(info.name)-1);
++                strlcpy(info.id,   "TV audio", sizeof(info.id));
++                strlcpy(info.name, dev->name,  sizeof(info.name));
+                 info.modify_counter = dev->oss.count;
+                 if (copy_to_user((void *)arg, &info, sizeof(info)))
+                         return -EFAULT;
+@@ -597,8 +647,8 @@ static int mixer_ioctl(struct inode *ino
+ 	{
+ 		_old_mixer_info info;
+ 		memset(&info,0,sizeof(info));
+-                strncpy(info.id,   "TV audio", sizeof(info.id)-1);
+-                strncpy(info.name, dev->name,  sizeof(info.name)-1);
++                strlcpy(info.id,   "TV audio", sizeof(info.id));
++                strlcpy(info.name, dev->name,  sizeof(info.name));
+                 if (copy_to_user((void *)arg, &info, sizeof(info)))
+                         return -EFAULT;
+ 		return 0;
+@@ -684,13 +734,20 @@ struct file_operations saa7134_mixer_fop
+ 
+ int saa7134_oss_init(struct saa7134_dev *dev)
+ {
++	/* general */
+         init_MUTEX(&dev->oss.lock);
+ 	init_waitqueue_head(&dev->oss.wq);
+-	dev->oss.line1 = 50;
+-	dev->oss.line2 = 50;
+-	mixer_level(dev,LINE1,dev->oss.line1);
+-	mixer_level(dev,LINE2,dev->oss.line2);
+ 	
++	switch (dev->pci->device) {
++	case PCI_DEVICE_ID_PHILIPS_SAA7133:
++	case PCI_DEVICE_ID_PHILIPS_SAA7135:
++		saa_writel(0x588 >> 2, 0x00000fff);
++		saa_writel(0x58c >> 2, 0x00543210);
++		saa_dsp_writel(dev, 0x46c >> 2, 0xbbbbbb);
++		break;
++	}
++
++	/* dsp */
+ 	dev->oss.rate = 32000;
+ 	if (oss_rate)
+ 		dev->oss.rate = oss_rate;
+@@ -698,7 +755,13 @@ int saa7134_oss_init(struct saa7134_dev 
+ 		dev->oss.rate = saa7134_boards[dev->board].i2s_rate;
+ 	dev->oss.rate = (dev->oss.rate > 40000) ? 48000 : 32000;
+ 
++	/* mixer */
++	dev->oss.line1 = 50;
++	dev->oss.line2 = 50;
++	mixer_level(dev,LINE1,dev->oss.line1);
++	mixer_level(dev,LINE2,dev->oss.line2);
+ 	mixer_recsrc(dev, (dev->oss.rate == 32000) ? TV : LINE2);
++	
+ 	return 0;
+ }
+ 
+diff -Nurp -X /Data/dontdiff 5mdk/drivers/media/video/saa7134-ts.c patched/drivers/media/video/saa7134-ts.c
+--- 5mdk/drivers/media/video/saa7134-ts.c	2003-08-15 12:22:46.000000000 +0300
++++ patched/drivers/media/video/saa7134-ts.c	2003-08-16 16:10:01.000000000 +0300
+@@ -19,8 +19,6 @@
+  *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+  */
+ 
+-#define __NO_VERSION__ 1
+-
+ #include <linux/init.h>
+ #include <linux/list.h>
+ #include <linux/module.h>
+@@ -253,7 +251,7 @@ static int ts_do_ioctl(struct inode *ino
+ 
+ 		memset(cap,0,sizeof(*cap));
+                 strcpy(cap->driver, "saa7134");
+-		strncpy(cap->card, saa7134_boards[dev->board].name,
++		strlcpy(cap->card, saa7134_boards[dev->board].name,
+ 			sizeof(cap->card));
+ 		sprintf(cap->bus_info,"PCI:%s",dev->pci->slot_name);
+ 		cap->version = SAA7134_VERSION_CODE;
+@@ -302,7 +300,7 @@ static int ts_do_ioctl(struct inode *ino
+ 		
+ 		memset(f,0,sizeof(*f));
+ 		f->index = index;
+-		strncpy(f->description, "MPEG TS", 31);
++		strlcpy(f->description, "MPEG TS", sizeof(f->description));
+ 		f->type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+ 		f->pixelformat = V4L2_PIX_FMT_MPEG;
+ 		return 0;
+diff -Nurp -X /Data/dontdiff 5mdk/drivers/media/video/saa7134-tvaudio.c patched/drivers/media/video/saa7134-tvaudio.c
+--- 5mdk/drivers/media/video/saa7134-tvaudio.c	2003-08-15 12:22:46.000000000 +0300
++++ patched/drivers/media/video/saa7134-tvaudio.c	2003-08-16 16:10:01.000000000 +0300
+@@ -2,7 +2,7 @@
+  * device driver for philips saa7134 based TV cards
+  * tv audio decoder (fm stereo, nicam, ...)
+  *
+- * (c) 2001,02 Gerd Knorr <kraxel@bytesex.org> [SuSE Labs]
++ * (c) 2001-03 Gerd Knorr <kraxel@bytesex.org> [SuSE Labs]
+  *
+  *  This program is free software; you can redistribute it and/or modify
+  *  it under the terms of the GNU General Public License as published by
+@@ -19,8 +19,6 @@
+  *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+  */
+ 
+-#define __NO_VERSION__ 1
+-
+ #include <linux/init.h>
+ #include <linux/list.h>
+ #include <linux/module.h>
+@@ -39,12 +37,21 @@ static unsigned int audio_debug = 0;
+ MODULE_PARM(audio_debug,"i");
+ MODULE_PARM_DESC(audio_debug,"enable debug messages [tv audio]");
+ 
++static unsigned int audio_carrier = 0;
++MODULE_PARM(audio_carrier,"i");
++MODULE_PARM_DESC(audio_carrier,"audio carrier location");
++
+ #define dprintk(fmt, arg...)	if (audio_debug) \
+ 	printk(KERN_DEBUG "%s/audio: " fmt, dev->name, ## arg)
++#define d2printk(fmt, arg...)	if (audio_debug > 1) \
++	printk(KERN_DEBUG "%s/audio: " fmt, dev->name, ## arg)
+ 
+ #define print_regb(reg) printk("%s:   reg 0x%03x [%-16s]: 0x%02x\n", \
+ 		dev->name,(SAA7134_##reg),(#reg),saa_readb((SAA7134_##reg)))
+ 
++#define SCAN_INITIAL_DELAY  (HZ)
++#define SCAN_SAMPLE_DELAY   (HZ/10)
++
+ /* ------------------------------------------------------------------ */
+ /* saa7134 code                                                       */
+ 
+@@ -161,7 +168,7 @@ static void tvaudio_setcarrier(struct sa
+ 	saa_writel(SAA7134_CARRIER2_FREQ0 >> 2, tvaudio_carr2reg(secondary));
+ }
+ 
+-static void mute_input(struct saa7134_dev *dev)
++static void mute_input_7134(struct saa7134_dev *dev)
+ {
+ 	unsigned int mute;
+ 	struct saa7134_input *in;
+@@ -170,7 +177,8 @@ static void mute_input(struct saa7134_de
+ 
+ 	/* look what is to do ... */
+ 	in   = dev->input;
+-	mute = (dev->ctl_mute || dev->automute);
++	mute = (dev->ctl_mute ||
++		(dev->automute  &&  (&card(dev).radio) != in));
+ 	if (PCI_DEVICE_ID_PHILIPS_SAA7130 == dev->pci->device &&
+ 	    card(dev).mute.name) {
+ 		/* 7130 - we'll mute using some unconnected audio input */
+@@ -181,10 +189,8 @@ static void mute_input(struct saa7134_de
+ 	    dev->hw_input == in)
+ 		return;
+ 
+-#if 0
+ 	dprintk("ctl_mute=%d automute=%d input=%s  =>  mute=%d input=%s\n",
+ 		dev->ctl_mute,dev->automute,dev->input->name,mute,in->name);
+-#endif
+ 	dev->hw_mute  = mute;
+ 	dev->hw_input = in;
+ 
+@@ -280,19 +286,32 @@ static int tvaudio_checkcarrier(struct s
+ {
+ 	__s32 left,right,value;
+ 	
+-	tvaudio_setcarrier(dev,carrier-100,carrier-100);
+-	if (tvaudio_sleep(dev,HZ/10))
++	if (audio_debug > 1) {
++		int i;
++		dprintk("debug %d:",carrier);
++		for (i = -150; i <= 150; i += 30) {
++			tvaudio_setcarrier(dev,carrier+i,carrier+i);
++			saa_readl(SAA7134_LEVEL_READOUT1 >> 2);
++			if (tvaudio_sleep(dev,SCAN_SAMPLE_DELAY))
+ 		return -1;
+-	left = saa_readl(SAA7134_LEVEL_READOUT1 >> 2);
+-	if (tvaudio_sleep(dev,HZ/10))
++			value = saa_readl(SAA7134_LEVEL_READOUT1 >> 2);
++			if (0 == i)
++				printk("  #  %6d  # ",value >> 16);
++			else
++				printk(" %6d",value >> 16);
++		}
++		printk("\n");
++	}
++	
++	tvaudio_setcarrier(dev,carrier-90,carrier-90);
++	saa_readl(SAA7134_LEVEL_READOUT1 >> 2);
++	if (tvaudio_sleep(dev,SCAN_SAMPLE_DELAY))
+ 		return -1;
+ 	left = saa_readl(SAA7134_LEVEL_READOUT1 >> 2);
+ 
+-	tvaudio_setcarrier(dev,carrier+100,carrier+100);
+-	if (tvaudio_sleep(dev,HZ/10))
+-		return -1;
+-        right = saa_readl(SAA7134_LEVEL_READOUT1 >> 2);
+-	if (tvaudio_sleep(dev,HZ/10))
++	tvaudio_setcarrier(dev,carrier+90,carrier+90);
++	saa_readl(SAA7134_LEVEL_READOUT1 >> 2);
++	if (tvaudio_sleep(dev,SCAN_SAMPLE_DELAY))
+ 		return -1;
+ 	right = saa_readl(SAA7134_LEVEL_READOUT1 >> 2);
+ 
+@@ -322,7 +341,7 @@ static void sifdebug_dump_regs(struct sa
+ }
+ #endif
+ 
+-int tvaudio_getstereo(struct saa7134_dev *dev, struct saa7134_tvaudio *audio)
++static int tvaudio_getstereo(struct saa7134_dev *dev, struct saa7134_tvaudio *audio)
+ {
+ 	__u32 idp,nicam;
+ 	int retval = -1;
+@@ -368,6 +387,43 @@ int tvaudio_getstereo(struct saa7134_dev
+ 	return retval;
+ }
+ 
++static int tvaudio_setstereo(struct saa7134_dev *dev, struct saa7134_tvaudio *audio,
++			     u32 mode)
++{
++	static char *name[] = {
++		[ V4L2_TUNER_MODE_MONO   ] = "mono",
++		[ V4L2_TUNER_MODE_STEREO ] = "stereo",
++		[ V4L2_TUNER_MODE_LANG1  ] = "lang1",
++		[ V4L2_TUNER_MODE_LANG2  ] = "lang2",
++	};
++	static u32 fm[] = {
++		[ V4L2_TUNER_MODE_MONO   ] = 0x00,  /* ch1  */
++		[ V4L2_TUNER_MODE_STEREO ] = 0x80,  /* auto */
++		[ V4L2_TUNER_MODE_LANG1  ] = 0x00,  /* ch1  */
++		[ V4L2_TUNER_MODE_LANG2  ] = 0x01,  /* ch2  */
++	};
++	u32 reg;
++
++	switch (audio->mode) {
++	case TVAUDIO_FM_MONO:
++		/* nothing to do ... */
++		break;
++	case TVAUDIO_FM_K_STEREO:
++	case TVAUDIO_FM_BG_STEREO:
++		dprintk("setstereo [fm] => %s\n",
++			name[ mode % ARRAY_SIZE(name) ]);
++		reg = fm[ mode % ARRAY_SIZE(fm) ];
++		saa_writeb(SAA7134_FM_DEMATRIX, reg);
++		break;
++	case TVAUDIO_FM_SAT_STEREO:
++	case TVAUDIO_NICAM_AM:
++	case TVAUDIO_NICAM_FM:
++		/* FIXME */
++		break;
++	}
++	return 0;
++}
++
+ static int tvaudio_thread(void *data)
+ {
+ #define MAX_SCAN 4
+@@ -379,7 +435,7 @@ static int tvaudio_thread(void *data)
+ 	const int *carr_scan;
+ 	int carr_vals[4];
+ 	unsigned int i, audio;
+-	int max,carrier;
++	int max1,max2,carrier,rx,mode;
+ 
+ 	lock_kernel();
+ #if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,61)
+@@ -407,10 +463,10 @@ static int tvaudio_thread(void *data)
+ 		dev->tvaudio  = NULL;
+ 		tvaudio_init(dev);
+ 		dev->automute = 1;
+-		mute_input(dev);
++		mute_input_7134(dev);
+ 
+ 		/* give the tuner some time */
+-		if (tvaudio_sleep(dev,HZ/2))
++		if (tvaudio_sleep(dev,SCAN_INITIAL_DELAY))
+ 			goto restart;
+ 
+ 		/* find the main carrier */
+@@ -430,25 +486,46 @@ static int tvaudio_thread(void *data)
+ 			if (dev->thread.scan1 != dev->thread.scan2)
+ 				goto restart;
+ 		}
+-		for (carrier = 0, max = 0, i = 0; i < MAX_SCAN; i++) {
++		for (carrier = 0, max1 = 0, max2 = 0, i = 0; i < MAX_SCAN; i++) {
+ 			if (!carr_scan[i])
+ 				continue;
+-			if (max < carr_vals[i]) {
+-				max = carr_vals[i];
++			if (max1 < carr_vals[i]) {
++				max2 = max1;
++				max1 = carr_vals[i];
+ 				carrier = carr_scan[i];
++			} else if (max2 < carr_vals[i]) {
++				max2 = carr_vals[i];
+ 			}
+ 		}
+-		if (0 == carrier) {
+-			/* Oops: autoscan didn't work for some reason :-/ */
+-			printk(KERN_WARNING "%s/audio: oops: audio carrier "
+-			       "scan failed\n", dev->name);
++
++		if (0 != carrier && max1 > 2000 && max1 > max2*3) {
++			/* found good carrier */
++			dprintk("found %s main sound carrier @ %d.%03d MHz [%d/%d]\n",
++				dev->tvnorm->name, carrier/1000, carrier%1000,
++				max1, max2);
++			dev->last_carrier = carrier;
++		} else if (0 != audio_carrier) {
++			/* no carrier -- try insmod option as fallback */
++			carrier = audio_carrier;
++			printk(KERN_WARNING "%s/audio: audio carrier scan failed, "
++			       "using %d.%03d MHz [insmod option]\n",
++			       dev->name, carrier/1000, carrier%1000);
++		} else if (0 != dev->last_carrier) {
++			/* no carrier -- try last detected one as fallback */
++			carrier = dev->last_carrier;
++			printk(KERN_WARNING "%s/audio: audio carrier scan failed, "
++			       "using %d.%03d MHz [last detected]\n",
++			       dev->name, carrier/1000, carrier%1000);
+ 		} else {
+-			dprintk("found %s main sound carrier @ %d.%03d MHz\n",
+-				dev->tvnorm->name,
+-				carrier/1000,carrier%1000);
++			/* no carrier + no fallback -- try first in list */
++			carrier = carr_scan[0];
++			printk(KERN_WARNING "%s/audio: audio carrier scan failed, "
++			       "using %d.%03d MHz [default]\n",
++			       dev->name, carrier/1000, carrier%1000);
+ 		}
+ 		tvaudio_setcarrier(dev,carrier,carrier);
+ 		dev->automute = 0;
++		saa_andorb(SAA7134_STEREO_DAC_OUTPUT_SELECT, 0x30, 0x00);
+ 		saa7134_tvaudio_setmute(dev);
+ 
+ 		/* find the exact tv audio norm */
+@@ -469,16 +546,26 @@ static int tvaudio_thread(void *data)
+ 				break;
+ 			}
+ 		}
++		saa_andorb(SAA7134_STEREO_DAC_OUTPUT_SELECT, 0x30, 0x30);
+ 		if (UNSET == audio)
+ 			continue;
+ 		tvaudio_setmode(dev,&tvaudio[audio],"using");
++		tvaudio_setstereo(dev,&tvaudio[audio],V4L2_TUNER_MODE_MONO);
+ 		dev->tvaudio = &tvaudio[audio];
+ 
+-#if 1
++		for (;;) {
+ 		if (tvaudio_sleep(dev,3*HZ))
+-			goto restart;
+-		tvaudio_getstereo(dev,&tvaudio[i]);
+-#endif
++				break;
++			if (dev->thread.exit || signal_pending(current))
++				break;
++			if (UNSET == dev->thread.mode) {
++				rx = tvaudio_getstereo(dev,&tvaudio[i]);
++				mode = saa7134_tvaudio_rx2mode(rx);
++			} else {
++				mode = dev->thread.mode;
++			}
++			tvaudio_setstereo(dev,&tvaudio[audio],mode);
++		}
+ 	}
+ 
+  done:
+@@ -493,9 +580,9 @@ static int tvaudio_thread(void *data)
+ 
+ static char *stdres[0x20] = {
+ 	[0x00] = "no standard detected",
+-	[0x01] = "B/G [in progress]",
+-	[0x02] = "D/K [in progress]",
+-	[0x03] = "M [in progress]",
++	[0x01] = "B/G (in progress)",
++	[0x02] = "D/K (in progress)",
++	[0x03] = "M (in progress)",
+ 
+ 	[0x04] = "B/G A2",
+ 	[0x05] = "B/G NICAM",
+@@ -519,8 +606,8 @@ static char *stdres[0x20] = {
+ 	[0x1f] = "??? [in progress]",
+ };
+ 
+-#define DSP_RETRY 10
+-#define DSP_DELAY 10
++#define DSP_RETRY 16
++#define DSP_DELAY 16
+ 
+ static inline int saa_dsp_wait_bit(struct saa7134_dev *dev, int bit)
+ {
+@@ -534,7 +621,12 @@ static inline int saa_dsp_wait_bit(struc
+ 	}
+ 	while (0 == (state & bit)) {
+ 		if (unlikely(0 == count)) {
+-			printk("%s: dsp access wait timeout\n",dev->name);
++			printk("%s: dsp access wait timeout [bit=%s]\n",
++			       dev->name,
++			       (bit & SAA7135_DSP_RWSTATE_WRR) ? "WRR" :
++			       (bit & SAA7135_DSP_RWSTATE_RDB) ? "RDB" :
++			       (bit & SAA7135_DSP_RWSTATE_IDA) ? "IDA" :
++			       "???");
+ 			return -EIO;
+ 		}
+ 		saa_wait(DSP_DELAY);
+@@ -544,27 +636,30 @@ static inline int saa_dsp_wait_bit(struc
+ 	return 0;
+ }
+ 
+-int saa_dsp_readl(struct saa7134_dev *dev, int reg, u32 *value)
++#if 0
++static int saa_dsp_readl(struct saa7134_dev *dev, int reg, u32 *value)
+ {
+ 	int err;
+ 
+-	dprintk("dsp read 0x%x\n",reg<<2);
++	d2printk("dsp read reg 0x%x\n", reg<<2);
+ 	saa_readl(reg);
+ 	err = saa_dsp_wait_bit(dev,SAA7135_DSP_RWSTATE_RDB);
+ 	if (err < 0)
+ 		return err;
+ 	*value = saa_readl(reg);
++	d2printk("dsp read   => 0x%06x\n", *value & 0xffffff);
+ 	err = saa_dsp_wait_bit(dev,SAA7135_DSP_RWSTATE_IDA);
+ 	if (err < 0)
+ 		return err;
+ 	return 0;
+ }
++#endif
+ 
+ int saa_dsp_writel(struct saa7134_dev *dev, int reg, u32 value)
+ {
+ 	int err;
+ 
+-	dprintk("dsp write 0x%x\n",reg<<2);
++	d2printk("dsp write reg 0x%x = 0x%06x\n",reg<<2,value);
+ 	err = saa_dsp_wait_bit(dev,SAA7135_DSP_RWSTATE_WRR);
+ 	if (err < 0)
+ 		return err;
+@@ -575,6 +670,34 @@ int saa_dsp_writel(struct saa7134_dev *d
+ 	return 0;
+ }
+ 
++static int getstereo_7133(struct saa7134_dev *dev)
++{
++	int retval = V4L2_TUNER_SUB_MONO;
++	u32 value;
++
++	value = saa_readl(0x528 >> 2);
++	if (value & 0x20)
++		retval = V4L2_TUNER_SUB_MONO | V4L2_TUNER_SUB_STEREO;
++	if (value & 0x40)
++		retval = V4L2_TUNER_SUB_LANG1 | V4L2_TUNER_SUB_LANG2;
++	return retval;
++}
++
++static int mute_input_7133(struct saa7134_dev *dev)
++{
++	u32 reg = 0;
++	
++	switch (dev->input->amux) {
++	case TV:    reg = 0x02; break;
++	case LINE1: reg = 0x00; break;
++	case LINE2: reg = 0x01; break;
++	}
++	if (dev->ctl_mute)
++		reg = 0x07;
++	saa_writel(0x594 >> 2, reg);
++	return 0;
++}
++
+ static int tvaudio_thread_ddep(void *data)
+ {
+ 	struct saa7134_dev *dev = data;
+@@ -593,6 +716,10 @@ static int tvaudio_thread_ddep(void *dat
+ 	if (dev->thread.notify != NULL)
+ 		up(dev->thread.notify);
+ 
++	/* unmute */
++	saa_dsp_writel(dev, 0x474 >> 2, 0x00);
++	saa_dsp_writel(dev, 0x450 >> 2, 0x00);
++
+ 	for (;;) {
+ 		if (dev->thread.exit || signal_pending(current))
+ 			goto done;
+@@ -615,19 +742,38 @@ static int tvaudio_thread_ddep(void *dat
+ 			norms = 0x0000007c;
+ 
+ 		/* quick & dirty -- to be fixed up later ... */
+-		saa_writel(0x588 >> 2, 0x00000fff);
+-		saa_writel(0x58c >> 2, 0x23543210);
+-		saa_writel(0x594 >> 2, 0x00000002);
+-		saa_dsp_writel(dev, 0x454 >> 2, norms);
+-		saa_dsp_writel(dev, 0x464 >> 2, 0x00000000);
+-		saa_dsp_writel(dev, 0x46c >> 2, 0x00bbbb10);
+-		saa_dsp_writel(dev, 0x470 >> 2, 0x00101010);
++		saa_dsp_writel(dev, 0x454 >> 2, 0);
++		saa_dsp_writel(dev, 0x454 >> 2, norms | 0x80);
++		saa_dsp_writel(dev, 0x464 >> 2, 0x000000);
++		saa_dsp_writel(dev, 0x470 >> 2, 0x101010);
+ 
+ 		if (tvaudio_sleep(dev,3*HZ))
+ 			goto restart;
+-		saa_dsp_readl(dev, 0x428 >> 2, &value);
+-		dprintk("tvaudio thread status: 0x%x [%s]\n",
+-			value, stdres[value & 0x1f]);
++		value = saa_readl(0x528 >> 2) & 0xffffff;
++
++		dprintk("tvaudio thread status: 0x%x [%s%s%s]\n",
++			value, stdres[value & 0x1f],
++			(value & 0x000020) ? ",stereo" : "",
++			(value & 0x000040) ? ",dual"   : "");
++		dprintk("detailed status: "
++			"%s#%s#%s#%s#%s#%s#%s#%s#%s#%s#%s#%s#%s#%s\n",
++			(value & 0x000080) ? " A2/EIAJ pilot tone "     : "",
++			(value & 0x000100) ? " A2/EIAJ dual "           : "",
++			(value & 0x000200) ? " A2/EIAJ stereo "         : "",
++			(value & 0x000400) ? " A2/EIAJ noise mute "     : "",
++
++			(value & 0x000800) ? " BTSC/FM radio pilot "    : "",
++			(value & 0x001000) ? " SAP carrier "            : "",
++			(value & 0x002000) ? " BTSC stereo noise mute " : "",
++			(value & 0x004000) ? " SAP noise mute "         : "",
++			(value & 0x008000) ? " VDSP "                   : "",
++			
++			(value & 0x010000) ? " NICST "                  : "",
++			(value & 0x020000) ? " NICDU "                  : "",
++			(value & 0x040000) ? " NICAM muted "            : "",
++			(value & 0x080000) ? " NICAM reserve sound "    : "",
++			
++			(value & 0x100000) ? " init done "              : "");
+ 	}
+ 
+  done:
+@@ -640,12 +786,30 @@ static int tvaudio_thread_ddep(void *dat
+ /* ------------------------------------------------------------------ */
+ /* common stuff + external entry points                               */
+ 
++int saa7134_tvaudio_rx2mode(u32 rx)
++{
++	u32 mode;
++	
++	mode = V4L2_TUNER_MODE_MONO;
++	if (rx & V4L2_TUNER_SUB_STEREO)
++		mode = V4L2_TUNER_MODE_STEREO;
++	else if (rx & V4L2_TUNER_SUB_LANG1)
++		mode = V4L2_TUNER_MODE_LANG1;
++	else if (rx & V4L2_TUNER_SUB_LANG2)
++		mode = V4L2_TUNER_MODE_LANG2;
++	return mode;
++}
++	
+ void saa7134_tvaudio_setmute(struct saa7134_dev *dev)
+ {
+ 	switch (dev->pci->device) {
+ 	case PCI_DEVICE_ID_PHILIPS_SAA7130:
+ 	case PCI_DEVICE_ID_PHILIPS_SAA7134:
+-		mute_input(dev);
++		mute_input_7134(dev);
++		break;
++	case PCI_DEVICE_ID_PHILIPS_SAA7133:
++	case PCI_DEVICE_ID_PHILIPS_SAA7135:
++		mute_input_7133(dev);
+ 		break;
+ 	}
+ }
+@@ -657,7 +821,11 @@ void saa7134_tvaudio_setinput(struct saa
+ 	switch (dev->pci->device) {
+ 	case PCI_DEVICE_ID_PHILIPS_SAA7130:
+ 	case PCI_DEVICE_ID_PHILIPS_SAA7134:
+-		mute_input(dev);
++		mute_input_7134(dev);
++		break;
++	case PCI_DEVICE_ID_PHILIPS_SAA7133:
++	case PCI_DEVICE_ID_PHILIPS_SAA7135:
++		mute_input_7133(dev);
+ 		break;
+ 	}
+ }
+@@ -673,21 +841,28 @@ void saa7134_tvaudio_setvolume(struct sa
+ 	}
+ }
+ 
+-int saa7134_tvaudio_getstereo(struct saa7134_dev *dev,
+-			      struct saa7134_tvaudio *audio)
++int saa7134_tvaudio_getstereo(struct saa7134_dev *dev)
+ {
++	int retval = V4L2_TUNER_SUB_MONO;
++
+ 	switch (dev->pci->device) {
+ 	case PCI_DEVICE_ID_PHILIPS_SAA7134:
+-		return tvaudio_getstereo(dev,audio);
++		if (dev->tvaudio)
++			retval = tvaudio_getstereo(dev,dev->tvaudio);
++		break;
++	case PCI_DEVICE_ID_PHILIPS_SAA7133:
++	case PCI_DEVICE_ID_PHILIPS_SAA7135:
++		retval = getstereo_7133(dev);
+ 		break;
+ 	}
+-	return 0;
++	return retval;
+ }
+ 
+ int saa7134_tvaudio_init(struct saa7134_dev *dev)
+ {
+ 	DECLARE_MUTEX_LOCKED(sem);
+ 	int (*my_thread)(void *data) = NULL;
++	int rc;
+ 
+ 	/* enable I2S audio output */
+ 	if (saa7134_boards[dev->board].i2s_rate) {
+@@ -718,7 +893,11 @@ int saa7134_tvaudio_init(struct saa7134_
+ 		/* start tvaudio thread */
+ 		init_waitqueue_head(&dev->thread.wq);
+ 		dev->thread.notify = &sem;
+-		kernel_thread(my_thread,dev,0);
++		rc = kernel_thread(my_thread,dev,0);
++		if (rc < 0)
++			printk(KERN_WARNING "%s: kernel_thread() failed\n",
++			       dev->name);
++		else
+ 		down(&sem);
+ 		dev->thread.notify = NULL;
+ 		wake_up_interruptible(&dev->thread.wq);
+@@ -746,6 +925,7 @@ int saa7134_tvaudio_fini(struct saa7134_
+ int saa7134_tvaudio_do_scan(struct saa7134_dev *dev)
+ {
+ 	if (dev->thread.task) {
++		dev->thread.mode = UNSET;
+ 		dev->thread.scan2++;
+ 		wake_up_interruptible(&dev->thread.wq);
+ 	} else {
+diff -Nurp -X /Data/dontdiff 5mdk/drivers/media/video/saa7134-vbi.c patched/drivers/media/video/saa7134-vbi.c
+--- 5mdk/drivers/media/video/saa7134-vbi.c	2003-08-15 12:22:46.000000000 +0300
++++ patched/drivers/media/video/saa7134-vbi.c	2003-08-16 16:10:01.000000000 +0300
+@@ -19,8 +19,6 @@
+  *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+  */
+ 
+-#define __NO_VERSION__ 1
+-
+ #include <linux/init.h>
+ #include <linux/list.h>
+ #include <linux/module.h>
+@@ -244,7 +242,7 @@ void saa7134_irq_vbi_done(struct saa7134
+ 	if (dev->vbi_q.curr) {
+ 		dev->vbi_fieldcount++;
+ 		/* make sure we have seen both fields */
+-		if ((status & 0x10) == 0) {
++		if ((status & 0x10) == 0x00) {
+ 			dev->vbi_q.curr->top_seen = 1;
+ 			goto done;
+ 		}
+diff -Nurp -X /Data/dontdiff 5mdk/drivers/media/video/saa7134-video.c patched/drivers/media/video/saa7134-video.c
+--- 5mdk/drivers/media/video/saa7134-video.c	2003-08-15 12:22:46.000000000 +0300
++++ patched/drivers/media/video/saa7134-video.c	2003-08-16 16:10:01.000000000 +0300
+@@ -2,7 +2,7 @@
+  * device driver for philips saa7134 based TV cards
+  * video4linux video interface
+  *
+- * (c) 2001,02 Gerd Knorr <kraxel@bytesex.org> [SuSE Labs]
++ * (c) 2001-03 Gerd Knorr <kraxel@bytesex.org> [SuSE Labs]
+  *
+  *  This program is free software; you can redistribute it and/or modify
+  *  it under the terms of the GNU General Public License as published by
+@@ -19,8 +19,6 @@
+  *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+  */
+ 
+-#define __NO_VERSION__ 1
+-
+ #include <linux/init.h>
+ #include <linux/list.h>
+ #include <linux/module.h>
+@@ -149,8 +147,9 @@ static struct saa7134_tvnorm tvnorms[] =
+ 		.h_stop        = 719,
+ 		.video_v_start = 24,
+ 		.video_v_stop  = 311,
+-		.vbi_v_start   = 7-3,  /* FIXME */
+-		.vbi_v_stop    = 22-3,
++		.vbi_v_start   = 7,
++		.vbi_v_stop    = 22,
++		.src_timing    = 4,
+ 	},{
+ 		.name          = "NTSC",
+ 		.id            = V4L2_STD_NTSC,
+@@ -170,6 +169,7 @@ static struct saa7134_tvnorm tvnorms[] =
+ 		.video_v_stop  = 22+240,
+ 		.vbi_v_start   = 10, /* FIXME */
+ 		.vbi_v_stop    = 21, /* FIXME */
++		.src_timing    = 1,
+ 	},{
+ 		.name          = "SECAM",
+ 		.id            = V4L2_STD_SECAM,
+@@ -189,6 +189,47 @@ static struct saa7134_tvnorm tvnorms[] =
+ 		.video_v_stop  = 311,
+ 		.vbi_v_start   = 7,
+ 		.vbi_v_stop    = 22,
++		.src_timing    = 4,
++	},{
++		.name          = "PAL-M",
++		.id            = V4L2_STD_PAL_M,
++		.width         = 720,
++		.height        = 480,
++
++		.sync_control  = 0x59,
++		.luma_control  = 0x40,
++		.chroma_ctrl1  = 0xb9,
++		.chroma_gain   = 0x2a,
++		.chroma_ctrl2  = 0x0e,
++		.vgate_misc    = 0x18,
++
++		.h_start       = 0,
++		.h_stop        = 719,
++		.video_v_start = 22,
++		.video_v_stop  = 22+240,
++		.vbi_v_start   = 10, /* FIXME */
++		.vbi_v_stop    = 21, /* FIXME */
++		.src_timing    = 1,
++	},{
++		.name          = "PAL-Nc",
++		.id            = V4L2_STD_PAL_Nc,
++		.width         = 720,
++		.height        = 576,
++
++		.sync_control  = 0x18,
++		.luma_control  = 0x40,
++		.chroma_ctrl1  = 0xa1,
++		.chroma_gain   = 0x2a,
++		.chroma_ctrl2  = 0x06,
++		.vgate_misc    = 0x1c,
++
++		.h_start       = 0,
++		.h_stop        = 719,
++		.video_v_start = 24,
++		.video_v_stop  = 311,
++		.vbi_v_start   = 7,
++		.vbi_v_stop    = 22,
++		.src_timing    = 4,
+ #if 0
+ 	},{
+ 		.name          = "AUTO",
+@@ -209,6 +250,7 @@ static struct saa7134_tvnorm tvnorms[] =
+ 		.video_v_stop  = 311,
+ 		.vbi_v_start   = 7,
+ 		.vbi_v_stop    = 22,
++		.src_timing    = 4,
+ #endif
+ 	}
+ };
+@@ -398,6 +440,7 @@ static void set_tvnorm(struct saa7134_de
+ 	saa_writeb(SAA7134_ANALOG_IN_CTRL4,       0x90);
+ 	saa_writeb(SAA7134_HSYNC_START,           0xeb);
+ 	saa_writeb(SAA7134_HSYNC_STOP,            0xe0);
++	saa_writeb(SAA7134_SOURCE_TIMING1,        norm->src_timing);
+ 
+ 	saa_writeb(SAA7134_SYNC_CTRL,             norm->sync_control);
+ 	saa_writeb(SAA7134_LUMA_CTRL,             luma_control);
+@@ -1145,7 +1188,9 @@ static int video_open(struct inode *inod
+ 
+ 	if (fh->radio) {
+ 		/* switch to radio mode */
++		u32 v = 400*16;
+ 		saa7134_tvaudio_setinput(dev,&card(dev).radio);
++		saa7134_i2c_call_clients(dev,VIDIOCSFREQ,&v);
+ 		saa7134_i2c_call_clients(dev,AUDC_SET_RADIO,NULL);
+ 	} else {
+ 		/* switch to video/vbi mode */
+@@ -1270,6 +1315,29 @@ video_mmap(struct file *file, struct vm_
+ 
+ /* ------------------------------------------------------------------ */
+ 
++void saa7134_vbi_fmt(struct saa7134_dev *dev, struct v4l2_format *f)
++{
++	struct saa7134_tvnorm *norm = dev->tvnorm;
++
++	f->fmt.vbi.sampling_rate = 6750000 * 4;
++	f->fmt.vbi.samples_per_line = 2048 /* VBI_LINE_LENGTH */;
++	f->fmt.vbi.sample_format = V4L2_PIX_FMT_GREY;
++	f->fmt.vbi.offset = 64 * 4;
++	f->fmt.vbi.start[0] = norm->vbi_v_start;
++	f->fmt.vbi.count[0] = norm->vbi_v_stop - norm->vbi_v_start +1;
++	f->fmt.vbi.start[1] = norm->video_v_stop + norm->vbi_v_start +1;
++	f->fmt.vbi.count[1] = f->fmt.vbi.count[0];
++	f->fmt.vbi.flags = 0; /* VBI_UNSYNC VBI_INTERLACED */;
++
++#if 0
++	if (V4L2_STD_PAL == norm->id) {
++		/* FIXME */
++		f->fmt.vbi.start[0] += 3;
++		f->fmt.vbi.start[1] += 3*2;
++	}
++#endif
++}
++
+ int saa7134_g_fmt(struct saa7134_dev *dev, struct saa7134_fh *fh,
+ 		  struct v4l2_format *f)
+ {
+@@ -1289,20 +1357,8 @@ int saa7134_g_fmt(struct saa7134_dev *de
+ 		f->fmt.win = fh->win;
+ 		return 0;
+ 	case V4L2_BUF_TYPE_VBI_CAPTURE:
+-	{
+-		struct saa7134_tvnorm *norm = fh->dev->tvnorm;
+-			
+-		f->fmt.vbi.sampling_rate = 6750000 * 4;
+-		f->fmt.vbi.samples_per_line = 2048 /* VBI_LINE_LENGTH */;
+-		f->fmt.vbi.sample_format = V4L2_PIX_FMT_GREY;
+-		f->fmt.vbi.offset = 64 * 4;
+-		f->fmt.vbi.start[0] = norm->vbi_v_start;
+-		f->fmt.vbi.count[0] = norm->vbi_v_stop - norm->vbi_v_start +1;
+-		f->fmt.vbi.start[1] = norm->video_v_stop + norm->vbi_v_start + 1;
+-		f->fmt.vbi.count[1] = f->fmt.vbi.count[0];
+-		f->fmt.vbi.flags = 0; /* VBI_UNSYNC VBI_INTERLACED */;
++		saa7134_vbi_fmt(dev,f);
+ 		return 0;
+-	}
+ 	default:
+ 		return -EINVAL;
+ 	}
+@@ -1365,6 +1421,9 @@ int saa7134_try_fmt(struct saa7134_dev *
+ 		if (0 != err)
+ 			return err;
+ 		return 0;
++	case V4L2_BUF_TYPE_VBI_CAPTURE:
++		saa7134_vbi_fmt(dev,f);
++		return 0;
+ 	default:
+ 		return -EINVAL;
+ 	}
+@@ -1412,6 +1471,9 @@ int saa7134_s_fmt(struct saa7134_dev *de
+ 		up(&dev->lock);
+ 		return 0;
+ 		break;
++	case V4L2_BUF_TYPE_VBI_CAPTURE:
++		saa7134_vbi_fmt(dev,f);
++		return 0;
+ 	default:
+ 		return -EINVAL;
+ 	}
+@@ -1439,7 +1501,7 @@ static int video_do_ioctl(struct inode *
+ 		
+ 		memset(cap,0,sizeof(*cap));
+                 strcpy(cap->driver, "saa7134");
+-		strncpy(cap->card, saa7134_boards[dev->board].name,
++		strlcpy(cap->card, saa7134_boards[dev->board].name,
+ 			sizeof(cap->card));
+ 		sprintf(cap->bus_info,"PCI:%s",dev->pci->slot_name);
+ 		cap->version = SAA7134_VERSION_CODE;
+@@ -1572,22 +1634,8 @@ static int video_do_ioctl(struct inode *
+ 				V4L2_TUNER_CAP_LANG1 |
+ 				V4L2_TUNER_CAP_LANG2;
+ 			t->rangehigh = 0xffffffffUL;
+-			t->rxsubchans = -1;
+-			if (dev->tvaudio)
+-				t->rxsubchans = saa7134_tvaudio_getstereo
+-					(dev,dev->tvaudio);
+-			if (UNSET == t->rxsubchans)
+-				t->rxsubchans = V4L2_TUNER_SUB_MONO;
+-#if 1
+-			/* fill audmode -- FIXME: allow manual switching */
+-			t->audmode = V4L2_TUNER_MODE_MONO;
+-			if (t->rxsubchans & V4L2_TUNER_SUB_STEREO)
+-				t->audmode = V4L2_TUNER_MODE_STEREO;
+-			else if (t->rxsubchans & V4L2_TUNER_SUB_LANG1)
+-				t->audmode = V4L2_TUNER_MODE_LANG1;
+-			else if (t->rxsubchans & V4L2_TUNER_SUB_LANG2)
+-				t->audmode = V4L2_TUNER_MODE_LANG2;
+-#endif
++			t->rxsubchans = saa7134_tvaudio_getstereo(dev);
++			t->audmode = saa7134_tvaudio_rx2mode(t->rxsubchans);
+ 		}
+ 		if (0 != (saa_readb(SAA7134_STATUS_VIDEO1) & 0x03))
+ 			t->signal = 0xffff;
+@@ -1595,9 +1643,17 @@ static int video_do_ioctl(struct inode *
+ 	}
+ 	case VIDIOC_S_TUNER:
+ 	{
+-#if 0
+ 		struct v4l2_tuner *t = arg;
+-#endif
++		int rx,mode;
++
++		mode = dev->thread.mode;
++		if (UNSET == mode) {
++			rx   = saa7134_tvaudio_getstereo(dev);
++			mode = saa7134_tvaudio_rx2mode(t->rxsubchans);
++		}
++		if (mode != t->audmode) {
++			dev->thread.mode = t->audmode;
++		}
+ 		return 0;
+ 	}
+ 	case VIDIOC_G_FREQUENCY:
+@@ -1685,7 +1741,7 @@ static int video_do_ioctl(struct inode *
+ 			memset(f,0,sizeof(*f));
+ 			f->index = index;
+ 			f->type  = type;
+-			strncpy(f->description,formats[index].name,31);
++			strlcpy(f->description,formats[index].name,sizeof(f->description));
+ 			f->pixelformat = formats[index].fourcc;
+ 			break;
+ 		case V4L2_BUF_TYPE_VBI_CAPTURE:
+@@ -1853,7 +1909,7 @@ static int radio_do_ioctl(struct inode *
+ 
+ 		memset(cap,0,sizeof(*cap));
+                 strcpy(cap->driver, "saa7134");
+-		strncpy(cap->card, saa7134_boards[dev->board].name,
++		strlcpy(cap->card, saa7134_boards[dev->board].name,
+ 			sizeof(cap->card));
+ 		sprintf(cap->bus_info,"PCI:%s",dev->pci->slot_name);
+ 		cap->version = SAA7134_VERSION_CODE;
+@@ -1899,9 +1955,16 @@ static int radio_do_ioctl(struct inode *
+ 		strcpy(a->name,"Radio");
+ 		return 0;
+ 	}
++	case VIDIOC_G_STD:
++	{
++		v4l2_std_id *id = arg;
++		*id = 0;
++		return 0;
++	}
+ 	case VIDIOC_S_AUDIO:
+ 	case VIDIOC_S_TUNER:
+ 	case VIDIOC_S_INPUT:
++	case VIDIOC_S_STD:
+ 		return 0;
+ 
+ 	case VIDIOC_QUERYCTRL:
+@@ -2075,7 +2138,7 @@ void saa7134_irq_video_done(struct saa71
+ 		
+ 		if (V4L2_FIELD_HAS_BOTH(field)) {
+ 			/* make sure we have seen both fields */
+-			if ((status & 0x10) == 0x10) {
++			if ((status & 0x10) == 0x00) {
+ 				dev->video_q.curr->top_seen = 1;
+ 				goto done;
+ 			}
+diff -Nurp -X /Data/dontdiff 5mdk/drivers/media/video/tda7432.c patched/drivers/media/video/tda7432.c
+--- 5mdk/drivers/media/video/tda7432.c	2003-08-15 12:22:40.000000000 +0300
++++ patched/drivers/media/video/tda7432.c	2003-08-16 16:10:01.000000000 +0300
+@@ -313,8 +313,12 @@ static void do_tda7432_init(struct i2c_c
+  * i2c interface functions *
+  * *********************** */
+ 
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,0)
++static int tda7432_attach(struct i2c_adapter *adap, int addr, int kind)
++#else
+ static int tda7432_attach(struct i2c_adapter *adap, int addr,
+ 			  unsigned short flags, int kind)
++#endif
+ {
+ 	struct tda7432 *t;
+ 	struct i2c_client *client;
+diff -Nurp -X /Data/dontdiff 5mdk/drivers/media/video/tda9875.c patched/drivers/media/video/tda9875.c
+--- 5mdk/drivers/media/video/tda9875.c	2003-08-15 12:22:40.000000000 +0300
++++ patched/drivers/media/video/tda9875.c	2003-08-16 16:10:01.000000000 +0300
+@@ -242,8 +242,12 @@ static int tda9875_checkit(struct i2c_ad
+ 	return(0);
+ }
+ 
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,0)
++static int tda9875_attach(struct i2c_adapter *adap, int addr, int kind)
++#else
+ static int tda9875_attach(struct i2c_adapter *adap, int addr,
+ 			  unsigned short flags, int kind)
++#endif
+ {
+ 	struct tda9875 *t;
+ 	struct i2c_client *client;
+diff -Nurp -X /Data/dontdiff 5mdk/drivers/media/video/tda9887.c patched/drivers/media/video/tda9887.c
+--- 5mdk/drivers/media/video/tda9887.c	2003-08-15 12:22:47.000000000 +0300
++++ patched/drivers/media/video/tda9887.c	2003-08-16 16:10:01.000000000 +0300
+@@ -344,8 +344,12 @@ static int tda9887_configure(struct tda9
+ 
+ /* ---------------------------------------------------------------------- */
+ 
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,0)
++static int tda9887_attach(struct i2c_adapter *adap, int addr, int kind)
++#else
+ static int tda9887_attach(struct i2c_adapter *adap, int addr,
+ 			  unsigned short flags, int kind)
++#endif
+ {
+ 	struct tda9887 *t;
+ 
+diff -Nurp -X /Data/dontdiff 5mdk/drivers/media/video/tuner.c patched/drivers/media/video/tuner.c
+--- 5mdk/drivers/media/video/tuner.c	2003-08-15 12:22:04.000000000 +0300
++++ patched/drivers/media/video/tuner.c	2003-08-16 16:10:01.000000000 +0300
+@@ -798,8 +798,12 @@ static void set_radio_freq(struct i2c_cl
+ 
+ /* ---------------------------------------------------------------------- */
+ 
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,0)
++static int tuner_attach(struct i2c_adapter *adap, int addr, int kind)
++#else
+ static int tuner_attach(struct i2c_adapter *adap, int addr,
+ 			unsigned short flags, int kind)
++#endif
+ {
+ 	struct tuner *t;
+ 	struct i2c_client *client;
+diff -Nurp -X /Data/dontdiff 5mdk/drivers/media/video/tvaudio.c patched/drivers/media/video/tvaudio.c
+--- 5mdk/drivers/media/video/tvaudio.c	2003-08-15 12:22:04.000000000 +0300
++++ patched/drivers/media/video/tvaudio.c	2003-08-16 16:21:45.000000000 +0300
+@@ -1533,7 +1533,9 @@ static int chip_detach(struct i2c_client
+ 	
+ 	i2c_detach_client(&chip->c);
+ 	kfree(chip);
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
+ 	MOD_DEC_USE_COUNT;
++#endif
+ 	return 0;
+ }
+ 
+diff -Nurp -X /Data/dontdiff 5mdk/drivers/media/video/tvmixer.c patched/drivers/media/video/tvmixer.c
+--- 5mdk/drivers/media/video/tvmixer.c	2003-08-15 12:22:47.000000000 +0300
++++ patched/drivers/media/video/tvmixer.c	2003-08-16 16:10:01.000000000 +0300
+@@ -215,7 +215,12 @@ static int tvmixer_release(struct inode 
+ static struct i2c_driver driver = {
+ 	.name            = "tv card mixer driver",
+         .id              = I2C_DRIVERID_TVMIXER,
++#if LINUX_VERSION_CODE > KERNEL_VERSION(2,5,0)
++	.flags           = I2C_DF_NOTIFY,
++        .detach_adapter  = tvmixer_adapters,
++#else
+ 	.flags           = I2C_DF_DUMMY,
++#endif
+         .attach_adapter  = tvmixer_adapters,
+         .detach_client   = tvmixer_clients,
+ };
+@@ -247,6 +252,10 @@ static int tvmixer_clients(struct i2c_cl
+ 	struct video_audio va;
+ 	int i,minor;
+ 
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,54)
++	if (!(client->adapter->class & I2C_ADAP_CLASS_TV_ANALOG))
++		return -1;
++#endif
+ 	/* TV card ??? */
+ 	switch (client->adapter->id) {
+ 	case I2C_ALGO_BIT | I2C_HW_B_BT848:
+@@ -298,8 +307,13 @@ static int tvmixer_clients(struct i2c_cl
+ 	devices[i].minor = minor;
+ 	devices[i].count = 0;
+ 	devices[i].dev   = client;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,66)
++	printk("tvmixer: %s (%s) registered with minor %d\n",
++	       client->dev.name,client->adapter->dev.name,minor);
++#else
+ 	printk("tvmixer: %s (%s) registered with minor %d\n",
+ 	       client->name,client->adapter->name,minor);
++#endif
+ 	
+ 	return 0;
+ }
+diff -Nurp -X /Data/dontdiff 5mdk/drivers/media/video/v4l1-compat.c patched/drivers/media/video/v4l1-compat.c
+--- 5mdk/drivers/media/video/v4l1-compat.c	2003-08-15 12:22:46.000000000 +0300
++++ patched/drivers/media/video/v4l1-compat.c	2003-08-16 16:10:01.000000000 +0300
+@@ -127,6 +127,8 @@ set_v4l_control(struct inode            
+ 	return 0;
+ }
+ 
++/* ----------------------------------------------------------------- */
++
+ static int palette2pixelformat[] = {
+ 	[VIDEO_PALETTE_GREY]    = V4L2_PIX_FMT_GREY,
+ 	[VIDEO_PALETTE_RGB555]  = V4L2_PIX_FMT_RGB555,
+@@ -199,6 +201,8 @@ pixelformat_to_palette(int pixelformat)
+ 	return palette;
+ }
+ 
++/* ----------------------------------------------------------------- */
++
+ static int poll_one(struct file *file)
+ {
+ 	int retval = 1;
+@@ -281,6 +285,7 @@ static int check_size(struct inode      
+ 	return 0;
+ }
+ 
++/* ----------------------------------------------------------------- */
+ 
+ /*
+  *	This function is exported.
+@@ -700,15 +705,17 @@ v4l_compat_translate_ioctl(struct inode 
+ 		tun->signal = tun2.signal;
+ 		break;
+ 	}
+-#if 0 /* FIXME */
+ 	case VIDIOCSTUNER: /*  select a tuner input  */
+ 	{
++#if 0 /* FIXME */
+ 		err = drv(inode, file, VIDIOC_S_INPUT, &i);
+ 		if (err < 0)
+ 			dprintk("VIDIOCSTUNER / VIDIOC_S_INPUT: %d\n",err);
++#else
++		err = 0;
++#endif
+ 		break;
+ 	}
+-#endif
+ 	case VIDIOCGFREQ: /*  get frequency  */
+ 	{
+ 		int *freq = arg;
+@@ -944,7 +951,7 @@ v4l_compat_translate_ioctl(struct inode 
+ 		
+ 		err = drv(inode, file, VIDIOC_G_FMT, fmt2);
+ 		if (err < 0) {
+-			dprintk("VIDIOCMCAPTURE / VIDIOC_G_FMT: %d\n", err);
++			dprintk("VIDIOCGVBIFMT / VIDIOC_G_FMT: %d\n", err);
+ 			break;
+ 		}
+ 		memset(fmt, 0, sizeof(*fmt));
+@@ -955,12 +962,49 @@ v4l_compat_translate_ioctl(struct inode 
+ 		fmt->count[0]         = fmt2->fmt.vbi.count[0];
+ 		fmt->start[1]         = fmt2->fmt.vbi.start[1];
+ 		fmt->count[1]         = fmt2->fmt.vbi.count[1];
+-		if (fmt2->fmt.vbi.flags & VBI_UNSYNC)
+-			fmt->flags   |= V4L2_VBI_UNSYNC;
+-		if (fmt2->fmt.vbi.flags & VBI_INTERLACED)
+-			fmt->flags   |= V4L2_VBI_INTERLACED;
++		fmt->flags            = fmt2->fmt.vbi.flags & 0x03;
+                 break;
+ 	}
++	case VIDIOCSVBIFMT:
++	{
++		struct vbi_format      *fmt = arg;
++		
++		fmt2 = kmalloc(sizeof(*fmt2),GFP_KERNEL);
++		memset(fmt2, 0, sizeof(*fmt2));
++
++		fmt2->type = V4L2_BUF_TYPE_VBI_CAPTURE;
++		fmt2->fmt.vbi.samples_per_line = fmt->samples_per_line;
++		fmt2->fmt.vbi.sampling_rate    = fmt->sampling_rate;
++		fmt2->fmt.vbi.sample_format    = V4L2_PIX_FMT_GREY;
++		fmt2->fmt.vbi.start[0]         = fmt->start[0]; 
++		fmt2->fmt.vbi.count[0]         = fmt->count[0]; 
++		fmt2->fmt.vbi.start[1]         = fmt->start[1]; 
++		fmt2->fmt.vbi.count[1]         = fmt->count[1]; 
++		fmt2->fmt.vbi.flags            = fmt->flags;
++		err = drv(inode, file, VIDIOC_TRY_FMT, fmt2);
++		if (err < 0) {
++			dprintk("VIDIOCSVBIFMT / VIDIOC_TRY_FMT: %d\n", err);
++			break;
++		}
++
++		if (fmt2->fmt.vbi.samples_per_line != fmt->samples_per_line ||
++		    fmt2->fmt.vbi.sampling_rate    != fmt->sampling_rate    ||
++		    fmt2->fmt.vbi.sample_format    != V4L2_PIX_FMT_GREY     ||
++		    fmt2->fmt.vbi.start[0]         != fmt->start[0]         ||
++		    fmt2->fmt.vbi.count[0]         != fmt->count[0]         ||
++		    fmt2->fmt.vbi.start[1]         != fmt->start[1]         ||
++		    fmt2->fmt.vbi.count[1]         != fmt->count[1]         ||
++		    fmt2->fmt.vbi.flags            != fmt->flags) {
++			err = -EINVAL;
++			break;
++		}
++		err = drv(inode, file, VIDIOC_S_FMT, fmt2);
++		if (err < 0) {
++			dprintk("VIDIOCSVBIFMT / VIDIOC_S_FMT: %d\n", err);
++			break;
++		}
++	}
++	
+ 	default:
+ 		err = -ENOIOCTLCMD;
+ 		break;

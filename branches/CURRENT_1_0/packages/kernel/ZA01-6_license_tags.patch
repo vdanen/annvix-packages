@@ -1,0 +1,94 @@
+--- linux-2.4.20/net/ipv4/netfilter/ip_fw_compat.c.za01-5.orig	2003-04-16 04:10:57.000000000 +0200
++++ linux-2.4.20/net/ipv4/netfilter/ip_fw_compat.c	2003-04-16 04:12:05.000000000 +0200
+@@ -304,3 +304,5 @@ static void __exit fini(void)
+ 
+ module_init(init);
+ module_exit(fini);
++
++MODULE_LICENSE("GPL");
+--- linux-2.4.20/net/ipv6/netfilter/ip6t_multiport.c.za01-5.orig	2001-10-31 00:08:12.000000000 +0100
++++ linux-2.4.20/net/ipv6/netfilter/ip6t_multiport.c	2003-04-16 04:12:05.000000000 +0200
+@@ -99,3 +99,5 @@ static void __exit fini(void)
+ 
+ module_init(init);
+ module_exit(fini);
++
++MODULE_LICENSE("GPL");
+--- linux-2.4.20/drivers/net/hamradio/soundmodem/sm.c.za01-5.orig	2001-04-18 23:40:05.000000000 +0200
++++ linux-2.4.20/drivers/net/hamradio/soundmodem/sm.c	2003-04-16 04:12:05.000000000 +0200
+@@ -634,6 +634,7 @@ MODULE_PARM_DESC(midiio, "soundmodem PTT
+ 
+ MODULE_AUTHOR("Thomas M. Sailer, sailer@ife.ee.ethz.ch, hb9jnx@hb9w.che.eu");
+ MODULE_DESCRIPTION("Soundcard amateur radio modem driver");
++MODULE_LICENSE("GPL");
+ 
+ /* --------------------------------------------------------------------- */
+ 
+--- linux-2.4.20/drivers/net/natsemi_old.c.za01-5.orig	2003-04-16 04:10:57.000000000 +0200
++++ linux-2.4.20/drivers/net/natsemi_old.c	2003-04-16 04:12:05.000000000 +0200
+@@ -136,6 +136,7 @@ MODULE_PARM(debug, "i");
+ MODULE_PARM(rx_copybreak, "i");
+ MODULE_PARM(options, "1-" __MODULE_STRING(MAX_UNITS) "i");
+ MODULE_PARM(full_duplex, "1-" __MODULE_STRING(MAX_UNITS) "i");
++MODULE_LICENSE("GPL");
+ 
+ /*
+ 				Theory of Operation
+--- linux-2.4.20/drivers/char/ecc.c.za01-5.orig	2003-04-16 04:04:15.000000000 +0200
++++ linux-2.4.20/drivers/char/ecc.c	2003-04-16 04:12:05.000000000 +0200
+@@ -982,3 +982,5 @@ int init_module(void) {
+ 
+ 	return 0; 
+ }
++MODULE_LICENSE("Unknown")
++;
+--- linux-2.4.20/drivers/scsi/qla2x00.c.za01-5.orig	2003-04-16 04:04:13.000000000 +0200
++++ linux-2.4.20/drivers/scsi/qla2x00.c	2003-04-16 04:12:05.000000000 +0200
+@@ -757,6 +757,7 @@ static int ql2xmaxqdepth = 0;
+ /* insmod qla2100 ql2xopts=verbose" */
+ MODULE_PARM(ql2xopts, "s");
+ MODULE_PARM(ql2xmaxqdepth, "i");
++MODULE_LICENSE("GPL");
+ #endif
+ /*
+ * Just in case someone uses commas to separate items on the insmod
+--- linux-2.4.20/drivers/scsi/scsimon.c.za01-5.orig	2003-04-16 04:04:15.000000000 +0200
++++ linux-2.4.20/drivers/scsi/scsimon.c	2003-04-16 04:12:05.000000000 +0200
+@@ -865,6 +865,7 @@ static void sm_call_policy (Sm_hotinfo *
+ 
+ MODULE_AUTHOR("Douglas Gilbert");
+ MODULE_DESCRIPTION("SCSI monitor (scsimon) driver");
++MODULE_LICENSE("GPL");
+ 
+ static int __init init_scsimon(void) 
+ {
+--- linux-2.4.20/drivers/media/video/tw98.c.za01-5.orig	2003-04-16 04:09:59.000000000 +0200
++++ linux-2.4.20/drivers/media/video/tw98.c	2003-04-16 04:12:05.000000000 +0200
+@@ -11,6 +11,7 @@
+ #ifdef MODULE
+ MODULE_PARM(debug,"i");
+ MODULE_PARM(mode,"i");
++MODULE_LICENSE("GPL");
+ #endif
+ 
+ /* insmod parameter: some programs (e.g. ´vic´) do not allow to
+--- linux-2.4.20/3rdparty/mtok/madgetr.c.za01-5.orig	2001-10-17 15:06:18.000000000 +0200
++++ linux-2.4.20/3rdparty/mtok/madgetr.c	2003-04-16 04:12:05.000000000 +0200
+@@ -268,6 +268,7 @@ MODULE_PARM(txslots,            "1-" __M
+ MODULE_PARM(rxslots,            "1-" __MODULE_STRING(MTOK_MAX_ADAPTERS) "i");
+ MODULE_PARM(dtr,                "1-" __MODULE_STRING(MTOK_MAX_ADAPTERS) "i");
+ MODULE_PARM(pcmcia,             "i");
++MODULE_LICENSE("Madge Open source");
+ #endif /* LINUX_VERSION_CODE > 0x20115 */
+ 
+ int init_module(void)
+--- linux-2.4.20/3rdparty/paep/paep.c.za01-5.orig	2002-02-12 17:06:56.000000000 +0100
++++ linux-2.4.20/3rdparty/paep/paep.c	2003-04-16 04:12:05.000000000 +0200
+@@ -123,6 +123,7 @@ static struct pci_driver aep_driver = {
+ 
+ MODULE_AUTHOR("AEP software development team");
+ MODULE_DESCRIPTION("AEP (tm) 1000 PCI cryptographic accelerator driver");
++MODULE_LICENSE("BSD");
+ 
+ /* globals for this driver - Not visible to the kernel */
+ 

@@ -1,0 +1,14 @@
+
+http://www.kernel.org/pub/linux/kernel/crypto/v2.4/
+
+untar <cryptoapi>
+
+cd kernel
+cp -r <cryptoapi>/kernel	<tmp_dir>
+mkdir <tmp_dir>/net
+# make sure that "source crypto/ciphers/Config.in" 
+# in <tmp_dir>/net/crypto/Config.in are "source net/crypto/ciphers/Config.in" 
+mv <tmp_dir>/crypto <tmp_dir>/net/
+
+
+

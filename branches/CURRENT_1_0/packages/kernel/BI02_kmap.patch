@@ -1,0 +1,12 @@
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff --exclude='defconfig*' --exclude='log.*' --exclude='log2?' w2/include/linux/highmem.h w1/include/linux/highmem.h
+--- w2/include/linux/highmem.h	2003-08-20 10:55:47.000000000 +0200
++++ w1/include/linux/highmem.h	2003-08-20 19:18:49.000000000 +0200
+@@ -17,7 +17,7 @@ extern struct buffer_head *create_bounce
+ 
+ static inline char *bh_kmap(struct buffer_head *bh)
+ {
+-	return kmap(bh->b_page) + bh_offset(bh);
++	return ((char *)kmap(bh->b_page)) + bh_offset(bh);
+ }
+ 
+ static inline void bh_kunmap(struct buffer_head *bh)

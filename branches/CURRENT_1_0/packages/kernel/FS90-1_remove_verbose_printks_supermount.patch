@@ -1,0 +1,14 @@
+--- linux-2.4.22/fs/super.c.fs90.orig	2003-09-06 23:19:20.000000000 +0200
++++ linux-2.4.22/fs/super.c	2003-09-06 23:21:24.000000000 +0200
+@@ -954,8 +954,9 @@ void kill_super(struct super_block *sb)
+ 
+ 	/* Forget any remaining inodes */
+ 	if (invalidate_inodes(sb)) {
+-		printk(KERN_ERR "VFS: Busy inodes after unmount. "
+-			"Self-destruct in 5 seconds.  Have a nice day...\n");
++		if(console_loglevel > 8)
++			printk(KERN_ERR "VFS: Busy inodes after unmount. "
++			       "Self-destruct in 5 seconds.  Have a nice day...\n");
+ 	}
+ 
+ 	unlock_kernel();

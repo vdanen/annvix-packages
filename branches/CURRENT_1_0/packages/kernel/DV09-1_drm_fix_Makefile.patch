@@ -1,0 +1,11 @@
+--- linux-2.4.22/drivers/char/drm/Makefile.dv09.orig	2003-09-06 23:07:20.000000000 +0200
++++ linux-2.4.22/drivers/char/drm/Makefile	2003-09-06 23:07:36.000000000 +0200
+@@ -3,7 +3,7 @@
+ # Direct Rendering Infrastructure (DRI) in XFree86 4.1.0 and higher.
+ 
+ O_TARGET	:= drm.o
+-list-multi	:= gamma.o tdfx.o r128.o mga.o i810.o i830.o radeon.o ffb.o sis.o savage.o
++list-multi	:= gamma.o tdfx.o r128.o mga.o i810.o i830.o radeon.o ffb.o sis.o savage.o via.o
+ 
+ gamma-objs  := gamma_drv.o gamma_dma.o
+ tdfx-objs   := tdfx_drv.o

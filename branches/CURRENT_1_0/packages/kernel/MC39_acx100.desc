@@ -1,0 +1,9 @@
+
+http://acx100.sf.net
+
+get the source from cvs
+
+preserve Config.in & Makefile
+
+cp acx100/include/*.h 3rdparty/acx100
+cp acx100/src/*c 3rdparty/acx100

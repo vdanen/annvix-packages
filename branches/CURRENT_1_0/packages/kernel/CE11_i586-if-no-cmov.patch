@@ -1,0 +1,25 @@
+--- linux-2.4.19/include/asm-i386/bugs.h.i586-if-no-cmov	2002-08-03 02:39:45.000000000 +0200
++++ linux-2.4.19/include/asm-i386/bugs.h	2002-10-22 09:41:40.000000000 +0200
+@@ -205,6 +205,7 @@ static void __init check_config(void)
+ static void __init check_bugs(void)
+ {
+ 	extern void __init boot_init_fpu(void);
++	int x86_cpu;
+ 
+ 	identify_cpu(&boot_cpu_data);
+ 	boot_init_fpu();
+@@ -216,5 +217,13 @@ static void __init check_bugs(void)
+ 	check_fpu();
+ 	check_hlt();
+ 	check_popad();
+-	system_utsname.machine[1] = '0' + (boot_cpu_data.x86 > 6 ? 6 : boot_cpu_data.x86);
++	
++	x86_cpu = boot_cpu_data.x86 > 6 ? 6 : boot_cpu_data.x86;
++	/* VIA C3 and others: report to userland they are i586 since they
++	   don't fully support CMOV instructions. Otherwise, glibc ELF
++	   loader may want to load i686 libraries, which will fail.  */
++	if (x86_cpu == 6 &&
++		! test_bit(X86_FEATURE_CMOV, boot_cpu_data.x86_capability))
++	  x86_cpu = 5;
++	system_utsname.machine[1] = '0' + x86_cpu;
+ }

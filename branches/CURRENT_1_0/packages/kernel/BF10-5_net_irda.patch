@@ -1,0 +1,4493 @@
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff 2.4.19-rc3/net/irda/af_irda.c test/net/irda/af_irda.c
+--- 2.4.19-rc3/net/irda/af_irda.c	2002-07-22 18:43:39.000000000 +0200
++++ test/net/irda/af_irda.c	2002-07-22 18:48:09.000000000 +0200
+@@ -98,7 +98,7 @@ static int irda_data_indication(void *in
+ 	struct sock *sk;
+ 	int err;
+ 
+-	IRDA_DEBUG(3, __FUNCTION__ "()\n");
++	IRDA_DEBUG(3, "%s()\n", __FUNCTION__);
+ 
+ 	self = (struct irda_sock *) instance;
+ 	ASSERT(self != NULL, return -1;);
+@@ -108,7 +108,7 @@ static int irda_data_indication(void *in
+ 
+ 	err = sock_queue_rcv_skb(sk, skb);
+ 	if (err) {
+-		IRDA_DEBUG(1, __FUNCTION__ "(), error: no more mem!\n");
++		IRDA_DEBUG(1, "%s(), error: no more mem!\n", __FUNCTION__);
+ 		self->rx_flow = FLOW_STOP;
+ 
+ 		/* When we return error, TTP will need to requeue the skb */
+@@ -132,7 +132,7 @@ static void irda_disconnect_indication(v
+ 
+ 	self = (struct irda_sock *) instance;
+ 
+-	IRDA_DEBUG(2, __FUNCTION__ "(%p)\n", self);
++	IRDA_DEBUG(2, "%s(%p)\n", __FUNCTION__, self);
+ 
+ 	/* Don't care about it, but let's not leak it */
+ 	if(skb)
+@@ -194,7 +194,7 @@ static void irda_connect_confirm(void *i
+ 
+ 	self = (struct irda_sock *) instance;
+ 
+-	IRDA_DEBUG(2, __FUNCTION__ "(%p)\n", self);
++	IRDA_DEBUG(2, "%s(%p)\n", __FUNCTION__, self);
+ 
+ 	sk = self->sk;
+ 	if (sk == NULL)
+@@ -210,14 +210,14 @@ static void irda_connect_confirm(void *i
+ 	switch (sk->type) {
+ 	case SOCK_STREAM:
+ 		if (max_sdu_size != 0) {
+-			ERROR(__FUNCTION__ "(), max_sdu_size must be 0\n");
++			ERROR("%s(), max_sdu_size must be 0\n", __FUNCTION__);
+ 			return;
+ 		}
+ 		self->max_data_size = irttp_get_max_seg_size(self->tsap);
+ 		break;
+ 	case SOCK_SEQPACKET:
+ 		if (max_sdu_size == 0) {
+-			ERROR(__FUNCTION__ "(), max_sdu_size cannot be 0\n");
++			ERROR("%s(), max_sdu_size cannot be 0\n", __FUNCTION__);
+ 			return;
+ 		}
+ 		self->max_data_size = max_sdu_size;
+@@ -226,7 +226,7 @@ static void irda_connect_confirm(void *i
+ 		self->max_data_size = irttp_get_max_seg_size(self->tsap);
+ 	};
+ 
+-	IRDA_DEBUG(2, __FUNCTION__ "(), max_data_size=%d\n", 
++	IRDA_DEBUG(2, "%s(), max_data_size=%d\n", __FUNCTION__, 
+ 		   self->max_data_size);
+ 
+ 	memcpy(&self->qos_tx, qos, sizeof(struct qos_info));
+@@ -253,7 +253,7 @@ static void irda_connect_indication(void
+ 
+  	self = (struct irda_sock *) instance;
+ 
+-	IRDA_DEBUG(2, __FUNCTION__ "(%p)\n", self);
++	IRDA_DEBUG(2, "%s(%p)\n", __FUNCTION__, self);
+ 
+ 	sk = self->sk;
+ 	if (sk == NULL)
+@@ -269,14 +269,14 @@ static void irda_connect_indication(void
+ 	switch (sk->type) {
+ 	case SOCK_STREAM:
+ 		if (max_sdu_size != 0) {
+-			ERROR(__FUNCTION__ "(), max_sdu_size must be 0\n");
++			ERROR("%s(), max_sdu_size must be 0\n", __FUNCTION__);
+ 			return;
+ 		}
+ 		self->max_data_size = irttp_get_max_seg_size(self->tsap);
+ 		break;
+ 	case SOCK_SEQPACKET:
+ 		if (max_sdu_size == 0) {
+-			ERROR(__FUNCTION__ "(), max_sdu_size cannot be 0\n");
++			ERROR("%s(), max_sdu_size cannot be 0\n", __FUNCTION__);
+ 			return;
+ 		}
+ 		self->max_data_size = max_sdu_size;
+@@ -285,7 +285,7 @@ static void irda_connect_indication(void
+ 		self->max_data_size = irttp_get_max_seg_size(self->tsap);
+ 	};
+ 
+-	IRDA_DEBUG(2, __FUNCTION__ "(), max_data_size=%d\n", 
++	IRDA_DEBUG(2, "%s(), max_data_size=%d\n", __FUNCTION__, 
+ 		   self->max_data_size);
+ 
+ 	memcpy(&self->qos_tx, qos, sizeof(struct qos_info));
+@@ -304,13 +304,13 @@ void irda_connect_response(struct irda_s
+ {
+ 	struct sk_buff *skb;
+ 
+-	IRDA_DEBUG(2, __FUNCTION__ "()\n");
++	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
+ 
+ 	ASSERT(self != NULL, return;);
+ 
+ 	skb = dev_alloc_skb(64);
+ 	if (skb == NULL) {
+-		IRDA_DEBUG(0, __FUNCTION__ "() Unable to allocate sk_buff!\n");
++		IRDA_DEBUG(0, "%s() Unable to allocate sk_buff!\n", __FUNCTION__);
+ 		return;
+ 	}
+ 
+@@ -331,7 +331,7 @@ static void irda_flow_indication(void *i
+ 	struct irda_sock *self;
+ 	struct sock *sk;
+ 
+-	IRDA_DEBUG(2, __FUNCTION__ "()\n");
++	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
+ 	
+ 	self = (struct irda_sock *) instance;
+ 	ASSERT(self != NULL, return;);
+@@ -341,17 +341,16 @@ static void irda_flow_indication(void *i
+ 	
+ 	switch (flow) {
+ 	case FLOW_STOP:
+-		IRDA_DEBUG(1, __FUNCTION__ "(), IrTTP wants us to slow down\n");
++		IRDA_DEBUG(1, "%s(), IrTTP wants us to slow down\n", __FUNCTION__);
+ 		self->tx_flow = flow;
+ 		break;
+ 	case FLOW_START:
+ 		self->tx_flow = flow;
+-		IRDA_DEBUG(1, __FUNCTION__ 
+-			   "(), IrTTP wants us to start again\n");
++		IRDA_DEBUG(1, "%s(), IrTTP wants us to start again\n", __FUNCTION__);
+ 		wake_up_interruptible(sk->sleep);
+ 		break;
+ 	default:
+-		IRDA_DEBUG( 0, __FUNCTION__ "(), Unknown flow command!\n");
++		IRDA_DEBUG( 0, "%s(), Unknown flow command!\n", __FUNCTION__);
+ 		/* Unknown flow command, better stop */
+ 		self->tx_flow = flow;
+ 		break;
+@@ -373,11 +372,11 @@ static void irda_getvalue_confirm(int re
+ 	
+ 	self = (struct irda_sock *) priv;
+ 	if (!self) {
+-		WARNING(__FUNCTION__ "(), lost myself!\n");
++		WARNING("%s(), lost myself!\n", __FUNCTION__);
+ 		return;
+ 	}
+ 
+-	IRDA_DEBUG(2, __FUNCTION__ "(%p)\n", self);
++	IRDA_DEBUG(2, "%s(%p)\n", __FUNCTION__, self);
+ 
+ 	/* We probably don't need to make any more queries */
+ 	iriap_close(self->iriap);
+@@ -385,7 +384,7 @@ static void irda_getvalue_confirm(int re
+ 
+ 	/* Check if request succeeded */
+ 	if (result != IAS_SUCCESS) {
+-		IRDA_DEBUG(1, __FUNCTION__ "(), IAS query failed! (%d)\n",
++		IRDA_DEBUG(1, "%s(), IAS query failed! (%d)\n", __FUNCTION__,
+ 			   result);
+ 
+ 		self->errno = result;	/* We really need it later */
+@@ -418,11 +417,11 @@ static void irda_selective_discovery_ind
+ {
+ 	struct irda_sock *self;
+ 	
+-	IRDA_DEBUG(2, __FUNCTION__ "()\n");
++	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
+ 
+ 	self = (struct irda_sock *) priv;
+ 	if (!self) {
+-		WARNING(__FUNCTION__ "(), lost myself!\n");
++		WARNING("%s(), lost myself!\n", __FUNCTION__);
+ 		return;
+ 	}
+ 
+@@ -455,7 +454,7 @@ static void irda_discovery_timeout(u_lon
+ {
+ 	struct irda_sock *self;
+ 	
+-	IRDA_DEBUG(2, __FUNCTION__ "()\n");
++	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
+ 
+ 	self = (struct irda_sock *) priv;
+ 	ASSERT(self != NULL, return;);
+@@ -480,7 +479,7 @@ static int irda_open_tsap(struct irda_so
+ 	notify_t notify;
+ 
+ 	if (self->tsap) {
+-		WARNING(__FUNCTION__ "(), busy!\n");
++		WARNING("%s(), busy!\n", __FUNCTION__);
+ 		return -EBUSY;
+ 	}
+ 	
+@@ -498,7 +497,7 @@ static int irda_open_tsap(struct irda_so
+ 	self->tsap = irttp_open_tsap(tsap_sel, DEFAULT_INITIAL_CREDIT,
+ 				     &notify);	
+ 	if (self->tsap == NULL) {
+-		IRDA_DEBUG( 0, __FUNCTION__ "(), Unable to allocate TSAP!\n");
++		IRDA_DEBUG( 0, "%s(), Unable to allocate TSAP!\n", __FUNCTION__);
+ 		return -ENOMEM;
+ 	}
+ 	/* Remember which TSAP selector we actually got */
+@@ -519,7 +518,7 @@ static int irda_open_lsap(struct irda_so
+ 	notify_t notify;
+ 
+ 	if (self->lsap) {
+-		WARNING(__FUNCTION__ "(), busy!\n");
++		WARNING("%s(), busy!\n", __FUNCTION__);
+ 		return -EBUSY;
+ 	}
+ 	
+@@ -531,7 +530,7 @@ static int irda_open_lsap(struct irda_so
+ 
+ 	self->lsap = irlmp_open_lsap(LSAP_CONNLESS, &notify, pid);	
+ 	if (self->lsap == NULL) {
+-		IRDA_DEBUG( 0, __FUNCTION__ "(), Unable to allocate LSAP!\n");
++		IRDA_DEBUG( 0, "%s(), Unable to allocate LSAP!\n", __FUNCTION__);
+ 		return -ENOMEM;
+ 	}
+ 
+@@ -552,12 +551,12 @@ static int irda_open_lsap(struct irda_so
+  */
+ static int irda_find_lsap_sel(struct irda_sock *self, char *name)
+ {
+-	IRDA_DEBUG(2, __FUNCTION__ "(%p, %s)\n", self, name);
++	IRDA_DEBUG(2, "%s(%p, %s)\n", __FUNCTION__, self, name);
+ 
+ 	ASSERT(self != NULL, return -1;);
+ 
+ 	if (self->iriap) {
+-		WARNING(__FUNCTION__ "(), busy with a previous query\n");
++		WARNING("%s(), busy with a previous query\n", __FUNCTION__);
+ 		return -EBUSY;
+ 	}
+ 
+@@ -590,7 +589,7 @@ static int irda_find_lsap_sel(struct ird
+ 	/* Get the remote TSAP selector */
+ 	switch (self->ias_result->type) {
+ 	case IAS_INTEGER:
+-		IRDA_DEBUG(4, __FUNCTION__ "() int=%d\n",
++		IRDA_DEBUG(4, "%s() int=%d\n", __FUNCTION__,
+ 			   self->ias_result->t.integer);
+ 		
+ 		if (self->ias_result->t.integer != -1)
+@@ -600,7 +599,7 @@ static int irda_find_lsap_sel(struct ird
+ 		break;
+ 	default:
+ 		self->dtsap_sel = 0;
+-		IRDA_DEBUG(0, __FUNCTION__ "(), bad type!\n");
++		IRDA_DEBUG(0, "%s(), bad type!\n", __FUNCTION__);
+ 		break;
+ 	}
+ 	if (self->ias_result)
+@@ -638,7 +637,7 @@ static int irda_discover_daddr_and_lsap_
+ 	__u32	daddr = DEV_ADDR_ANY;	/* Address we found the service on */
+ 	__u8	dtsap_sel = 0x0;	/* TSAP associated with it */
+ 
+-	IRDA_DEBUG(2, __FUNCTION__ "(), name=%s\n", name);
++	IRDA_DEBUG(2, "%s(), name=%s\n", __FUNCTION__, name);
+ 
+ 	ASSERT(self != NULL, return -1;);
+ 
+@@ -660,7 +659,7 @@ static int irda_discover_daddr_and_lsap_
+ 		/* Try the address in the log */
+ 		self->daddr = discoveries[i].daddr;
+ 		self->saddr = 0x0;
+-		IRDA_DEBUG(1, __FUNCTION__ "(), trying daddr = %08x\n",
++		IRDA_DEBUG(1, "%s(), trying daddr = %08x\n", __FUNCTION__,
+ 			   self->daddr);
+ 
+ 		/* Query remote LM-IAS for this service */
+@@ -669,8 +668,7 @@ static int irda_discover_daddr_and_lsap_
+ 		case 0:
+ 			/* We found the requested service */
+ 			if(daddr != DEV_ADDR_ANY) {
+-				IRDA_DEBUG(1, __FUNCTION__
+-					   "(), discovered service ''%s'' in two different devices !!!\n",
++				IRDA_DEBUG(1, "%s(), discovered service ''%s'' in two different devices !!!\n", __FUNCTION__,
+ 					   name);
+ 				self->daddr = DEV_ADDR_ANY;
+ 				kfree(discoveries);
+@@ -685,8 +683,7 @@ static int irda_discover_daddr_and_lsap_
+ 			break;
+ 		default:
+ 			/* Something bad did happen :-( */
+-			IRDA_DEBUG(0, __FUNCTION__
+-				   "(), unexpected IAS query failure\n");
++			IRDA_DEBUG(0, "%s(), unexpected IAS query failure\n", __FUNCTION__);
+ 			self->daddr = DEV_ADDR_ANY;
+ 			kfree(discoveries);
+ 			return(-EHOSTUNREACH);
+@@ -698,8 +695,7 @@ static int irda_discover_daddr_and_lsap_
+ 
+ 	/* Check out what we found */
+ 	if(daddr == DEV_ADDR_ANY) {
+-		IRDA_DEBUG(1, __FUNCTION__
+-			   "(), cannot discover service ''%s'' in any device !!!\n",
++		IRDA_DEBUG(1, "%s(), cannot discover service ''%s'' in any device !!!\n", __FUNCTION__,
+ 			   name);
+ 		self->daddr = DEV_ADDR_ANY;
+ 		return(-EADDRNOTAVAIL);
+@@ -710,8 +706,7 @@ static int irda_discover_daddr_and_lsap_
+ 	self->saddr = 0x0;
+ 	self->dtsap_sel = dtsap_sel;
+ 
+-	IRDA_DEBUG(1, __FUNCTION__ 
+-		   "(), discovered requested service ''%s'' at address %08x\n",
++	IRDA_DEBUG(1, "%s(), discovered requested service ''%s'' at address %08x\n", __FUNCTION__,
+ 		   name, self->daddr);
+ 
+ 	return 0;
+@@ -743,8 +738,8 @@ static int irda_getname(struct socket *s
+ 		saddr.sir_addr = self->saddr;
+ 	}
+ 	
+-	IRDA_DEBUG(1, __FUNCTION__ "(), tsap_sel = %#x\n", saddr.sir_lsap_sel);
+-	IRDA_DEBUG(1, __FUNCTION__ "(), addr = %08x\n", saddr.sir_addr);
++	IRDA_DEBUG(1, "%s(), tsap_sel = %#x\n", __FUNCTION__, saddr.sir_lsap_sel);
++	IRDA_DEBUG(1, "%s(), addr = %08x\n", __FUNCTION__, saddr.sir_addr);
+ 
+ 	/* uaddr_len come to us uninitialised */
+ 	*uaddr_len = sizeof (struct sockaddr_irda);
+@@ -763,7 +758,7 @@ static int irda_listen(struct socket *so
+ {
+ 	struct sock *sk = sock->sk;
+ 
+-	IRDA_DEBUG(2, __FUNCTION__ "()\n");
++	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
+ 
+ 	if ((sk->type != SOCK_STREAM) && (sk->type != SOCK_SEQPACKET) &&
+ 	    (sk->type != SOCK_DGRAM))
+@@ -795,7 +790,7 @@ static int irda_bind(struct socket *sock
+ 	self = sk->protinfo.irda;
+ 	ASSERT(self != NULL, return -1;);
+ 
+-	IRDA_DEBUG(2, __FUNCTION__ "(%p)\n", self);
++	IRDA_DEBUG(2, "%s(%p)\n", __FUNCTION__, self);
+ 
+ 	if (addr_len != sizeof(struct sockaddr_irda))
+ 		return -EINVAL;
+@@ -805,8 +800,7 @@ static int irda_bind(struct socket *sock
+ 	if ((sk->type == SOCK_DGRAM) && (sk->protocol == IRDAPROTO_ULTRA)) {
+ 		self->pid = addr->sir_lsap_sel;
+ 		if (self->pid & 0x80) {
+-			IRDA_DEBUG(0, __FUNCTION__ 
+-				   "(), extension in PID not supp!\n");
++			IRDA_DEBUG(0, "%s(), extension in PID not supp!\n", __FUNCTION__);
+ 			return -EOPNOTSUPP;
+ 		}
+ 		err = irda_open_lsap(self, self->pid);
+@@ -851,7 +845,7 @@ static int irda_accept(struct socket *so
+ 	struct sk_buff *skb;
+ 	int err;
+ 
+-	IRDA_DEBUG(2, __FUNCTION__ "()\n");
++	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
+ 
+ 	self = sk->protinfo.irda;
+ 	ASSERT(self != NULL, return -1;);
+@@ -897,7 +891,7 @@ static int irda_accept(struct socket *so
+ 	/* Now attach up the new socket */
+ 	new->tsap = irttp_dup(self->tsap, new);
+ 	if (!new->tsap) {
+-		IRDA_DEBUG(0, __FUNCTION__ "(), dup failed!\n");
++		IRDA_DEBUG(0, "%s(), dup failed!\n", __FUNCTION__);
+ 		return -1;
+ 	}
+ 		
+@@ -958,7 +952,7 @@ static int irda_connect(struct socket *s
+ 
+ 	self = sk->protinfo.irda;
+ 	
+-	IRDA_DEBUG(2, __FUNCTION__ "(%p)\n", self);
++	IRDA_DEBUG(2, "%s(%p)\n", __FUNCTION__, self);
+ 
+ 	/* Don't allow connect for Ultra sockets */
+ 	if ((sk->type == SOCK_DGRAM) && (sk->protocol == IRDAPROTO_ULTRA))
+@@ -988,19 +982,18 @@ static int irda_connect(struct socket *s
+ 		/* Try to find one suitable */
+ 		err = irda_discover_daddr_and_lsap_sel(self, addr->sir_name);
+ 		if (err) {
+-			IRDA_DEBUG(0, __FUNCTION__ 
+-				   "(), auto-connect failed!\n");
++			IRDA_DEBUG(0, "%s(), auto-connect failed!\n", __FUNCTION__);
+ 			return err;
+ 		}
+ 	} else {
+ 		/* Use the one provided by the user */
+ 		self->daddr = addr->sir_addr;
+-		IRDA_DEBUG(1, __FUNCTION__ "(), daddr = %08x\n", self->daddr);
++		IRDA_DEBUG(1, "%s(), daddr = %08x\n", __FUNCTION__, self->daddr);
+ 		
+ 		/* Query remote LM-IAS */
+ 		err = irda_find_lsap_sel(self, addr->sir_name);
+ 		if (err) {
+-			IRDA_DEBUG(0, __FUNCTION__ "(), connect failed!\n");
++			IRDA_DEBUG(0, "%s(), connect failed!\n", __FUNCTION__);
+ 			return err;
+ 		}
+ 	}
+@@ -1018,7 +1011,7 @@ static int irda_connect(struct socket *s
+ 				    self->saddr, self->daddr, NULL, 
+ 				    self->max_sdu_size_rx, NULL);
+ 	if (err) {
+-		IRDA_DEBUG(0, __FUNCTION__ "(), connect failed!\n");
++		IRDA_DEBUG(0, "%s(), connect failed!\n", __FUNCTION__);
+ 		return err;
+ 	}
+ 
+@@ -1063,7 +1056,7 @@ static int irda_create(struct socket *so
+ 	struct sock *sk;
+ 	struct irda_sock *self;
+ 
+-	IRDA_DEBUG(2, __FUNCTION__ "()\n");
++	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
+ 	
+ 	/* Check for valid socket type */
+ 	switch (sock->type) {
+@@ -1087,7 +1080,7 @@ static int irda_create(struct socket *so
+ 	}
+ 	memset(self, 0, sizeof(struct irda_sock));
+ 
+-	IRDA_DEBUG(2, __FUNCTION__ "() : self is %p\n", self);
++	IRDA_DEBUG(2, "%s() : self is %p\n", __FUNCTION__, self);
+ 
+ 	init_waitqueue_head(&self->query_wait);
+ 
+@@ -1121,7 +1114,7 @@ static int irda_create(struct socket *so
+ 			self->max_sdu_size_rx = TTP_SAR_UNBOUND;
+ 			break;
+ 		default:
+-			ERROR(__FUNCTION__ "(), protocol not supported!\n");
++			ERROR("%s(), protocol not supported!\n", __FUNCTION__);
+ 			return -ESOCKTNOSUPPORT;
+ 		}
+ 		break;
+@@ -1150,7 +1143,7 @@ static int irda_create(struct socket *so
+  */
+ void irda_destroy_socket(struct irda_sock *self)
+ {
+-	IRDA_DEBUG(2, __FUNCTION__ "(%p)\n", self);
++	IRDA_DEBUG(2, "%s(%p)\n", __FUNCTION__, self);
+ 
+ 	ASSERT(self != NULL, return;);
+ 
+@@ -1196,7 +1189,7 @@ static int irda_release(struct socket *s
+ {
+ 	struct sock *sk = sock->sk;
+ 	
+-	IRDA_DEBUG(2, __FUNCTION__ "()\n");
++	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
+ 
+         if (sk == NULL) 
+ 		return 0;
+@@ -1265,7 +1258,7 @@ static int irda_sendmsg(struct socket *s
+ 	unsigned char *asmptr;
+ 	int err;
+ 
+-	IRDA_DEBUG(4, __FUNCTION__ "(), len=%d\n", len);
++	IRDA_DEBUG(4, "%s(), len=%d\n", __FUNCTION__, len);
+ 
+ 	/* Note : socket.c set MSG_EOR on SEQPACKET sockets */
+ 	if (msg->msg_flags & ~(MSG_DONTWAIT | MSG_EOR))
+@@ -1284,7 +1277,7 @@ static int irda_sendmsg(struct socket *s
+ 
+ 	/* Check if IrTTP is wants us to slow down */
+ 	while (self->tx_flow == FLOW_STOP) {
+-		IRDA_DEBUG(2, __FUNCTION__ "(), IrTTP is busy, going to sleep!\n");
++		IRDA_DEBUG(2, "%s(), IrTTP is busy, going to sleep!\n", __FUNCTION__);
+ 		interruptible_sleep_on(sk->sleep);
+ 		
+ 		/* Check if we are still connected */
+@@ -1294,8 +1287,7 @@ static int irda_sendmsg(struct socket *s
+ 
+ 	/* Check that we don't send out to big frames */
+ 	if (len > self->max_data_size) {
+-		IRDA_DEBUG(2, __FUNCTION__ 
+-			   "(), Chopping frame from %d to %d bytes!\n", len, 
++		IRDA_DEBUG(2, "%s(), Chopping frame from %d to %d bytes!\n", __FUNCTION__, len, 
+ 			   self->max_data_size);
+ 		len = self->max_data_size;
+ 	}
+@@ -1316,7 +1308,7 @@ static int irda_sendmsg(struct socket *s
+ 	 */
+ 	err = irttp_data_request(self->tsap, skb);
+ 	if (err) {
+-		IRDA_DEBUG(0, __FUNCTION__ "(), err=%d\n", err);
++		IRDA_DEBUG(0, "%s(), err=%d\n", __FUNCTION__, err);
+ 		return err;
+ 	}
+ 	/* Tell client how much data we actually sent */
+@@ -1337,7 +1329,7 @@ static int irda_recvmsg_dgram(struct soc
+ 	struct sk_buff *skb;
+ 	int copied, err;
+ 
+-	IRDA_DEBUG(4, __FUNCTION__ "()\n");
++	IRDA_DEBUG(4, "%s()\n", __FUNCTION__);
+ 
+ 	self = sk->protinfo.irda;
+ 	ASSERT(self != NULL, return -1;);
+@@ -1351,8 +1343,7 @@ static int irda_recvmsg_dgram(struct soc
+ 	copied     = skb->len;
+ 	
+ 	if (copied > size) {
+-		IRDA_DEBUG(2, __FUNCTION__ 
+-			   "(), Received truncated frame (%d < %d)!\n",
++		IRDA_DEBUG(2, "%s(), Received truncated frame (%d < %d)!\n", __FUNCTION__,
+ 			   copied, size);
+ 		copied = size;
+ 		msg->msg_flags |= MSG_TRUNC;
+@@ -1369,7 +1360,7 @@ static int irda_recvmsg_dgram(struct soc
+ 	 */
+ 	if (self->rx_flow == FLOW_STOP) {
+ 		if ((atomic_read(&sk->rmem_alloc) << 2) <= sk->rcvbuf) {
+-			IRDA_DEBUG(2, __FUNCTION__ "(), Starting IrTTP\n");
++			IRDA_DEBUG(2, "%s(), Starting IrTTP\n", __FUNCTION__);
+ 			self->rx_flow = FLOW_START;
+ 			irttp_flow_request(self->tsap, FLOW_START);
+ 		}
+@@ -1408,7 +1399,7 @@ static int irda_recvmsg_stream(struct so
+ 	int copied = 0;
+ 	int target = 1;
+ 
+-	IRDA_DEBUG(3, __FUNCTION__ "()\n");
++	IRDA_DEBUG(3, "%s()\n", __FUNCTION__);
+ 
+ 	self = sk->protinfo.irda;
+ 	ASSERT(self != NULL, return -1;);
+@@ -1468,14 +1459,14 @@ static int irda_recvmsg_stream(struct so
+ 
+ 			/* put the skb back if we didn't use it up.. */
+ 			if (skb->len) {
+-				IRDA_DEBUG(1, __FUNCTION__ "(), back on q!\n");
++				IRDA_DEBUG(1, "%s(), back on q!\n", __FUNCTION__);
+ 				skb_queue_head(&sk->receive_queue, skb);
+ 				break;
+ 			}
+ 
+ 			kfree_skb(skb);			
+ 		} else {
+-			IRDA_DEBUG(0, __FUNCTION__ "() questionable!?\n");
++			IRDA_DEBUG(0, "%s() questionable!?\n", __FUNCTION__);
+ 
+ 			/* put message back and return */
+ 			skb_queue_head(&sk->receive_queue, skb);
+@@ -1491,7 +1482,7 @@ static int irda_recvmsg_stream(struct so
+ 	 */
+ 	if (self->rx_flow == FLOW_STOP) {
+ 		if ((atomic_read(&sk->rmem_alloc) << 2) <= sk->rcvbuf) {
+-			IRDA_DEBUG(2, __FUNCTION__ "(), Starting IrTTP\n");
++			IRDA_DEBUG(2, "%s(), Starting IrTTP\n", __FUNCTION__);
+ 			self->rx_flow = FLOW_START;
+ 			irttp_flow_request(self->tsap, FLOW_START);
+ 		}
+@@ -1516,7 +1507,7 @@ static int irda_sendmsg_dgram(struct soc
+ 	unsigned char *asmptr;
+ 	int err;
+ 	
+-	IRDA_DEBUG(4, __FUNCTION__ "(), len=%d\n", len);
++	IRDA_DEBUG(4, "%s(), len=%d\n", __FUNCTION__, len);
+ 	
+ 	if (msg->msg_flags & ~MSG_DONTWAIT)
+ 		return -EINVAL;
+@@ -1537,8 +1528,7 @@ static int irda_sendmsg_dgram(struct soc
+ 	 * service, so we have no fragmentation and no coalescence 
+ 	 */
+ 	if (len > self->max_data_size) {
+-		IRDA_DEBUG(0, __FUNCTION__ "(), Warning to much data! "
+-			   "Chopping frame from %d to %d bytes!\n", len, 
++		IRDA_DEBUG(0, "%s(), Warning to much data! ", "%sChopping frame from %d to %d bytes!\n", __FUNCTION__, len, 
+ 			   self->max_data_size);
+ 		len = self->max_data_size;
+ 	}
+@@ -1550,7 +1540,7 @@ static int irda_sendmsg_dgram(struct soc
+ 
+ 	skb_reserve(skb, self->max_header_size);
+ 	
+-	IRDA_DEBUG(4, __FUNCTION__ "(), appending user data\n");
++	IRDA_DEBUG(4, "%s(), appending user data\n", __FUNCTION__);
+ 	asmptr = skb->h.raw = skb_put(skb, len);
+ 	memcpy_fromiovec(asmptr, msg->msg_iov, len);
+ 
+@@ -1560,7 +1550,7 @@ static int irda_sendmsg_dgram(struct soc
+ 	 */
+ 	err = irttp_udata_request(self->tsap, skb);
+ 	if (err) {
+-		IRDA_DEBUG(0, __FUNCTION__ "(), err=%d\n", err);
++		IRDA_DEBUG(0, "%s(), err=%d\n", __FUNCTION__, err);
+ 		return err;
+ 	}
+ 	return len;
+@@ -1582,7 +1572,7 @@ static int irda_sendmsg_ultra(struct soc
+ 	unsigned char *asmptr;
+ 	int err;
+ 	
+-	IRDA_DEBUG(4, __FUNCTION__ "(), len=%d\n", len);
++	IRDA_DEBUG(4, "%s(), len=%d\n", __FUNCTION__, len);
+ 	
+ 	if (msg->msg_flags & ~MSG_DONTWAIT)
+ 		return -EINVAL;
+@@ -1600,8 +1590,7 @@ static int irda_sendmsg_ultra(struct soc
+ 	 * service, so we have no fragmentation and no coalescence 
+ 	 */
+ 	if (len > self->max_data_size) {
+-		IRDA_DEBUG(0, __FUNCTION__ "(), Warning to much data! "
+-			   "Chopping frame from %d to %d bytes!\n", len, 
++		IRDA_DEBUG(0, "%s(), Warning to much data! ", "%sChopping frame from %d to %d bytes!\n", __FUNCTION__, len, 
+ 			   self->max_data_size);
+ 		len = self->max_data_size;
+ 	}
+@@ -1613,13 +1602,13 @@ static int irda_sendmsg_ultra(struct soc
+ 
+ 	skb_reserve(skb, self->max_header_size);
+ 	
+-	IRDA_DEBUG(4, __FUNCTION__ "(), appending user data\n");
++	IRDA_DEBUG(4, "%s(), appending user data\n", __FUNCTION__);
+ 	asmptr = skb->h.raw = skb_put(skb, len);
+ 	memcpy_fromiovec(asmptr, msg->msg_iov, len);
+ 
+ 	err = irlmp_connless_data_request(self->lsap, skb);
+ 	if (err) {
+-		IRDA_DEBUG(0, __FUNCTION__ "(), err=%d\n", err);
++		IRDA_DEBUG(0, "%s(), err=%d\n", __FUNCTION__, err);
+ 		return err;
+ 	}
+ 	return len;
+@@ -1640,7 +1629,7 @@ static int irda_shutdown(struct socket *
+ 	self = sk->protinfo.irda;
+ 	ASSERT(self != NULL, return -1;);
+ 
+-	IRDA_DEBUG(1, __FUNCTION__ "(%p)\n", self);
++	IRDA_DEBUG(1, "%s(%p)\n", __FUNCTION__, self);
+ 
+ 	sk->state       = TCP_CLOSE;
+ 	sk->shutdown   |= SEND_SHUTDOWN;
+@@ -1678,7 +1667,7 @@ static unsigned int irda_poll(struct fil
+ 	unsigned int mask;
+ 	struct irda_sock *self;
+ 
+-	IRDA_DEBUG(4, __FUNCTION__ "()\n");
++	IRDA_DEBUG(4, "%s()\n", __FUNCTION__);
+ 
+ 	self = sk->protinfo.irda;
+ 	poll_wait(file, sk->sleep, wait);
+@@ -1688,7 +1677,7 @@ static unsigned int irda_poll(struct fil
+ 	if (sk->err)
+ 		mask |= POLLERR;
+ 	if (sk->shutdown & RCV_SHUTDOWN) {
+-		IRDA_DEBUG(0, __FUNCTION__ "(), POLLHUP\n");
++		IRDA_DEBUG(0, "%s(), POLLHUP\n", __FUNCTION__);
+ 		mask |= POLLHUP;
+ 	}
+ 
+@@ -1702,7 +1691,7 @@ static unsigned int irda_poll(struct fil
+ 	switch (sk->type) {
+ 	case SOCK_STREAM:
+ 		if (sk->state == TCP_CLOSE) {
+-			IRDA_DEBUG(0, __FUNCTION__ "(), POLLHUP\n");
++			IRDA_DEBUG(0, "%s(), POLLHUP\n", __FUNCTION__);
+ 			mask |= POLLHUP;
+ 		}
+ 
+@@ -1741,7 +1730,7 @@ static int irda_ioctl(struct socket *soc
+ {
+ 	struct sock *sk = sock->sk;
+ 
+-	IRDA_DEBUG(4, __FUNCTION__ "(), cmd=%#x\n", cmd);
++	IRDA_DEBUG(4, "%s(), cmd=%#x\n", __FUNCTION__, cmd);
+ 	
+ 	switch (cmd) {
+ 	case TIOCOUTQ: {
+@@ -1788,7 +1777,7 @@ static int irda_ioctl(struct socket *soc
+ 	case SIOCSIFMETRIC:
+ 		return -EINVAL;		
+ 	default:
+-		IRDA_DEBUG(1, __FUNCTION__ "(), doing device ioctl!\n");
++		IRDA_DEBUG(1, "%s(), doing device ioctl!\n", __FUNCTION__);
+ 		return dev_ioctl(cmd, (void *) arg);
+ 	}
+ 
+@@ -1815,7 +1804,7 @@ static int irda_setsockopt(struct socket
+ 	self = sk->protinfo.irda;
+ 	ASSERT(self != NULL, return -1;);
+ 
+-	IRDA_DEBUG(2, __FUNCTION__ "(%p)\n", self);
++	IRDA_DEBUG(2, "%s(%p)\n", __FUNCTION__, self);
+ 
+ 	if (level != SOL_IRLMP)
+ 		return -ENOPROTOOPT;
+@@ -1977,8 +1966,7 @@ static int irda_setsockopt(struct socket
+ 
+ 		/* Check is the user space own the object */
+ 		if(ias_attr->value->owner != IAS_USER_ATTR) {
+-			IRDA_DEBUG(1, __FUNCTION__ 
+-				   "(), attempting to delete a kernel attribute\n");
++			IRDA_DEBUG(1, "%s(), attempting to delete a kernel attribute\n", __FUNCTION__);
+ 			kfree(ias_opt);
+ 			return -EPERM;
+ 		}
+@@ -1996,13 +1984,11 @@ static int irda_setsockopt(struct socket
+ 		
+ 		/* Only possible for a seqpacket service (TTP with SAR) */
+ 		if (sk->type != SOCK_SEQPACKET) {
+-			IRDA_DEBUG(2, __FUNCTION__ 
+-				   "(), setting max_sdu_size = %d\n", opt);
++			IRDA_DEBUG(2, "%s(), setting max_sdu_size = %d\n", __FUNCTION__, opt);
+ 			self->max_sdu_size_rx = opt;
+ 		} else {
+-			WARNING(__FUNCTION__ 
+-				"(), not allowed to set MAXSDUSIZE for this "
+-				"socket type!\n");
++			WARNING("%s(), not allowed to set MAXSDUSIZE for this "
++				"socket type!\n", __FUNCTION__);
+ 			return -ENOPROTOOPT;
+ 		}
+ 		break;
+@@ -2119,7 +2105,7 @@ static int irda_getsockopt(struct socket
+ 
+ 	self = sk->protinfo.irda;
+ 
+-	IRDA_DEBUG(2, __FUNCTION__ "(%p)\n", self);
++	IRDA_DEBUG(2, "%s(%p)\n", __FUNCTION__, self);
+ 
+ 	if (level != SOL_IRLMP)
+ 		return -ENOPROTOOPT;
+@@ -2279,8 +2265,7 @@ bed:
+ 
+ 		/* Check that we can proceed with IAP */
+ 		if (self->iriap) {
+-			WARNING(__FUNCTION__
+-				"(), busy with a previous query\n");
++			WARNING("%s(), busy with a previous query\n", __FUNCTION__);
+ 			kfree(ias_opt);
+ 			return -EBUSY;
+ 		}
+@@ -2361,8 +2346,7 @@ bed:
+ 		
+ 		/* Wait until a node is discovered */
+ 		if (!self->cachediscovery) {
+-			IRDA_DEBUG(1, __FUNCTION__ 
+-				   "(), nothing discovered yet, going to sleep...\n");
++			IRDA_DEBUG(1, "%s(), nothing discovered yet, going to sleep...\n", __FUNCTION__);
+ 
+ 			/* Set watchdog timer to expire in <val> ms. */
+ 			self->watchdog.function = irda_discovery_timeout;
+@@ -2377,12 +2361,10 @@ bed:
+ 			if(timer_pending(&(self->watchdog)))
+ 				del_timer(&(self->watchdog));
+ 
+-			IRDA_DEBUG(1, __FUNCTION__ 
+-				   "(), ...waking up !\n");
++			IRDA_DEBUG(1, "%s(), ...waking up !\n", __FUNCTION__);
+ 		}
+ 		else
+-			IRDA_DEBUG(1, __FUNCTION__ 
+-				   "(), found immediately !\n");
++			IRDA_DEBUG(1, "%s(), found immediately !\n", __FUNCTION__);
+ 
+ 		/* Tell IrLMP that we have been notified */
+ 		irlmp_update_client(self->ckey, self->mask, NULL, NULL, NULL);
+@@ -2523,11 +2505,11 @@ static int irda_device_event(struct noti
+ 	
+         switch (event) {
+ 	case NETDEV_UP:
+-		IRDA_DEBUG(3, __FUNCTION__ "(), NETDEV_UP\n");
++		IRDA_DEBUG(3, "%s(), NETDEV_UP\n", __FUNCTION__);
+ 		/* irda_dev_device_up(dev); */
+ 		break;
+ 	case NETDEV_DOWN:
+-		IRDA_DEBUG(3, __FUNCTION__ "(), NETDEV_DOWN\n");
++		IRDA_DEBUG(3, "%s(), NETDEV_DOWN\n", __FUNCTION__);
+ 		/* irda_kill_by_device(dev); */
+ 		/* irda_rt_device_down(dev); */
+ 		/* irda_dev_device_down(dev); */
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff 2.4.19-rc3/net/irda/ircomm/ircomm_core.c test/net/irda/ircomm/ircomm_core.c
+--- 2.4.19-rc3/net/irda/ircomm/ircomm_core.c	2002-02-25 20:38:14.000000000 +0100
++++ test/net/irda/ircomm/ircomm_core.c	2002-07-22 18:48:09.000000000 +0200
+@@ -63,7 +63,7 @@ int __init ircomm_init(void)
+ {
+ 	ircomm = hashbin_new(HB_LOCAL); 
+ 	if (ircomm == NULL) {
+-		ERROR(__FUNCTION__ "(), can't allocate hashbin!\n");
++		ERROR("%s(), can't allocate hashbin!\n", __FUNCTION__);
+ 		return -ENOMEM;
+ 	}
+ 	
+@@ -79,7 +79,7 @@ int __init ircomm_init(void)
+ #ifdef MODULE
+ void ircomm_cleanup(void)
+ {
+-	IRDA_DEBUG(2, __FUNCTION__ "()\n");
++	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
+ 
+ 	hashbin_delete(ircomm, (FREE_FUNC) __ircomm_close);
+ 
+@@ -100,7 +100,7 @@ struct ircomm_cb *ircomm_open(notify_t *
+ 	struct ircomm_cb *self = NULL;
+ 	int ret;
+ 
+-	IRDA_DEBUG(2, __FUNCTION__ "(), service_type=0x%02x\n",
++	IRDA_DEBUG(2, "%s(), service_type=0x%02x\n", __FUNCTION__,
+ 		   service_type);
+ 
+ 	ASSERT(ircomm != NULL, return NULL;);
+@@ -142,7 +142,7 @@ struct ircomm_cb *ircomm_open(notify_t *
+  */
+ static int __ircomm_close(struct ircomm_cb *self)
+ {
+-	IRDA_DEBUG(2, __FUNCTION__"()\n");
++	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
+ 
+ 	/* Disconnect link if any */
+ 	ircomm_do_event(self, IRCOMM_DISCONNECT_REQUEST, NULL, NULL);
+@@ -178,7 +178,7 @@ int ircomm_close(struct ircomm_cb *self)
+ 	ASSERT(self != NULL, return -EIO;);
+ 	ASSERT(self->magic == IRCOMM_MAGIC, return -EIO;);
+ 
+-	IRDA_DEBUG(0, __FUNCTION__ "()\n");
++	IRDA_DEBUG(0, "%s()\n", __FUNCTION__);
+ 
+ 	entry = hashbin_remove(ircomm, self->line, NULL);
+ 
+@@ -201,7 +201,7 @@ int ircomm_connect_request(struct ircomm
+ 	struct ircomm_info info;
+ 	int ret;
+ 
+-	IRDA_DEBUG(2 , __FUNCTION__"()\n");
++	IRDA_DEBUG(2 , "%s()\n", __FUNCTION__);
+ 
+ 	ASSERT(self != NULL, return -1;);
+ 	ASSERT(self->magic == IRCOMM_MAGIC, return -1;);
+@@ -228,7 +228,7 @@ void ircomm_connect_indication(struct ir
+ {
+ 	int clen = 0;
+ 	
+-	IRDA_DEBUG(2, __FUNCTION__ "()\n");
++	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
+ 
+ 	/* Check if the packet contains data on the control channel */
+ 	if (skb->len > 0)
+@@ -244,7 +244,7 @@ void ircomm_connect_indication(struct ir
+ 						info->qos, info->max_data_size,
+ 						info->max_header_size, skb);
+ 	else {
+-		IRDA_DEBUG(0, __FUNCTION__ "(), missing handler\n");
++		IRDA_DEBUG(0, "%s(), missing handler\n", __FUNCTION__);
+ 		dev_kfree_skb(skb);
+ 	}
+ }
+@@ -262,7 +262,7 @@ int ircomm_connect_response(struct ircom
+ 	ASSERT(self != NULL, return -1;);
+ 	ASSERT(self->magic == IRCOMM_MAGIC, return -1;);
+ 
+-	IRDA_DEBUG(4, __FUNCTION__ "()\n");
++	IRDA_DEBUG(4, "%s()\n", __FUNCTION__);
+ 
+ 	ret = ircomm_do_event(self, IRCOMM_CONNECT_RESPONSE, userdata, NULL);
+ 
+@@ -278,7 +278,7 @@ int ircomm_connect_response(struct ircom
+ void ircomm_connect_confirm(struct ircomm_cb *self, struct sk_buff *skb,
+ 			    struct ircomm_info *info)
+ {
+-	IRDA_DEBUG(4, __FUNCTION__"()\n");
++	IRDA_DEBUG(4, "%s()\n", __FUNCTION__);
+ 
+ 	if (self->notify.connect_confirm )
+ 		self->notify.connect_confirm(self->notify.instance,
+@@ -286,7 +286,7 @@ void ircomm_connect_confirm(struct ircom
+ 					     info->max_data_size,
+ 					     info->max_header_size, skb);
+ 	else {
+-		IRDA_DEBUG(0, __FUNCTION__ "(), missing handler\n");
++		IRDA_DEBUG(0, "%s(), missing handler\n", __FUNCTION__);
+ 		dev_kfree_skb(skb);
+ 	}
+ }
+@@ -301,7 +301,7 @@ int ircomm_data_request(struct ircomm_cb
+ {
+ 	int ret;
+ 
+-	IRDA_DEBUG(4, __FUNCTION__"()\n");
++	IRDA_DEBUG(4, "%s()\n", __FUNCTION__);
+ 
+ 	ASSERT(self != NULL, return -EFAULT;);
+ 	ASSERT(self->magic == IRCOMM_MAGIC, return -EFAULT;);
+@@ -320,14 +320,14 @@ int ircomm_data_request(struct ircomm_cb
+  */
+ void ircomm_data_indication(struct ircomm_cb *self, struct sk_buff *skb)
+ {	
+-	IRDA_DEBUG(4, __FUNCTION__"()\n");
++	IRDA_DEBUG(4, "%s()\n", __FUNCTION__);
+ 
+ 	ASSERT(skb->len > 0, return;);
+ 
+ 	if (self->notify.data_indication)
+ 		self->notify.data_indication(self->notify.instance, self, skb);
+ 	else {
+-		IRDA_DEBUG(0, __FUNCTION__ "(), missing handler\n");
++		IRDA_DEBUG(0, "%s(), missing handler\n", __FUNCTION__);
+ 		dev_kfree_skb(skb);
+ 	}
+ }
+@@ -360,8 +360,7 @@ void ircomm_process_data(struct ircomm_c
+ 	if (skb->len)
+ 		ircomm_data_indication(self, skb);		
+ 	else {
+-		IRDA_DEBUG(4, __FUNCTION__ 
+-			   "(), data was control info only!\n");
++		IRDA_DEBUG(4, "%s(), data was control info only!\n", __FUNCTION__);
+ 		dev_kfree_skb(skb);
+ 	}
+ }
+@@ -376,7 +375,7 @@ int ircomm_control_request(struct ircomm
+ {
+ 	int ret;
+ 	
+-	IRDA_DEBUG(2, __FUNCTION__"()\n");
++	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
+ 
+ 	ASSERT(self != NULL, return -EFAULT;);
+ 	ASSERT(self->magic == IRCOMM_MAGIC, return -EFAULT;);
+@@ -398,7 +397,7 @@ static void ircomm_control_indication(st
+ {
+ 	struct sk_buff *ctrl_skb;
+ 
+-	IRDA_DEBUG(2, __FUNCTION__"()\n");	
++	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);	
+ 
+ 	ctrl_skb = skb_clone(skb, GFP_ATOMIC);
+ 	if (!ctrl_skb)
+@@ -412,7 +411,7 @@ static void ircomm_control_indication(st
+ 		self->notify.udata_indication(self->notify.instance, self, 
+ 					      ctrl_skb);
+ 	else {
+-		IRDA_DEBUG(0, __FUNCTION__ "(), missing handler\n");
++		IRDA_DEBUG(0, "%s(), missing handler\n", __FUNCTION__);
+ 		dev_kfree_skb(skb);
+ 	}
+ }
+@@ -428,7 +427,7 @@ int ircomm_disconnect_request(struct irc
+ 	struct ircomm_info info;
+ 	int ret;
+ 
+-	IRDA_DEBUG(2, __FUNCTION__"()\n");
++	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
+ 
+ 	ASSERT(self != NULL, return -1;);
+ 	ASSERT(self->magic == IRCOMM_MAGIC, return -1;);
+@@ -447,7 +446,7 @@ int ircomm_disconnect_request(struct irc
+ void ircomm_disconnect_indication(struct ircomm_cb *self, struct sk_buff *skb,
+ 				  struct ircomm_info *info)
+ {
+-	IRDA_DEBUG(2, __FUNCTION__ "()\n");
++	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
+        
+ 	ASSERT(info != NULL, return;);
+ 
+@@ -455,7 +454,7 @@ void ircomm_disconnect_indication(struct
+ 		self->notify.disconnect_indication(self->notify.instance, self,
+ 						   info->reason, skb);
+ 	} else {
+-		IRDA_DEBUG(0, __FUNCTION__ "(), missing handler\n");
++		IRDA_DEBUG(0, "%s(), missing handler\n", __FUNCTION__);
+ 		dev_kfree_skb(skb);
+ 	}
+ }
+@@ -468,7 +467,7 @@ void ircomm_disconnect_indication(struct
+  */
+ void ircomm_flow_request(struct ircomm_cb *self, LOCAL_FLOW flow)
+ {
+-	IRDA_DEBUG(2, __FUNCTION__ "()\n");
++	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
+ 
+ 	ASSERT(self != NULL, return;);
+ 	ASSERT(self->magic == IRCOMM_MAGIC, return;);
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff 2.4.19-rc3/net/irda/ircomm/ircomm_event.c test/net/irda/ircomm/ircomm_event.c
+--- 2.4.19-rc3/net/irda/ircomm/ircomm_event.c	2001-03-02 20:12:12.000000000 +0100
++++ test/net/irda/ircomm/ircomm_event.c	2002-07-22 18:48:09.000000000 +0200
+@@ -107,7 +107,7 @@ static int ircomm_state_idle(struct irco
+ 		ircomm_connect_indication(self, skb, info);
+ 		break;
+ 	default:
+-		IRDA_DEBUG(4, __FUNCTION__"(), unknown event: %s\n",
++		IRDA_DEBUG(4, "%s(), unknown event: %s\n", __FUNCTION__,
+ 			   ircomm_event[event]);
+ 		if (skb)
+ 			dev_kfree_skb(skb);
+@@ -139,7 +139,7 @@ static int ircomm_state_waiti(struct irc
+ 		ircomm_disconnect_indication(self, skb, info);
+ 		break;
+ 	default:
+-		IRDA_DEBUG(0, __FUNCTION__"(), unknown event: %s\n",
++		IRDA_DEBUG(0, "%s(), unknown event: %s\n", __FUNCTION__,
+ 			   ircomm_event[event]);
+ 		if (skb)
+ 			dev_kfree_skb(skb);
+@@ -174,7 +174,7 @@ static int ircomm_state_waitr(struct irc
+ 		ircomm_disconnect_indication(self, skb, info);
+ 		break;
+ 	default:
+-		IRDA_DEBUG(0, __FUNCTION__ "(), unknown event = %s\n",
++		IRDA_DEBUG(0, "%s(), unknown event = %s\n", __FUNCTION__,
+ 			   ircomm_event[event]);
+ 		if (skb)
+ 			dev_kfree_skb(skb);
+@@ -218,7 +218,7 @@ static int ircomm_state_conn(struct irco
+ 		ret = self->issue.disconnect_request(self, skb, info);
+ 		break;
+ 	default:
+-		IRDA_DEBUG(0, __FUNCTION__ "(), unknown event = %s\n",
++		IRDA_DEBUG(0, "%s(), unknown event = %s\n", __FUNCTION__,
+ 			   ircomm_event[event]);
+ 		if (skb)
+ 			dev_kfree_skb(skb);
+@@ -236,7 +236,7 @@ static int ircomm_state_conn(struct irco
+ int ircomm_do_event(struct ircomm_cb *self, IRCOMM_EVENT event,
+ 		    struct sk_buff *skb, struct ircomm_info *info) 
+ {
+-	IRDA_DEBUG(4, __FUNCTION__": state=%s, event=%s\n",
++	IRDA_DEBUG(4, "%s: state=%s, event=%s\n", __FUNCTION__,
+ 		   ircomm_state[self->state], ircomm_event[event]);
+ 
+ 	return (*state[self->state])(self, event, skb, info);
+@@ -252,6 +252,6 @@ void ircomm_next_state(struct ircomm_cb 
+ {
+ 	self->state = state;
+ 	
+-	IRDA_DEBUG(4, __FUNCTION__": next state=%s, service type=%d\n", 
++	IRDA_DEBUG(4, "%s: next state=%s, service type=%d\n", __FUNCTION__, 
+ 		   ircomm_state[self->state], self->service_type);
+ }
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff 2.4.19-rc3/net/irda/ircomm/ircomm_lmp.c test/net/irda/ircomm/ircomm_lmp.c
+--- 2.4.19-rc3/net/irda/ircomm/ircomm_lmp.c	2002-02-25 20:38:14.000000000 +0100
++++ test/net/irda/ircomm/ircomm_lmp.c	2002-07-22 18:48:09.000000000 +0200
+@@ -49,7 +49,7 @@ int ircomm_open_lsap(struct ircomm_cb *s
+ {
+ 	notify_t notify;
+ 	
+-	IRDA_DEBUG(0, __FUNCTION__ "()\n");
++	IRDA_DEBUG(0, "%s()\n", __FUNCTION__);
+ 	
+         /* Register callbacks */
+         irda_notify_init(&notify);
+@@ -62,7 +62,7 @@ int ircomm_open_lsap(struct ircomm_cb *s
+ 
+ 	self->lsap = irlmp_open_lsap(LSAP_ANY, &notify, 0);
+ 	if (!self->lsap) {
+-		IRDA_DEBUG(0,__FUNCTION__"failed to allocate tsap\n");
++		IRDA_DEBUG(0, "%sfailed to allocate tsap\n", __FUNCTION__);
+ 		return -1;
+ 	}
+ 	self->slsap_sel = self->lsap->slsap_sel;
+@@ -90,7 +90,7 @@ int ircomm_lmp_connect_request(struct ir
+ {
+ 	int ret = 0;
+ 
+-	IRDA_DEBUG(0, __FUNCTION__ "()\n");
++	IRDA_DEBUG(0, "%s()\n", __FUNCTION__);
+ 
+ 	ret = irlmp_connect_request(self->lsap, info->dlsap_sel,
+ 				    info->saddr, info->daddr, NULL, userdata); 
+@@ -108,7 +108,7 @@ int ircomm_lmp_connect_response(struct i
+ 	struct sk_buff *skb;
+ 	int ret;
+ 
+-	IRDA_DEBUG(0, __FUNCTION__"()\n");
++	IRDA_DEBUG(0, "%s()\n", __FUNCTION__);
+ 	
+ 	/* Any userdata supplied? */
+ 	if (userdata == NULL) {
+@@ -139,7 +139,7 @@ int ircomm_lmp_disconnect_request(struct
+         struct sk_buff *skb;
+ 	int ret;
+ 
+-	IRDA_DEBUG(0, __FUNCTION__ "()\n");
++	IRDA_DEBUG(0, "%s()\n", __FUNCTION__);
+ 
+         if (!userdata) {
+                 skb = dev_alloc_skb(64);
+@@ -172,13 +172,13 @@ void ircomm_lmp_flow_control(struct sk_b
+ 
+ 	cb = (struct irda_skb_cb *) skb->cb;
+ 
+-	IRDA_DEBUG(2, __FUNCTION__ "()\n");
++	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
+  
+         line = cb->line;
+ 
+ 	self = (struct ircomm_cb *) hashbin_find(ircomm, line, NULL);
+         if (!self) {
+-		IRDA_DEBUG(2, __FUNCTION__ "(), didn't find myself\n");
++		IRDA_DEBUG(2, "%s(), didn't find myself\n", __FUNCTION__);
+                 return;
+ 	}
+ 
+@@ -188,7 +188,7 @@ void ircomm_lmp_flow_control(struct sk_b
+ 	self->pkt_count--;
+ 
+         if ((self->pkt_count < 2) && (self->flow_status == FLOW_STOP)) {
+-                IRDA_DEBUG(2, __FUNCTION__ "(), asking TTY to start again!\n");
++                IRDA_DEBUG(2, "%s(), asking TTY to start again!\n", __FUNCTION__);
+                 self->flow_status = FLOW_START;
+                 if (self->notify.flow_indication)
+                         self->notify.flow_indication(self->notify.instance, 
+@@ -214,12 +214,12 @@ int ircomm_lmp_data_request(struct ircom
+ 	
+         cb->line = self->line;
+ 
+-	IRDA_DEBUG(4, __FUNCTION__"(), sending frame\n");
++	IRDA_DEBUG(4, "%s(), sending frame\n", __FUNCTION__);
+ 
+ 	skb->destructor = ircomm_lmp_flow_control;
+ 	
+         if ((self->pkt_count++ > 7) && (self->flow_status == FLOW_START)) {
+-		IRDA_DEBUG(2, __FUNCTION__ "(), asking TTY to slow down!\n");
++		IRDA_DEBUG(2, "%s(), asking TTY to slow down!\n", __FUNCTION__);
+ 	        self->flow_status = FLOW_STOP;
+                 if (self->notify.flow_indication)
+              	        self->notify.flow_indication(self->notify.instance, 
+@@ -227,7 +227,7 @@ int ircomm_lmp_data_request(struct ircom
+         }
+ 	ret = irlmp_data_request(self->lsap, skb);
+ 	if (ret) {
+-		ERROR(__FUNCTION__ "(), failed\n");
++		ERROR("%s(), failed\n", __FUNCTION__);
+ 		dev_kfree_skb(skb);
+ 	}
+ 
+@@ -245,7 +245,7 @@ int ircomm_lmp_data_indication(void *ins
+ {
+ 	struct ircomm_cb *self = (struct ircomm_cb *) instance;
+ 
+-	IRDA_DEBUG(4, __FUNCTION__"()\n");
++	IRDA_DEBUG(4, "%s()\n", __FUNCTION__);
+ 	
+ 	ASSERT(self != NULL, return -1;);
+ 	ASSERT(self->magic == IRCOMM_MAGIC, return -1;);
+@@ -272,7 +272,7 @@ void ircomm_lmp_connect_confirm(void *in
+ 	struct ircomm_cb *self = (struct ircomm_cb *) instance;
+ 	struct ircomm_info info;
+ 
+-	IRDA_DEBUG(0, __FUNCTION__"()\n");
++	IRDA_DEBUG(0, "%s()\n", __FUNCTION__);
+ 
+ 	ASSERT(self != NULL, return;);
+ 	ASSERT(self->magic == IRCOMM_MAGIC, return;);
+@@ -302,7 +302,7 @@ void ircomm_lmp_connect_indication(void 
+ 	struct ircomm_cb *self = (struct ircomm_cb *)instance;
+ 	struct ircomm_info info;
+ 
+-	IRDA_DEBUG(0, __FUNCTION__"()\n");
++	IRDA_DEBUG(0, "%s()\n", __FUNCTION__);
+ 
+ 	ASSERT(self != NULL, return;);
+ 	ASSERT(self->magic == IRCOMM_MAGIC, return;);
+@@ -329,7 +329,7 @@ void ircomm_lmp_disconnect_indication(vo
+ 	struct ircomm_cb *self = (struct ircomm_cb *) instance;
+ 	struct ircomm_info info;
+ 
+-	IRDA_DEBUG(0, __FUNCTION__"()\n");
++	IRDA_DEBUG(0, "%s()\n", __FUNCTION__);
+ 
+ 	ASSERT(self != NULL, return;);
+ 	ASSERT(self->magic == IRCOMM_MAGIC, return;);
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff 2.4.19-rc3/net/irda/ircomm/ircomm_param.c test/net/irda/ircomm/ircomm_param.c
+--- 2.4.19-rc3/net/irda/ircomm/ircomm_param.c	2001-11-09 23:22:17.000000000 +0100
++++ test/net/irda/ircomm/ircomm_param.c	2002-07-22 18:48:09.000000000 +0200
+@@ -118,7 +118,7 @@ int ircomm_param_request(struct ircomm_t
+ 	struct sk_buff *skb;
+ 	int count;
+ 
+-	IRDA_DEBUG(2, __FUNCTION__ "()\n");
++	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
+ 
+ 	ASSERT(self != NULL, return -1;);
+ 	ASSERT(self->magic == IRCOMM_TTY_MAGIC, return -1;);
+@@ -152,7 +152,7 @@ int ircomm_param_request(struct ircomm_t
+ 	count = irda_param_insert(self, pi, skb->tail, skb_tailroom(skb),
+ 				  &ircomm_param_info);
+ 	if (count < 0) {
+-		WARNING(__FUNCTION__ "(), no room for parameter!\n");
++		WARNING("%s(), no room for parameter!\n", __FUNCTION__);
+ 		restore_flags(flags);
+ 		return -1;
+ 	}
+@@ -160,7 +160,7 @@ int ircomm_param_request(struct ircomm_t
+ 
+ 	restore_flags(flags);
+ 
+-	IRDA_DEBUG(2, __FUNCTION__ "(), skb->len=%d\n", skb->len);
++	IRDA_DEBUG(2, "%s(), skb->len=%d\n", __FUNCTION__, skb->len);
+ 
+ 	if (flush) {
+ 		/* ircomm_tty_do_softint will take care of the rest */
+@@ -195,11 +195,10 @@ static int ircomm_param_service_type(voi
+ 	/* Find all common service types */
+ 	service_type &= self->service_type;
+ 	if (!service_type) {
+-		IRDA_DEBUG(2, __FUNCTION__
+-			   "(), No common service type to use!\n");
++		IRDA_DEBUG(2, "%s(), No common service type to use!\n", __FUNCTION__);
+ 		return -1;
+ 	}
+-	IRDA_DEBUG(0, __FUNCTION__ "(), services in common=%02x\n",
++	IRDA_DEBUG(0, "%s(), services in common=%02x\n", __FUNCTION__,
+ 		   service_type);
+ 
+ 	/*
+@@ -214,7 +213,7 @@ static int ircomm_param_service_type(voi
+ 	else if (service_type & IRCOMM_3_WIRE_RAW)
+ 		self->settings.service_type = IRCOMM_3_WIRE_RAW;
+ 
+-	IRDA_DEBUG(0, __FUNCTION__ "(), resulting service type=0x%02x\n", 
++	IRDA_DEBUG(0, "%s(), resulting service type=0x%02x\n", __FUNCTION__, 
+ 		   self->settings.service_type);
+ 
+ 	/* 
+@@ -250,7 +249,7 @@ static int ircomm_param_port_type(void *
+ 	else {
+ 		self->settings.port_type = (__u8) param->pv.i;
+ 
+-		IRDA_DEBUG(0, __FUNCTION__ "(), port type=%d\n", 
++		IRDA_DEBUG(0, "%s(), port type=%d\n", __FUNCTION__, 
+ 			   self->settings.port_type);
+ 	}
+ 	return 0;
+@@ -270,9 +269,9 @@ static int ircomm_param_port_name(void *
+ 	ASSERT(self->magic == IRCOMM_TTY_MAGIC, return -1;);
+ 
+ 	if (get) {
+-		IRDA_DEBUG(0, __FUNCTION__ "(), not imp!\n");
++		IRDA_DEBUG(0, "%s(), not imp!\n", __FUNCTION__);
+ 	} else {
+-		IRDA_DEBUG(0, __FUNCTION__ "(), port-name=%s\n", param->pv.c);
++		IRDA_DEBUG(0, "%s(), port-name=%s\n", __FUNCTION__, param->pv.c);
+ 		strncpy(self->settings.port_name, param->pv.c, 32);
+ 	}
+ 
+@@ -297,7 +296,7 @@ static int ircomm_param_data_rate(void *
+ 	else
+ 		self->settings.data_rate = param->pv.i;
+ 	
+-	IRDA_DEBUG(2, __FUNCTION__ "(), data rate = %d\n", param->pv.i);
++	IRDA_DEBUG(2, "%s(), data rate = %d\n", __FUNCTION__, param->pv.i);
+ 
+ 	return 0;
+ }
+@@ -343,7 +342,7 @@ static int ircomm_param_flow_control(voi
+ 	else
+ 		self->settings.flow_control = (__u8) param->pv.i;
+ 
+-	IRDA_DEBUG(1, __FUNCTION__ "(), flow control = 0x%02x\n", (__u8) param->pv.i);
++	IRDA_DEBUG(1, "%s(), flow control = 0x%02x\n", __FUNCTION__, (__u8) param->pv.i);
+ 
+ 	return 0;
+ }
+@@ -369,7 +368,7 @@ static int ircomm_param_xon_xoff(void *i
+ 		self->settings.xonxoff[1] = (__u16) param->pv.i >> 8;
+ 	}
+ 
+-	IRDA_DEBUG(0, __FUNCTION__ "(), XON/XOFF = 0x%02x,0x%02x\n", 
++	IRDA_DEBUG(0, "%s(), XON/XOFF = 0x%02x,0x%02x\n", __FUNCTION__, 
+ 		   param->pv.i & 0xff, param->pv.i >> 8);
+ 
+ 	return 0;
+@@ -396,7 +395,7 @@ static int ircomm_param_enq_ack(void *in
+ 		self->settings.enqack[1] = (__u16) param->pv.i >> 8;
+ 	}
+ 
+-	IRDA_DEBUG(0, __FUNCTION__ "(), ENQ/ACK = 0x%02x,0x%02x\n",
++	IRDA_DEBUG(0, "%s(), ENQ/ACK = 0x%02x,0x%02x\n", __FUNCTION__,
+ 		   param->pv.i & 0xff, param->pv.i >> 8);
+ 
+ 	return 0;
+@@ -411,7 +410,7 @@ static int ircomm_param_enq_ack(void *in
+ static int ircomm_param_line_status(void *instance, irda_param_t *param, 
+ 				    int get)
+ {
+-	IRDA_DEBUG(2, __FUNCTION__ "(), not impl.\n");
++	IRDA_DEBUG(2, "%s(), not impl.\n", __FUNCTION__);
+ 
+ 	return 0;
+ }
+@@ -470,7 +469,7 @@ static int ircomm_param_dce(void *instan
+ 	struct ircomm_tty_cb *self = (struct ircomm_tty_cb *) instance;
+ 	__u8 dce;
+ 
+-	IRDA_DEBUG(1, __FUNCTION__ "(), dce = 0x%02x\n", (__u8) param->pv.i);
++	IRDA_DEBUG(1, "%s(), dce = 0x%02x\n", __FUNCTION__, (__u8) param->pv.i);
+ 
+ 	dce = (__u8) param->pv.i;
+ 
+@@ -482,7 +481,7 @@ static int ircomm_param_dce(void *instan
+ 	/* Check if any of the settings have changed */
+ 	if (dce & 0x0f) {
+ 		if (dce & IRCOMM_DELTA_CTS) {
+-			IRDA_DEBUG(2, __FUNCTION__ "(), CTS \n");
++			IRDA_DEBUG(2, "%s(), CTS \n", __FUNCTION__);
+ 		}
+ 	}
+ 
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff 2.4.19-rc3/net/irda/ircomm/ircomm_ttp.c test/net/irda/ircomm/ircomm_ttp.c
+--- 2.4.19-rc3/net/irda/ircomm/ircomm_ttp.c	2001-03-02 20:12:12.000000000 +0100
++++ test/net/irda/ircomm/ircomm_ttp.c	2002-07-22 18:48:09.000000000 +0200
+@@ -49,7 +49,7 @@ int ircomm_open_tsap(struct ircomm_cb *s
+ {
+ 	notify_t notify;
+ 
+-	IRDA_DEBUG(4, __FUNCTION__ "()\n");
++	IRDA_DEBUG(4, "%s()\n", __FUNCTION__);
+ 
+ 	/* Register callbacks */
+ 	irda_notify_init(&notify);
+@@ -64,7 +64,7 @@ int ircomm_open_tsap(struct ircomm_cb *s
+ 	self->tsap = irttp_open_tsap(LSAP_ANY, DEFAULT_INITIAL_CREDIT,
+ 				     &notify);
+ 	if (!self->tsap) {
+-		IRDA_DEBUG(0, __FUNCTION__"failed to allocate tsap\n");
++		IRDA_DEBUG(0, "%sfailed to allocate tsap\n", __FUNCTION__);
+ 		return -1;
+ 	}
+ 	self->slsap_sel = self->tsap->stsap_sel;
+@@ -92,7 +92,7 @@ int ircomm_ttp_connect_request(struct ir
+ {
+ 	int ret = 0;
+ 
+-	IRDA_DEBUG(4, __FUNCTION__ "()\n");
++	IRDA_DEBUG(4, "%s()\n", __FUNCTION__);
+ 
+ 	ret = irttp_connect_request(self->tsap, info->dlsap_sel,
+ 				    info->saddr, info->daddr, NULL, 
+@@ -110,7 +110,7 @@ int ircomm_ttp_connect_response(struct i
+ {
+ 	int ret;
+ 
+-	IRDA_DEBUG(4, __FUNCTION__"()\n");
++	IRDA_DEBUG(4, "%s()\n", __FUNCTION__);
+ 	
+ 	ret = irttp_connect_response(self->tsap, TTP_SAR_DISABLE, skb);
+ 
+@@ -133,7 +133,7 @@ int ircomm_ttp_data_request(struct ircom
+ 
+ 	ASSERT(skb != NULL, return -1;);
+ 
+-	IRDA_DEBUG(2, __FUNCTION__"(), clen=%d\n", clen);
++	IRDA_DEBUG(2, "%s(), clen=%d\n", __FUNCTION__, clen);
+ 
+ 	/* 
+ 	 * Insert clen field, currently we either send data only, or control
+@@ -146,7 +146,7 @@ int ircomm_ttp_data_request(struct ircom
+ 
+ 	ret = irttp_data_request(self->tsap, skb);
+ 	if (ret) {
+-		ERROR(__FUNCTION__ "(), failed\n");
++		ERROR("%s(), failed\n", __FUNCTION__);
+ 		dev_kfree_skb(skb);
+ 	}
+ 
+@@ -164,7 +164,7 @@ int ircomm_ttp_data_indication(void *ins
+ {
+ 	struct ircomm_cb *self = (struct ircomm_cb *) instance;
+ 
+-	IRDA_DEBUG(4, __FUNCTION__"()\n");
++	IRDA_DEBUG(4, "%s()\n", __FUNCTION__);
+ 	
+ 	ASSERT(self != NULL, return -1;);
+ 	ASSERT(self->magic == IRCOMM_MAGIC, return -1;);
+@@ -184,7 +184,7 @@ void ircomm_ttp_connect_confirm(void *in
+ 	struct ircomm_cb *self = (struct ircomm_cb *) instance;
+ 	struct ircomm_info info;
+ 
+-	IRDA_DEBUG(4, __FUNCTION__"()\n");
++	IRDA_DEBUG(4, "%s()\n", __FUNCTION__);
+ 
+ 	ASSERT(self != NULL, return;);
+ 	ASSERT(self->magic == IRCOMM_MAGIC, return;);
+@@ -192,7 +192,7 @@ void ircomm_ttp_connect_confirm(void *in
+ 	ASSERT(qos != NULL, return;);
+ 
+ 	if (max_sdu_size != TTP_SAR_DISABLE) {
+-		ERROR(__FUNCTION__ "(), SAR not allowed for IrCOMM!\n");
++		ERROR("%s(), SAR not allowed for IrCOMM!\n", __FUNCTION__);
+ 		dev_kfree_skb(skb);
+ 		return;
+ 	}
+@@ -221,7 +221,7 @@ void ircomm_ttp_connect_indication(void 
+ 	struct ircomm_cb *self = (struct ircomm_cb *)instance;
+ 	struct ircomm_info info;
+ 
+-	IRDA_DEBUG(4, __FUNCTION__"()\n");
++	IRDA_DEBUG(4, "%s()\n", __FUNCTION__);
+ 
+ 	ASSERT(self != NULL, return;);
+ 	ASSERT(self->magic == IRCOMM_MAGIC, return;);
+@@ -229,7 +229,7 @@ void ircomm_ttp_connect_indication(void 
+ 	ASSERT(qos != NULL, return;);
+ 
+ 	if (max_sdu_size != TTP_SAR_DISABLE) {
+-		ERROR(__FUNCTION__ "(), SAR not allowed for IrCOMM!\n");
++		ERROR("%s(), SAR not allowed for IrCOMM!\n", __FUNCTION__);
+ 		dev_kfree_skb(skb);
+ 		return;
+ 	}
+@@ -272,7 +272,7 @@ void ircomm_ttp_disconnect_indication(vo
+ 	struct ircomm_cb *self = (struct ircomm_cb *) instance;
+ 	struct ircomm_info info;
+ 
+-	IRDA_DEBUG(2, __FUNCTION__"()\n");
++	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
+ 
+ 	ASSERT(self != NULL, return;);
+ 	ASSERT(self->magic == IRCOMM_MAGIC, return;);
+@@ -292,7 +292,7 @@ void ircomm_ttp_flow_indication(void *in
+ {
+ 	struct ircomm_cb *self = (struct ircomm_cb *) instance;
+ 
+-	IRDA_DEBUG(4, __FUNCTION__ "()\n");
++	IRDA_DEBUG(4, "%s()\n", __FUNCTION__);
+ 
+ 	ASSERT(self != NULL, return;);
+ 	ASSERT(self->magic == IRCOMM_MAGIC, return;);
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff 2.4.19-rc3/net/irda/ircomm/ircomm_tty_attach.c test/net/irda/ircomm/ircomm_tty_attach.c
+--- 2.4.19-rc3/net/irda/ircomm/ircomm_tty_attach.c	2001-07-25 23:12:03.000000000 +0200
++++ test/net/irda/ircomm/ircomm_tty_attach.c	2002-07-22 18:48:09.000000000 +0200
+@@ -125,14 +125,14 @@ static int (*state[])(struct ircomm_tty_
+  */
+ int ircomm_tty_attach_cable(struct ircomm_tty_cb *self)
+ {
+-	IRDA_DEBUG(0, __FUNCTION__ "()\n");
++	IRDA_DEBUG(0, "%s()\n", __FUNCTION__);
+ 
+ 	ASSERT(self != NULL, return -1;);
+ 	ASSERT(self->magic == IRCOMM_TTY_MAGIC, return -1;);
+ 
+        	/* Check if somebody has already connected to us */
+ 	if (ircomm_is_connected(self->ircomm)) {
+-		IRDA_DEBUG(0, __FUNCTION__ "(), already connected!\n");
++		IRDA_DEBUG(0, "%s(), already connected!\n", __FUNCTION__);
+ 		return 0;
+ 	}
+ 
+@@ -143,7 +143,7 @@ int ircomm_tty_attach_cable(struct ircom
+ 
+ 	/* Check if somebody has already connected to us */
+ 	if (ircomm_is_connected(self->ircomm)) {
+-		IRDA_DEBUG(0, __FUNCTION__ "(), already connected!\n");
++		IRDA_DEBUG(0, "%s(), already connected!\n", __FUNCTION__);
+ 		return 0;
+ 	}
+ 
+@@ -160,7 +160,7 @@ int ircomm_tty_attach_cable(struct ircom
+  */
+ void ircomm_tty_detach_cable(struct ircomm_tty_cb *self)
+ {
+-	IRDA_DEBUG(0, __FUNCTION__ "()\n");
++	IRDA_DEBUG(0, "%s()\n", __FUNCTION__);
+ 
+ 	ASSERT(self != NULL, return;);
+ 	ASSERT(self->magic == IRCOMM_TTY_MAGIC, return;);
+@@ -202,7 +202,7 @@ static void ircomm_tty_ias_register(stru
+ 	__u8 oct_seq[6];
+ 	__u16 hints;
+ 
+-	IRDA_DEBUG(0, __FUNCTION__ "()\n");
++	IRDA_DEBUG(0, "%s()\n", __FUNCTION__);
+ 
+ 	ASSERT(self != NULL, return;);
+ 	ASSERT(self->magic == IRCOMM_TTY_MAGIC, return;);
+@@ -257,16 +257,16 @@ int ircomm_tty_send_initial_parameters(s
+ 	 * Set default values, but only if the application for some reason 
+ 	 * haven't set them already
+ 	 */
+-	IRDA_DEBUG(2, __FUNCTION__ "(), data-rate = %d\n", 
++	IRDA_DEBUG(2, "%s(), data-rate = %d\n", __FUNCTION__, 
+ 		   self->settings.data_rate);
+ 	if (!self->settings.data_rate)
+ 		self->settings.data_rate = 9600;
+-	IRDA_DEBUG(2, __FUNCTION__ "(), data-format = %d\n", 
++	IRDA_DEBUG(2, "%s(), data-format = %d\n", __FUNCTION__, 
+ 		   self->settings.data_format);
+ 	if (!self->settings.data_format)
+ 		self->settings.data_format = IRCOMM_WSIZE_8;  /* 8N1 */
+ 
+-	IRDA_DEBUG(2, __FUNCTION__ "(), flow-control = %d\n", 
++	IRDA_DEBUG(2, "%s(), flow-control = %d\n", __FUNCTION__, 
+ 		   self->settings.flow_control);
+ 	/*self->settings.flow_control = IRCOMM_RTS_CTS_IN|IRCOMM_RTS_CTS_OUT;*/
+ 
+@@ -310,7 +310,7 @@ static void ircomm_tty_discovery_indicat
+ 	struct ircomm_tty_cb *self;
+ 	struct ircomm_tty_info info;
+ 
+-	IRDA_DEBUG(2, __FUNCTION__"()\n");
++	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
+ 
+ 	info.daddr = discovery->daddr;
+ 	info.saddr = discovery->saddr;
+@@ -338,7 +338,7 @@ void ircomm_tty_disconnect_indication(vo
+ {
+ 	struct ircomm_tty_cb *self = (struct ircomm_tty_cb *) instance;
+ 
+-	IRDA_DEBUG(2, __FUNCTION__ "()\n");
++	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
+ 
+ 	ASSERT(self != NULL, return;);
+ 	ASSERT(self->magic == IRCOMM_TTY_MAGIC, return;);
+@@ -368,7 +368,7 @@ static void ircomm_tty_getvalue_confirm(
+ {
+ 	struct ircomm_tty_cb *self = (struct ircomm_tty_cb *) priv;
+ 
+-	IRDA_DEBUG(2, __FUNCTION__"()\n");
++	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
+ 
+ 	ASSERT(self != NULL, return;);
+ 	ASSERT(self->magic == IRCOMM_TTY_MAGIC, return;);
+@@ -379,13 +379,13 @@ static void ircomm_tty_getvalue_confirm(
+ 
+ 	/* Check if request succeeded */
+ 	if (result != IAS_SUCCESS) {
+-		IRDA_DEBUG(4, __FUNCTION__ "(), got NULL value!\n");
++		IRDA_DEBUG(4, "%s(), got NULL value!\n", __FUNCTION__);
+ 		return;
+ 	}
+ 
+ 	switch (value->type) {
+  	case IAS_OCT_SEQ:
+-		IRDA_DEBUG(2, __FUNCTION__"(), got octet sequence\n");
++		IRDA_DEBUG(2, "%s(), got octet sequence\n", __FUNCTION__);
+ 
+ 		irda_param_extract_all(self, value->t.oct_seq, value->len,
+ 				       &ircomm_param_info);
+@@ -395,21 +395,21 @@ static void ircomm_tty_getvalue_confirm(
+ 		break;
+ 	case IAS_INTEGER:
+ 		/* Got LSAP selector */	
+-		IRDA_DEBUG(2, __FUNCTION__"(), got lsapsel = %d\n", 
++		IRDA_DEBUG(2, "%s(), got lsapsel = %d\n", __FUNCTION__, 
+ 			   value->t.integer);
+ 
+ 		if (value->t.integer == -1) {
+-			IRDA_DEBUG(0, __FUNCTION__"(), invalid value!\n");
++			IRDA_DEBUG(0, "%s(), invalid value!\n", __FUNCTION__);
+ 		} else
+ 			self->dlsap_sel = value->t.integer;
+ 
+ 		ircomm_tty_do_event(self, IRCOMM_TTY_GOT_LSAPSEL, NULL, NULL);
+ 		break;
+ 	case IAS_MISSING:
+-		IRDA_DEBUG(0, __FUNCTION__"(), got IAS_MISSING\n");
++		IRDA_DEBUG(0, "%s(), got IAS_MISSING\n", __FUNCTION__);
+ 		break;
+ 	default:
+-		IRDA_DEBUG(0, __FUNCTION__"(), got unknown type!\n");
++		IRDA_DEBUG(0, "%s(), got unknown type!\n", __FUNCTION__);
+ 		break;
+ 	}
+ 	irias_delete_value(value);
+@@ -429,7 +429,7 @@ void ircomm_tty_connect_confirm(void *in
+ {
+ 	struct ircomm_tty_cb *self = (struct ircomm_tty_cb *) instance;
+ 
+-	IRDA_DEBUG(2, __FUNCTION__ "()\n");
++	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
+ 
+ 	ASSERT(self != NULL, return;);
+ 	ASSERT(self->magic == IRCOMM_TTY_MAGIC, return;);
+@@ -460,7 +460,7 @@ void ircomm_tty_connect_indication(void 
+ 	struct ircomm_tty_cb *self = (struct ircomm_tty_cb *) instance;
+ 	int clen;
+ 
+-	IRDA_DEBUG(2, __FUNCTION__ "()\n");
++	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
+ 
+ 	ASSERT(self != NULL, return;);
+ 	ASSERT(self->magic == IRCOMM_TTY_MAGIC, return;);
+@@ -489,7 +489,7 @@ void ircomm_tty_connect_indication(void 
+  */
+ void ircomm_tty_link_established(struct ircomm_tty_cb *self)
+ {
+-	IRDA_DEBUG(2, __FUNCTION__ "()\n");
++	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
+ 
+ 	ASSERT(self != NULL, return;);
+ 	ASSERT(self->magic == IRCOMM_TTY_MAGIC, return;);
+@@ -547,7 +547,7 @@ void ircomm_tty_watchdog_timer_expired(v
+ {
+ 	struct ircomm_tty_cb *self = (struct ircomm_tty_cb *) data;
+ 	
+-	IRDA_DEBUG(2, __FUNCTION__ "()\n");
++	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
+ 
+ 	ASSERT(self != NULL, return;);
+ 	ASSERT(self->magic == IRCOMM_TTY_MAGIC, return;);
+@@ -568,7 +568,7 @@ static int ircomm_tty_state_idle(struct 
+ {
+ 	int ret = 0;
+ 
+-	IRDA_DEBUG(2, __FUNCTION__": state=%s, event=%s\n",
++	IRDA_DEBUG(2, "%s: state=%s, event=%s\n", __FUNCTION__,
+ 		   ircomm_tty_state[self->state], ircomm_tty_event[event]);
+ 	switch (event) {
+ 	case IRCOMM_TTY_ATTACH_CABLE:
+@@ -583,8 +583,7 @@ static int ircomm_tty_state_idle(struct 
+ 		self->saddr = info->saddr;
+ 
+ 		if (self->iriap) {
+-			WARNING(__FUNCTION__ 
+-				"(), busy with a previous query\n");
++			WARNING("%s(), busy with a previous query\n", __FUNCTION__);
+ 			return -EBUSY;
+ 		}
+ 
+@@ -612,7 +611,7 @@ static int ircomm_tty_state_idle(struct 
+ 		ircomm_tty_next_state(self, IRCOMM_TTY_IDLE);
+ 		break;
+ 	default:
+-		IRDA_DEBUG(2, __FUNCTION__"(), unknown event: %s\n",
++		IRDA_DEBUG(2, "%s(), unknown event: %s\n", __FUNCTION__,
+ 			   ircomm_tty_event[event]);
+ 		return -EINVAL;
+ 	}
+@@ -632,7 +631,7 @@ static int ircomm_tty_state_search(struc
+ {
+ 	int ret = 0;
+ 
+-	IRDA_DEBUG(2, __FUNCTION__": state=%s, event=%s\n",
++	IRDA_DEBUG(2, "%s: state=%s, event=%s\n", __FUNCTION__,
+ 		   ircomm_tty_state[self->state], ircomm_tty_event[event]);
+ 
+ 	switch (event) {
+@@ -641,8 +640,7 @@ static int ircomm_tty_state_search(struc
+ 		self->saddr = info->saddr;
+ 
+ 		if (self->iriap) {
+-			WARNING(__FUNCTION__ 
+-				"(), busy with a previous query\n");
++			WARNING("%s(), busy with a previous query\n", __FUNCTION__);
+ 			return -EBUSY;
+ 		}
+ 		
+@@ -684,7 +682,7 @@ static int ircomm_tty_state_search(struc
+ 		ircomm_tty_next_state(self, IRCOMM_TTY_IDLE);
+ 		break;
+ 	default:
+-		IRDA_DEBUG(2, __FUNCTION__"(), unknown event: %s\n",
++		IRDA_DEBUG(2, "%s(), unknown event: %s\n", __FUNCTION__,
+ 			   ircomm_tty_event[event]);
+ 		return -EINVAL;
+ 	}
+@@ -704,14 +702,13 @@ static int ircomm_tty_state_query_parame
+ {
+ 	int ret = 0;
+ 
+-	IRDA_DEBUG(2, __FUNCTION__": state=%s, event=%s\n",
++	IRDA_DEBUG(2, "%s: state=%s, event=%s\n", __FUNCTION__,
+ 		   ircomm_tty_state[self->state], ircomm_tty_event[event]);
+ 
+ 	switch (event) {
+ 	case IRCOMM_TTY_GOT_PARAMETERS:
+ 		if (self->iriap) {
+-			WARNING(__FUNCTION__ 
+-				"(), busy with a previous query\n");
++			WARNING("%s(), busy with a previous query\n", __FUNCTION__);
+ 			return -EBUSY;
+ 		}
+ 		
+@@ -741,7 +738,7 @@ static int ircomm_tty_state_query_parame
+ 		ircomm_tty_next_state(self, IRCOMM_TTY_IDLE);
+ 		break;
+ 	default:
+-		IRDA_DEBUG(2, __FUNCTION__"(), unknown event: %s\n",
++		IRDA_DEBUG(2, "%s(), unknown event: %s\n", __FUNCTION__,
+ 			   ircomm_tty_event[event]);
+ 		return -EINVAL;
+ 	}
+@@ -761,7 +758,7 @@ static int ircomm_tty_state_query_lsap_s
+ {
+ 	int ret = 0;
+ 
+-	IRDA_DEBUG(2, __FUNCTION__": state=%s, event=%s\n",
++	IRDA_DEBUG(2, "%s: state=%s, event=%s\n", __FUNCTION__,
+ 		   ircomm_tty_state[self->state], ircomm_tty_event[event]);
+ 
+ 	switch (event) {
+@@ -789,7 +786,7 @@ static int ircomm_tty_state_query_lsap_s
+ 		ircomm_tty_next_state(self, IRCOMM_TTY_IDLE);
+ 		break;
+ 	default:
+-		IRDA_DEBUG(2, __FUNCTION__"(), unknown event: %s\n",
++		IRDA_DEBUG(2, "%s(), unknown event: %s\n", __FUNCTION__,
+ 			   ircomm_tty_event[event]);
+ 		return -EINVAL;
+ 	}
+@@ -809,7 +806,7 @@ static int ircomm_tty_state_setup(struct
+ {
+ 	int ret = 0;
+ 
+-	IRDA_DEBUG(2, __FUNCTION__": state=%s, event=%s\n",
++	IRDA_DEBUG(2, "%s: state=%s, event=%s\n", __FUNCTION__,
+ 		   ircomm_tty_state[self->state], ircomm_tty_event[event]);
+ 
+ 	switch (event) {
+@@ -841,7 +838,7 @@ static int ircomm_tty_state_setup(struct
+ 		ircomm_tty_next_state(self, IRCOMM_TTY_IDLE);
+ 		break;
+ 	default:
+-		IRDA_DEBUG(2, __FUNCTION__"(), unknown event: %s\n",
++		IRDA_DEBUG(2, "%s(), unknown event: %s\n", __FUNCTION__,
+ 			   ircomm_tty_event[event]);
+ 		return -EINVAL;
+ 	}
+@@ -878,13 +875,13 @@ static int ircomm_tty_state_ready(struct
+ 			self->settings.dce = IRCOMM_DELTA_CD;
+ 			ircomm_tty_check_modem_status(self);
+ 		} else {
+-			IRDA_DEBUG(0, __FUNCTION__ "(), hanging up!\n");
++			IRDA_DEBUG(0, "%s(), hanging up!\n", __FUNCTION__);
+ 			if (self->tty)
+ 				tty_hangup(self->tty);
+ 		}
+ 		break;
+ 	default:
+-		IRDA_DEBUG(2, __FUNCTION__"(), unknown event: %s\n",
++		IRDA_DEBUG(2, "%s(), unknown event: %s\n", __FUNCTION__,
+ 			   ircomm_tty_event[event]);
+ 		return -EINVAL;
+ 	}
+@@ -903,7 +900,7 @@ int ircomm_tty_do_event(struct ircomm_tt
+ 	ASSERT(self != NULL, return -1;);
+ 	ASSERT(self->magic == IRCOMM_TTY_MAGIC, return -1;);
+ 
+-	IRDA_DEBUG(2, __FUNCTION__": state=%s, event=%s\n",
++	IRDA_DEBUG(2, "%s: state=%s, event=%s\n", __FUNCTION__,
+ 		   ircomm_tty_state[self->state], ircomm_tty_event[event]);
+ 	
+ 	return (*state[self->state])(self, event, skb, info);
+@@ -922,7 +919,7 @@ void ircomm_tty_next_state(struct ircomm
+ 
+ 	self->state = state;
+ 	
+-	IRDA_DEBUG(2, __FUNCTION__": next state=%s, service type=%d\n", 
++	IRDA_DEBUG(2, "%s: next state=%s, service type=%d\n", __FUNCTION__, 
+ 		   ircomm_tty_state[self->state], self->service_type);
+ }
+ 
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff 2.4.19-rc3/net/irda/ircomm/ircomm_tty_ioctl.c test/net/irda/ircomm/ircomm_tty_ioctl.c
+--- 2.4.19-rc3/net/irda/ircomm/ircomm_tty_ioctl.c	2001-07-04 20:50:38.000000000 +0200
++++ test/net/irda/ircomm/ircomm_tty_ioctl.c	2002-07-22 18:48:09.000000000 +0200
+@@ -59,7 +59,7 @@ void ircomm_tty_change_speed(struct irco
+ 	unsigned cflag, cval;
+ 	int baud;
+ 
+-	IRDA_DEBUG(2, __FUNCTION__ "()\n");
++	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
+ 
+ 	if (!self->tty || !self->tty->termios || !self->ircomm)
+ 		return;
+@@ -149,7 +149,7 @@ void ircomm_tty_set_termios(struct tty_s
+ 	struct ircomm_tty_cb *self = (struct ircomm_tty_cb *) tty->driver_data;
+ 	unsigned int cflag = tty->termios->c_cflag;
+ 
+-	IRDA_DEBUG(2, __FUNCTION__ "()\n");
++	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
+ 
+ 	if ((cflag == old_termios->c_cflag) && 
+ 	    (RELEVANT_IFLAG(tty->termios->c_iflag) == 
+@@ -198,7 +198,7 @@ static int ircomm_tty_get_modem_info(str
+ {
+ 	unsigned int result;
+ 
+-	IRDA_DEBUG(2, __FUNCTION__ "()\n");
++	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
+ 
+ 	result =  ((self->settings.dte & IRCOMM_RTS) ? TIOCM_RTS : 0)
+ 		| ((self->settings.dte & IRCOMM_DTR) ? TIOCM_DTR : 0)
+@@ -222,7 +222,7 @@ static int ircomm_tty_set_modem_info(str
+ 	unsigned int arg;
+ 	__u8 old_rts, old_dtr;
+ 
+-	IRDA_DEBUG(2, __FUNCTION__ "()\n");
++	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
+ 
+ 	ASSERT(self != NULL, return -1;);
+ 	ASSERT(self->magic == IRCOMM_TTY_MAGIC, return -1;);
+@@ -284,7 +284,7 @@ static int ircomm_tty_get_serial_info(st
+ 	if (!retinfo)
+ 		return -EFAULT;
+ 
+-	IRDA_DEBUG(2, __FUNCTION__ "()\n");
++	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
+ 
+ 	memset(&info, 0, sizeof(info));
+ 	info.line = self->line;
+@@ -320,7 +320,7 @@ static int ircomm_tty_set_serial_info(st
+ 	struct serial_struct new_serial;
+ 	struct ircomm_tty_cb old_state, *state;
+ 
+-	IRDA_DEBUG(0, __FUNCTION__ "()\n");
++	IRDA_DEBUG(0, "%s()\n", __FUNCTION__);
+ 
+ 	if (copy_from_user(&new_serial,new_info,sizeof(new_serial)))
+ 		return -EFAULT;
+@@ -394,7 +394,7 @@ int ircomm_tty_ioctl(struct tty_struct *
+ 	struct ircomm_tty_cb *self = (struct ircomm_tty_cb *) tty->driver_data;
+ 	int ret = 0;
+ 
+-	IRDA_DEBUG(2, __FUNCTION__ "()\n");
++	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
+ 
+ 	if ((cmd != TIOCGSERIAL) && (cmd != TIOCSSERIAL) &&
+ 	    (cmd != TIOCSERCONFIG) && (cmd != TIOCSERGSTRUCT) &&
+@@ -423,7 +423,7 @@ int ircomm_tty_ioctl(struct tty_struct *
+ 		break;
+ 
+ 	case TIOCGICOUNT:
+-		IRDA_DEBUG(0, __FUNCTION__ "(), TIOCGICOUNT not impl!\n");
++		IRDA_DEBUG(0, "%s(), TIOCGICOUNT not impl!\n", __FUNCTION__);
+ #if 0
+ 		save_flags(flags); cli();
+ 		cnow = driver->icount;
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff 2.4.19-rc3/net/irda/irda_device.c test/net/irda/irda_device.c
+--- 2.4.19-rc3/net/irda/irda_device.c	2002-02-25 20:38:14.000000000 +0100
++++ test/net/irda/irda_device.c	2002-07-22 18:48:09.000000000 +0200
+@@ -167,7 +167,7 @@ int __init irda_device_init( void)
+ 
+ void irda_device_cleanup(void)
+ {
+-	IRDA_DEBUG(4, __FUNCTION__ "()\n");
++	IRDA_DEBUG(4, "%s()\n", __FUNCTION__);
+ 
+ 	hashbin_delete(tasks, (FREE_FUNC) __irda_task_delete);
+ 	hashbin_delete(dongles, NULL);
+@@ -183,7 +183,7 @@ void irda_device_set_media_busy(struct n
+ {
+ 	struct irlap_cb *self;
+ 
+-	IRDA_DEBUG(4, __FUNCTION__ "(%s)\n", status ? "TRUE" : "FALSE");
++	IRDA_DEBUG(4, "%s(%s)\n", status ? "TRUE" : "FALSE", __FUNCTION__);
+ 
+ 	self = (struct irlap_cb *) dev->atalk_ptr;
+ 
+@@ -208,11 +208,11 @@ int irda_device_set_dtr_rts(struct net_d
+ 	struct if_irda_req req;
+ 	int ret;
+ 
+-	IRDA_DEBUG(2, __FUNCTION__ "()\n");
++	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
+ 
+ 	if (!dev->do_ioctl) {
+-		ERROR(__FUNCTION__ "(), do_ioctl not impl. by "
+-		      "device driver\n");
++		ERROR("%s(), do_ioctl not impl. by "
++		      "device driver\n", __FUNCTION__);
+ 		return -1;
+ 	}
+ 
+@@ -229,11 +229,11 @@ int irda_device_change_speed(struct net_
+ 	struct if_irda_req req;
+ 	int ret;
+ 
+-	IRDA_DEBUG(2, __FUNCTION__ "()\n");
++	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
+ 
+ 	if (!dev->do_ioctl) {
+-		ERROR(__FUNCTION__ "(), do_ioctl not impl. by "
+-		      "device driver\n");
++		ERROR("%s(), do_ioctl not impl. by "
++		      "device driver\n", __FUNCTION__);
+ 		return -1;
+ 	}
+ 
+@@ -255,11 +255,11 @@ int irda_device_is_receiving(struct net_
+ 	struct if_irda_req req;
+ 	int ret;
+ 
+-	IRDA_DEBUG(2, __FUNCTION__ "()\n");
++	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
+ 
+ 	if (!dev->do_ioctl) {
+-		ERROR(__FUNCTION__ "(), do_ioctl not impl. by "
+-		      "device driver\n");
++		ERROR("%s(), do_ioctl not impl. by "
++		      "device driver\n", __FUNCTION__);
+ 		return -1;
+ 	}
+ 
+@@ -272,7 +272,7 @@ int irda_device_is_receiving(struct net_
+ 
+ void irda_task_next_state(struct irda_task *task, IRDA_TASK_STATE state)
+ {
+-	IRDA_DEBUG(2, __FUNCTION__ "(), state = %s\n", task_state[state]);
++	IRDA_DEBUG(2, "%s(), state = %s\n", __FUNCTION__, task_state[state]);
+ 
+ 	task->state = state;
+ }
+@@ -306,7 +306,7 @@ int irda_task_kick(struct irda_task *tas
+ 	int count = 0;
+ 	int timeout;
+ 
+-	IRDA_DEBUG(2, __FUNCTION__ "()\n");
++	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
+ 
+ 	ASSERT(task != NULL, return -1;);
+ 	ASSERT(task->magic == IRDA_TASK_MAGIC, return -1;);
+@@ -315,14 +315,14 @@ int irda_task_kick(struct irda_task *tas
+ 	do {
+ 		timeout = task->function(task);
+ 		if (count++ > 100) {
+-			ERROR(__FUNCTION__ "(), error in task handler!\n");
++			ERROR("%s(), error in task handler!\n", __FUNCTION__);
+ 			irda_task_delete(task);
+ 			return TRUE;
+ 		}			
+ 	} while ((timeout == 0) && (task->state != IRDA_TASK_DONE));
+ 
+ 	if (timeout < 0) {
+-		ERROR(__FUNCTION__ "(), Error executing task!\n");
++		ERROR("%s(), Error executing task!\n", __FUNCTION__);
+ 		irda_task_delete(task);
+ 		return TRUE;
+ 	}
+@@ -354,8 +354,7 @@ int irda_task_kick(struct irda_task *tas
+ 				 irda_task_timer_expired);
+ 		finished = FALSE;
+ 	} else {
+-		IRDA_DEBUG(0, __FUNCTION__ 
+-			   "(), not finished, and no timeout!\n");
++		IRDA_DEBUG(0, "%s(), not finished, and no timeout!\n", __FUNCTION__);
+ 		finished = FALSE;
+ 	}
+ 
+@@ -378,7 +377,7 @@ struct irda_task *irda_task_execute(void
+ 	struct irda_task *task;
+ 	int ret;
+ 
+-	IRDA_DEBUG(2, __FUNCTION__ "()\n");
++	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
+ 
+ 	task = kmalloc(sizeof(struct irda_task), GFP_ATOMIC);
+ 	if (!task)
+@@ -415,7 +414,7 @@ static void irda_task_timer_expired(void
+ {
+ 	struct irda_task *task;
+ 
+-	IRDA_DEBUG(2, __FUNCTION__ "()\n");
++	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
+ 
+ 	task = (struct irda_task *) data;
+ 
+@@ -530,7 +529,7 @@ int irda_device_register_dongle(struct d
+ {
+ 	/* Check if this dongle has been registred before */
+ 	if (hashbin_find(dongles, new->type, NULL)) {
+-		MESSAGE(__FUNCTION__ "(), Dongle already registered\n");
++		MESSAGE("%s(), Dongle already registered\n", __FUNCTION__);
+                 return 0;
+         }
+ 	
+@@ -552,7 +551,7 @@ void irda_device_unregister_dongle(struc
+ 
+ 	node = hashbin_remove(dongles, dongle->type, NULL);
+ 	if (!node) {
+-		ERROR(__FUNCTION__ "(), dongle not found!\n");
++		ERROR("%s(), dongle not found!\n", __FUNCTION__);
+ 		return;
+ 	}
+ }
+@@ -569,11 +568,11 @@ int irda_device_set_mode(struct net_devi
+ 	struct if_irda_req req;
+ 	int ret;
+ 
+-	IRDA_DEBUG(0, __FUNCTION__ "()\n");
++	IRDA_DEBUG(0, "%s()\n", __FUNCTION__);
+ 
+ 	if (!dev->do_ioctl) {
+-		ERROR(__FUNCTION__ "(), set_raw_mode not impl. by "
+-		      "device driver\n");
++		ERROR("%s(), set_raw_mode not impl. by "
++		      "device driver\n", __FUNCTION__);
+ 		return -1;
+ 	}
+ 	
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff 2.4.19-rc3/net/irda/irias_object.c test/net/irda/irias_object.c
+--- 2.4.19-rc3/net/irda/irias_object.c	2001-10-05 03:41:09.000000000 +0200
++++ test/net/irda/irias_object.c	2002-07-22 18:48:09.000000000 +0200
+@@ -59,7 +59,7 @@ char *strndup(char *str, int max)
+ 	/* Allocate new string */
+         new_str = kmalloc(len + 1, GFP_ATOMIC);
+         if (new_str == NULL) {
+-		WARNING(__FUNCTION__"(), Unable to kmalloc!\n");
++		WARNING("%s(), Unable to kmalloc!\n", __FUNCTION__);
+ 		return NULL;
+ 	}
+ 
+@@ -80,12 +80,12 @@ struct ias_object *irias_new_object( cha
+ {
+         struct ias_object *obj;
+ 	
+-	IRDA_DEBUG( 4, __FUNCTION__ "()\n");
++	IRDA_DEBUG( 4, "%s()\n", __FUNCTION__);
+ 
+ 	obj = (struct ias_object *) kmalloc(sizeof(struct ias_object), 
+ 					    GFP_ATOMIC);
+ 	if (obj == NULL) {
+-		IRDA_DEBUG(0, __FUNCTION__ "(), Unable to allocate object!\n");
++		IRDA_DEBUG(0, "%s(), Unable to allocate object!\n", __FUNCTION__);
+ 		return NULL;
+ 	}
+ 	memset(obj, 0, sizeof( struct ias_object));
+@@ -272,7 +272,7 @@ int irias_object_change_attribute(char *
+ 	/* Find object */
+ 	obj = hashbin_find(objects, 0, obj_name);
+ 	if (obj == NULL) {
+-		WARNING(__FUNCTION__ "(), Unable to find object: %s\n",
++		WARNING("%s(), Unable to find object: %s\n", __FUNCTION__,
+ 			obj_name);
+ 		return -1;
+ 	}
+@@ -280,14 +280,13 @@ int irias_object_change_attribute(char *
+ 	/* Find attribute */
+ 	attrib = hashbin_find(obj->attribs, 0, attrib_name);
+ 	if (attrib == NULL) {
+-		WARNING(__FUNCTION__ "(), Unable to find attribute: %s\n",
++		WARNING("%s(), Unable to find attribute: %s\n", __FUNCTION__,
+ 			attrib_name);
+ 		return -1;
+ 	}
+ 	
+ 	if ( attrib->value->type != new_value->type) {
+-		IRDA_DEBUG( 0, __FUNCTION__ 
+-		       "(), changing value type not allowed!\n");
++		IRDA_DEBUG( 0, "%s(), changing value type not allowed!\n", __FUNCTION__);
+ 		return -1;
+ 	}
+ 
+@@ -319,7 +318,7 @@ void irias_add_integer_attrib(struct ias
+ 	attrib = (struct ias_attrib *) kmalloc(sizeof(struct ias_attrib), 
+ 					       GFP_ATOMIC);
+ 	if (attrib == NULL) {
+-		WARNING(__FUNCTION__ "(), Unable to allocate attribute!\n");
++		WARNING("%s(), Unable to allocate attribute!\n", __FUNCTION__);
+ 		return;
+ 	}
+ 	memset(attrib, 0, sizeof( struct ias_attrib));
+@@ -354,8 +353,7 @@ void irias_add_octseq_attrib(struct ias_
+ 	attrib = (struct ias_attrib *) kmalloc(sizeof(struct ias_attrib), 
+ 					       GFP_ATOMIC);
+ 	if (attrib == NULL) {
+-		WARNING(__FUNCTION__ 
+-			"(), Unable to allocate attribute!\n");
++		WARNING("%s(), Unable to allocate attribute!\n", __FUNCTION__);
+ 		return;
+ 	}
+ 	memset(attrib, 0, sizeof( struct ias_attrib));
+@@ -388,7 +386,7 @@ void irias_add_string_attrib(struct ias_
+ 	attrib = (struct ias_attrib *) kmalloc(sizeof( struct ias_attrib), 
+ 					       GFP_ATOMIC);
+ 	if (attrib == NULL) {
+-		WARNING(__FUNCTION__ "(), Unable to allocate attribute!\n");
++		WARNING("%s(), Unable to allocate attribute!\n", __FUNCTION__);
+ 		return;
+ 	}
+ 	memset(attrib, 0, sizeof( struct ias_attrib));
+@@ -413,7 +411,7 @@ struct ias_value *irias_new_integer_valu
+ 
+ 	value = kmalloc(sizeof(struct ias_value), GFP_ATOMIC);
+ 	if (value == NULL) {
+-		WARNING(__FUNCTION__ "(), Unable to kmalloc!\n");
++		WARNING("%s(), Unable to kmalloc!\n", __FUNCTION__);
+ 		return NULL;
+ 	}
+ 	memset(value, 0, sizeof(struct ias_value));
+@@ -438,7 +436,7 @@ struct ias_value *irias_new_string_value
+ 
+ 	value = kmalloc(sizeof(struct ias_value), GFP_ATOMIC);
+ 	if (value == NULL) {
+-		WARNING(__FUNCTION__ "(), Unable to kmalloc!\n");
++		WARNING("%s(), Unable to kmalloc!\n", __FUNCTION__);
+ 		return NULL;
+ 	}
+ 	memset( value, 0, sizeof( struct ias_value));
+@@ -465,7 +463,7 @@ struct ias_value *irias_new_octseq_value
+ 
+ 	value = kmalloc(sizeof(struct ias_value), GFP_ATOMIC);
+ 	if (value == NULL) {
+-		WARNING(__FUNCTION__ "(), Unable to kmalloc!\n");
++		WARNING("%s(), Unable to kmalloc!\n", __FUNCTION__);
+ 		return NULL;
+ 	}
+ 	memset(value, 0, sizeof(struct ias_value));
+@@ -478,7 +476,7 @@ struct ias_value *irias_new_octseq_value
+ 
+ 	value->t.oct_seq = kmalloc(len, GFP_ATOMIC);
+ 	if (value->t.oct_seq == NULL){
+-		WARNING(__FUNCTION__"(), Unable to kmalloc!\n");
++		WARNING("%s(), Unable to kmalloc!\n", __FUNCTION__);
+ 		kfree(value);
+ 		return NULL;
+ 	}
+@@ -492,7 +490,7 @@ struct ias_value *irias_new_missing_valu
+ 
+ 	value = kmalloc(sizeof(struct ias_value), GFP_ATOMIC);
+ 	if (value == NULL) {
+-		WARNING(__FUNCTION__ "(), Unable to kmalloc!\n");
++		WARNING("%s(), Unable to kmalloc!\n", __FUNCTION__);
+ 		return NULL;
+ 	}
+ 	memset(value, 0, sizeof(struct ias_value));
+@@ -511,7 +509,7 @@ struct ias_value *irias_new_missing_valu
+  */
+ void irias_delete_value(struct ias_value *value)
+ {
+-	IRDA_DEBUG(4, __FUNCTION__ "()\n");
++	IRDA_DEBUG(4, "%s()\n", __FUNCTION__);
+ 
+ 	ASSERT(value != NULL, return;);
+ 
+@@ -531,7 +529,7 @@ void irias_delete_value(struct ias_value
+ 			 kfree(value->t.oct_seq);
+ 		 break;
+ 	default:
+-		IRDA_DEBUG(0, __FUNCTION__ "(), Unknown value type!\n");
++		IRDA_DEBUG(0, "%s(), Unknown value type!\n", __FUNCTION__);
+ 		break;
+ 	}
+ 	kfree(value);
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff 2.4.19-rc3/net/irda/irlan/irlan_client.c test/net/irda/irlan/irlan_client.c
+--- 2.4.19-rc3/net/irda/irlan/irlan_client.c	2001-02-08 22:08:38.000000000 +0100
++++ test/net/irda/irlan/irlan_client.c	2002-07-22 18:48:09.000000000 +0200
+@@ -71,7 +71,7 @@ static void irlan_client_kick_timer_expi
+ {
+ 	struct irlan_cb *self = (struct irlan_cb *) data;
+ 	
+-	IRDA_DEBUG(2, __FUNCTION__ "()\n");
++	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
+ 
+ 	ASSERT(self != NULL, return;);
+ 	ASSERT(self->magic == IRLAN_MAGIC, return;);
+@@ -90,7 +90,7 @@ static void irlan_client_kick_timer_expi
+ 
+ void irlan_client_start_kick_timer(struct irlan_cb *self, int timeout)
+ {
+-	IRDA_DEBUG(4, __FUNCTION__ "()\n");
++	IRDA_DEBUG(4, "%s()\n", __FUNCTION__);
+ 	
+ 	irda_start_timer(&self->client.kick_timer, timeout, (void *) self, 
+ 			 irlan_client_kick_timer_expired);
+@@ -104,7 +104,7 @@ void irlan_client_start_kick_timer(struc
+  */
+ void irlan_client_wakeup(struct irlan_cb *self, __u32 saddr, __u32 daddr)
+ {
+-	IRDA_DEBUG(1, __FUNCTION__ "()\n");
++	IRDA_DEBUG(1, "%s()\n", __FUNCTION__);
+ 
+ 	ASSERT(self != NULL, return;);
+ 	ASSERT(self->magic == IRLAN_MAGIC, return;);
+@@ -116,7 +116,7 @@ void irlan_client_wakeup(struct irlan_cb
+ 	if ((self->client.state != IRLAN_IDLE) || 
+ 	    (self->provider.access_type == ACCESS_DIRECT))
+ 	{
+-			IRDA_DEBUG(0, __FUNCTION__ "(), already awake!\n");
++			IRDA_DEBUG(0, "%s(), already awake!\n", __FUNCTION__);
+ 			return;
+ 	}
+ 
+@@ -125,7 +125,7 @@ void irlan_client_wakeup(struct irlan_cb
+ 	self->daddr = daddr;
+ 
+ 	if (self->disconnect_reason == LM_USER_REQUEST) {
+-			IRDA_DEBUG(0, __FUNCTION__ "(), still stopped by user\n");
++			IRDA_DEBUG(0, "%s(), still stopped by user\n", __FUNCTION__);
+ 			return;
+ 	}
+ 
+@@ -150,7 +150,7 @@ void irlan_client_discovery_indication(d
+ 	struct irlan_cb *self;
+ 	__u32 saddr, daddr;
+ 	
+-	IRDA_DEBUG(1, __FUNCTION__"()\n");
++	IRDA_DEBUG(1, "%s()\n", __FUNCTION__);
+ 
+ 	ASSERT(irlan != NULL, return;);
+ 	ASSERT(discovery != NULL, return;);
+@@ -163,7 +163,7 @@ void irlan_client_discovery_indication(d
+ 	if (self) {
+ 		ASSERT(self->magic == IRLAN_MAGIC, return;);
+ 
+-		IRDA_DEBUG(1, __FUNCTION__ "(), Found instance (%08x)!\n",
++		IRDA_DEBUG(1, "%s(), Found instance (%08x)!\n", __FUNCTION__,
+ 		      daddr);
+ 		
+ 		irlan_client_wakeup(self, saddr, daddr);
+@@ -181,7 +181,7 @@ static int irlan_client_ctrl_data_indica
+ {
+ 	struct irlan_cb *self;
+ 	
+-	IRDA_DEBUG(2, __FUNCTION__ "()\n");
++	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
+ 	
+ 	self = (struct irlan_cb *) instance;
+ 	
+@@ -192,7 +192,7 @@ static int irlan_client_ctrl_data_indica
+ 	irlan_do_client_event(self, IRLAN_DATA_INDICATION, skb); 
+ 
+ 	/* Ready for a new command */	
+-	IRDA_DEBUG(2, __FUNCTION__ "(), clearing tx_busy\n");
++	IRDA_DEBUG(2, "%s(), clearing tx_busy\n", __FUNCTION__);
+ 	self->client.tx_busy = FALSE;
+ 
+ 	/* Check if we have some queued commands waiting to be sent */
+@@ -209,7 +209,7 @@ static void irlan_client_ctrl_disconnect
+ 	struct tsap_cb *tsap;
+ 	struct sk_buff *skb;
+ 
+-	IRDA_DEBUG(4, __FUNCTION__ "(), reason=%d\n", reason);
++	IRDA_DEBUG(4, "%s(), reason=%d\n", __FUNCTION__, reason);
+ 	
+ 	self = (struct irlan_cb *) instance;
+ 	tsap = (struct tsap_cb *) sap;
+@@ -241,7 +241,7 @@ void irlan_client_open_ctrl_tsap(struct 
+ 	struct tsap_cb *tsap;
+ 	notify_t notify;
+ 
+-	IRDA_DEBUG(4, __FUNCTION__ "()\n");
++	IRDA_DEBUG(4, "%s()\n", __FUNCTION__);
+ 
+ 	ASSERT(self != NULL, return;);
+ 	ASSERT(self->magic == IRLAN_MAGIC, return;);
+@@ -261,7 +261,7 @@ void irlan_client_open_ctrl_tsap(struct 
+ 	
+ 	tsap = irttp_open_tsap(LSAP_ANY, DEFAULT_INITIAL_CREDIT, &notify);
+ 	if (!tsap) {
+-		IRDA_DEBUG(2, __FUNCTION__ "(), Got no tsap!\n");
++		IRDA_DEBUG(2, "%s(), Got no tsap!\n", __FUNCTION__);
+ 		return;
+ 	}
+ 	self->client.tsap_ctrl = tsap;
+@@ -281,7 +281,7 @@ static void irlan_client_ctrl_connect_co
+ {
+ 	struct irlan_cb *self;
+ 
+-	IRDA_DEBUG(4, __FUNCTION__ "()\n");
++	IRDA_DEBUG(4, "%s()\n", __FUNCTION__);
+ 
+ 	self = (struct irlan_cb *) instance;
+ 
+@@ -307,7 +307,7 @@ void irlan_client_reconnect_data_channel
+ 	struct sk_buff *skb;
+ 	__u8 *frame;
+ 		
+-	IRDA_DEBUG(4, __FUNCTION__ "()\n");
++	IRDA_DEBUG(4, "%s()\n", __FUNCTION__);
+ 
+ 	ASSERT(self != NULL, return;);
+ 	ASSERT(self->magic == IRLAN_MAGIC, return;);
+@@ -350,13 +350,13 @@ void irlan_client_parse_response(struct 
+ 
+ 	ASSERT(skb != NULL, return;);	
+ 	
+-	IRDA_DEBUG(4, __FUNCTION__ "() skb->len=%d\n", (int) skb->len);
++	IRDA_DEBUG(4, "%s() skb->len=%d\n", __FUNCTION__, (int) skb->len);
+ 	
+ 	ASSERT(self != NULL, return;);
+ 	ASSERT(self->magic == IRLAN_MAGIC, return;);
+ 	
+ 	if (!skb) {
+-		ERROR( __FUNCTION__ "(), Got NULL skb!\n");
++		ERROR("%s(), Got NULL skb!\n",  __FUNCTION__);
+ 		return;
+ 	}
+ 	frame = skb->data;
+@@ -381,7 +381,7 @@ void irlan_client_parse_response(struct 
+ 	/* How many parameters? */
+ 	count = frame[1];
+ 
+-	IRDA_DEBUG(4, __FUNCTION__ "(), got %d parameters\n", count);
++	IRDA_DEBUG(4, "%s(), got %d parameters\n", __FUNCTION__, count);
+ 	
+ 	ptr = frame+2;
+ 
+@@ -389,7 +389,7 @@ void irlan_client_parse_response(struct 
+  	for (i=0; i<count;i++) {
+ 		ret = irlan_extract_param(ptr, name, value, &val_len);
+ 		if (ret < 0) {
+-			IRDA_DEBUG(2, __FUNCTION__ "(), IrLAN, Error!\n");
++			IRDA_DEBUG(2, "%s(), IrLAN, Error!\n", __FUNCTION__);
+ 			break;
+ 		}
+ 		ptr += ret;
+@@ -413,7 +413,7 @@ static void irlan_check_response_param(s
+ 	__u8 *bytes;
+ 	int i;
+ 
+-	IRDA_DEBUG(4, __FUNCTION__ "(), parm=%s\n", param);
++	IRDA_DEBUG(4, "%s(), parm=%s\n", __FUNCTION__, param);
+ 
+ 	ASSERT(self != NULL, return;);
+ 	ASSERT(self->magic == IRLAN_MAGIC, return;);
+@@ -451,7 +451,7 @@ static void irlan_check_response_param(s
+ 		else if (strcmp(value, "HOSTED") == 0)
+ 			self->client.access_type = ACCESS_HOSTED;
+ 		else {
+-			IRDA_DEBUG(2, __FUNCTION__ "(), unknown access type!\n");
++			IRDA_DEBUG(2, "%s(), unknown access type!\n", __FUNCTION__);
+ 		}
+ 	}
+ 	/* IRLAN version */
+@@ -473,14 +473,14 @@ static void irlan_check_response_param(s
+ 		memcpy(&tmp_cpu, value, 2); /* Align value */
+ 		le16_to_cpus(&tmp_cpu);     /* Convert to host order */
+ 		self->client.recv_arb_val = tmp_cpu;
+-		IRDA_DEBUG(2, __FUNCTION__ "(), receive arb val=%d\n", 
++		IRDA_DEBUG(2, "%s(), receive arb val=%d\n", __FUNCTION__, 
+ 			   self->client.recv_arb_val);
+ 	}
+ 	if (strcmp(param, "MAX_FRAME") == 0) {
+ 		memcpy(&tmp_cpu, value, 2); /* Align value */
+ 		le16_to_cpus(&tmp_cpu);     /* Convert to host order */
+ 		self->client.max_frame = tmp_cpu;
+-		IRDA_DEBUG(4, __FUNCTION__ "(), max frame=%d\n", 
++		IRDA_DEBUG(4, "%s(), max frame=%d\n", __FUNCTION__, 
+ 			   self->client.max_frame);
+ 	}
+ 	 
+@@ -515,7 +515,7 @@ void irlan_client_get_value_confirm(int 
+ {
+ 	struct irlan_cb *self;
+ 	
+-	IRDA_DEBUG(4, __FUNCTION__ "()\n");
++	IRDA_DEBUG(4, "%s()\n", __FUNCTION__);
+ 
+ 	ASSERT(priv != NULL, return;);
+ 
+@@ -528,7 +528,7 @@ void irlan_client_get_value_confirm(int 
+ 
+ 	/* Check if request succeeded */
+ 	if (result != IAS_SUCCESS) {
+-		IRDA_DEBUG(2, __FUNCTION__ "(), got NULL value!\n");
++		IRDA_DEBUG(2, "%s(), got NULL value!\n", __FUNCTION__);
+ 		irlan_do_client_event(self, IRLAN_IAS_PROVIDER_NOT_AVAIL, 
+ 				      NULL);
+ 		return;
+@@ -546,7 +546,7 @@ void irlan_client_get_value_confirm(int 
+ 		irias_delete_value(value);
+ 		break;
+ 	default:
+-		IRDA_DEBUG(2, __FUNCTION__ "(), unknown type!\n");
++		IRDA_DEBUG(2, "%s(), unknown type!\n", __FUNCTION__);
+ 		break;
+ 	}
+ 	irlan_do_client_event(self, IRLAN_IAS_PROVIDER_NOT_AVAIL, NULL);
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff 2.4.19-rc3/net/irda/irlan/irlan_client_event.c test/net/irda/irlan/irlan_client_event.c
+--- 2.4.19-rc3/net/irda/irlan/irlan_client_event.c	2000-11-28 03:07:31.000000000 +0100
++++ test/net/irda/irlan/irlan_client_event.c	2002-07-22 18:48:09.000000000 +0200
+@@ -92,7 +92,7 @@ void irlan_do_client_event(struct irlan_
+ static int irlan_client_state_idle(struct irlan_cb *self, IRLAN_EVENT event, 
+ 				   struct sk_buff *skb) 
+ {
+-	IRDA_DEBUG(4, __FUNCTION__ "()\n");
++	IRDA_DEBUG(4, "%s()\n", __FUNCTION__);
+ 
+ 	ASSERT(self != NULL, return -1;);
+ 	ASSERT(self->magic == IRLAN_MAGIC, return -1;);
+@@ -100,8 +100,8 @@ static int irlan_client_state_idle(struc
+ 	switch (event) {
+ 	case IRLAN_DISCOVERY_INDICATION:
+ 		if (self->client.iriap) {
+-			WARNING(__FUNCTION__ 
+-				"(), busy with a previous query\n");
++			WARNING("%s(), busy with a previous query\n",
++				__FUNCTION__);
+ 			return -EBUSY;
+ 		}
+ 		
+@@ -114,10 +114,10 @@ static int irlan_client_state_idle(struc
+ 					      "IrLAN", "IrDA:TinyTP:LsapSel");
+ 		break;
+ 	case IRLAN_WATCHDOG_TIMEOUT:
+-		IRDA_DEBUG(2, __FUNCTION__ "(), IRLAN_WATCHDOG_TIMEOUT\n");
++		IRDA_DEBUG(2, "%s(), IRLAN_WATCHDOG_TIMEOUT\n", __FUNCTION__);
+ 		break;
+ 	default:
+-		IRDA_DEBUG(4, __FUNCTION__ "(), Unknown event %d\n", event);
++		IRDA_DEBUG(4, "%s(), Unknown event %d\n", __FUNCTION__, event);
+ 		break;
+ 	}
+ 	if (skb) 
+@@ -136,7 +136,7 @@ static int irlan_client_state_idle(struc
+ static int irlan_client_state_query(struct irlan_cb *self, IRLAN_EVENT event, 
+ 				    struct sk_buff *skb) 
+ {
+-	IRDA_DEBUG(4, __FUNCTION__ "()\n");
++	IRDA_DEBUG(4, "%s()\n", __FUNCTION__);
+ 
+ 	ASSERT(self != NULL, return -1;);
+ 	ASSERT(self->magic == IRLAN_MAGIC, return -1;);
+@@ -154,7 +154,7 @@ static int irlan_client_state_query(stru
+ 		irlan_next_client_state(self, IRLAN_CONN);
+ 		break;
+ 	case IRLAN_IAS_PROVIDER_NOT_AVAIL:
+-		IRDA_DEBUG(2, __FUNCTION__ "(), IAS_PROVIDER_NOT_AVAIL\n");
++		IRDA_DEBUG(2, "%s(), IAS_PROVIDER_NOT_AVAIL\n", __FUNCTION__);
+ 		irlan_next_client_state(self, IRLAN_IDLE);
+ 
+ 		/* Give the client a kick! */
+@@ -167,10 +167,10 @@ static int irlan_client_state_query(stru
+ 		irlan_next_client_state(self, IRLAN_IDLE);
+ 		break;
+ 	case IRLAN_WATCHDOG_TIMEOUT:
+-		IRDA_DEBUG(2, __FUNCTION__ "(), IRLAN_WATCHDOG_TIMEOUT\n");
++		IRDA_DEBUG(2, "%s(), IRLAN_WATCHDOG_TIMEOUT\n", __FUNCTION__);
+ 		break;
+ 	default:
+-		IRDA_DEBUG(2, __FUNCTION__"(), Unknown event %d\n", event);
++		IRDA_DEBUG(2, "%s(), Unknown event %d\n", __FUNCTION__, event);
+ 		break;
+ 	}
+ 	if (skb)
+@@ -189,7 +189,7 @@ static int irlan_client_state_query(stru
+ static int irlan_client_state_conn(struct irlan_cb *self, IRLAN_EVENT event, 
+ 				   struct sk_buff *skb) 
+ {
+-	IRDA_DEBUG(4, __FUNCTION__ "()\n");
++	IRDA_DEBUG(4, "%s()\n", __FUNCTION__);
+ 	
+ 	ASSERT(self != NULL, return -1;);
+ 	
+@@ -204,10 +204,10 @@ static int irlan_client_state_conn(struc
+ 		irlan_next_client_state(self, IRLAN_IDLE);
+ 		break;
+ 	case IRLAN_WATCHDOG_TIMEOUT:
+-		IRDA_DEBUG(2, __FUNCTION__ "(), IRLAN_WATCHDOG_TIMEOUT\n");
++		IRDA_DEBUG(2, "%s(), IRLAN_WATCHDOG_TIMEOUT\n", __FUNCTION__);
+ 		break;
+ 	default:
+-		IRDA_DEBUG(2, __FUNCTION__ "(), Unknown event %d\n", event);
++		IRDA_DEBUG(2, "%s(), Unknown event %d\n", __FUNCTION__, event);
+ 		break;
+ 	}
+ 	if (skb)
+@@ -224,7 +224,7 @@ static int irlan_client_state_conn(struc
+ static int irlan_client_state_info(struct irlan_cb *self, IRLAN_EVENT event, 
+ 				   struct sk_buff *skb) 
+ {
+-	IRDA_DEBUG(4, __FUNCTION__ "()\n");
++	IRDA_DEBUG(4, "%s()\n", __FUNCTION__);
+ 
+ 	ASSERT(self != NULL, return -1;);
+ 	
+@@ -244,10 +244,10 @@ static int irlan_client_state_info(struc
+ 		irlan_next_client_state(self, IRLAN_IDLE);
+ 		break;
+ 	case IRLAN_WATCHDOG_TIMEOUT:
+-		IRDA_DEBUG(2, __FUNCTION__ "(), IRLAN_WATCHDOG_TIMEOUT\n");
++		IRDA_DEBUG(2, "%s(), IRLAN_WATCHDOG_TIMEOUT\n", __FUNCTION__);
+ 		break;
+ 	default:
+-		IRDA_DEBUG(2, __FUNCTION__ "(), Unknown event %d\n", event);
++		IRDA_DEBUG(2, "%s(), Unknown event %d\n", __FUNCTION__, event);
+ 		break;
+ 	}
+ 	if (skb)
+@@ -266,7 +266,7 @@ static int irlan_client_state_info(struc
+ static int irlan_client_state_media(struct irlan_cb *self, IRLAN_EVENT event, 
+ 				    struct sk_buff *skb) 
+ {
+-	IRDA_DEBUG(4, __FUNCTION__ "()\n");
++	IRDA_DEBUG(4, "%s()\n", __FUNCTION__);
+ 	
+ 	ASSERT(self != NULL, return -1;);
+ 
+@@ -281,10 +281,10 @@ static int irlan_client_state_media(stru
+ 		irlan_next_client_state(self, IRLAN_IDLE);
+ 		break;
+ 	case IRLAN_WATCHDOG_TIMEOUT:
+-		IRDA_DEBUG(2, __FUNCTION__ "(), IRLAN_WATCHDOG_TIMEOUT\n");
++		IRDA_DEBUG(2, "%s(), IRLAN_WATCHDOG_TIMEOUT\n", __FUNCTION__);
+ 		break;
+ 	default:
+-		IRDA_DEBUG(2, __FUNCTION__ "(), Unknown event %d\n", event);
++		IRDA_DEBUG(2, "%s(), Unknown event %d\n", __FUNCTION__, event);
+ 		break;
+ 	}
+ 	if (skb)
+@@ -305,7 +305,7 @@ static int irlan_client_state_open(struc
+ {
+ 	struct qos_info qos;
+ 
+-	IRDA_DEBUG(4, __FUNCTION__ "()\n");
++	IRDA_DEBUG(4, "%s()\n", __FUNCTION__);
+ 	
+ 	ASSERT(self != NULL, return -1;);
+ 
+@@ -344,7 +344,7 @@ static int irlan_client_state_open(struc
+ 			irlan_next_client_state(self, IRLAN_DATA);
+ 			break;
+ 		default:
+-			IRDA_DEBUG(2, __FUNCTION__ "(), unknown access type!\n");
++			IRDA_DEBUG(2, "%s(), unknown access type!\n", __FUNCTION__);
+ 			break;
+ 		}
+ 		break;
+@@ -353,10 +353,10 @@ static int irlan_client_state_open(struc
+ 		irlan_next_client_state(self, IRLAN_IDLE);
+ 		break;
+ 	case IRLAN_WATCHDOG_TIMEOUT:
+-		IRDA_DEBUG(2, __FUNCTION__ "(), IRLAN_WATCHDOG_TIMEOUT\n");
++		IRDA_DEBUG(2, "%s(), IRLAN_WATCHDOG_TIMEOUT\n", __FUNCTION__);
+ 		break;
+ 	default:
+-		IRDA_DEBUG(2, __FUNCTION__ "(), Unknown event %d\n", event);
++		IRDA_DEBUG(2, "%s(), Unknown event %d\n", __FUNCTION__, event);
+ 		break;
+ 	}
+ 	
+@@ -376,7 +376,7 @@ static int irlan_client_state_open(struc
+ static int irlan_client_state_wait(struct irlan_cb *self, IRLAN_EVENT event, 
+ 				   struct sk_buff *skb) 
+ {
+-	IRDA_DEBUG(4, __FUNCTION__ "()\n");
++	IRDA_DEBUG(4, "%s()\n", __FUNCTION__);
+ 	
+ 	ASSERT(self != NULL, return -1;);
+ 	
+@@ -390,10 +390,10 @@ static int irlan_client_state_wait(struc
+ 		irlan_next_client_state(self, IRLAN_IDLE);
+ 		break;
+ 	case IRLAN_WATCHDOG_TIMEOUT:
+-		IRDA_DEBUG(2, __FUNCTION__ "(), IRLAN_WATCHDOG_TIMEOUT\n");
++		IRDA_DEBUG(2, "%s(), IRLAN_WATCHDOG_TIMEOUT\n", __FUNCTION__);
+ 		break;
+ 	default:
+-		IRDA_DEBUG(2, __FUNCTION__ "(), Unknown event %d\n", event);
++		IRDA_DEBUG(2, "%s(), Unknown event %d\n", __FUNCTION__, event);
+ 		break;
+ 	}
+ 	if (skb)
+@@ -407,7 +407,7 @@ static int irlan_client_state_arb(struct
+ {
+ 	struct qos_info qos;
+ 
+-	IRDA_DEBUG(2, __FUNCTION__ "()\n");
++	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
+ 
+ 	ASSERT(self != NULL, return -1;);
+ 	
+@@ -429,7 +429,7 @@ static int irlan_client_state_arb(struct
+ 		} else if (self->client.recv_arb_val >
+ 			   self->provider.send_arb_val) 
+ 		{
+-			IRDA_DEBUG(2, __FUNCTION__ "(), lost the battle :-(\n");
++			IRDA_DEBUG(2, "%s(), lost the battle :-(\n", __FUNCTION__);
+ 		}
+ 		break;
+ 	case IRLAN_DATA_CONNECT_INDICATION:
+@@ -440,10 +440,10 @@ static int irlan_client_state_arb(struct
+ 		irlan_next_client_state(self, IRLAN_IDLE);
+ 		break;
+ 	case IRLAN_WATCHDOG_TIMEOUT:
+-		IRDA_DEBUG(2, __FUNCTION__ "(), IRLAN_WATCHDOG_TIMEOUT\n");
++		IRDA_DEBUG(2, "%s(), IRLAN_WATCHDOG_TIMEOUT\n", __FUNCTION__);
+ 		break;
+ 	default:
+-		IRDA_DEBUG(2, __FUNCTION__ "(), Unknown event %d\n", event);
++		IRDA_DEBUG(2, "%s(), Unknown event %d\n", __FUNCTION__, event);
+ 		break;
+ 	}
+ 	if (skb)
+@@ -462,7 +462,7 @@ static int irlan_client_state_arb(struct
+ static int irlan_client_state_data(struct irlan_cb *self, IRLAN_EVENT event, 
+ 				   struct sk_buff *skb) 
+ {
+-	IRDA_DEBUG(4, __FUNCTION__ "()\n");
++	IRDA_DEBUG(4, "%s()\n", __FUNCTION__);
+ 
+ 	ASSERT(self != NULL, return -1;);
+ 	ASSERT(self->magic == IRLAN_MAGIC, return -1;);
+@@ -476,7 +476,7 @@ static int irlan_client_state_data(struc
+ 		irlan_next_client_state(self, IRLAN_IDLE);
+ 		break;
+ 	default:
+-		IRDA_DEBUG(2, __FUNCTION__ "(), Unknown event %d\n", event);
++		IRDA_DEBUG(2, "%s(), Unknown event %d\n", __FUNCTION__, event);
+ 		break;
+ 	}
+ 	if (skb)
+@@ -494,7 +494,7 @@ static int irlan_client_state_data(struc
+ static int irlan_client_state_close(struct irlan_cb *self, IRLAN_EVENT event, 
+ 				    struct sk_buff *skb) 
+ {
+-	IRDA_DEBUG(2, __FUNCTION__ "()\n");
++	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
+ 
+ 	if (skb)
+ 		dev_kfree_skb(skb);
+@@ -511,7 +511,7 @@ static int irlan_client_state_close(stru
+ static int irlan_client_state_sync(struct irlan_cb *self, IRLAN_EVENT event, 
+ 				   struct sk_buff *skb) 
+ {
+-	IRDA_DEBUG(2, __FUNCTION__ "()\n");
++	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
+ 	
+ 	if (skb)
+ 		dev_kfree_skb(skb);
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff 2.4.19-rc3/net/irda/irlan/irlan_common.c test/net/irda/irlan/irlan_common.c
+--- 2.4.19-rc3/net/irda/irlan/irlan_common.c	2002-02-25 20:38:14.000000000 +0100
++++ test/net/irda/irlan/irlan_common.c	2002-07-22 18:48:09.000000000 +0200
+@@ -122,7 +122,7 @@ int __init irlan_init(void)
+ 	struct irlan_cb *new;
+ 	__u16 hints;
+ 
+-	IRDA_DEBUG(0, __FUNCTION__ "()\n");
++	IRDA_DEBUG(0, "%s()\n", __FUNCTION__);
+ 	/* Allocate master structure */
+ 	irlan = hashbin_new(HB_LOCAL); 
+ 	if (irlan == NULL) {
+@@ -133,7 +133,7 @@ int __init irlan_init(void)
+ 	create_proc_info_entry("irlan", 0, proc_irda, irlan_proc_read);
+ #endif /* CONFIG_PROC_FS */
+ 
+-	IRDA_DEBUG(4, __FUNCTION__ "()\n");
++	IRDA_DEBUG(4, "%s()\n", __FUNCTION__);
+ 	hints = irlmp_service_to_hint(S_LAN);
+ 
+ 	/* Register with IrLMP as a client */
+@@ -157,7 +157,7 @@ int __init irlan_init(void)
+ 
+ void irlan_cleanup(void) 
+ {
+-	IRDA_DEBUG(4, __FUNCTION__ "()\n");
++	IRDA_DEBUG(4, "%s()\n", __FUNCTION__);
+ 
+ 	irlmp_unregister_client(ckey);
+ 	irlmp_unregister_service(skey);
+@@ -181,7 +181,7 @@ int irlan_register_netdev(struct irlan_c
+ {
+ 	int i=0;
+ 
+-	IRDA_DEBUG(0, __FUNCTION__ "()\n");
++	IRDA_DEBUG(0, "%s()\n", __FUNCTION__);
+ 
+ 	/* Check if we should call the device eth<x> or irlan<x> */
+ 	if (!eth) {
+@@ -192,7 +192,7 @@ int irlan_register_netdev(struct irlan_c
+ 	}
+ 	
+ 	if (register_netdev(&self->dev) != 0) {
+-		IRDA_DEBUG(2, __FUNCTION__ "(), register_netdev() failed!\n");
++		IRDA_DEBUG(2, "%s(), register_netdev() failed!\n", __FUNCTION__);
+ 		return -1;
+ 	}
+ 	return 0;
+@@ -208,7 +208,7 @@ struct irlan_cb *irlan_open(__u32 saddr,
+ {
+ 	struct irlan_cb *self;
+ 
+-	IRDA_DEBUG(2, __FUNCTION__ "()\n");
++	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
+ 	ASSERT(irlan != NULL, return NULL;);
+ 
+ 	/* 
+@@ -264,7 +264,7 @@ static void __irlan_close(struct irlan_c
+ {
+ 	struct sk_buff *skb;
+ 
+-	IRDA_DEBUG(2, __FUNCTION__ "()\n");
++	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
+ 	
+ 	ASSERT(self != NULL, return;);
+ 	ASSERT(self->magic == IRLAN_MAGIC, return;);
+@@ -301,7 +301,7 @@ void irlan_connect_indication(void *inst
+ 	struct irlan_cb *self;
+ 	struct tsap_cb *tsap;
+ 
+-	IRDA_DEBUG(2, __FUNCTION__ "()\n");
++	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
+ 	
+ 	self = (struct irlan_cb *) instance;
+ 	tsap = (struct tsap_cb *) sap;
+@@ -390,7 +390,7 @@ void irlan_disconnect_indication(void *i
+ 	struct irlan_cb *self;
+ 	struct tsap_cb *tsap;
+ 
+-	IRDA_DEBUG(0, __FUNCTION__ "(), reason=%d\n", reason);
++	IRDA_DEBUG(0, "%s(), reason=%d\n", __FUNCTION__, reason);
+ 	
+ 	self = (struct irlan_cb *) instance;
+ 	tsap = (struct tsap_cb *) sap;
+@@ -409,22 +409,22 @@ void irlan_disconnect_indication(void *i
+ 	
+ 	switch (reason) {
+ 	case LM_USER_REQUEST: /* User request */
+-		IRDA_DEBUG(2, __FUNCTION__ "(), User requested\n");
++		IRDA_DEBUG(2, "%s(), User requested\n", __FUNCTION__);
+ 		break;
+ 	case LM_LAP_DISCONNECT: /* Unexpected IrLAP disconnect */
+-		IRDA_DEBUG(2, __FUNCTION__ "(), Unexpected IrLAP disconnect\n");
++		IRDA_DEBUG(2, "%s(), Unexpected IrLAP disconnect\n", __FUNCTION__);
+ 		break;
+ 	case LM_CONNECT_FAILURE: /* Failed to establish IrLAP connection */
+-		IRDA_DEBUG(2, __FUNCTION__ "(), IrLAP connect failed\n");
++		IRDA_DEBUG(2, "%s(), IrLAP connect failed\n", __FUNCTION__);
+ 		break;
+ 	case LM_LAP_RESET:  /* IrLAP reset */
+-		IRDA_DEBUG(2, __FUNCTION__ "(), IrLAP reset\n");
++		IRDA_DEBUG(2, "%s(), IrLAP reset\n", __FUNCTION__);
+ 		break;
+ 	case LM_INIT_DISCONNECT:
+-		IRDA_DEBUG(2, __FUNCTION__ "(), IrLMP connect failed\n");
++		IRDA_DEBUG(2, "%s(), IrLMP connect failed\n", __FUNCTION__);
+ 		break;
+ 	default:
+-		ERROR(__FUNCTION__ "(), Unknown disconnect reason\n");
++		ERROR("%s(), Unknown disconnect reason\n",  __FUNCTION__);
+ 		break;
+ 	}
+ 	
+@@ -446,7 +446,7 @@ void irlan_open_data_tsap(struct irlan_c
+ 	struct tsap_cb *tsap;
+ 	notify_t notify;
+ 
+-	IRDA_DEBUG(2, __FUNCTION__ "()\n");
++	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
+ 
+ 	ASSERT(self != NULL, return;);
+ 	ASSERT(self->magic == IRLAN_MAGIC, return;);
+@@ -468,7 +468,7 @@ void irlan_open_data_tsap(struct irlan_c
+ 
+ 	tsap = irttp_open_tsap(LSAP_ANY, DEFAULT_INITIAL_CREDIT, &notify);
+ 	if (!tsap) {
+-		IRDA_DEBUG(2, __FUNCTION__ "(), Got no tsap!\n");
++		IRDA_DEBUG(2, "%s(), Got no tsap!\n", __FUNCTION__);
+ 		return;
+ 	}
+ 	self->tsap_data = tsap;
+@@ -482,7 +482,7 @@ void irlan_open_data_tsap(struct irlan_c
+ 
+ void irlan_close_tsaps(struct irlan_cb *self)
+ {
+-	IRDA_DEBUG(4, __FUNCTION__ "()\n");
++	IRDA_DEBUG(4, "%s()\n", __FUNCTION__);
+ 
+ 	ASSERT(self != NULL, return;);
+ 	ASSERT(self->magic == IRLAN_MAGIC, return;);
+@@ -572,7 +572,7 @@ int irlan_run_ctrl_tx_queue(struct irlan
+ {
+ 	struct sk_buff *skb;
+ 
+-	IRDA_DEBUG(2, __FUNCTION__ "()\n");
++	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
+ 
+ 	if (irda_lock(&self->client.tx_busy) == FALSE)
+ 		return -EBUSY;
+@@ -591,7 +591,7 @@ int irlan_run_ctrl_tx_queue(struct irlan
+ 		dev_kfree_skb(skb);
+ 		return -1;
+ 	}
+-	IRDA_DEBUG(2, __FUNCTION__ "(), sending ...\n");
++	IRDA_DEBUG(2, "%s(), sending ...\n", __FUNCTION__);
+ 
+ 	return irttp_data_request(self->client.tsap_ctrl, skb);
+ }
+@@ -604,7 +604,7 @@ int irlan_run_ctrl_tx_queue(struct irlan
+  */
+ void irlan_ctrl_data_request(struct irlan_cb *self, struct sk_buff *skb)
+ {
+-	IRDA_DEBUG(2, __FUNCTION__ "()\n");
++	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
+ 
+ 	/* Queue command */
+ 	skb_queue_tail(&self->client.txq, skb);
+@@ -624,7 +624,7 @@ void irlan_get_provider_info(struct irla
+ 	struct sk_buff *skb;
+ 	__u8 *frame;
+ 
+-	IRDA_DEBUG(4, __FUNCTION__ "()\n");
++	IRDA_DEBUG(4, "%s()\n", __FUNCTION__);
+ 	
+ 	ASSERT(self != NULL, return;);
+ 	ASSERT(self->magic == IRLAN_MAGIC, return;);
+@@ -656,7 +656,7 @@ void irlan_open_data_channel(struct irla
+ 	struct sk_buff *skb;
+ 	__u8 *frame;
+ 	
+-	IRDA_DEBUG(4, __FUNCTION__ "()\n");
++	IRDA_DEBUG(4, "%s()\n", __FUNCTION__);
+ 
+ 	ASSERT(self != NULL, return;);
+ 	ASSERT(self->magic == IRLAN_MAGIC, return;);
+@@ -688,7 +688,7 @@ void irlan_close_data_channel(struct irl
+ 	struct sk_buff *skb;
+ 	__u8 *frame;
+ 	
+-	IRDA_DEBUG(4, __FUNCTION__ "()\n");
++	IRDA_DEBUG(4, "%s()\n", __FUNCTION__);
+ 
+ 	ASSERT(self != NULL, return;);
+ 	ASSERT(self->magic == IRLAN_MAGIC, return;);
+@@ -727,7 +727,7 @@ void irlan_open_unicast_addr(struct irla
+ 	struct sk_buff *skb;
+ 	__u8 *frame;
+ 	
+-	IRDA_DEBUG(4, __FUNCTION__ "()\n");
++	IRDA_DEBUG(4, "%s()\n", __FUNCTION__);
+ 
+ 	ASSERT(self != NULL, return;);
+ 	ASSERT(self->magic == IRLAN_MAGIC, return;);	
+@@ -765,7 +765,7 @@ void irlan_set_broadcast_filter(struct i
+ 	struct sk_buff *skb;
+ 	__u8 *frame;
+ 	
+-	IRDA_DEBUG(2, __FUNCTION__ "()\n");
++	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
+ 
+ 	ASSERT(self != NULL, return;);
+ 	ASSERT(self->magic == IRLAN_MAGIC, return;);
+@@ -804,7 +804,7 @@ void irlan_set_multicast_filter(struct i
+ 	struct sk_buff *skb;
+ 	__u8 *frame;
+ 	
+-	IRDA_DEBUG(2, __FUNCTION__ "()\n");
++	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
+ 
+ 	ASSERT(self != NULL, return;);
+ 	ASSERT(self->magic == IRLAN_MAGIC, return;);
+@@ -844,7 +844,7 @@ void irlan_get_unicast_addr(struct irlan
+ 	struct sk_buff *skb;
+ 	__u8 *frame;
+ 		
+-	IRDA_DEBUG(2, __FUNCTION__ "()\n");
++	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
+ 
+ 	ASSERT(self != NULL, return;);
+ 	ASSERT(self->magic == IRLAN_MAGIC, return;);
+@@ -879,7 +879,7 @@ void irlan_get_media_char(struct irlan_c
+ 	struct sk_buff *skb;
+ 	__u8 *frame;
+ 	
+-	IRDA_DEBUG(4, __FUNCTION__ "()\n");
++	IRDA_DEBUG(4, "%s()\n", __FUNCTION__);
+ 
+ 	ASSERT(self != NULL, return;);
+ 	ASSERT(self->magic == IRLAN_MAGIC, return;);
+@@ -964,7 +964,7 @@ static int __irlan_insert_param(struct s
+ 	int n=0;
+ 	
+ 	if (skb == NULL) {
+-		IRDA_DEBUG(2, __FUNCTION__ "(), Got NULL skb\n");
++		IRDA_DEBUG(2, "%s(), Got NULL skb\n", __FUNCTION__);
+ 		return 0;
+ 	}	
+ 
+@@ -981,7 +981,7 @@ static int __irlan_insert_param(struct s
+ 		ASSERT(value_len > 0, return 0;);
+ 		break;
+ 	default:
+-		IRDA_DEBUG(2, __FUNCTION__ "(), Unknown parameter type!\n");
++		IRDA_DEBUG(2, "%s(), Unknown parameter type!\n", __FUNCTION__);
+ 		return 0;
+ 		break;
+ 	}
+@@ -991,7 +991,7 @@ static int __irlan_insert_param(struct s
+ 
+ 	/* Make space for data */
+ 	if (skb_tailroom(skb) < (param_len+value_len+3)) {
+-		IRDA_DEBUG(2, __FUNCTION__ "(), No more space at end of skb\n");
++		IRDA_DEBUG(2, "%s(), No more space at end of skb\n", __FUNCTION__);
+ 		return 0;
+ 	}	
+ 	skb_put(skb, param_len+value_len+3);
+@@ -1038,13 +1038,13 @@ int irlan_extract_param(__u8 *buf, char 
+ 	__u16 val_len;
+ 	int n=0;
+ 	
+-	IRDA_DEBUG(4, __FUNCTION__ "()\n");
++	IRDA_DEBUG(4, "%s()\n", __FUNCTION__);
+ 	
+ 	/* get length of parameter name (1 byte) */
+ 	name_len = buf[n++];
+ 	
+ 	if (name_len > 254) {
+-		IRDA_DEBUG(2, __FUNCTION__ "(), name_len > 254\n");
++		IRDA_DEBUG(2, "%s(), name_len > 254\n", __FUNCTION__);
+ 		return -RSP_INVALID_COMMAND_FORMAT;
+ 	}
+ 	
+@@ -1061,7 +1061,7 @@ int irlan_extract_param(__u8 *buf, char 
+ 	le16_to_cpus(&val_len); n+=2;
+ 	
+ 	if (val_len > 1016) {
+-		IRDA_DEBUG(2, __FUNCTION__ "(), parameter length to long\n");
++		IRDA_DEBUG(2, "%s(), parameter length to long\n", __FUNCTION__);
+ 		return -RSP_INVALID_COMMAND_FORMAT;
+ 	}
+ 	*len = val_len;
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff 2.4.19-rc3/net/irda/irlan/irlan_eth.c test/net/irda/irlan/irlan_eth.c
+--- 2.4.19-rc3/net/irda/irlan/irlan_eth.c	2002-02-25 20:38:14.000000000 +0100
++++ test/net/irda/irlan/irlan_eth.c	2002-07-22 18:48:09.000000000 +0200
+@@ -50,7 +50,7 @@ int irlan_eth_init(struct net_device *de
+ {
+ 	struct irlan_cb *self;
+ 
+-	IRDA_DEBUG(2, __FUNCTION__"()\n");
++	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
+ 
+ 	ASSERT(dev != NULL, return -1;);
+        
+@@ -107,7 +107,7 @@ int irlan_eth_open(struct net_device *de
+ {
+ 	struct irlan_cb *self;
+ 	
+-	IRDA_DEBUG(2, __FUNCTION__ "()\n");
++	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
+ 
+ 	ASSERT(dev != NULL, return -1;);
+ 
+@@ -143,7 +143,7 @@ int irlan_eth_close(struct net_device *d
+ 	struct irlan_cb *self = (struct irlan_cb *) dev->priv;
+ 	struct sk_buff *skb;
+ 	
+-	IRDA_DEBUG(2, __FUNCTION__ "()\n");
++	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
+ 	
+ 	/* Stop device */
+ 	netif_stop_queue(dev);
+@@ -356,14 +356,14 @@ void irlan_eth_set_multicast_list(struct
+ 
+  	self = dev->priv; 
+ 
+-	IRDA_DEBUG(2, __FUNCTION__ "()\n");
++	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
+ 
+  	ASSERT(self != NULL, return;); 
+  	ASSERT(self->magic == IRLAN_MAGIC, return;);
+ 
+ 	/* Check if data channel has been connected yet */
+ 	if (self->client.state != IRLAN_DATA) {
+-		IRDA_DEBUG(1, __FUNCTION__ "(), delaying!\n");
++		IRDA_DEBUG(1, "%s(), delaying!\n", __FUNCTION__);
+ 		return;
+ 	}
+ 
+@@ -373,20 +373,20 @@ void irlan_eth_set_multicast_list(struct
+ 	} 
+ 	else if ((dev->flags & IFF_ALLMULTI) || dev->mc_count > HW_MAX_ADDRS) {
+ 		/* Disable promiscuous mode, use normal mode. */
+-		IRDA_DEBUG(4, __FUNCTION__ "(), Setting multicast filter\n");
++		IRDA_DEBUG(4, "%s(), Setting multicast filter\n", __FUNCTION__);
+ 		/* hardware_set_filter(NULL); */
+ 
+ 		irlan_set_multicast_filter(self, TRUE);
+ 	}
+ 	else if (dev->mc_count) {
+-		IRDA_DEBUG(4, __FUNCTION__ "(), Setting multicast filter\n");
++		IRDA_DEBUG(4, "%s(), Setting multicast filter\n", __FUNCTION__);
+ 		/* Walk the address list, and load the filter */
+ 		/* hardware_set_filter(dev->mc_list); */
+ 
+ 		irlan_set_multicast_filter(self, TRUE);
+ 	}
+ 	else {
+-		IRDA_DEBUG(4, __FUNCTION__ "(), Clearing multicast filter\n");
++		IRDA_DEBUG(4, "%s(), Clearing multicast filter\n", __FUNCTION__);
+ 		irlan_set_multicast_filter(self, FALSE);
+ 	}
+ 
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff 2.4.19-rc3/net/irda/irlan/irlan_event.c test/net/irda/irlan/irlan_event.c
+--- 2.4.19-rc3/net/irda/irlan/irlan_event.c	1999-11-03 02:07:55.000000000 +0100
++++ test/net/irda/irlan/irlan_event.c	2002-07-22 18:48:09.000000000 +0200
+@@ -40,7 +40,7 @@ char *irlan_state[] = {
+ 
+ void irlan_next_client_state(struct irlan_cb *self, IRLAN_STATE state) 
+ {
+-	IRDA_DEBUG(2, __FUNCTION__"(), %s\n", irlan_state[state]);
++	IRDA_DEBUG(2, "%s(), %s\n", __FUNCTION__, irlan_state[state]);
+ 
+ 	ASSERT(self != NULL, return;);
+ 	ASSERT(self->magic == IRLAN_MAGIC, return;);
+@@ -50,7 +50,7 @@ void irlan_next_client_state(struct irla
+ 
+ void irlan_next_provider_state(struct irlan_cb *self, IRLAN_STATE state) 
+ {
+-	IRDA_DEBUG(2, __FUNCTION__"(), %s\n", irlan_state[state]);
++	IRDA_DEBUG(2, "%s(), %s\n", __FUNCTION__, irlan_state[state]);
+ 
+ 	ASSERT(self != NULL, return;);
+ 	ASSERT(self->magic == IRLAN_MAGIC, return;);
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff 2.4.19-rc3/net/irda/irlan/irlan_filter.c test/net/irda/irlan/irlan_filter.c
+--- 2.4.19-rc3/net/irda/irlan/irlan_filter.c	1999-11-03 02:07:55.000000000 +0100
++++ test/net/irda/irlan/irlan_filter.c	2002-07-22 18:48:09.000000000 +0200
+@@ -143,7 +143,7 @@ void irlan_check_command_param(struct ir
+ {
+ 	__u8 *bytes;
+ 
+-	IRDA_DEBUG(4, __FUNCTION__ "()\n");
++	IRDA_DEBUG(4, "%s()\n", __FUNCTION__);
+ 
+ 	bytes = value;
+ 
+@@ -156,7 +156,7 @@ void irlan_check_command_param(struct ir
+ 	 *  This is experimental!! DB.
+ 	 */
+ 	 if (strcmp(param, "MODE") == 0) {
+-		IRDA_DEBUG(0, __FUNCTION__ "()\n");
++		IRDA_DEBUG(0, "%s()\n", __FUNCTION__);
+ 		self->use_udata = TRUE;
+ 		return;
+ 	}
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff 2.4.19-rc3/net/irda/irlan/irlan_provider.c test/net/irda/irlan/irlan_provider.c
+--- 2.4.19-rc3/net/irda/irlan/irlan_provider.c	2001-03-02 20:12:12.000000000 +0100
++++ test/net/irda/irlan/irlan_provider.c	2002-07-22 18:48:09.000000000 +0200
+@@ -70,7 +70,7 @@ static int irlan_provider_data_indicatio
+ 	struct irlan_cb *self;
+ 	__u8 code;
+ 	
+-	IRDA_DEBUG(4, __FUNCTION__ "()\n");
++	IRDA_DEBUG(4, "%s()\n", __FUNCTION__);
+ 	
+ 	self = (struct irlan_cb *) instance;
+ 
+@@ -99,15 +99,15 @@ static int irlan_provider_data_indicatio
+ 		irlan_do_provider_event(self, IRLAN_FILTER_CONFIG_CMD, skb);
+ 		break;
+ 	case CMD_RECONNECT_DATA_CHAN:
+-		IRDA_DEBUG(2, __FUNCTION__"(), Got RECONNECT_DATA_CHAN command\n");
+-		IRDA_DEBUG(2, __FUNCTION__"(), NOT IMPLEMENTED\n");
++		IRDA_DEBUG(2, "%s(), Got RECONNECT_DATA_CHAN command\n", __FUNCTION__);
++		IRDA_DEBUG(2, "%s(), NOT IMPLEMENTED\n", __FUNCTION__);
+ 		break;
+ 	case CMD_CLOSE_DATA_CHAN:
+ 		IRDA_DEBUG(2, "Got CLOSE_DATA_CHAN command!\n");
+-		IRDA_DEBUG(2, __FUNCTION__"(), NOT IMPLEMENTED\n");
++		IRDA_DEBUG(2, "%s(), NOT IMPLEMENTED\n", __FUNCTION__);
+ 		break;
+ 	default:
+-		IRDA_DEBUG(2, __FUNCTION__ "(), Unknown command!\n");
++		IRDA_DEBUG(2, "%s(), Unknown command!\n", __FUNCTION__);
+ 		break;
+ 	}
+ 	return 0;
+@@ -129,7 +129,7 @@ static void irlan_provider_connect_indic
+ 	struct tsap_cb *tsap;
+ 	__u32 saddr, daddr;
+ 
+-	IRDA_DEBUG(0, __FUNCTION__ "()\n");
++	IRDA_DEBUG(0, "%s()\n", __FUNCTION__);
+ 	
+ 	self = (struct irlan_cb *) instance;
+ 	tsap = (struct tsap_cb *) sap;
+@@ -182,7 +182,7 @@ void irlan_provider_disconnect_indicatio
+ 	struct irlan_cb *self;
+ 	struct tsap_cb *tsap;
+ 
+-	IRDA_DEBUG(4, __FUNCTION__ "(), reason=%d\n", reason);
++	IRDA_DEBUG(4, "%s(), reason=%d\n", __FUNCTION__, reason);
+ 	
+ 	self = (struct irlan_cb *) instance;
+ 	tsap = (struct tsap_cb *) sap;
+@@ -236,7 +236,7 @@ int irlan_provider_parse_command(struct 
+ 	
+ 	ASSERT(skb != NULL, return -RSP_PROTOCOL_ERROR;);
+ 	
+-	IRDA_DEBUG(4, __FUNCTION__ "(), skb->len=%d\n", (int)skb->len);
++	IRDA_DEBUG(4, "%s(), skb->len=%d\n", __FUNCTION__, (int)skb->len);
+ 
+ 	ASSERT(self != NULL, return -RSP_PROTOCOL_ERROR;);
+ 	ASSERT(self->magic == IRLAN_MAGIC, return -RSP_PROTOCOL_ERROR;);
+@@ -266,7 +266,7 @@ int irlan_provider_parse_command(struct 
+  	for (i=0; i<count;i++) {
+ 		ret = irlan_extract_param(ptr, name, value, &val_len);
+ 		if (ret < 0) {
+-			IRDA_DEBUG(2, __FUNCTION__ "(), IrLAN, Error!\n");
++			IRDA_DEBUG(2, "%s(), IrLAN, Error!\n", __FUNCTION__);
+ 			break;
+ 		}
+ 		ptr+=ret;
+@@ -291,7 +291,7 @@ void irlan_provider_send_reply(struct ir
+ {
+ 	struct sk_buff *skb;
+ 
+-	IRDA_DEBUG(4, __FUNCTION__ "()\n");
++	IRDA_DEBUG(4, "%s()\n", __FUNCTION__);
+ 
+ 	ASSERT(self != NULL, return;);
+ 	ASSERT(self->magic == IRLAN_MAGIC, return;);
+@@ -316,7 +316,7 @@ void irlan_provider_send_reply(struct ir
+ 			irlan_insert_string_param(skb, "MEDIA", "802.5");
+ 			break;
+ 		default:
+-			IRDA_DEBUG(2, __FUNCTION__ "(), unknown media type!\n");
++			IRDA_DEBUG(2, "%s(), unknown media type!\n", __FUNCTION__);
+ 			break;
+ 		}
+ 		irlan_insert_short_param(skb, "IRLAN_VER", 0x0101);
+@@ -340,7 +340,7 @@ void irlan_provider_send_reply(struct ir
+ 			irlan_insert_string_param(skb, "ACCESS_TYPE", "HOSTED");
+ 			break;
+ 		default:
+-			IRDA_DEBUG(2, __FUNCTION__ "(), Unknown access type\n");
++			IRDA_DEBUG(2, "%s(), Unknown access type\n", __FUNCTION__);
+ 			break;
+ 		}
+ 		irlan_insert_short_param(skb, "MAX_FRAME", 0x05ee);
+@@ -361,7 +361,7 @@ void irlan_provider_send_reply(struct ir
+ 		handle_filter_request(self, skb);
+ 		break;
+ 	default:
+-		IRDA_DEBUG(2, __FUNCTION__ "(), Unknown command!\n");
++		IRDA_DEBUG(2, "%s(), Unknown command!\n", __FUNCTION__);
+ 		break;
+ 	}
+ 
+@@ -379,7 +379,7 @@ int irlan_provider_open_ctrl_tsap(struct
+ 	struct tsap_cb *tsap;
+ 	notify_t notify;
+ 	
+-	IRDA_DEBUG(4, __FUNCTION__ "()\n");
++	IRDA_DEBUG(4, "%s()\n", __FUNCTION__);
+ 
+ 	ASSERT(self != NULL, return -1;);
+ 	ASSERT(self->magic == IRLAN_MAGIC, return -1;);
+@@ -400,7 +400,7 @@ int irlan_provider_open_ctrl_tsap(struct
+ 
+ 	tsap = irttp_open_tsap(LSAP_ANY, 1, &notify);
+ 	if (!tsap) {
+-		IRDA_DEBUG(2, __FUNCTION__ "(), Got no tsap!\n");
++		IRDA_DEBUG(2, "%s(), Got no tsap!\n", __FUNCTION__);
+ 		return -1;
+ 	}
+ 	self->provider.tsap_ctrl = tsap;
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff 2.4.19-rc3/net/irda/irlan/irlan_provider_event.c test/net/irda/irlan/irlan_provider_event.c
+--- 2.4.19-rc3/net/irda/irlan/irlan_provider_event.c	1999-11-03 02:07:55.000000000 +0100
++++ test/net/irda/irlan/irlan_provider_event.c	2002-07-22 18:48:09.000000000 +0200
+@@ -72,7 +72,7 @@ void irlan_do_provider_event(struct irla
+ static int irlan_provider_state_idle(struct irlan_cb *self, IRLAN_EVENT event,
+ 				     struct sk_buff *skb)
+ {
+-	IRDA_DEBUG(4, __FUNCTION__ "()\n");
++	IRDA_DEBUG(4, "%s()\n", __FUNCTION__);
+ 	
+ 	ASSERT(self != NULL, return -1;);
+ 	
+@@ -82,7 +82,7 @@ static int irlan_provider_state_idle(str
+ 	     irlan_next_provider_state( self, IRLAN_INFO);
+ 	     break;
+ 	default:
+-		IRDA_DEBUG(4, __FUNCTION__ "(), Unknown event %d\n", event);
++		IRDA_DEBUG(4, "%s(), Unknown event %d\n", __FUNCTION__, event);
+ 		break;
+ 	}
+ 	if (skb)
+@@ -101,7 +101,7 @@ static int irlan_provider_state_info(str
+ {
+ 	int ret;
+ 
+-	IRDA_DEBUG(4, __FUNCTION__ "()\n");
++	IRDA_DEBUG(4, "%s()\n", __FUNCTION__);
+ 	
+ 	ASSERT(self != NULL, return -1;);
+ 
+@@ -147,7 +147,7 @@ static int irlan_provider_state_info(str
+ 		irlan_next_provider_state(self, IRLAN_IDLE);
+ 		break;
+ 	default:
+-		IRDA_DEBUG( 0, __FUNCTION__ "(), Unknown event %d\n", event);
++		IRDA_DEBUG( 0, "%s(), Unknown event %d\n", __FUNCTION__, event);
+ 		break;
+ 	}
+ 	if (skb)
+@@ -166,7 +166,7 @@ static int irlan_provider_state_info(str
+ static int irlan_provider_state_open(struct irlan_cb *self, IRLAN_EVENT event, 
+ 				     struct sk_buff *skb)
+ {
+-	IRDA_DEBUG(4, __FUNCTION__ "()\n");
++	IRDA_DEBUG(4, "%s()\n", __FUNCTION__);
+ 
+ 	ASSERT(self != NULL, return -1;);
+ 
+@@ -186,7 +186,7 @@ static int irlan_provider_state_open(str
+ 		irlan_next_provider_state(self, IRLAN_IDLE);
+ 		break;
+ 	default:
+-		IRDA_DEBUG(2, __FUNCTION__ "(), Unknown event %d\n", event);
++		IRDA_DEBUG(2, "%s(), Unknown event %d\n", __FUNCTION__, event);
+ 		break;
+ 	}
+ 	if (skb)
+@@ -205,7 +205,7 @@ static int irlan_provider_state_open(str
+ static int irlan_provider_state_data(struct irlan_cb *self, IRLAN_EVENT event, 
+ 				     struct sk_buff *skb) 
+ {
+-	IRDA_DEBUG(4, __FUNCTION__ "()\n");
++	IRDA_DEBUG(4, "%s()\n", __FUNCTION__);
+ 
+ 	ASSERT(self != NULL, return -1;);
+ 	ASSERT(self->magic == IRLAN_MAGIC, return -1;);
+@@ -221,7 +221,7 @@ static int irlan_provider_state_data(str
+ 		irlan_next_provider_state(self, IRLAN_IDLE);
+ 		break;
+ 	default:
+-		IRDA_DEBUG( 0, __FUNCTION__ "(), Unknown event %d\n", event);
++		IRDA_DEBUG( 0, "%s(), Unknown event %d\n", __FUNCTION__, event);
+ 		break;
+ 	}
+ 	if (skb)
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff 2.4.19-rc3/net/irda/irlap_frame.c test/net/irda/irlap_frame.c
+--- 2.4.19-rc3/net/irda/irlap_frame.c	2002-07-22 18:43:39.000000000 +0200
++++ test/net/irda/irlap_frame.c	2002-07-22 18:48:09.000000000 +0200
+@@ -167,8 +167,7 @@ static void irlap_recv_snrm_cmd(struct i
+ 
+ 		/* Check if the new connection address is valid */
+ 		if ((info->caddr == 0x00) || (info->caddr == 0xfe)) {
+-			IRDA_DEBUG(3, __FUNCTION__ 
+-			      "(), invalid connection address!\n");
++			IRDA_DEBUG(3, "%s(), invalid connection address!\n", __FUNCTION__);
+ 			return;
+ 		}
+ 		
+@@ -178,7 +177,7 @@ static void irlap_recv_snrm_cmd(struct i
+ 		
+ 		/* Only accept if addressed directly to us */
+ 		if (info->saddr != self->saddr) {
+-			IRDA_DEBUG(2, __FUNCTION__ "(), not addressed to us!\n");
++			IRDA_DEBUG(2, "%s(), not addressed to us!\n", __FUNCTION__);
+ 			return;
+ 		}
+ 		irlap_do_event(self, RECV_SNRM_CMD, skb, info);
+@@ -200,7 +199,7 @@ void irlap_send_ua_response_frame(struct
+ 	struct ua_frame *frame;
+ 	int ret;
+ 	
+-	IRDA_DEBUG(2, __FUNCTION__ "() <%ld>\n", jiffies);
++	IRDA_DEBUG(2, "%s() <%ld>\n", __FUNCTION__, jiffies);
+ 	
+ 	ASSERT(self != NULL, return;);
+ 	ASSERT(self->magic == LAP_MAGIC, return;);
+@@ -275,7 +274,7 @@ void irlap_send_disc_frame(struct irlap_
+ 	struct sk_buff *skb = NULL;
+ 	__u8 *frame;
+ 	
+-	IRDA_DEBUG(3, __FUNCTION__ "()\n");
++	IRDA_DEBUG(3, "%s()\n", __FUNCTION__);
+ 
+ 	ASSERT(self != NULL, return;);
+ 	ASSERT(self->magic == LAP_MAGIC, return;);
+@@ -306,7 +305,7 @@ void irlap_send_discovery_xid_frame(stru
+ 	__u32 bcast = BROADCAST;
+ 	__u8 *info;
+ 
+- 	IRDA_DEBUG(4, __FUNCTION__ "(), s=%d, S=%d, command=%d\n", s, S, 
++ 	IRDA_DEBUG(4, "%s(), s=%d, S=%d, command=%d\n", __FUNCTION__, s, S, 
+ 		   command);
+ 
+ 	ASSERT(self != NULL, return;);
+@@ -398,7 +397,7 @@ static void irlap_recv_discovery_xid_rsp
+ 	__u8 *discovery_info;
+ 	char *text;
+ 
+-	IRDA_DEBUG(4, __FUNCTION__ "()\n");
++	IRDA_DEBUG(4, "%s()\n", __FUNCTION__);
+ 
+ 	ASSERT(self != NULL, return;);
+ 	ASSERT(self->magic == LAP_MAGIC, return;);
+@@ -410,13 +409,12 @@ static void irlap_recv_discovery_xid_rsp
+ 
+ 	/* Make sure frame is addressed to us */
+ 	if ((info->saddr != self->saddr) && (info->saddr != BROADCAST)) {
+-		IRDA_DEBUG(0, __FUNCTION__ 
+-			   "(), frame is not addressed to us!\n");
++		IRDA_DEBUG(0, "%s(), frame is not addressed to us!\n", __FUNCTION__);
+ 		return;
+ 	}
+ 
+ 	if ((discovery = kmalloc(sizeof(discovery_t), GFP_ATOMIC)) == NULL) {
+-		WARNING(__FUNCTION__ "(), kmalloc failed!\n");
++		WARNING("%s(), kmalloc failed!\n", __FUNCTION__);
+ 		return;
+ 	}
+ 	memset(discovery, 0, sizeof(discovery_t));
+@@ -425,7 +423,7 @@ static void irlap_recv_discovery_xid_rsp
+ 	discovery->saddr = self->saddr;
+ 	discovery->timestamp = jiffies;
+ 
+-	IRDA_DEBUG(4, __FUNCTION__ "(), daddr=%08x\n", discovery->daddr);
++	IRDA_DEBUG(4, "%s(), daddr=%08x\n", __FUNCTION__, discovery->daddr);
+ 
+ 	discovery_info = skb_pull(skb, sizeof(struct xid_frame));
+ 
+@@ -476,8 +474,7 @@ static void irlap_recv_discovery_xid_cmd
+ 
+ 	/* Make sure frame is addressed to us */
+ 	if ((info->saddr != self->saddr) && (info->saddr != BROADCAST)) {
+-		IRDA_DEBUG(0, __FUNCTION__ 
+-			   "(), frame is not addressed to us!\n");
++		IRDA_DEBUG(0, "%s(), frame is not addressed to us!\n", __FUNCTION__);
+ 		return;
+ 	}
+ 
+@@ -509,7 +506,7 @@ static void irlap_recv_discovery_xid_cmd
+ 	if (info->s == 0xff) {
+ 		/* Check if things are sane at this point... */
+ 		if((discovery_info == NULL) || (skb->len < 3)) {
+-			ERROR(__FUNCTION__ "(), discovery frame to short!\n");
++			ERROR("%s(), discovery frame to short!\n", __FUNCTION__);
+ 			return;
+ 		}
+ 
+@@ -518,7 +515,7 @@ static void irlap_recv_discovery_xid_cmd
+ 		 */
+ 		discovery = kmalloc(sizeof(discovery_t), GFP_ATOMIC);
+ 		if (!discovery) {
+-			WARNING(__FUNCTION__ "(), unable to malloc!\n");
++			WARNING("%s(), unable to malloc!\n", __FUNCTION__);
+ 			return;
+ 		}
+ 	      
+@@ -642,7 +639,7 @@ void irlap_send_frmr_frame( struct irlap
+ 
+ 	frame[2] = 0;
+ 
+-   	IRDA_DEBUG(4, __FUNCTION__ "(), vr=%d, %ld\n",self->vr, jiffies); 
++   	IRDA_DEBUG(4, "%s(), vr=%d, %ld\n", __FUNCTION__,self->vr, jiffies); 
+ 
+ 	irlap_queue_xmit(self, skb);
+ }
+@@ -658,7 +655,7 @@ static void irlap_recv_rnr_frame(struct 
+ {
+ 	info->nr = skb->data[1] >> 5;
+ 
+-	IRDA_DEBUG(4, __FUNCTION__ "(), nr=%d, %ld\n", info->nr, jiffies);
++	IRDA_DEBUG(4, "%s(), nr=%d, %ld\n", __FUNCTION__, info->nr, jiffies);
+ 
+ 	if (command)
+ 		irlap_do_event(self, RECV_RNR_CMD, skb, info);
+@@ -669,7 +666,7 @@ static void irlap_recv_rnr_frame(struct 
+ static void irlap_recv_rej_frame(struct irlap_cb *self, struct sk_buff *skb, 
+ 				 struct irlap_info *info, int command)
+ {
+-	IRDA_DEBUG(0, __FUNCTION__ "()\n");
++	IRDA_DEBUG(0, "%s()\n", __FUNCTION__);
+ 
+ 	info->nr = skb->data[1] >> 5;
+ 	
+@@ -683,7 +680,7 @@ static void irlap_recv_rej_frame(struct 
+ static void irlap_recv_srej_frame(struct irlap_cb *self, struct sk_buff *skb, 
+ 				  struct irlap_info *info, int command)
+ {
+-	IRDA_DEBUG(0, __FUNCTION__ "()\n");
++	IRDA_DEBUG(0, "%s()\n", __FUNCTION__);
+ 
+ 	info->nr = skb->data[1] >> 5;
+ 	
+@@ -697,7 +694,7 @@ static void irlap_recv_srej_frame(struct
+ static void irlap_recv_disc_frame(struct irlap_cb *self, struct sk_buff *skb, 
+ 				  struct irlap_info *info, int command)
+ {
+-	IRDA_DEBUG(2, __FUNCTION__ "()\n");
++	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
+ 
+ 	/* Check if this is a command or a response frame */
+ 	if (command)
+@@ -754,7 +751,7 @@ void irlap_send_data_primary(struct irla
+ 
+ 		irlap_send_i_frame( self, tx_skb, CMD_FRAME);
+ 	} else {
+-		IRDA_DEBUG(4, __FUNCTION__ "(), sending unreliable frame\n");
++		IRDA_DEBUG(4, "%s(), sending unreliable frame\n", __FUNCTION__);
+ 		irlap_send_ui_frame(self, skb_get(skb), self->caddr, CMD_FRAME);
+ 		self->window -= 1;
+ 	}
+@@ -803,7 +800,7 @@ void irlap_send_data_primary_poll(struct
+ 
+ 		irlap_send_i_frame(self, tx_skb, CMD_FRAME);
+ 	} else {
+-		IRDA_DEBUG(4, __FUNCTION__ "(), sending unreliable frame\n");
++		IRDA_DEBUG(4, "%s(), sending unreliable frame\n", __FUNCTION__);
+ 
+ 		if (self->ack_required) {
+ 			irlap_send_ui_frame(self, skb_get(skb), self->caddr, CMD_FRAME);
+@@ -952,7 +949,7 @@ void irlap_resend_rejected_frames(struct
+ 		/* tx_skb = skb_clone( skb, GFP_ATOMIC); */
+ 		tx_skb = skb_copy(skb, GFP_ATOMIC);
+ 		if (!tx_skb) {
+-			IRDA_DEBUG(0, __FUNCTION__ "(), unable to copy\n");
++			IRDA_DEBUG(0, "%s(), unable to copy\n", __FUNCTION__);
+ 			return;
+ 		}
+ 		/* Unlink tx_skb from list */
+@@ -987,7 +984,7 @@ void irlap_resend_rejected_frames(struct
+ 	 */
+ 	while (skb_queue_len( &self->txq) > 0) {
+ 		
+-		IRDA_DEBUG(0, __FUNCTION__ "(), sending additional frames!\n");
++		IRDA_DEBUG(0, "%s(), sending additional frames!\n", __FUNCTION__);
+ 		if ((skb_queue_len( &self->txq) > 0) && 
+ 		    (self->window > 0)) {
+ 			skb = skb_dequeue( &self->txq); 
+@@ -1032,7 +1029,7 @@ void irlap_resend_rejected_frame(struct 
+ 		/* tx_skb = skb_clone( skb, GFP_ATOMIC); */
+ 		tx_skb = skb_copy(skb, GFP_ATOMIC);
+ 		if (!tx_skb) {
+-			IRDA_DEBUG(0, __FUNCTION__ "(), unable to copy\n");
++			IRDA_DEBUG(0, "%s(), unable to copy\n", __FUNCTION__);
+ 			return;	
+ 		}
+ 		/* Unlink tx_skb from list */
+@@ -1058,7 +1055,7 @@ void irlap_resend_rejected_frame(struct 
+ void irlap_send_ui_frame(struct irlap_cb *self, struct sk_buff *skb, 
+ 			 __u8 caddr, int command)
+ {
+-	IRDA_DEBUG(4, __FUNCTION__ "()\n");
++	IRDA_DEBUG(4, "%s()\n", __FUNCTION__);
+ 	
+ 	ASSERT(self != NULL, return;);
+ 	ASSERT(self->magic == LAP_MAGIC, return;);
+@@ -1118,7 +1115,7 @@ static inline void irlap_recv_i_frame(st
+ static void irlap_recv_ui_frame(struct irlap_cb *self, struct sk_buff *skb, 
+ 				struct irlap_info *info)
+ {
+-	IRDA_DEBUG( 4, __FUNCTION__ "()\n");
++	IRDA_DEBUG( 4, "%s()\n", __FUNCTION__);
+ 
+ 	info->pf = skb->data[1] & PF_BIT;      /* Final bit */
+ 
+@@ -1137,7 +1134,7 @@ static void irlap_recv_frmr_frame(struct
+ 	__u8 *frame;
+ 	int w, x, y, z;
+ 
+-	IRDA_DEBUG(0, __FUNCTION__ "()\n");
++	IRDA_DEBUG(0, "%s()\n", __FUNCTION__);
+ 	
+ 	ASSERT(self != NULL, return;);
+ 	ASSERT(self->magic == LAP_MAGIC, return;);
+@@ -1226,15 +1223,14 @@ static void irlap_recv_test_frame(struct
+ {
+ 	struct test_frame *frame;
+ 
+-	IRDA_DEBUG(2, __FUNCTION__ "()\n");
++	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
+ 	
+ 	frame = (struct test_frame *) skb->data;
+ 		
+ 	/* Broadcast frames must carry saddr and daddr fields */
+ 	if (info->caddr == CBROADCAST) {
+ 		if (skb->len < sizeof(struct test_frame)) {
+-			IRDA_DEBUG(0, __FUNCTION__ 
+-				   "() test frame to short!\n");
++			IRDA_DEBUG(0, "%s() test frame to short!\n", __FUNCTION__);
+ 			return;
+ 		}
+ 		
+@@ -1281,7 +1277,7 @@ int irlap_driver_rcv(struct sk_buff *skb
+ 
+ 	/* Check if frame is large enough for parsing */
+ 	if (skb->len < 2) {
+-		ERROR(__FUNCTION__ "(), frame to short!\n");
++		ERROR("%s(), frame to short!\n", __FUNCTION__);
+ 		dev_kfree_skb(skb);
+ 		return -1;
+ 	}
+@@ -1296,7 +1292,7 @@ int irlap_driver_rcv(struct sk_buff *skb
+ 
+ 	/*  First we check if this frame has a valid connection address */
+ 	if ((info.caddr != self->caddr) && (info.caddr != CBROADCAST)) {
+-		IRDA_DEBUG(0, __FUNCTION__ "(), wrong connection address!\n");
++		IRDA_DEBUG(0, "%s(), wrong connection address!\n", __FUNCTION__);
+ 		goto out;
+ 	}
+ 	/*  
+@@ -1330,8 +1326,7 @@ int irlap_driver_rcv(struct sk_buff *skb
+ 			irlap_recv_srej_frame(self, skb, &info, command);
+ 			break;
+ 		default:
+-			WARNING(__FUNCTION__ 
+-				"() Unknown S-frame %02x received!\n",
++			WARNING("%s() Unknown S-frame %02x received!\n", __FUNCTION__,
+ 				info.control);
+ 			break;
+ 		}
+@@ -1369,7 +1364,7 @@ int irlap_driver_rcv(struct sk_buff *skb
+ 		irlap_recv_ui_frame(self, skb, &info);
+ 		break;
+ 	default:
+-		WARNING(__FUNCTION__ "(), Unknown frame %02x received!\n", 
++		WARNING("%s(), Unknown frame %02x received!\n", __FUNCTION__, 
+ 			info.control);
+ 		break;
+ 	}
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff 2.4.19-rc3/net/irda/irlmp_frame.c test/net/irda/irlmp_frame.c
+--- 2.4.19-rc3/net/irda/irlmp_frame.c	2001-11-09 23:22:17.000000000 +0100
++++ test/net/irda/irlmp_frame.c	2002-07-22 18:48:09.000000000 +0200
+@@ -45,7 +45,7 @@ inline void irlmp_send_data_pdu(struct l
+ 	skb->data[1] = slsap;
+ 
+ 	if (expedited) {
+-		IRDA_DEBUG(4, __FUNCTION__ "(), sending expedited data\n");
++		IRDA_DEBUG(4, "%s(), sending expedited data\n", __FUNCTION__);
+ 		irlap_data_request(self->irlap, skb, TRUE);
+ 	} else
+ 		irlap_data_request(self->irlap, skb, FALSE);
+@@ -61,7 +61,7 @@ void irlmp_send_lcf_pdu(struct lap_cb *s
+ {
+ 	__u8 *frame;
+ 	
+-	IRDA_DEBUG(2, __FUNCTION__ "()\n");
++	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
+ 
+ 	ASSERT(self != NULL, return;);
+ 	ASSERT(self->magic == LMP_LAP_MAGIC, return;);
+@@ -96,7 +96,7 @@ void irlmp_link_data_indication(struct l
+ 	__u8   dlsap_sel;   /* Destination LSAP address */
+ 	__u8   *fp;
+ 	
+-	IRDA_DEBUG(4, __FUNCTION__ "()\n");
++	IRDA_DEBUG(4, "%s()\n", __FUNCTION__);
+ 
+ 	ASSERT(self != NULL, return;);
+ 	ASSERT(self->magic == LMP_LAP_MAGIC, return;);
+@@ -116,7 +116,7 @@ void irlmp_link_data_indication(struct l
+ 	 *  it in a different way than other established connections.
+ 	 */
+ 	if ((fp[0] & CONTROL_BIT) && (fp[2] == CONNECT_CMD)) {
+-		IRDA_DEBUG(3, __FUNCTION__ "(), incoming connection, "
++		IRDA_DEBUG(3, "%s(), incoming connection, ", __FUNCTION__
+ 			   "source LSAP=%d, dest LSAP=%d\n",
+ 			   slsap_sel, dlsap_sel);
+ 		
+@@ -126,7 +126,7 @@ void irlmp_link_data_indication(struct l
+ 		
+ 		/* Maybe LSAP was already connected, so try one more time */
+ 		if (!lsap) {
+-			IRDA_DEBUG(1, __FUNCTION__ "(), incoming connection for LSAP already connected\n");
++			IRDA_DEBUG(1, "%s(), incoming connection for LSAP already connected\n", __FUNCTION__);
+ 			lsap = irlmp_find_lsap(self, dlsap_sel, slsap_sel, 0,
+ 					       self->lsaps);
+ 		}
+@@ -136,14 +136,12 @@ void irlmp_link_data_indication(struct l
+ 	
+ 	if (lsap == NULL) {
+ 		IRDA_DEBUG(2, "IrLMP, Sorry, no LSAP for received frame!\n");
+-		IRDA_DEBUG(2, __FUNCTION__ 
+-		      "(), slsap_sel = %02x, dlsap_sel = %02x\n", slsap_sel, 
++		IRDA_DEBUG(2, "%s(), slsap_sel = %02x, dlsap_sel = %02x\n", __FUNCTION__, slsap_sel, 
+ 		      dlsap_sel);
+ 		if (fp[0] & CONTROL_BIT) {
+-			IRDA_DEBUG(2, __FUNCTION__ 
+-			      "(), received control frame %02x\n", fp[2]);
++			IRDA_DEBUG(2, "%s(), received control frame %02x\n", __FUNCTION__, fp[2]);
+ 		} else {
+-			IRDA_DEBUG(2, __FUNCTION__ "(), received data frame\n");
++			IRDA_DEBUG(2, "%s(), received data frame\n", __FUNCTION__);
+ 		}
+ 		dev_kfree_skb(skb);
+ 		return;
+@@ -162,8 +160,7 @@ void irlmp_link_data_indication(struct l
+ 			irlmp_do_lsap_event(lsap, LM_CONNECT_CONFIRM, skb);
+ 			break;
+ 		case DISCONNECT:
+-			IRDA_DEBUG(4, __FUNCTION__ 
+-				   "(), Disconnect indication!\n");
++			IRDA_DEBUG(4, "%s(), Disconnect indication!\n", __FUNCTION__);
+ 			irlmp_do_lsap_event(lsap, LM_DISCONNECT_INDICATION, 
+ 					    skb);
+ 			break;
+@@ -176,8 +173,7 @@ void irlmp_link_data_indication(struct l
+ 			dev_kfree_skb(skb);
+ 			break;
+ 		default:
+-			IRDA_DEBUG(0, __FUNCTION__ 
+-				   "(), Unknown control frame %02x\n", fp[2]);
++			IRDA_DEBUG(0, "%s(), Unknown control frame %02x\n", __FUNCTION__, fp[2]);
+ 			dev_kfree_skb(skb);
+ 			break;
+ 		}
+@@ -211,7 +207,7 @@ void irlmp_link_unitdata_indication(stru
+ 	__u8   pid;         /* Protocol identifier */
+ 	__u8   *fp;
+ 	
+-	IRDA_DEBUG(4, __FUNCTION__ "()\n");
++	IRDA_DEBUG(4, "%s()\n", __FUNCTION__);
+ 
+ 	ASSERT(self != NULL, return;);
+ 	ASSERT(self->magic == LMP_LAP_MAGIC, return;);
+@@ -228,7 +224,7 @@ void irlmp_link_unitdata_indication(stru
+ 	pid       = fp[2];
+ 	
+ 	if (pid & 0x80) {
+-		IRDA_DEBUG(0, __FUNCTION__ "(), extension in PID not supp!\n");
++		IRDA_DEBUG(0, "%s(), extension in PID not supp!\n", __FUNCTION__);
+ 		dev_kfree_skb(skb);
+ 
+ 		return;
+@@ -236,7 +232,7 @@ void irlmp_link_unitdata_indication(stru
+ 
+ 	/* Check if frame is addressed to the connectionless LSAP */
+ 	if ((slsap_sel != LSAP_CONNLESS) || (dlsap_sel != LSAP_CONNLESS)) {
+-		IRDA_DEBUG(0, __FUNCTION__ "(), dropping frame!\n");
++		IRDA_DEBUG(0, "%s(), dropping frame!\n", __FUNCTION__);
+ 		dev_kfree_skb(skb);
+ 		
+ 		return;
+@@ -258,7 +254,7 @@ void irlmp_link_unitdata_indication(stru
+ 	if (lsap)
+ 		irlmp_connless_data_indication(lsap, skb);
+ 	else {
+-		IRDA_DEBUG(0, __FUNCTION__ "(), found no matching LSAP!\n");
++		IRDA_DEBUG(0, "%s(), found no matching LSAP!\n", __FUNCTION__);
+ 		dev_kfree_skb(skb);
+ 	}
+ }
+@@ -275,7 +271,7 @@ void irlmp_link_disconnect_indication(st
+ 				      LAP_REASON reason, 
+ 				      struct sk_buff *userdata)
+ {
+-	IRDA_DEBUG(2, __FUNCTION__ "()\n");
++	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
+ 
+ 	ASSERT(lap != NULL, return;);
+ 	ASSERT(lap->magic == LMP_LAP_MAGIC, return;);
+@@ -303,7 +299,7 @@ void irlmp_link_connect_indication(struc
+ 				   __u32 daddr, struct qos_info *qos,
+ 				   struct sk_buff *skb) 
+ {
+-	IRDA_DEBUG(4, __FUNCTION__ "()\n");
++	IRDA_DEBUG(4, "%s()\n", __FUNCTION__);
+ 
+ 	/* Copy QoS settings for this session */
+ 	self->qos = qos;
+@@ -324,7 +320,7 @@ void irlmp_link_connect_indication(struc
+ void irlmp_link_connect_confirm(struct lap_cb *self, struct qos_info *qos, 
+ 				struct sk_buff *userdata)
+ {
+-	IRDA_DEBUG(4, __FUNCTION__ "()\n");
++	IRDA_DEBUG(4, "%s()\n", __FUNCTION__);
+ 
+ 	ASSERT(self != NULL, return;);
+ 	ASSERT(self->magic == LMP_LAP_MAGIC, return;);
+@@ -391,7 +387,7 @@ void irlmp_link_discovery_indication(str
+  */
+ void irlmp_link_discovery_confirm(struct lap_cb *self, hashbin_t *log)
+ {
+-	IRDA_DEBUG(4, __FUNCTION__ "()\n");
++	IRDA_DEBUG(4, "%s()\n", __FUNCTION__);
+ 
+ 	ASSERT(self != NULL, return;);
+ 	ASSERT(self->magic == LMP_LAP_MAGIC, return;);
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff 2.4.19-rc3/net/irda/irnet/irnet.h test/net/irda/irnet/irnet.h
+--- 2.4.19-rc3/net/irda/irnet/irnet.h	2002-07-22 18:43:39.000000000 +0200
++++ test/net/irda/irnet/irnet.h	2002-07-22 19:36:52.000000000 +0200
+@@ -311,29 +311,29 @@
+  * compiler will optimise away the if() in all cases.
+  */
+ /* All error messages (will show up in the normal logs) */
+-#define DERROR(dbg, args...) \
++#define DERROR(dbg, fmt, args...) \
+ 	{if(DEBUG_##dbg) \
+-		printk(KERN_INFO "irnet: " __FUNCTION__ "(): " args);}
++		printk(KERN_INFO "irnet: %s(): " fmt, __FUNCTION__, ##args);}
+ 
+ /* Normal debug message (will show up in /var/log/debug) */
+-#define DEBUG(dbg, args...) \
++#define DEBUG(dbg, fmt, args...) \
+ 	{if(DEBUG_##dbg) \
+-		printk(KERN_DEBUG "irnet: " __FUNCTION__ "(): " args);}
++		printk(KERN_DEBUG "irnet: %s(): " fmt, __FUNCTION__, ##args);}
+ 
+ /* Entering a function (trace) */
+-#define DENTER(dbg, args...) \
++#define DENTER(dbg, fmt, args...) \
+ 	{if(DEBUG_##dbg) \
+-		printk(KERN_DEBUG "irnet: ->" __FUNCTION__ args);}
++		printk(KERN_DEBUG "irnet: -> %s " fmt,  __FUNCTION__, ##args);}
+ 
+ /* Entering and exiting a function in one go (trace) */
+-#define DPASS(dbg, args...) \
++#define DPASS(dbg, fmt, args...) \
+ 	{if(DEBUG_##dbg) \
+-		printk(KERN_DEBUG "irnet: <>" __FUNCTION__ args);}
++		printk(KERN_DEBUG "irnet: <> %s " fmt, __FUNCTION__, ##args);}
+ 
+ /* Exiting a function (trace) */
+-#define DEXIT(dbg, args...) \
++#define DEXIT(dbg, fmt, args...) \
+ 	{if(DEBUG_##dbg) \
+-		printk(KERN_DEBUG "irnet: <-" __FUNCTION__ "()" args);}
++		printk(KERN_DEBUG "irnet: <- %s() " fmt, __FUNCTION__, ##args);}
+ 
+ /* Exit a function with debug */
+ #define DRETURN(ret, dbg, args...) \
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff 2.4.19-rc3/net/irda/irqueue.c test/net/irda/irqueue.c
+--- 2.4.19-rc3/net/irda/irqueue.c	2001-07-04 20:50:38.000000000 +0200
++++ test/net/irda/irqueue.c	2002-07-22 18:48:09.000000000 +0200
+@@ -154,7 +154,7 @@ void hashbin_insert(hashbin_t* hashbin, 
+ 	unsigned long flags = 0;
+ 	int bin;
+ 
+-	IRDA_DEBUG( 4, __FUNCTION__"()\n");
++	IRDA_DEBUG( 4, "%s()\n", __FUNCTION__);
+ 
+ 	ASSERT( hashbin != NULL, return;);
+ 	ASSERT( hashbin->magic == HB_MAGIC, return;);
+@@ -308,7 +308,7 @@ void* hashbin_remove( hashbin_t* hashbin
+ 	unsigned long flags = 0;
+ 	irda_queue_t* entry;
+ 
+-	IRDA_DEBUG( 4, __FUNCTION__ "()\n");
++	IRDA_DEBUG( 4, "%s()\n", __FUNCTION__);
+ 
+ 	ASSERT( hashbin != NULL, return NULL;);
+ 	ASSERT( hashbin->magic == HB_MAGIC, return NULL;);
+@@ -407,7 +407,7 @@ void* hashbin_remove_this( hashbin_t* ha
+ 	int	bin;
+ 	__u32	hashv;
+ 
+-	IRDA_DEBUG( 4, __FUNCTION__ "()\n");
++	IRDA_DEBUG( 4, "%s()\n", __FUNCTION__);
+ 
+ 	ASSERT( hashbin != NULL, return NULL;);
+ 	ASSERT( hashbin->magic == HB_MAGIC, return NULL;);
+@@ -553,7 +553,7 @@ irda_queue_t *hashbin_get_next( hashbin_
+  */
+ static void __enqueue_last( irda_queue_t **queue, irda_queue_t* element)
+ {
+-	IRDA_DEBUG( 4, __FUNCTION__ "()\n");
++	IRDA_DEBUG( 4, "%s()\n", __FUNCTION__);
+ 
+ 	/*
+ 	 * Check if queue is empty.
+@@ -596,7 +596,7 @@ inline void enqueue_last( irda_queue_t *
+ void enqueue_first(irda_queue_t **queue, irda_queue_t* element)
+ {
+ 	
+-	IRDA_DEBUG( 4, __FUNCTION__ "()\n");
++	IRDA_DEBUG( 4, "%s()\n", __FUNCTION__);
+ 
+ 	/*
+ 	 * Check if queue is empty.
+diff -uNp t1/net/irda/irttp.c.bf10-2.orig t1/net/irda/irttp.c
+--- t1/net/irda/irttp.c.bf10-2.orig	2002-12-31 18:10:53.000000000 +0100
++++ t1/net/irda/irttp.c	2002-12-31 18:17:41.000000000 +0100
+@@ -94,7 +94,7 @@ int __init irttp_init(void)
+ 
+ 	irttp->tsaps = hashbin_new(HB_LOCAL);
+ 	if (!irttp->tsaps) {
+-		ERROR(__FUNCTION__ "(), can't allocate IrTTP hashbin!\n");
++		ERROR("%s(), can't allocate IrTTP hashbin!\n", __FUNCTION__);
+ 		return -ENOMEM;
+ 	}
+ 	
+@@ -165,7 +165,7 @@ static void irttp_todo_expired(unsigned 
+ 	if (!self || self->magic != TTP_TSAP_MAGIC)
+ 		return;
+ 	
+-	IRDA_DEBUG(4, __FUNCTION__ "(instance=%p)\n", self);
++	IRDA_DEBUG(4, "%s(instance=%p)\n",  __FUNCTION__, self);
+ 
+ 	/* Try to make some progress, especially on Tx side - Jean II */
+ 	irttp_run_rx_queue(self);
+@@ -206,7 +206,7 @@ void irttp_flush_queues(struct tsap_cb *
+ {
+ 	struct sk_buff* skb;
+ 	
+-	IRDA_DEBUG(4, __FUNCTION__ "()\n");
++	IRDA_DEBUG(4, "%s()\n", __FUNCTION__);
+ 
+ 	ASSERT(self != NULL, return;);
+ 	ASSERT(self->magic == TTP_TSAP_MAGIC, return;);
+@@ -239,7 +239,7 @@ static struct sk_buff *irttp_reassemble_
+       	ASSERT(self != NULL, return NULL;);
+ 	ASSERT(self->magic == TTP_TSAP_MAGIC, return NULL;);
+ 
+-	IRDA_DEBUG(2, __FUNCTION__ "(), self->rx_sdu_size=%d\n", 
++	IRDA_DEBUG(2, "%s(), self->rx_sdu_size=%d\n", __FUNCTION__, 
+ 		   self->rx_sdu_size);
+ 
+ 	skb = dev_alloc_skb(TTP_HEADER + self->rx_sdu_size);
+@@ -262,9 +262,10 @@ static struct sk_buff *irttp_reassemble_
+ 		
+ 		dev_kfree_skb(frag);
+ 	}
+-	IRDA_DEBUG(2, __FUNCTION__ "(), frame len=%d\n", n);
++	IRDA_DEBUG(2,"%s(), frame len=%d\n",  __FUNCTION__, n);
+ 
+-	IRDA_DEBUG(2, __FUNCTION__ "(), rx_sdu_size=%d\n", self->rx_sdu_size);
++	IRDA_DEBUG(2, "%s(), rx_sdu_size=%d\n", __FUNCTION__,
++		   self->rx_sdu_size);
+ 	ASSERT(n <= self->rx_sdu_size, return NULL;);
+ 
+ 	/* Set the new length */
+@@ -287,7 +288,7 @@ static inline void irttp_fragment_skb(st
+ 	struct sk_buff *frag;
+ 	__u8 *frame;
+ 
+-	IRDA_DEBUG(2, __FUNCTION__ "()\n");
++	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
+ 
+ 	ASSERT(self != NULL, return;);
+ 	ASSERT(self->magic == TTP_TSAP_MAGIC, return;);
+@@ -297,7 +298,7 @@ static inline void irttp_fragment_skb(st
+ 	 *  Split frame into a number of segments
+ 	 */
+ 	while (skb->len > self->max_seg_size) {
+-		IRDA_DEBUG(2, __FUNCTION__  "(), fragmenting ...\n");
++		IRDA_DEBUG(2, "%s(), fragmenting ...\n", __FUNCTION__);
+ 
+ 		/* Make new segment */
+ 		frag = dev_alloc_skb(self->max_seg_size+self->max_header_size);
+@@ -321,7 +322,7 @@ static inline void irttp_fragment_skb(st
+ 		skb_queue_tail(&self->tx_queue, frag);
+ 	}
+ 	/* Queue what is left of the original skb */
+-	IRDA_DEBUG(2, __FUNCTION__  "(), queuing last segment\n");
++	IRDA_DEBUG(2, "%s(), queuing last segment\n", __FUNCTION__);
+ 	
+ 	frame = skb_push(skb, TTP_HEADER);
+ 	frame[0] = 0x00; /* Clear more bit */
+@@ -352,7 +353,7 @@ static int irttp_param_max_sdu_size(void
+ 	else
+ 		self->tx_max_sdu_size = param->pv.i;
+ 
+-	IRDA_DEBUG(1, __FUNCTION__ "(), MaxSduSize=%d\n", param->pv.i);
++	IRDA_DEBUG(1, "%s(), MaxSduSize=%d\n", __FUNCTION__, param->pv.i);
+ 	
+ 	return 0;
+ }
+@@ -380,13 +381,13 @@ struct tsap_cb *irttp_open_tsap(__u8 sts
+ 	 * JeanII */
+ 	if((stsap_sel != LSAP_ANY) &&
+ 	   ((stsap_sel < 0x01) || (stsap_sel >= 0x70))) {
+-		IRDA_DEBUG(0, __FUNCTION__ "(), invalid tsap!\n");
++		IRDA_DEBUG(0, "%s(), invalid tsap!\n", __FUNCTION__);
+ 		return NULL;
+ 	}
+ 
+ 	self = kmalloc(sizeof(struct tsap_cb), GFP_ATOMIC);
+ 	if (self == NULL) {
+-		IRDA_DEBUG(0, __FUNCTION__ "(), unable to kmalloc!\n");
++		IRDA_DEBUG(0, "%s(), unable to kmalloc!\n", __FUNCTION__);
+ 		return NULL;
+ 	}
+ 	memset(self, 0, sizeof(struct tsap_cb));
+@@ -421,7 +422,7 @@ struct tsap_cb *irttp_open_tsap(__u8 sts
+ 	 */
+ 	lsap = irlmp_open_lsap(stsap_sel, &ttp_notify, 0);
+ 	if (lsap == NULL) {
+-		WARNING(__FUNCTION__ "(), unable to allocate LSAP!!\n");
++		WARNING("%s(), unable to allocate LSAP!!\n", __FUNCTION__);
+ 		return NULL;
+ 	}
+ 	
+@@ -431,7 +432,7 @@ struct tsap_cb *irttp_open_tsap(__u8 sts
+ 	 *  the stsap_sel we have might not be valid anymore
+ 	 */
+ 	self->stsap_sel = lsap->slsap_sel;
+-	IRDA_DEBUG(4, __FUNCTION__ "(), stsap_sel=%02x\n", self->stsap_sel);
++	IRDA_DEBUG(4, "%s(), stsap_sel=%02x\n", __FUNCTION__, self->stsap_sel);
+ 
+ 	self->notify = *notify;
+ 	self->lsap = lsap;
+@@ -488,7 +489,7 @@ int irttp_close_tsap(struct tsap_cb *sel
+ {
+ 	struct tsap_cb *tsap;
+ 
+-	IRDA_DEBUG(4, __FUNCTION__ "()\n");
++	IRDA_DEBUG(4, "%s()\n", __FUNCTION__);
+ 
+ 	ASSERT(self != NULL, return -1;);
+ 	ASSERT(self->magic == TTP_TSAP_MAGIC, return -1;);
+@@ -497,7 +498,7 @@ int irttp_close_tsap(struct tsap_cb *sel
+ 	if (self->connected) {
+ 		/* Check if disconnect is not pending */
+ 		if (!test_bit(0, &self->disconnect_pend)) {
+-			WARNING(__FUNCTION__ "(), TSAP still connected!\n");
++			WARNING("%s(), TSAP still connected!\n", __FUNCTION__);
+ 			irttp_disconnect_request(self, NULL, P_NORMAL);
+ 		}
+ 		self->close_pend = TRUE;
+@@ -533,16 +534,16 @@ int irttp_udata_request(struct tsap_cb *
+ 	ASSERT(self->magic == TTP_TSAP_MAGIC, return -1;);
+ 	ASSERT(skb != NULL, return -1;);
+ 
+-	IRDA_DEBUG(4, __FUNCTION__ "()\n");
++	IRDA_DEBUG(4, "%s()\n", __FUNCTION__);
+ 
+ 	/* Check that nothing bad happens */
+ 	if ((skb->len == 0) || (!self->connected)) {
+-		IRDA_DEBUG(1, __FUNCTION__ "(), No data, or not connected\n");
++		IRDA_DEBUG(1, "%s(), No data, or not connected\n", __FUNCTION__);
+ 		return -1;
+ 	}
+ 	
+ 	if (skb->len > self->max_seg_size) {
+-		IRDA_DEBUG(1, __FUNCTION__ "(), UData is to large for IrLAP!\n");
++		IRDA_DEBUG(1, "%s(), UData is to large for IrLAP!\n", __FUNCTION__);
+ 		return -1;
+ 	}
+ 		    
+@@ -571,7 +572,7 @@ int irttp_data_request(struct tsap_cb *s
+ 
+ 	/* Check that nothing bad happens */
+ 	if ((skb->len == 0) || (!self->connected)) {
+-		WARNING(__FUNCTION__ "(), No data, or not connected\n");
++		WARNING("%s(), No data, or not connected\n", __FUNCTION__);
+ 		return -ENOTCONN;
+ 	}
+ 
+@@ -580,8 +581,7 @@ int irttp_data_request(struct tsap_cb *s
+ 	 *  inside an IrLAP frame
+ 	 */
+ 	if ((self->tx_max_sdu_size == 0) && (skb->len > self->max_seg_size)) {
+-		ERROR(__FUNCTION__ 
+-		      "(), SAR disabled, and data is to large for IrLAP!\n");
++		ERROR("%s(), SAR disabled, and data is to large for IrLAP!\n", __FUNCTION__);
+ 		return -EMSGSIZE;
+ 	}
+ 
+@@ -593,8 +593,8 @@ int irttp_data_request(struct tsap_cb *s
+ 	    (self->tx_max_sdu_size != TTP_SAR_UNBOUND) && 
+ 	    (skb->len > self->tx_max_sdu_size))
+ 	{
+-		ERROR(__FUNCTION__ "(), SAR enabled, "
+-		      "but data is larger than TxMaxSduSize!\n");
++		ERROR("%s(), SAR enabled, "
++		      "but data is larger than TxMaxSduSize!\n", __FUNCTION__);
+ 		return -EMSGSIZE;
+ 	}
+ 	/* 
+@@ -665,7 +665,7 @@ static void irttp_run_tx_queue(struct ts
+ 	unsigned long flags;
+ 	int n;
+ 
+-	IRDA_DEBUG(2, __FUNCTION__ "() : send_credit = %d, queue_len = %d\n",
++	IRDA_DEBUG(2, "%s() : send_credit = %d, queue_len = %d\n",__FUNCTION__,
+ 		   self->send_credit, skb_queue_len(&self->tx_queue));
+ 
+ 	/* Get exclusive access to the tx queue, otherwise don't touch it */
+@@ -773,7 +773,7 @@ static inline void irttp_give_credit(str
+ 	ASSERT(self != NULL, return;);
+ 	ASSERT(self->magic == TTP_TSAP_MAGIC, return;);	
+ 
+-	IRDA_DEBUG(4, __FUNCTION__ "() send=%d,avail=%d,remote=%d\n", 
++	IRDA_DEBUG(4, "%s() send=%d,avail=%d,remote=%d\n", __FUNCTION__, 
+ 		   self->send_credit, self->avail_credit, self->remote_credit);
+ 
+ 	/* Give credit to peer */
+@@ -821,7 +821,7 @@ static int irttp_udata_indication(void *
+ {
+ 	struct tsap_cb *self;
+ 
+-	IRDA_DEBUG(4, __FUNCTION__ "()\n");
++	IRDA_DEBUG(4, "%s()\n", __FUNCTION__);
+ 
+ 	self = (struct tsap_cb *) instance;
+ 
+@@ -933,7 +933,7 @@ void irttp_status_indication(void *insta
+ {
+ 	struct tsap_cb *self;
+ 
+-	IRDA_DEBUG(4, __FUNCTION__ "()\n");
++	IRDA_DEBUG(4, "%s()\n", __FUNCTION__);
+ 
+ 	self = (struct tsap_cb *) instance;
+ 	
+@@ -947,7 +947,7 @@ void irttp_status_indication(void *insta
+ 		self->notify.status_indication(self->notify.instance, 
+ 					       link, lock);
+ 	else
+-		IRDA_DEBUG(2, __FUNCTION__ "(), no handler\n");
++		IRDA_DEBUG(2, "%s(), no handler\n", __FUNCTION__);
+ }
+ 
+ /*
+@@ -965,7 +965,7 @@ void irttp_flow_indication(void *instanc
+ 	ASSERT(self != NULL, return;);
+ 	ASSERT(self->magic == TTP_TSAP_MAGIC, return;);
+ 	
+-	IRDA_DEBUG(4, __FUNCTION__ "(instance=%p)\n", self);
++	IRDA_DEBUG(4, "%s(instance=%p)\n", __FUNCTION__, self);
+ 
+ 	/* We are "polled" directly from LAP, and the LAP want to fill
+ 	 * its Tx window. We want to do our best to send it data, so that
+@@ -1003,18 +1003,18 @@ void irttp_flow_indication(void *instanc
+  */
+ void irttp_flow_request(struct tsap_cb *self, LOCAL_FLOW flow)
+ {
+-	IRDA_DEBUG(1, __FUNCTION__ "()\n");
++	IRDA_DEBUG(1, "%s()\n", __FUNCTION__);
+ 
+ 	ASSERT(self != NULL, return;);
+ 	ASSERT(self->magic == TTP_TSAP_MAGIC, return;);
+ 
+ 	switch (flow) {
+ 	case FLOW_STOP:
+-		IRDA_DEBUG(1, __FUNCTION__ "(), flow stop\n");
++		IRDA_DEBUG(1, "%s(), flow stop\n", __FUNCTION__);
+ 		self->rx_sdu_busy = TRUE;
+ 		break;
+ 	case FLOW_START:
+-		IRDA_DEBUG(1, __FUNCTION__ "(), flow start\n");
++		IRDA_DEBUG(1,"%s(), flow start\n", __FUNCTION__);
+ 		self->rx_sdu_busy = FALSE;
+ 		
+ 		/* Client say he can accept more data, try to free our
+@@ -1023,7 +1023,7 @@ void irttp_flow_request(struct tsap_cb *
+ 
+ 		break;
+ 	default:
+-		IRDA_DEBUG(1, __FUNCTION__ "(), Unknown flow command!\n");
++		IRDA_DEBUG(1, "%s(), Unknown flow command!\n",  __FUNCTION__);
+ 	}
+ }
+ 	
+@@ -1042,7 +1042,7 @@ int irttp_connect_request(struct tsap_cb
+ 	__u8 *frame;
+ 	__u8 n;
+ 	
+-	IRDA_DEBUG(4, __FUNCTION__ "(), max_sdu_size=%d\n", max_sdu_size); 
++	IRDA_DEBUG(4, "%s(), max_sdu_size=%d\n", __FUNCTION__, max_sdu_size); 
+ 	
+ 	ASSERT(self != NULL, return -EBADR;);
+ 	ASSERT(self->magic == TTP_TSAP_MAGIC, return -EBADR;);
+@@ -1134,7 +1134,7 @@ static void irttp_connect_confirm(void *
+ 	__u8 plen;
+ 	__u8 n;
+ 
+-	IRDA_DEBUG(4, __FUNCTION__ "()\n");
++	IRDA_DEBUG(4, "%s()\n", __FUNCTION__);
+ 	
+ 	self = (struct tsap_cb *) instance;
+ 
+@@ -1158,7 +1158,7 @@ static void irttp_connect_confirm(void *
+ 
+ 	n = skb->data[0] & 0x7f;
+ 	
+-	IRDA_DEBUG(4, __FUNCTION__ "(), Initial send_credit=%d\n", n);
++	IRDA_DEBUG(4, "%s(), Initial send_credit=%d\n", __FUNCTION__, n);
+ 	
+ 	self->send_credit = n;
+ 	self->tx_max_sdu_size = 0;
+@@ -1178,8 +1178,7 @@ static void irttp_connect_confirm(void *
+ 
+ 		/* Any errors in the parameter list? */
+ 		if (ret < 0) {
+-			WARNING(__FUNCTION__ 
+-				"(), error extracting parameters\n");
++			WARNING("%s(), error extracting parameters\n", __FUNCTION__);
+ 			dev_kfree_skb(skb);
+ 
+ 			/* Do not accept this connection attempt */
+@@ -1189,10 +1188,10 @@ static void irttp_connect_confirm(void *
+ 		skb_pull(skb, IRDA_MIN(skb->len, plen+1));
+ 	}
+ 	
+-	IRDA_DEBUG(4, __FUNCTION__ "() send=%d,avail=%d,remote=%d\n", 
++	IRDA_DEBUG(4, "%s() send=%d,avail=%d,remote=%d\n", __FUNCTION__, 
+ 	      self->send_credit, self->avail_credit, self->remote_credit);
+ 
+-	IRDA_DEBUG(2, __FUNCTION__ "(), MaxSduSize=%d\n", self->tx_max_sdu_size);
++	IRDA_DEBUG(2, "%s(), MaxSduSize=%d\n", __FUNCTION__, self->tx_max_sdu_size);
+ 
+ 	if (self->notify.connect_confirm) {
+ 		self->notify.connect_confirm(self->notify.instance, self, qos,
+@@ -1229,7 +1228,7 @@ void irttp_connect_indication(void *inst
+ 	self->max_seg_size = max_seg_size - TTP_HEADER;;
+ 	self->max_header_size = max_header_size+TTP_HEADER;
+ 
+-	IRDA_DEBUG(4, __FUNCTION__ "(), TSAP sel=%02x\n", self->stsap_sel);
++	IRDA_DEBUG(4, "%s(), TSAP sel=%02x\n", __FUNCTION__, self->stsap_sel);
+ 
+ 	/* Need to update dtsap_sel if its equal to LSAP_ANY */
+ 	self->dtsap_sel = lsap->dlsap_sel;
+@@ -1253,8 +1252,7 @@ void irttp_connect_indication(void *inst
+ 
+ 		/* Any errors in the parameter list? */
+ 		if (ret < 0) {
+-			WARNING(__FUNCTION__ 
+-				"(), error extracting parameters\n");
++			WARNING("%s(), error extracting parameters\n", __FUNCTION__);
+ 			dev_kfree_skb(skb);
+ 			
+ 			/* Do not accept this connection attempt */
+@@ -1291,7 +1289,7 @@ int irttp_connect_response(struct tsap_c
+ 	ASSERT(self != NULL, return -1;);
+ 	ASSERT(self->magic == TTP_TSAP_MAGIC, return -1;);
+ 
+-	IRDA_DEBUG(4, __FUNCTION__ "(), Source TSAP selector=%02x\n", 
++	IRDA_DEBUG(4, "%s(), Source TSAP selector=%02x\n", __FUNCTION__, 
+ 		   self->stsap_sel);
+ 	
+ 	/* Any userdata supplied? */
+@@ -1369,15 +1367,15 @@ struct tsap_cb *irttp_dup(struct tsap_cb
+ {
+ 	struct tsap_cb *new;
+ 
+-	IRDA_DEBUG(1, __FUNCTION__ "()\n");
++	IRDA_DEBUG(1, "%s()\n", __FUNCTION__);
+ 
+ 	if (!hashbin_find(irttp->tsaps, (int) orig, NULL)) {
+-		IRDA_DEBUG(0, __FUNCTION__ "(), unable to find TSAP\n");
++		IRDA_DEBUG(0, "%s(), unable to find TSAP\n", __FUNCTION__);
+ 		return NULL;
+ 	}
+ 	new = kmalloc(sizeof(struct tsap_cb), GFP_ATOMIC);
+ 	if (!new) {
+-		IRDA_DEBUG(0, __FUNCTION__ "(), unable to kmalloc\n");
++		IRDA_DEBUG(0, "%s(), unable to kmalloc\n", __FUNCTION__);
+ 		return NULL;
+ 	}
+ 	/* Dup */
+@@ -1415,7 +1413,7 @@ int irttp_disconnect_request(struct tsap
+ 
+ 	/* Already disconnected? */
+ 	if (!self->connected) {
+-		IRDA_DEBUG(4, __FUNCTION__ "(), already disconnected!\n");
++		IRDA_DEBUG(4, "%s(), already disconnected!\n", __FUNCTION__);
+ 		if (userdata)
+ 			dev_kfree_skb(userdata);
+ 		return -1;
+@@ -1427,7 +1425,7 @@ int irttp_disconnect_request(struct tsap
+ 	 * for following a disconnect_indication() (i.e. net_bh).
+ 	 * Jean II */
+ 	if(test_and_set_bit(0, &self->disconnect_pend)) {
+-		IRDA_DEBUG(0, __FUNCTION__ "(), disconnect already pending\n");
++		IRDA_DEBUG(0, "%s(), disconnect already pending\n", __FUNCTION__);
+ 		if (userdata)
+ 			dev_kfree_skb(userdata);
+ 
+@@ -1446,7 +1444,7 @@ int irttp_disconnect_request(struct tsap
+ 			 *  disconnecting right now since the data will
+ 			 *  not have any usable connection to be sent on
+ 			 */
+-			IRDA_DEBUG(1, __FUNCTION__  "High priority!!()\n" );
++			IRDA_DEBUG(1, "%sHigh priority!!()\n", __FUNCTION__ );
+ 			irttp_flush_queues(self);
+ 		} else if (priority == P_NORMAL) {
+ 			/* 
+@@ -1467,7 +1465,7 @@ int irttp_disconnect_request(struct tsap
+ 	 * be sent at the LMP level (so even if the peer has its Tx queue
+ 	 * full of data). - Jean II */
+ 
+-	IRDA_DEBUG(1, __FUNCTION__ "(), Disconnecting ...\n");
++	IRDA_DEBUG(1, "%s(), Disconnecting ...\n", __FUNCTION__);
+ 	self->connected = FALSE;
+ 
+ 	if (!userdata) {
+@@ -1501,7 +1499,7 @@ void irttp_disconnect_indication(void *i
+ {
+ 	struct tsap_cb *self;
+ 
+-	IRDA_DEBUG(4, __FUNCTION__ "()\n");
++	IRDA_DEBUG(4, "%s()\n", __FUNCTION__);
+ 
+ 	self = (struct tsap_cb *) instance;
+ 	
+@@ -1561,7 +1559,7 @@ void irttp_do_data_indication(struct tsa
+ 	 * give an error back 
+ 	 */
+ 	if (err == -ENOMEM) {
+-		IRDA_DEBUG(0, __FUNCTION__ "() requeueing skb!\n");
++		IRDA_DEBUG(0, "%s() requeueing skb!\n", __FUNCTION__);
+ 
+ 		/* Make sure we take a break */
+ 		self->rx_sdu_busy = TRUE;
+@@ -1586,7 +1584,7 @@ void irttp_run_rx_queue(struct tsap_cb *
+ 	struct sk_buff *skb;
+ 	int more = 0;
+ 
+-	IRDA_DEBUG(2, __FUNCTION__ "() send=%d,avail=%d,remote=%d\n", 
++	IRDA_DEBUG(2, "%s() send=%d,avail=%d,remote=%d\n", __FUNCTION__, 
+ 		   self->send_credit, self->avail_credit, self->remote_credit);
+ 
+ 	/* Get exclusive access to the rx queue, otherwise don't touch it */
+@@ -1626,7 +1624,7 @@ void irttp_run_rx_queue(struct tsap_cb *
+ 			 *  limits of the maximum size of the rx_sdu
+ 			 */
+ 			if (self->rx_sdu_size <= self->rx_max_sdu_size) {
+-				IRDA_DEBUG(4, __FUNCTION__ "(), queueing frag\n");
++				IRDA_DEBUG(4, "%s(), queueing frag\n", __FUNCTION__);
+ 				skb_queue_tail(&self->rx_fragments, skb);
+ 			} else {
+ 				/* Free the part of the SDU that is too big */
+@@ -1656,7 +1654,7 @@ void irttp_run_rx_queue(struct tsap_cb *
+ 			/* Now we can deliver the reassembled skb */
+ 			irttp_do_data_indication(self, skb);
+ 		} else {
+-			IRDA_DEBUG(1, __FUNCTION__ "(), Truncated frame\n");
++			IRDA_DEBUG(1, "%s(), Truncated frame\n", __FUNCTION__);
+ 			
+ 			/* Free the part of the SDU that is too big */
+ 			dev_kfree_skb(skb);
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff 2.4.19-rc3/net/irda/parameters.c test/net/irda/parameters.c
+--- 2.4.19-rc3/net/irda/parameters.c	2001-11-09 23:22:17.000000000 +0100
++++ test/net/irda/parameters.c	2002-07-22 18:48:09.000000000 +0200
+@@ -149,22 +149,22 @@ static int irda_insert_integer(void *sel
+ 	 */
+ 	if (p.pl == 0) {
+ 		if (p.pv.i < 0xff) {
+-			IRDA_DEBUG(2, __FUNCTION__ "(), using 1 byte\n");
++			IRDA_DEBUG(2, "%s(), using 1 byte\n", __FUNCTION__);
+ 			p.pl = 1;
+ 		} else if (p.pv.i < 0xffff) {
+-			IRDA_DEBUG(2, __FUNCTION__ "(), using 2 bytes\n");
++			IRDA_DEBUG(2, "%s(), using 2 bytes\n", __FUNCTION__);
+ 			p.pl = 2;
+ 		} else {
+-			IRDA_DEBUG(2, __FUNCTION__ "(), using 4 bytes\n");
++			IRDA_DEBUG(2, "%s(), using 4 bytes\n", __FUNCTION__);
+ 			p.pl = 4; /* Default length */
+ 		}
+ 	}
+ 	/* Check if buffer is long enough for insertion */
+ 	if (len < (2+p.pl)) {
+-		WARNING(__FUNCTION__ "(), buffer to short for insertion!\n");
++		WARNING("%s(), buffer to short for insertion!\n", __FUNCTION__);
+ 		return -1;
+ 	}
+-	IRDA_DEBUG(2, __FUNCTION__ "(), pi=%#x, pl=%d, pi=%d\n", p.pi, p.pl, p.pv.i);
++	IRDA_DEBUG(2, "%s(), pi=%#x, pl=%d, pi=%d\n", __FUNCTION__, p.pi, p.pl, p.pv.i);
+ 	switch (p.pl) {
+ 	case 1:
+ 		n += irda_param_pack(buf, "bbb", p.pi, p.pl, (__u8) p.pv.i);
+@@ -185,7 +185,7 @@ static int irda_insert_integer(void *sel
+ 
+ 		break;
+ 	default:
+-		WARNING(__FUNCTION__ "() length %d not supported\n", p.pl);
++		WARNING("%s() length %d not supported\n", __FUNCTION__, p.pl);
+ 		/* Skip parameter */ 
+ 		return -1;
+ 	}
+@@ -212,8 +212,9 @@ static int irda_extract_integer(void *se
+ 
+ 	/* Check if buffer is long enough for parsing */
+ 	if (len < (2+p.pl)) {
+-		WARNING(__FUNCTION__ "(), buffer to short for parsing! "
+-			"Need %d bytes, but len is only %d\n", p.pl, len);
++		WARNING("%s(), buffer to short for parsing! "
++			"Need %d bytes, but len is only %d\n", 
++			__FUNCTION__, p.pl, len);
+ 		return -1;
+ 	}
+ 
+@@ -222,9 +223,9 @@ static int irda_extract_integer(void *se
+ 	 * handler want a 16 bits integer then a 32 bits is not good enough
+ 	 */
+ 	if (((type & PV_MASK) != PV_INTEGER) && ((type & PV_MASK) != p.pl)) {
+-		ERROR(__FUNCTION__ "(), invalid parameter length! "
++		ERROR("%s(), invalid parameter length! "
+ 		      "Expected %d bytes, but value had %d bytes!\n",
+-		      type & PV_MASK, p.pl);
++		      __FUNCTION__, type & PV_MASK, p.pl);
+ 		
+ 		/* Skip parameter */
+ 		return p.pl+2;
+@@ -250,13 +251,13 @@ static int irda_extract_integer(void *se
+ 			le32_to_cpus(&p.pv.i);
+ 		break;
+ 	default:
+-		WARNING(__FUNCTION__ "() length %d not supported\n", p.pl);
++		WARNING("%s() length %d not supported\n", __FUNCTION__, p.pl);
+ 
+ 		/* Skip parameter */ 
+ 		return p.pl+2;
+ 	}
+ 
+-	IRDA_DEBUG(2, __FUNCTION__ "(), pi=%#x, pl=%d, pi=%d\n", p.pi, p.pl, p.pv.i);
++	IRDA_DEBUG(2, "%s(), pi=%#x, pl=%d, pi=%d\n", __FUNCTION__, p.pi, p.pl, p.pv.i);
+ 	/* Call handler for this parameter */
+ 	err = (*func)(self, &p, PV_PUT);
+ 	if (err < 0)
+@@ -278,17 +279,18 @@ static int irda_extract_string(void *sel
+ 	irda_param_t p;
+ 	int err;
+ 
+-	IRDA_DEBUG(2, __FUNCTION__ "()\n");
++	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
+ 
+ 	p.pi = pi;     /* In case handler needs to know */
+ 	p.pl = buf[1]; /* Extract lenght of value */
+ 
+-	IRDA_DEBUG(2, __FUNCTION__ "(), pi=%#x, pl=%d\n", p.pi, p.pl);
++	IRDA_DEBUG(2, "%s(), pi=%#x, pl=%d\n", __FUNCTION__, p.pi, p.pl);
+ 
+ 	/* Check if buffer is long enough for parsing */
+ 	if (len < (2+p.pl)) {
+-		WARNING(__FUNCTION__ "(), buffer to short for parsing! "
+-			"Need %d bytes, but len is only %d\n", p.pl, len);
++		WARNING("%s(), buffer to short for parsing! "
++			"Need %d bytes, but len is only %d\n", 
++			__FUNCTION__, p.pl, len);
+ 		return -1;
+ 	}
+ 
+@@ -296,7 +298,7 @@ static int irda_extract_string(void *sel
+ 	 * checked that the buffer is long enough */
+ 	strncpy(str, buf+2, p.pl);
+ 
+-	IRDA_DEBUG(2, __FUNCTION__ "(), str=0x%02x 0x%02x\n", (__u8) str[0], 
++	IRDA_DEBUG(2, "%s(), str=0x%02x 0x%02x\n", __FUNCTION__, (__u8) str[0], 
+ 	      (__u8) str[1]);
+ 	
+ 	/* Null terminate string */
+@@ -328,12 +330,13 @@ static int irda_extract_octseq(void *sel
+ 
+ 	/* Check if buffer is long enough for parsing */
+ 	if (len < (2+p.pl)) {
+-		WARNING(__FUNCTION__ "(), buffer to short for parsing! "
+-			"Need %d bytes, but len is only %d\n", p.pl, len);
++		WARNING("%s(), buffer to short for parsing! "
++			"Need %d bytes, but len is only %d\n",
++			__FUNCTION__, p.pl, len);
+ 		return -1;
+ 	}
+ 
+-	IRDA_DEBUG(0, __FUNCTION__ "(), not impl\n");
++	IRDA_DEBUG(0, "%s(), not impl\n", __FUNCTION__);
+ 	
+ 	return p.pl+2; /* Extracted pl+2 bytes */
+ }
+@@ -459,8 +462,7 @@ int irda_param_insert(void *self, __u8 p
+ 	if ((pi_major > info->len-1) || 
+ 	    (pi_minor > info->tables[pi_major].len-1))
+ 	{
+-		IRDA_DEBUG(0, __FUNCTION__ 
+-		      "(), no handler for parameter=0x%02x\n", pi);
++		IRDA_DEBUG(0, "%s(), no handler for parameter=0x%02x\n", __FUNCTION__, pi);
+ 		
+ 		/* Skip this parameter */
+ 		return -1;
+@@ -474,7 +476,7 @@ int irda_param_insert(void *self, __u8 p
+ 
+ 	/*  Check if handler has been implemented */
+ 	if (!pi_minor_info->func) {
+-		MESSAGE(__FUNCTION__"(), no handler for pi=%#x\n", pi);
++		MESSAGE("%s(), no handler for pi=%#x\n", __FUNCTION__, pi);
+ 		/* Skip this parameter */
+ 		return -1;
+ 	}
+@@ -511,7 +513,7 @@ int irda_param_extract(void *self, __u8 
+ 	if ((pi_major > info->len-1) || 
+ 	    (pi_minor > info->tables[pi_major].len-1))
+ 	{
+-		IRDA_DEBUG(0, __FUNCTION__ "(), no handler for parameter=0x%02x\n",
++		IRDA_DEBUG(0, "%s(), no handler for parameter=0x%02x\n", __FUNCTION__,
+ 		      buf[0]);
+ 		
+ 		/* Skip this parameter */
+@@ -524,12 +526,12 @@ int irda_param_extract(void *self, __u8 
+ 	/* Find expected data type for this parameter identifier (pi)*/
+ 	type = pi_minor_info->type;
+ 	
+-	IRDA_DEBUG(3, __FUNCTION__ "(), pi=[%d,%d], type=%d\n",
++	IRDA_DEBUG(3, "%s(), pi=[%d,%d], type=%d\n", __FUNCTION__,
+ 	      pi_major, pi_minor, type);
+ 	
+ 	/*  Check if handler has been implemented */
+ 	if (!pi_minor_info->func) {
+-		MESSAGE(__FUNCTION__"(), no handler for pi=%#x\n", buf[n]);
++		MESSAGE("%s(), no handler for pi=%#x\n", __FUNCTION__, buf[n]);
+ 		/* Skip this parameter */
+ 		return 2 + buf[n + 1]; /* Continue */
+ 	}
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff 2.4.19-rc3/net/irda/wrapper.c test/net/irda/wrapper.c
+--- 2.4.19-rc3/net/irda/wrapper.c	2001-05-01 01:26:09.000000000 +0200
++++ test/net/irda/wrapper.c	2002-07-22 18:48:09.000000000 +0200
+@@ -93,16 +93,16 @@ int async_wrap_skb(struct sk_buff *skb, 
+ 		 * Nothing to worry about, but we set the default number of 
+ 		 * BOF's
+ 		 */
+-		IRDA_DEBUG(1, __FUNCTION__ "(), wrong magic in skb!\n");
++		IRDA_DEBUG(1, "%s(), wrong magic in skb!\n", __FUNCTION__);
+ 		xbofs = 10;
+ 	} else
+ 		xbofs = cb->xbofs + cb->xbofs_delay;
+ 
+-	IRDA_DEBUG(4, __FUNCTION__ "(), xbofs=%d\n", xbofs);
++	IRDA_DEBUG(4, "%s(), xbofs=%d\n", __FUNCTION__, xbofs);
+ 
+ 	/* Check that we never use more than 115 + 48 xbofs */
+ 	if (xbofs > 163) {
+-		IRDA_DEBUG(0, __FUNCTION__ "(), too many xbofs (%d)\n", xbofs);
++		IRDA_DEBUG(0, "%s(), too many xbofs (%d)\n", __FUNCTION__, xbofs);
+ 		xbofs = 163;
+ 	}
+ 
+@@ -265,7 +265,7 @@ static void state_begin_frame(struct net
+ 	case EOF:
+ 		/* Abort frame */
+ 		rx_buff->state = OUTSIDE_FRAME;
+-		IRDA_DEBUG(1, __FUNCTION__ "(), abort frame\n");
++		IRDA_DEBUG(1, "%s(), abort frame\n", __FUNCTION__);
+ 		stats->rx_errors++;
+ 		stats->rx_frame_errors++;
+ 		break;
+@@ -289,13 +289,12 @@ static void state_link_escape(struct net
+ {
+ 	switch (byte) {
+ 	case BOF: /* New frame? */
+-		IRDA_DEBUG(1, __FUNCTION__ 
+-			   "(), Discarding incomplete frame\n");
++		IRDA_DEBUG(1, "%s(), Discarding incomplete frame\n", __FUNCTION__);
+ 		rx_buff->state = BEGIN_FRAME;
+ 		irda_device_set_media_busy(dev, TRUE);
+ 		break;
+ 	case CE:
+-		WARNING(__FUNCTION__ "(), state not defined\n");
++		WARNING("%s(), state not defined\n", __FUNCTION__);
+ 		break;
+ 	case EOF: /* Abort frame */
+ 		rx_buff->state = OUTSIDE_FRAME;
+@@ -311,7 +310,7 @@ static void state_link_escape(struct net
+ 			rx_buff->fcs = irda_fcs(rx_buff->fcs, byte);
+ 			rx_buff->state = INSIDE_FRAME;
+ 		} else {
+-			IRDA_DEBUG(1, __FUNCTION__ "(), rx buffer overflow\n");
++			IRDA_DEBUG(1, "%s(), rx buffer overflow\n", __FUNCTION__);
+ 			rx_buff->state = OUTSIDE_FRAME;
+ 		}
+ 		break;
+@@ -332,8 +331,7 @@ static void state_inside_frame(struct ne
+ 
+ 	switch (byte) {
+ 	case BOF: /* New frame? */
+-		IRDA_DEBUG(1, __FUNCTION__ 
+-			   "(), Discarding incomplete frame\n");
++		IRDA_DEBUG(1, "%s(), Discarding incomplete frame\n", __FUNCTION__);
+ 		rx_buff->state = BEGIN_FRAME;
+ 		irda_device_set_media_busy(dev, TRUE);
+ 		break;
+@@ -354,7 +352,7 @@ static void state_inside_frame(struct ne
+ 			/* Wrong CRC, discard frame!  */
+ 			irda_device_set_media_busy(dev, TRUE); 
+ 
+-			IRDA_DEBUG(1, __FUNCTION__ "(), crc error\n");
++			IRDA_DEBUG(1, "%s(), crc error\n", __FUNCTION__);
+ 			stats->rx_errors++;
+ 			stats->rx_crc_errors++;
+ 		}			
+@@ -364,8 +362,7 @@ static void state_inside_frame(struct ne
+ 			rx_buff->data[rx_buff->len++] = byte;
+ 			rx_buff->fcs = irda_fcs(rx_buff->fcs, byte);
+ 		} else {
+-			IRDA_DEBUG(1, __FUNCTION__ 
+-			      "(), Rx buffer overflow, aborting\n");
++			IRDA_DEBUG(1, "%s(), Rx buffer overflow, aborting\n", __FUNCTION__);
+ 			rx_buff->state = OUTSIDE_FRAME;
+ 		}
+ 		break;
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff --exclude='defconfig*' --exclude='log.*' --exclude='log2?' w2/net/irda/ircomm/ircomm_tty_ioctl.c w1/net/irda/ircomm/ircomm_tty_ioctl.c
+--- w2/net/irda/ircomm/ircomm_tty_ioctl.c	2003-08-20 19:13:31.000000000 +0200
++++ w1/net/irda/ircomm/ircomm_tty_ioctl.c	2003-08-18 20:28:23.000000000 +0200
+@@ -96,7 +96,7 @@ void ircomm_tty_change_speed(struct irco
+ 		self->settings.flow_control |= IRCOMM_RTS_CTS_IN;
+ 		/* This got me. Bummer. Jean II */
+ 		if (self->service_type == IRCOMM_3_WIRE_RAW)
+-			WARNING(__FUNCTION__ "(), enabling RTS/CTS on link that doesn't support it (3-wire-raw)\n");
++			WARNING("%s(), enabling RTS/CTS on link that doesn't support it (3-wire-raw)\n", __FUNCTION__);
+ 	} else {
+ 		self->flags &= ~ASYNC_CTS_FLOW;
+ 		self->settings.flow_control &= ~IRCOMM_RTS_CTS_IN;
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff --exclude='defconfig*' --exclude='log.*' --exclude='log2?' w2/net/irda/irlap_event.c w1/net/irda/irlap_event.c
+--- w2/net/irda/irlap_event.c	2003-08-12 10:25:13.000000000 +0200
++++ w1/net/irda/irlap_event.c	2003-08-18 19:45:36.000000000 +0200
+@@ -578,9 +578,9 @@ static int irlap_state_query(struct irla
+ 			   info->discovery->daddr);
+ 
+ 		if (!self->discovery_log) {
+-			WARNING(__FUNCTION__ "(), discovery log is gone! "
++			WARNING("%s(), discovery log is gone! "
+ 				"maybe the discovery timeout has been set to "
+-				"short?\n");
++				"short?\n", __FUNCTION__);
+ 			break;
+ 		}
+ 		hashbin_insert(self->discovery_log, 
+@@ -1353,7 +1353,8 @@ static int irlap_state_nrm_p(struct irla
+ 			del_timer(&self->final_timer);
+ 			irlap_data_indication(self, skb, TRUE);
+ 			irlap_next_state(self, LAP_XMIT_P);
+-			printk(__FUNCTION__ "(): RECV_UI_FRAME: next state %s\n", irlap_state[self->state]);
++			printk("%s(): RECV_UI_FRAME: next state %s\n",
++			       __FUNCTION__ , irlap_state[self->state]);
+ 			irlap_start_poll_timer(self, self->poll_timeout);
+ 		}
+ 		break;

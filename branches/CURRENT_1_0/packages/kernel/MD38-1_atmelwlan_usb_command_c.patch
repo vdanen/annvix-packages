@@ -1,0 +1,139 @@
+--- linux-2.4.21/3rdparty/atmelwlan/src/usb/command.c.md38.orig	2003-08-24 00:33:18.000000000 +0200
++++ linux-2.4.21/3rdparty/atmelwlan/src/usb/command.c	2003-08-24 01:53:40.000000000 +0200
+@@ -51,7 +51,7 @@ int GetOpMode(PVNet_ADAPTER Adapter)
+ 	FILL_CONTROL_URB(Adapter->ctrl_urb, Adapter->usb,
+ 			 usb_rcvctrlpipe(Adapter->usb, 0),
+ 			 (char *) Adapter->devreq, &Adapter->DevMode,
+-			 Adapter->devreq->length, ctrl_callback, Adapter);
++			 Adapter->devreq->wLength, ctrl_callback, Adapter);
+ 
+ 	dbgcond(DBG_CMDS, "FCU ok %08lx\n", Adapter->flags);
+ 	Adapter->LastCommand[0] = CMD_GetOpMode;
+@@ -83,7 +83,7 @@ int GetHWCfg(PVNet_ADAPTER Adapter)
+ 			 usb_rcvctrlpipe(Adapter->usb, 0),
+ 			 (char *) Adapter->devreq,
+ 			 Adapter->ctrl_buff,
+-			 Adapter->devreq->length, ctrl_callback, Adapter);
++			 Adapter->devreq->wLength, ctrl_callback, Adapter);
+ 
+ 	Adapter->LastCommand[0] = CMD_GetHWCfg;
+ 	dbgcond(DBG_CMDS, " get the hardware configuration\n");
+@@ -107,7 +107,7 @@ int GetMIBvalue(PVNet_ADAPTER Adapter, U
+ 			 usb_rcvctrlpipe(Adapter->usb, 0),
+ 			 (char *) Adapter->devreq,
+ 			 Adapter->ctrl_buff,
+-			 Adapter->devreq->length, ctrl_callback, Adapter);
++			 Adapter->devreq->wLength, ctrl_callback, Adapter);
+ 
+ 	Adapter->LastCommand[0] = CMD_GetMib;
+ 	SendCtrlUrb(Adapter, Adapter->ctrl_urb);
+@@ -128,7 +128,7 @@ int GetCmdStatus(PVNet_ADAPTER Adapter, 
+ 			 usb_rcvctrlpipe(Adapter->usb, 0),
+ 			 (char *) Adapter->devreq,
+ 			 Adapter->CmdStatus,
+-			 Adapter->devreq->length,
++			 Adapter->devreq->wLength,
+ 			 GetCmd_callback, Adapter);
+ 
+ 	SendCtrlUrb(Adapter, Adapter->ctrl_urb);
+@@ -203,7 +203,7 @@ int StartUp(PVNet_ADAPTER Adapter)
+ 			 usb_sndctrlpipe(Adapter->usb, 0),
+ 			 (char *) Adapter->devreq,
+ 			 Adapter->ctrl_buff,
+-			 Adapter->devreq->length, ctrl_callback, Adapter);
++			 Adapter->devreq->wLength, ctrl_callback, Adapter);
+ 
+ 	Adapter->LastCommand[0] = CMD_Startup;
+ 	SendCtrlUrb(Adapter, Adapter->ctrl_urb);
+@@ -276,7 +276,7 @@ int UsbScan(PVNet_ADAPTER Adapter)
+ 			 usb_sndctrlpipe(Adapter->usb, 0),
+ 			 (PUCHAR) Adapter->devreq,
+ 			 Adapter->ctrl_buff,
+-			 Adapter->devreq->length, ctrl_callback, Adapter);
++			 Adapter->devreq->wLength, ctrl_callback, Adapter);
+ 
+ 	Adapter->LastCommand[0] = CMD_Scan;
+ 	Adapter->flags |= GetCommandPedding;
+@@ -329,16 +329,16 @@ int UsbJoin(PVNet_ADAPTER Adapter)
+                     Adapter->ctrl_buff[0] = CMD_Join;
+                     Adapter->ctrl_buff[1] = 0;
+                     *(PUSHORT) (Adapter->ctrl_buff + 2) =
+-                        (USHORT) (Adapter->devreq->length - 4);
++                        (USHORT) (Adapter->devreq->wLength - 4);
+                     memcpy((PUCHAR) (Adapter->ctrl_buff + 4), (PUCHAR) & JoinS,
+-                           (Adapter->devreq->length - 4));
++                           (Adapter->devreq->wLength - 4));
+ 
+                     FILL_CONTROL_URB(Adapter->ctrl_urb,
+                                      Adapter->usb,
+                                      usb_sndctrlpipe(Adapter->usb, 0),
+                                      (PUCHAR) Adapter->devreq,
+                                      Adapter->ctrl_buff,
+-                                     Adapter->devreq->length, ctrl_callback, Adapter);
++                                     Adapter->devreq->wLength, ctrl_callback, Adapter);
+ 
+                     Adapter->LastCommand[0] = CMD_Join;
+                     Adapter->flags |= GetCommandPedding;
+@@ -378,7 +378,7 @@ int UsbStartIBSS(PVNet_ADAPTER Adapter)
+ 			 usb_sndctrlpipe(Adapter->usb, 0),
+ 			 (PUCHAR) Adapter->devreq,
+ 			 Adapter->ctrl_buff,
+-			 Adapter->devreq->length, ctrl_callback, Adapter);
++			 Adapter->devreq->wLength, ctrl_callback, Adapter);
+ 
+ 	Adapter->LastCommand[0] = CMD_StartIBSS;
+ 	Adapter->flags |= GetCommandPedding;
+@@ -413,7 +413,7 @@ int SetRadio(PVNet_ADAPTER Adapter, BOOL
+ 			 usb_sndctrlpipe(Adapter->usb, 0),
+ 			 (PUCHAR) Adapter->devreq,
+ 			 Adapter->ctrl_buff,
+-			 Adapter->devreq->length, ctrl_callback, Adapter);
++			 Adapter->devreq->wLength, ctrl_callback, Adapter);
+ 
+         if (EnableRadio == TRUE){
+ 	dbgcond(DBG_CMDS, "setting Radio On\n");
+@@ -445,7 +445,7 @@ int SetMibValue(PVNet_ADAPTER Adapter, P
+ 			 usb_sndctrlpipe(Adapter->usb, 0),
+ 			 (PUCHAR) Adapter->devreq,
+ 			 Adapter->ctrl_buff,
+-			 Adapter->devreq->length, ctrl_callback, Adapter);
++			 Adapter->devreq->wLength, ctrl_callback, Adapter);
+ 
+ 	dbgcond(DBG_CMDS, "setting Mib value\n");
+ 	Adapter->LastCommand[0] = CMD_SetMib;
+@@ -899,7 +899,7 @@ int GetDFUState(PVNet_ADAPTER Adapter)
+ 			 usb_rcvctrlpipe(Adapter->usb, 0),
+ 			 (char *) Adapter->devreq,
+ 			 &Adapter->pDfu->State,
+-			 Adapter->devreq->length, DFUCallbacks, Adapter);
++			 Adapter->devreq->wLength, DFUCallbacks, Adapter);
+ 
+ 	Adapter->LastCommand[0] = CMD_DFUState;
+ 	Adapter->pDfu->ReSendState = 0;
+@@ -918,7 +918,7 @@ int GetDFUStatus(PVNet_ADAPTER Adapter)
+ 			 usb_rcvctrlpipe(Adapter->usb, 0),
+ 			 (char *) Adapter->devreq,
+ 			 Adapter->pDfu->StatusBuf,
+-			 Adapter->devreq->length, DFUCallbacks, Adapter);
++			 Adapter->devreq->wLength, DFUCallbacks, Adapter);
+ 
+ 	Adapter->LastCommand[0] = CMD_DFUStatus;
+ 	dbgcond(DBG_FW_DL, "getting the DFU status\n");
+@@ -947,7 +947,7 @@ int DownLoadInternal(PVNet_ADAPTER Adapt
+ 			 (char *) Adapter->devreq,
+ 			 Adapter->pDfu->InternalRom +
+ 			 (1024 * Adapter->pDfu->BlockCnt),
+-			 Adapter->devreq->length, DFUCallbacks, Adapter);
++			 Adapter->devreq->wLength, DFUCallbacks, Adapter);
+         
+ 	Adapter->LastCommand[0] = CMD_FWInternal;
+ 	Adapter->cmdhandler = DownLoadInternal;
+@@ -987,7 +987,7 @@ int DownLoadExternal(PVNet_ADAPTER Adapt
+ 			 (char *) Adapter->devreq,
+ 			 Adapter->pDfu->ExternalRom +
+ 			 (1024 * Adapter->pDfu->BlockCnt),
+-			 Adapter->devreq->length, DFUCallbacks, Adapter);
++			 Adapter->devreq->wLength, DFUCallbacks, Adapter);
+ 
+ 	Adapter->LastCommand[0] = CMD_FWExternal;
+ 	Adapter->cmdhandler = DownLoadExternal;

@@ -1,0 +1,21 @@
+--- linux-2.4.21/3rdparty/prism25/src/prism2sta.c.md29.orig	2003-08-22 13:18:55.000000000 +0200
++++ linux-2.4.21/3rdparty/prism25/src/prism2sta.c	2003-08-24 01:50:09.000000000 +0200
+@@ -495,13 +495,11 @@ static void prism2sta_disconnect_usb(str
+ #endif
+ 
+ struct usb_driver prism2_usb_driver = {
+-#if (LINUX_VERSION_CODE > KERNEL_VERSION(2,4,19))
+-	owner: THIS_MODULE,
+-#endif
+-	name: "prism2_usb",
+-	probe: prism2sta_probe_usb,
+-	disconnect: prism2sta_disconnect_usb,
+-	id_table: usb_prism_tbl,
++	.owner =      THIS_MODULE,
++	.name =       "prism2_usb",
++	.probe =      prism2sta_probe_usb,
++	.disconnect = prism2sta_disconnect_usb,
++	.id_table =   usb_prism_tbl,
+ 	/* fops, minor? */
+ };
+ 

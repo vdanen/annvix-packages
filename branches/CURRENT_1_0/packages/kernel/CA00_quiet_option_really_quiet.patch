@@ -1,0 +1,11 @@
+--- linux-2.4.22/init/main.c.orig	2003-08-26 06:38:57.000000000 -0400
++++ linux-2.4.22/init/main.c	2003-08-26 06:39:16.000000000 -0400
+@@ -224,7 +224,7 @@
+ {
+ 	if (*str)
+ 		return 0;
+-	console_loglevel = 4;
++	console_loglevel = 0;
+ 	return 1;
+ }
+ 

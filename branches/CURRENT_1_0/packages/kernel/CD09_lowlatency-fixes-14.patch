@@ -1,0 +1,279 @@
+diff -Nurp -X /Data/dontdiff 10mdk/drivers/block/ll_rw_blk.c patched/drivers/block/ll_rw_blk.c
+--- 10mdk/drivers/block/ll_rw_blk.c	2003-09-18 12:10:37.000000000 +0300
++++ patched/drivers/block/ll_rw_blk.c	2003-09-22 21:59:59.000000000 +0300
+@@ -1323,6 +1323,9 @@ void submit_bh(int rw, struct buffer_hea
+ 
+ 	if (block_dump)
+ 		printk("%s: %s block %lu/%u on %s\n", current->comm, rw == WRITE ? "WRITE" : "READ", bh->b_rsector, count, kdevname(bh->b_rdev));
++
++	cond_resched();
++
+ }
+ 
+ /**
+diff -uNp w5/fs/buffer.c.cd09.orig w5/fs/buffer.c
+--- w5/fs/buffer.c.cd09.orig	2003-08-08 06:27:15.000000000 +0200
++++ w5/fs/buffer.c	2003-08-08 06:30:13.000000000 +0200
+@@ -221,12 +221,12 @@ int write_some_buffers(kdev_t dev)
+ {
+ 	struct buffer_head *next;
+ 	struct buffer_head *array[NRSYNC];
+-	unsigned int count;
+-	int nr;
++	unsigned int count = 0;
++	int nr, num_sched = 0;
+ 
++restart:
+ 	next = lru_list[BUF_DIRTY];
+ 	nr = nr_buffers_type[BUF_DIRTY];
+-	count = 0;
+ 	while (next && --nr >= 0) {
+ 		struct buffer_head * bh = next;
+ 		next = bh->b_next_free;
+@@ -235,8 +235,15 @@ int write_some_buffers(kdev_t dev)
+ 			return 0;
+ 		if (dev != NODEV && bh->b_dev != dev)
+ 			continue;
+-		if (test_and_set_bit(BH_Lock, &bh->b_state))
++		if (test_and_set_bit(BH_Lock, &bh->b_state)) {
++			/*
++			 * FIXME: according to Chris some buggy fs
++			 * submit_bh by hand w/o refiling the bh
++			 * after marking it clean.
++			 */
++			__refile_buffer(bh);
+ 			continue;
++		}
+ 		if (atomic_set_buffer_clean(bh)) {
+ 			__refile_buffer(bh);
+ 			get_bh(bh);
+@@ -245,13 +252,24 @@ int write_some_buffers(kdev_t dev)
+ 				continue;
+ 
+ 			spin_unlock(&lru_list_lock);
++			cond_resched();
++
+ 			write_locked_buffers(array, count);
+ 			return -EAGAIN;
+ 		}
+ 		unlock_buffer(bh);
+ 		__refile_buffer(bh);
++		if (need_resched() && num_sched < 1) {
++			spin_unlock(&lru_list_lock);
++			__cond_resched();
++			spin_lock(&lru_list_lock);
++			num_sched++;
++			goto restart;
++		}
++
+ 	}
+ 	spin_unlock(&lru_list_lock);
++	cond_resched();
+ 
+ 	if (count)
+ 		write_locked_buffers(array, count);
+@@ -297,9 +315,11 @@ static int wait_for_buffers(kdev_t dev, 
+ 		spin_unlock(&lru_list_lock);
+ 		wait_on_buffer(bh);
+ 		put_bh(bh);
++		cond_resched();
+ 		return -EAGAIN;
+ 	}
+ 	spin_unlock(&lru_list_lock);
++	cond_resched();
+ 	return 0;
+ }
+ 
+@@ -894,6 +914,11 @@ int fsync_buffers_list(struct list_head 
+ 				spin_lock(&lru_list_lock);
+ 			}
+ 		}
++		if (need_resched()) {
++			spin_unlock(&lru_list_lock);
++			__cond_resched();
++			spin_lock(&lru_list_lock);
++		}
+ 	}
+ 
+ 	while (!list_empty(&tmp)) {
+@@ -905,6 +930,7 @@ int fsync_buffers_list(struct list_head 
+ 		if (!buffer_uptodate(bh))
+ 			err = -EIO;
+ 		brelse(bh);
++		cond_resched();
+ 		spin_lock(&lru_list_lock);
+ 	}
+ 	
+@@ -932,6 +958,7 @@ static int osync_buffers_list(struct lis
+ 	struct buffer_head *bh;
+ 	struct list_head *p;
+ 	int err = 0;
++	int num_sched = 0;
+ 
+ 	spin_lock(&lru_list_lock);
+ 	
+@@ -948,6 +975,13 @@ static int osync_buffers_list(struct lis
+ 			spin_lock(&lru_list_lock);
+ 			goto repeat;
+ 		}
++		if (need_resched() && num_sched < 1) {
++			spin_unlock(&lru_list_lock);
++			__cond_resched();
++			spin_lock(&lru_list_lock);
++			num_sched++;
++			goto repeat;
++		}
+ 	}
+ 
+ 	spin_unlock(&lru_list_lock);
+@@ -987,6 +1021,7 @@ struct buffer_head * getblk(kdev_t dev, 
+ 	for (;;) {
+ 		struct buffer_head * bh;
+ 
++		cond_resched();
+ 		bh = get_hash_table(dev, block, size);
+ 		if (bh) {
+ 			touch_buffer(bh);
+@@ -1167,8 +1202,10 @@ struct buffer_head * bread(kdev_t dev, i
+ 	if (unlikely(current->flags & PF_FREEZE))
+ 		refrigerator(PF_IOTHREAD);
+ 	bh = getblk(dev, block, size);
+-	if (buffer_uptodate(bh))
++	if (buffer_uptodate(bh)) {
++		cond_resched();
+ 		return bh;
++	}
+ 	set_bit(BH_Sync, &bh->b_state);
+ 	ll_rw_block(READ, 1, &bh);
+ 	wait_on_buffer(bh);
+diff -urNp --exclude CVS --exclude BitKeeper x-ref/fs/dcache.c x/fs/dcache.c
+--- x-ref/fs/dcache.c	2003-07-17 08:41:05.000000000 +0200
++++ x/fs/dcache.c	2003-07-17 08:41:09.000000000 +0200
+@@ -75,7 +75,7 @@ static inline void d_free(struct dentry 
+  * d_iput() operation if defined.
+  * Called with dcache_lock held, drops it.
+  */
+-static inline void dentry_iput(struct dentry * dentry)
++static void dentry_iput(struct dentry * dentry)
+ {
+ 	struct inode *inode = dentry->d_inode;
+ 	if (inode) {
+@@ -88,6 +88,7 @@ static inline void dentry_iput(struct de
+ 			iput(inode);
+ 	} else
+ 		spin_unlock(&dcache_lock);
++	cond_resched();
+ }
+ 
+ /* 
+diff -urNp --exclude CVS --exclude BitKeeper x-ref/fs/jbd/commit.c x/fs/jbd/commit.c
+--- x-ref/fs/jbd/commit.c	2003-06-13 22:07:33.000000000 +0200
++++ x/fs/jbd/commit.c	2003-07-17 08:41:09.000000000 +0200
+@@ -212,6 +212,16 @@ write_out_data_locked:
+ 				__journal_remove_journal_head(bh);
+ 				refile_buffer(bh);
+ 				__brelse(bh);
++				if (current->need_resched) {
++					if (commit_transaction->t_sync_datalist)
++						commit_transaction->t_sync_datalist =
++							next_jh;
++					if (bufs)
++						break;
++					spin_unlock(&journal_datalist_lock);
++					cond_resched();
++					goto write_out_data;
++				}
+ 			}
+ 		}
+ 		if (bufs == ARRAY_SIZE(wbuf)) {
+diff -urNp --exclude CVS --exclude BitKeeper x-ref/fs/proc/array.c x/fs/proc/array.c
+--- x-ref/fs/proc/array.c	2003-07-17 08:41:07.000000000 +0200
++++ x/fs/proc/array.c	2003-07-17 08:41:09.000000000 +0200
+@@ -424,6 +424,8 @@ static inline void statm_pte_range(pmd_t
+ 		pte_t page = *pte;
+ 		struct page *ptpage;
+ 
++		cond_resched();
++
+ 		address += PAGE_SIZE;
+ 		pte++;
+ 		if (pte_none(page))
+diff -urNp --exclude CVS --exclude BitKeeper x-ref/fs/proc/generic.c x/fs/proc/generic.c
+--- x-ref/fs/proc/generic.c	2003-06-13 22:07:33.000000000 +0200
++++ x/fs/proc/generic.c	2003-07-17 08:41:09.000000000 +0200
+@@ -98,7 +98,9 @@ proc_file_read(struct file * file, char 
+ 				retval = n;
+ 			break;
+ 		}
+-		
++
++		cond_resched();
++
+ 		/* This is a hack to allow mangling of file pos independent
+  		 * of actual bytes read.  Simply place the data at page,
+  		 * return the bytes, and set `start' to the desired offset
+diff -urNp --exclude CVS --exclude BitKeeper x-ref/mm/filemap.c x/mm/filemap.c
+--- x-ref/mm/filemap.c	2003-07-17 08:41:08.000000000 +0200
++++ x/mm/filemap.c	2003-07-17 08:41:09.000000000 +0200
+@@ -303,11 +303,7 @@ static int truncate_list_pages(struct li
+ 
+ 			page_cache_release(page);
+ 
+-			if (current->need_resched) {
+-				__set_current_state(TASK_RUNNING);
+-				schedule();
+-			}
+-
++			cond_resched();
+ 			spin_lock(&pagecache_lock);
+ 			goto restart;
+ 		}
+@@ -413,11 +409,8 @@ static int invalidate_list_pages2(struct
+ 		}
+ 
+ 		page_cache_release(page);
+-		if (current->need_resched) {
+-			__set_current_state(TASK_RUNNING);
+-			schedule();
+-		}
+ 
++		cond_resched();
+ 		spin_lock(&pagecache_lock);
+ 		goto restart;
+ 	}
+@@ -585,6 +578,7 @@ int filemap_fdatasync(struct address_spa
+ 			UnlockPage(page);
+ 
+ 		page_cache_release(page);
++		cond_resched();
+ 		spin_lock(&pagecache_lock);
+ 	}
+ 	spin_unlock(&pagecache_lock);
+@@ -707,6 +701,8 @@ static int page_cache_read(struct file *
+ 	struct page **hash = page_hash(mapping, offset);
+ 	struct page *page; 
+ 
++	cond_resched();
++
+ 	spin_lock(&pagecache_lock);
+ 	page = __find_page_nolock(mapping, offset, *hash);
+ 	spin_unlock(&pagecache_lock);
+@@ -1452,6 +1448,9 @@ page_ok:
+ 		offset &= ~PAGE_CACHE_MASK;
+ 
+ 		page_cache_release(page);
++
++		cond_resched();
++
+ 		if (ret == nr && desc->count)
+ 			continue;
+ 		break;
+@@ -3175,6 +3174,8 @@ unlock:
+ 		UnlockPage(page);
+ 		page_cache_release(page);
+ 
++		cond_resched();
++
+ 		if (status < 0)
+ 			break;
+ 	} while (count);

@@ -1,0 +1,12 @@
+
+URL: ftp://ftp.alsa-project.org/pub/driver/
+
+untar <alsa>
+mv <alsa>/alsa-kernel/ <kernel>/sound
+mv <kernel>/sound/include <kernel>/include/sound
+mv <alsa>/include/adriver.h <kernel>/include/sound
+mv <alsa>/include/amagic.h <kernel>/include/sound
+
+cd <kernel>
+tar cvf tar sound include/sound
+

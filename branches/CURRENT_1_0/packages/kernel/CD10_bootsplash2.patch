@@ -1,0 +1,149 @@
+diff -ruN linux-2.4.21-bootsplash/drivers/video/fbcon-progress.c linux-2.4.21-bootsplash-swsusp/drivers/video/fbcon-progress.c
+--- linux-2.4.21-bootsplash/drivers/video/fbcon-progress.c	1970-01-01 12:00:00.000000000 +1200
++++ linux-2.4.21-bootsplash-swsusp/drivers/video/fbcon-progress.c	2003-07-09 11:30:37.000000000 +1200
+@@ -0,0 +1,100 @@
++/*
++ * framebuffer tool, inspired from fbi ((c) 1998,99 Gerd Knorr <kraxel@goldbach.in-berlin.de>)
++ *
++ * (c) 2002 Florent Villard (warly@mandrakesoft.com)
++ *
++ * Ported to kernel to allow use from swsusp by Nigel Cunningham. April 2003.
++ *
++ * Initial version. Changes that ought still to be made.
++ * - Get progress bar dimensions from the splashdata instead of proc interface.
++ *   I'm not sure that this data isn't already in the box structs, so I'll talk
++ *   to Stefan about this.
++ */
++
++#include <linux/string.h>
++#include <linux/fcntl.h>
++#include <linux/errno.h>
++#include <linux/termios.h>
++#include <linux/ioctl.h>
++#include <linux/mman.h>
++#include <linux/mm.h>
++#include <linux/fb.h>
++#include <linux/stat.h>
++#include <linux/kd.h>
++#include <linux/vt.h>
++#include <linux/tty_driver.h>
++#include <asm/page.h>
++#include <video/fbcon.h>
++
++
++#define VERSION "0.1.1"
++
++unsigned char *fb_mem;
++extern struct display fb_display[MAX_NR_CONSOLES];
++int fb_mem_offset = 0;
++extern void splashfill(u8 *dest, u8 *src, int width, int height, int dest_linesize, int src_linesize);
++extern unsigned char *linux_splash;	/* decoded picture */
++extern int splash_bytes;		/* bytes per line in linux_splash */
++int fb_splash_progress[4];
++
++static int __fb_splash_set_progress(int consolenr, int x, int y, int start, int end, int Y, int color)
++{
++	int i,j,bytes,offset;
++	struct display *p;
++	char * tl;	/* Top left of progress */
++
++	p = &fb_display[consolenr];
++	if (!(p && p->splash_data && ((p->splash_data->splash_state & 1) == 1)))
++		return -1;
++
++	if ( x > p->var.xres ) x = 0;
++	if ( y > p->var.yres ) y = 0;
++	if ( start + x > p->var.xres ) start = p->var.xres-x;
++	if ( end + x > p->var.xres ) end = p->var.xres-x;
++	if ( Y + y > p->var.yres ) Y = p->var.yres-y;
++	
++	switch (p->var.bits_per_pixel){
++	  	case 24: break;
++		case 16:
++		case 15: 
++			color = ((color & 0xff0000) >> 16 >> 3 << (p->var.green.length + p->var.blue.length)) + ((color & 0x00ff00) >> 8 >> 2 << (p->var.blue.length)) + ((color & 0x0000ff) >> 3); 
++			break;
++	default:
++		printk("unsupported bits per pixel mode");
++		return -1;
++	}
++	bytes = (p->var.bits_per_pixel+7)/8;
++	tl = p->screen_base+(y*p->var.xres+x)*bytes;
++	if (end > start) {
++		for (i = start; i < end; i++)
++			for (j = 0; j < bytes; j++)
++				*(tl+(bytes*i)+j) = color >> (8 * j);
++		for (j = 1; j < Y; j++)
++			memcpy(tl+(j*bytes*p->var.xres), tl, bytes*(end - start + 1));
++	} else {
++		offset=(y * p->next_line) + (x+end) * bytes;
++		splashfill(p->screen_base+offset, linux_splash+offset, start - end + 1, Y, p->next_line, splash_bytes);
++	}
++	return 0;
++}
++
++#define LEFT fb_splash_progress[0]
++#define TOP fb_splash_progress[1]
++#define WIDTH fb_splash_progress[2]
++#define HEIGHT fb_splash_progress[3]
++#define COLOUR fb_splash_progress[4]
++int fb_splash_set_progress(int consolenr, int value, int maximum, int reset)
++{
++	static int lastvalue = 0;
++	int result;
++	if (!WIDTH)
++		return 1;
++
++	if (reset) {
++		result = __fb_splash_set_progress(consolenr, LEFT, TOP, WIDTH, 0, HEIGHT, COLOUR);
++		lastvalue = 0;
++		if (!result)
++			return result;
++	}
++	return __fb_splash_set_progress(consolenr, LEFT, TOP, lastvalue, value * WIDTH / maximum, HEIGHT, COLOUR);
++}
+diff -ruN linux-2.4.21-bootsplash/drivers/video/Makefile linux-2.4.21-bootsplash-swsusp/drivers/video/Makefile
+--- linux-2.4.21-bootsplash/drivers/video/Makefile	2003-07-09 11:30:07.000000000 +1200
++++ linux-2.4.21-bootsplash-swsusp/drivers/video/Makefile	2003-07-09 11:30:37.000000000 +1200
+@@ -15,7 +15,8 @@
+ 		  fbcon-iplan2p8.o fbcon-vga-planes.o fbcon-cfb16.o \
+ 		  fbcon-cfb2.o fbcon-cfb24.o fbcon-cfb32.o fbcon-cfb4.o \
+ 		  fbcon-cfb8.o fbcon-splash16.o fbcon-mac.o fbcon-mfb.o \
+-		  cyber2000fb.o sa1100fb.o fbcon-hga.o fbgen.o
++		  cyber2000fb.o sa1100fb.o fbcon-hga.o fbgen.o \
++		  fbcon-progress.o
+ 
+ # Each configuration option enables a list of files.
+ 
+@@ -155,6 +156,7 @@
+ obj-$(CONFIG_FBCON_SPLASHSCREEN)  += fbcon-splash.o
+ obj-$(CONFIG_FBCON_SPLASHSCREEN)  += fbcon-splash16.o
+ obj-$(CONFIG_FBCON_SPLASHSCREEN)  += fbcon-jpegdec.o
++obj-$(CONFIG_FBCON_SPLASHSCREEN)  += fbcon-progress.o
+ 
+ include $(TOPDIR)/Rules.make
+ 
+diff -ruN linux-2.4.21-bootsplash/kernel/sysctl.c linux-2.4.21-bootsplash-swsusp/kernel/sysctl.c
+--- linux-2.4.21-bootsplash/kernel/sysctl.c	2003-06-21 10:16:50.000000000 +1200
++++ linux-2.4.21-bootsplash-swsusp/kernel/sysctl.c	2003-07-09 11:31:22.000000000 +1200
+@@ -42,6 +42,9 @@
+ /* External variables not in a header file. */
+ extern int panic_timeout;
+ extern int C_A_D;
++#ifdef CONFIG_FBCON_SPLASHSCREEN
++extern int fb_splash_progress[5];
++#endif
+ extern int bdf_prm[], bdflush_min[], bdflush_max[];
+ extern int sysctl_overcommit_memory;
+ extern int max_threads;
+@@ -200,6 +203,10 @@
+ 	 0644, NULL, &proc_dointvec},
+ 	{KERN_PRINTK, "printk", &console_loglevel, 4*sizeof(int),
+ 	 0644, NULL, &proc_dointvec},
++#ifdef CONFIG_FBCON_SPLASHSCREEN
++	{KERN_SWSUSP, "splash_progress", &fb_splash_progress, 5*sizeof(int),
++	 0644, NULL, &proc_dointvec},
++#endif
+ #ifdef CONFIG_KMOD
+ 	{KERN_MODPROBE, "modprobe", &modprobe_path, 256,
+ 	 0644, NULL, &proc_dostring, &sysctl_string },

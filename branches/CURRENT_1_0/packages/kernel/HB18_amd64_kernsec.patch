@@ -1,0 +1,53 @@
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff w7/arch/x86_64/kernel/ptrace.c w8/arch/x86_64/kernel/ptrace.c
+--- w7/arch/x86_64/kernel/ptrace.c	2003-06-13 16:51:32.000000000 +0200
++++ w8/arch/x86_64/kernel/ptrace.c	2003-08-08 00:23:44.000000000 +0200
+@@ -15,6 +15,7 @@
+ #include <linux/errno.h>
+ #include <linux/ptrace.h>
+ #include <linux/user.h>
++#include <linux/grsecurity.h>
+ 
+ #include <asm/uaccess.h>
+ #include <asm/pgtable.h>
+@@ -201,6 +202,10 @@ asmlinkage long sys_ptrace(long request,
+ 	if (pid == 1)		/* you may not mess with init */
+ 		goto out_tsk;
+ 
++#ifdef CONFIG_GRKERNSEC
++	if (gr_handle_ptrace(child, request))
++	  goto out;
++#endif
+ 	if (request == PTRACE_ATTACH) {
+ 		ret = ptrace_attach(child);
+ 		goto out_tsk;
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff w7/arch/x86_64/kernel/sys_x86_64.c w8/arch/x86_64/kernel/sys_x86_64.c
+--- w7/arch/x86_64/kernel/sys_x86_64.c	2003-06-13 16:51:32.000000000 +0200
++++ w8/arch/x86_64/kernel/sys_x86_64.c	2003-08-08 00:23:30.000000000 +0200
+@@ -15,6 +15,7 @@
+ #include <linux/file.h>
+ #include <linux/utsname.h>
+ #include <linux/personality.h>
++#include <linux/grsecurity.h>
+ 
+ #include <asm/uaccess.h>
+ #include <asm/ipc.h>
+@@ -55,8 +56,19 @@ long sys_mmap(unsigned long addr, unsign
+ 			goto out;
+ 	}
+ 
++#ifdef CONFIG_GRKERNSEC
++	if(gr_handle_mmap(file, prot)) {
++	  fput(file);
++	  error = -EACCES;
++	  goto out;
++	}
++#endif
+ 	down_write(&current->mm->mmap_sem);
++#ifdef CONFIG_GRKERNSEC
++	error = do_mmap(file, addr, len, prot, flags, off);
++#else
+ 	error = do_mmap_pgoff(file, addr, len, prot, flags, off >> PAGE_SHIFT);
++#endif
+ 	up_write(&current->mm->mmap_sem);
+ 
+ 	if (file)

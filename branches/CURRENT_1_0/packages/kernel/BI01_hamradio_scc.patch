@@ -1,0 +1,17 @@
+
+timers are stopped with TIMER_OFF, that is a 65535U.
+16bits one will have been enough, but as rest of timers were unsigned int :p
+
+
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff --exclude='defconfig*' --exclude='log.*' --exclude='log2?' w2/include/linux/scc.h w1/include/linux/scc.h
+--- w2/include/linux/scc.h	2003-08-18 13:05:01.000000000 +0200
++++ w1/include/linux/scc.h	2003-08-19 13:22:20.000000000 +0200
+@@ -200,7 +200,7 @@ struct scc_kiss {
+ 	unsigned char fulldup;		/* Full Duplex mode 0=CSMA 1=DUP 2=ALWAYS KEYED */
+ 	unsigned char waittime;		/* Waittime before any transmit attempt */
+ 	unsigned int  maxkeyup;		/* Maximum time to transmit (seconds) */
+-	unsigned char mintime;		/* Minimal offtime after MAXKEYUP timeout (seconds) */
++	unsigned int  mintime;		/* Minimal offtime after MAXKEYUP timeout (seconds) */
+ 	unsigned int  idletime;		/* Maximum idle time in ALWAYS KEYED mode (seconds) */
+ 	unsigned int  maxdefer;		/* Timer for CSMA channel busy limit */
+ 	unsigned char tx_inhibit;	/* Transmit is not allowed when set */	

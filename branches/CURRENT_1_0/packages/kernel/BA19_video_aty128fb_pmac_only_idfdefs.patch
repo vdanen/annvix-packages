@@ -1,0 +1,34 @@
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff 2.4.19-rc3/drivers/video/aty128fb.c test/drivers/video/aty128fb.c
+--- 2.4.19-rc3/drivers/video/aty128fb.c	2002-07-22 18:43:34.000000000 +0200
++++ test/drivers/video/aty128fb.c	2002-07-22 18:48:09.000000000 +0200
+@@ -1061,6 +1061,7 @@ aty128_crtc_to_var(const struct aty128_c
+     return 0;
+ }
+ 
++#ifdef CONFIG_PMAC_PBOOK
+ static void
+ aty128_set_crt_enable(struct fb_info_aty128 *info, int on)
+ {
+@@ -1096,6 +1097,7 @@ aty128_set_lcd_enable(struct fb_info_aty
+ 	aty_st_le32(LVDS_GEN_CNTL, reg);
+     }
+ }
++#endif
+ 
+ static void
+ aty128_set_pll(struct aty128_pll *pll, const struct fb_info_aty128 *info)
+@@ -2475,10 +2477,12 @@ do_install_cmap(int con, struct fb_info 
+ static int aty128fb_ioctl(struct inode *inode, struct file *file, u_int cmd,
+ 		       u_long arg, int con, struct fb_info *info)
+ {
++#ifdef CONFIG_PMAC_PBOOK
+     struct fb_info_aty128 *fb = (struct fb_info_aty128 *)info;
+     u32 value;
+     int rc;
+-    
++#endif
++
+     switch (cmd) {
+ #ifdef CONFIG_PMAC_PBOOK
+     case FBIO_ATY128_SET_MIRROR:
+

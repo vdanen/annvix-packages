@@ -1,0 +1,32 @@
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff --exclude='defconfig*' --exclude='log.*' --exclude='log2?' w2/drivers/pcmcia/cardbus.c w1/drivers/pcmcia/cardbus.c
+--- w2/drivers/pcmcia/cardbus.c	2003-06-13 16:51:35.000000000 +0200
++++ w1/drivers/pcmcia/cardbus.c	2003-08-20 11:56:15.000000000 +0200
+@@ -55,6 +55,7 @@
+ #include <linux/mm.h>
+ #include <linux/pci.h>
+ #include <linux/ioport.h>
++#include <linux/init.h>
+ #include <asm/irq.h>
+ #include <asm/io.h>
+ 
+@@ -220,10 +220,10 @@ fail:
+ 	memset(ptr, 0xff, len);
+ 	return -1;
+ }
++struct pci_dev * __devinit pci_scan_device(struct pci_dev *temp);
+ 
+ struct pci_dev *cb_scan_slot(struct pci_dev *temp, struct list_head *list)
+ {
+-	struct pci_bus *bus = temp->bus;
+ 	struct pci_dev *dev;
+ 	struct pci_dev *first_dev = NULL;
+ 	int func = 0;
+@@ -369,7 +369,7 @@ static unsigned int cb_scan_new_bus(stru
+ 	return max;
+ }
+ 
+-static int program_bridge(struct pci_dev *bridge)
++static void program_bridge(struct pci_dev *bridge)
+ {
+ 	u32 l;
+ 	

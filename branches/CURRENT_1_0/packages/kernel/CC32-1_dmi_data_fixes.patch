@@ -1,0 +1,24 @@
+--- linux-2.4.21/arch/i386/kernel/dmi_scan.c.cc32.orig	2003-08-24 00:54:37.000000000 +0200
++++ linux-2.4.21/arch/i386/kernel/dmi_scan.c	2003-08-24 01:06:25.000000000 +0200
+@@ -1138,11 +1138,10 @@ fail:			
+  *	out of here.
+  */
+ 
++#define dmi_string_dm(dm,n)	dmi_string(dm, ((u8 *)dm)[n])
++
+ static void __init dmi_decode(struct dmi_header *dm)
+ {
+-#ifdef	DMI_DEBUG
+-	u8 *data = (u8 *)dm;
+-#endif
+ 	switch(dm->type)
+ 	{
+ 		case  0:
+@@ -1182,6 +1181,7 @@ static void __init dmi_decode(struct dmi
+ 			break;
+ 	}
+ }
++#undef dmi_string_dm
+ 
+ void __init dmi_scan_machine(void)
+ {

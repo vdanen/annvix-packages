@@ -1,0 +1,57 @@
+diff -uNp w4/sound/usb/usbaudio.c.ms09-2.orig w4/sound/usb/usbaudio.c
+--- w4/sound/usb/usbaudio.c.ms09-2.orig	2003-07-24 14:57:22.000000000 +0200
++++ w4/sound/usb/usbaudio.c	2003-08-07 14:32:00.000000000 +0200
+@@ -579,7 +579,7 @@ static void snd_complete_urb(struct urb 
+ 	if (! subs->running) /* can be stopped during retire callback */
+ 		return;
+ 	if ((err = subs->ops.prepare(subs, substream->runtime, urb)) < 0 ||
+-	    (err = usb_submit_urb(urb, GFP_ATOMIC)) < 0) {
++	    (err = usb_submit_urb(urb)) < 0) {
+ 		snd_printd(KERN_ERR "cannot submit urb (err = %d)\n", err);
+ 		snd_pcm_stop(substream, SNDRV_PCM_STATE_XRUN);
+ 		return;
+@@ -604,7 +604,7 @@ static void snd_complete_sync_urb(struct
+ 	if (! subs->running) /* can be stopped during retire callback */
+ 		return;
+ 	if ((err = subs->ops.prepare_sync(subs, substream->runtime, urb))  < 0 ||
+-	    (err = usb_submit_urb(urb, GFP_ATOMIC)) < 0) {
++	    (err = usb_submit_urb(urb)) < 0) {
+ 		snd_printd(KERN_ERR "cannot submit sync urb (err = %d)\n", err);
+ 		snd_pcm_stop(substream, SNDRV_PCM_STATE_XRUN);
+ 		return;
+@@ -683,7 +683,7 @@ static int start_urbs(snd_usb_substream_
+ 
+ 	subs->running = 1;
+ 	for (i = 0; i < subs->nurbs; i++) {
+-		if ((err = usb_submit_urb(subs->dataurb[i].urb, GFP_KERNEL)) < 0) {
++		if ((err = usb_submit_urb(subs->dataurb[i].urb)) < 0) {
+ 			snd_printk(KERN_ERR "cannot submit datapipe for urb %d, err = %d\n", i, err);
+ 			goto __error;
+ 		}
+@@ -691,7 +691,7 @@ static int start_urbs(snd_usb_substream_
+ 	}
+ 	if (subs->syncpipe) {
+ 		for (i = 0; i < SYNC_URBS; i++) {
+-			if ((err = usb_submit_urb(subs->syncurb[i].urb, GFP_KERNEL)) < 0) {
++			if ((err = usb_submit_urb(subs->syncurb[i].urb)) < 0) {
+ 				snd_printk(KERN_ERR "cannot submit syncpipe for urb %d, err = %d\n", i, err);
+ 				goto __error;
+ 			}
+@@ -908,7 +908,7 @@ static int init_substream_urbs(snd_usb_s
+ 				return -ENOMEM;
+ 			}
+ 		}
+-		u->urb = usb_alloc_urb(u->packets, GFP_KERNEL);
++		u->urb = usb_alloc_urb(u->packets);
+ 		if (! u->urb) {
+ 			release_substream_urbs(subs, 0);
+ 			return -ENOMEM;
+@@ -928,7 +928,7 @@ static int init_substream_urbs(snd_usb_s
+ 			u->index = i;
+ 			u->subs = subs;
+ 			u->packets = nrpacks;
+-			u->urb = usb_alloc_urb(u->packets, GFP_KERNEL);
++			u->urb = usb_alloc_urb(u->packets);
+ 			if (! u->urb) {
+ 				release_substream_urbs(subs, 0);
+ 				return -ENOMEM;

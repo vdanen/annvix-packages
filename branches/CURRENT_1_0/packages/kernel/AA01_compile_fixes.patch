@@ -1,0 +1,18 @@
+--- linux-2.4.21/drivers/net/tc35815.c.orig	2003-08-24 18:12:29.000000000 +0200
++++ linux-2.4.21/drivers/net/tc35815.c	2003-08-24 18:12:51.000000000 +0200
+@@ -398,9 +398,14 @@ struct FrFD {
+ 	struct BDesc bd[RX_BUF_PAGES];
+ };
+ 
+-
++#if defined(__mips__)
++/* MIPS weirdness */
+ extern unsigned long tc_readl(volatile __u32 *addr);
+ extern void tc_writel(unsigned long data, volatile __u32 *addr);
++#else
++#define tc_readl        readl
++#define tc_writel       writel
++#endif
+ 
+ dma_addr_t priv_dma_handle;
+ 

@@ -1,0 +1,266 @@
+diff -urN --exclude-from=/home/mitica/quintela/config/misc/dontdiff linux/Documentation/hp_omnibook.txt linux2/Documentation/hp_omnibook.txt
+--- linux/Documentation/hp_omnibook.txt	Tue Apr 23 14:28:55 2002
++++ linux2/Documentation/hp_omnibook.txt	Tue Apr 23 14:05:49 2002
+@@ -0,0 +1,103 @@
++             Kernel Support for HP OmniBook OneTouch buttons
++             ===============================================
++
++Some HP OmniBook laptops (XE3s and XT1000) have special multimedia keys
++(aka OneTouch buttons) disabled by default. They need to be enabled.
++
++Linux kernel able to detect your HP OmniBook and enabling the OneTouch
++buttons to generate scancodes.
++Look in syslog messages for "keyboard: unknown scancode e0 xx" messages to
++identify the scancode assigned to button. Use setkeycodes from console-tools
++package to assign keycodes to them.
++
++The scancodes are different on different models:
++
++XT1000 models
++------------n-
++
++Mail button:                     e06c
++Special-1 button:                e074
++WWW button:                      e032
++Special-2 button:                e073
++Help button:                     e072
++
++MP3 button:                      e071
++Previous Track button:           e010
++Next Track button:               e019
++Play / Pause button:             e022
++Stop / Eject button:             e024
++
++Volume down button:              e02e
++Volume up button:                e030
++Mute / Unmute button:            e020
++
++XE3 GF models
++-------------
++
++WWW button:                      e032
++Mail button:                     e06c
++Demo button:                     e074
++Help button:                     e073
++
++Previous Track button:           e010
++Play / Pause button:             e022
++Stop / Eject button:             e024
++Next Track button:               e019
++
++Volume down (and Fn-Down arrow): e02e
++Volume up (and Fn-Up arrow):     e030
++Mute / Unmute (Fn-F7):           e020
++
++XE3 GC models
++-------------
++
++WWW button:                      e073
++Mail button:                     e074
++Demo button:                     e072
++Help button:                     e071
++
++Previous Track button:           e010
++Play / Pause button:             e022
++Stop / Eject button:             e024
++Next Track button:               e019
++
++Unfortunately the volume control buttons on HP OmniBook XE3 GC models are
++implemented in different way and do not generates scancodes. There is no
++publically available technical information about implementing them.
++
++HP refusing to share any information:
++
++> Thank you for contacting Hewlett Packard laptop email support.
++> 
++> I'm sorry, but I won't be able to help you with that. HP does not
++> recommend or support the installation of any version of Linux on any of
++> our notebook products.
++
++Additionally neither Compal Electronics, Inc. (the manufacturer of OmniBook
++XE3 machines) nor Dritek System, Inc. (the vendor of the Windows software for
++OneTouch buttons) send any response to information requests.
++
++There are programs sepcifically designed such application keys (e.g. hotkeys:
++http://ypwong.org/hotkeys/).
++
++Credits:
++
++* Al Stone <ahs3@fc.hp.com>
++   sharing some programming information
++* Guido Guenther <agx@sigxcpu.org> and Pavel Mihaylov <bin@bash.info>
++   initial OneTouch enabling code
++* Jens Thoms Toerring <Jens.Toerring@physik.fu-berlin.de>
++   initial power management code
++* Peter Soos <sp@osb.hu>
++   dmi and power management code
++* Some others on OmniBook mailing list
++   providing information and testing
++
++For more information you can see the OmniBook mailing list at
++http://zurich.ai.mit.edu/mailman/listinfo/omnibook
++
++You can find actual version of this patch at
++http://sourceforge.net/projects/omke
++
++---
++Written by: Peter Soos <sp@osb.hu>
+diff -uNp t1/arch/i386/kernel/dmi_scan.c.dm02.orig t1/arch/i386/kernel/dmi_scan.c
+--- t1/arch/i386/kernel/dmi_scan.c.dm02.orig	2003-07-30 18:13:27.000000000 +0200
++++ t1/arch/i386/kernel/dmi_scan.c	2003-08-01 16:19:04.000000000 +0200
+@@ -268,6 +268,31 @@ static __init int set_realmode_power_off
+        return 0;
+ }
+ 
++/*
++ * HP OmniBook OneTouch support
++ *
++ * HP OmniBook XE3 and XT1000 laptops have special multimedia
++ * ("OneTouch") buttons disabled by default. They need to be
++ * enabled at boot time.
++ * Volume buttons on XE3 GC models are implemented in different
++ * way and do not generate scancodes. There is no public technical
++ * information about implementing them.
++ */
++
++static __init int hp_onetouch(struct dmi_blacklist *d)
++{
++	printk(KERN_INFO "%s machine detected.\n", d->ident);
++#ifdef CONFIG_VT
++	if (pm_hp_onetouch_callback == NULL)
++	{
++		pm_hp_onetouch_callback = hp_onetouch_resume;
++		printk(KERN_INFO "%s: OneTouch buttons enabled.\n", d->ident);
++		if (d->ident == "HP OmniBook XE3 GC")
++			printk(KERN_INFO "%s: Volume buttons do not generate scancodes on this model.\n", d->ident);
++	}
++#endif
++	return 0;
++}
+ 
+ /* 
+  * Some laptops require interrupts to be enabled during APM calls 
+@@ -887,7 +912,24 @@ static __initdata struct dmi_blacklist d
+ 			MATCH(DMI_PRODUCT_VERSION, "HP Pavilion Notebook Model GE"),
+ 			MATCH(DMI_BOARD_VERSION, "OmniBook N32N-736")
+ 			} },
++	{ hp_onetouch, "HP OmniBook XE3 GC", { /* Enables HP OmniBook XE3 OneTouch buttons */
++			MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
++			MATCH(DMI_PRODUCT_VERSION, "HP OmniBook XE3 GC"),
++			NO_MATCH, NO_MATCH
++			} },
+ 
++	{ hp_onetouch, "HP OmniBook XE3 GF", { /* Enables HP OmniBook XE3 OneTouch buttons */
++			MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
++			MATCH(DMI_PRODUCT_VERSION, "HP OmniBook XE3 GF"),
++			NO_MATCH, NO_MATCH
++			} },
++
++	{ hp_onetouch, "HP OmniBook XT1000", { /* Enables HP OmniBook XT1000 OneTouch buttons */
++			MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
++			MATCH(DMI_PRODUCT_VERSION, "HP OmniBook XT1000"),
++			NO_MATCH, NO_MATCH
++			} },
++ 
+ 	/*
+ 	 *	Generic per vendor APM settings
+ 	 */
+diff -urN --exclude-from=/home/mitica/quintela/config/misc/dontdiff linux/drivers/char/keyboard.c linux2/drivers/char/keyboard.c
+--- linux/drivers/char/keyboard.c	Tue Apr 23 14:28:55 2002
++++ linux2/drivers/char/keyboard.c	Tue Apr 23 14:35:01 2002
+@@ -164,6 +164,8 @@
+ #endif
+ 
+ static struct pm_dev *pm_kbd;
++static struct pm_dev *pm_hp_onetouch;
++pm_callback pm_hp_onetouch_callback;
+ 
+ /*
+  * Many other routines do put_queue, but I think either
+@@ -208,6 +210,9 @@
+ 	char raw_mode;
+ 
+ 	pm_access(pm_kbd);
++	if (pm_hp_onetouch_callback != NULL) {
++		pm_access(pm_hp_onetouch);
++	}
+ 	add_keyboard_randomness(scancode | up_flag);
+ 
+ 	tty = ttytab? ttytab[fg_console]: NULL;
+@@ -949,6 +954,12 @@
+ 	tasklet_schedule(&keyboard_tasklet);
+ 	
+ 	pm_kbd = pm_register(PM_SYS_DEV, PM_SYS_KBC, pm_kbd_request_override);
++	if (pm_hp_onetouch_callback != NULL) {
++		hp_onetouch_enable();
++		pm_hp_onetouch = pm_register(PM_SYS_DEV, PM_SYS_KBC, pm_hp_onetouch_callback);
++	}
+ 
+ 	return 0;
+ }
++
++
+diff -urN --exclude-from=/home/mitica/quintela/config/misc/dontdiff linux/drivers/char/pc_keyb.c linux2/drivers/char/pc_keyb.c
+--- linux/drivers/char/pc_keyb.c	Tue Apr 23 14:28:55 2002
++++ linux2/drivers/char/pc_keyb.c	Tue Apr 23 14:05:49 2002
+@@ -678,7 +678,7 @@
+ #define KBD_NO_DATA	(-1)	/* No data */
+ #define KBD_BAD_DATA	(-2)	/* Parity or other error */
+ 
+-static int __init kbd_read_data(void)
++static int kbd_read_data(void)
+ {
+ 	int retval = KBD_NO_DATA;
+ 	unsigned char status;
+@@ -704,7 +704,7 @@
+ 	} while (--maxread);
+ }
+ 
+-static int __init kbd_wait_for_input(void)
++static int kbd_wait_for_input(void)
+ {
+ 	long timeout = KBD_INIT_TIMEOUT;
+ 
+@@ -891,6 +891,28 @@
+ 		return "Set rate: no 2nd ACK";
+ 
+ 	return NULL;
++}
++
++/*
++ * Enable scancodes for HP OmniBook OneTouch buttons
++ */
++void hp_onetouch_enable(void)
++{
++	kbd_write_command_w(0x59);
++	kbd_wait_for_input();
++	kbd_write_output_w(0x90);
++	kbd_wait_for_input();
++}
++
++/*
++ * Power management handler:
++ * on resume re-enable the HP OmniBook OneTouch buttons
++ */
++int hp_onetouch_resume(struct pm_dev *dev, pm_request_t rqst, void *data)
++{
++	if (rqst == PM_RESUME)
++		hp_onetouch_enable();
++	return 0;
+ }
+ 
+ void __init pckbd_init_hw(void)
+diff -urN --exclude-from=/home/mitica/quintela/config/misc/dontdiff linux/include/asm-i386/keyboard.h linux2/include/asm-i386/keyboard.h
+--- linux/include/asm-i386/keyboard.h	Tue Apr 23 14:28:55 2002
++++ linux2/include/asm-i386/keyboard.h	Tue Apr 23 14:10:04 2002
+@@ -33,6 +33,10 @@
+ extern pm_callback pm_kbd_request_override;
+ extern unsigned char pckbd_sysrq_xlate[128];
+ 
++extern void hp_onetouch_enable(void);
++extern int hp_onetouch_resume(struct pm_dev *, pm_request_t, void *);
++extern pm_callback pm_hp_onetouch_callback;
++
+ #define kbd_setkeycode		pckbd_setkeycode
+ #define kbd_getkeycode		pckbd_getkeycode
+ #define kbd_translate		pckbd_translate

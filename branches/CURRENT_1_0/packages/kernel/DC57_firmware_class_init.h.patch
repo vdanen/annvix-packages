@@ -1,0 +1,11 @@
+--- linux-2.4.22/lib/firmware_class.c.includes	2003-08-29 20:51:07.000000000 +0200
++++ linux-2.4.22/lib/firmware_class.c	2003-08-29 21:18:55.000000000 +0200
+@@ -48,6 +48,7 @@
+ #include <linux/kmod.h>
+ #include <linux/proc_fs.h>
+ #include <linux/vmalloc.h>
++#include <linux/init.h>
+ #include <asm/hardirq.h>
+ 
+ #include "linux/firmware.h"
+ 
