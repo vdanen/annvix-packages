@@ -1,0 +1,14 @@
+.LP 
+\fBCourier IMAP\fR
+.LP 
+The Courier IMAP package provides an IMAP server and, if you install the
+courier-imap-pop package, a POP3 server; each capable of also running as
+IMAPS and POP3S servers (using SSL for encryption).  These services use the
+tcpsvd(8) daemon to listen to connections, which allows us to use some
+complex rules to determine access to the service.  The \fI/service/courier-imap/peers\fR
+directory contains the rules which, by default, are to allow all connections for IMAP.
+The \fIpeers\fR directory exists also for the courier-imaps, courier-pop3d, and
+courier-pop3ds services as well.
+.LP
+Please read the ipsvd-instruct(5) manpage for more information on how to tailor
+this directory to set more appropriate access restrictions.
