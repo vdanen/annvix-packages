@@ -1,6 +1,6 @@
 %define name	openssh
-%define version	3.9p1
-%define release 7avx
+%define version	4.0p1
+%define release 1avx
 
 ## Do not apply any unauthorized patches to this package!
 ## - vdanen 05/18/01
@@ -29,7 +29,7 @@ Source5:	04_openssh.afterboot
 Source6:	ssh-client.sh
 Source8:	sshd.run
 Source9:	sshd-log.run
-Patch1:		openssh-3.9p1-avx-annvixconf.patch.bz2
+Patch1:		openssh-4.0p1-avx-annvixconf.patch.bz2
 # authorized by Damien Miller <djm@openbsd.com>
 Patch2:		openssh-3.1p1-mdk-check-only-ssl-version.patch.bz2
 
@@ -316,6 +316,10 @@ do_dsa_keygen
 %{_datadir}/afterboot/04_openssh
 
 %changelog
+* Wed Mar 16 2005 Vincent Danen <vdanen@annvix.org> 4.0p1-1avx
+- 4.0p1
+- rediff P1
+
 * Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 3.9p1-7avx
 - use logger for logging
 - spec cleanups
