@@ -1,0 +1,11 @@
+--- Mesa-4.0.2/si-glu/Makefile.am.libsupc++	2001-06-10 05:48:06.000000000 +0200
++++ Mesa-4.0.2/si-glu/Makefile.am	2002-05-08 19:12:01.000000000 +0200
+@@ -10,7 +10,7 @@ lib_LTLIBRARIES = libGLU.la
+ libGLU_la_SOURCES = dummy.cc
+ libGLU_la_LDFLAGS = -version-info @SI_GLU_VERSION_INFO@ -L../src
+ libGLU_la_LIBADD = \
+-	-lGL \
++	-lGL -lsupc++ -lgcc_s \
+ 	libnurbs/interface/libNIFac.la \
+ 	libnurbs/internals/libNInt.la \
+ 	libnurbs/nurbtess/libNTess.la \
