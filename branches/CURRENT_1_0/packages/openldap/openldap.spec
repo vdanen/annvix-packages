@@ -1,6 +1,6 @@
 %define name	openldap
 %define version	2.1.29
-%define release	6avx
+%define release	7avx
 
 %define major 		2
 %define migtools_ver	45
@@ -558,7 +558,7 @@ do
 		echo "Making a backup to ldif file ${dbdir}/rpm-db-backup-%{db_conv}.ldif"
 		# For some reason, slapcat works in the shell when slapd is
 		# running but not via rpm ...
-		SLAPD_STATUS=`svstat /service/slapd|grep -q down;echo $?`
+		SLAPD_STATUS=`runsvstat /service/slapd|grep -q down;echo $?`
 		[ $SLAPD_STATUS -eq 1 ] && srv stop slapd
 		slapcat > ${dbdir}/rpm-db-backup-%{db_conv}.ldif ||:
 		[ $SLAPD_STATUS -eq 1 ] && srv start sldapd
@@ -874,6 +874,9 @@ fi
 # - add cron-job to remove transaction logs (bdb)
 
 %changelog
+* Sun Sep 19 2004 Vincent Danen <vdanen@annvix.org> 2.1.29-7avx
+- missed one call to svstat
+
 * Fri Sep 17 2004 Vincent Danen <vdanen@annvix.org> 2.1.29-6avx
 - update run scripts
 - s/svc/runsvctrl/ in spec
