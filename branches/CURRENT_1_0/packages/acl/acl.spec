@@ -1,6 +1,6 @@
 %define name	acl
-%define version 2.2.22
-%define release 1sls
+%define version 2.2.23
+%define release 1avx
 
 %define lib_name_orig	lib%{name}
 %define lib_major	1
@@ -97,6 +97,10 @@ rm -rf %{buildroot}%{_docdir}/acl
 %{_includedir}/sys/acl.h
 
 %changelog
+* Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 2.2.23-1avx
+- 2.2.23
+- Annvix build
+
 * Sun Feb 29 2004 Vincent Danen <vdanen@opensls.org> 2.2.22-1sls
 - 2.2.22
 - libname fixes
