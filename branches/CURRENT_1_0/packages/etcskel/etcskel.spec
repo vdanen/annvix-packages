@@ -1,9 +1,9 @@
 # Defined in CVS makefile.
 %define name	etcskel
 %define version 1.63
-%define release 16sls
+%define release 17sls
 
-Summary:	Mandrake Linux default files for new users' home directories
+Summary:	OpenSLS default files for new users' home directories
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -19,7 +19,7 @@ Requires:	bash
 BuildArchitectures: noarch
 
 %description
-The etcskel package is part of the basic Mandrake system.
+The etcskel package is part of the basic OpenSLS system.
 
 Etcskel provides the /etc/skel directory's files. These files are then placed
 in every new user's home directory when new accounts are created.
@@ -31,11 +31,11 @@ in every new user's home directory when new accounts are created.
 %build
 
 %install
-rm -rf $RPM_BUILD_ROOT/etc/skel
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 make install RPM_BUILD_ROOT=$RPM_BUILD_ROOT
 
 %clean
-rm -rf ${RPM_BUILD_ROOT}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -44,6 +44,9 @@ rm -rf ${RPM_BUILD_ROOT}
 %config(noreplace) /etc/skel/tmp
 
 %changelog
+* Thu Mar 04 2004 Vincent Danen <vdanen@opensls.org> 1.63-17sls
+- more OpenSLS specific
+
 * Sun Nov 30 2003 Vincent Danen <vdanen@opensls.org> 1.63-16sls
 - OpenSLS build
 
