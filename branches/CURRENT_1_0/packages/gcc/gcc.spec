@@ -2,7 +2,15 @@
 %define branch			3.3
 %define branch_tag		%(perl -e 'printf "%%02d%%02d", split(/\\./,shift)' %{branch})
 %define version			3.3.1
-%define release			2mdk
+
+# OpenSLS defaults
+%define build_propolice		1
+
+%{expand: %{?_without_propolice:	%%global build_propolice 0}}
+%{expand: %{?_with_propolice:		%%global build_propolice 1}}
+
+%define release			3sls
+
 %define biarches		x86_64
 
 %define hammer_branch		1
@@ -117,6 +125,8 @@
 %define build_ada		0
 %define gpc_snapshot		20030507
 %define build_pascal		0
+%define build_fortran		0
+%define build_java		0
 %ifarch %{ix86} x86_64
 %define build_pascal		1
 %endif
@@ -124,11 +134,19 @@
 %define build_ada		1
 %endif
 %define build_cxx		1
-%define build_fortran		1
 %define build_objc		1
 %define build_java		1
 %define build_colorgcc		1
 %define build_debug		0
+
+%if %{build_propolice}
+%define build_ada		0
+%define build_doc		0
+%define build_pdf_doc		0
+%define build_fortran		0
+%define build_java		0
+%define build_pascal		0
+%endif
 
 # Allow --with[out] <feature> at rpm command line build
 %{expand: %{?_without_PDF:	%%global build_pdf_doc 0}}
@@ -219,6 +237,7 @@ Source5:	gpc-%{gpc_snapshot}.tar.bz2
 # FIXME: unless we get proper help2man package
 Source6:	gcc33-help2man.pl.bz2
 
+
 # CVS patches
 Patch0: gcc33-revert-pr11420.patch.bz2
 Patch1: gcc33-hammer-%{hammer_date}.patch.bz2
@@ -275,6 +294,9 @@ Patch217: gcc33-libffi-ro-eh_frame.patch.bz2
 Patch218: gcc33-ia64-libjava-locks.patch.bz2
 Patch219: gcc33-rhl-testsuite.patch.bz2
 
+# Propolice Stack Protector http://www.research.ibm.com/trl/projects/security/ssp/
+Patch300:	gcc-3.3.1-protector-3.3-5.patch.bz2
+
 BuildRoot:	%{_tmppath}/%{name}-%{version}-root
 # Want updated alternatives priorities
 %if %{build_cross}
@@ -324,6 +346,10 @@ Fortran 77, Objective C and Java.
 If you have multiple versions of GCC installed on your system, it is
 preferred to type "gcc-$(gcc%{branch}-version)" (without double quotes) in
 order to use the GNU C compiler version %{version}.
+%if %build_propolice
+This version includes the Propolice stack protector (-fstack-protector)
+option.
+%endif
 
 %package -n %{libgcc_name}
 Summary:	GNU C library
@@ -646,6 +672,8 @@ Static libraries for the GNU Java Compiler.
 ####################################################################
 # FFI headers and libraries
 
+# until we know what this really belongs to, wrap it improperly just to get our build
+%if %{build_java}
 %package -n %{libffi_name}-devel
 Summary:	Development headers and static library for FFI
 Group:		Development/C
@@ -661,7 +689,7 @@ for libffi. The libffi library provides a portable, high level
 programming interface to various calling conventions. This allows a
 programmer to call any function specified by a call interface
 description at run time.
-
+%endif
 ####################################################################
 # Preprocessor
 
@@ -834,6 +862,11 @@ perl -pi -e "/bug_report_url/ and s/\"[^\"]+\"/\"<URL:https:\/\/qa.mandrakesoft.
 perl -pi -e 's|GCC_VERSION|%{version}|' colorgcc*
 )
 
+# ProPolice Stack Protector patch
+%if %build_propolice
+%patch300 -p1 -b .propolice
+%endif
+
 %build
 # Force a seperate object dir
 rm -fr obj-%{gcc_target_platform}
@@ -848,6 +881,7 @@ export PATH=$PATH:$PWD/bin
 # Make bootstrap-lean
 CC=gcc
 OPT_FLAGS=`echo $RPM_OPT_FLAGS|sed -e 's/-fno-rtti//g' -e 's/-fno-exceptions//g'`
+OPT_FLAGS=`echo $OPT_FLAGS|sed -e 's/-fstack-protector//g'`
 %if %{build_debug}
 OPT_FLAGS=`echo "$OPT_FLAGS -g" | sed -e "s/-fomit-frame-pointer//g"`
 %endif
@@ -1363,6 +1397,19 @@ export DONT_STRIP=1
 export DONT_STRIP=1
 %endif
 
+%if %{build_propolice}
+# create propolice profile
+mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/profile.d
+echo "# This tells rpm to compile everything with stack protection" >> $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/propolice.sh
+echo "" >> $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/propolice.sh
+echo "export STACK_PROTECTOR=true" >> $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/propolice.sh
+echo "# This tells rpm to compile everything with stack protection" >> $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/propolice.csh
+echo "" >> $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/propolice.csh
+echo "set STACK_PROTECTOR=true" >> $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/propolice.csh
+chmod 0755 $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/propolice.*
+%endif
+
+
 %clean
 #rm -rf $RPM_BUILD_ROOT
 
@@ -1566,6 +1613,10 @@ if [ "$1" = "0" ];then /sbin/install-info %{_infodir}/gcc.info.bz2 --dir=%{_info
 %defattr(-,root,root)
 #
 %doc gcc/README* gcc/*ChangeLog*
+%if %{build_propolice}
+%config(noreplace) %{_sysconfdir}/profile.d/propolice.sh
+%config(noreplace) %{_sysconfdir}/profile.d/propolice.csh
+%endif
 %{_mandir}/man1/%{program_prefix}gcc%{program_suffix}.1*
 %if "%{name}" == "gcc"
 %{_mandir}/man1/gcov%{program_suffix}.1*
@@ -2003,13 +2054,15 @@ if [ "$1" = "0" ];then /sbin/install-info %{_infodir}/gcc.info.bz2 --dir=%{_info
 %{_libdir}/gcc-lib/%{gcc_target_platform}/%{version}/adalib/libgnarl.so
 %endif
 
+%if %{build_java}
 %files -n %{libffi_name}-devel
 %defattr(-,root,root)
 %doc libffi/README libffi/LICENSE libffi/ChangeLog*
 %{_includedir}/ffi*.h
 %{_libdir}/libffi.a
-%ifarch %{biarches}
+%%ifarch %{biarches}
 %{_prefix}/lib/libffi.a
+%%endif
 %endif
 
 %if %{build_ada}
@@ -2073,6 +2126,22 @@ if [ "$1" = "0" ];then /sbin/install-info %{_infodir}/gcc.info.bz2 --dir=%{_info
 %endif
 
 %changelog
+* Fri Nov 28 2003 Vincent Danen <vdanen@opensls.org> 3.3.1-3sls
+- propolice 3.3-5; regenerated patch
+- make profile.d files mode 0755
+- when we do our propolice build (opensls default), we don't make
+  ada, doc-pdf, doc, fortran, pascal, or java packages
+- fix inclusion of libffi stuff (should only be built when java is built)
+
+* Wed Oct 22 2003 Vincent Danen <vdanen@mandrakesoft.com> 3.3.1-2.2mdks
+- create profile.d files to set STACK_PROTECTOR=true
+
+* Fri Oct  3 2003 Vincent Danen <vdanen@mandrakesoft.com> 3.3.1-2.1mdks
+- build with propolice as default
+
+* Sun Sep 21 2003 Giuseppe Ghibò <ghibo@mandrakesoft.com> 3.3.1-2mdks
+- Added Propolice Stack Protector and regenerated its patch (Patch300)
+
 * Mon Sep  1 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 3.3.1-2mdk
 - Assorted fixes from current CVS:
   - Patch6: Fix ICE when compiling busybox at -Os
