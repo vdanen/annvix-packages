@@ -1,6 +1,6 @@
 %define name	php
 %define version	4.3.10
-%define release	4avx
+%define release	5avx
 %define epoch	2
 
 %define libversion	4
@@ -106,7 +106,7 @@ BuildRequires:	gettext-devel
 BuildRequires:	openssl-devel >= 0.9.6, openssl >= 0.9.6
 BuildRequires:	pam-devel
 BuildRequires:	zlib-devel
-#BuildRequires:	multiarch-utils >= 1.0.3
+BuildRequires:	multiarch-utils >= 1.0.3
 
 %description
 PHP4 is an HTML-embeddable scripting language.  PHP offers built-in database
@@ -535,8 +535,8 @@ ln -snf ../../../bin/libtool %{buildroot}%{phpdir}/build/libtool
 # install the man page
 install -m0644 sapi/cli/php.1 %{buildroot}%{_mandir}/man1/
 
-#%multiarch_includes %{buildroot}%{_includedir}/php/main/build-defs.h
-#%multiarch_includes %{buildroot}%{_includedir}/php/main/php_config.h
+%multiarch_includes %{buildroot}%{_includedir}/php/main/build-defs.h
+%multiarch_includes %{buildroot}%{_includedir}/php/main/php_config.h
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -581,11 +581,15 @@ update-alternatives --remove php %{_bindir}/php-cli
 %dir %{phpdir}/build
 %{phpdir}/build/*
 %{phpsrcdir}
-#%multiarch %{multiarch_includedir}/php/main/build-defs.h
-#%multiarch %{multiarch_includedir}/php/main/php_config.h
+%multiarch %{multiarch_includedir}/php/main/build-defs.h
+%multiarch %{multiarch_includedir}/php/main/php_config.h
 %{_includedir}/php
 
 %changelog
+* Sat Mar 05 2005 Vincent Danen <vdanen@annvix.org> 4.3.10-5avx
+- rebuild against new libxml2 and libxslt
+- enable multiarch stuff
+
 * Sat Feb 26 2005 Vincent Danen <vdanen@annvix.org> 4.3.10-4avx
 - drop P3 and P8
 - drop the hardened-php patch; for one it breaks compatibility with external
