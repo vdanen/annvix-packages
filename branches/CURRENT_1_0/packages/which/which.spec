@@ -1,6 +1,6 @@
 %define name	which
 %define version	2.16
-%define release	1sls
+%define release	2avx
 
 Summary:	Displays where a particular program in your path is located.
 Name:		%{name}
@@ -16,7 +16,7 @@ Patch2:		which-2.16-afs.patch.bz2
 
 BuildRoot:	%_tmppath/%name-buildroot
 
-Prereq:		/sbin/install-info
+Prereq:		info-install
 
 %description
 The which command shows the full pathname of a specified program, if
@@ -55,6 +55,10 @@ rm -rf %buildroot/%_infodir/dir
 %_infodir/*
 
 %changelog
+* Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 2.16-2avx
+- require info-install, not the file
+- Annvix build
+
 * Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 2.16-1sls
 - 2.16
 - rediff and simplify P3 (tvignaud)
