@@ -1,6 +1,6 @@
 %define name	makedev
 %define version	4.1
-%define release 4avx
+%define release 5avx
 
 # synced with rh-3.3.1-1
 
@@ -16,6 +16,7 @@ License:	GPL
 Group:		System/Kernel and hardware
 URL:		http://cvs.mandrakesoft.com/cgi-bin/cvsweb.cgi/soft/makedev/
 Source:		%name-%version.tar.bz2
+Patch:		makedev-4.1-avx-random.patch.bz2
 
 BuildRoot:	%_tmppath/%name-root
 BuildArch:	noarch
@@ -33,11 +34,12 @@ correspond to a particular device supported by Linux (serial or printer
 ports, scanners, sound cards, tape drives, CD-ROM drives, hard drives,
 etc.) and interface with the drivers in the kernel.
 
-The makedev package is a basic part of your SLS system and it needs
+The makedev package is a basic part of your Annvix system and it needs
 to be installed.
 
 %prep
 %setup -q
+%patch -p0
 
 %build
 # Generate the config scripts
@@ -45,7 +47,7 @@ to be installed.
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p $RPM_BUILD_ROOT%devrootdir
+mkdir -p %{buildroot}%devrootdir
 %makeinstall_std
 
 %clean
@@ -125,6 +127,10 @@ fi
 %dir %devrootdir
 
 %changelog
+* Fri Feb 04 2005 Vincent Danen <vdanen@annvix.org> 4.1-5avx
+- s/SLS/Annvix/
+- add the erandom and frandom device nodes
+
 * Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 4.1-4avx
 - require packages not files
 - Annvix build
