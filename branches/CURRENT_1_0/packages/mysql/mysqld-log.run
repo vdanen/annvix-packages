@@ -1,6 +1,5 @@
 #!/bin/sh
 
-# this writes logs as user nobody into /var/log/supervise/mysqld; make 
-# sure this directory exists and is writable by nobody!
+# logging for the mysqld service
 
-exec /sbin/chpst -u nobody /sbin/svlogd -tt /var/log/supervise/mysqld
+exec /sbin/chpst -u logger /sbin/svlogd -tt /var/log/supervise/mysqld

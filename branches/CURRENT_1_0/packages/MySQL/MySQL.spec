@@ -1,6 +1,6 @@
 %define name	MySQL
 %define version	4.1.10
-%define release	1avx
+%define release	2avx
 
 %define major		14
 %define libname		%mklibname mysql %{major}
@@ -44,7 +44,7 @@ Patch9:		mysql-4.1.9-disable-pthreadsmutexes.diff.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
 BuildRequires:	bison, glibc-static-devel, libstdc++-static-devel, autoconf2.5, automake1.7
-BuildRequires:	termcap-devel
+BuildRequires:	termcap-devel, multiarch-utils 
 BuildRequires:	ncurses-devel, python, openssl-static-devel, tetex, texinfo, zlib-devel, readline-devel
 
 Provides:       MySQL-server
@@ -349,6 +349,10 @@ cat >> mysql.lang << EOF
 %lang(sr) %{_datadir}/mysql/serbian
 EOF
 
+%multiarch_binaries %{buildroot}%{_bindir}/mysql_config
+%multiarch_includes %{buildroot}%{_includedir}/mysql/my_config.h
+%multiarch_includes %{buildroot}%{_includedir}/mysql/my_config-ndb.h
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
@@ -573,7 +577,7 @@ fi
 %{_srvdir}/mysqld/finish
 %{_srvdir}/mysqld/run
 %{_srvdir}/mysqld/log/run
-%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/mysqld
+%dir %attr(0750,logger,logger) %{_srvlogdir}/mysqld
 
 %files -n %{libname}
 %defattr(-,root,root)
@@ -583,8 +587,11 @@ fi
 %defattr(-,root,root)
 %doc INSTALL-SOURCE
 %{_bindir}/comp_err
+%multiarch %{multiarch_bindir}/mysql_config
 %{_bindir}/mysql_config
 %{_includedir}/mysql
+%multiarch %{multiarch_includedir}/mysql/my_config.h
+%multiarch %{multiarch_includedir}/mysql/my_config-ndb.h
 %dir %{_libdir}/mysql
 %{_libdir}/*.la
 %{_libdir}/*.so
@@ -595,6 +602,10 @@ fi
 # http://cvs.mandrakesoft.com/cgi-bin/cvsweb.cgi/SPECS/MySQL/MySQL.spec.diff?r1=1.67&r2=1.69
 
 %changelog
+* Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 4.1.10-2avx
+- user logger for logging
+- multiarch
+
 * Fri Feb 25 2005 Vincent Danen <vdanen@annvix.org> 4.1.10-1avx
 - 4.1.10
 - update afterboot snippet with upgrade info
