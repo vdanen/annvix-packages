@@ -1,0 +1,11 @@
+--- rsync-2.5.4/cleanup.c.fred	Thu Mar 22 20:26:04 2001
++++ rsync-2.5.4/cleanup.c	Thu Mar 14 15:09:08 2002
+@@ -79,7 +79,7 @@
+ 		code = RERR_PARTIAL;
+ 	}
+ 
+-	if (code) log_exit(code, file, line);
++	if (code && code != RERR_MESSAGEIO) log_exit(code, file, line);
+ 
+ 	exit(code);
+ }
