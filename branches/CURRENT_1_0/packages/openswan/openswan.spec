@@ -1,14 +1,16 @@
 %define name	openswan
-%define version	2.1.4
+%define version	1.0.7
 %define release	1avx
+%define epoch	1
 
-%define their_version	2.1.4
+%define their_version	1.0.7
 %define debug_package	%{nil}
 
 Summary:	An implementation of IPSEC & IKE for Linux.
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
+Epoch:		%{epoch}
 URL:		http://www.openswan.org/
 License:	GPL
 Group:		System/Servers
@@ -19,7 +21,7 @@ BuildRoot:	%{_tmppath}/%{name}-buildroot
 BuildRequires:	gmp-devel, pam-devel, man
 
 Provides:	ipsec-userland
-Requires:	iproute2 ipsec-tools
+Requires:	iproute2
 Prereq:		chkconfig rpm-helper
 
 %description
@@ -44,6 +46,11 @@ FreeS/WAN's KLIPS.
 %serverbuild
 
 find . -name "Makefile*" | xargs perl -pi -e "s|libexec|lib|g"
+
+pushd libdes
+perl -pi -e "s|/usr/local|/usr|g" Makefile
+perl -pi -e "s|/usr/man|/usr/share/man|g" Makefile
+popd
 
 %make \
   USERCOMPILE="-g %{optflags}" \
@@ -82,17 +89,34 @@ install -d %{buildroot}%{_sbindir}
 # Remove old documentation for the time being.
 rm -rf %{buildroot}%{_defaultdocdir}/freeswan
 
+# remove libdes stuff we don't want:
+rm -f %{buildroot}/usr/include/des.h
+rm -f %{buildroot}/usr/lib/libdes.a
+
+# openswan insists on installings libs into /usr/lib regardless of platform, so let's fix it
+%ifarch x86_64 amd64
+pushd %{buildroot}/usr
+mv lib lib64
+popd
+%endif
+
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
 %doc BUGS CHANGES COPYING CREDITS README
-%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/%{name}/ipsec.conf
+%attr(0600,root,root) %config(noreplace) %{_sysconfdir}/%{name}/ipsec.conf
+%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/%{name}/ipsec.secrets
 %attr(0700,root,root) %dir %{_sysconfdir}/%{name}/ipsec.d
-%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/%{name}/ipsec.d/*/*
+%attr(0700,root,root) %dir %{_sysconfdir}/%{name}/ipsec.d/cacerts
+%attr(0700,root,root) %dir %{_sysconfdir}/%{name}/ipsec.d/crls
+%attr(0700,root,root) %dir %{_sysconfdir}/%{name}/ipsec.d/private
+# needed for 2.x
+#%attr(0700,root,root) %dir %{_sysconfdir}/%{name}/ipsec.d/policies
+#%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/%{name}/ipsec.d/policies/*
 %config(noreplace) %{_initrddir}/ipsec
-%config(noreplace) %{_sysconfdir}/rc.d/rc*.d/*ipsec
 %{_libdir}/ipsec
 %{_sbindir}/ipsec
 %doc %{_mandir}/*/*
@@ -106,6 +130,10 @@ rm -rf %{buildroot}%{_defaultdocdir}/freeswan
 %_post_service ipsec
 
 %changelog
+* Wed Aug 25 2004 Vincent Danen <vdanen@annvix.org> 1.0.7-1avx
+- drop to the stable 1.x branch (1.0.7)
+- fix the filelist
+
 * Mon Jun 28 2004 Vincent Danen <vdanen@annvix.org> 2.1.4-1avx
 - 2.1.4; security fix for CAN-2004-0590
 
