@@ -1,6 +1,6 @@
 %define name	postgresql
-%define version	7.4.3
-%define release	8avx
+%define version	8.0.1
+%define release	1avx
 
 %define _requires_exceptions devel(libtcl8.4)\\|devel(libtcl8.4(64bit))
 
@@ -11,16 +11,14 @@
 %define logrotatedir	%{_sysconfdir}/logrotate.d
 
 %define major		3
-%define major_tcl	2
 %define major_ecpg	3
 
-%define current_major_version 7.4
+%define current_major_version 8.0
 
 %define libname		%mklibname pq %{major}
-%define libpgtcl	%mklibname pgtcl %{major_tcl}
 %define libecpg		%mklibname ecpg %{major_ecpg}
 
-Summary: 	PostgreSQL client programs and libraries.
+Summary: 	PostgreSQL client programs and libraries
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -51,11 +49,10 @@ Source52:	upgrade_tips_7.3
 Patch1:		postgresql-7.4-mdk-tighten.patch.bz2
 Patch2:		postgresql-7.4-mdk-pythondir.patch.bz2
 Patch3:		postgresql-7.4.1-mdk-pkglibdir.patch.bz2
-Patch4:		postgresql-7.3.4-CAN-2004-0977.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires:	bison flex gettext termcap-devel ncurses-devel openssl-devel pam-devel
-BuildRequires:	perl-devel python-devel readline-devel >= 4.3 tk zlib-devel tcl
+BuildRequires:	perl-devel python-devel readline-devel >= 4.3 zlib-devel
 
 Requires:	perl sfio
 Prereq:		rpm-helper
@@ -81,7 +78,7 @@ server, you need this package. You also need to install this package
 if you're installing the postgresql-server package.
 
 %package -n %{libname}
-Summary:	The shared libraries required for any PostgreSQL clients.
+Summary:	The shared libraries required for any PostgreSQL clients
 Group:		System/Libraries
 Obsoletes:	postgresql-libs
 Provides:	postgresql-libs = %{version}-%{release} libpq = %{version}-%{release}
@@ -100,25 +97,6 @@ Provides:	postgresql-libs-devel = %{version}-%{release} libpq-devel = %{version}
 %description -n %{libname}-devel
 Development libraries for libpq
 
-%package -n %{libpgtcl}
-Summary:	Tcl/Tk library and front-end for PostgreSQL.
-Group:		System/Libraries
-Requires:	tcl => 8.0
-Provides:	libpgtcl = %{version}-%{release}
-
-%description -n %{libpgtcl}
-A library to enable Tcl/Tk scripts to communicate with the PostgreSQL
-database backend.
-
-%package -n %{libpgtcl}-devel
-Summary:	Tcl/Tk development library and front-end for PostgreSQL.
-Group:		Development/C
-Requires:	%{libpgtcl} = %{version}-%{release}
-Provides:	libpgtcl-devel = %{version}-%{release} 
-
-%description -n %{libpgtcl}-devel
-Development library to libpgtcl2.
-
 %package -n %{libecpg}
 Summary:	Shared library libecpg for PostgreSQL
 Group:		System/Libraries
@@ -130,7 +108,7 @@ Libecpg is used by programs built with ecpg (Embedded PostgreSQL for C)
 Use postgresql-dev to develop such programs.
 
 %package -n %{libecpg}-devel
-Summary:	Development library to libecpg.
+Summary:	Development library to libecpg
 Group:		Development/C
 Requires:	%{libecpg} = %{version}-%{release}
 Provides:	libecpg-devel = %{version}-%{release} 
@@ -139,10 +117,10 @@ Provides:	libecpg-devel = %{version}-%{release}
 Development library to libecpg.
 
 %package server
-Summary:	The programs needed to create and run a PostgreSQL server.
+Summary:	The programs needed to create and run a PostgreSQL server
 Group:		Databases
 Provides:	sqlserver
-Prereq:		rpm-helper %{_sbindir}/useradd afterboot
+Prereq:		rpm-helper %{_sbindir}/useradd afterboot %{libname} > 8.0
 Requires:	postgresql = %{version}-%{release}
 Conflicts:	postgresql < 7.3
 
@@ -169,12 +147,10 @@ The postgresql-contrib package includes the contrib tree distributed with
 the PostgreSQL tarball.  Selected contrib modules are prebuilt.
 
 %package devel
-Summary:	PostgreSQL development header files and libraries.
+Summary:	PostgreSQL development header files and libraries
 Group:		Development/Databases
 Requires:	postgresql = %{version}-%{release} libpq = %{version}-%{release}
-Requires:	%{libpgtcl} = %{version}-%{release}
 Requires:	%{libecpg} = %{version}-%{release}
-# Requires:	libpgsqlodbc = %{version}-%{release}
 
 %description devel
 The postgresql-devel package contains the header files and libraries
@@ -186,29 +162,19 @@ you're installing postgresql-server, you need to install this
 package.
 
 %package pl
-Summary:	The PL/Perl procedural language for PostgreSQL.
+Summary:	The PL/Perl procedural language for PostgreSQL
 Group:		Databases
 Obsoletes:	libpgsql2
 Requires:	postgresql = %{version} perl-base = %{perl_version}
 
 %description pl
 PostgreSQL is an advanced Object-Relational database management
-system.  The postgresql-pl package contains the the PL/Perl, PL/Tcl, and PL/Python
-procedural languages for the backend.  PL/Pgsql is part of the core server package.
-
-%package tcl
-Summary:	A Tcl client library, and the PL/Tcl procedural language for PostgreSQL.
-Group:		Databases
-Requires:	tcl >= 8.0 postgresql = %{version}-%{release}
-Requires:	%{libpgtcl} = %{version}-%{release}
-
-%description tcl
-PostgreSQL is an advanced Object-Relational database management
-system.  The postgresql-tcl package contains the pg-enhanced pgtclsh, 
-and the PL/Tcl procedural language for the backend.
+system.  The postgresql-pl package contains the the PL/Perl, PL/Tcl,
+and PL/Python procedural languages for the backend.  PL/Pgsql is part
+of the core server package.
 
 %package jdbc
-Summary:	Files needed for Java programs to access a PostgreSQL database.
+Summary:	Files needed for Java programs to access a PostgreSQL database
 Group:		Databases
 Requires:	postgresql = %{version}-%{release}
 
@@ -218,7 +184,7 @@ system. The postgresql-jdbc package includes the .jar file needed for
 Java programs to access a PostgreSQL database.
 
 %package test
-Summary:	The test suite distributed with PostgreSQL.
+Summary:	The test suite distributed with PostgreSQL
 Group:		Databases
 Requires:	postgresql = %{version}-%{release}
 Requires:	postgresql-pl = %{version}-%{release}
@@ -232,10 +198,9 @@ system, including regression tests and benchmarks.
 %prep
 %setup -q
 
-%patch1 -p1 -z .pg_hba
-%patch2 -p1 -b .pythondir
+#%patch1 -p1 -z .pg_hba
+#%patch2 -p1 -b .pythondir
 %patch3 -p0 -b .pkglibdir
-%patch4 -p1 -b .can-2004-0977
 
 %build
 
@@ -259,7 +224,7 @@ CFLAGS=`echo $RPM_OPT_FLAGS|xargs -n 1|grep -v ffast-math|xargs -n 100`
 %endif
 popd
 
-./configure --disable-rpath \
+%configure --disable-rpath \
             --enable-hba \
 	    --enable-locale \
 	    --enable-multibyte \
@@ -268,13 +233,13 @@ popd
 	    --enable-odbc \
 	    --with-perl \
 	    --with-python \
-	    --with-tcl --with-tclconfig=%{_libdir} \
+	    --without-tcl \
             --without-tk \
             --with-openssl \
             --with-pam \
             --libdir=%{_libdir} \
 	    --datadir=%{_datadir}/pgsql \
-	    --docdir=%{_docdir} \
+	    --with-docdir=%{_docdir} \
 	    --includedir=%{_includedir}/pgsql \
 	    --mandir=%{_mandir} \
 	    --prefix=%_prefix \
@@ -285,8 +250,8 @@ popd
 
 perl -pi -e 's|^all:|LINK.shared=\$(COMPILER) -shared -Wl,-rpath,/usr/lib/perl5/%{perl_version}/i386-linux-thread-multi/CORE,-soname,\$(soname)\nall:|' src/pl/plperl/GNUmakefile
 
-make pkglibdir=%{_libdir}/pgsql all
-make -C contrib pkglibdir=%{_libdir}/pgsql all
+%make pkglibdir=%{_libdir}/pgsql all
+%make -C contrib pkglibdir=%{_libdir}/pgsql all
 
 pushd src/test
 make all
@@ -298,8 +263,6 @@ popd
 make DESTDIR=$RPM_BUILD_ROOT pkglibdir=%{_libdir}/pgsql install 
 make -C contrib DESTDIR=$RPM_BUILD_ROOT pkglibdir=%{_libdir}/pgsql install
 
-make DESTDIR=$RPM_BUILD_ROOT install-all-headers
-
 install -m 755 %{SOURCE1} $RPM_BUILD_ROOT/%{_datadir}/pgsql
 install -m 755 %{SOURCE2} $RPM_BUILD_ROOT/%{_datadir}/pgsql
 install -m 755 %{SOURCE3} $RPM_BUILD_ROOT/%{_datadir}/pgsql
@@ -308,7 +271,7 @@ install -m 755 %{SOURCE9} $RPM_BUILD_ROOT/%{_datadir}/pgsql
 install -m 755 %{SOURCE4} $RPM_BUILD_ROOT/%{_datadir}/pgsql/upgrade.pl
 
 # install the dump script
-install -m755 %{SOURCE14} $RPM_BUILD_ROOT%{_bindir}/
+install -m755 %{SOURCE14} $RPM_BUILD_ROOT%{_bindir}/avx-pgdump.sh
 
 # install odbcinst.ini
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/pgsql
@@ -364,18 +327,20 @@ install -m 0644 %{SOURCE23} %{buildroot}%{_datadir}/afterboot/01_postgresql
 
 %find_lang libpq
 %find_lang libecpg
-%find_lang libpgtcl
 %find_lang pg_dump
 %find_lang postgres
 %find_lang psql
 %find_lang pg_resetxlog
 %find_lang pg_controldata
 %find_lang pgscripts
+%find_lang initdb
+%find_lang pg_config
+%find_lang pg_ctl
 
-cat psql.lang pg_dump.lang pgscripts.lang > main.lst
+cat pg_ctl.lang initdb.lang pg_config.lang psql.lang pg_dump.lang pgscripts.lang > main.lst
 cat postgres.lang pg_resetxlog.lang pg_controldata.lang > server.lst
 # 20021226 warly waiting to be able to add a major in po name
-cat libpq.lang libecpg.lang libpgtcl.lang >> main.lst
+cat libpq.lang libecpg.lang >> main.lst
 
 # taken directly in build dir.
 rm -fr $RPM_BUILD_ROOT%{_datadir}/doc/postgresql/contrib/
@@ -426,9 +391,6 @@ fi
 %post -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
 
-%post -n %{libpgtcl} -p /sbin/ldconfig
-%postun -n %{libpgtcl} -p /sbin/ldconfig
-
 %post -n %{libecpg} -p /sbin/ldconfig
 %postun -n %{libecpg} -p /sbin/ldconfig
 
@@ -450,8 +412,6 @@ rm -f perlfiles.list
 %{_bindir}/dropuser
 %{_bindir}/pg_dump
 %{_bindir}/pg_dumpall
-%{_bindir}/pg_encoding
-%{_bindir}/pg_id
 %{_bindir}/pg_restore
 %{_bindir}/psql
 %{_bindir}/vacuumdb
@@ -515,7 +475,6 @@ rm -f perlfiles.list
 %{_libdir}/pgsql/pgcrypto.so
 %{_libdir}/pgsql/pgstattuple.so
 %{_libdir}/pgsql/refint.so
-%{_libdir}/pgsql/rserv.so
 %{_libdir}/pgsql/rtree_gist.so
 %{_libdir}/pgsql/seg.so
 %{_libdir}/pgsql/string_io.so
@@ -524,6 +483,8 @@ rm -f perlfiles.list
 %{_libdir}/pgsql/tsearch.so
 %{_libdir}/pgsql/tsearch2.so
 %{_libdir}/pgsql/user_locks.so
+%{_libdir}/pgsql/pg_trgm.so
+%{_libdir}/pgsql/pgxs/
 %{_datadir}/pgsql/contrib/
 %{_bindir}/dbf2pg
 %{_bindir}/findoidjoins
@@ -531,38 +492,25 @@ rm -f perlfiles.list
 %{_bindir}/fti.pl
 %{_bindir}/oid2name
 %{_bindir}/pg_dumplo
-%{_bindir}/pg_logger
-%{_bindir}/pg_encoding
-%{_bindir}/pg_id
 %{_bindir}/pgbench
-%{_bindir}/RservTest
-%{_bindir}/MasterInit
-%{_bindir}/MasterAddTable
-%{_bindir}/Replicate
-%{_bindir}/MasterSync
-%{_bindir}/CleanLog
-%{_bindir}/SlaveInit
-%{_bindir}/SlaveAddTable
-%{_bindir}/GetSyncID
-%{_bindir}/PrepareSnapshot
-%{_bindir}/ApplySnapshot
-%{_bindir}/InitRservTest
 %{_bindir}/vacuumlo
+%{_bindir}/DBMirror.pl
+%{_bindir}/clean_pending.pl
+%{_bindir}/my2pg.pl
+%{_bindir}/mysql2pgsql
 
 %files server -f server.lst
 %defattr(-,root,root)
 %doc README.v7.3 upgrade_tips_7.3
 %{_bindir}/initdb
-%{_bindir}/initlocation
 %{_bindir}/ipcclean
 %{_bindir}/pg_controldata 
 %{_bindir}/pg_ctl
 %{_bindir}/pg_resetxlog
 %{_bindir}/postgres
 %{_bindir}/postmaster
-%{_bindir}/mdk-pgdump.sh
+%{_bindir}/avx-pgdump.sh
 %{_mandir}/man1/initdb.1*
-%{_mandir}/man1/initlocation.1*
 %{_mandir}/man1/ipcclean.1*
 %{_mandir}/man1/pg_controldata.*
 %{_mandir}/man1/pg_ctl.1*
@@ -572,6 +520,8 @@ rm -f perlfiles.list
 %{_datadir}/pgsql/postgres.bki
 %{_datadir}/pgsql/postgres.description
 %{_datadir}/pgsql/*.sample
+%{_datadir}/pgsql/timezone
+%{_datadir}/pgsql/system_views.sql
 %dir %{_libdir}/pgsql
 %dir %{_datadir}/pgsql
 %attr(700,postgres,postgres) %dir %{pgdata}
@@ -606,34 +556,11 @@ rm -f perlfiles.list
 %files pl 
 %defattr(-,root,root) 
 %{_libdir}/pgsql/plperl.so 
-%{_libdir}/pgsql/pltcl.so 
-%{_bindir}/pltcl_delmod 
-%{_bindir}/pltcl_listmod 
-%{_bindir}/pltcl_loadmod 
-%{_datadir}/pgsql/unknown.pltcl 
 %{_libdir}/pgsql/plpython.so 
 %{_libdir}/pgsql/plpgsql.so
 
-%files tcl
-%defattr(-,root,root)
-%doc src/interfaces/libpgtcl/README
-%{_bindir}/pgtclsh
-%{_mandir}/man1/pgtclsh.*
-%{_mandir}/man1/pgtksh.*
-
-%files -n %{libpgtcl} 
-%defattr(-,root,root) 
-%doc src/interfaces/libpgtcl/README 
-%attr(755,root,root) %{_libdir}/libpgtcl.so.* 
-
-%files -n %{libpgtcl}-devel
-%defattr(-,root,root)  
-%doc src/interfaces/libpgtcl/README  
-%{_libdir}/libpgtcl.so
-
 %files jdbc
 %defattr(-,root,root)
-%doc src/interfaces/jdbc/README
 %{_datadir}/pgsql/pg74.214.jdbc1.jar
 %{_datadir}/pgsql/pg74.214.jdbc2.jar
 %{_datadir}/pgsql/pg74.214.jdbc3.jar
@@ -645,8 +572,13 @@ rm -f perlfiles.list
 %attr(-,postgres,postgres) %dir %{_libdir}/pgsql/test
 
 %changelog
-* Sat Jan 29 2005 Vincent Danen <vdanen@annvix.org> 7.4.3-8avx
+* Tue Feb 15 2005 Vincent Danen <vdanen@annvix.org> 8.0.1-1avx
+- 8.0.1
+- build without tcl support
+
+* Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> 7.4.3-8avx
 - drop BuildRequires on XFree86-devel
+- rebuild against new python and perl
 
 * Thu Jan 06 2005 Vincent Danen <vdanen@annvix.org> 7.4.3-7avx
 - rebuild against latest openssl
