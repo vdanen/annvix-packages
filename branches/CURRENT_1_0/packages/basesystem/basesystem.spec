@@ -1,6 +1,6 @@
 %define name	basesystem
 %define version 1.0
-%define release 1sls
+%define release 2sls
 
 #rh-7.0-2
 
@@ -20,7 +20,7 @@ Requires:	e2fsprogs etcskel findutils grep gzip kernel less
 Requires:	logrotate losetup mingetty modutils mount net-tools passwd procps
 Requires:	psmisc mandrake-release rootfiles rpm sash shadow-utils 
 Requires:	stat sysklogd tar termcap time util-linux vim
-Requires:	vixie-cron which perl-base common-licenses
+Requires:	dcron which perl-base common-licenses srv daemontools ucspi-tcp
 Requires:	ldconfig
 Requires:	libgcc >= 3.2-1mdk
 # (gb) Add timezone database here for now before moving it to DrakX
@@ -55,6 +55,10 @@ should never be removed.
 %files
 
 %changelog
+* Sat Jan 31 2004 Vincent Danen <vdanen@opensls.org> 1.0-2sls
+- Requires: dcron, srv, daemontools, ucspi-tcp
+- remove Requires: vixie-cron
+
 * Fri Nov 28 2003 Vincent Danen <vdanen@opensls.org> 1.0-1sls
 - change for OpenSLS
 - tidy spec
