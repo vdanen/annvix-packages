@@ -1,6 +1,6 @@
 %define name	openswan
 %define version	2.1.2
-%define release	1sls
+%define release	2avx
 
 %define their_version	2.1.2
 %define debug_package	%{nil}
@@ -16,12 +16,11 @@ Source0:	http://www.openswan.org/code/openswan-%{their_version}.tar.gz
 Source1:	http://www.openswan.org/code/openswan-%{their_version}.tar.gz.asc
 
 BuildRoot:	%{_tmppath}/%{name}-buildroot
-BuildRequires:	gmp-devel, pam-devel
-BuildRequires:	/usr/bin/man2html
+BuildRequires:	gmp-devel, pam-devel, man
 
 Provides:	ipsec-userland
 Requires:	iproute2 ipsec-tools
-Prereq:		/sbin/chkconfig rpm-helper
+Prereq:		chkconfig rpm-helper
 
 %description
 Openswan is a free implementation of IPSEC & IKE for Linux, a fork of the 
@@ -107,6 +106,10 @@ rm -rf %{buildroot}%{_defaultdocdir}/freeswan
 %_post_service ipsec
 
 %changelog
+* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 2.1.2-2avx
+- require packages, not files
+- Annvix build
+
 * Sat May 22 2004 Thomas Backlund <tmb@iki.fi> 2.1.2-1sls
 - 2.1.2 final
 - first OpenSLS specific build
