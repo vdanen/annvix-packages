@@ -1,4 +1,4 @@
-# $Id: setup.spec,v 1.13 2005/03/19 00:41:21 vdanen Exp $
+# $Id: setup.spec,v 1.14 2005/03/20 07:43:55 vdanen Exp $
 
 %define name	setup
 %define version 2.5
