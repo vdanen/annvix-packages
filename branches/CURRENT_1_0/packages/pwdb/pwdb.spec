@@ -1,8 +1,6 @@
 %define name	pwdb
 %define version	0.61.2
-%define release	5sls
-
-%{!?build_propolice:%global build_propolice 0}
+%define release	6avx
 
 %define majver		0
 %define lib_name_orig	%mklibname pwdb
@@ -82,11 +80,8 @@ ln -s defs/redhat.defs default.defs
 chmod -R g-s .
 
 %build
-%if %{build_propolice}
-  RPM_OPT_FLAGS="$RPM_OPT_FLAGS -fno-stack-protector" %make
-%else
-  %make
-%endif
+# this package doesn't compile with ssp enabled
+RPM_OPT_FLAGS="$RPM_OPT_FLAGS -fno-stack-protector" %make
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -127,6 +122,10 @@ ln -sf lib%{name}.so.%{version} $RPM_BUILD_ROOT/%{_lib}/lib%{name}.so.%{majver}
 /%{_lib}/libpwdb.a
 
 %changelog
+* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 0.61.2-6avx
+- Annvix build
+- remove %%build_propolice macro; pass -fno-stack-protector by default
+
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 0.61.2-5sls
 - minor spec cleanups
 - change %%build_opensls to %%build_propolice
