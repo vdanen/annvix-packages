@@ -1,6 +1,6 @@
 %define name	openldap
 %define version	2.1.29
-%define release	8avx
+%define release	9avx
 
 %define major 		2
 %define migtools_ver	45
@@ -558,7 +558,7 @@ do
 		echo "Making a backup to ldif file ${dbdir}/rpm-db-backup-%{db_conv}.ldif"
 		# For some reason, slapcat works in the shell when slapd is
 		# running but not via rpm ...
-		SLAPD_STATUS=`runsvstat /service/slapd|grep -q down;echo $?`
+		SLAPD_STATUS=`runsvstat /service/slapd 2>/dev/null|grep -q down;echo $?`
 		[ $SLAPD_STATUS -eq 1 ] && srv stop slapd
 		slapcat > ${dbdir}/rpm-db-backup-%{db_conv}.ldif ||:
 		[ $SLAPD_STATUS -eq 1 ] && srv start sldapd
@@ -655,7 +655,7 @@ if [ -f %{_sysconfdir}/syslog.conf ] ;then
 		echo -e "local${cntlog}.*\t\t\t\t\t\t\t-/var/log/ldap/ldap.log" >> %{_sysconfdir}/syslog.conf
 
 		# reset syslog daemon
-		if [ "`runsvstat /service/syslogd|grep -q run; echo $?`" == "0" ]; then
+		if [ "`runsvstat /service/syslogd 2>/dev/null|grep -q run; echo $?`" == "0" ]; then
         		runsvctrl h /service/syslogd  > /dev/null 2>/dev/null || : 
 		fi
 	else
@@ -703,7 +703,7 @@ popd > /dev/null
 %_post_srv slurpd
 
 # nscd reset
-if [ "`runsvstat /service/nscd|grep -q run; echo $?`" == "0" ]; then
+if [ "`runsvstat /service/nscd 2>/dev/null|grep -q run; echo $?`" == "0" ]; then
 	runsvctrl h /service/nscd  > /dev/null 2>/dev/null || : 
 fi
 
@@ -719,7 +719,7 @@ if [ $1 = 0 ]; then
 	perl -pi -e "s|^.*ldap.*\n||g" %{_sysconfdir}/syslog.conf 
 
 	# reset syslog daemon
-	if [ "`runsvstat /service/syslogd|grep -q run; echo $?`" == "0" ]; then
+	if [ "`runsvstat /service/syslogd 2>/dev/null|grep -q run; echo $?`" == "0" ]; then
         	runsvctrl h /service/syslogd  > /dev/null 2>/dev/null || : 
 	fi
 fi
@@ -874,6 +874,9 @@ fi
 # - add cron-job to remove transaction logs (bdb)
 
 %changelog
+* Thu Sep 23 2004 Vincent Danen <vdanen@annvix.org> 2.1.29-9avx
+- make runsvstat a little quieter
+
 * Tue Sep 21 2004 Vincent Danen <vdanen@annvix.org> 2.1.29-8avx
 - grep for "run" with runsvstat rather than "up"
 
