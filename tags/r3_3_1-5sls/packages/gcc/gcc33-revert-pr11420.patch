@@ -1,0 +1,185 @@
+--- gcc-3.3.1/gcc/config/i386/i386.md.revert-pr11420	2003-07-16 10:27:36.000000000 +0200
++++ gcc-3.3.1/gcc/config/i386/i386.md	2003-07-19 13:05:56.000000000 +0200
+@@ -1144,23 +1144,24 @@
+ ;; We fake an second form of instruction to force reload to load address
+ ;; into register when rax is not available
+ (define_insn "*movabssi_1_rex64"
+-  [(set (mem:SI (match_operand:DI 0 "x86_64_movabs_operand" "i,r"))
+-	(match_operand:SI 1 "nonmemory_operand" "a,er"))]
+-  "TARGET_64BIT && ix86_check_movabs (insn, 0)"
++  [(set (mem:SI (match_operand:DI 0 "x86_64_movabs_operand" "i,r,r"))
++	(match_operand:SI 1 "nonmemory_operand" "a,er,i"))]
++  "TARGET_64BIT"
+   "@
+    movabs{l}\t{%1, %P0|%P0, %1}
+-   mov{l}\t{%1, %a0|%a0, %1}"
++   mov{l}\t{%1, %a0|%a0, %1}
++   movabs{l}\t{%1, %a0|%a0, %1}"
+   [(set_attr "type" "imov")
+-   (set_attr "modrm" "0,*")
+-   (set_attr "length_address" "8,0")
+-   (set_attr "length_immediate" "0,*")
++   (set_attr "modrm" "0,*,*")
++   (set_attr "length_address" "8,0,0")
++   (set_attr "length_immediate" "0,*,*")
+    (set_attr "memory" "store")
+    (set_attr "mode" "SI")])
+ 
+ (define_insn "*movabssi_2_rex64"
+   [(set (match_operand:SI 0 "register_operand" "=a,r")
+         (mem:SI (match_operand:DI 1 "x86_64_movabs_operand" "i,r")))]
+-  "TARGET_64BIT && ix86_check_movabs (insn, 1)"
++  "TARGET_64BIT"
+   "@
+    movabs{l}\t{%P1, %0|%0, %P1}
+    mov{l}\t{%a1, %0|%0, %a1}"
+@@ -1263,23 +1264,24 @@
+ ;; We fake an second form of instruction to force reload to load address
+ ;; into register when rax is not available
+ (define_insn "*movabshi_1_rex64"
+-  [(set (mem:HI (match_operand:DI 0 "x86_64_movabs_operand" "i,r"))
+-	(match_operand:HI 1 "nonmemory_operand" "a,er"))]
+-  "TARGET_64BIT && ix86_check_movabs (insn, 0)"
++  [(set (mem:HI (match_operand:DI 0 "x86_64_movabs_operand" "i,r,r"))
++	(match_operand:HI 1 "nonmemory_operand" "a,er,i"))]
++  "TARGET_64BIT"
+   "@
+    movabs{w}\t{%1, %P0|%P0, %1}
+-   mov{w}\t{%1, %a0|%a0, %1}"
++   mov{w}\t{%1, %a0|%a0, %1}
++   movabs{w}\t{%1, %a0|%a0, %1}"
+   [(set_attr "type" "imov")
+-   (set_attr "modrm" "0,*")
+-   (set_attr "length_address" "8,0")
+-   (set_attr "length_immediate" "0,*")
++   (set_attr "modrm" "0,*,*")
++   (set_attr "length_address" "8,0,0")
++   (set_attr "length_immediate" "0,*,*")
+    (set_attr "memory" "store")
+    (set_attr "mode" "HI")])
+ 
+ (define_insn "*movabshi_2_rex64"
+   [(set (match_operand:HI 0 "register_operand" "=a,r")
+         (mem:HI (match_operand:DI 1 "x86_64_movabs_operand" "i,r")))]
+-  "TARGET_64BIT && ix86_check_movabs (insn, 1)"
++  "TARGET_64BIT"
+   "@
+    movabs{w}\t{%P1, %0|%0, %P1}
+    mov{w}\t{%a1, %0|%0, %a1}"
+@@ -1581,23 +1583,24 @@
+ ;; We fake an second form of instruction to force reload to load address
+ ;; into register when rax is not available
+ (define_insn "*movabsqi_1_rex64"
+-  [(set (mem:QI (match_operand:DI 0 "x86_64_movabs_operand" "i,r"))
+-	(match_operand:QI 1 "nonmemory_operand" "a,er"))]
+-  "TARGET_64BIT && ix86_check_movabs (insn, 0)"
++  [(set (mem:QI (match_operand:DI 0 "x86_64_movabs_operand" "i,r,r"))
++	(match_operand:QI 1 "nonmemory_operand" "a,er,i"))]
++  "TARGET_64BIT"
+   "@
+    movabs{b}\t{%1, %P0|%P0, %1}
+-   mov{b}\t{%1, %a0|%a0, %1}"
++   mov{b}\t{%1, %a0|%a0, %1}
++   movabs{b}\t{%1, %a0|%a0, %1}"
+   [(set_attr "type" "imov")
+-   (set_attr "modrm" "0,*")
+-   (set_attr "length_address" "8,0")
+-   (set_attr "length_immediate" "0,*")
++   (set_attr "modrm" "0,*,*")
++   (set_attr "length_address" "8,0,0")
++   (set_attr "length_immediate" "0,*,*")
+    (set_attr "memory" "store")
+    (set_attr "mode" "QI")])
+ 
+ (define_insn "*movabsqi_2_rex64"
+   [(set (match_operand:QI 0 "register_operand" "=a,r")
+         (mem:QI (match_operand:DI 1 "x86_64_movabs_operand" "i,r")))]
+-  "TARGET_64BIT && ix86_check_movabs (insn, 1)"
++  "TARGET_64BIT"
+   "@
+    movabs{b}\t{%P1, %0|%0, %P1}
+    mov{b}\t{%a1, %0|%0, %a1}"
+@@ -1892,7 +1895,7 @@
+   [(set (attr "type")
+      (cond [(eq_attr "alternative" "5,6")
+ 	      (const_string "mmxmov")
+-	    (eq_attr "alternative" "7,8,9")
++	    (eq_attr "alternative" "7,8")
+ 	      (const_string "ssemov")
+ 	    (eq_attr "alternative" "4")
+ 	      (const_string "multi")
+@@ -1909,23 +1912,24 @@
+ ;; We fake an second form of instruction to force reload to load address
+ ;; into register when rax is not available
+ (define_insn "*movabsdi_1_rex64"
+-  [(set (mem:DI (match_operand:DI 0 "x86_64_movabs_operand" "i,r"))
+-	(match_operand:DI 1 "nonmemory_operand" "a,er"))]
+-  "TARGET_64BIT && ix86_check_movabs (insn, 0)"
++  [(set (mem:DI (match_operand:DI 0 "x86_64_movabs_operand" "i,r,r"))
++	(match_operand:DI 1 "nonmemory_operand" "a,er,i"))]
++  "TARGET_64BIT"
+   "@
+    movabs{q}\t{%1, %P0|%P0, %1}
+-   mov{q}\t{%1, %a0|%a0, %1}"
++   mov{q}\t{%1, %a0|%a0, %1}
++   movabs{q}\t{%1, %a0|%a0, %1}"
+   [(set_attr "type" "imov")
+-   (set_attr "modrm" "0,*")
+-   (set_attr "length_address" "8,0")
+-   (set_attr "length_immediate" "0,*")
++   (set_attr "modrm" "0,*,*")
++   (set_attr "length_address" "8,0,0")
++   (set_attr "length_immediate" "0,*,*")
+    (set_attr "memory" "store")
+    (set_attr "mode" "DI")])
+ 
+ (define_insn "*movabsdi_2_rex64"
+   [(set (match_operand:DI 0 "register_operand" "=a,r")
+         (mem:DI (match_operand:DI 1 "x86_64_movabs_operand" "i,r")))]
+-  "TARGET_64BIT && ix86_check_movabs (insn, 1)"
++  "TARGET_64BIT"
+   "@
+    movabs{q}\t{%P1, %0|%0, %P1}
+    mov{q}\t{%a1, %0|%0, %a1}"
+--- gcc-3.3.1/gcc/config/i386/i386.c.revert-pr11420	2003-07-16 10:27:35.000000000 +0200
++++ gcc-3.3.1/gcc/config/i386/i386.c	2003-07-19 13:05:56.000000000 +0200
+@@ -3078,29 +3078,6 @@ x86_64_movabs_operand (op, mode)
+   return 0;
+ }
+ 
+-/* Return nonzero if OPNUM's MEM should be matched
+-   in movabs* patterns.  */
+-
+-int
+-ix86_check_movabs (insn, opnum)
+-     rtx insn;
+-     int opnum;
+-{
+-  rtx set, mem;
+-
+-  set = PATTERN (insn);
+-  if (GET_CODE (set) == PARALLEL)
+-    set = XVECEXP (set, 0, 0);
+-  if (GET_CODE (set) != SET)
+-    abort ();
+-  mem = XEXP (set, opnum);
+-  while (GET_CODE (mem) == SUBREG)
+-    mem = SUBREG_REG (mem);
+-  if (GET_CODE (mem) != MEM)
+-    abort ();
+-  return (volatile_ok || !MEM_VOLATILE_P (mem));
+-}
+-
+ /* Return nonzero if OP is nonmemory operand representable on x86_64.  */
+ 
+ int
+--- gcc-3.3.1/gcc/config/i386/i386-protos.h.revert-pr11420	2003-07-16 10:27:35.000000000 +0200
++++ gcc-3.3.1/gcc/config/i386/i386-protos.h	2003-07-19 13:05:56.000000000 +0200
+@@ -146,7 +146,6 @@ extern void ix86_split_ashrdi PARAMS ((r
+ extern void ix86_split_lshrdi PARAMS ((rtx *, rtx));
+ extern int ix86_address_cost PARAMS ((rtx));
+ extern rtx ix86_find_base_term PARAMS ((rtx));
+-extern int ix86_check_movabs PARAMS ((rtx, int));
+ 
+ extern rtx assign_386_stack_local PARAMS ((enum machine_mode, int));
+ extern int ix86_attr_length_immediate_default PARAMS ((rtx, int));
