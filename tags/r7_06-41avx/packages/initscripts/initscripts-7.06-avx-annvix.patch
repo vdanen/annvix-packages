@@ -1,0 +1,281 @@
+--- /dev/null	2001-01-02 16:30:38.000000000 -0700
++++ sysconfig/system	2004-06-01 13:56:44.000000000 -0600
+@@ -0,0 +1,2 @@
++REWRITEISSUE=rewrite
++REWRITEISSUENET=rewrite
+--- Makefile.annvix	2004-06-01 13:58:08.000000000 -0600
++++ Makefile	2004-06-01 13:58:08.000000000 -0600
+@@ -35,6 +35,7 @@
+ 	mkdir -p $(ROOT)/etc/sysconfig/console/consoletrans
+ 	install -m644 sysconfig/init $(ROOT)/etc/sysconfig/init
+ 	install -m644 sysconfig/rawdevices $(ROOT)/etc/sysconfig/rawdevices
++	install -m644 sysconfig/system $(ROOT)/etc/sysconfig/system
+ 	cp -af rc.d sysconfig ppp $(ROOT)/etc
+ 	chmod 755 $(ROOT)/etc/rc.d/init.d/rawdevices
+ 	mkdir -p $(ROOT)/etc/ppp/peers
+--- sysconfig.txt.annvix	2004-03-05 13:01:32.000000000 -0700
++++ sysconfig.txt	2004-03-05 13:01:33.000000000 -0700
+@@ -554,7 +554,7 @@
+       /sbin/pump
+       /sbin/dhcpxd
+   if you have a preferred client define the DHCP_CLIENT variable. 
+-  When you use dhclient (which it is the default on a Mandrake-Linux
++  When you use dhclient (which is the default on an Annvix
+   system) you can specify a timeout of waiting the answer from server,
+   the option is called DHCP_TIMEOUT the default is 60 sec.
+ 
+--- sysctl.conf.annvix	2004-05-11 09:15:15.000000000 -0600
++++ sysctl.conf	2004-05-11 09:18:19.000000000 -0600
+@@ -1,4 +1,4 @@
+-# Kernel sysctl configuration file for Mandrakelinux
++# Kernel sysctl configuration file for Annvix
+ #
+ # For binary values, 0 is disabled, 1 is enabled.  See sysctl(8) and
+ # sysctl.conf(5) for more details.
+@@ -21,8 +21,3 @@
+ 
+ # on Andrey Borzenkov suggestion
+ dev.cdrom.autoclose=0
+-# removed to fix some digital extraction problems 
+-# dev.cdrom.check_media=1
+-
+-# to be able to eject via the device eject button (magicdev)
+-dev.cdrom.lock=0
+--- inittab.avx	2004-07-27 15:10:39.000000000 -0600
++++ inittab	2004-07-27 15:11:14.000000000 -0600
+@@ -6,7 +6,7 @@
+ #               Modified for RHS Linux by Marc Ewing and Donnie Barnes
+ #
+ 
+-# Default runlevel. The runlevels used by Mandrakelinux are:
++# Default runlevel. The runlevels used by Annvix are:
+ #   0 - halt (Do NOT set initdefault to this)
+ #   1 - Single user mode
+ #   2 - Multiuser, without NFS (The same as 3, if you do not have networking)
+@@ -26,6 +26,8 @@
+ l3:3:wait:/etc/rc.d/rc 3
+ l4:4:wait:/etc/rc.d/rc 4
+ l5:5:wait:/etc/rc.d/rc 5
++SV:2345:respawn:/sbin/srv-start /service
++SX:S016:wait:/sbin/srv-stop /service
+ l6:6:wait:/etc/rc.d/rc 6
+ 
+ # Trap CTRL-ALT-DELETE
+@@ -42,7 +44,7 @@
+ 
+ 
+ # Run gettys in standard runlevels
+-1:2345:respawn:/sbin/mingetty tty1
++1:2345:respawn:/sbin/mingetty --noclear tty1
+ 2:2345:respawn:/sbin/mingetty tty2
+ 3:2345:respawn:/sbin/mingetty tty3
+ 4:2345:respawn:/sbin/mingetty tty4
+--- mandrake/mandrake_firstime.annvix	2004-05-11 09:15:15.000000000 -0600
++++ mandrake/mandrake_firstime	2004-05-11 09:24:57.000000000 -0600
+@@ -1,5 +1,5 @@
+ #!/bin/sh
+-# Description: Launch Mandrake Configuration for the first time.
++# Description: Launch Annvix Configuration for the first time.
+ # (c) MandrakeSoft, Chmouel Boudjnah <chmouel@mandrakesoft.com>
+ # 	$Id: mandrake_firstime,v 1.18 2003/09/04 14:10:01 tvignaud Exp $	
+ 
+@@ -11,16 +11,6 @@
+ # If fail erase the temporary file
+ trap 'rm -f /var/lock/TMP_1ST' 1 2 3 15
+ 
+-#Rebuild Mozilla registry
+-# be sure that mozilla registry is ok
+-for MOZ_REBUILD_DATABASE in /usr/lib*/mozilla-*/mozilla-rebuild-databases.pl; do
+-[ -x $MOZ_REBUILD_DATABASE ] &&
+-{
+- action "Building Mozilla registry" $MOZ_REBUILD_DATABASE 2>> $FLO
+-}
+-done
+-
+-
+ [ -s $FLO ] || rm -f $FLO
+ 
+ # Finish
+--- mandrake/mandrake_everytime.annvix	2004-05-11 09:15:15.000000000 -0600
++++ mandrake/mandrake_everytime	2004-05-11 09:26:01.000000000 -0600
+@@ -1,5 +1,5 @@
+ #!/bin/bash
+-# Description: Launch diverses Mandrake Scripts on boot.
++# Description: Launch diverses Annvix Scripts on boot.
+ # (c) MandrakeSoft, Chmouel Boudjnah <chmouel@mandrakesoft.com>
+ # 	$Id: mandrake_everytime,v 1.19 2003/07/11 21:02:33 flepied Exp $	
+ 
+@@ -7,15 +7,6 @@
+ 
+ [ -e /etc/sysconfig/system ] && . /etc/sysconfig/system
+ 
+-# Disabling supermount if not here
+-if [[ $(uname -m) != sparc*  ]];then
+-    if grep -q '^\/.*supermount.*' /etc/fstab && \
+-	! grep -q '[[:space:]]supermount$' /proc/filesystems  && \
+-	! modprobe -n supermount >/dev/null 2>/dev/null && [ -x /usr/bin/perl ];then
+-	action "Disabling Supermount" /usr/sbin/supermount -i disable
+-    fi
+-fi
+-
+ # setup eth* (without configuring it) interfaces before the
+ # hotplug/pcmcia started so we are sure that what we have configured
+ # in /etc/modules.conf get the device we have affected.
+--- sysconfig/init.annvix	2004-06-01 13:24:06.000000000 -0600
++++ sysconfig/init	2004-06-01 13:24:06.000000000 -0600
+@@ -2,13 +2,13 @@
+ # verbose => old-style bootup
+ # anything else => new style bootup without ANSI colors or positioning
+ BOOTUP=color
+-# column to start "[  OK  ]" label in 
++# column to start "[  ok  ]" label in 
+ RES_COL=65
+ # terminal sequence to move to that column. You could change this
+ # to something like "tput hpa ${RES_COL}" if your terminal supports it
+ MOVE_TO_COL="echo -en \\033[${RES_COL}G"
+ # terminal sequence to set color to a 'success' color (currently: green)
+-SETCOLOR_SUCCESS="echo -en \\033[1;32m"
++SETCOLOR_SUCCESS="echo -en \\033[1;36m"
+ # terminal sequence to set color to a 'failure' color (currently: red)
+ SETCOLOR_FAILURE="echo -en \\033[1;31m"
+ # terminal sequence to set color to a 'warning' color (currently: yellow)
+--- rc.d/init.d/functions.annvix	2004-06-01 13:25:47.000000000 -0600
++++ rc.d/init.d/functions	2004-06-01 13:25:47.000000000 -0600
+@@ -381,7 +381,7 @@
+   [ "$BOOTUP" = "color" ] && $MOVE_TO_COL
+   echo -n "["
+   [ "$BOOTUP" = "color" ] && $SETCOLOR_SUCCESS
+-  gprintf "  OK  "
++  gprintf "  ok  "
+   [ "$BOOTUP" = "color" ] && $SETCOLOR_NORMAL
+   echo -n "]"
+   echo -ne "\r"
+@@ -392,7 +392,7 @@
+   [ "$BOOTUP" = "color" ] && $MOVE_TO_COL
+   echo -n "["
+   [ "$BOOTUP" = "color" ] && $SETCOLOR_FAILURE
+-  gprintf "FAILED"
++  gprintf "failed"
+   [ "$BOOTUP" = "color" ] && $SETCOLOR_NORMAL
+   echo -n "]"
+   echo -ne "\r"
+@@ -403,7 +403,7 @@
+   [ "$BOOTUP" = "color" ] && $MOVE_TO_COL
+   echo -n "["
+   [ "$BOOTUP" = "color" ] && $SETCOLOR_WARNING
+-  gprintf "PASSED"
++  gprintf "passed"
+   [ "$BOOTUP" = "color" ] && $SETCOLOR_NORMAL
+   echo -n "]"
+   echo -ne "\r"
+@@ -414,7 +414,7 @@
+   [ "$BOOTUP" = "color" ] && $MOVE_TO_COL
+   echo -n "["
+   [ "$BOOTUP" = "color" ] && $SETCOLOR_WARNING
+-  gprintf "WARNING"
++  gprintf "warning"
+   [ "$BOOTUP" = "color" ] && $SETCOLOR_NORMAL
+   echo -n "]"
+   echo -ne "\r"
+--- rc.d/rc.sysinit.annvix	2004-06-01 13:33:50.000000000 -0600
++++ rc.d/rc.sysinit	2004-06-01 13:34:39.000000000 -0600
+@@ -98,12 +98,12 @@
+ # Print a banner. ;)
+ # C-like escape sequences don't work as 2nd and up parameters of gprintf,
+ # so real escap chars were written
+-PRODUCT=`sed "s/.*release \([0-9.]*\).*/\1/g" /etc/mandrake-release 2> /dev/null`
+-SYSTEM=${SYSTEM=Mandrakelinux}
++PRODUCT=`sed "s/.*release \([0-9.]*-[A-Z.]*\).*/\1/g" /etc/annvix-release 2> /dev/null`
++SYSTEM=${SYSTEM=Annvix}
+ if [ "$BOOTUP" != "serial" ]; then
+- gprintf "\t\t\tWelcome to %s" "`echo -en '\\033[1;36m'`$SYSTEM`echo -en '\\033[0;39m'` $PRODUCT"
++ gprintf "\t\t    Welcome to %s" "`echo -en '\\033[0;35m'`$SYSTEM`echo -en '\\033[0;39m'` $PRODUCT"
+ else
+- gprintf "\t\t\tWelcome to  %s" "$SYSTEM $PRODUCT"
++ gprintf "\t\t    Welcome to  %s" "$SYSTEM $PRODUCT"
+ fi
+ echo -en "\r"
+ echo
+@@ -1118,13 +1118,13 @@
+ fi
+ 
+ if [ -f /var/lock/TMP_1ST ];then
+- if [ -f /etc/init.d/mandrake_firstime ];then
+-	/bin/sh /etc/init.d/mandrake_firstime
++ if [ -f /etc/init.d/annvix_firstime ];then
++	/bin/sh /etc/init.d/annvix_firstime
+  fi
+ fi
+ 
+-if [ -f /etc/init.d/mandrake_everytime ]; then 
+-	/bin/sh /etc/init.d/mandrake_everytime
++if [ -f /etc/init.d/annvix_everytime ]; then 
++	/bin/sh /etc/init.d/annvix_everytime
+ fi
+ 
+ # (pixel) a kind of profile for XF86Config
+--- rc.d/rc.local.annvix	2004-06-01 13:39:19.000000000 -0600
++++ rc.d/rc.local	2004-06-01 13:50:46.000000000 -0600
+@@ -5,23 +5,15 @@
+ # want to do the full Sys V style init stuff.
+ 
+ [ -f /etc/sysconfig/system ] && source /etc/sysconfig/system
+-[ -f /etc/sysconfig/msec ] && source /etc/sysconfig/msec
+-[ -z "$SECURE_LEVEL" ] && SECURE_LEVEL=3
+ [ -f /etc/sysconfig/init ] && source /etc/sysconfig/init
+-if [ $SECURE_LEVEL -lt 4 ]; then
+-    [ -z "$REWRITEISSUE" ] && REWRITEISSUE=rewrite
+-    if [ $SECURE_LEVEL -lt 3 ]; then
+-	[ -z "$REWRITEISSUENET" ] && REWRITEISSUENET=rewrite
+-    fi
+-fi
+ 
+-SYSTEM=${SYSTEM=Mandrakelinux}
++SYSTEM=${SYSTEM=Annvix}
+ 
+ # Source functions
+ . /etc/init.d/functions
+ 
+-if [ "$REWRITEISSUE" = "rewrite" -a -f /etc/mandrake-release ]; then
+-    R=$(cat /etc/mandrake-release)
++if [ "$REWRITEISSUE" = "rewrite" -a -f /etc/annvix-release ]; then
++    R=$(cat /etc/annvix-release)
+ 
+     arch=$(uname -m)
+     a="a"
+@@ -45,12 +37,7 @@
+     # This will overwrite /etc/issue at every boot.  So, make any changes you
+     # want to make to /etc/issue here or you will lose them when you reboot.
+ 
+-    if [ -x /usr/bin/linux_logo ]; then
+-	/usr/bin/linux_logo -c -n -f | sed -e 's|\\|\\\\|g' > /etc/issue
+-	echo "" >> /etc/issue
+-    else
+-	> /etc/issue
+-    fi
++    > /etc/issue
+     echo "$R" >> /etc/issue
+     echo "Kernel $(uname -r) on $a $SMP$(uname -m) / \l" >> /etc/issue
+     
+@@ -63,21 +50,6 @@
+ 	gprintf "Welcome to %s\n" "$NAME" > /etc/issue.net
+ 	echo "-------------------------" >> /etc/issue.net
+     fi
+-else
+-    if [ -f /etc/security/msec/issue.$SECURE_LEVEL ]; then
+-	cat /etc/security/msec/issue.$SECURE_LEVEL > /etc/issue
+-    elif [ -f /etc/security/msec/issue ]; then
+-	cat /etc/security/msec/issue > /etc/issue
+-    else
+-	rm -f /etc/issue
+-    fi
+-    if [ -f /etc/security/msec/issue.net.$SECURE_LEVEL ]; then
+-	cat /etc/security/msec/issue.net.$SECURE_LEVEL > /etc/issue.net
+-    elif [ -f /etc/security/msec/issue.net ]; then
+-	cat /etc/security/msec/issue.net > /etc/issue.net
+-    else
+-	rm -f /etc/issue.net
+-    fi
+ fi
+ 
+ touch /var/lock/subsys/local
