@@ -1,5 +1,5 @@
 %define pkg_name	samba
-%define ver 		3.0.7
+%define ver 		3.0.8
 %define rel 		1avx
 %define vscanver 	0.3.5
 %define libsmbmajor 	0
@@ -137,7 +137,7 @@
 %global vfsdir examples.bin/VFS
 
 #Standard texts for descriptions:
-%define message_bugzilla() %(echo -e -n "Please file bug reports for this package at the Annvix Anthill\\n(http://annvix.org/anthill/) under the product name %{1}")
+%define message_bugzilla() %(echo -e -n "Please file bug reports for this package at the Annvix Bugzilla\\n(https://bugs.annvix.org/) under the product name %{1}")
 %define message_system %(echo -e -n "NOTE: These packages of samba-%{version}, are provided, parallel installable\\nwith samba-2.2.x, to allow easy migration from samba-2.2.x to samba-%{version},\\nbut are not officially supported")
 
 #check gcc version to disable some optimisations on gcc-3.3.1
@@ -199,8 +199,9 @@ Release:	0.%{pre_pre}.%{rel}
 License:	GPL
 Group:		System/Servers
 URL:		http://www.samba.org
-Source:		ftp://samba.org/pub/samba/samba-%{source_ver}.tar.bz2
+Source:		ftp://ca.samba.org/pub/samba/samba-%{source_ver}.tar.bz2
 Source1:	samba.log
+Source2:	ftp://ca.samba.org/pub/samba/samba-%{source_ver}.tar.asc
 Source3:	samba.xinetd
 Source4:	swat_48.png.bz2
 Source5:	swat_32.png.bz2
@@ -221,7 +222,6 @@ Source18:	winbindd.run
 Source19:	winbindd-log.run
 Source20:	smb-migrate.bz2
 Source21:	README.avx.sambamerge.bz2
-Source22:	ftp://samba.org/pub/samba/samba-%{source_ver}.tar.asc
 Patch1:		smbw.patch.bz2
 Patch2:		samba-3.0.2a-mdk-smbldap-config.patch.bz2
 Patch3:		samba-3.0.6-mdk-mandrake-packaging.patch.bz2
@@ -849,6 +849,7 @@ perl -pi -e 's/%{pkg_name}/%{name}/g' source/auth/pampass.c
 find docs examples -name '.cvsignore' -exec rm -f {} \;
 
 #make better doc trees:
+chmod -R a+rX examples docs *Manifest* README Roadmap COPYING
 mkdir -p clean-docs/samba-doc
 cp -a examples docs clean-docs/samba-doc
 mv -f clean-docs/samba-doc/examples/libsmbclient clean-docs/
@@ -1418,7 +1419,7 @@ update-alternatives --auto smbclient
 %dir /var/cache/%{name}
 %dir /var/log/%{name}
 %dir /var/run/%{name}
-%(for i in %{_bindir}/{%{commonbin}}%{samba_major};do echo $i;done)
+%(for i in %{_bindir}/{%{commonbin},tdbtool}%{samba_major};do echo $i;done)
 %(for i in %{_mandir}/man?/{%{commonbin}}%{samba_major}\.[0-9]*;do echo $i;done)
 #%{_libdir}/smbwrapper%{samba_major}.so
 %dir %{_libdir}/%{name}
@@ -1645,6 +1646,12 @@ update-alternatives --auto smbclient
 %exclude %{_mandir}/man1/smbsh*.1*
 
 %changelog
+* Wed Nov 10 2004 Vincent Danen <vdanen@annvix.org> 3.0.8-1avx
+- 3.0.8 - security update for CAN-2004-0930
+- add tdbtool to common (bgmilne)
+- fix the doc permissions that were broken in the tarball (bgmilne)
+- s/Anthill/Bugzilla/
+
 * Mon Sep 13 2004 Vincent Danen <vdanen@annvix.org> 3.0.7-1avx
 - 3.0.7 - security update for CAN-2004-0807 and CAN-2004-0808
 - P8: move old smb.conf to smb.conf_full and use a new secure (small!)
