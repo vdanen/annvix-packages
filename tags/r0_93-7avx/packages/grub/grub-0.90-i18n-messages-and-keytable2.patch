@@ -1,0 +1,43 @@
+--- grub-0.90/stage2/builtins.c.pix	Wed Sep  5 21:22:55 2001
++++ grub-0.90/stage2/builtins.c	Wed Sep  5 21:23:21 2001
+@@ -2341,6 +2341,40 @@
+   "Break a command execution unless the user is authenticated."
+ };
+   
++/* keytable */
++static int
++keytable_func (char *arg, int flags)
++{
++  return 0;
++}
++
++static struct builtin builtin_keytable =
++{
++  "keytable",
++  keytable_func,
++  BUILTIN_CMDLINE | BUILTIN_MENU,
++  "keytable FILE",
++  "Change the keyboard map. The file is a translation table."
++  "For example, for azerty (french) keyboard, at offset 'q' you find 'a'"
++};
++
++
++/* i18n */
++static int
++i18n_func (char *arg, int flags)
++{
++  return 0;
++}
++
++static struct builtin builtin_i18n =
++{
++  "i18n",
++  i18n_func,
++  BUILTIN_CMDLINE | BUILTIN_MENU,
++  "i18n FILE",
++  "The file must contain the different messages tranlated"
++};
++
+ 
+ /* makeactive */
+ static int
