@@ -1,32 +1,39 @@
-%define fontconfig_major 1
-%define lib_name %mklibname %{name} %{fontconfig_major}
+%define name	fontconfig
+%define version	2.2.1
+%define release	7sls
 
-%define freetype_version 2.1.4
+%define fontconfig_major	1
+%define lib_name		%mklibname %{name} %{fontconfig_major}
 
-Summary: Font configuration library
-Name: fontconfig
-Version: 2.2.1
-Release: 6mdk
-License: MIT
-Group: System/XFree86
-Source: http://fontconfig.org/release/fontconfig-%{version}.tar.bz2
-URL: http://fontconfig.org/
-BuildRequires:	ed
-BuildRoot: %{_tmppath}/fontconfig-%{version}-root
+%define freetype_version	2.1.4
+
+Summary:	Font configuration library
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	MIT
+Group:		System/XFree86
+URL:		http://fontconfig.org/
+Source:		http://fontconfig.org/release/fontconfig-%{version}.tar.bz2
+
 # (fc) 2.0-5mdk don't add build date in configuration file 
-Patch3:	fontconfig-2.1.94-builddate.patch.bz2
+Patch3:		fontconfig-2.1.94-builddate.patch.bz2
 # (fc) 2.1-4mdk Blacklist certain fonts that freetype can't handle (rawhide)
-Patch5: fontconfig-2.1-blacklist.patch.bz2
+Patch5:		fontconfig-2.1-blacklist.patch.bz2
 # (fc) 2.1-4mdk support for slighthint is back (rawhide)
-Patch6: fontconfig-2.1-slighthint.patch.bz2
+Patch6:		fontconfig-2.1-slighthint.patch.bz2
 # (fc) 2.1-4mdk default configuration (rawhide) + (pablo) 2.2-3mdk adds font aliases for various languages
-Patch7: fontconfig-2.2.1-defaultconfig.patch.bz2
+Patch7:		fontconfig-2.2.1-defaultconfig.patch.bz2
 # (fc) 2.2.1-6mdk fix crash when HOME is not defined (bug #4518)
-Patch8:	fontconfig-2.2.1-home.patch.bz2
+Patch8:		fontconfig-2.2.1-home.patch.bz2
 
-PreReq: %{lib_name}  >= %{version}-%{release}
-BuildRequires: freetype2-devel >= %{freetype_version}
-BuildRequires: expat-devel
+BuildRoot:	%{_tmppath}/fontconfig-%{version}-root
+BuildRequires:	ed
+
+BuildRequires:	freetype2-devel >= %{freetype_version}
+BuildRequires:	expat-devel
+
+PreReq:		%{lib_name}  >= %{version}-%{release}
 
 %description
 Fontconfig is designed to locate fonts within the
@@ -34,11 +41,11 @@ system and select them according to requirements specified by
 applications.
 
 %package -n %{lib_name}
-Summary: Font configuration and customization library
-Group: System/Libraries
-Requires: %{name} >= %{version}-%{release}
-Provides: lib%{name} = %{version}-%{release}
-Provides: %{name}-libs = %{version}-%{release}
+Summary:	Font configuration and customization library
+Group:		System/Libraries
+Requires:	%{name} >= %{version}-%{release}
+Provides:	lib%{name} = %{version}-%{release}
+Provides:	%{name}-libs = %{version}-%{release}
 
 %description -n %{lib_name}
 Fontconfig is designed to locate fonts within the
@@ -46,14 +53,14 @@ system and select them according to requirements specified by
 applications.
 
 %package -n %{lib_name}-devel
-Summary: Font configuration and customization library
-Group: Development/C
-Provides: lib%{name}-devel = %{version}-%{release}
-Provides: %{name}-devel = %{version}-%{release}
-Requires: %{name} = %{version}-%{release}
-Requires: %{lib_name} = %{version}-%{release}
-Requires: freetype2-devel >= %{freetype_version}
-Requires: expat-devel
+Summary:	Font configuration and customization library
+Group:		Development/C
+Provides:	lib%{name}-devel = %{version}-%{release}
+Provides:	%{name}-devel = %{version}-%{release}
+Requires:	%{name} = %{version}-%{release}
+Requires:	%{lib_name} = %{version}-%{release}
+Requires:	freetype2-devel >= %{freetype_version}
+Requires:	expat-devel
 
 %description -n %{lib_name}-devel
 The fontconfig-devel package includes the header files,
@@ -118,6 +125,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man3/*
 
 %changelog
+* Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> - 2.2.1-7sls
+- OpenSLS build
+- tidy spec
+
 * Wed Aug 20 2003 Frederic Crozat <fcrozat@mandrakesoft.com> - 2.2.1-6mdk
 - Patch8 : fix crash when HOME is not defined (bug #4518)
 

@@ -1,17 +1,21 @@
-Summary: The basic directory layout for a Linux system.
-Name: filesystem
-Version: 2.1.3
-Release: 10mdk
-License: Public Domain
-Group: System/Base
-Source0: filesystem-%{version}.tar.bz2
-Buildroot: %{_tmppath}/%{name}-root
-Requires: setup
+%define name	filesystem
+%define version	2.1.3
+%define release	11sls
+
+Summary:	The basic directory layout for a Linux system.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	Public Domain
+Group:		System/Base
+Source0:	filesystem-%{version}.tar.bz2
+Buildroot:	%{_tmppath}/%{name}-root
+Requires:	setup
 BuildArchitectures: noarch
 
 %description
 The filesystem package is one of the basic packages that is installed on
-a Mandrake Linux system.  Filesystem  contains the basic directory layout
+an SLS system.  Filesystem  contains the basic directory layout
 for a Linux operating system, including the correct permissions for the
 directories.
 
@@ -88,6 +92,10 @@ mkdir /mnt/floppy 2>/dev/null ||:
 /var/yp
 
 %changelog
+* Sun Nov 30 2003 Vincent Danen <vdanen@opensls.org> 2.1.3-11sls
+- OpenSLS build
+- tidy spec
+
 * Tue Jul  8 2003 Frederic Lepied <flepied@mandrakesoft.com> 2.1.3-10mdk
 - own /etc/security and /etc/profile.d too
 

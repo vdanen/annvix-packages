@@ -1,42 +1,44 @@
-%define name db1
+%define name	db1
 %define version 1.85
-%define url http://www.sleepycat.com/update
-%define release 9mdk
+%define release 10sls
 
-Summary: The BSD database library for C (version 1).
-Name: %{name}
-Version: %{version}
-Release: %{release}
-Source: %{url}/%{version}/db.%{version}.tar.bz2
-Patch: db.%{version}.patch.bz2
-Patch1: db.%{version}-include.patch.bz2
-URL: http://www.sleepycat.com
-License: BSD
-Group: System/Libraries
-PreReq: /sbin/ldconfig
-BuildRoot: %{_tmppath}/%{name}-root
-Prefix: %{_prefix}
+Summary:	The BSD database library for C (version 1).
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	BSD
+Group:		System/Libraries
+URL:		http://www.sleepycat.com
+Source:		http://www.sleepycat.com/update/%{version}/db.%{version}.tar.bz2
+Patch:		db.%{version}.patch.bz2
+Patch1:		db.%{version}-include.patch.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-root
+
+PreReq:		/sbin/ldconfig
+Prefix:		%{_prefix}
 # this is a symlink not a real soname, so it has to be explicitely put
 # in a provides line -- pablo
-Provides: libdb1.so.2
+Provides:	libdb1.so.2
 %ifnarch ia64
-Conflicts: glibc < 2.1.90
+Conflicts:	glibc < 2.1.90
 %endif
 
-%package devel
-Summary: Development libs/header files for Berkeley DB (version 1) library.
-Group: Development/C
-Prefix: %{_prefix}
-Requires: %{name} = %{version}
-%ifnarch ia64
-Conflicts: glibc-devel < 2.1.90
-%endif
 %description
 The Berkeley Database (Berkeley DB) is a programmatic toolkit that provides
 embedded database support for both traditional and client/server applications.
 It should be installed if compatibility is needed with databases created
 with db1.
 This library used to be part of the glibc package.
+
+%package devel
+Summary:	Development libs/header files for Berkeley DB (version 1) library.
+Group:		Development/C
+Prefix:		%{_prefix}
+Requires:	%{name} = %{version}
+%ifnarch ia64
+Conflicts:	glibc-devel < 2.1.90
+%endif
 
 %description devel
 The Berkeley Database (Berkeley DB) is a programmatic toolkit that provides
@@ -48,9 +50,9 @@ This package contains the header files, libraries, and documentation for
 building programs which use Berkeley DB.
 
 %package tools
-Summary: Tools for Berkeley DB (version 1) library.
-Group: Databases
-Prefix: %{_prefix}
+Summary:	Tools for Berkeley DB (version 1) library.
+Group:		Databases
+Prefix:		%{_prefix}
 
 %description tools
 Tools to manipulate Berkeley Databases (Berkeley DB).
@@ -111,6 +113,10 @@ rm -rf ${RPM_BUILD_ROOT}
 %{_bindir}/db1_dump185
 
 %changelog
+* Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 1.85-10sls
+- OpenSLS build
+- tidy spec
+
 * Thu Jul 10 2003 Götz Waschk <waschk@linux-mandrake.com> 1.85-9mdk
 - rebuild for new rpm
 

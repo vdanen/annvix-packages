@@ -1,22 +1,27 @@
-Summary: A real mode 80x86 assembler and linker.
-Name:	dev86
-Version: 0.16.3
-Release: 2mdk
-License: GPL
-Group: Development/Other
-Url: http://www.cix.co.uk/~mayday/
-#Source: http://www.cix.co.uk/~mayday/Dev86src-%version.tar.bz2
-Source: http://www.cix.co.uk/~mayday/%name-%version.tar.bz2
-Patch0: Dev86src-0.15.5-noroot.patch.bz2
-Patch1: Dev86src-0.14-nobcc.patch.bz2
-Patch2: dev86-0.16.3-bccpath.patch.bz2
-Patch3: Dev86src-0.15-mandir.patch.bz2
-Patch4: Dev86src-0.15.5-badlinks.patch.bz2
-Patch5: dev86-0.16.3-missing-header.patch.bz2
-Buildroot: %_tmppath/dev86/
-Obsoletes: bin86
-Provides: bin86
-ExclusiveArch: %ix86
+%define name	dev86
+%define version	0.16.3
+%define release	3sls
+
+Summary:	A real mode 80x86 assembler and linker.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		Development/Other
+URL:		http://www.cix.co.uk/~mayday/
+Source:		http://www.cix.co.uk/~mayday/%name-%version.tar.bz2
+Patch0:		Dev86src-0.15.5-noroot.patch.bz2
+Patch1:		Dev86src-0.14-nobcc.patch.bz2
+Patch2:		dev86-0.16.3-bccpath.patch.bz2
+Patch3:		Dev86src-0.15-mandir.patch.bz2
+Patch4:		Dev86src-0.15.5-badlinks.patch.bz2
+Patch5:		dev86-0.16.3-missing-header.patch.bz2
+
+BuildRoot:	%_tmppath/dev86/
+ExclusiveArch:	%ix86
+
+Obsoletes:	bin86
+Provides:	bin86
 
 %description
 The dev86 package provides an assembler and linker for real mode 80x86
@@ -28,9 +33,9 @@ You should install dev86 if you intend to build programs that run in real
 mode from their source code.
 
 %package devel
-Summary: A development files for dev86
-Group: Development/Other
-Requires: %name = %version
+Summary:	A development files for dev86
+Group:		Development/Other
+Requires:	%name = %version
 
 %description devel
 The dev86 package provides an assembler and linker for real mode 80x86
@@ -117,6 +122,10 @@ rm -rf $RPM_BUILD_ROOT
 %_libdir/bcc/i386/lib*
 
 %changelog
+* Sat Dec 13 2003 Vincent Danen <vdanen@opensls.org> 0.16.3-3sls
+- OpenSLS build
+- tidy spec
+
 * Thu Jul 24 2003 Götz Waschk <waschk@linux-mandrake.com> 0.16.3-2mdk
 - small patch to make it compile with the current gcc
 

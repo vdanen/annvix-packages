@@ -1,17 +1,20 @@
-%define name dhcp
-%define their_version 3.0.1rc11
-%define url  ftp://ftp.isc.org/isc/dhcp
-%define _catdir /var/cache/man
+%define name	dhcp
+%define version	3.0
+%define release	1.rc12.3sls
+
+%define their_version	3.0.1rc11
+%define _catdir		/var/cache/man
+
+%define _requires_exceptions perl(Win32API::Registry)
 
 Summary:	The ISC DHCP (Dynamic Host Configuration Protocol) server/relay agent/client
-Name:		dhcp
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
 Epoch:		2
-Version:	3.0
-Release:	1.rc12.2mdk
 License:	Distributable
 Group:		System/Servers
-Url:		http://www.isc.org/dhcp.html
-
+URL:		http://www.isc.org/dhcp.html
 Source0:	ftp:///ftp.isc.org/isc/%{name}/%{name}-%{their_version}.tar.gz
 Source1:	dhcpd.conf.sample
 Source2:	dhcpd.init
@@ -22,10 +25,11 @@ Source6:	dhcpreport.pl
 Source7:	ftp:///ftp.isc.org/isc/%{name}/%{name}-%{their_version}.tar.gz.asc
 Patch1:		%name-%{their_version}-ifup.patch.bz2
 
+BuildRoot:	%{_tmppath}/%{name}-%{version}-root
 BuildRequires:	perl sed gcc groff-for-man make patch tar bzip2 
+
 Prereq:		/sbin/chkconfig /sbin/service rpm-helper
 Requires:	/bin/sh
-BuildRoot:	%{_tmppath}/%{name}-%{version}-root
 Obsoletes:	dhcpd
 
 %description 
@@ -43,8 +47,6 @@ dhcp-server and/or dhcp-relay packages.
 %package common
 Summary:	The ISC DHCP (Dynamic Host Configuration Protocol) server
 Group:		System/Servers
-%define _requires_exceptions perl(Win32API::Registry)
-
 
 %description common
 DHCP (Dynamic Host Configuration Protocol) is a protocol which allows 
@@ -266,6 +268,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/*
 
 %changelog
+* Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 3.0-1.rc12.3sls
+- OpenSLS build
+- tidy spec
+
 * Thu Sep 04 2003 Florin <florin@mandrakesoft.com> 3.0-1.rc12.2mdk
 - fix the postun script
 

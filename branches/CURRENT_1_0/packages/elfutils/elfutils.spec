@@ -1,6 +1,6 @@
 %define name	elfutils
 %define version	0.84
-%define release	1mdk
+%define release	2sls
 
 %define major	1
 %define libname	%mklibname %{name} %{major}
@@ -20,10 +20,11 @@ License:	GPL
 Group:		Development/Other
 Source:		elfutils-%{version}.tar.bz2
 Requires:	%{libname} = %{version}-%{release}
+
 BuildRoot:	%{_tmppath}/%{name}-root
-BuildRequires:	gcc >= 3.2
-BuildRequires:	sharutils
-BuildRequires:	libtool-devel
+BuildRequires:	gcc >= 3.2, sharutils, libtool-devel
+
+Requires:	%{libname} = %{version}-%{release}
 
 %description
 Elfutils is a collection of utilities, including:
@@ -175,6 +176,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/libdwarf*.so.*
 
 %changelog
+* Mon Dec 08 2003 Vincent Danen <vdanen@opensls.org> 0.84-2sls
+- OpenSLS build
+- tidy spec
+
 * Fri Jul 25 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 0.84-1mdk
 - 0.84
 

@@ -1,7 +1,11 @@
+%define name	flex
+%define version	2.5.4a
+%define release	22sls
+
 Summary:	A tool for creating scanners (text pattern recognizers)
-Name:		flex
-Version:	2.5.4a
-Release:	21mdk
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
 License:	GPL
 Group:		Development/Other
 URL: 		http://www.gnu.org/software/flex/flex.htm
@@ -9,8 +13,9 @@ Source:		ftp.gnu.org:/non-gnu/flex/flex-2.5.4a.tar.bz2
 Patch0:		flex-2.5.4a-skel.patch.bz2
 Patch1:         flex-2.5.4-glibc22.patch.bz2
 Patch2:		flex-2.5.4-c++fixes.patch.bz2
-BuildRequires:	byacc
+
 BuildRoot:	%{_tmppath}/%{name}-%{version}-root
+BuildRequires:	byacc
 
 %description 
 The flex program generates scanners. Scanners are
@@ -72,6 +77,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/FlexLexer.h
 
 %changelog
+* Wed Dec 17 2003 Vincent Danen <vdanen@opensls.org> 2.5.4a-22sls
+- OpenSLS build
+- tidy spec
+
 * Fri Jul 18 2003 Warly <warly@mandrakesoft.com> 2.5.4a-21mdk
 - rebuild
 

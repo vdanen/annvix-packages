@@ -1,18 +1,24 @@
+%define name	ed
+%define version	0.2
+%define release	31sls
+
 %define _exec_prefix /
 
-Summary: The GNU line editor.
-Name: ed
-Version: 0.2
-Release: 30mdk
-License: GPL
-Group: Text tools
-URL: http://www.gnu.org/software/ed/ed.html 
-Source: ftp://ftp.gnu.org/pub/gnu/ed/ed-0.2.tar.bz2
-Prereq: /sbin/install-info
-Buildroot: %{_tmppath}/%{name}-root
-Patch: ed-0.2-security-tempfile.patch.bz2
-Patch1: ed-0.2-fixinfo.patch.bz2
-Patch2: ed-0.2-li18nux-patch.bz2
+Summary:	The GNU line editor.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		Text tools
+URL:		http://www.gnu.org/software/ed/ed.html 
+Source:		ftp://ftp.gnu.org/pub/gnu/ed/ed-0.2.tar.bz2
+Patch:		ed-0.2-security-tempfile.patch.bz2
+Patch1:		ed-0.2-fixinfo.patch.bz2
+Patch2:		ed-0.2-li18nux-patch.bz2
+
+Buildroot:	%{_tmppath}/%{name}-root
+
+Prereq:		/sbin/install-info
 
 %description
 Ed is a line-oriented text editor, used to create, display, and modify
@@ -62,6 +68,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/*/*
 
 %changelog
+* Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 0.2-31sls
+- OpenSLS build
+- tidy spec
+
 * Tue Jul 22 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 0.2-30mdk
 - rebuild
 - drop Packager tag

@@ -1,18 +1,19 @@
-%define name eject
+%define name	eject
 %define version 2.0.13
-%define release 4mdk
+%define release 5sls
 
-Name: %{name}
-Summary: A program that ejects removable media using software control.
-Version: %{version}
-Release: %{release}
-License: GPL
-Url: http://metalab.unc.edu/pub/Linux/utils/disk-management/
-Group: System/Kernel and hardware
-Source: http://metalab.unc.edu/pub/Linux/utils/disk-management/eject-%version.tar.bz2
-Patch: eject-supermount.patch.bz2
+Summary:	A program that ejects removable media using software control.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		System/Kernel and hardware
+URL:		http://metalab.unc.edu/pub/Linux/utils/disk-management/
+Source:		http://metalab.unc.edu/pub/Linux/utils/disk-management/eject-%version.tar.bz2
+Patch:		eject-supermount.patch.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-buildroot
 BuildRequires:	gettext
-BuildRoot: %{_tmppath}/%{name}-buildroot
 
 %description
 The eject program allows the user to eject removable media
@@ -52,6 +53,10 @@ rm -rf $RPM_BUILD_ROOT
 %_mandir/man1/volname.1*
 
 %changelog
+* Mon Dec 08 2003 Vincent Danen <vdanen@opensls.org> 2.0.13-5sls
+- OpenSLS build
+- tidy spec
+
 * Wed Jul 23 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 2.0.13-4mdk
 - adjust macro during since we dropped the prefix tag
 

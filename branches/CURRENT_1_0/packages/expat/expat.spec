@@ -1,9 +1,10 @@
-%define name   expat
+%define name	expat
 %define version 1.95.6
-%define release 4mdk
-%define libname_orig libexpat
-%define major 0
-%define libname %mklibname %{name} %{major}
+%define release 5sls
+
+%define libname_orig	libexpat
+%define major		0
+%define libname		%mklibname %{name} %{major}
 
 Summary:	Expat is an XML parser written in C
 Name:		%{name}
@@ -14,18 +15,20 @@ Group:		Development/Other
 URL:		http://www.jclark.com/xml/expat.html
 Source:		ftp://ftp.jclark.com/pub/xml/%{name}-%{version}.tar.bz2
 Patch:		expat-1.95.6-enum.patch.bz2
-Requires:   %{libname} = %{version}-%{release}
+
 BuildRoot:	%_tmppath/%name-%version-%release-root
+
+Requires:   %{libname} = %{version}-%{release}
 
 %description
 Expat is an XML 1.0 parser written in C by James Clark.  It aims to be
 fully conforming. It is currently not a validating XML parser.
 
 %package -n %{libname}
-Summary: Main library for expat
-Group: Development/C
-Obsoletes: libexpat1_95
-Provides: libexpat1_95 = %version-%release
+Summary:	Main library for expat
+Group:		Development/C
+Obsoletes:	libexpat1_95
+Provides:	libexpat1_95 = %version-%release
 
 %description -n %{libname}
 This package contains the library needed to run programs dynamically
@@ -87,6 +90,10 @@ rm -rf %buildroot
 %_libdir/libexpat.la
 
 %changelog
+* Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> - 1.95.6-5sls
+- OpenSLS build
+- tidy spec
+
 * Wed Jul  9 2003 Frederic Crozat <fcrozat@mandrakesoft.com> - 1.95.6-4mdk
 - Rebuild for new deps
 

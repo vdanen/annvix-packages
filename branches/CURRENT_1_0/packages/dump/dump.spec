@@ -1,21 +1,23 @@
-%define version 0.4b32
-%define release 2mdk
+%define name	dump
+%define version 0.4b34
+%define release 2sls
 
 Summary:	Programs for backing up and restoring filesystems
-Name:		dump
+Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	BSD
 Group:		Archiving/Backup
-
+URL:		http://sourceforge.net/projects/dump/
 Source: 	http://download.sourceforge.net/dump/dump-%{version}.tar.bz2
 Patch:		dump-nonroot.patch.bz2
 Patch1:		dump-0.4b24-linking.patch.bz2
-Url:		http://sourceforge.net/projects/dump/
+
+BuildRoot:	%{_tmppath}/%{name}-root
+BuildRequires:	e2fsprogs-devel >= 1.15
+BuildRequires:	termcap-devel readline-devel
 
 Requires:	rmt
-BuildRequires:	e2fsprogs-devel >= 1.15
-BuildRoot:	%{_tmppath}/%{name}-root
 
 %description
 The dump package contains both dump and restore.  Dump examines files in
@@ -27,8 +29,8 @@ layered on top of the full backup.  Single files and directory subtrees
 may also be restored from full or partial backups.
 
 %package -n rmt
-Summary: Provides certain programs with access to remote tape devices.
-Group:	Archiving/Backup
+Summary:	Provides certain programs with access to remote tape devices.
+Group:		Archiving/Backup
 
 %description -n rmt
 The rmt utility provides remote access to tape devices for programs
@@ -106,6 +108,16 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man8/rmt.8*
 
 %changelog
+* Mon Dec 02 2003 Vincent Danen <vdanen@opensls.org> 0.4b34-2sls
+- OpenSLS build
+- tidy spec
+
+* Mon Dec 01 2003 Vincent Danen <vdanen@mandrakesoft.com> 0.4b34-1.1.92mdk
+- bugfix update for 9.2
+
+* Fri Nov 28 2003 Nicolas Planel <nplanel@mandrakesoft.com> 0.4b34-1mdk
+- 0.4b34 (#147)
+
 * Wed Jul 23 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 0.4b32-2mdk
 - rebuild
 - use %%make macro
