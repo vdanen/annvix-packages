@@ -1,0 +1,13 @@
+--- which-2.12/which.info.chmou	Thu Jul  6 13:32:38 2000
++++ which-2.12/which.info	Sun Mar  4 01:49:51 2001
+@@ -1,6 +1,10 @@
+ This is which.info, produced by Makeinfo version 3.12f from
+ which.texinfo.
+ 
++INFO-DIR-SECTION Utilities
++START-INFO-DIR-ENTRY
++* GNU/Which: (which).   The which command.
++END-INFO-DIR-ENTRY
+ 
+ This file documents `which' version 2.x.
+ 
