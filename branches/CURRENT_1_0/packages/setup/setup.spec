@@ -1,8 +1,8 @@
-# $Id: setup.spec,v 1.9 2005/03/03 16:58:38 vdanen Exp $
+# $Id: setup.spec,v 1.10 2005/03/04 05:39:33 vdanen Exp $
 
 %define name	setup
 %define version 2.4
-%define release 16avx
+%define release 17avx
 
 Summary:	A set of system configuration and setup files
 Name:		%{name}
@@ -85,6 +85,9 @@ if [ -x /usr/sbin/nscd ]; then
 fi
 
 %changelog
+* Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 2.4-17avx
+- bad cut-n-paste job on passwd
+
 * Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 2.4-16avx
 - add uid/gid 67 for supervise logging (dedicated user is safer than
   using nobody/nogroup)
