@@ -1,5 +1,5 @@
 %define name	curl
-%define version 7.12.3
+%define version 7.13.0
 %define release	1avx
 
 %define major	3
@@ -22,6 +22,8 @@ Group:		Networking/Other
 URL:		http://curl.haxx.se/
 Source:		http://curl.haxx.se/download/%{name}-%{version}.tar.bz2
 Patch1:		curl-7.10.4-compat-location-trusted.patch.bz2
+Patch2:		curl-7.13.0-64bit-fixes.patch.bz2
+Patch3:		curl-7.13.0-CAN-2005-0490.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-buildroot
 BuildRequires:	bison groff-for-man openssl-devel zlib-devel
@@ -71,16 +73,31 @@ utilize libcurl.
 %prep
 %setup -q -n %{name}-%{version}
 %patch1 -p1
+%patch2 -p1 -b .64bit-fixes
+%patch3 -p0 -b .can-2005-0490
+
+# fix test517 with correct results according to curl_getdate() specs
+cat > ptrsize.c << EOF
+#include <time.h>
+#include <stdio.h>
+int main(void)
+{
+  printf("%d\n", sizeof(time_t));
+  return 0;
+}
+EOF
+%{__cc} -o ptrsize ptrsize.c
+case `./ptrsize` in
+4) ;;
+8) mv -f ./tests/data/test517{.64,} ;;
+*) exit 1 ;;
+esac
 
 %build
 %configure2_5x --with-ssl
 %make
 
 skip_tests="241"
-%ifarch x86_64
-# FIXME: RFC1867 tests hang on this architecture
-skip_tests="9 39 44 241 23 118 119 125 145 201 205 223 517"
-%endif
 [ -n "$skip_tests" ] && {
   mkdir ./tests/data/skip/
   for t in $skip_tests; do
@@ -127,6 +144,12 @@ make check
 %{_mandir}/man3/*
 
 %changelog
+* Mon Feb 28 2005 Vincent Danen <vdanen@annvix.org> 7.13.0-1avx
+- 7.13.0
+- P2: 64bit fixes in the testsuite for curl_getdate() with 64bit
+  time_t (gbeauchesne)
+- P3: fix for CAN-2005-0490
+
 * Wed Dec 22 2004 Vincent Danen <vdanen@annvix.org> 7.12.3-1avx
 - 7.12.3
 - remove P0
