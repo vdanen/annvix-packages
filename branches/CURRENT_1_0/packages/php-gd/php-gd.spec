@@ -108,6 +108,9 @@ EOF
 %config(noreplace) %{_sysconfdir}/php.d/%{inifile}
 
 %changelog
+* Wed Sep 29 2004 Vincent Danen <vdanen@annvix.org> 4.3.9-1avx
+- php 4.3.9
+
 * Wed Jul 14 2004 Vincent Danen <vdanen@annvix.org> 4.3.8-1avx
 - php 4.3.8
 - remove ADVXpackage provides

@@ -1,6 +1,6 @@
 %define name	php-%{modname}
 %define version	%{phpversion}
-%define release	2avx
+%define release	1avx
 
 %define phpsource	%{_prefix}/src/php-devel
 %define _docdir		%{_datadir}/doc/%{name}-%{version}
@@ -82,6 +82,9 @@ EOF
 %config(noreplace) %{_sysconfdir}/php.d/%{inifile}
 
 %changelog
+* Thu Sep 30 2004 Vincent Danen <vdanen@annvix.org> 4.3.9-1avx
+- php 4.3.9
+
 * Fri Aug 13 2004 Vincent Danen <vdanen@annvix.org> 4.3.8-2avx
 - MySQL 4.0.20
 

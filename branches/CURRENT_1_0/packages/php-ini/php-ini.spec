@@ -1,5 +1,5 @@
 %define name	php-ini
-%define version	4.3.8
+%define version	4.3.9
 %define release	1avx
 
 Summary:	INI files for PHP
@@ -55,6 +55,9 @@ fi
 %doc %{_docdir}/%{name}-%{version}/*
 
 %changelog
+* Thu Sep 30 2004 Vincent Danen <vdanen@annvix.org> 4.3.9-1avx
+- php 4.3.9
+
 * Wed Jul 14 2004 Vincent Danen <vdanen@annvix.org> 4.3.8-1avx
 - 4.3.8
 - remove ADVXpackage provides

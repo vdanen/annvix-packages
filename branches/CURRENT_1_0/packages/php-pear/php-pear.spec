@@ -108,6 +108,9 @@ mkdir %{buildroot}%{peardir}/packages
 %config(noreplace) %{_sysconfdir}/pear.conf
 
 %changelog
+* Thu Sep 30 2004 Vincent Danen <vdanen@annvix.org> 4.3.9-1avx
+- php 4.3.9
+
 * Wed Jul 14 2004 Vincent Danen <vdanen@annvix.org> 4.3.8-1avx
 - php 4.3.8
 - remove ADVXpackage provides
