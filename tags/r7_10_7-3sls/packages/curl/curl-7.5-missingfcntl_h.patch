@@ -1,0 +1,11 @@
+--- curl-7.5/lib/file.c	Wed Nov 29 09:17:12 2000
++++ curl-7.5/lib/file.c.geoff	Thu Dec  7 04:24:57 2000
+@@ -49,6 +49,8 @@
+ #include <sys/types.h>
+ #include <sys/stat.h>
+ 
++#include <fcntl.h>
++
+ #include <errno.h>
+ 
+ #if defined(WIN32) && !defined(__GNUC__) || defined(__MINGW32__)
