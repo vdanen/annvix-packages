@@ -1,8 +1,6 @@
 %define name	pure-ftpd
 %define	version 1.0.16b
-%define release 3sls
-
-%{!?build_opensls:%global build_opensls 0}
+%define release 4sls
 
 Summary:	Lightweight, fast and secure FTP server
 Name:		%{name}
@@ -90,7 +88,6 @@ make install-strip DESTDIR=%{buildroot}
 
 install -d -m 755 %{buildroot}%{_mandir}/man8/
 install -d -m 755 %{buildroot}%{_sbindir}
-install -d -m 755 %{buildroot}%{_sysconfdir}/rc.d/init.d/
 install -d -m 755 %{buildroot}%{_sysconfdir}/%{name}
 
 # Conf 
@@ -114,8 +111,6 @@ install -m 644 man/pure-statsdecode.8 %{buildroot}%{_mandir}/man8
 install -m 644 man/pure-quotacheck.8 %{buildroot}%{_mandir}/man8
 install -m 644 man/pure-authd.8 %{buildroot}%{_mandir}/man8
 
-install -m 755 %{SOURCE1} %{buildroot}%{_initrddir}/pure-ftpd
-
 # Pam 
 install -d -m 755 %{buildroot}%{_sysconfdir}/pam.d/
 install -m 644 pam/pure-ftpd %{buildroot}%{_sysconfdir}/pam.d/
@@ -128,18 +123,11 @@ install -m644 %{SOURCE2} %{buildroot}%{_sysconfdir}/logrotate.d/%{name}
 mkdir -p $RPM_BUILD_ROOT/var/ftp/pub/
 mkdir -p $RPM_BUILD_ROOT/var/ftp/incoming/
 
-%if !%{build_opensls}
-# xinetd support (tv)
-mkdir -p $RPM_BUILD_ROOT%_sysconfdir/xinetd.d/
-bzcat %SOURCE3 > $RPM_BUILD_ROOT%_sysconfdir/xinetd.d/pure-ftpd-xinetd
-%endif
-
-%if %{build_opensls}
-mkdir -p %{buildroot}/var/supervise/pureftpd/log
-mkdir -p %{buildroot}/var/log/supervise/pureftpd
-install -m 0755 %{SOURCE4} %{buildroot}/var/supervise/pureftpd/run
-install -m 0755 %{SOURCE5} %{buildroot}/var/supervise/pureftpd/log/run
-%endif
+# supervise scripts
+mkdir -p %{buildroot}%{_srvdir}/pureftpd/log
+mkdir -p %{buildroot}%{_srvlogdir}/pureftpd
+install -m 0755 %{SOURCE4} %{buildroot}%{_srvdir}/pureftpd/run
+install -m 0755 %{SOURCE5} %{buildroot}%{_srvdir}/pureftpd/log/run
 
 %clean
 rm -rf "%{buildroot}"
@@ -150,16 +138,12 @@ rm -rf "%{buildroot}"
 %doc README.Debian README README.Contrib README.Configuration-File AUTHORS CONTACT
 %doc HISTORY NEWS README.LDAP README.PGSQL README.MySQL README.Netfilter
 %doc pure-ftpd.png  contrib/pure-vpopauth.pl pureftpd.schema
-%config(noreplace) %{_sysconfdir}/rc.d/init.d/pure-ftpd
 %config(noreplace) %{_sysconfdir}/%{name}/pure-ftpd.conf
 %config(noreplace) %{_sysconfdir}/%{name}/pureftpd-ldap.conf
 %config(noreplace) %{_sysconfdir}/%{name}/pureftpd-mysql.conf
 %config(noreplace) %{_sysconfdir}/%{name}/pureftpd-pgsql.conf
 %config(noreplace) %{_sysconfdir}/pam.d/pure-ftpd
 %config(noreplace) %{_sysconfdir}/logrotate.d/pure-ftpd
-%if !%{build_opensls}
-%config(noreplace) %_sysconfdir/xinetd.d/pure-ftpd-xinetd
-%endif
 %{_bindir}/pure-pw
 %{_bindir}/pure-pwconvert
 %{_bindir}/pure-statsdecode
@@ -172,13 +156,11 @@ rm -rf "%{buildroot}"
 %{_sbindir}/pure-quotacheck
 %{_sbindir}/pure-authd
 %attr(644,root,root)%{_mandir}/man8/*
-%if %{build_opensls}
-%dir %attr(0750,nobody,nogroup) /var/log/supervise/pureftpd
-%dir /var/supervise/pureftpd
-%dir /var/supervise/pureftpd/log
-/var/supervise/pureftpd/run
-/var/supervise/pureftpd/log/run
-%endif
+%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/pureftpd
+%dir %{_srvdir}/pureftpd
+%dir %{_srvdir}/pureftpd/log
+%{_srvdir}/pureftpd/run
+%{_srvdir}/pureftpd/log/run
 
 %files anonymous
 %defattr(-, root, root)
@@ -199,18 +181,26 @@ for i in $USERS ;do
         cat %{_sysconfdir}/ftpusers | grep -q "^$i$" || echo $i >> %{_sysconfdir}/ftpusers
 done
 
-%_post_service pure-ftpd
+%_post_srv pure-ftpd
 
 %pre
-%_pre_useradd ftp /var/ftp /bin/false
+%_pre_useradd ftp /var/ftp /bin/false 81
 
 %postun
 %_postun_userdel ftp
 
 %preun
-%_preun_service pure-ftpd
+%_preun_srv pure-ftpd
 
 %changelog
+* Wed Feb 04 2004 Vincent Danen <vdanen@opensls.org> 1.0.16b-4sls
+- remove %%build_opensls macro
+- remove xinetd stuff
+- srv macros
+- remove initscript
+- /var/service not /var/supervise
+- ftp has static uid/gid 81
+
 * Sat Jan 03 2004 Vincent Danen <vdanen@opensls.org> 1.0.16b-3sls
 - BuildRequires: openldap-devel, not libldap2-devel (for amd64)
 
