@@ -1,6 +1,6 @@
 %define	name	ipsvd
 %define	version	0.9.6
-%define	release	1avx
+%define	release	2avx
 
 Summary:	Internet protocol service daemons
 Name:		%{name}
@@ -98,6 +98,9 @@ install -m0644 %{name}-%{version}/man/*.8 %{buildroot}%{_mandir}/man8/
 %attr(0644,root,root) %{_mandir}/man8/tcpsvd.8*
 
 %changelog
+* Wed Oct 13 2004 Vincent Danen <vdanen@annvix.org> 0.9.6-2avx
+- build against newer matrixssl (1.2.2)
+
 * Sat Sep 11 2004 Vincent Danen <vdanen@annvix.org> 0.9.6-1avx
 - first Annvix build; to eventually replace ucspi-tcp
 
