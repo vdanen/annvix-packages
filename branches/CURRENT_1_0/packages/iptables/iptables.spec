@@ -1,6 +1,6 @@
 %define name	iptables
 %define version	1.2.9
-%define release	3sls
+%define release	4avx
 
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 Name:		%{name}
@@ -20,7 +20,7 @@ Patch2:		iptables-1.2.8-imq.patch.bz2
 Patch3:		iptables-1.2.8-libiptc.h.patch.bz2 
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-root
-BuildPrereq:	/usr/bin/perl
+BuildPrereq:	perl
 BuildRequires:  kernel-source >= 2.4.24-3sls
 
 PreReq:		chkconfig, rpm-helper
@@ -149,6 +149,9 @@ fi
 %doc INSTALL INCOMPATIBILITIES ip6tables.sample
 
 %changelog
+* Thu Jun 24 2004 Vincent Danen <vdanen@annvix.org> 1.2.9-4avx
+- Annvix build
+
 * Wed Mar  3 2004 Thomas Backlund <tmb@iki.fi> 1.2.9-3sls
 - sync kernel-headers with 2.4.25-4sls
 

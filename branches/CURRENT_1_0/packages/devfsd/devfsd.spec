@@ -1,6 +1,6 @@
 %define name	devfsd
 %define version	1.3.25
-%define release	37sls
+%define release	38avx
 %define rname	devfsd
 
 %define state_dir	/lib/dev-state
@@ -227,6 +227,9 @@ fi
 
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 1.3.25-38avx
+- Annvix build
+
 * Mon Mar 15 2004 Vincent Danen <vdanen@opensls.org> 1.3.25-37sls
 - OpenSLS build (necessary evil)
 - Remove Requirement: dynamic

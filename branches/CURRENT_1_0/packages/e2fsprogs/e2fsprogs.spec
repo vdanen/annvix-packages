@@ -1,6 +1,6 @@
 %define name		e2fsprogs
 %define version		1.34
-%define release		3sls
+%define release		4avx
 
 %define	_root_sbindir	/sbin
 %define	_root_libdir	/%_lib
@@ -225,6 +225,9 @@ rm -f %{buildroot}%_root_libdir/{libblkid,libcom_err,libe2p,libext2fs,libss,libu
 
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 1.34-4avx
+- Annvix build
+
 * Thu Mar 04 2004 Vincent Danen <vdanen@opensls.org> 1.34-3sls
 - more spec cleaning
 - remove unpackaged symlinks

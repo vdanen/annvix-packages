@@ -1,6 +1,6 @@
 %define name	dietlibc
 %define version 0.24
-%define release 2sls
+%define release 3avx
 
 Summary:	C library optimized for size
 Name:		%{name}
@@ -66,6 +66,9 @@ make DESTDIR=%{buildroot} install
 %{_mandir}/man*/*
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 0.24-3avx
+- Annvix build
+
 * Thu Mar 04 2004 Vincent Danen <vdanen@opensls.org> 0.24-2sls
 - rebuild
 

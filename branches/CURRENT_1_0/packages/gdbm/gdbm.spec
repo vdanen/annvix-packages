@@ -1,6 +1,6 @@
 %define name	gdbm
 %define version 1.8.0 
-%define release 26sls
+%define release 27avx
 
 %define lib_major	2
 %define lib_name	%mklibname gdbm %{lib_major}
@@ -115,6 +115,9 @@ chmod 644  COPYING INSTALL NEWS README
 %{_mandir}/man3/*
 
 %changelog
+* Thu Jun 24 2004 Vincent Danen <vdanen@annvix.org> 1.8.0-27avx
+- Annvix build
+
 * Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 1.8.0-26sls
 - minor spec cleanups
 

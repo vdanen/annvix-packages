@@ -1,6 +1,6 @@
 %define name	courier-imap
 %define version	2.1.2
-%define release	6sls
+%define release	7avx
 
 %define _localstatedir	/var/run
 %define	authdaemondir	%{_localstatedir}/authdaemon.courier-imap
@@ -535,6 +535,9 @@ test ! -f %{courierdatadir}/configlist.mysql || %{courierdatadir}/sysconftool-rp
 %{_mandir}/man1/maildirmake++.1*
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 2.1.2-7avx
+- Annvix build
+
 * Fri Apr 23 2004 Vincent Danen <vdanen@opensls.org> 2.1.2-6sls
 - P3 makes authdaemond no longer daemonize itself so we can run under
   supervise (thanks Brian Candler)

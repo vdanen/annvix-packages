@@ -1,6 +1,6 @@
 %define name	curl
 %define version 7.11.1
-%define release	1sls
+%define release	2avx
 
 %define major	2
 %define libname %mklibname %{name} %{major}
@@ -133,6 +133,9 @@ make check
 %{_mandir}/man3/*
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 7.11.1-2avx
+- Annvix build
+
 * Sat Apr 24 2004 Vincent Danen <vdanen@opensls.org> 7.11.1-1sls
 - 7.11.1
 - drop P2; applied upstream

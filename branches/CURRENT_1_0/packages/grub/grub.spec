@@ -1,6 +1,6 @@
 %define name	grub
 %define version 0.93
-%define release 6sls
+%define release 7avx
 
 Summary:	GRand Unified Bootloader
 Name:		%{name}
@@ -103,6 +103,9 @@ rm -rf $RPM_BUILD_ROOT
 /sbin/*
 
 %changelog
+* Thu Jun 24 2004 Vincent Danen <vdanen@opensls.org> 0.93-7avx
+- Annvix build
+
 * Tue Mar 02 2004 Vincent Danen <vdanen@opensls.org> 0.93-6sls
 - Provides: bootloader
 

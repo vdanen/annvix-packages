@@ -1,6 +1,6 @@
 %define name	grep
 %define version 2.5.1
-%define release 8sls
+%define release 9avx
 
 %define _bindir /bin
 
@@ -60,6 +60,9 @@ rm -rf %{buildroot}%{_infodir}
 %{_mandir}/*/*
 
 %changelog
+* Thu Jun 24 2004 Vincent Danen <vdanen@opensls.org> 2.5.1-9avx
+- Annvix build
+
 * Fri Jun 11 2004 Vincent Danen <vdanen@opensls.org> 2.5.1-8sls
 - Requires: libpcre, not /lib/libpcre.so.0
 

@@ -1,6 +1,6 @@
 %define name	file
 %define version	4.03
-%define release	4sls
+%define release	5avx
 
 %define libname %mklibname magic 1
 
@@ -125,6 +125,9 @@ ln -sf %{_datadir}/misc/%{name}/magic $RPM_BUILD_ROOT%{_datadir}/misc/magic
 %_libdir/*.a
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 4.03-5avx
+- Annvix build
+
 * Thu Mar 04 2004 Vincent Danen <vdanen@opensls.org> 4.03-4sls
 - minor spec cleanups
 

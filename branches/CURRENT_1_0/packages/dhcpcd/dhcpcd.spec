@@ -1,6 +1,6 @@
 %define name	dhcpcd
 %define	version	1.3.22pl4
-%define release	4sls
+%define release	5avx
 
 %define	rversion 1.3.22-pl4
 
@@ -65,6 +65,9 @@ fi
 %ghost /var/log/%{name}.log
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 1.3.22pl4-5avx
+- Annvix build
+
 * Sat May 29 2004 Vincent Danen <vdanen@opensls.org> 1.3.22pl4-4sls
 - OpenSLS build
 - tidy spec

@@ -1,6 +1,6 @@
 %define name	iproute2
 %define version	2.4.7
-%define release	13sls
+%define release	14avx
 
 # sync: rh-2.4.7-7
 
@@ -92,6 +92,9 @@ tar xfj %SOURCE2 -C $RPM_BUILD_ROOT/%_mandir/
 %attr(644,root,root) %config(noreplace) %{_sysconfdir}/iproute2/*
 
 %changelog
+* Thu Jun 24 2004 Vincent Danen <vdanen@annvix.org> 2.4.7-14avx
+- Annvix build
+
 * Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 2.4.7-13sls
 - minor spec cleanups
 - remove some *.ps and other unwanted docs

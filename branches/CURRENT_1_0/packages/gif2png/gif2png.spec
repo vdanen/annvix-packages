@@ -1,6 +1,6 @@
 %define name	gif2png
 %define version 2.4.7
-%define release 3sls
+%define release 4avx
 
 Summary:	Tools for converting websites from using GIFs to using PNGs
 Name:		%{name}
@@ -44,6 +44,9 @@ also patching HTML pages to keep IMG SRC references correct.
 %{_bindir}/*
 			 
 %changelog
+* Thu Jun 24 2004 Vincent Danen <vdanen@annvix.org> 2.4.7-4avx
+- Annvix build
+
 * Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 2.4.7-3sls
 - minor spec cleanups
 - get rid of the french and spanish descriptions

@@ -1,6 +1,6 @@
 %define	name	dcron
 %define	version	2.9
-%define	release	5sls
+%define	release	6avx
 
 Summary:	Dillon's Cron Daemon
 Name:		%{name}
@@ -96,6 +96,9 @@ fi
 %dir %attr(0750,nobody,nogroup) %{_srvlogdir}/crond
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 2.9-6avx
+- Annvix build
+
 * Tue Mar 23 2004 Vincent Danen <vdanen@opensls.org> 2.9-5sls
 - default root crontab can't start with "root" because dcron handles things
   differently than vixie-cron

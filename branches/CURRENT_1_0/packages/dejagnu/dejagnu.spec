@@ -1,6 +1,6 @@
 %define name	dejagnu
 %define version 1.4.2
-%define release 7sls
+%define release 8avx
 
 Summary:	A front end for testing other programs.
 Name:		%{name}
@@ -64,6 +64,9 @@ rm -f $RPM_BUILD_ROOT%{_includedir}/dejagnu.h
 %{_mandir}/man1/runtest.1*
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 1.4.2-8avx
+- Annvix build
+
 * Thu Mar 04 2004 Vincent Danen <vdanen@opensls.org> 1.4.2-7sls
 - remove %%build_opensls macros
 - minor spec cleanups

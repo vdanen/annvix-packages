@@ -1,6 +1,6 @@
 %define name		console-tools
 %define version		0.2.3
-%define release		49sls
+%define release		50avx
 
 %define	CTVER		%version
 %define	CDVER		1999.08.29
@@ -336,6 +336,9 @@ fi
 %_libdir/*.a
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 0.2.3-50avx
+- Annvix build
+
 * Fri Jun 11 2004 Vincent Danen <vdanen@opensls.org> 0.2.3-49sls
 - require packages, not files
 

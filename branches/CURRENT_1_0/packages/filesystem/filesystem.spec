@@ -1,6 +1,6 @@
 %define name	filesystem
 %define version	2.1.4
-%define release	3sls
+%define release	4avx
 
 Summary:	The basic directory layout for a Linux system.
 Name:		%{name}
@@ -99,6 +99,9 @@ fi
 /srv
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@opensls.org> 2.1.4-4avx
+- Annvix build
+
 * Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 2.1.4-3sls
 - grrr... use some %%pre/%%post scripts to solve moving the symlinks around
 

@@ -1,6 +1,6 @@
 %define name	dmidecode
 %define version 2.3
-%define release 1sls
+%define release 2avx
 
 Summary:	Tool for dumping a computer's DMI table contents
 Name:		%{name}
@@ -45,6 +45,9 @@ mkdir -p $RPM_BUILD_ROOT%{_sbindir}
 %{_sbindir}/*
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 2.3-2avx
+- Annvix build
+
 * Fri Mar  5 2004 Thomas Backlundd <tmb@mandrake.org> 2.3-1sls
 - fist OpenSLS build
 

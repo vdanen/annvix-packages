@@ -1,6 +1,6 @@
 %define name	cyrus-sasl
 %define version	2.1.15
-%define release	7sls
+%define release	8avx
 
 %define major	2
 %define libname	%mklibname sasl %{major}
@@ -342,6 +342,9 @@ fi
 %{_mandir}/man3/*
  
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 2.1.15-8avx
+- Annvix build
+
 * Wed Mar 03 2004 Vincent Danen <vdanen@opensls.org> 2.1.15-7sls
 - minor spec cleanups
 

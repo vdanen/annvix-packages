@@ -1,6 +1,6 @@
 %define name	db1
 %define version 1.85
-%define release 11sls
+%define release 12avx
 
 Summary:	The BSD database library for C (version 1).
 Name:		%{name}
@@ -15,7 +15,7 @@ Patch1:		db.%{version}-include.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-root
 
-PreReq:		/sbin/ldconfig
+PreReq:		ldconfig
 # this is a symlink not a real soname, so it has to be explicitely put
 # in a provides line -- pablo
 Provides:	libdb1.so.2
@@ -109,6 +109,9 @@ install -s -m755 db_dump185		$RPM_BUILD_ROOT/%{_bindir}/db1_dump185
 %{_bindir}/db1_dump185
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 1.85-12avx
+- Annvix build
+
 * Wed Mar 03 2004 Vincent Danen <vdanen@opensls.org> 1.85-11sls
 - remove %%prefix
 - minor spec cleanups

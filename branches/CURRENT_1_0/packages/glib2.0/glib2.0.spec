@@ -1,6 +1,6 @@
 %define name	glib%{api_version}
 %define version	%{major_version}.%{minor_version}.%{micro_version}
-%define release	3sls
+%define release	4avx
 
 # enable_gtkdoc: Toggle if gtkdoc stuff should be rebuilt
 #	0 = no
@@ -168,6 +168,9 @@ chmod a+x  $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/*
 %{_datadir}/glib-%{api_version}
 
 %changelog
+* Thu Jun 24 2004 Vincent Danen <vdanen@annvix.org> 2.2.3-4avx
+- Annvix build
+
 * Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 2.2.3-3sls
 - minor spec cleanups
 - remove %%build_opensls macro

@@ -1,6 +1,6 @@
 %define name	elfutils
 %define version	0.84
-%define release	3sls
+%define release	4avx
 
 %define major	1
 %define libname	%mklibname %{name} %{major}
@@ -12,7 +12,7 @@
 %{expand: %{?_without_CHECK:	%%define build_check 0}}
 %{expand: %{?_with_CHECK:	%%define build_check 1}}
 
-Summary:	A collection of utilities and DSOs to handle compiled objects.
+Summary:	A collection of utilities and DSOs to handle compiled objects
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -179,6 +179,9 @@ chmod +x $RPM_BUILD_ROOT%{_libdir}/elfutils/lib*.so*
 %{_libdir}/libdwarf*.so.*
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 0.84-4avx
+- Annvix build
+
 * Thu Mar 04 2004 Vincent Danen <vdanen@opensls.org> 0.84-3sls
 - minor spec cleanups
 - remove some more unpackaged files

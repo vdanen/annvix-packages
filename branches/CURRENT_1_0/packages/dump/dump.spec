@@ -1,6 +1,6 @@
 %define name	dump
 %define version 0.4b34
-%define release 4sls
+%define release 5avx
 
 Summary:	Programs for backing up and restoring filesystems
 Name:		%{name}
@@ -108,6 +108,9 @@ ln -sf restore.8 rrestore.8
 %{_mandir}/man8/rmt.8*
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 0.4b34-5avx
+- Annvix build
+
 * Thu Mar 04 2004 Vincent Danen <vdanen@opensls.org> 0.4b34-4sls
 - minor spec cleanups
 

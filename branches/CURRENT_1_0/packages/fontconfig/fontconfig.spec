@@ -1,6 +1,6 @@
 %define name	fontconfig
 %define version	2.2.1
-%define release	8sls
+%define release	9avx
 
 %define fontconfig_major	1
 %define lib_name		%mklibname %{name} %{fontconfig_major}
@@ -125,6 +125,9 @@ rm -rf $RPM_BUILD_ROOT%{_datadir}/doc/fontconfig
 %{_mandir}/man3/*
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> - 2.2.1-9avx
+- Annvix build
+
 * Thu Mar 04 2004 Vincent Danen <vdanen@opensls.org> - 2.2.1-8sls
 - minor spec cleanups
 

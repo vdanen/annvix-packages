@@ -1,6 +1,6 @@
 %define name	hdparm
 %define version 5.4
-%define release 5sls
+%define release 6avx
 
 Summary:	A utility for displaying and/or setting hard disk parameters.
 Name:		%{name}
@@ -49,6 +49,9 @@ install -D -m 0644 %SOURCE1 $RPM_BUILD_ROOT/etc/sysconfig/harddisks
 %config(noreplace) /etc/sysconfig/harddisks
 
 %changelog
+* Thu Jun 24 2004 Vincent Danen <vdanen@annvix.org> 5.4-6avx
+- Annvix build
+
 * Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 5.4-5sls
 - minor spec cleanups
 

@@ -1,6 +1,6 @@
 %define name	glib
 %define version	1.2.10
-%define release	13sls
+%define release	14avx
 
 %define libname  %mklibname %{name} %{major}
 %define major    1.2
@@ -104,6 +104,9 @@ make check
 %{_infodir}/%{name}*
 
 %changelog
+* Thu Jun 24 2004 Vincent Danen <vdanen@annvix.org> 1.2.10-14avx
+- Annvix build
+
 * Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 1.2.10-13sls
 - minor spec cleanups
 - remove COPYING from %%{libname}

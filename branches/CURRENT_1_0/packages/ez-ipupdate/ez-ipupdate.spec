@@ -1,6 +1,6 @@
 %define name	ez-ipupdate
 %define version 3.0.11b8
-%define release 1sls
+%define release 2avx
 
 Summary:	Client for Dynamic DNS Services
 Name:		%{name}
@@ -74,6 +74,9 @@ install -m 755 %{SOURCE1} %{buildroot}%{_initrddir}/ez-ipupdate
 
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 3.0.11b8-2avx
+- Annvix build
+
 * Fri Mar  5 2004 Thomas Backlund <tmb@mandrake.org> 3.0.11b8-1sls
 - first OpenSLS build
 

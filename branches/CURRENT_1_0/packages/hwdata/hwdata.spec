@@ -1,6 +1,6 @@
 %define name	hwdata
 %define version	0.111
-%define release	1sls
+%define release	2avx
 
 Summary:	Hardware identification and configuration data
 Name:		%{name}
@@ -38,5 +38,8 @@ make install DESTDIR=%{buildroot}
 /usr/X11R6/lib/X11/Cards
 
 %changelog
+* Thu Jun 24 2004 Vincent Danen <vdanen@annvix.org> 0.111-2avx
+- Annvix build
+
 * Mon Mar 15 2004 Vincent Danen <vdanen@opensls.org> 0.111-1sls
 - first OpenSLS build; from Fedora

@@ -1,6 +1,6 @@
 %define name	findutils
 %define version	4.1.20
-%define release	3sls
+%define release	4avx
 
 Summary:	The GNU versions of find utilities (find, xargs, and locate).
 Name:		%{name}
@@ -77,6 +77,9 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/{locate,updatedb} \
 %{_infodir}/find.info*
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 4.1.20-4avx
+- Annvix build
+
 * Thu Mar 04 2004 Vincent Danen <vdanen@opensls.org> 4.1.20-3sls
 - minor spec cleanups
 

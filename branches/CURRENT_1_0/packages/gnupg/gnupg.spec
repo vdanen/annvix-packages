@@ -1,6 +1,6 @@
 %define name	gnupg
 %define version 1.2.3
-%define release 5sls
+%define release 6avx
 
 Summary:	GNU privacy guard - a free PGP replacement.
 Name:		%{name}
@@ -102,6 +102,9 @@ tar xvjf %{SOURCE2} -C %{buildroot}%{_sysconfdir}/RPM-GPG-KEYS
 %attr(0644,root,root) %{_sysconfdir}/RPM-GPG-KEYS/*.asc
 
 %changelog
+* Thu Jun 24 2004 Vincent Danen <vdanen@annvix.org> 1.2.3-6avx
+- Annvix build
+
 * Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 1.2.3-5sls
 - minor spec cleanups
 - get rid of some docs we don't need
