@@ -1,6 +1,6 @@
 %define name	nfs-utils
 %define	version	1.0.6
-%define release	3avx
+%define release	4avx
 
 %define	url	ftp://ftp.kernel.org:/pub/linux/utils/nfs
 
@@ -27,6 +27,7 @@ Patch3:		nfs-utils-0.3.3-statd-manpage.patch.bz2
 Patch4:		eepro-support.patch.bz2
 Patch5:		nfs-utils-1.0.4-no-chown.patch.bz2
 Patch6:		nfs-utils-1.0.6-CAN-2004-1014.patch.bz2
+Patch7:		nfs-utils-0.3.3-rquotad-overflow.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-root
 
@@ -71,6 +72,7 @@ clients which are mounted on that host.
 %patch4 -p1 -b .eepro-support
 %patch5 -p1 -b .no-chown
 %patch6 -p2 -b .can-2004-1014
+%patch7 -p1 -b .can-2004-0946
 
 %build
 #
@@ -195,6 +197,9 @@ fi
 %dir %attr(0750,nobody,nogroup) %{_srvlogdir}/nfs.statd
 
 %changelog
+* Thu Jan 06 2005 Vincent Danen <vdanen@annvix.org> 1.0.6-4avx
+- P7: patch to fix CAN-2004-0946
+
 * Sat Dec 18 2004 Vincent Danen <vdanen@annvix.org> 1.0.6-3avx
 - signal nfsd with signal 9 rather than 2
 
