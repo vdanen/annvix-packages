@@ -1,6 +1,6 @@
 %define name	php
 %define version	4.3.7
-%define release	1sls
+%define release	2avx
 %define epoch	2
 
 %define libversion	4
@@ -598,6 +598,9 @@ update-alternatives --remove php %{_bindir}/php-cli
 %{_includedir}/php
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 4.3.7-2avx
+- Annvix build
+
 * Thu Jun 03 2004 Vincent Danen <vdanen@opensls.org> 4.3.7-1sls
 - 4.3.7
 

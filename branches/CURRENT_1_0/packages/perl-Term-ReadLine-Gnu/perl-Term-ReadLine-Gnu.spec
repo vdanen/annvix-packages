@@ -1,7 +1,7 @@
 %define module	Term-ReadLine-Gnu
 %define name	perl-%{module}
 %define version 1.14
-%define release 7sls
+%define release 8avx
 
 Summary:	GNU Readline for perl.
 Name:		%{name}
@@ -61,6 +61,9 @@ perl -pi -e 's!/usr/local/bin/perl!/usr/bin/perl!g' $RPM_BUILD_ROOT%perl_vendora
 %{perl_vendorarch}/auto/Term
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 1.14-8avx
+- Annvix build
+
 * Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 1.14-7sls
 - rebuild for perl 5.8.4
 - own dir

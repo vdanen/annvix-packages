@@ -1,7 +1,7 @@
 %define module 	PlRPC
 %define name	perl-%{module}
 %define version 0.2017
-%define release 5sls
+%define release 6avx
 
 Summary:	%{module} perl module
 Name: 		%{name}
@@ -42,6 +42,9 @@ Buildarch:	noarch
 %_mandir/man3*/*
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 0.2017-6avx
+- Annvix build
+
 * Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 0.2017-5sls
 - rebuild for perl 5.8.4
 

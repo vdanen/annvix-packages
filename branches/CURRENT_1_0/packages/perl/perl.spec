@@ -1,6 +1,6 @@
 %define name	perl
 %define version	5.8.4
-%define release	1sls
+%define release	2avx
 %define epoch	2
 
 %define rel	%nil
@@ -130,7 +130,7 @@ sh Configure -des \
   -Doptimize="$RPM_OPT_FLAGS" \
   -Dprefix=%{_prefix} -Dvendorprefix=%{_prefix} -Dsiteprefix=%{_prefix} \
   -Dman3ext=3pm \
-  -Dcf_by=OpenSLS -Dmyhostname=localhost -Dperladmin=root@localhost \
+  -Dcf_by=Annvix -Dmyhostname=localhost -Dperladmin=root@localhost \
   -Dd_dosuid \
   -Ud_csh \
   -Duseshrplib \
@@ -426,6 +426,9 @@ EOF
 %defattr(-,root,root)
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 5.8.4-2avx
+- Annvix build
+
 * Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 5.8.4-1sls
 - 5.8.4
 - merge with cooker (5.8.4-1mdk):

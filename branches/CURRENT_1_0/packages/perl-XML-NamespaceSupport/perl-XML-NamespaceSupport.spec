@@ -1,7 +1,7 @@
 %define module	XML-NamespaceSupport
 %define name	perl-%{module}
 %define version 1.08
-%define release 6sls
+%define release 7avx
 
 Summary:	%{module} module for perl
 Name:		%{name}
@@ -50,6 +50,9 @@ make test
 
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 1.08-7avx
+- Annvix build
+
 * Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 1.08-6sls
 - rebuild for perl 5.8.4
 

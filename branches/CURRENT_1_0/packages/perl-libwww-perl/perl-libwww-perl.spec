@@ -1,7 +1,7 @@
 %define module	libwww-perl
 %define name	perl-%{module}
 %define version 5.79
-%define release 1sls
+%define release 2avx
 
 %define _requires_exceptions Authen::NTLM\\|HTTP::GHTTP\\|Win32
 
@@ -55,6 +55,9 @@ libwww-perl module for perl
 
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 5.79-2avx
+- Annvix build
+
 * Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 5.79-1sls
 - 5.79
 - remove P0; merged upstream

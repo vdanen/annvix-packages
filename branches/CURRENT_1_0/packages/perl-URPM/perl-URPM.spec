@@ -1,6 +1,6 @@
 %define name	perl-URPM
 %define version 0.94
-%define release 13sls
+%define release 14avx
 
 %define real_name URPM
 
@@ -58,6 +58,9 @@ hdlist files and manage them in memory.
 
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 0.94-14avx
+- Annvix build
+
 * Sat Jun 11 2004 Vincent Danen <vdanen@opensls.org> 0.94-13sls
 - rebuild for perl 5.8.4
 

@@ -1,6 +1,6 @@
 %define name	automake
 %define version 1.4
-%define release 0.%patchlevel.25sls
+%define release 0.%patchlevel.26avx
 %define epoch	1
 
 %define amversion	1.4
@@ -18,9 +18,9 @@ Source:		ftp://ftp.gnu.org/gnu/automake/%{name}-%{version}-%patchlevel.tar.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
 BuildArch:	noarch
-Buildrequires:	/usr/bin/perl
+Buildrequires:	perl
 
-PreReq:		/usr/sbin/update-alternatives, /sbin/install-info
+PreReq:		rpm, info-install
 Requires:	perl
 
 %define alternatives_install_cmd update-alternatives --install %{_bindir}/automake automake %{_bindir}/automake-%{amversion} 30 --slave %{_bindir}/aclocal aclocal %{_bindir}/aclocal-%{amversion}
@@ -74,6 +74,9 @@ fi
 %dir %{_datadir}/aclocal
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 1.4-0.p6.26avx
+- Annvix build
+
 * Sun Feb 29 2004 Vincent Danen <vdanen@opensls.org> 1.4-0.p6.25sls
 - remove %%{prefix}
 - more spec cleanups

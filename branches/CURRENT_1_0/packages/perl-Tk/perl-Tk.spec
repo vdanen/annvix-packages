@@ -1,7 +1,7 @@
 %define module	Tk
 %define name	perl-%{module}
 %define version 800.024
-%define release 7sls
+%define release 8avx
 
 %define _requires_exceptions Watch
 
@@ -111,6 +111,9 @@ rm -f %{buildroot}%{perl_vendorarch}/Tk/README.Adjust
 
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 800.024-8avx
+- Annvix build
+
 * Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 800.024-7sls
 - rebuild for perl 5.8.4
 

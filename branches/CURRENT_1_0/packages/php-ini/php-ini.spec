@@ -1,6 +1,6 @@
 %define name	php-ini
 %define version	4.3.7
-%define release	1sls
+%define release	2avx
 
 Summary:	INI files for PHP
 Name:		%{name}
@@ -58,6 +58,9 @@ fi
 %doc %{_docdir}/%{name}-%{version}/*
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 4.3.7-2avx
+- Annvix build
+
 * Thu Jun 03 2004 Vincent Danen <vdanen@opensls.org> 4.3.7-1sls
 - 4.3.7
 
