@@ -1,6 +1,6 @@
 %define	name	runit
-%define	version	1.0.4
-%define	release	6avx
+%define	version	1.0.5
+%define	release	1avx
 
 Summary:	A UN*X init scheme with service supervision
 Name:		%{name}
@@ -9,7 +9,7 @@ Release:	%{release}
 License:	BSD
 Group:		System/Base
 URL:		http://smarden.org/runit/
-Source0:	%{name}-%{version}.tar.bz2
+Source0:	%{name}-%{version}.tar.gz
 Source1:	annvix-runit.tar.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-buildroot
@@ -147,6 +147,9 @@ fi
 %attr(0755,root,root) %{_srvdir}/mingetty-tty6/finish
 
 %changelog
+* Wed Oct 13 2004 Vincent Danen <vdanen@annvix.org> 1.0.5-1avx
+- 1.0.5
+
 * Fri Sep 17 2004 Vincent Danen <vdanen@annvix.org> 1.0.4-6avx
 - own /service since daemontools will soon be removed
 
