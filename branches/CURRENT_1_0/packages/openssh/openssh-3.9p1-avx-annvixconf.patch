@@ -18,7 +18,7 @@
 +  Protocol 2,1
 +  StrictHostKeyChecking ask
 --- sshd_config.annvix	2004-05-23 18:36:24.000000000 -0600
-+++ sshd_config	2004-08-19 10:27:05.000000000 -0600
++++ sshd_config	2004-09-02 11:25:59.000000000 -0600
 @@ -11,15 +11,15 @@
  # default value.
  
@@ -50,9 +50,12 @@
  
  #RSAAuthentication yes
  #PubkeyAuthentication yes
-@@ -80,14 +80,14 @@
+@@ -78,16 +78,16 @@
+ # ChallengeResponseAuthentication=no
+ #UsePAM no
  
- #AllowTcpForwarding yes
+-#AllowTcpForwarding yes
++AllowTcpForwarding no
  #GatewayPorts no
 -#X11Forwarding no
 +X11Forwarding yes
