@@ -1,0 +1,85 @@
+--- lilo-22.5.7.2/second.S.allgraph	2003-09-03 17:41:58.000000000 +0200
++++ lilo-22.5.7.2/second.S	2003-09-03 17:42:58.000000000 +0200
+@@ -847,13 +847,6 @@
+ #ifndef LCF_NOSERIAL
+ 	mov	byte ptr break,#0 ! clear the break flag
+ #endif
+-#ifdef MDK_GRAPHIC
+-	seg	cs
+-	test	byte [UseVESA],#1
+-	jz	no_need_to_change_to_text
+-	call	set_text_mode
+-no_need_to_change_to_text:
+-#endif
+ 	push	cs		! set ES to CS
+ 	pop	es
+ 	xor	al,al		! mark end
+@@ -932,6 +925,7 @@
+ ! Find the boot image and start it
+ 
+ bcmd:
++
+ #if !defined(MENU) && !defined(BITMAP)
+ 
+ 	mov	cx,#IMAGES	! test all names
+@@ -1066,12 +1060,6 @@
+ 
+ boot:
+ 	mov	si,#cmdline	! locate start of options
+-#ifdef MDK_GRAPHIC
+-	seg	cs
+-	test	byte [UseVESA],#1
+-	jz	locopt
+-	call	set_text_mode
+-#endif
+ locopt:	lodsb
+ 	or	al,al		! NUL ?
+ 	je	optfnd		! yes -> no options
+@@ -1135,6 +1123,15 @@
+ 	jne	dopw		! yes -> password required
+ toboot:	br	doboot		! ...
+ dopw:
++
++#ifdef MDK_GRAPHIC
++	seg	cs
++	test	byte [UseVESA],#3
++	jz	dopw_next
++	call	set_text_mode
++dopw_next:
++#endif
++
+ #if defined(CRC_PASSWORDS) || defined(SHS_PASSWORDS)
+ 	push	bx		; save the image descriptor
+ ;;	BEG_FS
+@@ -1377,7 +1374,8 @@
+ 
+ ! Boot the image BX points to
+ 
+-doboot:	mov	byte ptr prechr,#61 ! switch to equal sign
++doboot:
++	mov	byte ptr prechr,#61 ! switch to equal sign
+ 	push	bx		! save image descr
+ 	mov	bx,#msg_l	! say hi
+ 	call	say
+@@ -1534,7 +1532,20 @@
+ 	jz	novga
+ vgaset:	seg	es
+ 	 mov	[VGA_SET],ax	! magic offset in the boot sector
+-novga:	push	bx		! use flags (BX) later
++novga:
++#ifdef MDK_GRAPHIC
++	seg	es
++	mov	ax,[VGA_SET]
++	sub	ax,#0x300
++	cmp	ax,#0x100
++	jb	novga2
++	seg	cs
++	test	byte [UseVESA],#1
++	jz	novga2
++	call	set_text_mode
++novga2:
++#endif
++	push	bx		! use flags (BX) later
+ 	test	bx,#FLAG_LOCK	! ... lock target ?
+ 	jnz	lockit		! yup -> do it
+ 	cmp	byte ptr dolock,#0 ! did user ask to lock new target ?
