@@ -1,6 +1,6 @@
 %define name	libmcrypt
 %define version	2.5.7
-%define release	8avx
+%define release	9avx
 
 %define major	4
 %define libname	%mklibname mcrypt %{major}
@@ -16,7 +16,7 @@ Source0:	%{name}-%{version}.tar.gz
 Source1:	%{name}-%{version}.tar.gz.sig.asc
 
 BuildRoot:	%{_tmppath}/%{name}-buildroot
-BuildRequires:	libtool-devel
+BuildRequires:	libtool-devel, multiarch-utils
 
 %description
 Libmcrypt is a thread-safe library providing a uniform interface
@@ -29,8 +29,7 @@ TWOFISH, BLOWFISH, ARCFOUR, WAKE and more.
 %package -n %{libname}
 Summary:	Thread-safe data encryption library
 Group:		System/Libraries
-Requires:	%{name} >= %{version}-%{release}
-#Requires:	libltdl3
+Requires:	%{name} >= %{version}
 
 %description -n %{libname}
 Libmcrypt is a thread-safe library providing a uniform interface
@@ -45,8 +44,7 @@ TWOFISH, BLOWFISH, ARCFOUR, WAKE and more.
 Summary:	Header files and libraries for developing apps with libmcrypt
 Group:		Development/C
 Requires:	%{libname} = %{version}
-#Requires:	libltdl3
-Provides:	%{name}-devel = %{version}-%{release}
+Provides:	%{name}-devel = %{version}
 
 %description -n %{libname}-devel
 This package contains the header files and libraries needed to
@@ -57,8 +55,8 @@ Install it if you want to develop such applications.
 Summary:	Static libraries for developing apps with libmcrypt
 Group:		Development/C
 Requires:	%{libname} = %{version}
-Requires:	%{name}-devel = %{version}-%{release}
-Provides:	%{name}-static-devel = %{version}-%{release}
+Requires:	%{name}-devel = %{version}
+Provides:	%{name}-static-devel = %{version}
 
 %description -n %{libname}-static-devel
 This package contains the static libraries needed to
@@ -99,9 +97,13 @@ Install it if you want to develop such applications.
 
 %make
 
+make check
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
+
+%multiarch_binaries %{buildroot}%{_bindir}/libmcrypt-config
 
 %post -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
@@ -117,7 +119,8 @@ Install it if you want to develop such applications.
 %defattr(-, root, root)
 %doc AUTHORS COPYING.LIB ChangeLog INSTALL KNOWN-BUGS NEWS README THANKS TODO doc/README.* doc/*.c
 %{_mandir}/man3/*
-%{_bindir}/*
+%multiarch %{multiarch_bindir}/libmcrypt-config
+%{_bindir}/libmcrypt-config
 %{_libdir}/*.la
 %{_libdir}/*.so
 %{_includedir}/mcrypt.h
@@ -134,6 +137,10 @@ Install it if you want to develop such applications.
 %{_libdir}/%{name}/*.so
 
 %changelog
+* Sat Mar 05 2005 Vincent Danen <vdanen@annvix.org> 2.5.7-9avx
+- multiarch support
+- run make check
+
 * Wed Jun 23 2004 Vincent Danen <vdanen@annvix.org> 2.5.7-8avx
 - Annvix build
 
