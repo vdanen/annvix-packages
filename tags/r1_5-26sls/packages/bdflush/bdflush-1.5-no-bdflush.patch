@@ -1,0 +1,13 @@
+--- bdflush-1.5/bdflush.c.no-bdflush	2002-12-08 13:42:37.000000000 -0500
++++ bdflush-1.5/bdflush.c	2002-12-08 13:43:15.000000000 -0500
+@@ -30,8 +30,8 @@
+  * - alec <Alec.Muffett@UK.Sun.COM>
+  */
+ 
+-#ifdef __alpha__
+- extern int bdflush (int func, long data);
++#if defined(__alpha__) || defined(__ia64__) || defined(__x86_64__)
++int bdflush (int func, long data) { return 0; }
+ #else
+  _syscall2(int, bdflush, int, func, int, data);
+ #endif
