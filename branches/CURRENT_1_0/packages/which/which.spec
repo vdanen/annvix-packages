@@ -1,15 +1,21 @@
-Name:		which
+%define name	which
+%define version	2.14
+%define release	6sls
+
 Summary:	Displays where a particular program in your path is located.
-Version:	2.14
-Release:	5mdk
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
 License:	GPL
 Group:		System/Base
-Source:		ftp://ftp.gnu.org/gnu/which/%{name}-%{version}.tar.bz2
 URL:		ftp://ftp.gnu.org/gnu/which/
+Source:		ftp://ftp.gnu.org/gnu/which/%{name}-%{version}.tar.bz2
 Patch:		which-2.6.jbj.patch.bz2
 Patch1:		which-2.12-fixinfo.patch.bz2
 Patch2:		which-2.13-afs.patch.bz2
+
 BuildRoot:	%_tmppath/%name-buildroot
+
 Prereq:		/sbin/install-info
 
 %description
@@ -49,6 +55,10 @@ rm -rf $RPM_BUILD_ROOT
 %_infodir/*
 
 %changelog
+* Mon Dec 01 2003 Vincent Danen <vdanen@opensls.org> 2.14-6sls
+- OpenSLS build
+- tidy spec
+
 * Tue Jul 22 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 2.14-5mdk
 - rebuild
 

@@ -1,25 +1,28 @@
-%define name xfsprogs
+%define name	xfsprogs
 %define version 2.5.4
-%define release 2mdk
-%define url ftp://oss.sgi.com/projects/xfs/download/cmd_tars
+%define release 3sls
 
-%define lib_name_orig libxfs
-%define lib_major 1
-%define lib_name %mklibname xfs %{lib_major}
+%define url	ftp://oss.sgi.com/projects/xfs/download/cmd_tars
 
-Summary: Utilities for managing the XFS filesystem.
-Name: %{name}
-Version: %{version}
-Release: %{release}
-Source0: %{url}/%{name}-%{version}.src.tar.bz2
-License: GPL
-Group: System/Kernel and hardware
-BuildRoot: %{_tmppath}/%{name}-buildroot
-BuildRequires: libext2fs-devel
-Prefix: %{_prefix}
-Prereq: /sbin/ldconfig
-URL: http://oss.sgi.com/projects/xfs/
-Requires: common-licenses
+%define lib_name_orig	libxfs
+%define lib_major	1
+%define lib_name	%mklibname xfs %{lib_major}
+
+Summary:	Utilities for managing the XFS filesystem.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		System/Kernel and hardware
+URL:		http://oss.sgi.com/projects/xfs/
+Source0:	%{url}/%{name}-%{version}.src.tar.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildRequires:	libext2fs-devel
+
+Prefix:		%{_prefix}
+Prereq:		/sbin/ldconfig
+Requires:	common-licenses
 
 %description
 A set of commands to use the XFS filesystem, including mkfs.xfs.
@@ -36,21 +39,21 @@ for complete details.  This implementation is on-disk compatible
 with the IRIX version of XFS.
 
 %package -n %{lib_name}
-Summary: Main library for %{lib_name_orig}
-Group: System/Libraries
-Provides: %{lib_name_orig} = %{version}-%{release}
+Summary:	Main library for %{lib_name_orig}
+Group:		System/Libraries
+Provides:	%{lib_name_orig} = %{version}-%{release}
 
 %description -n %{lib_name}
 This package contains the library needed to run programs dynamically
 linked with %{lib_name_orig}.
 
 %package -n %{lib_name}-devel
-Summary: XFS filesystem-specific static libraries and headers.
-Group: Development/C
-Requires: %{lib_name} = %{version}
-Provides: %{lib_name_orig}-devel = %{version}-%{release}
-Provides: xfs-devel = %{version}-%{release}
-Obsoletes: xfs-devel
+Summary:	XFS filesystem-specific static libraries and headers.
+Group:		Development/C
+Requires:	%{lib_name} = %{version}
+Provides:	%{lib_name_orig}-devel = %{version}-%{release}
+Provides:	xfs-devel = %{version}-%{release}
+Obsoletes:	xfs-devel
 
 
 %description -n %{lib_name}-devel
@@ -122,6 +125,10 @@ rm -rf %{buildroot}
 %{_mandir}/man3/*
 
 %changelog
+* Mon Dec 08 2003 Vincent Danen <vdanen@opensls.org> 2.5.4-3sls
+- OpenSLS build
+- tidy spec
+
 * Wed Aug 13 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 2.5.4-2mdk
 - Enforce current practise to BuildRequires: libxfs-devel
 

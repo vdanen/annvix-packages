@@ -1,18 +1,23 @@
-Summary: A dictionary of English words for the /usr/dict directory
-Name: words
-Version: 2
-Release: 19mdk
-License: Public Domain
-URL: http://sunsite.unc.edu/pub/Linux/libs/
-Group: Text tools
-Source: ftp://sunsite.unc.edu/pub/Linux/libs/linux.words.2.tar.bz2
-Patch0: linux.words.2-jbj.patch.bz2
-Patch1: linux.words.2-mmm.patch.bz2
-Patch2: linux.words.2-meat.patch.bz2
-BuildArchitectures: noarch
-BuildRoot: %{_tmppath}/words-root
+%define name	words
+%define version	2
+%define release	20sls
 
 %define _dict_dir /usr/share/dict/
+
+Summary:	A dictionary of English words for the /usr/dict directory
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	Public Domain
+Group:		Text tools
+URL:		http://sunsite.unc.edu/pub/Linux/libs/
+Source:		ftp://sunsite.unc.edu/pub/Linux/libs/linux.words.2.tar.bz2
+Patch0:		linux.words.2-jbj.patch.bz2
+Patch1:		linux.words.2-mmm.patch.bz2
+Patch2:		linux.words.2-meat.patch.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-root
+BuildArch:	noarch
 
 %description
 The words file is a dictionary of English words for the /usr/dict
@@ -45,6 +50,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_dict_dir}words
 
 %changelog
+* Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 2-20sls
+- OpenSLS build
+- tidy spec
+
 * Sat Jul 12 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 2-19mdk
 - rebuild
 

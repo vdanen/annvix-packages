@@ -6,23 +6,24 @@
 
 %define name    xinitrc
 %define version 2.4.4
-%define release 76mdk
+%define release 77sls
 
 Summary:	The default startup script for the X Window System
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
+License:	Public Domain
+Group:		System/XFree86
 URL:		http://www.mandrakelinux.com/
-
 # get the source from our cvs repository (see
 # http://www.linuxmandrake.com/en/cvs.php3)
 Source0:	%{name}-%{version}.tar.bz2
-License:	Public Domain
-Group:		System/XFree86
-Buildroot:	%{_tmppath}/%{name}-%{version}-root
+
+BuildRoot:	%{_tmppath}/%{name}-%{version}-root
+BuildArch:	noarch
+
 Requires:	XFree86 >= 3.3.5-12mdk, /bin/sh, /bin/grep
 Conflicts:	initscripts < 6.87-2mdk
-BuildArchitectures:	noarch
 
 %description
 The xinitrc package contains the xinitrc file, a script which is used
@@ -55,6 +56,10 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) /etc/X11/xinit.d/Mod_Meta_L_Disable
 
 %changelog
+* Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 2.4.4-77sls
+- OpenSLS build
+- tidy spec
+
 * Thu Sep  4 2003 Frederic Lepied <flepied@mandrakesoft.com> 2.4.4-76mdk
 - enable to source /etc/X11/xinit.d scripts if they contain the special
 comment "# to be sourced" (bug #2493)
