@@ -1,7 +1,7 @@
 %define name	locales
 %define glibc_ver 2.3.2
 %define version	%{glibc_ver}
-%define release	6sls
+%define release	7sls
 
 # FIXME: please check on next build those we really need
 #%define _unpackaged_files_terminate_build 0
@@ -15,7 +15,6 @@ Version:	%{version}
 Release:	%{release}
 License:	GPL
 Group:		System/Internationalization
-Icon:		bulle-blank.xpm
 
 # this file is used to circumvent limitations of glib in LC_COLLATE
 # re-definition after copy "..." statement 
@@ -125,7 +124,6 @@ LANG variable to their preferred language in their
 %prep
 
 %build
-rm -rf $RPM_BUILD_ROOT
 
 #mv /usr/share/locale /usr/share/locale_bak
 mkdir -p $RPM_BUILD_ROOT/usr/share/locale
@@ -602,7 +600,7 @@ chmod a+x softlink.pl
 cd ..
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -2730,6 +2728,10 @@ according to Xhosa language conventions.
 /usr/share/locale/zu*
 
 %changelog
+* Sat Mar 06 2004 Vincent Danen <vdanen@opensls.org> 2.3.2-7sls
+- minor spec cleanups
+- remove icon
+
 * Wed Dec 03 2003 Vincent Danen <vdanen@opensls.org> 2.3.2-6sls
 - OpenSLS build
 - tidy spec

@@ -1,6 +1,6 @@
 %define name	man-pages
 %define version	1.60
-%define release 2sls
+%define release 3sls
 
 %define LANG	en
 
@@ -11,7 +11,6 @@ Release:	%{release}
 License:	GPL-style
 Group:		System/Internationalization
 URL:		ftp://ftp.kernel.org/pub/linux/docs/manpages/
-Icon:		books-en.gif
 Source:		ftp.kernel.org/pub/linux/docs/manpages/%name-%version.tar.bz2
 Source1:	rpcgen.1
 Source3:	ld.so.8
@@ -93,7 +92,7 @@ rm -f man1/rpcgen.1.bz2
 mv man1/README README.GNU-INFOvsMAN
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 set +x
 mkdir -p $RPM_BUILD_ROOT/%_mandir
@@ -106,13 +105,13 @@ done
 
 set -x
 
-mkdir -p $RPM_BUILD_ROOT/etc/cron.weekly
-cat > $RPM_BUILD_ROOT/etc/cron.weekly/makewhatis-%LANG.cron << EOF
+mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/cron.weekly
+cat > $RPM_BUILD_ROOT%{_sysconfdir}/cron.weekly/makewhatis-%LANG.cron << EOF
 #!/bin/bash
 LANG='' /usr/sbin/makewhatis %_mandir/%LANG
 exit 0
 EOF
-chmod a+x $RPM_BUILD_ROOT/etc/cron.weekly/makewhatis-%LANG.cron
+chmod a+x $RPM_BUILD_ROOT%{_sysconfdir}/cron.weekly/makewhatis-%LANG.cron
 
 mkdir -p  $RPM_BUILD_ROOT/var/cache/man/%LANG
 mkdir -p  $RPM_BUILD_ROOT{%_mandir/%LANG,/var/catman/}
@@ -120,7 +119,7 @@ tar xfj %SOURCE11 -C $RPM_BUILD_ROOT/%_mandir
 
  
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(0644,root,man,755)
@@ -129,9 +128,13 @@ rm -rf $RPM_BUILD_ROOT
 #%dir /var/cache/man/%LANG
 %_mandir/man?/*
 #%attr(755,root,man)/var/catman/%LANG
-%config(noreplace) %attr(755,root,root)/etc/cron.weekly/makewhatis-%LANG.cron
+%config(noreplace) %attr(755,root,root)%{_sysconfdir}/cron.weekly/makewhatis-%LANG.cron
 
 %changelog
+* Sat Mar 06 2004 Vincent Danen <vdanen@opensls.org> 1.60-3sls
+- minor spec cleanups
+- remove icon
+
 * Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 1.60-2sls
 - OpenSLS build
 - tidy spec
