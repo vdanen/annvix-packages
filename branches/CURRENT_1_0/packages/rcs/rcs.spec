@@ -1,6 +1,6 @@
 %define name	rcs
 %define version	5.7
-%define release	7sls
+%define release	8sls
 
 Summary:	Revision Control System (RCS) file version management tools.
 Name:		%{name}
@@ -13,8 +13,6 @@ Patch:		rcs-5.7-stupidrcs.patch.bz2
 Patch1:		rcs-5.7-security.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-root
-
-Prefix:		%{_prefix}
 
 %description
 The Revision Control System (RCS) is a system for managing multiple
@@ -40,11 +38,14 @@ touch src/conf.h
 %make
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %makeinstall
 mkdir -p $RPM_BUILD_ROOT%{_mandir}
 mv $RPM_BUILD_ROOT/usr/man/* $RPM_BUILD_ROOT%{_mandir}
+
+%clean
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -53,10 +54,11 @@ mv $RPM_BUILD_ROOT/usr/man/* $RPM_BUILD_ROOT%{_mandir}
 %{_mandir}/man1/*
 %{_mandir}/man5/*
 
-%clean
-rm -rf $RPM_BUILD_ROOT
-
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 5.7-8sls
+- minor spec cleanups
+- remove %%prefix
+
 * Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 5.7-7sls
 - OpenSLS build
 - tidy spec
