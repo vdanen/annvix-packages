@@ -1,6 +1,6 @@
 %define name	gradm
 %define version	2.0
-%define release	0.5sls
+%define release	0.6sls
 
 %define pre_rc		rc3
 %define build_diet	0
@@ -53,15 +53,17 @@ make CC="diet gcc" CFLAGS="-Os -s -static" LDFLAGS=-static
 %endif
 
 %install
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 make DESTDIR="%{buildroot}" install
 
 # fix strange perms
 #chmod 644 debian_secure_acls/*
 #chmod 644 gradm-ACL/debian_secure_acls/* gradm-ACL/gentoo_secure_acls/*
+
+
 %clean
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
 if [ -z "`cut -d" " -f3 /proc/mounts | grep "^devfs"`" ] ; then 
@@ -74,7 +76,6 @@ fi
 
 %files
 %defattr(-,root,root)
-#%doc gradm-ACL/debian_secure_acls gradm-ACL/gentoo_secure_acls
 %dir %{_sysconfdir}/grsec
 %config(noreplace) %attr(0640,root,root) %{_sysconfdir}/grsec/acl
 %attr(0754,root,root) /sbin/%{name}
@@ -82,6 +83,9 @@ fi
 %attr(0644,root,root) %{_mandir}/man8/%{name}.8*
 
 %changelog
+* Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 2.0-0.6sls
+- minor spec cleanups
+
 * Fri Jan 23 2004 Vincent Danen <vdanen@opensls.org> 2.0-0.5sls
 - OpenSLS build
 - tidy spec

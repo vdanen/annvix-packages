@@ -1,6 +1,6 @@
 %define name	ldetect
 %define version	0.4.9
-%define release	4sls
+%define release	5sls
 
 Summary:	Light hardware detection library
 Name:		%{name}
@@ -17,16 +17,17 @@ BuildRequires:	usbutils => 0.11-2mdk,  pciutils-devel
 Conflicts:	drakxtools < 9.2-0.32mdk
 Requires:	ldetect-lst common-licenses
 
-%package devel
-Summary:	Development package for ldetect
-Group:		Development/C
-
 %description
 The hardware device lists provided by this package are used as lookup 
 table to get hardware autodetection
 
+%package devel
+Summary:	Development package for ldetect
+Group:		Development/C
+
 %description devel
-see %name
+The hardware device lists provided by this package are used as lookup 
+table to get hardware autodetection
 
 %prep
 %setup -q -n %name
@@ -38,11 +39,11 @@ PICFLAGS="-DPIC -fPIC"
 %make CFLAGS="-Wall -Wstrict-prototypes $PICFLAGS"
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -56,6 +57,9 @@ rm -rf $RPM_BUILD_ROOT
 %_libdir/*
 
 %changelog
+* Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 0.4.9-5sls
+- minor spec cleanups
+
 * Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 0.4.9-4sls
 - OpenSLS build
 - tidy spec

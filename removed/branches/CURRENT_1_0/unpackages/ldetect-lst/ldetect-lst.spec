@@ -1,6 +1,6 @@
 %define name	ldetect-lst
 %define version 0.1.8
-%define release 11sls
+%define release 12sls
 
 Summary:	Hardware list for the light detection library
 Name:		%{name}
@@ -18,17 +18,18 @@ Prefix:		%{_prefix}
 PreReq:		perl-base
 Provides:	hwdata
 
+%description
+The hardware device lists provided by this package are used as lookup 
+table to get hardware autodetection
+
 %package devel
 Summary:	Devel for ldetect-lst
 Group:		Development/Perl
 Requires:	ldetect-lst = %{version}
 
-%description
+%description devel
 The hardware device lists provided by this package are used as lookup 
 table to get hardware autodetection
-
-%description devel
-see ldetect-lst
 
 %prep
 %setup -q
@@ -37,11 +38,11 @@ see ldetect-lst
 %make
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 # trigger is needed to upgrade from a package having
 # /usr/share/ldetect-lst/pcitable in the package to the new scheme
@@ -66,6 +67,9 @@ fi
 %{_bindir}/*
 
 %changelog
+* Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 0.1.8-12sls
+- minor spec cleanups
+
 * Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 0.1.8-11sls
 - OpenSLS build
 - tidy spec
