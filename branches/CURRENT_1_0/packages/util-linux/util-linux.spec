@@ -1,6 +1,6 @@
 %define name	util-linux
 %define version	2.11z
-%define release	9sls
+%define release	8sls
 
 # Maintainer util-linux@math.uio.no
 
@@ -13,6 +13,9 @@ Group:		System/Base
 URL:		ftp://ftp.win.tue.nl/pub/linux-local/utils/util-linux/
 # Alternative => ftp.kernel.org:/pub/linux/utils/util-linux/
 Source0:	ftp://ftp.win.tue.nl/pub/linux-local/utils/util-linux/util-linux-%version.tar.bz2
+Source1:	util-linux-2.7-login.pamd
+Source2:	util-linux-2.7-chfn.pamd
+Source3:	util-linux-2.7-chsh.pamd
 Source6:	mkcramfs.c
 Source7:	cramfs.h
 Source8:	nologin.c
@@ -116,8 +119,8 @@ others, Util-linux contains the fdisk configuration tool and the
 login program.
 
 %package -n mount
-Summary:	Programs for mounting and unmounting filesystems.
-Group:		System/Base
+Summary: Programs for mounting and unmounting filesystems.
+Group: System/Base
 
 %description -n mount
 The mount package contains the mount, umount, swapon and swapoff
@@ -129,8 +132,8 @@ from the tree.  Swapon and swapoff, respectively, specify and disable
 devices and files for paging and swapping.
 
 %package -n losetup
-Summary:	Programs for setting up and configuring loopback devices.
-Group:		System/Configuration/Networking
+Summary: Programs for setting up and configuring loopback devices.
+Group: System/Configuration/Networking
 
 %description -n losetup
 Linux supports a special block device called the loop device, which
@@ -272,6 +275,9 @@ echo '.so man8/raw.8' > $RPM_BUILD_ROOT%{_mandir}/man8/rawdevices.8
 
 install -m 555 partx/{addpart,delpart,partx} $RPM_BUILD_ROOT/sbin
 
+# Correct mail spool path.
+perl -pi -e 's,/usr/spool/mail,/var/spool/mail,' ${RPM_BUILD_ROOT}%{_mandir}/man1/login.1
+
 %ifarch sparc sparc64 sparcv9
 rm -rf ${RPM_BUILD_ROOT}%{_bindir}/sunhostid
 cat << E-O-F > ${RPM_BUILD_ROOT}%{_bindir}/sunhostid
@@ -295,6 +301,11 @@ chmod 755 ${RPM_BUILD_ROOT}%{_bindir}/sunhostid
 install -m644 kbdrate/kbdrate.apps $RPM_BUILD_ROOT%{_sysconfdir}/security/console.apps/kbdrate
 install -m644 kbdrate/kbdrate.pam $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/kbdrate
 %endif
+pushd $RPM_BUILD_ROOT%_sysconfdir/pam.d
+  install -m 644 %SOURCE1 login
+  install -m 644 %SOURCE2 chfn
+  install -m 644 %SOURCE3 chsh
+popd
 
 # We do not want dependencies on csh
 chmod 644 $RPM_BUILD_ROOT%_datadir/misc/getopt/*
@@ -314,12 +325,9 @@ ln -sf ../../sbin/clock $RPM_BUILD_ROOT/usr/sbin/clock
 ln -sf hwclock $RPM_BUILD_ROOT/sbin/clock
 
 # remove stuff we don't want
-rm -f $RPM_BUILD_ROOT%_mandir/man1/{line,newgrp,pg,login,chsh,chfn}.1*
-rm -f $RPM_BUILD_ROOT%_mandir/man8/{vipw,vigr}.8*
-rm -f $RPM_BUILD_ROOT%_bindir/{line,newgrp,pg,chfn,chsh}
-rm -f $RPM_BUILD_ROOT%_sbindir/{vipw,vigr}
+rm -f $RPM_BUILD_ROOT%_mandir/man1/{line,newgrp,pg}.1*
+rm -f $RPM_BUILD_ROOT%_bindir/{line,newgrp,pg}
 rm -f $RPM_BUILD_ROOT/sbin/sln
-rm -f $RPM_BUILD_ROOT/bin/login
 
 %find_lang %name
 
@@ -345,9 +353,13 @@ fi
 /bin/arch
 /bin/dmesg
 /bin/kill
+%attr(755,root,root)	/bin/login
 /bin/more
 
 %config(noreplace) %_sysconfdir/fdprm
+%config(noreplace) %_sysconfdir/pam.d/chfn
+%config(noreplace) %_sysconfdir/pam.d/chsh
+%config(noreplace) %_sysconfdir/pam.d/login
 
 /sbin/agetty
 /sbin/blockdev
@@ -402,6 +414,8 @@ fi
 %endif
 
 %_bindir/cal
+%attr(4711,root,root)	%_bindir/chfn
+%attr(4711,root,root)	%_bindir/chsh
 %_bindir/col
 %_bindir/colcrt
 %_bindir/colrm
@@ -460,11 +474,15 @@ fi
 %ifnarch s390
 %_sbindir/tunelp
 %endif
+%_sbindir/vipw
+%_sbindir/vigr
 
 %_infodir/ipc.info*
 
 %_mandir/man1/arch.1*
 %_mandir/man1/cal.1*
+%_mandir/man1/chfn.1*
+%_mandir/man1/chsh.1*
 %_mandir/man1/col.1*
 %_mandir/man1/colcrt.1*
 %_mandir/man1/colrm.1*
@@ -475,6 +493,7 @@ fi
 #%_mandir/man1/hostid.1*
 %_mandir/man1/kill.1*
 %_mandir/man1/logger.1*
+%_mandir/man1/login.1*
 %_mandir/man1/look.1*
 %_mandir/man1/mcookie.1*
 %_mandir/man1/more.1*
@@ -513,6 +532,8 @@ fi
 # XXX this man page should be moved to glibc.
 %_mandir/man8/sln.8*
 %_mandir/man8/tunelp.8*
+%_mandir/man8/vigr.8*
+%_mandir/man8/vipw.8*
 
 %_datadir/misc/getopt
 
@@ -536,10 +557,6 @@ fi
 /sbin/losetup
 
 %changelog
-* Tue Dec 16 2003 Vincent Danen <vdanen@opensls.org> 2.11z-9sls
-- remove login, chfn, chsh, vipw, vigr and their associated pam files
-  and manpages (provided by shadow-utils now)
-
 * Mon Dec 01 2003 Vincent Danen <vdanen@opensls.org> 2.11z-8sls
 - OpenSLS build
 - tidy spec

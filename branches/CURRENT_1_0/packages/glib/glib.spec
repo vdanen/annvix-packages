@@ -1,21 +1,27 @@
+%define name	glib
+%define version	1.2.10
+%define release	12sls
+
 %define libname  %mklibname %{name} %{major}
 %define major    1.2
 
-Summary: A library of handy utility functions.
-Name: glib
-Version: 1.2.10
-Release: 11mdk
-License: LGPL
-Group: System/Libraries
-Source: ftp://ftp.gtk.org/pub/gtk/v1.2/%{name}-%{version}.tar.bz2
+Summary:	A library of handy utility functions.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	LGPL
+Group:		System/Libraries
+URL:		http://www.gtk.org
+Source:		ftp://ftp.gtk.org/pub/gtk/v1.2/%{name}-%{version}.tar.bz2
 # (fc) 1.2.10-3mdk Suppress warnings about varargs macros for -pedantic (Rawhide)
-Patch0: glib-1.2.10-isowarning.patch.bz2
+Patch0:		glib-1.2.10-isowarning.patch.bz2
 # (fc) 1.2.10-5mdk don't set -L/usr/lib in glib-config
-Patch1: glib-1.2.10-libdir.patch.bz2
-BuildRoot: %{_tmppath}/glib-%{version}-root
-URL: http://www.gtk.org
-Provides: glib
-Obsoletes: glib
+Patch1:		glib-1.2.10-libdir.patch.bz2
+
+BuildRoot:	%{_tmppath}/glib-%{version}-root
+
+Provides:	glib
+Obsoletes:	glib
 
 %description
 Glib is a handy library of utility functions. This C
@@ -28,23 +34,23 @@ You should install Glib because many of your applications
 will depend on this library.
 
 %package -n %{libname}
-Summary: Main library for glib
-Group: System/Libraries
-Provides: glib = %{version}-%{release}
-Obsoletes: glib
+Summary:	Main library for glib
+Group:		System/Libraries
+Provides:	glib = %{version}-%{release}
+Obsoletes:	glib
 
 %description -n %{libname}
 This package contains the library needed to run programs dynamically
 linked with the glib.
 
 %package -n %{libname}-devel
-Summary: GIMP Toolkit and GIMP Drawing Kit support library
-Group: Development/C
-Requires: %{libname} = %{version}-%{release}
-Requires: pkgconfig
-Provides: %{name}-devel = %{version}
-Provides: lib%{name}-devel = %{version}
-Obsoletes: glib-devel
+Summary:	GIMP Toolkit and GIMP Drawing Kit support library
+Group:		Development/C
+Requires:	%{libname} = %{version}-%{release}
+Requires:	pkgconfig
+Provides:	%{name}-devel = %{version}
+Provides:	lib%{name}-devel = %{version}
+Obsoletes:	glib-devel
 
 %description -n %{libname}-devel
 Static libraries and header files for the support library for the GIMP's X
@@ -99,6 +105,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_infodir}/%{name}*
 
 %changelog
+* Mon Dec 22 2003 Vincent Danen <vdanen@opensls.org> 1.2.10-12sls
+- OpenSLS build
+- tidy spec
+
 * Mon Sep 08 2003 Stefan van der Eijk <stefan@eijk.nu> 1.2.10-11mdk
 - rebuild to force new upload (alpha)
 
