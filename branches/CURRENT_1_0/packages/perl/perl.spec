@@ -1,6 +1,6 @@
 %define name	perl
 %define version	5.8.6
-%define release	1avx
+%define release	2avx
 %define epoch	2
 
 %define rel	%nil
@@ -49,6 +49,8 @@ Patch25:	perl-5.8.5-RC1-cpan-signature-test.patch.bz2
 Patch26:	perl-5.8.5-removeemptyrpath.patch.bz2
 Patch27:	perl-5.8.6-23565.bz2
 Patch28:	perl-5.8.6-CAN-2005-0155_0156.patch.bz2
+Patch29:	perl-5.8.3-owl-rmtree.diff.bz2
+Patch30:	perl-5.8.6-CAN-2004-0976.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}
 # for NDBM
@@ -132,6 +134,8 @@ This is the documentation package for %{name}.  It also contains the
 %patch26 -p0 -b .rpath
 %patch27 -p1
 %patch28 -p0
+%patch29 -p1
+%patch30 -p0
 
 %build
 %ifarch ppc
@@ -478,7 +482,11 @@ EOF
 %defattr(-,root,root)
 
 %changelog
-* Fri Sep 10 2004 Vincent Danen <vdanen@annvix.org> 5.8.5-1avx
+* Tue Feb 08 2005 Vincent Danen <vdanen@annvix.org> 5.8.6-2avx
+- P29: fix CAN-2004-0452 (from Openwall)
+- P30: fix CAN-2004-0976
+
+* Wed Feb 02 2005 Vincent Danen <vdanen@annvix.org> 5.8.6-1avx
 - 5.8.6
 - merged with cooker 5.8.6-3mdk:
   - BuildRequires: libgdbm_compat (rgarciasuarez)
