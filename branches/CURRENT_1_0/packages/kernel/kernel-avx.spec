@@ -84,7 +84,7 @@
 # Thomas Backlund <tmb@iki.fi>
 
 %define sublevel	25
-%define avxrelease	15
+%define avxrelease	17
 %define use_patch	0
 
 %{!?build_opensls:%global build_opensls 0}
@@ -925,6 +925,13 @@ exit 0
 %endif
 
 %changelog
+* Tue Jun 22 2004 Thomas Backlund <tmb@annvix.org> 2.4.25-17avx
+- e1000 ethtool gregs max length (ZY69)
+- redo DI02, as all nForce2 and nForce3 are capable of UDMA133
+
+* Sun Jun 20 2004 Thomas Backlund <tmb@annvix.org> 2.4.25-16avx
+- redo ZY67 patch for fpu_state fix, I forgot to apply it to x86_64
+
 * Sat Jun 19 2004 Thomas Backlund <tmb@annvix.org> 2.4.25-15avx
 - Update patch CD04 with better logo
 - Switch names to annvix / avx
