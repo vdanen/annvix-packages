@@ -1,6 +1,6 @@
 %define name	cyrus-sasl
 %define version	2.1.15
-%define release	5sls
+%define release	6sls
 
 %define major	2
 %define libname	%mklibname sasl %{major}
@@ -17,6 +17,9 @@ Source0:	ftp://ftp.andrew.cmu.edu/pub/cyrus-mail/%{name}-%{version}.tar.gz
 Source1:	ftp://ftp.andrew.cmu.edu/pub/cyrus-mail/%{name}-%{version}.tar.gz.sig
 Source2:        saslauthd.init
 Source3:        saslauthd.sysconfig
+Source4:	saslauthd.run
+Source5:	saslauthd-log.run
+Source6:	saslauthd.8.bz2
 Patch0:		cyrus-sasl-doc-patch.bz2
 Patch1:		cyrus-sasl-2.1.12-rpath.patch.bz2
 Patch2:		cyrus-sasl-2.1.15-lib64.patch.bz2
@@ -204,13 +207,11 @@ install saslauthd/LDAP_SASLAUTHD README.ldap
 %install
 rm -rf $RPM_BUILD_ROOT
 mkdir -p $RPM_BUILD_ROOT/var/lib/sasl2
-mkdir -p $RPM_BUILD_ROOT/etc/rc.d/init.d/
 mkdir -p $RPM_BUILD_ROOT/etc/sysconfig
 
 
 %{__make} install DESTDIR=$RPM_BUILD_ROOT
 
-install %{SOURCE2} $RPM_BUILD_ROOT/etc/rc.d/init.d/saslauthd
 install %{SOURCE3} $RPM_BUILD_ROOT/etc/sysconfig/saslauthd
 # Install man pages in the expected location, even if they are
 # pre-formatted.
@@ -225,6 +226,14 @@ cd utils
 /bin/sh ../libtool --mode=install /usr/bin/install -c dbconverter-2 \
   $RPM_BUILD_ROOT/%{_sbindir}/dbconverter-2
 
+mkdir -p %{buildroot}%{_srvdir}/saslauthd/log
+mkdir -p %{buildroot}%{_srvlogdir}/saslauthd
+install -m 0750 %{SOURCE4} %{buildroot}%{_srvdir}/saslauthd/run
+install -m 0750 %{SOURCE5} %{buildroot}%{_srvdir}/saslauthd/log/run
+
+# fix the horribly broken manpage
+bzcat %{SOURCE6} >%{buildroot}%{_mandir}/man8/saslauthd.8
+
 %clean
 rm -rf $RPM_BUILD_ROOT
 
@@ -237,9 +246,10 @@ if [ -f /var/lib/sasl/sasl.db.rpmsave -a ! -f /var/lib/sasl2/sasl.db ]; then
    echo "" | /usr/sbin/dbconverter-2 /var/lib/sasl/sasl.db.rpmsave /var/lib/sasl2/sasl.db
 fi
 
-%_post_service saslauthd
+%_post_srv saslauthd
+
 %preun
-%_preun_service saslauthd
+%_preun_srv saslauthd
 
 %post -n %{libname}
 /sbin/ldconfig
@@ -251,9 +261,12 @@ fi
 %doc COPYING AUTHORS INSTALL NEWS README* ChangeLog sample/{client,server}
 %doc doc/{TODO,ONEWS,*.txt,*.html}
 %dir /var/lib/sasl2
-%attr (755,root,root) %config(noreplace) /etc/rc.d/init.d/saslauthd
 %attr (644,root,root) %config(noreplace) /etc/sysconfig/saslauthd
-
+%dir %{_srvdir}/saslauthd
+%dir %{_srvdir}/saslauthd/log
+%{_srvdir}/saslauthd/run
+%{_srvdir}/saslauthd/log/run
+%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/saslauthd
 %{_sbindir}/*
 %{_mandir}/man8/*
 %{_mandir}/cat8/*
@@ -270,16 +283,19 @@ fi
 %files -n %{libname}-plug-otp
 %defattr(-,root,root)
 %{_libdir}/*/libotp*.so.*
+%{_libdir}/*/libotp.so
 %{_libdir}/*/libotp*.la
 
 %files -n %{libname}-plug-sasldb
 %defattr(-,root,root)
 %{_libdir}/*/libsasldb*.so.*
+%{_libdir}/*/libsasldb.so
 %{_libdir}/*/libsasldb*.la
 
 %files -n %{libname}-plug-gssapi
 %defattr(-,root,root)
 %{_libdir}/*/libgssapi*.so.*
+%{_libdir}/*/libgssapi*.so
 %{_libdir}/*/libgssapi*.la
 
 %files -n %{libname}-plug-crammd5
@@ -326,6 +342,12 @@ fi
 %{_mandir}/man3/*
  
 %changelog
+* Tue Feb 03 2004 Vincent Danen <vdanen@opensls.org> 2.1.15-6sls
+- supervise scripts
+- remove initscript
+- fix the saslauthd.8 manpage (a patch would be bigger than the file so
+  include it as S6)
+
 * Sat Dec 13 2003 Vincent Danen <vdanen@opensls.org> 2.1.15-5sls
 - OpenSLS build
 - tidy spec
