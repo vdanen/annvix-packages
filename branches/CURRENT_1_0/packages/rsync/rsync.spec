@@ -1,6 +1,6 @@
 %define name	rsync
 %define version	2.6.2
-%define release	5avx
+%define release	6avx
 
 Summary:	A program for synchronizing files over a network.
 Name:		%{name}
@@ -15,12 +15,16 @@ Source2:	rsyncd.conf.html
 Source4:	ftp://rsync.samba.org/pub/rsync/%name-%version.tar.gz.sig
 Source5:	rsync.run
 Source6:	rsync-log.run
+Source7:	07_rsync.afterboot
 Patch0:		rsync-2.5.4-draksync.patch.bz2
 Patch1:		rsync-2.6.0-nogroup.patch.bz2
 Patch2:		rsync-2.6.0-path-sanitize.patch.bz2
 
 BuildRoot:	%_tmppath/%name-root
 BuildRequires:	popt-devel
+
+Requires:	ipsvd
+PreReq:		afterboot
 
 %description
 Rsync uses a quick and reliable algorithm to very quickly bring
@@ -58,16 +62,25 @@ mkdir -p $RPM_BUILD_ROOT{%_bindir,%_mandir/{man1,man5}}
 
 %makeinstall
 install -m644 %SOURCE1 %SOURCE2 .
-mkdir -p %{buildroot}%{_srvdir}/rsync/log
+mkdir -p %{buildroot}%{_srvdir}/rsync/{log,peers}
 install -m 0755 %{SOURCE5} %{buildroot}%{_srvdir}/rsync/run
 install -m 0755 %{SOURCE6} %{buildroot}%{_srvdir}/rsync/log/run
+touch %{buildroot}%{_srvdir}/rsync/peers/0
+chmod 0644 %{buildroot}%{_srvdir}/rsync/peers/0
 mkdir -p %{buildroot}%{_srvlogdir}/rsync
+
+mkdir -p %{buildroot}%{_datadir}/afterboot
+install -m 0644 %{SOURCE7} %{buildroot}%{_datadir}/afterboot/07_rsync
 
 %post
 %_post_srv rsync
+%_mkafterboot
 
 %preun
 %_preun_srv rsync
+
+%postun
+%_mkafterboot
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -75,16 +88,26 @@ mkdir -p %{buildroot}%{_srvlogdir}/rsync
 %files
 %defattr(-,root,root)
 %doc tech_report.tex README COPYING *html
-%_bindir/rsync
+%{_bindir}/rsync
 %dir %{_srvdir}/rsync
 %dir %{_srvdir}/rsync/log
+%dir %{_srvdir}/rsync/peers
 %dir %attr(0750,nobody,nogroup) %{_srvlogdir}/rsync
 %{_srvdir}/rsync/run
 %{_srvdir}/rsync/log/run
-%_mandir/man1/rsync.1*
-%_mandir/man5/rsyncd.conf.5*
+%config(noreplace) %{_srvdir}/rsync/peers/0
+%{_mandir}/man1/rsync.1*
+%{_mandir}/man5/rsyncd.conf.5*
+%{_datadir}/afterboot/07_rsync
 
 %changelog
+* Fri Oct 08 2004 Vincent Danen <vdanen@annvix.org> 2.6.2-6avx
+- switch from tcpserver to tcpsvd
+- Requires: ipsvd
+- add the /service/rsync/peers directory to, by default, allow all
+  connections
+- add afterboot snippet
+
 * Mon Sep 20 2004 Vincent Danen <vdanen@annvix.org> 2.6.2-5avx
 - update run scripts
 
