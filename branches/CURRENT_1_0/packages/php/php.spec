@@ -1,6 +1,6 @@
 %define name	php
 %define version	4.3.8
-%define release	1avx
+%define release	2avx
 %define epoch	2
 
 %define libversion	4
@@ -99,6 +99,7 @@ Patch58:	php-4.3.7-fdr-gmppowm.patch.bz2
 Patch70:	php-4.3.3-mdk-make_those_darn_tests_work.patch.bz2
 # Bug fixes:
 Patch71:	php-4.3.4-mdk-bug-22414.patch.bz2
+Patch72:	php-4.3.8-cvs-closesocket.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
 # this is to prevent that it will build against old libs
@@ -270,6 +271,7 @@ perl -pi -e "s|_PHP_SONAME_|%{libversion}|g" Makefile.global
 %patch70 -p0 -b .make_those_darn_tests_work
 # upstream fix bugs
 %patch71 -p1 -b .22414
+%patch72 -p1
 
 # Change perms otherwise rpm would get fooled while finding requires
 chmod 644 tests/lang/*.inc
@@ -613,6 +615,9 @@ update-alternatives --remove php %{_bindir}/php-cli
 %{_includedir}/php
 
 %changelog
+* Fri Aug 13 2004 Vincent Danen <vdanen@annvix.org> 4.3.8-2avx
+- P72: fix anthill #965; patch from CVS
+
 * Wed Jul 14 2004 Vincent Danen <vdanen@annvix.org> 4.3.8-1avx
 - 4.3.8; security fix for CAN-2004-0594 and CAN-2004-0595
 - remove %%build_propolice macro

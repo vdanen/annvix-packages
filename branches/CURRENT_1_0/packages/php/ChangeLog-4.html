@@ -60,6 +60,65 @@
 
 <hr />
 
+<a name="4.3.8"></a>
+<h3>Version 4.3.8</h3>
+<b>13-Jul-2004</b>
+<ul>
+<li>Fixed strip_tags() to correctly handle '\0' characters. (Stefan)</li>
+<li>Improved stability during startup when memory_limit is used. (Stefan)</li>
+<li>Replace alloca() with emalloc() for better stack protection. (Ilia)</li>
+<li>Added missing safe_mode checks inside ftok and itpc. (Ilia)</li>
+<li>Fixed bug <a href="http://bugs.php.net/28963">#28963</a> Fixed address allocation routine in IMAP extension. (Ilia)</li>
+<li>Fixed bug <a href="http://bugs.php.net/28632">#28632</a> Prevent open_basedir bypass via MySQL's LOAD DATA LOCAL. (Ilia)</li>
+
+</ul>
+There is a <a href="release_4_3_8.php">separate announcement</a> available for this release.<br />
+
+<hr />
+
+<a name="4.3.7"></a>
+<h3>Version 4.3.7</h3>
+<b>03-Jun-2004</b>
+<ul>
+<li>Upgraded bundled GD library to 2.0.23. (Ilia)</li>
+<li>Changed user error handler mechanism to relay to built-in error handler if it returns false. (Andrei)</li>
+<li>Fixed command line escaping routines for win32. (Ilia)</li>
+<li>Fixed problems with *printf() functions and '%f' formatting. (Marcus)</li>
+<li>Fixed possible crash inside pg_copy_(to|from) function if delimiter is more then 1 character long. (Ilia)</li>
+<li>Fixed crash inside cpdf_place_inline_image() when working with true-color images. (Ilia)</li>
+<li>Fixed handling of return values from stored procedures in mssql_execute() with multiple result sets returned. (Frank)</li>
+<li>Fixed logic bug in session_register() which allowed registering _SESSION and/or HTTP_SESSION_VARS. (Sara)</li>
+<li>Fixed bug <a href="http://bugs.php.net/28597">#28597</a> (xmlrpc_encode_request() incorrectly encodes chars in 200-210 range). (fernando dot nemec at folha dot com dot br, Ilia)</li>
+<li>Fixed bug <a href="http://bugs.php.net/28569">#28569</a> (informix connection id is not thread safe). (novicky at aarongroup dot cz, Ard)</li>
+<li>Fixed bug <a href="http://bugs.php.net/28564">#28564</a> (Problem building informix as a shared extension).  (roques at mti dot ag, Ilia)</li>
+<li>Fixed bug <a href="http://bugs.php.net/28508">#28508</a> (Do not make hypot() available if not supported by libc). (Ilia)</li>
+<li>Fixed bug <a href="http://bugs.php.net/28506">#28506</a> (Allow negative start angle in imagearc and imagefilledarc). (Pierre)</li>
+<li>Fixed bug <a href="http://bugs.php.net/28456">#28456</a> (Problem with enclosed / in uploaded files). (Antony)</li>
+<li>Fixed bug <a href="http://bugs.php.net/28386">#28386</a> (wordwrap() wraps lines 1 character too soon). (Ilia)</li>
+<li>Fixed bug <a href="http://bugs.php.net/28374">#28374</a> (Possible unterminated loop inside _php_pgsql_trim_message()). (Ilia)</li>
+<li>Fixed bug <a href="http://bugs.php.net/28355">#28355</a> (glob() does not return error on Linux when it does not have permission to open the directory). (Ilia)</li>
+<li>Fixed bug <a href="http://bugs.php.net/28289">#28289</a> (incorrect resolving of relative paths by glob() in windows). (Ilia)</li>
+<li>Fixed bug <a href="http://bugs.php.net/28229">#28229</a> (run-tests tripped up by spaces in names). (Marcus)</li>
+<li>Fixed bug <a href="http://bugs.php.net/28228">#28228</a> (number_format() does not allow empty decimal separator). (Ilia)</li>
+<li>Fixed bug <a href="http://bugs.php.net/28196">#28196</a> (missing error constants in cURL extension). (Ilia)</li>
+<li>Fixed bug <a href="http://bugs.php.net/28187">#28187</a> (parse_url() not handling embedded IPv6 in URLs). (Sara)</li>
+<li>Fixed bug <a href="http://bugs.php.net/28175">#28175</a> (build problem for people using FreeType 2.1.0-2.1.2). (Ilia)</li>
+<li>Fixed bug <a href="http://bugs.php.net/28147">#28147</a> (Crash with drawing anti-aliased lines). (Derick)</li>
+<li>Fixed bug <a href="http://bugs.php.net/28122">#28122</a> (dba_open db3: Permission denied). (Marcus)</li>
+<li>Fixed bug <a href="http://bugs.php.net/28112">#28112</a> (sqlite_query() crashing apache on malformed query). (Ilia, Marcus)</li>
+<li>Fixed bug <a href="http://bugs.php.net/28055">#28055</a> (timeout duration too long in feof()/pfsockopen() liveness checks). (Wez)</li>
+<li>Fixed bug <a href="http://bugs.php.net/28087">#28087</a> (Do not force mysql.trace_mode to 0 on every request). (Ilia)</li>
+<li>Fixed bug <a href="http://bugs.php.net/28042">#28042</a> (greek letters in html to entity mapping not correct). (Derick)</li>
+<li>Fixed bug <a href="http://bugs.php.net/28007">#28007</a> (compile mssql extension with old versions of FreeTDS fails). (Frank)</li>
+<li>Fixed bug <a href="http://bugs.php.net/27995">#27995</a> (imagefilltoborder() stops the fill process prematurely). (Ilia)</li>
+<li>Fixed bug <a href="http://bugs.php.net/27810">#27810</a> (don't use php's pemalloc in ext/pcre). (Joe Orton)</li>
+<li>Fixed bug <a href="http://bugs.php.net/23220">#23220</a> (SSL: fatal protocol error when talking to IIS). (Wez)</li>
+
+</ul>
+There is a <a href="release_4_3_7.php">separate announcement</a> available for this release.<br />
+
+<hr />
+
 <a name="4.3.6"></a>
 <h3>Version 4.3.6</h3>
 <b>15-Apr-2004</b>
@@ -3350,7 +3409,7 @@ More information on this release on <a href="/releases.php#4.0.0">our Releases p
  <div id="thismirror">
   <a href="/mirror.php">This mirror</a> generously provided by:
   <a href="http://www.webhostingtalk.com/">Web Hosting Talk</a><br />
-  Last updated: Wed May 26 08:12:11 2004 EDT
+  Last updated: Wed Jul 14 02:13:31 2004 EDT
  </div>
 </div>
 
