@@ -3,7 +3,7 @@
 <head>
    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
    <meta name="GENERATOR" content="Mozilla/4.61 [en] (X11; I; Linux 2.2.9-23mdk i686) [Netscape]">
-   <meta name="Author" content="OpenSLS">
+   <meta name="Author" content="Annvix">
    <title>Welcome to the Advanced Extranet Server, ADVX!</title> 
    <LINK REL="SHORTCUT ICON" HREF="/favicon.ico">
 <!-- Background white, links blue (unvisited), navy (visited), red (active) --> </head>
@@ -103,7 +103,7 @@ href="http://www.advx.org/">ADVX.org Homepage</a>.
 <tr><td colspan=2>
 <H1>Secure your web server!</H1>
 <img align=left src="/icons/stamp.gif">
-OpenSLS comes with SSL encryption (mod_ssl), we suggest you install it
+Annvix comes with SSL encryption (mod_ssl), we suggest you install it
 for more security. It comes with its own test key so you can start using it
 right now.
 </tr></tr>
