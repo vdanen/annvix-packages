@@ -1,6 +1,6 @@
 %define name	vim
 %define version	6.3
-%define release	2avx
+%define release	3avx
 
 # Notes / Warning :
 # - this package is not prefixable
@@ -354,6 +354,9 @@ update-alternatives --remove vim /usr/bin/vim-enhanced
 %{_bindir}/vimdiff
 
 %changelog
+* Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> 6.3-3avx
+- rebuild against new python
+
 * Wed Feb 02 2005 Vincent Danen <vdanen@annvix.org> 6.3-2avx
 - rebuild against new perl
 
