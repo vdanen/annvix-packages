@@ -1,6 +1,6 @@
 %define name	rsync
 %define version	2.6.2
-%define release	2avx
+%define release	3avx
 
 Summary:	A program for synchronizing files over a network.
 Name:		%{name}
@@ -12,7 +12,6 @@ URL:		http://rsync.samba.org/
 Source:		ftp://rsync.samba.org/pub/rsync/%name-%version.tar.gz
 Source1:	rsync.html
 Source2:	rsyncd.conf.html
-Source3:	rsync.xinetd
 Source4:	ftp://rsync.samba.org/pub/rsync/%name-%version.tar.gz.sig
 Source5:	rsync.run
 Source6:	rsync-log.run
@@ -57,7 +56,6 @@ mkdir -p $RPM_BUILD_ROOT{%_bindir,%_mandir/{man1,man5}}
 
 %makeinstall
 install -m644 %SOURCE1 %SOURCE2 .
-install -D -m 644 %SOURCE3 %buildroot%{_sysconfdir}/xinetd.d/rsync
 mkdir -p %{buildroot}%{_srvdir}/rsync/log
 install -m 0755 %{SOURCE5} %{buildroot}%{_srvdir}/rsync/run
 install -m 0755 %{SOURCE6} %{buildroot}%{_srvdir}/rsync/log/run
@@ -75,7 +73,6 @@ mkdir -p %{buildroot}%{_srvlogdir}/rsync
 %files
 %defattr(-,root,root)
 %doc tech_report.tex README COPYING *html
-%config(noreplace) %{_sysconfdir}/xinetd.d/%name
 %_bindir/rsync
 %dir %{_srvdir}/rsync
 %dir %{_srvdir}/rsync/log
@@ -86,6 +83,9 @@ mkdir -p %{buildroot}%{_srvlogdir}/rsync
 %_mandir/man5/rsyncd.conf.5*
 
 %changelog
+* Wed Jun 22 2004 Vincent Danen <vdanen@annvix.org> 2.6.2-3avx
+- remove xinetd support
+
 * Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 2.6.2-2avx
 - Annvix build
 
