@@ -1,6 +1,8 @@
+# $Id: afterboot.spec,v 1.3 2004/07/15 04:05:34 vdanen Exp $
+
 %define name	afterboot
-%define version 0.1
-%define release 4avx
+%define version 0.2
+%define release 1avx
 
 Summary:	Dynamic afterboot manpage
 Name: 		%{name}
@@ -51,6 +53,9 @@ touch %{buildroot}%{_mandir}/man8/afterboot.8.bz2
 
 
 %changelog
+* Wed Jul 14 2004 Vincent Danen <vdanen@opensls.org> 0.2-1avx
+- s/OpenSLS/Annvix in lots of places
+
 * Fri Jun 18 2004 Vincent Danen <vdanen@opensls.org> 0.1-4avx
 - Annvix build
 
