@@ -1,0 +1,9 @@
+--- e2fsprogs-1.23/configure.in.ac250	Mon Oct 22 10:48:49 2001
++++ e2fsprogs-1.23/configure.in	Mon Oct 22 10:49:23 2001
+@@ -1,5 +1,6 @@
+ AC_INIT(version.h)
+ AC_PREREQ(2.12)
++AC_ISC_POSIX
+ MCONFIG=./MCONFIG
+ AC_SUBST_FILE(MCONFIG)
+ BINARY_TYPE=bin
