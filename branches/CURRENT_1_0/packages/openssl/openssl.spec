@@ -1,6 +1,6 @@
 %define name	openssl
-%define version	0.9.7b
-%define release	8avx
+%define version	0.9.7d
+%define release	2avx
 
 %define maj		0.9.7
 %define libname 	%mklibname %name %maj
@@ -16,16 +16,11 @@ Group:		System/Libraries
 URL:		http://www.openssl.org/
 Source:		ftp://ftp.openssl.org/source/%{name}-%{version}.tar.bz2
 # (fg) 20010202 Patch from RH: some funcs now implemented with ia64 asm
-Patch1:		openssl-0.9.7-ia64-asm.patch.bz2
+Patch1:		openssl-0.9.7-mdk-ia64-asm.patch.bz2
 # (gb) 0.9.7b-4mdk: Handle RPM_OPT_FLAGS in Configure
-Patch2:		openssl-0.9.7b-optflags.patch.bz2
+Patch2:		openssl-0.9.7b-mdk-optflags.patch.bz2
 # (gb) 0.9.7b-4mdk: Make it lib64 aware. TODO: detect in Configure
-Patch3:		openssl-0.9.7b-lib64.patch.bz2
-# security fixes: CAN-2003-0543, CAN-2003-0544, CAN-2003-0545
-Patch4:		openssl-0.9.6c-ccert.patch.bz2
-Patch5:		niscc-097.txt.bz2
-Patch6:		CAN-2004-0079.patch.bz2
-Patch7:		CAN-2004-0112.patch.bz2
+Patch3:		openssl-0.9.7d-mdk-lib64.patch.bz2
 
 BuildRoot:	%_tmppath/%name-%version-root
 
@@ -102,17 +97,14 @@ Patches for many networking apps can be found at:
 %patch1 -p1 -b .ia64-asm
 %patch2 -p1 -b .optflags
 %patch3 -p1 -b .lib64
-%patch4 -p1 -b .ccert
-%patch5 -p1 -b .niscc
-%patch6 -p1 -b .can-2004-0079
-%patch7 -p1 -b .can-2004-0112
 
 perl -pi -e "s,^(LIB=).+$,\1%{_lib}," Makefile.org
 
 %build 
 # Don't carry out asm optimization on Alpha for now
-%ifarch alpha amd64 x86_64
+%ifarch alpha amd64 x86_64 sparc sparc64
 # [gb] likewise on amd64: seems broken and no time to review
+# [stefan@eijk,nu] ditto for sparc/sparc64
 NO_ASM="no-asm"
 %endif
 sh config $NO_ASM --prefix=%_prefix --openssldir=%_libdir/ssl shared
@@ -143,13 +135,13 @@ done
 
 rm -rf {main,devel}-doc-info
 mkdir -p {main,devel}-doc-info
-cat - << EOF > main-doc-info/README.Mandrake-manpage
+cat - << EOF > main-doc-info/README.Annvix-manpage
 Warning:
 The man page of passwd, passwd.1, has been renamed to ssl-passwd.1
 to avoid a conflict with passwd.1 man page from the package passwd.
 EOF
 
-cat - << EOF > devel-doc-info/README.Mandrake-manpage
+cat - << EOF > devel-doc-info/README.Annvix-manpage
 Warning:
 The man page of rand, rand.3, has been renamed to ssl-rand.3
 to avoid a conflict with rand.3 from the package man-pages
@@ -162,6 +154,10 @@ rm -f %{buildroot}%{_libdir}/libcrypto.so.0
 cd %{buildroot}%{_libdir}
 ln -sf libssl.so.0.* libssl.so
 ln -sf libcrypto.so.0.* libcrypto.so
+
+chmod 755 %{buildroot}%{_libdir}/pkgconfig
+
+rm -f %{buildroot}%{_mandir}/man7/Modes*
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -198,6 +194,17 @@ ln -sf libcrypto.so.0.* libcrypto.so
 
 
 %changelog
+* Tue Aug 17 2004 Vincent Danen <vdanen@annvix.org> 0.9.7d-2avx
+- remove "Modes of Des.7" manpage since it's a symlink to des_modes.7
+- change README.Mandrake-manpage to README.Annvix-manpage
+
+* Fri Aug 13 2004 Vincent Danen <vdanen@annvix.org> 0.9.7d-1avx
+- 0.9.7d
+- don't use broken sparc/sparc64 asm optimizations for now (stefan)
+- rediff P3 (jmdault)
+- remove P4, P5, P6, P7; included upstream
+- patch policy
+
 * Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 0.9.7b-8avx
 - require packages not files
 - Annvix build
