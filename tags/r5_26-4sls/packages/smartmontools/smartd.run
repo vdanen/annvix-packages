@@ -1,0 +1,12 @@
+#!/bin/sh
+PATH="/sbin:/usr/sbin:/bin:/usr/bin:$PATH"
+
+# this runs smartd under supervise
+
+if [ -f /etc/sysconfig/smartd ]; then
+  . /etc/sysconfig/smartd
+else
+  INTERVAL="1800"
+fi
+
+exec /usr/sbin/smartd -d -i $INTERVAL
