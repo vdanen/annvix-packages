@@ -1,0 +1,6 @@
+/var/log/named.log {
+    missingok
+    postrotate
+	/usr/bin/svc -h /service/named
+    endscript
+}

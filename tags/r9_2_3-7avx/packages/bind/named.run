@@ -1,0 +1,12 @@
+#!/bin/sh
+PATH="/sbin:/usr/sbin:/bin:/usr/bin:$PATH"
+
+# this runs named under supervise
+
+[ -f /etc/sysconfig/named ] && . /etc/sysconfig/named
+
+if [ -n "${ROOTDIR}" -a "x${ROOTDIR}" != "x/" ]; then
+    OPTIONS="${OPTIONS} -t ${ROOTDIR}"
+fi
+
+exec /usr/sbin/named -u named -f ${OPTIONS} 2>&1
