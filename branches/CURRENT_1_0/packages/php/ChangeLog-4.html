@@ -58,10 +58,48 @@
 
 <h1>PHP 4 ChangeLog</h1>
 
+<hr />
+
+<a name="4.3.6"></a>
+<h3>Version 4.3.6</h3>
+<b>15-Apr-2004</b>
+<ul>
+<li>Updated bundled PDFLib library to version 5.0.3p1 in Windows distribution. (Edin)</li>
+<li>Synchronized bundled GD library with GD 2.0.22. (Ilia)</li>
+<li>Fixed a crash in multi-threaded environments when a thread is shutdown by the web server. (Stas)</li>
+<li>Fixed a bug that prevented building of the GD extension against external GD lib 1.X. (Ilia, Edin, Nick Talbott).</li>
+<li>Fixed bug <a href="http://bugs.php.net/27963">#27963</a> (Session lifetime setting may leak between requests). (Ilia)</li>
+<li>Fixed bug <a href="http://bugs.php.net/27849">#27849</a> (configure craps out on trivial syntax error). (Derick)</li>
+<li>Fixed bug <a href="http://bugs.php.net/27822">#27822</a> (is_resource() returns TRUE for closed resources). (Derick)</li>
+<li>Fixed bug <a href="http://bugs.php.net/27819">#27819</a> (problems returning reference to a reference parameter). (Ilia)</li>
+<li>Fixed bug <a href="http://bugs.php.net/27809">#27809</a> (ftp_systype returns null on some ftp servers). (Ilia)</li>
+<li>Fixed bug <a href="http://bugs.php.net/27802">#27802</a> (default number of children to 8 when PHP_FCGI_CHILDREN is not defined). (Ilia)</li>
+<li>Fixed bug <a href="http://bugs.php.net/27780">#27780</a> (strtotime(+1 xxx) returns a wrong date/time). (Derick)</li>
+<li>Fixed bug <a href="http://bugs.php.net/27769">#27769</a> (domxml_xmltree crashes). (Rob)</li>
+<li>Fixed bug <a href="http://bugs.php.net/27764">#27764</a> (Get return value from a stored procedure not returning any result sets). (Frank)</li>
+<li>Fixed bug <a href="http://bugs.php.net/27762">#27762</a> (SCO Openserver doesn't have S_ISSOCK). (Wez)</li>
+<li>Fixed bug <a href="http://bugs.php.net/27743">#27743</a> (Make sure Money types are converted and returned correctly). (Frank)</li>
+<li>Fixed bug <a href="http://bugs.php.net/27732">#27732</a> (Fixed compilation bug inside php_sab_info.h). (Ilia)</li>
+<li>Fixed bug <a href="http://bugs.php.net/27731">#27731</a> (error_reporting() inside @ block fails to set error_reporting level). (Ilia)</li>
+<li>Fixed bug <a href="http://bugs.php.net/27719">#27719</a> (mktime issues on and around DST changeover). (Rasmus)</li>
+<li>Fixed bug <a href="http://bugs.php.net/27717">#27717</a> (Test Failures when compiled on 64-bit mode). (Ard, Derick)</li>
+<li>Fixed bug <a href="http://bugs.php.net/27687">#27687</a> (Bug Adding Default Charset to 'text/*' Content-Type Header). (Marcus)</li>
+<li>Fixed bug <a href="http://bugs.php.net/27663">#27663</a> (compile failure with cURL 7.11.1). (Ilia)</li>
+<li>Fixed bug <a href="http://bugs.php.net/27646">#27646</a> (Cannot serialize/unserialize non-finite numeric values). (Marcus)</li>
+<li>Fixed bug <a href="http://bugs.php.net/26757">#26757</a> (session.save_path default is bogus for win32). (Wez)</li>
+<li>Fixed bug <a href="http://bugs.php.net/26589">#26589</a> (Crash inside mssql extension when selecting many columns of type money). (Frank)</li>
+<li>Fixed bug <a href="http://bugs.php.net/25547">#25547</a> (error_handler and array index with function call). cschneid at cschneid dot com)</li>
+
+</ul>
+There is a <a href="release_4_3_6.php">separate announcement</a> available for this release.<br />
+
+<hr />
+
 <a name="4.3.5"></a>
 <h3>Version 4.3.5</h3>
 <b>26-Mar-2004</b>
 <ul>
+
 <li>Fixed possible crash using an invalid color index with a palette image in imagecolortransparent (Pierre)</li>
 <li>Fixed php-cgi to not ignore command-line switches when run in a web context. This fixes our test cases allowing INI with GET sections to work (Rasmus)</li>
 <li>Fixed getopt() so it works without $_SERVER (Rasmus, bfrance)</li>
@@ -222,6 +260,7 @@
 
 </ul>
 There is a <a href="release_4_3_5.php">separate announcement</a> available for this release.<br />
+
 
 <hr />
 
@@ -3297,7 +3336,8 @@ More information on this release on <a href="/releases.php#4.0.0">our Releases p
  <a href="/source.php?url=/ChangeLog-4.php">show source</a> |
  <a href="/credits.php">credits</a> |
  <a href="/sitemap.php">sitemap</a> |
- <a href="/copyright.php#contact">contact</a> |
+ <a href="/contact.php">contact</a> |
+ <a href="/contact.php#ads">advertising</a> |
  <a href="/mirrors.php">mirror sites</a>
 </div>
 
@@ -3310,7 +3350,7 @@ More information on this release on <a href="/releases.php#4.0.0">our Releases p
  <div id="thismirror">
   <a href="/mirror.php">This mirror</a> generously provided by:
   <a href="http://www.webhostingtalk.com/">Web Hosting Talk</a><br />
-  Last updated: Sat Mar 27 18:11:01 2004 EST
+  Last updated: Wed May 26 08:12:11 2004 EDT
  </div>
 </div>
 
