@@ -1,0 +1,11 @@
+--- samples/auto.net.orig	Mon Jul  2 15:17:18 2001
++++ samples/auto.net	Mon Jul  2 15:17:41 2001
+@@ -9,7 +9,7 @@
+ 
+ # add "nosymlink" here if you want to suppress symlinking local filesystems
+ # add "nonstrict" to make it OK for some filesystems to not mount
+-opts="-fstype=nfs,hard,intr,nodev,nosuid"
++opts="-fstype=nfs,hard,intr,nodev,nosuid,nonstrict"
+ 
+ # Showmount comes in a number of names and varieties.  "showmount" is
+ # typically an older version which accepts the '--no-headers' flag

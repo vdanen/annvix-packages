@@ -1,0 +1,32 @@
+--- utempter-0.5.2/Makefile.makevars	1999-03-25 21:35:43.000000000 +0100
++++ utempter-0.5.2/Makefile	2002-06-25 00:26:38.000000000 +0200
+@@ -1,3 +1,8 @@
++prefix=/usr
++bindir=$(prefix)/bin
++sbindir=$(prefix)/sbindir
++libdir=$(prefix)/lib
++includedir=$(prefix)/include
+ 
+ # project name
+ PROJECT	= utempter
+@@ -23,13 +28,13 @@ clean:
+ 	$(CC) -c $(CFLAGS) -fPIC $< -o $@
+ 
+ install:
+-	mkdir -p $(RPM_BUILD_ROOT)/usr/sbin
+-	mkdir -p $(RPM_BUILD_ROOT)/usr/lib
+-	mkdir -p $(RPM_BUILD_ROOT)/usr/include
+-	install -m 4755 utempter $(RPM_BUILD_ROOT)/usr/sbin
+-	install -m 644 utempter.h $(RPM_BUILD_ROOT)/usr/include
+-	install -m 644 $(SHAREDLIB) $(RPM_BUILD_ROOT)/usr/lib/$(SHAREDLIB).$(VERSION)
+-	ln -sf $(SHAREDLIB).$(VERSION) $(RPM_BUILD_ROOT)/usr/lib/$(SHAREDLIB)
++	mkdir -p $(sbindir)
++	mkdir -p $(libdir)
++	mkdir -p $(includedir)
++	install -m 4755 utempter $(sbindir)/
++	install -m 644 utempter.h $(includedir)/
++	install -m 644 $(SHAREDLIB) $(libdir)/$(SHAREDLIB).$(VERSION)
++	ln -sf $(SHAREDLIB).$(VERSION) $(libdir)/$(SHAREDLIB)
+ 
+ $(SHAREDLIB): utmpintf.os
+ 	$(CC) -o $@ -shared -Wl,-soname,$(SONAME) $^ -lc
