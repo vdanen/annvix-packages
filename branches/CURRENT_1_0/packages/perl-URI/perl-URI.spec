@@ -1,7 +1,7 @@
 %define module	URI
 %define name	perl-%{module}
-%define version 1.25
-%define release 5avx
+%define version 1.35
+%define release 1avx
 
 %define _requires_exceptions perl(Business::ISBN)
 
@@ -31,7 +31,7 @@ in RFC 2396.
 %build
 %{__perl} Makefile.PL INSTALLDIRS=vendor
 make
-#make test
+make test
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -51,7 +51,6 @@ make
 * Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> 1.35-1avx
 - 1.35
 - update description
-- disable "make test" due to heuristic.t test failure
 
 * Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 1.25-5avx
 - Annvix build
