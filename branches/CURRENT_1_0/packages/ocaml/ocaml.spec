@@ -1,6 +1,7 @@
 %define name	ocaml
-%define version	3.06
-%define release	15avx
+%define version	3.08
+%define release	1avx
+%define mainver 3.08.0
 
 %define build_ocamlopt	1
 %define build_ocamltk	1
@@ -12,26 +13,17 @@ Release:	%{release}
 License:	QPL & LGPL
 Group:		Development/Other
 URL:		http://www.ocaml.org/
-Source0:	ftp://ftp.inria.fr/lang/caml-light/ocaml-3.06/ocaml-%{version}.tar.bz2
-Source1:	ftp://ftp.inria.fr/lang/caml-light/ocaml-3.06/ocaml-%{version}-refman.html.tar.bz2
-Source4:	%{name}.menu
-Patch1:		ocaml-3.06-Tk_PhotoPutBlock-change-tk-8.4.patch.bz2
-Patch3:		ocaml-3.00-ocamltags--no-site-start.patch.bz2
-Patch6:		ocaml-3.04-do-not-add-rpath-X11R6_lib-when-using-option-L.patch.bz2
-Patch7:		ocaml-3.05-no-opt-for-debug-and-profile.patch.bz2
-Patch8:		ocaml-3.04-larger-buffer-for-uncaught-exception-messages.patch.bz2
-Patch9:		ocaml-3.06-add-warning-for-unused-local-variables.patch.bz2
-#(peroyvind) patches from debian
-Patch10:	%{name}-3.06-configure-sparc-build.patch.bz2
-Patch11:	%{name}-3.06-threads-fixes.patch.bz2
-Patch12:	%{name}-3.06-gc-stat-aux-fix.patch.bz2
-Patch13:	%{name}-3.06-doc-fixes.patch.bz2
-Patch14:	%{name}-3.06-init-fixes.patch.bz2
-Patch15:	ocaml-3.06-amd64.patch.bz2
-Patch16:	ocaml-3.06-lib64.patch.bz2
+Source0:	ftp://ftp.inria.fr/INRIA/cristal/caml-light/ocaml-3.07/ocaml-%{mainver}.tar.bz2
+Source1:	ftp://ftp.inria.fr/INRIA/cristal/caml-light/ocaml-3.07/ocaml-%{version}-refman.html.tar.bz2
+Patch0:		ocaml-3.00-ocamltags--no-site-start.patch.bz2
+Patch1:		ocaml-3.04-do-not-add-rpath-X11R6_lib-when-using-option-L.patch.bz2
+Patch2:		ocaml-3.05-no-opt-for-debug-and-profile.patch.bz2
+Patch3:		ocaml-3.04-larger-buffer-for-uncaught-exception-messages.patch.bz2
+Patch4:		ocaml-3.08.0-add-warning-for-unused-local-variables.patch.bz2
+Patch5:		ocaml-3.06-lib64.patch.bz2
 
 BuildRoot:	%{_tmppath}/ocaml-root
-BuildRequires:	XFree86-devel ncurses-devel tk
+BuildRequires:	XFree86-devel ncurses-devel tcl tk
 
 %description
 Objective Caml is a high-level, strongly-typed, functional and object-oriented
@@ -58,24 +50,17 @@ Requires:	%{name} = %{version}-%{release}
 Tk toolkit binding for OCaml
 
 %prep
-%setup -q -T -b 0
-%setup -q -T -D -a 1
+%setup -q -n %{name}-%{mainver} -T -b 0
+%setup -q -n %{name}-%{mainver} -T -D -a 1
+%patch0 -p1
 %patch1 -p1
+%patch2 -p1
 %patch3 -p1
-%patch6 -p1
-%patch7 -p1
-%patch8 -p1
-%patch9 -p1
-%patch10 -p0
-%patch11 -p0
-%patch12 -p0
-%patch13 -p0
-%patch14 -p0
-%patch15 -p1 -b .amd64
-%patch16 -p1 -b .lib64
+%patch4 -p1
+%patch5 -p1 -b .lib64
 
 #- because of added warning for unused local variables, treating warning as errors is no good
-perl -pi -e 's/-warn-error A/-w A/' `find -name "Makefile*"`
+perl -pi -e 's/-warn-error A/-w A -w e/' `find -name "Makefile*"`
 rm -rf `find -name .cvsignore`
 
 %build
@@ -84,9 +69,9 @@ echo %{optflags} | grep -q mieee || { echo "on alpha you need -mieee to compile 
 %endif
 
 ./configure -bindir %{_bindir} -libdir %{_libdir}/ocaml -mandir %{_mandir}/man1
-make BYTECCCOMPOPTS="%{optflags}" NATIVECCCOMPOPTS="%{optflags}" world
+make world
 %if %{build_ocamlopt}
-make BYTECCCOMPOPTS="%{optflags}" NATIVECCCOMPOPTS="%{optflags}" opt opt.opt
+make opt opt.opt
 %endif
 
 %install
@@ -98,11 +83,11 @@ rm -f %{buildroot}%{_bindir}/camlp4*.opt
 rm -f %{buildroot}%{_mandir}/man1/camlp4*.opt.*
 
 # fix
-perl -pi -e "s|$RPM_BUILD_ROOT||" $RPM_BUILD_ROOT%{_libdir}/ocaml/ld.conf
+perl -pi -e "s|%{buildroot}||" %{buildroot}%{_libdir}/ocaml/ld.conf
 
 %if %{build_ocamlopt}
 # only keep the binary versions (which are much faster, and have no drawbacks (?))
-for i in $RPM_BUILD_ROOT%{_bindir}/*.opt ; do
+for i in %{buildroot}%{_bindir}/*.opt ; do
   nonopt=`echo $i | sed "s/.opt$//"`
   rm -f $nonopt
   ln -s `basename $i` $nonopt
@@ -111,17 +96,16 @@ done
 
 
 # don't package mano man pages since we have the html files
-rm -rf $RPM_BUILD_ROOT%{_mandir}/mano
-rm -rf $RPM_BUILD_ROOT%{_mandir}/man1/ocpp.1*
+rm -rf %{buildroot}%{_mandir}/mano
+# remove the other manpages we don't want
+rm -rf %{buildroot}%{_mandir}/man3
 
-
-export EXCLUDE_FROM_STRIP="ocamldebug ocamlbrowser"
 
 rm -f %{name}.list
 n="labltk|camlp4|ocamlbrowser|tkanim"
-(cd $RPM_BUILD_ROOT ; find usr/bin ! -type d -printf "/%%p\n" | egrep -v $n) >> %{name}.list
-(cd $RPM_BUILD_ROOT ; find usr/%{_lib}/ocaml ! -type d -printf "/%%p\n" | egrep -v $n) >> %{name}.list
-(cd $RPM_BUILD_ROOT ; find usr/%{_lib}/ocaml   -type d -printf "%%%%dir /%%p\n" | egrep -v $n) >> %{name}.list
+(cd %{buildroot} ; find usr/bin ! -type d -printf "/%%p\n" | egrep -v $n) >> %{name}.list
+(cd %{buildroot} ; find usr/%{_lib}/ocaml ! -type d -printf "/%%p\n" | egrep -v $n) >> %{name}.list
+(cd %{buildroot} ; find usr/%{_lib}/ocaml   -type d -printf "%%%%dir /%%p\n" | egrep -v $n) >> %{name}.list
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -130,6 +114,7 @@ n="labltk|camlp4|ocamlbrowser|tkanim"
 %defattr(-,root,root)
 %doc Changes LICENSE README
 %{_mandir}/man*/*ocaml*
+%{_mandir}/man*/*ocpp*
 
 %if %{build_ocamltk}
 %files -n ocamltk
@@ -149,6 +134,19 @@ n="labltk|camlp4|ocamlbrowser|tkanim"
 %{_libdir}/ocaml/camlp4
 
 %changelog
+* Tue Sep 14 2004 Vincent Danen <vdanen@annvix.org> 3.08-1avx
+- 3.08.0
+- drop patches applied upstream
+- drop S0 (don't need the menu)
+- renumber patches
+- no need to exclude from strip ocamldebug ocamlbrowser (they are now ocamlrun
+  scripts) (pixel)
+- don't modify BYTECCCOMPOPTS and NATIVECCCMPOPTS, otherwise
+  -D_FILE_OFFSET_BITS=64 is dropped (bugzilla #9502)
+  => don't pass optflags (hope it won't break AXP with needs -mieee) (pixel)
+- have less warnings when compiling (pixel)
+- BuildRequires: tcl (cjw)
+
 * Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 3.06-15avx
 - Annvix build
 
