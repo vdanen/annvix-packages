@@ -1,0 +1,28 @@
+diff -u -r1.14 otherlibs/unix/stat.c
+--- otherlibs/unix/stat.c	2002/09/27 08:32:28	1.14
++++ otherlibs/unix/stat.c	2003/05/01 04:40:26
+@@ -48,11 +48,13 @@
+ {
+   value v;
+   value atime = Val_unit, mtime = Val_unit, ctime = Val_unit;
++  value offset = Val_unit;
+ 
+-  Begin_roots3(atime,mtime,ctime)
++  Begin_roots4(atime,mtime,ctime,offset)
+     atime = copy_double((double) buf->st_atime);
+     mtime = copy_double((double) buf->st_mtime);
+     ctime = copy_double((double) buf->st_ctime);
++    offset = use_64 ? Val_file_offset (buf->st_size) : Val_int (buf->st_size);
+     v = alloc_small(12, 0);
+     Field (v, 0) = Val_int (buf->st_dev);
+     Field (v, 1) = Val_int (buf->st_ino);
+@@ -63,8 +65,7 @@
+     Field (v, 5) = Val_int (buf->st_uid);
+     Field (v, 6) = Val_int (buf->st_gid);
+     Field (v, 7) = Val_int (buf->st_rdev);
+-    Field (v, 8) = 
+-      use_64 ? Val_file_offset(buf->st_size) : Val_int (buf->st_size);
++    Field (v, 8) = offset;
+     Field (v, 9) = atime;
+     Field (v, 10) = mtime;
+     Field (v, 11) = ctime;
