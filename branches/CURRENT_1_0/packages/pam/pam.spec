@@ -1,13 +1,11 @@
 %define name	pam
 %define version	0.77
-%define release	11sls
+%define release	12sls
 
 %define rhrelease	1
 %define pwdb_version	0.62
 %define db_version	4.1.25
 %define libname		%mklibname %name 0
-
-%{!?build_opensls:%global build_opensls 0}
 
 Summary:	A security tool which provides authentication for applications.
 Name:		%{name}
@@ -71,6 +69,8 @@ Patch510:	pam-0.77-sigchld.patch.bz2
 Patch511:	pam-0.77-verbose-limits.patch.bz2
 Patch512:	pam-0.77-xauth-groups.patch.bz2
 
+Patch600:	pam-0.77-opensls.patch.bz2
+
 BuildRoot:	%{_tmppath}/%{name}-%{version}-root
 BuildRequires:	bison cracklib-devel flex glib-devel pwdb-devel
 BuildRequires:	db4-devel
@@ -84,22 +84,6 @@ Provides:	pamconfig
 PAM (Pluggable Authentication Modules) is a system security tool
 which allows system administrators to set authentication policy
 without having to recompile programs which do authentication.
-
-%if !%{build_opensls}
-%package doc
-Summary:	Additional documentation for %{name}
-Group:		System/Libraries
-PreReq:		%{name} = %version-%release
-BuildRequires:	tetex-latex sgml-tools linuxdoc-tools
-
-%description doc
-PAM (Pluggable Authentication Modules) is a system security tool which
-allows system administrators to set authentication policy without
-having to recompile programs which do authentication.
-
-This is the documentation package of %{name}
-%endif
-
 
 %package -n %{libname}
 Summary:	Libraries for %{name}
@@ -179,6 +163,8 @@ cp %{SOURCE4} .
 %patch511 -p1 -b .verbose-limits
 %patch512 -p1 -b .xauth-groups
 
+%patch600 -p0 -b .opensls
+
 for readme in modules/pam_*/README ; do
 	cp -fv ${readme} doc/txts/README.`dirname ${readme} | sed -e 's|^modules/||'`
 done
@@ -233,9 +219,6 @@ rm -rf $RPM_BUILD_ROOT/%{_lib}/libpam{.a,c.*} \
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%pre
-%_pre_groupadd video
-
 %post -n %libname -p /sbin/ldconfig
 %postun -n %libname -p /sbin/ldconfig
 
@@ -276,13 +259,12 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/security/*.h
 %{_mandir}/man3/*
 
-%if !%{build_opensls}
-%files doc
-%defattr(-,root,root)
-%doc doc/html doc/ps doc/txts doc/pdf doc/specs/rfc86.0.txt Copyright
-%endif
-
 %changelog
+* Fri Feb 06 2004 Vincent Danen <vdanen@opensls.org> 0.77-12sls
+- remove %%build_opensls macro
+- fix pam_console config for our removed groups (P600)
+- don't add group video here
+
 * Wed Dec 31 2003 Vincent Danen <vdanen@opensls.org> 0.77-11sls
 - sync with 10mdk (flepied): libification
 
