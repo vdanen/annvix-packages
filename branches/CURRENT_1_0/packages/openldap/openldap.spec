@@ -1,6 +1,6 @@
 %define name	openldap
 %define version	2.1.29
-%define release	2avx
+%define release	4avx
 
 %define major 		2
 %define migtools_ver	45
@@ -115,7 +115,7 @@ Patch53:	openldap-ntlm.patch.bz2
 BuildRoot: 	%{_tmppath}/%{name}-%{version}-root
 %{?_with_cyrussasl:BuildRequires: 	libsasl-devel}
 %{?_with_kerberos:BuildRequires:	krb5-devel}
-BuildRequires:	openssl-devel, perl, autoconf
+BuildRequires:	openssl-devel, perl, autoconf2.5, ed
 #BuildRequires: libgdbm1-devel
 %if %sql
 BuildRequires: 	unixODBC-devel
@@ -308,9 +308,27 @@ dbdir=`pwd`/db-instroot
 pushd db-%{dbver}/build_unix >/dev/null
 CONFIGURE_TOP="../dist" %configure2_5x \
 	--enable-shared --disable-static \
-	--with-uniquename=_openldap_slapd_mdk \
-	--program-prefix=slapd_
+	--with-uniquename=_openldap_slapd_avx \
+	--program-prefix=slapd_ \
+%ifarch %{ix86}
+	--disable-posixmutexes --with-mutex=x86/gcc-assembly
+%endif
+%ifarch alpha
+	--disable-posixmutexes --with-mutex=ALPHA/gcc-assembly
+%endif
+%ifarch ia64
+	--disable-posixmutexes --with-mutex=ia64/gcc-assembly
+%endif
+%ifarch ppc
+	--disable-posixmutexes --with-mutex=PPC/gcc-assembly
+%endif
+%ifarch sparc
+	--disable-posixmutexes --with-mutex=Sparc/gcc-assembly
+%endif
+
 #--with-mutex=POSIX/pthreads/library
+# JMD: use --disable-posixmutexes so it works on a non-NPTL kernel, and use
+# assembler mutexes since they're *way* faster and correctly implemented.
 
 perl -pi -e 's/^(libdb_base=\s+)\w+/\1libslapd_db/g' Makefile
 #Fix soname and libname in libtool:
@@ -731,7 +749,7 @@ fi
 #%config(noreplace) %{_sysconfdir}/openldap/ldapsearchprefs.conf
 #%config(noreplace) %{_sysconfdir}/openldap/ldaptemplates.conf
 %config(noreplace) %{_sysconfdir}/openldap/ldapserver
-%config(noreplace) %{_sysconfdir}/openldap/ldap.conf
+%attr(644,root,root) %config(noreplace) %{_sysconfdir}/openldap/ldap.conf
 #%{_datadir}/openldap/ldapfriendly
 %{_mandir}/man5/ldap.conf.5*
 #%{_mandir}/man5/ldapfilter.conf.5*
@@ -856,6 +874,22 @@ fi
 # - add cron-job to remove transaction logs (bdb)
 
 %changelog
+* Wed Jun 30 2004 Vincent Danen <vdanen@annvix.org> 2.1.29-4avx
+- fix slapd's run file; we need to give the loglevel to slapd's "-d"
+  parameter in order for logging to work
+- P2: bring back re-ordered XXLIBS in slapd/Makefile to ensure we use the
+  right md5 for passwords (otherwise if one changes a password with
+  passwd, it's stored in crypt format rather than crypt's md5 format)
+
+* Tue Jun 29 2004 Vincent Danen <vdanen@annvix.org> 2.1.29-3avx
+- force ldap.conf to be mode 0644
+- BuildRequires: autoconf2.5, ed (jmdault)
+- disable posix mutexes, this breaks setups with non-NPTL kernels,
+  low-end processors (VIA, K6, P1) and UML (jmdault)
+- use assembler mutexes whenever possible, since they're the fastest
+  on Linux (jmdault)
+- change the internal db4 unique name
+
 * Wed Jun 23 2004 Vincent Danen <vdanen@annvix.org> 2.1.29-2avx
 - fix requires
 - fix logrotate script (again) to call srv not service

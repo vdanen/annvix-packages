@@ -25,6 +25,10 @@ if [ -n "$SLAPDURLLIST" ]; then
   fi
 fi
 
+# get loglevel from slapd.conf
+LOGLEVEL=`grep '^loglevel' /etc/openldap/slapd.conf|awk '{print $2}'`
+ARGS="$ARGS -d $LOGLEVEL"
+
 # For bdb backends we want to recover the transaction logs:
 # Find a db_recover
 if [ -x /usr/bin/slapd_db_recover ]; then
@@ -50,4 +54,4 @@ do
 done
 
 
-exec /usr/sbin/slapd $ARGS
+exec /usr/sbin/slapd $ARGS 2>&1
