@@ -1,6 +1,6 @@
 %define name	postgresql
 %define version	8.0.1
-%define release	1avx
+%define release	2avx
 
 %define _requires_exceptions devel(libtcl8.4)\\|devel(libtcl8.4(64bit))
 
@@ -260,44 +260,44 @@ popd
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-make DESTDIR=$RPM_BUILD_ROOT pkglibdir=%{_libdir}/pgsql install 
-make -C contrib DESTDIR=$RPM_BUILD_ROOT pkglibdir=%{_libdir}/pgsql install
+make DESTDIR=%{buildroot} pkglibdir=%{_libdir}/pgsql install 
+make -C contrib DESTDIR=%{buildroot} pkglibdir=%{_libdir}/pgsql install
 
-install -m 755 %{SOURCE1} $RPM_BUILD_ROOT/%{_datadir}/pgsql
-install -m 755 %{SOURCE2} $RPM_BUILD_ROOT/%{_datadir}/pgsql
-install -m 755 %{SOURCE3} $RPM_BUILD_ROOT/%{_datadir}/pgsql
-install -m 755 %{SOURCE9} $RPM_BUILD_ROOT/%{_datadir}/pgsql
+install -m 755 %{SOURCE1} %{buildroot}%{_datadir}/pgsql
+install -m 755 %{SOURCE2} %{buildroot}%{_datadir}/pgsql
+install -m 755 %{SOURCE3} %{buildroot}%{_datadir}/pgsql
+install -m 755 %{SOURCE9} %{buildroot}%{_datadir}/pgsql
 
-install -m 755 %{SOURCE4} $RPM_BUILD_ROOT/%{_datadir}/pgsql/upgrade.pl
+install -m 755 %{SOURCE4} %{buildroot}%{_datadir}/pgsql/upgrade.pl
 
 # install the dump script
-install -m755 %{SOURCE14} $RPM_BUILD_ROOT%{_bindir}/avx-pgdump.sh
+install -m755 %{SOURCE14} %{buildroot}%{_bindir}/avx-pgdump.sh
 
 # install odbcinst.ini
-mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/pgsql
+mkdir -p %{buildroot}%{_sysconfdir}/pgsql
 
 # 20021223 warly removed 
-#install -m755 %{SOURCE13} $RPM_BUILD_ROOT%{_sysconfdir}/pgsql
+#install -m755 %{SOURCE13} %{buildroot}%{_sysconfdir}/pgsql
 
 # copy over Makefile.global to the include dir....
-install -m755 src/Makefile.global $RPM_BUILD_ROOT%{_includedir}/pgsql/
+install -m755 src/Makefile.global %{buildroot}%{_includedir}/pgsql/
 
 # PGDATA needs removal of group and world permissions due to pg_pwd hole.
-install -d -m 700 $RPM_BUILD_ROOT/var/lib/pgsql/data
+install -d -m 700 %{buildroot}/var/lib/pgsql/data
 
 # backups of data go here...
-install -d -m 700 $RPM_BUILD_ROOT/var/lib/pgsql/backups
+install -d -m 700 %{buildroot}/var/lib/pgsql/backups
 
 # postgres' .bash_profile
-install -m 644 %{SOURCE15} $RPM_BUILD_ROOT/var/lib/pgsql/.bash_profile
+install -m 644 %{SOURCE15} %{buildroot}/var/lib/pgsql/.bash_profile
 
 # tests. There are many files included here that are unnecessary, but include
 # them anyway for completeness.
-mkdir -p $RPM_BUILD_ROOT%{_libdir}/pgsql/test
-cp -a src/test/regress $RPM_BUILD_ROOT%{_libdir}/pgsql/test
-install -m 0755 contrib/spi/refint.so $RPM_BUILD_ROOT%{_libdir}/pgsql/test/regress
-install -m 0755 contrib/spi/autoinc.so $RPM_BUILD_ROOT%{_libdir}/pgsql/test/regress
-pushd  $RPM_BUILD_ROOT%{_libdir}/pgsql/test/regress/
+mkdir -p %{buildroot}%{_libdir}/pgsql/test
+cp -a src/test/regress %{buildroot}%{_libdir}/pgsql/test
+install -m 0755 contrib/spi/refint.so %{buildroot}%{_libdir}/pgsql/test/regress
+install -m 0755 contrib/spi/autoinc.so %{buildroot}%{_libdir}/pgsql/test/regress
+pushd  %{buildroot}%{_libdir}/pgsql/test/regress/
 strip *.so
 popd
 
@@ -311,7 +311,7 @@ install -D -m 0755 mdk/mdk_update_dump.sh %{buildroot}%{_datadir}/pgsql/avx/avx_
 install -m 0755 mdk/mdk_update_restore.sh %{buildroot}%{_datadir}/pgsql/avx/avx_update_restore
 popd
 
-mv $RPM_BUILD_ROOT%{_docdir}/%{name}/html $RPM_BUILD_ROOT%{_docdir}/%{name}-docs-%{version}
+mv %{buildroot}%{_docdir}/%{name}/html %{buildroot}%{_docdir}/%{name}-docs-%{version}
 
 mkdir -p %{buildroot}%{_srvdir}/postgresql/log
 mkdir -p %{buildroot}%{_srvlogdir}/postgresql
@@ -343,7 +343,7 @@ cat postgres.lang pg_resetxlog.lang pg_controldata.lang > server.lst
 cat libpq.lang libecpg.lang >> main.lst
 
 # taken directly in build dir.
-rm -fr $RPM_BUILD_ROOT%{_datadir}/doc/postgresql/contrib/
+rm -fr %{buildroot}%{_datadir}/doc/postgresql/contrib/
 
 make check
 
@@ -372,7 +372,7 @@ if [ ! -f $PGDATA/PG_VERSION ] && [ ! -d $PGDATA/base ]; then
   # Is expanded this early to be used in the command su runs
   echo "export LANG LC_ALL LC_CTYPE LC_COLLATE LC_NUMERIC LC_TIME" >> $PGDATA/../initdb.i18n
   # Initialize the database
-  su -l postgres -s /bin/sh -c "/usr/bin/initdb --pgdata=$PGDATA >/dev/null 2>&1" </dev/null
+  /sbin/chpst -u postgres /usr/bin/initdb --pgdata=$PGDATA >/dev/null 2>&1 </dev/null
   [ -f $PGDATA/PG_VERSION ] && echo "Database successfully initialized!"
   [ ! -f $PGDATA/PG_VERSION ] && echo "Database was NOT successfully initalized!"
 fi
@@ -572,6 +572,10 @@ rm -f perlfiles.list
 %attr(-,postgres,postgres) %dir %{_libdir}/pgsql/test
 
 %changelog
+* Wed Feb 23 2005 Vincent Danen <vdanen@annvix.org> 8.0.1-2avx
+- update the afterboot snippet to mention upgrading tips
+- s/su/chpst/ in the spec
+
 * Tue Feb 15 2005 Vincent Danen <vdanen@annvix.org> 8.0.1-1avx
 - 8.0.1
 - build without tcl support
