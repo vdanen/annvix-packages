@@ -3,7 +3,7 @@
 %define poptver		1.8
 # You need increase both release and poptrelease
 %define poptrelease	%{release}
-%define release		25sls
+%define release		26sls
 
 %define url		ftp://ftp.rpm.org/pub/rpm/dist/rpm-4.0.x
 %define pyver		%(python -V 2>&1 | cut -f2 -d" " | cut -f1,2 -d".")
@@ -91,6 +91,7 @@ Patch51:	rpm-4.2-rpmal-fix-crash.patch.bz2
 # (vdanen) use stack protection by default
 Patch52:	rpm-4.2-stackmacros.patch.bz2
 Patch53:	rpm-4.2-unpackaged-links.patch.bz2
+Patch54:	rpm-4.2-opensls.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-root
 BuildRequires:	autoconf2.5
@@ -266,6 +267,8 @@ bzcat %{SOURCE2} > rpm-spec-mode.el
 %if %build_propolice
 %patch52 -p1 -b .stackmacro
 %endif
+%patch53 -p1 -b .links
+%patch54 -p1 -b .opensls
 
 autoconf
 
@@ -339,14 +342,6 @@ mv -f $RPM_BUILD_ROOT%{rpmdir}/brp-redhat $RPM_BUILD_ROOT%{rpmdir}/brp-mandrake
 
 mv -f $RPM_BUILD_ROOT/%{rpmdir}/rpmdiff $RPM_BUILD_ROOT/%{_bindir}
 
-install -d $RPM_BUILD_ROOT%{_datadir}/emacs/site-lisp/
-install -m644 rpm-spec-mode.el $RPM_BUILD_ROOT%{_datadir}/emacs/site-lisp/
-
-install -d $RPM_BUILD_ROOT%{_sysconfdir}/emacs/site-start.d
-cat <<EOF >$RPM_BUILD_ROOT%{_sysconfdir}/emacs/site-start.d/%{name}.el
-(setq auto-mode-alist (cons '("\\\\.spec$" . rpm-spec-mode) auto-mode-alist))
-(autoload 'rpm-spec-mode "rpm-spec-mode" "RPM spec mode (mandrakized)." t)
-EOF
 
 # Save list of packages through cron
 mkdir -p ${RPM_BUILD_ROOT}/etc/cron.daily
@@ -355,7 +350,6 @@ install -m 755 scripts/rpm.daily ${RPM_BUILD_ROOT}/etc/cron.daily/rpm
 mkdir -p ${RPM_BUILD_ROOT}/etc/logrotate.d
 install -m 644 scripts/rpm.log ${RPM_BUILD_ROOT}/etc/logrotate.d/rpm
 
-mkdir -p $RPM_BUILD_ROOT/etc/rpm
 mkdir -p $RPM_BUILD_ROOT/etc/rpm
 cat << E_O_F > $RPM_BUILD_ROOT/etc/rpm/macros.cdb
 %%__dbi_cdb      %%{nil}
@@ -598,8 +592,6 @@ fi
 %{_mandir}/man8/rpmbuild.8*
 %{_mandir}/man8/rpmdeps.8*
 
-%{_datadir}/emacs/site-lisp/*
-%config(noreplace) %{_sysconfdir}/emacs/site-start.d/*
 
 %files python
 %defattr(-,root,root)
@@ -647,6 +639,15 @@ fi
 %{_includedir}/popt.h
 
 %changelog
+* Mon Jan 12 2004 Vincent Danen <vdanen@opensls.org> 4.2-26sls
+- P54: OpenSLS macros -> %%_srvdir = /var/service, %%_srvlogdir =
+  /var/log/supervise, %%build_propolice (on if gcc+propolice installed),
+  %%_ext = sls, %%_target_platform is sls'ized (may cause some issues)
+- get rid of emacs files
+- sync with 26mdk/27mdk (pixel):
+  - fix RPMLOCK patch (for rebuilddb)
+  - cleanup lock patch (i sux)
+
 * Thu Jan 01 2004 Vincent Danen <vdanen@opensls.org> 4.2-25sls
 - fix /usr/lib/rpmpopt symlink
 - amd64 fixes
