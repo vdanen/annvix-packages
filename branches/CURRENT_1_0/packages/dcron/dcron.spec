@@ -1,6 +1,6 @@
 %define	name	dcron
 %define	version	2.9
-%define	release	2sls
+%define	release	3sls
 
 Summary:	Dillon's Cron Daemon
 Name:		%{name}
@@ -12,6 +12,7 @@ URL:		http://apollo.backplane.com/FreeSrc/
 Source0:	dcron29.tar.bz2
 Source1:	dcron.run
 Source2:	dcron-log.run
+Source3:	etc-crontab
 
 # OE: P0 originates from patches I found here:
 # http://www.ogris.de/diet/
@@ -21,13 +22,10 @@ Patch0:		dcron29-dietlibc-patch.diff.bz2
 BuildRoot:	%{_tmppath}/%{name}-buildroot
 BuildRequires:	dietlibc-devel >= 0.20-1mdk
 
-#PreReq:		MTA vim
-PreReq:		rpm-helper
-PreReq:		srv
-PreReq:		daemontools
-PreReq:		crontabs
+PreReq:		rpm-helper, srv, daemontools, setup
 Conflicts:	vixie-cron
-Provides:	crond
+Obsoletes:	crontabs
+Provides:	crond, crontabs
 
 %description
 A multiuser cron written from scratch, dcron is follows concepts
@@ -38,6 +36,7 @@ paid to feature development in favor of usability and reliability.
 
 %setup -q -n dcron
 %patch -p1
+perl -pi -e "s|VISUAL|EDITOR|g" crontab.*
 
 %build
 make CC="gcc" CFLAGS="%{optflags}"
@@ -45,6 +44,7 @@ make CC="gcc" CFLAGS="%{optflags}"
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
+install -d %{buildroot}%{_sysconfdir}/cron.{hourly,daily,weekly,monthly}
 install -d %{buildroot}%{_bindir}
 install -d %{buildroot}%{_mandir}/man{1,8}
 install -d %{buildroot}%{_sbindir}
@@ -55,14 +55,18 @@ install -m0755 crond %{buildroot}%{_sbindir}/
 install -m0644 crontab.1 %{buildroot}%{_mandir}/man1/
 install -m0644 crond.8 %{buildroot}%{_mandir}/man8/
 
+install -m0644 %{SOURCE3} %{buildroot}%{_sysconfdir}/crontab
+
 install -d %{buildroot}/var/service/crond/log
 install -d %{buildroot}/var/log/supervise/crond
 install -m0755 %{SOURCE1} %{buildroot}/var/service/crond/run
 install -m0755 %{SOURCE2} %{buildroot}/var/service/crond/log/run
 
 %post
-echo "Adding the system crontab to emulate vixie-cron"
-%{_bindir}/crontab %{_sysconfdir}/crontab
+if [[ -z `crontab -l | grep run-parts` ]]; then
+    echo "Adding the \"system crontab\" to emulate vixie-cron"
+    /bin/grep "^[0-9]" %{_sysconfdir}/crontab | %{_bindir}/crontab -
+fi
 %_post_srv crond
 
 %preun
@@ -74,6 +78,11 @@ echo "Adding the system crontab to emulate vixie-cron"
 %files
 %defattr(-,root,root)
 %doc CHANGELOG README
+%config(noreplace) %attr(0640,root,root) %{_sysconfdir}/crontab
+%dir %attr(0750,root,root) %{_sysconfdir}/cron.hourly
+%dir %attr(0750,root,root) %{_sysconfdir}/cron.daily
+%dir %attr(0750,root,root) %{_sysconfdir}/cron.weekly
+%dir %attr(0750,root,root) %{_sysconfdir}/cron.monthly
 # OE: only root should be allowed to add cronjobs!
 %attr(4750,root,cron) %{_bindir}/crontab
 %attr(0755,root,wheel)%{_sbindir}/crond
@@ -87,6 +96,16 @@ echo "Adding the system crontab to emulate vixie-cron"
 %dir %attr(0750,nobody,nogroup) /var/log/supervise/crond
 
 %changelog
+* Sun Feb 01 2004 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.9-3sls
+- added S3, obsolete and mimic the crontabs package, but with tighter file
+  and directory attributes
+- fixed the %%post stuff (update safe, doesn't nuke root's cronjobs, if any)
+- use the EDITOR env to get the preferred editor (vi, e3, nano, etc.)
+- Conflicts: vixie-cron
+- Obsoletes: crontabs
+- Provides: crontabs
+- PreReq: setup (for run-parts)
+
 * Sat Jan 31 2004 Vincent Danen <vdanen@opensls.org> 2.9-2sls
 - can't build with dietlibc because we lose the ability to do lookups via
   NSS which causes problems with LDAP-based users
