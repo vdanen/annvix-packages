@@ -1,0 +1,15 @@
+
+apr and apr-util are patched to correctly depend on their deps, so
+it's sufficient to just link httpd against the .la file.
+
+--- httpd-2.0.45/configure.in.deplibs	2003-04-29 10:27:05.000000000 +0100
++++ httpd-2.0.45/configure.in	2003-04-29 10:26:45.000000000 +0100
+@@ -455,7 +455,7 @@
+ AP_LIBS="$abs_builddir/srclib/pcre/libpcre.la $AP_LIBS"
+ 
+ dnl APR should go after the other libs, so the right symbols can be picked up
+-AP_LIBS="$AP_LIBS `$apu_config --link-libtool --libs` `$apr_config --link-libtool --libs`"
++AP_LIBS="$AP_LIBS `$apu_config --link-libtool` `$apr_config --link-libtool`"
+ APACHE_SUBST(AP_LIBS)
+ APACHE_SUBST(AP_BUILD_SRCLIB_DIRS)
+ APACHE_SUBST(AP_CLEAN_SRCLIB_DIRS)
