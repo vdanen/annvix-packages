@@ -1,0 +1,17 @@
+--- tcpdump-3.7.2/print-sctp.c.sctp	2003-04-28 11:48:20.000000000 +0200
++++ tcpdump-3.7.2/print-sctp.c	2003-04-28 11:57:31.000000000 +0200
+@@ -46,12 +46,13 @@
+ #include <sys/time.h>
+ #include <sys/socket.h>
+ 
++#include <netinet/in.h>
++
+ #include <unistd.h>
+ #include "sctpHeader.h"
+ #include "sctpConstants.h"
+ #include <assert.h>
+ 
+-#include <netinet/in.h>
+ 
+ #include <stdio.h>
+ #include <string.h>
