@@ -1,0 +1,26 @@
+#!/bin/sh
+PATH="/sbin:/usr/sbin:/bin:/usr/bin:$PATH"
+
+# this runs mysqld under supervise
+
+umask 077
+
+DATADIR="/var/lib/mysql"
+PID_FILE="$DATADIR/`/bin/hostname`.pid"
+MYSQLD_OPTS=""
+LOG=""
+
+# overwrite the above
+if [ -f /etc/sysconfig/mysqld ]; then
+  . /etc/sysconfig/mysqld
+fi
+
+if [ "$LOG" != "" ]; then
+  LOGFILE="--log=$LOG"
+fi
+
+# when we receive the signal to shutdown, use mysqladmin to shutdown the server
+trap '/usr/bin/mysqladmin shutdown' 0
+trap 'exit 2' 1 2 3 15
+
+/usr/bin/mysqld_safe --datadir=$DATADIR --pid-file=$PID_FILE $LOGFILE $MYSQLD_OPTS 2>&1 & wait
