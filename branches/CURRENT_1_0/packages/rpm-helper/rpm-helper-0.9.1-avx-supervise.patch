@@ -1,6 +1,6 @@
---- /dev/null	2001-01-02 16:30:38.000000000 -0700
-+++ add-srv	2004-01-27 12:33:51.000000000 -0700
-@@ -0,0 +1,33 @@
+--- /dev/null	2004-09-21 08:59:19.000000000 -0600
++++ add-srv	2004-09-21 09:02:35.000000000 -0600
+@@ -0,0 +1,35 @@
 +#!/bin/sh
 +
 +# Annvix script to restart supervised service via rpm scriptlet
@@ -16,20 +16,22 @@
 +
 +if [ $num != 1 ]; then
 +    # Upgrade mode: restart the service if already running
-+    SRVSTAT=`/sbin/runsvstat /service/$srv|grep -q up; echo $?`
-+    if [ "$SRVSTAT" = "0" ]; then
-+	/usr/sbin/srv restart $srv || :
-+	# restart services that depend of portmap
-+	if [ $srv = portmap ]; then
-+	    for s in amd autofs bootparamd clusternfs mcserv nfs nfslock ypserv ypbind yppasswdd ypxfrd; do
-+		if [ -d /service/$s ]; then
-+		    PSRVSTAT=`/sbin/runsvstat /service/$s|grep -q up; echo $?`
-+		    if [ "$PSRVSTAT" = "0" ]; then
-+			/usr/sbin/srv restart $srv || :
++    if [ -d /service/$srv ]; then
++        SRVSTAT=`/sbin/runsvstat /service/$srv 2>/dev/null|grep -q up; echo $?`
++        if [ "$SRVSTAT" = "0" ]; then
++	    /usr/sbin/srv restart $srv || :
++	    # restart services that depend of portmap
++	    if [ "$srv" = "portmap" ]; then
++	        for s in amd autofs bootparamd clusternfs mcserv nfs nfslock ypserv ypbind yppasswdd ypxfrd; do
++		    if [ -d /service/$s ]; then
++		        PSRVSTAT=`/sbin/runsvstat /service/$s 2>/dev/null|grep -q up; echo $?`
++		        if [ "$PSRVSTAT" = "0" ]; then
++			    /usr/sbin/srv restart $srv || :
++		        fi
 +		    fi
-+		fi
-+	    done
-+	fi
++	        done
++	    fi
++        fi
 +    fi
 +fi
 +
