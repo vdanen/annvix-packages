@@ -1,6 +1,6 @@
 %define name	courier-imap
 %define version	2.1.2
-%define release	2sls
+%define release	3sls
 
 %define _localstatedir	/var/run
 %define	authdaemondir	%{_localstatedir}/authdaemon.courier-imap
@@ -30,7 +30,7 @@ Patch1:		courier-imap-2.1.2-auto_maildir_creator.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
 BuildPreReq:	autoconf2.5, coreutils, libtool, perl, sed
-BuildRequires:	openssl-devel, pam-devel, fam-devel, gdbm-devel
+BuildRequires:	openssl-devel, pam-devel, gdbm-devel
 # ldap subpackage:
 BuildRequires:	openldap-devel
 # mysql subpackage:
@@ -38,7 +38,7 @@ BuildRequires:	MySQL-devel
 # postgresql subpackage:
 BuildRequires:	postgresql-devel
 
-Requires:	chkconfig, coreutils, fam, gdbm, sed
+Requires:	chkconfig, coreutils, gdbm, sed
 #Requires:	libopenssl0.9.7
 PreReq:		maildirmake++, rpm-helper
 Conflicts:	uw-imap, bincimap
@@ -460,6 +460,9 @@ if [ -d %{buildroot} ]; then rm -rf %{buildroot}; fi
 %{_mandir}/man1/maildirmake++.1*
 
 %changelog
+* Tue Dec 30 2003 Vincent Danen <vdanen@opensls.org> 2.1.2-3sls
+- remove deps on fam
+
 * Thu Dec 04 2003 Vincent Danen <vdanen@opensls.org> 2.1.2-2sls
 - OpenSLS build
 - tidy spec
