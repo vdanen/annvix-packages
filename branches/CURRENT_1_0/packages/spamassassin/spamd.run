@@ -1,7 +1,7 @@
 #!/bin/sh
-PATH="/sbin:/usr/sbin:/bin:/usr/bin:$PATH"
+PATH="/sbin:/usr/sbin:/bin:/usr/bin"
 
-# this runs spamd under supervise
+# this runs spamd supervised
 
 # source sysconfig settings
 if [ -f /etc/sysconfig/spamassassin ]; then
@@ -10,4 +10,4 @@ else
 	OPTIONS="-c -a -m5 -H"
 fi
 
-exec /usr/bin/spamd $OPTIONS
+exec /usr/bin/spamd $OPTIONS 2>&1

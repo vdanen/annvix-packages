@@ -1,12 +1,12 @@
 #!/bin/sh
 
-# this runs courier-imap's IMAPS daemon under supervise
+# this runs courier-imap's IMAPS daemon supervised
 # unfortunately, due to how courier-imap works, we need to jump through
 # hoops in order for it all to work
 
 set -a
 
-PATH="/sbin:/usr/sbin:/bin:/usr/bin:$PATH"
+PATH="/sbin:/usr/sbin:/bin:/usr/bin"
 TLS_CACHEFILE=""
 
 # defaults; then source the imap configurations
@@ -37,7 +37,7 @@ if [ "$TLS_CACHEFILE" != "" ]; then
   rm -f $TLS_CACHEFILE
 fi
 
-exec /usr/bin/softlimit -m "$MAX_MEMORY" \
+exec /sbin/chpst -m "$MAX_MEMORY" \
   /usr/bin/tcpserver -c"$CONCURRENCY" -vRhX \
   -x /etc/tcprules.d/imapd-ssl.cdb -l"$HOSTNAME" \
   $SSLADDRESS $SSLPORT /usr/bin/couriertls -server -tcpd /usr/sbin/imaplogin $LIBAUTHMODULES \

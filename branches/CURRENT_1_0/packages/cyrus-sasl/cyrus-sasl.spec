@@ -1,6 +1,6 @@
 %define name	cyrus-sasl
 %define version	2.1.15
-%define release	9avx
+%define release	10avx
 
 %define major	2
 %define libname	%mklibname sasl %{major}
@@ -342,6 +342,9 @@ fi
 %{_mandir}/man3/*
  
 %changelog
+* Mon Sep 20 2004 Vincent Danen <vdanen@annvix.org> 2.1.15-10avx
+- update run scripts
+
 * Tue Aug 17 2004 Vincent Danen <vdanen@annvix.org> 2.1.15-9avx
 - rebuild against latest openssl
 

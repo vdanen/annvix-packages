@@ -1,6 +1,6 @@
 #!/bin/sh
-PATH="/sbin:/usr/sbin:/bin:/usr/bin:$PATH"
+PATH="/sbin:/usr/sbin:/bin:/usr/bin"
 
-# this runs portmap under supervise
+# this runs portmap supervised
 
 exec /sbin/portmap -d 2>&1

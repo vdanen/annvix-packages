@@ -1,6 +1,6 @@
 %define name	spamassassin
 %define version	2.64
-%define release	1avx
+%define release	2avx
 
 %define fname	Mail-SpamAssassin
 %define instdir	vendor
@@ -142,6 +142,9 @@ chmod 666 /var/spool/spamassassin/auto-whitelist.db
 %{_mandir}/man3*/*
 
 %changelog
+* Mon Sep 20 2004 Vincent Danen <vdanen@annvix.org> 2.64-2avx
+- update run scripts
+
 * Sat Sep 04 2004 Vincent Danen <vdanen@annvix.org> 2.64-1avx
 - 2.64 (security fixes)
 

@@ -1,6 +1,6 @@
 %define name	rsync
 %define version	2.6.2
-%define release	4avx
+%define release	5avx
 
 Summary:	A program for synchronizing files over a network.
 Name:		%{name}
@@ -85,6 +85,9 @@ mkdir -p %{buildroot}%{_srvlogdir}/rsync
 %_mandir/man5/rsyncd.conf.5*
 
 %changelog
+* Mon Sep 20 2004 Vincent Danen <vdanen@annvix.org> 2.6.2-5avx
+- update run scripts
+
 * Fri Sep 03 2004 Vincent Danen <vdanen@annvix.org> 2.6.2-4avx
 - P2: security fix for CAN-2004-0792
 

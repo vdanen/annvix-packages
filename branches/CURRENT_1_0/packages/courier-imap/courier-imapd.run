@@ -1,12 +1,12 @@
 #!/bin/sh
 
-# this runs courier-imap's IMAP daemon under supervise
+# this runs courier-imap's IMAP daemon supervised
 # unfortunately, due to how courier-imap works, we need to jump through
 # hoops in order for it all to work
 
 set -a 
 
-PATH="/sbin:/usr/sbin:/bin:/usr/bin:$PATH"
+PATH="/sbin:/usr/sbin:/bin:/usr/bin"
 
 # defaults; then source the imap configurations
 PORT="143"
@@ -37,7 +37,7 @@ done
 IMAP_STARTTLS=$IMAPDSTARTTLS; export IMAP_STARTTLS
 TLS_PROTOCOL=$TLS_STARTTLS_PROTOCOL; export TLS_PROTOCOL
 
-exec /usr/bin/softlimit -m "$MAX_MEMORY" \
+exec /sbin/chpst -m "$MAX_MEMORY" \
   /usr/bin/tcpserver -c"$CONCURRENCY" -vRhX \
   -x /etc/tcprules.d/imapd.cdb -l"$HOSTNAME" \
   $ADDRESS $PORT /usr/sbin/imaplogin $LIBAUTHMODULES \

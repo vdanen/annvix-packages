@@ -1,6 +1,6 @@
 %define name	squid
 %define version	2.5.STABLE5
-%define release	5avx
+%define release	6avx
 
 %define their_version	2.5.STABLE5
 %define p_url   http://www.squid-cache.org/Versions/v2/2.5/bugs
@@ -366,6 +366,9 @@ fi
 %attr(0750,nobody,nogroup) %dir %{_srvlogdir}/squid
 
 %changelog
+* Mon Sep 20 2004 Vincent Danen <vdanen@annvix.org> 2.5.STABLE5-6avx
+- update run scripts
+
 * Thu Sep  9 2004 Vincent Danen <vdanen@annvix.org> 2.5.STABLE5-5avx
 - P6: security fix for CAN-2004-0832
 

@@ -1,12 +1,12 @@
 #!/bin/sh
 
-# this runs courier-imap's POP3 daemon under supervise
+# this runs courier-imap's POP3 daemon supervised
 # unfortunately, due to how courier-imap works, we need to jump through
 # hoops in order for it all to work
 
 set -a 
 
-PATH="/sbin:/usr/sbin:/bin:/usr/bin:$PATH"
+PATH="/sbin:/usr/sbin:/bin:/usr/bin"
 
 # defaults; then source the pop3 configurations
 PORT="110"
@@ -32,7 +32,7 @@ done
 
 TLS_PROTOCOL=$TLS_STARTTLS_PROTOCOL; export TLS_PROTOCOL
 
-exec /usr/bin/softlimit -m "$MAX_MEMORY" \
+exec /sbin/chpst -m "$MAX_MEMORY" \
   /usr/bin/tcpserver -c"$CONCURRENCY" -vRhX \
   -x /etc/tcprules.d/pop3d.cdb -l"$HOSTNAME" \
   $ADDRESS $PORT /usr/sbin/pop3login $LIBAUTHMODULES \

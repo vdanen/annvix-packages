@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# this runs courier-imap's POP3S daemon under supervise
+# this runs courier-imap's POP3S daemon supervised
 # unfortunately, due to how courier-imap works, we need to jump through
 # hoops in order for it all to work
 
@@ -34,7 +34,7 @@ POP3_TLS=1; export POP3_TLS
 POP3_STARTTLS=NO; export POP3_STARTTLS
 POP3_TLS_REQUIRED=0; export POP3_TLS_REQUIRED
 
-exec /usr/bin/softlimit -m "$MAX_MEMORY" \
+exec /sbin/chpst -m "$MAX_MEMORY" \
   /usr/bin/tcpserver -c"$CONCURRENCY" -vRhX \
   -x /etc/tcprules.d/pop3d-ssl.cdb -l"$HOSTNAME" \
   $SSLADDRESS $SSLPORT /usr/bin/couriertls -server -tcpd /usr/sbin/pop3login $LIBAUTHMODULES \

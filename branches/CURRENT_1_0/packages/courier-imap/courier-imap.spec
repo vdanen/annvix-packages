@@ -1,6 +1,6 @@
 %define name	courier-imap
 %define version	2.1.2
-%define release	11avx
+%define release	12avx
 
 %define _localstatedir	/var/run
 %define	authdaemondir	%{_localstatedir}/authdaemon.courier-imap
@@ -540,6 +540,9 @@ test ! -f %{courierdatadir}/configlist.mysql || %{courierdatadir}/sysconftool-rp
 %{_mandir}/man1/maildirmake++.1*
 
 %changelog
+* Mon Sep 20 2004 Vincent Danen <vdanen@annvix.org> 2.1.2-12avx
+- update run scripts
+
 * Thu Aug 19 2004 Vincent Danen <vdanen@annvix.org> 2.1.2-11avx
 - authdaemond needs to restart on upgrades and such also
 

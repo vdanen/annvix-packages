@@ -1,6 +1,6 @@
 %define name	portmap
 %define version	4.0
-%define release	26avx
+%define release	27avx
 %define ver	4
 
 Summary:	A program which manages RPC connections
@@ -104,6 +104,9 @@ install -m 0755 %{SOURCE6} %{buildroot}%{_srvdir}/portmap/log/run
 
 
 %changelog
+* Mon Sep 20 2004 Vincent Danen <vdanen@annvix.org> 4.0-27avx
+- update run scripts
+
 * Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 4.0-26avx
 - remove req on chkconfig
 - Annvix build

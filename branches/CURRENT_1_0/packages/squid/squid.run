@@ -1,7 +1,7 @@
 #!/bin/sh
-PATH="/sbin:/usr/sbin:/bin:/usr/bin:$PATH"
+PATH="/sbin:/usr/sbin:/bin:/usr/bin"
 
-# this runs squid under supervise
+# this runs squid supervised
 
 if [ -f /etc/sysconfig/squid ]; then
   . /etc/sysconfig/squid
