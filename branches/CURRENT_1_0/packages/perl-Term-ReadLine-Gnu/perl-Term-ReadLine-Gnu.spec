@@ -1,7 +1,7 @@
 %define module	Term-ReadLine-Gnu
 %define name	perl-%{module}
 %define version 1.14
-%define release 5sls
+%define release 6sls
 
 Summary:	GNU Readline for perl.
 Name:		%{name}
@@ -33,26 +33,38 @@ may be useful for prototyping before programming with C.
 %build
 %{__perl} Makefile.PL INSTALLDIRS=vendor
 %make OPTIMIZE="$RPM_OPT_FLAGS"
-make test
+if [ -n "$DISPLAY" ]; then
+  TERM=linux make test
+else
+  echo "make test not done because DISPLAY var is not set"
+fi
+
+chmod 644 README
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 # Fix bogus dependancy on /usr/local/bin/perl:
 perl -pi -e 's!/usr/local/bin/perl!/usr/bin/perl!g' $RPM_BUILD_ROOT%perl_vendorarch/Term/ReadLine/Gnu/{euc_jp,XS}.pm
 
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
 %doc README
 %{_mandir}/*/*
+%dir %{perl_vendorarch}/Term
 %{perl_vendorarch}/Term/ReadLine/Gnu*
+%dir %{perl_vendorarch}/auto/Term
 %{perl_vendorarch}/auto/Term/ReadLine/Gnu
 
 %changelog
+* Fri Feb 27 2004 Vincent Danen <vdanen@opensls.org> 1.14-6sls
+- rebuild for new perl
+- don't make test if $DISPLAY is not set (it will fail) (thauvin)
+
 * Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 1.14-5sls
 - OpenSLS build
 - tidy spec
