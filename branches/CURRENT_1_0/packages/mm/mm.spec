@@ -1,6 +1,6 @@
 %define name	mm
 %define version	1.3.0
-%define release	4sls
+%define release	5sls
 
 %define	major		1
 %define libname		%mklibname %name %major
@@ -16,11 +16,8 @@ Group:		Development/C
 URL:		http://www.engelschall.com/sw/mm/
 Source:		http://www.engelschall.com/sw/mm/mm-%{version}.tar.bz2
 Patch:		mm-1.1.3-shtool.patch.bz2
-#Patch1:		mm-1.1.3-tmpfile.patch.bz2
 
 BuildRoot:	%{_tmppath}/mm-%{version}-buildroot
-
-Prefix:	    	%{_prefix}
 
 %description
 The MM library is a 2-layer abstraction library which simplifies the usage of
@@ -133,14 +130,14 @@ make
 make test
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
 perl -pi -e "s|/(.*)buildroot||g;" $RPM_BUILD_ROOT/usr/bin/mm-config
 
 rm -f %{buildroot}%{_libdir}/*.la
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post -p /sbin/ldconfig -n %libname
 %postun -p /sbin/ldconfig -n %libname
@@ -151,18 +148,22 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -n %libnamedev
 %defattr(-,root,root)
+%doc README LICENSE ChangeLog INSTALL PORTING THANKS
 %{_bindir}/*
 %{_libdir}/*.so
 %{_includedir}/*
 %{_mandir}/man1/*
 %{_mandir}/man3/*
-%doc README LICENSE ChangeLog INSTALL PORTING THANKS
 
 %files -n %libnamestatic
 %defattr(-,root,root)
 %{_libdir}/*.a
 
 %changelog
+* Sat Jan 04 2004 Vincent Danen <vdanen@opensls.org> 1.3.0-4sls
+- minor spec cleanups
+- remove %%prefix
+
 * Sat Jan 04 2004 Vincent Danen <vdanen@opensls.org> 1.3.0-4sls
 - OpenSLS build
 - tidy spec
