@@ -1,11 +1,10 @@
 %define name	slang
 %define version 1.4.9
-%define release 6avx
+%define release 7avx
 
 %define docversion	1.4.8
 %define major		1
-%define	lib_name	%mklibname %{name} %{major}
-%define	lib_name_devel	%{lib_name}-devel
+%define	libname		%mklibname %{name} %{major}
 
 Summary:	The shared library for the S-Lang extension language.
 Name:		%{name}
@@ -16,6 +15,13 @@ Group:		System/Libraries
 URL:		ftp://space.mit.edu/pub/davis/slang/
 Source:		ftp://space.mit.edu/pub/davis/slang/slang-%{version}.tar.bz2
 Source1:	ftp://space.mit.edu/pub/davis/slang/slang-%{docversion}-doc.tar.bz2
+Source2:	README.UTF-8
+# (mpol) utf8 patches from http://www.suse.de/~nadvornik/slang/
+Patch1:		slang-debian-utf8.patch.bz2
+Patch2:		slang-utf8-acs.patch.bz2
+Patch3:		slang-utf8-fix.patch.bz2
+Patch4:		slang-utf8-revert_soname.patch.bz2
+Patch5:		slang-1.4.9-offbyone.patch.bz2
 
 BuildRoot:	%{_tmppath}/slang-root
 
@@ -27,13 +33,13 @@ The S-Lang library, provided in this package, provides the S-Lang
 extension language.  S-Lang's syntax resembles C, which makes it easy
 to recode S-Lang procedures in C if you need to.
 
-%package -n %{lib_name}
+%package -n %{libname}
 Summary:	The shared library for the S-Lang extension language.
 Group:		System/Libraries
 Provides:	slang
 Obsoletes:	slang
 
-%description -n %{lib_name}
+%description -n %{libname}
 S-Lang is an interpreted language and a programming library.  The
 S-Lang language was designed so that it can be easily embedded into
 a program to provide the program with a powerful extension language.
@@ -42,14 +48,14 @@ extension language.  S-Lang's syntax resembles C, which makes it easy
 to recode S-Lang procedures in C if you need to.
 
 
-%package -n %{lib_name_devel}
+%package -n %{libname}-devel
 Summary:	The static library and header files for development using S-Lang.
 Group:		Development/C
 Provides:	lib%{name}-devel slang-devel
 Obsoletes:	slang-devel
-Requires:	%{lib_name} = %{version}
+Requires:	%{libname} = %{version}
 
-%description -n %{lib_name_devel}
+%description -n %{libname}-devel
 This package contains the S-Lang extension language static libraries
 and header files which you'll need if you want to develop S-Lang based
 applications.  Documentation which may help you write S-Lang based
@@ -61,6 +67,13 @@ based on the S-Lang extension language.
 
 %prep
 %setup -q
+%patch1 -p1
+%patch2 -p1
+%patch3 -p1
+%patch4 -p1 -b .revert_soname
+%patch5 -p1 -b .offbyone
+
+cp %{SOURCE2} .
 
 %build
 %configure2_5x	--includedir=%{_includedir}/slang
@@ -71,47 +84,47 @@ based on the S-Lang extension language.
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p $RPM_BUILD_ROOT%{_includedir}/slang
-make	prefix=$RPM_BUILD_ROOT%{_prefix} \
-	install_lib_dir=$RPM_BUILD_ROOT%{_libdir} \
-	install_include_dir=$RPM_BUILD_ROOT%{_includedir}/slang \
+mkdir -p %{buildroot}%{_includedir}/slang
+make	prefix=%{buildroot}%{_prefix} \
+	install_lib_dir=%{buildroot}%{_libdir} \
+	install_include_dir=%{buildroot}%{_includedir}/slang \
 	install-elf install
 
-ln -sf lib%{name}.so.%{version} $RPM_BUILD_ROOT%{_libdir}/lib%{name}.so.%{major}
+ln -sf lib%{name}.so.%{version} %{buildroot}%{_libdir}/lib%{name}.so.%{major}
 
 rm -f doc/doc/tm/tools/`arch`objs doc/doc/tm/tools/solarisobjs
 
 # Remove unpackages files
-rm -rf	$RPM_BUILD_ROOT/usr/doc/slang/COPYING \
-	$RPM_BUILD_ROOT/usr/doc/slang/COPYING.ART \
-	$RPM_BUILD_ROOT/usr/doc/slang/COPYING.GPL \
-	$RPM_BUILD_ROOT/usr/doc/slang/COPYRIGHT \
-	$RPM_BUILD_ROOT/usr/doc/slang/changes.txt \
-	$RPM_BUILD_ROOT/usr/doc/slang/cref.txt \
-	$RPM_BUILD_ROOT/usr/doc/slang/cslang.txt \
-	$RPM_BUILD_ROOT/usr/doc/slang/slang.txt \
-	$RPM_BUILD_ROOT/usr/doc/slang/slangdoc.html \
-	$RPM_BUILD_ROOT/usr/doc/slang/slangfun.txt
+rm -rf	%{buildroot}/usr/doc/slang
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-%post -n %{lib_name} -p /sbin/ldconfig
 
-%postun -n %{lib_name} -p /sbin/ldconfig
+%post -n %{libname} -p /sbin/ldconfig
+%postun -n %{libname} -p /sbin/ldconfig
 
-%files -n %{lib_name}
+
+%files -n %{libname}
+%doc COPYING COPYRIGHT README changes.txt README.UTF-8 NEWS
 %defattr(-,root,root)
-%{_libdir}/libslang.so.*
+%{_libdir}/lib*.so.*
 
-%files -n %{lib_name_devel}
+%files -n %{libname}-devel
 %defattr(-,root,root)
-%{_libdir}/libslang.a
-%{_libdir}/libslang.so
+%{_libdir}/lib*.a
+%{_libdir}/lib*.so
 %dir %{_includedir}/slang/
 %{_includedir}/slang/*.h
 
 %changelog
+* Mon Feb 28 2005 Vincent Danen <vdanen@annvix.org> 1.4.9-7avx
+- put docs back in
+- add utf8 patches from SUSE (mpol)
+- make compat symlinks for devel package (mpol)
+- P5: fix off-by-one error (mpol)
+- spec cleanups
+
 * Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 1.4.9-6avx
 - Annvix build
 
