@@ -1,0 +1,17 @@
+--- configure.in	2003-04-28 13:54:43.000000000 +0200
++++ configure.in.oden	2003-09-08 01:32:21.000000000 +0200
+@@ -377,10 +377,10 @@
+ configdir=$sysconfdir/prelude-manager
+ prelude_manager_conf=$configdir/prelude-manager.conf
+ plugindir=$libdir/prelude-manager
+-report_plugin_dir=$plugindir/reports/
+-decode_plugin_dir=$plugindir/decodes/
+-filter_plugin_dir=$plugindir/filters/
+-db_plugin_dir=$plugindir/db/
++report_plugin_dir=$plugindir/reports
++decode_plugin_dir=$plugindir/decodes
++filter_plugin_dir=$plugindir/filters
++db_plugin_dir=$plugindir/db
+ manager_fifo_dir=$localstatedir/spool/prelude-manager
+ manager_data_dir=$datadir/prelude-manager
+ 
