@@ -1,0 +1,11 @@
+--- squid-2.5.STABLE5/src/auth/ntlm/auth_ntlm.c.warning	2004-04-05 14:32:35.000000000 -0400
++++ squid-2.5.STABLE5/src/auth/ntlm/auth_ntlm.c	2004-04-05 14:32:37.000000000 -0400
+@@ -656,7 +656,7 @@
+     assert(ntlm_request);
+     assert(handler);
+     assert(data);
+-    assert(auth_user->auth_type = AUTH_NTLM);
++    assert(auth_user->auth_type == AUTH_NTLM);
+     debug(29, 9) ("authenticateNTLMStart: auth state '%d'\n", ntlm_request->auth_state);
+     switch (ntlm_request->auth_state) {
+     case AUTHENTICATE_STATE_NEGOTIATE:
