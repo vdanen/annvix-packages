@@ -1,6 +1,6 @@
 %define name	texinfo
 %define version	4.8
-%define release	1avx
+%define release	2avx
 
 Summary:	Tools needed to create Texinfo format documentation files
 Name:		%{name}
@@ -35,7 +35,7 @@ going to write documentation for the GNU Project.
 Summary:	A stand-alone TTY-based reader for GNU texinfo documentation
 Group:		System/Base
 Prereq:		info-install
-Conflicts:	info-install > 4.7
+Conflicts:	info-install < 4.7
 
 %description -n info
 The GNU project uses the texinfo file format for much of its
@@ -132,6 +132,9 @@ popd
 %{_mandir}/man1/install-info.1*
 
 %changelog
+* Sun Mar 06 2005 Vincent Danen <vdanen@annvix.org> 4.8-2avx
+- fix conflicts on info-install vs. info
+
 * Mon Feb 28 2005 Vincent Danen <vdanen@annvix.org> 4.8-1avx
 - 4.8
 - move info(1) and info(5) from info-install to info
