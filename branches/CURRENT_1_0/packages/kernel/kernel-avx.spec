@@ -84,7 +84,7 @@
 # Thomas Backlund <tmb@iki.fi>
 
 %define sublevel	25
-%define avxrelease	17
+%define avxrelease	18
 %define use_patch	0
 
 %{!?build_opensls:%global build_opensls 0}
@@ -925,6 +925,12 @@ exit 0
 %endif
 
 %changelog
+* Wed Jun 30 2004 Thomas Backlund <tmb@annvix.org> 2.4.25-18avx
+- update openswan patches to 2.1.4 (DF02, DF03)
+  * fixes CAN-2004-0590
+- disable devfs completely for all kernels but BOOT, by
+  setting CONFIG_DEVFS_FS=n
+  
 * Tue Jun 22 2004 Thomas Backlund <tmb@annvix.org> 2.4.25-17avx
 - e1000 ethtool gregs max length (ZY69)
 - redo DI02, as all nForce2 and nForce3 are capable of UDMA133
