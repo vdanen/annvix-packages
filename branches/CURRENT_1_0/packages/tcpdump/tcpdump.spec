@@ -1,21 +1,25 @@
-Name:		tcpdump
-Version: 3.8.3
-Release:	1mdk
-Epoch:		2
-Summary:	A network traffic monitoring tool.
-Group:	 	Monitoring
-BuildRequires: libpcap-devel
-URL:		http://www.tcpdump.org
+%define name	tcpdump
+%define version	3.8.3
+%define release	1sls
+%define epoch	2
+
+Summary:	A network traffic monitoring tool
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+Epoch:		%{epoch}
 License:	BSD
+Group:	 	Monitoring
+URL:		http://www.tcpdump.org
 Source:		http://www.tcpdump.org/release/%{name}-%{version}.tar.bz2
-Patch:		tcpdump-3.7.2-fix-in.h.patch.bz2
+
 BuildRoot:	%{_tmppath}/%{name}-buildroot
-BuildRequires: libpcap-devel
+BuildRequires:	libpcap-devel
 
 %description
-Tcpdump is a command-line tool for monitoring network traffic.  Tcpdump
+tcpdump is a command-line tool for monitoring network traffic.  tcpdump
 can capture and display the packet headers on a particular network
-interface or on all interfaces.  Tcpdump can display all of the packet
+interface or on all interfaces.  tcpdump can display all of the packet
 headers, or just the ones that match particular criteria.
 
 Install tcpdump if you need a program to monitor network traffic.
@@ -23,26 +27,22 @@ Install tcpdump if you need a program to monitor network traffic.
 %prep
 %setup -q
 
-#%patch -p1 
-
 %build
 libtoolize --copy --force
 %define	optflags $RPM_OPT_FLAGS -DIP_MAX_MEMBERSHIPS=20
 %configure --enable-ipv6
 %undefine optflags
 
-%__make
+%make
 
 %install
-rm -rf $RPM_BUILD_ROOT
-mkdir -p $RPM_BUILD_ROOT{%{_mandir}/man1,%{_sbindir}}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+#mkdir -p $RPM_BUILD_ROOT{%{_mandir}/man1,%{_sbindir}}
 
-#install -m755 -s tcpdump ${RPM_BUILD_ROOT}%{_sbindir}
-#install -m644 tcpdump.1 ${RPM_BUILD_ROOT}%{_mandir}/man8/tcpdump.8
-%__make install DESTDIR=$RPM_BUILD_ROOT
+make install DESTDIR=$RPM_BUILD_ROOT
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -51,6 +51,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/tcpdump.1*
 
 %changelog
+* Fri Jun 11 2004 Vincent Danen <vdanen@opensls.org> 3.8.3-1sls
+- OpenSLS build
+- tidy spec
+
 * Thu Apr 15 2004 Michael Scherer <mscherer@mandrakesoft.com> 3.8.3-1mdk
 - New release 3.8.3
 
