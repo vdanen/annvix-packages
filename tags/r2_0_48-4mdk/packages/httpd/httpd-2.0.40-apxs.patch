@@ -1,0 +1,29 @@
+
+- remove checks requiring /usr/sbin/httpd to be present: this is
+unnecessary, we know that httpd contains mod_so, and only the
+httpd-devel package should be required to build modules.
+
+- use correct location of 'build' scripts
+
+--- ./support/apxs.in.apxs	Wed Jun 19 21:44:45 2002
++++ ./support/apxs.in	Mon Aug 12 13:47:21 2002
+@@ -236,19 +236,6 @@
+     ($httpd = $0) =~ s:support/apxs$::;
+ }
+ 
+-unless (-x "$httpd") {
+-	error("$httpd not found or not executable");
+-	exit 1;
+-}
+-
+-unless (grep /mod_so/, `. $envvars && $httpd -l`) {
+-    error("Sorry, no shared object support for Apache");
+-    error("available under your platform. Make sure");
+-    error("the Apache module mod_so is compiled into");
+-    error("your server binary `$httpd'.");
+-    exit 1;
+-}
+-
+ sub get_config_vars{
+     my ($file, $rh_config) = @_;
+ 
