@@ -1,6 +1,6 @@
 %define name	dietlibc
 %define version 0.24
-%define release 1sls
+%define release 2sls
 
 Summary:	C library optimized for size
 Name:		%{name}
@@ -66,6 +66,9 @@ make DESTDIR=%{buildroot} install
 %{_mandir}/man*/*
 
 %changelog
+* Thu Mar 04 2004 Vincent Danen <vdanen@opensls.org> 0.24-2sls
+- rebuild
+
 * Mon Jan 26 2004 Vincent Danen <vdanen@opensls.org> 0.24-1sls
 - 0.24
 - contrapolice 0.1 for heap protection
