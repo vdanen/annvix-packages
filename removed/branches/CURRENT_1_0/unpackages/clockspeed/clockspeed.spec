@@ -1,6 +1,6 @@
 %define name	clockspeed
 %define version	0.62
-%define release	1sls
+%define release	2sls
 
 Summary:	Clock speed measurement and manipulation
 Name:		%{name}
@@ -83,12 +83,12 @@ install -m0644 taia.h %{buildroot}%{_includedir}/
 install -m0644 libtai.a %{buildroot}%{_libdir}/
 install -m0644 *.3 %{buildroot}%{_mandir}/man3/
 
-mkdir -p %{buildroot}/var/service/{clockspeed,taiclockd}/log
-mkdir -p %{buildroot}/var/log/supervise/{clockspeed,taiclockd}
-install -m 0755 %{SOURCE1} %{buildroot}/var/service/clockspeed/run
-install -m 0755 %{SOURCE2} %{buildroot}/var/service/clockspeed/log/run
-install -m 0755 %{SOURCE3} %{buildroot}/var/service/taiclockd/run
-install -m 0755 %{SOURCE4} %{buildroot}/var/service/taiclockd/log/run
+mkdir -p %{buildroot}%{_srvdir}/{clockspeed,taiclockd}/log
+mkdir -p %{buildroot}%{_srvlogdir}/{clockspeed,taiclockd}
+install -m 0755 %{SOURCE1} %{buildroot}%{_srvdir}/clockspeed/run
+install -m 0755 %{SOURCE2} %{buildroot}%{_srvdir}/clockspeed/log/run
+install -m 0755 %{SOURCE3} %{buildroot}%{_srvdir}/taiclockd/run
+install -m 0755 %{SOURCE4} %{buildroot}%{_srvdir}/taiclockd/log/run
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -109,16 +109,16 @@ install -m 0755 %{SOURCE4} %{buildroot}/var/service/taiclockd/log/run
 %{_mandir}/man1/sntpclock.1*
 %{_mandir}/man1/taiclock.1*
 %{_mandir}/man1/taiclockd.1*
-%dir /var/service/clockspeed
-%dir /var/service/clockspeed/log
-/var/service/clockspeed/run
-/var/service/clockspeed/log/run
-%dir /var/service/taiclockd
-%dir /var/service/taiclockd/log
-/var/service/taiclockd/run
-/var/service/taiclockd/log/run
-%dir %attr(0750,nobody,nogroup) /var/log/supervise/clockspeed
-%dir %attr(0750,nobody,nogroup) /var/log/supervise/taiclockd
+%dir %{_srvdir}/clockspeed
+%dir %{_srvdir}/clockspeed/log
+%{_srvdir}/clockspeed/run
+%{_srvdir}/clockspeed/log/run
+%dir %{_srvdir}/taiclockd
+%dir %{_srvdir}/taiclockd/log
+%{_srvdir}/taiclockd/run
+%{_srvdir}/taiclockd/log/run
+%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/clockspeed
+%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/taiclockd
 
 %files devel
 %defattr(-,root,root)
@@ -134,6 +134,9 @@ install -m 0755 %{SOURCE4} %{buildroot}/var/service/taiclockd/log/run
 %{_mandir}/man3/taia_pack.3*
 
 %changelog
+* Mon Mar 02 2004 Vincent Danen <vdanen@opensls.org> 0.62-2sls
+- macros
+
 * Wed Dec 31 2003 Vincent Danen <vdanen@opensls.org> 0.62-1sls
 - rebuild for OpenSLS
 - tidy spec
