@@ -1,6 +1,6 @@
 %define name	apache2
 %define version	2.0.52
-%define release	1avx
+%define release	2avx
 
 #
 #(ie. use with rpm --rebuild):
@@ -131,6 +131,7 @@ Patch103:		httpd-2.0.49-mod_ldap_cache_file_location.diff.bz2
 # OE: add the metux mpm
 # http://www.sannes.org/metuxmpm/
 Patch104:		httpd-2.0.48-metuxmpm-r8.patch.bz2
+Patch105:		httpd-2.0.52-CAN-2004-0885.patch.bz2
 
 BuildRoot:		%{_tmppath}/%{ap_name}-%{version}-buildroot
 BuildPreReq:		ADVX-build >= 10
@@ -542,6 +543,7 @@ bzcat %{SOURCE8} > modules/experimental/test_char.h
 %patch102 -p0 -b .apache2-suexec.droplet
 %patch103 -p0 -b .mod_ldap_cache_file_location.droplet
 %patch104 -p1 -b .metuxmpm.droplet
+%patch105 -p1 -b .can-2004-0885.droplet
 
 # Touch mod_ssl expression parser sources to prevent regenerating it
 touch modules/ssl/ssl_expr_*.[chyl]
@@ -1321,7 +1323,11 @@ rm -rf %{buildroot}%{ap_htdocsdir}/manual
 %{ap_abs_srcdir}
 
 %changelog
-* Thu Oct 14 2004 Vincent Danen <vdanen@annvix.org> 2.0.50-1avx
+* Fri Nov  5 2004 Vincent Danen <vdanen@annvix.org> 2.0.52-2avx
+- P105: patch to fix CAN-2004-0885
+
+
+* Thu Oct 14 2004 Vincent Danen <vdanen@annvix.org> 2.0.52-1avx
 - 2.0.52
 - added patches from Fedora: P53, P93, P94
 - updated patches from Fedora: P1, P3, P25, P39, P84, P86
