@@ -1,6 +1,6 @@
 %define name	dosfstools
-%define version 2.9
-%define release 3sls
+%define version 2.10
+%define release 1sls
 
 Summary:	Utilities to create and check MS-DOS FAT filesystems.
 Name:		%{name}
@@ -10,8 +10,8 @@ License:	GPL
 Group:		File tools
 URL:		ftp://ftp.uni-erlangen.de/pub/Linux/LOCAL/dosfstools
 Source:		ftp://ftp.uni-erlangen.de/pub/Linux/LOCAL/dosfstools/%{name}-%{version}.src.tar.bz2
-Patch0:		dosfstools-2.8-x86_64.patch.bz2
-Patch1:		mkdosfs.errno.patch.bz2
+Source1:	msdos_fs.h.bz2
+Patch0:		dosfstools-2.10-compile-against-2.4-header.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-buildroot
 
@@ -27,11 +27,11 @@ code.
 
 %prep
 %setup -q
-%patch0 -p1 -b .x86_64
-%patch1 -p0 -b .errno
+%patch0 -p1 -b .kern24
+bzcat %{SOURCE1} >dosfsck/msdos_fs.h
 
 %build
-%make PREFIX=/%{_prefix} CFLAGS="$RPM_OPT_FLAGS"
+%make PREFIX=%{_prefix} CFLAGS="$RPM_OPT_FLAGS"
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -54,6 +54,11 @@ rm -f %{buildroot}/sbin/fsck.*
 %{_mandir}/man8/*
 
 %changelog
+* Fri Apr 30 2004 Vincent Danen <vdanen@opensls.org> 2.10-1sls
+- 2.10
+- ship with 2.4 kernel header (S1) and compile against it (P0) (peroyvind)
+- drop unapplied previous P0 and P1
+
 * Thu Mar 04 2004 Vincent Danen <vdanen@opensls.org> 2.9-3sls
 - minor spec cleanups
 - remove /sbin/fsck.*
