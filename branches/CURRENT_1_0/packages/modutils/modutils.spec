@@ -1,6 +1,6 @@
 %define name	modutils
 %define version 2.4.26
-%define release 1sls
+%define release 2sls
 
 %define url ftp://ftp.kernel.org:/pub/linux/utils/kernel/modutils/v2.4
 %define priority 10
@@ -29,7 +29,7 @@ Patch103:	modutils-2.4.26-agpgart-26.patch.bz2
 BuildRoot:	%{_tmppath}/%{name}-buildroot
 BuildRequires:	bison flex zlib-devel gperf glibc-static-devel
 
-Prereq:		chkconfig
+Prereq:		chkconfig, rpm
 ExclusiveOs:	Linux
 Obsoletes:	modules
 Provides:	modules
@@ -187,6 +187,9 @@ done
 %{_mandir}/man8/ksyms.8*
 
 %changelog
+* Fri Jun 11 2004 Vincent Danen <vdanen@opensls.org> 2.4.26-2sls
+- PreReq: rpm (for update-alternatives)
+
 * Fri Jun 11 2004 Vincent Danen <vdanen@opensls.org> 2.4.26-1sls
 - 2.4.26
 - remove Requires on update-alternatives since it's included in rpm
