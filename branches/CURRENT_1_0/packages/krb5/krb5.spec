@@ -1,6 +1,6 @@
 %define name	krb5
 %define version	1.3.4
-%define release	1avx
+%define release	2avx
 
 %define srcver	1.3
 %define LIBMAJ	1
@@ -558,6 +558,10 @@ strip %{buildroot}%{_bindir}/{ksu,v4rcp}
 %{_srvdir}/kftp/log/run
 
 %changelog
+* Fri Sep 17 2004 Vincent Danen <vdanen@annvix.org> 1.3.4-2avx
+- update run scripts
+- fix kftp/ktelnet log run scripts for log directory location
+
 * Sat Sep 04 2004 Vincent Danen <vdanen@annvix.org> 1.3.4-1avx
 - 1.3.4
 - move krb5-config to devel package (abel)

@@ -1,5 +1,5 @@
 #!/bin/sh
-PATH="/sbin:/usr/sbin:/bin:/usr/bin:$PATH"
+PATH="/sbin:/usr/sbin:/bin:/usr/bin"
 
 # this runs ftp limiting the server to a maximum of 30 simultaneous 
 # connections. ftp.cdb is not required for the service to run

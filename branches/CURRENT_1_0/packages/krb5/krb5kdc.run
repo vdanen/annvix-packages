@@ -1,18 +1,12 @@
 #!/bin/sh
-PATH="/sbin:/usr/sbin:/bin:/usr/bin:$PATH"
+PATH="/sbin:/usr/sbin:/bin:/usr/bin"
 
-# this runs kadmind under supervise
+# this runs kadmind supervised
 
-godown() {
-  touch down
-  svc -d /service/kadmind
-  touch log/down
-  svc -d /service/kadmind/log
-  exit 0
-}
+. /usr/share/srv/functions
 
 if [ ! -f /etc/kerberos/krb5kdc/principal ]; then
   godown
 fi
 
-exec /usr/sbin/krb5kdc -n
+exec /usr/sbin/krb5kdc -n 2>&1

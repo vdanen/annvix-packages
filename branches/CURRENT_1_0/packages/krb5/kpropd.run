@@ -1,18 +1,12 @@
 #!/bin/sh
-PATH="/sbin:/usr/sbin:/bin:/usr/bin:$PATH"
+PATH="/sbin:/usr/sbin:/bin:/usr/bin"
 
-# this runs kpropd under supervise
+# this runs kpropd supervised
 
-godown() {
-  touch down
-  svc -d /service/kadmind
-  touch log/down
-  svc -d /service/kadmind/log
-  exit 0
-}
+. /usr/share/srv/functions
 
 if [ ! -f /etc/kerberos/krb5kdc/kpropd.acl ]; then
   godown
 fi
 
-exec /usr/sbin/kpropd -S -d
+exec /usr/sbin/kpropd -S -d 2>&1
