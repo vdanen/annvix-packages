@@ -1,0 +1,50 @@
+Files lilo-22.5.8/bitmap.b and lilo-works/bitmap.b differ
+diff -urNp --exclude-from=/home/quintela/config/misc/dontdiff --exclude='*.ps' --exclude='*.pdf' --exclude='*.map' --exclude='*.lis' lilo-22.5.8/second.S lilo-works/second.S
+--- lilo-22.5.8/second.S	2004-02-05 23:15:41.000000000 +0100
++++ lilo-works/second.S	2004-02-05 23:10:45.000000000 +0100
+@@ -532,7 +532,7 @@ lloop:	testb	(si),#0xff	! done ?
+ 	call	say
+ 	add	si,#MAX_IMAGE_NAME
+ 	inc	dl		! count the image
+-	test	dl,#3		! inside line -> go on
++	test	dl,#1		! inside line -> go on
+ 	jnz	fill
+ 	call	crlf
+ 	jmp	imgdne		! next image
+@@ -545,7 +545,7 @@ fill:	push	bx		! fill with spaces
+ 	jbe	fill
+ imgdne:	add	si,#id_size-MAX_IMAGE_NAME
+ 	loop	lloop		! next image
+-ldone:	test	dl,#3		! already at BOL ?
++ldone:	test	dl,#1		! already at BOL ?
+ 	jz	atbol		! yes -> no CRLF
+ 	call	crlf
+ atbol:	
+diff -urNp --exclude-from=/home/quintela/config/misc/dontdiff --exclude='*.ps' --exclude='*.pdf' --exclude='*.map' --exclude='*.lis' lilo-works/crt.S lilo-22.5.8/crt.S
+--- lilo-works/crt.S	2003-05-28 22:44:32.000000000 +0200
++++ lilo-22.5.8/crt.S	2004-02-06 01:29:17.000000000 +0100
+@@ -11,7 +11,6 @@ source directory.
+ 
+ XPITCH  =	MAX_IMAGE_NAME+6
+ MINROW	=	4
+-MAX2COL	=	14
+ MAXTITLE  =	3
+ MAXCOMMENT  =	3
+ 
+@@ -69,13 +68,9 @@ findl3:	mov	[nimage],si
+ 
+ 	mov	ax,si
+ 	mov	bl,#2		;set for 2 columns
+-	cmp	al,#MAX2COL
+-	jle	col1
+-	inc	bl
+-col1:	mov	[ncol],bl
+-	add	al,bl
+-	dec	al
++	mov	[ncol],bl
++	inc	al
+ 	div	bl
+ 	cmp	al,#MINROW
+ 	jg	row1
+ 
+
