@@ -1,10 +1,9 @@
 %define name	bzip2
 %define version	1.0.2
-%define release	17sls
+%define release	18sls
 
 %define libname_orig lib%{name}
 %define libname	%mklibname %{name}_ 1
-%define buildpdf 0
 
 Summary:	Extremely powerful file compression utility
 Name:		%{name}
@@ -25,9 +24,6 @@ Patch2:		bzip2-1.0.2.diff.bz2
 
 BuildRoot:	%_tmppath/%name-%version-root
 BuildRequires:	texinfo
-%if %buildpdf
-BuildRequires:	tetex-dvips tetex-latex
-%endif
 
 Requires:	%libname = %version
 
@@ -76,12 +72,9 @@ autoheader
 %build
 %configure --libdir=%_libdir
 make
-%if %buildpdf
-texi2dvi --pdf manual.texi
-%endif
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
 install -m 755 %SOURCE1 bzme $RPM_BUILD_ROOT%_bindir
 
@@ -91,6 +84,9 @@ cat > $RPM_BUILD_ROOT%_bindir/bzless <<EOF
 EOF
 chmod 755 $RPM_BUILD_ROOT%_bindir/bzless
 install -m 644 %SOURCE3 $RPM_BUILD_ROOT%_mandir/man1/
+
+%clean
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post -n %libname -p /sbin/ldconfig
 %postun -n %libname -p /sbin/ldconfig
@@ -109,18 +105,17 @@ install -m 644 %SOURCE3 $RPM_BUILD_ROOT%_mandir/man1/
 %files -n %libname-devel
 %defattr(-,root,root,755)
 %doc *.html LICENSE
-%if %buildpdf
-%doc manual.pdf
-%endif
 %_libdir/libbz2.a
 %_libdir/libbz2.la
 %_libdir/libbz2.so
 %_includedir/*.h
 
-%clean
-rm -rf $RPM_BUILD_ROOT
 
 %changelog
+* Tue Mar 02 2004 Vincent Danen <vdanen@opensls.org> 1.0.2-18sls
+- remove %%buildpdf
+- minor spec cleanups
+
 * Tue Dec 02 2003 Vincent Danen <vdanen@opensls.org> 1.0.2-17sls
 - OpenSLS build
 - tidy spec
