@@ -1,0 +1,140 @@
+--- lilo-22.5.7.2/mdk_graphic.S.progress	2003-09-18 14:29:58.000000000 +0200
++++ lilo-22.5.7.2/mdk_graphic.S	2003-09-18 14:34:13.000000000 +0200
+@@ -63,6 +63,38 @@
+ arr_vector:
+ 	br	input		; ignore the rest
+ 
++progress_display:
++	test byte [UseVESA],#1		; Silence if not VESA
++	jz progress_ret
++	pusha
++	push es
++	mov es,[VESA_winsegA]
++	mov bl,[ProgressPixel]
++	mov cx,[ProgressX]
++	mov ah,[ProgressXC]
++progress_enlarge_x:
++	mov dx,[ProgressY]
++	mov al,[ProgressYC]
++progress_enlarge_y:
++	push ax
++	push cx
++	push dx
++	call putpixel
++	pop dx
++	pop cx
++	pop ax
++	inc dx
++	dec al
++	jnz progress_enlarge_y
++	inc cx
++	dec ah
++	jnz progress_enlarge_x
++	mov [ProgressX],cx
++	pop es
++	popa
++progress_ret:
++	ret
++
+ ; copied from crt.S and modified for graphical adaptation
+ ; timer_display:
+ ;	check the timer 'cntdown' and display changes
+@@ -397,6 +429,30 @@
+ 		mov [ModeLo],al
+ 		mov word [NextCharJump],#msg_ext_set_mode_hi
+ 		ret
++msg_ext_progress_y_lo:
++		mov byte [ProgressY],al
++		mov word [NextCharJump],#msg_ext_progress_y_hi
++		ret
++msg_ext_progress_y_hi:
++		mov byte [ProgressY+1],al
++		mov word [NextCharJump],#msg_ext_progress_x_lo
++		ret
++msg_ext_progress_x_lo:
++		mov byte [ProgressX],al
++		mov word [NextCharJump],#msg_ext_progress_x_hi
++		ret
++msg_ext_progress_x_hi:
++		mov byte [ProgressX+1],al
++		mov word [NextCharJump],#msg_ext_progress_yc
++		ret
++msg_ext_progress_yc:
++		mov byte [ProgressYC],al
++		mov word [NextCharJump],#msg_ext_progress_xc
++		ret
++msg_ext_progress_xc:
++		mov byte [ProgressXC],al
++		mov word [NextCharJump],#msg_ext_progress_pixel
++		ret
+ msg_ext_timer_y_lo:
+ 		mov byte [TimerY],al
+ 		mov word [NextCharJump],#msg_ext_timer_y_hi
+@@ -503,8 +559,7 @@
+ 		mov byte [IgnoreCount],#2
+ 		cmp ah,#0x40
+ 		jz msg_ext_ret
+-		mov bx,#msg_ext_ignore
+-		mov byte [IgnoreCount],#7
++		mov bx,#msg_ext_progress_y_lo
+ 		cmp ah,#0x20
+ 		jz msg_ext_ret
+ 		mov bx,#msg_ext_seek_y_lo
+@@ -535,6 +590,9 @@
+ 		call set_mode
+ msg_ext_follow_multiplex:
+ 		jmp msg_ext_multiplex
++msg_ext_progress_pixel:
++		mov byte [ProgressPixel],al
++		jmp msg_ext_follow_multiplex
+ msg_ext_entry_max_length:
+ 		mov byte [EntryMaxLength],al
+ 		jmp msg_ext_follow_multiplex
+@@ -765,6 +823,13 @@
+ ExtPutRectH:		dw 1			; Extended putrect Height
+ ExtPage:		dw -1			; Extended page for high resolution
+ 
++ProgressPixel:		db 15
++ProgressYC:		db 3
++ProgressXC:		db 24
++			db 0
++ProgressX:		dw 0
++ProgressY:		dw 0
++
+ TimerY:			dw 456
+ TimerX:			dw 592
+ TimerBgColor:		db 0
+--- lilo-22.5.7.2/second.S.progress	2003-09-18 14:29:58.000000000 +0200
++++ lilo-22.5.7.2/second.S	2003-09-18 14:29:58.000000000 +0200
+@@ -1729,6 +1729,9 @@
+ 
+ 	mov	al,#0x2e	! print a dot
+ 	call	display
++#ifdef MDK_GRAPHIC
++	call	progress_display
++#endif
+ 	jmp	lfetch		! try again
+ 
+ ! Start the kernel
+--- lilo-22.5.7.2/bmp2mdk.progress	2003-09-18 14:29:58.000000000 +0200
++++ lilo-22.5.7.2/bmp2mdk	2003-09-18 14:29:58.000000000 +0200
+@@ -95,15 +95,15 @@
+ 	$ext_code |= 0x80;
+ 	$ext_data .= pack "v", $initcode{mode};
+     }
++    if ($initcode{progress_y} || $initcode{progress_x}) {
++	$ext_code |= 0x20;
++	$ext_data .= pack "v2C3", @initcode{qw(progress_y progress_x progress_h progress_w progress_c)};
++    }
+     if ($initcode{timer_y} || $initcode{timer_x} || $initcode{entry_y} || $initcode{entry_x}) {
+ 	$ext_code |= 0x08;
+ 	$ext_data .= pack "v2C2 v2C4", @initcode{qw(timer_y timer_x timer_bg timer_fg
+ 						    entry_y entry_x entry_bg entry_fg entry_h_chr entry_w_chr)};
+     }
+-    if ($initcode{progress_y} || $initcode{progress_x}) {
+-	$ext_code |= 0x20;
+-	$ext_data .= pack "v2C3", @initcode{qw(progress_y progress_x progress_h progress_w progress_c)};
+-    }
+     #- always set up clear.
+     $ext_code |= 0x02;
+     $ext_data .= pack "v2C", @initcode{qw(clear_w clear_h clear_color)};
