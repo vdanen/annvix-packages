@@ -1,0 +1,236 @@
+2003-08-12  Jakub Jelinek  <jakub@redhat.com>
+
+	* libio/libioP.h (_IO_vtable_offset): Define.
+	* libio/freopen.c (freopen): Use it.
+	* libio/ioputs.c (_IO_puts): Likewise.
+	* libio/freopen64.c (freopen64): Likewise.
+	* libio/genops.c (__underflow, __uflow, _IO_flush_all_lockp):
+	Likewise.
+	* libio/iofclose.c (_IO_new_fclose): Likewise.
+	* libio/iofputs.c (_IO_fputs): Likewise.
+	* libio/ioftell.c (_IO_ftell): Likewise.
+	* libio/iofwrite.c (_IO_fwrite): Likewise.
+	* libio/ioseekoff.c (_IO_seekoff_unlocked): Likewise.
+	* libio/iosetbuffer.c (_IO_setbuffer): Likewise.
+	* stdio-common/vfprintf.c (ORIENT, vfprintf): Likewise.
+	* stdio-common/vfscanf.c (ORIENT): Likewise.
+
+--- glibc-2.3.2/libio/libioP.h.libio-compat	2003-07-07 17:14:54.000000000 +0200
++++ glibc-2.3.2/libio/libioP.h	2003-08-22 11:59:06.000000000 +0200
+@@ -110,8 +110,10 @@ extern "C" {
+ # define _IO_JUMPS_FUNC(THIS) \
+  (*(struct _IO_jump_t **) ((void *) &_IO_JUMPS ((struct _IO_FILE_plus *) (THIS)) \
+ 			   + (THIS)->_vtable_offset))
++# define _IO_vtable_offset(THIS) (THIS)->_vtable_offset
+ #else
+ # define _IO_JUMPS_FUNC(THIS) _IO_JUMPS ((struct _IO_FILE_plus *) (THIS))
++# define _IO_vtable_offset(THIS) 0
+ #endif
+ #define _IO_WIDE_JUMPS_FUNC(THIS) _IO_WIDE_JUMPS(THIS)
+ #ifdef _G_USING_THUNKS
+--- glibc-2.3.2/libio/freopen.c.libio-compat	2003-04-02 16:20:59.000000000 +0200
++++ glibc-2.3.2/libio/freopen.c	2003-08-22 11:59:06.000000000 +0200
+@@ -69,7 +69,7 @@ freopen (filename, mode, fp)
+     {
+       INTUSE(_IO_file_close_it) (fp);
+       _IO_JUMPS ((struct _IO_FILE_plus *) fp) = &_IO_file_jumps;
+-      if (fp->_vtable_offset == 0 && fp->_wide_data != NULL)
++      if (_IO_vtable_offset (fp) == 0 && fp->_wide_data != NULL)
+ 	fp->_wide_data->_wide_vtable = &_IO_wfile_jumps;
+       result = INTUSE(_IO_file_fopen) (fp, filename, mode, 1);
+       if (result != NULL)
+--- glibc-2.3.2/libio/ioputs.c.libio-compat	2001-07-06 06:54:56.000000000 +0200
++++ glibc-2.3.2/libio/ioputs.c	2003-08-22 11:59:06.000000000 +0200
+@@ -1,4 +1,4 @@
+-/* Copyright (C) 1993, 1996, 1997, 1998, 1999 Free Software Foundation, Inc.
++/* Copyright (C) 1993,1996,1997,1998,1999,2003 Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+ 
+    The GNU C Library is free software; you can redistribute it and/or
+@@ -38,7 +38,8 @@ _IO_puts (str)
+ 			    _IO_stdout);
+   _IO_flockfile (_IO_stdout);
+ 
+-  if ((_IO_stdout->_vtable_offset != 0 || _IO_fwide (_IO_stdout, -1) == -1)
++  if ((_IO_vtable_offset (_IO_stdout) != 0
++       || _IO_fwide (_IO_stdout, -1) == -1)
+       && _IO_sputn (_IO_stdout, str, len) == len
+       && _IO_putc_unlocked ('\n', _IO_stdout) != EOF)
+     result = len + 1;
+--- glibc-2.3.2/libio/freopen64.c.libio-compat	2003-04-02 16:20:59.000000000 +0200
++++ glibc-2.3.2/libio/freopen64.c	2003-08-22 11:59:06.000000000 +0200
+@@ -54,7 +54,7 @@ freopen64 (filename, mode, fp)
+     }
+   INTUSE(_IO_file_close_it) (fp);
+   _IO_JUMPS ((struct _IO_FILE_plus *) fp) = &_IO_file_jumps;
+-  if (fp->_vtable_offset == 0 && fp->_wide_data != NULL)
++  if (_IO_vtable_offset (fp) == 0 && fp->_wide_data != NULL)
+     fp->_wide_data->_wide_vtable = &_IO_wfile_jumps;
+   result = INTUSE(_IO_file_fopen) (fp, filename, mode, 0);
+   if (result != NULL)
+--- glibc-2.3.2/libio/genops.c.libio-compat	2003-05-10 19:05:04.000000000 +0200
++++ glibc-2.3.2/libio/genops.c	2003-08-22 11:59:06.000000000 +0200
+@@ -324,7 +324,7 @@ __underflow (fp)
+      _IO_FILE *fp;
+ {
+ #if defined _LIBC || defined _GLIBCPP_USE_WCHAR_T
+-  if (fp->_vtable_offset == 0 && _IO_fwide (fp, -1) != -1)
++  if (_IO_vtable_offset (fp) == 0 && _IO_fwide (fp, -1) != -1)
+     return EOF;
+ #endif
+ 
+@@ -357,7 +357,7 @@ __uflow (fp)
+      _IO_FILE *fp;
+ {
+ #if defined _LIBC || defined _GLIBCPP_USE_WCHAR_T
+-  if (fp->_vtable_offset == 0 && _IO_fwide (fp, -1) != -1)
++  if (_IO_vtable_offset (fp) == 0 && _IO_fwide (fp, -1) != -1)
+     return EOF;
+ #endif
+ 
+@@ -834,7 +834,7 @@ _IO_flush_all_lockp (int do_lock)
+ 
+       if (((fp->_mode <= 0 && fp->_IO_write_ptr > fp->_IO_write_base)
+ #if defined _LIBC || defined _GLIBCPP_USE_WCHAR_T
+-	   || (fp->_vtable_offset == 0
++	   || (_IO_vtable_offset (fp) == 0
+ 	       && fp->_mode > 0 && (fp->_wide_data->_IO_write_ptr
+ 				    > fp->_wide_data->_IO_write_base))
+ #endif
+--- glibc-2.3.2/libio/iofclose.c.libio-compat	2002-04-03 05:03:13.000000000 +0200
++++ glibc-2.3.2/libio/iofclose.c	2003-08-22 11:59:06.000000000 +0200
+@@ -1,4 +1,4 @@
+-/* Copyright (C) 1993,1995,1997-2001,2002 Free Software Foundation, Inc.
++/* Copyright (C) 1993,1995,1997-2001,2002,2003 Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+ 
+    The GNU C Library is free software; you can redistribute it and/or
+@@ -49,7 +49,7 @@ _IO_new_fclose (fp)
+   /* We desperately try to help programs which are using streams in a
+      strange way and mix old and new functions.  Detect old streams
+      here.  */
+-  if (fp->_vtable_offset != 0)
++  if (_IO_vtable_offset (fp) != 0)
+     return _IO_old_fclose (fp);
+ #endif
+ 
+--- glibc-2.3.2/libio/iofputs.c.libio-compat	2002-08-26 13:36:40.000000000 +0200
++++ glibc-2.3.2/libio/iofputs.c	2003-08-22 11:59:06.000000000 +0200
+@@ -1,4 +1,5 @@
+-/* Copyright (C) 1993,1996,1997,1998,1999,2002 Free Software Foundation, Inc.
++/* Copyright (C) 1993, 1996, 1997, 1998, 1999, 2002, 2003
++   Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+ 
+    The GNU C Library is free software; you can redistribute it and/or
+@@ -38,7 +39,7 @@ _IO_fputs (str, fp)
+   CHECK_FILE (fp, EOF);
+   _IO_cleanup_region_start ((void (*) __P ((void *))) _IO_funlockfile, fp);
+   _IO_flockfile (fp);
+-  if ((fp->_vtable_offset != 0 || _IO_fwide (fp, -1) == -1)
++  if ((_IO_vtable_offset (fp) != 0 || _IO_fwide (fp, -1) == -1)
+       && _IO_sputn (fp, str, len) == len)
+     result = 1;
+   _IO_funlockfile (fp);
+--- glibc-2.3.2/libio/ioftell.c.libio-compat	2002-11-05 09:24:01.000000000 +0100
++++ glibc-2.3.2/libio/ioftell.c	2003-08-22 11:59:06.000000000 +0200
+@@ -1,4 +1,4 @@
+-/* Copyright (C) 1993, 1995-2000, 2001, 2002 Free Software Foundation, Inc.
++/* Copyright (C) 1993,1995-2000,2001,2002,2003 Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+ 
+    The GNU C Library is free software; you can redistribute it and/or
+@@ -41,7 +41,7 @@ _IO_ftell (fp)
+   pos = _IO_seekoff_unlocked (fp, 0, _IO_seek_cur, 0);
+   if (_IO_in_backup (fp))
+     {
+-      if (fp->_vtable_offset != 0 || fp->_mode <= 0)
++      if (_IO_vtable_offset (fp) != 0 || fp->_mode <= 0)
+ 	pos -= fp->_IO_save_end - fp->_IO_save_base;
+     }
+   _IO_funlockfile (fp);
+--- glibc-2.3.2/libio/iofwrite.c.libio-compat	2002-11-25 11:34:21.000000000 +0100
++++ glibc-2.3.2/libio/iofwrite.c	2003-08-22 11:59:06.000000000 +0200
+@@ -1,4 +1,5 @@
+-/* Copyright (C) 1993,96,97,98,99,2000,2002 Free Software Foundation, Inc.
++/* Copyright (C) 1993, 1996, 1997, 1998, 1999, 2000, 2002, 2003
++   Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+ 
+    The GNU C Library is free software; you can redistribute it and/or
+@@ -41,7 +42,7 @@ _IO_fwrite (buf, size, count, fp)
+     return 0;
+   _IO_cleanup_region_start ((void (*) __P ((void *))) _IO_funlockfile, fp);
+   _IO_flockfile (fp);
+-  if (fp->_vtable_offset != 0 || _IO_fwide (fp, -1) == -1)
++  if (_IO_vtable_offset (fp) != 0 || _IO_fwide (fp, -1) == -1)
+     written = _IO_sputn (fp, (const char *) buf, request);
+   _IO_funlockfile (fp);
+   _IO_cleanup_region_end (0);
+--- glibc-2.3.2/libio/ioseekoff.c.libio-compat	2002-11-05 09:18:06.000000000 +0100
++++ glibc-2.3.2/libio/ioseekoff.c	2003-08-22 11:59:06.000000000 +0200
+@@ -1,4 +1,5 @@
+-/* Copyright (C) 1993,1997,1998,1999,2001,2002 Free Software Foundation, Inc.
++/* Copyright (C) 1993, 1997, 1998, 1999, 2001, 2002, 2003
++   Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+ 
+    The GNU C Library is free software; you can redistribute it and/or
+@@ -56,7 +57,7 @@ _IO_seekoff_unlocked (fp, offset, dir, m
+     {
+       if (dir == _IO_seek_cur && _IO_in_backup (fp))
+ 	{
+-	  if (fp->_vtable_offset != 0 || fp->_mode <= 0)
++	  if (_IO_vtable_offset (fp) != 0 || fp->_mode <= 0)
+ 	    offset -= fp->_IO_read_end - fp->_IO_read_ptr;
+ 	  else
+ 	    abort ();
+--- glibc-2.3.2/libio/iosetbuffer.c.libio-compat	2002-02-26 02:43:50.000000000 +0100
++++ glibc-2.3.2/libio/iosetbuffer.c	2003-08-22 11:59:06.000000000 +0200
+@@ -1,4 +1,5 @@
+-/* Copyright (C) 1993,95,96,97,98,99,2000,2002 Free Software Foundation, Inc.
++/* Copyright (C) 1993, 1995, 1996, 1997, 1998, 1999, 2000, 2002, 2003
++   Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+ 
+    The GNU C Library is free software; you can redistribute it and/or
+@@ -40,7 +41,7 @@ _IO_setbuffer (fp, buf, size)
+   if (!buf)
+     size = 0;
+   (void) _IO_SETBUF (fp, buf, size);
+-  if (fp->_vtable_offset == 0 && fp->_mode == 0 && _IO_CHECK_WIDE (fp))
++  if (_IO_vtable_offset (fp) == 0 && fp->_mode == 0 && _IO_CHECK_WIDE (fp))
+     /* We also have to set the buffer using the wide char function.  */
+     (void) _IO_WSETBUF (fp, buf, size);
+   _IO_funlockfile (fp);
+--- glibc-2.3.2/stdio-common/vfprintf.c.libio-compat	2003-07-07 17:15:01.000000000 +0200
++++ glibc-2.3.2/stdio-common/vfprintf.c	2003-08-22 11:59:06.000000000 +0200
+@@ -78,7 +78,7 @@
+   if (width > 0)							      \
+     done += INTUSE(_IO_padn) (s, (Padchar), width)
+ #  define PUTC(C, F)	_IO_putc_unlocked (C, F)
+-#  define ORIENT	if (s->_vtable_offset == 0 && _IO_fwide (s, -1) != -1)\
++#  define ORIENT	if (_IO_vtable_offset (s) == 0 && _IO_fwide (s, -1) != -1)\
+ 			  return -1
+ # else
+ #  define vfprintf	_IO_vfwprintf
+@@ -1267,7 +1267,7 @@ vfprintf (FILE *s, const CHAR_T *format,
+   /* Check for correct orientation.  */
+   if (
+ # ifdef USE_IN_LIBIO
+-      s->_vtable_offset == 0 &&
++      _IO_vtable_offset (s) == 0 &&
+ # endif
+       _IO_fwide (s, sizeof (CHAR_T) == 1 ? -1 : 1)
+       != (sizeof (CHAR_T) == 1 ? -1 : 1))
+--- glibc-2.3.2/stdio-common/vfscanf.c.libio-compat	2003-04-29 10:03:27.000000000 +0200
++++ glibc-2.3.2/stdio-common/vfscanf.c	2003-08-22 11:59:06.000000000 +0200
+@@ -120,7 +120,7 @@
+ #  define ISDIGIT(Ch)	  isdigit (Ch)
+ #  define ISXDIGIT(Ch)	  isxdigit (Ch)
+ #  define TOLOWER(Ch)	  tolower (Ch)
+-#  define ORIENT	  if (s->_vtable_offset == 0			      \
++#  define ORIENT	  if (_IO_vtable_offset (s) == 0		      \
+ 			      && _IO_fwide (s, -1) != -1)		      \
+ 			    return EOF
+ 
