@@ -1,6 +1,6 @@
 %define name	shorewall
 %define version 1.4.8
-%define release 3sls
+%define release 4sls
 
 %define samples_version	1.4.8
 %define md5sums_version	%version
@@ -21,7 +21,6 @@ Source3:	init.sh
 BuildRoot:	%{_tmppath}/%{name}-buildroot
 BuildArch:	noarch
 
-Prefix:		%{_prefix}
 Requires:	iptables, chkconfig
 Conflicts:	kernel <= 2.2
 PreReq:		rpm-helper
@@ -61,7 +60,7 @@ find -name "*~" | xargs rm -fr
 find documentation/ -type f | xargs chmod 0644 
 
 %install
-rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 export PREFIX=%{buildroot} ; \
 export OWNER=`id -n -u` ; \
 export GROUP=`id -n -g` ;\
@@ -72,7 +71,7 @@ export GROUP=`id -n -g` ;\
 export DONT_GPRINTIFY=1
 
 %clean
-rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
 %_post_service shorewall
@@ -122,6 +121,10 @@ rm -rf %{buildroot}
 %doc %attr(-,root,root) documentation/*
 
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 1.4.8-4sls
+- minor spec cleanups
+- remove %%prefix
+
 * Mon Dec 08 2003 Vincent Danen <vdanen@opensls.org> 1.4.8-3sls
 - OpenSLS build
 - tidy spec

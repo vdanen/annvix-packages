@@ -1,6 +1,6 @@
 %define name	screen
 %define version	3.9.15
-%define release	3sls
+%define release	4sls
 
 Summary:	A screen manager that supports multiple logins on one terminal
 Name:		%{name}
@@ -24,7 +24,6 @@ BuildRequires:	ncurses-devel
 BuildRequires:	utempter-devel
 BuildRequires:	texinfo
 
-Prefix:		%{_prefix}
 Prereq:		/sbin/install-info
 
 %description
@@ -67,6 +66,7 @@ rm doc/screen.info*
 # -D_GNU_SOURCE"
 
 %install
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p $RPM_BUILD_ROOT/%{_sysconfdir}/skel
 
 %makeinstall SCREENENCODINGS=%buildroot/%{_datadir}/screen/utf8encodings/
@@ -93,7 +93,7 @@ echo '  screen ()
 
 
 %clean
-rm -fr $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
 %_install_info %name.
@@ -114,6 +114,10 @@ rm -fr $RPM_BUILD_ROOT
 %{_datadir}/screen/
 
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 3.9.15-4sls
+- minor spec cleanups
+- remove %%prefix
+
 * Mon Dec 08 2003 Vincent Danen <vdanen@opensls.org> 3.9.15-3sls
 - OpenSLS build
 - tidy spec
