@@ -84,7 +84,7 @@
 # Thomas Backlund <tmb@iki.fi>
 
 %define sublevel	25
-%define slsrelease	12
+%define slsrelease	14
 %define use_patch	0
 
 %{!?build_opensls:%global build_opensls 0}
@@ -241,7 +241,7 @@ Patch1:		patch-%realversion-%use_patch.bz2
 BuildRoot:	%{_tmppath}/%{name}-%{realversion}-build
 BuildRequires:	gcc >= 3.3.1-5sls
 
-Provides:	module-info, %kprovides
+Provides:	kernel-up, module-info, %kprovides
 Autoreqprov:	no
 Requires:	%requires1
 Requires:	%requires2
@@ -923,6 +923,21 @@ exit 0
 %endif
 
 %changelog
+* Tue Jun 15 2004 Thomas Backlund <tmb@iki.fi> 2.4.25-14sls
+- add OpenSLS mascot Chud as framebuffer logo (CD04)
+- add zisofs support to BOOT kernel for installer
+- fix clear_cpu kernel crashing macro on ix86 (ZY67)
+
+* Wed Jun 02 2004 Thomas Backlund <tmb@iki.fi> 2.4.25-13sls
+- make standard kernel provide kernel-up for the installer
+- update iteraid to 1.45 (MB60, MB61)
+  * 64bit fixes, finally works on amd64
+  * redo iteraid Makefile so it actually will be built
+- update Broadcom 57xx nic to 7.1.22 (MB30)
+- fix nls codepage 936 (FN10)
+- add missing bitopts.h include in sctp ipv6 (HB32)
+- remove sctp debuginfo (ZY66)
+
 * Sat May 22 2004 Thomas Backlund <tmb@iki.fi> 2.4.25-12sls
 - CAN-2004-0394 panic() issue (ZY63)
 - do_fork issue (ZY64)

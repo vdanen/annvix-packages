@@ -202,6 +202,8 @@ CC00_ANDREA_VM.desc
 
 
 
+    CD04_OpenSLS_linux_logo_framebuffer.patch
+    - adds OpenSLS mascot Chud to as framebuffer logo
     CD05_print_also_hexblocknumber.patch
     - printt inode block as hex too
     CD06_cardmanager_version.patch
@@ -500,7 +502,8 @@ FA00_FILESYSTEM.desc
     - update to ULL to support 64bit
     FN05_iocharset.patch
     - disable complaints about ntfs "iocharset is depreceated, use nls=..."
-
+    FN10_fix_nls_cp936.patch
+    - fix nls codepage 936
 
 
 
@@ -576,6 +579,8 @@ HA00_AMD64_FIXES.desc
     - support acpi=on boot option for amd64
     HB31_amd64_pcmcia.patch
     - fix pci mem allocations
+    HB32_bitops.h_is_needed.patch
+    - adds missing include to ipv6
 
 
 
@@ -594,7 +599,7 @@ MB00_3RDPARTY_DRIVERS.desc
     - more fixes to bcm5820
     MB20_bcm44xx_3.0.7.tar
     - add support for Broadcom 44xx series NIC
-    MB30_bcm57xx_7.1.9.tar
+    MB30_bcm57xx_7.1.22.tar
     - add support for Broadcom 57xx series NIC
     MB40_pdc_ultra_1.00.0.10.tar
     - support Promise ultra IDE controllers
@@ -610,7 +615,7 @@ MB00_3RDPARTY_DRIVERS.desc
     - more updates to Promise pdc_ultra and some security fixes
     MB50_ppp-mppe-0.9.6.tar
     - adds support for mppe encrypted pptp
-    MB60_iteraid_1.44.tar
+    MB60_iteraid_1.45.tar
     - adds support for IT8212 RAID controller
     MB61_iteraid_includes.patch
     - correct includes for relocation to 3rdparty
@@ -665,8 +670,11 @@ ZY50_SECURITY_FIXES.desc
     - do_fork issue (ZY64)
     ZY65_mcast_msfilter-sec.patch
     - CAN-2004-0424 mcast_mfilter issue (ZY65)
-    
-    
+    ZY66_sctp_debug.patch
+    - remove debug info from sctp    
+    ZY67_fix_kernel_crashing_clear_cpu_macro.patch
+    - removes a bug in ix86 kernel clear_cpu macro that
+      can crash the system
     
 ZZ00_EXTRAS.desc
     ZZ01_fix_bugreport_addresses.patch
