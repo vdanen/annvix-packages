@@ -1,6 +1,6 @@
 %define name	cpio
 %define version 2.5
-%define release 8avx
+%define release 9avx
 
 Summary:	A GNU archiving program.
 Name:		%{name}
@@ -17,6 +17,7 @@ Patch9:		cpio-2.4.2-errorcode.patch.bz2
 Patch10:	cpio-2.4.2-fhs.patch.bz2
 Patch11:	cpio-2.4.2-man.patch.bz2
 Patch12:	cpio-2.5-i18n-0.1.patch.bz2
+Patch13:	cpio-2.5-CAN-1999-1572.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-root-%{version}
 BuildRequires:	texinfo
@@ -46,6 +47,7 @@ Install cpio if you need a program to manage file archives.
 %patch10 -p1 -b .fhs
 %patch11 -p1 -b .man
 %patch12 -p1 -b .i18n
+%patch13 -p0 -b .can-1999-1572
 
 %build
 %configure
@@ -80,6 +82,9 @@ rm -f $RPM_BUILD_ROOT%{_mandir}/man1/mt.1
 %{_mandir}/man1/cpio.1*
 
 %changelog
+* Wed Feb 09 2005 Vincent Danen <vdanen@annvix.org> 2.5-9avx
+- P13: patch to fix CAN-1999-1572
+
 * Fri Aug 13 2004 Vincent Danen <vdanen@annvix.org> 2.5-8avx
 - now that both tar and rmt can provide rmt, require the file
   rather than the package
