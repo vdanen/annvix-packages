@@ -35,6 +35,6 @@ POP3_STARTTLS=NO; export POP3_STARTTLS
 POP3_TLS_REQUIRED=0; export POP3_TLS_REQUIRED
 
 exec /sbin/chpst -m "$MAX_MEMORY" \
-  /sbin/tcpsvd -c"$CONCURRENCY" -v -l"$HOSTNAME" -./peers \
+  /sbin/tcpsvd -c"$CONCURRENCY" -v -l"$HOSTNAME" -i./peers \
   $SSLADDRESS $SSLPORT /usr/bin/couriertls -server -tcpd /usr/sbin/pop3login $LIBAUTHMODULES \
   /usr/bin/pop3d Maildir 2>&1

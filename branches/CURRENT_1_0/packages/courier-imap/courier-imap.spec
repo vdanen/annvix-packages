@@ -1,6 +1,6 @@
 %define name	courier-imap
 %define version	2.1.2
-%define release	13avx
+%define release	14avx
 
 %define _localstatedir	/var/run
 %define	authdaemondir	%{_localstatedir}/authdaemon.courier-imap
@@ -561,6 +561,9 @@ test ! -f %{courierdatadir}/configlist.mysql || %{courierdatadir}/sysconftool-rp
 %{_mandir}/man1/maildirmake++.1*
 
 %changelog
+* Thu Oct 14 2004 Vincent Danen <vdanen@annvix.org> 2.1.2-14avx
+- fix typeo in courier-pop3ds run script
+
 * Wed Oct 13 2004 Vincent Danen <vdanen@annvix.org> 2.1.2-13avx
 - use tcpsvd rather than tcpserver
 - Requires: ipsvd
