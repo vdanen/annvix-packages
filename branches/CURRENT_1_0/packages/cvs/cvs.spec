@@ -1,5 +1,5 @@
 %define name	cvs
-%define version	1.11.11
+%define version	1.11.17
 %define release	1sls
 
 %define url	ftp://ftp.cvshome.org/pub
@@ -18,12 +18,12 @@ Source2: 	cvs.conf
 Source4:	cvs.run
 Source5:	cvs-log.run
 Patch4: 	cvs-1.11.2-zlib.patch.bz2
-Patch6: 	cvs-1.11.10-errno.patch.bz2
+Patch6: 	cvs-1.11.15-errno.patch.bz2
 Patch8:		cvs-1.11-ssh.patch.bz2
 Patch11:	cvs-1.11.1-newline.patch.bz2
 Patch12:	cvs-1.11.4-first-login.patch.bz2
 Patch13:	cvs-1.11.2-no-zlib.patch.bz2
-Patch14:	cvs-1.11.10-localid.patch.bz2
+Patch14:	cvs-1.11.17-localid.patch.bz2
 
 BuildRoot:	%_tmppath/%name-%version-%release-root
 BuildRequires:	texinfo, zlib-devel, krb5-devel
@@ -127,6 +127,12 @@ mkdir -p %{buildroot}%{_srvlogdir}/cvspserver
 %dir %attr(0750,nobody,nogroup) %{_srvlogdir}/cvspserver
 
 %changelog
+* Tue Jun 15 2004 Vincent Danen <vdanen@opensls.org> 1.11.17-1sls
+- 1.11.17 (security fixes for CAN-2004-0414, CAN-2004-0146, CAN-2004-0417,
+  CAN-2004-0418, CAN-2004-0396)
+- update P6, P14
+- personalize cvs.conf
+
 * Wed Mar 03 2004 Vincent Danen <vdanen@opensls.org> 1.11.11-1sls
 - 1.11.11
 - remove %%build_opensls macro

@@ -1,17 +1,5 @@
---- cvs-1.11.10/src/add.c.errno	2003-11-25 21:48:45.000000000 +0100
-+++ cvs-1.11.10/src/add.c	2003-12-05 17:23:37.000000000 +0100
-@@ -357,8 +357,7 @@
- 	    dirp = CVS_OPENDIR (finfo.repository);
- 	    if (dirp == NULL)
- 		error (1, errno, "cannot read directory %s", finfo.repository);
--	    errno = 0;
--	    while ((dp = CVS_READDIR (dirp)) != NULL)
-+	    while (errno = 0, (dp = CVS_READDIR (dirp)) != NULL)
- 	    {
- 		if (cvs_casecmp (dp->d_name, finfo.file) == 0)
- 		{
---- cvs-1.11.10/src/filesubr.c.errno	2003-11-11 02:20:10.000000000 +0100
-+++ cvs-1.11.10/src/filesubr.c	2003-12-05 17:22:36.000000000 +0100
+--- cvs-1.11.15/src/filesubr.c.errno	2004-04-05 17:33:37.000000000 +0200
++++ cvs-1.11.15/src/filesubr.c	2004-04-19 09:58:06.879308782 +0200
 @@ -494,8 +494,7 @@
  		 */
  		return -1;
@@ -22,9 +10,9 @@
  	    {
  		char *buf;
  
---- cvs-1.11.10/src/import.c.errno	2003-08-06 21:31:57.000000000 +0200
-+++ cvs-1.11.10/src/import.c	2003-12-05 17:22:36.000000000 +0100
-@@ -427,8 +427,7 @@
+--- cvs-1.11.15/src/import.c.errno	2004-04-02 20:55:49.000000000 +0200
++++ cvs-1.11.15/src/import.c	2004-04-19 09:58:06.880308799 +0200
+@@ -441,8 +441,7 @@
      }
      else
      {
@@ -34,9 +22,9 @@
  	{
  	    if (strcmp (dp->d_name, ".") == 0 || strcmp (dp->d_name, "..") == 0)
  		goto one_more_time_boys;
---- cvs-1.11.10/src/find_names.c.errno	2001-09-24 17:16:05.000000000 +0200
-+++ cvs-1.11.10/src/find_names.c	2003-12-05 17:22:36.000000000 +0100
-@@ -267,8 +267,7 @@
+--- cvs-1.11.15/src/find_names.c.errno	2004-02-20 21:36:59.000000000 +0100
++++ cvs-1.11.15/src/find_names.c	2004-04-19 09:58:06.880308799 +0200
+@@ -265,8 +265,7 @@
  	return (1);
  
      /* read the dir, grabbing the ,v files */
@@ -46,7 +34,7 @@
      {
  	if (CVS_FNMATCH (RCSPAT, dp->d_name, 0) == 0) 
  	{
-@@ -330,8 +329,7 @@
+@@ -328,8 +327,7 @@
  	return (1);
  
      /* read the dir, grabbing sub-dirs */
@@ -56,9 +44,9 @@
      {
  	if (strcmp (dp->d_name, ".") == 0 ||
  	    strcmp (dp->d_name, "..") == 0 ||
---- cvs-1.11.10/src/lock.c.errno	2003-11-11 02:20:10.000000000 +0100
-+++ cvs-1.11.10/src/lock.c	2003-12-05 17:22:36.000000000 +0100
-@@ -653,7 +653,7 @@
+--- cvs-1.11.15/src/lock.c.errno	2004-04-01 23:25:57.000000000 +0200
++++ cvs-1.11.15/src/lock.c	2004-04-19 09:58:06.881308816 +0200
+@@ -663,7 +663,7 @@
  
  	ret = 0;
  	errno = 0;
@@ -67,9 +55,9 @@
  	{
  	    if (CVS_FNMATCH (CVSRFLPAT, dp->d_name, 0) == 0)
  	    {
---- cvs-1.11.10/src/update.c.errno	2003-11-11 02:20:12.000000000 +0100
-+++ cvs-1.11.10/src/update.c	2003-12-05 17:22:36.000000000 +0100
-@@ -1103,8 +1103,7 @@
+--- cvs-1.11.15/src/update.c.errno	2004-03-22 18:20:26.000000000 +0100
++++ cvs-1.11.15/src/update.c	2004-04-19 09:58:06.883308851 +0200
+@@ -1111,8 +1111,7 @@
  	error (0, errno, "cannot open directory %s for empty check", dir);
  	return (0);
      }
