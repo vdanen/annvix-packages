@@ -1,0 +1,70 @@
+#!/bin/sh
+PATH="/sbin:/usr/sbin:/bin:/usr/bin:$PATH"
+
+# this runs rpc.mountd under supervise
+
+# if portmap hasn't been linked, log an error and put the service down
+if [ ! -d /service/portmap ]; then
+  echo "portmap must be linked to /service to run this service!"
+  touch down
+  svc -d /service/rpc.mountd
+  touch log/down
+  svc -d /service/rpc.mountd/log
+  exit 0
+fi
+# if rpc.nfsd hasn't been linked, log an error and put the service down
+if [ ! -d /service/rpc.nfsd ]; then
+  echo "rpc.nfsd must be linked to /service to run this service!"
+  touch down
+  svc -d /service/rpc.mountd
+  touch log/down
+  svc -d /service/rpc.mountd/log
+  exit 0
+fi
+
+# we need to wait for portmap and rpc.nfsd
+[ "x`svstat /service/portmap|grep down >/dev/null 2>&1; echo $?`" = "x0" ] && sleep 10
+[ "x`svstat /service/rpc.nfsd|grep down >/dev/null 2>&1; echo $?`" = "x0" ] && sleep 10
+
+. /etc/sysconfig/network
+
+[ -f /etc/sysconfig/nfs ] && . /etc/sysconfig/nfs
+
+[ -z "$MOUNTD_NFS_V2" ] && MOUNTD_NFS_V2=auto
+[ -z "$MOUNTD_NFS_V3" ] && MOUNTD_NFS_V3=auto
+[ -n "$MOUNTD_PORT" ] && MOUNTD_OPTIONS="$MOUNTD_OPTIONS -p $MOUNTD_PORT"
+[ "$MOUNTD_TCP" = "no" ] && MOUNTD_OPTIONS="$MOUNTD_OPTIONS --no-tcp"
+
+case $MOUNTD_NFS_V2 in
+  auto|AUTO)
+	/usr/sbin/rpcinfo -u localhost nfs 2 >/dev/null 2>&1
+	if [ "$?" -ne "0" ]; then
+	  MOUNTD_OPTIONS="$MOUNTD_OPTIONS --no-nfs-version 2"
+	fi
+	;;
+  no|NO)
+	MOUNTD_OPTIONS="$MOUNTD_OPTIONS --no-nfs-version 2"
+	;;
+  yes|YES)
+	MOUNTD_OPTIONS="$MOUNTD_OPTIONS --nfs-version 2"
+	;;
+esac
+
+case $MOUNTD_NFS_V3 in
+  auto|AUTO)
+	/usr/sbin/rpcinfo -u localhost nfs 3 >/dev/null 2>&1
+	if [ "$?" -ne "0" ]; then
+	  MOUNTD_OPTIONS="$MOUNTD_OPTIONS --no-nfs-version 3"
+	fi
+	;;
+  no|NO)
+	MOUNTD_OPTIONS="$MOUNTD_OPTIONS --no-nfs-version 3"
+	;;
+  yes|YES)
+	MOUNTD_OPTIONS="$MOUNTD_OPTIONS --nfs-version 3"
+	;;
+esac
+
+/usr/sbin/exportfs -f 2>&1
+
+exec /usr/sbin/rpc.mountd -F $MOUNTD_OPTIONS 2>&1

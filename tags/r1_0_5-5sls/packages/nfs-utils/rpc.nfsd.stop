@@ -1,0 +1,16 @@
+#!/bin/sh
+PATH="/sbin:/usr/sbin:/bin:/usr/bin:$PATH"
+
+# this script tries to kill all nfsd threads somewhat gracefully before
+# supervise kills "nothing"
+
+for i in `pidof nfsd`
+do
+  kill -TERM $i
+  usleep 100000
+  [ -d "/proc/$i" ] && sleep 1
+  [ -d "/proc/$i" ] && kill -KILL $i
+  [ -d "/proc/$i" ] && sleep 3
+  [ -d "/proc/$i" ] && kill -KILL $i
+done
+    
