@@ -1,6 +1,6 @@
 %define name	pcre
 %define version	4.3
-%define	release	6sls
+%define	release	7sls
 
 %define major		0
 %define libname_orig	%mklibname pcre
@@ -23,6 +23,7 @@ Source:		%name-%version.tar.bz2
 Patch0:		%{name}-4.3-avoid-link-path.patch.bz2
 
 BuildRoot: 	%{_tmppath}/%{name}-%{version}-buildroot
+BuildRequires:	autoconf2.5
 
 Requires: 	%{libname} = %{version}
 
@@ -79,9 +80,8 @@ perl -pi -e "s,(Study size\s+=\s+)\d+,\${1}$STUDY_SIZE," testdata/testoutput*
 make check
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
-
 
 mkdir -p $RPM_BUILD_ROOT/%_lib
 mv $RPM_BUILD_ROOT/%_libdir/lib%{name}.so.%{major}.* $RPM_BUILD_ROOT/%_lib
@@ -89,7 +89,7 @@ cd $RPM_BUILD_ROOT/%_libdir
 ln -s ../../%_lib/lib%{name}.so.%{major}.* .
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
@@ -117,6 +117,10 @@ rm -rf $RPM_BUILD_ROOT
 %_mandir/man3/*.3*
 
 %changelog
+* Tue Mar 02 2004 Vincent Danen <vdanen@opensls.org> 4.3-7sls
+- BuildRequires: autoconf2.5
+- minor spec cleanups
+
 * Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 4.3-6sls
 - OpenSLS build
 - tidy spec
