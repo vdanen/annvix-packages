@@ -1,0 +1,36 @@
+2001-01-02  Jakub Jelinek  <jakub@redhat.com>
+       
+	* locale/setlocale.c (setlocale): Don't allocate/free category name
+	unnecessarily.
+
+--- glibc-2.3.1/locale/setlocale.c.setlocale-ibm-jdk-compat	2002-11-01 15:43:54.000000000 -0500
++++ glibc-2.3.1/locale/setlocale.c	2002-11-25 12:06:17.000000000 -0500
+@@ -330,9 +330,15 @@ setlocale (int category, const char *loc
+ 	    /* Make a copy of locale name.  */
+ 	    if (newnames[category] != _nl_C_name)
+ 	      {
+-		newnames[category] = __strdup (newnames[category]);
+-		if (newnames[category] == NULL)
+-		  break;
++                if (! strcmp (newnames[category],
++                              _nl_global_locale.__names[category]))
++                  newnames[category] = _nl_global_locale.__names[category];
++                else
++                 {
++                   newnames[category] = __strdup (newnames[category]);
++                   if (newnames[category] == NULL)
++                     break;
++                 }
+ 	      }
+ 	  }
+ 
+@@ -356,7 +362,8 @@ setlocale (int category, const char *loc
+ 	}
+       else
+ 	for (++category; category < __LC_LAST; ++category)
+-	  if (category != LC_ALL && newnames[category] != _nl_C_name)
++	  if (category != LC_ALL && newnames[category] != _nl_C_name
++	      && newnames[category] != _nl_global_locale.__names[category])
+ 	    free ((char *) newnames[category]);
+ 
+       /* Critical section left.  */

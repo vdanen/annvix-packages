@@ -1,0 +1,22 @@
+2002-11-20  Gwenole Beauchesne  <gbeauchesne@mandrakesoft.com>
+
+	* sysdeps/unix/sysv/linux/i386/dl-procinfo.h: Remove AMD 3Dnow! flag.
+	Add SSE, SSE2 features to HWCAP_IMPORTANT.
+
+--- glibc-2.3.1/sysdeps/unix/sysv/linux/i386/dl-hwcapinfo.h.i386-fix-hwcaps	2002-11-25 09:44:51.000000000 -0500
++++ glibc-2.3.1/sysdeps/unix/sysv/linux/i386/dl-hwcapinfo.h	2002-11-25 09:51:09.000000000 -0500
+@@ -89,10 +89,11 @@ enum
+   HWCAP_I386_OSFXSR = 1 << 24,
+   HWCAP_I386_XMM   = 1 << 25,
+   HWCAP_I386_XMM2  = 1 << 26,
+-  HWCAP_I386_AMD3D = 1 << 31,
+-
++  /* XXX Kernel people moved it to second hwcap word */
++  /* HWCAP_I386_3DNOW = 1 << 31, */
++  
+   /* XXX Which others to add here?  */
+-  HWCAP_IMPORTANT = (HWCAP_I386_MMX)
++  HWCAP_IMPORTANT = (HWCAP_I386_MMX | HWCAP_I386_XMM | HWCAP_I386_XMM2)
+ 
+ };
+ 
