@@ -1,15 +1,20 @@
-Summary: Simple interface for editing the font path for the X font server.
-Name: chkfontpath
+%define name	chkfontpath
 %define version	1.9.10
-Version: %{version}
-Release: 1mdk
-License: GPL
-Group: System/XFree86
-BuildRequires: popt-devel
-BuildRoot: %{_tmppath}/%{name}-root
-Source: %{name}-%{version}.tar.bz2
-Patch: chkfontpath-1.7-unscaled.patch.bz2
-Requires: XFree86-xfs /sbin/pidof
+%define release	3sls
+
+Summary:	Simple interface for editing the font path for the X font server.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		System/XFree86
+Source:		%{name}-%{version}.tar.bz2
+Patch:		chkfontpath-1.7-unscaled.patch.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-root
+BuildRequires:	popt-devel
+
+Requires:	XFree86-xfs /sbin/pidof
 
 %description 
 This is a simple terminal mode program for configuring the directories
@@ -25,17 +30,25 @@ it may be useful as a stand-alone utility in some instances.
 make RPM_OPT_FLAGS="$RPM_OPT_FLAGS"
 
 %install
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 perl -pi -e "s!/usr/man!%{_mandir}!g" Makefile man/Makefile
 %makeinstall INSTROOT=$RPM_BUILD_ROOT BINDIR=%{_sbindir} MANDIR=%{_mandir}
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %attr(-,root,root)/usr/sbin/chkfontpath
 %attr(-,root,root)%{_mandir}/man8/chkfontpath.8*
 
 %changelog
+* Tue Mar 02 2004 Vincent Danen <vdanen@opensls.org> 1.9.10-3sls
+- minor spec cleanups
+
+* Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 1.9.10-2sls
+- OpenSLS build
+- tidy spec
+
 * Thu Jul 10 2003 Frederic Lepied <flepied@mandrakesoft.com> 1.9.10-1mdk
 - 1.9.10
 

@@ -1,13 +1,19 @@
-Name:		ADVX-build
-Version:	9.2
-Release:	2mdk
+%define name	ADVX-build
+%define version	9.2
+%define release	4sls
+
+Summary:	ADVX-build contains tools and macros to build ADVX
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
 Group:		System/Servers
 URL:		http://www.advx.org/devel/policy.php
-License:	GPL
-Summary:	ADVX-build contains tools and macros to build ADVX
+Source0:	ADVX-build.bz2
+
 BuildRoot:	%{_tmppath}/%{name}-root
 BuildArch:	noarch
-Source0:	ADVX-build.bz2
+
 Provides:	ADVXpackage
 
 %description
@@ -17,26 +23,34 @@ components, including Apache 2.
 %build
 
 %install
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 install -d %{buildroot}%{_datadir}/ADVX
-bzcat %{SOURCE0} > ADVX-build
-install -m644 ADVX-build %{buildroot}%{_datadir}/ADVX/ADVX-build
+bzcat %{SOURCE0} > %{buildroot}%{_datadir}/ADVX/ADVX-build
 
 mkdir -p %{buildroot}%{_docdir}/%{name}-%{version}
 echo "See http://www.advx.org/devel.policy.php for more info" > \
         %{buildroot}%{_docdir}/%{name}-%{version}/README
 
 %clean
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files 
 %defattr(-,root,root)
-%attr(0644,root,root) %{_datadir}/ADVX/*
 %dir %{_docdir}/%{name}-%{version}
-%doc %{_docdir}/%{name}-%{version}/*
+%doc %{_docdir}/%{name}-%{version}/README
+%dir %{_datadir}/ADVX
+%attr(0644,root,root) %{_datadir}/ADVX/ADVX-build
 
 %changelog
+* Mon Feb 09 2004 Vincent Danen <vdanen@opensls.org> 9.2-4sls
+- spec cleanups
+- own %%{_datadir}/ADVX
+
+* Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 9.2-3sls
+- OpenSLS build
+- tidy spec
+
 * Mon Jul 21 2003 David Baudens <baudens@mandrakesoft.com> 9.2-2mdk
 - Rebuild to fix bad signature
 

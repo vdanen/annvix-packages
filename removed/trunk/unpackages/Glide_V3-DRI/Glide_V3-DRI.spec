@@ -1,7 +1,14 @@
+%define name	Glide_V3-DRI
+%define version	cvs
+%define release	11sls
+
 Summary:	Glide runtime for 3Dfx Voodoo Banshee and Voodoo3 boards
-Name:		Glide_V3-DRI
-Version:	cvs
-Release:	9mdk
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:        3dfx Glide General Public License
+Group:          System/Libraries
+URL:		http://glide.sourceforge.net/
 Source0:        glide3x.2002.04.10.tar.bz2
 Source1:        swlibs.2001.01.26.tar.bz2
 #Debian patches
@@ -16,12 +23,11 @@ Patch32:        glide3x-libtool-patch.bz2
 Patch33:        glide3x-build-multiargs.bz2
 Patch34:        glide3x-debug-vaargs.bz2
 Patch35:        glide3x-preprocessor.bz2
-License:        3dfx Glide General Public License
-Group:          System/Libraries
+
 BuildRoot:      %_tmppath/%name-%version-%release-buildroot
-ExclusiveArch:  %ix86 ia64 alpha
 BuildRequires:	XFree86-devel automake1.7 autoconf2.5
-URL:		http://glide.sourceforge.net/
+
+ExclusiveArch:  %ix86 ia64 alpha
 
 %description 
 This library allows the user to use a 3dfx Interactive Voodoo Banshee
@@ -64,7 +70,7 @@ autoconf-2.5x
 make -f makefile.autoconf all CFLAGS="$RPM_OPT_FLAGS -ffast-math -fexpensive-optimizations -funroll-loops -O3"
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std -f makefile.autoconf
 #we don't want these
 rm -f $RPM_BUILD_ROOT%{_libdir}/libglide3.*a
@@ -76,7 +82,7 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/libglide3.*a
 /sbin/ldconfig
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-, root, root)
@@ -91,6 +97,13 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/libglide3.so
 
 %changelog
+* Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> cvs-11sls
+- minor spec cleanups
+
+* Tue Dec 30 2003 Vincent Danen <vdanen@opensls.org> cvs-10sls
+- OpenSLS build
+- tidy spec
+
 * Thu Sep 04 2003 Per Øyvind Karlsen <peroyvind@linux-mandrake.com> cvs-9mdk
 - rebuild
 

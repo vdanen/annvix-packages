@@ -1,3 +1,7 @@
+%define name	apache-conf
+%define version	2.0.49
+%define release	3sls
+
 # OE: conditional switches
 #(ie. use with rpm --rebuild):
 #	--with diet	Compile advxsplitlogfile against dietlibc
@@ -9,37 +13,21 @@
 # rpm -ba|--rebuild --with 'xxx'
 %{?_with_diet: %{expand: %%define build_diet 1}}
 
-#New ADVX macros
+# New ADVX macros
 %define ADVXdir %{_datadir}/ADVX
 %{expand:%(cat %{ADVXdir}/ADVX-build)}
 
-%define compat_dir /etc/httpd
-%define compat_conf /etc/httpd/conf
+%define compat_dir	/etc/httpd
+%define compat_conf	/etc/httpd/conf
 
 
 Summary:	Configuration files for Apache
-Name:		apache-conf
-Version:	2.0.48
-Release:	1mdk
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	Apache License
 Group:		System/Servers
 URL:		http://www.advx.org
-License:	Apache License
-BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
-BuildPreReq:	ADVX-build >= 9.2
-
-Requires:	lynx >= 2.8.5
-Provides:	apache2-conf
-Provides:	apache-conf = 1.3.28
-Provides:	ADVXpackage
-Provides:	AP20package
-#JMD: We have to do this here, since files have moved
-Obsoletes:	apache-common
-
-%if %{build_diet}
-BuildRequires:	dietlibc-devel >= 0.20-1mdk
-%endif
-
-PreReq:		rpm-helper
 Source0:	httpd.init.mandrake
 Source1:	httpd2.conf
 Source2:	httpd2-perl.conf
@@ -50,26 +38,21 @@ Source6:	commonhttpd.conf
 Source10:	Vhosts.conf
 Source11:	DynamicVhosts.conf
 Source12:	VirtualHomePages.conf
-
 Source14:	favicon.ico.bz2
-
 Source20:	index.shtml
-Source21:	mandrake.html
+Source21:	opensls.html
 Source22:	optim.html
 Source23:	logo.gif
 Source24:	apacheicon.gif
 Source25:	medbutton.png
 Source26:	stamp.gif
 Source29:	ADVX-icons.tar.bz2
-
 Source30:	advxaddmod
 Source31:	advxdelmod
 Source32:	advxfixconf
 Source33:	advxlogserverstatus
 Source34:	advxsplitlogfile
-
 Source35:	advxsplitlogfile.c
-
 Source40:	advx-checkifmigrate
 Source41:	mod_ssl-migrate-20
 Source42:	advx-migrate-httpd.conf
@@ -77,15 +60,27 @@ Source43:	advx-migrate-httpd-perl.conf
 Source44:	advx-migrate-commonhttpd.conf
 Source45:	advx-migrate-vhosts.conf
 Source46:	advx-cleanremove
-
 Source51:	httpd.conf
 Source52:	httpd-perl.conf
-
 Source53:	ap13chkconfig
 Source54:	advxrun1.3
 Source55:	advxrun2.0
-
 Source99:	README.apache-conf
+
+BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
+BuildPreReq:	ADVX-build >= 9.2
+%if %{build_diet}
+BuildRequires:	dietlibc-devel >= 0.20-1mdk
+%endif
+
+Requires:	lynx >= 2.8.5
+Provides:	apache2-conf
+Provides:	apache-conf = 1.3.28
+Provides:	ADVXpackage
+Provides:	AP20package
+#JMD: We have to do this here, since files have moved
+Obsoletes:	apache-common
+PreReq:		rpm-helper
 
 %description
 This package contains configuration files for apache and 
@@ -116,7 +111,6 @@ mkdir -p %{buildroot}%{compat_conf}
 mkdir -p %{buildroot}%{ap_confd}
 mkdir -p %{buildroot}%{ap_htdocsdir}
 mkdir -p %{buildroot}%{_sbindir}
-mkdir -p %{buildroot}%{_initrddir}
 mkdir -p %{buildroot}%{_sysconfdir}/logrotate.d
 mkdir -p %{buildroot}%{ap_logfiledir}
 mkdir -p %{buildroot}%{ap_datadir}
@@ -210,23 +204,13 @@ cat > %{buildroot}%{_sysconfdir}/logrotate.d/%{name} << EOF
     missingok
     nocompress
     prerotate
-	ADVXctl closelogs
+	[[ -d /service/apache ]] && svc -h /service/apache; [[ -d /service/apache2 ]] && svc -h /service/apache2
     endscript
     postrotate
-	ADVXctl closelogs
+	[[ -d /service/apache ]] && svc -h /service/apache; [[ -d /service/apache2 ]] && svc -h /service/apache2
     endscript
 }
 EOF
-
-#Install initscripts
-%define init_name httpd
-mkdir -p %{buildroot}%{_initrddir}
-install -m755 %{SOURCE0} %{buildroot}%{_initrddir}/%{init_name}
-rm -f %{buildroot}%{_sbindir}/apachectl*
-ln -s ../..%{_initrddir}/%{init_name}  %{buildroot}%{_sbindir}/ADVXctl
-ln -s ../..%{_initrddir}/%{init_name}  %{buildroot}%{_sbindir}/AESctl
-ln -s ../..%{_initrddir}/%{init_name}  %{buildroot}%{_sbindir}/apachectl
-ln -s ../..%{_initrddir}/%{init_name}  %{buildroot}%{_sbindir}/apachectl-perl
 
 install -m755 %{SOURCE30} %{buildroot}%{_sbindir}
 install -m755 %{SOURCE31} %{buildroot}%{_sbindir}
@@ -248,17 +232,19 @@ ln -sf ../..%{_libdir}/apache-extramodules \
         %{buildroot}%{ap_base}/extramodules
 
 %pre
-%_pre_useradd apache /var/www /bin/sh
+%_pre_useradd apache /var/www /bin/sh 74
 
 %post
 if [ $1 = "1" ]; then
   %{ADVXdir}/advx-checkifmigrate
 fi
-%_post_service httpd
+%_post_srv apache
+%_post_srv apache2
 %ADVXpost
 
 %preun
-%_preun_service httpd
+%_preun_srv apache
+%_preun_srv apache2
 %ADVXpost
 
 %postun
@@ -273,6 +259,7 @@ fi
 %files 
 %defattr(-,root,root)
 %dir %{compat_dir}
+%dir %{compat_dir}/extramodules
 %dir %{compat_dir}/logs
 %dir %{ap_confd}
 %dir %{ap_logfiledir}
@@ -305,15 +292,41 @@ fi
 %config(noreplace) %{ap_htdocsdir}/index.shtml
 %attr(-,apache,apache) %dir %{ap_proxycachedir}
 %{_sbindir}/*
-%config %{_sysconfdir}/rc.d/*
 %config(noreplace) %{_sysconfdir}/logrotate.d/%{name}
 %{_docdir}/apache2-conf-%{version}/README.apache-conf
 %{_libdir}/ADVX/*
+%{ap_base}/extramodules
 #JMD: For compatibility with Apache 1.3
 #JMD: *never remove this!* 1333 is the *right* permission.
 %attr(1333,apache,apache) %dir /var/apache-mm
 
 %changelog
+* Sun May 09 2004 Vincent Danen <vdanen@opensls.org> 2.0.49-3sls
+- fix logrotate file
+- make sure httpd2 uses /var/run/httpd2.pid and httpd2-perl uses
+  /var/run/httpd-perl2.pid
+
+* Fri May 07 2004 Vincent Danen <vdanen@opensls.org> 2.0.49-2sls
+- add extramodules to file list (flepied)
+- updated mimetypes from cooker 2.0.48-2mdk:
+  - urpmi, urpmi-media, rpm, and OOo (flepied)
+
+* Fri May 07 2004 Vincent Danen <vdanen@opensls.org> 2.0.49-1sls
+- 2.0.49
+
+* Tue Feb 24 2004 Vincent Danen <vdanen@opensls.org> 2.0.48-3sls
+- use static uid for user apache
+- get rid of initscript
+- supervise macros
+- ADVXctl is gone now so don't delete apachectl
+- include the /etc/httpd/conf/extramodules symlink
+- fix logrotation; should work
+- OpenSLS branding
+
+* Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 2.0.48-2sls
+- OpenSLS build
+- tidy spec
+
 * Wed Oct 29 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.48-1mdk
 - 2.0.48
 - drop 8x support

@@ -18,13 +18,13 @@ supported
   icewm="  prog \"" translate(lang(), title()) "\" " findicon($icon, "-") " " $command"\n"
 endsupported
 
-startmenu=ifneq($title,"Mandrake menu",ifroot("menu \"" translate(lang(), $title) "\" " findicon($icon, "default_section.png") " {\n","menu \"" translate(lang(),$title) "\" " findicon($icon, "default_section.png") " {\n"))
-endmenu=ifneq($title,"Mandrake menu","}\n")
+startmenu=ifneq($title,"OpenSLS menu",ifroot("menu \"" translate(lang(), $title) "\" " findicon($icon, "default_section.png") " {\n","menu \"" translate(lang(),$title) "\" " findicon($icon, "default_section.png") " {\n"))
+endmenu=ifneq($title,"OpenSLS menu","}\n")
 genmenu="menu"
 submenutitle=""
 #submenutitle="  menu \"" $title "\" folder {\n"
 preoutput="prog \"Terminal\" /usr/share/icons/mini/terminals_section.png /usr/X11R6/bin/xvt -bg black -fg grey\n"
 rootprefix="/usr/X11R6/lib/X11/icewm/"
-mainmenutitle="Mandrake menu"
+mainmenutitle="OpenSLS menu"
 treewalk="(M)"
 userprefix=".icewm"

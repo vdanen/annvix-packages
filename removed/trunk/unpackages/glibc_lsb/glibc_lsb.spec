@@ -1,13 +1,18 @@
-Name        	: glibc_lsb
-Version     	: 2.3.1
-Release     	: 1mdk
-Group       	: System/Libraries
-Summary     	: LSB dynamic loader links.
-License   	: LGPL
-URL         	: http://www.gnu.org/software/libc/
+%define name	glibc_lsb
+%define version 2.3.1
+%define release 3sls
 
-BuildRoot   	: %{_tmppath}/%{name}-%{version}-root
-Requires	: lsb >= 1.3-5mdk
+Summary:	LSB dynamic loader links.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+Group:		System/Libraries
+License:	LGPL
+URL:		http://www.gnu.org/software/libc/
+
+BuildRoot:	%{_tmppath}/%{name}-%{version}-root
+
+Requires:	lsb >= 1.3-5mdk
 
 %description
 Provides ld-lsb* dynamic loader links for LSB compliance.
@@ -17,6 +22,7 @@ Provides ld-lsb* dynamic loader links for LSB compliance.
 %build
 
 %install
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 install -d $RPM_BUILD_ROOT/%{_lib}
 %ifarch %{ix86}
 ln -sf ld-linux.so.2 $RPM_BUILD_ROOT/%{_lib}/ld-lsb.so.1
@@ -28,6 +34,7 @@ ln -sf ld-linux.so.2 $RPM_BUILD_ROOT/%{_lib}/ld-lsb-ppc32.so.1
 export DONT_SYMLINK_LIBS=1
 
 %clean
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-, root, root)
@@ -39,6 +46,13 @@ export DONT_SYMLINK_LIBS=1
 %endif
 
 %changelog
+* Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 2.3.1-3sls
+- minor spec cleanups
+
+* Sun Nov 30 2003 Vincent Danen <vdanen@opensls.org> 2.3.1-2sls
+- build for OpenSLS
+- tidy spec
+
 * Tue Feb 18 2003 Stew Benedict <sbenedict@mandrakesoft.com> 2.3.1-1mdk
 - only provide ld-lsb* links, change version to track system glibc
 

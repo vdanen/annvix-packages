@@ -1,22 +1,19 @@
 %define name	icewm
 %define version	1.2.13
-%define theirversion 1.2.13pre3
-%define prefix  /usr/X11R6
-%define release 0.3.1mdk
+%define release 0.3.3sls
 
-%define light_apps          icewm icesh icewmbg icewmhint icewm-session
-%define default_apps        icewm icesh icewmbg icewmhint icehelp icewm-session
-%define gnome_apps          icewm icesh icewmbg icewmhint icehelp icesound icewm-session
+%define theirversion	1.2.13pre3
+%define prefix		/usr/X11R6
 
+Summary:	Light X11 Window Manager
 Name:		%{name}
-Summary:	X11 Window Manager
 Version:	%{version}
 Release:	%{release}
 License:	LGPL
 Group:		Graphical desktop/Icewm
-
+URL:		http://www.icewm.org/
 Source:		http://download.sourceforge.net/icewm/icewm-%{theirversion}.tar.bz2
-Source1:	mandrake.xpm.bz2
+Source1:	opensls.xpm.bz2
 Source2:	themes.tar.bz2
 Source3:	%{name}.menu
 Source4:	%{name}.menu-method
@@ -24,7 +21,6 @@ Source5:	%{name}-16.png.bz2
 Source6:	%{name}-32.png.bz2
 Source7:	%{name}-48.png.bz2
 Source8:	%{name}-starticewm
-
 Patch0:		%{name}-1.2.9-mdkconf.patch.bz2
 Patch1:		%{name}-1.0.8-xcin_bindy.patch.bz2
 Patch2:		%{name}-1.2.13pre3-defaultfont.patch.bz2
@@ -34,15 +30,10 @@ Patch7:		%{name}-1.2.0pre1-libsupc++.patch.bz2
 Patch8:		%{name}-1.2.5-lib64.patch.bz2
 Patch9:		%{name}-1.2.10pre11-default.patch.bz2
 
-URL:		http://www.icewm.org/
 BuildRoot:	%{_tmppath}/%{name}-%{version}-root
-BuildRequires:	XFree86
-BuildRequires:	autoconf2.5
-BuildRequires:	gettext
-BuildRequires:	gnome-libs-devel
-BuildRequires:	libpcap-devel
-BuildRequires:	xpm-devel
-Requires:	mandrake_desk >= 7.1-1mdk, %{name}-light >= %{version}-%{release}
+BuildRequires:	XFree86, autoconf2.5, gettext, libpcap-devel, xpm-devel
+
+Requires:	xterm
 
 %description
 Window Manager for X Window System. Can emulate the look of Windows'95, OS/2
@@ -50,34 +41,7 @@ Warp 3,4, Motif or the Java Metal GUI. Tries to take the best features of the
 above systems. Features multiple workspaces, opaque move/resize, task bar,
 window list, mailbox status, digital clock. Fast and small.
 
-%package light
-Summary:	A light version of Icewm
-Group:		Graphical desktop/Icewm
-PreReq:		menu >= 2.1.5-4mdk
-
-%description light
-Window Manager for X Window System. Can emulate the look of Windows'95, OS/2
-Warp 3,4, Motif or the Java Metal GUI. Tries to take the best features of the
-above systems. Features multiple workspaces, opaque move/resize, task bar,
-window list, mailbox status, digital clock. Fast and small.
-
 This is the light version with minimal features.
-
-%package gnome
-Summary:        A gnome compatible version of Icewm
-Group:          Graphical desktop/Icewm
-PreReq:         menu >= 2.1.5-4mdk
-Requires:       %{name}-light = %{version}-%{release}
-
-%description gnome
-Window Manager for X Window System. Can emulate the look of Windows'95, OS/2
-Warp 3,4, Motif or the Java Metal GUI. Tries to take the best features of the
-above systems. Features multiple workspaces, opaque move/resize, task bar,
-window list, mailbox status, digital clock. Fast and small.
-
-This is the GNOME version with full GNOME support and with some experimental 
-options enabled.
-
 
 %prep
 %setup -q -n %name-%theirversion
@@ -93,49 +57,19 @@ autoconf
 
 #perl -pi -e "s|charset=952|charset=ISO-8895-2|" po/hu.po
 #perl -pi -e "s|charset=iso8859-1|charset=ISO-8895-1|" po/fr.po
-#perl -pi -e "s|icewm.xpm|mandrake.xpm|" src/wmtaskbar.cc
-
-for i in default light gnome; do
-  mkdir -p %{_builddir}/${i} && \
-	cp -a %{_builddir}/%{name}-%{theirversion} %{_builddir}/${i} && \
-	mv %{_builddir}/${i} %{_builddir}/%{name}-%{theirversion}
-done
+#perl -pi -e "s|icewm.xpm|opensls.xpm|" src/wmtaskbar.cc
 
 %build
-bzcat %{SOURCE1} > lib/taskbar/mandrake.xpm
+bzcat %{SOURCE1} > lib/taskbar/opensls.xpm
 
-# light version
-echo "Light Version"
-pushd light/%{name}-%{theirversion}
-	CXXFLAGS="$RPM_OPT_FLAGS" %configure --sysconfdir=/etc \
-	--disable-debug --enable-i18n --enable-nls --disable-guievents \
-	--without-gnome-menus --with-xpm --with-docdir=%{_docdir}
-	%make
-popd
-
-# gnome version
-echo "Gnome Version"
-pushd gnome/%{name}-%{theirversion}
-CXXFLAGS="$RPM_OPT_FLAGS" 
-%configure \
---disable-debug --enable-i18n --enable-nls \
---with-icesound=oss,esd --enable-wm-session --with-imlib \
---enable-xfreetype --enable-antialiasing
-#--enable-movesize-fx --enable-antialiasing --enable-xfreetype \
-#--enable-gradients --enable-shaped-decorations --enable-guievents 
-%make
-popd
-	
-# standard version
-echo "Standard Version"
-make distclean
 CXXFLAGS="$RPM_OPT_FLAGS" %configure --sysconfdir=/etc \
-	--disable-debug --enable-i18n --enable-nls --disable-guievents \
-    	--without-gnome-menus --with-imlib --with-docdir=%{_docdir}
+--disable-debug --enable-i18n --enable-nls --disable-guievents \
+--without-gnome-menus --with-xpm --with-docdir=%{_docdir}
 %make
+
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 make install \
 	BINDIR=$RPM_BUILD_ROOT%{prefix}/bin \
 	LIBDIR=$RPM_BUILD_ROOT%{prefix}/lib/X11/%{name} \
@@ -144,14 +78,6 @@ make install \
 	CFGDIR=$RPM_BUILD_ROOT/etc/X11/X11 \
 	LOCDIR=$RPM_BUILD_ROOT%{_datadir}/locale
 
-rm -f $RPM_BUILD_ROOT%{prefix}/bin/%{name}
-for variant in light gnome; do
-  for binary in %{gnome_apps}; do
-      cp ${variant}/%{name}-%{theirversion}/src/${binary} \
-      $RPM_BUILD_ROOT%{prefix}/bin/${binary}-${variant} || :
-  done
-done
-		
 install src/%{name} $RPM_BUILD_ROOT%{prefix}/bin/
 
 #rm -rf $RPM_BUILD_ROOT%{prefix}/lib/X11/%{name}/themes
@@ -160,10 +86,6 @@ echo RPM_BUILD_DIR $RPM_BUILD_DIR
 echo RPM_BUILD_DIR/name-version $RPM_BUILD_DIR/%{name}-%{theirversion}
 bzcat %{SOURCE2}|tar x -C $RPM_BUILD_ROOT%{prefix}/lib/X11/%{name}/
 chmod -R a+rX $RPM_BUILD_ROOT%{prefix}/lib/X11/%{name}
-
-mkdir -p $RPM_BUILD_ROOT/etc/menu-methods $RPM_BUILD_ROOT%{_menudir}
-install -m 644 %{SOURCE3} $RPM_BUILD_ROOT%{_menudir}/%{name}
-install -m 755 %{SOURCE4} $RPM_BUILD_ROOT/etc/menu-methods/%{name}
 
 #don't ship the .xvpics
 (cd %buildroot
@@ -210,61 +132,21 @@ cat %{name}.lang >> other.list
 perl -pi -e "s#\# DesktopBackgroundColor=.*#DesktopBackgroundColor=\"\"#" %buildroot/%prefix/lib/X11/icewm/preferences
 
 %clean
-rm -rf $RPM_BUILD_ROOT
-
-#- light
-%post light
-for app in %{light_apps}; do
-	update-alternatives --install %{prefix}/bin/${app} ${app} %{prefix}/bin/${app}-light 10
-done
-	
-%{make_session}
-if [ -x %{_bindir}/update-menus ]; then %{_bindir}/update-menus; fi
-
-%postun light
-if [ "$1" = 0 ]; then
-    	if [ -x %{_bindir}/update-menus ]; then %{_bindir}/update-menus; fi
-	for app in %{light_apps}; do
-		update-alternatives --remove ${app} %{prefix}/bin/${app}-light
-	done
-fi
-%{make_session}
-
-#- gnome
-%post gnome
-for app in %{light_apps}; do
-	update-alternatives --install %{prefix}/bin/${app} ${app} %{prefix}/bin/${app}-gnome 30
-done
-%{make_session}
-
-%postun gnome
-if [ "$1" = 0 ]; then
-	for app in %{light_apps}; do
-		update-alternatives --remove ${app} %{prefix}/bin/${app}-gnome
-	done
-fi
-%{make_session}
-
-#- standard
-%post
-for app in %{light_apps}; do
-	update-alternatives --install %{prefix}/bin/${app} ${app} %{prefix}/bin/${app} 20
-done
-%{make_session}
-
-%postun
-if [ "$1" = 0 ]; then
-	for app in %{light_apps}; do
-		update-alternatives --remove ${app} %{prefix}/bin/${app}
-	done
-fi
-%{make_session}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %{__rm} -rf /usr/X11R6/lib/X11/icewm/themes/tile
 
 %files -f other.list
 %defattr(-,root,root)
-%doc README COPYING AUTHORS CHANGES TODO BUGS doc/*.html doc/icewm.sgml
+%doc README COPYING AUTHORS CHANGES TODO BUGS doc/*.html
+%dir %{prefix}/lib/X11/%{name}
+%dir %{prefix}/lib/X11/%{name}/themes
+%dir %{prefix}/lib/X11/%{name}/icons
+%dir %{prefix}/lib/X11/%{name}/ledclock
+%dir %{prefix}/lib/X11/%{name}/taskbar
+%dir %{prefix}/lib/X11/%{name}/mailbox
+%config(noreplace) /etc/X11/wmsession.d/*
+%{prefix}/bin/starticewm
 %{prefix}/bin/icesh
 %{prefix}/bin/icehelp
 %{prefix}/bin/icewm
@@ -272,43 +154,37 @@ fi
 %{prefix}/bin/icewmbg
 %{prefix}/bin/icewmhint
 %{prefix}/bin/icewmtray
-
-%files light
-%defattr(-,root,root)
-%doc COPYING
-%dir %{prefix}/lib/X11/%{name}
-%dir %{prefix}/lib/X11/%{name}/themes
-%dir %{prefix}/lib/X11/%{name}/icons
-%dir %{prefix}/lib/X11/%{name}/ledclock
-%dir %{prefix}/lib/X11/%{name}/taskbar
-%dir %{prefix}/lib/X11/%{name}/mailbox
-%config(noreplace) /etc/menu-methods/%{name}
-%config(noreplace) /etc/X11/wmsession.d/*
-%{prefix}/bin/starticewm
 %{prefix}/lib/X11/%{name}/mailbox/*
 %{prefix}/lib/X11/%{name}/taskbar/*
 %{prefix}/lib/X11/%{name}/ledclock/*
 %{prefix}/lib/X11/%{name}/icons/app*
 %{prefix}/lib/X11/%{name}/icons/xterm*
 %{prefix}/lib/X11/%{name}/keys
-%{prefix}/lib/X11/%{name}/menu
 %{prefix}/lib/X11/%{name}/preferences
 %{prefix}/lib/X11/%{name}/toolbar
 %{prefix}/lib/X11/%{name}/winoptions
+%{prefix}/lib/X11/%{name}/menu
 #%{prefix}/lib/X11/%{name}/programs
 %{prefix}/lib/X11/%{name}/themes/microGUI
-%{prefix}/bin/*-light
-%{_menudir}/%{name}
 %{_iconsdir}/%{name}.png
 %{_miconsdir}/%{name}.png
 %{_liconsdir}/%{name}.png
 
-%files gnome
-%defattr(-,root,root)
-%doc COPYING
-%{prefix}/bin/*-gnome
-
 %changelog
+* Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 1.2.13-0.3.3sls
+- minor spec cleanups
+- update menu to include xterm
+- we ship one GUI app: xterm, so let's Require it (can't do much without it)
+- make an OpenSLS xpm for the start button
+
+* Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 1.2.13-0.3.2sls
+- OpenSLS build
+- tidy spec
+- make light version by default; no standard or gnome version
+- don't require mandrake_desk or menu
+- remove menu-related directories/files
+- remove calls to %%make_session
+
 * Tue Sep 16 2003 Florin <florin@mandrakesoft.com> 1.2.13-0.3.1mdk
 - 1.2.13pre3
 - update the terminal command in the menu-method

@@ -1,46 +1,43 @@
-%define name autofs
+%define name	autofs
 %define version 4.0.0
-%define release 0.19mdk
-%define ver %{version}pre10
+%define release 0.22sls
 
-Name: %{name}
-Summary: A tool for automatically mounting and unmounting filesystems.
-Version: %{version}
-Release: %{release}
-License: GPL
-Group: System/Kernel and hardware
-URL: ftp://ftp.kernel.org/pub/linux/daemons/autofs
-Source: ftp://ftp.kernel.org/pub/linux/daemons/autofs/testing-v4/autofs-%{ver}.tar.bz2
-Source1: autofs-ldap-auto-master.c
-Patch0: autofs-4.0.0-doc.patch.bz2
-Patch1: autofs-3.1.4-loop.patch.bz2
-Patch2: autofs-3.1.4-modules.patch.bz2
+%define ver	%{version}pre10
+
+Summary:	A tool for automatically mounting and unmounting filesystems.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		System/Kernel and hardware
+URL:		ftp://ftp.kernel.org/pub/linux/daemons/autofs
+Source:		ftp://ftp.kernel.org/pub/linux/daemons/autofs/testing-v4/autofs-%{ver}.tar.bz2
+Source1:	autofs-ldap-auto-master.c
+Patch0:		autofs-4.0.0-doc.patch.bz2
+Patch1:		autofs-3.1.4-loop.patch.bz2
+Patch2:		autofs-3.1.4-modules.patch.bz2
 # updated from autofs-3.1.4-hesiod-bind.patch
-Patch3: autofs-4.0.0-hesiod-bind.patch.bz2
-# replaced by patch10 (initd)
-#Patch4: autofs-4.0.0-init.patch.bz2
+Patch3:		autofs-4.0.0-hesiod-bind.patch.bz2
 # updated from autofs-3.1.4-linux-2.3.patch
-Patch5: autofs-4.0.0-linux-2.3.patch.bz2
-# already applied in 4.0.0pre9
-#Patch6: autofs-4.0.0-ldap.patch.bz2
-Patch7: autofs-4.0.0-open_max.patch.bz2
+Patch5:		autofs-4.0.0-linux-2.3.patch.bz2
+Patch7:		autofs-4.0.0-open_max.patch.bz2
 # updated for pre9
-Patch8: autofs-4.0.0-clean.patch.bz2
-# already applied in pre9
-#Patch9: autofs-4.0.0-initialize.patch.bz2
-#Patch10:  autofs-4.0.0-initd.patch.bz2
-Patch10: autofs-4.0.0-init.patch.bz2
-#Patch11: autofs.init-ldap.patch.bz2
-Patch12: autofs.auto.net.patch.bz2
-Patch13: autofs-4.0.0-multiargs.patch.bz2
-Patch14: autofs-4.0.0-fpic.patch.bz2
-Patch15: autofs-3.1.7-schema.patch.bz2
-Buildroot: %{_tmppath}/%{name}-%{ver}-root
-Prereq: chkconfig
-Requires: /bin/bash mktemp sed coreutils grep /bin/ps
-Requires: nfs-utils-clients, portmap
-PreReq:   rpm-helper
-BuildRequires: openldap-devel
+Patch8:		autofs-4.0.0-clean.patch.bz2
+Patch10:	autofs-4.0.0-init.patch.bz2
+Patch12:	autofs.auto.net.patch.bz2
+Patch13:	autofs-4.0.0-multiargs.patch.bz2
+Patch14:	autofs-4.0.0-fpic.patch.bz2
+Patch15:	autofs-3.1.7-schema.patch.bz2
+Patch16:	autofs-4.0.0pre10-autofslibdir.patch.bz2
+Patch17:	autofs-4.0.0pre10-64bit-fixes.patch.bz2
+Patch18:	autofs-4.0.0pre10-supervise.patch.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-%{ver}-root
+BuildRequires:	openldap-devel
+
+PreReq:		chkconfig, rpm-helper
+Requires:	/bin/bash, mktemp, sed, coreutils, grep, /bin/ps
+Requires:	nfs-utils-clients, portmap
 
 %description
 Autofs controls the operation of the automount daemons. The automount daemons
@@ -58,25 +55,17 @@ install autofs.
 %patch1 -p1 -b .loop
 %patch2 -p1 -b .modules
 %patch3 -p1 -b .hesiod-bind
-
-# replaced by patch10
-#%patch4 -p1 -b .init
-
 %patch5 -p1 -b .linux-2.3
-
-# obsolete
-#%patch6 -p1 -b .ldap
-
 %patch7 -p1 -b .open_max
 %patch13 -p1 -b .multiarg
 %patch8 -p1 -b .clean
-#%patch9 -p1 -b .initialize
 %patch10 -p1 -b .initd
-#ldap
-#%patch11 -p1
 %patch12 -p0
 %patch14 -p1 -b .fpic
 %patch15 -p1 -b .schema
+%patch16 -p1 -b .autofslibdir
+%patch17 -p1 -b .64bit-fixes
+%patch18 -p0 -b .supervise
 
 %build
 %serverbuild
@@ -85,7 +74,7 @@ install autofs.
 %{__cc} -o autofs-ldap-auto-master $RPM_OPT_FLAGS %{SOURCE1} -lldap -llber
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p $RPM_BUILD_ROOT%{_initrddir}
 mkdir -p $RPM_BUILD_ROOT%{_sbindir}
 mkdir -p $RPM_BUILD_ROOT%{_libdir}/autofs
@@ -102,7 +91,7 @@ install -m 755 autofs-ldap-auto-master $RPM_BUILD_ROOT%{_libdir}/autofs/
 export DONT_GPRINTIFY=1
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %pre
 grep -q '^alias autofs autofs4'  /etc/modules.conf  || {
@@ -110,11 +99,9 @@ grep -q '^alias autofs autofs4'  /etc/modules.conf  || {
 	}
 
 %post
-
 %_post_service autofs
 
 %preun
-
 %_preun_service autofs
 
 %postun
@@ -135,6 +122,18 @@ fi
 %{_mandir}/*/*
 
 %changelog
+* Wed Mar 03 2004 Vincent Danen <vdanen@opensls.org> 4.0.0-0.22sls
+- spec cleanups
+- fix initscript to work somewhat with supervise (P18)
+
+* Wed Dec 31 2003 Vincent Danen <vdanen@opensls.org> 4.0.0-0.21sls
+- sync with 0.20mdk (gbeauchesne): lib64 fixes
+- sync with 0.21mdk (gbeauchesnet): 64-bit fixes
+
+* Sat Dec 13 2003 Vincent Danen <vdanen@opensls.org> 4.0.0-0.20sls
+- OpenSLS build
+- tidy spec
+
 * Tue Jul 22 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 4.0.0-0.19mdk
 - rebuild
 - drop prefix tag

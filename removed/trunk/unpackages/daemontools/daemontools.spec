@@ -1,11 +1,12 @@
-%define name daemontools
+%define name	daemontools
 %define version 0.76
-%define release 6rph
-%define cmddir /command
-%define srvdir /service
+%define release 10sls
 
-Name:		%{name}
+%define cmddir	/command
+%define srvdir	/service
+
 Summary:	DJB daemontools
+Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	D. J. Bernstein
@@ -14,8 +15,8 @@ URL:		http://cr.yp.to/daemontools.html
 Source:		%{name}-%{version}.tar.bz2
 Source1:	%{name}-%{version}-man.tar.bz2
 Patch0:		daemontools-0.76-errno.patch.bz2
-Buildroot:	%{_tmppath}/%{name}-%{version}
-Packager:	Vincent Danen <vdanen@mandrakesoft.com>
+
+BuildRoot:	%{_tmppath}/%{name}-%{version}
  
 %description
 supervise monitors a service. It starts the service and restarts the
@@ -52,6 +53,8 @@ mkdir -p %{buildroot}%{_bindir}
 mkdir -p %{buildroot}%{_mandir}/man8
 mkdir -p %{buildroot}%{cmddir}
 mkdir -p %{buildroot}%{srvdir}
+mkdir -p %{buildroot}%{_srvlogdir}
+mkdir -p %{buildroot}%{_srvdir}
 install -s -m 755 command/* %{buildroot}%{_bindir}
 install -m 644 %{name}-%{version}-man/*.8 %{buildroot}%{_mandir}/man8
 for i in `cat package/commands`
@@ -62,7 +65,6 @@ done
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-rm -rf $RPM_BUILD_DIR/%{name}-%{version}
 
 
 %files
@@ -105,9 +107,25 @@ rm -rf $RPM_BUILD_DIR/%{name}-%{version}
 %dir %{cmddir}
 %{cmddir}/*
 %dir %{srvdir}
+%dir %{_srvlogdir}
+%dir %{_srvdir}
 
 
 %changelog
+* Wed Mar 03 2004 Vincent Danen <vdanen@opensls.org> 0.76-10sls
+- minor spec cleanups
+- supervise macros
+
+* Tue Dec 30 2003 Vincent Danen <vdanen@opensls.org> 0.76-9sls
+- own /var/log/supervise and /var/service
+
+* Sun Nov 30 2003 Vincent Danen <vdanen@opensls.org> 0.76-8sls
+- OpenSLS build
+- tidy spec
+
+* Wed Oct 22 2003 Vincent Danen <vdanen@mandrakesoft.com> 0.76-7mdks
+- build with stack protection
+
 * Sun Mar  9 2003 Paul Cox <paul@coxcentral.com> 0.76-6rph
 - really 6rph (release wasn't changed)
 - s/Copyright/License/

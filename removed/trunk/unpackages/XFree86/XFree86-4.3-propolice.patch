@@ -1,0 +1,27 @@
+--- xc/config/imake/imake.c.propolice	2003-12-18 13:47:43.000000000 -0700
++++ xc/config/imake/imake.c	2003-12-18 13:47:43.000000000 -0700
+@@ -1020,7 +1020,6 @@
+ }
+ #endif
+ 
+-#if defined(__OpenBSD__) 
+ static void
+ get_stackprotector(FILE *inFile)
+ {
+@@ -1045,7 +1044,6 @@
+   if (pclose(fp)) 
+     abort();
+ }
+-#endif
+ 	
+ 
+ #if defined CROSSCOMPILE || defined linux
+@@ -1603,9 +1601,7 @@
+       fprintf(inFile, "#define DefaultOSTeenyVersion 0\n");
+     }
+ #endif /* EMX */
+-#if defined(__OpenBSD__)
+   get_stackprotector(inFile);
+-#endif
+   return FALSE;
+ }

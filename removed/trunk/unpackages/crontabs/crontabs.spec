@@ -1,13 +1,19 @@
+%define name	crontabs
+%define version	1.10
+%define release	5sls
+
 Summary:	Root crontab files used to schedule the execution of programs.
-Name:		crontabs
-Version:	1.10
-Release:	3mdk
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
 License:	GPL
 Group:		System/Configuration/Other
 Source0:	crontab.bz2
-Requires:	/usr/bin/run-parts
-BuildArch:	noarch
+
 BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
+BuildArch:	noarch
+
+Requires:	/usr/bin/run-parts
 
 %description
 The crontabs package contains root crontab files.  Crontab is the
@@ -38,6 +44,13 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_sysconfdir}/cron.monthly
 
 %changelog
+* Sat Jan 31 2004 Vincent Danen <vdanen@opensls.org> 1.10-5sls
+- fix the syntax of the crontabs to work better with dcron
+
+* Fri Nov 28 2003 Vincent Danen <vdanen@opensls.org> 1.10-4sls
+- OpenSLS build
+- tidy spec
+
 * Tue Jul 22 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 1.10-3mdk
 - rebuild
 - cosmetics

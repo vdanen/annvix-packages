@@ -1,31 +1,23 @@
-# OE: conditional switches
-#(ie. use with rpm --rebuild):
-#	--with diet	Compile chkrootkit against dietlibc
+%define name	chkrootkit
+%define version	0.43
+%define release	1sls
 
 %define build_diet 1
 
-# commandline overrides:
-# rpm -ba|--rebuild --with 'xxx'
-%{?_with_diet: %{expand: %%define build_diet 1}}
-
-%define name	chkrootkit
-%define version	0.42b
-%define release	1mdk
-
-Summary:	Check rootkits
+Summary:	Checks system for rootkits
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
-Source0:	ftp://ftp.pangeia.com.br/pub/seg/pac/%{name}-%{version}.tar.bz2
-Patch0:		chkrootkit-0.42b-lib-path.patch.bz2
-URL:		http://www.chkrootkit.org/
 License:	BSD
 Group:		Monitoring
-Requires:	binutils, fileutils, findutils, gawk, grep, net-tools, procps, sed, sh-utils, textutils
-BuildRequires:  glibc-static-devel
-BuildRoot:	%{_tmppath}/%{name}-buildroot
-Prefix:		%{_prefix}
+URL:		http://www.chkrootkit.org/
+Source0:	ftp://ftp.pangeia.com.br/pub/seg/pac/%{name}-%{version}.tar.gz
+Patch0:		chkrootkit-0.43-lib-path.patch.bz2
 
+BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildRequires:  glibc-static-devel
+
+Requires:	binutils, fileutils, findutils, gawk, grep, net-tools, procps, sed, sh-utils, textutils
 %if %{build_diet}
 BuildRequires:	dietlibc-devel >= 0.20-1mdk
 %endif
@@ -36,7 +28,7 @@ Chkrootkit is a tool to locally check for signs of a rootkit.
 %prep
 
 %setup -q
-%patch -p1 -b .lib-path
+%patch -p0 -b .lib-path
 
 %build
 
@@ -48,24 +40,39 @@ make CFLAGS="-DHAVE_LASTLOG_H -DLASTLOG_FILENAME='\"/var/log/lastlog\"' -DWTEMP_
 %endif
 
 %install
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 install -d %{buildroot}%{_sbindir}
-install -d %{buildroot}%{_libdir}/%{name}
+install -d %{buildroot}%{_prefix}/lib/%{name}
 
 install chkrootkit %{buildroot}%{_sbindir}/
-install check_wtmpx chklastlog chkproc chkwtmp ifpromisc strings %{buildroot}%{_libdir}/%{name}/
+install check_wtmpx chklastlog chkproc chkwtmp ifpromisc %{buildroot}%{_prefix}/lib/%{name}/
+install strings-static %{buildroot}%{_prefix}/lib/%{name}/strings
 
 %clean
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
 %doc README* COPYRIGHT
 %{_sbindir}/*
-%{_libdir}/%{name}
+%{_prefix}/lib/%{name}
 
 %changelog
+* Mon May 10 2004 Vincent Danen <vdanen@opensls.org> 0.43-1sls
+- 0.43
+- rediff P0
+- make it amd64 friendly and just use /usr/lib rather than %%{_libdir}
+
+* Tue Mar 02 2004 Vincent Danen <vdanen@opensls.org> 0.42b-3sls
+- remove the --with diet stuff because it's redundant
+- remove %%prefix
+- minor spec cleanups
+
+* Wed Dec 31 2003 Vincent Danen <vdanen@opensls.org> 0.42b-2sls
+- OpenSLS build
+- tidy spec
+
 * Sat Dec  6 2003 Frederic Lepied <flepied@mandrakesoft.com> 0.42b-1mdk
 - rediff patch0
 - 0.42b
