@@ -1,6 +1,9 @@
 %define name	postgresql
-%define version	7.3.4
-%define release	10avx
+%define version	7.4.3
+%define release	1avx
+
+%define _requires_exceptions devel(libtcl8.4)
+%define _requires_exceptions devel(libtcl8.4(64bit))
 
 %{expand:%%define pyver %(python -c 'import sys;print(sys.version[0:3])')}
 %{expand:%%define perl_version %(rpm -q --qf %{EPOCH}:%{VERSION} perl)}
@@ -12,7 +15,7 @@
 %define major_tcl	2
 %define major_ecpg	3
 
-%define current_major_version 7.3
+%define current_major_version 7.4
 
 %define libname		%mklibname pq %{major}
 %define libpgtcl	%mklibname pgtcl %{major_tcl}
@@ -25,16 +28,17 @@ Release:	%{release}
 License:	BSD
 Group:		Databases
 URL:		http://www.postgresql.org/ 
-Source0:	ftp://ftp.postgresql.org/pub/source/v%{version}/postgresql-%{version}.tar.gz
-Source1:	http://jdbc.postgresql.org/download/pg73jdbc1.jar 
-Source2:	http://jdbc.postgresql.org/download/pg73jdbc2.jar 
-Source3:	http://jdbc.postgresql.org/download/pg73jdbc3.jar
+Source0:	ftp://ftp.postgresql.org/pub/source/v%{version}/postgresql-%{version}.tar.bz2
+Source1:	http://jdbc.postgresql.org/download/pg74.214.jdbc1.jar 
+Source2:	http://jdbc.postgresql.org/download/pg74.214.jdbc2.jar 
+Source3:	http://jdbc.postgresql.org/download/pg74.214.jdbc3.jar
 Source4:	http://www.rbt.ca/postgresql/upgrade/upgrade.pl
-Source5:	ftp://ftp.postgresql.org/pub/source/v%{version}/postgresql-%{version}.tar.gz.md5
+Source5:	ftp://ftp.postgresql.org/pub/source/v%{version}/postgresql-%{version}.tar.bz2.md5
 Source6:	ftp.postgresql.org:/pub/binary/v7.2/RPMS/README.rpm-dist.bz2
 Source7:	migration-scripts.tar.gz
 Source8:	logrotate.postgresql
-Source9:	http://jdbc.postgresql.org/download/pg73jdbc2ee.jar
+Source9:	http://jdbc.postgresql.org/download/pg74.214.jdbc2ee.jar
+Source10:	postgresql-mdk_update.tar.bz2
 # Daouda : script for dumping database (from RedHat)
 Source14:	mdk-pgdump.sh
 Source15:	postgresql-bashprofile
@@ -46,15 +50,16 @@ Source51:	README.v7.3
 Source52:	upgrade_tips_7.3
 Patch1:		rpm-pgsql-7.2.patch.bz2
 Patch2:		postgresql-7.2rc2-betterquote.patch.bz2
-Patch4:		postgresql-7.3-tighten.patch.bz2
+Patch4:		postgresql-7.4-mdk-tighten.patch.bz2
 Patch5:		pgaccess-7.2.patch.bz2
 Patch6:		postgresql-7.2.1-perl-use-INSTALLDIRS-vendor.patch.bz2
-Patch7:		postgresql-7.3.3-pythondir.patch.bz2
+Patch7:		postgresql-7.4-mdk-pythondir.patch.bz2
 Patch8:		postgresql-7.3.4-amd64-testsuite.patch.bz2
+Patch9:		postgresql-7.4.1-mdk-pkglibdir.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root
-BuildRequires:	XFree86-devel bison flex gettext libtermcap-devel ncurses-devel openssl-devel pam-devel
-BuildRequires:	perl-devel python-devel readline-devel >= 4.3 tk zlib-devel
+BuildRequires:	XFree86-devel bison flex gettext termcap-devel ncurses-devel openssl-devel pam-devel
+BuildRequires:	perl-devel python-devel readline-devel >= 4.3 tk zlib-devel tcl
 
 Requires:	perl sfio
 Prereq:		rpm-helper
@@ -156,8 +161,6 @@ postgresql-server if you want to create and maintain your own
 PostgreSQL databases and/or your own PostgreSQL server. You also need
 to install the postgresql and postgresql-devel packages.
 
-If you never played with PostgreSQL before, please read README.mdk.
-
 %package contrib
 Summary:	Contributed binaries distributed with PostgreSQL
 Group:		Databases
@@ -208,17 +211,6 @@ PostgreSQL is an advanced Object-Relational database management
 system.  The postgresql-tcl package contains the pg-enhanced pgtclsh, 
 and the PL/Tcl procedural language for the backend.
 
-%package python
-Summary:	Development module for Python code to access a PostgreSQL DB.
-Group:		Databases
-Requires:	python >= %{pyver} postgresql = %{version}-%{release}
-
-%description python
-PostgreSQL is an advanced Object-Relational database management
-system.  The postgresql-python package includes a module for
-developers to use when writing Python code for accessing a PostgreSQL
-database.
-
 %package jdbc
 Summary:	Files needed for Java programs to access a PostgreSQL database.
 Group:		Databases
@@ -233,6 +225,7 @@ Java programs to access a PostgreSQL database.
 Summary:	The test suite distributed with PostgreSQL.
 Group:		Databases
 Requires:	postgresql = %{version}-%{release}
+Requires:	postgresql-pl = %{version}-%{release}
 
 %description test
 PostgreSQL is an advanced Object-Relational database management
@@ -260,7 +253,8 @@ system, including regression tests and benchmarks.
 %patch7 -p1 -b .pythondir
 
 # amd64 has comparable math precision to alpha
-%patch8 -p1 -b .amd64-testsuite
+#%patch8 -p1 -b .amd64-testsuite
+%patch9 -p0 -b .pkglibdir
 
 %build
 
@@ -363,16 +357,15 @@ pushd  $RPM_BUILD_ROOT%{_libdir}/pgsql/test/regress/
 strip *.so
 popd
 
-# move the config samples to real config files
-pushd %{buildroot}%{_datadir}/pgsql
-mv postgresql.conf.sample postgresql.conf
-mv pg_ident.conf.sample pg_ident.conf
-mv pg_hba.conf.sample pg_hba.conf
-popd
-
 cp %{SOURCE51} %{SOURCE52} .
 
 bzip2 -cd %{SOURCE6} >  README.rpm-dist
+
+pushd $RPM_BUILD_DIR
+tar xvjf %{SOURCE10}
+install -D -m 0755 mdk/mdk_update_dump.sh %{buildroot}%{_datadir}/pgsql/avx/avx_update_dump
+install -m 0755 mdk/mdk_update_restore.sh %{buildroot}%{_datadir}/pgsql/avx/avx_update_restore
+popd
 
 mv $RPM_BUILD_ROOT%{_docdir}/%{name}/html $RPM_BUILD_ROOT%{_docdir}/%{name}-docs-%{version}
 
@@ -395,8 +388,9 @@ install -m 0644 %{SOURCE23} %{buildroot}%{_datadir}/afterboot/01_postgresql
 %find_lang psql
 %find_lang pg_resetxlog
 %find_lang pg_controldata
+%find_lang pgscripts
 
-cat psql.lang pg_dump.lang > main.lst
+cat psql.lang pg_dump.lang pgscripts.lang > main.lst
 cat postgres.lang pg_resetxlog.lang pg_controldata.lang > server.lst
 # 20021226 warly waiting to be able to add a major in po name
 cat libpq.lang libecpg.lang libpgtcl.lang >> main.lst
@@ -479,6 +473,7 @@ rm -f perlfiles.list
 %{_bindir}/pg_restore
 %{_bindir}/psql
 %{_bindir}/vacuumdb
+%{_bindir}/pg_autovacuum
 %{_mandir}/man1/clusterdb.*
 %{_mandir}/man1/createdb.*
 %{_mandir}/man1/createlang.*
@@ -492,6 +487,8 @@ rm -f perlfiles.list
 %{_mandir}/man1/psql.*
 %{_mandir}/man1/vacuumdb.*
 %{_mandir}/man7/*
+%{_datadir}/pgsql/avx/avx_update_dump
+%{_datadir}/pgsql/avx/avx_update_restore
 
 %files -n %{libname} 
 %defattr(-,root,root)
@@ -504,6 +501,8 @@ rm -f perlfiles.list
 %files -n %{libecpg}
 %defattr(-,root,root)
 %{_libdir}/libecpg.so.*
+%{_libdir}/libecpg_compat.so.*
+%{_libdir}/libpgtypes.so.*
 
 %files -n %{libecpg}-devel
 %defattr(-,root,root)
@@ -513,7 +512,6 @@ rm -f perlfiles.list
 %defattr(-,root,root)
 %doc contrib/*/README.* contrib/spi/*.example
 %{_libdir}/pgsql/_int.so
-%{_libdir}/pgsql/array_iterator.so
 %{_libdir}/pgsql/autoinc.so
 %{_libdir}/pgsql/btree_gist.so
 %{_libdir}/pgsql/chkpass.so
@@ -542,6 +540,7 @@ rm -f perlfiles.list
 %{_libdir}/pgsql/tablefunc.so
 %{_libdir}/pgsql/timetravel.so
 %{_libdir}/pgsql/tsearch.so
+%{_libdir}/pgsql/tsearch2.so
 %{_libdir}/pgsql/user_locks.so
 %{_datadir}/pgsql/contrib/
 %{_bindir}/dbf2pg
@@ -590,6 +589,7 @@ rm -f perlfiles.list
 %{_mandir}/man1/postmaster.1*
 %{_datadir}/pgsql/postgres.bki
 %{_datadir}/pgsql/postgres.description
+%{_datadir}/pgsql/*.sample
 %dir %{_libdir}/pgsql
 %dir %{_datadir}/pgsql
 %attr(700,postgres,postgres) %dir %{pgdata}
@@ -599,9 +599,8 @@ rm -f perlfiles.list
 %{_libdir}/pgsql/*_and_*.so
 %{_datadir}/pgsql/conversion_create.sql
 %{_datadir}/pgsql/upgrade.pl
-%config(noreplace) %{_datadir}/pgsql/postgresql.conf
-%config(noreplace) %{_datadir}/pgsql/pg_ident.conf
-%config(noreplace) %{_datadir}/pgsql/pg_hba.conf
+%{_datadir}/pgsql/information_schema.sql
+%{_datadir}/pgsql/sql_features.txt
 %dir %{_srvdir}/postgresql
 %dir %{_srvdir}/postgresql/log
 %{_srvdir}/postgresql/run
@@ -649,19 +648,13 @@ rm -f perlfiles.list
 %doc src/interfaces/libpgtcl/README  
 %{_libdir}/libpgtcl.so
 
-%files python
-%defattr(-,root,root)
-%doc src/interfaces/python/README* src/interfaces/python/tutorial
-%{_libdir}/python*/site-packages/_pgmodule.so
-%{_libdir}/python*/site-packages/*.py
-
 %files jdbc
 %defattr(-,root,root)
 %doc src/interfaces/jdbc/README
-%{_datadir}/pgsql/pg73jdbc1.jar
-%{_datadir}/pgsql/pg73jdbc2.jar
-%{_datadir}/pgsql/pg73jdbc3.jar
-%{_datadir}/pgsql/pg73jdbc2ee.jar
+%{_datadir}/pgsql/pg74.214.jdbc1.jar
+%{_datadir}/pgsql/pg74.214.jdbc2.jar
+%{_datadir}/pgsql/pg74.214.jdbc3.jar
+%{_datadir}/pgsql/pg74.214.jdbc2ee.jar
 
 %files test
 %defattr(-,postgres,postgres)
@@ -669,6 +662,25 @@ rm -f perlfiles.list
 %attr(-,postgres,postgres) %dir %{_libdir}/pgsql/test
 
 %changelog
+* Mon Jul 05 2004 Vincent Danen <vdanen@annvix.org> 7.4.3-1avx
+- 7.4.3
+- use bzip sources
+- new jdbc jar files for 7.4 (build 214)
+- include new mdk update scripts (re-branded to avx)
+- BuildRequires: s/libtermcap-devel/termcap-devel, tcl
+- P9: fixes location of pkglibdir in pg_regress test (mdk bug #9148)
+- postgresql-test requires postgresql-pl (mdk bug #9149) so pg_regress
+  test works properly
+- update P4 and P7 from Mandrake (7.4.1-6mdk)
+- put the .sample files back; they're needed for initdb otherwise
+  we can't make a new database
+- remove postgresql-python; according to the HISTORY file:
+    "The Python language no longer supports a restricted execution
+     environment, so the trusted version of PL/Python was removed. If
+     this situation changes, a version of PL/Python that can be used by
+     non-superusers will be readded."
+- add a requires exception on devel(libtcl8.4)
+
 * Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 7.3.4-10avx
 - Annvix build
 

@@ -1,12 +1,10 @@
---- postgresql-7.3.3/config/python.m4.pythondir	2002-09-05 00:54:18.000000000 +0200
-+++ postgresql-7.3.3/config/python.m4	2003-08-04 13:57:37.000000000 +0200
-@@ -25,9 +25,11 @@ AC_MSG_CHECKING([Python installation dir
+--- postgresql-7.4/config/python.m4.pythondir	2003-09-02 01:01:48.000000000 +0200
++++ postgresql-7.4/config/python.m4	2003-12-03 18:11:07.689843862 +0100
+@@ -25,7 +25,11 @@
  python_version=`${PYTHON} -c "import sys; print sys.version[[:3]]"`
  python_prefix=`${PYTHON} -c "import sys; print sys.prefix"`
  python_execprefix=`${PYTHON} -c "import sys; print sys.exec_prefix"`
 -python_configdir="${python_execprefix}/lib/python${python_version}/config"
--python_moduledir="${python_prefix}/lib/python${python_version}/site-packages"
--python_moduleexecdir="${python_execprefix}/lib/python${python_version}/site-packages"
 +pythondir=`$PYTHON -c "from distutils import sysconfig; print sysconfig.get_python_lib(0,0,prefix='$python_prefix')" 2>/dev/null`
 +pythonexecdir=`$PYTHON -c "from distutils import sysconfig; print sysconfig.get_python_lib(1,0,prefix='$python_execprefix')" 2>/dev/null`
 +python_configdir="${pythondir}/../config"
@@ -15,8 +13,8 @@
  python_includespec="-I${python_prefix}/include/python${python_version}"
  if test "$python_prefix" != "$python_execprefix"; then
    python_includespec="-I${python_execprefix}/include/python${python_version} $python_includespec"
-@@ -41,10 +43,10 @@ AC_SUBST(python_moduledir)[]dnl
- AC_SUBST(python_moduleexecdir)[]dnl
+@@ -36,10 +40,10 @@
+ AC_SUBST(python_configdir)[]dnl
  AC_SUBST(python_includespec)[]dnl
  # This should be enough of a message.
 -if test "$python_prefix" != "$python_execprefix"; then
@@ -29,15 +27,13 @@
  fi
  ])# _PGAC_CHECK_PYTHON_DIRS
  
---- postgresql-7.3.3/configure.pythondir	2003-05-22 22:17:22.000000000 +0200
-+++ postgresql-7.3.3/configure	2003-08-04 13:58:36.000000000 +0200
-@@ -4272,21 +4272,23 @@ echo $ECHO_N "checking Python installati
+--- postgresql-7.4/configure.pythondir	2003-11-16 22:33:50.000000000 +0100
++++ postgresql-7.4/configure	2003-12-03 18:16:05.479136281 +0100
+@@ -4410,19 +4410,23 @@
  python_version=`${PYTHON} -c "import sys; print sys.version[:3]"`
  python_prefix=`${PYTHON} -c "import sys; print sys.prefix"`
  python_execprefix=`${PYTHON} -c "import sys; print sys.exec_prefix"`
 -python_configdir="${python_execprefix}/lib/python${python_version}/config"
--python_moduledir="${python_prefix}/lib/python${python_version}/site-packages"
--python_moduleexecdir="${python_execprefix}/lib/python${python_version}/site-packages"
 +pythondir=`$PYTHON -c "from distutils import sysconfig; print sysconfig.get_python_lib(0,0,prefix='$python_prefix')" 2>/dev/null`
 +pythonexecdir=`$PYTHON -c "from distutils import sysconfig; print sysconfig.get_python_lib(1,0,prefix='$python_execprefix')" 2>/dev/null`
 +python_configdir="${pythondir}/../config"
