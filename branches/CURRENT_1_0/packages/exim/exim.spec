@@ -1,6 +1,6 @@
 %define name	exim
 %define version 4.43
-%define release 1avx
+%define release 2avx
 
 %define build_mysql 0
 %define build_pgsql 0
@@ -42,6 +42,7 @@ Patch1:		http://duncanthrax.net/exiscan-acl/exiscan-acl-%{exiscanver}.patch.bz2
 Patch2:		exim-4.22-install.patch.bz2
 Patch3:		exim-4.43-debian-system_pcre.diff.bz2
 Patch4:		exim-4.43-debian-dontoverridecflags.diff.bz2
+Patch5:		exim-4.43-security.patch
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}
 BuildRequires:	tcp_wrappers-devel, pam-devel, openssl, openssl-devel, openldap-devel, lynx
@@ -97,6 +98,9 @@ at SMTP time as well as other nasty things like teergrubbing.
 %patch0 -p1 -b .config
 %patch1 -p1 -b .exiscan
 %patch2 -p1 -b .install
+%patch3 -p1 -b .pcre
+%patch4 -p0 -b .cflags
+%patch5 -p1 -b .sec
 
 # apply the SA-exim dlopen patch
 cat sa-exim*/localscan_dlopen_exim_4.20_or_better.patch | patch -p1
@@ -284,6 +288,10 @@ fi
 %config(noreplace) %{_sysconfdir}/exim/sa-exim_short.conf
 
 %changelog
+* Wed Jan 05 2005 Vincent Danen <vdanen@annvix.org> 4.43-2avx
+- actually apply P3 and P4
+- P5: minor security fixes posted to exim ml by Philip
+
 * Mon Dec 20 2004 Vincent Danen <vdanen@annvix.org> 4.43-1avx
 - 4.43
 - exiscan-acl 4.43-28
