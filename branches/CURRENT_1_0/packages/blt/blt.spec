@@ -1,6 +1,6 @@
 %define name	blt
 %define version	2.4z
-%define release	8avx
+%define release	9avx
 
 %define major		2
 %define	libname		%mklibname %{name} %{major}
@@ -93,10 +93,10 @@ autoconf
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
 
-ln -sf libBLT.so.2.4 $RPM_BUILD_ROOT%_libdir/libBLT.so
-ln -sf libBLTlite.so.2.4 $RPM_BUILD_ROOT%_libdir/libBLTlite.so
-ln -sf bltwish-2.4 $RPM_BUILD_ROOT%_bindir/bltwish
-ln -sf bltsh-2.4 $RPM_BUILD_ROOT%_bindir/bltsh
+ln -sf libBLT24.so $RPM_BUILD_ROOT%_libdir/libBLT.so
+ln -sf libBLTlite24.so $RPM_BUILD_ROOT%_libdir/libBLTlite.so
+ln -sf bltwish24 $RPM_BUILD_ROOT%_bindir/bltwish
+ln -sf bltsh24 $RPM_BUILD_ROOT%_bindir/bltsh
 
 # Dadou - 2.4u-2mdk - Don't put in %%_libdir things which should be in %%_docdir
 rm -fr $RPM_BUILD_ROOT/%_prefix/lib/blt2.4/demos
@@ -146,6 +146,9 @@ done
 %_libdir/*.a
 
 %changelog
+* Mon Aug 30 2004 Vincent Danen <vdanen@annvix.org> 2.4z-9avx
+- fix dangling symlinks
+
 * Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 2.4z-8avx
 - Annvix build
 
