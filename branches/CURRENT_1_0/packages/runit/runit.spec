@@ -1,6 +1,6 @@
 %define	name	runit
 %define	version	1.0.4
-%define	release	2avx
+%define	release	3avx
 
 Summary:	A UN*X init scheme with service supervision
 Name:		%{name}
@@ -75,12 +75,25 @@ install -m0644 %{name}-%{version}/man/*.8 %{buildroot}%{_mandir}/man8/
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
+if [ $1 == "1" ]; then
+    # this is a new install, we need to setup the gettys
+    for i in 1 2 3 4 5 6
+    do
+	echo "Setting up the mingetty service for tty$i..."
+        srv add mingetty-tty$i
+        # even though this may cause some grief for existing non-runit systems, we need
+        # to remove the down file because on a new install, the user would reboot into a
+        # system with no gettys
+        rm -f /service/mingetty-tty$i/down
+    done
+fi
 %_post_srv mingetty-tty1
 %_post_srv mingetty-tty2
 %_post_srv mingetty-tty3
 %_post_srv mingetty-tty4
 %_post_srv mingetty-tty5
 %_post_srv mingetty-tty6
+
 
 %preun
 %_preun_srv mingetty-tty1
@@ -147,6 +160,11 @@ install -m0644 %{name}-%{version}/man/*.8 %{buildroot}%{_mandir}/man8/
 %attr(0755,root,root) %{_srvdir}/mingetty-tty6/finish
 
 %changelog
+* Sat Sep 10 2004 Vincent Danen <vdanen@annvix.org> 1.0.4-3avx
+- somewhat ugly means of getting the getty's up and running for the
+  reboot, but necessary as %%_post_srv only checks to restart a service
+  and doesn't set one up or make it ready to start
+
 * Sat Sep 10 2004 Vincent Danen <vdanen@annvix.org> 1.0.4-2avx
 - Conflicts: SysVinit <= 2.85-6avx (7avx moves init to init.srv)
 - Requires SysVinit >= 2.86-7avx, initscripts, srv
