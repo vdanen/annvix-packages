@@ -1,54 +1,7 @@
 --- mc-4.6.0/edit/editcmd.c.jj	2002-12-19 14:01:34.000000000 +0100
-+++ mc-4.6.0/edit/editcmd.c	2004-04-06 15:47:54.000000000 +0200
-@@ -1563,7 +1563,7 @@ static int sprintf_p (char *str, const c
- static int sprintf_p (char *str, const char *fmt,...)
- {
-     va_list ap;
--    int n;
-+    size_t n;
-     char *q, *p, *s = str;
-     char q1[32];
-     char *p1;
-@@ -1573,7 +1573,7 @@ static int sprintf_p (char *str, const c
- 
-     while ((p = strchr (p, '%'))) {
- 	n = p - q;
--	strncpy (s, q, n);	/* copy stuff between format specifiers */
-+	memcpy (s, q, n);	/* copy stuff between format specifiers */
- 	s += n;
- 	*s = 0;
- 	q = p;
-@@ -2711,7 +2711,7 @@ edit_complete_word_cmd (WEdit *edit)
-     int word_len = 0, i, num_compl = 0, max_len;
-     long word_start = 0;
-     char *bufpos;
--    char match_expr[MAX_REPL_LEN];
-+    char *match_expr;
-     struct selection compl[MAX_WORD_COMPLETIONS];	/* completions */
- 
-     /* don't want to disturb another search */
-@@ -2728,9 +2728,7 @@ edit_complete_word_cmd (WEdit *edit)
-     /* prepare match expression */
-     bufpos = &edit->buffers1[word_start >> S_EDIT_BUF_SIZE]
- 	[word_start & M_EDIT_BUF_SIZE];
--    strncpy (match_expr, bufpos, word_len);
--    match_expr[word_len] = '\0';
--    strcat (match_expr, "[a-zA-Z_0-9]+");
-+    match_expr = g_strdup_printf ("%.*s[a-zA-Z_0-9]+", word_len, bufpos);
- 
-     /* init search: backward, regexp, whole word, case sensitive */
-     edit_set_search_parameters (0, 1, 1, 1, 1);
-@@ -2762,6 +2760,8 @@ edit_complete_word_cmd (WEdit *edit)
-     }
- 
-     /* release memory before return */
-+    g_free (match_expr);
-+
-     for (i = 0; i < num_compl; i++)
- 	g_free (compl[i].text);
- 
---- mc-4.6.0/edit/syntax.c.jj	2002-12-15 19:55:53.000000000 +0100
-+++ mc-4.6.0/edit/syntax.c	2004-04-06 15:47:54.000000000 +0200
++++ mc-4.6.0/edit/editcmd.c	2004-04-05 14:27:24.000000000 +0200
+--- mc-4.6.0/edit/syntax.c.jj	2004-01-31 10:05:28.000000000 +0100
++++ mc-4.6.0/edit/syntax.c	2004-04-05 13:10:36.000000000 +0200
 @@ -99,7 +99,8 @@ static long compare_word_to_right (WEdit
      for (p = (unsigned char *) text, q = p + strlen ((char *) p); p < q; p++, i++) {
  	switch (*p) {
@@ -130,7 +83,7 @@
  	p = strchr (b, '/');
  	if (p)
  	    *p = '\0';
-@@ -637,13 +643,13 @@ static int edit_read_syntax_rules (WEdit
+@@ -640,13 +646,13 @@ static int edit_read_syntax_rules (WEdit
  	    check_a;
  	    if (!strcmp (*a, "left")) {
  		a++;
@@ -148,7 +101,7 @@
  	    }
  	    a++;
  	    check_not_a;
-@@ -705,8 +711,8 @@ static int edit_read_syntax_rules (WEdit
+@@ -707,8 +713,8 @@ static int edit_read_syntax_rules (WEdit
  	    bg = *a;
  	    if (*a)
  		a++;
@@ -160,7 +113,7 @@
  	    c->keyword[0]->keyword = g_strdup (" ");
  	    check_not_a;
 --- mc-4.6.0/src/complete.c.jj	2002-11-13 03:56:41.000000000 +0100
-+++ mc-4.6.0/src/complete.c	2004-04-14 18:14:01.840357582 +0200
++++ mc-4.6.0/src/complete.c	2004-04-07 17:36:34.000000000 +0200
 @@ -270,7 +270,7 @@ variable_completion_function (char *text
  	*temp = '$';
  	if (isbrace)
@@ -190,7 +143,7 @@
  	update_input (in, 1);
  	end += len;
 --- mc-4.6.0/src/utilunix.c.jj	2002-12-26 15:47:46.000000000 +0100
-+++ mc-4.6.0/src/utilunix.c	2004-04-14 18:14:07.045424766 +0200
++++ mc-4.6.0/src/utilunix.c	2004-04-07 18:09:29.000000000 +0200
 @@ -280,9 +280,7 @@ char *tilde_expand (const char *director
  	if (!p){
  	    passwd = getpwnam (directory);
@@ -230,7 +183,7 @@
  }
  
 --- mc-4.6.0/src/profile.c.jj	2003-01-20 15:33:02.000000000 +0100
-+++ mc-4.6.0/src/profile.c	2004-04-06 15:47:54.000000000 +0200
++++ mc-4.6.0/src/profile.c	2004-04-05 12:45:03.000000000 +0200
 @@ -325,8 +325,7 @@ static short GetSetProfile (int set, con
      
      s = GetSetProfileChar (set, AppName, KeyName, Default, FileName);
@@ -241,8 +194,8 @@
     }
      return 1;
  }
---- mc-4.6.0/src/wtools.c.jj	2002-11-14 08:25:19.000000000 +0100
-+++ mc-4.6.0/src/wtools.c	2004-04-06 15:47:54.000000000 +0200
+--- mc-4.6.0/src/wtools.c.jj	2004-01-30 19:02:39.000000000 +0100
++++ mc-4.6.0/src/wtools.c	2004-04-05 12:59:56.000000000 +0200
 @@ -412,8 +412,7 @@ real_input_dialog_help (char *header, ch
  /* we need a unique name for tkname because widget.c:history_tool()
     needs a unique name for each dialog - using the header is ideal */
@@ -252,9 +205,9 @@
 +    g_strlcpy (tk_name + 3, header, 61);
      quick_widgets[2].tkname = tk_name;
  
-     len = max (strlen (header), msglen (text, &lines)) + 4;
+     len = max (mbstrlen (header), msglen (text, &lines)) + 4;
 --- mc-4.6.0/src/file.c.jj	2002-12-26 20:04:10.000000000 +0100
-+++ mc-4.6.0/src/file.c	2004-04-06 15:47:54.000000000 +0200
++++ mc-4.6.0/src/file.c	2004-03-16 11:13:46.000000000 +0100
 @@ -366,7 +366,7 @@ make_symlink (FileOpContext *ctx, char *
  	dst_is_symlink = 0;
  
@@ -284,9 +237,9 @@
  			continue;
  		    }
  		    return_status =
---- mc-4.6.0/src/util.h.jj	2003-01-27 22:07:29.000000000 +0100
-+++ mc-4.6.0/src/util.h	2004-04-06 15:47:54.000000000 +0200
-@@ -62,7 +62,7 @@ char *_icase_search (char *text, char *d
+--- mc-4.6.0/src/util.h.jj	2004-01-30 19:02:39.000000000 +0100
++++ mc-4.6.0/src/util.h	2004-03-16 11:58:18.000000000 +0100
+@@ -64,7 +64,7 @@ char *_icase_search (char *text, char *d
  #define icase_search(T,D) _icase_search((T), (D), NULL)
  
  /* Matching */
@@ -296,7 +249,7 @@
  char *convert_pattern (char *pattern, int match_type, int do_group);
  int regexp_match (char *pattern, char *string, int match_type);
 --- mc-4.6.0/src/main.c.jj	2003-02-05 16:54:34.000000000 +0100
-+++ mc-4.6.0/src/main.c	2004-04-06 15:47:54.000000000 +0200
++++ mc-4.6.0/src/main.c	2004-03-16 10:50:28.000000000 +0100
 @@ -1300,7 +1300,7 @@ copy_readlink (WPanel *panel)
  	    concat_dir_and_file (panel->cwd, selection (panel)->fname);
  	int i;
@@ -306,9 +259,9 @@
  	g_free (p);
  	if (i > 0) {
  	    buffer[i] = 0;
---- mc-4.6.0/src/screen.c.jj	2003-01-28 23:58:22.000000000 +0100
-+++ mc-4.6.0/src/screen.c	2004-04-14 18:24:47.884578047 +0200
-@@ -672,7 +672,7 @@ display_mini_info (WPanel *panel)
+--- mc-4.6.0/src/screen.c.jj	2004-01-30 19:02:39.000000000 +0100
++++ mc-4.6.0/src/screen.c	2004-04-07 17:40:05.000000000 +0200
+@@ -746,7 +746,7 @@ display_mini_info (WPanel *panel)
  	int  len;
  
  	link = concat_dir_and_file (panel->cwd, panel->dir.list [panel->selected].fname);
@@ -317,41 +270,37 @@
  	g_free (link);
  	if (len > 0){
  	    link_target[len] = 0;
-@@ -1045,7 +1045,6 @@ paint_frame (WPanel *panel)
-     int  spaces, extra;
-     int  side, width;
+@@ -1125,8 +1125,6 @@ paint_frame (WPanel *panel) 
+     mbstate_t s;
  
--    char *txt, buffer[30]; /*Hope that this is enough ;-) */
+     memset (&s, 0, sizeof (s));
+-#else
+-    char buffer[30]; /*Hope that this is enough ;-) */
+ #endif
      if (!panel->split)
  	adjust_top_file (panel);
- 
-@@ -1068,21 +1067,16 @@ paint_frame (WPanel *panel)
- 
- 	for (format = panel->format; format; format = format->next){
-             if (format->string_fn){
--                txt = format->title;
--
--		header_len = strlen (txt);
-+		header_len = strlen (format->title);
- 		if (header_len > format->field_len){
--		    strcpy (buffer, txt);
+@@ -1176,17 +1174,13 @@ paint_frame (WPanel *panel) 
+ 		}
+ #endif
+ 		header_len = strlen (txt);
+-		if (header_len > format->field_len){
+-		    strncpy (buffer, txt, format->field_len);
 -		    txt = buffer;
 -		    txt [format->field_len] = 0;
--		    header_len = strlen (txt);
-+		    header_len = format->field_len;
- 		}
++		if (header_len > format->field_len)
+ 		    header_len = format->field_len;
+-		}
  
-                 attrset (MARKED_COLOR);
                  spaces = (format->field_len - header_len) / 2;
                  extra  = (format->field_len - header_len) % 2;
 -		printw ("%*s%-s%*s", spaces, "",
 -			 txt, spaces+extra, "");
 +		printw ("%*s%.*s%*s", spaces, "",
-+			header_len, format->title, spaces+extra, "");
- 		width -= 2 * spaces + extra + header_len;
++			header_len, txt, spaces+extra, "");
  	    } else {
  		attrset (NORMAL_COLOR);
-@@ -2021,7 +2015,7 @@ chdir_to_readlink (WPanel *panel)
+ 		one_vline ();
+@@ -2124,7 +2118,7 @@ chdir_to_readlink (WPanel *panel)
  	int i;
  	struct stat mybuf;
  
@@ -360,8 +309,8 @@
  	if (i < 0)
  	    return;
  	if (mc_stat (selection (panel)->fname, &mybuf) < 0)
---- mc-4.6.0/src/info.c.jj	2003-01-28 23:58:22.000000000 +0100
-+++ mc-4.6.0/src/info.c	2004-04-14 18:14:07.048424229 +0200
+--- mc-4.6.0/src/info.c.jj	2004-04-05 15:52:18.000000000 +0200
++++ mc-4.6.0/src/info.c	2004-04-08 16:54:35.000000000 +0200
 @@ -123,7 +123,7 @@ info_show_info (WInfo *info)
  	    size_trunc_len (buffer1, 5, myfs_stats.avail, 1);
  	    size_trunc_len (buffer2, 5, myfs_stats.total, 1);
@@ -380,8 +329,8 @@
  #endif
  	}
  	
---- mc-4.6.0/src/view.c.jj	2002-12-27 07:48:33.000000000 +0100
-+++ mc-4.6.0/src/view.c	2004-04-14 18:26:45.583484870 +0200
+--- mc-4.6.0/src/view.c.jj	2004-01-30 19:02:39.000000000 +0100
++++ mc-4.6.0/src/view.c	2004-04-06 14:05:22.000000000 +0200
 @@ -74,6 +74,10 @@
  #   define IFAIX(x)
  #endif
@@ -411,7 +360,22 @@
  	    return -1;
  	} else
  	    return view->block_ptr[page - 1].data[offset];
-@@ -589,7 +593,11 @@ load_view_file (WView *view, int fd)
+@@ -573,9 +577,11 @@ load_view_file (WView *view, int fd)
+ 	return init_growing_view (view, 0, view->filename);
+     }
+ #ifdef HAVE_MMAP
+-    view->data =
+-	mc_mmap (0, view->s.st_size, PROT_READ, MAP_FILE | MAP_SHARED,
+-		 view->file, 0);
++    if ((size_t) view->s.st_size == view->s.st_size)
++	view->data = mc_mmap (0, view->s.st_size, PROT_READ,
++			      MAP_FILE | MAP_SHARED, view->file, 0);
++    else
++	view->data = (caddr_t) -1;
+     if ((caddr_t) view->data != (caddr_t) - 1) {
+ 	/* mmap worked */
+ 	view->first = 0;
+@@ -589,7 +595,11 @@ load_view_file (WView *view, int fd)
       * file into memory (alex@bcs.zaporizhzhe.ua). Also, mmap can fail
       * for any reason, so we use this as fallback (pavel@ucw.cz) */
  
@@ -424,7 +388,7 @@
      if (view->data == NULL
  	|| mc_lseek (view->file, 0, SEEK_SET) != 0
  	|| mc_read (view->file, view->data,
-@@ -821,7 +829,7 @@ view_status (WView *view, gboolean updat
+@@ -821,7 +831,7 @@ view_status (WView *view, gboolean updat
  	if (w > 46) {
  	    widget_move (view, view->have_frame, 24 + view->have_frame);
  	    if (view->hex_mode)
@@ -433,7 +397,7 @@
  	    else
  		printw (_("Col %d"), -view->start_col);
  	}
-@@ -1513,33 +1521,41 @@ get_line_at (WView *view, unsigned long 
+@@ -1513,33 +1523,41 @@ get_line_at (WView *view, unsigned long 
      long i = 0;
      int prev = 0;
  
@@ -481,8 +445,8 @@
      }
      if (buffer) {
  	buffer[0] = prev;
---- mc-4.6.0/src/find.c.jj	2002-12-24 12:28:26.000000000 +0100
-+++ mc-4.6.0/src/find.c	2004-04-06 15:47:54.000000000 +0200
+--- mc-4.6.0/src/find.c.jj	2004-01-30 19:02:39.000000000 +0100
++++ mc-4.6.0/src/find.c	2004-03-16 11:54:29.000000000 +0100
 @@ -312,7 +312,7 @@ push_directory (char *dir)
      dir_stack *new;
  
@@ -579,7 +543,7 @@
  	    subdirs_left--;
  	}
 --- mc-4.6.0/src/subshell.c.jj	2003-01-24 22:37:28.000000000 +0100
-+++ mc-4.6.0/src/subshell.c	2004-04-06 15:47:54.000000000 +0200
++++ mc-4.6.0/src/subshell.c	2004-03-30 18:24:08.000000000 +0200
 @@ -710,7 +710,9 @@ int exit_subshell (void)
      }
  
@@ -591,7 +555,7 @@
      return quit;
  }
 --- mc-4.6.0/src/user.c.jj	2002-11-29 04:03:53.000000000 +0100
-+++ mc-4.6.0/src/user.c	2004-04-14 18:14:15.622887573 +0200
++++ mc-4.6.0/src/user.c	2004-04-06 15:11:56.000000000 +0200
 @@ -138,19 +138,14 @@ int check_format_var (const char *p, cha
  	}
  	
@@ -773,9 +737,9 @@
  		    if (selected == 0 && accept_entry)
  			selected = menu_lines;
  		} else {
---- mc-4.6.0/src/util.c.jj	2003-01-28 23:58:23.000000000 +0100
-+++ mc-4.6.0/src/util.c	2004-04-06 15:47:54.000000000 +0200
-@@ -498,7 +498,7 @@ char *convert_pattern (char *pattern, in
+--- mc-4.6.0/src/util.c.jj	2004-01-30 19:02:39.000000000 +0100
++++ mc-4.6.0/src/util.c	2004-04-05 12:55:40.000000000 +0200
+@@ -591,7 +591,7 @@ char *convert_pattern (char *pattern, in
      char *new_pattern;
      int was_wildcard = 0;
  
@@ -784,7 +748,7 @@
  	new_pattern = g_malloc (MC_MAXPATHLEN);
  	d = new_pattern;
  	if (match_type == match_file)
-@@ -848,7 +848,7 @@ char *get_current_wd (char *buffer, int 
+@@ -940,7 +940,7 @@ char *get_current_wd (char *buffer, int 
  	return NULL;
      }
  
@@ -793,7 +757,7 @@
      g_free (p);
  
      return buffer;
-@@ -1063,7 +1063,7 @@ static char *resolve_symlinks (char *pat
+@@ -1155,7 +1155,7 @@ static char *resolve_symlinks (char *pat
  	if (!S_ISLNK (mybuf.st_mode))
  	    strcpy (r, p + 1);
  	else {
@@ -802,9 +766,19 @@
  	    if (len < 0) {
  		 g_free (buf);
  		 g_free (buf2);
---- mc-4.6.0/src/widget.c.jj	2002-12-26 00:15:48.000000000 +0100
-+++ mc-4.6.0/src/widget.c	2004-04-06 15:47:54.000000000 +0200
-@@ -607,7 +607,7 @@ gauge_callback (WGauge *g, int Msg, int 
+--- mc-4.6.0/src/widget.c.jj	2004-01-30 19:02:39.000000000 +0100
++++ mc-4.6.0/src/widget.c	2004-04-05 16:21:32.000000000 +0200
+@@ -343,7 +343,8 @@ radio_callback (WRadio *r, int Msg, int 
+ 		    wchar_t wc;
+ 		    int len;
+ #endif
+-		    printw ("%.*s", (char *) cp - r->texts[i], r->texts[i]);
++		    printw ("%.*s", (int) ((char *) cp - r->texts[i]),
++			    r->texts[i]);
+ 		    attrset ((i==r->pos && Msg==WIDGET_FOCUS) 
+ 			     ? HOT_FOCUSC : HOT_NORMALC);
+ #ifdef UTF8
+@@ -642,7 +643,7 @@ gauge_callback (WGauge *g, int Msg, int 
  	if (!g->shown)
  	    printw ("%*s", gauge_len, "");
  	else {
@@ -813,21 +787,8 @@
  	    long total = g->max, done = g->current;
  	    
  	    if (total <= 0 || done < 0) {
-@@ -1255,10 +1255,11 @@ delete_region (WInput *in, int x_first, 
- {
-    int first = min (x_first, x_last);
-    int last  = max (x_first, x_last);
-+   size_t len = strlen (&in->buffer [last]) + 1;
- 
-    in->point = first;
-    in->mark  = first;
--   strcpy (&in->buffer [first], &in->buffer [last]);
-+   memmove (&in->buffer [first], &in->buffer [last], len);
-    in->need_push = 1;
- }
- 
 --- mc-4.6.0/src/command.c.jj	2002-11-14 08:25:19.000000000 +0100
-+++ mc-4.6.0/src/command.c	2004-04-06 15:47:54.000000000 +0200
++++ mc-4.6.0/src/command.c	2004-03-30 18:17:47.000000000 +0200
 @@ -258,7 +258,7 @@ command_callback (WInput *cmd, int msg, 
  WInput *
  command_new (int y, int x, int cols)
@@ -838,7 +799,7 @@
      cmd = input_new (y, x, DEFAULT_COLOR, cols, "", "cmdline");
  
 --- mc-4.6.0/src/dir.c.jj	2003-01-21 01:41:45.000000000 +0100
-+++ mc-4.6.0/src/dir.c	2004-04-06 15:47:54.000000000 +0200
++++ mc-4.6.0/src/dir.c	2004-04-05 15:50:19.000000000 +0200
 @@ -503,9 +503,11 @@ do_load_dir (dir_list *list, sortfn *sor
      }
  
@@ -891,7 +852,7 @@
      } else
  	next_free = set_zero_dir (list);
 --- mc-4.6.0/src/man2hlp.c.jj	2003-01-21 00:23:42.000000000 +0100
-+++ mc-4.6.0/src/man2hlp.c	2004-04-06 15:47:54.000000000 +0200
++++ mc-4.6.0/src/man2hlp.c	2004-04-05 12:44:35.000000000 +0200
 @@ -611,8 +611,7 @@ handle_link (char *buffer)
  	/* Bold text or italics text */
  	if (buffer[0] == '.' && (buffer[1] == 'I' || buffer[1] == 'B'))
@@ -903,7 +864,16 @@
  	break;
      case 3:
 --- mc-4.6.0/src/ext.c.jj	2002-11-14 08:25:19.000000000 +0100
-+++ mc-4.6.0/src/ext.c	2004-04-06 15:47:54.000000000 +0200
++++ mc-4.6.0/src/ext.c	2004-03-16 11:59:25.000000000 +0100
+@@ -450,7 +450,7 @@ regex_check_type (char *filename, int fi
+ 
+     if (content_string && content_string[0]
+ 	&& regexp_match (ptr, content_string + content_shift,
+-			 match_normal)) {
++			 match_regex)) {
+ 	found = 1;
+     }
+ 
 @@ -477,7 +477,6 @@ regex_command (char *filename, char *act
      int found = 0;
      int error_flag = 0;
@@ -944,7 +914,7 @@
  	return -1;
      return ret;
 --- mc-4.6.0/src/cmd.c.jj	2003-02-05 16:54:33.000000000 +0100
-+++ mc-4.6.0/src/cmd.c	2004-04-06 15:47:54.000000000 +0200
++++ mc-4.6.0/src/cmd.c	2004-03-16 10:49:41.000000000 +0100
 @@ -1132,7 +1132,7 @@ void edit_symlink_cmd (void)
  
  	q = g_strdup_printf (_(" Symlink `%s\' points to: "), name_trunc (p, 32));
@@ -955,7 +925,7 @@
  	    buffer [i] = 0;
  	    dest = input_expand_dialog (_(" Edit symlink "), q, buffer);
 --- mc-4.6.0/vfs/cpio.c.jj	2002-12-08 02:12:28.000000000 +0100
-+++ mc-4.6.0/vfs/cpio.c	2004-04-06 15:47:54.000000000 +0200
++++ mc-4.6.0/vfs/cpio.c	2004-04-05 15:49:04.000000000 +0200
 @@ -103,9 +103,9 @@ static int cpio_read(void *fh, char *buf
  
  static struct defer_inode * defer_find(struct defer_inode *l, struct defer_inode *i)
@@ -1096,7 +1066,7 @@
      }
  
 --- mc-4.6.0/vfs/extfs/uha.in.jj	2002-12-14 06:10:53.000000000 +0100
-+++ mc-4.6.0/vfs/extfs/uha.in	2004-04-14 18:14:15.638884706 +0200
++++ mc-4.6.0/vfs/extfs/uha.in	2004-04-07 18:36:03.000000000 +0200
 @@ -31,8 +31,7 @@ mchafs_list ()
  
  mchafs_copyout ()
@@ -1107,8 +1077,25 @@
      cd $TMPDIR
  
      $HA xyq "$1" "$2" >/dev/null
+--- mc-4.6.0/vfs/extfs/mc-cvs-uzip.jj	2004-01-30 19:02:39.000000000 +0100
++++ mc-4.6.0/vfs/extfs/mc-cvs-uzip	2004-04-13 19:23:08.258270414 +0200
+@@ -344,10 +344,10 @@ sub cleandirs {
+ 
+ # Make a temporary directory with mode 0700.
+ sub mktmpdir {
+-	while (1) {
+-		my $dir = POSIX::tmpnam();
+-		return $dir if mkdir ($dir, 0700);
+-	}
++	use File::Temp qw(mkdtemp);
++	my $template = "/tmp/mccvsuzip.XXXXXX";
++	$template="$ENV{MC_TMPDIR}/mccvsuzip.XXXXXX" if ($ENV{MC_TMPDIR});
++	return mkdtemp($template);
+ }
+ 
+ # Make a filename absolute and return it.
 --- mc-4.6.0/vfs/extfs/uar.in.jj	2002-12-12 10:21:35.000000000 +0100
-+++ mc-4.6.0/vfs/extfs/uar.in	2004-04-14 18:14:30.889151660 +0200
++++ mc-4.6.0/vfs/extfs/uar.in	2004-04-07 18:35:10.000000000 +0200
 @@ -22,8 +22,7 @@ mcarfs_copyout ()
  
  mcarfs_copyin ()
@@ -1120,7 +1107,7 @@
      (cd $TMPDIR && cp -fp "$3" $name && $XAR r "$1" $name)
      rm -rf $TMPDIR
 --- mc-4.6.0/vfs/extfs/ulha.in.jj	2002-12-14 05:39:10.000000000 +0100
-+++ mc-4.6.0/vfs/extfs/ulha.in	2004-04-14 18:14:30.889151660 +0200
++++ mc-4.6.0/vfs/extfs/ulha.in	2004-04-07 18:39:35.000000000 +0200
 @@ -35,12 +35,6 @@ LHA_LIST="lha lq"
  LHA_GET="lha pq"
  LHA_PUT="lha aq"
@@ -1146,8 +1133,8 @@
     $LHA_GET "$1" "$2" > $TMPCMD  
     chmod a+x $TMPCMD
     $TMPCMD
---- mc-4.6.0/vfs/extfs/rpm.jj	2002-12-29 10:19:39.000000000 +0100
-+++ mc-4.6.0/vfs/extfs/rpm	2004-04-14 18:17:56.183360265 +0200
+--- mc-4.6.0/vfs/extfs/rpm.jj	2004-01-30 19:02:39.000000000 +0100
++++ mc-4.6.0/vfs/extfs/rpm	2004-04-05 18:23:04.000000000 +0200
 @@ -1,14 +1,17 @@
  #! /bin/sh
  #
@@ -1270,15 +1257,16 @@
         echo "$FILEPREF 0 $DATE INFO/CHANGELOG"
      else 
  	echo "$FILEPREF 0 $DATE INFO/REQUIRENAME"
-@@ -126,41 +134,41 @@ mcrpmfs_list ()
+@@ -125,48 +133,48 @@ mcrpmfs_list ()
  
  mcrpmfs_copyout ()
  {
 +    f="`echo "$1" | $SED "$SEDCMD"`"
      case "$2" in
 -	HEADER) $RPM -qip "$1" > "$3"; exit 0;;
--	INSTALL) echo "# Run this to install this RPM package" > "$3"; exit 0;;
--	UPGRADE) echo "# Run this to upgrade this RPM package" > "$3"; exit 0;;
++	HEADER) $RPM -qip "$f" > "$3"; exit 0;;
+ 	INSTALL) echo "# Run this to install this RPM package" > "$3"; exit 0;;
+ 	UPGRADE) echo "# Run this to upgrade this RPM package" > "$3"; exit 0;;
 -	ERROR) $RPM -qip "$1" > /dev/null 2> "$3"; exit 0;;
 -	INFO/NAME-VERSION-RELEASE)	$RPM -qp --qf "%{NAME}-%{VERSION}-%{RELEASE}\n" "$1" > "$3"; exit 0;;
 -	INFO/RELEASE)		$RPM -qp --qf "%{RELEASE}\n" "$1" > "$3"; exit 0;;
@@ -1306,10 +1294,6 @@
 -	INFO/OS)		$RPM -qp --qf "%{OS}\n" "$1" > "$3"; exit 0;;
 -	INFO/CHANGELOG)		$RPM -qp --qf "[* %{CHANGELOGTIME:date} %{CHANGELOGNAME}\n%{CHANGELOGTEXT}\n\n]\n" "$1" > "$3"; exit 0;;
 -	INFO/SIZE)		$RPM -qp --qf "%{SIZE} bytes\n" "$1" > "$3"; exit 0;;
--	CONTENTS.cpio)		$RPM2CPIO "$1" > "$3"; exit 0;;
-+	HEADER) $RPM -qip "$f" > "$3"; exit 0;;
-+  	INSTALL) echo "# Run this to install this RPM package" > "$3"; exit 0;;
-+  	UPGRADE) echo "# Run this to upgrade this RPM package" > "$3"; exit 0;;
 +	ERROR) $RPM -qip "$f" > /dev/null 2> "$3"; exit 0;;
 +	INFO/NAME-VERSION-RELEASE)	$RPM -qp --qf "%{NAME}-%{VERSION}-%{RELEASE}\n" "$f" > "$3"; exit 0;;
 +	INFO/RELEASE)		$RPM -qp --qf "%{RELEASE}\n" "$f" > "$3"; exit 0;;
@@ -1337,15 +1321,11 @@
 +	INFO/OS)		$RPM -qp --qf "%{OS}\n" "$f" > "$3"; exit 0;;
 +	INFO/CHANGELOG)		$RPM -qp --qf "[* %{CHANGELOGTIME:date} %{CHANGELOGNAME}\n%{CHANGELOGTEXT}\n\n]\n" "$f" > "$3"; exit 0;;
 +	INFO/SIZE)		$RPM -qp --qf "%{SIZE} bytes\n" "$f" > "$3"; exit 0;;
-+  	CONTENTS.cpio)		$RPM2CPIO "$1" > "$3"; exit 0;;
- 	*)
--	    TMPDIR=/tmp/mctmpdir.$$
--	    mkdir $TMPDIR || exit 1
-+	    TMPDIR=`mktemp -d ${MC_TMPDIR:-/tmp}/mctmpdir-rpm.XXXXXX` || exit 1
- 	    cd $TMPDIR
- 	    # Files in RPM version 4 and above start with "./" - try both
- 	    $RPM2CPIO "$1" | cpio -iumd --quiet "$2" "./$2" >/dev/null
-@@ -172,9 +180,10 @@ mcrpmfs_copyout ()
+ 	CONTENTS.cpio)		$RPM2CPIO "$1" > "$3"; exit 0;;
+-	*)
+-            ;;
+     esac
+ }
  
  mcrpmfs_run ()
  {
@@ -1359,7 +1339,7 @@
  }
  
 --- mc-4.6.0/vfs/extfs/deb.in.jj	2002-12-11 21:57:00.000000000 +0100
-+++ mc-4.6.0/vfs/extfs/deb.in	2004-04-14 18:14:30.890151481 +0200
++++ mc-4.6.0/vfs/extfs/deb.in	2004-04-13 19:21:34.022158752 +0200
 @@ -149,15 +149,10 @@ sub mcdebfs_run
  	}
  	else
@@ -1381,7 +1361,7 @@
  		&mcdebfs_copyout($archive, $filename, $tmpcmd);
  		system("chmod u+x $tmpcmd");
 --- mc-4.6.0/vfs/extfs/urar.in.jj	2003-01-24 16:56:25.000000000 +0100
-+++ mc-4.6.0/vfs/extfs/urar.in	2004-04-14 18:14:30.890151481 +0200
++++ mc-4.6.0/vfs/extfs/urar.in	2004-04-07 18:44:29.000000000 +0200
 @@ -77,8 +77,7 @@ mcrarfs_mkdir ()
  # preserve pwd. It is clean, but is it necessary?
      pwd=`pwd`
@@ -1393,7 +1373,7 @@
      mkdir -p "$2"  
  # rar cannot create an empty directory    
 --- mc-4.6.0/vfs/extfs/uzip.in.jj	2002-12-12 10:15:20.000000000 +0100
-+++ mc-4.6.0/vfs/extfs/uzip.in	2004-04-14 18:14:30.891151302 +0200
++++ mc-4.6.0/vfs/extfs/uzip.in	2004-04-13 19:21:52.297883504 +0200
 @@ -344,10 +344,10 @@ sub cleandirs {
  
  # Make a temporary directory with mode 0700.
@@ -1410,7 +1390,7 @@
  
  # Make a filename absolute and return it.
 --- mc-4.6.0/vfs/extfs/uzoo.in.jj	2002-12-14 05:29:13.000000000 +0100
-+++ mc-4.6.0/vfs/extfs/uzoo.in	2004-04-14 18:14:30.891151302 +0200
++++ mc-4.6.0/vfs/extfs/uzoo.in	2004-04-07 18:47:50.000000000 +0200
 @@ -13,8 +13,7 @@ ZOO=zoo
  # it to a temporary directory.
  mklink ()
@@ -1422,7 +1402,7 @@
      ARCHIVE=$TMPDIR/tmp.zoo
      ln -sf "$1" "$ARCHIVE"
 --- mc-4.6.0/vfs/samba/lib/util.c.jj	2002-11-15 18:02:44.000000000 +0100
-+++ mc-4.6.0/vfs/samba/lib/util.c	2004-04-14 18:14:15.623887394 +0200
++++ mc-4.6.0/vfs/samba/lib/util.c	2004-04-13 18:30:23.929359353 +0200
 @@ -114,7 +114,7 @@ static char *filename_dos(char *path,cha
  char *tmpdir(void)
  {
@@ -1456,8 +1436,8 @@
      DEBUG(5, ("NIS+ querystring: %s\n", buffer));
   
      if (result = nis_list(buffer, RETURN_RESULT, NULL, NULL))
---- mc-4.6.0/vfs/direntry.c.jj	2002-12-26 03:21:43.000000000 +0100
-+++ mc-4.6.0/vfs/direntry.c	2004-04-06 15:47:54.000000000 +0200
+--- mc-4.6.0/vfs/direntry.c.jj	2004-01-30 19:02:39.000000000 +0100
++++ mc-4.6.0/vfs/direntry.c	2004-04-05 12:20:09.000000000 +0200
 @@ -217,13 +217,11 @@ vfs_s_automake (vfs *me, vfs_s_inode *di
  vfs_s_entry *
  vfs_s_find_entry_tree (vfs *me, vfs_s_inode *root, char *path, int follow, int flags)
@@ -1492,7 +1472,7 @@
  
  	for (ent = root->subdir; ent != NULL; ent = ent->next)
  	    if (strlen (ent->name) == pseg && (!strncmp (ent->name, path, pseg)))
-@@ -622,8 +625,7 @@ vfs_s_readdir(void *data)
+@@ -632,8 +635,7 @@ vfs_s_readdir(void *data)
  	return NULL;
  
      if (info->cur->name) {
@@ -1502,7 +1482,7 @@
      } else {
  	vfs_die("Null in structure-cannot happen");
      }
-@@ -729,8 +731,7 @@ vfs_s_readlink (vfs *me, char *path, cha
+@@ -739,8 +741,7 @@ vfs_s_readlink (vfs *me, char *path, cha
      if (ino->linkname == NULL)
  	ERRNOR (EFAULT, -1);
  
@@ -1512,7 +1492,7 @@
      return strlen (buf);
  }
  
-@@ -1037,7 +1038,7 @@ vfs_s_getlocalcopy (vfs *me, char *path)
+@@ -1047,7 +1048,7 @@ vfs_s_getlocalcopy (vfs *me, char *path)
      struct vfs_s_inode *ino;
      char buf[MC_MAXPATHLEN];
  
@@ -1522,7 +1502,7 @@
  
      if (!ino->localname)
 --- mc-4.6.0/vfs/tar.c.jj	2002-12-08 02:12:30.000000000 +0100
-+++ mc-4.6.0/vfs/tar.c	2004-04-06 15:47:54.000000000 +0200
++++ mc-4.6.0/vfs/tar.c	2004-03-16 13:24:47.000000000 +0100
 @@ -264,19 +264,26 @@ read_header (vfs *me, vfs_s_super *archi
  	char *bp, *data;
  	int size, written;
@@ -1571,7 +1551,7 @@
      } else {
  	struct stat st;
 --- mc-4.6.0/vfs/ftpfs.c.jj	2002-12-26 03:21:43.000000000 +0100
-+++ mc-4.6.0/vfs/ftpfs.c	2004-04-06 15:47:54.000000000 +0200
++++ mc-4.6.0/vfs/ftpfs.c	2004-04-05 12:27:51.000000000 +0200
 @@ -266,8 +266,7 @@ get_reply (vfs *me, int sock, char *stri
  	switch (sscanf(answer, "%d", &code)){
  	    case 0:
@@ -1702,7 +1682,7 @@
  		    return;
  		}
 --- mc-4.6.0/vfs/mcfs.c.jj	2002-11-15 08:49:39.000000000 +0100
-+++ mc-4.6.0/vfs/mcfs.c	2004-04-06 15:47:54.000000000 +0200
++++ mc-4.6.0/vfs/mcfs.c	2004-04-05 12:28:08.000000000 +0200
 @@ -756,8 +756,7 @@ mcfs_readdir (void *info)
  	return NULL;
      }
@@ -1729,7 +1709,7 @@
  
  static int
 --- mc-4.6.0/vfs/smbfs.c.jj	2003-01-24 22:37:29.000000000 +0100
-+++ mc-4.6.0/vfs/smbfs.c	2004-04-06 15:47:54.000000000 +0200
++++ mc-4.6.0/vfs/smbfs.c	2004-04-05 12:30:15.000000000 +0200
 @@ -785,8 +785,7 @@ smbfs_readdir(void *info)
  #endif
  	return NULL;
@@ -1741,7 +1721,7 @@
  
      compute_namelen(&smbfs_readdir_data.dent);
 --- mc-4.6.0/vfs/mcserv.c.jj	2002-12-08 02:12:30.000000000 +0100
-+++ mc-4.6.0/vfs/mcserv.c	2004-04-06 15:47:54.000000000 +0200
++++ mc-4.6.0/vfs/mcserv.c	2004-03-16 11:03:23.000000000 +0100
 @@ -582,7 +582,7 @@ do_readlink (void)
      int n;
  
@@ -1752,7 +1732,7 @@
      if (n >= 0) {
  	buffer[n] = 0;
 --- mc-4.6.0/vfs/vfs.c.jj	2002-12-26 03:21:43.000000000 +0100
-+++ mc-4.6.0/vfs/vfs.c	2004-04-06 15:47:54.000000000 +0200
++++ mc-4.6.0/vfs/vfs.c	2004-04-05 12:30:31.000000000 +0200
 @@ -637,8 +637,7 @@ mc_get_current_wd (char *buffer, int siz
  {
      const char *cwd = mc_return_cwd();
@@ -1764,7 +1744,7 @@
  }
  
 --- mc-4.6.0/vfs/fish.c.jj	2002-12-26 03:21:43.000000000 +0100
-+++ mc-4.6.0/vfs/fish.c	2004-04-06 15:47:54.000000000 +0200
++++ mc-4.6.0/vfs/fish.c	2004-04-05 12:27:23.000000000 +0200
 @@ -96,8 +96,7 @@ static int get_reply (vfs *me, int sock,
  	if (strncmp(answer, "### ", 4)) {
  	    was_garbage = 1;
@@ -1785,7 +1765,7 @@
      if (r != COMPLETE) ERRNOR (E_REMOTE, -1);
      if (flags & OPT_FLUSH)
 --- mc-4.6.0/vfs/names.c.jj	2002-11-15 07:19:34.000000000 +0100
-+++ mc-4.6.0/vfs/names.c	2004-04-06 15:47:54.000000000 +0200
++++ mc-4.6.0/vfs/names.c	2004-04-05 15:51:09.000000000 +0200
 @@ -31,6 +31,7 @@ GNU Library General Public License for m
  #include <stdio.h>
  #include <pwd.h>
@@ -1813,7 +1793,7 @@
  	if (gr) {
  	    savegid = gr->gr_gid;
 --- mc-4.6.0/vfs/extfs.c.jj	2002-12-25 22:42:59.000000000 +0100
-+++ mc-4.6.0/vfs/extfs.c	2004-04-06 15:47:54.000000000 +0200
++++ mc-4.6.0/vfs/extfs.c	2004-04-05 12:20:38.000000000 +0200
 @@ -888,8 +888,7 @@ static void * s_readdir(void *data)
      if (!*info)
  	return NULL;
@@ -1839,7 +1819,7 @@
  }
  
 --- mc-4.6.0/doc/ru/mc.1.in.jj	2003-02-03 22:59:14.000000000 +0100
-+++ mc-4.6.0/doc/ru/mc.1.in	2004-04-14 18:14:30.913147360 +0200
++++ mc-4.6.0/doc/ru/mc.1.in	2004-04-13 18:24:11.114172689 +0200
 @@ -1557,8 +1557,10 @@ A	Dump the currently selected file
  	od -c %f
  
@@ -1854,7 +1834,7 @@
  M	Read mail
  	emacs -f rmail
 --- mc-4.6.0/doc/mc.1.in.jj	2003-02-05 16:54:31.000000000 +0100
-+++ mc-4.6.0/doc/mc.1.in	2004-04-14 18:19:29.531631040 +0200
++++ mc-4.6.0/doc/mc.1.in	2004-04-13 18:21:17.634262547 +0200
 @@ -1385,8 +1385,10 @@ A	Dump the currently selected file
  	od -c %f
  
@@ -1869,7 +1849,7 @@
  M	Read mail
  	emacs -f rmail
 --- mc-4.6.0/doc/es/mc.1.in.jj	2003-02-05 16:54:31.000000000 +0100
-+++ mc-4.6.0/doc/es/mc.1.in	2004-04-14 18:14:30.919146285 +0200
++++ mc-4.6.0/doc/es/mc.1.in	2004-04-13 18:21:39.714305516 +0200
 @@ -1361,8 +1361,10 @@ A	Vuelca el contenido del archivo selecc
  	od -c %f
  
@@ -1884,7 +1864,7 @@
  M	Lee al correo
  	emacs -f rmail
 --- mc-4.6.0/doc/it/mc.1.in.jj	2003-01-19 18:11:06.000000000 +0100
-+++ mc-4.6.0/doc/it/mc.1.in	2004-04-14 18:14:30.935143418 +0200
++++ mc-4.6.0/doc/it/mc.1.in	2004-04-13 18:23:26.018254464 +0200
 @@ -1379,8 +1379,10 @@ A	Mostra un dump del file correntemente 
  	od -c %f
  
@@ -1899,7 +1879,7 @@
  M	Legge la posta
  	emacs -f rmail
 --- mc-4.6.0/doc/hu/mc.1.in.jj	2003-01-16 11:30:55.000000000 +0100
-+++ mc-4.6.0/doc/hu/mc.1.in	2004-04-14 18:14:30.946141447 +0200
++++ mc-4.6.0/doc/hu/mc.1.in	2004-04-13 18:22:50.634595677 +0200
 @@ -1381,8 +1381,10 @@ A       A kiválasztott fájlok listázása 
          od -c %f
  
@@ -1914,7 +1894,7 @@
  M       Levél olvasás
          emacs -f rmail
 --- mc-4.6.0/po/sl.po.jj	2003-02-05 19:09:50.000000000 +0100
-+++ mc-4.6.0/po/sl.po	2004-04-06 15:47:54.000000000 +0200
++++ mc-4.6.0/po/sl.po	2004-04-05 16:04:25.000000000 +0200
 @@ -2405,13 +2405,13 @@ msgstr "Velikost:  %s"
  
  #: src/info.c:173
@@ -1945,7 +1925,7 @@
  #: src/view.c:826
  #, c-format
 --- mc-4.6.0/po/be.po.jj	2003-02-05 19:09:44.000000000 +0100
-+++ mc-4.6.0/po/be.po	2004-04-06 15:47:54.000000000 +0200
++++ mc-4.6.0/po/be.po	2004-04-05 15:57:04.000000000 +0200
 @@ -2404,13 +2404,13 @@ msgstr "Ïàìåð:     %s"
  
  #: src/info.c:173
@@ -1976,7 +1956,7 @@
  #: src/view.c:826
  #, c-format
 --- mc-4.6.0/po/eu.po.jj	2003-02-05 19:09:46.000000000 +0100
-+++ mc-4.6.0/po/eu.po	2004-04-06 15:47:54.000000000 +0200
++++ mc-4.6.0/po/eu.po	2004-04-05 15:59:43.000000000 +0200
 @@ -2415,13 +2415,13 @@ msgstr "Tamaina:  %s"
  
  #: src/info.c:173
@@ -2007,7 +1987,7 @@
  #: src/view.c:826
  #, c-format
 --- mc-4.6.0/po/zh_CN.po.jj	2003-02-05 19:09:52.000000000 +0100
-+++ mc-4.6.0/po/zh_CN.po	2004-04-06 15:47:54.000000000 +0200
++++ mc-4.6.0/po/zh_CN.po	2004-04-05 16:05:57.000000000 +0200
 @@ -2396,13 +2396,13 @@ msgstr "å¤§å°ï¼š     %s"
  
  #: src/info.c:173
@@ -2038,7 +2018,7 @@
  #: src/view.c:826
  #, c-format
 --- mc-4.6.0/po/ru.po.jj	2003-02-05 19:09:50.000000000 +0100
-+++ mc-4.6.0/po/ru.po	2004-04-06 15:47:54.000000000 +0200
++++ mc-4.6.0/po/ru.po	2004-04-05 16:03:56.000000000 +0200
 @@ -2411,13 +2411,13 @@ msgstr "òÁÚÍÅÒ:    %s"
  
  #: src/info.c:173
@@ -2069,7 +2049,7 @@
  #: src/view.c:826
  #, c-format
 --- mc-4.6.0/po/de.po.jj	2003-02-05 19:09:46.000000000 +0100
-+++ mc-4.6.0/po/de.po	2004-04-06 15:47:54.000000000 +0200
++++ mc-4.6.0/po/de.po	2004-04-05 15:58:54.000000000 +0200
 @@ -2415,13 +2415,13 @@ msgstr "Größe:     %s"
  
  #: src/info.c:173
@@ -2100,7 +2080,7 @@
  #: src/view.c:826
  #, c-format
 --- mc-4.6.0/po/wa.po.jj	2003-02-05 19:09:52.000000000 +0100
-+++ mc-4.6.0/po/wa.po	2004-04-06 15:47:54.000000000 +0200
++++ mc-4.6.0/po/wa.po	2004-04-05 16:05:44.000000000 +0200
 @@ -2425,13 +2425,13 @@ msgstr "Grandeu: %s"
  
  #: src/info.c:173
@@ -2129,7 +2109,7 @@
  
  #: src/view.c:826
 --- mc-4.6.0/po/nl.po.jj	2003-02-05 19:09:48.000000000 +0100
-+++ mc-4.6.0/po/nl.po	2004-04-06 15:47:54.000000000 +0200
++++ mc-4.6.0/po/nl.po	2004-04-05 16:02:13.000000000 +0200
 @@ -2406,13 +2406,13 @@ msgstr "Grootte:     %s"
  
  #: src/info.c:173
@@ -2160,7 +2140,7 @@
  #: src/view.c:826
  #, c-format
 --- mc-4.6.0/po/sv.po.jj	2003-02-05 19:09:51.000000000 +0100
-+++ mc-4.6.0/po/sv.po	2004-04-06 15:47:54.000000000 +0200
++++ mc-4.6.0/po/sv.po	2004-04-05 16:04:42.000000000 +0200
 @@ -2434,13 +2434,13 @@ msgstr "Storlek:   %s"
  
  #: src/info.c:173
@@ -2191,7 +2171,7 @@
  # svängelska?
  #: src/view.c:826
 --- mc-4.6.0/po/fi.po.jj	2003-02-05 19:09:47.000000000 +0100
-+++ mc-4.6.0/po/fi.po	2004-04-06 15:47:54.000000000 +0200
++++ mc-4.6.0/po/fi.po	2004-04-05 16:00:11.000000000 +0200
 @@ -2364,12 +2364,12 @@ msgstr ""
  
  #: src/info.c:173
@@ -2219,7 +2199,7 @@
  #: src/view.c:826
  #, c-format
 --- mc-4.6.0/po/cs.po.jj	2003-02-05 19:09:45.000000000 +0100
-+++ mc-4.6.0/po/cs.po	2004-04-06 15:47:54.000000000 +0200
++++ mc-4.6.0/po/cs.po	2004-04-05 15:58:11.000000000 +0200
 @@ -2407,13 +2407,13 @@ msgstr "Velikost:  %s"
  
  #: src/info.c:173
@@ -2250,7 +2230,7 @@
  #: src/view.c:826
  #, c-format
 --- mc-4.6.0/po/zh_TW.po.jj	2003-02-05 19:09:52.000000000 +0100
-+++ mc-4.6.0/po/zh_TW.po	2004-04-06 15:47:54.000000000 +0200
++++ mc-4.6.0/po/zh_TW.po	2004-04-05 16:06:13.000000000 +0200
 @@ -2407,13 +2407,13 @@ msgstr "¤j¤p¡G      "
  
  #: src/info.c:173
@@ -2281,7 +2261,7 @@
  #: src/view.c:826
  #, c-format
 --- mc-4.6.0/po/uk.po.jj	2003-02-05 19:09:51.000000000 +0100
-+++ mc-4.6.0/po/uk.po	2004-04-06 15:47:54.000000000 +0200
++++ mc-4.6.0/po/uk.po	2004-04-05 16:05:32.000000000 +0200
 @@ -2399,13 +2399,13 @@ msgstr "òÏÚÍ¦Ò:    %s"
  
  #: src/info.c:173
@@ -2312,7 +2292,7 @@
  #: src/view.c:826
  #, c-format
 --- mc-4.6.0/po/pl.po.jj	2003-02-05 19:09:49.000000000 +0100
-+++ mc-4.6.0/po/pl.po	2004-04-06 15:47:54.000000000 +0200
++++ mc-4.6.0/po/pl.po	2004-04-05 16:02:45.000000000 +0200
 @@ -2410,13 +2410,13 @@ msgstr "Rozmiar:   %s"
  
  #: src/info.c:173
@@ -2343,7 +2323,7 @@
  #: src/view.c:826
  #, c-format
 --- mc-4.6.0/po/lv.po.jj	2003-02-05 19:09:48.000000000 +0100
-+++ mc-4.6.0/po/lv.po	2004-04-06 15:47:54.000000000 +0200
++++ mc-4.6.0/po/lv.po	2004-04-05 16:01:56.000000000 +0200
 @@ -2411,13 +2411,13 @@ msgstr "Lielums:      %s"
  
  #: src/info.c:173
@@ -2374,7 +2354,7 @@
  #: src/view.c:826
  #, c-format
 --- mc-4.6.0/po/el.po.jj	2003-02-05 19:09:46.000000000 +0100
-+++ mc-4.6.0/po/el.po	2004-04-06 15:47:54.000000000 +0200
++++ mc-4.6.0/po/el.po	2004-04-05 15:59:10.000000000 +0200
 @@ -2304,12 +2304,12 @@ msgstr ""
  
  #: src/info.c:173
@@ -2400,7 +2380,7 @@
  
  #: src/view.c:826
 --- mc-4.6.0/po/no.po.jj	2003-02-05 19:09:49.000000000 +0100
-+++ mc-4.6.0/po/no.po	2004-04-06 15:47:54.000000000 +0200
++++ mc-4.6.0/po/no.po	2004-04-05 16:02:29.000000000 +0200
 @@ -2405,13 +2405,13 @@ msgstr "Størrelse: %s"
  
  #: src/info.c:173
@@ -2431,7 +2411,7 @@
  #: src/view.c:826
  #, c-format
 --- mc-4.6.0/po/da.po.jj	2003-02-05 19:09:46.000000000 +0100
-+++ mc-4.6.0/po/da.po	2004-04-06 15:47:54.000000000 +0200
++++ mc-4.6.0/po/da.po	2004-04-05 15:58:35.000000000 +0200
 @@ -1,8 +1,7 @@
 -# Danish translation of Midnight Commander
 -# Copyright (C) 1998 Free Software Foundation, Inc.
@@ -2475,7 +2455,7 @@
  #: src/view.c:826
  #, c-format
 --- mc-4.6.0/po/it.po.jj	2003-02-05 19:09:47.000000000 +0100
-+++ mc-4.6.0/po/it.po	2004-04-06 15:47:54.000000000 +0200
++++ mc-4.6.0/po/it.po	2004-04-05 16:01:06.000000000 +0200
 @@ -2409,13 +2409,13 @@ msgstr "Dimensione: %s"
  
  #: src/info.c:173
@@ -2506,7 +2486,7 @@
  #: src/view.c:826
  #, c-format
 --- mc-4.6.0/po/tr.po.jj	2003-02-05 19:09:51.000000000 +0100
-+++ mc-4.6.0/po/tr.po	2004-04-06 15:47:54.000000000 +0200
++++ mc-4.6.0/po/tr.po	2004-04-05 16:05:17.000000000 +0200
 @@ -2409,13 +2409,13 @@ msgstr "Boyut:      %s"
  
  #: src/info.c:173
@@ -2537,7 +2517,7 @@
  #: src/view.c:826
  #, c-format
 --- mc-4.6.0/po/fr.po.jj	2003-02-05 19:09:47.000000000 +0100
-+++ mc-4.6.0/po/fr.po	2004-04-06 15:47:54.000000000 +0200
++++ mc-4.6.0/po/fr.po	2004-04-05 16:00:29.000000000 +0200
 @@ -2411,13 +2411,13 @@ msgstr "Taille :   %s"
  
  #: src/info.c:173
@@ -2568,7 +2548,7 @@
  #: src/view.c:826
  #, c-format
 --- mc-4.6.0/po/hu.po.jj	2003-02-05 19:09:47.000000000 +0100
-+++ mc-4.6.0/po/hu.po	2004-04-06 15:47:54.000000000 +0200
++++ mc-4.6.0/po/hu.po	2004-04-05 16:00:48.000000000 +0200
 @@ -2444,13 +2444,13 @@ msgstr "Méret:        %s"
  
  #: src/info.c:173
@@ -2599,7 +2579,7 @@
  #: src/view.c:826
  #, c-format
 --- mc-4.6.0/po/pt.po.jj	2003-02-05 19:09:49.000000000 +0100
-+++ mc-4.6.0/po/pt.po	2004-04-06 15:47:54.000000000 +0200
++++ mc-4.6.0/po/pt.po	2004-04-05 16:03:20.000000000 +0200
 @@ -2410,13 +2410,13 @@ msgstr "Tamanho:   %s"
  
  #: src/info.c:173
@@ -2630,7 +2610,7 @@
  #: src/view.c:826
  #, c-format
 --- mc-4.6.0/po/az.po.jj	2003-02-05 19:09:44.000000000 +0100
-+++ mc-4.6.0/po/az.po	2004-04-06 15:47:54.000000000 +0200
++++ mc-4.6.0/po/az.po	2004-04-05 15:56:44.000000000 +0200
 @@ -2411,13 +2411,13 @@ msgstr "BÃ¶yÃ¼klÃ¼k:    %s"
  
  #: src/info.c:173
@@ -2661,7 +2641,7 @@
  #: src/view.c:826
  #, c-format
 --- mc-4.6.0/po/sk.po.jj	2003-02-05 19:09:50.000000000 +0100
-+++ mc-4.6.0/po/sk.po	2004-04-06 15:47:54.000000000 +0200
++++ mc-4.6.0/po/sk.po	2004-04-05 16:04:09.000000000 +0200
 @@ -2402,13 +2402,13 @@ msgstr "VeÄ¾kosÅ¥:     %s"
  
  #: src/info.c:173
@@ -2692,7 +2672,7 @@
  #: src/view.c:826
  #, c-format
 --- mc-4.6.0/po/ko.po.jj	2003-02-05 19:09:48.000000000 +0100
-+++ mc-4.6.0/po/ko.po	2004-04-06 15:47:54.000000000 +0200
++++ mc-4.6.0/po/ko.po	2004-04-05 16:01:41.000000000 +0200
 @@ -2399,13 +2399,13 @@ msgstr "Å©±â:      %s"
  
  #: src/info.c:173
@@ -2723,7 +2703,7 @@
  #: src/view.c:826
  #, c-format
 --- mc-4.6.0/po/ca.po.jj	2003-02-05 19:09:45.000000000 +0100
-+++ mc-4.6.0/po/ca.po	2004-04-06 15:47:54.000000000 +0200
++++ mc-4.6.0/po/ca.po	2004-04-05 15:57:47.000000000 +0200
 @@ -2416,13 +2416,13 @@ msgstr "Mida:      %s"
  
  #: src/info.c:173
@@ -2754,7 +2734,7 @@
  #: src/view.c:826
  #, c-format
 --- mc-4.6.0/po/es.po.jj	2003-02-05 19:09:46.000000000 +0100
-+++ mc-4.6.0/po/es.po	2004-04-06 15:47:54.000000000 +0200
++++ mc-4.6.0/po/es.po	2004-04-05 15:59:28.000000000 +0200
 @@ -2403,13 +2403,13 @@ msgstr "Tamaño:     %s"
  
  #: src/info.c:173
@@ -2785,7 +2765,7 @@
  #: src/view.c:826
  #, c-format
 --- mc-4.6.0/po/pt_BR.po.jj	2003-02-05 19:09:49.000000000 +0100
-+++ mc-4.6.0/po/pt_BR.po	2004-04-06 15:47:54.000000000 +0200
++++ mc-4.6.0/po/pt_BR.po	2004-04-05 16:03:05.000000000 +0200
 @@ -2429,13 +2429,13 @@ msgstr "Tamanho:   "
  
  #: src/info.c:173
@@ -2816,7 +2796,7 @@
  #: src/view.c:826
  #, c-format
 --- mc-4.6.0/po/ja.po.jj	2003-02-05 19:09:48.000000000 +0100
-+++ mc-4.6.0/po/ja.po	2004-04-06 15:47:54.000000000 +0200
++++ mc-4.6.0/po/ja.po	2004-04-05 16:01:23.000000000 +0200
 @@ -2410,13 +2410,13 @@ msgstr "¥µ¥¤¥º:    %s"
  
  #: src/info.c:173
@@ -2847,7 +2827,7 @@
  #: src/view.c:826
  #, c-format
 --- mc-4.6.0/po/ta.po.jj	2003-02-05 19:09:51.000000000 +0100
-+++ mc-4.6.0/po/ta.po	2004-04-06 15:47:54.000000000 +0200
++++ mc-4.6.0/po/ta.po	2004-04-05 16:05:02.000000000 +0200
 @@ -2307,12 +2307,12 @@ msgstr ""
  
  #: src/info.c:173
@@ -2873,7 +2853,7 @@
  
  #: src/view.c:826
 --- mc-4.6.0/po/ro.po.jj	2003-02-05 19:09:50.000000000 +0100
-+++ mc-4.6.0/po/ro.po	2004-04-06 15:47:54.000000000 +0200
++++ mc-4.6.0/po/ro.po	2004-04-05 16:03:34.000000000 +0200
 @@ -2403,13 +2403,13 @@ msgstr "Mãrime:    %s"
  
  #: src/info.c:173
@@ -2904,7 +2884,7 @@
  #: src/view.c:826
  #, c-format
 --- mc-4.6.0/po/bg.po.jj	2003-02-05 19:09:45.000000000 +0100
-+++ mc-4.6.0/po/bg.po	2004-04-06 15:47:54.000000000 +0200
++++ mc-4.6.0/po/bg.po	2004-04-05 15:57:23.000000000 +0200
 @@ -2406,13 +2406,13 @@ msgstr "Ð Ð°Ð·Ð¼ÐµÑ€:       %s"
  
  #: src/info.c:173
@@ -2935,7 +2915,7 @@
  #: src/view.c:826
  #, c-format
 --- mc-4.6.0/slang/sltermin.c.jj	2002-10-07 13:08:16.000000000 +0200
-+++ mc-4.6.0/slang/sltermin.c	2004-04-06 15:47:54.000000000 +0200
++++ mc-4.6.0/slang/sltermin.c	2004-04-05 13:06:14.000000000 +0200
 @@ -267,9 +267,12 @@ SLterminfo_Type *_SLtt_tigetent (char *t
  
     if (NULL != (home = getenv ("HOME")))
@@ -2953,7 +2933,7 @@
       }
  
 --- mc-4.6.0/lib/mc.menu.jj	2002-12-08 02:12:19.000000000 +0100
-+++ mc-4.6.0/lib/mc.menu	2004-04-14 18:20:38.923195168 +0200
++++ mc-4.6.0/lib/mc.menu	2004-04-13 18:25:27.982396902 +0200
 @@ -14,9 +14,10 @@ shell_patterns=0
  	
  
@@ -2990,7 +2970,7 @@
  	    Newsgroups:|Path:)
  	      cp $1 $WFILE && sed '/^'"$CHECK"' /,/^$/d' $WFILE > $1
 --- mc-4.6.0/lib/cedit.menu.jj	2002-08-24 19:39:08.000000000 +0200
-+++ mc-4.6.0/lib/cedit.menu	2004-04-14 18:14:30.947141268 +0200
++++ mc-4.6.0/lib/cedit.menu	2004-04-13 18:18:40.771374419 +0200
 @@ -449,7 +449,7 @@ s       Invoke `shell'
  
  m       view `man'

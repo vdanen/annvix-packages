@@ -1,6 +1,6 @@
 %define name	mc
 %define version	4.6.0
-%define release	8avx
+%define release	9avx
 
 Summary:	A user-friendly file manager and visual shell
 Name:		%{name}
@@ -10,15 +10,23 @@ License:	GPL
 Group:		File tools
 URL:		http://www.ibiblio.org/mc/
 Source0:	ftp://ftp.gnome.org:/pub/GNOME/stable/sources/mc/%{name}-%{version}.tar.bz2
-#(dam's)
-Patch23:	mc-4.6.0-toolbar-po-mdk.path.bz2
-# (tv) add runlevel to initscript
-Patch31:	mc-4.6.0-init.patch.bz2
-# (fc) fix xpdf outputing garbage on stdout (bug #4094)
-Patch0:		mc-4.6.0-xpdf.patch.bz2
-Patch1:		mc-CVE-CAN-2003-1023.patch.bz2
-Patch2:		mc-4.6.0_CAN-2004-0226-0231-0232.patch.bz2
-Patch3:		mc-4.6.0-nota.patch.bz2
+Source1:	mc-cvs-uzip
+Patch0:		mc-4.6.0-mdk-xpdf.patch.bz2
+Patch1:		mc-4.6.0-mdk-CVE-CAN-2003-1023.patch.bz2
+Patch2:		mc-4.6.0-mdk-nota.patch.bz2
+Patch3:		mc-4.6.0-mdk-image.patch.bz2
+Patch4:		mc-4.6.0-pre3-rh-nocpio.patch.bz2
+Patch5:		mc-4.6.0-mdk-ptsname.patch.bz2
+Patch6:		mc-4.6.0-mdk-slang.patch.bz2
+Patch7:		mc-4.6.0-mdk-utf8.patch.bz2
+Patch8:		mc-4.6.0-mdk-jumbo2.patch.bz2
+Patch9:		mc-4.6.0-mdk-utf8-input.patch.bz2
+Patch10:	mc-4.6.0-mdk-utf8-fix.patch.bz2
+Patch11:	mc-4.6.0-mdk-utf8-hints.patch.bz2
+Patch12:	mc-4.6.0-mdk-toolbar-po-mdk.path.bz2
+Patch13:	mc-4.6.0-mdk-CAN-2004-0494.patch.bz2
+Patch14:	mc-4.6.0-mdk-extfs_rpm_info.patch.bz2
+Patch15:	mc-4.6.0-mdk-diff_syntax.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-root
 BuildRequires:	libext2fs-devel pam-devel
@@ -29,17 +37,29 @@ Requires:	groff
 %description
 Midnight Commander is a visual shell much like a file manager, only with way
 more features.  It is text mode, but also includes mouse support if you are
-running GPM.  Its coolest feature is the ability to ftp, view tar, zip
-files, and poke into RPMs for specific files.  :-)
+running GPM.  With mc you are able to ftp as well as view tar, zip, and rpm
+files.
 
 %prep
-%setup -q 
+%setup -q
+cp -f %{SOURCE1} vfs/extfs
+
 %patch0 -p1 -b .xpdf
-%patch23 -p1 -b .toolbarpo
-%patch31 -p1 -b .initlevel
+%patch12 -p1 -b .toolbarpo
 %patch1 -p1 -b .buff
-%patch2 -p1 -b .multcans
-%patch3 -p1 -b .nota
+%patch2 -p1 -b .nota
+%patch3 -p1 -b .image
+%patch4 -p1 -b .nocpio
+%patch5 -p1 -b .ptsname
+%patch6 -p1 -b .slang-utf8
+%patch7 -p1 -b .utf8
+%patch8 -p1 -b .jumbo
+%patch9 -p0 -b .utf8-input
+%patch10 -p0 -b .utf8-fix
+%patch11 -p0 -b .utf8-hints
+%patch13 -p1 -b .can-2004-0494
+%patch14 -p1 -b .large_syntax
+%patch15 -p1 -b .diff_syntax
 
 %build
 %serverbuild
@@ -95,6 +115,7 @@ chmod 755 $RPM_BUILD_ROOT/%{_libdir}/mc/cons.saver
 %{_bindir}/mcedit
 %{_bindir}/mcmfmt
 %{_bindir}/mcview
+%dir %{_libdir}/mc
 %{_libdir}/mc/cons.saver
 %_datadir/mc/cedit.menu
 %_datadir/mc/edit.indent.rc
@@ -113,10 +134,29 @@ chmod 755 $RPM_BUILD_ROOT/%{_libdir}/mc/cons.saver
 %dir %{_datadir}/mc/bin
 %_datadir/mc/bin/*
 %config(noreplace) %{_sysconfdir}/profile.d/*
-%{_datadir}/mc/syntax/*
-%{_datadir}/mc/term/*
+%{_datadir}/mc/syntax/
+%{_datadir}/mc/term/
 
 %changelog
+* Tue Sep 07 2004 Vincent Danen <vdanen@annvix.org> - 4.6.0-9avx
+- renumber patches; patch policy
+- update description
+- sync with cooker 4.6.0-11mdk:
+  - P5: image extension s/ee/gqview (bug #7907) (mpol)
+  - [DIRM] (misc)
+  - update P1, use gqview for images as upstream does (mpol)
+  - add unzip vfs (mpol)
+  - drop P2, merged in P6 to P10 (mpol)
+  - P5: "secret" redhat cpio fix (mpol)
+  - P7: build against slang-utf8 (mpol)
+  - P8, P10, P11, P12: add utf8 patches from fedora/suse (mpol)
+  - P9: (jumbo patch) several fixes, updates, etc. (mpol)
+  - disable charset conversion (mpol)
+  - security fix for vfs/extfs CAN-2004-0494 (mpol)
+  - P14: add info/obsoletes, info/license to rpm extfs (mpol)
+  - P15: fix crash on use of large syntax file (mpol)
+  - P16: fix coloring of diffs of diffs (mpol)
+
 * Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> - 4.6.0-8avx
 - Annvix build
 
