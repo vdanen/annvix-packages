@@ -1,6 +1,6 @@
 %define name	blt
 %define version	2.4z
-%define release	7sls
+%define release	8avx
 
 %define major		2
 %define	libname		%mklibname %{name} %{major}
@@ -146,6 +146,9 @@ done
 %_libdir/*.a
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 2.4z-8avx
+- Annvix build
+
 * Tue Mar 02 2004 Vincent Danen <vdanen@opensls.org> 2.4z-7sls
 - minor spec cleanups
 

@@ -1,6 +1,6 @@
 %define name	beecrypt
 %define version	3.1.0
-%define release	1sls
+%define release	2avx
 
 %define	with_python		--with-python
 %define	with_python_version	2.3%{nil}
@@ -112,6 +112,9 @@ make bench || :
 %endif
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 3.1.0-2avx
+- Annvix build
+
 * Fri May 09 2004 Vincent Danen <vdanen@opensls.org> 3.1.0-1sls
 - OpenSLS build
 - tidy spec

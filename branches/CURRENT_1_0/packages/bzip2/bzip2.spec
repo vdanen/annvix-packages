@@ -1,6 +1,6 @@
 %define name	bzip2
 %define version	1.0.2
-%define release	18sls
+%define release	19avx
 
 %define libname_orig lib%{name}
 %define libname	%mklibname %{name}_ 1
@@ -112,6 +112,9 @@ install -m 644 %SOURCE3 $RPM_BUILD_ROOT%_mandir/man1/
 
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 1.0.2-19avx
+- Annvix build
+
 * Tue Mar 02 2004 Vincent Danen <vdanen@opensls.org> 1.0.2-18sls
 - remove %%buildpdf
 - minor spec cleanups

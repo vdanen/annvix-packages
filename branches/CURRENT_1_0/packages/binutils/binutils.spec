@@ -1,7 +1,7 @@
 # RH 2.14.90.0.4-19, SuSE 2.13.90.0.18-6
 %define name		%{package_prefix}binutils
 %define version		2.14.90.0.7
-%define release		2sls
+%define release		3avx
 
 %define lib_major	2
 %define lib_name_orig	%{package_prefix}%mklibname binutils
@@ -211,6 +211,9 @@ rm -rf $RPM_BUILD_ROOT%{_datadir}/locale/
 %endif
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 2.14.90.0.7-3avx
+- Annvix build
+
 * Tue Mar 02 2004 Vincent Danen <vdanen@opensls.org> 2.14.90.0.7-2sls
 - minor spec cleanups
 - %%ifarch amd64 as well as x86_64

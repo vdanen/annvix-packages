@@ -1,6 +1,6 @@
 %define name	MySQL
 %define version	4.0.18
-%define release	1sls
+%define release	2avx
 
 %define major		12
 %define libname_orig	mysql
@@ -606,6 +606,9 @@ fi
 %config(noreplace) %{_sysconfdir}/sysconfig/mysqld
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 4.0.18-2avx
+- Annvix build
+
 * Thu Apr 22 2004 Vincent Danen <vdanen@opensls.org> 4.0.18-1sls
 - 4.0.18
 - drop unused patches: P1, P2, P3, P4, P7, P9

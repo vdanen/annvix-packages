@@ -1,6 +1,6 @@
 %define name	bootloader-utils
 %define version	1.6
-%define release	6sls
+%define release	7avx
 
 %define _mypost_service() if [ $1 = 1 ]; then /sbin/chkconfig --add %{1}; fi;
 
@@ -65,6 +65,9 @@ make ROOT=%{buildroot} mandir=%{_mandir} install
 
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 1.6-7avx
+- Annvix build
+
 * Tue Jun 15 2004 Vincent Danen <vdanen@opensls.org> 1.6-6sls
 - look for grub.conf rather than menu.lst
 

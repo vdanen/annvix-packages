@@ -1,6 +1,6 @@
 %define name	bind
 %define version	9.2.3
-%define release	6sls
+%define release	7avx
 
 %define their_version	9.2.3
 
@@ -247,6 +247,9 @@ fi
 %{_mandir}/man8/nslookup.8*
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 9.2.3-7avx
+- Annvix build
+
 * Tue Mar 02 2004 Vincent Danen <vdanen@opensls.org> 9.2.3-6sls
 - minor spec cleanups
 - logrotate uses svc

@@ -1,6 +1,6 @@
 %define name	cdrecord
 %define version 2.01
-%define release 0.a18.5sls
+%define release 0.a18.6avx
 %define epoch	4
 
 %define archname cdrtools
@@ -117,6 +117,9 @@ mv $RPM_BUILD_ROOT%{_prefix}/lib $RPM_BUILD_ROOT%{_libdir}/
 %attr(644,root,root) %{_mandir}/man8/mkhybrid.8*
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 2.01-0.a18.6avx
+- Annvix build
+
 * Tue Mar 02 2004 Vincent Danen <vdanen@opensls.org> 2.01-0.a18.5sls
 - remove %%prefix
 - minor spec cleanups

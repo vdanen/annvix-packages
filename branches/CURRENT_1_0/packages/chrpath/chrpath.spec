@@ -1,6 +1,6 @@
 %define name	chrpath
 %define version	0.12
-%define release	1sls
+%define release	2avx
 
 Summary: 	Dynamic library load path (rpath) alterer
 Name: 		%{name}
@@ -41,6 +41,9 @@ rm -fr %{buildroot}%{_prefix}/doc
 %_mandir/man1/chrpath.1*
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 0.12-2avx
+- Annvix build
+
 * Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 0.12-1sls
 - 0.12
 - remove P0; merged upstream

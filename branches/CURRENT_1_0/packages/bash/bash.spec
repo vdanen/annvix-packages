@@ -1,6 +1,6 @@
 %define name	bash
 %define version	2.05b
-%define release	16sls
+%define release	17avx
 
 %define i18ndate 20010418
 
@@ -200,6 +200,9 @@ rm -f %buildroot{%_infodir/dir,%_mandir/man1/{echo,export,kill,printf,pwd,test}.
 
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 2.05b-17avx
+- Annvix build
+
 * Tue Mar 02 2004 Vincent Danen <vdanen@opensls.org> 2.05b-16sls
 - remove %%build_opensls macro
 - remove %%prefix
