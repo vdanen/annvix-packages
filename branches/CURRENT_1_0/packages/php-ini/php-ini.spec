@@ -1,5 +1,5 @@
 %define name	php-ini
-%define version	4.3.9
+%define version	4.3.10
 %define release	1avx
 
 Summary:	INI files for PHP
@@ -55,6 +55,10 @@ fi
 %doc %{_docdir}/%{name}-%{version}/*
 
 %changelog
+* Fri Dec 17 2004 Vincent Danen <vdanen@annvix.org> 4.3.10-1avx
+- php 4.3.10
+- update php.ini to accomodate hardened-php directives
+
 * Thu Sep 30 2004 Vincent Danen <vdanen@annvix.org> 4.3.9-1avx
 - php 4.3.9
 
