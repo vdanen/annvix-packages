@@ -1,19 +1,20 @@
-%define name chkauth
-%define version 0.2
-%define release 1mdk
+%define name	chkauth
+%define version 0.3
+%define release 1sls
 	
-Summary: Script to change authentification method (local, NIS, LDAP)
-Name: %{name}
-Version: %{version}
-Release: %{release}
-Source0: %{name}-%{version}.tar.bz2
-Patch0:  chkauth-0.1-ldapfixes.patch.bz2
-BuildArch: noarch
-License: GPL
-Group: System/Configuration/Boot and Init
-BuildRoot: %{_tmppath}/%{name}-buildroot
-Prefix: %{_prefix}
-requires: perl >= 5.0
+Summary:	Script to change authentification method (local, NIS, LDAP)
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		System/Configuration/Boot and Init
+Source0:	%{name}-%{version}.tar.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildArch:	noarch
+
+Prefix:		%{_prefix}
+Requires:	perl >= 5.0
 
 %description
 Chkauth is a program to change the authentification method 
@@ -25,7 +26,6 @@ and LDAP.
 
 %prep
 %setup
-%patch0 -p1 -b .ldap
 
 %build
 
@@ -45,6 +45,18 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/*/*
 
 %changelog
+* Tue Dec 02 2003 Vincent Danen <vdanen@opensls.org> 0.3-1sls
+- OpenSLS build
+- tidy spec
+
+* Fri Oct 17 2003  Vincent Danen <vdanen@mandrakesoft.com> 0.3-0.1.92mdk
+- 0.3: don't use paths in system-auth so we don't have to worry about /lib
+  vs. /lib64
+
+* Wed Oct 15 2003  Vincent Danen <vdanen@mandrakesoft.com> 0.2-1.1.92mdk
+- remove P0
+- proper fixes for LDAP, use pam_pwdb, make sure it got integrated into CVS
+
 * Tue Aug 26 2003 Pixel <pixel@mandrakesoft.com> 0.2-1mdk
 - configure automount for ldap in nsswitch.conf (thanks to Buchan Milne)
 
