@@ -1,17 +1,15 @@
 %define name	db3
 %define version	3.3.11
-%define release	17sls
+%define release	18sls
 
 %define	__soversion	3.3
 %define	_libdb_a	libdb-%{__soversion}.a
 %define	_libcxx_a	libdb_cxx-%{__soversion}.a
 
-%{!?build_opensls:%global build_opensls 0}
-
 # Define to build Java bindings (default)
-%define build_java	1
+%define build_java	0
 
-# Allow --with[out] JAVA rpm command line buil
+# Allow --with[out] JAVA rpm command line build
 %{?_with_JAVA: %{expand: %%define build_java 1}}
 %{?_without_JAVA: %{expand: %%define build_java 0}}
 
@@ -21,14 +19,10 @@
 %define libdbjava	%mklibname dbjava %{__soversion}
 %define libdbtcl	%mklibname dbtcl %{__soversion}
 
-%if %{build_opensls}
-%define build_java	0
-%endif
-
 Summary:	The Berkeley DB database library for C.
 Name:		%{name}
 Version:	%{version}
-Release:	17sls
+Release:	%{release}
 License:	BSD
 Group:		System/Libraries
 URL:		http://www.sleepycat.com
@@ -42,7 +36,6 @@ BuildRequires:	gcc-java >= 3.1.1-0.8mdk
 BuildRequires:	gcj-tools >= 3.1.1-0.8mdk
 %endif
 
-Prefix:		%{_prefix}
 PreReq:		/sbin/ldconfig
 
 %description
@@ -113,7 +106,6 @@ building tcl programs which use Berkeley DB.
 %package utils
 Summary:	Command line tools for managing Berkeley DB databases.
 Group:		Databases
-Prefix:		%{_prefix}
 
 %description utils
 The Berkeley Database (Berkeley DB) is a programmatic toolkit that provides
@@ -127,7 +119,6 @@ This package contains command line tools for managing Berkeley DB databases.
 %package -n %libdbdevel
 Summary:	Development libraries/header files for the Berkeley DB library.
 Group:		Development/Databases
-Prefix:		%{_prefix}
 Requires:	%libdb = %{version}-%{release}, %libdbtcl = %{version}-%{release}
 Provides:	db3-devel = %{version}-%{release} libdb-devel = %{version}-%{release}
 Conflicts:	libdb4.0-devel
@@ -238,7 +229,7 @@ make libdb=%{_libdb_a} libcxx=%{_libcxx_a} TCFLAGS='-I$(builddir)'
 popd
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p $RPM_BUILD_ROOT%{_includedir}
 mkdir -p $RPM_BUILD_ROOT%{_libdir}
 %makeinstall -C build_unix libdb=%{_libdb_a} libcxx=%{_libcxx_a}
@@ -281,7 +272,7 @@ rm -rf	$RPM_BUILD_ROOT/usr/docs \
 	$RPM_BUILD_ROOT/%{_libdir}/libdb_tcl-3.3.a
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post -n %libdb -p /sbin/ldconfig
 %postun -n %libdb -p /sbin/ldconfig
@@ -352,14 +343,23 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/db.h
 %ifos linux
 /%{_lib}/libdb.so
+/%{_lib}/libdb-3.so
 /%{_libdir}/libdb-%{__soversion}.so
 %else
 %{_libdir}/libdb.so
 %endif
 %{_libdir}/libdb_cxx.so
+%{_libdir}/libdb_cxx-3.so
 %{_libdir}/libdb_tcl.so
+%{_libdir}/libdb_tcl-3.so
 
 %changelog
+* Wed Mar 03 2004 Vincent Danen <vdanen@opensls.org> 3.3.11-18sls
+- remove %%build_opensls macro
+- minor spec cleanups
+- remove %%prefix
+- include libdb-3.so and libdb_{cxx,tcl}-3.so symlinks
+
 * Sat Jan 04 2004 Vincent Danen <vdanen@opensls.org> 3.3.11-17sls
 - OpenSLS build
 - tidy spec
