@@ -1,8 +1,6 @@
 %define name	db4
 %define version	4.1.25
-%define release	4sls
-
-%{!?build_opensls:%global build_opensls 0}
+%define release	5sls
 
 # compatibility with legacy rpm
 %{!?_lib:%define _lib	lib}
@@ -20,12 +18,8 @@
 %define libdbtcl	%{libname_orig}tcl%{__soversion}
 %define libdbjava	%{libname_orig}java%{__soversion}
 
-%if !%{build_opensls}
 # Define to build Java bindings (default)
-%define build_java	1
-%else
 %define build_java	0
-%endif
 
 # Allow --with[out] JAVA rpm command line buil
 %{?_with_JAVA: %{expand: %%define build_java 1}}
@@ -50,7 +44,6 @@ BuildRequires:	tcl, db1-devel, glibc-static-devel
 BuildRequires:	gcc-java >= 3.1.1-0.8mdk
 %endif
 
-Prefix:		%{_prefix}
 PreReq:		/sbin/ldconfig
 
 %description
@@ -120,7 +113,6 @@ building tcl programs which use Berkeley DB.
 %package utils
 Summary:	Command line tools for managing Berkeley DB databases.
 Group:		Databases
-Prefix:		%{_prefix}
 
 %description utils
 The Berkeley Database (Berkeley DB) is a programmatic toolkit that provides
@@ -134,7 +126,6 @@ This package contains command line tools for managing Berkeley DB databases.
 %package -n %{libnamedev}
 Summary:	Development libraries/header files for the Berkeley DB library.
 Group:		Development/Databases
-Prefix:		%{_prefix}
 Requires:	%{libname} = %{version}-%{release}
 Requires:	%{libdbtcl} = %{version}-%{release}
 Requires:	%{libdbcxx} = %{version}-%{release}
@@ -156,7 +147,6 @@ building programs which use Berkeley DB.
 %package -n %{libnamestatic}
 Summary:	Development static libraries files for the Berkeley DB library.
 Group:		Development/Databases
-Prefix:		%{_prefix}
 Requires:	db4-devel = %{version}-%{release}
 Provides:	db-static-devel = %{version}-%{release}
 Provides:	db4-static-devel = %{version}-%{release}
@@ -267,7 +257,7 @@ cc -s -static -o db_dump185 db_dump185.lo -L%{_libdir} -ldb1
 popd
 
 %install
-rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p %{buildroot}%{_includedir}
 mkdir -p %{buildroot}%{_libdir}
 %makeinstall -C build_unix libdb=%{_libdb_a} libcxx=%{_libcxx_a}
@@ -310,7 +300,7 @@ rm -rf %{buildroot}/usr/docs
 #rm -f  %{buildroot}/%{_libdir}/libdb_java-%{__soversion}.la
 
 %clean
-rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
@@ -385,12 +375,18 @@ rm -rf %{buildroot}
 %{_libdir}/libdb.so
 %{_libdir}/libdb_cxx.so
 %{_libdir}/libdb_tcl.so
+%{_libdir}/libdb_tcl-4.so
 
 %files -n %{libnamestatic}
 %defattr(-,root,root)
 %{_libdir}/*.a
 
 %changelog
+* Thu Mar 04 2004 Vincent Danen <vdanen@opensls.org> 4.1.25-45sls
+- remove %%build_opensls macro
+- remove %%prefix
+- minor spec cleanups
+
 * Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 4.1.25-4sls
 - OpenSLS build
 - tidy spec
