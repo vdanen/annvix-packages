@@ -1,6 +1,6 @@
 %define name	printer-testpages
 %define version	1.1
-%define release	1sls
+%define release	2sls
 
 Summary:	Test pages to check the output quality of printers
 Name:		%{name}
@@ -35,6 +35,9 @@ cp *.ps *.jpg *.asc %{buildroot}%{_datadir}/printer-testpages
 %{_datadir}/printer-testpages
 
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 1.1-2sls
+- rebuild
+
 * Tue Dec 30 2003 Vincent Danen <vdanen@opensls.org> 1.1-1sls
 - first OpenSLS package (breakout testpages from the monolithic
   printer-drivers package)
