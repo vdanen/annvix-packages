@@ -1,0 +1,198 @@
+#!/bin/sh
+#
+# ldap	This shell script takes care of starting and stopping
+#	ldap servers (slapd and slurpd).
+#
+# chkconfig: 345 39 61
+# description: LDAP stands for Lightweight Directory Access Protocol, used \
+#              for implementing the industry standard directory services.
+# processname: slapd
+# config: /etc/openldap/slapd.conf
+# pidfile: /var/run/ldap/slapd.pid
+#
+# Created by Christian Zoffoli <czoffoli@linux-mandrake.com>
+# Version 0.1b  2001-05-23
+#
+
+# Source networking configuration.
+. /etc/sysconfig/network
+
+# Check that networking is up.
+[ ${NETWORKING} = "no" ] && exit 0
+
+# Source function library.
+if [ -f /etc/init.d/functions ] ; then
+  . /etc/init.d/functions
+elif [ -f /etc/rc.d/init.d/functions ] ; then
+  . /etc/rc.d/init.d/functions
+else
+  exit 0
+fi
+
+# Source an auxiliary options file if we have one, and pick up OPTIONS,
+# SLAPD_OPTIONS, and SLURPD_OPTIONS.
+if [ -r /etc/sysconfig/ldap ] ; then
+	. /etc/sysconfig/ldap
+fi
+
+slapd=/usr/sbin/slapd
+slurpd=/usr/sbin/slurpd
+[ -x ${slapd} ] || exit 0
+[ -x ${slurpd} ] || exit 0
+
+export TMPDIR=/var/tmp
+
+check_slurpd() {
+	if grep -Eq "^[[:space:]]*replica[[:space:]]+(host|uri)" /etc/openldap/slapd.conf; then
+		return 0
+	fi
+
+	return 1
+}
+
+
+start() {
+	local RETVAL=0
+	local RETVAL2=0
+	local ARGS=""
+
+    # Start daemons.
+	ARGS="-u ldap -g ldap"
+
+	# Syslog 
+	if [ -n "$SLAPDSYSLOGLOCALUSER" ] ; then
+		ARGS="$ARGS -l $SLAPDSYSLOGLOCALUSER"
+		if [ -n "$SLAPDSYSLOGLEVEL" ] ; then
+			ARGS="$ARGS -s $SLAPDSYSLOGLEVEL"
+		fi
+	fi
+	
+	OUT="ldap"
+	if [ -n "$SLAPDURLLIST" ] ; then
+		if grep -q "^[[:space:]]*TLS" /etc/openldap/slapd.conf  ; then
+			OUT="ldap + ldaps"
+		else
+			SLAPDURLLIST=$( echo $SLAPDURLLIST | sed 's#ldaps:[^ ]*##g')
+		fi
+		ARGS="$ARGS -h \"$SLAPDURLLIST \""
+	else
+		ARGS="$ARGS -h \"ldap:/// \""
+	fi
+
+        gprintf "Starting slapd (%s): " "$OUT"
+	daemon ${slapd} $ARGS
+	RETVAL=$?
+	echo
+	[ $RETVAL -eq 0 ] && touch /var/lock/subsys/ldap
+
+	if [ $RETVAL -eq 0 ]; then
+            if check_slurpd ; then
+		gprintf "Starting slurpd: "
+		daemon su ldap -c \"${slurpd}\" -s /bin/sh
+		RETVAL2=$?
+		echo
+		[ $RETVAL2 -eq 0 ] && touch /var/lock/subsys/ldapr
+            fi
+	fi
+	[ $RETVAL -eq 0 -a $RETVAL2 -eq 0 ] || RETVAL=1
+        return $RETVAL
+}
+
+stop() {
+	local RETVAL=0
+	local RETVAL2=0
+
+        # Stop daemons.
+	gprintf "Stopping slapd: "
+	killproc ${slapd} 2>/dev/null
+	RETVAL=$?
+	echo
+
+	if [ $RETVAL -eq 0 ]; then
+	    if [ -e /var/lock/subsys/ldapr ]; then
+		gprintf "Stopping slurpd: "
+		killproc ${slurpd} 2>/dev/null
+		RETVAL2=$?
+		echo
+		[ $RETVAL2 -eq 0 ] && rm -f /var/lock/subsys/ldapr
+	    fi
+	fi
+        [ $RETVAL -eq 0 ] && rm -f /var/lock/subsys/ldap /var/run/ldap/slapd.args
+	return $RETVAL
+}
+
+recover () {
+
+	# For bdb backends we want to recover the transaction logs:
+	# Find a db_recover
+	local DBRECOVER
+	if [ -x /usr/bin/slapd_db_recover ]
+	then
+		# private db_recover is the best choice
+		DBRECOVER=/usr/bin/slapd_db_recover
+	elif [ -x /usr/bin/db_recover ]
+	then
+		DBRECOVER=/usr/bin/db_recover
+	else
+		DBRECOVER=""
+	fi
+
+	for dbdir in `awk '/^[:space:]*directory[:space:]*\w*/ {print $2}' /etc/openldap/slapd.conf`
+	do
+		if [ -n "`find ${dbdir}/*.bdb 2>&-`" ]
+		then
+			if [ -n "$DBRECOVER" ]
+			then
+				gprintf "Running %s on %s\n" "$DBRECOVER" "${dbdir}"
+				$DBRECOVER -h ${dbdir} 2>&1 >/dev/null 
+			else
+				gprintf "Warning: no db_recover available for %s\n" ${dbdir}
+			fi
+		fi
+	done
+}
+
+# See how we were called.
+case "$1" in
+    start)
+    	recover
+        start
+        ;;
+    stop)
+        stop
+	recover
+        ;;
+    status)
+        status ${slapd}
+        if check_slurpd ; then
+            status ${slurpd}
+	fi
+	;;
+    restart)
+	stop
+	recover
+	start
+	;;
+    reload)
+    	killall -HUP ${slapd}
+	RETVAL=$?
+	if [ $RETVAL -eq 0 ]; then
+	    if check_slurpd ; then
+		killall -HUP ${slurpd}
+		RETVAL=$?
+	    fi
+	fi
+	;;
+    condrestart)
+        if [ -f /var/lock/subsys/ldap ] ; then
+            stop
+	    recover
+            start
+        fi
+	;;
+    *)
+	gprintf "Usage: %s {start|stop|restart|status|condrestart}\n" "$0"
+	RETVAL=1
+esac
+
+exit $RETVAL
