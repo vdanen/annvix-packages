@@ -1,9 +1,9 @@
 %define name	libuser
-%define version	0.51.7
-%define release	13avx
+%define version	0.53.2
+%define release	1avx
 
-%define python	2.3
 %define major	1
+%define libname	%mklibname user %{major}
 
 Summary:	A user and group account administration library
 Name:		%{name}
@@ -13,15 +13,11 @@ License:	LGPL
 Group:		System/Configuration/Other
 URL:		http://qa.mandrakesoft.com
 Source:		libuser-%{version}.tar.bz2
-Patch0:		libuser-0.51.7-apputil-pic.patch.bz2
-Patch1:		libuser-0.51.7-python-module-pic.patch.bz2
-Patch2:		libuser-0.51-modules-pic.patch.bz2
-Patch3:		libuser-nobloodysgml.patch.bz2
-Patch4:		libuser-0.51.7-sec.patch.bz2
+Patch1:	libuser-0.53.2-nosgml.patch	
 
-BuildRoot:	%{_tmppath}/%{name}-root
-BuildRequires:	gettext, glib2-devel, libldap-devel, libsasl-devel
-BuildRequires:	openssl-devel, pam-devel, popt-devel, python-devel
+BuildRoot:	%{_tmppath}/%{name}-%{version}-root
+BuildRequires:	gettext, glib2-devel, libldap-devel
+BuildRequires:	pam-devel, popt-devel, python-devel
 
 %description
 The libuser library implements a standardized interface for manipulating
@@ -31,57 +27,53 @@ back-ends to interface to its data sources.
 Sample applications modeled after those included with the shadow password
 suite are included.
 
-%package -n %name-python
-Group:		Development/Python
+%package -n %{name}-python
 Summary:	Library bindings for python
+Group:		Development/Python
 
-%description -n %name-python
+%description -n %{name}-python
 this package contains the python library for python applications that 
 use libuser
 
-%package -n %name%major
+%package -n %{libname}
+Summary:	The actual libraries for libuser
 Group:		System/Libraries
-Summary:	The actual libraries for libuser.
 
-%description -n %name%major
+%description -n %{libname}
 This is the actual library for the libuser library.
 
-%package -n %name%major-devel
+%package -n %{libname}-devel
+Summary:	Files needed for developing applications which use libuser
 Group:		Development/C
-Summary:	Files needed for developing applications which use libuser.
-Requires:	%{name}%major = %{version}-%{release}
-Provides:	%name-devel = %version-%release
+Requires:	%{libname} = %{version}-%{release}
+Provides:	%{name}-devel = %{version}-%{release}
 
-%description -n %name%major-devel
+%description -n %{libname}-devel
 The libuser-devel package contains header files, static libraries, and other
 files useful for developing applications with libuser.
 
 %prep
 %setup -q
-%patch0 -p1 -b .apputil-pic
-%patch1 -p1 -b .python-module-pic
-%patch2 -p1 -b .modules-pic
-%patch3 -p1 -b .nosgml
-%patch4 -p1 -b .sec
+%patch1 -p0 -b .nosgml
 
 %build
 export CFLAGS="$RPM_OPT_FLAGS -DG_DISABLE_ASSERT -I/usr/include/sasl" 
 %configure2_5x \
 	--with-ldap \
-	--with-python-version=%{python} \
-	--with-python-path=%{_includedir}/python%{python} \
+	--with-python-version=%{pyver} \
+	--with-python-path=%{_includedir}/python%{pyver} \
 	--enable-gtk-doc=no
 %make 
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-make install DESTDIR=$RPM_BUILD_ROOT
+%makeinstall_std
 
-LD_LIBRARY_PATH=$RPM_BUILD_ROOT/%{_libdir}:${LD_LIBRARY_PATH}
+LD_LIBRARY_PATH=%{buildroot}%{_libdir}:${LD_LIBRARY_PATH}
 export LD_LIBRARY_PATH
 
 # Verify that all python modules load, just in case.
-pushd $RPM_BUILD_ROOT/%{_libdir}/python%{python}/site-packages/
+pushd %{buildroot}/%{_libdir}/python%{pyver}/site-packages/
 python -c "import libuser"
 popd
 
@@ -89,27 +81,28 @@ popd
 # too disgusting to watch.
 set -x
 pushd po
-rm -rf $RPM_BUILD_ROOT%_datadir/locale
+rm -rf %{buildroot}%_datadir/locale
 for i in *.po; do
     msgfmt $i -o $(basename $i .po).mo
-    p=$RPM_BUILD_ROOT%_datadir/locale/$(basename $i .po)/LC_MESSAGES
+    p=%{buildroot}%_datadir/locale/$(basename $i .po)/LC_MESSAGES
     mkdir -p $p
     install -m644 $(basename $i .po).mo $p/libuser.mo
 done
 popd
-rm -rf $RPM_BUILD_ROOT%_datadir/locale/zh_TW.Big5
+rm -rf %{buildroot}%_datadir/locale/zh_TW.Big5
 set +x
 %find_lang %{name}
 
 # Remove unpackaged files
-rm -rf	$RPM_BUILD_ROOT/usr/share/man/man3/userquota.3
+rm -rf %{buildroot}/usr/share/man/man3/userquota.3
+rm -rf %{buildroot}%{_libdir}/python%{pyver}/site-packages/*a
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-%post -n %name%major -p /sbin/ldconfig
-
-%postun -n %name%major -p /sbin/ldconfig
+%post -n %{libname} -p /sbin/ldconfig
+%postun -n %{libname} -p /sbin/ldconfig
 
 %files -f %{name}.lang
 %defattr(-,root,root)
@@ -117,15 +110,16 @@ rm -rf	$RPM_BUILD_ROOT/usr/share/man/man3/userquota.3
 %config(noreplace) %{_sysconfdir}/libuser.conf
 %attr(0755,root,root) %{_bindir}/*
 %attr(0755,root,root) %{_sbindir}/*
-
-%files -n %name%major
-%attr(0755,root,root) %_libdir/*.so.*
 %attr(0755,root,root) %{_libdir}/%{name}/*.so
+%{_mandir}/man1/*
 
-%files -n %name-python
-%attr(0755,root,root) %{_libdir}/python%{python}/site-packages/*.so
+%files -n %{libname}
+%attr(0755,root,root) %_libdir/*.so.*
 
-%files -n %name%major-devel
+%files -n %{name}-python
+%attr(0755,root,root) %{_libdir}/python%{pyver}/site-packages/*.so
+
+%files -n %{libname}-devel
 %defattr(-,root,root)
 %attr(0755,root,root) %dir %{_includedir}/libuser
 %attr(0644,root,root) %{_includedir}/libuser/*
@@ -134,11 +128,18 @@ rm -rf	$RPM_BUILD_ROOT/usr/share/man/man3/userquota.3
 %attr(0755,root,root) %{_libdir}/*.so
 #%attr(0644,root,root) %{_mandir}/man3/*
 %attr(0644,root,root) %{_libdir}/pkgconfig/*
-%attr(0755,root,root) %{_libdir}/python%{python}/site-packages/*.a
-%attr(0755,root,root) %{_libdir}/python%{python}/site-packages/*.la
-%{_datadir}/gtk-doc/html/*
 
 %changelog
+* Mon Feb 28 2005 Vincent Danen <vdanen@annvix.org> 0.53.2-1avx
+- 0.53.2
+- remove redundant BuildRequires (stefan)
+- move non-versioned-file from library package to main package (stefan)
+- remove useless files from -devel package (gotz)
+- drop unneeded patches
+- use pyver macro
+- spec cosmetics
+- mklibname (gbeauchesne)
+
 * Thu Jan 06 2005 Vincent Danen <vdanen@annvix.org> 0.51.7-13avx
 - rebuild against latest openssl
 
