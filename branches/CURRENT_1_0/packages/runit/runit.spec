@@ -1,6 +1,6 @@
 %define	name	runit
 %define	version	1.0.4
-%define	release	3avx
+%define	release	4avx
 
 Summary:	A UN*X init scheme with service supervision
 Name:		%{name}
@@ -77,7 +77,7 @@ install -m0644 %{name}-%{version}/man/*.8 %{buildroot}%{_mandir}/man8/
 %post
 if [ $1 == "1" ]; then
     # this is a new install, we need to setup the gettys
-    for i in 1 2 3 4 5 6
+    for i in 2 3 4 5 6
     do
 	echo "Setting up the mingetty service for tty$i..."
         srv add mingetty-tty$i
@@ -160,6 +160,11 @@ fi
 %attr(0755,root,root) %{_srvdir}/mingetty-tty6/finish
 
 %changelog
+* Sat Sep 10 2004 Vincent Danen <vdanen@annvix.org> 1.0.4-4avx
+- dammit... works good if you install from remote, but kicks you off your vc
+  if you're local, so don't automatically add tty1; the installer will take
+  care of this for new installs
+
 * Sat Sep 10 2004 Vincent Danen <vdanen@annvix.org> 1.0.4-3avx
 - somewhat ugly means of getting the getty's up and running for the
   reboot, but necessary as %%_post_srv only checks to restart a service
