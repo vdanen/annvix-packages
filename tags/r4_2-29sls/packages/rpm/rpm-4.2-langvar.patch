@@ -1,0 +1,21 @@
+--- rpm-4.2/lib/transaction.c.langvar	2003-02-01 21:24:21.000000000 +0100
++++ rpm-4.2/lib/transaction.c	2003-04-28 11:40:06.000000000 +0200
+@@ -776,7 +776,17 @@
+ 	tmpPath = _free(tmpPath);
+     }
+ 
+-    s = rpmExpand("%{_install_langs}", NULL);
++    {
++	char *tmp;
++	
++	tmp = getenv("RPM_INSTALL_LANG");
++	if (tmp && *tmp) {
++	    s = malloc(strlen(tmp)+1);
++	    strcpy(s, tmp);
++	} else {
++	    s = rpmExpand("%{_install_langs}", NULL);
++	}
++    }
+     /*@-branchstate@*/
+     if (!(s && *s != '%'))
+ 	s = _free(s);
