@@ -1,0 +1,32 @@
+For security reasons, Mandrake Linux package of Postfix runs chroot'ed by
+default. That means that the mail server is running in /var/spool/postfix,
+not in the usual root filesystem, /. The mail server has no access to
+files outside this location.
+
+
+Therefore, copies of some of your configuration files are put in the
+chroot. Some of them may change over the time, if you modify them, or, for
+example, if you're running a laptop, when you start the network or you
+move from office to home.
+
+For example, if your /etc/resolv.conf is updated when you launch the
+network on your laptop, you will want to create a file named
+/etc/sysconfig/network-scripts/ifup.d/postfix containing:
+
+-=-=---=-=---=-=---=-=---=-=---=-=--
+#!/bin/sh
+# update resolv.conf in postfix chroot environment
+cp -f /etc/resolv.conf /var/spool/postfix/etc/resolv.conf > /dev/null
+-=-=---=-=---=-=---=-=---=-=---=-=--
+
+
+SASL database relies on file /var/lib/sasl/sasl.db being accessible by 
+postfix. When running under chroot, two solutions are available:
+- copy original file under /var/spool/postfix/var/lib/sasl
+- mount /var/lib/sasl directory under chroot with -bind option
+
+For SASL v2, var directory is /var/lib/sasl2.
+
+
+You can run "postfix check" to get usual warnings about changes between
+the file in the chroot and your system files.
