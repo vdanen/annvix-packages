@@ -1,6 +1,6 @@
 %define name	urpmi
 %define version	4.4
-%define release 47sls
+%define release 48sls
 
 %{!?build_opensls:%global build_opensls 0}
 
@@ -9,10 +9,12 @@
 %{expand:%%define compat_perl_vendorlib %(perl -MConfig -e 'printf "%%s\n", "%{?perl_vendorlib:1}" ? "%%{perl_vendorlib}" : "$Config{installvendorlib}"')}
 %if %{build_opensls}
 %define use_locale	1
-%define allow_gurpmi	1
+%define allow_gurpmi	0
+%define allow_karun	0
 %define req_webfetch	webfetch
 %define buildreq_locale	perl-MDK-Common-devel
 %else
+%define allow_karun	1
 %{expand:%%define use_locale %%(perl -e 'printf "%%s\\n", "%_vendor" =~ /mandrake/i ? 1 : 0')}
 %{expand:%%define allow_gurpmi %%(perl -e 'printf "%%s\\n", "%_vendor" =~ /mandrake/i ? 1 : 0')}
 %{expand:%%define req_webfetch %%(perl -e 'printf "%%s\\n", "%_vendor" =~ /mandrake/i ? "webfetch" : "curl wget"')}
@@ -61,6 +63,7 @@ gurpmi is a graphical front-end to urpmi
 #%description -n autoirpm
 #Auto install of rpm on demand
 
+%if %{allow_karun}
 %package -n urpmi-parallel-ka-run
 Summary:	Parallel extensions to urpmi using ka-run
 Requires:	urpmi >= %{version}-%{release} ka-run >= 2.0-15mdk
@@ -69,6 +72,7 @@ Group:		%{group}
 %description -n urpmi-parallel-ka-run
 urpmi-parallel-ka-run is an extensions module to urpmi for handling
 distributed installation using ka-run tools.
+%endif
 
 %package -n urpmi-parallel-ssh
 Summary:	Parallel extensions to urpmi using ssh and scp
@@ -85,6 +89,9 @@ distributed installation using ssh and scp tools.
 %install
 %{__rm} -rf %{buildroot}
 %{__make} PREFIX=%{buildroot} MANDIR=%{buildroot}%{_mandir} install
+%if !%{allow_gurpmi}
+rm -f %{buildroot}%{_sbindir}/gurpmi
+%endif
 #install -d $RPM_BUILD_ROOT/var/lib/urpmi/autoirpm.scripts
 for dir in partial headers rpms
 do
@@ -108,9 +115,13 @@ EOF
 
 mkdir -p %{buildroot}%{compat_perl_vendorlib}
 install -m 644 urpm.pm %{buildroot}%{compat_perl_vendorlib}/urpm.pm
+%if %{allow_gurpmi}
 install -m 644 gurpm.pm %{buildroot}%{compat_perl_vendorlib}/gurpm.pm
+%endif
 mkdir -p %{buildroot}%{compat_perl_vendorlib}/urpm
+%if %{allow_karun}
 install -m 644 urpm/parallel_ka_run.pm %{buildroot}%{compat_perl_vendorlib}/urpm/parallel_ka_run.pm
+%endif
 install -m 644 urpm/parallel_ssh.pm %{buildroot}%{compat_perl_vendorlib}/urpm/parallel_ssh.pm
 mkdir -p %{buildroot}%{_mandir}/man3
 pod2man urpm.pm >%{buildroot}%{_mandir}/man3/urpm.3
@@ -227,10 +238,12 @@ $urpm->update_media(nolock => 1, nopubkey => 1);
 #%{_bindir}/_irpm
 #%doc README-autoirpm-icons autoirpm.README
 
+%if %{allow_karun}
 %files -n urpmi-parallel-ka-run
 %defattr(-,root,root)
 %doc urpm/README.ka-run
 %{compat_perl_vendorlib}/urpm/parallel_ka_run.pm
+%endif
 
 %files -n urpmi-parallel-ssh
 %defattr(-,root,root)
@@ -238,6 +251,11 @@ $urpm->update_media(nolock => 1, nopubkey => 1);
 %{compat_perl_vendorlib}/urpm/parallel_ssh.pm
 
 %changelog
+* Tue Dec 30 2003 Vincent Danen <vdanen@opensls.org> 4.4-48sls
+- new macro: %%allow_karun which is off for OpenSLS builds
+- fix %%allow_gurpmi macro
+- don't build gurpmi
+
 * Fri Dec 18 2003 Vincent Danen <vdanen@opensls.org> 4.4-47sls
 - OpenSLS build
 - tidy spec
