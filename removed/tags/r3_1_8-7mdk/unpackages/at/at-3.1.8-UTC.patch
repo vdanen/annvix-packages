@@ -1,0 +1,32 @@
+diff -ur at-3.1.8.orig/parsetime.y at-3.1.8/parsetime.y
+--- at-3.1.8.orig/parsetime.y	Wed Aug 23 10:08:12 2000
++++ at-3.1.8/parsetime.y	Wed Aug 23 21:07:37 2000
+@@ -370,9 +370,9 @@
+     if (yyparse() == 0) {
+ 	exectime = mktime(&exectm);
+ 	if (isgmt) {
+-	    exectime += timezone;
+-	    if (daylight) {
+-		exectime -= 3600;
++	    exectime -= timezone;
++	    if (daylight > 0) {
++		exectime += 3600;
+ 	    }
+ 	}
+ 	if (time_only && (currtime > exectime)) {
+diff -ur at-3.1.8.orig/y.tab.c at-3.1.8/y.tab.c
+--- at-3.1.8.orig/y.tab.c	Wed Aug 23 10:08:12 2000
++++ at-3.1.8/y.tab.c	Wed Aug 23 21:08:06 2000
+@@ -1428,9 +1428,9 @@
+     if (yyparse() == 0) {
+ 	exectime = mktime(&exectm);
+ 	if (isgmt) {
+-	    exectime += timezone;
+-	    if (daylight) {
+-		exectime -= 3600;
++	    exectime -= timezone;
++	    if (daylight > 0) {
++		exectime += 3600;
+ 	    }
+ 	}
+ 	if (time_only && (currtime > exectime)) {
