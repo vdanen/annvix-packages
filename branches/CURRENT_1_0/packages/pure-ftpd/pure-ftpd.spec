@@ -1,6 +1,6 @@
 %define name	pure-ftpd
 %define	version 1.0.16b
-%define release 2sls
+%define release 3sls
 
 %{!?build_opensls:%global build_opensls 0}
 
@@ -20,7 +20,7 @@ Source5:	pureftpd-log.run
 Patch0:		pure-ftpd.mdkconf.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}
-BuildRequires:	pam-devel, libldap2-devel, MySQL-devel, postgresql-devel
+BuildRequires:	pam-devel, openldap-devel, MySQL-devel, postgresql-devel
 
 PreReq:		rpm-helper
 Provides:	ftp-server ftpserver pure-ftpd
@@ -211,6 +211,9 @@ done
 %_preun_service pure-ftpd
 
 %changelog
+* Sat Jan 03 2004 Vincent Danen <vdanen@opensls.org> 1.0.16b-3sls
+- BuildRequires: openldap-devel, not libldap2-devel (for amd64)
+
 * Tue Dec 30 2003 Vincent Danen <vdanen@opensls.org> 1.0.16b-2sls
 - OpenSLS build
 - tidy spec
