@@ -1,0 +1,113 @@
+--- xc/config/cf/Imake.tmpl.Imake-make-icondir-configurable	2002-12-09 22:20:41.000000000 -0500
++++ xc/config/cf/Imake.tmpl	2003-01-21 04:47:14.000000000 -0500
+@@ -896,6 +896,21 @@
+ #endif
+ #endif
+ 
++#ifndef IconDir
++# if NothingOutsideProjectRoot != YES
++#  define IconDir       /usr/share/icons
++#  ifndef XcursorPath
++#   define XcursorPath  "~/.icons:/usr/share/icons:/usr/share/pixmaps"
++#  endif
++# else
++#  define IconDir       Concat(ProjectRoot,/lib/X11/icons)
++# endif
++#endif
++ 
++#ifndef XcursorPath
++# define XcursorPath    Concat(~/.icons:/usr/share/icons:/usr/share/pixmaps:,IconDir)
++#endif
++
+ #ifndef LogDirectory
+ #if HasVarDirectory
+ #define LogDirectory $(VARDIR)/log
+@@ -1636,6 +1651,8 @@
+        FILEMANDIR = FileManDir		/* man pages for config files */
+        MISCMANDIR = MiscManDir		/* man pages for miscellaneous files */
+      DRIVERMANDIR = DriverManDir	/* man pages for drivers */
++          ICONDIR = IconDir		/* Xcursor cursors/icon directory */
++      XCURSORPATH = XcursorPath		/* Xcursor cursors path */
+      LOGDIRECTORY = LogDirectory	/* OS location of log files */
+ #ifdef VarRunDirectory
+         VARRUNDIR = VarRunDirectory	/* OS location of PID files */
+--- xc/lib/Xcursor/Imakefile.Imake-make-icondir-configurable	2002-09-26 03:52:01.000000000 -0400
++++ xc/lib/Xcursor/Imakefile	2003-01-21 03:24:14.000000000 -0500
+@@ -29,9 +29,10 @@
+ REQUIREDLIBS = $(LDPRELIB) $(XRENDERLIB)
+ #endif
+ 
+-ICONDIR=$(LIBDIR)/icons
++ICONDIRDEFS=-DICONDIR=\"$(ICONDIR)\"
++XCURSORPATHDEFS=-DXCURSORPATH=\"$(XCURSORPATH)\"
+ 
+-DEFINES=-DICONDIR=\"$(ICONDIR)\"
++DEFINES=$(ICONDIRDEFS) $(XCURSORPATHDEFS)
+ 
+ SRCS =	cursor.c display.c file.c library.c xlib.c
+ 
+--- xc/lib/Xcursor/library.c.Imake-make-icondir-configurable	2002-08-29 00:40:34.000000000 -0400
++++ xc/lib/Xcursor/library.c	2003-01-21 03:24:14.000000000 -0500
+@@ -26,12 +26,6 @@
+ #include <stdlib.h>
+ #include <string.h>
+ 
+-#ifndef ICONDIR
+-#define ICONDIR "/usr/X11R6/lib/X11/icons"
+-#endif
+-
+-#define CURSORPATH "~/.icons:/usr/share/icons:/usr/share/pixmaps:"ICONDIR
+-
+ static const char *
+ _XcursorLibraryPath (void)
+ {
+@@ -41,7 +35,7 @@
+     {
+ 	path = getenv ("XCURSOR_PATH");
+ 	if (!path)
+-	    path = CURSORPATH;
++	    path = XCURSORPATH;
+     }
+     return path;
+ }
+--- xc/programs/xcursorgen/handhelds/Imakefile.Imake-make-icondir-configurable	2003-01-08 11:03:47.000000000 -0500
++++ xc/programs/xcursorgen/handhelds/Imakefile	2003-01-21 03:24:14.000000000 -0500
+@@ -1,7 +1,6 @@
+ 
+ #define CursorSources(name) $(PNGDIR)/name-16.png
+ 
+-ICONDIR=$(LIBDIR)/icons
+ THEME=handhelds
+ PNGDIR=../redglass
+ THEMEDIR=$(ICONDIR)/$(THEME)/cursors
+--- xc/programs/xcursorgen/redglass/Imakefile.Imake-make-icondir-configurable	2003-01-06 21:26:11.000000000 -0500
++++ xc/programs/xcursorgen/redglass/Imakefile	2003-01-21 03:24:14.000000000 -0500
+@@ -17,8 +17,6 @@
+               hourglass-full-24.png hourglass-full-32.png hourglass-full-48.png \
+               hourglass-full-64.png
+ 
+-
+-ICONDIR=$(LIBDIR)/icons
+ THEME=redglass
+ THEMEDIR=$(ICONDIR)/$(THEME)/cursors
+ 
+--- xc/programs/xcursorgen/whiteglass/Imakefile.Imake-make-icondir-configurable	2002-11-08 11:18:05.000000000 -0500
++++ xc/programs/xcursorgen/whiteglass/Imakefile	2003-01-21 03:24:14.000000000 -0500
+@@ -1,7 +1,6 @@
+ 
+ #define CursorSources(name) name-16.png name-24.png name-32.png name-48.png name-64.png
+ 
+-ICONDIR=$(LIBDIR)/icons
+ THEME=whiteglass
+ THEMEDIR=$(ICONDIR)/$(THEME)/cursors
+ 
+--- xc/programs/xcursorgen/Imakefile.Imake-make-icondir-configurable	2002-12-23 06:05:23.000000000 -0500
++++ xc/programs/xcursorgen/Imakefile	2003-01-21 03:24:14.000000000 -0500
+@@ -4,7 +4,6 @@
+ 
+         SUBDIRS = redglass whiteglass handhelds
+   DEFAULT_THEME = DefaultCursorTheme
+-        ICONDIR = $(LIBDIR)/icons
+        THEMEDIR = $(ICONDIR)/default
+        INCLUDES = $(LIBPNGINC)
+         DEPLIBS = $(DEPXLIB)
