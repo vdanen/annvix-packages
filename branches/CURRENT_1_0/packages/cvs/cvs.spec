@@ -1,6 +1,6 @@
 %define name	cvs
 %define version	1.11.19
-%define release	1avx
+%define release	2avx
 
 %define url	ftp://ftp.cvshome.org/pub
 %define _requires_exceptions tcsh
@@ -137,6 +137,9 @@ install -m 0644 %{SOURCE6} %{buildroot}%{_datadir}/afterboot/06_cvspserver
 %{_datadir}/afterboot/06_cvspserver
 
 %changelog
+* Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 1.11.19-2avx
+- no need to lose our cvs.conf; put it back
+
 * Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 1.11.19-1avx
 - 1.11.19
 - use logger for logging
