@@ -1,6 +1,6 @@
 %define name	exim
 %define version 4.30
-%define release 4sls
+%define release 5sls
 
 %define build_mysql 0
 %define build_pgsql 0
@@ -215,7 +215,7 @@ popd
 rm -rf $RPM_BUILD_DIR/%{name}-%{version}
 
 %post
-%_post_service exim
+%_post_srv exim
 %if %{alternatives}
 %{alternatives_install_cmd}
 %endif
@@ -252,7 +252,7 @@ fi
 %endif
 
 %preun
-%_preun_service exim
+%_preun_srv exim
 if [ $1 = 0 ]; then
   %if %{alternatives}
     update-alternatives --remove mta %{_sbindir}/sendmail.exim
@@ -261,7 +261,7 @@ fi
 
 %postun
 if [ "$1" -ge "1" ]; then
-	/sbin/service exim  condrestart > /dev/null 2>&1
+	/usr/sbin/srv restart exim
 fi
 if [ $1 = 0 ]; then
   echo "Restoring msec default permission checks for sendmail if required..."
@@ -348,6 +348,9 @@ fi
 %config(noreplace) %{_sysconfdir}/exim/sa-exim_short.conf
 
 %changelog
+* Tue Jan 27 2004 Vincent Danen <vdanen@opensls.org> 4.30-5sls
+- use %%_post_srv and %%_preun_srv
+
 * Mon Jan 26 2004 Vincent Danen <vdanen@opensls.org> 4.30-4sls
 - remove initscript
 - use %%_srvdir and %%_srvlogdir macros
