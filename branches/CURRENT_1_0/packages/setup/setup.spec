@@ -1,8 +1,8 @@
-# $Id: setup.spec,v 1.12 2005/03/18 23:53:09 vdanen Exp $
+# $Id: setup.spec,v 1.13 2005/03/19 00:41:21 vdanen Exp $
 
 %define name	setup
 %define version 2.5
-%define release 1avx
+%define release 2avx
 
 Summary:	A set of system configuration and setup files
 Name:		%{name}
@@ -90,6 +90,10 @@ fi
 %dir /var/lib/rsbac
 
 %changelog
+* Fri Mar 18 2005 Vincent Danen <vdanen@annvix.org> 2.5-2avx
+- set some limits via limit/ulimit in /etc/profile and /etc/csh.cshrc
+  as right now all resources are pretty much unlimited
+
 * Fri Mar 18 2005 Vincent Danen <vdanen@annvix.org> 2.5-1avx
 - csh.cshrc: fix some csh code in csh.cshrc
 - inputrc: redefine PgUp/PgDn so that instead of just cycling through
