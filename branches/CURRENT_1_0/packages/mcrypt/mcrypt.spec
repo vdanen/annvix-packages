@@ -1,6 +1,6 @@
 %define name	mcrypt
 %define version 2.6.4
-%define release 4avx
+%define release 5avx
 
 Summary:	Data encryption/decryption program
 Name:		%{name}
@@ -12,10 +12,8 @@ URL:		http://mcrypt.sourceforge.net/
 Source0:	%{name}-%{version}.tar.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-buildroot
-BuildRequires:	libmhash-devel
-BuildRequires:	libmcrypt-devel
-BuildRequires:	libtool-devel
-BuildRequires:	autoconf2.5
+BuildRequires:	libmhash-devel >= 0.8.15
+BuildRequires:	libmcrypt-devel >= 2.5.0
 
 %description
 A replacement for the old unix crypt(1) command. Mcrypt
@@ -31,27 +29,8 @@ CBC, ECB, OFB and CFB modes of encryption are supported.
 %setup -q
 
 %build
-%serverbuild
-#libtoolize --copy --force; aclocal; autoconf
-./configure \
-    --prefix=%{_prefix} \
-    --exec-prefix=%{_exec_prefix} \
-    --bindir=%{_bindir} \
-    --sbindir=%{_sbindir} \
-    --sysconfdir=%{_sysconfdir} \
-    --datadir=%{_datadir} \
-    --includedir=%{_includedir} \
-    --libdir=%{_libdir} \
-    --libexecdir=%{_libexecdir} \
-    --localstatedir=%{_localstatedir} \
-    --sharedstatedir=%{_sharedstatedir} \
-    --mandir=%{_mandir} \
-    --infodir=%{_infodir}
 
-#    --build %{_target_platform} \
-#    --host %{_target_platform} \
-#    --target %{_target_platform} \
-
+%configure2_5x
 %make
 
 %install
@@ -71,6 +50,10 @@ CBC, ECB, OFB and CFB modes of encryption are supported.
 %{_mandir}/man1/*
 
 %changelog
+* Thu Aug 18 2004 Vincent Danen <vdanen@annvix.org> 2.6.4-5avx
+- use %%configure2_5x
+- remove unneeded deps and make deps version specific
+
 * Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 2.6.4-4avx
 - Annvix build
 
