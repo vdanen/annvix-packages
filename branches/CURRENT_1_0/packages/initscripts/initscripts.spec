@@ -1,6 +1,6 @@
 %define name	initscripts
 %define version	7.06
-%define release	40avx
+%define release	41avx
 
 # 	$Id: initscripts.spec,v 1.329 2003/09/22 17:03:40 warly Exp $	
 
@@ -25,7 +25,7 @@ BuildRequires:	glib2-devel, pkgconfig, popt-devel, python
 Requires:	mingetty, sed, mktemp, e2fsprogs, gettext-base
 Requires:	procps, modutils, util-linux >= 2.10
 Requires:	psmisc, which, setup, iproute2, iputils, perl-MDK-Common
-Requires:	util-linux >= 2.10s, mount >= 2.11l, SysVinit, bootloader-utils
+Requires:	util-linux >= 2.10s, mount >= 2.11l, SysVinit, bootloader-utils, srv
 Prereq:		chkconfig >= 1.3.8-3mdk, gawk, coreutils, grep
 
 %description
@@ -384,6 +384,10 @@ fi
 
 
 %changelog
+* Tue Jul 27 2004 Vincent Danen <vdanen@annvix.org> 7.06-41avx
+- rediffed P2: call supervise directly from init
+- Requires: srv
+
 * Wed Jul 14 2004 Vincent Danen <vdanen@annvix.org> 7.06-40avx
 - patch naming convention policy
 - don't clear tty1 so we can see what happens

@@ -41,8 +41,8 @@
 -
 -# to be able to eject via the device eject button (magicdev)
 -dev.cdrom.lock=0
---- inittab.annvix	2004-05-11 09:15:15.000000000 -0600
-+++ inittab	2004-05-11 09:19:22.000000000 -0600
+--- inittab.avx	2004-07-27 15:10:39.000000000 -0600
++++ inittab	2004-07-27 15:11:14.000000000 -0600
 @@ -6,7 +6,7 @@
  #               Modified for RHS Linux by Marc Ewing and Donnie Barnes
  #
@@ -52,7 +52,16 @@
  #   0 - halt (Do NOT set initdefault to this)
  #   1 - Single user mode
  #   2 - Multiuser, without NFS (The same as 3, if you do not have networking)
-@@ -42,7 +42,7 @@
+@@ -26,6 +26,8 @@
+ l3:3:wait:/etc/rc.d/rc 3
+ l4:4:wait:/etc/rc.d/rc 4
+ l5:5:wait:/etc/rc.d/rc 5
++SV:2345:respawn:/sbin/srv-start /service
++SX:S016:wait:/sbin/srv-stop /service
+ l6:6:wait:/etc/rc.d/rc 6
+ 
+ # Trap CTRL-ALT-DELETE
+@@ -42,7 +44,7 @@
  
  
  # Run gettys in standard runlevels
