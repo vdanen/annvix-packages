@@ -1,42 +1,38 @@
-%{expand:%%define buildfor8_2 %(A=$(awk '{print $4}' /etc/mandrake-release); if [ "$A" = 8.2 ]; then echo 1; else echo 0; fi)}
-%{expand:%%define buildfor9_0 %(A=$(awk '{print $4}' /etc/mandrake-release); if [ "$A" = 9.0 ]; then echo 1; else echo 0; fi)}
-%{expand:%%define buildfor9_1 %(A=$(awk '{print $4}' /etc/mandrake-release); if [ "$A" = 9.1 ]; then echo 1; else echo 0; fi)}
-%{expand:%%define buildfor9_2 %(A=$(awk '{print $4}' /etc/mandrake-release); if [ "$A" = 9.2 ]; then echo 1; else echo 0; fi)}
-
-%define name doxygen
+%define name	doxygen
 %define version 1.3.3
-%define release 2mdk
+%define release 3sls
 
+%{!?build_opensls:%global build_opensls 0}
+
+%if %{build_opensls}
+%define builddoc 0
+%else
 %define builddoc 1
+%endif
+
 %{?_without_doc: %{expand: %%global builddoc 0}}
 
-Name: %{name}
-Summary: Doxygen is THE documentation system for C/C++
-Version: %{version}
-Release: %{release}
-Group: Development/Other
-License: GPL
-URL: http://www.stack.nl/~dimitri/doxygen/
-Source:	ftp://ftp.stack.nl/pub/users/dimitri/%{name}-%{version}.src.tar.bz2
-Source1: GPL-LICENSE.bz2
-Patch0: doxygen-1.2.12-fix-latex.patch.bz2
-Patch1: doxygen-1.2.16-fix-for-qt3.patch.bz2
-BuildRequires:	XFree86-devel
-BuildRequires:	flex
-BuildRequires:	gcc-c++
-%if !%buildfor9_2
-BuildRequires:	libqt3-devel
-%else
-BuildRequires:  qt3-devel
-%endif
+Summary:	Doxygen is THE documentation system for C/C++
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+Epoch:		1
+License:	GPL
+Group:		Development/Other
+URL:		http://www.stack.nl/~dimitri/doxygen/
+Source:		ftp://ftp.stack.nl/pub/users/dimitri/%{name}-%{version}.src.tar.bz2
+Source1:	GPL-LICENSE.bz2
+Patch0:		doxygen-1.2.12-fix-latex.patch.bz2
+Patch1:		doxygen-1.2.16-fix-for-qt3.patch.bz2
 
-%if %builddoc
-BuildRequires:	tetex-latex
-BuildRequires:	ghostscript
+BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
+BuildRequires:	XFree86-devel, flex, gcc-c++
+%if !%{build_opensls}
+BuildRequires:	qt3-devel
 %endif
-Packager: Guillaume Cottenceau <gc@mandrakesoft.com>
-BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
-Epoch: 1
+%if %builddoc
+BuildRequires:	tetex-latex, ghostscript
+%endif
 
 %description
 Doxygen is a documentation system for C, C++ and IDL. It can generate
@@ -62,9 +58,14 @@ perl -pi -e "s|/lib$|/%{_lib}|" tmake/lib/linux-g++/tmake.conf
 find -type d -exec chmod 0755 {} \;
 
 %build
+%if %{build_opensls}
+./configure
+%else
 export QTDIR=/usr/lib/qt3
 export PATH="$PATH:$QTDIR/bin"
 ./configure --with-doxywizard
+%endif
+
 %make
 %if %builddoc
 make docs
@@ -92,9 +93,16 @@ rm -rf ${RPM_BUILD_ROOT}
 %{_bindir}/doxygen
 %{_bindir}/doxytag
 %{_bindir}/doxysearch
+%if !%{build_opensls}
 %{_bindir}/doxywizard
+%endif
 
 %changelog
+* Wed Dec 17 2003 Vincent Danen <vdanen@opensls.org> 1.3.3-3sls
+- OpenSLS build
+- tidy spec
+- use %%build_opensls macro to not build doxywizard (removes qt3-devel dep)
+
 * Tue Sep 02 2003 Laurent MONTEL <lmontel@mandrakesoft.com> 1.3.3-2mdk
 - fix problem libification
 
