@@ -1,7 +1,7 @@
 # Defined in CVS makefile.
-%define version 1.63
 %define name	etcskel
-%define release 15mdk
+%define version 1.63
+%define release 16sls
 
 Summary:	Mandrake Linux default files for new users' home directories
 Name:		%{name}
@@ -9,7 +9,6 @@ Version:	%{version}
 Release:	%{release}
 License:	Public Domain
 Group:		System/Base
-Packager:	David BAUDENS <baudens@mandrakesoft.com>
 
 # get the source from our cvs repository (see
 # http://www.linuxmandrake.com/en/cvs.php3)
@@ -45,6 +44,9 @@ rm -rf ${RPM_BUILD_ROOT}
 %config(noreplace) /etc/skel/tmp
 
 %changelog
+* Sun Nov 30 2003 Vincent Danen <vdanen@opensls.org> 1.63-16sls
+- OpenSLS build
+
 * Mon Sep 08 2003 David Baudens <baudens@mandrakesoft.com> 1.63-15mdk
 - Rebuild
 
