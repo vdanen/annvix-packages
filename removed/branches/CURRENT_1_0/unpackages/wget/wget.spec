@@ -1,8 +1,8 @@
 %define name	wget
 %define version	1.9.1
-%define release	1avx
+%define release	2avx
 
-Summary: 	A utility for retrieving files using the HTTP or FTP protocols.
+Summary: 	A utility for retrieving files using the HTTP or FTP protocols
 Name: 		%{name}
 Version: 	%{version}
 Release: 	%{release}
@@ -22,6 +22,7 @@ Patch9:		wget-1.8.2-logstdout.patch.bz2
 Patch10:	wget-1.8.2-referer-opt-typo.patch.bz2
 Patch11:	wget-1.9.1-mdk-fix-fr-translation.patch.bz2
 Patch12:	wget-1.9.1-mdk-fix-de-translation.patch.bz2
+Patch13:	wget-1.9.1-mdk-LFS.patch.bz2
 
 BuildRoot: 	%_tmppath/%name-%version-%release-root
 BuildRequires:	gettext, openssl-devel, texinfo, autoconf2.5
@@ -53,6 +54,7 @@ configurability.
 %patch10 -p0 -b .typo
 %patch11 -p0 -b .frtypo
 %patch12 -p0 -b .detypo
+%patch13 -p1 -b .lfs
 
 %build
 #aclocal
@@ -90,6 +92,9 @@ install -m755 util/rmold.pl %buildroot/%_bindir/rmold
 %_mandir/man1/wget.1*
 
 %changelog
+* Wed Dec 22 2004 Vincent Danen <vdanen@annvix.org> 1.9.1-2avx
+- P13: fix large file support (mdk anthill #1166)
+
 * Tue Aug 17 2004 Vincent Danen <vdanen@annvix.org> 1.9.1-1avx
 - 1.9.1
 - remove P5, P8 (upstream)
