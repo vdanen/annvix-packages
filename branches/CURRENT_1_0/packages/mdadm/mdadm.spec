@@ -1,6 +1,6 @@
 %define name	mdadm
-%define version	1.4.0
-%define release	6sls
+%define version	1.5.0
+%define release	1sls
 
 %define use_dietlibc 0
 %ifarch %{ix86}
@@ -19,13 +19,8 @@ Group:		System/Kernel and hardware
 URL:		http://www.cse.unsw.edu.au/~neilb/source/mdadm/
 Source:		http://cgi.cse.unsw.edu.au/~neilb/source/mdadm/%{name}-%{version}.tar.bz2
 Source1:	mdmonitor.init.bz2
-Patch1:		http://cgi.cse.unsw.edu.au/~neilb/source/mdadm/patch/applied/001mdadm-1.3.0-diet.diff.bz2
-Patch2:		http://cgi.cse.unsw.edu.au/~neilb/source/mdadm/patch/applied/002NoMdstatWarning.bz2
-Patch3:		http://cgi.cse.unsw.edu.au/~neilb/source/mdadm/patch/applied/003BlkGetSize.bz2
-Patch4:		http://cgi.cse.unsw.edu.au/~neilb/source/mdadm/patch/applied/004DetailRebuild.bz2
-Patch5:		http://cgi.cse.unsw.edu.au/~neilb/source/mdadm/patch/applied/005SignedUnsigned.bz2
-Patch6:		http://cgi.cse.unsw.edu.au/~neilb/source/mdadm/patch/applied/006TestMsg.bz2
-Patch7:		ftp://ftp.kernel.org/pub/linux/kernel/people/hpa/mdadm-1.4.0-raid6-20031230.patch.bz2
+Source2:	mdadm.run
+Source3:	mdadm-log.run
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
 BuildRequires:	man groff groff-for-man
@@ -49,14 +44,6 @@ some common tasks).
 %setup -q
 chmod 644 ChangeLog
 
-%patch1 -p0 -b .001
-%patch2 -p0 -b .002
-%patch3 -p0 -b .003
-%patch4 -p0 -b .004
-%patch5 -p0 -b .005
-%patch6 -p0 -b .006
-%patch7 -p1 -b .raid6
-
 %build
 %if %{use_dietlibc}
 make mdassemble CXFLAGS="%{optflags}" SYSCONFDIR="%{_sysconfdir}"
@@ -68,21 +55,24 @@ make CXFLAGS="%{optflags}" SYSCONFDIR="%{_sysconfdir}"
 
 make DESTDIR=%{buildroot} MANDIR=%{_mandir} BINDIR=%{_sbindir} install
 install -D -m 644 mdadm.conf-example %{buildroot}%{_sysconfdir}/mdadm.conf
-mkdir -p %{buildroot}%{_initrddir}
-bzip2 -dc %{SOURCE1} > %{buildroot}%{_initrddir}/mdadm
 
 %if %{use_dietlibc}
 install mdassemble %{buildroot}%{_sbindir}/mdassemble
 %endif
 
+mkdir -p %{buildroot}%{_srvdir}/mdadm/log
+mkdir -p %{buildroot}%{_srvlogdir}/mdadm
+install -m 0755 %{SOURCE2} %{buildroot}%{_srvdir}/mdadm/run
+install -m 0755 %{SOURCE3} %{buildroot}%{_srvdir}/mdadm/log/run
+
 %clean
 [ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
 
 %preun
-%_preun_service mdadm
+%_preun_srv mdadm
 
 %post
-%_post_service mdadm
+%_post_srv mdadm
 
 %files
 %defattr(-,root,root)
@@ -92,10 +82,19 @@ install mdassemble %{buildroot}%{_sbindir}/mdassemble
 %{_sbindir}/mdassemble
 %endif
 %config(noreplace,missingok)/%{_sysconfdir}/mdadm.conf
-%attr(755, root, root) %config(noreplace) %{_initrddir}/mdadm
 %{_mandir}/man*/md*
+%dir %{_srvdir}/mdadm
+%dir %{_srvdir}/mdadm/log
+%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/mdadm
+%{_srvdir}/mdadm/run
+%{_srvdir}/mdadm/log/run
 
 %changelog
+* Sat Jan 31 2004 Vincent Danen <vdanen@opensls.org> 1.5.0-1sls
+- 1.5.0
+- drop all upstream-applied patches
+- supervise scripts
+
 * Wed Jan 21 2004 Vincent Danen <vdanen@opensls.org> 1.4.0-6sls
 - sync with 5mdk (Luca Berra):
   - added raid6 patches from hpa
