@@ -1,71 +1,69 @@
+%define name	postgresql
+%define version	7.3.4
+%define release	3sls
+
+%{!?build_opensls:%global build_opensls 0}
+
 %{expand:%%define pyver %(python -c 'import sys;print(sys.version[0:3])')}
 %{expand:%%define perl_version %(rpm -q perl|sed 's/perl-\([0-9].*\)-.*$/\1/')}
 
-%define initd %{_sysconfdir}/rc.d/init.d
-%define pgdata /var/lib/pgsql
-%define logrotatedir %{_sysconfdir}/logrotate.d
+%define initd		%{_sysconfdir}/rc.d/init.d
+%define pgdata		/var/lib/pgsql
+%define logrotatedir	%{_sysconfdir}/logrotate.d
 
-%define major 3
-%define major_tcl 2
-%define major_ecpg 3
+%define major		3
+%define major_tcl	2
+%define major_ecpg	3
 
 %define current_major_version 7.3
 
-%define libname %mklibname pq %{major}
-%define libpgtcl %mklibname pgtcl %{major_tcl}
-%define libecpg %mklibname ecpg %{major_ecpg}
+%define libname		%mklibname pq %{major}
+%define libpgtcl	%mklibname pgtcl %{major_tcl}
+%define libecpg		%mklibname ecpg %{major_ecpg}
 
 Summary: 	PostgreSQL client programs and libraries.
-Name:		postgresql
-Version:	7.3.4
-Release:	2mdk
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
 License:	BSD
 Group:		Databases
-
-Source0: ftp://ftp.postgresql.org/pub/source/v%{version}/postgresql-%{version}.tar.gz
-
-Source1: http://jdbc.postgresql.org/download/pg73jdbc1.jar 
-Source2: http://jdbc.postgresql.org/download/pg73jdbc2.jar 
-Source3: http://jdbc.postgresql.org/download/pg73jdbc3.jar
-Source4: http://www.rbt.ca/postgresql/upgrade/upgrade.pl
-Source5: ftp://ftp.postgresql.org/pub/source/v%{version}/postgresql-%{version}.tar.gz.md5
-
-Source6: ftp.postgresql.org:/pub/binary/v7.2/RPMS/README.rpm-dist.bz2
-Source7: migration-scripts.tar.gz
-Source8: logrotate.postgresql
-
-Source9: http://jdbc.postgresql.org/download/pg73jdbc2ee.jar
-
-Source10: README.postgresql.mdk
-Source11: postgresql.init
-
-#Source13: odbcinst.ini
-
+URL:		http://www.postgresql.org/ 
+Source0:	ftp://ftp.postgresql.org/pub/source/v%{version}/postgresql-%{version}.tar.gz
+Source1:	http://jdbc.postgresql.org/download/pg73jdbc1.jar 
+Source2:	http://jdbc.postgresql.org/download/pg73jdbc2.jar 
+Source3:	http://jdbc.postgresql.org/download/pg73jdbc3.jar
+Source4:	http://www.rbt.ca/postgresql/upgrade/upgrade.pl
+Source5:	ftp://ftp.postgresql.org/pub/source/v%{version}/postgresql-%{version}.tar.gz.md5
+Source6:	ftp.postgresql.org:/pub/binary/v7.2/RPMS/README.rpm-dist.bz2
+Source7:	migration-scripts.tar.gz
+Source8:	logrotate.postgresql
+Source9:	http://jdbc.postgresql.org/download/pg73jdbc2ee.jar
+Source10:	README.postgresql.mdk
+Source11:	postgresql.init
 # Daouda : script for dumping database (from RedHat)
-Source14: mdk-pgdump.sh
-Source15: postgresql-bashprofile
-Source20: postgres16.xpm
-Source21: postgres32.xpm
-Source22: postgres48.xpm
+Source14:	mdk-pgdump.sh
+Source15:	postgresql-bashprofile
+Source20:	postgres16.xpm
+Source21:	postgres32.xpm
+Source22:	postgres48.xpm
+Source51:	README.v7.3
+Source52:	upgrade_tips_7.3
+Patch1:		rpm-pgsql-7.2.patch.bz2
+Patch2:		postgresql-7.2rc2-betterquote.patch.bz2
+Patch4:		postgresql-7.3-tighten.patch.bz2
+Patch5:		pgaccess-7.2.patch.bz2
+Patch6:		postgresql-7.2.1-perl-use-INSTALLDIRS-vendor.patch.bz2
+Patch7:		postgresql-7.3.3-pythondir.patch.bz2
+Patch8:		postgresql-7.3.4-amd64-testsuite.patch.bz2
 
-Source51: README.v7.3
-Source52: upgrade_tips_7.3
+BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root
+BuildRequires:	XFree86-devel bison flex gettext libtermcap-devel ncurses-devel openssl-devel pam-devel
+BuildRequires:	perl-devel python-devel readline-devel >= 4.3 tk zlib-devel
 
-Patch1: rpm-pgsql-7.2.patch.bz2
-Patch2: postgresql-7.2rc2-betterquote.patch.bz2
-Patch4: postgresql-7.3-tighten.patch.bz2
-Patch5: pgaccess-7.2.patch.bz2
-Patch6: postgresql-7.2.1-perl-use-INSTALLDIRS-vendor.patch.bz2
-Patch7: postgresql-7.3.3-pythondir.patch.bz2
-Patch8: postgresql-7.3.4-amd64-testsuite.patch.bz2
-
-Requires: perl sfio
-Prereq: rpm-helper
-Url: http://www.postgresql.org/ 
-Provides: postgresql-clients
-Obsoletes: postgresql-clients
-Buildroot: %{_tmppath}/%{name}-%{version}-%{release}-root
-BuildRequires:	XFree86-devel bison flex gettext libtermcap-devel ncurses-devel openssl-devel pam-devel perl-devel python-devel readline-devel >= 4.3 tk zlib-devel
+Requires:	perl sfio
+Prereq:		rpm-helper
+Provides:	postgresql-clients
+Obsoletes:	postgresql-clients
 
 %description
 PostgreSQL is an advanced Object-Relational database management system
@@ -86,10 +84,10 @@ server, you need this package. You also need to install this package
 if you're installing the postgresql-server package.
 
 %package -n %{libname}
-Summary: The shared libraries required for any PostgreSQL clients.
-Group: System/Libraries
-Obsoletes: postgresql-libs
-Provides: postgresql-libs = %{version}-%{release} libpq = %{version}-%{release}
+Summary:	The shared libraries required for any PostgreSQL clients.
+Group:		System/Libraries
+Obsoletes:	postgresql-libs
+Provides:	postgresql-libs = %{version}-%{release} libpq = %{version}-%{release}
 
 %description -n %{libname}
 C and C++ libraries to enable user programs to communicate with the
@@ -97,59 +95,59 @@ PostgreSQL database backend. The backend can be on another machine and
 accessed through TCP/IP.
 
 %package -n %{libname}-devel
-Summary: Development library for libpq2
-Group: Development/C
-Requires: %{libname} = %{version}-%{release}
-Provides: postgresql-libs-devel = %{version}-%{release} libpq-devel = %{version}-%{release}
+Summary:	Development library for libpq2
+Group:		Development/C
+Requires:	%{libname} = %{version}-%{release}
+Provides:	postgresql-libs-devel = %{version}-%{release} libpq-devel = %{version}-%{release}
 
 %description -n %{libname}-devel
 Development libraries for libpq
 
 %package -n %{libpgtcl}
-Summary: Tcl/Tk library and front-end for PostgreSQL.
-Group: System/Libraries
-Requires: tcl => 8.0
-Provides: libpgtcl = %{version}-%{release}
+Summary:	Tcl/Tk library and front-end for PostgreSQL.
+Group:		System/Libraries
+Requires:	tcl => 8.0
+Provides:	libpgtcl = %{version}-%{release}
 
 %description -n %{libpgtcl}
 A library to enable Tcl/Tk scripts to communicate with the PostgreSQL
 database backend.
 
 %package -n %{libpgtcl}-devel
-Summary: Tcl/Tk development library and front-end for PostgreSQL.
-Group: Development/C
-Requires: %{libpgtcl} = %{version}-%{release}
-Provides: libpgtcl-devel = %{version}-%{release} 
+Summary:	Tcl/Tk development library and front-end for PostgreSQL.
+Group:		Development/C
+Requires:	%{libpgtcl} = %{version}-%{release}
+Provides:	libpgtcl-devel = %{version}-%{release} 
 
 %description -n %{libpgtcl}-devel
 Development library to libpgtcl2.
 
 %package -n %{libecpg}
-Summary: Shared library libecpg for PostgreSQL
-Group: System/Libraries
-Requires: postgresql = %{version}-%{release}
-Provides: libecpg = %{version}-%{release}
+Summary:	Shared library libecpg for PostgreSQL
+Group:		System/Libraries
+Requires:	postgresql = %{version}-%{release}
+Provides:	libecpg = %{version}-%{release}
 
 %description -n %{libecpg}
 Libecpg is used by programs built with ecpg (Embedded PostgreSQL for C)
 Use postgresql-dev to develop such programs.
 
 %package -n %{libecpg}-devel
-Summary: Development library to libecpg.
-Group: Development/C
-Requires: %{libecpg} = %{version}-%{release}
-Provides: libecpg-devel = %{version}-%{release} 
+Summary:	Development library to libecpg.
+Group:		Development/C
+Requires:	%{libecpg} = %{version}-%{release}
+Provides:	libecpg-devel = %{version}-%{release} 
 
 %description -n %{libecpg}-devel
 Development library to libecpg.
 
 %package server
-Summary: The programs needed to create and run a PostgreSQL server.
-Group: Databases
-Provides: sqlserver
-Prereq: rpm-helper %{_sbindir}/useradd
-Requires: postgresql = %{version}-%{release}
-Conflicts: postgresql < 7.3
+Summary:	The programs needed to create and run a PostgreSQL server.
+Group:		Databases
+Provides:	sqlserver
+Prereq:		rpm-helper %{_sbindir}/useradd
+Requires:	postgresql = %{version}-%{release}
+Conflicts:	postgresql < 7.3
 
 %description server
 The postgresql-server package includes the programs needed to create
@@ -164,34 +162,36 @@ to install the postgresql and postgresql-devel packages.
 
 If you never played with PostgreSQL before, please read README.mdk.
 
+%if !%{build_opensls}
 %package docs
-Summary: Extra documentation for PostgreSQL
-Group: Databases
+Summary:	Extra documentation for PostgreSQL
+Group:		Databases
 
 %description docs
 The postgresql-docs package includes the SGML source for the documentation
 as well as the documentation in other formats, and some extra documentation.
 Install this package if you want to help with the PostgreSQL documentation
 project, or if you want to generate printed documentation.
+%endif
 
 %package contrib
-Summary: Contributed binaries distributed with PostgreSQL
-Group: Databases
-Requires: libpq = %{version}-%{release} postgresql = %{version}-%{release}
-Requires: libpq = %{version}-%{release} 
-Requires: perl-Pg
+Summary:	Contributed binaries distributed with PostgreSQL
+Group:		Databases
+Requires:	libpq = %{version}-%{release} postgresql = %{version}-%{release}
+Requires:	libpq = %{version}-%{release} 
+Requires:	perl-Pg
 
 %description contrib
 The postgresql-contrib package includes the contrib tree distributed with
 the PostgreSQL tarball.  Selected contrib modules are prebuilt.
 
 %package devel
-Summary: PostgreSQL development header files and libraries.
-Group: Development/Databases
-Requires: postgresql = %{version}-%{release} libpq = %{version}-%{release}
-Requires: %{libpgtcl} = %{version}-%{release}
-Requires: %{libecpg} = %{version}-%{release}
-# Requires: libpgsqlodbc = %{version}-%{release}
+Summary:	PostgreSQL development header files and libraries.
+Group:		Development/Databases
+Requires:	postgresql = %{version}-%{release} libpq = %{version}-%{release}
+Requires:	%{libpgtcl} = %{version}-%{release}
+Requires:	%{libecpg} = %{version}-%{release}
+# Requires:	libpgsqlodbc = %{version}-%{release}
 
 %description devel
 The postgresql-devel package contains the header files and libraries
@@ -203,10 +203,10 @@ you're installing postgresql-server, you need to install this
 package.
 
 %package pl
-Summary: The PL/Perl procedural language for PostgreSQL.
-Group: Databases
-Obsoletes: libpgsql2
-Requires: postgresql = %{version} perl-base = %{perl_version}
+Summary:	The PL/Perl procedural language for PostgreSQL.
+Group:		Databases
+Obsoletes:	libpgsql2
+Requires:	postgresql = %{version} perl-base = %{perl_version}
 
 %description pl
 PostgreSQL is an advanced Object-Relational database management
@@ -214,10 +214,10 @@ system.  The postgresql-pl package contains the the PL/Perl, PL/Tcl, and PL/Pyth
 procedural languages for the backend.  PL/Pgsql is part of the core server package.
 
 %package tcl
-Summary: A Tcl client library, and the PL/Tcl procedural language for PostgreSQL.
-Group: Databases
-Requires: tcl >= 8.0 postgresql = %{version}-%{release}
-Requires: %{libpgtcl} = %{version}-%{release}
+Summary:	A Tcl client library, and the PL/Tcl procedural language for PostgreSQL.
+Group:		Databases
+Requires:	tcl >= 8.0 postgresql = %{version}-%{release}
+Requires:	%{libpgtcl} = %{version}-%{release}
 
 %description tcl
 PostgreSQL is an advanced Object-Relational database management
@@ -225,9 +225,9 @@ system.  The postgresql-tcl package contains the pg-enhanced pgtclsh,
 and the PL/Tcl procedural language for the backend.
 
 %package python
-Summary: Development module for Python code to access a PostgreSQL DB.
-Group: Databases
-Requires: python >= %{pyver} postgresql = %{version}-%{release}
+Summary:	Development module for Python code to access a PostgreSQL DB.
+Group:		Databases
+Requires:	python >= %{pyver} postgresql = %{version}-%{release}
 
 %description python
 PostgreSQL is an advanced Object-Relational database management
@@ -236,9 +236,9 @@ developers to use when writing Python code for accessing a PostgreSQL
 database.
 
 %package jdbc
-Summary: Files needed for Java programs to access a PostgreSQL database.
-Group: Databases
-Requires: postgresql = %{version}-%{release}
+Summary:	Files needed for Java programs to access a PostgreSQL database.
+Group:		Databases
+Requires:	postgresql = %{version}-%{release}
 
 %description jdbc
 PostgreSQL is an advanced Object-Relational database management
@@ -246,9 +246,9 @@ system. The postgresql-jdbc package includes the .jar file needed for
 Java programs to access a PostgreSQL database.
 
 %package test
-Summary: The test suite distributed with PostgreSQL.
-Group: Databases
-Requires: postgresql = %{version}-%{release}
+Summary:	The test suite distributed with PostgreSQL.
+Group:		Databases
+Requires:	postgresql = %{version}-%{release}
 
 %description test
 PostgreSQL is an advanced Object-Relational database management
@@ -416,6 +416,10 @@ rm -fr $RPM_BUILD_ROOT%{_datadir}/doc/postgresql/contrib/
 
 make check
 
+%if %{build_opensls}
+rm -rf %{buildroot}%{_docdir}/%{name}-docs-%{version}
+%endif
+
 %pre server
 %_pre_useradd postgres /var/lib/pgsql /bin/bash
 if [ ! -e /var/log/postgresql ]; then
@@ -574,9 +578,11 @@ rm -f perlfiles.list
 %defattr(-,root,root)
 %{_libdir}/libecpg.so
 
+%if !%{build_opensls}
 %files docs
 %defattr(-,root,root)
 %doc %{_docdir}/%{name}-docs-%{version}
+%endif
 
 %files contrib
 %defattr(-,root,root)
@@ -730,6 +736,11 @@ rm -f perlfiles.list
 %attr(-,postgres,postgres) %dir %{_libdir}/pgsql/test
 
 %changelog
+* Wed Dec 17 2003 Vincent Danen <vdanen@opensls.org> 7.3.4-3sls
+- OpenSLS build
+- tidy spec
+- use %%build_opensls macro to not build -doc package
+
 * Sun Aug 31 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 7.3.4-2mdk
 - Patch8: amd64 has comparable math precision to alpha
 
