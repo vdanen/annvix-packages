@@ -1,14 +1,9 @@
 # RH 2.2.4-20, SuSE 2.3.1-32
 %define name		%{cross_prefix}glibc
 
-# Define Mandrake Linux version we are building for
-%define mdkversion	%(perl -pe '/(\\d+)\\.(\\d)\\.?(\\d)?/; $_="$1$2".($3||0)' /etc/mandrake-release)
-
-%{!?build_opensls:%global build_opensls 0}
-
 # <version>-<release> tags for glibc main package
 %define glibcversion	2.3.2
-%define glibcrelease	17sls
+%define glibcrelease	18sls
 # <version>-<release> tags from kernel package where headers were
 # actually extracted from
 %define kheaders_ver	2.4.23
@@ -53,10 +48,12 @@
 # Flag for build_pdf_doc:
 # 1	build glibc with PDF documentation
 # 0	don't build PDF glibc documentation (e.g. for bootstrap build)
-%define build_pdf_doc	1
+%define build_pdf_doc	0
 
 # Enable checking by default for arches where we know tests all pass
-%define build_check	1
+# disable due to heap protection; with build_check enabled we get a heap
+# overflow in malloc.c:4092
+%define build_check	0
 
 # Define to build a biarch package
 %define build_biarch	0
@@ -66,9 +63,7 @@
 
 # Define to build glibc-debug package
 %define build_debug	1
-%if %{mdkversion} >= 920
 %define _enable_debug_packages 1
-%endif
 %if "%{_enable_debug_packages}" == "1"
 %define build_debug	0
 %endif
@@ -78,8 +73,8 @@
 
 %define build_profile	1
 %define build_nscd	1
-%define build_doc	1
-%define build_utils	1
+%define build_doc	0
+%define build_utils	0
 %define build_i18ndata	1
 %define build_timezone	1
 
@@ -95,12 +90,6 @@
 %define build_utils	0
 %define build_i18ndata	0
 %define build_timezone	0
-%endif
-
-%if %{build_opensls}
-%define build_doc	0
-%define build_pdf_doc	0
-%define build_utils	0
 %endif
 
 # Allow --with[out] <feature> at rpm command line build
@@ -134,54 +123,8 @@ Source11:	make_versionh.sh
 Source12:	create_asm_headers.sh
 # service --full-restart-all from initscripts 6.91-18mdk
 Source13:	glibc-post-upgrade
-
-Buildroot:	%{_tmppath}/glibc-%{PACKAGE_VERSION}-root
-Obsoletes:	zoneinfo, libc-static, libc-devel, libc-profile, libc-headers,
-Obsoletes: 	linuxthreads, gencat, locale, glibc-localedata
-Provides:	glibc-localedata
-Autoreq:	false
-BuildRequires:	patch, gettext, perl
-BuildRequires:	%{cross_prefix}binutils >= 2.13.90.0.18-2mdk
-PreReq:         sash >= 3.4-6mdk /bin/sh
-%if "%{name}" != "glibc"
-ExclusiveArch:	%{ix86}
-%endif
-%ifarch %{prelinkarches}
-BuildRequires:	prelink >= 0.2.0-16mdk
-%endif
-%if "%{name}" != "glibc"
-BuildPreReq:	%{cross_prefix}gcc >= 3.2.2-4mdk
-%endif
-%ifarch %{ix86} alpha
-BuildPreReq:	gcc >= 2.96-0.50mdk
-%endif
-%ifarch ia64
-BuildPreReq:	gcc >= 3.2.3-1mdk
-%endif
-%ifarch x86_64
-BuildPreReq:	gcc >= 3.1.1-0.5mdk
-%endif
-%ifarch alpha
-Provides:	ld.so.2
-%endif
-%ifarch ppc
-Provides:	ld.so.1
-%endif
-%ifarch sparc
-Obsoletes:	libc
-%endif
-
-Conflicts:	rpm <= 4.0-0.65
-Conflicts:	%{name}-devel < 2.2.3
-# We need initscripts recent enough to not restart service dm
-Conflicts:	initscripts < 6.91-18mdk
-
-%if %{build_pdf_doc}
-BuildRequires:	texinfo, tetex, tetex-latex
-%endif
-%if %{build_utils}
-BuildRequires:	gd-devel
-%endif
+Source14:	nscd.run
+Source15:	nscd-log.run
 
 Patch0:		glibc-kernel-2.4.patch.bz2
 Patch1:		glibc-2.2.2-fhs.patch.bz2
@@ -227,11 +170,60 @@ Patch38:	glibc-2.3.2-dlerror-fix.patch.bz2
 Patch39:	glibc-2.3.2-iofwide.patch.bz2
 Patch40:	glibc-2.3.2-i586-if-no-cmov.patch.bz2
 Patch41:	glibc-2.3.2-propolice.patch.bz2
-Patch42:	crypt_blowfish-glibc-2.2.diff
+Patch42:	crypt_blowfish-glibc-2.2.diff.bz2
+# http://www.cs.ucsb.edu/~wkr/projects/heap_protection/software.html
+Patch43:	heapprotect-2.3.2-1.4.diff.bz2
 
 # Generated from Kernel RPM
 Patch100:	kernel-headers-include-%{kheaders_ver}.%{kheaders_rel}.patch.bz2
 Patch101:	kernel-headers-gnu-extensions.patch.bz2
+
+BuildRoot:	%{_tmppath}/glibc-%{PACKAGE_VERSION}-root
+BuildRequires:	patch, gettext, perl
+BuildRequires:	%{cross_prefix}binutils >= 2.13.90.0.18-2mdk
+%ifarch %{prelinkarches}
+BuildRequires:	prelink >= 0.2.0-16mdk
+%endif
+%if %{build_pdf_doc}
+BuildRequires:	texinfo, tetex, tetex-latex
+%endif
+%if %{build_utils}
+BuildRequires:	gd-devel
+%endif
+%if "%{name}" != "glibc"
+BuildPreReq:	%{cross_prefix}gcc >= 3.2.2-4mdk
+%endif
+%ifarch %{ix86} alpha
+BuildPreReq:	gcc >= 2.96-0.50mdk
+%endif
+%ifarch ia64
+BuildPreReq:	gcc >= 3.2.3-1mdk
+%endif
+%ifarch x86_64
+BuildPreReq:	gcc >= 3.1.1-0.5mdk
+%endif
+
+Autoreq:	false
+PreReq:         sash >= 3.4-6mdk /bin/sh
+%if "%{name}" != "glibc"
+ExclusiveArch:	%{ix86}
+%endif
+Provides:	glibc-localedata
+%ifarch alpha
+Provides:	ld.so.2
+%endif
+%ifarch ppc
+Provides:	ld.so.1
+%endif
+Obsoletes:	zoneinfo, libc-static, libc-devel, libc-profile, libc-headers,
+Obsoletes: 	linuxthreads, gencat, locale, glibc-localedata
+%ifarch sparc
+Obsoletes:	libc
+%endif
+Conflicts:	rpm <= 4.0-0.65
+Conflicts:	%{name}-devel < 2.2.3
+# We need initscripts recent enough to not restart service dm
+Conflicts:	initscripts < 6.91-18mdk
 
 # Determine minium kernel versions
 %ifarch ia64 x86_64
@@ -340,19 +332,15 @@ need to install the glibc-profile program.
 Summary:	A Name Service Caching Daemon (nscd)
 Group:		System/Servers
 Conflicts:	kernel < 2.2.0
-PreReq:		/sbin/chkconfig
+PreReq:		srv
 PreReq:		rpm-helper
 Autoreq:	true
 
 %description -n nscd
 Nscd caches name service lookups and can dramatically improve
-performance with NIS+, and may help with DNS as well. Note that you
-can't use nscd with 2.0 kernels because of bugs in the kernel-side
-thread support. Unfortunately, nscd happens to hit these bugs
-particularly hard.
+performance with NIS+, and may help with DNS as well.
 
-Install nscd if you need a name service lookup caching daemon, and
-you're not using a version 2.0 kernel.
+Install nscd if you need a name service lookup caching daemon.
 
 %if %{build_debug}
 %package debug
@@ -461,11 +449,12 @@ GNU C library in PDF format.
 %patch38 -p1 -b .dlerror-fix
 %patch39 -p1 -b .iofwide
 %patch40 -p1 -b .i586-if-no-cmov
-%if %build_opensls
 %patch41 -p1 -b .propolice
 rm crypt_blowfish-*/crypt.h
 cp -a crypt_blowfish-*/*.[chS] crypt
 %patch42 -p0 -b .blowfish
+%ifarch %{ix86}
+%patch43 -p1 -b .heapprotect
 %endif
 
 # If we are building enablekernel 2.x.y glibc on older kernel,
@@ -616,6 +605,11 @@ function BuildGlibc() {
   rm -rf build-$arch-linux
   mkdir  build-$arch-linux
   pushd  build-$arch-linux
+%ifarch %{ix86}
+HEAPPROT="--enable-heap-protection"
+%else
+HEAPPROT=""
+%endif
   CC="$BuildCC" CFLAGS="$BuildFlags" ../configure \
     $arch-mandrake-linux-gnu $BuildCross \
     --prefix=%{_prefix} \
@@ -623,12 +617,8 @@ function BuildGlibc() {
     --infodir=%{_infodir} \
     --enable-add-ons=yes --without-cvs \
     --without-tls --without-__thread $ExtraFlags \
-    --enable-kernel=$EnableKernel --with-headers=$KernelHeaders ${1+"$@"}
-%if %build_opensls 
+    --enable-kernel=$EnableKernel --with-headers=$KernelHeaders ${1+"$@"} $HEAPPROT
   %make -r CFLAGS="$BuildFlags" PARALLELMFLAGS=
-%else
-   %make -r CFLAGS="$BuildFlags" PARALLELMFLAGS=-s
-%endif
   popd
 }
 
@@ -775,8 +765,10 @@ install -m 644 redhat/nsswitch.conf $RPM_BUILD_ROOT%{_sysconfdir}/nsswitch.conf
 # This is for ncsd - in glibc 2.2
 %if %{build_nscd}
 install -m 644 nscd/nscd.conf $RPM_BUILD_ROOT%{_sysconfdir}
-mkdir -p $RPM_BUILD_ROOT%{_initrddir}
-install -m 755 nscd/nscd.init $RPM_BUILD_ROOT%{_initrddir}/nscd
+mkdir -p %{buildroot}%{_srvdir}/nscd/log
+mkdir -p %{buildroot}%{_srvlogdir}/nscd
+install -m 0750 %{SOURCE14} %{buildroot}%{_srvdir}/nscd/run
+install -m 0750 %{SOURCE15} %{buildroot}%{_srvdir}/nscd/log/run
 %endif
 
 # Useless and takes place
@@ -1045,21 +1037,19 @@ exit 0
 
 %if %{build_nscd}
 %pre -n nscd
-%_pre_useradd nscd / /bin/false
+%_pre_useradd nscd / /bin/false 83
 
 %post -n nscd
-/sbin/chkconfig --add nscd
+%_post_srv nscd
 
 %preun -n nscd
-if [ $1 = 0 ] ; then
-  /sbin/chkconfig --del nscd
-fi
+%_preun_srv nscd
 
 %postun -n nscd
 %_postun_userdel nscd
 
 if [ "$1" -ge "1" ]; then
-  /sbin/service nscd condrestart > /dev/null 2>&1 || :
+  /usr/sbin/srv restart nscd > /dev/null 2>&1 || :
 fi
 %endif
 
@@ -1291,9 +1281,13 @@ fi
 %files -n nscd
 %defattr(-,root,root)
 %config(noreplace) %{_sysconfdir}/nscd.conf
-%config(noreplace) %{_initrddir}/nscd
 %{_sbindir}/nscd
 %{_sbindir}/nscd_nischeck
+%dir %{_srvdir}/nscd
+%dir %{_srvdir}/nscd/log
+%{_srvdir}/nscd/run
+%{_srvdir}/nscd/log/run
+%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/nscd
 %endif
 
 #
@@ -1323,6 +1317,15 @@ fi
 %endif
 
 %changelog
+* Sun Feb 08 2004 Vincent Danen <vdanen@opensls.org> 2.3.2-18sls
+- include glibc heap protection (P43); currently unapplied
+- remove %%build_opensls macros
+- remove initscript for nscd; supervise scripts
+- srv macros
+- disable %%build_check due to a heap overflow in malloc.c when doing the
+  linuxthreads test
+- only include heap protection on x86 for now (problems with amd64 compile)
+
 * Tue Dec 23 2003 Vincent Danen <vdanen@opensls.org> 2.3.2-17sls
 - update kernel headers to 2.4.23-0.rc5.2mdk
 - don't build doc, pdf-doc, or utils
