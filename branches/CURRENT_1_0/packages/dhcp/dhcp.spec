@@ -1,9 +1,9 @@
 %define name	dhcp
-%define version	3.0
-%define release	1.rc14.1.avx
+%define version	3.0.1
+%define release	1avx
 %define epoch	2
 
-%define their_version	3.0.1rc14
+%define their_version	3.0.1
 %define _catdir		/var/cache/man
 
 %define _requires_exceptions perl(Win32API::Registry)
@@ -16,20 +16,20 @@ Epoch:		%{epoch}
 License:	Distributable
 Group:		System/Servers
 URL:		http://www.isc.org/dhcp.html
-Source0:	ftp:///ftp.isc.org/isc/%{name}/%{name}-%{their_version}.tar.gz
+Source0:	ftp://ftp.isc.org/isc/%{name}/%{name}-%{their_version}.tar.gz
 Source1:	dhcpd.conf.sample
 Source2:	dhcpd.init
 Source3:	dhcp-dynamic-dns-examples.tar.bz2
 Source4:	dhcrelay.init
 Source5:	update_dhcp.pl
 Source6:	dhcpreport.pl
-Source7:	ftp:///ftp.isc.org/isc/%{name}/%{name}-%{their_version}.tar.gz.asc
+Source7:	ftp://ftp.isc.org/isc/%{name}/%{name}-%{their_version}.tar.gz.asc
 Source8:	dhcpd.run
 Source9:	dhcpd-log.run
 Source10:	dhcrelay.run
 Source11:	dhcrelay-log.run
 Source12:	dhcpd.sysconfig
-Patch1:		dhcp-3.0.1rc11-ifup.patch.bz2
+Patch1:		dhcp-3.0.1-mdk-ifup.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-root
 BuildRequires:	perl sed gcc groff-for-man make patch tar bzip2 
@@ -284,6 +284,12 @@ rm -rf /var/lib/dhcp/dhclient.leases
 %{_includedir}/*
 
 %changelog
+* Fri Sep 17 2004 Vincent Danen <vdanen@annvix.org> 3.0.1-1avx
+- 3.0.1
+- update run scripts
+- updated P1 from mdk (flepied): only change the hostname if
+  NEEDHOSTNAME=yes; assign default gateway by interface
+
 * Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 3.0-1.rc14.1avx
 - 3.0-1.rc14 (security fixes for CAN-2004-0460, CAN-2004-0461)
 - Annvix build
