@@ -1,10 +1,9 @@
 %define name	exim
-%define version 4.44
-%define release 3avx
+%define version 4.50
+%define release 1avx
 
 %define build_mysql 0
 %define build_pgsql 0
-%define exiscanver  4.44-28
 %define saversion   4.1
 
 %define alternatives 1
@@ -23,7 +22,7 @@ Release:	%{release}
 License:	GPL
 Group:		System/Servers
 URL:		http://www.exim.org
-Source:		ftp://ftp.exim.org/pub/exim/exim4/%{name}-%{version}.tar.gz
+Source:		ftp://ftp.exim.org/pub/exim/exim4/%{name}-%{version}.tar.bz2
 Source1:	exim.aliases
 Source2:	exim.init
 Source3:	exim.sysconfig
@@ -31,14 +30,13 @@ Source4:	exim.logrotate
 Source5:	exim.8
 Source8:	eximconfig
 Source9:	exim.pam
-Source10:	ftp://ftp.exim.org/pub/exim/exim4/%{name}-%{version}.tar.gz.sig
+Source10:	ftp://ftp.exim.org/pub/exim/exim4/%{name}-%{version}.tar.bz2.sig
 Source11:	http://www.exim.org/ftp/exim4/config.samples.tar.bz2
 # http://sa-exim.sourceforge.net/
 Source12:	sa-exim-%{saversion}.tar.gz
 Source13:	exim.run
 Source14:	exim-log.run
-Patch0:		exim-4.43-avx-config.patch.bz2
-Patch1:		http://duncanthrax.net/exiscan-acl/exiscan-acl-%{exiscanver}.patch.bz2
+Patch0:		exim-4.50-avx-config.patch.bz2
 Patch2:		exim-4.22-install.patch.bz2
 Patch3:		exim-4.43-debian-system_pcre.diff.bz2
 Patch4:		exim-4.43-debian-dontoverridecflags.diff.bz2
@@ -95,7 +93,6 @@ at SMTP time as well as other nasty things like teergrubbing.
 %setup -q -T -D -a 11
 %setup -q -T -D -a 12
 %patch0 -p1 -b .config
-%patch1 -p1 -b .exiscan
 %patch2 -p1 -b .install
 %patch3 -p1 -b .pcre
 %patch4 -p0 -b .cflags
@@ -226,7 +223,7 @@ fi
 %doc doc/ChangeLog LICENCE NOTICE README.UPDATING README
 %doc doc util/unknownuser.sh build-Linux-*/transport-filter.pl
 %doc util/cramtest.pl util/logargs.sh
-%doc doc/NewStuff doc/exiscan-acl-spec.txt
+%doc doc/NewStuff doc/Exim4.upgrade doc/*.txt doc/README.SIEVE
 %attr(4755,root,root) %{_bindir}/exim
 %{_bindir}/exim_checkaccess
 %{_bindir}/exim_dumpdb
@@ -286,6 +283,14 @@ fi
 %config(noreplace) %{_sysconfdir}/exim/sa-exim_short.conf
 
 %changelog
+* Wed Mar 16 2005 Vincent Danen <vdanen@annvix.org> 4.50-1avx
+- 4.50
+- exiscan is now integrated in exim, so drop P1
+- enable support for old demime ACL's but this is deprecated for the
+  mime ACLs so this will be removed in the very near future (keep it
+  for migratory purposes and backwards compatibility) by updating P0
+- add some more docs
+
 * Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 4.44-3avx
 - use logger for logging
 
