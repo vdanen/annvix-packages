@@ -1,0 +1,45 @@
+--- linux-2.4.21/3rdparty/atmelwlan/src/includes/usb/vnetusba.h.orig	2003-08-24 00:33:18.000000000 +0200
++++ linux-2.4.21/3rdparty/atmelwlan/src/includes/usb/vnetusba.h	2003-08-24 15:27:13.000000000 +0200
+@@ -43,15 +43,9 @@
+ 
+ /* Kernel 2.4.20 Changes */
+ #if LINUX_VERSION_CODE > 132115
+-typedef struct devrequest {
+-    u8  requesttype;
+-    u8  request;
+-    u16  value;
+-    u16  index;
+-    u16 length;
+-} devrequest;
++#define devrequest struct usb_ctrlrequest
++typedef struct urb * purb_t;
+ 
+-typedef struct urb *purb_t;
+ #endif
+ 
+ /* the version of this driver */
+@@ -77,7 +71,6 @@
+ #define USB_VNET_SUB_VERSION	2
+ #define USB_VNET_BUILD	        2
+ 
+-
+ #define RFMD_Board		1
+ #define R505_Board    	        4
+ #define R505_2958_Board    	5
+@@ -199,11 +192,11 @@
+ 
+ #define FILL_REQUEST(a,aa,ab,ac,ad,ae)\
+   do {\
+-      (a)->devreq->request = aa;\
+-      (a)->devreq->requesttype = ab;\
+-      (a)->devreq->value = cpu_to_le16(ac);\
+-      (a)->devreq->index = cpu_to_le16(ad);\
+-      (a)->devreq->length = cpu_to_le16(ae);\
++      (a)->devreq->bRequest = aa;\
++      (a)->devreq->bRequestType = ab;\
++      (a)->devreq->wValue = cpu_to_le16(ac);\
++      (a)->devreq->wIndex = cpu_to_le16(ad);\
++      (a)->devreq->wLength = cpu_to_le16(ae);\
+   }while(0)
+ 
+ 

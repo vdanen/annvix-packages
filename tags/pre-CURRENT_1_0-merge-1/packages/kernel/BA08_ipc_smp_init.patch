@@ -1,0 +1,23 @@
+diff -Nru a/init/main.c b/init/main.c
+--- a/init/main.c	Wed Sep  3 23:43:24 2003
++++ b/init/main.c	Wed Sep  3 23:43:24 2003
+@@ -425,9 +425,6 @@
+ #ifdef CONFIG_PROC_FS
+ 	proc_root_init();
+ #endif
+-#if defined(CONFIG_SYSVIPC)
+-	ipc_init();
+-#endif
+ 	check_bugs();
+ 	printk("POSIX conformance testing by UNIFIX\n");
+ 
+@@ -437,6 +434,9 @@
+ 	 *	make syscalls (and thus be locked).
+ 	 */
+ 	smp_init();
++#if defined(CONFIG_SYSVIPC)
++	ipc_init();
++#endif
+ 	rest_init();
+ }
+ 

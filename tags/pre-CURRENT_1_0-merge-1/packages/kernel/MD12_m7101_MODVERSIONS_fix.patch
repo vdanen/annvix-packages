@@ -1,0 +1,16 @@
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff orig/3rdparty/m7101/m7101.c q5/3rdparty/m7101/m7101.c
+--- orig/3rdparty/m7101/m7101.c	2002-08-23 14:56:33.000000000 +0200
++++ q5/3rdparty/m7101/m7101.c	2002-08-23 13:43:23.000000000 +0200
+@@ -67,12 +67,6 @@
+ #error ERROR - You must have 'Support for hot-pluggable devices' enabled in your kernel (under 'general setup')!!
+ #endif
+ 
+-/* Deal with CONFIG_MODVERSIONS */
+-#ifdef CONFIG_MODVERSIONS
+-#define MODVERSIONS
+-#include <linux/modversions.h>
+-#endif
+-
+ #include <linux/module.h>
+ #include <linux/kernel.h>
+ #include <linux/pci.h>

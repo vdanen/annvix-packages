@@ -1,0 +1,11 @@
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff --exclude='defconfig*' --exclude='log.*' --exclude='log2?' w2/drivers/sound/i810_audio.c w1/drivers/sound/i810_audio.c
+--- w2/drivers/sound/i810_audio.c	2003-08-20 19:13:31.000000000 +0200
++++ w1/drivers/sound/i810_audio.c	2003-08-18 17:10:35.000000000 +0200
+@@ -3251,7 +3251,6 @@ out_iospace:
+ out_pio:	
+ 	release_region(card->iobase, 64);
+ 	release_region(card->ac97base, 256);
+-out_chan:
+ 	pci_free_consistent(pci_dev, sizeof(struct i810_channel)*NR_HW_CH,
+ 	    card->channel, card->chandma);
+ out_mem:

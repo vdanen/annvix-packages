@@ -1,0 +1,81 @@
+#!/bin/bash
+#
+# kbrbserver.init	Start and stop the Kerberos 5 servers.
+#
+# chkconfig: 2345 35 65
+# description: Kerberos 5 is a trusted third-party authentication system.  \
+#	       This script starts and stops the servers that Kerberos IV and 5 \
+#	       clients need to connect to.
+# processname: krb5kdc
+# processname: kadmind
+# processname: krb524d
+#
+
+# Get config.
+. /etc/sysconfig/network
+
+# Check that networking is up.
+[ ${NETWORKING} = "no" ] && exit 0
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+# Sheel functions to cut down on useless shell instances.
+start() {
+  	if [ ! -f /etc/kerberos/krb5kdc/principal ] ; then
+	    exit 0
+	else
+  	    if [ ! -f /etc/kerberos/krb5kdc/kadm5.keytab ] ; then
+		echo "Extracting kadm5 Service Keys"
+		/usr/sbin/kadmin.local -q "ktadd -k /etc/kerberos/krb5kdc/kadm5.keytab kadmin/admin kadmin/changepw" && success || fail
+		echo
+	    fi
+	fi
+	echo "Starting Kerberos 5 KDC" 
+	/usr/sbin/krb5kdc
+	echo "Starting Kerberos 5 Admin Server" 
+	daemon /usr/sbin/kadmind
+	echo "Starting Kerberos 5-to-4 Server" 
+	daemon /usr/sbin/krb524d -m
+	touch /var/lock/subsys/krb5server
+}
+stop() {
+	echo -n "Stopping Kerberos 5-to-4 Server" && killproc krb524d
+	echo
+	echo -n "Stopping Kerberos 5 Admin Server" && killproc kadmind
+	echo
+	echo -n "Stopping Kerberos 5 KDC" && killproc krb5kdc
+	echo
+	rm -f /var/lock/subsys/krb5server
+}
+
+# See how we were called.
+case "$1" in
+  start)
+	start
+	;;
+  stop)
+	stop
+	;;
+  restart)
+	stop
+	start
+	;;
+  status)
+	status krb5kdc
+	status kadmind
+	status krb524d
+	;;
+  condrestart)
+	if [ -f /var/lock/subsys/krb5server ] ; then
+		stop
+		start
+	fi
+	;;
+  *)
+	echo "Usage: krb5server {start|stop|status|restart|condrestart}"
+	exit 1
+	;;
+esac
+
+exit 0

@@ -1,0 +1,5990 @@
+--- linux-2.4.21/include/linux/ds1307.h.dl15.orig	2003-08-24 01:21:09.000000000 +0200
++++ linux-2.4.21/include/linux/ds1307.h	2003-08-24 01:21:09.000000000 +0200
+@@ -0,0 +1,59 @@
++#ifndef DS1307_H
++#define DS1307_H
++
++/*
++ * linux/include/linux/ds1307.h
++ *
++ * Author: Abraham van der Merwe <abraham@2d3d.co.za>
++ *
++ * Linux support for the Dallas Semiconductor DS1307 Serial Real-Time
++ * Clock.
++ *
++ * Based on code from the lm-sensors project which is available
++ * at http://www.lm-sensors.nu/ and Russell King's PCF8583 Real-Time
++ * Clock driver (linux/drivers/acorn/char/pcf8583.c).
++ *
++ * This source code is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * version 2 as published by the Free Software Foundation.
++ */
++
++#include <linux/types.h>
++
++/* practically the same as struct rtc_time, but without tm_yday and tm_isdst */
++struct ds1307_date {
++	int tm_sec;
++	int tm_min;
++	int tm_hour;
++	int tm_mday;
++	int tm_mon;
++	int tm_year;
++	int tm_wday;
++};
++
++struct ds1307_memory {
++	u8 offset;		/* 0 - 55 */
++	u8 buf[56];		/* data */
++	u8 length;		/* offset + length <= 50 */
++};
++
++/* size of the rtc non-volatile ram */
++#define DS1307_SIZE	56
++
++/* the following frequencies are supported */
++#define DS1307_FREQ_1HZ		1
++#define DS1307_FREQ_4KHZ	4096
++#define DS1307_FREQ_8KHZ	8192
++#define DS1307_FREQ_32KHZ	32768
++
++#define DS1307_GET_DATE	_IOR ('d',0,struct ds1307_date *)
++#define DS1307_SET_DATE	_IOW ('d',1,struct ds1307_date *)
++#define DS1307_IRQ_ON	_IO  ('d',2)
++#define DS1307_IRQ_OFF	_IO  ('d',3)
++#define DS1307_GET_FREQ	_IOR ('d',4,u16 *)
++#define DS1307_SET_FREQ	_IOW ('d',5,u16 *)
++#define DS1307_READ		_IOR ('d',6,struct ds1307_memory *)
++#define DS1307_WRITE	_IOW ('d',7,struct ds1307_memory *)
++#define DS1307_ENABLE	_IO  ('d',8)
++
++#endif	/* #ifdef DS1307_H */
+--- linux-2.4.21/drivers/i2c/Config.in.dl15.orig	2003-08-24 01:18:22.000000000 +0200
++++ linux-2.4.21/drivers/i2c/Config.in	2003-08-24 01:21:09.000000000 +0200
+@@ -27,6 +27,7 @@ if [ "$CONFIG_I2C" != "n" ]; then
+    dep_tristate 'I2C PCF 8584 interfaces' CONFIG_I2C_ALGOPCF $CONFIG_I2C
+    if [ "$CONFIG_I2C_ALGOPCF" != "n" ]; then
+       dep_tristate '  Elektor ISA card' CONFIG_I2C_ELEKTOR $CONFIG_I2C_ALGOPCF
++      dep_tristate '  PCF on EPP port' CONFIG_I2C_PCFEPP $CONFIG_I2C_ALGOPCF
+    fi
+ 
+    if [ "$CONFIG_MIPS_ITE8172" = "y" ]; then
+@@ -35,16 +36,18 @@ if [ "$CONFIG_I2C" != "n" ]; then
+          dep_tristate '  ITE I2C Adapter' CONFIG_ITE_I2C_ADAP $CONFIG_ITE_I2C_ALGO
+       fi
+    fi
++
+    if [ "$CONFIG_8xx" = "y" ]; then
+       dep_tristate 'MPC8xx CPM I2C interface' CONFIG_I2C_ALGO8XX $CONFIG_I2C
+       if [ "$CONFIG_RPXLITE" = "y" -o "$CONFIG_RPXCLASSIC" = "y" ]; then
+          dep_tristate '  Embedded Planet RPX Lite/Classic suppoort' CONFIG_I2C_RPXLITE $CONFIG_I2C_ALGO8XX
+       fi
+    fi
+-   if [ "$CONFIG_405" = "y" ]; then
+-      dep_tristate 'PPC 405 I2C Algorithm' CONFIG_I2C_PPC405_ALGO $CONFIG_I2C
+-      if [ "$CONFIG_I2C_PPC405_ALGO" != "n" ]; then
+-         dep_tristate '  PPC 405 I2C Adapter' CONFIG_I2C_PPC405_ADAP $CONFIG_I2C_PPC405_ALGO
++
++   if [ "$CONFIG_IBM_OCP" = "y" ]; then
++      dep_tristate 'IBM on-chip I2C Algorithm' CONFIG_I2C_IBM_OCP_ALGO $CONFIG_I2C
++      if [ "$CONFIG_I2C_IBM_OCP_ALGO" != "n" ]; then
++            dep_tristate '  IBM on-chip I2C Adapter' CONFIG_I2C_IBM_OCP_ADAP $CONFIG_I2C_IBM_OCP_ALGO
+       fi
+    fi
+ 
+@@ -68,9 +71,11 @@ if [ "$CONFIG_I2C" != "n" ]; then
+     if [ "$CONFIG_ALPHA" = "y" ]; then
+       dep_tristate '  DEC Tsunami I2C interface' CONFIG_I2C_TSUNAMI $CONFIG_I2C_ALGOBIT
+     fi
++    dep_tristate '  BMC using IPMI' CONFIG_I2C_IPMI $CONFIG_I2C
+     dep_tristate '  Intel 82801AA, AB, BA, DB' CONFIG_I2C_I801 $CONFIG_I2C
+     dep_tristate '  Intel i810AA/AB/E and i815' CONFIG_I2C_I810 $CONFIG_I2C_ALGOBIT
+     dep_tristate '  Intel 82371AB PIIX4(E), 443MX, ServerWorks OSB4/CSB5, SMSC Victory66' CONFIG_I2C_PIIX4 $CONFIG_I2C
++    dep_tristate '  nVidia nForce2' CONFIG_I2C_NFORCE2 $CONFIG_I2C
+     dep_tristate '  SiS 5595' CONFIG_I2C_SIS5595 $CONFIG_I2C
+     dep_tristate '  SiS 630/730' CONFIG_I2C_SIS630 $CONFIG_I2C
+     dep_tristate '  SiS 645/961,645DX/961,735' CONFIG_I2C_SIS645 $CONFIG_I2C $CONFIG_HOTPLUG
+@@ -84,7 +89,7 @@ if [ "$CONFIG_I2C" != "n" ]; then
+ # This is needed for automatic patch generation: sensors code ends here
+ 
+    dep_tristate 'I2C device interface' CONFIG_I2C_CHARDEV $CONFIG_I2C
+-   dep_tristate 'I2C /proc interface (required for hardware sensors)' CONFIG_I2C_PROC $CONFIG_I2C
++   dep_tristate 'I2C /proc interface (required for hardware sensors)' CONFIG_I2C_PROC $CONFIG_I2C $CONFIG_SYSCTL
+ 
+ fi
+ endmenu
+--- linux-2.4.21/drivers/i2c/i2c-ipmb.c.dl15.orig	2003-08-24 01:21:09.000000000 +0200
++++ linux-2.4.21/drivers/i2c/i2c-ipmb.c	2003-08-24 01:21:09.000000000 +0200
+@@ -0,0 +1,376 @@
++/*
++    i2c-ipmb.c - Part of lm_sensors, Linux kernel modules for hardware
++            monitoring
++    Copyright (c) 2002 Mark D. Studebaker <mdsxyz123@yahoo.com>
++
++    This program is free software; you can redistribute it and/or modify
++    it under the terms of the GNU General Public License as published by
++    the Free Software Foundation; either version 2 of the License, or
++    (at your option) any later version.
++
++    This program is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++    GNU General Public License for more details.
++
++    You should have received a copy of the GNU General Public License
++    along with this program; if not, write to the Free Software
++    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++*/
++
++/*
++    THIS DOESN'T WORK YET - DON'T BOTHER TRYING IT.	
++    This implements an i2c adapter for the BMC IPMB.
++*/
++
++#include <linux/module.h>
++#include <linux/kernel.h>
++#include <linux/i2c.h>
++#include <linux/init.h>
++#include <linux/ipmi.h>
++#define LM_DATE "20030714"
++#define LM_VERSION "2.8.0"
++
++
++static u32 i2c_ipmb_func(struct i2c_adapter *adapter);
++int ipmb_access(struct i2c_adapter *adap,struct i2c_msg msgs[], 
++	                   int num);
++
++
++/* I2C Data */
++static struct i2c_algorithm i2c_ipmb_algorithm = {
++	.name = "IPMB algorithm",
++	.id = I2C_ALGO_IPMB,
++	.master_xfer = ipmb_access,
++	.functionality = i2c_ipmb_func,
++};
++
++#define MAX_IPMB_ADAPTERS 8
++static struct i2c_adapter i2c_ipmb_adapter[MAX_IPMB_ADAPTERS];
++
++/* IPMI Data */
++#define IPMI_IPMB_CHANNEL	0
++static ipmi_user_t i2c_ipmb_user;
++static unsigned char ipmi_version_major;
++static unsigned char ipmi_version_minor;
++static const char msgdata[IPMI_MAX_ADDR_SIZE];   /* ?? */
++static struct ipmi_system_interface_addr address = {
++	IPMI_SYSTEM_INTERFACE_ADDR_TYPE,
++	IPMI_BMC_CHANNEL,
++	0
++};	/* send address */
++static struct ipmi_ipmb_addr ipmb_address = {
++	IPMI_IPMB_ADDR_TYPE,
++	IPMI_IPMB_CHANNEL,
++	0,
++	0
++};	/* send address */
++static long msgid;		/* message ID */
++static int interfaces;		/* number of BMC's found */
++static struct ipmi_msg tx_message;	/* send message */
++static unsigned char tx_msg_data[IPMI_MAX_MSG_LENGTH + 50];
++static unsigned char rx_msg_data[IPMI_MAX_MSG_LENGTH + 50]; /* sloppy */
++
++/* IPMI Message defs */
++/* Network Function Codes */
++#define IPMI_NETFN_APP		0x06
++/* Commands */
++#define IPMI_ENABLE_CHANNEL	0x32
++#define IPMI_SEND_MSG		0x34
++#define IPMI_GET_CHANNEL_INFO	0x42	/* unfortunately, IPMI 1.5 only */
++#define IPMI_MASTER_WR		0x52
++
++
++/************** Message Sending **************/
++
++static void ipmb_i2c_send_message(struct ipmi_addr *address,
++                                  int id, struct ipmi_msg * msg)
++{
++	int err;
++
++	if((err = ipmi_request(i2c_ipmb_user, address, id, msg, 0)))
++		printk(KERN_INFO "i2c-ipmb.o: ipmi_request error %d\n",
++			err);
++}
++
++/* not used */
++static void ipmb_i2c_bmc_send_message(int id, struct ipmi_msg * msg)
++{
++	address.channel = IPMI_BMC_CHANNEL;
++	ipmb_i2c_send_message((struct ipmi_addr *) &address, id, msg);
++}
++
++/* this is for sending commands like master w/r */
++static void ipmb_i2c_ipmb_send_message(int id, struct ipmi_msg * msg)
++{
++/*
++	address.channel = IPMI_IPMB_CHANNEL;
++*/
++	address.channel = IPMI_BMC_CHANNEL;
++	ipmb_i2c_send_message((struct ipmi_addr *) &address, id, msg);
++}
++
++#if 0
++/* not used */
++/* this is for an smi message, not for things like master w/r */
++static void ipmb_i2c_ipmb_send_smi(int addr, int id, struct ipmi_msg * msg)
++{
++	ipmb_address.slave_addr = addr;
++	ipmb_address.lun = 0;  /* pass in */
++	ipmb_i2c_send_message((struct ipmi_addr *) &ipmb_address, id, msg);
++}
++
++/* not used */
++/* Compose and send a "Enable Channel Receive" message */
++static void ipmb_enable_channel_rcv(int channel, int code)
++{
++	tx_message.netfn = IPMI_NETFN_APP;
++	tx_message.cmd = IPMI_ENABLE_CHANNEL;	
++	tx_message.data_len = 2;
++	tx_message.data = tx_msg_data;
++	tx_msg_data[0] = channel;
++	tx_msg_data[1] = code;
++	ipmb_i2c_bmc_send_message(msgid++, &tx_message);
++}
++
++/* not used */
++/* Compose and send a "Get Channel Info" message (1.5 only) */
++static void ipmb_get_channel_info(int channel)
++{
++	tx_message.netfn = IPMI_NETFN_APP;
++	tx_message.cmd = IPMI_GET_CHANNEL_INFO;	
++	tx_message.data_len = 1;
++	tx_message.data = tx_msg_data;
++	tx_msg_data[0] = channel;
++	ipmb_i2c_bmc_send_message(msgid++, &tx_message);
++}
++#endif /* 0 */
++
++/* Compose and send a "Master W/R" message */
++static void ipmb_master_wr(int bus, u8 addr, u8 rdcount,
++                           u8 wrcount, u8 *wrdata)
++{
++	printk(KERN_INFO "i2c-ipmb.o: trying bus %d ...\n", bus);
++	tx_message.netfn = IPMI_NETFN_APP;
++	tx_message.cmd = IPMI_MASTER_WR;	
++	tx_message.data_len = 3 + wrcount;
++	tx_msg_data[0] = bus & 0x0f;
++	tx_msg_data[1] = addr << 1;
++	tx_msg_data[2] = rdcount;
++	if(wrcount > 0)
++		memcpy(tx_msg_data + 3, wrdata, wrcount);
++	tx_message.data = tx_msg_data;
++	ipmb_i2c_ipmb_send_message(msgid++, &tx_message);
++}
++
++int xchan;
++int xbus;
++/* look for channels. IPMI 1.5 defines multiple channels and an
++   easy way to get the information.
++   We don't bother using SDR type 14 for IPMI 1.0; that isn't
++   always present anyway. We could try "enable message channel receive"
++   with a channel state = 2 (query) but 1.0 is likely to have only
++   IPMB busses anyway. Therefore, we assume there is only
++   the IPMB at channel 0.
++*/
++static void ipmb_get_all_channel_info(void)
++
++{
++#if 0
++	if(ipmi_version_major > 1 ||
++	   (ipmi_version_major == 1 && ipmi_version_minor >= 5))
++		ipmb_get_channel_info(0);
++#endif
++/*
++	else
++		scan SDR's for type 14
++	else {
++		for all xchan 0-15
++		ipmb_enable_channel_rcv(xchan, 2);
++*/
++	xbus = 0;
++		ipmb_master_wr(xbus, 0x2d, 1, 1, "\0");
++/*
++*/
++/*
++	else
++		assume IPMB at channel 0 only
++*/
++}
++
++/************** Message Receiving **************/
++
++/* not used */
++static void ipmb_rcv_channel_info(struct ipmi_msg *msg)
++{
++	u8 channel, type, protocol;
++
++	channel = msg->data[1] & 0x0f;
++	type = msg->data[2] & 0x7f;
++	protocol = msg->data[3] & 0x1f;
++	printk(KERN_INFO "i2c-ipmb.o: Channel %d; type 0x%x; protocol 0x%x\n",
++	                  channel, type, protocol);
++}
++/*
++	return i2c_add_adapter(&i2c_ipmb_adapter);
++	if (error) {
++		printk(KERN_ERR "i2c-ipmb.o: Adapter registration failed, "
++		       "module i2c-ipmb.o is not inserted\n.");
++		return;
++	}
++*/
++/*
++	if(channel < 7)
++		ipmb_get_channel_info(channel + 1);
++*/
++static void ipmb_rcv_master_resp(struct ipmi_msg *msg)
++{
++	if(++xbus > 0x0f)
++		return;
++	ipmb_master_wr(xbus, 0x2d, 1, 1, "\0");
++}
++
++#if 0
++/* not used */
++static void ipmb_rcv_channel_enable(struct ipmi_msg *msg)
++{
++	int state;
++
++	state = msg->data[2] & 1;
++
++	printk(KERN_INFO "i2c-ipmb.o: Channel %d; state %d\n",
++	                  xchan, state);
++		if(++xchan > 0x0f)
++			return;
++	ipmb_enable_channel_rcv(xchan, 2);
++}
++#endif /* 0 */
++
++static void ipmb_i2c_msg_handler(struct ipmi_recv_msg *msg,
++				  void            *handler_data)
++{
++	int rcvid = msg->msgid & 0xffffff;
++	int client = (msg->msgid >> 24) & 0xf;
++
++	if (msg->msg.data[0] != 0)
++		printk(KERN_WARNING "i2c-ipmb.o: Error 0x%x on cmd 0x%x/0x%x\n",
++		       msg->msg.data[0], msg->msg.netfn & 0xfe, msg->msg.cmd);
++/*
++	else
++*/
++		ipmb_rcv_master_resp(&(msg->msg));
++
++
++
++
++
++	ipmi_free_recv_msg(msg);
++}
++
++static struct ipmi_user_hndl ipmb_hndlrs =
++{
++	.ipmi_recv_hndl           = ipmb_i2c_msg_handler,
++};
++
++/*************** I2C funtions *******************/
++
++/* Return -1 on error. */
++int ipmb_access(struct i2c_adapter *adap,struct i2c_msg msgs[], 
++	                   int num)
++{
++
++
++
++
++
++
++}
++
++static u32 i2c_ipmb_func(struct i2c_adapter *adapter)
++{
++	return 0; /* fixme */
++}
++
++/**************** Initialization ****************/
++
++/* callback for each BMC found */
++static void ipmb_register(int ipmi_intf)
++{
++	unsigned long flags;
++	int rv;
++
++	if(interfaces > 0) {	/* 1 max for now */
++		printk(KERN_INFO
++		       "i2c-ipmb.o: Additional IPMI interface %d not supported\n",
++		       ipmi_intf);
++		return;
++	}
++
++	rv = ipmi_create_user(ipmi_intf, &ipmb_hndlrs, NULL, &i2c_ipmb_user);
++	if (rv < 0) {
++		printk(KERN_ERR "i2c-ipmb.o: Unable to register with ipmi\n");
++		return;
++	}
++
++	ipmi_get_version(i2c_ipmb_user, &ipmi_version_major,
++	                 &ipmi_version_minor);
++	printk(KERN_INFO
++	       "i2c-ipmb.o: Registered IPMI interface %d with version %d.%d\n",
++	       ipmi_intf, ipmi_version_major, ipmi_version_minor);
++	interfaces++;
++
++	ipmb_get_all_channel_info();
++}
++
++static void ipmb_new_smi(int if_num)
++{
++	ipmb_register(if_num);
++}
++
++static void ipmb_smi_gone(int if_num)
++{
++	if (interfaces >= 1) {
++/*
++		i2c_del_adapter(&i2c_ipmb_adapter);
++*/
++		ipmi_destroy_user(i2c_ipmb_user);
++		interfaces--;
++	}
++}
++
++static struct ipmi_smi_watcher smi_watcher =
++{
++	.new_smi  = ipmb_new_smi,
++	.smi_gone = ipmb_smi_gone
++};
++
++static int __init i2c_ipmb_init(void)
++{
++	int rv;
++
++	printk(KERN_INFO "i2c-ipmb.o version %s (%s)\n", LM_VERSION, LM_DATE);
++
++	rv = ipmi_smi_watcher_register(&smi_watcher);
++	if (rv) {
++		printk(KERN_WARNING
++		       "ipmi_watchdog: can't register smi watcher\n");
++		return rv;
++	}
++
++	printk(KERN_INFO "i2c-ipmb.o: BMC access for i2c modules initialized.\n");
++	return 0;
++}
++
++
++static void __exit i2c_ipmi_exit(void)
++{
++	ipmi_smi_watcher_unregister(&smi_watcher);
++	ipmb_smi_gone(0);
++}
++
++MODULE_AUTHOR("M. D. Studebaker <mdsxyz123@yahoo.com>");
++MODULE_DESCRIPTION("IPMB-BMC access through i2c");
++MODULE_LICENSE("GPL");
++
++module_init(i2c_ipmb_init);
++module_exit(i2c_ipmi_exit);
+--- linux-2.4.21/drivers/i2c/i2c-ipmi.c.dl15.orig	2003-08-24 01:21:09.000000000 +0200
++++ linux-2.4.21/drivers/i2c/i2c-ipmi.c	2003-08-24 01:21:09.000000000 +0200
+@@ -0,0 +1,237 @@
++/*
++    i2c-ipmi.c - Part of lm_sensors, Linux kernel modules for hardware
++            monitoring
++    Copyright (c) 2002 Mark D. Studebaker <mdsxyz123@yahoo.com>
++
++    This program is free software; you can redistribute it and/or modify
++    it under the terms of the GNU General Public License as published by
++    the Free Software Foundation; either version 2 of the License, or
++    (at your option) any later version.
++
++    This program is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++    GNU General Public License for more details.
++
++    You should have received a copy of the GNU General Public License
++    along with this program; if not, write to the Free Software
++    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++*/
++
++/*
++    This implements a "dummy" i2c adapter for clients to access the
++    BMC via IPMI messages. Supports only one BMC and one client for now!
++*/
++
++#include <linux/module.h>
++#include <linux/kernel.h>
++#include <linux/i2c.h>
++#include <linux/init.h>
++#include <linux/ipmi.h>
++#define LM_DATE "20030714"
++#define LM_VERSION "2.8.0"
++
++
++static u32 i2c_ipmi_func(struct i2c_adapter *adapter);
++static int bmcclient_i2c_send_message(struct i2c_adapter *, char *, int);
++
++/* I2C Data */
++static struct i2c_algorithm i2c_ipmi_algorithm = {
++	.name = "IPMI algorithm",
++	.id = I2C_ALGO_IPMI,
++	.slave_send = &bmcclient_i2c_send_message,
++	.functionality = &i2c_ipmi_func,
++};
++
++static struct i2c_adapter i2c_ipmi_adapter = {
++	.owner		= THIS_MODULE,
++	.name		= "IPMI adapter",
++	.id		= I2C_ALGO_IPMI | I2C_HW_IPMI,
++	.algo		= &i2c_ipmi_algorithm,
++};
++
++/* IPMI Data */
++static ipmi_user_t i2c_ipmi_user;
++static unsigned char ipmi_version_major;
++static unsigned char ipmi_version_minor;
++static const char msgdata[IPMI_MAX_ADDR_SIZE];   /* ?? */
++static struct ipmi_addr address = {
++	IPMI_SYSTEM_INTERFACE_ADDR_TYPE,
++	IPMI_BMC_CHANNEL,
++	{0}
++};	/* send address */
++static struct ipmi_msg message;	/* send message */
++static long msgid;		/* message ID */
++static int interfaces;		/* number of BMC's found */
++static int (*rcv_callback)(struct i2c_client *client, unsigned int cmd,
++                           void *arg);
++
++
++/* Dummy adapter... */
++static u32 i2c_ipmi_func(struct i2c_adapter *adapter)
++{
++	return 0;
++}
++
++/************** Message Sending **************/
++
++static int find_client(struct i2c_client * client)
++{
++	int i;
++
++	for (i = 0; i < I2C_CLIENT_MAX; i++)
++		if (client == i2c_ipmi_adapter.clients[i])
++			return i;
++	return -1;
++}
++
++static void ipmi_i2c_send_message(int id, struct ipmi_msg * msg)
++{
++	ipmi_request(i2c_ipmi_user, &address, (long) id, msg, 0);
++}
++
++/* This is the message send function exported to the client
++   via the i2c_adapter struct.
++   We use the existing (but unused) slave_send function pointer.
++   Hence the ugly casts. */
++static int bmcclient_i2c_send_message(struct i2c_adapter *clnt,
++                                      char * mesg, int id)
++{
++	struct ipmi_msg *msg = (struct ipmi_msg *) mesg;
++	struct i2c_client *client = (struct i2c_client *) clnt;
++        int clientid;
++	
++#ifdef DEBUG
++	if(msg->data == NULL)
++		printk(KERN_INFO "i2c-ipmi.o: Send 0x%x\n", msg->cmd);
++	else
++		printk(KERN_INFO "i2c-ipmi.o: Send 0x%x 0x%x 0x%x\n", msg->cmd, msg->data[0], msg->data[1]);
++#endif
++	/* save the client number in the upper 8 bits of the message id */
++	if((clientid = find_client(client)) < 0) {
++		printk(KERN_WARNING "i2c-ipmi.o: Request from unknown client\n");
++		return -1;      
++	}
++
++	id = (id & 0xffffff) | (clientid << 24);
++	ipmi_i2c_send_message(id, msg);
++	return 0;
++}
++
++/************** Message Receiving **************/
++
++static void ipmi_i2c_msg_handler(struct ipmi_recv_msg *msg,
++				  void            *handler_data)
++{
++	int rcvid = msg->msgid & 0xffffff;
++	int clientid = (msg->msgid >> 24) & 0xff;
++
++#ifdef DEBUG
++	if (msg->msg.data[0] != 0)
++		printk(KERN_WARNING "i2c-ipmi.o: Error 0x%x on cmd 0x%x/0x%x\n",
++		       msg->msg.data[0], msg->msg.netfn, msg->msg.cmd);
++#endif
++	/* Protect ourselves here; verify the client and its callback
++	   since the client may have gone away since
++	   the message was sent! */
++	if(clientid < I2C_CLIENT_MAX &&
++	   i2c_ipmi_adapter.clients[clientid] != NULL &&
++	   i2c_ipmi_adapter.clients[clientid]->driver->command != NULL)
++	   	(* i2c_ipmi_adapter.clients[clientid]->driver->command)
++		     (i2c_ipmi_adapter.clients[clientid], rcvid, msg);
++	else {
++		printk(KERN_WARNING "i2c-ipmi.o: Response for unknown client\n");
++		ipmi_free_recv_msg(msg);
++	}
++}
++
++static struct ipmi_user_hndl ipmi_hndlrs =
++{
++	.ipmi_recv_hndl           = ipmi_i2c_msg_handler,
++};
++
++/**************** Initialization ****************/
++
++/* callback for each BMC found */
++static void ipmi_register_bmc(int ipmi_intf)
++{
++	int error;
++
++	if(interfaces > 0) {	/* 1 max for now */
++		printk(KERN_INFO
++		       "i2c-ipmi.o: Additional IPMI interface %d not supported\n",
++		       ipmi_intf);
++		return;
++	}
++
++	error = ipmi_create_user(ipmi_intf, &ipmi_hndlrs, NULL, &i2c_ipmi_user);
++	if (error < 0) {
++		printk(KERN_ERR "i2c-ipmi.o: Unable to register with ipmi\n");
++		return;
++	}
++
++	return i2c_add_adapter(&i2c_ipmi_adapter);
++	if (error) {
++		printk(KERN_ERR "i2c-ipmi.o: Adapter registration failed, "
++		       "module i2c-ipmi.o is not inserted\n.");
++		return;
++	}
++
++	ipmi_get_version(i2c_ipmi_user, &ipmi_version_major,
++	                 &ipmi_version_minor);
++	printk(KERN_INFO
++	       "i2c-ipmi.o: Registered IPMI interface %d with version %d.%d\n",
++	       ipmi_intf, ipmi_version_major, ipmi_version_minor);
++	interfaces++;
++}
++
++static void ipmi_new_smi(int if_num)
++{
++	ipmi_register_bmc(if_num);
++}
++
++static void ipmi_smi_gone(int if_num)
++{
++	if (interfaces >= 1) {
++		i2c_del_adapter(&i2c_ipmi_adapter);
++		ipmi_destroy_user(i2c_ipmi_user);
++		interfaces--;
++	}
++}
++
++static struct ipmi_smi_watcher smi_watcher =
++{
++	.new_smi  = ipmi_new_smi,
++	.smi_gone = ipmi_smi_gone
++};
++
++static int __init i2c_ipmi_init(void)
++{
++	int rv;
++
++	printk(KERN_INFO "i2c-ipmi.o version %s (%s)\n", LM_VERSION, LM_DATE);
++
++	rv = ipmi_smi_watcher_register(&smi_watcher);
++	if (rv) {
++		printk(KERN_WARNING
++		       "ipmi_watchdog: can't register smi watcher\n");
++		return rv;
++	}
++
++	printk(KERN_INFO "i2c-ipmi.o: BMC access for i2c modules initialized.\n");
++	return 0;
++}
++
++
++static void __exit i2c_ipmi_exit(void)
++{
++	ipmi_smi_watcher_unregister(&smi_watcher);
++	ipmi_smi_gone(0);
++}
++
++MODULE_AUTHOR("M. D. Studebaker <mdsxyz123@yahoo.com>");
++MODULE_DESCRIPTION("IPMI-BMC access through i2c");
++MODULE_LICENSE("GPL");
++
++module_init(i2c_ipmi_init);
++module_exit(i2c_ipmi_exit);
+--- linux-2.4.21/drivers/i2c/i2c-keywest.c.dl15.orig	2003-08-24 01:18:21.000000000 +0200
++++ linux-2.4.21/drivers/i2c/i2c-keywest.c	2003-08-24 01:21:09.000000000 +0200
+@@ -45,7 +45,6 @@
+ 
+ #include <linux/module.h>
+ #include <linux/config.h>
+-#include <linux/version.h>
+ #include <linux/kernel.h>
+ #include <linux/ioport.h>
+ #include <linux/pci.h>
+@@ -76,7 +75,7 @@ MODULE_DESCRIPTION("I2C driver for Apple
+ MODULE_LICENSE("GPL");
+ MODULE_PARM(probe, "i");
+ MODULE_PARM(debug, "i");
+-EXPORT_NO_SYMBOLS;
++
+ 
+ int probe = 0;
+ int debug = 0;
+@@ -210,7 +209,7 @@ keywest_timeout(unsigned long data)
+ 
+ 	DBG("timeout !\n");
+ 	spin_lock_irq(&iface->lock);
+-	if (handle_interrupt(iface, read_reg(reg_isr))) {
++	if (iface->state != state_idle) {
+ 		iface->timeout_timer.expires = jiffies + POLL_TIMEOUT;
+ 		add_timer(&iface->timeout_timer);
+ 	}
+@@ -256,17 +255,20 @@ keywest_smbus_xfer(	struct i2c_adapter*	
+ 	    	len = 1;
+ 	    	buffer = &data->byte;
+ 	    	iface->cur_mode |= KW_I2C_MODE_STANDARDSUB;
++	    	//iface->cur_mode |= KW_I2C_MODE_COMBINED;
+ 	    	break;
+ 	    case I2C_SMBUS_WORD_DATA:
+ 	    	len = 2;
+ 	    	cur_word = cpu_to_le16(data->word);
+ 	    	buffer = (u8 *)&cur_word;
+ 	    	iface->cur_mode |= KW_I2C_MODE_STANDARDSUB;
++	    	//iface->cur_mode |= KW_I2C_MODE_COMBINED;
+ 		break;
+ 	    case I2C_SMBUS_BLOCK_DATA:
+ 	    	len = data->block[0];
+ 	    	buffer = &data->block[1];
+ 	    	iface->cur_mode |= KW_I2C_MODE_STANDARDSUB;
++	    	//iface->cur_mode |= KW_I2C_MODE_COMBINED;
+ 		break;
+ 	    default:
+ 	    	return -1;
+@@ -412,23 +414,24 @@ keywest_func(struct i2c_adapter * adapte
+ 	       I2C_FUNC_SMBUS_BLOCK_DATA;
+ }
+ 
++
+ /* For now, we only handle combined mode (smbus) */
+ static struct i2c_algorithm keywest_algorithm = {
+-	name:		"Keywest i2c",
+-	id:		I2C_ALGO_SMBUS,
+-	smbus_xfer:	keywest_smbus_xfer,
+-	master_xfer:	keywest_xfer,
+-	functionality:	keywest_func,
++	.name		= "Keywest i2c",
++	.id		= I2C_ALGO_SMBUS,
++	.smbus_xfer	= keywest_smbus_xfer,
++	.master_xfer	= keywest_xfer,
++	.functionality	= keywest_func,
+ };
+ 
+ 
+-static int
++static int __init
+ create_iface(struct device_node* np)
+ {
+ 	unsigned long steps, *psteps, *prate;
+ 	unsigned bsteps, tsize, i, nchan, addroffset;
+ 	struct keywest_iface* iface;
+-	int rc;
++	int error;
+ 
+ 	psteps = (unsigned long *)get_property(np, "AAPL,address-step", NULL);
+ 	steps = psteps ? (*psteps) : 0x10;
+@@ -503,8 +506,8 @@ create_iface(struct device_node* np)
+ 	write_reg(reg_isr, KW_I2C_IRQ_MASK);
+ 
+ 	/* Request chip interrupt */	
+-	rc = request_irq(iface->irq, keywest_irq, 0, "keywest i2c", iface);
+-	if (rc) {
++	error = request_irq(iface->irq, keywest_irq, 0, "keywest i2c", iface);
++	if (error) {
+ 		printk(KERN_ERR "i2c-keywest: can't get IRQ %d !\n", iface->irq);
+ 		iounmap((void *)iface->base);
+ 		kfree(iface);
+@@ -515,7 +518,6 @@ create_iface(struct device_node* np)
+ 		struct keywest_chan* chan = &iface->channels[i];
+ 		u8 addr;
+ 		
+-		chan->adapter.name = THIS_MODULE;
+ 		sprintf(chan->adapter.name, "%s %d", np->parent->name, i);
+ 		chan->iface = iface;
+ 		chan->chan_no = i;
+@@ -526,8 +528,8 @@ create_iface(struct device_node* np)
+ 		chan->adapter.client_unregister = NULL;
+ 		chan->adapter.data = chan;
+ 
+-		rc = i2c_add_adapter(&chan->adapter);
+-		if (rc) {
++		error = i2c_add_adapter(&chan->adapter);
++		if (error) {
+ 			printk("i2c-keywest.c: Adapter %s registration failed\n",
+ 				chan->adapter.name);
+ 			chan->adapter.data = NULL;
+@@ -551,10 +553,10 @@ create_iface(struct device_node* np)
+ 	return 0;
+ }
+ 
+-static void
++static void __exit
+ dispose_iface(struct keywest_iface *iface)
+ {
+-	int i, rc;
++	int i, error;
+ 	
+ 	ifaces = iface->next;
+ 
+@@ -577,39 +579,37 @@ dispose_iface(struct keywest_iface *ifac
+ 		struct keywest_chan* chan = &iface->channels[i];
+ 		if (!chan->adapter.data)
+ 			continue;
+-		rc = i2c_del_adapter(&chan->adapter);
++		i2c_del_adapter(&chan->adapter);
+ 		chan->adapter.data = NULL;
+ 		/* We aren't that prepared to deal with this... */
+-		if (rc)
++		if (error)
+ 			printk("i2c-keywest.c: i2c_del_adapter failed, that's bad !\n");
+ 	}
+ 	iounmap((void *)iface->base);
+ 	kfree(iface);
+ }
+ 
+-static int __init
+-i2c_keywest_init(void)
++static int __init i2c_keywest_init(void)
+ {
+ 	struct device_node *np;
+-	int rc = -ENODEV;
++	int error = -ENODEV;
+ 	
+ 	np = find_compatible_devices("i2c", "keywest");
+ 	while (np != 0) {
+ 		if (np->n_addrs >= 1 && np->n_intrs >= 1)
+-			rc = create_iface(np);
++			error = create_iface(np);
+ 		np = np->next;
+ 	}
+ 	if (ifaces)
+-		rc = 0;
+-	return rc;
++		error = 0;
++	return error;
+ }
+ 
+-static void __exit
+-i2c_keywest_cleanup(void)
++static void __exit i2c_keywest_exit(void)
+ {
+ 	while(ifaces)
+ 		dispose_iface(ifaces);
+ }
+ 
+ module_init(i2c_keywest_init);
+-module_exit(i2c_keywest_cleanup);
++module_exit(i2c_keywest_exit);
+--- linux-2.4.21/drivers/i2c/i2c-nforce2.c.dl15.orig	2003-08-24 01:21:09.000000000 +0200
++++ linux-2.4.21/drivers/i2c/i2c-nforce2.c	2003-08-24 01:21:09.000000000 +0200
+@@ -0,0 +1,424 @@
++/*
++    SMBus driver for nVidia nForce2 MCP
++
++    Copyright (c) 2003  Hans-Frieder Vogt <hfvogt@arcor.de>,
++    Based on
++    SMBus 2.0 driver for AMD-8111 IO-Hub
++    Copyright (c) 2002 Vojtech Pavlik
++
++    This program is free software; you can redistribute it and/or modify
++    it under the terms of the GNU General Public License as published by
++    the Free Software Foundation; either version 2 of the License, or
++    (at your option) any later version.
++
++    This program is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++    GNU General Public License for more details.
++
++    You should have received a copy of the GNU General Public License
++    along with this program; if not, write to the Free Software
++    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++*/
++
++/*
++    SUPPORTED DEVICES	PCI ID
++    nForce2 MCP		0064       
++
++    This driver supports the 2 SMBuses that are included in the MCP2 of the
++    nForce2 chipset.
++*/
++
++/* Note: we assume there can only be one nForce2, with two SMBus interfaces */
++
++#include <linux/module.h>
++#include <linux/pci.h>
++#include <linux/kernel.h>
++#include <linux/stddef.h>
++#include <linux/sched.h>
++#include <linux/ioport.h>
++#include <linux/init.h>
++#include <linux/i2c.h>
++#include <linux/delay.h>
++#include <asm/io.h>
++#define LM_DATE "20030714"
++#define LM_VERSION "2.8.0"
++
++#ifdef MODULE_LICENSE
++MODULE_LICENSE("GPL");
++#endif
++MODULE_AUTHOR ("Hans-Frieder Vogt <hfvogt@arcor.de>");
++MODULE_DESCRIPTION("nForce2 SMBus driver");
++
++#ifndef PCI_DEVICE_ID_NVIDIA_NFORCE2_SMBUS
++#define PCI_DEVICE_ID_NVIDIA_NFORCE2_SMBUS   0x0064
++#endif
++/* TODO: sync with lm-sensors */
++#ifndef I2C_HW_SMBUS_NFORCE2
++#define I2C_HW_SMBUS_NFORCE2	0x0c
++#endif
++
++
++struct nforce2_smbus {
++	struct pci_dev *dev;
++	struct i2c_adapter adapter;
++	int base;
++	int size;
++};
++
++
++/*
++ * nVidia nForce2 SMBus control register definitions
++ */
++#define NFORCE_PCI_SMB1	0x50
++#define NFORCE_PCI_SMB2	0x54
++
++
++/*
++ * ACPI 2.0 chapter 13 SMBus 2.0 EC register model
++ */
++#define NVIDIA_SMB_PRTCL	(smbus->base + 0x00)	/* protocol, PEC */
++#define NVIDIA_SMB_STS		(smbus->base + 0x01)	/* status */
++#define NVIDIA_SMB_ADDR		(smbus->base + 0x02)	/* address */
++#define NVIDIA_SMB_CMD		(smbus->base + 0x03)	/* command */
++#define NVIDIA_SMB_DATA		(smbus->base + 0x04)	/* 32 data registers */
++#define NVIDIA_SMB_BCNT		(smbus->base + 0x24)	/* number of data bytes */
++#define NVIDIA_SMB_ALRM_A	(smbus->base + 0x25)	/* alarm address */
++#define NVIDIA_SMB_ALRM_D	(smbus->base + 0x26)	/* 2 bytes alarm data */
++
++#define NVIDIA_SMB_STS_DONE	0x80
++#define NVIDIA_SMB_STS_ALRM	0x40
++#define NVIDIA_SMB_STS_RES	0x20
++#define NVIDIA_SMB_STS_STATUS	0x1f
++
++#define NVIDIA_SMB_PRTCL_WRITE			0x00
++#define NVIDIA_SMB_PRTCL_READ			0x01
++#define NVIDIA_SMB_PRTCL_QUICK			0x02
++#define NVIDIA_SMB_PRTCL_BYTE			0x04
++#define NVIDIA_SMB_PRTCL_BYTE_DATA		0x06
++#define NVIDIA_SMB_PRTCL_WORD_DATA		0x08
++#define NVIDIA_SMB_PRTCL_BLOCK_DATA		0x0a
++#define NVIDIA_SMB_PRTCL_PROC_CALL		0x0c
++#define NVIDIA_SMB_PRTCL_BLOCK_PROC_CALL	0x0d
++#define NVIDIA_SMB_PRTCL_I2C_BLOCK_DATA		0x4a
++#define NVIDIA_SMB_PRTCL_PEC			0x80
++
++
++/* Other settings */
++#define MAX_TIMEOUT 256
++
++
++
++static s32 nforce2_access(struct i2c_adapter *adap, u16 addr,
++		       unsigned short flags, char read_write,
++		       u8 command, int size, union i2c_smbus_data *data);
++#if 0
++static void nforce2_do_pause(unsigned int amount);
++#endif
++/*
++static int nforce2_block_transaction(union i2c_smbus_data *data,
++				  char read_write, int i2c_enable);
++ */
++static u32 nforce2_func(struct i2c_adapter *adapter);
++
++
++static struct i2c_algorithm smbus_algorithm = {
++	.name = "Non-I2C SMBus adapter",
++	.id = I2C_ALGO_SMBUS,
++	.smbus_xfer = nforce2_access,
++	.functionality = nforce2_func,
++};
++
++
++
++#if 0
++/* Internally used pause function */
++void nforce2_do_pause(unsigned int amount)
++{
++	current->state = TASK_INTERRUPTIBLE;
++	schedule_timeout(amount);
++}
++#endif
++
++/* Return -1 on error. See smbus.h for more information */
++s32 nforce2_access(struct i2c_adapter * adap, u16 addr, unsigned short flags,
++		char read_write, u8 command, int size,
++		union i2c_smbus_data * data)
++{
++	struct nforce2_smbus *smbus = adap->algo_data;
++	unsigned char protocol, pec, temp;
++	unsigned char len = 0; /* to keep the compiler quiet */
++	int timeout = 0;
++	int i;
++
++	protocol = (read_write == I2C_SMBUS_READ) ? NVIDIA_SMB_PRTCL_READ : NVIDIA_SMB_PRTCL_WRITE;
++	pec = (flags & I2C_CLIENT_PEC) ? NVIDIA_SMB_PRTCL_PEC : 0;
++
++	switch (size) {
++
++		case I2C_SMBUS_QUICK:
++			protocol |= NVIDIA_SMB_PRTCL_QUICK;
++			read_write = I2C_SMBUS_WRITE;
++			break;
++
++		case I2C_SMBUS_BYTE:
++			if (read_write == I2C_SMBUS_WRITE)
++				outb_p(data->byte, NVIDIA_SMB_DATA);
++			protocol |= NVIDIA_SMB_PRTCL_BYTE;
++			break;
++
++		case I2C_SMBUS_BYTE_DATA:
++			outb_p(command, NVIDIA_SMB_CMD);
++			if (read_write == I2C_SMBUS_WRITE)
++				outb_p(data->byte, NVIDIA_SMB_DATA);
++			protocol |= NVIDIA_SMB_PRTCL_BYTE_DATA;
++			break;
++
++		case I2C_SMBUS_WORD_DATA:
++			outb_p(command, NVIDIA_SMB_CMD);
++			if (read_write == I2C_SMBUS_WRITE) {
++				 outb_p(data->word, NVIDIA_SMB_DATA);
++				 outb_p(data->word >> 8, NVIDIA_SMB_DATA+1);
++			}
++			protocol |= NVIDIA_SMB_PRTCL_WORD_DATA | pec;
++			break;
++
++		case I2C_SMBUS_BLOCK_DATA:
++			outb_p(command, NVIDIA_SMB_CMD);
++			if (read_write == I2C_SMBUS_WRITE) {
++				len = min_t(u8, data->block[0], 32);
++				outb_p(len, NVIDIA_SMB_BCNT);
++				for (i = 0; i < len; i++)
++					outb_p(data->block[i + 1], NVIDIA_SMB_DATA+i);
++			}
++			protocol |= NVIDIA_SMB_PRTCL_BLOCK_DATA | pec;
++			break;
++
++		case I2C_SMBUS_I2C_BLOCK_DATA:
++			len = min_t(u8, data->block[0], 32);
++			outb_p(command, NVIDIA_SMB_CMD);
++			outb_p(len, NVIDIA_SMB_BCNT);
++			if (read_write == I2C_SMBUS_WRITE)
++				for (i = 0; i < len; i++)
++					outb_p(data->block[i + 1], NVIDIA_SMB_DATA+i);
++			protocol |= NVIDIA_SMB_PRTCL_I2C_BLOCK_DATA;
++			break;
++
++		case I2C_SMBUS_PROC_CALL:
++			printk(KERN_WARNING "i2c-nforce2.o: I2C_SMBUS_PROC_CALL not supported!\n");
++			return -1;
++			/*
++			outb_p(command, NVIDIA_SMB_CMD);
++			outb_p(data->word, NVIDIA_SMB_DATA);
++			outb_p(data->word >> 8, NVIDIA_SMB_DATA + 1);
++			protocol = NVIDIA_SMB_PRTCL_PROC_CALL | pec;
++			read_write = I2C_SMBUS_READ;
++			break;
++			 */
++
++		case I2C_SMBUS_BLOCK_PROC_CALL:
++			printk(KERN_WARNING "i2c-nforce2.o: I2C_SMBUS_BLOCK_PROC_CALL not supported!\n");
++			return -1;
++			/*
++			protocol |= pec;
++			len = min_t(u8, data->block[0], 31);
++			outb_p(command, NVIDIA_SMB_CMD);
++			outb_p(len, NVIDIA_SMB_BCNT);
++			for (i = 0; i < len; i++)
++				outb_p(data->block[i + 1], NVIDIA_SMB_DATA + i);
++			protocol = NVIDIA_SMB_PRTCL_BLOCK_PROC_CALL | pec;
++			read_write = I2C_SMBUS_READ;
++			break;
++			*/
++
++		case I2C_SMBUS_WORD_DATA_PEC:
++		case I2C_SMBUS_BLOCK_DATA_PEC:
++		case I2C_SMBUS_PROC_CALL_PEC:
++		case I2C_SMBUS_BLOCK_PROC_CALL_PEC:
++			printk(KERN_WARNING "i2c-nforce2.c: Unexpected software PEC transaction %d\n.", size);
++			return -1;
++
++		default:
++			printk(KERN_WARNING "i2c-nforce2.c: Unsupported transaction %d\n", size);
++			return -1;
++	}
++
++	outb_p((addr & 0x7f) << 1, NVIDIA_SMB_ADDR);
++	outb_p(protocol, NVIDIA_SMB_PRTCL);
++
++	temp = inb_p(NVIDIA_SMB_STS);
++
++#if 0
++	do {
++		nforce2_do_pause(1);
++		temp = inb_p(NVIDIA_SMB_STS);
++	} while (((temp & NVIDIA_SMB_STS_DONE) == 0) && (timeout++ < MAX_TIMEOUT));
++#endif
++	if (~temp & NVIDIA_SMB_STS_DONE) {
++		udelay(500);
++		temp = inb_p(NVIDIA_SMB_STS);
++	}
++	if (~temp & NVIDIA_SMB_STS_DONE) {
++		current->state = TASK_INTERRUPTIBLE;
++		schedule_timeout(HZ/100);
++		temp = inb_p(NVIDIA_SMB_STS);
++	}
++
++	if ((timeout >= MAX_TIMEOUT) || (~temp & NVIDIA_SMB_STS_DONE) || (temp & NVIDIA_SMB_STS_STATUS))
++		return -1;
++
++	if (read_write == I2C_SMBUS_WRITE)
++		return 0;
++
++	switch (size) {
++
++		case I2C_SMBUS_BYTE:
++		case I2C_SMBUS_BYTE_DATA:
++			data->byte = inb_p(NVIDIA_SMB_DATA);
++			break;
++
++		case I2C_SMBUS_WORD_DATA:
++		/* case I2C_SMBUS_PROC_CALL: not supported */
++			data->word = inb_p(NVIDIA_SMB_DATA) | (inb_p(NVIDIA_SMB_DATA+1) << 8);
++			break;
++
++		case I2C_SMBUS_BLOCK_DATA:
++		/* case I2C_SMBUS_BLOCK_PROC_CALL: not supported */
++			len = inb_p(NVIDIA_SMB_BCNT);
++			len = min_t(u8, len, 32);
++		case I2C_SMBUS_I2C_BLOCK_DATA:
++			for (i = 0; i < len; i++)
++				data->block[i+1] = inb_p(NVIDIA_SMB_DATA + i);
++			data->block[0] = len;
++			break;
++	}
++
++	return 0;
++}
++
++
++u32 nforce2_func(struct i2c_adapter *adapter)
++{
++	/* other functionality might be possible, but is not tested */
++	return I2C_FUNC_SMBUS_QUICK | I2C_FUNC_SMBUS_BYTE |
++	    I2C_FUNC_SMBUS_BYTE_DATA | I2C_FUNC_SMBUS_WORD_DATA /* |
++	    I2C_FUNC_SMBUS_BLOCK_DATA */;
++}
++
++
++static struct pci_device_id nforce2_ids[] __devinitdata = {
++	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE2_SMBUS,
++	       	PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },
++	{ 0 }
++};
++
++
++static int __devinit nforce2_probe_smb (struct pci_dev *dev, int reg, struct nforce2_smbus *smbus, char *name)
++{
++	u16 iobase;
++	int error;
++
++	if (pci_read_config_word(dev, reg, &iobase) != PCIBIOS_SUCCESSFUL) {
++		printk (KERN_ERR "i2c-nforce2.o: Error reading PCI config for %s\n", name);
++		return -1;
++	}
++	smbus->dev  = dev;
++	smbus->base = iobase & 0xfffc;
++	smbus->size = 8;
++
++	if (!request_region(smbus->base, smbus->size, "nForce2 SMBus")) {
++		printk (KERN_ERR "i2c-nforce2.o: Error requesting region %02x .. %02X for %s\n", smbus->base, smbus->base+smbus->size-1, name);
++		return -1;
++	}
++
++	/* TODO: find a better way to find out whether this file is compiled
++	 * with i2c 2.7.0 of earlier
++	 */
++#ifdef I2C_HW_SMBUS_AMD8111
++	smbus->adapter.owner = THIS_MODULE;
++#endif
++	sprintf(smbus->adapter.name, "SMBus nForce2 adapter at %04x", smbus->base);
++	smbus->adapter.id = I2C_ALGO_SMBUS | I2C_HW_SMBUS_NFORCE2;
++	smbus->adapter.algo = &smbus_algorithm;
++	smbus->adapter.algo_data = smbus;
++
++	error = i2c_add_adapter(&smbus->adapter);
++	if (error) {
++		printk(KERN_WARNING "i2c-nforce2.o: Failed to register adapter.\n");
++		release_region(smbus->base, smbus->size);
++		return -1;
++	}
++	printk(KERN_INFO "i2c-nforce2.o: nForce2 SMBus adapter at %#x\n", smbus->base);
++	return 0;
++}
++
++
++static int __devinit nforce2_probe(struct pci_dev *dev, const struct pci_device_id *id)
++{
++	struct nforce2_smbus *smbuses;
++	int res1, res2;
++
++	/* we support 2 SMBus adapters */
++	if (!(smbuses = (void *)kmalloc(2*sizeof(struct nforce2_smbus),
++				       	GFP_KERNEL)))
++		return -ENOMEM;
++	memset (smbuses, 0, 2*sizeof(struct nforce2_smbus));
++	pci_set_drvdata(dev, smbuses);
++
++	/* SMBus adapter 1 */
++	res1 = nforce2_probe_smb (dev, NFORCE_PCI_SMB1, &smbuses[0], "SMB1");
++	if (res1 < 0) {
++		printk (KERN_ERR "i2c-nforce2.o: Error probing SMB1.\n");
++		smbuses[0].base = 0;	/* to have a check value */
++	}
++	res2 = nforce2_probe_smb (dev, NFORCE_PCI_SMB2, &smbuses[1], "SMB2");
++	if (res2 < 0) {
++		printk (KERN_ERR "i2c-nforce2.o: Error probing SMB2.\n");
++		smbuses[1].base = 0;	/* to have a check value */
++	}
++	if ((res1 < 0) && (res2 < 0)) {
++		/* we did not find even one of the SMBuses, so we give up */
++		kfree(smbuses);
++		return -ENODEV;
++	}
++
++	return 0;
++}
++
++
++static void __devexit nforce2_remove(struct pci_dev *dev)
++{
++	struct nforce2_smbus *smbuses = (void*) pci_get_drvdata(dev);
++
++	if (smbuses[0].base) {
++		i2c_del_adapter(&smbuses[0].adapter);
++		release_region(smbuses[0].base, smbuses[0].size);
++	}
++	if (smbuses[1].base) {
++		i2c_del_adapter(&smbuses[1].adapter);
++		release_region(smbuses[1].base, smbuses[1].size);
++	}
++	kfree(smbuses);
++}
++
++static struct pci_driver nforce2_driver = {
++	.name		= "nForce2 SMBus",
++	.id_table	= nforce2_ids,
++	.probe		= nforce2_probe,
++	.remove		= __devexit_p(nforce2_remove),
++};
++
++int __init nforce2_init(void)
++{
++	printk(KERN_INFO "i2c-nforce2.o version %s (%s)\n", LM_VERSION, LM_DATE);
++	return pci_module_init(&nforce2_driver);
++}
++
++void __exit nforce2_exit(void)
++{
++	pci_unregister_driver(&nforce2_driver);
++}
++
++module_init(nforce2_init);
++module_exit(nforce2_exit);
++
+--- linux-2.4.21/drivers/i2c/Makefile.dl15.orig	2003-08-24 01:20:53.000000000 +0200
++++ linux-2.4.21/drivers/i2c/Makefile	2003-08-24 01:21:44.000000000 +0200
+@@ -17,6 +17,7 @@ obj-$(CONFIG_I2C_ELV)		+= i2c-elv.o
+ obj-$(CONFIG_I2C_VELLEMAN)	+= i2c-velleman.o
+ obj-$(CONFIG_I2C_ALGOPCF)	+= i2c-algo-pcf.o
+ obj-$(CONFIG_I2C_ELEKTOR)	+= i2c-elektor.o
++obj-$(CONFIG_I2C_ELEKTOR)	+= i2c-pcf-epp.o
+ obj-$(CONFIG_ITE_I2C_ALGO)	+= i2c-algo-ite.o
+ obj-$(CONFIG_ITE_I2C_ADAP)	+= i2c-adap-ite.o
+ obj-$(CONFIG_I2C_PROC)		+= i2c-proc.o
+@@ -25,6 +26,8 @@ obj-$(CONFIG_SCx200_ACB)	+= scx200_acb.o
+ obj-$(CONFIG_I2C_KEYWEST)	+= i2c-keywest.o
+ obj-$(CONFIG_I2C_ALGO_SIBYTE)	+= i2c-algo-sibyte.o i2c-sibyte.o
+ obj-$(CONFIG_I2C_MAX1617)	+= i2c-max1617.o
++obj-$(CONFIG_I2C_IBM_OCP_ALGO)	+= i2c-algo-ibm_ocp.o
++obj-$(CONFIG_I2C_IBM_OCP_ADAP)	+= i2c-adap-ibm_ocp.o
+ 
+ # This is needed for automatic patch generation: sensors code starts here
+ obj-$(CONFIG_I2C_ALI1535)		+= i2c-ali1535.o
+@@ -35,6 +38,8 @@ obj-$(CONFIG_I2C_HYDRA)			+= i2c-hydra.o
+ obj-$(CONFIG_I2C_I801)			+= i2c-i801.o
+ obj-$(CONFIG_I2C_I810)			+= i2c-i810.o
+ obj-$(CONFIG_I2C_ISA)			+= i2c-isa.o
++obj-$(CONFIG_I2C_IPMI)			+= i2c-ipmi.o
++obj-$(CONFIG_I2C_NFORCE2)		+= i2c-nforce2.o
+ obj-$(CONFIG_I2C_PIIX4)			+= i2c-piix4.o dmi_scan.o
+ obj-$(CONFIG_I2C_SIS5595)		+= i2c-sis5595.o
+ obj-$(CONFIG_I2C_SIS630)		+= i2c-sis630.o
+--- linux-2.4.21/drivers/sensors/bmcsensors.c.dl15.orig	2003-08-24 01:21:09.000000000 +0200
++++ linux-2.4.21/drivers/sensors/bmcsensors.c	2003-08-24 01:21:09.000000000 +0200
+@@ -0,0 +1,977 @@
++/*
++    bmcsensors.c - Part of lm_sensors, Linux kernel modules
++                for hardware monitoring
++                
++    Copyright (c) 2002 Mark D. Studebaker <mdsxyz123@yahoo.com>
++
++    This program is free software; you can redistribute it and/or modify
++    it under the terms of the GNU General Public License as published by
++    the Free Software Foundation; either version 2 of the License, or
++    (at your option) any later version.
++
++    This program is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++    GNU General Public License for more details.
++
++    You should have received a copy of the GNU General Public License
++    along with this program; if not, write to the Free Software
++    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++*/
++
++#include <linux/module.h>
++#include <linux/slab.h>
++#include <linux/proc_fs.h>
++#include <linux/sysctl.h>
++#include <linux/types.h>
++#include <linux/i2c.h>
++#include <linux/i2c-proc.h>
++#include <linux/ipmi.h>
++#include <linux/init.h>
++#include <asm/errno.h>
++#include <asm/io.h>
++#define LM_DATE "20030714"
++#define LM_VERSION "2.8.0"
++
++/*
++#define DEBUG 1
++*/
++
++static unsigned short normal_i2c[] = { SENSORS_I2C_END };
++static unsigned short normal_i2c_range[] = { SENSORS_I2C_END };
++static unsigned int normal_isa[] = { SENSORS_ISA_END };
++static unsigned int normal_isa_range[] = { SENSORS_ISA_END };
++
++SENSORS_INSMOD_1(bmcsensors);
++
++struct bmcsensors_data {
++	struct semaphore lock;
++	int sysctl_id;
++
++	struct semaphore update_lock;
++	char valid;		/* !=0 if following fields are valid */
++	unsigned long last_updated;	/* In jiffies */
++
++	u8 alarms;
++};
++
++
++static int bmcsensors_attach_adapter(struct i2c_adapter *adapter);
++static int bmcsensors_detect(struct i2c_adapter *adapter, int address,
++			  unsigned short flags, int kind);
++static int bmcsensors_detach_client(struct i2c_client *client);
++static int bmcsensors_command(struct i2c_client *client, unsigned int cmd,
++			   void *arg);
++
++static void bmcsensors_update_client(struct i2c_client *client);
++static int bmcsensors_find(int *address);
++static void bmcsensors_reserve_sdr(void);
++
++
++static void bmcsensors_all(struct i2c_client *client, int operation,
++			int ctl_name, int *nrels_mag, long *results);
++static void bmcsensors_alarms(struct i2c_client *client, int operation,
++			   int ctl_name, int *nrels_mag, long *results);
++static void bmcsensors_fan_div(struct i2c_client *client, int operation,
++			    int ctl_name, int *nrels_mag, long *results);
++static void bmcsensors_pwm(struct i2c_client *client, int operation,
++			int ctl_name, int *nrels_mag, long *results);
++static void bmcsensors_get_sdr(u16 resid, u16 record, u8 offset);
++static void bmcsensors_get_reading(struct i2c_client *client, int i);
++
++static int bmcsensors_id = 0;
++
++static struct i2c_driver bmcsensors_driver = {
++	.owner		= THIS_MODULE,
++	.name		= "BMC Sensors driver",
++	.id		= I2C_DRIVERID_BMCSENSORS,
++	.flags		= I2C_DF_NOTIFY,
++	.attach_adapter	= bmcsensors_attach_adapter,
++	.detach_client	= bmcsensors_detach_client,
++	.command	= bmcsensors_command,
++};
++
++static struct bmcsensors_data bmc_data;
++struct i2c_client bmc_client = {
++	"BMC Sensors",
++	1,                  /* fake should be 0 */
++	0,
++	0,
++	NULL,   /* adapter */
++	&bmcsensors_driver,
++	& bmc_data,
++	0
++};
++
++static bmcsensors_initialized;
++
++#define MAX_SDR_ENTRIES 50
++#define SDR_LIMITS 8
++#define SDR_MAX_ID_LENGTH 16
++#define SDR_MAX_UNPACKED_ID_LENGTH ((SDR_MAX_ID_LENGTH * 4 / 3) + 2)
++struct sdrdata {
++	/* reverse lookup from sysctl */
++	int sysctl;
++	/* retrieved from SDR, not expected to change */
++	u8 stype;
++	u8 number;
++	u8 capab;
++	u16 thresh_mask;
++	u8 format;
++	u8 linear;
++	s16 m;
++	s16 b;
++	u8 k;
++	u8 nominal;
++	u8 limits[SDR_LIMITS];
++	int lim1, lim2;
++	u8 lim1_write, lim2_write;
++	u8 string_type;
++	u8 id_length;
++	u8 id[SDR_MAX_ID_LENGTH];
++	/* retrieved from reading */
++	u8 reading;
++	u8 status;
++	u8 thresholds;
++};
++static struct sdrdata sdrd[MAX_SDR_ENTRIES];
++static int sdrd_count;
++
++
++/* -- SENSORS SYSCTL START -- */
++#define BMC_SYSCTL_IN1 1000
++#define BMC_SYSCTL_TEMP1 1100
++#define BMC_SYSCTL_CURR1 1200
++#define BMC_SYSCTL_FAN1 1300
++#define BMC_SYSCTL_ALARMS 5000
++
++/* -- SENSORS SYSCTL END -- */
++
++#define MAX_PROC_ENTRIES (MAX_SDR_ENTRIES + 5)
++#define MAX_PROCNAME_SIZE 8
++static ctl_table *bmcsensors_dir_table;
++static char *bmcsensors_proc_name_pool;
++
++#define IPMI_SDR_SIZE 67
++static int ipmi_sdr_partial_size = IPMI_SDR_SIZE;
++static struct ipmi_msg tx_message;	/* send message */
++static unsigned char tx_msg_data[IPMI_MAX_MSG_LENGTH + 50];
++static unsigned char rx_msg_data[IPMI_MAX_MSG_LENGTH + 50]; /* sloppy */
++static int rx_msg_data_offset;
++static int msgid;		/* API to IPMI is long but we'll let i2c-ipmi convert */
++static u16 resid;
++static u16 nextrecord;
++static int errorcount;
++
++enum states {STATE_INIT, STATE_RESERVE, STATE_SDR, STATE_SDRPARTIAL,
++             STATE_READING, STATE_UNCANCEL, STATE_DONE};
++static int state;
++static int receive_counter;
++
++
++/* IPMI Message defs */
++/* Network Function Codes */
++#define IPMI_NETFN_SENSOR	0x04
++#define IPMI_NETFN_STORAGE	0x0A
++/* Commands */
++#define IPMI_RESERVE_SDR		0x22
++#define IPMI_GET_SDR		0x23
++#define IPMI_GET_SENSOR_STATE_READING		0x2D
++
++/* SDR defs */
++#define STYPE_TEMP	0x01
++#define STYPE_VOLT	0x02
++#define STYPE_CURR	0x03
++#define STYPE_FAN	0x04
++
++/* do we really need maximums per-type? */
++#define STYPE_MAX	4		/* the last sensor type we are interested in */
++static u8 bmcs_count[STYPE_MAX + 1];
++static const u8 bmcs_max[STYPE_MAX + 1] = {0, 20, 20, 20, 20};
++
++/************************************/
++
++
++/* unpack based on string type, convert to normal, null terminate */
++static void ipmi_sprintf(u8 * to, u8 * from, u8 type, u8 length)
++{
++	static const u8 *bcdplus = "0123456789 -.:,_";
++	int i;
++
++	switch (type) {
++		case 0: 	/* unicode */		
++			for(i = 0; i < length; i++)
++				*to++ = *from++ & 0x7f;
++			*to = 0;
++			break;
++		case 1: 	/* BCD Plus */		
++			for(i = 0; i < length; i++)
++				*to++ = bcdplus[*from++ & 0x0f];
++			*to = 0;
++			break;
++		case 2: 	/* packed ascii */ /* if not a mult. of 3 this will run over */     
++			for(i = 0; i < length; i += 3) {
++				*to++ = *from & 0x3f;
++				*to++ = *from++ >> 6 | ((*from & 0xf)  << 2);
++				*to++ = *from++ >> 4 | ((*from & 0x3)  << 4);
++				*to++ = (*from++ >> 2) & 0x3f;
++			}
++			*to = 0;
++			break;
++		case 3: 	/* normal */		
++			if(length > 1)
++				memcpy(to, from, length);
++			to[length] = 0;
++			break;
++	}
++}
++
++static const char * threshold_text[] = {
++	"upper non-recoverable threshold",
++	"upper critical threshold",
++	"upper non-critical threshold",
++	"lower non-recoverable threshold",
++	"lower critical threshold",
++	"lower non-critical threshold",
++	"positive-going hysteresis",
++	"negative-going hysteresis"	/* unused */
++};
++
++/* select two out of the 8 possible readable thresholds, and place indexes into the limits
++   array into lim1 and lim2. Set writable flags */
++static void bmcsensors_select_thresholds(int i)
++{
++	u8 capab = sdrd[i].capab;
++	u16 mask = sdrd[i].thresh_mask;
++
++	sdrd[i].lim1 = -1;
++	sdrd[i].lim2 = -1;
++	sdrd[i].lim1_write = 0;
++	sdrd[i].lim2_write = 0;
++
++	if(((capab & 0x0c) == 0x04) ||	/* readable thresholds ? */
++	   ((capab & 0x0c) == 0x08)) {
++		/* select upper threshold */
++		if(mask & 0x10) {			/* upper crit */
++			sdrd[i].lim1 = 1;
++			if((capab & 0x0c) == 0x08 && (mask & 0x1000))
++				sdrd[i].lim1_write = 1;
++		}
++		else if(mask & 0x20) {		/* upper non-recov */
++			sdrd[i].lim1 = 0;
++			if((capab & 0x0c) == 0x08 && (mask & 0x2000))
++				sdrd[i].lim1_write = 1;
++		}
++		else if(mask & 0x08) {		/* upper non-crit */
++			sdrd[i].lim1 = 2;
++			if((capab & 0x0c) == 0x08 && (mask & 0x0800))
++				sdrd[i].lim1_write = 1;
++		}
++
++		/* select lower threshold */
++		if(((capab & 0x30) == 0x10) ||	/* readable hysteresis ? */
++		   ((capab & 0x30) == 0x20))	/* pos hyst */
++			sdrd[i].lim2 = 6;
++		else if(mask & 0x02) {		/* lower crit */
++			sdrd[i].lim2 = 4;
++			if((capab & 0x0c) == 0x08 && (mask & 0x0200))
++				sdrd[i].lim2_write = 1;
++		}
++		else if(mask & 0x04) {		/* lower non-recov */
++			sdrd[i].lim2 = 3;
++			if((capab & 0x0c) == 0x08 && (mask & 0x0400))
++				sdrd[i].lim2_write = 1;
++		}
++		else if(mask & 0x01) {		/* lower non-crit */
++			sdrd[i].lim2 = 5;
++			if((capab & 0x0c) == 0x08 && (mask & 0x0100))
++				sdrd[i].lim2_write = 1;
++		}
++	}
++
++	if(sdrd[i].lim1 >= 0)
++		printk(KERN_INFO "bmcsensors.o: sensor %d: using %s for upper limit\n",
++			i, threshold_text[sdrd[i].lim1]);
++#ifdef DEBUG
++	else
++		printk(KERN_INFO "bmcsensors.o: sensor %d: no readable upper limit\n", i);
++#endif
++	if(sdrd[i].lim2 >= 0)
++		printk(KERN_INFO "bmcsensors.o: sensor %d: using %s for lower limit\n",
++			i, threshold_text[sdrd[i].lim2]);
++#ifdef DEBUG
++	else
++		printk(KERN_INFO "bmcsensors.o: sensor %d: no readable lower limit\n", i);
++#endif
++}
++
++/* After we have received all the SDR entries and picked out the ones
++   we are interested in, build a table of the /proc entries and register with i2c.
++*/
++static void bmcsensors_build_proc_table()
++{
++	int i;
++	int temps = 0, volts = 0, currs = 0, fans = 0;
++	u8 id[SDR_MAX_UNPACKED_ID_LENGTH];
++
++	if(!(bmcsensors_dir_table = kmalloc((sdrd_count + 1) * sizeof(struct ctl_table), GFP_KERNEL))) {
++		printk(KERN_ERR "bmcsensors.o: no memory\n");
++		return; /* do more than this */	/* ^^ add 1 or more for alarms, etc. */
++	}
++	if(!(bmcsensors_proc_name_pool = kmalloc((sdrd_count + 0) * MAX_PROCNAME_SIZE, GFP_KERNEL))) {
++		kfree(bmcsensors_dir_table);
++		printk(KERN_ERR "bmcsensors.o: no memory\n");
++		return; /* do more than this */	/* ^^ add 1 or more for alarms, etc. */
++	}
++
++	for(i = 0; i < sdrd_count; i++) {
++		bmcsensors_dir_table[i].procname = bmcsensors_proc_name_pool + (i * MAX_PROCNAME_SIZE);
++		bmcsensors_dir_table[i].data = NULL;
++		bmcsensors_dir_table[i].maxlen = 0;
++		bmcsensors_dir_table[i].child = NULL;
++		bmcsensors_dir_table[i].proc_handler = &i2c_proc_real;
++		bmcsensors_dir_table[i].strategy = &i2c_sysctl_real;
++		bmcsensors_dir_table[i].de = NULL;
++
++		switch(sdrd[i].stype) {
++			case(STYPE_TEMP) :
++				bmcsensors_dir_table[i].ctl_name = BMC_SYSCTL_TEMP1 + temps;
++				sprintf((char *)bmcsensors_dir_table[i].procname, "temp%d", ++temps);
++				bmcsensors_dir_table[i].extra1 = &bmcsensors_all;
++				break;
++			case(STYPE_VOLT) :
++				bmcsensors_dir_table[i].ctl_name = BMC_SYSCTL_IN1 + volts;
++				sprintf((char *)bmcsensors_dir_table[i].procname, "in%d", ++volts);
++				bmcsensors_dir_table[i].extra1 = &bmcsensors_all;
++				break;
++			case(STYPE_CURR) :
++				bmcsensors_dir_table[i].ctl_name = BMC_SYSCTL_CURR1 + currs;
++				sprintf((char *)bmcsensors_dir_table[i].procname, "curr%d", ++currs);
++				bmcsensors_dir_table[i].extra1 = &bmcsensors_all;
++				break;
++			case(STYPE_FAN) :
++				bmcsensors_dir_table[i].ctl_name = BMC_SYSCTL_FAN1 + fans;
++				sprintf((char *)bmcsensors_dir_table[i].procname, "fan%d", ++fans);
++				bmcsensors_dir_table[i].extra1 = &bmcsensors_all;
++				break;
++			default: /* ?? */
++				printk(KERN_INFO "bmcsensors.o: unk stype\n");
++				continue;
++		}
++		sdrd[i].sysctl = bmcsensors_dir_table[i].ctl_name;
++		printk(KERN_INFO "bmcsensors.o: registering sensor %d: (type 0x%.2x) "
++			"(fmt=%d; m=%d; b=%d; k1=%d; k2=%d; cap=0x%.2x; mask=0x%.4x)\n",
++			i, sdrd[i].stype, sdrd[i].format,
++			sdrd[i].m, sdrd[i].b,sdrd[i].k & 0xf, sdrd[i].k >> 4,
++			sdrd[i].capab, sdrd[i].thresh_mask);
++		if(sdrd[i].id_length > 0) {
++			ipmi_sprintf(id, sdrd[i].id, sdrd[i].string_type, sdrd[i].id_length);
++			printk(KERN_INFO "bmcsensors.o: sensors.conf: label %s \"%s\"\n",
++				bmcsensors_dir_table[i].procname, id);
++		}
++		bmcsensors_select_thresholds(i);
++		if(sdrd[i].linear != 0) {
++			printk(KERN_INFO
++			       "bmcsensors.o: sensor %d: nonlinear function 0x%.2x unsupported, expect bad results\n",
++			       i, sdrd[i].linear);
++		}
++		if((sdrd[i].format & 0x03) == 0x02) {
++			printk(KERN_INFO
++			       "bmcsensors.o: sensor %d: 1's complement format unsupported, expect bad results\n",
++				i);
++		} else if((sdrd[i].format & 0x03) == 0x03) {
++			printk(KERN_INFO
++			       "bmcsensors.o: sensor %d: threshold sensor only, no readings available",
++				i);
++		}
++		if(sdrd[i].lim1_write || sdrd[i].lim2_write)
++			bmcsensors_dir_table[i].mode = 0644;
++		else
++			bmcsensors_dir_table[i].mode = 0444;
++	}
++	bmcsensors_dir_table[sdrd_count].ctl_name = 0;
++
++	if ((i = i2c_register_entry(&bmc_client, "bmc",
++				    bmcsensors_dir_table)) < 0) {
++		printk(KERN_INFO "bmcsensors.o: i2c registration failed.\n");
++		kfree(bmcsensors_dir_table);
++		kfree(bmcsensors_proc_name_pool);
++		return;
++	}
++	bmcsensors_initialized = 3;
++	bmc_data.sysctl_id = i;
++
++	printk(KERN_INFO "bmcsensors.o: %d reservations cancelled\n", errorcount);
++	printk(KERN_INFO "bmcsensors.o: registered %d temp, %d volt, %d current, %d fan sensors\n",
++			temps, volts, currs, fans);
++/*
++	This completes the initialization. The first userspace read
++	of a /proc value will force the first
++	bmcsensors_update_client() which starts the
++	reading of the sensors themselves via IPMI messages.
++*/
++}
++
++
++/* Process a sensor reading response */
++static int bmcsensors_rcv_reading_msg(struct ipmi_msg *msg)
++{
++	if(receive_counter >= sdrd_count) {
++		/* shouldn't happen */
++		receive_counter = 0;
++		return STATE_DONE;
++	}
++	sdrd[receive_counter].reading = msg->data[1];
++	sdrd[receive_counter].status = msg->data[2];
++	sdrd[receive_counter].thresholds = msg->data[3];
++#ifdef DEBUG
++	printk(KERN_DEBUG "bmcsensors.o: sensor %d (type %d) reading %d\n",
++		receive_counter, sdrd[receive_counter].stype, msg->data[1]);
++#endif
++	if(++receive_counter >= sdrd_count) {
++		receive_counter = 0;
++		return STATE_DONE;
++	}
++	/* don't really need to pass client */
++	bmcsensors_get_reading(&bmc_client, receive_counter);
++	return STATE_READING; 
++}
++
++/* Process an SDR response, save the SDR's we like in the sdrd table */
++static int bmcsensors_rcv_sdr_msg(struct ipmi_msg *msg, int state)
++{
++	u16 record;
++	int type, length, owner, lun, number, entity, instance, init;
++	int stype, code;
++	int id_length;
++	int i;
++	int rstate = STATE_SDR;
++	struct ipmi_msg txmsg;
++	unsigned char * data;
++	u8 id[SDR_MAX_UNPACKED_ID_LENGTH];
++
++
++	if(msg->data[0] != 0) {
++		/* cut request in half and try again */
++		ipmi_sdr_partial_size /= 2;
++		if(ipmi_sdr_partial_size < 8) {
++			printk(KERN_INFO "bmcsensors.o: IPMI buffers too small, giving up\n");
++			return STATE_DONE;
++		}
++#ifdef DEBUG
++		printk(KERN_INFO "bmcsensors.o: Reducing SDR request size to %d\n", ipmi_sdr_partial_size);
++#endif
++		bmcsensors_get_sdr(0, 0, 0);
++		return STATE_SDR;
++	}
++	if(ipmi_sdr_partial_size < IPMI_SDR_SIZE) {
++		if(rx_msg_data_offset == 0) {
++			memcpy(rx_msg_data, msg->data, ipmi_sdr_partial_size + 3);
++			rx_msg_data_offset = ipmi_sdr_partial_size + 3;
++		} else {
++			memcpy(rx_msg_data + rx_msg_data_offset, msg->data + 3, ipmi_sdr_partial_size);
++			rx_msg_data_offset += ipmi_sdr_partial_size;
++		}
++		if(rx_msg_data_offset > rx_msg_data[7] + 7) {
++			/* got last chunk */
++			rx_msg_data_offset =  0;
++			data = rx_msg_data;
++		} else {
++			/* get more */
++			record = (rx_msg_data[4] << 8) | rx_msg_data[3];
++			bmcsensors_get_sdr(resid, record, rx_msg_data_offset - 3);
++			return STATE_SDR;
++		}
++	} else {
++		data = msg->data;	/* got it in one chunk */
++	}
++
++	nextrecord = (data[2] << 8) | data[1];
++	type = data[6];
++	if(type == 1 || type == 2) {		/* known SDR type */
++/*
++		version = data[5];
++		owner = data[8];
++		lun = data[9];
++		entity = data[11];
++		init = data[13];
++*/
++		stype = data[15];
++		if(stype <= STYPE_MAX) {	/* known sensor type */
++			if(bmcs_count[stype] >= bmcs_max[stype]) {
++				if(bmcs_max[stype] > 0)
++					printk(KERN_INFO
++					       "bmcsensors.o: Limit of %d exceeded for sensor type 0x%x\n",
++					       bmcs_max[stype], stype);
++#ifdef DEBUG
++				else
++					printk(KERN_INFO
++					       "bmcsensors.o: Ignoring unsupported sensor type 0x%x\n",
++					       stype);
++#endif
++			} else if(sdrd_count >= MAX_SDR_ENTRIES) {
++				printk(KERN_INFO
++				       "bmcsensors.o: Limit of %d exceeded for total sensors\n",
++				       MAX_SDR_ENTRIES);
++				nextrecord = 0xffff;
++			} else if(data[16] != 0x01) {
++				if(type == 1)
++					ipmi_sprintf(id, &data[51], data[50] >> 6, data[50] & 0x1f);
++				else
++					ipmi_sprintf(id, &data[35], data[34] >> 6, data[34] & 0x1f);
++				printk(KERN_INFO
++				       "bmcsensors.o: skipping non-threshold sensor \"%s\"\n",
++				       id);
++			} else {
++				/* add entry to sdrd table */
++				sdrd[sdrd_count].stype = stype;
++				sdrd[sdrd_count].number = data[10];
++				sdrd[sdrd_count].capab = data[14];
++				sdrd[sdrd_count].thresh_mask = (((u16) data[22]) << 8) | data[21];
++				if(type == 1) {
++					sdrd[sdrd_count].format = data[24] >> 6;
++					sdrd[sdrd_count].linear = data[26] & 0x7f;
++					sdrd[sdrd_count].m = data[27];
++					sdrd[sdrd_count].m |= ((u16) (data[28] & 0xc0)) << 2;
++					if(sdrd[sdrd_count].m & 0x0200)
++						sdrd[sdrd_count].m |= 0xfc00;	/* sign extend */
++					sdrd[sdrd_count].b = data[29];
++					sdrd[sdrd_count].b |= ((u16) (data[30] & 0xc0)) << 2;
++					if(sdrd[sdrd_count].b & 0x0200)
++						sdrd[sdrd_count].b |= 0xfc00;	/* sign extend */
++					sdrd[sdrd_count].k = data[32];
++					sdrd[sdrd_count].nominal = data[34];
++					for(i = 0; i < SDR_LIMITS; i++)		/* assume readable */
++						sdrd[sdrd_count].limits[i] = data[39 + i];
++					sdrd[sdrd_count].string_type = data[50] >> 6;
++					id_length = data[50] & 0x1f;
++					memcpy(sdrd[sdrd_count].id, &data[51], id_length);
++					sdrd[sdrd_count].id_length = id_length;
++				} else {
++					sdrd[sdrd_count].m = 1;
++					sdrd[sdrd_count].b = 0;
++					sdrd[sdrd_count].k = 0;
++					sdrd[sdrd_count].string_type = data[34] >> 6;
++					id_length = data[34] & 0x1f;
++					if(id_length > 0)
++						memcpy(sdrd[sdrd_count].id, &data[35], id_length);
++					sdrd[sdrd_count].id_length = id_length;
++					/* limits?? */
++				}
++				bmcs_count[stype]++;
++				sdrd_count++;
++			}
++		}
++#ifdef DEBUG
++	/* peek at the other SDR types */
++	} else if(type == 0x10 || type == 0x11 || type == 0x12) {
++		ipmi_sprintf(id, data + 19, data[18]>>6, data[18] & 0x1f);
++		if(type == 0x10) {
++			printk(KERN_INFO "bmcsensors.o: Generic Device acc=0x%x; slv=0x%x; lun=0x%x; type=0x%x; \"%s\"\n",
++				data[8], data[9], data[10], data[13], id);
++		} else if(type == 0x11) {
++			printk(KERN_INFO "bmcsensors.o: FRU Device acc=0x%x; slv=0x%x; log=0x%x; ch=0x%x; type=0x%x; \"%s\"\n",
++				data[8], data[9], data[10], data[11], data[13], id);
++		} else {
++			printk(KERN_INFO "bmcsensors.o: Mgmt Ctllr Device slv=0x%x; \"%s\"\n",
++				data[8], id);
++		}
++	} else if(type == 0x14) {
++		printk(KERN_INFO "bmcsensors.o: Message Channel Info Records:\n");
++		for(i = 0; i < 8; i++) {
++			printk(KERN_INFO "bmcsensors.o: Channel %d info 0x%x\n",
++				i, data[9 + i]);
++		}
++	} else {
++		printk(KERN_INFO "bmcsensors.o: Skipping SDR type 0x%x\n", type);
++#endif
++	}
++			
++	if(nextrecord == 0xFFFF) {
++		if(sdrd_count == 0) {
++			printk(KERN_INFO "bmcsensors.o: No recognized sensors found.\n");
++			/* unregister?? */
++		} else {
++			bmcsensors_build_proc_table();
++		}
++		rstate = STATE_DONE;
++	} else {
++		bmcsensors_get_sdr(0, nextrecord, 0);
++	}
++	return rstate;
++}
++
++/* Process incoming messages based on internal state */
++static void bmcsensors_rcv_msg(struct ipmi_msg *msg)
++{
++
++	switch(state) {
++		case STATE_INIT:
++		case STATE_RESERVE:
++			resid = (((u16)msg->data[2]) << 8) || msg->data[1];
++#ifdef DEBUG
++			printk(KERN_DEBUG "bmcsensors.o: Got first resid 0x%.4x\n", resid);
++#endif
++			bmcsensors_get_sdr(0, 0, 0);
++			state = STATE_SDR;
++			break;
++
++		case STATE_SDR:
++		case STATE_SDRPARTIAL:
++			state = bmcsensors_rcv_sdr_msg(msg, state);
++			break;
++
++		case STATE_READING:
++			state = bmcsensors_rcv_reading_msg(msg);
++			break;
++
++		case STATE_UNCANCEL:
++			resid = (((u16)msg->data[2]) << 8) || msg->data[1];
++#ifdef DEBUG
++			printk(KERN_DEBUG "bmcsensors.o: Got new resid 0x%.4x\n", resid);
++#endif
++			rx_msg_data_offset = 0;
++			bmcsensors_get_sdr(0, nextrecord, 0);
++			state = STATE_SDR;
++			break;
++
++		case STATE_DONE:
++			break;
++
++		default:
++			state = STATE_INIT;
++	}
++}
++
++
++/* Incoming message handler */
++static void bmcsensors_msg_handler(struct ipmi_recv_msg *msg,
++				   void * handler_data)
++{
++	if(state == STATE_SDR && msg->msg.data[0] == 0xc5) {
++		/* )(*&@(*&#@$ reservation cancelled, get new resid */
++		if(++errorcount > 275) {
++			printk(KERN_ERR
++			       "bmcsensors.o: Too many reservations cancelled, giving up\n");
++			state = STATE_DONE;
++		} else {
++#ifdef DEBUG
++			printk(KERN_DEBUG
++			       "bmcsensors.o: resid 0x%04x cancelled, getting new one\n", resid);
++#endif
++			bmcsensors_reserve_sdr();
++			state = STATE_UNCANCEL;
++		}
++	} else if (msg->msg.data[0] != 0 && msg->msg.data[0] != 0xca) {
++		printk(KERN_ERR
++		       "bmcsensors.o: Error 0x%x on cmd 0x%x/0x%x; state = %d; probably fatal.\n",
++		       msg->msg.data[0], msg->msg.netfn & 0xfe, msg->msg.cmd, state);
++	} else {
++		bmcsensors_rcv_msg(&(msg->msg));
++	}       
++	ipmi_free_recv_msg(msg);
++}
++
++/* callback from i2c-ipmi */
++static int bmcsensors_command(struct i2c_client *client, unsigned int cmd, void *arg)
++{
++	bmcsensors_msg_handler((struct ipmi_recv_msg *) arg, NULL);
++	return 0;
++}
++
++/************** Message Sending **************/
++
++/* Send an IPMI message */
++static void bmcsensors_send_message(struct ipmi_msg * msg)
++{
++#ifdef DEBUG
++	printk(KERN_INFO "bmcsensors.o: Send BMC msg, cmd: 0x%x\n",
++		       msg->cmd);
++#endif
++	bmc_client.adapter->algo->slave_send((struct i2c_adapter *) &bmc_client,
++	                                     (char *) msg, msgid++);
++
++}
++
++/* Compose and send a "reserve SDR" message */
++static void bmcsensors_reserve_sdr(void)
++{
++	tx_message.netfn = IPMI_NETFN_STORAGE;
++	tx_message.cmd = IPMI_RESERVE_SDR;
++	tx_message.data_len = 0;
++	tx_message.data = NULL;
++	bmcsensors_send_message(&tx_message);
++}
++
++/* Componse and send a "get SDR" message */
++static void bmcsensors_get_sdr(u16 res_id, u16 record, u8 offset)
++{
++#ifdef DEBUG
++	printk(KERN_DEBUG "bmcsensors.o: Get SDR 0x%x 0x%x 0x%x\n",
++		       res_id, record, offset);
++#endif
++	tx_message.netfn = IPMI_NETFN_STORAGE;
++	tx_message.cmd = IPMI_GET_SDR;
++	tx_message.data_len = 6;
++	tx_message.data = tx_msg_data;
++	tx_msg_data[0] = res_id & 0xff;
++	tx_msg_data[1] = res_id >> 8;
++	tx_msg_data[2] = record & 0xff;
++	tx_msg_data[3] = record >> 8;
++	tx_msg_data[4] = offset;
++	tx_msg_data[5] = ipmi_sdr_partial_size;
++	bmcsensors_send_message(&tx_message);
++}
++
++/* Compose and send a "get sensor reading" message */
++static void bmcsensors_get_reading(struct i2c_client *client, int i)
++{
++	tx_message.netfn = IPMI_NETFN_SENSOR;
++	tx_message.cmd = IPMI_GET_SENSOR_STATE_READING;
++	tx_message.data_len = 1;
++	tx_message.data = tx_msg_data;
++	tx_msg_data[0] = sdrd[i].number;
++	bmcsensors_send_message(&tx_message);
++}
++
++/**************** Initialization ****************/
++
++static int bmcsensors_attach_adapter(struct i2c_adapter *adapter)
++{
++	if(adapter->algo->id != I2C_ALGO_IPMI)
++		return 0;
++
++	if(bmcsensors_initialized >= 2) {
++		printk(KERN_INFO "bmcsensors.o: Additional IPMI adapter not supported\n");
++		return 0;
++	}
++
++	return bmcsensors_detect(adapter, 0, 0, 0);
++}
++
++static int bmcsensors_detect(struct i2c_adapter *adapter, int address,
++		   unsigned short flags, int kind)
++{
++	int err, i;
++
++	bmc_client.id = 0;
++	bmc_client.adapter = adapter;
++	bmc_data.valid = 0;
++
++	if ((err = i2c_attach_client(&bmc_client))) {
++		printk(KERN_ERR "attach client error in bmcsensors_detect()\n");
++		return err;
++	}
++	bmcsensors_initialized = 2;
++
++	state = STATE_INIT;
++	sdrd_count = 0;
++	receive_counter = 0;
++	rx_msg_data_offset = 0;
++	errorcount = 0;
++	ipmi_sdr_partial_size = IPMI_SDR_SIZE;
++	for(i = 0; i <= STYPE_MAX; i++)
++		bmcs_count[i] = 0;
++
++	/* send our first message, which kicks things off */
++	printk(KERN_INFO "bmcsensors.o: Registered client, scanning for sensors...\n");
++	bmcsensors_reserve_sdr();
++	/* don't call i2c_register_entry until we scan the SDR's */
++	return 0;
++}
++
++static int bmcsensors_detach_client(struct i2c_client *client)
++{
++	int err;
++
++	if(bmcsensors_initialized >= 3) {
++		kfree(bmcsensors_dir_table);
++		kfree(bmcsensors_proc_name_pool);
++		i2c_deregister_entry(((struct bmcsensors_data *) (client->data))->
++				 sysctl_id);
++	}
++
++	if ((err = i2c_detach_client(client))) {
++/*
++		printk
++		    ("bmcsensors.o: Client deregistration failed, client not detached.\n");
++*/
++		return err;
++	}
++
++	bmcsensors_initialized = 1;
++	return 0;
++}
++
++
++static void bmc_do_pause(unsigned int amount)
++{
++	current->state = TASK_INTERRUPTIBLE;
++	schedule_timeout(amount);
++}
++
++static void bmcsensors_update_client(struct i2c_client *client)
++{
++	struct bmcsensors_data *data = client->data;
++	int j = 0;
++
++/*
++	down(&data->update_lock);
++*/
++
++	/* if within 3 seconds you get old data */
++	if ((jiffies - data->last_updated > 3 * HZ) ||
++	    (jiffies < data->last_updated) || !data->valid) {
++		/* don't start an update cycle if one already in progress */
++		if(state != STATE_READING) {
++			state = STATE_READING;
++#ifdef DEBUG
++			printk(KERN_DEBUG "bmcsensors.o: starting update\n", j);
++#endif
++			bmcsensors_get_reading(client, 0);
++		}
++		/* wait 4 seconds max */
++		while(state == STATE_READING && j++ < 100)
++			bmc_do_pause(HZ / 25);
++#ifdef DEBUG
++		printk("bmcsensors.o: update complete; j = %d\n", j);
++#endif
++		data->last_updated = jiffies;
++		data->valid = 1;
++	}
++
++/*
++	up(&data->update_lock);
++*/
++}
++
++
++/************* /proc callback helper functions *********/
++
++/* need better way to map from sysctl to sdrd record number */
++static int find_sdrd(int sysctl)
++{
++	int i;
++
++	for(i = 0; i < sdrd_count; i++)
++		if(sdrd[i].sysctl == sysctl)
++			return i;
++	return -1;
++}
++
++/* IPMI V1.5 Section 30 */
++static const int exps[] = {1, 10, 100, 1000, 10000, 100000, 1000000, 10000000};
++
++static int decplaces(int i)
++{
++	u8 k2;
++
++	k2 = sdrd[i].k >> 4;
++	if(k2 < 8)
++		return 0;
++	else
++		return 16 - k2;
++}
++
++static long convert_value(u8 value, int i)
++{
++	u8 k1, k2;
++	long r;
++
++/* fixme signed/unsigned */
++	r = value * sdrd[i].m;
++
++	k1 = sdrd[i].k & 0x0f;
++	k2 = sdrd[i].k >> 4;
++	if(k1 < 8)
++		r += sdrd[i].b * exps[k1];
++	else
++		r += sdrd[i].b / exps[16 - k1];
++	if(k2 < 8)
++		r *= exps[k2];
++/*
++	taken care of by nrels_mag
++	else
++		r /= exps[16 - k2];
++*/
++	return r;
++}
++
++
++/************** /proc callbacks *****************/
++
++static void bmcsensors_all(struct i2c_client *client, int operation, int ctl_name,
++		 int *nrels_mag, long *results)
++{
++	int i;
++	struct bmcsensors_data *data = client->data;
++
++	if((i = find_sdrd(ctl_name)) < 0) {
++		*nrels_mag = 0;
++		return;		
++	}
++	if (operation == SENSORS_PROC_REAL_INFO)
++		*nrels_mag = decplaces(i);
++	else if (operation == SENSORS_PROC_REAL_READ) {
++		bmcsensors_update_client(client);
++		if(sdrd[i].stype == STYPE_FAN) { /* lower limit only */
++			if(sdrd[i].lim2 >= 0)
++				results[0] = convert_value(sdrd[i].limits[sdrd[i].lim2], i);
++			else
++				results[0] = 0;
++			results[1] = convert_value(sdrd[i].reading, i);
++			*nrels_mag = 2;
++		} else {
++			if(sdrd[i].lim1 >= 0)
++				results[0] = convert_value(sdrd[i].limits[sdrd[i].lim1], i);
++			else
++				results[0] = 0;
++			results[2] = convert_value(sdrd[i].reading, i);
++			if(sdrd[i].lim2 >= 0) {
++				results[1] = convert_value(sdrd[i].limits[sdrd[i].lim2], i);
++				if(sdrd[i].lim2 == 6) /* pos. threshold */
++					results[1] = results[0] - results[1];
++			} else
++				results[1] = 0;
++			*nrels_mag = 3;
++		}
++	} else if (operation == SENSORS_PROC_REAL_WRITE) {
++		if (*nrels_mag >= 1) {
++		}
++	}
++}
++
++static void bmcsensors_alarms(struct i2c_client *client, int operation, int ctl_name,
++		    int *nrels_mag, long *results)
++{
++	struct bmcsensors_data *data = client->data;
++#if 0
++	if (operation == SENSORS_PROC_REAL_INFO)
++		*nrels_mag = 0;
++	else if (operation == SENSORS_PROC_REAL_READ) {
++		bmcsensors_update_client(client);
++		results[0] = data->alarms;
++		*nrels_mag = 1;
++	}
++#endif
++}
++
++static int __init sm_bmcsensors_init(void)
++{
++	printk(KERN_INFO "bmcsensors.o version %s (%s)\n", LM_VERSION, LM_DATE);
++	return i2c_add_driver(&bmcsensors_driver);
++}
++
++static void __exit sm_bmcsensors_exit(void)
++{
++	i2c_del_driver(&bmcsensors_driver);
++}
++
++
++
++MODULE_AUTHOR("Mark D. Studebaker <mdsxyz123@yahoo.com>");
++MODULE_DESCRIPTION("IPMI BMC sensors");
++MODULE_LICENSE("GPL");
++
++module_init(sm_bmcsensors_init);
++module_exit(sm_bmcsensors_exit);
+--- linux-2.4.21/drivers/sensors/Config.in.dl15.orig	2003-08-24 01:18:21.000000000 +0200
++++ linux-2.4.21/drivers/sensors/Config.in	2003-08-24 01:21:09.000000000 +0200
+@@ -17,6 +17,8 @@ if [ "$CONFIG_I2C_PROC" = "m" -o "$CONFI
+     dep_tristate '  Analog Devices ADM1025' CONFIG_SENSORS_ADM1025 $CONFIG_I2C $CONFIG_I2C_PROC
+     dep_tristate '  Analog Devices ADM1026' CONFIG_SENSORS_ADM1026 $CONFIG_I2C $CONFIG_I2C_PROC
+     dep_tristate '  Analog Devices ADM9240 and compatibles' CONFIG_SENSORS_ADM9240 $CONFIG_I2C $CONFIG_I2C_PROC
++    dep_tristate '  BMC Sensors' CONFIG_SENSORS_BMC $CONFIG_I2C $CONFIG_I2C_PROC
++    dep_tristate '  Dallas DS1307 serial RTC' CONFIG_SENSORS_DS1307 $CONFIG_I2C $CONFIG_I2C_PROC
+     dep_tristate '  Dallas DS1621 and DS1625' CONFIG_SENSORS_DS1621 $CONFIG_I2C $CONFIG_I2C_PROC
+     dep_tristate '  Fujitsu-Siemens Poseidon' CONFIG_SENSORS_FSCPOS $CONFIG_I2C $CONFIG_I2C_PROC
+     dep_tristate '  Fujitsu-Siemens Scylla' CONFIG_SENSORS_FSCSCY $CONFIG_I2C $CONFIG_I2C_PROC
+@@ -28,15 +30,19 @@ if [ "$CONFIG_I2C_PROC" = "m" -o "$CONFI
+     dep_tristate '  National Semiconductor LM75 and compatibles' CONFIG_SENSORS_LM75 $CONFIG_I2C $CONFIG_I2C_PROC
+     dep_tristate '  National Semiconductor LM78' CONFIG_SENSORS_LM78 $CONFIG_I2C $CONFIG_I2C_PROC
+     dep_tristate '  National Semiconductor LM80' CONFIG_SENSORS_LM80 $CONFIG_I2C $CONFIG_I2C_PROC
++    dep_tristate '  National Semiconductor LM83' CONFIG_SENSORS_LM83 $CONFIG_I2C $CONFIG_I2C_PROC
+     dep_tristate '  National Semiconductor LM85, Analog Devices ADM1027' CONFIG_SENSORS_LM85 $CONFIG_I2C $CONFIG_I2C_PROC
+     dep_tristate '  National Semiconductor LM87' CONFIG_SENSORS_LM87 $CONFIG_I2C $CONFIG_I2C_PROC
+     dep_tristate '  National Semiconductor LM92' CONFIG_SENSORS_LM92 $CONFIG_I2C $CONFIG_I2C_PROC
+     dep_tristate '  Silicon Integrated Systems Corp. SiS5595' CONFIG_SENSORS_SIS5595 $CONFIG_I2C $CONFIG_I2C_PROC $CONFIG_I2C_ISA
++    dep_tristate '  Smartbattery sensor' CONFIG_SENSORS_SMARTBATT $CONFIG_I2C $CONFIG_I2C_PROC
++
+     dep_tristate '  SMSC47M1xx Integrated Sensors' CONFIG_SENSORS_SMSC47M1 $CONFIG_I2C $CONFIG_I2C_PROC $CONFIG_I2C_ISA
+     dep_tristate '  Texas Instruments THMC50 and compatibles' CONFIG_SENSORS_THMC50 $CONFIG_I2C $CONFIG_I2C_PROC
+     dep_tristate '  VIA 686a Integrated Hardware Monitor' CONFIG_SENSORS_VIA686A $CONFIG_I2C $CONFIG_I2C_PROC $CONFIG_I2C_ISA
+     dep_tristate '  VIA VT1211 Integrated Sensors' CONFIG_SENSORS_VT1211 $CONFIG_I2C $CONFIG_I2C_PROC $CONFIG_I2C_ISA
+     dep_tristate '  VIA VT8231 Integrated Sensors' CONFIG_SENSORS_VT8231 $CONFIG_I2C $CONFIG_I2C_PROC $CONFIG_I2C_ISA
++    dep_tristate '  Winbond W83627HF, W83627THF, W83697HF' CONFIG_SENSORS_W83627HF $CONFIG_I2C $CONFIG_I2C_PROC $CONFIG_I2C_ISA
+     dep_tristate '  Winbond W83781D, W83782D, W83783S, W83627HF, Asus AS99127F' CONFIG_SENSORS_W83781D $CONFIG_I2C $CONFIG_I2C_PROC
+     bool 'Other I2C devices' CONFIG_SENSORS_OTHER 
+     if [ "$CONFIG_SENSORS_OTHER" = "y" ] ; then
+--- linux-2.4.21/drivers/sensors/ds1307.c.dl15.orig	2003-08-24 01:21:09.000000000 +0200
++++ linux-2.4.21/drivers/sensors/ds1307.c	2003-08-24 01:21:09.000000000 +0200
+@@ -0,0 +1,348 @@
++
++/*
++ * linux/drivers/i2c/ds1307.c
++ *
++ * Author: Abraham van der Merwe <abraham@2d3d.co.za>
++ *
++ * Linux support for the Dallas Semiconductor DS1307 Serial Real-Time
++ * Clock.
++ *
++ * Based on code from the lm-sensors project which is available
++ * at http://www.lm-sensors.nu/ and Russell King's PCF8583 Real-Time
++ * Clock driver (linux/drivers/acorn/char/pcf8583.c).
++ *
++ * This source code is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * version 2 as published by the Free Software Foundation.
++ */
++
++#include <linux/config.h>
++#include <linux/module.h>
++#include <linux/kernel.h>
++#include <linux/string.h>
++#include <linux/slab.h>
++#include <linux/init.h>
++#include <linux/i2c.h>
++#include <linux/i2c-proc.h>
++#include <asm/semaphore.h>
++#define LM_DATE "20030714"
++#define LM_VERSION "2.8.0"
++#include "ds1307.h"
++
++#define BCD_TO_BIN(x) (((x) & 15) + ((x) >> 4) * 10)
++#define BIN_TO_BCD(x) ((((x) / 10) << 4) + (x) % 10)
++
++static struct i2c_driver ds1307;
++static DECLARE_MUTEX (mutex);
++
++/*
++ * The DS1307 Real-Time Clock wants the address in a different
++ * message, so we can't use the normal i2c_master_recv() routine
++ * for receiving data.
++ */
++static int ds1307_i2c_recv (struct i2c_client *client,char *buf,char addr,int count)
++{
++	struct i2c_msg msg[] = {
++		{ addr: client->addr, flags: 0,        len: 1,     buf: &addr },
++		{ addr: client->addr, flags: I2C_M_RD, len: count, buf: buf }
++	};
++	int result = 0;
++
++	if (down_interruptible (&mutex))
++		return (-ERESTARTSYS);
++
++	if (i2c_transfer (client->adapter,msg,2) != 2)
++		result = -EIO;
++
++	up (&mutex);
++
++	return (result);
++}
++
++/*
++ * Would've been nice to specify the address to this as well, but then we
++ * would need to copy the buffer twice - not worth it...
++ */
++static int ds1307_i2c_send (struct i2c_client *client,const char *buf,int count)
++{
++	int result = 0;
++
++	if (down_interruptible (&mutex))
++		return (-ERESTARTSYS);
++
++	if (i2c_master_send (client,(const char *) buf,count) != count)
++		result = -EIO;
++
++	up (&mutex);
++
++	return (result);
++}
++
++static int ds1307_attach (struct i2c_adapter *adapter,int addr,unsigned short flags,int kind)
++{
++	struct i2c_client *client;
++	int result;
++
++	if ((client = (struct i2c_client *) kmalloc (sizeof (struct i2c_client),GFP_KERNEL)) == NULL)
++		return (-ENOMEM);
++
++	strcpy (client->name,ds1307.name);
++	client->id = ds1307.id;
++	client->flags = I2C_CLIENT_ALLOW_USE | I2C_CLIENT_ALLOW_MULTIPLE_USE;
++	client->addr = addr;
++	client->adapter = adapter;
++	client->driver = &ds1307;
++	client->data = NULL;
++
++	if ((result = i2c_attach_client (client))) {
++		kfree (client);
++		return (result);
++	}
++
++	return (0);
++}
++
++static int ds1307_attach_adapter (struct i2c_adapter *adapter)
++{
++	static unsigned short ignore[] = { I2C_CLIENT_END };
++	static unsigned short addr[] = { 0x68, I2C_CLIENT_END };
++	static struct i2c_client_address_data ds1307_addr_data = {
++		normal_i2c:			addr,
++		normal_i2c_range:	ignore,
++		probe:				ignore,
++		probe_range:		ignore,
++		ignore:				ignore,
++		ignore_range:		ignore,
++		force:				ignore
++	};
++
++	return (i2c_probe (adapter,&ds1307_addr_data,ds1307_attach));
++}
++
++static int ds1307_detach_client (struct i2c_client *client)
++{
++	int result;
++
++	if ((result = i2c_detach_client (client)))
++		return (result);
++
++	kfree (client);
++
++	return (0);
++}
++
++static int ds1307_getdate (struct i2c_client *client,void *arg)
++{
++	struct ds1307_date *date = (struct ds1307_date *) arg;
++	u8 buf[7];
++
++	/* this also enables the oscillator */
++	memset (buf,0,7);
++
++	/* enable 24-hour mode */
++	buf[2] = 0x40;
++
++	if (ds1307_i2c_recv (client,(char *) buf,0,7) < 0)
++		return (-EIO);
++
++	date->tm_sec = BCD_TO_BIN (buf[0] & ~0x80);
++	date->tm_min = BCD_TO_BIN (buf[1]);
++	date->tm_hour = BCD_TO_BIN (buf[2] & 0x3f);
++	date->tm_wday = BCD_TO_BIN (buf[3]) - 1;
++	date->tm_mday = BCD_TO_BIN (buf[4]);
++	date->tm_mon = BCD_TO_BIN (buf[5]) - 1;
++	date->tm_year = BCD_TO_BIN (buf[6]) + 100;
++
++	return (0);
++}
++
++static int ds1307_setdate (struct i2c_client *client,void *arg)
++{
++	struct ds1307_date *date = (struct ds1307_date *) arg;
++	u8 buf[8];
++
++	/* select address 0 */
++	buf[0] = 0;
++
++	buf[1] = BIN_TO_BCD (date->tm_sec);
++	buf[2] = BIN_TO_BCD (date->tm_min);
++	buf[3] = BIN_TO_BCD (date->tm_hour) | 0x40;
++	buf[4] = BIN_TO_BCD (date->tm_wday + 1);
++	buf[5] = BIN_TO_BCD (date->tm_mday);
++	buf[6] = BIN_TO_BCD (date->tm_mon + 1);
++	buf[7] = BIN_TO_BCD (date->tm_year - 100);
++
++	return (ds1307_i2c_send (client,(const char *) buf,8));
++}
++
++static int ds1307_enable (struct i2c_client *client,void *arg)
++{
++	u8 buf[2];
++
++	if (ds1307_i2c_recv (client,(char *) buf + 1,0,1) < 0)
++		return (-EIO);
++
++	if ((buf[1] & 0x80)) {
++		buf[0] = 0, buf[1] &= ~0x80;
++		return (ds1307_i2c_send (client,(const char *) buf,2));
++	}
++
++	return (0);
++}
++
++static int ds1307_irqon (struct i2c_client *client,void *arg)
++{
++	u8 buf[2];
++
++	if (ds1307_i2c_recv (client,(char *) buf + 1,7,1) < 0)
++		return (-EIO);
++
++	buf[0] = 7;
++	buf[1] |= 0x10;
++
++	return (ds1307_i2c_send (client,(const char *) buf,2));
++}
++
++static int ds1307_irqoff (struct i2c_client *client,void *arg)
++{
++	u8 buf[2];
++
++	if (ds1307_i2c_recv (client,(char *) buf + 1,7,1) < 0)
++		return (-EIO);
++
++	buf[0] = 7;
++	buf[1] &= ~0x10;
++
++	return (ds1307_i2c_send (client,(const char *) buf,2));
++}
++
++static int ds1307_getfreq (struct i2c_client *client,void *arg)
++{
++	u16 *freq = (u16 *) arg;
++	u8 buf;
++	static const u16 table[] = {
++		DS1307_FREQ_1HZ,
++		DS1307_FREQ_4KHZ,
++		DS1307_FREQ_8KHZ,
++		DS1307_FREQ_32KHZ
++	};
++
++	if (ds1307_i2c_recv (client,(char *) &buf,7,1) < 0)
++		return (-EIO);
++
++	*freq = table[buf & 3];
++
++	return (0);
++}
++
++static int ds1307_setfreq (struct i2c_client *client,void *arg)
++{
++	u16 *freq = (u16 *) arg;
++	u8 buf[2];
++
++	/* select address 7 */
++	buf[0] = 7;
++
++	/* default to 1HZ */
++	buf[1] = 0;
++
++	switch (*freq) {
++	case DS1307_FREQ_32KHZ:		buf[1]++;
++	case DS1307_FREQ_8KHZ:		buf[1]++;
++	case DS1307_FREQ_4KHZ:		buf[1]++;
++	case DS1307_FREQ_1HZ:		break;
++	default:
++		return (-EINVAL);
++	}
++
++	return (ds1307_i2c_send (client,(const char *) buf,2));
++}
++
++static int ds1307_read (struct i2c_client *client,void *arg)
++{
++	struct ds1307_memory *mem = (struct ds1307_memory *) arg;
++	u8 buf[DS1307_SIZE];
++
++	if (mem->offset >= DS1307_SIZE || mem->offset + mem->length > DS1307_SIZE)
++		return (-EINVAL);
++
++	if (ds1307_i2c_recv (client,(char *) buf,mem->offset + 8,mem->length) < 0)
++		return (-EIO);
++
++	memcpy (mem->buf,buf,mem->length);
++
++	return (0);
++}
++
++static int ds1307_write (struct i2c_client *client,void *arg)
++{
++	struct ds1307_memory *mem = (struct ds1307_memory *) arg;
++	u8 buf[DS1307_SIZE + 1];
++
++	if (mem->offset >= DS1307_SIZE || mem->offset + mem->length > DS1307_SIZE)
++		return (-EINVAL);
++
++	buf[0] = mem->offset + 8;
++
++	memcpy (buf + 1,mem->buf,mem->length);
++
++	return (ds1307_i2c_send (client,(const char *) buf,mem->length + 1));
++}
++
++static int ds1307_command (struct i2c_client *client,unsigned int cmd,void *arg)
++{
++	static const struct {
++		int cmd;
++		int (*function) (struct i2c_client *,void *arg);
++	} ioctl[] = {
++		{ DS1307_ENABLE, ds1307_enable },
++		{ DS1307_GET_DATE, ds1307_getdate },
++		{ DS1307_SET_DATE, ds1307_setdate },
++		{ DS1307_IRQ_ON, ds1307_irqon },
++		{ DS1307_IRQ_OFF, ds1307_irqoff },
++		{ DS1307_GET_FREQ, ds1307_getfreq },
++		{ DS1307_SET_FREQ, ds1307_setfreq },
++		{ DS1307_READ, ds1307_read },
++		{ DS1307_WRITE, ds1307_write }
++	};
++	int i;
++
++	for (i = 0; i < sizeof (ioctl) / sizeof (ioctl[0]); i++)
++		if (ioctl[i].cmd == cmd)
++			return (ioctl[i].function (client,arg));
++
++	return (-EINVAL);
++}
++
++
++static struct i2c_driver ds1307 = {
++	.owner		= THIS_MODULE,
++	.name		= "ds1307",
++	.id		= I2C_DRIVERID_DS1307,
++	.flags		= I2C_DF_NOTIFY,
++	.attach_adapter	= ds1307_attach_adapter,
++	.detach_client	= ds1307_detach_client,
++	.command	= ds1307_command,
++};
++
++static int __init sm_ds1307_init(void)
++{
++	printk("ds1307.o version %s (%s)\n", LM_VERSION, LM_DATE);
++	return i2c_add_driver(&ds1307);
++}
++
++static void __exit sm_ds1307_exit(void)
++{
++	i2c_del_driver(&ds1307);
++}
++
++
++
++MODULE_AUTHOR ("Abraham van der Merwe <abraham@2d3d.co.za>");
++MODULE_DESCRIPTION ("Linux support for DS1307 Real-Time Clock");
++
++MODULE_LICENSE ("GPL");
++
++module_init(sm_ds1307_init);
++module_exit(sm_ds1307_exit);
++
+--- linux-2.4.21/drivers/sensors/icspll.c.dl15.orig	2003-08-24 01:21:09.000000000 +0200
++++ linux-2.4.21/drivers/sensors/icspll.c	2003-08-24 01:21:09.000000000 +0200
+@@ -0,0 +1,290 @@
++/*
++    icspll.c - Part of lm_sensors, Linux kernel modules for hardware
++               monitoring
++    Copyright (c) 1998, 1999  Frodo Looijaard <frodol@dds.nl>,
++    Philip Edelbrock <phil@netroedge.com>,
++    and Mark Studebaker <mdsxyz123@yahoo.com>
++
++    This program is free software; you can redistribute it and/or modify
++    it under the terms of the GNU General Public License as published by
++    the Free Software Foundation; either version 2 of the License, or
++    (at your option) any later version.
++
++    This program is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++    GNU General Public License for more details.
++
++    You should have received a copy of the GNU General Public License
++    along with this program; if not, write to the Free Software
++    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++*/
++
++/*
++    ** WARNING  **
++    Supports limited combinations of clock chips and busses.
++    Clock chip must be at address 0x69
++    This driver may crash your system.
++    See doc/chips/icspll for details.
++*/
++
++
++#include <linux/module.h>
++#include <linux/slab.h>
++#include <linux/i2c.h>
++#include <linux/i2c-proc.h>
++#include <linux/init.h>
++#define LM_DATE "20030714"
++#define LM_VERSION "2.8.0"
++
++MODULE_LICENSE("GPL");
++
++/* Addresses to scan */
++#define ADDRESS 0x69
++static unsigned short normal_i2c[] = { ADDRESS, SENSORS_I2C_END };
++static unsigned short normal_i2c_range[] = { SENSORS_I2C_END };
++static unsigned int normal_isa[] = { SENSORS_ISA_END };
++static unsigned int normal_isa_range[] = { SENSORS_ISA_END };
++
++/* Insmod parameters */
++SENSORS_INSMOD_1(icspll);
++
++#define ICSPLL_SIZE 7
++#define MAXBLOCK_SIZE 32
++
++/* Each client has this additional data */
++struct icspll_data {
++	int sysctl_id;
++	struct semaphore update_lock;
++	char valid;		/* !=0 if following fields are valid */
++	unsigned long last_updated;	/* In jiffies */
++	u8 data[ICSPLL_SIZE];	/* Register values */
++	int memtype;
++};
++
++static int icspll_attach_adapter(struct i2c_adapter *adapter);
++static int icspll_detach_client(struct i2c_client *client);
++static int icspll_detect(struct i2c_adapter *adapter, int address,
++		       unsigned short flags, int kind);
++
++#if 0
++static int icspll_write_value(struct i2c_client *client, u8 reg,
++			      u16 value);
++#endif
++
++static void icspll_contents(struct i2c_client *client, int operation,
++			    int ctl_name, int *nrels_mag, long *results);
++static void icspll_update_client(struct i2c_client *client);
++
++
++/* This is the driver that will be inserted */
++static struct i2c_driver icspll_driver = {
++	.owner		= THIS_MODULE,
++	.name		= "Clock chip reader",
++	.id		= I2C_DRIVERID_ICSPLL,
++	.flags		= I2C_DF_NOTIFY,
++	.attach_adapter	= icspll_attach_adapter,
++	.detach_client	= icspll_detach_client,
++};
++
++/* -- SENSORS SYSCTL START -- */
++#define ICSPLL_SYSCTL1 1000
++/* -- SENSORS SYSCTL END -- */
++
++/* These files are created for each detected ICSPLL. This is just a template;
++   though at first sight, you might think we could use a statically
++   allocated list, we need some way to get back to the parent - which
++   is done through one of the 'extra' fields which are initialized
++   when a new copy is allocated. */
++static ctl_table icspll_dir_table_template[] = {
++	{ICSPLL_SYSCTL1, "reg0-6", NULL, 0, 0444, NULL, &i2c_proc_real,
++	 &i2c_sysctl_real, NULL, &icspll_contents},
++	{0}
++};
++
++/* holding place for data - block read could be as much as 32 */
++static u8 tempdata[MAXBLOCK_SIZE];
++
++static int icspll_id = 0;
++static int icspll_attach_adapter(struct i2c_adapter *adapter)
++{
++	return i2c_detect(adapter, &addr_data, icspll_detect);
++}
++
++/* This function is called by i2c_detect */
++int icspll_detect(struct i2c_adapter *adapter, int address,
++   	          unsigned short flags, int kind)
++{
++	int err, i;
++	struct i2c_client *new_client;
++	struct icspll_data *data;
++
++	err = 0;
++	/* Make sure we aren't probing the ISA bus!! */
++	if (i2c_is_isa_adapter(adapter))
++		return 0;
++
++	if (address != ADDRESS)
++		return 0;
++
++	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_WRITE_BLOCK_DATA |
++				     I2C_FUNC_SMBUS_READ_I2C_BLOCK)) {
++		printk("icspll.o: Adapter does not support SMBus writes and Block reads\n");
++		goto ERROR0;
++	}
++
++	/* Allocate space for a new client structure */
++	if (!(new_client = kmalloc(sizeof(struct i2c_client) +
++				   sizeof(struct icspll_data),
++				   GFP_KERNEL))) {
++		err = -ENOMEM;
++		goto ERROR0;
++	}
++
++	/* Fill the new client structure with data */
++	data = (struct icspll_data *) (new_client + 1);
++	new_client->data = data;
++	new_client->id = icspll_id++;
++	new_client->addr = address;
++	new_client->adapter = adapter;
++	new_client->driver = &icspll_driver;
++	new_client->flags = 0;
++	strcpy(new_client->name, "Clock chip");
++	data->valid = 0;
++	init_MUTEX(&data->update_lock);
++
++	/* use write-quick for detection */
++	if (i2c_smbus_write_quick(new_client, 0x00) < 0) {
++		printk("icspll.o: No device found at 0x%X\n", address);
++		goto ERROR1;
++	}
++
++	/* fill data structure so unknown registers are 0xFF */
++	data->data[0] = ICSPLL_SIZE;
++	for (i = 1; i <= ICSPLL_SIZE; i++)
++		data->data[i] = 0xFF;
++
++	/* Tell i2c-core a new client has arrived */
++	if ((err = i2c_attach_client(new_client)))
++		goto ERROR2;
++
++	/* Register a new directory entry with module sensors */
++	if ((err = i2c_register_entry(new_client, "icspll",
++					  icspll_dir_table_template)) < 0)
++		goto ERROR3;
++	data->sysctl_id = err;
++	err = 0;
++
++      ERROR3:
++	i2c_detach_client(new_client);
++      ERROR2:
++      ERROR1:
++	kfree(new_client);
++      ERROR0:
++	return err;
++}
++
++static int icspll_detach_client(struct i2c_client *client)
++{
++	int err;
++
++	i2c_deregister_entry(((struct icspll_data *) (client->data))->
++				 sysctl_id);
++
++	if ((err = i2c_detach_client(client))) {
++		printk
++		    ("icspll.o: Client deregistration failed, client not detached.\n");
++		return err;
++	}
++
++	kfree(client);
++	return 0;
++}
++
++
++#if 0
++/* No writes yet (PAE) */
++static int icspll_write_value(struct i2c_client *client, u8 reg, u16 value)
++{
++	return i2c_smbus_write_block_data(client->adapter, client->addr,
++					  reg, value);
++}
++#endif
++
++static void icspll_update_client(struct i2c_client *client)
++{
++	struct icspll_data *data = client->data;
++	int i, len;
++
++	down(&data->update_lock);
++
++	if ((jiffies - data->last_updated > HZ + HZ / 2) ||
++	    (jiffies < data->last_updated) || !data->valid) {
++
++		len =
++		    i2c_smbus_read_block_data(client,
++					      0x00,
++					      tempdata);
++#ifdef DEBUG
++		printk("icspll.o: read returned %d values\n", len);
++#endif
++		if (len > ICSPLL_SIZE)
++			len = ICSPLL_SIZE;
++		for (i = 0; i < len; i++)
++			data->data[i] = tempdata[i];
++
++		data->last_updated = jiffies;
++		data->valid = 1;
++	}
++
++	up(&data->update_lock);
++}
++
++
++void icspll_contents(struct i2c_client *client, int operation,
++		     int ctl_name, int *nrels_mag, long *results)
++{
++	int i;
++	struct icspll_data *data = client->data;
++
++	if (operation == SENSORS_PROC_REAL_INFO)
++		*nrels_mag = 0;
++	else if (operation == SENSORS_PROC_REAL_READ) {
++		icspll_update_client(client);
++		for (i = 0; i < ICSPLL_SIZE; i++) {
++			results[i] = data->data[i];
++		}
++#ifdef DEBUG
++		printk("icspll.o: 0x%X ICSPLL Contents: ", client->addr);
++		for (i = 0; i < ICSPLL_SIZE; i++) {
++			printk(" 0x%X", data->data[i]);
++		}
++		printk(" .\n");
++#endif
++		*nrels_mag = ICSPLL_SIZE;
++	} else if (operation == SENSORS_PROC_REAL_WRITE) {
++
++/* No writes to the ICSPLL (yet, anyway) (PAE) */
++		printk("icspll.o: No writes to ICSPLLs supported!\n");
++	}
++}
++
++static int __init sm_icspll_init(void)
++{
++	printk("icspll.o version %s (%s)\n", LM_VERSION, LM_DATE);
++	return i2c_add_driver(&icspll_driver);
++}
++
++static void __exit sm_icspll_exit(void)
++{
++	i2c_del_driver(&icspll_driver);
++}
++
++
++
++MODULE_AUTHOR
++    ("Frodo Looijaard <frodol@dds.nl>, Philip Edelbrock <phil@netroedge.com>, and Mark Studebaker <mdsxyz123@yahoo.com>");
++MODULE_DESCRIPTION("ICSPLL driver");
++
++module_init(sm_icspll_init);
++module_exit(sm_icspll_exit);
+--- linux-2.4.21/drivers/sensors/lm83.c.dl15.orig	2003-08-24 01:21:09.000000000 +0200
++++ linux-2.4.21/drivers/sensors/lm83.c	2003-08-24 01:21:09.000000000 +0200
+@@ -0,0 +1,520 @@
++/*
++ * lm83.c - Part of lm_sensors, Linux kernel modules for hardware
++ *          monitoring
++ * Copyright (c) 2003  Jean Delvare <khali@linux-fr.org>
++ *
++ * Heavily inspired from the lm78, lm75 and adm1021 drivers. The LM83 is
++ * a sensor chip made by National Semiconducor. It reports up to four
++ * temperatures (its own plus up to three external ones) with a 1 deg
++ * resolution and a 3-4 deg precision. Complete datasheet can be obtained
++ * from National's website at:
++ *   http://www.national.com/pf/LM/LM83.html
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ */
++
++#include <linux/module.h>
++#include <linux/slab.h>
++#include <linux/i2c.h>
++#include <linux/i2c-proc.h>
++#include <linux/init.h>
++#define LM_DATE "20030714"
++#define LM_VERSION "2.8.0"
++
++/*
++ * Addresses to scan
++ * Address is selected using 2 three-level pins, resulting in 9 possible
++ * addresses.
++ */
++
++static unsigned short normal_i2c[] = { SENSORS_I2C_END };
++static unsigned short normal_i2c_range[] = { 0x18, 0x1a, 0x29, 0x2b,
++	0x4c, 0x4e, SENSORS_I2C_END };
++static unsigned int normal_isa[] = { SENSORS_ISA_END };
++static unsigned int normal_isa_range[] = { SENSORS_ISA_END };
++
++/*
++ * Insmod parameters
++ */
++
++SENSORS_INSMOD_1(lm83);
++
++/*
++ * The LM83 registers
++ * Manufacturer ID is 0x01 for National Semiconductor.
++ */
++
++#define LM83_REG_R_MAN_ID        0xFE
++#define LM83_REG_R_CONFIG        0x03
++#define LM83_REG_W_CONFIG        0x09
++#define LM83_REG_R_STATUS1       0x02
++#define LM83_REG_R_STATUS2       0x35
++#define LM83_REG_R_LOCAL_TEMP    0x00
++#define LM83_REG_R_LOCAL_HIGH    0x05
++#define LM83_REG_W_LOCAL_HIGH    0x0B
++#define LM83_REG_R_REMOTE1_TEMP  0x30
++#define LM83_REG_R_REMOTE1_HIGH  0x38
++#define LM83_REG_W_REMOTE1_HIGH  0x50
++#define LM83_REG_R_REMOTE2_TEMP  0x01
++#define LM83_REG_R_REMOTE2_HIGH  0x07
++#define LM83_REG_W_REMOTE2_HIGH  0x0D
++#define LM83_REG_R_REMOTE3_TEMP  0x31
++#define LM83_REG_R_REMOTE3_HIGH  0x3A
++#define LM83_REG_W_REMOTE3_HIGH  0x52
++
++/*
++ * Conversions and initial values
++ * The LM83 uses normal signed 8-bit values. We use the default initial
++ * values.
++ */
++
++#define TEMP_FROM_REG(val)  (val > 127 ? val-256 : val)
++#define TEMP_TO_REG(val)    (val < 0 ? val+256 : val)
++#define LM83_INIT_HIGH      127
++
++/*
++ * Functions declaration
++ */
++
++static int lm83_attach_adapter(struct i2c_adapter *adapter);
++static int lm83_detect(struct i2c_adapter *adapter, int address, unsigned
++	short flags, int kind);
++static void lm83_init_client(struct i2c_client *client);
++static int lm83_detach_client(struct i2c_client *client);
++static int lm83_read_value(struct i2c_client *client, u8 reg);
++static int lm83_write_value(struct i2c_client *client, u8 reg, u8 value);
++static void lm83_local_temp(struct i2c_client *client, int operation, int
++	ctl_name, int *nrels_mag, long *results);
++static void lm83_remote1_temp(struct i2c_client *client, int operation, int
++	ctl_name, int *nrels_mag, long *results);
++static void lm83_remote2_temp(struct i2c_client *client, int operation, int
++	ctl_name, int *nrels_mag, long *results);
++static void lm83_remote3_temp(struct i2c_client *client, int operation, int
++	ctl_name, int *nrels_mag, long *results);
++
++/*
++ * Driver data (common to all clients)
++ */
++ 
++static struct i2c_driver lm83_driver = {
++	.owner          = THIS_MODULE,
++	.name           = "LM83 sensor driver",
++	.id             = I2C_DRIVERID_LM83,
++	.flags          = I2C_DF_NOTIFY,
++	.attach_adapter = lm83_attach_adapter,
++	.detach_client  = lm83_detach_client
++};
++
++/*
++ * Client data (each client gets its own)
++ */
++
++struct lm83_data
++{
++	int sysctl_id;
++
++	struct semaphore update_lock;
++	char valid; /* zero until following fields are valid */
++	unsigned long last_updated; /* in jiffies */
++
++	/* registers values */
++	u8 local_temp, local_high;
++	u8 remote1_temp, remote1_high;
++	u8 remote2_temp, remote2_high;
++	u8 remote3_temp, remote3_high;
++};
++
++/*
++ * Proc entries
++ * These files are created for each detected LM83.
++ */
++
++/* -- SENSORS SYSCTL START -- */
++
++#define LM83_SYSCTL_LOCAL_TEMP    1200
++#define LM83_SYSCTL_REMOTE1_TEMP  1201
++#define LM83_SYSCTL_REMOTE2_TEMP  1202
++#define LM83_SYSCTL_REMOTE3_TEMP  1203
++
++/* -- SENSORS SYSCTL END -- */
++
++
++static ctl_table lm83_dir_table_template[] =
++{
++	{LM83_SYSCTL_LOCAL_TEMP, "temp1", NULL, 0, 0644, NULL,
++	 &i2c_proc_real, &i2c_sysctl_real, NULL, &lm83_local_temp},
++	{LM83_SYSCTL_REMOTE1_TEMP, "temp2", NULL, 0, 0644, NULL,
++	 &i2c_proc_real, &i2c_sysctl_real, NULL, &lm83_remote1_temp},
++	{LM83_SYSCTL_REMOTE2_TEMP, "temp3", NULL, 0, 0644, NULL,
++	 &i2c_proc_real, &i2c_sysctl_real, NULL, &lm83_remote2_temp},
++	{LM83_SYSCTL_REMOTE3_TEMP, "temp4", NULL, 0, 0644, NULL,
++	 &i2c_proc_real, &i2c_sysctl_real, NULL, &lm83_remote3_temp},
++	{0}
++};
++
++/*
++ * Internal variables
++ */
++
++static int lm83_id = 0;
++
++/*
++ * Real code
++ */
++
++static int lm83_attach_adapter(struct i2c_adapter *adapter)
++{
++	return i2c_detect(adapter, &addr_data, lm83_detect);
++}
++
++/*
++ * The following function does more than just detection. If detection
++ * succeeds, it also registers the new chip.
++ */
++
++static int lm83_detect(struct i2c_adapter *adapter, int address, unsigned
++	short flags, int kind)
++{
++	struct i2c_client *new_client;
++	struct lm83_data *data;
++	int err = 0;
++	const char *type_name = "";
++	const char *client_name = "";
++
++#ifdef DEBUG
++	if (i2c_is_isa_adapter(adapter))
++	{
++		printk("lm83.o: Called for an ISA bus adapter, aborting.\n");
++		return 0;
++	}
++#endif
++
++	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE_DATA))
++	{
++#ifdef DEBUG
++		printk("lm83.o: I2C bus doesn't support byte read mode, "
++		       "skipping.\n");
++#endif
++		return 0;
++	}
++
++	if (!(new_client = kmalloc(sizeof(struct i2c_client) + sizeof(struct
++		lm83_data), GFP_KERNEL)))
++	{
++		printk("lm83.o: Out of memory in lm83_detect (new_client).\n");
++		return -ENOMEM;
++	}
++
++	/*
++	 * The LM83-specific data is placed right after the common I2C
++	 * client data, and is pointed to by the data field from the I2C
++	 * client data.
++	 */
++
++	new_client->addr = address;
++	new_client->data = data = (struct lm83_data *) (new_client + 1);
++	new_client->adapter = adapter;
++	new_client->driver = &lm83_driver;
++	new_client->flags = 0;
++
++	/*
++	 * Now we do the remaining detection. A negative kind means that
++	 * the driver was loaded with no force parameter (default), so we
++	 * must both detect and identify the chip (actually there is only
++	 * one possible kind of chip for now, LM83). A zero kind means that
++	 * the driver was loaded with the force parameter, the detection
++	 * step shall be skipped. A positive kind means that the driver
++	 * was loaded with the force parameter and a given kind of chip is
++	 * requested, so both the detection and the identification steps
++	 * are skipped.
++	 */
++
++	if (kind < 0) /* detection */
++	{
++		if (((lm83_read_value(new_client, LM83_REG_R_STATUS1)
++		      & 0xA8) != 0x00)
++		||  ((lm83_read_value(new_client, LM83_REG_R_STATUS2)
++		      & 0x48) != 0x00)
++		||  ((lm83_read_value(new_client, LM83_REG_R_CONFIG)
++		      & 0x41) != 0x00))
++		{
++#ifdef DEBUG
++			printk("lm83.o: LM83 detection failed at 0x%02x.\n",
++				address);
++#endif
++			goto ERROR1;
++		}
++	
++	}
++
++	if (kind <= 0) /* identification */
++	{
++		unsigned char man_id;
++
++		man_id = lm83_read_value(new_client, LM83_REG_R_MAN_ID);
++		if (man_id == 0x01) /* National Semiconductor */
++			kind = lm83;
++	}
++
++	if (kind <= 0) /* identification failed */
++	{
++		printk("lm83.o: Unsupported chip.\n");
++		goto ERROR1;
++	}
++
++	if (kind == lm83)
++	{
++		type_name = "lm83";
++		client_name = "LM83 chip";
++	} else
++	{
++		printk("lm83.o: Unknown kind %d.\n", kind);
++		goto ERROR1;
++	}
++	
++	/*
++	 * OK, we got a valid chip so we can fill in the remaining client
++	 * fields.
++	 */
++
++	strcpy(new_client->name, client_name);
++	new_client->id = lm83_id++;
++	data->valid = 0;
++	init_MUTEX(&data->update_lock);
++
++	/*
++	 * Tell the I2C layer a new client has arrived.
++	 */
++
++	if ((err = i2c_attach_client(new_client)))
++	{
++#ifdef DEBUG
++		printk("lm83.o: Failed attaching client.\n");
++#endif
++		goto ERROR1;
++	}
++
++	/*
++	 * Register a new directory entry.
++	 */
++	if ((err = i2c_register_entry(new_client, type_name,
++	     lm83_dir_table_template)) < 0)
++	{
++#ifdef DEBUG
++		printk("lm83.o: Failed registering directory entry.\n");
++#endif
++		goto ERROR2;
++	}
++	data->sysctl_id = err;
++
++	/*
++	 * Initialize the LM83 chip
++	 */
++	lm83_init_client(new_client);
++	return 0;
++
++	ERROR2:
++	i2c_detach_client(new_client);
++	ERROR1:
++	kfree(new_client);
++	return err;
++}
++
++static void lm83_init_client(struct i2c_client *client)
++{
++	lm83_write_value(client, LM83_REG_W_LOCAL_HIGH,
++	                 TEMP_TO_REG(LM83_INIT_HIGH));
++	lm83_write_value(client, LM83_REG_W_REMOTE1_HIGH,
++	                 TEMP_TO_REG(LM83_INIT_HIGH));
++	lm83_write_value(client, LM83_REG_W_REMOTE2_HIGH,
++	                 TEMP_TO_REG(LM83_INIT_HIGH));
++	lm83_write_value(client, LM83_REG_W_REMOTE3_HIGH,
++	                 TEMP_TO_REG(LM83_INIT_HIGH));
++}
++
++static int lm83_detach_client(struct i2c_client *client)
++{
++	int err;
++
++	i2c_deregister_entry(((struct lm83_data *) (client->data))->sysctl_id);
++	if ((err = i2c_detach_client(client)))
++	{
++		printk("lm83.o: Client deregistration failed, client not "
++		       "detached.\n");
++		return err;
++	}
++
++	kfree(client);
++	return 0;
++}
++
++static int lm83_read_value(struct i2c_client *client, u8 reg)
++{
++	return i2c_smbus_read_byte_data(client, reg);
++}
++
++static int lm83_write_value(struct i2c_client *client, u8 reg, u8 value)
++{
++	return i2c_smbus_write_byte_data(client, reg, value);
++}
++
++static void lm83_update_client(struct i2c_client *client)
++{
++	struct lm83_data *data = client->data;
++
++	down(&data->update_lock);
++
++	if ((jiffies - data->last_updated > HZ + HZ / 2) ||
++	    (jiffies < data->last_updated) || !data->valid)
++	{
++#ifdef DEBUG
++		printk("lm83.o: Updating LM83 data.\n");
++#endif
++		data->local_temp =
++			lm83_read_value(client, LM83_REG_R_LOCAL_TEMP);
++		data->remote1_temp =
++			lm83_read_value(client, LM83_REG_R_REMOTE1_TEMP);
++		data->remote2_temp =
++			lm83_read_value(client, LM83_REG_R_REMOTE2_TEMP);
++		data->remote3_temp =
++			lm83_read_value(client, LM83_REG_R_REMOTE3_TEMP);
++		data->local_high =
++			lm83_read_value(client, LM83_REG_R_LOCAL_HIGH);
++		data->remote1_high =
++			lm83_read_value(client, LM83_REG_R_REMOTE1_HIGH);
++		data->remote2_high =
++			lm83_read_value(client, LM83_REG_R_REMOTE2_HIGH);
++		data->remote3_high =
++			lm83_read_value(client, LM83_REG_R_REMOTE3_HIGH);
++		data->last_updated = jiffies;
++		data->valid = 1;
++	}
++
++	up(&data->update_lock);
++}
++
++static void lm83_local_temp(struct i2c_client *client, int operation, int
++	ctl_name, int *nrels_mag, long *results)
++{
++	struct lm83_data *data = client->data;
++	if (operation == SENSORS_PROC_REAL_INFO)
++		*nrels_mag = 0;
++	else if (operation == SENSORS_PROC_REAL_READ)
++	{
++		lm83_update_client(client);
++		results[0] = TEMP_FROM_REG(data->local_high);
++		results[1] = TEMP_FROM_REG(data->local_temp);
++		*nrels_mag = 2;
++	}
++	else if (operation == SENSORS_PROC_REAL_WRITE)
++	{
++		if (*nrels_mag >= 1)
++		{
++			data->local_high = TEMP_TO_REG(results[0]);
++			lm83_write_value(client, LM83_REG_W_LOCAL_HIGH,
++					    data->local_high);
++		}
++	}
++}
++
++static void lm83_remote1_temp(struct i2c_client *client, int operation, int
++	ctl_name, int *nrels_mag, long *results)
++{
++	struct lm83_data *data = client->data;
++	if (operation == SENSORS_PROC_REAL_INFO)
++		*nrels_mag = 0;
++	else if (operation == SENSORS_PROC_REAL_READ)
++	{
++		lm83_update_client(client);
++		results[0] = TEMP_FROM_REG(data->remote1_high);
++		results[1] = TEMP_FROM_REG(data->remote1_temp);
++		*nrels_mag = 2;
++	}
++	else if (operation == SENSORS_PROC_REAL_WRITE)
++	{
++		if (*nrels_mag >= 1)
++		{
++			data->remote1_high = TEMP_TO_REG(results[0]);
++			lm83_write_value(client, LM83_REG_W_REMOTE1_HIGH,
++					    data->remote1_high);
++		}
++	}
++}
++
++static void lm83_remote2_temp(struct i2c_client *client, int operation, int
++	ctl_name, int *nrels_mag, long *results)
++{
++	struct lm83_data *data = client->data;
++	if (operation == SENSORS_PROC_REAL_INFO)
++		*nrels_mag = 0;
++	else if (operation == SENSORS_PROC_REAL_READ)
++	{
++		lm83_update_client(client);
++		results[0] = TEMP_FROM_REG(data->remote2_high);
++		results[1] = TEMP_FROM_REG(data->remote2_temp);
++		*nrels_mag = 2;
++	}
++	else if (operation == SENSORS_PROC_REAL_WRITE)
++	{
++		if (*nrels_mag >= 1)
++		{
++			data->remote2_high = TEMP_TO_REG(results[0]);
++			lm83_write_value(client, LM83_REG_W_REMOTE2_HIGH,
++					    data->remote2_high);
++		}
++	}
++}
++
++static void lm83_remote3_temp(struct i2c_client *client, int operation, int
++	ctl_name, int *nrels_mag, long *results)
++{
++	struct lm83_data *data = client->data;
++	if (operation == SENSORS_PROC_REAL_INFO)
++		*nrels_mag = 0;
++	else if (operation == SENSORS_PROC_REAL_READ)
++	{
++		lm83_update_client(client);
++		results[0] = TEMP_FROM_REG(data->remote3_high);
++		results[1] = TEMP_FROM_REG(data->remote3_temp);
++		*nrels_mag = 2;
++	}
++	else if (operation == SENSORS_PROC_REAL_WRITE)
++	{
++		if (*nrels_mag >= 1)
++		{
++			data->remote3_high = TEMP_TO_REG(results[0]);
++			lm83_write_value(client, LM83_REG_W_REMOTE3_HIGH,
++					    data->remote3_high);
++		}
++	}
++}
++
++static int __init sm_lm83_init(void)
++{
++	printk(KERN_INFO "lm83.o version %s (%s)\n", LM_VERSION, LM_DATE);
++	return i2c_add_driver(&lm83_driver);
++}
++
++static void __exit sm_lm83_exit(void)
++{
++	i2c_del_driver(&lm83_driver);
++}
++
++MODULE_AUTHOR("Jean Delvare <khali@linux-fr.org>");
++MODULE_DESCRIPTION("LM83 sensor driver");
++MODULE_LICENSE("GPL");
++
++module_init(sm_lm83_init);
++module_exit(sm_lm83_exit);
+--- linux-2.4.21/drivers/sensors/ltc1710.c.dl15.orig	2003-08-24 01:21:09.000000000 +0200
++++ linux-2.4.21/drivers/sensors/ltc1710.c	2003-08-24 01:21:09.000000000 +0200
+@@ -0,0 +1,322 @@
++/*
++    ltc1710.c - Part of lm_sensors, Linux kernel modules for hardware
++             monitoring
++    Copyright (c) 1999  Frodo Looijaard <frodol@dds.nl> and
++    Philip Edelbrock <phil@netroedge.com>
++
++    This program is free software; you can redistribute it and/or modify
++    it under the terms of the GNU General Public License as published by
++    the Free Software Foundation; either version 2 of the License, or
++    (at your option) any later version.
++    
++    This program is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++    GNU General Public License for more details.
++
++    You should have received a copy of the GNU General Public License
++    along with this program; if not, write to the Free Software
++    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++*/
++
++/* A few notes about the LTC1710:
++
++* The LTC1710 is a dual programmable switch.  It can be used to turn
++  anything on or off anything which consumes less than 300mA of 
++  current and up to 5.5V
++  
++* The LTC1710 is a very, very simple SMBus device with three possible 
++   SMBus addresses (0x58,0x59, or 0x5A).  Only SMBus byte writes
++   (command writes) are supported.
++
++* Since only writes are supported, READS DON'T WORK!  The device 
++  plays dead in the event of a read, so this makes detection a 
++  bit tricky.
++  
++* BTW- I can safely say that this driver has been tested under
++  every possible case, so there should be no bugs. :')
++  
++  --Phil
++
++*/
++
++
++#include <linux/module.h>
++#include <linux/slab.h>
++#include <linux/i2c.h>
++#include <linux/i2c-proc.h>
++#include <linux/init.h>
++#define LM_DATE "20030714"
++#define LM_VERSION "2.8.0"
++
++MODULE_LICENSE("GPL");
++
++/* Addresses to scan */
++static unsigned short normal_i2c[] = { SENSORS_I2C_END };
++static unsigned short normal_i2c_range[] = { 0x58, 0x5a, SENSORS_I2C_END };
++static unsigned int normal_isa[] = { SENSORS_ISA_END };
++static unsigned int normal_isa_range[] = { SENSORS_ISA_END };
++
++/* Insmod parameters */
++SENSORS_INSMOD_1(ltc1710);
++
++/* The LTC1710 registers */
++
++/* (No registers.  [Wow! This thing is SIMPLE!] ) */
++
++/* Initial values */
++#define LTC1710_INIT 0		/* Both off */
++
++/* Each client has this additional data */
++struct ltc1710_data {
++	int sysctl_id;
++
++	struct semaphore update_lock;
++	char valid;		/* !=0 if following fields are valid */
++	unsigned long last_updated;	/* In jiffies */
++
++	u8 status;		/* Register values */
++};
++
++static int ltc1710_attach_adapter(struct i2c_adapter *adapter);
++static int ltc1710_detect(struct i2c_adapter *adapter, int address,
++			  unsigned short flags, int kind);
++static int ltc1710_detach_client(struct i2c_client *client);
++
++static void ltc1710_switch1(struct i2c_client *client, int operation,
++			    int ctl_name, int *nrels_mag, long *results);
++static void ltc1710_switch2(struct i2c_client *client, int operation,
++			    int ctl_name, int *nrels_mag, long *results);
++static void ltc1710_update_client(struct i2c_client *client);
++
++
++/* This is the driver that will be inserted */
++static struct i2c_driver ltc1710_driver = {
++	.owner		= THIS_MODULE,
++	.name		= "LTC1710 sensor chip driver",
++	.id		= I2C_DRIVERID_LTC1710,
++	.flags		= I2C_DF_NOTIFY,
++	.attach_adapter	= ltc1710_attach_adapter,
++	.detach_client	= ltc1710_detach_client,
++};
++
++/* -- SENSORS SYSCTL START -- */
++
++#define LTC1710_SYSCTL_SWITCH_1 1000
++#define LTC1710_SYSCTL_SWITCH_2 1001
++
++/* -- SENSORS SYSCTL END -- */
++
++/* These files are created for each detected LTC1710. This is just a template;
++   though at first sight, you might think we could use a statically
++   allocated list, we need some way to get back to the parent - which
++   is done through one of the 'extra' fields which are initialized
++   when a new copy is allocated. */
++static ctl_table ltc1710_dir_table_template[] = {
++	{LTC1710_SYSCTL_SWITCH_1, "switch1", NULL, 0, 0644, NULL, &i2c_proc_real,
++	 &i2c_sysctl_real, NULL, &ltc1710_switch1},
++	{LTC1710_SYSCTL_SWITCH_2, "switch2", NULL, 0, 0644, NULL, &i2c_proc_real,
++	 &i2c_sysctl_real, NULL, &ltc1710_switch2},
++	{0}
++};
++
++/* I choose here for semi-static LTC1710 allocation. Complete dynamic
++   allocation could also be used; the code needed for this would probably
++   take more memory than the datastructure takes now. */
++static int ltc1710_id = 0;
++
++static int ltc1710_attach_adapter(struct i2c_adapter *adapter)
++{
++	return i2c_detect(adapter, &addr_data, ltc1710_detect);
++}
++
++/* This function is called by i2c_detect */
++int ltc1710_detect(struct i2c_adapter *adapter, int address,
++		   unsigned short flags, int kind)
++{
++	int i;
++	struct i2c_client *new_client;
++	struct ltc1710_data *data;
++	int err = 0;
++	const char *type_name, *client_name;
++
++	/* Make sure we aren't probing the ISA bus!! This is just a safety check
++	   at this moment; i2c_detect really won't call us. */
++#ifdef DEBUG
++	if (i2c_is_isa_adapter(adapter)) {
++		printk
++		    ("ltc1710.o: ltc1710_detect called for an ISA bus adapter?!?\n");
++		return 0;
++	}
++#endif
++
++	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE))
++		goto ERROR0;
++
++	/* OK. For now, we presume we have a valid client. We now create the
++	   client structure, even though we cannot fill it completely yet.
++	   But it allows us to access ltc1710_{read,write}_value. */
++	if (!(new_client = kmalloc(sizeof(struct i2c_client) +
++				   sizeof(struct ltc1710_data),
++				   GFP_KERNEL))) {
++		err = -ENOMEM;
++		goto ERROR0;
++	}
++
++	data = (struct ltc1710_data *) (new_client + 1);
++	new_client->addr = address;
++	new_client->data = data;
++	new_client->adapter = adapter;
++	new_client->driver = &ltc1710_driver;
++	new_client->flags = 0;
++
++	/* Now, we would do the remaining detection. But the LTC1710 is plainly
++	   impossible to detect! Stupid chip. */
++
++	/* Determine the chip type - only one kind supported! */
++	if (kind <= 0)
++		kind = ltc1710;
++
++	if (kind == ltc1710) {
++		type_name = "ltc1710";
++		client_name = "LTC1710 chip";
++	} else {
++#ifdef DEBUG
++		printk("ltc1710.o: Internal error: unknown kind (%d)?!?",
++		       kind);
++#endif
++		goto ERROR1;
++	}
++
++	/* Fill in the remaining client fields and put it into the global list */
++	strcpy(new_client->name, client_name);
++
++	new_client->id = ltc1710_id++;
++	data->valid = 0;
++	init_MUTEX(&data->update_lock);
++
++	/* Tell the I2C layer a new client has arrived */
++	if ((err = i2c_attach_client(new_client)))
++		goto ERROR3;
++
++	/* Register a new directory entry with module sensors */
++	if ((i = i2c_register_entry(new_client, type_name,
++					ltc1710_dir_table_template)) < 0) {
++		err = i;
++		goto ERROR4;
++	}
++	data->sysctl_id = i;
++
++	return 0;
++
++/* OK, this is not exactly good programming practice, usually. But it is
++   very code-efficient in this case. */
++
++      ERROR4:
++	i2c_detach_client(new_client);
++      ERROR3:
++      ERROR1:
++	kfree(new_client);
++      ERROR0:
++	return err;
++}
++
++
++static int ltc1710_detach_client(struct i2c_client *client)
++{
++	int err;
++
++	i2c_deregister_entry(((struct ltc1710_data *) (client->data))->
++				 sysctl_id);
++
++	if ((err = i2c_detach_client(client))) {
++		printk
++		    ("ltc1710.o: Client deregistration failed, client not detached.\n");
++		return err;
++	}
++
++	kfree(client);
++
++	return 0;
++
++}
++
++static void ltc1710_update_client(struct i2c_client *client)
++{
++	struct ltc1710_data *data = client->data;
++
++	down(&data->update_lock);
++
++	if ((jiffies - data->last_updated > HZ + HZ / 2) ||
++	    (jiffies < data->last_updated) || !data->valid) {
++
++#ifdef DEBUG
++		printk("Starting ltc1710 update\n");
++#endif
++
++		/* data->status = i2c_smbus_read_byte(client); 
++		   Unfortunately, reads always fail!  */
++		data->last_updated = jiffies;
++		data->valid = 1;
++	}
++
++	up(&data->update_lock);
++}
++
++
++void ltc1710_switch1(struct i2c_client *client, int operation,
++		     int ctl_name, int *nrels_mag, long *results)
++{
++	struct ltc1710_data *data = client->data;
++	if (operation == SENSORS_PROC_REAL_INFO)
++		*nrels_mag = 0;
++	else if (operation == SENSORS_PROC_REAL_READ) {
++		ltc1710_update_client(client);
++		results[0] = data->status & 1;
++		*nrels_mag = 1;
++	} else if (operation == SENSORS_PROC_REAL_WRITE) {
++		if (*nrels_mag >= 1) {
++			data->status = (data->status & 2) | results[0];
++			i2c_smbus_write_byte(client, data->status);
++		}
++	}
++}
++
++void ltc1710_switch2(struct i2c_client *client, int operation,
++		     int ctl_name, int *nrels_mag, long *results)
++{
++	struct ltc1710_data *data = client->data;
++	if (operation == SENSORS_PROC_REAL_INFO)
++		*nrels_mag = 0;
++	else if (operation == SENSORS_PROC_REAL_READ) {
++		ltc1710_update_client(client);
++		results[0] = (data->status & 2) >> 1;
++		*nrels_mag = 1;
++	} else if (operation == SENSORS_PROC_REAL_WRITE) {
++		if (*nrels_mag >= 1) {
++			data->status =
++			    (data->status & 1) | (results[0] << 1);
++			i2c_smbus_write_byte(client, data->status);
++		}
++	}
++}
++
++static int __init sm_ltc1710_init(void)
++{
++	printk("ltc1710.o version %s (%s)\n", LM_VERSION, LM_DATE);
++	return i2c_add_driver(&ltc1710_driver);
++}
++
++static void __exit sm_ltc1710_exit(void)
++{
++	i2c_del_driver(&ltc1710_driver);
++}
++
++
++
++MODULE_AUTHOR
++    ("Frodo Looijaard <frodol@dds.nl> and Philip Edelbrock <phil@netroedge.com>");
++MODULE_DESCRIPTION("LTC1710 driver");
++
++module_init(sm_ltc1710_init);
++module_exit(sm_ltc1710_exit);
+--- linux-2.4.21/drivers/sensors/smartbatt.c.dl15.orig	2003-08-24 01:21:09.000000000 +0200
++++ linux-2.4.21/drivers/sensors/smartbatt.c	2003-08-24 01:21:09.000000000 +0200
+@@ -0,0 +1,466 @@
++/*
++    smartbatt.c - Part of lm_sensors, Linux kernel modules for hardware
++             monitoring
++    Copyright (c) 2002  M. D. Studebaker <mdsxyz123@yahoo.com>
++
++    This program is free software; you can redistribute it and/or modify
++    it under the terms of the GNU General Public License as published by
++    the Free Software Foundation; either version 2 of the License, or
++    (at your option) any later version.
++
++    This program is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++    GNU General Public License for more details.
++
++    You should have received a copy of the GNU General Public License
++    along with this program; if not, write to the Free Software
++    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++
++    With GPL code from:
++	   battery.c
++	   Copyright (C) 2000 Linuxcare, Inc. 
++	   battery.h
++	   Copyright (C) 2000 Hypercore Software Design, Ltd.
++*/
++
++#include <linux/module.h>
++#include <linux/slab.h>
++#include <linux/i2c.h>
++#include <linux/i2c-proc.h>
++#include <linux/init.h>
++#define LM_DATE "20030714"
++#define LM_VERSION "2.8.0"
++
++
++/* Addresses to scan */
++static unsigned short normal_i2c[] = { 0x0b, SENSORS_I2C_END };
++static unsigned short normal_i2c_range[] = { SENSORS_I2C_END };
++static unsigned int normal_isa[] = { SENSORS_ISA_END };
++static unsigned int normal_isa_range[] = { SENSORS_ISA_END };
++
++/* Insmod parameters */
++SENSORS_INSMOD_1(smartbatt);
++
++/* Conversions */
++#define TEMP_FROM_REG(r) (r - 2732)  /* tenths of degree kelvin to celsius */
++
++/* The SMARTBATT registers */
++#define SMARTBATT_REG_MODE 0x03
++#define SMARTBATT_REG_TEMP 0x08
++#define SMARTBATT_REG_V 0x09
++#define SMARTBATT_REG_I 0x0a
++#define SMARTBATT_REG_AVGI 0x0b
++#define SMARTBATT_REG_RELCHG 0x0d
++#define SMARTBATT_REG_ABSCHG 0x0e
++#define SMARTBATT_REG_RUNTIME_E 0x11
++#define SMARTBATT_REG_AVGTIME_E 0x12
++#define SMARTBATT_REG_AVGTIME_F 0x13
++#define SMARTBATT_REG_STATUS 0x16
++#define SMARTBATT_REG_DESV 0x19
++#define SMARTBATT_REG_DATE 0x1b
++#define SMARTBATT_REG_SERIAL 0x1c
++#define SMARTBATT_REG_MANUF 0x20
++#define SMARTBATT_REG_NAME 0x21
++#define SMARTBATT_REG_CHEM 0x22
++
++#define COMM_TIMEOUT 16
++#define BATTERY_STRING_MAX	33
++
++/* Each client has this additional data */
++struct smartbatt_data {
++	int sysctl_id;
++
++	struct semaphore update_lock;
++	char valid;		/* !=0 if following fields are valid */
++	unsigned long last_updated;	/* In jiffies */
++#if 0
++	char manufacturer[BATTERY_STRING_MAX];
++	char device[BATTERY_STRING_MAX];
++	char chemistry[BATTERY_STRING_MAX];
++	int  serial;
++	struct {
++		unsigned int day:5;	/* Day (1-31) */
++		unsigned int month:4;	/* Month (1-12) */
++		unsigned int year:7;	/* Year (1980 + 0-127) */
++	} manufacture_date;
++#endif
++	u16 temp, v, desv, i, avgi;	/* Register values */
++	u16 rte, ate, atf, alarms;	/* Register values */
++	u16 relchg, abschg;		/* Register values */
++};
++
++static int smartbatt_attach_adapter(struct i2c_adapter *adapter);
++static int smartbatt_detect(struct i2c_adapter *adapter, int address,
++		       unsigned short flags, int kind);
++static void smartbatt_init_client(struct i2c_client *client);
++static int smartbatt_detach_client(struct i2c_client *client);
++
++static u16 swap_bytes(u16 val);
++static int sb_read(struct i2c_client *client, u8 reg);
++#if 0
++static int smartbatt_write_value(struct i2c_client *client, u8 reg, u16 value);
++#endif
++static void smartbatt_temp(struct i2c_client *client, int operation,
++		      int ctl_name, int *nrels_mag, long *results);
++static void smartbatt_i(struct i2c_client *client, int operation,
++		      int ctl_name, int *nrels_mag, long *results);
++static void smartbatt_v(struct i2c_client *client, int operation,
++		      int ctl_name, int *nrels_mag, long *results);
++static void smartbatt_time(struct i2c_client *client, int operation,
++		      int ctl_name, int *nrels_mag, long *results);
++static void smartbatt_alarms(struct i2c_client *client, int operation,
++		      int ctl_name, int *nrels_mag, long *results);
++static void smartbatt_charge(struct i2c_client *client, int operation,
++		      int ctl_name, int *nrels_mag, long *results);
++static void smartbatt_update_client(struct i2c_client *client);
++
++
++/* This is the driver that will be inserted */
++static struct i2c_driver smartbatt_driver = {
++	.owner		= THIS_MODULE,
++	.name		= "Smart Battery chip driver",
++	.id		= I2C_DRIVERID_SMARTBATT,
++	.flags		= I2C_DF_NOTIFY,
++	.attach_adapter	= smartbatt_attach_adapter,
++	.detach_client	= smartbatt_detach_client,
++};
++
++
++/* -- SENSORS SYSCTL START -- */
++#define SMARTBATT_SYSCTL_I 1001
++#define SMARTBATT_SYSCTL_V 1002
++#define SMARTBATT_SYSCTL_TEMP 1003
++#define SMARTBATT_SYSCTL_TIME 1004
++#define SMARTBATT_SYSCTL_ALARMS 1005
++#define SMARTBATT_SYSCTL_CHARGE 1006
++
++/* -- SENSORS SYSCTL END -- */
++
++/* These files are created for each detected SMARTBATT. This is just a template;
++   though at first sight, you might think we could use a statically
++   allocated list, we need some way to get back to the parent - which
++   is done through one of the 'extra' fields which are initialized
++   when a new copy is allocated. */
++static ctl_table smartbatt_dir_table_template[] = {
++	{SMARTBATT_SYSCTL_I, "i", NULL, 0, 0444, NULL, &i2c_proc_real,
++	 &i2c_sysctl_real, NULL, &smartbatt_i},
++	{SMARTBATT_SYSCTL_V, "v", NULL, 0, 0444, NULL, &i2c_proc_real,
++	 &i2c_sysctl_real, NULL, &smartbatt_v},
++	{SMARTBATT_SYSCTL_TEMP, "temp", NULL, 0, 0444, NULL, &i2c_proc_real,
++	 &i2c_sysctl_real, NULL, &smartbatt_temp},
++	{SMARTBATT_SYSCTL_TIME, "time", NULL, 0, 0444, NULL, &i2c_proc_real,
++	 &i2c_sysctl_real, NULL, &smartbatt_time},
++	{SMARTBATT_SYSCTL_ALARMS, "alarms", NULL, 0, 0444, NULL, &i2c_proc_real,
++	 &i2c_sysctl_real, NULL, &smartbatt_alarms},
++	{SMARTBATT_SYSCTL_CHARGE, "charge", NULL, 0, 0444, NULL, &i2c_proc_real,
++	 &i2c_sysctl_real, NULL, &smartbatt_charge},
++	{0}
++};
++
++static int smartbatt_id = 0;
++
++static int smartbatt_attach_adapter(struct i2c_adapter *adapter)
++{
++	return i2c_detect(adapter, &addr_data, smartbatt_detect);
++}
++
++/* This function is called by i2c_detect */
++int smartbatt_detect(struct i2c_adapter *adapter, int address,
++		unsigned short flags, int kind)
++{
++	int i;
++	struct i2c_client *new_client;
++	struct smartbatt_data *data;
++	int err = 0;
++	const char *type_name, *client_name;
++
++	/* Make sure we aren't probing the ISA bus!! This is just a safety check
++	   at this moment; i2c_detect really won't call us. */
++#ifdef DEBUG
++	if (i2c_is_isa_adapter(adapter)) {
++		printk
++		    ("smartbatt.o: smartbatt_detect called for an ISA bus adapter?!?\n");
++		return 0;
++	}
++#endif
++
++	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_WORD_DATA))
++		    goto ERROR0;
++
++	/* OK. For now, we presume we have a valid client. We now create the
++	   client structure, even though we cannot fill it completely yet.
++	   But it allows us to access smartbatt_{read,write}_value. */
++	if (!(new_client = kmalloc(sizeof(struct i2c_client) +
++				   sizeof(struct smartbatt_data),
++				   GFP_KERNEL))) {
++		err = -ENOMEM;
++		goto ERROR0;
++	}
++
++	data = (struct smartbatt_data *) (new_client + 1);
++	new_client->addr = address;
++	new_client->data = data;
++	new_client->adapter = adapter;
++	new_client->driver = &smartbatt_driver;
++	new_client->flags = 0;
++
++	/* Now, we do the remaining detection. It is lousy. */
++	if (kind < 0) {
++		for (i = 0x08; i <= 0x0a; i++)
++			if (i2c_smbus_read_word_data(new_client, i) != 0xff)
++				goto ERROR1;
++	}
++
++	kind = smartbatt;
++	type_name = "smartbatt";
++	client_name = "Smart Battery";
++
++	/* Fill in the remaining client fields and put it into the global list */
++	strcpy(new_client->name, client_name);
++
++	new_client->id = smartbatt_id++;
++	data->valid = 0;
++	init_MUTEX(&data->update_lock);
++
++	/* Tell the I2C layer a new client has arrived */
++	if ((err = i2c_attach_client(new_client)))
++		goto ERROR3;
++
++	/* Register a new directory entry with module sensors */
++	if ((i = i2c_register_entry(new_client, type_name,
++					smartbatt_dir_table_template)) < 0) {
++		err = i;
++		goto ERROR4;
++	}
++	data->sysctl_id = i;
++
++	smartbatt_init_client(new_client);
++	return 0;
++
++/* OK, this is not exactly good programming practice, usually. But it is
++   very code-efficient in this case. */
++
++      ERROR4:
++	i2c_detach_client(new_client);
++      ERROR3:
++      ERROR1:
++	kfree(new_client);
++      ERROR0:
++	return err;
++}
++
++static int smartbatt_detach_client(struct i2c_client *client)
++{
++	int err;
++
++	i2c_deregister_entry(((struct smartbatt_data *) (client->data))->
++				 sysctl_id);
++
++	if ((err = i2c_detach_client(client))) {
++		printk
++		    ("smartbatt.o: Client deregistration failed, client not detached.\n");
++		return err;
++	}
++
++	kfree(client);
++
++	return 0;
++}
++
++
++static u16 swap_bytes(u16 val)
++{
++	return (val >> 8) | (val << 8);
++}
++
++static int sb_read(struct i2c_client *client, u8 reg)
++{
++	return swap_bytes(i2c_smbus_read_word_data(client, reg));
++}
++
++#if 0
++static int smartbatt_write_value(struct i2c_client *client, u8 reg, u16 value)
++{
++	return i2c_smbus_write_word_data(client, reg, swap_bytes(value));
++}
++#endif
++
++#if 0
++/* this is code from battery.c. No strings support yet in i2c-proc.c so
++   all we could do is print this out at startup if we wanted.
++*/
++int
++static battery_info(int fd, struct battery_info *info)
++{
++  int n;
++  int val;
++
++  /* ManufactureDate */
++  val = sb_read(SMARTBATT_REG_DATE);
++  info->manufacture_date.day=val & 0x1F;
++  info->manufacture_date.month=(val >> 5) & 0x0F;
++  info->manufacture_date.year=(val >> 9) & 0x7F;
++
++  /* SerialNumber */
++  info->serial = sb_read(SMARTBATT_REG_SERIAL
++
++  /* ManufacturerName */
++  n = COMM_TIMEOUT;
++  do {
++    val = i2c_smbus_read_block_data(fd, 0x20, info->manufacturer);
++  } while ((val == -1) && (n-- > 0));
++  info->manufacturer[val]=0;	
++
++  /* DeviceName */
++  n = COMM_TIMEOUT;
++  do {
++    val = i2c_smbus_read_block_data(fd, 0x21, info->device);
++  } while ((val == -1) && (n-- > 0));
++  info->device[val]=0;	
++
++  /* DeviceChemistry */
++  n = COMM_TIMEOUT;
++  do {
++    val = i2c_smbus_read_block_data(fd, 0x22, info->chemistry);
++  } while ((val == -1) && (n-- > 0));
++  info->chemistry[val]=0;	
++
++  return 0;
++}
++#endif
++
++static void smartbatt_init_client(struct i2c_client *client)
++{
++
++}
++
++static void smartbatt_update_client(struct i2c_client *client)
++{
++	struct smartbatt_data *data = client->data;
++
++	down(&data->update_lock);
++
++	if ((jiffies - data->last_updated > HZ + HZ / 2) ||
++	    (jiffies < data->last_updated) || !data->valid) {
++		data->temp = sb_read(client, SMARTBATT_REG_TEMP);
++		data->i = sb_read(client, SMARTBATT_REG_I);
++		data->avgi = sb_read(client, SMARTBATT_REG_AVGI);
++		data->v = sb_read(client, SMARTBATT_REG_V);
++		data->desv = sb_read(client, SMARTBATT_REG_DESV);
++		data->ate = sb_read(client, SMARTBATT_REG_AVGTIME_E);
++		data->atf = sb_read(client, SMARTBATT_REG_AVGTIME_F);
++		data->rte = sb_read(client, SMARTBATT_REG_RUNTIME_E);
++		data->alarms = sb_read(client, SMARTBATT_REG_STATUS);
++		data->relchg = sb_read(client, SMARTBATT_REG_RELCHG);
++		data->abschg = sb_read(client, SMARTBATT_REG_ABSCHG);
++		data->last_updated = jiffies;
++		data->valid = 1;
++	}
++
++	up(&data->update_lock);
++}
++
++
++void smartbatt_temp(struct i2c_client *client, int operation, int ctl_name,
++	       int *nrels_mag, long *results)
++{
++	struct smartbatt_data *data = client->data;
++	if (operation == SENSORS_PROC_REAL_INFO)
++		*nrels_mag = 1;
++	else if (operation == SENSORS_PROC_REAL_READ) {
++		smartbatt_update_client(client);
++		results[0] = TEMP_FROM_REG(data->temp);
++		*nrels_mag = 1;
++	}
++}
++
++void smartbatt_i(struct i2c_client *client, int operation, int ctl_name,
++	       int *nrels_mag, long *results)
++{
++	struct smartbatt_data *data = client->data;
++	if (operation == SENSORS_PROC_REAL_INFO)
++		*nrels_mag = 3;
++	else if (operation == SENSORS_PROC_REAL_READ) {
++		smartbatt_update_client(client);
++		results[0] = data->avgi;
++		results[1] = data->i;
++		*nrels_mag = 2;
++	}
++}
++
++void smartbatt_v(struct i2c_client *client, int operation, int ctl_name,
++	       int *nrels_mag, long *results)
++{
++	struct smartbatt_data *data = client->data;
++	if (operation == SENSORS_PROC_REAL_INFO)
++		*nrels_mag = 3;
++	else if (operation == SENSORS_PROC_REAL_READ) {
++		smartbatt_update_client(client);
++		results[0] = data->desv;
++		results[1] = data->v;
++		*nrels_mag = 2;
++	}
++}
++
++void smartbatt_time(struct i2c_client *client, int operation, int ctl_name,
++	       int *nrels_mag, long *results)
++{
++	struct smartbatt_data *data = client->data;
++	if (operation == SENSORS_PROC_REAL_INFO)
++		*nrels_mag = 0;
++	else if (operation == SENSORS_PROC_REAL_READ) {
++		smartbatt_update_client(client);
++		results[0] = data->ate;
++		results[1] = data->atf;
++		results[2] = data->rte;
++		*nrels_mag = 3;
++	}
++}
++
++void smartbatt_alarms(struct i2c_client *client, int operation, int ctl_name,
++		 int *nrels_mag, long *results)
++{
++	struct smartbatt_data *data = client->data;
++	if (operation == SENSORS_PROC_REAL_INFO)
++		*nrels_mag = 0;
++	else if (operation == SENSORS_PROC_REAL_READ) {
++		smartbatt_update_client(client);
++		results[0] = data->alarms;
++		*nrels_mag = 1;
++	}
++}
++
++void smartbatt_charge(struct i2c_client *client, int operation, int ctl_name,
++		 int *nrels_mag, long *results)
++{
++	struct smartbatt_data *data = client->data;
++	if (operation == SENSORS_PROC_REAL_INFO)
++		*nrels_mag = 0;
++	else if (operation == SENSORS_PROC_REAL_READ) {
++		smartbatt_update_client(client);
++		results[0] = data->relchg;
++		results[1] = data->abschg;
++		*nrels_mag = 2;
++	}
++}
++
++static int __init sm_smartbatt_init(void)
++{
++	printk("smartbatt.o version %s (%s)\n", LM_VERSION, LM_DATE);
++	return i2c_add_driver(&smartbatt_driver);
++}
++
++static void __exit sm_smartbatt_exit(void)
++{
++	i2c_del_driver(&smartbatt_driver);
++}
++
++
++
++MODULE_AUTHOR("M. Studebaker <mdsxyz123@yahoo.com>");
++MODULE_DESCRIPTION("Smart Battery driver");
++MODULE_LICENSE("GPL");
++
++module_init(sm_smartbatt_init);
++module_exit(sm_smartbatt_exit);
+--- linux-2.4.21/drivers/sensors/w83527hf.c.dl15.orig	2003-08-24 01:21:09.000000000 +0200
++++ linux-2.4.21/drivers/sensors/w83527hf.c	2003-08-24 01:21:09.000000000 +0200
+@@ -0,0 +1,1493 @@
++/*
++    w83627hf.c - Part of lm_sensors, Linux kernel modules for hardware
++                monitoring
++    Copyright (c) 1998 - 2002  Frodo Looijaard <frodol@dds.nl>,
++    Philip Edelbrock <phil@netroedge.com>,
++    and Mark Studebaker <mdsxyz123@yahoo.com>
++
++    This program is free software; you can redistribute it and/or modify
++    it under the terms of the GNU General Public License as published by
++    the Free Software Foundation; either version 2 of the License, or
++    (at your option) any later version.
++
++    This program is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++    GNU General Public License for more details.
++
++    You should have received a copy of the GNU General Public License
++    along with this program; if not, write to the Free Software
++    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++*/
++
++/*
++    Supports following chips:
++
++    Chip	#vin	#fanin	#pwm	#temp	wchipid	vendid	i2c	ISA
++    w83627hf	9	3	2	3	0x20	0x5ca3	no	yes(LPC)
++    w83627thf	9	2	?	3	??	0x5ca3	no	yes(LPC)
++    w83697hf	8	2	2	2	0x60	0x5ca3	no	yes(LPC)
++
++    For other winbond chips, and for i2c support in the above chips,
++    use w83627hf.c.
++*/
++
++#include <linux/module.h>
++#include <linux/slab.h>
++#include <linux/proc_fs.h>
++#include <linux/ioport.h>
++#include <linux/sysctl.h>
++#include <linux/types.h>
++#include <linux/i2c.h>
++#include <linux/i2c-proc.h>
++#include <linux/init.h>
++#include <asm/errno.h>
++#include <asm/io.h>
++#define LM_DATE "20030714"
++#define LM_VERSION "2.8.0"
++#include <linux/sensors_vid.h>
++
++
++#ifndef I2C_DRIVERID_W83627HF
++#define I2C_DRIVERID_W83627HF 1038
++#endif
++
++
++static int force_addr;
++MODULE_PARM(force_addr, "i");
++MODULE_PARM_DESC(force_addr,
++		 "Initialize the base address of the sensors");
++static int force_i2c = 0x1f;
++MODULE_PARM(force_i2c, "i");
++MODULE_PARM_DESC(force_i2c,
++		 "Initialize the i2c address of the sensors");
++
++/* Addresses to scan */
++static unsigned short normal_i2c[] = { SENSORS_I2C_END };
++static unsigned short normal_i2c_range[] = { SENSORS_I2C_END };
++static unsigned int normal_isa[] = { 0, SENSORS_ISA_END };
++static unsigned int normal_isa_range[] = { SENSORS_ISA_END };
++
++/* Insmod parameters */
++SENSORS_INSMOD_2(w83627hf, w83697hf);
++
++static int init = 1;
++MODULE_PARM(init, "i");
++MODULE_PARM_DESC(init, "Set to zero to bypass chip initialization");
++
++/* modified from kernel/include/traps.c */
++#define	REG	0x2e	/* The register to read/write */
++#define	DEV	0x07	/* Register: Logical device select */
++#define	VAL	0x2f	/* The value to read/write */
++#define PME	0x0b	/* The device with the hardware monitor */
++#define	DEVID	0x20	/* Register: Device ID */
++
++static inline void
++superio_outb(int reg, int val)
++{
++	outb(reg, REG);
++	outb(val, VAL);
++}
++
++static inline int
++superio_inb(int reg)
++{
++	outb(reg, REG);
++	return inb(VAL);
++}
++
++static inline void
++superio_select(void)
++{
++	outb(DEV, REG);
++	outb(PME, VAL);
++}
++
++static inline void
++superio_enter(void)
++{
++	outb(0x87, REG);
++	outb(0x87, REG);
++}
++
++static inline void
++superio_exit(void)
++{
++	outb(0xAA, REG);
++}
++
++#define W627_DEVID 0x52
++#define W627THF_DEVID 0x82
++#define W697_DEVID 0x60
++#define WINB_ACT_REG 0x30
++#define WINB_BASE_REG 0x60
++/* Constants specified below */
++
++/* Length of ISA address segment */
++#define WINB_EXTENT 8
++
++/* Where are the ISA address/data registers relative to the base address */
++#define W83781D_ADDR_REG_OFFSET 5
++#define W83781D_DATA_REG_OFFSET 6
++
++/* The W83781D registers */
++/* The W83782D registers for nr=7,8 are in bank 5 */
++#define W83781D_REG_IN_MAX(nr) ((nr < 7) ? (0x2b + (nr) * 2) : \
++					   (0x554 + (((nr) - 7) * 2)))
++#define W83781D_REG_IN_MIN(nr) ((nr < 7) ? (0x2c + (nr) * 2) : \
++					   (0x555 + (((nr) - 7) * 2)))
++#define W83781D_REG_IN(nr)     ((nr < 7) ? (0x20 + (nr)) : \
++					   (0x550 + (nr) - 7))
++
++#define W83781D_REG_FAN_MIN(nr) (0x3a + (nr))
++#define W83781D_REG_FAN(nr) (0x27 + (nr))
++
++#define W83781D_REG_TEMP2 0x0150
++#define W83781D_REG_TEMP3 0x0250
++#define W83781D_REG_TEMP2_HYST 0x153
++#define W83781D_REG_TEMP3_HYST 0x253
++#define W83781D_REG_TEMP2_CONFIG 0x152
++#define W83781D_REG_TEMP3_CONFIG 0x252
++#define W83781D_REG_TEMP2_OVER 0x155
++#define W83781D_REG_TEMP3_OVER 0x255
++
++#define W83781D_REG_TEMP 0x27
++#define W83781D_REG_TEMP_OVER 0x39
++#define W83781D_REG_TEMP_HYST 0x3A
++#define W83781D_REG_BANK 0x4E
++
++#define W83781D_REG_CONFIG 0x40
++#define W83781D_REG_ALARM1 0x41
++#define W83781D_REG_ALARM2 0x42
++#define W83781D_REG_ALARM3 0x450	/* not on W83781D */
++
++#define W83781D_REG_IRQ 0x4C
++#define W83781D_REG_BEEP_CONFIG 0x4D
++#define W83781D_REG_BEEP_INTS1 0x56
++#define W83781D_REG_BEEP_INTS2 0x57
++#define W83781D_REG_BEEP_INTS3 0x453	/* not on W83781D */
++
++#define W83781D_REG_VID_FANDIV 0x47
++
++#define W83781D_REG_CHIPID 0x49
++#define W83781D_REG_WCHIPID 0x58
++#define W83781D_REG_CHIPMAN 0x4F
++#define W83781D_REG_PIN 0x4B
++
++/* 782D/783S only */
++#define W83781D_REG_VBAT 0x5D
++
++/* PWM 782D (1-4) and 783S (1-2) only */
++#define W83781D_REG_PWM1 0x5B	/* 782d and 783s/627hf datasheets disagree */
++				/* on which is which; */
++#define W83781D_REG_PWM2 0x5A	/* We follow the 782d convention here, */
++				/* However 782d is probably wrong. */
++#define W83781D_REG_PWM3 0x5E
++#define W83781D_REG_PWM4 0x5F
++#define W83781D_REG_PWMCLK12 0x5C
++#define W83781D_REG_PWMCLK34 0x45C
++static const u8 regpwm[] = { W83781D_REG_PWM1, W83781D_REG_PWM2,
++	W83781D_REG_PWM3, W83781D_REG_PWM4
++};
++#define W83781D_REG_PWM(nr) (regpwm[(nr) - 1])
++
++#define W83781D_REG_I2C_ADDR 0x48
++#define W83781D_REG_I2C_SUBADDR 0x4A
++
++/* The following are undocumented in the data sheets however we
++   received the information in an email from Winbond tech support */
++/* Sensor selection - not on 781d */
++#define W83781D_REG_SCFG1 0x5D
++static const u8 BIT_SCFG1[] = { 0x02, 0x04, 0x08 };
++#define W83781D_REG_SCFG2 0x59
++static const u8 BIT_SCFG2[] = { 0x10, 0x20, 0x40 };
++#define W83781D_DEFAULT_BETA 3435
++
++/* RT Table registers */
++#define W83781D_REG_RT_IDX 0x50
++#define W83781D_REG_RT_VAL 0x51
++
++/* Conversions. Rounding and limit checking is only done on the TO_REG
++   variants. Note that you should be a bit careful with which arguments
++   these macros are called: arguments may be evaluated more than once.
++   Fixing this is just not worth it. */
++#define IN_TO_REG(val)  (SENSORS_LIMIT((((val) * 10 + 8)/16),0,255))
++#define IN_FROM_REG(val) (((val) * 16) / 10)
++
++static inline u8 FAN_TO_REG(long rpm, int div)
++{
++	if (rpm == 0)
++		return 255;
++	rpm = SENSORS_LIMIT(rpm, 1, 1000000);
++	return SENSORS_LIMIT((1350000 + rpm * div / 2) / (rpm * div), 1,
++			     254);
++}
++
++#define FAN_FROM_REG(val,div) ((val)==0?-1:(val)==255?0:1350000/((val)*(div)))
++
++#define TEMP_TO_REG(val) (SENSORS_LIMIT(((val)<0?(((val)-5)/10):\
++                                                 ((val)+5)/10),0,255))
++#define TEMP_FROM_REG(val) (((val)>0x80?(val)-0x100:(val))*10)
++
++#define TEMP_ADD_TO_REG(val)   (SENSORS_LIMIT(((((val) + 2) / 5) << 7),\
++                                              0,0xffff))
++#define TEMP_ADD_FROM_REG(val) (((val) >> 7) * 5)
++
++#define PWM_TO_REG(val) (SENSORS_LIMIT((val),0,255))
++#define BEEPS_TO_REG(val) ((val) & 0xffffff)
++
++#define BEEP_ENABLE_TO_REG(val)   ((val)?1:0)
++#define BEEP_ENABLE_FROM_REG(val) ((val)?1:0)
++
++#define DIV_FROM_REG(val) (1 << (val))
++
++static inline u8 DIV_TO_REG(long val)
++{
++	int i;
++	val = SENSORS_LIMIT(val, 1, 128) >> 1;
++	for (i = 0; i < 6; i++) {
++		if (val == 0)
++			break;
++		val >>= 1;
++	}
++	return ((u8) i);
++}
++
++/* Initial limits */
++#define W83781D_INIT_IN_0 (vid==3500?280:vid/10)
++#define W83781D_INIT_IN_1 (vid==3500?280:vid/10)
++#define W83781D_INIT_IN_2 330
++#define W83781D_INIT_IN_3 (((500)   * 100)/168)
++#define W83781D_INIT_IN_4 (((1200)  * 10)/38)
++#define W83781D_INIT_IN_5 (((-1200) * -604)/2100)
++#define W83781D_INIT_IN_6 (((-500)  * -604)/909)
++#define W83781D_INIT_IN_7 (((500)   * 100)/168)
++#define W83781D_INIT_IN_8 300
++/* Initial limits for 782d/783s negative voltages */
++/* Note level shift. Change min/max below if you change these. */
++#define W83782D_INIT_IN_5 ((((-1200) + 1491) * 100)/514)
++#define W83782D_INIT_IN_6 ((( (-500)  + 771) * 100)/314)
++
++#define W83781D_INIT_IN_PERCENTAGE 10
++
++#define W83781D_INIT_IN_MIN_0 \
++        (W83781D_INIT_IN_0 - W83781D_INIT_IN_0 * W83781D_INIT_IN_PERCENTAGE \
++         / 100)
++#define W83781D_INIT_IN_MAX_0 \
++        (W83781D_INIT_IN_0 + W83781D_INIT_IN_0 * W83781D_INIT_IN_PERCENTAGE \
++         / 100)
++#define W83781D_INIT_IN_MIN_1 \
++        (W83781D_INIT_IN_1 - W83781D_INIT_IN_1 * W83781D_INIT_IN_PERCENTAGE \
++         / 100)
++#define W83781D_INIT_IN_MAX_1 \
++        (W83781D_INIT_IN_1 + W83781D_INIT_IN_1 * W83781D_INIT_IN_PERCENTAGE \
++         / 100)
++#define W83781D_INIT_IN_MIN_2 \
++        (W83781D_INIT_IN_2 - W83781D_INIT_IN_2 * W83781D_INIT_IN_PERCENTAGE \
++         / 100)
++#define W83781D_INIT_IN_MAX_2 \
++        (W83781D_INIT_IN_2 + W83781D_INIT_IN_2 * W83781D_INIT_IN_PERCENTAGE \
++         / 100)
++#define W83781D_INIT_IN_MIN_3 \
++        (W83781D_INIT_IN_3 - W83781D_INIT_IN_3 * W83781D_INIT_IN_PERCENTAGE \
++         / 100)
++#define W83781D_INIT_IN_MAX_3 \
++        (W83781D_INIT_IN_3 + W83781D_INIT_IN_3 * W83781D_INIT_IN_PERCENTAGE \
++         / 100)
++#define W83781D_INIT_IN_MIN_4 \
++        (W83781D_INIT_IN_4 - W83781D_INIT_IN_4 * W83781D_INIT_IN_PERCENTAGE \
++         / 100)
++#define W83781D_INIT_IN_MAX_4 \
++        (W83781D_INIT_IN_4 + W83781D_INIT_IN_4 * W83781D_INIT_IN_PERCENTAGE \
++         / 100)
++#define W83781D_INIT_IN_MIN_5 \
++        (W83781D_INIT_IN_5 - W83781D_INIT_IN_5 * W83781D_INIT_IN_PERCENTAGE \
++         / 100)
++#define W83781D_INIT_IN_MAX_5 \
++        (W83781D_INIT_IN_5 + W83781D_INIT_IN_5 * W83781D_INIT_IN_PERCENTAGE \
++         / 100)
++#define W83781D_INIT_IN_MIN_6 \
++        (W83781D_INIT_IN_6 - W83781D_INIT_IN_6 * W83781D_INIT_IN_PERCENTAGE \
++         / 100)
++#define W83781D_INIT_IN_MAX_6 \
++        (W83781D_INIT_IN_6 + W83781D_INIT_IN_6 * W83781D_INIT_IN_PERCENTAGE \
++         / 100)
++#define W83781D_INIT_IN_MIN_7 \
++        (W83781D_INIT_IN_7 - W83781D_INIT_IN_7 * W83781D_INIT_IN_PERCENTAGE \
++         / 100)
++#define W83781D_INIT_IN_MAX_7 \
++        (W83781D_INIT_IN_7 + W83781D_INIT_IN_7 * W83781D_INIT_IN_PERCENTAGE \
++         / 100)
++#define W83781D_INIT_IN_MIN_8 \
++        (W83781D_INIT_IN_8 - W83781D_INIT_IN_8 * W83781D_INIT_IN_PERCENTAGE \
++         / 100)
++#define W83781D_INIT_IN_MAX_8 \
++        (W83781D_INIT_IN_8 + W83781D_INIT_IN_8 * W83781D_INIT_IN_PERCENTAGE \
++         / 100)
++/* Initial limits for 782d/783s negative voltages */
++/* These aren't direct multiples because of level shift */
++/* Beware going negative - check */
++#define W83782D_INIT_IN_MIN_5_TMP \
++        (((-1200 * (100 + W83781D_INIT_IN_PERCENTAGE)) + (1491 * 100))/514)
++#define W83782D_INIT_IN_MIN_5 \
++        ((W83782D_INIT_IN_MIN_5_TMP > 0) ? W83782D_INIT_IN_MIN_5_TMP : 0)
++#define W83782D_INIT_IN_MAX_5 \
++        (((-1200 * (100 - W83781D_INIT_IN_PERCENTAGE)) + (1491 * 100))/514)
++#define W83782D_INIT_IN_MIN_6_TMP \
++        ((( -500 * (100 + W83781D_INIT_IN_PERCENTAGE)) +  (771 * 100))/314)
++#define W83782D_INIT_IN_MIN_6 \
++        ((W83782D_INIT_IN_MIN_6_TMP > 0) ? W83782D_INIT_IN_MIN_6_TMP : 0)
++#define W83782D_INIT_IN_MAX_6 \
++        ((( -500 * (100 - W83781D_INIT_IN_PERCENTAGE)) +  (771 * 100))/314)
++
++#define W83781D_INIT_FAN_MIN_1 3000
++#define W83781D_INIT_FAN_MIN_2 3000
++#define W83781D_INIT_FAN_MIN_3 3000
++
++#define W83781D_INIT_TEMP_OVER 600
++#define W83781D_INIT_TEMP_HYST 1270	/* must be 127 for ALARM to work */
++#define W83781D_INIT_TEMP2_OVER 600
++#define W83781D_INIT_TEMP2_HYST 500
++#define W83781D_INIT_TEMP3_OVER 600
++#define W83781D_INIT_TEMP3_HYST 500
++
++/* There are some complications in a module like this. First off, W83781D chips
++   may be both present on the SMBus and the ISA bus, and we have to handle
++   those cases separately at some places. Second, there might be several
++   W83781D chips available (well, actually, that is probably never done; but
++   it is a clean illustration of how to handle a case like that). Finally,
++   a specific chip may be attached to *both* ISA and SMBus, and we would
++   not like to detect it double. Fortunately, in the case of the W83781D at
++   least, a register tells us what SMBus address we are on, so that helps
++   a bit - except if there could be more than one SMBus. Groan. No solution
++   for this yet. */
++
++/* This module may seem overly long and complicated. In fact, it is not so
++   bad. Quite a lot of bookkeeping is done. A real driver can often cut
++   some corners. */
++
++/* For each registered W83781D, we need to keep some data in memory. That
++   data is pointed to by w83627hf_list[NR]->data. The structure itself is
++   dynamically allocated, at the same time when a new w83627hf client is
++   allocated. */
++struct w83627hf_data {
++	struct semaphore lock;
++	int sysctl_id;
++	enum chips type;
++
++	struct semaphore update_lock;
++	char valid;		/* !=0 if following fields are valid */
++	unsigned long last_updated;	/* In jiffies */
++
++	struct i2c_client *lm75;	/* for secondary I2C addresses */
++	/* pointer to array of 2 subclients */
++
++	u8 in[9];		/* Register value - 8 & 9 for 782D only */
++	u8 in_max[9];		/* Register value - 8 & 9 for 782D only */
++	u8 in_min[9];		/* Register value - 8 & 9 for 782D only */
++	u8 fan[3];		/* Register value */
++	u8 fan_min[3];		/* Register value */
++	u8 temp;
++	u8 temp_over;		/* Register value */
++	u8 temp_hyst;		/* Register value */
++	u16 temp_add[2];	/* Register value */
++	u16 temp_add_over[2];	/* Register value */
++	u16 temp_add_hyst[2];	/* Register value */
++	u8 fan_div[3];		/* Register encoding, shifted right */
++	u8 vid;			/* Register encoding, combined */
++	u32 alarms;		/* Register encoding, combined */
++	u32 beeps;		/* Register encoding, combined */
++	u8 beep_enable;		/* Boolean */
++	u8 pwm[2];		/* Register value */
++	u8 pwmenable[2];	/* bool */
++	u16 sens[3];		/* 782D/783S only.
++				   1 = pentium diode; 2 = 3904 diode;
++				   3000-5000 = thermistor beta.
++				   Default = 3435. 
++				   Other Betas unimplemented */
++	u8 vrm;
++};
++
++
++static int w83627hf_attach_adapter(struct i2c_adapter *adapter);
++static int w83627hf_detect(struct i2c_adapter *adapter, int address,
++			  unsigned short flags, int kind);
++static int w83627hf_detach_client(struct i2c_client *client);
++
++static int w83627hf_read_value(struct i2c_client *client, u16 register);
++static int w83627hf_write_value(struct i2c_client *client, u16 register,
++			       u16 value);
++static void w83627hf_update_client(struct i2c_client *client);
++static void w83627hf_init_client(struct i2c_client *client);
++
++
++static void w83627hf_in(struct i2c_client *client, int operation,
++		       int ctl_name, int *nrels_mag, long *results);
++static void w83627hf_fan(struct i2c_client *client, int operation,
++			int ctl_name, int *nrels_mag, long *results);
++static void w83627hf_temp(struct i2c_client *client, int operation,
++			 int ctl_name, int *nrels_mag, long *results);
++static void w83627hf_temp_add(struct i2c_client *client, int operation,
++			     int ctl_name, int *nrels_mag, long *results);
++static void w83627hf_vid(struct i2c_client *client, int operation,
++			int ctl_name, int *nrels_mag, long *results);
++static void w83627hf_vrm(struct i2c_client *client, int operation,
++			int ctl_name, int *nrels_mag, long *results);
++static void w83627hf_alarms(struct i2c_client *client, int operation,
++			   int ctl_name, int *nrels_mag, long *results);
++static void w83627hf_beep(struct i2c_client *client, int operation,
++			 int ctl_name, int *nrels_mag, long *results);
++static void w83627hf_fan_div(struct i2c_client *client, int operation,
++			    int ctl_name, int *nrels_mag, long *results);
++static void w83627hf_pwm(struct i2c_client *client, int operation,
++			int ctl_name, int *nrels_mag, long *results);
++static void w83627hf_sens(struct i2c_client *client, int operation,
++			 int ctl_name, int *nrels_mag, long *results);
++
++static int w83627hf_id = 0;
++
++static struct i2c_driver w83627hf_driver = {
++	.owner		= THIS_MODULE,
++	.name		= "W83781D sensor driver",
++	.id		= I2C_DRIVERID_W83627HF,
++	.flags		= I2C_DF_NOTIFY,
++	.attach_adapter	= w83627hf_attach_adapter,
++	.detach_client	= w83627hf_detach_client,
++};
++
++/* The /proc/sys entries */
++
++/* -- SENSORS SYSCTL START -- */
++
++#define W83781D_SYSCTL_IN0 1000	/* Volts * 100 */
++#define W83781D_SYSCTL_IN1 1001
++#define W83781D_SYSCTL_IN2 1002
++#define W83781D_SYSCTL_IN3 1003
++#define W83781D_SYSCTL_IN4 1004
++#define W83781D_SYSCTL_IN5 1005
++#define W83781D_SYSCTL_IN6 1006
++#define W83781D_SYSCTL_IN7 1007
++#define W83781D_SYSCTL_IN8 1008
++#define W83781D_SYSCTL_FAN1 1101	/* Rotations/min */
++#define W83781D_SYSCTL_FAN2 1102
++#define W83781D_SYSCTL_FAN3 1103
++#define W83781D_SYSCTL_TEMP1 1200	/* Degrees Celcius * 10 */
++#define W83781D_SYSCTL_TEMP2 1201	/* Degrees Celcius * 10 */
++#define W83781D_SYSCTL_TEMP3 1202	/* Degrees Celcius * 10 */
++#define W83781D_SYSCTL_VID 1300		/* Volts * 1000 */
++#define W83781D_SYSCTL_VRM 1301
++#define W83781D_SYSCTL_PWM1 1401
++#define W83781D_SYSCTL_PWM2 1402
++#define W83781D_SYSCTL_PWM3 1403
++#define W83781D_SYSCTL_PWM4 1404
++#define W83781D_SYSCTL_SENS1 1501	/* 1, 2, or Beta (3000-5000) */
++#define W83781D_SYSCTL_SENS2 1502
++#define W83781D_SYSCTL_SENS3 1503
++#define W83781D_SYSCTL_RT1   1601	/* 32-entry table */
++#define W83781D_SYSCTL_RT2   1602	/* 32-entry table */
++#define W83781D_SYSCTL_RT3   1603	/* 32-entry table */
++#define W83781D_SYSCTL_FAN_DIV 2000	/* 1, 2, 4 or 8 */
++#define W83781D_SYSCTL_ALARMS 2001	/* bitvector */
++#define W83781D_SYSCTL_BEEP 2002	/* bitvector */
++
++#define W83781D_ALARM_IN0 0x0001
++#define W83781D_ALARM_IN1 0x0002
++#define W83781D_ALARM_IN2 0x0004
++#define W83781D_ALARM_IN3 0x0008
++#define W83781D_ALARM_IN4 0x0100
++#define W83781D_ALARM_IN5 0x0200
++#define W83781D_ALARM_IN6 0x0400
++#define W83782D_ALARM_IN7 0x10000
++#define W83782D_ALARM_IN8 0x20000
++#define W83781D_ALARM_FAN1 0x0040
++#define W83781D_ALARM_FAN2 0x0080
++#define W83781D_ALARM_FAN3 0x0800
++#define W83781D_ALARM_TEMP1 0x0010
++#define W83781D_ALARM_TEMP23 0x0020	/* 781D only */
++#define W83781D_ALARM_TEMP2 0x0020	/* 782D/783S */
++#define W83781D_ALARM_TEMP3 0x2000	/* 782D only */
++#define W83781D_ALARM_CHAS 0x1000
++
++/* -- SENSORS SYSCTL END -- */
++
++/* These files are created for each detected chip. This is just a template;
++   though at first sight, you might think we could use a statically
++   allocated list, we need some way to get back to the parent - which
++   is done through one of the 'extra' fields which are initialized 
++   when a new copy is allocated. */
++
++
++/* without pwm3-4 */
++static ctl_table w83782d_isa_dir_table_template[] = {
++	{W83781D_SYSCTL_IN0, "in0", NULL, 0, 0644, NULL, &i2c_proc_real,
++	 &i2c_sysctl_real, NULL, &w83627hf_in},
++	{W83781D_SYSCTL_IN1, "in1", NULL, 0, 0644, NULL, &i2c_proc_real,
++	 &i2c_sysctl_real, NULL, &w83627hf_in},
++	{W83781D_SYSCTL_IN2, "in2", NULL, 0, 0644, NULL, &i2c_proc_real,
++	 &i2c_sysctl_real, NULL, &w83627hf_in},
++	{W83781D_SYSCTL_IN3, "in3", NULL, 0, 0644, NULL, &i2c_proc_real,
++	 &i2c_sysctl_real, NULL, &w83627hf_in},
++	{W83781D_SYSCTL_IN4, "in4", NULL, 0, 0644, NULL, &i2c_proc_real,
++	 &i2c_sysctl_real, NULL, &w83627hf_in},
++	{W83781D_SYSCTL_IN5, "in5", NULL, 0, 0644, NULL, &i2c_proc_real,
++	 &i2c_sysctl_real, NULL, &w83627hf_in},
++	{W83781D_SYSCTL_IN6, "in6", NULL, 0, 0644, NULL, &i2c_proc_real,
++	 &i2c_sysctl_real, NULL, &w83627hf_in},
++	{W83781D_SYSCTL_IN7, "in7", NULL, 0, 0644, NULL, &i2c_proc_real,
++	 &i2c_sysctl_real, NULL, &w83627hf_in},
++	{W83781D_SYSCTL_IN8, "in8", NULL, 0, 0644, NULL, &i2c_proc_real,
++	 &i2c_sysctl_real, NULL, &w83627hf_in},
++	{W83781D_SYSCTL_FAN1, "fan1", NULL, 0, 0644, NULL, &i2c_proc_real,
++	 &i2c_sysctl_real, NULL, &w83627hf_fan},
++	{W83781D_SYSCTL_FAN2, "fan2", NULL, 0, 0644, NULL, &i2c_proc_real,
++	 &i2c_sysctl_real, NULL, &w83627hf_fan},
++	{W83781D_SYSCTL_FAN3, "fan3", NULL, 0, 0644, NULL, &i2c_proc_real,
++	 &i2c_sysctl_real, NULL, &w83627hf_fan},
++	{W83781D_SYSCTL_TEMP1, "temp1", NULL, 0, 0644, NULL, &i2c_proc_real,
++	 &i2c_sysctl_real, NULL, &w83627hf_temp},
++	{W83781D_SYSCTL_TEMP2, "temp2", NULL, 0, 0644, NULL, &i2c_proc_real,
++	 &i2c_sysctl_real, NULL, &w83627hf_temp_add},
++	{W83781D_SYSCTL_TEMP3, "temp3", NULL, 0, 0644, NULL, &i2c_proc_real,
++	 &i2c_sysctl_real, NULL, &w83627hf_temp_add},
++	{W83781D_SYSCTL_VID, "vid", NULL, 0, 0444, NULL, &i2c_proc_real,
++	 &i2c_sysctl_real, NULL, &w83627hf_vid},
++	{W83781D_SYSCTL_VRM, "vrm", NULL, 0, 0644, NULL, &i2c_proc_real,
++	 &i2c_sysctl_real, NULL, &w83627hf_vrm},
++	{W83781D_SYSCTL_FAN_DIV, "fan_div", NULL, 0, 0644, NULL, &i2c_proc_real,
++	 &i2c_sysctl_real, NULL, &w83627hf_fan_div},
++	{W83781D_SYSCTL_ALARMS, "alarms", NULL, 0, 0444, NULL, &i2c_proc_real,
++	 &i2c_sysctl_real, NULL, &w83627hf_alarms},
++	{W83781D_SYSCTL_BEEP, "beep", NULL, 0, 0644, NULL, &i2c_proc_real,
++	 &i2c_sysctl_real, NULL, &w83627hf_beep},
++	{W83781D_SYSCTL_PWM1, "pwm1", NULL, 0, 0644, NULL, &i2c_proc_real,
++	 &i2c_sysctl_real, NULL, &w83627hf_pwm},
++	{W83781D_SYSCTL_PWM2, "pwm2", NULL, 0, 0644, NULL, &i2c_proc_real,
++	 &i2c_sysctl_real, NULL, &w83627hf_pwm},
++	{W83781D_SYSCTL_SENS1, "sensor1", NULL, 0, 0644, NULL, &i2c_proc_real,
++	 &i2c_sysctl_real, NULL, &w83627hf_sens},
++	{W83781D_SYSCTL_SENS2, "sensor2", NULL, 0, 0644, NULL, &i2c_proc_real,
++	 &i2c_sysctl_real, NULL, &w83627hf_sens},
++	{W83781D_SYSCTL_SENS3, "sensor3", NULL, 0, 0644, NULL, &i2c_proc_real,
++	 &i2c_sysctl_real, NULL, &w83627hf_sens},
++	{0}
++};
++
++/* similar to w83782d but no fan3, no vid */
++static ctl_table w83697hf_dir_table_template[] = {
++	{W83781D_SYSCTL_IN0, "in0", NULL, 0, 0644, NULL, &i2c_proc_real,
++	 &i2c_sysctl_real, NULL, &w83627hf_in},
++	/* no in1 to maintain compatibility with 781d and 782d. */
++	{W83781D_SYSCTL_IN2, "in2", NULL, 0, 0644, NULL, &i2c_proc_real,
++	 &i2c_sysctl_real, NULL, &w83627hf_in},
++	{W83781D_SYSCTL_IN3, "in3", NULL, 0, 0644, NULL, &i2c_proc_real,
++	 &i2c_sysctl_real, NULL, &w83627hf_in},
++	{W83781D_SYSCTL_IN4, "in4", NULL, 0, 0644, NULL, &i2c_proc_real,
++	 &i2c_sysctl_real, NULL, &w83627hf_in},
++	{W83781D_SYSCTL_IN5, "in5", NULL, 0, 0644, NULL, &i2c_proc_real,
++	 &i2c_sysctl_real, NULL, &w83627hf_in},
++	{W83781D_SYSCTL_IN6, "in6", NULL, 0, 0644, NULL, &i2c_proc_real,
++	 &i2c_sysctl_real, NULL, &w83627hf_in},
++	{W83781D_SYSCTL_IN7, "in7", NULL, 0, 0644, NULL, &i2c_proc_real,
++	 &i2c_sysctl_real, NULL, &w83627hf_in},
++	{W83781D_SYSCTL_IN8, "in8", NULL, 0, 0644, NULL, &i2c_proc_real,
++	 &i2c_sysctl_real, NULL, &w83627hf_in},
++	{W83781D_SYSCTL_FAN1, "fan1", NULL, 0, 0644, NULL, &i2c_proc_real,
++	 &i2c_sysctl_real, NULL, &w83627hf_fan},
++	{W83781D_SYSCTL_FAN2, "fan2", NULL, 0, 0644, NULL, &i2c_proc_real,
++	 &i2c_sysctl_real, NULL, &w83627hf_fan},
++	{W83781D_SYSCTL_TEMP1, "temp1", NULL, 0, 0644, NULL, &i2c_proc_real,
++	 &i2c_sysctl_real, NULL, &w83627hf_temp},
++	{W83781D_SYSCTL_TEMP2, "temp2", NULL, 0, 0644, NULL, &i2c_proc_real,
++	 &i2c_sysctl_real, NULL, &w83627hf_temp_add},
++	{W83781D_SYSCTL_FAN_DIV, "fan_div", NULL, 0, 0644, NULL, &i2c_proc_real,
++	 &i2c_sysctl_real, NULL, &w83627hf_fan_div},
++	{W83781D_SYSCTL_ALARMS, "alarms", NULL, 0, 0444, NULL, &i2c_proc_real,
++	 &i2c_sysctl_real, NULL, &w83627hf_alarms},
++	{W83781D_SYSCTL_BEEP, "beep", NULL, 0, 0644, NULL, &i2c_proc_real,
++	 &i2c_sysctl_real, NULL, &w83627hf_beep},
++	{W83781D_SYSCTL_PWM1, "pwm1", NULL, 0, 0644, NULL, &i2c_proc_real,
++	 &i2c_sysctl_real, NULL, &w83627hf_pwm},
++	{W83781D_SYSCTL_PWM2, "pwm2", NULL, 0, 0644, NULL, &i2c_proc_real,
++	 &i2c_sysctl_real, NULL, &w83627hf_pwm},
++	{W83781D_SYSCTL_SENS1, "sensor1", NULL, 0, 0644, NULL, &i2c_proc_real,
++	 &i2c_sysctl_real, NULL, &w83627hf_sens},
++	{W83781D_SYSCTL_SENS2, "sensor2", NULL, 0, 0644, NULL, &i2c_proc_real,
++	 &i2c_sysctl_real, NULL, &w83627hf_sens},
++	{0}
++};
++
++
++/* This function is called when:
++     * w83627hf_driver is inserted (when this module is loaded), for each
++       available adapter
++     * when a new adapter is inserted (and w83627hf_driver is still present) */
++static int w83627hf_attach_adapter(struct i2c_adapter *adapter)
++{
++	return i2c_detect(adapter, &addr_data, w83627hf_detect);
++}
++
++static int w83627hf_find(int *address)
++{
++	u16 val;
++
++	superio_enter();
++	val= superio_inb(DEVID);
++	if(val != W627_DEVID && val !=W627THF_DEVID && val != W697_DEVID) {
++		superio_exit();
++		return -ENODEV;
++	}
++
++	superio_select();
++	val = (superio_inb(WINB_BASE_REG) << 8) |
++	       superio_inb(WINB_BASE_REG + 1);
++	*address = val & ~(WINB_EXTENT - 1);
++	if (*address == 0 && force_addr == 0) {
++		printk("vt1211.o: base address not set - use force_addr=0xaddr\n");
++		superio_exit();
++		return -ENODEV;
++	}
++	if (force_addr)
++		*address = force_addr;	/* so detect will get called */
++
++	superio_exit();
++	return 0;
++}
++
++int w83627hf_detect(struct i2c_adapter *adapter, int address,
++		   unsigned short flags, int kind)
++{
++	int i, val;
++	struct i2c_client *new_client;
++	struct w83627hf_data *data;
++	int err = 0;
++	const char *type_name = "";
++	const char *client_name = "";
++
++	if (!i2c_is_isa_adapter(adapter))
++		return 0;
++
++	if(force_addr)
++		address = force_addr & ~(WINB_EXTENT - 1);
++	if (check_region(address, WINB_EXTENT)) {
++		printk("vt1211.o: region 0x%x already in use!\n", address);
++		return -ENODEV;
++	}
++	if(force_addr) {
++		printk("vt1211.o: forcing ISA address 0x%04X\n", address);
++		superio_enter();
++		superio_select();
++		superio_outb(WINB_BASE_REG, address >> 8);
++		superio_outb(WINB_BASE_REG+1, address & 0xff);
++		superio_exit();
++	}
++
++	superio_enter();
++	val= superio_inb(DEVID);
++	if(val == W627_DEVID)
++		kind = w83627hf;
++	else if(val == W697_DEVID)
++		kind = w83697hf;
++	else if(val == W627THF_DEVID)
++		kind = w83627hf;
++		
++	superio_select();
++	if((val = 0x01 & superio_inb(WINB_ACT_REG)) == 0)
++		superio_outb(WINB_ACT_REG, 1);
++	superio_exit();
++
++	/* OK. For now, we presume we have a valid client. We now create the
++	   client structure, even though we cannot fill it completely yet.
++	   But it allows us to access w83627hf_{read,write}_value. */
++
++	if (!(new_client = kmalloc(sizeof(struct i2c_client) +
++				   sizeof(struct w83627hf_data),
++				   GFP_KERNEL))) {
++		err = -ENOMEM;
++		goto ERROR0;
++	}
++
++	data = (struct w83627hf_data *) (new_client + 1);
++	new_client->addr = address;
++	init_MUTEX(&data->lock);
++	new_client->data = data;
++	new_client->adapter = adapter;
++	new_client->driver = &w83627hf_driver;
++	new_client->flags = 0;
++
++
++	if (kind == w83627hf) {
++		type_name = "w83627hf";
++		client_name = "W83627HF chip";
++	} else if (kind == w83697hf) {
++		type_name = "w83697hf";
++		client_name = "W83697HF chip";
++	} else {
++		goto ERROR1;
++	}
++
++	request_region(address, WINB_EXTENT, type_name);
++
++	/* Fill in the remaining client fields and put it into the global list */
++	strcpy(new_client->name, client_name);
++	data->type = kind;
++	new_client->id = w83627hf_id++;
++	data->valid = 0;
++	init_MUTEX(&data->update_lock);
++
++	/* Tell the I2C layer a new client has arrived */
++	if ((err = i2c_attach_client(new_client)))
++		goto ERROR3;
++
++	data->lm75 = NULL;
++
++	/* Register a new directory entry with module sensors */
++	if ((i = i2c_register_entry(new_client,
++				type_name,
++				(kind == w83697hf) ?
++				   w83697hf_dir_table_template :
++				   w83782d_isa_dir_table_template)) < 0) {
++		err = i;
++		goto ERROR7;
++	}
++	data->sysctl_id = i;
++
++	/* Initialize the chip */
++	w83627hf_init_client(new_client);
++	return 0;
++
++/* OK, this is not exactly good programming practice, usually. But it is
++   very code-efficient in this case. */
++
++      ERROR7:
++	i2c_detach_client(new_client);
++      ERROR3:
++	release_region(address, WINB_EXTENT);
++      ERROR1:
++	kfree(new_client);
++      ERROR0:
++	return err;
++}
++
++static int w83627hf_detach_client(struct i2c_client *client)
++{
++	int err;
++
++	i2c_deregister_entry(((struct w83627hf_data *) (client->data))->
++				 sysctl_id);
++
++	if ((err = i2c_detach_client(client))) {
++		printk
++		    (KERN_ERR "w83627hf.o: Client deregistration failed, client not detached.\n");
++		return err;
++	}
++
++	release_region(client->addr, WINB_EXTENT);
++	kfree(client);
++
++	return 0;
++}
++
++
++/*
++   ISA access must always be locked explicitly! 
++   We ignore the W83781D BUSY flag at this moment - it could lead to deadlocks,
++   would slow down the W83781D access and should not be necessary. 
++   There are some ugly typecasts here, but the good news is - they should
++   nowhere else be necessary! */
++static int w83627hf_read_value(struct i2c_client *client, u16 reg)
++{
++	int res, word_sized;
++
++	down(&(((struct w83627hf_data *) (client->data))->lock));
++	word_sized = (((reg & 0xff00) == 0x100)
++		      || ((reg & 0xff00) == 0x200))
++	    && (((reg & 0x00ff) == 0x50)
++		|| ((reg & 0x00ff) == 0x53)
++		|| ((reg & 0x00ff) == 0x55));
++	if (reg & 0xff00) {
++		outb_p(W83781D_REG_BANK,
++		       client->addr + W83781D_ADDR_REG_OFFSET);
++		outb_p(reg >> 8,
++		       client->addr + W83781D_DATA_REG_OFFSET);
++	}
++	outb_p(reg & 0xff, client->addr + W83781D_ADDR_REG_OFFSET);
++	res = inb_p(client->addr + W83781D_DATA_REG_OFFSET);
++	if (word_sized) {
++		outb_p((reg & 0xff) + 1,
++		       client->addr + W83781D_ADDR_REG_OFFSET);
++		res =
++		    (res << 8) + inb_p(client->addr +
++				       W83781D_DATA_REG_OFFSET);
++	}
++	if (reg & 0xff00) {
++		outb_p(W83781D_REG_BANK,
++		       client->addr + W83781D_ADDR_REG_OFFSET);
++		outb_p(0, client->addr + W83781D_DATA_REG_OFFSET);
++	}
++	up(&(((struct w83627hf_data *) (client->data))->lock));
++	return res;
++}
++
++static int w83627hf_write_value(struct i2c_client *client, u16 reg, u16 value)
++{
++	int word_sized;
++
++	down(&(((struct w83627hf_data *) (client->data))->lock));
++	word_sized = (((reg & 0xff00) == 0x100)
++		      || ((reg & 0xff00) == 0x200))
++	    && (((reg & 0x00ff) == 0x53)
++		|| ((reg & 0x00ff) == 0x55));
++	if (reg & 0xff00) {
++		outb_p(W83781D_REG_BANK,
++		       client->addr + W83781D_ADDR_REG_OFFSET);
++		outb_p(reg >> 8,
++		       client->addr + W83781D_DATA_REG_OFFSET);
++	}
++	outb_p(reg & 0xff, client->addr + W83781D_ADDR_REG_OFFSET);
++	if (word_sized) {
++		outb_p(value >> 8,
++		       client->addr + W83781D_DATA_REG_OFFSET);
++		outb_p((reg & 0xff) + 1,
++		       client->addr + W83781D_ADDR_REG_OFFSET);
++	}
++	outb_p(value & 0xff,
++	       client->addr + W83781D_DATA_REG_OFFSET);
++	if (reg & 0xff00) {
++		outb_p(W83781D_REG_BANK,
++		       client->addr + W83781D_ADDR_REG_OFFSET);
++		outb_p(0, client->addr + W83781D_DATA_REG_OFFSET);
++	}
++	up(&(((struct w83627hf_data *) (client->data))->lock));
++	return 0;
++}
++
++/* Called when we have found a new W83781D. It should set limits, etc. */
++static void w83627hf_init_client(struct i2c_client *client)
++{
++	struct w83627hf_data *data = client->data;
++	int vid = 0, i;
++	int type = data->type;
++	u8 tmp;
++
++	if(init) {
++		/* save this register */
++		i = w83627hf_read_value(client, W83781D_REG_BEEP_CONFIG);
++		/* Reset all except Watchdog values and last conversion values
++		   This sets fan-divs to 2, among others */
++		w83627hf_write_value(client, W83781D_REG_CONFIG, 0x80);
++		/* Restore the register and disable power-on abnormal beep.
++		   This saves FAN 1/2/3 input/output values set by BIOS. */
++		w83627hf_write_value(client, W83781D_REG_BEEP_CONFIG, i | 0x80);
++		/* Disable master beep-enable (reset turns it on).
++		   Individual beeps should be reset to off but for some reason
++		   disabling this bit helps some people not get beeped */
++		w83627hf_write_value(client, W83781D_REG_BEEP_INTS2, 0);
++	}
++
++	/* Minimize conflicts with other winbond i2c-only clients...  */
++	/* disable i2c subclients... how to disable main i2c client?? */
++	/* force i2c address to relatively uncommon address */
++	w83627hf_write_value(client, W83781D_REG_I2C_SUBADDR, 0x89);
++	w83627hf_write_value(client, W83781D_REG_I2C_ADDR, force_i2c);
++
++	if (type != w83697hf) {
++		vid = w83627hf_read_value(client, W83781D_REG_VID_FANDIV) & 0x0f;
++		vid |=
++		    (w83627hf_read_value(client, W83781D_REG_CHIPID) & 0x01) << 4;
++		data->vrm = DEFAULT_VRM;
++		vid = vid_from_reg(vid, data->vrm);
++	}
++
++	tmp = w83627hf_read_value(client, W83781D_REG_SCFG1);
++	for (i = 1; i <= 3; i++) {
++		if (!(tmp & BIT_SCFG1[i - 1])) {
++			data->sens[i - 1] = W83781D_DEFAULT_BETA;
++		} else {
++			if (w83627hf_read_value
++			    (client,
++			     W83781D_REG_SCFG2) & BIT_SCFG2[i - 1])
++				data->sens[i - 1] = 1;
++			else
++				data->sens[i - 1] = 2;
++		}
++		if ((type == w83697hf) && (i == 2))
++			break;
++	}
++
++	data->pwmenable[0] = 1;
++	data->pwmenable[1] = 1;
++
++	if(init) {
++		w83627hf_write_value(client, W83781D_REG_IN_MIN(0),
++				    IN_TO_REG(W83781D_INIT_IN_MIN_0));
++		w83627hf_write_value(client, W83781D_REG_IN_MAX(0),
++				    IN_TO_REG(W83781D_INIT_IN_MAX_0));
++		if (type != w83697hf) {
++			w83627hf_write_value(client, W83781D_REG_IN_MIN(1),
++					    IN_TO_REG(W83781D_INIT_IN_MIN_1));
++			w83627hf_write_value(client, W83781D_REG_IN_MAX(1),
++					    IN_TO_REG(W83781D_INIT_IN_MAX_1));
++		}
++
++		w83627hf_write_value(client, W83781D_REG_IN_MIN(2),
++				    IN_TO_REG(W83781D_INIT_IN_MIN_2));
++		w83627hf_write_value(client, W83781D_REG_IN_MAX(2),
++				    IN_TO_REG(W83781D_INIT_IN_MAX_2));
++		w83627hf_write_value(client, W83781D_REG_IN_MIN(3),
++				    IN_TO_REG(W83781D_INIT_IN_MIN_3));
++		w83627hf_write_value(client, W83781D_REG_IN_MAX(3),
++				    IN_TO_REG(W83781D_INIT_IN_MAX_3));
++		w83627hf_write_value(client, W83781D_REG_IN_MIN(4),
++				    IN_TO_REG(W83781D_INIT_IN_MIN_4));
++		w83627hf_write_value(client, W83781D_REG_IN_MAX(4),
++				    IN_TO_REG(W83781D_INIT_IN_MAX_4));
++		w83627hf_write_value(client, W83781D_REG_IN_MIN(5),
++				    IN_TO_REG(W83782D_INIT_IN_MIN_5));
++		w83627hf_write_value(client, W83781D_REG_IN_MAX(5),
++				    IN_TO_REG(W83782D_INIT_IN_MAX_5));
++		w83627hf_write_value(client, W83781D_REG_IN_MIN(6),
++				    IN_TO_REG(W83782D_INIT_IN_MIN_6));
++		w83627hf_write_value(client, W83781D_REG_IN_MAX(6),
++				    IN_TO_REG(W83782D_INIT_IN_MAX_6));
++		w83627hf_write_value(client, W83781D_REG_IN_MIN(7),
++				    IN_TO_REG(W83781D_INIT_IN_MIN_7));
++		w83627hf_write_value(client, W83781D_REG_IN_MAX(7),
++				    IN_TO_REG(W83781D_INIT_IN_MAX_7));
++		w83627hf_write_value(client, W83781D_REG_IN_MIN(8),
++				    IN_TO_REG(W83781D_INIT_IN_MIN_8));
++		w83627hf_write_value(client, W83781D_REG_IN_MAX(8),
++				    IN_TO_REG(W83781D_INIT_IN_MAX_8));
++		w83627hf_write_value(client, W83781D_REG_VBAT,
++		    (w83627hf_read_value(client, W83781D_REG_VBAT) | 0x01));
++		w83627hf_write_value(client, W83781D_REG_FAN_MIN(1),
++				    FAN_TO_REG(W83781D_INIT_FAN_MIN_1, 2));
++		w83627hf_write_value(client, W83781D_REG_FAN_MIN(2),
++				    FAN_TO_REG(W83781D_INIT_FAN_MIN_2, 2));
++		if (type != w83697hf) {
++			w83627hf_write_value(client, W83781D_REG_FAN_MIN(3),
++				    FAN_TO_REG(W83781D_INIT_FAN_MIN_3, 2));
++		}
++
++		w83627hf_write_value(client, W83781D_REG_TEMP_OVER,
++				    TEMP_TO_REG(W83781D_INIT_TEMP_OVER));
++		w83627hf_write_value(client, W83781D_REG_TEMP_HYST,
++				    TEMP_TO_REG(W83781D_INIT_TEMP_HYST));
++
++		w83627hf_write_value(client, W83781D_REG_TEMP2_OVER,
++				    TEMP_ADD_TO_REG
++				    (W83781D_INIT_TEMP2_OVER));
++		w83627hf_write_value(client, W83781D_REG_TEMP2_HYST,
++				    TEMP_ADD_TO_REG
++				    (W83781D_INIT_TEMP2_HYST));
++		w83627hf_write_value(client, W83781D_REG_TEMP2_CONFIG, 0x00);
++
++		if (type != w83697hf) {
++			w83627hf_write_value(client, W83781D_REG_TEMP3_OVER,
++					    TEMP_ADD_TO_REG
++					    (W83781D_INIT_TEMP3_OVER));
++			w83627hf_write_value(client, W83781D_REG_TEMP3_HYST,
++					    TEMP_ADD_TO_REG
++					    (W83781D_INIT_TEMP3_HYST));
++		}
++		if (type != w83697hf) {
++			w83627hf_write_value(client, W83781D_REG_TEMP3_CONFIG,
++					    0x00);
++		}
++		/* enable PWM2 control (can't hurt since PWM reg
++	           should have been reset to 0xff) */
++		w83627hf_write_value(client, W83781D_REG_PWMCLK12, 0x19);
++		/* enable comparator mode for temp2 and temp3 so
++	           alarm indication will work correctly */
++		w83627hf_write_value(client, W83781D_REG_IRQ, 0x41);
++	}
++
++	/* Start monitoring */
++	w83627hf_write_value(client, W83781D_REG_CONFIG,
++			    (w83627hf_read_value(client,
++						W83781D_REG_CONFIG) & 0xf7)
++			    | 0x01);
++}
++
++static void w83627hf_update_client(struct i2c_client *client)
++{
++	struct w83627hf_data *data = client->data;
++	int i;
++
++	down(&data->update_lock);
++
++	if ((jiffies - data->last_updated > HZ + HZ / 2) ||
++	    (jiffies < data->last_updated) || !data->valid) {
++		for (i = 0; i <= 8; i++) {
++			if ((data->type == w83697hf)
++			    && (i == 1))
++				continue;	/* 783S has no in1 */
++			data->in[i] =
++			    w83627hf_read_value(client, W83781D_REG_IN(i));
++			data->in_min[i] =
++			    w83627hf_read_value(client,
++					       W83781D_REG_IN_MIN(i));
++			data->in_max[i] =
++			    w83627hf_read_value(client,
++					       W83781D_REG_IN_MAX(i));
++			if ((data->type != w83697hf)
++			    && (data->type != w83627hf) && (i == 6))
++				break;
++		}
++		for (i = 1; i <= 3; i++) {
++			data->fan[i - 1] =
++			    w83627hf_read_value(client, W83781D_REG_FAN(i));
++			data->fan_min[i - 1] =
++			    w83627hf_read_value(client,
++					       W83781D_REG_FAN_MIN(i));
++		}
++		for (i = 1; i <= 2; i++) {
++			data->pwm[i - 1] =
++			    w83627hf_read_value(client,
++					       W83781D_REG_PWM(i));
++		}
++
++		data->temp = w83627hf_read_value(client, W83781D_REG_TEMP);
++		data->temp_over =
++		    w83627hf_read_value(client, W83781D_REG_TEMP_OVER);
++		data->temp_hyst =
++		    w83627hf_read_value(client, W83781D_REG_TEMP_HYST);
++		data->temp_add[0] =
++		    w83627hf_read_value(client, W83781D_REG_TEMP2);
++		data->temp_add_over[0] =
++		    w83627hf_read_value(client, W83781D_REG_TEMP2_OVER);
++		data->temp_add_hyst[0] =
++		    w83627hf_read_value(client, W83781D_REG_TEMP2_HYST);
++		if (data->type != w83697hf) {
++			data->temp_add[1] =
++			    w83627hf_read_value(client, W83781D_REG_TEMP3);
++			data->temp_add_over[1] =
++			    w83627hf_read_value(client, W83781D_REG_TEMP3_OVER);
++			data->temp_add_hyst[1] =
++			    w83627hf_read_value(client, W83781D_REG_TEMP3_HYST);
++		}
++		i = w83627hf_read_value(client, W83781D_REG_VID_FANDIV);
++		if (data->type != w83697hf) {
++			data->vid = i & 0x0f;
++			data->vid |=
++			    (w83627hf_read_value(client, W83781D_REG_CHIPID) & 0x01)
++			    << 4;
++		}
++		data->fan_div[0] = (i >> 4) & 0x03;
++		data->fan_div[1] = (i >> 6) & 0x03;
++		if (data->type != w83697hf) {
++			data->fan_div[2] = (w83627hf_read_value(client,
++					       W83781D_REG_PIN) >> 6) & 0x03;
++		}
++		i = w83627hf_read_value(client, W83781D_REG_VBAT);
++		data->fan_div[0] |= (i >> 3) & 0x04;
++		data->fan_div[1] |= (i >> 4) & 0x04;
++		if (data->type != w83697hf)
++			data->fan_div[2] |= (i >> 5) & 0x04;
++		data->alarms =
++		    w83627hf_read_value(client,
++				       W83781D_REG_ALARM1) +
++		    (w83627hf_read_value(client, W83781D_REG_ALARM2) << 8);
++		if (data->type == w83627hf) {
++			data->alarms |=
++			    w83627hf_read_value(client,
++					       W83781D_REG_ALARM3) << 16;
++		}
++		i = w83627hf_read_value(client, W83781D_REG_BEEP_INTS2);
++		data->beep_enable = i >> 7;
++		data->beeps = ((i & 0x7f) << 8) +
++		    w83627hf_read_value(client, W83781D_REG_BEEP_INTS1);
++			data->beeps |=
++			    w83627hf_read_value(client,
++					       W83781D_REG_BEEP_INTS3) << 16;
++		data->last_updated = jiffies;
++		data->valid = 1;
++	}
++
++	up(&data->update_lock);
++}
++
++
++/* The next few functions are the call-back functions of the /proc/sys and
++   sysctl files. Which function is used is defined in the ctl_table in
++   the extra1 field.
++   Each function must return the magnitude (power of 10 to divide the date
++   with) if it is called with operation==SENSORS_PROC_REAL_INFO. It must
++   put a maximum of *nrels elements in results reflecting the data of this
++   file, and set *nrels to the number it actually put in it, if operation==
++   SENSORS_PROC_REAL_READ. Finally, it must get upto *nrels elements from
++   results and write them to the chip, if operations==SENSORS_PROC_REAL_WRITE.
++   Note that on SENSORS_PROC_REAL_READ, I do not check whether results is
++   large enough (by checking the incoming value of *nrels). This is not very
++   good practice, but as long as you put less than about 5 values in results,
++   you can assume it is large enough. */
++void w83627hf_in(struct i2c_client *client, int operation, int ctl_name,
++		int *nrels_mag, long *results)
++{
++	struct w83627hf_data *data = client->data;
++	int nr = ctl_name - W83781D_SYSCTL_IN0;
++
++	if (operation == SENSORS_PROC_REAL_INFO)
++		*nrels_mag = 2;
++	else if (operation == SENSORS_PROC_REAL_READ) {
++		w83627hf_update_client(client);
++		results[0] = IN_FROM_REG(data->in_min[nr]);
++		results[1] = IN_FROM_REG(data->in_max[nr]);
++		results[2] = IN_FROM_REG(data->in[nr]);
++		*nrels_mag = 3;
++	} else if (operation == SENSORS_PROC_REAL_WRITE) {
++		if (*nrels_mag >= 1) {
++			data->in_min[nr] = IN_TO_REG(results[0]);
++			w83627hf_write_value(client, W83781D_REG_IN_MIN(nr),
++					    data->in_min[nr]);
++		}
++		if (*nrels_mag >= 2) {
++			data->in_max[nr] = IN_TO_REG(results[1]);
++			w83627hf_write_value(client, W83781D_REG_IN_MAX(nr),
++					    data->in_max[nr]);
++		}
++	}
++}
++
++void w83627hf_fan(struct i2c_client *client, int operation, int ctl_name,
++		 int *nrels_mag, long *results)
++{
++	struct w83627hf_data *data = client->data;
++	int nr = ctl_name - W83781D_SYSCTL_FAN1 + 1;
++
++	if (operation == SENSORS_PROC_REAL_INFO)
++		*nrels_mag = 0;
++	else if (operation == SENSORS_PROC_REAL_READ) {
++		w83627hf_update_client(client);
++		results[0] = FAN_FROM_REG(data->fan_min[nr - 1],
++				  DIV_FROM_REG(data->fan_div[nr - 1]));
++		results[1] = FAN_FROM_REG(data->fan[nr - 1],
++			          DIV_FROM_REG(data->fan_div[nr - 1]));
++		*nrels_mag = 2;
++	} else if (operation == SENSORS_PROC_REAL_WRITE) {
++		if (*nrels_mag >= 1) {
++			data->fan_min[nr - 1] =
++			     FAN_TO_REG(results[0],
++			            DIV_FROM_REG(data->fan_div[nr-1]));
++			w83627hf_write_value(client,
++					    W83781D_REG_FAN_MIN(nr),
++					    data->fan_min[nr - 1]);
++		}
++	}
++}
++
++void w83627hf_temp(struct i2c_client *client, int operation, int ctl_name,
++		  int *nrels_mag, long *results)
++{
++	struct w83627hf_data *data = client->data;
++	if (operation == SENSORS_PROC_REAL_INFO)
++		*nrels_mag = 1;
++	else if (operation == SENSORS_PROC_REAL_READ) {
++		w83627hf_update_client(client);
++		results[0] = TEMP_FROM_REG(data->temp_over);
++		results[1] = TEMP_FROM_REG(data->temp_hyst);
++		results[2] = TEMP_FROM_REG(data->temp);
++		*nrels_mag = 3;
++	} else if (operation == SENSORS_PROC_REAL_WRITE) {
++		if (*nrels_mag >= 1) {
++			data->temp_over = TEMP_TO_REG(results[0]);
++			w83627hf_write_value(client, W83781D_REG_TEMP_OVER,
++					    data->temp_over);
++		}
++		if (*nrels_mag >= 2) {
++			data->temp_hyst = TEMP_TO_REG(results[1]);
++			w83627hf_write_value(client, W83781D_REG_TEMP_HYST,
++					    data->temp_hyst);
++		}
++	}
++}
++
++void w83627hf_temp_add(struct i2c_client *client, int operation,
++		      int ctl_name, int *nrels_mag, long *results)
++{
++	struct w83627hf_data *data = client->data;
++	int nr = ctl_name - W83781D_SYSCTL_TEMP2;
++
++	if (operation == SENSORS_PROC_REAL_INFO)
++		*nrels_mag = 1;
++	else if (operation == SENSORS_PROC_REAL_READ) {
++		w83627hf_update_client(client);
++			results[0] =
++			    TEMP_ADD_FROM_REG(data->temp_add_over[nr]);
++			results[1] =
++			    TEMP_ADD_FROM_REG(data->temp_add_hyst[nr]);
++			results[2] = TEMP_ADD_FROM_REG(data->temp_add[nr]);
++		*nrels_mag = 3;
++	} else if (operation == SENSORS_PROC_REAL_WRITE) {
++		if (*nrels_mag >= 1) {
++				data->temp_add_over[nr] =
++				    TEMP_ADD_TO_REG(results[0]);
++			w83627hf_write_value(client,
++					    nr ? W83781D_REG_TEMP3_OVER :
++					    W83781D_REG_TEMP2_OVER,
++					    data->temp_add_over[nr]);
++		}
++		if (*nrels_mag >= 2) {
++				data->temp_add_hyst[nr] =
++				    TEMP_ADD_TO_REG(results[1]);
++			w83627hf_write_value(client,
++					    nr ? W83781D_REG_TEMP3_HYST :
++					    W83781D_REG_TEMP2_HYST,
++					    data->temp_add_hyst[nr]);
++		}
++	}
++}
++
++
++void w83627hf_vid(struct i2c_client *client, int operation, int ctl_name,
++		 int *nrels_mag, long *results)
++{
++	struct w83627hf_data *data = client->data;
++	if (operation == SENSORS_PROC_REAL_INFO)
++		*nrels_mag = 3;
++	else if (operation == SENSORS_PROC_REAL_READ) {
++		w83627hf_update_client(client);
++		results[0] = vid_from_reg(data->vid, data->vrm);
++		*nrels_mag = 1;
++	}
++}
++
++void w83627hf_vrm(struct i2c_client *client, int operation, int ctl_name,
++		 int *nrels_mag, long *results)
++{
++	struct w83627hf_data *data = client->data;
++	if (operation == SENSORS_PROC_REAL_INFO)
++		*nrels_mag = 1;
++	else if (operation == SENSORS_PROC_REAL_READ) {
++		results[0] = data->vrm;
++		*nrels_mag = 1;
++	} else if (operation == SENSORS_PROC_REAL_WRITE) {
++		if (*nrels_mag >= 1)
++			data->vrm = results[0];
++	}
++}
++
++void w83627hf_alarms(struct i2c_client *client, int operation, int ctl_name,
++		    int *nrels_mag, long *results)
++{
++	struct w83627hf_data *data = client->data;
++	if (operation == SENSORS_PROC_REAL_INFO)
++		*nrels_mag = 0;
++	else if (operation == SENSORS_PROC_REAL_READ) {
++		w83627hf_update_client(client);
++		results[0] = data->alarms;
++		*nrels_mag = 1;
++	}
++}
++
++void w83627hf_beep(struct i2c_client *client, int operation, int ctl_name,
++		  int *nrels_mag, long *results)
++{
++	struct w83627hf_data *data = client->data;
++	int val;
++
++	if (operation == SENSORS_PROC_REAL_INFO)
++		*nrels_mag = 0;
++	else if (operation == SENSORS_PROC_REAL_READ) {
++		w83627hf_update_client(client);
++		results[0] = BEEP_ENABLE_FROM_REG(data->beep_enable);
++		results[1] = data->beeps;
++		*nrels_mag = 2;
++	} else if (operation == SENSORS_PROC_REAL_WRITE) {
++		if (*nrels_mag >= 2) {
++			data->beeps = BEEPS_TO_REG(results[1]);
++			w83627hf_write_value(client, W83781D_REG_BEEP_INTS1,
++					    data->beeps & 0xff);
++				w83627hf_write_value(client,
++						    W83781D_REG_BEEP_INTS3,
++						    ((data-> beeps) >> 16) &
++						      0xff);
++			val = (data->beeps >> 8) & 0x7f;
++		} else if (*nrels_mag >= 1)
++			val =
++			    w83627hf_read_value(client,
++					       W83781D_REG_BEEP_INTS2) &
++			    0x7f;
++		if (*nrels_mag >= 1) {
++			data->beep_enable = BEEP_ENABLE_TO_REG(results[0]);
++			w83627hf_write_value(client, W83781D_REG_BEEP_INTS2,
++					    val | data->beep_enable << 7);
++		}
++	}
++}
++
++/* w83697hf only has two fans */
++void w83627hf_fan_div(struct i2c_client *client, int operation,
++		     int ctl_name, int *nrels_mag, long *results)
++{
++	struct w83627hf_data *data = client->data;
++	int old, old2, old3 = 0;
++
++	if (operation == SENSORS_PROC_REAL_INFO)
++		*nrels_mag = 0;
++	else if (operation == SENSORS_PROC_REAL_READ) {
++		w83627hf_update_client(client);
++		results[0] = DIV_FROM_REG(data->fan_div[0]);
++		results[1] = DIV_FROM_REG(data->fan_div[1]);
++		if (data->type == w83697hf) {
++			*nrels_mag = 2;
++		} else {
++			results[2] = DIV_FROM_REG(data->fan_div[2]);
++			*nrels_mag = 3;
++		}
++	} else if (operation == SENSORS_PROC_REAL_WRITE) {
++		old = w83627hf_read_value(client, W83781D_REG_VID_FANDIV);
++		/* w83627hf and as99127f don't have extended divisor bits */
++			old3 =
++			    w83627hf_read_value(client, W83781D_REG_VBAT);
++		if (*nrels_mag >= 3 && data->type != w83697hf) {
++			data->fan_div[2] =
++			    DIV_TO_REG(results[2]);
++			old2 = w83627hf_read_value(client, W83781D_REG_PIN);
++			old2 =
++			    (old2 & 0x3f) | ((data->fan_div[2] & 0x03) << 6);
++			w83627hf_write_value(client, W83781D_REG_PIN, old2);
++				old3 =
++				    (old3 & 0x7f) |
++				    ((data->fan_div[2] & 0x04) << 5);
++		}
++		if (*nrels_mag >= 2) {
++			data->fan_div[1] =
++			    DIV_TO_REG(results[1]);
++			old =
++			    (old & 0x3f) | ((data->fan_div[1] & 0x03) << 6);
++				old3 =
++				    (old3 & 0xbf) |
++				    ((data->fan_div[1] & 0x04) << 4);
++		}
++		if (*nrels_mag >= 1) {
++			data->fan_div[0] =
++			    DIV_TO_REG(results[0]);
++			old =
++			    (old & 0xcf) | ((data->fan_div[0] & 0x03) << 4);
++			w83627hf_write_value(client, W83781D_REG_VID_FANDIV,
++					    old);
++				old3 =
++				    (old3 & 0xdf) |
++				    ((data->fan_div[0] & 0x04) << 3);
++				w83627hf_write_value(client,
++						    W83781D_REG_VBAT,
++						    old3);
++		}
++	}
++}
++
++void w83627hf_pwm(struct i2c_client *client, int operation, int ctl_name,
++		 int *nrels_mag, long *results)
++{
++	struct w83627hf_data *data = client->data;
++	int nr = 1 + ctl_name - W83781D_SYSCTL_PWM1;
++
++	if (operation == SENSORS_PROC_REAL_INFO)
++		*nrels_mag = 0;
++	else if (operation == SENSORS_PROC_REAL_READ) {
++		w83627hf_update_client(client);
++		results[0] = data->pwm[nr - 1];
++		results[1] = data->pwmenable[nr - 1];
++		*nrels_mag = 2;
++	} else if (operation == SENSORS_PROC_REAL_WRITE) {
++		if (*nrels_mag >= 1) {
++			data->pwm[nr - 1] = PWM_TO_REG(results[0]);
++			w83627hf_write_value(client, W83781D_REG_PWM(nr),
++					    data->pwm[nr - 1]);
++		}
++	}
++}
++
++void w83627hf_sens(struct i2c_client *client, int operation, int ctl_name,
++		  int *nrels_mag, long *results)
++{
++	struct w83627hf_data *data = client->data;
++	int nr = 1 + ctl_name - W83781D_SYSCTL_SENS1;
++	u8 tmp;
++
++	if (operation == SENSORS_PROC_REAL_INFO)
++		*nrels_mag = 0;
++	else if (operation == SENSORS_PROC_REAL_READ) {
++		results[0] = data->sens[nr - 1];
++		*nrels_mag = 1;
++	} else if (operation == SENSORS_PROC_REAL_WRITE) {
++		if (*nrels_mag >= 1) {
++			switch (results[0]) {
++			case 1:	/* PII/Celeron diode */
++				tmp = w83627hf_read_value(client,
++						       W83781D_REG_SCFG1);
++				w83627hf_write_value(client,
++						    W83781D_REG_SCFG1,
++						    tmp | BIT_SCFG1[nr -
++								    1]);
++				tmp = w83627hf_read_value(client,
++						       W83781D_REG_SCFG2);
++				w83627hf_write_value(client,
++						    W83781D_REG_SCFG2,
++						    tmp | BIT_SCFG2[nr -
++								    1]);
++				data->sens[nr - 1] = results[0];
++				break;
++			case 2:	/* 3904 */
++				tmp = w83627hf_read_value(client,
++						       W83781D_REG_SCFG1);
++				w83627hf_write_value(client,
++						    W83781D_REG_SCFG1,
++						    tmp | BIT_SCFG1[nr -
++								    1]);
++				tmp = w83627hf_read_value(client,
++						       W83781D_REG_SCFG2);
++				w83627hf_write_value(client,
++						    W83781D_REG_SCFG2,
++						    tmp & ~BIT_SCFG2[nr -
++								     1]);
++				data->sens[nr - 1] = results[0];
++				break;
++			case W83781D_DEFAULT_BETA:	/* thermistor */
++				tmp = w83627hf_read_value(client,
++						       W83781D_REG_SCFG1);
++				w83627hf_write_value(client,
++						    W83781D_REG_SCFG1,
++						    tmp & ~BIT_SCFG1[nr -
++								     1]);
++				data->sens[nr - 1] = results[0];
++				break;
++			default:
++				printk
++				    (KERN_ERR "w83627hf.o: Invalid sensor type %ld; must be 1, 2, or %d\n",
++				     results[0], W83781D_DEFAULT_BETA);
++				break;
++			}
++		}
++	}
++}
++
++static int __init sm_w83627hf_init(void)
++{
++	int addr;
++
++	printk(KERN_INFO "w83627hf.o version %s (%s)\n", LM_VERSION, LM_DATE);
++	if (w83627hf_find(&addr)) {
++		printk("w83627hf.o: W83627/697 not detected, module not inserted.\n");
++		return -ENODEV;
++	}
++	normal_isa[0] = addr;
++
++	return i2c_add_driver(&w83627hf_driver);
++}
++
++static void __exit sm_w83627hf_exit(void)
++{
++	i2c_del_driver(&w83627hf_driver);
++}
++
++
++
++MODULE_AUTHOR("Frodo Looijaard <frodol@dds.nl>, "
++	      "Philip Edelbrock <phil@netroedge.com>, "
++	      "and Mark Studebaker <mdsxyz123@yahoo.com>");
++MODULE_DESCRIPTION("W83627HF driver");
++MODULE_LICENSE("GPL");
++
++module_init(sm_w83627hf_init);
++module_exit(sm_w83627hf_exit);
+--- linux-2.4.21/Documentation/Configure.help.dl15.orig	2003-08-24 01:18:22.000000000 +0200
++++ linux-2.4.21/Documentation/Configure.help	2003-08-24 01:21:09.000000000 +0200
+@@ -28411,6 +28411,156 @@ CONFIG_CPU_FREQ_GOV_USERSPACE
+ # fill-prefix:"  "
+ # adaptive-fill:nil
+ # fill-column:70
++Silicon Integrated Systems Corp. SiS630/730 based Mainboard
++CONFIG_I2C_SIS630
++  If you say yes to this option, support will be included for the SiS 630
++  and 730 mainboard I2C interfaces. This can also be built as a module 
++  which can be inserted and removed while the kernel is running.
++
++Silicon Integrated Systems Corp. SiS645/961,645DX/961,735 based Mainboard
++CONFIG_I2C_SIS645
++  If you say yes to this option, support will be included for the SiS 645/961,
++  645DX/961 and 735 mainboard I2C interfaces. This can also be built as a module
++  which can be inserted and removed while the kernel is running.
++
++National Semiconductor LM75 and compatibles
++CONFIG_SENSORS_LM75 
++  If you say yes here you get support for National Semiconductor LM75
++  sensor chips and clones: Dallas Semi DS75 and DS1775, TelCon
++  TCN75, and National Semi LM77. This can also be built as a module which
++  can be inserted and removed while the kernel is running.
++
++  You will also need the latest user-space utilties: you can find them
++  in the lm_sensors package, which you can download at 
++  http://www.lm-sensors.nu
++
++National Semiconductor LM78
++CONFIG_SENSORS_LM78
++  If you say yes here you get support for National Semiconductor LM78
++  sensor chips family: the LM78-J and LM79. Many clone chips will
++  also work at least somewhat with this driver. This can also be built
++  as a module which can be inserted and removed while the kernel is 
++  running.
++
++  You will also need the latest user-space utilties: you can find them
++  in the lm_sensors package, which you can download at 
++  http://www.lm-sensors.nu
++
++National Semiconductor LM80
++CONFIG_SENSORS_LM80
++  If you say yes here you get support for National Semiconductor LM80
++  sensor chips. This can also be built as a module which can be 
++  inserted and removed while the kernel is running.
++
++  You will also need the latest user-space utilties: you can find them
++  in the lm_sensors package, which you can download at 
++  http://www.lm-sensors.nu
++
++National Semiconductor LM83
++CONFIG_SENSORS_LM83
++  If you say yes here you get support for National Semiconductor LM83
++  sensor chips. This can also be built as a module which can be 
++  inserted and removed while the kernel is running.
++
++  You will also need the latest user-space utilties: you can find them
++  in the lm_sensors package, which you can download at 
++  http://www.lm-sensors.nu
++
++National Semiconductor LM85
++CONFIG_SENSORS_LM85
++  If you say yes here you get support for National Semiconductor LM85
++  sensor chips and compatibles.  Compatible chips include the Analog
++  Devices ADM1027 and ADT7463 and SMSC EMC6D100 and EMC6D101.  This
++  can also be built as a module which can be inserted and removed
++  while the kernel is running.
++
++  You will also need the latest user-space utilties: you can find them
++  in the lm_sensors package, which you can download at 
++  http://www.lm-sensors.nu
++
++National Semiconductor LM87
++CONFIG_SENSORS_LM87
++  If you say yes here you get support for National Semiconductor LM87
++  sensor chips. This can also be built as a module which can be 
++  inserted and removed while the kernel is running.
++
++  You will also need the latest user-space utilties: you can find them
++  in the lm_sensors package, which you can download at 
++  http://www.lm-sensors.nu
++
++National Semiconductor LM92
++CONFIG_SENSORS_LM92
++  If you say yes here you get support for National Semiconductor LM92
++  sensor chips. This can also be built as a module which can be 
++  inserted and removed while the kernel is running.
++
++  You will also need the latest user-space utilties: you can find them
++  in the lm_sensors package, which you can download at 
++  http://www.lm-sensors.nu
++
++nVidia nForce2
++CONFIG_SENSORS_NFORCE2
++  If you say yes here you get support for nVidia nForce2
++  sensor chips. This can also be built as a module which can be 
++  inserted and removed while the kernel is running.
++
++  You will also need the latest user-space utilties: you can find them
++  in the lm_sensors package, which you can download at 
++  http://www.lm-sensors.nu
++
++Philips PCF8574
++CONFIG_SENSORS_PCF8574
++  If you say yes here you get support for the Philips PCF8574
++  I2C 8-bit Parallel I/O device.
++  This can also be built as a module which can be 
++  inserted and removed while the kernel is running.
++
++  You will also need the latest user-space utilties: you can find them
++  in the lm_sensors package, which you can download at 
++  http://www.lm-sensors.nu
++
++Philips PCF8591
++CONFIG_SENSORS_PCF8591
++  If you say yes here you get support for the Philips PCF8591
++  I2C Quad D/A + Single A/D I/O device.
++  This can also be built as a module which can be 
++  inserted and removed while the kernel is running.
++
++  You will also need the latest user-space utilties: you can find them
++  in the lm_sensors package, which you can download at 
++  http://www.lm-sensors.nu
++
++SMSC47M1xx Super I/O Fan Support
++CONFIG_SENSORS_SMSC47M1
++  If you say yes here you get support for the integrated fan
++  monitoring and control in the SMSC 47M1xx Super I/O chips.
++  This can also be built as a module 
++  which can be inserted and removed while the kernel is running.
++
++  You will also need the latest user-space utilties: you can find them
++  in the lm_sensors package, which you can download at 
++  http://www.lm-sensors.nu
++
++Via VT1211 Sensors
++CONFIG_SENSORS_VT1211
++  If you say yes here you get support for the integrated sensors in 
++  the Via VT1211 Super I/O device. This can also be built as a module 
++  which can be inserted and removed while the kernel is running.
++
++  You will also need the latest user-space utilties: you can find them
++  in the lm_sensors package, which you can download at 
++  http://www.lm-sensors.nu
++
++Via VT8231 Sensors
++CONFIG_SENSORS_VT8231
++  If you say yes here you get support for the integrated sensors in 
++  the Via VT8231 device. This can also be built as a module 
++  which can be inserted and removed while the kernel is running.
++
++  You will also need the latest user-space utilties: you can find them
++  in the lm_sensors package, which you can download at 
++  http://www.lm-sensors.nu
++
+ I2C mainboard interfaces
+ CONFIG_I2C_MAINBOARD
+   Many modern mainboards have some kind of I2C interface integrated. This

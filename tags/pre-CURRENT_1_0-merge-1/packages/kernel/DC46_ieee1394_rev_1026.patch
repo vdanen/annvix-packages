@@ -1,0 +1,820 @@
+diff -Nurp -X /Data/dontdiff old/drivers/ieee1394/cmp.c patched/drivers/ieee1394/cmp.c
+--- old/drivers/ieee1394/cmp.c	2003-08-15 12:22:01.000000000 +0300
++++ patched/drivers/ieee1394/cmp.c	2003-08-16 01:42:52.000000000 +0300
+@@ -158,7 +158,7 @@ static void cmp_host_reset(struct hpsb_h
+ }
+ 
+ static int pcr_read(struct hpsb_host *host, int nodeid, quadlet_t *buf,
+-		    u64 addr, unsigned int length, u16 flags)
++		    u64 addr, size_t length, u16 flags)
+ {
+ 	int csraddr = addr - CSR_REGISTER_BASE;
+ 	int plug;
+diff -Nurp -X /Data/dontdiff old/drivers/ieee1394/csr.c patched/drivers/ieee1394/csr.c
+--- old/drivers/ieee1394/csr.c	2003-08-15 12:22:01.000000000 +0300
++++ patched/drivers/ieee1394/csr.c	2003-08-16 01:42:52.000000000 +0300
+@@ -115,6 +115,8 @@ static inline void calculate_expire(stru
+ 
+ 	/* Just to keep from rounding low */
+ 	csr->expire++;
++
++	HPSB_VERBOSE("CSR: setting expire to %lu, HZ=%lu", csr->expire, HZ);
+ }
+ 
+ 
+@@ -187,7 +189,7 @@ int hpsb_get_config_rom(struct hpsb_host
+ 
+ /* Read topology / speed maps and configuration ROM */
+ static int read_maps(struct hpsb_host *host, int nodeid, quadlet_t *buffer,
+-                     u64 addr, unsigned int length, u16 fl)
++                     u64 addr, size_t length, u16 fl)
+ {
+ 	unsigned long flags;
+         int csraddr = addr - CSR_REGISTER_BASE;
+@@ -216,7 +218,7 @@ static int read_maps(struct hpsb_host *h
+ #define out if (--length == 0) break
+ 
+ static int read_regs(struct hpsb_host *host, int nodeid, quadlet_t *buf,
+-                     u64 addr, unsigned int length, u16 flags)
++                     u64 addr, size_t length, u16 flags)
+ {
+         int csraddr = addr - CSR_REGISTER_BASE;
+         int oldcycle;
+@@ -330,7 +332,7 @@ static int read_regs(struct hpsb_host *h
+ }
+ 
+ static int write_regs(struct hpsb_host *host, int nodeid, int destid,
+-		      quadlet_t *data, u64 addr, unsigned int length, u16 flags)
++		      quadlet_t *data, u64 addr, size_t length, u16 flags)
+ {
+         int csraddr = addr - CSR_REGISTER_BASE;
+         
+@@ -656,7 +658,7 @@ static int lock64_regs(struct hpsb_host 
+ }
+ 
+ static int write_fcp(struct hpsb_host *host, int nodeid, int dest,
+-		     quadlet_t *data, u64 addr, unsigned int length, u16 flags)
++		     quadlet_t *data, u64 addr, size_t length, u16 flags)
+ {
+         int csraddr = addr - CSR_REGISTER_BASE;
+ 
+diff -Nurp -X /Data/dontdiff old/drivers/ieee1394/eth1394.c patched/drivers/ieee1394/eth1394.c
+--- old/drivers/ieee1394/eth1394.c	2003-08-15 12:22:01.000000000 +0300
++++ patched/drivers/ieee1394/eth1394.c	2003-08-16 01:42:52.000000000 +0300
+@@ -89,7 +89,7 @@
+ #define TRACE() printk(KERN_ERR "%s:%s[%d] ---- TRACE\n", driver_name, __FUNCTION__, __LINE__)
+ 
+ static char version[] __devinitdata =
+-	"$Rev: 1010 $ Ben Collins <bcollins@debian.org>";
++	"$Rev$ Ben Collins <bcollins@debian.org>";
+ 
+ struct fragment_info {
+ 	struct list_head list;
+@@ -130,7 +130,7 @@ static const int hdr_type_len[] = {
+ 
+ static const u16 eth1394_speedto_maxpayload[] = {
+ /*     S100, S200, S400, S800, S1600, S3200 */
+-	512, 1024, 2048, 4096,  8192, 16384
++	512, 1024, 2048, 4096,  4096,  4096
+ };
+ 
+ MODULE_AUTHOR("Ben Collins (bcollins@debian.org)");
+@@ -1086,7 +1086,7 @@ bad_proto:
+ }
+ 
+ static int ether1394_write(struct hpsb_host *host, int srcid, int destid,
+-			   quadlet_t *data, u64 addr, unsigned int len, u16 flags)
++			   quadlet_t *data, u64 addr, size_t len, u16 flags)
+ {
+ 	struct host_info *hi = hpsb_get_hostinfo(&eth1394_highlevel, host);
+ 
+@@ -1283,7 +1283,7 @@ static inline int ether1394_prep_write_p
+ 	p->header_size = 16;
+ 	p->expect_response = 1;
+ 
+-	if (hpsb_get_tlabel(p, !in_interrupt())) {
++	if (hpsb_get_tlabel(p)) {
+ 		ETH1394_PRINT_G(KERN_ERR, "No more tlabels left while sending "
+ 				"to node " NODE_BUS_FMT "\n", NODE_BUS_ARGS(host, node));
+ 		return -1;
+@@ -1600,7 +1600,7 @@ static int ether1394_ethtool_ioctl(struc
+ 		case ETHTOOL_GDRVINFO: {
+ 			struct ethtool_drvinfo info = { ETHTOOL_GDRVINFO };
+ 			strcpy (info.driver, driver_name);
+-			strcpy (info.version, "$Rev: 1010 $");
++			strcpy (info.version, "$Rev$");
+ 			/* FIXME XXX provide sane businfo */
+ 			strcpy (info.bus_info, "ieee1394");
+ 			if (copy_to_user (useraddr, &info, sizeof (info)))
+diff -Nurp -X /Data/dontdiff old/drivers/ieee1394/eth1394.h patched/drivers/ieee1394/eth1394.h
+--- old/drivers/ieee1394/eth1394.h	2003-08-15 15:21:27.000000000 +0300
++++ patched/drivers/ieee1394/eth1394.h	2003-08-16 01:42:52.000000000 +0300
+@@ -26,9 +26,9 @@
+ 
+ #include "ieee1394.h"
+ 
+-/* Register for incoming packets. This is 8192 bytes, which supports up to
+- * 1600mbs. We'll need to change this if that ever becomes "small" :)  */
+-#define ETHER1394_REGION_ADDR_LEN	8192
++/* Register for incoming packets. This is 4096 bytes, which supports up to
++ * S3200 (per Table 16-3 of IEEE 1394b-2002). */
++#define ETHER1394_REGION_ADDR_LEN	4096
+ #define ETHER1394_REGION_ADDR		0xfffff0200000ULL
+ #define ETHER1394_REGION_ADDR_END	(ETHER1394_REGION_ADDR + ETHER1394_REGION_ADDR_LEN)
+ 
+diff -Nurp -X /Data/dontdiff old/drivers/ieee1394/highlevel.c patched/drivers/ieee1394/highlevel.c
+--- old/drivers/ieee1394/highlevel.c	2003-08-15 12:22:01.000000000 +0300
++++ patched/drivers/ieee1394/highlevel.c	2003-08-16 01:42:52.000000000 +0300
+@@ -436,7 +436,7 @@ void highlevel_host_reset(struct hpsb_ho
+ }
+ 
+ void highlevel_iso_receive(struct hpsb_host *host, void *data,
+-                           unsigned int length)
++			   size_t length)
+ {
+         struct list_head *entry;
+         struct hpsb_highlevel *hl;
+@@ -456,7 +456,7 @@ void highlevel_iso_receive(struct hpsb_h
+ }
+ 
+ void highlevel_fcp_request(struct hpsb_host *host, int nodeid, int direction,
+-                           void *data, unsigned int length)
++			   void *data, size_t length)
+ {
+         struct list_head *entry;
+         struct hpsb_highlevel *hl;
+diff -Nurp -X /Data/dontdiff old/drivers/ieee1394/highlevel.h patched/drivers/ieee1394/highlevel.h
+--- old/drivers/ieee1394/highlevel.h	2003-08-15 12:22:01.000000000 +0300
++++ patched/drivers/ieee1394/highlevel.h	2003-08-16 01:42:52.000000000 +0300
+@@ -45,14 +45,14 @@ struct hpsb_highlevel {
+          * packet header (first quadlet, CRCs are missing).  You may get called
+          * for channel/host combinations you did not request. */
+         void (*iso_receive) (struct hpsb_host *host, int channel,
+-                             quadlet_t *data, unsigned int length);
++                             quadlet_t *data, size_t length);
+ 
+         /* A write request was received on either the FCP_COMMAND (direction =
+          * 0) or the FCP_RESPONSE (direction = 1) register.  The cts arg
+          * contains the cts field (first byte of data).
+          */
+         void (*fcp_request) (struct hpsb_host *host, int nodeid, int direction,
+-                             int cts, u8 *data, unsigned int length);
++                             int cts, u8 *data, size_t length);
+ 
+ 
+ 	struct list_head hl_list;
+@@ -78,9 +78,9 @@ struct hpsb_address_ops {
+            will send the response itself
+         */
+         int (*read) (struct hpsb_host *host, int nodeid, quadlet_t *buffer,
+-                     u64 addr, unsigned int length, u16 flags);
++                     u64 addr, size_t length, u16 flags);
+         int (*write) (struct hpsb_host *host, int nodeid, int destid,
+-		      quadlet_t *data, u64 addr, unsigned int length, u16 flags);
++		      quadlet_t *data, u64 addr, size_t length, u16 flags);
+ 
+         /* Lock transactions: write results of ext_tcode operation into
+          * *store. */
+@@ -116,9 +116,9 @@ int highlevel_lock64(struct hpsb_host *h
+                      u64 addr, octlet_t data, octlet_t arg, int ext_tcode, u16 flags);
+ 
+ void highlevel_iso_receive(struct hpsb_host *host, void *data,
+-                           unsigned int length);
++                           size_t length);
+ void highlevel_fcp_request(struct hpsb_host *host, int nodeid, int direction,
+-                           void *data, unsigned int length);
++                           void *data, size_t length);
+ 
+ 
+ /*
+diff -Nurp -X /Data/dontdiff old/drivers/ieee1394/ieee1394_core.c patched/drivers/ieee1394/ieee1394_core.c
+--- old/drivers/ieee1394/ieee1394_core.c	2003-08-15 12:22:04.000000000 +0300
++++ patched/drivers/ieee1394/ieee1394_core.c	2003-08-16 01:42:52.000000000 +0300
+@@ -59,19 +59,22 @@ static kmem_cache_t *hpsb_packet_cache;
+ /* Some globals used */
+ const char *hpsb_speedto_str[] = { "S100", "S200", "S400", "S800", "S1600", "S3200" };
+ 
++#ifdef CONFIG_IEEE1394_VERBOSEDEBUG
+ static void dump_packet(const char *text, quadlet_t *data, int size)
+ {
+-        int i;
++	int i;
+ 
+-        size /= 4;
+-        size = (size > 4 ? 4 : size);
++	size /= 4;
++	size = (size > 4 ? 4 : size);
+ 
+-        printk(KERN_DEBUG "ieee1394: %s", text);
+-        for (i = 0; i < size; i++) {
+-                printk(" %8.8x", data[i]);
+-        }
+-        printk("\n");
++	printk(KERN_DEBUG "ieee1394: %s", text);
++	for (i = 0; i < size; i++)
++		printk(" %08x", data[i]);
++	printk("\n");
+ }
++#else
++#define dump_packet(x,y,z)
++#endif
+ 
+ static void run_packet_complete(struct hpsb_packet *packet)
+ {
+@@ -277,8 +280,8 @@ static int check_selfids(struct hpsb_hos
+ 
+ static void build_speed_map(struct hpsb_host *host, int nodecount)
+ {
+-        char speedcap[nodecount];
+-        char cldcnt[nodecount];
++	u8 speedcap[nodecount];
++        u8 cldcnt[nodecount];
+         u8 *map = host->speed_map;
+         struct selfid *sid;
+         struct ext_selfid *esid;
+@@ -329,7 +332,7 @@ static void build_speed_map(struct hpsb_
+         for (i = 1; i < nodecount; i++) {
+                 for (j = cldcnt[i], n = i - 1; j > 0; j--) {
+                         cldcnt[i] += cldcnt[n];
+-                        speedcap[n] = MIN(speedcap[n], speedcap[i]);
++                        speedcap[n] = min(speedcap[n], speedcap[i]);
+                         n -= cldcnt[n] + 1;
+                 }
+         }
+@@ -338,11 +341,11 @@ static void build_speed_map(struct hpsb_
+                 for (i = n - cldcnt[n]; i <= n; i++) {
+                         for (j = 0; j < (n - cldcnt[n]); j++) {
+                                 map[j*64 + i] = map[i*64 + j] =
+-                                        MIN(map[i*64 + j], speedcap[n]);
++                                        min(map[i*64 + j], speedcap[n]);
+                         }
+                         for (j = n + 1; j < nodecount; j++) {
+                                 map[j*64 + i] = map[i*64 + j] =
+-                                        MIN(map[i*64 + j], speedcap[n]);
++                                        min(map[i*64 + j], speedcap[n]);
+                         }
+                 }
+         }
+@@ -352,9 +355,7 @@ static void build_speed_map(struct hpsb_
+ void hpsb_selfid_received(struct hpsb_host *host, quadlet_t sid)
+ {
+         if (host->in_bus_reset) {
+-#ifdef CONFIG_IEEE1394_VERBOSEDEBUG
+-                HPSB_INFO("Including SelfID 0x%x", sid);
+-#endif
++                HPSB_VERBOSE("Including SelfID 0x%x", sid);
+                 host->topology_map[host->selfid_count++] = sid;
+         } else {
+                 HPSB_NOTICE("Spurious SelfID packet (0x%08x) received from bus %d",
+@@ -388,10 +389,9 @@ void hpsb_selfid_complete(struct hpsb_ho
+                 build_speed_map(host, host->node_count);
+         }
+ 
+-#ifdef CONFIG_IEEE1394_VERBOSEDEBUG
+-        HPSB_INFO("selfid_complete called with successful SelfID stage "
+-		"... irm_id: 0x%X node_id: 0x%X",host->irm_id,host->node_id);
+-#endif
++	HPSB_VERBOSE("selfid_complete called with successful SelfID stage "
++		     "... irm_id: 0x%X node_id: 0x%X",host->irm_id,host->node_id);
++
+         /* irm_id is kept up to date by check_selfids() */
+         if (host->irm_id == host->node_id) {
+                 host->is_irm = 1;
+@@ -549,10 +549,9 @@ int hpsb_send_packet(struct hpsb_packet 
+                         }
+                 }
+ 
+-#ifdef CONFIG_IEEE1394_VERBOSEDEBUG
+                 dump_packet("send packet local:", packet->header,
+                             packet->header_size);
+-#endif
++
+                 hpsb_packet_sent(host, packet,  packet->expect_response?ACK_PENDING:ACK_COMPLETE);
+                 hpsb_packet_received(host, data, size, 0);
+ 
+@@ -567,7 +566,6 @@ int hpsb_send_packet(struct hpsb_packet 
+                                        + NODEID_TO_NODE(packet->node_id)];
+         }
+ 
+-#ifdef CONFIG_IEEE1394_VERBOSEDEBUG
+         switch (packet->speed_code) {
+         case 2:
+                 dump_packet("send packet 400:", packet->header,
+@@ -581,7 +579,6 @@ int hpsb_send_packet(struct hpsb_packet 
+                 dump_packet("send packet 100:", packet->header,
+                             packet->header_size);
+         }
+-#endif
+ 
+         return host->driver->transmit_packet(host, packet);
+ }
+@@ -616,7 +613,7 @@ void handle_packet_response(struct hpsb_
+         }
+ 
+         if (lh == &host->pending_packets) {
+-                HPSB_DEBUG("unsolicited response packet received - np");
++                HPSB_DEBUG("unsolicited response packet received - no tlabel match");
+                 dump_packet("contents:", data, 16);
+                 spin_unlock_irqrestore(&host->pending_pkt_lock, flags);
+                 return;
+@@ -640,7 +637,7 @@ void handle_packet_response(struct hpsb_
+ 
+         if (!tcode_match || (packet->tlabel != tlabel)
+             || (packet->node_id != (data[1] >> 16))) {
+-                HPSB_INFO("unsolicited response packet received");
++                HPSB_INFO("unsolicited response packet received - tcode mismatch");
+                 dump_packet("contents:", data, 16);
+ 
+                 spin_unlock_irqrestore(&host->pending_pkt_lock, flags);
+@@ -895,9 +892,7 @@ void hpsb_packet_received(struct hpsb_ho
+                 return;
+         }
+ 
+-#ifdef CONFIG_IEEE1394_VERBOSEDEBUG
+         dump_packet("received packet:", data, size);
+-#endif
+ 
+         tcode = (data[0] >> 4) & 0xf;
+ 
+diff -Nurp -X /Data/dontdiff old/drivers/ieee1394/ieee1394_transactions.c patched/drivers/ieee1394/ieee1394_transactions.c
+--- old/drivers/ieee1394/ieee1394_transactions.c	2003-08-15 12:22:04.000000000 +0300
++++ patched/drivers/ieee1394/ieee1394_transactions.c	2003-08-16 01:42:52.000000000 +0300
+@@ -113,35 +113,33 @@ static void fill_async_stream_packet(str
+ /**
+  * hpsb_get_tlabel - allocate a transaction label
+  * @packet: the packet who's tlabel/tpool we set
+- * @wait: whether to sleep if no tlabel is available
+  *
+- * Every asynchronous transaction on the 1394 bus needs a transaction label to
+- * match the response to the request.  This label has to be different from any
+- * other transaction label in an outstanding request to the same node to make
+- * matching possible without ambiguity.
++ * Every asynchronous transaction on the 1394 bus needs a transaction
++ * label to match the response to the request.  This label has to be
++ * different from any other transaction label in an outstanding request to
++ * the same node to make matching possible without ambiguity.
+  *
+- * There are 64 different tlabels, so an allocated tlabel has to be freed with
+- * hpsb_free_tlabel() after the transaction is complete (unless it's reused again for
+- * the same target node).
+- *
+- * @wait cannot be set if in_interrupt()
++ * There are 64 different tlabels, so an allocated tlabel has to be freed
++ * with hpsb_free_tlabel() after the transaction is complete (unless it's
++ * reused again for the same target node).
+  *
+  * Return value: Zero on success, otherwise non-zero. A non-zero return
+- * generally means there are no available tlabels.
++ * generally means there are no available tlabels. If this is called out
++ * of interrupt or atomic context, then it will sleep until can return a
++ * tlabel.
+  */
+-int hpsb_get_tlabel(struct hpsb_packet *packet, int wait)
++int hpsb_get_tlabel(struct hpsb_packet *packet)
+ {
+ 	unsigned long flags;
+ 	struct hpsb_tlabel_pool *tp;
+ 
+ 	tp = &packet->host->tpool[packet->node_id & NODE_MASK];
+ 
+-	if (wait) {
+-		BUG_ON(in_interrupt());
+-		down(&tp->count);
+-	} else {
++	if (in_interrupt()) {
+ 		if (down_trylock(&tp->count))
+ 			return 1;
++	} else {
++		down(&tp->count);
+ 	}
+ 
+ 	spin_lock_irqsave(&tp->lock, flags);
+@@ -270,7 +268,7 @@ struct hpsb_packet *hpsb_make_readpacket
+ 	packet->host = host;
+ 	packet->node_id = node;
+ 
+-	if (hpsb_get_tlabel(packet, in_interrupt() ? 0 : 1)) {
++	if (hpsb_get_tlabel(packet)) {
+ 		free_hpsb_packet(packet);
+ 		return NULL;
+ 	}
+@@ -301,7 +299,7 @@ struct hpsb_packet *hpsb_make_writepacke
+ 	packet->host = host;
+ 	packet->node_id = node;
+ 
+-	if (hpsb_get_tlabel(packet, in_interrupt() ? 0 : 1)) {
++	if (hpsb_get_tlabel(packet)) {
+ 		free_hpsb_packet(packet);
+ 		return NULL;
+ 	}
+@@ -329,7 +327,7 @@ struct hpsb_packet *hpsb_make_lockpacket
+ 
+ 	p->host = host;
+ 	p->node_id = node;
+-	if (hpsb_get_tlabel(p, in_interrupt() ? 0 : 1)) {
++	if (hpsb_get_tlabel(p)) {
+ 		free_hpsb_packet(p);
+ 		return NULL;
+ 	}
+@@ -366,7 +364,7 @@ struct hpsb_packet *hpsb_make_lock64pack
+ 
+ 	p->host = host;
+ 	p->node_id = node;
+-	if (hpsb_get_tlabel(p, in_interrupt() ? 0 : 1)) {
++	if (hpsb_get_tlabel(p)) {
+ 		free_hpsb_packet(p);
+ 		return NULL;
+ 	}
+@@ -580,9 +578,7 @@ int hpsb_send_gasp(struct hpsb_host *hos
+ 	u16 specifier_id_hi = (specifier_id & 0x00ffff00) >> 8;
+ 	u8 specifier_id_lo = specifier_id & 0xff;
+ 
+-#ifdef CONFIG_IEEE1394_VERBOSEDEBUG
+-	HPSB_DEBUG("Send GASP: channel = %d, length = %d", channel, length);
+-#endif
++	HPSB_VERBOSE("Send GASP: channel = %d, length = %d", channel, length);
+ 
+ 	length += 8;
+ 
+diff -Nurp -X /Data/dontdiff old/drivers/ieee1394/ieee1394_transactions.h patched/drivers/ieee1394/ieee1394_transactions.h
+--- old/drivers/ieee1394/ieee1394_transactions.h	2003-08-15 15:21:38.000000000 +0300
++++ patched/drivers/ieee1394/ieee1394_transactions.h	2003-08-16 01:42:52.000000000 +0300
+@@ -7,7 +7,7 @@
+ /*
+  * Get and free transaction labels.
+  */
+-int hpsb_get_tlabel(struct hpsb_packet *packet, int wait);
++int hpsb_get_tlabel(struct hpsb_packet *packet);
+ void hpsb_free_tlabel(struct hpsb_packet *packet);
+ 
+ struct hpsb_packet *hpsb_make_readpacket(struct hpsb_host *host, nodeid_t node,
+diff -Nurp -X /Data/dontdiff old/drivers/ieee1394/ieee1394_types.h patched/drivers/ieee1394/ieee1394_types.h
+--- old/drivers/ieee1394/ieee1394_types.h	2003-08-15 15:21:25.000000000 +0300
++++ patched/drivers/ieee1394/ieee1394_types.h	2003-08-16 01:42:52.000000000 +0300
+@@ -7,18 +7,11 @@
+ #include <linux/version.h>
+ #include <linux/list.h>
+ #include <linux/init.h>
++#include <linux/spinlock.h>
+ #include <asm/semaphore.h>
+ #include <asm/byteorder.h>
+ 
+ 
+-#ifndef MIN
+-#define MIN(a,b) ((a) < (b) ? (a) : (b))
+-#endif
+-
+-#ifndef MAX
+-#define MAX(a,b) ((a) > (b) ? (a) : (b))
+-#endif
+-
+ #ifndef BITS_TO_LONGS	/* < 2.4.21-pre6 */
+ #define BITS_TO_LONGS(bits) \
+ 	(((bits)+BITS_PER_LONG-1)/BITS_PER_LONG)
+@@ -78,6 +71,12 @@ typedef u16 arm_length_t;
+ #define HPSB_WARN(fmt, args...) HPSB_PRINT(KERN_WARNING, fmt , ## args)
+ #define HPSB_ERR(fmt, args...) HPSB_PRINT(KERN_ERR, fmt , ## args)
+ 
++#ifdef CONFIG_IEEE1394_VERBOSEDEBUG
++#define HPSB_VERBOSE(fmt, args...) HPSB_PRINT(KERN_DEBUG, fmt , ## args)
++#else
++#define HPSB_VERBOSE(fmt, args...)
++#endif
++
+ #define HPSB_PANIC(fmt, args...) panic("ieee1394: " fmt "\n" , ## args)
+ 
+ #define HPSB_TRACE() HPSB_PRINT(KERN_INFO, "TRACE - %s, %s(), line %d", __FILE__, __FUNCTION__, __LINE__)
+diff -Nurp -X /Data/dontdiff old/drivers/ieee1394/nodemgr.c patched/drivers/ieee1394/nodemgr.c
+--- old/drivers/ieee1394/nodemgr.c	2003-08-15 12:22:04.000000000 +0300
++++ patched/drivers/ieee1394/nodemgr.c	2003-08-16 01:42:52.000000000 +0300
+@@ -785,9 +785,8 @@ static void nodemgr_call_policy(char *ve
+ 	envp[i++] = 0;
+ 
+ 	/* NOTE: user mode daemons can call the agents too */
+-#ifdef CONFIG_IEEE1394_VERBOSEDEBUG
+-	HPSB_DEBUG("NodeMgr: %s %s %016Lx", argv[0], verb, (long long unsigned)ud->ne->guid);
+-#endif
++	HPSB_VERBOSE("NodeMgr: %s %s %016Lx", argv[0], verb, (long long unsigned)ud->ne->guid);
++
+ 	value = call_usermodehelper(argv[0], argv, envp);
+ 	kfree(buf);
+ 	kfree(envp);
+@@ -800,9 +799,7 @@ static void nodemgr_call_policy(char *ve
+ static inline void
+ nodemgr_call_policy(char *verb, struct unit_directory *ud)
+ {
+-#ifdef CONFIG_IEEE1394_VERBOSEDEBUG
+-	HPSB_DEBUG("NodeMgr: nodemgr_call_policy(): hotplug not enabled");
+-#endif
++	HPSB_VERBOSE("NodeMgr: nodemgr_call_policy(): hotplug not enabled");
+ 	return;
+ } 
+ 
+@@ -992,14 +989,12 @@ static void nodemgr_process_config_rom(s
+ 	ne->busopt.generation	= (busoptions >> 4) & 0xf;
+ 	ne->busopt.lnkspd	= busoptions & 0x7;
+ 
+-#ifdef CONFIG_IEEE1394_VERBOSEDEBUG
+-	HPSB_DEBUG("NodeMgr: raw=0x%08x irmc=%d cmc=%d isc=%d bmc=%d pmc=%d "
+-		   "cyc_clk_acc=%d max_rec=%d gen=%d lspd=%d",
+-		   busoptions, ne->busopt.irmc, ne->busopt.cmc,
+-		   ne->busopt.isc, ne->busopt.bmc, ne->busopt.pmc,
+-		   ne->busopt.cyc_clk_acc, ne->busopt.max_rec,
+-		   ne->busopt.generation, ne->busopt.lnkspd);
+-#endif
++	HPSB_VERBOSE("NodeMgr: raw=0x%08x irmc=%d cmc=%d isc=%d bmc=%d pmc=%d "
++		     "cyc_clk_acc=%d max_rec=%d gen=%d lspd=%d",
++		     busoptions, ne->busopt.irmc, ne->busopt.cmc,
++		     ne->busopt.isc, ne->busopt.bmc, ne->busopt.pmc,
++		     ne->busopt.cyc_clk_acc, ne->busopt.max_rec,
++		     ne->busopt.generation, ne->busopt.lnkspd);
+ 
+ 	/*
+ 	 * When the config rom changes we disconnect all drivers and
+@@ -1058,10 +1053,9 @@ static int read_businfo_block(struct hps
+ 	 * work though, and we are forced to doing quadlet sized
+ 	 * reads.  */
+ 
+-#ifdef CONFIG_IEEE1394_VERBOSEDEBUG
+-	HPSB_INFO("Initiating ConfigROM request for node " NODE_BUS_FMT,
+-		  NODE_BUS_ARGS(host, nodeid));
+-#endif
++	HPSB_VERBOSE("Initiating ConfigROM request for node " NODE_BUS_FMT,
++		     NODE_BUS_ARGS(host, nodeid));
++
+ 	/* 
+ 	 * Must retry a few times if config rom read returns zero (how long?). Will
+ 	 * not normally occur, but we should do the right thing. For example, with
+@@ -1348,9 +1342,7 @@ static int nodemgr_host_thread(void *__h
+ 	}
+ 
+ caught_signal:
+-#ifdef CONFIG_IEEE1394_VERBOSEDEBUG
+-	HPSB_DEBUG ("NodeMgr: Exiting thread");
+-#endif
++	HPSB_VERBOSE("NodeMgr: Exiting thread");
+ 
+ 	complete_and_exit(&hi->exited, 0);
+ }
+@@ -1465,9 +1457,7 @@ static void nodemgr_host_reset(struct hp
+ 	struct host_info *hi = hpsb_get_hostinfo(&nodemgr_highlevel, host);
+ 
+ 	if (hi != NULL) {
+-#ifdef CONFIG_IEEE1394_VERBOSEDEBUG
+-		HPSB_DEBUG ("NodeMgr: Processing host reset for %s", hi->daemon_name);
+-#endif
++		HPSB_VERBOSE("NodeMgr: Processing host reset for %s", hi->daemon_name);
+ 		up(&hi->reset_sem);
+ 	} else
+ 		HPSB_ERR ("NodeMgr: could not process reset of unused host");
+diff -Nurp -X /Data/dontdiff old/drivers/ieee1394/ohci1394.c patched/drivers/ieee1394/ohci1394.c
+--- old/drivers/ieee1394/ohci1394.c	2003-08-15 12:22:04.000000000 +0300
++++ patched/drivers/ieee1394/ohci1394.c	2003-08-16 01:42:52.000000000 +0300
+@@ -165,7 +165,7 @@ printk(level "%s: " fmt "\n" , OHCI1394_
+ printk(level "%s_%d: " fmt "\n" , OHCI1394_DRIVER_NAME, card , ## args)
+ 
+ static char version[] __devinitdata =
+-	"$Rev: 1010 $ Ben Collins <bcollins@debian.org>";
++	"$Rev$ Ben Collins <bcollins@debian.org>";
+ 
+ /* Module Parameters */
+ MODULE_PARM(phys_dma,"i");
+diff -Nurp -X /Data/dontdiff old/drivers/ieee1394/pcilynx.c patched/drivers/ieee1394/pcilynx.c
+--- old/drivers/ieee1394/pcilynx.c	2003-08-15 12:22:40.000000000 +0300
++++ patched/drivers/ieee1394/pcilynx.c	2003-08-16 01:42:52.000000000 +0300
+@@ -1006,7 +1006,7 @@ static ssize_t mem_dmaread(struct memdat
+         DECLARE_WAITQUEUE(wait, current);
+ 
+         count &= ~3;
+-        count = MIN(count, 53196);
++        count = min(count, 53196);
+         retval = count;
+ 
+         if (reg_read(md->lynx, DMA_CHAN_CTRL(CHANNEL_LOCALBUS))
+@@ -1017,14 +1017,14 @@ static ssize_t mem_dmaread(struct memdat
+         reg_write(md->lynx, LBUS_ADDR, md->type | offset);
+ 
+         pcl = edit_pcl(md->lynx, md->lynx->dmem_pcl, &pcltmp);
+-        pcl->buffer[0].control = PCL_CMD_LBUS_TO_PCI | MIN(count, 4092);
++        pcl->buffer[0].control = PCL_CMD_LBUS_TO_PCI | min(count, 4092);
+         pcl->buffer[0].pointer = physbuf;
+         count -= 4092;
+ 
+         i = 0;
+         while (count > 0) {
+                 i++;
+-                pcl->buffer[i].control = MIN(count, 4092);
++                pcl->buffer[i].control = min(count, 4092);
+                 pcl->buffer[i].pointer = physbuf + i * 4092;
+                 count -= 4092;
+         }
+@@ -1806,9 +1806,8 @@ static int __devinit add_card(struct pci
+                 i2c_adapter.algo_data = &i2c_adapter_data;
+                 i2c_adapter_data.data = lynx;
+ 
+-#ifdef CONFIG_IEEE1394_VERBOSEDEBUG
+-                PRINT(KERN_DEBUG, lynx->id,"original eeprom control: %d",reg_read(lynx,SERIAL_EEPROM_CONTROL));
+-#endif
++		PRINTD(KERN_DEBUG, lynx->id,"original eeprom control: %d",
++		       reg_read(lynx, SERIAL_EEPROM_CONTROL));
+ 
+         	/* reset hardware to sane state */
+         	lynx->i2c_driven_state = 0x00000070;
+@@ -1851,17 +1850,16 @@ static int __devinit add_card(struct pci
+                         if (i2c_transfer(&i2c_adapter, msg, 2) < 0) {
+                                 PRINT(KERN_ERR, lynx->id, "unable to read bus info block from i2c");
+                         } else {
+-#ifdef CONFIG_IEEE1394_VERBOSEDEBUG
+                                 int i;
+-#endif
+-                                PRINT(KERN_INFO, lynx->id, "got bus info block from serial eeprom");
+-                                /* FIXME: probably we shoud rewrite the max_rec, max_ROM(1394a), generation(1394a) and link_spd(1394a) field
+-                                   and recalculate the CRC */
+ 
+-#ifdef CONFIG_IEEE1394_VERBOSEDEBUG
+-                                for (i=0; i < 5 ; i++)
+-                                        PRINT(KERN_DEBUG, lynx->id, "Businfo block quadlet %i: %08x",i, be32_to_cpu(lynx->config_rom[i]));
+-#endif
++                                PRINT(KERN_INFO, lynx->id, "got bus info block from serial eeprom");
++				/* FIXME: probably we shoud rewrite the max_rec, max_ROM(1394a),
++				 * generation(1394a) and link_spd(1394a) field and recalculate
++				 * the CRC */
++
++                                for (i = 0; i < 5 ; i++)
++                                        PRINTD(KERN_DEBUG, lynx->id, "Businfo block quadlet %i: %08x",
++					       i, be32_to_cpu(lynx->config_rom[i]));
+ 
+                                 /* info_length, crc_length and 1394 magic number to check, if it is really a bus info block */
+                                 if (((be32_to_cpu(lynx->config_rom[0]) & 0xffff0000) == 0x04040000) &&
+diff -Nurp -X /Data/dontdiff old/drivers/ieee1394/raw1394.c patched/drivers/ieee1394/raw1394.c
+--- old/drivers/ieee1394/raw1394.c	2003-08-15 12:22:04.000000000 +0300
++++ patched/drivers/ieee1394/raw1394.c	2003-08-16 01:42:52.000000000 +0300
+@@ -84,9 +84,9 @@ static const int iso_buffer_max = 4 * 10
+ static struct hpsb_highlevel raw1394_highlevel;
+ 
+ static int arm_read (struct hpsb_host *host, int nodeid, quadlet_t *buffer,
+-             u64 addr, unsigned int length, u16 flags);
++		     u64 addr, size_t length, u16 flags);
+ static int arm_write (struct hpsb_host *host, int nodeid, int destid,
+-              quadlet_t *data, u64 addr, unsigned int length, u16 flags);
++		      quadlet_t *data, u64 addr, size_t length, u16 flags);
+ static int arm_lock (struct hpsb_host *host, int nodeid, quadlet_t *store,
+              u64 addr, quadlet_t data, quadlet_t arg, int ext_tcode, u16 flags);
+ static int arm_lock64 (struct hpsb_host *host, int nodeid, octlet_t *store,
+@@ -294,7 +294,7 @@ static void host_reset(struct hpsb_host 
+ }
+ 
+ static void iso_receive(struct hpsb_host *host, int channel, quadlet_t *data,
+-                        unsigned int length)
++                        size_t length)
+ {
+         unsigned long flags;
+         struct list_head *lh;
+@@ -346,7 +346,7 @@ static void iso_receive(struct hpsb_host
+                         req->req.generation = get_hpsb_generation(host);
+                         req->req.misc = 0;
+                         req->req.recvb = ptr2int(fi->iso_buffer);
+-                        req->req.length = MIN(length, fi->iso_buffer_length);
++                        req->req.length = min(length, fi->iso_buffer_length);
+                         
+                         list_add_tail(&req->list, &reqs);
+                 }
+@@ -363,7 +363,7 @@ static void iso_receive(struct hpsb_host
+ }
+ 
+ static void fcp_request(struct hpsb_host *host, int nodeid, int direction,
+-                        int cts, u8 *data, unsigned int length)
++			int cts, u8 *data, size_t length)
+ {
+         unsigned long flags;
+         struct list_head *lh;
+@@ -539,9 +539,9 @@ static int state_initialized(struct file
+ 
+                 if (khl != NULL) {
+                         req->req.error = RAW1394_ERROR_NONE;
+-                        req->req.length = MIN(req->req.length,
+-                                              sizeof(struct raw1394_khost_list)
+-                                              * req->req.misc);
++                        req->req.length = min(req->req.length,
++                                              (u32)(sizeof(struct raw1394_khost_list)
++                                              * req->req.misc));
+                         req->free_data = 1;
+                 } else {
+                         return -ENOMEM;
+@@ -879,7 +879,7 @@ static int handle_async_send(struct file
+ }
+ 
+ static int arm_read (struct hpsb_host *host, int nodeid, quadlet_t *buffer,
+-             u64 addr, unsigned int length, u16 flags)
++		     u64 addr, size_t length, u16 flags)
+ {
+         struct pending_request *req;
+         struct list_head *lh;
+@@ -1015,7 +1015,7 @@ static int arm_read (struct hpsb_host *h
+ }
+ 
+ static int arm_write (struct hpsb_host *host, int nodeid, int destid,
+-              quadlet_t *data, u64 addr, unsigned int length, u16 flags)
++		      quadlet_t *data, u64 addr, size_t length, u16 flags)
+ {
+         struct pending_request *req;
+         struct list_head *lh;
+@@ -2080,6 +2080,9 @@ static int raw1394_iso_xmit_init(struct 
+ {
+ 	struct raw1394_iso_status stat;
+ 
++	if (!fi->host)
++		return -EINVAL;
++
+ 	if (copy_from_user(&stat, uaddr, sizeof(stat)))
+ 		return -EFAULT;
+ 
+@@ -2109,6 +2112,9 @@ static int raw1394_iso_recv_init(struct 
+ {
+ 	struct raw1394_iso_status stat;
+ 
++	if (!fi->host)
++		return -EINVAL;
++
+ 	if (copy_from_user(&stat, uaddr, sizeof(stat)))
+ 		return -EFAULT;
+ 
+diff -Nurp -X /Data/dontdiff old/drivers/ieee1394/sbp2.c patched/drivers/ieee1394/sbp2.c
+--- old/drivers/ieee1394/sbp2.c	2003-08-15 12:22:04.000000000 +0300
++++ patched/drivers/ieee1394/sbp2.c	2003-08-16 01:42:52.000000000 +0300
+@@ -89,7 +89,7 @@
+ #include "sbp2.h"
+ 
+ static char version[] __devinitdata =
+-	"$Rev: 1010 $ Ben Collins <bcollins@debian.org>";
++	"$Rev$ Ben Collins <bcollins@debian.org>";
+ 
+ /*
+  * Module load parameter definitions
+@@ -973,6 +973,15 @@ alloc_fail:
+ 		return -EBUSY;
+ 	}
+ 
++	/* Schedule a timeout here. The reason is that we may be so close
++	 * to a bus reset, that the device is not available for logins.
++	 * This can happen when the bus reset is caused by the host
++	 * connected to the sbp2 device being removed. That host would
++	 * have a certain amount of time to relogin before the sbp2 device
++	 * allows someone else to login instead. One second makes sense. */
++	set_current_state(TASK_INTERRUPTIBLE);
++	schedule_timeout(HZ);
++
+ 	/*
+ 	 * Login to the sbp-2 device
+ 	 */
+@@ -1084,7 +1093,7 @@ static void sbp2_remove_device(struct sc
+  * physical dma in hardware). Mostly just here for debugging...
+  */
+ static int sbp2_handle_physdma_write(struct hpsb_host *host, int nodeid, int destid, quadlet_t *data,
+-                                     u64 addr, unsigned int length, u16 flags)
++                                     u64 addr, size_t length, u16 flags)
+ {
+ 
+         /*
+@@ -1100,7 +1109,7 @@ static int sbp2_handle_physdma_write(str
+  * physical dma in hardware). Mostly just here for debugging...
+  */
+ static int sbp2_handle_physdma_read(struct hpsb_host *host, int nodeid, quadlet_t *data,
+-                                    u64 addr, unsigned int length, u16 flags)
++                                    u64 addr, size_t length, u16 flags)
+ {
+ 
+         /*
+@@ -2427,7 +2436,7 @@ static void sbp2_check_sbp2_response(str
+  * This function deals with status writes from the SBP-2 device
+  */
+ static int sbp2_handle_status_write(struct hpsb_host *host, int nodeid, int destid,
+-				    quadlet_t *data, u64 addr, unsigned int length, u16 fl)
++				    quadlet_t *data, u64 addr, size_t length, u16 fl)
+ {
+ 	struct sbp2scsi_host_info *hi = NULL;
+ 	struct scsi_id_instance_data *scsi_id = NULL;
+diff -Nurp -X /Data/dontdiff old/drivers/ieee1394/sbp2.h patched/drivers/ieee1394/sbp2.h
+--- old/drivers/ieee1394/sbp2.h	2003-08-15 15:21:27.000000000 +0300
++++ patched/drivers/ieee1394/sbp2.h	2003-08-16 01:42:52.000000000 +0300
+@@ -482,9 +482,9 @@ static void sbp2_remove_device(struct sc
+ 
+ #ifdef CONFIG_IEEE1394_SBP2_PHYS_DMA
+ static int sbp2_handle_physdma_write(struct hpsb_host *host, int nodeid, int destid, quadlet_t *data,
+-                                     u64 addr, unsigned int length, u16 flags);
++                                     u64 addr, size_t length, u16 flags);
+ static int sbp2_handle_physdma_read(struct hpsb_host *host, int nodeid, quadlet_t *data,
+-                                    u64 addr, unsigned int length, u16 flags);
++                                    u64 addr, size_t length, u16 flags);
+ #endif
+ 
+ /*
+@@ -495,7 +495,7 @@ static int sbp2_login_device(struct scsi
+ static int sbp2_reconnect_device(struct scsi_id_instance_data *scsi_id); 
+ static int sbp2_logout_device(struct scsi_id_instance_data *scsi_id); 
+ static int sbp2_handle_status_write(struct hpsb_host *host, int nodeid, int destid,
+-				    quadlet_t *data, u64 addr, unsigned int length, u16 flags);
++				    quadlet_t *data, u64 addr, size_t length, u16 flags);
+ static int sbp2_agent_reset(struct scsi_id_instance_data *scsi_id, int wait);
+ static int sbp2_create_command_orb(struct scsi_id_instance_data *scsi_id,
+ 				   struct sbp2_command_info *command,

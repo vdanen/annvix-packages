@@ -1,0 +1,14 @@
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff --exclude='defconfig*' --exclude='log.*' --exclude='log2?' w2/drivers/char/tipar.c w1/drivers/char/tipar.c
+--- w2/drivers/char/tipar.c	2003-06-13 16:51:33.000000000 +0200
++++ w1/drivers/char/tipar.c	2003-08-18 14:05:10.000000000 +0200
+@@ -72,10 +72,6 @@
+ #define DRIVER_LICENSE "GPL"
+ 
+ #define VERSION(ver,rel,seq) (((ver)<<16) | ((rel)<<8) | (seq))
+-#if LINUX_VERSION_CODE < VERSION(2,5,0)
+-# define minor(x) MINOR(x)
+-# define need_resched() (current->need_resched)
+-#endif
+ 
+ /* ----- global variables --------------------------------------------- */
+ 

@@ -1,0 +1,11 @@
+--- ./tmake/lib/linux-g++/tmake.conf.gege	2002-05-24 15:53:15.000000000 +0200
++++ ./tmake/lib/linux-g++/tmake.conf	2002-05-24 16:46:10.000000000 +0200
+@@ -45,7 +45,7 @@
+ TMAKE_LIBS		=
+ TMAKE_LIBS_X11		= -lXext -lX11 -lm
+ TMAKE_LIBS_X11SM	= -lICE -lSM
+-TMAKE_LIBS_QT		= -lqt
++TMAKE_LIBS_QT		= -lqt-mt
+ TMAKE_LIBS_QT_OPENGL	= -lqgl
+ TMAKE_LIBS_OPENGL	= -lMesaGL -lMesaGLU -lXmu
+ 

@@ -1,0 +1,41 @@
+--- linux-2.4.20/drivers/usb/Makefile.du08-2.orig	2003-04-09 00:40:16.000000000 -0400
++++ linux-2.4.20/drivers/usb/Makefile	2003-04-09 00:58:46.000000000 -0400
+@@ -10,7 +10,7 @@
+ 
+ # Objects that export symbols.
+ 
+-export-objs		:= hcd.o usb.o ov511.o pwc-uncompress.o
++export-objs		:= hcd.o usb.o pwc-uncompress.o
+ 
+ # Multipart objects.
+ 
+@@ -99,7 +99,6 @@
+ obj-$(CONFIG_USB_USS720)	+= uss720.o
+ obj-$(CONFIG_USB_DABUSB)	+= dabusb.o
+ obj-$(CONFIG_USB_VICAM)		+= vicam.o usbvideo.o
+-obj-$(CONFIG_USB_OV511)		+= ov511.o
+ obj-$(CONFIG_USB_SE401)		+= se401.o
+ obj-$(CONFIG_USB_STV680)	+= stv680.o
+ obj-$(CONFIG_USB_PEGASUS)	+= pegasus.o
+@@ -120,7 +119,8 @@
+ obj-$(CONFIG_USB_LCD)		+= usblcd.o
+ 
+ # Object files in subdirectories
+-mod-subdirs	:= serial host
++mod-subdirs	:= serial host ov511
++subdir-$(CONFIG_USB_OV511)	+= ov511
+
+ subdir-$(CONFIG_USB_SERIAL)	+= serial
+ subdir-$(CONFIG_USB_STORAGE)	+= storage
+@@ -133,6 +132,11 @@
+ 	obj-y += storage/storage.o
+ endif
+ 
++ifeq ($(CONFIG_USB_OV511),y)
++	obj-y += ov511/ov511-driver.o
++endif
++
++
+ include $(TOPDIR)/Rules.make
+ 
+ # Link rules for multi-part drivers.

@@ -1,0 +1,11 @@
+--- scripts/mysqlaccess.sh	2003-05-14 22:24:35.000000000 +0200
++++ scripts/mysqlaccess.sh.oden	2003-06-04 01:33:54.000000000 +0200
+@@ -286,7 +286,7 @@
+     * --old_server: mysqlaccess will now use a full where clause when
+                     retrieving information from the MySQL-server.  If
+                     you are connecting to an old server (before v3.21)
+-                    use the option --old_server.
++                    the the option --old_server should be used.
+   2.03         : (1998-02-27)
+   - bugfix:
+     * in Host::MatchTemplate: incorrect match if host-field was left empty.

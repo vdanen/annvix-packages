@@ -1,0 +1,125 @@
+diff -ru linux-2.4.21-orig/drivers/media/video/Makefile linux-2.4.21-i2c/drivers/media/video/Makefile
+--- linux-2.4.21-orig/drivers/media/video/Makefile	2003-06-16 09:30:27.000000000 +0200
++++ linux-2.4.21-i2c/drivers/media/video/Makefile	2003-07-10 09:27:59.000000000 +0200
+@@ -40,7 +40,7 @@
+ 
+ obj-$(CONFIG_VIDEO_ZR36120) += zoran.o
+ obj-$(CONFIG_I2C_PARPORT) += i2c-parport.o i2c-old.o
+-obj-$(CONFIG_VIDEO_SAA5249) += saa5249.o i2c-old.o
++obj-$(CONFIG_VIDEO_SAA5249) += saa5249.o
+ obj-$(CONFIG_VIDEO_CQCAM) += c-qcam.o
+ obj-$(CONFIG_VIDEO_BWQCAM) += bw-qcam.o
+ obj-$(CONFIG_VIDEO_W9966) += w9966.o
+@@ -48,11 +48,10 @@
+ obj-$(CONFIG_VIDEO_ZORAN_BUZ) += saa7111.o saa7185.o
+ obj-$(CONFIG_VIDEO_ZORAN_DC10) += saa7110.o adv7175.o
+ obj-$(CONFIG_VIDEO_ZORAN_LML33) += bt819.o bt856.o
+-obj-$(CONFIG_VIDEO_LML33) += bt856.o bt819.o
+ obj-$(CONFIG_VIDEO_PMS) += pms.o
+ obj-$(CONFIG_VIDEO_PLANB) += planb.o
+ obj-$(CONFIG_VIDEO_VINO) += vino.o
+-obj-$(CONFIG_VIDEO_STRADIS) += stradis.o
++obj-$(CONFIG_VIDEO_STRADIS) += stradis.o i2c-old.o
+ obj-$(CONFIG_VIDEO_CPIA) += cpia.o
+ obj-$(CONFIG_VIDEO_CPIA_PP) += cpia_pp.o
+ obj-$(CONFIG_VIDEO_CPIA_USB) += cpia_usb.o
+@@ -80,8 +79,8 @@
+ 
+ fastdep:
+ 
+-zoran.o: zr36120.o zr36120_i2c.o zr36120_mem.o
+-	$(LD) $(LD_RFLAG) -r -o $@ zr36120.o zr36120_i2c.o zr36120_mem.o
++zoran.o: $(zoran-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(zoran-objs)
+ 
+ bttv.o: $(bttv-objs)
+ 	$(LD) $(LD_RFLAG) -r -o $@ $(bttv-objs)
+diff -ru linux-2.4.21-orig/drivers/media/video/bt832.c linux-2.4.21-i2c/drivers/media/video/bt832.c
+--- linux-2.4.21-orig/drivers/media/video/bt832.c	2003-06-16 09:30:27.000000000 +0200
++++ linux-2.4.21-i2c/drivers/media/video/bt832.c	2003-07-10 10:03:25.000000000 +0200
+@@ -257,6 +257,7 @@
+ /* ----------------------------------------------------------------------- */
+ 
+ static struct i2c_driver driver = {
++        .owner          = THIS_MODULE,
+         .name           = "i2c bt832 driver",
+         .id             = -1, /* FIXME */
+         .flags          = I2C_DF_NOTIFY,
+diff -ru linux-2.4.21-orig/drivers/media/video/i2c-old.c linux-2.4.21-i2c/drivers/media/video/i2c-old.c
+--- linux-2.4.21-orig/drivers/media/video/i2c-old.c	2001-09-30 21:26:06.000000000 +0200
++++ linux-2.4.21-i2c/drivers/media/video/i2c-old.c	2003-07-10 09:30:43.000000000 +0200
+@@ -36,28 +36,11 @@
+ static struct i2c_driver *drivers[I2C_DRIVER_MAX];
+ static int bus_count = 0, driver_count = 0;
+ 
+-#ifdef CONFIG_VIDEO_BUZ
+-extern int saa7111_init(void);
+-extern int saa7185_init(void);
+-#endif
+-#ifdef CONFIG_VIDEO_LML33
+-extern int bt819_init(void);
+-extern int bt856_init(void);
+-#endif
+-
+ int i2c_init(void)
+ {
+ 	printk(KERN_INFO "i2c: initialized%s\n",
+ 		scan ? " (i2c bus scan enabled)" : "");
+ 	/* anything to do here ? */
+-#ifdef CONFIG_VIDEO_BUZ
+-	saa7111_init();
+-	saa7185_init();
+-#endif
+-#ifdef CONFIG_VIDEO_LML33
+-	bt819_init();
+-	bt856_init();
+-#endif
+ 	return 0;
+ }
+ 
+diff -ru linux-2.4.21-orig/drivers/media/video/msp3400.c linux-2.4.21-i2c/drivers/media/video/msp3400.c
+--- linux-2.4.21-orig/drivers/media/video/msp3400.c	2003-06-16 09:30:27.000000000 +0200
++++ linux-2.4.21-i2c/drivers/media/video/msp3400.c	2003-07-10 10:04:08.000000000 +0200
+@@ -1255,6 +1255,7 @@
+ static int msp_command(struct i2c_client *client, unsigned int cmd, void *arg);
+ 
+ static struct i2c_driver driver = {
++        .owner          = THIS_MODULE,
+         .name           = "i2c msp3400 driver",
+         .id             = I2C_DRIVERID_MSP3400,
+         .flags          = I2C_DF_NOTIFY,
+diff -ru linux-2.4.21-orig/drivers/media/video/saa7146.h linux-2.4.21-i2c/drivers/media/video/saa7146.h
+--- linux-2.4.21-orig/drivers/media/video/saa7146.h	2000-12-11 22:15:51.000000000 +0100
++++ linux-2.4.21-i2c/drivers/media/video/saa7146.h	2003-07-09 19:05:33.000000000 +0200
+@@ -25,9 +25,6 @@
+ #include <linux/types.h>
+ #include <linux/wait.h>
+ 
+-#include <linux/i2c.h>
+-#include <linux/videodev.h>
+-
+ #ifndef O_NONCAP  
+ #define O_NONCAP	O_TRUNC
+ #endif
+diff -ru linux-2.4.21-orig/drivers/media/video/tda7432.c linux-2.4.21-i2c/drivers/media/video/tda7432.c
+--- linux-2.4.21-orig/drivers/media/video/tda7432.c	2003-06-16 09:30:27.000000000 +0200
++++ linux-2.4.21-i2c/drivers/media/video/tda7432.c	2003-07-10 10:11:46.000000000 +0200
+@@ -515,6 +515,7 @@
+ }
+ 
+ static struct i2c_driver driver = {
++        .owner           = THIS_MODULE,
+         .name            = "i2c tda7432 driver",
+ 	.id              = I2C_DRIVERID_TDA7432,
+         .flags           = I2C_DF_NOTIFY,
+diff -ru linux-2.4.21-orig/drivers/media/video/tda9875.c linux-2.4.21-i2c/drivers/media/video/tda9875.c
+--- linux-2.4.21-orig/drivers/media/video/tda9875.c	2003-06-16 09:30:27.000000000 +0200
++++ linux-2.4.21-i2c/drivers/media/video/tda9875.c	2003-07-10 10:12:16.000000000 +0200
+@@ -387,6 +387,7 @@
+ 
+ 
+ static struct i2c_driver driver = {
++        .owner          = THIS_MODULE,
+         .name           = "i2c tda9875 driver",
+         .id             = I2C_DRIVERID_TDA9875,
+         .flags          = I2C_DF_NOTIFY,

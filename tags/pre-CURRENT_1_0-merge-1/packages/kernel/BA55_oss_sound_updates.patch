@@ -1,0 +1,4300 @@
+diff -Nru a/drivers/sound/Config.in b/drivers/sound/Config.in
+--- a/drivers/sound/Config.in	Wed Sep  3 23:35:36 2003
++++ b/drivers/sound/Config.in	Wed Sep  3 23:35:36 2003
+@@ -7,6 +7,12 @@
+ # Prompt user for primary drivers.
+ 
+ dep_tristate '  ALi5455 audio support' CONFIG_SOUND_ALI5455 $CONFIG_SOUND $CONFIG_PCI
++if [ "$CONFIG_SOUND_ALI5455" = "y" -o "$CONFIG_SOUND_ALI5455" = "m" ]; then
++    bool  '   Enable Codec SPDIF OUT ( Pcm Out Share )' CONFIG_SOUND_ALI5455_CODECSPDIFOUT_PCMOUTSHARE
++    bool  '   Enable Codec SPDIF OUT ( Codec Independent DMA )' CONFIG_SOUND_ALI5455_CODECSPDIFOUT_CODECINDEPENDENTDMA
++    bool  '   Enable Controller SPDIF OUT ( Pcm Out Share )' CONFIG_SOUND_ALI5455_CONTROLLERSPDIFOUT_PCMOUTSHARE
++    bool  '   Enable Controller SPDIF OUT ( Controller Independent DMA )' CONFIG_SOUND_ALI5455_CONTROLLERSPDIFOUT_CONTROLLERINDEPENDENTDMA
++fi
+ dep_tristate '  BT878 audio dma' CONFIG_SOUND_BT878 $CONFIG_SOUND $CONFIG_PCI
+ dep_tristate '  C-Media PCI (CMI8338/8738)' CONFIG_SOUND_CMPCI $CONFIG_SOUND $CONFIG_PCI
+ if [ "$CONFIG_SOUND_CMPCI" = "y" -o "$CONFIG_SOUND_CMPCI" = "m" ]; then
+@@ -225,6 +231,10 @@
+ fi
+ 
+ dep_tristate '  TV card (bt848) mixer support' CONFIG_SOUND_TVMIXER $CONFIG_SOUND $CONFIG_I2C
++
++dep_tristate '  AD1980 front/back switch plugin' CONFIG_SOUND_AD1980 $CONFIG_SOUND 
++
++dep_tristate '  Wolfson Touchscreen/BMON plugin' CONFIG_SOUND_WM97XX $CONFIG_SOUND 
+ 
+ # A cross directory dependence. The sound modules will need gameport.o compiled in,
+ # but it resides in the drivers/char/joystick directory. This define_tristate takes
+diff -Nru a/drivers/sound/Makefile b/drivers/sound/Makefile
+--- a/drivers/sound/Makefile	Wed Sep  3 23:35:36 2003
++++ b/drivers/sound/Makefile	Wed Sep  3 23:35:36 2003
+@@ -81,6 +81,8 @@
+ obj-$(CONFIG_SOUND_RME96XX)     += rme96xx.o
+ obj-$(CONFIG_SOUND_BT878)	+= btaudio.o
+ obj-$(CONFIG_SOUND_IT8172)	+= ite8172.o ac97_codec.o
++obj-$(CONFIG_SOUND_AD1980)	+= ac97_plugin_ad1980.o
++obj-$(CONFIG_SOUND_WM97XX)	+= ac97_plugin_wm97xx.o
+ 
+ ifeq ($(CONFIG_MIDI_EMU10K1),y)
+   obj-$(CONFIG_SOUND_EMU10K1)	+= sound.o
+diff -Nru a/drivers/sound/ad1889.c b/drivers/sound/ad1889.c
+--- a/drivers/sound/ad1889.c	Wed Sep  3 23:35:36 2003
++++ b/drivers/sound/ad1889.c	Wed Sep  3 23:35:36 2003
+@@ -236,16 +236,24 @@
+ 
+ 	for (i = 0; i < AD_MAX_STATES; i++) {
+ 		dmabuf = &dev->state[i].dmabuf;
+-		if ((dmabuf->rawbuf = kmalloc(DMA_SIZE, GFP_KERNEL|GFP_DMA)) == NULL)
+-			return NULL;
++		dmabuf->rawbuf = kmalloc(DMA_SIZE, GFP_KERNEL|GFP_DMA);
++		if (!dmabuf->rawbuf)
++			goto err_free_dmabuf;
+ 		dmabuf->rawbuf_size = DMA_SIZE;
+ 		dmabuf->dma_handle = 0;
+ 		dmabuf->rd_ptr = dmabuf->wr_ptr = dmabuf->dma_len = 0UL;
+ 		dmabuf->ready = 0;
+ 		dmabuf->rate = 44100;
+ 	}
+-
++out:
+ 	return dev;
++
++err_free_dmabuf:
++	while (--i >= 0)
++		kfree(dev->state[i].dmabuf.rawbuf);
++	kfree(dev);
++	dev = NULL;
++	goto out;
+ }
+ 
+ static void ad1889_free_dev(ad1889_dev_t *dev)
+diff -Nru a/drivers/sound/ali5455.c b/drivers/sound/ali5455.c
+--- a/drivers/sound/ali5455.c	Wed Sep  3 23:35:36 2003
++++ b/drivers/sound/ali5455.c	Wed Sep  3 23:35:36 2003
+@@ -1,5 +1,5 @@
+ /*
+- *	ALI  ali5455 and friends ICH driver for Linux
++ *	Driver for ALI 5455  Audio PCI soundcard
+  *	LEI HU <Lei_Hu@ali.com.tw>
+  *
+  *  Built from:
+@@ -23,10 +23,7 @@
+  *	along with this program; if not, write to the Free Software
+  *	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+  *
+- *
+- *	ALi 5455 theory of operation
+- *
+- *	The chipset provides three DMA channels that talk to an AC97
++ *	The chipset provides five DMA channels that talk to an AC97
+  *	CODEC (AC97 is a digital/analog mixer standard). At its simplest
+  *	you get 48Khz audio with basic volume and mixer controls. At the
+  *	best you get rate adaption in the codec. We set the card up so
+@@ -42,6 +39,13 @@
+  *	esd working you need to use esd -r 48000 as it won't probe 48KHz
+  *	by default. mpg123 can't handle 48Khz only audio so use xmms.
+  *
++ *
++ *	Not everyone uses 48KHz. We know of no way to detect this reliably
++ *	and certainly not to get the right data. If your ali audio sounds
++ *	stupid you may need to investigate other speeds. According to Analog
++ *	they tend to use a 14.318MHz clock which gives you a base rate of
++ *	41194Hz.
++ *
+  *	If you need to force a specific rate set the clocking= option
+  *
+  */
+@@ -78,31 +82,45 @@
+ 
+ static int strict_clocking = 0;
+ static unsigned int clocking = 0;
+-static unsigned int codec_pcmout_share_spdif_locked = 0;
+-static unsigned int codec_independent_spdif_locked = 0;
++#ifdef CONFIG_SOUND_ALI5455_CODECSPDIFOUT_PCMOUTSHARE
++static unsigned int codec_pcmout_share_spdif_locked = 48000;
++#else
++ static unsigned int codec_pcmout_share_spdif_locked = 0;
++#endif
++#ifdef CONFIG_SOUND_ALI5455_CODECSPDIFOUT_CODECINDEPENDENTDMA
++static unsigned int codec_independent_spdif_locked = 48000;
++#else
++static unsigned int codec_independent_spdif_locked = 0;   
++#endif
++#ifdef CONFIG_SOUND_ALI5455_CONTROLLERSPDIFOUT_PCMOUTSHARE
++static unsigned int controller_pcmout_share_spdif_locked = 48000;
++#else
+ static unsigned int controller_pcmout_share_spdif_locked = 0;
++#endif
++#ifdef CONFIG_SOUND_ALI5455_CONTROLLERSPDIFOUT_CONTROLLERINDEPENDENTDMA
++static unsigned int controller_independent_spdif_locked = 48000;
++#else
+ static unsigned int controller_independent_spdif_locked = 0;
+-static unsigned int globel = 0;
+-
+-#define ADC_RUNNING	1
+-#define DAC_RUNNING	2
+-#define CODEC_SPDIFOUT_RUNNING 8
+-#define CONTROLLER_SPDIFOUT_RUNNING 4
+-
+-#define SPDIF_ENABLE_OUTPUT	4	/* bits 0,1 are PCM */
+-
+-#define ALI5455_FMT_16BIT	1
+-#define ALI5455_FMT_STEREO	2
+-#define ALI5455_FMT_MASK	3
++#endif
+ 
+-#define SPDIF_ON	0x0004
+-#define SURR_ON		0x0010
+-#define CENTER_LFE_ON	0x0020
+-#define VOL_MUTED	0x8000
++#define ADC_RUNNING			1
++#define DAC_RUNNING			2
++#define CONTROLLER_SPDIFOUT_RUNNING 	4
++#define CODEC_SPDIFOUT_RUNNING		8
++
++#define ALI5455_FMT_16BIT		1
++#define ALI5455_FMT_STEREO		2
++#define ALI5455_FMT_MASK		3
++
++#define SPDIF_ON			0x0004
++#define SURR_ON				0x0010
++#define CENTER_LFE_ON			0x0020
++#define VOL_MUTED			0x8000
+ 
++#define SPDIF_ENABLE_OUTPUT 		0x00000004
+ 
+-#define ALI_SPDIF_OUT_CH_STATUS 0xbf
+-/* the 810's array of pointers to data buffers */
++#define ALI_SPDIF_OUT_CH_STATUS		0xbf
++/* the ali5455 's array of pointers to data buffers */
+ 
+ struct sg_item {
+ #define BUSADDR_MASK	0xFFFFFFFE
+@@ -113,20 +131,21 @@
+ 	u32 control;
+ };
+ 
+-/* an instance of the ali channel */
++/* An instance of the ali 5455 channel */
+ #define SG_LEN 32
+ struct ali_channel {
+ 	/* these sg guys should probably be allocated
+ 	   seperately as nocache. Must be 8 byte aligned */
+ 	struct sg_item sg[SG_LEN];	/* 32*8 */
+-	u32 offset;		/* 4 */
+-	u32 port;		/* 4 */
++	u32 offset;			/* 4 */
++	u32 port;			/* 4 */
+ 	u32 used;
+ 	u32 num;
+ };
+ 
+ /*
+- * we have 3 seperate dma engines.  pcm in, pcm out, and mic.
++ * we have 5 seperate dma engines.  pcm in, pcm out, mc in, 
++ * codec independant DMA, and controller independant DMA
+  * each dma engine has controlling registers.  These goofy
+  * names are from the datasheet, but make it easy to write
+  * code while leafing through it.
+@@ -142,11 +161,11 @@
+ 	PRE##_CR =	0x##DIG##b		/* Control Register */				\
+ }
+ 
+-ENUM_ENGINE(OFF, 0);		/* Offsets */
+-ENUM_ENGINE(PI, 4);		/* PCM In */
+-ENUM_ENGINE(PO, 5);		/* PCM Out */
+-ENUM_ENGINE(MC, 6);		/* Mic In */
+-ENUM_ENGINE(CODECSPDIFOUT, 7);	/* CODEC SPDIF OUT  */
++ENUM_ENGINE(OFF, 0);			/* Offsets */
++ENUM_ENGINE(PI, 4);			/* PCM In */
++ENUM_ENGINE(PO, 5);			/* PCM Out */
++ENUM_ENGINE(MC, 6);			/* Mic In */
++ENUM_ENGINE(CODECSPDIFOUT, 7);		/* CODEC SPDIF OUT  */
+ ENUM_ENGINE(CONTROLLERSPDIFIN, A);	/* CONTROLLER SPDIF In */
+ ENUM_ENGINE(CONTROLLERSPDIFOUT, B);	/* CONTROLLER SPDIF OUT */
+ 
+@@ -171,7 +190,7 @@
+ 	ALI_SPDIFICS = 0xfc	/* spdif interface control/status  */
+ };
+ 
+-// x-status register(x:pcm in ,pcm out, mic in,)
++/* x-status register(x:pcm in ,pcm out, mic in,codec independent DMA.controller independent DMA) */
+ /* interrupts for a dma engine */
+ #define DMA_INT_FIFO		(1<<4)	/* fifo under/over flow */
+ #define DMA_INT_COMPLETE	(1<<3)	/* buffer read/write complete and ioc set */
+@@ -180,8 +199,7 @@
+ #define DMA_INT_DCH		(1)	/* DMA Controller Halted (happens on LVI interrupts) */	//not eqult intel
+ #define DMA_INT_MASK (DMA_INT_FIFO|DMA_INT_COMPLETE|DMA_INT_LVI)
+ 
+-/* interrupts for the whole chip */// by interrupt status register finish
+-
++/* interrupts for the whole chip */ 
+ #define INT_SPDIFOUT   (1<<23)	/* controller spdif out INTERRUPT */
+ #define INT_SPDIFIN   (1<<22)
+ #define INT_CODECSPDIFOUT   (1<<19)
+@@ -193,13 +211,14 @@
+ #define INT_GPIO    (1<<1)
+ #define INT_MASK   (INT_SPDIFOUT|INT_CODECSPDIFOUT|INT_MICIN|INT_PCMOUT|INT_PCMIN)
+ 
+-#define DRIVER_VERSION "0.02ac"
++#define DRIVER_VERSION "0.03-ac"
+ 
+ /* magic numbers to protect our data structures */
+ #define ALI5455_CARD_MAGIC		0x5072696E	/* "Prin" */
+ #define ALI5455_STATE_MAGIC		0x63657373	/* "cess" */
+ #define ALI5455_DMA_MASK		0xffffffff	/* DMA buffer mask for pci_alloc_consist */
+-#define NR_HW_CH			5	//I think 5 channel
++
++#define NR_HW_CH			5		/* I think 5 channel */
+ 
+ /* maxinum number of AC97 codecs connected, AC97 2.0 defined 4 */
+ #define NR_AC97		2
+@@ -216,7 +235,7 @@
+ 	"ALI 5455"
+ };
+ 
+-static struct pci_device_id ali_pci_tbl[] __initdata = {
++static struct pci_device_id ali_pci_tbl[] __devinitdata = {
+ 	{PCI_VENDOR_ID_ALI, PCI_DEVICE_ID_ALI_5455,
+ 	 PCI_ANY_ID, PCI_ANY_ID, 0, 0, ALI5455},
+ 	{0,}
+@@ -267,12 +286,12 @@
+ 		unsigned fragshift;
+ 
+ 		/* our buffer acts like a circular ring */
+-		unsigned hwptr;	/* where dma last started, updated by update_ptr */
+-		unsigned swptr;	/* where driver last clear/filled, updated by read/write */
+-		int count;	/* bytes to be consumed or been generated by dma machine */
++		unsigned hwptr;		/* where dma last started, updated by update_ptr */
++		unsigned swptr;		/* where driver last clear/filled, updated by read/write */
++		int count;		/* bytes to be consumed or been generated by dma machine */
+ 		unsigned total_bytes;	/* total bytes dmaed by hardware */
+ 
+-		unsigned error;	/* number of over/underruns */
++		unsigned error;		/* number of over/underruns */
+ 		wait_queue_head_t wait;	/* put process on wait queue when no more space in buffer */
+ 
+ 		/* redundant, but makes calculations easier */
+@@ -399,7 +418,11 @@
+ }
+ 
+ 
+-//add support  codec spdif out 
++/*
++ *	we use ALC650 which only support  48k sample rate, so we test firstly
++ *	spdifout 's sample rate validity 
++ */
++ 
+ static int ali_valid_spdif_rate(struct ac97_codec *codec, int rate)
+ {
+ 	unsigned long id = 0L;
+@@ -428,16 +451,13 @@
+ 
+ /* ali_set_spdif_output
+  * 
+- *  Configure the S/PDIF output transmitter. When we turn on
+- *  S/PDIF, we turn off the analog output. This may not be
+- *  the right thing to do.
++ *  Configure the S/PDIF output transmitter.
+  *
+  *  Assumptions:
+  *     The DSP sample rate must already be set to a supported
+  *     S/PDIF rate (32kHz, 44.1kHz, or 48kHz) or we abort.
+  */
+-static void ali_set_spdif_output(struct ali_state *state, int slots,
+-				 int rate)
++static void ali_set_spdif_output(struct ali_state *state, int slots, int rate)
+ {
+ 	int vol;
+ 	int aud_reg;
+@@ -453,8 +473,7 @@
+ 			/* If the volume wasn't muted before we turned on S/PDIF, unmute it */
+ 			if (!(state->card->ac97_status & VOL_MUTED)) {
+ 				aud_reg = ali_ac97_get(codec, AC97_MASTER_VOL_STEREO);
+-				ali_ac97_set(codec, AC97_MASTER_VOL_STEREO,
+-					     (aud_reg & ~VOL_MUTED));
++				ali_ac97_set(codec, AC97_MASTER_VOL_STEREO, (aud_reg & ~VOL_MUTED));
+ 			}
+ 			state->card->ac97_status &= ~(VOL_MUTED | SPDIF_ON);
+ 			return;
+@@ -486,7 +505,7 @@
+ 		ali_ac97_set(codec, AC97_SPDIF_CONTROL, aud_reg);
+ 
+ 		aud_reg = ali_ac97_get(codec, AC97_EXTENDED_STATUS);
+-		aud_reg = (aud_reg & AC97_EA_SLOT_MASK) | slots | AC97_EA_SPDIF;
++		aud_reg = (aud_reg & AC97_EA_SLOT_MASK) | slots | AC97_EA_SPDIF; /* ALC650 don't support VRA */
+ 		ali_ac97_set(codec, AC97_EXTENDED_STATUS, aud_reg);
+ 
+ 		aud_reg = ali_ac97_get(codec, AC97_POWER_CONTROL);
+@@ -508,8 +527,6 @@
+ 			aud_reg = ali_ac97_get(codec, 0x6a);
+ 			ali_ac97_set(codec, 0x6a, (aud_reg & 0xefff));
+ 		}
+-		/* Mute the analog output */
+-		/* Should this only mute the PCM volume??? */
+ 	}
+ }
+ 
+@@ -517,13 +534,6 @@
+  *
+  *  Configure the codec's multi-channel DACs
+  *
+- *  The logic is backwards. Setting the bit to 1 turns off the DAC. 
+- *
+- *  What about the ICH? We currently configure it using the
+- *  SNDCTL_DSP_CHANNELS ioctl.  If we're turnning on the DAC, 
+- *  does that imply that we want the ICH set to support
+- *  these channels?
+- *  
+  *  TODO:
+  *    vailidate that the codec really supports these DACs
+  *    before turning them on. 
+@@ -556,8 +566,7 @@
+ }
+ 
+ /* set playback sample rate */
+-static unsigned int ali_set_dac_rate(struct ali_state *state,
+-				     unsigned int rate)
++static unsigned int ali_set_dac_rate(struct ali_state *state, unsigned int rate)
+ {
+ 	struct dmabuf *dmabuf = &state->dmabuf;
+ 	u32 new_rate;
+@@ -594,8 +603,7 @@
+ }
+ 
+ /* set recording sample rate */
+-static unsigned int ali_set_adc_rate(struct ali_state *state,
+-				     unsigned int rate)
++static unsigned int ali_set_adc_rate(struct ali_state *state, unsigned int rate)
+ {
+ 	struct dmabuf *dmabuf = &state->dmabuf;
+ 	u32 new_rate;
+@@ -632,11 +640,10 @@
+ }
+ 
+ /* set codec independent spdifout sample rate */
+-static unsigned int ali_set_codecspdifout_rate(struct ali_state *state,
+-					       unsigned int rate)
++static unsigned int ali_set_codecspdifout_rate(struct ali_state *state, unsigned int rate)
+ {
+ 	struct dmabuf *dmabuf = &state->dmabuf;
+-
++	
+ 	if (!(state->card->ac97_features & 0x0001)) {
+ 		dmabuf->rate = clocking;
+ 		return clocking;
+@@ -652,8 +659,7 @@
+ }
+ 
+ /* set  controller independent spdif out function sample rate */
+-static void ali_set_spdifout_rate(struct ali_state *state,
+-				  unsigned int rate)
++static void ali_set_spdifout_rate(struct ali_state *state, unsigned int rate)
+ {
+ 	unsigned char ch_st_sel;
+ 	unsigned short status_rate;
+@@ -729,7 +735,9 @@
+ 	data = ((civ + 1) * dmabuf->fragsize - (2 * offset)) % dmabuf->dmasize;
+ 	if (inw(port_picb) == 0)
+ 		data -= 2048;
+-
++	/* It is  hardware  bug  when read port 's PICB ==0 */
++	if ( inw(port_picb) == 0 )
++		data -= 2048;  
+ 	return data;
+ }
+ 
+@@ -745,6 +753,8 @@
+ 	udelay(1);
+ 
+ 	outb(0, card->iobase + PI_CR);
++ 
++	// wait for the card to acknowledge shutdown
+ 	while (inb(card->iobase + PI_CR) != 0);
+ 
+ 	// now clear any latent interrupt bits (like the halt bit)
+@@ -771,10 +781,8 @@
+ 		outb((1 << 4) | (1 << 2), state->card->iobase + PI_CR);
+ 		if (state->card->channel[0].used == 1)
+ 			outl(1, state->card->iobase + ALI_DMACR);	// DMA CONTROL REGISTRER
+-		udelay(100);
+ 		if (state->card->channel[2].used == 1)
+ 			outl((1 << 2), state->card->iobase + ALI_DMACR);	//DMA CONTROL REGISTER
+-		udelay(100);
+ 	}
+ }
+ 
+@@ -965,7 +973,7 @@
+ static int prog_dmabuf(struct ali_state *state, unsigned rec)
+ {
+ 	struct dmabuf *dmabuf = &state->dmabuf;
+-	struct ali_channel *c = NULL;
++	struct ali_channel *c = NULL ;
+ 	struct sg_item *sg;
+ 	unsigned long flags;
+ 	int ret;
+@@ -1248,9 +1256,7 @@
+ 	}
+ }
+ 
+-static inline int ali_get_free_write_space(struct
+-					   ali_state
+-					   *state)
++static inline int ali_get_free_write_space(struct ali_state *state)
+ {
+ 	struct dmabuf *dmabuf = &state->dmabuf;
+ 	int free;
+@@ -1267,9 +1273,7 @@
+ 	return (free);
+ }
+ 
+-static inline int ali_get_available_read_data(struct
+-					      ali_state
+-					      *state)
++static inline int ali_get_available_read_data(struct ali_state *state)
+ {
+ 	struct dmabuf *dmabuf = &state->dmabuf;
+ 	int avail;
+@@ -1288,12 +1292,12 @@
+ 
+ static int drain_dac(struct ali_state *state, int signals_allowed)
+ {
+-
+ 	DECLARE_WAITQUEUE(wait, current);
+ 	struct dmabuf *dmabuf = &state->dmabuf;
+ 	unsigned long flags;
+ 	unsigned long tmo;
+ 	int count;
++
+ 	if (!dmabuf->ready)
+ 		return 0;
+ 	if (dmabuf->mapped) {
+@@ -1302,11 +1306,11 @@
+ 	}
+ 	add_wait_queue(&dmabuf->wait, &wait);
+ 	for (;;) {
+-
+ 		spin_lock_irqsave(&state->card->lock, flags);
+ 		ali_update_ptr(state);
+ 		count = dmabuf->count;
+ 		spin_unlock_irqrestore(&state->card->lock, flags);
++
+ 		if (count <= 0)
+ 			break;
+ 		/* 
+@@ -1355,7 +1359,6 @@
+ 
+ static int drain_spdifout(struct ali_state *state, int signals_allowed)
+ {
+-
+ 	DECLARE_WAITQUEUE(wait, current);
+ 	struct dmabuf *dmabuf = &state->dmabuf;
+ 	unsigned long flags;
+@@ -1548,7 +1551,6 @@
+ {
+ 	struct ali_card *card = (struct ali_card *) dev_id;
+ 	u32 status;
+-	u16 status2;
+ 
+ 	spin_lock(&card->lock);
+ 	status = inl(card->iobase + ALI_INTERRUPTSR);
+@@ -1557,19 +1559,8 @@
+ 		return;		/* not for us */
+ 	}
+ 
+-	if (codec_independent_spdif_locked > 0) {
+-		if (globel == 0) {
+-			globel += 1;
+-			status2 = inw(card->iobase + 0x76);
+-			outw(status2 | 0x000c, card->iobase + 0x76);
+-		} else {
+-			if (status & (INT_PCMOUT | INT_PCMIN | INT_MICIN | INT_SPDIFOUT | INT_CODECSPDIFOUT))
+-				ali_channel_interrupt(card);
+-		}
+-	} else {
+-		if (status & (INT_PCMOUT | INT_PCMIN | INT_MICIN | INT_SPDIFOUT | INT_CODECSPDIFOUT))
+-			ali_channel_interrupt(card);
+-	}
++	if (status & (INT_PCMOUT | INT_PCMIN | INT_MICIN | INT_SPDIFOUT | INT_CODECSPDIFOUT))
++		ali_channel_interrupt(card);
+ 
+ 	/* clear 'em */
+ 	outl(status & INT_MASK, card->iobase + ALI_INTERRUPTSR);
+@@ -1580,8 +1571,7 @@
+    waiting to be copied to the user's buffer.  It is filled by the dma
+    machine and drained by this loop. */
+ 
+-static ssize_t ali_read(struct file *file, char *buffer,
+-			size_t count, loff_t * ppos)
++static ssize_t ali_read(struct file *file, char *buffer, size_t count, loff_t * ppos)
+ {
+ 	struct ali_state *state = (struct ali_state *) file->private_data;
+ 	struct ali_card *card = state ? state->card : 0;
+@@ -1721,8 +1711,7 @@
+ 
+ /* in this loop, dmabuf.count signifies the amount of data that is waiting to be dma to
+    the soundcard.  it is drained by the dma machine and filled by this loop. */
+-static ssize_t ali_write(struct file *file,
+-			 const char *buffer, size_t count, loff_t * ppos)
++static ssize_t ali_write(struct file *file, const char *buffer, size_t count, loff_t * ppos)
+ {
+ 	struct ali_state *state = (struct ali_state *) file->private_data;
+ 	struct ali_card *card = state ? state->card : 0;
+@@ -1908,8 +1897,7 @@
+ }
+ 
+ /* No kernel lock - we have our own spinlock */
+-static unsigned int ali_poll(struct file *file, struct poll_table_struct
+-			     *wait)
++static unsigned int ali_poll(struct file *file, struct poll_table_struct *wait)
+ {
+ 	struct ali_state *state = (struct ali_state *) file->private_data;
+ 	struct dmabuf *dmabuf = &state->dmabuf;
+@@ -2014,8 +2002,7 @@
+ 		}
+ 		if (c != NULL) {
+ 			outb(2, state->card->iobase + c->port + OFF_CR);	/* reset DMA machine */
+-			outl(virt_to_bus(&c->sg[0]),
+-			     state->card->iobase + c->port + OFF_BDBAR);
++			outl(virt_to_bus(&c->sg[0]), state->card->iobase + c->port + OFF_BDBAR);
+ 			outb(0, state->card->iobase + c->port + OFF_CIV);
+ 			outb(0, state->card->iobase + c->port + OFF_LVI);
+ 		}
+@@ -2990,7 +2977,6 @@
+ {
+ 	struct ali_card *card = dev->private_data;
+ 	int count1 = 100;
+-	unsigned long flags;
+ 	char val;
+ 	unsigned short int count;
+ 
+@@ -3660,12 +3646,17 @@
+ MODULE_PARM(codec_independent_spdif_locked, "i");
+ MODULE_PARM(controller_pcmout_share_spdif_locked, "i");
+ MODULE_PARM(controller_independent_spdif_locked, "i");
++
+ #define ALI5455_MODULE_NAME "ali5455"
++
+ static struct pci_driver ali_pci_driver = {
+-	name:ALI5455_MODULE_NAME, id_table:ali_pci_tbl, probe:ali_probe,
+-	    remove:__devexit_p(ali_remove),
++	name:			ALI5455_MODULE_NAME, 
++	id_table:		ali_pci_tbl, 
++	probe:			ali_probe,
++	remove:			__devexit_p(ali_remove),
+ #ifdef CONFIG_PM
+-	suspend:ali_pm_suspend, resume:ali_pm_resume,
++	suspend:		ali_pm_suspend, 
++	resume:			ali_pm_resume,
+ #endif				/* CONFIG_PM */
+ };
+ 
+diff -Nru a/drivers/sound/cmpci.c b/drivers/sound/cmpci.c
+--- a/drivers/sound/cmpci.c	Wed Sep  3 23:35:36 2003
++++ b/drivers/sound/cmpci.c	Wed Sep  3 23:35:36 2003
+@@ -98,15 +98,16 @@
+ #include <linux/slab.h>
+ #include <linux/soundcard.h>
+ #include <linux/pci.h>
+-#include <linux/wrapper.h>
+ #include <asm/io.h>
+ #include <asm/dma.h>
+ #include <linux/init.h>
+ #include <linux/poll.h>
+ #include <linux/spinlock.h>
+ #include <linux/smp_lock.h>
++#include <linux/wrapper.h>
+ #include <asm/uaccess.h>
+ #include <asm/hardirq.h>
++#include <linux/gameport.h>
+ #include <linux/bitops.h>
+ 
+ #include "dm.h"
+@@ -178,26 +179,143 @@
+ #define DSP_MIX_TREBLEIDX_R		((unsigned char)(0x45))
+ #define DSP_MIX_BASSIDX_L		((unsigned char)(0x46))
+ #define DSP_MIX_BASSIDX_R		((unsigned char)(0x47))
++#define DSP_MIX_EXTENSION		((unsigned char)(0xf0))
++// pseudo register for AUX
++#define	DSP_MIX_AUXVOL_L		((unsigned char)(0x50))
++#define	DSP_MIX_AUXVOL_R		((unsigned char)(0x51))
++
++// I/O length
++#define CM_EXTENT_CODEC	  0x100
++#define CM_EXTENT_MIDI	  0x2
++#define CM_EXTENT_SYNTH	  0x4
++#define CM_EXTENT_GAME	  0x8
++
++// Function Control Register 0 (00h)
++#define CHADC0    	0x01
++#define CHADC1    	0x02
++#define PAUSE0	  	0x04
++#define PAUSE1	  	0x08
++ 
++// Function Control Register 0+2 (02h)
++#define CHEN0     	0x01
++#define CHEN1     	0x02
++#define RST_CH0	  	0x04
++#define RST_CH1	  	0x08
++ 
++// Function Control Register 1 (04h)
++#define JYSTK_EN	0x02
++#define UART_EN		0x04
++#define	SPDO2DAC	0x40
++#define	SPDFLOOP	0x80
++ 
++// Function Control Register 1+1 (05h)
++#define	SPDF_0		0x01
++#define	SPDF_1		0x02
++#define	ASFC		0xe0
++#define	DSFC		0x1c
++#define	SPDIF2DAC	(SPDF_0 << 8 | SPDO2DAC)
++
++// Channel Format Register (08h)
++#define CM_CFMT_STEREO	0x01
++#define CM_CFMT_16BIT	0x02
++#define CM_CFMT_MASK	0x03
++#define	POLVALID	0x20
++#define	INVSPDIFI	0x80
++
++// Channel Format Register+2 (0ah)
++#define SPD24SEL	0x20
++
++// Channel Format Register+3 (0bh)
++#define CHB3D		0x20
++#define CHB3D5C		0x80
++
++// Interrupt Hold/Clear Register+2 (0eh)
++#define	CH0_INT_EN	0x01
++#define	CH1_INT_EN	0x02
++
++// Interrupt Register (10h)
++#define CHINT0		0x01
++#define CHINT1		0x02
++#define	CH0BUSY		0x04
++#define	CH1BUSY		0x08
++
++// Legacy Control/Status Register+1 (15h)
++#define	EXBASEN		0x10
++#define	BASE2LIN	0x20
++#define	CENTR2LIN	0x40
++#define	CB2LIN		(BASE2LIN|CENTR2LIN)
++#define	CHB3D6C		0x80
++
++// Legacy Control/Status Register+2 (16h)
++#define	DAC2SPDO	0x20
++#define	SPDCOPYRHT	0x40
++#define	ENSPDOUT	0x80
++
++// Legacy Control/Status Register+3 (17h)
++#define	FMSEL		0x03
++#define	VSBSEL		0x0c
++#define	VMPU		0x60
++#define	NXCHG		0x80
++ 
++// Miscellaneous Control Register (18h)
++#define	REAR2LIN	0x20
++#define	MUTECH1		0x40
++#define	ENCENTER	0x80
++ 
++// Miscellaneous Control Register+1 (19h)
++#define	SELSPDIFI2	0x01
++#define	SPDF_AC97	0x80
++ 
++// Miscellaneous Control Register+2 (1ah)
++#define	AC3_EN		0x04
++#define	FM_EN		0x08
++#define	SPD32SEL	0x20
++#define	XCHGDAC		0x40
++#define	ENDBDAC		0x80
++ 
++// Miscellaneous Control Register+3 (1bh)
++#define	SPDIFI48K	0x01
++#define	SPDO5V		0x02
++#define	N4SPK3D		0x04
++#define	RESET		0x40
++#define	PWD		0x80
++#define	SPDIF48K	(SPDIFI48K << 24 | SPDF_AC97 << 8)
++ 
++// Mixer1 (24h)
++#define	CDPLAY		0x01
++#define	X3DEN		0x02
++#define	REAR2FRONT	0x10
++#define	SPK4		0x20
++#define	WSMUTE		0x40
++ 
++// Miscellaneous Register (27h)
++#define	SPDVALID	0x02
++#define	CENTR2MIC	0x04
++
++#define CM_CFMT_DACSHIFT   0
++#define CM_CFMT_ADCSHIFT   2
++#define CM_FREQ_DACSHIFT   2
++#define CM_FREQ_ADCSHIFT   5
++#define	RSTDAC		RST_CH0
++#define	RSTADC		RST_CH1
++#define	ENDAC		CHEN0
++#define	ENADC		CHEN1
++#define	PAUSEDAC	PAUSE0
++#define	PAUSEADC	PAUSE1
++#define CODEC_CMI_DAC_FRAME1	CODEC_CMI_CH0_FRAME1
++#define CODEC_CMI_DAC_FRAME2	CODEC_CMI_CH0_FRAME2
++#define CODEC_CMI_ADC_FRAME1	CODEC_CMI_CH1_FRAME1
++#define CODEC_CMI_ADC_FRAME2	CODEC_CMI_CH1_FRAME2
++#define	DACINT		CHINT0
++#define	ADCINT		CHINT1
++#define	DACBUSY		CH0BUSY
++#define	ADCBUSY		CH1BUSY
++#define	ENDACINT	CH0_INT_EN
++#define	ENADCINT	CH1_INT_EN
+ 
+-#define CM_CH0_RESET			0x04
+-#define CM_CH1_RESET			0x08
+-#define CM_EXTENT_CODEC			0x100
+-#define CM_EXTENT_MIDI			0x2
+-#define CM_EXTENT_SYNTH			0x4
+-#define CM_INT_CH0			1
+-#define CM_INT_CH1			2
+-
+-#define CM_CFMT_STEREO			0x01
+-#define CM_CFMT_16BIT			0x02
+-#define CM_CFMT_MASK			0x03
+-#define CM_CFMT_DACSHIFT		2
+-#define CM_CFMT_ADCSHIFT		0
+-
++static const unsigned sample_size[] = { 1, 2, 2, 4 };
+ static const unsigned sample_shift[]	= { 0, 1, 1, 2 };
+ 
+-#define CM_ENABLE_CH1      0x2
+-#define CM_ENABLE_CH0      0x1
+-
+ /* MIDI buffer sizes **************************/
+ 
+ #define MIDIINBUF  256
+@@ -213,11 +331,19 @@
+ 
+ #define NR_DEVICE 3		/* maximum number of devices */
+ 
+-/*********************************************/
++static unsigned int devindex = 0;
++
++//*********************************************/
+ 
+ struct cm_state {
+-	unsigned int magic;		/* magic */
+-	struct cm_state *next;		/* we keep cm cards in a linked list */
++	/* magic */
++	unsigned int magic;
++
++	/* list of cmedia devices */
++	struct list_head devs;
++
++	/* the corresponding pci_dev structure */
++	struct pci_dev *dev;
+ 
+ 	int dev_audio;			/* soundcore stuff */
+ 	int dev_mixer;
+@@ -275,7 +401,9 @@
+ 		unsigned char ibuf[MIDIINBUF];
+ 		unsigned char obuf[MIDIOUTBUF];
+ 	} midi;
+-	
++
++	struct gameport gameport;
++
+ 	int	chip_version;		
+ 	int	max_channels;
+ 	int	curr_channels;		
+@@ -312,8 +440,7 @@
+ #define	DO_SPDIF_IN		0x00000200
+ #define	DO_SPDIF_LOOP		0x00000400
+ 
+-static struct cm_state *devs;
+-static unsigned long wavetable_mem;
++static LIST_HEAD(devs);
+ 
+ /* --------------------------------------------------------------------- */
+ 
+@@ -356,55 +483,55 @@
+ static void set_dmadac1(struct cm_state *s, unsigned int addr, unsigned int count)
+ {
+ 	if (addr)
+-	    outl(addr, s->iobase + CODEC_CMI_CH0_FRAME1);
+-	outw(count - 1, s->iobase + CODEC_CMI_CH0_FRAME2);
+-	maskb(s->iobase + CODEC_CMI_FUNCTRL0, ~1, 0);
++	    outl(addr, s->iobase + CODEC_CMI_ADC_FRAME1);
++	outw(count - 1, s->iobase + CODEC_CMI_ADC_FRAME2);
++	maskb(s->iobase + CODEC_CMI_FUNCTRL0, ~CHADC1, 0);
+ }
+ 
+ static void set_dmaadc(struct cm_state *s, unsigned int addr, unsigned int count)
+ {
+-	outl(addr, s->iobase + CODEC_CMI_CH0_FRAME1);
+-	outw(count - 1, s->iobase + CODEC_CMI_CH0_FRAME2);
+-	maskb(s->iobase + CODEC_CMI_FUNCTRL0, ~0, 1);
++	outl(addr, s->iobase + CODEC_CMI_ADC_FRAME1);
++	outw(count - 1, s->iobase + CODEC_CMI_ADC_FRAME2);
++	maskb(s->iobase + CODEC_CMI_FUNCTRL0, ~0, CHADC1);
+ }
+ 
+ static void set_dmadac(struct cm_state *s, unsigned int addr, unsigned int count)
+ {
+-	outl(addr, s->iobase + CODEC_CMI_CH1_FRAME1);
+-	outw(count - 1, s->iobase + CODEC_CMI_CH1_FRAME2);
+-	maskb(s->iobase + CODEC_CMI_FUNCTRL0, ~2, 0);
++	outl(addr, s->iobase + CODEC_CMI_DAC_FRAME1);
++	outw(count - 1, s->iobase + CODEC_CMI_DAC_FRAME2);
++	maskb(s->iobase + CODEC_CMI_FUNCTRL0, ~CHADC0, 0);
+ 	if (s->status & DO_DUAL_DAC)
+ 		set_dmadac1(s, 0, count);
+ }
+ 
+ static void set_countadc(struct cm_state *s, unsigned count)
+ {
+-	outw(count - 1, s->iobase + CODEC_CMI_CH0_FRAME2 + 2);
++	outw(count - 1, s->iobase + CODEC_CMI_ADC_FRAME2 + 2);
+ }
+ 
+ static void set_countdac(struct cm_state *s, unsigned count)
+ {
+-	outw(count - 1, s->iobase + CODEC_CMI_CH1_FRAME2 + 2);
++	outw(count - 1, s->iobase + CODEC_CMI_DAC_FRAME2 + 2);
+ 	if (s->status & DO_DUAL_DAC)
+ 	    set_countadc(s, count);
+ }
+ 
+-static inline unsigned get_dmadac(struct cm_state *s)
++static unsigned get_dmadac(struct cm_state *s)
+ {
+ 	unsigned int curr_addr;
+ 
+-	curr_addr = inw(s->iobase + CODEC_CMI_CH1_FRAME2) + 1;
++	curr_addr = inw(s->iobase + CODEC_CMI_DAC_FRAME2) + 1;
+ 	curr_addr <<= sample_shift[(s->fmt >> CM_CFMT_DACSHIFT) & CM_CFMT_MASK];
+ 	curr_addr = s->dma_dac.dmasize - curr_addr;
+ 
+ 	return curr_addr;
+ }
+ 
+-static inline unsigned get_dmaadc(struct cm_state *s)
++static unsigned get_dmaadc(struct cm_state *s)
+ {
+ 	unsigned int curr_addr;
+ 
+-	curr_addr = inw(s->iobase + CODEC_CMI_CH0_FRAME2) + 1;
++	curr_addr = inw(s->iobase + CODEC_CMI_ADC_FRAME2) + 1;
+ 	curr_addr <<= sample_shift[(s->fmt >> CM_CFMT_ADCSHIFT) & CM_CFMT_MASK];
+ 	curr_addr = s->dma_adc.dmasize - curr_addr;
+ 
+@@ -413,23 +540,79 @@
+ 
+ static void wrmixer(struct cm_state *s, unsigned char idx, unsigned char data)
+ {
++	unsigned char regval, pseudo;
++
++	// pseudo register
++	if (idx == DSP_MIX_AUXVOL_L) {
++		data >>= 4;
++		data &= 0x0f;
++		regval = inb(s->iobase + CODEC_CMI_AUX_VOL) & ~0x0f;
++		outb(regval | data, s->iobase + CODEC_CMI_AUX_VOL);
++		return;
++	}
++	if (idx == DSP_MIX_AUXVOL_R) {
++		data &= 0xf0;
++		regval = inb(s->iobase + CODEC_CMI_AUX_VOL) & ~0xf0;
++		outb(regval | data, s->iobase + CODEC_CMI_AUX_VOL);
++		return;
++	}
+ 	outb(idx, s->iobase + CODEC_SB16_ADDR);
+ 	udelay(10);
++	// pseudo bits
++	if (idx == DSP_MIX_OUTMIXIDX) {
++		pseudo = data & ~0x1f;
++		pseudo >>= 1;	
++		regval = inb(s->iobase + CODEC_CMI_MIXER2) & ~0x30;
++		outb(regval | pseudo, s->iobase + CODEC_CMI_MIXER2);
++	}
++	if (idx == DSP_MIX_ADCMIXIDX_L) {
++		pseudo = data & 0x80;
++		pseudo >>= 1;
++		regval = inb(s->iobase + CODEC_CMI_MIXER2) & ~0x40;
++		outb(regval | pseudo, s->iobase + CODEC_CMI_MIXER2);
++	}
++	if (idx == DSP_MIX_ADCMIXIDX_R) {
++		pseudo = data & 0x80;
++		regval = inb(s->iobase + CODEC_CMI_MIXER2) & ~0x80;
++		outb(regval | pseudo, s->iobase + CODEC_CMI_MIXER2);
++	}
+ 	outb(data, s->iobase + CODEC_SB16_DATA);
+ 	udelay(10);
+ }
+ 
+ static unsigned char rdmixer(struct cm_state *s, unsigned char idx)
+ {
+-	unsigned char v;
+-	unsigned long flags;
++	unsigned char v, pseudo;
+ 	
+-	spin_lock_irqsave(&s->lock, flags);
++	// pseudo register
++	if (idx == DSP_MIX_AUXVOL_L) {
++		v = inb(s->iobase + CODEC_CMI_AUX_VOL) & 0x0f;
++		v <<= 4;
++		return v;
++	}
++	if (idx == DSP_MIX_AUXVOL_L) {
++		v = inb(s->iobase + CODEC_CMI_AUX_VOL) & 0xf0;
++		return v;
++	}
+ 	outb(idx, s->iobase + CODEC_SB16_ADDR);
+ 	udelay(10);
+ 	v = inb(s->iobase + CODEC_SB16_DATA);
+ 	udelay(10);
+-	spin_unlock_irqrestore(&s->lock, flags);
++	// pseudo bits
++	if (idx == DSP_MIX_OUTMIXIDX) {
++		pseudo = inb(s->iobase + CODEC_CMI_MIXER2) & 0x30;
++		pseudo <<= 1;
++		v |= pseudo;
++	}
++	if (idx == DSP_MIX_ADCMIXIDX_L) {
++		pseudo = inb(s->iobase + CODEC_CMI_MIXER2) & 0x40;
++		pseudo <<= 1;
++		v |= pseudo;
++	}
++	if (idx == DSP_MIX_ADCMIXIDX_R) {
++		pseudo = inb(s->iobase + CODEC_CMI_MIXER2) & 0x80;
++		v |= pseudo;
++	}
+ 	return v;
+ }
+ 
+@@ -479,24 +662,88 @@
+ 	{ 48000,	(44100 + 48000) / 2,	48000,			7 }
+ };
+ 
++static void set_spdif_copyright(struct cm_state *s, int spdif_copyright)
++{
++	/* enable SPDIF-in Copyright */
++	maskb(s->iobase + CODEC_CMI_LEGACY_CTRL + 2, ~SPDCOPYRHT, spdif_copyright ? SPDCOPYRHT : 0);
++}
++
++static void set_spdif_loop(struct cm_state *s, int spdif_loop)
++{
++	/* enable SPDIF loop */
++	if (spdif_loop) {
++		s->status |= DO_SPDIF_LOOP;
++		/* turn on spdif-in to spdif-out */
++		maskb(s->iobase + CODEC_CMI_FUNCTRL1, ~0, SPDFLOOP);
++	} else {
++		s->status &= ~DO_SPDIF_LOOP;
++		/* turn off spdif-in to spdif-out */
++		maskb(s->iobase + CODEC_CMI_FUNCTRL1, ~SPDFLOOP, 0);
++	}
++}
++
++static void set_spdif_monitor(struct cm_state *s, int channel)
++{
++	// SPDO2DAC
++	maskw(s->iobase + CODEC_CMI_FUNCTRL1, ~SPDO2DAC, channel == 2 ? SPDO2DAC : 0);
++	// CDPLAY
++	if (s->chip_version >= 39)
++		maskb(s->iobase + CODEC_CMI_MIXER1, ~CDPLAY, channel ? CDPLAY : 0);
++}
++
++static void set_spdifout_level(struct cm_state *s, int level5v)
++{
++	/* SPDO5V */
++	maskb(s->iobase + CODEC_CMI_MISC_CTRL + 3, ~SPDO5V, level5v ? SPDO5V : 0);
++}
++
++static void set_spdifin_inverse(struct cm_state *s, int spdif_inverse)
++{
++	if (spdif_inverse) {
++		/* turn on spdif-in inverse */
++		if (s->chip_version >= 39)
++			maskb(s->iobase + CODEC_CMI_CHFORMAT, ~0, INVSPDIFI);
++		else
++			maskb(s->iobase + CODEC_CMI_CHFORMAT + 2, ~0, 1);
++	} else {
++		/* turn off spdif-ininverse */
++		if (s->chip_version >= 39) 
++			maskb(s->iobase + CODEC_CMI_CHFORMAT, ~INVSPDIFI, 0);
++		else
++			maskb(s->iobase + CODEC_CMI_CHFORMAT + 2, ~1, 0);
++	}
++}
++
++static void set_spdifin_channel2(struct cm_state *s, int channel2)
++{
++	/* SELSPDIFI2 */
++	if (s->chip_version >= 39)
++		maskb(s->iobase + CODEC_CMI_MISC_CTRL + 1, ~SELSPDIFI2, channel2 ? SELSPDIFI2 : 0);
++}
++
++static void set_spdifin_valid(struct cm_state *s, int valid)
++{
++	/* SPDVALID */
++	maskb(s->iobase + CODEC_CMI_MISC, ~SPDVALID, valid ? SPDVALID : 0);
++}
++
+ static void set_spdifout_unlocked(struct cm_state *s, unsigned rate)
+ {
+ 	if (rate == 48000 || rate == 44100) {
++		// SPDF_0
++		maskw(s->iobase + CODEC_CMI_FUNCTRL1, ~0, SPDF_0);
+ 		// SPDIFI48K SPDF_ACc97
+-		maskl(s->iobase + CODEC_CMI_MISC_CTRL, ~0x01008000, rate == 48000 ? 0x01008000 : 0);
++		maskl(s->iobase + CODEC_CMI_MISC_CTRL, ~SPDIF48K, rate == 48000 ? SPDIF48K : 0);
+ 		// ENSPDOUT
+-		maskb(s->iobase + CODEC_CMI_LEGACY_CTRL + 2, ~0, 0x80);
+-		// SPDF_1 SPD2DAC
+-		maskw(s->iobase + CODEC_CMI_FUNCTRL1, ~0, 0x240);
+-		// CDPLAY
+-		if (s->chip_version >= 39)
+-			maskb(s->iobase + CODEC_CMI_MIXER1, ~0, 1);
++		maskb(s->iobase + CODEC_CMI_LEGACY_CTRL + 2, ~0, ENSPDOUT);
++		// monitor SPDIF out
++		set_spdif_monitor(s, 2);
+ 		s->status |= DO_SPDIF_OUT;
+ 	} else {
+-		maskb(s->iobase + CODEC_CMI_LEGACY_CTRL + 2, ~0x80, 0);
+-		maskw(s->iobase + CODEC_CMI_FUNCTRL1, ~0x240, 0);
+-		if (s->chip_version >= 39)
+-			maskb(s->iobase + CODEC_CMI_MIXER1, ~1, 0);
++		maskw(s->iobase + CODEC_CMI_FUNCTRL1, ~SPDF_0, 0);
++		maskb(s->iobase + CODEC_CMI_LEGACY_CTRL + 2, ~ENSPDOUT, 0);
++		// monitor none
++		set_spdif_monitor(s, 0);
+ 		s->status &= ~DO_SPDIF_OUT;
+ 	}
+ }
+@@ -510,7 +757,30 @@
+ 	spin_unlock_irqrestore(&s->lock, flags);
+ }
+ 
+-/* find parity for bit 4~30 */
++static void set_spdifin_unlocked(struct cm_state *s, unsigned rate)
++{
++	if (rate == 48000 || rate == 44100) {
++		// SPDF_1
++		maskw(s->iobase + CODEC_CMI_FUNCTRL1, ~0, SPDF_1);
++		// SPDIFI48K SPDF_AC97
++		maskl(s->iobase + CODEC_CMI_MISC_CTRL, ~SPDIF48K, rate == 48000 ? SPDIF48K : 0);
++		s->status |= DO_SPDIF_IN;
++	} else {
++		maskw(s->iobase + CODEC_CMI_FUNCTRL1, ~SPDF_1, 0);
++		s->status &= ~DO_SPDIF_IN;
++	}
++}
++
++static void set_spdifin(struct cm_state *s, unsigned rate)
++{
++	unsigned long flags;
++
++	spin_lock_irqsave(&s->lock, flags);
++	set_spdifin_unlocked(s,rate);
++	spin_unlock_irqrestore(&s->lock, flags);
++}
++
++//* find parity for bit 4~30 */
+ static unsigned parity(unsigned data)
+ {
+ 	unsigned parity = 0;
+@@ -531,21 +801,26 @@
+ 	/* enable AC3 */
+ 	if (rate == 48000 || rate == 44100) {
+ 		// mute DAC
+-		maskb(s->iobase + CODEC_CMI_MIXER1, ~0, 0x40);
+-		// AC3EN for 037, 0x10
+-		maskb(s->iobase + CODEC_CMI_CHFORMAT + 2, ~0, 0x10);
++		maskb(s->iobase + CODEC_CMI_MIXER1, ~0, WSMUTE);
+ 		// AC3EN for 039, 0x04
+-		maskb(s->iobase + CODEC_CMI_MISC_CTRL + 2, ~0, 0x04);
++		if (s->chip_version >= 39)
++			maskb(s->iobase + CODEC_CMI_MISC_CTRL + 2, ~0, AC3_EN);
++		// AC3EN for 037, 0x10
++		else if (s->chip_version == 37)
++			maskb(s->iobase + CODEC_CMI_CHFORMAT + 2, ~0, 0x10);
+ 		if (s->capability & CAN_AC3_HW) {
+-			// SPD24SEL for 037, 0x02
+ 			// SPD24SEL for 039, 0x20, but cannot be set
+-			maskb(s->iobase + CODEC_CMI_CHFORMAT + 2, ~0, 0x02);
++			if (s->chip_version >= 39)
++				maskb(s->iobase + CODEC_CMI_CHFORMAT + 2, ~0, SPD24SEL);
++			// SPD24SEL for 037, 0x02
++			else if (s->chip_version == 37)
++				maskb(s->iobase + CODEC_CMI_CHFORMAT + 2, ~0, 0x02);
+ 			s->status |= DO_AC3_HW;
+ 			if (s->chip_version >= 39)
+-				maskb(s->iobase + CODEC_CMI_MIXER1, ~1, 0);
++				maskb(s->iobase + CODEC_CMI_MIXER1, ~CDPLAY, 0);
+ 		 } else {
+ 			// SPD32SEL for 037 & 039, 0x20
+-			maskb(s->iobase + CODEC_CMI_MISC_CTRL + 2, ~0, 0x20);
++			maskb(s->iobase + CODEC_CMI_MISC_CTRL + 2, ~0, SPD32SEL);
+ 			// set 176K sample rate to fix 033 HW bug
+ 			if (s->chip_version == 33) {
+ 				if (rate == 48000)
+@@ -556,18 +831,16 @@
+ 			s->status |= DO_AC3_SW;
+ 		}
+ 	} else {
+-		maskb(s->iobase + CODEC_CMI_MIXER1, ~0x40, 0);
++		maskb(s->iobase + CODEC_CMI_MIXER1, ~WSMUTE, 0);
+ 		maskb(s->iobase + CODEC_CMI_CHFORMAT + 2, ~0x32, 0);
+-		maskb(s->iobase + CODEC_CMI_MISC_CTRL + 2, ~0x24, 0);
+-		maskb(s->iobase + CODEC_CMI_CHFORMAT + 1, ~0x08, 0);
++		maskb(s->iobase + CODEC_CMI_MISC_CTRL + 2, ~(SPD32SEL|AC3_EN), 0);
+ 		if (s->chip_version == 33)
+ 			maskb(s->iobase + CODEC_CMI_CHFORMAT + 1, ~0x08, 0);
+ 		if (s->chip_version >= 39)
+-			maskb(s->iobase + CODEC_CMI_MIXER1, ~0, 1);
++			maskb(s->iobase + CODEC_CMI_MIXER1, ~0, CDPLAY);
+ 		s->status &= ~DO_AC3;
+ 	}
+ 	s->spdif_counter = 0;
+-
+ }
+ 
+ static void set_ac3(struct cm_state *s, unsigned rate)
+@@ -629,9 +902,9 @@
+ 	    	}
+ 	}
+ 	s->rateadc = rate;
+-	freq <<= 2;
++	freq <<= CM_FREQ_ADCSHIFT;
+ 
+-	maskb(s->iobase + CODEC_CMI_FUNCTRL1 + 1, ~0x1c, freq);
++	maskb(s->iobase + CODEC_CMI_FUNCTRL1 + 1, ~ASFC, freq);
+ }
+ 
+ static void set_adc_rate(struct cm_state *s, unsigned rate)
+@@ -652,10 +925,10 @@
+ 	    	}
+ 	}
+ 	s->rateadc = rate;
+-	freq <<= 2;
++	freq <<= CM_FREQ_ADCSHIFT;
+ 
+ 	spin_lock_irqsave(&s->lock, flags);
+-	maskb(s->iobase + CODEC_CMI_FUNCTRL1 + 1, ~0x1c, freq);
++	maskb(s->iobase + CODEC_CMI_FUNCTRL1 + 1, ~ASFC, freq);
+ 	spin_unlock_irqrestore(&s->lock, flags);
+ }
+ 
+@@ -677,46 +950,45 @@
+ 	    	}
+ 	}
+ 	s->ratedac = rate;
+-	freq <<= 5;
++	freq <<= CM_FREQ_DACSHIFT;
+ 
+ 	spin_lock_irqsave(&s->lock, flags);
+-	maskb(s->iobase + CODEC_CMI_FUNCTRL1 + 1, ~0xe0, freq);
+-
++	maskb(s->iobase + CODEC_CMI_FUNCTRL1 + 1, ~DSFC, freq);
++	spin_unlock_irqrestore(&s->lock, flags);
+ 
+ 	if (s->curr_channels <=  2)
+-		set_spdifout_unlocked(s, rate);
++		set_spdifout(s, rate);
+ 	if (s->status & DO_DUAL_DAC)
+-		set_adc_rate_unlocked(s, rate);
+-
+-	spin_unlock_irqrestore(&s->lock, flags);
++		set_adc_rate(s, rate);
+ }
+ 
+ /* --------------------------------------------------------------------- */
+ static inline void reset_adc(struct cm_state *s)
+ {
+ 	/* reset bus master */
+-	outb(s->enable | CM_CH0_RESET, s->iobase + CODEC_CMI_FUNCTRL0 + 2);
++	outb(s->enable | RSTADC, s->iobase + CODEC_CMI_FUNCTRL0 + 2);
+ 	udelay(10);
+-	outb(s->enable & ~CM_CH0_RESET, s->iobase + CODEC_CMI_FUNCTRL0 + 2);
++	outb(s->enable & ~RSTADC, s->iobase + CODEC_CMI_FUNCTRL0 + 2);
+ }
+ 
+ static inline void reset_dac(struct cm_state *s)
+ {
+ 	/* reset bus master */
+-	outb(s->enable | CM_CH1_RESET, s->iobase + CODEC_CMI_FUNCTRL0 + 2);
+-	outb(s->enable & ~CM_CH1_RESET, s->iobase + CODEC_CMI_FUNCTRL0 + 2);
++	outb(s->enable | RSTDAC, s->iobase + CODEC_CMI_FUNCTRL0 + 2);
++	udelay(10);
++	outb(s->enable & ~RSTDAC, s->iobase + CODEC_CMI_FUNCTRL0 + 2);
+ 	if (s->status & DO_DUAL_DAC)
+ 		reset_adc(s);
+ }
+ 
+ static inline void pause_adc(struct cm_state *s)
+ {
+-	maskb(s->iobase + CODEC_CMI_FUNCTRL0, ~0, 4);
++	maskb(s->iobase + CODEC_CMI_FUNCTRL0, ~0, PAUSEADC);
+ }
+ 
+ static inline void pause_dac(struct cm_state *s)
+ {
+-	maskb(s->iobase + CODEC_CMI_FUNCTRL0, ~0, 8);
++	maskb(s->iobase + CODEC_CMI_FUNCTRL0, ~0, PAUSEDAC);
+ 	if (s->status & DO_DUAL_DAC)
+ 		pause_adc(s);
+ }
+@@ -724,7 +996,7 @@
+ static inline void disable_adc(struct cm_state *s)
+ {
+ 	/* disable channel */
+-	s->enable &= ~CM_ENABLE_CH0;
++	s->enable &= ~ENADC;
+ 	outb(s->enable, s->iobase + CODEC_CMI_FUNCTRL0 + 2);
+ 	reset_adc(s);
+ }
+@@ -732,7 +1004,7 @@
+ static inline void disable_dac(struct cm_state *s)
+ {
+ 	/* disable channel */
+-	s->enable &= ~CM_ENABLE_CH1;
++	s->enable &= ~ENDAC;
+ 	outb(s->enable, s->iobase + CODEC_CMI_FUNCTRL0 + 2);
+ 	reset_dac(s);
+ 	if (s->status & DO_DUAL_DAC)
+@@ -741,22 +1013,22 @@
+ 
+ static inline void enable_adc(struct cm_state *s)
+ {
+-	if (!(s->enable & CM_ENABLE_CH0)) {
++	if (!(s->enable & ENADC)) {
+ 		/* enable channel */
+-		s->enable |= CM_ENABLE_CH0;
++		s->enable |= ENADC;
+ 		outb(s->enable, s->iobase + CODEC_CMI_FUNCTRL0 + 2);
+ 	}
+-	maskb(s->iobase + CODEC_CMI_FUNCTRL0, ~4, 0);
++	maskb(s->iobase + CODEC_CMI_FUNCTRL0, ~PAUSEADC, 0);
+ }
+ 
+ static inline void enable_dac_unlocked(struct cm_state *s)
+ {
+-	if (!(s->enable & CM_ENABLE_CH1)) {
++	if (!(s->enable & ENDAC)) {
+ 		/* enable channel */
+-		s->enable |= CM_ENABLE_CH1;
++		s->enable |= ENDAC;
+ 		outb(s->enable, s->iobase + CODEC_CMI_FUNCTRL0 + 2);
+ 	}
+-	maskb(s->iobase + CODEC_CMI_FUNCTRL0, ~8, 0);
++	maskb(s->iobase + CODEC_CMI_FUNCTRL0, ~PAUSEDAC, 0);
+ 
+ 	if (s->status & DO_DUAL_DAC)
+ 		enable_adc(s);
+@@ -773,9 +1045,9 @@
+ 
+ static inline void stop_adc_unlocked(struct cm_state *s)
+ {
+-	if (s->enable & CM_ENABLE_CH0) {
++	if (s->enable & ENADC) {
+ 		/* disable interrupt */
+-		maskb(s->iobase + CODEC_CMI_INT_HLDCLR + 2, ~1, 0);
++		maskb(s->iobase + CODEC_CMI_INT_HLDCLR + 2, ~ENADCINT, 0);
+ 		disable_adc(s);
+ 	}
+ }
+@@ -792,9 +1064,9 @@
+ 
+ static inline void stop_dac_unlocked(struct cm_state *s)
+ {
+-	if (s->enable & CM_ENABLE_CH1) {
++	if (s->enable & ENDAC) {
+ 		/* disable interrupt */
+-		maskb(s->iobase + CODEC_CMI_INT_HLDCLR + 2, ~2, 0);
++		maskb(s->iobase + CODEC_CMI_INT_HLDCLR + 2, ~ENDACINT, 0);
+ 		disable_dac(s);
+ 	}
+ 	if (s->status & DO_DUAL_DAC)
+@@ -810,12 +1082,12 @@
+ 	spin_unlock_irqrestore(&s->lock, flags);
+ }
+ 
+-static void start_adc_unlocked(struct cm_state *s)
++static inline void start_adc_unlocked(struct cm_state *s)
+ {
+ 	if ((s->dma_adc.mapped || s->dma_adc.count < (signed)(s->dma_adc.dmasize - 2*s->dma_adc.fragsize))
+ 	    && s->dma_adc.ready) {
+ 		/* enable interrupt */
+-		maskb(s->iobase + CODEC_CMI_INT_HLDCLR + 2, ~0, 1);
++		maskb(s->iobase + CODEC_CMI_INT_HLDCLR + 2, ~0, ENADCINT);
+ 		enable_adc(s);
+ 	}
+ }
+@@ -833,7 +1105,7 @@
+ {
+ 	if ((s->dma_adc.mapped || s->dma_adc.count > 0) && s->dma_adc.ready) {
+ 		/* enable interrupt */
+-//		maskb(s->iobase + CODEC_CMI_INT_HLDCLR + 2, ~0, 1);
++		maskb(s->iobase + CODEC_CMI_INT_HLDCLR + 2, ~0, ENADCINT);
+  		enable_dac_unlocked(s);
+ 	}
+ }
+@@ -842,11 +1114,11 @@
+ {
+ 	if ((s->dma_dac.mapped || s->dma_dac.count > 0) && s->dma_dac.ready) {
+ 		/* enable interrupt */
+-		maskb(s->iobase + CODEC_CMI_INT_HLDCLR + 2, ~0, 2);
++		maskb(s->iobase + CODEC_CMI_INT_HLDCLR + 2, ~0, ENDACINT);
+ 		enable_dac_unlocked(s);
+ 	}
+-		if (s->status & DO_DUAL_DAC)
+-			start_dac1_unlocked(s);
++	if (s->status & DO_DUAL_DAC)
++		start_dac1_unlocked(s);
+ }
+ 
+ static void start_dac(struct cm_state *s)
+@@ -870,13 +1142,13 @@
+ 	    set_spdifout_unlocked(s, 0);
+ 	    if (s->capability & CAN_MULTI_CH_HW) {
+ 		// NXCHG
+-		maskb(s->iobase + CODEC_CMI_LEGACY_CTRL + 3, ~0, 0x80);
++		maskb(s->iobase + CODEC_CMI_LEGACY_CTRL + 3, ~0, NXCHG);
+ 		// CHB3D or CHB3D5C
+-	       	maskb(s->iobase + CODEC_CMI_CHFORMAT + 3, ~0xa0, channels > 4 ? 0x80 : 0x20);
++	       	maskb(s->iobase + CODEC_CMI_CHFORMAT + 3, ~(CHB3D5C|CHB3D), channels > 4 ? CHB3D5C : CHB3D);
+ 		// CHB3D6C
+-		maskb(s->iobase + CODEC_CMI_LEGACY_CTRL + 1, ~0x80, channels == 6 ? 0x80 : 0);
++		maskb(s->iobase + CODEC_CMI_LEGACY_CTRL + 1, ~CHB3D6C, channels == 6 ? CHB3D6C : 0);
+ 		// ENCENTER 
+-		maskb(s->iobase + CODEC_CMI_MISC_CTRL, ~0x80, channels == 6 ? 0x80 : 0);
++		maskb(s->iobase + CODEC_CMI_MISC_CTRL, ~ENCENTER, channels == 6 ? ENCENTER : 0);
+ 		s->status |= DO_MULTI_CH_HW;
+ 	    } else if (s->capability & CAN_DUAL_DAC) {
+ 		unsigned char fmtm = ~0, fmts = 0;
+@@ -884,7 +1156,7 @@
+ 
+ 		// ENDBDAC, turn on double DAC mode
+ 		// XCHGDAC, CH0 -> back, CH1->front
+-		maskb(s->iobase + CODEC_CMI_MISC_CTRL + 2, ~0, 0xC0);
++		maskb(s->iobase + CODEC_CMI_MISC_CTRL + 2, ~0, ENDBDAC|XCHGDAC);
+ 		s->status |= DO_DUAL_DAC;
+ 		// prepare secondary buffer
+ 
+@@ -907,20 +1179,21 @@
+ 
+ 	    }
+ 
++	    // N4SPK3D, disable 4 speaker mode (analog duplicate)
+ 	    if (s->speakers > 2)
+-		maskb(s->iobase + CODEC_CMI_MISC_CTRL + 3, ~0x04, 0);
++		maskb(s->iobase + CODEC_CMI_MISC_CTRL + 3, ~N4SPK3D, 0);
+ 	    s->curr_channels = channels;
+ 	} else {
+ 	    if (s->status & DO_MULTI_CH_HW) {
+-		maskb(s->iobase + CODEC_CMI_LEGACY_CTRL + 3, ~0x80, 0);
+-		maskb(s->iobase + CODEC_CMI_CHFORMAT + 3, ~0xa0, 0);
+-		maskb(s->iobase + CODEC_CMI_LEGACY_CTRL + 1, ~0x80, 0);
++		maskb(s->iobase + CODEC_CMI_LEGACY_CTRL + 3, ~NXCHG, 0);
++		maskb(s->iobase + CODEC_CMI_CHFORMAT + 3, ~(CHB3D5C|CHB3D), 0);
++		maskb(s->iobase + CODEC_CMI_LEGACY_CTRL + 1, ~CHB3D6C, 0);
+ 	    } else if (s->status & DO_DUAL_DAC) {
+-		maskb(s->iobase + CODEC_CMI_MISC_CTRL + 2, ~0x80, 0);
++		maskb(s->iobase + CODEC_CMI_MISC_CTRL + 2, ~ENDBDAC, 0);
+ 	    }
+ 	    // N4SPK3D, enable 4 speaker mode (analog duplicate)
+ 	    if (s->speakers > 2)
+-		maskb(s->iobase + CODEC_CMI_MISC_CTRL + 3, ~0, 0x04);
++		maskb(s->iobase + CODEC_CMI_MISC_CTRL + 3, ~0, N4SPK3D);
+ 	    s->status &= ~DO_MULTI_CH;
+ 	    s->curr_channels = s->fmt & (CM_CFMT_STEREO << CM_CFMT_DACSHIFT) ? 2 : 1;
+ 	}
+@@ -1173,10 +1446,10 @@
+ 	spin_lock(&s->lock);
+ 	intstat = inb(s->iobase + CODEC_CMI_INT_HLDCLR + 2);
+ 	/* acknowledge interrupt */
+-	if (intsrc & CM_INT_CH0)
+-		mask |= 1;
+-	if (intsrc & CM_INT_CH1)
+-		mask |= 2;
++	if (intsrc & ADCINT)
++		mask |= ENADCINT;
++	if (intsrc & DACINT)
++		mask |= ENDACINT;
+ 	outb(intstat & ~mask, s->iobase + CODEC_CMI_INT_HLDCLR + 2);
+ 	outb(intstat | mask, s->iobase + CODEC_CMI_INT_HLDCLR + 2);
+ 	cm_update_ptr(s);
+@@ -1237,6 +1510,7 @@
+ 	[SOUND_MIXER_SYNTH]  = { DSP_MIX_FMVOLIDX_L,  	 DSP_MIX_FMVOLIDX_R,     MT_5MUTE,     0x40, 0x00 },
+ 	[SOUND_MIXER_VOLUME] = { DSP_MIX_MASTERVOLIDX_L, DSP_MIX_MASTERVOLIDX_R, MT_5MUTE,     0x00, 0x00 },
+ 	[SOUND_MIXER_PCM]    = { DSP_MIX_VOICEVOLIDX_L,  DSP_MIX_VOICEVOLIDX_R,  MT_5MUTE,     0x00, 0x00 },
++	[SOUND_MIXER_LINE1]  = { DSP_MIX_AUXVOL_L,       DSP_MIX_AUXVOL_R,       MT_5MUTE,     0x80, 0x20 },
+ 	[SOUND_MIXER_SPEAKER]= { DSP_MIX_SPKRVOLIDX,	 DSP_MIX_SPKRVOLIDX,	 MT_5MUTEMONO, 0x01, 0x01 }
+ };
+ 
+@@ -1248,15 +1522,32 @@
+ 	[SOUND_MIXER_SYNTH]  = 4,
+ 	[SOUND_MIXER_VOLUME] = 5,
+ 	[SOUND_MIXER_PCM]    = 6,
+-	[SOUND_MIXER_SPEAKER]= 7
++	[SOUND_MIXER_LINE1]  = 7,
++	[SOUND_MIXER_SPEAKER]= 8
+ };
+ 
++static unsigned mixer_outmask(struct cm_state *s)
++{
++	unsigned long flags;
++	int i, j, k;
++
++	spin_lock_irqsave(&s->lock, flags);
++	j = rdmixer(s, DSP_MIX_OUTMIXIDX);
++	spin_unlock_irqrestore(&s->lock, flags);
++	for (k = i = 0; i < SOUND_MIXER_NRDEVICES; i++)
++		if (j & mixtable[i].play)
++			k |= 1 << i;
++	return k;
++}
++
+ static unsigned mixer_recmask(struct cm_state *s)
+ {
++	unsigned long flags;
+ 	int i, j, k;
+ 
++	spin_lock_irqsave(&s->lock, flags);
+ 	j = rdmixer(s, DSP_MIX_ADCMIXIDX_L);
+-	j &= 0x7f;
++	spin_unlock_irqrestore(&s->lock, flags);
+ 	for (k = i = 0; i < SOUND_MIXER_NRDEVICES; i++)
+ 		if (j & mixtable[i].rec)
+ 			k |= 1 << i;
+@@ -1297,7 +1588,7 @@
+ 			return put_user(mixer_recmask(s), (int *)arg);
+ 			
+                 case SOUND_MIXER_OUTSRC: /* Arg contains a bit for each recording source */
+-			return put_user(mixer_recmask(s), (int *)arg);//need fix
++			return put_user(mixer_outmask(s), (int *)arg);
+ 			
+                 case SOUND_MIXER_DEVMASK: /* Arg contains a bit for each supported device */
+ 			for (val = i = 0; i < SOUND_MIXER_NRDEVICES; i++)
+@@ -1354,7 +1645,7 @@
+ 		}
+ 		spin_lock_irqsave(&s->lock, flags);
+ 		wrmixer(s, DSP_MIX_ADCMIXIDX_L, j);
+-		wrmixer(s, DSP_MIX_ADCMIXIDX_R, (j & 1) | (j>>1));
++		wrmixer(s, DSP_MIX_ADCMIXIDX_R, (j & 1) | (j>>1) | (j & 0x80));
+ 		spin_unlock_irqrestore(&s->lock, flags);
+ 		return 0;
+ 
+@@ -1371,11 +1662,11 @@
+ 			j |= mixtable[i].play;
+ 		}
+ 		spin_lock_irqsave(&s->lock, flags);
+-		frobindir(s, DSP_MIX_OUTMIXIDX, 0x1f, j);
++		wrmixer(s, DSP_MIX_OUTMIXIDX, j);
+ 		spin_unlock_irqrestore(&s->lock, flags);
+ 		return 0;
+ 
+-		default:
++	default:
+ 		i = _IOC_NR(cmd);
+ 		if (i >= SOUND_MIXER_NRDEVICES || !mixtable[i].type)
+ 			return -EINVAL;
+@@ -1402,15 +1693,28 @@
+ 			rl = (l < 4 ? 0 : (l - 5) / 3) & 31;
+ 			rr = (rl >> 2) & 7;
+ 			wrmixer(s, mixtable[i].left, rl<<3);
+-			maskb(s->iobase + CODEC_CMI_MIXER2, ~0x0e, rr<<1);
++			if (i == SOUND_MIXER_MIC)
++				maskb(s->iobase + CODEC_CMI_MIXER2, ~0x0e, rr<<1);
+ 			break;
+ 			
+ 		case MT_5MUTEMONO:
+ 			r = l;
+ 			rl = l < 4 ? 0 : (l - 5) / 3;
+-			rr = rl >> 2;
+  			wrmixer(s, mixtable[i].left, rl<<3);
+-			maskb(s->iobase + CODEC_CMI_MIXER2, ~0x0e, rr<<1);
++			l = rdmixer(s, DSP_MIX_OUTMIXIDX) & ~mixtable[i].play;
++			rr = rl ? mixtable[i].play : 0;
++			wrmixer(s, DSP_MIX_OUTMIXIDX, l | rr);
++			/* for recording */
++			if (i == SOUND_MIXER_MIC) {
++				if (s->chip_version >= 39) {
++					rr = rl >> 1;
++					maskb(s->iobase + CODEC_CMI_MIXER2, ~0x0e, rr&0x07);
++					frobindir(s, DSP_MIX_EXTENSION, 0x01, rr>>3);
++				} else {
++					rr = rl >> 2;
++					maskb(s->iobase + CODEC_CMI_MIXER2, ~0x0e, rr<<1);
++				}
++			}
+ 			break;
+ 				
+ 		case MT_5MUTE:
+@@ -1418,6 +1722,10 @@
+ 			rr = r < 4 ? 0 : (r - 5) / 3;
+  			wrmixer(s, mixtable[i].left, rl<<3);
+ 			wrmixer(s, mixtable[i].right, rr<<3);
++			l = rdmixer(s, DSP_MIX_OUTMIXIDX);
++			l &= ~mixtable[i].play;
++			r = (rl|rr) ? mixtable[i].play : 0;
++			wrmixer(s, DSP_MIX_OUTMIXIDX, l | r);
+ 			break;
+ 
+ 		case MT_6MUTE:
+@@ -1447,12 +1755,16 @@
+ static int cm_open_mixdev(struct inode *inode, struct file *file)
+ {
+ 	int minor = MINOR(inode->i_rdev);
+-	struct cm_state *s = devs;
++	struct list_head *list;
++	struct cm_state *s;
+ 
+-	while (s && s->dev_mixer != minor)
+-		s = s->next;
+-	if (!s)
+-		return -ENODEV;
++	for (list = devs.next; ; list = list->next) {
++		if (list == &devs)
++			return -ENODEV;
++		s = list_entry(list, struct cm_state, devs);
++		if (s->dev_mixer == minor)
++			break;
++	}
+        	VALIDATE_STATE(s);
+ 	file->private_data = s;
+ 	return 0;
+@@ -1490,9 +1802,9 @@
+ 
+ 	if (s->dma_dac.mapped || !s->dma_dac.ready)
+ 		return 0;
+-        set_current_state(TASK_INTERRUPTIBLE);
+         add_wait_queue(&s->dma_dac.wait, &wait);
+         for (;;) {
++        	__set_current_state(TASK_INTERRUPTIBLE);
+                 spin_lock_irqsave(&s->lock, flags);
+ 		count = s->dma_dac.count;
+                 spin_unlock_irqrestore(&s->lock, flags);
+@@ -1522,6 +1834,7 @@
+ static ssize_t cm_read(struct file *file, char *buffer, size_t count, loff_t *ppos)
+ {
+ 	struct cm_state *s = (struct cm_state *)file->private_data;
++	DECLARE_WAITQUEUE(wait, current);
+ 	ssize_t ret;
+ 	unsigned long flags;
+ 	unsigned swptr;
+@@ -1538,12 +1851,15 @@
+ 		return -EFAULT;
+ 	ret = 0;
+ 
++        add_wait_queue(&s->dma_adc.wait, &wait);
+ 	while (count > 0) {
+ 		spin_lock_irqsave(&s->lock, flags);
+ 		swptr = s->dma_adc.swptr;
+ 		cnt = s->dma_adc.dmasize-swptr;
+ 		if (s->dma_adc.count < cnt)
+ 			cnt = s->dma_adc.count;
++		if (cnt <= 0)
++			__set_current_state(TASK_INTERRUPTIBLE);
+ 		spin_unlock_irqrestore(&s->lock, flags);
+ 		if (cnt > count)
+ 			cnt = count;
+@@ -1551,7 +1867,7 @@
+ 			start_adc(s);
+ 			if (file->f_flags & O_NONBLOCK)
+ 				return ret ? ret : -EAGAIN;
+-			if (!interruptible_sleep_on_timeout(&s->dma_adc.wait, HZ)) {
++			if (!schedule_timeout(HZ)) {
+ 				printk(KERN_DEBUG "cmpci: read: chip lockup? dmasz %u fragsz %u count %i hwptr %u swptr %u\n",
+ 				       s->dma_adc.dmasize, s->dma_adc.fragsize, s->dma_adc.count,
+ 				       s->dma_adc.hwptr, s->dma_adc.swptr);
+@@ -1579,12 +1895,15 @@
+ 		start_adc_unlocked(s);
+ 		spin_unlock_irqrestore(&s->lock, flags);
+ 	}
++        remove_wait_queue(&s->dma_adc.wait, &wait);
++	set_current_state(TASK_RUNNING);
+ 	return ret;
+ }
+ 
+ static ssize_t cm_write(struct file *file, const char *buffer, size_t count, loff_t *ppos)
+ {
+ 	struct cm_state *s = (struct cm_state *)file->private_data;
++	DECLARE_WAITQUEUE(wait, current);
+ 	ssize_t ret;
+ 	unsigned long flags;
+ 	unsigned swptr;
+@@ -1609,6 +1928,7 @@
+ 		return -EFAULT;
+ 	ret = 0;
+ 
++        add_wait_queue(&s->dma_dac.wait, &wait);
+ 	while (count > 0) {
+ 		spin_lock_irqsave(&s->lock, flags);
+ 		if (s->dma_dac.count < 0) {
+@@ -1629,6 +1949,8 @@
+ 			if (s->dma_dac.count + cnt > s->dma_dac.dmasize)
+ 				cnt = s->dma_dac.dmasize - s->dma_dac.count;
+ 		}
++		if (cnt <= 0)
++			__set_current_state(TASK_INTERRUPTIBLE);
+ 		spin_unlock_irqrestore(&s->lock, flags);
+ 		if (cnt > count)
+ 			cnt = count;
+@@ -1638,7 +1960,7 @@
+ 			start_dac(s);
+ 			if (file->f_flags & O_NONBLOCK)
+ 				return ret ? ret : -EAGAIN;
+-			if (!interruptible_sleep_on_timeout(&s->dma_dac.wait, HZ)) {
++			if (!schedule_timeout(HZ)) {
+ 				printk(KERN_DEBUG "cmpci: write: chip lockup? dmasz %u fragsz %u count %i hwptr %u swptr %u\n",
+ 				       s->dma_dac.dmasize, s->dma_dac.fragsize, s->dma_dac.count,
+ 				       s->dma_dac.hwptr, s->dma_dac.swptr);
+@@ -1704,6 +2026,8 @@
+ 		}
+ 		start_dac(s);
+ 	}
++        remove_wait_queue(&s->dma_dac.wait, &wait);
++	set_current_state(TASK_RUNNING);
+ 	return ret;
+ }
+ 
+@@ -1772,6 +2096,16 @@
+ 	return ret;
+ }
+ 
++#define SNDCTL_SPDIF_COPYRIGHT	_SIOW('S',  0, int)       // set/reset S/PDIF copy protection
++#define SNDCTL_SPDIF_LOOP	_SIOW('S',  1, int)       // set/reset S/PDIF loop
++#define SNDCTL_SPDIF_MONITOR	_SIOW('S',  2, int)       // set S/PDIF monitor
++#define SNDCTL_SPDIF_LEVEL	_SIOW('S',  3, int)       // set/reset S/PDIF out level
++#define SNDCTL_SPDIF_INV	_SIOW('S',  4, int)       // set/reset S/PDIF in inverse
++#define SNDCTL_SPDIF_SEL2	_SIOW('S',  5, int)       // set S/PDIF in #2
++#define SNDCTL_SPDIF_VALID	_SIOW('S',  6, int)       // set S/PDIF valid
++#define SNDCTL_SPDIFOUT		_SIOW('S',  7, int)       // set S/PDIF out
++#define SNDCTL_SPDIFIN		_SIOW('S',  8, int)       // set S/PDIF out
++
+ static int cm_ioctl(struct inode *inode, struct file *file, unsigned int cmd, unsigned long arg)
+ {
+ 	struct cm_state *s = (struct cm_state *)file->private_data;
+@@ -1955,14 +2289,14 @@
+ 		val = 0;
+ 		if (s->status & DO_DUAL_DAC) {
+ 			if (file->f_mode & FMODE_WRITE &&
+-			 (s->enable & CM_ENABLE_CH1) &&
+-			 (s->enable & CM_ENABLE_CH0))
++			 (s->enable & ENDAC) &&
++			 (s->enable & ENADC))
+ 				val |= PCM_ENABLE_OUTPUT;
+ 			return put_user(val, (int *)arg);
+ 		}
+-		if (file->f_mode & FMODE_READ && s->enable & CM_ENABLE_CH0) 
++		if (file->f_mode & FMODE_READ && s->enable & ENADC) 
+ 			val |= PCM_ENABLE_INPUT;
+-		if (file->f_mode & FMODE_WRITE && s->enable & CM_ENABLE_CH1) 
++		if (file->f_mode & FMODE_WRITE && s->enable & ENDAC) 
+ 			val |= PCM_ENABLE_OUTPUT;
+ 		return put_user(val, (int *)arg);
+ 
+@@ -1994,7 +2328,7 @@
+ 	case SNDCTL_DSP_GETOSPACE:
+ 		if (!(file->f_mode & FMODE_WRITE))
+ 			return -EINVAL;
+-		if (!(s->enable & CM_ENABLE_CH1) && (val = prog_dmabuf(s, 0)) != 0)
++		if (!(s->enable & ENDAC) && (val = prog_dmabuf(s, 0)) != 0)
+ 			return val;
+ 		spin_lock_irqsave(&s->lock, flags);
+ 		cm_update_ptr(s);
+@@ -2008,7 +2342,7 @@
+ 	case SNDCTL_DSP_GETISPACE:
+ 		if (!(file->f_mode & FMODE_READ))
+ 			return -EINVAL;
+-		if (!(s->enable & CM_ENABLE_CH0) && (val = prog_dmabuf(s, 1)) != 0)
++		if (!(s->enable & ENADC) && (val = prog_dmabuf(s, 1)) != 0)
+ 			return val;
+ 		spin_lock_irqsave(&s->lock, flags);
+ 		cm_update_ptr(s);
+@@ -2155,6 +2489,11 @@
+ 			if (file->f_mode & FMODE_READ) {
+ 				stop_adc(s);
+ 				s->dma_adc.ready = 0;
++				if (val & DSP_BIND_SPDIF) {
++					set_spdifin(s, s->rateadc);
++					if (!(s->status & DO_SPDIF_OUT))
++						val &= ~DSP_BIND_SPDIF;
++				}
+ 			}
+ 			if (file->f_mode & FMODE_WRITE) {
+ 				stop_dac(s);
+@@ -2194,7 +2533,51 @@
+ 	case SNDCTL_DSP_MAPOUTBUF:
+         case SNDCTL_DSP_SETSYNCRO:
+                 return -EINVAL;
+-		
++	case SNDCTL_SPDIF_COPYRIGHT:
++		if (get_user(val, (int *)arg))
++			return -EFAULT;
++		set_spdif_copyright(s, val);
++                return 0;
++	case SNDCTL_SPDIF_LOOP:
++		if (get_user(val, (int *)arg))
++			return -EFAULT;
++		set_spdif_loop(s, val);
++                return 0;
++	case SNDCTL_SPDIF_MONITOR:
++		if (get_user(val, (int *)arg))
++			return -EFAULT;
++		set_spdif_monitor(s, val);
++                return 0;
++	case SNDCTL_SPDIF_LEVEL:
++		if (get_user(val, (int *)arg))
++			return -EFAULT;
++		set_spdifout_level(s, val);
++                return 0;
++	case SNDCTL_SPDIF_INV:
++		if (get_user(val, (int *)arg))
++			return -EFAULT;
++		set_spdifin_inverse(s, val);
++                return 0;
++	case SNDCTL_SPDIF_SEL2:
++		if (get_user(val, (int *)arg))
++			return -EFAULT;
++		set_spdifin_channel2(s, val);
++                return 0;
++	case SNDCTL_SPDIF_VALID:
++		if (get_user(val, (int *)arg))
++			return -EFAULT;
++		set_spdifin_valid(s, val);
++                return 0;
++	case SNDCTL_SPDIFOUT:
++		if (get_user(val, (int *)arg))
++			return -EFAULT;
++		set_spdifout(s, val ? s->ratedac : 0);
++                return 0;
++	case SNDCTL_SPDIFIN:
++		if (get_user(val, (int *)arg))
++			return -EFAULT;
++		set_spdifin(s, val ? s->rateadc : 0);
++                return 0;
+ 	}
+ 	return mixer_ioctl(s, cmd, arg);
+ }
+@@ -2202,13 +2585,18 @@
+ static int cm_open(struct inode *inode, struct file *file)
+ {
+ 	int minor = MINOR(inode->i_rdev);
+-	struct cm_state *s = devs;
++	DECLARE_WAITQUEUE(wait, current);
+ 	unsigned char fmtm = ~0, fmts = 0;
++	struct list_head *list;
++	struct cm_state *s;
+ 
+-	while (s && ((s->dev_audio ^ minor) & ~0xf))
+-		s = s->next;
+-	if (!s)
+-		return -ENODEV;
++	for (list = devs.next; ; list = list->next) {
++		if (list == &devs)
++			return -ENODEV;
++		s = list_entry(list, struct cm_state, devs);
++		if (!((s->dev_audio ^ minor) & ~0xf))
++			break;
++	}
+        	VALIDATE_STATE(s);
+ 	file->private_data = s;
+ 	/* wait for device to become free */
+@@ -2218,8 +2606,12 @@
+ 			up(&s->open_sem);
+ 			return -EBUSY;
+ 		}
++		add_wait_queue(&s->open_wait, &wait);
++		__set_current_state(TASK_INTERRUPTIBLE);
+ 		up(&s->open_sem);
+-		interruptible_sleep_on(&s->open_wait);
++		schedule();
++		remove_wait_queue(&s->open_wait, &wait);
++		set_current_state(TASK_RUNNING);
+ 		if (signal_pending(current))
+ 			return -ERESTARTSYS;
+ 		down(&s->open_sem);
+@@ -2230,6 +2622,8 @@
+ 			fmts |= CM_CFMT_16BIT << CM_CFMT_ADCSHIFT;
+ 		s->dma_adc.ossfragshift = s->dma_adc.ossmaxfrags = s->dma_adc.subdivision = 0;
+ 		set_adc_rate(s, 8000);
++		// spdif-in is turnned off by default
++		set_spdifin(s, 0);
+ 	}
+ 	if (file->f_mode & FMODE_WRITE) {
+ 		fmtm &= ~((CM_CFMT_STEREO | CM_CFMT_16BIT) << CM_CFMT_DACSHIFT);
+@@ -2321,6 +2715,8 @@
+ 		cnt = MIDIINBUF - ptr;
+ 		if (s->midi.icnt < cnt)
+ 			cnt = s->midi.icnt;
++		if (cnt <= 0)
++			__set_current_state(TASK_INTERRUPTIBLE);
+ 		spin_unlock_irqrestore(&s->lock, flags);
+ 		if (cnt > count)
+ 			cnt = count;
+@@ -2331,7 +2727,6 @@
+ 					ret = -EAGAIN;
+ 				break;
+ 			}
+-			__set_current_state(TASK_INTERRUPTIBLE);
+ 			schedule();
+ 			if (signal_pending(current))
+ 			{
+@@ -2386,8 +2781,10 @@
+ 		cnt = MIDIOUTBUF - ptr;
+ 		if (s->midi.ocnt + cnt > MIDIOUTBUF)
+ 			cnt = MIDIOUTBUF - s->midi.ocnt;
+-		if (cnt <= 0)
++		if (cnt <= 0) {
++			__set_current_state(TASK_INTERRUPTIBLE);
+ 			cm_handle_midi(s);
++		}
+ 		spin_unlock_irqrestore(&s->lock, flags);
+ 		if (cnt > count)
+ 			cnt = count;
+@@ -2398,7 +2795,6 @@
+ 					ret = -EAGAIN;
+ 				break;
+ 			}
+-			__set_current_state(TASK_INTERRUPTIBLE);
+ 			schedule();
+ 			if (signal_pending(current)) {
+ 				if (!ret)
+@@ -2457,13 +2853,18 @@
+ static int cm_midi_open(struct inode *inode, struct file *file)
+ {
+ 	int minor = MINOR(inode->i_rdev);
+-	struct cm_state *s = devs;
++	DECLARE_WAITQUEUE(wait, current);
+ 	unsigned long flags;
++	struct list_head *list;
++	struct cm_state *s;
+ 
+-	while (s && s->dev_midi != minor)
+-		s = s->next;
+-	if (!s)
+-		return -ENODEV;
++	for (list = devs.next; ; list = list->next) {
++		if (list == &devs)
++			return -ENODEV;
++		s = list_entry(list, struct cm_state, devs);
++		if (s->dev_midi == minor)
++			break;
++	}
+        	VALIDATE_STATE(s);
+ 	file->private_data = s;
+ 	/* wait for device to become free */
+@@ -2473,8 +2874,12 @@
+ 			up(&s->open_sem);
+ 			return -EBUSY;
+ 		}
++ 		add_wait_queue(&s->open_wait, &wait);
++ 		__set_current_state(TASK_INTERRUPTIBLE);
+ 		up(&s->open_sem);
+-		interruptible_sleep_on(&s->open_wait);
++ 		schedule();
++ 		remove_wait_queue(&s->open_wait, &wait);
++ 		set_current_state(TASK_RUNNING);
+ 		if (signal_pending(current))
+ 			return -ERESTARTSYS;
+ 		down(&s->open_sem);
+@@ -2484,7 +2889,7 @@
+ 		s->midi.ird = s->midi.iwr = s->midi.icnt = 0;
+ 		s->midi.ord = s->midi.owr = s->midi.ocnt = 0;
+ 		/* enable MPU-401 */
+-		maskb(s->iobase + CODEC_CMI_FUNCTRL1, ~0, 4);
++		maskb(s->iobase + CODEC_CMI_FUNCTRL1, ~0, UART_EN);
+ 		outb(0xff, s->iomidi+1); /* reset command */
+ 		if (!(inb(s->iomidi+1) & 0x80))
+ 			inb(s->iomidi);
+@@ -2554,7 +2959,7 @@
+ 		if (!(inb(s->iomidi+1) & 0x80))
+ 			inb(s->iomidi);
+ 		/* disable MPU-401 */
+-		maskb(s->iobase + CODEC_CMI_FUNCTRL1, ~4, 0);
++		maskb(s->iobase + CODEC_CMI_FUNCTRL1, ~UART_EN, 0);
+ 	}
+ 	spin_unlock_irqrestore(&s->lock, flags);
+ 	up(&s->open_sem);
+@@ -2675,12 +3080,17 @@
+ static int cm_dmfm_open(struct inode *inode, struct file *file)
+ {
+ 	int minor = MINOR(inode->i_rdev);
+-	struct cm_state *s = devs;
++	DECLARE_WAITQUEUE(wait, current);
++	struct list_head *list;
++	struct cm_state *s;
+ 
+-	while (s && s->dev_dmfm != minor)
+-		s = s->next;
+-	if (!s)
+-		return -ENODEV;
++	for (list = devs.next; ; list = list->next) {
++		if (list == &devs)
++			return -ENODEV;
++		s = list_entry(list, struct cm_state, devs);
++		if (s->dev_dmfm == minor)
++			break;
++	}
+        	VALIDATE_STATE(s);
+ 	file->private_data = s;
+ 	/* wait for device to become free */
+@@ -2690,8 +3100,12 @@
+ 			up(&s->open_sem);
+ 			return -EBUSY;
+ 		}
++		add_wait_queue(&s->open_wait, &wait);
++		__set_current_state(TASK_INTERRUPTIBLE);
+ 		up(&s->open_sem);
+-		interruptible_sleep_on(&s->open_wait);
++		schedule();
++		remove_wait_queue(&s->open_wait, &wait);
++		set_current_state(TASK_RUNNING);
+ 		if (signal_pending(current))
+ 			return -ERESTARTSYS;
+ 		down(&s->open_sem);
+@@ -2836,11 +3250,17 @@
+ #else
+ static	int	use_line_as_bass;
+ #endif
++#ifdef CONFIG_SOUND_CMPCI_MIC_BASS
++static	int	use_mic_as_bass = 1;
++#else
++static	int	use_mic_as_bass = 0;
++#endif
+ #ifdef CONFIG_SOUND_CMPCI_JOYSTICK
+ static	int	joystick = 1;
+ #else
+ static	int	joystick;
+ #endif
++static	int	mic_boost = 0;
+ MODULE_PARM(mpuio, "i");
+ MODULE_PARM(fmio, "i");
+ MODULE_PARM(spdif_inverse, "i");
+@@ -2848,7 +3268,9 @@
+ MODULE_PARM(speakers, "i");
+ MODULE_PARM(use_line_as_rear, "i");
+ MODULE_PARM(use_line_as_bass, "i");
++MODULE_PARM(use_mic_as_bass, "i");
+ MODULE_PARM(joystick, "i");
++MODULE_PARM(mic_boost, "i");
+ MODULE_PARM_DESC(mpuio, "(0x330, 0x320, 0x310, 0x300) Base of MPU-401, 0 to disable");
+ MODULE_PARM_DESC(fmio, "(0x388, 0x3C8, 0x3E0) Base of OPL3, 0 to disable");
+ MODULE_PARM_DESC(spdif_inverse, "(1/0) Invert S/PDIF-in signal");
+@@ -2856,24 +3278,15 @@
+ MODULE_PARM_DESC(speakers, "(2-6) Number of speakers you connect");
+ MODULE_PARM_DESC(use_line_as_rear, "(1/0) Use line-in jack as rear-out");
+ MODULE_PARM_DESC(use_line_as_bass, "(1/0) Use line-in jack as bass/center");
++MODULE_PARM_DESC(use_mic_as_bass, "(1/0) Use mic-in jack as bass/center");
+ MODULE_PARM_DESC(joystick, "(1/0) Enable joystick interface, still need joystick driver");
++MODULE_PARM_DESC(mic_boost, "(1/0) Enable microphone boost");
+ 
+-static struct pci_device_id cmpci_pci_tbl[] = {
+-	{ PCI_VENDOR_ID_CMEDIA, PCI_DEVICE_ID_CMEDIA_CM8738, 
+-	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },
+- 	{ PCI_VENDOR_ID_CMEDIA, PCI_DEVICE_ID_CMEDIA_CM8338A, 
+-	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },
+-	{ PCI_VENDOR_ID_CMEDIA, PCI_DEVICE_ID_CMEDIA_CM8338B, 
+-	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },
+-	{ 0 }
+-};
+-MODULE_DEVICE_TABLE(pci, cmpci_pci_tbl);
+-
+-void initialize_chip(struct pci_dev *pcidev)
++static int __devinit cm_probe(struct pci_dev *pcidev, const struct pci_device_id *pciid)
+ {
+ 	struct cm_state *s;
+ 	mm_segment_t fs;
+-	int i, val;
++	int i, val, ret;
+ 	unsigned char reg_mask = 0;
+ 	struct {
+ 		unsigned short	deviceid;
+@@ -2886,277 +3299,276 @@
+ 		{ PCI_DEVICE_ID_CMEDIA_CM8738B, "CM8738B" },
+ 	};
+ 	char	*devicename = "unknown";
+-	{
+-		if (pci_enable_device(pcidev))
+-			return;
+-		if (pcidev->irq == 0)
+-			return;
+-		s = kmalloc(sizeof(*s), GFP_KERNEL);
+-		if (!s) {
+-			printk(KERN_WARNING "cmpci: out of memory\n");
+-			return;
+-		}
+-		/* search device name */
+-		for (i = 0; i < sizeof(devicetable) / sizeof(devicetable[0]); i++) {
+-			if (devicetable[i].deviceid == pcidev->device)
+-			{
+-				devicename = devicetable[i].devicename;
+-				break;
+-			}
+-		}
+-		memset(s, 0, sizeof(struct cm_state));
+-		init_waitqueue_head(&s->dma_adc.wait);
+-		init_waitqueue_head(&s->dma_dac.wait);
+-		init_waitqueue_head(&s->open_wait);
+-		init_waitqueue_head(&s->midi.iwait);
+-		init_waitqueue_head(&s->midi.owait);
+-		init_MUTEX(&s->open_sem);
+-		spin_lock_init(&s->lock);
+-		s->magic = CM_MAGIC;
+-		s->iobase = pci_resource_start(pcidev, 0);
+-		s->iosynth = fmio;
+-		s->iomidi = mpuio;
+-		s->status = 0;
+-		/* range check */
+-		if (speakers < 2)
+-			speakers = 2;
+-		else if (speakers > 6)
+-			speakers = 6;
+-		s->speakers = speakers;
+-		if (s->iobase == 0)
+-			return;
+-		s->irq = pcidev->irq;
+-
+-		if (!request_region(s->iobase, CM_EXTENT_CODEC, "cmpci")) {
+-			printk(KERN_ERR "cmpci: io ports %#x-%#x in use\n", s->iobase, s->iobase+CM_EXTENT_CODEC-1);
+-			goto err_region5;
++	if ((ret = pci_enable_device(pcidev)))
++		return ret;
++	if (pcidev->irq == 0)
++		return -ENODEV;
++	s = kmalloc(sizeof(*s), GFP_KERNEL);
++	if (!s) {
++		printk(KERN_WARNING "cmpci: out of memory\n");
++		return -ENOMEM;
++	}
++	/* search device name */
++	for (i = 0; i < sizeof(devicetable) / sizeof(devicetable[0]); i++) {
++		if (devicetable[i].deviceid == pcidev->device)
++		{
++			devicename = devicetable[i].devicename;
++			break;
+ 		}
++	}
++	memset(s, 0, sizeof(struct cm_state));
++	init_waitqueue_head(&s->dma_adc.wait);
++	init_waitqueue_head(&s->dma_dac.wait);
++	init_waitqueue_head(&s->open_wait);
++	init_waitqueue_head(&s->midi.iwait);
++	init_waitqueue_head(&s->midi.owait);
++	init_MUTEX(&s->open_sem);
++	spin_lock_init(&s->lock);
++	s->magic = CM_MAGIC;
++	s->iobase = pci_resource_start(pcidev, 0);
++#ifdef CONFIG_IA64
++	/* The IA64 quirk handler didn't fix us up */
++	if (s->iobase == 0xff00)
++	{
++		kfree(s);
++		return -ENODEV;
++	}
++#endif
++	s->iosynth = fmio;
++	s->iomidi = mpuio;
++	s->gameport.io = 0x200;
++	s->status = 0;
++	/* range check */
++	if (speakers < 2)
++		speakers = 2;
++	else if (speakers > 6)
++		speakers = 6;
++	s->speakers = speakers;
++	if (s->iobase == 0)
++	{
++		kfree(s);
++		return -ENODEV;
++	}
++	s->irq = pcidev->irq;
++
++	if (!request_region(s->iobase, CM_EXTENT_CODEC, "cmpci")) {
++		printk(KERN_ERR "cmpci: io ports %#x-%#x in use\n", s->iobase, s->iobase+CM_EXTENT_CODEC-1);
++		goto err_region5;
++	}
+ #ifdef CONFIG_SOUND_CMPCI_MIDI
+-		/* disable MPU-401 */
+-		maskb(s->iobase + CODEC_CMI_FUNCTRL1, ~0x04, 0);
+-		if (s->iomidi) {
+-		    if (!request_region(s->iomidi, CM_EXTENT_MIDI, "cmpci Midi")) {
+-			printk(KERN_ERR "cmpci: io ports %#x-%#x in use\n", s->iomidi, s->iomidi+CM_EXTENT_MIDI-1);
++	/* disable MPU-401 */
++	maskb(s->iobase + CODEC_CMI_FUNCTRL1, ~0x04, 0);
++	if (s->iomidi) {
++	    if (!request_region(s->iomidi, CM_EXTENT_MIDI, "cmpci Midi")) {
++		printk(KERN_ERR "cmpci: io ports %#x-%#x in use\n", s->iomidi, s->iomidi+CM_EXTENT_MIDI-1);
++		s->iomidi = 0;
++	    } else {
++		/* set IO based at 0x330 */
++		switch (s->iomidi) {
++		    case 0x330:
++			reg_mask = 0;
++			break;
++		    case 0x320:
++			reg_mask = 0x20;
++			break;
++		    case 0x310:
++			reg_mask = 0x40;
++			break;
++		    case 0x300:
++			reg_mask = 0x60;
++			break;
++		    default:
+ 			s->iomidi = 0;
+-		    } else {
+-		        /* set IO based at 0x330 */
+-		        switch (s->iomidi) {
+-		 	    case 0x330:
+-				reg_mask = 0;
+-				break;
+-			    case 0x320:
+-				reg_mask = 0x20;
+-				break;
+-			    case 0x310:
+-				reg_mask = 0x40;
+-				break;
+-			    case 0x300:
+-				reg_mask = 0x60;
+-				break;
+-			    default:
+-				s->iomidi = 0;
+-				break;
+-		        }
+-		        outb((inb(s->iobase + CODEC_CMI_LEGACY_CTRL + 3) & ~0x60) | reg_mask, s->iobase + CODEC_CMI_LEGACY_CTRL + 3);
+-			/* enable MPU-401 */
+-			if (s->iomidi) {
+-			    maskb(s->iobase + CODEC_CMI_FUNCTRL1, ~0, 0x04);
+-			}
+-		    }
++			break;
+ 		}
++		outb((inb(s->iobase + CODEC_CMI_LEGACY_CTRL + 3) & ~0x60) | reg_mask, s->iobase + CODEC_CMI_LEGACY_CTRL + 3);
++		/* enable MPU-401 */
++		if (s->iomidi) {
++		    maskb(s->iobase + CODEC_CMI_FUNCTRL1, ~0, 0x04);
++		}
++	    }
++	}
+ #endif
+ #ifdef CONFIG_SOUND_CMPCI_FM
+-		/* disable FM */
+-		maskb(s->iobase + CODEC_CMI_MISC_CTRL + 2, ~8, 0);
+-		if (s->iosynth) {
+-		    if (!request_region(s->iosynth, CM_EXTENT_SYNTH, "cmpci FM")) {
+-			printk(KERN_ERR "cmpci: io ports %#x-%#x in use\n", s->iosynth, s->iosynth+CM_EXTENT_SYNTH-1);
++	/* disable FM */
++	maskb(s->iobase + CODEC_CMI_MISC_CTRL + 2, ~8, 0);
++	if (s->iosynth) {
++	    if (!request_region(s->iosynth, CM_EXTENT_SYNTH, "cmpci FM")) {
++		printk(KERN_ERR "cmpci: io ports %#x-%#x in use\n", s->iosynth, s->iosynth+CM_EXTENT_SYNTH-1);
++		s->iosynth = 0;
++	    } else {
++		/* set IO based at 0x388 */
++		switch (s->iosynth) {
++		    case 0x388:
++			reg_mask = 0;
++			break;
++		    case 0x3C8:
++			reg_mask = 0x01;
++			break;
++		    case 0x3E0:
++			reg_mask = 0x02;
++			break;
++		    case 0x3E8:
++			reg_mask = 0x03;
++			break;
++		    default:
+ 			s->iosynth = 0;
+-		    } else {
+-		        /* set IO based at 0x388 */
+-		        switch (s->iosynth) {
+-		 	    case 0x388:
+-				reg_mask = 0;
+-				break;
+-			    case 0x3C8:
+-				reg_mask = 0x01;
+-				break;
+-			    case 0x3E0:
+-				reg_mask = 0x02;
+-				break;
+-			    case 0x3E8:
+-				reg_mask = 0x03;
+-				break;
+-			    default:
+-				s->iosynth = 0;
+-				break;
+-		        }
+-		        maskb(s->iobase + CODEC_CMI_LEGACY_CTRL + 3, ~0x03, reg_mask);
+-		        /* enable FM */
+-			if (s->iosynth) {
+-		            maskb(s->iobase + CODEC_CMI_MISC_CTRL + 2, ~0, 8);
+-			}
+-		    }
++			break;
+ 		}
++		maskb(s->iobase + CODEC_CMI_LEGACY_CTRL + 3, ~0x03, reg_mask);
++		/* enable FM */
++		if (s->iosynth) {
++		    maskb(s->iobase + CODEC_CMI_MISC_CTRL + 2, ~0, 8);
++		}
++	    }
++	}
+ #endif
+-		/* enable joystick */
+-		if (joystick)
++	/* enable joystick */
++	if (joystick) {
++		if (s->gameport.io && !request_region(s->gameport.io, CM_EXTENT_GAME, "cmpci GAME")) {
++			printk(KERN_ERR "cmpci: gameport io ports in use\n");
++			s->gameport.io = 0;
++	       	} else
+ 			maskb(s->iobase + CODEC_CMI_FUNCTRL1, ~0, 0x02);
+-		else
+-			maskb(s->iobase + CODEC_CMI_FUNCTRL1, ~0x02, 0);
+-		/* initialize codec registers */
+-		outb(0, s->iobase + CODEC_CMI_INT_HLDCLR + 2);  /* disable ints */
+-		outb(0, s->iobase + CODEC_CMI_FUNCTRL0 + 2); /* disable channels */
+-		/* reset mixer */
+-		wrmixer(s, DSP_MIX_DATARESETIDX, 0);
+-
+-		/* request irq */
+-		if (request_irq(s->irq, cm_interrupt, SA_SHIRQ, "cmpci", s)) {
+-			printk(KERN_ERR "cmpci: irq %u in use\n", s->irq);
+-			goto err_irq;
+-		}
+-		printk(KERN_INFO "cmpci: found %s adapter at io %#06x irq %u\n",
+-		       devicename, s->iobase, s->irq);
+-		/* register devices */
+-		if ((s->dev_audio = register_sound_dsp(&cm_audio_fops, -1)) < 0)
+-			goto err_dev1;
+-		if ((s->dev_mixer = register_sound_mixer(&cm_mixer_fops, -1)) < 0)
+-			goto err_dev2;
++	} else {
++		maskb(s->iobase + CODEC_CMI_FUNCTRL1, ~0x02, 0);
++		s->gameport.io = 0;
++	}
++	/* initialize codec registers */
++	outb(0, s->iobase + CODEC_CMI_INT_HLDCLR + 2);  /* disable ints */
++	outb(0, s->iobase + CODEC_CMI_FUNCTRL0 + 2); /* disable channels */
++	/* reset mixer */
++	wrmixer(s, DSP_MIX_DATARESETIDX, 0);
++
++	/* request irq */
++	if (request_irq(s->irq, cm_interrupt, SA_SHIRQ, "cmpci", s)) {
++		printk(KERN_ERR "cmpci: irq %u in use\n", s->irq);
++		goto err_irq;
++	}
++	printk(KERN_INFO "cmpci: found %s adapter at io %#x irq %u\n",
++	       devicename, s->iobase, s->irq);
++	/* register devices */
++	if ((s->dev_audio = register_sound_dsp(&cm_audio_fops, -1)) < 0) {
++		ret = s->dev_audio;
++		goto err_dev1;
++	}
++	if ((s->dev_mixer = register_sound_mixer(&cm_mixer_fops, -1)) < 0) {
++		ret = s->dev_mixer;
++		goto err_dev2;
++	}
+ #ifdef CONFIG_SOUND_CMPCI_MIDI
+-		if ((s->dev_midi = register_sound_midi(&cm_midi_fops, -1)) < 0)
+-			goto err_dev3;
++	if ((s->dev_midi = register_sound_midi(&cm_midi_fops, -1)) < 0) {
++		ret = s->dev_midi;
++		goto err_dev3;
++	}
+ #endif
+ #ifdef CONFIG_SOUND_CMPCI_FM
+-		if ((s->dev_dmfm = register_sound_special(&cm_dmfm_fops, 15 /* ?? */)) < 0)
+-			goto err_dev4;
+-#endif
+-		pci_set_master(pcidev);	/* enable bus mastering */
+-		/* initialize the chips */
+-		fs = get_fs();
+-		set_fs(KERNEL_DS);
+-		/* set mixer output */
+-		frobindir(s, DSP_MIX_OUTMIXIDX, 0x1f, 0x1f);
+-		/* set mixer input */
+-		val = SOUND_MASK_LINE|SOUND_MASK_SYNTH|SOUND_MASK_CD|SOUND_MASK_MIC;
+-		mixer_ioctl(s, SOUND_MIXER_WRITE_RECSRC, (unsigned long)&val);
+-		for (i = 0; i < sizeof(initvol)/sizeof(initvol[0]); i++) {
+-			val = initvol[i].vol;
+-			mixer_ioctl(s, initvol[i].mixch, (unsigned long)&val);
+-		}
+-		/* use channel 0 for record, channel 1 for play */
+-		maskb(s->iobase + CODEC_CMI_FUNCTRL0, ~2, 1);
+-		s->deviceid = pcidev->device;
+-
+-		if (pcidev->device == PCI_DEVICE_ID_CMEDIA_CM8738) {
+-
+-			/* chip version and hw capability check */
+-			s->chip_version = query_chip(s);
+-			printk(KERN_INFO "cmpci: chip version = 0%d\n", s->chip_version);
+-
+-			/* seet SPDIF-in inverse before enable SPDIF loop */
+-			if (spdif_inverse) {
+-				/* turn on spdif-in inverse */
+-				maskb(s->iobase + CODEC_CMI_CHFORMAT + 2, ~0, 1);
+-				printk(KERN_INFO "cmpci: Inverse SPDIF-in\n");
+-			} else {
+-				/* turn off spdif-ininverse */
+-				maskb(s->iobase + CODEC_CMI_CHFORMAT + 2, ~1, 0);
+-			}
+-
+-			/* enable SPDIF loop */
+-			if (spdif_loop) {
+-				s->status |= DO_SPDIF_LOOP;
+-				/* turn on spdif-in to spdif-out */
+-				maskb(s->iobase + CODEC_CMI_FUNCTRL1, ~0, 0x80);
+-				printk(KERN_INFO "cmpci: Enable SPDIF loop\n");
+-			} else {
+-				s->status &= ~DO_SPDIF_LOOP;
+-				/* turn off spdif-in to spdif-out */
+-				maskb(s->iobase + CODEC_CMI_FUNCTRL1, ~0x80, 0);
+-			}
+-			if (use_line_as_rear) {
+-				s->capability |= CAN_LINE_AS_REAR;
+-				s->status |= DO_LINE_AS_REAR;
+-				maskb(s->iobase + CODEC_CMI_MIXER1, ~0, 0x20);
++	if ((s->dev_dmfm = register_sound_special(&cm_dmfm_fops, 15 /* ?? */)) < 0) {
++		ret = s->dev_dmfm;
++		goto err_dev4;
++	}
++#endif
++	pci_set_master(pcidev);	/* enable bus mastering */
++	/* initialize the chips */
++	fs = get_fs();
++	set_fs(KERNEL_DS);
++	/* set mixer output */
++	frobindir(s, DSP_MIX_OUTMIXIDX, 0x1f, 0x1f);
++	/* set mixer input */
++	val = SOUND_MASK_LINE|SOUND_MASK_SYNTH|SOUND_MASK_CD|SOUND_MASK_MIC;
++	mixer_ioctl(s, SOUND_MIXER_WRITE_RECSRC, (unsigned long)&val);
++	for (i = 0; i < sizeof(initvol)/sizeof(initvol[0]); i++) {
++		val = initvol[i].vol;
++		mixer_ioctl(s, initvol[i].mixch, (unsigned long)&val);
++	}
++	/* use channel 1 for record, channel 0 for play */
++	maskb(s->iobase + CODEC_CMI_FUNCTRL0, ~0, CHADC1);
++	/* turn off VMIC3 - mic boost */
++	if (mic_boost)
++		maskb(s->iobase + CODEC_CMI_MIXER2, ~1, 0);
++	else
++		maskb(s->iobase + CODEC_CMI_MIXER2, ~0, 1);
++	s->deviceid = pcidev->device;
++
++	if (pcidev->device == PCI_DEVICE_ID_CMEDIA_CM8738) {
++
++		/* chip version and hw capability check */
++		s->chip_version = query_chip(s);
++		printk(KERN_INFO "cmpci: chip version = 0%d\n", s->chip_version);
++
++		/* seet SPDIF-in inverse before enable SPDIF loop */
++		set_spdifin_inverse(s, spdif_inverse);
++
++		/* enable SPDIF loop */
++		set_spdif_loop(s, spdif_loop);
++
++		/* use SPDIF in #1 */
++		set_spdifin_channel2(s, 0);
++
++		if (use_line_as_rear) {
++			s->capability |= CAN_LINE_AS_REAR;
++			s->status |= DO_LINE_AS_REAR;
++			maskb(s->iobase + CODEC_CMI_MIXER1, ~0, SPK4);
++		} else
++			maskb(s->iobase + CODEC_CMI_MIXER1, ~SPK4, 0);
++		if (s->chip_version >= 39) {
++			if (use_line_as_bass) {
++				s->capability |= CAN_LINE_AS_BASS;
++				s->status |= DO_LINE_AS_BASS;
++				maskb(s->iobase + CODEC_CMI_LEGACY_CTRL + 1, ~0, CB2LIN);
+ 			} else
+-				maskb(s->iobase + CODEC_CMI_MIXER1, ~0x20, 0);
+-			if (s->chip_version >= 39) {
+-				if (use_line_as_bass) {
+-					s->capability |= CAN_LINE_AS_BASS;
+-					s->status |= DO_LINE_AS_BASS;
+-					maskb(s->iobase + CODEC_CMI_LEGACY_CTRL + 1, ~0, 0x60);
+-				} else
+-					maskb(s->iobase + CODEC_CMI_LEGACY_CTRL + 1, ~0x60, 0);
+-			}
+-		} else {
+-			/* 8338 will fall here */
+-			s->max_channels = 2;
++				maskb(s->iobase + CODEC_CMI_LEGACY_CTRL + 1, ~CB2LIN, 0);
++			if (use_mic_as_bass) {
++				s->capability |= CAN_MIC_AS_BASS;
++				s->status |= DO_MIC_AS_BASS;
++				maskb(s->iobase + CODEC_CMI_MISC, ~0, 0x04);
++			} else
++				maskb(s->iobase + CODEC_CMI_MISC, ~0x04, 0);
+ 		}
+-		/* queue it for later freeing */
+-		s->next = devs;
+-		devs = s;
+-		return;
++	} else {
++		s->chip_version = 0;
++		/* 8338 will fall here */
++		s->max_channels = 2;
++	}
++	/* register gameport */
++	if (joystick)
++		gameport_register_port(&s->gameport);
++	/* store it in the driver field */
++	pci_set_drvdata(pcidev, s);
++	/* put it into driver list */
++	list_add_tail(&s->devs, &devs);
++	/* increment devindex */
++	if (devindex < NR_DEVICE-1)
++		devindex++;
++	return 0;
+ 
+ #ifdef CONFIG_SOUND_CMPCI_FM
+-		unregister_sound_special(s->dev_dmfm);
+-	err_dev4:
++	unregister_sound_special(s->dev_dmfm);
++err_dev4:
+ #endif
+ #ifdef CONFIG_SOUND_CMPCI_MIDI
+-		unregister_sound_midi(s->dev_midi);
+-	err_dev3:
++	unregister_sound_midi(s->dev_midi);
++err_dev3:
+ #endif
+-		unregister_sound_mixer(s->dev_mixer);
+-	err_dev2:
+-		unregister_sound_dsp(s->dev_audio);
+-	err_dev1:
+-		printk(KERN_ERR "cmpci: cannot register misc device\n");
+-		free_irq(s->irq, s);
+-	err_irq:
++	unregister_sound_mixer(s->dev_mixer);
++err_dev2:
++	unregister_sound_dsp(s->dev_audio);
++err_dev1:
++	printk(KERN_ERR "cmpci: cannot register misc device\n");
++	free_irq(s->irq, s);
++err_irq:
++	if (s->gameport.io)
++		release_region(s->gameport.io, CM_EXTENT_GAME);
+ #ifdef CONFIG_SOUND_CMPCI_FM
+-		if (s->iosynth) release_region(s->iosynth, CM_EXTENT_SYNTH);
++	if (s->iosynth) release_region(s->iosynth, CM_EXTENT_SYNTH);
+ #endif
+ #ifdef CONFIG_SOUND_CMPCI_MIDI
+-		if (s->iomidi) release_region(s->iomidi, CM_EXTENT_MIDI);
++	if (s->iomidi) release_region(s->iomidi, CM_EXTENT_MIDI);
+ #endif
+-		release_region(s->iobase, CM_EXTENT_CODEC);
+-	err_region5:
+-		kfree(s);
+-	}
+-	if (!devs) {
+-		if (wavetable_mem)
+-			free_pages(wavetable_mem, 20-PAGE_SHIFT);
+-		return;
+-	}
+-	return;
+-}
+-
+-static int __init init_cmpci(void)
+-{
+-	struct pci_dev *pcidev = NULL;
+-	int index = 0;
+-
+-#ifdef CONFIG_PCI
+-	if (!pci_present())   /* No PCI bus in this machine! */
+-#endif
+-		return -ENODEV;
+-	printk(KERN_INFO "cmpci: version $Revision: 5.64 $ time " __TIME__ " " __DATE__ "\n");
+-
+-	while (index < NR_DEVICE && (
+-	       (pcidev = pci_find_device(PCI_VENDOR_ID_CMEDIA, PCI_DEVICE_ID_CMEDIA_CM8738, pcidev)))) { 
+-		initialize_chip(pcidev);
+-		index++;
+-	}
+-	while (index < NR_DEVICE && (
+- 	       (pcidev = pci_find_device(PCI_VENDOR_ID_CMEDIA, PCI_DEVICE_ID_CMEDIA_CM8338A, pcidev)))) {
+-		initialize_chip(pcidev);
+-		index++;
+-	}
+-	while (index < NR_DEVICE && (
+-	       (pcidev = pci_find_device(PCI_VENDOR_ID_CMEDIA, PCI_DEVICE_ID_CMEDIA_CM8338B, pcidev)))) {
+-		initialize_chip(pcidev);
+-		index++;
+-	}
+-	return 0;
++	release_region(s->iobase, CM_EXTENT_CODEC);
++err_region5:
++	kfree(s);
++	return ret;
+ }
+ 
+ /* --------------------------------------------------------------------- */
+@@ -3165,42 +3577,74 @@
+ MODULE_DESCRIPTION("CM8x38 Audio Driver");
+ MODULE_LICENSE("GPL");
+ 
+-
+-static void __exit cleanup_cmpci(void)
++static void __devinit cm_remove(struct pci_dev *dev)
+ {
+-	struct cm_state *s;
+-
+-	while ((s = devs)) {
+-		devs = devs->next;
+-		outb(0, s->iobase + CODEC_CMI_INT_HLDCLR + 2);  /* disable ints */
+-		synchronize_irq();
+-		outb(0, s->iobase + CODEC_CMI_FUNCTRL0 + 2); /* disable channels */
+-		free_irq(s->irq, s);
++	struct cm_state *s = pci_get_drvdata(dev);
+ 
+-		/* reset mixer */
+-		wrmixer(s, DSP_MIX_DATARESETIDX, 0);
+-
+-		release_region(s->iobase, CM_EXTENT_CODEC);
++	if (!s)
++		return;
++	list_del(&s->devs);
++	outb(0, s->iobase + CODEC_CMI_INT_HLDCLR + 2);  /* disable ints */
++	synchronize_irq();
++	outb(0, s->iobase + CODEC_CMI_FUNCTRL0 + 2); /* disable channels */
++	free_irq(s->irq, s);
++
++	/* reset mixer */
++	wrmixer(s, DSP_MIX_DATARESETIDX, 0);
++
++	if (s->gameport.io) {
++		gameport_unregister_port(&s->gameport);
++		release_region(s->gameport.io, CM_EXTENT_GAME);
++	}
++	release_region(s->iobase, CM_EXTENT_CODEC);
+ #ifdef CONFIG_SOUND_CMPCI_MIDI
+-		if (s->iomidi) release_region(s->iomidi, CM_EXTENT_MIDI);
++	if (s->iomidi) release_region(s->iomidi, CM_EXTENT_MIDI);
+ #endif
+ #ifdef CONFIG_SOUND_CMPCI_FM
+-		if (s->iosynth) release_region(s->iosynth, CM_EXTENT_SYNTH);
++	if (s->iosynth) release_region(s->iosynth, CM_EXTENT_SYNTH);
+ #endif
+-		unregister_sound_dsp(s->dev_audio);
+-		unregister_sound_mixer(s->dev_mixer);
++	unregister_sound_dsp(s->dev_audio);
++	unregister_sound_mixer(s->dev_mixer);
+ #ifdef CONFIG_SOUND_CMPCI_MIDI
+-		unregister_sound_midi(s->dev_midi);
++	unregister_sound_midi(s->dev_midi);
+ #endif
+ #ifdef CONFIG_SOUND_CMPCI_FM
+-		unregister_sound_special(s->dev_dmfm);
++	unregister_sound_special(s->dev_dmfm);
+ #endif
+-		kfree(s);
+-	}
+-	if (wavetable_mem)
+-		free_pages(wavetable_mem, 20-PAGE_SHIFT);
++	kfree(s);
++	pci_set_drvdata(dev, NULL);
++}
++
++static struct pci_device_id id_table[] __devinitdata = {
++	{ PCI_VENDOR_ID_CMEDIA, PCI_DEVICE_ID_CMEDIA_CM8738, PCI_ANY_ID, PCI_ANY_ID, 0, 0 },
++ 	{ PCI_VENDOR_ID_CMEDIA, PCI_DEVICE_ID_CMEDIA_CM8338A, PCI_ANY_ID, PCI_ANY_ID, 0, 0 },
++	{ PCI_VENDOR_ID_CMEDIA, PCI_DEVICE_ID_CMEDIA_CM8338B, PCI_ANY_ID, PCI_ANY_ID, 0, 0 },
++	{ 0, }
++};
++
++MODULE_DEVICE_TABLE(pci, id_table);
++
++static struct pci_driver cm_driver = {
++       name: "cmpci",
++       id_table: id_table,
++       probe: cm_probe,
++       remove: cm_remove
++};
++ 
++static int __init init_cmpci(void)
++{
++	if (!pci_present())   /* No PCI bus in this machine! */
++		return -ENODEV;
++	printk(KERN_INFO "cmpci: version $Revision: 6.16 $ time " __TIME__ " " __DATE__ "\n");
++	return pci_module_init(&cm_driver);
++}
++
++static void __exit cleanup_cmpci(void)
++{
+ 	printk(KERN_INFO "cmpci: unloading\n");
++	pci_unregister_driver(&cm_driver);
+ }
+ 
+ module_init(init_cmpci);
+ module_exit(cleanup_cmpci);
++
+diff -Nru a/drivers/sound/i810_audio.c b/drivers/sound/i810_audio.c
+--- a/drivers/sound/i810_audio.c	Wed Sep  3 23:35:36 2003
++++ b/drivers/sound/i810_audio.c	Wed Sep  3 23:35:36 2003
+@@ -3266,6 +3266,8 @@
+ 	free_irq(card->irq, devs);
+ 	release_region(card->iobase, 64);
+ 	release_region(card->ac97base, 256);
++	pci_free_consistent(pci_dev, sizeof(struct i810_channel)*NR_HW_CH,
++			    card->channel, card->chandma);
+ 	if (card->use_mmio) {
+ 		iounmap(card->ac97base_mmio);
+ 		iounmap(card->iobase_mmio);
+diff -Nru a/drivers/usb/audio.c b/drivers/usb/audio.c
+--- a/drivers/usb/audio.c	Wed Sep  3 23:35:36 2003
++++ b/drivers/usb/audio.c	Wed Sep  3 23:35:36 2003
+@@ -105,6 +105,8 @@
+  *              functionality. Tested and used in production with the emagic emi 2|6 
+  *              on PPC and Intel. Also fixed a few logic 'crash and burn' corner 
+  *              cases.
++ * 2003-06-30:  Thomas Sailer
++ *              Fix SETTRIGGER non OSS API conformity
+  */
+ 
+ /*
+@@ -279,23 +281,24 @@
+ 	unsigned int srate;
+ 	/* physical buffer */
+ 	unsigned char *sgbuf[NRSGBUF];
+-	unsigned bufsize;
+-	unsigned numfrag;
+-	unsigned fragshift;
+-	unsigned wrptr, rdptr;
+-	unsigned total_bytes;
++	unsigned int bufsize;
++	unsigned int numfrag;
++	unsigned int fragshift;
++	unsigned int wrptr, rdptr;
++	unsigned int total_bytes;
+ 	int count;
+-	unsigned error; /* over/underrun */
++	unsigned int error; /* over/underrun */
+ 	wait_queue_head_t wait;
+ 	/* redundant, but makes calculations easier */
+-	unsigned fragsize;
+-	unsigned dmasize;
++	unsigned int fragsize;
++	unsigned int dmasize;
+ 	/* OSS stuff */
+-	unsigned mapped:1;
+-	unsigned ready:1;
+-	unsigned ossfragshift;
++	unsigned int mapped:1;
++	unsigned int ready:1;
++	unsigned int enabled:1;
++	unsigned int ossfragshift;
+ 	int ossmaxfrags;
+-	unsigned subdivision;
++	unsigned int subdivision;
+ };
+ 
+ struct usb_audio_state;
+@@ -562,6 +565,7 @@
+ 			break;
+ 	}
+ 	db->bufsize = nr << PAGE_SHIFT;
++	db->enabled = 1;
+ 	db->ready = 1;
+ 	dprintk((KERN_DEBUG "usbaudio: dmabuf_init bytepersec %d bufs %d ossfragshift %d ossmaxfrags %d "
+ 	         "fragshift %d fragsize %d numfrag %d dmasize %d bufsize %d fmt 0x%x srate %d\n",
+@@ -2299,7 +2303,7 @@
+ 		if (cnt > count)
+ 			cnt = count;
+ 		if (cnt <= 0) {
+-			if (usbin_start(as)) {
++			if (as->usbin.dma.enabled && usbin_start(as)) {
+ 				if (!ret)
+ 					ret = -ENODEV;
+ 				break;
+@@ -2332,6 +2336,11 @@
+ 		count -= cnt;
+ 		buffer += cnt;
+ 		ret += cnt;
++		if (as->usbin.dma.enabled && usbin_start(as)) {
++			if (!ret)
++				ret = -ENODEV;
++			break;
++		}
+ 	}
+ 	__set_current_state(TASK_RUNNING);
+ 	remove_wait_queue(&as->usbin.dma.wait, &wait);
+@@ -2378,7 +2387,7 @@
+ 		if (cnt > count)
+ 			cnt = count;
+ 		if (cnt <= 0) {
+-			if (usbout_start(as)) {
++			if (as->usbout.dma.enabled && usbout_start(as)) {
+ 				if (!ret)
+ 					ret = -ENODEV;
+ 				break;
+@@ -2411,7 +2420,7 @@
+ 		count -= cnt;
+ 		buffer += cnt;
+ 		ret += cnt;
+-		if (as->usbout.dma.count >= start_thr && usbout_start(as)) {
++		if (as->usbout.dma.enabled && as->usbout.dma.count >= start_thr && usbout_start(as)) {
+ 			if (!ret)
+ 				ret = -ENODEV;
+ 			break;
+@@ -2616,19 +2625,25 @@
+ 			if (val & PCM_ENABLE_INPUT) {
+ 				if (!as->usbin.dma.ready && (ret = prog_dmabuf_in(as)))
+ 					return ret;
++				as->usbin.dma.enabled = 1;
+ 				if (usbin_start(as))
+ 					return -ENODEV;
+-			} else
++			} else {
++				as->usbin.dma.enabled = 0;
+ 				usbin_stop(as);
++			}
+ 		}
+ 		if (file->f_mode & FMODE_WRITE) {
+ 			if (val & PCM_ENABLE_OUTPUT) {
+ 				if (!as->usbout.dma.ready && (ret = prog_dmabuf_out(as)))
+ 					return ret;
++				as->usbout.dma.enabled = 1;
+ 				if (usbout_start(as))
+ 					return -ENODEV;
+-			} else
++			} else {
++				as->usbout.dma.enabled = 0;
+ 				usbout_stop(as);
++			}
+ 		}
+ 		return 0;
+ 
+@@ -2827,10 +2842,14 @@
+ 		if (signal_pending(current))
+ 			return -ERESTARTSYS;
+ 	}
+-	if (file->f_mode & FMODE_READ)
++	if (file->f_mode & FMODE_READ) {
+ 		as->usbin.dma.ossfragshift = as->usbin.dma.ossmaxfrags = as->usbin.dma.subdivision = 0;
+-	if (file->f_mode & FMODE_WRITE)
++		as->usbin.dma.enabled = 1;
++	}
++	if (file->f_mode & FMODE_WRITE) {
+ 		as->usbout.dma.ossfragshift = as->usbout.dma.ossmaxfrags = as->usbout.dma.subdivision = 0;
++		as->usbout.dma.enabled = 1;
++	}
+ 	if (set_format(as, file->f_mode, ((minor & 0xf) == SND_DEV_DSP16) ? AFMT_S16_LE : AFMT_U8 /* AFMT_ULAW */, 8000)) {
+ 		up(&open_sem);
+ 		return -EIO;
+diff -Nru a/include/linux/wm97xx.h b/include/linux/wm97xx.h
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/include/linux/wm97xx.h	Wed Sep  3 23:38:41 2003
+@@ -0,0 +1,96 @@
++  
++/*
++ * Register bits for Wolfson WM97xx series of codecs
++ */
++ 
++#ifndef _WM97XX_H_
++#define _WM97XX_H_
++
++#include <linux/ac97_codec.h>	/* AC97 control layer */
++
++/*
++ * WM97xx AC97 Touchscreen registers
++ */
++#define AC97_WM97XX_DIGITISER1		0x76
++#define AC97_WM97XX_DIGITISER2		0x78
++#define AC97_WM97XX_DIGITISER_RD	0x7a
++
++/*
++ * WM97xx register bits
++ */
++#define WM97XX_POLL			0x8000		/* initiate a polling measurement */
++#define WM97XX_ADCSEL_X		0x1000		/* x coord measurement */
++#define WM97XX_ADCSEL_Y		0x2000		/* y coord measurement */
++#define WM97XX_ADCSEL_PRES	0x3000		/* pressure measurement */
++#define WM97XX_COO			0x0800		/* enable coordinate mode */
++#define WM97XX_CTC			0x0400		/* enable continuous mode */
++#define WM97XX_CM_RATE_93	0x0000		/* 93.75Hz continuous rate */
++#define WM97XX_CM_RATE_187	0x0100		/* 187.5Hz continuous rate */
++#define WM97XX_CM_RATE_375	0x0200		/* 375Hz continuous rate */
++#define WM97XX_CM_RATE_750	0x0300		/* 750Hz continuous rate */
++#define WM97XX_CM_RATE_8K	0x00f0		/* 8kHz continuous rate */
++#define WM97XX_CM_RATE_12K	0x01f0		/* 12kHz continuous rate */
++#define WM97XX_CM_RATE_24K	0x02f0		/* 24kHz continuous rate */
++#define WM97XX_CM_RATE_48K	0x03f0		/* 48kHz continuous rate */
++#define WM97XX_DELAY(i)		((i << 4) & 0x00f0)	/* sample delay times */
++#define WM97XX_SLEN			0x0008		/* slot read back enable */
++#define WM97XX_SLT(i)		((i - 5) & 0x7)	/* touchpanel slot selection (5-11) */
++#define WM97XX_PRP_DETW		0x4000		/* pen detect on, digitiser off, wake up */
++#define WM97XX_PRP_DET		0x8000		/* pen detect on, digitiser off, no wake up */
++#define WM97XX_PRP_DET_DIG	0xc000		/* pen detect on, digitiser on */
++#define WM97XX_RPR			0x2000		/* wake up on pen down */
++#define WM97XX_PEN_DOWN     0x8000     /* pen is down */
++
++/* WM9712 Bits */
++#define WM9712_45W			0x1000		/* set for 5-wire touchscreen */
++#define WM9712_PDEN			0x0800		/* measure only when pen down */
++#define WM9712_WAIT			0x0200		/* wait until adc is read before next sample */
++#define WM9712_PIL			0x0100		/* current used for pressure measurement. set 400uA else 200uA */ 
++#define WM9712_MASK_HI		0x0040		/* hi on mask pin (47) stops conversions */
++#define WM9712_MASK_EDGE	0x0080		/* rising/falling edge on pin delays sample */
++#define	WM9712_MASK_SYNC	0x00c0		/* rising/falling edge on mask initiates sample */
++#define WM9712_RPU(i)		(i&0x3f)	/* internal pull up on pen detect (64k / rpu) */
++#define WM9712_ADCSEL_COMP1	0x4000		/* COMP1/AUX1 measurement (pin29) */
++#define WM9712_ADCSEL_COMP2	0x5000		/* COMP2/AUX2 measurement (pin30) */
++#define WM9712_ADCSEL_BMON	0x6000		/* BMON/AUX3 measurement (pin31) */
++#define WM9712_ADCSEL_WIPER	0x7000		/* WIPER/AUX4 measurement (pin12) */
++#define WM9712_PD(i)		(0x1 << i)  /* power management */ 
++
++/* WM9712 Registers */
++#define AC97_WM9712_POWER			0x24
++#define AC97_WM9712_REV				0x58
++
++/* WM9705 Bits */
++#define WM9705_PDEN			0x1000		/* measure only when pen is down */
++#define WM9705_PINV			0x0800		/* inverts sense of pen down output */
++#define WM9705_BSEN			0x0400		/* BUSY flag enable, pin47 is 1 when busy */
++#define WM9705_BINV			0x0200		/* invert BUSY (pin47) output */
++#define WM9705_WAIT			0x0100		/* wait until adc is read before next sample */
++#define WM9705_PIL			0x0080		/* current used for pressure measurement. set 400uA else 200uA */ 
++#define WM9705_PHIZ			0x0040		/* set PHONE and PCBEEP inputs to high impedance */
++#define WM9705_MASK_HI		0x0010		/* hi on mask stops conversions */
++#define WM9705_MASK_EDGE	0x0020		/* rising/falling edge on pin delays sample */
++#define	WM9705_MASK_SYNC	0x0030		/* rising/falling edge on mask initiates sample */
++#define WM9705_PDD(i)		(i & 0x000f) /* pen detect comparator threshold */
++#define WM9705_ADCSEL_BMON	0x4000		/* BMON measurement */
++#define WM9705_ADCSEL_AUX	0x5000		/* AUX measurement */
++#define WM9705_ADCSEL_PHONE	0x6000		/* PHONE measurement */
++#define WM9705_ADCSEL_PCBEEP 0x7000		/* PCBEEP measurement */
++
++/* AUX ADC ID's */
++#define TS_COMP1			0x0
++#define TS_COMP2			0x1
++#define TS_BMON				0x2
++#define TS_WIPER			0x3
++
++/* ID numbers */
++#define WM97XX_ID1			0x574d
++#define WM9712_ID2			0x4c12
++#define WM9705_ID2			0x4c05
++
++#define AC97_LINK_FRAME		21			/* time in uS for AC97 link frame */
++
++void register_touchscreen_codec(struct ac97_codec *codec);
++void unregister_touchscreen_codec(struct ac97_codec *codec);
++
++#endif
+--- /dev/null	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.4.22/drivers/sound/ac97_plugin_wm97xx.c	2003-09-07 13:59:24.000000000 +0200
+@@ -0,0 +1,1408 @@
++/*
++ * ac97_plugin_wm97xx.c  --  Touch screen driver for Wolfson WM9705 and WM9712
++ *                           AC97 Codecs.
++ *
++ * Copyright 2003 Wolfson Microelectronics PLC.
++ * Author: Liam Girdwood
++ *         liam.girdwood@wolfsonmicro.com or linux@wolfsonmicro.com
++ *
++ *  This program is free software; you can redistribute  it and/or modify it
++ *  under  the terms of  the GNU General  Public License as published by the
++ *  Free Software Foundation;  either version 2 of the  License, or (at your
++ *  option) any later version.
++ *
++ *  THIS  SOFTWARE  IS PROVIDED   ``AS  IS'' AND   ANY  EXPRESS OR IMPLIED
++ *  WARRANTIES,   INCLUDING, BUT NOT  LIMITED  TO, THE IMPLIED WARRANTIES OF
++ *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN
++ *  NO  EVENT  SHALL   THE AUTHOR  BE    LIABLE FOR ANY   DIRECT, INDIRECT,
++ *  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
++ *  NOT LIMITED   TO, PROCUREMENT OF  SUBSTITUTE GOODS  OR SERVICES; LOSS OF
++ *  USE, DATA,  OR PROFITS; OR  BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
++ *  ANY THEORY OF LIABILITY, WHETHER IN  CONTRACT, STRICT LIABILITY, OR TORT
++ *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
++ *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
++ *
++ *  You should have received a copy of the  GNU General Public License along
++ *  with this program; if not, write  to the Free Software Foundation, Inc.,
++ *  675 Mass Ave, Cambridge, MA 02139, USA.
++ *
++ * Notes:
++ *
++ *  Features:
++ *       - supports WM9705, WM9712
++ *       - polling mode
++ *       - coordinate polling
++ *       - adjustable rpu/dpp settings
++ *       - adjustable pressure current
++ *       - adjustable sample settle delay
++ *       - 4 and 5 wire touchscreens (5 wire is WM9712 only)
++ *       - pen down detection
++ *       - battery monitor
++ *       - sample AUX adc's
++ *       - power management
++ *       - direct AC97 IO from userspace (#define WM97XX_TS_DEBUG)
++ *
++ *  TODO:
++ *       - continuous mode
++ *       - adjustable sample rate
++ *       - AUX adc in coordinate / continous modes
++ *	 - Official device identifier or misc device ?
++ *
++ *  Revision history
++ *    7th May 2003   Initial version.
++ *    6th June 2003  Added non module support and AC97 registration.
++ *   18th June 2003  Added AUX adc sampling. 
++ *   23rd June 2003  Did some minimal reformatting, fixed a couple of
++ *		     locking bugs and noted a race to fix.
++ *   24th June 2003  Added power management and fixed race condition.
++ */
++
++#include <linux/module.h>
++#include <linux/version.h>
++#include <linux/kernel.h>
++#include <linux/init.h>
++#include <linux/fs.h>
++#include <linux/delay.h>
++#include <linux/poll.h>
++#include <linux/string.h>
++#include <linux/proc_fs.h>
++#include <linux/miscdevice.h>
++#include <linux/pm.h>
++#include <linux/wm97xx.h>       /* WM97xx registers and bits */
++#include <asm/uaccess.h>        /* get_user,copy_to_user */
++#include <asm/io.h>
++
++#define TS_NAME "ac97_plugin_wm97xx"
++#define TS_MINOR 16
++#define WM_TS_VERSION "0.6"
++#define AC97_NUM_REG 64
++
++
++/*
++ * Debug
++ */
++ 
++#define PFX TS_NAME
++#define WM97XX_TS_DEBUG 0
++
++#ifdef WM97XX_TS_DEBUG
++#define dbg(format, arg...) printk(KERN_DEBUG PFX ": " format "\n" , ## arg)
++#else
++#define dbg(format, arg...) do {} while (0)
++#endif
++#define err(format, arg...) printk(KERN_ERR PFX ": " format "\n" , ## arg)
++#define info(format, arg...) printk(KERN_INFO PFX ": " format "\n" , ## arg)
++#define warn(format, arg...) printk(KERN_WARNING PFX ": " format "\n" , ## arg)
++
++/*
++ * Module parameters
++ */
++	
++	
++/*
++ * Set the codec sample mode.
++ *
++ * The WM9712 can sample touchscreen data in 3 different operating
++ * modes. i.e. polling, coordinate and continous.
++ *
++ * Polling:-     The driver polls the codec and issues 3 seperate commands
++ *               over the AC97 link to read X,Y and pressure.
++ * 
++ * Coordinate: - The driver polls the codec and only issues 1 command over
++ *               the AC97 link to read X,Y and pressure. This mode has
++ *               strict timing requirements and may drop samples if 
++ *               interrupted. However, it is less demanding on the AC97
++ *               link. Note: this mode requires a larger delay than polling
++ *               mode.
++ *
++ * Continuous:-  The codec automatically samples X,Y and pressure and then
++ *               sends the data over the AC97 link in slots. This is the
++ *               same method used by the codec when recording audio.
++ *
++ * Set mode = 0 for polling, 1 for coordinate and 2 for continuous.
++ *            
++ */
++MODULE_PARM(mode,"i");
++MODULE_PARM_DESC(mode, "Set WM97XX operation mode");
++static int mode = 0;	
++	
++/*
++ * WM9712 - Set internal pull up for pen detect. 
++ * 
++ * Pull up is in the range 1.02k (least sensitive) to 64k (most sensitive)
++ * i.e. pull up resistance = 64k Ohms / rpu.
++ * 
++ * Adjust this value if you are having problems with pen detect not 
++ * detecting any down events.
++ */
++MODULE_PARM(rpu,"i");
++MODULE_PARM_DESC(rpu, "Set internal pull up resitor for pen detect.");
++static int rpu = 0;	
++
++/*
++ * WM9705 - Pen detect comparator threshold. 
++ * 
++ * 0 to Vmid in 15 steps, 0 = use zero power comparator with Vmid threshold
++ * i.e. 1 =  Vmid/15 threshold
++ *      15 =  Vmid/1 threshold
++ * 
++ * Adjust this value if you are having problems with pen detect not 
++ * detecting any down events.
++ */
++MODULE_PARM(pdd,"i");
++MODULE_PARM_DESC(pdd, "Set pen detect comparator threshold");
++static int pdd = 0;	
++	
++/*
++ * Set current used for pressure measurement.
++ *
++ * Set pil = 2 to use 400uA 
++ *     pil = 1 to use 200uA and
++ *     pil = 0 to disable pressure measurement.
++ *
++ * This is used to increase the range of values returned by the adc
++ * when measureing touchpanel pressure. 
++ */
++MODULE_PARM(pil,"i");
++MODULE_PARM_DESC(pil, "Set current used for pressure measurement.");
++static int pil = 0;
++
++/*
++ * WM9712 - Set five_wire = 1 to use a 5 wire touchscreen.
++ * 
++ * NOTE: Five wire mode does not allow for readback of pressure.
++ */
++MODULE_PARM(five_wire,"i");
++MODULE_PARM_DESC(five_wire, "Set 5 wire touchscreen.");
++static int five_wire = 0;	
++
++/*
++ * Set adc sample delay.
++ * 
++ * For accurate touchpanel measurements, some settling time may be
++ * required between the switch matrix applying a voltage across the
++ * touchpanel plate and the ADC sampling the signal.
++ *
++ * This delay can be set by setting delay = n, where n is the array
++ * position of the delay in the array delay_table below.
++ * Long delays > 1ms are supported for completeness, but are not
++ * recommended.
++ */
++MODULE_PARM(delay,"i");
++MODULE_PARM_DESC(delay, "Set adc sample delay.");
++static int delay = 4;	
++
++
++/* +++++++++++++ Lifted from include/linux/h3600_ts.h ++++++++++++++*/
++typedef struct {
++	unsigned short pressure;  // touch pressure
++	unsigned short x;         // calibrated X
++	unsigned short y;         // calibrated Y
++	unsigned short millisecs; // timestamp of this event
++} TS_EVENT;
++
++typedef struct {
++	int xscale;
++	int xtrans;
++	int yscale;
++	int ytrans;
++	int xyswap;
++} TS_CAL;
++
++/* Use 'f' as magic number */
++#define IOC_MAGIC  'f'
++
++#define TS_GET_RATE             _IO(IOC_MAGIC, 8)
++#define TS_SET_RATE             _IO(IOC_MAGIC, 9)
++#define TS_GET_CAL              _IOR(IOC_MAGIC, 10, TS_CAL)
++#define TS_SET_CAL              _IOW(IOC_MAGIC, 11, TS_CAL)
++
++/* +++++++++++++ Done lifted from include/linux/h3600_ts.h +++++++++*/
++
++#define TS_GET_COMP1			_IOR(IOC_MAGIC, 12, short)
++#define TS_GET_COMP2			_IOR(IOC_MAGIC, 13, short)
++#define TS_GET_BMON			_IOR(IOC_MAGIC, 14, short)
++#define TS_GET_WIPER			_IOR(IOC_MAGIC, 15, short)
++
++#ifdef WM97XX_TS_DEBUG
++/* debug get/set ac97 codec register ioctl's */
++#define TS_GET_AC97_REG			_IOR(IOC_MAGIC, 20, short)
++#define TS_SET_AC97_REG			_IOW(IOC_MAGIC, 21, short)
++#define TS_SET_AC97_INDEX		_IOW(IOC_MAGIC, 22, short)
++#endif
++
++#define EVENT_BUFSIZE 128
++
++typedef struct {
++	TS_CAL cal;                       /* Calibration values */
++	TS_EVENT event_buf[EVENT_BUFSIZE];/* The event queue */
++	int nextIn, nextOut;
++	int event_count;
++	int is_wm9712:1;                  /* are we a WM912 or a WM9705 */
++	int is_registered:1;              /* Is the driver AC97 registered */
++	int line_pgal:5;
++	int line_pgar:5;
++	int phone_pga:5;
++	int mic_pgal:5;
++	int mic_pgar:5;
++	int overruns;                     /* event buffer overruns */
++	int adc_errs;                     /* sample read back errors */
++#ifdef WM97XX_TS_DEBUG
++	short ac97_index;
++#endif
++	struct fasync_struct *fasync;     /* asynch notification */
++	struct timer_list acq_timer;      /* Timer for triggering acquisitions */
++	wait_queue_head_t wait;           /* read wait queue */
++	spinlock_t lock;
++	struct ac97_codec *codec;
++	struct proc_dir_entry *wm97xx_ts_ps;
++#ifdef WM97XX_TS_DEBUG
++	struct proc_dir_entry *wm97xx_debug_ts_ps;
++#endif
++	struct pm_dev * pm;
++} wm97xx_ts_t;
++
++static inline void poll_delay (void);
++static int __init wm97xx_ts_init_module(void);
++static int wm97xx_poll_read_adc (wm97xx_ts_t* ts, u16 adcsel, u16* sample);
++static int wm97xx_coord_read_adc (wm97xx_ts_t* ts, u16* x, u16* y, 
++                                  u16* pressure);
++static inline int pendown (wm97xx_ts_t *ts);
++static void wm97xx_acq_timer(unsigned long data);
++static int wm97xx_fasync(int fd, struct file *filp, int mode);
++static int wm97xx_ioctl(struct inode * inode, struct file *filp,
++	                    unsigned int cmd, unsigned long arg);
++static unsigned int wm97xx_poll(struct file * filp, poll_table * wait);
++static ssize_t wm97xx_read(struct file * filp, char * buf, size_t count, 
++	                       loff_t * l);
++static int wm97xx_open(struct inode * inode, struct file * filp);
++static int wm97xx_release(struct inode * inode, struct file * filp);
++static void init_wm97xx_phy(void);
++static int adc_get (wm97xx_ts_t *ts, unsigned short *value, int id);
++static int wm97xx_probe(struct ac97_codec *codec, struct ac97_driver *driver);
++static void wm97xx_remove(struct ac97_codec *codec,  struct ac97_driver *driver);
++static void wm97xx_ts_cleanup_module(void);
++static int wm97xx_pm_event(struct pm_dev *dev, pm_request_t rqst, void *data);
++static void wm97xx_suspend(void);
++static void wm97xx_resume(void);
++static void wm9712_pga_save(wm97xx_ts_t* ts);
++static void wm9712_pga_restore(wm97xx_ts_t* ts);
++
++/* AC97 registration info */
++static struct ac97_driver wm9705_driver = {
++	codec_id: 0x574D4C05,
++	codec_mask: 0xFFFFFFFF,
++	name: "Wolfson WM9705 Touchscreen/BMON",
++	probe:	wm97xx_probe,
++	remove: __devexit_p(wm97xx_remove),
++};
++
++static struct ac97_driver wm9712_driver = {
++	codec_id: 0x574D4C12,
++	codec_mask: 0xFFFFFFFF,
++	name: "Wolfson WM9712 Touchscreen/BMON",
++	probe:	wm97xx_probe,
++	remove: __devexit_p(wm97xx_remove),
++};
++
++/* we only support a single touchscreen */
++static wm97xx_ts_t wm97xx_ts;
++
++/*
++ * ADC sample delay times in uS
++ */
++static const int delay_table[16] = {
++	21,		// 1 AC97 Link frames
++	42,		// 2
++	84,		// 4
++	167,		// 8
++	333,		// 16
++	667,		// 32
++	1000,		// 48
++	1333,		// 64
++	2000,		// 96
++	2667,		// 128
++	3333,		// 160
++	4000,		// 192
++	4667,		// 224
++	5333,		// 256
++	6000,		// 288
++	0 		// No delay, switch matrix always on
++};
++
++/*
++ * Delay after issuing a POLL command.
++ *
++ * The delay is 3 AC97 link frames + the touchpanel settling delay
++ */
++
++static inline void poll_delay(void)
++{ 
++	int pdelay = 3 * AC97_LINK_FRAME + delay_table[delay];
++	udelay (pdelay);
++}
++
++
++/*
++ * sample the auxillary ADC's 
++ */
++
++static int adc_get(wm97xx_ts_t* ts, unsigned short * value, int id)
++{
++	short adcsel = 0;
++	
++	/* first find out our adcsel flag */
++	if (ts->is_wm9712) {
++		switch (id) {
++			case TS_COMP1:
++				adcsel = WM9712_ADCSEL_COMP1;
++				break;
++			case TS_COMP2:
++				adcsel = WM9712_ADCSEL_COMP2;
++				break;
++			case TS_BMON:
++				adcsel = WM9712_ADCSEL_BMON;
++				break;
++			case TS_WIPER:
++				adcsel = WM9712_ADCSEL_WIPER;
++				break;
++		}
++	} else {
++		switch (id) {
++			case TS_COMP1:
++				adcsel = WM9705_ADCSEL_PCBEEP;
++				break;
++			case TS_COMP2:
++				adcsel = WM9705_ADCSEL_PHONE;
++				break;
++			case TS_BMON:
++				adcsel = WM9705_ADCSEL_BMON;
++				break;
++			case TS_WIPER:
++				adcsel = WM9705_ADCSEL_AUX;
++				break;
++		}
++	}
++	
++	/* now sample the adc */
++	if (mode == 1) {
++		/* coordinate mode - not currently available (TODO) */
++			return 0;
++	}
++	else
++	{
++		/* polling mode */
++		if (!wm97xx_poll_read_adc(ts, adcsel, value))
++			return 0;	
++	}
++	
++	return 1;
++}
++
++
++/*
++ * Read a sample from the adc in polling mode.
++ */
++static int wm97xx_poll_read_adc (wm97xx_ts_t* ts, u16 adcsel, u16* sample)
++{
++	u16 dig1;
++	int timeout = 5 * delay;
++
++	/* set up digitiser */
++	dig1 = ts->codec->codec_read(ts->codec, AC97_WM97XX_DIGITISER1); 
++	dig1&=0x0fff;
++	ts->codec->codec_write(ts->codec, AC97_WM97XX_DIGITISER1, dig1 | adcsel |
++		WM97XX_POLL); 
++
++	/* wait 3 AC97 time slots + delay for conversion */
++	poll_delay();
++
++	/* wait for POLL to go low */
++	while ((ts->codec->codec_read(ts->codec, AC97_WM97XX_DIGITISER1) & WM97XX_POLL) && timeout) { 
++		udelay(AC97_LINK_FRAME);
++		timeout--;	
++	}
++	if (timeout > 0)
++		*sample = ts->codec->codec_read(ts->codec, AC97_WM97XX_DIGITISER_RD);
++	else {
++		ts->adc_errs++;
++		err ("adc sample timeout");
++		return 0;
++	}
++	
++	/* check we have correct sample */
++	if ((*sample & 0x7000) != adcsel ) { 
++		err ("adc wrong sample, read %x got %x", adcsel, *sample & 0x7000);
++		return 0;
++	}
++	return 1;
++}
++
++/*
++ * Read a sample from the adc in coordinate mode.
++ */
++static int wm97xx_coord_read_adc(wm97xx_ts_t* ts, u16* x, u16* y, u16* pressure)
++{
++	u16 dig1;
++	int timeout = 5 * delay;
++
++	/* set up digitiser */
++	dig1 = ts->codec->codec_read(ts->codec, AC97_WM97XX_DIGITISER1); 
++	dig1&=0x0fff;
++	ts->codec->codec_write(ts->codec, AC97_WM97XX_DIGITISER1, dig1 | WM97XX_ADCSEL_PRES |
++		WM97XX_POLL); 
++
++	/* wait 3 AC97 time slots + delay for conversion */
++	poll_delay();
++	
++	/* read X then wait for 1 AC97 link frame + settling delay */
++	*x = ts->codec->codec_read(ts->codec, AC97_WM97XX_DIGITISER_RD);
++	udelay (AC97_LINK_FRAME + delay_table[delay]);
++
++	/* read Y */
++	*y = ts->codec->codec_read(ts->codec, AC97_WM97XX_DIGITISER_RD);
++	
++	/* wait for POLL to go low and then read pressure */
++	while ((ts->codec->codec_read(ts->codec, AC97_WM97XX_DIGITISER1) & WM97XX_POLL)&& timeout) {
++			udelay(AC97_LINK_FRAME);
++			timeout--;
++	}
++	if (timeout > 0)		
++		*pressure = ts->codec->codec_read(ts->codec, AC97_WM97XX_DIGITISER_RD);
++	else {
++		ts->adc_errs++;
++		err ("adc sample timeout");
++		return 0;
++	}
++	
++	/* check we have correct samples */
++	if (((*x & 0x7000) == 0x1000) && ((*y & 0x7000) == 0x2000) && 
++		((*pressure & 0x7000) == 0x3000)) { 
++		return 1;
++	} else {
++		ts->adc_errs++;
++		err ("adc got wrong samples, got x 0x%x y 0x%x pressure 0x%x", *x, *y, *pressure);
++		return 0;
++	}
++}
++
++/*
++ * Is the pen down ?
++ */
++static inline int pendown (wm97xx_ts_t *ts)
++{
++	return ts->codec->codec_read(ts->codec, AC97_WM97XX_DIGITISER_RD) & WM97XX_PEN_DOWN;
++}
++
++/*
++ * X,Y coordinates and pressure aquisition function.
++ * This function is run by a kernel timer and it's frequency between
++ * calls is the touchscreen polling rate;
++ */
++ 
++static void wm97xx_acq_timer(unsigned long data)
++{
++	wm97xx_ts_t* ts = (wm97xx_ts_t*)data;
++	unsigned long flags;
++	long x,y;
++	TS_EVENT event;
++	
++	spin_lock_irqsave(&ts->lock, flags);
++
++	/* are we still registered ? */
++	if (!ts->is_registered) {
++		spin_unlock_irqrestore(&ts->lock, flags);
++		return; /* we better stop then */
++	}
++	
++	/* read coordinates if pen is down */
++	if (!pendown(ts))
++		goto acq_exit;
++	
++	if (mode == 1) {
++		/* coordinate mode */
++		if (!wm97xx_coord_read_adc(ts, (u16*)&x, (u16*)&y, &event.pressure))
++			goto acq_exit;
++	} else
++	{
++		/* polling mode */
++		if (!wm97xx_poll_read_adc(ts, WM97XX_ADCSEL_X, (u16*)&x))
++			goto acq_exit;
++		if (!wm97xx_poll_read_adc(ts, WM97XX_ADCSEL_Y, (u16*)&y))
++			goto acq_exit;
++		
++		/* only read pressure if we have to */
++		if (!five_wire && pil) {
++			if (!wm97xx_poll_read_adc(ts, WM97XX_ADCSEL_PRES, &event.pressure))
++				goto acq_exit;
++		}
++		else
++			event.pressure = 0;
++	}
++	/* timestamp this new event. */
++	event.millisecs = jiffies;
++
++	/* calibrate and remove unwanted bits from samples */
++	event.pressure &= 0x0fff;
++	
++	x &= 0x00000fff;
++	x = ((ts->cal.xscale * x) >> 8) + ts->cal.xtrans;
++	event.x = (u16)x;
++	
++	y &= 0x00000fff;
++	y = ((ts->cal.yscale * y) >> 8) + ts->cal.ytrans;
++	event.y = (u16)y;
++	
++	/* add this event to the event queue */
++	ts->event_buf[ts->nextIn++] = event;
++	if (ts->nextIn == EVENT_BUFSIZE)
++		ts->nextIn = 0;
++	if (ts->event_count < EVENT_BUFSIZE) {
++		ts->event_count++;
++	} else {
++		/* throw out the oldest event */
++		if (++ts->nextOut == EVENT_BUFSIZE) {
++			ts->nextOut = 0;
++			ts->overruns++;
++		}
++	}
++
++	/* async notify */
++	if (ts->fasync)
++		kill_fasync(&ts->fasync, SIGIO, POLL_IN);
++	/* wake up any read call */
++	if (waitqueue_active(&ts->wait))
++		wake_up_interruptible(&ts->wait);
++
++	/* schedule next acquire */
++acq_exit:
++	ts->acq_timer.expires = jiffies + HZ / 100;
++	add_timer(&ts->acq_timer);
++
++	spin_unlock_irqrestore(&ts->lock, flags);
++}
++	
++	
++/* +++++++++++++ File operations ++++++++++++++*/
++
++static int wm97xx_fasync(int fd, struct file *filp, int mode)
++{
++	wm97xx_ts_t* ts = (wm97xx_ts_t*)filp->private_data;
++	return fasync_helper(fd, filp, mode, &ts->fasync);
++}
++
++static int wm97xx_ioctl(struct inode * inode, struct file *filp,
++	     unsigned int cmd, unsigned long arg)
++{
++	unsigned short adc_value;
++#ifdef WM97XX_TS_DEBUG
++	short data;
++#endif	
++	wm97xx_ts_t* ts = (wm97xx_ts_t*)filp->private_data;
++
++	switch(cmd) {
++	case TS_GET_RATE:       /* TODO: what is this? */
++		break;
++	case TS_SET_RATE:       /* TODO: what is this? */
++		break;
++	case TS_GET_CAL:
++		if(copy_to_user((char *)arg, (char *)&ts->cal, sizeof(TS_CAL)))
++			return -EFAULT;
++		break;
++	case TS_SET_CAL:
++		if(copy_from_user((char *)&ts->cal, (char *)arg, sizeof(TS_CAL)))
++			return -EFAULT;
++		break;
++	case TS_GET_COMP1:
++		if (adc_get(ts, &adc_value, TS_COMP1)) {
++			if(copy_to_user((char *)arg, (char *)&adc_value, sizeof(adc_value)))
++				return -EFAULT;
++		}
++		else
++			return -EIO;
++		break;
++	case TS_GET_COMP2:
++		if (adc_get(ts, &adc_value, TS_COMP2)) {
++			if(copy_to_user((char *)arg, (char *)&adc_value, sizeof(adc_value)))
++				return -EFAULT;
++		}
++		else
++			return -EIO;
++		break;
++	case TS_GET_BMON:
++		if (adc_get(ts, &adc_value, TS_BMON)) {
++			if(copy_to_user((char *)arg, (char *)&adc_value, sizeof(adc_value)))
++				return -EFAULT;
++		}
++		else
++			return -EIO;
++		break;
++	case TS_GET_WIPER:
++		if (adc_get(ts, &adc_value, TS_WIPER)) {
++			if(copy_to_user((char *)arg, (char *)&adc_value, sizeof(adc_value)))
++				return -EFAULT;
++		}
++		else
++			return -EIO;
++		break;
++#ifdef WM97XX_TS_DEBUG
++		/* debug get/set ac97 codec register ioctl's 
++		 *
++		 * This is direct IO to the codec registers - BE CAREFULL
++		 */
++	case TS_GET_AC97_REG: /* read from ac97 reg (index) */
++		data = ts->codec->codec_read(ts->codec, ts->ac97_index);
++		if(copy_to_user((char *)arg, (char *)&data, sizeof(data)))
++			return -EFAULT;
++		break;
++	case TS_SET_AC97_REG: /* write to ac97 reg (index) */
++		if(copy_from_user((char *)&data, (char *)arg, sizeof(data)))
++			return -EFAULT;
++		ts->codec->codec_write(ts->codec, ts->ac97_index, data);
++		break;
++	case TS_SET_AC97_INDEX: /* set ac97 reg index */
++		if(copy_from_user((char *)&ts->ac97_index, (char *)arg, sizeof(ts->ac97_index)))
++			return -EFAULT;
++		break;
++#endif
++	default:
++		return -EINVAL;
++	}
++
++	return 0;
++}
++
++static unsigned int wm97xx_poll(struct file * filp, poll_table * wait)
++{
++	wm97xx_ts_t *ts = (wm97xx_ts_t *)filp->private_data;
++	poll_wait(filp, &ts->wait, wait);
++	if (ts->event_count)
++		return POLLIN | POLLRDNORM;
++	return 0;
++}
++
++static ssize_t wm97xx_read(struct file *filp, char *buf, size_t count, loff_t *l)
++{
++	wm97xx_ts_t* ts = (wm97xx_ts_t*)filp->private_data;
++	unsigned long flags;
++	TS_EVENT event;
++	int i;
++
++	/* are we still registered with AC97 layer ? */
++	spin_lock_irqsave(&ts->lock, flags);
++	if (!ts->is_registered) {
++		spin_unlock_irqrestore(&ts->lock, flags);
++		return -ENXIO;
++	}
++	
++	if (ts->event_count == 0) {
++		if (filp->f_flags & O_NONBLOCK)
++			return -EAGAIN;
++		spin_unlock_irqrestore(&ts->lock, flags);
++
++		wait_event_interruptible(ts->wait, ts->event_count != 0);
++		
++		/* are we still registered after sleep ? */
++		spin_lock_irqsave(&ts->lock, flags);
++		if (!ts->is_registered) {
++			spin_unlock_irqrestore(&ts->lock, flags);
++			return -ENXIO;
++		}
++		if (signal_pending(current))
++			return -ERESTARTSYS;
++	}
++	
++	for (i = count; i >= sizeof(TS_EVENT);
++	    i -= sizeof(TS_EVENT), buf += sizeof(TS_EVENT)) {
++		if (ts->event_count == 0)
++			break;
++		spin_lock_irqsave(&ts->lock, flags);
++		event = ts->event_buf[ts->nextOut++];
++		if (ts->nextOut == EVENT_BUFSIZE)
++			ts->nextOut = 0;
++		if (ts->event_count)
++			ts->event_count--;
++		spin_unlock_irqrestore(&ts->lock, flags);
++		if(copy_to_user(buf, &event, sizeof(TS_EVENT)))
++			return i != count  ? count - i : -EFAULT;
++	}
++	return count - i;
++}
++
++
++static int wm97xx_open(struct inode * inode, struct file * filp)
++{
++	wm97xx_ts_t* ts;
++	unsigned long flags;
++	u16 val;
++	int minor = MINOR(inode->i_rdev);
++	
++	if (minor != TS_MINOR)
++		return -ENODEV;
++	
++	filp->private_data = ts = &wm97xx_ts;
++
++	spin_lock_irqsave(&ts->lock, flags);
++	
++	/* are we registered with AC97 layer ? */
++	if (!ts->is_registered) {
++		spin_unlock_irqrestore(&ts->lock, flags);
++		return -ENXIO;
++	}
++	
++	/* start digitiser */
++	val = ts->codec->codec_read(ts->codec, AC97_WM97XX_DIGITISER2);
++	ts->codec->codec_write(ts->codec, AC97_WM97XX_DIGITISER2, 
++		val | WM97XX_PRP_DET_DIG);
++	
++	/* flush event queue */
++	ts->nextIn = ts->nextOut = ts->event_count = 0;
++	
++	/* Set up timer. */
++	init_timer(&ts->acq_timer);
++	ts->acq_timer.function = wm97xx_acq_timer;
++	ts->acq_timer.data = (unsigned long)ts;
++	ts->acq_timer.expires = jiffies + HZ / 100;
++	add_timer(&ts->acq_timer);
++
++	spin_unlock_irqrestore(&ts->lock, flags);
++	return 0;
++}
++
++static int wm97xx_release(struct inode * inode, struct file * filp)
++{
++	wm97xx_ts_t* ts = (wm97xx_ts_t*)filp->private_data;
++	unsigned long flags;
++	u16 val;
++	
++	wm97xx_fasync(-1, filp, 0);
++	del_timer_sync(&ts->acq_timer);
++
++	spin_lock_irqsave(&ts->lock, flags);
++	
++	/* stop digitiser */
++	val = ts->codec->codec_read(ts->codec, AC97_WM97XX_DIGITISER2);
++	ts->codec->codec_write(ts->codec, AC97_WM97XX_DIGITISER2, 
++		val & ~WM97XX_PRP_DET_DIG);
++	
++	spin_unlock_irqrestore(&ts->lock, flags);
++	return 0;
++}
++
++static struct file_operations ts_fops = {
++	owner:		THIS_MODULE,
++	read:           wm97xx_read,
++	poll:           wm97xx_poll,
++	ioctl:		wm97xx_ioctl,
++	fasync:         wm97xx_fasync,
++	open:		wm97xx_open,
++	release:	wm97xx_release,
++};
++
++/* +++++++++++++ End File operations ++++++++++++++*/
++
++#ifdef CONFIG_PROC_FS
++static int wm97xx_read_proc (char *page, char **start, off_t off,
++		    int count, int *eof, void *data)
++{
++	int len = 0, prpu;
++	u16 dig1, dig2, digrd, adcsel, adcsrc, slt, prp, rev;
++	unsigned long flags;
++	char srev = ' ';
++	
++	wm97xx_ts_t* ts;
++
++	if ((ts = data) == NULL)
++		return -ENODEV;
++	
++	spin_lock_irqsave(&ts->lock, flags);
++	if (!ts->is_registered) {
++		spin_unlock_irqrestore(&ts->lock, flags);
++		len += sprintf (page+len, "No device registered\n");
++		return len;
++	}
++
++	dig1 = ts->codec->codec_read(ts->codec, AC97_WM97XX_DIGITISER1);
++	dig2 = ts->codec->codec_read(ts->codec, AC97_WM97XX_DIGITISER2);
++	digrd = ts->codec->codec_read(ts->codec, AC97_WM97XX_DIGITISER_RD);
++	rev = (ts->codec->codec_read(ts->codec, AC97_WM9712_REV) & 0x000c) >> 2;
++
++	spin_unlock_irqrestore(&ts->lock, flags);
++	
++	adcsel = dig1 & 0x7000;
++	adcsrc = digrd & 0x7000;
++	slt = (dig1 & 0x7) + 5;
++	prp = dig2 & 0xc000;
++	prpu = dig2 & 0x003f;
++
++	/* driver version */
++	len += sprintf (page+len, "Wolfson WM97xx Version %s\n", WM_TS_VERSION);
++	
++	/* what we are using */
++	len += sprintf (page+len, "Using %s", ts->is_wm9712 ? "WM9712" : "WM9705");
++	if (ts->is_wm9712) {
++		switch (rev) {
++			case 0x0:
++				srev = 'A';
++			break;
++			case 0x1:
++				srev = 'B';
++			break;
++			case 0x2:
++				srev = 'D';
++			break;
++			case 0x3:
++				srev = 'E';
++			break;
++		}
++		len += sprintf (page+len, " silicon rev %c\n",srev);
++	} else
++		len += sprintf (page+len, "\n");
++		
++	/* WM97xx settings */
++	len += sprintf (page+len, "Settings     :\n%s%s%s%s",
++			dig1 & WM97XX_POLL ? " -sampling adc data(poll)\n" : "",
++			adcsel ==  WM97XX_ADCSEL_X ? " -adc set to X coordinate\n" : "",
++			adcsel ==  WM97XX_ADCSEL_Y ? " -adc set to Y coordinate\n" : "",
++			adcsel ==  WM97XX_ADCSEL_PRES ? " -adc set to pressure\n" : "");
++	if (ts->is_wm9712) {
++		len += sprintf (page+len, "%s%s%s%s", 
++			adcsel ==  WM9712_ADCSEL_COMP1 ? " -adc set to COMP1/AUX1\n" : "",
++			adcsel ==  WM9712_ADCSEL_COMP2 ? " -adc set to COMP2/AUX2\n" : "",
++			adcsel ==  WM9712_ADCSEL_BMON ? " -adc set to BMON\n" : "",
++			adcsel ==  WM9712_ADCSEL_WIPER ? " -adc set to WIPER\n" : "");
++		} else {
++		len += sprintf (page+len, "%s%s%s%s",
++			adcsel ==  WM9705_ADCSEL_PCBEEP ? " -adc set to PCBEEP\n" : "",
++			adcsel ==  WM9705_ADCSEL_PHONE ? " -adc set to PHONE\n" : "",
++			adcsel ==  WM9705_ADCSEL_BMON ? " -adc set to BMON\n" : "",
++			adcsel ==  WM9705_ADCSEL_AUX ? " -adc set to AUX\n" : "");
++		}
++		
++	len += sprintf (page+len, "%s%s%s%s%s%s",
++			dig1 & WM97XX_COO ? " -coordinate sampling\n" : " -individual sampling\n",
++			dig1 & WM97XX_CTC ? " -continuous mode\n" : " -polling mode\n",
++			prp == WM97XX_PRP_DET ? " -pen detect enabled, no wake up\n" : "",
++			prp == WM97XX_PRP_DETW ? " -pen detect enabled, wake up\n" : "",
++			prp == WM97XX_PRP_DET_DIG ? " -pen digitiser and pen detect enabled\n" : "",
++			dig1 & WM97XX_SLEN ? " -read back using slot " : " -read back using AC97\n");
++	
++	if ((dig1 & WM97XX_SLEN) && slt !=12)	
++		len += sprintf(page+len, "%d\n", slt);
++	len += sprintf (page+len, " -adc sample delay %d uSecs\n", delay_table[(dig1 & 0x00f0) >> 4]);
++	
++	if (ts->is_wm9712) {
++		if (prpu)
++			len += sprintf (page+len, " -rpu %d Ohms\n", 64000/ prpu);
++		len += sprintf (page+len, " -pressure current %s uA\n", dig2 & WM9712_PIL ? "400" : "200");
++		len += sprintf (page+len, " -using %s wire touchscreen mode", dig2 & WM9712_45W ? "5" : "4");
++	} else {
++		len += sprintf (page+len, " -pressure current %s uA\n", dig2 & WM9705_PIL ? "400" : "200");
++		len += sprintf (page+len, " -%s impedance for PHONE and PCBEEP\n", dig2 & WM9705_PHIZ ? "high" : "low");
++	}
++	
++	/* WM97xx digitiser read */
++	len += sprintf(page+len, "\nADC data:\n%s%d\n%s%s\n",
++		" -adc value (decimal) : ", digrd & 0x0fff,
++		" -pen ", digrd & 0x8000 ? "Down" : "Up");
++	if (ts->is_wm9712) {
++		len += sprintf (page+len, "%s%s%s%s", 
++			adcsrc ==  WM9712_ADCSEL_COMP1 ? " -adc value is COMP1/AUX1\n" : "",
++			adcsrc ==  WM9712_ADCSEL_COMP2 ? " -adc value is COMP2/AUX2\n" : "",
++			adcsrc ==  WM9712_ADCSEL_BMON ? " -adc value is BMON\n" : "",
++			adcsrc ==  WM9712_ADCSEL_WIPER ? " -adc value is WIPER\n" : "");
++		} else {
++		len += sprintf (page+len, "%s%s%s%s",
++			adcsrc ==  WM9705_ADCSEL_PCBEEP ? " -adc value is PCBEEP\n" : "",
++			adcsrc ==  WM9705_ADCSEL_PHONE ? " -adc value is PHONE\n" : "",
++			adcsrc ==  WM9705_ADCSEL_BMON ? " -adc value is BMON\n" : "",
++			adcsrc ==  WM9705_ADCSEL_AUX ? " -adc value is AUX\n" : "");
++		}
++		
++	/* register dump */
++	len += sprintf(page+len, "\nRegisters:\n%s%x\n%s%x\n%s%x\n",
++		" -digitiser 1    (0x76) : 0x", dig1,
++		" -digitiser 2    (0x78) : 0x", dig2,
++		" -digitiser read (0x7a) : 0x", digrd);
++		
++	/* errors */
++	len += sprintf(page+len, "\nErrors:\n%s%d\n%s%d\n",
++		" -buffer overruns ", ts->overruns,
++		" -coordinate errors ", ts->adc_errs);
++		
++	return len;
++}
++
++#ifdef WM97XX_TS_DEBUG
++/* dump all the AC97 register space */
++static int wm_debug_read_proc (char *page, char **start, off_t off,
++		    int count, int *eof, void *data)
++{
++	int len = 0, i;
++	unsigned long flags;
++	wm97xx_ts_t* ts;
++	u16 reg[AC97_NUM_REG];
++
++	if ((ts = data) == NULL)
++		return -ENODEV;
++
++	spin_lock_irqsave(&ts->lock, flags);
++	if (!ts->is_registered) {
++		spin_unlock_irqrestore(&ts->lock, flags);
++		len += sprintf (page+len, "Not registered\n");
++		return len;
++	}
++	
++	for (i=0; i < AC97_NUM_REG; i++) {
++		reg[i] = ts->codec->codec_read(ts->codec, i * 2);
++	}
++	spin_unlock_irqrestore(&ts->lock, flags);
++	
++	for (i=0; i < AC97_NUM_REG; i++) {
++		len += sprintf (page+len, "0x%2.2x : 0x%4.4x\n",i * 2, reg[i]);
++	}
++		
++	return len;
++}
++#endif
++
++#endif
++
++#ifdef CONFIG_PM
++/* WM97xx Power Management
++ * The WM9712 has extra powerdown states that are controlled in 
++ * seperate registers from the AC97 power management.
++ * We will only power down into the extra WM9712 states and leave 
++ * the AC97 power management to the sound driver.
++ */
++static int wm97xx_pm_event(struct pm_dev *dev, pm_request_t rqst, void *data)
++{
++	switch(rqst) {
++		case PM_SUSPEND:
++			wm97xx_suspend();
++			break;
++		case PM_RESUME:
++			wm97xx_resume();
++			break;
++	}
++	return 0;
++}
++
++/*
++ * Power down the codec
++ */
++static void wm97xx_suspend(void)
++{
++	wm97xx_ts_t* ts = &wm97xx_ts;
++	u16 reg;
++	unsigned long flags;
++	
++	/* are we registered */
++	spin_lock_irqsave(&ts->lock, flags);
++	if (!ts->is_registered) {
++		spin_unlock_irqrestore(&ts->lock, flags);
++		return;
++	}
++	
++	/* wm9705 does not have extra PM */
++	if (!ts->is_wm9712) {
++		spin_unlock_irqrestore(&ts->lock, flags);
++		return;
++	}
++	
++	/* save and mute the PGA's */
++	wm9712_pga_save(ts);
++	
++	reg = ts->codec->codec_read(ts->codec, AC97_PHONE_VOL);
++	ts->codec->codec_write(ts->codec, AC97_PHONE_VOL, reg | 0x001f);
++	
++	reg = ts->codec->codec_read(ts->codec, AC97_MIC_VOL);
++	ts->codec->codec_write(ts->codec, AC97_MIC_VOL, reg | 0x1f1f);
++	
++	reg = ts->codec->codec_read(ts->codec, AC97_LINEIN_VOL);
++	ts->codec->codec_write(ts->codec, AC97_LINEIN_VOL, reg | 0x1f1f);
++	
++	/* power down, dont disable the AC link */
++	ts->codec->codec_write(ts->codec, AC97_WM9712_POWER, WM9712_PD(14) | WM9712_PD(13) |
++							WM9712_PD(12) | WM9712_PD(11) | WM9712_PD(10) |                    
++							WM9712_PD(9) | WM9712_PD(8) | WM9712_PD(7) |
++							WM9712_PD(6) | WM9712_PD(5) | WM9712_PD(4) |
++							WM9712_PD(3) | WM9712_PD(2) | WM9712_PD(1) |
++							WM9712_PD(0));
++	
++	spin_unlock_irqrestore(&ts->lock, flags);
++}
++
++/*
++ * Power up the Codec
++ */
++static void wm97xx_resume(void)
++{
++	wm97xx_ts_t* ts = &wm97xx_ts;
++	unsigned long flags;
++	
++	/* are we registered */
++	spin_lock_irqsave(&ts->lock, flags);
++	if (!ts->is_registered) {
++		spin_unlock_irqrestore(&ts->lock, flags);
++		return;
++	}
++	
++	/* wm9705 does not have extra PM */
++	if (!ts->is_wm9712) {
++		spin_unlock_irqrestore(&ts->lock, flags);
++		return;
++	}
++
++	/* power up */
++	ts->codec->codec_write(ts->codec, AC97_WM9712_POWER, 0x0);
++	
++	/* restore PGA state */
++	wm9712_pga_restore(ts);
++	
++	spin_unlock_irqrestore(&ts->lock, flags);
++}
++
++
++/* save state of wm9712 PGA's */
++static void wm9712_pga_save(wm97xx_ts_t* ts)
++{
++	ts->phone_pga = ts->codec->codec_read(ts->codec, AC97_PHONE_VOL) & 0x001f;
++	ts->line_pgal = ts->codec->codec_read(ts->codec, AC97_LINEIN_VOL) & 0x1f00;
++	ts->line_pgar = ts->codec->codec_read(ts->codec, AC97_LINEIN_VOL) & 0x001f;
++	ts->mic_pgal = ts->codec->codec_read(ts->codec, AC97_MIC_VOL) & 0x1f00;
++	ts->mic_pgar = ts->codec->codec_read(ts->codec, AC97_MIC_VOL) & 0x001f;
++}
++
++/* restore state of wm9712 PGA's */
++static void wm9712_pga_restore(wm97xx_ts_t* ts)
++{
++	u16 reg;
++	
++	reg = ts->codec->codec_read(ts->codec, AC97_PHONE_VOL);
++	ts->codec->codec_write(ts->codec, AC97_PHONE_VOL, reg | ts->phone_pga);
++	
++	reg = ts->codec->codec_read(ts->codec, AC97_LINEIN_VOL);
++	ts->codec->codec_write(ts->codec, AC97_LINEIN_VOL, reg | ts->line_pgar | (ts->line_pgal << 8));
++
++	reg = ts->codec->codec_read(ts->codec, AC97_MIC_VOL);
++	ts->codec->codec_write(ts->codec, AC97_MIC_VOL, reg | ts->mic_pgar | (ts->mic_pgal << 8));
++}
++
++#endif
++
++/*
++ * set up the physical settings of the device 
++ */
++
++static void init_wm97xx_phy(void)
++{
++	u16 dig1, dig2, aux, vid;
++	wm97xx_ts_t *ts = &wm97xx_ts;
++
++	/* default values */
++	dig1 = WM97XX_DELAY(4) | WM97XX_SLT(6);
++	if (ts->is_wm9712)
++		dig2 = WM9712_RPU(1);
++	else {
++		dig2 = 0x0;
++		
++		/* 
++		 * mute VIDEO and AUX as they share X and Y touchscreen 
++		 * inputs on the WM9705 
++		 */
++		aux = ts->codec->codec_read(ts->codec, AC97_AUX_VOL);
++		if (!(aux & 0x8000)) {
++			info("muting AUX mixer as it shares X touchscreen coordinate");
++			ts->codec->codec_write(ts->codec, AC97_AUX_VOL, 0x8000 | aux);
++		}
++		
++		vid = ts->codec->codec_read(ts->codec, AC97_VIDEO_VOL);
++		if (!(vid & 0x8000)) {
++			info("muting VIDEO mixer as it shares Y touchscreen coordinate");
++			ts->codec->codec_write(ts->codec, AC97_VIDEO_VOL, 0x8000 | vid);
++		}
++	}
++	
++	/* WM9712 rpu */
++	if (ts->is_wm9712 && rpu) {
++		dig2 &= 0xffc0;
++		dig2 |= WM9712_RPU(rpu);
++		info("setting pen detect pull-up to %d Ohms",64000 / rpu);
++	}
++	
++	/* touchpanel pressure */
++	if  (pil == 2) {
++		if (ts->is_wm9712)
++			dig2 |= WM9712_PIL;
++		else
++			dig2 |= WM9705_PIL;
++		info("setting pressure measurement current to 400uA.");
++	} else if (pil) 
++		info ("setting pressure measurement current to 200uA.");
++	
++	/* WM9712 five wire */
++	if (ts->is_wm9712 && five_wire) {
++		dig2 |= WM9712_45W;
++		info("setting 5-wire touchscreen mode.");
++	}		
++	
++	/* sample settling delay */
++	if (delay!=4) {
++		if (delay < 0 || delay > 15) {
++			info ("supplied delay out of range.");
++			delay = 4;
++		}
++		dig1 &= 0xff0f;
++		dig1 |= WM97XX_DELAY(delay);
++		info("setting adc sample delay to %d u Secs.", delay_table[delay]);
++	}
++	
++	/* coordinate mode */
++	if (mode == 1) {
++		dig1 |= WM97XX_COO;
++		info("using coordinate mode");
++	}		
++	
++	/* WM9705 pdd */
++	if (pdd && !ts->is_wm9712) {
++		dig2 |= (pdd & 0x000f);
++		info("setting pdd to Vmid/%d", 1 - (pdd & 0x000f));
++	}
++	
++	ts->codec->codec_write(ts->codec, AC97_WM97XX_DIGITISER1, dig1);
++	ts->codec->codec_write(ts->codec, AC97_WM97XX_DIGITISER2, dig2); 
++}
++
++
++/*
++ * Called by the audio codec initialisation to register
++ * the touchscreen driver.
++ */
++
++static int wm97xx_probe(struct ac97_codec *codec, struct ac97_driver *driver)
++{
++	 unsigned long flags;
++	u16 id1, id2;
++	wm97xx_ts_t *ts = &wm97xx_ts;
++		
++	spin_lock_irqsave(&ts->lock, flags);
++	
++	/* we only support 1 touchscreen at the moment */
++	if (ts->is_registered) {
++		spin_unlock_irqrestore(&ts->lock, flags);
++		return -1;
++	}
++	
++	/* 
++	 * We can only use a WM9705 or WM9712 that has been *first* initialised
++	 * by the AC97 audio driver. This is because we have to use the audio 
++	 * drivers codec read() and write() functions to sample the touchscreen	
++	 *	
++	 * If an initialsed WM97xx is found then get the codec read and write 
++	 * functions.		 
++	 */
++	
++	/* test for a WM9712 or a WM9705 */
++	id1 = codec->codec_read(codec, AC97_VENDOR_ID1);
++	id2 = codec->codec_read(codec, AC97_VENDOR_ID2);
++	if (id1 == WM97XX_ID1 && id2 == WM9712_ID2) {
++		ts->is_wm9712 = 1;
++		info("registered a WM9712");
++	} else if (id1 == WM97XX_ID1 && id2 == WM9705_ID2) {
++		    ts->is_wm9712 = 0;
++		    info("registered a WM9705");
++	} else {
++		err("could not find a WM97xx codec. Found a 0x%4x:0x%4x instead",
++		    id1, id2);
++		spin_unlock_irqrestore(&ts->lock, flags);
++		return -1;
++	}
++	
++	/* set up AC97 codec interface */
++	ts->codec = codec;
++	codec->driver_private = (void*)&ts;
++	codec->codec_unregister = 0;
++	
++	/* set up physical characteristics */
++	init_wm97xx_phy();
++		
++	ts->is_registered = 1;
++	spin_unlock_irqrestore(&ts->lock, flags);
++	return 0;
++}
++
++/* this is called by the audio driver when ac97_codec is unloaded */
++
++static void wm97xx_remove(struct ac97_codec *codec, struct ac97_driver *driver)
++{
++	unsigned long flags;
++	u16 dig1, dig2;
++	wm97xx_ts_t *ts = codec->driver_private;
++	
++	spin_lock_irqsave(&ts->lock, flags);
++			
++	/* check that are registered */
++	if (!ts->is_registered) {
++		err("double unregister");
++		spin_unlock_irqrestore(&ts->lock, flags);
++		return;
++	}
++	
++	ts->is_registered = 0;
++	wake_up_interruptible(&ts->wait); /* So we see its gone */
++	
++	/* restore default digitiser values */
++	dig1 = WM97XX_DELAY(4) | WM97XX_SLT(6);
++	if (ts->is_wm9712)
++		dig2 = WM9712_RPU(1);
++	else 
++		dig2 = 0x0;
++		
++	codec->codec_write(codec, AC97_WM97XX_DIGITISER1, dig1);
++	codec->codec_write(codec, AC97_WM97XX_DIGITISER2, dig2); 
++	ts->codec = NULL;
++		
++	spin_unlock_irqrestore(&ts->lock, flags);
++}
++
++static struct miscdevice wm97xx_misc = { 
++	minor:	TS_MINOR,
++	name:	"touchscreen/wm97xx",
++	fops:	&ts_fops,
++};
++
++static int __init wm97xx_ts_init_module(void)
++{
++	wm97xx_ts_t* ts = &wm97xx_ts;
++	int ret;
++	char proc_str[64];
++	
++	info("Wolfson WM9705/WM9712 Touchscreen Controller");
++	info("Version %s  liam.girdwood@wolfsonmicro.com", WM_TS_VERSION);
++	
++	memset(ts, 0, sizeof(wm97xx_ts_t));
++	
++	/* register our misc device */
++	if ((ret = misc_register(&wm97xx_misc)) < 0) {
++		err("can't register misc device");
++		return ret;
++	}
++	
++	init_waitqueue_head(&ts->wait);
++	spin_lock_init(&ts->lock);
++	
++	// initial calibration values
++	ts->cal.xscale = 256;
++	ts->cal.xtrans = 0;
++	ts->cal.yscale = 256;
++	ts->cal.ytrans = 0;
++	
++	/* reset error counters */
++	ts->overruns = 0;
++	ts->adc_errs = 0;
++	
++	/* register with the AC97 layer */
++	ac97_register_driver(&wm9705_driver);
++	ac97_register_driver(&wm9712_driver);
++	
++#ifdef CONFIG_PROC_FS
++	/* register proc interface */
++	sprintf(proc_str, "driver/%s", TS_NAME);
++	if ((ts->wm97xx_ts_ps = create_proc_read_entry (proc_str, 0, NULL,
++					     wm97xx_read_proc, ts)) == 0)
++		err("could not register proc interface /proc/%s", proc_str);
++#ifdef WM97XX_TS_DEBUG
++	if ((ts->wm97xx_debug_ts_ps = create_proc_read_entry ("driver/ac97_registers",
++		0, NULL,wm_debug_read_proc, ts)) == 0)
++		err("could not register proc interface /proc/driver/ac97_registers");
++#endif
++#endif
++#ifdef CONFIG_PM
++	if ((ts->pm = pm_register(PM_UNKNOWN_DEV, PM_SYS_UNKNOWN, wm97xx_pm_event)) == 0)
++		err("could not register with power management");
++#endif
++	return 0;
++}
++
++static void wm97xx_ts_cleanup_module(void)
++{
++	wm97xx_ts_t* ts = &wm97xx_ts;
++
++#ifdef CONFIG_PM
++	pm_unregister (ts->pm);
++#endif
++	ac97_unregister_driver(&wm9705_driver);
++	ac97_unregister_driver(&wm9712_driver);
++	misc_deregister(&wm97xx_misc);
++}
++
++/* Module information */
++MODULE_AUTHOR("Liam Girdwood, liam.girdwood@wolfsonmicro.com, www.wolfsonmicro.com");
++MODULE_DESCRIPTION("WM9705/WM9712 Touch Screen / BMON Driver");
++MODULE_LICENSE("GPL");
++
++module_init(wm97xx_ts_init_module);
++module_exit(wm97xx_ts_cleanup_module);
++
++#ifndef MODULE
++
++static int __init wm97xx_ts_setup(char *options)
++{
++	char *this_opt = options;
++
++	if (!options || !*options)
++		return 0;
++
++	/* parse the options and check for out of range values */
++	for(this_opt=strtok(options, ",");
++	    this_opt; this_opt=strtok(NULL, ",")) {
++		if (!strncmp(this_opt, "pil:", 4)) {
++			this_opt+=4;
++			pil = simple_strtol(this_opt, NULL, 0);
++			if (pil < 0 || pil > 2)
++				pil = 0;
++			continue;
++		}
++		if (!strncmp(this_opt, "rpu:", 4)) {
++			this_opt+=4;
++			rpu = simple_strtol(this_opt, NULL, 0);
++			if (rpu < 0 || rpu > 31)
++				rpu = 0;
++			continue;
++		}
++		if (!strncmp(this_opt, "pdd:", 4)) {
++			this_opt+=4;
++			pdd = simple_strtol(this_opt, NULL, 0);
++			if (pdd < 0 || pdd > 15)
++				pdd = 0;
++			continue;
++		}
++		if (!strncmp(this_opt, "delay:", 6)) {
++			this_opt+=6;
++			delay = simple_strtol(this_opt, NULL, 0);
++			if (delay < 0 || delay > 15)
++				delay = 4;
++			continue;
++		}
++		if (!strncmp(this_opt, "five_wire:", 10)) {
++			this_opt+=10;
++			five_wire = simple_strtol(this_opt, NULL, 0);
++			if (five_wire < 0 || five_wire > 1)
++				five_wire = 0;
++			continue;
++		}
++		if (!strncmp(this_opt, "mode:", 5)) {
++			this_opt+=5;
++			mode = simple_strtol(this_opt, NULL, 0);
++			if (mode < 0 || mode > 2)
++				mode = 0;
++			continue;
++		}
++	}
++	return 1;
++}
++
++__setup("wm97xx_ts=", wm97xx_ts_setup);
++
++#endif /* MODULE */

@@ -1,0 +1,19 @@
+--- pciutils-2.1.6/lspci.c.chmou	Sun Jan 23 01:58:47 2000
++++ pciutils-2.1.6/lspci.c	Tue Apr 25 08:05:59 2000
+@@ -101,9 +101,13 @@
+   if (how_much < 128 && (d->config[PCI_HEADER_TYPE] & 0x7f) == PCI_HEADER_TYPE_CARDBUS)
+     {
+       /* For cardbus bridges, we need to fetch 64 bytes more to get the full standard header... */
+-      if (!pci_read_block(p, 64, d->config+64, 64))
+-	die("Unable to read cardbus bridge extension data.");
+-      how_much = 128;
++      /* Chmou: Only when we are root */
++        if (getuid() == 0) 
++        {
++            if (!pci_read_block(p, 64, d->config+64, 64))
++                die("Unable to read cardbus bridge extension data.");
++            how_much = 128;
++        }
+     }
+   d->config_cnt = how_much;
+   pci_setup_cache(p, d->config, d->config_cnt);

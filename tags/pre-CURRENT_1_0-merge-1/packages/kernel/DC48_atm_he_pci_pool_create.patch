@@ -1,0 +1,41 @@
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff --exclude='defconfig*' --exclude='log.*' --exclude='log2?' w2/drivers/atm/he.c w1/drivers/atm/he.c
+--- w2/drivers/atm/he.c	2003-08-12 10:25:01.000000000 +0200
++++ w1/drivers/atm/he.c	2003-08-18 23:14:26.000000000 +0200
+@@ -110,7 +110,9 @@ typedef void irqreturn_t;
+ #endif
+ 
+ #if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,44)
+-#define pci_pool_create(a, b, c, d, e)	pci_pool_create(a, b, c, d, e, SLAB_KERNEL)
++#define he_pci_pool_create(a,b,c,d,e)	pci_pool_create(a,b,c,d,e,SLAB_KERNEL)
++#else
++#define he_pci_pool_create(a,b,c,d,e)	pci_pool_create(a,b,c,d,e)
+ #endif
+ 
+ #include "he.h"
+@@ -784,7 +786,7 @@ he_init_group(struct he_dev *he_dev, int
+ #ifdef USE_RBPS
+ 	/* small buffer pool */
+ #ifdef USE_RBPS_POOL
+-	he_dev->rbps_pool = pci_pool_create("rbps", he_dev->pci_dev,
++	he_dev->rbps_pool = he_pci_pool_create("rbps", he_dev->pci_dev,
+ 			CONFIG_RBPS_BUFSIZE, 8, 0);
+ 	if (he_dev->rbps_pool == NULL) {
+ 		hprintk("unable to create rbps pages\n");
+@@ -848,7 +850,7 @@ he_init_group(struct he_dev *he_dev, int
+ 
+ 	/* large buffer pool */
+ #ifdef USE_RBPL_POOL
+-	he_dev->rbpl_pool = pci_pool_create("rbpl", he_dev->pci_dev,
++	he_dev->rbpl_pool = he_pci_pool_create("rbpl", he_dev->pci_dev,
+ 			CONFIG_RBPL_BUFSIZE, 8, 0);
+ 	if (he_dev->rbpl_pool == NULL) {
+ 		hprintk("unable to create rbpl pool\n");
+@@ -1474,7 +1476,7 @@ he_start(struct atm_dev *dev)
+ 	he_init_tpdrq(he_dev);
+ 
+ #ifdef USE_TPD_POOL
+-	he_dev->tpd_pool = pci_pool_create("tpd", he_dev->pci_dev,
++	he_dev->tpd_pool = he_pci_pool_create("tpd", he_dev->pci_dev,
+ 		sizeof(struct he_tpd), TPD_ALIGNMENT, 0);
+ 	if (he_dev->tpd_pool == NULL) {
+ 		hprintk("unable to create tpd pci_pool\n");

@@ -1,0 +1,12 @@
+diff -Nurp -X /Data/dontdiff old/drivers/ide/pci/amd74xx.c patched/drivers/ide/pci/amd74xx.c
+--- old/drivers/ide/pci/amd74xx.c	2003-10-10 17:56:43.000000000 +0300
++++ patched/drivers/ide/pci/amd74xx.c	2003-10-12 04:06:37.000000000 +0300
+@@ -62,7 +62,7 @@ static struct amd_ide_chip {
+ 	{ PCI_DEVICE_ID_AMD_OPUS_7441, 0x00, 0x40, AMD_UDMA_100 },			/* AMD-768 Opus */
+ 	{ PCI_DEVICE_ID_AMD_8111_IDE,  0x00, 0x40, AMD_UDMA_133 },			/* AMD-8111 */
+ 	{ PCI_DEVICE_ID_NVIDIA_NFORCE_IDE, 0x00, 0x50, AMD_UDMA_100 },                  /* nVidia nForce */
+-	{ PCI_DEVICE_ID_NVIDIA_NFORCE2_IDE, 0x00, 0x50, AMD_UDMA_100 },			/* nVidia nForce2 */
++	{ PCI_DEVICE_ID_NVIDIA_NFORCE2_IDE, 0x00, 0x50, AMD_UDMA_133 },			/* nVidia nForce2 */
+ 	{ PCI_DEVICE_ID_NVIDIA_NFORCE2S_IDE, 0x00, 0x50, AMD_UDMA_100 },		/* nVidia nForce2s */
+ 	{ PCI_DEVICE_ID_NVIDIA_NFORCE2S_SATA, 0x00, 0x50, AMD_UDMA_100 },		/* nVidia nForce2s SATA */
+ 	{ PCI_DEVICE_ID_NVIDIA_NFORCE3_IDE, 0x00, 0x50, AMD_UDMA_133 },			/* nVidia nForce3 */

@@ -1,0 +1,21 @@
+--- src/dd.c.trunc	2002-09-22 08:40:30.000000000 +0200
++++ src/dd.c	2002-10-08 16:56:39.000000000 +0200
+@@ -1136,6 +1136,7 @@
+ {
+   int i;
+   int exit_status;
++  struct stat stat_buf;
+ 
+   program_name = argv[0];
+   setlocale (LC_ALL, "");
+@@ -1182,6 +1183,10 @@
+ 	   || open_fd (STDOUT_FILENO, output_file, O_RDWR | opts, perms) < 0)
+ 	  && open_fd (STDOUT_FILENO, output_file, O_WRONLY | opts, perms) < 0)
+ 	error (EXIT_FAILURE, errno, _("opening %s"), quote (output_file));
++	if(fstat(STDOUT_FILENO, &stat_buf)<0)
++		error(1, errno, "%s", output_file);
++	if(!S_ISREG(stat_buf.st_mode))
++		conversions_mask |= C_NOTRUNC;
+ 
+ #if HAVE_FTRUNCATE
+       if (seek_records != 0 && !(conversions_mask & C_NOTRUNC))

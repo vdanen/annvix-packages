@@ -1,0 +1,20 @@
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff 2.4.19-rc3/drivers/isdn/hisax/st5481.h test/drivers/isdn/hisax/st5481.h
+--- 2.4.19-rc3/drivers/isdn/hisax/st5481.h	2002-07-17 11:19:41.000000000 +0200
++++ test/drivers/isdn/hisax/st5481.h	2002-07-22 19:04:33.000000000 +0200
+@@ -219,13 +219,13 @@ enum {
+ #define L1_EVENT_COUNT (EV_TIMER3 + 1)
+ 
+ #define ERR(format, arg...) \
+-printk(KERN_ERR __FILE__ ": " __FUNCTION__ ": " format "\n" , ## arg)
++printk(KERN_ERR __FILE__ ": %s: " format "\n" , __FUNCTION__, ## arg)
+ 
+ #define WARN(format, arg...) \
+-printk(KERN_WARNING __FILE__ ": " __FUNCTION__ ": " format "\n" , ## arg)
++printk(KERN_WARNING __FILE__ ": %s: " format "\n" , __FUNCTION__, ## arg)
+ 
+ #define INFO(format, arg...) \
+-printk(KERN_INFO __FILE__ ": " __FUNCTION__ ": " format "\n" , ## arg)
++printk(KERN_INFO __FILE__ ": %s: " format "\n" , __FUNCTION__, ## arg)
+ 
+ #include "st5481_hdlc.h"
+ #include "fsm.h"

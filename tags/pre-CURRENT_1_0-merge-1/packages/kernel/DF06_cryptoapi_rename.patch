@@ -1,0 +1,32 @@
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff w2/net/ipsec/alg/Config.alg_cryptoapi.in w1/net/ipsec/alg/Config.alg_cryptoapi.in
+--- w2/net/ipsec/alg/Config.alg_cryptoapi.in	2003-06-29 05:59:39.000000000 +0200
++++ w1/net/ipsec/alg/Config.alg_cryptoapi.in	2003-08-07 11:29:01.000000000 +0200
+@@ -1,5 +1,5 @@
+ if [ "$CONFIG_IPSEC_ALG" = "y" ]; then
+-  dep_tristate '        CRYPTOAPI ciphers support (needs cryptoapi patch)' CONFIG_IPSEC_ALG_CRYPTOAPI $CONFIG_CRYPTO
++  dep_tristate '        CRYPTOAPI ciphers support (needs cryptoapi patch)' CONFIG_IPSEC_ALG_CRYPTOAPI $CONFIG_CRYPTOAPI
+   if [ "$CONFIG_IPSEC_ALG_CRYPTOAPI" != "n" ]; then
+     bool '          CRYPTOAPI proprietary ciphers ' CONFIG_IPSEC_ALG_NON_LIBRE
+   fi
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff w2/net/ipsec/alg/ipsec_alg_cryptoapi.c w1/net/ipsec/alg/ipsec_alg_cryptoapi.c
+--- w2/net/ipsec/alg/ipsec_alg_cryptoapi.c	2003-06-29 05:59:39.000000000 +0200
++++ w1/net/ipsec/alg/ipsec_alg_cryptoapi.c	2003-08-07 11:29:08.000000000 +0200
+@@ -53,16 +53,13 @@
+ #endif
+ 
+ /* warn the innocent */
+-#if !defined (CONFIG_CRYPTO) && !defined (CONFIG_CRYPTO_MODULE)
++#if !defined (CONFIG_CRYPTOAPI) && !defined (CONFIG_CRYPTOAPI_MODULE)
+ #warning "No linux cryptoapi setup found... you *MUST*  install it ! (www.kerneli.org)"
+ #endif
+ /*	Low freeswan header coupling	*/
+ #include <ipsec_alg.h>
+-#include <linux/crypto.h>
++#include <linux/cryptoapi.h>
+ 
+-#ifndef  CRYPTO_API_VERSION_CODE
+-#error "you *MUST*  install linux cryptoapi ! (www.kerneli.org)"
+-#endif
+ #define ESP_3DES		3
+ #define CIPHERNAME_3DES		"des_ede3-cbc"
+ 

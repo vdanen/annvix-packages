@@ -1,0 +1,31 @@
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff alsa/drivers/sound/Config.in test/drivers/sound/Config.in
+--- alsa/drivers/sound/Config.in	2002-08-07 19:51:29.000000000 +0200
++++ test/drivers/sound/Config.in	2002-08-07 14:46:15.000000000 +0200
+@@ -228,3 +228,7 @@ if [ "$CONFIG_INPUT_GAMEPORT" != "n" ]; 
+     define_tristate CONFIG_INPUT_GAMEPORT y
+   fi
+ fi
++
++# ALSA
++
++source sound/Config.in
+diff -uNp t1/Makefile.ms03.orig t1/Makefile
+--- t1/Makefile.ms03.orig	2003-08-01 19:12:32.000000000 +0200
++++ t1/Makefile	2003-08-01 19:16:09.000000000 +0200
+@@ -130,7 +130,7 @@ CORE_FILES	=kernel/kernel.o mm/mm.o fs/f
+ NETWORKS	=net/network.o
+ 
+ LIBS		=$(TOPDIR)/lib/lib.a
+-SUBDIRS		=kernel drivers mm fs net ipc lib crypto 3rdparty
++SUBDIRS		=kernel drivers mm fs net ipc lib crypto sound 3rdparty
+ 
+ ifeq ($(CONFIG_KDB),y)
+ CORE_FILES	+= kdb/kdb.o
+@@ -170,6 +170,7 @@ DRIVERS-y += drivers/cdrom/driver.o
+ endif
+ 
+ DRIVERS-$(CONFIG_SOUND) += drivers/sound/sounddrivers.o
++DRIVERS-$(CONFIG_SND) += sound/alsa.o
+ DRIVERS-$(CONFIG_PCI) += drivers/pci/driver.o
+ DRIVERS-$(CONFIG_MTD) += drivers/mtd/mtdlink.o
+ DRIVERS-$(CONFIG_PCMCIA) += drivers/pcmcia/pcmcia.o

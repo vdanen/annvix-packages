@@ -1,0 +1,10 @@
+--- linux-2.4.22/net/ipv4/netfilter/ipt_MASQUERADE.c~	2003-09-11 11:25:38.000000000 -0400
++++ linux-2.4.22/net/ipv4/netfilter/ipt_MASQUERADE.c	2003-09-11 11:33:45.000000000 -0400
+@@ -90,6 +90,7 @@
+ #ifdef CONFIG_IP_ROUTE_FWMARK
+ 	key.fwmark = (*pskb)->nfmark;
+ #endif
++	key.oif = 0;
+ 	if (ip_route_output_key(&rt, &key) != 0) {
+                 /* Funky routing can do this. */
+                 if (net_ratelimit())

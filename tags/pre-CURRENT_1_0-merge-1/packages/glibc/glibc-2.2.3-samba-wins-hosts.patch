@@ -1,0 +1,11 @@
+--- glibc-2.2.3/redhat/nsswitch.conf.chmou	Tue Jan  4 17:34:22 2000
++++ glibc-2.2.3/redhat/nsswitch.conf	Tue May 29 14:58:17 2001
+@@ -35,7 +35,7 @@
+ group:      files nisplus nis
+ 
+ #hosts:     db files nisplus nis dns
+-hosts:      files nisplus nis dns
++hosts:      files nisplus nis dns wins
+ 
+ # Example - obey only what nisplus tells us...
+ #services:   nisplus [NOTFOUND=return] files

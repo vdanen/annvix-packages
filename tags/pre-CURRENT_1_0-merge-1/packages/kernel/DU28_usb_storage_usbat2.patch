@@ -1,0 +1,1500 @@
+diff -ruN linux-2.4.21-0.13mdk/drivers/usb-orig/Config.in linux-2.4.21-0.13mdk/drivers/usb/Config.in
+--- linux-2.4.21-0.13mdk/drivers/usb-orig/Config.in	2003-03-14 11:28:22.000000000 -0700
++++ linux-2.4.21-0.13mdk/drivers/usb/Config.in	2003-04-24 19:40:07.000000000 -0600
+@@ -52,6 +52,7 @@
+       dep_mbool '    SanDisk SDDR-09 (and other SmartMedia) support' CONFIG_USB_STORAGE_SDDR09 $CONFIG_USB_STORAGE $CONFIG_EXPERIMENTAL
+       dep_mbool '    SanDisk SDDR-55 SmartMedia support' CONFIG_USB_STORAGE_SDDR55 $CONFIG_USB_STORAGE $CONFIG_EXPERIMENTAL
+       dep_mbool '    Lexar Jumpshot Compact Flash Reader' CONFIG_USB_STORAGE_JUMPSHOT $CONFIG_USB_STORAGE $CONFIG_EXPERIMENTAL
++      dep_mbool '    USBAT-02 Compact Flash Reader (Zio et al)' CONFIG_USB_STORAGE_ZIOCF $CONFIG_USB_STORAGE $CONFIG_EXPERIMENTAL
+       dep_mbool '    USS-725 USB/ATA Bridge support' CONFIG_USB_STORAGE_USS725 $CONFIG_USB_STORAGE
+    dep_tristate '  USB Modem (CDC ACM) support' CONFIG_USB_ACM $CONFIG_USB
+    dep_tristate '  USB Printer support' CONFIG_USB_PRINTER $CONFIG_USB
+diff -ruN linux-2.4.21-0.13mdk/drivers/usb-orig/storage/Makefile linux-2.4.21-0.13mdk/drivers/usb/storage/Makefile
+--- linux-2.4.21-0.13mdk/drivers/usb-orig/storage/Makefile	2003-03-14 11:28:19.000000000 -0700
++++ linux-2.4.21-0.13mdk/drivers/usb/storage/Makefile	2003-04-24 19:42:11.000000000 -0600
+@@ -22,6 +22,7 @@
+ usb-storage-obj-$(CONFIG_USB_STORAGE_DATAFAB)   += datafab.o
+ usb-storage-obj-$(CONFIG_USB_STORAGE_JUMPSHOT)  += jumpshot.o
+ usb-storage-obj-$(CONFIG_USB_STORAGE_USS725)  	+= uss725.o
++usb-storage-obj-$(CONFIG_USB_STORAGE_ZIOCF)	+= zio_cf.o
+ 
+ usb-storage-objs :=	scsiglue.o protocol.o transport.o usb.o \
+ 			initializers.o $(usb-storage-obj-y)
+diff -ruN linux-2.4.21-0.13mdk/drivers/usb-orig/storage/transport.h linux-2.4.21-0.13mdk/drivers/usb/storage/transport.h
+--- linux-2.4.21-0.13mdk/drivers/usb-orig/storage/transport.h	2003-03-14 13:32:46.000000000 -0700
++++ linux-2.4.21-0.13mdk/drivers/usb/storage/transport.h	2003-04-24 20:58:33.000000000 -0600
+@@ -79,6 +79,10 @@
+ #define US_PR_USS725    0xf4            /* In-Systems USS-725 */
+ #endif
+ 
++#ifdef CONFIG_USB_STORAGE_ZIOCF
++#define US_PR_ZIOCF  0xf6            /* SCM/Dazzle ZIO USB Compactflash */
++#endif
++
+ /*
+  * Bulk only data structures
+  */
+diff -ruN linux-2.4.21-0.13mdk/drivers/usb-orig/storage/unusual_devs.h linux-2.4.21-0.13mdk/drivers/usb/storage/unusual_devs.h
+--- linux-2.4.21-0.13mdk/drivers/usb-orig/storage/unusual_devs.h	2003-03-14 13:32:46.000000000 -0700
++++ linux-2.4.21-0.13mdk/drivers/usb/storage/unusual_devs.h	2003-04-24 20:58:37.000000000 -0600
+@@ -227,6 +227,13 @@
+ 		"CD-RW Device",
+ 		US_SC_8020, US_PR_CB, NULL, 0),
+ 
++/* tk: Thomas Kreiling <usbdev at sm04.de>  -- tested with SCM Dazzle ZIO */
++UNUSUAL_DEV(  0x04e6, 0x1010, 0x0005, 0x0005,
++		"SCM",
++		"SCM USBAT-02/ZIO-CF",
++		US_SC_SCSI, US_PR_ZIOCF, init_ziocf,
++		US_FL_SINGLE_LUN),
++
+ /* Reported by Bob Sass <rls@vectordb.com> -- only rev 1.33 tested */
+ UNUSUAL_DEV(  0x050d, 0x0115, 0x0133, 0x0133,
+ 		"Belkin",
+diff -ruN linux-2.4.21-0.13mdk/drivers/usb-orig/storage/usb.c linux-2.4.21-0.13mdk/drivers/usb/storage/usb.c
+--- linux-2.4.21-0.13mdk/drivers/usb-orig/storage/usb.c	2003-03-14 11:28:19.000000000 -0700
++++ linux-2.4.21-0.13mdk/drivers/usb/storage/usb.c	2003-04-24 19:54:24.000000000 -0600
+@@ -81,7 +81,9 @@
+ #ifdef CONFIG_USB_STORAGE_USS725
+ #include "uss725.h"
+ #endif
+-
++#ifdef CONFIG_USB_STORAGE_ZIOCF
++#include "zio_cf.h"
++#endif
+ 
+ #include <linux/module.h>
+ #include <linux/sched.h>
+@@ -925,6 +927,15 @@
+ 			break;
+ #endif
+ 
++#ifdef CONFIG_USB_STORAGE_ZIOCF
++		case US_PR_ZIOCF:
++			ss->transport_name  = "SCM ZIO CF USBAT-02 C/B";
++			ss->transport = ziocf_transport;
++			ss->transport_reset = usb_stor_Bulk_reset;
++			ss->max_lun = 1;
++			break;
++#endif
++ 
+ 		default:
+ 			ss->transport_name = "Unknown";
+ 			kfree(ss->current_urb);
+diff -ruN linux-2.4.21-0.13mdk/drivers/usb-orig/storage/zio_cf.c linux-2.4.21-0.13mdk/drivers/usb/storage/zio_cf.c
+--- linux-2.4.21-0.13mdk/drivers/usb-orig/storage/zio_cf.c	1969-12-31 17:00:00.000000000 -0700
++++ linux-2.4.21-0.13mdk/drivers/usb/storage/zio_cf.c	2003-04-17 23:26:17.000000000 -0600
+@@ -0,0 +1,1360 @@
++/* Driver for Dazzle/SCM zio Compact Flash reader
++ *
++ * $Id: zio_cf.c,v 1.1.1.1 2002/05/26 17:36:40 heraldb Exp $
++ * zio cf driver v0.2:
++ *
++ * History
++ * =======
++ * Jan 2002 - First release (0.1) as a hack to shuttle_usbat.c
++ *
++ * 02-05-11 0.2 tk - new driver based on jumpshot.c
++ * 02-05-12 0.3 tk - read/write ok (tested 16M and 48M cf cards, rw & stress)
++ *                 - done a bit cleanup
++ *
++ * Current development and maintenance by:
++ *   (c) 2002 Thomas Kreiling (usbdev AT sm04.de)
++ *   many thanks to Robert Baruch for the shuttle_usbat driver (my first
++ *   working driver was a hack to this), and Jimmie Mayfield for the
++ *   Lexar "Jumpshot" Compact Flash reader driver
++ *   which I used as a template for this driver,
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License as published by the
++ * Free Software Foundation; either version 2, or (at your option) any
++ * later version.
++ *
++ * This program is distributed in the hope that it will be useful, but
++ * WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License along
++ * with this program; if not, write to the Free Software Foundation, Inc.,
++ * 675 Mass Ave, Cambridge, MA 02139, USA.
++ */
++/*
++ static inline void wait_ms(unsigned int ms)
++ {
++       set_current_state(TASK_UNINTERRUPTIBLE);
++       schedule_timeout(1 + ms * HZ / 1000);
++ }
++*/
++#include "transport.h"
++#include "protocol.h"
++#include "usb.h"
++#include "debug.h"
++#include "zio_cf.h"
++
++#include <linux/sched.h>
++#include <linux/errno.h>
++#include <linux/slab.h>
++
++#define short_pack(LSB,MSB) ( ((u16)(LSB)) | ( ((u16)(MSB))<<8 ) )
++#define LSB_of(s) ((s)&0xFF)
++#define MSB_of(s) ((s)>>8)
++
++extern int usb_stor_control_msg(struct us_data *us, unsigned int pipe,
++				u8 request, u8 requesttype, u16 value,
++				u16 index, void *data, u16 size);
++extern int usb_stor_bulk_msg(struct us_data *us, void *data, int pipe,
++			     unsigned int len, unsigned int *act_len);
++
++#if 0
++static void jumpshot_dump_data(unsigned char *data, int len)
++{
++	unsigned char buf[80];
++	int sofar = 0;
++
++	if (!data)
++		return;
++
++	memset(buf, 0, sizeof(buf));
++
++	for (sofar = 0; sofar < len; sofar++) {
++		sprintf(buf + strlen(buf), "%02x ",
++			((unsigned int) data[sofar]) & 0xFF);
++
++		if (sofar % 16 == 15) {
++			US_DEBUGP("jumpshot:  %s\n", buf);
++			memset(buf, 0, sizeof(buf));
++		}
++	}
++
++	if (strlen(buf) != 0)
++		US_DEBUGP("jumpshot:  %s\n", buf);
++}
++#endif
++
++/*
++ * Send a control message and wait for the response.
++ *
++ * us - the pointer to the us_data structure for the device to use
++ *
++ * request - the URB Setup Packet's first 6 bytes. The first byte always
++ *  corresponds to the request type, and the second byte always corresponds
++ *  to the request.  The other 4 bytes do not correspond to value and index,
++ *  since they are used in a custom way by the SCM protocol.
++ *
++ * xfer_data - a buffer from which to get, or to which to store, any data
++ *  that gets send or received, respectively, with the URB. Even though
++ *  it looks like we allocate a buffer in this code for the data, xfer_data
++ *  must contain enough allocated space.
++ *
++ * xfer_len - the number of bytes to send or receive with the URB.
++ *
++ * This routine snarfed from the SanDisk SDDR-09 driver
++ *
++ */
++static int ziocf_send_control(struct us_data  *us,
++				 int pipe,
++				 unsigned char request,
++				 unsigned char requesttype,
++				 unsigned short value,
++				 unsigned short index,
++				 unsigned char *xfer_data,
++				 unsigned int xfer_len)
++{
++	int result;
++
++	// Send the URB to the device and wait for a response.
++
++	/* Why are request and request type reversed in this call? */
++
++	result = usb_stor_control_msg(us, pipe,
++				      request, requesttype,
++				      value, index, xfer_data, xfer_len);
++
++	// Check the return code for the command.
++
++	if (result < 0) {
++		/* if the command was aborted, indicate that */
++		if (result == -ENOENT)
++			return USB_STOR_TRANSPORT_ABORTED;
++
++		/* a stall is a fatal condition from the device */
++		if (result == -EPIPE) {
++			US_DEBUGP("ziocf_send_control:  -- Stall on control pipe. Clearing\n");
++			result = usb_clear_halt(us->pusb_dev, pipe);
++			US_DEBUGP("ziocf_send_control:  -- usb_clear_halt() returns %d\n", result);
++			return USB_STOR_TRANSPORT_FAILED;
++		}
++
++		/* Uh oh... serious problem here */
++		return USB_STOR_TRANSPORT_ERROR;
++	}
++
++	return USB_STOR_TRANSPORT_GOOD;
++}
++
++
++static int ziocf_raw_bulk(int direction,
++			     struct us_data *us,
++			     unsigned char *data,
++		             unsigned int len)
++{
++	int result;
++	int act_len;
++	int pipe;
++
++	if (direction == SCSI_DATA_READ)
++		pipe = usb_rcvbulkpipe(us->pusb_dev, us->ep_in);
++	else
++		pipe = usb_sndbulkpipe(us->pusb_dev, us->ep_out);
++
++	result = usb_stor_bulk_msg(us, data, pipe, len, &act_len);
++
++	// if we stall, we need to clear it before we go on
++	if (result == -EPIPE) {
++		US_DEBUGP("ziocf_raw_bulk:  EPIPE. clearing endpoint halt for"
++			  " pipe 0x%x, stalled at %d bytes\n", pipe, act_len);
++		usb_clear_halt(us->pusb_dev, pipe);
++	}
++
++	if (result) {
++		// NAK - that means we've retried a few times already
++		if (result == -ETIMEDOUT) {
++			US_DEBUGP("ziocf_raw_bulk:  device NAKed\n");
++			return US_BULK_TRANSFER_FAILED;
++		}
++
++		// -ENOENT -- we canceled this transfer
++		if (result == -ENOENT) {
++			US_DEBUGP("ziocf_raw_bulk:  transfer aborted\n");
++			return US_BULK_TRANSFER_ABORTED;
++		}
++
++		if (result == -EPIPE) {
++			US_DEBUGP("ziocf_raw_bulk:  output pipe stalled\n");
++			return USB_STOR_TRANSPORT_FAILED;
++		}
++
++		// the catch-all case
++		US_DEBUGP("ziocf_raw_bulk:  unknown error\n");
++		return US_BULK_TRANSFER_FAILED;
++	}
++
++	if (act_len != len) {
++		US_DEBUGP("ziocf_raw_bulk:  Warning. Transferred only %d bytes\n", act_len);
++		return US_BULK_TRANSFER_SHORT;
++	}
++
++	US_DEBUGP("ziocf_raw_bulk:  (%s) Transfered %d of %d bytes\n",
++		(direction == SCSI_DATA_READ ? "IN" : "OUT"),
++		act_len, len);
++	return US_BULK_TRANSFER_GOOD;
++}
++
++static inline int ziocf_bulk_read(struct us_data *us,
++			             unsigned char *data,
++		                     unsigned int len)
++{
++	if (len == 0)
++		return USB_STOR_TRANSPORT_GOOD;
++
++	//US_DEBUGP("ziocf_bulk_read:  len = %d\n", len);
++	return ziocf_raw_bulk(SCSI_DATA_READ, us, data, len);
++}
++
++
++static inline int ziocf_bulk_write(struct us_data *us,
++			              unsigned char *data,
++		                      unsigned int len)
++{
++	if (len == 0)
++		return USB_STOR_TRANSPORT_GOOD;
++
++	//US_DEBUGP("ziocf_bulk_write:  len = %d\n", len);
++	return ziocf_raw_bulk(SCSI_DATA_WRITE, us, data, len);
++}
++
++
++//static int jumpshot_get_status(struct us_data  *us)
++//{
++//	unsigned char reply;
++//	int rc;
++//
++//	if (!us)
++//		return USB_STOR_TRANSPORT_ERROR;
++//
++//	// send the setup
++//	rc = ziocf_send_control(us,
++//				   usb_rcvctrlpipe(us->pusb_dev, 0),
++//				   0, 0xA0, 0, 7, &reply, 1);
++//
++//	if (rc != USB_STOR_TRANSPORT_GOOD)
++//		return rc;
++//
++//	if (reply != 0x50) {
++//		US_DEBUGP("jumpshot_get_status:  0x%2x\n",
++//			  (unsigned short) (reply));
++//		return USB_STOR_TRANSPORT_ERROR;
++//	}
++//
++//	return USB_STOR_TRANSPORT_GOOD;
++//}
++
++//tk: ins
++// --------------------------------------------------------------------
++// --------------------------------------------------------------------
++int ziocf_read(struct us_data *us,
++	     unsigned char access,
++	     unsigned char reg,
++	     unsigned char *content) {
++
++	int result;
++	result = ziocf_send_control(us,
++		usb_rcvctrlpipe(us->pusb_dev,0),
++		access, 0xC0, (u16)reg, 0,
++		content, 1);
++	return result;
++}
++
++int ziocf_write(struct us_data *us,
++	     unsigned char access,
++	     unsigned char reg,
++	     unsigned char content) {
++
++	int result;
++	result = ziocf_send_control(us,
++		usb_sndctrlpipe(us->pusb_dev,0),
++		access|0x01, 0x40,
++		short_pack(reg, content), 0,
++		NULL, 0);
++	return result;
++}
++
++int ziocf_read_user_io(struct us_data *us,
++		unsigned char *data_flags) {
++
++	int result;
++	result = ziocf_send_control(us,
++		usb_rcvctrlpipe(us->pusb_dev,0),
++		0x82, 0xC0, 0, 0,
++		data_flags, 1);
++	return result;
++}
++
++static int ziocf_id_device(struct us_data *us,
++		              struct ziocf_info *info)
++{
++	// vendor cmd: register bulk trans, 6 bytes
++	__u16	*cf;	                    // ptr to CF id-drive block
++	unsigned char status;
++	unsigned char ctrl_command[8] = {
++		0x40, 0x47, 0,0,  0, 0, 6, 0
++	};
++    //c0 42 10 00 00 00 00 02
++	unsigned char ctrl_4210[8] = {
++		0xc0, 0x42, 0x10, 0x00, 0x00, 0x00, 0x00, 0x02
++	};
++	
++	//snoop 12 01 16 a0 17 ec,
++	// these are the zio-cf ATA regs (overlapped io mode ???)
++	//   12h  Sector count (R/W)
++	//   13h  Sector Number (R/W)
++	//   14h  Cylinder Low (R/W)
++	//   15h  Cylinder High (R/W)
++	//   16h  Drive/Head (R/W)
++	//   17h  Status/Command (R/W)
++	// complete init maybe ata: (in) 0xec identtify, (out) 0x91 set drv params,
++	//	(out) 0xc6 set multiple mode, (in) 0xda get media status
++	unsigned char	command[6] = { 0x12, 0x01, 0x16, 0xa0, 0x17, 0xec };	// 0xec : identify
++	unsigned char	reply[512];
++	int 			rc;
++
++	if (!us || !info)
++		return USB_STOR_TRANSPORT_ERROR;
++
++	rc = ziocf_send_control(us,
++		usb_sndctrlpipe(us->pusb_dev,0),
++		0x80, 0x40, 0,0,
++		ctrl_command, 8);
++
++	if (rc != USB_STOR_TRANSPORT_GOOD) {
++		US_DEBUGP("ziocf_id_device:  Gah! send_control for read_capacity failed\n");
++		return rc;
++	}
++	wait_ms(5);
++	//US_DEBUGP("ziocf_id_device: ctlcmd ok\n");
++	
++	rc = ziocf_raw_bulk(SCSI_DATA_WRITE, us, command, 6);
++	if (rc != USB_STOR_TRANSPORT_GOOD) {
++		US_DEBUGP("ziocf_id_device:  Gah! bulk_write for read_capacity failed\n");
++		return rc;
++	}
++	else {
++		US_DEBUGP("ziocf_id_device:  bulk_write for read_capacity ok\n");
++	}
++
++	wait_ms(5);
++	rc = ziocf_read(us, USBAT_ATA, 0x17, &status);
++	if (rc!=USB_STOR_TRANSPORT_GOOD) return rc;
++
++	//2 US_DEBUGP("ziocf_id_device: bulk_write for capacity ok, status=%02X\n", status);
++	if ( status == 0x58 ) {
++		//c0 42 10 00 00 00 00 02
++		rc = ziocf_send_control(us,
++			usb_sndctrlpipe(us->pusb_dev,0),
++			0x80,0x40, 0,0,
++			ctrl_4210, 8);
++		wait_ms(50);
++		//2 US_DEBUGP("ziocf_id_device: ctl c0 42 10 send\n");
++	}
++	// ????
++	wait_ms(50);
++
++//NO NO NO! dont read status again HERE!!! : rc = usbat_read(us, USBAT_ATA, 0x17, &status);
++	if (rc!=USB_STOR_TRANSPORT_GOOD)
++		return rc;
++
++	// read the reply
++	rc = ziocf_raw_bulk(SCSI_DATA_READ, us, reply, sizeof(reply)); 	//YY   _bulk_read ??
++	if (rc != USB_STOR_TRANSPORT_GOOD) {
++		US_DEBUGP("ziocf_id_device: raw_bulk read failed\n");
++		return rc;
++	}
++
++	wait_ms(150);
++	rc = ziocf_read(us, USBAT_ATA, 0x17, &status);
++	if (rc!=USB_STOR_TRANSPORT_GOOD) return rc;
++
++	US_DEBUGP("ziocf_id_device: ATA IDENTIFY: %02X %02X %02X %02X\n",
++		reply[0], reply[1], reply[2], reply[3] );
++	memcpy( (char *)&drive, reply, sizeof(struct hd_driveid) );	//tk: keep params to set them later
++
++	US_DEBUGP("ziocf_id_device:      cyls = 0x%x\n",  drive.cur_cyls);
++	US_DEBUGP("ziocf_id_device:     heads = 0x%x\n",  drive.cur_heads);
++	US_DEBUGP("ziocf_id_device:   sectors = 0x%x\n",  drive.sectors);
++
++	info->sectors = ((u32)(reply[117]) << 24) |
++			((u32)(reply[116]) << 16) |
++			((u32)(reply[115]) <<  8) |
++			((u32)(reply[114])      );
++
++
++	cf = (__u16 *) reply;
++	
++	US_DEBUGP("ziocf_id_device: CF cyls     1: 0x%X\n", cf[1]);	// 0x3e8
++	US_DEBUGP("ziocf_id_device: CF heads    3: 0x%X\n", cf[3]);	// 0x10
++	
++	info->heads = cf[3];
++	info->sec_per_track = cf[6];
++	info->ssize = 0x200;
++	
++	US_DEBUGP("ziocf_id_device: CF sec/trk  6: 0x%X\n", cf[6]);	// 0x02
++	US_DEBUGP("ziocf_id_device: CF sect/card : 0x%X\n", cf[7]<<16 | cf[8]);
++	
++	info->sectors = ((cf[7]<<16) | cf[8]);
++
++	return USB_STOR_TRANSPORT_GOOD;
++}
++
++static int ziocf_get_status(struct us_data  *us)
++{
++	unsigned char reply;
++	int rc;
++
++	if (!us)
++		return USB_STOR_TRANSPORT_ERROR;
++
++	// send the setup
++	rc = ziocf_read(us, USBAT_ATA, 0x17, &reply);
++
++	if (rc != USB_STOR_TRANSPORT_GOOD)
++		return rc;
++
++	if ( (reply != 0x50) && (reply != 0x51) ){
++		US_DEBUGP("ziocf_get_status:  0x%2x\n",
++			  (unsigned short) (reply));
++		return USB_STOR_TRANSPORT_ERROR;
++	}
++
++	return USB_STOR_TRANSPORT_GOOD;
++}
++
++// --- helper funtions ---
++static void ziocf_regdata( unsigned char *data, unsigned char *reg,
++	unsigned char *cmd, unsigned short num_regs)
++{
++	int i;
++//tk: setup data: reg + command
++	for (i=0; i<num_regs; i++) {
++		data[   i<<1 ] = reg[i];
++		data[1+(i<<1)] = cmd[i];
++	}
++}
++
++// --------------------------------------------------------------------
++// --------------------------------------------------------------------
++//tk: end ins
++
++static int ziocf_read_data(struct us_data *us,
++		              struct ziocf_info *info,
++		              u32 sector,
++		              u32 sectors,
++		              unsigned char *dest,
++		              int use_sg)
++{
++	// my trace shows always:
++	// 40 47 01 17 f0 ee <0e=word(length)> 40|c0 45|44 10 17 fd 20 00 02...
++	unsigned char ctrl_command[16] = {
++		0x40, USBAT_ATA|0x07, 0x01, 0x17, 0xf0, 0xee,
++		LSB_of(7*2), MSB_of(7*2),	// LSB_of(num_ata_registers*2), MSB_of(num_ata_registers*2),
++		0xc0,						// (direction==SCSI_DATA_WRITE ? 0x40 : 0xC0),
++		USBAT_ATA|0x04, 			// access|(direction==SCSI_DATA_WRITE ? 0x05 : 0x04),
++		0x10, 0x17, 				// data_reg, status_reg,
++		0xfd, 0x20, 				// timeout, qualifier,
++		0x00, 0x02, 				//adjusted, see below,  LSB_of(len), MSB_of(len)
++	};
++
++	unsigned char registers[7]	= { 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17 };
++	unsigned char command[7] 	= { 0, 0, 0, 0, 0, 0xe0, 0x20 };
++	unsigned char data[7*2];		// reg + data, reg0 data0 reg1 data1 ... reg8 data8
++	unsigned char *pp;
++
++	unsigned char *buffer = NULL;
++	unsigned char *ptr;
++	unsigned char  thistime = (unsigned char) 0x200;
++	
++	struct scatterlist *sg = NULL;
++        int totallen, len, result;
++        int sg_idx = 0, current_sg_offset = 0;
++        int transferred;
++
++        // we're working in LBA mode.  according to the ATA spec,
++        // we can support up to 28-bit addressing.  I don't know if Jumpshot
++        // supports beyond 24-bit addressing.  It's kind of hard to test
++        // since it requires > 8GB CF card.
++	//
++	if (sector > 0x0FFFFFFF)
++		return USB_STOR_TRANSPORT_ERROR;
++
++	// If we're using scatter-gather, we have to create a new
++	// buffer to read all of the data in first, since a
++	// scatter-gather buffer could in theory start in the middle
++	// of a page, which would be bad. A developer who wants a
++	// challenge might want to write a limited-buffer
++	// version of this code.
++
++	totallen = sectors * info->ssize;
++
++	do {
++               // loop, never allocate or transfer more than 64k at once (min(128k, 255*info->ssize) is the real limit)
++                len = min_t(int, totallen, 2*16384);	//j 65536);
++
++                if (use_sg) {
++                        sg = (struct scatterlist *) dest;
++                        buffer = kmalloc(len, GFP_KERNEL);
++                        if (buffer == NULL)
++                                return USB_STOR_TRANSPORT_ERROR;
++                        ptr = buffer;
++                } else {
++                        ptr = dest;
++                }
++
++                thistime = (len / info->ssize) & 0xff;
++		// adjust the ctrl_command (no. of bytes to transfer)
++		ctrl_command[14] = LSB_of(thistime * info->ssize);
++		ctrl_command[15] = MSB_of(thistime * info->ssize);
++
++		command[0] = 0;
++		command[1] = thistime;
++		command[2] = sector & 0xFF;
++		command[3] = (sector >>  8) & 0xFF;
++		command[4] = (sector >> 16) & 0xFF;
++
++		command[5] |= (sector >> 24) & 0x0F;
++
++		result = ziocf_send_control(us,
++				usb_sndctrlpipe(us->pusb_dev,0),
++			0x80, 0x40, 0, 0,
++			ctrl_command, 16);
++		
++		//tk: build the reg/data, reg/data ... array
++		pp = ctrl_command;
++		ziocf_regdata( data, registers, command, 7);
++		pp= data;
++		//tk bulk-out something like: 11 00 12 01 13 00 14 00 15 00 16 e0 17 20   (atapi?)
++		result = ziocf_raw_bulk(SCSI_DATA_WRITE, us, data, 7*2);
++
++		// send the setup + command
++		//j result = ziocf_send_control(us,
++		//j 			       usb_sndctrlpipe(us->pusb_dev, 0),
++		//j 			       0, 0x20, 0, 1, command, 7);
++		if (result != USB_STOR_TRANSPORT_GOOD) {
++			if (use_sg)
++				kfree(buffer);
++			return result;
++		}
++
++		// read the result
++		result = ziocf_bulk_read(us, ptr, len);
++		if (result != USB_STOR_TRANSPORT_GOOD) {
++			if (use_sg)
++				kfree(buffer);
++			return result;
++		}
++
++		US_DEBUGP("ziocf_read_data:  %d bytes\n", len);
++		//jumpshot_dump_data(ptr, len);
++	
++		sectors -= thistime;
++		sector  += thistime;
++
++                if (use_sg) {
++                        transferred = 0;
++                        while (sg_idx < use_sg && transferred < len) {
++                                if (len - transferred >= sg[sg_idx].length - current_sg_offset) {
++                                        US_DEBUGP("ziocf_read_data:  adding %d bytes to %d byte sg buffer\n", sg[sg_idx].length - current_sg_offset, sg[sg_idx].length);
++                                        memcpy(sg[sg_idx].address + current_sg_offset,
++                                               buffer + transferred,
++                                               sg[sg_idx].length - current_sg_offset);
++                                        transferred += sg[sg_idx].length - current_sg_offset;
++                                        current_sg_offset = 0;
++                                        // on to the next sg buffer
++                                        ++sg_idx;
++                                } else {
++                                        US_DEBUGP("ziocf_read_data:  adding %d bytes to %d byte sg buffer\n", len - transferred, sg[sg_idx].length);
++                                        memcpy(sg[sg_idx].address + current_sg_offset,
++                                               buffer + transferred,
++                                               len - transferred);
++                                        current_sg_offset += len - transferred;
++                                        // this sg buffer is only partially full and we're out of data to copy in
++                                        break;
++                                }
++                        }
++                        kfree(buffer);
++                } else {
++                        dest += len;
++                }
++
++                totallen -= len;
++        } while (totallen > 0);
++
++	return USB_STOR_TRANSPORT_GOOD;
++}
++
++
++static int ziocf_write_data(struct us_data *us,
++		               struct ziocf_info *info,
++			       u32 sector,
++			       u32 sectors,
++		               unsigned char *src,
++		               int use_sg)
++{
++	// my trace shows always:
++	// 40 47 01 17 f0 ee <0e=word(length)> 40|c0 45|44 10 17 fd 20 00 02...
++	unsigned char ctrl_command[16] = {
++		0x40, USBAT_ATA|0x07, 0x01, 0x17, 0xf0, 0xee,
++		LSB_of(7*2), MSB_of(7*2),	// LSB_of(num_ata_registers*2), MSB_of(num_ata_registers*2),
++		0x40,						// (direction==SCSI_DATA_WRITE ? 0x40 : 0xC0),
++		USBAT_ATA|0x05, 			// access|(direction==SCSI_DATA_WRITE ? 0x05 : 0x04),
++		0x10, 0x17, 				// data_reg, status_reg,
++		0xfd, 0x20, 				// timeout, qualifier,
++		0x00, 0x02, 				//adjusted, see below,  LSB_of(len), MSB_of(len)
++	};
++
++	unsigned char registers[7]	= { 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17 };
++	unsigned char command[7] 	= { 0, 0, 0, 0, 0, 0xe0, 0x30 };  // 0x30 = write
++	unsigned char data[7*2];		// reg + data, reg0 data0 reg1 data1 ... reg8 data8
++	unsigned char *pp;
++
++	unsigned char *buffer = NULL;
++	unsigned char *ptr;
++	unsigned char  thistime;
++	struct scatterlist *sg = NULL;
++        int totallen, len, result, waitcount;
++        int sg_idx = 0, current_sg_offset = 0;
++        int transferred;
++
++        // we're working in LBA mode.  according to the ATA spec,
++        // we can support up to 28-bit addressing.  I don't know if Jumpshot
++        // supports beyond 24-bit addressing.  It's kind of hard to test
++        // since it requires > 8GB CF card.
++        //
++	if (sector > 0x0FFFFFFF)
++		return USB_STOR_TRANSPORT_ERROR;
++
++	// If we're using scatter-gather, we have to create a new
++	// buffer to read all of the data in first, since a
++	// scatter-gather buffer could in theory start in the middle
++	// of a page, which would be bad. A developer who wants a
++	// challenge might want to write a limited-buffer
++	// version of this code.
++
++	totallen = sectors * info->ssize;
++
++	do {
++                // loop, never allocate or transfer more than 64k at once (min(128k, 255*info->ssize) is the real limit)
++                len = min_t(int, totallen, 2*16384);	//j 65536);
++
++                if (use_sg) {
++                        sg = (struct scatterlist *) src;
++                        buffer = kmalloc(len, GFP_KERNEL);
++                        if (buffer == NULL)
++                                return USB_STOR_TRANSPORT_ERROR;
++                        ptr = buffer;
++
++                        memset(buffer, 0, len);
++
++                        // copy the data from the sg bufs into the big contiguous buf
++                        //
++                        transferred = 0;
++                        while (transferred < len) {
++                                if (len - transferred >= sg[sg_idx].length - current_sg_offset) {
++                                        US_DEBUGP("ziocf_write_data:  getting %d bytes from %d byte sg buffer\n", sg[sg_idx].length - current_sg_offset, sg[sg_idx].length);
++                                        memcpy(ptr + transferred,
++                                               sg[sg_idx].address + current_sg_offset,
++                                               sg[sg_idx].length - current_sg_offset);
++                                        transferred += sg[sg_idx].length - current_sg_offset;
++                                        current_sg_offset = 0;
++                                        // on to the next sg buffer
++                                        ++sg_idx;
++                                } else {
++                                        US_DEBUGP("ziocf_write_data:  getting %d bytes from %d byte sg buffer\n", len - transferred, sg[sg_idx].length);
++                                        memcpy(ptr + transferred,
++                                               sg[sg_idx].address + current_sg_offset,
++                                               len - transferred);
++                                        current_sg_offset += len - transferred;
++                                        // we only copied part of this sg buffer
++                                        break;
++                                }
++                        }
++                } else {
++                        ptr = src;
++                }
++
++                thistime = (len / info->ssize) & 0xff;
++		
++		ctrl_command[14] = LSB_of(thistime * info->ssize);
++		ctrl_command[15] = MSB_of(thistime * info->ssize);
++
++		command[0] = 0;
++		command[1] = thistime;
++		command[2] = sector & 0xFF;
++		command[3] = (sector >>  8) & 0xFF;
++		command[4] = (sector >> 16) & 0xFF;
++
++		command[5] |= (sector >> 24) & 0x0F;
++
++		// send the setup + command
++		//j result = ziocf_send_control(us,
++		//j 			       usb_sndctrlpipe(us->pusb_dev, 0),
++		//j 			       0, 0x20, 0, 1, command, 7);
++		result = ziocf_send_control(us,
++			  usb_sndctrlpipe(us->pusb_dev,0),
++			0x80, 0x40, 0, 0,
++			ctrl_command, 16);
++		US_DEBUGP("ziocf_write_data: bulk out ctrl_command\n");
++
++		pp = ctrl_command;
++		ziocf_regdata( data, registers, command, 7);
++		pp= data;
++
++		//tk bulk-out something like: 11 00 12 01 13 00 14 00 15 00 16 e0 17 30   (atapi?)
++		result = ziocf_raw_bulk(SCSI_DATA_WRITE, us, data, 7*2);
++
++		US_DEBUGP("ziocf_write_data: bulk out reg/data done\n");
++		
++		if (result != USB_STOR_TRANSPORT_GOOD) {
++			if (use_sg)
++				kfree(buffer);
++			return result;
++		}
++		
++		// send the data
++		result = ziocf_bulk_write(us, ptr, len);
++		if (result != USB_STOR_TRANSPORT_GOOD) {
++			if (use_sg)
++				kfree(buffer);
++			return result;
++		}
++
++		// read the result.  apparently the bulk write can complete before the
++		// jumpshot drive is finished writing.  so we loop here until we
++		// get a good return code
++		waitcount = 0;
++		do {
++			result = ziocf_get_status(us);
++			if (result != USB_STOR_TRANSPORT_GOOD) {
++				// I have not experimented to find the smallest value.
++				//
++				wait_ms(50);
++			}
++		} while ((result != USB_STOR_TRANSPORT_GOOD) && (waitcount < 10));
++
++		if (result != USB_STOR_TRANSPORT_GOOD)
++			US_DEBUGP("ziocf_write_data:  Gah!  Waitcount = 10.  Bad write!?\n");
++		
++		sectors -= thistime;
++		sector  += thistime;
++
++                if (use_sg) {
++                        kfree(buffer);
++                } else {
++                        src += len;
++                }
++
++                totallen -= len;
++        } while (totallen > 0);
++
++	return result;
++}
++
++//static int jumpshot_id_device(struct us_data *us,
++//		              struct ziocf_info *info)
++//{
++//	unsigned char command[2] = { 0xe0, 0xec };
++//	unsigned char reply[512];
++//	int 	 rc;
++//
++//	if (!us || !info)
++//		return USB_STOR_TRANSPORT_ERROR;
++//
++//	// send the setup
++//	rc = ziocf_send_control(us,
++//				   usb_sndctrlpipe(us->pusb_dev, 0),
++//				   0, 0x20, 0, 6, command, 2);
++//
++//	if (rc != USB_STOR_TRANSPORT_GOOD) {
++//		US_DEBUGP("jumpshot_id_device:  Gah! send_control for read_capacity failed\n");
++//		return rc;
++//	}
++//
++//	// read the reply
++//	rc = ziocf_bulk_read(us, reply, sizeof(reply));
++//	if (rc != USB_STOR_TRANSPORT_GOOD)
++//		return rc;
++//
++//	info->sectors = ((u32)(reply[117]) << 24) |
++//			((u32)(reply[116]) << 16) |
++//			((u32)(reply[115]) <<  8) |
++//			((u32)(reply[114])      );
++//
++//	return USB_STOR_TRANSPORT_GOOD;
++//}
++
++static int ziocf_handle_mode_sense(struct us_data *us,
++				      Scsi_Cmnd * srb,
++			              unsigned char *ptr,
++			              int sense_6)
++{
++	unsigned char mode_param_header[8] = {
++		0, 0, 0, 0, 0, 0, 0, 0
++	};
++	unsigned char rw_err_page[12] = {
++		0x1, 0xA, 0x21, 1, 0, 0, 0, 0, 1, 0, 0, 0
++	};
++	unsigned char cache_page[12] = {
++		0x8, 0xA, 0x1, 0, 0, 0, 0, 0, 0, 0, 0, 0
++	};
++	unsigned char rbac_page[12] = {
++		0x1B, 0xA, 0, 0x81, 0, 0, 0, 0, 0, 0, 0, 0
++	};
++	unsigned char timer_page[8] = {
++		0x1C, 0x6, 0, 0, 0, 0
++	};
++	unsigned char pc, page_code;
++	unsigned short total_len = 0;
++	unsigned short param_len, i = 0;
++
++
++	if (sense_6)
++		param_len = srb->cmnd[4];
++	else
++		param_len = ((u32) (srb->cmnd[7]) >> 8) | ((u32) (srb->cmnd[8]));
++
++
++	pc = srb->cmnd[2] >> 6;
++	page_code = srb->cmnd[2] & 0x3F;
++
++	switch (pc) {
++	   case 0x0:
++		US_DEBUGP("ziocf_handle_mode_sense:  Current values\n");
++		break;
++	   case 0x1:
++		US_DEBUGP("ziocf_handle_mode_sense:  Changeable values\n");
++		break;
++	   case 0x2:
++		US_DEBUGP("ziocf_handle_mode_sense:  Default values\n");
++		break;
++	   case 0x3:
++		US_DEBUGP("ziocf_handle_mode_sense:  Saves values\n");
++		break;
++	}
++
++	mode_param_header[3] = 0x80;	// write enable
++
++	switch (page_code) {
++	   case 0x0:
++		// vendor-specific mode
++		return USB_STOR_TRANSPORT_ERROR;
++
++	   case 0x1:
++		total_len = sizeof(rw_err_page);
++		mode_param_header[0] = total_len >> 8;
++		mode_param_header[1] = total_len & 0xFF;
++		mode_param_header[3] = 0x00;	// WP enable: 0x80
++
++		memcpy(ptr, mode_param_header, sizeof(mode_param_header));
++		i += sizeof(mode_param_header);
++		memcpy(ptr + i, rw_err_page, sizeof(rw_err_page));
++		break;
++
++	   case 0x8:
++		total_len = sizeof(cache_page);
++		mode_param_header[0] = total_len >> 8;
++		mode_param_header[1] = total_len & 0xFF;
++		mode_param_header[3] = 0x00;	// WP enable: 0x80
++
++		memcpy(ptr, mode_param_header, sizeof(mode_param_header));
++		i += sizeof(mode_param_header);
++		memcpy(ptr + i, cache_page, sizeof(cache_page));
++		break;
++
++	   case 0x1B:
++		total_len = sizeof(rbac_page);
++		mode_param_header[0] = total_len >> 8;
++		mode_param_header[1] = total_len & 0xFF;
++		mode_param_header[3] = 0x00;	// WP enable: 0x80
++
++		memcpy(ptr, mode_param_header, sizeof(mode_param_header));
++		i += sizeof(mode_param_header);
++		memcpy(ptr + i, rbac_page, sizeof(rbac_page));
++		break;
++
++	   case 0x1C:
++		total_len = sizeof(timer_page);
++		mode_param_header[0] = total_len >> 8;
++		mode_param_header[1] = total_len & 0xFF;
++		mode_param_header[3] = 0x00;	// WP enable: 0x80
++
++		memcpy(ptr, mode_param_header, sizeof(mode_param_header));
++		i += sizeof(mode_param_header);
++		memcpy(ptr + i, timer_page, sizeof(timer_page));
++		break;
++
++	   case 0x3F:
++		total_len = sizeof(timer_page) + sizeof(rbac_page) +
++		    sizeof(cache_page) + sizeof(rw_err_page);
++		mode_param_header[0] = total_len >> 8;
++		mode_param_header[1] = total_len & 0xFF;
++		mode_param_header[3] = 0x00;	// WP enable: 0x80
++
++		memcpy(ptr, mode_param_header, sizeof(mode_param_header));
++		i += sizeof(mode_param_header);
++		memcpy(ptr + i, timer_page, sizeof(timer_page));
++		i += sizeof(timer_page);
++		memcpy(ptr + i, rbac_page, sizeof(rbac_page));
++		i += sizeof(rbac_page);
++		memcpy(ptr + i, cache_page, sizeof(cache_page));
++		i += sizeof(cache_page);
++		memcpy(ptr + i, rw_err_page, sizeof(rw_err_page));
++		break;
++	}
++
++	return USB_STOR_TRANSPORT_GOOD;
++}
++
++
++void ziocf_info_destructor(void *extra)
++{
++	// this routine is a placeholder...
++	// currently, we don't allocate any extra blocks so we're okay
++}
++
++
++
++static int ziocf_select_and_test_registers(struct us_data *us) {
++
++	int result;
++	int selector;
++	unsigned char status;
++
++	// try device = master, then device = slave.
++
++	for (selector = 0xA0; selector <= 0xA0; selector += 0x10) {
++/*XXX dbg : removed for testing
++		if ( (result = ziocf_write(us, USBAT_ATA, 0x16, selector)) !=
++				USB_STOR_TRANSPORT_GOOD)
++			return result;
++
++		if ( (result = ziocf_read(us, USBAT_ATA, 0x17, &status)) !=
++				USB_STOR_TRANSPORT_GOOD)
++			return result;
++
++		if ( (result = ziocf_read(us, USBAT_ATA, 0x16, &status)) !=
++				USB_STOR_TRANSPORT_GOOD)
++			return result;
++*/
++		if ( (result = ziocf_read(us, USBAT_ATA, 0x14, &status)) !=
++				USB_STOR_TRANSPORT_GOOD)
++			return result;
++wait_ms(5);
++		if ( (result = ziocf_read(us, USBAT_ATA, 0x15, &status)) !=
++				USB_STOR_TRANSPORT_GOOD)
++			return result;
++wait_ms(5);
++		if ( (result = ziocf_write(us, USBAT_ATA, 0x14, 0x55)) !=
++				USB_STOR_TRANSPORT_GOOD)
++			return result;
++wait_ms(5);
++		if ( (result = ziocf_write(us, USBAT_ATA, 0x15, 0xAA)) !=
++				USB_STOR_TRANSPORT_GOOD)
++			return result;
++wait_ms(5);
++		if ( (result = ziocf_read(us, USBAT_ATA, 0x14, &status)) !=
++				USB_STOR_TRANSPORT_GOOD)
++			return result;
++wait_ms(5);
++		if ( (result = ziocf_read(us, USBAT_ATA, 0x15, &status)) !=
++				USB_STOR_TRANSPORT_GOOD)
++			return result;
++//tk ins
++		if ( (result = ziocf_write(us, USBAT_ATA, 0x14, 0x00)) !=
++				USB_STOR_TRANSPORT_GOOD)
++			return result;
++
++		if ( (result = ziocf_write(us, USBAT_ATA, 0x15, 0x00)) !=
++				USB_STOR_TRANSPORT_GOOD)
++			return result;
++
++		if ( (result = ziocf_read(us, USBAT_ATA, 0x17, &status)) !=
++				USB_STOR_TRANSPORT_GOOD)
++			return result;
++
++//tk end ins
++	}
++
++	return result;
++}
++
++// init for the SCM 'Zio CF'
++int init_ziocf(struct us_data *us) {
++	/*
++	// set reg multi, 12 01 16 a0 17 ec
++	// set reg multi, 12 02 16 af 17 91
++	// then SetupPacket             : 40 41 12 01 00 00 00 00
++	//     SetupPacket             : 40 41 17 c6 00 00 00 00
++	// then
++	// set reg multi, 12 01 16 a0 17 da
++	*/
++
++	struct ziocf_info *info;
++	// 40 82 30 a0 00 00 00 00
++	unsigned char ctrl_command_30a0[] = { 0x40, 0x82, 0x30, 0xa0,  0, 0, 0, 0 };
++	unsigned char ctrl_command_b0a0[] = { 0x40, 0x82, 0xb0, 0xa0,  0, 0, 0, 0 };
++//	unsigned char ctrl_command_test[] = { 0x40, 0x82, 0x70, 0xa0, 0, 0, 0, 0 };
++	// 40 81 00 83 08 88 00 02
++
++	unsigned char ctrl_feature[] = { 0x40, 0x81, 0x00, 0x83,  0x08, 0x88, 0x00, 0x02 };
++	unsigned char ctrl_command[] = {
++		0x40, 0x47, 0,0,  0, 0, 6, 0
++	};
++//	unsigned char command_ec[6] = { 0x12, 0x01, 0x16, 0xa0, 0x17, 0xe c };	// 0xe c : identify
++	unsigned char command_91[6] = { 0x12, 0x02, 0x16, 0xaf, 0x17, 0x91 };	// 0x91 : set drv param
++//	unsigned char command_c6[6] = { 0x12, 0x01, 0x16, 0xa0, 0x17, 0xc6 };	// 0xc6 : set drv param
++	unsigned char command_da[6] = { 0x12, 0x01, 0x16, 0xa0, 0x17, 0xda };	// 0xda : get media status
++
++	int result, rc, i;
++	unsigned char status;
++
++	rc = USB_STOR_TRANSPORT_GOOD;
++	//ctl 40 82 30 a0 00 00 00 00
++	rc = ziocf_send_control(us, usb_sndctrlpipe(us->pusb_dev,0), 0x80, 0x40,
++		0, 0, ctrl_command_30a0, 8);
++	wait_ms(250);
++	if ( (result = ziocf_read_user_io(us, &status)) != USB_STOR_TRANSPORT_GOOD)
++		;//return result;
++	wait_ms(50);
++	if ( (result = ziocf_read_user_io(us, &status)) != USB_STOR_TRANSPORT_GOOD)
++		;//return result;
++
++	//1 US_DEBUGP("ziocf_init 1 : 30a0, status=%02X\n", status);
++	
++	//reg a016
++	rc = ziocf_send_control(us, usb_sndctrlpipe(us->pusb_dev,0), 0x41, 0x40,
++		0xa016, 0, NULL,0); // user io
++	wait_ms(50);
++	//1 US_DEBUGP("ziocf_init 1 : a016\n");
++
++	status = 0xff;
++	i = 0;
++	while( (i++<30) && (status!=0x50) ) {
++		wait_ms(250);
++		rc = ziocf_read(us, USBAT_ATA, 0x17, &status);
++	}
++
++	//1 US_DEBUGP("ziocf_init 2 : read c0 40 17 = %02X\n", status);
++	if ( (rc = ziocf_select_and_test_registers(us)) != USB_STOR_TRANSPORT_GOOD)
++		return result;
++
++	//1 US_DEBUGP("ziocf_init 4 : select_and_test ok\n" );
++	if ( (result = ziocf_read(us, USBAT_ATA, 0x0e, &status)) != USB_STOR_TRANSPORT_GOOD)
++		return result;
++		
++	//1 US_DEBUGP("ziocf_init 5 : read 0x0e ok, status=%02X\n", status );
++	if ( (rc = ziocf_write(us, USBAT_ATA, 0x16, 0xa0)) != USB_STOR_TRANSPORT_GOOD)
++		return rc;
++	wait_ms(50);
++	
++	rc = ziocf_read(us, USBAT_ATA, 0x17, &status);
++	//1 US_DEBUGP("ziocf_init 6 : write 16:a0,       ok, status%02X\n", status );
++	if ( (rc = ziocf_write(us, USBAT_ATA, 0x17, 0xa1)) != USB_STOR_TRANSPORT_GOOD)
++		return rc;
++		
++	rc = ziocf_read(us, USBAT_ATA, 0x17, &status);
++	//1 US_DEBUGP("ziocf_init 6 : write        17:a1 ok, status%02X\n", status );
++
++	if ( (rc = ziocf_write(us, USBAT_ATA, 0x16, 0xa0)) != USB_STOR_TRANSPORT_GOOD)
++		return rc;
++	wait_ms(50);
++	
++	//	rc = ziocf_read(us, USBAT_ATA, 0x17, &status);
++	if ( (rc = ziocf_write(us, USBAT_ATA, 0x17, 0x08)) != USB_STOR_TRANSPORT_GOOD)
++		return rc;
++		
++	rc = ziocf_read(us, USBAT_ATA, 0x17, &status);
++	if ( rc != USB_STOR_TRANSPORT_GOOD )
++		return rc;
++
++	//1 US_DEBUGP("ziocf_init 7 : write 16:a0, 17:a1 ok, status 17=%02X\n",status );
++	rc = ziocf_read(us, USBAT_ATA, 0x11, &status);
++	if ( rc != USB_STOR_TRANSPORT_GOOD )
++		return rc;
++
++	//1 US_DEBUGP("ziocf_init 7 : write 16:a0, 17:a1 ok, status 11=%02X\n",status );
++
++	rc = ziocf_send_control(us, usb_sndctrlpipe(us->pusb_dev,0), 0x80, 0x40,
++		0, 0, ctrl_command_b0a0, 8);
++	wait_ms(100);
++	
++	rc = ziocf_send_control(us, usb_sndctrlpipe(us->pusb_dev,0), 0x80, 0x40,
++		0, 0, ctrl_command_30a0, 8);
++	//1 US_DEBUGP("ziocf_init 8a: ctl 30a0 / b0a0 done\n" );
++
++	status = 0xff;
++	i = 0;
++	while( (i++<50) && (status!=0x50) ) {
++		wait_ms(100);
++		rc = ziocf_read(us, USBAT_ATA, 0x17, &status);
++	}
++	//1 US_DEBUGP("ziocf_init 8b: ctl 30a0 / b0a0 status=0x%02X, ok?\n", status );
++
++	if ( (rc = ziocf_write(us, USBAT_ATA, 0x17, 0x10)) != USB_STOR_TRANSPORT_GOOD)
++		return rc;
++	//1 US_DEBUGP("ziocf_init 9a : write 17:10 ok.\n" );
++	
++	status = 0xff;
++	i = 0;
++	while( (i++<50) && (status!=0x50) ) {
++		wait_ms(50);
++		rc = ziocf_read(us, USBAT_ATA, 0x17, &status);
++	}
++	//1 US_DEBUGP("ziocf_init 9b : write 17:10 ok, status1=0x%02X, ok?\n", status );
++
++	rc = ziocf_read(us, USBAT_ATA, 0x17, &status);
++	if ( rc != USB_STOR_TRANSPORT_GOOD )
++		return rc;
++
++	//ziocf_read(us, USBAT_ATA, 0x17, &status);
++	//1 US_DEBUGP("ziocf_init 9 : write 17:10 ok, status2=%02X, calling id ...\n", status );
++
++
++	// debug, get space for device info, which we are reading in init for debug information purp.
++	info = (struct ziocf_info *) kmalloc(sizeof(struct ziocf_info), GFP_KERNEL);
++	if (!info) {
++		US_DEBUGP("ziocf_init 10a:  Gah! Can't allocate storage for jumpshot info struct!\n");
++		return USB_STOR_TRANSPORT_ERROR;
++	}
++	
++	memset(info, 0, sizeof(struct ziocf_info));
++	rc = ziocf_id_device(us, info);
++	US_DEBUGP("ziocf_init 10b:  id_device:  %ld sectors, %ld bytes per sector\n",
++		  info->sectors, info->ssize);
++	kfree(info);
++	//US_DEBUGP("ziocf_init 10b: read cap done ?!?\n");
++
++//tk: some additions ,  12 02 16 af 17 91
++//tk: 0x91: ATA set drive params according to the values read from CF info
++//12: sect-per-track
++	command_91[1] = (info->sec_per_track & 0xff);
++	rc = ziocf_send_control(us, usb_sndctrlpipe(us->pusb_dev,0),
++		0x80, 0x40, 0, 0, ctrl_command, 8);
++	US_DEBUGP("ziocf_init 13: ctrl 91, spt:%x, heads:%X\n", command_91[1], command_91[3]&0x0f);
++	wait_ms(5);
++
++	if (rc != USB_STOR_TRANSPORT_GOOD) {
++		US_DEBUGP("ziocf_init 13:  Gah! send_control for 0x91 failed\n");
++		return rc;
++	}
++
++	rc = ziocf_raw_bulk(SCSI_DATA_WRITE, us, command_91, 6);
++	//1 	US_DEBUGP("ziocf_init 13: cmnd 91 ok\n");
++	status = 0xff;
++	i = 0;
++	while( (i++<30) && (status!=0x50) ) { // ... until device not busy
++		wait_ms(250);
++		rc = ziocf_read(us, USBAT_ATA, 0x17, &status);
++	}
++
++	if ( (rc = ziocf_write(us, USBAT_ATA, 0x12, 0x01)) != USB_STOR_TRANSPORT_GOOD)
++		return rc;
++	wait_ms(20);
++
++	if ( (rc = ziocf_write(us, USBAT_ATA, 0x17, 0xc6)) != USB_STOR_TRANSPORT_GOOD)
++		return rc;
++	wait_ms(120);
++
++	if ( (rc = ziocf_read(us, USBAT_ATA, 0x17, &status)) != USB_STOR_TRANSPORT_GOOD)
++		return rc;
++	US_DEBUGP("ziocf_init 13: cmnd c6 ok, status=%02X\n", status);
++	
++	rc = ziocf_send_control(us, usb_sndctrlpipe(us->pusb_dev,0), 0x80, 0x40,
++		0, 0, ctrl_feature, 8);
++	US_DEBUGP("ziocf_init 14: ctrl feature ok\n");
++	wait_ms(100);
++
++	rc = ziocf_send_control(us, usb_sndctrlpipe(us->pusb_dev,0),
++		0x80, 0x40, 0, 0, ctrl_command, 8);
++	//1 	US_DEBUGP("ziocf_init 15: ctrl 0xda\n");
++	if (rc != USB_STOR_TRANSPORT_GOOD) {
++		US_DEBUGP("ziocf_init 15:  Gah! send_control for 0xda failed\n");
++		return rc;
++	}
++	rc = ziocf_raw_bulk(SCSI_DATA_WRITE, us, command_da, 6);
++	wait_ms(100);
++	US_DEBUGP("ziocf_init 15: cmnd 0xda (get media status)ok\n");
++
++	rc = ziocf_read(us, USBAT_ATA, 0x17, &status);
++	if ( rc != USB_STOR_TRANSPORT_GOOD )
++		return rc;
++
++	//1 	US_DEBUGP("ziocf_init 15: cmnd 0xda, reg 17=%02X\n", status);
++
++	ziocf_read(us, USBAT_ATA, 0x11, &status);
++	//1 	US_DEBUGP("ziocf_init 15: cmnd 0xda, reg 17=%02X\n", status);
++
++	return rc;
++	//tk: that all folks ...
++}
++
++// Transport for the SCM 'Zio CF'
++int ziocf_transport(Scsi_Cmnd * srb, struct us_data *us)
++{
++	struct ziocf_info *info;
++	int rc;
++	unsigned long block, blocks;
++	unsigned char *ptr = NULL;
++	unsigned char inquiry_response[36] = {
++		0x00, 0x80, 0x00, 0x01, 0x1F, 0x00, 0x00, 0x00
++	};
++
++
++	if (!us->extra) {
++		us->extra = kmalloc(sizeof(struct ziocf_info), GFP_KERNEL);
++		if (!us->extra) {
++			US_DEBUGP("ziocf_transport:  Gah! Can't allocate storage for jumpshot info struct!\n");
++			return USB_STOR_TRANSPORT_ERROR;
++		}
++		memset(us->extra, 0, sizeof(struct ziocf_info));
++		us->extra_destructor =  ziocf_info_destructor;
++	}
++
++	info = (struct ziocf_info *) (us->extra);
++	ptr = (unsigned char *) srb->request_buffer;
++
++	if (srb->cmnd[0] == INQUIRY) {
++		US_DEBUGP("ziocf_transport:  INQUIRY.  Returning bogus response.\n");
++		memset(inquiry_response + 8, 0, 28);
++		fill_inquiry_response(us, inquiry_response, 36);
++		return USB_STOR_TRANSPORT_GOOD;
++	}
++
++	if (srb->cmnd[0] == READ_CAPACITY) {
++		info->ssize = 0x200;  // hard coded 512 byte sectors as per ATA spec
++
++		//j rc = jumpshot_get_status(us);
++		//j if (rc != USB_STOR_TRANSPORT_GOOD)
++		//j 	return rc;
++		
++		rc = ziocf_id_device(us, info);
++		US_DEBUGP("ziocf_transport:  READ_CAPACITY done.\n");
++		if (rc != USB_STOR_TRANSPORT_GOOD)
++			return rc;
++
++		US_DEBUGP("ziocf_transport:  READ_CAPACITY:  %ld sectors, %ld bytes per sector\n",
++			  info->sectors, info->ssize);
++
++		// build the reply
++		//
++		ptr[0] = (info->sectors >> 24) & 0xFF;
++		ptr[1] = (info->sectors >> 16) & 0xFF;
++		ptr[2] = (info->sectors >> 8) & 0xFF;
++		ptr[3] = (info->sectors) & 0xFF;
++
++		ptr[4] = (info->ssize >> 24) & 0xFF;
++		ptr[5] = (info->ssize >> 16) & 0xFF;
++		ptr[6] = (info->ssize >> 8) & 0xFF;
++		ptr[7] = (info->ssize) & 0xFF;
++
++		return USB_STOR_TRANSPORT_GOOD;
++	}
++
++	if (srb->cmnd[0] == MODE_SELECT_10) {
++		US_DEBUGP("ziocf_transport:  Gah! MODE_SELECT_10.\n");
++		return USB_STOR_TRANSPORT_ERROR;
++	}
++
++	if (srb->cmnd[0] == READ_10) {
++		block = ((u32)(srb->cmnd[2]) << 24) | ((u32)(srb->cmnd[3]) << 16) |
++		        ((u32)(srb->cmnd[4]) <<  8) | ((u32)(srb->cmnd[5]));
++
++		blocks = ((u32)(srb->cmnd[7]) << 8) | ((u32)(srb->cmnd[8]));
++
++		US_DEBUGP("ziocf_transport:  READ_10: read block 0x%04lx  count %ld\n", block, blocks);
++		return ziocf_read_data(us, info, block, blocks, ptr, srb->use_sg);
++	}
++
++	if (srb->cmnd[0] == READ_12) {
++		// I don't think we'll ever see a READ_12 but support it anyway...
++		//
++		block = ((u32)(srb->cmnd[2]) << 24) | ((u32)(srb->cmnd[3]) << 16) |
++		        ((u32)(srb->cmnd[4]) <<  8) | ((u32)(srb->cmnd[5]));
++
++		blocks = ((u32)(srb->cmnd[6]) << 24) | ((u32)(srb->cmnd[7]) << 16) |
++		         ((u32)(srb->cmnd[8]) <<  8) | ((u32)(srb->cmnd[9]));
++
++		US_DEBUGP("ziocf_transport:  READ_12: read block 0x%04lx  count %ld\n", block, blocks);
++		return ziocf_read_data(us, info, block, blocks, ptr, srb->use_sg);
++	}
++
++	if (srb->cmnd[0] == WRITE_10) {
++	//	!x!
++	//!		US_DEBUGP("ziocf_transport:  WRITE_10: not supported yet!\n");
++	//!		return USB_STOR_TRANSPORT_ERROR;
++	//	!x!
++		block = ((u32)(srb->cmnd[2]) << 24) | ((u32)(srb->cmnd[3]) << 16) |
++		        ((u32)(srb->cmnd[4]) <<  8) | ((u32)(srb->cmnd[5]));
++
++		blocks = ((u32)(srb->cmnd[7]) << 8) | ((u32)(srb->cmnd[8]));
++
++		US_DEBUGP("ziocf_transport:  WRITE_10: write block 0x%04lx  count %ld\n", block, blocks);
++		return ziocf_write_data(us, info, block, blocks, ptr, srb->use_sg);
++	}
++
++	if (srb->cmnd[0] == WRITE_12) {
++	//	!x!
++	//!		US_DEBUGP("ziocf_transport:  WRITE_12: not supported yet!\n");
++	//!		return USB_STOR_TRANSPORT_ERROR;
++	//	!x!
++		// I don't think we'll ever see a WRITE_12 but support it anyway...
++		//
++		block = ((u32)(srb->cmnd[2]) << 24) | ((u32)(srb->cmnd[3]) << 16) |
++		        ((u32)(srb->cmnd[4]) <<  8) | ((u32)(srb->cmnd[5]));
++
++		blocks = ((u32)(srb->cmnd[6]) << 24) | ((u32)(srb->cmnd[7]) << 16) |
++		         ((u32)(srb->cmnd[8]) <<  8) | ((u32)(srb->cmnd[9]));
++
++		US_DEBUGP("ziocf_transport:  WRITE_12: write block 0x%04lx  count %ld\n", block, blocks);
++		return ziocf_write_data(us, info, block, blocks, ptr, srb->use_sg);
++	}
++
++
++	if (srb->cmnd[0] == TEST_UNIT_READY) {
++		US_DEBUGP("ziocf_transport:  TEST_UNIT_READY.\n");
++		return ziocf_get_status(us);
++	}
++
++	if (srb->cmnd[0] == REQUEST_SENSE) {
++		US_DEBUGP("ziocf_transport:  REQUEST_SENSE.  Returning NO SENSE for now\n");
++
++		ptr[0] = 0xF0;
++		ptr[2] = info->sense_key;
++		ptr[7] = 11;
++		ptr[12] = info->sense_asc;
++		ptr[13] = info->sense_ascq;
++
++		return USB_STOR_TRANSPORT_GOOD;
++	}
++
++	if (srb->cmnd[0] == MODE_SENSE) {
++		US_DEBUGP("ziocf_transport:  MODE_SENSE_6 detected\n");
++		return ziocf_handle_mode_sense(us, srb, ptr, TRUE);
++	}
++
++	if (srb->cmnd[0] == MODE_SENSE_10) {
++		US_DEBUGP("ziocf_transport:  MODE_SENSE_10 detected\n");
++		return ziocf_handle_mode_sense(us, srb, ptr, FALSE);
++	}
++	
++	if (srb->cmnd[0] == ALLOW_MEDIUM_REMOVAL) {
++		// sure.  whatever.  not like we can stop the user from popping
++		// the media out of the device (no locking doors, etc)
++		//
++		return USB_STOR_TRANSPORT_GOOD;
++	}
++
++	US_DEBUGP("ziocf_transport:  Gah! Unknown command: %d (0x%x)\n", srb->cmnd[0], srb->cmnd[0]);
++	return USB_STOR_TRANSPORT_ERROR;
++}
+diff -ruN linux-2.4.21-0.13mdk/drivers/usb-orig/storage/zio_cf.h linux-2.4.21-0.13mdk/drivers/usb/storage/zio_cf.h
+--- linux-2.4.21-0.13mdk/drivers/usb-orig/storage/zio_cf.h	1969-12-31 17:00:00.000000000 -0700
++++ linux-2.4.21-0.13mdk/drivers/usb/storage/zio_cf.h	2003-04-24 20:58:37.000000000 -0600
+@@ -0,0 +1,49 @@
++/* Driver for Dazzle/SCM zio Compact Flash reader
++ * Header File
++ *
++ * Current development and maintenance by:
++ *   (c) 2002 Thomas Kreiling (usbdev AT sm04.de)
++ *
++ * See zio_cf.c for more explanation
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License as published by the
++ * Free Software Foundation; either version 2, or (at your option) any
++ * later version.
++ *
++ * This program is distributed in the hope that it will be useful, but
++ * WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License along
++ * with this program; if not, write to the Free Software Foundation, Inc.,
++ * 675 Mass Ave, Cambridge, MA 02139, USA.
++ */
++
++#ifndef _USB_ZIOCF_H
++#define _USB_ZIOCF_H
++
++extern int ziocf_transport(Scsi_Cmnd *srb, struct us_data *us);
++extern int init_ziocf(struct us_data *us);
++
++#include <linux/hdreg.h>
++
++#define USBAT_ATA		0x40
++
++static struct hd_driveid drive;
++
++struct ziocf_info {
++   unsigned long   sectors;     // total sector count
++   unsigned long   ssize;       // sector size in bytes
++   __u16 heads;
++   __u16 sec_per_track;
++
++
++   // the following aren't used yet
++   unsigned char   sense_key;
++   unsigned long   sense_asc;   // additional sense code
++   unsigned long   sense_ascq;  // additional sense code qualifier
++};
++
++#endif

@@ -1,0 +1,13 @@
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff --exclude='defconfig*' --exclude='log.*' --exclude='log2?' w2/fs/hfs/super.c w1/fs/hfs/super.c
+--- w2/fs/hfs/super.c	2003-08-12 10:25:08.000000000 +0200
++++ w1/fs/hfs/super.c	2003-08-20 15:44:02.000000000 +0200
+@@ -161,7 +161,8 @@ static int hfs_statfs(struct super_block
+ static int parse_options(char *options, struct hfs_sb_info *hsb, int *part)
+ {
+ 	char *this_char, *value;
+-	char names, fork;
++	char names = '?';
++	char fork = '?';
+ 
+ 	if (hsb->magic != HFS_SB_MAGIC) {
+ 		/* initialize the sb with defaults */

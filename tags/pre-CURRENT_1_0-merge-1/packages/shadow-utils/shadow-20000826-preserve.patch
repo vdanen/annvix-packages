@@ -1,0 +1,115 @@
+Preserve files when creating user home directories (in useradd), but nuke
+them when moving home directories (in usermod), but be sure to truncate
+them if we're going to overwrite them (ever).
+
+--- shadow-20000826/lib/prototypes.h.preserve	Sat Aug 26 14:27:17 2000
++++ shadow-20000826/lib/prototypes.h	Fri Mar  9 12:03:24 2001
+@@ -55,7 +55,7 @@
+ extern int is_listed(const char *, const char *, int);
+ 
+ /* copydir.c */
+-extern int copy_tree(const char *, const char *, uid_t, gid_t);
++extern int copy_tree(const char *, const char *, uid_t, gid_t, int);
+ extern int remove_tree(const char *);
+ 
+ /* encrypt.c */
+--- shadow-20000826/lib/defines.h.preserve	Sat Aug 26 14:27:17 2000
++++ shadow-20000826/lib/defines.h	Fri Mar  9 12:03:24 2001
+@@ -43,6 +43,10 @@
+ # endif
+ #endif /* not STDC_HEADERS */
+ 
++#if HAVE_ERRNO_H
++# include <errno.h>
++#endif
++
+ /* Solaris 2.4 defines __SVR4, but not SVR4 -j. */
+ 
+ #ifdef __SVR4
+--- shadow-20000826/libmisc/copydir.c.preserve	Sat Aug 26 14:27:17 2000
++++ shadow-20000826/libmisc/copydir.c	Fri Mar  9 12:14:20 2001
+@@ -125,7 +125,8 @@
+  */
+ 
+ int
+-copy_tree(const char *src_root, const char *dst_root, uid_t uid, gid_t gid)
++copy_tree(const char *src_root, const char *dst_root, uid_t uid, gid_t gid,
++	  int preserve)
+ {
+ 	char	src_name[1024];
+ 	char	dst_name[1024];
+@@ -135,6 +136,7 @@
+ 	int	err = 0;
+ 	int	cnt;
+ 	int	set_orig = 0;
++	int	open_flags;
+ 	struct	DIRECT	*ent;
+ 	struct	stat	sb;
+ 	struct	link_name *lp;
+@@ -206,7 +208,7 @@
+ 			chown (dst_name, uid == (uid_t) -1 ? sb.st_uid:uid,
+ 				gid == (gid_t) -1 ? sb.st_gid:gid);
+ 
+-			if (copy_tree (src_name, dst_name, uid, gid)) {
++			if (copy_tree (src_name, dst_name, uid, gid, preserve)) {
+ 				err++;
+ 				break;
+ 			}
+@@ -293,14 +295,23 @@
+ 			err++;
+ 			break;
+ 		}
+-		if ((ofd = open (dst_name, O_WRONLY|O_CREAT, 0)) < 0 ||
++		open_flags = O_WRONLY | O_CREAT;
++		if (preserve) {
++			open_flags |= O_EXCL;
++		}
++		if ((ofd = open (dst_name, open_flags, 0)) < 0 ||
+ 			chown (dst_name, uid == (uid_t) -1 ? sb.st_uid:uid,
+ 					gid == (gid_t) -1 ? sb.st_gid:gid) ||
+ 				chmod (dst_name, sb.st_mode & 07777)) {
++			if (preserve && (errno == EEXIST)) {
++				close (ifd);
++				continue;
++			}
+ 			close (ifd);
+ 			err++;
+ 			break;
+ 		}
++		ftruncate (ofd, 0);
+ 		while ((cnt = read (ifd, buf, sizeof buf)) > 0) {
+ 			if (write (ofd, buf, cnt) != cnt) {
+ 				cnt = -1;
+--- shadow-20000826/src/usermod.c.preserve	Fri Mar  9 12:03:24 2001
++++ shadow-20000826/src/usermod.c	Fri Mar  9 12:03:24 2001
+@@ -1511,7 +1511,7 @@
+ 				}
+ 				if (copy_tree (user_home, user_newhome,
+ 						uflg ? user_newid:-1,
+-						gflg ? user_newgid:-1) == 0 &&
++						gflg ? user_newgid:-1, 0) == 0 &&
+ 					remove_tree (user_home) == 0 &&
+ 						rmdir (user_home) == 0)
+ 					return;
+--- shadow-20000826/src/useradd.c.preserve	Fri Mar  9 12:03:24 2001
++++ shadow-20000826/src/useradd.c	Fri Mar  9 12:03:24 2001
+@@ -1969,7 +1969,7 @@
+ 
+ 	if (mflg) {
+ 		create_home ();
+-		copy_tree (def_template, user_home, user_id, user_gid);
++		copy_tree (def_template, user_home, user_id, user_gid, 1);
+ 	} /* Stupid warning removed for the innocent's protection */
+ 	    /*
+ 	     * The whole idea about breaking some stupid scripts by creating a new
+--- shadow-20000826/configure.in.preserve	Sat Aug 26 13:48:14 2000
++++ shadow-20000826/configure.in	Fri Mar  9 12:03:24 2001
+@@ -28,7 +28,7 @@
+ AC_HEADER_DIRENT
+ AC_HEADER_STDC
+ AC_HEADER_SYS_WAIT
+-AC_CHECK_HEADERS(fcntl.h limits.h unistd.h sys/time.h utmp.h utmpx.h)
++AC_CHECK_HEADERS(errno.h fcntl.h limits.h unistd.h sys/time.h utmp.h utmpx.h)
+ AC_CHECK_HEADERS(termios.h termio.h sgtty.h sys/ioctl.h syslog.h)
+ AC_CHECK_HEADERS(paths.h usersec.h utime.h ulimit.h sys/resource.h)
+ AC_CHECK_HEADERS(gshadow.h shadow.h lastlog.h rpc/key_prot.h)

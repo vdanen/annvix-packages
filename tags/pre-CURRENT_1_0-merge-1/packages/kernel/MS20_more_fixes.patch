@@ -1,0 +1,120 @@
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff --exclude='defconfig*' w5/include/sound/adriver.h w4/include/sound/adriver.h
+--- w5/include/sound/adriver.h	2003-08-07 16:52:56.000000000 +0200
++++ w4/include/sound/adriver.h	2003-08-07 15:59:39.000000000 +0200
+@@ -167,14 +167,6 @@ size_t snd_compat_strlcat(char *dest, co
+ #define strlcat(dest, src, size) snd_compat_strlcat(dest, src, size)
+ #endif
+ 
+-#ifndef CONFIG_HAVE_SNPRINTF
+-#include <stdarg.h>
+-int snd_compat_snprintf(char * buf, size_t size, const char * fmt, ...);
+-int snd_compat_vsnprintf(char *buf, size_t size, const char *fmt, va_list args);
+-#define snprintf(buf,size,fmt,args...) snd_compat_snprintf(buf,size,fmt,##args)
+-#define vsnprintf(buf,size,fmt,args) snd_compat_vsnprintf(buf,size,fmt,args)
+-#endif
+-
+ #if defined(__alpha__) && LINUX_VERSION_CODE < KERNEL_VERSION(2, 3, 14)
+ #include <asm/io.h>
+ #undef writeb
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff --exclude='defconfig*' w5/include/sound/core.h w4/include/sound/core.h
+--- w5/include/sound/core.h	2003-07-18 18:07:35.000000000 +0200
++++ w4/include/sound/core.h	2003-08-07 15:50:34.000000000 +0200
+@@ -25,7 +25,6 @@
+ #include <linux/sched.h>		/* wake_up() */
+ #include <asm/semaphore.h>		/* struct semaphore */
+ #include <linux/rwsem.h>		/* struct rw_semaphore */
+-#include <linux/workqueue.h>		/* struct workqueue_struct */
+ 
+ /* Typedef's */
+ typedef struct timespec snd_timestamp_t;
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff --exclude='defconfig*' w5/sound/core/seq/seq_device.c w4/sound/core/seq/seq_device.c
+--- w5/sound/core/seq/seq_device.c	2003-05-30 14:28:33.000000000 +0200
++++ w4/sound/core/seq/seq_device.c	2003-08-07 16:11:21.000000000 +0200
+@@ -131,7 +131,7 @@ void snd_seq_device_load_drivers(void)
+ {
+ #ifdef CONFIG_KMOD
+ 	struct list_head *head;
+-
++	char str[32];
+ 	down(&ops_mutex);
+ 	list_for_each(head, &opslist) {
+ 		ops_list_t *ops = list_entry(head, ops_list_t, list);
+@@ -140,7 +140,8 @@ void snd_seq_device_load_drivers(void)
+ 			ops->used++;
+ 			up(&ops_mutex);
+ 			ops->driver |= DRIVER_REQUESTED;
+-			request_module("snd-%s", ops->id);
++			sprintf(str, "snd-%s", ops->id);
++			request_module(str);
+ 			down(&ops_mutex);
+ 			ops->used--;
+ 		}
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff --exclude='defconfig*' w5/sound/core/sgbuf.c w4/sound/core/sgbuf.c
+--- w5/sound/core/sgbuf.c	2003-05-08 09:48:33.000000000 +0200
++++ w4/sound/core/sgbuf.c	2003-08-07 16:09:05.000000000 +0200
+@@ -85,7 +85,7 @@ void *snd_malloc_sgbuf_pages(struct pci_
+ 	}
+ 
+ 	sgbuf->size = size;
+-	dmab->area = vmap(sgbuf->page_table, sgbuf->pages, VM_MAP, PAGE_KERNEL);
++	dmab->area = vmap(sgbuf->page_table, sgbuf->pages, VM_ALLOC, PAGE_KERNEL);
+ 	if (! dmab->area)
+ 		goto _failed;
+ 	return dmab->area;
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff --exclude='defconfig*' w5/sound/core/sound.c w4/sound/core/sound.c
+--- w5/sound/core/sound.c	2003-07-21 18:59:06.000000000 +0200
++++ w4/sound/core/sound.c	2003-08-07 16:06:44.000000000 +0200
+@@ -76,6 +76,7 @@ static DECLARE_MUTEX(sound_mutex);
+  */
+ void snd_request_card(int card)
+ {
++	char str[32];
+ 	int locked;
+ 
+ 	read_lock(&snd_card_rwlock);
+@@ -85,7 +86,9 @@ void snd_request_card(int card)
+ 		return;
+ 	if (card < 0 || card >= cards_limit)
+ 		return;
+-	request_module("snd-card-%i", card);
++
++        sprintf(str, "snd-card-%i", card);
++        request_module(str);
+ }
+ 
+ static void snd_request_other(int minor)
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff --exclude='defconfig*' w5/sound/drivers/dummy.c w4/sound/drivers/dummy.c
+--- w5/sound/drivers/dummy.c	2003-07-26 10:10:13.000000000 +0200
++++ w4/sound/drivers/dummy.c	2003-08-07 16:20:10.000000000 +0200
+@@ -21,7 +21,6 @@
+ #include <sound/driver.h>
+ #include <linux/version.h>
+ #include <linux/init.h>
+-#include <linux/jiffies.h>
+ #include <linux/slab.h>
+ #include <linux/time.h>
+ #include <linux/wait.h>
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff --exclude='defconfig*' w5/sound/sound_core.c w4/sound/sound_core.c
+--- w5/sound/sound_core.c	2003-05-20 22:43:56.000000000 +0200
++++ w4/sound/sound_core.c	2003-08-07 16:17:57.000000000 +0200
+@@ -500,6 +500,7 @@ int soundcore_open(struct inode *inode, 
+ 	if (s)
+ 		new_fops = fops_get(s->unit_fops);
+ 	if (!new_fops) {
++		char str[32];
+ 		spin_unlock(&sound_loader_lock);
+ 		/*
+ 		 *  Please, don't change this order or code.
+@@ -508,8 +509,10 @@ int soundcore_open(struct inode *inode, 
+ 		 *  ALSA toplevel modules for soundcards, thus we need
+ 		 *  load them at first.	  [Jaroslav Kysela <perex@jcu.cz>]
+ 		 */
+-		request_module("sound-slot-%i", unit>>4);
+-		request_module("sound-service-%i-%i", unit>>4, chain);
++		sprintf(str, "sound-slot-%i", unit>>4);
++		request_module(str);
++		sprintf(str,"sound-service-%i-%i", unit>>4, chain);
++		request_module(str);
+ 		spin_lock(&sound_loader_lock);
+ 		s = __look_for_unit(chain, unit);
+ 		if (s)

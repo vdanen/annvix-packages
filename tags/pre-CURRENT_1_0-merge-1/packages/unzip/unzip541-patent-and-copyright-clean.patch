@@ -1,0 +1,11 @@
+--- ./unix/Makefile.gege	Sun Apr 16 05:27:18 2000
++++ ./unix/Makefile	Thu Sep 13 15:41:25 2001
+@@ -83,7 +83,7 @@
+ # object files
+ OBJS1 = unzip$O $(CRC32)$O crctab$O crypt$O envargs$O explode$O
+ OBJS2 = extract$O fileio$O globals$O inflate$O list$O match$O
+-OBJS3 = process$O ttyio$O unreduce$O unshrink$O zipinfo$O
++OBJS3 = process$O ttyio$O zipinfo$O
+ OBJS = $(OBJS1) $(OBJS2) $(OBJS3) $M$O
+ LOBJS = $(OBJS)
+ OBJSDLL = $(OBJS:.o=.pic.o) api.pic.o

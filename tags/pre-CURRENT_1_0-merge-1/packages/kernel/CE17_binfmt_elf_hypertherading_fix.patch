@@ -1,0 +1,113 @@
+From: Gwenole Beauchesne <gbeauchesne@mandrakesoft.com>
+Subject: Fwd: [BUG+PATCH] binfmt_elf::create_elf_tables changes u_platform
+ without refill [jamagallon@able.es] (fwd)
+To: Juan Quintela <quintela@mandrakesoft.com>
+Date: Thu, 16 Jan 2003 13:05:32 +0100 (CET)
+
+
+
+---------- Forwarded message ----------
+Date: Sat, 28 Dec 2002 01:05:11 +0100
+From: J.A. Magallon <jamagallon@able.es>
+To: Gwenole Beauchesne <gbeauchesne@mandrakesoft.com>
+Subject: Fwd: [BUG+PATCH] binfmt_elf::create_elf_tables changes u_platform
+    without refill [jamagallon@able.es]
+
+
+On 2002.12.28 J.A. Magallon wrote:
+Hi all...
+
+I thing I found a bug in 2.4 (and someone should check if this applies to 2.5
+also...). In short, when running on an HT box, create_elf_tables() changes
+u_platform pointer (to separate stacks and avoid cache wars), without
+copy_to_user'ing again.
+
+Current code:
+
+    if (k_platform) {
+        platform_len = strlen(k_platform) + 1;
+        u_platform = p - platform_len;
+        __copy_to_user(u_platform, k_platform, platform_len);
+    } else
+...
+#if defined(__i386__) && defined(CONFIG_SMP)
+    if(smp_num_siblings > 1)
+        u_platform = u_platform - ((current->pid % 64) << 7);
+///// So original u_platform with data is lost !!!
+#endif
+...
+    sp = (elf_addr_t *)(~15UL & (unsigned long)(u_platform));  // Set stack
+...
+    if (k_platform) {
+        sp -= 2;
+        NEW_AUX_ENT(0, AT_PLATFORM, (elf_addr_t)(unsigned long) u_platform);
+///// What the h**l is copied here after changing u_platform ???
+    }
+
+Patch below (use an independent stack_top). Boots and works on my dual Xeon,
+and glibc behaves correctly:
+
+--- linux/fs/binfmt_elf.c.orig	2002-12-28 00:12:32.000000000 +0100
++++ linux/fs/binfmt_elf.c	2002-12-28 00:32:37.000000000 +0100
+@@ -116,11 +116,14 @@
+ 	elf_caddr_t *argv;
+ 	elf_caddr_t *envp;
+ 	elf_addr_t *sp, *csp;
++	char *stack_top;
+ 	char *k_platform, *u_platform;
+ 	long hwcap;
+ 	size_t platform_len = 0;
+ 	size_t len;
+ 
++	stack_top = p;
++
+ 	/*
+ 	 * Get hold of platform and hardware capabilities masks for
+ 	 * the machine we are running on.  In some cases (Sparc), 
+@@ -135,8 +138,8 @@
+ 		platform_len = strlen(k_platform) + 1;
+ 		u_platform = p - platform_len;
+ 		__copy_to_user(u_platform, k_platform, platform_len);
+-	} else
+-		u_platform = p;
++		stack_top = u_platform;
++	}
+ 
+ #if defined(__i386__) && defined(CONFIG_SMP)
+ 	/*
+@@ -149,15 +152,14 @@
+ 	 * processors. This keeps Mr Marcelo Person happier but should be
+ 	 * removed for 2.5
+ 	 */
+-	 
+ 	if(smp_num_siblings > 1)
+-		u_platform = u_platform - ((current->pid % 64) << 7);
++		stack_top -= ((current->pid % 64) << 7);
+ #endif	
+ 
+ 	/*
+ 	 * Force 16 byte _final_ alignment here for generality.
+ 	 */
+-	sp = (elf_addr_t *)(~15UL & (unsigned long)(u_platform));
++	sp = (elf_addr_t *)(~15UL & (unsigned long)(stack_top));
+ 	csp = sp;
+ 	csp -= (1+DLINFO_ITEMS)*2 + (k_platform ? 2 : 0);
+ #ifdef DLINFO_ARCH_ITEMS
+
+
+One question: why the 64 value ? Because linux supports 64 processors ?
+Why not just 2, because you have two siblings at most ?
+
+TIA
+
+-- 
+J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
+werewolf.able.es                         \           It's better when it's free
+Mandrake Linux release 9.1 (Cooker) for i586
+Linux 2.4.21-pre2-jam1 (gcc 3.2.1 (Mandrake Linux 9.1 3.2.1-2mdk))
+-- 
+J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
+werewolf.able.es                         \           It's better when it's free
+Mandrake Linux release 9.1 (Cooker) for i586
+Linux 2.4.21-pre2-jam1 (gcc 3.2.1 (Mandrake Linux 9.1 3.2.1-2mdk))
+

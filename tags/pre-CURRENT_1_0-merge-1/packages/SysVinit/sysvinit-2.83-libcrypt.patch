@@ -1,0 +1,13 @@
+--- sysvinit-2.83/src/Makefile.libcrypt	2002-08-02 10:04:04.000000000 +0200
++++ sysvinit-2.83/src/Makefile	2002-08-02 10:12:54.000000000 +0200
+@@ -28,9 +28,7 @@ INSTALL		= install -o $(BIN_OWNER) -g $(
+ MANDIR		= /usr/share/man
+ 
+ # Additional libs for Gnu Libc
+-ifneq ($(wildcard /usr/lib/libcrypt.a),)
+-LCRYPT		= -lcrypt
+-endif
++LCRYPT		= -Wl,-Bstatic -lcrypt -Wl,-Bdynamic
+ 
+ all:		$(PROGS)
+ 

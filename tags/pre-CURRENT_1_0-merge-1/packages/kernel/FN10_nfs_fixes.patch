@@ -1,0 +1,212 @@
+--- a/fs/nfsd/export.c	Sun Jul 27 23:22:15 2003
++++ b/fs/nfsd/export.c	Wed Sep  3 18:46:11 2003
+@@ -640,7 +640,7 @@
+ 	{ NFSEXP_UIDMAP, {"uidmap", ""}},
+ 	{ NFSEXP_KERBEROS, { "kerberos", ""}},
+ 	{ NFSEXP_SUNSECURE, { "sunsecure", ""}},
+-	{ NFSEXP_CROSSMNT, {"nohide", ""}},
++	{ NFSEXP_NOHIDE, {"nohide", ""}},
+ 	{ NFSEXP_NOSUBTREECHECK, {"no_subtree_check", ""}},
+ 	{ NFSEXP_NOAUTHNLM, {"insecure_locks", ""}},
+ #ifdef MSNFS
+@@ -903,8 +903,10 @@
+ {
+ 	struct svc_client	*clp;
+ 
++	exp_readlock();
+ 	for (clp = clients; clp; clp = clp->cl_next)
+ 		nfsd_lockd_unexport(clp);
++	exp_unlock();
+ }
+ 
+ /*
+--- a/fs/nfsd/nfsfh.c	Tue Jun 17 17:05:17 2003
++++ b/fs/nfsd/nfsfh.c	Wed Sep  3 18:44:55 2003
+@@ -305,6 +305,7 @@
+ 			if (pdentry) {
+ 				igrab(tdentry->d_inode);
+ 				pdentry->d_flags |= DCACHE_NFSD_DISCONNECTED;
++				pdentry->d_op = child->d_op;
+ 			}
+ 		}
+ 		if (pdentry == NULL)
+--- a/fs/nfsd/vfs.c	Sun Jul 27 23:21:20 2003
++++ b/fs/nfsd/vfs.c	Wed Sep  3 18:46:11 2003
+@@ -82,7 +82,7 @@
+  * N.B. After this call _both_ fhp and resfh need an fh_put
+  *
+  * If the lookup would cross a mountpoint, and the mounted filesystem
+- * is exported to the client with NFSEXP_CROSSMNT, then the lookup is
++ * is exported to the client with NFSEXP_NOHIDE, then the lookup is
+  * accepted as it stands and the mounted directory is
+  * returned. Otherwise the covered directory is returned.
+  * NOTE: this mountpoint crossing is not supported properly by all
+@@ -116,7 +116,7 @@
+ 			dentry = dget(dparent);
+ 		else if (dparent != exp->ex_dentry)
+ 			dentry = dget(dparent->d_parent);
+-		else if (!EX_CROSSMNT(exp))
++		else if (!EX_NOHIDE(exp))
+ 			dentry = dget(dparent); /* .. == . just like at / */
+ 		else {
+ 			/* checking mountpoint crossing is very different when stepping up */
+@@ -158,7 +158,7 @@
+ 			exp2 = exp_get(rqstp->rq_client,
+ 				       mounts->d_inode->i_dev,
+ 				       mounts->d_inode->i_ino);
+-			if (exp2 && EX_CROSSMNT(exp2)) {
++			if (exp2 && EX_NOHIDE(exp2)) {
+ 				/* successfully crossed mount point */
+ 				exp = exp2;
+ 				dput(dentry);
+--- a/include/linux/nfsd/export.h	Sun Aug  4 04:36:04 2002
++++ b/include/linux/nfsd/export.h	Wed Sep  3 18:46:11 2003
+@@ -35,7 +35,7 @@
+ #define NFSEXP_UIDMAP		0x0040
+ #define NFSEXP_KERBEROS		0x0080		/* not available */
+ #define NFSEXP_SUNSECURE	0x0100
+-#define NFSEXP_CROSSMNT		0x0200
++#define NFSEXP_NOHIDE		0x0200
+ #define NFSEXP_NOSUBTREECHECK	0x0400
+ #define	NFSEXP_NOAUTHNLM	0x0800		/* Don't authenticate NLM requests - just trust */
+ #define NFSEXP_MSNFS		0x1000	/* do silly things that MS clients expect */
+@@ -80,7 +80,7 @@
+ #define EX_SECURE(exp)		(!((exp)->ex_flags & NFSEXP_INSECURE_PORT))
+ #define EX_ISSYNC(exp)		(!((exp)->ex_flags & NFSEXP_ASYNC))
+ #define EX_RDONLY(exp)		((exp)->ex_flags & NFSEXP_READONLY)
+-#define EX_CROSSMNT(exp)	((exp)->ex_flags & NFSEXP_CROSSMNT)
++#define EX_NOHIDE(exp)		((exp)->ex_flags & NFSEXP_NOHIDE)
+ #define EX_SUNSECURE(exp)	((exp)->ex_flags & NFSEXP_SUNSECURE)
+ #define EX_WGATHER(exp)		((exp)->ex_flags & NFSEXP_GATHERED_WRITES)
+ 
+--- a/include/linux/sunrpc/svc.h	Sun Aug 11 04:58:14 2002
++++ b/include/linux/sunrpc/svc.h	Wed Sep  3 18:46:27 2003
+@@ -112,6 +112,8 @@
+ 				rq_secure  : 1,	/* secure port */
+ 				rq_auth    : 1;	/* check client */
+ 
++	__u32			rq_daddr;	/* dest addr of request - reply from here */
++
+ 	void *			rq_argp;	/* decoded arguments */
+ 	void *			rq_resp;	/* xdr'd results */
+ 
+--- a/net/sunrpc/svcsock.c	Sun Jul 20 17:07:17 2003
++++ b/net/sunrpc/svcsock.c	Wed Sep  3 18:46:27 2003
+@@ -120,6 +120,8 @@
+ 	if (!(svsk->sk_flags &
+ 	      ( (1<<SK_CONN)|(1<<SK_DATA)|(1<<SK_CLOSE)) ))
+ 		return;
++	if (test_bit(SK_DEAD, &svsk->sk_flags))
++		return;
+ 
+ 	spin_lock_bh(&serv->sv_lock);
+ 
+@@ -315,6 +317,9 @@
+ 	struct svc_sock	*svsk = rqstp->rq_sock;
+ 	struct socket	*sock = svsk->sk_sock;
+ 	struct msghdr	msg;
++	struct { struct cmsghdr cmh;
++		struct in_pktinfo pki;
++	} cm;
+ 	int		i, buflen, len;
+ 
+ 	for (i = buflen = 0; i < nr; i++)
+@@ -324,8 +329,18 @@
+ 	msg.msg_namelen = sizeof(rqstp->rq_addr);
+ 	msg.msg_iov     = iov;
+ 	msg.msg_iovlen  = nr;
+-	msg.msg_control = NULL;
+-	msg.msg_controllen = 0;
++	if (rqstp->rq_prot == IPPROTO_UDP) {
++		msg.msg_control = &cm;
++		msg.msg_controllen = sizeof(cm);
++		cm.cmh.cmsg_len = sizeof(cm);
++		cm.cmh.cmsg_level = SOL_IP;
++		cm.cmh.cmsg_type = IP_PKTINFO;
++		cm.pki.ipi_ifindex = 0;
++		cm.pki.ipi_spec_dst.s_addr = rqstp->rq_daddr;
++	} else {
++		msg.msg_control = NULL;
++		msg.msg_controllen = 0;
++	}
+ 
+ 	/* This was MSG_DONTWAIT, but I now want it to wait.
+ 	 * The only thing that it would wait for is memory and
+@@ -529,6 +544,7 @@
+ 	rqstp->rq_addr.sin_family = AF_INET;
+ 	rqstp->rq_addr.sin_port = skb->h.uh->source;
+ 	rqstp->rq_addr.sin_addr.s_addr = skb->nh.iph->saddr;
++	rqstp->rq_daddr = skb->nh.iph->daddr;
+ 
+ 	if (serv->sv_stats)
+ 		serv->sv_stats->netudpcnt++;
+@@ -930,6 +946,9 @@
+ 	bufp->iov[0].iov_len  = bufp->len << 2;
+ 	bufp->base[0] = htonl(0x80000000|((bufp->len << 2) - 4));
+ 
++	if (test_bit(SK_DEAD, &rqstp->rq_sock->sk_flags))
++		return -ENOTCONN;
++
+ 	sent = svc_sendto(rqstp, bufp->iov, bufp->nriov);
+ 	if (sent != bufp->len<<2) {
+ 		printk(KERN_NOTICE "rpc-srv/tcp: %s: sent only %d bytes of %d - shutting down socket\n",
+@@ -1277,6 +1296,9 @@
+ 
+ 	dprintk("svc: svc_delete_socket(%p)\n", svsk);
+ 
++	if (test_and_set_bit(SK_DEAD, &svsk->sk_flags))
++		return ;
++
+ 	serv = svsk->sk_server;
+ 	sk = svsk->sk_sk;
+ 
+@@ -1292,8 +1314,6 @@
+ 	if (test_bit(SK_QUED, &svsk->sk_flags))
+ 		list_del(&svsk->sk_ready);
+ 
+-
+-	set_bit(SK_DEAD, &svsk->sk_flags);
+ 
+ 	if (!svsk->sk_inuse) {
+ 		spin_unlock_bh(&serv->sv_lock);
+--- a/fs/lockd/svclock.c	Thu Jun 26 23:16:46 2003
++++ b/fs/lockd/svclock.c	Wed Sep  3 18:45:19 2003
+@@ -188,6 +188,11 @@
+ 	locks_init_lock(&block->b_call.a_args.lock.fl);
+ 	locks_init_lock(&block->b_call.a_res.lock.fl);
+ 
++	block->b_host = nlmsvc_lookup_host(rqstp);
++	if (block->b_host == NULL) {
++		goto failed_free;
++	}
++
+ 	if (!nlmclnt_setgrantargs(&block->b_call, lock))
+ 		goto failed_free;
+ 
+@@ -199,7 +204,6 @@
+ 
+ 	/* Create and initialize the block */
+ 	block->b_daemon = rqstp->rq_server;
+-	block->b_host   = host;
+ 	block->b_file   = file;
+ 
+ 	/* Add to file's list of blocks */
+@@ -265,8 +269,7 @@
+ 		}
+ 	}
+ 
+-	if (block->b_host)
+-		nlm_release_host(block->b_host);
++	nlm_release_host(block->b_host);
+ 	nlmclnt_freegrantargs(&block->b_call);
+ 	kfree(block);
+ }
+@@ -515,7 +518,7 @@
+ 	 * Just retry the grant callback, possibly refreshing the RPC
+ 	 * binding */
+ 	if (block->b_granted) {
+-		nlm_rebind_host(block->b_host);
++		nlm_rebind_host(block->b_call.a_host);
+ 		goto callback;
+ 	}
+ 

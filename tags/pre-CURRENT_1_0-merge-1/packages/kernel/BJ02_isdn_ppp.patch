@@ -1,0 +1,12 @@
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff --exclude='defconfig*' --exclude='log.*' --exclude='log2?' w2/drivers/isdn/isdn_ppp.c w1/drivers/isdn/isdn_ppp.c
+--- w2/drivers/isdn/isdn_ppp.c	2003-08-12 10:25:03.000000000 +0200
++++ w1/drivers/isdn/isdn_ppp.c	2003-08-20 09:58:02.000000000 +0200
+@@ -614,7 +614,7 @@ isdn_ppp_ioctl(int min, struct file *fil
+ 
+ 				if (copy_from_user(&uprog, (void *) arg, sizeof(uprog)))
+ 					return -EFAULT;
+-				if (uprog.len > 0 && uprog.len < 65536) {
++				if (uprog.len > 0) {
+ 					len = uprog.len * sizeof(struct sock_filter);
+ 					code = kmalloc(len, GFP_KERNEL);
+ 					if (code == NULL)

@@ -1,0 +1,11 @@
+--- linux-86/makefile.in.mandir	Sun Jun 18 03:17:22 2000
++++ linux-86/makefile.in	Sun Jun 18 03:17:27 2000
+@@ -214,7 +214,7 @@
+ #endif
+ 
+ install-man:
+-	-$(MAKEC) man MANDIR=$(DIST)$(PREFIX)/man install
++	-$(MAKEC) man MANDIR=$(DIST)$(PREFIX)/share/man install
+ 
+ install-lib: lib/lib0-done lib/lib2-done
+ 	install -d $(DISTLIB)/i86

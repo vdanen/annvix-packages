@@ -1,0 +1,53 @@
+diff -urNp --exclude CVS --exclude BitKeeper x-ref/mm/swap_state.c x/mm/swap_state.c
+--- x-ref/mm/swap_state.c	2002-11-29 02:23:18.000000000 +0100
++++ x/mm/swap_state.c	2003-07-17 03:20:14.000000000 +0200
+@@ -99,7 +99,7 @@ void __delete_from_swap_cache(struct pag
+ 		BUG();
+ 	if (!PageSwapCache(page))
+ 		BUG();
+-	ClearPageDirty(page);
++	SetPageDirty(page);
+ 	__remove_inode_page(page);
+ 	INC_CACHE_INFO(del_total);
+ }
+@@ -114,9 +114,6 @@ void delete_from_swap_cache(struct page 
+ {
+ 	swp_entry_t entry;
+ 
+-	if (!PageLocked(page))
+-		BUG();
+-
+ 	if (unlikely(!block_flushpage(page, 0)))
+ 		BUG();	/* an anonymous page cannot have page->buffers set */
+ 
+diff -urNp --exclude CVS --exclude BitKeeper x-ref/mm/swapfile.c x/mm/swapfile.c
+--- x-ref/mm/swapfile.c	2003-07-15 02:05:53.000000000 +0200
++++ x/mm/swapfile.c	2003-07-17 03:20:14.000000000 +0200
+@@ -309,7 +309,6 @@ int remove_exclusive_swap_page(struct pa
+ 		spin_lock(&pagecache_lock);
+ 		if (page_count(page) - !!page->buffers == 2) {
+ 			__delete_from_swap_cache(page);
+-			SetPageDirty(page);
+ 			retval = 1;
+ 		}
+ 		spin_unlock(&pagecache_lock);
+@@ -343,10 +342,8 @@ void free_swap_and_cache(swp_entry_t ent
+ 	if (page) {
+ 		page_cache_get(page);
+ 		/* Only cache user (+us), or swap space full? Free it! */
+-		if (page_count(page) - !!page->buffers == 2 || vm_swap_full()) {
++		if (page_count(page) - !!page->buffers == 2 || vm_swap_full())
+ 			delete_from_swap_cache(page);
+-			SetPageDirty(page);
+-		}
+ 		UnlockPage(page);
+ 		page_cache_release(page);
+ 	}
+@@ -696,7 +693,6 @@ static int try_to_unuse(unsigned int typ
+ 		 * to 1, we did not mark any present ptes as dirty: must
+ 		 * mark page dirty so try_to_swap_out will preserve it.
+ 		 */
+-		SetPageDirty(page);
+ 		UnlockPage(page);
+ 		page_cache_release(page);
+ 

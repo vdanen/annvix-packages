@@ -1,0 +1,3412 @@
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff w1/sound/arm/Makefile w2/sound/arm/Makefile
+--- w1/sound/arm/Makefile	2002-12-17 21:00:30.000000000 +0100
++++ w2/sound/arm/Makefile	2003-08-13 23:57:49.000000000 +0200
+@@ -2,7 +2,11 @@
+ # Makefile for ALSA
+ #
+ 
+-snd-sa11xx-uda1341-objs := sa11xx-uda1341.o
++O_TARGET	:= snd-sa11xx-uda1341.o
++
++obj-y := sa11xx-uda1341.o
+ 
+ # Toplevel Module Dependency
+ obj-$(CONFIG_SND_SA11XX_UDA1341) += snd-sa11xx-uda1341.o 
++
++include $(TOPDIR)/Rules.make
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff w1/sound/core/ioctl32/Makefile w2/sound/core/ioctl32/Makefile
+--- w1/sound/core/ioctl32/Makefile	2002-12-17 21:00:32.000000000 +0100
++++ w2/sound/core/ioctl32/Makefile	2003-08-13 23:57:49.000000000 +0200
+@@ -3,9 +3,13 @@
+ # Copyright (c) 1999 by Jaroslav Kysela <perex@suse.cz>
+ #
+ 
+-snd-ioctl32-objs := ioctl32.o pcm32.o rawmidi32.o timer32.o hwdep32.o
++O_TARGET := snd-ioctl32.o
++
++obj-y := ioctl32.o pcm32.o rawmidi32.o timer32.o hwdep32.o
+ ifneq ($(CONFIG_SND_SEQUENCER),n)
+-  snd-ioctl32-objs += seq32.o
++   obj-y += seq32.o
+ endif
+ 
+ obj-$(CONFIG_SND_BIT32_EMUL) += snd-ioctl32.o
++
++include $(TOPDIR)/Rules.make
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff w1/sound/core/Makefile w2/sound/core/Makefile
+--- w1/sound/core/Makefile	2003-06-02 14:59:39.000000000 +0200
++++ w2/sound/core/Makefile	2003-08-13 23:57:49.000000000 +0200
+@@ -3,6 +3,14 @@
+ # Copyright (c) 1999,2001 by Jaroslav Kysela <perex@suse.cz>
+ #
+ 
++O_TARGET     := _core.o
++
++export-objs  := sound.o pcm.o pcm_lib.o rawmidi.o timer.o hwdep.o memalloc.o
++
++mod-subdirs  := oss seq
++
++list-multi   := snd.o snd-pcm.o snd-rawmidi.o snd-timer.o snd-hwdep.o snd-page-alloc.o
++
+ snd-objs     := sound.o init.o memory.o info.o control.o misc.o \
+                 device.o wrappers.o
+ ifeq ($(CONFIG_ISA),y)
+@@ -32,10 +40,26 @@ ifeq ($(subst m,y,$(CONFIG_RTC)),y)
+ endif
+ obj-$(CONFIG_SND_HWDEP) += snd-hwdep.o
+ 
+-obj-$(CONFIG_SND_MIXER_OSS) += oss/
+-obj-$(CONFIG_SND_PCM_OSS) += snd-pcm.o snd-timer.o snd-page-alloc.o oss/
+-obj-$(CONFIG_SND_SEQUENCER) += snd-timer.o seq/
+-obj-$(CONFIG_SND_BIT32_EMUL) += ioctl32/
++subdir-$(CONFIG_SND_MIXER_OSS) += oss
++subdir-$(CONFIG_SND_PCM_OSS) += oss
++ifeq ($(filter $(subdir-y),oss),oss)
++  obj-y += oss/_oss.o
++endif
++
++obj-$(CONFIG_SND_PCM_OSS) += snd-pcm.o snd-timer.o
++
++subdir-$(CONFIG_SND_SEQUENCER) += seq
++ifeq ($(CONFIG_SND_SEQUENCER),y)
++  subdir-m += seq
++  obj-y += seq/_seq.o
++endif
++
++obj-$(CONFIG_SND_SEQUENCER) += snd-timer.o
++
++subdir-$(CONFIG_SND_BIT32_EMUL) += ioctl32
++ifeq ($(CONFIG_SND_BIT32_EMUL),y)
++  obj-y += ioctl32/snd-ioctl32.o
++endif
+ 
+ # Toplevel Module Dependency
+ obj-$(CONFIG_SND_DUMMY) += snd-pcm.o snd-timer.o snd-page-alloc.o snd.o
+@@ -111,4 +135,25 @@ obj-$(CONFIG_SND_VXPOCKET) += snd-pcm.o 
+ obj-$(CONFIG_SND_VXP440) += snd-pcm.o snd-timer.o snd-page-alloc.o snd.o snd-hwdep.o
+ obj-$(CONFIG_SND_VX222) += snd-pcm.o snd-timer.o snd-page-alloc.o snd.o snd-hwdep.o
+ 
+-obj-m := $(sort $(obj-m))
++include $(TOPDIR)/Rules.make
++
++snd.o: $(snd-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-objs)
++
++snd-pcm.o: $(snd-pcm-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-pcm-objs)
++
++snd-page-alloc.o: $(snd-page-alloc-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-page-alloc-objs)
++
++snd-rawmidi.o: $(snd-rawmidi-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-rawmidi-objs)
++
++snd-timer.o: $(snd-timer-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-timer-objs)
++
++snd-rtctimer.o: $(snd-rtctimer-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-rtctimer-objs)
++
++snd-hwdep.o: $(snd-hwdep-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-hwdep-objs)
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff w1/sound/core/oss/Makefile w2/sound/core/oss/Makefile
+--- w1/sound/core/oss/Makefile	2003-02-09 19:41:54.000000000 +0100
++++ w2/sound/core/oss/Makefile	2003-08-13 23:57:49.000000000 +0200
+@@ -3,6 +3,12 @@
+ # Copyright (c) 1999 by Jaroslav Kysela <perex@suse.cz>
+ #
+ 
++O_TARGET     := _oss.o
++
++list-multi   := snd-mixer-oss.o snd-pcm-oss.o
++
++export-objs  := mixer_oss.o
++
+ snd-mixer-oss-objs := mixer_oss.o
+ 
+ snd-pcm-oss-objs := pcm_oss.o pcm_plugin.o \
+@@ -10,3 +16,11 @@ snd-pcm-oss-objs := pcm_oss.o pcm_plugin
+ 
+ obj-$(CONFIG_SND_MIXER_OSS) += snd-mixer-oss.o
+ obj-$(CONFIG_SND_PCM_OSS) += snd-pcm-oss.o
++
++include $(TOPDIR)/Rules.make
++
++snd-mixer-oss.o: $(snd-mixer-oss-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-mixer-oss-objs)
++
++snd-pcm-oss.o: $(snd-pcm-oss-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-pcm-oss-objs)
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff w1/sound/core/seq/instr/Makefile w2/sound/core/seq/instr/Makefile
+--- w1/sound/core/seq/instr/Makefile	2003-06-02 14:59:40.000000000 +0200
++++ w2/sound/core/seq/instr/Makefile	2003-08-13 23:57:49.000000000 +0200
+@@ -3,6 +3,13 @@
+ # Copyright (c) 1999 by Jaroslav Kysela <perex@suse.cz>
+ #
+ 
++O_TARGET     := _instr.o
++
++list-multi   := snd-ainstr-fm.o snd-ainstr-simple.o snd-ainstr-gf1.o \
++		snd-ainstr-iw.o
++
++export-objs  := ainstr_fm.o ainstr_simple.o ainstr_gf1.o ainstr_iw.o
++
+ snd-ainstr-fm-objs := ainstr_fm.o
+ snd-ainstr-simple-objs := ainstr_simple.o
+ snd-ainstr-gf1-objs := ainstr_gf1.o
+@@ -14,39 +21,52 @@ snd-ainstr-iw-objs := ainstr_iw.o
+ #   <empty string> - CONFIG_SND_SEQUENCER is undefined
+ #   otherwise parameter #1 value
+ #
+-sequencer = $(if $(subst y,,$(CONFIG_SND_SEQUENCER)),$(if $(1),m),$(if $(CONFIG_SND_SEQUENCER),$(1)))
+ 
+ # Toplevel Module Dependency
+-obj-$(call sequencer,$(CONFIG_SND_ALS100)) += snd-ainstr-fm.o
+-obj-$(call sequencer,$(CONFIG_SND_AZT2320)) += snd-ainstr-fm.o
+-obj-$(call sequencer,$(CONFIG_SND_AZT3328)) += snd-ainstr-fm.o
+-obj-$(call sequencer,$(CONFIG_SND_DT019X)) += snd-ainstr-fm.o
+-obj-$(call sequencer,$(CONFIG_SND_ES18XX)) += snd-ainstr-fm.o
+-obj-$(call sequencer,$(CONFIG_SND_OPL3SA2)) += snd-ainstr-fm.o
+-obj-$(call sequencer,$(CONFIG_SND_AD1816A)) += snd-ainstr-fm.o
+-obj-$(call sequencer,$(CONFIG_SND_CS4232)) += snd-ainstr-fm.o
+-obj-$(call sequencer,$(CONFIG_SND_CS4236)) += snd-ainstr-fm.o
+-obj-$(call sequencer,$(CONFIG_SND_PC98_CS4232)) += snd-ainstr-fm.o
+-obj-$(call sequencer,$(CONFIG_SND_ES1688)) += snd-ainstr-fm.o
+-obj-$(call sequencer,$(CONFIG_SND_GUSCLASSIC)) += snd-ainstr-iw.o snd-ainstr-gf1.o snd-ainstr-simple.o
+-obj-$(call sequencer,$(CONFIG_SND_GUSMAX)) += snd-ainstr-iw.o snd-ainstr-gf1.o snd-ainstr-simple.o
+-obj-$(call sequencer,$(CONFIG_SND_GUSEXTREME)) += snd-ainstr-iw.o snd-ainstr-gf1.o snd-ainstr-simple.o snd-ainstr-fm.o
+-obj-$(call sequencer,$(CONFIG_SND_INTERWAVE)) += snd-ainstr-iw.o snd-ainstr-gf1.o snd-ainstr-simple.o
+-obj-$(call sequencer,$(CONFIG_SND_INTERWAVE_STB)) += snd-ainstr-iw.o snd-ainstr-gf1.o snd-ainstr-simple.o
+-obj-$(call sequencer,$(CONFIG_SND_OPTI92X_AD1848)) += snd-ainstr-fm.o
+-obj-$(call sequencer,$(CONFIG_SND_OPTI92X_CS4231)) += snd-ainstr-fm.o
+-obj-$(call sequencer,$(CONFIG_SND_OPTI93X)) += snd-ainstr-fm.o
+-obj-$(call sequencer,$(CONFIG_SND_SB8)) += snd-ainstr-fm.o
+-obj-$(call sequencer,$(CONFIG_SND_SB16)) += snd-ainstr-fm.o
+-obj-$(call sequencer,$(CONFIG_SND_SBAWE)) += snd-ainstr-fm.o
+-obj-$(call sequencer,$(CONFIG_SND_WAVEFRONT)) += snd-ainstr-fm.o
+-obj-$(call sequencer,$(CONFIG_SND_ALS4000)) += snd-ainstr-fm.o
+-obj-$(call sequencer,$(CONFIG_SND_CMIPCI)) += snd-ainstr-fm.o
+-obj-$(call sequencer,$(CONFIG_SND_CS4281)) += snd-ainstr-fm.o
+-obj-$(call sequencer,$(CONFIG_SND_ES1938)) += snd-ainstr-fm.o
+-obj-$(call sequencer,$(CONFIG_SND_FM801)) += snd-ainstr-fm.o
+-obj-$(call sequencer,$(CONFIG_SND_SONICVIBES)) += snd-ainstr-fm.o
+-obj-$(call sequencer,$(CONFIG_SND_TRIDENT)) += snd-ainstr-simple.o
+-obj-$(call sequencer,$(CONFIG_SND_YMFPCI)) += snd-ainstr-fm.o
++obj-$(CONFIG_SND_ALS100) += snd-ainstr-fm.o
++obj-$(CONFIG_SND_AZT2320) += snd-ainstr-fm.o
++obj-$(CONFIG_SND_AZT3328) += snd-ainstr-fm.o
++obj-$(CONFIG_SND_DT019X) += snd-ainstr-fm.o
++obj-$(CONFIG_SND_ES18XX) += snd-ainstr-fm.o
++obj-$(CONFIG_SND_OPL3SA2) += snd-ainstr-fm.o
++obj-$(CONFIG_SND_AD1816A) += snd-ainstr-fm.o
++obj-$(CONFIG_SND_CS4232) += snd-ainstr-fm.o
++obj-$(CONFIG_SND_CS4236) += snd-ainstr-fm.o
++obj-$(CONFIG_SND_PC98_CS4232) += snd-ainstr-fm.o
++obj-$(CONFIG_SND_ES1688) += snd-ainstr-fm.o
++obj-$(CONFIG_SND_GUSCLASSIC) += snd-ainstr-iw.o snd-ainstr-gf1.o snd-ainstr-simple.o
++obj-$(CONFIG_SND_GUSMAX) += snd-ainstr-iw.o snd-ainstr-gf1.o snd-ainstr-simple.o
++obj-$(CONFIG_SND_GUSEXTREME) += snd-ainstr-iw.o snd-ainstr-gf1.o snd-ainstr-simple.o snd-ainstr-fm.o
++obj-$(CONFIG_SND_INTERWAVE) += snd-ainstr-iw.o snd-ainstr-gf1.o snd-ainstr-simple.o
++obj-$(CONFIG_SND_INTERWAVE_STB) += snd-ainstr-iw.o snd-ainstr-gf1.o snd-ainstr-simple.o
++obj-$(CONFIG_SND_OPTI92X_AD1848) += snd-ainstr-fm.o
++obj-$(CONFIG_SND_OPTI92X_CS4231) += snd-ainstr-fm.o
++obj-$(CONFIG_SND_OPTI93X) += snd-ainstr-fm.o
++obj-$(CONFIG_SND_SB8) += snd-ainstr-fm.o
++obj-$(CONFIG_SND_SB16) += snd-ainstr-fm.o
++obj-$(CONFIG_SND_SBAWE) += snd-ainstr-fm.o
++obj-$(CONFIG_SND_WAVEFRONT) += snd-ainstr-fm.o
++obj-$(CONFIG_SND_ALS4000) += snd-ainstr-fm.o
++obj-$(CONFIG_SND_CMIPCI) += snd-ainstr-fm.o
++obj-$(CONFIG_SND_CS4281) += snd-ainstr-fm.o
++obj-$(CONFIG_SND_ES1938) += snd-ainstr-fm.o
++obj-$(CONFIG_SND_FM801) += snd-ainstr-fm.o
++obj-$(CONFIG_SND_SONICVIBES) += snd-ainstr-fm.o
++obj-$(CONFIG_SND_TRIDENT) += snd-ainstr-simple.o
++obj-$(CONFIG_SND_YMFPCI) += snd-ainstr-fm.o
+ 
+ obj-m := $(sort $(obj-m))
++
++include $(TOPDIR)/Rules.make
++
++snd-ainstr-fm.o: $(snd-ainstr-fm-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-ainstr-fm-objs)
++
++snd-ainstr-simple.o: $(snd-ainstr-simple-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-ainstr-simple-objs)
++
++snd-ainstr-gf1.o: $(snd-ainstr-gf1-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-ainstr-gf1-objs)
++
++snd-ainstr-iw.o: $(snd-ainstr-iw-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-ainstr-iw-objs)
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff w1/sound/core/seq/Makefile w2/sound/core/seq/Makefile
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff w1/sound/core/seq/oss/Makefile w2/sound/core/seq/oss/Makefile
+--- w1/sound/core/seq/oss/Makefile	2003-01-28 15:49:48.000000000 +0100
++++ w2/sound/core/seq/oss/Makefile	2003-08-13 23:57:49.000000000 +0200
+@@ -3,8 +3,12 @@
+ # Copyright (c) 1999 by Jaroslav Kysela <perex@suse.cz>
+ #
+ 
+-snd-seq-oss-objs  := seq_oss.o seq_oss_init.o seq_oss_timer.o seq_oss_ioctl.o \
++O_TARGET := snd-seq-oss.o
++
++obj-y  := seq_oss.o seq_oss_init.o seq_oss_timer.o seq_oss_ioctl.o \
+ 		     seq_oss_event.o seq_oss_rw.o seq_oss_synth.o \
+ 		     seq_oss_midi.o seq_oss_readq.o seq_oss_writeq.o
+ 
+-obj-$(CONFIG_SND_SEQUENCER) += snd-seq-oss.o
++obj-$(CONFIG_SND_SEQUENCER) := snd-seq-oss.o
++
++include $(TOPDIR)/Rules.make
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff w1/sound/drivers/Makefile w2/sound/drivers/Makefile
+--- w1/sound/drivers/Makefile	2003-05-23 18:00:43.000000000 +0200
++++ w2/sound/drivers/Makefile	2003-08-13 23:57:49.000000000 +0200
+@@ -3,6 +3,10 @@
+ # Copyright (c) 2001 by Jaroslav Kysela <perex@suse.cz>
+ #
+ 
++O_TARGET     := _drivers.o
++
++list-multi   := snd-dummy.o snd-mtpav.o snd-serial-u16550.o snd-virmidi.o
++
+ snd-dummy-objs := dummy.o
+ snd-mtpav-objs := mtpav.o
+ snd-serial-u16550-objs := serial-u16550.o
+@@ -14,4 +18,22 @@ obj-$(CONFIG_SND_VIRMIDI) += snd-virmidi
+ obj-$(CONFIG_SND_SERIAL_U16550) += snd-serial-u16550.o
+ obj-$(CONFIG_SND_MTPAV) += snd-mtpav.o
+ 
+-obj-$(CONFIG_SND) += opl3/ opl4/ mpu401/ vx/
++subdir-$(CONFIG_SND) += opl3 opl4 mpu401 vx
++ifeq ($(CONFIG_SND),y)
++  obj-y += opl3/_opl3.o opl4/_opl4.o mpu401/_mpu401.o vx/_vx.o
++endif
++
++include $(TOPDIR)/Rules.make
++
++snd-dummy.o: $(snd-dummy-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-dummy-objs)
++
++snd-mtpav.o: $(snd-mtpav-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-mtpav-objs)
++
++snd-serial-u16550.o: $(snd-serial-u16550-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-serial-u16550-objs)
++
++snd-virmidi.o: $(snd-virmidi-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-virmidi-objs)
++
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff w1/sound/drivers/mpu401/Makefile w2/sound/drivers/mpu401/Makefile
+--- w1/sound/drivers/mpu401/Makefile	2003-06-02 14:59:40.000000000 +0200
++++ w2/sound/drivers/mpu401/Makefile	2003-08-13 23:57:49.000000000 +0200
+@@ -3,6 +3,12 @@
+ # Copyright (c) 2001 by Jaroslav Kysela <perex@suse.cz>
+ #
+ 
++O_TARGET     := _mpu401.o
++
++list-multi   := snd-mpu401.o snd-mpu401-uart.o
++
++export-objs  := mpu401_uart.o
++
+ snd-mpu401-objs := mpu401.o
+ snd-mpu401-uart-objs := mpu401_uart.o
+ 
+@@ -18,6 +24,7 @@ obj-$(CONFIG_SND_AD1816A) += snd-mpu401-
+ obj-$(CONFIG_SND_CS4231) += snd-mpu401-uart.o
+ obj-$(CONFIG_SND_CS4232) += snd-mpu401-uart.o
+ obj-$(CONFIG_SND_CS4236) += snd-mpu401-uart.o
++obj-$(CONFIG_SND_PC98_CS4232) += snd-mpu401-uart.o
+ obj-$(CONFIG_SND_ES1688) += snd-mpu401-uart.o
+ obj-$(CONFIG_SND_GUSEXTREME) += snd-mpu401-uart.o
+ obj-$(CONFIG_SND_OPTI92X_AD1848) += snd-mpu401-uart.o
+@@ -43,3 +50,11 @@ obj-$(CONFIG_SND_PC98_CS4232) += snd-mpu
+ obj-$(CONFIG_SND_SSCAPE) += snd-mpu401-uart.o
+ 
+ obj-m := $(sort $(obj-m))
++
++include $(TOPDIR)/Rules.make
++
++snd-mpu401.o: $(snd-mpu401-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-mpu401-objs)
++
++snd-mpu401-uart.o: $(snd-mpu401-uart-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-mpu401-uart-objs)
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff w1/sound/drivers/opl3/Makefile w2/sound/drivers/opl3/Makefile
+--- w1/sound/drivers/opl3/Makefile	2003-06-02 14:59:40.000000000 +0200
++++ w2/sound/drivers/opl3/Makefile	2003-08-13 23:57:49.000000000 +0200
+@@ -3,6 +3,12 @@
+ # Copyright (c) 2001 by Jaroslav Kysela <perex@suse.cz>
+ #
+ 
++O_TARGET     := _opl3.o
++
++list-multi   := snd-opl3-lib.o snd-opl3-synth.o
++
++export-objs  := opl3_lib.o
++
+ snd-opl3-lib-objs := opl3_lib.o opl3_synth.o
+ snd-opl3-synth-objs := opl3_seq.o opl3_midi.o opl3_drums.o
+ ifeq ($(CONFIG_SND_SEQUENCER_OSS),y)
+@@ -25,6 +31,7 @@ obj-$(CONFIG_SND_AD1816A) += $(OPL3_OBJS
+ obj-$(CONFIG_SND_CS4232) += $(OPL3_OBJS)
+ obj-$(CONFIG_SND_PC98_CS4232) += $(OPL3_OBJS)
+ obj-$(CONFIG_SND_CS4236) += $(OPL3_OBJS)
++obj-$(CONFIG_SND_PC98_CS4232) += $(OPL3_OBJS)
+ obj-$(CONFIG_SND_ES1688) += $(OPL3_OBJS)
+ obj-$(CONFIG_SND_GUSEXTREME) += $(OPL3_OBJS)
+ obj-$(CONFIG_SND_OPTI92X_AD1848) += $(OPL3_OBJS)
+@@ -43,3 +50,11 @@ obj-$(CONFIG_SND_SONICVIBES) += $(OPL3_O
+ obj-$(CONFIG_SND_YMFPCI) += $(OPL3_OBJS)
+ 
+ obj-m := $(sort $(obj-m))
++
++include $(TOPDIR)/Rules.make
++
++snd-opl3-lib.o: $(snd-opl3-lib-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-opl3-lib-objs)
++
++snd-opl3-synth.o: $(snd-opl3-synth-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-opl3-synth-objs)
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff w1/sound/drivers/opl4/Makefile w2/sound/drivers/opl4/Makefile
+--- w1/sound/drivers/opl4/Makefile	2003-05-23 13:15:12.000000000 +0200
++++ w2/sound/drivers/opl4/Makefile	2003-08-13 23:57:49.000000000 +0200
+@@ -3,6 +3,12 @@
+ # Copyright (c) 2001 by Jaroslav Kysela <perex@suse.cz>
+ #
+ 
++O_TARGET     := _opl4.o
++
++list-multi   := snd-opl4-lib.o snd-opl4-synth.o
++
++export-objs  := opl4_lib.o
++
+ snd-opl4-lib-objs := opl4_lib.o opl4_mixer.o opl4_proc.o
+ snd-opl4-synth-objs := opl4_seq.o opl4_synth.o yrw801.o
+ 
+@@ -13,3 +19,13 @@ endif
+ 
+ obj-$(CONFIG_SND_OPTI92X_AD1848) += $(OPL4_OBJS)
+ obj-$(CONFIG_SND_OPTI92X_CS4231) += $(OPL4_OBJS)
++
++obj-m := $(sort $(obj-m))
++
++include $(TOPDIR)/Rules.make
++
++snd-opl4-lib.o: $(snd-opl4-lib-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-opl4-lib-objs)
++
++snd-opl4-synth.o: $(snd-opl4-synth-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-opl4-synth-objs)
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff w1/sound/drivers/vx/Makefile w2/sound/drivers/vx/Makefile
+--- w1/sound/drivers/vx/Makefile	2003-05-23 18:00:43.000000000 +0200
++++ w2/sound/drivers/vx/Makefile	2003-08-13 23:57:49.000000000 +0200
+@@ -3,9 +3,23 @@
+ # Copyright (c) 2001 by Jaroslav Kysela <perex@suse.cz>
+ #
+ 
++O_TARGET     := _vx.o
++
++list-multi   := snd-vx-lib.o
++
++export-objs  := vx_core.o
++
++
+ snd-vx-lib-objs := vx_core.o vx_hwdep.o vx_pcm.o vx_mixer.o vx_cmd.o vx_uer.o
+ 
+ obj-$(CONFIG_SND_VXPOCKET) += snd-vx-lib.o
+ obj-$(CONFIG_SND_VXP440) += snd-vx-lib.o
+ obj-$(CONFIG_SND_VX222) += snd-vx-lib.o
+ 
++obj-m := $(sort $(obj-m))
++
++include $(TOPDIR)/Rules.make
++
++snd-vx-lib.o: $(snd-vx-lib-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-vx-lib-objs)
++
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff w1/sound/i2c/l3/Makefile w2/sound/i2c/l3/Makefile
+--- w1/sound/i2c/l3/Makefile	2003-02-09 19:41:55.000000000 +0100
++++ w2/sound/i2c/l3/Makefile	2003-08-13 23:57:49.000000000 +0200
+@@ -2,7 +2,15 @@
+ # Makefile for ALSA
+ #
+ 
+-snd-uda1341-objs := uda1341.o
++O_TARGET = snd-uda1341.o
++
++export-objs += uda1341.o
++
++obj-y := uda1341.o
+ 
+ # Module Dependency
+ obj-$(CONFIG_SND_SA11XX_UDA1341) += snd-uda1341.o
++
++include $(TOPDIR)/Rules.make
++
++
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff w1/sound/i2c/Makefile w2/sound/i2c/Makefile
+--- w1/sound/i2c/Makefile	2003-04-28 17:16:53.000000000 +0200
++++ w2/sound/i2c/Makefile	2003-08-13 23:57:49.000000000 +0200
+@@ -3,16 +3,41 @@
+ # Copyright (c) 2001 by Jaroslav Kysela <perex@suse.cz>
+ #
+ 
++O_TARGET := _i2c.o
++
++list-multi   := snd-i2c.o snd-cs8427.o snd-tea6330t.o
++
++export-objs  := i2c.o cs8427.o tea6330t.o
++
+ snd-i2c-objs := i2c.o
+ snd-cs8427-objs := cs8427.o
+ snd-tea6330t-objs := tea6330t.o
+ 
+ ifeq ($(subst m,y,$(CONFIG_L3)),y)
+-  obj-$(CONFIG_L3) += l3/
++  subdir-$(CONFIG_L3) += l3
++endif
++
++ifeq ($(filter $(subdir-y),l3),l3)
++  subdir-m := l3
++  obj-y += l3/snd-uda1341.o
+ endif
+ 
+-obj-$(CONFIG_SND) += other/
++subdir-$(CONFIG_SND) += other
++ifeq ($(CONFIG_SND),y)
++  obj-y += other/_ak4xxx.o
++endif
+ 
+ # Toplevel Module Dependency
+ obj-$(CONFIG_SND_INTERWAVE_STB) += snd-tea6330t.o snd-i2c.o
+ obj-$(CONFIG_SND_ICE1712) += snd-cs8427.o snd-i2c.o
++
++include $(TOPDIR)/Rules.make
++
++snd-i2c.o: $(snd-i2c-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-i2c-objs)
++
++snd-cs8427.o: $(snd-cs8427-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-cs8427-objs)
++
++snd-tea6330t.o: $(snd-tea6330t-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-tea6330t-objs)
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff w1/sound/i2c/other/Makefile w2/sound/i2c/other/Makefile
+--- w1/sound/i2c/other/Makefile	2003-04-28 17:19:16.000000000 +0200
++++ w2/sound/i2c/other/Makefile	2003-08-13 23:57:49.000000000 +0200
+@@ -3,8 +3,18 @@
+ # Copyright (c) 2003 by Jaroslav Kysela <perex@suse.cz>
+ #
+ 
++O_TARGET := _ak4xxx.o
++
++ export-objs := ak4xxx-adda.o
++
+ snd-ak4xxx-adda-objs := ak4xxx-adda.o
+ 
+ # Module Dependency
+ obj-$(CONFIG_SND_ICE1712) += snd-ak4xxx-adda.o
+ obj-$(CONFIG_SND_ICE1724) += snd-ak4xxx-adda.o
++
++include $(TOPDIR)/Rules.make
++
++snd-ak4xxx-adda.o: $(snd-ak4xxx-adda-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-ak4xxx-adda-objs)
++
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff w1/sound/isa/ad1816a/Makefile w2/sound/isa/ad1816a/Makefile
+--- w1/sound/isa/ad1816a/Makefile	2003-02-09 19:41:55.000000000 +0100
++++ w2/sound/isa/ad1816a/Makefile	2003-08-13 23:57:49.000000000 +0200
+@@ -3,8 +3,22 @@
+ # Copyright (c) 2001 by Jaroslav Kysela <perex@suse.cz>
+ #
+ 
++O_TARGET := _ad1816a.o
++
++list-multi   := snd-ad1816a.o snd-ad1816a-lib.o
++
++export-objs  := ad1816a_lib.o
++
+ snd-ad1816a-lib-objs := ad1816a_lib.o
+ snd-ad1816a-objs := ad1816a.o
+ 
+ # Toplevel Module Dependency
+ obj-$(CONFIG_SND_AD1816A) += snd-ad1816a.o snd-ad1816a-lib.o
++
++snd-ad1816a-lib.o: $(snd-ad1816a-lib-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-ad1816a-lib-objs)
++
++snd-ad1816a.o: $(snd-ad1816a-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-ad1816a-objs)
++
++include $(TOPDIR)/Rules.make
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff w1/sound/isa/ad1848/Makefile w2/sound/isa/ad1848/Makefile
+--- w1/sound/isa/ad1848/Makefile	2003-02-09 19:41:56.000000000 +0100
++++ w2/sound/isa/ad1848/Makefile	2003-08-13 23:57:49.000000000 +0200
+@@ -3,6 +3,12 @@
+ # Copyright (c) 2001 by Jaroslav Kysela <perex@suse.cz>
+ #
+ 
++O_TARGET     := _ad1848.o
++
++list-multi   := snd-ad1848-lib.o snd-ad1848.o
++
++export-objs  := ad1848_lib.o
++
+ snd-ad1848-lib-objs := ad1848_lib.o
+ snd-ad1848-objs := ad1848.o
+ 
+@@ -13,3 +19,11 @@ obj-$(CONFIG_SND_AD1848) += snd-ad1848.o
+ obj-$(CONFIG_SND_OPTI92X_AD1848) += snd-ad1848-lib.o
+ 
+ obj-m := $(sort $(obj-m))
++
++include $(TOPDIR)/Rules.make
++
++snd-ad1848-lib.o: $(snd-ad1848-lib-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-ad1848-lib-objs)
++
++snd-ad1848.o: $(snd-ad1848-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-ad1848-objs)
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff w1/sound/isa/cs423x/Makefile w2/sound/isa/cs423x/Makefile
+--- w1/sound/isa/cs423x/Makefile	2003-05-20 14:42:44.000000000 +0200
++++ w2/sound/isa/cs423x/Makefile	2003-08-13 23:57:49.000000000 +0200
+@@ -3,6 +3,13 @@
+ # Copyright (c) 2001 by Jaroslav Kysela <perex@suse.cz>
+ #
+ 
++O_TARGET     := _cs423x.o
++
++list-multi   := snd-cs4231-lib.o snd-cs4236-lib.o \
++		snd-cs4231.o snd-cs4232.o snd-cs4236.o
++
++export-objs  := cs4231_lib.o cs4236_lib.o
++
+ snd-cs4231-lib-objs := cs4231_lib.o
+ snd-cs4236-lib-objs := cs4236_lib.o
+ snd-cs4231-objs := cs4231.o
+@@ -25,3 +32,20 @@ obj-$(CONFIG_SND_SSCAPE) += snd-cs4231-l
+ obj-$(CONFIG_SND_PC98_CS4232) += snd-pc98-cs4232.o snd-cs4231-lib.o
+ 
+ obj-m := $(sort $(obj-m))
++
++include $(TOPDIR)/Rules.make
++
++snd-cs4231-lib.o: $(snd-cs4231-lib-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-cs4231-lib-objs)
++
++snd-cs4236-lib.o: $(snd-cs4236-lib-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-cs4236-lib-objs)
++
++snd-cs4231.o: $(snd-cs4231-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-cs4231-objs)
++
++snd-cs4232.o: $(snd-cs4232-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-cs4232-objs)
++
++snd-cs4236.o: $(snd-cs4236-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-cs4236-objs)
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff w1/sound/isa/es1688/Makefile w2/sound/isa/es1688/Makefile
+--- w1/sound/isa/es1688/Makefile	2003-02-09 19:41:56.000000000 +0100
++++ w2/sound/isa/es1688/Makefile	2003-08-13 23:57:49.000000000 +0200
+@@ -3,9 +3,23 @@
+ # Copyright (c) 2001 by Jaroslav Kysela <perex@suse.cz>
+ #
+ 
++O_TARGET     := _es1688.o
++
++list-multi   := snd-es1688-lib.o snd-es1688.o
++
++export-objs  := es1688_lib.o
++
+ snd-es1688-lib-objs := es1688_lib.o
+ snd-es1688-objs := es1688.o
+ 
+ # Toplevel Module Dependency
+ obj-$(CONFIG_SND_ES1688) += snd-es1688.o snd-es1688-lib.o
+ obj-$(CONFIG_SND_GUSEXTREME) += snd-es1688-lib.o
++
++snd-es1688-lib.o: $(snd-es1688-lib-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-es1688-lib-objs)
++
++snd-es1688.o: $(snd-es1688-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-es1688-objs)
++
++include $(TOPDIR)/Rules.make
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff w1/sound/isa/gus/Makefile w2/sound/isa/gus/Makefile
+--- w1/sound/isa/gus/Makefile	2003-02-09 19:41:56.000000000 +0100
++++ w2/sound/isa/gus/Makefile	2003-08-13 23:57:49.000000000 +0200
+@@ -3,6 +3,13 @@
+ # Copyright (c) 2001 by Jaroslav Kysela <perex@suse.cz>
+ #
+ 
++O_TARGET     := _gus.o
++
++list-multi   := snd-gus-lib.o snd-gusclassic.o snd-gusextreme.o \
++		snd-gusmax.o snd-interwave.o snd-interwave-stb.o
++
++export-objs  := gus_main.o gus_volume.o
++
+ snd-gus-lib-objs := gus_main.o \
+ 		    gus_io.o gus_irq.o gus_timer.o \
+ 		    gus_mem.o gus_mem_proc.o gus_dram.o gus_dma.o gus_volume.o \
+@@ -17,24 +24,42 @@ snd-gusmax-objs := gusmax.o
+ snd-interwave-objs := interwave.o
+ snd-interwave-stb-objs := interwave-stb.o
+ 
+-#
+-# this function returns:
+-#   "m" - CONFIG_SND_SEQUENCER is m
+-#   <empty string> - CONFIG_SND_SEQUENCER is undefined
+-#   otherwise parameter #1 value
+-#
+-sequencer = $(if $(subst y,,$(CONFIG_SND_SEQUENCER)),$(if $(1),m),$(if $(CONFIG_SND_SEQUENCER),$(1)))
+-
+ # Toplevel Module Dependency
+ obj-$(CONFIG_SND_GUSCLASSIC) += snd-gusclassic.o snd-gus-lib.o
+-obj-$(call sequencer,$(CONFIG_SND_GUSCLASSIC)) += snd-gus-synth.o
+ obj-$(CONFIG_SND_GUSMAX) += snd-gusmax.o snd-gus-lib.o
+-obj-$(call sequencer,$(CONFIG_SND_GUSMAX)) += snd-gus-synth.o
+ obj-$(CONFIG_SND_GUSEXTREME) += snd-gusextreme.o snd-gus-lib.o
+-obj-$(call sequencer,$(CONFIG_SND_GUSEXTREME)) += snd-gus-synth.o
+ obj-$(CONFIG_SND_INTERWAVE) += snd-interwave.o snd-gus-lib.o
+-obj-$(call sequencer,$(CONFIG_SND_INTERWAVE)) += snd-gus-synth.o
+ obj-$(CONFIG_SND_INTERWAVE_STB) += snd-interwave-stb.o snd-gus-lib.o
+-obj-$(call sequencer,$(CONFIG_SND_INTERWAVE_STB)) += snd-gus-synth.o
++
++ifeq ($(subst m,y,$(CONFIG_SND_SEQUENCER)),y)
++  obj-$(CONFIG_SND_GUSCLASSIC) += snd-gus-synth.o
++  obj-$(CONFIG_SND_GUSMAX) += snd-gus-synth.o
++  obj-$(CONFIG_SND_GUSEXTREME) += snd-gus-synth.o
++  obj-$(CONFIG_SND_INTERWAVE) += snd-gus-synth.o
++  obj-$(CONFIG_SND_INTERWAVE_STB) += snd-gus-synth.o
++endif
+ 
+ obj-m := $(sort $(obj-m))
++
++include $(TOPDIR)/Rules.make
++
++snd-gus-lib.o: $(snd-gus-lib-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-gus-lib-objs)
++
++snd-gus-synth.o: $(snd-gus-synth-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-gus-synth-objs)
++
++snd-gusclassic.o: $(snd-gusclassic-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-gusclassic-objs)
++
++snd-gusextreme.o: $(snd-gusextreme-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-gusextreme-objs)
++
++snd-gusmax.o: $(snd-gusmax-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-gusmax-objs)
++
++snd-interwave.o: $(snd-interwave-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-interwave-objs)
++
++snd-interwave-stb.o: $(snd-interwave-stb-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-interwave-stb-objs)
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff w1/sound/isa/Makefile w2/sound/isa/Makefile
+--- w1/sound/isa/Makefile	2003-05-21 12:06:49.000000000 +0200
++++ w2/sound/isa/Makefile	2003-08-13 23:58:06.000000000 +0200
+@@ -3,6 +3,13 @@
+ # Copyright (c) 2001 by Jaroslav Kysela <perex@suse.cz>
+ #
+ 
++O_TARGET     := _isa.o
++
++mod-subdirs  := ad1816a ad1848 cs423x es1688 gus opti9xx sb wavefront
++
++list-multi   := snd-als100.o snd-azt2320.o snd-cmi8330.o snd-dt019x.o \
++		snd-es18xx.o snd-opl3sa2.o snd-sgalaxy.o snd-sscape.o
++ 
+ snd-als100-objs := als100.o
+ snd-azt2320-objs := azt2320.o
+ snd-cmi8330-objs := cmi8330.o
+@@ -22,5 +29,40 @@ obj-$(CONFIG_SND_OPL3SA2) += snd-opl3sa2
+ obj-$(CONFIG_SND_SGALAXY) += snd-sgalaxy.o
+ obj-$(CONFIG_SND_SSCAPE) += snd-sscape.o
+ 
+-obj-$(CONFIG_SND) += ad1816a/ ad1848/ cs423x/ es1688/ gus/ opti9xx/ \
+-		     sb/ wavefront/
++subdir-$(CONFIG_SND) += ad1816a ad1848 cs423x es1688 gus opti9xx sb wavefront
++ifeq ($(CONFIG_SND),y)
++  obj-y += ad1816a/_ad1816a.o \
++	   ad1848/_ad1848.o \
++	   cs423x/_cs423x.o \
++	   es1688/_es1688.o \
++	   gus/_gus.o \
++	   opti9xx/_opti9xx.o \
++	   sb/_sb.o \
++	   wavefront/_wavefront.o
++endif
++
++include $(TOPDIR)/Rules.make
++
++snd-als100.o: $(snd-als100-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-als100-objs)
++
++snd-azt2320.o: $(snd-azt2320-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-azt2320-objs)
++
++snd-cmi8330.o: $(snd-cmi8330-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-cmi8330-objs)
++
++snd-dt019x.o: $(snd-dt019x-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-dt019x-objs)
++
++snd-es18xx.o: $(snd-es18xx-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-es18xx-objs)
++
++snd-opl3sa2.o: $(snd-opl3sa2-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-opl3sa2-objs)
++
++snd-sgalaxy.o: $(snd-sgalaxy-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-sgalaxy-objs)
++
++snd-sscape.o: $(snd-sscape-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-sscape-objs)
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff w1/sound/isa/opti9xx/Makefile w2/sound/isa/opti9xx/Makefile
+--- w1/sound/isa/opti9xx/Makefile	2002-12-17 21:00:44.000000000 +0100
++++ w2/sound/isa/opti9xx/Makefile	2003-08-13 23:57:49.000000000 +0200
+@@ -3,6 +3,10 @@
+ # Copyright (c) 2001 by Jaroslav Kysela <perex@suse.cz>
+ #
+ 
++O_TARGET     := _opti9xx.o
++
++list-multi   := snd-opti92x-ad1848.o snd-opti92x-cs4231.o snd-opti93x.o
++
+ snd-opti92x-ad1848-objs := opti92x-ad1848.o
+ snd-opti92x-cs4231-objs := opti92x-cs4231.o
+ snd-opti93x-objs := opti93x.o
+@@ -11,3 +15,14 @@ snd-opti93x-objs := opti93x.o
+ obj-$(CONFIG_SND_OPTI92X_AD1848) += snd-opti92x-ad1848.o
+ obj-$(CONFIG_SND_OPTI92X_CS4231) += snd-opti92x-cs4231.o
+ obj-$(CONFIG_SND_OPTI93X) += snd-opti93x.o
++
++include $(TOPDIR)/Rules.make
++
++snd-opti92x-ad1848.o: $(snd-opti92x-ad1848-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-opti92x-ad1848-objs)
++
++snd-opti92x-cs4231.o: $(snd-opti92x-cs4231-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-opti92x-cs4231-objs)
++
++snd-opti93x.o: $(snd-opti93x-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-opti93x-objs)
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff w1/sound/isa/sb/Makefile w2/sound/isa/sb/Makefile
+--- w1/sound/isa/sb/Makefile	2003-02-09 19:41:56.000000000 +0100
++++ w2/sound/isa/sb/Makefile	2003-08-13 23:57:49.000000000 +0200
+@@ -3,6 +3,13 @@
+ # Copyright (c) 2001 by Jaroslav Kysela <perex@suse.cz>
+ #
+ 
++O_TARGET     := _sb.o
++
++list-multi   := snd-sb-common.o snd-sb8-dsp.o snd-sb16-dsp.o snd-sb16-csp.o \
++	        snd-sb8.o snd-sb16.o snd-sbawe.o snd-emu8000-synth.o snd-es968.o
++
++export-objs  := emu8000.o sb_common.o sb8_main.o sb16_main.o sb16_csp.o
++
+ snd-sb-common-objs := sb_common.o sb_mixer.o
+ snd-sb8-dsp-objs := sb8_main.o sb8_midi.o
+ snd-sb16-dsp-objs := sb16_main.o
+@@ -13,14 +20,6 @@ snd-sbawe-objs := sbawe.o emu8000.o
+ snd-emu8000-synth-objs := emu8000_synth.o emu8000_callback.o emu8000_patch.o emu8000_pcm.o
+ snd-es968-objs := es968.o
+ 
+-#
+-# this function returns:
+-#   "m" - CONFIG_SND_SEQUENCER is m
+-#   <empty string> - CONFIG_SND_SEQUENCER is undefined
+-#   otherwise parameter #1 value
+-#
+-sequencer = $(if $(subst y,,$(CONFIG_SND_SEQUENCER)),$(if $(1),m),$(if $(CONFIG_SND_SEQUENCER),$(1)))
+-
+ # Toplevel Module Dependency
+ obj-$(CONFIG_SND_ALS100) += snd-sb16-dsp.o snd-sb-common.o
+ obj-$(CONFIG_SND_CMI8330) += snd-sb16-dsp.o snd-sb-common.o
+@@ -34,6 +33,37 @@ ifeq ($(CONFIG_SND_SB16_CSP),y)
+   obj-$(CONFIG_SND_SB16) += snd-sb16-csp.o
+   obj-$(CONFIG_SND_SBAWE) += snd-sb16-csp.o
+ endif
+-obj-$(call sequencer,$(CONFIG_SND_SBAWE)) += snd-emu8000-synth.o
++ifeq ($(subst m,y,$(CONFIG_SND_SEQUENCER)),y)
++  obj-$(CONFIG_SND_SBAWE) += snd-emu8000-synth.o
++endif
+ 
+ obj-m := $(sort $(obj-m))
++
++include $(TOPDIR)/Rules.make
++
++snd-sb-common.o: $(snd-sb-common-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-sb-common-objs)
++
++snd-sb8-dsp.o: $(snd-sb8-dsp-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-sb8-dsp-objs)
++
++snd-sb16-dsp.o: $(snd-sb16-dsp-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-sb16-dsp-objs)
++
++snd-sb16-csp.o: $(snd-sb16-csp-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-sb16-csp-objs)
++
++snd-sb8.o: $(snd-sb8-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-sb8-objs)
++
++snd-sb16.o: $(snd-sb16-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-sb16-objs)
++
++snd-sbawe.o: $(snd-sbawe-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-sbawe-objs)
++
++snd-emu8000-synth.o: $(snd-emu8000-synth-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-emu8000-synth-objs)
++
++snd-es968.o: $(snd-es968-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-es968-objs)
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff w1/sound/isa/wavefront/Makefile w2/sound/isa/wavefront/Makefile
+--- w1/sound/isa/wavefront/Makefile	2002-12-17 21:00:45.000000000 +0100
++++ w2/sound/isa/wavefront/Makefile	2003-08-13 23:57:49.000000000 +0200
+@@ -3,7 +3,11 @@
+ # Copyright (c) 2001 by Jaroslav Kysela <perex@suse.cz>
+ #
+ 
+-snd-wavefront-objs := wavefront.o wavefront_fx.o wavefront_synth.o wavefront_midi.o
++O_TARGET     := snd-wavefront.o
++
++obj-y := wavefront.o wavefront_fx.o wavefront_synth.o wavefront_midi.o
+ 
+ # Toplevel Module Dependency
+ obj-$(CONFIG_SND_WAVEFRONT) += snd-wavefront.o
++
++include $(TOPDIR)/Rules.make
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff w1/sound/Makefile w2/sound/Makefile
+--- w1/sound/Makefile	2003-07-28 13:04:44.000000000 +0200
++++ w2/sound/Makefile	2003-08-13 23:57:49.000000000 +0200
+@@ -1,13 +1,26 @@
+ # Makefile for the Linux sound card driver
+ #
+ 
+-obj-$(CONFIG_SOUND) += soundcore.o
+-obj-$(CONFIG_SOUND_PRIME) += oss/
+-obj-$(CONFIG_DMASOUND) += oss/
+-obj-$(CONFIG_SND) += core/ i2c/ drivers/ isa/ pci/ ppc/ arm/ synth/ usb/ sparc/ parisc/ pcmcia/
++O_TARGET := alsa.o
++
++_subdirs := core i2c drivers isa pci ppc arm synth usb pcmcia
++
++subdir-$(CONFIG_SND) += $(_subdirs)
++
++
+ 
+ ifeq ($(CONFIG_SND),y)
+-  obj-y += last.o
++  subdir-m += $(_subdirs)
++  obj-y += core/_core.o 
++  obj-y += i2c/_i2c.o
++  obj-y += drivers/_drivers.o
++  obj-y += isa/_isa.o
++  obj-y += pci/_pci.o
++  obj-y += arm/snd-sa11xx-uda1341.o
++  obj-y += ppc/snd-powermac.o
++  obj-y += synth/_synth.o
++  obj-y += usb/_usb.o
++  obj-y += pcmcia/_pcmcia.o
+ endif
+ 
+-soundcore-objs  := sound_core.o sound_firmware.o
++include $(TOPDIR)/Rules.make
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff w1/sound/pci/ac97/Makefile w2/sound/pci/ac97/Makefile
+--- w1/sound/pci/ac97/Makefile	2003-06-17 20:43:31.000000000 +0200
++++ w2/sound/pci/ac97/Makefile	2003-08-13 23:57:49.000000000 +0200
+@@ -3,6 +3,12 @@
+ # Copyright (c) 2001 by Jaroslav Kysela <perex@suse.cz>
+ #
+ 
++O_TARGET     := _ac97.o
++
++list-multi   := snd-ac97-codec.o snd-ak4531-codec.o
++
++export-objs  := ac97_codec.o ak4531_codec.o
++
+ snd-ac97-codec-objs := ac97_codec.o ac97_proc.o ac97_patch.o
+ snd-ak4531-codec-objs := ak4531_codec.o
+ 
+@@ -25,3 +31,11 @@ obj-$(CONFIG_SND_TRIDENT) += snd-ac97-co
+ obj-$(CONFIG_SND_YMFPCI) += snd-ac97-codec.o
+ 
+ obj-m := $(sort $(obj-m))
++
++include $(TOPDIR)/Rules.make
++
++snd-ac97-codec.o: $(snd-ac97-codec-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-ac97-codec-objs)
++
++snd-ak4531-codec.o: $(snd-ak4531-codec-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-ak4531-codec-objs)
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff w1/sound/pci/ali5451/Makefile w2/sound/pci/ali5451/Makefile
+--- w1/sound/pci/ali5451/Makefile	2002-12-17 21:00:45.000000000 +0100
++++ w2/sound/pci/ali5451/Makefile	2003-08-13 23:57:49.000000000 +0200
+@@ -3,7 +3,11 @@
+ # Copyright (c) 2001 by Jaroslav Kysela <perex@suse.cz>
+ #
+ 
+-snd-ali5451-objs := ali5451.o
++O_TARGET := snd-ali5451.o
++
++obj-y := ali5451.o
+ 
+ # Toplevel Module Dependency
+-obj-$(CONFIG_SND_ALI5451) += snd-ali5451.o
++obj-$(CONFIG_SND_ALI5451) := snd-ali5451.o
++
++include $(TOPDIR)/Rules.make
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff w1/sound/pci/cs46xx/Makefile w2/sound/pci/cs46xx/Makefile
+--- w1/sound/pci/cs46xx/Makefile	2002-12-17 21:00:46.000000000 +0100
++++ w2/sound/pci/cs46xx/Makefile	2003-08-13 23:57:49.000000000 +0200
+@@ -3,10 +3,15 @@
+ # Copyright (c) 2001 by Jaroslav Kysela <perex@suse.cz>
+ #
+ 
+-snd-cs46xx-objs := cs46xx.o cs46xx_lib.o
++O_TARGET := snd-cs46xx.o
++
++obj-y := cs46xx.o cs46xx_lib.o
++
+ ifeq ($(CONFIG_SND_CS46XX_NEW_DSP),y)
+-  snd-cs46xx-objs += dsp_spos.o dsp_spos_scb_lib.o
++  obj-y += dsp_spos.o dsp_spos_scb_lib.o
+ endif
+ 
+ # Toplevel Module Dependency
+-obj-$(CONFIG_SND_CS46XX) += snd-cs46xx.o
++obj-$(CONFIG_SND_CS46XX) := snd-cs46xx.o
++
++include $(TOPDIR)/Rules.make
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff w1/sound/pci/emu10k1/Makefile w2/sound/pci/emu10k1/Makefile
+--- w1/sound/pci/emu10k1/Makefile	2003-02-09 19:41:56.000000000 +0100
++++ w2/sound/pci/emu10k1/Makefile	2003-08-13 23:57:49.000000000 +0200
+@@ -3,19 +3,28 @@
+ # Copyright (c) 2001 by Jaroslav Kysela <perex@suse.cz>
+ #
+ 
++O_TARGET     := _emu10k1.o
++
++list-multi   := snd-emu10k1.o snd-emu10k1-synth.o
++
++export-objs  := emu10k1_main.o
++
+ snd-emu10k1-objs := emu10k1.o emu10k1_main.o \
+ 		    irq.o memory.o voice.o emumpu401.o emupcm.o io.o \
+ 		    emuproc.o emumixer.o emufx.o
+ snd-emu10k1-synth-objs := emu10k1_synth.o emu10k1_callback.o emu10k1_patch.o
+ 
+-#
+-# this function returns:
+-#   "m" - CONFIG_SND_SEQUENCER is m
+-#   <empty string> - CONFIG_SND_SEQUENCER is undefined
+-#   otherwise parameter #1 value
+-#
+-sequencer = $(if $(subst y,,$(CONFIG_SND_SEQUENCER)),$(if $(1),m),$(if $(CONFIG_SND_SEQUENCER),$(1)))
+-
+ # Toplevel Module Dependency
+ obj-$(CONFIG_SND_EMU10K1) += snd-emu10k1.o
+-obj-$(call sequencer,$(CONFIG_SND_EMU10K1)) += snd-emu10k1-synth.o
++ifeq ($(subst m,y,$(CONFIG_SND_SEQUENCER)),y)
++  obj-$(CONFIG_SND_EMU10K1) += snd-emu10k1-synth.o
++endif
++
++include $(TOPDIR)/Rules.make
++
++snd-emu10k1.o: $(snd-emu10k1-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-emu10k1-objs)
++
++snd-emu10k1-synth.o: $(snd-emu10k1-synth-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-emu10k1-synth-objs)
++
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff w1/sound/pci/ice1712/Makefile w2/sound/pci/ice1712/Makefile
+--- w1/sound/pci/ice1712/Makefile	2003-06-10 16:07:21.000000000 +0200
++++ w2/sound/pci/ice1712/Makefile	2003-08-13 23:57:49.000000000 +0200
+@@ -3,6 +3,12 @@
+ # Copyright (c) 2001 by Jaroslav Kysela <perex@suse.cz>
+ #
+ 
++O_TARGET     := _ice1712.o
++
++list-multi   := snd-ice1712.o snd-ice1724.o snd-ice17xx-ak4xxx.o
++export-objs  := ak4xxx.o
++
++
+ snd-ice17xx-ak4xxx-objs := ak4xxx.o
+ snd-ice1712-objs := ice1712.o delta.o hoontech.o ews.o
+ snd-ice1724-objs := ice1724.o amp.o revo.o aureon.o
+@@ -10,3 +16,14 @@ snd-ice1724-objs := ice1724.o amp.o revo
+ # Toplevel Module Dependency
+ obj-$(CONFIG_SND_ICE1712) += snd-ice1712.o snd-ice17xx-ak4xxx.o
+ obj-$(CONFIG_SND_ICE1724) += snd-ice1724.o snd-ice17xx-ak4xxx.o
++
++include $(TOPDIR)/Rules.make
++
++snd-ice1712.o: $(snd-ice1712-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-ice1712-objs)
++
++snd-ice1724.o: $(snd-ice1724-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-ice1724-objs)
++
++snd-ice17xx-ak4xxx.o: $(snd-ice17xx-ak4xxx-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-ice17xx-ak4xxx-objs)
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff w1/sound/pci/korg1212/Makefile w2/sound/pci/korg1212/Makefile
+--- w1/sound/pci/korg1212/Makefile	2002-12-17 21:00:50.000000000 +0100
++++ w2/sound/pci/korg1212/Makefile	2003-08-13 23:57:49.000000000 +0200
+@@ -3,7 +3,11 @@
+ # Copyright (c) 2001 by Jaroslav Kysela <perex@suse.cz>
+ #
+ 
+-snd-korg1212-objs := korg1212.o
++O_TARGET := snd-korg1212.o
++
++obj-y := korg1212.o
+ 
+ # Toplevel Module Dependency
+-obj-$(CONFIG_SND_KORG1212) += snd-korg1212.o
++obj-$(CONFIG_SND_KORG1212) := snd-korg1212.o
++
++include $(TOPDIR)/Rules.make
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff w1/sound/pci/Makefile w2/sound/pci/Makefile
+--- w1/sound/pci/Makefile	2003-06-02 14:59:41.000000000 +0200
++++ w2/sound/pci/Makefile	2003-08-13 23:58:12.000000000 +0200
+@@ -3,6 +3,16 @@
+ # Copyright (c) 2001 by Jaroslav Kysela <perex@suse.cz>
+ #
+ 
++O_TARGET     := _pci.o
++
++mod-subdirs  := ac97 ali5451 cs46xx emu10k1 korg1212 nm256 rme9652 trident ymfpci ice1712 vx222
++
++list-multi   := snd-als4000.o snd-cmipci.o snd-cs4281.o snd-ens1370.o \
++		snd-ens1371.o snd-es1938.o snd-es1968.o snd-fm801.o \
++		snd-ice1712.o snd-intel8x0.o snd-maestro3.o snd-rme32.o \
++		snd-rme96.o snd-sonicvibes.o snd-via686.o snd-via8233.o \
++		snd-azt3328.o snd-vx222.o
++
+ snd-als4000-objs := als4000.o
+ snd-azt3328-objs := azt3328.o
+ snd-cmipci-objs := cmipci.o
+@@ -28,6 +28,7 @@
+ snd-rme96-objs := rme96.o
+ snd-sonicvibes-objs := sonicvibes.o
+ snd-via82xx-objs := via82xx.o
++snd-azt3328-objs := azt3328.o
+ 
+ # Toplevel Module Dependency
+ obj-$(CONFIG_SND_ALS4000) += snd-als4000.o
+@@ -37,3 +47,72 @@ obj-$(CONFIG_SND_VIA82XX) += snd-via82xx
+ obj-$(CONFIG_SND_AZT3328) += snd-azt3328.o
+ 
+-obj-$(CONFIG_SND) += ac97/ ali5451/ cs46xx/ emu10k1/ korg1212/ nm256/ rme9652/ trident/ ymfpci/ ice1712/ vx222/
++subdir-$(CONFIG_SND) += ac97 ali5451 cs46xx emu10k1 korg1212 nm256 rme9652 trident ymfpci ice1712 vx222
++
++ifeq ($(CONFIG_SND),y)
++	obj-y += ac97/_ac97.o \
++	ali5451/_ali5451.o \
++	cs46xx/_cs46xx.o \
++	emu10k1/_emu10k1.o \
++	korg1212/_korg1212.o \
++	nm256/_nm256.o \
++	rme9652/_rmeh.o \
++	trident/_trident.o \
++	ymfpci/_ymfpci.o \
++	ice1712/_ice1712.o \
++	vx222/_vx222.o
++endif
++
++include $(TOPDIR)/Rules.make
++
++snd-als4000.o: $(snd-als4000-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-als4000-objs)
++
++snd-cmipci.o: $(snd-cmipci-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-cmipci-objs)
++
++snd-cs4281.o: $(snd-cs4281-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-cs4281-objs)
++
++snd-ens1370.o: $(snd-ens1370-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-ens1370-objs)
++
++snd-ens1371.o: $(snd-ens1371-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-ens1371-objs)
++
++snd-es1938.o: $(snd-es1938-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-es1938-objs)
++
++snd-es1968.o: $(snd-es1968-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-es1968-objs)
++
++snd-fm801.o: $(snd-fm801-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-fm801-objs)
++
++snd-ice1712.o: $(snd-ice1712-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-ice1712-objs)
++
++snd-intel8x0.o: $(snd-intel8x0-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-intel8x0-objs)
++
++snd-maestro3.o: $(snd-maestro3-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-maestro3-objs)
++
++snd-rme32.o: $(snd-rme32-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-rme32-objs)
++
++snd-rme96.o: $(snd-rme96-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-rme96-objs)
++
++snd-sonicvibes.o: $(snd-sonicvibes-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-sonicvibes-objs)
++
++snd-via82xx.o: $(snd-via82xx-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-via82xx-objs)
++
++snd-azt3328.o: $(snd-azt3328-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-azt3328-objs)
++
++snd-vx222.o: $(snd-vx222-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-vx222-objs)
++
++
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff w1/sound/pci/nm256/Makefile w2/sound/pci/nm256/Makefile
+--- w1/sound/pci/nm256/Makefile	2002-12-17 21:00:55.000000000 +0100
++++ w2/sound/pci/nm256/Makefile	2003-08-13 23:57:49.000000000 +0200
+@@ -3,7 +3,11 @@
+ # Copyright (c) 2001 by Jaroslav Kysela <perex@suse.cz>
+ #
+ 
+-snd-nm256-objs := nm256.o
++O_TARGET := snd-nm256.o
++
++obj-y := nm256.o
+ 
+ # Toplevel Module Dependency
+ obj-$(CONFIG_SND_NM256) += snd-nm256.o
++
++include $(TOPDIR)/Rules.make
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff w1/sound/pci/rme9652/Makefile w2/sound/pci/rme9652/Makefile
+--- w1/sound/pci/rme9652/Makefile	2003-07-03 13:31:21.000000000 +0200
++++ w2/sound/pci/rme9652/Makefile	2003-08-13 23:57:49.000000000 +0200
+@@ -3,9 +3,22 @@
+ # Copyright (c) 2001 by Jaroslav Kysela <perex@suse.cz>
+ #
+ 
++O_TARGET     := _rmeh.o
++
++list-multi   := snd-rme9652.o snd-hdsp.o
++
++
+ snd-rme9652-objs := rme9652.o
+ snd-hdsp-objs := hdsp.o
+ 
+ # Toplevel Module Dependency
+ obj-$(CONFIG_SND_RME9652) += snd-rme9652.o
+ obj-$(CONFIG_SND_HDSP) += snd-hdsp.o
++
++include $(TOPDIR)/Rules.make
++
++snd-rme9652.o: $(snd-rme9652-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-rme9652-objs)
++
++snd-hdsp.o: $(snd-hdsp-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-hdsp-objs)
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff w1/sound/pci/trident/Makefile w2/sound/pci/trident/Makefile
+--- w1/sound/pci/trident/Makefile	2003-02-09 19:41:57.000000000 +0100
++++ w2/sound/pci/trident/Makefile	2003-08-13 23:57:49.000000000 +0200
+@@ -3,17 +3,26 @@
+ # Copyright (c) 2001 by Jaroslav Kysela <perex@suse.cz>
+ #
+ 
++O_TARGET     := _trident.o
++
++list-multi   := snd-trident.o snd-trident-synth.o
++
++export-objs  := trident_main.o
++
+ snd-trident-objs := trident.o trident_main.o trident_memory.o
+ snd-trident-synth-objs := trident_synth.o
+ 
+-#
+-# this function returns:
+-#   "m" - CONFIG_SND_SEQUENCER is m
+-#   <empty string> - CONFIG_SND_SEQUENCER is undefined
+-#   otherwise parameter #1 value
+-#
+-sequencer = $(if $(subst y,,$(CONFIG_SND_SEQUENCER)),$(if $(1),m),$(if $(CONFIG_SND_SEQUENCER),$(1)))
+-
+ # Toplevel Module Dependency
+ obj-$(CONFIG_SND_TRIDENT) += snd-trident.o
+-obj-$(call sequencer,$(CONFIG_SND_TRIDENT)) += snd-trident-synth.o
++ifeq ($(subst m,y,$(CONFIG_SND_SEQUENCER)),y)
++  obj-$(CONFIG_SND_TRIDENT) += snd-trident-synth.o
++endif
++
++include $(TOPDIR)/Rules.make
++
++snd-trident.o: $(snd-trident-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-trident-objs)
++
++snd-trident-synth.o: $(snd-trident-synth-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-trident-synth-objs)
++
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff w1/sound/pci/vx222/Makefile w2/sound/pci/vx222/Makefile
+--- w1/sound/pci/vx222/Makefile	2003-05-23 18:00:45.000000000 +0200
++++ w2/sound/pci/vx222/Makefile	2003-08-13 23:58:17.000000000 +0200
+@@ -3,6 +3,16 @@
+ # Copyright (c) 2001 by Jaroslav Kysela <perex@suse.cz>
+ #
+ 
++O_TARGET     := _vx222.o
++
++list-multi   := snd-vx222.o
++
++
+ snd-vx222-objs := vx222.o vx222_ops.o
+ 
+ obj-$(CONFIG_SND_VX222) += snd-vx222.o
++
++include $(TOPDIR)/Rules.make
++
++snd-vx222.o: $(snd-vx222-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-vx222-objs)
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff w1/sound/pci/ymfpci/Makefile w2/sound/pci/ymfpci/Makefile
+--- w1/sound/pci/ymfpci/Makefile	2002-12-17 21:00:57.000000000 +0100
++++ w2/sound/pci/ymfpci/Makefile	2003-08-13 23:57:49.000000000 +0200
+@@ -3,7 +3,11 @@
+ # Copyright (c) 2001 by Jaroslav Kysela <perex@suse.cz>
+ #
+ 
+-snd-ymfpci-objs := ymfpci.o ymfpci_main.o
++O_TARGET := snd-ymfpci.o
++
++obj-y := ymfpci.o ymfpci_main.o
+ 
+ # Toplevel Module Dependency
+ obj-$(CONFIG_SND_YMFPCI) += snd-ymfpci.o
++
++include $(TOPDIR)/Rules.make
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff w1/sound/pcmcia/Makefile w2/sound/pcmcia/Makefile
+--- w1/sound/pcmcia/Makefile	2003-05-23 18:00:45.000000000 +0200
++++ w2/sound/pcmcia/Makefile	2003-08-13 23:58:21.000000000 +0200
+@@ -3,6 +3,11 @@
+ # Copyright (c) 2001 by Jaroslav Kysela <perex@suse.cz>
+ #
+ 
+-obj-$(CONFIG_SND) += vx/
++O_TARGET	:= _pcmcia.o
+ 
++subdir-$(CONFIG_SND) += vx
++ifeq ($(CONFIG_SND),y)
++  obj-y += vx/_vx.o
++endif
+ 
++include $(TOPDIR)/Rules.make
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff w1/sound/pcmcia/vx/Makefile w2/sound/pcmcia/vx/Makefile
+--- w1/sound/pcmcia/vx/Makefile	2003-06-10 16:07:23.000000000 +0200
++++ w2/sound/pcmcia/vx/Makefile	2003-08-13 23:58:21.000000000 +0200
+@@ -3,9 +3,27 @@
+ # Copyright (c) 2001 by Jaroslav Kysela <perex@suse.cz>
+ #
+ 
++O_TARGET     := _vx.o
++
++list-multi   := snd-vx-cs-objs.o snd-vxpocket.o snd-vxp440.o
++
++export-objs  := vx_entry.o
++
+ snd-vx-cs-objs := vx_entry.o vxp_ops.o vxp_mixer.o
+ snd-vxpocket-objs := vxpocket.o
+ snd-vxp440-objs := vxp440.o
+ 
+ obj-$(CONFIG_SND_VXPOCKET) += snd-vxpocket.o snd-vx-cs.o
+ obj-$(CONFIG_SND_VXP440) += snd-vxp440.o snd-vx-cs.o
++
++include $(TOPDIR)/Rules.make
++
++snd-vxpocket.o: $(snd-vxpocket-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-vxpocket-objs)
++
++snd-vxp440.o: $(snd-vxp440-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-vxp440-objs)
++
++snd-vx-cs.o: $(snd-vx-cs-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-vx-cs-objs)
++
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff w1/sound/ppc/Makefile w2/sound/ppc/Makefile
+--- w1/sound/ppc/Makefile	2002-12-17 21:00:57.000000000 +0100
++++ w2/sound/ppc/Makefile	2003-08-13 23:57:49.000000000 +0200
+@@ -3,7 +3,11 @@
+ # Copyright (c) 2001 by Jaroslav Kysela <perex@suse.cz>
+ #
+ 
+-snd-powermac-objs := powermac.o pmac.o awacs.o burgundy.o daca.o tumbler.o keywest.o
++O_TARGET := snd-powermac.o
++
++obj-y := powermac.o pmac.o awacs.o burgundy.o daca.o tumbler.o keywest.o
+ 
+ # Toplevel Module Dependency
+ obj-$(CONFIG_SND_POWERMAC) += snd-powermac.o
++
++include $(TOPDIR)/Rules.make
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff w1/sound/scripts/kernel-doc w2/sound/scripts/kernel-doc
+--- w1/sound/scripts/kernel-doc	2003-01-08 12:23:18.000000000 +0100
++++ w2/sound/scripts/kernel-doc	1970-01-01 01:00:00.000000000 +0100
+@@ -1,1725 +0,0 @@
+-#!/usr/bin/perl -w
+-
+-use strict;
+-
+-## Copyright (c) 1998 Michael Zucchi, All Rights Reserved        ##
+-## Copyright (C) 2000, 1  Tim Waugh <twaugh@redhat.com>          ##
+-## Copyright (C) 2001  Simon Huggins                             ##
+-## 								 ##
+-## #define enhancements by Armin Kuster <akuster@mvista.com>	 ##
+-## Copyright (c) 2000 MontaVista Software, Inc.			 ##
+-## 								 ##
+-## This software falls under the GNU General Public License.     ##
+-## Please read the COPYING file for more information             ##
+-
+-# w.o. 03-11-2000: added the '-filelist' option.
+-
+-# 18/01/2001 - 	Cleanups
+-# 		Functions prototyped as foo(void) same as foo()
+-# 		Stop eval'ing where we don't need to.
+-# -- huggie@earth.li
+-
+-# 27/06/2001 -  Allowed whitespace after initial "/**" and
+-#               allowed comments before function declarations.
+-# -- Christian Kreibich <ck@whoop.org>
+-
+-# Still to do:
+-# 	- add perldoc documentation
+-# 	- Look more closely at some of the scarier bits :)
+-
+-# 26/05/2001 - 	Support for separate source and object trees.
+-#		Return error code.
+-# 		Keith Owens <kaos@ocs.com.au>
+-
+-# 23/09/2001 - Added support for typedefs, structs, enums and unions
+-#              Support for Context section; can be terminated using empty line
+-#              Small fixes (like spaces vs. \s in regex)
+-# -- Tim Jansen <tim@tjansen.de>
+-
+-
+-#
+-# This will read a 'c' file and scan for embedded comments in the
+-# style of gnome comments (+minor extensions - see below).
+-#
+-
+-# Note: This only supports 'c'.
+-
+-# usage:
+-# kerneldoc [ -docbook | -html | -text | -man ]
+-#           [ -function funcname [ -function funcname ...] ] c file(s)s > outputfile
+-# or
+-#           [ -nofunction funcname [ -function funcname ...] ] c file(s)s > outputfile
+-#
+-#  Set output format using one of -docbook -html -text or -man.  Default is man.
+-#
+-#  -function funcname
+-#	If set, then only generate documentation for the given function(s).  All
+-#	other functions are ignored.
+-#
+-#  -nofunction funcname
+-#	If set, then only generate documentation for the other function(s).  All
+-#	other functions are ignored. Cannot be used with -function together
+-#	(yes thats a bug - perl hackers can fix it 8))
+-#
+-#  c files - list of 'c' files to process
+-#
+-#  All output goes to stdout, with errors to stderr.
+-
+-#
+-# format of comments.
+-# In the following table, (...)? signifies optional structure.
+-#                         (...)* signifies 0 or more structure elements
+-# /**
+-#  * function_name(:)? (- short description)?
+-# (* @parameterx: (description of parameter x)?)*
+-# (* a blank line)?
+-#  * (Description:)? (Description of function)?
+-#  * (section header: (section description)? )*
+-#  (*)?*/
+-#
+-# So .. the trivial example would be:
+-#
+-# /**
+-#  * my_function
+-#  **/
+-#
+-# If the Description: header tag is ommitted, then there must be a blank line
+-# after the last parameter specification.
+-# e.g.
+-# /**
+-#  * my_function - does my stuff
+-#  * @my_arg: its mine damnit
+-#  *
+-#  * Does my stuff explained. 
+-#  */
+-#
+-#  or, could also use:
+-# /**
+-#  * my_function - does my stuff
+-#  * @my_arg: its mine damnit
+-#  * Description: Does my stuff explained. 
+-#  */
+-# etc.
+-#
+-# Beside functions you can also write documentation for structs, unions, 
+-# enums and typedefs. Instead of the function name you must write the name 
+-# of the declaration;  the struct/union/enum/typedef must always precede 
+-# the name. Nesting of declarations is not supported. 
+-# Use the argument mechanism to document members or constants. In 
+-# structs and unions you must declare one member per declaration 
+-# (comma-separated members are not allowed -  the parser does not support 
+-# this).
+-# e.g.
+-# /**
+-#  * struct my_struct - short description
+-#  * @a: first member
+-#  * @b: second member
+-#  * 
+-#  * Longer description
+-#  */
+-# struct my_struct {
+-#     int a;
+-#     int b;
+-# };
+-#
+-# All descriptions can be multiline, except the short function description.
+-# 
+-# You can also add additional sections. When documenting kernel functions you 
+-# should document the "Context:" of the function, e.g. whether the functions 
+-# can be called form interrupts. Unlike other sections you can end it with an
+-# empty line. 
+-# Example-sections should contain the string EXAMPLE so that they are marked 
+-# appropriately in DocBook.
+-#
+-# Example:
+-# /**
+-#  * user_function - function that can only be called in user context
+-#  * @a: some argument
+-#  * Context: !in_interrupt()
+-#  * 
+-#  * Some description
+-#  * Example:
+-#  *    user_function(22);
+-#  */
+-# ...
+-#
+-#
+-# All descriptive text is further processed, scanning for the following special
+-# patterns, which are highlighted appropriately.
+-#
+-# 'funcname()' - function
+-# '$ENVVAR' - environmental variable
+-# '&struct_name' - name of a structure (up to two words including 'struct')
+-# '@parameter' - name of a parameter
+-# '%CONST' - name of a constant.
+-
+-my $errors = 0;
+-
+-# match expressions used to find embedded type information
+-my $type_constant = '\%([-_\w]+)';
+-my $type_func = '(\w+)\(\)';
+-my $type_param = '\@(\w+)';
+-my $type_struct = '\&((struct\s*)?[_\w]+)';
+-my $type_env = '(\$\w+)';
+-
+-# Output conversion substitutions.
+-#  One for each output format
+-
+-# these work fairly well
+-my %highlights_html = ( $type_constant, "<i>\$1</i>",
+-			$type_func, "<b>\$1</b>",
+-			$type_struct, "<i>\$1</i>",
+-			$type_param, "<tt><b>\$1</b></tt>" );
+-my $blankline_html = "<p>";
+-
+-# sgml, docbook format
+-my %highlights_sgml = ( "([^=])\\\"([^\\\"<]+)\\\"", "\$1<quote>\$2</quote>",
+-			$type_constant, "<constant>\$1</constant>",
+-			$type_func, "<function>\$1</function>",
+-			$type_struct, "<structname>\$1</structname>",
+-			$type_env, "<envar>\$1</envar>",
+-			$type_param, "<parameter>\$1</parameter>" );
+-my $blankline_sgml = "</para><para>\n";
+-
+-# gnome, docbook format
+-my %highlights_gnome = ( $type_constant, "<replaceable class=\"option\">\$1</replaceable>",
+-			 $type_func, "<function>\$1</function>",
+-			 $type_struct, "<structname>\$1</structname>",
+-			 $type_env, "<envar>\$1</envar>",
+-			 $type_param, "<parameter>\$1</parameter>" );
+-my $blankline_gnome = "</para><para>\n";
+-
+-# these are pretty rough
+-my %highlights_man = ( $type_constant, "\$1",
+-		       $type_func, "\\\\fB\$1\\\\fP",
+-		       $type_struct, "\\\\fI\$1\\\\fP",
+-		       $type_param, "\\\\fI\$1\\\\fP" );
+-my $blankline_man = "";
+-
+-# text-mode
+-my %highlights_text = ( $type_constant, "\$1",
+-			$type_func, "\$1",
+-			$type_struct, "\$1",
+-			$type_param, "\$1" );
+-my $blankline_text = "";
+-
+-
+-sub usage {
+-    print "Usage: $0 [ -v ] [ -docbook | -html | -text | -man ]\n";
+-    print "         [ -function funcname [ -function funcname ...] ]\n";
+-    print "         [ -nofunction funcname [ -nofunction funcname ...] ]\n";
+-    print "         c source file(s) > outputfile\n";
+-    exit 1;
+-}
+-
+-# read arguments
+-if ($#ARGV==-1) {
+-    usage();
+-}
+-
+-my $verbose = 0;
+-my $output_mode = "man";
+-my %highlights = %highlights_man;
+-my $blankline = $blankline_man;
+-my $modulename = "Kernel API";
+-my $function_only = 0;
+-my $man_date = ('January', 'February', 'March', 'April', 'May', 'June', 
+-		'July', 'August', 'September', 'October', 
+-		'November', 'December')[(localtime)[4]] . 
+-  " " . ((localtime)[5]+1900);
+-
+-# Essentially these are globals
+-# They probably want to be tidied up made more localised or summat.
+-# CAVEAT EMPTOR!  Some of the others I localised may not want to be which
+-# could cause "use of undefined value" or other bugs.
+-my ($function, %function_table,%parametertypes,$declaration_purpose);
+-my ($type,$declaration_name,$return_type);
+-my ($newsection,$newcontents,$prototype,$filelist, $brcount, %source_map);
+-
+-# Generated docbook code is inserted in a template at a point where 
+-# docbook v3.1 requires a non-zero sequence of RefEntry's; see:
+-# http://www.oasis-open.org/docbook/documentation/reference/html/refentry.html
+-# We keep track of number of generated entries and generate a dummy
+-# if needs be to ensure the expanded template can be postprocessed
+-# into html.
+-my $section_counter = 0;
+-
+-my $lineprefix="";
+-
+-# states
+-# 0 - normal code
+-# 1 - looking for function name
+-# 2 - scanning field start.
+-# 3 - scanning prototype.
+-# 4 - documentation block
+-my $state;
+-
+-#declaration types: can be
+-# 'function', 'struct', 'union', 'enum', 'typedef'
+-my $decl_type;
+-
+-my $doc_special = "\@\%\$\&";
+-
+-my $doc_start = '^/\*\*\s*$'; # Allow whitespace at end of comment start.
+-my $doc_end = '\*/';
+-my $doc_com = '\s*\*\s*';
+-my $doc_decl = $doc_com.'(\w+)';
+-my $doc_sect = $doc_com.'(['.$doc_special.']?[\w ]+):(.*)';
+-my $doc_content = $doc_com.'(.*)';
+-my $doc_block = $doc_com.'DOC:\s*(.*)?';
+-
+-my %constants;
+-my %parameterdescs;
+-my @parameterlist;
+-my %sections;
+-my @sectionlist;
+-
+-my $contents = "";
+-my $section_default = "Description";	# default section
+-my $section_intro = "Introduction";
+-my $section = $section_default;
+-my $section_context = "Context";
+-
+-my $undescribed = "-- undescribed --";
+-
+-reset_state();
+-
+-while ($ARGV[0] =~ m/^-(.*)/) {
+-    my $cmd = shift @ARGV;
+-    if ($cmd eq "-html") {
+-	$output_mode = "html";
+-	%highlights = %highlights_html;
+-	$blankline = $blankline_html;
+-    } elsif ($cmd eq "-man") {
+-	$output_mode = "man";
+-	%highlights = %highlights_man;
+-	$blankline = $blankline_man;
+-    } elsif ($cmd eq "-text") {
+-	$output_mode = "text";
+-	%highlights = %highlights_text;
+-	$blankline = $blankline_text;
+-    } elsif ($cmd eq "-docbook") {
+-	$output_mode = "sgml";
+-	%highlights = %highlights_sgml;
+-	$blankline = $blankline_sgml;
+-    } elsif ($cmd eq "-gnome") {
+-	$output_mode = "gnome";
+-	%highlights = %highlights_gnome;
+-	$blankline = $blankline_gnome;
+-    } elsif ($cmd eq "-module") { # not needed for sgml, inherits from calling document
+-	$modulename = shift @ARGV;
+-    } elsif ($cmd eq "-function") { # to only output specific functions
+-	$function_only = 1;
+-	$function = shift @ARGV;
+-	$function_table{$function} = 1;
+-    } elsif ($cmd eq "-nofunction") { # to only output specific functions
+-	$function_only = 2;
+-	$function = shift @ARGV;
+-	$function_table{$function} = 1;
+-    } elsif ($cmd eq "-v") {
+-	$verbose = 1;
+-    } elsif (($cmd eq "-h") || ($cmd eq "--help")) {
+-	usage();
+-    } elsif ($cmd eq '-filelist') {
+-	    $filelist = shift @ARGV;
+-    }
+-}
+-
+-
+-# generate a sequence of code that will splice in highlighting information
+-# using the s// operator.
+-my $dohighlight = "";
+-foreach my $pattern (keys %highlights) {
+-#    print "scanning pattern $pattern ($highlights{$pattern})\n";
+-    $dohighlight .=  "\$contents =~ s:$pattern:$highlights{$pattern}:gs;\n";
+-}
+-
+-##
+-# dumps section contents to arrays/hashes intended for that purpose.
+-#
+-sub dump_section {
+-    my $name = shift;
+-    my $contents = join "\n", @_;
+-
+-    if ($name =~ m/$type_constant/) {
+-	$name = $1;
+-#	print STDERR "constant section '$1' = '$contents'\n";
+-	$constants{$name} = $contents;
+-    } elsif ($name =~ m/$type_param/) {
+-#	print STDERR "parameter def '$1' = '$contents'\n";
+-	$name = $1;
+-	$parameterdescs{$name} = $contents;
+-    } else {
+-#	print STDERR "other section '$name' = '$contents'\n";
+-	$sections{$name} = $contents;
+-	push @sectionlist, $name;
+-    }
+-}
+-
+-##
+-# output function
+-#
+-# parameterdescs, a hash.
+-#  function => "function name"
+-#  parameterlist => @list of parameters
+-#  parameterdescs => %parameter descriptions
+-#  sectionlist => @list of sections
+-#  sections => %descriont descriptions
+-#  
+-
+-sub output_highlight {
+-    my $contents = join "\n",@_;
+-    my $line;
+-
+-#   DEBUG
+-#   if (!defined $contents) {
+-#	use Carp;
+-#	confess "output_highlight got called with no args?\n";
+-#   }
+-
+-    eval $dohighlight;
+-    die $@ if $@;
+-    foreach $line (split "\n", $contents) {
+-      if ($line eq ""){
+-	    print $lineprefix, $blankline;
+-	} else {
+-            $line =~ s/\\\\\\/\&/g;
+-	    print $lineprefix, $line;
+-	}
+-	print "\n";
+-    }
+-}
+-
+-#output sections in html
+-sub output_section_html(%) {
+-    my %args = %{$_[0]};
+-    my $section;
+-
+-    foreach $section (@{$args{'sectionlist'}}) {
+-	print "<h3>$section</h3>\n";
+-	print "<blockquote>\n";
+-	output_highlight($args{'sections'}{$section});
+-	print "</blockquote>\n";
+-    }  
+-}
+-
+-# output enum in html
+-sub output_enum_html(%) {
+-    my %args = %{$_[0]};
+-    my ($parameter);
+-    my $count;
+-    print "<h2>enum ".$args{'enum'}."</h2>\n";
+-
+-    print "<b>enum ".$args{'enum'}."</b> {<br>\n";
+-    $count = 0;
+-    foreach $parameter (@{$args{'parameterlist'}}) {
+-        print " <b>".$parameter."</b>";
+-	if ($count != $#{$args{'parameterlist'}}) {
+-	    $count++;
+-	    print ",\n";
+-	}
+-	print "<br>";
+-    }
+-    print "};<br>\n";
+-
+-    print "<h3>Constants</h3>\n";
+-    print "<dl>\n";
+-    foreach $parameter (@{$args{'parameterlist'}}) {
+-	print "<dt><b>".$parameter."</b>\n";
+-	print "<dd>";
+-	output_highlight($args{'parameterdescs'}{$parameter});
+-    }
+-    print "</dl>\n";
+-    output_section_html(@_);
+-    print "<hr>\n";
+-}
+-
+-# output tyepdef in html
+-sub output_typedef_html(%) {
+-    my %args = %{$_[0]};
+-    my ($parameter);
+-    my $count;
+-    print "<h2>typedef ".$args{'typedef'}."</h2>\n";
+-
+-    print "<b>typedef ".$args{'typedef'}."</b>\n";
+-    output_section_html(@_);
+-    print "<hr>\n";
+-}
+-
+-# output struct in html
+-sub output_struct_html(%) {
+-    my %args = %{$_[0]};
+-    my ($parameter);
+-
+-    print "<h2>".$args{'type'}." ".$args{'struct'}."</h2>\n";
+-    print "<b>".$args{'type'}." ".$args{'struct'}."</b> {<br>\n";
+-    foreach $parameter (@{$args{'parameterlist'}}) {
+-        ($args{'parameterdescs'}{$parameter} ne $undescribed) || next;
+-	$type = $args{'parametertypes'}{$parameter};
+-	if ($type =~ m/([^\(]*\(\*)\s*\)\s*\(([^\)]*)\)/) {
+-	    # pointer-to-function
+-	    print " <i>$1</i><b>$parameter</b>) <i>($2)</i>;<br>\n";
+-	} elsif ($type =~ m/^(.*?)\s*(:.*)/) {
+-	    print " <i>$1</i> <b>$parameter</b>$2;<br>\n";
+-	} else {
+-	    print " <i>$type</i> <b>$parameter</b>;<br>\n";
+-	}
+-    }
+-    print "};<br>\n";
+-
+-    print "<h3>Members</h3>\n";
+-    print "<dl>\n";
+-    foreach $parameter (@{$args{'parameterlist'}}) {
+-        ($args{'parameterdescs'}{$parameter} ne $undescribed) || next;
+-	print "<dt><b>".$parameter."</b>\n";
+-	print "<dd>";
+-	output_highlight($args{'parameterdescs'}{$parameter});
+-    }
+-    print "</dl>\n";
+-    output_section_html(@_);
+-    print "<hr>\n";
+-}
+-
+-# output function in html
+-sub output_function_html(%) {
+-    my %args = %{$_[0]};
+-    my ($parameter, $section);
+-    my $count;
+-    print "<h2>Function</h2>\n";
+-
+-    print "<i>".$args{'functiontype'}."</i>\n";
+-    print "<b>".$args{'function'}."</b>\n";
+-    print "(";
+-    $count = 0;
+-    foreach $parameter (@{$args{'parameterlist'}}) {
+-	$type = $args{'parametertypes'}{$parameter};
+-	if ($type =~ m/([^\(]*\(\*)\s*\)\s*\(([^\)]*)\)/) {
+-	    # pointer-to-function
+-	    print "<i>$1</i><b>$parameter</b>) <i>($2)</i>";
+-	} else {
+-	    print "<i>".$type."</i> <b>".$parameter."</b>";
+-	}
+-	if ($count != $#{$args{'parameterlist'}}) {
+-	    $count++;
+-	    print ",\n";
+-	}
+-    }
+-    print ")\n";
+-
+-    print "<h3>Arguments</h3>\n";
+-    print "<dl>\n";
+-    foreach $parameter (@{$args{'parameterlist'}}) {
+-        ($args{'parameterdescs'}{$parameter} ne $undescribed) || next;
+-	print "<dt><b>".$parameter."</b>\n";
+-	print "<dd>";
+-	output_highlight($args{'parameterdescs'}{$parameter});
+-    }
+-    print "</dl>\n";
+-    output_section_html(@_);
+-    print "<hr>\n";
+-}
+-
+-# output intro in html
+-sub output_intro_html(%) {
+-    my %args = %{$_[0]};
+-    my ($parameter, $section);
+-    my $count;
+-
+-    foreach $section (@{$args{'sectionlist'}}) {
+-	print "<h3>$section</h3>\n";
+-	print "<ul>\n";
+-	output_highlight($args{'sections'}{$section});
+-	print "</ul>\n";
+-    }
+-    print "<hr>\n";
+-}
+-
+-sub output_section_sgml(%) {
+-    my %args = %{$_[0]};
+-    my $section;    
+-    # print out each section
+-    $lineprefix="   ";
+-    foreach $section (@{$args{'sectionlist'}}) {
+-	print "<refsect1>\n <title>$section</title>\n <para>\n";
+-	if ($section =~ m/EXAMPLE/i) {
+-	    print "<example><para>\n";
+-	}
+-	output_highlight($args{'sections'}{$section});
+-	if ($section =~ m/EXAMPLE/i) {
+-	    print "</para></example>\n";
+-	}
+-	print " </para>\n</refsect1>\n";
+-    }
+-}
+-
+-# output function in sgml DocBook
+-sub output_function_sgml(%) {
+-    my %args = %{$_[0]};
+-    my ($parameter, $section);
+-    my $count;
+-    my $id;
+-
+-    $id = "API-".$args{'function'};
+-    $id =~ s/[^A-Za-z0-9]/-/g;
+-
+-    print "<refentry>\n";
+-    print "<refmeta>\n";
+-    print "<refentrytitle><phrase id=\"$id\">".$args{'function'}."</phrase></refentrytitle>\n";
+-    print "</refmeta>\n";
+-    print "<refnamediv>\n";
+-    print " <refname>".$args{'function'}."</refname>\n";
+-    print " <refpurpose>\n";
+-    print "  ";
+-    output_highlight ($args{'purpose'});
+-    print " </refpurpose>\n";
+-    print "</refnamediv>\n";
+-
+-    print "<refsynopsisdiv>\n";
+-    print " <title>Synopsis</title>\n";
+-    print "  <funcsynopsis><funcprototype>\n";
+-    print "   <funcdef>".$args{'functiontype'}." ";
+-    print "<function>".$args{'function'}." </function></funcdef>\n";
+-
+-    $count = 0;
+-    if ($#{$args{'parameterlist'}} >= 0) {
+-	foreach $parameter (@{$args{'parameterlist'}}) {
+-	    $type = $args{'parametertypes'}{$parameter};
+-	    if ($type =~ m/([^\(]*\(\*)\s*\)\s*\(([^\)]*)\)/) {
+-		# pointer-to-function
+-		print "   <paramdef>$1<parameter>$parameter</parameter>)\n";
+-		print "     <funcparams>$2</funcparams></paramdef>\n";
+-	    } else {
+-		print "   <paramdef>".$type;
+-		print " <parameter>$parameter</parameter></paramdef>\n";
+-	    }
+-	}
+-    } else {
+-	print "  <void>\n";
+-    }
+-    print "  </funcprototype></funcsynopsis>\n";
+-    print "</refsynopsisdiv>\n";
+-
+-    # print parameters
+-    print "<refsect1>\n <title>Arguments</title>\n";
+-    if ($#{$args{'parameterlist'}} >= 0) {
+-	print " <variablelist>\n";
+-	foreach $parameter (@{$args{'parameterlist'}}) {
+-	    print "  <varlistentry>\n   <term><parameter>$parameter</parameter></term>\n";
+-	    print "   <listitem>\n    <para>\n";
+-	    $lineprefix="     ";
+-	    output_highlight($args{'parameterdescs'}{$parameter});
+-	    print "    </para>\n   </listitem>\n  </varlistentry>\n";
+-	}
+-	print " </variablelist>\n";
+-    } else {
+-	print " <para>\n  None\n </para>\n";
+-    }
+-    print "</refsect1>\n";
+-
+-    output_section_sgml(@_);
+-    print "</refentry>\n\n";
+-}
+-
+-# output struct in sgml DocBook
+-sub output_struct_sgml(%) {
+-    my %args = %{$_[0]};
+-    my ($parameter, $section);
+-    my $id;
+-
+-    $id = "API-struct-".$args{'struct'};
+-    $id =~ s/[^A-Za-z0-9]/-/g;
+-
+-    print "<refentry>\n";
+-    print "<refmeta>\n";
+-    print "<refentrytitle><phrase id=\"$id\">".$args{'type'}." ".$args{'struct'}."</phrase></refentrytitle>\n";
+-    print "</refmeta>\n";
+-    print "<refnamediv>\n";
+-    print " <refname>".$args{'type'}." ".$args{'struct'}."</refname>\n";
+-    print " <refpurpose>\n";
+-    print "  ";
+-    output_highlight ($args{'purpose'});
+-    print " </refpurpose>\n";
+-    print "</refnamediv>\n";
+-
+-    print "<refsynopsisdiv>\n";
+-    print " <title>Synopsis</title>\n";
+-    print "  <programlisting>\n";
+-    print $args{'type'}." ".$args{'struct'}." {\n";
+-    foreach $parameter (@{$args{'parameterlist'}}) {
+-	defined($args{'parameterdescs'}{$parameter}) || next;
+-        ($args{'parameterdescs'}{$parameter} ne $undescribed) || next;
+-	$type = $args{'parametertypes'}{$parameter};
+-	if ($type =~ m/([^\(]*\(\*)\s*\)\s*\(([^\)]*)\)/) {
+-	    # pointer-to-function
+-	    print "  $1 $parameter ($2);\n";
+-	} elsif ($type =~ m/^(.*?)\s*(:.*)/) {
+-	    print "  $1 $parameter$2;\n";
+-	} else {
+-	    print "  ".$type." ".$parameter.";\n";
+-	}
+-    }
+-    print "};";
+-    print "  </programlisting>\n";
+-    print "</refsynopsisdiv>\n";
+-
+-    print " <refsect1>\n";
+-    print "  <title>Members</title>\n";
+-
+-    print "  <variablelist>\n";
+-    foreach $parameter (@{$args{'parameterlist'}}) {
+-      defined($args{'parameterdescs'}{$parameter}) || next;
+-      ($args{'parameterdescs'}{$parameter} ne $undescribed) || next;
+-      print "    <varlistentry>";
+-      print "      <term>$parameter</term>\n";
+-      print "      <listitem><para>\n";
+-      output_highlight($args{'parameterdescs'}{$parameter});
+-      print "      </para></listitem>\n";
+-      print "    </varlistentry>\n";
+-    }
+-    print "  </variablelist>\n";
+-    print " </refsect1>\n";
+-
+-    output_section_sgml(@_);
+-
+-    print "</refentry>\n\n";
+-}
+-
+-# output enum in sgml DocBook
+-sub output_enum_sgml(%) {
+-    my %args = %{$_[0]};
+-    my ($parameter, $section);
+-    my $count;
+-    my $id;
+-
+-    $id = "API-enum-".$args{'enum'};
+-    $id =~ s/[^A-Za-z0-9]/-/g;
+-
+-    print "<refentry>\n";
+-    print "<refmeta>\n";
+-    print "<refentrytitle><phrase id=\"$id\">enum ".$args{'enum'}."</phrase></refentrytitle>\n";
+-    print "</refmeta>\n";
+-    print "<refnamediv>\n";
+-    print " <refname>enum ".$args{'enum'}."</refname>\n";
+-    print " <refpurpose>\n";
+-    print "  ";
+-    output_highlight ($args{'purpose'});
+-    print " </refpurpose>\n";
+-    print "</refnamediv>\n";
+-
+-    print "<refsynopsisdiv>\n";
+-    print " <title>Synopsis</title>\n";
+-    print "  <programlisting>\n";
+-    print "enum ".$args{'enum'}." {\n";
+-    $count = 0;
+-    foreach $parameter (@{$args{'parameterlist'}}) {
+-        print "  $parameter";
+-        if ($count != $#{$args{'parameterlist'}}) {
+-	    $count++;
+-	    print ",";
+-        }
+-	print "\n";
+-    }
+-    print "};";
+-    print "  </programlisting>\n";
+-    print "</refsynopsisdiv>\n";
+-
+-    print "<refsect1>\n";
+-    print " <title>Constants</title>\n";    
+-    print "  <variablelist>\n";
+-    foreach $parameter (@{$args{'parameterlist'}}) {
+-      print "    <varlistentry>";
+-      print "      <term>$parameter</term>\n";
+-      print "      <listitem><para>\n";
+-      output_highlight($args{'parameterdescs'}{$parameter});
+-      print "      </para></listitem>\n";
+-      print "    </varlistentry>\n";
+-    }
+-    print "  </variablelist>\n";
+-    print "</refsect1>\n";
+-
+-    output_section_sgml(@_);
+-
+-    print "</refentry>\n\n";
+-}
+-
+-# output typedef in sgml DocBook
+-sub output_typedef_sgml(%) {
+-    my %args = %{$_[0]};
+-    my ($parameter, $section);
+-    my $id;
+-
+-    $id = "API-typedef-".$args{'typedef'};
+-    $id =~ s/[^A-Za-z0-9]/-/g;
+-
+-    print "<refentry>\n";
+-    print "<refmeta>\n";
+-    print "<refentrytitle><phrase id=\"$id\">typedef ".$args{'typedef'}."</phrase></refentrytitle>\n";
+-    print "</refmeta>\n";
+-    print "<refnamediv>\n";
+-    print " <refname>typedef ".$args{'typedef'}."</refname>\n";
+-    print " <refpurpose>\n";
+-    print "  ";
+-    output_highlight ($args{'purpose'});
+-    print " </refpurpose>\n";
+-    print "</refnamediv>\n";
+-
+-    print "<refsynopsisdiv>\n";
+-    print " <title>Synopsis</title>\n";
+-    print "  <synopsis>typedef ".$args{'typedef'}.";</synopsis>\n";
+-    print "</refsynopsisdiv>\n";
+-
+-    output_section_sgml(@_);
+-
+-    print "</refentry>\n\n";
+-}
+-
+-# output in sgml DocBook
+-sub output_intro_sgml(%) {
+-    my %args = %{$_[0]};
+-    my ($parameter, $section);
+-    my $count;
+-
+-    my $id = $args{'module'};
+-    $id =~ s/[^A-Za-z0-9]/-/g;
+-
+-    # print out each section
+-    $lineprefix="   ";
+-    foreach $section (@{$args{'sectionlist'}}) {
+-	print "<refsect1>\n <title>$section</title>\n <para>\n";
+-	if ($section =~ m/EXAMPLE/i) {
+-	    print "<example><para>\n";
+-	}
+-	output_highlight($args{'sections'}{$section});
+-	if ($section =~ m/EXAMPLE/i) {
+-	    print "</para></example>\n";
+-	}
+-	print " </para>\n</refsect1>\n";
+-    }
+-
+-    print "\n\n";
+-}
+-
+-# output in sgml DocBook
+-sub output_function_gnome {
+-    my %args = %{$_[0]};
+-    my ($parameter, $section);
+-    my $count;
+-    my $id;
+-
+-    $id = $args{'module'}."-".$args{'function'};
+-    $id =~ s/[^A-Za-z0-9]/-/g;
+-
+-    print "<sect2>\n";
+-    print " <title id=\"$id\">".$args{'function'}."</title>\n";
+-
+-    print "  <funcsynopsis>\n";
+-    print "   <funcdef>".$args{'functiontype'}." ";
+-    print "<function>".$args{'function'}." ";
+-    print "</function></funcdef>\n";
+-
+-    $count = 0;
+-    if ($#{$args{'parameterlist'}} >= 0) {
+-	foreach $parameter (@{$args{'parameterlist'}}) {
+-	    $type = $args{'parametertypes'}{$parameter};
+-	    if ($type =~ m/([^\(]*\(\*)\s*\)\s*\(([^\)]*)\)/) {
+-		# pointer-to-function
+-		print "   <paramdef>$1 <parameter>$parameter</parameter>)\n";
+-		print "     <funcparams>$2</funcparams></paramdef>\n";
+-	    } else {
+-		print "   <paramdef>".$type;
+-		print " <parameter>$parameter</parameter></paramdef>\n";
+-	    }
+-	}
+-    } else {
+-	print "  <void>\n";
+-    }
+-    print "  </funcsynopsis>\n";
+-    if ($#{$args{'parameterlist'}} >= 0) {
+-	print " <informaltable pgwide=\"1\" frame=\"none\" role=\"params\">\n";
+-	print "<tgroup cols=\"2\">\n";
+-	print "<colspec colwidth=\"2*\">\n";
+-	print "<colspec colwidth=\"8*\">\n";
+-	print "<tbody>\n";
+-	foreach $parameter (@{$args{'parameterlist'}}) {
+-	    print "  <row><entry align=\"right\"><parameter>$parameter</parameter></entry>\n";
+-	    print "   <entry>\n";
+-	    $lineprefix="     ";
+-	    output_highlight($args{'parameterdescs'}{$parameter});
+-	    print "    </entry></row>\n";
+-	}
+-	print " </tbody></tgroup></informaltable>\n";
+-    } else {
+-	print " <para>\n  None\n </para>\n";
+-    }
+-
+-    # print out each section
+-    $lineprefix="   ";
+-    foreach $section (@{$args{'sectionlist'}}) {
+-	print "<simplesect>\n <title>$section</title>\n";
+-	if ($section =~ m/EXAMPLE/i) {
+-	    print "<example><programlisting>\n";
+-	} else {
+-	}
+-	print "<para>\n";
+-	output_highlight($args{'sections'}{$section});
+-	print "</para>\n";
+-	if ($section =~ m/EXAMPLE/i) {
+-	    print "</programlisting></example>\n";
+-	} else {
+-	}
+-	print " </simplesect>\n";
+-    }
+-
+-    print "</sect2>\n\n";
+-}
+-
+-##
+-# output function in man
+-sub output_function_man(%) {
+-    my %args = %{$_[0]};
+-    my ($parameter, $section);
+-    my $count;
+-
+-    print ".TH \"$args{'function'}\" 9 \"$args{'function'}\" \"$man_date\" \"Kernel Hacker's Manual\" LINUX\n";
+-
+-    print ".SH NAME\n";
+-    print $args{'function'}." \\- ".$args{'purpose'}."\n";
+-
+-    print ".SH SYNOPSIS\n";
+-    print ".B \"".$args{'functiontype'}."\" ".$args{'function'}."\n";
+-    $count = 0;
+-    my $parenth = "(";
+-    my $post = ",";
+-    foreach my $parameter (@{$args{'parameterlist'}}) {
+-	if ($count == $#{$args{'parameterlist'}}) {
+-	    $post = ");";
+-	}
+-	$type = $args{'parametertypes'}{$parameter};
+-	if ($type =~ m/([^\(]*\(\*)\s*\)\s*\(([^\)]*)\)/) {
+-	    # pointer-to-function
+-	    print ".BI \"".$parenth.$1."\" ".$parameter." \") (".$2.")".$post."\"\n";
+-	} else {
+-	    $type =~ s/([^\*])$/$1 /;
+-	    print ".BI \"".$parenth.$type."\" ".$parameter." \"".$post."\"\n";
+-	}
+-	$count++;
+-	$parenth = "";
+-    }
+-
+-    print ".SH ARGUMENTS\n";
+-    foreach $parameter (@{$args{'parameterlist'}}) {
+-	print ".IP \"".$parameter."\" 12\n";
+-	output_highlight($args{'parameterdescs'}{$parameter});
+-    }
+-    foreach $section (@{$args{'sectionlist'}}) {
+-	print ".SH \"", uc $section, "\"\n";
+-	output_highlight($args{'sections'}{$section});
+-    }
+-}
+-
+-##
+-# output enum in man
+-sub output_enum_man(%) {
+-    my %args = %{$_[0]};
+-    my ($parameter, $section);
+-    my $count;
+-
+-    print ".TH \"$args{'module'}\" 9 \"enum $args{'enum'}\" \"$man_date\" \"API Manual\" LINUX\n";
+-
+-    print ".SH NAME\n";
+-    print "enum ".$args{'enum'}." \\- ".$args{'purpose'}."\n";
+-
+-    print ".SH SYNOPSIS\n";
+-    print "enum ".$args{'enum'}." {\n";
+-    $count = 0;
+-    foreach my $parameter (@{$args{'parameterlist'}}) {
+-        print ".br\n.BI \"    $parameter\"\n";
+-	if ($count == $#{$args{'parameterlist'}}) {
+-	    print "\n};\n";
+-	    last;
+-	}
+-	else {
+-	    print ", \n.br\n";
+-	}
+-	$count++;
+-    }
+-
+-    print ".SH Constants\n";
+-    foreach $parameter (@{$args{'parameterlist'}}) {
+-	print ".IP \"".$parameter."\" 12\n";
+-	output_highlight($args{'parameterdescs'}{$parameter});
+-    }
+-    foreach $section (@{$args{'sectionlist'}}) {
+-	print ".SH \"$section\"\n";
+-	output_highlight($args{'sections'}{$section});
+-    }
+-}
+-
+-##
+-# output struct in man
+-sub output_struct_man(%) {
+-    my %args = %{$_[0]};
+-    my ($parameter, $section);
+-
+-    print ".TH \"$args{'module'}\" 9 \"".$args{'type'}." ".$args{'struct'}."\" \"$man_date\" \"API Manual\" LINUX\n";
+-
+-    print ".SH NAME\n";
+-    print $args{'type'}." ".$args{'struct'}." \\- ".$args{'purpose'}."\n";
+-
+-    print ".SH SYNOPSIS\n";
+-    print $args{'type'}." ".$args{'struct'}." {\n";
+-
+-    foreach my $parameter (@{$args{'parameterlist'}}) {
+-        ($args{'parameterdescs'}{$parameter} ne $undescribed) || next;
+-	print "\n.br\n";
+-	$type = $args{'parametertypes'}{$parameter};
+-	if ($type =~ m/([^\(]*\(\*)\s*\)\s*\(([^\)]*)\)/) {
+-	    # pointer-to-function
+-	    print ".BI \"    ".$1."\" ".$parameter." \") (".$2.")"."\"\n;\n";
+-	} elsif ($type =~ m/^(.*?)\s*(:.*)/) {
+-	    print ".BI \"    ".$1."\" ".$parameter.$2." \""."\"\n;\n";
+-	} else {
+-	    $type =~ s/([^\*])$/$1 /;
+-	    print ".BI \"    ".$type."\" ".$parameter." \""."\"\n;\n";
+-	}
+-	print "\n.br\n";
+-    }
+-    print "};\n.br\n";
+-
+-    print ".SH Arguments\n";
+-    foreach $parameter (@{$args{'parameterlist'}}) {
+-        ($args{'parameterdescs'}{$parameter} ne $undescribed) || next;
+-	print ".IP \"".$parameter."\" 12\n";
+-	output_highlight($args{'parameterdescs'}{$parameter});
+-    }
+-    foreach $section (@{$args{'sectionlist'}}) {
+-	print ".SH \"$section\"\n";
+-	output_highlight($args{'sections'}{$section});
+-    }
+-}
+-
+-##
+-# output typedef in man
+-sub output_typedef_man(%) {
+-    my %args = %{$_[0]};
+-    my ($parameter, $section);
+-
+-    print ".TH \"$args{'module'}\" 9 \"$args{'typedef'}\" \"$man_date\" \"API Manual\" LINUX\n";
+-
+-    print ".SH NAME\n";
+-    print "typedef ".$args{'typedef'}." \\- ".$args{'purpose'}."\n";
+-
+-    foreach $section (@{$args{'sectionlist'}}) {
+-	print ".SH \"$section\"\n";
+-	output_highlight($args{'sections'}{$section});
+-    }
+-}
+-
+-sub output_intro_man(%) {
+-    my %args = %{$_[0]};
+-    my ($parameter, $section);
+-    my $count;
+-
+-    print ".TH \"$args{'module'}\" 9 \"$args{'module'}\" \"$man_date\" \"API Manual\" LINUX\n";
+-
+-    foreach $section (@{$args{'sectionlist'}}) {
+-	print ".SH \"$section\"\n";
+-	output_highlight($args{'sections'}{$section});
+-    }
+-}
+-
+-##
+-# output in text
+-sub output_function_text(%) {
+-    my %args = %{$_[0]};
+-    my ($parameter, $section);
+-
+-    print "Function:\n\n";
+-    my $start=$args{'functiontype'}." ".$args{'function'}." (";
+-    print $start;
+-    my $count = 0;
+-    foreach my $parameter (@{$args{'parameterlist'}}) {
+-	$type = $args{'parametertypes'}{$parameter};
+-	if ($type =~ m/([^\(]*\(\*)\s*\)\s*\(([^\)]*)\)/) {
+-	    # pointer-to-function
+-	    print $1.$parameter.") (".$2;
+-	} else {
+-	    print $type." ".$parameter;
+-	}
+-	if ($count != $#{$args{'parameterlist'}}) {
+-	    $count++;
+-	    print ",\n";
+-	    print " " x length($start);
+-	} else {
+-	    print ");\n\n";
+-	}
+-    }
+-
+-    print "Arguments:\n\n";
+-    foreach $parameter (@{$args{'parameterlist'}}) {
+-	print $parameter."\n\t".$args{'parameterdescs'}{$parameter}."\n";
+-    }
+-    output_section_text(@_);
+-}
+-
+-#output sections in text
+-sub output_section_text(%) {
+-    my %args = %{$_[0]};
+-    my $section;
+-
+-    print "\n";
+-    foreach $section (@{$args{'sectionlist'}}) {
+-	print "$section:\n\n";
+-	output_highlight($args{'sections'}{$section});
+-    }  
+-    print "\n\n";
+-}
+-
+-# output enum in text
+-sub output_enum_text(%) {
+-    my %args = %{$_[0]};
+-    my ($parameter);
+-    my $count;
+-    print "Enum:\n\n";
+-
+-    print "enum ".$args{'enum'}." {\n";
+-    $count = 0;
+-    foreach $parameter (@{$args{'parameterlist'}}) {
+-        print "\t$parameter";
+-	if ($count != $#{$args{'parameterlist'}}) {
+-	    $count++;
+-	    print ",";
+-	}
+-	print "\n";
+-    }
+-    print "};\n\n";
+-
+-    print "Constants:\n\n";
+-    foreach $parameter (@{$args{'parameterlist'}}) {
+-	print "$parameter\n\t";
+-	print $args{'parameterdescs'}{$parameter}."\n";
+-    }
+-
+-    output_section_text(@_);
+-}
+-
+-# output typedef in text
+-sub output_typedef_text(%) {
+-    my %args = %{$_[0]};
+-    my ($parameter);
+-    my $count;
+-    print "Typedef:\n\n";
+-
+-    print "typedef ".$args{'typedef'}."\n";
+-    output_section_text(@_);
+-}
+-
+-# output struct as text
+-sub output_struct_text(%) {
+-    my %args = %{$_[0]};
+-    my ($parameter);
+-
+-    print $args{'type'}." ".$args{'struct'}.":\n\n";
+-    print $args{'type'}." ".$args{'struct'}." {\n";
+-    foreach $parameter (@{$args{'parameterlist'}}) {
+-        ($args{'parameterdescs'}{$parameter} ne $undescribed) || next;
+-	$type = $args{'parametertypes'}{$parameter};
+-	if ($type =~ m/([^\(]*\(\*)\s*\)\s*\(([^\)]*)\)/) {
+-	    # pointer-to-function
+-	    print "\t$1 $parameter) ($2);\n";
+-	} elsif ($type =~ m/^(.*?)\s*(:.*)/) {
+-	    print "\t$1 $parameter$2;\n";
+-	} else {
+-	    print "\t".$type." ".$parameter.";\n";
+-	}
+-    }
+-    print "};\n\n";
+-
+-    print "Members:\n\n";
+-    foreach $parameter (@{$args{'parameterlist'}}) {
+-        ($args{'parameterdescs'}{$parameter} ne $undescribed) || next;
+-	print "$parameter\n\t";
+-	print $args{'parameterdescs'}{$parameter}."\n";
+-    }
+-    print "\n";
+-    output_section_text(@_);
+-}
+-
+-sub output_intro_text(%) {
+-    my %args = %{$_[0]};
+-    my ($parameter, $section);
+-
+-    foreach $section (@{$args{'sectionlist'}}) {
+-	print " $section:\n";
+-	print "    -> ";
+-	output_highlight($args{'sections'}{$section});
+-    }
+-}
+-
+-##
+-# generic output function for typedefs
+-sub output_declaration {
+-    no strict 'refs';
+-    my $name = shift;
+-    my $functype = shift;
+-    my $func = "output_${functype}_$output_mode";
+-    if (($function_only==0) || 
+-	( $function_only == 1 && defined($function_table{$name})) || 
+-	( $function_only == 2 && !defined($function_table{$name})))
+-    {
+-        &$func(@_);
+-	$section_counter++;
+-    }
+-}
+-
+-##
+-# generic output function - calls the right one based
+-# on current output mode.
+-sub output_intro {
+-    no strict 'refs';
+-    my $func = "output_intro_".$output_mode;
+-    &$func(@_);
+-    $section_counter++;
+-}
+-
+-##
+-# takes a declaration (struct, union, enum, typedef) and 
+-# invokes the right handler. NOT called for functions.
+-sub dump_declaration($$) {
+-    no strict 'refs';
+-    my ($prototype, $file) = @_;
+-    my $func = "dump_".$decl_type;
+-    &$func(@_);
+-}
+-
+-sub dump_union($$) {
+-    dump_struct(@_);
+-}
+-
+-sub dump_struct($$) {
+-    my $x = shift;
+-    my $file = shift;
+-
+-    if ($x =~/(struct|union)\s+(\w+)\s*{(.*)}/) {
+-        $declaration_name = $2;
+-        my $members = $3;
+-
+-	# ignore embedded structs or unions
+-	$members =~ s/{.*}//g;
+-
+-	create_parameterlist($members, ';', $file);
+-
+-	output_declaration($declaration_name,
+-			   'struct',
+-			   {'struct' => $declaration_name,
+-			    'module' => $modulename,
+-			    'parameterlist' => \@parameterlist,
+-			    'parameterdescs' => \%parameterdescs,
+-			    'parametertypes' => \%parametertypes,
+-			    'sectionlist' => \@sectionlist,
+-			    'sections' => \%sections,
+-			    'purpose' => $declaration_purpose,
+-			    'type' => $decl_type
+-			   });
+-    }
+-    else {
+-        print STDERR "Error(${file}:$.): Cannot parse struct or union!\n";
+-	++$errors;
+-    }
+-}
+-
+-sub dump_enum($$) {
+-    my $x = shift;
+-    my $file = shift;
+-
+-    if ($x =~ /enum\s+(\w+)\s*{(.*)}/) {
+-        $declaration_name = $1;
+-        my $members = $2;
+-
+-	foreach my $arg (split ',', $members) {
+-	    $arg =~ s/^\s*(\w+).*/$1/;
+-	    push @parameterlist, $arg;
+-	    if (!$parameterdescs{$arg}) {
+-	        $parameterdescs{$arg} = $undescribed;
+-	        print STDERR "Warning(${file}:$.): Enum value '$arg' ".
+-		    "not described in enum '$declaration_name'\n";
+-	    }
+-
+-	}
+-	
+-	output_declaration($declaration_name,
+-			   'enum',
+-			   {'enum' => $declaration_name,
+-			    'module' => $modulename,
+-			    'parameterlist' => \@parameterlist,
+-			    'parameterdescs' => \%parameterdescs,
+-			    'sectionlist' => \@sectionlist,
+-			    'sections' => \%sections,
+-			    'purpose' => $declaration_purpose
+-			   });
+-    }
+-    else {
+-        print STDERR "Error(${file}:$.): Cannot parse enum!\n";
+-	++$errors;
+-    }
+-}
+-
+-sub dump_typedef($$) {
+-    my $x = shift;
+-    my $file = shift;
+-
+-    while (($x =~ /\(*.\)\s*;$/) || ($x =~ /\[*.\]\s*;$/)) {
+-        $x =~ s/\(*.\)\s*;$/;/;
+-	$x =~ s/\[*.\]\s*;$/;/;
+-    }
+-
+-    if ($x =~ /typedef.*\s+(\w+)\s*;/) {
+-        $declaration_name = $1;
+-
+-	output_declaration($declaration_name,
+-			   'typedef',
+-			   {'typedef' => $declaration_name,
+-			    'module' => $modulename,
+-			    'sectionlist' => \@sectionlist,
+-			    'sections' => \%sections,
+-			    'purpose' => $declaration_purpose
+-			   });
+-    }
+-    else {
+-        print STDERR "Error(${file}:$.): Cannot parse typedef!\n";
+-	++$errors;
+-    }
+-}
+-
+-sub create_parameterlist($$$) {
+-    my $args = shift;
+-    my $splitter = shift;
+-    my $file = shift;
+-    my $type;
+-    my $param;
+-
+-    while ($args =~ /(\([^\),]+),/) {
+-        $args =~ s/(\([^\),]+),/$1#/g;
+-    }
+-    
+-    foreach my $arg (split($splitter, $args)) {
+-        # strip leading/trailing spaces
+-        $arg =~ s/^\s*//;
+-	$arg =~ s/\s*$//;
+-	$arg =~ s/\s+/ /;
+-
+-	if ($arg =~ m/\(/) {
+-	    # pointer-to-function
+-	    $arg =~ tr/#/,/;
+-	    $arg =~ m/[^\(]+\(\*([^\)]+)\)/;
+-	    $param = $1;
+-	    $type = $arg;
+-	    $type =~ s/([^\(]+\(\*)$param/$1/;
+-	} else {
+-	    # evil magic to get fixed array parameters to work
+-	    $arg =~ s/(.+\s+)(.+)\[.*/$1* $2/;
+-	    my @args = split('\s', $arg);
+-	
+-	    $param = pop @args;
+-	    if ($param =~ m/^(\*+)(.*)/) {
+-	        $param = $2;
+-		push @args, $1;
+-	    } 
+-	    elsif ($param =~ m/(.*?)\s*:\s*(\d+)/) {
+-	        $param = $1;
+-	        push @args, ":$2";
+-	    }
+-	    $type = join " ", @args;
+-	}
+-
+-	if ($type eq "" && $param eq "...")
+-	{
+-	    $type="...";
+-	    $param="...";
+-	    $parameterdescs{"..."} = "variable arguments";
+-	}
+-	elsif ($type eq "" && ($param eq "" or $param eq "void"))
+-	{
+-	    $type="";
+-	    $param="void";
+-	    $parameterdescs{void} = "no arguments";
+-	}
+-	if (defined $type && $type && !defined $parameterdescs{$param}) {
+-	    $parameterdescs{$param} = $undescribed;
+-
+-	    if (($type eq 'function') || ($type eq 'enum')) {
+-	        print STDERR "Warning(${file}:$.): Function parameter ".
+-		    "or member '$param' not " .
+-		    "described in '$declaration_name'\n";
+-	    }
+-	    ++$errors;
+-        }
+-
+-	push @parameterlist, $param;
+-	$parametertypes{$param} = $type;
+-    }
+-}
+-
+-##
+-# takes a function prototype and the name of the current file being
+-# processed and spits out all the details stored in the global
+-# arrays/hashes.
+-sub dump_function($$) {
+-    my $prototype = shift;
+-    my $file = shift;
+-
+-    $prototype =~ s/^static +//;
+-    $prototype =~ s/^extern +//;
+-    $prototype =~ s/^inline +//;
+-    $prototype =~ s/^__inline__ +//;
+-    $prototype =~ s/^#define +//; #ak added
+-
+-    # Yes, this truly is vile.  We are looking for:
+-    # 1. Return type (may be nothing if we're looking at a macro)
+-    # 2. Function name
+-    # 3. Function parameters.
+-    #
+-    # All the while we have to watch out for function pointer parameters
+-    # (which IIRC is what the two sections are for), C types (these
+-    # regexps don't even start to express all the possibilities), and
+-    # so on.
+-    #
+-    # If you mess with these regexps, it's a good idea to check that
+-    # the following functions' documentation still comes out right:
+-    # - parport_register_device (function pointer parameters)
+-    # - atomic_set (macro)
+-    # - pci_match_device (long return type)
+-
+-    if ($prototype =~ m/^()([a-zA-Z0-9_~:]+)\s*\(([^\(]*)\)/ ||
+-	$prototype =~ m/^(\w+)\s+([a-zA-Z0-9_~:]+)\s*\(([^\(]*)\)/ ||
+-	$prototype =~ m/^(\w+\s*\*)\s*([a-zA-Z0-9_~:]+)\s*\(([^\(]*)\)/ ||
+-	$prototype =~ m/^(\w+\s+\w+)\s+([a-zA-Z0-9_~:]+)\s*\(([^\(]*)\)/ ||
+-	$prototype =~ m/^(\w+\s+\w+\s*\*)\s*([a-zA-Z0-9_~:]+)\s*\(([^\(]*)\)/ ||
+-	$prototype =~ m/^(\w+\s+\w+\s+\w+)\s+([a-zA-Z0-9_~:]+)\s*\(([^\(]*)\)/ ||
+-	$prototype =~ m/^(\w+\s+\w+\s+\w+\s*\*)\s*([a-zA-Z0-9_~:]+)\s*\(([^\(]*)\)/ ||
+-	$prototype =~ m/^()([a-zA-Z0-9_~:]+)\s*\(([^\{]*)\)/ ||
+-	$prototype =~ m/^(\w+)\s+([a-zA-Z0-9_~:]+)\s*\(([^\{]*)\)/ ||
+-	$prototype =~ m/^(\w+\s*\*)\s*([a-zA-Z0-9_~:]+)\s*\(([^\{]*)\)/ ||
+-	$prototype =~ m/^(\w+\s+\w+)\s+([a-zA-Z0-9_~:]+)\s*\(([^\{]*)\)/ ||
+-	$prototype =~ m/^(\w+\s+\w+\s*\*)\s*([a-zA-Z0-9_~:]+)\s*\(([^\{]*)\)/ ||
+-	$prototype =~ m/^(\w+\s+\w+\s+\w+)\s+([a-zA-Z0-9_~:]+)\s*\(([^\{]*)\)/ ||
+-	$prototype =~ m/^(\w+\s+\w+\s+\w+\s*\*)\s*([a-zA-Z0-9_~:]+)\s*\(([^\{]*)\)/)  {
+-	$return_type = $1;
+-	$declaration_name = $2;
+-	my $args = $3;
+-
+-	create_parameterlist($args, ',', $file);
+-    } else {
+-	print STDERR "Error(${file}:$.): cannot understand prototype: '$prototype'\n";
+-	++$errors;
+-	return;
+-    }
+-
+-    output_declaration($declaration_name, 
+-		       'function',
+-		       {'function' => $declaration_name,
+-			'module' => $modulename,
+-			'functiontype' => $return_type,
+-			'parameterlist' => \@parameterlist,
+-			'parameterdescs' => \%parameterdescs,
+-			'parametertypes' => \%parametertypes,
+-			'sectionlist' => \@sectionlist,
+-			'sections' => \%sections,
+-			'purpose' => $declaration_purpose
+-		       });
+-}
+-
+-sub process_file($);
+-
+-# Read the file that maps relative names to absolute names for
+-# separate source and object directories and for shadow trees.
+-if (open(SOURCE_MAP, "<.tmp_filelist.txt")) {
+-	my ($relname, $absname);
+-	while(<SOURCE_MAP>) {
+-		chop();
+-		($relname, $absname) = (split())[0..1];
+-		$relname =~ s:^/+::;
+-		$source_map{$relname} = $absname;
+-	}
+-	close(SOURCE_MAP);
+-}
+-
+-if ($filelist) {
+-	open(FLIST,"<$filelist") or die "Can't open file list $filelist";
+-	while(<FLIST>) {
+-		chop;
+-		process_file($_);
+-	}
+-}
+-
+-foreach (@ARGV) {
+-    chomp;
+-    process_file($_);
+-}
+-
+-exit($errors);
+-
+-sub reset_state {
+-    $function = "";
+-    %constants = ();
+-    %parameterdescs = ();
+-    %parametertypes = ();
+-    @parameterlist = ();
+-    %sections = ();
+-    @sectionlist = ();
+-    $prototype = "";
+-    
+-    $state = 0;
+-}
+-
+-sub process_state3_function($$) { 
+-    my $x = shift;
+-    my $file = shift;
+-
+-    if ($x =~ m#\s*/\*\s+MACDOC\s*#io) {
+-	# do nothing
+-    }
+-    elsif ($x =~ /([^\{]*)/) {
+-        $prototype .= $1;
+-    }
+-    if (($x =~ /\{/) || ($x =~ /\#/) || ($x =~ /;/)) {
+-        $prototype =~ s@/\*.*?\*/@@gos;	# strip comments.
+-	$prototype =~ s@[\r\n]+@ @gos; # strip newlines/cr's.
+-	$prototype =~ s@^\s+@@gos; # strip leading spaces
+-	dump_function($prototype,$file);
+-	reset_state();
+-    }
+-}
+-
+-sub process_state3_type($$) { 
+-    my $x = shift;
+-    my $file = shift;
+-
+-    $x =~ s@/\*.*?\*/@@gos;	# strip comments.
+-    $x =~ s@[\r\n]+@ @gos; # strip newlines/cr's.
+-    $x =~ s@^\s+@@gos; # strip leading spaces
+-    $x =~ s@\s+$@@gos; # strip trailing spaces
+-
+-    while (1) {
+-        if ( $x =~ /([^{};]*)([{};])(.*)/ ) {
+-	    $prototype .= $1 . $2;
+-	    ($2 eq '{') && $brcount++;
+-	    ($2 eq '}') && $brcount--;
+-	    if (($2 eq ';') && ($brcount == 0)) {
+-	        dump_declaration($prototype,$file);
+-		reset_state();
+-	        last;
+-	    }
+-	    $x = $3;
+-        } else {
+-	    $prototype .= $x;
+-	    last;
+-	}
+-    }
+-}
+-
+-sub process_file($) {
+-    my ($file) = @_;
+-    my $identifier;
+-    my $func;
+-    my $initial_section_counter = $section_counter;
+-
+-    if (defined($source_map{$file})) {
+-	$file = $source_map{$file};
+-    }
+-
+-    if (!open(IN,"<$file")) {
+-	print STDERR "Error: Cannot open file $file\n";
+-	++$errors;
+-	return;
+-    }
+-
+-    $section_counter = 0;
+-    while (<IN>) {
+-	if ($state == 0) {
+-	    if (/$doc_start/o) {
+-		$state = 1;		# next line is always the function name
+-	    }
+-	} elsif ($state == 1) {	# this line is the function name (always)
+-	    if (/$doc_block/o) {
+-		$state = 4;
+-		$contents = "";
+-		if ( $1 eq "" ) {
+-			$section = $section_intro;
+-		} else {
+-			$section = $1;
+-		}
+-            }
+-	    elsif (/$doc_decl/o) {
+-		$identifier = $1;
+-		if (/\s*([\w\s]+?)\s*-/) {
+-		    $identifier = $1;
+-		}
+-
+-		$state = 2;
+-		if (/-(.*)/) {
+-		    $declaration_purpose = $1;
+-		} else {
+-		    $declaration_purpose = "";
+-		}
+-		if ($identifier =~ m/^struct/) {
+-		    $decl_type = 'struct';
+-		} elsif ($identifier =~ m/^union/) {
+-		    $decl_type = 'union';
+-		} elsif ($identifier =~ m/^enum/) {
+-		    $decl_type = 'enum';
+-		} elsif ($identifier =~ m/^typedef/) {
+-		    $decl_type = 'typedef';
+-		} else {
+-		    $decl_type = 'function';
+-		}
+-
+-		if ($verbose) {
+-		    print STDERR "Info(${file}:$.): Scanning doc for $identifier\n";
+-		}
+-	    } else {
+-		print STDERR "Warning(${file}:$.): Cannot understand $_ on line $.",
+-		" - I thought it was a doc line\n";
+-		++$errors;
+-		$state = 0;
+-	    }
+-	} elsif ($state == 2) {	# look for head: lines, and include content
+-	    if (/$doc_sect/o) {
+-		$newsection = $1;
+-		$newcontents = $2;
+-
+-		if ($contents ne "") {
+-		    $contents =~ s/\&/\\\\\\amp;/g;
+-		    $contents =~ s/\</\\\\\\lt;/g;
+-		    $contents =~ s/\>/\\\\\\gt;/g;
+-		    dump_section($section, $contents);
+-		    $section = $section_default;
+-		}
+-
+-		$contents = $newcontents;
+-		if ($contents ne "") {
+-		    $contents .= "\n";
+-		}
+-		$section = $newsection;
+-	    } elsif (/$doc_end/) {
+-
+-		if ($contents ne "") {
+-		    $contents =~ s/\&/\\\\\\amp;/g;
+-		    $contents =~ s/\</\\\\\\lt;/g;
+-		    $contents =~ s/\>/\\\\\\gt;/g;
+-		    dump_section($section, $contents);
+-		    $section = $section_default;
+-		    $contents = "";
+-		}
+-
+-		$prototype = "";
+-		$state = 3;
+-		$brcount = 0;
+-#	    print STDERR "end of doc comment, looking for prototype\n";
+-	    } elsif (/$doc_content/) {
+-		# miguel-style comment kludge, look for blank lines after
+-		# @parameter line to signify start of description
+-		if ($1 eq "" && 
+-			($section =~ m/^@/ || $section eq $section_context)) {
+-		    $contents =~ s/\&/\\\\\\amp;/g;
+-		    $contents =~ s/\</\\\\\\lt;/g;
+-		    $contents =~ s/\>/\\\\\\gt;/g;
+-		    dump_section($section, $contents);
+-		    $section = $section_default;
+-		    $contents = "";
+-		} else {
+-		    $contents .= $1."\n";
+-		}
+-	    } else {
+-		# i dont know - bad line?  ignore.
+-		print STDERR "Warning(${file}:$.): bad line: $_"; 
+-		++$errors;
+-	    }
+-	} elsif ($state == 3) {	# scanning for function { (end of prototype)
+-	    if ($decl_type eq 'function') {
+-	        process_state3_function($_, $file);
+-	    } else {
+-	        process_state3_type($_, $file);
+-	    }
+-	} elsif ($state == 4) {
+-		# Documentation block
+-	        if (/$doc_block/) {
+-			dump_section($section, $contents);
+-			output_intro({'sectionlist' => \@sectionlist,
+-				      'sections' => \%sections });
+-			$contents = "";
+-			$function = "";
+-			%constants = ();
+-			%parameterdescs = ();
+-			%parametertypes = ();
+-			@parameterlist = ();
+-			%sections = ();
+-			@sectionlist = ();
+-			$prototype = "";
+-			if ( $1 eq "" ) {
+-				$section = $section_intro;
+-			} else {
+-				$section = $1;
+-			}
+-                }
+-		elsif (/$doc_end/)
+-		{
+-			dump_section($section, $contents);
+-			output_intro({'sectionlist' => \@sectionlist,
+-				      'sections' => \%sections });
+-			$contents = "";
+-			$function = "";
+-			%constants = ();
+-			%parameterdescs = ();
+-			%parametertypes = ();
+-			@parameterlist = ();
+-			%sections = ();
+-			@sectionlist = ();
+-			$prototype = "";
+-			$state = 0;
+-		}
+-		elsif (/$doc_content/)
+-		{
+-			if ( $1 eq "" )
+-			{
+-				$contents .= $blankline;
+-			}
+-			else
+-			{
+-				$contents .= $1 . "\n";
+-			}	
+-        	}
+-          }
+-    }
+-    if ($initial_section_counter == $section_counter) {
+-	print STDERR "Warning(${file}): no structured comments found\n";
+-	if ($output_mode eq "sgml") {
+-	    # The template wants at least one RefEntry here; make one.
+-	    print "<refentry>\n";
+-	    print " <refnamediv>\n";
+-	    print "  <refname>\n";
+-	    print "   ${file}\n";
+-	    print "  </refname>\n";
+-	    print "  <refpurpose>\n";
+-	    print "   Document generation inconsistency\n";
+-	    print "  </refpurpose>\n";
+-	    print " </refnamediv>\n";
+-	    print " <refsect1>\n";
+-	    print "  <title>\n";
+-	    print "   Oops\n";
+-	    print "  </title>\n";
+-	    print "  <warning>\n";
+-	    print "   <para>\n";
+-	    print "    The template for this document tried to insert\n";
+-	    print "    the structured comment from the file\n";
+-	    print "    <filename>${file}</filename> at this point,\n";
+-	    print "    but none was found.\n";
+-	    print "    This dummy section is inserted to allow\n";
+-	    print "    generation to continue.\n";
+-	    print "   </para>\n";
+-	    print "  </warning>\n";
+-	    print " </refsect1>\n";
+-	    print "</refentry>\n";
+-	}
+-    }
+-}
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff w1/sound/scripts/Makefile w2/sound/scripts/Makefile
+--- w1/sound/scripts/Makefile	2003-01-08 12:23:18.000000000 +0100
++++ w2/sound/scripts/Makefile	2003-08-13 23:57:49.000000000 +0200
+@@ -3,7 +3,7 @@
+ # Copyright (c) 1994-98 by Jaroslav Kysela <perex@suse.cz>
+ #
+ 
+-TARGETS = mod-deps docproc
++TARGETS = mod-deps
+ 
+ .c.o:
+ 	$(CC) -g $(INCLUDE) -Wall -c -o $*.o $<
+@@ -13,12 +13,8 @@ all: $(TARGETS)
+ mod-deps: mod-deps.o
+ 	$(CC) $(INCLUDE) mod-deps.o -o $@ 
+ 
+-docproc: docproc.o
+-	$(CC) $(INCLUDE) $< -o $@ 
+-
+ clean:
+-	rm -f $(TARGETS)
+-	rm -f core .depend *.o *.orig *~ 
++	rm -f core .depend *.o *.orig *~
+ 
+ .depend:
+ 	$(CPP) $(INCLUDE) *.c > .depend
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff w1/sound/sparc/Makefile w2/sound/sparc/Makefile
+--- w1/sound/sparc/Makefile	2002-12-17 21:00:58.000000000 +0100
++++ w2/sound/sparc/Makefile	2003-08-13 23:57:49.000000000 +0200
+@@ -10,3 +10,6 @@ snd-sun-cs4231-objs := cs4231.o
+ obj-$(CONFIG_SND_SUN_AMD7930) += snd-sun-amd7930.o
+ #obj-$(CONFIG_SND_SUN_DBRI) += snd-sun-dbri.o
+ obj-$(CONFIG_SND_SUN_CS4231) += snd-sun-cs4231.o
++
++include $(TOPDIR)/Rules.make
++
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff w1/sound/synth/emux/Makefile w2/sound/synth/emux/Makefile
+--- w1/sound/synth/emux/Makefile	2003-02-09 19:41:57.000000000 +0100
++++ w2/sound/synth/emux/Makefile	2003-08-13 23:57:49.000000000 +0200
+@@ -3,18 +3,27 @@
+ # Copyright (c) 2001 by Jaroslav Kysela <perex@suse.cz>
+ #
+ 
++O_TARGET := _emux.o
++
++export-objs  := emux.o
++
++list-multi := snd-emux-synth.o
++
+ snd-emux-synth-objs := emux.o emux_synth.o emux_seq.o emux_nrpn.o \
+-		       emux_effect.o emux_proc.o soundfont.o \
+-		       $(if $(CONFIG_SND_SEQUENCER_OSS),emux_oss.o)
++		       emux_effect.o emux_proc.o soundfont.o
+ 
+-#
+-# this function returns:
+-#   "m" - CONFIG_SND_SEQUENCER is m
+-#   <empty string> - CONFIG_SND_SEQUENCER is undefined
+-#   otherwise parameter #1 value
+-#
+-sequencer = $(if $(subst y,,$(CONFIG_SND_SEQUENCER)),$(if $(1),m),$(if $(CONFIG_SND_SEQUENCER),$(1)))
++ifeq ($(CONFIG_SND_SEQUENCER_OSS),y)
++  snd-emux-synth-objs += emux_oss.o
++endif
++
++# Toplevel Module Dependency
++ifeq ($(subst m,y,$(CONFIG_SND_SEQUENCER)),y)
++  obj-$(CONFIG_SND_SBAWE) += snd-emux-synth.o
++  obj-$(CONFIG_SND_EMU10K1) += snd-emux-synth.o
++endif
++
++include $(TOPDIR)/Rules.make
++
++snd-emux-synth.o: $(snd-emux-synth-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-emux-synth-objs)
+ 
+-# Toplevel Module Dependencies
+-obj-$(call sequencer,$(CONFIG_SND_SBAWE)) += snd-emux-synth.o
+-obj-$(call sequencer,$(CONFIG_SND_EMU10K1)) += snd-emux-synth.o
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff w1/sound/synth/Makefile w2/sound/synth/Makefile
+--- w1/sound/synth/Makefile	2003-02-09 19:41:57.000000000 +0100
++++ w2/sound/synth/Makefile	2003-08-13 23:57:49.000000000 +0200
+@@ -3,12 +3,29 @@
+ # Copyright (c) 2001 by Jaroslav Kysela <perex@suse.cz>
+ #
+ 
++O_TARGET     := _synth.o
++
++mod-subdirs  := emux
++
++list-multi   := snd-util-mem.o
++
++export-objs  := util_mem.o
++
+ snd-util-mem-objs := util_mem.o
+ 
+ # Toplevel Module Dependency
+ obj-$(CONFIG_SND_EMU10K1) += snd-util-mem.o
+ obj-$(CONFIG_SND_TRIDENT) += snd-util-mem.o
+-ifdef CONFIG_SND_SEQUENCER
++ifeq ($(subst m,y,$(CONFIG_SND_SEQUENCER)),y)
+   obj-$(CONFIG_SND_SBAWE) += snd-util-mem.o
+-  obj-$(CONFIG_SND) += emux/
+ endif
++
++subdir-$(CONFIG_SND) += emux
++ifeq ($(CONFIG_SND),y)
++  obj-y += emux/_emux.o
++endif
++
++include $(TOPDIR)/Rules.make
++
++snd-util-mem.o: $(snd-util-mem-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-util-mem-objs)
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff w1/sound/usb/Makefile w2/sound/usb/Makefile
+--- w1/sound/usb/Makefile	2002-12-17 21:01:00.000000000 +0100
++++ w2/sound/usb/Makefile	2003-08-13 23:57:49.000000000 +0200
+@@ -2,7 +2,18 @@
+ # Makefile for ALSA
+ #
+ 
++O_TARGET	:= _core.o
++
++EXTRA_CFLAGS	:= $(EXTRA_CFLAGS) -DSND_NEED_USB_WRAPPER
++
++list-multi	:= snd-usb-audio.o
++
+ snd-usb-audio-objs := usbaudio.o usbmixer.o usbmidi.o
+ 
+ # Toplevel Module Dependency
+ obj-$(CONFIG_SND_USB_AUDIO) += snd-usb-audio.o
++
++include $(TOPDIR)/Rules.make
++
++snd-usb-audio.o: $(snd-usb-audio-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-usb-audio-objs)
+--- linux-2.4.22/sound/core/seq/Makefile.orig	2003-06-02 14:59:39.000000000 +0200
++++ linux-2.4.22/sound/core/seq/Makefile	2003-08-28 03:38:21.000000000 +0200
+@@ -3,11 +3,29 @@
+ # Copyright (c) 1999 by Jaroslav Kysela <perex@suse.cz>
+ #
+ 
+-obj-$(CONFIG_SND) += instr/
++O_TARGET     := _seq.o
++
++mod-subdirs  := instr
++
++subdir-$(CONFIG_SND) += instr
++ifeq ($(CONFIG_SND),y)
++  obj-y      += instr/_instr.o
++endif
++
+ ifeq ($(CONFIG_SND_SEQUENCER_OSS),y)
+-  obj-$(CONFIG_SND_SEQUENCER) += oss/
++   subdir-$(CONFIG_SND_SEQUENCER) += oss
++  ifeq ($(CONFIG_SND_SEQUENCER),y)
++    obj-y    += oss/snd-seq-oss.o
++  endif
+ endif
+ 
++list-multi   := snd-seq-device.o snd-seq.o snd-seq-midi.o snd-seq-midi-emul.o \
++		snd-seq-midi-event.o snd-seq-instr.o snd-seq-dummy.o \
++		snd-seq-virmidi.o
++
++export-objs  := seq_device.o seq.o seq_instr.o seq_midi_emul.o \
++		seq_midi_event.o seq_virmidi.o
++
+ snd-seq-device-objs := seq_device.o
+ snd-seq-objs := seq.o seq_lock.o seq_clientmgr.o seq_memory.o seq_queue.o \
+                 seq_fifo.o seq_prioq.o seq_timer.o \
+@@ -19,15 +37,6 @@
+ snd-seq-dummy-objs := seq_dummy.o
+ snd-seq-virmidi-objs := seq_virmidi.o
+ 
+-RAWMIDI_OBJS = snd-seq-midi.o snd-seq-midi-event.o
+-OPL3_OBJS = snd-seq-midi-event.o snd-seq-midi-emul.o snd-seq-instr.o
+-
+-#
+-# this function returns:
+-#   "m" - CONFIG_SND_SEQUENCER is m
+-#   <empty string> - CONFIG_SND_SEQUENCER is undefined
+-#   otherwise parameter #1 value
+-#
+ sequencer = $(if $(subst y,,$(CONFIG_SND_SEQUENCER)),$(if $(1),m),$(if $(CONFIG_SND_SEQUENCER),$(1)))
+ 
+ obj-$(CONFIG_SND_SEQUENCER) += snd-seq.o snd-seq-device.o
+@@ -37,55 +46,88 @@
+ obj-$(CONFIG_SND_SEQ_DUMMY) += snd-seq-dummy.o
+ 
+ # Toplevel Module Dependency
+-obj-$(CONFIG_SND_VIRMIDI) += snd-seq-virmidi.o snd-seq-midi-event.o
+-obj-$(call sequencer,$(CONFIG_SND_SERIAL_U16550)) += $(RAWMIDI_OBJS)
+-obj-$(call sequencer,$(CONFIG_SND_MTPAV)) += $(RAWMIDI_OBJS)
+-obj-$(call sequencer,$(CONFIG_SND_MPU401)) += $(RAWMIDI_OBJS)
+-obj-$(call sequencer,$(CONFIG_SND_ALS100)) += $(RAWMIDI_OBJS) $(OPL3_OBJS)
+-obj-$(call sequencer,$(CONFIG_SND_AZT2320)) += $(RAWMIDI_OBJS) $(OPL3_OBJS)
+-obj-$(call sequencer,$(CONFIG_SND_AZT3328)) += $(RAWMIDI_OBJS) $(OPL3_OBJS)
+-obj-$(call sequencer,$(CONFIG_SND_DT019X)) += $(RAWMIDI_OBJS) $(OPL3_OBJS)
+-obj-$(call sequencer,$(CONFIG_SND_ES18XX)) += $(RAWMIDI_OBJS) $(OPL3_OBJS)
+-obj-$(call sequencer,$(CONFIG_SND_OPL3SA2)) += $(RAWMIDI_OBJS) $(OPL3_OBJS)
+-obj-$(call sequencer,$(CONFIG_SND_AD1816A)) += $(RAWMIDI_OBJS) $(OPL3_OBJS)
+-obj-$(call sequencer,$(CONFIG_SND_CS4231)) += $(RAWMIDI_OBJS)
+-obj-$(call sequencer,$(CONFIG_SND_CS4232)) += $(RAWMIDI_OBJS) $(OPL3_OBJS)
+-obj-$(call sequencer,$(CONFIG_SND_CS4236)) += $(RAWMIDI_OBJS) $(OPL3_OBJS)
+-obj-$(call sequencer,$(CONFIG_SND_PC98_CS4232)) += $(RAWMIDI_OBJS) $(OPL3_OBJS)
+-obj-$(call sequencer,$(CONFIG_SND_ES1688)) += $(RAWMIDI_OBJS) $(OPL3_OBJS)
+-obj-$(call sequencer,$(CONFIG_SND_GUSCLASSIC)) += $(RAWMIDI_OBJS) $(OPL3_OBJS)
+-obj-$(call sequencer,$(CONFIG_SND_GUSMAX)) += $(RAWMIDI_OBJS) $(OPL3_OBJS)
+-obj-$(call sequencer,$(CONFIG_SND_GUSEXTREME)) += $(RAWMIDI_OBJS) $(OPL3_OBJS)
+-obj-$(call sequencer,$(CONFIG_SND_INTERWAVE)) += $(RAWMIDI_OBJS) $(OPL3_OBJS)
+-obj-$(call sequencer,$(CONFIG_SND_INTERWAVE_STB)) += $(RAWMIDI_OBJS) $(OPL3_OBJS)
+-obj-$(call sequencer,$(CONFIG_SND_OPTI92X_AD1848)) += $(RAWMIDI_OBJS) $(OPL3_OBJS)
+-obj-$(call sequencer,$(CONFIG_SND_OPTI92X_CS4231)) += $(RAWMIDI_OBJS) $(OPL3_OBJS)
+-obj-$(call sequencer,$(CONFIG_SND_OPTI93X)) += $(RAWMIDI_OBJS) $(OPL3_OBJS)
+-obj-$(call sequencer,$(CONFIG_SND_SB8)) += $(RAWMIDI_OBJS) $(OPL3_OBJS)
+-obj-$(call sequencer,$(CONFIG_SND_SB16)) += $(RAWMIDI_OBJS) $(OPL3_OBJS)
+-obj-$(call sequencer,$(CONFIG_SND_SBAWE)) += $(RAWMIDI_OBJS) $(OPL3_OBJS) snd-seq-virmidi.o
+-obj-$(call sequencer,$(CONFIG_SND_ES968)) += $(RAWMIDI_OBJS)
+-obj-$(call sequencer,$(CONFIG_SND_WAVEFRONT)) += $(RAWMIDI_OBJS) $(OPL3_OBJS)
+-obj-$(call sequencer,$(CONFIG_SND_SSCAPE)) += $(RAWMIDI_OBJS)
+-obj-$(call sequencer,$(CONFIG_SND_ALS4000)) += $(RAWMIDI_OBJS) $(OPL3_OBJS)
+-obj-$(call sequencer,$(CONFIG_SND_CMIPCI)) += $(RAWMIDI_OBJS) $(OPL3_OBJS)
+-obj-$(call sequencer,$(CONFIG_SND_CS4281)) += $(RAWMIDI_OBJS) $(OPL3_OBJS)
+-obj-$(call sequencer,$(CONFIG_SND_ENS1370)) += $(RAWMIDI_OBJS)
+-obj-$(call sequencer,$(CONFIG_SND_ENS1371)) += $(RAWMIDI_OBJS)
+-obj-$(call sequencer,$(CONFIG_SND_ES1938)) += $(RAWMIDI_OBJS) $(OPL3_OBJS)
+-obj-$(call sequencer,$(CONFIG_SND_ES1968)) += $(RAWMIDI_OBJS)
+-obj-$(call sequencer,$(CONFIG_SND_FM801)) += $(RAWMIDI_OBJS) $(OPL3_OBJS)
+-obj-$(call sequencer,$(CONFIG_SND_ICE1712)) += $(RAWMIDI_OBJS)
+-obj-$(call sequencer,$(CONFIG_SND_ICE1724)) += $(RAWMIDI_OBJS)
+-obj-$(call sequencer,$(CONFIG_SND_INTEL8X0)) += $(RAWMIDI_OBJS)
+-obj-$(call sequencer,$(CONFIG_SND_SONICVIBES)) += $(RAWMIDI_OBJS) $(OPL3_OBJS)
+-obj-$(call sequencer,$(CONFIG_SND_VIA82XX)) += $(RAWMIDI_OBJS)
+-obj-$(call sequencer,$(CONFIG_SND_ALI5451)) += $(RAWMIDI_OBJS)
+-obj-$(call sequencer,$(CONFIG_SND_CS46XX)) += $(RAWMIDI_OBJS)
+-obj-$(call sequencer,$(CONFIG_SND_EMU10K1)) += $(RAWMIDI_OBJS) snd-seq-midi-emul.o snd-seq-virmidi.o
+-obj-$(call sequencer,$(CONFIG_SND_TRIDENT)) += $(RAWMIDI_OBJS) snd-seq-midi-emul.o snd-seq-instr.o
+-obj-$(call sequencer,$(CONFIG_SND_YMFPCI)) += $(RAWMIDI_OBJS) $(OPL3_OBJS)
+-obj-$(call sequencer,$(CONFIG_SND_USB_AUDIO)) += $(RAWMIDI_OBJS)
+-obj-$(call sequencer,$(CONFIG_SND_HDSP)) += $(RAWMIDI_OBJS)
++obj-$(CONFIG_SND_VIRMIDI) += snd-seq-virmidi.o snd-seq-midi-event.o snd-seq-midi.o
++obj-$(CONFIG_SND_SERIAL_U16550) += snd-seq-virmidi.o snd-seq.o snd-seq-device.o snd-seq-midi-event.o snd-seq-midi.o
++obj-$(CONFIG_SND_MTPAV) += snd-seq-virmidi.o snd-seq.o snd-seq-device.o snd-seq-midi-event.o snd-seq-midi.o
++obj-$(CONFIG_SND_MPU401) += snd-seq-virmidi.o snd-seq.o snd-seq-device.o snd-seq-midi-event.o snd-seq-midi.o
++obj-$(CONFIG_SND_ALS100) += snd-seq-virmidi.o snd-seq.o snd-seq-device.o snd-seq-midi-event.o snd-seq-midi.o snd-seq-midi-emul.o snd-seq-instr.o
++obj-$(CONFIG_SND_AZT2320) += snd-seq-virmidi.o snd-seq.o snd-seq-device.o snd-seq-midi-event.o snd-seq-midi.o snd-seq-midi-emul.o snd-seq-instr.o
++obj-$(CONFIG_SND_AZT3328) += snd-seq-virmidi.o snd-seq.o snd-seq-device.o snd-seq-midi-event.o snd-seq-midi.o snd-seq-midi-emul.o snd-seq-instr.o
++obj-$(CONFIG_SND_DT019X) += snd-seq-virmidi.o snd-seq.o snd-seq-device.o snd-seq-midi-event.o snd-seq-midi.o snd-seq-midi-emul.o snd-seq-instr.o
++obj-$(CONFIG_SND_ES18XX) += snd-seq-virmidi.o snd-seq.o snd-seq-device.o snd-seq-midi-event.o snd-seq-midi.o snd-seq-midi-emul.o snd-seq-instr.o
++obj-$(CONFIG_SND_OPL3SA2) += snd-seq-virmidi.o snd-seq.o snd-seq-device.o snd-seq-midi-event.o snd-seq-midi.o snd-seq-midi-emul.o snd-seq-instr.o
++obj-$(CONFIG_SND_AD1816A) += snd-seq-virmidi.o snd-seq.o snd-seq-device.o snd-seq-midi-event.o snd-seq-midi.o snd-seq-midi-emul.o snd-seq-instr.o
++obj-$(CONFIG_SND_CS4231) += snd-seq-virmidi.o snd-seq.o snd-seq-device.o snd-seq-midi-event.o snd-seq-midi.o
++obj-$(CONFIG_SND_CS4232) += snd-seq-virmidi.o snd-seq.o snd-seq-device.o snd-seq-midi-event.o snd-seq-midi.o snd-seq-midi-emul.o snd-seq-instr.o
++obj-$(CONFIG_SND_CS4236) += snd-seq-virmidi.o snd-seq.o snd-seq-device.o snd-seq-midi-event.o snd-seq-midi.o snd-seq-midi-emul.o snd-seq-instr.o
++obj-$(CONFIG_SND_PC98_CS4232) += snd-seq-virmidi.o snd-seq.o snd-seq-device.o snd-seq-midi-event.o snd-seq-midi.o snd-seq-midi-emul.o snd-seq-instr.o
++obj-$(CONFIG_SND_ES1688) += snd-seq-virmidi.o snd-seq.o snd-seq-device.o snd-seq-midi-event.o snd-seq-midi.o snd-seq-midi-emul.o snd-seq-instr.o
++obj-$(CONFIG_SND_GUSCLASSIC) += snd-seq-virmidi.o snd-seq.o snd-seq-device.o snd-seq-midi-event.o snd-seq-midi.o snd-seq-midi-emul.o snd-seq-instr.o
++obj-$(CONFIG_SND_GUSMAX) += snd-seq-virmidi.o snd-seq.o snd-seq-device.o snd-seq-midi-event.o snd-seq-midi.o snd-seq-midi-emul.o snd-seq-instr.o
++obj-$(CONFIG_SND_GUSEXTREME) += snd-seq-virmidi.o snd-seq.o snd-seq-device.o snd-seq-midi-event.o snd-seq-midi.o snd-seq-midi-emul.o snd-seq-instr.o
++obj-$(CONFIG_SND_INTERWAVE) += snd-seq-virmidi.o snd-seq.o snd-seq-device.o snd-seq-midi-event.o snd-seq-midi.o snd-seq-midi-emul.o snd-seq-instr.o
++obj-$(CONFIG_SND_INTERWAVE_STB) += snd-seq-virmidi.o snd-seq.o snd-seq-device.o snd-seq-midi-event.o snd-seq-midi.o snd-seq-midi-emul.o snd-seq-instr.o
++obj-$(CONFIG_SND_OPTI92X_AD1848) += snd-seq-virmidi.o snd-seq.o snd-seq-device.o snd-seq-midi-event.o snd-seq-midi.o snd-seq-midi-emul.o snd-seq-instr.o
++obj-$(CONFIG_SND_OPTI92X_CS4231) += snd-seq-virmidi.o snd-seq.o snd-seq-device.o snd-seq-midi-event.o snd-seq-midi.o snd-seq-midi-emul.o snd-seq-instr.o
++obj-$(CONFIG_SND_OPTI93X) += snd-seq-virmidi.o snd-seq.o snd-seq-device.o snd-seq-midi-event.o snd-seq-midi.o snd-seq-midi-emul.o snd-seq-instr.o
++obj-$(CONFIG_SND_SB8) += snd-seq-virmidi.o snd-seq.o snd-seq-device.o snd-seq-midi-event.o snd-seq-midi.o snd-seq-midi-emul.o snd-seq-instr.o
++obj-$(CONFIG_SND_SB16) += snd-seq-virmidi.o snd-seq.o snd-seq-device.o snd-seq-midi-event.o snd-seq-midi.o snd-seq-midi-emul.o snd-seq-instr.o
++obj-$(CONFIG_SND_SBAWE) += snd-seq-virmidi.o snd-seq.o snd-seq-device.o snd-seq-midi-event.o snd-seq-midi.o snd-seq-midi-emul.o snd-seq-instr.o snd-seq-virmidi.o
++obj-$(CONFIG_SND_ES968) += snd-seq-virmidi.o snd-seq.o snd-seq-device.o snd-seq-midi-event.o snd-seq-midi.o
++obj-$(CONFIG_SND_WAVEFRONT) += snd-seq-virmidi.o snd-seq.o snd-seq-device.o snd-seq-midi-event.o snd-seq-midi.o snd-seq-midi-emul.o snd-seq-instr.o
++obj-$(CONFIG_SND_SSCAPE) += snd-seq-virmidi.o snd-seq.o snd-seq-device.o snd-seq-midi-event.o snd-seq-midi.o
++obj-$(CONFIG_SND_ALS4000) += snd-seq-virmidi.o snd-seq.o snd-seq-device.o snd-seq-midi-event.o snd-seq-midi.o snd-seq-midi-emul.o snd-seq-instr.o
++obj-$(CONFIG_SND_CMIPCI) += snd-seq-virmidi.o snd-seq.o snd-seq-device.o snd-seq-midi-event.o snd-seq-midi.o snd-seq-midi-emul.o snd-seq-instr.o
++obj-$(CONFIG_SND_CS4281) += snd-seq-virmidi.o snd-seq.o snd-seq-device.o snd-seq-midi-event.o snd-seq-midi.o snd-seq-midi-emul.o snd-seq-instr.o
++obj-$(CONFIG_SND_ENS1370) += snd-seq-virmidi.o snd-seq.o snd-seq-device.o snd-seq-midi-event.o snd-seq-midi.o
++obj-$(CONFIG_SND_ENS1371) += snd-seq-virmidi.o snd-seq.o snd-seq-device.o snd-seq-midi-event.o snd-seq-midi.o
++obj-$(CONFIG_SND_ES1938) += snd-seq-virmidi.o snd-seq.o snd-seq-device.o snd-seq-midi-event.o snd-seq-midi.o snd-seq-midi-emul.o snd-seq-instr.o
++obj-$(CONFIG_SND_ES1968) += snd-seq-virmidi.o snd-seq.o snd-seq-device.o snd-seq-midi-event.o snd-seq-midi.o
++obj-$(CONFIG_SND_FM801) += snd-seq-virmidi.o snd-seq.o snd-seq-device.o snd-seq-midi-event.o snd-seq-midi.o snd-seq-midi-emul.o snd-seq-instr.o
++obj-$(CONFIG_SND_ICE1712) += snd-seq-virmidi.o snd-seq.o snd-seq-device.o snd-seq-midi-event.o snd-seq-midi.o
++obj-$(CONFIG_SND_ICE1724) += snd-seq-virmidi.o snd-seq.o snd-seq-device.o snd-seq-midi-event.o snd-seq-midi.o
++obj-$(CONFIG_SND_INTEL8X0) += snd-seq-virmidi.o snd-seq.o snd-seq-device.o snd-seq-midi-event.o snd-seq-midi.o
++obj-$(CONFIG_SND_SONICVIBES) += snd-seq-virmidi.o snd-seq.o snd-seq-device.o snd-seq-midi-event.o snd-seq-midi.o snd-seq-midi-emul.o snd-seq-instr.o
++obj-$(CONFIG_SND_VIA82XX) += snd-seq-virmidi.o snd-seq.o snd-seq-device.o snd-seq-midi-event.o snd-seq-midi.o
++obj-$(CONFIG_SND_ALI5451) += snd-seq-virmidi.o snd-seq.o snd-seq-device.o snd-seq-midi-event.o snd-seq-midi.o
++obj-$(CONFIG_SND_CS46XX) += snd-seq-virmidi.o snd-seq.o snd-seq-device.o snd-seq-midi-event.o snd-seq-midi.o
++obj-$(CONFIG_SND_EMU10K1) += snd-seq-virmidi.o snd-seq.o snd-seq-device.o snd-seq-midi-event.o snd-seq-midi.o snd-seq-midi-emul.o snd-seq-virmidi.o
++obj-$(CONFIG_SND_TRIDENT) += snd-seq-virmidi.o snd-seq.o snd-seq-device.o snd-seq-midi-event.o snd-seq-midi.o snd-seq-midi-emul.o snd-seq-instr.o
++obj-$(CONFIG_SND_YMFPCI) += snd-seq-virmidi.o snd-seq.o snd-seq-device.o snd-seq-midi-event.o snd-seq-midi.o snd-seq-midi-emul.o snd-seq-instr.o
++obj-$(CONFIG_SND_USB_AUDIO) += snd-seq-virmidi.o snd-seq.o snd-seq-device.o snd-seq-midi-event.o snd-seq-midi.o
++obj-$(CONFIG_SND_HDSP) += snd-seq-virmidi.o snd-seq.o snd-seq-device.o snd-seq-midi-event.o snd-seq-midi.o
+ 
+ obj-m := $(sort $(obj-m))
++
++include $(TOPDIR)/Rules.make
++
++snd-seq-device.o: $(snd-seq-device-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-seq-device-objs)
++
++snd-seq.o: $(snd-seq-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-seq-objs)
++
++snd-seq-midi.o: $(snd-seq-midi-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-seq-midi-objs)
++
++snd-seq-midi-emul.o: $(snd-seq-midi-emul-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-seq-midi-emul-objs)
++
++snd-seq-midi-event.o: $(snd-seq-midi-event-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-seq-midi-event-objs)
++
++snd-seq-instr.o: $(snd-seq-instr-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-seq-instr-objs)
++
++snd-seq-dummy.o: $(snd-seq-dummy-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-seq-dummy-objs)
++
++snd-seq-virmidi.o: $(snd-seq-virmidi-objs)
++	$(LD) $(LD_RFLAG) -r -o $@ $(snd-seq-virmidi-objs)
++
++snd-seq-midi-objs := seq_midi.o
++snd-seq-midi-emul-objs := seq_midi_emul.o
++snd-seq-midi-event-objs := seq_midi_event.o
++snd-seq-instr-objs := seq_instr.o
++snd-seq-dummy-objs := seq_dummy.o
++snd-seq-virmidi-objs := seq_virmidi.o

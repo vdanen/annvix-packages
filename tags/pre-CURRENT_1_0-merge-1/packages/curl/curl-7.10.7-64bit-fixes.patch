@@ -1,0 +1,11 @@
+--- curl-7.10.7/lib/hostip.c.64bit-fixes	2003-08-06 17:26:02.000000000 +0200
++++ curl-7.10.7/lib/hostip.c	2003-09-01 01:37:12.000000000 +0200
+@@ -212,7 +212,7 @@ cache_resolv_response(struct SessionHand
+                       int port)
+ {
+   char *entry_id;
+-  int entry_len;
++  ssize_t entry_len;
+   struct Curl_dns_entry *dns;
+   time_t now;
+ 

@@ -1,0 +1,31 @@
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff orig/3rdparty/p4b_smbus/p4b_smbus.c q5/3rdparty/p4b_smbus/p4b_smbus.c
+--- orig/3rdparty/p4b_smbus/p4b_smbus.c	2002-08-23 14:56:43.000000000 +0200
++++ q5/3rdparty/p4b_smbus/p4b_smbus.c	2002-08-23 13:45:21.000000000 +0200
+@@ -107,10 +102,8 @@ rmm    from lm_sensors-2.3.3: 
+ /* status, used to indicate that io space needs to be freed */
+ static struct pci_dev *i801smbus = NULL;
+ static int i801smbus_inserted = FALSE;
+-extern void cleanup_module(void);
+  
+ static rwlock_t i801smbus_lock = RW_LOCK_UNLOCKED;
+-static unsigned long i801smbus_lock_flags = 0;
+ 
+ /* 
+  * Checks whether SMBus is enabled and turns it on in case they are not. 
+@@ -272,12 +265,14 @@ int init_module(void)
+ 
+ void cleanup_module(void)
+ {
+-	write_lock_irqsave(i801smbus_lock, i801smbus_lock_flags);
++	unsigned long flags;
++
++	write_lock_irqsave(&i801smbus_lock, flags);
+ 	if (i801smbus_inserted) {
+ 		pci_remove_device(i801smbus);
+ 		i801smbus_inserted = FALSE;
+ 	}
+-	write_unlock_irqrestore(i801smbus_lock, i801smbus_lock_flags);
++	write_unlock_irqrestore(&i801smbus_lock, flags);
+ 
+ 	if (NULL != i801smbus)
+ 	  {

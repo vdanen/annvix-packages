@@ -1,0 +1,32 @@
+Index: 22-pre8.1/arch/i386/vmlinux.lds.S
+--- 22-pre8.1/arch/i386/vmlinux.lds.S Tue, 19 Feb 2002 15:55:59 +1100 kaos (kdb-2.4-arch-i386/3_vmlinux.ld 1.1.1.1 644)
++++ 22-pre8.2/arch/i386/vmlinux.lds.S Thu, 23 Jan 2003 16:07:42 +1100 kaos (kdb-2.4-arch-i386/3_vmlinux.ld 1.4 644)
+@@ -28,6 +28,10 @@ SECTIONS
+   __ksymtab : { *(__ksymtab) }
+   __stop___ksymtab = .;
+ 
++  __start___kallsyms = .;	/* All kernel symbols */
++  __kallsyms : { *(__kallsyms) }
++  __stop___kallsyms = .;
++
+   .data : {			/* Data */
+ 	*(.data)
+ 	CONSTRUCTORS
+@@ -46,6 +50,9 @@ SECTIONS
+   __setup_start = .;
+   .setup.init : { *(.setup.init) }
+   __setup_end = .;
++  __kdb_initcall_start = .;
++  .kdb_initcall.init : { *(.kdb_initcall.init) }
++  __kdb_initcall_end = .;
+   __initcall_start = .;
+   .initcall.init : { *(.initcall.init) }
+   __initcall_end = .;
+@@ -69,6 +76,7 @@ SECTIONS
+ 	*(.text.exit)
+ 	*(.data.exit)
+ 	*(.exitcall.exit)
++	*(.kdb_exitcall.exit)
+ 	}
+ 
+   /* Stabs debugging sections.  */

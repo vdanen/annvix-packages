@@ -1,0 +1,51 @@
+--- mktemp-1.5/mktemp.c	Sat Jul  1 04:34:35 2000
++++ mktemp-1.5/mktemp.c	Sat Jul  1 04:35:24 2000
+@@ -61,7 +61,7 @@
+ void
+ usage()
+ {
+-	(void) fprintf(stderr, "Usage: %s [-d] [-q] [-u] template\n",
++	(void) fprintf(stderr, "Usage: %s [-q] [-u] template\n",
+ 	    __progname);
+ 	exit(1);
+ }
+@@ -74,11 +74,8 @@
+ 	char *template;
+ 	int c, uflag = 0, qflag = 0, makedir = 0;
+ 
+-	while ((c = getopt(argc, argv, "dqu")) != -1)
++	while ((c = getopt(argc, argv, "qu")) != -1)
+ 		switch(c) {
+-		case 'd':
+-			makedir = 1;
+-			break;
+ 		case 'q':
+ 			qflag = 1;
+ 			break;
+@@ -101,13 +98,14 @@
+ 	}
+ 
+ 	if (makedir) {
++#if 0
+ 		if (mkdtemp(template) == NULL) {
+ 			if (qflag)
+ 				exit(1);
+ 			else
+ 				err(1, "Cannot make temp dir %s", template);
+ 		}
+-
++#endif
+ 		if (uflag)
+ 			(void) rmdir(template);
+ 	} else {
+--- mktemp-1.5/mktemp.1	Sat Jul  1 04:34:44 2000
++++ mktemp-1.5/mktemp.1	Sat Jul  1 04:34:49 2000
+@@ -81,8 +81,6 @@
+ .Sh OPTIONS
+ .Bl -tag -width indent
+ The available options are as follows:
+-.It Fl d
+-Make a directory instead of a file.
+ .It Fl q
+ Fail silently if an error occurs.  This is useful if
+ a script does not want error output to go to standard error.

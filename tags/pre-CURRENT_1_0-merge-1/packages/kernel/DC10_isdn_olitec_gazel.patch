@@ -1,0 +1,49 @@
+--- linux/drivers/isdn/hisax/config.c.badz	Mon Apr  2 18:49:26 2001
++++ linux/drivers/isdn/hisax/config.c	Mon Apr  2 18:51:55 2001
+@@ -1724,6 +1724,7 @@
+ 	{PCI_VENDOR_ID_PLX,      PCI_DEVICE_ID_PLX_R685,         PCI_ANY_ID, PCI_ANY_ID},
+ 	{PCI_VENDOR_ID_PLX,      PCI_DEVICE_ID_PLX_R753,         PCI_ANY_ID, PCI_ANY_ID},
+ 	{PCI_VENDOR_ID_PLX,      PCI_DEVICE_ID_PLX_DJINN_ITOO,   PCI_ANY_ID, PCI_ANY_ID},
++	{PCI_VENDOR_ID_PLX,      PCI_DEVICE_ID_PLX_R753_OLITEC,  PCI_ANY_ID, PCI_ANY_ID},
+ #endif
+ #ifdef CONFIG_HISAX_QUADRO
+ 	{PCI_VENDOR_ID_PLX,      PCI_DEVICE_ID_PLX_9050,         PCI_ANY_ID, PCI_ANY_ID},
+--- linux/drivers/isdn/hisax/gazel.c.badz	Mon Apr  2 18:49:33 2001
++++ linux/drivers/isdn/hisax/gazel.c	Mon Apr  2 18:52:08 2001
+@@ -561,7 +561,7 @@
+ 		return 1;
+ 	}
+ 	seekcard = PCI_DEVICE_ID_PLX_R685;
+-	for (nbseek = 0; nbseek < 3; nbseek++) {
++	for (nbseek = 0; nbseek < 4; nbseek++) {
+ 		if ((dev_tel = pci_find_device(PCI_VENDOR_ID_PLX, seekcard, dev_tel))) {
+ 			if (pci_enable_device(dev_tel))
+ 				return 1;
+@@ -580,6 +580,9 @@
+ 				case PCI_DEVICE_ID_PLX_R753:
+ 					seekcard = PCI_DEVICE_ID_PLX_DJINN_ITOO;
+ 					break;
++				case PCI_DEVICE_ID_PLX_DJINN_ITOO:
++					seekcard = PCI_DEVICE_ID_PLX_R753_OLITEC;
++					break;
+ 			}
+ 		}
+ 	}
+@@ -619,6 +622,7 @@
+ 			     cs->hw.gazel.hscx[0], cs->hw.gazel.hscx[1]);
+ 			break;
+ 		case PCI_DEVICE_ID_PLX_R753:
++		case PCI_DEVICE_ID_PLX_R753_OLITEC:
+ 		case PCI_DEVICE_ID_PLX_DJINN_ITOO:
+ 			printk(KERN_INFO "Gazel: Card PCI R753 found\n");
+ 			cs->subtyp = R753;
+--- linux/include/linux/pci_ids.h.badz	Mon Apr  2 18:54:46 2001
++++ linux/include/linux/pci_ids.h	Mon Apr  2 18:54:56 2001
+@@ -683,6 +683,7 @@
+ #define PCI_DEVICE_ID_PLX_SPCOM200	0x1103
+ #define PCI_DEVICE_ID_PLX_DJINN_ITOO	0x1151
+ #define PCI_DEVICE_ID_PLX_R753		0x1152
++#define PCI_DEVICE_ID_PLX_R753_OLITEC	0x1187
+ #define PCI_DEVICE_ID_PLX_9050		0x9050
+ #define PCI_DEVICE_ID_PLX_9060		0x9060
+ #define PCI_DEVICE_ID_PLX_9060ES	0x906E

@@ -1,0 +1,16 @@
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff --exclude='defconfig*' --exclude='log.*' --exclude='log2?' w2/drivers/atm/horizon.c w1/drivers/atm/horizon.c
+--- w2/drivers/atm/horizon.c	2003-08-12 10:25:01.000000000 +0200
++++ w1/drivers/atm/horizon.c	2003-08-20 20:28:43.000000000 +0200
+@@ -2922,12 +2922,6 @@ static void __init hrz_check_args (void)
+   if (max_tx_size > TX_AAL5_LIMIT)
+     PRINTK (KERN_NOTICE, "max_tx_size has been limited to %hu",
+ 	    max_tx_size = TX_AAL5_LIMIT);
+-  
+-  if (max_rx_size > RX_AAL5_LIMIT)
+-    PRINTK (KERN_NOTICE, "max_rx_size has been limited to %hu",
+-	    max_rx_size = RX_AAL5_LIMIT);
+-  
+-  return;
+ }
+ 
+ #ifdef MODULE

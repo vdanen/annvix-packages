@@ -1,0 +1,37 @@
+
+- enable the checks that the suexec wrapper is a setuid root binary;
+so if people turn off setuid on the binary, suexec won't be enabled.
+
+--- ./os/unix/unixd.c.suexec	Thu Apr 25 08:18:40 2002
++++ ./os/unix/unixd.c	Thu May 23 15:11:15 2002
+@@ -228,23 +228,20 @@
+ 
+ AP_DECLARE(void) unixd_pre_config(apr_pool_t *ptemp)
+ {
+-    apr_finfo_t wrapper;
++    struct stat wrapper;
+ 
+     unixd_config.user_name = DEFAULT_USER;
+     unixd_config.user_id = ap_uname2id(DEFAULT_USER);
+     unixd_config.group_id = ap_gname2id(DEFAULT_GROUP);
+ 
+     /* Check for suexec */
+-    unixd_config.suexec_enabled = 0;
+-    if ((apr_stat(&wrapper, SUEXEC_BIN, 
+-                  APR_FINFO_NORM, ptemp)) != APR_SUCCESS) {
+-        return;
+-    }
+-
+-    /* XXX - apr_stat is incapable of checking suid bits (grumble) */
+-    /* if ((wrapper.filetype & S_ISUID) && wrapper.user == 0) { */
++    if (stat(SUEXEC_BIN, &wrapper) == 0 && 
++	(wrapper.st_mode & S_ISUID) && wrapper.st_uid == 0) {
+         unixd_config.suexec_enabled = 1;
+-    /* } */
++    } else {
++	unixd_config.suexec_enabled = 0;
++    }
++    
+ }
+ 
+ 

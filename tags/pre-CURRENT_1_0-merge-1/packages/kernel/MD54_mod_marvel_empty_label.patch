@@ -1,0 +1,12 @@
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff --exclude='defconfig*' --exclude='log.*' --exclude='log2?' w2/3rdparty/mod_marvel/msp3400.c w1/3rdparty/mod_marvel/msp3400.c
+--- w2/3rdparty/mod_marvel/msp3400.c	2002-06-05 14:59:46.000000000 +0200
++++ w1/3rdparty/mod_marvel/msp3400.c	2003-08-18 20:39:20.000000000 +0200
+@@ -1582,7 +1582,7 @@ static int msp_command(struct i2c_client
+ 		break;
+ 
+ 	default:
+-		/* nothing */
++		/* nothing */;
+ 	}
+ 	return 0;
+ }

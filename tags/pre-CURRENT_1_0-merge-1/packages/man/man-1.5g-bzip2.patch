@@ -1,0 +1,24 @@
+diff -urN man-1.5g-orig/configure man-1.5g/configure
+--- man-1.5g-orig/configure	Wed Apr  7 02:16:05 1999
++++ man-1.5g/configure	Mon May 24 00:33:30 1999
+@@ -851,7 +851,7 @@
+   then
+     DO_COMPRESSION=true
+     compress=
+-    for i in gzip bzip2 pack compress freeze yabba
++    for i in bzip2 bzip tzip gzip pack compress freeze yabba
+     do
+       eval F$i=missing
+       for j in $DEFPATH
+@@ -903,8 +903,10 @@
+     fi
+ 
+     case $compress in
+-      *gzip*) ext=".gz" ;;
+       *bzip2*) ext=".bz2" ;;
++      *bzip*) ext=".bz" ;;
++      *tzip*) ext=".tz" ;;
++      *gzip*) ext=".gz" ;;
+       *pack*) ext=".z" ;;
+       *compress*) ext=".Z" ;;
+       *freeze*) ext=".F" ;;

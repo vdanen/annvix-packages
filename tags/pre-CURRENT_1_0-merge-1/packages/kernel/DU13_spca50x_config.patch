@@ -1,0 +1,12 @@
+--- linux-2.4.20/drivers/usb/spca50x.c~	2003-04-17 06:20:19.000000000 +0200
++++ linux-2.4.20/drivers/usb/spca50x.c	2003-04-17 08:03:08.000000000 +0200
+@@ -38,6 +38,9 @@
+  * Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+  */
+ 
++#define SPCA50X_VERSION "0.30" 
++#define SPCA50X_ENABLE_EXP_505_BRIGHTNESS 
++
+ static const char version[] = SPCA50X_VERSION;
+ static const char SPCA50X_C_CVS_VERSION[]="$Id: spca50x.c,v 1.52 2003/02/17 07:23:18 polesworth Exp $";
+ 

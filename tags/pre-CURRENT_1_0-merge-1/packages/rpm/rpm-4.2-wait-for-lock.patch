@@ -1,0 +1,59 @@
+--- rpm-4.2/rpmdb/db3.c.lock	2003-03-13 17:44:14.000000000 +0100
++++ rpm-4.2/rpmdb/db3.c	2003-09-11 11:15:39.000000000 +0200
+@@ -1300,8 +1300,7 @@
+ 	     * glibc/kernel combinations.
+ 	     */
+ 	    if (rc == 0 && dbi->dbi_lockdbfd &&
+-		!((dbi->dbi_ecflags & DB_CLIENT) && dbi->dbi_host) &&
+-		(!dbi->dbi_use_dbenv || _lockdbfd++ == 0))
++		!((dbi->dbi_ecflags & DB_CLIENT) && dbi->dbi_host))
+ 	    {
+ 		int fdno = -1;
+ 
+@@ -1313,10 +1312,11 @@
+ 		    l.l_whence = 0;
+ 		    l.l_start = 0;
+ 		    l.l_len = 0;
+-		    l.l_type = (dbi->dbi_mode & (O_RDWR|O_WRONLY))
+-				? F_WRLCK : F_RDLCK;
++		    l.l_type = (dbi->dbi_oflags & DB_RDONLY
++				? F_RDLCK : F_WRLCK);
+ 		    l.l_pid = 0;
+ 
++		    while (1) {
+ 		    rc = fcntl(fdno, F_SETLK, (void *) &l);
+ 		    if (rc) {
+ 			/* Warning iff using non-private CDB locking. */
+@@ -1324,15 +1324,28 @@
+ 				(dbi->dbi_eflags & DB_INIT_CDB) &&
+ 				!(dbi->dbi_eflags & DB_PRIVATE))
+ 			    ? 0 : 1);
++			if (dbi->dbi_verbose)
+ 			rpmError( (rc ? RPMERR_FLOCK : RPMWARN_FLOCK),
+-				_("cannot get %s lock on %s/%s\n"),
+-				((dbi->dbi_mode & (O_RDWR|O_WRONLY))
+-					? _("exclusive") : _("shared")),
+-				dbhome, (dbfile ? dbfile : ""));
++				  _("cannot get %s lock on %s/%s\n"),
++				  (dbi->dbi_oflags & DB_RDONLY)
++				  ? _("shared") : _("exclusive"),
++				  dbhome, (dbfile ? dbfile : ""));
+ 		    } else if (dbfile) {
+ 			rpmMessage(RPMMESS_DEBUG,
+ 				_("locked   db index       %s/%s\n"),
+ 				dbhome, dbfile);
++			break;
++		    }
++		    if (!geteuid() || (dbi->dbi_oflags & DB_RDONLY)) {
++		      sleep(5);
++		    } else {
++		      rpmError( (rc ? RPMERR_FLOCK : RPMWARN_FLOCK),
++				_("cannot get %s lock on %s/%s\n"),
++				(dbi->dbi_oflags & DB_RDONLY)
++				? _("shared") : _("exclusive"),
++				dbhome, (dbfile ? dbfile : ""));
++		      break;
++		    }
+ 		    }
+ 		}
+ 	    }

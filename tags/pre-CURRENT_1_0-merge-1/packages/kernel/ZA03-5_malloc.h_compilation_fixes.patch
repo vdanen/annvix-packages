@@ -1,0 +1,11 @@
+--- linux-2.4.20/drivers/scsi/qla2x00.c.za03-4.orig	2003-04-16 04:12:05.000000000 +0200
++++ linux-2.4.20/drivers/scsi/qla2x00.c	2003-04-16 04:12:50.000000000 +0200
+@@ -416,7 +416,7 @@ static int apiHBAInstance = 0;  /* ioctl
+ #include "isp1_fw.h"                     /* ISP RISC 2200 code */
+ #endif
+ #include <linux/stat.h>
+-#include <linux/malloc.h>       
++#include <linux/slab.h>       
+ 
+ 
+ #define  BZERO(ptr, amt)	memset((void *)(ptr), 0, amt)

@@ -1,0 +1,15 @@
+--- util-linux-2.11m/misc-utils/mcookie.c.chmou	Thu Mar 15 11:09:58 2001
++++ util-linux-2.11m/misc-utils/mcookie.c	Tue Jan 15 20:07:42 2002
+@@ -40,11 +40,11 @@
+    const char *path;
+    int minlength, maxlength;
+ } rngs[] = {
++   { "/dev/urandom",             32,  64 },
+    { "/dev/random",              16,  16 }, /* 16 bytes = 128 bits suffice */
+    { "/proc/interrupts",          0,   0 },
+    { "/proc/slabinfo",            0,   0 },
+    { "/proc/stat",                0,   0 },
+-   { "/dev/urandom",             32,  64 },
+ };
+ #define RNGS (sizeof(rngs)/sizeof(struct rngs))
+ 

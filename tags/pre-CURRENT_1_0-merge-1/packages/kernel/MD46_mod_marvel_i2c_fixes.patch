@@ -1,0 +1,96 @@
+diff -Naurb linux-2.4.22-pre10/3rdparty/mod_marvel.old/i2c-algo-ks.c linux-2.4.22-pre10/3rdparty/mod_marvel/i2c-algo-ks.c
+--- linux-2.4.22-pre10/3rdparty/mod_marvel.old/i2c-algo-ks.c	Mon Aug 11 14:59:38 2003
++++ linux-2.4.22-pre10/3rdparty/mod_marvel/i2c-algo-ks.c	Mon Aug 11 12:47:37 2003
+@@ -547,6 +547,7 @@
+ /* -----exported algorithm data: -------------------------------------	*/
+ 
+ static struct i2c_algorithm i2c_ks_algo = {
++	THIS_MODULE,
+ 	"ks0127-bug algorithm",
+ 	I2C_ALGO_BIT,
+ 	bit_xfer,
+diff -Naurb linux-2.4.22-pre10/3rdparty/mod_marvel.old/ks0127.c linux-2.4.22-pre10/3rdparty/mod_marvel/ks0127.c
+--- linux-2.4.22-pre10/3rdparty/mod_marvel.old/ks0127.c	Mon Aug 11 14:59:38 2003
++++ linux-2.4.22-pre10/3rdparty/mod_marvel/ks0127.c	Mon Aug 11 12:47:51 2003
+@@ -1119,14 +1119,13 @@
+ 
+ 
+ static struct i2c_driver i2c_driver_ks0127 = {
++	owner:		THIS_MODULE,
+ 	name:		KS0127_DEVNAME,
+ 	id:		I2C_DRIVERID_KS0127,
+ 	flags:		I2C_DF_NOTIFY,
+ 	attach_adapter:	ks0127_attach,
+ 	detach_client:	ks0127_detach,
+ 	command:	ks0127_command,
+-	inc_use:	NULL,
+-	dec_use:	NULL
+ };
+ 
+ 
+diff -Naurb linux-2.4.22-pre10/3rdparty/mod_marvel.old/maven.c linux-2.4.22-pre10/3rdparty/mod_marvel/maven.c
+--- linux-2.4.22-pre10/3rdparty/mod_marvel.old/maven.c	Mon Aug 11 14:59:38 2003
++++ linux-2.4.22-pre10/3rdparty/mod_marvel/maven.c	Mon Aug 11 12:48:06 2003
+@@ -658,14 +658,13 @@
+ 
+ 
+ static struct i2c_driver i2c_driver_maven = {
++	owner:		THIS_MODULE,
+ 	name:		MAVEN_DEVNAME,
+ 	id:		I2C_DRIVERID_MGATVO,
+ 	flags:		I2C_DF_NOTIFY,
+ 	attach_adapter:	maven_attach,
+ 	detach_client:	maven_detach,
+ 	command:	maven_command,
+-	inc_use:	NULL, //inc use
+-	dec_use:	NULL  //dec use
+ };
+ 
+ 
+diff -Naurb linux-2.4.22-pre10/3rdparty/mod_marvel.old/mgai2c.c linux-2.4.22-pre10/3rdparty/mod_marvel/mgai2c.c
+--- linux-2.4.22-pre10/3rdparty/mod_marvel.old/mgai2c.c	Mon Aug 11 14:59:38 2003
++++ linux-2.4.22-pre10/3rdparty/mod_marvel/mgai2c.c	Mon Aug 11 12:48:15 2003
+@@ -38,6 +38,7 @@
+ #include "ks0127.h"
+ #include "maven.h"
+ 
++#include <linux/i2c.h>
+ #include "i2c-algo-ks.h"
+ 
+ 
+@@ -267,21 +268,6 @@
+ }
+ 
+ 
+-static void adap_inc_use(struct i2c_adapter *adap)
+-{
+-#ifdef MODULE
+-	MOD_INC_USE_COUNT;
+-#endif
+-}
+-
+-static void adap_dec_use(struct i2c_adapter *adap)
+-{
+-#ifdef MODULE
+-	MOD_DEC_USE_COUNT;
+-#endif
+-}
+-
+-
+ static struct i2c_algo_ks_data mga_i2c_bit_ops_tmpl = {
+ 	data:		NULL,
+ 	setsda:		mga_setsda,
+@@ -295,12 +281,11 @@
+ 
+ 
+ static struct i2c_adapter mga_i2c_adap_tmpl = {
++	THIS_MODULE,
+ 	"mgai2c",
+ 	I2C_HW_B_BT848, /* needed for 2.4 tuner/msp3400*/	/* I2C_HW_B_G400 fixme */
+ 	NULL,
+ 	NULL,
+-	adap_inc_use,
+-	adap_dec_use,
+ 	adap_reg_client,
+ 	adap_unreg_client,
+ };

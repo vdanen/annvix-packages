@@ -1,0 +1,37 @@
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff --exclude='defconfig*' --exclude='log.*' --exclude='log2?' w2/3rdparty/vids/tdfx_vid.c w1/3rdparty/vids/tdfx_vid.c
+--- w2/3rdparty/vids/tdfx_vid.c	2003-08-05 22:25:32.000000000 +0200
++++ w1/3rdparty/vids/tdfx_vid.c	2003-08-18 20:32:48.000000000 +0200
+@@ -58,7 +58,6 @@ static agp_memory *agp_mem = NULL;
+ static __initdata int tdfx_map_io = 1;
+ static __initdata unsigned long map_start = 0; //0x7300000;
+ static __initdata unsigned long map_max = (10*1024*1024);
+-static unsigned long map_base = 0;
+ 
+ MODULE_PARM(tdfx_map_io,"i");
+ MODULE_PARM_DESC(tdfx_map_io, "Set to 0 to use the page fault handler (you need to patch agpgart_be.c to allow the mapping in user space)\n");
+@@ -271,25 +270,6 @@ static int agp_move(tdfx_vid_agp_move_t*
+   return 0;
+ }
+ 
+-static void setup_fifo(u32 offset,ssize_t pages) {
+-  long addr = agp_info.aper_base + offset;
+-  u32 size = pages | 0x700; // fifo on, in agp mem, disable hole cnt
+-
+-  banshee_wait_idle();
+-
+-  tdfx_outl(CMDBASEADDR0,addr >> 4);
+-  tdfx_outl(CMDRDPTRL0, addr << 4);
+-  tdfx_outl(CMDRDPTRH0, addr >> 28);
+-  tdfx_outl(CMDAMIN0, (addr - 4) & 0xFFFFFF);
+-  tdfx_outl(CMDAMAX0, (addr - 4) & 0xFFFFFF);
+-  tdfx_outl(CMDFIFODEPTH0, 0);
+-  tdfx_outl(CMDHOLECNT0, 0);
+-  tdfx_outl(CMDBASESIZE0,size);
+-
+-  banshee_wait_idle();
+-  
+-}
+-
+ static int bump_fifo(u16 size) {
+ 
+   banshee_wait_idle();

@@ -1,0 +1,11 @@
+--- linux-2.4.22/3rdparty/acx100/acx100.c.md60.orig	2003-09-06 16:08:18.000000000 +0200
++++ linux-2.4.22/3rdparty/acx100/acx100.c	2003-09-06 23:29:55.000000000 +0200
+@@ -926,7 +926,7 @@ static void set_rx_mode(netdevice_t * ne
+ irqreturn_t acx100_interrupt(int irq, void *dev_id, struct pt_regs *regs)
+ {
+ 	wlandevice_t *wlandev = (wlandevice_t *) (((netdevice_t *) dev_id)->priv);
+-	unsigned long flags;
++//	unsigned long flags;
+ 	int irqcount = MAX_IRQLOOPS_PER_JIFFY;
+ 	static unsigned long entry_count = 0;
+ 	static int loops_this_jiffy = 0;

@@ -1,0 +1,9 @@
+--- linux-2.4.19/arch/ppc/kernel/ppc_ksyms.c.ppc	2002-12-04 06:19:11.000000000 -0500
++++ linux-2.4.19/arch/ppc/kernel/ppc_ksyms.c	2002-12-04 06:29:30.000000000 -0500
+@@ -367,4 +367,5 @@
+ extern unsigned long agp_special_page;
+ EXPORT_SYMBOL_NOVERS(agp_special_page);
+ #endif /* defined(CONFIG_ALL_PPC) */
+-
++EXPORT_SYMBOL(clear_user_page); /* bttv */
++EXPORT_SYMBOL(ioremap_bot); /* xfs, ntfs */

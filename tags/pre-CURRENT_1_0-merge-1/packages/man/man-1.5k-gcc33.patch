@@ -1,0 +1,12 @@
+--- man-1.5k.old/src/gripes.c	2001-11-20 11:53:47.000000000 +0100
++++ man-1.5k/src/gripes.c	2003-06-16 22:51:50.000000000 +0200
+@@ -54,8 +54,7 @@
+ 	    } else if (debug) {
+ 		perror(mantexts);
+ 		fprintf(stderr,
+-"Looked whether there exists a message catalog %s, but there is none
+-(and for English messages none is needed)\n\n",
++"Looked whether there exists a message catalog %s, but there is none (and for English messages none is needed)\n\n",
+ 			mantexts);
+             }
+ 	}

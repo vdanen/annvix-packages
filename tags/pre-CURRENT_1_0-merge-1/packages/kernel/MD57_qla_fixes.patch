@@ -1,0 +1,32 @@
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff --exclude='defconfig*' --exclude='log.*' --exclude='log2?' w2/3rdparty/qla/flash.c w1/3rdparty/qla/flash.c
+--- w2/3rdparty/qla/flash.c	2002-02-13 15:26:50.000000000 +0100
++++ w1/3rdparty/qla/flash.c	2003-08-19 15:41:25.000000000 +0200
+@@ -892,7 +892,7 @@ qla2200_nvram_config(struct scsi_qla_hos
+ 
+ 		/* Update our PCI device dma_mask for full 64 bit mask;
+ 		   disable 64 bit addressing if this fails */
+-		if (pci_set_dma_mask(ha->pdev, (unsigned long)0xffffffffffffffff))  {
++		if (pci_set_dma_mask(ha->pdev, 0xffffffffffffffffULL))  {
+ 			ha->flags.enable_64bit_addressing = 0;
+ 			pci_set_dma_mask(ha->pdev, 0xffffffff);
+ 		}
+@@ -1142,7 +1142,7 @@ qla2100_nvram_config(struct scsi_qla_hos
+ 
+ 		/* Update our PCI device dma_mask for full 64 bit mask;
+ 		   disable 64 bit addressing if this fails */
+-		if (pci_set_dma_mask(ha->pdev, 0xffffffffffffffff)) {
++		if (pci_set_dma_mask(ha->pdev, 0xffffffffffffffffULL)) {
+ 			ha->flags.enable_64bit_addressing = 0;
+ 			pci_set_dma_mask(ha->pdev, 0xffffffff);
+ 		}
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff --exclude='defconfig*' --exclude='log.*' --exclude='log2?' w2/3rdparty/qla/qla2300.c w1/3rdparty/qla/qla2300.c
+--- w2/3rdparty/qla/qla2300.c	2002-02-13 15:26:50.000000000 +0100
++++ w1/3rdparty/qla/qla2300.c	2003-08-19 15:44:08.000000000 +0200
+@@ -2,7 +2,6 @@
+ #define ISP2300
+ #define FAILOVER 
+ #define LINUX 
+-#define linux 
+ 
+ #include "settings.h"
+ #include "qla2x00.h"

@@ -1,0 +1,45 @@
+--- openssh-3.6.1p1/contrib/redhat/sshd.init.initscript	2002-05-10 04:19:23.000000000 +0200
++++ openssh-3.6.1p1/contrib/redhat/sshd.init	2003-04-04 15:06:09.000000000 +0200
+@@ -95,7 +95,7 @@
+ 	do_dsa_keygen
+ 
+ 	echo -n $"Starting $prog:"
+-	initlog -c "$SSHD $OPTIONS" && success || failure
++	initlog -c "$SSHD $OPTIONS" && success "startup" || failure "startup"
+ 	RETVAL=$?
+ 	[ "$RETVAL" = 0 ] && touch /var/lock/subsys/sshd
+ 	echo
+@@ -104,8 +104,14 @@
+ stop()
+ {
+ 	echo -n $"Stopping $prog:"
+-	killproc $SSHD -TERM
+-	RETVAL=$?
++	if [ -r /var/run/sshd.pid ]; then
++	    kill -TERM `cat /var/run/sshd.pid`
++	    RETVAL=$?
++	    [ "$RETVAL" = 0 ] && success "stop" || failure "stop"
++	else
++	    success "already stopped"
++	    RETVAL=0
++	fi
+ 	[ "$RETVAL" = 0 ] && rm -f /var/lock/subsys/sshd
+ 	echo
+ }
+@@ -113,8 +119,14 @@
+ reload()
+ {
+ 	echo -n $"Reloading $prog:"
+-	killproc $SSHD -HUP
+-	RETVAL=$?
++	if [ -r /var/run/sshd.pid ]; then
++	    kill -HUP `cat /var/run/sshd.pid`
++	    RETVAL=$?
++	    [ "$RETVAL" = 0 ] && success "config reload" || failure "config reload"
++	else
++	    failure "not running so config reload"
++	    RETVAL=1
++	fi
+ 	echo
+ }
+ 

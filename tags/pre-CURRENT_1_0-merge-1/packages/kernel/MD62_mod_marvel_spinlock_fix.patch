@@ -1,0 +1,15 @@
+--- linux-2.4.22/3rdparty/mod_marvel/mgai2c.c~	2003-09-13 01:16:33.000000000 +0200
++++ linux-2.4.22/3rdparty/mod_marvel/mgai2c.c	2003-09-13 02:28:52.000000000 +0200
+@@ -24,12 +24,7 @@
+ #include <linux/module.h>
+ #include <linux/delay.h>
+ #include <linux/proc_fs.h>
+-
+-#if LINUX_VERSION_CODE >= 0x020300
+ #include <linux/spinlock.h>
+-#else
+-#include <asm/spinlock.h>
+-#endif
+ 
+ #include "mgacore.h"
+ #include "mgai2c.h"

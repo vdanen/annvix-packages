@@ -1,0 +1,689 @@
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff w2/drivers/net/wireless.orig/airport.c w2/drivers/net/wireless/airport.c
+--- w2/drivers/net/wireless.orig/airport.c	2003-08-12 10:25:04.000000000 +0200
++++ w2/drivers/net/wireless/airport.c	2003-08-15 00:56:41.000000000 +0200
+@@ -1,4 +1,4 @@
+-/* airport.c 0.13d
++/* airport.c 0.13e
+  *
+  * A driver for "Hermes" chipset based Apple Airport wireless
+  * card.
+@@ -287,7 +287,7 @@ airport_detach(struct net_device *dev)
+ 	kfree(dev);
+ }				/* airport_detach */
+ 
+-static char version[] __initdata = "airport.c 0.13d (Benjamin Herrenschmidt <benh@kernel.crashing.org>)";
++static char version[] __initdata = "airport.c 0.13e (Benjamin Herrenschmidt <benh@kernel.crashing.org>)";
+ MODULE_AUTHOR("Benjamin Herrenschmidt <benh@kernel.crashing.org>");
+ MODULE_DESCRIPTION("Driver for the Apple Airport wireless card.");
+ MODULE_LICENSE("Dual MPL/GPL");
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff w2/drivers/net/wireless.orig/hermes.c w2/drivers/net/wireless/hermes.c
+--- w2/drivers/net/wireless.orig/hermes.c	2003-08-12 10:25:04.000000000 +0200
++++ w2/drivers/net/wireless/hermes.c	2003-08-15 00:56:41.000000000 +0200
+@@ -52,7 +52,6 @@
+ 
+ #include "hermes.h"
+ 
+-static char version[] __initdata = "hermes.c: 4 Dec 2002 David Gibson <hermes@gibson.dropbear.id.au>";
+ MODULE_DESCRIPTION("Low-level driver helper for Lucent Hermes chipset and Prism II HFA384x wireless MAC controller");
+ MODULE_AUTHOR("David Gibson <hermes@gibson.dropbear.id.au>");
+ #ifdef MODULE_LICENSE
+@@ -226,7 +225,8 @@ int hermes_init(hermes_t *hw)
+  * Returns: < 0 on internal error, 0 on success, > 0 on error returned by the firmware
+  *
+  * Callable from any context, but locking is your problem. */
+-int hermes_docmd_wait(hermes_t *hw, u16 cmd, u16 parm0, hermes_response_t *resp)
++int hermes_docmd_wait(hermes_t *hw, u16 cmd, u16 parm0,
++		      hermes_response_t *resp)
+ {
+ 	int err;
+ 	int k;
+@@ -469,13 +469,17 @@ int hermes_read_ltv(hermes_t *hw, int ba
+ 
+ 	err = hermes_docmd_wait(hw, HERMES_CMD_ACCESS, rid, NULL);
+ 	if (err)
+-		goto out;
++		return err;
+ 
+ 	err = hermes_bap_seek(hw, bap, rid, 0);
+ 	if (err)
+-		goto out;
++		return err;
+ 
+ 	rlength = hermes_read_reg(hw, dreg);
++
++	if (! rlength)
++		return -ENOENT;
++
+ 	rtype = hermes_read_reg(hw, dreg);
+ 
+ 	if (length)
+@@ -495,8 +499,7 @@ int hermes_read_ltv(hermes_t *hw, int ba
+ 	nwords = min((unsigned)rlength - 1, bufsize / 2);
+ 	hermes_read_words(hw, dreg, buf, nwords);
+ 
+- out:
+-	return err;
++	return 0;
+ }
+ 
+ int hermes_write_ltv(hermes_t *hw, int bap, u16 rid, 
+@@ -511,7 +514,7 @@ int hermes_write_ltv(hermes_t *hw, int b
+ 
+ 	err = hermes_bap_seek(hw, bap, rid, 0);
+ 	if (err)
+-		goto out;
++		return err;
+ 
+ 	hermes_write_reg(hw, dreg, length);
+ 	hermes_write_reg(hw, dreg, rid);
+@@ -523,7 +526,6 @@ int hermes_write_ltv(hermes_t *hw, int b
+ 	err = hermes_docmd_wait(hw, HERMES_CMD_ACCESS | HERMES_CMD_WRITE, 
+ 				rid, NULL);
+ 
+- out:
+ 	return err;
+ }
+ 
+@@ -539,8 +541,6 @@ EXPORT_SYMBOL(hermes_write_ltv);
+ 
+ static int __init init_hermes(void)
+ {
+-	printk(KERN_DEBUG "%s\n", version);
+-
+ 	return 0;
+ }
+ 
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff w2/drivers/net/wireless.orig/hermes.h w2/drivers/net/wireless/hermes.h
+--- w2/drivers/net/wireless.orig/hermes.h	2003-08-15 00:31:43.000000000 +0200
++++ w2/drivers/net/wireless/hermes.h	2003-08-15 00:56:41.000000000 +0200
+@@ -277,7 +277,7 @@ struct hermes_debug_entry {
+ 
+ /* Basic control structure */
+ typedef struct hermes {
+-	ulong iobase;
++	unsigned long iobase;
+ 	int io_space; /* 1 if we IO-mapped IO, 0 for memory-mapped IO? */
+ #define HERMES_IO	1
+ #define HERMES_MEM	0
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff w2/drivers/net/wireless.orig/ieee802_11.h w2/drivers/net/wireless/ieee802_11.h
+--- w2/drivers/net/wireless.orig/ieee802_11.h	2003-06-13 16:51:35.000000000 +0200
++++ w2/drivers/net/wireless/ieee802_11.h	2003-08-15 00:56:41.000000000 +0200
+@@ -9,6 +9,8 @@
+    bytes is allowed, which is a bit confusing, I suspect this
+    represents the 2304 bytes of real data, plus a possible 8 bytes of
+    WEP IV and ICV. (this interpretation suggested by Ramiro Barreiro) */
++
++
+ #define IEEE802_11_HLEN			30
+ #define IEEE802_11_FRAME_LEN		(IEEE802_11_DATA_LEN + IEEE802_11_HLEN)
+ 
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff w2/drivers/net/wireless.orig/orinoco.c w2/drivers/net/wireless/orinoco.c
+--- w2/drivers/net/wireless.orig/orinoco.c	2003-08-15 01:12:03.000000000 +0200
++++ w2/drivers/net/wireless/orinoco.c	2003-08-15 00:56:41.000000000 +0200
+@@ -1,4 +1,4 @@
+-/* orinoco.c 0.13d	- (formerly known as dldwd_cs.c and orinoco_cs.c)
++/* orinoco.c 0.13e	- (formerly known as dldwd_cs.c and orinoco_cs.c)
+  *
+  * A driver for Hermes or Prism 2 chipset based PCMCIA wireless
+  * adaptors, with Lucent/Agere, Intersil or Symbol firmware.
+@@ -117,7 +117,7 @@
+  *	o Init of priv->tx_rate_ctrl in firmware specific section.
+  *	o Prism2/Symbol rate, upto should be 0xF and not 0x15. Doh !
+  *	o Spectrum card always need cor_reset (for every reset)
+- *	o Fix cor_reset to not loose bit 7 in the register
++ *	o Fix cor_reset to not lose bit 7 in the register
+  *	o flush_stale_links to remove zombie Pcmcia instances
+  *	o Ack previous hermes event before reset
+  *		Me (with my little hands)
+@@ -289,7 +289,7 @@
+  *	  which are used as the dev->open, dev->stop, priv->reset
+  *	  callbacks if none are specified when alloc_orinocodev() is
+  *	  called.
+- *	o Removed orinoco_plx_interupt() and orinoco_pci_interrupt().
++ *	o Removed orinoco_plx_interrupt() and orinoco_pci_interrupt().
+  *	  They didn't do anything.
+  *
+  * v0.12 -> v0.12a - 4 Jul 2002 - David Gibson
+@@ -381,11 +381,18 @@
+  *	  safely with hw_unavailable set.  It also now clears the
+  *	  linkstatus (since we're going to have to reassociate).
+  *
++ * v0.13d -> v0.13e - 12 May 2003 - David Gibson
++ *	o Support for post-2.5.68 return values from irq handler.
++ *	o Fixed bug where underlength packets would be double counted
++ *	  in the rx_dropped statistics.
++ *	o Provided a module parameter to suppress linkstatus messages.
++ *
+  * TODO
+  *	o New wireless extensions API (patch from Moustafa
+- *	  Youssef, updated by Jim Carter).
++ *	  Youssef, updated by Jim Carter and Pavel Roskin).
+  *	o Handle de-encapsulation within network layer, provide 802.11
+  *	  headers (patch from Thomas 'Dent' Mirlacher)
++ *	o RF monitor mode support
+  *	o Fix possible races in SPY handling.
+  *	o Disconnect wireless extensions from fundamental configuration.
+  *	o (maybe) Software WEP support (patch from Stano Meduna).
+@@ -414,20 +421,20 @@
+ #include <linux/module.h>
+ #include <linux/kernel.h>
+ #include <linux/init.h>
+-#include <linux/sched.h>
+ #include <linux/ptrace.h>
+ #include <linux/slab.h>
+ #include <linux/string.h>
+ #include <linux/timer.h>
+ #include <linux/ioport.h>
+-#include <asm/uaccess.h>
+-#include <asm/io.h>
+-#include <asm/system.h>
+ #include <linux/netdevice.h>
+ #include <linux/if_arp.h>
+ #include <linux/etherdevice.h>
+ #include <linux/wireless.h>
+ 
++#include <asm/uaccess.h>
++#include <asm/io.h>
++#include <asm/system.h>
++
+ #include "hermes.h"
+ #include "hermes_rid.h"
+ #include "orinoco.h"
+@@ -450,6 +457,9 @@ MODULE_PARM(orinoco_debug, "i");
+ EXPORT_SYMBOL(orinoco_debug);
+ #endif
+ 
++static int suppress_linkstatus; /* = 0 */
++MODULE_PARM(suppress_linkstatus, "i");
++
+ /********************************************************************/
+ /* Compile time configuration and compatibility stuff               */
+ /********************************************************************/
+@@ -477,8 +487,10 @@ EXPORT_SYMBOL(orinoco_debug);
+ #define USER_BAP		0
+ #define IRQ_BAP			1
+ #define MAX_IRQLOOPS_PER_IRQ	10
+-#define MAX_IRQLOOPS_PER_JIFFY	(20000/HZ)	/* Based on a guestimate of how many events the
+-						   device could legitimately generate */
++#define MAX_IRQLOOPS_PER_JIFFY	(20000/HZ) /* Based on a guestimate of
++					    * how many events the
++					    * device could
++					    * legitimately generate */
+ #define SMALL_KEY_SIZE		5
+ #define LARGE_KEY_SIZE		13
+ #define TX_NICBUF_SIZE_BUG	1585		/* Bug in Symbol firmware */
+@@ -514,8 +526,8 @@ struct {
+ 	{10,  1,  1,  1},
+ 	{20,  0,  2,  2},
+ 	{20,  1,  6,  3},
+-	{55, 0,  4,  4},
+-	{55, 1,  7,  7},
++	{55,  0,  4,  4},
++	{55,  1,  7,  7},
+ 	{110, 0,  5,  8},
+ };
+ #define BITRATE_TABLE_SIZE (sizeof(bitrate_table) / sizeof(bitrate_table[0]))
+@@ -579,27 +591,7 @@ static void __orinoco_ev_tx(struct net_d
+ static void __orinoco_ev_alloc(struct net_device *dev, hermes_t *hw);
+ 
+ /* ioctl() routines */
+-static int orinoco_ioctl_getiwrange(struct net_device *dev, struct iw_point *rrq);
+-static int orinoco_ioctl_setiwencode(struct net_device *dev, struct iw_point *erq);
+-static int orinoco_ioctl_getiwencode(struct net_device *dev, struct iw_point *erq);
+-static int orinoco_ioctl_setessid(struct net_device *dev, struct iw_point *erq);
+-static int orinoco_ioctl_getessid(struct net_device *dev, struct iw_point *erq);
+-static int orinoco_ioctl_setnick(struct net_device *dev, struct iw_point *nrq);
+-static int orinoco_ioctl_getnick(struct net_device *dev, struct iw_point *nrq);
+-static int orinoco_ioctl_setfreq(struct net_device *dev, struct iw_freq *frq);
+-static int orinoco_ioctl_getsens(struct net_device *dev, struct iw_param *srq);
+-static int orinoco_ioctl_setsens(struct net_device *dev, struct iw_param *srq);
+-static int orinoco_ioctl_setrts(struct net_device *dev, struct iw_param *rrq);
+-static int orinoco_ioctl_setfrag(struct net_device *dev, struct iw_param *frq);
+-static int orinoco_ioctl_getfrag(struct net_device *dev, struct iw_param *frq);
+-static int orinoco_ioctl_setrate(struct net_device *dev, struct iw_param *frq);
+-static int orinoco_ioctl_getrate(struct net_device *dev, struct iw_param *frq);
+-static int orinoco_ioctl_setpower(struct net_device *dev, struct iw_param *prq);
+-static int orinoco_ioctl_getpower(struct net_device *dev, struct iw_param *prq);
+-static int orinoco_ioctl_setport3(struct net_device *dev, struct iwreq *wrq);
+-static int orinoco_ioctl_getport3(struct net_device *dev, struct iwreq *wrq);
+-
+-static int orinoco_debug_dump_recs(struct orinoco_private *priv);
++static int orinoco_debug_dump_recs(struct net_device *dev);
+ 
+ /********************************************************************/
+ /* Function prototypes                                              */
+@@ -1377,9 +1369,6 @@ static int orinoco_hw_get_bitratelist(st
+ }
+ 
+ #if 0
+-#ifndef ORINOCO_DEBUG
+-static inline void show_rx_frame(struct orinoco_rxframe_hdr *frame) {}
+-#else
+ static void show_rx_frame(struct orinoco_rxframe_hdr *frame)
+ {
+ 	printk(KERN_DEBUG "RX descriptor:\n");
+@@ -1436,13 +1425,12 @@ static void show_rx_frame(struct orinoco
+ 	       frame->p8022.oui[0], frame->p8022.oui[1], frame->p8022.oui[2]);
+ 	printk(KERN_DEBUG "  ethertype  = 0x%04x\n", frame->ethertype);
+ }
+-#endif
+-#endif
++#endif /* 0 */
+ 
+ /*
+  * Interrupt handler
+  */
+-void orinoco_interrupt(int irq, void *dev_id, struct pt_regs *regs)
++irqreturn_t orinoco_interrupt(int irq, void *dev_id, struct pt_regs *regs)
+ {
+ 	struct net_device *dev = (struct net_device *)dev_id;
+ 	struct orinoco_private *priv = dev->priv;
+@@ -1457,12 +1445,17 @@ void orinoco_interrupt(int irq, void *de
+ 	unsigned long flags;
+ 
+ 	if (orinoco_lock(priv, &flags) != 0) {
+-		/* If hw is unavailable */
+-		return;
++		/* If hw is unavailable - we don't know if the irq was
++		 * for us or not */
++		return IRQ_HANDLED;
+ 	}
+ 
+ 	evstat = hermes_read_regn(hw, EVSTAT);
+ 	events = evstat & hw->inten;
++	if (! events) {
++		orinoco_unlock(priv, &flags);
++		return IRQ_NONE;
++	}
+ 	
+ 	if (jiffies != last_irq_jiffy)
+ 		loops_this_jiffy = 0;
+@@ -1508,6 +1501,7 @@ void orinoco_interrupt(int irq, void *de
+ 	};
+ 
+ 	orinoco_unlock(priv, &flags);
++	return IRQ_HANDLED;
+ }
+ 
+ static void __orinoco_ev_tick(struct net_device *dev, hermes_t *hw)
+@@ -1532,6 +1526,9 @@ static void print_linkstatus(struct net_
+ {
+ 	char * s;
+ 
++	if (suppress_linkstatus)
++		return;
++
+ 	switch (status) {
+ 	case HERMES_LINKSTATUS_NOT_CONNECTED:
+ 		s = "Not Connected";
+@@ -1761,7 +1758,6 @@ static void __orinoco_ev_rx(struct net_d
+ 
+ 		if (length < ENCAPS_OVERHEAD) { /* No room for full LLC+SNAP */
+ 			stats->rx_length_errors++;
+-			stats->rx_dropped++;
+ 			goto drop;
+ 		}
+ 
+@@ -2901,7 +2897,7 @@ static int orinoco_ioctl_getessid(struct
+ 	erq->flags = 1;
+ 	erq->length = strlen(essidbuf) + 1;
+ 	if (erq->pointer)
+-		if ( copy_to_user(erq->pointer, essidbuf, erq->length) )
++		if (copy_to_user(erq->pointer, essidbuf, erq->length))
+ 			return -EFAULT;
+ 
+ 	TRACE_EXIT(dev->name);
+@@ -3929,7 +3925,7 @@ orinoco_ioctl(struct net_device *dev, st
+ 		break;
+ 
+ 	case SIOCIWLASTPRIV:
+-		err = orinoco_debug_dump_recs(priv);
++		err = orinoco_debug_dump_recs(dev);
+ 		if (err)
+ 			printk(KERN_ERR "%s: Unable to dump records (%d)\n",
+ 			       dev->name, err);
+@@ -4063,8 +4059,9 @@ struct {
+ 
+ #define DEBUG_LTV_SIZE		128
+ 
+-static int orinoco_debug_dump_recs(struct orinoco_private *priv)
++static int orinoco_debug_dump_recs(struct net_device *dev)
+ {
++	struct orinoco_private *priv = dev->priv;
+ 	hermes_t *hw = &priv->hw;
+ 	u8 *val8;
+ 	u16 *val16;
+@@ -4153,6 +4150,7 @@ struct net_device *alloc_orinocodev(int 
+ 	dev->do_ioctl = orinoco_ioctl;
+ 	dev->change_mtu = orinoco_change_mtu;
+ 	dev->set_multicast_list = orinoco_set_multicast_list;
++	/* we use the default eth_mac_addr for setting the MAC addr */
+ 
+ 	/* Set up default callbacks */
+ 	dev->open = orinoco_open;
+@@ -4188,7 +4186,7 @@ EXPORT_SYMBOL(orinoco_interrupt);
+ 
+ /* Can't be declared "const" or the whole __initdata section will
+  * become const */
+-static char version[] __initdata = "orinoco.c 0.13d (David Gibson <hermes@gibson.dropbear.id.au> and others)";
++static char version[] __initdata = "orinoco.c 0.13e (David Gibson <hermes@gibson.dropbear.id.au> and others)";
+ 
+ static int __init init_orinoco(void)
+ {
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff w2/drivers/net/wireless.orig/orinoco_cs.c w2/drivers/net/wireless/orinoco_cs.c
+--- w2/drivers/net/wireless.orig/orinoco_cs.c	2003-08-12 10:25:04.000000000 +0200
++++ w2/drivers/net/wireless/orinoco_cs.c	2003-08-15 00:56:41.000000000 +0200
+@@ -1,4 +1,4 @@
+-/* orinoco_cs.c 0.13d	- (formerly known as dldwd_cs.c)
++/* orinoco_cs.c 0.13e	- (formerly known as dldwd_cs.c)
+  *
+  * A driver for "Hermes" chipset based PCMCIA wireless adaptors, such
+  * as the Lucent WavelanIEEE/Orinoco cards and their OEM (Cabletron/
+@@ -23,9 +23,6 @@
+ #include <linux/slab.h>
+ #include <linux/string.h>
+ #include <linux/ioport.h>
+-#include <asm/uaccess.h>
+-#include <asm/io.h>
+-#include <asm/system.h>
+ #include <linux/netdevice.h>
+ #include <linux/if_arp.h>
+ #include <linux/etherdevice.h>
+@@ -38,6 +35,10 @@
+ #include <pcmcia/cisreg.h>
+ #include <pcmcia/ds.h>
+ 
++#include <asm/uaccess.h>
++#include <asm/io.h>
++#include <asm/system.h>
++
+ #include "orinoco.h"
+ 
+ /********************************************************************/
+@@ -143,8 +144,10 @@ orinoco_cs_hard_reset(struct orinoco_pri
+ /* PCMCIA stuff     						    */
+ /********************************************************************/
+ 
++/* In 2.5 (as of 2.5.69 at least) there is a cs_error exported which
++ * does this, but it's not in 2.4 so we do our own for now. */
+ static void
+-cs_error(client_handle_t handle, int func, int ret)
++orinoco_cs_error(client_handle_t handle, int func, int ret)
+ {
+ 	error_info_t err = { func, ret };
+ 	CardServices(ReportError, handle, &err);
+@@ -200,6 +203,7 @@ orinoco_cs_attach(void)
+ 	link->priv = dev;
+ 
+ 	/* Initialize the dev_link_t structure */
++	init_timer(&link->release);
+ 	link->release.function = &orinoco_cs_release;
+ 	link->release.data = (u_long) link;
+ 
+@@ -238,7 +242,7 @@ orinoco_cs_attach(void)
+ 
+ 	ret = CardServices(RegisterClient, &link->handle, &client_reg);
+ 	if (ret != CS_SUCCESS) {
+-		cs_error(link->handle, RegisterClient, ret);
++		orinoco_cs_error(link->handle, RegisterClient, ret);
+ 		orinoco_cs_detach(link);
+ 		return NULL;
+ 	}
+@@ -359,7 +363,7 @@ orinoco_cs_config(dev_link_t *link)
+ 	CS_CHECK(GetFirstTuple, handle, &tuple);
+ 	while (1) {
+ 		cistpl_cftable_entry_t *cfg = &(parse.cftable_entry);
+-		cistpl_cftable_entry_t dflt = { index: 0 };
++		cistpl_cftable_entry_t dflt = { .index = 0 };
+ 
+ 		CFG_CHECK(GetTupleData, handle, &tuple);
+ 		CFG_CHECK(ParseTuple, handle, &tuple, &parse);
+@@ -523,7 +527,7 @@ orinoco_cs_config(dev_link_t *link)
+ 	return;
+ 
+  cs_failed:
+-	cs_error(link->handle, last_fn, last_ret);
++	orinoco_cs_error(link->handle, last_fn, last_ret);
+ 
+  failed:
+ 	orinoco_cs_release((u_long) link);
+@@ -665,7 +669,7 @@ orinoco_cs_event(event_t event, int prio
+ 
+ /* Can't be declared "const" or the whole __initdata section will
+  * become const */
+-static char version[] __initdata = "orinoco_cs.c 0.13d (David Gibson <hermes@gibson.dropbear.id.au> and others)";
++static char version[] __initdata = "orinoco_cs.c 0.13e (David Gibson <hermes@gibson.dropbear.id.au> and others)";
+ 
+ static int __init
+ init_orinoco_cs(void)
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff w2/drivers/net/wireless.orig/orinoco.h w2/drivers/net/wireless/orinoco.h
+--- w2/drivers/net/wireless.orig/orinoco.h	2003-08-15 00:31:43.000000000 +0200
++++ w2/drivers/net/wireless/orinoco.h	2003-08-15 00:56:41.000000000 +0200
+@@ -25,6 +25,15 @@
+ #define schedule_work schedule_task
+ #endif
+ 
++/* Interrupt handler backwards compatibility stuff */
++#ifndef IRQ_NONE
++
++#define IRQ_NONE
++#define IRQ_HANDLED
++typedef void irqreturn_t;
++
++#endif
++
+ /* To enable debug messages */
+ //#define ORINOCO_DEBUG		3
+ 
+@@ -47,7 +56,7 @@ struct orinoco_key {
+ 
+ 
+ struct orinoco_private {
+-	void *card;	/* Pointer to card dependant structure */
++	void *card;	/* Pointer to card dependent structure */
+ 	int (*hard_reset)(struct orinoco_private *);
+ 
+ 	/* Synchronisation stuff */
+@@ -125,7 +134,7 @@ extern int __orinoco_up(struct net_devic
+ extern int __orinoco_down(struct net_device *dev);
+ extern int orinoco_stop(struct net_device *dev);
+ extern int orinoco_reinit_firmware(struct net_device *dev);
+-extern void orinoco_interrupt(int irq, void * dev_id, struct pt_regs *regs);
++extern irqreturn_t orinoco_interrupt(int irq, void * dev_id, struct pt_regs *regs);
+ 
+ /********************************************************************/
+ /* Locking and synchronization functions                            */
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff w2/drivers/net/wireless.orig/orinoco_pci.c w2/drivers/net/wireless/orinoco_pci.c
+--- w2/drivers/net/wireless.orig/orinoco_pci.c	2003-08-12 10:25:04.000000000 +0200
++++ w2/drivers/net/wireless/orinoco_pci.c	2003-08-15 00:56:41.000000000 +0200
+@@ -1,4 +1,4 @@
+-/* orinoco_pci.c 0.13d
++/* orinoco_pci.c 0.13e
+  * 
+  * Driver for Prism II devices that have a direct PCI interface
+  * (i.e., not in a Pcmcia or PLX bridge)
+@@ -96,9 +96,6 @@
+ #include <linux/string.h>
+ #include <linux/timer.h>
+ #include <linux/ioport.h>
+-#include <asm/uaccess.h>
+-#include <asm/io.h>
+-#include <asm/system.h>
+ #include <linux/netdevice.h>
+ #include <linux/if_arp.h>
+ #include <linux/etherdevice.h>
+@@ -108,6 +105,10 @@
+ #include <linux/wireless.h>
+ #include <linux/fcntl.h>
+ 
++#include <asm/uaccess.h>
++#include <asm/io.h>
++#include <asm/system.h>
++
+ #include "hermes.h"
+ #include "orinoco.h"
+ 
+@@ -194,7 +195,6 @@ static int orinoco_pci_init_one(struct p
+ 	unsigned long pci_iolen;
+ 	struct orinoco_private *priv = NULL;
+ 	struct net_device *dev = NULL;
+-	int netdev_registered = 0;
+ 
+ 	err = pci_enable_device(pdev);
+ 	if (err)
+@@ -215,9 +215,9 @@ static int orinoco_pci_init_one(struct p
+ 	}
+ 	priv = dev->priv;
+ 
+-	dev->base_addr = (int) pci_ioaddr;
+-        dev->mem_start = (unsigned long) pci_iorange;
+-        dev->mem_end = ((unsigned long) pci_iorange) + pci_iolen - 1;
++	dev->base_addr = (unsigned long) pci_ioaddr;
++	dev->mem_start = pci_iorange;
++	dev->mem_end = pci_iorange + pci_iolen - 1;
+ 
+ 	SET_MODULE_OWNER(dev);
+ 
+@@ -225,12 +225,15 @@ static int orinoco_pci_init_one(struct p
+ 	       "Detected Orinoco/Prism2 PCI device at %s, mem:0x%lX to 0x%lX -> 0x%p, irq:%d\n",
+ 	       pdev->slot_name, dev->mem_start, dev->mem_end, pci_ioaddr, pdev->irq);
+ 
+-	hermes_struct_init(&(priv->hw), dev->base_addr, HERMES_MEM, HERMES_32BIT_REGSPACING);
++	hermes_struct_init(&priv->hw, dev->base_addr,
++			   HERMES_MEM, HERMES_32BIT_REGSPACING);
+ 	pci_set_drvdata(pdev, dev);
+ 
+-	err = request_irq(pdev->irq, orinoco_interrupt, SA_SHIRQ, dev->name, dev);
++	err = request_irq(pdev->irq, orinoco_interrupt, SA_SHIRQ,
++			  dev->name, dev);
+ 	if (err) {
+-		printk(KERN_ERR "orinoco_pci: Error allocating IRQ %d.\n", pdev->irq);
++		printk(KERN_ERR "orinoco_pci: Error allocating IRQ %d.\n",
++		       pdev->irq);
+ 		err = -EBUSY;
+ 		goto fail;
+ 	}
+@@ -251,14 +254,10 @@ static int orinoco_pci_init_one(struct p
+ 		printk(KERN_ERR "%s: Failed to register net device\n", dev->name);
+ 		goto fail;
+ 	}
+-	netdev_registered = 1;
+ 
+         return 0;               /* succeeded */
+  fail:
+ 	if (dev) {
+-		if (netdev_registered)
+-			unregister_netdev(dev);
+-
+ 		if (dev->irq)
+ 			free_irq(dev->irq, dev);
+ 
+@@ -268,6 +267,8 @@ static int orinoco_pci_init_one(struct p
+ 	if (pci_ioaddr)
+ 		iounmap(pci_ioaddr);
+ 
++	pci_disable_device(pdev);
++
+ 	return err;
+ }
+ 
+@@ -374,7 +375,7 @@ static struct pci_driver orinoco_pci_dri
+ 	.resume		= orinoco_pci_resume,
+ };
+ 
+-static char version[] __initdata = "orinoco_pci.c 0.13d (David Gibson <hermes@gibson.dropbear.id.au> & Jean Tourrilhes <jt@hpl.hp.com>)";
++static char version[] __initdata = "orinoco_pci.c 0.13e (David Gibson <hermes@gibson.dropbear.id.au> & Jean Tourrilhes <jt@hpl.hp.com>)";
+ MODULE_AUTHOR("David Gibson <hermes@gibson.dropbear.id.au>");
+ MODULE_DESCRIPTION("Driver for wireless LAN cards using direct PCI interface");
+ MODULE_LICENSE("Dual MPL/GPL");
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff w2/drivers/net/wireless.orig/orinoco_plx.c w2/drivers/net/wireless/orinoco_plx.c
+--- w2/drivers/net/wireless.orig/orinoco_plx.c	2003-08-12 10:25:04.000000000 +0200
++++ w2/drivers/net/wireless/orinoco_plx.c	2003-08-15 00:56:41.000000000 +0200
+@@ -1,4 +1,4 @@
+-/* orinoco_plx.c 0.13d
++/* orinoco_plx.c 0.13e
+  * 
+  * Driver for Prism II devices which would usually be driven by orinoco_cs,
+  * but are connected to the PCI bus by a PLX9052. 
+@@ -155,7 +155,6 @@ static int orinoco_plx_init_one(struct p
+ 	unsigned long pccard_ioaddr = 0;
+ 	unsigned long pccard_iolen = 0;
+ 	struct net_device *dev = NULL;
+-	int netdev_registered = 0;
+ 	int i;
+ 
+ 	err = pci_enable_device(pdev);
+@@ -200,7 +199,7 @@ static int orinoco_plx_init_one(struct p
+ 	addr = pci_resource_start(pdev, 1);
+ 	reg = 0;
+ 	reg = inl(addr+PLX_INTCSR);
+-	if(reg & PLX_INTCSR_INTEN)
++	if (reg & PLX_INTCSR_INTEN)
+ 		printk(KERN_DEBUG "orinoco_plx: "
+ 		       "Local Interrupt already enabled\n");
+ 	else {
+@@ -254,21 +253,17 @@ static int orinoco_plx_init_one(struct p
+ 	err = register_netdev(dev);
+ 	if (err)
+ 		goto fail;
+-	netdev_registered = 1;
+ 
+ 	return 0;		/* succeeded */
+ 
+  fail:	
+ 	printk(KERN_DEBUG "orinoco_plx: init_one(), FAIL!\n");
+ 
+-	if (priv) {
+-		if (netdev_registered)
+-			unregister_netdev(dev);
+-		
++	if (dev) {
+ 		if (dev->irq)
+ 			free_irq(dev->irq, dev);
+ 		
+-		kfree(priv);
++		kfree(dev);
+ 	}
+ 
+ 	if (pccard_ioaddr)
+@@ -333,7 +328,7 @@ static struct pci_driver orinoco_plx_dri
+ 	.resume		= 0,
+ };
+ 
+-static char version[] __initdata = "orinoco_plx.c 0.13d (Daniel Barlow <dan@telent.net>, David Gibson <hermes@gibson.dropbear.id.au>)";
++static char version[] __initdata = "orinoco_plx.c 0.13e (Daniel Barlow <dan@telent.net>, David Gibson <hermes@gibson.dropbear.id.au>)";
+ MODULE_AUTHOR("Daniel Barlow <dan@telent.net>");
+ MODULE_DESCRIPTION("Driver for wireless LAN cards using the PLX9052 PCI bridge");
+ #ifdef MODULE_LICENSE
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff w2/drivers/net/wireless.orig/orinoco_tmd.c w2/drivers/net/wireless/orinoco_tmd.c
+--- w2/drivers/net/wireless.orig/orinoco_tmd.c	2003-08-12 10:25:04.000000000 +0200
++++ w2/drivers/net/wireless/orinoco_tmd.c	2003-08-15 00:56:41.000000000 +0200
+@@ -91,7 +91,6 @@ static int orinoco_tmd_init_one(struct p
+ 	unsigned long pccard_ioaddr = 0;
+ 	unsigned long pccard_iolen = 0;
+ 	struct net_device *dev = NULL;
+-	int netdev_registered = 0;
+ 
+ 	err = pci_enable_device(pdev);
+ 	if (err)
+@@ -148,18 +147,17 @@ static int orinoco_tmd_init_one(struct p
+ 	err = register_netdev(dev);
+ 	if (err)
+ 		goto fail;
+-	netdev_registered = 1;
+ 
+ 	return 0;		/* succeeded */
+ 
+  fail:	
+ 	printk(KERN_DEBUG "orinoco_tmd: init_one(), FAIL!\n");
+ 
+-	if (priv) {
++	if (dev) {
+ 		if (dev->irq)
+ 			free_irq(dev->irq, dev);
+ 		
+-		kfree(priv);
++		kfree(dev);
+ 	}
+ 
+ 	if (pccard_ioaddr)

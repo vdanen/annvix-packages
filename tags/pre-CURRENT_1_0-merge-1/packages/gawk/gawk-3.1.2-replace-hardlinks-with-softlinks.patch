@@ -1,0 +1,13 @@
+--- ./Makefile.in.orig	2003-04-17 11:46:00.000000000 +0200
++++ ./Makefile.in	2003-04-17 11:46:33.000000000 +0200
+@@ -880,8 +880,8 @@
+ install-exec-hook:
+ 	(fullname=gawk-`./gawk --version | sed 1q | awk '{print $$3}'` ; \
+ 	cd $(DESTDIR)$(bindir); \
+-	$(LN) gawk $$fullname 2>/dev/null ; \
+-	$(LN) pgawk p$$fullname 2>/dev/null ; \
++	$(LN_S) gawk $$fullname 2>/dev/null ; \
++	$(LN_S) pgawk p$$fullname 2>/dev/null ; \
+ 	if [ ! -f awk$(EXEEXT) ]; \
+ 	then	$(LN_S) gawk$(EXEEXT) awk$(EXEEXT); \
+ 	fi; exit 0)

@@ -1,0 +1,11 @@
+diff -urNp --exclude CVS --exclude BitKeeper x-ref/mm/page_alloc.c x/mm/page_alloc.c
+--- x-ref/mm/page_alloc.c	2003-07-17 03:29:12.000000000 +0200
++++ x/mm/page_alloc.c	2003-07-17 03:29:13.000000000 +0200
+@@ -331,7 +331,6 @@ static struct page * balance_classzone(z
+ 		if (PageDirty(page))
+ 			BUG();
+ 	}
+- out:
+ 	*freed = __freed;
+ 	return page;
+ }
