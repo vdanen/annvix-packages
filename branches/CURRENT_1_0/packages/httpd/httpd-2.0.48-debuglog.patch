@@ -10,6 +10,10 @@ go upstream.
 
 Note this patch is useless without the -pie patch.
 
+Upstream-HEAD: committed
+Upstream-2.0: needed
+Upstream-Status: better fix to server/log.c upstream
+
 --- httpd-2.0.48/include/http_log.h.debuglog
 +++ httpd-2.0.48/include/http_log.h
 @@ -130,7 +130,11 @@

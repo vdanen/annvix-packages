@@ -2,6 +2,9 @@
 - fix to propagate executable property across MOVE/COPY
 - include an EOS bucket in the multistatus response brigade
 
+Upstream-HEAD: committed
+Upstream-Status: EOS fixes are pending backport, MOVE/COPY fixes risky on Win32?
+
 --- httpd-2.0.50/modules/dav/fs/repos.c.davmisc
 +++ httpd-2.0.50/modules/dav/fs/repos.c
 @@ -296,21 +296,43 @@

@@ -3,6 +3,10 @@ mod_ssl:
 - wording tweaks for pphrase prompting
 - upstream: workaround for UI_process dumping error stack during pphrase prompts
 
+Upstream-HEAD: committed
+Upstream-2.0: needed
+Upstream-Status: trivial wording backport
+
 --- httpd-2.0.48/modules/ssl/ssl_engine_pphrase.c.sslpphrase
 +++ httpd-2.0.48/modules/ssl/ssl_engine_pphrase.c
 @@ -553,7 +555,7 @@

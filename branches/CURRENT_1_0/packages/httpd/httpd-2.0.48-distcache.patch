@@ -2,6 +2,10 @@
  *) mod_ssl: Add support for distributed session cache using 'distcache'.
     [Geoff Thorpe <geoff geoffthorpe.net>]
 
+Upstream-HEAD: committed
+Upstream-2.0: omit
+Upstream-Status: Omit until 2.2
+
 --- httpd-2.0.48/modules/ssl/config.m4.distcache
 +++ httpd-2.0.48/modules/ssl/config.m4
 @@ -46,6 +46,79 @@

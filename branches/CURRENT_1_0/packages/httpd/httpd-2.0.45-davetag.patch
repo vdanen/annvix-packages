@@ -5,6 +5,9 @@ http://nagoya.apache.org/bugzilla/show_bug.cgi?id=16451
 
 (similar but simpler than the fix in CVS HEAD)
 
+Upstream-HEAD: committed
+Upstream-2.0: pending
+
 --- httpd-2.0.45/modules/dav/main/util.c.davetag	2003-05-19 14:43:45.000000000 +0100
 +++ httpd-2.0.45/modules/dav/main/util.c	2003-05-19 14:41:04.000000000 +0100
 @@ -1072,7 +1072,17 @@

@@ -4,6 +4,8 @@
 * remove dates from error pages (#86474), since they won't be in the right
 language
 
+Upstream-Status: SERVER_NAME is not URI-encoded by default.
+
 --- httpd-2.0.45/docs/error/include/bottom.html.encode	2003-04-28 11:40:00.000000000 +0100
 +++ httpd-2.0.45/docs/error/include/bottom.html	2003-04-28 11:32:42.000000000 +0100
 @@ -5,10 +5,8 @@

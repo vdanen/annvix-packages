@@ -1,3 +1,10 @@
+
+Trim INCLUDES in VPATH builds.
+
+Upstream-HEAD: committed
+Upstream-2.0: omit
+Upstream-Status: Build system cleanup, not worth backport
+
 --- httpd-2.0.48/configure.in.vpathinc
 +++ httpd-2.0.48/configure.in
 @@ -121,7 +121,7 @@

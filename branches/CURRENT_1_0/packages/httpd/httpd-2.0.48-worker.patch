@@ -1,6 +1,9 @@
 
 - pod cleanup
 
+Upstream-HEAD: committed
+Upstream-Status: trivial code cleanup
+
 --- httpd-2.0.48/server/mpm/worker/pod.c.worker
 +++ httpd-2.0.48/server/mpm/worker/pod.c
 @@ -105,31 +105,13 @@

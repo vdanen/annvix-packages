@@ -1,6 +1,10 @@
 
 Add %{...}s tag to support direct lookup of SSL variables.  
 
+Upstream-HEAD: committed
+Upstream-2.0: needed
+Upstream-Status: Feedback from Andre for 2.0 backport needs work
+
 --- httpd-2.0.49/modules/metadata/mod_headers.c.headerssl
 +++ httpd-2.0.49/modules/metadata/mod_headers.c
 @@ -77,6 +77,8 @@

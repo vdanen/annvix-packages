@@ -1,6 +1,9 @@
 
 Only link HTTPD using -export-dynamic, not suexec, ab etc.
 
+Upstream-HEAD: committed
+Upstream-Status: Build system cleanup, medium risk
+
 --- httpd-2.0.48/modules/aaa/config.m4.dynamic
 +++ httpd-2.0.48/modules/aaa/config.m4
 @@ -18,6 +18,4 @@

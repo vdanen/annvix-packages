@@ -2,6 +2,9 @@
 Increas the dynamic module limit: a full OS install now
 includes 57 DSOs alone.
 
+Upstream-HEAD: committed
+Upstream-Status: mod_cgid and core need to have matched D_M_L.  Bincompat issue?
+
 --- httpd-2.0.48/include/httpd.h.dynlimit
 +++ httpd-2.0.48/include/httpd.h
 @@ -138,7 +138,7 @@

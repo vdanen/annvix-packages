@@ -3,6 +3,10 @@
 - cope with short reads properly
 - remove redundant variable
 
+Upstream-HEAD: committed
+Upstream-2.0: needed
+Upstream-Status: Trivial, worth a 2.0 backport
+
 --- httpd-2.0.46/server/util_md5.c.md5dig
 +++ httpd-2.0.46/server/util_md5.c
 @@ -198,16 +198,14 @@

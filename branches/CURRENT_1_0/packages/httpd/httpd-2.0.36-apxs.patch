@@ -10,6 +10,9 @@ httpd-devel package should be required to build modules.
 list their own dependencies.
 - define $LTFLAGS so apxs -q LIBTOOL works
 
+Upstream-HEAD: committed,vendor
+Upstream-Status: mostly bits which should be upstream are
+
 --- httpd-2.0.47/support/apxs.in.apxs
 +++ httpd-2.0.47/support/apxs.in
 @@ -84,8 +84,15 @@
