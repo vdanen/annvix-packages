@@ -1,6 +1,6 @@
 %define name	sudo
 %define version	1.6.7
-%define release	0.p5.3sls
+%define release	0.p5.4avx
 %define epoch	1
 
 # use fakeroot -ba sudo.spec to build!
@@ -26,7 +26,7 @@ Source2:	sudoers.opensls
 BuildRoot:	%_tmppath/%name-%version
 BuildRequires:  pam-devel
 
-Requires:	/etc/pam.d/system-auth
+Requires:	pam
 
 %description
 Sudo is a program designed to allow a sysadmin to give limited root
@@ -94,6 +94,10 @@ install -m 0440 %{SOURCE2} %{buildroot}%{_sysconfdir}/sudoers
 /var/run/sudo
 
 %changelog
+* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 1:1.6.7-0.p5.4avx
+- require pam, not the system-auth file
+- Annvix build
+
 * Tue Mar 02 2004 Vincent Danen <vdanen@opensls.org> 1:1.6.7-0.p5.3sls
 - fix pam file
 - macros and spec cleanups
