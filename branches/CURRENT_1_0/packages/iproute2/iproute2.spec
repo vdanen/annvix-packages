@@ -1,6 +1,6 @@
 %define name	iproute2
 %define version	2.4.7
-%define release	12sls
+%define release	13sls
 
 # sync: rh-2.4.7-7
 
@@ -31,7 +31,6 @@ Patch104:	iproute2-2.4.7-now-ss010824-make.patch.bz2
 Patch105:	iproute2-mult-deflt-gateways.patch.bz2
 
 BuildRoot:	%_tmppath/%name-%version-%release-root
-BuildRequires:	tetex-dvips tetex-latex
 
 Requires:	iputils
 
@@ -60,10 +59,9 @@ routing, fast NAT and packet scheduling.
 %build
 %define optflags -ggdb
 %make KERNEL_INCLUDE=/usr/include
-%make -C doc
 
 %install
-rm -fr $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 install -d $RPM_BUILD_ROOT/{sbin,%{_sysconfdir}/iproute2}
 
 install -m 755 ip/ifcfg $RPM_BUILD_ROOT/sbin
@@ -82,18 +80,23 @@ mkdir -p $RPM_BUILD_ROOT/%_mandir
 tar xfj %SOURCE2 -C $RPM_BUILD_ROOT/%_mandir/
 
 %clean
-rm -fr %buildroot
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr (-,root,root)
-%dir %{_sysconfdir}/iproute2
 %doc README README.iproute2+tc RELNOTES README.decnet
-%doc doc/*.dvi doc/*.ps doc/Plan examples/
+%doc doc/Plan examples/
+%dir %{_sysconfdir}/iproute2
 /sbin/*
 %_mandir/man8/*
 %attr(644,root,root) %config(noreplace) %{_sysconfdir}/iproute2/*
 
 %changelog
+* Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 2.4.7-13sls
+- minor spec cleanups
+- remove some *.ps and other unwanted docs
+- remove buildreq's on tetex-latex and tetex-dvips
+
 * Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 2.4.7-12sls
 - OpenSLS build
 - tidy spec
