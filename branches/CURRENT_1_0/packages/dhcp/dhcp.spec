@@ -1,9 +1,9 @@
 %define name	dhcp
 %define version	3.0
-%define release	1.rc13.1sls
+%define release	1.rc14.1.avx
 %define epoch	2
 
-%define their_version	3.0.1rc13
+%define their_version	3.0.1rc14
 %define _catdir		/var/cache/man
 
 %define _requires_exceptions perl(Win32API::Registry)
@@ -35,7 +35,7 @@ BuildRoot:	%{_tmppath}/%{name}-%{version}-root
 BuildRequires:	perl sed gcc groff-for-man make patch tar bzip2 
 
 PreReq:		rpm-helper
-Requires:	/bin/sh
+Requires:	bash
 Obsoletes:	dhcpd
 
 %description 
@@ -284,6 +284,10 @@ rm -rf /var/lib/dhcp/dhclient.leases
 %{_includedir}/*
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 3.0-1.rc14.1avx
+- 3.0-1.rc14 (security fixes for CAN-2004-0460, CAN-2004-0461)
+- Annvix build
+
 * Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 3.0-1.rc13.1sls
 - 3.0-1.rc13
 - S12 is the default sysconfig file
