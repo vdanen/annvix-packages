@@ -3,4 +3,4 @@
 # this writes logs as user nobody into /var/log/supervise/rpc.ypxfrd; make 
 # sure this directory exists and is writable by nobody!
 
-exec /usr/bin/setuidgid nobody /usr/bin/multilog t /var/log/supervise/rpc.ypxfrd
+exec /sbin/chpst -u nobody /sbin/svlogd -tt /var/log/supervise/rpc.ypxfrd

@@ -1,3 +1,7 @@
+%define name	lsb-release
+%define version	1.4
+%define release	6sls
+
 #
 #	Copyright 1999, International Business Machines, Inc.
 #	George Kraft IV (gk4@us.ibm.com)
@@ -10,16 +14,16 @@
 # and _mandir should be /usr/share/man
 #
 
-Summary: Linux Standard Base tools
-Name: lsb-release
-Version: 1.4
-Release: 4mdk
-License: GPL
-Source: lsb-release-1.4.tar.bz2
-Group: System/Base
-URL:  http://www.linuxbase.org/
-BuildRoot: %{_tmppath}/%{name}-root
-Prefix: %{_prefix}
+Summary:	Linux Standard Base tools
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		System/Base
+URL:		http://www.linuxbase.org/
+Source:		lsb-release-1.4.tar.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-root
 
 %description
 LSB version query program
@@ -39,22 +43,22 @@ the distribution.
 %setup
 
 %build
-rm -rf $RPM_BUILD_ROOT
 make
 
 %install
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 make prefix=%buildroot mandir=%buildroot/%{_mandir} install 
 mkdir -p %buildroot/etc
 cat > %buildroot/etc/lsb-release << EOF
 LSB_VERSION=1.3
-DISTRIB_ID=Mandrake
-DISTRIB_RELEASE=9.2
-DISTRIB_CODENAME=TBA
-DISTRIB_DESCRIPTION="Mandrake Linux"
+DISTRIB_ID=OpenSLS
+DISTRIB_RELEASE=1.0-CURRENT
+DISTRIB_CODENAME=Loki
+DISTRIB_DESCRIPTION="OpenSLS"
 EOF
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -64,6 +68,14 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) /etc/lsb-release
 
 %changelog
+* Sat Mar 06 2004 Vincent Danen <vdanen@opensls.org> 1.4-6sls
+- minor spec cleanups
+- remove %%prefix
+
+* Tue Dec 30 2003 Vincent Danen <vdanen@opensls.org> 1.4-5sls
+- OpenSLS build
+- tidy spec
+
 * Mon Jul 28 2003 Stew Benedict <sbenedict@mandrakesoft.com> 1.4-4mdk
 - Mandrake 9.2, codename TBA
 

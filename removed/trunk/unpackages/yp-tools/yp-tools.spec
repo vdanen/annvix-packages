@@ -1,8 +1,8 @@
 %define name	yp-tools
 %define version	2.8
-%define release	3sls
+%define release	4avx
 
-Summary:	NIS (or YP) client programs.
+Summary:	NIS (or YP) client programs
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -64,6 +64,9 @@ make DESTDIR="$RPM_BUILD_ROOT" install
 /var/yp/nicknames
 
 %changelog
+* Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 2.8-4avx
+- Annvix build
+
 * Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 2.8-3sls
 - OpenSLS build
 - tidy spec

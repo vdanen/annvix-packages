@@ -1,6 +1,6 @@
 %define name	chkfontpath
 %define version	1.9.10
-%define release	3sls
+%define release	4avx
 
 Summary:	Simple interface for editing the font path for the X font server.
 Name:		%{name}
@@ -14,7 +14,7 @@ Patch:		chkfontpath-1.7-unscaled.patch.bz2
 BuildRoot:	%{_tmppath}/%{name}-root
 BuildRequires:	popt-devel
 
-Requires:	XFree86-xfs /sbin/pidof
+Requires:	XFree86-xfs, SysVinit
 
 %description 
 This is a simple terminal mode program for configuring the directories
@@ -42,6 +42,10 @@ perl -pi -e "s!/usr/man!%{_mandir}!g" Makefile man/Makefile
 %attr(-,root,root)%{_mandir}/man8/chkfontpath.8*
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 1.9.10-4avx
+- require packages not files
+- Annvix build
+
 * Tue Mar 02 2004 Vincent Danen <vdanen@opensls.org> 1.9.10-3sls
 - minor spec cleanups
 

@@ -1,5 +1,5 @@
 %define name	mod_php
-%define release	1sls
+%define release	1avx
 
 #New ADVX macros
 %define ADVXdir %{_datadir}/ADVX
@@ -175,6 +175,10 @@ fi
 %{ap_webdoc}/*
 
 %changelog
+* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 4.3.7-1avx
+- Annvix build
+- php 4.3.7
+
 * Mon May 17 2004 Vincent Danen <vdanen@opensls.org> 4.3.6-1sls
 - first OpenSLS build
 - tidy spec

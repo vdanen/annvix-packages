@@ -1,0 +1,13 @@
+--- ntp-4.2.0/configure.in.md5	2003-10-28 15:49:46.000000000 +0100
++++ ntp-4.2.0/configure.in	2003-10-28 15:40:56.000000000 +0100
+@@ -205,8 +205,8 @@
+ AC_CHECK_FUNC(openlog, , 
+   AC_CHECK_LIB(gen, openlog, , 
+   AC_CHECK_LIB(syslog, openlog, , , -lsocket)))
+-AC_CHECK_LIB(md5, MD5Init, , 
+-  AC_CHECK_LIB(md, MD5Init))
++dnl AC_CHECK_LIB(md5, MD5Init, , 
++dnl  AC_CHECK_LIB(md, MD5Init))
+ AC_CHECK_FUNCS(MD5Init)
+ dnl HMS: What a hack...
+ AC_CHECK_HEADERS(readline/history.h readline/readline.h)

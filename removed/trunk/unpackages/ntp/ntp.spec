@@ -1,24 +1,34 @@
 %define name	ntp 
-%define version 4.1.2
-%define release 2sls
+%define version 4.2.0
+%define release 1avx
 
-Summary:	Synchronizes system time using the Network Time Protocol (NTP).
+Summary:	Synchronizes system time using the Network Time Protocol (NTP)
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	BSD-Style
-Group:		System/Configuration/Other
-URL:		http://www.cis.udel.edu/~ntp
+Group:		System/Servers
+URL:		http://www.ntp.org/
 Source0:	http://www.eecis.udel.edu/~ntp/ntp_spool/ntp4/%{name}-%{version}.tar.bz2
 Source1:	ntp.conf
 Source2:	ntp.keys
-Source3:	ntpd.rc
-Patch0:		ntp-4.0.99k-add_time_h.patch.bz2
-Patch1:		ntp-4.1.1-biarch-utmp.patch.bz2
+Source3:	ntpstat-0.2.tar.bz2
+Source4:	ntp-4.1.2-rh-manpages.tar.bz2
+Source5:	ntpd.run
+Source6:	ntpd-log.run
+Patch0:		ntp-4.1.1-biarch-utmp.patch.bz2
+Patch1:		ntp-4.2.0-fdr-genkey3.patch.bz2
+Patch2:		ntp-4.2.0-fdr-md5.patch.bz2
+Patch3:		ntp-4.2.0-mdk-libtool.diff.bz2
+Patch4:		ntp-4.2.0-fdr-droproot.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-root
+BuildRoot:	%{_tmppath}/%{name}-%{version}-root
+BuildRequires:	openssl-static-devel, ncurses-devel, elfutils-devel, libcap-devel
+BuildRequires:	autoconf2.5, automake1.7
 
-PreReq:		rpm-helper
+PreReq:		rpm-helper, %{name}-client = %{version}
+Requires:	libcap
+
 
 %description
 The Network Time Protocol (NTP) is used to synchronize a computer's time
@@ -31,53 +41,157 @@ via a network) and ntpd (a daemon which continuously adjusts system time).
 Install the ntp package if you need tools for keeping your system's
 time synchronized via the NTP protocol.
 
+
+%package client
+Summary:	The ntpdate client for setting system time from NTP servers
+Group:		System/Servers
+Conflicts:	ntp < 4.2.0-1avx
+
+%description client
+The Network Time Protocol (NTP) is used to synchronize a computer's time
+with another reference time source.  The ntp package contains utilities
+and daemons which will synchronize your computer's time to Coordinated
+Universal Time (UTC) via the NTP protocol and NTP servers.  Ntp includes
+ntpdate (a program for retrieving the date and time from remote machines
+via a network) and ntpd (a daemon which continuously adjusts system time).
+
+ntpdate is a simple NTP client which allows a system's clock to be set
+to match the time obtained by communicating with one or more servers.
+
+ntpdate is optional (but recommended) if you're running an NTP server,
+because initially setting the system clock to an almost-correct time
+will help the NTP server synchronize faster.
+
+The ntpdate client by itself is useful for occasionally setting the time on
+machines that are not on the net full-time, such as laptops.
+
+
 %prep 
-%setup -q -n ntp-%{version}
-%patch0 -p1 -b .add_time
-%patch1 -p1 -b .biarch-utmp
+%setup -q -n ntp-%{version} -a3 -a4
+
+%patch0 -p1 -b .biarch-utmp
+%patch1 -p1 -b .genkey3
+%patch2 -p1 -b .md5
+%patch3 -p1 -b .libtool
+%patch4 -p1 -b .droproot
+
+# fix strange perms
+find html -type f | xargs chmod 644
+find html -type d | xargs chmod 755
 
 %build
-#CFLAGS="$RPM_OPT_FLAGS" ./configure --prefix=/usr \
-#        --sysconfdir=/etc --bindir='${prefix}/sbin'
-#
+export WANT_AUTOCONF_2_5=1
+libtoolize --copy --force; aclocal-1.7; autoconf; automake-1.7 --add-missing
 
 %serverbuild
-%configure2_5x
-%make CFLAGS="$RPM_OPT_FLAGS" 
+%ifarch x86_64 amd64
+# cheap hack to fix detection of openssl libs
+perl -pi -e 's#ans="/usr/lib#ans="/usr/lib64#g' configure
+%endif
+%configure2_5x --libdir=%{_libdir} --with-crypto=openssl
+
+%make CFLAGS="%{optflags}" 
 mv html/hints .
 
+make -C ntpstat-0.2 CFLAGS="%{optflags}"
+
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-%makeinstall bindir=$RPM_BUILD_ROOT/usr/sbin
+mkdir -p %{buildroot}{%{_sysconfdir},%{_mandir}/man1}
+%makeinstall bindir=$RPM_BUILD_ROOT%{_sbindir}
 
-mkdir -p $RPM_BUILD_ROOT/etc/{ntp,rc.d/init.d}
+mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/ntp
+mkdir -p %{buildroot}{%{_srvdir}/ntpd/log,%{_srvlogdir}/ntpd}
 
-install -m644 %{SOURCE1} $RPM_BUILD_ROOT/etc/ntp.conf
-install -m600 %{SOURCE2} $RPM_BUILD_ROOT/etc/ntp/keys
-touch $RPM_BUILD_ROOT/etc/ntp/step-tickers
-install -m755 %{SOURCE3} $RPM_BUILD_ROOT/etc/rc.d/init.d/ntpd
+install -m644 %{SOURCE1} $RPM_BUILD_ROOT%{_sysconfdir}/ntp.conf
+install -m600 %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/ntp/keys
+touch $RPM_BUILD_ROOT%{_sysconfdir}/ntp/step-tickers
+
+install -m 0755 ntpstat-0.2/ntpstat %{buildroot}%{_sbindir}/
+install -m 0644 ntpstat-0.2/ntpstat.1 %{buildroot}%{_mandir}/man1/
+install -m 0644 man/*.1 %{buildroot}%{_mandir}/man1/
+
+install -m 0755 %{SOURCE5} %{buildroot}%{_srvdir}/ntpd/run
+install -m 0755 %{SOURCE6} %{buildroot}%{_srvdir}/ntpd/log/run
+
+mkdir -p %{buildroot}/var/lib/ntp
+echo "0.0" >%{buildroot}/var/lib/ntp/drift
+
+
+%pre
+%_pre_useradd ntp /var/lib/ntp /sbin/nologin 87
 
 %post
-%_post_service ntpd
+%_post_srv ntpd
 
 %preun
-%_preun_service ntpd
+%_preun_srv ntpd
+
+%postun
+%_postun_userdel ntp
+
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
-%config(noreplace) /etc/ntp.conf
-%config(noreplace) /etc/ntp/keys
-%ghost %config(missingok) /etc/ntp/step-tickers
-%doc html/* NEWS TODO 
-/usr/sbin/ntp*
-/usr/sbin/tickadj
-%config(noreplace) /etc/rc.d/init.d/ntpd
+%doc html NEWS TODO README* ChangeLog
+%dir %{_sysconfdir}/ntp
+%config(noreplace) %{_sysconfdir}/ntp.conf
+%config(noreplace) %{_sysconfdir}/ntp/keys
+%ghost %config(missingok) %{_sysconfdir}/ntp/step-tickers
+%{_sbindir}/ntp-keygen
+%{_sbindir}/ntp-wait
+%{_sbindir}/ntpd
+%{_sbindir}/ntpdc
+%{_sbindir}/ntpq
+%{_sbindir}/ntpstat
+%{_sbindir}/ntptime
+%{_sbindir}/ntptrace
+%{_sbindir}/tickadj
+%{_mandir}/man1/ntpd.1*
+%{_mandir}/man1/ntpdc.1*
+%{_mandir}/man1/ntpq.1*
+%{_mandir}/man1/ntpstat.1*
+%{_mandir}/man1/ntptime.1*
+%{_mandir}/man1/ntptrace.1*
+%{_mandir}/man1/tickadj.1*
+%dir %{_srvdir}/ntpd
+%dir %{_srvdir}/ntpd/log
+%{_srvdir}/ntpd/run
+%{_srvdir}/ntpd/log/run
+%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/ntpd
+%dir %attr(-,ntp,ntp) /var/lib/ntp
+%config(noreplace) %attr(0644,ntp,ntp) %verify(not md5 size mtime) /var/lib/ntp/drift
+
+%files client
+%defattr(-,root,root)
+%{_sbindir}/ntpdate
+%{_mandir}/man1/ntpdate.1*
 
 %changelog
+* Sat Sep 11 2004 Vincent Danen <vdanen@annvix.org> 4.2.0-1avx
+- 4.2.0
+- Annvix build (re-introduce); use this rather than clockspeed
+  since clockspeed has issues on x86_64
+- major spec cleanups
+- run scripts
+- P4: from Fedora - drop root privs after binding
+- static uid/gid 87 for ntp
+- set the drift file to /var/lib/ntp/drift from /etc/ntp/drift
+- BuildRequires: libcap-devel
+- Requires: libcap
+- cheap fix to build ntp-keygen on x86_64
+- sync with cooker 4.2.0-8mdk:
+  - S3, S4 from Fedora (oden)
+  - broke out ntpdate as that's the only one needed if using an external
+    clock source (description stolen from debian) (oden)
+  - P1, P2: from Fedora (fix #10159) (oden)
+  - P3: libtool stuff (oden)
+  - added more pool.ntp.org entries in ntpd.conf (warly)
+
 * Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 4.1.2-2sls
 - OpenSLS build
 - tidy spec

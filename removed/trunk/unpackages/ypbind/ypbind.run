@@ -1,7 +1,7 @@
 #!/bin/sh
-PATH="/sbin:/usr/sbin:/bin:/usr/bin:$PATH"
+PATH="/sbin:/usr/sbin:/bin:/usr/bin"
 
-# this runs ypbind under supervise
+# this runs ypbind supervised
 
 . /etc/sysconfig/network
 

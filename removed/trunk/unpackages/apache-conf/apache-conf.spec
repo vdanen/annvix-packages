@@ -1,21 +1,6 @@
 %define name	apache-conf
-%define version	2.0.49
-%define release	3sls
-
-# OE: conditional switches
-#(ie. use with rpm --rebuild):
-#	--with diet	Compile advxsplitlogfile against dietlibc
-# regarding "--with diet", check: http://d-srv.com/Cooker/apache2-conf-2_0_40ADVX-14mdk.html
-
-%define build_diet 0
-
-# commandline overrides:
-# rpm -ba|--rebuild --with 'xxx'
-%{?_with_diet: %{expand: %%define build_diet 1}}
-
-# New ADVX macros
-%define ADVXdir %{_datadir}/ADVX
-%{expand:%(cat %{ADVXdir}/ADVX-build)}
+%define version	2.0.53
+%define release	4avx
 
 %define compat_dir	/etc/httpd
 %define compat_conf	/etc/httpd/conf
@@ -27,8 +12,7 @@ Version:	%{version}
 Release:	%{release}
 License:	Apache License
 Group:		System/Servers
-URL:		http://www.advx.org
-Source0:	httpd.init.mandrake
+URL:		http://httpd.apache.org
 Source1:	httpd2.conf
 Source2:	httpd2-perl.conf
 Source3:	mime.types
@@ -40,13 +24,13 @@ Source11:	DynamicVhosts.conf
 Source12:	VirtualHomePages.conf
 Source14:	favicon.ico.bz2
 Source20:	index.shtml
-Source21:	opensls.html
+Source21:	annvix.html
 Source22:	optim.html
 Source23:	logo.gif
 Source24:	apacheicon.gif
 Source25:	medbutton.png
 Source26:	stamp.gif
-Source29:	ADVX-icons.tar.bz2
+Source29:	annvix-icons.tar.bz2
 Source30:	advxaddmod
 Source31:	advxdelmod
 Source32:	advxfixconf
@@ -63,24 +47,21 @@ Source46:	advx-cleanremove
 Source51:	httpd.conf
 Source52:	httpd-perl.conf
 Source53:	ap13chkconfig
-Source54:	advxrun1.3
-Source55:	advxrun2.0
+Source98:	robots.txt
 Source99:	README.apache-conf
+Source100:	httpd2.run
+Source101:	httpd2-log.run
+Source102:	03_apache2.afterboot
+Source103:	fileprotector.conf
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
-BuildPreReq:	ADVX-build >= 9.2
-%if %{build_diet}
 BuildRequires:	dietlibc-devel >= 0.20-1mdk
-%endif
 
 Requires:	lynx >= 2.8.5
 Provides:	apache2-conf
-Provides:	apache-conf = 1.3.28
-Provides:	ADVXpackage
-Provides:	AP20package
 #JMD: We have to do this here, since files have moved
 Obsoletes:	apache-common
-PreReq:		rpm-helper
+PreReq:		rpm-helper, afterboot
 
 %description
 This package contains configuration files for apache and 
@@ -93,98 +74,91 @@ without having to re-compile the whole suite to change a logo or config
 file.
 
 %prep
-
-%build
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
+%setup -q -c -T -n %{name}-%{version}
 cp %{SOURCE35} .
 
-%if %{build_diet}
-    # OE: use the power of dietlibc
-    diet gcc %{optflags} -s -static -nostdinc -o advxsplitlogfile-DIET advxsplitlogfile.c
-%else
-    gcc %{optflags} -o advxsplitlogfile advxsplitlogfile.c
-%endif
+%build
+diet gcc -Os -s -static -nostdinc -o advxsplitlogfile-DIET advxsplitlogfile.c
+gcc %{optflags} -o advxsplitlogfile advxsplitlogfile.c
 
 %install
-
-mkdir -p %{buildroot}%{compat_conf}
-mkdir -p %{buildroot}%{ap_confd}
-mkdir -p %{buildroot}%{ap_htdocsdir}
+[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
+mkdir -p %{buildroot}%{_sysconfdir}/httpd/conf
+mkdir -p %{buildroot}%{_sysconfdir}/httpd/conf.d
+mkdir -p %{buildroot}/var/www/html
 mkdir -p %{buildroot}%{_sbindir}
 mkdir -p %{buildroot}%{_sysconfdir}/logrotate.d
-mkdir -p %{buildroot}%{ap_logfiledir}
-mkdir -p %{buildroot}%{ap_datadir}
-mkdir -p %{buildroot}%{ap_datadir}/cgi-bin
-mkdir -p %{buildroot}%{ap_datadir}/perl
-mkdir -p %{buildroot}%{ap_webdoc}
-mkdir -p %{buildroot}%{ap_proxycachedir}
+mkdir -p %{buildroot}/var/log/httpd
+mkdir -p %{buildroot}/var/www
+mkdir -p %{buildroot}/var/www/cgi-bin
+mkdir -p %{buildroot}/var/www/perl
+mkdir -p %{buildroot}/var/www/html/addon-modules
+mkdir -p %{buildroot}/var/cache/httpd
 mkdir -p %{buildroot}/var/apache-mm
-mkdir -p %{buildroot}%{ADVXdir}
+mkdir -p %{buildroot}%{_datadir}/ADVX
 mkdir -p %{buildroot}%{_libdir}/ADVX/contribs
 mkdir -p %{buildroot}%{_libdir}/ADVX/contribs
 
-%if %{build_diet}
-    install -m755 advxsplitlogfile-DIET %{buildroot}%{_libdir}/ADVX/contribs/
-%else
-    install -m755 advxsplitlogfile %{buildroot}%{_libdir}/ADVX/contribs/
-%endif
+install -m 0755 advxsplitlogfile-DIET %{buildroot}%{_libdir}/ADVX/contribs/
+install -m 0755 advxsplitlogfile %{buildroot}%{_libdir}/ADVX/contribs/
 
-install -m755 %{SOURCE40} %{buildroot}%{ADVXdir}
-install -m755 %{SOURCE41} %{buildroot}%{ADVXdir}
-install -m755 %{SOURCE42} %{buildroot}%{ADVXdir}
-install -m755 %{SOURCE43} %{buildroot}%{ADVXdir}
-install -m755 %{SOURCE44} %{buildroot}%{ADVXdir}
-install -m755 %{SOURCE45} %{buildroot}%{ADVXdir}
-install -m755 %{SOURCE46} %{buildroot}%{ADVXdir}
+install -m 0755 %{SOURCE40} %{buildroot}%{_datadir}/ADVX
+install -m 0755 %{SOURCE41} %{buildroot}%{_datadir}/ADVX
+install -m 0755 %{SOURCE42} %{buildroot}%{_datadir}/ADVX
+install -m 0755 %{SOURCE43} %{buildroot}%{_datadir}/ADVX
+install -m 0755 %{SOURCE44} %{buildroot}%{_datadir}/ADVX
+install -m 0755 %{SOURCE45} %{buildroot}%{_datadir}/ADVX
+install -m 0755 %{SOURCE46} %{buildroot}%{_datadir}/ADVX
 
-ln -sf ../..%{ap_logfiledir} %{buildroot}%{compat_dir}/logs
+ln -sf ../../var/log/httpd %{buildroot}%{compat_dir}/logs
 
-install -D -m755 %{SOURCE4} %{buildroot}%{ap_datadir}/cgi-bin/test.cgi
-install -D -m755 %{SOURCE4} %{buildroot}%{ap_datadir}/perl/test.pl
+install -D -m 0755 %{SOURCE4} %{buildroot}/var/www/cgi-bin/test.cgi
+install -D -m 0755 %{SOURCE4} %{buildroot}/var/www/perl/test.pl
 
-install -D -m644 %{SOURCE1} %{buildroot}%{compat_conf}/httpd2.conf
-install -D -m644 %{SOURCE51} %{buildroot}%{compat_conf}/httpd.conf
-install -D -m644 %{SOURCE6} %{buildroot}%{compat_conf}/commonhttpd.conf
-install -D -m644 %{SOURCE2} %{buildroot}%{compat_conf}/httpd2-perl.conf
-install -D -m644 %{SOURCE52} %{buildroot}%{compat_conf}/httpd-perl.conf
+install -D -m 0644 %{SOURCE1} %{buildroot}%{_sysconfdir}/httpd/conf/httpd2.conf
+install -D -m 0644 %{SOURCE51} %{buildroot}%{_sysconfdir}/httpd/conf/httpd.conf
+install -D -m 0644 %{SOURCE6} %{buildroot}%{_sysconfdir}/httpd/conf/commonhttpd.conf
+install -D -m 0644 %{SOURCE2} %{buildroot}%{_sysconfdir}/httpd/conf/httpd2-perl.conf
+install -D -m 0644 %{SOURCE52} %{buildroot}%{_sysconfdir}/httpd/conf/httpd-perl.conf
+install -D -m 0644 %{SOURCE103} %{buildroot}%{_sysconfdir}/httpd/conf/fileprotector.conf
 
 #For compatibility if someone installs Apache 2.0, then changes their
 #mind and installs 1.3 instead, they will need the config files!
-mkdir -p %{buildroot}%{ADVXdir}/compat
-install -D -m644 %{SOURCE51} %{buildroot}%{ADVXdir}/compat/httpd.conf
-install -D -m644 %{SOURCE52} %{buildroot}%{ADVXdir}/compat/httpd-perl.conf
+mkdir -p %{buildroot}%{_datadir}/ADVX/compat
+install -D -m 0644 %{SOURCE51} %{buildroot}%{_datadir}/ADVX/compat/httpd.conf
+install -D -m 0644 %{SOURCE52} %{buildroot}%{_datadir}/ADVX/compat/httpd-perl.conf
 
-cd %{buildroot}%{compat_conf}/
-install -d -m755 %{buildroot}%{ap_addonconf}
-install -D -m644 %{SOURCE3} %{buildroot}%{compat_conf}/apache-mime.types
-install -D -m644 %{SOURCE5} %{buildroot}%{compat_conf}/magic.default
+cd %{buildroot}%{_sysconfdir}/httpd/conf/
+install -d -m 0755 %{buildroot}%{_sysconfdir}/httpd/conf/addon-modules
+install -D -m 0644 %{SOURCE3} %{buildroot}%{_sysconfdir}/httpd/conf/apache-mime.types
+install -D -m 0644 %{SOURCE5} %{buildroot}%{_sysconfdir}/httpd/conf/magic.default
 cp -p magic.default magic
-install -d -m755 vhosts
-install -D -m644 %{SOURCE10} %{buildroot}%{compat_conf}/vhosts/Vhosts.conf
-install -D -m644 %{SOURCE11} %{buildroot}%{compat_conf}/vhosts/DynamicVhosts.conf
-install -D -m644 %{SOURCE12} %{buildroot}%{compat_conf}/vhosts/VirtualHomePages.conf
+install -d -m 0755 vhosts
+install -D -m 0644 %{SOURCE10} %{buildroot}%{_sysconfdir}/httpd/conf/vhosts/Vhosts.conf
+install -D -m 0644 %{SOURCE11} %{buildroot}%{_sysconfdir}/httpd/conf/vhosts/DynamicVhosts.conf
+install -D -m 0644 %{SOURCE12} %{buildroot}%{_sysconfdir}/httpd/conf/vhosts/VirtualHomePages.conf
 
 # install our icon
 # JMD: We need an ADVX icon ;-)
-bzcat %{SOURCE14} > %{buildroot}%{ap_htdocsdir}/favicon.ico
+bzcat %{SOURCE14} > %{buildroot}/var/www/html/favicon.ico
 
 #install misc documentation and logos
-install -D -m644 %{SOURCE20} %{buildroot}/%{ap_htdocsdir}/index.shtml
-install -D -m644 %{SOURCE22} %{buildroot}/%{ap_htdocsdir}/optim.html
-install -D -m644 %{SOURCE21} %{buildroot}/%{ap_htdocsdir}/platform.html
-install -d -m755 %{buildroot}/%{ap_datadir}/icons/
-install -D -m644 %{SOURCE23} %{buildroot}/%{ap_datadir}/icons/logo.gif
-install -D -m644 %{SOURCE24} %{buildroot}/%{ap_datadir}/icons/apacheicon.gif
-install -D -m644 %{SOURCE26} %{buildroot}/%{ap_datadir}/icons/stamp.gif
-install -D -m644 %{SOURCE25} %{buildroot}/%{ap_datadir}/icons/medbutton.png
-pushd %{buildroot}/%{ap_datadir}/icons/
+install -D -m 0644 %{SOURCE20} %{buildroot}/var/www/html/index.shtml
+install -D -m 0644 %{SOURCE22} %{buildroot}/var/www/html/optim.html
+install -D -m 0644 %{SOURCE21} %{buildroot}/var/www/html/platform.html
+install -d -m 0755 %{buildroot}/var/www/icons/
+install -D -m 0644 %{SOURCE23} %{buildroot}/var/www/icons/logo.gif
+install -D -m 0644 %{SOURCE24} %{buildroot}/var/www/icons/apacheicon.gif
+install -D -m 0644 %{SOURCE26} %{buildroot}/var/www/icons/stamp.gif
+install -D -m 0644 %{SOURCE25} %{buildroot}/var/www/icons/medbutton.png
+pushd %{buildroot}/var/www/icons/
 tar xjf %{SOURCE29}
 popd
 
-install -d -m755 %{buildroot}%{ap_webdoc}/
+install -d -m 0755 %{buildroot}/var/www/html/addon-modules/
 echo "Get all the latest modules at <a href=http://www.advx.org>www.advx.org</a>" \
-	>> %{buildroot}%{ap_webdoc}/HOWTO_get_modules.html
-cat << EOF > %{buildroot}%{ap_webdoc}/.htaccess
+	>> %{buildroot}/var/www/html/addon-modules/HOWTO_get_modules.html
+cat << EOF > %{buildroot}/var/www/html/addon-modules/.htaccess
 Order deny,allow
 Deny from all
 Allow from 127.0.0.1
@@ -192,115 +166,175 @@ ErrorDocument 403 "This directory can only be viewed from localhost. If you don'
 EOF
 
 # install log rotation stuff
-install -d -m755 %{buildroot}%{_sysconfdir}/logrotate.d
+install -d -m 0755 %{buildroot}%{_sysconfdir}/logrotate.d
 
 cat > %{buildroot}%{_sysconfdir}/logrotate.d/%{name} << EOF
-%{ap_logfiledir}/access_log %{ap_logfiledir}/error_log %{ap_logfiledir}/agent_log %{ap_logfiledir}/referer_log %{ap_logfiledir}/apache_runtime_status
-%{ap_logfiledir}/ssl_mutex %{ap_logfiledir}/ssl_access_log %{ap_logfiledir}/ssl_error_log %{ap_logfiledir}/ssl_agent_log %{ap_logfiledir}/ssl_request_log 
-%{ap_logfiledir}/suexec_log 
+/var/log/httpd/*log
 {
+    size=2000M
     rotate 5
     monthly
     missingok
     nocompress
-    prerotate
-	[[ -d /service/apache ]] && svc -h /service/apache; [[ -d /service/apache2 ]] && svc -h /service/apache2
-    endscript
+    notifempty
     postrotate
-	[[ -d /service/apache ]] && svc -h /service/apache; [[ -d /service/apache2 ]] && svc -h /service/apache2
+	[[ -d /service/httpd2 ]] && runsvctrl h /service/httpd2 >/dev/null 2>&1
     endscript
 }
 EOF
 
-install -m755 %{SOURCE30} %{buildroot}%{_sbindir}
-install -m755 %{SOURCE31} %{buildroot}%{_sbindir}
-install -m755 %{SOURCE32} %{buildroot}%{_sbindir}
-install -m755 %{SOURCE33} %{buildroot}%{_sbindir}
-install -m755 %{SOURCE34} %{buildroot}%{_sbindir}
-install -m755 %{SOURCE53} %{buildroot}%{_sbindir}
-install -m755 %{SOURCE54} %{buildroot}%{_sbindir}
-install -m755 %{SOURCE55} %{buildroot}%{_sbindir}
+install -m 0755 %{SOURCE30} %{buildroot}%{_sbindir}
+install -m 0755 %{SOURCE31} %{buildroot}%{_sbindir}
+install -m 0755 %{SOURCE32} %{buildroot}%{_sbindir}
+install -m 0755 %{SOURCE33} %{buildroot}%{_sbindir}
+install -m 0755 %{SOURCE34} %{buildroot}%{_sbindir}
+install -m 0755 %{SOURCE53} %{buildroot}%{_sbindir}
 
 mkdir -p %{buildroot}%{_docdir}/apache2-conf-%{version}
-install -m644 %{SOURCE99} %{buildroot}%{_docdir}/apache2-conf-%{version}
+install -m 0644 %{SOURCE99} %{buildroot}%{_docdir}/apache2-conf-%{version}
 
-#Apache 1.3 compatibility
-mkdir -p %{buildroot}%{_libdir}/apache-extramodules
-mkdir -p %{buildroot}%{ap_base}/apache-extramodules
-#link modules dir
-ln -sf ../..%{_libdir}/apache-extramodules \
-        %{buildroot}%{ap_base}/extramodules
+mkdir -p %{buildroot}%{_srvdir}/httpd2/log
+mkdir -p %{buildroot}%{_srvlogdir}/httpd2
+install -m 0755 %{SOURCE100} %{buildroot}%{_srvdir}/httpd2/run
+install -m 0755 %{SOURCE101} %{buildroot}%{_srvdir}/httpd2/log/run
+
+mkdir -p %{buildroot}%{_datadir}/afterboot
+install -m 0644 %{SOURCE102} %{buildroot}%{_datadir}/afterboot/03_apache2
+
+install -m 0644 %{SOURCE98} %{buildroot}/var/www/html/robots.txt
+
 
 %pre
 %_pre_useradd apache /var/www /bin/sh 74
+%_mkafterboot
 
 %post
 if [ $1 = "1" ]; then
-  %{ADVXdir}/advx-checkifmigrate
+  %{_datadir}/ADVX/advx-checkifmigrate
 fi
-%_post_srv apache
-%_post_srv apache2
-%ADVXpost
+%_post_srv httpd2
 
 %preun
-%_preun_srv apache
-%_preun_srv apache2
-%ADVXpost
+%_preun_srv httpd2
 
 %postun
 %_postun_userdel apache
+%_mkafterboot
 
 %clean
 [ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
 
-#Clean up some
-[ "advxsplitlogfile" != "/" ] && rm -f advxsplitlogfile*
-
 %files 
 %defattr(-,root,root)
 %dir %{compat_dir}
-%dir %{compat_dir}/extramodules
 %dir %{compat_dir}/logs
-%dir %{ap_confd}
-%dir %{ap_logfiledir}
-%dir %{compat_conf}
-%{ADVXdir}/*
-%config %ghost %{compat_conf}/httpd.conf
-%config %ghost %{compat_conf}/httpd-perl.conf
-%config(noreplace) %{compat_conf}/httpd2.conf
-%config(noreplace) %{compat_conf}/commonhttpd.conf
-%config(noreplace) %{compat_conf}/httpd2-perl.conf
-%config(noreplace) %{compat_conf}/magic
-%config(noreplace) %{compat_conf}/apache-mime.types
-%config(noreplace) %{compat_conf}/magic.default
-%config(noreplace) %{compat_conf}/vhosts
-%dir %{ap_addonconf}
-%dir %{ap_webdoc}
-%{ap_webdoc}/*
-%config(noreplace) %{ap_webdoc}/.htaccess
-%dir %{ap_datadir}
-%dir %{ap_datadir}/cgi-bin
-%{ap_datadir}/cgi-bin/*
-%dir %{ap_datadir}/perl
-%{ap_datadir}/perl/*
-%dir %{ap_datadir}/icons
-%{ap_datadir}/icons/*
-%dir %{ap_htdocsdir}
-%{ap_htdocsdir}/platform.html
-%{ap_htdocsdir}/optim.html
-%config(noreplace) %{ap_htdocsdir}/favicon.ico
-%config(noreplace) %{ap_htdocsdir}/index.shtml
-%attr(-,apache,apache) %dir %{ap_proxycachedir}
+%dir %{_sysconfdir}/httpd/conf.d
+%dir /var/log/httpd
+%dir %{_sysconfdir}/httpd/conf
+%{_datadir}/ADVX/*
+%config %ghost %{_sysconfdir}/httpd/conf/httpd.conf
+%config %ghost %{_sysconfdir}/httpd/conf/httpd-perl.conf
+%config(noreplace) %{_sysconfdir}/httpd/conf/httpd2.conf
+%config(noreplace) %{_sysconfdir}/httpd/conf/commonhttpd.conf
+%config(noreplace) %{_sysconfdir}/httpd/conf/httpd2-perl.conf
+%config(noreplace) %{_sysconfdir}/httpd/conf/fileprotector.conf
+%config(noreplace) %{_sysconfdir}/httpd/conf/magic
+%config(noreplace) %{_sysconfdir}/httpd/conf/apache-mime.types
+%config(noreplace) %{_sysconfdir}/httpd/conf/magic.default
+%config(noreplace) %{_sysconfdir}/httpd/conf/vhosts
+%dir %{_sysconfdir}/httpd/conf/addon-modules
+%dir /var/www/html/addon-modules
+/var/www/html/addon-modules/*
+%config(noreplace) /var/www/html/addon-modules/.htaccess
+%attr(0755,apache,apache) %dir /var/www
+%dir /var/www/cgi-bin
+/var/www/cgi-bin/*
+%dir /var/www/perl
+/var/www/perl/*
+%dir /var/www/icons
+/var/www/icons/*
+%attr(0755,apache,apache) %dir /var/www/html
+/var/www/html/platform.html
+/var/www/html/optim.html
+%config(noreplace) /var/www/html/favicon.ico
+%config(noreplace) /var/www/html/index.shtml
+%config(noreplace) /var/www/html/robots.txt
+%attr(-,apache,apache) %dir /var/cache/httpd
 %{_sbindir}/*
 %config(noreplace) %{_sysconfdir}/logrotate.d/%{name}
 %{_docdir}/apache2-conf-%{version}/README.apache-conf
 %{_libdir}/ADVX/*
-%{ap_base}/extramodules
-#JMD: For compatibility with Apache 1.3
-#JMD: *never remove this!* 1333 is the *right* permission.
-%attr(1333,apache,apache) %dir /var/apache-mm
+%dir %{_srvdir}/httpd2
+%dir %{_srvdir}/httpd2/log
+%{_srvdir}/httpd2/run
+%{_srvdir}/httpd2/log/run
+%dir %attr(0750,logger,logger) %{_srvlogdir}/httpd2
+%{_datadir}/afterboot/03_apache2
 
 %changelog
+* Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 2.0.53-4avx
+= user logger for logging
+
+* Sun Feb 27 2005 Vincent Danen <vdanen@annvix.org> 2.0.53-3avx
+- remove more ADVX-related stuff
+- remove the peruser, perchild, and metuxmpm sections from the config
+  files
+- use fileprotector.conf as fileprotector.conf and don't accidentally
+  copy the httpd2-perl.conf file
+- rename S29
+- remove webapps.d support
+
+* Sun Feb 27 2005 Vincent Danen <vdanen@annvix.org> 2.0.53-2avx
+- put back our index.shtml and optim.html
+- merge back changes to commonhttpd.conf
+
+* Fri Feb 25 2005 Vincent Danen <vdanen@annvix.org> 2.0.53-1avx
+- 2.0.53
+- get rid of ADVX stuff
+- s/apache2/httpd2/ for the %%_srv macros
+- handle mod_perl2 access from the apache2-mod_perl config (oden)
+- add new dumpio module to the config (oden)
+- merge changes from the httpd2-VANILLA.conf file (oden)
+- S101: add means to secure sensible data (oden)
+
+* Fri Feb 04 2005 Vincent Danen <vdanen@annvix.org> 2.0.52-3avx
+- rebuild against new dietlibc
+
+* Fri Dec 03 2004 Vincent Danen <vdanen@annvix.org> 2.0.52-2avx
+- make apache own the %%ap_htdocsdir and %%ap_datadir
+- fix the logrotate script:
+  - go back to specifying *log rather than explicit log names (ie. so we can catch
+    vhosts, etc.)
+  - rotate logfiles 2GB and larger for sure
+  - remove the prerotate script; why restart apache twice for each logfile?
+- remove /var/apache-mm since we don't care about apache 1.3 anymore
+- likewise for /etc/httpd/extramodules symlink
+- add robots.txt file after looking at the suse stuff... (oden)
+- always build the diet binary of advxlogsplitlogfile
+- update the configs
+- drop S54 and S55 (toggle between apache 2 and apache 1.3)
+- drop S0 (don't need the initscript anymore)
+
+* Thu Oct 14 2004 Vincent Danen <vdanen@annvix.org> 2.0.52-1avx
+- 2.0.52
+- move runscripts and afterboot snippet here from apache2
+- update the default index.shtml and related pages; make it more
+  Annvix specific and clean it up (what an awful mess)
+
+* Fri Sep 17 2004 Vincent Danen <vdanen@annvix.org> 2.0.49-7avx
+- update logrotate script
+
+* Tue Sep 14 2004 Vincent Danen <vdanen@annvix.org> 2.0.49-6avx
+- by default, set ServerTokens to Prod (from Full) and ServerSignature
+  to Off (from On)
+
+* Mon Jun 28 2004 Vincent Danen <vdanen@annvix.org> 2.0.49-5avx
+- missed a few references to OpenSLS; fixed
+
+* Sun Jun 27 2004 Vincent Danen <vdanen@annvix.org> 2.0.49-4avx
+- Annvix build
+- new icons (annvix.png and medbutton.png)
+
 * Sun May 09 2004 Vincent Danen <vdanen@opensls.org> 2.0.49-3sls
 - fix logrotate file
 - make sure httpd2 uses /var/run/httpd2.pid and httpd2-perl uses

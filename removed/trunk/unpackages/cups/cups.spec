@@ -1,6 +1,6 @@
 %define name	cups
 %define version	1.1.20
-%define release	1sls
+%define release	2avx
 
 %define major	2
 %define libname	%mklibname cups %{major}
@@ -511,6 +511,9 @@ fi
 ##### CHANGELOG #####
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 1.1.20-2avx
+- Annvix build
+
 * Wed Mar 03 2004 Vincent Danen <vdanen@opensls.org> 1.1.20-1sls
 - 1.1.20
 - remove %%build_opensls macros

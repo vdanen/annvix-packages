@@ -1,6 +1,6 @@
 %define name	xterm
 %define version	179
-%define release	3sls
+%define release	4avx
 
 Summary:	The standard terminal emulator for the X Window System
 Name:		%{name}
@@ -79,6 +79,9 @@ chmod a+rx $r/usr/X11R6/bin/xterm
 %_prefix/X11R6/lib/X11/app-defaults/*
 
 %changelog
+* Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 179-4avx
+- Annvix build
+
 * Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 179-3sls
 - minor spec cleanups
 - remove menu entry and icons

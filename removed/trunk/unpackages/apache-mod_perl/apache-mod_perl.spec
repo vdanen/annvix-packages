@@ -1,6 +1,6 @@
 %define name	apache-mod_perl
 %define version	%{apache_version}_%{mod_perl_version}
-%define release	1sls
+%define release	2avx
 
 #New ADVX macros
 %define ADVXdir %{_datadir}/ADVX
@@ -409,6 +409,9 @@ cp %{SOURCE2} .
 %ADVXpost
 
 %changelog
+* Sun Jun 27 2004 Vincent Danen <vdanen@annvix.org> 1.3.31_1.29-2avx
+- Annvix build
+
 * Mon May 17 2004 Vincent Danen <vdanen@opensls.org> 1.3.31_1.29-1sls
 - apache 1.3.31
 

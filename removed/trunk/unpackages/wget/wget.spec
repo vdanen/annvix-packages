@@ -1,8 +1,8 @@
 %define name	wget
-%define version	1.8.2
-%define release	14sls
+%define version	1.9.1
+%define release	2avx
 
-Summary: 	A utility for retrieving files using the HTTP or FTP protocols.
+Summary: 	A utility for retrieving files using the HTTP or FTP protocols
 Name: 		%{name}
 Version: 	%{version}
 Release: 	%{release}
@@ -11,25 +11,24 @@ Group: 		Networking/WWW
 URL: 		http://www.gnu.org/directory/GNU/wget.html
 Source0:	ftp://prep.ai.mit.edu/pub/gnu/%{name}-%{version}.tar.bz2
 # alt: ftp://ftp.gnu.org/gnu/wget/
-Source2: 	wget-1.6-zh_CN.GB2312.po
 Patch0: 	wget-1.6-passive_ftp.patch.bz2
-Patch1: 	wget-1.8-print_percentage.patch.bz2
+Patch1: 	wget-1.9.1-mdk-print_percentage.patch.bz2
 Patch2:		wget-1.7-remove-rpath-from-binary.patch.bz2
 Patch3:		wget-1.8-no-solaris-md5.h.patch.bz2
 Patch4:		wget-1.8.1-etc.patch.bz2
-Patch5:		wget-1.8.1-netrc.patch.bz2
 Patch6:		wget-1.8.1-quote.patch.bz2
-Patch7:		wget-1.8.2-url_password.patch.bz2
-Patch8:		wget-1.8.2-filename.patch.bz2
+Patch7:		wget-1.9.1-mdk-url_password.patch.bz2
 Patch9:		wget-1.8.2-logstdout.patch.bz2
 Patch10:	wget-1.8.2-referer-opt-typo.patch.bz2
-Patch11:	wget-1.8.2-fix-fr-translation.patch.bz2
+Patch11:	wget-1.9.1-mdk-fix-fr-translation.patch.bz2
+Patch12:	wget-1.9.1-mdk-fix-de-translation.patch.bz2
+Patch13:	wget-1.9.1-mdk-LFS.patch.bz2
 
 BuildRoot: 	%_tmppath/%name-%version-%release-root
-BuildRequires:	gettext, openssl-devel, texinfo
+BuildRequires:	gettext, openssl-devel, texinfo, autoconf2.5
 
 Provides: 	webclient webfetch
-Prereq: 	/sbin/install-info
+Prereq: 	info-install
 
 
 %description
@@ -49,33 +48,28 @@ configurability.
 %patch2 -p1
 %patch3 -p1 -b .md5
 %patch4 -p1 -b .etc
-%patch5 -p1 -b .netrc
 %patch6 -p1 -b .quotes
 %patch7 -p1 -b .url_password
-%patch8 -p1 -b .filename
 %patch9 -p1 -b .logstdout
 %patch10 -p0 -b .typo
 %patch11 -p0 -b .frtypo
+%patch12 -p0 -b .detypo
+%patch13 -p1 -b .lfs
 
 %build
 #aclocal
 autoconf
-%configure
+%configure2_5x
 %make
 # all tests must pass (but where are they?)
 make check
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-%makeinstall
+%makeinstall_std
 
 install -m755 util/rmold.pl %buildroot/%_bindir/rmold
 
-rm -fr $RPM_BUILD_ROOT%{_datadir}/locale/zh
-
-# Install Chinese locales.
-mkdir -p $RPM_BUILD_ROOT%{_datadir}/locale/{zh_TW.Big5,zh_CN.GB2312}/LC_MESSAGES
-msgfmt -v %SOURCE2 -o $RPM_BUILD_ROOT%{_datadir}/locale/zh_CN.GB2312/LC_MESSAGES/wget.mo
 %find_lang %name
 
 
@@ -98,6 +92,23 @@ msgfmt -v %SOURCE2 -o $RPM_BUILD_ROOT%{_datadir}/locale/zh_CN.GB2312/LC_MESSAGES
 %_mandir/man1/wget.1*
 
 %changelog
+* Wed Dec 22 2004 Vincent Danen <vdanen@annvix.org> 1.9.1-2avx
+- P13: fix large file support (mdk anthill #1166)
+
+* Tue Aug 17 2004 Vincent Danen <vdanen@annvix.org> 1.9.1-1avx
+- 1.9.1
+- remove P5, P8 (upstream)
+- updated P1, P7, P11 (from mandrake)
+- BuildRequires: autoconf2.5
+- P12: fix utf8 encoding on console with de locale (#6597, Abel Cheung)
+  (tvignaud)
+- get rid of old chinese translation (deaddog)
+- %%configure2_5x, %%makeinstall_std (deaddog)
+
+* Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 1.8.2-15avx
+- require info-install, not the file
+- Annvix build
+
 * Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 1.8.2-14sls
 - minor spec cleanups
 

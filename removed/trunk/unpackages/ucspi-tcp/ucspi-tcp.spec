@@ -1,6 +1,6 @@
 %define name	ucspi-tcp
 %define version 0.88
-%define release 9sls
+%define release 10avx
 
 Summary:	tcpserver and tcpclient for building TCP client-server apps
 Name:		%{name}
@@ -119,6 +119,9 @@ rm -rf $RPM_BUILD_DIR/%{name}-%{version}-man
 
 
 %changelog
+* Fri Jun 18 2004 Vincent Danen <vdanen@opensls.org> 0.88-10avx
+- Annvix build
+
 * Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 0.88-9sls
 - minor spec cleanups
 

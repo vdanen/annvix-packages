@@ -1,0 +1,194 @@
+--- lilo-22.5.9/first.S.pix	2003-11-14 09:39:43.000000000 +0100
++++ lilo-22.5.9/first.S	2004-09-21 16:28:16.177089780 +0200
+@@ -188,7 +188,59 @@
+ 
+ 	mov	bx,#map2	! buffer for volume search
+ 	mov	dh,[d_dev](bp)  ! map device to DH
++#ifdef TEST_EDD
++	mov	dl,dh		! device code to DL
++	call	crlf
++	mov	eax, #0x1
++dead_loop:
++	call	eax_bout
++	push	eax
++	call	disk_read
++	pop	eax
++	call	crlf
++	shl	eax, 1
++	jnz	dead_loop
++	mov	bx,#msg_no_freeze
++	jmp	near die
+ 
++crlf:
++	push	eax
++	mov	al,#0x0d	! gimme a CR ...
++	call	display
++; the suspect call for trashing DX on one BIOS:
++	mov	al,#0x0a	! ... an LF ...
++	call	display
++	pop	eax
++	ret
++	
++eax_bout:
++	pusha
++	mov	ebx, eax
++	shr	eax, 16
++	call	ax_bout
++	mov	eax, ebx
++	call	ax_bout
++	popa
++	ret
++
++ax_bout:
++	push	ax
++	call	bout		; affiche ah
++	pop	ax
++	shl	ax, 8		; ah = al
++	call	bout		; affiche ah
++	ret
++
++say_loop:
++	call	display		! display, tty-style
++	inc	bx		! next one
++say:	mov	al,(bx)		! get byte
++	or	al,al		! NUL ?
++	jnz	say_loop	! not the end
++	ret
++
++#else	
++	
+ #if VALIDATE
+ 	mov	ax,dx		! copy device code to AL
+ 	and	ah,#0x80	! AH = 00 or 80
+@@ -291,7 +343,7 @@
+ 
+ no2nd_err:
+ 	mov	ah,#0x9A
+-
++#endif TEST_EDD
+ ! no return from error
+ error:
+ 
+@@ -358,6 +410,9 @@
+ 
+ 	push	bx
+ 
++#ifdef TEST_EDD
++	jmp	disk_edd	; force it
++#else
+ 	test	dh,#LINEAR_FLAG|LBA32_FLAG
+ 	jz	disk_geometric
+ 	
+@@ -431,7 +486,7 @@
+ disk_read2:
+ 	mov	ax,#0x201	;read, count of 1
+ 	jmp	disk_int13
+-
++#endif TEST_EDD
+ 
+ disk_edd:
+ 	mov	ah,#0x42
+@@ -442,6 +497,10 @@
+ disk_retry:
+ 	pusha
+ 	int	0x13
++#ifdef TEST_EDD
++	mov	al,#0x2D	! ... an '-' ...
++	call	display
++#endif
+ 	jnc	disk_okay
+ 
+ 	dec	bp
+@@ -459,7 +518,22 @@
+ disk_error12:
+ 
+ disk_err:
++#ifdef TEST_EDD
++	cmp	ah,#4
++	jne	error
++	mov	bx,#msg_quite_ok
++die:
++	call	say
++	hlt
++
++msg_no_freeze:	.ascii	" all sectors can be accessed with no error"
++	.byte	0
++msg_quite_ok:	.ascii	" correctly failed on this sector"
++	.byte	0
++
++#else
+ 	jmp	near error
++#endif
+ 
+ 
+ disk_okay:
+@@ -499,6 +573,7 @@
+ 
+ 
+ theend:
++#ifndef TEST_EDD
+ 
+ !
+ !   If 'first' loads as the MBR, then there must be space for the partition
+@@ -526,3 +601,6 @@
+ ! Better be exactly 0x200
+ 
+ map2	equ	*		! addressed as ES:[map2]
++#else TEST_EDD
++map2	equ	0x200		! force it
++#endif
+--- lilo-22.5.9/README.test_bios.pix	2004-09-07 04:30:53.720292124 +0200
++++ lilo-22.5.9/README.test_bios	2004-09-21 16:38:38.789142631 +0200
+@@ -0,0 +1,52 @@
++********************************************************************************
++building test_bios.img 
++
++- build lilo 
++- define TEST_EDD in first.S
++- build again
++- mv first.b test_bios.img
++
++********************************************************************************
++installing test_bios.img 
++
++- the simplest way is to put test_bios.img on the MBR or on a floppy. eg:
++    dd if=test_bios.img of=/dev/fd0
++  or
++    dd if=test_bios.img of=/dev/hda
++    (nb: it won't destroy the partition table, only the bootloader)
++- if you have a working bootloader, you can also put test_bios.img on a
++  partition and chainload it:
++
++  1. choose a ext2/ext3/reiserfs partition or the main extended partition
++     (NOT a fat or XFS partition)
++  2. dd if=test_bios.img of=/dev/hdaX
++  3. add to your lilo.conf
++       other=/dev/hdaX
++           label=test_bios
++     or something alike
++
++********************************************************************************
++understanding the output of test_bios.img
++
++what it does:
++1. it tries to load sector number XXXXXXXX
++2. it prints "-" when it's done, whatever the result is
++3. if there's an error, it prints " correctly failed on this sector"
++4. it computes the next value XXXXXXXX = XXXXXXXX * 2
++5. if it doesn't overflow it goes back to 1.
++6. otherwise it prints " all sectors can be accessed with no error"
++
++what happens on some bios, is:
++
++00000001-
++00000002-
++00000004-
++00000008-
++.....etc....
++01000000-
++02000000-
++04000000
++
++and then stops dead. It happens when the bios function used to read
++sector 0x04000000 (ie 32GB) dead loops. In that case, the bootloader
++doesn't even know something happened and can't do anything.

@@ -1,9 +1,9 @@
 %define name	lilo
-%define version 22.5.7.2
-%define release 11sls
+%define version 22.5.9
+%define release 3avx
 %define epoch	1
 
-Summary:	The boot loader for Linux and other operating systems.
+Summary:	The boot loader for Linux and other operating systems
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -12,26 +12,32 @@ Group:		System/Kernel and hardware
 License:	MIT
 URL:		http://brun.dyndns.org/pub/linux/lilo/
 Source:		http://home.san.rr.com/johninsd/pub/linux/lilo/lilo-%{version}.tar.bz2
-Source1:	lilo-OpenSLS-graphics.tar.bz2
+Source1:	lilo-Annvix-graphics.tar.bz2
 #ftp://metalab.unc.edu/pub/Linux/system/boot/lilo/lilo-%{version}.tar.bz2
 #Source: ftp://lrcftp.epfl.ch/pub/linux/local/lilo/
 Patch0:		lilo-21.6-keytab-3mdk.patch.bz2
 Patch1:		lilo-disks-without-partitions.patch.bz2
+Patch2:		lilo-22.5.8-page.patch.bz2
 Patch9:		lilo-22.5.1-unsafe-and-default-table.patch.bz2
-Patch20:	lilo-22.5.7.2-graphic-makefile.patch.bz2
-Patch21:	lilo-22.5.1-graphic.patch.bz2
+Patch20:	lilo-22.5.9-graphic-makefile.patch.bz2
+Patch21:	lilo-22.5.9-graphic.patch.bz2
 Patch22:	lilo-22.5.5-mandir.patch.bz2
-Patch23:	lilo-22.5.7.2-allgraph.patch.bz2
-Patch24:	lilo-22.5.7.2-progress.patch.bz2
-Patch25:	lilo-22.5.8-longer_image_names.patch.bz2
+Patch25:	lilo-22.5.8-lvm_ioctl_fixup.patch.bz2
+Patch26:	lilo-22.5.9-longer_image_names.patch.bz2
+Patch27:	lilo-22.5.8-two_columns.patch.bz2
+Patch28:	lilo-22.5.9-never-relocate-when-has-partititions.patch.bz2
+Patch29:	lilo-22.5.9-initialize-Volume-IDs-with-no-fanfare.patch.bz2
+Patch30:	lilo-22.5.9-test-edd.patch.bz2
+Patch31:	lilo-22.5.9-exit_code_1_when_aborting.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-root
 BuildRequires:	dev86 dev86-devel nasm
 
-PreReq:		/usr/bin/perl
+PreReq:		perl
 Conflicts:	lilo-doc < 22.5.7.2-6mdk
 Exclusivearch:	%{ix86}
 Provides:	bootloader
+
 
 %description
 LILO (LInux LOader) is a basic system program which boots your Linux
@@ -43,13 +49,18 @@ boot other operating systems.
 %setup -q
 %patch0 -p1
 %patch1 -p1
+%patch2 -p1
 %patch9 -p1
 %patch20 -p1
 %patch21 -p1
 %patch22 -p1
-%patch23 -p1 -b .allgraph
-%patch24 -p1 -b .progress
-%patch25 -p1
+%patch25 -p1 -b .ioctl
+%patch26 -p1 -b .images
+%patch27 -p1 -b .two
+%patch28 -p1
+%patch29 -p1
+%patch30 -p1
+%patch31 -p1
 
 # graphic pictures.
 bzip2 -dc %{SOURCE1} | tar xvf -
@@ -81,7 +92,10 @@ mv %{buildroot}%{_sbindir}/* %{buildroot}%{_bindir}
 			progress:405,166,11,14,15 \
 			clear:600,800,64+127 \
 			pos:0,0 \
-	<OpenSLS.bmp >%{buildroot}/boot/message-graphic
+	<Annvix.bmp >%{buildroot}/boot/message-graphic
+
+# (vdanen) once i decipher how this is supposed to work:
+#%{__perl} ./bmp2mdk file:Annvix.bmp >%{buildroot}/boot/message-graphic
 
 install bmp2mdk %{buildroot}%{_bindir}/lilo-bmp2mdk
 
@@ -132,7 +146,7 @@ if [ -f /etc/lilo.conf ]; then
           # need a special install=... 
   	  perl -pi -e 's|^install=.*\n||; $_ = "install=text\n$_" if $. == 1' /etc/lilo.conf ;;
         *)
-	  echo "ERROR: unknown lilo scheme, it is DROPPED (please tell dev@opensls.org)"
+	  echo "ERROR: unknown lilo scheme, it is DROPPED (please tell dev@annvix.org)"
 	  sleep 1 ;;
       esac
 
@@ -160,6 +174,39 @@ fi
 
 
 %changelog
+* Wed Oct 13 2004 Vincent Danen <vdanen@annvix.org> 22.5.9-3avx
+- Revert device mapper changes as it does not work on x86_64 at
+  all until lilo compiles on x86_64
+
+* Wed Oct 13 2004 Vincent Danen <vdanen@annvix.org> 22.5.9-2avx
+- Requires: libdevmapper
+
+* Fri Sep 24 2004 Vincent Danen <vdanen@annvix.org> 22.5.9-1avx
+- 22.5.9
+- use the xxx.bmp.parameters
+- sync with cooker 22.5.9-9mdk:
+  - shut up if device mapper is not loaded (bluca)
+  - glibc 2.3.3 needs <asm/page.h> included (bluca)
+  - added device mapper support (optional) (bluca)
+  - fix compilation with 2.6 headers (quintela)
+  - merge in graphic P21 allgraph (P23) and progress (P24) (pixel)
+  - lilo-bmp2mdk: accept bmp images with palette bigger than 128 colors
+    *if* colors above 128 are not used (pixel)
+  - never-relocate-when-has-partitions (lilo tries to skip overwriting the
+    first 0x40 bytes of the devices when it detects a dos bootsector, alas
+    it can detect one on the MBR) (pixel)
+  - add patch initalize-Volume-IDs-with-no-fanfare (to initialize Volume
+    IDs without prompting) (pixel)
+  - exit_code_1 when aborting (pixel)
+  - add patch to build test-edd.b (build, then define TEST_EDD in first.S,
+    build again, then use first.b) (pixel)
+  - add README.test_bios in patch test-edd (pixel)
+
+* Mon Jun 28 2004 Vincent Danen <vdanen@annvix.org> 22.5.7.2-12avx
+- Annvix build
+- require packages, not files
+- new graphic for Annvix
+
 * Tue Jun 08 2004 Thomas Backlund <tmb@iki.fi> 22.5.7.2-11sls
 - S1: add OpenSLS graphic to lilo
 - remove /boot/message

@@ -1,6 +1,6 @@
 %define	name	Mesa
 %define version	5.0.1
-%define release	7sls
+%define release	8avx
 
 %global _unpackaged_files_terminate_build 0
 
@@ -472,6 +472,9 @@ perl -pi -e "s|\S+$RPM_BUILD_DIR\S*||g" $RPM_BUILD_ROOT/%{libdir}/*.la
 %{libdir}/libglut.la
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 5.0.1-8avx
+- Annvix build
+
 * Sat Mar 06 2004 Vincent Danen <vdanen@opensls.org> 5.0.1-7sls
 - minor spec cleanups
 - remove %%build_opensls macro

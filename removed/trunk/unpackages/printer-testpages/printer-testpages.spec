@@ -1,6 +1,6 @@
 %define name	printer-testpages
 %define version	1.1
-%define release	2sls
+%define release	3avx
 
 Summary:	Test pages to check the output quality of printers
 Name:		%{name}
@@ -35,6 +35,9 @@ cp *.ps *.jpg *.asc %{buildroot}%{_datadir}/printer-testpages
 %{_datadir}/printer-testpages
 
 %changelog
+* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 1.1-3avx
+- Annvix build
+
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 1.1-2sls
 - rebuild
 

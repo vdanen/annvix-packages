@@ -1,6 +1,6 @@
 %define name	icewm
 %define version	1.2.13
-%define release 0.3.3sls
+%define release 0.3.4avx
 
 %define theirversion	1.2.13pre3
 %define prefix		/usr/X11R6
@@ -171,6 +171,9 @@ perl -pi -e "s#\# DesktopBackgroundColor=.*#DesktopBackgroundColor=\"\"#" %build
 %{_liconsdir}/%{name}.png
 
 %changelog
+* Thu Jun 24 2004 Vincent Danen <vdanen@annvix.org> 1.2.13-0.3.4avx
+- Annvix build
+
 * Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 1.2.13-0.3.3sls
 - minor spec cleanups
 - update menu to include xterm

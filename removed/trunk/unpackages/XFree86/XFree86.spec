@@ -1,8 +1,6 @@
 %define name	XFree86
 %define version 4.3
-%define release 28sls
-
-%{!?build_propolice:%global build_propolice 0}
+%define release 31avx
 
 %define _unpackaged_files_terminate_build 0
 %define baseversion 420
@@ -226,6 +224,9 @@ Patch802:	XFree86-4.3-font-security.patch.bz2
 Patch803:	XFree86-4.3-propolice.patch.bz2
 # fix xdm pam_setcred vulnerability (CAN-2003-0690)
 Patch804:	XFree86-4.x-xdm-pam-setcred-security.patch.bz2
+# fix more xdm issues (CAN-2004-0419)
+Patch805:	XFree86-4.3-mdk-CAN-2004-0419.patch.bz2
+Patch806:	XFree86-4.3-CAN-2004-0687-0688.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-root
 BuildRequires:	zlib-devel flex bison groff pam-devel ncurses-devel perl hwdata
@@ -610,11 +611,13 @@ cd -
 %patch800 -p1 -b .branch-4.3
 %patch801 -p1 -b .xi-lock
 %patch802 -p1 -b .font-security
+
 # (vdanen) until we get this module thing sorted out...
-#%if %{build_propolice}
 #%patch803 -p0 -b .propolice
-#%endif
+
 %patch804 -p0 -b .xdm-pam_setcred
+%patch805 -p1 -b .can-2004-0419
+%patch806 -p1 -b .can-2004-0687-0688
 
 # backup the original files (so we can look at them later) and use our own
 cp xc/nls/compose.dir xc/nls/compose.dir.orig
@@ -632,11 +635,9 @@ NO_MERGE_CONSTANTS=$(if %{__cc} -fno-merge-constants -S -o /dev/null -xc /dev/nu
 # Build with -fno-strict-aliasing if gcc >= 3.1 is used
 NO_STRICT_ALIASING=$(%{__cc} -dumpversion | awk -F "." '{ if (int($1)*100+int($2) >= 301) print "-fno-strict-aliasing" }')
 
-%if %{build_propolice}
 # (vdanen) for the time being, build without stack protection until we can
 # figure out how to build just the modules without protection
 RPM_OPT_FLAGS=`echo $RPM_OPT_FLAGS |sed 's/-fstack-protector//'`
-%endif
 
 %if ! %{BuildDebugVersion}
 # compiling with -g is too huge
@@ -796,11 +797,9 @@ mkdir mdk-fonts
 bzcat %{SOURCE151} | tar xf - -C mdk-fonts
 
 %build
-%if %{build_propolice}
 # (vdanen) for the time being, build without stack protection until we can
 # figure out how to build just the modules without protection
 RPM_OPT_FLAGS=`echo $RPM_OPT_FLAGS |sed 's/-fstack-protector//'`
-%endif
 
 %if ! %{BuildDebugVersion}
 # compiling with -g is too huge
@@ -1827,6 +1826,19 @@ fi
 %{x11libdir}/X11/xedit
 
 %changelog
+* Mon Sep 20 2004 Vincent Danen <vdanen@annvix.org> 4.3-31avx
+- P806: patch to fix CAN-2004-0687 and CAN-2004-0688
+- update run scripts
+
+* Wed Jul 28 2004 Vincent Danen <vdanen@annvix.org> 4.3-30avx
+- P805: patch to fix CAN-2004-0419
+
+* Sat Jun 25 2004 Vincent Danen <vdanen@annvix.org> 4.3-29avx
+- Annvix build
+- remove %%build_propolice; always build without SSP until we can
+  figure out how to make the core build with SSP and the modules
+  without
+
 * Tue May 11 2004 Vincent Danen <vdanen@opensls.org> 4.3-28sls
 - Requires: hwdata
 - remove /usr/X11R6/lib/X11/Cards as hwdata provides it
