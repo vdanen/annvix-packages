@@ -1,5 +1,5 @@
 %define name	shorewall
-%define version 2.0.3
+%define version 2.0.6
 %define release 1avx
 
 %define samples_version	2.0.1
@@ -11,8 +11,8 @@ Release:	%{release}
 License:	GPL
 Group:		System/Servers
 URL:		http://www.shorewall.net/
-Source0:	ftp://ftp.shorewall.net/pub/shorewall/shorewall-%{version}/%{name}-%{version}.tgz
-Source1:	ftp://ftp.shorewall.net/pub/shorewall/shorewall-%{version}/%{version}.md5sums
+Source0:	ftp://ftp.shorewall.net/pub/shorewall/2.0/shorewall-%{version}/%{name}-%{version}.tgz
+Source1:	ftp://ftp.shorewall.net/pub/shorewall/2.0/shorewall-%{version}/%{version}.md5sums
 Source2:	ftp://ftp.shorewall.net/pub/shorewall/Samples/samples-%{samples_version}/one-interface.tgz
 Source3:	ftp://ftp.shorewall.net/pub/shorewall/Samples/samples-%{samples_version}/two-interfaces.tgz
 Source4:	ftp://ftp.shorewall.net/pub/shorewall/Samples/samples-%{samples_version}/three-interfaces.tgz
@@ -109,6 +109,10 @@ export DONT_GPRINTIFY=1
 
 
 %changelog
+* Mon Jul 19 2004 Vincent Danen <vdanen@annvix.org> 2.0.6-1avx
+- 2.0.6
+- start shorewall at S12, after the network
+
 * Mon Jun 28 2004 Vincent Danen <vdanen@annvix.org> 2.0.3-1avx
 - 2.0.3
 - remove S4 (bogons), S5 (rfc1918); already included
