@@ -1,9 +1,9 @@
 %define name	%{ap_name}-%{mod_name}
 %define version	%{ap_version}_%{mod_version}
-%define release 2sls
+%define release 1sls
 
 # Module-Specific definitions
-%define mod_version	1.7.4
+%define mod_version	1.7.5
 %define mod_name	mod_security
 %define mod_conf	82_%{mod_name}.conf
 %define mod_so		%{mod_name}.so
@@ -21,9 +21,10 @@ Release:	%{release}
 License:	GPL
 Group:		System/Servers
 URL:		http://www.modsecurity.org/
-Source0:	%{sourcename}.tar.bz2
+Source0:	%{sourcename}.tar.gz
 Source1:	%{mod_conf}.bz2
-Source2:	snortrules-current.tar.gz
+Source2:	snortrules-snapshot-CURRENT.tar.gz
+Source3:	%{sourcename}.tar.gz.asc
 
 # Standard ADVX requires
 BuildRoot:	%{_tmppath}/%{name}-buildroot
@@ -58,7 +59,7 @@ cp apache2/%{mod_name}.c .
 %{apxs} -c %{mod_name}.c
 
 %install
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %ADVXinstlib
 %ADVXinstconf %{SOURCE1} %{mod_conf}
@@ -71,7 +72,7 @@ install -m0755 util/snort2modsec.pl %{buildroot}%{_sbindir}/
 install -m0644 mod_security-snortrules.conf %{buildroot}%{ap_sysconfdir}/
 
 %clean
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
 %ADVXpost
@@ -81,7 +82,7 @@ install -m0644 mod_security-snortrules.conf %{buildroot}%{ap_sysconfdir}/
 
 %files
 %defattr(-,root,root)
-%doc tests CHANGES README httpd.conf* modsecurity-manual-*.pdf
+%doc tests CHANGES README httpd.conf* mod_security-manual-*.pdf
 %config(noreplace) %{ap_sysconfdir}/mod_security-snortrules.conf
 %config(noreplace) %{ap_confd}/%{mod_conf}
 %{ap_extralibs}/%{mod_so}
@@ -89,6 +90,11 @@ install -m0644 mod_security-snortrules.conf %{buildroot}%{ap_sysconfdir}/
 %{_sbindir}/snort2modsec.pl
 
 %changelog
+* Tue Feb 24 2004 Vincent Danen <vdanen@opensls.org> 2.0.48_1.7.5-1sls
+- 1.7.5 (potential security fix)
+- use the tar.gz and include the detached pgp sig
+- snortrules-snapshot-CURRENT (20040225)
+
 * Wed Jan 21 2004 Vincent Danen <vdanen@opensls.org> 2.0.48_1.7.4-2sls
 - OpenSLS build
 - tidy spec
