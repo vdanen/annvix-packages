@@ -1,6 +1,6 @@
 %define name	lilo
 %define version 22.5.7.2
-%define release 10sls
+%define release 11sls
 %define epoch	1
 
 Summary:	The boot loader for Linux and other operating systems.
@@ -12,7 +12,7 @@ Group:		System/Kernel and hardware
 License:	MIT
 URL:		http://brun.dyndns.org/pub/linux/lilo/
 Source:		http://home.san.rr.com/johninsd/pub/linux/lilo/lilo-%{version}.tar.bz2
-Source2:	lilo-graphic-pictures.tar.bz2
+Source1:	lilo-OpenSLS-graphics.tar.bz2
 #ftp://metalab.unc.edu/pub/Linux/system/boot/lilo/lilo-%{version}.tar.bz2
 #Source: ftp://lrcftp.epfl.ch/pub/linux/local/lilo/
 Patch0:		lilo-21.6-keytab-3mdk.patch.bz2
@@ -52,7 +52,7 @@ boot other operating systems.
 %patch25 -p1
 
 # graphic pictures.
-bzip2 -dc %{SOURCE2} | tar xvf -
+bzip2 -dc %{SOURCE1} | tar xvf -
 
 bzip2 -9 README*
 
@@ -75,45 +75,19 @@ mv %{buildroot}%{_sbindir}/* %{buildroot}%{_bindir}
 
 # graphic addons, keep default options for bmp2mdk
 
-#%{__perl} ./bmp2mdk	mode:0x101 \
-#			timer:444,458,64+102,64+3 \
-#			entry:28,380,0,15,24,22 \
-#	<boot8.1.bmp >%{buildroot}/boot/lilo-graphic/message
-#%{__perl} ./bmp2mdk	mode:0x101 \
-#			timer:63+280,80+358,64+83,64+79 \
-#			entry:63+144,80+70,64+84,64+79,9,42 \
-#			clear:480,640,64+79 \
-#			pos:63,80 \
-#	<boot8.2.bmp >%{buildroot}/boot/message-graphic
-#%{__perl} ./bmp2mdk	mode:0x103 \
-#			timer:425,562,64+70,64+0 \
-#			entry:218,174,64+0,64+19,11,55 \
-#			clear:600,800,64+70 \
-#			pos:0,0 \
-#	<boot9.0.bmp >%{buildroot}/boot/message-graphic
-#%{__perl} ./bmp2mdk	mode:0x103 \
-#			timer:425,562,64+127,64+72 \
-#			entry:218,174,64+72,64+22,11,55 \
-#			clear:600,800,64+54 \
-#			pos:0,0 \
-#	<boot9.1.bmp >%{buildroot}/boot/message-graphic
 %{__perl} ./bmp2mdk	mode:0x103 \
-			timer:357,610,64+126,15 \
-			entry:161,144,64+127,15,13,54 \
+			timer:357,610,64+11,15 \
+			entry:161,144,64+11,15,13,54 \
 			progress:405,166,11,14,15 \
 			clear:600,800,64+127 \
 			pos:0,0 \
-	<boot9.2.bmp >%{buildroot}/boot/message-graphic
+	<OpenSLS.bmp >%{buildroot}/boot/message-graphic
 
 install bmp2mdk %{buildroot}%{_bindir}/lilo-bmp2mdk
 
 mkdir -p %{buildroot}/%{_mandir}/man{5,8}/
 install -m644 manPages/*.5 %{buildroot}/%{_mandir}/man5/
 install -m644 manPages/*.8 %{buildroot}/%{_mandir}/man8/
-echo "Choose from the list above or wait for the default boot..." >%{buildroot}/boot/message
-
-# temporary until we get our own graphic:
-rm -f %{buildroot}/boot/message-graphic
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -158,7 +132,7 @@ if [ -f /etc/lilo.conf ]; then
           # need a special install=... 
   	  perl -pi -e 's|^install=.*\n||; $_ = "install=text\n$_" if $. == 1' /etc/lilo.conf ;;
         *)
-	  echo "ERROR: unknown lilo scheme, it is DROPPED (please tell pixel@mandrakesoft.com)"
+	  echo "ERROR: unknown lilo scheme, it is DROPPED (please tell dev@opensls.org)"
 	  sleep 1 ;;
       esac
 
@@ -177,8 +151,7 @@ fi
 %files
 %defattr(-,root,root)
 %doc README* COPYING
-#/boot/message-graphic
-/boot/message
+/boot/message-graphic
 /boot/diag1.img
 /boot/diag2.img
 /sbin/*
@@ -187,6 +160,11 @@ fi
 
 
 %changelog
+* Tue Jun 08 2004 Thomas Backlund <tmb@iki.fi> 22.5.7.2-11sls
+- S1: add OpenSLS graphic to lilo
+- remove /boot/message
+- change bugreport mail address
+
 * Tue Jun 01 2004 Vincent Danen <vdanen@opensls.org> 22.5.7.2-10sls
 - include /boot/message (text) and don't include the graphic file
   since it says mdk9.2 (anyone want to make an OpenSLS graphic file?)
