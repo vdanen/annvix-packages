@@ -1,6 +1,6 @@
 %define name	cvs
 %define version	1.11.17
-%define release	3avx
+%define release	4avx
 
 %define url	ftp://ftp.cvshome.org/pub
 %define _requires_exceptions tcsh
@@ -17,6 +17,7 @@ Source1: 	cvspserver
 Source2: 	cvs.conf
 Source4:	cvs.run
 Source5:	cvs-log.run
+Source6:	06_cvspserver.afterboot
 Patch4: 	cvs-1.11.2-zlib.patch.bz2
 Patch6: 	cvs-1.11.15-errno.patch.bz2
 Patch8:		cvs-1.11-ssh.patch.bz2
@@ -28,8 +29,8 @@ Patch14:	cvs-1.11.17-localid.patch.bz2
 BuildRoot:	%_tmppath/%name-%version-%release-root
 BuildRequires:	texinfo, zlib-devel, krb5-devel
 
-Requires:	openssh-clients zlib
-Prereq:		info-install
+Requires:	openssh-clients zlib ipsvd
+Prereq:		info-install afterboot
 
 %description
 CVS means Concurrent Version System; it is a version control
@@ -79,18 +80,23 @@ bzip2 -f doc/*.ps
 
 %makeinstall
 
-mkdir -p $RPM_BUILD_ROOT%{_sbindir}
-install %{SOURCE1} $RPM_BUILD_ROOT%{_sbindir}
-mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/cvs
-install -m 644 %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/cvs
+mkdir -p %{buildroot}%{_sbindir}
+install %{SOURCE1} %{buildroot}%{_sbindir}
+mkdir -p %{buildroot}%{_sysconfdir}/cvs
+install -m 644 %{SOURCE2} %{buildroot}%{_sysconfdir}/cvs
 
 # get rid of "no -f" so we don't have a Dep on this nonexistant interpretter
 perl -pi -e 's/no -f/\/bin\/sh/g' %{buildroot}%{_datadir}/cvs/contrib/sccs2rcs
 
-mkdir -p %{buildroot}%{_srvdir}/cvspserver/log
+mkdir -p %{buildroot}%{_srvdir}/cvspserver/{log,peers}
 install -m 0755 %{SOURCE4} %{buildroot}%{_srvdir}/cvspserver/run
 install -m 0755 %{SOURCE5} %{buildroot}%{_srvdir}/cvspserver/log/run
+touch %{buildroot}%{_srvdir}/cvspserver/peers/0
+chmod 0644 %{buildroot}%{_srvdir}/cvspserver/peers/0
 mkdir -p %{buildroot}%{_srvlogdir}/cvspserver
+
+mkdir -p %{buildroot}%{_datadir}/afterboot
+install -m 0644 %{SOURCE6} %{buildroot}%{_datadir}/afterboot/06_cvspserver
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -99,11 +105,15 @@ mkdir -p %{buildroot}%{_srvlogdir}/cvspserver
 %_post_srv cvs
 %_install_info %{name}.info
 %_install_info cvsclient.info
+%_mkafterboot
 
 %preun
 %_preun_srv cvs
 %_remove_install_info %{name}.info
 %_remove_install_info cvsclient.info
+
+%postun
+%_mkafterboot
 
 %files
 %defattr(-,root,root)
@@ -122,11 +132,21 @@ mkdir -p %{buildroot}%{_srvlogdir}/cvspserver
 %config(noreplace) %{_sysconfdir}/cvs/cvs.conf
 %dir %{_srvdir}/cvspserver
 %dir %{_srvdir}/cvspserver/log
+%dir %{_srvdir}/cvspserver/peers
 %{_srvdir}/cvspserver/run
 %{_srvdir}/cvspserver/log/run
+%{_srvdir}/cvspserver/peers/0
 %dir %attr(0750,nobody,nogroup) %{_srvlogdir}/cvspserver
+%{_datadir}/afterboot/06_cvspserver
 
 %changelog
+* Tue Oct 05 2004 Vincent Danen <vdanen@annvix.org> 1.11.17-4avx
+- switch from tcpserver to tcpsvd
+- Requires: ipsvd
+- add the /service/cvspserver/peers directory to, by default, allow
+  all connections
+- add afterboot snippet
+
 * Mon Sep 20 2004 Vincent Danen <vdanen@annvix.org> 1.11.17-3avx
 - updated run scripts
 

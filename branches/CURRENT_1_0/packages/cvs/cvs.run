@@ -1,8 +1,8 @@
 #!/bin/sh
 PATH="/sbin:/usr/sbin:/bin:/usr/bin"
 
-# this runs cvspserver limiting the server to a maximum of 30 simultaneous 
-# connections. cvspserver.cdb is not required for the service to run
+# this runs cvspserver and limits the server to a maximum of 30 simultaneous
+# connections (-c) using the ipsvd-instruct(5) directory ./peers for instructions,
+# and listening to all IPs on port 2401 (cvspserver)
 
-exec /usr/bin/tcpserver -c30 -HRXv -llocalhost -x /etc/tcprules.d/cvspserver.cdb \
-0 cvspserver /usr/sbin/cvspserver 2>&1
+/sbin/tcpsvd -c30 -v -llocalhost -i./peers 0 2401 /usr/sbin/cvspserver 2>&1
