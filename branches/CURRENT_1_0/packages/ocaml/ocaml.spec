@@ -1,8 +1,6 @@
 %define name	ocaml
 %define version	3.06
-%define release	13sls
-
-%{!?build_opensls:%global build_opensls 0}
+%define release	14sls
 
 %define build_ocamlopt	1
 %define build_ocamltk	1
@@ -33,10 +31,7 @@ Patch15:	ocaml-3.06-amd64.patch.bz2
 Patch16:	ocaml-3.06-lib64.patch.bz2
 
 BuildRoot:	%{_tmppath}/ocaml-root
-BuildRequires: XFree86-devel ncurses-devel tk
-
-Obsoletes:	ocaml-emacs
-Provides:	ocaml-emacs
+BuildRequires:	XFree86-devel ncurses-devel tk
 
 %description
 Objective Caml is a high-level, strongly-typed, functional and object-oriented
@@ -45,16 +40,6 @@ programming language from the ML family of languages.
 This package comprises two batch compilers (a fast bytecode compiler and an
 optimizing native-code compiler), an interactive toplevel system, Lex&Yacc
 tools, a replay debugger, and a comprehensive library.
-
-%if !%{build_opensls}
-%package doc
-Summary:	Documentation for OCaml
-Group:		Books/Computer books
-Requires:	%{name} = %{version}-%{release}
-
-%description doc
-Documentation for OCaml
-%endif
 
 %package -n camlp4
 Summary:	Preprocessor for OCaml
@@ -105,14 +90,12 @@ make BYTECCCOMPOPTS="%{optflags}" NATIVECCCOMPOPTS="%{optflags}" opt opt.opt
 %endif
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 make install BINDIR=%{buildroot}%{_bindir} LIBDIR=%{buildroot}%{_libdir}/ocaml MANDIR=%{buildroot}%{_mandir}
 
 # remove stupid camlp4o.opt which can't work
 rm -f %{buildroot}%{_bindir}/camlp4*.opt
 rm -f %{buildroot}%{_mandir}/man1/camlp4*.opt.*
-
-(cd emacs; make install install-ocamltags BINDIR=%{buildroot}%{_bindir} EMACSDIR=%{buildroot}%{_datadir}/emacs/site-lisp)
 
 # fix
 perl -pi -e "s|$RPM_BUILD_ROOT||" $RPM_BUILD_ROOT%{_libdir}/ocaml/ld.conf
@@ -127,19 +110,10 @@ done
 %endif
 
 
-install -d $RPM_BUILD_ROOT%{_sysconfdir}/emacs/site-start.d
-cat <<EOF >$RPM_BUILD_ROOT%{_sysconfdir}/emacs/site-start.d/%{name}.el
-(require 'caml-font)
-(autoload 'caml-mode "caml" "Caml editing mode" t)
-(add-to-list 'auto-mode-alist '("\\\\.mli?$" . caml-mode))
-EOF
-
-# menu (kept in case we want to use it again one day)
-#install -d $RPM_BUILD_ROOT%{_menudir}
-#install -m 644 %{SOURCE4} $RPM_BUILD_ROOT%{_menudir}/%{name}
-
 # don't package mano man pages since we have the html files
 rm -rf $RPM_BUILD_ROOT%{_mandir}/mano
+rm -rf $RPM_BUILD_ROOT%{_mandir}/man1/ocpp.1*
+
 
 export EXCLUDE_FROM_STRIP="ocamldebug ocamlbrowser"
 
@@ -150,21 +124,12 @@ n="labltk|camlp4|ocamlbrowser|tkanim"
 (cd $RPM_BUILD_ROOT ; find usr/%{_lib}/ocaml   -type d -printf "%%%%dir /%%p\n" | egrep -v $n) >> %{name}.list
 
 %clean
-rm -rf ${RPM_BUILD_ROOT}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files -f %{name}.list
 %defattr(-,root,root)
 %doc Changes LICENSE README
 %{_mandir}/man*/*ocaml*
-#%{_menudir}/*
-%{_datadir}/emacs/site-lisp/*
-%config(noreplace) %{_sysconfdir}/emacs/site-start.d/*
-
-%if !%{build_opensls}
-%files doc
-%defattr(-,root,root)
-%doc htmlman/* 
-%endif
 
 %if %{build_ocamltk}
 %files -n ocamltk
@@ -184,6 +149,11 @@ rm -rf ${RPM_BUILD_ROOT}
 %{_libdir}/ocaml/camlp4
 
 %changelog
+* Sun Mar 07 2004 Vincent Danen <vdanen@opensls.org> 3.06-14sls
+- minor spec cleanups
+- remove %%build_opensls macro
+- remove emacs files
+
 * Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 3.06-13sls
 - OpenSLS build
 - tidy spec
