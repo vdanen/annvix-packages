@@ -1,0 +1,46 @@
+--- ./sysctl.c.sysctl	2002-12-29 00:26:50.000000000 +0100
++++ ./sysctl.c	2003-12-29 08:22:43.000000000 +0100
+@@ -36,6 +36,7 @@
+ typedef int bool;
+ static bool true  = 1;
+ static bool false = 0;
++static int verbose;
+ 
+ /*
+  *    Globals...
+@@ -290,9 +291,10 @@
+       fprintf(fp, "%s\n", value);
+       fclose(fp);
+ 
+-      if (PrintName) {
++      if (PrintName && verbose) {
+          fprintf(stdout, "%s = %s\n", outname, value);
+       } else {
++ 		if (verbose)
+          if (PrintNewline)
+             fprintf(stdout, "%s\n", value);
+          else
+@@ -413,6 +415,9 @@
+               SwitchesAllowed = false;
+               WriteMode = true;
+            break;
++         case 'v':
++              verbose++;
++              break;
+          case 'p':
+               argv++;
+               if (argv && *argv && **argv) {
+--- ./sysctl.8.sysctl	2003-12-24 02:56:36.000000000 +0100
++++ ./sysctl.8	2003-12-29 08:22:43.000000000 +0100
+@@ -39,8 +39,9 @@
+ which are parsed by the shell, you may need to enclose the value in double
+ quotes.  This requires the -w parameter to use.
+ .TP
+-.B "-n"
+-Use this option to disable printing of the key name when printing values.
++.B "-v"
++Use this option to enable printing of the key name when printing
++values (by default nothing is printed).
+ .TP
+ .B "-e"
+ Use this option to ignore errors about unknown keys.
