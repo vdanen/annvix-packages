@@ -7,12 +7,15 @@ PATH="/sbin:/usr/sbin:/bin:/usr/bin:$PATH"
 if [ ! -d /service/portmap ]; then
   echo "portmap must be linked to /service to run this service!"
   touch down
+  svc -d /service/rpc.nfsd
+  touch log/down
+  svc -d /service/rpc.nfsd/log
   exit 0
 fi
 
 # we need to wait for portmap; supervise will restart us so if portmap isn't
 # running, quit
-[ "x`svstat /service/portmap|grep down >/dev/null 2>&1; echo $?`" == "x0" ] && exit
+[ "x`svstat /service/portmap|grep down >/dev/null 2>&1; echo $?`" == "x0" ] && sleep 10
 
 . /etc/sysconfig/network
 
@@ -25,5 +28,6 @@ fi
 /usr/sbin/rpc.nfsd $NFSDCOUNT 2>&1
 
 # now we need to trick supervise into thinking it's still controlling the service
+
 exec /usr/bin/nothing
 

@@ -1,6 +1,6 @@
 %define name	nfs-utils
 %define	version	1.0.5
-%define release	3sls
+%define release	4sls
 
 %define	url	ftp://ftp.kernel.org:/pub/linux/utils/nfs
 
@@ -203,6 +203,9 @@ fi
 %dir %attr(0750,nobody,nogroup) %{_srvlogdir}/rpc.statd
 
 %changelog
+* Tue Jan 27 2004 Vincent Danen <vdanen@opensls.org> 1.0.5-4sls
+- make the supervise scripts more robust
+
 * Tue Jan 27 2004 Vincent Danen <vdanen@opensls.org> 1.0.5-3sls
 - supervise scripts
 - create barebones /etc/exports in %%post rather than the initscript

@@ -1,13 +1,7 @@
 #!/bin/sh
 PATH="/sbin:/usr/sbin:/bin:/usr/bin:$PATH"
 
-# this runs rpc.lockd under supervise
-
-if [ ! -f /etc/sysconfig/network ]; then
-  echo "Network is not configured!"
-  touch down
-  exit 0
-fi
+# this runs rpc.statd under supervise
 
 . /etc/sysconfig/network
 
@@ -21,6 +15,9 @@ fi
 if [ ! -d /service/portmap ]; then
   echo "portmap must be linked to /service to run this service!"
   touch down
+  svc -d /service/rpc.statd
+  touch log/down
+  svc -d /service/rpc.statd/log
   exit 0
 fi
 
