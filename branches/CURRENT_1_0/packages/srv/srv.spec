@@ -1,8 +1,8 @@
-# $Id: srv.spec,v 1.9 2004/07/15 04:29:43 vdanen Exp $
+# $Id: srv.spec,v 1.10 2004/07/27 21:01:40 vdanen Exp $
 
 %define name	srv
-%define version 0.6
-%define release 2avx
+%define version 0.7
+%define release 1avx
 
 Summary:	Tool to manage supervise-controlled services.
 Name: 		%{name}
@@ -16,7 +16,7 @@ Source1:	http://em.ca/~bruceg/supervise-scripts/supervise-scripts-3.3.tar.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-root
 
-Requires:	daemontools >= 0.70
+Requires:	daemontools >= 0.70, initscripts >= 7.06-41avx
 Obsoletes:	supervise-scripts
 Provides:	supervise-scripts
 PreReq:		rpm-helper
@@ -35,13 +35,13 @@ mkdir -p %{buildroot}%{_prefix}
 gcc nothing.c -o nothing
 
 %install
-mkdir -p %{buildroot}{/sbin,%{_bindir},%{_sbindir},%{_mandir}/man8}
+mkdir -p %{buildroot}{/sbin,%{_bindir},%{_sbindir},%{_mandir}/man8,%{_datadir}/srv}
 install -m 0755 srv %{buildroot}%{_sbindir}
 install -m 0755 srv-start %{buildroot}/sbin
 install -m 0755 srv-stop %{buildroot}/sbin
-install -m 0755 srv-addinit %{buildroot}/sbin
 install -m 0644 srv.8 %{buildroot}%{_mandir}/man8
 install -m 0755 nothing %{buildroot}%{_bindir}
+install -m 0644 functions %{buildroot}%{_datadir}/srv
 
 # supervise scripts
 pushd supervise-scripts-3.3
@@ -59,13 +59,8 @@ mv %{buildroot}%{_bindir}/svc* %{buildroot}%{_sbindir}
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-%post
-echo "Adding svscan to inittab if required..."
-/sbin/srv-addinit >/dev/null 2>&1
-
 %files
 %defattr(-,root,root)
-/sbin/srv-addinit
 /sbin/srv-start
 /sbin/srv-stop
 %{_sbindir}/srv
@@ -79,6 +74,7 @@ echo "Adding svscan to inittab if required..."
 %{_sbindir}/svc-waitdown
 %{_sbindir}/svc-waitup
 %{_bindir}/nothing
+%{_datadir}/srv/functions
 %{_mandir}/man8/srv.8*
 %{_mandir}/man1/svc-add.1*
 %{_mandir}/man1/svc-remove.1*
@@ -86,6 +82,15 @@ echo "Adding svscan to inittab if required..."
 %{_mandir}/man1/svc-stop.1*
 
 %changelog
+* Tue Jul 27 2004 Vincent Danen <vdanen@annvix.org> 0.7-1avx
+- remove srv-addinit and %%post scriptlet to add it to inittab; it's now
+  done in initscripts
+- add logging support to srv (logs to daemon.info)
+- add external functions for run scripts to use (logging and to check
+  for dependencies)
+- add a final "super kill" for processes that fork and supervise can't
+  kill (ie. smbd)
+
 * Wed Jul 14 2004 Vincent Danen <vdanen@annvix.org> 0.6-2avx
 - fix really bad and stupid typeo in srv-stop
 - give some feedback on starting and stopping supervise
