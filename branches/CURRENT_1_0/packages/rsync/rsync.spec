@@ -1,8 +1,6 @@
 %define name	rsync
 %define version	2.5.7
-%define release	3sls
-
-%{!?build_opensls:%global build_opensls 0}
+%define release	4sls
 
 Summary:	A program for synchronizing files over a network.
 Name:		%{name}
@@ -54,38 +52,45 @@ echo '#define HAVE_INET_PTON 1' >> config.h
 make test
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p $RPM_BUILD_ROOT{%_bindir,%_mandir/{man1,man5}}
 
 %makeinstall
 install -m644 %SOURCE1 %SOURCE2 .
 install -D -m 644 %SOURCE3 %buildroot%{_sysconfdir}/xinetd.d/rsync
-%if %{build_opensls}
-mkdir -p %{buildroot}/var/service/rsync/log
-install -m 0755 %{SOURCE5} %{buildroot}/var/service/rsync/run
-install -m 0755 %{SOURCE6} %{buildroot}/var/service/rsync/log/run
-mkdir -p %{buildroot}/var/log/supervise/rsync
-%endif
+mkdir -p %{buildroot}%{_srvdir}/rsync/log
+install -m 0755 %{SOURCE5} %{buildroot}%{_srvdir}/rsync/run
+install -m 0755 %{SOURCE6} %{buildroot}%{_srvdir}/rsync/log/run
+mkdir -p %{buildroot}%{_srvlogdir}/rsync
+
+%post
+%_post_srv rsync
+
+%preun
+%_preun_srv rsync
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
 %doc tech_report.tex README COPYING *html
 %config(noreplace) %{_sysconfdir}/xinetd.d/%name
 %_bindir/rsync
-%if %{build_opensls}
-%dir /var/service/rsync
-%dir /var/service/rsync/log
-%dir %attr(0750,nobody,nogroup) /var/log/supervise/rsync
-/var/service/rsync/run
-/var/service/rsync/log/run
-%endif
+%dir %{_srvdir}/rsync
+%dir %{_srvdir}/rsync/log
+%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/rsync
+%{_srvdir}/rsync/run
+%{_srvdir}/rsync/log/run
 %_mandir/man1/rsync.1*
 %_mandir/man5/rsyncd.conf.5*
 
 %changelog
+* Mon Dec 29 2003 Vincent Danen <vdanen@opensls.org> 2.5.7-3sls
+- minor spec cleanups
+- remove %%build_opensls macro
+- srv macros
+
 * Mon Dec 29 2003 Vincent Danen <vdanen@opensls.org> 2.5.7-3sls
 - put supervise scripts in here if %%build_opensls
 
