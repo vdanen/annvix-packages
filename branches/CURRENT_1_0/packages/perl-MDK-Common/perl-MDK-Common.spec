@@ -3,7 +3,7 @@
 # do not change the version here, change in MDK/Common.pm.pl
 %define name	perl-MDK-Common
 %define version 1.1.6
-%define release 4sls
+%define release 5sls
 
 %ifarch x86_64
 %define build_option	PERL_CHECKER_TARGET='debug-code BCSUFFIX=""'
@@ -50,21 +50,22 @@ Various simple functions created for DrakX
 Various verifying scripts created for DrakX
 
 %prep
-%setup -n %{name}
+%setup -q -n %{name}
 
 %build
 make test %build_option
 
 %install
-rm -rf $RPM_BUILD_ROOT
-make install PREFIX="$RPM_BUILD_ROOT/usr" %build_option
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+make install PREFIX="$RPM_BUILD_ROOT%{_prefix}" %build_option
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
 %doc COPYING
+%dir %{perl_vendorlib}/MDK
 %{perl_vendorlib}/MDK
 
 %files devel
@@ -73,8 +74,14 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/*
 %{perl_vendorlib}/perl_checker_fake_packages
 
+
 # MODIFY IN THE CVS: cvs.mandrakesoft.com:/cooker soft/perl-MDK-Common
 %changelog
+* Fri Feb 27 2004 Vincent Danen <vdanen@opensls.org> 1.1.6-5sls
+- rebuild for new perl
+- spec cleanups
+- own %%{perl_vendorlib}/MDK
+
 * Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 1.1.6-4sls
 - OpenSLS build
 - tidy spec
