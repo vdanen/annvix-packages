@@ -1,0 +1,59 @@
+--- pciutils-2.1.9/lib/access.c.unused	2000-04-21 13:58:00.000000000 +0200
++++ pciutils-2.1.9/lib/access.c	2002-04-25 17:24:46.000000000 +0200
+@@ -116,7 +116,7 @@ pci_generic_debug(char *msg, ...)
+ }
+ 
+ static void
+-pci_null_debug(char * UNUSED msg, ...)
++pci_null_debug(char * msg UNUSED, ...)
+ {
+ }
+ 
+--- pciutils-2.1.9/lib/dump.c.unused	1999-01-22 22:11:33.000000000 +0100
++++ pciutils-2.1.9/lib/dump.c	2002-04-25 17:24:46.000000000 +0200
+@@ -70,12 +70,12 @@ dump_init(struct pci_access *a)
+ }
+ 
+ static void
+-dump_cleanup(struct pci_access * UNUSED a)
++dump_cleanup(struct pci_access * a UNUSED)
+ {
+ }
+ 
+ static void
+-dump_scan(struct pci_access * UNUSED a)
++dump_scan(struct pci_access * a UNUSED)
+ {
+ }
+ 
+@@ -97,7 +97,7 @@ dump_read(struct pci_dev *d, int pos, by
+ }
+ 
+ static int
+-dump_write(struct pci_dev * UNUSED d, int UNUSED pos, byte * UNUSED buf, int UNUSED len)
++dump_write(struct pci_dev * d UNUSED, int pos UNUSED, byte * buf UNUSED, int len UNUSED)
+ {
+   d->access->error("Writing to dump files is not supported.");
+   return 0;
+--- pciutils-2.1.9/lib/i386-ports.c.unused	2000-01-24 20:39:33.000000000 +0100
++++ pciutils-2.1.9/lib/i386-ports.c	2002-04-25 17:24:46.000000000 +0200
+@@ -36,7 +36,7 @@ conf12_init(struct pci_access *a)
+ }
+ 
+ static void
+-conf12_cleanup(struct pci_access * UNUSED a)
++conf12_cleanup(struct pci_access * a UNUSED)
+ {
+   iopl(3);
+   intel_iopl_set = -1;
+--- pciutils-2.1.9/lib/filter.c.unused	1999-01-22 22:11:35.000000000 +0100
++++ pciutils-2.1.9/lib/filter.c	2002-04-25 17:26:00.000000000 +0200
+@@ -14,7 +14,7 @@
+ #include "internal.h"
+ 
+ void
+-pci_filter_init(struct pci_access * UNUSED a, struct pci_filter *f)
++pci_filter_init(struct pci_access * a UNUSED, struct pci_filter *f)
+ {
+   f->bus = f->slot = f->func = -1;
+   f->vendor = f->device = -1;
