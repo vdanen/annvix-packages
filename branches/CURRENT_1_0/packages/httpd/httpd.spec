@@ -1,6 +1,6 @@
 %define name	apache2
 %define version	2.0.52
-%define release	2avx
+%define release	3avx
 
 #
 #(ie. use with rpm --rebuild):
@@ -132,6 +132,7 @@ Patch103:		httpd-2.0.49-mod_ldap_cache_file_location.diff.bz2
 # http://www.sannes.org/metuxmpm/
 Patch104:		httpd-2.0.48-metuxmpm-r8.patch.bz2
 Patch105:		httpd-2.0.52-CAN-2004-0885.patch.bz2
+Patch106:		httpd-2.0.52-cvs-CAN-2004-0942.patch.bz2
 
 BuildRoot:		%{_tmppath}/%{ap_name}-%{version}-buildroot
 BuildPreReq:		ADVX-build >= 10
@@ -544,6 +545,7 @@ bzcat %{SOURCE8} > modules/experimental/test_char.h
 %patch103 -p0 -b .mod_ldap_cache_file_location.droplet
 %patch104 -p1 -b .metuxmpm.droplet
 %patch105 -p1 -b .can-2004-0885.droplet
+%patch106 -p1 -b .can-2004-0942.droplet
 
 # Touch mod_ssl expression parser sources to prevent regenerating it
 touch modules/ssl/ssl_expr_*.[chyl]
@@ -1323,9 +1325,11 @@ rm -rf %{buildroot}%{ap_htdocsdir}/manual
 %{ap_abs_srcdir}
 
 %changelog
+* Wed Nov 10 2004 Vincent Danen <vdanen@annvix.org> 2.0.52-3avx
+- P106: patch to fix CAN-2004-0942
+
 * Fri Nov  5 2004 Vincent Danen <vdanen@annvix.org> 2.0.52-2avx
 - P105: patch to fix CAN-2004-0885
-
 
 * Thu Oct 14 2004 Vincent Danen <vdanen@annvix.org> 2.0.52-1avx
 - 2.0.52
