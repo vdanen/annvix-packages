@@ -1,7 +1,7 @@
 This is a rewrite of the README.kernel-sources that you can find in 
 every Mandrake kernel src.rpm.
 
-Hello OpenSLS Users,
+Hello Annvix Users,
 
 kernel-headers contains the headers for the source code of Linux kernel.
 All source code necessary to compile a new kernel is included in two
@@ -17,8 +17,8 @@ Although modern kernels are very flexible thanks to dynamic modules, you
 may need to compile your own kernel for various reasons: your found a
 new module which need a more recent kernel, you need a feature of a new
 kernel, etc...
-Anyway, all the new kernels may be found in the OpenSLS distrib (look for
-mirrors at http://opensls.org/ftp.php).
+Anyway, all the new kernels may be found in the Annvix distrib (look for
+mirrors at http://annvix.org/ftp.php).
 
 Here is a short sum-up of what you can find in the Kernel-HOWTO. Consult
 it in case of a problem or if the shortcut here provided does not meet
@@ -77,4 +77,4 @@ Enjoy!
 
 ========================================================================
 (c) 1999 MandrakeSoft, Camille Bgnis <camille@mandrakesoft.com>
-(c) 2004 OpenSLS, Thomas Backlund <tmb@mandrake.org>
+(c) 2004 Annvix, Thomas Backlund <tmb@annvix.org>

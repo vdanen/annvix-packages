@@ -84,7 +84,7 @@
 # Thomas Backlund <tmb@iki.fi>
 
 %define sublevel	25
-%define avxrelease	18
+%define avxrelease	19
 %define use_patch	0
 
 %{!?build_opensls:%global build_opensls 0}
@@ -925,6 +925,18 @@ exit 0
 %endif
 
 %changelog
+* Wed Jul 03 2004 Thomas Backlund <tmb@annvix.org> 2.4.25-19avx
+- security and bugfixes:
+  * chown DAC check (ZY71)
+  * asus acpi fix (ZY73)
+  * br_crash fish (ZY74)
+  * decnet fix (ZY75)
+  * airo fix (ZY76)
+  * mpu401 fix (ZY77)
+  * msnd fix (ZY78)
+  * pss fix (ZY79)
+- fix forgotten namechange OpenSLS -> Annvix in kernel docs
+
 * Wed Jun 30 2004 Thomas Backlund <tmb@annvix.org> 2.4.25-18avx
 - update openswan patches to 2.1.4 (DF02, DF03)
   * fixes CAN-2004-0590
