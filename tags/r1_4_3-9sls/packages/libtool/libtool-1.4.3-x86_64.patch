@@ -1,0 +1,11 @@
+--- libtool-1.4.3/libtool.m4.x86_64	2003-02-13 14:47:06.000000000 +0100
++++ libtool-1.4.3/libtool.m4	2003-02-13 14:52:33.000000000 +0100
+@@ -3426,7 +3426,7 @@ irix5* | irix6* | nonstopux*)
+ # This must be Linux ELF.
+ linux-gnu*)
+   case $host_cpu in
+-  alpha* | hppa* | i*86 | mips | mipsel | powerpc* | sparc* | ia64*)
++  alpha* | hppa* | i*86 | mips | mipsel | powerpc* | sparc* | ia64* | x86_64*)
+     lt_cv_deplibs_check_method=pass_all ;;
+   *)
+     # glibc up to 2.1.1 does not perform some relocations on ARM
