@@ -1,6 +1,6 @@
 %define name	screen
-%define version	3.9.15
-%define release	4sls
+%define version	4.0.2
+%define release	1sls
 
 Summary:	A screen manager that supports multiple logins on one terminal
 Name:		%{name}
@@ -114,6 +114,10 @@ echo '  screen ()
 %{_datadir}/screen/
 
 %changelog
+* Mon May 10 2004 Vincent Danen <vdanen@opensls.org> 4.0.2-1sls
+- 4.0.2
+- linked against new libutempter
+
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 3.9.15-4sls
 - minor spec cleanups
 - remove %%prefix
