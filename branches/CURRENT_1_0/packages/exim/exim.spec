@@ -1,6 +1,6 @@
 %define name	exim
 %define version 4.30
-%define release 1sls
+%define release 2sls
 
 %define build_mysql 0
 %define build_pgsql 0
@@ -37,6 +37,8 @@ Source9:	exim.pam
 Source10:	ftp://ftp.exim.org/pub/exim/%{name}-%{version}.tar.bz2.sig
 Source11:	http://www.exim.org/ftp/exim4/config.samples.tar.bz2
 Source12:	sa-exim-%{saversion}.tar.gz
+Source13:	exim.run
+Source14:	exim-log.run
 Patch0:		exim-4.30-config.patch.bz2
 Patch1:		http://duncanthrax.net/exiscan-acl/exiscan-acl-%{exiscanver}.patch.bz2
 Patch2:		exim-4.22-install.patch.bz2
@@ -48,7 +50,7 @@ Obsoletes:	sendmail postfix qmail smail
 %endif
 Requires:	chkconfig, initscripts, sh-utils, openssl, pam
 Requires:	openldap >= 2.0.11
-BuildRequires:	tcp_wrappers-devel, pam-devel, openssl, openssl-devel, XFree86-devel, libldap2-devel, lynx
+BuildRequires:	tcp_wrappers-devel, pam-devel, openssl, openssl-devel, XFree86-devel, openldap-devel, lynx
 Requires:	libdb4.1
 BuildRequires:	db4-devel >= 4.1
 %if %{build_mysql}
@@ -138,14 +140,16 @@ cp exim_monitor/EDITME Local/eximon.conf
   perl -pi -e 's|-lpq||g' Local/Makefile
   perl -pi -e 's|-I /usr/include/pgsql||g' Local/Makefile
 %endif
-
+%ifarch amd64 x86_64
+  perl -pi -e 's|X11\)/lib|X11\)/lib64|g' OS/Makefile-Linux
+%endif
 
 make RPM_OPT_FLAGS="$RPM_OPT_FLAGS"
 
 # build SA-exim
 cd sa-exim*
 make clean
-make SACONF=/etc/exim/sa-exim.conf
+make SACONF=/etc/exim/sa-exim.conf CFLAGS="$RPM_OPT_FLAGS" LDFLAGS="-shared -fPIC"
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -188,6 +192,10 @@ install -m 0644 %{SOURCE3} %{buildroot}%{_sysconfdir}/sysconfig/exim
 install -m 0755 %{SOURCE4} %{buildroot}%{_sysconfdir}/cron.weekly/exim.logrotate
 install -m 0644 %{SOURCE5} %{buildroot}%{_mandir}/man8/exim.8
 install -m 0755 %{SOURCE8} %{buildroot}%{_sbindir}
+
+mkdir -p %{buildroot}{/var/service/exim/log,/var/log/supervise/exim}
+install -m 0755 %{SOURCE13} %{buildroot}/var/service/exim/run
+install -m 0755 %{SOURCE14} %{buildroot}/var/service/exim/log/run
 
 # install SA-exim
 cd sa-exim*
@@ -267,7 +275,7 @@ fi
 %files
 %defattr(755,root,root)
 %doc CHANGES LICENCE NOTICE README.UPDATING README
-%doc doc util/unknownuser.sh build-Linux-i386/transport-filter.pl
+%doc doc util/unknownuser.sh build-Linux-*/transport-filter.pl
 %doc util/cramtest.pl util/logargs.sh
 %doc doc/NewStuff doc/exiscan-acl-spec.txt
 %attr(4755,root,root) %{_bindir}/exim
@@ -314,6 +322,11 @@ fi
 %config(noreplace) %{_sysconfdir}/sysconfig/exim
 %attr(0755,root,root) %config(noreplace) %{_sysconfdir}/cron.weekly/exim.logrotate
 %config(noreplace) %{_sysconfdir}/pam.d/exim
+%dir /var/service/exim
+%dir /var/service/exim/log
+/var/service/exim/run
+/var/service/exim/log/run
+%dir %attr(0750,nobody,nogroup) /var/log/supervise/exim
 
 %files mon
 %defattr(-,root,root)
@@ -333,6 +346,12 @@ fi
 %config(noreplace) %{_sysconfdir}/exim/sa-exim_short.conf
 
 %changelog
+* Mon Jan 05 2004 Vincent Danen <vdanen@opensls.org> 4.30-2sls
+- BuildRequires: openldap-devel not libldap2-devel (amd64)
+- if amd64, make eximon libs look in /usr/X11R6/lib64
+- pass -fPIC and -Wall to sa-exim build
+- supervise scripts
+
 * Sat Dec 06 2003 Vincent Danen <vdanen@opensls.org> 4.30-1sls
 - 4.30
 - exiscan-acl 4.30-14
