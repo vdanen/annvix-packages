@@ -1,6 +1,6 @@
 %define name	XFree86
 %define version 4.3
-%define release 24sls
+%define release 24.1sls
 
 %define _unpackaged_files_terminate_build 0
 %define baseversion 420
@@ -21,11 +21,11 @@
 # Define Mandrake Linux version we are building for
 %define mdkversion %(perl -pe '/(\\d+)\\.(\\d)\\.?(\\d)?/; $_="$1$2".($3||0)' /etc/mandrake-release)
 
-%define usecvs 1
-%define cvsversion %{version}
-%define usefreetype2 1
-%define havematroxhal 0
-%define usematroxhal 0
+%define usecvs		1
+%define cvsversion	%{version}
+%define usefreetype2	1
+%define havematroxhal	0
+%define usematroxhal	0
 %define BuildDebugVersion 0
 #We're using the new fontconfig based Xft1 1.2 lib now.
 %define with_new_fontconfig_Xft 0
@@ -218,6 +218,8 @@ Patch800:	XFree86-4.3-branch-4.3.patch.bz2
 Patch801:	XFree86-4.3-xi-lock.patch.bz2
 # fix Multiple Unspecified Integer Overflow Vulnerabilities (bugtrag 8514)
 Patch802:	XFree86-4.3-font-security.patch.bz2
+# patch for propolice support
+Patch803:	XFree86-4.3-propolice.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-root
 BuildRequires:	zlib-devel flex bison groff pam-devel ncurses-devel perl
@@ -624,6 +626,9 @@ cd -
 %patch800 -p1 -b .branch-4.3
 %patch801 -p1 -b .xi-lock
 %patch802 -p1 -b .font-security
+%if %{build_propolice}
+%patch803 -p0 -b .propolice
+%endif
 
 # backup the original files (so we can look at them later) and use our own
 cp xc/nls/compose.dir xc/nls/compose.dir.orig
@@ -640,6 +645,12 @@ NO_MERGE_CONSTANTS=$(if %{__cc} -fno-merge-constants -S -o /dev/null -xc /dev/nu
 
 # Build with -fno-strict-aliasing if gcc >= 3.1 is used
 NO_STRICT_ALIASING=$(%{__cc} -dumpversion | awk -F "." '{ if (int($1)*100+int($2) >= 301) print "-fno-strict-aliasing" }')
+
+%if %{build_opensls}
+# (vdanen) for the time being, build without stack protection until we can
+# figure out how to build just the modules without protection
+RPM_OPT_FLAGS="$RPM_OPT_FLAGS -fno-stack-protector"
+%endif
 
 %if ! %{BuildDebugVersion}
 # compiling with -g is too huge
@@ -1901,6 +1912,12 @@ rm -rf $RPM_BUILD_ROOT
 %{x11libdir}/X11/xedit
 
 %changelog
+* Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 4.3-24.1sls
+- P803: enable propolice support or we get unresolved symbols
+- temporarily disable stack protection because the modules can't handle it;
+  need to find a way to build the modules without stack protection but keep it
+  everywhere else
+
 * Mon Dec 02 2003 Vincent Danen <vdanen@opensls.org> 4.3-24sls
 - OpenSLS build
 - tidy spec
