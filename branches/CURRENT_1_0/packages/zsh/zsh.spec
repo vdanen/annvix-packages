@@ -1,38 +1,46 @@
-%define doc_version 4.1.1
-%define url ftp://ftp.zsh.org/pub/
+%define name	zsh
+%define version	4.1.1
+%define release	4sls
 
-%define beta 0
+%{!?build_opensls:%define build_opensls 0}
+
+%define doc_version 4.1.1
+%define url	ftp://ftp.zsh.org/pub/
+
+%define beta	0
+
 %if %beta
 #%{expand:%%define full_preversion %(echo %version-%beta|sed -e 's!dev!dev-!g')}
 %define full_preversion %{expand:%(echo %version-%beta|sed -e 's!dev!dev-!g')}
+%define release	0.%beta.1sls
 %else
 %define full_preversion %version
 %endif
 
-Summary: A shell with lots of features.
-Name:    zsh
-Version: 4.1.1
-%if %beta
-Release: 0.%beta.1mdk
-%else
-Release: 3mdk
+Summary:	A shell with lots of features.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+Epoch:		1
+License:	GPL
+Group:		Shells
+URL:		http://www.zsh.org
+Source0:	%{url}/%name-%{full_preversion}.tar.bz2
+Source1:	%{url}/%name-%doc_version-doc.tar.bz2
+Source2:	zcfg-mdk.tar.bz2
+Source3:	http://zsh.sunsite.dk/Guide/zshguide.tar.bz2
+Patch1:		zsh-3.1.6-dev-22-path.patch.bz2
+Patch2:		zsh-4.0.1-pre-3-rpmnewopt.patch.bz2
+Patch101:	zsh-serial.patch.bz2
+Patch102:	zsh-4.1.0-dev-7-rebootin.patch.bz2
+
+BuildRoot:	%_tmppath/%name-buildroot
+BuildRequires:	gcc libtermcap2-devel texinfo
+%if !%{build_opensls}
+BuildRequires:	yodl
 %endif
-Url: http://www.zsh.org
-Source0: %{url}/%name-%{full_preversion}.tar.bz2
-Source1: %{url}/%name-%doc_version-doc.tar.bz2
-Source2: zcfg-mdk.tar.bz2
-Source3: http://zsh.sunsite.dk/Guide/zshguide.tar.bz2
-Patch1: zsh-3.1.6-dev-22-path.patch.bz2
-Patch2: zsh-4.0.1-pre-3-rpmnewopt.patch.bz2
-Patch101: zsh-serial.patch.bz2
-Patch102: zsh-4.1.0-dev-7-rebootin.patch.bz2
-License: GPL
-Group: Shells
+
 Prereq: coreutils grep rpm-helper >= 0.7
-Epoch: 1
-# Available in our contrib.
-BuildRequires: gcc libtermcap2-devel texinfo yodl
-BuildRoot: %_tmppath/%name-buildroot
 
 %description
 Zsh is a UNIX command interpreter (shell) usable as an
@@ -45,9 +53,10 @@ lots of other features
 
 Install the zsh package if you'd like to try out a different shell.
 
+%if !%{build_opensls}
 %package doc
-Summary: The doc package of zsh
-Group: Books/Computer books
+Summary:	The doc package of zsh
+Group:		Books/Computer books
 
 %description doc
 Zsh is a UNIX command interpreter (shell) usable as an
@@ -59,6 +68,7 @@ shell functions (with autoloading), a history mechanism, and a
 lots of other features
 
 This package include doc guid examples and manual for zsh.
+%endif
 
 %prep
 %setup -q -a 2 -a 1 -n %name-%full_preversion
@@ -146,12 +156,20 @@ rm -rf $RPM_BUILD_ROOT
 %_libdir/zsh/%{full_preversion}/
 %_datadir/zsh/site-functions/
 
+%if !%{build_opensls}
 %files doc
 %defattr(-,root,root)
 %doc docroot/Documentation/ docroot/Examples/ docroot/Info_html/ docroot/StartupFiles/
 %doc docroot/Zsh_Guide ChangeLog*
+%endif
 
 %changelog
+* Wed Dec 03 2003 Vincent Danen <vdanen@opensls.org> 4.1.1-4sls
+- OpenSLS build
+- tidy spec
+- don't build doc for %%build_opensls
+- don't need yodl as a BuildReq
+
 * Mon Jul 21 2003 Warly <warly@mandrakesoft.com> 1:4.1.1
 - rebuild to fix segfault
 
