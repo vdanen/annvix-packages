@@ -1,6 +1,6 @@
 %define name	MySQL
 %define version	4.0.20
-%define release	1avx
+%define release	2avx
 
 %define major		12
 %define libname_orig	mysql
@@ -418,7 +418,7 @@ fix_privileges()
     fi
 }
 
-if [ "x`svstat /service/mysqld|grep down >/dev/null 2>&1; echo $?`" = "x0" ]; then
+if [ "x`runsvstat /service/mysqld|grep down >/dev/null 2>&1; echo $?`" = "x0" ]; then
     fix_privileges
 else
     /usr/sbin/srv stop mysqld &> /dev/null
@@ -461,7 +461,7 @@ fix_privileges()
     fi
 }
 
-if [ "x`svstat /service/mysqld|grep down >/dev/null 2>&1; echo $?`" = "x0" ]; then
+if [ "x`runsvstat /service/mysqld|grep down >/dev/null 2>&1; echo $?`" = "x0" ]; then
     fix_privileges
 else
     /usr/sbin/srv stop mysqld &> /dev/null
@@ -610,6 +610,9 @@ fi
 %config(noreplace) %{_sysconfdir}/sysconfig/mysqld
 
 %changelog
+* Sun Sep 19 2004 Vincent Danen <vdanen@annvix.org> 4.0.20-2avx
+- updated runscripts
+
 * Fri Aug 13 2004 Vincent Danen <vdanen@annvix.org> 4.0.20-1avx
 - 4.0.20
 - remove P4: security fixes included upstream
