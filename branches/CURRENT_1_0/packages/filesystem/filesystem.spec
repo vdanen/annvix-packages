@@ -1,6 +1,6 @@
 %define name	filesystem
 %define version	2.1.3
-%define release	11sls
+%define release	12sls
 
 Summary:	The basic directory layout for a Linux system.
 Name:		%{name}
@@ -9,9 +9,11 @@ Release:	%{release}
 License:	Public Domain
 Group:		System/Base
 Source0:	filesystem-%{version}.tar.bz2
+
 Buildroot:	%{_tmppath}/%{name}-root
+BuildArch:	noarch
+
 Requires:	setup
-BuildArchitectures: noarch
 
 %description
 The filesystem package is one of the basic packages that is installed on
@@ -35,6 +37,7 @@ mkdir -p $RPM_BUILD_ROOT/var/cache/man
 mkdir -p $RPM_BUILD_ROOT/usr/share/games
 mkdir -p $RPM_BUILD_ROOT/etc/security
 mkdir -p $RPM_BUILD_ROOT/etc/profile.d
+mkdir -p $RPM_BUILD_ROOT/var/supervise
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -86,12 +89,17 @@ mkdir /mnt/floppy 2>/dev/null ||:
 /var/preserve
 /var/run
 %dir /var/spool
+%dir %attr(1755,root,root) /var/supervise
 %attr(0755,root,daemon) %dir /var/spool/lpd
 %attr(775,root,mail) /var/spool/mail
 %attr(1777,root,root) /var/tmp
 /var/yp
 
 %changelog
+* Mon Dec 29 2003 Vincent Danen <vdanen@opensls.org> 2.1.3-12sls
+- add /var/service so we don't need to prereq supervise-scripts or
+  daemontools for every package
+
 * Sun Nov 30 2003 Vincent Danen <vdanen@opensls.org> 2.1.3-11sls
 - OpenSLS build
 - tidy spec
