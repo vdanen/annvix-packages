@@ -1,0 +1,39 @@
+--- ntp-4.1.1/libntp/systime.c.biarch-utmp	2001-10-09 01:58:40.000000000 -0400
++++ ntp-4.1.1/libntp/systime.c	2003-04-08 12:24:25.000000000 -0400
+@@ -300,12 +300,14 @@ step_systime(
+ # ifdef HAVE_PUTUTXLINE
+ 		utx.ut_type = OLD_TIME;
+ 		(void)strcpy(utx.ut_line, OTIME_MSG);
+-		utx.ut_tv = oldtimetv;
++		utx.ut_tv.tv_sec = oldtimetv.tv_sec;
++		utx.ut_tv.tv_usec = oldtimetv.tv_usec;
+ 		pututxline(&utx);
+ 		setutxent();
+ 		utx.ut_type = NEW_TIME;
+ 		(void)strcpy(utx.ut_line, NTIME_MSG);
+-		utx.ut_tv = timetv;
++		utx.ut_tv.tv_sec = timetv.tv_sec;
++		utx.ut_tv.tv_usec = timetv.tv_usec;
+ 		pututxline(&utx);
+ 		endutxent();
+ # else /* not HAVE_PUTUTXLINE */
+@@ -335,7 +337,8 @@ step_systime(
+ #ifdef UPDATE_WTMPX
+ # ifdef HAVE_PUTUTXLINE
+ 		utx.ut_type = OLD_TIME;
+-		utx.ut_tv = oldtimetv;
++		utx.ut_tv.tv_sec = oldtimetv.tv_sec;
++		utx.ut_tv.tv_usec = oldtimetv.tv_usec;
+ 		(void)strcpy(utx.ut_line, OTIME_MSG);
+ #  ifdef HAVE_UPDWTMPX
+ 		updwtmpx(WTMPX_FILE, &utx);
+@@ -345,7 +348,8 @@ step_systime(
+ # endif /* not HAVE_PUTUTXLINE */
+ # ifdef HAVE_PUTUTXLINE
+ 		utx.ut_type = NEW_TIME;
+-		utx.ut_tv = timetv;
++		utx.ut_tv.tv_sec = timetv.tv_sec;
++		utx.ut_tv.tv_usec = timetv.tv_usec;
+ 		(void)strcpy(utx.ut_line, NTIME_MSG);
+ #  ifdef HAVE_UPDWTMPX
+ 		updwtmpx(WTMPX_FILE, &utx);

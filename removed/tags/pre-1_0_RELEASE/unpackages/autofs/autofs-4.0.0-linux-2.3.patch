@@ -1,0 +1,11 @@
+--- autofs-4.0.0pre9/daemon/automount.c.linux-2.3	Sun Oct 29 00:43:05 2000
++++ autofs-4.0.0pre9/daemon/automount.c	Mon Nov  6 14:33:06 2000
+@@ -38,6 +38,8 @@
+ #include <sys/stat.h>
+ #include <sys/time.h>
+ #include <sys/poll.h>
++/* Prevent inclusion of linux/string.h if we have one.  Aaaaaargh! */
++#define _LINUX_STRING_H_
+ #include <linux/auto_fs4.h>
+ 
+ #ifndef NDEBUG

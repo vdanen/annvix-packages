@@ -1,0 +1,22 @@
+--- samples/rc.autofs.in.org	2004-03-03 23:24:17.000000000 -0700
++++ samples/rc.autofs.in	2004-03-03 23:31:54.000000000 -0700
+@@ -41,6 +41,8 @@
+     system=debian
+ elif [ -f /etc/redhat-release ]; then
+     system=redhat
++elif [ -f /etc/opensls-release ]; then
++    system=redhat
+ else
+     echo "$0: Unknown system, please port and contact autofs@linux.kernel.org" 1>&2
+     exit 1
+@@ -260,7 +262,9 @@
+ #
+ case "$1" in
+   start)
+-	[ -z "`pidofproc portmap`" ] && /etc/rc.d/init.d/portmap start
++	if [ "`srv status portmap|grep down; echo $?`" = "0" ]; then
++		srv portmap start
++	fi
+ 	# Make sure the autofs filesystem type is available.
+ 	(grep -q autofs /proc/filesystems || /sbin/modprobe -k autofs || /sbin/modprobe -k autofs4) 2> /dev/null
+ 	gprintf "Starting %s:" $prog

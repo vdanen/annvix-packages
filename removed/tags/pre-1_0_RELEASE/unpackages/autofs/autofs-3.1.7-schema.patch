@@ -1,0 +1,158 @@
+Convert the lookup_mount function exported by the LDAP module into an
+internal function (lookup_mount_internal) which the new lookup_mount()
+can call repeatedly, specifying different object classes and attribute
+types to use for searching.  Add a new lookup_mount() which calls
+lookup_mount_internal() with the nisObject schema, and which tries
+using the automount schema iff we don't find anything when searching
+for nisObject.
+
+Also integrate a one-line fix for mounting when we have multiple answers
+in the LDAP object, and the first one can't be mounted.
+
+--- autofs-3.1.7/modules/lookup_ldap.c	Sat Nov  4 02:05:17 2000
++++ autofs-3.1.7/modules/lookup_ldap.c	Wed Jun 20 17:38:34 2001
+@@ -25,10 +25,6 @@
+ 
+ #define MODPREFIX "lookup(ldap): "
+ 
+-#define OBJECTCLASS "automount"
+-#define ATTRIBUTE "automountInformation"
+-#define WILDCARD "/"
+-
+ struct lookup_context {
+   char *server, *base;
+   struct parse_mod *parser;
+@@ -107,14 +103,16 @@
+ }
+ 
+ /* Lookup by key and pass a filesystem to a parser. */
+-int lookup_mount(const char *root, const char *name, int name_len, void *context)
++static
++int lookup_mount_internal(const char *root, const char *name, int name_len,
++    void *context, const char *class, char *type, char wildcard)
+ {
+   struct lookup_context *ctxt = (struct lookup_context *) context;
+   int rv, i, l;
+   char *query;
+   LDAPMessage *result, *e;
+   char **values;
+-  char *attrs[] = {ATTRIBUTE, NULL};
++  char *attrs[] = {type, NULL};
+   LDAP *ldap;
+ 
+   chdir("/");  /* If this is not here the filesystem stays
+@@ -122,20 +120,20 @@
+ 
+   if( ctxt == NULL ) {
+     syslog(LOG_CRIT, MODPREFIX "context was NULL");
+-    return 0;
++    return 1;
+   }
+ 
+   /* Build a query string. */
+-  l = name_len + strlen("(&(objectclass=" OBJECTCLASS ")(cn=))") + 2;
++  l = strlen("(&(objectclass=)(cn=))") + strlen(class) + name_len + 1;
+ 
+   query = malloc(l);
+   if( query == NULL ) {
+     syslog(LOG_INFO, MODPREFIX "malloc: %m");
+-    return 0;
++    return 1;
+   }
+ 
+   memset(query, '\0', l);
+-  if( sprintf(query, "(&(objectclass=" OBJECTCLASS ")(cn=%s))", name) >= l ) {
++  if( sprintf(query, "(&(objectclass=%s)(cn=%s))", class, name) >= l ) {
+     syslog(LOG_DEBUG, MODPREFIX "error forming query string");
+   }
+   query[l - 1] = '\0';
+@@ -158,7 +156,8 @@
+   }
+ 
+   /* Look around. */
+-  syslog(LOG_DEBUG, MODPREFIX "searching for \"%s\"", query);
++  syslog(LOG_DEBUG, MODPREFIX "searching for \"%s\" under \"%s\"",
++         query, ctxt->base);
+   rv = ldap_search_s(ldap, ctxt->base, LDAP_SCOPE_SUBTREE,
+                      query, attrs, 0, &result);
+ 
+@@ -171,15 +170,16 @@
+   e = ldap_first_entry(ldap, result);
+ 
+   /* If we got no answers, try it with "/" instead, which makes a better
+-   * wildcard thatn "*" for LDAP, and also happens to be illegal for actual
++   * wildcard than "*" for LDAP, and also happens to be illegal for actual
+    * directory names. */
+   if( e == NULL ) {
+-    syslog(LOG_DEBUG, MODPREFIX "no entry for \"%s\" found, trying cn=\"/\"",
+-           name);
++    syslog(LOG_DEBUG, MODPREFIX "no entry for \"%s\" found, trying cn=\"%c\"",
++           name, wildcard);
+ 
+-    sprintf(query, "(&(objectclass=" OBJECTCLASS ")(cn=" WILDCARD "))");
++    sprintf(query, "(&(objectclass=%s)(cn=%c))", class, wildcard);
+ 
+-    syslog(LOG_DEBUG, MODPREFIX "searching for \"%s\"", query);
++    syslog(LOG_DEBUG, MODPREFIX "searching for \"%s\" under \"%s\"",
++           query, ctxt->base);
+     rv = ldap_search_s(ldap, ctxt->base, LDAP_SCOPE_SUBTREE,
+                        query, attrs, 0, &result);
+     if( ( rv != LDAP_SUCCESS) || ( result == NULL ) ) {
+@@ -188,22 +188,22 @@
+       return 1;
+     }
+ 
+-    syslog(LOG_DEBUG, MODPREFIX "getting first entry for cn=\"/\"");
++    syslog(LOG_DEBUG, MODPREFIX "getting first entry for cn=\"%c\"", wildcard);
+ 
+     e = ldap_first_entry(ldap, result);
+   }
+ 
+   if( e == NULL ) {
+-    syslog(LOG_INFO, MODPREFIX "got answer, but no first entry for %s", query);
++    syslog(LOG_INFO, MODPREFIX "query succeeded, no matches for %s", query);
+     free(query);
+     return 1;
+   } else {
+     syslog(LOG_DEBUG, MODPREFIX "examining first entry");
+   }
+ 
+-  values = ldap_get_values(ldap, e, ATTRIBUTE);
++  values = ldap_get_values(ldap, e, type);
+   if( values == NULL ) {
+-    syslog(LOG_INFO, MODPREFIX "no " ATTRIBUTE " defined for %s", query);
++    syslog(LOG_INFO, MODPREFIX "no %s defined for %s", type, query);
+     free(query);
+     return 1;
+   }
+@@ -211,7 +211,8 @@
+   /* Try each of the answers in sucession. */
+   rv = 1;
+   for( i = 0 ; ( values[i] != NULL ) && ( rv != 0 ) ; i++ ) {
+-    rv = ctxt->parser->parse_mount(root, name, name_len, values[0],
++    syslog(LOG_DEBUG, MODPREFIX "entry %d is \"%s\"", i, values[i]);
++    rv = ctxt->parser->parse_mount(root, name, name_len, values[i],
+                  ctxt->parser->context);
+   }
+ 
+@@ -224,6 +225,20 @@
+   return rv;
+ }
+ 
++/* Lookup by key and pass a filesystem to a parser. */
++int lookup_mount(const char *root, const char *name, int name_len,
++    void *context)
++{
++  int rv;
++  rv = lookup_mount_internal(root, name, name_len, context,
++                             "nisObject", "nisMapEntry", '/');
++  if( rv == 1 ) {
++    rv = lookup_mount_internal(root, name, name_len, context,
++                               "automount", "automountInformation", '/');
++  }
++  return rv;
++}
++
+ /*
+  * This destroys a context for queries to this module.  It releases the parser
+  * structure (unloading the module) and frees the memory used by the context.

@@ -1,0 +1,6 @@
+# Determines what NTP server to adjust the local clock with
+#
+# The NTP server must be an IP address and not a domain name (ie. 1.2.3.4
+# rather than ntp.somewhere.com)
+
+NTPSERVER=

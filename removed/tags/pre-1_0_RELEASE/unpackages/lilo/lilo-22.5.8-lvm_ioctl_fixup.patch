@@ -1,0 +1,22 @@
+diff -urNp --exclude-from=/home/quintela/config/misc/dontdiff lilo-orig/geometry.c lilo-22.5.8/geometry.c
+--- lilo-orig/geometry.c	2004-02-03 20:07:37.000000000 +0100
++++ lilo-22.5.8/geometry.c	2004-02-03 20:09:49.000000000 +0100
+@@ -93,10 +93,16 @@ struct lv_bmap {
+ };
+ 
+ #ifndef LV_BMAP
+-#define LV_BMAP				_IOWR(0xfe, 0x30, 1)
++#ifndef _IOWR_BAD
++#define _IOWR_BAD(a,b,c)	_IOWR(a,b,c)
++#endif
++#define LV_BMAP				_IOWR_BAD(0xfe, 0x30, 1)
+ #endif
+ #ifndef LVM_GET_IOP_VERSION
+-#define LVM_GET_IOP_VERSION		_IOR(0xfe, 0x98, 1)
++#ifndef _IOR_BAD
++#define _IOR_BAD(a,b,c)	_IOR(a,b,c)
++#endif
++#define LVM_GET_IOP_VERSION		_IOR_BAD(0xfe, 0x98, 1)
+ #endif
+ #endif
+ 

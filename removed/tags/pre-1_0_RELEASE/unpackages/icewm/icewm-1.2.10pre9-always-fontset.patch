@@ -1,0 +1,11 @@
+--- icewm-1.2.10pre9/src/ylocale.cc	2003-07-30 20:59:57.000000000 +0200
++++ icewm-1.2.10pre9-modified/src/ylocale.cc	2003-08-19 16:49:54.000000000 +0200
+@@ -49,7 +49,7 @@
+ 	fLocaleName = setlocale(LC_ALL, "C");
+     }
+ #warning "should always use multibyte/fontset if I18N"
+-    multiByte = (MB_CUR_MAX > 1);
++    multiByte = true;
+ 
+     char const * codeset("");
+     int const codesetItems[] = { CONFIG_NL_CODESETS };
