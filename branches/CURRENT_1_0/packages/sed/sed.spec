@@ -1,6 +1,6 @@
 %define name	sed
 %define version	4.0.7
-%define release	3sls
+%define release	4avx
 
 Summary:	A GNU stream text editor.
 Name:		%{name}
@@ -14,7 +14,7 @@ Patch0:		http://oss.software.ibm.com/developer/opensource/linux/patches/i18n/sed
 
 Buildroot:	%_tmppath/%name-%version-root
 
-Prereq:		/sbin/install-info
+Prereq:		info-install
 
 %description
 The sed (Stream EDitor) editor is a stream or batch (non-interactive)
@@ -58,6 +58,10 @@ mv $RPM_BUILD_ROOT{%_bindir,/bin}/sed
 %_mandir/man1/sed.1.bz2
 
 %changelog
+* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 4.0.7-4avx
+- require info-install rather than /sbin/install-info
+- Annvix build
+
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 4.0.7-3sls
 - minor spec cleanups
 
