@@ -1,10 +1,9 @@
 %define name	shadow-utils
 %define version	4.0.3
-%define release	6sls
+%define release	7sls
 
-#rh-20000902-10
-#%define url	ftp://ftp.ists.pwr.wroc.pl/pub/linux/shadow/beta
 %define url     ftp.pld.org.pl:/software/shadow
+
 %define _unpackaged_files_terminate_build 0
 
 Summary:	Utilities for managing shadow password files and user/group accounts
@@ -22,6 +21,13 @@ Source3:	adduser.8
 Source4:	pwunconv.8
 Source5:	grpconv.8
 Source6:	grpunconv.8
+Source7:	pwdutils-2.4.tar.bz2
+Source8:	pwdutils-2.4.tar.bz2.sign
+Source9:	shadow.pamd
+Source10:	pam_login-3.14.tar.bz2
+Source11:	login.pamd
+Source12:	chfn.pamd
+Source13:	chsh.pamd
 Patch1000:	shadow-20000902-mdk.patch.bz2
 Patch0:		shadow-4.0.3-mdk.patch.bz2
 Patch1001:	shadow-20000902-nscd.patch.bz2
@@ -83,8 +89,8 @@ BuildRoot:	%{_tmppath}/%{name}-buildroot
 BuildRequires:	gettext-devel
 BuildRequires:  automake1.7
 
-Obsoletes:	adduser, newgrp
-Provides: 	adduser, newgrp, shadow-utils > 20000902-5
+Obsoletes:	adduser, newgrp, passwd
+Provides: 	adduser, newgrp, shadow-utils > 20000902-5, passwd
 Prefix:		%{_prefix}
 Conflicts:	msec < 0.37
 
@@ -101,7 +107,7 @@ are used for managing user accounts.  The groupadd, groupdel and
 groupmod commands are used for managing group accounts.
 
 %prep
-%setup -q -n shadow-%{version}
+%setup -q -n shadow-%{version} -a 7 -a 10
 %patch0 -p1 -b .mdk
 %patch1 -p1 -b .nscd
 %patch2 -p1 -b .group
@@ -167,6 +173,20 @@ export CFLAGS="$RPM_OPT_FLAGS -D_BSD_SOURCE=1 -D_FILE_OFFSET_BITS=64"
 %configure2_5x --disable-desrpc --with-libcrypt --disable-shared
 make
 
+cd pam_login-*
+CFLAGS="$RPM_OPT_FLAGS -Wall" %configure2_5x
+
+cd ../pwdutils-*
+CFLAGS="$RPM_OPT_FLAGS -Wall" %configure2_5x \
+  --with-ldap-conf-file=/etc/ldap.conf
+make
+# make check needs to be done as root
+if [ "`whoami`" == "root" ]; then
+  make check
+fi
+
+cd ..
+
 %install
 rm -rf $RPM_BUILD_ROOT
 make install DESTDIR=$RPM_BUILD_ROOT gnulocaledir=$RPM_BUILD_ROOT/%{_datadir}/locale
@@ -175,6 +195,22 @@ install -d -m 750 $RPM_BUILD_ROOT%{_sysconfdir}/default
 install -m 0644 %{SOURCE1} $RPM_BUILD_ROOT%{_sysconfdir}/login.defs
 install -m 0600 %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/default/useradd
 
+cd pam_login-*
+make install DESTDIR=%{buildroot}
+
+cd ../pwdutils-*
+make install DESTDIR=%{buildroot}
+install -m 0755 etc/*.local %{buildroot}%{_sbindir}
+
+rm -f %{buildroot}%{_initrddir}/rpasswdd
+install -m 0600 %{SOURCE9} %{buildroot}%{_sysconfdir}/pam.d/shadow
+install -m 0600 %{SOURCE9} %{buildroot}%{_sysconfdir}/pam.d/chage
+install -m 0600 %{SOURCE9} %{buildroot}%{_sysconfdir}/pam.d/useradd
+install -m 0600 %{SOURCE11} %{buildroot}%{_sysconfdir}/pam.d/login
+install -m 0600 %{SOURCE12} %{buildroot}%{_sysconfdir}/pam.d/chfn
+install -m 0600 %{SOURCE13} %{buildroot}%{_sysconfdir}/pam.d/chsh
+
+cd ..
 
 ln -s useradd $RPM_BUILD_ROOT%_sbindir/adduser
 install -m644 %SOURCE3 $RPM_BUILD_ROOT%_mandir/man8/
@@ -183,7 +219,15 @@ install -m644 %SOURCE5 $RPM_BUILD_ROOT%_mandir/man8/
 install -m644 %SOURCE6 $RPM_BUILD_ROOT%_mandir/man8/
 perl -pi -e "s/encrpted/encrypted/g" $RPM_BUILD_ROOT%{_mandir}/man8/newusers.8
 
+# remove unwanted files
+rm -rf %{buildroot}%{_mandir}/{pt_BR,pl,ja,it,id,hu,fr,cs,de,ko}
+
+cd ../shadow-*
 %find_lang shadow
+%find_lang pam_login
+%find_lang pwdutils
+cat shadow.lang pam_login.lang pwdutils.lang >shadow.lang.tmp
+mv -f shadow.lang.tmp shadow.lang
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -191,19 +235,29 @@ rm -rf build-$RPM_ARCH
 
 %files -f shadow.lang
 %defattr(-,root,root)
-%doc ChangeLog doc/ANNOUNCE doc/HOWTO
-%doc doc/LICENSE doc/README doc/README.linux
+%doc ChangeLog doc/ANNOUNCE doc/HOWTO doc/LICENSE doc/README doc/README.linux
 %dir %{_sysconfdir}/default
 %attr(0644,root,root)	%config(noreplace) %{_sysconfdir}/login.defs
 %attr(0600,root,root)	%config(noreplace) %{_sysconfdir}/default/useradd
+%attr(0600,root,root)	%config(noreplace) %{_sysconfdir}/pam.d/shadow
+%attr(0600,root,root)	%config(noreplace) %{_sysconfdir}/pam.d/useradd
+%attr(0600,root,root)	%config(noreplace) %{_sysconfdir}/pam.d/chage
+%attr(0600,root,root)	%config(noreplace) %{_sysconfdir}/pam.d/login
+%attr(0600,root,root)	%config(noreplace) %{_sysconfdir}/pam.d/chfn
+%attr(0600,root,root)	%config(noreplace) %{_sysconfdir}/pam.d/chsh
+%attr(0600,root,root)	%config(noreplace) %{_sysconfdir}/pam.d/passwd
+/bin/login
 %{_bindir}/sg
 %{_bindir}/chage
+%attr(4711,root,root)	%{_bindir}/chfn
+%attr(4711,root,root)	%{_bindir}/chsh
+%attr(4511,root,root)	%{_bindir}/passwd
 %{_bindir}/faillog
 %{_bindir}/gpasswd
 %{_bindir}/expiry
 %{_bindir}/login
-%attr(4711,root,root)   %{_bindir}/newgrp
 %{_bindir}/lastlog
+%attr(4711,root,root)   %{_bindir}/newgrp
 %{_sbindir}/dpasswd
 %{_sbindir}/logoutd
 %{_sbindir}/adduser
@@ -214,13 +268,24 @@ rm -rf build-$RPM_ARCH
 %{_sbindir}/*conv
 %{_sbindir}/chpasswd
 %{_sbindir}/newusers
-#%{_sbindir}/mkpasswd
+%{_sbindir}/vigr
+%{_sbindir}/vipw
+%{_sbindir}/useradd.local
+%{_sbindir}/userdel-pre.local
+%{_sbindir}/userdel-post.local
 %{_mandir}/man1/chage.1*
+%{_mandir}/man1/chfn.1*
+%{_mandir}/man1/chsh.1*
+%{_mandir}/man1/expiry.1*
+%{_mandir}/man1/login.1*
+%{_mandir}/man1/passwd.1*
+%{_mandir}/man1/sg.1*
 %{_mandir}/man1/newgrp.1*
 %{_mandir}/man1/gpasswd.1*
-#%{_mandir}/man3/shadow.3*
 %{_mandir}/man5/shadow.5*
 %{_mandir}/man5/faillog.5*
+%{_mandir}/man5/limits.5*
+%{_mandir}/man5/login.defs.5*
 %{_mandir}/man8/adduser.8*
 %{_mandir}/man8/group*.8*
 %{_mandir}/man8/user*.8*
@@ -228,12 +293,24 @@ rm -rf build-$RPM_ARCH
 %{_mandir}/man8/grpck.8*
 %{_mandir}/man8/chpasswd.8*
 %{_mandir}/man8/newusers.8*
-#%{_mandir}/man8/mkpasswd.8*
 %{_mandir}/man8/*conv.8*
 %{_mandir}/man8/lastlog.8*
 %{_mandir}/man8/faillog.8*
+%{_mandir}/man8/vipw.8*
+%{_mandir}/man8/vigr.8*
 
 %changelog
+* Tue Dec 16 2003 Vincent Danen <vdanen@opensls.org> 4.0.3-7sls
+- Obsoletes/Provides: passwd
+- use pwdutils 2.4 (http://www.thkukuk.de/pam/pwdutils/) as it eliminates
+  the need for passwd, which in turn eliminates useradd, which eliminates alot
+  of unnecessary BuildReqs (18MB of sgml junk) and glib2
+- use pam_login 3.14 (http://www.thkukuk.de/pam/pam_login/)
+- provide /etc/pam.d/{shadow,chage,useradd,login}
+- add missing manpages
+- make all of the pam files not use paths to modules
+- include user{add,del}*.local files
+
 * Mon Dec 01 2003 Vincent Danen <vdanen@opensls.org> 4.0.3-6sls
 - OpenSLS build
 - tidy spec
