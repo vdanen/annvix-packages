@@ -1,8 +1,6 @@
 %define name	libuser
 %define version	0.51.7
-%define release	8sls
-
-%{!?build_opensls:%global build_opensls 0}
+%define release	9sls
 
 %define python	2.3
 %define major	1
@@ -23,9 +21,6 @@ Patch3:		libuser-nobloodysgml.patch.bz2
 BuildRoot:	%{_tmppath}/%{name}-root
 BuildRequires:	gettext, glib2-devel, libldap-devel, libsasl-devel
 BuildRequires:	openssl-devel, pam-devel, popt-devel, python-devel
-%if !%{build_opensls}
-BuildRequires:	linuxdoc-tools
-%endif
 
 %description
 The libuser library implements a standardized interface for manipulating
@@ -65,9 +60,7 @@ files useful for developing applications with libuser.
 %patch0 -p1 -b .apputil-pic
 %patch1 -p1 -b .python-module-pic
 %patch2 -p1 -b .modules-pic
-%if %{build_opensls}
 %patch3 -p1 -b .nosgml
-%endif
 
 %build
 export CFLAGS="$RPM_OPT_FLAGS -DG_DISABLE_ASSERT -I/usr/include/sasl" 
@@ -79,7 +72,7 @@ export CFLAGS="$RPM_OPT_FLAGS -DG_DISABLE_ASSERT -I/usr/include/sasl"
 %make 
 
 %install
-rm -fr $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 make install DESTDIR=$RPM_BUILD_ROOT
 
 LD_LIBRARY_PATH=$RPM_BUILD_ROOT/%{_libdir}:${LD_LIBRARY_PATH}
@@ -110,7 +103,7 @@ set +x
 rm -rf	$RPM_BUILD_ROOT/usr/share/man/man3/userquota.3
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post -n %name%major -p /sbin/ldconfig
 
@@ -141,10 +134,13 @@ rm -rf $RPM_BUILD_ROOT
 %attr(0644,root,root) %{_libdir}/pkgconfig/*
 %attr(0755,root,root) %{_libdir}/python%{python}/site-packages/*.a
 %attr(0755,root,root) %{_libdir}/python%{python}/site-packages/*.la
-
 %{_datadir}/gtk-doc/html/*
 
 %changelog
+* Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 0.51.7-9sls
+- remove %%build_opensls macro
+- minor spec cleanups
+
 * Mon Dec 22 2003 Vincent Danen <vdanen@opensls.org> 0.51.7-8sls
 - OpenSLS build
 - tidy spec
