@@ -1,0 +1,30 @@
+#!/bin/sh
+PATH="/sbin:/usr/sbin:/bin:/usr/bin:$PATH"
+
+# this runs kadmind under supervise
+
+godown() {
+  touch down
+  svc -d /service/kadmind
+  touch log/down
+  svc -d /service/kadmind/log
+  exit 0
+}
+
+if [ ! -f /etc/kerberos/krb5kdc/principal ]; then
+  echo "ERROR: Principal database does not exist!"
+  godown
+fi
+
+if [ -f /etc/kerberos/krb5kdc/kpropd.acl ]; then
+  echo "ERROR: This appears to be a slave server; found kpropd.acl!"
+  godown
+fi
+
+if [ ! -f /etc/kerberos/krb5kdc/kadm5.keytab ]; then
+  echo "Extracting kadm5 Service Keys"
+  /usr/sbin/kadmin.local -q "ktadd -k /etc/kerberos/krb5kdc/kadm5.keytab kadmin/admin kadmin/changepw" \
+    && echo "Successfully extracted Service Keys" || echo "ERROR: Problem extracting Service Keys"
+fi
+
+exec /usr/sbin/kadmind -nofork
