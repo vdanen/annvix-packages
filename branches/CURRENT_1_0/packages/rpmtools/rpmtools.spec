@@ -1,6 +1,6 @@
 %define name	rpmtools
 %define version	4.5
-%define release 15sls
+%define release 16sls
 
 %{expand:%%define rpm_version %(rpm -q --queryformat '%{VERSION}-%{RELEASE}' rpm)}
 
@@ -18,14 +18,15 @@ Source0:	%{name}-%{version}.tar.bz2
 BuildRoot:	%{_tmppath}/%{name}-buildroot
 BuildRequires:	bzip2-devel gcc perl-devel rpm-devel >= 4.0
 
-Requires:	rpm >= %{rpm_version} bzip2 >= 1.0 perl-URPM >= 0.50-2mdk
+Requires:	rpm >= %{rpm_version} bzip2 >= 1.0 perl-URPM >= 0.50-2mdk perl-base >= 5.8.4
 Conflicts:	rpmtools-compat <= 2.0 rpmtools-devel <= 2.0
+Provides:	perl(packdrake)
 
 %description
 Various tools needed by urpmi and drakxtools for handling rpm files.
 
 %prep
-%setup
+%setup -q
 
 %build
 (
@@ -56,6 +57,16 @@ rm -f $RPM_BUILD_ROOT%{perl_archlib}/perllocal.pod
 %{_mandir}/*/*
 
 %changelog
+* Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 4.5-16sls
+- sync with 20mdk:
+  - add some options to gendistrib/genhdlist (thauvin)
+  - add provides perl(packdrake) (warly)
+  - add --dest option to genhdlist (thauvin)
+  - fix dir parsing (Thx Pascal Terjan) (thauvin)
+  - fix genhdlist without arg (thauvin)
+  - add a --quiet option to packdrake (rafael)
+  - add a dep on perl-base (rafael)
+
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 4.5-15sls
 - minor spec cleanups
 - remove %%prefix
