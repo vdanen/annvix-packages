@@ -9,6 +9,7 @@ PATH="/sbin:/usr/sbin:/bin:/usr/bin:$PATH"
 # defaults; can be overwritten by sysconfig
 MAX_MEMORY="14000000"
 CONCURRENCY="250"
+PORT="143"
 
 # source sysconfig file
 [ -f /etc/sysconfig/imapd ] && . /etc/sysconfig/imapd
@@ -24,6 +25,6 @@ done
 exec /usr/bin/softlimit -m "$MAX_MEMORY" \
   /usr/bin/tcpserver -c"$CONCURRENCY" -vRhX \
   -x /etc/tcprules.d/imapd.cdb -l"$HOSTNAME" \
-  0 143 /usr/sbin/imaplogin $LIBAUTHMODULES \
+  0 $PORT /usr/sbin/imaplogin $LIBAUTHMODULES \
   /usr/bin/imapd Maildir 2>&1
 

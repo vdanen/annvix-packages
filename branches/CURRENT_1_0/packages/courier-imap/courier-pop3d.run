@@ -9,6 +9,7 @@ PATH="/sbin:/usr/sbin:/bin:/usr/bin:$PATH"
 # defaults; can be overwritten by sysconfig
 MAX_MEMORY="14000000"
 CONCURRENCY="250"
+PORT="110"
 
 # source sysconfig file
 [ -f /etc/sysconfig/pop3d ] && . /etc/sysconfig/pop3d
@@ -24,5 +25,5 @@ done
 exec /usr/bin/softlimit -m "$MAX_MEMORY" \
   /usr/bin/tcpserver -c"$CONCURRENCY" -vRhX \
   -x /etc/tcprules.d/pop3d.cdb -l"$HOSTNAME" \
-  0 110 /usr/sbin/pop3login $LIBAUTHMODULES \
+  0 $PORT /usr/sbin/pop3login $LIBAUTHMODULES \
   /usr/bin/pop3d Maildir 2>&1

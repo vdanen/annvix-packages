@@ -3,12 +3,14 @@ PATH="/sbin:/usr/sbin:/bin:/usr/bin:$PATH"
 
 # this runs courier-imap's IMAPS daemon under supervise
 
-# source the imap configuration
+# source the imapa configuration
+[ -f /etc/courier/imapd ] && . /etc/courier/imapd
 [ -f /etc/courier/imapd-ssl ] && . /etc/courier/imapd-ssl
 
 # defaults; can be overwritten by sysconfig
 MAX_MEMORY="14000000"
 CONCURRENCY="250"
+SSLPORT="993"
 
 # source sysconfig file
 [ -f /etc/sysconfig/imapd-ssl ] && . /etc/sysconfig/imapd-ssl
@@ -24,5 +26,5 @@ done
 exec /usr/bin/softlimit -m "$MAX_MEMORY" \
   /usr/bin/tcpserver -c"$CONCURRENCY" -vRhX \
   -x /etc/tcprules.d/imapd-ssl.cdb -l"$HOSTNAME" \
-  0 993 /usr/bin/couriertls -server -tcpd /usr/sbin/imaplogin $LIBAUTHMODULES \
+  0 $SSLPORT /usr/bin/couriertls -server -tcpd /usr/sbin/imaplogin $LIBAUTHMODULES \
   /usr/bin/imapd Maildir 2>&1
