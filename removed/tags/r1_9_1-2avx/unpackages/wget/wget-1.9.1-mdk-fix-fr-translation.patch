@@ -1,0 +1,11 @@
+--- ./po/fr.po.frtypo	2003-10-14 17:03:20.000000000 +0200
++++ ./po/fr.po	2003-12-11 10:37:10.000000000 +0100
+@@ -261,7 +261,7 @@
+ 
+ #: src/ftp.c:910
+ msgid " (unauthoritative)\n"
+-msgstr " (non certifiée)\n"
++msgstr " (non sûre)\n"
+ 
+ #: src/ftp.c:936
+ #, c-format
