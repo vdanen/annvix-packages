@@ -1,0 +1,193 @@
+--- ./src/install.c.Coption	2002-09-26 10:39:20.000000000 +0200
++++ ./src/install.c	2002-10-08 16:59:43.000000000 +0200
+@@ -25,6 +25,7 @@
+ #include <stdio.h>
+ #include <getopt.h>
+ #include <sys/types.h>
++#include <sys/mman.h>
+ #include <pwd.h>
+ #include <grp.h>
+ 
+@@ -113,6 +114,9 @@
+    no effect. */
+ static mode_t mode = S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH;
+ 
++/* Compare files before installing (-C) */
++static int docompare=0;
++
+ /* If nonzero, strip executable files after copying them. */
+ static int strip_files;
+ 
+@@ -136,6 +140,82 @@
+   {NULL, 0, NULL, 0}
+ };
+ 
++int compare (const char *file, const char *to)
++{
++  void *p, *q;
++  int ret=0;
++  size_t size;
++  int done=0;
++  struct stat file_s, to_s;
++  int file_fd, to_fd;
++  
++  stat(file, &file_s);
++  stat(to, &to_s);
++  
++  if (file_s.st_size != to_s.st_size)
++    return 1;
++
++  file_fd = open(file, O_RDONLY);
++  if (file_fd < 0)
++    return 1;
++  
++  to_fd = open(to, O_RDONLY);
++  if (to_fd < 0)
++    {
++      close(file_fd);
++      return 1;
++    }
++      
++  size = (size_t) file_s.st_size;
++  if (size <= 4194309) /* Don't try to mmap() files > 4 MB */
++    {
++      p = mmap(NULL, size, PROT_READ, MAP_SHARED, file_fd, (off_t) 0);
++      if (p != MAP_FAILED)
++	{
++          q = mmap(NULL, size, PROT_READ, MAP_SHARED, to_fd, (off_t) 0);
++          if (q == MAP_FAILED)
++            {
++              munmap(p, size);
++            }
++	  else
++            {
++              ret = (memcmp(p, q, size)==0) ? 0 : 1;
++              munmap(p, size);
++              munmap(q, size);
++              done = 1;
++            }
++       }
++    }
++  if (!done)
++    {
++      char buf1[65536], buf2[65536];
++      int n1, n2;
++
++      lseek(file_fd, 0, SEEK_SET);
++      lseek(to_fd, 0, SEEK_SET);
++      while (ret == 0)
++        {
++          n1 = read(file_fd, buf1, sizeof(buf1));
++          if (n1 == 0)
++            break;
++          else if (n1 > 0)
++            {
++              n2 = read(to_fd, buf2, n1);
++              if (n2 == n1)
++                ret = memcmp(buf1, buf2, n1);
++              else
++                ret = 1; /* ouf of sync */
++            }
++          else
++            ret = 1; /* read failure */
++        }
++    }
++
++  close(file_fd);
++  close(to_fd);
++  return ret;
++}
++
+ static void
+ cp_option_init (struct cp_options *x)
+ {
+@@ -206,7 +286,7 @@
+      we'll actually use backup_suffix_string.  */
+   backup_suffix_string = getenv ("SIMPLE_BACKUP_SUFFIX");
+ 
+-  while ((optc = getopt_long (argc, argv, "bcsDdg:m:o:pvV:S:", long_options,
++  while ((optc = getopt_long (argc, argv, "bcCsDdg:m:o:pvV:S:", long_options,
+ 			      NULL)) != -1)
+     {
+       switch (optc)
+@@ -228,6 +308,9 @@
+ 	  break;
+ 	case 'c':
+ 	  break;
++	case 'C':
++	  docompare=1;
++	  break;
+ 	case 's':
+ 	  strip_files = 1;
+ 	  break;
+@@ -305,6 +388,7 @@
+ 	  errors |=
+ 	    make_path (file[i], mode, mode, owner_id, group_id, 0,
+ 		       (x.verbose ? _("creating directory %s") : NULL));
++	  if(errors==0) chmod(file[i], mode);
+ 	}
+     }
+   else
+@@ -436,6 +520,12 @@
+       return 1;
+     }
+ 
++  if (docompare)
++    {
++      if(compare(from, to)==0) /* Files are identical */
++	return 0;
++    }
++  
+   fail = copy (from, to, nonexistent_dst, x, &copy_into_self, NULL);
+ 
+   return fail;
+@@ -535,7 +625,9 @@
+       /* Parent process. */
+       while (pid != wait (&status))	/* Wait for kid to finish. */
+ 	/* Do nothing. */ ;
++#if 0 /* We don't want to produce a fatal error just because strip failed. */
+       if (status)
+ 	error (EXIT_FAILURE, 0, _("strip failed"));
++#endif
+       break;
+     }
+--- ./doc/coreutils.info.Coption	2002-10-05 08:51:56.000000000 +0200
++++ ./doc/coreutils.info	2002-10-08 16:58:52.000000000 +0200
+@@ -2052,6 +2052,10 @@
+    The program accepts the following options.  Also see *Note Common
+ options::.
+ 
++`-C'
++    Install file, unless target already exists and is the same file, in
++    which case the modification time is not changed.
++
+ `-c'
+ `--bytes'
+      Print only the byte counts.
+--- ./doc/coreutils.texi.Coption	2002-09-13 11:31:26.000000000 +0200
++++ ./doc/coreutils.texi	2002-10-08 16:58:52.000000000 +0200
+@@ -1523,6 +1523,11 @@
+ 
+ @table @samp
+ 
++@item -C
++@opindex -C
++Install file, unless target already exists and is the same file, in which
++case the modification time is not changed.
++
+ @item -c
+ @itemx --crown-margin
+ @opindex -c
+--- ./man/install.1.Coption	2002-10-05 08:52:00.000000000 +0200
++++ ./man/install.1	2002-10-08 16:58:52.000000000 +0200
+@@ -28,6 +28,10 @@
+ \fB\-c\fR
+ (ignored)
+ .TP
++\fB\-C\fR
++Install file, unless target already exists and is the same as the new file,
++in which case the modification time won't be changed.
++.TP
+ \fB\-d\fR, \fB\-\-directory\fR
+ treat all arguments as directory names; create all
+ components of the specified directories

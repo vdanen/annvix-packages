@@ -1,0 +1,21 @@
+	* ftw.c (ftw_startup): Always call free_cwd after restore_cwd.
+	Reported by Matti Aarnio as
+	https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=90563.
+	Forwarded by Tim Waugh.
+
+Index: lib/ftw.c
+===================================================================
+RCS file: /fetish/cu/lib/ftw.c,v
+retrieving revision 1.27
+retrieving revision 1.28
+diff -u -p -u -r1.27 -r1.28
+--- lib/ftw.c	5 May 2003 07:54:19 -0000	1.27
++++ lib/ftw.c	12 May 2003 14:51:02 -0000	1.28
+@@ -813,6 +813,7 @@ ftw_startup (const char *dir, int is_nft
+ 	  save_err = errno;
+ 	  result = -1;
+ 	}
++      free_cwd (&cwd);
+ 
+       __set_errno (save_err);
+     }
