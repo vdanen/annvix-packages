@@ -1,5 +1,5 @@
 %define pkg_name	samba
-%define ver 		3.0.8
+%define ver 		3.0.10
 %define rel 		1avx
 %define vscanver 	0.3.5
 %define libsmbmajor 	0
@@ -151,7 +151,7 @@
 
 %global clientbin 	findsmb,nmblookup,smbclient,smbmnt,smbmount,smbprint,smbspool,smbtar,smbumount,smbget
 %global client_bin 	mount.cifs
-%global client_sbin 	mount.smb,mount.smbfs
+%global client_sbin 	mount.smb,mount.smbfs,mount.cifs
 
 %global testbin 	debug2html,smbtorture,msgtest,masktest,locktest,locktest2,nsstest,vfstest
 
@@ -224,12 +224,11 @@ Source20:	smb-migrate.bz2
 Source21:	README.avx.sambamerge.bz2
 Patch1:		smbw.patch.bz2
 Patch2:		samba-3.0.2a-mdk-smbldap-config.patch.bz2
-Patch3:		samba-3.0.6-mdk-mandrake-packaging.patch.bz2
 Patch4:		samba-3.0-smbmount-sbin.patch.bz2
 Patch5:		samba-3.0.5-mdk-lib64.patch.bz2
 Patch6:		samba-3.0.6-mdk-smbmount-unixext.patch.bz2
 Patch7:		samba-3.0.6-mdk-revert-libsmbclient-move.patch.bz2
-Patch8:		samba-3.0.7-avx-annvix-config.patch.bz2
+Patch8:		samba-3.0.10-avx-annvix-config.patch.bz2
 %if !%have_pversion
 # Version specific patches: current version
 %else
@@ -726,26 +725,27 @@ Trend antivirus software (which must be installed to use this).
 
 %prep
 
-# Allow users to query build options with --with options:
-#%define opt_status(%1)	%(echo %{1})
-%if %{?_with_options:1}%{!?_with_options:0}
-%define opt_status(%{1})	%(if [ %{1} -eq 1 ];then echo enabled;else echo disabled;fi)
-#exit 1
-%{error: }
-%{error:Build options available are:}
-%{error:--with[out] system   Build as the system samba package [or as samba3]}
-%{error:--with[out] acl      Build with support for file ACLs          - %opt_status %build_acl}
-%{error:--with[out] winbind  Build with Winbind support                - %opt_status %build_winbind}
-%{error:--with[out] wins     Build with WINS name resolution support   - %opt_status %build_wins}
-%{error:--with[out] ldap     Build with legacy (samba2) LDAP support   - %opt_status %build_ldap}
-%{error:--with[out] ads      Build with Active Directory support       - %opt_status %build_ads}
-%{error:--with[out] scanners Enable on-access virus scanners           - %opt_status %build_scanners}
-%{error: }
-%else
-%{error: }
-%{error: This rpm has build options available, use --with options to see them}
-%{error: }
-%endif
+# comment this stuff out for the moment
+## Allow users to query build options with --with options:
+##%#define opt_status(%1)	%(echo %{1})
+#%i#f %{?_with_options:1}%{!?_with_options:0}
+#%#define opt_status(%{1})	%(if [ %{1} -eq 1 ];then echo enabled;else echo disabled;fi)
+##exit 1
+#%#{error: }
+#%#{error:Build options available are:}
+#%#{error:--with[out] system   Build as the system samba package [or as samba3]}
+#%#{error:--with[out] acl      Build with support for file ACLs          - %opt_status %build_acl}
+#%#{error:--with[out] winbind  Build with Winbind support                - %opt_status %build_winbind}
+#%#{error:--with[out] wins     Build with WINS name resolution support   - %opt_status %build_wins}
+#%#{error:--with[out] ldap     Build with legacy (samba2) LDAP support   - %opt_status %build_ldap}
+#%#{error:--with[out] ads      Build with Active Directory support       - %opt_status %build_ads}
+#%#{error:--with[out] scanners Enable on-access virus scanners           - %opt_status %build_scanners}
+#%#{error: }
+#%#else
+#%#{error: }
+#%#{error: This rpm has build options available, use --with options to see them}
+#%#{error: }
+#%#endif
 
 %if %{?_with_options:1}%{!?_with_options:0} && %build_scanners
 #%{error:--with scanners enables the following:%{?build_clamav:clamav,}%{?build_icap:icap,}%{?build_fprot:fprot,}%{?build_mks:mks,}%{?build_openav:openav,}%{?build_sophos:sophos,}%{?build_trend:trend}}
@@ -799,7 +799,6 @@ echo -e "\n%{name}-%{version}-%{release}\n">>%{SOURCE7}
 # Version specific patches: current version
 %if !%have_pversion
 echo "Applying patches for current version: %{ver}"
-%patch3 -p1 -b .mdk
 #%patch5 -p1 -b .lib64
 %patch6 -p1 -b .unixext
 %patch7 -p1 -b .libsmbdir
@@ -1059,7 +1058,8 @@ sed -e 's/^;   printer admin = @adm/   printer admin = @adm/g' >$RPM_BUILD_ROOT/
 
 
 #install mount.cifs
-install -m755 source/client/mount.cifs %{buildroot}/bin/mount.cifs%{samba_major}
+install -m755 source/client/mount.cifs %{buildroot}/bin/mount.cifs%{alternative_major}
+ln -s ../bin/mount.cifs%{alternative_major} %{buildroot}/sbin/mount.cifs%{alternative_major}
 
         echo 127.0.0.1 localhost > $RPM_BUILD_ROOT/%{_sysconfdir}/%{name}/lmhosts
 
@@ -1109,7 +1109,7 @@ rm -f %{buildroot}/sbin/mount.smbfs
 )
 # Server/common binaries are versioned only if not system samba:
 %if !%build_system
-for OLD in %{buildroot}/%{_bindir}/{%{commonbin}} %{buildroot}/%{_bindir}/{%{serverbin}} %{buildroot}/%{_sbindir}/{%{serversbin},swat}
+for OLD in %{buildroot}/%{_bindir}/{%{commonbin},tdbtool} %{buildroot}/%{_bindir}/{%{serverbin}} %{buildroot}/%{_sbindir}/{%{serversbin},swat}
 do
     NEW=`echo ${OLD}%{alternative_major}`
     mv $OLD $NEW -f ||:
@@ -1307,6 +1307,7 @@ update-alternatives --install %{_bindir}/smbclient smbclient \
 %{_bindir}/smbclient%{alternative_major} 10 \
 $(for i in {/bin/mount.cifs,/sbin/{%{client_sbin}},%{_bindir}/{%{clientbin}}};do
 j=`basename $i`
+[ "$i" = "/sbin/mount.cifs" ] && j="smount.cifs"
 [ "$j" = "smbclient" ] || \
 echo -n " --slave ${i} ${j} ${i}%{alternative_major}";done) \
 --slave %{_libdir}/cups/backend/smb cups_smb %{_libdir}/cups/backend/smb%{alternative_major} || \
@@ -1451,6 +1452,7 @@ update-alternatives --auto smbclient
 %attr(755,root,root) /%{_lib}/security/pam_winbind*
 %attr(755,root,root) /%{_lib}/libnss_winbind*
 %attr(-,root,root) %config(noreplace) %{_sysconfdir}/pam.d/system-auth-winbind*
+%{_mandir}/man8/pam_winbind*.8*
 %{_mandir}/man8/winbindd*.8*
 %{_mandir}/man1/wbinfo*.1*
 %dir %{_srvdir}/winbindd
@@ -1646,6 +1648,15 @@ update-alternatives --auto smbclient
 %exclude %{_mandir}/man1/smbsh*.1*
 
 %changelog
+* Fri Dec 17 2004 Vincent Danen <vdanen@annvix.org> 3.0.10-1avx
+- 3.0.10 - security update for CAN-2004-1154
+- add a symlink for mount.cifs in /sbin, so mount -t cifs works (bgmilne)
+- drop P3; merged
+- fix build when not system (tdbtool must be suffixed also), mdk bug
+  #12417 (bgmilne)
+- rediff P8
+- include pam_windbind.8 manpage
+
 * Wed Nov 10 2004 Vincent Danen <vdanen@annvix.org> 3.0.8-1avx
 - 3.0.8 - security update for CAN-2004-0930
 - add tdbtool to common (bgmilne)
