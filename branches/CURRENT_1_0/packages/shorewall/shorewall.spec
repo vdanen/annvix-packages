@@ -1,6 +1,6 @@
 %define name	shorewall
-%define version 2.0.1
-%define release 3avx
+%define version 2.0.3
+%define release 1avx
 
 %define samples_version	2.0.1
 
@@ -11,13 +11,12 @@ Release:	%{release}
 License:	GPL
 Group:		System/Servers
 URL:		http://www.shorewall.net/
-Source0:	ftp://ftp.shorewall.net/%{name}-%{version}.tgz
-Source1:	ftp://ftp.shorewall.net/samples-%{version}/samples-%{samples_version}.tar.bz2
-Source2:	ftp://ftp.shorewall.net/%{version}.md5sums
-Source3:	init.sh.bz2
-Source4:	bogons.bz2
-Source5:	rfc1918.bz2
-Patch0:		shorewall-2.0.1-kernel_modules_suffix.patch.bz2
+Source0:	ftp://ftp.shorewall.net/pub/shorewall/shorewall-%{version}/%{name}-%{version}.tgz
+Source1:	ftp://ftp.shorewall.net/pub/shorewall/shorewall-%{version}/%{version}.md5sums
+Source2:	ftp://ftp.shorewall.net/pub/shorewall/Samples/samples-%{samples_version}/one-interface.tgz
+Source3:	ftp://ftp.shorewall.net/pub/shorewall/Samples/samples-%{samples_version}/two-interfaces.tgz
+Source4:	ftp://ftp.shorewall.net/pub/shorewall/Samples/samples-%{samples_version}/three-interfaces.tgz
+Source5:	init.sh.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-buildroot
 BuildArch:	noarch
@@ -31,37 +30,22 @@ The Shoreline Firewall, more commonly known as "Shorewall", is a Netfilter
 (iptables) based firewall that can be used on a dedicated firewall system,
 a multi-function gateway/ router/server or on a standalone GNU/Linux system.
 
-%package doc
-Summary:	Firewall scripts
-Group:		System/Servers
-
-%description doc 
-The Shoreline Firewall, more commonly known as "Shorewall", is a Netfilter
-(iptables) based firewall that can be used on a dedicated firewall system,
-a multi-function gateway/ router/server or on a standalone GNU/Linux system.
-
-This package contains the docs.
 %prep
 
 %setup -q
-%patch0 -p1 -b .kernel_modules_suffix
 
-bzcat %SOURCE3 > $RPM_BUILD_DIR/%{name}-%{version}/init.sh
-bzcat %SOURCE4 > $RPM_BUILD_DIR/%{name}-%{version}/bogons
-bzcat %SOURCE5 > $RPM_BUILD_DIR/%{name}-%{version}/rfc1918
-tar xjf %SOURCE1
-
-cd  $RPM_BUILD_DIR/%{name}-%{version}/samples-%{samples_version}/
-for i in `ls *.tar.bz2`; do
-	tar xjf $i
-done;
-rm -rf *.bz2
-mv  $RPM_BUILD_DIR/%{name}-%{version}/samples-%{samples_version}/ $RPM_BUILD_DIR/%{name}-%{version}/documentation
+bzcat %SOURCE5 > $RPM_BUILD_DIR/%{name}-%{version}/init.sh
+mkdir samples
+pushd samples
+  tar xzf %SOURCE2
+  tar xzf %SOURCE3
+  tar xzf %SOURCE4
+popd
 
 %build
 find -name CVS | xargs rm -fr
 find -name "*~" | xargs rm -fr
-find documentation/ -type f | xargs chmod 0644 
+find samples/ -type f | xargs chmod 0644 
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -89,7 +73,7 @@ export DONT_GPRINTIFY=1
 
 %files
 %defattr(-,root,root)
-%doc %attr(-,root,root) COPYING INSTALL changelog.txt releasenotes.txt tunnel
+%doc %attr(-,root,root) COPYING INSTALL changelog.txt releasenotes.txt tunnel samples
 %attr(700,root,root) %dir /etc/shorewall
 %attr(750,root,root) %{_initrddir}/shorewall
 
@@ -118,14 +102,24 @@ export DONT_GPRINTIFY=1
 %config(noreplace) %{_sysconfdir}/%{name}/stopped
 %config(noreplace) %{_sysconfdir}/%{name}/init
 %config(noreplace) %{_sysconfdir}/%{name}/actions
+%config(noreplace) %{_sysconfdir}/%{name}/initdone
 %attr(544,root,root) /sbin/shorewall
 %attr(700,root,root) %dir %{_datadir}/%{name}
 %{_datadir}/%{name}/*
 
-%files doc 
-%doc %attr(-,root,root) documentation/*
 
 %changelog
+* Mon Jun 28 2004 Vincent Danen <vdanen@annvix.org> 2.0.3-1avx
+- 2.0.3
+- remove S4 (bogons), S5 (rfc1918); already included
+- remove P0 (kernel-suffix); already integrated
+- make shorewall start just after the network does otherwise it
+  fails to fully init
+- remove the doc package; put samples in the docdir of the main
+  package
+- use pristine sources all the way around
+- fix source urls
+
 * Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 2.0.1-3avx
 - Annvix build
 
