@@ -1,6 +1,6 @@
 %define name	spamassassin
 %define version	2.63
-%define release	5sls
+%define release	6sls
 
 %define fname	Mail-SpamAssassin
 %define instdir	vendor
@@ -110,10 +110,10 @@ install -m 0750 %{SOURCE2} %{buildroot}%{_srvdir}/spamd/log/run
 [ -f %{_sysconfdir}/mail/spamassassin.cf ] && /bin/mv %{_sysconfdir}/mail/spamassassin.cf %{_sysconfdir}/mail/spamassassin/migrated.cf || true
 touch /var/spool/spamassassin/auto-whitelist.db
 chmod 666 /var/spool/spamassassin/auto-whitelist.db
-%_post_service spamassassin
+%_post_srv spamd
 
 %preun
-%_preun_service spamassassin
+%_preun_srv spamd
 
 
 %files
@@ -142,6 +142,9 @@ chmod 666 /var/spool/spamassassin/auto-whitelist.db
 %{_mandir}/man3*/*
 
 %changelog
+* Thu Jun  3 2004 Vincent Danen <vdanen@opensls.org> 2.63-6sls
+- %%post_srv and %%preun_srv
+
 * Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 2.63-5sls
 - build against perl 5.8.4
 
