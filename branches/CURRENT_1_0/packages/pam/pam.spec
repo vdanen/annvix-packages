@@ -1,10 +1,11 @@
 %define name	pam
 %define version	0.77
-%define release	10sls
+%define release	11sls
 
 %define rhrelease	1
 %define pwdb_version	0.62
 %define db_version	4.1.25
+%define libname		%mklibname %name 0
 
 %{!?build_opensls:%global build_opensls 0}
 
@@ -99,12 +100,26 @@ having to recompile programs which do authentication.
 This is the documentation package of %{name}
 %endif
 
-%package devel
+
+%package -n %{libname}
+Summary:	Libraries for %{name}
+Group:		System/Libraries
+Conflicts:	%{name} < 0.77-11sls
+
+%description -n %{libname}
+PAM (Pluggable Authentication Modules) is a system security tool
+which allows system administrators to set authentication policy
+without having to recompile programs which do authentication.
+
+
+%package -n %{libname}-devel
 Summary:	Development headers and libraries for %{name}
 Group:		Development/Other
-PreReq:		%{name} = %version-%release
+PreReq:		%{libname} = %version-%release
+Provides:	%{name}-devel = %version-%release
+Obsoletes:	%{name}-devel <= 0.77-10sls
 
-%description devel
+%description -n %{libname}-devel
 PAM (Pluggable Authentication Modules) is a system security tool
 which allows system administrators to set authentication policy
 without having to recompile programs which do authentication.
@@ -221,8 +236,8 @@ rm -rf $RPM_BUILD_ROOT
 %pre
 %_pre_groupadd video
 
-%post -p /sbin/ldconfig
-%postun -p /sbin/ldconfig
+%post -n %libname -p /sbin/ldconfig
+%postun -n %libname -p /sbin/ldconfig
 
 %files
 %defattr(-,root,root)
@@ -235,21 +250,24 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) /etc/security/limits.conf
 %config(noreplace) /etc/security/pam_env.conf
 %config(noreplace) /etc/security/console.perms
-/%{_lib}/libpam.so.*
-/%{_lib}/libpam_misc.so.*
 %attr(4755,root,root) /sbin/pwdb_chkpwd
 /sbin/unix_chkpwd
 /sbin/pam_console_apply
 /sbin/pam_tally
 /sbin/pam_timestamp_check
-%dir /%{_lib}/security
-/%{_lib}/security/*.so
 %dir /etc/security/console.apps
 %dir /var/run/console
 %{_mandir}/man5/*
 %{_mandir}/man8/*
 
-%files devel
+%files -n %{libname}
+%defattr(-,root,root)
+/%{_lib}/libpam.so.*
+/%{_lib}/libpam_misc.so.*
+%dir /%{_lib}/security
+/%{_lib}/security/*.so
+
+%files -n %{libname}-devel
 %defattr(-,root,root)
 %doc Copyright
 /%{_lib}/libpam.so
@@ -265,6 +283,9 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 
 %changelog
+* Wed Dec 31 2003 Vincent Danen <vdanen@opensls.org> 0.77-11sls
+- sync with 10mdk (flepied): libification
+
 * Wed Dec 03 2003 Vincent Danen <vdanen@opensls.org> 0.77-10sls
 - OpenSLS build
 - tidy spec
