@@ -1,6 +1,6 @@
 %define name	squid
 %define version	2.5.STABLE5
-%define release	4avx
+%define release	5avx
 
 %define their_version	2.5.STABLE5
 %define p_url   http://www.squid-cache.org/Versions/v2/2.5/bugs
@@ -38,6 +38,7 @@ Patch2:		squid-2.5.STABLE3-user_group.patch.bz2
 Patch3:		squid-2.5.STABLE2-ssl.patch.bz2
 Patch4:		squid-2.5.STABLE5-pipe.patch.bz2
 Patch5:		squid-2.5.STABLE5-warning.patch.bz2
+Patch6:		squid-2.5.STABLE5-ntlm_fetch_string.patch.bz2
 Patch100:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE5-post_assert.patch.bz2
 Patch101:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE5-digest_blank.patch.bz2
 Patch102:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE5-rfc1035NameUnpack.patch.bz2
@@ -80,6 +81,7 @@ Install squid if you need a proxy caching server.
 %patch3 -p1 -b .ssl
 %patch4 -p1 -b .pipe
 %patch5 -p1 -b .warning
+%patch6 -p1 -b .can-2004-0832
 %patch100 -p1
 %patch101 -p1
 %patch102 -p1
@@ -364,6 +366,9 @@ fi
 %attr(0750,nobody,nogroup) %dir %{_srvlogdir}/squid
 
 %changelog
+* Thu Sep  9 2004 Vincent Danen <vdanen@annvix.org> 2.5.STABLE5-5avx
+- P6: security fix for CAN-2004-0832
+
 * Tue Aug 17 2004 Vincent Danen <vdanen@annvix.org> 2.5.STABLE5-4avx
 - rebuild against new openssl
 
