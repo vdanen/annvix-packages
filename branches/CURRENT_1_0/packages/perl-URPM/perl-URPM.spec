@@ -1,10 +1,8 @@
 %define name	perl-URPM
 %define version 0.94
-%define release 11sls
+%define release 12sls
 
 %define real_name URPM
-
-%{!?build_opensls:%global build_opensls 0}
 
 %define group		%(perl -e 'printf "%%s\\n", "%_vendor" =~ /mandrake/i ? "Development/Perl" : "Applications/CPAN"')
 %define rpm_version	%(rpm -q --queryformat '%{VERSION}-%{RELEASE}' rpm)
@@ -12,10 +10,6 @@
 %{expand:%%define compat_makeinstall_std %(perl -e 'printf "%%s\n", "%{?makeinstall_std:1}" ? "%%makeinstall_std" : "%%{__make} install PREFIX=%%{buildroot}%%{_prefix}"')}
 %{expand:%%define compat_perl_vendorarch %(perl -MConfig -e 'printf "%%s\n", "%{?perl_vendorarch:1}" ? "%%{perl_vendorarch}" : "$Config{installvendorarch}"')}
 %{expand:%%define buildreq_perl_devel %%(perl -e 'printf "%%s\\n", "%_vendor" =~ /mandrake/i ? "perl-devel" : "perl"')}
-%if !%{build_opensls}
-%{expand:%%define distribution %%(perl -e 'printf "%%s\\n", ("%_vendor" =~ /mandrake/i ? "Mandrake Linux" : "Red Hat Linux")')}
-%{expand:%%define real_release %%(perl -e 'printf "%%s\\n", ("%_vendor" !~ /mandrake/i && ("%release" =~ /(.*?)mdk/)[0] || "%release")')}
-%endif
 
 Summary:	URPM module for perl
 Name:		%{name}
@@ -29,7 +23,6 @@ Source:		%{real_name}-%{version}.tar.bz2
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
 BuildRequires:	%{buildreq_perl_devel} rpm-devel >= 4.0.3 bzip2-devel
 
-Prefix:		%{_prefix}
 Requires:	rpm >= %{rpm_version}, bzip2 >= 1.0
 Provides:	perl(URPM::Build) = %{version}-%{release}
 Provides:	perl(URPM::Resolve) = %{version}-%{release}
@@ -48,11 +41,11 @@ hdlist files and manage them in memory.
 %{__make} test
 
 %install
-%{__rm} -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %{compat_makeinstall_std}
 
 %clean 
-%{__rm} -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -65,6 +58,11 @@ hdlist files and manage them in memory.
 
 
 %changelog
+* Fri Feb 27 2004 Vincent Danen <vdanen@opensls.org> 0.94-12sls
+- rebuild for new perl
+- remove %%build_opensls macros
+- remove %%prefix tag
+
 * Fri Dec 18 2003 Vincent Danen <vdanen@opensls.org> 0.94-11sls
 - OpenSLS build
 - tidy spec
