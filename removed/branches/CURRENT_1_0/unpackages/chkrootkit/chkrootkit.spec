@@ -1,6 +1,6 @@
-# OE: conditional switches
-#(ie. use with rpm --rebuild):
-#	--with diet	Compile chkrootkit against dietlibc
+%define name	chkrootkit
+%define version	0.42b
+%define release	2sls
 
 %define build_diet 1
 
@@ -8,24 +8,21 @@
 # rpm -ba|--rebuild --with 'xxx'
 %{?_with_diet: %{expand: %%define build_diet 1}}
 
-%define name	chkrootkit
-%define version	0.42b
-%define release	1mdk
-
-Summary:	Check rootkits
+Summary:	Checks system for rootkits
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
-Source0:	ftp://ftp.pangeia.com.br/pub/seg/pac/%{name}-%{version}.tar.bz2
-Patch0:		chkrootkit-0.42b-lib-path.patch.bz2
-URL:		http://www.chkrootkit.org/
 License:	BSD
 Group:		Monitoring
-Requires:	binutils, fileutils, findutils, gawk, grep, net-tools, procps, sed, sh-utils, textutils
-BuildRequires:  glibc-static-devel
-BuildRoot:	%{_tmppath}/%{name}-buildroot
-Prefix:		%{_prefix}
+URL:		http://www.chkrootkit.org/
+Source0:	ftp://ftp.pangeia.com.br/pub/seg/pac/%{name}-%{version}.tar.bz2
+Patch0:		chkrootkit-0.42b-lib-path.patch.bz2
 
+BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildRequires:  glibc-static-devel
+
+Prefix:		%{_prefix}
+Requires:	binutils, fileutils, findutils, gawk, grep, net-tools, procps, sed, sh-utils, textutils
 %if %{build_diet}
 BuildRequires:	dietlibc-devel >= 0.20-1mdk
 %endif
@@ -66,6 +63,10 @@ install check_wtmpx chklastlog chkproc chkwtmp ifpromisc strings %{buildroot}%{_
 %{_libdir}/%{name}
 
 %changelog
+* Wed Dec 31 2003 Vincent Danen <vdanen@opensls.org> 0.42b-2sls
+- OpenSLS build
+- tidy spec
+
 * Sat Dec  6 2003 Frederic Lepied <flepied@mandrakesoft.com> 0.42b-1mdk
 - rediff patch0
 - 0.42b
