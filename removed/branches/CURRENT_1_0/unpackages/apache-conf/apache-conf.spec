@@ -1,6 +1,6 @@
 %define name	apache-conf
-%define version	2.0.48
-%define release	3sls
+%define version	2.0.49
+%define release	1sls
 
 # OE: conditional switches
 #(ie. use with rpm --rebuild):
@@ -300,6 +300,9 @@ fi
 %attr(1333,apache,apache) %dir /var/apache-mm
 
 %changelog
+* Fri May 07 2004 Vincent Danen <vdanen@opensls.org> 2.0.49-1sls
+- 2.0.49
+
 * Tue Feb 24 2004 Vincent Danen <vdanen@opensls.org> 2.0.48-3sls
 - use static uid for user apache
 - get rid of initscript
