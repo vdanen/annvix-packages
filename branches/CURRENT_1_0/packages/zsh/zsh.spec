@@ -1,6 +1,7 @@
 %define name	zsh
 %define version	4.1.1
-%define release	6sls
+%define release	7sls
+%define epoch	1
 
 %define doc_version 4.1.1
 %define url	ftp://ftp.zsh.org/pub/
@@ -19,14 +20,13 @@ Summary:	A shell with lots of features.
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
-Epoch:		1
+Epoch:		%{epoch}
 License:	GPL
 Group:		Shells
 URL:		http://www.zsh.org
 Source0:	%{url}/%name-%{full_preversion}.tar.bz2
 Source1:	%{url}/%name-%doc_version-doc.tar.bz2
 Source2:	zcfg-mdk.tar.bz2
-Source3:	http://zsh.sunsite.dk/Guide/zshguide.tar.bz2
 Patch1:		zsh-3.1.6-dev-22-path.patch.bz2
 Patch2:		zsh-4.0.1-pre-3-rpmnewopt.patch.bz2
 Patch101:	zsh-serial.patch.bz2
@@ -35,7 +35,7 @@ Patch102:	zsh-4.1.0-dev-7-rebootin.patch.bz2
 BuildRoot:	%_tmppath/%name-buildroot
 BuildRequires:	gcc, libtermcap-devel >= 2.0, texinfo
 
-Prereq: coreutils grep rpm-helper >= 0.7
+Prereq:		coreutils grep rpm-helper >= 0.7
 
 %description
 Zsh is a UNIX command interpreter (shell) usable as an
@@ -70,7 +70,7 @@ EXTRA_CONFIGURE_ARGS="--disable-lfs"
 make all
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 make install-strip DESTDIR=%buildroot
 make install.info DESTDIR=%buildroot
@@ -87,31 +87,8 @@ pushd $RPM_BUILD_ROOT/bin && {
 
 rm -f $RPM_BUILD_ROOT%_bindir/zsh-%full_preversion
 
-# Copy documentation.
-rm -rf docroot
-mkdir -p docroot/{Info_html,Examples,Documentation}/
-
-cp -a README docroot/
-cp -a Functions/Misc/* Misc/* Util/* docroot/Examples/
-cp -a INSTALL ChangeLog* docroot/Documentation 
-cp -a StartupFiles docroot/
-cp -a Etc/* docroot/Documentation
-mv docroot/Documentation/NEWS docroot/
-cp -a Doc/*html docroot/Info_html/
-
-mkdir -p docroot/Zsh_Guide
-tar xjf %SOURCE3 -C docroot/Zsh_Guide
-mv docroot/Zsh_Guide/zshguide/*html docroot/Zsh_Guide/
-rmdir docroot/Zsh_Guide/zshguide
-
-# Doc
-rm -f docroot/{StartupFiles/.distfiles,Examples/{Makefile*,*.yo},Documentation/{Makefile*,*.yo}}
-find docroot/ -name 'Makefile*' -o -name '.yo'|xargs rm -f
-find docroot/ -type f|xargs perl -pi -e 's@^#!%_prefix/local/bin/(perl|zsh)@#!%_bindir/\1@'
-mv docroot/Examples/compctl-examples docroot/StartupFiles
-
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
 /usr/share/rpm-helper/add-shell %name $1 /bin/zsh
@@ -123,7 +100,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root,0755)
-%doc docroot/README docroot/NEWS
+%doc README
 %config(noreplace) %_sysconfdir/z*
 /bin/%name
 %_mandir/man1/*.1*
@@ -137,6 +114,11 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 4.1.1-7sls
+- minor spec cleanups
+- don't even process doc files
+- remove S3 (guide)
+
 * Mon Jan 12 2004 Vincent Danen <vdanen@opensls.org> 4.1.1-6sls
 - remove %%build_opensls macro; remove -doc package
 
