@@ -1,7 +1,7 @@
 %define	name	perl-%{module}
 %define	module	BSD-Resource
 %define	version	1.22
-%define	release	4sls
+%define	release	5sls
 
 Summary:	%{module} module for perl 
 Name:		%{name}
@@ -31,11 +31,11 @@ find . -type f | xargs %{__perl} -p -i -e "s|^#\!/usr/local/bin/perl|#\!/usr/bin
 %{__make} test
 
 %install
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot} 
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
 %clean 
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot} 
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -44,6 +44,9 @@ find . -type f | xargs %{__perl} -p -i -e "s|^#\!/usr/local/bin/perl|#\!/usr/bin
 %{_mandir}/man*/*
 
 %changelog
+* Wed Feb 25 2004 Vincent Danen <vdanen@opensls.org> 1.22-5sls
+- rebuild for new perl
+
 * Sat Jan 03 2004 Vincent Danen <vdanen@opensls.org> 1.22-4sls
 - OpenSLS build
 - tidy spec

@@ -1,7 +1,7 @@
 %define module	Convert-ASN1
 %define name	perl-%{module}
 %define version 0.16
-%define release 5sls
+%define release 6sls
 
 Summary: 	ASN.1 Encode/Decode library for perl
 Name: 		%{name}
@@ -34,7 +34,7 @@ make
 make test
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
 %clean 
@@ -47,6 +47,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/*/*
 
 %changelog
+* Wed Feb 25 2004 Vincent Danen <vdanen@opensls.org> 0.16-6sls
+- rebuild for new perl
+
 * Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 0.16-5sls
 - OpenSLS build
 - tidy spec
