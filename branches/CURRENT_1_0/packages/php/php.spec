@@ -1,6 +1,6 @@
 %define name	php
 %define version	4.3.4
-%define release	2sls
+%define release	3sls
 
 %define libversion	432
 %define phpversion	%{version}
@@ -66,7 +66,7 @@ Patch1:		php-4.3.4RC3-shared.patch.bz2
 Patch2:		php-4.3.0-imap.patch.bz2
 Patch3:		php-4.3.0-info.patch.bz2
 Patch4:		php-4.3.4RC3-64bit.patch.bz2
-Patch5:		php-4.3.4RC3-lib64.patch.bz2
+Patch5:		php-4.3.4-lib64.patch.bz2
 Patch6:		php-4.3.0-fix-pear.patch.bz2
 Patch7:		php-4.3.2-libtool.patch.bz2
 Patch9:		php-4.3.0-credits.patch.bz2
@@ -622,6 +622,9 @@ update-alternatives --remove php %{_bindir}/php-cli
 %{_includedir}/php
 
 %changelog
+* Fri Jan 09 2004 Oden Eriksson <oden.eriksson@kvikkjokk.net> 4.3.4-3sls
+- rediff P5; fix lib64 build (aka php-dba_bundle wasn't compiling)
+
 * Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 4.3.4-2sls
 - OpenSLS build
 - tidy spec
