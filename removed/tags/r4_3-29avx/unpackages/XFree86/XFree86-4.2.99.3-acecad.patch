@@ -1,0 +1,213 @@
+--- XFree86-4.2.99.3/xc/config/cf/xfree86.cf.acecad	2002-12-10 16:12:15.000000000 +0100
++++ XFree86-4.2.99.3/xc/config/cf/xfree86.cf	2002-12-23 13:32:34.000000000 +0100
+@@ -1896,6 +1896,12 @@
+ # endif
+ #endif
+ 
++#if HasGcc2 && defined(x86_64Architecture)
++# ifndef DefaultGcc2x86_64Opt
++#  define DefaultGcc2x86_64Opt -O2 -fno-strength-reduce
++# endif
++#endif
++
+ #if HasGcc2 && defined(AlphaArchitecture)
+ # ifndef DefaultGcc2AxpOpt
+ #  define DefaultGcc2AxpOpt -O2 GccAliasingArgs
+--- XFree86-4.2.99.3/xc/programs/Xserver/hw/xfree86/input/acecad/acecad.man.acecad	2001-08-13 21:35:00.000000000 +0200
++++ XFree86-4.2.99.3/xc/programs/Xserver/hw/xfree86/input/acecad/acecad.man	2002-12-23 13:13:22.000000000 +0100
+@@ -3,7 +3,7 @@
+ .ds q \N'34'
+ .TH ACECAD __drivermansuffix__ __vendorversion__
+ .SH NAME
+-acecad \- Acecad Flair input driver
++acecad \- Acecad input driver
+ .SH SYNOPSIS
+ .B "Section \*qInputDevice\*q"
+ .br
+@@ -24,17 +24,38 @@
+ .B acecad
+ driver functions as a pointer input device, and may be used as the
+ X server's core pointer.
+-THIS MAN PAGE NEEDS TO BE FILLED IN.
+ .SH SUPPORTED HARDWARE
+-What is supported...
++This driver supports the Flair and A-Series tablets.
+ .SH CONFIGURATION DETAILS
+ Please refer to XF86Config(__filemansuffix__) for general configuration
+ details and for options that can be used with all input drivers.  This
+ section only covers configuration details specific to this driver.
+ .PP
+-Config details...
++.RS 8
++.TP 4
++.B Option \fI"Device"\fP \fI"path"\fP
++sets the path to the special file which represents serial line where
++the tablet is plugged. This option is mandatory.
++.TP 4
++.B Option \fI"Model"\fP \fI"Flair"|"A-Series"\fP
++selects the tablet model. Default is Flair.
++.TP 4
++.B Option \fI"Mode"\fP \fI"Relative"|"Absolute"\fP
++sets the mode of the device. Default is Absolute.
++.TP 4
++.B Option \fI"ReportSpeed"\fP \fI"2"|"10"|"85"|"120"\fP
++sets the report speed of the device. Default is 85.
++.TP 4
++.B Option \fI"ButtonMap"\fP \fI"Standard"|"Acecad"\fP
++sets the button mapping (only tested for the A-Series tablet). Standard mapping
++is similar to a standard mouse. Acecad mapping is an identity transformation;
++if you want the same button mapping as in Xfree86 version 3, use this option.
++Default is Standard.
+ .SH "SEE ALSO"
+ XFree86(1), XF86Config(__filemansuffix__), xf86config(1), Xserver(1), X(__miscmansuffix__).
+ .SH AUTHORS
+-Authors include...
+-Edouard TISSERANT
++.br
++Edouard Tisserant <edouard.tisserant@wanadoo.fr>, original driver for
++Flair tablet
++.br
++Carlo Vittoli <carlo@abila.it>, modifications for A-Series tablet
+--- XFree86-4.2.99.3/xc/programs/Xserver/hw/xfree86/input/acecad/acecad.h.acecad	2001-08-13 21:35:00.000000000 +0200
++++ XFree86-4.2.99.3/xc/programs/Xserver/hw/xfree86/input/acecad/acecad.h	2002-12-23 13:13:22.000000000 +0100
+@@ -1,7 +1,10 @@
+ /* 
+- * Copyright (c) 2001 Edouard TISSERANT <tissered@esstin.u-nancy.fr>
+- * Parts inspired from Shane Watts <shane@bofh.asn.au> Xfree 3 Acecad Driver
++ * Copyright (c) 2001 Edouard TISSERANT <edouard.tisserant@wanadoo.fr>
++ * Parts inspired from Shane Watts <shane@bofh.asn.au> XFree86 3 Acecad Driver
+  * Thanks to Emily, from AceCad, For giving me documents.
++ *
++ * Modified by Carlo Vittoli <carlo@abila.it> for compatibility with
++ * the A-Series tablet.
+  * 
+  * Permission is hereby granted, free of charge, to any person obtaining a
+  * copy of this software and associated documentation files (the "Software"),
+@@ -33,6 +36,8 @@
+  *		structs, typedefs, #defines, enums
+  *****************************************************************************/
+ #define ACECAD_PACKET_SIZE		7
++#define FLAIR_PACKET_SIZE		7
++#define A_SERIES_PACKET_SIZE		5
+ 
+ #define ACECAD_CONFIG		"a"		/* Send configuration (max coords) */
+ 
+@@ -81,6 +86,8 @@
+     int		flags;			/* various flags */
+     int		packeti;		/* number of bytes read */
+     int		PacketSize;		/* number of bytes read */
++    int         *buttonMap;             /* defines button mapping */
++    int         packet_size;            /* model-specific */
+     unsigned char packet[ACECAD_PACKET_SIZE];	/* data read on the device */
+ } AceCadPrivateRec, *AceCadPrivatePtr;
+ 
+--- XFree86-4.2.99.3/xc/programs/Xserver/hw/xfree86/input/acecad/acecad.c.acecad	2001-11-26 17:25:52.000000000 +0100
++++ XFree86-4.2.99.3/xc/programs/Xserver/hw/xfree86/input/acecad/acecad.c	2002-12-23 13:13:22.000000000 +0100
+@@ -1,7 +1,10 @@
+ /* 
+- * Copyright (c) 2001 Edouard TISSERANT <tissered@esstin.u-nancy.fr>
++ * Copyright (c) 2001 Edouard TISSERANT <edouard.tisserant@wanadoo.fr>
+  * Parts inspired from Shane Watts <shane@bofh.asn.au> XFree86 3 Acecad Driver
+  * Thanks to Emily, from AceCad, For giving me documents.
++ *
++ * Modified by Carlo Vittoli <carlo@abila.it> for compatibility with
++ * the A-Series tablet.
+  * 
+  * Permission is hereby granted, free of charge, to any person obtaining a
+  * copy of this software and associated documentation files (the "Software"),
+@@ -113,6 +116,11 @@
+ 
+ XF86ModuleData acecadModuleData = { &VersionRec, SetupProc, TearDownProc};
+ 
++/* AceCad buttons scheme as is */
++static int acecadButtonMap[8] = {0, 1, 2, 3, 4, 5, 6, 7};
++/* Maps to standard mouse scheme (at least for a1212) */
++static int standardButtonMap[8] = {0, 1, 4, 3, 2, 5, 6, 7};
++
+ /*****************************************************************************
+  *	Function Definitions
+  ****************************************************************************/
+@@ -205,6 +213,26 @@
+ 	}
+ 	xf86ErrorFVerb( 6, "tty port opened successfully\n" );
+ 
++        s = xf86FindOptionValue(local->options, "Model");
++        if (s && (xf86NameCmp(s, "Flair") == 0)) {
++                priv->packet_size = FLAIR_PACKET_SIZE;
++        }
++        else if (s && (xf86NameCmp(s, "A-Series") == 0)) {
++                priv->packet_size = A_SERIES_PACKET_SIZE;
++        }
++        else {
++                if (s) {
++                        xf86Msg(X_ERROR, "%s: invalid model (should be "
++                                "Flair or A-Series).\n",
++                                local->name);
++			goto SetupProc_fail;
++                }
++		/* this should work anyway */
++                priv->packet_size = FLAIR_PACKET_SIZE;
++        }
++        xf86Msg(X_CONFIG, "%s Tablet model is %s \n", local->name,
++		s ? s: "unspecified");
++
+ 	if(IsUSBLine(local->fd)){
+ 		priv->acecadUSB=1;
+ 
+@@ -243,7 +271,7 @@
+ 			xf86Msg(X_CONFIG, "Acecad Tablet: ReportSpeed possible values:\n 120, 85, 10, 2 \n");         
+ 		}
+ 
+-		xf86Msg(X_CONFIG, "Acecad Tablet report %d points/s\n", speed);         
++		xf86Msg(X_CONFIG, "Acecad Tablet reports %d points/s\n", speed);         
+ 
+ 		priv->buffer = XisbNew (local->fd, 200);
+ 
+@@ -270,6 +298,24 @@
+ 	xf86Msg(X_CONFIG, "Acecad Tablet is in %s mode\n",(priv->flags & ABSOLUTE_FLAG) ? "absolute" : "relative");         
+ 	DBG (9, XisbTrace (priv->buffer, 1));
+ 
++    	s = xf86FindOptionValue(local->options, "ButtonMap");
++	if (s && (xf86NameCmp(s, "AceCad") == 0)) {
++        	priv->buttonMap = acecadButtonMap;
++    	}
++	else if (s && (xf86NameCmp(s, "Standard") == 0)) {
++        	priv->buttonMap = standardButtonMap;
++	}
++	else {
++        	if (s) {
++            		xf86Msg(X_ERROR, "%s: invalid ButtonMap (should be "
++                                "AceCad or Standard). Using default.\n",
++				local->name);
++        	}
++        	priv->buttonMap = standardButtonMap;
++    	}
++    	xf86Msg(X_CONFIG, "%s Tablet is using %s button map\n", local->name,
++            	(xf86NameCmp(s, "AceCad") == 0) ? "AceCad" : "standard");
++
+ 	local->history_size = xf86SetIntOption(local->options , "HistorySize", 0);
+ 
+ 	xf86ProcessCommonOptions(local, local->options);
+@@ -314,8 +360,7 @@
+ 	switch (mode)
+ 	{
+ 	case DEVICE_INIT:
+-		DeviceInit (dev);
+-		RetValue = Success;
++		RetValue = DeviceInit (dev);
+ 		break;
+ 	case DEVICE_ON:
+ 		RetValue = DeviceOn( dev );
+--- XFree86-4.2.99.3/xc/programs/Xserver/hw/xfree86/input/acecad/Imakefile.acecad	2001-08-13 21:35:00.000000000 +0200
++++ XFree86-4.2.99.3/xc/programs/Xserver/hw/xfree86/input/acecad/Imakefile	2002-12-23 13:13:22.000000000 +0100
+@@ -3,6 +3,10 @@
+ #define IHaveModules
+ #include <Server.tmpl>
+ 
++#if HasLinuxInput
++DEFINES = -DLINUX_INPUT
++#endif
++
+ SRCS = acecad.c
+ OBJS = acecad.o
+ 

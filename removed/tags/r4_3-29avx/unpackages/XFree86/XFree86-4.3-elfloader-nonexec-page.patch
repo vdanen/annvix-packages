@@ -1,0 +1,29 @@
+--- XFree86-4.3/xc/programs/Xserver/hw/xfree86/loader/elfloader.c.elfloader-nonexec-page	2003-01-24 18:26:35.000000000 +0100
++++ XFree86-4.3/xc/programs/Xserver/hw/xfree86/loader/elfloader.c	2003-07-24 16:21:24.000000000 +0200
+@@ -32,7 +32,7 @@
+ # include <sys/fcntl.h>
+ #endif
+ #include <sys/stat.h>
+-#if defined(linux) && defined (__ia64__)
++#if defined(linux)
+ #include <sys/mman.h>
+ #endif
+ 
+@@ -893,7 +893,7 @@ int		maxalign;
+ 	    ErrorF( "ELFCreateGOT() Unable to reallocate memory!!!!\n" );
+ 	    return FALSE;
+ 	}
+-#   if defined(linux) && defined(__ia64__) || defined(__OpenBSD__)
++#   if defined(linux) || defined(__OpenBSD__)
+ 	{
+ 	    unsigned long page_size = getpagesize();
+ 	    unsigned long round;
+@@ -2754,7 +2754,7 @@ LOOKUP **ppLookup;
+ 	ErrorF( "Unable to allocate ELF sections\n" );
+ 	return NULL;
+     }
+-#  if defined(linux) && defined(__ia64__) || defined(__OpenBSD__)
++#  if defined(linux) || defined(__OpenBSD__)
+     {
+ 	unsigned long page_size = getpagesize();
+ 	unsigned long round;
