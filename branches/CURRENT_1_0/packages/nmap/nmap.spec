@@ -1,6 +1,6 @@
 %define name	nmap
-%define version	3.48
-%define release	4avx
+%define version	3.55
+%define release	1avx
 %define epoch	1
 
 Summary:	Network exploration tool and security scanner
@@ -30,12 +30,16 @@ more.
 %setup -q -n %{name}-%version
 
 %build
-%ifarch amd64 x86_64
+# update config.* to recognize amd64-*
+%{?__cputoolize: %{__cputoolize} -c libpcap-possiblymodified}
+%{?__cputoolize: %{__cputoolize} -c libpcre}
+%{?__cputoolize: %{__cputoolize} -c nsock/src}
+#%#ifarch amd64 x86_64
 # nmap doesn't like the amd64 build name
-CFLAGS="%{optflags}" ./configure --prefix=%{_prefix} --libdir=%{_libdir} --libexecdir=%{_libdir}
-%else
+#CFLAGS="%{optflags}" ./configure --prefix=%{_prefix} --libdir=%{_libdir} --libexecdir=%{_libdir}
+#%#else
 %configure2_5x
-%endif
+#%#endif
 %make 
 
 %install
@@ -57,6 +61,10 @@ CFLAGS="%{optflags}" ./configure --prefix=%{_prefix} --libdir=%{_libdir} --libex
 %{_mandir}/man1/nmap.*
 
 %changelog
+* Tue Aug 17 2004 Vincent Danen <vdanen@annvix.org> 3.55-1avx
+- 3.55
+- better fix to recognize x86_64
+
 * Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 3.48-4avx
 - Annvix build
 
