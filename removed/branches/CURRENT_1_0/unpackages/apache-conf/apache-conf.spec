@@ -1,3 +1,7 @@
+%define name	apache-conf
+%define version	2.0.48
+%define release	2sls
+
 # OE: conditional switches
 #(ie. use with rpm --rebuild):
 #	--with diet	Compile advxsplitlogfile against dietlibc
@@ -9,37 +13,21 @@
 # rpm -ba|--rebuild --with 'xxx'
 %{?_with_diet: %{expand: %%define build_diet 1}}
 
-#New ADVX macros
+# New ADVX macros
 %define ADVXdir %{_datadir}/ADVX
 %{expand:%(cat %{ADVXdir}/ADVX-build)}
 
-%define compat_dir /etc/httpd
-%define compat_conf /etc/httpd/conf
+%define compat_dir	/etc/httpd
+%define compat_conf	/etc/httpd/conf
 
 
 Summary:	Configuration files for Apache
-Name:		apache-conf
-Version:	2.0.48
-Release:	1mdk
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	Apache License
 Group:		System/Servers
 URL:		http://www.advx.org
-License:	Apache License
-BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
-BuildPreReq:	ADVX-build >= 9.2
-
-Requires:	lynx >= 2.8.5
-Provides:	apache2-conf
-Provides:	apache-conf = 1.3.28
-Provides:	ADVXpackage
-Provides:	AP20package
-#JMD: We have to do this here, since files have moved
-Obsoletes:	apache-common
-
-%if %{build_diet}
-BuildRequires:	dietlibc-devel >= 0.20-1mdk
-%endif
-
-PreReq:		rpm-helper
 Source0:	httpd.init.mandrake
 Source1:	httpd2.conf
 Source2:	httpd2-perl.conf
@@ -50,9 +38,7 @@ Source6:	commonhttpd.conf
 Source10:	Vhosts.conf
 Source11:	DynamicVhosts.conf
 Source12:	VirtualHomePages.conf
-
 Source14:	favicon.ico.bz2
-
 Source20:	index.shtml
 Source21:	mandrake.html
 Source22:	optim.html
@@ -61,15 +47,12 @@ Source24:	apacheicon.gif
 Source25:	medbutton.png
 Source26:	stamp.gif
 Source29:	ADVX-icons.tar.bz2
-
 Source30:	advxaddmod
 Source31:	advxdelmod
 Source32:	advxfixconf
 Source33:	advxlogserverstatus
 Source34:	advxsplitlogfile
-
 Source35:	advxsplitlogfile.c
-
 Source40:	advx-checkifmigrate
 Source41:	mod_ssl-migrate-20
 Source42:	advx-migrate-httpd.conf
@@ -77,15 +60,27 @@ Source43:	advx-migrate-httpd-perl.conf
 Source44:	advx-migrate-commonhttpd.conf
 Source45:	advx-migrate-vhosts.conf
 Source46:	advx-cleanremove
-
 Source51:	httpd.conf
 Source52:	httpd-perl.conf
-
 Source53:	ap13chkconfig
 Source54:	advxrun1.3
 Source55:	advxrun2.0
-
 Source99:	README.apache-conf
+
+BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
+BuildPreReq:	ADVX-build >= 9.2
+%if %{build_diet}
+BuildRequires:	dietlibc-devel >= 0.20-1mdk
+%endif
+
+Requires:	lynx >= 2.8.5
+Provides:	apache2-conf
+Provides:	apache-conf = 1.3.28
+Provides:	ADVXpackage
+Provides:	AP20package
+#JMD: We have to do this here, since files have moved
+Obsoletes:	apache-common
+PreReq:		rpm-helper
 
 %description
 This package contains configuration files for apache and 
@@ -314,6 +309,10 @@ fi
 %attr(1333,apache,apache) %dir /var/apache-mm
 
 %changelog
+* Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 2.0.48-2sls
+- OpenSLS build
+- tidy spec
+
 * Wed Oct 29 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.48-1mdk
 - 2.0.48
 - drop 8x support

@@ -1,13 +1,19 @@
-Name:		ADVX-build
-Version:	9.2
-Release:	2mdk
+%define name	ADVX-build
+%define version	9.2
+%define release	3sls
+
+Summary:	ADVX-build contains tools and macros to build ADVX
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
 Group:		System/Servers
 URL:		http://www.advx.org/devel/policy.php
-License:	GPL
-Summary:	ADVX-build contains tools and macros to build ADVX
+Source0:	ADVX-build.bz2
+
 BuildRoot:	%{_tmppath}/%{name}-root
 BuildArch:	noarch
-Source0:	ADVX-build.bz2
+
 Provides:	ADVXpackage
 
 %description
@@ -37,6 +43,10 @@ echo "See http://www.advx.org/devel.policy.php for more info" > \
 %doc %{_docdir}/%{name}-%{version}/*
 
 %changelog
+* Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 9.2-3sls
+- OpenSLS build
+- tidy spec
+
 * Mon Jul 21 2003 David Baudens <baudens@mandrakesoft.com> 9.2-2mdk
 - Rebuild to fix bad signature
 
