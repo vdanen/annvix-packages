@@ -1,0 +1,32 @@
+--- XFree86-4.2.99.3/xc/programs/Xserver/dix/window.c.fred	2002-12-26 11:36:41.000000000 +0100
++++ XFree86-4.2.99.3/xc/programs/Xserver/dix/window.c	2002-12-26 17:26:05.000000000 +0100
+@@ -307,6 +307,7 @@
+     WindowPtr pWin;
+ #endif
+ {
++#if 0
+     ScreenPtr pScreen = pWin->drawable.pScreen;
+     GCPtr pGC;
+     unsigned char back[128];
+@@ -348,6 +349,21 @@
+ 
+    FreeScratchGC(pGC);
+ 
++#else
++   {
++     /* Mandrake Linux specific: set our background color */
++     unsigned short 	red = 0x21 << 8, green = 0x44 << 8, blue = 0x9C << 8;
++     Pixel		pixel;
++     
++     AllocColor((ColormapPtr)SecurityLookupIDByType(wClient(pWin), pWin->optional->colormap,
++					      RT_COLORMAP, SecurityWriteAccess),
++		&red, &green, &blue, &pixel, wClient(pWin)->index);
++     ChangeWindowAttributes(pWin, CWBackPixel, &pixel, wClient(pWin));
++     (*pWin->drawable.pScreen->ClearToBackground)(pWin, 0, 0, 0, 0, 0);
++     
++     /* ErrorF("xf86CreateRootWindow() put background color %d\n", pixel); */
++   }
++#endif
+ }
+ 
+ WindowPtr
