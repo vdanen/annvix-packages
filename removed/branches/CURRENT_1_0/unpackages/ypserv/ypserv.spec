@@ -1,27 +1,32 @@
-%define initdir %{_initrddir}
+%define name	ypserv
+%define version	2.11
+%define release 1sls
 
 Summary:	The NIS (Network Information Service) server
-Url:		http://www.linux-nis.org/
-Name:		ypserv
-Version:	2.11
-Release:	1mdk
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
 License:	GPL
 Group:		System/Servers
+URL:		http://www.linux-nis.org/
 
 Source0:	ftp://ftp.kernel.org/pub/linux/utils/net/NIS/ypserv-%{PACKAGE_VERSION}.tar.bz2
-Source1:	ypserv-ypserv.init
-Source2:	ypserv-yppasswdd.init
-Source3:	ypserv-ypxfrd.init
-Source4:	ftp://ftp.kernel.org/pub/linux/utils/net/NIS/ypserv-%{PACKAGE_VERSION}.tar.bz2.sign
+Source1:	ftp://ftp.kernel.org/pub/linux/utils/net/NIS/ypserv-%{PACKAGE_VERSION}.tar.bz2.sign
+Source2:	ypserv.run
+Source3:	ypserv-log.run
+Source4:	rpc.yppasswdd.run
+Source5:	rpc.yppasswdd-log.run
+Source6:	rpc.ypxfrd.run
+Source7:	rpc.ypxfrd-log.run
 Patch0:		ypserv-2.10-makefile.patch.bz2
 Patch1: 	ypserv-2.1-syslog.patch.bz2
 Patch2: 	ypserv-2.11-path.patch.bz2
 Patch3:		ypserv-2.10-nomap.patch.bz2
 
 Buildroot:	%_tmppath/%name-%version-%release-root
-BuildRequires:	mawk, libgdbm-devel, libopenslp-devel
-Requires:	portmap, mawk, make
-Prereq:		/sbin/chkconfig, /sbin/service, rpm-helper
+BuildRequires:	libgdbm-devel, libopenslp-devel
+Requires:	portmap, make
+Prereq:		rpm-helper
 
 %description
 The Network Information Service (NIS) is a system which provides network
@@ -57,35 +62,33 @@ cp etc/README etc/README.etc
 %make
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall libexecdir=$RPM_BUILD_ROOT%{_libdir}/yp
 
-install -d %buildroot/%{initdir}
-install -m644 etc/ypserv.conf %buildroot/%{_sysconfdir}
-install -m755 %{SOURCE1} %buildroot/%{initdir}/ypserv
-install -m755 %{SOURCE2} %buildroot/%{initdir}/yppasswdd
-install -m755 %{SOURCE3} %buildroot/%{initdir}/ypxfrd
+mkdir -p %{buildroot}%{_sysconfdir}
+install -m644 etc/ypserv.conf %{buildroot}%{_sysconfdir}
 
-perl -pi -e "s|/etc/rc.d/init.d|%{_initrddir}|" %buildroot/%{_initrddir}/*
+mkdir -p %{buildroot}%{_srvdir}/{ypserv,rpc.yppasswdd,rpc.ypxfrd}/log
+mkdir -p %{buildroot}%{_srvlogdir}/{ypserv,rpc.yppasswdd,rpc.ypxfrd}
+install -m 0750 %{SOURCE2} %{buildroot}%{_srvdir}/ypserv/run
+install -m 0750 %{SOURCE3} %{buildroot}%{_srvdir}/ypserv/log/run
+install -m 0750 %{SOURCE4} %{buildroot}%{_srvdir}/rpc.yppasswdd/run
+install -m 0750 %{SOURCE5} %{buildroot}%{_srvdir}/rpc.yppasswdd/log/run
+install -m 0750 %{SOURCE6} %{buildroot}%{_srvdir}/rpc.ypxfrd/run
+install -m 0750 %{SOURCE7} %{buildroot}%{_srvdir}/rpc.ypxfrd/log/run
 
 %clean
-rm -fr %buildroot
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
-
-%_post_service ypserv
-
-%_post_service yppasswdd
-
-%_post_service ypxfrd
+%_post_srv ypserv
+%_post_srv rpc.yppasswdd
+%_post_srv rpc.ypxfrd
 
 %preun
-
-%_preun_service ypserv
-
-%_preun_service yppasswdd
- 
-%_preun_service ypxfrd
+%_preun_srv ypserv
+%_preun_srv rpc.yppasswdd
+%_preun_srv rpc.ypxfrd
  
 %files
 %defattr(-,root,root)
@@ -93,13 +96,33 @@ rm -fr %buildroot
 %doc etc/ypserv.conf etc/securenets etc/README.etc
 %config(noreplace) %{_sysconfdir}/ypserv.conf
 %config(noreplace) /var/yp/*
-%config(noreplace) %{initdir}/*
 %{_libdir}/yp
 %{_sbindir}/*
 %{_mandir}/*/*
 %{_includedir}/*/*
+%dir %{_srvdir}/ypserv
+%dir %{_srvdir}/ypserv/log
+%{_srvdir}/ypserv/run
+%{_srvdir}/ypserv/log/run
+%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/ypserv
+%dir %{_srvdir}/rpc.yppasswdd
+%dir %{_srvdir}/rpc.yppasswdd/log
+%{_srvdir}/rpc.yppasswdd/run
+%{_srvdir}/rpc.yppasswdd/log/run
+%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/rpc.yppasswdd
+%dir %{_srvdir}/rpc.ypxfrd
+%dir %{_srvdir}/rpc.ypxfrd/log
+%{_srvdir}/rpc.ypxfrd/run
+%{_srvdir}/rpc.ypxfrd/log/run
+%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/rpc.ypxfrd
 
 %changelog
+* Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 2.11-1sls
+- OpenSLS build
+- tidy spec
+- supervise scripts
+- remove BuildRequires: mawk
+
 * Tue Jan 20 2004 Frederic Lepied <flepied@mandrakesoft.com> 2.11-1mdk
 - 2.11: SLP support
 
