@@ -1,0 +1,43 @@
+--- unixODBC-2.2.3/DataManagerII/Makefile.am--	2003-01-07 11:55:58.000000000 +0100
++++ unixODBC-2.2.3/DataManagerII/Makefile.am	2003-01-07 11:57:21.000000000 +0100
+@@ -16,6 +16,8 @@ DataManagerII_DEPENDANCIES = \
+ 	../DriverManager/libodbc.la 
+ 
+ DataManagerII_SOURCES = \
++	qtmultilineedit.cpp \
++	qttableview.cpp \
+ 	classBrowse.cpp \
+ 	classBrowseFrame.cpp \
+ 	classCanvas.cpp \
+@@ -42,7 +44,9 @@ DataManagerII_SOURCES = \
+ 	mclassISQL.cpp \
+ 	mclassConnectionFrame.cpp \
+ 	mclassBrowseFrame.cpp \
+-	mclassBrowse.cpp 
++	mclassBrowse.cpp \
++	mqtmultilineedit.cpp \
++	mqttableview.cpp 
+ 
+ mclassDataManager.cpp: classDataManager.h
+ 	@MOC@ classDataManager.h -o mclassDataManager.cpp
+@@ -65,6 +69,12 @@ mclassBrowseFrame.cpp: classBrowseFrame.
+ mclassBrowse.cpp: classBrowse.h
+ 	@MOC@ classBrowse.h -o mclassBrowse.cpp
+ 
++mqttableview.cpp: qttableview.h
++	@MOC@ qttableview.h -o mqttableview.cpp
++
++mqtmultilineedit.cpp: qtmultilineedit.h
++	@MOC@ qtmultilineedit.h -o mqtmultilineedit.cpp
++
+ endif
+ 
+ EXTRA_DIST = \
+@@ -110,4 +120,6 @@ EXTRA_DIST = \
+ 	save.xpm \
+ 	table.xpm \
+ 	tables.xpm \
+-	ODBC.xpm
++	ODBC.xpm \
++	qtmultilineedit.h \
++	qttableview.h
