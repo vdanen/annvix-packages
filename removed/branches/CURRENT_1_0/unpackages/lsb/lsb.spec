@@ -2,6 +2,8 @@
 %define version	1.3
 %define release	8sls
 
+%{!?build_opensls:%global build_opensls 0}
+
 Summary:	The skeleton package defining packages needed for LSB compliance.
 Name:		%{name}
 Version:	%{version}
@@ -19,7 +21,10 @@ Provides:	lsb = %{version}
 Requires:	pax lsb-release make smtpdaemon ed glibc_lsb
 Requires:	XFree86-devel expect lpddaemon perl-DBI glibc-i18ndata
 Requires:	vim-enhanced diffutils file gettext chkconfig
-Requires:	mtools /etc/sgml csh
+Requires:	mtools csh
+%if !%{build_opensls}
+Requires:	/etc/sgml
+%endif
 
 %description
 The skeleton package defining packages needed for LSB compliance.
@@ -145,6 +150,8 @@ rm -rf $RPM_BUILD_ROOT
 * Tue Dec 30 2003 Vincent Danen <vdanen@opensls.org> 1.3-8sls
 - OpenSLS build
 - tidy spec
+- remove req on /etc/sgml as that would mean many many MB of junk to fill a
+  directory requirement
 
 * Mon Jul 28 2003 Stew Benedict <sbenedict@mandrakesoft.com> 1.3-7mdk
 - remove rwho requires
