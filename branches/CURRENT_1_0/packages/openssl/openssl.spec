@@ -1,11 +1,11 @@
 %define name	openssl
-%define version	0.9.7d
-%define release	3avx
+%define version	0.9.7e
+%define release	1avx
 
 %define maj		0.9.7
 %define libname 	%mklibname %name %maj
-%define libnamedev	%libname-devel
-%define libnamestatic	%libname-static-devel
+%define libnamedev	%{libname}-devel
+%define libnamestatic	%{libname}-static-devel
 
 Summary:	Secure Sockets Layer communications libs & utils
 Name:		%{name}
@@ -14,18 +14,19 @@ Release:	%{release}
 License:	BSD-like
 Group:		System/Libraries
 URL:		http://www.openssl.org/
-Source:		ftp://ftp.openssl.org/source/%{name}-%{version}.tar.bz2
+Source:		ftp://ftp.openssl.org/source/%{name}-%{version}.tar.gz
+Source1:	ftp://ftp.openssl.org/source/%{name}-%{version}.tar.gz.asc
 # (fg) 20010202 Patch from RH: some funcs now implemented with ia64 asm
 Patch1:		openssl-0.9.7-mdk-ia64-asm.patch.bz2
 # (gb) 0.9.7b-4mdk: Handle RPM_OPT_FLAGS in Configure
-Patch2:		openssl-0.9.7b-mdk-optflags.patch.bz2
+Patch2:		openssl-0.9.7e-mdk-optflags.patch.bz2
 # (gb) 0.9.7b-4mdk: Make it lib64 aware. TODO: detect in Configure
-Patch3:		openssl-0.9.7d-mdk-lib64.patch.bz2
+Patch3:		openssl-0.9.7e-mdk-lib64.patch.bz2
 Patch4:		openssl-0.9.7c-CAN-2004-0975.patch.bz2
 
-BuildRoot:	%_tmppath/%name-%version-root
+BuildRoot:	%{_tmppath}/%{name}-%{version}-root
 
-Requires:	%libname = %version-%release
+Requires:	%{libname} = %{version}-%{release}
 Requires:	perl
 
 %description
@@ -38,14 +39,14 @@ This product includes cryptographic software written by Eric Young
 (eay@cryptsoft.com).
 This product includes software written by Tim Hudson (tjh@cryptsoft.com).
 
-%package -n %libnamedev
+%package -n %{libnamedev}
 Summary:	Secure Sockets Layer communications static libs & headers & utils
 Group:		Development/Other
 Requires:	%{libname} = %{version}-%{release}
 Provides:	libopenssl-devel openssl-devel = %{version}-%{release}
 Obsoletes:	openssl-devel
 
-%description -n %libnamedev
+%description -n %{libnamedev}
 The static libraries and include files needed to compile apps with support
 for various cryptographic algorithms and protocols, including DES, RC4, RSA
 and SSL.
@@ -58,13 +59,13 @@ Patches for many networking apps can be found at:
 	ftp://ftp.psy.uq.oz.au/pub/Crypto/SSLapps/
 
 
-%package -n %libnamestatic
+%package -n %{libnamestatic}
 Summary:	Secure Sockets Layer communications static libs & headers & utils
 Group:		Development/Other
-Requires:	%libnamedev = %{version}-%{release}
+Requires:	%{libnamedev} = %{version}-%{release}
 Provides:	libopenssl-static-devel openssl-static-devel = %{version}-%{release}
 
-%description -n %libnamestatic
+%description -n %{libnamestatic}
 The static libraries and include files needed to compile apps with support
 for various cryptographic algorithms and protocols, including DES, RC4, RSA
 and SSL.
@@ -96,8 +97,8 @@ Patches for many networking apps can be found at:
 %prep
 %setup -q -n %{name}-%{version}
 %patch1 -p1 -b .ia64-asm
-%patch2 -p1 -b .optflags
-%patch3 -p1 -b .lib64
+%patch2 -p0 -b .optflags
+%patch3 -p0 -b .lib64
 %patch4 -p1 -b .can-2004-0975
 
 perl -pi -e "s,^(LIB=).+$,\1%{_lib}," Makefile.org
@@ -109,7 +110,7 @@ perl -pi -e "s,^(LIB=).+$,\1%{_lib}," Makefile.org
 # [stefan@eijk,nu] ditto for sparc/sparc64
 NO_ASM="no-asm"
 %endif
-sh config $NO_ASM --prefix=%_prefix --openssldir=%_libdir/ssl shared
+sh config $NO_ASM --prefix=%{_prefix} --openssldir=%{_libdir}/ssl shared
 make
 # All tests must pass
 export LD_LIBRARY_PATH=`pwd`${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
@@ -117,22 +118,22 @@ make test
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-%makeinstall INSTALL_PREFIX=$RPM_BUILD_ROOT MANDIR=%_mandir
+%makeinstall INSTALL_PREFIX=%{buildroot} MANDIR=%{_mandir}
 
-cp -aRf *.so* $RPM_BUILD_ROOT/%_libdir
-cp -aRf *.a $RPM_BUILD_ROOT/%_libdir
+cp -aRf *.so* %{buildroot}/%{_libdir}
+cp -aRf *.a %{buildroot}/%{_libdir}
 
 # openssl was named ssleay in "ancient" times.
-ln -sf openssl $RPM_BUILD_ROOT/%_bindir/ssleay
+ln -sf openssl %{buildroot}/%{_bindir}/ssleay
 
 # The man pages rand.3 and passwd.1 conflict with other packages
 # Rename them to ssl-* and also make a symlink from openssl-* to ssl-*
-mv $RPM_BUILD_ROOT/%_mandir/man1/passwd.1 $RPM_BUILD_ROOT/%_mandir/man1/ssl-passwd.1
-ln -sf ssl-passwd.1.bz2 $RPM_BUILD_ROOT/%_mandir/man1/openssl-passwd.1.bz2
+mv %{buildroot}/%{_mandir}/man1/passwd.1 %{buildroot}/%{_mandir}/man1/ssl-passwd.1
+ln -sf ssl-passwd.1.bz2 %{buildroot}/%{_mandir}/man1/openssl-passwd.1.bz2
 
 for i in rand err; do
-mv $RPM_BUILD_ROOT/%_mandir/man3/$i.3 $RPM_BUILD_ROOT/%_mandir/man3/ssl-$i.3
-ln -sf ssl-$i.3.bz2 $RPM_BUILD_ROOT/%_mandir/man3/openssl-$i.3.bz2
+    mv %{buildroot}/%{_mandir}/man3/$i.3 %{buildroot}/%{_mandir}/man3/ssl-$i.3
+    ln -sf ssl-$i.3.bz2 %{buildroot}/%{_mandir}/man3/openssl-$i.3.bz2
 done
 
 rm -rf {main,devel}-doc-info
@@ -165,37 +166,44 @@ rm -f %{buildroot}%{_mandir}/man7/Modes*
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post -n %{libname} -p /sbin/ldconfig
+
 %postun -n %{libname} -p /sbin/ldconfig
 
 %files 
 %defattr(-,root,root)
 %doc LICENSE CHANGES FAQ NEWS README
 %doc main-doc-info/README*
-%_bindir/*
-%dir %_libdir/ssl
-%_libdir/ssl/*
-%_mandir/man[157]/*
+%{_bindir}/*
+%dir %{_libdir}/ssl
+%{_libdir}/ssl/*
+%{_mandir}/man[157]/*
 
 %files -n %{libname}
 %defattr(-,root,root)
-%_libdir/lib*.so.*
+%{_libdir}/lib*.so.*
 
-%files -n %libnamedev
+%files -n %{libnamedev}
 %defattr(-,root,root)
 %doc doc/*
 %doc devel-doc-info/README*
-%dir %_includedir/openssl/
-%_includedir/openssl/*
-%_libdir/lib*.so
-%_mandir/man3/*
-%_libdir/pkgconfig/*
+%dir %{_includedir}/openssl/
+%{_includedir}/openssl/*
+%{_libdir}/lib*.so
+%{_mandir}/man3/*
+%{_libdir}/pkgconfig/*
 
-%files -n %libnamestatic
+%files -n %{libnamestatic}
 %defattr(-,root,root)
-%_libdir/lib*.a
+%{_libdir}/lib*.a
 
 
 %changelog
+* Sat Dec 04 2004 Vincent Danen <vdanen@annvix.org> 0.9.7d-3avx
+- 0.9.7e
+- use original sources and include gpg sig
+- updated P2 and P3 from mdk
+- spec cleanups
+
 * Sat Dec 04 2004 Vincent Danen <vdanen@annvix.org> 0.9.7d-3avx
 - P4: security fix for CAN-2004-0975
 
