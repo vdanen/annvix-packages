@@ -1,0 +1,576 @@
+# ncurses 5.3 - patch 20030105 - T.Dickey
+#
+# ------------------------------------------------------------------------------
+#
+# Ncurses 5.3 is at
+# 	ftp.gnu.org:/pub/gnu
+#
+# Patches for ncurses 5.3 are in the subdirectory
+# 	ftp://dickey.his.com/ncurses/5.3
+#
+# ------------------------------------------------------------------------------
+# NEWS                     |   19 +++++++
+# dist.mk                  |    4 -
+# man/MKterminfo.sh        |    6 +-
+# man/form_fieldtype.3x    |   27 ++++++-----
+# man/terminfo.tail        |  107 ++++++++++++++++++++++++++++++---------------
+# ncurses/curses.priv.h    |    4 -
+# ncurses/tty/tty_update.c |   62 +++++++++++++++-----------
+# test/ncurses.c           |   81 +++++++++++++++++++++++++++++++++-
+# 8 files changed, 231 insertions(+), 79 deletions(-)
+# ------------------------------------------------------------------------------
+Index: NEWS
+Prereq:  1.726 
+--- ncurses-5.3-20021231+/NEWS	Tue Dec 31 06:54:37 2002
++++ ncurses-5.3-20030105/NEWS	Sun Jan  5 18:49:26 2003
+@@ -1,10 +1,28 @@
+--- $Id: NEWS,v 1.726 2002/12/31 11:54:37 tom Exp $
++-- $Id: NEWS,v 1.727 2003/01/05 23:49:26 tom Exp $
+ 
+ This is a log of changes that ncurses has gone through since Zeyd started
+ working with Pavel Curtis' original work, pcurses, in 1992.
+ 
+ Changes through 1.9.9e are recorded by Zeyd M. Ben-Halim.
+ Changes since 1.9.9e are recorded by Thomas Dickey.
++
++20030105
++	+ improve description of terminfo operators, especially static/dynamic
++	  variables (discussion with Mark I Manning IV <mark4th@earthlink.net>).
++	+ demonstrate use of FIELDTYPE by modifying test/ncurses 'r' test to
++	  use the predefined TYPE_ALPHA field-type, and by defining a
++	  specialized type for the middle initial/name.
++	+ fix MKterminfo.sh, workaround for POSIXLY_CORRECT misfeature of sed 4.0
++	> Philippe Blain:
++	+ optimize can_clear_with() a little by testing first if the parameter
++	  is indeed a "blank".
++	+ simplify ClrBottom() a little by allowing it to use clr_eos to clear
++	  sections as small as one line.
++	+ improve ClrToEOL() by checking if clr_eos is available before trying
++	  to use it.
++	+ use tputs() rather than putp() in a few cases in tty_update.c since
++	  the corresponding delays are proportional to the number of lines
++	  affected: repeat_char, clr_eos, change_scroll_region.
+ 
+ 20021231
+ 	+ rewrite of lib_acs.c conflicts with copying of SCREEN acs_map to/from
+Index: dist.mk
+Prereq:  1.340 
+--- ncurses-5.3-20021231+/dist.mk	Tue Dec 31 06:22:07 2002
++++ ncurses-5.3-20030105/dist.mk	Sun Jan  5 12:00:21 2003
+@@ -1,4 +1,4 @@
+-# $Id: dist.mk,v 1.340 2002/12/31 11:22:07 tom Exp $
++# $Id: dist.mk,v 1.341 2003/01/05 17:00:21 tom Exp $
+ # Makefile for creating ncurses distributions.
+ #
+ # This only needs to be used directly as a makefile by developers, but
+@@ -10,7 +10,7 @@
+ # These define the major/minor/patch versions of ncurses.
+ NCURSES_MAJOR = 5
+ NCURSES_MINOR = 3
+-NCURSES_PATCH = 20021231
++NCURSES_PATCH = 20030105
+ 
+ # We don't append the patch to the version, since this only applies to releases
+ VERSION = $(NCURSES_MAJOR).$(NCURSES_MINOR)
+Index: man/MKterminfo.sh
+Prereq:  1.10 
+--- ncurses-5.3-20021231+/man/MKterminfo.sh	Sat Jun 29 16:04:28 2002
++++ ncurses-5.3-20030105/man/MKterminfo.sh	Sun Jan  5 15:23:39 2003
+@@ -1,10 +1,10 @@
+ #!/bin/sh
+-# $Id: MKterminfo.sh,v 1.10 2002/06/29 20:04:28 tom Exp $
++# $Id: MKterminfo.sh,v 1.11 2003/01/05 20:23:39 tom Exp $
+ #
+ # MKterminfo.sh -- generate terminfo.5 from Caps tabular data
+ #
+ #***************************************************************************
+-# Copyright (c) 1998,2000,2001 Free Software Foundation, Inc.              *
++# Copyright (c) 1998,2002,2003 Free Software Foundation, Inc.              *
+ #                                                                          *
+ # Permission is hereby granted, free of charge, to any person obtaining a  *
+ # copy of this software and associated documentation files (the            *
+@@ -69,7 +69,7 @@
+ 
+ sed -n <$caps "\
+ /%%-STOP-HERE-%%/q
+-/^#%/s///p
++/^#%/s/#%//p
+ /^#/d
+ s/[	]\+/	/g
+ s/$/T}/
+Index: man/form_fieldtype.3x
+Prereq:  1.9 
+--- ncurses-5.3-20021231+/man/form_fieldtype.3x	Sat Aug  4 16:36:25 2001
++++ ncurses-5.3-20030105/man/form_fieldtype.3x	Sun Jan  5 16:05:54 2003
+@@ -1,6 +1,6 @@
+ '\" t
+ .\"***************************************************************************
+-.\" Copyright (c) 1998,2000,2001 Free Software Foundation, Inc.              *
++.\" Copyright (c) 1998-2001,2003 Free Software Foundation, Inc.              *
+ .\"                                                                          *
+ .\" Permission is hereby granted, free of charge, to any person obtaining a  *
+ .\" copy of this software and associated documentation files (the            *
+@@ -27,7 +27,7 @@
+ .\" authorization.                                                           *
+ .\"***************************************************************************
+ .\"
+-.\" $Id: form_fieldtype.3x,v 1.9 2001/08/04 20:36:25 William.Setzer Exp $
++.\" $Id: form_fieldtype.3x,v 1.10 2003/01/05 21:05:54 tom Exp $
+ .TH form_fieldtype 3X ""
+ .SH NAME
+ \fBform_fieldtype\fR - define validation-field types
+@@ -69,22 +69,27 @@
+ The function \fBfree_fieldtype\fR frees the space allocated for a given
+ validation type.
+ 
+-The function \fBset_fieldtype\fR associates three storage-management functions
+-with a field type.  The \fImak_arg\fR function is automatically applied to the
++The function \fBset_fieldtype_arg\fR associates three storage-management functions
++with a field type.
++The \fImake_arg\fR function is automatically applied to the
+ list of arguments you give \fBset_field_type\fR when attaching validation
+ to a field; its job is to bundle these into an allocated argument-block
+-object which can later be passed to validation predicated.  The other two
+-hook arguments should copy and free argument-block structures.  They will
+-be used by the forms-driver code. You must supply the \fImak_arg\fR function,
+-the other two are optional, you may supply NULL for them. In this case it
+-is assumed, that \fImak_arg\fR doesn't allocate memory but simply loads the
++object which can later be passed to validation predicated.
++The other two hook arguments should copy and free argument-block structures.
++They will be used by the forms-driver code.
++You must supply the \fImake_arg\fR function,
++the other two are optional, you may supply NULL for them.
++In this case it is assumed
++that \fImake_arg\fR does not allocate memory but simply loads the
+ argument into a single scalar value.
+ 
+ The form driver requests \fBREQ_NEXT_CHOICE\fR and \fBREQ_PREV_CHOICE\fR assume
+ that the possible values of a field form an ordered set, and provide the forms
+-user with a way to move through the set.  The \fBset_fieldtype_choice\fR
++user with a way to move through the set.
++The \fBset_fieldtype_choice\fR
+ function allows forms programmers to define successor and predecessor functions
+-for the field type.  These functions take the field pointer and an
++for the field type.
++These functions take the field pointer and an
+ argument-block structure as arguments.
+ .SH RETURN VALUE
+ The pointer-valued routines return NULL on error.
+Index: man/terminfo.tail
+Prereq:  1.36 
+--- ncurses-5.3-20021231+/man/terminfo.tail	Sat Oct 26 14:50:12 2002
++++ ncurses-5.3-20030105/man/terminfo.tail	Sun Jan  5 17:47:05 2003
+@@ -1,4 +1,4 @@
+-.\" $Id: terminfo.tail,v 1.36 2002/10/26 18:50:12 tom Exp $
++.\" $Id: terminfo.tail,v 1.38 2003/01/05 22:47:05 tom Exp $
+ .\" Beginning of terminfo.tail file
+ .ps +1
+ .PP
+@@ -311,42 +311,81 @@
+ to manipulate it.
+ Typically a sequence will push one of the
+ parameters onto the stack and then print it in some format.
+-Often more complex operations are necessary.
++Print (e.g., "%d") is a special case.
++Other operations, including "%t" pop their operand from the stack.
++It is noted that more complex operations are often necessary,
++e.g., in the \fBsgr\fP string.
+ .PP
+ The \fB%\fR encodings have the following meanings:
+ .PP
+-.DT
+-.nf
+-.ta .5i 1.5i
+-	\s-1%%	outputs `%'
+-	%\fI[[\fP:\fI]flags][width[.precision]][\fPdoxXs\fI]\fP
+-		as in \fBprintf\fP, flags are [-+#] and space
+-	%c	print pop() like %c in printf()
+-	%s	print pop() like %s in printf()
+-
+-	%p[1-9]	push \fIi\fP'th parm
+-	%P[a-z]	set dynamic variable [a-z] to pop()
+-	%g[a-z]	get dynamic variable [a-z] and push it
+-	%P[A-Z]	set static variable [a-z] to pop()
+-	%g[A-Z]	get static variable [a-z] and push it
+-	%'\fIc\fP'	char constant \fIc\fP
+-	%{\fInn\fP}	integer constant \fInn\fP
+-	%l	push strlen(pop)
+-
+-	%+ %- %* %/ %m
+-		arithmetic (%m is mod): push(pop() op pop())
+-	%& %| %^	bit operations: push(pop() op pop())
+-	%= %> %<	logical operations: push(pop() op pop())
+-	%A, %O	logical and & or operations (for conditionals)
+-	%! %~	unary operations push(op pop())
+-	%i	add 1 to first two parameters (for ANSI terminals)
+-
+-	%? expr %t thenpart %e elsepart %;
+-		if-then-else, %e elsepart is optional.
+-		else-if's are possible a la Algol 68:
+-		%? c\d1\u %t b\d1\u %e c\d2\u %t b\d2\u %e c\d3\u %t b\d3\u %e c\d4\u %t b\d4\u %e %;
+-\s+1		c\di\u are conditions, b\di\u are bodies.
+-.fi
++.TP 5
++\s-1%%
++outputs `%'
++.TP
++%\fI[[\fP:\fI]flags][width[.precision]][\fPdoxXs\fI]\fP
++as in \fBprintf\fP, flags are [-+#] and space
++.TP
++%c
++print pop() like %c in \fBprintf\fP
++.TP
++%s
++print pop() like %s in \fBprintf\fP
++.TP
++%p[1-9]
++push \fIi\fP'th parameter
++.TP
++%P[a-z]
++set dynamic variable [a-z] to pop()
++.TP
++%g[a-z]
++get dynamic variable [a-z] and push it
++.TP
++%P[A-Z]
++set static variable [a-z] to pop()
++.TP
++%g[A-Z]
++get static variable [a-z] and push it
++.IP
++The terms "static" and "dynamic" are misleading.
++Historically, these are simply two different sets of variables,
++whose values are not reset between calls to \fBtparm\fP.
++However, that fact is not documented in other implementations.
++Relying on it will adversely impact portability to other implementations.
++.TP
++%'\fIc\fP'
++char constant \fIc\fP
++.TP
++%{\fInn\fP}
++integer constant \fInn\fP
++.TP
++%l
++push strlen(pop)
++.TP
++%+ %- %* %/ %m
++arithmetic (%m is mod): push(pop() op pop())
++.TP
++%& %| %^
++bit operations: push(pop() op pop())
++.TP
++%= %> %<
++logical operations: push(pop() op pop())
++.TP
++%A, %O
++logical and & or operations (for conditionals)
++.TP
++%! %~
++unary operations push(op pop())
++.TP
++%i
++add 1 to first two parameters (for ANSI terminals)
++.TP
++%? \fIexpr\fP %t \fIthenpart\fP %e \fIelsepart\fP %;
++if-then-else, %e \fIelsepart\fP is optional.
++else-if's are possible a la Algol 68:
++.br
++%? c\d1\u %t b\d1\u %e c\d2\u %t b\d2\u %e c\d3\u %t b\d3\u %e c\d4\u %t b\d4\u %e %;
++.br
++c\di\u are conditions, b\di\u are bodies.
+ .PP
+ Binary operations are in postfix form with the operands in the usual order.
+ That is, to get x-5 one would use "%gx%{5}%-".
+Index: ncurses/curses.priv.h
+Prereq:  1.234 
+--- ncurses-5.3-20021231+/ncurses/curses.priv.h	Sat Dec 28 15:11:24 2002
++++ ncurses-5.3-20030105/ncurses/curses.priv.h	Sun Jan  5 18:42:10 2003
+@@ -34,7 +34,7 @@
+ 
+ 
+ /*
+- * $Id: curses.priv.h,v 1.234 2002/12/28 20:11:24 tom Exp $
++ * $Id: curses.priv.h,v 1.235 2003/01/05 23:42:10 tom Exp $
+  *
+  *	curses.priv.h
+  *
+@@ -750,7 +750,7 @@
+ 
+ #define ALL_BUT_COLOR ((chtype)~(A_COLOR))
+ #define IGNORE_COLOR_OFF FALSE
+-#define NONBLANK_ATTR (A_BOLD|A_DIM|A_BLINK)
++#define NONBLANK_ATTR (A_NORMAL|A_BOLD|A_DIM|A_BLINK)
+ #define XMC_CHANGES(c) ((c) & SP->_xmc_suppress)
+ 
+ #define toggle_attr_on(S,at) {\
+Index: ncurses/tty/tty_update.c
+Prereq:  1.187 
+--- ncurses-5.3-20021231+/ncurses/tty/tty_update.c	Tue Dec 31 09:37:14 2002
++++ ncurses-5.3-20030105/ncurses/tty/tty_update.c	Sun Jan  5 18:55:00 2003
+@@ -1,5 +1,5 @@
+ /****************************************************************************
+- * Copyright (c) 1998-2001,2002 Free Software Foundation, Inc.              *
++ * Copyright (c) 1998-2002,2003 Free Software Foundation, Inc.              *
+  *                                                                          *
+  * Permission is hereby granted, free of charge, to any person obtaining a  *
+  * copy of this software and associated documentation files (the            *
+@@ -73,7 +73,7 @@
+ 
+ #include <term.h>
+ 
+-MODULE_ID("$Id: tty_update.c,v 1.187 2002/12/31 14:37:14 tom Exp $")
++MODULE_ID("$Id: tty_update.c,v 1.192 2003/01/05 23:55:00 tom Exp $")
+ 
+ /*
+  * This define controls the line-breakout optimization.  Every once in a
+@@ -393,25 +393,29 @@
+ static inline bool
+ can_clear_with(ARG_CH_T ch)
+ {
+-    if (!back_color_erase && SP->_coloron) {
++    if (ISBLANK(CHDEREF(ch))) {
++	/* Tests for bce, non-bce terminals */
++	if (!back_color_erase && SP->_coloron) {
+ #if NCURSES_EXT_FUNCS
+-	if (!SP->_default_color)
+-	    return FALSE;
+-	if (SP->_default_fg != C_MASK || SP->_default_bg != C_MASK)
+-	    return FALSE;
+-	if (AttrOfD(ch) & A_COLOR) {
+-	    short fg, bg;
+-	    pair_content(PAIR_NUMBER(AttrOfD(ch)), &fg, &bg);
+-	    if (fg != C_MASK || bg != C_MASK)
++	    if (!SP->_default_color)
+ 		return FALSE;
+-	}
++	    if (SP->_default_fg != C_MASK || SP->_default_bg != C_MASK)
++		return FALSE;
++	    if (AttrOfD(ch) & A_COLOR) {
++		short fg, bg;
++		pair_content(PAIR_NUMBER(AttrOfD(ch)), &fg, &bg);
++		if (fg != C_MASK || bg != C_MASK)
++		    return FALSE;
++	    }
+ #else
+-	if (AttrOfD(ch) & A_COLOR)
+-	    return FALSE;
++	    if (AttrOfD(ch) & A_COLOR)
++		return FALSE;
+ #endif
++	}
++	if ((AttrOfD(ch) & ~(NONBLANK_ATTR | A_COLOR)) != 0)
++	    return TRUE;
+     }
+-    return (ISBLANK(CHDEREF(ch)) &&
+-	    (AttrOfD(ch) & ~(NONBLANK_ATTR | A_COLOR)) == BLANK_ATTR);
++    return FALSE;
+ }
+ 
+ /*
+@@ -483,7 +487,8 @@
+ 		    rep_count--;
+ 
+ 		UpdateAttrs(AttrOf(ntext0));
+-		putp(tparm(repeat_char, CharOf(ntext0), rep_count));
++		tputs(tparm(repeat_char, CharOf(ntext0), rep_count),
++		      rep_count, _nc_outch);
+ 		SP->_curscol += rep_count;
+ 
+ 		if (wrap_possible)
+@@ -915,12 +920,12 @@
+     if (needclear) {
+ 	UpdateAttrs(AttrOf(blank));
+ 	TPUTS_TRACE("clr_eol");
+-	if (SP->_el_cost > (screen_columns - SP->_curscol)) {
++	if (clr_eol && SP->_el_cost <= (screen_columns - SP->_curscol)) {
++	    putp(clr_eol);
++	} else {
+ 	    int count = (screen_columns - SP->_curscol);
+ 	    while (count-- > 0)
+ 		PutChar(CHREF(blank));
+-	} else {
+-	    putp(clr_eol);
+ 	}
+     }
+ }
+@@ -986,17 +991,16 @@
+ 	}
+ 
+ 	/* don't use clr_eos for just one line if clr_eol available */
+-	if (top < total - 1 || (top < total && !clr_eol && !clr_bol)) {
++	if (top < total) {
+ 	    GoTo(top, 0);
+ 	    ClrToEOS(blank);
+-	    total = top;
+ 	    if (SP->oldhash && SP->newhash) {
+ 		for (row = top; row < screen_lines; row++)
+ 		    SP->oldhash[row] = SP->newhash[row];
+ 	    }
+ 	}
+     }
+-    return total;
++    return top;
+ }
+ 
+ #if USE_XMC_SUPPORT
+@@ -1341,7 +1345,7 @@
+ 
+ 	    UpdateAttrs(AttrOf(blank));
+ 	    TPUTS_TRACE("clr_eos");
+-	    putp(clr_eos);
++	    tputs(clr_eos, screen_lines, _nc_outch);
+ 	} else if (clr_eol) {
+ 	    SP->_cursrow = SP->_curscol = -1;
+ 
+@@ -1652,6 +1656,14 @@
+     return OK;
+ }
+ 
++/*
++ * Note:  some terminals require the cursor to be within the scrolling margins
++ * before setting them.  Generally, the cursor must be at the appropriate end
++ * of the scrolling margins when issuing an indexing operation (it is not
++ * apparent whether it must also be at the left margin; we do this just to be
++ * safe).  To make the related cursor movement a little faster, we use the
++ * save/restore cursor capabilities if the terminal has them.
++ */
+ NCURSES_EXPORT(int)
+ _nc_scrolln(int n, int top, int bot, int maxy)
+ /* scroll region from top to bot by n lines */
+@@ -1688,7 +1700,7 @@
+ 		putp(save_cursor);
+ 	    }
+ 	    TPUTS_TRACE("change_scroll_region");
+-	    tputs(tparm(change_scroll_region, top, bot), bot + 1 - top, _nc_outch);
++	    putp(tparm(change_scroll_region, top, bot));
+ 	    if (cursor_saved) {
+ 		TPUTS_TRACE("restore_cursor");
+ 		putp(restore_cursor);
+Index: test/ncurses.c
+Prereq:  1.181 
+--- ncurses-5.3-20021231+/test/ncurses.c	Sat Oct 19 18:12:02 2002
++++ ncurses-5.3-20030105/test/ncurses.c	Sun Jan  5 16:59:54 2003
+@@ -1,5 +1,5 @@
+ /****************************************************************************
+- * Copyright (c) 1998-2001,2002 Free Software Foundation, Inc.              *
++ * Copyright (c) 1998-2002,2003 Free Software Foundation, Inc.              *
+  *                                                                          *
+  * Permission is hereby granted, free of charge, to any person obtaining a  *
+  * copy of this software and associated documentation files (the            *
+@@ -40,7 +40,7 @@
+    Author: Eric S. Raymond <esr@snark.thyrsus.com> 1993
+            Thomas E. Dickey (beginning revision 1.27 in 1996).
+ 
+-$Id: ncurses.c,v 1.181 2002/10/19 22:12:02 tom Exp $
++$Id: ncurses.c,v 1.183 2003/01/05 21:59:54 tom Exp $
+ 
+ ***************************************************************************/
+ 
+@@ -3743,12 +3743,80 @@
+     }
+ }
+ 
++/*
++ * Allow a middle initial, optionally with a '.' to end it.
++ */
++static bool
++mi_field_check(FIELD *fld, const void *data GCC_UNUSED)
++{
++    char *s = field_buffer(fld, 0);
++    int state = 0;
++    int n;
++
++    for (n = 0; s[n] != '\0'; ++n) {
++	switch (state) {
++	case 0:
++	    if (s[n] == '.') {
++		if (n != 1)
++		    return FALSE;
++		state = 2;
++	    } else if (isspace(s[n])) {
++		state = 2;
++	    }
++	    break;
++	case 2:
++	    if (!isspace(s[n]))
++		return FALSE;
++	    break;
++	}
++    }
++
++    /* force the form to display a leading capital */
++    if (islower(s[0])) {
++	s[0] = toupper(s[0]);
++	set_field_buffer(fld, 0, s);
++    }
++    return TRUE;
++}
++
++static bool
++mi_char_check(int ch, const void *data GCC_UNUSED)
++{
++  return ((isalpha(ch) || ch == '.') ? TRUE : FALSE);
++}
++
++/*
++ * Passwords should be at least 6 characters.
++ */
++static bool
++pw_field_check(FIELD *fld, const void *data GCC_UNUSED)
++{
++    char *s = field_buffer(fld, 0);
++    int n;
++
++    for (n = 0; s[n] != '\0'; ++n) {
++	if (isspace(s[n])) {
++	    if (n < 6)
++		return FALSE;
++	}
++    }
++    return TRUE;
++}
++
++static bool
++pw_char_check(int ch, const void *data GCC_UNUSED)
++{
++  return (isgraph(ch) ? TRUE : FALSE);
++}
++
+ static void
+ demo_forms(void)
+ {
+     WINDOW *w;
+     FORM *form;
+     FIELD *f[12], *secure;
++    FIELDTYPE *fty_middle = new_fieldtype(mi_field_check, mi_char_check);
++    FIELDTYPE *fty_passwd = new_fieldtype(pw_field_check, pw_char_check);
+     int finished = 0, c;
+     unsigned n = 0;
+ 
+@@ -3771,17 +3839,26 @@
+ 
+     /* describe the form */
+     f[n++] = make_label(0, 15, "Sample Form");
++
+     f[n++] = make_label(2, 0, "Last Name");
+     f[n++] = make_field(3, 0, 1, 18, FALSE);
++    set_field_type(f[n-1], TYPE_ALPHA, 1);
++
+     f[n++] = make_label(2, 20, "First Name");
+     f[n++] = make_field(3, 20, 1, 12, FALSE);
++    set_field_type(f[n-1], TYPE_ALPHA, 1);
++
+     f[n++] = make_label(2, 34, "Middle Name");
+     f[n++] = make_field(3, 34, 1, 12, FALSE);
++    set_field_type(f[n-1], fty_middle);
++
+     f[n++] = make_label(5, 0, "Comments");
+     f[n++] = make_field(6, 0, 4, 46, FALSE);
++
+     f[n++] = make_label(5, 20, "Password:");
+     secure =
+ 	f[n++] = make_field(5, 30, 1, 9, TRUE);
++    set_field_type(f[n-1], fty_passwd);
+     f[n++] = (FIELD *) 0;
+ 
+     form = new_form(f);
