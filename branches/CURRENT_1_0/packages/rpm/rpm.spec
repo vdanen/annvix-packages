@@ -3,14 +3,25 @@
 %define poptver		1.8.3
 # You need increase both release and poptrelease
 %define poptrelease	%{release}
-%define release		1avx
+%define release		2avx
 
 %define libver		4.2
 %define url		ftp://ftp.rpm.org/pub/rpm/dist/rpm-4.0.x
 %define pyver		%(python -V 2>&1 | cut -f2 -d" " | cut -f1,2 -d".")
 %define lib64arches	x86_64 ppc64
+
+# define biarch platforms
 # XXX merge with lib64arches when fully tested
 %define biarches x86_64
+%ifarch x86_64
+%define alt_arch	i386
+%endif
+%ifarch ppc64
+%define alt_arch	ppc
+%endif
+%ifarch sparc64
+%define alt_arch	sparc
+%endif
 
 # %define __find_requires %{buildroot}%{rpmdir}/find-requires %{?buildroot:%{buildroot}} %{?_target_cpu:%{_target_cpu}}
 %define __find_provides %{buildroot}%{rpmdir}/find-provides
@@ -91,7 +102,7 @@ Patch51:	rpm-4.2-rpmal-fix-crash.patch.bz2
 # (vdanen) use stack protection by default
 Patch52:	rpm-4.2.3-stackmacros.patch.bz2
 Patch53:	rpm-4.2-unpackaged-links.patch.bz2
-Patch54:	rpm-4.2.2-avx-annvix-conf.patch.bz2
+Patch54:	rpm-4.2.3-avx-annvix-conf.patch.bz2
 Patch55:	rpm-4.2.2-file.patch.bz2
 Patch56:	rpm-4.2.2-enable-typo.patch.bz2
 Patch57:	rpm-4.2.2-db_private.patch.bz2
@@ -126,6 +137,7 @@ Requires:	popt = %{poptver}-%{poptrelease}
 Requires:	setup >= 2.2.0-8mdk
 Requires:	unzip
 Requires:	elfutils
+Requires:	multiarch-utils >= 1.0.7
 Conflicts:	patch < 2.5
 Conflicts:	menu < 2.1.5-29mdk
 Conflicts:	locales < 2.3.1.1
@@ -248,7 +260,7 @@ capabilities.
 #%patch16 -p1 -b .python2.1
 
 %patch17 -p1 -b .improved
-%patch18 -p1 -b .langvar
+#%patch18 -p1 -b .langvar
 #%patch20 -p1
 %patch22 -p1 -b .dontfail
 
@@ -324,14 +336,28 @@ for d in elfutils beecrypt zlib; do
 done
 
 %build
+# First build 32-bit popt libraries
+# XXX we could libify and mklibname'ize popt but popt is small and
+# since we already made rpm-build biarch capable, making popt biarch
+# too doesn't seem unreasonable. You decide Fred. ;-)
+%ifarch %{biarches}
+mkdir -p popt/build-%{alt_arch}-linux
+pushd popt/build-%{alt_arch}-linux
+CC="gcc -m32" ../configure %{alt_arch}-annvix-linux-gnu --build=%{_target_platform} --prefix=%{_prefix}
+%make
+ln -s ../mkinstalldirs .
+popd
+%endif
+
 # NOTE: Don't add libdir specification here as rpm data files really
 # have to go to /usr/lib/rpm and we support only one rpm program per
 # architecture
-# (vdanen): don't build rpm with stack protection on x86_64 (TO FIX)
+# (vdanen): don't build rpm with stack protection on any platforms until
+# we move the symbols from gcc to glibc
 %ifarch x86_64 amd64
 CPPFLAGS="-I/usr/include/libelf" CFLAGS="$RPM_OPT_FLAGS -fno-stack-protector" CXXFLAGS="$RPM_OPT_FLAGS -fno-stack-protector" ./configure --prefix=%{_prefix} --sysconfdir=%{_sysconfdir} --localstatedir=/var --mandir=%{_datadir}/man --infodir=%{_datadir}/info --enable-nls --without-javaglue --disable-posixmutexes --with-python=%{pyver}
 %else
-CPPFLAGS="-I/usr/include/libelf" CFLAGS="$RPM_OPT_FLAGS" CXXFLAGS="$RPM_OPT_FLAGS" ./configure --prefix=%{_prefix} --sysconfdir=%{_sysconfdir} --localstatedir=/var --mandir=%{_datadir}/man --infodir=%{_datadir}/info --enable-nls --without-javaglue --disable-posixmutexes --with-python=%{pyver} --with-glob
+CPPFLAGS="-I/usr/include/libelf" CFLAGS="$RPM_OPT_FLAGS -fno-stack-protector" CXXFLAGS="$RPM_OPT_FLAGS -fno-stack-protector" ./configure --prefix=%{_prefix} --sysconfdir=%{_sysconfdir} --localstatedir=/var --mandir=%{_datadir}/man --infodir=%{_datadir}/info --enable-nls --without-javaglue --disable-posixmutexes --with-python=%{pyver} --with-glob
 %endif
 # Allow parallel build
 perl -p -i -e 's/conftest\.s/conftest\$\$.s/' config.status
@@ -365,17 +391,22 @@ mkdir -p %{buildroot}%{_prefix}/src/RPM/RPMS/{amd64,x86_64}
 %endif
 mkdir -p %{buildroot}%{_prefix}/src/RPM/RPMS/noarch
 
+%ifarch %{biarches}
+make DESTDIR="%{buildroot}" install-usrlibLTLIBRARIES -C popt/build-%{alt_arch}-linux
+
+mkdir -p %{buildroot}/lib
+mv %{buildroot}%{_prefix}/lib/libpopt.so.* %{buildroot}/lib/
+ln -s ../../lib/libpopt.so.0 %{buildroot}%{_prefix}/lib/libpopt.so.0
+ln -sf libpopt.so.0 %{buildroot}%{_prefix}/lib/libpopt.so
+%endif
+
 make DESTDIR="%{buildroot}" install
 
 make DESTDIR="%{buildroot}" PYVER=%{pyver} -C python install
 
 %ifarch %{biarches}
-case %{_arch} in
-    x86_64)  ARCH32=i386;;
-    *)       exit 1;;
-esac
 for f in platform macros; do
-    perl -pe "/^%%\w*_arch\s+/ and s/%{_arch}/$ARCH32/" $f > $f.32
+    perl -pe "/^%%\w*_arch\s+/ and s/%{_arch}/%{alt_arch}/" $f > $f.32
 done
 DESTDIR=%{buildroot} ./installplatform rpmrc macros.32 platform.32
 %endif
@@ -708,17 +739,33 @@ fi
 
 %files -n popt -f popt.lang
 %defattr(-,root,root)
+%ifarch %{biarches}
+/lib/libpopt.so.*
+%{_prefix}/lib/libpopt.so.*
+%endif
 /%{_lib}/libpopt.so.*
 %{_libdir}/libpopt.so.*
 
 %files -n popt-devel
 %defattr(-,root,root)
+%{_includedir}/popt.h
+%ifarch %{biarches}
+%{_prefix}/lib/libpopt.a
+%{_prefix}/lib/libpopt.la
+%{_prefix}/lib/libpopt.so
+%endif
 %{_libdir}/libpopt.a
 %{_libdir}/libpopt.la
 %{_libdir}/libpopt.so
-%{_includedir}/popt.h
 
 %changelog
+* Tue Mar 01 2005 Vincent Danen <vdanen@annvix.org> 4.2.3-2avx
+- changed group System/XFree86 to System/X11
+- require multiarch-utils >= 1.0.7
+- drop P18; RPM_INSTALL_LANG support is obsolete (rafael)
+- popt is now a biarch package (gb)
+- rediff P54; get rid of mkrel macro
+
 * Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> 4.2.3-1avx
 - 4.2.3
 - regen P52

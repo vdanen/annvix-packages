@@ -1,5 +1,5 @@
---- rpm-4.2.2/platform.in.annvix	2004-08-04 12:42:43.000000000 -0600
-+++ rpm-4.2.2/platform.in	2004-08-04 12:54:30.000000000 -0600
+--- rpm-4.2.3/platform.in.annvix	2005-03-01 01:26:40.000000000 -0700
++++ rpm-4.2.3/platform.in	2005-03-01 01:29:39.000000000 -0700
 @@ -103,10 +103,10 @@
  @mandrake@%_localstatedir	%{_var}/lib
  @mandrake@%_sysconfdir		/etc
@@ -31,11 +31,13 @@
  @mandrake@%{nil}
  @mandrake@
  @mandrake@%_del_group_helper /usr/share/rpm-helper/del-group
-@@ -239,3 +239,32 @@
+@@ -239,6 +239,32 @@
  @mandrake@%_del_shell_helper /usr/share/rpm-helper/del-shell
  @mandrake@%_preun_shelldel() %_del_shell_helper %{name} $1 \
  @mandrake@%{nil}
-+
+-@mandrake@
+-@mandrake@%mkrel(c:) %{-c:0.%{-c*}.}%{!?_with_unstable:%(perl -e '$_="%{1}";m/(.*)(\\d+)$/;$rel=$2-1;re;print "$1$rel";').%{?subrel:%subrel}%{!?subrel:1}.%{?distversion:%distversion}%{?!distversion:%(echo $[%{mdkversion}/10])}}%{?_with_unstable:%{1}}%{?distsuffix:%distsuffix}%{?!distsuffix:mdk}
+ 
 +@mandrake@#---------------------------------------------------------------------
 +@mandrake@#	Annvix vendor specific macros
 +@mandrake@# 	Vincent Danen <vdanen@annvix.org>
