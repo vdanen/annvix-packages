@@ -3,7 +3,7 @@
 %define poptver		1.8
 # You need increase both release and poptrelease
 %define poptrelease	%{release}
-%define release		28sls
+%define release		29sls
 
 %define url		ftp://ftp.rpm.org/pub/rpm/dist/rpm-4.0.x
 %define pyver		%(python -V 2>&1 | cut -f2 -d" " | cut -f1,2 -d".")
@@ -639,6 +639,9 @@ fi
 %{_includedir}/popt.h
 
 %changelog
+* Tue Feb 03 2004 Vincent Danen <vdanen@opensls.org> 4.2-29sls
+- update P54 to add another field to %%_pre_groupadd for static gid
+
 * Sat Jan 31 2004 Vincent Danen <vdanen@opensls.org> 4.2-28sls
 - update P54 for new macro: %%_mkafterboot
 

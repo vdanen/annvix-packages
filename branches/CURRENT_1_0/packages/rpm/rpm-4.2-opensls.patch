@@ -1,5 +1,5 @@
---- rpm-4.2/platform.in.opensls	2004-01-31 16:55:37.000000000 -0700
-+++ rpm-4.2/platform.in	2004-01-31 16:56:30.000000000 -0700
+--- rpm-4.2/platform.in.opensls	2004-02-03 20:11:57.000000000 -0700
++++ rpm-4.2/platform.in	2004-02-03 20:12:48.000000000 -0700
 @@ -217,7 +217,7 @@
  @mandrake@%{nil}
  @mandrake@
@@ -9,6 +9,15 @@
  @mandrake@%{nil}
  @mandrake@
  @mandrake@%_del_user_helper /usr/share/rpm-helper/del-user
+@@ -225,7 +225,7 @@
+ @mandrake@%{nil}
+ @mandrake@
+ @mandrake@%_add_group_helper /usr/share/rpm-helper/add-group
+-@mandrake@%_pre_groupadd() %_add_group_helper %{name} $1 %{1} %{?2:%2} \
++@mandrake@%_pre_groupadd() %_add_group_helper %{name} $1 %{1} %{2} %{?3:%3} \
+ @mandrake@%{nil}
+ @mandrake@
+ @mandrake@%_del_group_helper /usr/share/rpm-helper/del-group
 @@ -239,3 +239,32 @@
  @mandrake@%_del_shell_helper /usr/share/rpm-helper/del-shell
  @mandrake@%_preun_shelldel() %_del_shell_helper %{name} $1 \
