@@ -1,7 +1,7 @@
 # RH 2.14.90.0.4-19, SuSE 2.13.90.0.18-6
 %define name		%{package_prefix}binutils
 %define version		2.14.90.0.7
-%define release		1sls
+%define release		2sls
 
 %define lib_major	2
 %define lib_name_orig	%{package_prefix}%mklibname binutils
@@ -83,10 +83,10 @@ This is the development headers for %{lib_name}
 # Additional targets
 ADDITIONAL_TARGETS=
 %ifarch ia64
-ADDITIONAL_TARGETS="--enable-targets=i586-mandrake-linux"
+ADDITIONAL_TARGETS="--enable-targets=i586-opensls-linux"
 %endif
 %ifarch %{ix86}
-ADDITIONAL_TARGETS="--enable-targets=x86_64-mandrake-linux"
+ADDITIONAL_TARGETS="--enable-targets=amd64-opensls-linux"
 %endif
 %if "%{name}" != "binutils"
 ADDITIONAL_TARGETS="--target=%{target_cpu}-linux"
@@ -104,9 +104,9 @@ exit 0
 # built nor already installed
 (cd gas/testsuite/gasp/; mv gasp.exp gasp.exp.disabled)
 
-# All Tests must pass on x86 and x86_64
+# All Tests must pass on x86 and x86_64/amd64
 echo ====================TESTING=========================
-%ifarch %{ix86} x86_64 ppc
+%ifarch %{ix86} x86_64 amd64 ppc
 # because the S-records tests always fail for some reason (bi must be a
 # magic machine)
 rm -rf ld/testsuite/ld-srec
@@ -120,7 +120,7 @@ logfile="%{name}-%{version}-%{release}.log"
 rm -f $logfile; find . -name "*.sum" | xargs cat >> $logfile
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p $RPM_BUILD_ROOT%{_prefix}
 %makeinstall_std
 
@@ -143,7 +143,7 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/*.la
 rm -rf $RPM_BUILD_ROOT%{_datadir}/locale/
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %if "%{name}" == "binutils"
 %post
@@ -211,6 +211,11 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 
 %changelog
+* Tue Mar 02 2004 Vincent Danen <vdanen@opensls.org> 2.14.90.0.7-2sls
+- minor spec cleanups
+- %%ifarch amd64 as well as x86_64
+- use opensls tagging for %%_target_platform
+
 * Tue Dec 23 2003 Vincent Danen <vdanen@opensls.org> 2.14.90.0.7-1sls
 - 2.14.90.0.7
 - new P3 for this version (gbeauchesne)
