@@ -1,0 +1,13 @@
+
+Fix for #77206.
+
+--- httpd-2.0.45/server/config.c.cnfdir	2003-04-28 11:19:02.000000000 +0100
++++ httpd-2.0.45/server/config.c	2003-04-28 11:18:57.000000000 +0100
+@@ -1519,6 +1519,7 @@
+             /* strip out '.' and '..' */
+             if (strcmp(dirent.name, ".")
+                 && strcmp(dirent.name, "..")
++                && !apr_fnmatch_test(dirent.name)
+                 && (!ispatt ||
+                     apr_fnmatch(pattern, dirent.name, 
+                                 FNM_PERIOD) == APR_SUCCESS)) {
