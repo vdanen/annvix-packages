@@ -1,6 +1,6 @@
 %define name	setup
 %define version 2.4
-%define release 11avx
+%define release 12avx
 
 Summary:	A set of system configuration and setup files
 Name:		%{name}
@@ -81,6 +81,9 @@ if [ -x /usr/sbin/nscd ]; then
 fi
 
 %changelog
+* Mon Jun 28 2004 Vincent Danen <vdanen@annvix.org> 2.4-12avx
+- fix the motd
+
 * Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 2.4-11avx
 - Annvix build
 
