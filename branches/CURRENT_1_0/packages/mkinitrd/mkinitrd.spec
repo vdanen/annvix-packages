@@ -1,6 +1,6 @@
 %define name	mkinitrd
 %define version 3.4.43
-%define release 14avx
+%define release 15avx
 %define epoch	1
 
 %define use_dietlibc 0
@@ -54,7 +54,9 @@ ramdisk using information found in the /etc/modules.conf file.
 %patch0 -p1 -b .mdk
 %patch1 -p0
 %patch2 -p1 -b .kernel25
+%ifarch %{x86}
 %patch3 -p1 -b .mkdevices
+%endif
 perl -pi -e 's/grubby//' Makefile
 
 %build
@@ -83,6 +85,9 @@ rm -f $RPM_BUILD_ROOT%{_mandir}/*/grubby*
 %{_mandir}/*/*
 
 %changelog
+* Sat Dec 18 2004 Vincent Danen <vdanen@annvix.rg> 3.4.43-15avx
+- only apply P3 on x86; x86_64 doesn't need it and hangs with it enabled
+
 * Fri Dec 17 2004 Vincent Danen <vdanen@annvix.rg> 3.4.43-14avx
 - P3: put back "mkdevices /dev" call which was preventing our kernels
   from booting properly (the removal is in the mdk patch)
