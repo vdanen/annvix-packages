@@ -1,6 +1,6 @@
 %define	name	dcron
 %define	version	2.9
-%define	release	8avx
+%define	release	9avx
 
 Summary:	Dillon's Cron Daemon
 Name:		%{name}
@@ -17,7 +17,6 @@ Patch0:		http://www.ogris.de/diet/dcron29-dietlibc-patch.diff.bz2
 Patch1:		dcron29-avx-paths.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-buildroot
-BuildRequires:	dietlibc-devel >= 0.20-1mdk
 
 PreReq:		rpm-helper, srv, runit, setup
 Conflicts:	vixie-cron
@@ -94,6 +93,9 @@ fi
 %dir %attr(0750,nobody,nogroup) %{_srvlogdir}/crond
 
 %changelog
+* Tue Jan 25 2005 Vincent Danen <vdanen@annvix.org> 2.9-9avx
+- drop the buildreq on dietlibc since we don't actually compile with it
+
 * Tue Sep 21 2004 Vincent Danen <vdanen@annvix.org> 2.9-8avx
 - use the original dietlibc patch
 - P1 for path customizations and chown fixes
