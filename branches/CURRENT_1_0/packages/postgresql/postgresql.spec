@@ -1,6 +1,6 @@
 %define name	postgresql
 %define version	7.4.3
-%define release	1avx
+%define release	2avx
 
 %define _requires_exceptions devel(libtcl8.4)
 %define _requires_exceptions devel(libtcl8.4(64bit))
@@ -48,14 +48,9 @@ Source22:	postgresql.sysconfig
 Source23:	01_postgresql.afterboot
 Source51:	README.v7.3
 Source52:	upgrade_tips_7.3
-Patch1:		rpm-pgsql-7.2.patch.bz2
-Patch2:		postgresql-7.2rc2-betterquote.patch.bz2
-Patch4:		postgresql-7.4-mdk-tighten.patch.bz2
-Patch5:		pgaccess-7.2.patch.bz2
-Patch6:		postgresql-7.2.1-perl-use-INSTALLDIRS-vendor.patch.bz2
-Patch7:		postgresql-7.4-mdk-pythondir.patch.bz2
-Patch8:		postgresql-7.3.4-amd64-testsuite.patch.bz2
-Patch9:		postgresql-7.4.1-mdk-pkglibdir.patch.bz2
+Patch1:		postgresql-7.4-mdk-tighten.patch.bz2
+Patch2:		postgresql-7.4-mdk-pythondir.patch.bz2
+Patch3:		postgresql-7.4.1-mdk-pkglibdir.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires:	XFree86-devel bison flex gettext termcap-devel ncurses-devel openssl-devel pam-devel
@@ -236,25 +231,9 @@ system, including regression tests and benchmarks.
 %prep
 %setup -q
 
-# 20021202 warly to be tested
-#   %patch1 -p1
-
-# 20021202 warly merged upstream
-#   %patch2 -p1
-
-# %patch3 -p1
-%patch4 -p1 -z .pg_hba
-
-# 20021202 warly this file does not exist any more
-#   %patch5 -p0 -z .pgaccess
-
-# 20021203 warly interface moved from postgresql packages
-#    %patch6 -p1 -z .pix
-%patch7 -p1 -b .pythondir
-
-# amd64 has comparable math precision to alpha
-#%patch8 -p1 -b .amd64-testsuite
-%patch9 -p0 -b .pkglibdir
+%patch1 -p1 -z .pg_hba
+%patch2 -p1 -b .pythondir
+%patch3 -p0 -b .pkglibdir
 
 %build
 
@@ -662,6 +641,9 @@ rm -f perlfiles.list
 %attr(-,postgres,postgres) %dir %{_libdir}/pgsql/test
 
 %changelog
+* Wed Jul 21 2004 Vincent Danen <vdanen@annvix.org> 7.4.3-2avx
+- remove unapplied patches; renumber remaining patches
+
 * Mon Jul 05 2004 Vincent Danen <vdanen@annvix.org> 7.4.3-1avx
 - 7.4.3
 - use bzip sources
