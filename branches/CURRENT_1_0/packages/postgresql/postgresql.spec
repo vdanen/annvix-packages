@@ -1,6 +1,6 @@
 %define name	postgresql
 %define version	7.3.4
-%define release	4sls
+%define release	5sls
 
 %{expand:%%define pyver %(python -c 'import sys;print(sys.version[0:3])')}
 %{expand:%%define perl_version %(rpm -q perl|sed 's/perl-\([0-9].*\)-.*$/\1/')}
@@ -401,7 +401,7 @@ make check
 rm -rf %{buildroot}%{_docdir}/%{name}-docs-%{version}
 
 %pre server
-%_pre_useradd postgres /var/lib/pgsql /bin/bash
+%_pre_useradd postgres /var/lib/pgsql /bin/bash 75
 if [ ! -e /var/log/postgresql ]; then
     touch /var/log/postgresql
 fi
@@ -433,10 +433,10 @@ if [ ! -f $PGDATA/PG_VERSION ] && [ ! -d $PGDATA/base ]; then
 fi
 
 
-#%_post_service %{name}
+%_post_srv postgresql
 
 %preun server
-#%_preun_service %{name}
+%_preun_srv postgersql
 
 %postun server
 /sbin/ldconfig
@@ -661,6 +661,10 @@ rm -f perlfiles.list
 %attr(-,postgres,postgres) %dir %{_libdir}/pgsql/test
 
 %changelog
+* Tue Jan 27 2004 Vincent Danen <vdanen@opensls.org> 7.3.4-5sls
+- use srv macros
+- postgres user has static uid/gid of 75
+
 * Sun Jan 25 2004 Vincent Danen <vdanen@opensls.org> 7.3.4-4sls
 - init the db in %%post
 - don't try to do the admin's work for them; we don't want to be responsible
