@@ -1,6 +1,6 @@
 %define name	patch
 %define version 2.5.9
-%define release 2sls
+%define release 3sls
 
 Summary:	The GNU patch command, for modifying/upgrading files.
 Name:		%{name}
@@ -16,8 +16,6 @@ Patch3:		patch-2.5.8-stderr.patch.bz2
 Patch5:		patch-2.5.4-destdir.patch.bz2
 
 Buildroot:	%{_tmppath}/%{name}-root
-
-Prefix:		%{_prefix}
 
 %description
 The patch program applies diff files to originals.  The diff command
@@ -49,11 +47,11 @@ make "CFLAGS=$RPM_OPT_FLAGS -D_GNU_SOURCE -W -Wall" LDFLAGS=-s
 
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -62,6 +60,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/*/*
 
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 2.5.9-3sls
+- minor spec cleanups
+- remove %%prefix
+
 * Sat Dec 13 2003 Vincent Danen <vdanen@opensls.org> 2.5.9-2sls
 - OpenSLS build
 - tidy spec
