@@ -1,7 +1,7 @@
 %define module	CGI
 %define name	perl-%{module}
 %define version	3.00
-%define release	2sls
+%define release	3sls
 
 Summary:        Simple Common Gateway Interface class for Perl.
 Name:           %{name}
@@ -52,11 +52,11 @@ connections, will see large performance improvements.
 %{__make} test
 
 %install
-%{__rm} -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
 %clean 
-%{__rm} -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -73,6 +73,10 @@ connections, will see large performance improvements.
 %{_mandir}/man3/CGI::Fast.3pm.*
 
 %changelog
+* Wed Feb 25 2004 Vincent Danen <vdanen@opensls.org> 3.00-3sls
+- rebuild for new perl
+- small spec cleanups
+
 * Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 3.00-2sls
 - OpenSLS build
 - tidy spec

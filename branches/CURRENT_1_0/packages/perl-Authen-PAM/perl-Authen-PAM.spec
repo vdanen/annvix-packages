@@ -1,7 +1,7 @@
 %define module 	Authen-PAM
 %define name	perl-%{module}
 %define version 0.14
-%define release 4sls
+%define release 5sls
 
 Summary:	Perl interface to the PAM library
 Name: 		%{name}
@@ -29,11 +29,11 @@ one is simpler.
 
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
 %clean 
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -44,6 +44,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Feb 25 2004 Vincent Danen <vdanen@opensls.org> 0.14-5sls
+- rebuild for new perl
+- small spec cleanups
+
 * Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 0.14-4sls
 - OpenSLS build
 - tidy spec
