@@ -1,10 +1,7 @@
 %define name	sudo
-%define version	1.6.7
-%define release	0.p5.4avx
+%define version	1.6.8p2
+%define release	1avx
 %define epoch	1
-
-# use fakeroot -ba sudo.spec to build!
-%define pre	p5
 
 Summary:	Allows command execution as root for specified users.
 Name:		%{name}
@@ -14,16 +11,11 @@ Epoch:		%{epoch}
 License:	GPL
 Group:		System/Base
 URL:		http://www.courtesan.com/sudo
-%if %pre
-Source:		ftp://ftp.courtesan.com:/pub/sudo/%name-%version%pre.tar.gz
-Source1:	ftp://ftp.courtesan.com:/pub/sudo/%name-%version%pre.tar.gz.sig
-%else
-Source:		ftp://ftp.courtesan.com:/pub/sudo/%name-%version.tar.gz
-Source1:	ftp://ftp.courtesan.com:/pub/sudo/%name-%version.tar.gz.sig
-%endif
-Source2:	sudoers.opensls
+Source:		ftp://ftp.courtesan.com:/pub/sudo/%{name}-%{version}.tar.gz
+Source1:	ftp://ftp.courtesan.com:/pub/sudo/%{name}-%{version}.tar.gz.sig
+Source2:	sudoers.annvix
 
-BuildRoot:	%_tmppath/%name-%version
+BuildRoot:	%_tmppath/%{name}-%{version}
 BuildRequires:  pam-devel
 
 Requires:	pam
@@ -35,13 +27,15 @@ to give as few privileges as possible but still allow people to get
 their work done.
 
 %prep
-%setup -q -n %name-%version%pre
+%setup -q -n %{name}-%{version}
 
 %build
-CFLAGS="$RPM_OPT_FLAGS -D_GNU_SOURCE" \
+CFLAGS="%{optflags} -D_GNU_SOURCE" \
 %configure --prefix=%_prefix --with-logging=both --with-logpath=/var/log/sudo.log \
-	   --with-editor=/bin/vi --enable-log-host --disable-log-wrap --with-pam --with-env-editor
-%make CFLAGS="$RPM_OPT_FLAGS -D_GNU_SOURCE"
+	   --with-editor=/bin/vi --enable-log-host --disable-log-wrap --with-pam \
+	   --with-env-editor --with-noexec=no \
+	   --with-secure-path="/sbin:/usr/sbin:/bin:/usr/bin:/usr/local/sbin:/usr/local/bin"
+%make CFLAGS="%{optflags} -D_GNU_SOURCE"
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -89,11 +83,21 @@ install -m 0440 %{SOURCE2} %{buildroot}%{_sysconfdir}/sudoers
 %config(noreplace) %{_sysconfdir}/logrotate.d/sudo
 %config(noreplace) %{_sysconfdir}/pam.d/sudo
 %attr(4111,root,root) %{_bindir}/sudo
+%attr(4111,root,root) %{_bindir}/sudoedit
 %attr(0111,root,root) %{_sbindir}/visudo
 %{_mandir}/*/*
 /var/run/sudo
 
 %changelog
+* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 1:1.6.8p2-1avx
+- 1.6.8p2; fixes a security flaw regarding bash scripts
+- fix naming convention
+- minor spec cleanups
+- set env_reset as a default in /etc/sudoers to enforce clean environments
+- set the secure-path by default
+- include sudoedit
+- turn of noexec support
+
 * Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 1:1.6.7-0.p5.4avx
 - require pam, not the system-auth file
 - Annvix build
