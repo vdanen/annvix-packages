@@ -1,6 +1,6 @@
 %define name	php-%{modname}
 %define version	%{phpversion}
-%define release	3sls
+%define release	4sls
 
 %define phpsource	%{_prefix}/src/php-devel
 %define _docdir		%{_datadir}/doc/%{name}-%{version}
@@ -77,11 +77,11 @@ EXTRACFLAGS="$EXTRACFLAGS -DDISABLE_POP_PROXY=1"
 EXTRACFLAGS="$EXTRACFLAGS -I%{_includedir}/openssl"
 EXTRALDFLAGS="$EXTRALDFLAGS -L%{_libdir}"
 
-%make RPM_OPT_FLAGS="%{optflags} -fPIC -fno-omit-frame-pointer" lnp \
+%make RPM_OPT_FLAGS="%{optflags} -fPIC -fno-omit-frame-pointer" \
 	EXTRACFLAGS="$EXTRACFLAGS" \
 	EXTRALDFLAGS="$EXTRALDFLAGS" \
-	SSLTYPE=unix \
-	c-client
+	SSLTYPE=unix.nopwd \
+	lnp
 
 # then the php-imap stuff
 
@@ -92,7 +92,7 @@ cp -dpR %{phpsource}/extensions/%{dirname}/* .
     "-DCOMPILE_DL_IMAP -DHAVE_IMAP2001 -DHAVE_IMAP_SSL -I%{_includedir}/openssl -I./src/c-client -I./c-client"
 
 %install
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot} 
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 install -d %{buildroot}%{phpdir}/extensions
 install -d %{buildroot}%{_docdir}
@@ -111,7 +111,7 @@ extension = %{soname}
 EOF
 
 %clean
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files 
 %defattr(-,root,root)
@@ -120,6 +120,10 @@ EOF
 %config(noreplace) %{_sysconfdir}/php/%{inifile}
 
 %changelog
+* Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 4.3.4-4sls
+- minor spec cleanups
+- fixes to make imap compile properly
+
 * Wed Dec 31 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 4.3.4-3sls
 - built against provided c-client
 
