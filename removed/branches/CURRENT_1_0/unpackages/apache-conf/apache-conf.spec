@@ -1,6 +1,6 @@
 %define name	apache-conf
 %define version	2.0.49
-%define release	5avx
+%define release	6avx
 
 # OE: conditional switches
 #(ie. use with rpm --rebuild):
@@ -301,6 +301,10 @@ fi
 %attr(1333,apache,apache) %dir /var/apache-mm
 
 %changelog
+* Tue Sep 14 2004 Vincent Danen <vdanen@annvix.org> 2.0.49-6avx
+- by default, set ServerTokens to Prod (from Full) and ServerSignature
+  to Off (from On)
+
 * Mon Jun 28 2004 Vincent Danen <vdanen@annvix.org> 2.0.49-5avx
 - missed a few references to OpenSLS; fixed
 
