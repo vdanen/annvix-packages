@@ -1,6 +1,6 @@
 %define name	zsh
 %define version	4.2.4
-%define release	1avx
+%define release	2avx
 %define epoch	1
 
 %define doc_version 4.2.4
@@ -14,7 +14,7 @@ License:	GPL
 Group:		Shells
 URL:		http://www.zsh.org
 Source0:	http://www.zsh.org/pub/%{name}-%{version}.tar.bz2
-Source2:	zcfg-mdk.tar.bz2
+Source2:	zcfg-avx.tar.bz2
 Source3:	zsh.urpmi_comp.bz2
 Patch1:		zsh-3.1.6-dev-22-path.patch.bz2
 Patch2:		zsh-4.0.1-pre-3-rpmnewopt.patch.bz2
@@ -34,9 +34,6 @@ ksh but includes many enhancements. Zsh has command-line editing,
 built-in spelling correction, programmable command completion,
 shell functions (with autoloading), a history mechanism, and a
 lots of other features
-
-Install the zsh package if you'd like to try out a different shell.
-
 
 %prep
 %setup -q -a 2 -n %{name}-%{version}
@@ -107,7 +104,10 @@ rm -f %{buildroot}%{_bindir}/zsh-%{version}
 
 
 %changelog
-* Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 4.1.1-8avx
+* Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 4.2.4-2avx
+- update S2 to set resource limits in /etc/zshrc
+
+* Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 4.2.4-1avx
 - 4.2.4
 - drop doc sources
 - add urpmi completion
