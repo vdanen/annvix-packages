@@ -1,68 +1,49 @@
-%define name                    MySQL
-%define version			4.0.15
-%define release                 1mdk
-%define major                   12
-%define libname_orig    	mysql
-%define libname                 %mklibname %{libname_orig} %{major}
+%define name	MySQL
+%define version	4.0.15
+%define release	2sls
+
+%define major		12
+%define libname_orig	mysql
+%define libname		%mklibname %{libname_orig} %{major}
 
 %define shared_lib_version	12:0:0
 %define mysqld_user		mysql
-%define var                     /var
+%define var			/var
 
 %define _requires_exceptions perl(this)
 
 %define see_base For a description of MySQL see the base MySQL RPM or http://www.mysql.com
 
-# glibc-static-devel availability starts from MDK 9.0
-%define buildfor_mdk90	%(awk '{print ($4 >= "9.0")}' /etc/mandrake-release)
-# termcap-devel virtual package available since MDK 9.2
-%define buildfor_mdk92	%(awk '{print ($4 >= "9.2")}' /etc/mandrake-release)
-
 Summary:	MySQL: a very fast and reliable SQL database engine
-Group:          Databases
-Name: 		%{name}
+Name:		%{name}
 Version:	%{version}
-Release:        %{release}
+Release:	%{release}
 License:	GPL
-#Source:        http://www.mysql.com/Downloads/MySQL-3.23/
-Source:         ftp.free.fr:/pub/MySQL/Downloads/MySQL-4.0/mysql-%{version}.tar.bz2
+Group:		Databases
+URL:            http://www.mysql.com
+Icon:		mysql.gif
+Source:		ftp.free.fr:/pub/MySQL/Downloads/MySQL-4.0/mysql-%{version}.tar.bz2
 Source1:	ftp://ftp.free.fr:/pub/MySQL/Downloads/Manual/manual-split.tar.bz2
-Patch0:         mysql-4.0.14-init.patch.bz2
-Patch1:         mysql-3.23.42-bench.patch.bz2
+Patch0:		mysql-4.0.14-init.patch.bz2
+Patch1:		mysql-3.23.42-bench.patch.bz2
 Patch2:		mysql-3.23.51-other-libc.patch.bz2
-Patch3:         mysql-3.23.54a-errno.patch.bz2
-Patch4: 	MySQL-4.0.11-fix-test-ssl-include.patch.bz2
+Patch3:		mysql-3.23.54a-errno.patch.bz2
+Patch4:		MySQL-4.0.11-fix-test-ssl-include.patch.bz2
 Patch5:		MySQL-4.0.11a-fix_install_scripts.patch.bz2
-Patch6: 	all_charset.patch.bz2
-Patch7: 	mysql-4.0.13-the.patch.bz2
+Patch6:		all_charset.patch.bz2
+Patch7:		mysql-4.0.13-the.patch.bz2
 Patch8:		mysql-4.0.15-lib64.patch.bz2
 Patch9:		mysql-4.0.13-quotes.patch.bz2
-Icon:		mysql.gif
-URL:            http://www.mysql.com
+
+BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
+BuildRequires:	bison, db4-devel, glibc-static-devel, libstdc++5-static-devel, automake1.7
+BuildRequires:	termcap-devel
+BuildRequires:	ncurses-devel, python, openssl-static-devel, tetex, texinfo, zlib-devel
+
 Provides:       msqlormysql MySQL-server mysqlserver mysql
 Prereq:  	rpm-helper
 PreReq:		MySQL-common = %{version}-%{release}
 Obsoletes:      mysql MySQL-devel <= 3.23.39
-BuildRequires:  bison
-BuildRequires:	db4-devel
-BuildRequires:	glibc-static-devel
-BuildRequires:	libstdc++5-static-devel
-BuildRequires:	automake1.7
-%if %{buildfor_mdk92}
-BuildRequires:	termcap-devel
-%else
-BuildRequires:	libtermcap-devel
-%endif
-BuildRequires:	ncurses-devel
-BuildRequires:	python
-BuildRequires:	openssl-static-devel
-BuildRequires:	tetex
-BuildRequires:	texinfo
-BuildRequires:	zlib-devel
-%if %{buildfor_mdk90}
-BuildRequires:	glibc-static-devel
-%endif
-BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
 Conflicts:      MySQL-Max > 4.0.11
 
 %description
@@ -97,7 +78,6 @@ Common files for the MySQL(TM) database server.
 %package client
 Summary:        MySQL - Client
 Group:          Databases
-
 Obsoletes:      mysql-client
 Provides:       mysql-client 
 Requires:       %{libname} = %{version}-%{release}
@@ -110,7 +90,6 @@ This package contains the standard MySQL clients.
 %package bench
 Summary:        MySQL - Benchmarks and test system
 Group:          Databases
-
 Obsoletes:      mysql-bench
 Provides:       mysql-bench
 Requires:       MySQL-client = %{version}-%{release} perl
@@ -145,14 +124,14 @@ This package contains the shared libraries (*.so*) which certain
 languages and applications need to dynamically load and use MySQL.
 
 %package Max
-Release: %{release}
-Summary: MySQL - server with Berkeley DB and Innodb support
-Group: Databases
-Provides: mysql-Max = %{version}-%{release}
-Provides: msqlormysql MySQL-server mysqlserver mysql
-Obsoletes: mysql-Max
-PreReq: MySQL-common = %{version}-%{release} rpm-helper
-Conflicts: MySQL > 4.0.11
+Release:	%{release}
+Summary:	MySQL - server with Berkeley DB and Innodb support
+Group:		Databases
+Provides:	mysql-Max = %{version}-%{release}
+Provides:	msqlormysql MySQL-server mysqlserver mysql
+Obsoletes:	mysql-Max
+PreReq:		MySQL-common = %{version}-%{release} rpm-helper
+Conflicts:	MySQL > 4.0.11
 
 %description Max 
 Optional MySQL server binary that supports features
@@ -629,6 +608,11 @@ fi
 %config(noreplace) /etc/rc.d/init.d/mysql-max
 
 %changelog
+* Wed Dec 17 2003 Vincent Danen <vdanen@opensls.org> 4.0.15-2sls
+- OpenSLS build
+- don't worry about older mdk distribs
+- tidy spec
+
 * Sun Sep 14 2003 Warly <warly@mandrakesoft.com> 4.0.15-1mdk
 - Security update
 
