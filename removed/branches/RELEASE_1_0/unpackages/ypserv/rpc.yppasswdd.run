@@ -1,0 +1,13 @@
+#!/bin/sh
+PATH="/sbin:/usr/sbin:/bin:/usr/bin"
+
+# this runs rpc.yppasswd supervised
+
+. /usr/share/srv/functions
+
+checkdepends portmap
+
+. /etc/sysconfig/network
+
+exec 2>&1
+exec /usr/sbin/rpc.yppasswdd --debug

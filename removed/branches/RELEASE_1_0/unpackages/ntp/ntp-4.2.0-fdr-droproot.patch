@@ -1,0 +1,477 @@
+--- ntp-4.2.0/html/ntpd.html.droproot	2003-10-13 10:13:31.000000000 +0200
++++ ntp-4.2.0/html/ntpd.html	2003-10-23 15:35:22.000000000 +0200
+@@ -33,7 +33,7 @@
+         </ul>
+         <hr>
+         <h4 id="synop">Synopsis</h4>
+-        <tt>ntpd [ -46aAbdDgLmnNPqx ] [ -c <i>conffile</i> ] [ -f <i>driftfile</i> ] [ -k <i>keyfile</i> ] [ -l <i>logfile</i> ] [ -p <i>pidfile</i> ] [ -r <i>broadcastdelay</i> ] [ -s <i>statsdir</i> ] [ -t <i>key</i> ] [ -v <i>variable</i> ] [ -V <i>variable</i> ]</tt>
++        <tt>ntpd [ -46aAbdDgLmnNPqx ] [ -c <i>conffile</i> ] [ -f <i>driftfile</i> ] [ -k <i>keyfile</i> ] [ -l <i>logfile</i> ] [ -p <i>pidfile</i> ] [ -r <i>broadcastdelay</i> ] [ -s <i>statsdir</i> ] [ -t <i>key</i> ] [ -v <i>variable</i> ] [ -V <i>variable</i> ] [ -T <i>chroot_dir</i> ] [ -U <i>server_user</i> ]</tt>
+         <h4 id="descr">Description</h4>
+         <p>The <tt>ntpd</tt> program is an operating system daemon which sets and maintains the system time of day in synchronism with Internet standard time servers. It is a complete implementation of the Network Time Protocol (NTP) version 4, but also retains compatibility with version 3, as defined by RFC-1305, and version 1 and 2, as defined by RFC-1059 and RFC-1119, respectively. <tt>ntpd</tt> does most computations in 64-bit floating point arithmetic and does relatively clumsy 64-bit fixed point operations only when necessary to preserve the ultimate precision, about 232 picoseconds. While the ultimate precision is not achievable with ordinary workstations and networks of today, it may be required with future gigahertz CPU clocks and gigabit LANs.</p>
+         <h4 id="op">How NTP Operates</h4>
+@@ -108,6 +108,10 @@
+             <dd>Specify the directory path for files created by the statistics facility. This is the same operation as the <tt>statsdir <i>statsdir</i></tt> configuration command.
+             <dt><tt>-t <i>key</i></tt>
+             <dd>Add a key number to the trusted key list. This option can occur more than once.
++	    <DT><TT>-T <I>chroot_dir</I></TT>
++	    <DD>Chroot the ntpd server process into <I>chroot_dir</I>. To use this option you have to copy all the files that ntpd process needs into the chroot directory. This option adds security only if the server also drops root privileges (see -U option).
++	    <DT><TT>-U <I>server_user</I></TT>
++	    <DD>Ntpd process drops root privileges and changes user ID to <I>server_user</I> and group ID to the primary group of <I>server_user</I>.
+             <dt><tt>-v <i>variable</i></tt>
+             <dt><tt>-V <i>variable</i></tt>
+             <dd>Add a system variable listed by default.
+@@ -181,4 +185,4 @@
+         <script type="text/javascript" language="javascript" src="scripts/footer.txt"></script>
+     </body>
+ 
+-</html>
+\ Kein Zeilenumbruch am Dateiende.
++</html>
+--- ntp-4.2.0/html/ntpdate.html.droproot	2003-07-17 12:27:12.000000000 +0200
++++ ntp-4.2.0/html/ntpdate.html	2003-10-23 15:31:59.000000000 +0200
+@@ -17,7 +17,7 @@
+         <hr>
+         <p>Disclaimer: The functionality of this program is now available in the <tt>ntpd</tt> program. See the <tt>-q</tt> command line option in the <a href="ntpd.html"><tt>ntpd</tt> - Network Time Protocol (NTP) daemon</a> page. After a suitable period of mourning, the <tt>ntpdate</tt> program is to be retired from this distribution</p>
+         <h4>Synopsis</h4>
+-        <tt>ntpdate [ -bBdoqsuv ] [ -a <i>key</i> ] [ -e <i>authdelay</i> ] [ -k <i>keyfile</i> ] [ -o <i>version</i> ] [ -p <i>samples</i> ] [ -t <i>timeout</i> ] <i>server</i> [ ... ]</tt>
++        <tt>ntpdate [ -bBdoqsuv ] [ -a <i>key</i> ] [ -e <i>authdelay</i> ] [ -k <i>keyfile</i> ] [ -o <i>version</i> ] [ -p <i>samples</i> ] [ -t <i>timeout</i> ] [ -U <i>user_name</i> ] <i>server</i> [ ... ]</tt>
+         <h4>Description</h4>
+         <tt>ntpdate</tt> sets the local date and time by polling the Network Time Protocol (NTP) server(s) given as the <i>server</i> arguments to determine the correct time. It must be run as root on the local host. A number of samples are obtained from each of the servers specified and a subset of the NTP clock filter and selection algorithms are applied to select the best of these. Note that the accuracy and reliability of <tt>ntpdate</tt> depends on the number of servers, the number of polls each time it is run and the interval between runs.
+         <p><tt>ntpdate</tt> can be run manually as necessary to set the host clock, or it can be run from the host startup script to set the clock at boot time. This is useful in some cases to set the clock initially before starting the NTP daemon <tt>ntpd</tt>. It is also possible to run <tt>ntpdate</tt> from a <tt>cron</tt> script. However, it is important to note that <tt>ntpdate</tt> with contrived <tt>cron</tt> scripts is no substitute for the NTP daemon, which uses sophisticated algorithms to maximize accuracy and reliability while minimizing resource use. Finally, since <tt>ntpdate</tt> does not discipline the host clock frequency as does <tt>ntpd</tt>, the accuracy using <tt>ntpdate</tt> is limited.</p>
+@@ -57,6 +57,11 @@
+             <dd>Direct <tt>ntpdate</tt> to use an unprivileged port or outgoing packets. This is most useful when behind a firewall that blocks incoming traffic to privileged ports, and you want to synchronise with hosts beyond the firewall. Note that the <tt>-d</tt> option always uses unprivileged ports.
+             <dt><tt>-<i>v</i></tt>
+             <dd>Be verbose. This option will cause <tt>ntpdate</tt>'s version identification string to be logged.
++
++            <dt><tt>-U <i>user_name</i></tt></dt>
++	    <dd>ntpdate process drops root privileges and changes user ID to
++	    <i>user_name</i> and group ID to the primary group of 
++	    <i>server_user</i>.
+         </dl>
+         <h4>Files</h4>
+         <tt>/etc/ntp.keys</tt> - encryption keys used by <tt>ntpdate</tt>.
+@@ -66,4 +71,4 @@
+         <script type="text/javascript" language="javascript" src="scripts/footer.txt"></script>
+     </body>
+ 
+-</html>
+\ Kein Zeilenumbruch am Dateiende.
++</html>
+--- ntp-4.2.0/ntpd/ntpd.c.droproot	2003-07-17 12:27:28.000000000 +0200
++++ ntp-4.2.0/ntpd/ntpd.c	2003-10-23 15:37:01.000000000 +0200
+@@ -6,6 +6,11 @@
+ # include <config.h>
+ #endif
+ 
++#include <sys/capability.h>
++#include <sys/prctl.h>
++#include <pwd.h>
++#include <grp.h>
++
+ #include "ntp_machine.h"
+ #include "ntpd.h"
+ #include "ntp_io.h"
+@@ -110,6 +115,11 @@
+ # include <pwd.h>
+ #endif
+ 
++/* Username to run as */
++char *server_user=0;
++/* Chroot to this dir */
++char *chroot_dir=0;
++
+ /*
+  * Signals we catch for debugging.	If not debugging we ignore them.
+  */
+@@ -231,11 +241,61 @@
+ 	char *argv[]
+ 	)
+ {
++  server_user = NULL;
++  chroot_dir = NULL;
+ 	return ntpdmain(argc, argv);
+ }
+ #endif
+ #endif /* SIM */
+ 
++/* This patch is adapted (copied) from Chris Wings drop root patch
++ * for xntpd.
++ */
++void drop_root(uid_t server_uid, gid_t server_gid)
++{
++  cap_t caps;
++
++  if (prctl(PR_SET_KEEPCAPS, 1)) {
++    msyslog(LOG_ERR, "prctl(PR_SET_KEEPCAPS, 1) failed");
++    exit(1);
++  }
++
++  if ( setgroups(0, NULL) == -1 ) {
++    msyslog(LOG_ERR, "setgroups failed.");
++    exit(1);
++  }
++
++  if ( setegid(server_gid) == -1 || seteuid(server_uid) == -1 ) {
++    msyslog(LOG_ERR, "setegid/seteuid to uid=%d/gid=%d failed.", server_uid,
++            server_gid);
++    exit(1);
++  }
++
++  caps = cap_from_text("cap_sys_time=epi");
++  if (caps == NULL) {
++    msyslog(LOG_ERR, "cap_from_text failed.");
++    exit(1);
++  }
++
++  if (cap_set_proc(caps) == -1) {
++    msyslog(LOG_ERR, "cap_set_proc failed.");
++    exit(1);
++  }
++  
++  /* Try to free the memory from cap_from_text */
++  cap_free( caps );
++
++  if ( setregid(server_gid, server_gid) == -1 ||
++       setreuid(server_uid, server_uid) == -1 ) {
++    msyslog(LOG_ERR, "setregid/setreuid to uid=%d/gid=%d failed.", server_uid,
++            server_gid);
++    exit(1);
++  }
++
++  msyslog(LOG_DEBUG, "running as uid(%d)/gid(%d) euid(%d)/egid(%d).",
++          getuid(), getgid(), geteuid(), getegid());
++}
++
+ #ifdef _AIX
+ /*
+  * OK. AIX is different than solaris in how it implements plock().
+@@ -377,6 +437,9 @@
+ #ifdef _AIX			/* HMS: ifdef SIGDANGER? */
+ 	struct sigaction sa;
+ #endif
++	struct passwd *pwd = NULL;
++	uid_t server_uid;
++	gid_t server_gid;
+ 
+ 	initializing = 1;		/* mark that we are initializing */
+ 	debug = 0;			/* no debugging by default */
+@@ -420,6 +483,29 @@
+ 	if (debug)
+ 	    printf("%s\n", Version);
+ 
++  /* Lookup server_user uid/gid before chroot/chdir */
++  if ( server_user ) {
++    pwd = getpwnam( server_user );
++    if ( pwd == NULL ) {
++      msyslog(LOG_ERR, "Failed to lookup user '%s'.", server_user);
++      exit(1);
++    }
++    server_uid = pwd->pw_uid;
++    server_gid = pwd->pw_gid;
++  }
++
++  /* Try to chroot to chroot_dir. This probably makes sense only if
++   * the server drops root privileges.
++   */
++  if ( chroot_dir ) {
++    if ( chroot(chroot_dir) == -1 || chdir("/") == -1 ) {
++      msyslog(LOG_ERR, "chroot/chdir to '%s' failed.", chroot_dir);
++      exit(1);
++    }
++    /* Close /dev/log */
++    closelog();
++  }
++	
+ 	/*
+ 	 * Initialize random generator and public key pair
+ 	 */
+@@ -810,6 +896,10 @@
+ #endif /* OPENSSL */
+ 	initializing = 0;
+ 
++  if ( server_user ) {
++    drop_root( server_uid, server_gid );
++  }
++
+ #if defined(SYS_WINNT) && !defined(NODETACH)
+ # if defined(DEBUG)
+ 	if(!debug)
+--- ntp-4.2.0/ntpd/cmd_args.c.droproot	2003-07-17 12:27:25.000000000 +0200
++++ ntp-4.2.0/ntpd/cmd_args.c	2003-10-23 15:29:28.000000000 +0200
+@@ -23,7 +23,11 @@
+ extern BOOL NoWinService;
+ #endif
+ 
+-static const char *ntp_options = "aAbB:c:C:dD:f:gi:k:l:LmnNO:p:P:qr:s:S:t:T:W:u:v:V:xY:Z:-:";
++static const char *ntp_options = "aAbB:c:C:dD:f:gi:k:l:LmnNO:p:P:qr:s:S:t:T:W:u:v:V:xY:Z:-:U:T:";
++
++/* Drop root patch */
++extern char *server_user;
++extern char *chroot_dir;
+ 
+ #ifdef HAVE_NETINFO
+ extern int	check_netinfo;
+@@ -149,7 +153,31 @@
+ 	      }
+ 	      break;
+ 
+-		default:
++		 case 'U':
++			if ( !ntp_optarg ) {
++			  fprintf(stderr, "Error: Need username with 'U' option\n");
++			  exit(1);
++			}
++			else {
++			  if ( !server_user ) {
++				 server_user = strdup(ntp_optarg);
++			  }
++			}
++			break;
++			
++		 case 'T':
++			if ( !ntp_optarg ) {
++			  fprintf(stderr, "Error: Need directory with 'T' option\n");
++			  exit(1);
++			}
++			else {
++			  if ( !chroot_dir ) {
++				 chroot_dir = strdup(ntp_optarg);
++			  }
++			}
++			break;
++
++		 default:
+ 			break;
+ 		}
+ 
+@@ -158,6 +186,7 @@
+ 		(void) fprintf(stderr, "\t\t[ -f freq_file ] [ -k key_file ] [ -l log_file ]\n");
+ 		(void) fprintf(stderr, "\t\t[ -p pid_file ] [ -r broad_delay ] [ -s statdir ]\n");
+ 		(void) fprintf(stderr, "\t\t[ -t trust_key ] [ -v sys_var ] [ -V default_sysvar ]\n");
++		(void) fprintf(stderr, "\t\t[ -T chroot_dir ] [ -U server_user ]\n");
+ #if defined(HAVE_SCHED_SETSCHEDULER)
+ 		(void) fprintf(stderr, "\t\t[ -P fixed_process_priority ]\n");
+ #endif
+@@ -395,6 +424,10 @@
+                         break;
+ 
+ #endif /* SIM */
++		    case 'U': 	/* already done at pre-scan */
++		    case 'T':	/* already done at pre-scan */
++			break;
++
+ 		    default:
+ 			errflg++;
+ 			break;
+@@ -406,6 +439,7 @@
+ 		(void) fprintf(stderr, "\t\t[ -f freq_file ] [ -k key_file ] [ -l log_file ]\n");
+ 		(void) fprintf(stderr, "\t\t[ -p pid_file ] [ -r broad_delay ] [ -s statdir ]\n");
+ 		(void) fprintf(stderr, "\t\t[ -t trust_key ] [ -v sys_var ] [ -V default_sysvar ]\n");
++		(void) fprintf(stderr, "\t\t[ -T chroot_dir ] [ -U server_user ]\n");
+ #if defined(HAVE_SCHED_SETSCHEDULER)
+ 		(void) fprintf(stderr, "\t\t[ -P fixed_process_priority ]\n");
+ #endif
+--- ntp-4.2.0/ntpd/Makefile.am.droproot	2003-08-08 11:24:24.000000000 +0200
++++ ntp-4.2.0/ntpd/Makefile.am	2003-10-23 15:13:41.000000000 +0200
+@@ -11,7 +11,7 @@
+ # sqrt                                ntp_control.o
+ # floor                               refclock_wwv.o
+ # which are (usually) provided by -lm.
+-ntpd_LDADD = $(LDADD) ../libntp/libntp.a -lm @LCRYPTO@
++ntpd_LDADD = $(LDADD) ../libntp/libntp.a -lcap -lm @LCRYPTO@
+ ntpdsim_LDADD = $(LDADD) ../libntp/libntpsim.a -lm @LCRYPTO@
+ ntpdsim_CFLAGS = $(CFLAGS) -DSIM
+ check_y2k_LDADD = $(LDADD) ../libntp/libntp.a
+--- ntp-4.2.0/ntpdate/ntpdate.c.droproot	2003-07-17 12:27:30.000000000 +0200
++++ ntp-4.2.0/ntpdate/ntpdate.c	2003-10-23 15:12:59.000000000 +0200
+@@ -52,6 +52,12 @@
+ # include "adjtime.h"
+ #endif
+ 
++/* Linux capabilities */
++#include <sys/capability.h>
++#include <sys/prctl.h>
++#include <pwd.h>
++#include <grp.h>
++
+ #ifdef SYS_VXWORKS
+ # include "ioLib.h"
+ # include "sockLib.h"
+@@ -151,6 +157,11 @@
+ int rate = 0;
+ 
+ /*
++ * Use capabilities to drop privileges and switch uids
++ */
++char *server_user;
++
++/*
+  * Program name.
+  */
+ char *progname;
+@@ -297,6 +308,88 @@
+ static ni_namelist *getnetinfoservers P((void));
+ #endif
+ 
++/* This patch is adapted (copied) from Chris Wings drop root patch
++ * for xntpd.
++ */
++void drop_root(uid_t server_uid, gid_t server_gid)
++{
++  cap_t caps;
++
++  if (prctl(PR_SET_KEEPCAPS, 1)) {
++		if (syslogit) {
++			msyslog(LOG_ERR, "prctl(PR_SET_KEEPCAPS, 1) failed");
++		}
++		else {
++			fprintf(stderr, "prctl(PR_SET_KEEPCAPS, 1) failed.\n");
++		}
++    exit(1);
++  }
++
++  if ( setgroups(0, NULL) == -1 ) {
++		if (syslogit) {
++			msyslog(LOG_ERR, "setgroups failed.");
++		}
++		else {
++			fprintf(stderr, "setgroups failed.\n");
++		}
++    exit(1);
++  }
++
++  if ( setegid(server_gid) == -1 || seteuid(server_uid) == -1 ) {
++		if (syslogit) {
++			msyslog(LOG_ERR, "setegid/seteuid to uid=%d/gid=%d failed.", server_uid,
++							server_gid);
++		}
++		else {
++			fprintf(stderr, "setegid/seteuid to uid=%d/gid=%d failed.\n", server_uid,
++							server_gid);
++		}
++    exit(1);
++  }
++
++  caps = cap_from_text("cap_sys_time=epi");
++  if (caps == NULL) {
++		if (syslogit) {
++			msyslog(LOG_ERR, "cap_from_text failed.");
++		}
++		else {
++			fprintf(stderr, "cap_from_text failed.\n");
++		}
++    exit(1);
++  }
++
++  if (cap_set_proc(caps) == -1) {
++		if (syslogit) {
++			msyslog(LOG_ERR, "cap_set_proc failed.");
++		}
++		else {
++			fprintf(stderr, "cap_set_proc failed.\n");
++		}
++    exit(1);
++  }
++  
++  /* Try to free the memory from cap_from_text */
++  cap_free( caps );
++
++  if ( setregid(server_gid, server_gid) == -1 ||
++       setreuid(server_uid, server_uid) == -1 ) {
++		if (syslogit) {
++			msyslog(LOG_ERR, "setregid/setreuid to uid=%d/gid=%d failed.",
++							server_uid, server_gid);
++		}
++		else {
++			fprintf(stderr, "setregid/setreuid to uid=%d/gid=%d failed.\n",
++							server_uid, server_gid);
++		}
++    exit(1);
++  }
++
++	if (syslogit) {
++		msyslog(LOG_DEBUG, "running as uid(%d)/gid(%d) euid(%d)/egid(%d).",
++						getuid(), getgid(), geteuid(), getegid());
++	}
++}
++
+ /*
+  * Main program.  Initialize us and loop waiting for I/O and/or
+  * timer expiries.
+@@ -349,7 +442,7 @@
+ #ifdef NO_MAIN_ALLOWED
+ 	clear_globals();
+ #endif
+-
++	server_user = NULL;
+ 	errflg = 0;
+ 	progname = argv[0];
+ 	syslogit = 0;
+@@ -357,7 +450,7 @@
+ 	/*
+ 	 * Decode argument list
+ 	 */
+-	while ((c = ntp_getopt(argc, argv, "46a:bBde:k:o:p:qr:st:uv")) != EOF)
++	while ((c = ntp_getopt(argc, argv, "46a:bBde:k:o:p:qr:st:uvU:")) != EOF)
+ 		switch (c)
+ 		{
+ 		case '4':
+@@ -449,13 +542,21 @@
+ 		case '?':
+ 			++errflg;
+ 			break;
++		case 'U':
++			if (ntp_optarg) {
++				server_user = strdup(ntp_optarg);
++			}
++			else {
++				++errflg;
++			}
++			break;
+ 		default:
+ 			break;
+ 	    }
+ 	
+ 	if (errflg) {
+ 		(void) fprintf(stderr,
+-		    "usage: %s [-46bBdqsuv] [-a key#] [-e delay] [-k file] [-p samples] [-o version#] [-r rate] [-t timeo] server ...\n",
++		    "usage: %s [-46bBdqsuv] [-a key#] [-e delay] [-k file] [-p samples] [-o version#] [-r rate] [-t timeo] [-U username] server ...\n",
+ 		    progname);
+ 		exit(2);
+ 	}
+@@ -569,6 +670,24 @@
+ 
+ 	initializing = 0;
+ 	was_alarmed = 0;
++
++	if (server_user) {
++		struct passwd *pwd = NULL;
++
++		/* Lookup server_user uid/gid before chroot/chdir */
++		pwd = getpwnam( server_user );
++		if ( pwd == NULL ) {
++			if (syslogit) {
++				msyslog(LOG_ERR, "Failed to lookup user '%s'.", server_user);
++			}
++			else {
++				fprintf(stderr, "Failed to lookup user '%s'.\n", server_user);
++			}
++			exit(1);
++		}
++		drop_root(pwd->pw_uid, pwd->pw_gid);
++	}
++
+ 	rbuflist = (struct recvbuf *)0;
+ 
+ 	while (complete_servers < sys_numservers) {
+--- ntp-4.2.0/ntpdate/Makefile.am.droproot	2003-07-17 12:27:30.000000000 +0200
++++ ntp-4.2.0/ntpdate/Makefile.am	2003-10-23 15:11:06.000000000 +0200
+@@ -12,6 +12,8 @@
+ #EXTRA_DIST = ntpdate.mak
+ ETAGS_ARGS = Makefile.am
+ 
++ntpdate_LDADD = $(LDADD)  -lcap
++
+ $(PROGRAMS): $(LDADD)
+ 
+ ../libntp/libntp.a:

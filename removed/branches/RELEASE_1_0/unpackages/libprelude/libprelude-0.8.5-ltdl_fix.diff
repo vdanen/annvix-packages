@@ -1,0 +1,22 @@
+diff -Naur libprelude-0.8.5/Makefile.am libprelude-0.8.5.oden/Makefile.am
+--- libprelude-0.8.5/Makefile.am	2003-03-06 02:15:01.000000000 +0100
++++ libprelude-0.8.5.oden/Makefile.am	2003-09-07 23:13:11.000000000 +0200
+@@ -1,4 +1,4 @@
+-SUBDIRS = libltdl src sensor-adduser docs
++SUBDIRS = src sensor-adduser docs
+ 
+ includedir=$(prefix)/libprelude/include
+ include_HEADERS=config.h
+diff -Naur libprelude-0.8.5/configure.in libprelude-0.8.5.oden/configure.in
+--- libprelude-0.8.5/configure.in	2003-04-28 13:44:08.000000000 +0200
++++ libprelude-0.8.5.oden/configure.in	2003-09-07 23:13:54.000000000 +0200
+@@ -14,9 +14,7 @@
+ 
+ dnl setup libltdl
+ 
+-AC_CONFIG_SUBDIRS(libltdl)
+ AC_LIBTOOL_DLOPEN
+-AC_LIBLTDL_CONVENIENCE
+ AM_PROG_LIBTOOL
+ 
+ AC_SUBST(INCLTDL)

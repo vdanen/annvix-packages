@@ -1,0 +1,30 @@
+Index: init.c 
+=================================================================== 
+RCS file: /pack/anoncvs/wget/src/init.c,v 
+retrieving revision 1.54 
+diff -u -c -r1.54 init.c 
+--- src/init.c      2002/08/03 20:34:57     1.54 
++++ src/init.c      2003/05/23 15:47:42 
+@@ -177,6 +177,7 @@
+   { "reclevel",		&opt.reclevel,		cmd_number_inf },
+   { "recursive",	NULL,			cmd_spec_recursive },
+   { "referer",		&opt.referer,		cmd_string },
++  { "referrer",               &opt.referer,           cmd_string }, 
+   { "reject",		&opt.rejects,		cmd_vector },
+   { "relativeonly",	&opt.relative_only,	cmd_boolean },
+   { "removelisting",	&opt.remove_listing,	cmd_boolean },
+Index: main.c 
+=================================================================== 
+RCS file: /pack/anoncvs/wget/src/main.c,v 
+retrieving revision 1.74 
+diff -u -c -r1.74 main.c 
+--- src/main.c      2002/05/18 02:16:23     1.74 
++++ src/main.c      2003/05/23 15:47:42 
+@@ -330,6 +330,7 @@
+     { "tries", required_argument, NULL, 't' },
+     { "user-agent", required_argument, NULL, 'U' },
+     { "referer", required_argument, NULL, 157 },
++    { "referrer", required_argument, NULL, 157 }, 
+     { "use-proxy", required_argument, NULL, 'Y' },
+ #ifdef HAVE_SSL
+     { "sslcertfile", required_argument, NULL, 158 },

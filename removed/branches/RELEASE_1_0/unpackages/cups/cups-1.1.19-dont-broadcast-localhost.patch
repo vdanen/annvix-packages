@@ -1,0 +1,14 @@
+--- scheduler/network.c.orig	2003-09-18 04:02:34.000000000 +0200
++++ scheduler/network.c	2003-09-18 04:02:48.000000000 +0200
+@@ -220,7 +220,10 @@
+       strlcpy(temp->hostname, host->h_name, sizeof(temp->hostname));
+     else if (ntohl(temp->address.sin_addr.s_addr) == 0x7f000001)
+       strcpy(temp->hostname, "localhost");
+-    else if (temp->address.sin_addr.s_addr == ServerAddr.sin_addr.s_addr)
++    else if ((temp->address.sin_addr.s_addr == ServerAddr.sin_addr.s_addr)&&
++	     /* Never sen broadcast packages with hostname "localhost" */
++	     (strcmp(ServerName, "localhost") != 0) &&
++	     (strcmp(ServerName, "localhost.") != 0))
+       strlcpy(temp->hostname, ServerName, sizeof(temp->hostname));
+     else
+     {
