@@ -1,6 +1,6 @@
 %define name	ncurses
 %define version	5.3
-%define release	1.20030215.5sls
+%define release	1.20030215.6sls
 
 %define patchdate	20021028
 %define lib_major	5
@@ -175,6 +175,7 @@ rm -rf %{buildroot}%{_datadir}/terminfo/terminfo
 %files -f %{name}.list
 %defattr(-,root,root)
 %doc README ANNOUNCE
+%dir %{_datadir}/terminfo
 %{_datadir}/tabset
 %{_bindir}/*
 %{_mandir}/man1/*
@@ -200,6 +201,9 @@ rm -rf %{buildroot}%{_datadir}/terminfo/terminfo
 %{_mandir}/man3/*
 
 %changelog
+* Sat Jun 12 2004 Vincent Danen <vdanen@opensls.org> 5.3-1.20030215.6sls
+- own /usr/share/terminfo
+
 * Sun Mar 07 2004 Vincent Danen <vdanen@opensls.org> 5.3-1.20030215.5sls
 - minor spec cleanups
 - remove %%build_opensls macro
