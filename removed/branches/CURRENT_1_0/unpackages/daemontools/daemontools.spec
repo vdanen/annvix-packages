@@ -1,6 +1,6 @@
 %define name	daemontools
 %define version 0.76
-%define release 10sls
+%define release 11avx
 
 %define cmddir	/command
 %define srvdir	/service
@@ -112,6 +112,9 @@ done
 
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 0.76-11avx
+- Annvix build
+
 * Wed Mar 03 2004 Vincent Danen <vdanen@opensls.org> 0.76-10sls
 - minor spec cleanups
 - supervise macros

@@ -1,6 +1,6 @@
 %define name	Glide_V3-DRI
 %define version	cvs
-%define release	11sls
+%define release	12avx
 
 Summary:	Glide runtime for 3Dfx Voodoo Banshee and Voodoo3 boards
 Name:		%{name}
@@ -97,6 +97,9 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/libglide3.*a
 %{_libdir}/libglide3.so
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> cvs-12avx
+- Annvix build
+
 * Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> cvs-11sls
 - minor spec cleanups
 
