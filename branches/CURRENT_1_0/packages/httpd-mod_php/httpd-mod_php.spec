@@ -1,11 +1,15 @@
 %define name	%{ap_name}-%{mod_name}
 %define version %{ap_version}_%{phpversion}
-%define release	2sls
+%define release	3sls
 
 %define phpsource	%{_prefix}/src/php-devel
 %{expand:%(cat /usr/src/php-devel/PHP_BUILD||(echo -e "error: failed build dependencies:\n        php-devel >= 430 (4.3.0) is needed by this package." >/dev/stderr;kill -2 $PPID))}
 
+%ifarch x86_64 amd64
+%define dbver	lib64db4.1
+%else
 %define dbver	libdb4.1
+%endif
 %define ldb	-ldb-4.1
 
 # Module-Specific definitions
@@ -39,7 +43,7 @@ BuildRequires:	openssl-devel
 BuildRequires:	expat-devel
 BuildRequires:	zlib-devel
 BuildRequires:	php%{libversion}-devel
-BuildRequires:	pam-devel libintl2
+BuildRequires:	pam-devel libintl
 BuildRequires:	db1-devel
 # Standard ADVX requires
 BuildRequires:	%{ap_name}-devel >= 2.0.44-1mdk
@@ -132,6 +136,10 @@ cd %{extname}
 %{ap_webdoc}/*
 
 %changelog
+* Tue Jan 06 2004 Vincent Danen <vdanen@opensls.org> 2.0.48_4.3.4-3sls
+- BuildRequires: libintl, not libintl2; db4-devel not libdb4.1-devel (for
+  amd64)
+
 * Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 2.0.48_4.3.4-2sls
 - OpenSLS build
 - tidy spec
