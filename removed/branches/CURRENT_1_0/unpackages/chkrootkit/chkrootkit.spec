@@ -1,6 +1,6 @@
 %define name	chkrootkit
-%define version	0.42b
-%define release	3sls
+%define version	0.43
+%define release	1sls
 
 %define build_diet 1
 
@@ -11,8 +11,8 @@ Release:	%{release}
 License:	BSD
 Group:		Monitoring
 URL:		http://www.chkrootkit.org/
-Source0:	ftp://ftp.pangeia.com.br/pub/seg/pac/%{name}-%{version}.tar.bz2
-Patch0:		chkrootkit-0.42b-lib-path.patch.bz2
+Source0:	ftp://ftp.pangeia.com.br/pub/seg/pac/%{name}-%{version}.tar.gz
+Patch0:		chkrootkit-0.43-lib-path.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-buildroot
 BuildRequires:  glibc-static-devel
@@ -28,7 +28,7 @@ Chkrootkit is a tool to locally check for signs of a rootkit.
 %prep
 
 %setup -q
-%patch -p1 -b .lib-path
+%patch -p0 -b .lib-path
 
 %build
 
@@ -43,10 +43,11 @@ make CFLAGS="-DHAVE_LASTLOG_H -DLASTLOG_FILENAME='\"/var/log/lastlog\"' -DWTEMP_
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 install -d %{buildroot}%{_sbindir}
-install -d %{buildroot}%{_libdir}/%{name}
+install -d %{buildroot}%{_prefix}/lib/%{name}
 
 install chkrootkit %{buildroot}%{_sbindir}/
-install check_wtmpx chklastlog chkproc chkwtmp ifpromisc strings %{buildroot}%{_libdir}/%{name}/
+install check_wtmpx chklastlog chkproc chkwtmp ifpromisc %{buildroot}%{_prefix}/lib/%{name}/
+install strings-static %{buildroot}%{_prefix}/lib/%{name}/strings
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -55,9 +56,14 @@ install check_wtmpx chklastlog chkproc chkwtmp ifpromisc strings %{buildroot}%{_
 %defattr(-,root,root)
 %doc README* COPYRIGHT
 %{_sbindir}/*
-%{_libdir}/%{name}
+%{_prefix}/lib/%{name}
 
 %changelog
+* Mon May 10 2004 Vincent Danen <vdanen@opensls.org> 0.43-1sls
+- 0.43
+- rediff P0
+- make it amd64 friendly and just use /usr/lib rather than %%{_libdir}
+
 * Tue Mar 02 2004 Vincent Danen <vdanen@opensls.org> 0.42b-3sls
 - remove the --with diet stuff because it's redundant
 - remove %%prefix
