@@ -1,9 +1,7 @@
 %define name	iputils
 %define version	20%{ver}
-%define release	6sls
+%define release	7sls
 %define ver	020927
-
-%{!?build_opensls:%global build_opensls 0}
 
 Summary:	Network monitoring tools including ping.
 Name:		%{name}
@@ -23,9 +21,6 @@ Patch5:		iputils-20001110-bonding-sockios.patch.bz2
 Patch6:		iputils-20020927-fix-traceroute.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-root
-%if !%{build_opensls}
-BuildRequires:	openjade perl-SGMLSpm docbook-dtd31-sgml
-%endif
 
 Conflicts:	xinetd < 2.1.8.9pre14-2mdk
 
@@ -55,12 +50,9 @@ perl -pi -e 's!\$\(MAKE\) -C doc html!!g' Makefile
 %make ifenslave -C bonding-0.2
 
 make ifenslave -C bonding-0.2
-%if !%{build_opensls}
-make -C doc man
-%endif
 
 %install
-rm -rf ${RPM_BUILD_ROOT}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 # (TV): this is broken and uneeded
 #make install DESTDIR=${RPM_BUILD_ROOT}
@@ -97,7 +89,7 @@ install -c doc/tracepath.8 ${RPM_BUILD_ROOT}%{_mandir}/man8/
 
 
 %clean
-rm -rf ${RPM_BUILD_ROOT}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -117,6 +109,10 @@ rm -rf ${RPM_BUILD_ROOT}
 %{_mandir}/man8/*
 
 %changelog
+* Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 20020927-7sls
+- remove %%build_opensls macro
+- minor spec cleanups
+
 * Wed Dec 31 2003 Vincent Danen <vdanen@opensls.org> 20020927-6sls
 - remove ipv6calc as it is it's own package now
 - rearrange patches
