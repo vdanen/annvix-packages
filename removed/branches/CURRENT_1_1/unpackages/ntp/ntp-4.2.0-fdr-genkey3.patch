@@ -1,0 +1,11 @@
+--- ntp-4.2.0/util/ntp-keygen.c.range	2004-03-11 15:44:32.882470984 +0100
++++ ntp-4.2.0/util/ntp-keygen.c	2004-03-11 15:45:54.040133144 +0100
+@@ -695,7 +695,7 @@
+ 	char	*id		/* file name id */
+ 	)
+ {
+-	u_char	md5key[16];	/* MD5 key */
++	u_char	md5key[17];	/* MD5 key */
+ 	FILE	*str;
+ 	u_int	temp = 0;	/* Initialize to prevent warnings during compile */
+ 	int	i, j;

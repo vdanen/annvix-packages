@@ -1,0 +1,53 @@
+--- ./glx/Mesa-3.2.1/src/X86/3dnow.c.gege	1999-10-19 20:37:06.000000000 +0200
++++ ./glx/Mesa-3.2.1/src/X86/3dnow.c	2003-06-12 14:08:21.000000000 +0200
+@@ -97,34 +97,34 @@
+ 
+ 
+ #define DECLARE_NORM_GROUP(pfx, masked)                                        \
+- extern void gl_##pfx##_rescale_normals_##masked## (NORM_ARGS);                \
+- extern void gl_##pfx##_normalize_normals_##masked## (NORM_ARGS);              \
+- extern void gl_##pfx##_transform_normals_##masked## (NORM_ARGS);              \
+- extern void gl_##pfx##_transform_normals_no_rot_##masked## (NORM_ARGS);       \
+- extern void gl_##pfx##_transform_rescale_normals_##masked## (NORM_ARGS);      \
+- extern void gl_##pfx##_transform_rescale_normals_no_rot_##masked## (NORM_ARGS); \
+- extern void gl_##pfx##_transform_normalize_normals_##masked## (NORM_ARGS);    \
+- extern void gl_##pfx##_transform_normalize_normals_no_rot_##masked## (NORM_ARGS);
++ extern void gl_##pfx##_rescale_normals_##masked (NORM_ARGS);                \
++ extern void gl_##pfx##_normalize_normals_##masked (NORM_ARGS);              \
++ extern void gl_##pfx##_transform_normals_##masked (NORM_ARGS);              \
++ extern void gl_##pfx##_transform_normals_no_rot_##masked (NORM_ARGS);       \
++ extern void gl_##pfx##_transform_rescale_normals_##masked (NORM_ARGS);      \
++ extern void gl_##pfx##_transform_rescale_normals_no_rot_##masked (NORM_ARGS); \
++ extern void gl_##pfx##_transform_normalize_normals_##masked (NORM_ARGS);    \
++ extern void gl_##pfx##_transform_normalize_normals_no_rot_##masked (NORM_ARGS);
+ 
+ 
+ 
+ #define ASSIGN_NORM_GROUP( pfx, cma, masked )                                 \
+    gl_normal_tab[NORM_RESCALE][cma]   =                                       \
+-      gl_##pfx##_rescale_normals_##masked##;                                  \
++      gl_##pfx##_rescale_normals_##masked;                                  \
+    gl_normal_tab[NORM_NORMALIZE][cma] =                                       \
+-      gl_##pfx##_normalize_normals_##masked##;                                \
++      gl_##pfx##_normalize_normals_##masked;                                \
+    gl_normal_tab[NORM_TRANSFORM][cma] =                                       \
+-      gl_##pfx##_transform_normals_##masked##;                                \
++      gl_##pfx##_transform_normals_##masked;                                \
+    gl_normal_tab[NORM_TRANSFORM_NO_ROT][cma] =                                \
+-      gl_##pfx##_transform_normals_no_rot_##masked##;                         \
++      gl_##pfx##_transform_normals_no_rot_##masked;                         \
+    gl_normal_tab[NORM_TRANSFORM | NORM_RESCALE][cma] =                        \
+-      gl_##pfx##_transform_rescale_normals_##masked##;                        \
++      gl_##pfx##_transform_rescale_normals_##masked;                        \
+    gl_normal_tab[NORM_TRANSFORM_NO_ROT | NORM_RESCALE][cma] =                 \
+-      gl_##pfx##_transform_rescale_normals_no_rot_##masked##;                 \
++      gl_##pfx##_transform_rescale_normals_no_rot_##masked;                 \
+    gl_normal_tab[NORM_TRANSFORM | NORM_NORMALIZE][cma] =                      \
+-      gl_##pfx##_transform_normalize_normals_##masked##;                      \
++      gl_##pfx##_transform_normalize_normals_##masked;                      \
+    gl_normal_tab[NORM_TRANSFORM_NO_ROT | NORM_NORMALIZE][cma] =               \
+-      gl_##pfx##_transform_normalize_normals_no_rot_##masked##;
++      gl_##pfx##_transform_normalize_normals_no_rot_##masked;
+ 
+ 
+ extern void gl_3dnow_project_vertices( GLfloat *first,

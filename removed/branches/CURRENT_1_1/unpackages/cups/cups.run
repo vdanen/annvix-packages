@@ -1,0 +1,78 @@
+#!/bin/sh
+PATH="/sbin:/usr/sbin:/bin:/usr/bin:$PATH"
+
+# run script for cups
+
+# Do some checks, I hope they make CUPS really idiot-proof now ...
+
+# CUPS needs the loopback device to run correctly, make sure that
+# it is running and abort the CUPS startup when the loopback device
+# cannot be started
+if !(export LC_ALL=C; /sbin/ifconfig | /bin/egrep "^lo +[^ ]+.*Loopback" > /dev/null 2>&1); then
+  echo "Loopback device ('lo', 127.0.0.1) needed by CUPS, starting it ..."
+  /sbin/ifconfig lo 127.0.0.1 > /dev/null 2>&1
+  RETVAL=$?
+  if [ $RETVAL -ne 0 ]; then
+	echo
+	echo -n "Cannot start loopback device, start of CUPS aborted"
+  fi
+  if [ $RETVAL -eq 0 ]; then
+  # Add the "route" entry for the loopback device if it is missing
+	if !(export LC_ALL=C; /sbin/route -n | /bin/egrep "^127\.0\.0\.0 +.* +lo$" > /dev/null 2>&1); then
+	  echo "Adding loopback device to routing table ...";
+	  /sbin/route add -net 127.0.0.0 netmask 255.0.0.0 dev lo
+	  if [ $? -ne 0 ]; then
+	    echo
+	    echo "WARNING: Could not add loopback device to routing table,"
+	    echo "         CUPS may not work properly."
+	    echo
+	  fi
+	fi
+  fi
+  # Check whether a parallel printer is configured and if so, but
+  # if the parallel printer kernel module not being loaded, load the
+  # module.
+  if (/bin/egrep "^[^#]*/dev/lp" /etc/cups/printers.conf > /dev/null 2>&1); then
+	if (!(export LC_ALL=C; /sbin/lsmod | /bin/egrep "^lp +" > /dev/null 2>&1) || \
+	  !(export LC_ALL=C; /sbin/lsmod | /bin/egrep "^parport_pc +" > /dev/null 2>&1)); then
+	  echo "Loading parallel port printer kernel modules ..."
+	  modprobe parport_pc > /dev/null 2>&1;
+	  RET=$?
+	  if [ $RET -eq 0 ]; then
+	    modprobe lp > /dev/null 2>&1;
+	    RET=$?
+	  fi
+	  if [ $RET -ne 0 ]; then
+	    echo
+	    echo "WARNING: Parallel printer kernel modules could not be loaded, your parallel"
+	    echo "         printer may not work."
+	    echo
+	  fi
+	fi
+  fi
+  # Check whether a USB printer is configured and if so, but if the
+  # USB printer kernel module not being loaded, load the module.
+  if (/bin/egrep "^[^#]*DeviceURI.*usb" /etc/cups/printers.conf > /dev/null 2>&1); then
+	if !(export LC_ALL=C; /sbin/lsmod | /bin/egrep "^(printer|usblp) +" > /dev/null 2>&1); then
+	  echo "Loading USB printer kernel module ..."
+	  modprobe printer usblp > /dev/null 2>&1;
+	  if [ $? -ne 0 ]; then
+	    echo
+	    echo "WARNING: USB printer kernel module could not be loaded, your USB printer may"
+	    echo "         not work."
+	    echo
+	  fi
+	fi
+  fi
+fi
+
+# Do automatic correction of CUPS configuration to avoid
+# /etc/printcap from LPD/LPRng being overwritten and also
+# to avoid printer info with hostname "localhost" being
+# broadcasted. Can be turned off in printerdrake
+if [ -x /usr/sbin/correctcupsconfig ]; then
+  /usr/sbin/correctcupsconfig
+fi
+
+exec 2>&1
+exec /usr/sbin/cupsd -f
