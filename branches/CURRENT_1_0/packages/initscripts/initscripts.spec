@@ -1,52 +1,61 @@
+%define name	initscripts
+%define version	7.06
+%define release	33.1sls
+
 # 	$Id: initscripts.spec,v 1.329 2003/09/22 17:03:40 warly Exp $	
 
 # The restart part in the real _post_service doesn't work with netfs and isn't needed
 # for other scripts
 %define _mypost_service() if [ $1 = 1 ]; then /sbin/chkconfig --add %{1}; fi;
 
-Summary: The inittab file and the /etc/init.d scripts.
-Name: initscripts
-Version: 7.06
-Release: 32mdk
-License: GPL
-Group: System/Base
-Source0: initscripts-%{version}.tar.bz2
-Patch:	initscripts-mdkconf.patch.bz2
-BuildRoot: %{_tmppath}/%{name}-root
-Requires: mingetty, /bin/awk, /bin/sed, mktemp, e2fsprogs >= 1.18-2mdk
-Requires: procps >= 2.0.7-8mdk, modutils >= 2.4.1
-Requires: util-linux >= 2.10
-Requires: gettext-base >= 0.10.35-20mdk
-#Requires: sysklogd >= 1.3.31
-Requires: /sbin/fuser, which, setup >= 2.2.0-14mdk
-Requires: /sbin/ip, /usr/sbin/arping
-Requires: SysVinit
-Requires: perl-MDK-Common >= 1.0.1
-Requires: ifplugd
-Prereq: chkconfig >= 1.3.8-3mdk, gawk, fileutils, /usr/bin/tr, grep
-Obsoletes: rhsound sapinit
-Provides: rhsound sapinit
-Conflicts: kernel <= 2.2, timeconfig < 3.0, pppd < 2.3.9, wvdial < 1.40-3
-Conflicts: initscripts < 1.22.1-5, Aurora <= 7.2-17mdk
-Conflicts: dhcpcd < 1.3.21pl1
-Conflicts: XFree86-xfs < 4.2.0-12mdk
-Requires: util-linux >= 2.10s, mount >= 2.11l, SysVinit
-Requires: bootloader-utils > 1.4-1mdk
-BuildRequires: glib2-devel
-BuildRequires: pkgconfig
-BuildRequires: popt-devel
-BuildRequires: python
-Url: http://www.linux-mandrake.com/cgi-bin/cvsweb.cgi/soft/initscripts/
+Summary:	The inittab file and the /etc/init.d scripts.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		System/Base
+Url:		http://www.linux-mandrake.com/cgi-bin/cvsweb.cgi/soft/initscripts/
+Source0:	initscripts-%{version}.tar.bz2
+Patch:		initscripts-mdkconf.patch.bz2
+Patch1:		initscripts-supervise.patch.bz2
+Patch2:		initscripts-opensls.patch.bz2
+
+BuildRoot: 	%{_tmppath}/%{name}-root
+BuildRequires:	glib2-devel
+BuildRequires:	pkgconfig
+BuildRequires:	popt-devel
+BuildRequires:	python
+
+Requires:	mingetty, /bin/awk, /bin/sed, mktemp, e2fsprogs >= 1.18-2mdk
+Requires:	procps >= 2.0.7-8mdk, modutils >= 2.4.1
+Requires:	util-linux >= 2.10
+Requires:	gettext-base >= 0.10.35-20mdk
+#Requires:	sysklogd >= 1.3.31
+Requires:	/sbin/fuser, which, setup >= 2.2.0-14mdk
+Requires:	/sbin/ip, /usr/sbin/arping
+Requires:	perl-MDK-Common >= 1.0.1
+Requires:	ifplugd
+Requires:	util-linux >= 2.10s, mount >= 2.11l, SysVinit
+Requires:	bootloader-utils > 1.4-1mdk
+Prereq:		chkconfig >= 1.3.8-3mdk, gawk, fileutils, /usr/bin/tr, grep
+Obsoletes:	rhsound sapinit
+Provides:	rhsound sapinit
+Conflicts:	kernel <= 2.2, timeconfig < 3.0, pppd < 2.3.9, wvdial < 1.40-3
+Conflicts:	initscripts < 1.22.1-5, Aurora <= 7.2-17mdk
+Conflicts:	dhcpcd < 1.3.21pl1
+Conflicts:	XFree86-xfs < 4.2.0-12mdk
 
 %description
 The initscripts package contains the basic system scripts used to boot
-your Mandrake Linux system, change run levels, and shut the system
+your SLS system, change run levels, and shut the system
 down cleanly.  Initscripts also contains the scripts that activate and
 deactivate most network interfaces.
 
 %prep
 %setup -q
 %patch0 -p2
+%patch1 -p1
+%patch2 -p1
 
 %build
 make
@@ -406,6 +415,13 @@ rm -rf $RPM_BUILD_ROOT
 # EDIT IN CVS NOT IN SOURCE PACKAGE (NO PATCH ALLOWED).
 
 %changelog
+* Sun Nov 30 2003 Vincent Danen <vdanen@opensls.org> 7.06-33.1sls
+- more OpenSLS branding
+- tidy spec somewhat
+
+* Fri Nov 07 2003 Vincent Danen <vdanen@opensls.org> 7.06-33sls
+- patch functions to support supervise
+
 * Wed Sep 24 2003 Warly <warly@mandrakesoft.com> 7.06-32mdk
 - fix stupid error in setsysfont
 
