@@ -1,5 +1,5 @@
---- lynx2-8-5/lynx.cfg.pix	2003-01-22 02:27:27.000000000 +0100
-+++ lynx2-8-5/lynx.cfg	2003-01-22 02:28:02.000000000 +0100
+--- ./lynx.cfg.orig	2004-01-29 22:36:17.000000000 +0100
++++ ./lynx.cfg	2004-01-29 22:38:11.000000000 +0100
 @@ -1,6 +1,7 @@
  # lynx.cfg file.
 -# The default placement for this file is /usr/local/lib/lynx.cfg (Unix)
@@ -9,29 +9,29 @@
 +# Linux update, overwriting your changes). Instead, edit /etc/lynx-site.cfg.
  #
  # $Format: "#PRCS LYNX_VERSION \"$ProjectVersion$\""$
- #PRCS LYNX_VERSION "2.8.5dev.12"
+ #PRCS LYNX_VERSION "2.8.5pre.4"
 @@ -92,7 +93,7 @@
  #
  # Normally we expect you will connect to a remote site, e.g., the Lynx starting
  # site:
--STARTFILE:http://lynx.browser.org/
+-STARTFILE:http://lynx.isc.org/
 +STARTFILE:http://www.mandrakelinux.com
  #
  # As an alternative, you may want to use a local URL.  A good choice for this is
  # the user's home directory:
 @@ -115,9 +116,9 @@
- # http://www.trill-home.com/lynx/lynx_help/lynx_help_main.html
+ # http://www.subir.com/lynx/lynx_help/lynx_help_main.html
  #   This should be changed to the local path.
  #
--HELPFILE:http://www.trill-home.com/lynx/lynx_help/lynx_help_main.html
+-HELPFILE:http://www.subir.com/lynx/lynx_help/lynx_help_main.html
 +HELPFILE:file://localhost/PATH_TO/lynx_help/lynx_help_main.html
  .ex
 -#HELPFILE:file://localhost/PATH_TO/lynx_help/lynx_help_main.html
-+#HELPFILE:http://www.trill-home.com/lynx/lynx_help/lynx_help_main.html
++#HELPFILE:http://www.subir.com/lynx/lynx_help/lynx_help_main.html
  
  
  .h2 DEFAULT_INDEX_FILE
-@@ -494,7 +495,7 @@
+@@ -503,7 +504,7 @@
  # Older browser versions will fail so keep NCR_IN_BOOKMARKS:FALSE if you
  # plan to use them.
  #
@@ -40,16 +40,16 @@
  
  
  .h2 FORCE_8BIT_TOUPPER
-@@ -2183,7 +2184,7 @@
- # viewer or don't want to disable the built-in default viewer
- # mappings for image types.
+@@ -2216,7 +2217,7 @@
+ # Make this empty (but not commented out) if you don't have such a viewer or
+ # want to disable the built-in default viewer mappings for image types.
  #
 -#XLOADIMAGE_COMMAND:xv %s
 +XLOADIMAGE_COMMAND:xli %s
  
  # Unix:
  # =====
-@@ -2250,11 +2251,11 @@
+@@ -2283,11 +2284,11 @@
  #
  .ex 7
  #VIEWER:application/postscript:ghostview %s&:XWINDOWS
@@ -66,10 +66,10 @@
  #VIEWER:video/mpeg:mpeg_play %s &:XWINDOWS
  
  
-@@ -3270,3 +3271,6 @@
- #UUDECODE_PATH:
- #ZCAT_PATH:
- #ZIP_PATH:
-+
+@@ -3330,3 +3331,6 @@
+ # For win32, allow the console window to be resized to the given values.  This
+ # requires PDCurses 2.5.  The values given are width,height.
+ #SCREEN_SIZE:80,24
++ 
 +# included last to allow overriding configuration above
 +INCLUDE:/etc/lynx-site.cfg
