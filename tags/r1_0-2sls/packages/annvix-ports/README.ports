@@ -1,0 +1,59 @@
+Welcome to the OpenSLS ports system.
+
+The ports system works similar to that of other well-known systems such as
+FreeBSD, OpenBSD, and others.  It's even somewhat similar, in concept, to
+Gentoo's portage.
+
+The primary difference is that OpenSLS's ports system creates rpm packages. 
+It doesn't install these packages, it just creates them.
+
+To get started with the ports system, you will need to keep the ports tree
+up to date with the OpenSLS ports tree in CVS.  This can be done by:
+
+# cd /usr/local/ports
+# make checkout
+
+This will connect to the OpenSLS CVS repository and download the entire
+ports tree.  The ports tree consists of patches, spec files, and scripts to
+create the RPM files.
+
+To refresh the ports tree and download the latest ports packages, use:
+
+# cd /usr/local/ports
+# make update
+
+To create an RPM file for joe, for example, use:
+
+# cd /usr/local/ports/ports/joe
+$ make
+
+This will download any required source files (requires an active internet
+connection) and compile it to create both src.rpm and binary rpm files. This
+step should be done as an admin user and not as root. These files will then
+be copied into /usr/local/ports/{RPMS,SRPMS} and the appropriate hdlists will
+be generated.
+
+Once you create your first ports package, you should create the urpmi source
+by using:
+
+# cd /usr/local/ports
+# make urpmi
+
+This will add the ports tree as a urpmi media.  From this point forward, you
+can execute:
+
+# urpmi joe
+
+In order to install the package "joe".
+
+The ports system is still in it's infancy and likely has a lot of work ahead
+to become reliable and robust.  More hands and eyes are welcome to fiddle
+with it and improve upon the system.  For instance, there is no way to check
+dependencies easily; if package "x" depends on package "y", which does not
+come with OpenSLS but may be in ports, you will have to make package "y"
+first, and then go back to package "x".  In an ideal world, making package
+"x" would detect that package "y" doesn't exist and is not installable, will
+create package "y", install it, and then return to building package "x". 
+But it doesn't do that quite yet.  =)
+
+For discussion on the ports system, use the dev@opensls.org mailing list.
