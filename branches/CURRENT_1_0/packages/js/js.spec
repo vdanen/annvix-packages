@@ -1,24 +1,27 @@
-%define lib_release rc5
-
 %define name	js
 %define version	1.5
-%define release	0.%{lib_release}.5mdk
+%define release	0.%{lib_release}.6sls
 
-%define major	1
-%define libname %mklibname %{name} %{major}
+%{!?build_propolice:%global build_propolice 0}
+
+%define lib_release	rc5
+%define major		1
+%define libname		%mklibname %{name} %{major}
 
 Summary:	JavaScript engine
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
-Source0:	%{name}-%{version}-%{lib_release}.tar.bz2
-Patch0:		lib%{name}-%{version}.patch.bz2
-URL:		http://www.gingerall.com/charlie/ga/xml/d_related.xml
 License:	MPL
 Group:		Development/Other
+URL:		http://www.gingerall.com/charlie/ga/xml/d_related.xml
+Source0:	%{name}-%{version}-%{lib_release}.tar.bz2
+Patch0:		lib%{name}-%{version}.patch.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-buildroot
+
 Requires:	%{libname} = %{version}-%{release}
 Provides:	ADVXpackage
-BuildRoot:	%{_tmppath}/%{name}-buildroot
 
 %description
 JavaScript is the Netscape-developed object scripting languages. This
@@ -26,7 +29,7 @@ package has been created for purposes of Sablotron and is suitable for
 embedding in applications. See http://www.mozilla.org/js for details 
 and sources.
 
-%package -n	%{libname}
+%package -n %{libname}
 Summary:	JavaScript engine library
 Group:		System/Libraries
 Provides:	ADVXpackage
@@ -37,7 +40,7 @@ package has been created for purposes of Sablotron and is suitable for
 embedding in applications. See http://www.mozilla.org/js for details 
 and sources.
 
-%package -n	%{libname}-devel
+%package -n %{libname}-devel
 Summary:	The header files for %{libname}
 Group:		Development/Other
 Requires:	%{libname} = %{version}-%{release}
@@ -57,8 +60,16 @@ cd src
 %build
 cd src
 perl -pi -e "s/-shared/-shared -lc -soname libjs.so.1/;" config/Linux_All.mk
+
+%if %{build_propolice}
+# undefined symbol errors, so for the moment don't enable stack protection
+OPTFLAGS="%{optflags} -fno-stack-protector -fPIC"
+%else
+OPTFLAGS="%{optflags} -fPIC"
+%endif
+
 #JMD: %make does *not* work!
-BUILD_OPT=1 CFLAGS="%{optflags} -fPIC" make -f Makefile.ref 
+BUILD_OPT=1 CFLAGS=$OPTFLAGS make -f Makefile.ref 
 
 %install
 [ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
@@ -106,6 +117,12 @@ install -m755 src/Linux_All_OPT.OBJ/%{name} %{buildroot}%{_bindir}/
 %{_libdir}/*.a
 
 %changelog
+* Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 1.5-0.rc5.6sls
+- OpenSLS build
+- tidy spec
+- use %%build_propolice macro to not build with stack protection due to
+  symbol errors again
+
 * Mon Jul 21 2003 David Baudens <baudens@mandrakesoft.com> 1.5-0.rc5.5mdk
 - Rebuild to fix bad signature
 
