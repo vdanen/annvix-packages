@@ -7,7 +7,7 @@ PATH="/sbin:/usr/sbin:/bin:/usr/bin:$PATH"
 [ -f /etc/sysconfig/spamassassin ]; then
 	. /etc/sysconfig/spamassassin
 else
-	OPTIONS="-d -c -a -m5 -H"
+	OPTIONS="-c -a -m5 -H"
 fi
 
 exec /usr/bin/spamd $OPTIONS
