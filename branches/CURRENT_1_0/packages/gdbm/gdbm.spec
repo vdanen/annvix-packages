@@ -1,6 +1,6 @@
 %define name	gdbm
 %define version 1.8.0 
-%define release 25sls
+%define release 26sls
 
 %define lib_major	2
 %define lib_name	%mklibname gdbm %{lib_major}
@@ -77,12 +77,15 @@ autoheader
 %make all info
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %makeinstall install-compat includedir=$RPM_BUILD_ROOT%{_includedir}/gdbm
 ln -sf gdbm/gdbm.h $RPM_BUILD_ROOT%{_includedir}/gdbm.h
 
 chmod 644  COPYING INSTALL NEWS README
+
+%clean
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post -n %{lib_name} -p /sbin/ldconfig
 
@@ -97,8 +100,8 @@ chmod 644  COPYING INSTALL NEWS README
 
 %files -n %{lib_name}
 %defattr(-,root,root)
-%{_libdir}/libgdbm.so.*
 %doc COPYING INSTALL NEWS README
+%{_libdir}/libgdbm.so.*
 
 %files -n %{lib_name}-devel
 %defattr(-,root,root)
@@ -111,10 +114,10 @@ chmod 644  COPYING INSTALL NEWS README
 %{_infodir}/gdbm*
 %{_mandir}/man3/*
 
-%clean
-rm -rf $RPM_BUILD_ROOT
-
 %changelog
+* Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 1.8.0-26sls
+- minor spec cleanups
+
 * Wed Dec 17 2003 Vincent Danen <vdanen@opensls.org> 1.8.0-25sls
 - OpenSLS build
 - tidy spec

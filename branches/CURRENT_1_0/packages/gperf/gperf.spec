@@ -1,6 +1,6 @@
 %define name	gperf
 %define version	3.0.1
-%define release	2sls
+%define release	3sls
 
 Summary:	A perfect hash function generator
 Name:		%{name}
@@ -32,12 +32,12 @@ functions.
 %make
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 rm -f $RPM_BUILD_ROOT%{_datadir}/doc/gperf/gperf.html
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
 %_install_info %{name}.info
@@ -53,6 +53,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_infodir}/gperf.info*
 
 %changelog
+* Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 3.0.1-3sls
+- minor spec cleanups
+
 * Tue Dec 30 2003 Vincent Danen <vdanen@opensls.org> 3.0.1-2sls
 - OpenSLS build
 - tidy spec

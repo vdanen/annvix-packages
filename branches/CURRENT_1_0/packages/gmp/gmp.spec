@@ -1,6 +1,6 @@
 %define name	gmp
 %define version	4.1.2
-%define release	4sls
+%define release	5sls
 
 %define lib_major	3
 %define lib_name_orig	%mklibname %{name}
@@ -84,6 +84,7 @@ install the gmp package.
 %make check
 
 %install
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 install -d %buildroot/%_libdir %buildroot/%_infodir %buildroot/%_includedir
 %makeinstall
 rm -f $RPM_BUILD_ROOT/%{_infodir}/dir
@@ -98,7 +99,7 @@ rm -f $RPM_BUILD_ROOT/%{_infodir}/dir
 %_remove_install_info %{name}.info
 
 %clean
-rm -fr %buildroot
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files -n %{lib_name}
 %defattr(-,root,root)
@@ -116,6 +117,9 @@ rm -fr %buildroot
 %{_infodir}/gmp.info*
 
 %changelog
+* Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 4.1.2-5sls
+- minor spec cleanups
+
 * Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 4.1.2-4sls
 - OpenSLS build
 - tidy spec
