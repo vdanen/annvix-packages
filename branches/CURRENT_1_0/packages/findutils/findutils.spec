@@ -1,8 +1,8 @@
 %define name	findutils
-%define version	4.1.20
-%define release	4avx
+%define version	4.2.17
+%define release	1avx
 
-Summary:	The GNU versions of find utilities (find, xargs, and locate).
+Summary:	The GNU versions of find utilities (find, xargs, and locate)
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -11,11 +11,12 @@ Group:		File tools
 URL:		http://www.gnu.org/software/findutils/findutils.html
 Source0:	ftp://alpha.gnu.org/gnu/findutils-%{version}.tar.bz2
 Source1:	updatedb.cron.bz2
-Patch0:		findutils-4.1.6-getshort.patch.bz2
-Patch1:		findutils-53857.patch.bz2
-Patch2:		findutils-4.1.7-usage.patch.bz2
-Prereq:		/sbin/install-info
-Buildroot:	%{_tmppath}/%{name}-root
+Patch0:		findutils-4.2.15-no-locate.patch.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-root
+BuildRequires:	automake1.8
+
+Prereq:		info-install
 
 %description
 The findutils package contains programs which will help you locate
@@ -32,29 +33,23 @@ useful for finding things on your system.
 
 %prep
 %setup -q
-%patch0 -p1
-%patch1 -p1
-%patch2 -p1
+%patch0 -p1 -b .no-locate
+
+# needed by P0
+ACLOCAL=aclocal-1.9 AUTOMAKE=automake-1.9 autoreconf --force --install
 
 %build
-%configure 
+%configure2_5x
 %make
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p $RPM_BUILD_ROOT/%{_libdir}/findutils
-%makeinstall
+%makeinstall_std
 
-mkdir $RPM_BUILD_ROOT/bin
-mv $RPM_BUILD_ROOT%{_bindir}/find $RPM_BUILD_ROOT/bin
-ln -sf ../../bin/find $RPM_BUILD_ROOT%{_bindir}/find
+mkdir %{buildroot}/bin
+mv %{buildroot}%{_bindir}/find %{buildroot}/bin
+ln -sf ../../bin/find %{buildroot}%{_bindir}/find
 
-# Remove files contained in other packages
-rm -f $RPM_BUILD_ROOT%{_bindir}/{locate,updatedb} \
-	$RPM_BUILD_ROOT%{_libdir}/{bigram,code,frcode} \
-	$RPM_BUILD_ROOT%{_mandir}/man1/{locate*,updatedb}.1* \
-	$RPM_BUILD_ROOT%{_mandir}/man5/locatedb.5*
-	
 %{find_lang} %{name}
 
 %post
@@ -77,6 +72,12 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/{locate,updatedb} \
 %{_infodir}/find.info*
 
 %changelog
+* Sat Mar 05 2005 Vincent Danen <vdanen@annvix.org> 4.2.17-1avx
+- 4.2.17
+- P4: don't build locate
+- remove S1 as it's not even used
+- update %%configure/%%makeinstall macros; use automake1.8
+
 * Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 4.1.20-4avx
 - Annvix build
 
