@@ -1,16 +1,11 @@
---- apr-0.9.4/include/apr_thread_proc.h.stacksize
-+++ apr-0.9.4/include/apr_thread_proc.h
-@@ -255,6 +255,27 @@
- APR_DECLARE(apr_status_t) apr_threadattr_detach_get(apr_threadattr_t *attr);
- 
- /**
-+ * Set the stack size of newly created threads.
-+ * @param attr The threadattr to affect 
-+ * @param stacksize The stack size in bytes
-+ */
-+APR_DECLARE(apr_status_t) apr_threadattr_stacksize_set(apr_threadattr_t *attr,
-+                                                       apr_size_t stacksize);
-+
+diff -Naur apr-0.9.6/include/apr_thread_proc.h apr-0.9.6.oden/include/apr_thread_proc.h
+--- apr-0.9.6/include/apr_thread_proc.h	2005-02-04 21:36:31.000000000 +0100
++++ apr-0.9.6.oden/include/apr_thread_proc.h	2005-02-07 16:40:35.296155670 +0100
+@@ -226,7 +226,18 @@
+  */
+ APR_DECLARE(apr_status_t) apr_threadattr_stacksize_set(apr_threadattr_t *attr,
+                                                        apr_size_t stacksize);
+-
 +/**
 + * Set the stack guard area size of newly created threads.
 + * @param attr The threadattr to affect 
@@ -23,23 +18,16 @@
 + * for performance. */
 +APR_DECLARE(apr_status_t) apr_threadattr_guardsize_set(apr_threadattr_t *attr,
 +                                                       apr_size_t guardsize);
-+
-+/**
+ /**
   * Create a new thread of execution
   * @param new_thread The newly created thread handle.
-  * @param attr The threadattr to use to determine how to create the thread
---- apr-0.9.4/threadproc/unix/thread.c.stacksize
-+++ apr-0.9.4/threadproc/unix/thread.c
-@@ -121,6 +121,18 @@
-     return APR_NOTDETACH;
+diff -Naur apr-0.9.6/threadproc/unix/thread.c apr-0.9.6.oden/threadproc/unix/thread.c
+--- apr-0.9.6/threadproc/unix/thread.c	2005-02-04 21:36:31.000000000 +0100
++++ apr-0.9.6.oden/threadproc/unix/thread.c	2005-02-07 16:41:28.692468763 +0100
+@@ -99,6 +99,12 @@
+     return stat;
  }
  
-+APR_DECLARE(apr_status_t) apr_threadattr_stacksize_set(apr_threadattr_t *attr,
-+                                                       apr_size_t stacksize)
-+{
-+    return pthread_attr_setstacksize(attr->attr, stacksize);
-+}
-+
 +APR_DECLARE(apr_status_t) apr_threadattr_guardsize_set(apr_threadattr_t *attr,
 +                                                       apr_size_t size)
 +{

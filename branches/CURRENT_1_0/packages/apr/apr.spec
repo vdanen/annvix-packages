@@ -1,31 +1,10 @@
 %define name	apr
-%define version	0.9.5
+%define version	0.9.6
 %define release	1avx
 %define epoch	1
 
 %define aprver	0
 %define libname	%mklibname %{name} %{aprver}
-
-#(ie. use with rpm --rebuild):
-#
-#	--with debug	Compile with debugging code
-# 
-#  enable build with debugging code: will _not_ strip away any debugging code,
-#  will _add_ -g3 to CFLAGS, will _add_ --enable-maintainer-mode to 
-#  configure.
-
-%define build_debug 0
-
-# commandline overrides:
-# rpm -ba|--rebuild --with 'xxx'
-%{?_with_debug: %{expand: %%define build_debug 1}}
-
-%if %{build_debug}
-# disable build root strip policy
-%define __spec_install_post %{_libdir}/rpm/brp-compress || :
-# This gives extra debugging and huge binaries
-%{expand:%%define optflags %{optflags} %([ ! $DEBUG ] && echo '-g3')}
-%endif
 
 Summary:	Apache Portable Runtime library
 Name:		%{name}
@@ -34,19 +13,16 @@ Release:	%{release}
 License:	Apache License
 Group:		System/Libraries
 URL:		http://apr.apache.org/
-Source0:	apr-0.9.4.tar.gz
-Source1:	apr-0.9.4.tar.gz.asc
-# OE: P0 is taken from the httpd-2.0.50.tar.gz source
-Patch0:		apr-0.9.4-0.9.5.diff.bz2
-# OE: these are from fedora
+Source0:	%{name}-%{version}.tar.gz
+Source1:	%{name}-%{version}.tar.gz.asc
+# OE: P0 is taken from the httpd-2.0.51.tar.gz source
 Patch1:		apr-0.9.3-deplibs.patch.bz2
-Patch2:		apr-0.9.3-config.patch.bz2
-Patch3:		apr-0.9.3-testrand.patch.bz2
+Patch2:		apr-0.9.5-config.diff.bz2
 Patch4:		apr-0.9.3-noipv6.patch.bz2
 Patch5:		apr-0.9.4-trimlibs.patch.bz2
 Patch7:		apr-0.9.4-tests.patch.bz2
-Patch17:	apr-0.9.4-mdkmutextype.patch.bz2
-Patch19:	apr-0.9.4-stacksize.patch.bz2
+Patch17:	apr-0.9.5-mutextype_reorder.diff.bz2
+Patch19:	apr-0.9.6-guardsize.diff.bz2
 Patch20:	apr-0.9.4-cleanups.patch.bz2
 # OE: add the metux mpm hooks
 Patch30:	apr-0.9.5-metuxmpm-r8.patch.bz2
@@ -94,18 +70,14 @@ C data structures and routines.
 
 %prep
 
-%setup -q -n %{name}-0.9.4
-%patch0 -p1 -b .0.9.5
-
-# from fedora
+%setup -q -n %{name}-%{version}
 %patch1 -p1 -b .deplibs
-%patch2 -p1 -b .config
-%patch3 -p1 -b .testrand
+%patch2 -p0 -b .config
 %patch4 -p1 -b .noipv6
 %patch5 -p1 -b .trimlibs
 %patch7 -p1 -b .tests
-%patch17 -p0 -b .mdkmutextype
-%patch19 -p1 -b .stacksize
+%patch17 -p0 -b .mutextype_reorder
+%patch19 -p1 -b .guardsize
 %patch20 -p1 -b .cleanups
 
 # OE: add the metux mpm hooks
@@ -140,10 +112,6 @@ EOF
     --cache-file=config.cache \
     --includedir=%{_includedir}/apr-%{aprver} \
     --with-installbuilddir=%{_libdir}/apr/build \
-%if %{build_debug}
-    --enable-debug \
-    --enable-maintainer-mode \
-%endif
     --enable-layout=ADVX \
 %ifarch %ix86
 %ifnarch i386 i486
@@ -155,7 +123,6 @@ EOF
 %make
 make dox
 
-%check
 # Run non-interactive tests
 %ifarch x86_64
 # https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=97611
@@ -185,7 +152,7 @@ sed -e "/^apr_build/d" \
     < build/apr_rules.mk > %{buildroot}%{_libdir}/apr/build/apr_rules.mk
 
 # Move docs to more convenient location
-mv docs/dox/html html
+rm -rf html; mv docs/dox/html html
 
 # Unpackaged files:
 rm -f %{buildroot}%{_libdir}/apr.exp
@@ -217,6 +184,12 @@ rm -f %{buildroot}%{_libdir}/apr.exp
 %{_includedir}/apr-%{aprver}/*.h
 
 %changelog
+* Fri Feb 25 2005 Vincent Danen <vdanen@annvix.org> 0.9.6-1avx
+- 0.9.6
+- drop P3 merged upstream
+- P19: rediffed; partially merged upstream (oden)
+- disable debug build support
+
 * Thu Oct 14 2004 Vincent Danen <vdanen@annvix.org> 0.9.5-1avx
 - first Annvix build for new-style apache2
 

@@ -1,57 +1,27 @@
-
-- remove fragile installed/not-installed detection
-- support --cc and --cpp arguments (from CVS HEAD)
-
---- apr-0.9.4/apr-config.in.config
-+++ apr-0.9.4/apr-config.in
-@@ -75,7 +75,6 @@
+--- apr-config.in	2004-09-15 21:35:12.126684584 +0200
++++ apr-config.in.oden	2004-09-15 21:43:42.232584869 +0200
+@@ -37,7 +37,6 @@
  LIBS="@EXTRA_LIBS@"
  EXTRA_INCLUDES="@EXTRA_INCLUDES@"
  SHLIBPATH_VAR="@shlibpath_var@"
 -APR_SOURCE_DIR="@apr_srcdir@"
+ APR_BUILD_DIR="@apr_builddir@"
  APR_SO_EXT="@so_ext@"
  APR_LIB_TARGET="@export_lib_target@"
- APR_LIBNAME="@APR_LIBNAME@"
-@@ -123,37 +122,7 @@
+@@ -89,11 +88,7 @@
      exit 1
  fi
  
--thisdir="`dirname $0`"
--thisdir="`cd $thisdir && pwd`"
--if test -d $bindir; then
--  tmpbindir="`cd $bindir && pwd`"
--else
--  tmpbindir=""
--fi
--# If we have the realpath program, use it to resolve symlinks
--# Otherwise, being in a symlinked dir may result in incorrect output.
--if test -x "`which realpath 2>/dev/null`"; then
--  thisdir="`realpath $thisdir`"
--  if test -d "$APR_SOURCE_DIR"; then
--    APR_SOURCE_DIR="`realpath $APR_SOURCE_DIR`"
--  fi
--  if test -n "$tmpbindir"; then
--    tmpbindir="`realpath $tmpbindir`"
--  fi
--fi
--if test "$tmpbindir" = "$thisdir"; then
--  location=installed
--elif test "$APR_SOURCE_DIR" = "$thisdir"; then
--  location=source
--else
--  location=build
--fi
--
 -if test "$location" = "installed"; then
 -    LA_FILE="$libdir/lib${APR_LIBNAME}.la"
 -else
--    LA_FILE="$thisdir/lib${APR_LIBNAME}.la"
+-    LA_FILE="$APR_BUILD_DIR/lib${APR_LIBNAME}.la"
 -fi
 +LA_FILE="$libdir/lib${APR_LIBNAME}.la"
  
  flags=""
  
-@@ -178,15 +147,15 @@
+@@ -118,15 +113,7 @@
      exit 0
      ;;
      --includedir)
@@ -61,22 +31,14 @@
 -        flags="$APR_SOURCE_DIR/include"
 -    else
 -        # this is for VPATH builds
--        flags="$thisdir/include $APR_SOURCE_DIR/include"
+-        flags="$APR_BUILD_DIR/include $APR_SOURCE_DIR/include"
 -    fi
 -    echo $flags
 +    echo $includedir
-+    exit 0
-+    ;;
-+    --cc)
-+    echo $CC
-+    exit 0
-+    ;;
-+    --cpp)
-+    echo $CPP
      exit 0
      ;;
      --cc)
-@@ -210,28 +179,14 @@
+@@ -150,28 +137,14 @@
      flags="$flags $LDFLAGS"
      ;;
      --includes)
@@ -86,7 +48,7 @@
 -        flags="$flags -I$APR_SOURCE_DIR/include $EXTRA_INCLUDES"
 -    else
 -        # this is for VPATH builds
--        flags="$flags -I$thisdir/include -I$APR_SOURCE_DIR/include $EXTRA_INCLUDES"
+-        flags="$flags -I$APR_BUILD_DIR/include -I$APR_SOURCE_DIR/include $EXTRA_INCLUDES"
 -    fi
 +    flags="$flags -I$includedir $EXTRA_INCLUDES"
      ;;
@@ -102,13 +64,13 @@
 -        echo "$APR_SOURCE_DIR/build"
 -    else
 -        # this is for VPATH builds
--        echo "$thisdir/build"
+-        echo "$APR_BUILD_DIR/build"
 -    fi
 +    echo "${installbuilddir}"
      exit 0
      ;;
      --version)
-@@ -239,35 +194,17 @@
+@@ -179,36 +152,17 @@
      exit 0
      ;;
      --link-ld)
@@ -116,7 +78,8 @@
 -        ### avoid using -L if libdir is a "standard" location like /usr/lib
 -        flags="$flags -L$libdir -l${APR_LIBNAME}"
 -    else
--        flags="$flags -L$thisdir -l${APR_LIBNAME}"
+-        ### this surely can't work since the library is in .libs?
+-        flags="$flags -L$APR_BUILD_DIR -l${APR_LIBNAME}"
 -    fi
 +    flags="$flags -l${APR_LIBNAME}"
      ;;
@@ -147,14 +110,14 @@
      ;;
      --apr-so-ext)
      echo "$APR_SO_EXT"
-@@ -278,11 +215,7 @@
+@@ -219,11 +173,7 @@
      exit 0
      ;;
      --apr-libtool)
 -    if test "$location" = "installed"; then
 -        echo "${installbuilddir}/libtool"
 -    else
--        echo "$thisdir/libtool"
+-        echo "$APR_BUILD_DIR/libtool"
 -    fi
 +    echo "${SHELL} ${installbuilddir}/libtool"
      exit 0
