@@ -1,0 +1,29 @@
+We ship netkit rsh, which isn't smart enough to deal with the oddball case
+where argv[0] is an option flag.
+
+--- src/appl/bsd/krlogin.c	Fri Mar  3 11:07:27 2000
++++ src/appl/bsd/krlogin.c	Fri Mar  3 11:08:00 2000
+@@ -1697,8 +1697,10 @@
+       host++;
+     else
+       host = argv[0];
++#ifdef BERKELEY_RLOGIN
+     if (!strcmp(host, "rlogin"))
+       argv++;
++#endif
+     
+ #ifdef POSIX_SIGNALS
+     sigemptyset(&mask);
+--- src/appl/bsd/krsh.c	Fri Mar  3 11:24:06 2000
++++ src/appl/bsd/krsh.c	Fri Mar  3 11:24:56 2000
+@@ -584,8 +584,10 @@
+     else
+       host = argv[0];
+     
++#ifdef BERKELEY_RSH
+     if (!strcmp(host, "rsh"))
+       argv++;
++#endif
+     
+     fprintf(stderr,"trying normal rsh (%s)\n",
+ 	    UCB_RSH);
