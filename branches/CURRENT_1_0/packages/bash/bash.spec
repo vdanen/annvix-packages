@@ -1,10 +1,8 @@
 %define name	bash
 %define version	2.05b
-%define release	15sls
+%define release	16sls
 
 %define i18ndate 20010418
-
-%{!?build_opensls:%define build_opensls 0}
 
 Summary:	The GNU Bourne Again shell (bash).
 Name:		%{name}
@@ -52,7 +50,6 @@ BuildRequires:	autoconf2.5
 BuildRequires:	byacc
 BuildRequires:	libtermcap-devel
 
-Prefix:		%{_prefix}
 Conflicts:	etcskel <= 1.63-11mdk, fileutils < 4.1-5mdk
 
 %description
@@ -68,29 +65,6 @@ integer arithmetic in any base from two to 64. Bash is ultimately
 intended to conform to the IEEE POSIX P1003.2/ISO 9945.2 Shell and
 Tools standard.
 
-
-%if !%{build_opensls}
-%package doc
-Group:		Books/Computer books
-Summary:	Documentation for the GNU Bourne Again shell (bash).
-URL:		http://www.gnu.org/software/bash/bash.html
-Requires:	bash = %{version}
-
-%description doc
-Bash is a GNU project sh-compatible shell or command language
-interpreter. Bash (Bourne Again shell) incorporates useful features
-from the Korn shell (ksh) and the C shell (csh). Most sh scripts
-can be run by bash without modification.
-
-Bash offers several improvements over sh, including command line
-editing, unlimited size command history, job control, shell
-functions and aliases, indexed arrays of unlimited size and 
-integer arithmetic in any base from two to 64. Bash is ultimately
-intended to conform to the IEEE POSIX P1003.2/ISO 9945.2 Shell and
-Tools standard.
-
-This package includes doc guide examples and manual for bash.
-%endif
 
 %prep
 %setup -q -n bash-%{version} -a 1
@@ -148,7 +122,7 @@ libtoolize --copy --force
 %make -j1 CFLAGS="$RPM_OPT_FLAGS"
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
 #Sucks
 chmod +w doc/texinfo.tex
@@ -207,7 +181,7 @@ ln -s bash %buildroot/bin/rbash
 rm -f %buildroot{%_infodir/dir,%_mandir/man1/{echo,export,kill,printf,pwd,test}.1}
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files -f man.pages
 %defattr(-,root,root)
@@ -224,17 +198,13 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/bashbug.1*
 %{_bindir}/bashbug
 
-%if !%{build_opensls}
-%files doc
-%defattr(-,root,root)
-%doc COMPAT NEWS NOTES POSIX
-%doc examples/bashdb/ examples/functions/ examples/misc/
-%doc examples/scripts.noah/ examples/scripts.v2/ examples/scripts/
-%doc examples/startup-files/
-%doc doc/*.ps doc/*.0 doc/*.html doc/article.txt
-%endif
 
 %changelog
+* Tue Mar 02 2004 Vincent Danen <vdanen@opensls.org> 2.05b-16sls
+- remove %%build_opensls macro
+- remove %%prefix
+- minor spec cleanups
+
 * Tue Dec 02 2003 Vincent Danen <vdanen@opensls.org> 2.05b-15sls
 - OpenSLS build
 - tidy spec
