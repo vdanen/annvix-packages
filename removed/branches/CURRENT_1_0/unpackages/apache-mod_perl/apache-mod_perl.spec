@@ -1,3 +1,7 @@
+%define name	apache-mod_perl
+%define version	%{apache_version}_%{mod_perl_version}
+%define release	3sls
+
 #New ADVX macros
 %define ADVXdir %{_datadir}/ADVX
 %{expand:%(cat %{ADVXdir}/ADVX-build)}
@@ -9,36 +13,34 @@
 %{expand:%%define mm_minor %(mm-config --version|sed 's/MM \([0-9]\)\.\([0-9.].*\) \(.*\)$/\2/')}
 %define mm_version %{mm_major}.%{mm_minor}
 
-%define release 2mdk
-
-%define perl_version %(rpm -q --qf '%%{epoch}:%%{version}' perl)
-%define mod_perl_version 1.29
-%define embperl_version 1.3.6
+%define perl_version		%(rpm -q --qf '%%{epoch}:%%{version}' perl)
+%define mod_perl_version	1.29
+%define embperl_version		1.3.6
 
 #we use this so apache and apache-mod_perl can use the same modules
 %define apflags %(echo "`%{_sbindir}/apxs -q CFLAGS 2>/dev/null|sed s/-DSHARED_CORE//g`")
 
 Summary:	Apache Web server with a built-in Perl interpreter
-Name:		apache-mod_perl
-URL:		http://perl.apache.org
+Name:		%{name}
 Version:	%{apache_version}_%{mod_perl_version}
 Release:	%{release}
-Group:		System/Servers
 License:	Apache License
-BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
-Provides:	webserver mod_perl 
-Provides:	apache = %{apache_version}
-Provides:	mod_perl = %{mod_perl_version}
-Obsoletes:	mod_perl
-Requires:	perl = %{perl_version}
-Prereq:		apache-conf >= %{apache_version}
-Prereq:		apache-common >= %{apache_version} 
-Prereq:		apache-modules = %{apache_version}
-Prereq:		mm = %{mm_major}.%{mm_minor}
-Prereq:		mod_perl-common = %{apache_version}_%{mod_perl_version}
-Provides:	ADVXpackage
-Provides:	AP13package
+Group:		System/Servers
+URL:		http://perl.apache.org
+Source0:	mod_perl-%{mod_perl_version}.tar.gz
+Source1:	mod_perl-%{mod_perl_version}.tar.gz.asc
+Source2:	README.ADVX
+Source6:	mod_include_xssi.c
+Source16:	proxied_handlers.pl
+Source22:	mod_include_xssi.html
+Source60:	mod_perl.html
+Source61:	mod_perl-testscript.pl
+Source70:	ftp://ftp.dev.ecos.de/pub/perl/embperl/HTML-Embperl-%{embperl_version}.tar.bz2
+Source71:	embperl-apache.diff.bz2
+Source72:	HTML-Embperl.html
+Patch1:		HTML-Embperl-1.3.4-disable-some-tests.patch.bz2
 
+BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
 BuildRequires:	ADVX-build >= 1.2
 # needed for /var/apache-mm
 BuildRequires:	apache-conf
@@ -60,20 +62,18 @@ BuildRequires:	db3-devel
 BuildRequires:	perl-devel
 BuildConflicts:	BerkeleyDB-devel
 
-Source0:	mod_perl-%{mod_perl_version}.tar.gz
-Source1:	mod_perl-%{mod_perl_version}.tar.gz.asc
-Source2:	README.ADVX
-Source6:	mod_include_xssi.c
-Source16:	proxied_handlers.pl
-Source22:	mod_include_xssi.html
-Source60:	mod_perl.html
-Source61:	mod_perl-testscript.pl
-
-Source70:	ftp://ftp.dev.ecos.de/pub/perl/embperl/HTML-Embperl-%{embperl_version}.tar.bz2
-Source71:	embperl-apache.diff.bz2
-Source72:	HTML-Embperl.html
-
-Patch1:		HTML-Embperl-1.3.4-disable-some-tests.patch.bz2
+Obsoletes:	mod_perl
+Requires:	perl = %{perl_version}
+Prereq:		apache-conf >= %{apache_version}
+Prereq:		apache-common >= %{apache_version} 
+Prereq:		apache-modules = %{apache_version}
+Prereq:		mm = %{mm_major}.%{mm_minor}
+Prereq:		mod_perl-common = %{apache_version}_%{mod_perl_version}
+Provides:	webserver mod_perl 
+Provides:	apache = %{apache_version}
+Provides:	mod_perl = %{mod_perl_version}
+Provides:	ADVXpackage
+Provides:	AP13package
 
 %description 
 Apache is a powerful, full-featured, efficient and freely-available
@@ -93,9 +93,9 @@ HTML-Embperl package to activate it.
 
 %package -n mod_perl-devel
 Summary:	Apache-Mod_Perl Development Files
-URL:		http://perl.apache.org
 Version:	%{apache_version}_%{mod_perl_version}
 Group:		System/Servers
+URL:		http://perl.apache.org
 #Icon: mod_perl.gif
 Prereq:		apache-conf >= %{apache_version}
 Prereq:		apache-common >= %{apache_version}
@@ -114,9 +114,9 @@ The apache-mod_perl include files for developing mod_perl modules
 
 %package -n HTML-Embperl
 Summary:	HTML::Embperl module
-URL:		http://perl.apache.org/embperl/
 Version:	%{apache_version}_%{embperl_version}
 Group:		System/Servers
+URL:		http://perl.apache.org/embperl/
 Requires:	perl = %{perl_version}
 Prereq:		apache-mod_perl = %{apache_version}_%{mod_perl_version}
 Prereq:		mod_perl-common = %{apache_version}_%{mod_perl_version}
@@ -136,9 +136,9 @@ mode, or cgi under any webserver.
 
 %package -n mod_perl-common
 Summary:	The mod_perl and apache-mod_perl common files
-URL:		http://perl.apache.org
 Version:	%{apache_version}_%{mod_perl_version}
 Group:		System/Servers
+URL:		http://perl.apache.org
 Requires:	perl = %{perl_version}
 Requires:	perl-Devel-Symdump
 Requires:	perl-BSD-Resource
@@ -411,6 +411,10 @@ cp %{SOURCE2} .
 %ADVXpost
 
 %changelog
+* Sat Jan 03 2004 Vincent Danen <vdanen@opensls.org> 1.3.29_1.29-3sls
+- OpenSLS build
+- tidy spec
+
 * Wed Nov 12 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 1.3.29_1.29-2mdk
 - rebuilt against perl-5.8.2
 

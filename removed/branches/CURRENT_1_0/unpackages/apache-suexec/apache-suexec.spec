@@ -1,3 +1,7 @@
+%define name	apache-suexec
+%define version %{apache_version}
+%define release 2sls
+
 %{expand:%%define apache_version %(rpm -q apache-devel|sed 's/apache-devel-\([0-9].*\)-.*$/\1/')}
 %{expand:%%define apache_release %(rpm -q apache-devel|sed 's/apache-devel-[0-9].*-\(.*\)$/\1/')}
 
@@ -5,27 +9,25 @@
 %{expand:%%define mm_minor %(mm-config --version|sed 's/MM \([0-9]\)\.\([0-9.].*\) \(.*\)$/\2/')}
 %define mm_version %{mm_major}.%{mm_minor}
 
-%define name apache-suexec
-%define version %{apache_version}
-%define release 1mdk
-
-Name:		%{name}
-Group:		System/Servers
 Summary:	Suexec binary for apache
+Name:		%{name}
 Version:	%{version}
 Release:	%{release}
-Source0:	apache-suexec.tar.bz2
-URL:		http://httpd.apache.org/docs/suexec.html
 License:	Apache License
+Group:		System/Servers
+URL:		http://httpd.apache.org/docs/suexec.html
+Source0:	apache-suexec.tar.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-root
+BuildRequires:	ADVX-build >= 1.2 mm-devel
+BuildRequires:	apache-devel >= %{apache_version}-%{apache_release} 
+
 Prereq:		apache-common >= %{apache_version}-%{apache_release}
 Prereq:		apache-conf >= %{apache_version}
 Prereq: 	mm >= %{mm_major}.%{mm_minor}
 Requires:	apache
-BuildRequires:	ADVX-build >= 1.2 mm-devel
-BuildRequires:	apache-devel >= %{apache_version}-%{apache_release} 
 Provides: 	ADVXpackage
 Provides:	AP13package
-BuildRoot:	%{_tmppath}/%{name}-root
 
 %description
 This package adds suexec to Apache. Suexec provides Apache users the ability
@@ -67,6 +69,10 @@ install suexec.8 %{buildroot}%{_mandir}/man8
 rm -rf %{buildroot}
 
 %changelog
+* Sat Jan 04 2004 Vincent Danen <vdanen@opensls.org> 1.3.29-2sls
+- OpenSLS build
+- tidy spec
+
 * Sat Nov 08 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 1.3.29-1mdk
 - new S0
 

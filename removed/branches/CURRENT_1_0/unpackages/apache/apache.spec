@@ -1,3 +1,7 @@
+%define name	apache
+%define version	1.3.29
+%define release	2sls
+
 #New ADVX macros
 %define ADVXdir %{_datadir}/ADVX
 %{expand:%(cat %{ADVXdir}/ADVX-build)}
@@ -6,28 +10,34 @@
 %{expand:%%define mm_minor %(mm-config --version|sed 's/MM \([0-9]\)\.\([0-9.].*\) \(.*\)$/\2/')}
 %define mm_version %{mm_major}.%{mm_minor}
 
-%define apache_version 1.3.29
-%define apache_release 1mdk
-%define EAPI_version 2.8.16
-%define modssl_apache_version %{apache_version}
+%define apache_version		%{version}
+%define apache_release		%{release}
+%define EAPI_version		2.8.16
+%define modssl_apache_version	%{apache_version}
 
 Summary:	The most widely used Web server on the Internet.
-Name:		apache
+Name:		%{name}
 Version:	%{apache_version}
 Release:	%{apache_release}
+License:	Apache License
 Group:		System/Servers
 URL:		http://www.advx.org
-License:	Apache License
-BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
-Provides:	webserver 
-Prereq:		apache-modules >= %{apache_version}-%{apache_release}
-Prereq:		apache-conf >= %{apache_version}
-Prereq:		apache-common >= %{apache_version}-%{apache_release}
-Prereq:		rpm-helper
-Prereq:		mm = %{mm_major}.%{mm_minor}
-Provides:	ADVXpackage
-Provides:	AP13package
+Source0:	apache_%{version}.tar.gz
+Source1:	apache_%{version}.tar.gz.asc
+Source2:	http://www.modssl.org/source/mod_ssl-%{EAPI_version}-%{modssl_apache_version}.tar.gz
+Source3:	http://www.modssl.org/source/mod_ssl-%{EAPI_version}-%{modssl_apache_version}.tar.gz.asc
+Source4:	README.ADVX
+Patch1:		apache_1.3.11-apxs.patch.bz2
+Patch2:		apache_1.3.26-srvroot.patch.bz2
+#Patch3:	apache_1.3.20-nondbm.patch.bz2
+Patch3:		apache-1.3.23-dbm.patch.bz2
+Patch4:		Configuration.diff.bz2
+Patch5:		apache-1.3.29-baseversion.patch.bz2
+Patch6:		apache-1.3.14-mkstemp.patch.bz2
+Patch8:		apache-1.3.20.manpage.patch.bz2
+Patch9:		apache-1.3.22-man.patch.bz2
 
+BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
 BuildConflicts:	BerkeleyDB-devel
 BuildRequires:	ADVX-build >= 1.2
 BuildRequires:	libmm-devel = %{mm_major}.%{mm_minor}
@@ -38,22 +48,14 @@ BuildRequires:	db1-devel
 BuildRequires:	glibc-devel
 BuildRequires:	openssl-devel
 
-Source0:	apache_%{version}.tar.gz
-Source1:	apache_%{version}.tar.gz.asc
-Source2:	http://www.modssl.org/source/mod_ssl-%{EAPI_version}-%{modssl_apache_version}.tar.gz
-Source3:	http://www.modssl.org/source/mod_ssl-%{EAPI_version}-%{modssl_apache_version}.tar.gz.asc
-Source4:	README.ADVX
-
-
-Patch1:		apache_1.3.11-apxs.patch.bz2
-Patch2:		apache_1.3.26-srvroot.patch.bz2
-#Patch3:	apache_1.3.20-nondbm.patch.bz2
-Patch3:		apache-1.3.23-dbm.patch.bz2
-Patch4:		Configuration.diff.bz2
-Patch5:		apache-1.3.29-baseversion.patch.bz2
-Patch6:		apache-1.3.14-mkstemp.patch.bz2
-Patch8:		apache-1.3.20.manpage.patch.bz2
-Patch9:		apache-1.3.22-man.patch.bz2
+Prereq:		apache-modules >= %{apache_version}-%{apache_release}
+Prereq:		apache-conf >= %{apache_version}
+Prereq:		apache-common >= %{apache_version}-%{apache_release}
+Prereq:		rpm-helper
+Prereq:		mm = %{mm_major}.%{mm_minor}
+Provides:	webserver 
+Provides:	ADVXpackage
+Provides:	AP13package
 
 %description
 Apache is a powerful, full-featured, efficient and freely-available
@@ -69,8 +71,8 @@ format, like PHP4, the Hotwired XSSI module and Apache-ASP. Also included are
 special patches to enable FrontPage 2000 support (see mod_frontpage package).
 
 %package modules
-Group:		System/Servers
 Summary:	Standard modules for Apache
+Group:		System/Servers
 Prereq:		apache-common >= %{apache_version}-%{apache_release}
 Prereq:		mm = %{mm_major}.%{mm_minor}
 Provides:	ADVXpackage
@@ -84,8 +86,8 @@ also with the apache-mod_perl package.
 
 
 %package devel
-Group:		Development/C
 Summary:	Module development tools for Apache 1.3.
+Group:		Development/C
 Provides:	secureweb-devel
 Obsoletes:	secureweb-devel
 Prereq:		mm = %{mm_major}.%{mm_minor}
@@ -110,8 +112,8 @@ you want to be able to compile or develop additional modules
 for it, you'll need to install this package.
 
 %package source
-Group:		System/Servers
 Summary:	Apache Source
+Group:		System/Servers
 Prereq:		mm = %{mm_major}.%{mm_minor}
 Prereq:		mm-devel = %{mm_major}.%{mm_minor}
 #No use to install it if you don't have libgdbm.so and libpthread.so!
@@ -339,6 +341,10 @@ rm -f %{buildroot}%{_mandir}/man8/apxs*
 %doc README.ADVX
 
 %changelog
+* Sat Jan 03 2004 Vincent Danen <vdanen@opensls.org> 1.3.29-2sls
+- OpenSLS build
+- tidy spec
+
 * Sat Nov 08 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 1.3.29-1mdk
 - apache v1.3.29
 - EAPI v2.8.16
