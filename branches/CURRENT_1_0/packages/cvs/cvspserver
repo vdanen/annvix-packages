@@ -23,7 +23,7 @@ fi
 
 . $CONF
 
-args=""
+args="$@"
 for d in $CVS_REPOS; do
     if [ -d $d/CVSROOT ]; then
 	args="$args --allow-root=$d"

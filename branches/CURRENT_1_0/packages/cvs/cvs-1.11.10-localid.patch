@@ -1,0 +1,252 @@
+--- cvs-1.11.10/src/rcs.c.localid	2003-11-19 21:17:38.000000000 +0100
++++ cvs-1.11.10/src/rcs.c	2004-01-06 09:52:41.000000000 +0100
+@@ -133,6 +133,8 @@
+    evaluates its arguments multiple times.  */
+ #define STREQ(a, b) ((a)[0] == (b)[0] && strcmp ((a), (b)) == 0)
+ 
++static char * getfullCVSname PROTO ((char *, char **));
++
+ /*
+  * We don't want to use isspace() from the C library because:
+  *
+@@ -3515,27 +3517,31 @@
+ {
+     const char *string;
+     size_t len;
++    int expandit;
+ };
+ #define KEYWORD_INIT(s) (s), sizeof (s) - 1
+ static const struct rcs_keyword keywords[] =
+ {
+-    { KEYWORD_INIT ("Author") },
+-    { KEYWORD_INIT ("Date") },
+-    { KEYWORD_INIT ("Header") },
+-    { KEYWORD_INIT ("Id") },
+-    { KEYWORD_INIT ("Locker") },
+-    { KEYWORD_INIT ("Log") },
+-    { KEYWORD_INIT ("Name") },
+-    { KEYWORD_INIT ("RCSfile") },
+-    { KEYWORD_INIT ("Revision") },
+-    { KEYWORD_INIT ("Source") },
+-    { KEYWORD_INIT ("State") },
+-    { NULL, 0 }
++    { KEYWORD_INIT ("Author"), 1 },
++    { KEYWORD_INIT ("Date"), 1 },
++    { KEYWORD_INIT ("CVSHeader"), 1 },
++    { KEYWORD_INIT ("Header"), 1 },
++    { KEYWORD_INIT ("Id"), 1 },
++    { KEYWORD_INIT ("Locker"), 1 },
++    { KEYWORD_INIT ("Log"), 1 },
++    { KEYWORD_INIT ("Name"), 1 },
++    { KEYWORD_INIT ("RCSfile"), 1 },
++    { KEYWORD_INIT ("Revision"), 1 },
++    { KEYWORD_INIT ("Source"), 1 },
++    { KEYWORD_INIT ("State"), 1 },
++    { NULL, 0, 0 },
++    { NULL, 0, 0 }
+ };
+ enum keyword
+ {
+     KEYWORD_AUTHOR = 0,
+     KEYWORD_DATE,
++    KEYWORD_CVSHEADER,
+     KEYWORD_HEADER,
+     KEYWORD_ID,
+     KEYWORD_LOCKER,
+@@ -3544,8 +3550,10 @@
+     KEYWORD_RCSFILE,
+     KEYWORD_REVISION,
+     KEYWORD_SOURCE,
+-    KEYWORD_STATE
++    KEYWORD_STATE,
++    KEYWORD_LOCALID,
+ };
++enum keyword keyword_local = KEYWORD_ID;
+ 
+ /* Convert an RCS date string into a readable string.  This is like
+    the RCS date2str function.  */
+@@ -3711,7 +3719,7 @@
+ 	/* Look for the first non alphabetic character after the '$'.  */
+ 	send = srch + srch_len;
+ 	for (s = srch; s < send; s++)
+-	    if (! isalpha ((unsigned char) *s))
++	    if (! isalnum ((unsigned char) *s))
+ 		break;
+ 
+ 	/* If the first non alphabetic character is not '$' or ':',
+@@ -3723,7 +3731,8 @@
+ 	slen = s - srch;
+ 	for (keyword = keywords; keyword->string != NULL; keyword++)
+ 	{
+-	    if (keyword->len == slen
++	    if (keyword->expandit
++		&& keyword->len == slen
+ 		&& strncmp (keyword->string, srch, slen) == 0)
+ 	    {
+ 		break;
+@@ -3772,13 +3781,22 @@
+ 
+ 	    case KEYWORD_HEADER:
+ 	    case KEYWORD_ID:
++	    case KEYWORD_LOCALID:
+ 		{
+ 		    char *path;
+ 		    int free_path;
+ 		    char *date;
+-
+-		    if (kw == KEYWORD_HEADER)
++		    char *old_path;
++		    
++		    old_path = NULL;
++		    if (kw == KEYWORD_HEADER ||
++			    (kw == KEYWORD_LOCALID &&
++			     keyword_local == KEYWORD_HEADER))
+ 			path = rcs->path;
++		    else if (kw == KEYWORD_CVSHEADER ||
++			     (kw == KEYWORD_LOCALID &&
++			      keyword_local == KEYWORD_CVSHEADER))
++			path = getfullCVSname(rcs->path, &old_path);
+ 		    else
+ 			path = last_component (rcs->path);
+ 		    path = escape_keyword_value (path, &free_path);
+@@ -3798,6 +3816,8 @@
+ 			     locker != NULL ? locker : "");
+ 		    if (free_path)
+ 			free (path);
++		    if (old_path)
++			free (old_path);
+ 		    free (date);
+ 		    free_value = 1;
+ 		}
+@@ -8644,6 +8664,108 @@
+     return label;
+ }
+ 
++void
++RCS_setlocalid (arg)
++    const char *arg;
++{
++    char *copy, *next, *key;
++
++    copy = xstrdup(arg);
++    next = copy;
++    key = strtok(next, "=");
++
++    keywords[KEYWORD_LOCALID].string = xstrdup(key);
++    keywords[KEYWORD_LOCALID].len = strlen(key);
++    keywords[KEYWORD_LOCALID].expandit = 1;
++
++    /* options? */
++    while (key = strtok(NULL, ",")) {
++	if (!strcmp(key, keywords[KEYWORD_ID].string))
++	    keyword_local = KEYWORD_ID;
++	else if (!strcmp(key, keywords[KEYWORD_HEADER].string))
++	    keyword_local = KEYWORD_HEADER;
++	else if (!strcmp(key, keywords[KEYWORD_CVSHEADER].string))
++	    keyword_local = KEYWORD_CVSHEADER;
++	else
++	    error(1, 0, "Unknown LocalId mode: %s", key);
++    }
++    free(copy);
++}
++
++void
++RCS_setincexc (arg)
++    const char *arg;
++{
++    char *key;
++    char *copy, *next;
++    int include = 0;
++    struct rcs_keyword *keyword;
++
++    copy = xstrdup(arg);
++    next = copy;
++    switch (*next++) {
++	case 'e':
++	    include = 0;
++	    break;
++	case 'i':
++	    include = 1;
++	    break;
++	default:
++	    free(copy);
++	    return;
++    }
++
++    if (include)
++	for (keyword = keywords; keyword->string != NULL; keyword++)
++	{
++	    keyword->expandit = 0;
++	}
++
++    key = strtok(next, ",");
++    while (key) {
++	for (keyword = keywords; keyword->string != NULL; keyword++) {
++	    if (strcmp (keyword->string, key) == 0)
++		keyword->expandit = include;
++	}
++	key = strtok(NULL, ",");
++    }
++    free(copy);
++    return;
++}
++
++#define ATTIC "/" CVSATTIC
++static char *
++getfullCVSname(CVSname, pathstore)
++    char *CVSname, **pathstore;
++{
++    if (current_parsed_root->directory) {
++	int rootlen;
++	char *c = NULL;
++	int alen = sizeof(ATTIC) - 1;
++
++	*pathstore = xstrdup(CVSname);
++	if ((c = strrchr(*pathstore, '/')) != NULL) {
++	    if (c - *pathstore >= alen) {
++		if (!strncmp(c - alen, ATTIC, alen)) {
++		    while (*c != '\0') {
++			*(c - alen) = *c;
++			c++;
++		    }
++		    *(c - alen) = '\0';
++		}
++	    }
++	}
++
++	rootlen = strlen(current_parsed_root->directory);
++	if (!strncmp(*pathstore, current_parsed_root->directory, rootlen) &&
++	    (*pathstore)[rootlen] == '/')
++	    CVSname = (*pathstore + rootlen + 1);
++	else
++	    CVSname = (*pathstore);
++    }
++    return CVSname;
++}
++
+ 
+ 
+ /* vim:tabstop=8:shiftwidth=4
+--- cvs-1.11.10/src/rcs.h.localid	2003-10-28 17:01:53.000000000 +0100
++++ cvs-1.11.10/src/rcs.h	2004-01-06 09:48:56.000000000 +0100
+@@ -241,6 +241,8 @@
+ void RCS_deltas PROTO ((RCSNode *, FILE *, struct rcsbuffer *, char *,
+ 			enum rcs_delta_op, char **, size_t *,
+ 			char **, size_t *));
++void RCS_setincexc PROTO ((const char *arg));
++void RCS_setlocalid PROTO ((const char *arg));
+ char *make_file_label PROTO ((char *, char *, RCSNode *));
+ 
+ extern int preserve_perms;
+--- cvs-1.11.10/src/parseinfo.c.localid	2003-05-25 16:10:16.000000000 +0200
++++ cvs-1.11.10/src/parseinfo.c	2004-01-06 09:48:56.000000000 +0100
+@@ -346,6 +346,9 @@
+ 		goto error_return;
+ 	    }
+ 	}
++	else if (strcmp (line, "tag") == 0) {
++		RCS_setlocalid(p);
++	}
+ 	else if (strcmp (line, "PreservePermissions") == 0)
+ 	{
+ 	    if (strcmp (p, "no") == 0)

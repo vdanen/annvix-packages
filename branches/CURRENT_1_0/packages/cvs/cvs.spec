@@ -1,11 +1,9 @@
 %define name	cvs
-%define version	1.11.10
-%define release	2sls
+%define version	1.11.11
+%define release	1sls
 
 %define url	ftp://ftp.cvshome.org/pub
 %define _requires_exceptions tcsh
-
-%{!?build_opensls:%global build_opensls 0}
 
 Summary:	A version control system
 Name:		%{name}
@@ -17,7 +15,6 @@ URL:		http://www.cvshome.org/
 Source: 	%{url}/cvs-%{version}/cvs-%{version}.tar.bz2
 Source1: 	cvspserver
 Source2: 	cvs.conf
-Source3: 	cvs-xinetd
 Source4:	cvs.run
 Source5:	cvs-log.run
 Patch4: 	cvs-1.11.2-zlib.patch.bz2
@@ -26,6 +23,7 @@ Patch8:		cvs-1.11-ssh.patch.bz2
 Patch11:	cvs-1.11.1-newline.patch.bz2
 Patch12:	cvs-1.11.4-first-login.patch.bz2
 Patch13:	cvs-1.11.2-no-zlib.patch.bz2
+Patch14:	cvs-1.11.10-localid.patch.bz2
 
 BuildRoot:	%_tmppath/%name-%version-%release-root
 BuildRequires:	texinfo, zlib-devel, krb5-devel
@@ -62,6 +60,7 @@ control system.
 %patch11 -p1 -b .newline
 %patch12 -p1 -b .first-login
 %patch13 -p1 -b .nozlib
+%patch14 -p1 -b .localid
 
 %build
 %serverbuild
@@ -74,12 +73,8 @@ make -C doc info
 %{?rpmcheck:make check}
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-%if !%{build_opensls}
-mkdir -p %buildroot/etc/xinetd.d/
-install -m644 %{SOURCE3} %buildroot/etc/xinetd.d/%{name}
-%endif
 bzip2 -f doc/*.ps
 
 %makeinstall
@@ -92,32 +87,28 @@ install -m 644 %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/cvs
 # get rid of "no -f" so we don't have a Dep on this nonexistant interpretter
 perl -pi -e 's/no -f/\/bin\/sh/g' %{buildroot}%{_datadir}/cvs/contrib/sccs2rcs
 
-%if %{build_opensls}
-mkdir -p %{buildroot}/var/service/cvspserver/log
-install -m 0755 %{SOURCE4} %{buildroot}/var/service/cvspserver/run
-install -m 0755 %{SOURCE5} %{buildroot}/var/service/cvspserver/log/run
-mkdir -p %{buildroot}/var/log/supervise/cvspserver
-%endif
+mkdir -p %{buildroot}%{_srvdir}/cvspserver/log
+install -m 0755 %{SOURCE4} %{buildroot}%{_srvdir}/cvspserver/run
+install -m 0755 %{SOURCE5} %{buildroot}%{_srvdir}/cvspserver/log/run
+mkdir -p %{buildroot}%{_srvlogdir}/cvspserver
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
+%_post_srv cvs
 %_install_info %{name}.info
 %_install_info cvsclient.info
 
 %preun
+%_preun_srv cvs
 %_remove_install_info %{name}.info
-
 %_remove_install_info cvsclient.info
 
 %files
 %defattr(-,root,root)
 %doc BUGS FAQ MINOR-BUGS NEWS PROJECTS TODO README
 %doc doc/*.ps.bz2
-%if !%{build_opensls}
-%config(noreplace) /etc/xinetd.d/%{name}
-%endif
 %{_bindir}/cvs
 %{_bindir}/cvsbug
 %{_bindir}/rcs2log
@@ -127,16 +118,26 @@ rm -rf $RPM_BUILD_ROOT
 %{_infodir}/cvs*
 %{_datadir}/cvs
 %{_sbindir}/cvspserver
+%dir %{_sysconfdir}/cvs
 %config(noreplace) %{_sysconfdir}/cvs/cvs.conf
-%if %{build_opensls}
-%dir /var/service/cvspserver
-%dir /var/service/cvspserver/log
-/var/service/cvspserver/run
-/var/service/cvspserver/log/run
-%dir %attr(0750,nobody,nogroup) /var/log/supervise/cvspserver
-%endif
+%dir %{_srvdir}/cvspserver
+%dir %{_srvdir}/cvspserver/log
+%{_srvdir}/cvspserver/run
+%{_srvdir}/cvspserver/log/run
+%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/cvspserver
 
 %changelog
+* Wed Mar 03 2004 Vincent Danen <vdanen@opensls.org> 1.11.11-1sls
+- 1.11.11
+- remove %%build_opensls macro
+- supervise macros
+- minor spec cleanups
+- use %%_post_srv and %%_preun_srv
+- merge with 1.11.11-1mdk:
+  - DIRM: /etc/cvs (flepied)
+  - add localid patch to be able to access xfree86 cvs repository cleanly
+    (flepied)
+
 * Tue Dec 30 2003 Vincent Danen <vdanen@opensls.org> 1.11.10-2sls
 - put supervise run scripts in if %%build_opensls; remove xinetd support
 
