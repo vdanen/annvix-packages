@@ -1,6 +1,6 @@
 %define name	libxml2
 %define version	2.5.11
-%define release	5avx
+%define release	6avx
 
 %define major	2
 %define libname	%mklibname xml %{major}
@@ -17,6 +17,7 @@ Source0:	ftp://xmlsoft.org/%{name}-%{version}.tar.bz2
 # (fc) 2.4.23-3mdk remove references to -L/usr/lib
 Patch1:		libxml2-2.4.23-libdir.patch.bz2
 Patch2:		libxml2-2.5.11-urlbound.patch.bz2
+Patch3:		libxml2-sec-http_ftp.diff.bz2
 
 BuildRoot:	%_tmppath/%name-%version-%release-root
 BuildRequires:	python-devel >= %{py_ver}, readline-devel, zlib-devel, autoconf2.5
@@ -94,6 +95,7 @@ URI library.
 %setup -q
 %patch1 -p1 -b .libdir
 %patch2 -p0 -b .sec
+%patch3 -p1 -b .can-2004-0989
 
 # needed by patches 1
 autoconf
@@ -157,6 +159,9 @@ rm -rf	$RPM_BUILD_ROOT%{_prefix}/doc \
 %{_datadir}/aclocal/*
 
 %changelog
+* Fri Nov  5 2004 Vincent Danen <vdanen@annvix.org> 2.5.11-6avx
+- P3: patch to fix CAN-2004-0989
+
 * Wed Jun 23 2004 Vincent Danen <vdanen@annvix.org> 2.5.11-5avx
 - Annvix build
 
