@@ -1,6 +1,6 @@
 %define name	portmap
 %define version	4.0
-%define release	24sls
+%define release	25sls
 %define ver	4
 
 Summary:	A program which manages RPC connections
@@ -53,7 +53,7 @@ make FACILITY=LOG_AUTH ZOMBIES='-DIGNORE_SIGCHLD -Dlint' LIBS="-lnsl" RPM_OPT_FL
 	WRAP_DIR=%{_libdir}
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p $RPM_BUILD_ROOT/sbin
 mkdir -p $RPM_BUILD_ROOT/usr/sbin
 
@@ -66,13 +66,13 @@ install -m 644 %{SOURCE2} $RPM_BUILD_ROOT%{_mandir}/man8
 install -m 644 %{SOURCE3} $RPM_BUILD_ROOT%{_mandir}/man8
 install -m 644 %{SOURCE4} $RPM_BUILD_ROOT%{_mandir}/man8
 
-mkdir -p %{buildroot}/var/service/portmap/log
-mkdir -p %{buildroot}/var/log/supervise/portmap
-install -m 0755 %{SOURCE5} %{buildroot}/var/service/portmap/run
-install -m 0755 %{SOURCE6} %{buildroot}/var/service/portmap/log/run
+mkdir -p %{buildroot}%{_srvdir}/portmap/log
+mkdir -p %{buildroot}%{_srvlogdir}/portmap
+install -m 0755 %{SOURCE5} %{buildroot}%{_srvdir}/portmap/run
+install -m 0755 %{SOURCE6} %{buildroot}%{_srvdir}/portmap/log/run
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %pre
 %_pre_useradd rpc / /bin/false 72
@@ -92,11 +92,11 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(-,root,root)
 %doc README CHANGES BLURB
-%dir /var/service/portmap
-%dir /var/service/portmap/log
-%dir %attr(0750,nobody,nogroup) /var/log/supervise/portmap
-/var/service/portmap/run
-/var/service/portmap/log/run
+%dir %{_srvdir}/portmap
+%dir %{_srvdir}/portmap/log
+%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/portmap
+%{_srvdir}/portmap/run
+%{_srvdir}/portmap/log/run
 /sbin/portmap
 /usr/sbin/pmap_dump
 /usr/sbin/pmap_set
@@ -104,6 +104,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Feb 03 2004 Vincent Danen <vdanen@opensls.org> 4.0-24sls
+- minor spec cleanups
+- srv macros
+
 * Tue Feb 03 2004 Vincent Danen <vdanen@opensls.org> 4.0-24sls
 - remove initscript
 - give rpc static uid/gid 72
