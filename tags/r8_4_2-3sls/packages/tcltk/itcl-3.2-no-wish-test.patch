@@ -1,0 +1,28 @@
+diff -urNp itcl3.2.orig/itcl/configure.in itcl3.2/itcl/configure.in
+--- itcl3.2.orig/itcl/configure.in	2000-08-29 05:58:00.000000000 +0200
++++ itcl3.2/itcl/configure.in	2002-04-29 01:41:14.000000000 +0200
+@@ -320,7 +320,6 @@ AC_CACHE_VAL(ac_cv_itclstub_LIB_FILE, ac
+ # versions have bugs in the pkg_mkIndex routine.
+ #--------------------------------------------------------------------
+ 
+-SC_PROG_TCLSH
+ 
+ #--------------------------------------------------------------------
+ # Finally, substitute all of the various values into the Makefile.
+diff -urNp itcl3.2.orig/itk/configure.in itcl3.2/itk/configure.in
+--- itcl3.2.orig/itk/configure.in	2000-08-29 05:58:00.000000000 +0200
++++ itcl3.2/itk/configure.in	2002-04-29 01:41:52.000000000 +0200
+@@ -352,13 +352,11 @@ AC_SUBST(SHLIB_LD_LIBS)
+ # versions have bugs in the pkg_mkIndex routine.
+ #--------------------------------------------------------------------
+ 
+-SC_PROG_TCLSH
+ 
+ #--------------------------------------------------------------------
+ # A wish shell is needed to run the test suite.
+ #--------------------------------------------------------------------
+ 
+-SC_PROG_WISH
+ 
+ #--------------------------------------------------------------------
+ # Finally, substitute all of the various values into the Makefile.
