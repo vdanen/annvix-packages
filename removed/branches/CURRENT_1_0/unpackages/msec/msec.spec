@@ -1,24 +1,33 @@
+%define name	msec
+%define version	0.40
+%define release	2sls
+
+%{!?build_opensls:%global build_opensls 0}
+
 Summary:	Security Level & Program for the Mandrake Linux distribution
-Name:		msec
-Version:	0.40
-Release:	1mdk
-Url:		http://www.linux-mandrake.com/
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		System/Base
+URL:		http://www.linux-mandrake.com/
 Source0:	%{name}-%{version}.tar.bz2
 Source1:    	msec.logrotate
 Source2:    	msec.sh
 Source3:    	msec.csh
 
-License:	GPL
-Group:		System/Base
 BuildRoot:	%_tmppath/%name-%version-%release-root
 BuildRequires:	python
+
 Requires:	/bin/bash /bin/touch perl-base diffutils /usr/bin/python /usr/bin/chage gawk
 Requires:	setup >= 2.2.0-21mdk
 Requires:	chkconfig >= 1.2.24-3mdk
 Requires:	coreutils
 Requires:	iproute2
 PreReq:		rpm-helper >= 0.4
+%if !%{build_opensls}
 Conflicts:	passwd < 0.67
+%endif
 
 %description
 The Mandrake-Security package is designed to provide generic 
@@ -152,6 +161,11 @@ rm -rf $RPM_BUILD_ROOT
 # MAKE THE CHANGES IN CVS: NO PATCH OR SOURCE ALLOWED
 
 %changelog
+* Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 0.40-2sls
+- OpenSLS build
+- tidy spec
+- use %%build_opensls to remove passwd Conflicts since we don't ship passwd
+
 * Wed Sep  3 2003 Frederic Lepied <flepied@mandrakesoft.com> 0.40-1mdk
 - corrected strange permission settings in /var/log (bug #4854)
 - allow set_shell_history_size(-1) in level.local (bug #4392)
