@@ -1,0 +1,10 @@
+--- linux-2.4.25/fs/Config.in	2004-02-22 19:12:48.000000000 +0100
++++ linux-2.4.25/fs/Config.in.tmb	2004-02-22 19:11:42.000000000 +0100
+@@ -111,6 +111,7 @@ dep_mbool    '  Quota support' CONFIG_XF
+ dep_mbool    '  Realtime support (EXPERIMENTAL)' CONFIG_XFS_RT $CONFIG_XFS_FS $CONFIG_EXPERIMENTAL
+ dep_mbool    '  Tracing support (EXPERIMENTAL)' CONFIG_XFS_TRACE $CONFIG_XFS_FS $CONFIG_EXPERIMENTAL
+ dep_mbool    '  Debugging support (EXPERIMENTAL)' CONFIG_XFS_DEBUG $CONFIG_XFS_FS $CONFIG_EXPERIMENTAL
++dep_mbool    '  ACL support' CONFIG_XFS_POSIX_ACL $CONFIG_XFS_FS
+ 
+ if [ "$CONFIG_NET" = "y" ]; then
+ 

@@ -1,4 +1,0 @@
-URL: http://www.gjaeger.de/scanner/current/plustek-module-0_42_9.tar.gz
-
-NB: i get VERSION RELEASE BUILD from cat VERSION0 VERSION1 BUILD which
-is more accurate than the tarball versionning.
