@@ -1,0 +1,49 @@
+diff -Naur matrixssl/src/Makefile matrixssl.oden/src/Makefile
+--- matrixssl/src/Makefile	2004-07-27 22:26:03.000000000 +0200
++++ matrixssl.oden/src/Makefile	2004-08-04 19:01:39.803590000 +0200
+@@ -6,7 +6,6 @@
+ #
+ 
+ CC      = gcc
+-STRIP   = strip
+ O       = .o
+ SO      = .so
+ E       =
+@@ -45,7 +44,7 @@
+ #
+ #	Compile options
+ #
+-SHARED	= -shared
++SHARED	= -shared -Wl,-soname,$(LIBRARY).1
+ CFLAGS  = $(DFLAGS) -DLINUX
+ LDFLAGS = -nostdlib -lc -lpthread
+ 
+@@ -69,9 +68,14 @@
+ STRIP	= /opt/brcm/hndtools-mipsel-uclibc/bin/mipsel-uclibc-strip
+ endif
+ 
+-all: compile
++all: static shared
+ 
+-compile: $(OBJECTS) $(LIBRARY)
++static: $(OBJECTS)
++	rm -f libmatrixssl.a
++	ar cr libmatrixssl.a $(OBJECTS)
++	ranlib libmatrixssl.a
++
++shared: $(OBJECTS) $(LIBRARY)
+ 
+ #
+ # Manual dependencies
+@@ -86,10 +90,9 @@
+ #
+ $(LIBRARY): $(OBJECTS)
+ 	$(CC) $(SHARED) -o $@ $^ $(LDFLAGS)
+-	$(STRIP) $(LIBRARY)
+ 
+ #
+ #	Clean up all generated files
+ #
+ clean:
+-	rm -f $(LIBRARY) $(OBJECTS) 
++	rm -f $(LIBRARY) $(OBJECTS) libmatrixssl.a
