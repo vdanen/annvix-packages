@@ -1,6 +1,6 @@
 %define name	exim
 %define version 4.30
-%define release 5sls
+%define release 6sls
 
 %define build_mysql 0
 %define build_pgsql 0
@@ -30,8 +30,6 @@ Source2:	exim.init
 Source3:	exim.sysconfig
 Source4:	exim.logrotate
 Source5:	exim.8
-Source6:	FAQ-html.tar.bz2
-Source7:	exim-html-%{htmldocver}.tar.bz2
 Source8:	eximconfig
 Source9:	exim.pam
 Source10:	ftp://ftp.exim.org/pub/exim/%{name}-%{version}.tar.bz2.sig
@@ -42,6 +40,17 @@ Source14:	exim-log.run
 Patch0:		exim-4.30-config.patch.bz2
 Patch1:		http://duncanthrax.net/exiscan-acl/exiscan-acl-%{exiscanver}.patch.bz2
 Patch2:		exim-4.22-install.patch.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-%{version}
+BuildRequires:	tcp_wrappers-devel, pam-devel, openssl, openssl-devel, XFree86-devel, openldap-devel, lynx
+BuildRequires:	db4-devel >= 4.1
+%if %{build_mysql}
+BuildRequires:	libmysql-devel
+%endif
+%if %{build_pgsql}
+BuildRequires: postgresql-devel
+%endif
+
 PreReq:		rpm-helper
 %if %{alternatives}
 PreReq:		/usr/sbin/update-alternatives
@@ -50,20 +59,11 @@ Obsoletes:	sendmail postfix qmail smail
 %endif
 Requires:	chkconfig, initscripts, sh-utils, openssl, pam
 Requires:	openldap >= 2.0.11
-BuildRequires:	tcp_wrappers-devel, pam-devel, openssl, openssl-devel, XFree86-devel, openldap-devel, lynx
 %ifarch amd64 x86_64
 Requires:	lib64db4.1
 %else
 Requires:	libdb4.1
 %endif
-BuildRequires:	db4-devel >= 4.1
-%if %{build_mysql}
-BuildRequires:	libmysql-devel
-%endif
-%if %{build_pgsql}
-BuildRequires: postgresql-devel
-%endif
-Buildroot:	%{_tmppath}/%{name}-%{version}
 Provides:	smtpdaemon MTA
 
 %description
@@ -90,16 +90,6 @@ displays information about Exim's processing in an X window, and an
 administrator can perform a number of control actions from the window
 interface.
 
-%package doc
-Summary:	Exim documentation
-Group:		System/Servers
-Requires:	%{name}
-
-%description doc
-This package includes the Exim FAQ and Exim manual in HTML,
-PostScript and PDF formats.
-
-
 %package saexim
 Summary:	Exim SpamAssassin at SMTP time plugin
 Group:		System/Servers
@@ -111,9 +101,7 @@ at SMTP time as well as other nasty things like teergrubbing.
 
 
 %prep
-
 %setup -q
-%setup -q -T -D -a 7
 %setup -q -T -D -a 11
 %setup -q -T -D -a 12
 %patch0 -p1 -b .config
@@ -126,11 +114,6 @@ cat sa-exim*/localscan_dlopen_exim_4.20_or_better.patch | patch -p1
 %build
 # pre-build setup
 cp src/EDITME Local/Makefile
-mkdir faq
-pushd faq
-tar xvjf %{SOURCE6}
-popd
-mv exim-html-%{htmldocver} html
 cp exim_monitor/EDITME Local/eximon.conf
 
 # modify Local/Makefile for our builds
@@ -212,7 +195,6 @@ popd
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-rm -rf $RPM_BUILD_DIR/%{name}-%{version}
 
 %post
 %_post_srv exim
@@ -335,10 +317,6 @@ fi
 %{_bindir}/eximon
 %{_bindir}/eximon.bin
 
-%files doc
-%defattr(-,root,root)
-%doc faq html config.samples util
-
 %files saexim
 %defattr(-,root,root)
 %doc sa-exim*/*.html sa-exim*/{ACKNOWLEDGEMENTS,INSTALL,LICENSE,TODO}
@@ -348,6 +326,10 @@ fi
 %config(noreplace) %{_sysconfdir}/exim/sa-exim_short.conf
 
 %changelog
+* Thu Mar 04 2004 Vincent Danen <vdanen@opensls.org> 4.30-6sls
+- tidy spec
+- remove docs
+
 * Tue Jan 27 2004 Vincent Danen <vdanen@opensls.org> 4.30-5sls
 - use %%_post_srv and %%_preun_srv
 
