@@ -1,6 +1,6 @@
 %define name	libxml2
-%define version	2.5.11
-%define release	6avx
+%define version	2.6.17
+%define release	1avx
 
 %define major	2
 %define libname	%mklibname xml %{major}
@@ -16,11 +16,9 @@ URL:		http://www.xmlsoft.org/
 Source0:	ftp://xmlsoft.org/%{name}-%{version}.tar.bz2
 # (fc) 2.4.23-3mdk remove references to -L/usr/lib
 Patch1:		libxml2-2.4.23-libdir.patch.bz2
-Patch2:		libxml2-2.5.11-urlbound.patch.bz2
-Patch3:		libxml2-sec-http_ftp.diff.bz2
 
 BuildRoot:	%_tmppath/%name-%version-%release-root
-BuildRequires:	python-devel >= %{py_ver}, readline-devel, zlib-devel, autoconf2.5
+BuildRequires:	python-devel >= %{pyver}, readline-devel, zlib-devel, autoconf2.5, automake1.8
 
 %description
 This library allows to manipulate XML files. It includes support 
@@ -58,7 +56,7 @@ This packages contains utils to manipulate XML files.
 Summary:	Python bindings for the libxml2 library
 Group:		Development/Python
 Requires:	%{libname} >= %{version}
-Requires:	python >= %{py_ver}
+Requires:	python >= %{pyver}
 Provides:	python-%{name} = %{version}-%{release}
 
 %description -n %{libname}-python
@@ -94,29 +92,59 @@ URI library.
 %prep
 %setup -q
 %patch1 -p1 -b .libdir
-%patch2 -p0 -b .sec
-%patch3 -p1 -b .can-2004-0989
 
-# needed by patches 1
+# needed by patch 1
+aclocal-1.8
+automake-1.8
 autoconf
 
 %build
+#
+# try to use compiler profiling, based on Arjan van de Ven <arjanv@redhat.com>
+# initial test spec. This really doesn't work okay for most tests done.
+#
+GCC_VERSION=`gcc --version | grep "^gcc" | awk '{ print $3 }' | sed 's+\([0-9]\)\.\([0-9]\)\..*+\1\2+'`
+if [ $GCC_VERSION -ge 34 ]
+then
+    PROF_GEN='-fprofile-generate'
+    PROF_USE='-fprofile-use'
+fi
+
+if [ "$PROF_GEN" != "" ]
+then
+    # First generate a profiling version
+    CFLAGS="%{optflags} ${PROF_GEN}" CC="" %configure2_5x
+    %make
+    # Run a few sampling
+    make dba100000.xml
+    ./xmllint --noout  dba100000.xml
+    ./xmllint --stream  dba100000.xml
+    ./xmllint --noout --valid test/valid/REC-xml-19980210.xml
+    ./xmllint --stream --valid test/valid/REC-xml-19980210.xml
+    # Then generate code based on profile
+    export CFLAGS="%{optflags} ${PROF_USE}"
+fi
+
 %configure2_5x
 
 %make
 
 # all tests must pass
-make check
+# use TESTDIRS="" to disable xstc test which are using a remote tarball
+make TESTDIRS="" check
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %makeinstall_std
 
+# multiarch policy
+%multiarch_binaries %{buildroot}%{_bindir}/xml2-config
+
 # remove unpackaged files
-rm -rf	$RPM_BUILD_ROOT%{_prefix}/doc \
- 	$RPM_BUILD_ROOT%{_datadir}/doc \
-	$RPM_BUILD_ROOT%{_libdir}/python%{py_ver}/site-packages/*.{la,a} \
+rm -rf	%{buildroot}%{_prefix}/doc \
+ 	%{buildroot}%{_datadir}/doc \
+	%{buildroot}%{_libdir}/python%{pyver}/site-packages/*.{la,a} \
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -142,12 +170,13 @@ rm -rf	$RPM_BUILD_ROOT%{_prefix}/doc \
 %doc python/TODO
 %doc python/libxml2class.txt
 %doc python/tests/*.py
-%{_libdir}/python%{py_ver}/site-packages/*.so
-%{_libdir}/python%{py_ver}/site-packages/*.py
+%{_libdir}/python%{pyver}/site-packages/*.so
+%{_libdir}/python%{pyver}/site-packages/*.py
 
 %files -n %{libname}-devel
 %defattr(-, root, root)
 %doc doc/html/* 
+%multiarch %{multiarch_bindir}/xml2-config
 %{_bindir}/xml2-config
 %{_libdir}/*a
 %{_libdir}/*.so
@@ -159,6 +188,12 @@ rm -rf	$RPM_BUILD_ROOT%{_prefix}/doc \
 %{_datadir}/aclocal/*
 
 %changelog
+* Sat Mar 05 2005 Vincent Danen <vdanen@annvix.org> 2.6.17-1avx
+- 2.6.17
+- multiarch support
+- use %%pyver macro
+- integrated profiling stuff from Fedora
+
 * Fri Nov  5 2004 Vincent Danen <vdanen@annvix.org> 2.5.11-6avx
 - P3: patch to fix CAN-2004-0989
 
