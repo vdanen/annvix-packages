@@ -1,6 +1,6 @@
 %define name	apache-conf
 %define version	2.0.53
-%define release	3avx
+%define release	4avx
 
 %define compat_dir	/etc/httpd
 %define compat_conf	/etc/httpd/conf
@@ -268,11 +268,14 @@ fi
 %dir %{_srvdir}/httpd2/log
 %{_srvdir}/httpd2/run
 %{_srvdir}/httpd2/log/run
-%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/httpd2
+%dir %attr(0750,logger,logger) %{_srvlogdir}/httpd2
 %{_datadir}/afterboot/03_apache2
 
 %changelog
-* Sun Feb 27 2005 Vincent Danen <vdanen@annvix.org> 2.0.53-2avx
+* Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 2.0.53-4avx
+= user logger for logging
+
+* Sun Feb 27 2005 Vincent Danen <vdanen@annvix.org> 2.0.53-3avx
 - remove more ADVX-related stuff
 - remove the peruser, perchild, and metuxmpm sections from the config
   files
