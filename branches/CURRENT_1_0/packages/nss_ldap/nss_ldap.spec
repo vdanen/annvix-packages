@@ -1,7 +1,7 @@
 %define name 	nss_ldap
 %define version 220
-%define release 1avx
-%define pam_ldap_version 169
+%define release 2avx
+%define pam_ldap_version 170
 
 Summary:	NSS library and PAM module for LDAP.
 Name: 		%{name}
@@ -127,6 +127,9 @@ rm -rf %{buildroot}%{_libdir}/libnss_ldap.so.2
 /%_lib/security/*so*
 
 %changelog
+* Tue Aug 17 2004 Vincent Danen <vdanen@annvix.org> 220-2avx
+- pam_ldap 170
+
 * Wed Jun 30 2004 Vincent Danen <vdanen@annvix.org> 220-1avx
 - pam_ldap 169
 - nss_ldap 220
