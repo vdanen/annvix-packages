@@ -1,0 +1,15 @@
+
+For Stable Releases:
+http://www.linuxtv.org:81/download/dvb/linux-dvb-[x].[y].[z].tar.gz
+
+For CVS snapshots:
+http://www.linuxdvb.tv/download/dvb-[YYYYMMDD].tar.bz2
+
+untar dvb dir
+
+preserve Config.in & Makefile
+(cd dvb/driver/av7110; make av7110_firm.h)
+cp dvb/driver/*.[ch] 3rdparty/mod_dvb (including av7110_firm.[ch])
+cp dvb/include/ 3rdparty/mod_dvb
+
+check that everything is in the Makefile to be build

@@ -1,0 +1,11 @@
+--- linux-2.4.22/kernel/printk.c.hb03.orig	2003-08-28 03:10:04.000000000 +0200
++++ linux-2.4.22/kernel/printk.c	2003-08-28 03:15:59.000000000 +0200
+@@ -31,7 +31,7 @@
+ #include <asm/uaccess.h>
+ 
+ #if !defined(CONFIG_LOG_BUF_SHIFT) || (CONFIG_LOG_BUF_SHIFT - 0 == 0)
+-#if defined(CONFIG_MULTIQUAD) || defined(CONFIG_IA64)
++#if defined(CONFIG_MULTIQUAD) || defined(CONFIG_IA64) || defined(CONFIG_X86_64)
+ #define LOG_BUF_LEN	(65536)
+ #elif defined(CONFIG_ARCH_S390)
+ #define LOG_BUF_LEN	(131072)

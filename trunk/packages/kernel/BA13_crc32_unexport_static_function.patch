@@ -1,0 +1,11 @@
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff 2.4.19-rc3/drivers/net/wan/8253x/crc32dcl.h test/drivers/net/wan/8253x/crc32dcl.h
+--- 2.4.19-rc3/drivers/net/wan/8253x/crc32dcl.h	2002-07-22 18:43:31.000000000 +0200
++++ test/drivers/net/wan/8253x/crc32dcl.h	2002-07-22 18:48:09.000000000 +0200
+@@ -29,7 +29,6 @@
+ /****************************************************/
+ 
+ extern void	fn_init_crc_table(void);
+-extern unsigned int	fn_calc_memory_chunk_crc32(void *p, unsigned int n_bytes, unsigned int crc);
+ extern unsigned int	fn_calc_memory_crc32(void *p, unsigned int n_bytes);
+ extern unsigned int	fn_check_memory_crc32(void *p, unsigned int n_bytes, unsigned int crc);
+ 

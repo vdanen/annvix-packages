@@ -1,0 +1,14 @@
+--- linux-2.4.20/kernel/softirq.c.ce16.orig	2003-04-15 03:02:49.000000000 +0200
++++ linux-2.4.20/kernel/softirq.c	2003-04-15 03:13:42.000000000 +0200
+@@ -369,9 +369,8 @@ static int ksoftirqd(void * __bind_cpu)
+ 	sigfillset(&current->blocked);
+ 
+ 	/* Migrate to the right CPU */
+-	current->cpus_allowed = 1UL << cpu;
+-	while (smp_processor_id() != cpu)
+-		schedule();
++	set_cpus_allowed(current, 1UL << cpu);
++	BUG_ON(smp_processor_id() != cpu);
+ 
+ 	sprintf(current->comm, "ksoftirqd_CPU%d", bind_cpu);
+ 

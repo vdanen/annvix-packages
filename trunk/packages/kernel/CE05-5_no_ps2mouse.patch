@@ -1,0 +1,73 @@
+make: Entering directory `/home/chmou/rpm/BUILD/kernel-2.4.21.0.pre3.1mdk-1/linux-2.4.20'
+make: `include/linux/version.h' is up to date.
+make: Leaving directory `/home/chmou/rpm/BUILD/kernel-2.4.21.0.pre3.1mdk-1/linux-2.4.20'
+--- linux-2.4.20/drivers/char/pc_keyb.c.chmou	2003-01-22 13:20:55.000000000 +0100
++++ linux-2.4.20/drivers/char/pc_keyb.c	2003-01-22 13:21:48.000000000 +0100
+@@ -64,7 +64,9 @@
+ static void kbd_write_command_w(int data);
+ static void kbd_write_output_w(int data);
+ #ifdef CONFIG_PSMOUSE
++#ifdef INITIALIZE_MOUSE
+ static void aux_write_ack(int val);
++#endif
+ static void __aux_write_ack(int val);
+ static int aux_reconnect = 0;
+ #endif
+@@ -1042,6 +1044,7 @@
+ 	kb_wait();
+ }
+ 
++#ifdef INITIALIZE_MOUSE
+ static void aux_write_ack(int val)
+ {
+ 	unsigned long flags;
+@@ -1050,6 +1053,7 @@
+ 	__aux_write_ack(val);
+ 	spin_unlock_irqrestore(&kbd_controller_lock, flags);
+ }
++#endif
+ 
+ static unsigned char get_from_queue(void)
+ {
+@@ -1107,6 +1111,9 @@
+ 
+ static int open_aux(struct inode * inode, struct file * file)
+ {
++	unsigned long flags;
++	int cnt, status;
++
+ 	if (aux_count++) {
+ 		return 0;
+ 	}
+@@ -1118,7 +1125,30 @@
+ 	kbd_write_command_w(KBD_CCMD_MOUSE_ENABLE);	/* Enable the
+ 							   auxiliary port on
+ 							   controller. */
+-	aux_write_ack(AUX_ENABLE_DEV); /* Enable aux device */
++
++	spin_lock_irqsave(&kbd_controller_lock, flags);
++	__aux_write_ack(AUX_ENABLE_DEV); /* Enable aux device */
++	for(cnt = 50; cnt > 0; --cnt) {
++		status = handle_kbd_event();
++		if (mouse_reply_expected == 0 ||
++		    (status & (KBD_STAT_GTO | KBD_STAT_PERR))) 
++			break;
++		set_current_state(TASK_UNINTERRUPTIBLE);
++		spin_unlock_irqrestore(&kbd_controller_lock, flags);
++		schedule_timeout(2);
++		spin_lock_irqsave(&kbd_controller_lock, flags);
++		set_current_state(TASK_RUNNING);
++	}
++	if (cnt == 0 || (status & (KBD_STAT_GTO | KBD_STAT_PERR))) {
++		--aux_count;
++		spin_unlock_irqrestore(&kbd_controller_lock, flags);
++		kbd_write_cmd(AUX_INTS_OFF);
++		kbd_write_command_w(KBD_CCMD_MOUSE_DISABLE);
++		aux_free_irq(AUX_DEV);
++		return -ENXIO;
++	}
++	spin_unlock_irqrestore(&kbd_controller_lock, flags);
++
+ 	kbd_write_cmd(AUX_INTS_ON); /* Enable controller ints */
+ 	
+ 	mdelay(2);			/* Ensure we follow the kbc access delay rules.. */

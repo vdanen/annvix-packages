@@ -1,0 +1,27 @@
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.1121  -> 1.1122 
+#	drivers/acpi/asus_acpi.c	1.4     -> 1.5    
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 03/10/07	len.brown@intel.com	1.1122
+# [ACPI] fix acpi_asus module build (Stephen Hemminger)
+# --------------------------------------------
+#
+diff -Nru a/drivers/acpi/asus_acpi.c b/drivers/acpi/asus_acpi.c
+--- a/drivers/acpi/asus_acpi.c	Tue Oct  7 23:43:04 2003
++++ b/drivers/acpi/asus_acpi.c	Tue Oct  7 23:43:04 2003
+@@ -33,10 +33,6 @@
+  */
+ 
+ #include <linux/config.h>
+-#if defined (CONFIG_MODVERSIONS) && !defined (MODVERSIONS) && defined (MODULE)
+-#include <linux/modversions.h>
+-#endif
+-
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/init.h>

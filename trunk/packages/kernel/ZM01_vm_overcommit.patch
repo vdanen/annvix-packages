@@ -1,0 +1,1352 @@
+--- linux-2.4.22/fs/proc/proc_misc.c.vm-overcommit	2003-09-08 18:16:29.000000000 +0200
++++ linux-2.4.22/fs/proc/proc_misc.c	2003-09-08 18:16:37.000000000 +0200
+@@ -156,7 +156,11 @@ static int meminfo_read_proc(char *page,
+ 	struct sysinfo i;
+ 	int len;
+ 	int pg_size ;
++	int committed;
+ 
++	/* FIXME: needs to be in headers */
++	extern atomic_t vm_committed_space;
++	
+ /*
+  * display in kilobytes.
+  */
+@@ -165,6 +169,7 @@ static int meminfo_read_proc(char *page,
+ 	si_meminfo(&i);
+ 	si_swapinfo(&i);
+ 	pg_size = page_cache_size - i.bufferram;
++	committed = atomic_read(&vm_committed_space);
+ 
+ 	len = sprintf(page, "        total:    used:    free:  shared: buffers:  cached:\n"
+ 		"Mem:  %8Lu %8Lu %8Lu %8Lu %8Lu %8Lu\n"
+@@ -192,7 +197,8 @@ static int meminfo_read_proc(char *page,
+ 		"LowTotal:     %8lu kB\n"
+ 		"LowFree:      %8lu kB\n"
+ 		"SwapTotal:    %8lu kB\n"
+-		"SwapFree:     %8lu kB\n",
++		"SwapFree:     %8lu kB\n"
++		"Committed_AS: %8u kB\n",
+ 		K(i.totalram),
+ 		K(i.freeram),
+ 		K(i.sharedram),
+@@ -206,7 +212,8 @@ static int meminfo_read_proc(char *page,
+ 		K(i.totalram-i.totalhigh),
+ 		K(i.freeram-i.freehigh),
+ 		K(i.totalswap),
+-		K(i.freeswap));
++		K(i.freeswap),
++		K(committed));
+ 
+ 	return proc_calc_metrics(page, start, off, count, eof, len);
+ #undef B
+--- linux-2.4.22/fs/exec.c.vm-overcommit	2003-09-08 18:16:29.000000000 +0200
++++ linux-2.4.22/fs/exec.c	2003-09-08 18:16:37.000000000 +0200
+@@ -348,6 +348,12 @@ int setup_arg_pages(struct linux_binprm 
+ 	if (!mpnt) 
+ 		return -ENOMEM; 
+ 	
++	if (!vm_enough_memory((STACK_TOP - (PAGE_MASK & (unsigned long) bprm->p))>>PAGE_SHIFT))
++	{
++		kmem_cache_free(vm_area_cachep, mpnt);
++		return -ENOMEM;
++	}
++
+ 	down_write(&current->mm->mmap_sem);
+ 	{
+ 		mpnt->vm_mm = current->mm;
+--- linux-2.4.22/kernel/fork.c.vm-overcommit	2003-09-08 18:16:29.000000000 +0200
++++ linux-2.4.22/kernel/fork.c	2003-09-08 18:16:37.000000000 +0200
+@@ -24,6 +24,7 @@
+ #include <linux/compiler.h>
+ #include <linux/suspend.h>
+ #include <linux/grsecurity.h>
++#include <linux/mman.h>
+ 
+ #include <asm/pgtable.h>
+ #include <asm/pgalloc.h>
+@@ -151,6 +152,7 @@ static inline int dup_mmap(struct mm_str
+ {
+ 	struct vm_area_struct * mpnt, *tmp, **pprev;
+ 	int retval;
++	unsigned long charge = 0;
+ 
+ 	flush_cache_mm(current->mm);
+ 	mm->locked_vm = 0;
+@@ -179,6 +181,12 @@ static inline int dup_mmap(struct mm_str
+ 		retval = -ENOMEM;
+ 		if(mpnt->vm_flags & VM_DONTCOPY)
+ 			continue;
++		if(mpnt->vm_flags & VM_ACCOUNT) {
++			unsigned int len = (mpnt->vm_end - mpnt->vm_start) >> PAGE_SHIFT;
++			if(!vm_enough_memory(len))
++				goto fail_nomem;
++			charge += len;
++		}
+ 		tmp = kmem_cache_alloc(vm_area_cachep, SLAB_KERNEL);
+ 		if (!tmp)
+ 			goto fail_nomem;
+@@ -222,10 +230,12 @@ static inline int dup_mmap(struct mm_str
+ 	}
+ 	retval = 0;
+ 	build_mmap_rb(mm);
+-
+-fail_nomem:
++out:
+ 	flush_tlb_mm(current->mm);
+ 	return retval;
++fail_nomem:
++	vm_unacct_memory(charge);
++	goto out;
+ }
+ 
+ spinlock_t mmlist_lock __cacheline_aligned = SPIN_LOCK_UNLOCKED;
+--- linux-2.4.22/kernel/sysctl.c.vm-overcommit	2003-09-08 18:16:29.000000000 +0200
++++ linux-2.4.22/kernel/sysctl.c	2003-09-08 18:16:37.000000000 +0200
+@@ -60,6 +60,7 @@ extern int fb_splash_progress[5];
+ #endif
+ extern int bdf_prm[], bdflush_min[], bdflush_max[];
+ extern int sysctl_overcommit_memory;
++extern int sysctl_overcommit_ratio;
+ extern int max_threads;
+ extern atomic_t nr_queued_signals;
+ extern int max_queued_signals;
+@@ -504,6 +505,8 @@ static ctl_table vm_table[] = {
+ 	 &bdflush_min, &bdflush_max},
+ 	{VM_OVERCOMMIT_MEMORY, "overcommit_memory", &sysctl_overcommit_memory,
+ 	 sizeof(sysctl_overcommit_memory), 0644, NULL, &proc_dointvec},
++	{VM_OVERCOMMIT_RATIO, "overcommit_ratio", &sysctl_overcommit_ratio,
++	 sizeof(sysctl_overcommit_ratio), 0644, NULL, &proc_dointvec},
+ 	{VM_PAGERDAEMON, "kswapd",
+ 	 &pager_daemon, sizeof(pager_daemon_t), 0644, NULL, &proc_dointvec},
+ 	{VM_PGT_CACHE, "pagetable_cache", 
+--- linux-2.4.22/mm/mlock.c.vm-overcommit	2003-09-08 18:16:29.000000000 +0200
++++ linux-2.4.22/mm/mlock.c	2003-09-08 18:16:37.000000000 +0200
+@@ -224,6 +224,7 @@ asmlinkage long sys_mlock(unsigned long 
+ 	unsigned long lock_limit;
+ 	int error = -ENOMEM;
+ 
++	vm_validate_enough("entering sys_mlock");
+ 	down_write(&current->mm->mmap_sem);
+ 	len = PAGE_ALIGN(len + (start & ~PAGE_MASK));
+ 	start &= PAGE_MASK;
+@@ -247,6 +248,7 @@ asmlinkage long sys_mlock(unsigned long 
+ 	error = do_mlock(start, len, 1);
+ out:
+ 	up_write(&current->mm->mmap_sem);
++	vm_validate_enough("exiting sys_mlock");
+ 	return error;
+ }
+ 
+@@ -254,11 +256,13 @@ asmlinkage long sys_munlock(unsigned lon
+ {
+ 	int ret;
+ 
++	vm_validate_enough("entering sys_munlock");
+ 	down_write(&current->mm->mmap_sem);
+ 	len = PAGE_ALIGN(len + (start & ~PAGE_MASK));
+ 	start &= PAGE_MASK;
+ 	ret = do_mlock(start, len, 0);
+ 	up_write(&current->mm->mmap_sem);
++	vm_validate_enough("exiting sys_munlock");
+ 	return ret;
+ }
+ 
+@@ -295,6 +299,8 @@ asmlinkage long sys_mlockall(int flags)
+ 	unsigned long lock_limit;
+ 	int ret = -EINVAL;
+ 
++	vm_validate_enough("entering sys_mlockall");
++
+ 	down_write(&current->mm->mmap_sem);
+ 	if (!flags || (flags & ~(MCL_CURRENT | MCL_FUTURE)))
+ 		goto out;
+@@ -315,15 +321,18 @@ asmlinkage long sys_mlockall(int flags)
+ 	ret = do_mlockall(flags);
+ out:
+ 	up_write(&current->mm->mmap_sem);
++	vm_validate_enough("exiting sys_mlockall");
+ 	return ret;
+ }
+ 
+ asmlinkage long sys_munlockall(void)
+ {
+ 	int ret;
++	vm_validate_enough("entering sys_munlockall");
+ 
+ 	down_write(&current->mm->mmap_sem);
+ 	ret = do_mlockall(0);
+ 	up_write(&current->mm->mmap_sem);
++	vm_validate_enough("exiting sys_munlockall");
+ 	return ret;
+ }
+--- linux-2.4.22/mm/mmap.c.vm-overcommit	2003-09-08 18:16:29.000000000 +0200
++++ linux-2.4.22/mm/mmap.c	2003-09-08 18:57:04.000000000 +0200
+@@ -1,8 +1,25 @@
+ /*
+  *	linux/mm/mmap.c
+- *
+  * Written by obz.
++ *
++ *  Address space accounting code	<alan@redhat.com>
++ *  (c) Copyright 2002 Red Hat Inc, All Rights Reserved
++ *
++ *  This program is free software; you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License as published by
++ *  the Free Software Foundation; either version 2 of the License, or
++ *  (at your option) any later version.
++ *
++ *  This program is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *  GNU General Public License for more details.
++ *
++ *  You should have received a copy of the GNU General Public License
++ *  along with this program; if not, write to the Free Software
++ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+  */
++ 
+ #include <linux/slab.h>
+ #include <linux/shm.h>
+ #include <linux/mman.h>
+@@ -46,9 +63,11 @@ pgprot_t protection_map[16] = {
+ 	__S000, __S001, __S010, __S011, __S100, __S101, __S110, __S111
+ };
+ 
+-int sysctl_overcommit_memory;
++int sysctl_overcommit_memory = 0;	/* default is heuristic overcommit */
++int sysctl_overcommit_ratio = 50;	/* default is 50% */
+ int heap_stack_gap = 1;
+ int max_map_count = DEFAULT_MAX_MAP_COUNT;
++atomic_t vm_committed_space = ATOMIC_INIT(0);
+ 
+ /* Check that a process has enough memory to allocate a
+  * new virtual mapping.
+@@ -58,42 +77,109 @@ int vm_enough_memory(long pages)
+ 	/* Stupid algorithm to decide if we have enough memory: while
+ 	 * simple, it hopefully works in most obvious cases.. Easy to
+ 	 * fool it, but this should catch most mistakes.
+-	 */
+-	/* 23/11/98 NJC: Somewhat less stupid version of algorithm,
++	 *
++	 * 23/11/98 NJC: Somewhat less stupid version of algorithm,
+ 	 * which tries to do "TheRightThing".  Instead of using half of
+ 	 * (buffers+cache), use the minimum values.  Allow an extra 2%
+ 	 * of num_physpages for safety margin.
++	 *
++	 * 2002/02/26 Alan Cox: Added two new modes that do real accounting
+ 	 */
++	unsigned long free, allowed;
++	struct sysinfo i;
+ 
+-	unsigned long free;
++	atomic_add(pages, &vm_committed_space);
+ 	
+         /* Sometimes we want to use more memory than we have. */
+-	if (sysctl_overcommit_memory)
++	if (sysctl_overcommit_memory == 1)
+ 	    return 1;
+ 
+-	/* The page cache contains buffer pages these days.. */
+-	free = page_cache_size;
+-	free += nr_free_pages();
+-	free += nr_swap_pages;
++	if (sysctl_overcommit_memory == 0)
++	{
++		/* The page cache contains buffer pages these days.. */
++		free = page_cache_size;
++		free += nr_free_pages();
++		free += nr_swap_pages;
++	
++		/*
++		 * This double-counts: the nrpages are both in the page-cache
++		 * and in the swapper space. At the same time, this compensates
++		 * for the swap-space over-allocation (ie "nr_swap_pages" being
++		 * too small.
++		 */
++		free += swapper_space.nrpages;
++	
++		/*
++		 * The code below doesn't account for free space in the inode
++		 * and dentry slab cache, slab cache fragmentation, inodes and
++		 * dentries which will become freeable under VM load, etc.
++		 * Lets just hope all these (complex) factors balance out...
++		 */
++		free += (dentry_stat.nr_unused * sizeof(struct dentry)) >> PAGE_SHIFT;
++		free += (inodes_stat.nr_unused * sizeof(struct inode)) >> PAGE_SHIFT;
++	
++		if(free > pages)
++			return 1;
++		atomic_sub(pages, &vm_committed_space);
++		return 0;
++	}
++
++	/* FIXME - need to add arch hooks to get the bits we need
++	   without the higher overhead crap */
++	si_meminfo(&i);	
++	allowed = i.totalram * sysctl_overcommit_ratio / 100;
+ 
+-	/*
+-	 * This double-counts: the nrpages are both in the page-cache
+-	 * and in the swapper space. At the same time, this compensates
+-	 * for the swap-space over-allocation (ie "nr_swap_pages" being
+-	 * too small.
+-	 */
+-	free += swapper_space.nrpages;
++	if (sysctl_overcommit_memory != 4)
++		allowed += total_swap_pages;
+ 
+-	/*
+-	 * The code below doesn't account for free space in the inode
+-	 * and dentry slab cache, slab cache fragmentation, inodes and
+-	 * dentries which will become freeable under VM load, etc.
+-	 * Lets just hope all these (complex) factors balance out...
+-	 */
+-	free += (dentry_stat.nr_unused * sizeof(struct dentry)) >> PAGE_SHIFT;
+-	free += (inodes_stat.nr_unused * sizeof(struct inode)) >> PAGE_SHIFT;
++	if(atomic_read(&vm_committed_space) < allowed)
++		return 1;
+ 
+-	return free > pages;
++	atomic_sub(pages, &vm_committed_space);
++	return 0;
++}
++
++void vm_unacct_memory(long pages)
++{	
++	atomic_sub(pages, &vm_committed_space);
++}
++
++/*
++ *	Don't even bother telling me the locking is wrong - its a test
++ *	routine and uniprocessor is quite sufficient..
++ *
++ *	To enable this debugging you must tweak the #if below, and build
++ *	with no SYS5 shared memory (thats not validated yet) and non SMP
++ */
++
++void vm_validate_enough(char *x)
++{
++#if 0
++	unsigned long count = 0UL;
++	struct mm_struct *mm;
++	struct vm_area_struct *vma;
++	struct list_head *mmp;
++	unsigned long flags;
++
++	spin_lock_irqsave(&mmlist_lock, flags);
++
++	list_for_each(mmp, &init_mm.mmlist)
++	{
++		mm = list_entry(mmp, struct mm_struct, mmlist);
++		for(vma = mm->mmap; vma!=NULL; vma=vma->vm_next)
++		{
++			if(vma->vm_flags & VM_ACCOUNT)
++				count += (vma->vm_end - vma->vm_start) >> PAGE_SHIFT;
++		}
++	}	
++	if(count != atomic_read(&vm_committed_space))
++	{
++		printk("MM crappo accounting %s: %lu %ld.\n",
++			x, count, atomic_read(&vm_committed_space));
++		atomic_set(&vm_committed_space, count);
++	}
++	spin_unlock_irqrestore(&mmlist_lock, flags);
++#endif
+ }
+ 
+ /* Remove one vm structure from the inode's i_mapping address space. */
+@@ -164,12 +250,13 @@ asmlinkage unsigned long sys_brk(unsigne
+ 
+ 	/* Always allow shrinking brk. */
+ 	if (brk <= mm->brk) {
+-		if (!do_munmap(mm, newbrk, oldbrk-newbrk))
++		if (!do_munmap(mm, newbrk, oldbrk-newbrk, 1))
+ 			goto set_brk;
+ 		goto out;
+ 	}
+ 
+ 	/* Check against rlimit.. */
++	/* FIXME: - this seems to be checked in do_brk.. */
+ 	rlim = current->rlim[RLIMIT_DATA].rlim_cur;
+ 	gr_learn_resource(current, RLIMIT_DATA, brk - mm->start_data);
+ 	if (rlim < RLIM_INFINITY && brk - mm->start_data > rlim)
+@@ -179,10 +266,6 @@ asmlinkage unsigned long sys_brk(unsigne
+ 	if (find_vma_intersection(mm, oldbrk, newbrk+PAGE_SIZE))
+ 		goto out;
+ 
+-	/* Check if we have enough memory.. */
+-	if (!vm_enough_memory((newbrk-oldbrk) >> PAGE_SHIFT))
+-		goto out;
+-
+ 	/* Ok, looks good - let it rip. */
+ 	if (do_brk(oldbrk, newbrk-oldbrk) != oldbrk)
+ 		goto out;
+@@ -408,7 +491,9 @@ unsigned long do_mmap_pgoff(struct file 
+ 	int correct_wcount = 0;
+ 	int error;
+ 	rb_node_t ** rb_link, * rb_parent;
++	unsigned long charged = 0;
+ 
++	vm_validate_enough("entering do_mmap_pgoff");
+ #if defined(CONFIG_GRKERNSEC_PAX_SEGMEXEC) || defined(CONFIG_GRKERNSEC_PAX_RANDEXEC)
+ 	struct vm_area_struct * vma_m = NULL;
+ 	
+@@ -541,7 +626,7 @@ unsigned long do_mmap_pgoff(struct file 
+ munmap_back:
+ 	vma = find_vma_prepare(mm, addr, &prev, &rb_link, &rb_parent);
+ 	if (vma && vma->vm_start < addr + len) {
+-		if (do_munmap(mm, addr, len))
++		if (do_munmap(mm, addr, len, 1))
+ 			return -ENOMEM;
+ 		goto munmap_back;
+ 	}
+@@ -557,11 +642,16 @@ munmap_back:
+ #if defined(CONFIG_GRKERNSEC_PAX_SEGMEXEC) || defined(CONFIG_GRKERNSEC_PAX_RANDEXEC)
+ 	}
+ #endif
+-	/* Private writable mapping? Check memory availability.. */
+-	if ((vm_flags & (VM_SHARED | VM_WRITE)) == VM_WRITE &&
+-	    !(flags & MAP_NORESERVE)				 &&
+-	    !vm_enough_memory(len >> PAGE_SHIFT))
+-		return -ENOMEM;
++
++	if (!(flags & MAP_NORESERVE) || sysctl_overcommit_memory > 1) {
++		if ((vm_flags & (VM_SHARED|VM_WRITE)) == VM_WRITE) {
++			/* Private writable mapping: check memory availability */
++			charged = len >> PAGE_SHIFT;
++			if (!vm_enough_memory(charged))
++				return -ENOMEM;
++			vm_flags |= VM_ACCOUNT;
++		}
++	}
+ 
+ 	/* Can we just expand an old anonymous mapping? */
+ 	if (!file && !(vm_flags & VM_SHARED) && rb_parent)
+@@ -573,8 +663,9 @@ munmap_back:
+ 	 * not unmapped, but the maps are removed from the list.
+ 	 */
+ 	vma = kmem_cache_alloc(vm_area_cachep, SLAB_KERNEL);
++	error = -ENOMEM;
+ 	if (!vma)
+-		return -ENOMEM;
++		goto unacct_error;
+ 
+ 	vma->vm_mm = mm;
+ 	vma->vm_start = addr;
+@@ -646,8 +737,7 @@ munmap_back:
+ 		 * to update the tree pointers.
+ 		 */
+ 		addr = vma->vm_start;
+-		stale_vma = find_vma_prepare(mm, addr, &prev,
+-						&rb_link, &rb_parent);
++		stale_vma = find_vma_prepare(mm, addr, &prev, &rb_link, &rb_parent);
+ 		/*
+ 		 * Make sure the lowlevel driver did its job right.
+ 		 */
+@@ -671,6 +761,7 @@ out:	
+ 		mm->locked_vm += len >> PAGE_SHIFT;
+ 		make_pages_present(addr, addr + len);
+ 	}
++	vm_validate_enough("out from do_mmap_pgoff");
+ 	return addr;
+ 
+ unmap_and_free_vma:
+@@ -683,6 +774,10 @@ unmap_and_free_vma:
+ 	zap_page_range(mm, vma->vm_start, vma->vm_end - vma->vm_start);
+ free_vma:
+ 	kmem_cache_free(vm_area_cachep, vma);
++unacct_error:
++	if(charged)
++		vm_unacct_memory(charged);
++	vm_validate_enough("error path from do_mmap_pgoff");
+ 	return error;
+ }
+ 
+@@ -859,6 +954,106 @@ struct vm_area_struct * find_vma_prev(st
+ 	return NULL;
+ }
+ 
++/* vma is the first one with  address < vma->vm_end,
++ * and even  address < vma->vm_start. Have to extend vma. */
++ 
++#ifdef ARCH_STACK_GROWSUP
++#error "FIXME: match aa vm"
++static inline int expand_stack(struct vm_area_struct * vma, unsigned long address)
++{
++	unsigned long grow;
++
++	if (!(vma->vm_flags & VM_GROWSUP))
++		return -EFAULT;
++
++	vm_validate_enough("entering expand_stack");
++
++	/*
++	 * vma->vm_start/vm_end cannot change under us because the caller is required
++	 * to hold the mmap_sem in write mode. We need to get the spinlock only
++	 * before relocating the vma range ourself.
++	 */
++ 	spin_lock(&vma->vm_mm->page_table_lock);
++
++	address += 4 + PAGE_SIZE - 1;
++	address &= PAGE_MASK;
++	if (prev_vma && prev_vma->vm_end + (heap_stack_gap << PAGE_SHIFT) > address)
++		return -ENOMEM;
++	grow = (address - vma->vm_end) >> PAGE_SHIFT;
++	gr_learn_resource(current, RLIMIT_STACK, vma->vm_end - address);
++	gr_learn_resource(current, RLIMIT_AS, (vma->vm_mm->total_vm + grow) << PAGE_SHIFT);
++	
++	/* Overcommit.. */
++	if(!vm_enough_memory(grow)) {
++		spin_unlock(&vma->vm_mm->page_table_lock);
++		return -ENOMEM;
++	}
++	
++	if (address - vma->vm_start > current->rlim[RLIMIT_STACK].rlim_cur ||
++	    ((vma->vm_mm->total_vm + grow) << PAGE_SHIFT) > current->rlim[RLIMIT_AS].rlim_cur)
++	{
++		spin_unlock(&vma->vm_mm->page_table_lock);
++		vm_unacct_memory(grow);
++		vm_validate_enough("exiting expand_stack - FAIL");
++		return -ENOMEM;
++	}
++	vma->vm_end = address;
++	vma->vm_mm->total_vm += grow;
++	if (vma->vm_flags & VM_LOCKED)
++		vma->vm_mm->locked_vm += grow;
++	vm_validate_enough("exiting expand_stack");
++	return 0;
++}
++#else
++
++int expand_stack(struct vm_area_struct * vma, unsigned long address,
++				 struct vm_area_struct * prev_vma)
++{
++	unsigned long grow;
++
++	if (!(vma->vm_flags & VM_GROWSDOWN))
++		return -EFAULT;
++
++	vm_validate_enough("entering expand_stack");
++
++	/*
++	 * vma->vm_start/vm_end cannot change under us because the caller is required
++	 * to hold the mmap_sem in write mode. We need to get the spinlock only
++	 * before relocating the vma range ourself.
++	 */
++	address &= PAGE_MASK;
++	if (prev_vma && prev_vma->vm_end + (heap_stack_gap << PAGE_SHIFT) > address)
++		return -ENOMEM;
++ 	spin_lock(&vma->vm_mm->page_table_lock);
++	grow = (vma->vm_start - address) >> PAGE_SHIFT;
++	gr_learn_resource(current, RLIMIT_STACK, vma->vm_end - address);
++	gr_learn_resource(current, RLIMIT_AS, (vma->vm_mm->total_vm + grow) << PAGE_SHIFT);
++
++	/* Overcommit.. */
++	if(!vm_enough_memory(grow)) {
++		spin_unlock(&vma->vm_mm->page_table_lock);
++		return -ENOMEM;
++	}
++	
++	if (vma->vm_end - address > current->rlim[RLIMIT_STACK].rlim_cur ||
++	    ((vma->vm_mm->total_vm + grow) << PAGE_SHIFT) > current->rlim[RLIMIT_AS].rlim_cur) {
++		spin_unlock(&vma->vm_mm->page_table_lock);
++		vm_unacct_memory(grow);
++		vm_validate_enough("exiting expand_stack - FAIL");
++		return -ENOMEM;
++	}
++	vma->vm_start = address;
++	vma->vm_pgoff -= grow;
++	vma->vm_mm->total_vm += grow;
++	if (vma->vm_flags & VM_LOCKED)
++		vma->vm_mm->locked_vm += grow;
++	spin_unlock(&vma->vm_mm->page_table_lock);
++	vm_validate_enough("exiting expand_stack");
++	return 0;
++}
++
++#endif
++
+ struct vm_area_struct * find_extend_vma(struct mm_struct * mm, unsigned long addr)
+ {
+ 	struct vm_area_struct * vma, * prev_vma;
+@@ -907,7 +1102,7 @@ struct vm_area_struct * find_extend_vma(
+  */
+ static struct vm_area_struct * unmap_fixup(struct mm_struct *mm, 
+ 	struct vm_area_struct *area, unsigned long addr, size_t len, 
+-	struct vm_area_struct *extra)
++	struct vm_area_struct *extra, int acct)
+ {
+ 	struct vm_area_struct *mpnt;
+ 	unsigned long end = addr + len;
+@@ -918,6 +1113,8 @@ static struct vm_area_struct * unmap_fix
+ 	area->vm_mm->total_vm -= len >> PAGE_SHIFT;
+ 	if (area->vm_flags & VM_LOCKED)
+ 		area->vm_mm->locked_vm -= len >> PAGE_SHIFT;
++	if (acct && (area->vm_flags & VM_ACCOUNT))
++		vm_unacct_memory(len >> PAGE_SHIFT);
+ 
+ 	/* Unmapping the whole area. */
+ 	if (addr == area->vm_start && end == area->vm_end) {
+@@ -1042,7 +1239,7 @@ no_mmaps:
+ 
+ static inline struct vm_area_struct *unmap_vma(struct mm_struct *mm,
+ 	unsigned long addr, size_t len, struct vm_area_struct *mpnt,
+-	struct vm_area_struct *extra)
++	struct vm_area_struct *extra, int acct)
+ {
+ 	unsigned long st, end, size;
+ 	struct file *file = NULL;
+@@ -1063,7 +1260,7 @@ static inline struct vm_area_struct *unm
+ 	/*
+ 	 * Fix the mapping, and free the old area if it wasn't reused.
+ 	 */
+-	extra = unmap_fixup(mm, mpnt, st, size, extra);
++	extra = unmap_fixup(mm, mpnt, st, size, extra, acct);
+ 	if (file)
+ 		atomic_inc(&file->f_dentry->d_inode->i_writecount);
+ 	return extra;
+@@ -1071,7 +1268,7 @@ static inline struct vm_area_struct *unm
+        
+ static struct vm_area_struct *unmap_vma_list(struct mm_struct *mm,
+ 	unsigned long addr, size_t len, struct vm_area_struct *free,
+-	struct vm_area_struct *extra, struct vm_area_struct *prev)
++	struct vm_area_struct *extra, struct vm_area_struct *prev, int acct)
+ {
+ 	struct vm_area_struct *mpnt;
+ 
+@@ -1083,10 +1280,11 @@ static struct vm_area_struct *unmap_vma_
+ 	 */
+ 	while ((mpnt = free) != NULL) {
+ 		free = free->vm_next;
+-		extra = unmap_vma(mm, addr, len, mpnt, extra);
++		extra = unmap_vma(mm, addr, len, mpnt, extra, acct);
+ 	}
+ 
+ 	free_pgtables(mm, prev, addr, addr+len);
++	if(acct) vm_validate_enough("exit -ok- do_munmap");
+ 
+ 	return extra;
+ }
+@@ -1094,7 +1292,7 @@ static struct vm_area_struct *unmap_vma_
+ #if defined(CONFIG_GRKERNSEC_PAX_SEGMEXEC) || defined(CONFIG_GRKERNSEC_PAX_RANDEXEC)
+ static struct vm_area_struct *unmap_vma_mirror_list(struct mm_struct *mm,
+ 	unsigned long addr, size_t len, struct vm_area_struct *free_m,
+-	struct vm_area_struct *extra_m)
++	struct vm_area_struct *extra_m, int acct)
+ {
+ 	struct vm_area_struct *mpnt, *prev;
+ 
+@@ -1108,7 +1306,7 @@ static struct vm_area_struct *unmap_vma_
+ 		end = addr_m+len;
+ 		end = end > mpnt->vm_end ? mpnt->vm_end : end;
+ 		find_vma_prev(mm, mpnt->vm_start, &prev);
+-		extra_m = unmap_vma(mm, addr_m, len, mpnt, extra_m);
++		extra_m = unmap_vma(mm, addr_m, len, mpnt, extra_m, acct);
+ 
+ 		free_pgtables(mm, prev, start, end);
+ 	}               
+@@ -1122,7 +1320,7 @@ static struct vm_area_struct *unmap_vma_
+  * work.  This now handles partial unmappings.
+  * Jeremy Fitzhardine <jeremy@sw.oz.au>
+  */
+-int do_munmap(struct mm_struct *mm, unsigned long addr, size_t len)
++int do_munmap(struct mm_struct *mm, unsigned long addr, size_t len, int acct)
+ {
+ 	struct vm_area_struct *mpnt, *prev, **npp, *free, *extra;
+ 
+@@ -1130,6 +1328,8 @@ int do_munmap(struct mm_struct *mm, unsi
+ 	struct vm_area_struct *free_m, *extra_m;
+ #endif
+ 
++	if(acct) vm_validate_enough("entering do_munmap");
++
+ 	if ((addr & ~PAGE_MASK) || addr > TASK_SIZE || len > TASK_SIZE-addr)
+ 		return -EINVAL;
+ 
+@@ -1208,10 +1408,10 @@ int do_munmap(struct mm_struct *mm, unsi
+ 	mm->mmap_cache = NULL;	/* Kill the cache. */
+ 	spin_unlock(&mm->page_table_lock);
+ 
+-	extra = unmap_vma_list(mm, addr, len, free, extra, prev);
++	extra = unmap_vma_list(mm, addr, len, free, extra, prev, acct);
+ 
+ #if defined(CONFIG_GRKERNSEC_PAX_SEGMEXEC) || defined(CONFIG_GRKERNSEC_PAX_RANDEXEC)
+-	extra_m = unmap_vma_mirror_list(mm, addr, len, free_m, extra_m);
++	extra_m = unmap_vma_mirror_list(mm, addr, len, free_m, extra_m, acct);
+ #endif
+ 
+ 	validate_mm(mm);
+@@ -1240,7 +1440,7 @@ asmlinkage long sys_munmap(unsigned long
+ #endif
+ 
+ 	down_write(&mm->mmap_sem);
+-	ret = do_munmap(mm, addr, len);
++	ret = do_munmap(mm, addr, len, 1);
+ 
+ 	up_write(&mm->mmap_sem);
+ 	return ret;
+@@ -1258,6 +1458,9 @@ unsigned long do_brk(unsigned long addr,
+ 	unsigned long flags;
+ 	rb_node_t ** rb_link, * rb_parent;
+ 
++	vm_validate_enough("entering do_brk");
++
++
+ 	len = PAGE_ALIGN(len);
+ 	if (!len)
+ 		return addr;
+@@ -1279,7 +1482,7 @@ unsigned long do_brk(unsigned long addr,
+  munmap_back:
+ 	vma = find_vma_prepare(mm, addr, &prev, &rb_link, &rb_parent);
+ 	if (vma && vma->vm_start < addr + len) {
+-		if (do_munmap(mm, addr, len))
++		if (do_munmap(mm, addr, len, 1))
+ 			return -ENOMEM;
+ 		goto munmap_back;
+ 	}
+@@ -1296,7 +1499,7 @@ unsigned long do_brk(unsigned long addr,
+ 	if (!vm_enough_memory(len >> PAGE_SHIFT))
+ 		return -ENOMEM;
+ 
+-	flags = VM_DATA_DEFAULT_FLAGS | mm->def_flags;
++	flags = VM_DATA_DEFAULT_FLAGS | VM_ACCOUNT | mm->def_flags; 
+ 
+ #if defined(CONFIG_GRKERNSEC_PAX_PAGEEXEC) || defined(CONFIG_GRKERNSEC_PAX_SEGMEXEC)
+ 	if (current->flags & (PF_PAX_PAGEEXEC | PF_PAX_SEGMEXEC)) {
+@@ -1318,8 +1521,11 @@ unsigned long do_brk(unsigned long addr,
+ 	 */
+ 	vma = kmem_cache_alloc(vm_area_cachep, SLAB_KERNEL);
+ 	if (!vma)
++	{
++		/* We accounted this address space - undo it */
++		vm_unacct_memory(len >> PAGE_SHIFT);
+ 		return -ENOMEM;
+-
++	}
+ 	vma->vm_mm = mm;
+ 	vma->vm_start = addr;
+ 	vma->vm_end = addr + len;
+@@ -1344,6 +1550,9 @@ out:
+ 		mm->locked_vm += len >> PAGE_SHIFT;
+ 		make_pages_present(addr, addr + len);
+ 	}
++
++	vm_validate_enough("exiting do_brk");
++
+ 	return addr;
+ }
+ 
+@@ -1385,6 +1594,10 @@ void exit_mmap(struct mm_struct * mm)
+ 		unsigned long end = mpnt->vm_end;
+ 		unsigned long size = end - start;
+ 
++		/* If the VMA has been charged for, account for its removal */
++		if (mpnt->vm_flags & VM_ACCOUNT)
++			vm_unacct_memory(size >> PAGE_SHIFT);
++	
+ 		if (mpnt->vm_ops) {
+ 			if (mpnt->vm_ops->close)
+ 				mpnt->vm_ops->close(mpnt);
+@@ -1403,8 +1616,9 @@ void exit_mmap(struct mm_struct * mm)
+ 		BUG();
+ 
+ 	clear_page_tables(mm, FIRST_USER_PGD_NR, USER_PTRS_PER_PGD);
+-
+ 	flush_tlb_mm(mm);
++	vm_validate_enough("exiting exit_mmap");
++
+ }
+ 
+ /* Insert vm structure into process list sorted by address
+--- linux-2.4.22/mm/mprotect.c.vm-overcommit	2003-09-08 18:16:29.000000000 +0200
++++ linux-2.4.22/mm/mprotect.c	2003-09-08 18:16:37.000000000 +0200
+@@ -2,6 +2,23 @@
+  *	linux/mm/mprotect.c
+  *
+  *  (C) Copyright 1994 Linus Torvalds
++ *
++ *  Address space accounting code	<alan@redhat.com>
++ *  (c) Copyright 2002 Red Hat Inc, All Rights Reserved
++ *
++ *  This program is free software; you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License as published by
++ *  the Free Software Foundation; either version 2 of the License, or
++ *  (at your option) any later version.
++ *
++ *  This program is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *  GNU General Public License for more details.
++ *
++ *  You should have received a copy of the GNU General Public License
++ *  along with this program; if not, write to the Free Software
++ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+  */
+ #include <linux/slab.h>
+ #include <linux/smp_lock.h>
+@@ -278,12 +295,29 @@ static int mprotect_fixup(struct vm_area
+ {
+ 	pgprot_t newprot;
+ 	int error;
++	unsigned long charged = 0;
+ 
+ 	if (newflags == vma->vm_flags) {
+ 		*pprev = vma;
+ 		return 0;
+ 	}
+ 
++	/*
++	 * If we make a private mapping writable we increase our commit;
++	 * but (without finer accounting) cannot reduce our commit if we
++	 * make it unwritable again.
++	 *
++	 * FIXME? We haven't defined a VM_NORESERVE flag, so mprotecting
++	 * a MAP_NORESERVE private mapping to writable will now reserve.
++	 */
++	if ((newflags & VM_WRITE) &&
++	    !(vma->vm_flags & (VM_ACCOUNT|VM_WRITE|VM_SHARED))) {
++		charged = (end - start) >> PAGE_SHIFT;
++		if (!vm_enough_memory(charged))
++			return -ENOMEM;
++		newflags |= VM_ACCOUNT;
++	}
++
+ #ifdef CONFIG_GRKERNSEC_PAX_PAGEEXEC
+ 	if (!(current->flags & PF_PAX_PAGEEXEC) && (newflags & (VM_READ|VM_WRITE)))
+ 		newprot = protection_map[(newflags | VM_EXEC) & 0xf];
+@@ -299,10 +333,10 @@ static int mprotect_fixup(struct vm_area
+ 		error = mprotect_fixup_end(vma, pprev, start, newflags, newprot);
+ 	else
+ 		error = mprotect_fixup_middle(vma, pprev, start, end, newflags, newprot);
+-
+-	if (error)
++	if (error) {
++		vm_unacct_memory(charged);
+ 		return error;
+-
++	}
+ 	change_protection(start, end, newprot);
+ 	return 0;
+ }
+@@ -374,6 +408,8 @@ asmlinkage long sys_mprotect(unsigned lo
+ 	struct vm_area_struct * vma, * next, * prev;
+ 	int error = -EINVAL;
+ 
++	vm_validate_enough("entering mprotect");
++
+ 	if (start & ~PAGE_MASK)
+ 		return -EINVAL;
+ 	len = PAGE_ALIGN(len);
+@@ -460,5 +496,6 @@ asmlinkage long sys_mprotect(unsigned lo
+ out:
+ 
+ 	up_write(&current->mm->mmap_sem);
++	vm_validate_enough("exiting mprotect");
+ 	return error;
+ }
+--- linux-2.4.22/mm/mremap.c.vm-overcommit	2003-09-08 18:16:29.000000000 +0200
++++ linux-2.4.22/mm/mremap.c	2003-09-08 18:16:37.000000000 +0200
+@@ -2,6 +2,23 @@
+  *	linux/mm/remap.c
+  *
+  *	(C) Copyright 1996 Linus Torvalds
++ *
++ *	Address space accounting code	<alan@redhat.com>
++ *	(c) Copyright 2002 Red Hat Inc, All Rights Reserved
++ *
++ *  This program is free software; you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License as published by
++ *  the Free Software Foundation; either version 2 of the License, or
++ *  (at your option) any later version.
++ *
++ *  This program is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *  GNU General Public License for more details.
++ *
++ *  You should have received a copy of the GNU General Public License
++ *  along with this program; if not, write to the Free Software
++ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+  */
+ 
+ #include <linux/slab.h>
+@@ -13,8 +30,6 @@
+ #include <asm/uaccess.h>
+ #include <asm/pgalloc.h>
+ 
+-extern int vm_enough_memory(long pages);
+-
+ static inline pte_t *get_one_pte(struct mm_struct *mm, unsigned long addr)
+ {
+ 	pgd_t * pgd;
+@@ -130,6 +145,7 @@ static inline unsigned long move_vma(str
+ 	struct vm_area_struct * new_vma, * next, * prev;
+ 	int allocated_vma;
+ 
++
+ 	new_vma = NULL;
+ 	next = find_vma_prev(mm, new_addr, &prev);
+ 	if (next) {
+@@ -192,7 +208,8 @@ static inline unsigned long move_vma(str
+ 			insert_vm_struct(current->mm, new_vma);
+ 		}
+ 
+-		do_munmap(current->mm, addr, old_len);
++		/* The old VMA has been accounted for, don't double account */
++		do_munmap(current->mm, addr, old_len, 0);
+ #if defined(CONFIG_GRKERNSEC_PAX_SEGMEXEC) || defined(CONFIG_GRKERNSEC_PAX_RANDEXEC)
+ 	if (!(new_vma->vm_flags & VM_MIRROR))
+ #endif
+@@ -224,6 +241,7 @@ unsigned long do_mremap(unsigned long ad
+ {
+ 	struct vm_area_struct *vma;
+ 	unsigned long ret = -EINVAL;
++	unsigned long charged = 0;
+ 
+ 	if (flags & ~(MREMAP_FIXED | MREMAP_MAYMOVE))
+ 		goto out;
+@@ -266,16 +284,17 @@ unsigned long do_mremap(unsigned long ad
+ 		if ((addr <= new_addr) && (addr+old_len) > new_addr)
+ 			goto out;
+ 
+-		do_munmap(current->mm, new_addr, new_len);
++		do_munmap(current->mm, new_addr, new_len, 1);
+ 	}
+ 
+ 	/*
+ 	 * Always allow a shrinking remap: that just unmaps
+ 	 * the unnecessary pages..
++	 * do_munmap does all the needed commit accounting
+ 	 */
+ 	ret = addr;
+ 	if (old_len >= new_len) {
+-		do_munmap(current->mm, addr+new_len, old_len - new_len);
++		do_munmap(current->mm, addr+new_len, old_len - new_len, 1);
+ 		if (!(flags & MREMAP_FIXED) || (new_addr == addr))
+ 			goto out;
+ 	}
+@@ -321,11 +340,12 @@ unsigned long do_mremap(unsigned long ad
+ #if defined(CONFIG_GRKERNSEC_PAX_SEGMEXEC) || defined(CONFIG_GRKERNSEC_PAX_RANDEXEC)
+ 	}
+ #endif
+-	/* Private writable mapping? Check memory availability.. */
+-	if ((vma->vm_flags & (VM_SHARED | VM_WRITE)) == VM_WRITE &&
+-	    !(flags & MAP_NORESERVE)				 &&
+-	    !vm_enough_memory((new_len - old_len) >> PAGE_SHIFT))
+-		goto out;
++
++	if (vma->vm_flags & VM_ACCOUNT) {
++		charged = (new_len - old_len) >> PAGE_SHIFT;
++		if(!vm_enough_memory(charged))
++			goto out_nc;
++	}
+ 
+ 	/* old_len exactly to the end of the area..
+ 	 * And we're not relocating the area.
+@@ -352,6 +372,7 @@ unsigned long do_mremap(unsigned long ad
+ 						   addr + new_len);
+ 			}
+ 			ret = addr;
++			vm_validate_enough("mremap path1");
+ 			goto out;
+ 		}
+ 	}
+@@ -375,6 +396,12 @@ unsigned long do_mremap(unsigned long ad
+ 		ret = move_vma(vma, addr, old_len, new_len, new_addr);
+ 	}
+ out:
++	if(ret & ~PAGE_MASK)
++	{
++		vm_unacct_memory(charged);
++		vm_validate_enough("mremap error path");
++	}
++out_nc:
+ 	return ret;
+ }
+ 
+@@ -384,8 +411,10 @@ asmlinkage unsigned long sys_mremap(unsi
+ {
+ 	unsigned long ret;
+ 
++	vm_validate_enough("entry to mremap");
+ 	down_write(&current->mm->mmap_sem);
+ 	ret = do_mremap(addr, old_len, new_len, flags, new_addr);
+ 	up_write(&current->mm->mmap_sem);
++	vm_validate_enough("exit from mremap");
+ 	return ret;
+ }
+--- linux-2.4.22/mm/shmem.c.vm-overcommit	2003-09-08 18:15:53.000000000 +0200
++++ linux-2.4.22/mm/shmem.c	2003-09-08 18:16:37.000000000 +0200
+@@ -24,6 +24,7 @@
+ #include <linux/devfs_fs_kernel.h>
+ #include <linux/fs.h>
+ #include <linux/mm.h>
++#include <linux/mman.h>
+ #include <linux/file.h>
+ #include <linux/swap.h>
+ #include <linux/pagemap.h>
+@@ -376,10 +377,21 @@ static int shmem_notify_change(struct de
+ {
+ 	struct inode *inode = dentry->d_inode;
+ 	struct page *page = NULL;
++	long change = 0;
+ 	int error;
+ 
+-	if (attr->ia_valid & ATTR_SIZE) {
+-		if (attr->ia_size < inode->i_size) {
++	if ((attr->ia_valid & ATTR_SIZE) && (attr->ia_size <= SHMEM_MAX_BYTES)) {
++		/*
++	 	 * Account swap file usage based on new file size,
++		 * but just let vmtruncate fail on out-of-range sizes.
++	 	 */
++		change = VM_ACCT(attr->ia_size) - VM_ACCT(inode->i_size);
++		if (change > 0) {
++			if (!vm_enough_memory(change))
++				return -ENOMEM;
++		}
++		else if (attr->ia_size < inode->i_size) {
++			vm_unacct_memory(-change);
+ 			/*
+ 			 * If truncating down to a partial page, then
+ 			 * if that page is already allocated, hold it
+@@ -400,6 +412,8 @@ static int shmem_notify_change(struct de
+ 		error = inode_setattr(inode, attr);
+ 	if (page)
+ 		page_cache_release(page);
++	if (error)
++		vm_unacct_memory(change);
+ 	return error;
+ }
+ 
+@@ -412,6 +426,7 @@ static void shmem_delete_inode(struct in
+ 		spin_lock(&shmem_ilock);
+ 		list_del(&info->list);
+ 		spin_unlock(&shmem_ilock);
++		vm_unacct_memory(VM_ACCT(inode->i_size));
+ 		inode->i_size = 0;
+ 		shmem_truncate(inode);
+ 	}
+@@ -929,6 +944,7 @@ shmem_file_write(struct file *file, cons
+ 	loff_t		pos;
+ 	unsigned long	written;
+ 	int		err;
++	loff_t		maxpos;
+ 
+ 	if ((ssize_t) count < 0)
+ 		return -EINVAL;
+@@ -945,6 +961,17 @@ shmem_file_write(struct file *file, cons
+ 	if (err || !count)
+ 		goto out;
+ 
++	maxpos = inode->i_size;
++	if (pos + count > inode->i_size) {
++		maxpos = pos + count;
++		if (maxpos > SHMEM_MAX_BYTES)
++			maxpos = SHMEM_MAX_BYTES;
++		if (!vm_enough_memory(VM_ACCT(maxpos) - VM_ACCT(inode->i_size))) {
++			err = -ENOMEM;
++			goto out_nc;
++		}
++	}
++
+ 	remove_suid(inode);
+ 	inode->i_ctime = inode->i_mtime = CURRENT_TIME;
+ 
+@@ -997,6 +1024,10 @@ shmem_file_write(struct file *file, cons
+ 	if (written)
+ 		err = written;
+ out:
++	/* Short writes give back address space */
++	if (inode->i_size != maxpos)
++		vm_unacct_memory(VM_ACCT(maxpos) - VM_ACCT(inode->i_size));
++out_nc:
+ 	up(&inode->i_sem);
+ 	return err;
+ }
+@@ -1294,8 +1325,13 @@ static int shmem_symlink(struct inode *d
+ 		memcpy(info, symname, len);
+ 		inode->i_op = &shmem_symlink_inline_operations;
+ 	} else {
++		if (!vm_enough_memory(VM_ACCT(1))) {
++			iput(inode);
++			return -ENOMEM;
++		}
+ 		error = shmem_getpage(inode, 0, &page, SGP_WRITE);
+ 		if (error) {
++			vm_unacct_memory(VM_ACCT(1));
+ 			iput(inode);
+ 			return error;
+ 		}
+@@ -1612,7 +1648,6 @@ struct file *shmem_file_setup(char *name
+ 	struct inode *inode;
+ 	struct dentry *dentry, *root;
+ 	struct qstr this;
+-	int vm_enough_memory(long pages);
+ 
+ 	if (IS_ERR(shm_mnt))
+ 		return (void *)shm_mnt;
+@@ -1623,13 +1658,14 @@ struct file *shmem_file_setup(char *name
+ 	if (!vm_enough_memory(VM_ACCT(size)))
+ 		return ERR_PTR(-ENOMEM);
+ 
++	error = -ENOMEM;
+ 	this.name = name;
+ 	this.len = strlen(name);
+ 	this.hash = 0; /* will go */
+ 	root = shm_mnt->mnt_root;
+ 	dentry = d_alloc(root, &this);
+ 	if (!dentry)
+-		return ERR_PTR(-ENOMEM);
++		goto put_memory;
+ 
+ 	error = -ENFILE;
+ 	file = get_empty_filp();
+@@ -1654,6 +1690,8 @@ close_file:
+ 	put_filp(file);
+ put_dentry:
+ 	dput(dentry);
++put_memory:
++	vm_unacct_memory(VM_ACCT(size));
+ 	return ERR_PTR(error);
+ }
+ 
+--- linux-2.4.22/include/linux/mman.h.vm-overcommit	2000-03-15 03:21:56.000000000 +0100
++++ linux-2.4.22/include/linux/mman.h	2003-09-08 18:16:37.000000000 +0200
+@@ -6,4 +6,8 @@
+ #define MREMAP_MAYMOVE	1
+ #define MREMAP_FIXED	2
+ 
++extern int vm_enough_memory(long pages);
++extern void vm_unacct_memory(long pages);
++extern void vm_validate_enough(char *x);
++
+ #endif /* _LINUX_MMAN_H */
+--- linux-2.4.22/include/linux/mm.h.vm-overcommit	2003-09-08 18:16:29.000000000 +0200
++++ linux-2.4.22/include/linux/mm.h	2003-09-08 18:39:55.000000000 +0200
+@@ -120,11 +120,13 @@ struct vm_area_struct {
+ #define VM_MAYNOTWRITE 	0x00200000	/* vma cannot be granted VM_WRITE any more */
+ #endif
+ 
++#define VM_ACCOUNT	0x00400000	/* Memory is a vm accounted object */
++
+ #ifndef __VM_STACK_FLAGS
+ #ifdef ARCH_STACK_GROWSUP
+-#define __VM_STACK_FLAGS	0x00000233
++#define __VM_STACK_FLAGS	(0x00000233|VM_ACCOUNT)
+ #else
+-#define __VM_STACK_FLAGS	0x00000133
++#define __VM_STACK_FLAGS	(0x00000133|VM_ACCOUNT)
+ #endif
+ #endif
+ 
+@@ -604,7 +606,8 @@ extern unsigned long do_mmap_pgoff(struc
+ 	unsigned long len, unsigned long prot,
+ 	unsigned long flag, unsigned long pgoff);
+ 
+-extern int do_munmap(struct mm_struct *, unsigned long, size_t);
++#define DO_MUNMAP_4_ARGS 1
++extern int do_munmap(struct mm_struct *, unsigned long, size_t, int acct);
+ 
+ static inline unsigned long do_mmap(struct file *file, unsigned long addr,
+ 	unsigned long len, unsigned long prot,
+@@ -640,7 +640,7 @@ static inline unsigned long do_mmap(stru
+ 		ret_m = do_mmap_pgoff(NULL, ret + SEGMEXEC_TASK_SIZE, 
+ 0UL, prot, flag | MAP_MIRROR | MAP_FIXED, ret);
+ 		if (BAD_ADDR(ret_m)) {
+-			do_munmap(current->mm, ret, len);
++			do_munmap(current->mm, ret, len, 1);
+ 			ret = ret_m;
+ 		}
+ 	}
+@@ -737,38 +740,8 @@ extern int heap_stack_gap;
+  * instead.
+  */
+ #define EXPAND_STACK_HAS_3_ARGS
+-static inline int expand_stack(struct vm_area_struct * vma, unsigned long address,
+-			       struct vm_area_struct * prev_vma)
+-{
+-	unsigned long grow;
+-	int err = -ENOMEM;
+-
+-	/*
+-	 * vma->vm_start/vm_end cannot change under us because the caller is required
+-	 * to hold the mmap_sem in write mode. We need to get the spinlock only
+-	 * before relocating the vma range ourself.
+-	 */
+-	address &= PAGE_MASK;
+-	if (prev_vma && prev_vma->vm_end + (heap_stack_gap << PAGE_SHIFT) > address)
+-		goto out;
+-	spin_lock(&vma->vm_mm->page_table_lock);
+-	grow = (vma->vm_start - address) >> PAGE_SHIFT;
+-	gr_learn_resource(current, RLIMIT_STACK, vma->vm_end - address);
+-	gr_learn_resource(current, RLIMIT_AS, (vma->vm_mm->total_vm + grow) << PAGE_SHIFT);
+-	if (vma->vm_end - address > current->rlim[RLIMIT_STACK].rlim_cur ||
+-	    ((vma->vm_mm->total_vm + grow) << PAGE_SHIFT) > current->rlim[RLIMIT_AS].rlim_cur)
+-		goto out_unlock;
+-	vma->vm_start = address;
+-	vma->vm_pgoff -= grow;
+-	vma->vm_mm->total_vm += grow;
+-	if (vma->vm_flags & VM_LOCKED)
+-		vma->vm_mm->locked_vm += grow;
+-	err = 0;
+- out_unlock:
+-	spin_unlock(&vma->vm_mm->page_table_lock);
+- out:
+-	return err;
+-}
++extern int expand_stack(struct vm_area_struct * vma, unsigned long address,
++			struct vm_area_struct * prev_vma);
+ 
+ /* Look up the first VMA which satisfies  addr < vm_end,  NULL if none. */
+ extern struct vm_area_struct * find_vma(struct mm_struct * mm, unsigned long addr);
+--- linux-2.4.22/include/linux/sysctl.h.vm-overcommit	2003-09-08 18:16:29.000000000 +0200
++++ linux-2.4.22/include/linux/sysctl.h	2003-09-08 18:39:58.000000000 +0200
+@@ -151,6 +151,7 @@ enum
+ 	VM_MAX_READAHEAD=13,    /* Max file readahead */
+ 	VM_LAPTOP_MODE=14,	/* vm laptop mode */
+ 	VM_BLOCK_DUMP=15,	/* dump data read/write and dirtying */
++	VM_OVERCOMMIT_RATIO=16,	/* percent of RAM to allow overcommit in */
+ 	VM_PAGEBUF=17,		/* struct: Control pagebuf parameters */
+ 	VM_HEAP_STACK_GAP=18,	/* int: page gap between heap and stack */
+ 	VM_VFS_SCAN_RATIO=19,	/* part of the inactive vfs lists to scan */
+--- linux-2.4.22/ipc/shm.c.vm-overcommit	2003-09-08 18:16:29.000000000 +0200
++++ linux-2.4.22/ipc/shm.c	2003-09-08 18:16:37.000000000 +0200
+@@ -725,7 +725,7 @@ asmlinkage long sys_shmdt (char *shmaddr
+ 		shmdnext = shmd->vm_next;
+ 		if (shmd->vm_ops == &shm_vm_ops
+ 		    && shmd->vm_start - (shmd->vm_pgoff << PAGE_SHIFT) == (ulong) shmaddr) {
+-			do_munmap(mm, shmd->vm_start, shmd->vm_end - shmd->vm_start);
++			do_munmap(mm, shmd->vm_start, shmd->vm_end - shmd->vm_start, 1);
+ 			retval = 0;
+ 		}
+ 	}
+--- linux-2.4.22/drivers/char/drm/i810_dma.c.vm-overcommit	2003-09-08 18:16:08.000000000 +0200
++++ linux-2.4.22/drivers/char/drm/i810_dma.c	2003-09-08 18:53:15.000000000 +0200
+@@ -39,7 +39,11 @@
+ #include <linux/interrupt.h>	/* For task queue support */
+ #include <linux/delay.h>
+ 
++#if DO_MUNMAP_4_ARGS
++#define DO_MUNMAP(m, a, l)	do_munmap(m, a, l, 1)
++#else
+ #define DO_MUNMAP(m, a, l)	do_munmap(m, a, l)
++#endif
+ 
+ #define I810_BUF_FREE		2
+ #define I810_BUF_CLIENT		1
+--- linux-2.4.22/drivers/char/drm/i830_dma.c.vm-overcommit	2003-09-08 18:16:08.000000000 +0200
++++ linux-2.4.22/drivers/char/drm/i830_dma.c	2003-09-08 18:54:21.000000000 +0200
+@@ -41,7 +41,11 @@
+ #include <linux/pagemap.h>     /* For FASTCALL on unlock_page() */
+ #include <linux/delay.h>
+ 
++#if DO_MUNMAP_4_ARGS
++#define DO_MUNMAP(m, a, l)	do_munmap(m, a, l, 1)
++#else
+ #define DO_MUNMAP(m, a, l)	do_munmap(m, a, l)
++#endif
+ 
+ #define I830_BUF_FREE		2
+ #define I830_BUF_CLIENT		1
+--- linux-2.4.22/drivers/char/drm/savage_drv.c.vm-overcommit	2003-09-08 18:16:08.000000000 +0200
++++ linux-2.4.22/drivers/char/drm/savage_drv.c	2003-09-08 18:55:03.000000000 +0200
+@@ -222,7 +222,7 @@ int savage_free_cont_mem(struct inode *i
+ 	DRM(free) (list, sizeof(*list), DRM_MEM_MAPS);
+ 
+ 	/*unmap the user space */
+-	if (do_munmap(current->mm, cont_mem.linear, size) != 0)
++	if (do_munmap(current->mm, cont_mem.linear, size, 1) != 0)
+ 		return -EFAULT;
+ 	/*free the page */
+ 	pci_free_consistent(NULL, size, map->handle, cont_mem.phyaddress);
+--- linux-2.4.22/drivers/char/drm-4.0/i810_dma.c.vm-overcommit	2003-06-13 16:51:32.000000000 +0200
++++ linux-2.4.22/drivers/char/drm-4.0/i810_dma.c	2003-09-08 18:55:40.000000000 +0200
+@@ -228,7 +228,7 @@ static int i810_unmap_buffer(drm_buf_t *
+ 		down_write(&current->mm->mmap_sem);
+         	retcode = do_munmap(current->mm,
+ 				    (unsigned long)buf_priv->virtual, 
+-				    (size_t) buf->total);
++				    (size_t) buf->total, 1);
+    		up_write(&current->mm->mmap_sem);
+ 	}
+    	buf_priv->currently_mapped = I810_BUF_UNMAPPED;
+--- linux-2.4.22/Documentation/vm/overcommit-accounting.vm-overcommit	2003-09-08 18:56:08.000000000 +0200
++++ linux-2.4.22/Documentation/vm/overcommit-accounting	2003-09-08 18:16:37.000000000 +0200
+@@ -0,0 +1,76 @@
++* This describes the overcommit management facility in the latest kernel
++  tree (FIXME: actually it also describes the stuff that isnt yet done)
++
++The Linux kernel supports four overcommit handling modes
++
++0	-	Heuristic overcommit handling. Obvious overcommits of
++		address space are refused. Used for a typical system. It
++		ensures a seriously wild allocation fails while allowing
++		overcommit to reduce swap usage
++
++1	-	No overcommit handling. Appropriate for some scientific
++		applications
++
++2	-	(NEW) strict overcommit. The total address space commit
++		for the system is not permitted to exceed swap + a
++		tunable portion of ram (overcommit_ratio).  In almost
++		all situations this means a process will not be killed
++		while accessing pages but only by malloc failures that
++		are reported back by the kernel mmap/brk code.
++
++3	-	(NEW) paranoid overcommit The total address space commit
++		for the system is not permitted to exceed swap. The machine
++		will never kill a process accessing pages it has mapped
++		except due to a bug (ie report it!)
++
++4	-	(NEW) swapless strict overcommit. The total address space
++		commit for the system is not permitted to exceed a
++		tunable portion of free memory (overcommit_ration,
++		default: 50%)
++
++Gotchas
++-------
++
++The C language stack growth does an implicit mremap. If you want absolute
++guarantees and run close to the edge you MUST mmap your stack for the 
++largest size you think you will need. For typical stack usage is does
++not matter much but its a corner case if you really really care
++
++In modes 2 and 3 the MAP_NORESERVE flag is ignored. 
++
++
++How It Works
++------------
++
++The overcommit is based on the following rules
++
++For a file backed map
++	SHARED or READ-only	-	0 cost (the file is the map not swap)
++	PRIVATE WRITABLE	-	size of mapping per instance
++
++For an anonymous or /dev/zero map
++	SHARED			-	size of mapping
++	PRIVATE READ-only	-	0 cost (but of little use)
++	PRIVATE WRITABLE	-	size of mapping per instance
++
++Additional accounting
++	Pages made writable copies by mmap
++	shmfs memory drawn from the same pool
++
++Status
++------
++
++o	We account mmap memory mappings
++o	We account mprotect changes in commit
++o	We account mremap changes in size
++o	We account brk
++o	We account munmap
++o	We report the commit status in /proc
++o	Account and check on fork
++o	Review stack handling/building on exec
++o	SHMfs accounting
++o	Implement actual limit enforcement
++
++To Do
++-----
++o	Account ptrace pages (this is hard)

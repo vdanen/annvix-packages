@@ -1,0 +1,567 @@
+--- linux/drivers/media/video/Config.in.orig	Mon Jun 11 17:06:27 2001
++++ linux/drivers/media/video/Config.in	Mon Jun 11 17:08:06 2001
+@@ -47,6 +47,7 @@
+ fi
+ dep_tristate '  Zoran ZR36057/36060 Video For Linux' CONFIG_VIDEO_ZORAN $CONFIG_VIDEO_DEV $CONFIG_PCI $CONFIG_I2C
+ dep_tristate '  Zoran ZR36120/36125 Video For Linux' CONFIG_VIDEO_ZR36120 $CONFIG_VIDEO_DEV $CONFIG_PCI $CONFIG_I2C
++dep_tristate '  Techwell TW98 Driver For Linux' CONFIG_VIDEO_TW98 $CONFIG_VIDEO_DEV $CONFIG_PCI $CONFIG_I2C
+ if [ "$CONFIG_EXPERIMENTAL" = "y" ]; then
+   dep_tristate '  Sony Vaio Picturebook Motion Eye Video For Linux' CONFIG_VIDEO_MEYE $CONFIG_VIDEO_DEV $CONFIG_PCI $CONFIG_SONYPI
+ fi
+diff -r -N --context linux-2.4.1/drivers/media/video/Makefile linux/drivers/media/video/Makefile
+*** linux-2.4.1/drivers/media/video/Makefile	Sat Dec 30 11:07:22 2000
+--- linux/drivers/media/video/Makefile	Wed Feb  7 15:11:22 2001
+***************
+*** 53,58 ****
+--- 53,59 ----
+  obj-$(CONFIG_VIDEO_CPIA_PP) += cpia_pp.o
+  obj-$(CONFIG_VIDEO_CPIA_USB) += cpia_usb.o
+  obj-$(CONFIG_TUNER_3036) += tuner-3036.o
++ obj-$(CONFIG_VIDEO_TW98) += tw98.o
+  
+  # Extract lists of the multi-part drivers.
+  # The 'int-*' lists are the intermediate files used to build the multi's.
+diff -r -N --context linux-2.4.1/drivers/media/video/tw98.c linux/drivers/media/video/tw98.c
+*** linux-2.4.1/drivers/media/video/tw98.c	Thu Jan  1 12:00:00 1970
+--- linux/drivers/media/video/tw98.c	Wed Feb  7 15:11:48 2001
+***************
+*** 0 ****
+--- 1,449 ----
++ #define LM_DATE "20000203"
++ #define LM_VERSION "1.0.0"
++ 
++ #include <linux/module.h>
++ #include <linux/malloc.h>
++ #include <linux/init.h>
++ #include <linux/i2c.h>
++ 
++ #include "tw98.h"
++ 
++ #ifdef MODULE
++ MODULE_PARM(debug,"i");
++ MODULE_PARM(mode,"i");
++ #endif
++ 
++ /* insmod parameter: some programs (e.g. ´vic´) do not allow to
++    specify the used video-mode, so you have to tell this to the
++    modules by hand, 0 = PAL, 1 = NTSC  */
++ static int mode = 0;
++ 
++ /* insmod parameter: ... should be quite clear */
++ static int debug = 0;
++ #define dprintk	if (debug) printk
++ 
++ #define	I2C_TW98		0x44
++ 
++ /* addresses to scan, found only at 0x88 and/or 0x8a */
++ static unsigned short normal_i2c[] = {/*I2C_TW98,*/ I2C_TW98+1, I2C_CLIENT_END};
++ static unsigned short normal_i2c_range[] = {I2C_CLIENT_END};
++ 
++ /* magic definition of all other variables and things */
++ I2C_CLIENT_INSMOD;
++ 
++ /* unique ID allocation */
++ static int tw98_id = 0;
++ 
++ static struct i2c_driver driver;
++ 
++ /* this functions sets partial bits of the register 'subaddress' from the
++    i2c-client 'client'. Valid values of 'arg' may range between
++    'range_begin' and 'range_end'; the corresponding bits to be set
++    range from 'bit_begin' to 'bit_end' */
++ int	tw98_set_register(struct i2c_client *client, int arg, int subaddress, 
++ 			int range_begin, int range_end,
++ 			int bit_begin, int bit_end) 
++ {
++ 	s32 byte = 0x0;
++ 	int i = 0, result = 0;
++ 
++ 	/* be careful, check arguments :-) */
++ 	if ( arg < range_begin || arg > range_end )
++ 		return -EINVAL;
++ 	
++ 	/* get the old register contents */
++ 	if ( -1 == (byte = i2c_smbus_read_byte_data(client, subaddress))) {
++ 		dprintk(KERN_ERR "tw98: could not read from tw98\n");
++ 		return -EFAULT;
++ 	}
++ 
++ 	/* clear out corresponding bits */
++ 	for(i = bit_begin; i <= bit_end; i++)
++ 		byte &= ~(1 << i);
++ 
++ 	/* set these bits new */
++ 	byte |= (arg << bit_begin);
++ 
++ 	/* write register contents back */
++ 	if ( 0 != (result = i2c_smbus_write_byte_data(client, subaddress, byte))) {
++ 		dprintk(KERN_ERR "tw98: could write to access tw98\n");
++ 		return -EFAULT;
++ 	}
++ 	
++ 	/* everythings fine */
++ 	return 0;
++ }
++ 
++ static int tw98_command(struct i2c_client *client, unsigned int cmd, void *arg)
++ {
++ 
++ 	switch (cmd)
++ 	{
++ 
++ 		case TW98_GET_STATUS:
++ 		{
++ 			u8 	byte = 0x0;
++ 			int	*iarg = arg;
++ 			
++ 			byte = i2c_smbus_read_byte_data(client, TW98_CSTATUS);
++ 			
++ 			/* good means, that colour signal has been detected
++ 			   and that horizontal frequency is locked */
++ 			if ((byte & 0xe0) == 0x80)
++ 				*iarg = TW98_STATUS_GOOD;
++ 			else
++ 				*iarg = TW98_STATUS_BAD;
++ 
++ 			dprintk(KERN_ERR "tw98: TW98_GET_STATUS, byte:0x%02x\n", byte);
++ 
++ 			return 0;
++ 		}
++ 
++ 		case TW98_GET_STATUS_BYTE:
++ 		{
++ 			u8 	byte = 0x0;
++ 			u8	b[16];
++ 			u8	*iarg = arg;
++ 			int i, j;
++ 
++ 			byte = i2c_smbus_read_byte_data(client, TW98_CSTATUS);
++ 			
++ 			*iarg = byte;
++ 
++ 			dprintk(KERN_ERR "tw98: TW98_GET_STATUS_BYTE, byte:0x%02x\n", byte);
++ 
++ 			for (i=0; i<0xff; i=i+16) {
++ 			  for (j=0; j<16; ++j) b[j] = i2c_smbus_read_byte_data(client, i+j);
++ 			  dprintk(KERN_ERR "tw98: TW98_DUMP 0x%02x - %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x\n", i,
++ 				 b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7],
++ 				 b[8], b[9], b[10], b[11], b[12], b[13], b[14], b[15]);
++ 			};
++ 			
++ 			return 0;
++ 		}
++ 		
++ 		case TW98_SET_NORM:
++ 		{
++ 			u16 *iarg = arg;
++ 			int result = 0;
++ 
++ 			dprintk(KERN_ERR "tw98: TW98_SET_NORM %d\n", *iarg);
++ 			
++ 			switch (*iarg) {
++ 
++ 			case TW98_VIDEO_MODE_NTSC: {
++ 				result  = tw98_set_register(client, 0, TW98_INFORM,
++ 						0,1,		/* valid values: 0 to 1 */
++ 						0,1);		/* bits to be used: 0-1 */
++ 	
++ 				return ( 0 != result ? -EFAULT : 0 );
++ 			}
++ 
++ 			case TW98_VIDEO_MODE_PAL:
++ 			case TW98_VIDEO_MODE_SECAM: {
++ 				result  = tw98_set_register(client, 1, TW98_INFORM,
++ 						0,1,		/* valid values: 0 to 1 */
++ 						0,1);		/* bits to be used: 0-1 */
++ 
++ 				return ( 0 != result ? -EFAULT : 0 );
++ 			}
++ 			
++ 			default:
++ 				return -EINVAL;
++ 
++ 			}
++ 		}
++ 
++ 		case TW98_SET_MODE: {
++ 
++ 			dprintk(KERN_ERR "tw98: TW98_SET_MODE\n");
++ 
++ 			return(tw98_set_register(client, *((int*)arg), TW98_INFORM,
++ 					0,3,	/* valid values: 0-3 */
++ 					2,3));	/* bits to be used: 2-3 */
++ 			}
++ 
++ 		case TW98_SET_SVIDEO: {
++ 
++ 			dprintk(KERN_ERR "tw98: TW98_SET_SVIDEO\n");
++ 
++ 			return(tw98_set_register(client, *((int*)arg), TW98_INFORM,
++ 					0,1,	/* valid values: 0-1 */
++ 					4,4));	/* bit to be used: 4 */
++ 			}
++ 
++ 		case TW98_SET_OPFORM: {
++ 
++ 			dprintk(KERN_ERR "tw98: TW98_SET_OPFORM\n");
++ 
++ 			if ( 0 != i2c_smbus_write_byte_data(client, TW98_OPFORM, *((int*)arg) )) {
++ 			  dprintk(KERN_ERR "tw98: could not write to opform\n");
++ 			  return -EFAULT;
++ 			}
++ 
++ 			return 0;
++ 
++ 			}
++ 
++ 		default:
++ 			return -EINVAL;
++ 	}
++ 
++ 
++ 	return 0;
++ }
++ 
++ /* this function initalizes a tw98 to useful values. */
++ 
++ static int tw98_initialize(struct i2c_client* client)
++ {
++ 	int 	i = 0, result = 0;
++ 
++ #define RESET 31
++ 	u8	s[RESET][2] = {	{ TW98_ACNTL,		0x80 }, /* 0x06 */
++ 				{ TW98_INFORM,		0x64 }, /* 0x02 */
++ 				{ TW98_OPFORM,		0x82 }, /* 0x03 */ /* 0x86 for BRS direct */
++ 				{ TW98_HSLEN,		0x80 }, /* 0x04 */
++ 				{ TW98_POLARITY,	0x05 }, /* 0x05 */
++ 				{ TW98_CROP_HI,		0x12 }, /* 0x07 */
++ 				{ TW98_VDELAY_LO,	0x18 }, /* 0x08 */
++ 				{ TW98_VACTIVE_LO,	0xe5 }, /* 0x09 */
++ 				{ TW98_HDELAY_LO,	0x00 }, /* 0x0a */
++ 				{ TW98_HACTIVE_LO,	0xd0 }, /* 0x0b */
++ 				{ TW98_VSCALE_HI,	0x01 }, /* 0x0c */
++ 				{ TW98_VSCALE_LO,	0x00 }, /* 0x0d */
++ 				{ TW98_HSCALE_HI,	0x01 }, /* 0x0e */
++ 				{ TW98_HSCALE_LO,	0x10 }, /* 0x0f */
++ 				{ TW98_BRIGHTNESS,	0xc8 }, /* 0x10 */
++ 				{ TW98_CONTRAST,	0x28 }, /* 0x11 */
++ 				{ TW98_SHARPNESS,	0x14 }, /* 0x12 */
++ 				{ TW98_SAT_U,		0x71 }, /* 0x13 */
++ 				{ TW98_SAT_V,		0x50 }, /* 0x14 */
++ 				{ TW98_HUE,		0x20 }, /* 0x15 */
++ 				{ TW98_CKILL,		0xd0 }, /* 0x16 */
++ 				{ TW98_CORING,		0x00 }, /* 0x17 */
++ 				{ TW98_VBICNTL,		0x90 }, /* 0x19 */
++ 				{ TW98_CC_STATUS,	0x44 }, /* 0x1a */
++ 				{ TW98_AGCGAIN,		0x21 }, /* 0x1c */
++ 				{ TW98_GPIO,		0x00 }, /* 0x1d */
++ #if 1
++ 				{ 0xd3,			0x14 },
++ 				{ 0xd8,			0x18 },
++ 				{ 0xdf,			0xb4 },
++ 				{ 0xe2,			0x04 },
++ 				{ 0xe6,			0x62 } 
++ #endif
++ 				};
++ 
++ #if 0
++ 				{ 0xc1,			0x01 },
++ 				{ 0xc2,			0xe2 },
++ 				{ 0xc3,			0xbe },
++ 				{ 0xc4,			0x2f },
++ 				{ 0xc5,			0xe7 },
++ 				{ 0xc7,			0x01 },
++ 				{ 0xc8,			0xe2 },
++ 				{ 0xc9,			0xe2 },
++ 				{ 0xca,			0x46 },
++ 				{ 0xcb,			0x9b },
++ 				{ 0xcd,			0x01 },
++ 				{ 0xce,			0xe2 },
++ 				{ 0xcf,			0x9d },
++ 				{ 0xd0,			0x39 },
++ 				{ 0xd1,			0x97 },
++ 				{ 0xdf,			0xb4 },
++ #endif
++ 
++ 	dprintk(KERN_ERR "tw98: tw98_init\n");
++ 
++ 	for(i = 0; i < RESET; i++) {
++ 		if ( 0 != (result = i2c_smbus_write_byte_data(client, s[i][0], s[i][1]))) {
++ 			dprintk(KERN_ERR "tw98: tw98_init error - reset\n");
++ 			return -EFAULT;
++ 		}
++ 	}
++ 
++ 	/* check for a valid mode */
++ 	if( mode < 0 || mode > 1 ) {
++ 		printk(KERN_ERR "tw98: invalid mode setting. using PAL as default\n");
++ 		mode = 0;
++ 	}
++ 
++ 	/* use the existing tw98_command ioctls */
++ 	i = 0;
++ 	if ( 0 != tw98_command(client, TW98_SET_MODE, &i)) {
++ 		dprintk(KERN_ERR "tw98: tw98_init error - mode\n");
++ 		return -EFAULT;
++ 	}
++ 	
++ 		
++ 	switch(mode) {
++ 		case 1:
++ 			i = 0;
++ 			break;
++ 		default:
++ 			i = 3;
++ 			break;
++ 		}
++ 	
++ 	switch(mode) {
++ 		case 1:
++ 			i = TW98_VIDEO_MODE_NTSC;
++ 			break;
++ 		default:
++ 			i = TW98_VIDEO_MODE_PAL;
++ 			break;
++ 		}
++ 		
++ 	if ( 0 != tw98_command(client, TW98_SET_NORM, &i)) {
++ 		dprintk(KERN_ERR "tw98: tw98_init error #5\n");
++ 		return -EFAULT;
++ 	}
++ 
++ 	return 0;
++ }
++ 
++ /* this function is called by i2c_probe */
++ int tw98_detect(struct i2c_adapter *adapter, int address, unsigned short flags, int kind)
++ {
++ 	struct	i2c_client *client;
++ 	int err = 0;
++ 
++ 	/* let's see whether this adapter can support what we need */
++ 	if ( 0 == i2c_check_functionality(adapter, I2C_FUNC_SMBUS_READ_BYTE_DATA|I2C_FUNC_SMBUS_WRITE_BYTE_DATA)) {
++ 		return 0;
++ 	}
++ 
++ #if 0
++ 	if ( 0 != (result = i2c_smbus_read_byte_data(client, TW98_ID))) {
++ 	  return -EFAULT;
++ 	}
++ #endif
++ 			
++ 	/* allocate memory for client structure */
++ 	client = kmalloc(sizeof(struct i2c_client), GFP_KERNEL);
++         if (0 == client) {
++ 		return -ENOMEM;
++ 	}
++ 	
++ 	/* fill client structure */
++ 	if( I2C_TW98 == address ) {
++ 		sprintf(client->name,"tw98 (0x%02x)", address);
++ 	}
++ 
++ 	client->id = tw98_id++;
++ 	client->flags = 0;
++ 	client->addr = address;
++ 	client->adapter = adapter;
++ 	client->driver = &driver;
++ 	client->data = NULL;
++ 
++ 	/* tell the i2c layer a new client has arrived */
++ 	if (0 != (err = i2c_attach_client(client))) {
++ 		kfree(client);
++ 		return err;
++ 	}
++ 
++ 
++ 	if( 0 != tw98_initialize(client) ) {
++ 		printk("tw98.o: could not initialize chipset. continuing anyway.\n");
++ 	}
++ 	
++ 	printk("tw98.o: detected @ 0x%02x on adapter %s\n",2*address,&client->adapter->name[0]);
++ 
++ 	return 0;
++ }
++ 
++ static int tw98_attach(struct i2c_adapter *adapter)
++ {
++ 	return i2c_probe(adapter,&addr_data,&tw98_detect);
++ }
++ 
++ static int tw98_detach(struct i2c_client *client)
++ {
++ 	int err = 0;
++ 
++ 	if ( 0 != (err = i2c_detach_client(client))) {
++ 		printk("tw98.o: Client deregistration failed, client not detached.\n");
++ 		return err;
++ 	}
++ 	
++ 	kfree(client);
++ 
++ 	return 0;
++ }
++ 
++ void tw98_inc_use(struct i2c_client *client)
++ {
++ #ifdef MODULE
++ 	MOD_INC_USE_COUNT;
++ #endif
++ }
++ 
++ void tw98_dec_use(struct i2c_client *client)
++ {
++ #ifdef MODULE
++ 	MOD_DEC_USE_COUNT;
++ #endif
++ }
++ 
++ static struct i2c_driver driver = {
++ 	"tw98 driver",
++ 	I2C_DRIVERID_TW98,
++ 	I2C_DF_NOTIFY,
++ 	tw98_attach,
++ 	tw98_detach,
++ 	tw98_command,
++ 	tw98_inc_use,
++ 	tw98_dec_use
++ };
++ 
++ EXPORT_NO_SYMBOLS;
++ 
++ #ifdef MODULE
++ static
++ #else
++ extern
++ #endif
++ 	int __init tw98_init(void)
++ {
++ 	int res = 0;
++ 
++ 	printk("tw98.o version %s (%s)\n",LM_VERSION,LM_DATE);
++ 
++ 	if( 0 != (res = i2c_add_driver(&driver))) {
++ 		printk("tw98.o: Driver registration failed, module not inserted.\n");
++ 		return res;
++ 	}
++ 	
++ 	return 0;
++ }
++ 
++ int __init tw98_cleanup(void)
++ {	
++ 	int res = 0;
++ 
++ 	if ( 0 != (res = i2c_del_driver(&driver))) {
++ 		printk("tw98.o: Driver deregistration failed, module not removed.\n");
++ 		return res;
++ 	}
++ 	
++ 	return 0;
++ }
++ 
++ #ifdef MODULE
++ 
++ MODULE_AUTHOR("Hank Magnuski <hankm@mtinet.com>");
++ MODULE_DESCRIPTION("Techwell 98 driver");
++ 
++ int init_module(void)
++ {
++ 	return tw98_init();
++ }
++ 
++ void cleanup_module(void)
++ {
++ 	tw98_cleanup();
++ }
++ 
++ #endif
+diff -r -N --context linux-2.4.1/drivers/media/video/tw98.h linux/drivers/media/video/tw98.h
+*** linux-2.4.1/drivers/media/video/tw98.h	Thu Jan  1 12:00:00 1970
+--- linux/drivers/media/video/tw98.h	Wed Feb  7 15:11:48 2001
+***************
+*** 0 ****
+--- 1,83 ----
++  /*
++     tw98.h - definitions for the generic i2c-driver for the
++      
++      - tw98 Analog to Digital Video Decoder
++     
++     Copyright (C) 2000 H. S. Magnuski <hankm@mtinet.com>
++ 
++     This program is free software; you can redistribute it and/or modify
++     it under the terms of the GNU General Public License as published by
++     the Free Software Foundation; either version 2 of the License, or
++     (at your option) any later version.
++ 
++     This program is distributed in the hope that it will be useful,
++     but WITHOUT ANY WARRANTY; without even the implied warranty of
++     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++     GNU General Public License for more details.
++ 
++     You should have received a copy of the GNU General Public License
++     along with this program; if not, write to the Free Software
++     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++  */
++ 
++ #ifndef __INCLUDED_TW98__
++ #define __INCLUDED_TW98__
++ 
++ /* fixme: this has to be defined in "i2c.h" !!!! */
++ /* Updated to work with 2.4.1 kernel release */
++ #define I2C_DRIVERID_TW98	0xF6
++ 
++ /* returns a short form of the status of the TW98 */
++ #define	TW98_GET_STATUS		_IOR('d', 1, int)
++ #define	TW98_STATUS_BAD		0	/* receiving inacceptable input */
++ #define	TW98_STATUS_GOOD	1	/* receiving acceptable input */
++ 
++ /* returns the whole status-byte of the tw98
++    - do what you want with it ;-)*/
++ #define	TW98_GET_STATUS_BYTE	_IOR('d', 2, u8)
++ 
++ /* set the video norm */
++ #define	TW98_SET_NORM		_IOW('d', 3, int)
++ #define TW98_VIDEO_MODE_PAL	0
++ #define TW98_VIDEO_MODE_NTSC	1
++ #define TW98_VIDEO_MODE_SECAM	2
++ 
++ #define	TW98_SET_MODE		_IOW('d', 4, int)
++ #define	TW98_SET_SVIDEO		_IOW('d', 5, int)
++ #define	TW98_SET_OPFORM		_IOW('d', 6, int)
++ 
++ /* All unused bytes are reserverd. */
++ 
++ #define TW98_ID			0x00
++ #define TW98_CSTATUS		0x01
++ #define TW98_INFORM		0x02
++ #define TW98_OPFORM		0x03
++ #define TW98_HSLEN		0x04
++ #define TW98_POLARITY		0x05
++ #define TW98_ACNTL		0x06
++ #define TW98_CROP_HI		0x07
++ #define TW98_VDELAY_LO		0x08
++ #define TW98_VACTIVE_LO		0x09
++ #define TW98_HDELAY_LO		0x0A
++ #define TW98_HACTIVE_LO		0x0B
++ #define TW98_VSCALE_HI		0x0C
++ #define TW98_VSCALE_LO		0x0D
++ #define TW98_HSCALE_HI		0x0E
++ #define TW98_HSCALE_LO		0x0F
++ #define TW98_BRIGHTNESS		0x10
++ #define TW98_CONTRAST		0x11
++ #define TW98_SHARPNESS		0x12
++ #define TW98_SAT_U		0x13
++ #define TW98_SAT_V		0x14
++ #define TW98_HUE		0x15
++ #define TW98_CKILL		0x16
++ #define TW98_CORING		0x17
++ #define TW98_VBICNTL		0x19
++ #define TW98_CC_STATUS		0x1A
++ #define TW98_CC_DATA		0x1B
++ #define TW98_AGCGAIN		0x1C
++ #define TW98_GPIO		0x1D
++ #define TW98_TEST		0x1E
++ #define TW98_NOISE		0x1F
++ 
++ #endif

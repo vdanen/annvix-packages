@@ -1,0 +1,84 @@
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff --exclude='defconfig*' --exclude='log.*' --exclude='log2?' w2/net/ipsec/ipsec_alg.c w1/net/ipsec/ipsec_alg.c
+--- w2/net/ipsec/ipsec_alg.c	2003-06-29 05:59:39.000000000 +0200
++++ w1/net/ipsec/ipsec_alg.c	2003-08-18 19:32:32.000000000 +0200
+@@ -402,8 +402,7 @@ int ipsec_alg_sa_esp_hash(const struct i
+ /* validation for registering (enc) module */
+ static int check_enc(struct ipsec_alg_enc *ixt) {
+ 	int ret=-EINVAL;
+-	if (ixt->ixt_alg_id==0 || ixt->ixt_alg_id > SADB_EALG_MAX)
+-		barf_out("invalid alg_id=%d >= %d\n", ixt->ixt_alg_id, SADB_EALG_MAX);
++
+ 	if (ixt->ixt_blocksize==0) /*  || ixt->ixt_blocksize%2) need for ESP_NULL */
+ 		barf_out(KERN_ERR "invalid blocksize=%d\n", ixt->ixt_blocksize);
+ 	if (ixt->ixt_keyminbits==0 && ixt->ixt_keymaxbits==0 && ixt->ixt_e_keylen==0)
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff --exclude='defconfig*' --exclude='log.*' --exclude='log2?' w2/net/ipsec/libfreeswan/pfkey_v2_build.c w1/net/ipsec/libfreeswan/pfkey_v2_build.c
+--- w2/net/ipsec/libfreeswan/pfkey_v2_build.c	2003-06-29 05:59:53.000000000 +0200
++++ w1/net/ipsec/libfreeswan/pfkey_v2_build.c	2003-08-18 19:33:50.000000000 +0200
+@@ -274,15 +274,6 @@ pfkey_sa_build(struct sadb_ext **	pfkey_
+ 		SENDERR(EINVAL);
+ 	}
+ 
+-	if(encrypt > SADB_EALG_MAX) {
+-		DEBUGGING(
+-			"pfkey_sa_build: "
+-			"encrypt=%d > SADB_EALG_MAX=%d.\n",
+-			encrypt,
+-			SADB_EALG_MAX);
+-		SENDERR(EINVAL);
+-	}
+-
+ 	if(sa_state > SADB_SASTATE_MAX) {
+ 		DEBUGGING(
+ 			"pfkey_sa_build: "
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff --exclude='defconfig*' --exclude='log.*' --exclude='log2?' w2/net/ipsec/libfreeswan/pfkey_v2_parse.c w1/net/ipsec/libfreeswan/pfkey_v2_parse.c
+--- w2/net/ipsec/libfreeswan/pfkey_v2_parse.c	2003-08-20 19:13:42.000000000 +0200
++++ w1/net/ipsec/libfreeswan/pfkey_v2_parse.c	2003-08-18 19:35:05.000000000 +0200
+@@ -178,15 +178,6 @@ pfkey_sa_parse(struct sadb_ext *pfkey_ex
+ 		SENDERR(EINVAL);
+ 	}
+ 	
+-	if(pfkey_sa->sadb_sa_encrypt > SADB_EALG_MAX) {
+-		DEBUGGING(PF_KEY_DEBUG_PARSE_PROBLEM,
+-			"pfkey_sa_parse: "
+-			"pfkey_sa->sadb_sa_encrypt=%d > SADB_EALG_MAX=%d.\n",
+-			pfkey_sa->sadb_sa_encrypt,
+-			SADB_EALG_MAX);
+-		SENDERR(EINVAL);
+-	}
+-	
+ 	if(pfkey_sa->sadb_sa_auth > SADB_AALG_MAX) {
+ 		DEBUGGING(PF_KEY_DEBUG_PARSE_PROBLEM,
+ 			"pfkey_sa_parse: "
+@@ -673,16 +664,6 @@ pfkey_prop_parse(struct sadb_ext *pfkey_
+ 			}
+ 		}
+ 
+-		if(pfkey_comb->sadb_comb_encrypt > SADB_EALG_MAX) {
+-			DEBUGGING(PF_KEY_DEBUG_PARSE_PROBLEM,
+-				"pfkey_comb_parse: "
+-				"pfkey_comb[%d]->sadb_comb_encrypt=%d > SADB_EALG_MAX=%d.\n",
+-				i,
+-				pfkey_comb->sadb_comb_encrypt,
+-				SADB_EALG_MAX);
+-			SENDERR(EINVAL);
+-		}
+-
+ 		if(pfkey_comb->sadb_comb_encrypt) {
+ 			if(!pfkey_comb->sadb_comb_encrypt_minbits) {
+ 				DEBUGGING(PF_KEY_DEBUG_PARSE_PROBLEM,
+@@ -858,15 +839,6 @@ pfkey_supported_parse(struct sadb_ext *p
+ 			}
+ 			break;
+ 		case SADB_EXT_SUPPORTED_ENCRYPT:
+-			if(pfkey_alg->sadb_alg_id > SADB_EALG_MAX) {
+-				DEBUGGING(PF_KEY_DEBUG_PARSE_PROBLEM,
+-					"pfkey_supported_parse: "
+-					"alg[%d], alg_id=%d > SADB_EALG_MAX=%d, fatal.\n",
+-					i,
+-					pfkey_alg->sadb_alg_id,
+-					SADB_EALG_MAX);
+-				SENDERR(EINVAL);
+-			}
+ 			break;
+ 		default:
+ 			DEBUGGING(PF_KEY_DEBUG_PARSE_PROBLEM,

@@ -1,0 +1,16 @@
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff m2/arch/i386/vmlinux.lds m1/arch/i386/vmlinux.lds
+--- m2/arch/i386/vmlinux.lds.S	2002-02-25 20:37:53.000000000 +0100
++++ m1/arch/i386/vmlinux.lds.S	2003-07-31 17:27:37.000000000 +0200
+@@ -53,6 +53,12 @@ SECTIONS
+   __init_end = .;
+ 
+   . = ALIGN(4096);
++  __nosave_begin = .;
++  .data_nosave : { *(.data.nosave) }
++  . = ALIGN(4096);
++  __nosave_end = .;
++
++  . = ALIGN(4096);
+   .data.page_aligned : { *(.data.idt) }
+ 
+   . = ALIGN(32);

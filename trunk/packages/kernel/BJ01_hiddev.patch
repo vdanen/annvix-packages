@@ -1,0 +1,11 @@
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff --exclude='defconfig*' --exclude='log.*' --exclude='log2?' w2/include/linux/hiddev.h w1/include/linux/hiddev.h
+--- w2/include/linux/hiddev.h	2003-08-20 11:05:11.000000000 +0200
++++ w1/include/linux/hiddev.h	2003-08-20 19:45:57.000000000 +0200
+@@ -200,6 +200,7 @@ struct hiddev_usage_ref {
+  */
+ 
+ #ifdef CONFIG_USB_HIDDEV
++void hiddev_report_event(struct hid_device *hid, struct hid_report *report);
+ int hiddev_connect(struct hid_device *);
+ void hiddev_disconnect(struct hid_device *);
+ void hiddev_hid_event(struct hid_device *hid, struct hid_field *field,

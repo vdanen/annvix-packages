@@ -1,0 +1,12 @@
+--- linux-2.4.19/sound/usb.orig/usbaudio.c	2002-11-22 11:55:27.000000000 +0100
++++ linux-2.4.19/sound/usb/usbaudio.c	2002-11-22 12:04:27.000000000 +0100
+@@ -198,6 +198,9 @@
+ static DECLARE_MUTEX(register_mutex);
+ static snd_usb_audio_t *usb_chip[SNDRV_CARDS];
+ 
++inline int snd_hack_usb_set_interface(struct usb_device *dev, int interface, int alternate) {
++        return usb_set_interface(dev,interface,alternate);
++}
+ 
+ /*
+  * convert a sampling rate into USB format (fs/1000 in Q10.14)

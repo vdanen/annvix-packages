@@ -1,0 +1,11 @@
+--- linux-2.4.22/arch/i386/kernel/apic.c~	2003-09-11 11:25:43.000000000 -0400
++++ linux-2.4.22/arch/i386/kernel/apic.c	2003-09-11 11:31:24.000000000 -0400
+@@ -602,7 +602,7 @@
+ /*
+  * Knob to control our willingness to enable the local APIC.
+  */
+-int enable_local_apic __initdata = 0; /* -1=force-disable, +1=force-enable */
++int enable_local_apic __initdata = 1; /* -1=force-disable, +1=force-enable */
+ 
+ static int __init lapic_disable(char *str)
+ {

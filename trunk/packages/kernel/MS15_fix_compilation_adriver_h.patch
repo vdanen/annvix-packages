@@ -1,0 +1,27 @@
+--- linux-2.4.20/include/sound/adriver.h.orig	2003-04-16 03:14:43.000000000 +0200
++++ linux-2.4.20/include/sound/adriver.h	2003-04-16 03:15:33.000000000 +0200
+@@ -279,7 +279,6 @@
+ #endif /* SND_NEED_USB_WRAPPER && CONFIG_USB */
+ 
+ /* workqueue-alike; 2.5.45 */
+-#include <linux/workqueue.h>
+ #if LINUX_VERSION_CODE < KERNEL_VERSION(2, 5, 45) && !defined(__WORK_INITIALIZER)
+ struct work_struct {
+ 	void (*func)(void *);
+@@ -298,6 +297,8 @@
+ 	struct work_struct n = __WORK_INITIALIZER(n, f, d)
+ int snd_compat_schedule_work(struct work_struct *work);
+ #define schedule_work(w) snd_compat_schedule_work(w)
++#else
++#include <linux/workqueue.h>
+ #endif /* 2.5.45 */
+ 
+ /* 2.5 new modules */
+@@ -321,6 +322,7 @@
+ #endif /* 2.5.0 */
+ 
+ /* vmalloc_to_page wrapper */
++#define CONFIG_HAVE_VMALLOC_TO_PAGE
+ #ifndef CONFIG_HAVE_VMALLOC_TO_PAGE
+ struct page *snd_compat_vmalloc_to_page(void *addr);
+ #define vmalloc_to_page(addr) snd_compat_vmalloc_to_page(addr)

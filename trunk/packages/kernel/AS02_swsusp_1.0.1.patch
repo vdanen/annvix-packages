@@ -1,0 +1,667 @@
+diff -ruN swsusp-1.0/include/asm-i386/suspend.h swsusp-1.0.1/include/asm-i386/suspend.h
+--- swsusp-1.0/include/asm-i386/suspend.h	2003-07-16 20:06:28.000000000 +1200
++++ swsusp-1.0.1/include/asm-i386/suspend.h	2003-07-16 20:06:30.000000000 +1200
+@@ -242,7 +242,9 @@
+ {
+ 	if (!resume) {
+ 		do_magic_suspend_1();
++		PRINTPREEMPTCOUNT("Before save_processor_context.");
+ 		save_processor_context();	/* We need to capture registers and memory at "same time" */
++		PRINTPREEMPTCOUNT("After save_processor_context.");
+ 		do_magic_suspend_2();		/* If everything goes okay, this function does not return */
+ 		return;
+ 	}
+@@ -275,7 +277,12 @@
+ 	do_magic_resume_1();
+ 
+ #ifdef CONFIG_PREEMPT
++	/*
++	 * Preempt disabled in kernel we're about to restore.
++	 * Make sure we match state now.
++	 */
+ 	preempt_disable();
++	printk(KERN_EMERG "preempt_disable: Preempt count is now %d.\n", current->preempt_count);
+ #endif
+ 
+ 	state1 = swsusp_action;
+diff -ruN swsusp-1.0/include/linux/suspend-debug.h swsusp-1.0.1/include/linux/suspend-debug.h
+--- swsusp-1.0/include/linux/suspend-debug.h	2003-07-16 20:06:28.000000000 +1200
++++ swsusp-1.0.1/include/linux/suspend-debug.h	2003-07-16 20:06:30.000000000 +1200
+@@ -6,7 +6,7 @@
+ 
+ #define name_suspend "Suspend Machine:  "
+ #define name_resume  "Resume Machine:   "
+-#define swsusp_version "1.0-2_4_21"
++#define swsusp_version "1.0.1-2_4_21"
+ #define name_swsusp  "Swsusp " swsusp_version ": "
+ #define console_suspend " S U S P E N D   T O   D I S K " /* Same length to ensure one overwrites the other */
+ #define console_resume  "R E S U M E   F R O M   D I S K"
+@@ -31,6 +31,7 @@
+ #define SUSPEND_NOSWAP_AVAILABLE	2
+ #define SUSPEND_INSUFFICIENT_SWAP	3
+ #define SUSPEND_FREEZING_FAILED		4
++#define SUSPEND_UNEXPECTED_ALLOC	5
+ 
+ /* second status register */
+ #define SUSPEND_REBOOT		0
+diff -ruN swsusp-1.0/include/linux/suspend.h swsusp-1.0.1/include/linux/suspend.h
+--- swsusp-1.0/include/linux/suspend.h	2003-07-16 20:06:28.000000000 +1200
++++ swsusp-1.0.1/include/linux/suspend.h	2003-07-16 20:06:30.000000000 +1200
+@@ -16,19 +16,24 @@
+ #ifdef CONFIG_SOFTWARE_SUSPEND
+ extern unsigned long swsusp_action;
+ extern unsigned long swsusp_result;
++extern unsigned char trap_page_allocs; /* code to catch a hard-to-find bug */
+ 
+ #ifdef CONFIG_SOFTWARE_SUSPEND_DEBUG
+ extern unsigned long swsusp_debug_state;
+-#if 0
+ #define PRINTFREEMEM(desn) printlog(SUSPEND_MEMORY, SUSPEND_MEDIUM, \
+ 		"Free memory %s: %d.\n", desn, nr_free_pages())
+-#else
+-#define PRINTFREEMEM(desn) printk("Free memory %s: %d.\n", desn, nr_free_pages())
++#ifdef CONFIG_PREEMPT
++#define PRINTPREEMPTCOUNT(desn) printlog(SUSPEND_FREEZER, SUSPEND_MEDIUM, \
++		"Preempt count: %s: %d.\n", desn, current->preempt_count)
+ #endif
+ #else /* CONFIG_SOFTWARE_SUSPEND_DEBUG */
+ #define PRINTFREEMEM(desn) do { } while(0)
+ #endif /* CONFIG_SOFTWARE_SUSPEND_DEBUG */
+ 
++#ifndef PRINTPREEMPTCOUNT
++#define PRINTPREEMPTCOUNT(desn) do { } while(0)
++#endif
++
+ /* page backup entry */
+ typedef struct pbe {
+ 	struct page * origaddress;	/* 4: original address of pageset entry */
+diff -ruN swsusp-1.0/kernel/suspend/common.h swsusp-1.0.1/kernel/suspend/common.h
+--- swsusp-1.0/kernel/suspend/common.h	2003-07-16 20:06:28.000000000 +1200
++++ swsusp-1.0.1/kernel/suspend/common.h	2003-07-16 20:06:30.000000000 +1200
+@@ -62,7 +62,7 @@
+ extern unsigned int suspend_task;
+ extern unsigned long swsusp_debug_state;
+ extern struct sysinfo swapinfo;
+-extern spinlock_t suspend_pagedir_lock __nosavedata;
++extern spinlock_t suspend_irq_lock __nosavedata;
+ extern unsigned long pagedirflags __nosavedata;
+ 
+ extern int max_async_ios;
+@@ -139,6 +139,31 @@
+ extern int try_to_free_pages_swsusp(unsigned int gfp_mask, int amount_needed);
+ extern char log_buf[];
+ 
++#ifdef CONFIG_PREEMPT
++#define swsusp_spin_lock_irq(lock) { \
++	int count = current->preempt_count; \
++	printlog(SUSPEND_FREEZER, SUSPEND_VERBOSE, "Spinlock %p. %d->%d.\n", lock, count, count+1); \
++	spin_lock_irq(lock); \
++}
++
++#define swsusp_spin_lock_irqsave(lock, flags) { \
++	int count = current->preempt_count; \
++	printlog(SUSPEND_FREEZER, SUSPEND_VERBOSE, "Spinlock IRQSave %p. %d->%d.\n", lock, count, count+1); \
++	spin_lock_irqsave(lock, flags); \
++}
++
++#define swsusp_spin_unlock_irq(lock) { \
++	int count = current->preempt_count; \
++	printlog(SUSPEND_FREEZER, SUSPEND_VERBOSE, "Spinunlock %p. %d->%d.\n", lock, count, count-1); \
++	spin_unlock_irq(lock); \
++}
++
++#define swsusp_spin_unlock_irqrestore(lock, flags) { \
++	int count = current->preempt_count; \
++	printlog(SUSPEND_FREEZER, SUSPEND_VERBOSE, "Spinunlock IRQRestore %p. %d->%d\n", lock, count, count-1); \
++	spin_unlock_irqrestore(lock, flags); \
++}
++#else /* No preempt */
+ #define swsusp_spin_lock_irq(lock) { \
+ 	printlog(SUSPEND_FREEZER, SUSPEND_VERBOSE, "Spinlock %p.\n", lock); \
+ 	spin_lock_irq(lock); \
+@@ -158,6 +183,7 @@
+ 	printlog(SUSPEND_FREEZER, SUSPEND_VERBOSE, "Spinunlock IRQRestore %p.\n", lock); \
+ 	spin_unlock_irqrestore(lock, flags); \
+ }
++#endif
+ 
+ /* Variables to be preserved over suspend */
+ extern char resume_file[256];	/* For resume= kernel option */
+diff -ruN swsusp-1.0/kernel/suspend/io.c swsusp-1.0.1/kernel/suspend/io.c
+--- swsusp-1.0/kernel/suspend/io.c	2003-07-16 20:06:28.000000000 +1200
++++ swsusp-1.0.1/kernel/suspend/io.c	2003-07-16 20:06:30.000000000 +1200
+@@ -104,6 +104,7 @@
+ 	int start_time, end_time;
+ 	long result = 0;
+ 	struct pbe * pbe;
++	unsigned int origfree = nr_free_pages();
+ #ifdef CONFIG_SOFTWARE_SUSPEND_COMPRESSION
+ 	z_stream strm;
+ 	int ret2 = 0;
+@@ -134,7 +135,9 @@
+ 
+ #ifdef CONFIG_SOFTWARE_SUSPEND_COMPRESSION
+ 	if (!TEST_ACTION_STATE(SUSPEND_NO_COMPRESSION)) {
++		trap_page_allocs = 0;
+ 		compression_buffer = get_zeroed_page(GFP_ATOMIC);
++		trap_page_allocs = 1;
+ 
+ 		if (!compression_buffer) {
+ 			printk(KERN_ERR name_suspend "Failed to allocate memory for compression buffer.\n");
+@@ -276,6 +279,9 @@
+ #endif
+ 	PRINTFREEMEM("at end of write pageset");
+ 	check_io_stats();
++	if (nr_free_pages() != origfree) {
++		abort_suspend("Number of free pages at start and end of write pageset don't match! (%d != %d)\n", origfree, nr_free_pages());
++	}
+ 	return result;
+ }
+ 
+@@ -496,7 +502,9 @@
+ 	} while(0)
+ 	
+ 	arrayorder = get_bitmask_order(SUSPEND_PD_PAGES(pagedir1.pagedir_size + 1));
++	trap_page_allocs = 0;
+ 	pbearray = (struct pbe *) __get_free_pages(__GFP_FAST, arrayorder);
++	trap_page_allocs = 1;
+ 	printlog(SUSPEND_WRITE_PAGESETS, SUSPEND_LOW, name_suspend "Writing pagedir (%d pages)\n", pagedir1.pagedir_size);
+ 
+ 	for (i=0; i<(pagedir1.pagedir_size); i++) {
+@@ -539,7 +547,9 @@
+ 	if (sizeof(union diskpage) != PAGE_SIZE)
+ 		abort_and_exit("Size of a disk page is not PAGE_SIZE!\n");
+ 
++	trap_page_allocs = 0;
+ 	diskpage.address = get_free_page(GFP_ATOMIC);
++	trap_page_allocs = 1;
+ 	pbeheader.address = virt_to_page(diskpage.address);
+ 	pbeheader.swap_address = get_swap_page(1);
+ 	get_phys_params(&pbeheader);
+diff -ruN swsusp-1.0/kernel/suspend/low_level_io.c swsusp-1.0.1/kernel/suspend/low_level_io.c
+--- swsusp-1.0/kernel/suspend/low_level_io.c	2003-07-16 20:06:28.000000000 +1200
++++ swsusp-1.0.1/kernel/suspend/low_level_io.c	2003-07-16 20:06:30.000000000 +1200
+@@ -50,6 +50,8 @@
+ static struct io_info * io_info = NULL;
+ static int infopages = 0;
+ static int outstanding_io = 0;
++static int pages_allocated = 0;
++static int pages_freed = 0;
+ 
+ #define IO_IN_USE 0
+ #define IO_WRITING 1
+@@ -196,6 +198,7 @@
+ {
+ 	struct buffer_head *bh = io_info->bh;
+ 	struct page * page = bh->b_page;
++	int origfree = nr_free_pages();
+ 
+ 	printlog(SUSPEND_WRITE_PAGESETS, SUSPEND_HIGH, "Cleanup_write: [%p]\n", io_info);
+ 	if (test_and_set_bit(IO_CLEANUP_IN_PROGRESS, &io_info->flags))
+@@ -210,12 +213,17 @@
+ 	page->index = 0;
+ 	UnlockPage(page);
+ 
++	if (atomic_read(&page->count) != 2)
++		printk("Cleanup write: Page count is %d. Not good!\n", atomic_read(&page->count));
+ 	atomic_dec(&page->count);
+ 	__free_pages(page, 0);
+ 
+ 	outstanding_io--;
+ 	io_info->bh = NULL;
+ 	io_info->flags = 0;
++	pages_freed += nr_free_pages() - origfree;
++	if ((origfree + 1) != nr_free_pages())
++		printk("Cleanup write: Didn't free 1 page (%d->%d).\n", origfree, nr_free_pages());
+ }
+ 
+ void cleanup_read_swsusp_page_async(struct io_info * io_info)
+@@ -335,6 +343,7 @@
+ 	struct io_info * this = io_info, * last = NULL, * firstfree = NULL;
+ 	unsigned long newpage = 0;
+ 	int iteration = 0;
++	int orig_trap_page_allocs = trap_page_allocs;
+ 
+ try_again:
+ 	this = io_info;
+@@ -378,7 +387,9 @@
+ 	}
+ 
+ 	/* Need to allocate a new page */
++	trap_page_allocs = 0;
+ 	newpage = get_zeroed_page(GFP_ATOMIC);
++	trap_page_allocs = orig_trap_page_allocs;
+ 	printlog(SUSPEND_MEMORY, SUSPEND_VERBOSE, "[NewIOPage %lx]", newpage);
+ 	if (!newpage)
+ 		goto try_again;
+@@ -443,6 +454,8 @@
+ {
+ 	outstanding_io = 0;
+ 	infopages = 0;
++	pages_allocated = 0;
++	pages_freed = 0;
+ }
+ 
+ void check_io_stats(void)
+@@ -451,6 +464,7 @@
+ 		printlog(SUSPEND_MEMORY, SUSPEND_ERROR, "Outstanding_io after writing is %d.\n", outstanding_io);
+ 	if (infopages)
+ 		printlog(SUSPEND_MEMORY, SUSPEND_ERROR, "Info pages is %d.\n", infopages);
++	printlog(SUSPEND_MEMORY, SUSPEND_ERROR, "Pages allocated is %d. Freed is %d.\n", pages_allocated, pages_freed);
+ }
+ 
+ void sync_swap_partitions(void)
+@@ -505,8 +519,14 @@
+ 		return 1;
+ 
+ 	printlog(SUSPEND_WRITE_PAGESETS, SUSPEND_HIGH, "Start_write: [%p]", io_info);
+-	while (!(buffer_virt = get_zeroed_page(GFP_ATOMIC)))
++	trap_page_allocs = 0;
++	while (!(buffer_virt = get_zeroed_page(GFP_ATOMIC))) {
++		trap_page_allocs = 1;
+ 		cleanup_finished_swsusp_io();
++		trap_page_allocs = 0;
++	}
++	trap_page_allocs = 1;
++	pages_allocated++;
+ 	printlog(SUSPEND_WRITE_PAGESETS, SUSPEND_VERBOSE, "[WRITE BUFFER]->%d", nr_free_pages());
+ 	buffer_page = virt_to_page(buffer_virt);
+ 	
+@@ -708,10 +728,13 @@
+ 	struct pbe pbe;
+ 	char * signature;
+ 	unsigned long pageaddress;
++	int orig_trap_page_allocs = trap_page_allocs;
+ 
+ 	PRINTFREEMEM("at start of mark_swapfiles");
+ 	
++	trap_page_allocs = 0;
+ 	pageaddress = get_zeroed_page(GFP_ATOMIC);
++	trap_page_allocs = orig_trap_page_allocs;
+ 	pbe.address = virt_to_page(pageaddress);
+ 	signature = ((union p_diskpage) pageaddress).pointer->swh.magic.magic;
+ 
+@@ -791,12 +814,18 @@
+ static int rw_swap_page_sync(int rw, swp_entry_t swap_address, struct page * data_page)
+ {
+ 	struct io_info io_info;
+-	unsigned long buffer_address = get_zeroed_page(__GFP_FAST);
+-	struct page *page = virt_to_page(buffer_address);
++	unsigned long buffer_address;
++	struct page *page = NULL;
+ 	void * pageaddress;
+ 	pte_t * pte;
+ 	int pageprot = 0;
+ 	int restore = 0;
++	int orig_trap_page_allocs = trap_page_allocs;
++
++	trap_page_allocs = 0;
++	buffer_address = get_zeroed_page(__GFP_FAST);
++	page = virt_to_page(buffer_address);
++	trap_page_allocs = orig_trap_page_allocs;
+ 
+ 	io_info.page = page;
+ 
+diff -ruN swsusp-1.0/kernel/suspend/main.c swsusp-1.0.1/kernel/suspend/main.c
+--- swsusp-1.0/kernel/suspend/main.c	2003-07-16 20:06:28.000000000 +1200
++++ swsusp-1.0.1/kernel/suspend/main.c	2003-07-16 20:06:30.000000000 +1200
+@@ -51,6 +51,7 @@
+ unsigned int suspend_task = 0;
+ unsigned int nr_suspends = 0;
+ struct sysinfo swapinfo;
++unsigned char trap_page_allocs = 0; /* code to catch a hard-to-find bug */
+ 
+ /* Variables to be preserved over suspend */
+ static int resume_status = 0;
+@@ -115,7 +116,7 @@
+ int currentbeep = 260;
+ 
+ /* Locks */
+-spinlock_t suspend_pagedir_lock __nosavedata = SPIN_LOCK_UNLOCKED;
++spinlock_t suspend_irq_lock __nosavedata = SPIN_LOCK_UNLOCKED;
+ __nosavedata unsigned long pagedirflags;
+ 
+ /* Pagedir.c */
+@@ -286,6 +287,8 @@
+ 	expected_size1 = pageset1_size;
+ 	expected_size2 = pageset2_size;
+ 
++	PRINTPREEMPTCOUNT("At entry to save_image.");
++
+ 	if (TEST_RESULT_STATE(SUSPEND_ABORTED)) 
+ 		goto abort_saving;
+ 
+@@ -333,6 +336,8 @@
+ 	if (TEST_RESULT_STATE(SUSPEND_ABORTED))
+ 		goto abort_saving;
+ 
++	trap_page_allocs = 1;
++
+ 	printlog(SUSPEND_ANY_SECTION, SUSPEND_LOW,"--  Result of count_data_pages: %d and %d\n", result.size1, result.size2);
+ 	pageset2_sizelow = result.size2low;
+ 	pageset2_size = result.size2;
+@@ -431,12 +436,13 @@
+ 			pageset2_size);
+ 
+ #ifdef CONFIG_SOFTWARE_SUSPEND_CHECKSUM
++	prepare_status(1, 1, "Storing pagedir 2 checksums");
+ 	store_pagedir_checksums(&pagedir2);
+ #endif
+ 
+ 	printlog(SUSPEND_ANY_SECTION, SUSPEND_LOW,"-- Preparing to write pages\n");
+ 
+-	swsusp_spin_unlock_irqrestore(&suspend_pagedir_lock, pagedirflags); 
++	swsusp_spin_unlock_irqrestore(&suspend_irq_lock, pagedirflags); 
+ 
+ 	ide_unsuspend();
+ 
+@@ -464,7 +470,9 @@
+ 
+ 	drivers_suspend();
+ 
+-	swsusp_spin_lock_irqsave(&suspend_pagedir_lock, pagedirflags); 
++	swsusp_spin_lock_irqsave(&suspend_irq_lock, pagedirflags); 
++
++	PRINTPREEMPTCOUNT("Prior to storing checksums & copying pageset 1.");
+ 
+ #ifdef CONFIG_SOFTWARE_SUSPEND_CHECKSUM
+ 	store_pagedir_checksums(&pagedir1);
+@@ -474,12 +482,14 @@
+ 	
+ 	printlog(SUSPEND_ANY_SECTION, SUSPEND_LOW,"-- Done\n");
+ 	
++	trap_page_allocs = 0;
++
+ 	/*
+ 	 *  ---------------------   FROM HERE ON, NEED TO REREAD PAGESET2 IF ABORTING!!! -----------------
+ 	 *  (We need to ensure saved pages are freed even if memory is still correct).
+ 	 */
+ 	
+-	swsusp_spin_unlock_irqrestore(&suspend_pagedir_lock, pagedirflags);
++	swsusp_spin_unlock_irqrestore(&suspend_irq_lock, pagedirflags);
+ 	
+ 	ide_unsuspend();
+ 
+@@ -517,24 +527,31 @@
+ 	si_swapinfo(&swapinfo);
+ 	printlog(SUSPEND_ANY_SECTION, SUSPEND_LOW, "Finished writing image. %ld pages of swap left.\n", swapinfo.freeswap);
+ 	ide_suspend();
++	swsusp_spin_lock_irqsave(&suspend_irq_lock, pagedirflags);
++	PRINTPREEMPTCOUNT("At exit from save_image.");
+ 	return 0;
+ 
+ abort_reloading_pagedir_two:
++	trap_page_allocs = 0;
++
+ 	printk(KERN_ERR "Reloading secondary pagedir.\n");
+ 	temp_result = read_secondary_pagedir(1);
+ 	if (temp_result)
+ 		panic("Attempt to reload pagedir 2 while aborting a suspend failed.");
+ abort_saving:
++	trap_page_allocs = 0;
++
+ 	free_pagedir(&pagedir2);
+ 	free_pagedir(&pagedir1);
+ 
+ 	{
+-		int was_locked = (spin_is_locked(&suspend_pagedir_lock));
+-		if (was_locked)
+-			swsusp_spin_unlock_irqrestore(&suspend_pagedir_lock, pagedirflags);
++		int was_locked = (spin_is_locked(&suspend_irq_lock));
++		if (!was_locked)
++			swsusp_spin_lock_irqsave(&suspend_irq_lock, pagedirflags);
+ 	}
+ 
+ 	ide_suspend();
++	PRINTPREEMPTCOUNT("At exit from save_image.");
+ 	return -1;		
+ 
+ }
+@@ -601,7 +618,7 @@
+ 	drivers_suspend();
+ 	barrier();
+ 	mb();
+-	swsusp_spin_lock_irqsave(&suspend_pagedir_lock, pagedirflags);	/* Done to disable interrupts */ 
++	swsusp_spin_lock_irqsave(&suspend_irq_lock, pagedirflags);	/* Done to disable interrupts */ 
+ 	printlog(SUSPEND_ANY_SECTION, SUSPEND_LOW, name_resume "Waiting for DMAs to settle down...\n");
+ 	mdelay(1000);	/* We do not want some readahead with DMA to corrupt our memory, right?
+ 			   Do it with disabled interrupts for best effect. That way, if some
+@@ -626,6 +643,7 @@
+ {
+ 
+ 	__flush_tlb_global();
++	trap_page_allocs = 0;
+ 	
+ #ifdef DEFAULT_SUSPEND_CONSOLE
+ 	reset_terminal(fg_console, 1);
+@@ -634,6 +652,8 @@
+ 	unblank_screen();
+ #endif
+ 
++	PRINTPREEMPTCOUNT("In resume_2 after copy back.");
++
+ #ifdef CONFIG_SOFTWARE_SUSPEND_CHECKSUM
+ 	if (console_loglevel >= SUSPEND_MEDIUM) {
+ 		printlog(SUSPEND_CHECKSUMS, SUSPEND_MEDIUM, "Checked pagedir1 checksums after copying the image back...\n");
+@@ -649,8 +669,6 @@
+ 
+ 	ide_unsuspend();
+ 	
+-	kernel_fpu_end();
+-
+ 	read_secondary_pagedir(0);
+ 	
+ #ifdef CONFIG_SOFTWARE_SUSPEND_CHECKSUM
+@@ -673,7 +691,9 @@
+ 	free_pagedir(&pagedir1);
+ 	update_status(50, 100, NULL);
+ 	printlog(SUSPEND_ANY_SECTION, SUSPEND_MEDIUM, name_resume "Free pagedir lock.\n");
+-	swsusp_spin_unlock_irqrestore(&suspend_pagedir_lock, pagedirflags);
++	PRINTPREEMPTCOUNT("Before unlocking pagedir.");
++	swsusp_spin_unlock_irqrestore(&suspend_irq_lock, pagedirflags);
++	PRINTPREEMPTCOUNT("After unlocking pagedir.");
+ 	printlog(SUSPEND_ANY_SECTION, SUSPEND_MEDIUM, name_resume "Resume drivers.\n");
+ 	drivers_resume(RESUME_ALL_PHASES);
+ 	update_status(75, 100, NULL);
+@@ -694,7 +714,7 @@
+ {
+ 	mb();
+ 	barrier();
+-	swsusp_spin_lock_irqsave(&suspend_pagedir_lock, pagedirflags);
++	swsusp_spin_lock_irqsave(&suspend_irq_lock, pagedirflags);
+ }
+ 
+ /*
+@@ -721,6 +741,9 @@
+ 	mb();
+ 	drivers_resume(RESUME_ALL_PHASES);
+ 	mark_swapfiles(((swp_entry_t) {0}), MARK_SWAP_RECOVER);
++	PRINTPREEMPTCOUNT("Before unlocking pagedir.");
++	swsusp_spin_unlock_irqrestore(&suspend_irq_lock, pagedirflags);
++	PRINTPREEMPTCOUNT("After unlocking pagedir.");
+ }
+ 
+ /*
+@@ -735,6 +758,9 @@
+ 	printk("\n\nPlease include the following information in any bug report:\n");
+ 	printk("- SWSUSP Version : %s\n", swsusp_version);
+ 	printk("- Compiler vers. : %d.%d\n", __GNUC__, __GNUC_MINOR__);
++#ifdef CONFIG_PREEMPT
++	printk("- Preemptive kernel.\n");
++#endif
+ 	printk("- Attempt number : %d\n", nr_suspends);
+ 	printk("- Swap available : %ld (amount unused when preparing image).\n", swapforimage);
+ 	printk("- Pageset sizes  : %d and %d (%d low). (Pagedir sizes: %d and %d)\n", pageset1_size, pageset2_size,
+@@ -834,7 +860,7 @@
+ 	PRINTFREEMEM("after allocating inusemap");
+ 	if (allocatemap(&pageset2map, 1)) {
+ 		freemap(&inusemap);
+-		return;
++		goto out;
+ 	}
+ 	PRINTFREEMEM("after allocating pageset2 map");
+ 
+@@ -861,9 +887,11 @@
+ 
+ 	/* Free up memory if necessary */
+ 	printlog(SUSPEND_ANY_SECTION, SUSPEND_VERBOSE, "Eating memory.\n");
++	PRINTPREEMPTCOUNT("Before eat_memory_and_freeze_processes.");
+ 	if (eat_memory_and_freeze_processes() || TEST_RESULT_STATE(SUSPEND_ABORTED))
+ 		goto out;
+ 
++	PRINTPREEMPTCOUNT("After eat_memory_and_freeze_processes.");
+ 	PRINTFREEMEM("after eating memory");
+ 
+ 	prepare_status(1, 1, "Freeing eaten memory.");
+@@ -874,13 +902,18 @@
+ 	beepOK;		/* second beep */
+ 
+ #ifdef CONFIG_PREEMPT
++	PRINTPREEMPTCOUNT("Before preempt_disable: Preempt count %d->");
+ 	preempt_disable();
++	PRINTPREEMPTCOUNT("After preempt_disable: Preempt count %d->");
+ #endif
++
+ 	if (!TEST_RESULT_STATE(SUSPEND_ABORTED)) {
+ 		prepare_status(1, 0, "Suspending drivers.");
+ 		if (drivers_suspend()==0) { 
+ 			prepare_status(1, 0, "Starting low level suspend...");
++			PRINTPREEMPTCOUNT("Before do_suspend_lowlevel.");
+ 			do_suspend_lowlevel(0);
++			PRINTPREEMPTCOUNT("After do_suspend_lowlevel.");
+ 			beepOK;
+ 		} 
+ 	}
+@@ -894,7 +927,9 @@
+ 	PRINTFREEMEM("after finishing all IO");
+ 
+ #ifdef CONFIG_PREEMPT
++	PRINTPREEMPTCOUNT("Before preempt_enable: Preempt count %d->");
+ 	preempt_enable();
++	PRINTPREEMPTCOUNT("After preempt_disable: Preempt count %d->");
+ #endif
+ 
+ out:
+@@ -912,6 +947,23 @@
+ 	if (inusemap)
+ 		freemap(&inusemap);
+ 	PRINTFREEMEM("after freeing inuse map");
++
++	if (TEST_RESULT_STATE(SUSPEND_UNEXPECTED_ALLOC)) {
++		int orig_console_loglevel = console_loglevel;
++		console_loglevel = 5;
++		printk("\n\n");
++		printk("Congratulations. You have managed to get an unexpected page allocation.\n");
++		printk("Nigel really wants to know about this. Please send your log of this\n");
++		printk("attempted suspend to him (ncunningham@users.sourceforge.net) so he can\n");
++		printk("squash the bug.\n");
++		printk("It should be safe for you to try again to suspend.\n");
++		printk("Please press shift to carry on.\n");
++		while (shift_state & (1 << KG_SHIFT))
++			yield();
++		while (!(shift_state & (1 << KG_SHIFT)))
++			yield();
++		console_loglevel = orig_console_loglevel;
++	}
+ 	
+ 	for (i = 0; i < 3; i++)
+ 		avenrun[i] = avenrun_save[i];
+@@ -934,6 +986,9 @@
+ 		printk(KERN_EMERG "Failed to notify resume chain.\n");
+ 
+ 	software_suspend_enabled = 1;
++#ifdef CONFIG_PREEMPT
++	PRINTPREEMPTCOUNT("Exiting with preempt count");
++#endif
+ }
+ 
+ /*
+diff -ruN swsusp-1.0/kernel/suspend/ui.c swsusp-1.0.1/kernel/suspend/ui.c
+--- swsusp-1.0/kernel/suspend/ui.c	2003-07-16 20:06:28.000000000 +1200
++++ swsusp-1.0.1/kernel/suspend/ui.c	2003-07-16 20:06:30.000000000 +1200
+@@ -60,9 +60,9 @@
+ 
+ 	if (!TEST_RESULT_STATE(SUSPEND_ABORTED)) {
+ 		if ((!TEST_RESULT_STATE(SUSPEND_ABORT_REQUESTED)) && (!NO_OUTPUT_OR_PAUSING)) {
+-			int locked = (spin_is_locked(&suspend_pagedir_lock));
++			int locked = (spin_is_locked(&suspend_irq_lock));
+ 			if (locked)
+-				swsusp_spin_unlock_irqrestore(&suspend_pagedir_lock, pagedirflags);
++				swsusp_spin_unlock_irqrestore(&suspend_irq_lock, pagedirflags);
+ 			va_start(args, fmt);
+ 			printed_len = vsnprintf(print_buf, sizeof(print_buf), fmt, args);
+ 			va_end(args);
+@@ -80,7 +80,7 @@
+ 				yield();
+ 			lastshiftstate = shift_state;
+ 			if (locked)
+-				swsusp_spin_lock_irqsave(&suspend_pagedir_lock, pagedirflags);
++				swsusp_spin_lock_irqsave(&suspend_irq_lock, pagedirflags);
+ 		}
+ 		/* Turn on aborting flag */
+ 		SET_RESULT_STATE(SUSPEND_ABORTED);
+@@ -393,10 +393,10 @@
+ void check_shift_keys(int pause, char * message)
+ {
+ #ifdef DEFAULT_SUSPEND_CONSOLE 
+-	int was_locked = (spin_is_locked(&suspend_pagedir_lock));
++	int was_locked = (spin_is_locked(&suspend_irq_lock));
+ 
+ 	if (was_locked)
+-		swsusp_spin_unlock_irqrestore(&suspend_pagedir_lock, pagedirflags);
++		swsusp_spin_unlock_irqrestore(&suspend_irq_lock, pagedirflags);
+ 
+ 	yield();
+ 
+@@ -420,7 +420,7 @@
+ done_checking:
+ 	lastshiftstate = shift_state;
+ 	if (was_locked)
+-		swsusp_spin_lock_irqsave(&suspend_pagedir_lock, pagedirflags);
++		swsusp_spin_lock_irqsave(&suspend_irq_lock, pagedirflags);
+ #endif
+ }
+ 
+diff -ruN swsusp-1.0/mm/page_alloc.c swsusp-1.0.1/mm/page_alloc.c
+--- swsusp-1.0/mm/page_alloc.c	2003-07-16 20:06:28.000000000 +1200
++++ swsusp-1.0.1/mm/page_alloc.c	2003-07-16 20:06:30.000000000 +1200
+@@ -21,6 +21,7 @@
+ #include <linux/bootmem.h>
+ #include <linux/slab.h>
+ #include <linux/suspend.h>
++#include <linux/suspend-debug.h>
+ #include <linux/module.h>
+ 
+ int nr_swap_pages;
+@@ -335,6 +336,31 @@
+ 	int freed;
+ #if CONFIG_SOFTWARE_SUSPEND
+ 	static unsigned int loopcount;
++
++	if (!TASK_NOT_SUSPENDED(current)) {
++		printk("Caught a process in alloc_pages.\n");
++		schedule();	/* Forking comes here */
++	}
++
++	if ((trap_page_allocs) && (!(TEST_RESULT_STATE(SUSPEND_UNEXPECTED_ALLOC)))) {
++		/* 
++		 * Trying to catch a bug that only infrequently appears.
++		 * We want the user to live to tell the story and provide
++		 * useful info, so we set ourselves up to abort swsusp and
++		 * print the stack here. Swsusp will take note, tell
++		 * the user what's going on and ask them to pass the info
++		 * on to Nigel.
++		 */
++
++		show_state();
++		SET_RESULT_STATE(SUSPEND_ABORTED);
++		SET_RESULT_STATE(SUSPEND_UNEXPECTED_ALLOC);
++		/* 
++		 * We will let whatever is calling get the page it wants so
++		 * as to not cause other issues. Swsusp should be able to
++		 * back out okay.
++		 */
++	}
+ #endif	
+ 	zone = zonelist->zones;
+ 	classzone = *zone;

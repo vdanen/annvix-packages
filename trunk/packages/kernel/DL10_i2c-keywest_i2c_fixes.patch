@@ -1,0 +1,37 @@
+--- linux-2.4.21-orig/drivers/i2c/i2c-keywest.c	2003-06-16 09:30:13.000000000 +0200
++++ linux-2.4.21-i2c/drivers/i2c/i2c-keywest.c	2003-07-11 10:50:15.000000000 +0200
+@@ -412,18 +412,6 @@
+ 	       I2C_FUNC_SMBUS_BLOCK_DATA;
+ }
+ 
+-static void
+-keywest_inc(struct i2c_adapter *adapter)
+-{
+-	MOD_INC_USE_COUNT;
+-}
+-
+-static void
+-keywest_dec(struct i2c_adapter *adapter)
+-{
+-	MOD_DEC_USE_COUNT;
+-}
+-
+ /* For now, we only handle combined mode (smbus) */
+ static struct i2c_algorithm keywest_algorithm = {
+ 	name:		"Keywest i2c",
+@@ -527,14 +515,13 @@
+ 		struct keywest_chan* chan = &iface->channels[i];
+ 		u8 addr;
+ 		
++		chan->adapter.name = THIS_MODULE;
+ 		sprintf(chan->adapter.name, "%s %d", np->parent->name, i);
+ 		chan->iface = iface;
+ 		chan->chan_no = i;
+ 		chan->adapter.id = I2C_ALGO_SMBUS;
+ 		chan->adapter.algo = &keywest_algorithm;
+ 		chan->adapter.algo_data = NULL;
+-		chan->adapter.inc_use = keywest_inc;
+-		chan->adapter.dec_use = keywest_dec;
+ 		chan->adapter.client_register = NULL;
+ 		chan->adapter.client_unregister = NULL;
+ 		chan->adapter.data = chan;

@@ -1,0 +1,7 @@
+
+URL:http://www.anime.net/~sam9407/
+
+untar sam9407
+cd 3rdparty/sam9407
+perserve Config.in Makefile
+perserve kconfig.h and see if it is still the same

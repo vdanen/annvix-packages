@@ -1,0 +1,80 @@
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff w3/drivers/usb/ov511/ov511_core.c w2/drivers/usb/ov511/ov511_core.c
+--- w3/drivers/usb/ov511/ov511_core.c	2003-05-11 09:50:50.000000000 +0200
++++ w2/drivers/usb/ov511/ov511_core.c	2003-08-15 04:01:24.000000000 +0200
+@@ -1593,20 +1593,6 @@ ov51x_i2c_control(struct i2c_adapter *ad
+ 	return 0;
+ }
+ 
+-#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 5, 0)
+-static void
+-ov51x_i2c_inc_use(struct i2c_adapter *adap)
+-{
+-	MOD_INC_USE_COUNT;
+-}
+-
+-static void
+-ov51x_i2c_dec_use(struct i2c_adapter *adap)
+-{
+-	MOD_DEC_USE_COUNT;
+-}
+-#endif
+-
+ static struct i2c_algorithm ov518_i2c_algo = {
+ 	.name =			"OV518 algorithm",
+ 	.id =			I2C_ALGO_SMBUS,
+@@ -1626,15 +1612,7 @@ static struct i2c_algorithm ov511_i2c_al
+ static struct i2c_adapter i2c_adap_template = {
+ 	I2C_DEVNAME("(unset)"),
+ 	.id =			I2C_ALGO_SMBUS,
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 5, 70)
+-	.class =		I2C_ADAP_CLASS_CAM_DIGITAL,
+-#endif
+-#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 5, 0)
+-	.inc_use =		ov51x_i2c_inc_use,
+-	.dec_use =		ov51x_i2c_dec_use,
+-#else
+ 	.owner =		THIS_MODULE,
+-#endif
+ 	.client_register =	i2c_attach_inform,
+ 	.client_unregister =	i2c_detach_inform,
+ };
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff w3/drivers/usb/ov511/ovfx2.c w2/drivers/usb/ov511/ovfx2.c
+--- w3/drivers/usb/ov511/ovfx2.c	2003-05-13 13:29:39.000000000 +0200
++++ w2/drivers/usb/ov511/ovfx2.c	2003-08-15 04:01:39.000000000 +0200
+@@ -893,20 +893,6 @@ ovfx2_i2c_control(struct i2c_adapter *ad
+ 	return 0;
+ }
+ 
+-#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 5, 0)
+-static void
+-ovfx2_i2c_inc_use(struct i2c_adapter *adap)
+-{
+-	MOD_INC_USE_COUNT;
+-}
+-
+-static void
+-ovfx2_i2c_dec_use(struct i2c_adapter *adap)
+-{
+-	MOD_DEC_USE_COUNT;
+-}
+-#endif
+-
+ static struct i2c_algorithm ovfx2_i2c_algo = {
+ 	.name =			"OVFX2 algorithm",
+ 	.id =			I2C_ALGO_SMBUS,
+@@ -918,15 +904,7 @@ static struct i2c_algorithm ovfx2_i2c_al
+ static struct i2c_adapter i2c_adap_template = {
+ 	I2C_DEVNAME("(unset)"),
+ 	.id =			I2C_ALGO_SMBUS,
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 5, 70)
+-	.class =		I2C_ADAP_CLASS_CAM_DIGITAL,
+-#endif
+-#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 5, 0)
+-	.inc_use =		ovfx2_i2c_inc_use,
+-	.dec_use =		ovfx2_i2c_dec_use,
+-#else
+ 	.owner =		THIS_MODULE,
+-#endif
+ 	.client_register =	i2c_attach_inform,
+ 	.client_unregister =	i2c_detach_inform,
+ };

@@ -1,0 +1,23 @@
+
+
+URL: ftp://ftp.linux-wlan.org/pub/linux-wlan-ng/
+
+
+Remove files from old version
+cd <linux>/3rdparty/prism25
+rm -f src/*c p80211/*c include/wlan/*.h include/prism2/*.h
+
+untar linux-wlan
+Configure linux-wlan
+cp <linux-wlan>/src/prism2/drivers/*.c <linux>/3rdparty/prism25/src/
+cp <linux-wlan>/src/prism2/include/*.h <linux>/3rdparty/prism25/include/prism2
+cp <linux-wlan>/src/p80211/*.c <linux>/3rdparty/prism25/p80211/
+cp <linux-wlan>/include/wlan/*  <linux>/3rdparty/prism25/include/wlan/
+
+
+It is necesary configure wlan, as we need 3 generated include files.
+
+<linux-wlan>/src/include/wlan/{version.h,p80211metadef.h,p80211metastruct.h}
+
+
+

@@ -1,0 +1,39 @@
+From: Borsenkow Andrej <Andrej.Borsenkow@mow.siemens.ru>
+Subject: PATCH: ide_scan_devices requested driver misdetection
+To: Juan Quintela <quintela@mandrakesoft.com>
+Date: 26 May 2002 22:06:56 +0400
+X-Mailer: Ximian Evolution 1.0.5-1mdk 
+
+
+ide_replace_subdriver copies (at most) 9 characters from
+/proc/ide/hdX/driver buffer into driver_req. Unfortunately, it does not
+attempt to format proc buffer which means, if driver name is less than 9
+characters (ide-scsi) it contains garbage in last byte.
+
+ide_scan_devices has been searching _for_ driver_req _in_ passed driver
+name. Looking into usage of driver_req it seems comparison should be
+reverted - search _for_ passed name (that is garanteed to be
+null-terminated) _in_ driver_req - that may theoretically contain
+garbage.
+
+Alternative is to pretty format proc buffer but then ide_scan_devices
+may as well use strcmp and not strstr.
+
+regards
+
+-andrej
+
+Juan, would you pass it onto lkml if you deem it applicable?
+
+--- linux-2.4.18-13mdk/drivers/ide/ide.c.orig	Sun Apr 28 16:04:27 2002
++++ linux-2.4.18-13mdk/drivers/ide/ide.c	Sun May 26 20:58:03 2002
+@@ -3838,7 +3838,7 @@
+ 		for (unit = 0; unit < MAX_DRIVES; ++unit) {
+ 			ide_drive_t *drive = &hwif->drives[unit];
+ 			char *req = drive->driver_req;
+-			if (*req && !strstr(name, req))
++			if (*req && !strstr(req, name))
+ 				continue;
+ 			if (drive->present && drive->media == media && drive->driver == driver && ++i > n)
+ 				return drive;
+

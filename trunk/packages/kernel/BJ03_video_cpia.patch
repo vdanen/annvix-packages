@@ -1,0 +1,18 @@
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff --exclude='defconfig*' --exclude='log.*' --exclude='log2?' w2/drivers/media/video/cpia.c w1/drivers/media/video/cpia.c
+--- w2/drivers/media/video/cpia.c	2003-06-13 16:51:34.000000000 +0200
++++ w1/drivers/media/video/cpia.c	2003-08-20 10:17:03.000000000 +0200
+@@ -1683,13 +1683,9 @@ static int do_command(struct cam_data *c
+ 			 * values.             - rich@annexia.org
+ 			 */
+ 			if (cam->params.exposure.redComp < 220 ||
+-			    cam->params.exposure.redComp > 255 ||
+ 			    cam->params.exposure.green1Comp < 214 ||
+-			    cam->params.exposure.green1Comp > 255 ||
+ 			    cam->params.exposure.green2Comp < 214 ||
+-			    cam->params.exposure.green2Comp > 255 ||
+-			    cam->params.exposure.blueComp < 230 ||
+-			    cam->params.exposure.blueComp > 255)
++			    cam->params.exposure.blueComp < 230)
+ 			  {
+ 			    printk (KERN_WARNING "*_comp parameters have gone AWOL (%d/%d/%d/%d) - reseting them\n",
+ 				    cam->params.exposure.redComp,

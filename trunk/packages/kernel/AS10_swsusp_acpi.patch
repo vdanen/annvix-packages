@@ -1,0 +1,130 @@
+diff -ruN linux-2.4.21-acpi20030619/drivers/acpi/system.c linux-2.4.21-acpi20030619-1.0-pre17/drivers/acpi/system.c
+--- linux-2.4.21-acpi20030619/drivers/acpi/system.c	2003-07-09 11:09:44.000000000 +1200
++++ linux-2.4.21-acpi20030619-1.0-pre17/drivers/acpi/system.c	2003-07-09 11:07:21.000000000 +1200
+@@ -47,6 +47,7 @@
+ #include <asm/hw_irq.h>
+ #endif
+ #endif
++#include <linux/suspend.h>
+ 
+ 
+ #define _COMPONENT		ACPI_SYSTEM_COMPONENT
+@@ -127,7 +128,10 @@
+ 		 * interrupts.
+ 		 */
+ #ifdef CONFIG_X86
+-		init_8259A(0);
++#ifdef CONFIG_SOFTWARE_SUSPEND
++		if (state != ACPI_STATE_S4)
++#endif
++			init_8259A(0);
+ #endif
+ 		/* wait for power to come back */
+ 		mdelay(1000);
+@@ -304,7 +308,7 @@
+ 	u32			state)
+ {
+ 	acpi_status status;
+-
++	int swsusp=0;
+ 	/* only support S1 and S5 on kernel 2.4 */
+ 	if (state != ACPI_STATE_S1 && state != ACPI_STATE_S4
+ 	    && state != ACPI_STATE_S5)
+@@ -312,6 +316,9 @@
+ 
+ 
+ 	if (ACPI_STATE_S4 == state) {
++#ifdef CONFIG_SOFTWARE_SUSPEND
++		swsusp=1;
++#else
+ 		/* For s4bios, we need a wakeup address. */
+ 		if (1 == acpi_gbl_FACS->S4bios_f &&
+ 		    0 != acpi_gbl_FADT->smi_cmd) {
+@@ -321,6 +328,7 @@
+ 		} else
+ 			/* We don't support S4 under 2.4.  Give up */
+ 			return AE_ERROR;
++#endif
+ 	}
+ 
+ 	status = acpi_system_save_state(state);
+@@ -334,12 +342,17 @@
+ 	ACPI_FLUSH_CPU_CACHE();
+ 
+ 	/* perform OS-specific sleep actions */
+-	status = acpi_system_suspend(state);
+-
+-	/* Even if we failed to go to sleep, all of the devices are in an suspended
+-	 * mode. So, we run these unconditionaly to make sure we have a usable system
+-	 * no matter what.
+-	 */
++	if(swsusp) { /* we just ignore acpi architecture for the moment */
++		software_suspend_pending(); /* when we return, this is resume */
++		status = AE_OK;
++	} else {
++		status = acpi_system_suspend(state);
++
++		/* Even if we failed to go to sleep, all of the devices are in an suspended
++		 * mode. So, we run these unconditionaly to make sure we have a usable system
++		 * no matter what.
++		 */
++	}
+ 	acpi_leave_sleep_state(state);
+ 	acpi_system_restore_state(state);
+ 
+@@ -384,10 +397,15 @@
+ 	for (i=0; i<ACPI_S_STATE_COUNT; i++) {
+ 		if (system->states[i]) {
+ 			p += sprintf(p, "S%d ", i);
+-			if (i == ACPI_STATE_S4 &&
+-			    acpi_gbl_FACS->S4bios_f &&
+-			    0 != acpi_gbl_FADT->smi_cmd)
+-				p += sprintf(p, "S4Bios ");
++			if (i == ACPI_STATE_S4) {
++			  	if(acpi_gbl_FACS->S4bios_f &&
++				   0 != acpi_gbl_FADT->smi_cmd)
++				  	p += sprintf(p, "(Bios) ");
++#ifdef CONFIG_SOFTWARE_SUSPEND
++				else
++					p += sprintf(p, "(swsusp) ");
++#endif
++			}
+ 		}
+ 	}
+ 	p += sprintf(p, "\n");
+@@ -690,9 +708,15 @@
+ 	for (i = 0; i <= ACPI_STATE_S5; i++) {
+ 		if (system->states[i]) {
+ 			p += sprintf(p,"S%d ", i);
+-			if (i == ACPI_STATE_S4 && acpi_gbl_FACS->S4bios_f &&
+-			    acpi_gbl_FADT->smi_cmd != 0)
+-				p += sprintf(p, "S4Bios ");
++			if (i == ACPI_STATE_S4) {
++				if(acpi_gbl_FACS->S4bios_f &&
++				   acpi_gbl_FADT->smi_cmd != 0)
++					p += sprintf(p, "(Bios) ");
++#ifdef CONFIG_SOFTWARE_SUSPEND
++				else
++					p += sprintf(p, "(swsusp) ");
++#endif
++			}
+ 		}
+ 	}
+ 
+@@ -1244,9 +1268,15 @@
+ 		case ACPI_STATE_S4:
+ 			if (acpi_gbl_FACS->S4bios_f &&
+ 			    0 != acpi_gbl_FADT->smi_cmd) {
+-				printk(" S4bios");
++				printk(" (bios)");
+ 				system->states[i] = 1;
+ 			}
++#ifdef CONFIG_SOFTWARE_SUSPEND
++			else {
++				printk(" (swsusp)");
++				system->states[i] = 1;
++			}
++#endif
+ 			/* no break */
+ 		default: 
+ 			if (ACPI_SUCCESS(status)) {

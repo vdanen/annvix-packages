@@ -1,0 +1,11 @@
+--- linux-2.4.21/3rdparty/prism25/include/wlan/wlan_compat.h~	2003-08-24 16:09:16.000000000 +0200
++++ linux-2.4.21/3rdparty/prism25/include/wlan/wlan_compat.h	2003-08-24 16:32:05.000000000 +0200
+@@ -588,7 +588,7 @@
+ 
+ #if (LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0))  // fixme
+ #define URB_ASYNC_UNLINK  USB_ASYNC_UNLINK
+-#define usb_fill_bulk_urb  FILL_BULK_URB
++//#define usb_fill_bulk_urb  FILL_BULK_URB
+ #else
+ #define USB_QUEUE_BULK 0
+ #endif

@@ -1,0 +1,7 @@
+
+URL: http://belnet.dl.sourceforge.net/sourceforge/qce-ga/
+
+untar qce-ga
+remove 3rdparty/mod_quickam/*.[ch]
+perserve Config.in Makefile in 3rdparty/mod_quickam
+cp <qce-ga>/*.[ch] 3rdparty/mod_quickcam/

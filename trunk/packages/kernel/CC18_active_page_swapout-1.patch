@@ -1,0 +1,27 @@
+
+
+Don't bother checking for active pages in the swapout path.
+
+Not sure about this one.  Clearly the page isn't *likely* to be on the
+active list, because the caller found it on the inactive list.  But I
+don't see any locking which would prevent the page from getting bumped
+up to the active list in the meanwhile.
+
+Needs more explanation.
+
+
+=====================================
+
+--- 2.4.19-pre4/mm/vmscan.c~aa-200-active_page_swapout	Tue Mar 26 23:11:37 2002
++++ 2.4.19-pre4-akpm/mm/vmscan.c	Tue Mar 26 23:11:37 2002
+@@ -83,10 +83,6 @@ static inline int try_to_swap_out(struct
+ 		return 0;
+ 	}
+ 
+-	/* Don't bother unmapping pages that are active */
+-	if (PageActive(page))
+-		return 0;
+-
+ 	/* Don't bother replenishing zones not under pressure.. */
+ 	if (!memclass(page_zone(page), classzone))
+ 		return 0;

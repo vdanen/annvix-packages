@@ -1,0 +1,14 @@
+diff -Nurp -X /Data/dontdiff old/arch/i386/kernel/powernow-k7.c patched/arch/i386/kernel/powernow-k7.c
+--- old/arch/i386/kernel/powernow-k7.c	2003-08-25 16:26:49.000000000 +0300
++++ patched/arch/i386/kernel/powernow-k7.c	2003-08-28 01:43:55.000000000 +0300
+@@ -268,8 +268,8 @@ static void change_speed (unsigned int i
+ 		change_VID(vid);
+ 	} else {
+ 		/* Going up, so change VID first */
+-		change_VID(fid);
+-		change_FID(vid);
++		change_VID(vid);
++		change_FID(fid);
+ 	}
+ 	
+ 	__asm__("\tsti\n");
