@@ -1,6 +1,6 @@
 %define name		console-tools
 %define version		0.2.3
-%define release		47sls
+%define release		48sls
 
 %define	CTVER		%version
 %define	CDVER		1999.08.29
@@ -147,7 +147,7 @@ CFLAGS="%optflags -D_GNU_SOURCE"
 cd -
 
 %install
-rm -fr %buildroot
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 install -d -m 0755 %buildroot/%_prefix
 
 %makeinstall
@@ -202,7 +202,7 @@ rm -rf %buildroot/%{kbddir}/keymaps/mac
 %find_lang %name
 
 %clean
-rm -fr %buildroot
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
 %_post_service keytable
@@ -244,21 +244,12 @@ fi
 %files -f %name.lang
 %defattr(-,root,root)
 %doc README NEWS RELEASE
-#
-#
-#
 %config(noreplace) %_sysconfdir/profile.d/configure_keyboard.sh
-#
 %config(noreplace) %_sysconfdir/rc.d/init.d/keytable
-#
-#
-#
 %{_libdir}/*.la
-#
 %dir %{kbddir}
 %{kbddir}/consolefonts
 %{kbddir}/consoletrans
-#
 %dir %{kbddir}/keymaps
 %{kbddir}/unidata
 %{kbddir}/keymaps/include
@@ -323,9 +314,6 @@ fi
 %{_bindir}/vcstime
 %{_bindir}/vt-is-UTF8
 %{_bindir}/writevt
-#
-#
-#
 %{_mandir}/man1/*
 %{_mandir}/man4/*
 %{_mandir}/man5/*
@@ -348,6 +336,9 @@ fi
 %_libdir/*.a
 
 %changelog
+* Tue Mar 02 2004 Vincent Danen <vdanen@opensls.org> 0.2.3-48sls
+- minor spec cleanups
+
 * Fri Nov 28 2003 Vincent Danen <vdanen@opensls.org> 0.2.3-47sls
 - OpenSLS build
 - remove dependency on sgml-tools so we save 16MB of useless docbook stuff

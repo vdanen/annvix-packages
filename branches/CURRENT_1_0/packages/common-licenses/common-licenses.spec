@@ -1,6 +1,6 @@
 %define name	common-licenses
 %define version 1.0
-%define release 8sls
+%define release 9sls
 
 Summary:	Contains the various common licenses uses by the distribution
 Name:		%{name}
@@ -23,12 +23,12 @@ including the COPYING file in every package, just refer to this one.
 %build
 
 %install
-rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT%{_datadir}
-cp -a %{name} $RPM_BUILD_ROOT%{_datadir}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+install -d %{buildroot}%{_datadir}
+cp -a %{name} %{buildroot}%{_datadir}
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -36,7 +36,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
-*Fri Nov 28 2003 Vincent Danen <vdanen@opensls.org> 1.0-8sls
+* Fri Nov 28 2003 Vincent Danen <vdanen@opensls.org> 1.0-8sls
+- minor spec cleanups
+
+* Fri Nov 28 2003 Vincent Danen <vdanen@opensls.org> 1.0-8sls
 - OpenSLS build
 - tidy spec
 

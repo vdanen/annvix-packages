@@ -1,6 +1,6 @@
 %define name	chrpath
 %define version	0.10
-%define release	5sls
+%define release	6sls
 
 Summary: 	Dynamic library load path (rpath) alterer
 Name: 		%{name}
@@ -29,20 +29,23 @@ is supported.
 %make
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall 
-rm -fr $RPM_BUILD_ROOT/usr/doc
+rm -fr %{buildroot}%{_prefix}/doc
 
 %clean
-rm -rf $RPM_BUILD_ROOT;
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files 
-%defattr (-, root, root,755)
+%defattr (-,root,root)
 %doc AUTHORS ChangeLog COPYING NEWS README
 %_bindir/chrpath
 %_mandir/man1/chrpath.1*
 
 %changelog
+* Tue Mar 02 2004 Vincent Danen <vdanen@opensls.org> 0.10-6sls
+- minor spec cleanups
+
 * Mon Dec 13 2003 Vincent Danen <vdanen@opensls.org> 0.10-5sls
 - OpenSLS build
 - tidy spec

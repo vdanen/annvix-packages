@@ -1,6 +1,6 @@
 %define name	chpax
 %define version	0.5
-%define release	2sls
+%define release	3sls
 
 Summary:	Tool that allows PaX flags to be modified on a per-binary basis
 Name:		%{name}
@@ -34,19 +34,22 @@ automake-1.7 --foreign -a
 %make
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
 
 %clean 
-rm -rf $RPM_BUILD_ROOT 
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files 
-%defattr(-,root,root,0755) 
+%defattr(-,root,root) 
 %doc README ChangeLog
 %{_mandir}/man1/chpax.1*
 %{_sbindir}/chpax
 
 %changelog 
+* Tue Mar 02 2004 Vincent Danen <vdanen@opensls.org> 0.5-3sls
+- minor spec cleanups
+
 * Wed Dec 31 2003 Vincent Danen <vdanen@opensls.org> 0.5-2sls
 - OpenSLS build
 - tidy spec
