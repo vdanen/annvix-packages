@@ -1,0 +1,86 @@
+--- groff-1.19/src/roff/nroff/nroff.sh._utf8	2003-07-16 19:51:25.000000000 +0200
++++ groff-1.19/src/roff/nroff/nroff.sh	2003-07-16 19:52:49.000000000 +0200
+@@ -12,6 +12,14 @@
+     T=-Tlatin1 ;;
+   IBM-1047)
+     T=-Tcp1047 ;;
++  GB2312)
++  	# it's possible to have nice output with -Tnippon
++    T=-Tnippon ;;
++  EUC-KR)
++  	# it's possible to have nice output with -Tnippon and claiming the
++	# locale is japanese
++	export LC_ALL=ja_JP.EUC-JP ;
++    T=-Tnippon ;;
+   *)
+     case "${LC_ALL-${LC_CTYPE-${LANG}}}" in
+       *.UTF-8)
+@@ -81,11 +89,67 @@
+   shift
+ done
+ 
++# special hack to display man pages correctly in UTF-8 locale:
++ICONV="cat"
++case "`locale charmap 2>/dev/null`" in
++    UTF-8)
++    case "${LANGUAGE-${LC_ALL-${LC_MESSAGES-${LANG}}}}" in
++	ja*)
++        # Japanese man page in UTF-8 locale, special case!
++        # force the device 'nippon' run groff in ja_JP.EUC-JP locale
++        # and convert the result to UTF-8 using iconv:
++        T=-Tnippon
++        export LC_ALL=ja_JP.EUC-JP
++        ICONV="iconv -f EUC-JP -t UTF-8"
++        ;;
++	ko*)
++        # Korean man pages.
++        # it is possible to have nice output by claiming it is japanese
++        T=-Tnippon
++        export LC_ALL=ja_JP.EUC-JP
++        ICONV="iconv -f EUC-KR -t UTF-8"
++        ;;
++	zh_CN*)
++        # Chinese simplified man pages.
++        # it is possible to have nice output with -Tnippon
++        T=-Tnippon
++        export LC_ALL=zh_CN.GB2312
++        ICONV="iconv -f GB2312 -t UTF-8"
++        ;;
++    bs*|cs*|hr*|hu*|pl*|sk*|sl*)
++        # iso-8859-2 locales
++		T=-Tascii8
++		export LC_ALL=ISO-8859-2
++		ICONV="iconv -f ISO-8859-2 -t UTF-8"
++		;;
++    ro*)
++        # iso-8859-16 locales
++		T=-Tascii8
++		export LC_ALL=ISO-8859-16
++		ICONV="iconv -f ISO-8859-16 -t UTF-8"
++		;;
++    el*)
++        # iso-8859-7 locales
++		T=-Tascii8
++		export LC_ALL=ISO-8859-7
++		ICONV="iconv -f ISO-8859-7 -t UTF-8"
++		;;
++    ru*|uk*)
++        # koi8 locales
++		T=-Tascii8
++		export LC_ALL=KOI8-U
++		ICONV="iconv -f KOI8-U -t UTF-8"
++		;;
++    esac
++    ;;
++esac
++
+ # This shell script is intended for use with man, so warnings are
+ # probably not wanted.  Also load nroff-style character definitions.
+ 
+ : ${GROFF_BIN_PATH=@BINDIR@}
+ export GROFF_BIN_PATH
++exec 2>/dev/null
++PATH=$GROFF_BIN_PATH:$PATH groff -mtty-char $T $opts ${1+"$@"} | $ICONV
+-PATH=$GROFF_BIN_PATH@SEP@$PATH groff -mtty-char $T $opts ${1+"$@"}
+ 
+ # eof
