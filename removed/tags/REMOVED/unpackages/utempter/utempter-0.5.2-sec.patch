@@ -1,0 +1,43 @@
+--- utempter-0.5.2/utempter.c.sec	2004-04-07 18:30:38.000000000 -0400
++++ utempter-0.5.2/utempter.c	2004-04-07 18:32:10.000000000 -0400
+@@ -27,6 +27,7 @@
+     if (strstr(device, "/../") || strstr(device, "/./") || 
+ 	strstr(device, "//")) {
+ 	fprintf(stderr, "a simple path is required\n");
++	exit(1);
+     }
+ 
+     if (strncmp(device, "/dev/", 5)) {
+@@ -130,6 +131,7 @@
+     checkDevice(device);
+ 
+     strncpy(utx.ut_line, device + 5, sizeof(utx.ut_line));
++    utx.ut_line[sizeof(utx.ut_line)-1] = 0;
+ 
+     pw = getpwuid(getuid());
+     if (!pw) {
+@@ -138,10 +140,13 @@
+     }
+ 
+     strncpy(utx.ut_user, pw->pw_name, sizeof(utx.ut_user));
+-
+-    if (host) 
++    utx.ut_user[sizeof(utx.ut_user)-1] = 0;
++ 
++    if (host) { 
+ 	strncpy(utx.ut_host, host, sizeof(utx.ut_host));
+-
++    	utx.ut_host[sizeof(utx.ut_host)-1] = 0;
++    }
++    
+     if (!strncmp("pts/", utx.ut_line, 4)) {
+ 	id = utx.ut_line + 3;
+ 	if (strlen(id) > 4) id++;
+@@ -150,6 +155,7 @@
+     }
+ 
+     strncpy(utx.ut_id, id, sizeof(utx.ut_id));
++    utx.ut_id[sizeof(utx.ut_id)-1] = 0;
+ 
+     if (sizeof (utx.ut_tv) == sizeof (struct timeval))
+       gettimeofday((struct timeval *) &utx.ut_tv, NULL);
