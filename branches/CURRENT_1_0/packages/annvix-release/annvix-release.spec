@@ -1,9 +1,9 @@
 %define name	annvix-release
 %define version	1.0
-%define release	1avx
+%define release	2avx
 
-%define distrib	Loki
-%define realversion 1.0-CURRENT
+%define distrib	Hades
+%define realversion 1.0-RELEASE
 
 Summary:	Annvix release file
 Name:		%{name}
@@ -12,9 +12,9 @@ Release:	%{release}
 License:	GPL
 URL:		http://annvix.org/
 Group:		System/Configuration/Other
-Source:		%name.tar.bz2
+Source:		%{name}.tar.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-root
+BuildRoot:	%{_tmppath}/%{name}-%{version}-root
 
 Obsoletes:	rawhide-release redhat-release mandrake-release opensls-release
 Provides:	redhat-release rawhide-release mandrake-release opensls-release
@@ -43,6 +43,9 @@ ln -sf annvix-release %{buildroot}%{_sysconfdir}/mandrake-release
 %{_sysconfdir}/redhat-release
 
 %changelog
+* Thu Mar 17 2005 Vincent Danen <vdanen@annvix.org> 1.0-2avx
+- 1.0-RELEASE
+
 * Thu Jun 17 2004 Vincent Danen <vdanen@annvix.org> 1.0-1avx
 - Annvix build
 
