@@ -1,29 +1,33 @@
-%define url ftp://ftp.cvshome.org/pub
+%define name	cvs
+%define version	1.11.10
+%define release	1sls
+
+%define url	ftp://ftp.cvshome.org/pub
 %define _requires_exceptions tcsh
 
 Summary:	A version control system
-Name:		cvs
-Version:	1.11.6
-Release:	3mdk
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
 License:	GPL
 Group:		Development/Other
 URL:		http://www.cvshome.org/
-Requires:	/usr/bin/ssh zlib
-
 Source: 	%{url}/cvs-%{version}/cvs-%{version}.tar.bz2
 Source1: 	cvspserver
 Source2: 	cvs.conf
 Source3: 	cvs-xinetd
 Patch4: 	cvs-1.11.2-zlib.patch.bz2
-Patch6: 	cvs-1.11.6-errno.patch.bz2
+Patch6: 	cvs-1.11.10-errno.patch.bz2
 Patch8:		cvs-1.11-ssh.patch.bz2
 Patch11:	cvs-1.11.1-newline.patch.bz2
 Patch12:	cvs-1.11.4-first-login.patch.bz2
 Patch13:	cvs-1.11.2-no-zlib.patch.bz2
 
-Prereq:		/sbin/install-info
-Buildroot:	%_tmppath/%name-%version-%release-root
+BuildRoot:	%_tmppath/%name-%version-%release-root
 BuildRequires:	texinfo, zlib-devel, krb5-devel
+
+Requires:	/usr/bin/ssh zlib
+Prereq:		/sbin/install-info
 
 %description
 CVS means Concurrent Version System; it is a version control
@@ -57,7 +61,7 @@ control system.
 
 %build
 %serverbuild
-%configure2_5x
+%configure2_5x --with-tmpdir=/tmp
 
 %make
 
@@ -78,6 +82,9 @@ mkdir -p $RPM_BUILD_ROOT%{_sbindir}
 install %{SOURCE1} $RPM_BUILD_ROOT%{_sbindir}
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/cvs
 install -m 644 %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/cvs
+
+# get rid of "no -f" so we don't have a Dep on this nonexistant interpretter
+perl -pi -e 's/no -f/\/bin\/sh/g' %{buildroot}%{_datadir}/cvs/contrib/sccs2rcs
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -108,6 +115,15 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{_sysconfdir}/cvs/cvs.conf
 
 %changelog
+* Tue Dec 09 2003 Vincent Danen <vdanen@opensls.org> 1.11.10-1sls
+- OpenSLS build
+- tidy spec
+- pass tmpdir to configure
+- fix a sccs2rcs script in contrib scripts which was making a Req on "no"
+
+* Fri Dec  5 2003 Stew Benedict <sbenedict@mandrakesoft.com> 1.11.10-0.1.92mdk
+- security update: drop patch0, patch14 (merged upstream), rework patch6
+
 * Fri Jul 25 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 1.11.6-3mdk
 - rebuild against new kerberos
 
