@@ -1,6 +1,6 @@
 %define name	krb5
-%define version	1.3.4
-%define release	3avx
+%define version	1.3.6
+%define release	1avx
 
 %define srcver	1.3
 %define LIBMAJ	1
@@ -65,8 +65,6 @@ Patch14:	krb5-1.3.1-fdr-server-sort.patch.bz2
 Patch15:	krb5-1.3.1-fdr-null.patch.bz2
 Patch16:	krb5-1.3.2-fdr-efence.patch.bz2
 Patch17:	krb5-1.3.3-fdr-rcp-sendlarge.patch.bz2
-Patch18:	2004-002-patch_1.3.4.txt.bz2
-Patch19:	2004-003-asn1buf_patch.txt.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-root
 BuildRequires:	bison, flex, libtermcap-devel, texinfo, tcl
@@ -215,8 +213,6 @@ This version supports kerberos authentication.
 %patch15 -p1 -b .null
 %patch16 -p1 -b .efence
 %patch17 -p1 -b .rcp-sendlarge
-%patch18 -p0 -b .2004-002
-%patch19 -p0 -b .2004-003
 
 find . -type f -name "*.fixinfo" -exec rm -fv "{}" ";"
 gzip doc/*.ps
@@ -585,6 +581,10 @@ strip %{buildroot}%{_bindir}/{ksu,v4rcp}
 %{_datadir}/afterboot/08_kftp
 
 %changelog
+* Wed Dec 22 2004 Vincent Danen <vdanen@annvix.org> 1.3.6-1avx
+- 1.3.6
+- drop P18 and P19 (merged upstream)
+
 * Fri Oct 08 2004 Vincent Danen <vdanen@annvix.org> 1.3.4-3avx
 - switch from tcpserver to tcpsvd
 - Requires: ipsvd
