@@ -1,0 +1,33 @@
+--- openldap-2.0.7/servers/slapd/back-ldbm/back-ldbm.h.config	Tue Aug 22 19:15:33 2000
++++ openldap-2.0.7/servers/slapd/back-ldbm/back-ldbm.h	Wed Oct 25 17:44:21 2000
+@@ -20,7 +20,7 @@
+ #	define DEFAULT_DBCACHE_SIZE 100000
+ #endif
+ 
+-#define DEFAULT_DB_DIRECTORY	LDAP_RUNDIR LDAP_DIRSEP "openldap-ldbm"
++#define DEFAULT_DB_DIRECTORY	"/var/lib/ldap"
+ #define DEFAULT_MODE		0600
+ 
+ #define DN_BASE_PREFIX		SLAP_INDEX_EQUALITY_PREFIX
+--- openldap-2.0.7/servers/slurpd/slurp.h.config	Mon Sep 18 12:08:08 2000
++++ openldap-2.0.7/servers/slurpd/slurp.h	Wed Oct 25 17:44:21 2000
+@@ -40,7 +40,7 @@
+ 
+ 
+ /* Default directory for slurpd's private copy of replication logs */
+-#define	DEFAULT_SLURPD_REPLICA_DIR	LDAP_RUNDIR LDAP_DIRSEP "openldap-slurp"
++#define	DEFAULT_SLURPD_REPLICA_DIR	"/var/lib/ldap"
+ 
+ /* Default name for slurpd's private copy of the replication log */
+ #define	DEFAULT_SLURPD_REPLOGFILE	"slurpd.replog"
+@@ -49,7 +49,7 @@
+ #define	DEFAULT_SLURPD_STATUS_FILE	"slurpd.status"
+ 
+ /* slurpd dump file - contents of rq struct are written here (debugging) */
+-#define	SLURPD_DUMPFILE			LDAP_TMPDIR LDAP_DIRSEP "slurpd.dump"
++#define	SLURPD_DUMPFILE			DEFAULT_SLURPD_REPLICA_DIR "/slurpd.dump"
+ 
+ /* default srvtab file.  Can be overridden */
+ #define	SRVTAB				"/etc/srvtab"
+
+

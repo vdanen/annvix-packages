@@ -1,0 +1,11 @@
+/var/log/ldap/ldap.log {
+    missingok
+    notifempty
+    compress
+    postrotate
+	# only restart if slapd is really running
+	if test -n "`ps acx|grep slapd`"; then
+		/sbin/service ldap restart
+	fi
+    endscript
+}
