@@ -1,38 +1,31 @@
+%define name	SysVinit
 %define version 2.85
-%define release 1mdk
-%define url ftp://ftp.cistron.nl/pub/people/miquels/software
+%define release 2sls
+%define url	ftp://ftp.cistron.nl/pub/people/miquels/software
 
-# Defined iff we build for any MDK distribution >= 9.0
-%define buildfor_mdk90	%(awk '{print ($4 >= "9.0")}' /etc/mandrake-release)
-
-Summary: Programs which control basic system processes.
-Name: SysVinit
-Version: %{version}
-Release: %{release}
-License: GPL
-Group: System/Configuration/Boot and Init
-URL: %{url}
-Source: %{url}/sysvinit-%{version}.tar.bz2
-Patch2: sysvinit-2.77-md5-be.patch.bz2
-Patch3: sysvinit-2.78-halt.patch.bz2
-Patch4: sysvinit-2.78-autofsck.patch.bz2
-Patch5: sysvinit-2.84-shutdownlog.patch.bz2
-Patch7: sysvinit-2.85-walltty.patch.bz2
-Patch8: sysvinit-2.84-halthelp.patch.bz2
-Patch9: sysvinit-2.84-lasttime.patch.bz2
-Patch10: sysvinit-2.84-pidof.patch.bz2
-
-Patch105: sysvinit-disable-respawn-more-quickly.patch.bz2
-
-Patch100: sysvinit-2.77-shutdown.patch.bz2
-Patch101: sysvinit-2.83-libcrypt.patch.bz2
-Patch102: sysvinit-2.83-biarch-utmp.patch.bz2
-
-%if %{buildfor_mdk90}
-BuildRequires: glibc-static-devel
-%endif
-Buildroot: %{_tmppath}/%name-root
-Requires: pam >= 0.66-5
+Summary:	Programs which control basic system processes.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		System/Configuration/Boot and Init
+URL:		%{url}
+Source:		%{url}/sysvinit-%{version}.tar.bz2
+Patch2:		sysvinit-2.77-md5-be.patch.bz2
+Patch3:		sysvinit-2.78-halt.patch.bz2
+Patch4:		sysvinit-2.78-autofsck.patch.bz2
+Patch5:		sysvinit-2.84-shutdownlog.patch.bz2
+Patch7:		sysvinit-2.85-walltty.patch.bz2
+Patch8:		sysvinit-2.84-halthelp.patch.bz2
+Patch9:		sysvinit-2.84-lasttime.patch.bz2
+Patch10:	sysvinit-2.84-pidof.patch.bz2
+Patch100:	sysvinit-2.77-shutdown.patch.bz2
+Patch101:	sysvinit-2.83-libcrypt.patch.bz2
+Patch102:	sysvinit-2.83-biarch-utmp.patch.bz2
+Patch105:	sysvinit-disable-respawn-more-quickly.patch.bz2
+BuildRequires:	glibc-static-devel
+Buildroot:	%{_tmppath}/%name-root
+Requires:	pam >= 0.66-5
 
 %description
 The SysVinit package contains a group of processes that control 
@@ -117,6 +110,11 @@ rm -rf $RPM_BUILD_ROOT
 %ghost /dev/initctl
 
 %changelog
+* Sun Nov 30 2003 Vincent Danen <vdanen@opensls.org> 2.85-2sls
+- remove conditionals
+- OpenSLS build
+- tidy spec
+
 * Tue Jul 01 2003 Thierry Vignaud <tvignaud@mandrakesoft.com> 2.85-1mdk
 - new release
 - rediff patch 7
