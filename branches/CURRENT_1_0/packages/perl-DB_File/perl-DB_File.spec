@@ -1,22 +1,24 @@
+%define name	perl-%{module}
+%define module	DB_File
+%define version	1.806
+%define release	6sls
+
 %define perl_archlib %(eval "`perl -V:installarchlib`"; echo $installarchlib)
-%define module		DB_File
-%define version		1.806
-%define release		5mdk
 
 Summary:	Perl module for use of the Berkeley DB version 1
-Name:		perl-%{module}
+Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	GPL or Artistic
 Group:		Development/Perl
+URL:		http://www.cpan.org
 Source0:	%{module}-%{version}.tar.bz2
 Patch:		%{module}-1.805-makefile.patch.bz2
-Url:		http://www.cpan.org
-BuildRequires:	db-devel perl-devel
+
 BuildRoot:	%{_tmppath}/%{name}-buildroot/
+BuildRequires:	db-devel perl-devel
 
 %description
-
 DB_File is a module which allows Perl programs to make use of the
 facilities provided by Berkeley DB version 1. (DB_File can be built with
 version 2 or 3 of Berkeley DB, but it will only support the 1.x
@@ -59,6 +61,10 @@ mkdir -p $RPM_BUILD_ROOT/$installarchlib
 %_mandir/man3*/DB_File.*
 
 %changelog
+* Sat Jan 03 2004 Vincent Danen <vdanen@opensls.org> 1.806-6sls
+- OpenSLS build
+- tidy spec
+
 * Thu Sep 04 2003 François Pons <fpons@mandrakesoft.com> 1.806-5mdk
 - use db-devel instead of libdb4.1-devel.
 
