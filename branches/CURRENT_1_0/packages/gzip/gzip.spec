@@ -1,6 +1,6 @@
 %define name	gzip
 %define version	1.2.4a
-%define release 15avx
+%define release 16avx
 
 Summary:	The GNU data compression program
 Name:		%{name}
@@ -30,9 +30,6 @@ Prereq:		info-install
 %description
 The gzip package contains the popular GNU gzip data compression
 program.  Gzipped files have a .gz extension.  
-
-Gzip should be installed on your Mandrake Linux system, because it is a
-very commonly used data compression program.
 
 %prep
 %setup -q
@@ -103,6 +100,9 @@ chmod 755 $RPM_BUILD_ROOT/%{_bindir}/zless
 %{_infodir}/*
 
 %changelog
+* Tue Jun 29 2004 Vincent Danen <vdanen@annvix.org> 1.2.4a-16avx
+- change description
+
 * Thu Jun 24 2004 Vincent Danen <vdanen@annvix.org> 1.2.4a-15avx
 - require packages not files
 - Annvix build
