@@ -1,14 +1,19 @@
-Summary: Utilities for managing processes on your system.
-Name: psmisc
-Version: 21.3
-Release: 2mdk
-License: GPL
-Group: Monitoring
-Url: http://psmisc.sourceforge.net
-BuildRequires: libtermcap-devel
-Source: http://download.sourceforge.net/psmisc/psmisc-%version.tar.bz2
-Patch1: psmisc-20.2-libsafe.patch.bz2
-Buildroot:  %{_tmppath}/%{name}-%{version}-buildroot
+%define name	psmisc
+%define version	21.3
+%define release	3sls
+
+Summary:	Utilities for managing processes on your system.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		Monitoring
+URL:		http://psmisc.sourceforge.net
+Source:		http://download.sourceforge.net/psmisc/psmisc-%version.tar.bz2
+Patch1:		psmisc-20.2-libsafe.patch.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
+BuildRequires:	libtermcap-devel
 
 %description
 The psmisc package contains utilities for managing processes on your
@@ -46,6 +51,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/pstree.1*
 
 %changelog
+* Mon Dec 01 2003 Vincent Danen <vdanen@opensls.org> 21.3-3sls
+- OpenSLS build
+
 * Tue Jul 22 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 21.3-2mdk
 - rebuild
 
