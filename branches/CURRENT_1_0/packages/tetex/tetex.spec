@@ -1,6 +1,6 @@
 %define name	tetex
 %define version	2.0.2
-%define release	13sls
+%define release	14sls
 
 %define pkgname		%{name}
 %define docversion	2.0.2
@@ -8,7 +8,7 @@
 %define tetexversion	2.0.2
 %define texmfversion	2.0.2
 %define texmfsrcversion	2.0.2
-%define texmfggversion	2.0.2b
+%define texmfggversion	2.0.2d
 %define jadename	jadetex
 %define jadeversion	3.12
 %define jaderelease_delta 79
@@ -20,10 +20,6 @@
 %define xmltexrelease	%(R=%{release}; echo $((${R/sls/} + %{xmltexrelease_delta}))sls)
 
 %define vartexfonts	/var/lib/texmf
-
-# 1 = have ghostscript >= 6.01 (e.g. Mandrake Linux >= 8.1)
-# 0 = don't have ghostscript >= 6.01 (e.g. Mandrake Linux 8.0, 7.2, etc.)
-%define haveghost6	1
 
 %define _unpackaged_files_terminate_build 0
 
@@ -66,7 +62,9 @@ Patch23:	%{name}-%{jadename}-%{jadeversion}-basque.patch.bz2
 Patch24:	%{name}-%{jadename}-%{jadeversion}-theta.patch.bz2
 Patch25:	passivetex-1.23.patch.bz2
 Patch26:	passivetex-1.24.patch.bz2
-Patch27:	%{name}-2.0.2-typefacename.patch.bz2
+Patch27:	passivetex-1.25.patch.bz2
+Patch28:	%{name}-2.0.2-typefacename.patch.bz2
+Patch29:	tetex-2.0.2-badc.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-root
 BuildRequires:	bison, ed, flex, gettext-devel
@@ -99,6 +97,9 @@ package, which includes the documentation for TeX.
 Summary:	The LaTeX front end for the TeX text formatting system
 Group:		Publishing
 Requires:	tetex = %{PACKAGE_VERSION}
+Requires:	tetex-context
+Provides:	prosper
+Obsoletes:	prosper
 
 %description latex
 LaTeX is a front end for the TeX text formatting system.  Easier to use
@@ -264,12 +265,16 @@ cp -p texmf/metafont/config/mf.ini texmf/metafont/config/mf-nowin.ini
 # languages
 %patch22 -p1
 
-# passivetex 1.24
+# passivetex 1.25
 %patch25 -p1
 %patch26 -p1
+%patch27 -p1
 
 # typeface.map
-%patch27 -p1
+%patch28 -p1
+
+# badc
+%patch29 -p1 -b .badc
 
 # cputoolize to get updated config.{sub,guess}
 %{?__cputoolize: %{__cputoolize} -c libs/ncurses}
@@ -619,6 +624,27 @@ fi
 
 
 %changelog
+* Fri Apr 07 2004 Vincent Danen <vdanen@opensls.org> 2.0.2-14sls
+- sync with cooker 15mdk:
+  - texmfgg archive updated to release 2.0.2d: (ghibo)
+    - updated pause.sty to version (fixes bug #6216)
+    - added swedish hyphenation pattern file, as now license is free LPPL
+    - added Catalan hyphenation pattern file
+    - added Gaeilge (Irish) hyphenation pattern file
+    - pdfpages.sty 0.21 -> 0.3e
+    - modified prosper.cls so that RequirePackage{graphicx} is loaded after
+      the seminar package (fixes bug #5857)
+    - caption.sty 1.4b -> 3.0a
+    - layouts.sty 2.6 -> 2.6b
+      - tex/latex/carlisle/* updated
+    - hyperref 6.74h -> 6.74m
+    - rotfloat.sty 1.1 -> 1.2
+  - merged 'badc' patch from RH (ghibo)
+  - added patch for passivetex 1.25 (ghibo)
+  - added Requires: tetex-context into latex subpackage (ghibo)
+  - Provides/Obsoletes: prosper for latex (Guillaume Rousse)
+- remove %%haveghost6 macro since it's unused
+
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 2.0.2-13sls
 - minor spec cleanups
 - remove %%build_opensls macro
