@@ -1,5 +1,5 @@
---- rpm-4.2/autogen.sh.oldlibtool	2004-01-15 21:19:40.000000000 +0100
-+++ rpm-4.2/autogen.sh	2004-01-15 21:20:25.000000000 +0100
+--- rpm-4.2.2/file/autogen.sh.fred	2003-12-16 06:00:41.000000000 +0100
++++ rpm-4.2.2/file/autogen.sh	2004-01-16 09:16:41.000000000 +0100
 @@ -16,9 +16,9 @@
  recent versions of libtool/autoconf/automake.
  "
@@ -11,5 +11,5 @@
 +#[ "`autoconf --version | head -1`" != "$ACV" ] && echo "$USAGE" && exit 1
 +#[ "`automake --version | head -1 | sed -e 's/1\.4[a-z]/1.4/'`" != "$AMV" ] && echo "$USAGE" && exit 1
  
- if [ -d popt ]; then
-     (echo "--- popt"; cd popt; ./autogen.sh --noconfigure "$@")
+ libtoolize --copy --force
+ aclocal

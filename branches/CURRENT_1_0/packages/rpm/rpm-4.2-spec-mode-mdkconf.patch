@@ -1,5 +1,5 @@
---- rpm-4.2/rpm-spec-mode.el.mdkel	2003-12-09 12:49:24.000000000 +0100
-+++ rpm-4.2/rpm-spec-mode.el	2003-12-09 12:59:18.000000000 +0100
+--- rpm-spec-mode.el.orig	2003-12-22 04:03:50.000000000 +0100
++++ rpm-spec-mode.el	2003-12-27 00:40:27.955653672 +0100
 @@ -61,9 +61,14 @@
  ;;
  
@@ -27,7 +27,19 @@
  (defcustom rpm-spec-timecheck "0"
    "Set the \"timecheck\" age (0 to disable).
  The timecheck value expresses, in seconds, the maximum age of a file
-@@ -163,6 +173,11 @@
+@@ -155,6 +165,11 @@
+   :type 'boolean
+   :group 'rpm-spec)
+ 
++(defcustom rpm-spec-use-tabs nil
++  "Use tabs instead of a space to indent tags."
++  :type 'boolean
++  :group 'rpm-spec)
++
+ (define-obsolete-variable-alias
+   'rpm-insert-version 'rpm-spec-insert-changelog-version)
+ 
+@@ -163,6 +178,11 @@
    :type 'boolean
    :group 'rpm-spec)
  
@@ -39,7 +51,7 @@
  (defcustom rpm-spec-user-full-name nil
    "*Full name of the user.
  This is used in the change log and the Packager tag.  It defaults to the
-@@ -294,7 +309,7 @@
+@@ -294,7 +314,7 @@
      ("BuildRequires")
      ("BuildRoot")
      ("Conflicts")
@@ -48,7 +60,7 @@
      ("%description")
      ("Distribution")
      ("DistURL")
-@@ -331,39 +346,103 @@
+@@ -331,39 +351,103 @@
      ("Version"))
    "List of elements that are valid tags.")
  
@@ -103,7 +115,7 @@
 +	   ("Books/Computer books")
 +	   ("Books/Faqs")
 +	   ("Books/Howtos")
-+	   ("Books/Litterature")
++	   ("Books/Literature")
 +	   ("Books/Other")
 +	   ("Communications")
 +	   ("Databases")
@@ -184,7 +196,7 @@
  
  (defvar rpm-spec-mode-syntax-table nil
    "Syntax table in use in `rpm-spec-mode' buffers.")
-@@ -423,6 +502,7 @@
+@@ -423,6 +507,7 @@
    (define-key rpm-spec-mode-map "\C-c\C-xo" 'rpm-files-owner)
    (define-key rpm-spec-mode-map "\C-c\C-xp" 'rpm-change-target-option)
    (define-key rpm-spec-mode-map "\C-c\C-xr" 'rpm-toggle-rmsource)
@@ -192,7 +204,7 @@
    (define-key rpm-spec-mode-map "\C-c\C-xs" 'rpm-toggle-short-circuit)
    (define-key rpm-spec-mode-map "\C-c\C-xu" 'rpm-files-umask)
    ;;(define-key rpm-spec-mode-map "\C-q" 'indent-spec-exp)
-@@ -460,6 +540,8 @@
+@@ -460,6 +545,8 @@
                ("Build Options"
                 ["Short circuit" rpm-toggle-short-circuit
                  :style toggle :selected rpm-spec-short-circuit]
@@ -201,7 +213,7 @@
                 ["Remove source" rpm-toggle-rmsource
                  :style toggle :selected rpm-spec-rmsource]
                 ["Clean"         rpm-toggle-clean
-@@ -489,7 +571,7 @@
+@@ -489,7 +576,7 @@
  
  (defvar rpm-spec-font-lock-keywords
    '(
@@ -210,7 +222,19 @@
      ("^\\([a-zA-Z0-9]+\\)\\(\([a-zA-Z0-9,]+\)\\):"
       (1 rpm-spec-tag-face)
       (2 rpm-spec-ghost-face))
-@@ -599,20 +681,29 @@
+@@ -595,24 +682,43 @@
+       (insert-before-markers string)
+       (set-marker (process-mark process) (point)))))
+ 
++; insert one space, or the number of tabs if rpm-spec-use-tabs is true
++(defun rpm-insert-space-or-tabs (tabs)
++  (if rpm-spec-use-tabs
++      (if (> tabs 0)
++	  (concat "\t" (rpm-insert-space-or-tabs (1- tabs)))
++	  "")
++      " "))
++
+ ;;------------------------------------------------------------
  
  (defun rpm-add-change-log-entry (&optional change-log-entry)
    "Find change log and add an entry for today."
@@ -231,30 +255,68 @@
 +  (interactive "P")
 +  (goto-char (point-min))
 +    (if (search-forward-regexp "^%changelog[ \t]*$" nil t)
-+	(let ((string (concat "* " (substring (current-time-string) 0 11)
-+			      (substring (current-time-string) -4) " "
-+			      (user-full-name) " <" user-mail-address "> "
-+			      (or 
-+				   (and rpm-spec-insert-changelog-version
-+						(or (and rpm-spec-insert-changelog-version-with-shell
-+								 (rpm-find-spec-version-with-shell))
-+							(rpm-find-spec-version)
-+							))
-+				  "")
-+				   )))
++	(let* ((address (or rpm-spec-user-mail-address user-mail-address))
++	       (fullname (or rpm-spec-user-full-name user-full-name))
++	       (string (concat "* " (substring (current-time-string) 0 11)
++			       (substring (current-time-string) -4) " "
++			       fullname " <" address "> "
++			       (or 
++				(and rpm-spec-insert-changelog-version
++				     (or (and rpm-spec-insert-changelog-version-with-shell
++					      (rpm-find-spec-version-with-shell))
++					 (rpm-find-spec-version))))
++				"")))
 +	  (if (not (search-forward string nil t))
-+	      (progn (insert "\n" string "\n"))
-+	    (next-line 1) (beginning-of-line))
-+	  (insert "\n") (previous-line 1)
++	      (insert "\n" string "\n")
++	      (progn (next-line 1)
++		     (beginning-of-line)))
++	  (unless (eq (point) (1- (point-max)))
++	    (insert "\n")
++	    (previous-line 1))
 +	  (insert "- ")
 +	  (if change-log-entry
-+		  (insert (concat (format "%s." change-log-entry))))
-+	  )
-+      (message "No \"%%changelog\" entry found...")))
++	      (insert (concat (format "%s." change-log-entry)))))
++	(message "No \"%%changelog\" entry found...")))
  
  ;;------------------------------------------------------------
  
-@@ -879,7 +970,7 @@
+@@ -752,18 +858,19 @@
+   "Insert Group tag."
+   (interactive (list (rpm-completing-read "Group: " rpm-group-tags-list)))
+   (beginning-of-line)
+-  (insert "Group: " group "\n"))
++  (insert "Group:" (rpm-insert-space-or-tabs 2) group "\n"))
+ 
+ (defun rpm-change-group (&optional arg)
+   "Update Group tag."
+   (interactive "p")
+   (save-excursion
+     (goto-char (point-min))
+-    (if (search-forward-regexp "^Group: \\(.*\\)$" nil t)
++    (if (search-forward-regexp "^Group:[ \t]*\\(.*\\)$" nil t)
+         (replace-match
+-         (concat "Group: "
+-                 (insert (rpm-completing-read "Group: " rpm-group-tags-list
+-                                              nil nil (match-string 1)))))
++         (concat "Group:"
++		 (rpm-insert-space-or-tabs 2)
++                 (rpm-completing-read "Group: " rpm-group-tags-list
++				      nil nil (match-string 1))))
+       (message "Group tag not found..."))))
+ 
+ (defun rpm-insert-tag (&optional arg)
+@@ -782,7 +889,9 @@
+   "Insert Packager tag."
+   (interactive "p")
+   (beginning-of-line)
+-  (insert "Packager: " (or rpm-spec-user-full-name (user-full-name))
++  (insert "Packager:"
++	  (rpm-insert-space-or-tabs 1)
++	  (or rpm-spec-user-full-name (user-full-name))
+           " <" (or rpm-spec-user-mail-address (user-mail-address)) ">\n"))
+ 
+ (defun rpm-change-packager (&optional arg)
+@@ -879,7 +988,7 @@
  (defun rpm-build (buildoptions)
    "Build this RPM package."
    (setq rpm-buffer-name
@@ -263,7 +325,7 @@
                  (file-name-nondirectory buffer-file-name) "*"))
    (rpm-process-check rpm-buffer-name)
    (if (get-buffer rpm-buffer-name)
-@@ -895,6 +986,8 @@
+@@ -895,6 +1004,8 @@
        (setq buildoptions (cons "--clean" buildoptions)))
    (if rpm-spec-short-circuit
        (setq buildoptions (cons "--short-circuit" buildoptions)))
@@ -272,7 +334,7 @@
    (if (and (not (equal rpm-spec-timecheck "0"))
             (not (equal rpm-spec-timecheck "")))
        (setq buildoptions (cons "--timecheck" (cons rpm-spec-timecheck
-@@ -926,20 +1019,14 @@
+@@ -926,20 +1037,14 @@
  (defun rpm-build-prepare (&optional arg)
    "Run a `rpmbuild -bp'."
    (interactive "p")
@@ -297,7 +359,7 @@
  
  (defun rpm-build-compile (&optional arg)
    "Run a `rpmbuild -bc'."
-@@ -956,29 +1043,20 @@
+@@ -956,29 +1061,20 @@
  (defun rpm-build-binary (&optional arg)
    "Run a `rpmbuild -bb'."
    (interactive "p")
@@ -333,7 +395,7 @@
  
  (defun rpm-process-check (buffer)
    "Check if BUFFER has a running process.
-@@ -1001,6 +1079,14 @@
+@@ -1001,6 +1097,14 @@
    (message (concat "Turned `--short-circuit' "
                     (if rpm-spec-short-circuit "on" "off") ".")))
  
@@ -348,7 +410,7 @@
  (defun rpm-toggle-rmsource (&optional arg)
    "Toggle `rpm-spec-rmsource'."
    (interactive "p")
-@@ -1059,6 +1145,7 @@
+@@ -1059,6 +1163,7 @@
                        (if rpm-spec-nobuild       "N")
                        (if rpm-spec-rmsource      "R")
                        (if rpm-spec-short-circuit "S")
@@ -356,7 +418,7 @@
                        ))
    (if (not (equal modes ""))
        (setq mode-name (concat mode-name ":" modes))))
-@@ -1106,14 +1193,14 @@
+@@ -1106,14 +1211,14 @@
    (interactive "p")
    (save-excursion
      (goto-char (point-min))
@@ -379,7 +441,7 @@
  
  ;;------------------------------------------------------------
  
-@@ -1154,6 +1241,21 @@
+@@ -1154,6 +1259,21 @@
                  version
                  (and release (concat "-" release)))))))
  
@@ -401,7 +463,7 @@
  (defun rpm-increase-release-with-macros ()
    (save-excursion
      (let ((str
-@@ -1169,10 +1271,11 @@
+@@ -1169,10 +1289,11 @@
                                             (match-end 1)))
                     (search-forward-regexp
                      (concat "%define[ \t]+" macros
@@ -417,7 +479,7 @@
                 str)))
          (setq dinrel inrel)
          (replace-match (concat "%define " dinrel))
-@@ -1186,42 +1289,28 @@
+@@ -1186,41 +1307,28 @@
      (setq file (if (buffer-file-name)
                     (file-name-nondirectory (buffer-file-name))
                   (buffer-name)))
@@ -458,25 +520,24 @@
 -     "\n\n%changelog\n")
 -
 -    (rpm-add-change-log-entry "Initial build.\n")))
--
-+	 "%define name " (or name "") 
++	 "%define name " (or name "")
 +	 "\n%define version " (or version "")
-+	 "\n%define release " (or release "")"mdk"
-+	 "\n\nSummary: "
-+	 "\nName: %{name}"
-+	 "\nVersion: %{version}" 
-+	 "\nRelease: %{release}"
-+	 "\nSource0: %{name}-%{version}.tar.bz2"
-+	 "\nLicense: \nGroup: "
-+	 "\nBuildRoot: %{_tmppath}/%{name}-buildroot\n"
++	 "\n%define release " (or release "") "mdk"
++	 "\n\nSummary:" (rpm-insert-space-or-tabs 1)
++	 "\nName:" (rpm-insert-space-or-tabs 2) "%{name}"
++	 "\nVersion:" (rpm-insert-space-or-tabs 1) "%{version}" 
++	 "\nRelease:" (rpm-insert-space-or-tabs 1) "%{release}"
++	 "\nSource0:" (rpm-insert-space-or-tabs 1) "%{name}-%{version}.tar.bz2"
++	 "\nLicense:" (rpm-insert-space-or-tabs 1)
++	 "\nGroup:" (rpm-insert-space-or-tabs 2)
++	 "\nUrl:" (rpm-insert-space-or-tabs 2)
++	 "\nBuildRoot:" (rpm-insert-space-or-tabs 1) "%{_tmppath}/%{name}-%{version}-%{release}-buildroot\n"
 +	 "\n\n%description\n"
 +	 "\n%prep\n%setup -q\n\n%build\n\n%install\nrm -rf $RPM_BUILD_ROOT"
 +	 "\n\n\n%clean\nrm -rf $RPM_BUILD_ROOT"
 +	 "\n\n%files\n%defattr(-,root,root)\n" 
-+	 "\n\n%changelog\n"
-+	 "\n# end of file\n")            
-+	))
-+  
++	 "\n\n%changelog\n"))
++    (goto-char (point-min)))
+ 
  ;;------------------------------------------------------------
  
- (defun rpm-about-rpm-spec-mode (&optional arg)

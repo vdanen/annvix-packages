@@ -1,10 +1,11 @@
 %define name		rpm
-%define rpmversion      4.2
-%define poptver		1.8
+%define rpmversion      4.2.2
+%define poptver		1.8.2
 # You need increase both release and poptrelease
 %define poptrelease	%{release}
-%define release		29sls
+%define release		1sls
 
+%define libver		4.2
 %define url		ftp://ftp.rpm.org/pub/rpm/dist/rpm-4.0.x
 %define pyver		%(python -V 2>&1 | cut -f2 -d" " | cut -f1,2 -d".")
 %define lib64arches	x86_64
@@ -46,10 +47,10 @@ Source2:	rpm-spec-mode.el.bz2
 Source3:	filter.sh
 Patch0:		rpm-4.2-mdkconf.patch.bz2
 Patch3:		rpm-4.0-bashort.patch.bz2
-Patch5:		rpm-4.2-autoreq.patch.bz2
+Patch5:		rpm-4.2.2-autoreq.patch.bz2
 Patch8:		rpm-4.2-skipmntpoints.patch.bz2
 Patch10:	rpm-4.0-updates-alternatives.patch.bz2
-Patch13:	rpm-4.2-lock.patch.bz2
+Patch13:	rpm-4.2.2-lock.patch.bz2
 Patch17:	rpm-4.2-gendiff-improved.patch.bz2
 # this patches adds support for RPM_INSTALL_LANG shell variable, with priority
 # over the macro defined in /etc/rpm/macros
@@ -84,24 +85,30 @@ Patch43:	rpm-4.2-configure-xpath.patch.bz2
 # Build .amd64 packages by default on x86-64
 Patch44:	rpm-4.2-amd64.patch.bz2
 Patch45:	rpm-4.2-python-macros.patch.bz2
+Patch46:	rpm-4.2-pythondir.patch.bz2
 # Backport from 4.2.1 provides becoming obsoletes bug (fpons)
 Patch49:	rpm-4.2-provides-obsoleted.patch.bz2
-Patch50:	rpm-4.2-python-site-lisp.patch.bz2
+Patch50:	rpm-4.2-exclude-strip.patch.bz2
 Patch51:	rpm-4.2-rpmal-fix-crash.patch.bz2
 # (vdanen) use stack protection by default
 Patch52:	rpm-4.2-stackmacros.patch.bz2
 Patch53:	rpm-4.2-unpackaged-links.patch.bz2
 Patch54:	rpm-4.2-opensls.patch.bz2
+Patch55:	rpm-4.2.2-file.patch.bz2
+Patch56:	rpm-4.2.2-enable-typo.patch.bz2
+Patch57:	rpm-4.2.2-db_private.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-root
-BuildRequires:	autoconf2.5
+BuildRequires:	autoconf2.5 >= 2.57
 BuildRequires:	doxygen
 BuildRequires:	python-devel
 BuildRequires:	zlib-devel
-BuildRequires:	automake
+BuildRequires:	automake, automake1.7
 BuildRequires:	glibc-static-devel
 BuildRequires:	elfutils-static-devel
 BuildRequires:	sed >= 4.0.3
+BuildRequires:	libbeecrypt-devel
+BuildRequires:	ed, gettext-devel
 
 Requires:	bzip2 >= 0.9.0c-2
 Requires:	cpio
@@ -240,7 +247,7 @@ capabilities.
 
 bzcat %{SOURCE2} > rpm-spec-mode.el
 
-%patch23 -p1 -b .mdkel
+%patch23 -p0 -b .mdkel
 %patch24 -p1 -b .patchexit
 ##%patch26 -p1 -b .turk
 %patch27 -p1 -b .oldlibtool
@@ -253,33 +260,64 @@ bzcat %{SOURCE2} > rpm-spec-mode.el
 %patch36 -p1 -b .umask
 #%patch37 -p1 -b .chroot_prefix
 #%patch38 -p1 -b .resign
-%patch40 -p1 -b .if
+#%patch40 -p1 -b .if
 %patch41 -p1 -b .ppc-74xx
-%patch42 -p1 -b .mad-relink
+#%patch42 -p1 -b .mad-relink
 %if "%{_lib}" == "lib64"
 %patch43 -p1 -b .configure-xpath
 %endif
 %patch44 -p1 -b .amd64
 %patch45 -p1 -b .python-macros
+%patch46 -p1 -b .pythondir
 %patch49 -p1 -b .provides
-%patch50 -p1 -b .python-site-lisp
-%patch51 -p1 -b .rpmal-fix-crash
+%patch50 -p1 -b .exclude-strip
+#%patch51 -p1 -b .rpmal-fix-crash
 %if %build_propolice
 %patch52 -p1 -b .stackmacro
 %endif
 %patch53 -p1 -b .links
 %patch54 -p1 -b .opensls
+%patch55 -p1 -b .file
+%patch56 -p1 -b .typo
+%patch57 -p1 -b .db_private
 
-autoconf
+# Nuke nonexistant/unused type checks
+perl -ni -e '/^AC_TYPE_ST_RDEV_T/ or print' configure.ac
+
+# Create configure scripts manually, skipping unused ones
+function AutoGen() {
+    echo "--- $1"
+    pushd $2
+    libtoolize --copy --force
+    aclocal-1.7
+    autoheader
+    automake-1.7 -a -c
+    autoconf
+    popd
+}
+
+(echo "--- db"; cd db/dist; libtoolize --copy --force; cp /usr/share/aclocal/libtool.m4 aclocal/libtool.ac; ./s_config)
+(echo "--- popt"; cd popt; ./autogen.sh --noconfigure "$@")
+AutoGen "zlib" zlib
+AutoGen "file" file
+AutoGen "rpm" .
+
+# Use system elfutils, beecrypt
+for d in elfutils beecrypt; do
+    mv $d orig.$d
+done
 
 %build
 # NOTE: Don't add libdir specification here as rpm data files really
 # have to go to /usr/lib/rpm and we support only one rpm program per
 # architecture
 # (vdanen): don't build rpm with stack protection
-#CPPFLAGS="-I/usr/include/libelf" CFLAGS="$RPM_OPT_FLAGS -fno-stack-protector" CXXFLAGS="$RPM_OPT_FLAGS -fno-stack-protector" ./configure --prefix=%{_prefix} --sysconfdir=/etc --localstatedir=/var --mandir=%{_datadir}/man --infodir=%{_datadir}/info --enable-nls --without-javaglue --enable-posixmutexes --with-python=%{pyver}
-CPPFLAGS="-I/usr/include/libelf" CFLAGS="$RPM_OPT_FLAGS" CXXFLAGS="$RPM_OPT_FLAGS" ./configure --prefix=%{_prefix} --sysconfdir=/etc --localstatedir=/var --mandir=%{_datadir}/man --infodir=%{_datadir}/info --enable-nls --without-javaglue --enable-posixmutexes --with-python=%{pyver}
+#CPPFLAGS="-I/usr/include/libelf" CFLAGS="$RPM_OPT_FLAGS -fno-stack-protector" CXXFLAGS="$RPM_OPT_FLAGS -fno-stack-protector" ./configure --prefix=%{_prefix} --sysconfdir=/etc --localstatedir=/var --mandir=%{_datadir}/man --infodir=%{_datadir}/info --enable-nls --without-javaglue --disable-posixmutexes --with-python=%{pyver}
+CPPFLAGS="-I/usr/include/libelf" CFLAGS="$RPM_OPT_FLAGS" CXXFLAGS="$RPM_OPT_FLAGS" ./configure --prefix=%{_prefix} --sysconfdir=/etc --localstatedir=/var --mandir=%{_datadir}/man --infodir=%{_datadir}/info --enable-nls --without-javaglue --disable-posixmutexes --with-python=%{pyver}
 perl -p -i -e 's/conftest\.s/conftest\$\$.s/' config.status
+
+# XXX hack out O_DIRECT support in db4 for now.
+perl -pi -e 's/#define HAVE_O_DIRECT 1/#undef HAVE_O_DIRECT/' db3/db_config.h
 
 smp_flags=$([ -z "$RPM_BUILD_NCPUS" ] \
 	&& RPM_BUILD_NCPUS="`/usr/bin/getconf _NPROCESSORS_ONLN`"; \
@@ -376,6 +414,10 @@ rm -f doc-copy/Makefile*
 #install -d $RPM_BUILD_ROOT/%{_datadir}/man/man3
 #install -m 644 apidocs/man/man3/* $RPM_BUILD_ROOT/%{_datadir}/man/man3/
 
+# Fix links
+rm -f %{buildroot}%{_prefix}/lib/rpmpopt
+ln -s rpm/rpmpopt-%{version} %{buildroot}%{_prefix}/lib/rpmpopt
+
 # Get rid of unpackaged files
 (cd $RPM_BUILD_ROOT;
   rm -rf .%{_includedir}/beecrypt/
@@ -394,13 +436,12 @@ $RPM_BUILD_ROOT%{rpmdir}/find-lang.sh $RPM_BUILD_ROOT popt
 $RPM_BUILD_ROOT%{rpmdir}/brp-mandrake
 exit 0
 
-# fix symlink
-(cd $RPM_BUILD_ROOT%{_prefix}/lib;
-  ln -sf rpm/rpmpopt-%{rpmversion} rpmpopt
-)
-
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
+# nuke __db.00? when updating to this rpm
+%triggerun -- rpm < 4.2.2-1sls
+rm -f /var/lib/rpm/__db.00?
 
 %pre
 if [ -f /var/lib/rpm/Packages -a -f /var/lib/rpm/packages.rpm ]; then
@@ -463,10 +504,10 @@ fi
 %attr(0755, rpm, rpm) %{_bindir}/rpmverify
 %{_sbindir}/update-alternatives
 
-%{_libdir}/librpm-%{rpmversion}.so
-%{_libdir}/librpmdb-%{rpmversion}.so
-%{_libdir}/librpmio-%{rpmversion}.so
-%{_libdir}/librpmbuild-%{rpmversion}.so
+%{_libdir}/librpm-%{libver}.so
+%{_libdir}/librpmdb-%{libver}.so
+%{_libdir}/librpmio-%{libver}.so
+%{_libdir}/librpmbuild-%{libver}.so
 
 %dir /var/lib/rpm/alternatives/
 %dir /etc/alternatives
@@ -639,6 +680,24 @@ fi
 %{_includedir}/popt.h
 
 %changelog
+* Fri May 07 2004 Vincent Danen <vdanen@opensls.org> 4.2.2-1sls
+- 4.2.2
+- sync with cooker 4.2.2-8mdk:
+  - rpm-spec-mode modifications (use of rpm-spec-user-mail-address and
+    rpm-spec-user-full-name for changelog entries, tab or space use for new
+    files) from Olivier Blin (flepied)
+  - put back a type to be backward compatible (flepied) (P56)
+  - BuildRequires: automake1.7 (flepied)
+  - use system elfutils, beecrypt (flepied)
+  - hack out O_DIRECT support in db4 for now (flepied)
+  - fix RPMLOCK for rpm -r <root> --rebuilddb as user (flepied) (updated P13)
+  - use DB_PRIVATE for the time being, nuke __db.00? when updating to this one
+    (gbeauchesne) (P57)
+  - BuildRequires: ed, gettext-devel (gbeauchesne)
+  - fixed perl.prov and perl.req to inspect only real files (flepied)
+  - when unlocking the RPMLOCK file, don't forget to close(2) it too
+    (rgarciasuarez)
+
 * Tue Feb 03 2004 Vincent Danen <vdanen@opensls.org> 4.2-29sls
 - update P54 to add another field to %%_pre_groupadd for static gid
 

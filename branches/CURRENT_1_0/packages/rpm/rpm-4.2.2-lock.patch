@@ -1,6 +1,6 @@
---- rpm-4.2/rpmdb/rpmdb.c.pix	2003-03-14 16:08:08.000000000 +0100
-+++ rpm-4.2/rpmdb/rpmdb.c	2004-01-08 15:56:35.999257353 +0100
-@@ -945,6 +945,14 @@
+--- rpm-4.2.2/rpmdb/rpmdb.c.lock	2003-12-18 04:37:13.000000000 +0100
++++ rpm-4.2.2/rpmdb/rpmdb.c	2004-04-15 15:28:04.000000000 +0200
+@@ -847,6 +847,15 @@
      }
  /*@=newreftrans@*/
  
@@ -11,11 +11,12 @@
 +      memset(&l, 0, sizeof(l));
 +      l.l_type = F_UNLCK;
 +      fcntl(ld, F_SETLK, &l);
++      close(ld);
 +    }
      /*@-refcounttrans@*/ db = _free(db); /*@=refcounttrans@*/
      /*@=usereleased@*/
  
-@@ -1007,10 +1015,7 @@
+@@ -913,10 +922,7 @@
      /*@=nullpass@*/
      if (!(db->db_home && db->db_home[0] != '%')) {
  	rpmError(RPMERR_DBOPEN, _("no dbpath has been set\n"));
@@ -27,17 +28,23 @@
      }
      db->db_errpfx = rpmExpand( (epfx && *epfx ? epfx : _DB_ERRPFX), NULL);
      db->db_remove_env = 0;
-@@ -1018,9 +1023,38 @@
+@@ -924,9 +930,44 @@
      db->db_ndbi = dbiTagsMax;
      db->_dbi = xcalloc(db->db_ndbi, sizeof(*db->_dbi));
      db->nrefs = 0;
 +    /* lock database using exclusive lock on write, and shared lock on read */
 +    {
++      static const char rpmlock[] = "RPMLOCK";
 +      char *lockfilename; 
-+      int ld;
++      int ld, lockfilemode;
 +      /* compute lockfilename and open it according to mode used */
-+      asprintf(&lockfilename, "%s/%s/RPMLOCK", db->db_root, db->db_home);
-+      ld = open(lockfilename, (mode == O_RDONLY ? O_RDONLY : O_WRONLY) | (getuid() ? 0 : O_CREAT), 0644);
++      lockfilename = malloc(strlen(db->db_root) + strlen(db->db_home) + sizeof(rpmlock) + 2 /* slashes */);
++      sprintf(lockfilename, "%s/%s", db->db_root, db->db_home);
++      lockfilemode = (mode == O_RDONLY ? O_RDONLY : O_WRONLY);
++      if (access(lockfilename, W_OK) == 0)
++	lockfilemode |= O_CREAT;
++      sprintf(lockfilename, "%s/%s", lockfilename, rpmlock);
++      ld = open(lockfilename, lockfilemode, 0644);
 +      if (ld >= 0) {
 +	struct flock l;
 +	do {
@@ -66,7 +73,7 @@
  }
  /*@=mods@*/
  
-@@ -3549,6 +3583,10 @@
+@@ -3461,6 +3502,10 @@
  	break;
      }
  
@@ -77,7 +84,7 @@
      sprintf(filename, "%s/%s", prefix, dbpath);
      (void)rpmCleanPath(filename);
      xx = rmdir(filename);
-@@ -3656,6 +3694,11 @@
+@@ -3568,6 +3613,11 @@
      case 0:
  	break;
      }

@@ -1,9 +1,9 @@
---- rpm-4.2/lib/psm.c.syslog	2003-05-12 08:21:08.000000000 +0200
-+++ rpm-4.2/lib/psm.c	2003-05-12 08:38:20.000000000 +0200
-@@ -2112,11 +2115,31 @@
- 	else
+--- rpm-4.2/lib/psm.c.syslog	2004-01-15 21:21:18.000000000 +0100
++++ rpm-4.2/lib/psm.c	2004-01-15 21:23:12.000000000 +0100
+@@ -1859,6 +1859,16 @@
  	    rc = rpmdbAdd(rpmtsGetRdb(ts), rpmtsGetTid(ts), fi->h,
  				NULL, NULL);
+ 	(void) rpmswExit(rpmtsOp(ts, RPMTS_OP_DBADD), 0);
 +#if HAVE_SYSLOG_H
 +        {
 +	  char *s;
@@ -17,8 +17,10 @@
  	break;
      case PSM_RPMDB_REMOVE:
  	if (rpmtsFlags(ts) & RPMTRANS_FLAG_TEST)	break;
+@@ -1866,6 +1876,16 @@
  	rc = rpmdbRemove(rpmtsGetRdb(ts), rpmtsGetTid(ts), fi->record,
  				NULL, NULL);
+ 	(void) rpmswExit(rpmtsOp(ts, RPMTS_OP_DBREMOVE), 0);
 +#if HAVE_SYSLOG_H
 +        {
 +	  char *s;
@@ -32,8 +34,8 @@
  	break;
  
      default:
---- rpm-4.2/system.h.syslog	2003-02-14 22:13:14.000000000 +0100
-+++ rpm-4.2/system.h	2003-05-12 08:21:08.000000000 +0200
+--- rpm-4.2/system.h.syslog	2004-01-15 21:21:18.000000000 +0100
++++ rpm-4.2/system.h	2004-01-15 21:21:19.000000000 +0100
 @@ -9,6 +9,10 @@
  #include "config.h"
  #endif
@@ -45,9 +47,9 @@
  #include <sys/types.h>
  
  #if defined(__LCLINT__)
---- rpm-4.2/configure.ac.syslog	2003-02-14 23:53:37.000000000 +0100
-+++ rpm-4.2/configure.ac	2003-05-12 08:21:08.000000000 +0200
-@@ -373,6 +373,8 @@
+--- rpm-4.2/configure.ac.syslog	2004-01-15 21:21:18.000000000 +0100
++++ rpm-4.2/configure.ac	2004-01-15 21:21:19.000000000 +0100
+@@ -376,6 +376,8 @@
  
  dnl Checks for libraries.
  
