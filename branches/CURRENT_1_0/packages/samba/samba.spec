@@ -1,4 +1,4 @@
-# Note that this file exists in Mandrake packaging cvs (as samba3.spec)
+# Note that this file exists in Mandrake packaging cvs (as samba.spec)
 # and samba cvs (as packaging/Mandrake/samba2.spec.tmpl).
 # Keep in mind that any changes should take both locations into account
 # Considerable effort has gone into making this possible, so that only
@@ -13,9 +13,9 @@
 # cvs should be submitted for inclusion in samba cvs.
 
 %define pkg_name	samba
-%define ver 		3.0.1
-%define rel 		7avx
-%define vscanver 	0.3.4
+%define ver 		3.0.5pre1
+%define rel 		1avx
+%define vscanver 	0.3.5
 %define libsmbmajor 	0
 
 %{!?lib: %global lib lib}
@@ -106,24 +106,41 @@
 %{?_without_ads: %global build_non_default 1}
 %{?_with_scanners: %global build_scanners 1}
 %{?_with_scanners: %global build_non_default 1}
+%{?_without_scanners: %global build_scanners 0}
+%{?_without_scanners: %global build_non_default 1}
+%{?_with_vscan: %global build_vscan 1}
+%{?_with_vscan: %global build_non_default 1}
+%{?_without_vscan: %global build_vscan 0}
+%{?_without_vscan: %global build_non_default 1}
+
 
 # As if that weren't enough, we're going to try building with antivirus
 # support as an option also
-%define build_fprot 	0
-%define build_kaspersky 0
-%define build_mks 	0
-%define build_openav	0
-%define build_sophos 	0
-%define build_symantec 	0
-%define build_trend	0
+%global build_clamav	0
+%global build_fprot 	0
+%global build_fsav	0
+%global build_icap	0
+%global build_kaspersky 0
+%global build_mks 	0
+%global build_nai	0
+%global build_openav	0
+%global build_sophos 	0
+%global build_trend	0
+%if %build_vscan
+# These we build by default
+%global build_clamav	1
+%global build_icap	1
+%endif
 %if %build_vscan && %build_scanners
-#These can be enabled here by default
-# (kaspersky requires their library present)
-%define build_fprot 	1
-%define build_mks 	1
-%define build_openav 	1
-%define build_sophos 	1
-%define build_trend 	1
+# These scanners are built if scanners are selected
+%global build_fprot 	1
+%global build_fsav	1
+%global build_kaspersky	1
+%global build_mks	1
+%global build_nai	1
+%global build_openav 	1
+%global build_sophos 	1
+%global build_trend 	1
 %endif
 %if %build_vscan
 %{?_with_fprot: %{expand: %%global build_fprot 1}}
@@ -131,7 +148,6 @@
 %{?_with_mks: %{expand: %%global build_mks 1}}
 %{?_with_openav: %{expand: %%global build_openav 1}}
 %{?_with_sophos: %{expand: %%global build_sophos 1}}
-#%{?_with_symantec: %{expand: %%global build_symantec 1}}
 %{?_with_trend: %{expand: %%global build_trend 1}}
 %global vscandir samba-vscan-%{vscanver}
 %endif
@@ -150,7 +166,7 @@
 %global serverbin 	editreg,pdbedit,profiles,smbcontrol,smbstatus,tdbbackup,tdbdump
 %global serversbin nmbd,samba,smbd,mkntpwd
 
-%global clientbin 	findsmb,nmblookup,smbclient,smbmnt,smbmount,smbprint,smbspool,smbtar,smbumount
+%global clientbin 	findsmb,nmblookup,smbclient,smbmnt,smbmount,smbprint,smbspool,smbtar,smbumount,smbget
 %global client_bin 	mount.cifs
 %global client_sbin 	mount.smb,mount.smbfs
 
@@ -159,7 +175,7 @@
 %ifarch alpha
 %define build_expsam xml
 %else
-%define build_expsam mysql,xml
+%define build_expsam mysql,xml,pgsql
 %endif
 
 #Workaround missing macros in 8.x:
@@ -220,7 +236,11 @@ Source16:	nmbd.run
 Source17:	nmbd-log.run
 Source18:	winbindd.run
 Source19:	winbindd-log.run
+Source20:	smb-migrate.bz2
+Source21:	README.avx.sambamerge.bz2
 Patch1:		smbw.patch.bz2
+Patch2:		samba-3.0.2a-mdk-smbldap-config.patch.bz2
+Patch3:		samba-3.0.4-mdk-mandrake-packaging.patch.bz2
 Patch4:		samba-3.0-smbmount-sbin.patch.bz2
 %if !%have_pversion
 # Version specific patches: current version
@@ -235,7 +255,7 @@ Requires:	pam >= 0.64, samba-common = %{version}
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-root
 BuildRequires:	pam-devel readline-devel libncurses-devel popt-devel
-BuildRequires:	libxml2-devel
+BuildRequires:	libxml2-devel postgresql-devel
 %ifnarch alpha
 BuildRequires:	mysql-devel
 %endif
@@ -503,7 +523,7 @@ SMB shares.
 %if %build_system
 %package -n %{libname}-devel
 Summary:	SMB Client Library Development files
-Group:		System/Libraries
+Group:		Development/C
 URL:		http://www.samba.org
 Provides:	libsmbclient-devel
 Requires:	%{libname} = %{version}-%{release}
@@ -536,7 +556,7 @@ allowing the development of other software to access SMB shares.
 
 #%package passdb-ldap
 #URL:		http://www.samba.org
-#Summary:	Samba password database plugin for MySQL
+#Summary:	Samba password database plugin for LDAP
 #Group:		System/Libraries
 #
 #%description passdb-ldap
@@ -569,6 +589,22 @@ backend allowing samba to store account details in a MySQL
 database
 %endif
 
+# does postgresql build on alpha?
+%package passdb-pgsql
+Summary:	Samba password database plugin for PostgreSQL
+Group:		System/Libraries
+URL:		http://www.samba.org
+Requires:	%{name}-server = %{version}-%{release}
+%if %build_system
+Obsoletes:	samba3-passdb-pgsql 
+Provides:	samba3-passdb-pgsql
+%endif
+
+%description passdb-pgsql
+The passdb-pgsql package for samba provides a password database
+backend allowing samba to store account details in a PostgreSQL
+database
+
 %package passdb-xml
 Summary:	Samba password database plugin for XML files
 Group:		System/Libraries
@@ -590,16 +626,49 @@ backend allowing samba to store account details in XML files.
 %endif
 
 #Antivirus packages:
+%if %build_clamav
+%package vscan-clamav
+Summary:	On-access virus scanning for samba using Clam Antivirus
+Group:		System/Servers
+Requires:	%{name}-server = %{version}
+Provides:	%{name}-vscan
+Requires:	clamd
+%description vscan-clamav
+A vfs-module for samba to implement on-access scanning using the
+Clam antivirus scanner daemon.
+%endif
+
 %if %build_fprot
 %package vscan-fprot
 Summary:	On-access virus scanning for samba using FPROT
 Group:		System/Servers
 Requires:	%{name}-server = %{version}
 Provides:	%{name}-vscan
-Autoreq:	0
 %description vscan-fprot
 A vfs-module for samba to implement on-access scanning using the
 FPROT antivirus software (which must be installed to use this).
+%endif
+
+%if %build_fsav
+%package vscan-fsecure
+Summary:	On-access virus scanning for samba using F-Secure
+Group:		System/Servers
+Requires:	%{name}-server = %{version}
+Provides:	%{name}-vscan
+%description vscan-fsecure
+A vfs-module for samba to implement on-access scanning using the
+F-Secure antivirus software (which must be installed to use this).
+%endif
+
+%if %build_icap
+%package vscan-icap
+Summary:	On-access virus scanning for samba using Clam Antivirus
+Group:		System/Servers
+Requires:	%{name}-server = %{version}
+Provides:	%{name}-icap
+%description vscan-icap
+A vfs-module for samba to implement on-access scanning using
+ICAP-capable antivirus software.
 %endif
 
 %if %build_kaspersky
@@ -608,7 +677,6 @@ Summary:	On-access virus scanning for samba using Kaspersky
 Group:		System/Servers
 Requires:	%{name}-server = %{version}
 Provides:	%{name}-vscan
-Autoreq:	0
 %description vscan-kaspersky
 A vfs-module for samba to implement on-access scanning using the
 Kaspersky antivirus software (which must be installed to use this).
@@ -620,10 +688,20 @@ Summary:	On-access virus scanning for samba using MKS
 Group:		System/Servers
 Requires:	%{name}-server = %{version}
 Provides:	%{name}-vscan
-Autoreq:	0
 %description vscan-mks
 A vfs-module for samba to implement on-access scanning using the
 MKS antivirus software (which must be installed to use this).
+%endif
+
+%if %build_nai
+%package vscan-nai
+Summary:	On-access virus scanning for samba using NAI McAfee
+Group:		System/Servers
+Requires:	%{name}-server = %{version}
+Provides:	%{name}-vscan
+%description vscan-nai
+A vfs-module for samba to implement on-access scanning using the
+NAI McAfee antivirus software (which must be installed to use this).
 %endif
 
 %if %build_openav
@@ -632,7 +710,6 @@ Summary:	On-access virus scanning for samba using OpenAntivirus
 Group:		System/Servers
 Requires:	%{name}-server = %{version}
 Provides:	%{name}-vscan
-Autoreq:	0
 %description vscan-openav
 A vfs-module for samba to implement on-access scanning using the
 OpenAntivirus antivirus software (which must be installed to use this).
@@ -644,22 +721,9 @@ Summary:	On-access virus scanning for samba using Sophos
 Group:		System/Servers
 Requires:	%{name}-server = %{version}
 Provides:	%{name}-vscan
-Autoreq:	0
 %description vscan-sophos
 A vfs-module for samba to implement on-access scanning using the
 Sophos antivirus software (which must be installed to use this).
-%endif
-
-%if %build_symantec
-%package vscan-symantec
-Summary:	On-access virus scanning for samba using Symantec
-Group:		System/Servers
-Requires:	%{name}-server = %{version}
-Provides:	%{name}-vscan
-Autoreq:	0
-%description vscan-symantec
-A vfs-module for samba to implement on-access scanning using the
-Symantec antivirus software (which must be installed to use this).
 %endif
 
 %if %build_trend
@@ -668,7 +732,6 @@ Summary:	On-access virus scanning for samba using Trend
 Group:		System/Servers
 Requires:	%{name}-server = %{version}
 Provides:	%{name}-vscan
-Autoreq:	0
 %description vscan-trend
 A vfs-module for samba to implement on-access scanning using the
 Trend antivirus software (which must be installed to use this).
@@ -698,10 +761,8 @@ Trend antivirus software (which must be installed to use this).
 %endif
 
 %if %{?_with_options:1}%{!?_with_options:0} && %build_scanners
-%{error:--with scanners enables fprot,mks,openav,sophos and trend by default}
-%{error: }
-%{error:To enable others (requires development libraries for the scanner):}
-%{error:--with kaspersky     Enable on-access scanning with Kaspersky  - %opt_status %build_kaspersky}
+#%{error:--with scanners enables the following:%{?build_clamav:clamav,}%{?build_icap:icap,}%{?build_fprot:fprot,}%{?build_mks:mks,}%{?build_openav:openav,}%{?build_sophos:sophos,}%{?build_trend:trend}}
+%{error:--with scanners enables the following: clamav,icap,fprot,fsav,mks,nai,openav,sophos,trend}
 %{error: }
 %endif
 
@@ -746,10 +807,12 @@ echo -e "\n%{name}-%{version}-%{release}\n">>%{SOURCE7}
 %endif
 #%patch111 -p1
 %patch1 -p1 -b .smbw
+%patch2 -p1
 %patch4 -p1 -b .sbin
 # Version specific patches: current version
 %if !%have_pversion
 echo "Applying patches for current version: %{ver}"
+%patch3 -p1
 %else
 # Version specific patches: upcoming version
 echo "Applying patches for new versions: %{pversion}"
@@ -775,16 +838,16 @@ cp -a examples examples.bin
 %if %build_vscan
 cp -a %{vscandir} %{vfsdir}
 #fix stupid directory names:
-mv %{vfsdir}/%{vscandir}/openantivirus %{vfsdir}/%{vscandir}/oav
-%endif
+#mv %{vfsdir}/%{vscandir}/openantivirus %{vfsdir}/%{vscandir}/oav
 # Inline replacement of config dir
-for av in fprot kaspersky mks oav sophos trend; do
-	[ -e %{vfsdir}/%{vscandir}/$av/vscan-$av.h ] && perl -pi -e \
+for av in clamav fprotd fsav icap kavp mksd oav sophos trend; do
+	[ -e %{vfsdir}/%{vscandir}/*/vscan-$av.h ] && perl -pi -e \
 	's,^#define PARAMCONF "/etc/samba,#define PARAMCONF "/etc/%{name},' \
-	%{vfsdir}/%{vscandir}/$av/vscan-$av.h
+	%{vfsdir}/%{vscandir}/*/vscan-$av.h
 done
 #Inline edit vscan header:
-perl -pi -e 's/^# define SAMBA_VERSION_MAJOR 2/# define SAMBA_VERSION_MAJOR 3/g' %{vfsdir}/%{vscandir}/include/vscan-global.h
+perl -pi -e 's/^# define SAMBA_VERSION_MAJOR 2/# define SAMBA_VERSION_MAJOR 3/g;s/# define SAMBA_VERSION_MINOR_2/# define SAMBA_VERSION_MINOR 0/g' %{vfsdir}/%{vscandir}/include/vscan-global.h
+%endif
 
 # Edit some files when not building system samba:
 %if !%build_system
@@ -807,14 +870,14 @@ ln -sf %{_datadir}/swat%{samba_major}/help/ clean-docs/samba-doc/docs/htmldocs
 (cd source
 CFLAGS=`echo "$RPM_OPT_FLAGS"|sed -e 's/-g//g'`
 %if %gcc331
-#CFLAGS=`echo "$CFLAGS"|sed -e 's/-O2/-Os/g'`
+CFLAGS=`echo "$CFLAGS"|sed -e 's/-O2/-Os/g'`
 %endif
 # Don't use --with-fhs now, since it overrides libdir, it sets configdir, 
 # lockdir,piddir logfilebase,privatedir and swatdir
 %configure      --prefix=%{_prefix} \
                 --sysconfdir=%{_sysconfdir}/%{name} \
                 --localstatedir=/var \
-                --libdir=%{_libdir}/%{name} \
+                --with-libdir=%{_libdir}/%{name} \
                 --with-privatedir=%{_sysconfdir}/%{name} \
 		--with-lockdir=/var/cache/%{name} \
 		--with-piddir=/var/run/%{name} \
@@ -856,54 +919,24 @@ perl -pi -e 's/-g //g' Makefile
 perl -pi -e 's|-Wl,-rpath,%{_libdir}||g;s|-Wl,-rpath -Wl,%{_libdir}||g' Makefile
 
 make proto_exists
-%make all libsmbclient smbfilter wins modules %{?_with_test: torture debug2html bin/log2pcap} bin/editreg client/mount.cifs
+%make all libsmbclient smbfilter wins modules %{?_with_test: torture debug2html bin/log2pcap} bin/editreg bin/smbget client/mount.cifs
 
-
-# Build VFS modules (experimental)
-#cd ../%vfsdir
-#_configure	--prefix=%{prefix} \
-#		--mandir=%{prefix}/share/man
-#make
-#make CFLAGS="$RPM_OPT_FLAGS -I../../source -I../../source/include -I../../source/ubiqx \
-#	-I../../source/smbwrapper -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE"
 )
 
 # Build mkntpasswd in examples/LDAP/ for smbldaptools
 make -C examples.bin/LDAP/smbldap-tools/mkntpwd
 
-# Build antivirus vfs objects:
-%if %build_fprot
+%if %build_vscan
 echo -e "\n\nBuild antivirus VFS modules\n\n"
-echo "Building fprot"
-(cd %{vfsdir}/%{vscandir}/fprot;make)
+pushd %{vfsdir}/%{vscandir}
+%configure
+#sed -i -e 's,openantivirus,oav,g' Makefile
+sed -i -e 's,^\(.*clamd socket name.*=\).*,\1 /var/lib/clamav/clamd.socket,g' clamav/vscan-clamav.conf
+make
+popd
 %endif
-%if %build_kaspersky
-echo "Building Kaspersky"
-(cd %{vfsdir}/%{vscandir}/kavp
-    perl -p -i -e "s|/usr/local/|/usr/|g" Makefile.KAV4
-    make -f Makefile.KAV4
-)
-%endif
-%if %build_mks
-echo "Building mks"
-(cd %{vfsdir}/%{vscandir}/mks;make)
-%endif
-%if %build_openav
-echo "Building OpenAntivirus"
-(cd %{vfsdir}/%{vscandir}/oav;make)
-%endif
-%if %build_sophos
-echo "building sophos"
-(cd %{vfsdir}/%{vscandir}/sophos;make)
-%endif
-%if %build_symantec
-echo "Building symantec"
-(cd %{vfsdir}/%{vscandir}/symantec;make)
-%endif
-%if %build_trend
-echo "Building Trend"
-(cd %{vfsdir}/%{vscandir}/trend;make)
-%endif
+
+#%endif
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -920,7 +953,7 @@ mkdir -p $RPM_BUILD_ROOT%{_libdir}/%{name}/vfs
 (cd source
 make DESTDIR=$RPM_BUILD_ROOT LIBDIR=%{_libdir}/%{name} MANDIR=%{_mandir} install installclientlib installmodules)
 
-install -m755 source/bin/editreg %{buildroot}/%{_bindir}
+install -m755 source/bin/{editreg,smbget} %{buildroot}/%{_bindir}
 
 #need to stay
 mkdir -p $RPM_BUILD_ROOT/{sbin,bin}
@@ -955,23 +988,10 @@ popd
 # smbsh forgotten
 #install -m 755 source/bin/smbsh $RPM_BUILD_ROOT%{_bindir}/
 
-# Install VFS modules
-#install -m755 %vfsdir/audit.so $RPM_BUILD_ROOT/%{_libdir}/samba/vfs
-#for i in block recycle
-#do
-# install -m755 %vfsdir/$i/$i.so $RPM_BUILD_ROOT/%{_libdir}/samba/vfs
-#done
-
-# Antivirus support:
-#	mkdir -p $RPM_BUILD_ROOT%{_libdir}/samba/vfs/vscan
-	for av in fprot kavp mks oav sophos symantec trend; do
-		if [ -d %{vfsdir}/%{vscandir}/$av -a -e %{vfsdir}/%{vscandir}/$av/vscan-$av*.so ];then
-			cp %{vfsdir}/%{vscandir}/$av/vscan-$av*.so \
-				$RPM_BUILD_ROOT%{_libdir}/%{name}/vfs/
-			cp %{vfsdir}/%{vscandir}/$av/vscan-$av*.conf \
-				$RPM_BUILD_ROOT%{_sysconfdir}/%{name}
-		fi
-	done
+%if %build_vscan
+%makeinstall_std -C %{vfsdir}/%{vscandir}
+install -m 0644 %{vfsdir}/%{vscandir}/*/vscan-*.conf %{buildroot}%{_sysconfdir}/%{name}
+%endif
 	
 #libnss_* not handled by make:
 # Install the nsswitch library extension file
@@ -1072,6 +1092,7 @@ install -m 0755 %{SOURCE12} %{buildroot}%{_srvdir}/swat/log/run
 install -m 0640 %{SOURCE13} %{buildroot}%{_sysconfdir}/tcprules.d/swat
 
 bzcat %{SOURCE10}> $RPM_BUILD_ROOT%{_datadir}/%{name}/scripts/print-pdf
+bzcat %{SOURCE20}> %{buildroot}%{_datadir}/%{name}/scripts/smb-migrate
 
 # Fix configs when not building system samba:
 
@@ -1140,6 +1161,15 @@ for i in %{_bindir}/pam_smbpass.so %{_bindir}/smbwrapper.so;do
 rm -f %{buildroot}/$i
 done
 rm -rf %{buildroot}%{_datadir}/swat/using_samba
+rm -f %{buildroot}%{_sysconfdir}/%{name}/vscan-symantec.conf
+
+
+# (sb) make a smb.conf.clean we can use for the merge, since an existing
+# smb.conf won't get overwritten
+cp %{buildroot}%{_sysconfdir}/%{name}/smb.conf %{buildroot}%{_datadir}/%{name}/smb.conf.clean
+
+# (sb) leave a README.mdk.conf to explain what has been done
+bzcat %{SOURCE21} >%{buildroot}%{_datadir}/%{name}/README.avx.conf
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -1189,6 +1219,23 @@ fi
 
 # And not loose our machine account SID
 [ -f %{_sysconfdir}/MACHINE.SID ] && mv -f %{_sysconfdir}/MACHINE.SID %{_sysconfdir}/%{name}/ ||:
+
+%triggerpostun common -- samba-common < 3.0.1-7avx
+# (sb) merge any existing smb.conf with new syntax file
+if [ "$1" = "2" ]; then
+    # (sb) save existing smb.conf for merge
+    echo "Upgrade: copying smb.conf to smb.conf.tomerge for merging..."
+    cp -f %{_sysconfdir}/%{name}/smb.conf %{_sysconfdir}/%{name}/smb.conf.tomerge
+    echo "Upgrade: merging previous smb.conf..."
+    if [ -f %{_datadir}/%{name}/smb.conf.clean ]; then
+	cp %{_datadir}/%{name}/smb.conf.clean %{_sysconfdir}/%{name}/smb.conf
+	cp %{_datadir}/%{name}/README.avx.conf %{_sysconfdir}/%{name}/
+	%{_datadir}/%{name}/smb-migrate commit
+    fi
+fi
+
+%postun common
+if [ -f %{_sysconfdir}/%{name}/README.avx.conf ]; then rm -f %{_sysconfdir}/%{name}/README.avx.conf; fi
 
 %if %build_winbind
 %post winbind
@@ -1288,23 +1335,14 @@ update-alternatives --auto smbclient
 
 %files server
 %defattr(-,root,root)
-#%attr(-,root,root) /sbin/*
 %(for i in %{_sbindir}/{%{serversbin}}%{samba_major};do echo $i;done)
-#%{_sbindir}/%{name}
-#%{_sbindir}/smbd%{samba_major}
-#%{_sbindir}/nmbd%{samba_major}
-#%{_sbindir}/mkntpwd%{samba_major}
-#%{_sbindir}/wrepld%{samba_major}
 %(for i in %{_bindir}/{%{serverbin}}%{samba_major};do echo $i;done)
-#%{_bindir}/smbcontrol%{samba_major}
-#%{_bindir}/smbstatus%{samba_major}
-#%{_bindir}/pdbedit%{samba_major}
-#%{_bindir}/tdbbackup%{samba_major}
-#%{_bindir}/profiles%{samba_major}
-#%{_bindir}/editreg%{samba_major}
 %attr(755,root,root) /%{_lib}/security/pam_smbpass*
 %dir %{_libdir}/%{name}/vfs
 %{_libdir}/%{name}/vfs/*.so
+%if %build_vscan
+%exclude %{_libdir}/%{name}/vfs/vscan*.so
+%endif
 %dir %{_libdir}/%{name}/pdb
 
 %attr(-,root,root) %config(noreplace) %{_sysconfdir}/%{name}/smbusers
@@ -1312,16 +1350,7 @@ update-alternatives --auto smbclient
 %attr(-,root,root) %config(noreplace) %{_sysconfdir}/logrotate.d/%{name}
 %attr(-,root,root) %config(noreplace) %{_sysconfdir}/pam.d/%{name}
 #%attr(-,root,root) %config(noreplace) %{_sysconfdir}/%{name}/samba-slapd.include
-%{_mandir}/man1/smbstatus*.1*
-%{_mandir}/man5/smbpasswd*.5*
-%{_mandir}/man7/samba*.7*
-%{_mandir}/man8/smbd*.8*
-%{_mandir}/man8/nmbd*.8*
-%{_mandir}/man8/pdbedit*.8*
-%{_mandir}/man1/smbcontrol*.1*
-%{_mandir}/man8/tdbbackup*.8*
-%{_mandir}/man1/profiles*.1*
-%{_mandir}/man1/editreg*.1*
+%(for i in %{_mandir}/man?/{%{serverbin},%{serversbin}}%{samba_major}\.[0-9]*;do echo $i|grep -v mkntpwd;done)
 %attr(775,root,adm) %dir %{_localstatedir}/%{name}/netlogon
 %attr(755,root,root) %dir %{_localstatedir}/%{name}/profiles
 %attr(755,root,root) %dir %{_localstatedir}/%{name}/printers
@@ -1378,6 +1407,8 @@ update-alternatives --auto smbclient
 %defattr(-,root,root)
 %(for i in %{_bindir}/{%{clientbin}}%{alternative_major};do echo $i;done)
 %(for i in %{_mandir}/man?/{%{clientbin}}%{alternative_major}.?.*;do echo $i|grep -v smbprint;done)
+#xclude %{_mandir}/man?/smbget*
+%{_mandir}/man5/smbgetrc3.5*
 %ifnarch alpha
 %(for i in /sbin/{%{client_sbin}}%{alternative_major};do echo $i;done)
 %attr(4755,root,root) /bin/mount.cifs%{alternative_major}
@@ -1418,6 +1449,9 @@ update-alternatives --auto smbclient
 %{_mandir}/man5/lmhosts*.5*
 #%{_mandir}/man7/Samba*.7*
 %dir %{_datadir}/swat%{samba_major}
+%attr(0750,root,adm) %{_datadir}/%{name}/scripts/smb-migrate
+%{_datadir}/%{name}/smb.conf.clean
+%{_datadir}/%{name}/README.avx.conf
 
 %if %build_winbind
 %files winbind
@@ -1491,17 +1525,61 @@ update-alternatives --auto smbclient
 %{_libdir}/%{name}/pdb/*mysql.so
 %endif
 
+%files passdb-pgsql
+%defattr(-,root,root)
+%{_libdir}/%{name}/pdb/*pgsql.so
+
 %files passdb-xml
 %defattr(-,root,root)
 %{_libdir}/%{name}/pdb/*xml.so
 
 #Files for antivirus support:
+%if %build_clamav
+%files vscan-clamav
+%defattr(-,root,root)
+%{_libdir}/%{name}/vfs/vscan-clamav.so
+%config(noreplace) %{_sysconfdir}/%{name}/vscan-clamav.conf
+%doc %{vfsdir}/%{vscandir}/INSTALL
+%endif
+%if !%build_clamav && %build_vscan
+%exclude %{_libdir}/%{name}/vfs/vscan-clamav.so
+%exclude %{_sysconfdir}/%{name}/vscan-clamav.conf
+%endif
+
 %if %build_fprot
 %files vscan-fprot
 %defattr(-,root,root)
 %{_libdir}/%{name}/vfs/vscan-fprotd.so
 %config(noreplace) %{_sysconfdir}/%{name}/vscan-fprotd.conf
 %doc %{vfsdir}/%{vscandir}/INSTALL
+%endif
+%if !%build_fprot && %build_vscan
+%{_libdir}/%{name}/vfs/vscan-fprotd.so
+%{_sysconfdir}/%{name}/vscan-fprotd.conf
+%endif
+
+%if %build_fsav
+%files vscan-fsecure
+%defattr(-,root,root)
+%{_libdir}/%{name}/vfs/vscan-fsav.so
+%config(noreplace) %{_sysconfdir}/%{name}/vscan-fsav.conf
+%doc %{vfsdir}/%{vscandir}/INSTALL
+%endif
+%if !%build_fsav && %build_vscan
+%{_libdir}/%{name}/vfs/vscan-fsav.so
+%{_sysconfdir}/%{name}/vscan-fsav.conf
+%endif
+
+%if %build_icap
+%files vscan-icap
+%defattr(-,root,root)
+%{_libdir}/%{name}/vfs/vscan-icap.so
+%config(noreplace) %{_sysconfdir}/%{name}/vscan-icap.conf
+%doc %{vfsdir}/%{vscandir}/INSTALL
+%endif
+%if !%build_icap && %build_vscan
+%exclude %{_libdir}/%{name}/vfs/vscan-icap.so
+%exclude %{_sysconfdir}/%{name}/vscan-icap.conf
 %endif
 
 %if %build_kaspersky
@@ -1511,6 +1589,10 @@ update-alternatives --auto smbclient
 %config(noreplace) %{_sysconfdir}/%{name}/vscan-kavp.conf
 %doc %{vfsdir}/%{vscandir}/INSTALL
 %endif
+%if !%build_kaspersky && %build_vscan
+%exclude %{_libdir}/%{name}/vfs/vscan-kavp.so
+%exclude %{_sysconfdir}/%{name}/vscan-kavp.conf
+%endif
 
 %if %build_mks
 %files vscan-mks
@@ -1518,6 +1600,22 @@ update-alternatives --auto smbclient
 %{_libdir}/%{name}/vfs/vscan-mksd.so
 %config(noreplace) %{_sysconfdir}/%{name}/vscan-mks*.conf
 %doc %{vfsdir}/%{vscandir}/INSTALL
+%endif
+%if !%build_mks && %build_vscan
+%exclude %{_libdir}/%{name}/vfs/vscan-mksd.so
+%exclude %{_sysconfdir}/%{name}/vscan-mks*.conf
+%endif
+
+%if %build_nai
+%files vscan-nai
+%defattr(-,root,root)
+%{_libdir}/%{name}/vfs/vscan-mcdaemon.so
+%config(noreplace) %{_sysconfdir}/%{name}/vscan-mcdaemon.conf
+%doc %{vfsdir}/%{vscandir}/INSTALL
+%endif
+%if !%build_nai && %build_vscan
+%exclude %{_libdir}/%{name}/vfs/vscan-mcdaemon.so
+%exclude %{_sysconfdir}/%{name}/vscan-mcdaemon.conf
 %endif
 
 %if %build_openav
@@ -1527,6 +1625,10 @@ update-alternatives --auto smbclient
 %config(noreplace) %{_sysconfdir}/%{name}/vscan-oav.conf
 %doc %{vfsdir}/%{vscandir}/INSTALL
 %endif
+%if !%build_openav && %build_vscan
+%exclude %{_libdir}/%{name}/vfs/vscan-oav.so
+%exclude %{_sysconfdir}/%{name}/vscan-oav.conf
+%endif
 
 %if %build_sophos
 %files vscan-sophos
@@ -1535,13 +1637,9 @@ update-alternatives --auto smbclient
 %config(noreplace) %{_sysconfdir}/%{name}/vscan-sophos.conf
 %doc %{vfsdir}/%{vscandir}/INSTALL
 %endif
-
-%if %build_symantec
-%files vscan-symantec
-%defattr(-,root,root)
-%{_libdir}/%{name}/vfs/vscan-symantec.so
-%config(noreplace) %{_sysconfdir}/%{name}/vscan-symantec.conf
-%doc %{vfsdir}/%{vscandir}/INSTALL
+%if !%build_sophos && %build_vscan
+%exclude %{_libdir}/%{name}/vfs/vscan-sophos.so
+%exclude %{_sysconfdir}/%{name}/vscan-sophos.conf
 %endif
 
 %if %build_trend
@@ -1551,10 +1649,32 @@ update-alternatives --auto smbclient
 %config(noreplace) %{_sysconfdir}/%{name}/vscan-trend.conf
 %doc %{vfsdir}/%{vscandir}/INSTALL
 %endif
+%if !%build_trend && %build_vscan
+%exclude %{_libdir}/%{name}/vfs/vscan-trend.so
+%exclude %{_sysconfdir}/%{name}/vscan-trend.conf
+%endif
 
 %exclude %{_mandir}/man1/smbsh*.1*
 
 %changelog
+* Wed Jul 21 2004 Vincent Danen <vdanen@annvix.org> 3.0.5pre1-1avx
+- 3.0.5pre1
+- remove symantec antvirus completely as it's the only one we need
+  external libs for
+- merge from Mandrake 3.x-xmdk:
+  - add migrate script to merge existing smb.conf (sbenedict); use
+    trigger to only upgrade from <3.0.1-7avx
+  - re-enable relaxed CFLAGS to fix broken smbmount, smbclient (sbenedict)
+  - P2: fix default smbldap config (bgmilne)
+  - fix samba-vscan (0.3.5), add clamav and icap (bgmilne)
+  - P3: fix default vscan-clamav config and add sample config for homes
+    share (bgmilne)
+  - add PostgreSQL passdb backend (bgmilne)
+  - re-work scanner support (bgmilne)
+  - add support for NAI McAfee and F-Secure (bgmilne)
+  - fix building without scanners (bgmilne)
+
+
 * Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 3.0.1-7avx
 - Annvix build
 
