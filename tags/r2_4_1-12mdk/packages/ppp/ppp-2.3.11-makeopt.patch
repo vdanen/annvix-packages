@@ -1,0 +1,33 @@
+--- chat/Makefile.linux.orig	Fri Aug 13 03:54:32 1999
++++ chat/Makefile.linux	Sun Feb 27 16:58:10 2000
+@@ -6,7 +6,7 @@
+ CDEF4=	-DFNDELAY=O_NDELAY		# Old name value
+ CDEFS=	$(CDEF1) $(CDEF2) $(CDEF3) $(CDEF4)
+ 
+-CFLAGS=	-O2 -g -pipe $(CDEFS)
++CFLAGS=	$(RPM_OPT_FLAGS) $(CDEFS)
+ 
+ INSTALL= install
+ 
+--- pppdump/Makefile.linux.orig	Sun Feb 27 16:59:59 2000
++++ pppdump/Makefile.linux	Sun Feb 27 17:00:12 2000
+@@ -6,7 +6,7 @@
+ all:	pppdump
+ 
+ pppdump: $(OBJS)
+-	$(CC) -o pppdump $(OBJS)
++	$(CC) $(RPM_OPT_FLAGS) -o pppdump $(OBJS)
+ 
+ clean:
+ 	rm -f pppdump $(OBJS) *~
+--- pppd/Makefile.linux.orig	Sun Feb 27 17:07:18 2000
++++ pppd/Makefile.linux	Sun Feb 27 17:09:16 2000
+@@ -26,7 +26,7 @@
+ 
+ CC = gcc
+ #
+-COPTS = -O2 -pipe -Wall -g
++COPTS = -Wall $(RPM_OPT_FLAGS)
+ LIBS = -lutil
+ 
+ ifneq ($(wildcard /usr/lib/libcrypt.*),)
