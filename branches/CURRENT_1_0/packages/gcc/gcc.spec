@@ -1,15 +1,15 @@
 %define name			%{cross_prefix}gcc%{package_suffix}
+%define version			3.3.1
+%define release			4sls
+
 %define branch			3.3
 %define branch_tag		%(perl -e 'printf "%%02d%%02d", split(/\\./,shift)' %{branch})
-%define version			3.3.1
 
 # OpenSLS defaults
 %define build_propolice		1
 
 %{expand: %{?_without_propolice:	%%global build_propolice 0}}
 %{expand: %{?_with_propolice:		%%global build_propolice 1}}
-
-%define release			3sls
 
 %define biarches		x86_64
 
@@ -104,7 +104,7 @@
 %define target_prefix		%{_prefix}/%{gcc_target_platform}
 %define target_libdir		%{target_prefix}/lib
 %else
-%define arch			%(echo %{_target_cpu}|sed -e "s/i.86/i386/" -e "s/athlon/i386/")
+%define arch			%(echo %{_target_cpu}|sed -e "s/i.86/i386/" -e "s/athlon/i386/" -e "s/amd64/x86_64/")
 %define gcc_target_platform	%{_target_platform}
 %define target_prefix		%{_prefix}
 %define target_libdir		%{_libdir}
@@ -224,9 +224,9 @@ Version:	%{version}
 Release:	%{release}
 License:	GPL
 Group:		Development/C
+URL:		http://gcc.gnu.org/
 
 # Main source:	(CVS)
-URL:		http://gcc.gnu.org/
 Source0:	%{source_package}.tar.bz2
 Source1:	gcc31-java.bz2
 Source2:	gcc31-javac.bz2
@@ -239,60 +239,61 @@ Source6:	gcc33-help2man.pl.bz2
 
 
 # CVS patches
-Patch0: gcc33-revert-pr11420.patch.bz2
-Patch1: gcc33-hammer-%{hammer_date}.patch.bz2
-Patch2: gcc33-no-store-motion.patch.bz2
-Patch3: gcc33-pr11536.patch.bz2
-Patch4: gcc33-reload.patch.bz2
-Patch5: gcc33-gcse-fix.patch.bz2
-Patch6: gcc33-pr11639.patch.bz2
-Patch7: gcc33-fix-__builtin_expect.patch.bz2
-Patch8: gcc33-pr11319.patch.bz2
-Patch9: gcc33-pr11370.patch.bz2
+Patch0:		gcc33-revert-pr11420.patch.bz2
+Patch1:		gcc33-hammer-%{hammer_date}.patch.bz2
+Patch2:		gcc33-no-store-motion.patch.bz2
+Patch3: 	gcc33-pr11536.patch.bz2
+Patch4: 	gcc33-reload.patch.bz2
+Patch5: 	gcc33-gcse-fix.patch.bz2
+Patch6: 	gcc33-pr11639.patch.bz2
+Patch7: 	gcc33-fix-__builtin_expect.patch.bz2
+Patch8: 	gcc33-pr11319.patch.bz2
+Patch9: 	gcc33-pr11370.patch.bz2
 
 # Mandrake patches
-Patch100: colorgcc-1.3.2-mdkconf.patch.bz2
-Patch101: gcc33-pass-slibdir.patch.bz2
-Patch102: gcc31-c++-diagnostic-no-line-wrapping.patch.bz2
-Patch103: gcc32-pr7434-testcase.patch.bz2
-Patch104: gcc33-pr8213-testcase.patch.bz2
-Patch105: gcc33-x86_64-biarch-libjava.patch.bz2
-Patch106: gcc33-x86_64-biarch-testsuite.patch.bz2
-Patch107: gcc33-ada-64bit.patch.bz2
-Patch108: gcc33-ada-addr2line.patch.bz2
-Patch109: gcc33-ada-link.patch.bz2
-Patch110: gcc33-ada-makefile.patch.bz2
-Patch111: gcc33-multi-do-libdir.patch.bz2
-Patch112: gcc33-cross-gxx_include_dir.patch.bz2
-Patch113: gcc32-cross-inhibit_libc.patch.bz2
-Patch114: gcc32-mklibgcc-serialize-crtfiles.patch.bz2
-Patch115: gcc33-c++-classfn-member-template.patch.bz2
-Patch116: gcc33-gpc.patch.bz2
-Patch117: gcc33-gpc-serialize-build.patch.bz2
-Patch118: gcc33-default-O2-options.patch.bz2
-Patch119: gcc33-pr11631.patch.bz2
+Patch100: 	colorgcc-1.3.2-mdkconf.patch.bz2
+Patch101: 	gcc33-pass-slibdir.patch.bz2
+Patch102: 	gcc31-c++-diagnostic-no-line-wrapping.patch.bz2
+Patch103: 	gcc32-pr7434-testcase.patch.bz2
+Patch104: 	gcc33-pr8213-testcase.patch.bz2
+Patch105: 	gcc33-x86_64-biarch-libjava.patch.bz2
+Patch106: 	gcc33-x86_64-biarch-testsuite.patch.bz2
+Patch107: 	gcc33-ada-64bit.patch.bz2
+Patch108: 	gcc33-ada-addr2line.patch.bz2
+Patch109: 	gcc33-ada-link.patch.bz2
+Patch110: 	gcc33-ada-makefile.patch.bz2
+Patch111: 	gcc33-multi-do-libdir.patch.bz2
+Patch112: 	gcc33-cross-gxx_include_dir.patch.bz2
+Patch113: 	gcc32-cross-inhibit_libc.patch.bz2
+Patch114: 	gcc32-mklibgcc-serialize-crtfiles.patch.bz2
+Patch115: 	gcc33-c++-classfn-member-template.patch.bz2
+Patch116: 	gcc33-gpc.patch.bz2
+Patch117: 	gcc33-gpc-serialize-build.patch.bz2
+Patch118: 	gcc33-default-O2-options.patch.bz2
+Patch119: 	gcc33-pr11631.patch.bz2
+Patch120:	gcc33-regmove-fix.patch.bz2
 
 # Red Hat patches
-Patch200: gcc33-2.96-RH-compat.patch.bz2
-Patch201: gcc33-fde-merge-compat.patch.bz2
-Patch202: gcc33-debug-pr7241.patch.bz2
-Patch203: gcc33-ia64-unwind.patch.bz2
-Patch204: gcc33-dwarf2-AT_comp_dir.patch.bz2
-Patch205: gcc33-dwarf2-dtprel.patch.bz2
-Patch206: gcc33-trunc_int_for_mode.patch.bz2
-Patch207: gcc33-ppc-target_flags_explicit.patch.bz2
-Patch208: gcc33-x86_64-tls-fix.patch.bz2
-Patch209: gcc33-inline-label.patch.bz2
-Patch210: gcc33-ia64-symbol_ref_flags.patch.bz2
-Patch211: gcc33-cse-tweak.patch.bz2
-Patch212: gcc33-tls-direct-segment-addressing.patch.bz2
-Patch213: gcc33-pie.patch.bz2
-Patch214: gcc33-note.GNU-stack.patch.bz2
-Patch215: gcc33-c++-local-thunks.patch.bz2
-Patch216: gcc33-pr6794.patch.bz2
-Patch217: gcc33-libffi-ro-eh_frame.patch.bz2
-Patch218: gcc33-ia64-libjava-locks.patch.bz2
-Patch219: gcc33-rhl-testsuite.patch.bz2
+Patch200:	gcc33-2.96-RH-compat.patch.bz2
+Patch201: 	gcc33-fde-merge-compat.patch.bz2
+Patch202: 	gcc33-debug-pr7241.patch.bz2
+Patch203: 	gcc33-ia64-unwind.patch.bz2
+Patch204: 	gcc33-dwarf2-AT_comp_dir.patch.bz2
+Patch205: 	gcc33-dwarf2-dtprel.patch.bz2
+Patch206: 	gcc33-trunc_int_for_mode.patch.bz2
+Patch207: 	gcc33-ppc-target_flags_explicit.patch.bz2
+Patch208: 	gcc33-x86_64-tls-fix.patch.bz2
+Patch209: 	gcc33-inline-label.patch.bz2
+Patch210: 	gcc33-ia64-symbol_ref_flags.patch.bz2
+Patch211: 	gcc33-cse-tweak.patch.bz2
+Patch212: 	gcc33-tls-direct-segment-addressing.patch.bz2
+Patch213: 	gcc33-pie.patch.bz2
+Patch214: 	gcc33-note.GNU-stack.patch.bz2
+Patch215: 	gcc33-c++-local-thunks.patch.bz2
+Patch216: 	gcc33-pr6794.patch.bz2
+Patch217: 	gcc33-libffi-ro-eh_frame.patch.bz2
+Patch218: 	gcc33-ia64-libjava-locks.patch.bz2
+Patch219: 	gcc33-rhl-testsuite.patch.bz2
 
 # Propolice Stack Protector http://www.research.ibm.com/trl/projects/security/ssp/
 Patch300:	gcc-3.3.1-protector-3.3-5.patch.bz2
@@ -821,6 +822,7 @@ documentation in PDF.
 %patch115 -p1 -b .c++-classfn-member-template
 #%patch118 -p1 -b .default-O2-options
 %patch119 -p1 -b .pr11631-testcase
+%patch120 -p1 -b .regmove-fix
 
 # Red Hat patches
 %patch200 -p0 -b .2.96-RH-compat
@@ -2126,6 +2128,11 @@ if [ "$1" = "0" ];then /sbin/install-info %{_infodir}/gcc.info.bz2 --dir=%{_info
 %endif
 
 %changelog
+* Wed Dec 31 2003 Vincent Danen <vdanen@opensls.org> 3.3.1-4sls
+- sync with 3mdk (gbeauchesne): fix regmove, aka. fix gsl miscompilation on
+  amd64 (mainline CVS)
+- sync with 4mdk (gbeauchesne): really ship with {,x}mmintrin.h on amd64
+
 * Fri Nov 28 2003 Vincent Danen <vdanen@opensls.org> 3.3.1-3sls
 - propolice 3.3-5; regenerated patch
 - make profile.d files mode 0755
