@@ -1,0 +1,33 @@
+--- modutils-2.4.12/depmod/depmod.c.eewwww	Thu Jan 17 12:06:47 2002
++++ modutils-2.4.12/depmod/depmod.c	Thu Jan 17 12:48:23 2002
+@@ -62,6 +62,9 @@
+ #define __u8 u_int8_t
+ #endif
+ 
++int prog_argc;
++char **prog_argv;
++
+ typedef struct SYMBOL{
+ 	struct SYMBOL *next;	/* List connected via hashing */
+ 	struct MODULE *module;	/* Module declaring this symbol */
+@@ -1083,6 +1086,10 @@
+ 			p = strtok(line, " \t\n"); /* Skip first word */
+ 			if (!isspace(*line))	/* Adressless symbol? */
+ 				p = strtok(NULL, " \t\n");
++#if defined(ARCH_ppc) && defined(COMMON_3264)
++			if (strlen(line) > 8)
++				exit(depmod_main_64(prog_argc, prog_argv));
++#endif
+ 			if (is_mapfile) {
+ 				if (*p != '?')
+ 					continue;
+@@ -1554,6 +1561,9 @@
+ 	};
+ 
+ 	error_file = "depmod";
++	prog_argc = argc;
++	prog_argv = argv;
++	optind = 0;
+ 
+ 	while ((o = getopt_long(argc, argv, "aAb:C:eF:him:nqsvVru",
+ 				&long_opts[0], NULL)) != EOF) {
