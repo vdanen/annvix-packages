@@ -1,6 +1,6 @@
 %define name	afterboot
 %define version 0.1
-%define release 3sls
+%define release 4avx
 
 Summary:	Dynamic afterboot manpage
 Name: 		%{name}
@@ -8,7 +8,7 @@ Version:	%{version}
 Release: 	%{release}
 License:	GPL
 Group:		System/Base
-URL:		http://opensls.org/cgi-bin/viewcvs.cgi/tools/afterboot/
+URL:		http://annvix.org/cgi-bin/viewcvs.cgi/tools/afterboot/
 Source:		%{name}-%{version}.tar.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-root
@@ -51,6 +51,9 @@ touch %{buildroot}%{_mandir}/man8/afterboot.8.bz2
 
 
 %changelog
+* Fri Jun 18 2004 Vincent Danen <vdanen@opensls.org> 0.1-4avx
+- Annvix build
+
 * Mon Feb 09 2004 Vincent Danen <vdanen@opensls.org> 0.1-3sls
 - some spec cleanups
 
