@@ -1,8 +1,7 @@
 %define name		e2fsprogs
 %define version		1.34
-%define release		2sls
+%define release		3sls
 
-%define url		http://prdownloads.sourceforge.net/e2fsprogs
 %define	_root_sbindir	/sbin
 %define	_root_libdir	/%_lib
 %define libname		%mklibname ext2fs 2
@@ -13,12 +12,13 @@ Version:	%{version}
 Release:	%{release}
 License:	GPL
 Group:		System/Kernel and hardware
-Source:		%url/%name-%version.tar.bz2
+URL:		http://e2fsprogs.sourceforge.net/
+Source:		http://prdownloads.sourceforge.net/e2fsprogs/%name-%version.tar.bz2
 Patch4:		e2fsprogs-1.23-autoconf.patch.bz2
-# http://acl.bestbits.at/download.html
-Url:		http://e2fsprogs.sourceforge.net/
-Buildroot:	%_tmppath/%name-root
+
+BuildRoot:	%_tmppath/%name-root
 BuildRequires:	texinfo, autoconf
+
 Requires:	%libname
 
 %description
@@ -97,22 +97,24 @@ cp -af e2fsck/e2fsck.shared e2fsck/e2fsck
 make check
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 export PATH=/sbin:$PATH
 
-make install install-libs DESTDIR="$RPM_BUILD_ROOT" \
+make install install-libs DESTDIR="%{buildroot}" \
 	root_sbindir=%{_root_sbindir} root_libdir=%{_root_libdir}
 
 for i in libblkid.so.1 libcom_err.so.2 libe2p.so.2 libext2fs.so.2 libss.so.2 libuuid.so.1; do
-	ln -s $i $RPM_BUILD_ROOT/%_root_libdir/${i%.[0-9]}
+	ln -s $i %{buildroot}/%_root_libdir/${i%.[0-9]}
 done
 
-rm -f $RPM_BUILD_ROOT%_libdir/libss.a
+# remove unwanted files
+rm -f %{buildroot}%_libdir/libss.a
+rm -f %{buildroot}%_root_libdir/{libblkid,libcom_err,libe2p,libext2fs,libss,libuuid}.so
 
 %find_lang %name
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post -n %libname -p /sbin/ldconfig
 %postun -n %libname -p /sbin/ldconfig
@@ -186,7 +188,7 @@ rm -rf $RPM_BUILD_ROOT
 %_root_libdir/libuuid.so.*
 %_root_libdir/evms/libe2fsim.*.so
 
-%_root_libdir/libblkid.so.1.0
+%_root_libdir/libblkid.so.*
 %_mandir/man3/libblkid.3.bz2
 
 %files -n %libname-devel
@@ -223,8 +225,12 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Mar 04 2004 Vincent Danen <vdanen@opensls.org> 1.34-3sls
+- more spec cleaning
+- remove unpackaged symlinks
+
 * Sun Nov 30 2003 Vincent Danen <vdanen@opensls.org> 1.34-2sls
-- SLS build
+- OpenSLS build
 - tidy spec
 
 * Mon Aug 18 2003 Thierry Vignaud <tvignaud@mandrakesoft.com> 1.34-1mdk
