@@ -1,5 +1,5 @@
 %define	name	runit
-%define	version	1.0.5
+%define	version	1.2.1
 %define	release	1avx
 
 Summary:	A UN*X init scheme with service supervision
@@ -9,12 +9,13 @@ Release:	%{release}
 License:	BSD
 Group:		System/Base
 URL:		http://smarden.org/runit/
-Source0:	%{name}-%{version}.tar.gz
+Source0:	%{name}-%{version}.tar.bz2
 Source1:	annvix-runit.tar.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-buildroot
-Requires:	SysVinit >= 2.85-7avx, initscripts, srv, mingetty
+BuildRequires:	dietlibc >= 0.27-1avx
 
+Requires:	SysVinit >= 2.85-7avx, initscripts, srv, mingetty
 Conflicts:	SysVinit <= 2.85-6avx
 
 %description
@@ -31,15 +32,9 @@ handles the tasks necessary to shutdown and halt or reboot.
 %setup -q -n admin -a 1
 
 %build
-%ifarch %ix86
-MARCH="-march=pentium"
-%else
-MARCH=""
-%endif
-
 pushd %{name}-%{version}/src
-    echo "diet -Os gcc $MARCH -pipe" > conf-cc
-    echo "diet -Os gcc $MARCH -static -s" > conf-ld
+    echo "diet gcc -Os -pipe" > conf-cc
+    echo "diet gcc -Os -static -s" > conf-ld
     make
 popd
 
@@ -147,6 +142,10 @@ fi
 %attr(0755,root,root) %{_srvdir}/mingetty-tty6/finish
 
 %changelog
+* Wed Oct 13 2004 Vincent Danen <vdanen@annvix.org> 1.0.5-1avx
+- 1.2.1
+- don't set -march=pentium anymore
+
 * Wed Oct 13 2004 Vincent Danen <vdanen@annvix.org> 1.0.5-1avx
 - 1.0.5
 
