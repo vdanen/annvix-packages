@@ -1,14 +1,12 @@
 %define name	cdrecord
 %define version 2.01
-%define release 0.a18.3sls
+%define release 0.a18.4sls
 
 %define archname cdrtools
 %define dversion 2.01a18
 
 %define mkisofs_ver 2.01
 %define mkisofs_rel %release
-
-%{!?build_opensls:%global build_opensls 0}
 
 %define prefix /usr
 
@@ -19,7 +17,6 @@ Release:	%{release}
 Epoch:		4
 License:	GPL
 Group:		Archiving/Cd burning
-Icon:		cdrecord-logo.xpm
 URL:		http://www.fokus.gmd.de/research/cc/glone/employees/joerg.schilling/private/cdrecord.html
 Source:		ftp://ftp.berlios.de/pub/cdrecord/%{archname}-%{dversion}.tar.bz2
 # http://www.abcpages.com/~mache/cdrecord-dvd.html
@@ -29,7 +26,7 @@ BuildRoot:	%{_tmppath}/%{name}-%{dversion}-buildroot
 
 Prefix:		%{prefix}
 Requires:	mkisofs
-Prereq:		/usr/sbin/groupadd rpm-helper
+Prereq:		rpm-helper
 Obsoletes:	cdrecord-dvdhack =< 4:2.01-0.a15.2mdk
 Provides:	cdrecord-dvdhack = %{epoch}:%{version}-%{release}
 
@@ -49,24 +46,12 @@ without having a special driver for it.
 Cdrecord may be easily ported to any system that has a SCSI device
 driver similar to the scg driver.
 
-%if !%{build_opensls}
-%package cdda2wav
-Summary:	CD-Audio to .wav converter
-Group:		Sound
-Icon:		cdda2wav-logo.xpm
-Prereq:		rpm-helper
-
-%description cdda2wav
-cdda2wav reads audio CDs, outputting a wav file.
-%endif
-
 %package -n mkisofs
 Summary:	Creates an image of an ISO9660 filesystem.
 Version:	%{mkisofs_ver}
 Release:	%{mkisofs_rel}
 Epoch:		1
 Group:		Archiving/Cd burning
-Icon:		mkisofs-logo.xpm
 
 %description -n mkisofs
 This is the mkisofs package.  It is used to create ISO 9660
@@ -90,32 +75,13 @@ if [ -d $RPM_BUILD_ROOT ]; then rm -rf $RPM_BUILD_ROOT; fi
 
 ./Gmake "INS_BASE=$RPM_BUILD_ROOT/%{prefix}" install MANDIR=share/man
 
-%if !%{build_opensls}
-install -m 755 cdda2wav/cdda2{mp3,ogg} $RPM_BUILD_ROOT%{_bindir}/
-%endif
-
-%if %{build_opensls}
 rm -f %{buildroot}%{_bindir}/cdda2wav
 rm -f %{buildroot}%{_mandir}/man1/cdda2wav.1*
-%endif
 
 # Move libraries to the right directories
 [[ "%_lib" != "lib" ]] && \
 mv $RPM_BUILD_ROOT%{_prefix}/lib $RPM_BUILD_ROOT%{_libdir}/
 
-%pre
-%_pre_groupadd cdwriter
-
-%postun
-%_postun_groupdel cdwriter
-
-%if !%{build_opensls}
-%pre cdda2wav
-%_pre_groupadd cdwriter
-
-%postun cdda2wav
-%_postun_groupdel cdwriter
-%endif
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -136,16 +102,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(644,root,root) %{_mandir}/man1/scgcheck.1*
 %attr(644,root,root) %{_mandir}/man8/isoinfo.8*
 
-%if !%{build_opensls}
-%files cdda2wav
-%defattr(-,root,root)
-%doc doc/cdda2wav.ps cdda2wav/FAQ cdda2wav/README cdda2wav/GPL Changelog
-%attr(755,root,cdwriter) %{_bindir}/cdda2wav
-%attr(755,root,root) %{_bindir}/cdda2mp3
-%attr(755,root,root) %{_bindir}/cdda2ogg
-%attr(644,root,root) %{_mandir}/man1/cdda2wav.1*
-%endif
-
 %files devel
 %defattr(-,root,root)
 %doc AN-*
@@ -162,6 +118,11 @@ rm -rf $RPM_BUILD_ROOT
 %attr(644,root,root) %{_mandir}/man8/mkhybrid.8*
 
 %changelog
+* Fri Feb 06 2004 Vincent Danen <vdanen@opensls.org> 2.01-0.a18.4sls
+- remove %%build_opensls macro
+- group cdwriter is already in setup; not needed here
+- remove icons
+
 * Mon Dec 08 2003 Vincent Danen <vdanen@opensls.org> 2.01-0.a18.3sls
 - OpenSLS build
 - tidy spec
