@@ -1,8 +1,6 @@
 %define name	sysklogd
 %define version	1.4.1
-%define release	11avx
-
-# rh 1.4.1-5
+%define release	12avx
 
 Summary:	System logging and kernel message trapping daemons.
 Name:		%{name}
@@ -16,15 +14,15 @@ Source2:	klogd.run
 Source3:	syslog.logrotate
 Source4:	syslog.conf
 Source5:	syslog.sysconfig
-Patch0:		sysklogd-1.4.1rh-opensls.patch.bz2
+Patch0:		sysklogd-1.4.1-avx-conf.patch.bz2
 Patch1: 	sysklogd-1.4rh-do_not_use_initlog_when_restarting.patch.bz2
-Patch2:		sysklogd-1.4.1-owl-longjmp.diff
-Patch3:		sysklogd-1.4.1-owl-syslogd-create-mode.patch
-Patch4:		sysklogd-1.4.1-alt-owl-syslogd-killing.diff
-Patch5:		sysklogd-1.4.1-caen-owl-klogd-drop-root.diff
-Patch6:		sysklogd-1.4.1-caen-owl-syslogd-bind.patch
-Patch7:		sysklogd-1.4.1-caen-owl-syslogd-drop-root.patch
-Patch8:		sysklogd-1.4.1-owl-syslogd-crunch_list.diff
+Patch2:		sysklogd-1.4.1-owl-longjmp.diff.bz2
+Patch3:		sysklogd-1.4.1-owl-syslogd-create-mode.patch.bz2
+Patch4:		sysklogd-1.4.1-alt-owl-syslogd-killing.diff.bz2
+Patch5:		sysklogd-1.4.1-caen-owl-klogd-drop-root.diff.bz2
+Patch6:		sysklogd-1.4.1-caen-owl-syslogd-bind.patch.bz2
+Patch7:		sysklogd-1.4.1-caen-owl-syslogd-drop-root.patch.bz2
+Patch8:		sysklogd-1.4.1-owl-syslogd-crunch_list.diff.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-root
 
@@ -57,23 +55,23 @@ places, like sendmail logs, security logs, error logs, etc.
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p $RPM_BUILD_ROOT{%{_sysconfdir},%{_bindir},%{_mandir}/man{5,8},%{_sbindir},/sbin}
+mkdir -p %{buildroot}{%{_sysconfdir},%{_bindir},%{_mandir}/man{5,8},%{_sbindir},/sbin}
 
-make install TOPDIR=$RPM_BUILD_ROOT MANDIR=$RPM_BUILD_ROOT%{_mandir} \
+make install TOPDIR=%{buildroot} MANDIR=%{buildroot}%{_mandir} \
 	MAN_OWNER=`id -nu`
 
-install -m644 %{SOURCE4} $RPM_BUILD_ROOT%{_sysconfdir}/syslog.conf
+install -m644 %{SOURCE4} %{buildroot}%{_sysconfdir}/syslog.conf
 
-mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/{logrotate.d,sysconfig}
-install -m644 %{SOURCE3} $RPM_BUILD_ROOT%{_sysconfdir}/logrotate.d/syslog
-install -m644 %{SOURCE5} $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/syslog
+mkdir -p %{buildroot}%{_sysconfdir}/{logrotate.d,sysconfig}
+install -m644 %{SOURCE3} %{buildroot}%{_sysconfdir}/logrotate.d/syslog
+install -m644 %{SOURCE5} %{buildroot}%{_sysconfdir}/sysconfig/syslog
 
-chmod 755 $RPM_BUILD_ROOT/sbin/syslogd
-chmod 755 $RPM_BUILD_ROOT/sbin/klogd
+chmod 750 %{buildroot}/sbin/syslogd
+chmod 750 %{buildroot}/sbin/klogd
 
 mkdir -p %{buildroot}%{_srvdir}/{syslogd,klogd}
-install -m 0750 %{SOURCE1} %{buildroot}%{_srvdir}/syslogd/run
-install -m 0750 %{SOURCE2} %{buildroot}%{_srvdir}/klogd/run
+install -m 0700 %{SOURCE1} %{buildroot}%{_srvdir}/syslogd/run
+install -m 0700 %{SOURCE2} %{buildroot}%{_srvdir}/klogd/run
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -103,29 +101,14 @@ if [ "$1" -ge "1" ]; then
 	/usr/sbin/srv restart klogd > /dev/null 2>&1
 fi	
 
-%triggerpostun -- sysklogd < 1.4.1-9sls
-# we're doing a massive overhaul here so we need to be careful to preserve
-# existing logs while moving them since old dir names are now file names
-for i in \
-  /var/log/{cron,kernel,daemons};
-do
-  if [ -d $i ]; then
-      mv $i $i.old && touch $i && chmod 0620 $i && chown root:syslogd $i
-  fi
-done
-if [ -d "/var/log/mail" ]; then
-  mv /var/log/mail /var/log/mail.old
-  touch /var/log/mail.log && chmod 0620 /var/log/mail.log && chown root:syslogd /var/log/mail.log
-fi
-
-
 %files
 %defattr(-,root,root)
 %doc ANNOUNCE README* NEWS INSTALL 
 %config(noreplace) %{_sysconfdir}/syslog.conf
 %config(noreplace) %{_sysconfdir}/sysconfig/syslog
 %config(noreplace) %{_sysconfdir}/logrotate.d/syslog
-%attr(0700,root,root) /sbin/*
+%attr(0700,root,root) /sbin/klogd
+%attr(0700,root,root) /sbin/syslogd
 %{_mandir}/*/*
 %dir %{_srvdir}/syslogd
 %{_srvdir}/syslogd/run
@@ -134,6 +117,12 @@ fi
 
 
 %changelog
+* Fri Sep 17 2004 Vincent Danen <vdanen@annvix.org> 1.4.1-12avx
+- updated run scripts
+- minor spec cleanups
+- remove the trigger
+- bzip patches
+
 * Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 1.4.1-11avx
 - Annvix build
 
