@@ -1,6 +1,6 @@
 %define name	utempter
 %define version	0.5.2
-%define release	14sls
+%define release	15sls
 
 %define major		0
 %define lib_name_orig	%mklibname utempter
@@ -57,13 +57,13 @@ Header files for writing apps using libutempter
 make RPM_OPT_FLAGS="$RPM_OPT_FLAGS"
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
 
 ln -sf lib%{name}.so.%{version} $RPM_BUILD_ROOT%{_libdir}/lib%{name}.so.%{major}
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post -n %{lib_name} -p /sbin/ldconfig
 %postun -n %{lib_name} -p /sbin/ldconfig
@@ -76,17 +76,19 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -n %{lib_name}
 %defattr(-,root,root)
-%doc COPYING
 %{_libdir}/libutempter.so.*
 
 %files -n %{lib_name}-devel
 %defattr(-,root,root)
-%doc COPYING
 %{_libdir}/libutempter.so
 %{_includedir}/utempter.h
 
 
 %changelog
+* Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 0.5.2-15sls
+- minor spec cleanups
+- docs only in main package
+
 * Fri Feb 06 2004 Vincent Danen <vdanen@opensls.org> 0.5.2-14sls
 - don't call groupadd to add group utmp as that's in setup already
 
