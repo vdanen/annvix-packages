@@ -1,8 +1,6 @@
 %define name	libxml2
 %define version	2.5.11
-%define release	2sls
-
-%{!?build_opensls:%global build_opensls 0}
+%define release	3sls
 
 %define major	2
 %define libname	%mklibname xml %{major}
@@ -18,12 +16,10 @@ URL:		http://www.xmlsoft.org/
 Source0:	ftp://xmlsoft.org/%{name}-%{version}.tar.bz2
 # (fc) 2.4.23-3mdk remove references to -L/usr/lib
 Patch1:		libxml2-2.4.23-libdir.patch.bz2
+Patch2:		libxml2-2.5.11-urlbound.patch.bz2
 
 BuildRoot:	%_tmppath/%name-%version-%release-root
 BuildRequires:	python-devel >= %{py_ver}, readline-devel, zlib-devel, autoconf2.5
-%if !%{build_opensls}
-BuildRequires:	gtk-doc
-%endif
 
 %description
 This library allows to manipulate XML files. It includes support 
@@ -97,6 +93,7 @@ URI library.
 %prep
 %setup -q
 %patch1 -p1 -b .libdir
+%patch2 -p0 -b .sec
 
 # needed by patches 1
 autoconf
@@ -110,7 +107,7 @@ autoconf
 make check
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %makeinstall_std
 
@@ -120,7 +117,7 @@ rm -rf	$RPM_BUILD_ROOT%{_prefix}/doc \
 	$RPM_BUILD_ROOT%{_libdir}/python%{py_ver}/site-packages/*.{la,a} \
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
@@ -163,6 +160,11 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/aclocal/*
 
 %changelog
+* Mon Mar 01 2004 Vincent Danen <vdanen@opensls.org> 2.5.11-3sls
+- remove %%build_opensls macros
+- P2: fix CAN-2004-0110
+- minor spec cleanups
+
 * Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 2.5.11-2sls
 - OpenSLS build
 - tidy spec
