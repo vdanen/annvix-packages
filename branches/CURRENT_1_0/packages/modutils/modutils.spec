@@ -1,6 +1,6 @@
 %define name	modutils
-%define version 2.4.25
-%define release 4sls
+%define version 2.4.26
+%define release 1sls
 
 %define url ftp://ftp.kernel.org:/pub/linux/utils/kernel/modutils/v2.4
 %define priority 10
@@ -24,11 +24,12 @@ Patch4:		modutils-2.4.12-ppc3264.patch.bz2
 Patch100:	modutils-2.4.22-various-aliases.patch.bz2
 Patch101:	modutils-2.4.13-no-scsi_hostadapter-off.patch.bz2
 Patch102:	modutils-2.4.22-pre_post_and_usbmouse.patch.bz2
+Patch103:	modutils-2.4.26-agpgart-26.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-buildroot
 BuildRequires:	bison flex zlib-devel gperf glibc-static-devel
 
-Prereq:		/sbin/chkconfig, /usr/sbin/update-alternatives
+Prereq:		chkconfig
 ExclusiveOs:	Linux
 Obsoletes:	modules
 Provides:	modules
@@ -50,10 +51,11 @@ things.
 %patch100 -p1 -b .various-aliases
 %patch101 -p1 -b .scsi-off
 %patch102 -p1 -b .ppost_and_usbmouse
+%patch103 -p1 -b .agpgart-26
 
 %build
 %serverbuild
-%configure --disable-compat-2-0 --disable-kerneld --enable-insmod-static \
+%configure2_5x --disable-compat-2-0 --disable-kerneld --enable-insmod-static \
 		--exec_prefix=/ --enable-zlib --disable-combined --enable-combined-insmod \
 		--enable-combined-rmmod
 
@@ -185,6 +187,14 @@ done
 %{_mandir}/man8/ksyms.8*
 
 %changelog
+* Fri Jun 11 2004 Vincent Danen <vdanen@opensls.org> 2.4.26-1sls
+- 2.4.26
+- remove Requires on update-alternatives since it's included in rpm
+- require chkconfig package rather than file
+- sync with cooker 2.4.26-xmdk:
+  - P103: agpgart alias like agpgart 2.6 (nplanel)
+  - configure is of 2.5 style, use correct percent-configure macro (gc)
+
 * Sun Mar 07 2004 Vincent Danen <vdanen@opensls.org> 2.4.25-4sls
 - minor spec cleanups
 - remove %%prefix
