@@ -1,0 +1,33 @@
+--- unixODBC-2.2.6/gODBCConfig/configure.lib64	2003-07-21 12:58:32.000000000 +0200
++++ unixODBC-2.2.6/gODBCConfig/configure	2003-07-24 01:24:59.000000000 +0200
+@@ -12671,12 +12671,20 @@
+ fi
+ 
+ fi;
++
++# Check for lib64 architecture
++# FIXME: Should really check for target cpu
++case $host_cpu in
++	sparc64*|ppc64*|x86_64*|s390x*) lib="lib64";;
++	*) lib="lib";;
++esac
++
+ odbcdir=""
+ echo "$as_me:$LINENO: checking for ODBC files" >&5
+ echo $ECHO_N "checking for ODBC files... $ECHO_C" >&6
+ for d in $dir /usr /usr/local
+ do
+-	if test -f $d/lib/libodbcinst.so
++	if test -f $d/$lib/libodbcinst.so
+ 	then
+         echo "$as_me:$LINENO: result: found ODBC in $d" >&5
+ echo "${ECHO_T}found ODBC in $d" >&6
+@@ -12696,7 +12704,7 @@
+ _ACEOF
+ 
+ 	ODBCINCLUDES=${odbcdir}/include
+-	ODBCLIBS=${odbcdir}/lib
++	ODBCLIBS=${odbcdir}/$lib
+ fi
+ 
+ 
