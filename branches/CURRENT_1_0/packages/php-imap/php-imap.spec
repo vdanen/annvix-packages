@@ -1,10 +1,10 @@
 %define name	php-%{modname}
 %define version	%{phpversion}
-%define release	2avx
+%define release	3avx
 
-%define phpsource	%{_prefix}/src/php-devel
-%define _docdir		%{_datadir}/doc/%{name}-%{version}
-%{expand:%(cat /usr/src/php-devel/PHP_BUILD||(echo -e "error: failed build dependencies:\n        php-devel >= 430 (4.3.0) is needed by this package." >/dev/stderr;kill -2 $PPID))}
+%define phpversion	4.3.10
+%define phpsource       %{_prefix}/src/php-devel
+%define phpdir		%{_libdir}/php
 
 %define realname	IMAP
 %define modname		imap
@@ -37,11 +37,11 @@ Patch14:	imap-2002a-ansi.patch.bz2
 Patch15:	imap-2002a-noprompt-makefile.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-root
-BuildRequires:  php%{libversion}-devel
+BuildRequires:  php4-devel
 BuildRequires:	pam-devel >= 0.75
 BuildRequires:	openssl-devel
 
-Requires:	php%{libversion}
+Requires:	php4
 
 %description
 The %{name} package is a dynamic shared object (DSO) that adds
@@ -94,12 +94,11 @@ cp -dpR %{phpsource}/extensions/%{dirname}/* .
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 install -d %{buildroot}%{phpdir}/extensions
-install -d %{buildroot}%{_docdir}
 install -d %{buildroot}%{_sysconfdir}/php.d
 
 install -m755 %{soname} %{buildroot}%{phpdir}/extensions/
 
-cat > %{buildroot}%{_docdir}/README <<EOF
+cat > README.%{modname} <<EOF
 The %{name} package contains a dynamic shared object (DSO) for PHP. 
 To activate it, make sure a file /etc/php.d/%{inifile} is present and
 contains the line 'extension = %{soname}'.
@@ -114,12 +113,14 @@ EOF
 
 %files 
 %defattr(-,root,root)
-%doc %dir %{_docdir}
-%doc %{_docdir}/README
-%{phpdir}/extensions/%{soname}
+%doc README*
 %config(noreplace) %{_sysconfdir}/php.d/%{inifile}
+%{phpdir}/extensions/%{soname}
 
 %changelog
+* Sat Feb 26 2005 Vincent Danen <vdanen@annvix.org> 4.3.10-3avx
+- spec cleanups
+
 * Thu Jan 06 2005 Vincent Danen <vdanen@annvix.org> 4.3.10-2avx
 - rebuild against latest openssl
 

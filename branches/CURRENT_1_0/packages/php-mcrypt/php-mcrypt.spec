@@ -1,10 +1,10 @@
 %define name	php-%{modname}
 %define version	%{phpversion}
-%define release	1avx
+%define release	2avx
 
-%define phpsource	%{_prefix}/src/php-devel
-%define _docdir		%{_datadir}/doc/%{name}-%{version}
-%{expand:%(cat /usr/src/php-devel/PHP_BUILD||(echo -e "error: failed build dependencies:\n        php-devel >= 430 (4.3.0) is needed by this package." >/dev/stderr;kill -2 $PPID))}
+%define phpversion	4.3.10
+%define phpsource       %{_prefix}/src/php-devel
+%define phpdir		%{_libdir}/php
 
 %define realname	MCRYPT
 %define modname		mcrypt
@@ -22,10 +22,10 @@ Group:		System/Servers
 URL:		http://www.php.net
 
 BuildRoot:	%{_tmppath}/%{name}-root
-BuildRequires:  php%{libversion}-devel
+BuildRequires:  php4-devel
 BuildRequires:	libmcrypt-devel, libtool-devel
 
-Requires:	php%{libversion}
+Requires:	php4
 
 %description
 The %{name} package is a dynamic shared object (DSO) that adds
@@ -33,10 +33,12 @@ The %{name} package is a dynamic shared object (DSO) that adds
 If you need %{realname} support for PHP applications, you will need to 
 install this package in addition to the php package.
 
+
+%prep
+%setup -c -T
+cp -dpR %{phpsource}/extensions/%{dirname}/* .
+
 %build
-[ -e ./%{dirname} ] && rm -fr ./%{dirname}
-cp -dpR %{phpsource}/extensions/%{dirname} .
-cd %{dirname}
 
 # version hack :)
 if [[ -x %{_bindir}/libmcrypt-config ]]; then
@@ -55,14 +57,13 @@ mv modules/*.so .
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-cd %{dirname}
+
 install -d %{buildroot}%{phpdir}/extensions
-install -d %{buildroot}%{_docdir}
 install -d %{buildroot}%{_sysconfdir}/php.d
 
 install -m755 %{soname} %{buildroot}%{phpdir}/extensions/
 
-cat > %{buildroot}%{_docdir}/README <<EOF
+cat > README.%{modname} <<EOF
 The %{name} package contains a dynamic shared object (DSO) for PHP. 
 To activate it, make sure a file /etc/php.d/%{inifile} is present and
 contains the line 'extension = %{soname}'.
@@ -78,16 +79,17 @@ EOF
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-[ -e ./%{dirname} ] && rm -fr ./%{dirname}
 
 %files 
 %defattr(-,root,root)
-%doc %dir %{_docdir}
-%doc %{_docdir}
-%{phpdir}/extensions/%{soname}
+%doc README*
 %config(noreplace) %{_sysconfdir}/php.d/%{inifile}
+%{phpdir}/extensions/%{soname}
 
 %changelog
+* Sat Feb 26 2005 Vincent Danen <vdanen@annvix.org> 4.3.10-2avx
+- spec cleanups
+
 * Fri Dec 17 2004 Vincent Danen <vdanen@annvix.org> 4.3.10-1avx
 - php 4.3.10
 

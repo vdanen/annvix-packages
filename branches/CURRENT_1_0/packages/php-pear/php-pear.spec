@@ -1,12 +1,13 @@
 %define name	php-%{subname}
 %define version	%{phpversion}
-%define release	1avx
+%define release	2avx
 
-%define phpsource	%{_prefix}/src/php-devel
-%{expand:%(cat /usr/src/php-devel/PHP_BUILD||(echo -e "error: failed build dependencies:\n        php-devel >= 430 (4.3.0) is needed by this package." >/dev/stderr;kill -2 $PPID))}
+%define phpversion	4.3.10
+%define phpsource       %{_prefix}/src/php-devel
+%define phpdir		%{_libdir}/php
+%define peardir		%{_datadir}/pear
 
 %define subname		pear
-%define php_ver_rel	%{phpversion}-%{phprelease}
 %define pear_date	20040506
 
 Summary:	The PHP PEAR files
@@ -20,7 +21,7 @@ Source0:	php-pear-%{pear_date}.tar.bz2
 Source1:	fixregistry.php
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
-BuildRequires:	php%{libversion}-devel php-xml perl php-cli
+BuildRequires:	php4-devel php-xml perl php-cli
 BuildArch:	noarch
 
 Requires:	php-cli
@@ -63,7 +64,7 @@ perl -pi -e "s|'XML_Parser',|'XML_Parser',\n    'Log',\n    'Mail_Mime',\n    |;
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 # Pass default values to go-pear.  This will fetch, build and install PEAR
-install -d %{buildroot}{%{peardir},%{_bindir}}
+mkdir -p %{buildroot}{%{peardir},%{_bindir}}
 yes ""|php -q go-pear
 
 echo "Get all the info on http://pear.php.net" > README
@@ -100,14 +101,17 @@ mkdir %{buildroot}%{peardir}/packages
 %files 
 %defattr(-,root,root)
 %doc README
+%config(noreplace) %{_sysconfdir}/pear.conf
 %dir %{peardir}
 %{peardir}/*
 %{peardir}/.filemap
 %{peardir}/.registry
 %{_bindir}/pear
-%config(noreplace) %{_sysconfdir}/pear.conf
 
 %changelog
+* Sat Feb 26 2005 Vincent Danen <vdanen@annvix.org> 4.3.10-2avx
+- spec cleanups
+
 * Fri Dec 17 2004 Vincent Danen <vdanen@annvix.org> 4.3.10-1avx
 - php 4.3.10
 
