@@ -3,7 +3,7 @@
 @@ -0,0 +1,2 @@
 +REWRITEISSUE=rewrite
 +REWRITEISSUENET=rewrite
---- Makefile.opensls	2004-06-01 13:58:08.000000000 -0600
+--- Makefile.annvix	2004-06-01 13:58:08.000000000 -0600
 +++ Makefile	2004-06-01 13:58:08.000000000 -0600
 @@ -35,6 +35,7 @@
  	mkdir -p $(ROOT)/etc/sysconfig/console/consoletrans
@@ -13,22 +13,22 @@
  	cp -af rc.d sysconfig ppp $(ROOT)/etc
  	chmod 755 $(ROOT)/etc/rc.d/init.d/rawdevices
  	mkdir -p $(ROOT)/etc/ppp/peers
---- sysconfig.txt.opensls	2004-03-05 13:01:32.000000000 -0700
+--- sysconfig.txt.annvix	2004-03-05 13:01:32.000000000 -0700
 +++ sysconfig.txt	2004-03-05 13:01:33.000000000 -0700
 @@ -554,7 +554,7 @@
        /sbin/pump
        /sbin/dhcpxd
    if you have a preferred client define the DHCP_CLIENT variable. 
 -  When you use dhclient (which it is the default on a Mandrake-Linux
-+  When you use dhclient (which is the default on an OpenSLS
++  When you use dhclient (which is the default on an Annvix
    system) you can specify a timeout of waiting the answer from server,
    the option is called DHCP_TIMEOUT the default is 60 sec.
  
---- sysctl.conf.opensls	2004-05-11 09:15:15.000000000 -0600
+--- sysctl.conf.annvix	2004-05-11 09:15:15.000000000 -0600
 +++ sysctl.conf	2004-05-11 09:18:19.000000000 -0600
 @@ -1,4 +1,4 @@
 -# Kernel sysctl configuration file for Mandrakelinux
-+# Kernel sysctl configuration file for OpenSLS
++# Kernel sysctl configuration file for Annvix
  #
  # For binary values, 0 is disabled, 1 is enabled.  See sysctl(8) and
  # sysctl.conf(5) for more details.
@@ -41,23 +41,32 @@
 -
 -# to be able to eject via the device eject button (magicdev)
 -dev.cdrom.lock=0
---- inittab.opensls	2004-05-11 09:15:15.000000000 -0600
+--- inittab.annvix	2004-05-11 09:15:15.000000000 -0600
 +++ inittab	2004-05-11 09:19:22.000000000 -0600
 @@ -6,7 +6,7 @@
  #               Modified for RHS Linux by Marc Ewing and Donnie Barnes
  #
  
 -# Default runlevel. The runlevels used by Mandrakelinux are:
-+# Default runlevel. The runlevels used by OpenSLS are:
++# Default runlevel. The runlevels used by Annvix are:
  #   0 - halt (Do NOT set initdefault to this)
  #   1 - Single user mode
  #   2 - Multiuser, without NFS (The same as 3, if you do not have networking)
---- mandrake/mandrake_firstime.opensls	2004-05-11 09:15:15.000000000 -0600
+@@ -42,7 +42,7 @@
+ 
+ 
+ # Run gettys in standard runlevels
+-1:2345:respawn:/sbin/mingetty tty1
++1:2345:respawn:/sbin/mingetty --noclear tty1
+ 2:2345:respawn:/sbin/mingetty tty2
+ 3:2345:respawn:/sbin/mingetty tty3
+ 4:2345:respawn:/sbin/mingetty tty4
+--- mandrake/mandrake_firstime.annvix	2004-05-11 09:15:15.000000000 -0600
 +++ mandrake/mandrake_firstime	2004-05-11 09:24:57.000000000 -0600
 @@ -1,5 +1,5 @@
  #!/bin/sh
 -# Description: Launch Mandrake Configuration for the first time.
-+# Description: Launch OpenSLS Configuration for the first time.
++# Description: Launch Annvix Configuration for the first time.
  # (c) MandrakeSoft, Chmouel Boudjnah <chmouel@mandrakesoft.com>
  # 	$Id: mandrake_firstime,v 1.18 2003/09/04 14:10:01 tvignaud Exp $	
  
@@ -78,12 +87,12 @@
  [ -s $FLO ] || rm -f $FLO
  
  # Finish
---- mandrake/mandrake_everytime.opensls	2004-05-11 09:15:15.000000000 -0600
+--- mandrake/mandrake_everytime.annvix	2004-05-11 09:15:15.000000000 -0600
 +++ mandrake/mandrake_everytime	2004-05-11 09:26:01.000000000 -0600
 @@ -1,5 +1,5 @@
  #!/bin/bash
 -# Description: Launch diverses Mandrake Scripts on boot.
-+# Description: Launch diverses OpenSLS Scripts on boot.
++# Description: Launch diverses Annvix Scripts on boot.
  # (c) MandrakeSoft, Chmouel Boudjnah <chmouel@mandrakesoft.com>
  # 	$Id: mandrake_everytime,v 1.19 2003/07/11 21:02:33 flepied Exp $	
  
@@ -103,7 +112,7 @@
  # setup eth* (without configuring it) interfaces before the
  # hotplug/pcmcia started so we are sure that what we have configured
  # in /etc/modules.conf get the device we have affected.
---- sysconfig/init.opensls	2004-06-01 13:24:06.000000000 -0600
+--- sysconfig/init.annvix	2004-06-01 13:24:06.000000000 -0600
 +++ sysconfig/init	2004-06-01 13:24:06.000000000 -0600
 @@ -2,13 +2,13 @@
  # verbose => old-style bootup
@@ -121,7 +130,7 @@
  # terminal sequence to set color to a 'failure' color (currently: red)
  SETCOLOR_FAILURE="echo -en \\033[1;31m"
  # terminal sequence to set color to a 'warning' color (currently: yellow)
---- rc.d/init.d/functions.opensls	2004-06-01 13:25:47.000000000 -0600
+--- rc.d/init.d/functions.annvix	2004-06-01 13:25:47.000000000 -0600
 +++ rc.d/init.d/functions	2004-06-01 13:25:47.000000000 -0600
 @@ -381,7 +381,7 @@
    [ "$BOOTUP" = "color" ] && $MOVE_TO_COL
@@ -159,7 +168,7 @@
    [ "$BOOTUP" = "color" ] && $SETCOLOR_NORMAL
    echo -n "]"
    echo -ne "\r"
---- rc.d/rc.sysinit.opensls	2004-06-01 13:33:50.000000000 -0600
+--- rc.d/rc.sysinit.annvix	2004-06-01 13:33:50.000000000 -0600
 +++ rc.d/rc.sysinit	2004-06-01 13:34:39.000000000 -0600
 @@ -98,12 +98,12 @@
  # Print a banner. ;)
@@ -167,8 +176,8 @@
  # so real escap chars were written
 -PRODUCT=`sed "s/.*release \([0-9.]*\).*/\1/g" /etc/mandrake-release 2> /dev/null`
 -SYSTEM=${SYSTEM=Mandrakelinux}
-+PRODUCT=`sed "s/.*release \([0-9.]*-[A-Z.]*\).*/\1/g" /etc/opensls-release 2> /dev/null`
-+SYSTEM=${SYSTEM=OpenSLS}
++PRODUCT=`sed "s/.*release \([0-9.]*-[A-Z.]*\).*/\1/g" /etc/annvix-release 2> /dev/null`
++SYSTEM=${SYSTEM=Annvix}
  if [ "$BOOTUP" != "serial" ]; then
 - gprintf "\t\t\tWelcome to %s" "`echo -en '\\033[1;36m'`$SYSTEM`echo -en '\\033[0;39m'` $PRODUCT"
 + gprintf "\t\t    Welcome to %s" "`echo -en '\\033[0;35m'`$SYSTEM`echo -en '\\033[0;39m'` $PRODUCT"
@@ -184,19 +193,19 @@
  if [ -f /var/lock/TMP_1ST ];then
 - if [ -f /etc/init.d/mandrake_firstime ];then
 -	/bin/sh /etc/init.d/mandrake_firstime
-+ if [ -f /etc/init.d/opensls_firstime ];then
-+	/bin/sh /etc/init.d/opensls_firstime
++ if [ -f /etc/init.d/annvix_firstime ];then
++	/bin/sh /etc/init.d/annvix_firstime
   fi
  fi
  
 -if [ -f /etc/init.d/mandrake_everytime ]; then 
 -	/bin/sh /etc/init.d/mandrake_everytime
-+if [ -f /etc/init.d/opensls_everytime ]; then 
-+	/bin/sh /etc/init.d/opensls_everytime
++if [ -f /etc/init.d/annvix_everytime ]; then 
++	/bin/sh /etc/init.d/annvix_everytime
  fi
  
  # (pixel) a kind of profile for XF86Config
---- rc.d/rc.local.opensls	2004-06-01 13:39:19.000000000 -0600
+--- rc.d/rc.local.annvix	2004-06-01 13:39:19.000000000 -0600
 +++ rc.d/rc.local	2004-06-01 13:50:46.000000000 -0600
 @@ -5,23 +5,15 @@
  # want to do the full Sys V style init stuff.
@@ -213,15 +222,15 @@
 -fi
  
 -SYSTEM=${SYSTEM=Mandrakelinux}
-+SYSTEM=${SYSTEM=OpenSLS}
++SYSTEM=${SYSTEM=Annvix}
  
  # Source functions
  . /etc/init.d/functions
  
 -if [ "$REWRITEISSUE" = "rewrite" -a -f /etc/mandrake-release ]; then
 -    R=$(cat /etc/mandrake-release)
-+if [ "$REWRITEISSUE" = "rewrite" -a -f /etc/opensls-release ]; then
-+    R=$(cat /etc/opensls-release)
++if [ "$REWRITEISSUE" = "rewrite" -a -f /etc/annvix-release ]; then
++    R=$(cat /etc/annvix-release)
  
      arch=$(uname -m)
      a="a"

@@ -1,6 +1,6 @@
 %define name	initscripts
 %define version	7.06
-%define release	38sls
+%define release	40avx
 
 # 	$Id: initscripts.spec,v 1.329 2003/09/22 17:03:40 warly Exp $	
 
@@ -16,8 +16,8 @@ License:	GPL
 Group:		System/Base
 Url:		http://www.linux-mandrake.com/cgi-bin/cvsweb.cgi/soft/initscripts/
 Source0:	initscripts-%{version}.tar.bz2
-Patch:		initscripts-mdkconf.patch.bz2
-Patch2:		initscripts-opensls.patch.bz2
+Patch:		initscripts-7.06-mdk-mdkconf.patch.bz2
+Patch2:		initscripts-7.06-avx-annvix.patch.bz2
 
 BuildRoot: 	%{_tmppath}/%{name}-root
 BuildRequires:	glib2-devel, pkgconfig, popt-devel, python
@@ -30,7 +30,7 @@ Prereq:		chkconfig >= 1.3.8-3mdk, gawk, coreutils, grep
 
 %description
 The initscripts package contains the basic system scripts used to boot
-your OpenSLS system, change run levels, and shut the system down cleanly.
+your Annvix system, change run levels, and shut the system down cleanly.
 Initscripts also contains the scripts that activate and deactivate most
 network interfaces.
 
@@ -56,11 +56,11 @@ chmod u=rwx,g=rwx,o=rx $RPM_BUILD_ROOT/var/run/netreport
 #MDK
 make -C mandrake/ install ROOT=$RPM_BUILD_ROOT mandir=%{_mandir}
 
-# OpenSLS
+# Annvix
 pushd %{buildroot}%{_sysconfdir}/rc.d/init.d
-mv mandrake_firstime opensls_firstime
-mv mandrake_everytime opensls_everytme
-mv mandrake_consmap opensls_consmap
+mv mandrake_firstime annvix_firstime
+mv mandrake_everytime annvix_everytme
+mv mandrake_consmap annvix_consmap
 popd
 
 python mandrake/gprintify.py `find %{buildroot}%{_sysconfdir}/rc.d -type f` `find %{buildroot}/sysconfig/network-scripts -type f`
@@ -384,6 +384,13 @@ fi
 
 
 %changelog
+* Wed Jul 14 2004 Vincent Danen <vdanen@annvix.org> 7.06-40avx
+- patch naming convention policy
+- don't clear tty1 so we can see what happens
+
+* Sun Jun 27 2004 Vincent Danen <vdanen@annvix.org> 7.06-39avx
+- Annvix build
+
 * Fri Jun 11 2004 Vincent Danen <vdanen@opensls.org> 7.06-38sls
 - all Requires/PreReq require packages, not files
 - s/fileutils/coreutils/
