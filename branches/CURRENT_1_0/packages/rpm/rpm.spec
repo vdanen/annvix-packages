@@ -3,7 +3,7 @@
 %define poptver		1.8
 # You need increase both release and poptrelease
 %define poptrelease	%{release}
-%define release		24sls
+%define release		25sls
 
 %define url		ftp://ftp.rpm.org/pub/rpm/dist/rpm-4.0.x
 %define pyver		%(python -V 2>&1 | cut -f2 -d" " | cut -f1,2 -d".")
@@ -400,6 +400,11 @@ $RPM_BUILD_ROOT%{rpmdir}/find-lang.sh $RPM_BUILD_ROOT popt
 $RPM_BUILD_ROOT%{rpmdir}/brp-mandrake
 exit 0
 
+# fix symlink
+(cd $RPM_BUILD_ROOT%{_prefix}/lib;
+  ln -sf rpm/rpmpopt-%{rpmversion} rpmpopt
+)
+
 %clean
 rm -rf $RPM_BUILD_ROOT
 
@@ -482,8 +487,8 @@ fi
 %attr(0755, rpm, rpm) %{rpmdir}/rpm[deiukqv]
 %attr(0644, rpm, rpm) %{rpmdir}/rpmpopt*
 %attr(0644, rpm, rpm) %{rpmdir}/rpmrc
-%{_libdir}/rpmpopt
-%{_libdir}/rpmrc
+%{_prefix}/lib/rpmpopt
+%{_prefix}/lib/rpmrc
 %rpmattr	%{_prefix}/lib/rpm/rpm2cpio.sh
 %rpmattr	%{_prefix}/lib/rpm/tgpg
 
@@ -642,7 +647,11 @@ fi
 %{_includedir}/popt.h
 
 %changelog
-* Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 4.2-23sls
+* Thu Jan 01 2004 Vincent Danen <vdanen@opensls.org> 4.2-25sls
+- fix /usr/lib/rpmpopt symlink
+- amd64 fixes
+
+* Wed Dec 31 2003 Vincent Danen <vdanen@opensls.org> 4.2-24sls
 - sync with 23mdk (flepied): 
   - don't put prefix in spec file template created by emacs
     spec-mode [bug #6282] (Gotz Waschk)
