@@ -1,9 +1,9 @@
 %define name	php
-%define version	4.3.4
-%define release	5sls
+%define version	4.3.6
+%define release	1sls
 %define epoch	2
 
-%define libversion	432
+%define libversion	4
 %define phpversion	%{version}
 %define phprelease	%{release}
 %define libname		%mklibname php_common %{libversion}
@@ -26,7 +26,7 @@
 #  will _add_ -g3 to CFLAGS, will _add_ --enable-maintainer-mode to 
 #  configure.
 
-%define build_debug 1
+%define build_debug 0
 
 # commandline overrides:
 # rpm -ba|--rebuild --with 'xxx'
@@ -63,7 +63,7 @@ Source4:	php-test.bz2
 # wget -O ChangeLog-4.html http://www.php.net/ChangeLog-4.php
 Source5:	ChangeLog-4.html.bz2
 Patch0:		php-4.3.0-init.patch.bz2
-Patch1:		php-4.3.4RC3-shared.patch.bz2
+Patch1:		php-4.3.6-shared.patch.bz2
 Patch2:		php-4.3.0-imap.patch.bz2
 Patch3:		php-4.3.0-info.patch.bz2
 Patch4:		php-4.3.4RC3-64bit.patch.bz2
@@ -79,19 +79,17 @@ Patch15:	php-4.3.0-mcal-shared-lib.patch.bz2
 Patch16:	php-4.3.0-msession-shared-lib.patch.bz2
 #####################################################################
 # Stolen from RH
-Patch20:	php-4.3.1-dlopen.patch.bz2
+Patch20:	php-4.3.6-dlopen.patch.bz2
 #####################################################################
 # make the tests work better
 Patch30:	php-4.3.3-make_those_darn_tests_work.patch.bz2
+# Bug fixes:
+Patch40:	php-bug-22414.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
 # this is to prevent that it will build against old libs
 BuildConflicts:	%libname
 BuildConflicts:	php_common
-BuildConflicts:	libphp_common430-430
-BuildConflicts:	php430-devel-430
-BuildConflicts:	libphp_common430
-BuildConflicts:	php430-devel
 BuildConflicts:	php-devel
 # Those two modules have tests that fail
 BuildConflicts:	php-mhash
@@ -130,8 +128,6 @@ Provides:	php
 Provides:	php3
 Provides:	php4
 Provides:	php%{libversion} 
-Provides:	php430
-Obsoletes:	php430
 Obsoletes:	php
 Obsoletes:	php3
 Provides: 	ADVXpackage
@@ -159,8 +155,6 @@ Provides:	php
 Provides:	php3
 Provides:	php4
 Provides:	php%{libversion}
-Provides:	php430
-Obsoletes:	php430
 Obsoletes:	php
 Obsoletes:	php3
 Provides: 	ADVXpackage
@@ -182,31 +176,9 @@ Summary:	Shared library for php
 Epoch:		%{epoch}
 Group:		Development/Other
 URL:		http://www.php.net
+Provides:	%libname = %{epoch}:%{phpversion}-%{release}
 Provides:	libphp_common = %{phpversion}-%{release}
-Provides:	libphp_common430 = 4.3.0-%{release}
-Obsoletes:	libphp_common430
-Obsoletes:	php-ftp
-Provides:	php-ftp
-Obsoletes:	php-pcre
-Provides:	php-pcre
-Obsoletes:	php-posix
-Provides:	php-posix
-Obsoletes:	php-session
-Provides:	php-session
-Obsoletes:	php-sysvsem
-Provides:	php-sysvsem
-Obsoletes:	php-sysvshm
-Provides:	php-sysvshm
-Obsoletes:	php-yp
-Provides:	php-yp
-Obsoletes:	php-zlib
-Provides:	php-zlib
-Obsoletes:	php-gettext
-Provides:	php-ctype
-Obsoletes:	php-ctype
-Obsoletes:	php-common
 Provides:	php-common
-Provides:	php-gettext
 Provides: 	ADVXpackage
 
 %description -n	%libname
@@ -220,10 +192,8 @@ Epoch:		%{epoch}
 Group:		Development/C
 URL:		http://www.php.net
 Provides:	libphp_common-devel = %{phpversion}-%{release}
-Provides:	libphp_common430-devel = 4.3.0-%{release}
-Obsoletes:	libphp_common430-devel
 Requires:	libtool
-Requires:	%libname = %{phpversion}-%{release}
+Requires:	%libname = %{epoch}:%{phpversion}-%{release}
 Requires:	php%{libversion} = %{epoch}:%{phpversion}-%{release}
 Requires:	openssl-devel >= 0.9.6
 Requires:	chrpath
@@ -243,6 +213,10 @@ SELF-CONTAINED-EXTENSIONS.
 %setup -q -n php-%{phpversion}
 %patch0 -p1 -b .init
 %patch1 -p1 -b .shared
+
+# fix soname (libversion)
+perl -pi -e 's|_PHP_SONAME_|%{libversion}|g' Makefile.global
+
 %patch2 -p0 -b .imap
 %patch3 -p1 -b .info
 %patch4 -p1 -b .64bit
@@ -261,10 +235,12 @@ SELF-CONTAINED-EXTENSIONS.
 
 #####################################################################
 # Stolen from RH
-%patch20 -p1 -b .dlopen
+%patch20 -p0 -b .dlopen
 
 # make the tests worky
 %patch30 -p0 -b .make_those_darn_tests_work
+
+%patch40 -p1 -b .22414
 
 # Change perms otherwise rpm would get fooled while finding requires
 chmod 644 tests/lang/*.inc
@@ -319,9 +295,10 @@ cat > php-devel/buildext <<EOF
 #!/bin/bash
 gcc -fPIC -shared %{optflags} \\
     -I. \`%{_bindir}/php-config --includes\` \\
-    -I/usr/include/freetype \\
-    -I/usr/include/openssl \\
-    -I/usr/include/\$1 \\
+    -I%{_includedir}/freetype \\
+    -I%{_includedir}/openssl \\
+    -I%{phpsrcdir}/ext \\
+    -I%{_includedir}/\$1 \\
     \$4 \$2 -o \$1.so \$3 -lc
 EOF
 
@@ -349,8 +326,10 @@ bzcat %{SOURCE5} > ChangeLog-4.html
 
 #LIBS="$LIBS -lpthread $krb5libs"; export LIBS
 #LIBS="$LIBS $krb5libs"; export LIBS
-EXTENSION_DIR="%{phpdir}/extensions"; export EXTENSION_DIR
-PROG_SENDMAIL="/usr/sbin/sendmail"; export PROG_SENDMAIL
+export oldstyleextdir=yes
+export EXTENSION_DIR="%{phpdir}/extensions"
+export PROG_SENDMAIL="%{_sbindir}/sendmail"
+export CFLAGS="%{optflags} -fPIC -L%{_libdir}"
 
 #############################################################################
 # EXTENSIONS HACK
@@ -395,9 +374,8 @@ php package, but that can be installed as external modules:
 EOF
 
 # Configure php
-CFLAGS="%{optflags} -fPIC -L%{_libdir}"; export CFLAGS
-
 #%%configure does not work!!!!
+
 ./configure \
     --prefix=%{_prefix} \
     --exec-prefix=%{_exec_prefix} \
@@ -427,6 +405,7 @@ CFLAGS="%{optflags} -fPIC -L%{_libdir}"; export CFLAGS
     --enable-magic-quotes \
 %if %{build_debug}
     --enable-maintainer-mode \
+    --enable-debug \
 %endif
     --enable-debugger \
     --enable-track-vars \
@@ -458,18 +437,13 @@ CFLAGS="%{optflags} -fPIC -L%{_libdir}"; export CFLAGS
 ###	This configuration makes a dependency on those libs:
 #	-ldl -lpam -lcrypt -lresolv -lm -lz
 
-#    This has been removed...
-#    --enable-experimental-zts \
-
-find -type f|xargs perl -pi -e "s|/no-debug-non-zts-\d+||;"
-
 #JMD Remove all the --without and --disable from the configure.
 #In fact, everything between --without-dba and --without-gdbm...
 #Yes, people can't scroll down a page to see some modules have been split
 #and it creates confusion, even with Oden's patch =(
 find -type f|xargs perl -pi -e  "s/'--without-dba'.*'--without-gdbm'//;"
 
-make
+%make
 
 chrpath -d sapi/cli/php
 chrpath -d sapi/cgi/php
@@ -582,6 +556,7 @@ install -m0644 sapi/cli/php.1 %{buildroot}%{_mandir}/man1/
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post -n %libname -p /sbin/ldconfig
+
 %postun -n %libname -p /sbin/ldconfig
 
 %pre cgi
@@ -623,6 +598,16 @@ update-alternatives --remove php %{_bindir}/php-cli
 %{_includedir}/php
 
 %changelog
+* Tue Apr 13 2004 Vincent Danen <vdanen@opensls.org> 4.3.4-5sls
+- 4.3.6
+- more epoch fixes
+- don't build with %%debug by default
+- fix bug22414.phpbt (jmd)
+- rediff P1, P20 (oden)
+- spec cleanups/macros/etc. (oden)
+- libversion is 4, not 432
+- remove some unneeded BuildConflicts, Obsoletes, and Provides
+
 * Tue Apr 13 2004 Vincent Danen <vdanen@opensls.org> 4.3.4-5sls
 - fix epoch in requires
 
