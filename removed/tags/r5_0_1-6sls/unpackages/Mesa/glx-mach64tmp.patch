@@ -1,0 +1,76 @@
+--- Mesa-3.4/glx/servGL/hwglx/mach64/mach64dmainit.c_	Tue Oct 17 15:39:33 2000
++++ Mesa-3.4/glx/servGL/hwglx/mach64/mach64dmainit.c	Mon Jan 22 16:07:34 2001
+@@ -1,4 +1,4 @@
+-/* $Id: mach64dmainit.c,v 1.49 2000/10/12 09:23:16 giles Exp $ */
++/* $Id: mach64dmainit.c,v 1.50 2001/01/05 04:04:01 svartalf Exp $ */
+ 
+ /*
+  * GLX Hardware Device Driver for ATI Rage Pro
+@@ -28,19 +28,24 @@
+  */
+ 
+ /*
+- * This file is only entered at startup.  After mach64InitGLX completes,
+- * nothing here will be executed again.
++ * This file is entered at startup and shutdown.  At startup
++ * mach64InitGLX is called. At shutdown mach64GLXResetDriver
++ * is called.
+  *
+- * We need to:
++ * In mach64InitGLX we need to:
+  *
+  * make sure we have a chipset we can render with
+  *
+- * determine the current resolution and color depth that the
+- * X server is running in,
++ *    determine the current resolution and color depth that
++ *    the X server is running in,
+  *
+  * set up our dma / agp memory
+  *
+  * determine how we will be communicating with the card: dma or pseudo dma.
++ *
++ * In mach64GLXResetDriver we need to:
++ *
++ *    close and unlink our temporary shared dma buffer file
+  */
+ 
+ #include <stdlib.h>
+@@ -1123,6 +1128,29 @@
+ 	sleep( 3 );
+ }
+ 
++/*
++ * mach64GLXResetDriver
++ * This entry point is called when the GLX Extension is reset
++ * by ServerMesaReset() as the GLX Extension is shutdown. Its
++ * purpose is to reset the server's mach64 driver's resources.
++ *
++ * At this point, it only: closes and unlinks the shared dma
++ * buffer file.
++ */
++void mach64GLXResetDriver( void )
++{
++        /* first; for sanity; check that we are the server */
++        if ( ! __glx_is_server )
++                ErrorF("ResetDriver: called from client!\n");
++        else {
++                /* close the DMA memory file if necessary */                    
++                if ( mach64glx.dmaMemoryFd != -1 )
++                        close( mach64glx.dmaMemoryFd );
++
++                /* unlink the now closed DMA memory file */
++                unlink( mach64glx.memoryFileName );
++        }
++} /* mach64GLXResetDriver */
+ 
+ /*
+  * mach64InitGLX
+@@ -1185,6 +1213,7 @@
+ 	GLXProcs.BindBuffer = mach64GLXBindBuffer;
+ 	GLXProcs.VendorPrivate = mach64GLXVendorPrivate;
+ 	GLXProcs.AllowDirect = mach64GLXAllowDirect;
++        GLXProcs.ResetDriver = mach64GLXResetDriver;
+ 	// should we hook CreateWindowBuffer?
+ 
+ 	/* these vars can be changed between invocations of direct clients */
