@@ -1,8 +1,8 @@
 %define name	python
-%define version	2.3.3
-%define release	2avx
+%define version	2.3.4
+%define release	1avx
 
-%define docver  2.3.3
+%define docver  2.3.4
 %define dirver  2.3
 
 %define lib_major	%{dirver}
@@ -47,7 +47,8 @@ BuildRequires:	termcap-devel
 BuildRequires:	ncurses-devel 
 BuildRequires:	openssl-devel 
 BuildRequires:	readline-devel 
-BuildRequires:	tix 
+BuildRequires:	tix, tk, tcl 
+BuildRequires:	autoconf2.5
 
 Conflicts:	tkinter < %{version}
 Requires:	%{lib_name} = %{version}-%{release}
@@ -104,7 +105,7 @@ documentation.
 %package -n tkinter
 Summary:	A graphical user interface for the Python scripting language
 Group:		Development/Python
-Requires:	python = %version-%release
+Requires:	python = %version-%release, tcl, tk
 
 %description -n tkinter
 The Tkinter (Tk interface) program is an graphical user interface for
@@ -121,7 +122,7 @@ Provides:	python-base = %{dirver}
 
 %description base
 This packages contains the Python part that is used by the base packages
-of a Mandrake Linux distribution.
+of a Annvix distribution.
 
 %prep
 %setup -q -n Python-%{version}
@@ -212,18 +213,18 @@ cat >> modules-list << EOF
 %{_bindir}/python2.3
 %{_bindir}/pydoc
 %{_mandir}/man1/python*
-%{_libdir}/python*/bsddb/*
-%{_libdir}/python*/curses/*
-%{_libdir}/python*/distutils/*
+%{_libdir}/python*/bsddb/
+%{_libdir}/python*/curses/
+%{_libdir}/python*/distutils/
 %{_libdir}/python*/encodings/*
-%{_libdir}/python*/lib-old/*
-%{_libdir}/python*/logging/*
-%{_libdir}/python*/xml/*
-%{_libdir}/python*/compiler/*
-%{_libdir}/python*/email/*
-%{_libdir}/python*/hotshot/*
+%{_libdir}/python*/lib-old/
+%{_libdir}/python*/logging/
+%{_libdir}/python*/xml/
+%{_libdir}/python*/compiler/
+%{_libdir}/python*/email/
+%{_libdir}/python*/hotshot/
 %{_libdir}/python*/site-packages/README
-%{_libdir}/python*/plat-linux2/*
+%{_libdir}/python*/plat-linux2/
 $MODULESEXTRA
 EOF
 
@@ -231,6 +232,8 @@ LD_LIBRARY_PATH=$RPM_BUILD_ROOT%{_libdir} $RPM_BUILD_ROOT%{_bindir}/python %{SOU
 
 # fix non real scripts
 chmod 644 $RPM_BUILD_ROOT%{_libdir}/python*/test/test_{binascii,grp,htmlparser}.py*
+# fix python library not stripped
+chmod u+w %{buildroot}%{_libdir}/libpython2.3.so.1.0
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -238,7 +241,6 @@ rm -f modules-list main.list
 
 %files -f main.list
 %defattr(-, root, root, 755)
-%dir %{_libdir}/python*
 %dir %{_libdir}/python*/lib-dynload
 %dir %{_libdir}/python*/site-packages
 
@@ -251,8 +253,8 @@ rm -f modules-list main.list
 %{_libdir}/libpython*.so
 %dir %{_includedir}/python*
 %{_includedir}/python*/*
-%{_libdir}/python*/config/*
-%{_libdir}/python*/test/*
+%{_libdir}/python*/config/
+%{_libdir}/python*/test/
 
 
 %files -n tkinter
@@ -269,11 +271,19 @@ rm -f modules-list main.list
 
 %files base -f include.list
 %defattr(-, root, root, 755)
+%dir %{_libdir}/python*
 
 %post -n %{lib_name} -p /sbin/ldconfig
 %postun -n %{lib_name} -p /sbin/ldconfig
 
 %changelog
+* Tue Aug 17 2004 Vincent Danen <vdanen@annvix.org> 2.3.4-1avx
+- 2.3.4
+- BuildRequires: autoconf2.5, tk, tcl
+- tkinter requires tcl and tk (mdk bug #10278) (misc)
+- s/Mandrake Linux/Annvix/
+- fix [DIRM] (misc)
+
 * Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 2.3.3-2avx
 - Annvix build
 

@@ -3,6 +3,7 @@
 %{_libdir}/python2.3/commands.py*
 %{_libdir}/python2.3/copy.py*
 %{_libdir}/python2.3/copy_reg.py*
+%dir %{_libdir}/python2.3/encodings/
 %{_libdir}/python2.3/encodings/aliases.py*
 %{_libdir}/python2.3/encodings/__init__.py*
 %{_libdir}/python2.3/encodings/iso8859_15.py*
@@ -10,6 +11,7 @@
 %{_libdir}/python2.3/getopt.py*
 %{_libdir}/python2.3/gettext.py*
 %{_libdir}/python2.3/glob.py*
+%dir %{_libdir}/python2.3/lib-dynload/
 %{_libdir}/python2.3/lib-dynload/grp.so
 %{_libdir}/python2.3/lib-dynload/_locale.so
 %{_libdir}/python2.3/lib-dynload/pwd.so
