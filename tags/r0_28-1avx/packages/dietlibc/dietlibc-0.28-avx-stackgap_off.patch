@@ -1,0 +1,11 @@
+--- dietlibc-0.28/dietfeatures.h.ssp	2005-02-02 13:19:16.000000000 -0500
++++ dietlibc-0.28/dietfeatures.h	2005-02-02 13:19:16.000000000 -0500
+@@ -98,7 +98,7 @@
+ /* WARNING: this appears to break with some binutils versions.  Works
+  * for me with binutils 2.15.  The symptom is an error message that
+  * `main' can not be found. */
+-#define WANT_STACKGAP
++#undef WANT_STACKGAP
+ 
+ /* do you want ContraPolice support? ContraPolice is a mechanism to protect
+  * buggy programs from buffer overflows on the heap being exploited.  To
