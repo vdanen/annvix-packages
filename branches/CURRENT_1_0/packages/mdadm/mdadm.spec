@@ -1,6 +1,6 @@
 %define name	mdadm
 %define version	1.4.0
-%define release	5sls
+%define release	6sls
 
 %define use_dietlibc 0
 %ifarch %{ix86}
@@ -25,6 +25,7 @@ Patch3:		http://cgi.cse.unsw.edu.au/~neilb/source/mdadm/patch/applied/003BlkGetS
 Patch4:		http://cgi.cse.unsw.edu.au/~neilb/source/mdadm/patch/applied/004DetailRebuild.bz2
 Patch5:		http://cgi.cse.unsw.edu.au/~neilb/source/mdadm/patch/applied/005SignedUnsigned.bz2
 Patch6:		http://cgi.cse.unsw.edu.au/~neilb/source/mdadm/patch/applied/006TestMsg.bz2
+Patch7:		ftp://ftp.kernel.org/pub/linux/kernel/people/hpa/mdadm-1.4.0-raid6-20031230.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
 BuildRequires:	man groff groff-for-man
@@ -54,6 +55,7 @@ chmod 644 ChangeLog
 %patch4 -p0 -b .004
 %patch5 -p0 -b .005
 %patch6 -p0 -b .006
+%patch7 -p1 -b .raid6
 
 %build
 %if %{use_dietlibc}
@@ -94,6 +96,10 @@ install mdassemble %{buildroot}%{_sbindir}/mdassemble
 %{_mandir}/man*/md*
 
 %changelog
+* Wed Jan 21 2004 Vincent Danen <vdanen@opensls.org> 1.4.0-6sls
+- sync with 5mdk (Luca Berra):
+  - added raid6 patches from hpa
+
 * Sun Jan 11 2004 Vincent Danen <vdanen@opensls.org> 1.4.0-5sls
 - OpenSLS build
 - tidy spec
