@@ -1,0 +1,1452 @@
+--- mkinitrd-3.5.18/nash/nash.8.mdk	2003-01-14 21:44:00.000000000 +0100
++++ mkinitrd-3.5.18/nash/nash.8	2004-04-03 12:28:32.000000000 +0200
+@@ -1,5 +1,5 @@
+-.TH NASH 8 "Sat Mar 27 1999"
+-.UC 4
++.TH NASH 8 "Tue Nov 18 2003"
++.LO 1
+ .SH NAME
+ nash \- script interpretor to interpret linuxrc images
+ .SH SYNOPSIS
+@@ -106,6 +106,19 @@
+ \fBumount \fIpath\fR
+ Unmounts the filesystem mounted at \fIpath\fR.
+ 
++.TP
++\fBhandledevfs\fR
++Useful after a pivot_root, because the devfs filesystem, if already
++mounted by the kernel (with the use of kernel parameter
++\fIdevfs=mount\fR), is at the wrong location (\fI/initrd/dev\fR instead of
++\fI/dev\fR) and needs to be remounted at the correct location.
++
++.TP
++\fBmountdev\fR
++Useful if initrd uses a read-only filesystem, it will test for \fI/dev\fR to
++be writable, if not it will mount a \fItmpfs\fR over \fI/dev\fR and create
++some basic device file.
++
+ .SH RETURN VALUE
+ Returns 0 is the last command succeeded or 1 if it failed.
+ 
+@@ -123,4 +136,6 @@
+ .SH AUTHOR
+ .nf
+ Erik Troan <ewt@redhat.com>
++Patches for MandrakeSoft by Guillaume Cottenceau <gc at mandrakesoft.com> and
++Luca Berra <bluca at vodka.it>
+ .fi
+--- mkinitrd-3.5.18/nash/nash.c.mdk	2004-01-04 22:34:39.000000000 +0100
++++ mkinitrd-3.5.18/nash/nash.c	2004-04-03 12:31:47.000000000 +0200
+@@ -49,7 +49,9 @@
+ 
+ /* Need to tell loop.h what the actual dev_t type is. */
+ #undef dev_t
+-#if defined(__alpha) || (defined(__sparc__) && defined(__arch64__))
++#if defined(__x86_64__)
++#define dev_t unsigned long
++#elif defined(__alpha) || (defined(__sparc__) && defined(__arch64__))
+ #define dev_t unsigned int
+ #else
+ #define dev_t unsigned short
+@@ -72,6 +74,10 @@
+ #define MS_REMOUNT      32
+ #endif
+ 
++#ifdef __dietlibc__
++static inline _syscall2(int,pivot_root,const char *,one,const char *,two)
++#endif
++
+ extern dev_t name_to_dev_t(char *name);
+ 
+ #define MAX(a, b) ((a) > (b) ? a : b)
+@@ -88,19 +94,24 @@
+ int smartmknod(char * device, mode_t mode, dev_t dev) {
+     char buf[256];
+     char * end;
++    struct stat statbuf;
++
++    if ((stat(device, &statbuf) == 0) &&
++	((mode & S_IFMT) == (statbuf.st_mode & S_IFMT)) &&
++	(dev == statbuf.st_dev))
++	    return 0;
+ 
+     strncpy(buf, device, 256);
+ 
+     end = buf;
+     while (*end) {
++	end++; /* i dont need to create the root directory */
+ 	if (*end == '/') {
+ 	    *end = '\0';
+ 	    if (access(buf, F_OK) && errno == ENOENT) 
+ 		mkdir(buf, 0755);
+ 	    *end = '/';
+ 	}
+-
+-	end++;
+     }
+ 
+     return mknod(device, mode, dev);
+@@ -151,6 +162,7 @@
+     char * mntPoint;
+     char * deviceDir;
+     char * options = NULL;
++    char * options_mount = NULL;
+     int mustRemove = 0;
+     int mustRemoveDir = 0;
+     int rc;
+@@ -316,12 +328,23 @@
+ 		(flags & MS_NOATIME) ? "noatime " : ""
+ 	    );
+     } else {
+-	if (mount(device, mntPoint, fsType, flags, options)) {
+-	    printf("mount: error %d mounting %s\n", errno, fsType);
+-	    rc = 1;
+-	}
++	    if (mount(device, mntPoint, fsType, flags, options_mount)) {
++		    printf("mount: error %d mounting %s flags %s\n", errno, fsType, options);
++		    if (flags != MS_MGC_VAL) {
++			    printf("well, retrying without the option flags\n");
++			    if (!mount(device, mntPoint, fsType, flags, NULL))
++				    goto mount_ok;
++			    printf("mount: error %d mounting %s\n", errno, fsType);
++		    }
++		    printf("well, retrying read-only without any flag\n");
++		    if (mount(device, mntPoint, fsType, MS_MGC_VAL|MS_RDONLY, NULL)) {
++			    printf("mount: error %d mounting %s\n", errno, fsType);
++			    rc = 1;
++		    }
++	    }
+     }
+ 
++mount_ok:
+     if (mustRemove) unlink(device);
+     if (mustRemoveDir) rmdir(deviceDir);
+ 
+@@ -515,7 +538,7 @@
+ }
+ 
+ static int my_pivot_root(char * one, char * two) {
+-#ifdef USE_DIET
++#ifdef __dietlibc__
+     return pivot_root(one, two);
+ #else
+     return syscall(__NR_pivot_root, one, two);
+@@ -575,6 +598,7 @@
+ 	num -= 2;
+     }
+ 
++    if (!quiet || outFd != 1) {
+     for (i = 0; i < num;i ++) {
+ 	if (i)
+ 	    write(outFd, " ", 1);
+@@ -582,6 +606,7 @@
+     }
+ 
+     write(outFd, "\n", 1);
++    }
+ 
+     if (outFd != 1) close(outFd);
+ 
+@@ -860,7 +873,7 @@
+ 	strcat(strBuf, "/");
+ 	strcat(strBuf, d->d_name);
+ 
+-	if (!strcmp(d->d_name, name))
++	if (!strcmp("*", name) || !strcmp(d->d_name, name))
+ 	    printf("%s\n", strBuf);
+ 
+ 	if (!strcmp(d->d_name, ".") || !strcmp(d->d_name, "..")) {
+@@ -921,11 +934,11 @@
+ 	return 1;
+     }
+ 
+-    if (!access("/dev/.devfsd", X_OK))
++    if (!access("/dev/.devfsd", F_OK))
+ 	strcpy(separator, "/");
+ 
+     for (devNum = 0; devNum < 256; devNum++) {
+-	sprintf(devName, "/dev/loop%s%d", separator, devNum);
++	snprintf(devName, 20, "/dev/loop%s%d", separator, devNum);
+ 	if ((fd = open(devName, O_RDONLY)) < 0) return 0;
+ 
+ 	if (ioctl(fd, LOOP_GET_STATUS, &loopInfo)) {
+@@ -1006,6 +1019,11 @@
+ 	return 1;
+     }
+ 
++    snprintf(devName, 128, "%s/.devfsd", prefix);
++    if (!access(devName, F_OK)) {
++	return 0;
++    }
++
+     if ((fd = open("/proc/partitions", O_RDONLY)) < 0) {
+ 	printf("mkrootdev: failed to open /proc/partitions: %d\n", errno);
+ 	return 1;
+@@ -1053,27 +1071,9 @@
+ 		    if (testing) {
+ 			printf("% 3d % 3d %s\n", major, minor, start);
+ 		    } else {
+-			char * ptr, * deviceDir;
+-			int i;
+-
+-			sprintf(devName, "%s/%s", prefix, start);
++			snprintf(devName, 128, "%s/%s", prefix, start);
+ 			unlink(devName);
+ 
+-			ptr = devName;
+-			i = 0;
+-			while (*ptr)
+-			    if (*ptr++ == '/')
+-				i++;
+-			if (i > 2) {
+-			    deviceDir = alloca(strlen(devName) + 1);
+-			    strcpy(deviceDir, devName);
+-			    ptr = deviceDir + (strlen(devName) - 1);
+-			    while (*ptr != '/')
+-				*ptr-- = '\0';
+-			    if (access(deviceDir, X_OK) && mkdir(deviceDir, 0644)) {
+-				printf("mkdir: cannot create directory %s: %d\n", deviceDir, errno);
+-			    }
+-			}
+ 			if (smartmknod(devName, S_IFBLK | 0600, 
+ 				  makedev(major, minor))) {
+ 			    printf("failed to create %s\n", devName);
+@@ -1147,6 +1147,48 @@
+     return 0;
+ }
+ 
++int handledevfsCommand() {
++    int devfs;
++    // I need to close my IO's in order to release the lock on initial /dev
++    close(0); close(1); close(2);
++
++    devfs=access("/dev/.devfsd", F_OK);
++
++    if (umount("/initrd/dev"))
++	    return 0;
++
++    if ( devfs == 0 )
++	    mount("none", "/dev", "devfs", MS_MGC_VAL, NULL);
++
++    return 0;
++}
++
++int mountdevCommand() {
++    int rc;
++
++    if (access("/dev/.devfsd", F_OK) == 0)
++	return 0;
++
++    rc=open("/dev/.testwr",O_CREAT);
++    if (rc < 0) {
++	printf("/dev is readonly: mounting tmpfs\n");
++	mount("/dev", "/dev", "tmpfs", MS_MGC_VAL, NULL);
++	smartmknod("/dev/console", S_IFCHR | 0600, makedev(5, 1));
++	smartmknod("/dev/null", S_IFCHR | 0600, makedev(1, 3));
++	smartmknod("/dev/ram", S_IFBLK | 0600, makedev(1, 1));
++	smartmknod("/dev/systty", S_IFCHR | 0600, makedev(4, 0));
++	smartmknod("/dev/tty1", S_IFCHR | 0600, makedev(4, 1));
++	smartmknod("/dev/tty2", S_IFCHR | 0600, makedev(4, 2));
++	smartmknod("/dev/tty3", S_IFCHR | 0600, makedev(4, 3));
++	smartmknod("/dev/tty4", S_IFCHR | 0600, makedev(4, 4));
++    } else {
++	close(rc);
++	unlink ("/dev/.testwr");
++    }
++
++    return 0;
++}
++
+ int runStartup(int fd) {
+     char contents[32768];
+     int i;
+@@ -1217,8 +1259,6 @@
+ 	    rc = findCommand(chptr, end);
+ 	else if (!strncmp(start, "findlodev", MAX(7, chptr - start)))
+ 	    rc = findlodevCommand(chptr, end);
+-	else if (!strncmp(start, "showlabels", MAX(10, chptr-start)))
+-	    rc = display_uuid_cache();
+ 	else if (!strncmp(start, "mkdevices", MAX(9, chptr-start)))
+ 	    rc = mkdevicesCommand(chptr, end);
+ 	else if (!strncmp(start, "sleep", MAX(5, chptr-start)))
+@@ -1229,6 +1269,10 @@
+             rc = mkDMNodCommand(chptr, end);
+         else if (!strncmp(start, "readlink", MAX(8, chptr-start)))
+             rc = readlinkCommand(chptr, end);
++	else if (!strncmp(start, "handledevfs", MAX(11, chptr - start)))
++	    rc = handledevfsCommand();
++	else if (!strncmp(start, "mountdev", MAX(8, chptr - start)))
++	    rc = mountdevCommand();
+ 	else {
+ 	    *chptr = '\0';
+ 	    rc = otherCommand(start, chptr + 1, end, 1);
+@@ -1242,18 +1286,11 @@
+ 
+ int main(int argc, char **argv) {
+     int fd = 0;
+-    char * name;
+     int rc;
+     int force = 0;
+ 
+-    name = strrchr(argv[0], '/');
+-    if (!name) 
+-	name = argv[0];
+-    else
+-	name++;
+-
+-    if (!strcmp(name, "modprobe"))
+-	exit(0);
++    if (strstr(argv[0], "modprobe"))
++	    exit(0);
+ 
+     testing = (getppid() != 0) && (getppid() != 1);
+     argv++, argc--;
+@@ -1272,6 +1309,27 @@
+ 	}
+     }
+ 
++    if (mount("/proc", "/proc", "proc", 0, NULL))
++	    printf("Couldn't mount proc filesystem\n");
++    else {
++	    int fd_cmdline = open("/proc/cmdline", O_RDONLY, 0);
++	    if (fd_cmdline > 0) {
++		    char buf[5000];
++		    int i = read(fd_cmdline, buf, sizeof(buf));
++		    if (i == -1)
++			    printf("Couldn't read cmdline\n");
++		    else {
++			    buf[i] = '\0';
++			    if (strstr(buf, "quiet"))
++				    quiet = 1;
++		    }
++		    if (close(fd_cmdline))
++			    printf("can't close, %d\n", errno);
++	    }
++	    if (umount("/proc"))
++		    printf("Umount of proc failed: %d\n", errno);
++    }
++
+     if (force && !quiet)
+ 	printf("(forcing normal run)\n");
+ 
+--- mkinitrd-3.5.18/nash/name_to_dev_t.c.mdk	2003-12-22 23:11:29.000000000 +0100
++++ mkinitrd-3.5.18/nash/name_to_dev_t.c	2004-04-03 12:30:52.000000000 +0200
+@@ -18,7 +18,7 @@
+ 
+ 	/* read device number from .../dev */
+ 
+-	sprintf(path, "/sys/block/%s/dev", name);
++	snprintf(path, 64, "/sys/block/%s/dev", name);
+ 	fd = open(path, O_RDONLY);
+ 	if (fd < 0)
+ 		goto fail;
+--- mkinitrd-3.5.18/Makefile.mdk	2003-06-11 06:34:06.000000000 +0200
++++ mkinitrd-3.5.18/Makefile	2004-04-03 12:28:32.000000000 +0200
+@@ -5,7 +5,7 @@
+ ARCH := $(patsubst i%86,i386,$(shell uname -m))
+ ARCH := $(patsubst sparc%,sparc,$(ARCH))
+ 
+-SUBDIRS = nash grubby
++SUBDIRS = nash 
+ 
+ #ifeq ($(ARCH),sparc)
+ #SUBDIRS += loadinitrd
+@@ -21,7 +21,6 @@
+ 	for n in $(SUBDIRS); do make -C $$n; done
+ 
+ test:	all
+-	cd grubby; make test
+ 
+ install:
+ 	for n in $(SUBDIRS); do make -C $$n install BUILDROOT=$(BUILDROOT); done
+--- mkinitrd-3.5.18/mkinitrd.8.mdk	2003-03-05 00:12:22.000000000 +0100
++++ mkinitrd-3.5.18/mkinitrd.8	2004-04-03 12:28:32.000000000 +0200
+@@ -8,7 +8,7 @@
+          [--omit-raid-modules] [--omit-lvm-modules] 
+          [--with=\fImodule\fR] [--image-version]
+          [--fstab=\fIfstab\fR] [--nocompress]
+-         [--builtin=\fImodule\fR] [--nopivot]
++         [--builtin=\fImodule\fR] [--nopivot] [--tmpdir=\fItmpdir\fR]
+          \fIimage\fR \fIkernel-version\fR
+ 
+ .SH DESCRIPTION
+@@ -17,25 +17,14 @@
+ used for preloading the block device modules (such as IDE, SCSI or RAID)
+ which are needed to access the root filesystem. \fBmkinitrd\fR
+ automatically loads filesystem modules (such as ext3 and jbd), IDE modules, all
+-\fIscsi_hostadapter\fR entries in \fI/etc/modules.conf\fR, and raid
++\fIscsi_hostadapter\fR entries
++and all modules in a \fIprobeall scsi_hostadapter ..\fR line
++in \fI/etc/modules.conf\fR, and raid
+ modules if the system's root partition is on raid, which makes it simple
+ to build and use kernels using modular device drivers.
+ 
+ Any module options specified in \fI/etc/modules.conf\fR are passed
+ to the modules as they are loaded by the initial ramdisk.
+ 
+-If the root device is on a loop device (such as /dev/loop0), \fBmkinitrd\fR
+-will build an initrd which sets up the loopback file properly.
+-To do this, the fstab must contain a comment of the form:
+-
+-    # LOOP0: /dev/hda1 vfat /linux/rootfs
+-
+-LOOP0 must be the name of the loop device which needs to be configured, in
+-all capital lettes. The parameters after the colon are the device which 
+-contains the filesystem with the loopback image on it, the filesystem which
+-is on the device, and the full path to the loopback image. If the filesystem
+-is modular, initrd will automatically add the filesystem's modules to the
+-initrd image.
+-
+ The root filesystem used by the kernel is specified in the boot configuration
+ file, as always. The traditional \fBroot=/dev/hda1\fR style device 
+@@ -112,6 +101,12 @@
+ \fI/etc/modules.conf\fR. This option may be used as many times as 
+ necessary.
+ 
++.TP
++\fB-\-tmpdir=\fR\fItmpdir\fR
++Use \fItmpdir\fR as temporary directory for mkinitrd operations. The
++underlying filesystem must be capable of doing loopback-mounts, so
++\fBtmpfs\fR and \fBnfs\fR are not (currently) possible.
++
+ .SH FILES
+ .PD 0
+ .TP 20
+@@ -132,4 +127,6 @@
+ .SH AUTHOR
+ .nf
+ Erik Troan <ewt@redhat.com>
++Patches for MandrakeSoft by Guillaume Cottenceau <gc at mandrakesoft.com>,
++Pixel <pixel at mandrakesoft.com> and Luca Berra <bluca at vodka.it>.
+ .fi
+--- mkinitrd-3.5.18/mkinitrd.mdk	2004-01-09 00:36:14.000000000 +0100
++++ mkinitrd-3.5.18/mkinitrd	2004-04-03 12:28:32.000000000 +0200
+@@ -20,12 +20,13 @@
+ #       Preston Brown <pbrown@redhat.com>
+ #	Bill Nottingham <notting@redhat.com>
+ #       Guillaume Cottenceau <gc@mandrakesoft.com>
+-
++#	Pixel <pixel@mandrakesoft.com>
++#	Luca Berra <bluca@vodka.it>
+ 
+ PATH=/sbin:/usr/sbin:/bin:/usr/bin:$PATH
+ export PATH
+ 
+-VERSION=3.5.18
++VERSION=3.5.18-mdk
+ 
+ compress=1
+ target=""
+@@ -35,44 +36,74 @@
+ MODULES=""
+ img_vers=""
+ builtins=""
++initrdfs="ext2"
+ pivot=1
+ modulefile=/etc/modules.conf
++tmpdir=
+ rc=0
++kernel25=""
+ 
+-if [ `uname -m` = "i386" ]; then
+-  IMAGESIZE=4000
+-else
+-  IMAGESIZE=8000
+-fi
+-PRESCSIMODS="scsi_mod sd_mod unknown"
++splash_dir=/usr/share/bootsplash/
++splash=auto
++theme=Mandrake
++
++DEFAULT_DSDT_FILE="/boot/dsdt.aml"
++dsdt_file=""
++
++IMAGESIZE=100
++NB_INODES=100
++POSTSCSIMODS="sd_mod"
+ fstab="/etc/fstab"
++IGNOREMODS="$IGNOREMODS ppa imm ide-scsi $initrdfs usb-storage"
++
++[[ -f /etc/sysconfig/bootsplash ]] && source /etc/sysconfig/bootsplash
++[[ -n $SPLASH ]] && splash=$SPLASH
++[[ -n $THEME ]] && theme=$THEME
++[[ $splash == no ]] && splash=
+ 
+ usage () {
+     echo "usage: `basename $0` [--version] [-v] [-f] [--preload <module>]" >&2
+     echo "       [--omit-scsi-modules] [--omit-raid-modules] [--omit-lvm-modules]" >&2
+     echo "       [--with=<module>] [--image-version] [--fstab=<fstab>] [--nocompress]" >&2
+-    echo "       [--builtin=<module>] [--nopivot] <initrd-image> <kernel-version>" >&2
++    echo "       [--builtin=<module>] [--initrdfs=<fs>] [--nopivot] [--tmpdir=<tmpdir>]" >&2
++    echo "       [--splash={auto,resolution}] [--dsdt[=<dsdt.aml>]]" >&2
++    echo "       [--lvm-version=<1|2>] <initrd-image> <kernel-version>" >&2
+     echo "" >&2
+-    echo "       (ex: `basename $0` /boot/initrd-2.2.5-15.img 2.2.5-15)" >&2
++    echo "       (ex: `basename $0` /boot/initrd-$(uname -r).img $(uname -r))" >&2
+     exit 1
+ }
+ 
++check_kernel_25() {
++	local -i major minor
++
++	major=$(expr "$1" : '\([^.]\+\)\..*')
++	minor=$(expr "$1" : '[^.]\+\.\([^.]\+\)\..*')
++
++	if [ $major -ge 3 -o $major -eq 2 -a $minor -ge 5 ]; then
++		kernel25=yes
++		modulefile=/etc/modprobe.conf
++		modulemap="s@pdc-ultra@sata_promise@"
++		IGNORE="$IGNORE ataraid"
++	fi
++}
++
+ moduledep() {
+     if [ ! -f "/lib/modules/$kernel/modules.dep" ]; then
+ 	echo "No dep file found for kernel $kernel" >&2
+ 	exit 1
+     fi
+ 
+-    [ -n "$verbose" ] && echo -n "Looking for deps of module $1"
++    [ -n "$verbose" ] && echo "Looking for deps of module $1"
+     deps=$(awk 'BEGIN { searched=ARGV[2]; ARGV[2]=""; rc=1 } \
+-                function modname(filename) { match(filename, /\/([^\/]+)\.k?o/, ret); return ret[1] } \
+-                function show() { if (orig == searched) { print dep; orig=""; rc=0; exit } } \
+-                /^\/lib/ { show(); \
+-                           orig=modname($1); \
+-                           if ($2) { dep=modname($2) } else { dep="" } } \
+-                /^	/ { dep=sprintf("%s %s", dep, modname($1));  } \
+-                END      { show(); exit(rc) }' /lib/modules/$kernel/modules.dep $1)
+-    [ -n "$verbose" ] && echo -e "\t$deps"
++	function modname(filename) { match(filename, /\/([^\/]+)\.k?o/, ret); return ret[1] } \
++	function show() { if (orig == searched) { print dep; orig=""; rc=0; exit } } \
++	/^\/lib/ { show(); \
++	    orig=modname($1); \
++	    dep=""; \
++	    for (i=2; i<=NF; i++) { dep=sprintf("%s %s", dep, modname($i)) } } \
++	/^     / { dep=sprintf("%s %s", dep, modname($1));  } \
++	END      { show(); exit(rc) }' /lib/modules/$kernel/modules.dep $1)
++    [ -n "$verbose" -a -n "$deps" ] && echo -e "\t$deps"
+ }
+ 
+ findmodule() {
+@@ -85,86 +116,99 @@
+ 
+     local modName=$1
+ 
++    if [ -n "$modulemap" ]; then
++	local modMap=`echo $modName | sed -e $modulemap`
++	if [ "${modMap}" != "${modName}" ]; then
++		[ -n "$verbose" ] && echo "replacing $modName with $modMap"
++		modName=$modMap
++	fi
++    fi
++
+     if [ "$modName" = "off" -o "$modName" = "null" ]; then
+ 	return
+     fi
+ 
+-    if [ $(echo $modName | cut -b1) = "-" ]; then
++    if [ "$modName" != "${modName#-}" ]; then
+ 	skiperrors=--skiperrors
+-	modName=$(echo $modName | cut -b2-)
++	modName=${modName#-}
+     fi
+ 
+     if echo $builtins | egrep -q '(^| )'$modName'( |$)' ; then
+ 	[ -n "$verbose" ] && echo "module $modName assumed to be built in"
+-	set +x
+ 	return
+     fi
+ 
+-    # special cases
+-    if [ "$modName" = "i2o_block" ]; then
+-	findmodule i2o_core
+-	findmodule i2o_pci
+-	modName="i2o_block"
+-    elif [ "$modName" = "ppa" ]; then
+-	findmodule parport
+-	findmodule parport_pc
+-	modName="ppa"
+-    elif [ "$modName" = "sbp2" ]; then
+-	findmodule ieee1394
+-	findmodule ohci1394
+-	modName="sbp2"
+-    else
+-	moduledep $modName
+-	for i in $deps; do
+-	    findmodule $i
+-	done
+-    fi
++    for i in $IGNOREMODS; do
++ 	[ "$i" = "$modName" ] && return
++    done
+ 
+-    for modExt in o.gz o ko ; do
+-	if [ -d /lib/modules/$kernel/updates ]; then
+-	    fmPath=`(cd /lib/modules/$kernel/updates; echo find . -name $modName.$modExt -type f | /sbin/nash --quiet) | /bin/awk {'print $1; exit;'}`
+-	fi
+-	
+-	if [ -f /lib/modules/$kernel/updates/$fmPath ]; then
+-	    fmPath=updates/$fmPath
+-	    break
+-	fi
++    moduledep $modName
++    for i in $deps; do
++	findmodule $i
++    done
+ 
+-	fmPath=`(cd /lib/modules/$kernel; echo find . -name $modName.$modExt -type f | /sbin/nash --quiet) | /bin/awk {'print $1; exit;'}`
+-	if [ -f /lib/modules/$kernel/$fmPath ]; then
+-	    break
+-	fi
++    # support generation of initrd suitable for a raid system on a non raid system
++    case $modname in
++	linear|multipath|raid[015]*) startraid=1;;
++    esac
++
++    for modExt in o.gz o ko.gz ko ; do
++	fmPath=`(cd /lib/modules/$kernel; find . -type f -name $modName.$modExt | grep -v "^./build")`
++	[ -n "$fmPath" ] && break
+     done
+ 
+-    if [ ! -f /lib/modules/$kernel/$fmPath ]; then
++    if [ -z "$fmPath" ]; then
+ 	if [ -n "$skiperrors" ]; then
+-	    return
++	    return 1
+ 	fi
+ 
+-        # ignore the absence of the scsi modules
+-	for n in $PRESCSIMODS; do
+-	    if [ "$n" = "$modName" ]; then
+-		return;
+-	    fi
+-	done;
+-    
+ 	echo "No module $modName found for kernel $kernel, aborting." >&2
+ 	exit 1
+     fi
+ 
+     # only need to add each module once
+-    if ! echo $MODULES | grep -q "$fmPath" 2>/dev/null ; then
+-	MODULES="$MODULES $fmPath"
++    zfmPath=${fmPath%.gz}
++    if ! echo $MODULES | grep -q "$zfmPath" 2>/dev/null ; then
++	MODULES="$MODULES $zfmPath"
+     fi
+ }
+ 
++is_good_fs() {
++    local parttype= tmpname=
++    local dir=$1
++    [[ -d $dir ]] || return 1
++    [[ -w $dir ]] || return 1
++    [[ $dir == */ ]] && dir=${dir%/}
++    parttype=$(awk "{if (\$2 == \""$dir"\") print \$3 }" /proc/mounts)
++
++    while tmpname=${dir%/*} && [[ -z $parttype ]];do
++	[[ -z $tmpname ]] && tmpname=/
++	parttype=$(awk "{if (\$2 == \""$tmpname"\") print \$3 }" /proc/mounts)
++	dir=$tmpname
++    done
++
++    case $parttype in
++	nfs|tmpfs) return 1;;
++	*) return 0;
++    esac
++}
++
+ inst() {
+     if [ "$#" != "2" ];then
+         echo "usage: inst <file> <destination>"
+         return
+     fi 
+     [ -n "$verbose" ] && echo "$1 -> $2"
+-    cp $1 $2
++    cp -aL $1 $2
++    for i in `ldd $1 | awk '$2 == "=>" {print $3}'`; do
++	j=${i##*/}
++	[ -e $MNTIMAGE/lib/$j ] || cp -aL $i $MNTIMAGE/lib/$j
++    done
++}
++
++is_dietlibc_arch() {
++    if [ -n "`uname -m | grep '\(i.86\|x86_64\)'`" ]; then return 0; fi
++    return 1
+ }
+ 
+ while [ $# -gt 0 ]; do
+@@ -178,6 +222,15 @@
+ 	    fi		    
+ 	    ;;
+ 
++	--tmpdir*)
++	    if echo $1 | grep '=' >/dev/null ; then
++	    	tmpdir=`echo $1 | sed 's/^--tmpdir=//'`
++	    else
++		tmpdir=$2
++		shift
++	    fi		    
++	    ;;
++
+ 	--with-usb)
+ 	    withusb=yes
+ 	    ;;
+@@ -203,6 +256,20 @@
+ 	    builtins="$builtins $modname"
+ 	    ;;
+ 
++	--initrdfs*)
++	    if echo $1 | grep -q '=' ; then
++	    	initrdfs=`echo $1 | sed 's/^--initrdfs=//'`
++	    else
++		initrdfs=$2
++		shift
++	    fi		    
++	    case $initrdfs in
++		romfs|cramfs) readonly=1;;
++		ext2|ext3|minix) ;;
++		*) echo "Unsupported initrd fs ($initrdfs)." 1>&2 ; exit 1 ;;
++		esac
++	    ;;
++	    
+ 	--version)
+ 	    echo "mkinitrd: version $VERSION"
+ 	    exit 0
+@@ -237,7 +304,7 @@
+ 	    PREMODS="$PREMODS $modname"
+ 	    ;;
+ 	--omit-scsi-modules)
+-	    PRESCSIMODS=""
++	    POSTSCSIMODS=""
+ 	    noscsi=1;
+ 	    ;;
+ 	--omit-raid-modules)
+@@ -246,9 +313,33 @@
+ 	--omit-lvm-modules)
+ 	    nolvm=1
+ 	    ;;
++	--lvm-version*)
++	    if echo $1 | grep -q '=' ; then
++	    	lvmver=`echo $1 | sed 's/^--lvm-version=//'`
++	    else
++		lvmver=$2
++		shift
++	    fi		    
++	    ;;
+ 	--image-version)
+ 	    img_vers=yes
+ 	    ;;
++	--splash*)
++	    if echo $1 | grep '=' >/dev/null ; then
++	    	splash=`echo $1 | sed 's/^--splash=//'`
++	    else
++		splash=$2
++		shift
++	    fi		    
++	    [[ $splash == no ]] && splash=
++	    ;;
++	--dsdt*)
++	    if echo $1 | grep '=' >/dev/null ; then
++	    	dsdt_file=`echo $1 | sed 's/^--dsdt=//'`
++	    else
++		dsdt_file=$DEFAULT_DSDT_FILE
++	    fi		    
++	    ;;
+ 	*)
+ 	    if [ -z "$target" ]; then
+ 		target=$1
+@@ -267,6 +358,12 @@
+     usage
+ fi
+ 
++check_kernel_25 "$kernel"
++
++if [[ $splash == auto && -f $splash_dir/scripts/detect-resolution ]];then
++    splash=$( $splash_dir/scripts/detect-resolution $target )
++fi
++
+ if [ -n "$img_vers" ]; then
+     target="$target-$kernel"
+ fi
+@@ -286,31 +383,12 @@
+     exit 1
+ fi
+ 
+-kernelmajor=`echo $kernel | cut -d . -f 1,2`
+-if [ "$kernelmajor" == "2.6" ]; then
+-    modulefile=/etc/modprobe.conf
+-fi
+-
+-# find a temporary directory which doesn't use tmpfs
+-TMPDIR=""
+-for t in /tmp /var/tmp /root ${PWD}; do
+-    if [ ! -d $t ]; then continue; fi
+-    if ! echo access -w $t | /sbin/nash --quiet; then continue; fi
+-
+-    fs=$(df -T $t 2>/dev/null | awk '{line=$1;} END {printf $2;}')
+-    if [ "$fs" != "tmpfs" ]; then 
+-	TMPDIR=$t
+-	break
++if [ ! -f /proc/version ]; then
++    mount -t proc /proc /proc
++    if [ ! -f /proc/version ]; then
++	echo "/proc filesystem must be available"
++	exit 1
+     fi
+-done
+-
+-if [ -z "$TMPDIR" ]; then
+-    echo "no temporary directory could be found" >&2
+-    exit 1
+-fi
+-
+-if [ $TMPDIR = "/root" -o $TMPDIR = "${PWD}" ]; then 
+-    echo "WARNING: using $TMPDIR for temporary files" >&2
+ fi
+ 
+ for n in $PREMODS; do
+@@ -319,7 +397,7 @@
+     for fs in / /boot ; do
+ 	esc=$(echo $fs | sed 's,/,\\/,g')
+ 	dev=$(mount | awk "/ on ${esc} / { print \$1 }" | sed 's/[0-9]*$//' | cut -d/ -f3)
+-	if [ "$(echo $dev | cut -c1-2)" = sd ]; then
++	if [ "${dev#sd}" != "$dev" ]; then
+           if [ `which kudzu 2>/dev/null` ]; then
+ 	    host=$(kudzu --probe -b scsi |
+ 	      gawk '/^device: '${dev}'/,/^host:/ { if (/^host/) { print $2; exit; } }')
+@@ -337,12 +415,11 @@
+ fi
+ 
+ if [ -n "$needusb" ]; then
+-    drivers=$(awk '/^alias[[:space:]]+usb-controller[0-9]* / { print $3}' < $modulefile)
++    drivers=$(awk '/^alias[[:space:]]+usb-controller[0-9]* / { print $3}' $modulefile)
+     if [ -n "$drivers" ]; then
+ 	for driver in $drivers; do
+ 	    findmodule $driver
+ 	done
+-	findmodule scsi_mod
+ 	findmodule sd_mod
+ 	findmodule usb-storage
+     fi
+@@ -354,18 +431,29 @@
+     fi
+ 
+     if [ -f $modulefile ]; then
+-	scsimodules=`grep "alias[[:space:]]\+scsi_hostadapter" $modulefile | grep -v '^[ 	]*#' | LC_ALL=C sort -u | awk '{ print $3 }'`
++	# support standard alias form
++	# support probeall form as found with Mandrake 8.1 and superior
++	# support canonical probeall translation for module-init-tools
++	scsimodules=$(grep -E '^[[:space:]]*(alias|probeall|install)[[:space:]]+scsi_hostadapter' $modulefile | sed 's/^.*scsi_hostadapter//;s/\/sbin\/modprobe//g;s/;//g;s/\/bin\/true//;s/||//')
+ 
+ 	if [ -n "$scsimodules" ]; then
+-	    for n in $PRESCSIMODS; do
+-		findmodule $n
+-	    done
++	    SAVEMODULES=$MODULES
+ 
+-	    for n in $scsimodules; do
++	    SAVEMODULESCMP=$MODULES
++
++	    for n in $(for m in $scsimodules; do echo $m; done | awk 'a[$1]=="" {print;a[$1]=1}'); do
+     # for now allow scsi modules to come from anywhere.  There are some
+     # RAID controllers with drivers in block/
+ 		findmodule $n
+ 	    done
++
++	    if [ "$SAVEMODULESCMP" = "$MODULES" ]; then
++		MODULES=$SAVEMODULES
++	    else
++		for n in $POSTSCSIMODS; do
++		    findmodule $n
++		done
++	    fi
+ 	fi
+     fi
+ fi
+@@ -373,106 +461,137 @@
+ # If we have ide devices and module ide, do the right thing
+ ide=/proc/ide/ide*
+ if [ -n "$ide" ]; then
+-    findmodule -ide-disk
+-fi
+-
+-# If we use LVM, include lvm-mod
+-if [ -z "$nolvm" ]; then
+-    if [ -f /proc/lvm/global  ]; then
+-        if  grep -q '^VG:' /proc/lvm/global ; then
+-	    if [ "$kernelmajor" == "2.4" ]; then
+-		findmodule -lvm-mod
+-	    else
+-		findmodule -dm-mod
+-	    fi
+-        fi
++    if [ -f $modulefile ]; then
++	idemodules=$(grep -E '^[[:space:]]*(alias|probeall|install)[[:space:]]+ide-controller[0-9]*[[:space:]]' $modulefile | sed 's/^.*ide-controller[0-9]*//;s/\/sbin\/modprobe//g;s/;//g;s/\/bin\/true//;s/||//')
+     fi
++    if [ -n "$idemodules" ]; then
++	for idemodule in $idemodules; do
++	    findmodule $idemodule
++	done
+ 
+-    if [ -x /sbin/dmsetup -a -e /dev/mapper/control ]; then
+-	dmout=$(/sbin/dmsetup ls 2>/dev/null)
+-	if [ "$dmout" != "No devices found" -a "$dmout" != "" ]; then
+-	    findmodule -dm-mod
+-	fi
+-    fi
+-fi
++	# Debian patch
++	findmodule -ide-mod
++	findmodule -ide-probe-mod
+ 
+-# If we have dasd devices, include the necessary modules (S/390)
+-if [ -d /proc/dasd ]; then
+-    findmodule -dasd_mod
+-    findmodule -dasd_eckd_mod
+-    findmodule -dasd_fba_mod
+-fi
+-
+-if [ -z "$noraid" -a -f /proc/mdstat ]; then
+-    # load appropriate raid devices if necessary -- we'll load whatever
+-    # /proc/mdstat suggests
+-
+-    # note that the awk below contains a space and a tab
+-    for level in $(awk '/^md[0-9][0-9]*[ 	]*:/ { print $4 }' \
+-		    /proc/mdstat | sort -u); do
+-	case $level in
+-	linear)
+-	    findmodule linear
+-	    startraid=1
+-	    ;;
+-	raid[0145])
+-	    findmodule $level
+-	    startraid=1
+-	    ;;
+-	*)
+-	    echo "raid level $level (in /proc/mdstat) not recognized" >&2
+-	    ;;
+-	esac
+-    done
++	# official way
++	findmodule -ide-core
+ 
+-    if [ -n "$startraid" ]; then
+-	raiddevices=$(awk '/^md[0-9][0-9]*[        ]*:/ { print $1 }' \
+-			    /proc/mdstat | sort)
++	findmodule -ide-disk
+     fi
++
+ fi
+ 
+ # check to see if we need to set up a loopback filesystem
+ rootdev=$(awk '/^[ \t]*[^#]/ { if ($2 == "/") { print $1; }}' $fstab)
+-if echo $rootdev | cut -d/ -f3 | grep -q loop ; then
+-    key="^# $(echo $rootdev | cut -d/ -f3 | tr '[a-z]' '[A-Z]'):"
+-    if ! grep "$key" $fstab > /dev/null; then
+-	echo "The root filesystem is on a $rootdev, but there is no magic entry in $fstab" 1>&2
+-	echo "for this device. Consult the mkinitrd man page for more information" 2>&2
++fstabrootdev=$rootdev
++if [ ${rootdev#LABEL=} != $rootdev ]; then
++    rootdev=${rootdev#LABEL=}
++    if [ $(e2label /dev/root) = ${rootdev} ]; then
++	rootdev=/dev/root
++    fi
++    echo "rootdev=${rootdev}"
++fi
++fullloopfile=$(awk '$2 == "/" && $4 ~ "loop" { print $1 }' /etc/fstab)
++if [ -n "$fullloopfile" ]; then
++    dir=$fullloopfile
++    while [ -n "$dir" -a -z "$line" ]; do
++        dir=$(dirname $dir)
++	line=$(awk -v dir=$dir '$2 == dir { print $0 }' /etc/fstab)	
++    done
++    if [ -z "$line" -o "$dir" = "/" ]; then
++	echo "bad fstab, loopback file doesn't belong to any device"
+ 	exit 1
+     fi
+ 
+-    line=$(grep "$key" $fstab)
+-    loopDev=$(echo $line | awk '{print $3}')
+-    loopFs=$(echo $line | awk '{print $4}')
+-    loopFile=$(echo $line | awk '{print $5}')
++    loopDev=$(echo $line | awk '{ print $1 }')
++    loopFs=$(echo $line | awk '{print $3 }')
++    loopFile=$(echo $fullloopfile | sed "s|$dir||")
+ 
+     basicmodules="$basicmodules -loop"
+     if [ "$loopFs" = "vfat" -o "$loopFs" = "msdos" ]; then
+ 	basicmodules="$basicmodules -fat"
+     fi
+     basicmodules="$basicmodules -${loopFs}"
+-# check if the root fs is on a logical volume
+-elif ! echo $rootdev | cut -c1-6 |grep -q "LABEL=" ; then
+-    rootdev=$(echo "readlink $rootdev" | /sbin/nash --quiet)
+-    major=`ls -l $rootdev | sed -e "s/.* \\([0-9]\+\\), *[0-9]\+.*/\\1/"`
+-    [ "$major" != "58" ] || root_lvm=1
+-    if echo $rootdev |grep -q /dev/mapper 2>/dev/null ; then root_lvm=1 ; fi
+ fi
+ 
++# check if the root fs is on a logical volume
++while [ -L $rootdev ]; do
++	rel=${rootdev%/*}
++	rootdev=$(/bin/ls -l $rootdev | /bin/awk '{ print $NF }')
++    	[ $rootdev = ${rootdev#/} ] && rootdev=$rel/${rootdev} # devfs makes relative links sometimes
++done
++root_major=$(/bin/ls -l $rootdev | /bin/awk '{ print $5 }')
++[ -f /sbin/lvm1-vgdisplay ] && lvmprefix="lvm1-"
++dm_major=`awk '$2 == "device-mapper" {print $1}' /proc/devices`
++if [ "$root_major" = "$dm_major", -a -z "$nolvm" ]; then
++# trick to support making initrd for kernel that has a different version of lvm
++# unless forced by --lvmver
++    case x$lvmver in
++	x1) findmodule -lvm-mod;;
++	x2) findmodule -dm-mod;;
++	x)  if ! findmodule -dm-mod && findmodule -lvm-mod; then
++		lvmver=1
++	    else
++		lvmver=2
++	    fi;;
++    esac
++    # root is on an LVM2 LV
++    root_lvm=1
++    rootvg=`/sbin/lvm2 lvdisplay $fstabrootdev | /bin/awk '/VG Name/ { print $NF }'`
++    pvs=$(/sbin/lvm2 vgdisplay -v ${rootvg} | /bin/awk '/PV Name/ { print $NF }')
++elif [ $root_major = 58, -a -z "$nolvm" ]; then
++    case x$lvmver in
++	x1) findmodule -lvm-mod;;
++	x2) findmodule -dm-mod;;
++	x)  if ! findmodule -lvm-mod && findmodule -dm-mod; then
++		lvmver=2
++	    else
++		lvmver=1
++	    fi;;
++    esac
++    # root is on an LVM LV
++    root_lvm=1
++    rootvg=`/sbin/${lvmprefix}lvdisplay $fstabrootdev | /bin/awk '/VG Name/ { print $NF }'`
++    pvs=$(/sbin/${lvmprefix}vgdisplay -v ${rootvg} | /bin/awk '/PV Name/ { print $(NF-1) }')
++elif [ $root_major = 9, -a -z "$noraid" ]; then
++    raiddevices=$rootdev
++    md=${rootdev##*/}
++    md=md${md#md} # /dev/md/0 and /dev/md0 become md0
++    mddevs=$(awk '/^'$md'[[:space:]]*:/ {for (i=5;i<=NF;i++) {sub("\\[[0-9]*\\]","",$i); print "/dev/" $i } }' /proc/mdstat)
++fi
++
++# let's see if some pv or md are actually raid devices themselves
++for mddev in $mddevs $pvs; do
++    while [ -L $mddev ]; do
++	rel=${mddev%/*}
++	mddev=$(/bin/ls -l $mddev | /bin/awk '{ print $NF }')
++    	[ $mddev = ${mddev#/} ] && mddev=$rel/${mddev} # devfs makes relative links sometimes
++    done
++    md_major=$(/bin/ls -l $mddev | /bin/awk '{ print $5 }')
++    [ $md_major = 9, ] && raiddevices="$mddev $raiddevices"
++done
++
++for md in $raiddevices; do
++    startraid=1
++    md=${md##*/}
++    md=md${md#md} # /dev/md/0 and /dev/md0 become md0
++    level=$(awk '/^'$md'[[:space:]]*:/ { print $4 }' /proc/mdstat)
++    case $level in
++	linear|multipath|raid[015])
++	    findmodule $level
++	    ;;
++	*)
++	    echo "raid level $level (in /proc/mdstat) not recognized" >&2
++	    ;;
++    esac
++done
++
+ rootfs=$(awk '{ if ($1 !~ /^[ \t]*#/ && $2 == "/") { print $3; }}' $fstab)
+ rootopts=$(awk '{ if ($1 !~ /^[ \t]*#/ && $2 == "/") { print $4; }}' $fstab)
+ 
+ # in case the root filesystem is modular
+ findmodule -${rootfs}
+ 
+-if [ -n "$root_lvm" ]; then
+-    if [ "$kernelmajor" == "2.4" ]; then    
+-	findmodule -lvm-mod
+-    else
+-	findmodule -dm-mod
+-    fi
+-fi
+-
+ for n in $basicmodules; do 
+     findmodule $n
+ done
+@@ -482,44 +601,34 @@
+ fi
+ 
+ 
+-MNTIMAGE=`mktemp -d ${TMPDIR}/initrd.XXXXXX`
+-IMAGE=`mktemp ${TMPDIR}/initrd.img.XXXXXX`
+-MNTPOINT=`mktemp -d ${TMPDIR}/initrd.mnt.XXXXXX`
++[[ -n $tmpdir ]] && { is_good_fs $tmpdir || tmpdir= ;} #command-line
++[[ -z $tmpdir && -n $TMPDIR ]] && { is_good_fs $TMPDIR || tmpdir= && tmpdir=$TMPDIR ;} #environement
++if [[ -z $tmpdir ]];then
++    if is_good_fs /tmp;then
++	tmpdir=/tmp
++    elif is_good_fs /var/tmp;then
++	tmpdir=/var/tmp
++    elif is_good_fs /root/tmp;then
++	tmpdir=/root/tmp
++    else
++	echo "Cannot find a suitable tmp directory" >&2
++	exit 1
++    fi
++fi
++[[ -n $verbose ]] && echo "Using $tmpdir as temporary directory."
++
++MNTIMAGE=`mktemp -d ${tmpdir}/initrd.XXXXXX`
++IMAGE=`mktemp ${tmpdir}/initrd.img.XXXXXX`
++MNTPOINT=`mktemp -d ${tmpdir}/initrd.mnt.XXXXXX`
+ RCFILE=$MNTIMAGE/linuxrc
++# cleanup on exit, hangup, interrupt, quit, termination
++trap 'rm -rf $MNTIMAGE $MNTPOINT $IMAGE' 0 1 2 3 15
+ 
+ if [ -z "$MNTIMAGE" -o -z "$IMAGE" -o -z "$MNTPOINT" ]; then
+     echo "Error creating temporaries.  Try again" >&2
+     exit 1
+ fi
+ 
+-dd if=/dev/zero of=$IMAGE bs=1k count=$IMAGESIZE 2> /dev/null || exit 1
+-
+-LODEV=$(echo findlodev | /sbin/nash --quiet)
+-
+-if [ -z "$LODEV" ]; then
+-    rm -rf $MNTIMAGE $MNTPOINT $IMAGE
+-    echo "All of your loopback devices are in use." >&2
+-    exit 1
+-fi
+-
+-losetup ${LODEV} $IMAGE || exit 1
+-
+-# We have to "echo y |" so that it doesn't complain about $IMAGE not
+-# being a block device
+-echo y | mke2fs $LODEV $IMAGESIZE >/dev/null 2>/dev/null
+-tune2fs -i0 $LODEV >/dev/null
+-
+-if [ -n "$verbose" ]; then
+-    echo "Using loopback device $LODEV"
+-fi
+-
+-mkdir -p $MNTPOINT
+-mount -t ext2 $LODEV $MNTPOINT || {
+-	echo "Can't get a loopback device"
+-	exit 1
+-}
+-
+-mkdir -p $MNTIMAGE
+ mkdir -p $MNTIMAGE/lib
+ mkdir -p $MNTIMAGE/bin
+ mkdir -p $MNTIMAGE/etc
+@@ -529,20 +638,36 @@
+ mkdir -p $MNTIMAGE/sys
+ mkdir -p $MNTIMAGE/sysroot
+ ln -s bin $MNTIMAGE/sbin
++# devfs will shadow some of my dev entries, I'll put them here
++mkdir -p $MNTIMAGE/safedev   
+ 
+ # We don't need this directory, so let's save space
+ rm -rf $MNTPOINT/lost+found
+ 
+ inst /sbin/nash "$MNTIMAGE/bin/nash"
+-inst /sbin/insmod.static "$MNTIMAGE/bin/insmod"
+-ln -s /sbin/nash $MNTIMAGE/sbin/modprobe
++if is_dietlibc_arch; then
++    if [[ -n "$kernel25" ]]; then
++	inst /sbin/insmod-25-DIET "$MNTIMAGE/bin/insmod"
++    else
++	inst /sbin/insmod-DIET "$MNTIMAGE/bin/insmod"
++    fi
++else
++    if [[ -n "$kernel25" ]]; then
++	inst /sbin/insmod.static-25 "$MNTIMAGE/bin/insmod"
++    else
++	inst /sbin/insmod.static "$MNTIMAGE/bin/insmod"
++    fi
++fi
++ln -s ../bin/nash $MNTIMAGE/sbin/modprobe
+ 
+ for MODULE in $MODULES; do
+-    if [ -x /usr/bin/strip ]; then
+-	/usr/bin/strip -g $verbose /lib/modules/$kernel/$MODULE -o $MNTIMAGE/lib/$(basename $MODULE)
++    f="/lib/modules/$kernel/$MODULE"
++    if [ -e $f ]; then
++	cp $verbose -a $f $MNTIMAGE/lib
+     else
+-	cp $verbose -a /lib/modules/$kernel/$MODULE $MNTIMAGE/lib
++	gunzip -c $verbose $f.gz > $MNTIMAGE/lib/`basename $MODULE`
+     fi
++    [ -x /usr/bin/strip ] && /usr/bin/strip -g $verbose $MNTIMAGE/lib/`basename $MODULE`
+ done
+ 
+ # mknod'ing the devices instead of copying them works both with and
+@@ -555,33 +680,16 @@
+     mknod $MNTIMAGE/dev/tty$i c 4 $i
+ done
+ 
+-# FIXME -- this won't work if you're using devfs
+-if [ -n "$root_lvm" -a "$kernelmajor" == "2.4" ]; then
+-    pvs=$(/sbin/pvscan | grep " PV " | /bin/awk {'print $5;'} |sed 's/"//g')
+-    for pv in $pvs; do
+-	cp $verbose --parents -a $pv $MNTIMAGE/
+-    done
+-
+-    inst /sbin/vgwrapper "$MNTIMAGE/bin/vgwrapper"
+-    ln "$MNTIMAGE/bin/vgwrapper" "$MNTIMAGE/bin/vgscan"
+-    ln "$MNTIMAGE/bin/vgwrapper" "$MNTIMAGE/bin/vgchange"
+-
+-    mknod $MNTIMAGE/dev/lvm b 109 0
+-fi
+-
+-if [ -n "$root_lvm" -a "$kernelmajor" == "2.6" ]; then
+-    inst /sbin/lvm.static "$MNTIMAGE/bin/lvm"
+-fi
+-
+ echo "#!/bin/nash" > $RCFILE
+ echo "" >> $RCFILE
+ 
+ for MODULE in $MODULES; do
+     text=""
+-    module=`echo $MODULE | sed "s|.*/||" | sed "s/.k\?o$//"`
+-    fullmodule=`echo $MODULE | sed "s|.*/||"`
++    module=${MODULE##*/}
++    module_s=${module%.o}
++    module_s=${module_s%.ko}
+ 
+-    options=`sed -n -e "s/^options[ 	][ 	]*$module[ 	][ 	]*//p" $modulefile 2>/dev/null`
++    options=$(sed -n -e "s/^options[ 	][ 	]*$module_s[ 	][ 	]*//p" $modulefile 2>/dev/null)
+ 
+     if [ -n "$verbose" ]; then
+ 	if [ -n "$options" ]; then
+@@ -589,8 +697,8 @@
+ 	fi
+         echo "Loading module $module$text"
+     fi
+-    echo "echo \"Loading $fullmodule module\"" >> $RCFILE
+-    echo "insmod /lib/$fullmodule $options" >> $RCFILE
++    echo "echo \"Loading $module module\"" >> $RCFILE
++    echo "insmod /lib/$module $options" >> $RCFILE
+ 
+     # Hack - we need a delay after loading usb-storage to give things
+     #        time to settle down before we start looking a block devices
+@@ -601,76 +709,181 @@
+ 
+ echo "echo Mounting /proc filesystem" >> $RCFILE
+ echo "mount -t proc /proc /proc" >> $RCFILE
++echo "echo Creating device files" >> $RCFILE
++[ -n "$readonly" ] && echo "mountdev" >> $RCFILE
++echo "mkdevices /dev" >> $RCFILE
++_partitions=`cat /proc/partitions | wc -l`
++NB_INODES=$[NB_INODES + $_partitions * 3 ]
+ 
+-echo "echo Mounting sysfs" >> $RCFILE
+-echo "mount -t sysfs none /sys" >> $RCFILE
++if [ -n "$kernel25" ];then
++    echo "echo Mounting sysfs" >> $RCFILE
++    echo "mount -t sysfs none /sys" >> $RCFILE
++fi
+ 
+ if [ -n "$startraid" ]; then
++    echo "echo Activating md devices" >> $RCFILE
++    if [ -x /sbin/mdadm ]; then
++	echo "DEVICE partitions" > $MNTIMAGE/etc/mdadm.conf
++    fi
+     for dev in $raiddevices; do
+-	cp -a /dev/${dev} $MNTIMAGE/dev
+-	echo "raidautorun /dev/${dev}" >> $RCFILE
++	if [ -x /sbin/mdadm ]; then
++	    /sbin/mdadm -D -b $dev | grep '^ARRAY' >> $MNTIMAGE/etc/mdadm.conf
++    	fi
++	md=${dev##*/}
++	md=${md#md} # /dev/md/0 and /dev/md0 become 0
++	echo "mknod /dev/md$md b 9 $md" >> $RCFILE
++	echo "mknod /dev/md/$md b 9 $md" >> $RCFILE
+     done
++    if [ -x /sbin/mdassemble ]; then
++	cp $verbose -aL /sbin/mdassemble $MNTIMAGE/sbin
++	echo "mdassemble" >> $RCFILE
++    elif [ -x /sbin/mdadm ]; then
++	inst /sbin/mdadm $MNTIMAGE/sbin
++	echo "mdadm -A -s" >> $RCFILE
++    else
++	echo "raidautorun /dev/md${md}" >> $RCFILE
++    fi
+ fi
+ 
+-echo "echo Creating block devices" >> $RCFILE
+-echo "mkdevices /dev" >> $RCFILE
+-
+ if [ -n "$loopDev" ]; then
+-    mkdir /initrd
+-    cp -a $loopDev $MNTIMAGE/dev
+-    cp -a $rootdev $MNTIMAGE/dev
++    # our dear friend devfsd will create links for us if devfs in use
++    cp -aL $loopDev $MNTIMAGE/safedev
++    cp -aL /dev/loop7 $MNTIMAGE/safedev
++
++    loopDev=/safedev/${loopDev#/dev/}
++
+     echo "echo Mounting device containing loopback root filesystem" >> $RCFILE
+     echo "mount -t $loopFs $loopDev /loopfs" >> $RCFILE
+-    echo "echo Setting up loopback device $rootdev" >> $RCFILE
+-    echo "losetup $rootdev /loopfs$loopFile" >> $RCFILE
++    echo "echo Setting up loopback device on $loopFile" >> $RCFILE
++    echo "losetup /safedev/loop7 /loopfs$loopFile" >> $RCFILE
++    rootdev=/safedev/loop7
+ elif [ -n "$root_lvm" ]; then
+-  if [ "$kernelmajor" == "2.4" ]; then
+-    echo "echo Scanning logical volumes" >> $RCFILE
+-    echo "vgscan" >> $RCFILE
+-    echo "echo Activating logical volumes" >> $RCFILE
+-    echo "vgchange -ay" >> $RCFILE
+-  else
+-    echo "echo Making device-mapper control node" >> $RCFILE
+-    echo "mkdmnod" >> $RCFILE
+-    echo "echo Scanning logical volumes" >> $RCFILE
+-    echo "lvm vgscan" >> $RCFILE
+-    echo "echo Activating logical volumes" >> $RCFILE
+-    echo "lvm vgchange -ay" >> $RCFILE
+-    echo "echo Making device nodes" >> $RCFILE
+-    echo "lvm vgmknodes" >> $RCFILE
+-  fi
++    if [ "$lvmver" = "2" ]; then
++	if [ -x /sbin/lvm2-static ]; then
++	    cp $verbose -aL /sbin/lvm2-static $MNTIMAGE/sbin/vgscan
++	else 
++	    inst /sbin/lvm2 $MNTIMAGE/sbin/vgscan
++	fi
++	ln -s vgscan $MNTIMAGE/sbin/vgchange
++	ln -s vgscan $MNTIMAGE/sbin/vgmknodes
++	mkdir -p $MNTIMAGE/etc/lvm/{archive,backup}
++
++	echo "devices {" >> $MNTIMAGE/etc/lvm/lvm.conf
++	echo " dir = \"/dev\"" >> $MNTIMAGE/etc/lvm/lvm.conf
++	grep "^[[:space:]]*\(scan\|filter\|types\)" /etc/lvm/lvm.conf >> $MNTIMAGE/etc/lvm/lvm.conf
++	echo " write_cache_state = 0" >> $MNTIMAGE/etc/lvm/lvm.conf
++	echo "}" >> $MNTIMAGE/etc/lvm/lvm.conf
++
++	echo "echo Making device-mapper control node" >> $RCFILE
++	echo "mkdmnod" >> $RCFILE
++	echo "echo Scanning logical volumes" >> $RCFILE
++	echo "vgscan -P --ignorelockingfailure" >> $RCFILE
++	echo "echo Activating logical volumes" >> $RCFILE
++	echo "vgchange -P -ay --ignorelockingfailure" >> $RCFILE
++	echo "echo Making device nodes" >> $RCFILE
++	echo "vgmknodes" >> $RCFILE
++    else
++	if [ -x /sbin/${lvmprefix}vgwrapper ]; then
++	    cp $verbose -aL /sbin/${lvmprefix}vgwrapper $MNTIMAGE/sbin/vgscan
++	    ln -s vgscan $MNTIMAGE/sbin/vgchange
++	else 
++	    inst /sbin/${lvmprefix}vgchange $MNTIMAGE/sbin/vgchange
++	    inst /sbin/${lvmprefix}vgscan $MNTIMAGE/sbin/vgscan
++	fi
++
++	echo "mknod /dev/lvm b 109 0" >> $RCFILE
++	echo "mount -t tmpfs /etc /etc" >> $RCFILE
++	echo "echo Scanning logical volumes" >> $RCFILE
++	echo "vgscan" >> $RCFILE
++	echo "echo Activating logical volumes" >> $RCFILE
++	echo "vgchange -ay" >> $RCFILE
++	echo "umount /etc" >> $RCFILE
++    fi
++    rootdev=$fstabrootdev
+ else
+     echo "echo Creating root device" >> $RCFILE
+     echo "mkrootdev /dev/root" >> $RCFILE
+     rootdev=/dev/root
+ fi
+ 
+-echo "umount /sys" >> $RCFILE
++[ -n "$kernel25" ] && echo "umount /sys" >> $RCFILE
+ 
+ if [ -n "$pivot" ]; then
+     echo "echo 0x0100 > /proc/sys/kernel/real-root-dev" >> $RCFILE
+ 
+-    echo "echo Mounting root filesystem" >> $RCFILE
++    [ "$rootopts" != "defaults" ] && rootopts_msg="with flags $rootopts"
++    echo "echo Mounting root filesystem $rootopts_msg" >> $RCFILE
+     echo "mount -o $rootopts --ro -t $rootfs $rootdev /sysroot" >> $RCFILE
+ 
+     echo "pivot_root /sysroot /sysroot/initrd" >> $RCFILE
++    echo "echo Remounting devfs at correct place if necessary" >> $RCFILE
++    echo "handledevfs" >> $RCFILE
+     echo "umount /initrd/proc" >> $RCFILE
+ else
++    [ -n "$readonly" ] && echo "umount /dev" >> $RCFILE
+     echo "umount /proc" >> $RCFILE
+ fi
+ 
+ chmod +x $RCFILE
+ 
+-(cd $MNTIMAGE; tar cf - .) | (cd $MNTPOINT; tar xf -) || exit 1
++if [ -n "$verbose" ]; then
++    echo "Contents of RCFILE:"
++    cat $RCFILE 2> /dev/null
++fi
+ 
+-umount $MNTPOINT
+-losetup -d $LODEV
++case $initrdfs in
++    ext2|ext3|minix)
++	for i in `/bin/find $MNTIMAGE -printf '%k\n'`; do
++	    IMAGESIZE=$[IMAGESIZE + $i]
++	    NB_INODES=$[NB_INODES + 1]
++	done
++	IMAGESIZE=$[IMAGESIZE + NB_INODES / 10]  # 10 inodes needs 1k
++
++	dd if=/dev/zero of=$IMAGE bs=1k count=$IMAGESIZE 2> /dev/null
++
++	if [ -n "$verbose" ]; then
++	    echo "Creating filesystem with size ${IMAGESIZE}KB and $NB_INODES inodes"
++	fi
++	case $initrdfs in
++	    ext2|ext3) mkfs.$initrdfs -q -m 0 -F -N $NB_INODES -s 1 $IMAGE;;
++	    minix) mkfs.minix $IMAGE;;
++	esac
++
++	mkdir -p $MNTPOINT
++	mount -t $initrdfs $IMAGE $MNTPOINT -o loop || {
++	    echo "Can't get a loopback device" >&2
++	    exit 1
++	}
++
++	# We don't need this directory, so let's save space
++	rm -rf $MNTPOINT/lost+found
++
++	(cd $MNTIMAGE; tar cf - .) | (cd $MNTPOINT; tar xf -) || exit 1
++
++	umount $MNTPOINT
++	;;
++    cramfs)
++	mkfs.cramfs "$MNTIMAGE" "$IMAGE"
++	compress=""
++	;;
++    romfs)
++	genromfs -d "$MNTIMAGE" -f "$IMAGE"
++	;;
++esac
+ 
+ if [ -n "$compress" ]; then
+-    gzip -9 < $IMAGE > $target || rc=1
++    gzip -9 < $IMAGE > $target || exit 1
+ else
+-    cp -a $IMAGE $target || rc=1
++    cp -a $IMAGE $target || exit 1
++fi
++
++if [[ -n "$splash" && -f $splash_dir/scripts/make-boot-splash ]]; then
++    $splash_dir/scripts/make-boot-splash $target $splash
++fi
++
++if [[ -n "$dsdt_file" && -f "$dsdt_file" ]]; then
++    echo -n "INITRDDSDT123DSDT123" >> $target
++    cat "$dsdt_file" >> $target
+ fi
+-rm -rf $MNTIMAGE $MNTPOINT $IMAGE
+ 
+ exit $rc

@@ -1,0 +1,35 @@
+diff -u mkinitrd-3.5.18/nash/Makefile mkinitrd-3.5.18/nash/Makefile
+--- mkinitrd-3.5.18/nash/Makefile	2004-01-24 10:59:51.000000000 +0100
++++ mkinitrd-3.5.18/nash/Makefile	2004-05-07 09:17:22.630477305 +0200
+@@ -1,20 +1,23 @@
+-CFLAGS=-Wall -DVERSION=\"$(VERSION)\" -g 
++top_dir = ../mkinitrd_helper-subdir
++
++include $(top_dir)/Makefile.common
++
++
++CFLAGS=-Wall -DVERSION=\"$(VERSION)\" -g
+ VERSION=$(shell awk -F= '/^VERSION=/ { print $$2 }' ../mkinitrd)
+ 
+ ARCH := $(patsubst i%86,i386,$(shell uname -m))
+ ARCH := $(patsubst sparc%,sparc,$(ARCH))
+ 
+-ifeq (i386, $(ARCH))
+-CC:=diet $(CC)
+-CFLAGS += -DUSE_DIET=1
+-else
+-STATIC=-static
+-endif
++STATIC=$(LDFLAGS_STAGE1)
+ 
+ mandir=usr/share/man
+ 
+ nash: nash.o mount_by_label.o name_to_dev_t.o
+-	$(CC) $(STATIC) -g $(LDFLAGS) -o $@ $^
++	$(DIET) $(CC) $(STATIC) -g $(LDFLAGS) -o $@ $^ $(OBJ_ADD)
++
++%.o: %.c
++	$(DIET) $(CC) $(CFLAGS) -c $< -o $@
+ 
+ clean:
+ 	rm -f nash $(MINILIBC) *.o

@@ -1,0 +1,54 @@
+--- mkinitrd-3.5.18/mkinitrd.forceusb	2004-03-23 08:59:31.979140228 +0100
++++ mkinitrd-3.5.18/mkinitrd	2004-03-23 09:16:59.745526365 +0100
+@@ -57,6 +57,7 @@
+ IGNOREMODS="$IGNOREMODS ppa imm ide-scsi $initrdfs"
+ 
+ [[ -f /etc/sysconfig/bootsplash ]] && source /etc/sysconfig/bootsplash
++[[ -f /etc/sysconfig/mkinitrd ]] && source /etc/sysconfig/mkinitrd
+ [[ -n $SPLASH ]] && splash=$SPLASH
+ [[ -n $THEME ]] && theme=$THEME
+ [[ $splash == no ]] && splash=
+@@ -67,7 +68,7 @@
+     echo "       [--with=<module>] [--image-version] [--fstab=<fstab>] [--nocompress]" >&2
+     echo "       [--builtin=<module>] [--initrdfs=<fs>] [--nopivot] [--tmpdir=<tmpdir>]" >&2
+     echo "       [--splash={auto,resolution}] [--dsdt[=<dsdt.aml>]]" >&2
+-    echo "       [--lvm-version=<1|2>] <initrd-image> <kernel-version>" >&2
++    echo "       [--lvm-version=<1|2>] [--force-usb] <initrd-image> <kernel-version>" >&2
+     echo "" >&2
+     echo "       (ex: `basename $0` /boot/initrd-$(uname -r).img $(uname -r))" >&2
+     exit 1
+@@ -235,6 +236,10 @@
+ 	    withusb=yes
+ 	    ;;
+ 
++	--force-usb)
++	    forceusb=yes
++	    ;;
++
+ 	--with*)
+ 	    if echo $1 | grep -q '=' ; then
+ 	    	modname=`echo $1 | sed 's/^--with=//'`
+@@ -427,6 +432,14 @@
+     fi
+ fi
+ 
++if [ -n "$forceusb" ]; then
++    for driver in uhci-hcd ehci-hcd ohci-hcd; do
++	findmodule $driver
++    done
++    findmodule usb-storage
++    findmodule sd_mod
++fi
++
+ if [ -z "$noscsi" ]; then
+     if [ ! -f $modulefile ]; then
+         modulefile=/etc/conf.modules
+@@ -704,7 +717,7 @@
+ 
+     # Hack - we need a delay after loading usb-storage to give things
+     #        time to settle down before we start looking a block devices
+-    if [ "$module" = "usb-storage" ]; then
++    if [ "$module_s" = "usb-storage" ]; then
+ 	echo "sleep 5" >> $RCFILE
+     fi
+ done
