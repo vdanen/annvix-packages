@@ -1,6 +1,6 @@
 %define name	filesystem
 %define version	2.1.3
-%define release	12sls
+%define release	13sls
 
 Summary:	The basic directory layout for a Linux system.
 Name:		%{name}
@@ -17,30 +17,28 @@ Requires:	setup
 
 %description
 The filesystem package is one of the basic packages that is installed on
-an SLS system.  Filesystem  contains the basic directory layout
+an OpenSLS system.  Filesystem  contains the basic directory layout
 for a Linux operating system, including the correct permissions for the
 directories.
 
 %prep
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir $RPM_BUILD_ROOT
 
 tar xfj %{SOURCE0} -C $RPM_BUILD_ROOT
-mkdir -p $RPM_BUILD_ROOT/etc/ssl/
-mkdir -p $RPM_BUILD_ROOT/etc/xinetd.d/
+mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/ssl/
 mv %{buildroot}/%{_prefix}/dict %{buildroot}/%{_datadir}
 mkdir -p $RPM_BUILD_ROOT/usr/local/include
 mkdir -p $RPM_BUILD_ROOT/usr/local/share
 mkdir -p $RPM_BUILD_ROOT/var/cache/man
-mkdir -p $RPM_BUILD_ROOT/usr/share/games
-mkdir -p $RPM_BUILD_ROOT/etc/security
-mkdir -p $RPM_BUILD_ROOT/etc/profile.d
-mkdir -p $RPM_BUILD_ROOT/var/service
+mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/security
+mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/profile.d
+mkdir -p $RPM_BUILD_ROOT%{_srvdir}
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %triggerpostun -- filesystem < 2.1.3-5mdk
 mkdir /mnt/disk 2>/dev/null ||:
@@ -51,9 +49,9 @@ mkdir /mnt/floppy 2>/dev/null ||:
 %defattr(0755,root,root)
 /bin
 /boot
-%dir /etc
-%dir /etc/profile.d
-%dir /etc/security
+%dir %{_sysconfdir}
+%dir %{_sysconfdir}/profile.d
+%dir %{_sysconfdir}/security
 /home
 /initrd
 /lib
@@ -70,7 +68,6 @@ mkdir /mnt/floppy 2>/dev/null ||:
 /usr/share/doc
 %attr(555,root,root) %dir /usr/share/empty
 /usr/share/info
-/usr/share/games
 /usr/share/man
 /usr/share/misc
 /usr/share/pixmaps
@@ -89,13 +86,17 @@ mkdir /mnt/floppy 2>/dev/null ||:
 /var/preserve
 /var/run
 %dir /var/spool
-%dir %attr(1755,root,root) /var/service
+%dir %attr(1755,root,root) %{_srvdir}
 %attr(0755,root,daemon) %dir /var/spool/lpd
 %attr(775,root,mail) /var/spool/mail
 %attr(1777,root,root) /var/tmp
 /var/yp
 
 %changelog
+* Thu Mar 04 2004 Vincent Danen <vdanen@opensls.org> 2.1.3-13sls
+- don't include /etc/xinet.d since we don't ship it or /usr/share/games
+  since we don't need it
+
 * Mon Dec 29 2003 Vincent Danen <vdanen@opensls.org> 2.1.3-12sls
 - add /var/service so we don't need to prereq supervise-scripts or
   daemontools for every package
