@@ -1,6 +1,6 @@
 %define name	%{ap_name}-%{mod_name}
 %define version %{ap_version}_%{mod_version}
-%define release 2sls
+%define release 3sls
 
 # Module-Specific definitions
 %define mod_version	2.0.1
@@ -50,14 +50,14 @@ database.
     "-lpq -lcrypto -lssl" -c mod_auth_pgsql.c -n mod_auth_pgsql.so
 
 %install
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %ADVXinstlib
 %ADVXinstconf %{SOURCE1} %{mod_conf}
 %ADVXinstdoc %{name}-%{version}
 
 %clean
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
 %ADVXpost
@@ -73,6 +73,9 @@ database.
 %doc README INSTALL *.html
 
 %changelog
+* Wed Feb 18 2004 Vincent Danen <vdanen@opensls.org> 2.0.48_2.0.1-3sls
+- small cleanups
+
 * Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 2.0.48_2.0.1-2sls
 - OpenSLS build
 - tidy spec

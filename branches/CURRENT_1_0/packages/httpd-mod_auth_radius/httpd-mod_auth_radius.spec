@@ -1,6 +1,6 @@
 %define name	%{ap_name}-%{mod_name}
 %define version %{ap_version}_%{mod_version}
-%define release 2sls
+%define release 3sls
 
 # Module-Specific definitions
 %define mod_version	1.7PR1
@@ -54,14 +54,14 @@ mv mod_auth_radius_apache2.c mod_auth_radius.c
 %{apxs} -c mod_auth_radius.c -Wl,-lresolv
 
 %install
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %ADVXinstlib
 %ADVXinstconf %{SOURCE1} %{mod_conf}
 %ADVXinstdoc %{name}-%{version}
 
 %clean
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
 %ADVXpost
@@ -77,6 +77,9 @@ mv mod_auth_radius_apache2.c mod_auth_radius.c
 %doc mod_auth_radius.html
 
 %changelog
+* Wed Feb 18 2004 Vincent Danen <vdanen@opensls.org> 2.0.48_1.7PR1-3sls
+- small cleanups
+
 * Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 2.0.48_1.7PR1-2sls
 - OpenSLS build
 - tidy spec
