@@ -1,6 +1,6 @@
 %define name	libtool
 %define version	1.4.3
-%define release	10sls
+%define release	11sls
 
 %define lib_major	3
 %define lib_name_orig	libltdl
@@ -140,6 +140,7 @@ chmod 755 $RPM_BUILD_ROOT%{_bindir}/cputoolize
 %doc THANKS TODO ChangeLog*
 %_bindir/*
 %_infodir/libtool.info*
+%dir %_datadir/libtool
 %_datadir/libtool/co*
 %_datadir/libtool/lt*
 %_datadir/aclocal/libtool.m4
@@ -161,6 +162,9 @@ chmod 755 $RPM_BUILD_ROOT%{_bindir}/cputoolize
 
 
 %changelog
+* Sat Jun 11 2004 Vincent Danen <vdanen@opensls.org> 1.4.3-11sls
+- own /usr/share/libtool
+
 * Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 1.4.3-10sls
 - minor spec cleanups
 
