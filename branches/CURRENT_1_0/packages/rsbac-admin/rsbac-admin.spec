@@ -1,7 +1,7 @@
 %define name rsbac-admin
 %define fname rsbac
 %define version 1.2.3
-%define release 1avx
+%define release 2avx
 %define url http://www.rsbac.org
 %define lib_name_orig lib%{fname}
 %define lib_major 1
@@ -23,6 +23,7 @@ Group: 		System/Configuration/Other
 Url: 		%{url}
 Source: 	%{url}/download/code/v%{version}/%{name}-v%{version}.tar.bz2
 Patch0:		rsbac-admin-v1.2.3-librsbac-soname-major1.patch.bz2
+Patch1:		rsbac-bugfix-v1.2.3-5.diff.bz2
 Requires: 	dialog
 BuildRequires: 	kernel-source
 BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
@@ -71,7 +72,8 @@ applications which will use %{name}.
 
 %prep
 %setup -q -n %{name}-v%{version}
-%patch -p1 -b .soname
+%patch0 -p1 -b .soname
+%patch1 -p1 -b .bugfix5
 aclocal
 automake
 %configure --with-kerneldir=%{kernel_dir}
@@ -127,6 +129,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/%{lib_name_orig}*.a
 
 %changelog
+* Mon Jan 17 2005 Vincent Danen <vdanen@annvix.org> 1.2.3-2avx
+- apply bugfix #5 (Admin tools/PAX: attr_set_fd does not accept PaX characters)
+
 * Tue Jul 20 2004 Thomas Backlund <tmb@annvix.org> 1.2.3-1avx
 - Inital release for Annvix
 
