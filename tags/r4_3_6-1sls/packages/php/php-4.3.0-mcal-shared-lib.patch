@@ -1,0 +1,27 @@
+--- php-4.3.0/ext/mcal/config.m4.orig	2002-03-27 06:26:16.000000000 -0400
++++ php-4.3.0/ext/mcal/config.m4	2003-01-04 05:00:29.000000000 -0400
+@@ -20,7 +20,7 @@
+   done
+ 
+   for i in $MCAL_DIR $MCAL_DIR/mcal $MCAL_DIR/mcal/lib $MCAL_DIR/lib/mcal $MCAL_DIR/lib; do
+-    if test -r "$i/libmcal.a"; then
++    if test -r "$i/libmcal.so" -o -r "$i/libmcal.a"; then
+       MCAL_LIBRARY=$i
+     fi
+   done
+@@ -31,12 +31,12 @@
+     fi
+   done
+ 
+-  if test ! -f "$MCAL_LIBRARY/libmcal.a"; then
+-    AC_MSG_ERROR(Unable to locate your libmcal library files - libmcal.a should be in the directory you specify or in the lib/ subdirectory below it - default search location is $MCAL_DEFAULT_SEARCH)
++  if test -z "$MCAL_LIBRARY"; then
++    AC_MSG_ERROR(Unable to locate your libmcal library files - libmcal.* should be in the directory you specify or in the lib/ subdirectory below it - default search location is $MCAL_DEFAULT_SEARCH)
+   fi
+ 
+   PHP_ADD_INCLUDE($MCAL_INCLUDE)
+-  PHP_ADD_LIBPATH($MCAL_LIBRARY,MCAL_SHARED_LIBADD)
++  PHP_ADD_LIBRARY_WITH_PATH(mcal, $MCAL_LIBRARY, MCAL_SHARED_LIBADD)
+   PHP_ADD_LIBRARY_DEFER(mcal,[],MCAL_SHARED_LIBADD)
+   PHP_SUBST(MCAL_SHARED_LIBADD)
+   AC_DEFINE(HAVE_MCAL,1,[ ])
