@@ -1,5 +1,5 @@
---- ./sysctl.c.sysctl	2002-12-15 01:03:15.000000000 +0100
-+++ ./sysctl.c	2003-01-15 13:30:19.000000000 +0100
+--- ./sysctl.c.sysctl	2002-12-29 00:26:50.000000000 +0100
++++ ./sysctl.c	2003-12-29 08:22:43.000000000 +0100
 @@ -36,6 +36,7 @@
  typedef int bool;
  static bool true  = 1;
@@ -20,7 +20,7 @@
           if (PrintNewline)
              fprintf(stdout, "%s\n", value);
           else
-@@ -414,6 +416,9 @@
+@@ -413,6 +415,9 @@
                SwitchesAllowed = false;
                WriteMode = true;
             break;
@@ -30,26 +30,8 @@
           case 'p':
                argv++;
                if (argv && *argv && **argv) {
---- ./sysctl.8.sysctl	2002-12-11 23:51:32.000000000 +0100
-+++ ./sysctl.8	2003-01-15 13:27:17.000000000 +0100
-@@ -10,13 +10,13 @@
- .SH NAME
- sysctl \- configure kernel parameters at runtime
- .SH SYNOPSIS
--.B "sysctl [-n] [-e] variable ..."
-+.B "sysctl [-v] [-e] variable ..."
- .br
--.B "sysctl [-n] [-e] -w variable=value ..."
-+.B "sysctl [-v] [-e] -w variable=value ..."
- .br
--.B "sysctl [-n] [-e] -p <filename>    (default /etc/sysctl.conf)"
-+.B "sysctl [-v] [-e] -p <filename>    (default /etc/sysctl.conf)"
- .br
--.B "sysctl [-n] [-e] -a"
-+.B "sysctl [-v] [-e] -a"
- .br
- .B "sysctl [-n] [-e] -A"
- .SH DESCRIPTION
+--- ./sysctl.8.sysctl	2003-12-24 02:56:36.000000000 +0100
++++ ./sysctl.8	2003-12-29 08:22:43.000000000 +0100
 @@ -39,8 +39,9 @@
  which are parsed by the shell, you may need to enclose the value in double
  quotes.  This requires the -w parameter to use.

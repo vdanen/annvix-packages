@@ -1,6 +1,6 @@
 %define name	procps
-%define version	3.1.11
-%define release	4sls
+%define version	3.2.1
+%define release	1sls
 
 Summary:	Utilities for monitoring your system and processes on your system
 Name:		%{name}
@@ -10,14 +10,14 @@ License:	GPL
 Group:		Monitoring
 URL:		http://procps.sf.net/
 Source:		http://procps.sourceforge.net/%name-%version.tar.bz2
-Patch0:		procps-3.0.5-sysctlshutup.patch.bz2
+Patch0:		procps-3.1.15-sysctlshutup.patch.bz2
 
 BuildRoot:	%_tmppath/%name-root
 BuildRequires:	ncurses-devel
 
 Provides:	libproc.so.3.1 procps3
 Obsoletes:	procps3
-Prereq:		/bin/rm
+Prereq:		coreutils
 
 %description
 The procps package contains a set of system utilities which provide system
@@ -97,6 +97,7 @@ rm -f /etc/psdevtab /etc/psdatabase
 %_bindir/pmap
 %_bindir/pkill
 %_bindir/skill
+%_bindir/slabtop
 %_bindir/snice
 %_bindir/tload
 %_bindir/top
@@ -111,6 +112,7 @@ rm -f /etc/psdevtab /etc/psdatabase
 %_mandir/man1/pmap.1*
 %_mandir/man1/ps.1*
 %_mandir/man1/skill.1*
+%_mandir/man1/slabtop.1*
 %_mandir/man1/snice.1*
 %_mandir/man1/tload.1*
 %_mandir/man1/top.1*
@@ -129,6 +131,11 @@ rm -f /etc/psdevtab /etc/psdatabase
 /%_lib/libproc.so
 
 %changelog
+* Fri Jun 11 2004 Vincent Danen <vdanen@opensls.org> 3.2.1-1sls
+- PreReq: coreutils, not /bin/rm
+- 3.2.1
+- rediff P0
+
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 3.1.11-4sls
 - minor spec cleanups
 
