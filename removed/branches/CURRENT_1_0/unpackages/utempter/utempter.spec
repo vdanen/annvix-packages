@@ -1,6 +1,6 @@
 %define name	utempter
 %define version	0.5.2
-%define release	13sls
+%define release	14sls
 
 %define major		0
 %define lib_name_orig	%mklibname utempter
@@ -20,7 +20,7 @@ Patch1:		utempter-0.5.2-biarch-utmp.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-root
 
-Prereq:		/usr/sbin/groupadd, /sbin/ldconfig, fileutils
+Prereq:		/sbin/ldconfig, fileutils
 Requires:	%{lib_name} = %{version}
 
 %description
@@ -65,9 +65,6 @@ ln -sf lib%{name}.so.%{version} $RPM_BUILD_ROOT%{_libdir}/lib%{name}.so.%{major}
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%pre 
-%{_sbindir}/groupadd -g 22 -r -f utmp
-
 %post -n %{lib_name} -p /sbin/ldconfig
 %postun -n %{lib_name} -p /sbin/ldconfig
 
@@ -90,6 +87,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Fri Feb 06 2004 Vincent Danen <vdanen@opensls.org> 0.5.2-14sls
+- don't call groupadd to add group utmp as that's in setup already
+
 * Mon Dec 08 2003 Vincent Danen <vdanen@opensls.org> 0.5.2-13sls
 - OpenSLS build
 - tidy spec
