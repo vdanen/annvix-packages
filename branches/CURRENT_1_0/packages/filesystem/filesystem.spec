@@ -1,6 +1,6 @@
 %define name	filesystem
 %define version	2.1.4
-%define release	2sls
+%define release	3sls
 
 Summary:	The basic directory layout for a Linux system.
 Name:		%{name}
@@ -31,6 +31,23 @@ tar xfj %{SOURCE0} -C $RPM_BUILD_ROOT
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
+## these scripts should be removed at some point before 1.0-RELEASE; they
+## only exist now for upgrade compatibility for the few people tracking CURRENT
+%pre
+if [ -d /var/db ]; then
+  mv /var/db/* /var/lib/misc 2>/dev/null
+  rm -rf /var/db
+fi
+if [ -d /var/spool/mail ]; then
+  mv /var/spool/mail /var/spool/mail.org
+fi
+
+%post
+if [ -d /var/spool/mail.org ]; then
+  mv /var/spool/mail.org/* /var/mail 2>/dev/null
+  rm -rf /var/spool/mail.org
+fi
 
 %files
 %defattr(0755,root,root)
@@ -82,6 +99,9 @@ tar xfj %{SOURCE0} -C $RPM_BUILD_ROOT
 /srv
 
 %changelog
+* Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 2.1.4-3sls
+- grrr... use some %%pre/%%post scripts to solve moving the symlinks around
+
 * Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 2.1.4-2sls
 - include /srv in the package
 
