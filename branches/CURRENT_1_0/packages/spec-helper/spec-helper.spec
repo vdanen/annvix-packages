@@ -1,24 +1,34 @@
-%define name spec-helper
+%define name	spec-helper
 %define version 0.9.2
-%define release 3mdk
+%define release 4sls
 
-Summary: Tools to ease the creation of rpm packages
-Name: %{name}
-Version: %{version}
-Release: %{release}
+%{!?build_opensls:%global build_opensls 0}
+
+%if %{build_opensls}
+%define distrib	OpenSLS
+%else
+%define distrib	Mandrake Linux
+%endif
+
+Summary:	Tools to ease the creation of rpm packages
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		Development/Other
+URL:		http://www.mandrakelinux.com
 # get the source from our cvs repository (see
 # http://www.linuxmandrake.com/en/cvs.php3)
-Source0: %{name}-%{version}.tar.bz2
-URL: http://www.linux-mandrake.com
-License: GPL
-Group: Development/Other
-BuildRoot: %{_tmppath}/%{name}-buildroot
-Prefix: %{_prefix}
-BuildArchitectures: noarch
-Requires: perl /sbin/ldconfig findutils /usr/bin/python gettext
+Source0:	%{name}-%{version}.tar.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildArch:	noarch
+
+Prefix:		%{_prefix}
+Requires:	perl /sbin/ldconfig findutils /usr/bin/python gettext
 
 %description
-Tools to ease the creation of rpm packages for the Mandrake Linux distribution.
+Tools to ease the creation of rpm packages for the %{distrib} distribution.
 Compress man pages using bzip2, strip executables, convert links...
 
 %prep
@@ -40,6 +50,11 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/spec-helper
 
 %changelog
+* Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 0.9.2-4sls
+- OpenSLS build
+- tidy spec
+- fix URL
+
 * Thu Oct  9 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 0.9.2-3mdk
 - also nuke /lib64/security/ paths
 
