@@ -1,8 +1,8 @@
 %define name	bind
-%define version	9.2.3
-%define release	9avx
+%define version	9.3.0
+%define release	1avx
 
-%define their_version	9.2.3
+%define their_version	9.3.0
 
 Summary:	A DNS (Domain Name System) server.
 Name:		%{name}
@@ -26,9 +26,8 @@ Source11:	ftp://FTP.RS.INTERNIC.NET/domain/named.root
 Source12:	named.run
 Source13:	named.stop
 Source14:	named-log.run
-Patch1:		bind-9.2.3rc1-fallback-to-second-server.patch.bz2
-Patch2:		bind-9.2.1-libresolv.patch.bz2
-Patch3:		bind-9.2.3rc3-deprecation_msg_shut_up.diff.bz2
+Patch1:		bind-9.3.0rc2-fallback-to-second-server.patch.bz2
+Patch2:		bind-9.3.0rc2-libresolv.patch.bz2
 Patch4:		bind-9.2.3-bsdcompat.patch.bz2
 Patch5:		bind-9.3.0beta2-libtool.diff.bz2
 
@@ -94,26 +93,25 @@ library required for DNS (Domain Name Service) development for
 BIND versions 9.x.x.
 
 %prep
-%setup -q  -n %{name}-%{their_version}
+%setup -q  -n %{name}-%{their_version} -a1
 %patch1 -p1 -b .fallback-to-second-server
 #%patch -p1 -b .overflow
 %patch2 -p1 -b .libresolv
-%patch3 -p0 -b .deprecation_msg_shut_up
 %patch4 -p1 -b .bsdcompat
 %patch5 -p1 -b .libtool
 
-(cd contrib/queryperf && autoconf-2.13)
+#(cd contrib/queryperf && autoconf-2.13)
 tar -xjf %{SOURCE7}
 
 %build
 
 # (oe) make queryperf from the contrib before bind, makes it easier
 # to determine if it builds or not
-cd contrib/queryperf
-mv README README.queryperf
-sh configure
-make CFLAGS="%{optflags}"
-cd -
+#cd contrib/queryperf
+#mv README README.queryperf
+#sh configure
+#make CFLAGS="%{optflags}"
+#cd -
 
 %configure \
 	--localstatedir=/var \
@@ -142,7 +140,7 @@ install -m0600 bin/rndc/rndc.conf %{buildroot}%{_sysconfdir}
 touch %{buildroot}%{_sysconfdir}/rndc.key
 install -m0755 contrib/named-bootconf/named-bootconf.sh %{buildroot}%{_sbindir}/named-bootconf
 install -m0755 contrib/nanny/nanny.pl %{buildroot}%{_sbindir}/
-install -m0755 contrib/queryperf/queryperf %{buildroot}%{_sbindir}/
+#install -m0755 contrib/queryperf/queryperf %{buildroot}%{_sbindir}/
 install -m644 %{SOURCE3} %{buildroot}%{_sysconfdir}/logrotate.d/named
 
 install -m0755 dns-keygen -D %{buildroot}%{_sbindir}/dns-keygen
@@ -154,7 +152,11 @@ echo "; Use \"dig @A.ROOT-SERVERS.NET . ns\" to update this file if it's outdate
 cat %{SOURCE11} >>named.cache
 install -m 644 named.cache %{buildroot}%{_var}/named/named.ca
 
-tar -xjf %{SOURCE1} -C %{buildroot}%{_mandir}
+#tar -xjf %{SOURCE1} -C %{buildroot}%{_mandir}
+# fix man pages
+mv %{buildroot}%{_mandir}/man8/named.conf.5 %{buildroot}%{_mandir}/man5/
+install -m 0644 man5/resolver.5 %{buildroot}%{_mandir}/man5/
+ln -s resolver.5.bz2 %{buildroot}%{_mandir}/man5/resolv.5.bz2
 
 install -m0644 %{SOURCE4} %{buildroot}%{_sysconfdir}/sysconfig/named
 
@@ -206,7 +208,7 @@ fi
 %files
 %defattr(-,root,root)
 %doc CHANGES README FAQ COPYRIGHT
-%doc contrib/queryperf/README.queryperf
+#%doc contrib/queryperf/README.queryperf
 %doc doc/draft doc/html doc/rfc doc/misc/
 %doc doc/dhcp-dynamic-dns-examples
 %config(noreplace) %{_sysconfdir}/sysconfig/named
@@ -245,11 +247,18 @@ fi
 %{_bindir}/*
 %{_mandir}/man1/host.1*
 %{_mandir}/man1/dig.1*
+%{_mandir}/man1/nslookup.1*
 %{_mandir}/man8/nsupdate.8*
 %{_mandir}/man5/resolver.5*
-%{_mandir}/man8/nslookup.8*
+%{_mandir}/man5/resolv.5*
 
 %changelog
+* Fri Sep 24 2004 Vincent Danen <vdanen@annvix.org> 9.3.0-1avx
+- 9.3.0
+- drop P3; fixed upstream
+- fix manpage mess (oden)
+- don't build queryperf from contribs right not as it's broken
+
 * Fri Sep 17 2004 Vincent Danen <vdanen@annvix.org> 9.2.3-9avx
 - update run scripts
 
