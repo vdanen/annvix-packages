@@ -1,3 +1,9 @@
+%define name	python
+%define version	2.3
+%define release	4sls
+
+%{!?build_opensls:%define build_opensls 0}
+
 %define docver  2.3
 %define dirver  2.3
 
@@ -6,11 +12,13 @@
 %define lib_name	%{lib_name_orig}%{lib_major}
 
 Summary:	An interpreted, interactive object-oriented programming language
-Name:		python
-Version: 	2.3
-Release:	3mdk
+Name:		%{name}
+Version: 	%{version}
+Release:	%{release}
 License:	Modified CNRI Open Source License
 Group:		Development/Python
+URL:		http://www.python.org/
+Icon:		python-logo.xpm
 
 Source:		http://www.python.org/ftp/python/%{version}/Python-%{version}.tar.bz2
 Source1:	http://www.python.org/ftp/python/doc/%{docver}/html-%{docver}.tar.bz2
@@ -31,13 +39,7 @@ Patch5:		Python-2.2.2-biarch-headers.patch.bz2
 # 64-bit fixes to zipimport module
 Patch6:		Python-2.3-64bit-fixes.patch.bz2
 
-URL:		http://www.python.org/
-Icon:		python-logo.xpm
-Buildroot:	%_tmppath/%name-%version-%release-root
-Conflicts:	tkinter < %{version}
-Requires:	%{lib_name} = %{version}-%{release}
-Requires:	%{name}-base = %{version}-%{release}
-Provides:	python = %{dirver}
+BuildRoot:	%_tmppath/%name-%version-%release-root
 BuildRequires:	XFree86-devel 
 BuildRequires:	blt
 BuildRequires:	db2-devel, db4-devel
@@ -50,6 +52,11 @@ BuildRequires:	ncurses-devel
 BuildRequires:	openssl-devel 
 BuildRequires:	readline-devel 
 BuildRequires:	tix 
+
+Conflicts:	tkinter < %{version}
+Requires:	%{lib_name} = %{version}-%{release}
+Requires:	%{name}-base = %{version}-%{release}
+Provides:	python = %{dirver}
 
 %description
 Python is an interpreted, interactive, object-oriented programming
@@ -99,6 +106,7 @@ python package will also need to be installed.  You'll probably also
 want to install the python-docs package, which contains Python
 documentation.
 
+%if !%{build_opensls}
 %package docs
 Summary:	Documentation for the Python programming language
 Icon:		python-docs-logo.xpm
@@ -112,6 +120,7 @@ in ASCII text files and in LaTeX source files.
 
 Install the python-docs package if you'd like to use the documentation
 for the Python language.
+%endif
 
 %package -n tkinter
 Summary:	A graphical user interface for the Python scripting language
@@ -291,9 +300,11 @@ rm -f modules-list main.list
 %{_libdir}/python*/test/*
 
 
+%if !%{build_opensls}
 %files docs
 %defattr(-,root,root,755)
 %doc html/*
+%endif
 
 %files -n tkinter
 %defattr(-, root, root, 755)
@@ -321,6 +332,11 @@ rm -f modules-list main.list
 %clean_menus
 
 %changelog
+* Tue Dec 02 2003 Vincent Danen <vdanen@opensls.org> 2.3-4sls
+- OpenSLS build
+- tidy spec
+- don't build doc package for OpenSLS
+
 * Sun Aug 31 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 2.3-3mdk
 - Fix lib64 patch and introduce sys.lib
 - Patch6: 64-bit fixes to zipimport module
