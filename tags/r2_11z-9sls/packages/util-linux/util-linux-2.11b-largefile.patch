@@ -1,0 +1,10 @@
+--- util-linux-2.11b/mount/lomount.c.largefile	Thu May 17 21:27:43 2001
++++ util-linux-2.11b/mount/lomount.c	Thu May 17 21:28:38 2001
+@@ -203,6 +203,7 @@
+ 	char *pass;
+ 
+ 	mode = (*loopro ? O_RDONLY : O_RDWR);
++	mode |= O_LARGEFILE;
+ 	if ((ffd = open (file, mode)) < 0) {
+ 		if (!*loopro && errno == EROFS)
+ 			ffd = open (file, mode = O_RDONLY);
