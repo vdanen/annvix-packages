@@ -1,0 +1,13 @@
+SUBDIRS is defined further below, and includes this value.  Newer automake
+complains about the duplicate.
+--- shadow-20000902/man/Makefile.am	Fri Jan 25 16:59:17 2002
++++ shadow-20000902/man/Makefile.am	Fri Jan 25 16:59:12 2002
+@@ -1,8 +1,6 @@
+ 
+ AUTOMAKE_OPTIONS = 1.0 foreign
+ 
+-SUBDIRS = pl
+-
+ man_MANS = chage.1 chfn.1 chsh.1 gpasswd.1 \
+  login.1 newgrp.1 passwd.1 su.1 \
+  shadow.3 \

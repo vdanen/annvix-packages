@@ -1,0 +1,11 @@
+--- shadow-20000903/src/useradd.c.fred	2002-09-08 09:43:28.000000000 +0200
++++ shadow-20000902/src/useradd.c	2002-09-08 10:07:34.000000000 +0200
+@@ -1735,7 +1735,7 @@
+ 		}
+ 		chown (user_home, user_id, user_gid);
+ #if 1
+-		chmod(user_home, 0777 & ~getdef_num("UMASK", 077));
++		chmod(user_home, 0777 & ~getdef_num("UMASK", 0022));
+ #else
+ 		chmod (user_home, 0755);
+ #endif
