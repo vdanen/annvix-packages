@@ -1,7 +1,7 @@
 %define module	Tk
 %define name	perl-%{module}
 %define version 800.024
-%define release 8avx
+%define release 9avx
 
 %define _requires_exceptions Watch
 
@@ -111,6 +111,9 @@ rm -f %{buildroot}%{perl_vendorarch}/Tk/README.Adjust
 
 
 %changelog
+* Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> 800.024-9avx
+- rebuild against new perl
+
 * Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 800.024-8avx
 - Annvix build
 

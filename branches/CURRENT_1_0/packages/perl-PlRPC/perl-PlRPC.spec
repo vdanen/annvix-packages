@@ -1,7 +1,7 @@
 %define module 	PlRPC
 %define name	perl-%{module}
 %define version 0.2017
-%define release 6avx
+%define release 7avx
 
 Summary:	%{module} perl module
 Name: 		%{name}
@@ -42,6 +42,9 @@ Buildarch:	noarch
 %_mandir/man3*/*
 
 %changelog
+* Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> 0.2017-7avx
+- rebuild against new perl
+
 * Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 0.2017-6avx
 - Annvix build
 

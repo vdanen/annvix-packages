@@ -1,7 +1,7 @@
 %define module	Locale-gettext
 %define name	perl-%{module}
 %define version	1.01
-%define release	14avx
+%define release	15avx
 
 Summary:	Internationalization for Perl.
 Name:		%{name}
@@ -55,6 +55,9 @@ make test
 %{_mandir}/*/*
 
 %changelog
+* Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> 1.01-15avx
+- rebuild against new perl
+
 * Sat Jun 26 2004 Vincent Danen <vdanen@annvix.org> 1.01-14avx
 - Annvix build
 
