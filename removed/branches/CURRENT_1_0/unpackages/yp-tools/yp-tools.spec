@@ -1,15 +1,21 @@
-Summary: NIS (or YP) client programs.
-Name: yp-tools
-Version: 2.8
-Release: 2mdk
-License: GPL
-Group: System/Configuration/Networking
-Source: ftp://ftp.kernel.org/pub/linux/utils/net/NIS/yp-tools-%{version}.tar.bz2
-Source1: ftp://ftp.kernel.org/pub/linux/utils/net/NIS/yp-tools-%{version}.tar.bz2.sign
-Patch1: yp-tools-2.7-md5.patch.bz2
-Url: http://www.linux-nis.org/nis/
-Requires: ypbind
-Buildroot: %{_tmppath}/%{name}-root
+%define name	yp-tools
+%define version	2.8
+%define release	3sls
+
+Summary:	NIS (or YP) client programs.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		System/Configuration/Networking
+URL:		http://www.linux-nis.org/nis/
+Source:		ftp://ftp.kernel.org/pub/linux/utils/net/NIS/yp-tools-%{version}.tar.bz2
+Source1:	ftp://ftp.kernel.org/pub/linux/utils/net/NIS/yp-tools-%{version}.tar.bz2.sign
+Patch1:		yp-tools-2.7-md5.patch.bz2
+
+Buildroot:	%{_tmppath}/%{name}-root
+
+Requires:	ypbind
 
 %description
 The Network Information Service (NIS) is a system which provides
@@ -40,18 +46,16 @@ you'll need to install the ypserv package on one machine on the network.
 %make
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 make DESTDIR="$RPM_BUILD_ROOT" install
 
 %find_lang %{name}
 
 %clean
-#make distclean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files -f %{name}.lang
 %defattr(-,root,root,0755)
-%defattr(-,root,root)
 %doc AUTHORS COPYING README ChangeLog NEWS etc/nsswitch.conf
 %doc THANKS TODO
 %{_bindir}/*
@@ -60,6 +64,10 @@ rm -rf $RPM_BUILD_ROOT
 /var/yp/nicknames
 
 %changelog
+* Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 2.8-3sls
+- OpenSLS build
+- tidy spec
+
 * Mon Jul 21 2003 Frederic Lepied <flepied@mandrakesoft.com> 2.8-2mdk
 - removed Obsoletes/Provides yppasswd and yp-clients (Andi Payn)
 
