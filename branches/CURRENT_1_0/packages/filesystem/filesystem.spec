@@ -1,6 +1,6 @@
 %define name	filesystem
-%define version	2.1.3
-%define release	13sls
+%define version	2.1.4
+%define release	1sls
 
 Summary:	The basic directory layout for a Linux system.
 Name:		%{name}
@@ -28,22 +28,9 @@ directories.
 mkdir $RPM_BUILD_ROOT
 
 tar xfj %{SOURCE0} -C $RPM_BUILD_ROOT
-mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/ssl/
-mv %{buildroot}/%{_prefix}/dict %{buildroot}/%{_datadir}
-mkdir -p $RPM_BUILD_ROOT/usr/local/include
-mkdir -p $RPM_BUILD_ROOT/usr/local/share
-mkdir -p $RPM_BUILD_ROOT/var/cache/man
-mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/security
-mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/profile.d
-mkdir -p $RPM_BUILD_ROOT%{_srvdir}
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-
-%triggerpostun -- filesystem < 2.1.3-5mdk
-mkdir /mnt/disk 2>/dev/null ||:
-mkdir /mnt/cdrom 2>/dev/null ||:
-mkdir /mnt/floppy 2>/dev/null ||:
 
 %files
 %defattr(0755,root,root)
@@ -56,6 +43,7 @@ mkdir /mnt/floppy 2>/dev/null ||:
 /initrd
 /lib
 %dir /mnt
+%dir /media
 %dir /opt
 %attr(555,root,root) /proc
 %attr(750,root,root) /root
@@ -80,19 +68,30 @@ mkdir /mnt/floppy 2>/dev/null ||:
 %attr(755,root,root) /var/lock/subsys
 /var/cache
 /var/log
-/var/mail
 /var/nis
 /var/opt
 /var/preserve
 /var/run
 %dir /var/spool
+/var/spool/mail
 %dir %attr(1755,root,root) %{_srvdir}
 %attr(0755,root,daemon) %dir /var/spool/lpd
-%attr(775,root,mail) /var/spool/mail
+%attr(775,root,mail) /var/mail
 %attr(1777,root,root) /var/tmp
 /var/yp
 
 %changelog
+* Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 2.1.4-1sls
+- 2.1.4: the great FHS cleanup:
+  - remove /etc/xinetd.d, /usr/local/games, /usr/games, /var/games,
+    /var/lib/games, /usr/lib/games
+  - add /var/service
+  - make /var/spool/mail a symlink to /var/mail rather than the other
+    way around
+  - make /srv
+  - make /var/db a symlink to /var/lib/misc
+  - create /media/{cdrom,floppy}
+
 * Thu Mar 04 2004 Vincent Danen <vdanen@opensls.org> 2.1.3-13sls
 - don't include /etc/xinet.d since we don't ship it or /usr/share/games
   since we don't need it
