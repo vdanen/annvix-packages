@@ -1,6 +1,6 @@
 %define name	openssl
 %define version	0.9.7b
-%define release	5sls
+%define release	6sls
 
 %define maj	0.9.7
 %define libname %mklibname %name %maj
@@ -115,7 +115,8 @@ perl -pi -e "s,^(LIB=).+$,\1%{_lib}," Makefile.org
 
 %build 
 # Don't carry out asm optimization on Alpha for now
-%ifarch alpha
+%ifarch alpha amd64 x86_64
+# [gb] likewise on amd64: seems broken and no time to review
 NO_ASM="no-asm"
 %endif
 sh config $NO_ASM --prefix=%_prefix --openssldir=%_libdir/ssl shared
@@ -201,7 +202,10 @@ rm -fr %buildroot
 %postun -n %{libname} -p /sbin/ldconfig
 
 %changelog
-* Mon Dec 02 2003 Vincent Danen <vdanen@mandrakesoft.com> 0.9.7b-5sls
+* Wed Dec 31 2003 Vincent Danen <vdanen@opensls.org> 0.9.7b-6sls
+- merge gbeauchesne's amd64 fix for broken asm optimizations (5mdk)
+
+* Mon Dec 02 2003 Vincent Danen <vdanen@opensls.org> 0.9.7b-5sls
 - OpenSLS build
 - tidy spec
 
