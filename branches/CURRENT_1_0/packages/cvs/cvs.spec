@@ -1,6 +1,6 @@
 %define name	cvs
 %define version	1.11.17
-%define release	1sls
+%define release	2avx
 
 %define url	ftp://ftp.cvshome.org/pub
 %define _requires_exceptions tcsh
@@ -28,8 +28,8 @@ Patch14:	cvs-1.11.17-localid.patch.bz2
 BuildRoot:	%_tmppath/%name-%version-%release-root
 BuildRequires:	texinfo, zlib-devel, krb5-devel
 
-Requires:	/usr/bin/ssh zlib
-Prereq:		/sbin/install-info
+Requires:	openssh-clients zlib
+Prereq:		info-install
 
 %description
 CVS means Concurrent Version System; it is a version control
@@ -127,6 +127,10 @@ mkdir -p %{buildroot}%{_srvlogdir}/cvspserver
 %dir %attr(0750,nobody,nogroup) %{_srvlogdir}/cvspserver
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 1.11.17-2avx
+- Annvix build
+- require packages not files
+
 * Tue Jun 15 2004 Vincent Danen <vdanen@opensls.org> 1.11.17-1sls
 - 1.11.17 (security fixes for CAN-2004-0414, CAN-2004-0146, CAN-2004-0417,
   CAN-2004-0418, CAN-2004-0396)

@@ -1,6 +1,6 @@
 %define name	cpio
 %define version 2.5
-%define release 6sls
+%define release 7avx
 
 Summary:	A GNU archiving program.
 Name:		%{name}
@@ -21,7 +21,7 @@ Patch12:	cpio-2.5-i18n-0.1.patch.bz2
 BuildRoot:	%{_tmppath}/%{name}-root-%{version}
 BuildRequires:	texinfo
 
-Prereq:		/sbin/install-info, /sbin/rmt
+Prereq:		info-install, rmt
 
 %description
 GNU cpio copies files into or out of a cpio or tar archive.  Archives
@@ -80,6 +80,10 @@ rm -f $RPM_BUILD_ROOT%{_mandir}/man1/mt.1
 %{_mandir}/man1/cpio.1*
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 2.5-7avx
+- Annvix build
+- require packages not files
+
 * Wed Mar 03 2004 Vincent Danen <vdanen@opensls.org> 2.5-6sls
 - minor spec cleanups
 

@@ -1,6 +1,6 @@
 %define name	db4
 %define version	4.1.25
-%define release	5sls
+%define release	6avx
 
 # compatibility with legacy rpm
 %{!?_lib:%define _lib	lib}
@@ -44,7 +44,7 @@ BuildRequires:	tcl, db1-devel, glibc-static-devel
 BuildRequires:	gcc-java >= 3.1.1-0.8mdk
 %endif
 
-PreReq:		/sbin/ldconfig
+PreReq:		ldconfig
 
 %description
 The Berkeley Database (Berkeley DB) is a programmatic toolkit that provides
@@ -55,7 +55,7 @@ should be installed on all systems.
 %package -n %{libname}
 Summary:	The Berkeley DB database library for C.
 Group:		System/Libraries
-PreReq:		/sbin/ldconfig
+PreReq:		ldconfig
 
 %description -n %{libname}
 The Berkeley Database (Berkeley DB) is a programmatic toolkit that provides
@@ -66,7 +66,7 @@ should be installed on all systems.
 %package -n %{libdbcxx}
 Summary:	The Berkeley DB database library for C++.
 Group:		System/Libraries
-PreReq:		/sbin/ldconfig
+PreReq:		ldconfig
 Provides:	libdbcxx = %{version}-%{release}
 
 %description -n %{libdbcxx}
@@ -82,7 +82,7 @@ Berkeley DB.
 %package -n %{libdbjava}
 Summary:	The Berkeley DB database library for C++.
 Group:		System/Libraries
-PreReq:		/sbin/ldconfig
+PreReq:		ldconfig
 Provides:	libdbjava = %{version}-%{release}
 
 %description -n %{libdbjava}
@@ -98,7 +98,7 @@ Berkeley DB.
 %package -n %{libdbtcl}
 Summary:	The Berkeley DB database library for TCL.
 Group:		System/Libraries
-PreReq:		/sbin/ldconfig
+PreReq:		ldconfig
 Provides:	libdbtcl = %{version}-%{release}
 
 %description -n %{libdbtcl}
@@ -382,7 +382,11 @@ rm -rf %{buildroot}/usr/docs
 %{_libdir}/*.a
 
 %changelog
-* Thu Mar 04 2004 Vincent Danen <vdanen@opensls.org> 4.1.25-45sls
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 4.1.25-6avx
+- Annvix build
+- require packages not files
+
+* Thu Mar 04 2004 Vincent Danen <vdanen@opensls.org> 4.1.25-5sls
 - remove %%build_opensls macro
 - remove %%prefix
 - minor spec cleanups
