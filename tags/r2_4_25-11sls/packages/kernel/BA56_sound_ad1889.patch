@@ -1,0 +1,12 @@
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff --exclude='defconfig*' --exclude='log.*' --exclude='log2?' w2/drivers/sound/ad1889.c w1/drivers/sound/ad1889.c
+--- w2/drivers/sound/ad1889.c	2003-08-12 10:25:07.000000000 +0200
++++ w1/drivers/sound/ad1889.c	2003-08-20 12:36:02.000000000 +0200
+@@ -846,7 +846,7 @@ static int ad1889_ac97_init(ad1889_dev_t
+ 	}
+ 
+ 	eid = ad1889_codec_read(ac97, AC97_EXTENDED_ID);
+-	if (eid == 0xffffff) {
++	if (eid == 0xffff) {
+ 		printk(KERN_WARNING DEVNAME ": no codec attached?\n");
+ 		goto out_free;
+ 	}

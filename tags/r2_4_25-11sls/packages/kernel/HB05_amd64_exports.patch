@@ -1,0 +1,11 @@
+--- linux-2.4.21/arch/x86_64/kernel/x8664_ksyms.c.x86_64-exports	2003-06-13 10:51:32.000000000 -0400
++++ linux-2.4.21/arch/x86_64/kernel/x8664_ksyms.c	2003-07-23 13:51:26.000000000 -0400
+@@ -206,6 +206,8 @@ EXPORT_SYMBOL(sys_delete_module);
+ EXPORT_SYMBOL(sys_sync);
+ EXPORT_SYMBOL(sys_pause);
+ EXPORT_SYMBOL(sys_setsid);	/* Rather dubious */
++extern int sys_ioctl(unsigned int fd, unsigned int cmd, unsigned long arg);
++EXPORT_SYMBOL(sys_ioctl);
+ 
+ 
+ EXPORT_SYMBOL(memcpy_fromio);

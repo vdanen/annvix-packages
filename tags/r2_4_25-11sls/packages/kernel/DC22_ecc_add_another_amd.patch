@@ -1,0 +1,11 @@
+diff -up t1/drivers/char/ecc.c.orig t1/drivers/char/ecc.c
+--- t1/drivers/char/ecc.c.orig	2002-08-30 01:15:37.000000000 +0200
++++ t1/drivers/char/ecc.c	2002-08-30 01:15:21.000000000 +0200
+@@ -865,6 +865,7 @@ struct pci_probe_matrix {
+ static struct pci_probe_matrix probe_matrix[] = {
+ 	/* AMD */
+ 	{ 0x1022, 0x7006, probe_amd751 },
++	{ 0x1022, 0x700c, probe_amd761 },
+ 	{ 0x1022, 0x700e, probe_amd761 },
+ 	/* Motorola */
+ 	{ 0x1057, 0x4802, 0 }, /* falcon - not yet supported */

@@ -1,0 +1,11 @@
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff u4/fs/xfs/linux/xfs_file.c u10/fs/xfs/linux/xfs_file.c
+--- u4/fs/xfs/linux/xfs_file.c	2003-07-11 00:00:59.000000000 +0200
++++ u10/fs/xfs/linux/xfs_file.c	2003-07-11 12:23:39.000000000 +0200
+@@ -273,6 +273,7 @@ linvfs_file_mmap(
+ 	}
+ 
+ 	vma->vm_ops = &linvfs_file_vm_ops;
++	vma->vm_flags &= ~VM_IO;
+ 
+ 	VOP_SETATTR(vp, &va, XFS_AT_UPDATIME, NULL, error);
+ 	return 0;
