@@ -23,10 +23,12 @@ Because of this, you will also need to create the file \fI/root/.my.cnf\fR
 which contains the password for the root user.  This is not the most secure
 thing, however it helps us to rotate logs and shutdown the MySQL server
 clean.  The \fI/root/.my.cnf\fR file should look like:
-.IP
-[mysqladmin]
-user = root
-password = <password>
+.sp
+  [mysqladmin]
+.br
+  user = root
+.br
+  password = <password>
 .LP
 where \fI<password>\fR is the root user's password (remember, the MySQL root
 user, not the system root user!).  Once you have created this file, change
@@ -53,3 +55,41 @@ that also contain extra information are those contained in
 \fI/var/log/supervise/mysqld/\fR.  The most current log in this directory is
 called \fIcurrent\fR; the older logs are automatically rotated and their
 names consist of the TAI64N timestamp of when they were rotated.
+.LP
+\fBNOTE:\fR Networking is disabled in mysqld by default, which means it will
+only listen to a local socket rather than bind to a TCP interface.  This can be
+changed by modifying \fU/etc/sysconfig/mysqld\fR and removing the \fB--skip-networking\fR
+option in the MYSQLD_OPTS keyword.
+.LP
+\fBUpgrading MySQL\fR
+.LP
+If you are upgrading MySQL from 4.0.x to 4.1.x, there are some incompatible
+changes that need to be looked at.  The following document details the changes
+and is worth reading prior to upgrading:
+.LP
+\fUhttp://dev.mysql.com/doc/mysql/en/upgrading-from-4-0.html\fR
+.LP
+Prior to upgrading you should do a full dump of your database.  You may also
+want to quickly stop the database and make a tarball of \fU/var/lib/mysql\fR so
+that if you do need to downgrade, you will have your full databases intact.
+.LP
+One thing you must absolutely do is upgrade your GRANT tables.  MySQL 4.1.x uses
+a new password hash that is more secure.  If you need to use the old method for
+some reason, you can force MySQL to run with the old-style password scheme by setting,
+in \fU/etc/my.cnf\fR the following (under the [mysqld] header):
+.sp
+  [mysqld]
+.br
+  old_passwords=1
+.LP
+It is advised, however, that you use the new password hash.  To ugprade your database
+to use the new hash, execute (as root):
+.LP
+\fBmysql_fix_privilege_tables --password=[root_password]\fR
+.LP
+On a side note, during testing, it did not look as though you would be locked out of
+your database if you did not upgrade the GRANT tables, nor if you did not set
+old_passwords in \fU/etc/my.conf\fR.  It is advised that you run the script noted
+above, but you shouldn't have to worry about anything being locked out if you do not
+modify \fU/etc/my.cnf\fR.  The above is noted as an "in-case" thing, but it doesn't
+seem to be required.

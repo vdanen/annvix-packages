@@ -17,4 +17,4 @@ LOG=""
 
 # Miscellaneous commandline options to pass to mysqld; read mysqld(8) for
 # details
-MYSQLD_OPTS=""
+MYSQLD_OPTS="--skip-networking"
