@@ -1,37 +1,40 @@
-%define name gettext
+%define name	gettext
 %define version 0.11.5
-%define prefix %{_prefix}
-%define release 7mdk
-%define major 2
-%define libver %{major}.2.0
+%define release 8sls
+
+%{!?build_opensls:%global build_opensls 0}
+
+%define prefix	%{_prefix}
+%define major	2
+%define libver	%{major}.2.0
 %define lib_name %mklibname intl %{major}
 
-Name: %{name}
-Summary: GNU libraries and utilities for producing multi-lingual messages.
-Version: %{version}
-Release: %{release}
-License: GPL
-Group: System/Libraries
-Source: ftp://ftp.gnu.org/pub/gnu/gettext-%version.tar.bz2
-Source1: po-mode-init.el
-URL: http://www.gnu.org/software/gettext/
-Patch1: gettext-0.10.35-jbj.patch.bz2
-Patch4: gettext-fix-gettextize.patch.bz2
+Summary:	GNU libraries and utilities for producing multi-lingual messages.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		System/Libraries
+URL:		http://www.gnu.org/software/gettext/
+Source:		ftp://ftp.gnu.org/pub/gnu/gettext-%version.tar.bz2
+Source1:	po-mode-init.el
+Patch1:		gettext-0.10.35-jbj.patch.bz2
+Patch4:		gettext-fix-gettextize.patch.bz2
 # patch to not issue error messages and warnings with some charset encodings
 # we support in MDK. -- pablo
-Patch5: gettext-0.11-charsets.patch.bz2
+Patch5:		gettext-0.11-charsets.patch.bz2
 # patch to avoid a segfault on unknown charsets -- pablo
-Patch6: gettext-0.11.2-unknowncharset.patch.bz2
-Patch7:	gettext-0.11.5-msgfmt-i18n.patch.bz2	
-Packager: Guillaume Cottenceau <gc@mandrakesoft.com>
-Requires: %{name}-base = %{version}-%{release}
-Requires: %{lib_name} = %{version}-%{release}
-BuildRequires:	autoconf2.5
-BuildRequires:	bison
-BuildRequires:	emacs-bin
-BuildRequires:	emacs-el
-BuildRequires:	texinfo
-BuildRoot: %{_tmppath}/%{name}-%{version}-buildroot
+Patch6:		gettext-0.11.2-unknowncharset.patch.bz2
+Patch7:		gettext-0.11.5-msgfmt-i18n.patch.bz2	
+
+BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
+BuildRequires:	autoconf2.5, bison, texinfo
+%if !%{build_opensls}
+BuildRequires:	emacs-bin, emacs-el
+%endif
+
+Requires:	%{name}-base = %{version}-%{release}
+Requires:	%{lib_name} = %{version}-%{release}
 
 %description
 The GNU gettext package provides a set of tools and documentation for producing
@@ -48,26 +51,26 @@ If you would like to internationalize or incorporate multi-lingual messages
 into programs that you're developing, you should install gettext.
 
 %package -n %{lib_name}
-Summary: The dynamic libintl library for the gettext package.
-Group: System/Libraries
-Provides: libintl
+Summary:	The dynamic libintl library for the gettext package.
+Group:		System/Libraries
+Provides:	libintl
 
 %description -n %{lib_name}
 This package contains the libintl library for the gettext package.
 
 %package devel
-Summary: GNU libraries and utilities for producing multi-lingual messages.
-Group: Development/Other
-Requires: %{name} = %{version}-%{release}
+Summary:	GNU libraries and utilities for producing multi-lingual messages.
+Group:		Development/Other
+Requires:	%{name} = %{version}-%{release}
 
 %description devel
 Header files, used when the libc does not provide code of handling
 multi-lingual messages.
 
 %package base
-Summary: GNU libraries and utilities for producing multi-lingual messages.
-Group: Development/Other
-Requires: %{lib_name} = %{version}-%{release}
+Summary:	GNU libraries and utilities for producing multi-lingual messages.
+Group:		Development/Other
+Requires:	%{lib_name} = %{version}-%{release}
 
 %description base
 The base package which includes the gettext binary.
@@ -95,8 +98,10 @@ rm -rf $RPM_BUILD_ROOT
 %makeinstall_std
 rm -f $RPM_BUILD_ROOT%{_infodir}/dir $RPM_BUILD_ROOT%{_includedir}/libintl.h $RPM_BUILD_ROOT%{_libdir}/gettext/gnu.gettext.*
 
+%if !%{build_opensls}
 install -d $RPM_BUILD_ROOT%{_sysconfdir}/emacs/site-start.d
 install -m 644 %{SOURCE1} $RPM_BUILD_ROOT%{_sysconfdir}/emacs/site-start.d/%{name}.el
+%endif
 
 # remove non-standard lc directories
 for i in en@boldquot en@quot ; do rm -rf $RPM_BUILD_ROOT/%{_datadir}/locale/$i; done
@@ -138,13 +143,15 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(-,root,root)
 %doc README COPYING ABOUT-NLS AUTHORS BUGS DISCLAIM NEWS THANKS TODO htmldoc
+%if !%{build_opensls}
 %config(noreplace) %{_sysconfdir}/emacs/site-start.d/*.el
+%{_datadir}/emacs/site-lisp/*.el*
+%endif
 %{_bindir}/msg*
 %{_bindir}/xgettext
 %{_bindir}/autopoint
 %{_libdir}/%name/*
 %{_infodir}/gettext*
-%{_datadir}/emacs/site-lisp/*.el*
 %{_mandir}/man1/msg*
 %{_mandir}/man1/xgettext*
 %{_mandir}/man1/autopoint*
@@ -180,6 +187,11 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/aclocal/*
 
 %changelog
+* Sat Dec 13 2003 Vincent Danen <vdanen@opensls.org> 0.11.5-8sls
+- OpenSLS build
+- tidy spec
+- use %%build_opensls macro to not require or build emacs-specific stuff
+
 * Wed Jul  9 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 0.11.5-7mdk
 - Rebuild
 
