@@ -1,6 +1,6 @@
 %define name	smartmontools
-%define version 5.26
-%define release 6avx
+%define version 5.33
+%define release 1avx
 
 Summary:	SMARTmontools - for monitoring S.M.A.R.T. disks and devices
 Name:           %{name}
@@ -9,9 +9,10 @@ Release:        %{release}
 License:	GPL
 Group:		System/Kernel and hardware
 URL:            http://smartmontools.sourceforge.net/
-Source0:	%{name}-%{version}.tar.bz2
+Source0:	%{name}-%{version}.tar.gz
 Source1:	smartd.run
 Source2:	smartd-log.run
+Source3:	%{name}-%{version}.tar.gz.asc
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-root
 
@@ -24,12 +25,12 @@ SMARTmontools controls and monitors storage devices using the
 Self-Monitoring, Analysis and Reporting Technology System (S.M.A.R.T.)
 build into ATA and SCSI Hard Drives. This is used to check the
 reliability of the hard drive and predict drive failures. The suite
-contents two utilities.  The first, smartctl, is a command line
+contains two utilities.  The first, smartctl, is a command line
 utility designed to perform simple S.M.A.R.T. tasks. The second,
 smartd, is a daemon that periodically monitors smart status and
 reports errors to syslog.  The package is compatible with the
 ATA/ATAPI-5 specification.  Future releases will be compatible with
-the ATA/ATAPI-6 andATA/ATAPI-7 specifications.  The package is
+the ATA/ATAPI-6 and ATA/ATAPI-7 specifications.  The package is
 intended to incorporate as much "vendor specific" and "reserved"
 information as possible about disk drives.  man smartctl and man
 smartd will provide more information.
@@ -78,10 +79,14 @@ echo "INTERVAL=1800" > %{buildroot}%{_sysconfdir}/sysconfig/smartd
 %dir %{_srvdir}/smartd/log
 %{_srvdir}/smartd/run
 %{_srvdir}/smartd/log/run
-%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/smartd
+%dir %attr(0750,logger,logger) %{_srvlogdir}/smartd
 
 
 %changelog
+* Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 5.33-1avx
+- 5.33
+- use logger for logging
+
 * Mon Sep 20 2004 Vincent Danen <vdanen@annvix.org> 5.26-6avx
 - update run scripts
 

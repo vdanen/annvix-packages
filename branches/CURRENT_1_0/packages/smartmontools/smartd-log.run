@@ -1,6 +1,5 @@
 #!/bin/sh
 
-# this writes logs as user nobody into /var/log/supervise/smartd; make 
-# sure this directory exists and is writable by nobody!
+# logging for the smartd service
 
-exec /sbin/chpst -u nobody /sbin/svlogd -tt /var/log/supervise/smartd
+exec /sbin/chpst -u logger /sbin/svlogd -tt /var/log/supervise/smartd
