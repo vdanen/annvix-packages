@@ -1,0 +1,16 @@
+--- gradm2/Makefile	2003-07-30 00:53:54.000000000 +0300
++++ gradm2/Makefile.new	2003-09-18 14:57:15.000000000 +0300
+@@ -110,13 +110,6 @@
+ 	@if [ ! -f $(DESTDIR)$(GRSEC_DIR)/acl ] ; then \
+ 		$(INSTALL) -m 0600 acl $(DESTDIR)$(GRSEC_DIR) ; \
+ 	fi
+-	@if [ -z "`cut -d" " -f3 /proc/mounts | grep "^devfs"`" ] ; then \
+-		rm -f $(DESTDIR)/dev/grsec ; \
+-		if [ ! -e $(DESTDIR)/dev/grsec ] ; then \
+-			mkdir -p $(DESTDIR)/dev ; \
+-			$(MKNOD) -m 0622 $(DESTDIR)/dev/grsec c 1 10 ; \
+-		fi \
+-	fi
+ 	mkdir -p $(DESTDIR)$(MANDIR)/man8
+ 	$(INSTALL) -m 0644 gradm.8 $(DESTDIR)$(MANDIR)/man8/$(GRADM_BIN).8
+ 	@if [ -z $(DESTDIR) ] ; then \
