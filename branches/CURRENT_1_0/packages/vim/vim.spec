@@ -1,6 +1,6 @@
 %define name	vim
 %define version	6.2
-%define release	12sls
+%define release	13sls
 
 # Notes / Warning :
 # - this package is not prefixable
@@ -41,9 +41,6 @@ Patch29:	vim-6.2-spec-mode.diff.bz2
 
 BuildRoot: %_tmppath/%name-%version
 BuildRequires: perl-devel termcap-devel
-%if !%{build_opensls}
-BuildRequires: libgnomeui2-devel tclx
-%endif
 
 %description
 VIM (VIsual editor iMproved) is an updated and improved version of the vi
@@ -100,26 +97,6 @@ editor which includes recently added enhancements like interpreters for the
 Python and Perl scripting languages.  You'll also need to install the
 vim-common package.
 
-%if !%{build_opensls}
-%package X11
-Summary:	The VIM version of the vi editor for the X Window System.
-Group:		Editors
-Provides:	vim
-Requires:	vim-common >= %version
-
-%description X11
-VIM (VIsual editor iMproved) is an updated and improved version of the vi
-editor.  Vi was the first real screen-based editor for UNIX, and is still
-very popular.  VIM improves on vi by adding new features: multiple windows,
-multi-level undo, block highlighting and more. VIM-X11 is a version of the
-VIM editor which will run within the X Window System.  If you install this
-package, you can run VIM as an X application with a full GUI interface and
-mouse support.
-
-Install the vim-X11 package if you'd like to try out a version of vi with
-graphics and mouse capabilities.  You'll also need to install the
-vim-common package.
-%endif
 
 %prep
 %setup -q -b 2 -n vim62 -a4
@@ -146,31 +123,12 @@ done
 
 %build
 
-%if !%{build_opensls}
-# First build: gvim
-LOCALEDIR=%localedir CFLAGS="$RPM_OPT_FLAGS" CXXFLAGS="$RPM_OPT_FLAGS" ./configure --prefix=%_prefix \
---enable-pythoninterp --enable-perlinterp --with-features=huge \
---disable-acl --with-x=yes --enable-gui=gnome2 --exec-prefix=%_prefix/X11R6 \
---enable-gtk2-check \
---enable-multibyte --enable-xim --enable-fontset --mandir=%_mandir \
---libdir=%_libdir --with-compiledby="%packager"
- 
-echo "#define MAX_FEAT 1" >> src/config.h
-
-make
-mv src/vim src/gvim
-make -C src clean
-%endif
-
 # Second build: vim-enhanced
-%if %{build_opensls}
-EXTRAFLAG="--disable-gpm"
-%endif
 
 CFLAGS="$RPM_OPT_FLAGS" CXXFLAGS="$RPM_OPT_FLAGS"  ./configure --prefix=%_prefix \
 --disable-acl --enable-pythoninterp --enable-perlinterp --with-features=huge \
 --libdir=%_libdir --with-compiledby="%packager" \
---with-x=no --enable-gui=no --exec-prefix=%_prefix $EXTRAFLAG
+--with-x=no --enable-gui=no --disable-gpm --exec-prefix=%_prefix
 
 make
 mv src/vim src/vim-enhanced
@@ -214,9 +172,6 @@ mkdir -p $RPM_BUILD_ROOT{/bin,%_bindir,%_datadir/{vim,locale},%_prefix/X11R6/bin
 
 make -C src installmacros prefix=$RPM_BUILD_ROOT%_prefix VIMRTDIR=""
 
-%if !%{build_opensls}
-install -s -m755 src/gvim $RPM_BUILD_ROOT%_prefix/X11R6/bin
-%endif
 install -s -m755 src/vim-enhanced $RPM_BUILD_ROOT%_bindir
 install -s -m755 src/vim-minimal $RPM_BUILD_ROOT/bin/vim-minimal
 
@@ -226,9 +181,6 @@ for i in ex vimdiff; do
 	ln -sf vim-enhanced ./usr/bin/$i
 done
 rm -f ./usr/man/man1/rvim.1.bz2
-%if !%{build_opensls}
-ln -sf gvim ./usr/X11R6/bin/vimx
-%endif
 cd -
 
 # installing man pages
@@ -251,22 +203,8 @@ ln -f runtime/macros/README.txt README_macros.txt
 ln -f runtime/tools/README.txt README_tools.txt
 perl -p -i -e "s|#!/usr/local/bin/perl|#!/usr/bin/perl|" runtime/doc/*.pl
 
-%if !%{build_opensls}
-# installing the menu icons & entry
-mkdir -p $RPM_BUILD_ROOT{%_miconsdir,%_liconsdir,%_menudir}
-cp runtime/vim16x16.png $RPM_BUILD_ROOT%_miconsdir/gvim.png
-cp runtime/vim32x32.png $RPM_BUILD_ROOT%_iconsdir/gvim.png
-cp runtime/vim48x48.png $RPM_BUILD_ROOT%_liconsdir/gvim.png
-bzcat %SOURCE3 > $RPM_BUILD_ROOT%_menudir/vim-X11
-
-# gvim and fontset (from Pablo) 2001/03/19
-echo 'set guifontset=-*-fixed-medium-r-normal--14-*-*-*-c-*-*-*,-*-*-medium-r-normal--14-*-*-*-c-*-*-*,-*-*-medium-r-normal--14-*-*-*-m-*-*-*,*' > $RPM_BUILD_ROOT%{_datadir}/vim/gvimrc
-%endif
-
-%if %{build_opensls}
 # remove gvim manpage
 rm -f $RPM_BUILD_ROOT%_mandir/man1/gvim.1*
-%endif
 		
 # fix the paths in the man pages
 for i in $RPM_BUILD_ROOT/usr/share/man/man1/*.1; do
@@ -282,6 +220,8 @@ ln -sf ../../../%_defaultdocdir/%name-common-%version/doc $RPM_BUILD_ROOT/usr/sh
 pushd $RPM_BUILD_ROOT/%_datadir/vim/lang
 	ln -s ../../locale/* .
 popd
+
+rm -f %{buildroot}%{_bindir}/{rview,view,rvim}
 
 %{find_lang} %name
 
@@ -355,15 +295,6 @@ update-alternatives --remove vi  /usr/bin/vim-enhanced
 update-alternatives --remove vim /usr/bin/vim-enhanced
 :
 
-%if !%{build_opensls}
-# menu stuff
-%post X11
-%{update_menus}
-
-%postun X11
-%{clean_menus}
-%endif
-
 %clean
 rm -rf $RPM_BUILD_ROOT
 rm -rf $RPM_BUILD_DIR/$RPM_PACKAGE_NAME
@@ -402,21 +333,10 @@ rm -rf $RPM_BUILD_DIR/$RPM_PACKAGE_NAME
 %_bindir/ex
 %_bindir/vimdiff
 
-%if !%{build_opensls}
-%files X11
-%defattr(-,root,root)
-%doc README*.txt
-%_prefix/X11R6/bin/gvim
-%_prefix/X11R6/bin/vimx
-%_mandir/man1/gvim.1*
-%_iconsdir/gvim.png
-%_miconsdir/gvim.png
-%_liconsdir/gvim.png
-%_menudir/vim-X11
-%_datadir/vim/gvimrc
-%endif
-
 %changelog
+* Mon Jan 12 2004 Vincent Danen <vdanen@opensls.org> 6.2-13sls
+- remove %%build_opensls tags
+
 * Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 6.2-12sls
 - OpenSLS build
 - don't build vim-x11 (use %%build_opensls macro)
