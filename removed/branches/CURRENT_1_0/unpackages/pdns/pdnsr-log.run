@@ -1,7 +1,6 @@
 #!/bin/sh
 
-# this writes logs as user nobody into /var/log/supervise/pdns_recursor make 
-# sure this directory exists and is writable by nobody!
+# logging for the pdnsr service
 
-exec /sbin/chpst -u nobody /sbin/svlogd -tt /var/log/supervise/pdnsr
+exec /sbin/chpst -u logger /sbin/svlogd -tt /var/log/supervise/pdnsr
 

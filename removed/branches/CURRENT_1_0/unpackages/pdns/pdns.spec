@@ -1,6 +1,6 @@
 %define name	pdns
 %define version	2.9.17
-%define release	2avx
+%define release	3avx
 
 Summary:	PowerDNS is a versatile database-driven nameserver
 Name:		%{name}
@@ -210,7 +210,7 @@ install -m 0755 %{SOURCE4} %{buildroot}%{_srvdir}/pdnsr/log/run
 %dir %{_srvdir}/pdns/log
 %{_srvdir}/pdns/run
 %{_srvdir}/pdns/log/run
-%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/pdns
+%dir %attr(0750,logger,logger) %{_srvlogdir}/pdns
 
 %files recursor
 %defattr(-,root,root)
@@ -221,7 +221,7 @@ install -m 0755 %{SOURCE4} %{buildroot}%{_srvdir}/pdnsr/log/run
 %dir %{_srvdir}/pdnsr/log
 %{_srvdir}/pdnsr/run
 %{_srvdir}/pdnsr/log/run
-%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/pdnsr
+%dir %attr(0750,logger,logger) %{_srvlogdir}/pdnsr
 
 %files backend-mysql
 %defattr(-,root,root)
@@ -242,6 +242,9 @@ install -m 0755 %{SOURCE4} %{buildroot}%{_srvdir}/pdnsr/log/run
 %{_libdir}/pdns/*.a
 
 %changelog
+* Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 2.9.17-3avx
+- use logger for logging
+
 * Sat Feb 13 2005 Vincent Danen <vdanen@annvix.org> 2.9.17-2avx
 - P3: x86_64 fixes from pdns dev branch
 
