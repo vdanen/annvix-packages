@@ -1,0 +1,23 @@
+--- mpage-2.5.1pre.orig/Contrib/psprint
++++ mpage-2.5.1pre/Contrib/psprint
+@@ -1,10 +1,9 @@
+-#!/bin/ksh -
++#!/bin/sh -
+ 
+ STDIN_TMP_FILE=/tmp/psprint.$$
+ 
+ GS=/usr/local/bin/gs
+ GSLIB=/usr/local/lib/ghostscript/3.53
+-RM=/bin/rm
+ #
+ # define print command (SYSV or BSD ish)
+ # PRINT="lp -or -s"
+@@ -20,7 +19,7 @@
+     ${GSLIB}/quit.ps
+ done
+ 
+-${RM} -f "${STDIN_TMP_FILE}"
++rm -f "${STDIN_TMP_FILE}"
+ 
+ exit 0
+ 
