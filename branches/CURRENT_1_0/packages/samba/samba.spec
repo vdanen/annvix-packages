@@ -1,20 +1,6 @@
-# Note that this file exists in Mandrake packaging cvs (as samba.spec)
-# and samba cvs (as packaging/Mandrake/samba2.spec.tmpl).
-# Keep in mind that any changes should take both locations into account
-# Considerable effort has gone into making this possible, so that only
-# one spec file is maintained, please don't break it.
-# It should be possible, without any changes to this file, to build
-# binary packages on most recent Mandrake releases:
-# 1)from official source releases, using 'cd packaging/Mandrake; sh makerpms.sh'
-# 2)from cvs snapshots, using 'cd packaging/Mandrake; sh makerpms-cvs.sh <ver>'
-# 3)using official source releases and updated Mandrake packaging, by
-#   'rpm -ba samba.spec'
-# As such, any sources or patches used in a build from a samba release or
-# cvs should be submitted for inclusion in samba cvs.
-
 %define pkg_name	samba
 %define ver 		3.0.5
-%define rel 		1avx
+%define rel 		2avx
 %define vscanver 	0.3.5
 %define libsmbmajor 	0
 
@@ -241,8 +227,9 @@ Source21:	README.avx.sambamerge.bz2
 Source22:	ftp://samba.org/pub/samba/samba-%{source_ver}.tar.asc
 Patch1:		smbw.patch.bz2
 Patch2:		samba-3.0.2a-mdk-smbldap-config.patch.bz2
-Patch3:		samba-3.0.4-mdk-mandrake-packaging.patch.bz2
+Patch3:		samba-3.0.5-mdk-mandrake-packaging.patch.bz2
 Patch4:		samba-3.0-smbmount-sbin.patch.bz2
+Patch5:		samba-3.0.5-mdk-lib64.patch.bz2
 %if !%have_pversion
 # Version specific patches: current version
 %else
@@ -813,7 +800,8 @@ echo -e "\n%{name}-%{version}-%{release}\n">>%{SOURCE7}
 # Version specific patches: current version
 %if !%have_pversion
 echo "Applying patches for current version: %{ver}"
-%patch3 -p1
+%patch3 -p1 -b .mdk
+%patch5 -p1 -b .lib64
 %else
 # Version specific patches: upcoming version
 echo "Applying patches for new versions: %{pversion}"
@@ -873,6 +861,7 @@ CFLAGS=`echo "$RPM_OPT_FLAGS"|sed -e 's/-g//g'`
 %if %gcc331
 CFLAGS=`echo "$CFLAGS"|sed -e 's/-O2/-Os/g'`
 %endif
+./autogen.sh
 # Don't use --with-fhs now, since it overrides libdir, it sets configdir, 
 # lockdir,piddir logfilebase,privatedir and swatdir
 %configure      --prefix=%{_prefix} \
@@ -881,7 +870,7 @@ CFLAGS=`echo "$CFLAGS"|sed -e 's/-O2/-Os/g'`
                 --with-libdir=%{_libdir}/%{name} \
                 --with-privatedir=%{_sysconfdir}/%{name} \
 		--with-lockdir=/var/cache/%{name} \
-		--with-piddir=/var/run/%{name} \
+		--with-piddir=/var/run \
                 --with-swatdir=%{_datadir}/swat%{samba_major} \
                 --with-configdir=%{_sysconfdir}/%{name} \
 		--with-logfilebase=/var/log/%{name} \
@@ -978,10 +967,6 @@ install -m 755 source/nsswitch/pam_winbind.so $RPM_BUILD_ROOT/%{_lib}/security/p
 
 install -m755 source/bin/libsmbclient.a $RPM_BUILD_ROOT%{_libdir}/libsmbclient.a
 pushd $RPM_BUILD_ROOT/%{_libdir}
-%ifarch amd64 x86_64
-# for some reason libsmbclient gets installed into /usr/lib not /usr/lib64
-mv -f ../lib/libsmbclient.so* .
-%endif
 [ -f libsmbclient.so ] && mv -f libsmbclient.so libsmbclient.so.%{libsmbmajor}
 ln -sf libsmbclient.so.%{libsmbmajor} libsmbclient.so
 popd
@@ -1658,6 +1643,13 @@ update-alternatives --auto smbclient
 %exclude %{_mandir}/man1/smbsh*.1*
 
 %changelog
+* Fri Aug 13 2004 Vincent Danen <vdanen@annvix.org> 3.0.5-2avx
+- don't need libsmbclient move hack for x86_64 anymore
+- fix pid file location (#10666) (bgmilne)
+- merge amd64 fixes (P7) (bgmilne)
+- make pdf printer work again, and other misc fixes to default
+  config (bgmilne)
+
 * Tue Jul 27 2004 Vincent Danen <vdanen@annvix.org> 3.0.5-1avx
 - 3.0.5 (fixes CAN-2004-0600, CAN-2004-0686)
 - include gpg signature
