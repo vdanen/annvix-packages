@@ -1,6 +1,6 @@
 %define name	krb5
 %define version	1.3.6
-%define release	2avx
+%define release	3avx
 
 %define srcver	1.3
 %define LIBMAJ	1
@@ -581,6 +581,9 @@ strip %{buildroot}%{_bindir}/{ksu,v4rcp}
 %{_datadir}/afterboot/08_kftp
 
 %changelog
+* Fri Mar 04 2005 Vincent Danen <vdanen@annvix.org> 1.3.6-3avx
+- logger for krb5kdc
+
 * Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 1.3.6-2avx
 - user logger for logging
 
