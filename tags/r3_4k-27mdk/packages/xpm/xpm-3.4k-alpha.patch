@@ -1,0 +1,14 @@
+diff -ur xpm-3.4k.orig/lib/Imakefile xpm-3.4k/lib/Imakefile
+--- xpm-3.4k.orig/lib/Imakefile	1998-03-19 20:50:59.000000000 +0100
++++ xpm-3.4k/lib/Imakefile	2003-05-06 12:22:45.000000000 +0200
+@@ -56,8 +56,8 @@
+ 
+ XCOMM on Dec Alpha we need to define the following to build the shared library
+ #ifdef AlphaArchitecture
+-REQUIREDLIBS = $(LDPRELIB) $(XLIB)
+-SO_REQLIBS = -lX11 -lc
++REQUIREDLIBS = 
++SO_REQLIBS = 
+ #endif
+ 
+ XCOMM If DEFINES has not been defined in top dir, this can be done here.
