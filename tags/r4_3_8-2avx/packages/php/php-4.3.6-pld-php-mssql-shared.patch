@@ -1,0 +1,14 @@
+diff -Naur php-4.3.6/ext/mssql/config.m4 php-4.3.6.oden/ext/mssql/config.m4
+--- php-4.3.6/ext/mssql/config.m4	2004-05-21 11:12:14.004628760 +0200
++++ php-4.3.6.oden/ext/mssql/config.m4	2004-05-21 11:15:35.847630166 +0200
+@@ -32,8 +32,8 @@
+     fi
+   fi  
+ 
+-  if test ! -r "$FREETDS_INSTALLATION_DIR/$PHP_LIBDIR/libtds.a"; then
+-     AC_MSG_ERROR(Could not find $FREETDS_INSTALLATION_DIR/$PHP_LIBDIR/libtds.a)
++  if test ! -r "$FREETDS_INSTALLATION_DIR/$PHP_LIBDIR/libtds.so"; then
++     AC_MSG_ERROR(Could not find $FREETDS_INSTALLATION_DIR/$PHP_LIBDIR/libtds.so)
+   fi
+ 
+   MSSQL_INCDIR=$FREETDS_INSTALLATION_DIR/include

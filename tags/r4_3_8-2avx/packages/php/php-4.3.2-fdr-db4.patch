@@ -1,0 +1,23 @@
+
+Fix broken db library detection.
+
+--- php-4.3.2/ext/dba/config.m4.db4	2003-05-21 01:35:29.000000000 +0100
++++ php-4.3.2/ext/dba/config.m4	2003-05-29 20:46:38.000000000 +0100
+@@ -135,8 +135,7 @@
+ dnl parameters(version, library list, function)
+ AC_DEFUN(PHP_DBA_DB_CHECK,[
+   for LIB in $2; do
+-    if test -f $THIS_PREFIX/lib/lib$LIB.a -o -f $THIS_PREFIX/lib/lib$LIB.$SHLIB_SUFFIX_NAME; then
+-      PHP_TEMP_LDFLAGS(-L$THIS_PREFIX/lib -l$LIB,[
++      PHP_TEMP_LDFLAGS(-l$LIB,[
+         AC_TRY_LINK([
+ #include "$THIS_INCLUDE"
+         ],[
+@@ -153,7 +152,6 @@
+           ])
+         ])
+       ])
+-    fi
+   done
+   if test -z "$THIS_LIBS"; then
+ 	AC_MSG_CHECKING(for db$1 major version)
