@@ -1,7 +1,7 @@
 %define name	perl-%{module}
 %define module	DB_File
 %define version	1.808
-%define release	1sls
+%define release	2avx
 
 %define perl_archlib %(eval "`perl -V:installarchlib`"; echo $installarchlib)
 
@@ -61,6 +61,9 @@ mkdir -p $RPM_BUILD_ROOT/$installarchlib
 %_mandir/man3*/DB_File.*
 
 %changelog
+* Sat Jun 26 2004 Vincent Danen <vdanen@annvix.org> 1.808-2avx
+- Annvix build
+
 * Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 1.808-1sls
 - 1.808
 - fix url

@@ -1,7 +1,7 @@
 %define name	perl-%{module}
 %define module	Devel-Symdump
 %define version 2.03
-%define release 7sls
+%define release 8avx
 
 Summary:	%{module} module for perl
 Name:		perl-%{module}
@@ -41,6 +41,9 @@ make test
 %{_mandir}/*/*
 
 %changelog
+* Sat Jun 26 2004 Vincent Danen <vdanen@annvix.org> 2.03-8avx
+- Annvix build
+
 * Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 2.03-7sls
 - rebuild for perl 5.8.4
 

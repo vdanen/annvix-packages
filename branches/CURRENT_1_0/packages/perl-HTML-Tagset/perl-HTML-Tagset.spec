@@ -1,7 +1,7 @@
 %define	module	HTML-Tagset
 %define name	perl-%{module}
 %define	version	3.03
-%define	release	10sls
+%define	release	11avx
 
 Summary: 	This module contains data tables useful in dealing with HTML.
 Name: 		%{name}
@@ -45,6 +45,9 @@ make test
 %{perl_vendorlib}/HTML
 
 %changelog
+* Sat Jun 26 2004 Vincent Danen <vdanen@annvix.org> 3.03-11avx
+- Annvix build
+
 * Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 3.03-10sls
 - rebuild for perl 5.8.4
 

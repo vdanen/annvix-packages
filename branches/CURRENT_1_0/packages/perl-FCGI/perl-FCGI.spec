@@ -1,7 +1,7 @@
 %define modname	FCGI
 %define name	perl-%{modname}
 %define version	0.67
-%define release 6sls
+%define release 7avx
 
 Summary:	A Fast CGI module for Perl
 Name:		%{name}
@@ -51,6 +51,9 @@ echo | CFLAGS="$RPM_OPT_FLAGS" %{__perl} Makefile.PL INSTALLDIRS=vendor
 %{perl_vendorarch}/auto/FCGI
 
 %changelog
+* Sat Jun 26 2004 Vincent Danen <vdanen@annvix.org> 0.67-7avx
+- Annvix build
+
 * Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 0.67-6sls
 - rebuild for perl 5.8.4
 

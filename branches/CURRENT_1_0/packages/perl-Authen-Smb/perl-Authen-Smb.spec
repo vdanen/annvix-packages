@@ -1,7 +1,7 @@
 %define module	Authen-Smb
 %define name	perl-%{module}
 %define version	0.91
-%define release	6sls
+%define release	7avx
 
 Summary:	Authen::Smb Perl module
 Name:		%{name}
@@ -42,6 +42,9 @@ make test
 %{_mandir}/man3/*
 
 %changelog
+* Sat Jun 26 2004 Vincent Danen <vdanen@annvix.org> 0.91-7avx
+- Annvix build
+
 * Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 0.91-6sls
 - rebuild for perl 5.8.4
 
