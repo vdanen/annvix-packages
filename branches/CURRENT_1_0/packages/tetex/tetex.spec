@@ -1,39 +1,42 @@
-%define name            tetex
-%define pkgname         tetex
-%define version         2.0.2
+%define name	tetex
+%define version	2.0.2
+%define release	11sls
+
+%{!?build_opensls:%global build_opensls 0}
+
+%define pkgname		%{name}
 %define docversion	2.0.2
-%define pkgversion      2.0.2
+%define pkgversion	2.0.2
 %define tetexversion	2.0.2
-%define tetexrelease    10mdk
-%define texmfversion    2.0.2
+%define texmfversion	2.0.2
 %define texmfsrcversion	2.0.2
 %define texmfggversion	2.0.2b
 %define jadename	jadetex
 %define jadeversion	3.12
 %define jaderelease_delta 79
-%define jaderelease	%(R=%{tetexrelease}; echo $((${R/mdk/} + %{jaderelease_delta}))mdk)
+%define jaderelease	%(R=%{release}; echo $((${R/sls/} + %{jaderelease_delta}))sls)
 %define xmltexname	xmltex
 %define xmltexversion	1.9
 # reset the delta if changing the xmltexversion.
 %define xmltexrelease_delta 27
-%define xmltexrelease	%(R=%{tetexrelease}; echo $((${R/mdk/} + %{xmltexrelease_delta}))mdk)
+%define xmltexrelease	%(R=%{release}; echo $((${R/sls/} + %{xmltexrelease_delta}))sls)
 
 %define vartexfonts	/var/lib/texmf
-
-# 1 = build for Mandrake Linux >= 9.0
-%define buildfor_mdk90  %(awk '{print ($4 > "8.2")}' /etc/mandrake-release)
 
 # 1 = have ghostscript >= 6.01 (e.g. Mandrake Linux >= 8.1)
 # 0 = don't have ghostscript >= 6.01 (e.g. Mandrake Linux 8.0, 7.2, etc.)
 %define haveghost6	1
 
+%{!?build_opensls:%global build_opensls 0}
+%define _unpackaged_files_terminate_build 0
+
 Summary:	The TeX text formatting system
 Name:		%{name}
 Version:	%{version}
-Release:	%{tetexrelease}
+Release:	%{release}
 License:	Distributable
 Group:		Publishing
-
+URL:		http://www.tug.org/teTeX/
 Source0:	ftp://cam.ctan.org/tex-archive/systems/unix/teTeX/2.0/distrib/sources/%{name}-src-%{tetexversion}.tar.bz2
 Source1:	ftp://cam.ctan.org/tex-archive/systems/unix/teTeX/2.0/distrib/sources/%{name}-texmf-%{texmfversion}.tar.bz2
 Source3:	ftp://cam.ctan.org/tex-archive/systems/unix/teTeX/2.0/distrib/sources/%{name}-texmfsrc-%{texmfsrcversion}.tar.bz2
@@ -67,22 +70,15 @@ Patch24:	%{name}-%{jadename}-%{jadeversion}-theta.patch.bz2
 Patch25:	passivetex-1.23.patch.bz2
 Patch26:	passivetex-1.24.patch.bz2
 Patch27:	%{name}-2.0.2-typefacename.patch.bz2
-URL:		http://www.tug.org/teTeX/
-Packager:	Giuseppe Ghibò <ghibo@mandrakesoft.com>
+
 BuildRoot:	%{_tmppath}/%{name}-%{version}-root
-Requires:	tmpwatch
-Requires:	dialog
-Requires:	ed
-Requires:	info-install
-BuildRequires:	bison
-BuildRequires:	ed
-BuildRequires:	flex
+BuildRequires:	bison, ed, flex, gettext-devel
+BuildRequires:	libncurses-devel, libpng-devel, libxpm-devel, XFree86-devel
+%if !%{build_opensls}
 BuildRequires:	freetype-devel
-BuildRequires:	gettext-devel
-BuildRequires:	libncurses-devel
-BuildRequires:	libpng-devel
-BuildRequires:	libxpm-devel
-BuildRequires:	XFree86-devel
+%endif
+
+Requires:	tmpwatch, dialog, ed, info-install
 Obsoletes:	cweb
 Provides:	cweb
 
@@ -125,6 +121,7 @@ tetex-xdvi (for previewing .dvi files in X).  If you're not an expert
 at TeX, you'll probably also want to install the tetex-doc package,
 which contains documentation for TeX.
 
+%if !%{build_opensls}
 %package xdvi
 Summary:	An X viewer for DVI files
 Group:		Publishing
@@ -145,6 +142,7 @@ PostScript format for printing on PostScript printers), and tetex-latex
 interface for TeX).  If you're not a TeX expert, you'll probably also
 want to install the tetex-doc package, which contains documentation for
 the TeX text formatting system.
+%endif
 
 %package dvips
 Summary:	A DVI to PostScript converter for the TeX text formatting system
@@ -211,6 +209,7 @@ for TeX) and tetex-xdvi (for previewing .dvi files in X).  Unless you're
 an expert at using TeX, you'll probably also want to install the tetex-doc
 package, which includes documentation for TeX.
 
+%if !%{build_opensls}
 %package doc
 Summary:	The documentation files for the TeX text formatting system
 Group:		Books/Other
@@ -227,6 +226,7 @@ compatible printers), tetex-dvips (for converting .dvi files to
 PostScript format for printing on PostScript printers), tetex-latex
 (a higher level formatting package which provides an easier-to-use
 interface for TeX) and tetex-xdvi (for previewing .dvi files).
+%endif
 
 %package dvipdfm
 Summary:	A DVI to PDF converter
@@ -236,6 +236,7 @@ Requires:	tetex = %{PACKAGE_VERSION}, tetex-dvips = %{PACKAGE_VERSION}
 %description dvipdfm
 dvidpfm is a DVI to PDF translator for use with TeX.
 
+%if !%{build_opensls}
 %package mfwin
 Summary:	Metafont with output window
 Group:		Publishing
@@ -245,6 +246,7 @@ Requires:	tetex = %{PACKAGE_VERSION}
 This package contains METAFONT with window support. Install this
 package if you plan to run METAFONT interactively and would like to see
 the font building in a output window.
+%endif
 
 %package devel
 Summary:	Development libraries (kpathsea) for teTeX
@@ -312,7 +314,12 @@ HTML files which can be read with any WWW browser.
 
 
 %prep
+%if %{build_opensls}
+%setup -q -n %{name}-src-%{tetexversion} -a 7 -a 8 -a 9
+%else
 %setup -q -n %{name}-src-%{tetexversion} -a 7 -a 8 -a 9 -a 20
+%endif
+
 %patch0 -p1 -b .texmfcnf
 %patch1 -p1 -b .fmtutil
 %patch3 -p1 -b .max
@@ -321,7 +328,9 @@ HTML files which can be read with any WWW browser.
 %patch6 -p1 -b .epstopdf
 %patch7 -p1 -b .fmtutil1
 %patch8 -p1 -b .22.40y
+%if !%{build_opensls}
 %patch10 -p1 -b .ttf2pk
+%endif
 %patch11 -p1 -b .badscript
 %patch12 -p1 -b .dvipdfm
 %patch13 -p1 -b .xpdf
@@ -351,8 +360,10 @@ cp -p texmf/metafont/config/mf.ini texmf/metafont/config/mf-nowin.ini
 # typeface.map
 %patch27 -p1
 
+%if !%{build_opensls}
 # ttf2pk
 (cd ttf2pk; autoconf)
+%endif
 
 # cputoolize to get updated config.{sub,guess}
 %{?__cputoolize: %{__cputoolize} -c libs/ncurses}
@@ -398,6 +409,7 @@ sh ./reautoconf
  )
 )
 
+%if !%{build_opensls}
 # ttf2pk TrueType support (CJK extensions)
 (cd ttf2pk
  mkdir -p extras/{include,lib}
@@ -406,6 +418,7 @@ sh ./reautoconf
  ./configure --with-kpathsea-dir=./extras
  make
 )
+%endif
 
 # texi2html 1.64
 (cd texi2html-1.64
@@ -443,20 +456,18 @@ mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/cron.daily
 install -m 755 %{SOURCE10} $RPM_BUILD_ROOT%{_sysconfdir}/cron.daily
 
 #
+%if !%{build_opensls}
 # Add TrueType Support ttf2pk (CJK extensions)
 cp -f ttf2pk/ttf2pk ttf2pk/ttf2tfm $RPM_BUILD_ROOT%{_bindir}
 cp -f ttf2pk/ttf2pk.1 ttf2pk/ttf2tfm.1 $RPM_BUILD_ROOT%{_mandir}/man1
 mkdir -p $RPM_BUILD_ROOT%{_datadir}/texmf/ttf2pk
 cp -f ttf2pk/data/* $RPM_BUILD_ROOT%{_datadir}/texmf/ttf2pk
+%endif
 
 # update map files
 TEXMFMAIN=$RPM_BUILD_ROOT%{_datadir}/texmf \
 	$RPM_BUILD_ROOT%{_bindir}/updmap --cnffile \
 		$RPM_BUILD_ROOT%{_datadir}/texmf/web2c/updmap.cfg
-
-%if %buildfor_mdk90
-find $RPM_BUILD_ROOT -name "readlink*" | xargs rm
-%endif
 
 # add mf-nowin.1 man page
 cp -p $RPM_BUILD_ROOT%{_mandir}/man1/mf.1 \
@@ -476,6 +487,10 @@ s=/usr/share/spec-helper/spec-helper ; [ -x $s ] && $s
 
 # TEXMFLOCAL path
 mkdir -p $RPM_BUILD_ROOT/usr/local/share/texmf
+
+# remove unwanted files
+rm -f %{buildroot}%{_bindir}/readlink
+rm -f %{buildroot}%{_mandir}/man1/readlink.1*
 
 ### Files list
 find $RPM_BUILD_ROOT -type f -or -type l | \
@@ -616,10 +631,12 @@ exit 0
 /sbin/install-info %{_infodir}/latex.info.bz2 %{_infodir}/dir
 exit 0
 
+%if !%{build_opensls}
 %post xdvi
 [ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash 2> /dev/null
 %{update_menus}
 exit 0
+%endif
 
 %post dvips
 /sbin/install-info %{_infodir}/dvips.info.bz2 %{_infodir}/dir
@@ -639,9 +656,11 @@ exit 0
 [ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash 2> /dev/null
 exit 0
 
+%if !%{build_opensls}
 %post mfwin
 [ -x /usr/bin/texhash ] && /usr/bin/env - /usr7bin/texhash 2> /dev/null
 exit 0
+%endif
 
 %post -n %{jadename}
 [ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash 2> /dev/null
@@ -666,12 +685,14 @@ exit 0
 [ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash 2> /dev/null
 exit 0
 
+%if !%{build_opensls}
 %postun xdvi
 [ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash 2> /dev/null
 if [ "$1" = "0" ]; then
 %{clean_menus}
 fi
 exit 0
+%endif
 
 %postun dvips
 [ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash 2> /dev/null
@@ -689,9 +710,11 @@ exit 0
 [ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash 2> /dev/null
 exit 0
 
+%if !%{build_opensls}
 %postun mfwin
 [ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash 2> /dev/null
 exit 0
+%endif
 
 %postun -n %{jadename}
 [ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash 2> /dev/null
@@ -734,10 +757,12 @@ fi
 %files -f filelist.latex latex
 %defattr(-,root,root)
 
+%if !%{build_opensls}
 %files -f filelist.xdvi xdvi
 %defattr(-,root,root)
 %{_menudir}/tetex-xdvi
 %{_iconsdir}/*
+%endif
 
 %files -f filelist.dvips dvips
 %defattr(-,root,root)
@@ -748,17 +773,21 @@ fi
 %files -f filelist.afm afm
 %defattr(-,root,root)
 
+%if !%{build_opensls}
 %files -f filelist.doc doc
 %defattr(-,root,root)
 %docdir %{_datadir}/doc/tetex-doc-%{docversion}
 %{_datadir}/doc/tetex-doc-%{docversion}
+%endif
 
 %files -f filelist.dvipdfm dvipdfm
 %defattr(-,root,root)
 %attr(755,root,root) %{_bindir}/dvipdfpress
 
+%if !%{build_opensls}
 %files -f filelist.mfwin mfwin
 %defattr(-,root,root)
+%endif
 
 %files -f filelist.devel devel
 %defattr(-,root,root)
@@ -781,6 +810,15 @@ fi
 
 
 %changelog
+* Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 2.0.2-11.1sls
+- OpenSLS build
+- tidy spec
+- use %%build_opensls to exclude packaging xdvi, mfwin, and doc
+- use %%build_opensls to not build ttf2pk; no BuildRequires: freetype-devel
+- remove support for mdk 9.0
+- don't terminate build on unpackaged file finding
+- explicitly remove readlink and it's manpage (conflicts with coreutils)
+
 * Wed Sep 10 2003 Giuseppe Ghibò <ghibo@mandrakesoft.com> 2.0.2-10mdk
 - texmfgg archive to release 2.0.2b:
 	- updated latex unicode macro package to fix missed 
