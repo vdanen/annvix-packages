@@ -1,16 +1,9 @@
 %define name	%{ap_name}-%{mod_name}
 %define version %{ap_version}_%{phpversion}
-%define release	2avx
+%define release	1avx
 
 %define phpsource	%{_prefix}/src/php-devel
 %{expand:%(cat /usr/src/php-devel/PHP_BUILD||(echo -e "error: failed build dependencies:\n        php-devel >= 430 (4.3.0) is needed by this package." >/dev/stderr;kill -2 $PPID))}
-
-%ifarch x86_64 amd64
-%define dbver	lib64db4.1
-%else
-%define dbver	libdb4.1
-%endif
-%define ldb	-ldb-4.1
 
 # Module-Specific definitions
 %define mod_name	mod_php
@@ -34,23 +27,11 @@ URL:		http://www.php.net/
 Source1:	%{mod_conf}.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-root
-BuildRequires:  %{dbver}-devel
-BuildRequires:	gdbm-devel
-BuildRequires:	byacc
-BuildRequires:	glibc-devel
-BuildRequires:	libtool
-BuildRequires:	openssl-devel
-BuildRequires:	expat-devel
-BuildRequires:	zlib-devel
 BuildRequires:	php%{libversion}-devel
-BuildRequires:	pam-devel libintl
-BuildRequires:	db1-devel
-BuildRequires:	php-devel >= 4.3.0
 # Standard ADVX requires
 BuildRequires:	%{ap_name}-devel >= 2.0.44-1mdk
 BuildPreReq:	ADVX-build >= 9.2
 
-Requires:	%{dbver}
 Requires:	openssl
 Requires:	php-ini
 Provides:	mod_php3
@@ -69,8 +50,6 @@ Obsoletes:	php430
 # Standard ADVX requires
 Prereq:		%{ap_name} = %{ap_version}
 Prereq:		%{ap_name}-conf
-Provides: 	ADVXpackage
-Provides:	AP20package
 
 %description
 PHP is an HTML-embedded scripting language.  PHP attempts to make it
@@ -105,10 +84,9 @@ cp %{phpsource}/internal_functions.c .
 %{apxs} \
     `php-config --includes` \
     `apr-config --link-ld --libs` \
-    `apu-config --link-ld --libs` \
     -I%{phpsource} \
-    -I. -lphp_common %{ldb}  \
-    -c mod_php4.c apache_config.c php_functions.c  \
+    -I. -lphp_common \
+    -c mod_php4.c apache_config.c php_functions.c \
     internal_functions.c
 
 %install
@@ -137,6 +115,11 @@ cd %{extname}
 %{ap_webdoc}/*
 
 %changelog
+* Wed Jul 14 2004 Vincent Danen <vdanen@annvix.org> 2.0.49_4.3.8-1avx
+- php 4.3.8
+- remove ADVXpackage provides
+- don't link against aprutil and db4
+
 * Sun Jun 27 2004 Vincent Danen <vdanen@annvix.org> 2.0.49_4.3.7-2avx
 - Annvix build
 
