@@ -1,0 +1,13 @@
+--- mkinitrd-3.4.43/mkinitrd.avx	2004-12-17 20:00:11.000000000 -0700
++++ mkinitrd-3.4.43/mkinitrd	2004-12-17 20:00:11.000000000 -0700
+@@ -658,6 +658,10 @@
+     done
+ fi
+ 
++echo "echo Creating block devices" >> $RCFILE
++echo "mkdevices /dev" >> $RCFILE
++
++
+ if [ -n "$loopDev" ]; then
+     [ -d /initrd ] || mkdir /initrd
+ 
