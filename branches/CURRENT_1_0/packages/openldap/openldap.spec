@@ -1,6 +1,6 @@
 %define name	openldap
 %define version	2.1.29
-%define release	1avx
+%define release	2avx
 
 %define major 		2
 %define migtools_ver	45
@@ -181,8 +181,8 @@ Summary: 	OpenLDAP libraries.
 Group: 		System/Libraries
 Provides:       lib%fname = %version-%release
 # This is needed so all libldap2 applications get /etc/openldap/ldap.conf
-# which was moved from openldap-clients to openldap in 2.1.29-1sls
-Requires:	openldap >= 2.1.29-1sls
+# which was moved from openldap-clients to openldap in 2.1.29-1avx
+Requires:	openldap >= 2.1.29-1avx
 
 %description -n %libname
 This package includes the libraries needed by ldap applications.
@@ -711,7 +711,7 @@ fi
 %post -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
 
-%triggerpostun -- openldap-clients < 2.1.29-1sls
+%triggerpostun -- openldap-clients < 2.1.29-1avx
 # We may have openldap client configuration in /etc/ldap.conf
 # which now needs to be in /etc/openldap/ldap.conf
 if [ -f /etc/ldap.conf ] 
@@ -856,6 +856,10 @@ fi
 # - add cron-job to remove transaction logs (bdb)
 
 %changelog
+* Wed Jun 23 2004 Vincent Danen <vdanen@annvix.org> 2.1.29-2avx
+- fix requires
+- fix logrotate script (again) to call srv not service
+
 * Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 2.1.29-1avx
 - Annvix build
 - 2.1.29
