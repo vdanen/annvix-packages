@@ -1,6 +1,6 @@
 %define name	portmap
 %define version	4.0
-%define release	22sls
+%define release	23sls
 %define ver	4
 
 Summary:	A program which manages RPC connections
@@ -14,6 +14,8 @@ Source1:	portmap.init
 Source2:	pmap_set.8.bz2
 Source3:	pmap_dump.8.bz2
 Source4:	portmap.8.bz2
+Source5:	portmap.run
+Source6:	portmap-log.run
 Patch0:		portmap-4.0-linux.patch.bz2
 Patch1:		portmap-malloc.patch.bz2
 Patch2:		portmap-4.0-cleanup.patch.bz2
@@ -66,6 +68,11 @@ install -m 644 %{SOURCE2} $RPM_BUILD_ROOT%{_mandir}/man8
 install -m 644 %{SOURCE3} $RPM_BUILD_ROOT%{_mandir}/man8
 install -m 644 %{SOURCE4} $RPM_BUILD_ROOT%{_mandir}/man8
 
+mkdir -p %{buildroot}/var/service/portmap/log
+mkdir -p %{buildroot}/var/log/supervise/portmap
+install -m 0755 %{SOURCE5} %{buildroot}/var/service/portmap/run
+install -m 0755 %{SOURCE6} %{buildroot}/var/service/portmap/log/run
+
 %clean
 rm -rf $RPM_BUILD_ROOT
 
@@ -87,15 +94,22 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(-,root,root)
 %doc README CHANGES BLURB
-
+%config(noreplace) %{_initrddir}/portmap
+%dir /var/service/portmap
+%dir /var/service/portmap/log
+%dir %attr(0750,nobody,nogroup) /var/log/supervise/portmap
+/var/service/portmap/run
+/var/service/portmap/log/run
 /sbin/portmap
 /usr/sbin/pmap_dump
 /usr/sbin/pmap_set
 %{_mandir}/*/*
 
-%config(noreplace) %{_initrddir}/portmap
 
 %changelog
+* Wed Dec 31 2003 Vincent Danen <vdanen@opensls.org> 4.0-23sls
+- supervise files
+
 * Mon Dec 02 2003 Vincent Danen <vdanen@opensls.org> 4.0-22sls
 - OpenSLS build
 - tidy spec
