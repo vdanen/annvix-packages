@@ -1,6 +1,6 @@
 %define name	openssh
 %define version	3.9p1
-%define release 3avx
+%define release 4avx
 
 ## Do not apply any unauthorized patches to this package!
 ## - vdanen 05/18/01
@@ -319,6 +319,9 @@ do_dsa_keygen
 %{_datadir}/afterboot/04_openssh
 
 %changelog
+* Sat Sep 11 2004 Vincent Danen <vdanen@annvix.org> 3.9p1-4avx
+- fix bad paths in sshd/log/run
+
 * Sat Sep 11 2004 Vincent Danen <vdanen@annvix.org> 3.9p1-3avx
 - update run scripts
 
