@@ -1,0 +1,20 @@
+--- openldap-2.0.18.mdk/build/top.mk	Thu Dec  6 18:48:45 2001
++++ openldap-2.0.18/build/top.mk	Thu Dec  6 18:53:48 2001
+@@ -62,7 +62,7 @@
+ #LTLINK  = $(LIBTOOL) --mode=link $(CC) -rpath $(libdir) \
+ #	$(CFLAGS) $(LDFLAGS)
+ LTLINK  = $(LIBTOOL) --mode=link $(CC) \
+-	$(CFLAGS) $(LDFLAGS)
++	$(LDAP_LIBPATH) $(CFLAGS) $(LDFLAGS)
+ LTINSTALL = $(LIBTOOL) --mode=install $(INSTALL) 
+ 
+ # Misc UNIX commands used in build environment
+@@ -152,7 +152,7 @@
+ CC = $(AC_CC)
+ DEFS = $(LDAP_INCPATH) $(XINCPATH) $(XDEFS) $(AC_DEFS) $(DEFINES)
+ CFLAGS = $(AC_CFLAGS) $(DEFS)
+-LDFLAGS = $(LDAP_LIBPATH) $(AC_LDFLAGS) $(XLDFLAGS)
++LDFLAGS =  $(AC_LDFLAGS) $(XLDFLAGS)
+ LIBS = $(XLIBS) $(XXLIBS) $(AC_LIBS) $(XXXLIBS)
+ 
+ all:		all-common all-local FORCE
