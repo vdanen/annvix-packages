@@ -1,0 +1,251 @@
+Status: MdAssemble
+
+Add new command "mdassemble" for initfs usage.
+
+mdassemble (contributed by Luca Berra <bluca@comedia.it> is a small
+program compiled with diet libc that just does "mdadm -As".
+
+
+ ----------- Diffstat output ------------
+ ./Makefile     |   10 +++++
+ ./config.c     |    7 ++--
+ ./dlink.c      |    3 +
+ ./mdadm.h      |    8 ++++
+ ./mdassemble.c |   97 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ ./util.c       |   18 +++++++++-
+ 6 files changed, 139 insertions(+), 4 deletions(-)
+
+diff ./Makefile~current~ ./Makefile
+--- ./Makefile~current~	2003-11-06 12:17:21.000000000 +1100
++++ ./Makefile	2003-11-06 12:20:41.000000000 +1100
+@@ -78,6 +78,16 @@ mdadm.klibc : $(SRCS) mdadm.h
+ 	rm -f $(OBJS) 
+ 	gcc -nostdinc -iwithprefix include -I$(KLIBC)/klibc/include -I$(KLIBC)/linux/include -I$(KLIBC)/klibc/arch/i386/include -I$(KLIBC)/klibc/include/bits32 $(CFLAGS) $(SRCS)
+ 
++mdassemble : mdassemble.c Assemble.c config.c dlink.c util.c mdadm.h
++	rm -f $(OBJS)
++	diet gcc -o mdassemble mdassemble.c Assemble.c config.c dlink.c util.c
++
++# This doesn't work
++mdassemble.klibc : mdassemble.c Assemble.c config.c dlink.c util.c mdadm.h
++	rm -f $(OBJS)
++	gcc -nostdinc -iwithprefix include -I$(KLIBC)/klibc/include -I$(KLIBC)/linux/include -I$(KLIBC)/klibc/arch/i386/include -I$(KLIBC)/klibc/include/bits32 $(CFLAGS) -o mdassemble mdassemble.c Assemble.c config.c dlink.c util.c
++
++
+ mdadm.man : mdadm.8
+ 	nroff -man mdadm.8 > mdadm.man
+ 
+
+diff ./config.c~current~ ./config.c
+--- ./config.c~current~	2003-11-06 11:53:01.000000000 +1100
++++ ./config.c	2003-11-06 11:54:26.000000000 +1100
+@@ -211,12 +211,15 @@ void load_partitions(void)
+ 	}
+ 	while (fgets(buf, 1024, f)) {
+ 		int major, minor;
+-		char *name;
++		char *name, *mp;
+ 		buf[1023] = '\0';
+ 		if (buf[0] != ' ')
+ 			continue;
+-		if (sscanf(buf, " %d %d ", &major, &minor) != 2)
++		major = strtoul(buf, &mp, 10);
++		if (mp == buf || *mp != ' ') 
+ 			continue;
++		minor = strtoul(mp, NULL, 10);
++
+ 		name = map_dev(major, minor);
+ 		if (name) {
+ 			struct conf_dev *cd;
+
+diff ./dlink.c~current~ ./dlink.c
+--- ./dlink.c~current~	2003-11-06 11:47:11.000000000 +1100
++++ ./dlink.c	2003-11-06 11:47:11.000000000 +1100
+@@ -5,6 +5,9 @@
+ #include	<unistd.h>
+ #include	<stdlib.h>
+ #include	<string.h>
++#ifdef __dietlibc__
++char *strncpy(char *dest, const char *src, size_t n) __THROW;
++#endif
+ #include	"dlink.h"
+ 
+ 
+
+diff ./mdadm.h~current~ ./mdadm.h
+--- ./mdadm.h~current~	2003-11-06 11:47:11.000000000 +1100
++++ ./mdadm.h	2003-11-06 12:22:05.000000000 +1100
+@@ -29,7 +29,9 @@
+ 
+ #define	__USE_LARGEFILE64
+ #include	<unistd.h>
++#ifndef __dietlibc__
+ extern __off64_t lseek64 __P ((int __fd, __off64_t __offset, int __whence));
++#endif
+ 
+ #include	<sys/types.h>
+ #include	<sys/stat.h>
+@@ -40,6 +42,12 @@ extern __off64_t lseek64 __P ((int __fd,
+ #include	<stdio.h>
+ #include	<errno.h>
+ #include	<string.h>
++#ifdef __dietlibc__NONO
++int strncmp(const char *s1, const char *s2, size_t n) __THROW __pure__;
++char *strncpy(char *dest, const char *src, size_t n) __THROW;
++#include    <strings.h>
++#endif
++
+ 
+ #include	<linux/kdev_t.h>
+ /*#include	<linux/fs.h> */
+
+diff ./mdassemble.c~current~ ./mdassemble.c
+--- ./mdassemble.c~current~	2003-11-06 11:47:11.000000000 +1100
++++ ./mdassemble.c	2003-11-06 11:47:11.000000000 +1100
+@@ -0,0 +1,97 @@
++/*
++ * mdassemble - assemble Linux "md" devices aka RAID arrays.
++ *
++ * Copyright (C) 2001-2002 Neil Brown <neilb@cse.unsw.edu.au>
++ * Copyright (C) 2003 Luca Berra <bluca@vodka.it>
++ *
++ *
++ *    This program is free software; you can redistribute it and/or modify
++ *    it under the terms of the GNU General Public License as published by
++ *    the Free Software Foundation; either version 2 of the License, or
++ *    (at your option) any later version.
++ *
++ *    This program is distributed in the hope that it will be useful,
++ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *    GNU General Public License for more details.
++ *
++ *    You should have received a copy of the GNU General Public License
++ *    along with this program; if not, write to the Free Software
++ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++ *
++ *    Author: Neil Brown
++ *    Email: <neilb@cse.unsw.edu.au>
++ *    Paper: Neil Brown
++ *           School of Computer Science and Engineering
++ *           The University of New South Wales
++ *           Sydney, 2052
++ *           Australia
++ */
++
++#include "mdadm.h"
++#include "md_p.h"
++
++/* from readme.c */
++mapping_t pers[] = {
++	{ "linear", -1},
++	{ "raid0", 0},
++	{ "0", 0},
++	{ "stripe", 0},
++	{ "raid1", 1},
++	{ "1", 1},
++	{ "mirror", 1},
++	{ "raid4", 4},
++	{ "4", 4},
++	{ "raid5", 5},
++	{ "5", 5},
++	{ "multipath", -4},
++	{ "mp", -4},
++	{ NULL, 0}
++};
++
++/* from mdadm.c */
++int open_mddev(char *dev)
++{
++	int mdfd = open(dev, O_RDWR, 0);
++	if (mdfd < 0)
++		fprintf(stderr, Name ": error opening %s: %s\n",
++			dev, strerror(errno));
++	else if (md_get_version(mdfd) <= 0) {
++		fprintf(stderr, Name ": %s does not appear to be an md device\n",
++			dev);
++		close(mdfd);
++		mdfd = -1;
++	}
++	return mdfd;
++}
++
++char *configfile = NULL;
++int rv;
++int mdfd = -1;
++int runstop = 0;
++int readonly = 0;
++int verbose = 0;
++int force = 0;
++
++int main() {
++	mddev_ident_t array_list =  conf_get_ident(configfile, NULL);
++	if (!array_list) {
++		fprintf(stderr, Name ": No arrays found in config file\n");
++		rv = 1;
++	} else
++		for (; array_list; array_list = array_list->next) {
++			mdu_array_info_t array;
++			mdfd = open_mddev(array_list->devname);
++			if (mdfd < 0) {
++				rv |= 1;
++				continue;
++			}
++			if (ioctl(mdfd, GET_ARRAY_INFO, &array)>=0)
++				/* already assembled, skip */
++				continue;
++			rv |= Assemble(array_list->devname, mdfd,
++					   array_list, configfile,
++					   NULL,
++					   readonly, runstop, NULL, verbose, force);
++		}
++}
+
+diff ./util.c~current~ ./util.c
+--- ./util.c~current~	2003-11-06 11:47:11.000000000 +1100
++++ ./util.c	2003-11-06 12:16:49.000000000 +1100
+@@ -102,12 +102,18 @@ int md_get_version(int fd)
+ int get_linux_version()
+ {
+ 	struct utsname name;
++	char *cp;
+ 	int a,b,c;
+ 	if (uname(&name) <0)
+ 		return -1;
+ 
+-	if (sscanf(name.release, "%d.%d.%d", &a,&b,&c)!= 3)
+-		return -1;
++	cp = name.release;
++	a = strtoul(cp, &cp, 10);
++	if (*cp != '.') return -1;
++	b = strtoul(cp+1, &cp, 10);
++	if (*cp != '.') return -1;
++	c = strtoul(cp+1, NULL, 10);
++
+ 	return (a*1000000)+(b*1000)+c;
+ }
+ 
+@@ -392,7 +398,11 @@ char *map_dev(int major, int minor)
+ #include <ftw.h>
+ 
+ 
++#ifndef __dietlibc__
+ int add_dev(const char *name, const struct stat *stb, int flag, struct FTW *s)
++#else
++int add_dev(const char *name, const struct stat *stb, int flag)
++#endif
+ {
+     if ((stb->st_mode&S_IFMT)== S_IFBLK) {
+ 	char *n = strdup(name);
+@@ -412,7 +422,11 @@ char *map_dev(int major, int minor)
+ {
+     struct devmap *p;
+     if (!devlist_ready) {
++#ifndef __dietlibc__
+ 	nftw("/dev", add_dev, 10, FTW_PHYS);
++#else
++	ftw("/dev", add_dev, 10);
++#endif
+ 	devlist_ready=1;
+     }
+ 
