@@ -1,6 +1,6 @@
 %define	name	openslp
 %define	version	1.0.11
-%define	release	7sls
+%define	release	8avx
 
 %define	major		1
 %define	libname		%mklibname %{name} %{major}
@@ -136,6 +136,9 @@ install -m 0750 %{SOURCE2} %{buildroot}%{_srvdir}/slpd/log/run
 
 
 %changelog
+* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 1.0.11-8avx
+- Annvix build
+
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 1.0.11-7sls
 - minor spec cleanups
 
