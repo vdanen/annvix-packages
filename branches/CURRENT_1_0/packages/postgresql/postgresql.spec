@@ -1,9 +1,9 @@
 %define name	postgresql
 %define version	7.3.4
-%define release	6sls
+%define release	8sls
 
 %{expand:%%define pyver %(python -c 'import sys;print(sys.version[0:3])')}
-%{expand:%%define perl_version %(rpm -q perl|sed 's/perl-\([0-9].*\)-.*$/\1/')}
+%{expand:%%define perl_version %(rpm -q --qf %{EPOCH}:%{VERSION} perl)}
 
 %define pgdata		/var/lib/pgsql
 %define logrotatedir	%{_sysconfdir}/logrotate.d
@@ -242,7 +242,6 @@ binaries of various tests for the PostgreSQL database management
 system, including regression tests and benchmarks.
 
 %prep
-rm -rf $RPM_BUILD_ROOT
 %setup -q
 
 # 20021202 warly to be tested
@@ -320,7 +319,7 @@ make all
 popd
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 make DESTDIR=$RPM_BUILD_ROOT pkglibdir=%{_libdir}/pgsql install 
 make -C contrib DESTDIR=$RPM_BUILD_ROOT pkglibdir=%{_libdir}/pgsql install
@@ -409,7 +408,7 @@ rm -rf %{buildroot}%{_docdir}/%{name}-docs-%{version}
 if [ ! -e /var/log/postgresql ]; then
     touch /var/log/postgresql
 fi
-chown postgres.postgres /var/log/postgresql
+chown postgres:postgres /var/log/postgresql
 chmod 0700 /var/log/postgresql
 
 
@@ -422,7 +421,7 @@ PGDATA="%{pgdata}/data"
 if [ ! -f $PGDATA/PG_VERSION ] && [ ! -d $PGDATA/base ]; then
   if [ ! -d $PGDATA ]; then
     mkdir -p $PGDATA
-    chown postgres.postgres $PGDATA
+    chown postgres:postgres $PGDATA
     chmod 700 $PGDATA
   fi
   # Make sure the locale from the initdb is preserved for later startups...
@@ -458,7 +457,7 @@ fi
 %postun -n %{libecpg} -p /sbin/ldconfig
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 rm -f perlfiles.list
 
 %files -f main.lst 
@@ -668,6 +667,12 @@ rm -f perlfiles.list
 %attr(-,postgres,postgres) %dir %{_libdir}/pgsql/test
 
 %changelog
+* Mon Apr 12 2004 Vincent Danen <vdanen@opensls.org> 7.3.4-8sls
+- include epoch in perl requirements for -pl
+
+* Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 7.3.4-7sls
+- minor spec cleanups
+
 * Sat Jan 31 2004 Vincent Danen <vdanen@opensls.org> 7.3.4-6sls
 - add afterboot snippet
 - use %%_mkafterboot macro
