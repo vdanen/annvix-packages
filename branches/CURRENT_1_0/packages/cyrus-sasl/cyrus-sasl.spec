@@ -1,6 +1,6 @@
 %define name	cyrus-sasl
 %define version	2.1.15
-%define release	6sls
+%define release	7sls
 
 %define major	2
 %define libname	%mklibname sasl %{major}
@@ -24,7 +24,7 @@ Patch0:		cyrus-sasl-doc-patch.bz2
 Patch1:		cyrus-sasl-2.1.12-rpath.patch.bz2
 Patch2:		cyrus-sasl-2.1.15-lib64.patch.bz2
 
-BuildRoot: %{_tmppath}/%{name}-%{version}-buildroot
+BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
 BuildRequires:  autoconf, automake, db4-devel, pam-devel, krb5-devel
 BuildRequires:  openssl-devel >= 0.9.6a, libtool >= 1.4
 %{?!bootstrap:BuildRequires: openldap-devel}
@@ -205,14 +205,14 @@ export LDFLAGS="-L%{_libdir}"
 install saslauthd/LDAP_SASLAUTHD README.ldap
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p $RPM_BUILD_ROOT/var/lib/sasl2
-mkdir -p $RPM_BUILD_ROOT/etc/sysconfig
+mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig
 
 
 %{__make} install DESTDIR=$RPM_BUILD_ROOT
 
-install %{SOURCE3} $RPM_BUILD_ROOT/etc/sysconfig/saslauthd
+install %{SOURCE3} $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/saslauthd
 # Install man pages in the expected location, even if they are
 # pre-formatted.
 install -m755 -d $RPM_BUILD_ROOT%{_mandir}/man8/
@@ -235,7 +235,7 @@ install -m 0750 %{SOURCE5} %{buildroot}%{_srvdir}/saslauthd/log/run
 bzcat %{SOURCE6} >%{buildroot}%{_mandir}/man8/saslauthd.8
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
 #convert old sasldb
@@ -342,6 +342,9 @@ fi
 %{_mandir}/man3/*
  
 %changelog
+* Wed Mar 03 2004 Vincent Danen <vdanen@opensls.org> 2.1.15-7sls
+- minor spec cleanups
+
 * Tue Feb 03 2004 Vincent Danen <vdanen@opensls.org> 2.1.15-6sls
 - supervise scripts
 - remove initscript

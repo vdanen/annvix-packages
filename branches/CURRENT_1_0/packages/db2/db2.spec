@@ -1,6 +1,6 @@
 %define name 	db2
 %define version 2.4.14
-%define release 9sls
+%define release 10sls
 
 Summary:	The BSD database library for C (version 2).
 Name:		%{name}
@@ -56,7 +56,7 @@ building programs which use Berkeley DB.
 CFLAGS="$RPM_OPT_FLAGS" %make
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p $RPM_BUILD_ROOT%{_includedir}/db2
 mkdir -p $RPM_BUILD_ROOT%{_libdir}
 mkdir -p $RPM_BUILD_ROOT%{_bindir}
@@ -78,10 +78,9 @@ for p in db_archive db_checkpoint db_deadlock db_dump db_load \
 done
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post -p /sbin/ldconfig
-
 %postun -p /sbin/ldconfig
 
 %files
@@ -107,6 +106,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/db2_stat
 
 %changelog
+* Tue Mar 03 2004 Vincent Danen <vdanen@opensls.org> 2.4.14-10sls
+- minor spec cleanups
+
 * Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 2.4.14-9sls
 - OpenSLS build
 - tidy spec
