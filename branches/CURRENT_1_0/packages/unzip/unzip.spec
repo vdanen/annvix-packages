@@ -1,6 +1,6 @@
 %define name	unzip
 %define version 5.50
-%define release 10sls
+%define release 11sls
 %define src_ver 550
 
 Summary:	Unpacks ZIP files such as those made by pkzip under DOS
@@ -40,7 +40,7 @@ This version also has encryption support.
 %endif
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p $RPM_BUILD_ROOT{%{_bindir},%{_mandir}/man1}
 
 ln -sf unzip zipinfo
@@ -49,7 +49,7 @@ install unix/zipgrep $RPM_BUILD_ROOT%{_bindir}
 
 for i in man/*.1; do install -m 644 $i $RPM_BUILD_ROOT%{_mandir}/man1/; done
 
-cat > README.IMPORTANT.MANDRAKE << EOF
+cat > README.IMPORTANT.OPENSLS << EOF
 This version of unzip is a stripped-down version which doesn't include
 the "unreduce" and "unshrink" algorithms. The first one is subject to
 a restrictive copyright by Samuel H. Smith which forbids its use in
@@ -58,29 +58,30 @@ second one (while their licensing would seem to mean that an
 extractor-only program would not be covered).
 
 Since the rest of the code is copyrighted by Info-Zip under a BSD-like
-license, this Mandrake package is covered by this license.
+license, this OpenSLS package is covered by this license.
 
 Please note that currently, default compilation of the Info-Zip
 distribution also excludes the unreduce and unshrink code.
-
-Please contact MandrakeSoft at <bugs@linux-mandrake.com> if you have
-any problems regarding this issue.
 EOF
 
 
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
-%doc BUGS COPYING.OLD Contents History.* INSTALL README ToDo WHERE README.IMPORTANT.MANDRAKE
+%doc BUGS COPYING.OLD Contents History.* INSTALL README ToDo WHERE README.IMPORTANT.OPENSLS
 %doc proginfo/
 %{_bindir}/*
 %{_mandir}/man1/*
 
 
 %changelog
+* Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 5.50-11sls
+- minor spec cleanups
+- s/MANDRAKE/OPENSLS/ for important README
+
 * Wed Dec 03 2003 Vincent Danen <vdanen@opensls.org> 5.50-10sls
 - OpenSLS build
 - tidy spec
