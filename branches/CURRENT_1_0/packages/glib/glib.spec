@@ -1,6 +1,6 @@
 %define name	glib
 %define version	1.2.10
-%define release	12sls
+%define release	13sls
 
 %define libname  %mklibname %{name} %{major}
 %define major    1.2
@@ -70,11 +70,11 @@ libtoolize --copy --force
 make check
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post -n %{libname} -p /sbin/ldconfig
 
@@ -88,7 +88,6 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -n %{libname}
 %defattr(-, root, root)
-%doc COPYING
 %{_libdir}/lib*.so.*
 
 %files -n %{libname}-devel
@@ -105,6 +104,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_infodir}/%{name}*
 
 %changelog
+* Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 1.2.10-13sls
+- minor spec cleanups
+- remove COPYING from %%{libname}
+
 * Mon Dec 22 2003 Vincent Danen <vdanen@opensls.org> 1.2.10-12sls
 - OpenSLS build
 - tidy spec
