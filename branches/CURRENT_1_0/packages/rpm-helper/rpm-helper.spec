@@ -1,5 +1,5 @@
 %define name	rpm-helper
-%define version	0.9.1
+%define version	0.10
 %define release	10avx
 
 Summary:	Helper scripts for rpm scriptlets
@@ -9,11 +9,11 @@ Release:	%{release}
 License:	GPL
 Group:		System/Configuration/Packaging
 URL:		http://www.mandrakelinux.com/
-Source0:	%name-%version.tar.bz2
+Source0:	%{name}-%version.tar.bz2
 Patch0:		rpm-helper-0.9.1-avx-supervise.patch.bz2
 
 BuildArch:	noarch
-BuildRoot:	%_tmppath/%name-buildroot
+BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
 
 Conflicts:	chkconfig < 1.3.4-10mdk
 Requires:	chkconfig, grep, shadow-utils, coreutils
@@ -34,7 +34,7 @@ chmod 755 {add,del}-srv
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-%makeinstall_std LIBDIR=%_datadir/%name
+%makeinstall_std LIBDIR=%{_datadir}/%{name}
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -42,10 +42,14 @@ chmod 755 {add,del}-srv
 %files
 %defattr(-,root,root)
 %doc README* ChangeLog AUTHORS
-%dir %_datadir/%name
-%_datadir/%name/*
+%dir %{_datadir}/%{name}
+%{_datadir}/%{name}/*
 
 %changelog
+* Tue Mar 01 2005 Vincent Danen <vdanen@annvix.org> 0.10-1avx
+- 0.10
+- tidy spec
+
 * Tue Sep 21 2004 Vincent Danen <vdanen@annvix.org> 0.9.1-10avx
 - fix add-srv scriptlet again; we need to grep for "run" not "up"
 
