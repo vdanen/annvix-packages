@@ -1,0 +1,29 @@
+#!/bin/sh
+PATH="/sbin:/usr/sbin:/bin:/usr/bin"
+
+# this runs dhcpd supervised
+
+. /usr/share/srv/functions
+
+CONFIGFILE="/etc/dhcpd.conf"
+LEASEFILE="/var/lib/dhcp/dhcpd.leases"
+INTERFACES=""
+OPTIONS="-q"
+
+# override the defaults
+[ -f /etc/sysconfig/dhcpd ] && . /etc/sysconfig/dhcpd
+
+[ "${CONFIGFILE}" = "" ] && CONFIGFILE="/etc/dhcpd.conf"
+[ "${LEASEFILE}" = "" ] && LEASEFILE="/var/lib/dhcp/dhcpd.leases"
+
+if [ ! -f $CONFIGFILE ]; then
+  echo "The configuration file does not exist, unable to start!"
+  godown
+fi
+
+if [ ! -f $LEASEFILE ]; then
+  echo "The lease file does not exist, unable to start!"
+  godown
+fi
+
+exec /usr/sbin/dhcpd -f -user dhcp -group dhcp -cf $CONFIGFILE -lf $LEASEFILE $OPTIONS $INTERFACES 2>&1
