@@ -1,0 +1,11 @@
+--- gettext-0.11.2/src/po-charset.c__old	2002-08-27 16:35:04.000000000 +0200
++++ gettext-0.11.2/src/po-charset.c	2002-08-27 16:36:26.000000000 +0200
+@@ -163,6 +163,8 @@
+   };
+   size_t i;
+ 
++  if (canon_charset == NULL) return false;
++  
+   for (i = 0; i < SIZEOF (weird_cjk_charsets); i++)
+     if (strcmp (canon_charset, weird_cjk_charsets[i]) == 0)
+       return true;
