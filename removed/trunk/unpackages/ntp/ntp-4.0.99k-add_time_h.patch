@@ -1,0 +1,22 @@
+--- ntp-4.0.99k/include/ntp.h.warly	Wed Mar 14 19:10:26 2001
++++ ntp-4.0.99k/include/ntp.h	Wed Mar 14 18:56:00 2001
+@@ -2,6 +2,8 @@
+  * ntp.h - NTP definitions for the masses
+  */
+ 
++#include <time.h>
++
+ #ifndef NTP_H
+ #define NTP_H
+ 
+--- ntp-4.0.99k/libntp/machines.c.warly	Wed Mar 14 19:08:21 2001
++++ ntp-4.0.99k/libntp/machines.c	Wed Mar 14 19:08:39 2001
+@@ -4,6 +4,8 @@
+  *
+  */
+ 
++#include <time.h>
++
+ #ifdef HAVE_CONFIG_H
+ #include "config.h"
+ #endif
