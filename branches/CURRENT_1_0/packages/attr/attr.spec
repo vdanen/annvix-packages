@@ -1,6 +1,6 @@
 %define name	attr
-%define version 2.4.14
-%define release 1sls
+%define version 2.4.16
+%define release 1avx
 
 %define lib_name_orig	lib%{name}
 %define lib_major	1
@@ -105,6 +105,10 @@ rm -rf %{buildroot}/%{_lib}/libattr.{a,la}
 %{_includedir}/%{name}/*
 
 %changelog
+* Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 2.4.16-1avx
+- 2.4.16
+- Annvix build
+
 * Sun Feb 29 2004 Vincent Danen <vdanen@opensls.org> 2.4.14-1sls
 - 2.4.14
 - proper use of mklibname (per)
