@@ -1,0 +1,39 @@
+diff -urN nss_ldap-207/config.h.in nss_ldap-207.db4/config.h.in
+--- nss_ldap-207/config.h.in	2003-02-21 15:13:19.000000000 +0100
++++ nss_ldap-207.db4/config.h.in	2003-11-01 10:17:58.000000000 +0100
+@@ -51,6 +51,9 @@
+ /* Define to 1 if you have the <db3/db_185.h> header file. */
+ #undef HAVE_DB3_DB_185_H
+ 
++/* Define to 1 if you have the <db4/db_185.h> header file. */
++#undef HAVE_DB4_DB_185_H
++
+ /* Define to 1 if you have the <db_185.h> header file. */
+ #undef HAVE_DB_185_H
+ 
+diff -urN nss_ldap-207/configure.in nss_ldap-207.db4/configure.in
+--- nss_ldap-207/configure.in	2003-11-01 10:23:04.000000000 +0100
++++ nss_ldap-207.db4/configure.in	2003-11-01 10:15:17.000000000 +0100
+@@ -116,6 +116,7 @@
+ AC_CHECK_HEADERS(db1/db.h)
+ AC_CHECK_HEADERS(db_185.h)
+ AC_CHECK_HEADERS(db3/db_185.h)
++AC_CHECK_HEADERS(db4/db_185.h)
+ AC_CHECK_HEADERS(alignof.h)
+ AC_CHECK_HEADERS(rpc/rpcent.h)
+ AC_CHECK_HEADERS(sys/byteorder.h)
+diff -urN nss_ldap-207/util.c nss_ldap-207.db4/util.c
+--- nss_ldap-207/util.c	2003-04-15 06:49:38.000000000 +0200
++++ nss_ldap-207.db4/util.c	2003-11-01 10:21:37.000000000 +0100
+@@ -92,7 +92,10 @@
+  * right API!
+  */
+ #if defined(RFC2307BIS) || defined(AT_OC_MAP)
+-#ifdef HAVE_DB3_DB_185_H
++#ifdef HAVE_DB4_DB_185_H
++#include <db4/db_185.h>
++#define DN2UID_CACHE
++#elif defined(HAVE_DB3_DB_185_H)
+ #include <db3/db_185.h>
+ #define DN2UID_CACHE
+ #elif defined(HAVE_DB_185_H)
