@@ -1,6 +1,6 @@
 %define name	initscripts
 %define version	7.06
-%define release	37sls
+%define release	38sls
 
 # 	$Id: initscripts.spec,v 1.329 2003/09/22 17:03:40 warly Exp $	
 
@@ -20,28 +20,13 @@ Patch:		initscripts-mdkconf.patch.bz2
 Patch2:		initscripts-opensls.patch.bz2
 
 BuildRoot: 	%{_tmppath}/%{name}-root
-BuildRequires:	glib2-devel
-BuildRequires:	pkgconfig
-BuildRequires:	popt-devel
-BuildRequires:	python
+BuildRequires:	glib2-devel, pkgconfig, popt-devel, python
 
-Requires:	mingetty, /bin/awk, /bin/sed, mktemp, e2fsprogs >= 1.18-2mdk
-Requires:	procps >= 2.0.7-8mdk, modutils >= 2.4.1
-Requires:	util-linux >= 2.10
-Requires:	gettext-base >= 0.10.35-20mdk
-#Requires:	sysklogd >= 1.3.31
-Requires:	/sbin/fuser, which, setup >= 2.2.0-14mdk
-Requires:	/sbin/ip, /usr/sbin/arping
-Requires:	perl-MDK-Common >= 1.0.1
-Requires:	util-linux >= 2.10s, mount >= 2.11l, SysVinit
-Requires:	bootloader-utils > 1.4-1mdk
-Prereq:		chkconfig >= 1.3.8-3mdk, gawk, fileutils, /usr/bin/tr, grep
-Obsoletes:	rhsound sapinit
-Provides:	rhsound sapinit
-Conflicts:	kernel <= 2.2, timeconfig < 3.0, pppd < 2.3.9, wvdial < 1.40-3
-Conflicts:	initscripts < 1.22.1-5, Aurora <= 7.2-17mdk
-Conflicts:	dhcpcd < 1.3.21pl1
-Conflicts:	XFree86-xfs < 4.2.0-12mdk
+Requires:	mingetty, sed, mktemp, e2fsprogs, gettext-base
+Requires:	procps, modutils, util-linux >= 2.10
+Requires:	psmisc, which, setup, iproute2, iputils, perl-MDK-Common
+Requires:	util-linux >= 2.10s, mount >= 2.11l, SysVinit, bootloader-utils
+Prereq:		chkconfig >= 1.3.8-3mdk, gawk, coreutils, grep
 
 %description
 The initscripts package contains the basic system scripts used to boot
@@ -396,15 +381,14 @@ fi
 %config(noreplace) %{_sysconfdir}/modules
 %config(noreplace) %{_sysconfdir}/rc.d/rc.modules
 /usr/bin/*
-# warly
-# gettext need /use/share/locale anyway
-#%dir %{_sysconfdir}/locale
-#%dir %{_sysconfdir}/locale/*
-#%dir %{_sysconfdir}/locale/*/LC_MESSAGES
 
-# EDIT IN CVS NOT IN SOURCE PACKAGE (NO PATCH ALLOWED).
 
 %changelog
+* Fri Jun 11 2004 Vincent Danen <vdanen@opensls.org> 7.06-38sls
+- all Requires/PreReq require packages, not files
+- s/fileutils/coreutils/
+- clean all the obsoletes/provides/requires/etc.
+
 * Tue Jun  1 2004 Vincent Danen <vdanen@opensls.org> 7.06-37sls
 - I never did like OK/PASSED/FAILED/etc. in all caps so change that
 - change some colors
