@@ -1,6 +1,6 @@
 %define name	ypbind
 %define version	1.12
-%define release	5avx
+%define release	6avx
 %define epoch	3
 
 Summary:	The NIS daemon which binds NIS clients to an NIS domain.
@@ -91,6 +91,9 @@ rm -rf $RPM_BUILD_ROOT/usr/share/locale/de/LC_MESSAGES/ypbind-mt.mo
 %dir %attr(0750,nobody,nogroup) %{_srvlogdir}/ypbind
 
 %changelog
+* Mon Sep 20 2004 Vincent Danen <vdanen@annvix.org> 1.12-6avx
+- update run scripts
+
 * Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 1.12-5avx
 - Annvix build
 
