@@ -1,28 +1,33 @@
-%define name tmdns
-%define version 0.1
-%define release 12mdk
-%define _prefix /
+%define name	tmdns
+%define version	0.1
+%define release	16sls
 
-Summary: A Multicast DNS Responder for Linux
-Name: %{name}
-Version: %{version}
-Release: %{release}
-Source0: %{name}-%{version}.tar.bz2
-Source1: tmdns.services
-Source2: tmdns.init
-Source3: update-resolvrdv
-Patch1: tmdns-0.1-paths.patch.bz2
-patch2: tmdns-0.1-local.patch.bz2
-Patch3: tmdns-0.1-libresolv.patch.bz2
-Patch4: tmdns-0.1-64bit-fixes.patch.bz2
-License: GPL
-Group: System/Servers
+%define _prefix	/
+
+Summary:	A Multicast DNS Responder for Linux
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+URL:		http://zeroconf.sourceforge.net/
+Group:		System/Servers
+Source0:	%{name}-%{version}.tar.bz2
+Source1:	tmdns.services
+Source2:	tmdns.init
+Source3:	update-resolvrdv
+Source4:	tmdns.run
+Source5:	tmdns-log.run
+Patch1:		tmdns-0.1-paths.patch.bz2
+patch2:		tmdns-0.1-local.patch.bz2
+Patch3:		tmdns-0.1-libresolv.patch.bz2
+Patch4:		tmdns-0.1-64bit-fixes.patch.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-buildroot
 BuildRequires:	autoconf2.5, automake1.7
-BuildRoot: %{_tmppath}/%{name}-buildroot
-Prefix: %{_prefix}
-Url: http://zeroconf.sourceforge.net/
-PreReq: rpm-helper
-Conflicts: bind
+
+Prefix:		%{_prefix}
+PreReq:		rpm-helper
+Conflicts:	bind
 
 %description
 Tmdns is tiny/trivial Multicast DNS Responder for Linux. It should
@@ -43,32 +48,58 @@ autoconf
 make
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 %makeinstall
-mkdir -p $RPM_BUILD_ROOT/etc/
-./server/tmdns -P > $RPM_BUILD_ROOT/etc/tmdns.conf 2>/dev/null
-install -m644 %{SOURCE1} $RPM_BUILD_ROOT/etc/$(basename %{SOURCE1})
-install -D -m755 %{SOURCE2} $RPM_BUILD_ROOT%{_initrddir}/tmdns
-install -D -m755 %{SOURCE3} $RPM_BUILD_ROOT/sbin/$(basename %{SOURCE3})
+mkdir -p %{buildroot}{/sbin,%{_sysconfdir}}
+./server/tmdns -P > %{buildroot}%{_sysconfdir}/tmdns.conf 2>/dev/null
+install -m 0644 %{SOURCE1} %{buildroot}%{_sysconfdir}/$(basename %{SOURCE1})
+install -m 0755 %{SOURCE3} %{buildroot}/sbin/$(basename %{SOURCE3})
+
+mkdir -p %{buildroot}%{_srvdir}/tmdns/log
+install -m 0755 %{SOURCE4} %{buildroot}%{_srvdir}/tmdns/run
+install -m 0755 %{SOURCE5} %{buildroot}%{_srvdir}/tmdns/log/run
+mkdir -p %{buildroot}%{_srvlogdir}/tmdns
 
 %post
-%_post_service %{name}
+%_post_srv %{name}
 
 %preun
-%_preun_service  %{name}
+%_preun_srv  %{name}
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
 %doc README AUTHORS ChangeLog NEWS TODO docs/draft-cheshire-dnsext-multicastdns.txt
-%config(noreplace) %attr(755,root,root) %{_initrddir}/%{name}
-%config(noreplace) /etc/tmdns.conf
-%config(noreplace) /etc/tmdns.services
+%config(noreplace) %{_sysconfdir}/tmdns.conf
+%config(noreplace) %{_sysconfdir}/tmdns.services
 /sbin/*
+%if %{build_opensls}
+%dir %{_srvdir}/tmdns
+%dir %{_srvdir}/tmdns/log
+%{_srvdir}/tmdns/run
+%{_srvdir}/tmdns/log/run
+%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/tmdns
+%endif
 
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 0.1-16sls
+- more macros
+
+* Tue Feb 03 2004 Vincent Danen <vdanen@opensls.org> 0.1-15sls
+- remove initscript
+- macros
+
+* Sat Dec 13 2003 Vincent Danen <vdanen@opensls.org> 0.1-14sls
+- install supervise files if %%build_opensls
+- some spec cleaning
+
+* Sat Dec 13 2003 Vincent Danen <vdanen@opensls.org> 0.1-13sls
+- OpenSLS build
+- tidy spec
+
 * Tue Aug 19 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 0.1-12mdk
 - Patch3: Fix detection of libresolv on AMD64
 - Patch4: Some 64-bit fixes through code inspection

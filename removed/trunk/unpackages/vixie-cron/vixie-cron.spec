@@ -1,6 +1,6 @@
 %define name	vixie-cron
 %define version	3.0.1
-%define release 56mdk
+%define release 57sls
 
 Summary:	The Vixie cron daemon for executing specified programs at set times.
 Name:		%{name}
@@ -22,7 +22,6 @@ Patch7:		vixie-cron-3.0.1-sigchld2.patch.bz2
 Patch8:		vixie-cron-3.0.1-crond.patch.bz2
 Patch9:		vixie-cron-3.0.1-dst.patch.bz2
 Patch10:	vixie-cron-3.0.1-0days.patch.bz2
-#Patch11:	vixie-cron-3.0.1-nodot.patch.bz2
 Patch12:	vixie-cron-3.0.1-syslog.patch.bz2
 Patch13:	vixie-cron-3.0.1-crontabloc.patch.bz2
 Patch14:	vixie-cron-3.0.1-name.patch.bz2
@@ -32,7 +31,9 @@ Patch17:	vixie-cron-3.0.1-buffer.patch.bz2
 Patch18:	vixie-cron-3.0.1-timeaftertime.patch.bz2
 Patch19:	vixie-cron-3.0.1-noroot.patch.bz2
 Patch150:	vixie-cron-3.0.1-linux.patch.bz2
-Buildroot:	%{_tmppath}/%{name}-root
+
+BuildRoot:	%{_tmppath}/%{name}-root
+
 Requires:	sysklogd >= 1.3.33-6, bash >= 2.0
 Prereq:		/sbin/chkconfig /sbin/service rpm-helper
 
@@ -119,6 +120,10 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{_sysconfdir}/logrotate.d/cron
 
 %changelog
+* Mon Dec 08 2003 Vincent Danen <vdanen@opensls.org> 3.0.1-57sls
+- OpenSLS build
+- tidy spec
+
 * Fri Jul 25 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 3.0.1-56mdk
 - rebuild
 - drop unapplied P11

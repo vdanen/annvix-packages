@@ -1,23 +1,28 @@
-%define name utempter
+%define name	utempter
+%define version	0.5.2
+%define release	16sls
 
 %define major		0
 %define lib_name_orig	%mklibname utempter
 %define lib_name	%{lib_name_orig}%{major}
 
 
-Summary: Priviledged helper for utmp/wtmp updates
-Name: %name
-Version: 0.5.2
-Release: 12mdk
-License: GPL
-Group: System/Libraries
-URL: 	http://www.redhat.com
-Source: %{name}-%{version}.tar.bz2
-Patch0: utempter-0.5.2-makevars.patch.bz2
-Patch1: utempter-0.5.2-biarch-utmp.patch.bz2
-Prereq: /usr/sbin/groupadd, /sbin/ldconfig, fileutils
-BuildRoot: %{_tmppath}/%{name}-root
-Requires: %{lib_name} = %{version}
+Summary:	Priviledged helper for utmp/wtmp updates
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		System/Libraries
+URL:		http://www.redhat.com
+Source:		%{name}-%{version}.tar.bz2
+Patch0:		utempter-0.5.2-makevars.patch.bz2
+Patch1:		utempter-0.5.2-biarch-utmp.patch.bz2
+Patch2:		utempter-0.5.2-sec.patch.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-root
+
+Prereq:		/sbin/ldconfig, fileutils
+Requires:	%{lib_name} = %{version}
 
 %description
 Utempter is a utility which allows some non-privileged programs to
@@ -26,8 +31,8 @@ security. Utempter accomplishes this feat by acting as a buffer
 between root and the programs.
 
 %package -n %{lib_name}
-Summary: Library used by %{name}
-Group: System/Libraries
+Summary:	Library used by %{name}
+Group:		System/Libraries
 
 %description -n %{lib_name}
 Libutempter is an library which allows some non-privileged
@@ -36,10 +41,10 @@ security. It accomplishes this feat by acting as a buffer
 between root and the programs.
 
 %package -n %{lib_name}-devel
-Summary: Devel files for %{name}
-Group: Development/C
-Provides: libutempter-devel %{name}-devel
-Requires: %{lib_name} = %{version}
+Summary:	Devel files for %{name}
+Group:		Development/C
+Provides:	libutempter-devel %{name}-devel
+Requires:	%{lib_name} = %{version}
 
 %description -n %{lib_name}-devel
 Header files for writing apps using libutempter
@@ -48,21 +53,19 @@ Header files for writing apps using libutempter
 %setup -q
 %patch0 -p1 -b .makevars
 %patch1 -p1 -b .biarch-utmp
+%patch2 -p1 -b .usec
 
 %build
 make RPM_OPT_FLAGS="$RPM_OPT_FLAGS"
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
 
 ln -sf lib%{name}.so.%{version} $RPM_BUILD_ROOT%{_libdir}/lib%{name}.so.%{major}
 
 %clean
-rm -rf $RPM_BUILD_ROOT
-
-%pre 
-%{_sbindir}/groupadd -g 22 -r -f utmp
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post -n %{lib_name} -p /sbin/ldconfig
 %postun -n %{lib_name} -p /sbin/ldconfig
@@ -75,17 +78,29 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -n %{lib_name}
 %defattr(-,root,root)
-%doc COPYING
 %{_libdir}/libutempter.so.*
 
 %files -n %{lib_name}-devel
 %defattr(-,root,root)
-%doc COPYING
 %{_libdir}/libutempter.so
 %{_includedir}/utempter.h
 
 
 %changelog
+* Fri Apr 16 2004 Vincent Danen <vdanen@opensls.org> 0.5.2-16sls
+- security fix for problem found by Steve Grubb
+
+* Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 0.5.2-15sls
+- minor spec cleanups
+- docs only in main package
+
+* Fri Feb 06 2004 Vincent Danen <vdanen@opensls.org> 0.5.2-14sls
+- don't call groupadd to add group utmp as that's in setup already
+
+* Mon Dec 08 2003 Vincent Danen <vdanen@opensls.org> 0.5.2-13sls
+- OpenSLS build
+- tidy spec
+
 * Thu Jul 31 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 0.5.2-12mdk
 - mklibname
 

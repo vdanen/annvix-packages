@@ -1,26 +1,30 @@
-Summary: The skeleton package defining packages needed for LSB compliance.
-Name: lsb
-Version: 1.3
-Release: 7mdk
-License: GPL
-Group: System/Base
-Provides: lsb = %{version}
-URL:	http://www.linuxbase.org
-Source1: lsb-init-functions
+%define name	lsb
+%define version	1.3
+%define release	10sls
 
-BuildRoot       : %{_tmppath}/%{name}-%{version}-root
+Summary:	The skeleton package defining packages needed for LSB compliance.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		System/Base
+URL:		http://www.linuxbase.org
+Source1:	lsb-init-functions
+
+BuildRoot:	%{_tmppath}/%{name}-%{version}-root
 BuildArch:	noarch
-PreReq:		rpm-helper
 
-Requires: pax lsb-release make smtpdaemon ed glibc_lsb
-Requires: XFree86-devel expect lpddaemon perl-DBI glibc-i18ndata
-Requires: vim-enhanced diffutils file gettext chkconfig
-Requires: mtools /etc/sgml csh
+PreReq:		rpm-helper
+Provides:	lsb = %{version}
+Requires:	pax lsb-release make smtpdaemon ed glibc_lsb
+Requires:	XFree86-devel expect lpddaemon perl-DBI glibc-i18ndata
+Requires:	vim-enhanced diffutils file gettext chkconfig
+Requires:	mtools csh
 
 %description
 The skeleton package defining packages needed for LSB compliance.
 Also contains some directories LSB tests look for that aren't 
-owned by other Mandrake packages, and scripts to re-create the old
+owned by other OpenSLS packages, and scripts to re-create the old
 /sbin/fasthalt and /sbin/fastboot.
  
 Currently, to be able to run the LSB binary test suit successfully, you 
@@ -29,10 +33,11 @@ containing /tmp and /home are mounted with the option 'atime', rather
 than 'noatime'.
 
 You should also note that using the fstab option 'acl' for Posix ACLs 
-will generate 1 test failure.  This is not enabled by default on Mandrake
-Linux.
+will generate 1 test failure.  This is not enabled by default on OpenSLS.
+
  
 %install
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 install -d $RPM_BUILD_ROOT/usr/share/nls
 install -d $RPM_BUILD_ROOT/usr/share/tmac
 install -d $RPM_BUILD_ROOT/var/cache/fonts
@@ -70,7 +75,7 @@ cat << EOF > $RPM_BUILD_ROOT/etc/hosts.lpd
 # hosts.lpd     This file describes the names of the hosts which are
 #               allowed to use the remote printer services of this
 #               host.  This file is used by the LPD subsystem.
-#		Added to Mandrake Linux for LSB compiance.
+#		Added to OpenSLS for LSB compiance.
 EOF
 
 cat << EOF > $RPM_BUILD_ROOT/etc/networks
@@ -94,7 +99,7 @@ chmod 0644 $RPM_BUILD_ROOT/etc/gateways
 
 # (sb) concession for lsb-apache to run
 %pre
-%_pre_groupadd nobody
+%_pre_groupadd nobody 65533
 
 %post
 
@@ -112,13 +117,13 @@ echo "       to 'atime' or you will see additional test failures."
 echo ""
 echo "Note3: You should also note that using the fstab option 'acl' for"
 echo "       Posix ACLs will generate 1 test failure.  This is not enabled"
-echo "       by default on Mandrake Linux."
+echo "       by default on OpenSLS."
 
 %postun
 %_postun_groupdel nobody
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-, root, root)
@@ -138,6 +143,20 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) /etc/gateways
 
 %changelog
+* Sat Mar 06 2004 Vincent Danen <vdanen@opensls.org> 1.3-10sls
+- minor spec cleanups
+- s/Mandrake Linux/OpenSLS/
+
+* Fri Feb 06 2004 Vincent Danen <vdanen@opensls.org> 1.3-9sls
+- nogroup has static gid 65533
+- remove %%build_opensls macro
+
+* Tue Dec 30 2003 Vincent Danen <vdanen@opensls.org> 1.3-8sls
+- OpenSLS build
+- tidy spec
+- remove req on /etc/sgml as that would mean many many MB of junk to fill a
+  directory requirement
+
 * Mon Jul 28 2003 Stew Benedict <sbenedict@mandrakesoft.com> 1.3-7mdk
 - remove rwho requires
 

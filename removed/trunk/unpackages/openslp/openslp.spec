@@ -1,24 +1,28 @@
 %define	name	openslp
 %define	version	1.0.11
-%define	release	4mdk
+%define	release	7sls
 
-%define	major	1
-%define	libname	%mklibname %{name} %{major}
+%define	major		1
+%define	libname		%mklibname %{name} %{major}
 %define	libname_devel	%mklibname %{name} %{major} -d
 
-Name:		%name
-Version: 	%version
-Release:	%release
 Summary:	OpenSLP implementation of Service Location Protocol V2 
+Name:		%name
+Version:	%version
+Release:	%release
 License:	BSD-like
 Group:		Networking/Other
-PreReq:    	/sbin/chkconfig, /sbin/service, rpm-helper
 URL:		http://www.openslp.org/
-BuildRoot:	%{_tmppath}/%{name}-root
 Source0:	ftp://openslp.org/pub/openslp/%{name}-%{version}/%{name}-%{version}.tar.bz2
+Source1:	slpd.run
+Source2:	slpd-log.run
+
+BuildRoot:	%{_tmppath}/%{name}-root
+
+PreReq:		rpm-helper
 Requires:	%{libname}
 
-%Description
+%description
 Service Location Protocol is an IETF standards track protocol that
 provides a framework to allow networking applications to discover the
 existence, location, and configuration of networked services in
@@ -29,9 +33,9 @@ by RFC 2608 and RFC 2614.  This package include the daemon, libraries, header
 files and documentation
 
 %package -n %{libname}
-Summary:        OpenSLP implementation of Service Location Protocol V2
-Group:          System/Libraries
-#Requires:       %name = %version-%release
+Summary:	OpenSLP implementation of Service Location Protocol V2
+Group:		System/Libraries
+#Requires:	%name = %version-%release
 
 %description -n %{libname}
 Service Location Protocol is an IETF standards track protocol that
@@ -46,11 +50,11 @@ files and documentation
 This package contains the %libname runtime library.
 
 %package -n %{libname_devel}
-Summary:        Development tools for programs which will use the %{name} library
-Group:          Development/C
-Requires:       %{libname} = %version-%release
-Provides:       %{name}-devel = %version-%release
-Provides:       lib%{name}-devel = %version-%release
+Summary:	Development tools for programs which will use the %{name} library
+Group:		Development/C
+Requires:	%{libname} = %version-%release
+Provides:	%{name}-devel = %version-%release
+Provides:	lib%{name}-devel = %version-%release
 
 %description -n %{libname_devel}
 The %{name}-devel package includes the header files and static libraries
@@ -70,7 +74,7 @@ rm -rf `find -name CVS`
 %make
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 #fix doc
 rm -rf installeddoc
@@ -83,16 +87,20 @@ IDENT=slp
 DESCRIPTIVE="SLP Service Agent"
 ONBOOT="yes"
 EOF
-install -m 755 etc/slpd.all_init -D %buildroot/%_initrddir/slpd
+
+mkdir -p %{buildroot}%{_srvdir}/slpd/log
+mkdir -p %{buildroot}%{_srvlogdir}/slpd
+install -m 0750 %{SOURCE1} %{buildroot}%{_srvdir}/slpd/run
+install -m 0750 %{SOURCE2} %{buildroot}%{_srvdir}/slpd/log/run
 
 %clean
-rm -rf %buildroot
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
-%_post_service slpd
+%_post_srv slpd
 
-%PreUn 
-%_preun_service slpd
+%preun 
+%_preun_srv slpd
 
 %post -n %{libname} -p /sbin/ldconfig
 
@@ -106,9 +114,13 @@ rm -rf %buildroot
 %config(noreplace) %_sysconfdir/slp.spi
 %config(noreplace) %_sysconfdir/sysconfig/daemons/slpd
 %defattr(755,root,root,755)
-%config(noreplace) %_initrddir/slpd
 %_sbindir/slpd
 %_bindir/slptool
+%dir %{_srvdir}/slpd
+%dir %{_srvdir}/slpd/log
+%{_srvdir}/slpd/run
+%{_srvdir}/slpd/log/run
+%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/slpd
 
 %files -n %{libname}
 %defattr(-,root,root)
@@ -124,6 +136,17 @@ rm -rf %buildroot
 
 
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 1.0.11-7sls
+- minor spec cleanups
+
+* Wed Feb 04 2004 Vincent Danen <vdanen@opensls.org> 1.0.11-6sls
+- remove initscript
+- supervise scripts
+
+* Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 1.0.11-5sls
+- OpenSLS build
+- tidy spec
+
 * Tue Jul 15 2003 Laurent MONTEL <lmontel@mandrakesoft.com> 1.0.11-4mdk
 - Fix log directory
 

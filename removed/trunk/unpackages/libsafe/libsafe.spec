@@ -1,16 +1,19 @@
+%define name	libsafe
 %define version 2.0.13
-%define release 3mdk
+%define release 4sls
 
 Summary:	Stack Overflow protection
-Name:		libsafe
+Name:		%{name}
 Version:	%{version}
 Release:	%{release}
-Source:		libsafe-2.0-13.tar.bz2
 License:	LGPL
 Group:		System/Libraries
+URL:		http://www.research.avayalabs.com/project/libsafe/
+Source:		libsafe-2.0-13.tar.bz2
+
 BuildRoot:	%{_tmppath}/libsafe
+
 ExclusiveArch:	%ix86
-URL: http://www.research.avayalabs.com/project/libsafe/
 
 %description
 The libsafe library is designed to overwrite dangerous
@@ -99,6 +102,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 2.0.13-4sls
+- OpenSLS build
+- tidy spec
+
 * Tue Jul 22 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 2.0.13-3mdk
 - quiet setup
 - rebuild

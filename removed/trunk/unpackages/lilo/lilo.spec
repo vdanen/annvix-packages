@@ -1,46 +1,43 @@
+%define name	lilo
 %define version 22.5.7.2
-%define release 6mdk
+%define release 11sls
+%define epoch	1
 
-Summary: The boot loader for Linux and other operating systems.
-Name: lilo
-Version: %{version}
-Release: %{release}
-Epoch: 1
-License: MIT
-Group: System/Kernel and hardware
-URL: http://brun.dyndns.org/pub/linux/lilo/
-Source: http://home.san.rr.com/johninsd/pub/linux/lilo/lilo-%{version}.tar.bz2
-Source2: lilo-graphic-pictures.tar.bz2
+Summary:	The boot loader for Linux and other operating systems.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+Epoch:		%{epoch}
+Group:		System/Kernel and hardware
+License:	MIT
+URL:		http://brun.dyndns.org/pub/linux/lilo/
+Source:		http://home.san.rr.com/johninsd/pub/linux/lilo/lilo-%{version}.tar.bz2
+Source1:	lilo-OpenSLS-graphics.tar.bz2
 #ftp://metalab.unc.edu/pub/Linux/system/boot/lilo/lilo-%{version}.tar.bz2
 #Source: ftp://lrcftp.epfl.ch/pub/linux/local/lilo/
-Patch0: lilo-21.6-keytab-3mdk.patch.bz2
-Patch1: lilo-disks-without-partitions.patch.bz2
-Patch9: lilo-22.5.1-unsafe-and-default-table.patch.bz2
-Patch20: lilo-22.5.7.2-graphic-makefile.patch.bz2
-Patch21: lilo-22.5.1-graphic.patch.bz2
-Patch22: lilo-22.5.5-mandir.patch.bz2
-Patch23: lilo-22.5.7.2-allgraph.patch.bz2
-Patch24: lilo-22.5.7.2-progress.patch.bz2
-Packager: Pixel <pixel@mandrakesoft.com>
-BuildRequires: tetex-latex tetex-dvips tetex-dvipdfm dev86 dev86-devel nasm
-PreReq: /usr/bin/perl
-Conflicts: lilo-doc < 22.5.7.2-6mdk
-Exclusivearch: %{ix86}
-Buildroot: %{_tmppath}/lilo-root
+Patch0:		lilo-21.6-keytab-3mdk.patch.bz2
+Patch1:		lilo-disks-without-partitions.patch.bz2
+Patch9:		lilo-22.5.1-unsafe-and-default-table.patch.bz2
+Patch20:	lilo-22.5.7.2-graphic-makefile.patch.bz2
+Patch21:	lilo-22.5.1-graphic.patch.bz2
+Patch22:	lilo-22.5.5-mandir.patch.bz2
+Patch23:	lilo-22.5.7.2-allgraph.patch.bz2
+Patch24:	lilo-22.5.7.2-progress.patch.bz2
+Patch25:	lilo-22.5.8-longer_image_names.patch.bz2
 
-%package doc
-Summary: More doc for %{name}
-Group: System/Kernel and hardware
-Conflicts: lilo < 22.5.7.2-6mdk
+BuildRoot:	%{_tmppath}/%{name}-root
+BuildRequires:	dev86 dev86-devel nasm
+
+PreReq:		/usr/bin/perl
+Conflicts:	lilo-doc < 22.5.7.2-6mdk
+Exclusivearch:	%{ix86}
+Provides:	bootloader
 
 %description
 LILO (LInux LOader) is a basic system program which boots your Linux
 system.  LILO loads the Linux kernel from a floppy or a hard drive, boots
 the kernel and passes control of the system to the kernel.  LILO can also
 boot other operating systems.
-
-%description doc
-cf %{name} package
 
 %prep
 %setup -q
@@ -52,9 +49,10 @@ cf %{name} package
 %patch22 -p1
 %patch23 -p1 -b .allgraph
 %patch24 -p1 -b .progress
+%patch25 -p1
 
 # graphic pictures.
-bzip2 -dc %{SOURCE2} | tar xvf -
+bzip2 -dc %{SOURCE1} | tar xvf -
 
 bzip2 -9 README*
 
@@ -68,53 +66,31 @@ dvipdfm -o Technical_Guide.pdf tech.dvi
 rm -f *.aux *.log *.toc)
 
 %install
-rm -rf $RPM_BUILD_ROOT
-mkdir -p $RPM_BUILD_ROOT/usr
-make install ROOT=$RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+mkdir -p %{buildroot}%{_prefix}
+make install ROOT=%{buildroot}
 
-install -d $RPM_BUILD_ROOT%{_bindir}
-mv $RPM_BUILD_ROOT/usr/sbin/* $RPM_BUILD_ROOT%{_bindir}
+install -d %{buildroot}%{_bindir}
+mv %{buildroot}%{_sbindir}/* %{buildroot}%{_bindir}
 
 # graphic addons, keep default options for bmp2mdk
 
-#%{__perl} ./bmp2mdk	mode:0x101 \
-#			timer:444,458,64+102,64+3 \
-#			entry:28,380,0,15,24,22 \
-#	<boot8.1.bmp >$RPM_BUILD_ROOT/boot/lilo-graphic/message
-#%{__perl} ./bmp2mdk	mode:0x101 \
-#			timer:63+280,80+358,64+83,64+79 \
-#			entry:63+144,80+70,64+84,64+79,9,42 \
-#			clear:480,640,64+79 \
-#			pos:63,80 \
-#	<boot8.2.bmp >$RPM_BUILD_ROOT/boot/message-graphic
-#%{__perl} ./bmp2mdk	mode:0x103 \
-#			timer:425,562,64+70,64+0 \
-#			entry:218,174,64+0,64+19,11,55 \
-#			clear:600,800,64+70 \
-#			pos:0,0 \
-#	<boot9.0.bmp >$RPM_BUILD_ROOT/boot/message-graphic
-#%{__perl} ./bmp2mdk	mode:0x103 \
-#			timer:425,562,64+127,64+72 \
-#			entry:218,174,64+72,64+22,11,55 \
-#			clear:600,800,64+54 \
-#			pos:0,0 \
-#	<boot9.1.bmp >$RPM_BUILD_ROOT/boot/message-graphic
 %{__perl} ./bmp2mdk	mode:0x103 \
-			timer:357,610,64+126,15 \
-			entry:161,144,64+127,15,13,54 \
+			timer:357,610,64+11,15 \
+			entry:161,144,64+11,15,13,54 \
 			progress:405,166,11,14,15 \
 			clear:600,800,64+127 \
 			pos:0,0 \
-	<boot9.2.bmp >$RPM_BUILD_ROOT/boot/message-graphic
+	<OpenSLS.bmp >%{buildroot}/boot/message-graphic
 
-install bmp2mdk %buildroot%{_bindir}/lilo-bmp2mdk
+install bmp2mdk %{buildroot}%{_bindir}/lilo-bmp2mdk
 
-mkdir -p %buildroot/%{_mandir}/man{5,8}/
-install -m644 manPages/*.5 %buildroot/%{_mandir}/man5/
-install -m644 manPages/*.8 %buildroot/%{_mandir}/man8/
+mkdir -p %{buildroot}/%{_mandir}/man{5,8}/
+install -m644 manPages/*.5 %{buildroot}/%{_mandir}/man5/
+install -m644 manPages/*.8 %{buildroot}/%{_mandir}/man8/
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
 if [ -f /etc/lilo.conf ]; then
@@ -156,7 +132,7 @@ if [ -f /etc/lilo.conf ]; then
           # need a special install=... 
   	  perl -pi -e 's|^install=.*\n||; $_ = "install=text\n$_" if $. == 1' /etc/lilo.conf ;;
         *)
-	  echo "ERROR: unknown lilo scheme, it is DROPPED (please tell pixel@mandrakesoft.com)"
+	  echo "ERROR: unknown lilo scheme, it is DROPPED (please tell dev@opensls.org)"
 	  sleep 1 ;;
       esac
 
@@ -182,11 +158,33 @@ fi
 %{_bindir}/*
 %{_mandir}/*/*
 
-%files doc
-%defattr(-,root,root)
-%doc doc/*.pdf CHANGES INCOMPAT QuickInst
 
 %changelog
+* Tue Jun 08 2004 Thomas Backlund <tmb@iki.fi> 22.5.7.2-11sls
+- S1: add OpenSLS graphic to lilo
+- remove /boot/message
+- change bugreport mail address
+
+* Tue Jun 01 2004 Vincent Danen <vdanen@opensls.org> 22.5.7.2-10sls
+- include /boot/message (text) and don't include the graphic file
+  since it says mdk9.2 (anyone want to make an OpenSLS graphic file?)
+
+* Sat May 22 2004 Thomas Backlund <tmb@iki.fi> 22.5.7.2-9sls
+- Patch25: allow image labels to be 31 chars (was 15), so
+  that custom kernels (ex. 2425-12slscustom) won't break
+  lilo execution with 'there was an error...'
+
+* Tue Mar 02 2004 Vincent Danen <vdanen@opensls.org> 22.5.7.2-8sls
+- Provides: bootloader
+- remove %%build_opensls macros
+- spec cleanups
+
+* Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 22.5.7.2-7sls
+- OpenSLS build
+- tidy spec
+- don't build doc with %%build_opensls
+- fix BuildReq's
+
 * Thu Sep 18 2003 François Pons <fpons@mandrakesoft.com> 22.5.7.2-6mdk
 - added new picture for 9.2 with progress bar integrated inside.
 - fixed critical bug of bmp2mdk generating wrong files if both timer

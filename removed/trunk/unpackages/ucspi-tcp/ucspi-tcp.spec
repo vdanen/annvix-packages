@@ -1,19 +1,19 @@
-%define name ucspi-tcp
+%define name	ucspi-tcp
 %define version 0.88
-%define release 7rph
+%define release 9sls
 
-Name:		%{name}
 Summary:	tcpserver and tcpclient for building TCP client-server apps
+Name:		%{name}
 Version:	%{version}
 Release:	%{release}
-Copyright:	D. J. Bernstein
+License:	D. J. Bernstein
 Group:		System/Servers
 URL:		http://cr.yp.to/ucspi-tcp.html
 Source:		%{name}-%{version}.tar.bz2
 Source1:	%{name}-%{version}-man.tar.bz2
 Patch0:		ucspi-tcp-0.88-errno.patch.bz2
-Buildroot:	%{_tmppath}/%{name}-%{version}
-Packager:	Vincent Danen <vdanen@mandrakesoft.com>
+
+BuildRoot:	%{_tmppath}/%{name}-%{version}
 
 %description
 tcpserver and tcpclient are easy-to-use command-line tools for building TCP
@@ -55,7 +55,7 @@ echo "/usr" >conf-home
 
 %build
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p $RPM_BUILD_ROOT
+mkdir -p %{buildroot}
 
 %make
 
@@ -75,7 +75,6 @@ install -m 644 *.8 %{buildroot}%{_mandir}/man8
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-rm -rf $RPM_BUILD_DIR/%{name}-%{version}
 rm -rf $RPM_BUILD_DIR/%{name}-%{version}-man
 
 
@@ -120,6 +119,13 @@ rm -rf $RPM_BUILD_DIR/%{name}-%{version}-man
 
 
 %changelog
+* Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 0.88-9sls
+- minor spec cleanups
+
+* Thu Dec 04 2003 Vincent Danen <vdanen@opensls.org> 0.88-8sls
+- OpenSLS build
+- tidy spec
+
 * Sat Feb  1 2003 Vincent Danen <vdanen@mandrakesoft.com> 0.88-7rph
 - build for 9.1
 - P0: errno.h handling

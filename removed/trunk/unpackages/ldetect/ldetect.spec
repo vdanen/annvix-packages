@@ -1,27 +1,33 @@
-# !! DON'T MODIFY HERE, MODIFY IN THE CVS !!
-Name:    ldetect
-Version:  0.4.9
-Release: 3mdk
-Summary: Light hardware detection library
-Source: %name.tar.bz2
-Group: System/Libraries
-URL:	  http://www.mandrakelinux.com
-BuildRoot: %_tmppath/%{name}-buildroot
-BuildRequires: usbutils => 0.11-2mdk,  pciutils-devel
-Conflicts: drakxtools < 9.2-0.32mdk
-Requires: ldetect-lst common-licenses
-License: GPL
+%define name	ldetect
+%define version	0.4.9
+%define release	5sls
 
-%package devel
-Summary: Development package for ldetect
-Group: Development/C
+Summary:	Light hardware detection library
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		System/Libraries
+URL:		http://www.mandrakelinux.com
+Source:		%name.tar.bz2
+
+BuildRoot:	%_tmppath/%{name}-buildroot
+BuildRequires:	usbutils => 0.11-2mdk,  pciutils-devel
+
+Conflicts:	drakxtools < 9.2-0.32mdk
+Requires:	ldetect-lst common-licenses
 
 %description
 The hardware device lists provided by this package are used as lookup 
 table to get hardware autodetection
 
+%package devel
+Summary:	Development package for ldetect
+Group:		Development/C
+
 %description devel
-see %name
+The hardware device lists provided by this package are used as lookup 
+table to get hardware autodetection
 
 %prep
 %setup -q -n %name
@@ -33,11 +39,11 @@ PICFLAGS="-DPIC -fPIC"
 %make CFLAGS="-Wall -Wstrict-prototypes $PICFLAGS"
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -51,6 +57,13 @@ rm -rf $RPM_BUILD_ROOT
 %_libdir/*
 
 %changelog
+* Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 0.4.9-5sls
+- minor spec cleanups
+
+* Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 0.4.9-4sls
+- OpenSLS build
+- tidy spec
+
 * Tue Aug 19 2003 Thierry Vignaud <tvignaud@mandrakesoft.com> 0.4.9-3mdk
 - do full-probe by default
 

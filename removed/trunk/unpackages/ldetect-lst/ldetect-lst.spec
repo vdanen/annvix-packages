@@ -1,32 +1,35 @@
-%define name ldetect-lst
+%define name	ldetect-lst
 %define version 0.1.8
-%define release 10mdk
+%define release 12sls
 
-Name: %{name}
-Version: %{version}
-Release: %{release}
-Summary: Hardware list for the light detection library
-URL: http://cvs.mandrakesoft.com/cgi-bin/cvsweb.cgi/soft/ldetect-lst/
-Source: %{name}-%{version}.tar.bz2
-Group: System/Libraries
-BuildRoot: %{_tmppath}/%{name}-buildroot
-License: GPL
-Prefix: %{_prefix}
-PreReq: perl-base
-BuildRequires: perl-MDK-Common
-Provides: hwdata
+Summary:	Hardware list for the light detection library
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		System/Libraries
+URL:		http://cvs.mandrakesoft.com/cgi-bin/cvsweb.cgi/soft/ldetect-lst/
+Source:		%{name}-%{version}.tar.bz2
 
-%package devel
-Summary: Devel for ldetect-lst
-Group: Development/Perl
-Requires: ldetect-lst = %{version}
+BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildRequires:	perl-MDK-Common
+
+Prefix:		%{_prefix}
+PreReq:		perl-base
+Provides:	hwdata
 
 %description
 The hardware device lists provided by this package are used as lookup 
 table to get hardware autodetection
 
+%package devel
+Summary:	Devel for ldetect-lst
+Group:		Development/Perl
+Requires:	ldetect-lst = %{version}
+
 %description devel
-see ldetect-lst
+The hardware device lists provided by this package are used as lookup 
+table to get hardware autodetection
 
 %prep
 %setup -q
@@ -35,11 +38,11 @@ see ldetect-lst
 %make
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 # trigger is needed to upgrade from a package having
 # /usr/share/ldetect-lst/pcitable in the package to the new scheme
@@ -64,6 +67,13 @@ fi
 %{_bindir}/*
 
 %changelog
+* Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 0.1.8-12sls
+- minor spec cleanups
+
+* Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 0.1.8-11sls
+- OpenSLS build
+- tidy spec
+
 * Mon Sep 22 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 0.1.8-10mdk
 - nforce3 nvnet
 

@@ -1,3 +1,6 @@
+%define name	mod_php
+%define release	1sls
+
 #New ADVX macros
 %define ADVXdir %{_datadir}/ADVX
 %{expand:%(cat %{ADVXdir}/ADVX-build)}
@@ -13,25 +16,16 @@
 %{expand:%%define mm_minor %(mm-config --version|sed 's/MM \([0-9]\)\.\([0-9.].*\) \(.*\)$/\2/')}
 %define mm_version %{mm_major}.%{mm_minor}
 
-%define release 1mdk
-%define name mod_php
-
+Summary:	The PHP4 HTML-embedded scripting language for use with Apache
 Name:		%{name}
 Version:	%{phpversion}
 Release:	%{release}
-Summary:	The PHP4 HTML-embedded scripting language for use with Apache.
+License:	PHP License
 Group:		System/Servers
 URL:		http://www.php.net/ 
-License:	PHP License
 Source1:	php.conf
-Prereq: 	perl
 
-Prereq:		apache = %{apache_version}
-Prereq:		apache-common >= %{apache_version}
-Prereq:		apache-conf >= %{apache_version}
-Prereq:		mm = %{mm_major}.%{mm_minor}
-
-Requires:	php-ini
+BuildRoot:	%{_tmppath}/%{name}-root
 BuildRequires:	ADVX-build >= 9.2
 BuildRequires:	php%{libversion}-devel 
 BuildRequires:	apache-devel 
@@ -43,18 +37,25 @@ BuildRequires:	db1-devel
 BuildRequires:  glibc-devel
 BuildRequires:	openssl-devel
 BuildRequires:	zlib-devel
+
+Requires:	php-ini
+Prereq: 	perl
+Prereq:		apache = %{apache_version}
+Prereq:		apache-common >= %{apache_version}
+Prereq:		apache-conf >= %{apache_version}
+Prereq:		mm = %{mm_major}.%{mm_minor}
+
 #glibc-devel provides libpthread.so
-BuildRoot:	%{_tmppath}/%{name}-root
 Provides:	php php4 php%{libversion}
 Provides:	phpapache
 Provides:	mod_php3
 Provides:	php3
 Provides:	phpfi
+Provides: 	ADVXpackage
+Provides:	AP13package
 Obsoletes:	mod_php3
 Obsoletes:	php3
 Obsoletes:	phpfi
-Provides: 	ADVXpackage
-Provides:	AP13package
 
 %description
 PHP is an HTML-embedded scripting language.  PHP attempts to make it
@@ -174,6 +175,12 @@ fi
 %{ap_webdoc}/*
 
 %changelog
+* Mon May 17 2004 Vincent Danen <vdanen@opensls.org> 4.3.6-1sls
+- first OpenSLS build
+- tidy spec
+- apache 1.3.31
+- php 4.3.6
+
 * Sun Nov 09 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 4.3.4-1mdk
 - built for apache 1.3.29
 - built for php 4.3.4

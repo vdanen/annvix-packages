@@ -1,15 +1,21 @@
-Summary: Allow users to mount files via loopback
-Name: mountloop
-Version: 0.10
-Release: 1mdk
-URL: http://www.mandrakelinux.com/
-Source0: %{name}-%{version}.tar.bz2
-License: GPL
-Group: System/Base
-Requires: ssh-askpass, drakxtools, perl-MDK-Common, mount >= 2.11r-2mdk
-BuildRoot: %{_tmppath}/%{name}-buildroot
-BuildRequires: XFree86-devel
-Prefix: %{_prefix}
+%define name	mountloop
+%define version	0.10
+%define release	2sls
+
+Summary:	Allow users to mount files via loopback
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		System/Base
+URL:		http://www.mandrakelinux.com/
+Source0:	%{name}-%{version}.tar.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildRequires:	XFree86-devel
+
+Requires:	ssh-askpass, drakxtools, perl-MDK-Common, mount >= 2.11r-2mdk
+Prefix:		%{_prefix}
 
 %description
 Allow users to mount encrypted loopback filesystems.
@@ -58,6 +64,10 @@ rm -rf $RPM_BUILD_ROOT
 %clean_menus
 
 %changelog
+* Mon Dec 01 2003 Vincent Danen <vdanen@opensls.org> 0.10-2sls
+- OpenSLS build
+- tidy spec
+
 * Fri Jun 13 2003 Frederic Lepied <flepied@mandrakesoft.com> 0.10-1mdk
 - allow to be run from the command line when not under X.
 
