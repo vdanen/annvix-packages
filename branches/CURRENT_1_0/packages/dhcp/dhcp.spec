@@ -1,9 +1,9 @@
 %define name	dhcp
 %define version	3.0
-%define release	1.rc12.6sls
+%define release	1.rc13.1sls
 %define epoch	2
 
-%define their_version	3.0.1rc12
+%define their_version	3.0.1rc13
 %define _catdir		/var/cache/man
 
 %define _requires_exceptions perl(Win32API::Registry)
@@ -28,6 +28,7 @@ Source8:	dhcpd.run
 Source9:	dhcpd-log.run
 Source10:	dhcrelay.run
 Source11:	dhcrelay-log.run
+Source12:	dhcpd.sysconfig
 Patch1:		dhcp-3.0.1rc11-ifup.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-root
@@ -171,7 +172,7 @@ touch $RPM_BUILD_ROOT%{_localstatedir}/dhcp/dhclient.leases
 install -m 0755 %SOURCE5 $RPM_BUILD_ROOT%{_sbindir}/
 install -m 0755 %SOURCE6 $RPM_BUILD_ROOT%{_sbindir}/
 mkdir -p %{buildroot}/%{_sysconfdir}/sysconfig
-touch $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/dhcpd
+install -m 0755 %{SOURCE12} %{buildroot}%{_sysconfdir}/sysconfig/dhcpd
 touch $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/dhcrelay
 find . -type d -exec chmod 0755 {} \;
 find . -type f -exec chmod 0644 {} \;
@@ -283,6 +284,14 @@ rm -rf /var/lib/dhcp/dhclient.leases
 %{_includedir}/*
 
 %changelog
+* Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 3.0-1.rc13.1sls
+- 3.0-1.rc13
+- S12 is the default sysconfig file
+- add -q to OPTIONS in the run file
+- sync with 3.0-1.rc13.4mdk:
+  - beautify dhcpd.conf.sample (olivier)
+
+
 * Thu Mar 04 2004 Vincent Danen <vdanen@opensls.org> 3.0-1.rc12.6sls
 - minor spec cleanups
 - some syncs with 3.0-1.rc13.3mdk:

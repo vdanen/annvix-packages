@@ -14,7 +14,7 @@ godown() {
 CONFIGFILE="/etc/dhcpd.conf"
 LEASEFILE="/var/lib/dhcp/dhcpd.leases"
 INTERFACES=""
-OPTIONS=""
+OPTIONS="-q"
 
 # override the defaults
 [ -f /etc/sysconfig/dhcpd ] && . /etc/sysconfig/dhcpd
