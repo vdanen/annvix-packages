@@ -1,6 +1,6 @@
 %define name	chkauth
 %define version 0.3
-%define release 4avx
+%define release 5avx
 	
 Summary:	Script to change authentification method (local, NIS, LDAP)
 Name:		%{name}
@@ -9,7 +9,7 @@ Release:	%{release}
 License:	GPL
 Group:		System/Configuration/Boot and Init
 Source0:	%{name}-%{version}.tar.bz2
-Patch0:		chkauth-0.3-avx-pamfix.patch.bz2
+Patch0:		chkauth-0.3-avx-misc_fixes.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-buildroot
 BuildArch:	noarch
@@ -32,10 +32,10 @@ and LDAP.
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p $RPM_BUILD_ROOT/%{_mandir}/man8/
-mkdir -p $RPM_BUILD_ROOT/%{_sbindir}
-install chkauth $RPM_BUILD_ROOT/%{_sbindir}
-install chkauth.8 $RPM_BUILD_ROOT/%{_mandir}/man8/
+mkdir -p %{buildroot}/%{_mandir}/man8/
+mkdir -p %{buildroot}/%{_sbindir}
+install chkauth %{buildroot}/%{_sbindir}
+install chkauth.8 %{buildroot}/%{_mandir}/man8/
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -46,6 +46,11 @@ install chkauth.8 $RPM_BUILD_ROOT/%{_mandir}/man8/
 %{_mandir}/*/*
 
 %changelog
+* Tue Mar 15 2005 Vincent Danen <vdanen@annvix.org> 0.3-5avx
+- update P0 to made chkauth tell exactly what rpms are needed for LDAP
+  all at once rather than one at a time
+- fix some grammer annoyances
+
 * Wed Jun 30 2004 Vincent Danen <vdanen@annvix.org> 0.3-4avx
 - fix chkauth to use pam_unix rather than pam_pwdb for password
   handling in system-auth when using LDAP (so we can use passwd to
