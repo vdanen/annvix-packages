@@ -1,0 +1,13 @@
+--- dietlibc-0.22/x86_64/unified.S.x86_64-syscall-retval	2002-11-09 18:31:08.000000000 -0500
++++ dietlibc-0.22/x86_64/unified.S	2003-02-19 17:56:12.000000000 -0500
+@@ -16,8 +16,8 @@ __unified_syscall:
+ 	movzbl	%al, %eax
+ 	mov	%rcx, %r10
+ 	syscall
+-	cmpq	$0, %rax
+-	jge	.Lnoerror
++	cmpq	$-128, %rax
++	jbe	.Lnoerror
+ 	negl	%eax
+ 	pushq	%rax
+ 	call	__errno_location
