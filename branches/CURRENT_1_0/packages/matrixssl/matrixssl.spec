@@ -1,6 +1,6 @@
 %define	name	matrixssl
 %define	version	1.2.2
-%define	release	1avx
+%define	release	2avx
 
 %define	major	1
 %define libname	%mklibname %{name} %{major}
@@ -47,8 +47,8 @@ operating systems, cipher suites, and cryptography providers.
 %package -n %{libname}-devel
 Summary:	Static library and header files for the %{name} library
 Group:		Development/C
-Obsoletes:	%{name}-devel lib%{name}-devel
-Provides:	%{name}-devel lib%{name}-devel
+Obsoletes:	%{name}-devel %{_lib}%{name}-devel
+Provides:	%{name}-devel %{_lib}%{name}-devel
 Requires:	%{libname} = %{version}-%{release}
 Requires:	dietlibc-devel >= 0.20
 
@@ -138,6 +138,9 @@ rm -f examples/*.p12
 %{_libdir}/dietlibc/lib/*.a
 
 %changelog
+* Wed Jan 05 2005 Vincent Danen <vdanen@annvix.org> 1.2.2-2avx
+- lib64 fixes (oden)
+
 * Wed Oct 13 2004 Vincent Danen <vdanen@annvix.org> 1.2.2-1avx
 - 1.2.2
 
