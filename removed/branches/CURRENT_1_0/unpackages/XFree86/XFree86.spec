@@ -1,9 +1,9 @@
-%define _unpackaged_files_terminate_build 0
-%define name XFree86
-%define baseversion 420
-
+%define name	XFree86
 %define version 4.3
-%define release 23mdk
+%define release 24sls
+
+%define _unpackaged_files_terminate_build 0
+%define baseversion 420
 
 %define x11prefix	%{_prefix}/X11R6
 %define x11bindir	%{x11prefix}/bin
@@ -29,224 +29,176 @@
 %define BuildDebugVersion 0
 #We're using the new fontconfig based Xft1 1.2 lib now.
 %define with_new_fontconfig_Xft 0
-%if %mdkversion >= 910
-%define with_new_fontconfig_Xft 1
-%endif
+# comment this out to see if we build
+#%if %mdkversion >= 910
+#%define with_new_fontconfig_Xft 1
+#%endif
 
 %{?_with_debug: %{expand: %%define BuildDebugVersion 1}}
 %{?_without_debug: %{expand: %%define BuildDebugVersion 0}}
 %{?_with_matroxhal: %{expand: %%define havematroxhal 1}}
 %{?_without_matroxhal: %{expand: %%define havematroxhal 0}}
 
-Packager: Frederic Lepied <flepied@mandrakesoft.com>
-Summary: Part of the XFree86 implementation of the X Window System.
-Name: %{name}
-Version: %{version}
+Summary:	Part of the XFree86 implementation of the X Window System.
+Name:		%{name}
+Version:	%{version}
 %if !%{BuildDebugVersion}
-Release: %{release}
+Release:	%{release}
 %else
 # debug with -g
-Release: %{release}g
+Release:	%{release}g
 %endif
-License: MIT
-URL: http://www.xfree86.org/
-Group: System/XFree86
-Icon: XFree86-logo.xpm
-Requires: pam >= 0.66-18, util-linux, sh-utils, xinitrc >= 2.4.4-10mdk
-Requires: XFree86 >= 3.3.6
-Requires: gcc-cpp
-
-Prereq: /sbin/chkconfig utempter XFree86-libs = %{version}
-%if %{with_new_fontconfig_Xft}
-PreReq: fontconfig
-%endif
-
-BuildRequires: zlib-devel flex bison groff pam-devel ncurses-devel perl
-BuildRequires: libpng-devel
-%if %{usefreetype2}
-BuildRequires: freetype2-devel
-%endif
-# We need fontconfig for the new Xft1
-%if %{with_new_fontconfig_Xft}
-BuildRequires: fontconfig-devel >= 2.1-4mdk
-%endif
-
-BuildRoot: %{_tmppath}/%{name}-root
-Obsoletes: XFree86-ISO8859-2, XFree86-ISO8859-9
-Provides: XFree86-ISO8859-2, XFree86-ISO8859-9
-
+License:	MIT
+Group:		System/XFree86
+Icon:		XFree86-logo.xpm
+URL:		http://www.xfree86.org/
 %if %{usecvs}
-Source0: XFree86-%{cvsversion}.tar.bz2
+Source0:	XFree86-%{cvsversion}.tar.bz2
 %else
-Source0: ftp://ftp.xfree86.org/pub/XFree86/%{version}/source/X%{baseversion}src-1.tar.bz2
-Source1: ftp://ftp.xfree86.org/pub/XFree86/%{version}/source/X%{baseversion}src-2.tar.bz2
-Source2: ftp://ftp.xfree86.org/pub/XFree86/%{version}/source/X%{baseversion}src-3.tar.bz2
+Source0:	ftp://ftp.xfree86.org/pub/XFree86/%{version}/source/X%{baseversion}src-1.tar.bz2
+Source1:	ftp://ftp.xfree86.org/pub/XFree86/%{version}/source/X%{baseversion}src-2.tar.bz2
+Source2:	ftp://ftp.xfree86.org/pub/XFree86/%{version}/source/X%{baseversion}src-3.tar.bz2
 %endif
-Source3: xserver.pamd
-Source4: xdm.pamd
-Source5: xfs.init
-Source6: xfs.config
-Source8: xdm.init
-Source9: twm.method
-Source10: system.twmrc
-#Source11: http://keithp.com/~keithp/fonts/XftConfig
+Source3:	xserver.pamd
+Source4:	xdm.pamd
+Source5:	xfs.init
+Source6:	xfs.config
+Source8:	xdm.init
+Source9:	twm.method
+Source10:	system.twmrc
+#Source11:	http://keithp.com/~keithp/fonts/XftConfig
 # from Arnd Bergmann <std7652@et.FH-Osnabrueck.DE>
 # only used when not build with fontconfig
-Source11: XftConfig
-Source100: Euro.xmod.bz2
-Source102: eurofonts-X11.tar.bz2
+Source11:	XftConfig
+Source100:	Euro.xmod.bz2
+Source102:	eurofonts-X11.tar.bz2
 # some bdf fonts made by us, to cover encodings which haven't
 # any available fonts so at least one font is provided for them
 # it should regularly be checked and fonts added or removed
 # depending on the support of new encodings and the availability
 # of better fonts -- pablo
-Source151: mdk_drakx_fonts.tar.bz2
+Source151:	mdk_drakx_fonts.tar.bz2
 # extra *.enc files for xfs server not (yet) in XFree86 -- pablo
-Source152: xfsft-encodings.tar.bz2
+Source152:	xfsft-encodings.tar.bz2
 # locale.dir, compose.dir, locale.alias files.
 # maintaining them trough patches is a nightmare, as they change
 # too much too often; it is easier to manage them separately -- pablo
-Source153: XFree86-compose.dir.bz2
-Source154: XFree86-locale.alias.bz2
-Source155: XFree86-locale.dir.bz2
+Source153:	XFree86-compose.dir.bz2
+Source154:	XFree86-locale.alias.bz2
+Source155:	XFree86-locale.dir.bz2
 #
-Source156: gemini-koi8-u.tar.bz2
+Source156:	gemini-koi8-u.tar.bz2
 # the new default unicode compose file is too human-unfriendly; keeping
 # the old one...
-Source157: XFree86-4.2.0-en_US.UTF-8.old.bz2
-
+Source157:	XFree86-4.2.0-en_US.UTF-8.old.bz2
 # I18n updates from Pablo
 # Devanagari OpenType font, to install for the indic opentype patch -- pablo
-Source160: XFree86-extrascalablefonts-font.tar.bz2
-
+Source160:	XFree86-extrascalablefonts-font.tar.bz2
 #source mdk icons (by deush)
-Source200: icons-%{name}.tar.bz2
+Source200:	icons-%{name}.tar.bz2
 %if %{havematroxhal}
-Source201: ftp://ftp.matrox.com/pub/mga/archive/linux/2003/mgadrivers-2.1-src.tgz
-Source2010: ftp://ftp.matrox.com/pub/mga/archive/linux/2003/lnx21notes.txt
+Source201:	ftp://ftp.matrox.com/pub/mga/archive/linux/2003/mgadrivers-2.1-src.tgz
+Source2010:	ftp://ftp.matrox.com/pub/mga/archive/linux/2003/lnx21notes.txt
 %endif
 # Savage driver dropin
-Source202: ftp://ftp.probo.com/pub/savage-1.1.27t.tar.bz2
+Source202:	ftp://ftp.probo.com/pub/savage-1.1.27t.tar.bz2
 # S3 driver dropin 0.3.21
-#Source203: ftp://devel.linuxppc.org/users/ajoshi/s3/s3-0.3.21.tar.bz2
+#Source203:	ftp://devel.linuxppc.org/users/ajoshi/s3/s3-0.3.21.tar.bz2
 # wacom driver update
-Source204: http://people.mandrakesoft.com/~flepied/wacom/xf86Wacom.c.bz2
-
+Source204:	http://people.mandrakesoft.com/~flepied/wacom/xf86Wacom.c.bz2
 # trident driver from 4.1.0 sources
-Source206: trident-4.1.0.tar.bz2
-
+Source206:	trident-4.1.0.tar.bz2
 # sis dropin from http://www.webit.at/~twinny/linuxsis630.shtml
-Source207: http://www.webit.at/~twinny/sis/sis_drv_src_060802-2.tar.bz2
-
+Source207:	http://www.webit.at/~twinny/sis/sis_drv_src_060802-2.tar.bz2
 # driver for VIA CLE266
-Source208: XFree86-4.3-via.tar.bz2
-
-Patch0: XFree86-4.2.0-branch.patch.bz2
-
+Source208:	XFree86-4.3-via.tar.bz2
+Patch0:		XFree86-4.2.0-branch.patch.bz2
+#
 # Libs patches #################################################################
-
-Patch3: XFree86-4.2.99.3-xft-loadtarget.patch.bz2
-
+#
+Patch3:		XFree86-4.2.99.3-xft-loadtarget.patch.bz2
 # (fc) 4.3-11mdk update xft to 2.1.3
-Patch6: XFree86-4.3-xft212.patch.bz2
+Patch6:		XFree86-4.3-xft212.patch.bz2
 # (fc) 4.3-11mdk update xrender to 0.8.3
-Patch7: XFree86-4.3-xrender083.patch.bz2
-
+Patch7:		XFree86-4.3-xrender083.patch.bz2
+#
 # Progs patches ################################################################
-
+#
 # Fix xman to work with bzipped pages
-Patch102: XFree86-4.2.99.3-xman-bzip2.patch.bz2
+Patch102:	XFree86-4.2.99.3-xman-bzip2.patch.bz2
 # modifications for  startx (argument parsing and font rendering)
 # catch sigterm in xinit and startx
-Patch104: XFree86-4.2.99.3-startx.patch.bz2
+Patch104:	XFree86-4.2.99.3-startx.patch.bz2
 # Fix matrices text-look in man pages (Thierry Vignaud)
-Patch106: XFree86-4.2.1-gl-matrix-man-fixes.patch.bz2
-
+Patch106:	XFree86-4.2.1-gl-matrix-man-fixes.patch.bz2
+#
 # X server patches #############################################################
-
-Patch200: XFree86-4.2.99.3-parallel-make.patch.bz2
-Patch201: XFree86-4.2.99.3-mandrakelinux-blue.patch.bz2
-Patch202: XFree86-xwrapper.patch.bz2
-
+#
+Patch200:	XFree86-4.2.99.3-parallel-make.patch.bz2
+Patch201:	XFree86-4.2.99.3-mandrakelinux-blue.patch.bz2
+Patch202:	XFree86-xwrapper.patch.bz2
 # Pablo i18n patchs -- please if the patches don't apply anymore
 # after an upgrade of XFree86 sources write me (pablo) instead
 # of just discarding the patch, as discarding it may lead to
 # loss of support for some locales. Thanks.
 #
-Patch203: XFree86-4.2.99.5-i18n.diff.bz2
+Patch203:	XFree86-4.2.99.5-i18n.diff.bz2
 # Keyboard fixes patches -- pablo
-Patch204: XFree86-4.3-fixkbd.diff.bz2
-
+Patch204:	XFree86-4.3-fixkbd.diff.bz2
 # patch to use the old (xfree86 4.2) keyboard layouts, as the new
 # ones give too much trouble (problems with emacs, missing, keys)
 # the new ones should be tested again in the future to see if the
 # problems have gone -- pablo
-Patch207: XFree86-4.2.99-oldkbd.diff.bz2
-
+Patch207:	XFree86-4.2.99-oldkbd.diff.bz2
 # Acecad driver from the Author
 # http://perso.wanadoo.fr/edouard.tisserant/acecad/
-Patch208: XFree86-4.2.99.3-acecad.patch.bz2
-
+Patch208:	XFree86-4.2.99.3-acecad.patch.bz2
 # HP keyboard support (Nicolas Planel)
-Patch209: XFree86-4.2.0-xkb-hp_symbols.patch.bz2
-
+Patch209:	XFree86-4.2.0-xkb-hp_symbols.patch.bz2
 # Build the following libraries with PIC: libxf86config, libXau, libxkbfile
-Patch210: XFree86-4.3-build-libs-with-pic.patch.bz2
-
+Patch210:	XFree86-4.3-build-libs-with-pic.patch.bz2
 # icondir support from Mike Harris
-Patch211: XFree86-4.2.99.3-Imake-make-icondir-configurable.patch.bz2
-
+Patch211:	XFree86-4.2.99.3-Imake-make-icondir-configurable.patch.bz2
 # open mouse twice to workaround a bug in the kernel when dealing
 # with a PS/2 mouse and an USB keuboard
-Patch212: XFree86-4.3-mouse-twice.patch.bz2
-
-Patch213: XFree86-4.3.0-gb18030.patch.bz2
-Patch214: XFree86-4.3.0-gb18030-enc.patch.bz2
-
-Patch215: XFree86-4.3-elfloader-nonexec-page.patch.bz2
-Patch216: XFree86-4.3-_LP64-fix.patch.bz2
-
+Patch212:	XFree86-4.3-mouse-twice.patch.bz2
+Patch213:	XFree86-4.3.0-gb18030.patch.bz2
+Patch214:	XFree86-4.3.0-gb18030-enc.patch.bz2
+Patch215:	XFree86-4.3-elfloader-nonexec-page.patch.bz2
+Patch216:	XFree86-4.3-_LP64-fix.patch.bz2
+#
 # Drivers patches ##############################################################
-
-Patch514: XFree86-4.1.0-agpgart-load.patch.bz2
-
-Patch521: XFree86-4.2.0-tdfx-libglide-name.patch.bz2
-
+#
+Patch514:	XFree86-4.1.0-agpgart-load.patch.bz2
+Patch521:	XFree86-4.2.0-tdfx-libglide-name.patch.bz2
 # try to open vt starting at vt 7
-Patch528: XFree86-4.2.0-vt7.patch.bz2
-
+Patch528:	XFree86-4.2.0-vt7.patch.bz2
 # report keyboard read errors
-Patch531: XFree86-4.2.1-kbd-error.patch.bz2
-
+Patch531:	XFree86-4.2.1-kbd-error.patch.bz2
 # Chips CT69000: disable hardware accelaration for now (RH #74841)
-Patch532: XFree86-4.2.1-chips-CT69000-noaccel.patch.bz2
-
+Patch532:	XFree86-4.2.1-chips-CT69000-noaccel.patch.bz2
 # Chips CT65550: force software cursor for now (RH #82438)
-Patch533: XFree86-4.2.1-chips-CT65550-swcursor.patch.bz2
-
+Patch533:	XFree86-4.2.1-chips-CT65550-swcursor.patch.bz2
 # savage
-Patch536: XFree86-4.2.99.3-savage-pci-id-fixes.patch.bz2
-Patch537: XFree86-4.2.99.902-savage-Imakefile-vbe-fixup.patch.bz2
-Patch538: XFree86-4.2.99.902-savage-1.1.26cvs-1.1.27t-fixups.patch.bz2
-Patch539: XFree86-4.2.99.902-savage-1.1.26cvs-1.1.27t-accel-fixup.patch.bz2
-
+Patch536:	XFree86-4.2.99.3-savage-pci-id-fixes.patch.bz2
+Patch537:	XFree86-4.2.99.902-savage-Imakefile-vbe-fixup.patch.bz2
+Patch538:	XFree86-4.2.99.902-savage-1.1.26cvs-1.1.27t-fixups.patch.bz2
+Patch539:	XFree86-4.2.99.902-savage-1.1.26cvs-1.1.27t-accel-fixup.patch.bz2
 # ati
-Patch540: XFree86-4.3-ati-r300.patch.bz2
-Patch541: XFree86-4.3-radeon-1-igp.patch.bz2
-Patch542: XFree86-4.3-radeon-2-rv280.patch.bz2
-Patch543: XFree86-4.3-radeon-3-lcd.patch.bz2
+Patch540:	XFree86-4.3-ati-r300.patch.bz2
+Patch541:	XFree86-4.3-radeon-1-igp.patch.bz2
+Patch542:	XFree86-4.3-radeon-2-rv280.patch.bz2
+Patch543:	XFree86-4.3-radeon-3-lcd.patch.bz2
 # Patch from Keith Whitwell/Michel Dänzer to avoid Radeon dri Xserver recycle lockup
-Patch544: XFree86-4.3-radeon-4-recycle-lockup.patch.bz2
-
+Patch544:	XFree86-4.3-radeon-4-recycle-lockup.patch.bz2
 # nv
-Patch550: XFree86-4.3-nv-init.patch.bz2
-
+Patch550:	XFree86-4.3-nv-init.patch.bz2
 # intel i8x0
-Patch560: XFree86-4.3-vt_fix.patch.bz2
-Patch561: XFree86-4.3-blankscreen.patch.bz2
-
+Patch560:	XFree86-4.3-vt_fix.patch.bz2
+Patch561:	XFree86-4.3-blankscreen.patch.bz2
+#
 # platforms specific patches start here
-
+#
 # PPC patches
 # Dadou - 4.0.2-4mdk - 600 is based on sources available here:
 #                      rsync -arvz linuxppc.org::xfree86-pmac .
@@ -254,24 +206,40 @@ Patch561: XFree86-4.3-blankscreen.patch.bz2
 # sbenedict
 Patch600:	XFree86-4.0.2-ppc-patches-ani-joshi-tree-20010327.patch.bz2
 Patch601:	XFree86-4.0.2-ppc-build-ati-drivers.patch.bz2
-
 # Missing link flag against dl library (for dlopen(), dlsym(), ...) (Gwenole)
-Patch610: XFree86-4.1.0-glxinfo-dl.patch.bz2
-
+Patch610:	XFree86-4.1.0-glxinfo-dl.patch.bz2
 # We do need PIC code for shared libraries (Gwenole)
-Patch611: XFree86-4.1.0-glx-pic.patch.bz2
-
+Patch611:	XFree86-4.1.0-glx-pic.patch.bz2
 # Patch for building in Debug mode
-Patch700: XFree86-4.2.99.3-acecad-debug.patch.bz2
-
+Patch700:	XFree86-4.2.99.3-acecad-debug.patch.bz2
 # 4.3 branch update
-Patch800: XFree86-4.3-branch-4.3.patch.bz2
-
+Patch800:	XFree86-4.3-branch-4.3.patch.bz2
 # HEAD branch update to fix deadlock using threads and Xi
-Patch801: XFree86-4.3-xi-lock.patch.bz2
-
+Patch801:	XFree86-4.3-xi-lock.patch.bz2
 # fix Multiple Unspecified Integer Overflow Vulnerabilities (bugtrag 8514)
-Patch802: XFree86-4.3-font-security.patch.bz2
+Patch802:	XFree86-4.3-font-security.patch.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-root
+BuildRequires:	zlib-devel flex bison groff pam-devel ncurses-devel perl
+BuildRequires:	libpng-devel
+%if %{usefreetype2}
+BuildRequires:	freetype2-devel
+%endif
+# We need fontconfig for the new Xft1
+%if %{with_new_fontconfig_Xft}
+BuildRequires:	fontconfig-devel >= 2.1-4mdk
+%endif
+
+Requires:	pam >= 0.66-18, util-linux, sh-utils, xinitrc >= 2.4.4-10mdk
+Requires:	XFree86 >= 3.3.6
+Requires:	gcc-cpp
+Prereq:		/sbin/chkconfig utempter XFree86-libs = %{version}
+%if %{with_new_fontconfig_Xft}
+PreReq:		fontconfig
+%endif
+Obsoletes:	XFree86-ISO8859-2, XFree86-ISO8859-9
+Provides:	XFree86-ISO8859-2, XFree86-ISO8859-9
+
 
 %description
 If you want to install the X Window System (TM) on
@@ -305,14 +273,14 @@ This version was built with Matrox HALlib enabled.
 %endif
 
 %package 75dpi-fonts
-Summary: A set of 75 dpi resolution fonts for the X Window System.
-Group: System/Fonts/X11 bitmap
-Prereq: chkfontpath, psmisc, /usr/X11R6/bin/xset, XFree86 = %{version}
+Summary:	A set of 75 dpi resolution fonts for the X Window System.
+Group:		System/Fonts/X11 bitmap
+Prereq:		chkfontpath, psmisc, /usr/X11R6/bin/xset, XFree86 = %{version}
 %ifarch sparc
-Obsoletes: X11R6.1-75dpi-fonts
+Obsoletes:	X11R6.1-75dpi-fonts
 %endif
-Obsoletes: XFree86-ISO8859-2-75dpi-fonts, XFree86-ISO8859-9-75dpi-fonts
-Provides: XFree86-ISO8859-2-75dpi-fonts, XFree86-ISO8859-9-75dpi-fonts
+Obsoletes:	XFree86-ISO8859-2-75dpi-fonts, XFree86-ISO8859-9-75dpi-fonts
+Provides:	XFree86-ISO8859-2-75dpi-fonts, XFree86-ISO8859-9-75dpi-fonts
 
 %description 75dpi-fonts
 XFree86-75dpi-fonts contains the 75 dpi fonts used
@@ -334,14 +302,14 @@ as X clients, you will also need to install the
 %{xfdev} package.
 
 %package 100dpi-fonts
-Summary: X Window System 100dpi fonts.
-Group: System/Fonts/X11 bitmap
-Prereq: chkfontpath, psmisc, /usr/X11R6/bin/xset, XFree86 = %{version}
+Summary:	X Window System 100dpi fonts.
+Group:		System/Fonts/X11 bitmap
+Prereq:		chkfontpath, psmisc, /usr/X11R6/bin/xset, XFree86 = %{version}
 %ifarch sparc
-Obsoletes: X11R6.1-100dpi-fonts
+Obsoletes:	X11R6.1-100dpi-fonts
 %endif
-Obsoletes: XFree86-ISO8859-2-100dpi-fonts, XFree86-ISO8859-9-100dpi-fonts
-Provides: XFree86-ISO8859-2-100dpi-fonts, XFree86-ISO8859-9-100dpi-fonts
+Obsoletes:	XFree86-ISO8859-2-100dpi-fonts, XFree86-ISO8859-9-100dpi-fonts
+Provides:	XFree86-ISO8859-2-100dpi-fonts, XFree86-ISO8859-9-100dpi-fonts
 
 %description 100dpi-fonts
 If you're going to use the X Window System and you have a
@@ -362,9 +330,9 @@ run as X clients, you will also need to install the
 %{xfdev} package.
 
 %package cyrillic-fonts
-Summary: Cyrillic fonts - only needed on the server side.
-Group: System/Fonts/X11 bitmap
-Prereq: chkfontpath, psmisc, /usr/X11R6/bin/xset, XFree86 = %{version}
+Summary:	Cyrillic fonts - only needed on the server side.
+Group:		System/Fonts/X11 bitmap
+Prereq:		chkfontpath, psmisc, /usr/X11R6/bin/xset, XFree86 = %{version}
 
 %description cyrillic-fonts
 The Cyrillic fonts included with XFree86 3.3.2 and higher. Those who
@@ -372,15 +340,15 @@ use a language requiring the Cyrillic character set should install
 this package.
 
 %package -n %{xflib}
-Summary: Shared libraries needed by the X Window System version 11 release 6.
-Group: System/Libraries
-Prereq: grep /sbin/ldconfig
-Provides: libXft2
-Obsoletes: libXft2
-Provides: XFree86-libs = %version-%release
-Obsoletes: XFree86-libs
+Summary:	Shared libraries needed by the X Window System version 11 release 6.
+Group:		System/Libraries
+Prereq:		grep /sbin/ldconfig
+Provides:	libXft2
+Obsoletes:	libXft2
+Provides:	XFree86-libs = %version-%release
+Obsoletes:	XFree86-libs
 %ifarch sparc
-Obsoletes: X11R6.1-libs
+Obsoletes:	X11R6.1-libs
 %endif
 
 %description -n %{xflib}
@@ -398,21 +366,21 @@ applications that run as X clients, you will also need to install
 %{xfdev}.
 
 %package -n %{xfdev}
-Summary: Headers and programming man pages.
-Group: Development/C
-Obsoletes: Mesa-devel
-Provides: Mesa-devel
-Provides: Xft-devel
-Provides: libXft2-devel
-Provides: XFree86-devel = %version-%release
-Obsoletes: XFree86-devel
-Obsoletes: libXft2-devel
+Summary:	Headers and programming man pages.
+Group:		Development/C
+Obsoletes:	Mesa-devel
+Provides:	Mesa-devel
+Provides:	Xft-devel
+Provides:	libXft2-devel
+Provides:	XFree86-devel = %version-%release
+Obsoletes:	XFree86-devel
+Obsoletes:	libXft2-devel
 %ifarch sparc
-Obsoletes: X11R6.1-devel
+Obsoletes:	X11R6.1-devel
 %endif
-Requires: XFree86-libs = %{version}-%{release}, glibc-devel, /lib/cpp
+Requires:	XFree86-libs = %{version}-%{release}, glibc-devel, /lib/cpp
 %if %{with_new_fontconfig_Xft}
-Requires: fontconfig-devel >= 2.1-4mdk
+Requires:	fontconfig-devel >= 2.1-4mdk
 %endif
 
 %description -n %{xfdev}
@@ -430,20 +398,20 @@ If you need the static libraries, install the %{xfsta}
 package.
 
 %package -n %{xfsta}
-Summary: X11R6 static libraries
-Group: System/Libraries
-Requires: %{xfdev} = %{version}-%{release}
-Obsoletes: XFree86-static-libs
-Provides: XFree86-static-libs = %{version}-%{release}
-Provides: XFree86-static-devel = %{version}-%{release}
+Summary:	X11R6 static libraries
+Group:		System/Libraries
+Requires:	%{xfdev} = %{version}-%{release}
+Obsoletes:	XFree86-static-libs
+Provides:	XFree86-static-libs = %{version}-%{release}
+Provides:	XFree86-static-devel = %{version}-%{release}
 
 %description -n %{xfsta}
 %{xfsta} includes the X11R6 static libraries needed to
 build statically linked programs.
 
 %package doc
-Summary: Documentation on various X11 programming interfaces
-Group: System/XFree86
+Summary:	Documentation on various X11 programming interfaces
+Group:		System/XFree86
 
 %description doc
 XFree86-doc provides a great deal of extensive PostScript documentation
@@ -453,9 +421,9 @@ X protocol, the ICCCM window manager standard, ICE session management,
 the font server API, etc.
 
 %package Xvfb
-Summary: A virtual framebuffer X Windows System server for XFree86.
-Group: System/XFree86
-Requires: XFree86 = %{version}-%{release}
+Summary:	A virtual framebuffer X Windows System server for XFree86.
+Group:		System/XFree86
+Requires:	XFree86 = %{version}-%{release}
 
 %description Xvfb
 Xvfb (X Virtual Frame Buffer) is an X Windows System server
@@ -475,10 +443,10 @@ If you need to test your X server or your X clients, you may want to
 install Xvfb for that purpose.
 
 %package Xnest
-Summary: A nested XFree86 server.
-Group: System/XFree86
-Requires: XFree86-xfs
-Requires: XFree86 = %{version}-%{release}
+Summary:	A nested XFree86 server.
+Group:		System/XFree86
+Requires:	XFree86-xfs
+Requires:	XFree86 = %{version}-%{release}
 
 %description Xnest
 Xnest is an X Window System server which runs in an X window.
@@ -492,34 +460,34 @@ will run as a client of your real X server (perhaps for
 testing purposes).
 
 %package server
-Summary: The X server and associated modules
-Group: System/XFree86
-Requires: XFree86 = %{version}-%{release}
-Requires: XFree86-xfs
-Obsoletes: xserver-wrapper
+Summary:	The X server and associated modules
+Group:		System/XFree86
+Requires:	XFree86 = %{version}-%{release}
+Requires:	XFree86-xfs
+Obsoletes:	xserver-wrapper
 
 %description server
 XFree86-server is the new generation of X server from XFree86.
 
 %ifarch %{ix86}
 %package glide-module
-Summary: The glide module for XFree86 server.
-Group: System/XFree86
-Requires: XFree86-server = %{version}-%{release}, libglide3.so.3
-BuildRequires: Glide_V3-DRI-devel >= cvs-2mdk
+Summary:	The glide module for XFree86 server.
+Group:		System/XFree86
+Requires:	XFree86-server = %{version}-%{release}, libglide3.so.3
+BuildRequires:	Glide_V3-DRI-devel >= cvs-2mdk
 
 %description glide-module
 glide module for XFree86.
 %endif
 
 %package xfs
-Group: System/Servers
-Summary: Font server for XFree86
-Prereq: shadow-utils setup
-Requires: initscripts >= 5.27-28mdk
-Requires: XFree86-libs = %{version}-%{release}
-Prereq: rpm-helper chkfontpath 
-Obsoletes: xtt
+Group:		System/Servers
+Summary:	Font server for XFree86
+Prereq:		shadow-utils setup
+Requires:	initscripts >= 5.27-28mdk
+Requires:	XFree86-libs = %{version}-%{release}
+Prereq:		rpm-helper chkfontpath 
+Obsoletes:	xtt
 
 %description xfs
 This is a font server for XFree86.  You can serve fonts to other X servers
@@ -1933,6 +1901,10 @@ rm -rf $RPM_BUILD_ROOT
 %{x11libdir}/X11/xedit
 
 %changelog
+* Mon Dec 02 2003 Vincent Danen <vdanen@opensls.org> 4.3-24sls
+- OpenSLS build
+- tidy spec
+
 * Wed Sep 10 2003 Frederic Crozat <fcrozat@mandrakesoft.com> 4.3-23mdk
 - Update patch 6 with FULL xft code (fix mdk bug 4580)
 
