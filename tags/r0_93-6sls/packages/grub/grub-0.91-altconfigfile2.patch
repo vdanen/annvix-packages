@@ -1,0 +1,127 @@
+--- grub-0.91/stage2/builtins.c.pix	Tue Jan 22 20:34:58 2002
++++ grub-0.91/stage2/builtins.c	Tue Jan 22 20:34:58 2002
+@@ -56,6 +56,9 @@
+ /* True when the debug mode is turned on, and false
+    when it is turned off.  */
+ int debug = 0;
++/* Alternate config file */
++char altconfig_file[256] = { '\0' };
++static int altconfigfile_clear(void);
+ /* The default entry.  */
+ int default_entry = 0;
+ /* The fallback entry.  */
+@@ -129,6 +132,7 @@
+ void
+ init_config_end (void)
+ {
++  altconfigfile_clear();
+ }
+ 
+ /* Print which sector is read when loading a file.  */
+@@ -139,6 +143,49 @@
+ }
+ 
+ 
++/* altconfigfile */
++static int
++altconfigfile_clear (void)
++{
++  int len, sector;
++  char tmp[SECTOR_SIZE];
++
++  static void disk_read_savesect_func (int s) { sector = s; }
++
++  if (altconfig_file[0] == 0) return 0;
++  if (grub_open (altconfig_file) == 0) return 1;
++
++  disk_read_hook = disk_read_savesect_func;
++  while ((len = grub_read (tmp, SECTOR_SIZE))) 
++    {
++#define RETURN { printf("failed line %d\n", __LINE__); for(len = 0; len < 90000000; len++); return 1; }
++      if (biosdisk (BIOSDISK_READ,  current_drive, &buf_geom, sector, 1, SCRATCHSEG)) RETURN;
++      if (memcmp((char *) SCRATCHADDR, tmp, len) != 0) RETURN;
++      memset((char *) SCRATCHADDR, ' ', len);
++      if (biosdisk (BIOSDISK_WRITE, current_drive, &buf_geom, sector, 1, SCRATCHSEG)) RETURN;
++    }
++  disk_read_hook = NULL;
++  grub_close ();
++  return 0;
++}
++
++static int
++altconfigfile_func (char *arg, int flags)
++{
++  strcpy(altconfig_file, arg);
++  return 0;
++}
++
++static struct builtin builtin_altconfigfile =
++{
++  "altconfigfile",
++  altconfigfile_func,
++  BUILTIN_CMDLINE | BUILTIN_MENU,
++  "altconfigfile FILE",
++  "Load FILE as the configuration file."
++};
++
++
+ /* blocklist */
+ static int
+ blocklist_func (char *arg, int flags)
+@@ -4482,6 +4529,7 @@
+ /* The table of builtin commands. Sorted in dictionary order.  */
+ struct builtin *builtin_table[] =
+ {
++  &builtin_altconfigfile,
+   &builtin_blocklist,
+   &builtin_boot,
+ #ifdef SUPPORT_NETBOOT
+--- grub-0.91/stage2/stage2.c.pix	Tue Jan 22 20:34:58 2002
++++ grub-0.91/stage2/stage2.c	Tue Jan 22 20:37:26 2002
+@@ -1069,6 +1069,34 @@
+ 	  while (is_preset);
+ 	}
+ 
++       if (altconfig_file[0] && grub_open (altconfig_file))
++ 	{
++ 	  char *cmdline;
++ 
++ 	  cmdline = (char *) CMDLINE_BUF;
++ 	  while (get_line_from_config (cmdline, NEW_HEAPSIZE, 1))
++ 	    {
++ 	      struct builtin *builtin;
++ 
++ 	      /* Get the pointer to the builtin structure.  */
++ 	      builtin = find_command (cmdline);
++ 	      errnum = 0;
++ 	      if (! builtin)
++ 		/* Unknown command. Just skip now.  */
++ 		continue;
++ 
++ 	      /* Run a command found is possible.  */
++ 	      if (builtin->flags & BUILTIN_MENU)
++ 		{
++ 		  char *arg = skip_to (1, cmdline);
++ 		  (builtin->func) (arg, BUILTIN_MENU);
++ 		  errnum = 0;
++ 		}
++ 	    }
++ 	  grub_close ();
++ 	}
++ 
++
+       init_config_end ();
+ 
+       if (! num_entries)
+--- grub-0.91/stage2/shared.h.pix	Tue Jan 22 20:34:58 2002
++++ grub-0.91/stage2/shared.h	Tue Jan 22 20:35:54 2002
+@@ -711,6 +711,9 @@
+ /* Track the int13 handler to probe I/O address space.  */
+ void track_int13 (int drive);
+ 
++/* Alternate config file */
++extern char altconfig_file[];
++
+ /* The key map.  */
+ extern unsigned short bios_key_map[];
+ extern unsigned short ascii_key_map[];
