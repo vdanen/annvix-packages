@@ -1,92 +1,95 @@
-%define srcver 1.3
-%define LIBMAJ 1
-%define libname %mklibname %name %LIBMAJ
+%define name	krb5
+%define version	1.3
+%define release	4sls
+
+%define srcver	1.3
+%define LIBMAJ	1
+%define libname	%mklibname %name %LIBMAJ
 %define libnamedev %{libname}-devel
 
-Summary: The Kerberos network authentication system.
-Name: krb5
-Version: 1.3
-Release: 3mdk
-Source0: %{name}-%{version}.tar.gz
-Source1: kpropd.init.bz2
-Source2: krb524d.init.bz2
-Source3: kadmind.init.bz2
-Source4: krb5kdc.init.bz2
-Source5: krb5.conf.bz2
-Source6: krb5.sh.bz2
-Source7: krb5.csh.bz2
-Source8: kdcrotate.bz2
-Source9: kdc.conf.bz2
-Source10: kadm5.acl.bz2
-Source11: krsh.bz2
-Source12: krlogin.bz2
-Source13: eklogin.xinetd.bz2
-Source14: klogin.xinetd.bz2
-Source15: kshell.xinetd.bz2
-Source16: telnet-krb5.xinetd.bz2
-Source17: ftp-krb5.xinetd.bz2
-Source18: krb5server.init.bz2
-Source19: statglue.c.bz2
-Source20: telnet.16.xpm.bz2
-Source21: telnet.32.xpm.bz2
-Source22: telnet.48.xpm.bz2
-Source23: Mandrake-Kerberos-HOWTO.html.bz2
-Source24: %{name}-%{version}.tar.gz.asc
-Source25: http://web.mit.edu/kerberos/www/advisories/2003-004-krb4_patchkit.tar.gz
-Source26: http://web.mit.edu/kerberos/www/advisories/2003-004-krb4_patchkit.sig
-
-Patch0: krb5-1.1-db.patch.bz2
-Patch1: krb5-1.1.1-tiocgltc.patch.bz2
-Patch2: krb5-1.1.1-libpty.patch.bz2
-Patch3: krb5-1.1.1-fixinfo.patch.bz2
-Patch4: krb5-1.1.1-manpages.patch.bz2
-Patch5: krb5-1.1.1-netkitr.patch.bz2
-Patch6: krb5-1.2-rlogind.patch.bz2
-Patch7: krb5-1.2-ksu.patch.bz2
-Patch8: krb5-1.2-ksu.options.patch.bz2
-Patch9: krb5-1.2-ksu.man.patch.bz2
-Patch10: krb5-1.2-quiet.patch.bz2
-Patch11: krb5-1.1.1-brokenrev.patch.bz2
-Patch12: krb5-1.2-spelling.patch.bz2
-Patch13: krb5-1.2.1-term.patch.bz2
-Patch14: krb5-1.2.1-passive.patch.bz2
-Patch15: krb5-1.2.1-forward.patch.bz2
-Patch16: krb5-1.2.1-heap.patch.bz2
-Patch17: krb5-1.2.2-wragg.patch.bz2
-Patch18: krb5-1.2.2-statglue.patch.bz2
-Patch19: krb5-1.2.2-by-address.patch.bz2
-Patch20: http://lite.mit.edu/krb5-1.2.2-ktany.patch.bz2
-Patch21: krb5-1.2.2-logauth.patch.bz2
-Patch22: krb5-1.2.2-size.patch.bz2
-Patch23: krb5-1.2.5-db2-configure.patch.bz2
-Patch24: krb5-1.2.2-telnetbanner.patch.bz2
-Patch25: krb5-1.2.4-pic.patch.bz2
-Patch26: krb5-1.2.4-tcl-libs.patch.bz2
-Patch27: krb5-1.2.5-biarch-utmp.patch.bz2
-Patch28: krb5-1.2.7-deps.patch.bz2
-Patch29: krb5-1.2.7-namelength.patch
-Patch30: krb5-1.2.7-errno.patch
-Patch31: gssftp-patch
-Patch32: krb5-1.2.7-reject-bad-transited.patch
-Patch33: krb5-1.2.7-krb524d-double-free.patch
-Patch34: krb5-1.2.8-princ_access.patch
-Patch35: krb5-1.2.8-varargs.patch
-Patch36: krb5-1.3-newline.patch.bz2
-Patch37: krb5-1.3-telnet.patch.bz2
-
+Summary:	The Kerberos network authentication system.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	MIT
+Group:		System/Libraries
+URL:		http://web.mit.edu/kerberos/www/
+Source0:	%{name}-%{version}.tar.gz
+Source1:	kpropd.init.bz2
+Source2:	krb524d.init.bz2
+Source3:	kadmind.init.bz2
+Source4:	krb5kdc.init.bz2
+Source5:	krb5.conf.bz2
+Source6:	krb5.sh.bz2
+Source7:	krb5.csh.bz2
+Source8:	kdcrotate.bz2
+Source9:	kdc.conf.bz2
+Source10:	kadm5.acl.bz2
+Source11:	krsh.bz2
+Source12:	krlogin.bz2
+Source13:	eklogin.xinetd.bz2
+Source14:	klogin.xinetd.bz2
+Source15:	kshell.xinetd.bz2
+Source16:	telnet-krb5.xinetd.bz2
+Source17:	ftp-krb5.xinetd.bz2
+Source18:	krb5server.init.bz2
+Source19:	statglue.c.bz2
+Source20:	telnet.16.xpm.bz2
+Source21:	telnet.32.xpm.bz2
+Source22:	telnet.48.xpm.bz2
+Source23:	Mandrake-Kerberos-HOWTO.html.bz2
+Source24:	%{name}-%{version}.tar.gz.asc
+Source25:	http://web.mit.edu/kerberos/www/advisories/2003-004-krb4_patchkit.tar.gz
+Source26:	http://web.mit.edu/kerberos/www/advisories/2003-004-krb4_patchkit.sig
+Patch0:		krb5-1.1-db.patch.bz2
+Patch1:		krb5-1.1.1-tiocgltc.patch.bz2
+Patch2:		krb5-1.1.1-libpty.patch.bz2
+Patch3:		krb5-1.1.1-fixinfo.patch.bz2
+Patch4:		krb5-1.1.1-manpages.patch.bz2
+Patch5:		krb5-1.1.1-netkitr.patch.bz2
+Patch6:		krb5-1.2-rlogind.patch.bz2
+Patch7:		krb5-1.2-ksu.patch.bz2
+Patch8:		krb5-1.2-ksu.options.patch.bz2
+Patch9:		krb5-1.2-ksu.man.patch.bz2
+Patch10:	krb5-1.2-quiet.patch.bz2
+Patch11:	krb5-1.1.1-brokenrev.patch.bz2
+Patch12:	krb5-1.2-spelling.patch.bz2
+Patch13:	krb5-1.2.1-term.patch.bz2
+Patch14:	krb5-1.2.1-passive.patch.bz2
+Patch15:	krb5-1.2.1-forward.patch.bz2
+Patch16:	krb5-1.2.1-heap.patch.bz2
+Patch17:	krb5-1.2.2-wragg.patch.bz2
+Patch18:	krb5-1.2.2-statglue.patch.bz2
+Patch19:	krb5-1.2.2-by-address.patch.bz2
+Patch20:	http://lite.mit.edu/krb5-1.2.2-ktany.patch.bz2
+Patch21:	krb5-1.2.2-logauth.patch.bz2
+Patch22:	krb5-1.2.2-size.patch.bz2
+Patch23:	krb5-1.2.5-db2-configure.patch.bz2
+Patch24:	krb5-1.2.2-telnetbanner.patch.bz2
+Patch25:	krb5-1.2.4-pic.patch.bz2
+Patch26:	krb5-1.2.4-tcl-libs.patch.bz2
+Patch27:	krb5-1.2.5-biarch-utmp.patch.bz2
+Patch28:	krb5-1.2.7-deps.patch.bz2
+Patch29:	krb5-1.2.7-namelength.patch
+Patch30:	krb5-1.2.7-errno.patch
+Patch31:	gssftp-patch
+Patch32:	krb5-1.2.7-reject-bad-transited.patch
+Patch33:	krb5-1.2.7-krb524d-double-free.patch
+Patch34:	krb5-1.2.8-princ_access.patch
+Patch35:	krb5-1.2.8-varargs.patch
+Patch36:	krb5-1.3-newline.patch.bz2
+Patch37:	krb5-1.3-telnet.patch.bz2
 # security
-Patch50: http://web.mit.edu/kerberos/www/advisories/MITKRB5-SA-2003-003-xdr.txt
-Patch51: http://web.mit.edu/kerberos/www/advisories/MITKRB5-SA-2003-005-patch.txt
+Patch50:	http://web.mit.edu/kerberos/www/advisories/MITKRB5-SA-2003-003-xdr.txt
+Patch51:	http://web.mit.edu/kerberos/www/advisories/MITKRB5-SA-2003-005-patch.txt
 
 Patch52:	kbr5-fix-call-function.patch.bz2
 
-License: MIT
-URL: http://web.mit.edu/kerberos/www/
-Group: System/Libraries
-BuildRoot: %{_tmppath}/%{name}-root
-Prereq: grep, info, coreutils, /sbin/install-info
-BuildPrereq: bison, flex, libtermcap-devel, rsh, texinfo, tcl
-BuildRequires: libext2fs-devel
+BuildRoot:	%{_tmppath}/%{name}-root
+BuildPrereq:	bison, flex, libtermcap-devel, texinfo, tcl
+BuildRequires:	libext2fs-devel
+
+PreReq:		grep, info, coreutils, /sbin/install-info
 
 %description
 Kerberos V5 is a trusted-third-party network authentication system,
@@ -94,11 +97,11 @@ which can improve your network's security by eliminating the insecure
 practice of cleartext passwords.
 
 %package -n %{libnamedev}
-Summary: Development files needed for compiling Kerberos 5 programs.
-Group: Development/Other
-Requires: %{libname} = %{version}
-Provides: krb-devel krb5-devel
-Obsoletes: krb-devel krb5-devel
+Summary:	Development files needed for compiling Kerberos 5 programs.
+Group:		Development/Other
+Requires:	%{libname} = %{version}
+Provides:	krb-devel krb5-devel
+Obsoletes:	krb-devel krb5-devel
 
 %description -n %{libnamedev}
 Kerberos is a network authentication system.  The krb5-devel package
@@ -107,11 +110,11 @@ contains the header files and libraries needed for compiling Kerberos
 need to install this package.
 
 %package -n %{libname}
-Summary: The shared libraries used by Kerberos 5.
-Group: System/Libraries
-Prereq: grep, /sbin/ldconfig, coreutils
-Provides: krb5-libs
-Obsoletes: krb5-libs
+Summary:	The shared libraries used by Kerberos 5.
+Group:		System/Libraries
+Prereq:		grep, /sbin/ldconfig, coreutils
+Provides:	krb5-libs
+Obsoletes:	krb5-libs
 
 %description -n %{libname}
 Kerberos is a network authentication system.  The krb5-libs package
@@ -119,10 +122,10 @@ contains the shared libraries needed by Kerberos 5.  If you're using
 Kerberos, you'll need to install this package.
 
 %package server
-Group: System/Servers
-Summary: The server programs for Kerberos 5.
-Requires: %{libname} = %{version}, %{name}-workstation = %{version}, words
-Prereq: grep, /sbin/install-info, /bin/sh, coreutils
+Group:		System/Servers
+Summary:	The server programs for Kerberos 5.
+Requires:	%{libname} = %{version}, %{name}-workstation = %{version}, words
+Prereq:		grep, /sbin/install-info, /bin/sh, coreutils
 
 %description server
 Kerberos is a network authentication system.  The krb5-server package
@@ -132,10 +135,10 @@ package (in other words, most people should NOT install this
 package).
 
 %package workstation
-Summary: Kerberos 5 programs for use on workstations.
-Group: System/Base
-Requires: %{libname} = %{version}
-Prereq: grep, /sbin/install-info, /bin/sh, coreutils
+Summary:	Kerberos 5 programs for use on workstations.
+Group:		System/Base
+Requires:	%{libname} = %{version}
+Prereq:		grep, /sbin/install-info, /bin/sh, coreutils
 
 %description workstation
 Kerberos is a network authentication system.  The krb5-workstation
@@ -145,11 +148,11 @@ network uses Kerberos, this package should be installed on every
 workstation.
 
 %package -n telnet-server-krb5
-Summary: A telnet-server with kerberos support
-Group: System/Servers
-Requires: %{libname} = %{version} xinetd
-Obsoletes: telnet-server
-Provides: telnet-server
+Summary:	A telnet-server with kerberos support
+Group:		System/Servers
+Requires:	%{libname} = %{version} xinetd
+Obsoletes:	telnet-server
+Provides:	telnet-server
 
 %description -n telnet-server-krb5
 Telnet is a popular protocol for logging into remote systems over the Internet.
@@ -163,11 +166,11 @@ machine.
 This version supports kerberos authentication.
 
 %package -n telnet-client-krb5
-Summary: A telnet-client with kerberos support
-Group: System/Servers
-Requires: %{libname} = %{version}
-Obsoletes: telnet
-Provides: telnet
+Summary:	A telnet-client with kerberos support
+Group:		System/Servers
+Requires:	%{libname} = %{version}
+Obsoletes:	telnet
+Provides:	telnet
  
 %description -n telnet-client-krb5
 Telnet is a popular protocol for logging into remote systems over the Internet.
@@ -178,11 +181,11 @@ Install the telnet package if you want to telnet to remote machines.
 This version supports kerberos authentication.
 
 %package -n ftp-client-krb5
-Summary: A ftp-client with kerberos support
-Group: Networking/File transfer
-Requires: %{libname} = %{version}
-Obsoletes: ftp
-Provides: ftp
+Summary:	A ftp-client with kerberos support
+Group:		Networking/File transfer
+Requires:	%{libname} = %{version}
+Obsoletes:	ftp
+Provides:	ftp
 
 %description -n ftp-client-krb5
 The ftp package provides the standard UNIX command-line FTP client.
@@ -195,10 +198,10 @@ file transfers.
 This version supports kerberos authentication.
 
 %package -n ftp-server-krb5
-Summary: A ftp-server with kerberos support
-Requires: %{libname} = %{version}
-Group: Networking/File transfer
-Provides: ftpserver
+Summary:	A ftp-server with kerberos support
+Requires:	%{libname} = %{version}
+Group:		Networking/File transfer
+Provides:	ftpserver
 
 %description -n ftp-server-krb5
 The ftp-server package provides an ftp server.
@@ -652,6 +655,14 @@ fi
 %config(noreplace) /etc/xinetd.d/ftp
 
 %changelog
+* Mon Dec 08 2003 Vincent Danen <vdanen@opensls.org> 1.3-4sls
+- OpenSLS build
+- tidy spec
+- remove prereq on rsh; doesn't seem to break anything and we definitely
+  don't want rsh installed
+- NOTE: need to figure out why we're not building this thing with any
+  optflags (also preventing us from using -fstack-protector)
+
 * Tue Sep 02 2003 Florin <florin@mandrakesoft.com> 1.3-3mdk
 - replace <com_err.h> with <et/com_err.h> in the headers
 
