@@ -1,6 +1,6 @@
 %define name	php-%{modname}
 %define version	%{phpversion}
-%define release	2sls
+%define release	3sls
 
 %define phpsource	%{_prefix}/src/php-devel
 %define _docdir		%{_datadir}/doc/%{name}-%{version}
@@ -12,8 +12,8 @@
 %define soname		%{modname}.so
 %define inifile		29_%{modname}.ini
 %define mod_src		%{modname}.c
-%define rlibs		libmcrypt4 libltdl3
-%define blibs		libmcrypt4-devel libltdl3-devel
+%define rlibs		libmcrypt libltdl
+%define blibs		libmcrypt-devel libltdl-devel
 
 Summary:	The %{realname} module for PHP
 Name:		%{name}
@@ -88,6 +88,10 @@ EOF
 %config(noreplace) %{_sysconfdir}/php/%{inifile}
 
 %changelog
+* Sat Jan 03 2004 Vincent Danen <vdanen@opensls.org> 4.3.4-3sls
+- change requires from libmcrypt4(-devel) to libmcrypt(-devel) and
+  libltdl3(-devel) to libltdl(-devel) to be amd64 nice
+
 * Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 4.3.4-2sls
 - OpenSLS build
 - tidy spec
