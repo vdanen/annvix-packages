@@ -1,6 +1,6 @@
 %define name	dhcp
 %define version	3.0
-%define release	1.rc12.4sls
+%define release	1.rc12.5sls
 
 %define their_version	3.0.1rc12
 %define _catdir		/var/cache/man
@@ -23,12 +23,16 @@ Source4:	dhcrelay.init
 Source5:	update_dhcp.pl
 Source6:	dhcpreport.pl
 Source7:	ftp:///ftp.isc.org/isc/%{name}/%{name}-%{their_version}.tar.gz.asc
+Source8:	dhcpd.run
+Source9:	dhcpd-log.run
+Source10:	dhcrelay.run
+Source11:	dhcrelay-log.run
 Patch1:		dhcp-3.0.1rc11-ifup.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-root
 BuildRequires:	perl sed gcc groff-for-man make patch tar bzip2 
 
-Prereq:		/sbin/chkconfig /sbin/service rpm-helper
+PreReq:		rpm-helper
 Requires:	/bin/sh
 Obsoletes:	dhcpd
 
@@ -158,14 +162,11 @@ mkdir -p $RPM_BUILD_ROOT%{_bindir}
 #done
 
 mkdir -p $RPM_BUILD_ROOT%{_bindir}
-mkdir -p $RPM_BUILD_ROOT%{_initrddir}
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}
 mkdir -p $RPM_BUILD_ROOT%{_localstatedir}/dhcp
 cp -a %{SOURCE1} $RPM_BUILD_ROOT%{_sysconfdir}
 touch $RPM_BUILD_ROOT%{_localstatedir}/dhcp/dhcpd.leases
 touch $RPM_BUILD_ROOT%{_localstatedir}/dhcp/dhclient.leases
-install -m 0755 %{SOURCE2} $RPM_BUILD_ROOT%{_initrddir}/dhcpd
-install -m 0755 %SOURCE4 $RPM_BUILD_ROOT%{_initrddir}/dhcrelay
 install -m 0755 %SOURCE5 $RPM_BUILD_ROOT%{_sbindir}/
 install -m 0755 %SOURCE6 $RPM_BUILD_ROOT%{_sbindir}/
 mkdir -p %{buildroot}/%{_sysconfdir}/sysconfig
@@ -174,15 +175,18 @@ touch $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/dhcrelay
 find . -type d -exec chmod 0755 {} \;
 find . -type f -exec chmod 0644 {} \;
 
+mkdir -p %{buildroot}%{_srvdir}/{dhcpd,dhcrelay}/log
+mkdir -p %{buildroot}%{_srvlogdir}/{dhcpd,dhcrelay}
+install -m 0750 %{SOURCE8} %{buildroot}%{_srvdir}/dhcpd/run
+install -m 0750 %{SOURCE9} %{buildroot}%{_srvdir}/dhcpd/log/run
+install -m 0750 %{SOURCE10} %{buildroot}%{_srvdir}/dhcrelay/run
+install -m 0750 %{SOURCE11} %{buildroot}%{_srvdir}/dhcrelay/log/run
+
 %post server
-%_post_service dhcpd
+%_post_srv dhcpd
 # New dhcpd lease file
 if [ ! -f %{_localstatedir}/dhcp/dhcpd.leases ]; then
     touch %{_localstatedir}/dhcp/dhcpd.leases
-fi
-
-if [ $1 = 0 ]; then
-	%{_initrddir}/dhcpd start
 fi
 
 #update an eventual installed dhcp-2* server
@@ -191,22 +195,22 @@ if [ -f %{_sysconfdir}/dhcpd.conf ]; then
 fi
 
 %preun server
-%_preun_service dhcpd
+%_preun_srv dhcpd
 
 %postun server
 if [ "$1" -ge "1" ]; then
-            /sbin/service dhcpd condrestart >/dev/null 2>&1  
+            /usr/sbin/srv restart dhcpd >/dev/null 2>&1  
 fi
 
 %post relay
-%_post_service dhcrelay
+%_post_srv dhcrelay
 
 %preun relay
-%_preun_service dhcrelay
+%_preun_srv dhcrelay
 
 %postun relay
 if [ "$1" -ge "1" ]; then
-            /sbin/service dhcrelay condrestart >/dev/null 2>&1
+            /usr/sbin/srv restart dhcrelay >/dev/null 2>&1
 fi
 		 
 %post client
@@ -227,7 +231,6 @@ rm -rf $RPM_BUILD_ROOT
 %files server
 %defattr(-,root,root)
 %doc server/dhcpd.conf 
-%config(noreplace) %{_initrddir}/dhcpd
 %config(noreplace) %{_sysconfdir}/dhcpd.conf.sample
 %config(noreplace) %{_sysconfdir}/sysconfig/dhcpd
 %{_sbindir}/dhcpd
@@ -242,13 +245,22 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man5/dhcp-eval.5*
 %{_mandir}/man8/dhcpd.8*
 %config(noreplace) %ghost %{_localstatedir}/dhcp/dhcpd.leases
+%dir %{_srvdir}/dhcpd
+%dir %{_srvdir}/dhcpd/log
+%{_srvdir}/dhcpd/run
+%{_srvdir}/dhcpd/log/run
+%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/dhcpd
 
 %files relay
 %defattr(-,root,root)
 %{_sbindir}/dhcrelay
 %{_mandir}/man8/dhcrelay.8*
-%config(noreplace) %{_initrddir}/dhcrelay
 %config(noreplace) %{_sysconfdir}/sysconfig/dhcrelay
+%dir %{_srvdir}/dhcrelay
+%dir %{_srvdir}/dhcrelay/log
+%{_srvdir}/dhcrelay/run
+%{_srvdir}/dhcrelay/log/run
+%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/dhcrelay
 
 %files client
 %defattr(-,root,root)
@@ -268,6 +280,11 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/*
 
 %changelog
+* Wed Feb 04 2004 Vincent Danen <vdanen@opensls.org> 3.0-1.rc12.5sls
+- remove initscripts
+- supervise scripts
+- remove PreReq on chkconfig, service
+
 * Fri Jan 23 2004 Vincent Danen <vdanen@opensls.org> 3.0-1.rc12.4sls
 - real RC12
 
