@@ -1,6 +1,6 @@
 %define name	XFree86
 %define version 4.3
-%define release 30avx
+%define release 31avx
 
 %define _unpackaged_files_terminate_build 0
 %define baseversion 420
@@ -226,6 +226,7 @@ Patch803:	XFree86-4.3-propolice.patch.bz2
 Patch804:	XFree86-4.x-xdm-pam-setcred-security.patch.bz2
 # fix more xdm issues (CAN-2004-0419)
 Patch805:	XFree86-4.3-mdk-CAN-2004-0419.patch.bz2
+Patch806:	XFree86-4.3-CAN-2004-0687-0688.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-root
 BuildRequires:	zlib-devel flex bison groff pam-devel ncurses-devel perl hwdata
@@ -616,6 +617,7 @@ cd -
 
 %patch804 -p0 -b .xdm-pam_setcred
 %patch805 -p1 -b .can-2004-0419
+%patch806 -p1 -b .can-2004-0687-0688
 
 # backup the original files (so we can look at them later) and use our own
 cp xc/nls/compose.dir xc/nls/compose.dir.orig
@@ -1824,6 +1826,10 @@ fi
 %{x11libdir}/X11/xedit
 
 %changelog
+* Mon Sep 20 2004 Vincent Danen <vdanen@annvix.org> 4.3-31avx
+- P806: patch to fix CAN-2004-0687 and CAN-2004-0688
+- update run scripts
+
 * Wed Jul 28 2004 Vincent Danen <vdanen@annvix.org> 4.3-30avx
 - P805: patch to fix CAN-2004-0419
 
