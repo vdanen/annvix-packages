@@ -1,20 +1,15 @@
---- contrib/redhat/sshd.pam.annvix	2002-05-09 20:19:23.000000000 -0600
-+++ contrib/redhat/sshd.pam	2004-04-29 13:37:25.000000000 -0600
+--- contrib/redhat/sshd.pam.annvix	2004-02-24 16:57:48.000000000 -0700
++++ contrib/redhat/sshd.pam	2004-08-13 13:13:30.000000000 -0600
 @@ -1,8 +1,7 @@
  #%PAM-1.0
--auth       required     /lib/security/pam_stack.so service=system-auth
--auth       required     /lib/security/pam_nologin.so
--account    required     /lib/security/pam_stack.so service=system-auth
--password   required     /lib/security/pam_stack.so service=system-auth
--session    required     /lib/security/pam_stack.so service=system-auth
--session    required     /lib/security/pam_limits.so
--session    optional     /lib/security/pam_console.so
 +auth       required     pam_listfile.so item=user sense=deny file=/etc/ssh/denyusers.pam
-+auth       required     pam_stack.so service=system-auth
-+auth       required     pam_nologin.so
-+account    required     pam_stack.so service=system-auth
-+password   required     pam_stack.so service=system-auth
-+session    required     pam_stack.so service=system-auth
+ auth       required     pam_stack.so service=system-auth
+ auth       required     pam_nologin.so
+ account    required     pam_stack.so service=system-auth
+ password   required     pam_stack.so service=system-auth
+ session    required     pam_stack.so service=system-auth
+-session    required     pam_limits.so
+-session    optional     pam_console.so
 --- ssh_config.annvix	2003-08-13 04:37:05.000000000 -0600
 +++ ssh_config	2004-04-29 09:35:25.000000000 -0600
 @@ -35,3 +35,8 @@

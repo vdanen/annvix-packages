@@ -1,6 +1,6 @@
 %define name	openssh
-%define version	3.8p1
-%define release 3avx
+%define version	3.8.1p1
+%define release 1avx
 
 ## Do not apply any unauthorized patches to this package!
 ## - vdanen 05/18/01
@@ -29,9 +29,9 @@ Source5:	04_openssh.afterboot
 Source6:	ssh-client.sh
 Source8:	sshd.run
 Source9:	sshd-log.run
-Patch1:		openssh-3.8p1-annvixconf.patch.bz2
+Patch1:		openssh-3.8.1p1-avx-annvixconf.patch.bz2
 # authorized by Damien Miller <djm@openbsd.com>
-Patch2:		openssh-3.1p1-check-only-ssl-version.patch.bz2
+Patch2:		openssh-3.1p1-mdk-check-only-ssl-version.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
 BuildRequires:	groff-for-man, openssl-devel >= 0.9.7, pam-devel, tcp_wrappers-devel, zlib-devel
@@ -119,7 +119,7 @@ echo "Building with S/KEY support..."
 %endif
 
 %setup -q
-%patch1 -p0 -b .opensls
+%patch1 -p0 -b .avx
 %patch2 -p1 -b .ssl_ver
 
 %build
@@ -319,6 +319,10 @@ do_dsa_keygen
 %{_datadir}/afterboot/04_openssh
 
 %changelog
+* Fri Aug 13 2004 Vincent Danen <vdanen@annvix.org> 3.8.1p1-1avx
+- 3.8.1p1
+- patch policy
+
 * Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 3.8p1-3avx
 - Annvix build
 
