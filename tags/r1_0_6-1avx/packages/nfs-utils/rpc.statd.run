@@ -1,0 +1,20 @@
+#!/bin/sh
+PATH="/sbin:/usr/sbin:/bin:/usr/bin"
+
+# this runs rpc.statd supervised
+
+. /usr/share/srv/functions
+
+. /etc/sysconfig/network
+
+if [ -n "${STATD_HOSTNAME}" ]; then
+  STATDARG="-n ${STATD_HOSTNAME}"
+else
+  STATDARG=""
+fi
+
+checkdepends portmap
+
+/sbin/rpc.lockd 2>&1
+
+exec /sbin/rpc.statd -F ${STATDARG} 2>&1
