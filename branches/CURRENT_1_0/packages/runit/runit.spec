@@ -1,6 +1,6 @@
 %define	name	runit
 %define	version	1.0.4
-%define	release	1avx
+%define	release	2avx
 
 Summary:	A UN*X init scheme with service supervision
 Name:		%{name}
@@ -13,6 +13,9 @@ Source0:	%{name}-%{version}.tar.bz2
 Source1:	annvix-runit.tar.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-buildroot
+Requires:	SysVinit >= 2.85-7avx, initscripts, srv
+
+Conflicts:	SysVinit <= 2.85-6avx
 
 %description
 runit is a daemontools-like replacement for SysV-init and other
@@ -51,6 +54,7 @@ pushd %{name}-%{version}
     for i in `cat package/commands`; do
 	install -m0755 src/$i %{buildroot}/sbin/
     done
+    mv %{buildroot}/sbin/runit-init %{buildroot}/sbin/init
 popd
 
 pushd annvix-runit
@@ -95,7 +99,7 @@ install -m0644 %{name}-%{version}/man/*.8 %{buildroot}%{_mandir}/man8/
 %doc %{name}-%{version}/etc/2
 %doc %{name}-%{version}/etc/debian
 %attr(0755,root,root) /sbin/runit
-%attr(0755,root,root) /sbin/runit-init
+%attr(0755,root,root) /sbin/init
 %attr(0755,root,root) /sbin/runsv
 %attr(0755,root,root) /sbin/runsvdir
 %attr(0755,root,root) /sbin/runsvchdir
@@ -143,6 +147,10 @@ install -m0644 %{name}-%{version}/man/*.8 %{buildroot}%{_mandir}/man8/
 %attr(0755,root,root) %{_srvdir}/mingetty-tty6/finish
 
 %changelog
+* Sat Sep 10 2004 Vincent Danen <vdanen@annvix.org> 1.0.4-2avx
+- Conflicts: SysVinit <= 2.85-6avx (7avx moves init to init.srv)
+- Requires SysVinit >= 2.86-7avx, initscripts, srv
+
 * Sat Sep 10 2004 Vincent Danen <vdanen@annvix.org> 1.0.4-1avx
 - first Annvix build
 - S1: runit scripts
