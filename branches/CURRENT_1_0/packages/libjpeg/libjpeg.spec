@@ -1,6 +1,6 @@
 %define name	libjpeg
 %define	version	6b
-%define release 33sls
+%define release 34sls
 
 %define lib_major	62
 %define lib_name_orig	libjpeg
@@ -125,7 +125,7 @@ LD_LIBRARY_PATH=$PWD make test
 %endif
 
 %install
-rm -rf %buildroot
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p %buildroot/{%{_bindir},%{_libdir},%{_includedir},%{_mandir}/man1}
 %makeinstall mandir=%buildroot/%{_mandir}/man1
 
@@ -134,7 +134,7 @@ mkdir -p %buildroot/{%{_bindir},%{_libdir},%{_includedir},%{_mandir}/man1}
 %postun -n %{lib_name} -p /sbin/ldconfig
 
 %clean
-rm -rf %buildroot
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files -n %{lib_name}
 %defattr(-,root,root)
@@ -143,23 +143,25 @@ rm -rf %buildroot
 
 %files -n %{lib_name}-devel
 %defattr(-,root,root)
-%doc README usage.doc change.log wizard.doc coderules.doc libjpeg.doc structure.doc example.c
+%doc usage.doc wizard.doc coderules.doc libjpeg.doc structure.doc example.c
 %{_libdir}/*.so
 %{_includedir}/*.h
 %{_libdir}/*.la
 
 %files -n %{lib_name}-static-devel
 %defattr(-,root,root)
-%doc README 
 %{_libdir}/*.a
 
 %files progs
 %defattr(-,root,root)
-%doc README change.log
 %{_bindir}/*
 %{_mandir}/man1/*
 
 %changelog
+* Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 6b-34sls
+- minor spec cleanups
+- get rid of same docs in multiple packages
+
 * Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 6b-33sls
 - OpenSLS build
 - tidy spec
