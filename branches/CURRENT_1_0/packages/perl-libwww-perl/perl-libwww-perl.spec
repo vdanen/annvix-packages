@@ -1,7 +1,7 @@
 %define module	libwww-perl
 %define name	perl-%{module}
 %define version 5.69
-%define release 3sls
+%define release 4sls
 
 %define _requires_exceptions Authen::NTLM\\|HTTP::GHTTP\\|Win32
 
@@ -19,7 +19,6 @@ BuildRoot:	%{_tmppath}/%{name}-buildroot/
 BuildArch:	noarch
 BuildRequires:	perl-devel, perl-HTML-Parser, perl-URI, rpm-build >= 4.2-7mdk
 
-Prefix:		%{_prefix}
 Requires:	perl, perl-HTML-Parser, perl-URI >= 1.10, perl-MIME-Base64, perl-libnet, perl-Digest-MD5
 
 
@@ -31,18 +30,18 @@ libwww-perl module for perl
 %patch -p1
 
 %build
-%{__perl} Makefile.PL INSTALLDIRS=vendor PREFIX=%{prefix} </dev/null
-%make OPTIMIZE="$RPM_OPT_FLAGS" PREFIX=%{prefix}
+%{__perl} Makefile.PL INSTALLDIRS=vendor PREFIX=%{_prefix} </dev/null
+%make OPTIMIZE="$RPM_OPT_FLAGS" PREFIX=%{_prefix}
 
 # tests are failing at the moment... due to secure kernel?
 #make test
 
 %install
-rm -rf $RPM_BUILD_ROOT
-%makeinstall PREFIX=$RPM_BUILD_ROOT%{prefix}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+%makeinstall PREFIX=$RPM_BUILD_ROOT%{_prefix}
 
 %clean 
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -61,6 +60,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Fri Feb 27 2004 Vincent Danen <vdanen@opensls.org> 5.69-4sls
+- rebuild for new perl
+- remove %%{prefix} tag
+
 * Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 5.69-3sls
 - OpenSLS build
 - tidy spec
