@@ -1,6 +1,6 @@
 %define name	bootloader-utils
 %define version	1.6
-%define release	4sls
+%define release	5sls
 
 %define _mypost_service() if [ $1 = 1 ]; then /sbin/chkconfig --add %{1}; fi;
 
@@ -15,7 +15,6 @@ URL:		http://www.linux-mandrake.com/cgi-bin/cvsweb.cgi/soft/initscripts/mandrake
 
 BuildRoot:	%{_tmppath}/%{name}-buildroot
 
-Prefix:		%{_prefix}
 Requires:	perl-base
 Prereq:		chkconfig, initscripts >= 7.06-21mdk
 
@@ -29,7 +28,7 @@ Utils needed to install/remove a kernel.  Also for updating bootloaders.
 make
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 make ROOT=$RPM_BUILD_ROOT mandir=%{_mandir} install
 
 %post
@@ -39,7 +38,7 @@ make ROOT=$RPM_BUILD_ROOT mandir=%{_mandir} install
 %_preun_service kheader
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -64,6 +63,19 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Mar  3 2004 Thomas Backlund <tmb@iki.fi> 1.6-5sls
+- sync with mdk 1.6-7mdk
+  * getroot() don't have arguement.
+  * append is not null anymore.
+  * ide-scsi removed from command line for all kernel (2.6 2.4).
+  *  when boot loader is grub, do not remove unrelated kernel entries (#5952)
+  * from Thomas Backlund <tmb@mandrake.org>:
+    o typo fixes
+    o make some messages somewhat more understandable
+  *  fix detectloader typo (perl now reports an error instead of silently ignoring the pb)
+- minor spec cleanups (vdanen)
+- remove %%prefix (vdanen)
+
 * Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 1.6-4sls
 - OpenSLS build
 - tidy spec
