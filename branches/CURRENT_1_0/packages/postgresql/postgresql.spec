@@ -1,11 +1,12 @@
 %define name	postgresql
 %define version	8.0.1
-%define release	3avx
+%define release	4avx
 
 %define _requires_exceptions devel(libtcl8.4)\\|devel(libtcl8.4(64bit))
 
-%{expand:%%define pyver %(python -c 'import sys;print(sys.version[0:3])')}
-%{expand:%%define perl_version %(rpm -q --qf %{EPOCH}:%{VERSION} perl)}
+%define pyver %(python -c 'import sys;print(sys.version[0:3])')
+%define perl_version %(rpm -q --qf "%{VERSION}" perl)
+%define perl_epoch %(rpm -q --qf "%{EPOCH}" perl)
 
 %define pgdata		/var/lib/pgsql
 %define logrotatedir	%{_sysconfdir}/logrotate.d
@@ -46,15 +47,15 @@ Source23:	01_postgresql.afterboot
 Source24:	postgresql.finish
 Source51:	README.v7.3
 Source52:	upgrade_tips_7.3
-Patch1:		postgresql-7.4-mdk-tighten.patch.bz2
-Patch2:		postgresql-7.4-mdk-pythondir.patch.bz2
-Patch3:		postgresql-7.4.1-mdk-pkglibdir.patch.bz2
+Patch0:		postgresql-7.4.1-mdk-pkglibdir.patch.bz2
+Patch1:		postgresql-7.4.5-CAN-2005-0227.patch
+Patch2:		postgresql-7.4.5-CAN-2005-0245_0247.patch
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires:	bison flex gettext termcap-devel ncurses-devel openssl-devel pam-devel
 BuildRequires:	perl-devel python-devel readline-devel >= 4.3 zlib-devel
 
-Requires:	perl sfio
+Requires:	perl
 Prereq:		rpm-helper
 Provides:	postgresql-clients
 Obsoletes:	postgresql-clients
@@ -165,7 +166,7 @@ package.
 Summary:	The PL/Perl procedural language for PostgreSQL
 Group:		Databases
 Obsoletes:	libpgsql2
-Requires:	postgresql = %{version} perl-base = %{perl_version}
+Requires:	postgresql = %{version} perl-base = %{perl_epoch}:%{perl_version}
 
 %description pl
 PostgreSQL is an advanced Object-Relational database management
@@ -198,9 +199,9 @@ system, including regression tests and benchmarks.
 %prep
 %setup -q
 
-#%patch1 -p1 -z .pg_hba
-#%patch2 -p1 -b .pythondir
-%patch3 -p0 -b .pkglibdir
+%patch0 -p0 -b .pkglibdir
+%patch1 -p1 -b .can-2005-0227
+%patch2 -p1 -b .can-2005-0245_0247
 
 %build
 
@@ -246,9 +247,8 @@ popd
 	    --sysconfdir=%{_sysconfdir}/pgsql \
             --enable-nls
 
-#make COPT="$CFLAGS" all
-
-perl -pi -e 's|^all:|LINK.shared=\$(COMPILER) -shared -Wl,-rpath,/usr/lib/perl5/%{perl_version}/i386-linux-thread-multi/CORE,-soname,\$(soname)\nall:|' src/pl/plperl/GNUmakefile
+# $(rpathdir) come from Makefile
+perl -pi -e 's|^all:|LINK.shared=\$(COMPILER) -shared -Wl,-rpath,\$(rpathdir),-soname,\$(soname)\nall:|' src/pl/plperl/GNUmakefile
 
 %make pkglibdir=%{_libdir}/pgsql all
 %make -C contrib pkglibdir=%{_libdir}/pgsql all
@@ -275,9 +275,6 @@ install -m755 %{SOURCE14} %{buildroot}%{_bindir}/avx-pgdump.sh
 
 # install odbcinst.ini
 mkdir -p %{buildroot}%{_sysconfdir}/pgsql
-
-# 20021223 warly removed 
-#install -m755 %{SOURCE13} %{buildroot}%{_sysconfdir}/pgsql
 
 # copy over Makefile.global to the include dir....
 install -m755 src/Makefile.global %{buildroot}%{_includedir}/pgsql/
@@ -572,6 +569,13 @@ rm -f perlfiles.list
 %attr(-,postgres,postgres) %dir %{_libdir}/pgsql/test
 
 %changelog
+* Wed Mar 16 2005 Vincent Danen <vdanen@annvix.org> 8.0.1-4avx
+- fix plperl linkage over libperl.so for all archs (nanardon)
+- patches to fix CAN-2005-0227, CAN-2005-0245, CAN-2005-0247
+- fix requires on perl
+- don't require sfio
+- renumber patches
+
 * Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 8.0.1-3avx
 - use logger for logging
 
