@@ -1,6 +1,6 @@
 %define name	openssh
 %define version	3.6.1p2
-%define release 11sls
+%define release 12sls
 
 ## Do not apply any unauthorized patches to this package!
 ## - vdanen 05/18/01
@@ -10,9 +10,6 @@
 %define aversion 1.2.4.1
 # Version of watchdog patch
 %define wversion 3.6p1
-
-# support older versions
-%define build_8x %(if [ `awk '{print $4}' /etc/mandrake-release` = 8.2 ];then echo 1; else echo 0; fi) 
 
 # overrides
 %global build_skey	 0
@@ -334,7 +331,7 @@ install -m 0755 %{SOURCE9} %{buildroot}%{_srvdir}/sshd/log/run
 rm -rf $RPM_BUILD_ROOT
 
 %pre server
-%_pre_useradd sshd /var/empty /bin/true
+%_pre_useradd sshd /var/empty /bin/true 71
 
 %post server
 # do some key management; taken from the initscript
@@ -395,6 +392,10 @@ do_dsa_keygen() {
 do_rsa1_keygen
 do_rsa_keygen
 do_dsa_keygen
+%_post_srv sshd
+
+%preun server
+%_preun_srv sshd
 
 %postun server
 %_postun_userdel sshd
@@ -496,6 +497,10 @@ update-alternatives --remove ssh-askpass %{_libdir}/ssh/gnome-ssh-askpass
 %endif
 
 %changelog
+* Tue Jan 27 2004 Vincent Danen <vdanen@opensls.org> 3.6.1p2-12sls
+- srv macros
+- sshd has static uid/gid 71
+
 * Fri Jan 23 2004 Vincent Danen <vdanen@opensls.org> 3.6.1p2-11sls
 - remove S7
 - no conditional %%build_opensls anymore
