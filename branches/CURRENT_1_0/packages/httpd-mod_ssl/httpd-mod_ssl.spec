@@ -1,6 +1,6 @@
 %define name	apache2-%{mod_name}
 %define version	%{apache_version}
-%define release	2avx
+%define release	3avx
 
 # Module-Specific definitions
 %define apache_version	2.0.53
@@ -20,7 +20,7 @@ Source2: 	mod_ssl-gentestcrt.sh.bz2
 Source3: 	%{mod_conf}.bz2
 Source4: 	41_mod_ssl.default-vhost.conf.bz2
 Source5:	certwatch.tar.bz2
-Patch0:		certwatch-avx-annvix.patch
+Patch0:		certwatch-avx-annvix.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-buildroot
 BuildRequires:	openssl-devel
@@ -155,6 +155,11 @@ fi
 %{_mandir}/man8/certwatch.8*
 
 %changelog
+* Fri Mar 18 2005 Vincent Danen <vdanen@annvix.org> 2.0.53-3avx
+- update P0 to make certwatch.c accept an extra argument (the email
+  address to send to) and make certwatch.cron handle this as well as
+  exiting 0 in all cases
+
 * Wed Mar 16 2005 Vincent Danen <vdanen@annvix.org> 2.0.53-2avx
 - P0: fix certwatch script so it doesn't use an initscript to get
   the defines; and s/Mandrakelinux/Annvix
