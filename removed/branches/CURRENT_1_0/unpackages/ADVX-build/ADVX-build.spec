@@ -1,6 +1,6 @@
 %define name	ADVX-build
 %define version	9.2
-%define release	3sls
+%define release	4sls
 
 Summary:	ADVX-build contains tools and macros to build ADVX
 Name:		%{name}
@@ -23,26 +23,30 @@ components, including Apache 2.
 %build
 
 %install
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 install -d %{buildroot}%{_datadir}/ADVX
-bzcat %{SOURCE0} > ADVX-build
-install -m644 ADVX-build %{buildroot}%{_datadir}/ADVX/ADVX-build
+bzcat %{SOURCE0} > %{buildroot}%{_datadir}/ADVX/ADVX-build
 
 mkdir -p %{buildroot}%{_docdir}/%{name}-%{version}
 echo "See http://www.advx.org/devel.policy.php for more info" > \
         %{buildroot}%{_docdir}/%{name}-%{version}/README
 
 %clean
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files 
 %defattr(-,root,root)
-%attr(0644,root,root) %{_datadir}/ADVX/*
 %dir %{_docdir}/%{name}-%{version}
-%doc %{_docdir}/%{name}-%{version}/*
+%doc %{_docdir}/%{name}-%{version}/README
+%dir %{_datadir}/ADVX
+%attr(0644,root,root) %{_datadir}/ADVX/ADVX-build
 
 %changelog
+* Mon Feb 09 2004 Vincent Danen <vdanen@opensls.org> 9.2-4sls
+- spec cleanups
+- own %%{_datadir}/ADVX
+
 * Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 9.2-3sls
 - OpenSLS build
 - tidy spec
