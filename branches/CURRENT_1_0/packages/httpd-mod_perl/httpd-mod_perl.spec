@@ -1,6 +1,6 @@
 %define name	%{ap_name}-%{mod_name}
 %define version %{ap_version}_%{mod_version}
-%define release 4sls
+%define release 5sls
 
 # Module-Specific definitions
 %define mod_version	1.99_11
@@ -8,7 +8,7 @@
 %define mod_conf	75_%{mod_name}.conf
 %define mod_so		%{mod_name}.so
 %define sourcename	%{mod_name}-%{mod_version}
-%{expand:%%define perl_version %(rpm -q perl|sed 's/perl-\([0-9].*\)-.*$/\1/')}
+%{expand:%%define perl_version %(rpm -q --qf '%%{epoch}:%%{version}' perl)}
 
 # New ADVX macros
 %define ADVXdir %{_datadir}/ADVX
@@ -38,7 +38,8 @@ BuildRequires:	ADVX-build >= 9.2
 BuildRequires:	%{ap_name}-devel >= 2.0.43-5mdk
 
 Prereq:		perl
-Requires:	perl apache2-mod_proxy
+Requires:	apache2-mod_proxy
+Requires:	perl = %{perl_version}
 # Standard ADVX requires
 Prereq:		%{ap_name} = %{ap_version}
 Prereq:		%{ap_name}-conf
@@ -161,7 +162,7 @@ install -m644 xs/tables/current/Apache/FunctionTable.pm \
 %config(noreplace) %{ap_addonconf}/*
 %doc Changes INSTALL LICENSE README docs todo
 %{perl_vendorlib}
-%{_mandir}/*
+%{_mandir}/*/*
 #Fake Apache::Status
 %{ap_datadir}/perl/.modperl2
 %{ap_datadir}/perl/*.pl
@@ -172,6 +173,11 @@ install -m644 xs/tables/current/Apache/FunctionTable.pm \
 %{ap_includedir}/*
 
 %changelog
+* Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 2.0.48_1.99_11-5sls
+- rebuild for perl 5.8.4
+- require exact version of perl, including epoch
+- fix standard-dir-owned-by-package /usr/share/man/man3 (pixel)
+
 * Fri Feb 20 2004 Vincent Danen <vdanen@opensls.org> 2.0.48_1.99_11-4sls
 - tiny cleanups
 
