@@ -3,7 +3,7 @@
 
 # <version>-<release> tags for glibc main package
 %define glibcversion	2.3.2
-%define glibcrelease	20sls
+%define glibcrelease	21avx
 %define epoch		6
 
 # <version>-<release> tags from kernel package where headers were
@@ -213,7 +213,7 @@ BuildPreReq:	gcc >= 3.1.1-0.5mdk
 %endif
 
 Autoreq:	false
-PreReq:         sash >= 3.4-6mdk /bin/sh
+PreReq:         sash >= 3.4-6mdk bash
 %if "%{name}" != "glibc"
 ExclusiveArch:	%{ix86}
 %endif
@@ -278,7 +278,7 @@ speeds the loading of programs which use shared libraries.
 Summary:	Header and object files for development using standard C libraries
 Group:		Development/C
 Conflicts:	texinfo < 3.11
-Prereq:		/sbin/install-info
+Prereq:		info-install
 Obsoletes:	libc-debug, libc-headers, libc-devel, linuxthreads-devel
 %if !%{build_debug}
 Obsoletes:	glibc-debug
@@ -788,7 +788,7 @@ rm -f $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.cache
 
 # Include ld.so.conf
 %if "%{name}" == "glibc"
-> $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf
+echo "/usr/local/lib" > $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf
 chmod 644 $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf
 %endif
 
@@ -1326,6 +1326,11 @@ fi
 %endif
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 2.3.2-21avx
+- Annvix build
+- require packages not files
+- put "/usr/local/lib" into ld.so.conf by default
+
 * Tue Apr 13 2004 Vincent Danen <vdanen@opensls.org> 2.3.2-20sls
 - fix requires for epoch
 
