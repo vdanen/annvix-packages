@@ -1,0 +1,11 @@
+--- mysql-4.0.11a-gamma/sql/convert.cc.orig	2003-04-04 13:33:59.000000000 +0200
++++ mysql-4.0.11a-gamma/sql/convert.cc	2003-04-04 13:34:29.000000000 +0200
+@@ -22,7 +22,7 @@
+ ** One must also give a name to each mapping that one wants to use...
+ */
+ 
+-/* #define DEFINE_ALL_CHARACTER_SETS */
++#define DEFINE_ALL_CHARACTER_SETS
+ 
+ #include "mysql_priv.h"
+ 
