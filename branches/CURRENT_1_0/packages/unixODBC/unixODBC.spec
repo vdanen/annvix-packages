@@ -1,28 +1,9 @@
 %define name	unixODBC
-%define version	2.2.6
-%define release	9avx
+%define version	2.2.10
+%define release	1avx
 
-%define LIBMAJ 	2
-%define libname %mklibname %name %LIBMAJ
-%define libgtkgui_major	0
-%define libgtkgui_name	%mklibname gtkodbcconfig %{libgtkgui_major}
-
-%define qt_gui  0
-%define gtk_gui 0
-
-# Allow --with[out] <feature> at rpm command line build
-%{expand: %{?_without_QT:	%%global qt_gui 0}}
-%{expand: %{?_without_GTK:	%%global gtk_gui 0}}
-
-# Allow --without <front-end> at rpm command line build
-%{expand: %{?_with_QT:		%%global qt_gui 1}}
-%{expand: %{?_with_GTK:		%%global gtk_gui 1}}
-
-# define to update aclocal.m4 with new libtool.m4
-%define update_libtool 1
-%ifarch x86_64 mips
-%define update_libtool 1
-%endif
+%define LIBMAJ	1
+%define libname %mklibname %name %{LIBMAJ}
 
 Summary: 	Unix ODBC driver manager and database drivers
 Name: 		%{name}
@@ -39,18 +20,10 @@ Patch0:		unixODBC-2.2.6-lib64.patch.bz2
 Patch1:		unixodbc-fix-compile-with-qt-3.1.1.patch.bz2
 Patch2:		unixodbc-fix-compile-with-qt-3.1.1.patch2.bz2
 
-BuildRoot: 	%_tmppath/%name-%version-%release-root
+BuildRoot: 	%{_tmppath}/%{name}-%{version}-%{release}-root
 # don't take away readline, we do want to build unixODBC with readline.
-BuildRequires:	bison flex readline-devel chrpath
-%if %{update_libtool}
+BuildRequires:	bison flex readline-devel libltdl-devel
 BuildRequires:	automake1.7
-%endif
-%if %{qt_gui}
-BuildRequires:  qt3-devel
-%endif
-%if %gtk_gui
-BuildRequires:	gnome-libs-devel, gnome-common
-%endif
 
 %description
 UnixODBC is a free/open specification for providing application developers 
@@ -61,62 +34,34 @@ SQL Servers and any Data Source with an ODBC Driver.
 %package -n %{libname}
 Summary:	Libraries unixODBC 
 Group:		System/Libraries
+Provides:	lib%{name}2
+Obsoletes:	lib%{name}2
 
 %description -n %{libname}
 unixODBC  libraries.
 
-%if %gtk_gui
-%package -n %{libgtkgui_name}
-Summary:	gODBCConfig libraries
-Group: 		System/Libraries
-
-%description -n %{libgtkgui_name}
-gODBCConfig libraries.
-%endif
-
 %package -n %{libname}-qt
 Group:		System/Libraries
 Summary:	unixODBC inst library, with Qt.
+Provides:	lib%{name}2-qt
+Obsoletes:	lib%{name}2-qt
 
 %description -n %{libname}-qt
 unixODBC inst library, Qt flavored.
 
 This has been split off from the main unixODBC libraries so you don't
-requires X11 and qt if you wish to use unixODBC.
+require X11 and qt if you wish to use unixODBC.
 
 %package -n %{libname}-devel
 Summary: 	Includes and static libraries for ODBC development
 Group: 		Development/Other
-Requires: 	%{libname} = %version-%release
-Provides:	%{name}-devel lib%{name}-devel libodbc.so libodbcinst.so
-Obsoletes:	%{name}-devel
+Requires: 	%{libname} = %{version}-%{release}
+Provides:	%{name}-devel lib%{name}-devel libodbc.so libodbcinst.so lib%{name}2-devel
+Obsoletes:	%{name}-devel lib%{name}2-devel
 
 %description -n %{libname}-devel
 unixODBC aims to provide a complete ODBC solution for the Linux platform.
 This package contains the include files and static libraries for development.
-
-%package gui-qt
-Summary: 	ODBC configurator, Data Source browser and ODBC test tool based on Qt
-Group: 		Databases
-Requires: 	%{name} = %version-%release %{libname}-qt
-
-%description gui-qt
-unixODBC aims to provide a complete ODBC solution for the Linux platform.
-All programs are GPL.
-
-This package contains two Qt based GUI programs for unixODBC: 
-ODBCConfig and DataManager
-
-%package gui-gtk
-Summary: 	ODBC configurator based on GTK+ and GTK+ widget for gnome-db
-Group:		Databases
-Requires: 	%{name} = %version-%release
-
-%description gui-gtk
-unixODBC aims to provide a complete ODBC solution for the Linux platform.
-All programs are GPL.
-
-This package contains one GTK+ based GUI program for unixODBC: gODBCConfig
 
 %prep
 %setup -q -a3 -a4
@@ -124,12 +69,7 @@ This package contains one GTK+ based GUI program for unixODBC: gODBCConfig
 %patch1 -p1
 %patch2 -p1
 
-%if %{update_libtool}
 aclocal-1.7 && autoconf
-cd Drivers/MySQL
-aclocal-1.7 && autoconf
-cd ../..
-%endif
 
 %build
 # QTDIR is always /usr/lib/qt3 because it has /lib{,64} in it too
@@ -137,7 +77,7 @@ export QTDIR=%{_prefix}/lib/qt3
 
 # Search for qt/kde libraries in the right directories (avoid patch)
 # NOTE: please don't regenerate configure scripts below
-perl -pi -e "s@/lib(\"|\b[^/])@/%_lib\1@g if /(kde|qt)_(libdirs|libraries)=/" configure
+perl -pi -e "s@/lib(\"|\b[^/])@/%{_lib}\1@g if /(kde|qt)_(libdirs|libraries)=/" configure
 
 %configure2_5x --enable-static
 make
@@ -154,8 +94,8 @@ make
 
 %makeinstall
 
-install -m 644 %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/
-perl -pi -e "s,/lib/,/%{_lib}/," $RPM_BUILD_ROOT%{_sysconfdir}/odbcinst.ini
+install -m 0644 %{SOURCE2} %{buildroot}%{_sysconfdir}/
+perl -pi -e "s,/lib/,/%{_lib}/," %{buildroot}%{_sysconfdir}/odbcinst.ini
 
 # (sb) use the versioned symlinks, rather than the .so's, this should
 # eliminate the issues with requiring -devel packages or having
@@ -168,30 +108,11 @@ newlink=`find usr/%{_lib} -type l -name 'libodbcpsqlS.so.*'`
 perl -pi -e "s,usr/%{_lib}/libodbcpsqlS.so,$newlink,g" %{buildroot}%{_sysconfdir}/odbcinst.ini
 popd
 
-%if %gtk_gui
-# gODBCConfig must be built after installing the main unixODBC parts
-cd gODBCConfig
-%configure2_5x --prefix=%{_prefix} --sysconfdir=%{_sysconfdir} --with-odbc=$RPM_BUILD_ROOT%{_prefix}
-
-# I don't know why this happens. -- Geoff
-mv po/Makefile.in po/Makefile
-# (sb) can't find depcomp
-cp ../depcomp .
-%make
-# ugly hack.
-%makeinstall || true
-mkdir -p $RPM_BUILD_ROOT%{_datadir}/pixmaps/gODBCConfig
-for pixmap in ./pixmaps/*;do
-   install -m 644 $pixmap $RPM_BUILD_ROOT%{_datadir}/pixmaps/gODBCConfig
-done
-cd ..
-%endif
-
 # drill out shared libraries for gODBCConfig *sigh*
 # also drill out the Qt inst library that doesn't seem to be used at the moment
 # by anyone ATM?
 echo "%defattr(-,root,root)" > libodbc-libs.filelist
-find $RPM_BUILD_ROOT%_libdir -name '*.so.*' | sed -e "s|$RPM_BUILD_ROOT||g" | grep -v -e gtk -e instQ >> libodbc-libs.filelist
+find %{buildroot}%{_libdir} -name '*.so.*' | sed -e "s|%{buildroot}||g" | grep -v -e gtk -e instQ >> libodbc-libs.filelist
 
 # Uncomment the following if you wish to split off development libraries
 # as well so development with ODBC does not require X11 libraries installed.
@@ -199,115 +120,34 @@ find $RPM_BUILD_ROOT%_libdir -name '*.so.*' | sed -e "s|$RPM_BUILD_ROOT||g" | gr
 if 0; then
 
 echo "%defattr(-, root, root)" > libodbc-devellibs.filelist
-find $RPM_BUILD_ROOT/%_libdir -name '*.so' -o -name '*.la' -o -name '*.a' | sed -e "s|$RPM_BUILD_ROOT||g" | grep -v -e gtk -e instQ>> libodbc-devellibs.filelist
+find %{buildroot}%{_libdir} -name '*.so' -o -name '*.la' -o -name '*.a' | sed -e "s|%{buildroot}||g" | grep -v -e gtk -e instQ>> libodbc-devellibs.filelist
 
 fi
 
-# (sb) more mess - gODBCConfig has an rpath embedded on x86 only?
-%if %gtk_gui
-chrpath -d $RPM_BUILD_ROOT/%{_bindir}/gODBCConfig
-%endif
-
-# Menu entries
-
-install -d $RPM_BUILD_ROOT%{_menudir}
-
-%if %{qt_gui}
-# ODBCConfig
-cat << EOF > $RPM_BUILD_ROOT%{_menudir}/unixODBC-gui-qt
-?package(%{name}-gui-qt): \
-needs="x11" \
-section="Applications/Databases" \
-longtitle="ODBCConfig" \
-title="ODBCConfig" \
-icon="databases_section.png" \
-command="ODBCConfig"
-
-?package(%{name}-gui-qt): \
-needs="x11" \
-section="Applications/Databases" \
-longtitle="DataManager" \
-title="DataManager" \
-icon="databases_section.png" \
-command="DataManager"
-
-?package(%{name}-gui-qt): \
-needs="x11" \
-section="Applications/Databases" \
-longtitle="ODBCtest" \
-title="ODBCtest" \
-icon="databases_section.png" \
-command="odbctest"
-EOF
-%endif
-
-%if %gtk_gui
-# gODBCConfig
-# Put capital G in title and longtitle to shut rpmlint warnings
-cat << EOF > $RPM_BUILD_ROOT%{_menudir}/unixODBC-gui-gtk
-?package(%{name}-gui-gtk): \
-needs="x11" \
-section="Applications/Databases" \
-longtitle="GODBCConfig" \
-title="GODBCConfig" \
-icon="databases_section.png" \
-command="gODBCConfig" 
-EOF
-%endif
-
 find doc -name Makefile\* -exec rm {} \;
 
-%if !%{qt_gui}
 rm -f %{buildroot}%{_bindir}/{ODBCConfig,DataManager,DataManagerII,odbctest}
 rm -f %{buildroot}%{_libdir}/libodbcinstQ.so.1.0.0
-%endif
 
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 rm -f libodbc-libs.filelist
 
-%if %gtk_gui
-%post -n %{libgtkgui_name} -p /sbin/ldconfig
-%postun -n %{libgtkgui_name} -p /sbin/ldconfig
-%endif
-
-%if %{qt_gui}
-%post -n %{libname}-qt -p /sbin/ldconfig
-%postun -n %{libname}-qt -p /sbin/ldconfig
-%endif
-
 %post -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
-
-%if %{qt_gui}
-%post gui-qt
-%{update_menus}
-
-%postun gui-qt
-%{clean_menus}
-%endif
-
-%if %gtk_gui
-%post gui-gtk
-%{update_menus}
-
-%postun gui-gtk
-%{clean_menus}
-%endif
 
 
 %files 
 %defattr(-,root,root)
-%doc AUTHORS COPYING INSTALL ChangeLog NEWS README
+%doc AUTHORS INSTALL ChangeLog NEWS README
 %config(noreplace) %verify(not md5 size mtime)  %{_sysconfdir}/odbc*.ini
 %{_bindir}/dltest
 %{_bindir}/isql
 %{_bindir}/odbcinst
 %{_bindir}/iusql
+%{_bindir}/odbc_config
 	  
-
-
 %files -n %{libname} -f libodbc-libs.filelist
 %defattr(-,root,root)
 
@@ -315,38 +155,19 @@ rm -f libodbc-libs.filelist
 %defattr(-,root,root)
 %doc doc/
 %{_includedir}/*
-%_libdir/lib*.so
-%_libdir/*.a
-%_libdir/*.la
-
-%if %{qt_gui}
-%files -n %{libname}-qt
-%defattr(-, root, root)
-%_libdir/lib*instQ.so.*
-
-%files gui-qt
-%defattr(-, root, root)
-%{_bindir}/DataManager
-%{_bindir}/DataManagerII
-%{_bindir}/ODBCConfig
-%{_bindir}/odbctest
-%{_menudir}/unixODBC-gui-qt
-%endif
-
-%if %gtk_gui
-%files -n %{libgtkgui_name}
-%defattr(-,root, root)
-%_libdir/libgtk*.so.*
-
-%files gui-gtk 
-%defattr(-, root, root)
-%doc NEWS README AUTHORS
-%{_bindir}/gODBCConfig
-%{_menudir}/unixODBC-gui-gtk
-%{_datadir}/pixmaps/*
-%endif
+%{_libdir}/lib*.so
+%{_libdir}/*.a
+%{_libdir}/*.la
 
 %changelog
+* Fri Mar 04 2005 Vincent Danen <vdanen@annvix.org> 2.2.10-1avx
+- 2.2.10
+- pull out the gui pkgs completely
+- correct major (1, not 2) (sbenedict)
+- BuildRequires: libltdl-devel (cjw)
+- remove BuildRequires: chrpath
+- spec cleanups
+
 * Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 2.2.6-9avx
 - Annvix build
 
