@@ -1,6 +1,6 @@
 %define name	postfix
 %define version	2.0.13
-%define release 4sls
+%define release 5sls
 
 # If set to 0 if official version, 1 if snapshot
 %define experimental	0
@@ -82,7 +82,7 @@ BuildRequires:	openldap >= 1.2.9, openldap-devel >= 1.2.9
 
 %if %{with_PCRE}
 Requires:	pcre
-BuildRequires:	pcre, libpcre-devel
+BuildRequires:	pcre, pcre-devel
 %endif
 
 %if %{with_MYSQL}
@@ -512,6 +512,9 @@ rm -rf %buildroot
 
 
 %changelog
+* Fri Jan 02 2004 Vincent Danen <vdanen@opensls.org> 2.0.13-5sls
+- requires pcre-devel, not libpcre-devel (for amd64)
+
 * Wed Dec 17 2003 Vincent Danen <vdanen@opensls.org> 2.0.13-4sls
 - OpenSLS build
 - tidy spec
