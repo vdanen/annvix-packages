@@ -1,0 +1,29 @@
+--- util-linux-2.11y/mount/nfsmount.c.retry_udp	2003-05-28 12:18:28.000000000 -0500
++++ util-linux-2.11y/mount/nfsmount.c	2003-05-28 12:18:16.000000000 -0500
+@@ -436,6 +436,8 @@
+ 			}
+ 		}
+ 	}
++
++retry_mount:
+ 	proto = (tcp) ? IPPROTO_TCP : IPPROTO_UDP;
+ 
+ 	data.flags = (soft ? NFS_MOUNT_SOFT : 0)
+@@ -734,12 +736,13 @@
+ #if 1
+ 		/* Here we check to see if user is mounting with the
+ 		 * tcp option.  If so, and if the portmap returns a
+-		 * '0' for port (service unavailable), we then exit,
+-		 * notifying the user, rather than hanging up mount.
++		 * '0' for port (service unavailable), we then notify
++		 * the user, and retry with udp.
+ 		 */
+ 		if (port == 0 && tcp == 1) {
+-			perror(_("nfs server reported service unavailable"));
+-			goto fail;
++			printf(_("NFS server reported TCP not available, retrying with UDP...\n"));
++			tcp = 0;
++			goto retry_mount;
+ 		}
+ #endif
+ 
