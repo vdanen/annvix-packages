@@ -645,9 +645,8 @@ rm -f perlfiles.list
 %attr(-,postgres,postgres) %dir %{_libdir}/pgsql/test
 
 %changelog
-* Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> 7.4.3-8avx
+* Sat Jan 29 2005 Vincent Danen <vdanen@annvix.org> 7.4.3-8avx
 - drop BuildRequires on XFree86-devel
-- rebuild against new python and perl
 
 * Thu Jan 06 2005 Vincent Danen <vdanen@annvix.org> 7.4.3-7avx
 - rebuild against latest openssl
