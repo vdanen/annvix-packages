@@ -1,12 +1,12 @@
 %define name	exim
-%define version 4.30
-%define release 7sls
+%define version 4.33
+%define release 1sls
 
 %define build_mysql 0
 %define build_pgsql 0
 %define htmldocver  4.30
-%define exiscanver  4.30-14
-%define saversion   3.1
+%define exiscanver  4.33-20
+%define saversion   4.0
 
 %define alternatives 1
 %define altpriority  40
@@ -24,7 +24,7 @@ Release:	%{release}
 Copyright:	GPL
 Group:		System/Servers
 URL:		http://www.exim.org
-Source:		ftp://ftp.exim.org/pub/exim/%{name}-%{version}.tar.bz2
+Source:		ftp://ftp.exim.org/pub/exim/exim4/%{name}-%{version}.tar.bz2
 Source1:	exim.aliases
 Source2:	exim.init
 Source3:	exim.sysconfig
@@ -32,14 +32,16 @@ Source4:	exim.logrotate
 Source5:	exim.8
 Source8:	eximconfig
 Source9:	exim.pam
-Source10:	ftp://ftp.exim.org/pub/exim/%{name}-%{version}.tar.bz2.sig
+Source10:	ftp://ftp.exim.org/pub/exim/exim4/%{name}-%{version}.tar.bz2.sig
 Source11:	http://www.exim.org/ftp/exim4/config.samples.tar.bz2
+# http://sa-exim.sourceforge.net/
 Source12:	sa-exim-%{saversion}.tar.gz
 Source13:	exim.run
 Source14:	exim-log.run
-Patch0:		exim-4.30-config.patch.bz2
+Patch0:		exim-4.33-config.patch.bz2
 Patch1:		http://duncanthrax.net/exiscan-acl/exiscan-acl-%{exiscanver}.patch.bz2
 Patch2:		exim-4.22-install.patch.bz2
+Patch3:		exim-4.33-CAN-2004-0400.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}
 BuildRequires:	tcp_wrappers-devel, pam-devel, openssl, openssl-devel, XFree86-devel, openldap-devel, lynx
@@ -105,8 +107,9 @@ at SMTP time as well as other nasty things like teergrubbing.
 %setup -q -T -D -a 11
 %setup -q -T -D -a 12
 %patch0 -p1 -b .config
-%patch1 -p1
+%patch1 -p1 -b .exiscan
 %patch2 -p1 -b .install
+%patch3 -p1 -b .can-2004-0400
 
 # apply the SA-exim dlopen patch
 cat sa-exim*/localscan_dlopen_exim_4.20_or_better.patch | patch -p1
@@ -231,7 +234,7 @@ fi
 
 %files
 %defattr(755,root,root)
-%doc CHANGES LICENCE NOTICE README.UPDATING README
+%doc doc/ChangeLog LICENCE NOTICE README.UPDATING README
 %doc doc util/unknownuser.sh build-Linux-*/transport-filter.pl
 %doc util/cramtest.pl util/logargs.sh
 %doc doc/NewStuff doc/exiscan-acl-spec.txt
@@ -241,6 +244,7 @@ fi
 %{_bindir}/exim_fixdb
 %{_bindir}/exim_tidydb
 %{_bindir}/exinext
+%{_bindir}/exipick
 %{_bindir}/exiwhat
 %{_bindir}/exim_dbmbuild
 %{_bindir}/exicyclog
@@ -298,6 +302,16 @@ fi
 %config(noreplace) %{_sysconfdir}/exim/sa-exim_short.conf
 
 %changelog
+* Sat May 08 2004 Vincent Danen <vdanen@opensls.org> 4.33-1sls
+- 4.33
+- exiscan-acl 4.33-20
+- sa-exim 4.0
+- fix source url
+- include doc/ChangeLog instead of CHANGES
+- patch to fix CAN-2004-0400
+- rediff P0; default delivery is now to /var/mail rather than
+  /var/spool/mail
+
 * Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 4.30-7sls
 - remove mangling of msec
 

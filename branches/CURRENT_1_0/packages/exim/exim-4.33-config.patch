@@ -1,5 +1,5 @@
---- exim-4.30/src/EDITME.config	2003-12-01 03:15:41.000000000 -0700
-+++ exim-4.30/src/EDITME	2003-12-06 14:25:50.000000000 -0700
+--- exim-4.33/src/EDITME.config	2004-05-05 04:08:35.000000000 -0600
++++ exim-4.33/src/EDITME	2004-05-08 07:21:31.000000000 -0600
 @@ -98,7 +98,7 @@
  # /usr/local/sbin. The installation script will try to create this directory,
  # and any superior directories, if they do not exist.
@@ -190,8 +190,8 @@
  
 +CFLAGS=${RPM_OPT_FLAGS}
  # End of EDITME for Exim 4.
---- exim-4.24/src/configure.default.mdk	2003-09-19 16:12:30.000000000 -0600
-+++ exim-4.24/src/configure.default	2003-09-19 16:12:30.000000000 -0600
+--- exim-4.33/src/configure.default.config	2004-05-05 04:08:35.000000000 -0600
++++ exim-4.33/src/configure.default	2004-05-08 07:45:40.000000000 -0600
 @@ -54,7 +54,7 @@
  # +local_domains, +relay_to_domains, and +relay_from_hosts, respectively. They
  # are all colon-separated lists:
@@ -201,20 +201,7 @@
  domainlist relay_to_domains =
  hostlist   relay_from_hosts = 127.0.0.1
  
-@@ -509,18 +509,18 @@
- 
- # This transport is used for local delivery to user mailboxes in traditional
- # BSD mailbox format. By default it will be run under the uid and gid of the
--# local user, and requires the sticky bit to be set on the /var/mail directory.
-+# local user, and requires the sticky bit to be set on the /var/spool/mail directory.
- # Some systems use the alternative approach of running mail deliveries under a
- # particular group instead of using the sticky bit. The commented options below
- # show how this can be done.
- 
- local_delivery:
-   driver = appendfile
--  file = /var/mail/$local_part
-+  file = /var/spool/mail/$local_part
+@@ -491,7 +491,7 @@
    delivery_date_add
    envelope_to_add
    return_path_add

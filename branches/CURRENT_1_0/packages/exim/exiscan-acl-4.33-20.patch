@@ -1,16 +1,16 @@
-diff -urN exim-4.30-orig/OS/Makefile-Base exim-4.30/OS/Makefile-Base
---- exim-4.30-orig/OS/Makefile-Base	Mon Dec  1 11:15:41 2003
-+++ exim-4.30/OS/Makefile-Base	Tue Dec  2 12:15:53 2003
-@@ -247,14 +247,14 @@
+diff -urN exim-4.33-orig/OS/Makefile-Base exim-4.33/OS/Makefile-Base
+--- exim-4.33-orig/OS/Makefile-Base	Wed May  5 12:08:35 2004
++++ exim-4.33/OS/Makefile-Base	Wed May  5 14:05:02 2004
+@@ -285,14 +285,14 @@
  # Targets for final binaries; the main one has a build number which is
  # updated each time. We don't bother with that for the auxiliaries.
  
 -OBJ_EXIM = acl.o child.o crypt16.o daemon.o dbfn.o debug.o deliver.o \
-+OBJ_EXIM = acl.o child.o crypt16.o daemon.o dbfn.o debug.o deliver.o demime.o \
++OBJ_EXIM = acl.o bmi_spam.o child.o crypt16.o daemon.o dbfn.o debug.o deliver.o demime.o \
          directory.o dns.o drtables.o enq.o exim.o expand.o filter.o \
          filtertest.o globals.o \
 -        header.o host.o ip.o log.o lss.o match.o moan.o \
-+        header.o host.o ip.o log.o lss.o malware.o match.o moan.o \
++        header.o host.o ip.o log.o lss.o malware.o match.o mime.o moan.o \
          os.o parse.o queue.o \
 -        rda.o readconf.o receive.o retry.o rewrite.o rfc2047.o \
 -        route.o search.o sieve.o smtp_in.o smtp_out.o spool_in.o spool_out.o \
@@ -21,7 +21,14 @@ diff -urN exim-4.30-orig/OS/Makefile-Base exim-4.30/OS/Makefile-Base
          local_scan.o $(EXIM_PERL)
  
  exim:   pcre/libpcre.a lookups/lookups.a auths/auths.a \
-@@ -466,6 +466,7 @@
+@@ -498,12 +498,14 @@
+ # Dependencies for the "ordinary" exim modules
+ 
+ acl.o:           $(HDRS) acl.c
++bmi_spam.o:      $(HDRS) bmi_spam.c
+ child.o:         $(HDRS) child.c
+ crypt16.o:       $(HDRS) crypt16.c
+ daemon.o:        $(HDRS) daemon.c
  dbfn.o:          $(HDRS) dbfn.c
  debug.o:         $(HDRS) debug.c
  deliver.o:       $(HDRS) deliver.c
@@ -29,15 +36,17 @@ diff -urN exim-4.30-orig/OS/Makefile-Base exim-4.30/OS/Makefile-Base
  directory.o:     $(HDRS) directory.c
  dns.o:           $(HDRS) dns.c
  enq.o:           $(HDRS) enq.c
-@@ -479,6 +480,7 @@
+@@ -517,7 +519,9 @@
  ip.o:            $(HDRS) ip.c
  log.o:           $(HDRS) log.c
  lss.o:           $(HDRS) lss.c
 +malware.o:       $(HDRS) malware.c
  match.o:         $(HDRS) match.c
++mime.o:          $(HDRS) mime.c
  moan.o:          $(HDRS) moan.c
  os.o:            $(HDRS) os.c
-@@ -487,6 +489,7 @@
+ parse.o:         $(HDRS) parse.c
+@@ -525,6 +529,7 @@
  rda.o:           $(HDRS) rda.c
  readconf.o:      $(HDRS) readconf.c
  receive.o:       $(HDRS) receive.c
@@ -45,7 +54,7 @@ diff -urN exim-4.30-orig/OS/Makefile-Base exim-4.30/OS/Makefile-Base
  retry.o:         $(HDRS) retry.c
  rewrite.o:       $(HDRS) rewrite.c
  rfc2047.o:       $(HDRS) rfc2047.c
-@@ -495,11 +498,14 @@
+@@ -533,11 +538,14 @@
  sieve.o:         $(HDRS) sieve.c
  smtp_in.o:       $(HDRS) smtp_in.c
  smtp_out.o:      $(HDRS) smtp_out.c
@@ -60,14 +69,14 @@ diff -urN exim-4.30-orig/OS/Makefile-Base exim-4.30/OS/Makefile-Base
  tod.o:           $(HDRS) tod.c
  transport.o:     $(HDRS) transport.c
  tree.o:          $(HDRS) tree.c
-diff -urN exim-4.30-orig/README.EXISCAN exim-4.30/README.EXISCAN
---- exim-4.30-orig/README.EXISCAN	Thu Jan  1 01:00:00 1970
-+++ exim-4.30/README.EXISCAN	Tue Dec  2 12:15:53 2003
+diff -urN exim-4.33-orig/README.EXISCAN exim-4.33/README.EXISCAN
+--- exim-4.33-orig/README.EXISCAN	Thu Jan  1 01:00:00 1970
++++ exim-4.33/README.EXISCAN	Wed May  5 14:05:02 2004
 @@ -0,0 +1 @@
 +Please refer to doc/exiscan-acl-spec.txt
-diff -urN exim-4.30-orig/doc/exiscan-acl-examples.txt exim-4.30/doc/exiscan-acl-examples.txt
---- exim-4.30-orig/doc/exiscan-acl-examples.txt	Thu Jan  1 01:00:00 1970
-+++ exim-4.30/doc/exiscan-acl-examples.txt	Tue Dec  2 12:15:53 2003
+diff -urN exim-4.33-orig/doc/exiscan-acl-examples.txt exim-4.33/doc/exiscan-acl-examples.txt
+--- exim-4.33-orig/doc/exiscan-acl-examples.txt	Thu Jan  1 01:00:00 1970
++++ exim-4.33/doc/exiscan-acl-examples.txt	Wed May  5 14:05:02 2004
 @@ -0,0 +1,440 @@
 +--------------------------------------------------------------
 +exiscan-acl example configurations / FAQ
@@ -245,7 +254,7 @@ diff -urN exim-4.30-orig/doc/exiscan-acl-examples.txt exim-4.30/doc/exiscan-acl-
 +/* -----------------
 +if "${if def:header_X-New-Subject: {there}}" is there
 +then
-+   headers remove subject
++   headers remove Subject
 +   headers add "Subject: $h_X-New-Subject:"
 +   headers remove X-New-Subject
 +endif
@@ -509,10 +518,10 @@ diff -urN exim-4.30-orig/doc/exiscan-acl-examples.txt exim-4.30/doc/exiscan-acl-
 +    you do not need to  put that information in a  header, but
 +    rather act on $spam_score_int directly.
 +    
-diff -urN exim-4.30-orig/doc/exiscan-acl-spec.txt exim-4.30/doc/exiscan-acl-spec.txt
---- exim-4.30-orig/doc/exiscan-acl-spec.txt	Thu Jan  1 01:00:00 1970
-+++ exim-4.30/doc/exiscan-acl-spec.txt	Tue Dec  2 12:15:53 2003
-@@ -0,0 +1,483 @@
+diff -urN exim-4.33-orig/doc/exiscan-acl-spec.txt exim-4.33/doc/exiscan-acl-spec.txt
+--- exim-4.33-orig/doc/exiscan-acl-spec.txt	Thu Jan  1 01:00:00 1970
++++ exim-4.33/doc/exiscan-acl-spec.txt	Wed May  5 14:05:02 2004
+@@ -0,0 +1,1072 @@
 +--------------------------------------------------------------
 +The exiscan-acl patch for exim4 - Documentation
 +--------------------------------------------------------------
@@ -520,48 +529,52 @@ diff -urN exim-4.30-orig/doc/exiscan-acl-spec.txt exim-4.30/doc/exiscan-acl-spec
 +License: GPL
 +
 +The exiscan-acl patch adds  content scanning to the  exim4 ACL
-+system. It supports the following scanning facilities:
++system. It supports the following scanning features:
 +
-+ - MIME unpacking, sanity checking, file extension blocking
-+ - Antivirus using 3rd party scanners
-+ - Antispam using SpamAssassin
-+ - Regular expression match against headers and body
++ - MIME ACL that is called for all MIME parts in
++   incoming MIME messages.
++ - Antivirus using 3rd party scanners.
++ - Anti-spam using SpamAssassin.
++ - Anti-spam using Brightmail Antispam.
++ - Regular expression match against headers, bodies, raw
++   MIME parts and decoded MIME parts.
 + 
-+These facilities are hooked into exim by adding new conditions
-+to exim's ACL system. These conditions are designed to be used
-+in the acl_smtp_data ACL. It is run when the sending host  has
-+completed the DATA phase and is waiting for our final response
-+to his end-of-data marker. This allows  us to  reject messages
-+containing unwanted content at that stage.
++These features are hooked  into exim by extending  exim's  ACL
++system. The patch adds expansion variables and ACL conditions.
++These conditions are designed to be used in the  acl_smtp_data
++ACL. It is  run when the  sending host has  completed the DATA
++phase and is waiting for our final response to his end-of-data
++marker.  This  allows   us  to   reject  messages   containing
++unwanted content at that stage.
 +
-+The exiscan-acl patch also defines several expansion variables
-+that can be used to customise the error responses sent to  the
-+remote server.
++Support for Brightmail AntiSpam requires special  compile-time
++flags. Please refer to chapter 7 for details.
 +
 +The   default   exim   configure   file   contains   commented
-+configuration examples for all facilites.
++configuration examples for some features of exiscan-acl.
 +
 +
-+0. Overall concept
++0. Overall concept / Overview
 +--------------------------------------------------------------
 +
-+The   exiscan-acl   patch   adds   the   following  conditions
-+(facilities), which  can ONLY  be used  in the  ACL after DATA
-+(acl_smtp_data):
++The   exiscan-acl   patch    extends Exims with  mechanisms to
++deal with the  message body content.  Most of these  additions
++affect the ACL system. The exiscan patch adds
 +
-+- demime (MIME unpacking and file extension checks)
-+- regex (match regular expressions against message headers
-+  and body)
-+- malware (attach 3rd party virus/malware scanner)
-+- spam (attach SpamAssassin)
-+
-+Each of these facilities has its own chapter further below  in
-+this document. There is also a commented  sample configuration
-+in the "configure" file of the exim distribution.
-+
-+The exiscan  facility also  adds the  'fakereject' ACL control
-+statement that can be used  to reject and accept a  message at
-+the same time. It is described in an extra chapter below.
++- A new ACL, called 'acl_smtp_mime' (Please see detailed
++  chapter on this one below).
++- ACL conditions and modifiers
++  o malware (attach 3rd party virus/malware scanner)
++  o spam (attach SpamAssassin)
++  o regex (match regex against message, linewise)
++  o decode (decode MIME part to disk)
++  o mime_regex (match regex against decoded MIME part)
++  o control = fakereject (reject but really accept a message)
++- expansion variables
++  (see chapters below for names and explanations)
++- configuration options in section 1 of Exim's configure file.
++  o av_scanner (type and options of the AV scanner)
++  o spamd_address (network address / socket of spamd daemon).
 +
 +All  facilites work  on a  MBOX copy  of the  message that  is
 +temporarily spooled up in a file called:
@@ -571,109 +584,321 @@ diff -urN exim-4.30-orig/doc/exiscan-acl-spec.txt exim-4.30/doc/exiscan-acl-spec
 +The .eml extension is a  friendly hint to virus scanners  that
 +they can expect an  MBOX-like structure inside that  file. The
 +file is only spooled up once, when the first exiscan  facility
-+condition is  called. Subsequent  calls to  exiscan conditions
-+will just open  the file again.  The directory is  recursively
-+removed when the acl_smtp_data has finished running. When  the
-+"demime" condition  has been  used, this  directory will  also
-+contain files produced by the MIME decoder.
++is  called. Subsequent  calls to  exiscan conditions will just
++open  the file again.   The directory is  recursively  removed
++when the  acl_smtp_data has  finished running.  When  the MIME
++ACL decodes files, they will  be put into that same  folder by
++default.
 +
 +
-+1. The "demime" facility
-+   MIME unpacking, sanity checking and file extension blocking
++1. The acl_smtp_mime MIME ACL
 +--------------------------------------------------------------
 +
-+The demime facility unpacks MIME containers in the message. It
-+detects  errors  in  MIME   containers  and  can  match   file
-+extensions found  in the  message against  a list.  Using this
-+facility will produce additional  files in the temporary  scan
-+directory that contain the unpacked MIME parts of the message.
-+If you  do antivirus  scanning, it  is recommened  to use  the
-+"demime" condition before the antivirus ("malware") condition.
++Note: if you are not familiar with exims ACL system, please go
++read the documentation on it, otherwise this chapter will  not
++make much sense to you.
 +
-+The condition name of this facility is "demime". On the  right
-+hand  side,  you  can  pass  a  colon-separated  list  of file
-+extensions that it  should match against.  If one of  the file
-+extensions  is  found,  the  condition  will  return  "OK" (or
-+"true"), otherwise it will return FAIL (or "false"). If  there
-+was any TEMPORARY error while demimeing (mostly "disk  full"),
-+the  condition  will return  DEFER,  and the  message  will be
-+temporarily rejected.
++Here are the facts on acl_smtp_mime:
 +
-+The right-hand side gets "expanded" before being treated as  a
-+list, so  you can  have conditions  and lookups  there. If  it
-+expands  to  an  empty  string,  "false",  or  zero  ("0"), no
-+demimeing is done and the conditions returns FALSE.
++  - It  is  called  once  for each  MIME  part  of  a message,
++    including  multipart  types,  in  the  sequence  of  their
++    position in the message.
++  
++  - It is called just before the acl_smtp_data ACL. They share
++    a result code  (the one assed  to the remote  system after
++    DATA).  When  a  call  to  acl_smtp_mime  does  not  yield
++    "accept",  ACL processing  is aborted  and the  respective
++    result code is sent to the remote mailer. This means  that
++    the acl_smtp_data is NOT called any more.
++    
++  - It is ONLY called if the message has a MIME-Version header.
 +
-+A short example:
++  - MIME parts will NOT be dumped to disk by default, you have
++    to call  the "decode"  condition to  do that  (see further
++    below).
 +
-+/* ------------
-+deny message = Found blacklisted file attachment
-+     demime = vbs:com:bat:pif:prf:lnk
-+--------------- */
++  - For  RFC822 attachments  (these are  messages attached  to
++    messages,  with   a   content-type   of 'message/rfc822'),
++    the ACL   is  called   again  in    the  same   manner  as
++    for  the "primary" message, only  that the $mime_is_rfc822
++    expansion variable  is  set  (see below).  These  messages
++    are always  decoded  to  disk  before  being  checked, but
++    the files  are unlinked once the check is done.
++    
++To activate acl_smtp_mime, you need to add assign it the  name
++of an  ACL entry  in section  1 of  the config  file, and then
++write that ACL in the ACL section, like:
 +
-+When the condition is run, it sets up the following  expansion
-+variables:
++  /* ---------------
++  
++  # -- section 1 ----
++  [ ... ]
++  acl_smtp_mime = my_mime_acl
++  [ ... ]
++  
++  # -- acl section ----
++  begin acl
++  
++  [ ... ]
++  
++  my_mime_acl:
++  
++    < ACL logic >
++    
++  [ ... ]
++  
++  ---------------- */
 +
-+ $demime_errorlevel   When  an error  was detected  in a  MIME
-+                      container, this   variable contains  the
-+                      "severity"  of the error,  as an integer
-+                      number.  The   higher  the   value,  the
-+                      more  severe    the  error.    If   this
-+                      variable is unset or zero, no error  has
-+                      occured.
++The following list describes all expansion variables that are
++available in the MIME ACL:
 +
-+ $demime_reason       When $demime_errorlevel is greater  than
-+                      zero,  this  variable  contains  a human
-+                      -readable  text  string  describing  the
-+                      MIME error that occured.
-+                          
-+ $found_extension     When  the  "demime"  condition   returns
-+                      "true", this variable contains the  file
-+                      extension it has found.
-+                          
-+Both $demime_errorlevel  and $demime_reason  are set  with the
-+first call of the "demime"  condition, and are not changed  on
-+subsequent calls.
++  $mime_content_type
++  ------------------
++  A very important variable. If  the MIME part has a  "Content
++  -Type:"  header,  this  variable  will  contain  its  value,
++  lowercased,  and  WITHOUT   any  options  (like   "name"  or
++  "charset", see below for  these). Here are some  examples of
++  popular MIME types, as they may appear in this variable:
++  
++  text/plain
++  text/html
++  application/octet-stream
++  image/jpeg
++  audio/midi
 +
-+If do not  want to check  for any file  extensions, but rather
-+use  the  demime  facility  for  unpacking  or  error checking
-+purposes, just pass "*" as the right-hand side value.
-+
-+Here is a more elaborate example on how to use this facility:
-+
-+/* -----------------
-+# Reject messages with serious MIME container errors
-+deny  message = Found MIME error ($demime_reason).
-+      demime = *
-+      condition = ${if >{$demime_errorlevel}{2}{1}{0}}
-+
-+# Reject known virus spreading file extensions.
-+# Accepting these is pretty much braindead.
-+deny  message = contains $found_extension file (blacklisted).
-+      demime = com:vbs:bat:pif:scr
-+
-+# Freeze .exe and .doc files. Postmaster can
-+# examine them and eventually thaw them up.
-+deny  log_message = Another $found_extension file.
-+      demime = exe:doc
-+      control = freeze
-+--------------------- */
++  If  the  MIME  part  has  no  "Content-Type:"  header,  this
++  variable is the empty string.
 +
 +
++  $mime_filename
++  --------------
++  Another important variable, possibly the most important one.
++  It contains a  proposed filename for  an attachment, if  one
++  was  found  in   either  the  "Content-Type:"   or  "Content
++  -Disposition"   headers.   The  filename   will   be RFC2047
++  decoded,  however NO  additional sanity checks are done. See
++  instructions on "decode" further  below. If no filename  was
++  found, this variable is the  empty string.
++  
++  
++  $mime_charset
++  -------------
++  Contains the  charset identifier,  if one  was found  in the
++  "Content-Type:" header. Examples for charset identifiers are
++  
++  us-ascii
++  gb2312 (Chinese)
++  iso-8859-1
++  
++  Please note that this value  will NOT be normalized, so  you
++  should do matches case-insensitively.
++  
++  
++  $mime_boundary
++  --------------
++  If the current part is a multipart (see  $mime_is_multipart)
++  below, it  SHOULD have  a boundary  string. It  is stored in
++  this variable. If the current part has no boundary parameter
++  in the  "Content-Type:" header,  this variable  contains the
++  empty string. 
++  
++  
++  $mime_content_disposition
++  -------------------------
++  Contains   the   normalized   content   of   the    "Content
++  -Disposition:"   header.   You  can   expect   strings  like
++  "attachment" or "inline" here.
++  
++  
++  $mime_content_transfer_encoding
++  -------------------------------
++  Contains   the   normalized   content   of   the    "Content
++  -transfer-encoding:"   header. This  is a symbolic  name for
++  an encoding  type. Typical  values are  "base64" and "quoted
++  -printable".
 +
-+2. The "spam" facility
-+   Antispam measures with SpamAssassin
++
++  $mime_content_id
++  ----------------
++  Contains   the   normalized   content   of   the    "Content
++  -ID:"   header.  This is  a unique  ID that  can be  used to
++  reference a part from another part.
++  
++  
++  $mime_content_description
++  -------------------------
++  Contains   the   normalized   content   of   the    "Content
++  -Description:"    header.  It can  contain  a human-readable
++  description of the parts content. Some implementations  will
++  repeat  the  filename  for attachments  here,  but  they are
++  usually only used for display purposes.
++  
++  
++  $mime_part_count
++  ----------------
++  This is  a counter  that is  raised for  each processed MIME
++  part. It starts  at zero for  the very first  part (which is
++  usually a multipart). The  counter is per-message, so  it is
++  reset    when    processing    RFC822    attachments    (see
++  $mime_is_rfc822). The counter stays set after  acl_smtp_mime
++  is complete, so you can use it in the DATA ACL to  determine
++  the  number  of  MIME  parts  of  a  message.  For  non-MIME
++  messages, this variable will contain the value -1.
++  
++  
++  $mime_is_multipart
++  ------------------
++  A  "helper"  flag   that  is  true  (1)  when  the   current
++  part   has   the   main   type  "multipart",    for  example
++  "multipart/alternative"    or     "multipart/mixed".   Since
++  multipart entities only serve as containers for other parts,
++  you may not want to carry out specific actions on them.
++ 
++ 
++  $mime_is_coverletter
++  --------------------
++  This flag attempts to differentiate the "cover letter" of an
++  e-mail from attached data.  It can be used to clamp down  on
++  "flashy"   or   unneccessarily   encoded   content   in  the
++  coverletter, while not restricting attachments at all.
++
++  It returns 1 (true) for a  MIME part believed to be part  of
++  the  coverletter,  0   (false)  for   an  attachment.     At
++  present,  the algorithm is as follows:
++
++  1. The outermost MIME part of a message always coverletter.
++  2. If a multipart/alternative or multipart/related MIME part
++     is coverletter, so are all MIME subparts within that
++     multipart.
++  3. If any other multipart is coverletter, the first subpart
++     is coverletter, the rest are attachments.
++  4. All parts contained within an attachment multipart are
++     attachments.
++
++  As an example, the following will ban "HTML mail" (including
++  that sent with alternative plain text), while allowing  HTML
++  files to be attached:
++  
++    /* ----------------------
++    deny message = HTML mail is not accepted here
++         condition = $mime_is_coverletter
++         condition = ${if eq{$mime_content_type}{text/html}{1}{0}}
++    ----------------------- */
++  
++  
++  $mime_is_rfc822
++  ---------------
++  This flag is true (1) if  the current part is NOT a  part of
++  the checked message itself, but part of an attached message.
++  Attached message decoding is fully recursive.
++
++
++  $mime_decoded_filename
++  ----------------------
++  This variable is only set after the "decode" condition  (see
++  below) has been successfully run. It contains the full  path
++  and file name of the file containing the decoded data.
++  
++  
++  $mime_content_size
++  ------------------
++  This variable is only set after the "decode" condition  (see
++  below) has been  successfully run. It  contains the size  of
++  the  decoded   part  in  kilobytes(!).  The  size  is always
++  rounded up  to full  kilobytes, so  only a  completely empty
++  part will have a mime_content_size of 0.
++
++
++The expansion variables only  reflect the content of  the MIME
++headers for each  part. To actually  decode the part  to disk,
++you can use the "decode" condition. The general syntax is
++
++decode = [/<PATH>/]<FILENAME>
++
++The right hand side is expanded before use. After expansion,
++the value can
++
++  - be '0' or 'false', in which case no decoding is done.
++  - be the string 'default'. In that case, the file will be
++    put in the temporary "default" directory
++    <spool_directory>/scan/<message_id>/
++    with a sequential file name, consisting of the message  id
++    and a sequence number. The full path and name is available
++    in $mime_decoded_filename after decoding.
++  - start  with  a slash.  If  the full  name  is an  existing
++    directory,  it  will  be used  as  a  replacement for  the
++    "default"  directory.  The  filename  will  then  also  be
++    sequentially assigned. If the name does not exist, it will
++    be used as the full path and file name.
++  - not  start with  a slash.  It will  then be  used as  the
++    filename, and the default path will be used.
++    
++You  can  easily decode  a  file with  its  original, proposed
++filename using "decode = $mime_filename". However, you  should
++keep in  mind that  $mime_filename might  contain anything. If
++you place files outside of the default path, they will not  be
++automatically unlinked.
++
++The  MIME  ACL  also  supports  the  regex=  and   mime_regex=
++conditions. You  can use  those to  match regular  expressions
++against raw  and decoded  MIME parts,  respectively. Read  the
++next section for more information on these conditions.
++
++
++
++2. Match message or MIME parts against regular expressions
 +--------------------------------------------------------------
 +
-+The "spam" facility calls SpamAssassin's "spamd" daemon to get
-+a spam-score  and a  report for  the message.  You must  first
-+install     SpamAssassin.     You     can     get     it    at
-+http://www.spamassassin.org, or,  if you  have a  working Perl
-+installation, you can use CPAN by calling
++The "regex" condition takes one or more regular expressions as
++arguments and  matches them   against the  full message  (when
++called in the DATA ACL) or a raw MIME part (when called in the
++MIME  ACL). The  "regex" condition  matches linewise,  with a
++maximum line length  of 32k characters.  That means you  can't
++have multiline matches with the "regex" condition.
++
++The  "mime_regex"  can only  be  called in  the  MIME ACL.  It
++matches up  to 32k  of decoded  content (the  whole content at
++once, not linewise). If the part has not been decoded with the
++"decode"  condition  earlier  in  the  ACL,  it   is   decoded
++automatically  when "mime_regex"  is  executed (using  default
++path and  filename values).   If the  decoded data   is larger
++than   32k,   only   the   first   32k   characters   will  be
++matched.
++
++The regular expressions are passed as a colon-separated  list.
++To include  a literal  colon, you  must double  it. Since  the
++whole right-hand  side string  is expanded  before being used,
++you must also escape dollar ($) signs with backslashes.
++
++Here is a simple example:
++
++/* ----------------------
++deny message = contains blacklisted regex ($regex_match_string)
++     regex = [Mm]ortgage : URGENT BUSINESS PROPOSAL
++----------------------- */
++
++The  conditions   returns  true    if  one   of  the   regular
++expressions  has matched.  The  $regex_match_string  expansion
++variable  is then  set up  and contains  the matching  regular
++expression.
++
++Warning: With large messages,  these conditions can be  fairly
++CPU-intensive.
++
++
++
++3. Antispam measures with SpamAssassin
++--------------------------------------------------------------
++
++The "spam" ACL  condition calls SpamAssassin's  "spamd" daemon
++to get a spam-score  and a  report for  the message.  You must
++first install     SpamAssassin.     You     can     get     it
++at http://www.spamassassin.org, or,   if you  have  a  working
++Perl installation, you can use CPAN by calling
 +
 +perl -MCPAN -e 'install Mail::SpamAssassin'
 +
-+SpamAssassin has it's own  set of configuration files.  Please
++SpamAssassin has its own  set of configuration files.  Please
 +review its  documentation to  see how  you can  tweak it.  The
 +default installation should work nicely, however.
 +
@@ -685,8 +910,30 @@ diff -urN exim-4.30-orig/doc/exiscan-acl-spec.txt exim-4.30/doc/exiscan-acl-spec
 +
 +spamd_address = 127.0.0.1 783
 +
++As of version 2.60, spamd also supports communication over UNIX
++sockets. If you want to use these, supply spamd_address with
++an absolute file name instead of a address/port pair, like:
++
++spamd_address = /var/run/spamd_socket
++
 +If you use the above mentioned default, you do NOT need to set
 +this option.
++
++You  can   also  have   multiple  spamd   servers  to  improve
++scalability. These can also reside on other hardware reachable
++over the network. To specify multiple spamd servers, just  put
++multiple  address/port  pairs  in  the  spamd_address  option,
++separated with colons:
++
++spamd_address = 192.168.2.10 783 : 192.168.2.11 783 : 192.168.2.12 783
++
++Up to  32 spamd  servers are  supported. The  servers will  be
++queried in a random fashion.   When a server fails to  respond
++to the  connection attempt,   all  other  servers  are   tried
++until  one succeeds.   If  no  server   responds,  the  "spam"
++condition will  return DEFER.  IMPORTANT:  It  is not possible
++to    use  the    UNIX   socket    connection   method    with
++multiple  spamd servers.
 +
 +To use the  antispam facility, put  the "spam" condition  in a
 +DATA ACL block. Here is a very simple example:
@@ -710,7 +957,7 @@ diff -urN exim-4.30-orig/doc/exiscan-acl-spec.txt exim-4.30/doc/exiscan-acl-spec
 +
 +The  "spam"  condition  will  return  true  if  the  threshold
 +specified in the user's SpamAssassin profile has been  matched
-+or exceeded. If  you want to  use the spam  condition for it's
++or exceeded. If  you want to  use the spam  condition for its
 +side effects (see the variables below), you can make it always
 +return "true" by appending ":true" to the username. 
 +
@@ -747,7 +994,21 @@ diff -urN exim-4.30-orig/doc/exiscan-acl-spec.txt exim-4.30/doc/exiscan-acl-spec
 +The spam condition  caches its results.  If you call  it again
 +with the same  user name, it  will not really  scan again, but
 +rather return the same values as before.
-+                    
++
++The spam  condition will  return DEFER  if there  is any error
++while running the message through SpamAssassin. If you want to
++treat DEFER  as FAIL  (to pass  on to  the next  ACL statement
++block), append '/defer_ok' to the right hand side of the  spam
++condition, like this:
++
++/* ---------------
++deny message = This message was classified as SPAM
++        spam = joe/defer_ok
++---------------- */
++
++This will  cause messages  to be  accepted even  if there is a
++problem with spamd.
++
 +Finally, here is  a commented example  on how to  use the spam
 +condition:
 +
@@ -768,40 +1029,6 @@ diff -urN exim-4.30-orig/doc/exiscan-acl-spec.txt exim-4.30/doc/exiscan-acl-spec
 +       spam = nobody:true
 +       condition = ${if >{$spam_score_int}{120}{1}{0}}
 +----------------- */
-+
-+
-+
-+3. The "regex" facility
-+   Match headers and body lines of the message against regular
-+   expressions
-+--------------------------------------------------------------
-+
-+The "regex" condition takes one or more regular expressions as
-+arguments and matches them  against the full message,  that is
-+all headers and the  complete body. It is  particularly useful
-+to  filter trash  that cannot  be recognized  by the  spam  or
-+malware conditions. With large messages, this condition can be
-+fairly CPU-intensive.
-+
-+The regular expressions are  matched linewise, with a  maximum
-+line length of 32k characters.
-+
-+The regular expressions are passed as a colon-separated  list.
-+To include  a literal  colon, you  must double  it. Since  the
-+whole right-hand  side string  is expanded  before being used,
-+you must also escape dollar ($) signs with backslashes.
-+
-+Here is a simple example:
-+
-+/* ----------------------
-+deny message = contains blacklisted regex ($regex_match_string)
-+     regex = [Mm]ortgage : URGENT BUSINESS PROPOSAL
-+----------------------- */
-+
-+The condition returns true  if one of the  regular expressions
-+has matched  a line  of the  message. The  $regex_match_string
-+variable  is then  set up  and contains  the matching  regular
-+expression.
 +
 +
 +
@@ -971,10 +1198,107 @@ diff -urN exim-4.30-orig/doc/exiscan-acl-spec.txt exim-4.30/doc/exiscan-acl-spec
 +     demime = *
 +     malware = *
 +---------------------- */
-+     
++
++Like with the "spam" condition, you can append '/defer_ok'  to
++the malware condition  to accept messages  even if there  is a
++problem with the virus scanner, like this:
++
++/* ----------------------
++deny message = This message contains malware ($malware_name)
++     demime = *
++     malware = */defer_ok
++---------------------- */
 +
 +
-+5. The "fakereject" control statement
++
++5. The "demime" facility
++   MIME unpacking, sanity checking and file extension blocking
++--------------------------------------------------------------
++
++* This facility provides a simpler interface to MIME decoding
++* than the MIME ACL functionality. It is kept in exiscan for
++* backward compatability.
++
++The demime facility unpacks MIME containers in the message. It
++detects  errors  in  MIME   containers  and  can  match   file
++extensions found  in the  message against  a list.  Using this
++facility will produce additional  files in the temporary  scan
++directory that contain the unpacked MIME parts of the message.
++If you  do antivirus  scanning, it  is recommened  to use  the
++"demime" condition before the antivirus ("malware") condition.
++
++The condition name of this facility is "demime". On the  right
++hand  side,  you  can  pass  a  colon-separated  list  of file
++extensions that it  should match against.  If one of  the file
++extensions  is  found,  the  condition  will  return  "OK" (or
++"true"), otherwise it will return FAIL (or "false"). If  there
++was any TEMPORARY error while demimeing (mostly "disk  full"),
++the  condition  will return  DEFER,  and the  message  will be
++temporarily rejected.
++
++The right-hand side gets "expanded" before being treated as  a
++list, so  you can  have conditions  and lookups  there. If  it
++expands  to  an  empty  string,  "false",  or  zero  ("0"), no
++demimeing is done and the conditions returns FALSE.
++
++A short example:
++
++/* ------------
++deny message = Found blacklisted file attachment
++     demime = vbs:com:bat:pif:prf:lnk
++--------------- */
++
++When the condition is run, it sets up the following  expansion
++variables:
++
++ $demime_errorlevel   When  an error  was detected  in a  MIME
++                      container, this   variable contains  the
++                      "severity"  of the error,  as an integer
++                      number.  The   higher  the   value,  the
++                      more  severe    the  error.    If   this
++                      variable is unset or zero, no error  has
++                      occured.
++
++ $demime_reason       When $demime_errorlevel is greater  than
++                      zero,  this  variable  contains  a human
++                      -readable  text  string  describing  the
++                      MIME error that occured.
++                          
++ $found_extension     When  the  "demime"  condition   returns
++                      "true", this variable contains the  file
++                      extension it has found.
++                          
++Both $demime_errorlevel  and $demime_reason  are set  with the
++first call of the "demime"  condition, and are not changed  on
++subsequent calls.
++
++If do not  want to check  for any file  extensions, but rather
++use  the  demime  facility  for  unpacking  or  error checking
++purposes, just pass "*" as the right-hand side value.
++
++Here is a more elaborate example on how to use this facility:
++
++/* -----------------
++# Reject messages with serious MIME container errors
++deny  message = Found MIME error ($demime_reason).
++      demime = *
++      condition = ${if >{$demime_errorlevel}{2}{1}{0}}
++
++# Reject known virus spreading file extensions.
++# Accepting these is pretty much braindead.
++deny  message = contains $found_extension file (blacklisted).
++      demime = com:vbs:bat:pif:scr
++
++# Freeze .exe and .doc files. Postmaster can
++# examine them and eventually thaw them up.
++deny  log_message = Another $found_extension file.
++      demime = exe:doc
++      control = freeze
++--------------------- */
++
++
++
++6. The "fakereject" control statement
 +   Reject a message while really accepting it.
 +--------------------------------------------------------------
 +
@@ -993,13 +1317,298 @@ diff -urN exim-4.30-orig/doc/exiscan-acl-spec.txt exim-4.30/doc/exiscan-acl-spec
 +
 +
 +
++7. Brighmail AntiSpam (BMI) suppport
++--------------------------------------------------------------
++
++Brightmail  AntiSpam  is  a  commercial  package.  Please  see
++http://www.brightmail.com    for    more    information     on
++the product. For  the sake of  clarity, we'll refer  to it  as
++"BMI" from now on.
++
++
++0) BMI concept and implementation overview
++
++In  contrast  to   how  spam-scanning  with   SpamAssassin  is
++implemented  in  exiscan-acl,  BMI  is  more  suited  for  per
++-recipient  scanning of  messages. However,  each messages  is
++scanned  only  once,  but  multiple  "verdicts"  for  multiple
++recipients can be  returned from the  BMI server. The  exiscan
++implementation  passes  the  message to  the  BMI  server just
++before accepting it.  It then adds  the retrieved verdicts  to
++the messages header file in the spool. These verdicts can then
++be  queried  in  routers,  where  operation  is  per-recipient
++instead  of per-message.  To use  BMI, you  need to  take the
++following steps:
++
++  1) Compile Exim with BMI support
++  2) Set up main BMI options (top section of exim config file)
++  3) Set up ACL control statement (ACL section of the config
++     file)
++  4) Set up your routers to use BMI verdicts (routers section
++     of the config file).
++  5) (Optional) Set up per-recipient opt-in information.
++
++These four steps are explained in more details below. 
++
++1) Adding support for BMI at compile time
++
++  To compile with BMI support,  you need to link Exim  against
++  the   Brighmail  client   SDK,  consisting   of  a   library
++  (libbmiclient_single.so)  and  a  header  file  (bmi_api.h).
++  You'll also need to explicitly set a flag in the Makefile to
++  include BMI support in the Exim binary. Both can be achieved
++  with  these 2 lines in Local/Makefile:
++  
++  CFLAGS=-DBRIGHTMAIL -I/path/to/the/dir/with/the/includefile
++  EXTRALIBS_EXIM=-L/path/to/the/dir/with/the/library -lbmiclient_single
++  
++  If  you use  other CFLAGS  or EXTRALIBS_EXIM  settings then
++  merge the content of these lines with them.
++  
++  You    should     also    include     the    location     of
++  libbmiclient_single.so in your dynamic linker  configuration
++  file   (usually   /etc/ld.so.conf)   and   run    "ldconfig"
++  afterwards, or  else the  produced Exim  binary will  not be
++  able to find the library file.
++
++
++2) Setting up BMI support in the exim main configuration
++
++  To enable BMI  support in the  main exim configuration,  you
++  should set the path to the main BMI configuration file  with
++  the "bmi_config_file" option, like this:
++  
++  bmi_config_file = /opt/brightmail/etc/brightmail.cfg
++  
++  This must go into section 1 of exims configuration file (You
++  can  put it  right on  top). If  you omit  this option,  it
++  defaults to /opt/brightmail/etc/brightmail.cfg.
++
++
++3) Set up ACL control statement
++
++  To  optimize performance,  it makes  sense only  to process
++  messages coming from remote, untrusted sources with the  BMI
++  server.  To set  up a  messages for  processing by  the BMI
++  server, you MUST set the "bmi_run" control statement in  any
++  ACL for an incoming message.  You will typically do this  in
++  an "accept"  block in  the "acl_check_rcpt"  ACL. You should
++  use the "accept" block(s)  that accept messages from  remote
++  servers for your own domain(s). Here is an example that uses
++  the "accept" blocks from exims default configuration file:
++  
++
++  accept  domains       = +local_domains
++          endpass
++          verify        = recipient
++          control       = bmi_run
++
++  accept  domains       = +relay_to_domains
++          endpass
++          verify        = recipient
++          control       = bmi_run
++  
++  If bmi_run  is not  set in  any ACL  during reception of the
++  message, it will NOT be passed to the BMI server.
++
++
++4) Setting up routers to use BMI verdicts
++
++  When a message has been  run through the BMI server,  one or
++  more "verdicts" are  present. Different recipients  can have
++  different verdicts. Each  recipient is treated  individually
++  during routing, so you  can query the verdicts  by recipient
++  at  that stage.  From Exims  view, a  verdict can  have the
++  following outcomes:
++  
++  o deliver the message normally
++  o deliver the message to an alternate location
++  o do not deliver the message
++  
++  To query  the verdict  for a  recipient, the  implementation
++  offers the following tools:
++  
++  
++  - Boolean router  preconditions. These  can be  used in  any
++    router. For a simple  implementation of BMI, these  may be
++    all  that  you  need.  The  following  preconditions   are
++    available:
++    
++    o bmi_deliver_default
++    
++      This  precondition  is  TRUE  if  the  verdict  for  the
++      recipient is  to deliver  the message  normally. If  the
++      message has not been  processed by the BMI  server, this
++      variable defaults to TRUE.
++      
++    o bmi_deliver_alternate
++    
++      This  precondition  is  TRUE  if  the  verdict  for  the
++      recipient  is to  deliver the  message to  an alternate
++      location.  You  can  get the  location  string  from the
++      $bmi_alt_location expansion variable if you need it. See
++      further below. If the message has not been processed  by
++      the BMI server, this variable defaults to FALSE.
++      
++    o bmi_dont_deliver
++    
++      This  precondition  is  TRUE  if  the  verdict  for  the
++      recipient  is  NOT  to   deliver  the  message  to   the
++      recipient. You will typically use this precondition in a
++      top-level blackhole router, like this:
++      
++        # don't deliver messages handled by the BMI server
++        bmi_blackhole:
++          driver = redirect
++          bmi_dont_deliver
++          data = :blackhole:
++      
++      This router should be on top of all others, so  messages
++      that should not be delivered do not reach other  routers
++      at all. If   the  message  has  not  been  processed  by
++      the  BMI server, this variable defaults to FALSE.
++      
++      
++  - A list router  precondition to query  if rules "fired"  on
++    the message for the recipient. Its name is "bmi_rule". You
++    use  it  by  passing it  a  colon-separated  list of  rule
++    numbers. You can use this condition to route messages that
++    matched specific rules. Here is an example:
++    
++      # special router for BMI rule #5, #8 and #11
++      bmi_rule_redirect:
++        driver = redirect
++        bmi_rule = 5:8:11
++        data = postmaster@mydomain.com
++      
++  
++  - Expansion variables. Several  expansion variables are  set
++    during  routing.  You  can  use  them  in  custom   router
++    conditions,  for  example.  The  following  variables  are
++    available:
++    
++    o $bmi_base64_verdict
++    
++      This variable  will contain  the BASE64  encoded verdict
++      for the recipient being routed. You can use it to add  a
++      header to messages for tracking purposes, for example:
++      
++      localuser:
++        driver = accept
++        check_local_user
++        headers_add = X-Brightmail-Verdict: $bmi_base64_verdict
++        transport = local_delivery
++      
++      If there is no verdict available for the recipient being
++      routed, this variable contains the empty string.
++    
++    o $bmi_base64_tracker_verdict
++    
++      This variable  will contain  a BASE64  encoded subset of
++      the  verdict  information  concerning  the  "rules" that
++      fired  on the  message. You  can add  this string  to a
++      header, commonly named "X-Brightmail-Tracker". Example:
++      
++      localuser:
++        driver = accept
++        check_local_user
++        headers_add = X-Brightmail-Tracker: $bmi_base64_tracker_verdict
++        transport = local_delivery
++        
++      If there is no verdict available for the recipient being
++      routed, this variable contains the empty string.
++      
++    o $bmi_alt_location
++    
++      If  the  verdict  is  to  redirect  the  message  to  an
++      alternate  location,  this  variable  will  contain  the
++      alternate location string returned by the BMI server. In
++      its default configuration, this is a header-like  string
++      that can be added to the message with "headers_add".  If
++      there is  no verdict  available for  the recipient being
++      routed, or if the  message is to be  delivered normally,
++      this variable contains the empty string.
++      
++    o $bmi_deliver
++    
++      This is an additional integer variable that can be  used
++      to query if the message should be delivered at all.  You
++      should use router preconditions instead if possible.
++      
++      $bmi_deliver is '0': the message should NOT be delivered.
++      $bmi_deliver is '1': the message should be delivered.
++      
++   
++  IMPORTANT NOTE: Verdict inheritance.
++  The  message  is passed  to  the BMI  server  during message
++  reception,  using the  target addresses  from the  RCPT TO:
++  commands in the SMTP transaction. If recipients get expanded
++  or re-written (for example by aliasing), the new address(es)
++  inherit the  verdict from  the original  address. This means
++  that verdicts also apply to all "child" addresses  generated
++  from top-level addresses that were sent to the BMI server.
++  
++  
++5) Using per-recipient opt-in information (Optional)
++
++  The  BMI server  features multiple  scanning "profiles"  for
++  individual recipients.  These are  usually stored  in a LDAP
++  server and are  queried by the  BMI server itself.  However,
++  you can also  pass opt-in data  for each recipient  from the
++  MTA to the  BMI server. This  is particularly useful  if you
++  already look  up recipient  data in  exim anyway  (which can
++  also be  stored in  a SQL  database or  other source).  This
++  implementation enables you  to pass opt-in  data to the  BMI
++  server  in  the  RCPT   ACL.  This  works  by   setting  the
++  'bmi_optin' modifier in  a block of  that ACL. If  should be
++  set to a list  of comma-separated strings that  identify the
++  features which the BMI server should use for that particular
++  recipient. Ideally, you  would use the  'bmi_optin' modifier
++  in the same  ACL block where  you set the  'bmi_run' control
++  flag. Here is an example that will pull opt-in data for each
++  recipient      from       a      flat       file      called
++  '/etc/exim/bmi_optin_data'.
++  
++  The file format:
++  
++    user1@mydomain.com: <OPTIN STRING1>:<OPTIN STRING2>
++    user2@thatdomain.com: <OPTIN STRING3>
++    
++    
++  The example:
++  
++    accept  domains       = +relay_to_domains
++            endpass
++            verify        = recipient
++            bmi_optin     = ${lookup{$local_part@$domain}lsearch{/etc/exim/bmi_optin_data}}
++            control       = bmi_run  
++  
++  Of course,  you can  also use  any other  lookup method that
++  exim supports, including LDAP, Postgres, MySQL, Oracle etc.,
++  as long as  the result is  a list of  colon-separated opt-in
++  strings.
++  
++  For a list of available opt-in strings, please contact  your
++  Brightmail representative.
++  
 +--------------------------------------------------------------
 +End of file
 +--------------------------------------------------------------
-diff -urN exim-4.30-orig/exim_monitor/em_globals.c exim-4.30/exim_monitor/em_globals.c
---- exim-4.30-orig/exim_monitor/em_globals.c	Mon Dec  1 11:15:41 2003
-+++ exim-4.30/exim_monitor/em_globals.c	Tue Dec  2 12:15:53 2003
-@@ -126,6 +126,8 @@
+diff -urN exim-4.33-orig/exim_monitor/em_globals.c exim-4.33/exim_monitor/em_globals.c
+--- exim-4.33-orig/exim_monitor/em_globals.c	Wed May  5 12:08:36 2004
++++ exim-4.33/exim_monitor/em_globals.c	Wed May  5 14:05:02 2004
+@@ -42,6 +42,10 @@
+ uschar *action_required;
+ uschar *alternate_config = NULL;
+ 
++#ifdef BRIGHTMAIL
++int     bmi_run                = 0;
++uschar *bmi_verdicts           = NULL;
++#endif
+ int     body_max = 20000;
+ 
+ uschar *exim_path              = US BIN_DIRECTORY "/exim"
+@@ -127,6 +131,8 @@
  BOOL    deliver_manual_thaw    = FALSE;
  BOOL    dont_deliver           = FALSE;
  
@@ -1008,7 +1617,7 @@ diff -urN exim-4.30-orig/exim_monitor/em_globals.c exim-4.30/exim_monitor/em_glo
  header_line *header_last       = NULL;
  header_line *header_list       = NULL;
  
-@@ -135,6 +137,7 @@
+@@ -136,6 +142,7 @@
  
  BOOL    local_error_message    = FALSE;
  uschar *local_scan_data        = NULL;
@@ -1016,19 +1625,23 @@ diff -urN exim-4.30-orig/exim_monitor/em_globals.c exim-4.30/exim_monitor/em_glo
  BOOL    log_timezone           = FALSE;
  int     message_age            = 0;
  uschar *message_id;
-diff -urN exim-4.30-orig/scripts/MakeLinks exim-4.30/scripts/MakeLinks
---- exim-4.30-orig/scripts/MakeLinks	Mon Dec  1 11:15:41 2003
-+++ exim-4.30/scripts/MakeLinks	Tue Dec  2 12:15:53 2003
-@@ -172,6 +172,7 @@
+diff -urN exim-4.33-orig/scripts/MakeLinks exim-4.33/scripts/MakeLinks
+--- exim-4.33-orig/scripts/MakeLinks	Wed May  5 12:08:35 2004
++++ exim-4.33/scripts/MakeLinks	Wed May  5 14:05:02 2004
+@@ -170,19 +170,25 @@
+ # but local_scan.c does not, because its location is taken from the build-time
+ # configuration. Likewise for the os.c file, which gets build dynamically.
  
++ln -s ../src/bmi_spam.h        bmi_spam.h
  ln -s ../src/dbfunctions.h     dbfunctions.h
  ln -s ../src/dbstuff.h         dbstuff.h
 +ln -s ../src/demime.h          demime.h
  ln -s ../src/exim.h            exim.h
  ln -s ../src/functions.h       functions.h
  ln -s ../src/globals.h         globals.h
-@@ -179,8 +180,10 @@
+ ln -s ../src/local_scan.h      local_scan.h
  ln -s ../src/macros.h          macros.h
++ln -s ../src/mime.h            mime.h
  ln -s ../src/mytypes.h         mytypes.h
  ln -s ../src/osfunctions.h     osfunctions.h
 +ln -s ../src/spam.h            spam.h
@@ -1037,8 +1650,11 @@ diff -urN exim-4.30-orig/scripts/MakeLinks exim-4.30/scripts/MakeLinks
 +ln -s ../src/tnef.h            tnef.h
  
  ln -s ../src/acl.c             acl.c
++ln -s ../src/bmi_spam.c        bmi_spam.c
  ln -s ../src/buildconfig.c     buildconfig.c
-@@ -190,6 +193,7 @@
+ ln -s ../src/child.c           child.c
+ ln -s ../src/crypt16.c         crypt16.c
+@@ -190,6 +196,7 @@
  ln -s ../src/dbfn.c            dbfn.c
  ln -s ../src/debug.c           debug.c
  ln -s ../src/deliver.c         deliver.c
@@ -1046,15 +1662,17 @@ diff -urN exim-4.30-orig/scripts/MakeLinks exim-4.30/scripts/MakeLinks
  ln -s ../src/directory.c       directory.c
  ln -s ../src/dns.c             dns.c
  ln -s ../src/drtables.c        drtables.c
-@@ -208,6 +212,7 @@
+@@ -208,7 +215,9 @@
  ln -s ../src/ip.c              ip.c
  ln -s ../src/log.c             log.c
  ln -s ../src/lss.c             lss.c
 +ln -s ../src/malware.c         malware.c
  ln -s ../src/match.c           match.c
++ln -s ../src/mime.c            mime.c
  ln -s ../src/moan.c            moan.c
  ln -s ../src/parse.c           parse.c
-@@ -216,6 +221,7 @@
+ ln -s ../src/perl.c            perl.c
+@@ -216,6 +225,7 @@
  ln -s ../src/rda.c             rda.c
  ln -s ../src/readconf.c        readconf.c
  ln -s ../src/receive.c         receive.c
@@ -1062,7 +1680,7 @@ diff -urN exim-4.30-orig/scripts/MakeLinks exim-4.30/scripts/MakeLinks
  ln -s ../src/retry.c           retry.c
  ln -s ../src/rewrite.c         rewrite.c
  ln -s ../src/rfc2047.c         rfc2047.c
-@@ -224,13 +230,16 @@
+@@ -224,13 +234,16 @@
  ln -s ../src/sieve.c           sieve.c
  ln -s ../src/smtp_in.c         smtp_in.c
  ln -s ../src/smtp_out.c        smtp_out.c
@@ -1079,10 +1697,10 @@ diff -urN exim-4.30-orig/scripts/MakeLinks exim-4.30/scripts/MakeLinks
  ln -s ../src/tod.c             tod.c
  ln -s ../src/transport.c       transport.c
  ln -s ../src/tree.c            tree.c
-diff -urN exim-4.30-orig/src/acl.c exim-4.30/src/acl.c
---- exim-4.30-orig/src/acl.c	Mon Dec  1 11:15:41 2003
-+++ exim-4.30/src/acl.c	Wed Dec  3 08:07:24 2003
-@@ -7,6 +7,8 @@
+diff -urN exim-4.33-orig/src/acl.c exim-4.33/src/acl.c
+--- exim-4.33-orig/src/acl.c	Wed May  5 12:08:35 2004
++++ exim-4.33/src/acl.c	Wed May  5 14:05:02 2004
+@@ -7,8 +7,13 @@
  
  /* Code for handling Access Control Lists (ACLs) */
  
@@ -1090,47 +1708,68 @@ diff -urN exim-4.30-orig/src/acl.c exim-4.30/src/acl.c
 +
  #include "exim.h"
  
++#ifdef BRIGHTMAIL
++#include "bmi_spam.h"
++#endif
  
-@@ -32,19 +34,19 @@
+ /* Default callout timeout */
+ 
+@@ -32,19 +37,26 @@
  /* ACL condition and modifier codes - keep in step with the table that
  follows. */
  
 -enum { ACLC_ACL, ACLC_AUTHENTICATED, ACLC_CONDITION, ACLC_CONTROL, ACLC_DELAY,
-+enum { ACLC_ACL, ACLC_AUTHENTICATED, ACLC_CONDITION, ACLC_CONTROL, ACLC_DELAY, ACLC_DEMIME,
++enum { ACLC_ACL, ACLC_AUTHENTICATED,
++#ifdef BRIGHTMAIL
++  ACLC_BMI_OPTIN,
++#endif
++  ACLC_CONDITION, ACLC_CONTROL, ACLC_DECODE, ACLC_DELAY, ACLC_DEMIME,
    ACLC_DNSLISTS, ACLC_DOMAINS, ACLC_ENCRYPTED, ACLC_ENDPASS, ACLC_HOSTS,
 -  ACLC_LOCAL_PARTS, ACLC_LOG_MESSAGE, ACLC_LOGWRITE, ACLC_MESSAGE,
 -  ACLC_RECIPIENTS, ACLC_SENDER_DOMAINS, ACLC_SENDERS, ACLC_SET, ACLC_VERIFY };
-+  ACLC_LOCAL_PARTS, ACLC_LOG_MESSAGE, ACLC_LOGWRITE, ACLC_MALWARE, ACLC_MESSAGE,
++  ACLC_LOCAL_PARTS, ACLC_LOG_MESSAGE, ACLC_LOGWRITE, ACLC_MALWARE, ACLC_MESSAGE, ACLC_MIME_REGEX,
 +  ACLC_RECIPIENTS, ACLC_REGEX, ACLC_SENDER_DOMAINS, ACLC_SENDERS, ACLC_SET, ACLC_SPAM, ACLC_VERIFY };
  
  /* ACL conditions/modifiers: "delay", "control", "endpass", "message",
  "log_message", "logwrite", and "set" are modifiers that look like conditions
  but always return TRUE. They are used for their side effects. */
  
- static uschar *conditions[] = { US"acl", US"authenticated", US"condition",
+-static uschar *conditions[] = { US"acl", US"authenticated", US"condition",
 -  US"control", US"delay", US"dnslists", US"domains", US"encrypted",
 -  US"endpass", US"hosts", US"local_parts", US"log_message", US"logwrite",
 -  US"message", US"recipients", US"sender_domains", US"senders", US"set",
-+  US"control", US"delay", US"demime", US"dnslists", US"domains", US"encrypted",
++static uschar *conditions[] = { US"acl", US"authenticated", 
++#ifdef BRIGHTMAIL
++  US"bmi_optin",
++#endif
++  US"condition", US"control", US"decode", US"delay", US"demime", US"dnslists", US"domains", US"encrypted",
 +  US"endpass", US"hosts", US"local_parts", US"log_message", US"logwrite", US"malware",
-+  US"message", US"recipients", US"regex", US"sender_domains", US"senders", US"set", US"spam", 
++  US"message", US"mime_regex", US"recipients", US"regex", US"sender_domains", US"senders", US"set", US"spam", 
    US"verify" };
  
  /* Flags to indicate for which conditions /modifiers a string expansion is done
-@@ -57,6 +59,7 @@
+@@ -54,9 +66,14 @@
+ static uschar cond_expand_at_top[] = {
+   TRUE,    /* acl */
+   FALSE,   /* authenticated */
++#ifdef BRIGHTMAIL
++  TRUE,    /* bmi_optin */
++#endif
    TRUE,    /* condition */
    TRUE,    /* control */
++  TRUE,    /* decode */
    TRUE,    /* delay */
 +  TRUE,    /* demime */
    TRUE,    /* dnslists */
    FALSE,   /* domains */
    FALSE,   /* encrypted */
-@@ -65,11 +68,14 @@
+@@ -65,11 +82,15 @@
    FALSE,   /* local_parts */
    TRUE,    /* log_message */
    TRUE,    /* logwrite */
 +  TRUE,    /* malware */
    TRUE,    /* message */
++  TRUE,    /* mime_regex */
    FALSE,   /* recipients */
 +  TRUE,    /* regex */
    FALSE,   /* sender_domains */
@@ -1140,20 +1779,28 @@ diff -urN exim-4.30-orig/src/acl.c exim-4.30/src/acl.c
    TRUE     /* verify */
  };
  
-@@ -81,6 +87,7 @@
+@@ -78,9 +99,14 @@
+ static uschar cond_modifiers[] = {
+   FALSE,   /* acl */
+   FALSE,   /* authenticated */
++#ifdef BRIGHTMAIL
++  TRUE,    /* bmi_optin */
++#endif
    FALSE,   /* condition */
    TRUE,    /* control */
++  FALSE,   /* decode */
    TRUE,    /* delay */
 +  FALSE,   /* demime */
    FALSE,   /* dnslists */
    FALSE,   /* domains */
    FALSE,   /* encrypted */
-@@ -89,11 +96,14 @@
+@@ -89,11 +115,15 @@
    FALSE,   /* local_parts */
    TRUE,    /* log_message */
    TRUE,    /* log_write */
 +  FALSE,   /* malware */
    TRUE,    /* message */
++  FALSE,   /* mime_regex */
    FALSE,   /* recipients */
 +  FALSE,   /* regex */
    FALSE,   /* sender_domains */
@@ -1163,61 +1810,150 @@ diff -urN exim-4.30-orig/src/acl.c exim-4.30/src/acl.c
    FALSE    /* verify */
  };
  
-@@ -113,6 +123,13 @@
+@@ -102,8 +132,20 @@
+ 
+ static unsigned int cond_forbids[] = {
+   0,                                               /* acl */
++  
+   (1<<ACL_WHERE_NOTSMTP)|(1<<ACL_WHERE_CONNECT)|   /* authenticated */
+     (1<<ACL_WHERE_HELO),
++    
++#ifdef BRIGHTMAIL
++  (1<<ACL_WHERE_NOTSMTP)|(1<<ACL_WHERE_AUTH)|      /* bmi_optin */
++    (1<<ACL_WHERE_CONNECT)|(1<<ACL_WHERE_HELO)|
++    (1<<ACL_WHERE_DATA)|(1<<ACL_WHERE_MIME)|
++    (1<<ACL_WHERE_ETRN)|(1<<ACL_WHERE_EXPN)|
++    (1<<ACL_WHERE_MAILAUTH)|
++    (1<<ACL_WHERE_MAIL)|(1<<ACL_WHERE_STARTTLS)|
++    (1<<ACL_WHERE_VRFY),                                                 
++#endif
++    
+   0,                                               /* condition */
+ 
+   (1<<ACL_WHERE_AUTH)|(1<<ACL_WHERE_CONNECT)|      /* control */
+@@ -112,12 +154,29 @@
+     (1<<ACL_WHERE_ETRN)|(1<<ACL_WHERE_EXPN)|
      (1<<ACL_WHERE_STARTTLS)|(ACL_WHERE_VRFY),
  
++  (1<<ACL_WHERE_NOTSMTP)|(1<<ACL_WHERE_AUTH)|      /* decode */
++    (1<<ACL_WHERE_CONNECT)|(1<<ACL_WHERE_HELO)|
++    (1<<ACL_WHERE_DATA)|
++    (1<<ACL_WHERE_ETRN)|(1<<ACL_WHERE_EXPN)|
++    (1<<ACL_WHERE_MAILAUTH)|
++    (1<<ACL_WHERE_MAIL)|(1<<ACL_WHERE_STARTTLS)|
++    (1<<ACL_WHERE_VRFY),
++
    0,                                               /* delay */
 +
 +  (1<<ACL_WHERE_NOTSMTP)|(1<<ACL_WHERE_AUTH)|      /* demime */
-+       (1<<ACL_WHERE_CONNECT)|(1<<ACL_WHERE_RCPT)|
-+       (1<<ACL_WHERE_ETRN)|(1<<ACL_WHERE_EXPN)|
-+       (1<<ACL_WHERE_MAIL)|(1<<ACL_WHERE_STARTTLS)|
-+       (1<<ACL_WHERE_VRFY),
++    (1<<ACL_WHERE_CONNECT)|(1<<ACL_WHERE_HELO)|
++    (1<<ACL_WHERE_MIME)|
++    (1<<ACL_WHERE_ETRN)|(1<<ACL_WHERE_EXPN)|
++    (1<<ACL_WHERE_MAILAUTH)|
++    (1<<ACL_WHERE_MAIL)|(1<<ACL_WHERE_STARTTLS)|
++    (1<<ACL_WHERE_VRFY),
 +
    (1<<ACL_WHERE_NOTSMTP),                          /* dnslists */
  
    (1<<ACL_WHERE_NOTSMTP)|(1<<ACL_WHERE_AUTH)|      /* domains */
-@@ -138,6 +155,13 @@
+     (1<<ACL_WHERE_CONNECT)|(1<<ACL_WHERE_HELO)|
+-    (1<<ACL_WHERE_DATA)|
++    (1<<ACL_WHERE_DATA)|(1<<ACL_WHERE_MIME)|
+     (1<<ACL_WHERE_ETRN)|(1<<ACL_WHERE_EXPN)|
+     (1<<ACL_WHERE_MAILAUTH)|
+     (1<<ACL_WHERE_MAIL)|(1<<ACL_WHERE_STARTTLS)|
+@@ -125,22 +184,34 @@
  
-   0,                                               /* log_message */
-   0,                                               /* logwrite */
-+
-+  (1<<ACL_WHERE_NOTSMTP)|(1<<ACL_WHERE_AUTH)|      /* malware */
-+     (1<<ACL_WHERE_CONNECT)|(1<<ACL_WHERE_RCPT)|
-+     (1<<ACL_WHERE_ETRN)|(1<<ACL_WHERE_EXPN)|
-+     (1<<ACL_WHERE_MAIL)|(1<<ACL_WHERE_STARTTLS)|
-+     (1<<ACL_WHERE_VRFY),
+   (1<<ACL_WHERE_NOTSMTP)|(1<<ACL_WHERE_CONNECT)|   /* encrypted */
+     (1<<ACL_WHERE_HELO),
++    
+   0,                                               /* endpass */
 +  
-   0,                                               /* message */
+   (1<<ACL_WHERE_NOTSMTP),                          /* hosts */
  
-   (1<<ACL_WHERE_NOTSMTP)|(1<<ACL_WHERE_AUTH)|      /* recipients */
-@@ -148,6 +172,12 @@
+   (1<<ACL_WHERE_NOTSMTP)|(1<<ACL_WHERE_AUTH)|      /* local_parts */
+     (1<<ACL_WHERE_CONNECT)|(1<<ACL_WHERE_HELO)|
+-    (1<<ACL_WHERE_DATA)|
++    (1<<ACL_WHERE_DATA)|(1<<ACL_WHERE_MIME)|
+     (1<<ACL_WHERE_ETRN)|(1<<ACL_WHERE_EXPN)|
+     (1<<ACL_WHERE_MAILAUTH)|
      (1<<ACL_WHERE_MAIL)|(1<<ACL_WHERE_STARTTLS)|
      (1<<ACL_WHERE_VRFY),
  
-+  (1<<ACL_WHERE_NOTSMTP)|(1<<ACL_WHERE_AUTH)|      /* regex */
-+    (1<<ACL_WHERE_CONNECT)|(1<<ACL_WHERE_RCPT)|
+   0,                                               /* log_message */
++  
+   0,                                               /* logwrite */
++
++  (1<<ACL_WHERE_NOTSMTP)|(1<<ACL_WHERE_AUTH)|      /* malware */
++    (1<<ACL_WHERE_CONNECT)|(1<<ACL_WHERE_HELO)|
++    (1<<ACL_WHERE_MIME)|
 +    (1<<ACL_WHERE_ETRN)|(1<<ACL_WHERE_EXPN)|
++    (1<<ACL_WHERE_MAILAUTH)|
++    (1<<ACL_WHERE_MAIL)|(1<<ACL_WHERE_STARTTLS)|
++    (1<<ACL_WHERE_VRFY),
++  
+   0,                                               /* message */
+ 
+-  (1<<ACL_WHERE_NOTSMTP)|(1<<ACL_WHERE_AUTH)|      /* recipients */
++  (1<<ACL_WHERE_NOTSMTP)|(1<<ACL_WHERE_AUTH)|      /* mime_regex */
+     (1<<ACL_WHERE_CONNECT)|(1<<ACL_WHERE_HELO)|
+     (1<<ACL_WHERE_DATA)|
+     (1<<ACL_WHERE_ETRN)|(1<<ACL_WHERE_EXPN)|
+@@ -148,6 +219,21 @@
+     (1<<ACL_WHERE_MAIL)|(1<<ACL_WHERE_STARTTLS)|
+     (1<<ACL_WHERE_VRFY),
+ 
++  (1<<ACL_WHERE_NOTSMTP)|(1<<ACL_WHERE_AUTH)|      /* recipients */
++    (1<<ACL_WHERE_CONNECT)|(1<<ACL_WHERE_HELO)|
++    (1<<ACL_WHERE_DATA)|(1<<ACL_WHERE_MIME)|
++    (1<<ACL_WHERE_ETRN)|(1<<ACL_WHERE_EXPN)|
++    (1<<ACL_WHERE_MAILAUTH)|
++    (1<<ACL_WHERE_MAIL)|(1<<ACL_WHERE_STARTTLS)|
++    (1<<ACL_WHERE_VRFY),
++
++  (1<<ACL_WHERE_NOTSMTP)|(1<<ACL_WHERE_AUTH)|      /* regex */
++    (1<<ACL_WHERE_CONNECT)|(1<<ACL_WHERE_HELO)|
++    (1<<ACL_WHERE_ETRN)|(1<<ACL_WHERE_EXPN)|
++    (1<<ACL_WHERE_MAILAUTH)|
 +    (1<<ACL_WHERE_MAIL)|(1<<ACL_WHERE_STARTTLS)|
 +    (1<<ACL_WHERE_VRFY),
 +
    (1<<ACL_WHERE_AUTH)|(1<<ACL_WHERE_CONNECT)|      /* sender_domains */
      (1<<ACL_WHERE_HELO)|
      (1<<ACL_WHERE_MAILAUTH)|
-@@ -162,6 +192,12 @@
+@@ -162,6 +248,14 @@
  
    0,                                               /* set */
  
 +  (1<<ACL_WHERE_NOTSMTP)|(1<<ACL_WHERE_AUTH)|      /* spam */
-+    (1<<ACL_WHERE_CONNECT)|(1<<ACL_WHERE_RCPT)|
++    (1<<ACL_WHERE_CONNECT)|(1<<ACL_WHERE_HELO)|
++    (1<<ACL_WHERE_MIME)|
 +    (1<<ACL_WHERE_ETRN)|(1<<ACL_WHERE_EXPN)|
++    (1<<ACL_WHERE_MAILAUTH)|
 +    (1<<ACL_WHERE_MAIL)|(1<<ACL_WHERE_STARTTLS)|
 +    (1<<ACL_WHERE_VRFY),
 +
    /* Certain types of verify are always allowed, so we let it through
    always and check in the verify function itself */
  
-@@ -1129,6 +1165,10 @@
+@@ -447,7 +541,7 @@
+ /* If this isn't a message ACL, we can't do anything with a user message.
+ Log an error. */
+ 
+-if (where != ACL_WHERE_MAIL && where != ACL_WHERE_RCPT &&
++if (where != ACL_WHERE_MAIL && where != ACL_WHERE_MIME && where != ACL_WHERE_RCPT &&
+     where != ACL_WHERE_DATA && where != ACL_WHERE_NOTSMTP)
+   {
+   log_write(0, LOG_MAIN|LOG_PANIC, "ACL \"warn\" with \"message\" setting "
+@@ -1005,6 +1099,7 @@
+ uschar *user_message = NULL;
+ uschar *log_message = NULL;
+ int rc = OK;
++int sep = '/';
+ 
+ for (; cb != NULL; cb = cb->next)
+   {
+@@ -1136,6 +1231,20 @@
        deliver_freeze = TRUE;
        deliver_frozen_at = time(NULL);
        }
@@ -1225,55 +1961,631 @@ diff -urN exim-4.30-orig/src/acl.c exim-4.30/src/acl.c
 +      {
 +      fake_reject = TRUE;
 +      }
++#ifdef BRIGHTMAIL
++    else if (Ustrcmp(arg, "bmi_run") == 0)
++      {
++      bmi_run = 1;
++      }
++#endif
++    else if (Ustrcmp(arg, "no_mbox_unspool") == 0)
++      {
++      no_mbox_unspool = TRUE;
++      }
      else if (Ustrcmp(arg, "queue_only") == 0)
        {
        queue_only_policy = TRUE;
-@@ -1163,6 +1203,23 @@
-     rc = verify_check_dnsbl(&arg);
+@@ -1167,7 +1276,70 @@
      break;
  
+     case ACLC_DNSLISTS:
+-    rc = verify_check_dnsbl(&arg);
++      rc = verify_check_dnsbl(&arg);
++    break;
++
++#ifdef BRIGHTMAIL
++    case ACLC_BMI_OPTIN:
++      {
++      int old_pool = store_pool;
++      store_pool = POOL_PERM;
++      bmi_current_optin = string_copy(arg);
++      store_pool = old_pool;
++      }
++    break;
++#endif
++
++    case ACLC_DECODE:
++      rc = mime_decode(&arg);
++    break;
++
++    case ACLC_MIME_REGEX:
++      rc = mime_regex(&arg);
++    break;
 +
 +    case ACLC_DEMIME:
 +      rc = demime(&arg);
 +    break;
 +
 +    case ACLC_MALWARE:
-+      rc = malware(&arg);
++      {
++      /* Seperate the regular expression and any optional parameters. */
++      uschar *ss = string_nextinlist(&arg, &sep, big_buffer, big_buffer_size);
++      /* Run the malware backend. */
++      rc = malware(&ss);
++      /* Modify return code based upon the existance of options. */
++      while ((ss = string_nextinlist(&arg, &sep, big_buffer, big_buffer_size))
++            != NULL) {
++        if (strcmpic(ss, US"defer_ok") == 0 && rc == DEFER)
++          {
++          /* FAIL so that the message is passed to the next ACL */
++          rc = FAIL;
++          }
++        }
++      }
 +    break;
 +
 +    case ACLC_SPAM:
-+      rc = spam(&arg);
++      {
++      /* Seperate the regular expression and any optional parameters. */
++      uschar *ss = string_nextinlist(&arg, &sep, big_buffer, big_buffer_size);
++      /* Run the spam backend. */
++      rc = spam(&ss);
++      /* Modify return code based upon the existance of options. */
++      while ((ss = string_nextinlist(&arg, &sep, big_buffer, big_buffer_size))
++            != NULL) {
++        if (strcmpic(ss, US"defer_ok") == 0 && rc == DEFER)
++          {
++          /* FAIL so that the message is passed to the next ACL */
++          rc = FAIL;
++          }
++        }
++      }
 +    break;
 +
 +    case ACLC_REGEX:
 +      rc = regex(&arg);
-+    break;
-+
+     break;
+ 
      case ACLC_DOMAINS:
-     rc = match_isinlist(addr->domain, &arg, 0, &domainlist_anchor,
-       addr->domain_cache, MCL_DOMAIN, TRUE, &deliver_domain_data);
-@@ -1816,6 +1873,10 @@
- smtp_command_argument = deliver_domain =
-   deliver_localpart = deliver_address_data = NULL;
- 
-+/* Remove spooled mbox and demimed files.
-+Will immediately return if no files had been created */
-+unspool_mbox();
+@@ -1835,6 +2007,7 @@
+   if (where != ACL_WHERE_MAIL &&
+       where != ACL_WHERE_RCPT &&
+       where != ACL_WHERE_DATA &&
++      where != ACL_WHERE_MIME &&
+       where != ACL_WHERE_NOTSMTP)
+     {
+     log_write(0, LOG_MAIN|LOG_PANIC, "\"discard\" verb not allowed in %s "
+diff -urN exim-4.33-orig/src/bmi_spam.c exim-4.33/src/bmi_spam.c
+--- exim-4.33-orig/src/bmi_spam.c	Thu Jan  1 01:00:00 1970
++++ exim-4.33/src/bmi_spam.c	Wed May  5 14:05:02 2004
+@@ -0,0 +1,474 @@
++/*************************************************
++*     Exim - an Internet mail transport agent    *
++*************************************************/
 +
- /* A DISCARD response is permitted only for message ACLs */
++/* This file is part of the exiscan-acl content scanner
++   patch. It is NOT part of the standard exim distribution. */
++
++/* Copyright (c) Tom Kistner <tom@duncanthrax.net> 2003-???? */
++/* License: GPL */
++
++/* Code for calling Brightmail AntiSpam. */
++
++#include "exim.h"
++#include "bmi_spam.h"
++
++#ifdef BRIGHTMAIL
++
++uschar *bmi_current_optin = NULL;
++
++uschar *bmi_process_message(header_line *header_list, int data_fd) {
++  BmiSystem *system = NULL;
++  BmiMessage *message = NULL;
++  BmiError err;
++  BmiErrorLocation err_loc;
++  BmiErrorType err_type;
++  const BmiVerdict *verdict = NULL;
++  FILE *data_file;
++  uschar data_buffer[4096];
++  uschar localhost[] = "127.0.0.1";
++  uschar *host_address;
++  uschar *verdicts = NULL;
++  int i,j;
++  
++  err = bmiInitSystem(BMI_VERSION, (char *)bmi_config_file, &system);
++  if (bmiErrorIsFatal(err) == BMI_TRUE) {
++    err_loc = bmiErrorGetLocation(err);
++    err_type = bmiErrorGetType(err);
++    log_write(0, LOG_PANIC,
++               "bmi error [loc %d type %d]: could not initialize Brightmail system.", (int)err_loc, (int)err_type);
++    return NULL;
++  }
++
++  err = bmiInitMessage(system, &message);
++  if (bmiErrorIsFatal(err) == BMI_TRUE) {
++    err_loc = bmiErrorGetLocation(err);
++    err_type = bmiErrorGetType(err);
++    log_write(0, LOG_PANIC,
++               "bmi error [loc %d type %d]: could not initialize Brightmail message.", (int)err_loc, (int)err_type);
++    bmiFreeSystem(system);
++    return NULL;
++  }
++
++  /* Send IP address of sending host */
++  if (sender_host_address == NULL)
++    host_address = localhost;
++  else
++    host_address = sender_host_address;
++  err = bmiProcessConnection((char *)host_address, message);
++  if (bmiErrorIsFatal(err) == BMI_TRUE) {
++    err_loc = bmiErrorGetLocation(err);
++    err_type = bmiErrorGetType(err);
++    log_write(0, LOG_PANIC,
++               "bmi error [loc %d type %d]: bmiProcessConnection() failed (IP %s).", (int)err_loc, (int)err_type, (char *)host_address);
++    bmiFreeMessage(message);
++    bmiFreeSystem(system);
++    return NULL;
++  };
++
++  /* Send envelope sender address */
++  err = bmiProcessFROM((char *)sender_address, message);
++  if (bmiErrorIsFatal(err) == BMI_TRUE) {
++    err_loc = bmiErrorGetLocation(err);
++    err_type = bmiErrorGetType(err);
++    log_write(0, LOG_PANIC,
++               "bmi error [loc %d type %d]: bmiProcessFROM() failed (address %s).", (int)err_loc, (int)err_type, (char *)sender_address);
++    bmiFreeMessage(message);
++    bmiFreeSystem(system);
++    return NULL;
++  };
++
++  /* Send envelope recipients */
++  for(i=0;i<recipients_count;i++) {
++    recipient_item *r = recipients_list + i;
++    BmiOptin *optin = NULL;
++    
++    /* create optin object if optin string is given */
++    if ((r->bmi_optin != NULL) && (Ustrlen(r->bmi_optin) > 1)) {
++      debug_printf("passing bmiOptin string: %s\n", r->bmi_optin);
++      bmiOptinInit(&optin);
++      err = bmiOptinMset(optin, r->bmi_optin, ':');
++      if (bmiErrorIsFatal(err) == BMI_TRUE) {
++        log_write(0, LOG_PANIC|LOG_MAIN,
++                   "bmi warning: [loc %d type %d]: bmiOptinMSet() failed (address '%s', string '%s').", (int)err_loc, (int)err_type, (char *)r->address, (char *)r->bmi_optin);
++        if (optin != NULL)
++          bmiOptinFree(optin);
++        optin = NULL;
++      };
++    };
++    
++    err = bmiAccumulateTO((char *)r->address, optin, message);
++    
++    if (optin != NULL)
++      bmiOptinFree(optin);
++    
++    if (bmiErrorIsFatal(err) == BMI_TRUE) {
++      err_loc = bmiErrorGetLocation(err);
++      err_type = bmiErrorGetType(err);
++      log_write(0, LOG_PANIC,
++                 "bmi error [loc %d type %d]: bmiAccumulateTO() failed (address %s).", (int)err_loc, (int)err_type, (char *)r->address);
++      bmiFreeMessage(message);
++      bmiFreeSystem(system);
++      return NULL;
++    };
++  };
++  err = bmiEndTO(message);
++  if (bmiErrorIsFatal(err) == BMI_TRUE) {
++    err_loc = bmiErrorGetLocation(err);
++    err_type = bmiErrorGetType(err);
++    log_write(0, LOG_PANIC,
++               "bmi error [loc %d type %d]: bmiEndTO() failed.", (int)err_loc, (int)err_type);
++    bmiFreeMessage(message);
++    bmiFreeSystem(system);
++    return NULL;
++  };
++  
++  /* Send message headers */
++  while (header_list != NULL) {
++    /* skip deleted headers */
++    if (header_list->type == '*') {
++      header_list = header_list->next;
++      continue;
++    };
++    err = bmiAccumulateHeaders((const char *)header_list->text, header_list->slen, message);
++    if (bmiErrorIsFatal(err) == BMI_TRUE) {
++      err_loc = bmiErrorGetLocation(err);
++      err_type = bmiErrorGetType(err);
++      log_write(0, LOG_PANIC,
++                 "bmi error [loc %d type %d]: bmiAccumulateHeaders() failed.", (int)err_loc, (int)err_type);
++      bmiFreeMessage(message);
++      bmiFreeSystem(system);
++      return NULL;
++    };
++    header_list = header_list->next;
++  };
++  err = bmiEndHeaders(message);
++  if (bmiErrorIsFatal(err) == BMI_TRUE) {
++    err_loc = bmiErrorGetLocation(err);
++    err_type = bmiErrorGetType(err);
++    log_write(0, LOG_PANIC,
++               "bmi error [loc %d type %d]: bmiEndHeaders() failed.", (int)err_loc, (int)err_type);
++    bmiFreeMessage(message);
++    bmiFreeSystem(system);
++    return NULL;
++  };
++  
++  /* Send body */
++  data_file = fdopen(data_fd,"r");
++  do {
++    j = fread(data_buffer, 1, sizeof(data_buffer), data_file);
++    if (j > 0) {
++      err = bmiAccumulateBody((const char *)data_buffer, j, message);
++      if (bmiErrorIsFatal(err) == BMI_TRUE) {
++        err_loc = bmiErrorGetLocation(err);
++        err_type = bmiErrorGetType(err);
++        log_write(0, LOG_PANIC,
++                   "bmi error [loc %d type %d]: bmiAccumulateBody() failed.", (int)err_loc, (int)err_type);
++        bmiFreeMessage(message);
++        bmiFreeSystem(system);
++        return NULL;
++      };
++    };
++  } while (j > 0);
++  err = bmiEndBody(message);
++  if (bmiErrorIsFatal(err) == BMI_TRUE) {
++    err_loc = bmiErrorGetLocation(err);
++    err_type = bmiErrorGetType(err);
++    log_write(0, LOG_PANIC,
++               "bmi error [loc %d type %d]: bmiEndBody() failed.", (int)err_loc, (int)err_type);
++    bmiFreeMessage(message);
++    bmiFreeSystem(system);
++    return NULL;
++  };
++  
++  
++  /* End message */
++  err = bmiEndMessage(message);
++  if (bmiErrorIsFatal(err) == BMI_TRUE) {
++    err_loc = bmiErrorGetLocation(err);
++    err_type = bmiErrorGetType(err);
++    log_write(0, LOG_PANIC,
++               "bmi error [loc %d type %d]: bmiEndMessage() failed.", (int)err_loc, (int)err_type);
++    bmiFreeMessage(message);
++    bmiFreeSystem(system);
++    return NULL;
++  };
++  
++  /* get store for the verdict string */
++  verdicts = store_get(1);
++  *verdicts = '\0';
++  
++  for ( err = bmiAccessFirstVerdict(message, &verdict);
++        verdict != NULL;
++        err = bmiAccessNextVerdict(message, verdict, &verdict) ) {
++    char *verdict_str;
++
++    err = bmiCreateStrFromVerdict(verdict,&verdict_str);
++    if (!store_extend(verdicts, Ustrlen(verdicts)+1, Ustrlen(verdicts)+1+strlen(verdict_str)+1)) {
++      /* can't allocate more store */
++      return NULL;
++    };
++    if (*verdicts != '\0')
++      Ustrcat(verdicts, US ":");
++    Ustrcat(verdicts, US verdict_str);
++    bmiFreeStr(verdict_str);
++  };
++
++  DEBUG(D_receive) debug_printf("bmi verdicts: %s\n", verdicts);
++
++  if (Ustrlen(verdicts) == 0)
++    return NULL;
++  else
++    return verdicts;
++}
++
++
++int bmi_get_delivery_status(uschar *base64_verdict) {
++  BmiError err;
++  BmiErrorLocation err_loc;
++  BmiErrorType err_type;
++  BmiVerdict *verdict = NULL;
++  int rc = 1;   /* deliver by default */
++  
++  /* always deliver when there is no verdict */
++  if (base64_verdict == NULL)
++    return 1;
++
++  /* create verdict from base64 string */
++  err = bmiCreateVerdictFromStr(CS base64_verdict, &verdict);
++  if (bmiErrorIsFatal(err) == BMI_TRUE) {
++    err_loc = bmiErrorGetLocation(err);
++    err_type = bmiErrorGetType(err);
++    log_write(0, LOG_PANIC,
++               "bmi error [loc %d type %d]: bmiCreateVerdictFromStr() failed. [%s]", (int)err_loc, (int)err_type, base64_verdict);
++    return 1;
++  };
++
++  err = bmiVerdictError(verdict);
++  if (bmiErrorIsFatal(err) == BMI_TRUE) {
++    /* deliver normally due to error */
++    rc = 1;
++  }
++  else if (bmiVerdictDestinationIsDefault(verdict) == BMI_TRUE) {
++    /* deliver normally */
++    rc = 1;    
++  }
++  else if (bmiVerdictAccessDestination(verdict) == NULL) {
++    /* do not deliver */
++    rc = 0;
++  }
++  else {
++    /* deliver to alternate location */
++    rc = 1;
++  };
++  
++  bmiFreeVerdict(verdict);
++  return rc;
++}
++
++
++uschar *bmi_get_alt_location(uschar *base64_verdict) {
++  BmiError err;
++  BmiErrorLocation err_loc;
++  BmiErrorType err_type;
++  BmiVerdict *verdict = NULL;
++  uschar *rc = NULL;
++  
++  /* always deliver when there is no verdict */
++  if (base64_verdict == NULL)
++    return NULL;
++
++  /* create verdict from base64 string */
++  err = bmiCreateVerdictFromStr(CS base64_verdict, &verdict);
++  if (bmiErrorIsFatal(err) == BMI_TRUE) {
++    err_loc = bmiErrorGetLocation(err);
++    err_type = bmiErrorGetType(err);
++    log_write(0, LOG_PANIC,
++               "bmi error [loc %d type %d]: bmiCreateVerdictFromStr() failed. [%s]", (int)err_loc, (int)err_type, base64_verdict);
++    return NULL;
++  };
++  
++  err = bmiVerdictError(verdict);
++  if (bmiErrorIsFatal(err) == BMI_TRUE) {
++    /* deliver normally due to error */
++    rc = NULL;
++  }
++  else if (bmiVerdictDestinationIsDefault(verdict) == BMI_TRUE) {
++    /* deliver normally */
++    rc = NULL; 
++  }
++  else if (bmiVerdictAccessDestination(verdict) == NULL) {
++    /* do not deliver */
++    rc = NULL;
++  }
++  else {
++    /* deliver to alternate location */
++    rc = store_get(strlen(bmiVerdictAccessDestination(verdict))+1);
++    Ustrcpy(rc, bmiVerdictAccessDestination(verdict));
++    rc[strlen(bmiVerdictAccessDestination(verdict))] = '\0';
++  };
++  
++  bmiFreeVerdict(verdict);
++  return rc;
++}
++
++uschar *bmi_get_base64_verdict(uschar *bmi_local_part, uschar *bmi_domain) {
++  BmiError err;
++  BmiErrorLocation err_loc;
++  BmiErrorType err_type;
++  BmiVerdict *verdict = NULL;
++  const BmiRecipient *recipient = NULL;
++  const char *verdict_str = NULL;
++  uschar *verdict_ptr;
++  uschar *verdict_buffer = NULL;
++  int sep = 0;
++  
++  /* return nothing if there are no verdicts available */
++  if (bmi_verdicts == NULL)
++    return NULL;
++  
++  /* allocate room for the b64 verdict string */
++  verdict_buffer = store_get(Ustrlen(bmi_verdicts)+1);
++  
++  /* loop through verdicts */
++  verdict_ptr = bmi_verdicts;
++  while ((verdict_str = (const char *)string_nextinlist(&verdict_ptr, &sep,
++                                          verdict_buffer,
++                                          Ustrlen(bmi_verdicts)+1)) != NULL) {
++    
++    /* create verdict from base64 string */
++    err = bmiCreateVerdictFromStr(verdict_str, &verdict);
++    if (bmiErrorIsFatal(err) == BMI_TRUE) {
++      err_loc = bmiErrorGetLocation(err);
++      err_type = bmiErrorGetType(err);
++      log_write(0, LOG_PANIC,
++                 "bmi error [loc %d type %d]: bmiCreateVerdictFromStr() failed. [%s]", (int)err_loc, (int)err_type, verdict_str);
++      return NULL;
++    };
++    
++    /* loop through rcpts for this verdict */
++    for ( recipient = bmiVerdictAccessFirstRecipient(verdict);
++          recipient != NULL;
++          recipient = bmiVerdictAccessNextRecipient(verdict, recipient)) {
++      uschar *rcpt_local_part;
++      uschar *rcpt_domain;
++      
++      /* compare address against our subject */
++      rcpt_local_part = (unsigned char *)bmiRecipientAccessAddress(recipient);
++      rcpt_domain = Ustrchr(rcpt_local_part,'@');
++      if (rcpt_domain == NULL) {
++        rcpt_domain = US"";
++      }
++      else {
++        *rcpt_domain = '\0';
++        rcpt_domain++;
++      };
++
++      if ( (strcmpic(rcpt_local_part, bmi_local_part) == 0) &&
++           (strcmpic(rcpt_domain, bmi_domain) == 0) ) {
++        /* found verdict */
++        bmiFreeVerdict(verdict);
++        return (uschar *)verdict_str;
++      };   
++    };
++  
++    bmiFreeVerdict(verdict);
++  };
++  
++  return NULL;
++}
++
++
++uschar *bmi_get_base64_tracker_verdict(uschar *base64_verdict) {
++  BmiError err;
++  BmiErrorLocation err_loc;
++  BmiErrorType err_type;
++  BmiVerdict *verdict = NULL;
++  uschar *rc = NULL;
++  
++  /* always deliver when there is no verdict */
++  if (base64_verdict == NULL)
++    return NULL;
++
++  /* create verdict from base64 string */
++  err = bmiCreateVerdictFromStr(CS base64_verdict, &verdict);
++  if (bmiErrorIsFatal(err) == BMI_TRUE) {
++    err_loc = bmiErrorGetLocation(err);
++    err_type = bmiErrorGetType(err);
++    log_write(0, LOG_PANIC,
++               "bmi error [loc %d type %d]: bmiCreateVerdictFromStr() failed. [%s]", (int)err_loc, (int)err_type, base64_verdict);
++    return NULL;
++  };
++  
++  /* create old tracker string from verdict */
++  err = bmiCreateOldStrFromVerdict(verdict, &rc);
++  if (bmiErrorIsFatal(err) == BMI_TRUE) {
++    err_loc = bmiErrorGetLocation(err);
++    err_type = bmiErrorGetType(err);
++    log_write(0, LOG_PANIC,
++               "bmi error [loc %d type %d]: bmiCreateOldStrFromVerdict() failed. [%s]", (int)err_loc, (int)err_type, base64_verdict);
++    return NULL;
++  };
++  
++  bmiFreeVerdict(verdict);
++  return rc;
++}
++
++
++int bmi_check_rule(uschar *base64_verdict, uschar *option_list) {
++  BmiError err;
++  BmiErrorLocation err_loc;
++  BmiErrorType err_type;
++  BmiVerdict *verdict = NULL;
++  int rc = 0;
++  uschar *rule_num;
++  uschar *rule_ptr;
++  uschar rule_buffer[32];
++  int sep = 0;
++  
++  
++  /* no verdict -> no rule fired */
++  if (base64_verdict == NULL)
++    return 0;
++  
++  /* create verdict from base64 string */
++  err = bmiCreateVerdictFromStr(CS base64_verdict, &verdict);
++  if (bmiErrorIsFatal(err) == BMI_TRUE) {
++    err_loc = bmiErrorGetLocation(err);
++    err_type = bmiErrorGetType(err);
++    log_write(0, LOG_PANIC,
++               "bmi error [loc %d type %d]: bmiCreateVerdictFromStr() failed. [%s]", (int)err_loc, (int)err_type, base64_verdict);
++    return 0;
++  };
++  
++  err = bmiVerdictError(verdict);
++  if (bmiErrorIsFatal(err) == BMI_TRUE) {
++    /* error -> no rule fired */
++    bmiFreeVerdict(verdict);
++    return 0;
++  }
++  
++  /* loop through numbers */
++  rule_ptr = option_list;
++  while ((rule_num = string_nextinlist(&rule_ptr, &sep,
++                                       rule_buffer, 32)) != NULL) {
++    int rule_int = -1;
++    
++    /* try to translate to int */
++    sscanf(rule_num, "%d", &rule_int);
++    if (rule_int > 0) {
++      debug_printf("checking rule #%d\n", rule_int);
++      /* check if rule fired on the message */
++      if (bmiVerdictRuleFired(verdict, rule_int) == BMI_TRUE) {
++        debug_printf("rule #%d fired\n", rule_int);
++        rc = 1;
++        break;
++      };
++    };
++  };
++
++  bmiFreeVerdict(verdict);
++  return rc;
++};
++
++#endif
+diff -urN exim-4.33-orig/src/bmi_spam.h exim-4.33/src/bmi_spam.h
+--- exim-4.33-orig/src/bmi_spam.h	Thu Jan  1 01:00:00 1970
++++ exim-4.33/src/bmi_spam.h	Wed May  5 14:05:02 2004
+@@ -0,0 +1,26 @@
++/*************************************************
++*     Exim - an Internet mail transport agent    *
++*************************************************/
++
++/* This file is part of the exiscan-acl content scanner
++   patch. It is NOT part of the standard exim distribution. */
++
++/* Copyright (c) Tom Kistner <tom@duncanthrax.net> 2003-???? */
++/* License: GPL */
++
++/* Code for calling Brightmail AntiSpam. */
++
++#ifdef BRIGHTMAIL
++
++#include <bmi_api.h>
++
++extern uschar *bmi_process_message(header_line *, int);
++extern uschar *bmi_get_base64_verdict(uschar *, uschar *);
++extern uschar *bmi_get_base64_tracker_verdict(uschar *);
++extern int bmi_get_delivery_status(uschar *);
++extern uschar *bmi_get_alt_location(uschar *);
++extern int bmi_check_rule(uschar *,uschar *);
++
++extern uschar *bmi_current_optin;
++
++#endif
+diff -urN exim-4.33-orig/src/config.h.defaults exim-4.33/src/config.h.defaults
+--- exim-4.33-orig/src/config.h.defaults	Wed May  5 12:08:35 2004
++++ exim-4.33/src/config.h.defaults	Wed May  5 14:05:02 2004
+@@ -101,7 +101,7 @@
+ #define SPOOL_DIRECTORY
+ #define SPOOL_DIRECTORY_MODE       0750
+ #define SPOOL_MODE                 0640
+-#define STRING_SPRINTF_BUFFER_SIZE 8192
++#define STRING_SPRINTF_BUFFER_SIZE (8192 * 4)
  
- if (rc == DISCARD)
-diff -urN exim-4.30-orig/src/configure.default exim-4.30/src/configure.default
---- exim-4.30-orig/src/configure.default	Mon Dec  1 11:15:41 2003
-+++ exim-4.30/src/configure.default	Tue Dec  2 12:15:53 2003
-@@ -108,6 +108,25 @@
+ #define SUPPORT_A6
+ #define SUPPORT_CRYPTEQ
+diff -urN exim-4.33-orig/src/configure.default exim-4.33/src/configure.default
+--- exim-4.33-orig/src/configure.default	Wed May  5 12:08:35 2004
++++ exim-4.33/src/configure.default	Wed May  5 14:05:02 2004
+@@ -108,6 +108,26 @@
  
  # You should not change that setting until you understand how ACLs work.
  
-+# The following ACL entry is used if you want to do content scanning with the
-+# exiscan-acl patch. When you uncomment this line, you must also review the
-+# acl_check_content entry in the ACL section further below.
++# The following ACL entries are used if you want to do content scanning with
++# the exiscan-acl patch. When you uncomment one of these lines, you must also
++# review the respective entries in the ACL section further below.
 +
++# acl_smtp_mime = acl_check_mime
 +# acl_smtp_data = acl_check_content
 +
 +# This configuration variable defines the virus scanner that is used with
@@ -1292,36 +2604,40 @@ diff -urN exim-4.30-orig/src/configure.default exim-4.30/src/configure.default
  
  # Specify the domain you want to be added to all unqualified addresses
  # here. An unqualified address is one that does not contain an "@" character
-@@ -340,6 +359,52 @@
+@@ -342,6 +362,56 @@
    deny    message       = relay not permitted
  
  
-+# This access control list is used for content scanning with the exiscan-acl
-+# patch. You must also uncomment the entry for acl_smtp_data (scroll up),
-+# otherwise the ACL will not be used. IMPORTANT: the default entries here
++# These access control lists are used for content scanning with the exiscan-acl
++# patch. You must also uncomment the entries for acl_smtp_data and acl_smtp_mime
++# (scroll up), otherwise the ACLs will not be used. IMPORTANT: the default entries here
 +# should be treated as EXAMPLES. You MUST read the file doc/exiscan-acl-spec.txt
 +# to fully understand what you are doing ...
 +
++acl_check_mime:
++
++  # Decode MIME parts to disk. This will support virus scanners later.
++  warn decode = default
++
++  # File extension filtering.
++  deny message = Blacklisted file extension detected
++       condition = ${if match \
++                        {${lc:$mime_filename}} \
++                        {\N(\.exe|\.pif|\.bat|\.scr|\.lnk|\.com)$\N} \
++                     {1}{0}}
++  
++  # Reject messages that carry chinese character sets.
++  # WARNING: This is an EXAMPLE.
++  deny message = Sorry, noone speaks chinese here
++       condition = ${if eq{$mime_charset}{gb2312}{1}{0}}
++
++  accept
++
 +acl_check_content:
 +
-+  # First unpack MIME containers and reject serious errors.
-+  deny  message = This message contains a MIME error ($demime_reason)
-+        demime = *
-+        condition = ${if >{$demime_errorlevel}{2}{1}{0}}
-+        
-+  # Reject typically wormish file extensions. There is almost no
-+  # sense in sending such files by email.
-+  deny  message = This message contains an unwanted file extension ($found_extension)
-+        demime = scr:vbs:bat:lnk:pif
-+  
 +  # Reject virus infested messages.
 +  deny  message = This message contains malware ($malware_name)
 +        malware = *
-+
-+  # Reject messages containing "viagra" in all kinds of whitespace/case combinations
-+  # WARNING: this is an example !
-+  deny  message = This message matches a blacklisted regular expression ($regex_match_string)
-+        regex = [Vv] *[Ii] *[Aa] *[Gg] *[Rr] *[Aa]
 +
 +  # Always add X-Spam-Score and X-Spam-Report headers, using SA system-wide settings
 +  # (user "nobody"), no matter if over threshold or not.
@@ -1345,9 +2661,56 @@ diff -urN exim-4.30-orig/src/configure.default exim-4.30/src/configure.default
  
  ######################################################################
  #                      ROUTERS CONFIGURATION                         #
-diff -urN exim-4.30-orig/src/demime.c exim-4.30/src/demime.c
---- exim-4.30-orig/src/demime.c	Thu Jan  1 01:00:00 1970
-+++ exim-4.30/src/demime.c	Tue Dec  2 12:15:53 2003
+diff -urN exim-4.33-orig/src/deliver.c exim-4.33/src/deliver.c
+--- exim-4.33-orig/src/deliver.c	Wed May  5 12:08:35 2004
++++ exim-4.33/src/deliver.c	Wed May  5 14:05:02 2004
+@@ -10,6 +10,9 @@
+ 
+ #include "exim.h"
+ 
++#ifdef BRIGHTMAIL
++#include "bmi_spam.h"
++#endif
+ 
+ /* Data block for keeping track of subprocesses for parallel remote
+ delivery. */
+@@ -152,6 +155,13 @@
+ deliver_domain = addr->domain;
+ self_hostname = addr->self_hostname;
+ 
++#ifdef BRIGHTMAIL
++bmi_deliver = 1;    /* deliver by default */
++bmi_alt_location = NULL;
++bmi_base64_verdict = NULL;
++bmi_base64_tracker_verdict = NULL;
++#endif
++
+ /* If there's only one address we can set everything. */
+ 
+ if (addr->next == NULL)
+@@ -201,6 +211,19 @@
+       deliver_localpart_suffix = addr->parent->suffix;
+       }
+     }
++  
++#ifdef BRIGHTMAIL
++    /* Set expansion variables related to Brightmail AntiSpam */
++    bmi_base64_verdict = bmi_get_base64_verdict(deliver_localpart_orig, deliver_domain_orig);
++    bmi_base64_tracker_verdict = bmi_get_base64_tracker_verdict(bmi_base64_verdict);
++    /* get message delivery status (0 - don't deliver | 1 - deliver) */
++    bmi_deliver = bmi_get_delivery_status(bmi_base64_verdict);
++    /* if message is to be delivered, get eventual alternate location */
++    if (bmi_deliver == 1) {
++      bmi_alt_location = bmi_get_alt_location(bmi_base64_verdict);
++    };
++#endif
++  
+   }
+ 
+ /* For multiple addresses, don't set local part, and leave the domain and
+diff -urN exim-4.33-orig/src/demime.c exim-4.33/src/demime.c
+--- exim-4.33-orig/src/demime.c	Thu Jan  1 01:00:00 1970
++++ exim-4.33/src/demime.c	Wed May  5 14:05:02 2004
 @@ -0,0 +1,1276 @@
 +/*************************************************
 +*     Exim - an Internet mail transport agent    *
@@ -1477,7 +2840,7 @@ diff -urN exim-4.30-orig/src/demime.c exim-4.30/src/demime.c
 +	  /* break on end of list */
 +	  if (entry == NULL) break;
 +	  snprintf(CS filepath,1024,"%s/%s",directory,entry->d_name);
-+	  if ( (Ustrcmp(entry->d_name,"..") != 0) && (Ustrcmp(entry->d_name,".") != 0) ) {    
++	  if ( (Ustrcmp(entry->d_name,"..") != 0) && (Ustrcmp(entry->d_name,".") != 0) && (Ustrcmp(entry->d_name,"winmail.dat") == 0) ) {    
 +	    TNEF_set_path(CS directory);
 +      n = TNEF_main(CS filepath);
 +    };
@@ -1826,14 +3189,14 @@ diff -urN exim-4.30-orig/src/demime.c exim-4.30/src/demime.c
 +
 +int mime_check_boundary(uschar *line, struct boundary *boundaries) {
 +  struct boundary *thisboundary = boundaries;
-+  uschar workbuf[strlen(line)+1];
++  uschar workbuf[MIME_SANITY_MAX_LINE_LENGTH+1];
 +  unsigned int i,j=0;
 +  
 +  /* check for '--' first */
 +  if (Ustrncmp(line,"--",2) == 0) {
 +    
 +    /* strip tab and space */
-+    for (i = 2; i < strlen(line); i++) {
++    for (i = 2; i < Ustrlen(line); i++) {
 +      if ((line[i] != ' ') && (line[i] != '\t')) {
 +        workbuf[j] = line[i];
 +	      j++;
@@ -2625,9 +3988,9 @@ diff -urN exim-4.30-orig/src/demime.c exim-4.30/src/demime.c
 +  return 0;
 +}
 +
-diff -urN exim-4.30-orig/src/demime.h exim-4.30/src/demime.h
---- exim-4.30-orig/src/demime.h	Thu Jan  1 01:00:00 1970
-+++ exim-4.30/src/demime.h	Tue Dec  2 12:15:53 2003
+diff -urN exim-4.33-orig/src/demime.h exim-4.33/src/demime.h
+--- exim-4.33-orig/src/demime.h	Thu Jan  1 01:00:00 1970
++++ exim-4.33/src/demime.h	Wed May  5 14:05:02 2004
 @@ -0,0 +1,146 @@
 +/*************************************************
 +*     Exim - an Internet mail transport agent    *
@@ -2775,22 +4138,38 @@ diff -urN exim-4.30-orig/src/demime.h exim-4.30/src/demime.h
 +/* 240 */  16,   17,   18,   19,   20,   21,   22,   23,   24,   25,   26,   27,   28,   29,   30,   31 
 +};
 +
-diff -urN exim-4.30-orig/src/exim.c exim-4.30/src/exim.c
---- exim-4.30-orig/src/exim.c	Mon Dec  1 11:15:41 2003
-+++ exim-4.30/src/exim.c	Tue Dec  2 12:15:53 2003
-@@ -1500,6 +1500,7 @@
+diff -urN exim-4.33-orig/src/exim.c exim-4.33/src/exim.c
+--- exim-4.33-orig/src/exim.c	Wed May  5 12:08:35 2004
++++ exim-4.33/src/exim.c	Wed May  5 14:05:02 2004
+@@ -1530,6 +1530,10 @@
        printf("%s\n", CS version_copyright);
        version_printed = TRUE;
        show_whats_supported(stdout);
 +      printf("Contains exiscan-acl patch revision %s (c) Tom Kistner [http://duncanthrax.net/exiscan/]\n", exiscan_version_string);
++#ifdef BRIGHTMAIL
++      printf("Contains Brightmail AntiSpam support via the exiscan-acl patch.\n");
++#endif      
        }
  
      else badarg = TRUE;
-diff -urN exim-4.30-orig/src/expand.c exim-4.30/src/expand.c
---- exim-4.30-orig/src/expand.c	Mon Dec  1 11:15:41 2003
-+++ exim-4.30/src/expand.c	Tue Dec  2 19:17:36 2003
-@@ -226,11 +226,14 @@
-   { "caller_uid",          vtype_int,         &real_uid },
+diff -urN exim-4.33-orig/src/expand.c exim-4.33/src/expand.c
+--- exim-4.33-orig/src/expand.c	Wed May  5 12:08:36 2004
++++ exim-4.33/src/expand.c	Wed May  5 14:05:02 2004
+@@ -294,6 +294,12 @@
+   { "authenticated_id",    vtype_stringptr,   &authenticated_id },
+   { "authenticated_sender",vtype_stringptr,   &authenticated_sender },
+   { "authentication_failed",vtype_int,        &authentication_failed },
++#ifdef BRIGHTMAIL
++  { "bmi_alt_location",    vtype_stringptr,   &bmi_alt_location },
++  { "bmi_base64_tracker_verdict", vtype_stringptr, &bmi_base64_tracker_verdict },
++  { "bmi_base64_verdict",  vtype_stringptr,   &bmi_base64_verdict },
++  { "bmi_deliver",         vtype_int,         &bmi_deliver },
++#endif
+   { "body_linecount",      vtype_int,         &body_linecount },
+   { "bounce_recipient",    vtype_stringptr,   &bounce_recipient },
+   { "bounce_return_size_limit", vtype_int,    &bounce_return_size_limit },
+@@ -301,6 +307,8 @@
+   { "caller_uid",          vtype_uid,         &real_uid },
    { "compile_date",        vtype_stringptr,   &version_date },
    { "compile_number",      vtype_stringptr,   &version_cnumber },
 +  { "demime_errorlevel",   vtype_int,         &demime_errorlevel },
@@ -2798,13 +4177,15 @@ diff -urN exim-4.30-orig/src/expand.c exim-4.30/src/expand.c
    { "dnslist_domain",      vtype_stringptr,   &dnslist_domain },
    { "dnslist_text",        vtype_stringptr,   &dnslist_text },
    { "dnslist_value",       vtype_stringptr,   &dnslist_value },
-   { "domain",              vtype_stringptr,   &deliver_domain },
-   { "domain_data",         vtype_stringptr,   &deliver_domain_data },
+@@ -309,6 +317,7 @@
+   { "exim_gid",            vtype_gid,         &exim_gid },
+   { "exim_path",           vtype_stringptr,   &exim_path },
+   { "exim_uid",            vtype_uid,         &exim_uid },
 +  { "found_extension",     vtype_stringptr,   &found_extension },
    { "home",                vtype_stringptr,   &deliver_home },
    { "host",                vtype_stringptr,   &deliver_host },
    { "host_address",        vtype_stringptr,   &deliver_host_address },
-@@ -252,6 +255,7 @@
+@@ -330,6 +339,7 @@
    { "local_user_uid",      vtype_uid,         &local_user_uid },
    { "localhost_number",    vtype_int,         &host_number },
    { "mailstore_basename",  vtype_stringptr,   &mailstore_basename },
@@ -2812,7 +4193,30 @@ diff -urN exim-4.30-orig/src/expand.c exim-4.30/src/expand.c
    { "message_age",         vtype_int,         &message_age },
    { "message_body",        vtype_msgbody,     &message_body },
    { "message_body_end",    vtype_msgbody_end, &message_body_end },
-@@ -287,6 +291,7 @@
+@@ -337,6 +347,22 @@
+   { "message_headers",     vtype_msgheaders,  NULL },
+   { "message_id",          vtype_stringptr,   &message_id },
+   { "message_size",        vtype_int,         &message_size },
++  { "mime_anomaly_level",  vtype_int,         &mime_anomaly_level },
++  { "mime_anomaly_text",   vtype_stringptr,   &mime_anomaly_text },
++  { "mime_boundary",       vtype_stringptr,   &mime_boundary },
++  { "mime_charset",        vtype_stringptr,   &mime_charset },
++  { "mime_content_description", vtype_stringptr, &mime_content_description },
++  { "mime_content_disposition", vtype_stringptr, &mime_content_disposition },
++  { "mime_content_id",     vtype_stringptr,   &mime_content_id },
++  { "mime_content_size",   vtype_int,         &mime_content_size },
++  { "mime_content_transfer_encoding",vtype_stringptr, &mime_content_transfer_encoding },
++  { "mime_content_type",   vtype_stringptr,   &mime_content_type },
++  { "mime_decoded_filename", vtype_stringptr, &mime_decoded_filename },
++  { "mime_filename",       vtype_stringptr,   &mime_filename },
++  { "mime_is_coverletter", vtype_int,         &mime_is_coverletter },
++  { "mime_is_multipart",   vtype_int,         &mime_is_multipart },
++  { "mime_is_rfc822",      vtype_int,         &mime_is_rfc822 },
++  { "mime_part_count",     vtype_int,         &mime_part_count },
+   { "n0",                  vtype_filter_int,  &filter_n[0] },
+   { "n1",                  vtype_filter_int,  &filter_n[1] },
+   { "n2",                  vtype_filter_int,  &filter_n[2] },
+@@ -365,6 +391,7 @@
    { "received_protocol",   vtype_stringptr,   &received_protocol },
    { "recipients",          vtype_recipients,  NULL },
    { "recipients_count",    vtype_int,         &recipients_count },
@@ -2820,7 +4224,7 @@ diff -urN exim-4.30-orig/src/expand.c exim-4.30/src/expand.c
    { "reply_address",       vtype_reply,       NULL },
    { "return_path",         vtype_stringptr,   &return_path },
    { "return_size_limit",   vtype_int,         &bounce_return_size_limit },
-@@ -314,6 +319,10 @@
+@@ -392,6 +419,10 @@
    { "sn7",                 vtype_filter_int,  &filter_sn[7] },
    { "sn8",                 vtype_filter_int,  &filter_sn[8] },
    { "sn9",                 vtype_filter_int,  &filter_sn[9] },
@@ -2831,9 +4235,9 @@ diff -urN exim-4.30-orig/src/expand.c exim-4.30/src/expand.c
    { "spool_directory",     vtype_stringptr,   &spool_directory },
    { "thisaddress",         vtype_stringptr,   &filter_thisaddress },
    { "tls_certificate_verified", vtype_int,    &tls_certificate_verified },
-diff -urN exim-4.30-orig/src/functions.h exim-4.30/src/functions.h
---- exim-4.30-orig/src/functions.h	Mon Dec  1 11:15:41 2003
-+++ exim-4.30/src/functions.h	Tue Dec  2 12:15:53 2003
+diff -urN exim-4.33-orig/src/functions.h exim-4.33/src/functions.h
+--- exim-4.33-orig/src/functions.h	Wed May  5 12:08:36 2004
++++ exim-4.33/src/functions.h	Wed May  5 14:06:07 2004
 @@ -66,6 +66,7 @@
  extern void    deliver_set_expansions(address_item *);
  extern int     deliver_split_address(address_item *);
@@ -2842,15 +4246,27 @@ diff -urN exim-4.30-orig/src/functions.h exim-4.30/src/functions.h
  extern BOOL    directory_make(uschar *, uschar *, int, BOOL);
  extern dns_address *dns_address_from_rr(dns_answer *, dns_record *);
  extern void    dns_build_reverse(uschar *, uschar *);
-@@ -118,6 +119,7 @@
+@@ -119,6 +120,7 @@
  
  extern void    log_close_all(void);
  
 +extern int     malware(uschar **);
- extern int     match_address_list(uschar *, BOOL, uschar **, unsigned int *,
-                  int, int);
+ extern int     match_address_list(uschar *, BOOL, BOOL, uschar **,
+                  unsigned int *, int, int);
  extern int     match_check_list(uschar **, int, tree_node **, unsigned int **,
-@@ -174,6 +176,7 @@
+@@ -132,6 +134,11 @@
+ extern void    md5_mid(md5 *, const uschar *);
+ extern void    md5_start(md5 *);
+ extern void    millisleep(int);
++struct mime_boundary_context;
++extern int     mime_acl_check(FILE *f, struct mime_boundary_context *,
++                              uschar **, uschar **);
++extern int     mime_decode(uschar **);
++extern int     mime_regex(uschar **);
+ extern uschar *moan_check_errorcopy(uschar *);
+ extern BOOL    moan_skipped_syntax_errors(uschar *, error_block *, uschar *,
+                  BOOL, uschar *);
+@@ -175,6 +182,7 @@
  extern BOOL    receive_check_set_sender(uschar *);
  extern BOOL    receive_msg(BOOL);
  extern void    receive_swallow_smtp(void);
@@ -2858,7 +4274,7 @@ diff -urN exim-4.30-orig/src/functions.h exim-4.30/src/functions.h
  extern BOOL    regex_match_and_setup(const pcre *, uschar *, int, int);
  extern const pcre *regex_must_compile(uschar *, BOOL, BOOL);
  extern void    retry_add_item(address_item *, uschar *, int);
-@@ -231,6 +234,8 @@
+@@ -234,6 +242,8 @@
  extern BOOL    smtp_start_session(void);
  extern int     smtp_ungetc(int);
  extern int     smtp_write_command(smtp_outblock *, BOOL, char *, ...);
@@ -2867,7 +4283,7 @@ diff -urN exim-4.30-orig/src/functions.h exim-4.30/src/functions.h
  extern BOOL    spool_move_message(uschar *, uschar *, uschar *, uschar *);
  extern BOOL    spool_open_datafile(uschar *);
  extern int     spool_open_temp(uschar *);
-@@ -281,6 +286,8 @@
+@@ -285,6 +295,8 @@
  extern tree_node *tree_search(tree_node *, uschar *);
  extern void    tree_write(tree_node *, FILE *);
  
@@ -2876,10 +4292,34 @@ diff -urN exim-4.30-orig/src/functions.h exim-4.30/src/functions.h
  extern int     verify_address(address_item *, FILE *, int, int, BOOL *);
  extern int     verify_check_dnsbl(uschar **);
  extern int     verify_check_header_address(uschar **, uschar **, int);
-diff -urN exim-4.30-orig/src/globals.c exim-4.30/src/globals.c
---- exim-4.30-orig/src/globals.c	Mon Dec  1 11:15:41 2003
-+++ exim-4.30/src/globals.c	Tue Dec  2 19:18:45 2003
-@@ -294,6 +294,7 @@
+diff -urN exim-4.33-orig/src/globals.c exim-4.33/src/globals.c
+--- exim-4.33-orig/src/globals.c	Wed May  5 12:08:36 2004
++++ exim-4.33/src/globals.c	Wed May  5 14:05:02 2004
+@@ -161,6 +161,7 @@
+ uschar *acl_smtp_helo          = NULL;
+ uschar *acl_smtp_mail          = NULL;
+ uschar *acl_smtp_mailauth      = NULL;
++uschar *acl_smtp_mime          = NULL;
+ uschar *acl_smtp_rcpt          = NULL;
+ uschar *acl_smtp_starttls      = NULL;
+ uschar *acl_smtp_vrfy          = NULL;
+@@ -181,6 +182,7 @@
+                                    US"EHLO or HELO",
+                                    US"MAIL",
+                                    US"MAILAUTH",
++                                   US"MIME",
+                                    US"RCPT",
+                                    US"STARTTLS",
+                                    US"VRFY",
+@@ -194,6 +196,7 @@
+                                    550,     /* HELO/EHLO */
+                                    550,     /* MAIL */
+                                    0,       /* MAILAUTH; not relevant */
++                                   550,     /* MIME */
+                                    550,     /* RCPT */
+                                    550,     /* STARTTLS */
+                                    252,     /* VRFY */
+@@ -296,6 +299,7 @@
  uschar *auth_defer_msg         = US"reason not recorded";
  uschar *auth_defer_user_msg    = US"";
  int     auto_thaw              = 0;
@@ -2887,7 +4327,23 @@ diff -urN exim-4.30-orig/src/globals.c exim-4.30/src/globals.c
  
  BOOL    background_daemon      = TRUE;
  uschar *base62_chars=
-@@ -410,6 +411,9 @@
+@@ -303,6 +307,15 @@
+ uschar *bi_command             = NULL;
+ uschar *big_buffer             = NULL;
+ int     big_buffer_size        = BIG_BUFFER_SIZE;
++#ifdef BRIGHTMAIL
++uschar *bmi_alt_location       = NULL;
++uschar *bmi_base64_tracker_verdict = NULL;
++uschar *bmi_base64_verdict     = NULL;
++uschar *bmi_config_file        = US"/opt/brightmail/etc/brightmail.cfg";
++int     bmi_deliver            = 1;
++int     bmi_run                = 0;
++uschar *bmi_verdicts           = NULL;
++#endif
+ int     body_linecount         = 0;
+ uschar *bounce_message_file    = NULL;
+ uschar *bounce_message_text    = NULL;
+@@ -412,6 +425,9 @@
  BOOL    deliver_selectstring_regex = FALSE;
  uschar *deliver_selectstring_sender = NULL;
  BOOL    deliver_selectstring_sender_regex = FALSE;
@@ -2897,15 +4353,15 @@ diff -urN exim-4.30-orig/src/globals.c exim-4.30/src/globals.c
  BOOL    disable_logging        = FALSE;
  
  uschar *dns_again_means_nonexist = NULL;
-@@ -439,6 +443,7 @@
- 			"\0<---------------Space to patch exim_path->";
+@@ -441,6 +457,7 @@
+                         "\0<---------------Space to patch exim_path->";
  uid_t   exim_uid               = EXIM_UID;
  BOOL    exim_uid_set           = TRUE;          /* This uid is always set */
 +uschar *exiscan_version_string = US"??";
  int     expand_forbid          = 0;
  int     expand_nlength[EXPAND_MAXN+1];
  int     expand_nmax            = -1;
-@@ -448,12 +453,14 @@
+@@ -450,12 +467,14 @@
  BOOL    extract_addresses_remove_arguments = TRUE;
  uschar *extra_local_interfaces = NULL;
  
@@ -2920,7 +4376,7 @@ diff -urN exim-4.30-orig/src/globals.c exim-4.30/src/globals.c
  uid_t   fixed_never_users[]    = { FIXED_NEVER_USERS };
  uschar *freeze_tell            = NULL;
  uschar *fudged_queue_times     = US"";
-@@ -591,6 +598,7 @@
+@@ -609,6 +628,7 @@
  
  macro_item  *macros            = NULL;
  uschar *mailstore_basename     = NULL;
@@ -2928,7 +4384,33 @@ diff -urN exim-4.30-orig/src/globals.c exim-4.30/src/globals.c
  int     max_username_length    = 0;
  int     message_age            = 0;
  uschar *message_body           = NULL;
-@@ -710,6 +718,7 @@
+@@ -629,8 +649,25 @@
+ uschar *message_size_limit     = US"50M";
+ uschar  message_subdir[2]      = { 0, 0 };
+ uschar *message_reference      = NULL;
++uschar *mime_anomaly_level     = NULL;
++uschar *mime_anomaly_text      = NULL;
++uschar *mime_boundary          = NULL;
++uschar *mime_charset           = NULL;
++uschar *mime_content_description = NULL;
++uschar *mime_content_disposition = NULL;
++uschar *mime_content_id        = NULL;
++unsigned int mime_content_size = 0;
++uschar *mime_content_transfer_encoding = NULL;
++uschar *mime_content_type      = NULL;
++uschar *mime_decoded_filename  = NULL;
++uschar *mime_filename          = NULL;
++int     mime_is_multipart      = 0;
++int     mime_is_coverletter    = 0;
++int     mime_is_rfc822         = 0;
++int     mime_part_count        = -1;
+ 
+ uid_t  *never_users            = NULL;
++BOOL    no_mbox_unspool        = FALSE;
+ 
+ uid_t   original_euid;
+ gid_t   originator_gid;
+@@ -728,6 +765,7 @@
  const pcre *regex_PIPELINING   = NULL;
  const pcre *regex_SIZE         = NULL;
  const pcre *regex_ismsgid      = NULL;
@@ -2936,7 +4418,29 @@ diff -urN exim-4.30-orig/src/globals.c exim-4.30/src/globals.c
  int     remote_delivery_count  = 0;
  int     remote_max_parallel    = 2;
  uschar *remote_sort_domains    = NULL;
-@@ -886,6 +895,11 @@
+@@ -752,6 +790,9 @@
+     NULL,                      /* driver name */
+ 
+     NULL,                      /* address_data */
++#ifdef BRIGHTMAIL
++    NULL,                      /* bmi_rule */
++#endif
+     NULL,                      /* cannot_route_message */
+     NULL,                      /* condition */
+     NULL,                      /* current_directory */
+@@ -780,6 +821,11 @@
+     NULL,                      /* transport_name */
+ 
+     TRUE,                      /* address_test */
++#ifdef BRIGHTMAIL
++    FALSE,                     /* bmi_deliver_alternate */
++    FALSE,                     /* bmi_deliver_default */
++    FALSE,                     /* bmi_dont_deliver */
++#endif
+     TRUE,                      /* expn */
+     FALSE,                     /* caseful_local_part */
+     FALSE,                     /* check_local_user */
+@@ -905,6 +951,11 @@
  int     smtp_rlr_threshold     = INT_MAX;
  BOOL    smtp_use_pipelining    = FALSE;
  BOOL    smtp_use_size          = FALSE;
@@ -2947,11 +4451,19 @@ diff -urN exim-4.30-orig/src/globals.c exim-4.30/src/globals.c
 +uschar *spam_score_int         = NULL;
  BOOL    split_spool_directory  = FALSE;
  uschar *spool_directory        = US SPOOL_DIRECTORY
- 			   "\0<--------------Space to patch spool_directory->";
-diff -urN exim-4.30-orig/src/globals.h exim-4.30/src/globals.h
---- exim-4.30-orig/src/globals.h	Mon Dec  1 11:15:41 2003
-+++ exim-4.30/src/globals.h	Tue Dec  2 19:19:27 2003
-@@ -135,6 +135,7 @@
+                            "\0<--------------Space to patch spool_directory->";
+diff -urN exim-4.33-orig/src/globals.h exim-4.33/src/globals.h
+--- exim-4.33-orig/src/globals.h	Wed May  5 12:08:36 2004
++++ exim-4.33/src/globals.h	Wed May  5 14:05:02 2004
+@@ -103,6 +103,7 @@
+ extern uschar *acl_smtp_helo;          /* ACL run after HELO/EHLO */
+ extern uschar *acl_smtp_mail;          /* ACL run after MAIL */
+ extern uschar *acl_smtp_mailauth;      /* ACL run after MAIL AUTH */
++extern uschar *acl_smtp_mime;          /* ACL run after DATA, before acl_smtp_data, for each MIME part */
+ extern uschar *acl_smtp_rcpt;          /* ACL run after RCPT */
+ extern uschar *acl_smtp_starttls;      /* ACL run after STARTTLS */
+ extern uschar *acl_smtp_vrfy;          /* ACL run after VRFY */
+@@ -137,12 +138,22 @@
  extern uschar *auth_defer_msg;         /* Error message for log */
  extern uschar *auth_defer_user_msg;    /* Error message for user */
  extern int     auto_thaw;              /* Auto-thaw interval */
@@ -2959,7 +4471,22 @@ diff -urN exim-4.30-orig/src/globals.h exim-4.30/src/globals.h
  
  extern BOOL    background_daemon;      /* Set FALSE to keep in foreground */
  extern uschar *base62_chars;           /* Table of base-62 characters */
-@@ -218,6 +219,9 @@
+ extern uschar *bi_command;             /* Command for -bi option */
+ extern uschar *big_buffer;             /* Used for various temp things */
+ extern int     big_buffer_size;        /* Current size (can expand) */
++#ifdef BRIGHTMAIL
++extern uschar *bmi_alt_location;       /* expansion variable that contains the alternate location for the rcpt (available during routing) */
++extern uschar *bmi_base64_tracker_verdict; /* expansion variable with base-64 encoded OLD verdict string (available during routing) */
++extern uschar *bmi_base64_verdict;     /* expansion variable with base-64 encoded verdict string (available during routing) */
++extern uschar *bmi_config_file;        /* Brightmail config file */
++extern int     bmi_deliver;            /* Flag that determines if the message should be delivered to the rcpt (available during routing) */
++extern int     bmi_run;                /* Flag that determines if message should be run through Brightmail server */
++extern uschar *bmi_verdicts;           /* BASE64-encoded verdicts with recipient lists */
++#endif
+ extern int     body_linecount;         /* Line count in body */
+ extern uschar *bounce_message_file;    /* Template file */
+ extern uschar *bounce_message_text;    /* One-liner */
+@@ -220,6 +231,9 @@
  extern BOOL    deliver_selectstring_regex; /* String is regex */
  extern uschar *deliver_selectstring_sender; /* For selecting by sender */
  extern BOOL    deliver_selectstring_sender_regex; /* String is regex */
@@ -2969,7 +4496,7 @@ diff -urN exim-4.30-orig/src/globals.h exim-4.30/src/globals.h
  extern BOOL    disable_logging;        /* Disables log writing when TRUE */
  
  extern uschar *dns_again_means_nonexist; /* Domains that are badly set up */
-@@ -247,6 +251,7 @@
+@@ -249,6 +263,7 @@
  extern uschar *exim_path;              /* Path to exec exim */
  extern uid_t   exim_uid;               /* Non-root uid for exim */
  extern BOOL    exim_uid_set;           /* TRUE if exim_uid set */
@@ -2977,7 +4504,7 @@ diff -urN exim-4.30-orig/src/globals.h exim-4.30/src/globals.h
  extern int     expand_forbid;          /* RDO flags for forbidding things */
  extern int     expand_nlength[];       /* Lengths of numbered strings */
  extern int     expand_nmax;            /* Max numerical value */
-@@ -255,6 +260,7 @@
+@@ -257,6 +272,7 @@
  extern BOOL    extract_addresses_remove_arguments; /* Controls -t behaviour */
  extern uschar *extra_local_interfaces; /* Local, non-listen interfaces */
  
@@ -2985,7 +4512,7 @@ diff -urN exim-4.30-orig/src/globals.h exim-4.30/src/globals.h
  extern int     filter_n[FILTER_VARIABLE_COUNT]; /* filter variables */
  extern BOOL    filter_running;         /* TRUE while running a filter */
  extern int     filter_sn[FILTER_VARIABLE_COUNT]; /* variables set by system filter */
-@@ -262,6 +268,7 @@
+@@ -264,6 +280,7 @@
  extern uschar *filter_thisaddress;     /* For address looping */
  extern int     finduser_retries;       /* Retry count for getpwnam() */
  extern uid_t   fixed_never_users[];    /* Can't be overridden */
@@ -2993,7 +4520,7 @@ diff -urN exim-4.30-orig/src/globals.h exim-4.30/src/globals.h
  extern uschar *freeze_tell;            /* Message on (some) freezings */
  extern uschar *fudged_queue_times;     /* For use in test harness */
  
-@@ -339,6 +346,7 @@
+@@ -342,6 +359,7 @@
  
  extern macro_item *macros;             /* Configuration macros */
  extern uschar *mailstore_basename;     /* For mailstore deliveries */
@@ -3001,7 +4528,33 @@ diff -urN exim-4.30-orig/src/globals.h exim-4.30/src/globals.h
  extern int     max_username_length;    /* For systems with broken getpwnam() */
  extern int     message_age;            /* In seconds */
  extern uschar *message_body;           /* Start of message body for filter */
-@@ -442,6 +450,7 @@
+@@ -361,8 +379,25 @@
+ extern uschar *message_size_limit;     /* As it says */
+ extern uschar  message_subdir[];       /* Subdirectory for messages */
+ extern uschar *message_reference;      /* Reference for error messages */
++extern uschar *mime_anomaly_level;
++extern uschar *mime_anomaly_text;
++extern uschar *mime_boundary;
++extern uschar *mime_charset;
++extern uschar *mime_content_description;
++extern uschar *mime_content_disposition;
++extern uschar *mime_content_id;
++extern unsigned int mime_content_size;
++extern uschar *mime_content_transfer_encoding;
++extern uschar *mime_content_type;
++extern uschar *mime_decoded_filename;
++extern uschar *mime_filename;
++extern int     mime_is_multipart;
++extern int     mime_is_coverletter;
++extern int     mime_is_rfc822;
++extern int     mime_part_count;
+ 
+ extern uid_t  *never_users;            /* List of uids never to be used */
++extern BOOL    no_mbox_unspool;        /* don't unspool exiscan files */
+ 
+ extern optionlist optionlist_auths[];      /* These option lists are made */
+ extern int     optionlist_auths_size;      /* global so that readconf can */
+@@ -445,6 +480,7 @@
  extern const pcre  *regex_PIPELINING;  /* For recognizing PIPELINING */
  extern const pcre  *regex_SIZE;        /* For recognizing SIZE settings */
  extern const pcre  *regex_ismsgid;     /* Compiled r.e. for message it */
@@ -3009,7 +4562,7 @@ diff -urN exim-4.30-orig/src/globals.h exim-4.30/src/globals.h
  extern int     remote_delivery_count;  /* Number of remote addresses */
  extern int     remote_max_parallel;    /* Maximum parallel delivery */
  extern uschar *remote_sort_domains;    /* Remote domain sorting order */
-@@ -530,6 +539,11 @@
+@@ -534,6 +570,11 @@
  extern BOOL    smtp_use_pipelining;    /* Global for passed connections */
  extern BOOL    smtp_use_size;          /* Global for passed connections */
  extern BOOL    split_spool_directory;  /* TRUE to use multiple subdirs */
@@ -3021,10 +4574,43 @@ diff -urN exim-4.30-orig/src/globals.h exim-4.30/src/globals.h
  extern uschar *spool_directory;        /* Name of spool directory */
  extern int     string_datestamp_offset;/* After insertion by string_format */
  extern BOOL    strip_excess_angle_brackets; /* Surrounding route-addrs */
-diff -urN exim-4.30-orig/src/malware.c exim-4.30/src/malware.c
---- exim-4.30-orig/src/malware.c	Thu Jan  1 01:00:00 1970
-+++ exim-4.30/src/malware.c	Tue Dec  2 12:15:53 2003
-@@ -0,0 +1,1181 @@
+diff -urN exim-4.33-orig/src/local_scan.h exim-4.33/src/local_scan.h
+--- exim-4.33-orig/src/local_scan.h	Wed May  5 12:08:36 2004
++++ exim-4.33/src/local_scan.h	Wed May  5 14:05:02 2004
+@@ -16,7 +16,6 @@
+ #include "mytypes.h"
+ #include "store.h"
+ 
+-
+ /* The function and its return codes. */
+ 
+ extern int local_scan(int, uschar **);
+@@ -107,6 +106,9 @@
+   uschar *address;              /* the recipient address */
+   int     pno;                  /* parent number for "one_time" alias, or -1 */
+   uschar *errors_to;            /* the errors_to address or NULL */
++#ifdef BRIGHTMAIL
++  uschar *bmi_optin;
++#endif
+ } recipient_item;
+ 
+ 
+diff -urN exim-4.33-orig/src/macros.h exim-4.33/src/macros.h
+--- exim-4.33-orig/src/macros.h	Wed May  5 12:08:36 2004
++++ exim-4.33/src/macros.h	Wed May  5 14:05:02 2004
+@@ -710,7 +710,7 @@
+ 
+ enum { ACL_WHERE_AUTH,     ACL_WHERE_CONNECT, ACL_WHERE_DATA, ACL_WHERE_ETRN,
+        ACL_WHERE_EXPN,     ACL_WHERE_HELO,    ACL_WHERE_MAIL,
+-       ACL_WHERE_MAILAUTH, ACL_WHERE_RCPT,
++       ACL_WHERE_MAILAUTH, ACL_WHERE_MIME,    ACL_WHERE_RCPT,
+        ACL_WHERE_STARTTLS, ACL_WHERE_VRFY,    ACL_WHERE_NOTSMTP };
+ 
+ /* Situations for spool_write_header() */
+diff -urN exim-4.33-orig/src/malware.c exim-4.33/src/malware.c
+--- exim-4.33-orig/src/malware.c	Thu Jan  1 01:00:00 1970
++++ exim-4.33/src/malware.c	Wed May  5 14:05:02 2004
+@@ -0,0 +1,1194 @@
 +/*************************************************
 +*     Exim - an Internet mail transport agent    *
 +*************************************************/
@@ -3054,13 +4640,13 @@ diff -urN exim-4.30-orig/src/malware.c exim-4.30/src/malware.c
 +/* Routine to check whether a system is big- or litte-endian. 
 +   Ripped from http://www.faqs.org/faqs/graphics/fileformats-faq/part4/section-7.html
 +   Needed for proper kavdaemon implementation. Sigh. */
-+#define BIG_ENDIAN      0
-+#define LITTLE_ENDIAN   1
++#define BIG_MY_ENDIAN      0
++#define LITTLE_MY_ENDIAN   1
 +int test_byte_order(void);
 +int test_byte_order() {
 +      short int word = 0x0001;
 +      char *byte = (char *) &word;
-+      return(byte[0] ? LITTLE_ENDIAN : BIG_ENDIAN);
++      return(byte[0] ? LITTLE_MY_ENDIAN : BIG_MY_ENDIAN);
 +}
 +
 +uschar malware_name_buffer[256];
@@ -3206,7 +4792,7 @@ diff -urN exim-4.30-orig/src/malware.c exim-4.30/src/malware.c
 +				    spool_directory, message_id, message_id);
 +
 +			/* calc file size */
-+			drweb_fd = open(scanrequest, O_RDONLY);
++			drweb_fd = open(CS scanrequest, O_RDONLY);
 +			if (drweb_fd == -1) {
 +				log_write(0, LOG_MAIN|LOG_PANIC,
 +            				"malware acl condition: drweb: can't open spool file %s: %s", 
@@ -3445,7 +5031,7 @@ diff -urN exim-4.30-orig/src/malware.c exim-4.30/src/malware.c
 +      }
 +    
 +      /* get errorcode from one nibble */
-+      if (test_byte_order() == LITTLE_ENDIAN) {
++      if (test_byte_order() == LITTLE_MY_ENDIAN) {
 +        kav_rc = tmpbuf[0] & 0x0F;
 +      }
 +      else {
@@ -3485,7 +5071,7 @@ diff -urN exim-4.30-orig/src/malware.c exim-4.30/src/malware.c
 +        Ustrcpy(malware_name_buffer,"unknown");
 +        malware_name = malware_name_buffer;
 +      
-+        if (test_byte_order() == LITTLE_ENDIAN) {
++        if (test_byte_order() == LITTLE_MY_ENDIAN) {
 +          report_flag = tmpbuf[1];
 +        }
 +        else {
@@ -3563,6 +5149,8 @@ diff -urN exim-4.30-orig/src/malware.c exim-4.30/src/malware.c
 +      const pcre *cmdline_regex_re;
 +      uschar file_name[1024];
 +      uschar commandline[1024];
++      void (*eximsigchld)(int);
++      void (*eximsigpipe)(int);
 +      FILE *scanner_out = NULL;
 +      FILE *scanner_record = NULL;
 +      uschar linebuffer[32767];
@@ -3622,10 +5210,16 @@ diff -urN exim-4.30-orig/src/malware.c exim-4.30/src/malware.c
 +      /* redirect STDERR too */
 +      Ustrcat(commandline," 2>&1");
 +      
++      /* store exims signal handlers */
++      eximsigchld = signal(SIGCHLD,SIG_DFL);
++      eximsigpipe = signal(SIGPIPE,SIG_DFL);
++      
 +      scanner_out = popen(CS commandline,"r");
 +      if (scanner_out == NULL) {
 +        log_write(0, LOG_MAIN|LOG_PANIC,
 +                 "malware acl condition: calling cmdline scanner (%s) failed: %s.", commandline, strerror(errno));
++        signal(SIGCHLD,eximsigchld);
++        signal(SIGPIPE,eximsigpipe);
 +        return DEFER;
 +      };
 +      
@@ -3636,6 +5230,8 @@ diff -urN exim-4.30-orig/src/malware.c exim-4.30/src/malware.c
 +        log_write(0, LOG_MAIN|LOG_PANIC,
 +                 "malware acl condition: opening scanner output file (%s) failed: %s.", file_name, strerror(errno));
 +        pclose(scanner_out);
++        signal(SIGCHLD,eximsigchld);
++        signal(SIGPIPE,eximsigpipe);
 +        return DEFER;
 +      };
 +      
@@ -3646,6 +5242,8 @@ diff -urN exim-4.30-orig/src/malware.c exim-4.30/src/malware.c
 +          log_write(0, LOG_MAIN|LOG_PANIC,
 +                 "malware acl condition: short write on scanner output file (%s).", file_name);
 +          pclose(scanner_out);
++          signal(SIGCHLD,eximsigchld);
++          signal(SIGPIPE,eximsigpipe);
 +          return DEFER;
 +        };
 +        /* try trigger match */
@@ -3655,6 +5253,8 @@ diff -urN exim-4.30-orig/src/malware.c exim-4.30/src/malware.c
 +      
 +      fclose(scanner_record);
 +      pclose(scanner_out);
++      signal(SIGCHLD,eximsigchld);
++      signal(SIGPIPE,eximsigpipe);
 +      
 +      if (trigger) {
 +        /* setup default virus name */
@@ -4023,7 +5623,6 @@ diff -urN exim-4.30-orig/src/malware.c exim-4.30/src/malware.c
 +        break;
 +      }
 +  }
-+  return 0;
 +}
 +
 +int mksd_read_lines (int sock, uschar *av_buffer, int av_buffer_size)
@@ -4206,18 +5805,827 @@ diff -urN exim-4.30-orig/src/malware.c exim-4.30/src/malware.c
 +  close (sock);
 +  return OK;
 +}
-diff -urN exim-4.30-orig/src/readconf.c exim-4.30/src/readconf.c
---- exim-4.30-orig/src/readconf.c	Mon Dec  1 11:15:41 2003
-+++ exim-4.30/src/readconf.c	Tue Dec  2 12:15:53 2003
-@@ -152,6 +152,7 @@
+diff -urN exim-4.33-orig/src/mime.c exim-4.33/src/mime.c
+--- exim-4.33-orig/src/mime.c	Thu Jan  1 01:00:00 1970
++++ exim-4.33/src/mime.c	Wed May  5 14:05:02 2004
+@@ -0,0 +1,712 @@
++/*************************************************
++*     Exim - an Internet mail transport agent    *
++*************************************************/
++
++/* This file is part of the exiscan-acl content scanner
++patch. It is NOT part of the standard exim distribution. */
++
++/* Copyright (c) Tom Kistner <tom@duncanthrax.net> 2004 */
++/* License: GPL */
++
++#include "exim.h"
++#include "mime.h"
++#include <sys/stat.h>
++
++FILE *mime_stream = NULL;
++uschar *mime_current_boundary = NULL;
++
++
++/*************************************************
++* decode quoted-printable chars                  *
++*************************************************/
++
++/* gets called when we hit a =
++   returns: new pointer position
++   result code in c:
++          -2 - decode error
++          -1 - soft line break, no char
++           0-255 - char to write
++*/
++
++unsigned int mime_qp_hstr_i(uschar *cptr) {
++  unsigned int i, j = 0;
++  while (cptr && *cptr && isxdigit(*cptr)) {
++    i = *cptr++ - '0';
++    if (9 < i) i -= 7;
++    j <<= 4;
++    j |= (i & 0x0f);
++  }
++  return(j);
++}
++
++uschar *mime_decode_qp_char(uschar *qp_p,int *c) {
++  uschar hex[] = {0,0,0};
++  int nan = 0;
++  uschar *initial_pos = qp_p;
++  
++  /* advance one char */
++  qp_p++;
++  
++  REPEAT_FIRST:
++  if ( (*qp_p == '\t') || (*qp_p == ' ') || (*qp_p == '\r') )  {
++    /* tab or whitespace may follow
++       just ignore it, but remember
++       that this is not a valid hex
++       encoding any more */
++    nan = 1;
++    qp_p++;
++    goto REPEAT_FIRST;
++  }
++  else if ( (('0' <= *qp_p) && (*qp_p <= '9')) || (('A' <= *qp_p) && (*qp_p <= 'F'))  || (('a' <= *qp_p) && (*qp_p <= 'f')) ) {
++    /* this is a valid hex char, if nan is unset */
++    if (nan) {
++      /* this is illegal */
++      *c = -2;
++      return initial_pos;
++    }
++    else {
++      hex[0] = *qp_p;
++      qp_p++;
++    };
++  }
++  else if (*qp_p == '\n') {    
++    /* hit soft line break already, continue */
++    *c = -1;
++    return qp_p;
++  }
++  else {
++    /* illegal char here */
++    *c = -2;
++    return initial_pos;
++  };
++  
++  if ( (('0' <= *qp_p) && (*qp_p <= '9')) || (('A' <= *qp_p) && (*qp_p <= 'F')) || (('a' <= *qp_p) && (*qp_p <= 'f')) ) {
++    if (hex[0] > 0) {
++      hex[1] = *qp_p;
++      /* do hex conversion */
++      *c = mime_qp_hstr_i(hex);
++      qp_p++;
++      return qp_p;
++    }
++    else {
++      /* huh ? */
++      *c = -2;
++      return initial_pos;  
++    };
++  }
++  else {
++    /* illegal char */
++    *c = -2;
++    return initial_pos;  
++  };
++}
++
++
++uschar *mime_parse_line(uschar *buffer, uschar *encoding, int *num_decoded) {
++  uschar *data = NULL;
++
++  data = (uschar *)malloc(Ustrlen(buffer)+2);
++
++  if (encoding == NULL) {
++    /* no encoding type at all */
++    NO_DECODING:
++    memcpy(data, buffer, Ustrlen(buffer));
++    data[(Ustrlen(buffer))] = 0;
++    *num_decoded = Ustrlen(data);
++    return data;
++  }
++  else if (Ustrcmp(encoding,"base64") == 0) {
++    uschar *p = buffer;
++    int offset = 0;
++    
++    /* ----- BASE64 ---------------------------------------------------- */
++    /* NULL out '\r' and '\n' chars */
++    while (Ustrrchr(p,'\r') != NULL) {
++      *(Ustrrchr(p,'\r')) = '\0';
++    };
++    while (Ustrrchr(p,'\n') != NULL) {
++      *(Ustrrchr(p,'\n')) = '\0';
++    };
++
++    while (*(p+offset) != '\0') {
++      /* hit illegal char ? */
++      if (mime_b64[*(p+offset)] == 128) {
++        offset++;
++      }
++      else {
++        *p = mime_b64[*(p+offset)];
++        p++;
++      };
++    };
++    *p = 255;
++   
++    /* line is translated, start bit shifting */
++    p = buffer;
++    *num_decoded = 0;  
++    while(*p != 255) {
++      uschar tmp_c;
++      
++      /* byte 0 ---------------------- */
++      if (*(p+1) == 255) {
++        break;
++      }
++      data[(*num_decoded)] = *p;
++      data[(*num_decoded)] <<= 2;
++      tmp_c = *(p+1);
++      tmp_c >>= 4;
++      data[(*num_decoded)] |= tmp_c;
++      (*num_decoded)++;
++      p++;
++      /* byte 1 ---------------------- */
++      if (*(p+1) == 255) {
++        break;
++      }
++      data[(*num_decoded)] = *p;
++      data[(*num_decoded)] <<= 4;
++      tmp_c = *(p+1);
++      tmp_c >>= 2;
++      data[(*num_decoded)] |= tmp_c;
++      (*num_decoded)++;
++      p++;
++      /* byte 2 ---------------------- */
++      if (*(p+1) == 255) {
++        break;
++      }
++      data[(*num_decoded)] = *p;
++      data[(*num_decoded)] <<= 6;
++      data[(*num_decoded)] |= *(p+1); 
++      (*num_decoded)++;
++      p+=2;
++      
++    };
++    return data;
++    /* ----------------------------------------------------------------- */
++  }
++  else if (Ustrcmp(encoding,"quoted-printable") == 0) {
++    uschar *p = buffer;
++
++    /* ----- QP -------------------------------------------------------- */
++    *num_decoded = 0;
++    while (*p != 0) {
++      if (*p == '=') {
++        int decode_qp_result;
++        
++        p = mime_decode_qp_char(p,&decode_qp_result);
++              
++        if (decode_qp_result == -2) {
++          /* Error from decoder. p is unchanged. */
++          data[(*num_decoded)] = '=';
++          (*num_decoded)++;
++          p++;
++        }
++        else if (decode_qp_result == -1) {
++          break;
++        }
++        else if (decode_qp_result >= 0) {
++          data[(*num_decoded)] = decode_qp_result;
++          (*num_decoded)++;
++        };
++      }
++      else {
++        data[(*num_decoded)] = *p;
++        (*num_decoded)++;
++        p++;
++      };
++    };
++    return data;
++    /* ----------------------------------------------------------------- */
++  }
++  /* unknown encoding type, just dump as-is */
++  else goto NO_DECODING;
++}
++
++
++FILE *mime_get_decode_file(uschar *pname, uschar *fname) {
++  FILE *f;
++  uschar *filename;
++  
++  filename = (uschar *)malloc(2048);
++  
++  if ((pname != NULL) && (fname != NULL)) {
++    snprintf(CS filename, 2048, "%s/%s", pname, fname);
++    f = fopen(CS filename,"w+");
++  }
++  else if (pname == NULL) {
++    f = fopen(CS fname,"w+");
++  }
++  else if (fname == NULL) {
++    int file_nr = 0;
++    int result = 0;
++
++    /* must find first free sequential filename */
++    do {
++      struct stat mystat;
++      snprintf(CS filename,2048,"%s/%s-%05u", pname, message_id, file_nr);
++      file_nr++;
++      /* security break */
++      if (file_nr >= 1024)
++        break;
++      result = stat(CS filename,&mystat);
++    }
++    while(result != -1);
++    f = fopen(CS filename,"w+");
++  };
++  
++  /* set expansion variable */
++  mime_decoded_filename = filename;
++  
++  return f;
++}
++
++
++int mime_decode(uschar **listptr) {
++  int sep = 0;
++  uschar *list = *listptr;
++  uschar *option;
++  uschar option_buffer[1024];
++  uschar decode_path[1024];
++  FILE *decode_file = NULL;
++  uschar *buffer = NULL;
++  long f_pos = 0;
++  unsigned int size_counter = 0;
++
++  if (mime_stream == NULL)
++    return FAIL;
++  
++  f_pos = ftell(mime_stream);
++  
++  /* build default decode path (will exist since MBOX must be spooled up) */
++  snprintf(CS decode_path,1024,"%s/scan/%s",spool_directory,message_id);
++  
++  /* reserve a line buffer to work in */
++  buffer = (uschar *)malloc(MIME_MAX_LINE_LENGTH+1);
++  if (buffer == NULL) {
++    log_write(0, LOG_PANIC,
++                 "decode ACL condition: can't allocate %d bytes of memory.", MIME_MAX_LINE_LENGTH+1);
++    return DEFER;
++  };
++  
++  /* try to find 1st option */
++  if ((option = string_nextinlist(&list, &sep,
++                                  option_buffer,
++                                  sizeof(option_buffer))) != NULL) {
++    
++    /* parse 1st option */
++    if ( (Ustrcmp(option,"false") == 0) || (Ustrcmp(option,"0") == 0) ) {
++      /* explicitly no decoding */
++      return FAIL;
++    };
++    
++    if (Ustrcmp(option,"default") == 0) {
++      /* explicit default path + file names */
++      goto DEFAULT_PATH;
++    };
++    
++    if (option[0] == '/') {
++      struct stat statbuf;
++
++      memset(&statbuf,0,sizeof(statbuf));
++      
++      /* assume either path or path+file name */
++      if ( (stat(CS option, &statbuf) == 0) && S_ISDIR(statbuf.st_mode) )
++        /* is directory, use it as decode_path */
++        decode_file = mime_get_decode_file(option, NULL);
++      else
++        /* does not exist or is a file, use as full file name */
++        decode_file = mime_get_decode_file(NULL, option);
++    }
++    else
++      /* assume file name only, use default path */
++      decode_file = mime_get_decode_file(decode_path, option);
++  }
++  else
++    /* no option? patch default path */
++    DEFAULT_PATH: decode_file = mime_get_decode_file(decode_path, NULL);
++  
++  if (decode_file == NULL)
++    return DEFER;
++  
++  /* read data linewise and dump it to the file,
++     while looking for the current boundary */
++  while(fgets(CS buffer, MIME_MAX_LINE_LENGTH, mime_stream) != NULL) {
++    uschar *decoded_line = NULL;
++    int decoded_line_length = 0;
++    
++    if (mime_current_boundary != NULL) {
++      /* boundary line must start with 2 dashes */
++      if (Ustrncmp(buffer,"--",2) == 0) {
++        if (Ustrncmp((buffer+2),mime_current_boundary,Ustrlen(mime_current_boundary)) == 0)
++          break;
++      };
++    };
++  
++    decoded_line = mime_parse_line(buffer, mime_content_transfer_encoding, &decoded_line_length);
++    /* write line to decode file */
++    if (fwrite(decoded_line, 1, decoded_line_length, decode_file) < decoded_line_length) {
++      /* error/short write */
++      clearerr(mime_stream);
++      fseek(mime_stream,f_pos,SEEK_SET);
++      return DEFER;
++    };
++    size_counter += decoded_line_length;
++    
++    if (size_counter > 1023) { 
++      if ((mime_content_size + (size_counter / 1024)) < 65535)
++        mime_content_size += (size_counter / 1024);
++      else 
++        mime_content_size = 65535;
++      size_counter = (size_counter % 1024);
++    };
++    
++    free(decoded_line);
++  }
++  
++  fclose(decode_file);
++  
++  clearerr(mime_stream);
++  fseek(mime_stream,f_pos,SEEK_SET);
++  
++  /* round up remaining size bytes to one k */
++  if (size_counter) {
++    mime_content_size++;
++  };
++  
++  return OK;
++}
++
++int mime_get_header(FILE *f, uschar *header) {
++  int c = EOF;
++  int done = 0;
++  int header_value_mode = 0;
++  int header_open_brackets = 0;
++  int num_copied = 0;
++  
++  while(!done) {
++    
++    c = fgetc(f);
++    if (c == EOF) break;
++   
++    /* always skip CRs */
++    if (c == '\r') continue;
++    
++    if (c == '\n') {
++      if (num_copied > 0) {
++        /* look if next char is '\t' or ' ' */
++        c = fgetc(f);
++        if (c == EOF) break;
++        if ( (c == '\t') || (c == ' ') ) continue;
++        ungetc(c,f);
++      };
++      /* end of the header, terminate with ';' */
++      c = ';';
++      done = 1;
++    };
++  
++    /* skip control characters */
++    if (c < 32) continue;
++
++    if (header_value_mode) {
++      /* --------- value mode ----------- */
++      /* skip leading whitespace */
++      if ( ((c == '\t') || (c == ' ')) && (header_value_mode == 1) )
++        continue;
++      
++      /* we have hit a non-whitespace char, start copying value data */
++      header_value_mode = 2;
++      
++      /* skip quotes */
++      if (c == '"') continue;
++      
++      /* leave value mode on ';' */
++      if (c == ';') {
++        header_value_mode = 0;
++      };
++      /* -------------------------------- */
++    }
++    else {
++      /* -------- non-value mode -------- */
++      /* skip whitespace + tabs */
++      if ( (c == ' ') || (c == '\t') )
++        continue;
++      if (c == '\\') {
++        /* quote next char. can be used
++        to escape brackets. */
++        c = fgetc(f);
++        if (c == EOF) break;
++      }
++      else if (c == '(') {
++        header_open_brackets++;
++        continue;
++      }
++      else if ((c == ')') && header_open_brackets) {
++        header_open_brackets--;
++        continue;
++      }
++      else if ( (c == '=') && !header_open_brackets ) {
++        /* enter value mode */
++        header_value_mode = 1;
++      };
++      
++      /* skip chars while we are in a comment */
++      if (header_open_brackets > 0)
++        continue;
++      /* -------------------------------- */
++    };
++    
++    /* copy the char to the buffer */
++    header[num_copied] = (uschar)c;
++    /* raise counter */
++    num_copied++;
++    
++    /* break if header buffer is full */
++    if (num_copied > MIME_MAX_HEADER_SIZE-1) {
++      done = 1;
++    };
++  };
++
++  if (header[num_copied-1] != ';') {
++    header[num_copied-1] = ';';
++  };
++
++  /* 0-terminate */
++  header[num_copied] = '\0';
++  
++  /* return 0 for EOF or empty line */
++  if ((c == EOF) || (num_copied == 1))
++    return 0;
++  else
++    return 1;
++}
++
++
++int mime_acl_check(FILE *f, struct mime_boundary_context *context, uschar 
++                   **user_msgptr, uschar **log_msgptr) {
++  int rc = OK;
++  uschar *header = NULL;
++  struct mime_boundary_context nested_context;
++
++  /* reserve a line buffer to work in */
++  header = (uschar *)malloc(MIME_MAX_HEADER_SIZE+1);
++  if (header == NULL) {
++    log_write(0, LOG_PANIC,
++                 "acl_smtp_mime: can't allocate %d bytes of memory.", MIME_MAX_HEADER_SIZE+1);
++    return DEFER;
++  };
++
++  /* Not actually used at the moment, but will be vital to fixing
++   * some RFC 2046 nonconformance later... */
++  nested_context.parent = context;
++
++  /* loop through parts */
++  while(1) {
++  
++    /* reset all per-part mime variables */
++    mime_anomaly_level     = NULL;
++    mime_anomaly_text      = NULL;
++    mime_boundary          = NULL;
++    mime_charset           = NULL;
++    mime_decoded_filename  = NULL;
++    mime_filename          = NULL;
++    mime_content_description = NULL;
++    mime_content_disposition = NULL;
++    mime_content_id        = NULL;
++    mime_content_transfer_encoding = NULL;
++    mime_content_type      = NULL;
++    mime_is_multipart      = 0;
++    mime_content_size      = 0;
++  
++    /*
++    If boundary is null, we assume that *f is positioned on the start of headers (for example,
++    at the very beginning of a message.
++    If a boundary is given, we must first advance to it to reach the start of the next header
++    block.
++    */
++    
++    /* NOTE -- there's an error here -- RFC2046 specifically says to
++     * check for outer boundaries.  This code doesn't do that, and
++     * I haven't fixed this.
++     *
++     * (I have moved partway towards adding support, however, by adding 
++     * a "parent" field to my new boundary-context structure.)
++     */
++    if (context != NULL) {
++      while(fgets(CS header, MIME_MAX_HEADER_SIZE, f) != NULL) {
++        /* boundary line must start with 2 dashes */
++        if (Ustrncmp(header,"--",2) == 0) {
++          if (Ustrncmp((header+2),context->boundary,Ustrlen(context->boundary)) == 0) {
++            /* found boundary */
++            if (Ustrncmp((header+2+Ustrlen(context->boundary)),"--",2) == 0) {
++              /* END boundary found */
++              debug_printf("End boundary found %s\n", context->boundary);
++              return rc;
++            }
++            else {
++              debug_printf("Next part with boundary %s\n", context->boundary);
++            };
++            /* can't use break here */
++            goto DECODE_HEADERS;
++          }
++        };
++      }
++      /* Hit EOF or read error. Ugh. */
++      debug_printf("Hit EOF ...\n");
++      return rc;
++    };
++  
++    DECODE_HEADERS:
++    /* parse headers, set up expansion variables */
++    while(mime_get_header(f,header)) {
++      int i;
++      /* loop through header list */
++      for (i = 0; i < mime_header_list_size; i++) {
++        uschar *header_value = NULL;
++        int header_value_len = 0;
++        
++        /* found an interesting header? */
++        if (strncmpic(mime_header_list[i].name,header,mime_header_list[i].namelen) == 0) {
++          uschar *p = header + mime_header_list[i].namelen;
++          /* yes, grab the value (normalize to lower case)
++             and copy to its corresponding expansion variable */
++          while(*p != ';') {
++            *p = tolower(*p);
++            p++;
++          };
++          header_value_len = (p - (header + mime_header_list[i].namelen));
++          header_value = (uschar *)malloc(header_value_len+1);
++          memset(header_value,0,header_value_len+1);
++          p = header + mime_header_list[i].namelen;
++          Ustrncpy(header_value, p, header_value_len);
++          debug_printf("Found %s MIME header, value is '%s'\n", mime_header_list[i].name, header_value);
++          *((uschar **)(mime_header_list[i].value)) = header_value;
++          
++          /* make p point to the next character after the closing ';' */
++          p += (header_value_len+1);
++          
++          /* grab all param=value tags on the remaining line, check if they are interesting */
++          NEXT_PARAM_SEARCH: while (*p != 0) {
++            int j;
++            for (j = 0; j < mime_parameter_list_size; j++) {
++              uschar *param_value = NULL;
++              int param_value_len = 0;
++              
++              /* found an interesting parameter? */
++              if (strncmpic(mime_parameter_list[j].name,p,mime_parameter_list[j].namelen) == 0) {
++                uschar *q = p + mime_parameter_list[j].namelen;
++                /* yes, grab the value and copy to its corresponding expansion variable */
++                while(*q != ';') q++;
++                param_value_len = (q - (p + mime_parameter_list[j].namelen));
++                param_value = (uschar *)malloc(param_value_len+1);
++                memset(param_value,0,param_value_len+1);
++                q = p + mime_parameter_list[j].namelen;
++                Ustrncpy(param_value, q, param_value_len);
++                param_value = rfc2047_decode(param_value, TRUE, NULL, 32, &param_value_len, &q);
++                debug_printf("Found %s MIME parameter in %s header, value is '%s'\n", mime_parameter_list[j].name, mime_header_list[i].name, param_value);
++                *((uschar **)(mime_parameter_list[j].value)) = param_value;
++                p += (mime_parameter_list[j].namelen + param_value_len + 1);
++                goto NEXT_PARAM_SEARCH;
++              };
++            }
++            /* There is something, but not one of our interesting parameters.
++               Advance to the next semicolon */
++            while(*p != ';') p++;
++            p++;
++          };
++        };
++      };
++    };
++    
++    /* set additional flag variables (easier access) */
++    if ( (mime_content_type != NULL) &&
++         (Ustrncmp(mime_content_type,"multipart",9) == 0) )
++      mime_is_multipart = 1;
++    
++    /* Make a copy of the boundary pointer.
++       Required since mime_boundary is global
++       and can be overwritten further down in recursion */
++    nested_context.boundary = mime_boundary;
++    
++    /* raise global counter */
++    mime_part_count++;
++    
++    /* copy current file handle to global variable */
++    mime_stream = f;
++    mime_current_boundary = context ? context->boundary : 0;
++
++    /* Note the context */
++    mime_is_coverletter = !(context && context->context == MBC_ATTACHMENT);
++    
++    /* call ACL handling function */
++    rc = acl_check(ACL_WHERE_MIME, NULL, acl_smtp_mime, user_msgptr, log_msgptr);
++    
++    mime_stream = NULL;
++    mime_current_boundary = NULL;
++    
++    if (rc != OK) break;
++    
++    /* If we have a multipart entity and a boundary, go recursive */
++    if ( (mime_content_type != NULL) &&
++         (nested_context.boundary != NULL) &&
++         (Ustrncmp(mime_content_type,"multipart",9) == 0) ) {
++      debug_printf("Entering multipart recursion, boundary '%s'\n", nested_context.boundary);
++
++      if (context && context->context == MBC_ATTACHMENT)
++        nested_context.context = MBC_ATTACHMENT;
++      else if (!Ustrcmp(mime_content_type,"multipart/alternative")
++            || !Ustrcmp(mime_content_type,"multipart/related"))
++        nested_context.context = MBC_COVERLETTER_ALL;
++      else
++        nested_context.context = MBC_COVERLETTER_ONESHOT;
++
++      rc = mime_acl_check(f, &nested_context, user_msgptr, log_msgptr);
++      if (rc != OK) break;
++    }
++    else if ( (mime_content_type != NULL) &&
++            (Ustrncmp(mime_content_type,"message/rfc822",14) == 0) ) {
++      uschar *rfc822name = NULL;
++      uschar filename[2048];
++      int file_nr = 0;
++      int result = 0;
++      
++      /* must find first free sequential filename */
++      do {
++        struct stat mystat;
++        snprintf(CS filename,2048,"%s/scan/%s/__rfc822_%05u", spool_directory, message_id, file_nr);
++        file_nr++;
++        /* security break */
++        if (file_nr >= 128)
++          goto NO_RFC822;
++        result = stat(CS filename,&mystat);
++      }
++      while(result != -1);
++      
++      rfc822name = filename;
++      
++      /* decode RFC822 attachment */
++      mime_decoded_filename = NULL;
++      mime_stream = f;
++      mime_current_boundary = context ? context->boundary : NULL;
++      mime_decode(&rfc822name);
++      mime_stream = NULL;
++      mime_current_boundary = NULL;
++      if (mime_decoded_filename == NULL) {
++        /* decoding failed */
++        log_write(0, LOG_MAIN,
++             "mime_regex acl condition warning - could not decode RFC822 MIME part to file.");
++        return DEFER;
++      };
++      mime_decoded_filename = NULL;
++    };
++    
++    NO_RFC822:
++    /* If the boundary of this instance is NULL, we are finished here */
++    if (context == NULL) break;
++
++    if (context->context == MBC_COVERLETTER_ONESHOT)
++      context->context = MBC_ATTACHMENT;
++  
++  };
++
++  return rc;
++}
++
++
+diff -urN exim-4.33-orig/src/mime.h exim-4.33/src/mime.h
+--- exim-4.33-orig/src/mime.h	Thu Jan  1 01:00:00 1970
++++ exim-4.33/src/mime.h	Wed May  5 14:05:02 2004
+@@ -0,0 +1,77 @@
++/*************************************************
++*     Exim - an Internet mail transport agent    *
++*************************************************/
++
++/* This file is part of the exiscan-acl content scanner
++patch. It is NOT part of the standard exim distribution. */
++
++/* Copyright (c) Tom Kistner <tom@duncanthrax.net> 2004 */
++/* License: GPL */
++
++
++#define MIME_MAX_HEADER_SIZE 8192
++#define MIME_MAX_LINE_LENGTH 32768
++
++#define MBC_ATTACHMENT            0
++#define MBC_COVERLETTER_ONESHOT   1
++#define MBC_COVERLETTER_ALL       2
++
++struct mime_boundary_context
++{
++  struct mime_boundary_context *parent;
++  unsigned char *boundary;
++  int context;
++};
++
++typedef struct mime_header {
++  uschar *name;
++  int    namelen;
++  void   *value;
++} mime_header;
++
++static mime_header mime_header_list[] = {
++  { US"content-type:", 13, &mime_content_type },
++  { US"content-disposition:", 20, &mime_content_disposition },
++  { US"content-transfer-encoding:", 26, &mime_content_transfer_encoding },
++  { US"content-id:", 11, &mime_content_id },
++  { US"content-description:", 20 , &mime_content_description }
++};
++
++static int mime_header_list_size = sizeof(mime_header_list)/sizeof(mime_header);
++
++
++
++typedef struct mime_parameter {
++  uschar *name;
++  int    namelen;
++  void   *value;
++} mime_parameter;
++
++static mime_parameter mime_parameter_list[] = {
++  { US"name=", 5, &mime_filename },
++  { US"filename=", 9, &mime_filename },
++  { US"charset=", 8, &mime_charset },
++  { US"boundary=", 9, &mime_boundary }
++};
++
++static int mime_parameter_list_size = sizeof(mime_parameter_list)/sizeof(mime_parameter);
++
++/* BASE64 decoder matrix */
++static unsigned char mime_b64[256]={
++/*   0 */  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,
++/*  16 */  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,  128, 
++/*  32 */  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,   62,  128,  128,  128,   63,
++/*  48 */   52,   53,   54,   55,   56,   57,   58,   59,   60,   61,  128,  128,  128,  255,  128,  128,
++/*  64 */  128,    0,    1,    2,    3,    4,    5,    6,    7,    8,    9,   10,   11,   12,   13,   14,
++/*  80 */   15,   16,   17,   18,   19,   20,   21,   22,   23,   24,   25,  128,  128,  128,  128,  128,
++/*  96 */  128,   26,   27,   28,   29,   30,   31,   32,   33,   34,   35,   36,   37,   38,   39,   40,
++/* 112 */   41,   42,   43,   44,   45,   46,   47,   48,   49,   50,   51,  128,  128,  128,  128,  128,
++/* 128 */  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,
++/* 144 */  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,
++/* 160 */  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,
++/* 176 */  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,
++/* 192 */  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,
++/* 208 */  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,
++/* 224 */  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,
++/* 240 */  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,  128 
++};
+diff -urN exim-4.33-orig/src/readconf.c exim-4.33/src/readconf.c
+--- exim-4.33-orig/src/readconf.c	Wed May  5 12:08:36 2004
++++ exim-4.33/src/readconf.c	Wed May  5 14:05:02 2004
+@@ -141,6 +141,7 @@
+   { "acl_smtp_helo",            opt_stringptr,   &acl_smtp_helo },
+   { "acl_smtp_mail",            opt_stringptr,   &acl_smtp_mail },
+   { "acl_smtp_mailauth",        opt_stringptr,   &acl_smtp_mailauth },
++  { "acl_smtp_mime",            opt_stringptr,   &acl_smtp_mime },
+   { "acl_smtp_rcpt",            opt_stringptr,   &acl_smtp_rcpt },
+ #ifdef SUPPORT_TLS
+   { "acl_smtp_starttls",        opt_stringptr,   &acl_smtp_starttls },
+@@ -152,7 +153,11 @@
    { "allow_utf8_domains",       opt_bool,        &allow_utf8_domains },
    { "auth_advertise_hosts",     opt_stringptr,   &auth_advertise_hosts },
    { "auto_thaw",                opt_time,        &auto_thaw },
 +  { "av_scanner",               opt_stringptr,   &av_scanner },
    { "bi_command",               opt_stringptr,   &bi_command },
++#ifdef BRIGHTMAIL
++  { "bmi_config_file",          opt_stringptr,   &bmi_config_file },
++#endif
    { "bounce_message_file",      opt_stringptr,   &bounce_message_file },
    { "bounce_message_text",      opt_stringptr,   &bounce_message_text },
-@@ -311,6 +312,7 @@
+   { "bounce_return_body",       opt_bool,        &bounce_return_body },
+@@ -312,6 +317,7 @@
    { "smtp_receive_timeout",     opt_time,        &smtp_receive_timeout },
    { "smtp_reserve_hosts",       opt_stringptr,   &smtp_reserve_hosts },
    { "smtp_return_error_details",opt_bool,        &smtp_return_error_details },
@@ -4225,10 +6633,210 @@ diff -urN exim-4.30-orig/src/readconf.c exim-4.30/src/readconf.c
    { "split_spool_directory",    opt_bool,        &split_spool_directory },
    { "spool_directory",          opt_stringptr,   &spool_directory },
    { "strip_excess_angle_brackets", opt_bool,     &strip_excess_angle_brackets },
-diff -urN exim-4.30-orig/src/receive.c exim-4.30/src/receive.c
---- exim-4.30-orig/src/receive.c	Mon Dec  1 11:15:41 2003
-+++ exim-4.30/src/receive.c	Tue Dec  2 12:15:53 2003
-@@ -2978,12 +2978,31 @@
+diff -urN exim-4.33-orig/src/receive.c exim-4.33/src/receive.c
+--- exim-4.33-orig/src/receive.c	Wed May  5 12:08:36 2004
++++ exim-4.33/src/receive.c	Wed May  5 14:05:02 2004
+@@ -10,7 +10,9 @@
+ 
+ #include "exim.h"
+ 
+-
++#ifdef BRIGHTMAIL
++#include "bmi_spam.h"
++#endif
+ 
+ /*************************************************
+ *                Local static variables          *
+@@ -436,6 +438,13 @@
+ 
+ recipients_list[recipients_count].address = recipient;
+ recipients_list[recipients_count].pno = pno;
++
++#ifdef BRIGHTMAIL
++recipients_list[recipients_count].bmi_optin = bmi_current_optin;
++/* reset optin string pointer for next recipient */
++bmi_current_optin = NULL;
++#endif
++
+ recipients_list[recipients_count++].errors_to = NULL;
+ }
+ 
+@@ -2485,6 +2494,124 @@
+ 
+   if (smtp_input && !smtp_batched_input)
+     {
++    if (acl_smtp_mime != NULL && recipients_count > 0)
++      {
++      FILE *mbox_file;
++      uschar rfc822_file_path[2048];
++      unsigned long long mbox_size;
++      header_line *my_headerlist;
++      uschar *user_msg, *log_msg;
++      int mime_part_count_buffer = -1;
++      
++      memset(CS rfc822_file_path,0,2048);
++      
++      /* check if it is a MIME message */
++      my_headerlist = header_list;
++      while (my_headerlist != NULL) {
++        /* skip deleted headers */
++        if (my_headerlist->type == '*') {
++          my_headerlist = my_headerlist->next;
++          continue;
++        };
++        if (strncmpic(my_headerlist->text, US"Content-Type:", 13) == 0) {
++          DEBUG(D_receive) debug_printf("Found Content-Type: header - executing acl_smtp_mime.\n");
++          goto DO_MIME_ACL;
++        };
++        my_headerlist = my_headerlist->next;
++      };
++      
++      DEBUG(D_receive) debug_printf("No Content-Type: header - presumably not a MIME message.\n");
++      goto NO_MIME_ACL;
++      
++      DO_MIME_ACL:
++      /* make sure the eml mbox file is spooled up */
++      mbox_file = spool_mbox(&mbox_size);
++      if (mbox_file == NULL) {
++        /* error while spooling */
++        log_write(0, LOG_MAIN|LOG_PANIC,
++               "acl_smtp_mime: error while creating mbox spool file, message temporarily rejected.");
++        Uunlink(spool_name);
++        unspool_mbox(); 
++        smtp_respond(451, TRUE, US"temporary local problem");
++        message_id[0] = 0;            /* Indicate no message accepted */
++        smtp_reply = US"";            /* Indicate reply already sent */
++        goto TIDYUP;                  /* Skip to end of function */
++      };
++      
++      mime_is_rfc822 = 0;
++
++      MIME_ACL_CHECK:
++      mime_part_count = -1;
++      rc = mime_acl_check(mbox_file, NULL, &user_msg, &log_msg);
++      fclose(mbox_file);
++      
++      if (Ustrlen(rfc822_file_path) > 0) {
++        mime_part_count = mime_part_count_buffer;
++        
++        if (unlink(CS rfc822_file_path) == -1) {
++          log_write(0, LOG_PANIC,
++               "acl_smtp_mime: can't unlink RFC822 spool file, skipping.");
++            goto END_MIME_ACL;
++        };
++      };
++      
++      /* check if we must check any message/rfc822 attachments */
++      if (rc == OK) {
++        uschar temp_path[1024];
++        int n;
++        struct dirent *entry;
++        DIR *tempdir;
++ 
++        snprintf(CS temp_path, 1024, "%s/scan/%s", spool_directory, message_id);
++
++      	tempdir = opendir(CS temp_path);
++      	n = 0;
++      	do {
++      	  entry = readdir(tempdir);
++      	  if (entry == NULL) break;
++          if (strncmpic(US entry->d_name,US"__rfc822_",9) == 0) {
++            snprintf(CS rfc822_file_path, 2048,"%s/scan/%s/%s", spool_directory, message_id, entry->d_name);
++      	    debug_printf("RFC822 attachment detected: running MIME ACL for '%s'\n", rfc822_file_path);
++      	    break;
++          }; 
++      	} while (1);
++      	closedir(tempdir);
++        
++        if (entry != NULL) {
++          mbox_file = Ufopen(rfc822_file_path,"r");
++          if (mbox_file == NULL) {
++            log_write(0, LOG_PANIC,
++               "acl_smtp_mime: can't open RFC822 spool file, skipping.");
++            unlink(CS rfc822_file_path);
++            goto END_MIME_ACL;
++          };
++          /* set RFC822 expansion variable */
++          mime_is_rfc822 = 1;
++          mime_part_count_buffer = mime_part_count;
++          goto MIME_ACL_CHECK;
++        };
++      };
++      
++      END_MIME_ACL:
++      add_acl_headers(US"MIME");
++      if (rc == DISCARD)
++        {
++        recipients_count = 0;
++        blackholed_by = US"MIME ACL";
++        }
++      else if (rc != OK)
++        {
++        Uunlink(spool_name);
++        unspool_mbox();
++        if (smtp_handle_acl_fail(ACL_WHERE_MIME, rc, user_msg, log_msg) != 0)
++          smtp_yield = FALSE;    /* No more messsages after dropped connection */
++        smtp_reply = US"";       /* Indicate reply already sent */
++        message_id[0] = 0;       /* Indicate no message accepted */
++        goto TIDYUP;             /* Skip to end of function */
++        }; 
++      }
++ 
++    NO_MIME_ACL:
+     if (acl_smtp_data != NULL && recipients_count > 0)
+       {
+       uschar *user_msg, *log_msg;
+@@ -2498,6 +2625,7 @@
+       else if (rc != OK)
+         {
+         Uunlink(spool_name);
++        unspool_mbox();
+         if (smtp_handle_acl_fail(ACL_WHERE_DATA, rc, user_msg, log_msg) != 0)
+           smtp_yield = FALSE;    /* No more messsages after dropped connection */
+         smtp_reply = US"";       /* Indicate reply already sent */
+@@ -2507,6 +2635,7 @@
+       }
+     }
+ 
++
+   /* Handle non-SMTP and batch SMTP (i.e. non-interactive) messages. Note that
+   we cannot take different actions for permanent and temporary rejections. */
+ 
+@@ -2547,6 +2676,8 @@
+   enable_dollar_recipients = FALSE;
+   }
+ 
++unspool_mbox();
++
+ /* The final check on the message is to run the scan_local() function. The
+ version supplied with Exim always accepts, but this is a hook for sysadmins to
+ supply their own checking code. The local_scan() function is run even when all
+@@ -2758,6 +2889,16 @@
+   debug_printf(">>Generated Received: header line\n%c %s", header_list->type,
+     header_list->text);
+ 
++
++#ifdef BRIGHTMAIL
++if (bmi_run == 1) {
++  /* rewind data file */
++  lseek(data_fd, (long int)SPOOL_DATA_START_OFFSET, SEEK_SET);
++  bmi_verdicts = bmi_process_message(header_list, data_fd);
++};
++#endif
++
++
+ /* Keep the data file open until we have written the header file, in order to
+ hold onto the lock. In a -bh run, or if the message is to be blackholed, we
+ don't write the header file, and we unlink the data file. If writing the header
+@@ -3000,6 +3141,7 @@
+ if this happens? */
+ 
+ TIDYUP:
++
+ process_info[process_info_len] = 0;          /* Remove message id */
+ if (data_file != NULL) fclose(data_file);    /* Frees the lock */
+ 
+@@ -3026,12 +3168,31 @@
      {
      if (smtp_reply == NULL)
        {
@@ -4262,10 +6870,10 @@ diff -urN exim-4.30-orig/src/receive.c exim-4.30/src/receive.c
      }
  
    /* For batched SMTP, generate an error message on failure, and do
-diff -urN exim-4.30-orig/src/regex.c exim-4.30/src/regex.c
---- exim-4.30-orig/src/regex.c	Thu Jan  1 01:00:00 1970
-+++ exim-4.30/src/regex.c	Tue Dec  2 12:15:53 2003
-@@ -0,0 +1,110 @@
+diff -urN exim-4.33-orig/src/regex.c exim-4.33/src/regex.c
+--- exim-4.33-orig/src/regex.c	Thu Jan  1 01:00:00 1970
++++ exim-4.33/src/regex.c	Wed May  5 14:05:02 2004
+@@ -0,0 +1,243 @@
 +/*************************************************
 +*     Exim - an Internet mail transport agent    *
 +*************************************************/
@@ -4280,6 +6888,8 @@ diff -urN exim-4.30-orig/src/regex.c exim-4.30/src/regex.c
 + Called from acl.c. */
 +
 +#include "exim.h"
++#include <unistd.h>
++#include <sys/mman.h>
 +
 +/* Structure to hold a list of Regular expressions */
 +typedef struct pcre_list {
@@ -4289,6 +6899,9 @@ diff -urN exim-4.30-orig/src/regex.c exim-4.30/src/regex.c
 +} pcre_list;
 +
 +uschar regex_match_string_buffer[1024];
++
++extern FILE *mime_stream;
++extern uschar *mime_current_boundary;
 +
 +int regex(uschar **listptr) {
 +  int sep = 0;
@@ -4303,17 +6916,24 @@ diff -urN exim-4.30-orig/src/regex.c exim-4.30/src/regex.c
 +  const char *pcre_error;
 +  int pcre_erroffset;
 +  uschar *linebuffer;
++  long f_pos = 0;
 +  
 +  /* reset expansion variable */
 +  regex_match_string = NULL;
 +  
-+  /* make sure the eml mbox file is spooled up */
-+  mbox_file = spool_mbox(&mbox_size);
-+  if (mbox_file == NULL) {
-+    /* error while spooling */
-+    log_write(0, LOG_MAIN|LOG_PANIC,
-+           "regex acl condition: error while creating mbox spool file");
-+    return DEFER;  
++  if (mime_stream == NULL) {
++    /* We are in the DATA ACL */
++    mbox_file = spool_mbox(&mbox_size);
++    if (mbox_file == NULL) {
++      /* error while spooling */
++      log_write(0, LOG_MAIN|LOG_PANIC,
++             "regex acl condition: error while creating mbox spool file");
++      return DEFER;
++    };
++  }
++  else {
++    f_pos = ftell(mime_stream);
++    mbox_file = mime_stream;
 +  };
 +  
 +  /* precompile our regexes */
@@ -4357,6 +6977,14 @@ diff -urN exim-4.30-orig/src/regex.c exim-4.30/src/regex.c
 +  /* match each line against all regexes */
 +  linebuffer = store_get(32767);
 +  while (fgets(CS linebuffer, 32767, mbox_file) != NULL) {  
++    if ( (mime_stream != NULL) && (mime_current_boundary != NULL) ) {
++      /* check boundary */
++      if (Ustrncmp(linebuffer,"--",2) == 0) {
++        if (Ustrncmp((linebuffer+2),mime_current_boundary,Ustrlen(mime_current_boundary)) == 0)
++          /* found boundary */
++          break;
++      };
++    };
 +    re_list_item = re_list_head;
 +    do {
 +      /* try matcher on the line */
@@ -4364,33 +6992,260 @@ diff -urN exim-4.30-orig/src/regex.c exim-4.30/src/regex.c
 +  	                (int)Ustrlen(linebuffer), 0, 0, NULL, 0) >= 0) {
 +        Ustrncpy(regex_match_string_buffer, re_list_item->pcre_text, 1023);
 +        regex_match_string = regex_match_string_buffer;
-+        fclose(mbox_file);
++        if (mime_stream == NULL)
++          fclose(mbox_file);
++        else {
++          clearerr(mime_stream);
++          fseek(mime_stream,f_pos,SEEK_SET);
++        };
 +        return OK;
-+      };  	                     
++      };
 +      re_list_item = re_list_item->next;
 +    } while (re_list_item != NULL);
 +  };
 +  
-+  fclose(mbox_file);
-+  
++  if (mime_stream == NULL)
++    fclose(mbox_file);
++  else {
++    clearerr(mime_stream);
++    fseek(mime_stream,f_pos,SEEK_SET);
++  };
++    
 +  /* no matches ... */
 +  return FAIL;
 +}
-diff -urN exim-4.30-orig/src/smtp_in.c exim-4.30/src/smtp_in.c
---- exim-4.30-orig/src/smtp_in.c	Mon Dec  1 11:15:41 2003
-+++ exim-4.30/src/smtp_in.c	Tue Dec  2 12:15:53 2003
-@@ -790,6 +790,7 @@
++
++
++int mime_regex(uschar **listptr) {
++  int sep = 0;
++  uschar *list = *listptr;
++  uschar *regex_string;
++  uschar regex_string_buffer[1024];
++  pcre *re;
++  pcre_list *re_list_head = NULL;
++  pcre_list *re_list_item;
++  const char *pcre_error;
++  int pcre_erroffset;
++  FILE *f;
++  uschar *mime_subject = NULL;
++  int mime_subject_len = 0;
++
++  /* reset expansion variable */
++  regex_match_string = NULL;
++
++  /* precompile our regexes */
++  while ((regex_string = string_nextinlist(&list, &sep,
++                                           regex_string_buffer,
++                                           sizeof(regex_string_buffer))) != NULL) {
++    
++    /* parse option */
++    if ( (strcmpic(regex_string,US"false") == 0) || 
++         (Ustrcmp(regex_string,"0") == 0) ) {
++      /* explicitly no matching */
++      continue;
++    };
++    
++    /* compile our regular expression */
++    re = pcre_compile( CS regex_string,
++                       0,
++                       &pcre_error,
++                       &pcre_erroffset,
++                       NULL );
++
++    if (re == NULL) {
++      log_write(0, LOG_MAIN,
++           "regex acl condition warning - error in regex '%s': %s at offset %d, skipped.", regex_string, pcre_error, pcre_erroffset);
++      continue;
++    }
++    else {
++      re_list_item = store_get(sizeof(pcre_list));
++      re_list_item->re = re;
++      re_list_item->pcre_text = string_copy(regex_string);
++      re_list_item->next = re_list_head;
++      re_list_head = re_list_item;
++    };
++  };
++  
++  /* no regexes -> nothing to do */
++  if (re_list_head == NULL) {
++    return FAIL;
++  };
++  
++  /* check if the file is already decoded */
++  if (mime_decoded_filename == NULL) {
++    uschar *empty = US"";
++    /* no, decode it first */
++    mime_decode(&empty);
++    if (mime_decoded_filename == NULL) {
++      /* decoding failed */
++      log_write(0, LOG_MAIN,
++           "mime_regex acl condition warning - could not decode MIME part to file.");
++      return DEFER;
++    };
++  };
++
++
++  /* open file */
++  f = fopen(CS mime_decoded_filename, "r");
++  if (f == NULL) {
++    /* open failed */
++    log_write(0, LOG_MAIN,
++         "mime_regex acl condition warning - can't open '%s' for reading.", mime_decoded_filename);
++    return DEFER;
++  };
++  
++  /* get 32k memory */
++  mime_subject = (uschar *)store_get(32767);
++  
++  /* read max 32k chars from file */
++  mime_subject_len = fread(mime_subject, 1, 32766, f);
++  
++  re_list_item = re_list_head;
++  do {
++    /* try matcher on the mmapped file */
++    debug_printf("Matching '%s'\n", re_list_item->pcre_text);
++    if (pcre_exec(re_list_item->re, NULL, CS mime_subject,
++                  mime_subject_len, 0, 0, NULL, 0) >= 0) {
++      Ustrncpy(regex_match_string_buffer, re_list_item->pcre_text, 1023);
++      regex_match_string = regex_match_string_buffer;
++      return OK;
++    };
++    re_list_item = re_list_item->next;
++  } while (re_list_item != NULL);
++
++  /* no matches ... */
++  return FAIL;
++}
++
+diff -urN exim-4.33-orig/src/route.c exim-4.33/src/route.c
+--- exim-4.33-orig/src/route.c	Wed May  5 12:08:36 2004
++++ exim-4.33/src/route.c	Wed May  5 14:05:02 2004
+@@ -10,6 +10,9 @@
+ 
+ #include "exim.h"
+ 
++#ifdef BRIGHTMAIL
++#include "bmi_spam.h"
++#endif
+ 
+ 
+ /* Generic options for routers, all of which live inside router_instance
+@@ -32,6 +35,16 @@
+                  (void *)(offsetof(router_instance, address_data)) },
+   { "address_test",       opt_bool|opt_public,
+                  (void *)(offsetof(router_instance, address_test)) },
++#ifdef BRIGHTMAIL
++  { "bmi_deliver_alternate",   opt_bool | opt_public,
++                 (void *)(offsetof(router_instance, bmi_deliver_alternate)) },
++  { "bmi_deliver_default",   opt_bool | opt_public,
++                 (void *)(offsetof(router_instance, bmi_deliver_default)) },
++  { "bmi_dont_deliver",   opt_bool | opt_public,
++                 (void *)(offsetof(router_instance, bmi_dont_deliver)) },
++  { "bmi_rule",           opt_stringptr|opt_public,
++                 (void *)(offsetof(router_instance, bmi_rule)) },
++#endif
+   { "cannot_route_message", opt_stringptr | opt_public,
+                  (void *)(offsetof(router_instance, cannot_route_message)) },
+   { "caseful_local_part", opt_bool | opt_public,
+@@ -978,6 +991,49 @@
+     }
+   }
+ 
++#ifdef BRIGHTMAIL
++
++/* check if a specific Brightmail AntiSpam rule fired on the message */
++if (r->bmi_rule != NULL) {
++  DEBUG(D_route) debug_printf("checking bmi_rule\n");
++  if (bmi_check_rule(bmi_base64_verdict, r->bmi_rule) == 0) {
++    /* none of the rules fired */
++    DEBUG(D_route)
++      debug_printf("%s router skipped: none of bmi_rule rules fired\n", r->name);
++    return SKIP;
++  };
++};
++
++/* check if message should not be delivered */
++if (r->bmi_dont_deliver) {
++  if (bmi_deliver == 1) {
++    DEBUG(D_route)
++      debug_printf("%s router skipped: bmi_dont_deliver is FALSE\n", r->name);
++    return SKIP;
++  };
++};
++
++/* check if message should go to an alternate location */
++if (r->bmi_deliver_alternate) {
++  if ((bmi_deliver == 0) || (bmi_alt_location == NULL)) {
++    DEBUG(D_route)
++      debug_printf("%s router skipped: bmi_deliver_alternate is FALSE\n", r->name);
++    return SKIP;
++  };
++};
++
++/* check if message should go to default location */
++if (r->bmi_deliver_default) {
++  if ((bmi_deliver == 0) || (bmi_alt_location != NULL)) {
++    DEBUG(D_route)
++      debug_printf("%s router skipped: bmi_deliver_default is FALSE\n", r->name);
++    return SKIP;
++  };
++};
++
++#endif
++
++
+ /* All the checks passed. */
+ 
+ return OK;
+diff -urN exim-4.33-orig/src/smtp_in.c exim-4.33/src/smtp_in.c
+--- exim-4.33-orig/src/smtp_in.c	Wed May  5 12:08:36 2004
++++ exim-4.33/src/smtp_in.c	Wed May  5 14:05:02 2004
+@@ -790,6 +790,8 @@
  acl_warn_headers = NULL;
  queue_only_policy = FALSE;
  deliver_freeze = FALSE;             /* Can be set by ACL */
 +fake_reject = FALSE;                /* Can be set by ACL */
++no_mbox_unspool = FALSE;            /* Can be set by ACL */
  sender_address = NULL;
  raw_sender = NULL;                  /* After SMTP rewrite, before qualifying */
  sender_address_unrewritten = NULL;  /* Set only after verify rewrite */
-diff -urN exim-4.30-orig/src/spam.c exim-4.30/src/spam.c
---- exim-4.30-orig/src/spam.c	Thu Jan  1 01:00:00 1970
-+++ exim-4.30/src/spam.c	Tue Dec  2 12:15:53 2003
-@@ -0,0 +1,265 @@
+@@ -797,6 +799,10 @@
+ memset(sender_address_cache, 0, sizeof(sender_address_cache));
+ memset(sender_domain_cache, 0, sizeof(sender_domain_cache));
+ authenticated_sender = NULL;
++#ifdef BRIGHTMAIL
++bmi_run = 0;
++bmi_verdicts = NULL;
++#endif
+ 
+ for (i = 0; i < ACL_M_MAX; i++) acl_var[ACL_C_MAX + i] = NULL;
+ 
+@@ -1747,8 +1753,10 @@
+ BOOL drop = rc == FAIL_DROP;
+ uschar *lognl;
+ uschar *sender_info = US"";
+-uschar *what = (where == ACL_WHERE_DATA)? US"after DATA" :
+-  string_sprintf("%s %s", acl_wherenames[where], smtp_data);
++uschar *what = string_sprintf("%s %s", acl_wherenames[where], smtp_data);
++
++if (where == ACL_WHERE_DATA) what = US"after DATA";
++if (where == ACL_WHERE_MIME) what = US"during MIME ACL checks";
+ 
+ if (drop) rc = FAIL;
+ 
+@@ -1758,7 +1766,7 @@
+ this is what should be logged, so I've changed to logging the unrewritten
+ address to retain backward compatibility. */
+ 
+-if (where == ACL_WHERE_RCPT || where == ACL_WHERE_DATA)
++if (where == ACL_WHERE_RCPT || where == ACL_WHERE_DATA || where == ACL_WHERE_MIME)
+   {
+   sender_info = string_sprintf("F=<%s> ", (sender_address_unrewritten != NULL)?
+     sender_address_unrewritten : sender_address);
+diff -urN exim-4.33-orig/src/spam.c exim-4.33/src/spam.c
+--- exim-4.33-orig/src/spam.c	Thu Jan  1 01:00:00 1970
++++ exim-4.33/src/spam.c	Wed May  5 14:05:02 2004
+@@ -0,0 +1,338 @@
 +/*************************************************
 +*     Exim - an Internet mail transport agent    *
 +*************************************************/
@@ -4410,7 +7265,7 @@ diff -urN exim-4.30-orig/src/spam.c exim-4.30/src/spam.c
 +uschar spam_score_int_buffer[16];
 +uschar spam_bar_buffer[128];
 +uschar spam_report_buffer[32600];
-+uschar prev_user_name[128];
++uschar prev_user_name[128] = "";
 +int spam_ok = 0;
 +int spam_rc = 0;
 +
@@ -4422,8 +7277,6 @@ diff -urN exim-4.30-orig/src/spam.c exim-4.30/src/spam.c
 +  unsigned long long mbox_size;
 +  FILE *mbox_file;
 +  int spamd_sock;
-+  uschar tcp_addr[24];
-+  unsigned int tcp_port;
 +  uschar spamd_buffer[32600];
 +  int i, j, offset;
 +  uschar spamd_version[8];
@@ -4432,6 +7285,7 @@ diff -urN exim-4.30-orig/src/spam.c exim-4.30/src/spam.c
 +  int spamd_report_offset;
 +  uschar *p,*q;
 +  int override = 0;
++  struct sockaddr_un server;
 +
 +  /* find the username from the option list */
 +  if ((user_name = string_nextinlist(&list, &sep,
@@ -4453,7 +7307,7 @@ diff -urN exim-4.30-orig/src/spam.c exim-4.30/src/spam.c
 +    override = 1;
 +  };
 +
-+  /* if we scanned for this username last time, just return */
++  /* if we scanned for this username last time, just return */ 
 +  if ( spam_ok && ( Ustrcmp(prev_user_name, user_name) == 0 ) ) {
 +    if (override)
 +      return OK;
@@ -4471,39 +7325,113 @@ diff -urN exim-4.30-orig/src/spam.c exim-4.30/src/spam.c
 +    return DEFER;
 +  };
 +
-+  /* contact spamd */
-+  spamd_sock = ip_socket(SOCK_STREAM, AF_INET);
-+  if (spamd_sock < 0) {
-+    log_write(0, LOG_MAIN|LOG_PANIC,
-+         "spam acl condition: error creating IP socket for spamd");
-+    fclose(mbox_file);
-+    return DEFER; 
-+  };
++  /* socket does not start with '/' -> network socket */
++  if (*spamd_address != '/') {
++    time_t now = time(NULL);
++    int num_servers = 0;
++    int current_server = 0;
++    int start_server = 0;
++    uschar *address = NULL;
++    uschar *spamd_address_list_ptr = spamd_address;
++    uschar address_buffer[256];
++    spamd_address_container * spamd_address_vector[32];
 +
-+  if (ip_bind(spamd_sock, AF_INET, US"0.0.0.0", 0) < 0) {
-+    log_write(0, LOG_MAIN|LOG_PANIC,
-+         "spam acl condition: bind socket for spamd failed: %s",strerror(errno));
-+    fclose(mbox_file);
-+    close(spamd_sock);
-+    return DEFER;
-+  };
++    /* Check how many spamd servers we have
++       and register their addresses */
++    while ((address = string_nextinlist(&spamd_address_list_ptr, &sep,
++                                        address_buffer,
++                                        sizeof(address_buffer))) != NULL) {
++      
++      spamd_address_container *this_spamd =
++        (spamd_address_container *)store_get(sizeof(spamd_address_container));
++      
++      /* grok spamd address and port */
++      if( sscanf(CS address, "%s %u", this_spamd->tcp_addr, &(this_spamd->tcp_port)) != 2 ) {
++        log_write(0, LOG_MAIN,
++          "spam acl condition: warning - invalid spamd address: '%s'", address);
++        continue;
++      };
++      
++      spamd_address_vector[num_servers] = this_spamd;
++      num_servers++;
++      if (num_servers > 31)
++        break;
++    };
++    
++    /* check if we have at least one server */
++    if (!num_servers) {
++      log_write(0, LOG_MAIN|LOG_PANIC,
++         "spam acl condition: no useable spamd server addresses in spamd_address configuration option.");
++      fclose(mbox_file);
++      return DEFER;
++    };
 +
-+  /* grok spamd address and port */
-+  if( sscanf(CS spamd_address, "%s %u", tcp_addr, &tcp_port) != 2 ) {
-+    log_write(0, LOG_MAIN|LOG_PANIC,
-+         "spam acl condition: invalid spamd address: '%s'", spamd_address);
-+    fclose(mbox_file);
-+    close(spamd_sock);
-+    return DEFER;
-+  };
++    current_server = start_server = (int)now % num_servers;
 +
-+  if (ip_connect(spamd_sock, AF_INET, tcp_addr, tcp_port, 5) < 0) {
-+    log_write(0, LOG_MAIN|LOG_PANIC,
-+         "spam acl condition: spamd connection to %s, port %u failed: %s", tcp_addr, tcp_port, strerror(errno));
-+    fclose(mbox_file);
-+    close(spamd_sock);
-+    return DEFER;
-+  };
++    while (1) {
++      
++      debug_printf("trying server %s, port %u\n",
++                   spamd_address_vector[current_server]->tcp_addr,
++                   spamd_address_vector[current_server]->tcp_port);
++      
++      /* contact a spamd */
++      if ( (spamd_sock = ip_socket(SOCK_STREAM, AF_INET)) < 0) {
++        log_write(0, LOG_MAIN|LOG_PANIC,
++           "spam acl condition: error creating IP socket for spamd");
++        fclose(mbox_file);
++        return DEFER; 
++      };
++      
++      if (ip_connect( spamd_sock,
++                      AF_INET,
++                      spamd_address_vector[current_server]->tcp_addr,
++                      spamd_address_vector[current_server]->tcp_port,
++                      5 ) > -1) {
++        /* connection OK */
++        break;
++      };
++      
++      log_write(0, LOG_MAIN|LOG_PANIC,
++         "spam acl condition: warning - spamd connection to %s, port %u failed: %s",
++         spamd_address_vector[current_server]->tcp_addr,
++         spamd_address_vector[current_server]->tcp_port,
++         strerror(errno));
++      current_server++;
++      if (current_server >= num_servers)
++        current_server = 0;
++      if (current_server == start_server) {
++        log_write(0, LOG_MAIN|LOG_PANIC, "spam acl condition: all spamd servers failed");
++        fclose(mbox_file);
++        close(spamd_sock);
++        return DEFER;
++      };
++    };
++
++  }
++  else {
++    /* open the local socket */
++
++    if ((spamd_sock = socket(AF_UNIX, SOCK_STREAM, 0)) < 0) {
++      log_write(0, LOG_MAIN|LOG_PANIC,
++                "malware acl condition: spamd: unable to acquire socket (%s)",
++                strerror(errno));
++      fclose(mbox_file);
++      return DEFER;
++    }
++
++    server.sun_family = AF_UNIX;
++    Ustrcpy(server.sun_path, spamd_address);
++
++    if (connect(spamd_sock, (struct sockaddr *) &server, sizeof(struct sockaddr_un)) < 0) {
++      log_write(0, LOG_MAIN|LOG_PANIC,
++                "malware acl condition: spamd: unable to connect to UNIX socket %s (%s)",
++                spamd_address, strerror(errno) );
++      fclose(mbox_file);
++      close(spamd_sock);
++      return DEFER;
++    }
++
++  }
 +
 +  /* now we are connected to spamd on spamd_sock */
 +  snprintf(CS spamd_buffer,
@@ -4656,10 +7584,10 @@ diff -urN exim-4.30-orig/src/spam.c exim-4.30/src/spam.c
 +    return spam_rc;
 +  };
 +}
-diff -urN exim-4.30-orig/src/spam.h exim-4.30/src/spam.h
---- exim-4.30-orig/src/spam.h	Thu Jan  1 01:00:00 1970
-+++ exim-4.30/src/spam.h	Tue Dec  2 12:15:53 2003
-@@ -0,0 +1,23 @@
+diff -urN exim-4.33-orig/src/spam.h exim-4.33/src/spam.h
+--- exim-4.33-orig/src/spam.h	Thu Jan  1 01:00:00 1970
++++ exim-4.33/src/spam.h	Wed May  5 14:05:02 2004
+@@ -0,0 +1,30 @@
 +/*************************************************
 +*     Exim - an Internet mail transport agent    *
 +*************************************************/
@@ -4683,9 +7611,16 @@ diff -urN exim-4.30-orig/src/spam.h exim-4.30/src/spam.h
 +#define SHUT_WR 1
 +#endif
 +
-diff -urN exim-4.30-orig/src/spool_in.c exim-4.30/src/spool_in.c
---- exim-4.30-orig/src/spool_in.c	Mon Dec  1 11:15:41 2003
-+++ exim-4.30/src/spool_in.c	Tue Dec  2 12:15:53 2003
++typedef struct spamd_address_container {
++  uschar tcp_addr[24];
++  unsigned int tcp_port;
++} spamd_address_container;
++
++
++
+diff -urN exim-4.33-orig/src/spool_in.c exim-4.33/src/spool_in.c
+--- exim-4.33-orig/src/spool_in.c	Wed May  5 12:08:36 2004
++++ exim-4.33/src/spool_in.c	Wed May  5 14:05:02 2004
 @@ -241,6 +241,7 @@
  body_linecount = 0;
  deliver_firsttime = FALSE;
@@ -4701,20 +7636,36 @@ diff -urN exim-4.30-orig/src/spool_in.c exim-4.30/src/spool_in.c
 +spam_score_int = NULL;
  message_linecount = 0;
  received_protocol = NULL;
- recipients_list = NULL;
-@@ -363,6 +365,8 @@
+ received_count = 0;
+@@ -266,6 +268,11 @@
+ sender_set_untrusted = FALSE;
+ tree_nonrecipients = NULL;
+ 
++#ifdef BRIGHTMAIL
++bmi_run = 0;
++bmi_verdicts = NULL;
++#endif
++
+ #ifdef SUPPORT_TLS
+ tls_certificate_verified = FALSE;
+ tls_cipher = NULL;
+@@ -364,6 +371,12 @@
      local_error_message = TRUE;
    else if (Ustrncmp(big_buffer, "-local_scan ", 12) == 0)
      local_scan_data = string_copy(big_buffer + 12);
 +  else if (Ustrncmp(big_buffer, "-spam_score_int ", 16) == 0)
 +    spam_score_int = string_copy(big_buffer + 16);
++#ifdef BRIGHTMAIL
++  else if (Ustrncmp(big_buffer, "-bmi_verdicts ", 14) == 0)
++    bmi_verdicts = string_copy(big_buffer + 14);
++#endif
    else if (Ustrcmp(big_buffer, "-host_lookup_failed") == 0)
      host_lookup_failed = TRUE;
    else if (Ustrncmp(big_buffer, "-body_linecount", 15) == 0)
-diff -urN exim-4.30-orig/src/spool_mbox.c exim-4.30/src/spool_mbox.c
---- exim-4.30-orig/src/spool_mbox.c	Thu Jan  1 01:00:00 1970
-+++ exim-4.30/src/spool_mbox.c	Tue Dec  2 12:15:53 2003
-@@ -0,0 +1,159 @@
+diff -urN exim-4.33-orig/src/spool_mbox.c exim-4.33/src/spool_mbox.c
+--- exim-4.33-orig/src/spool_mbox.c	Thu Jan  1 01:00:00 1970
++++ exim-4.33/src/spool_mbox.c	Wed May  5 14:05:02 2004
+@@ -0,0 +1,189 @@
 +/*************************************************
 +*     Exim - an Internet mail transport agent    *
 +*************************************************/
@@ -4737,6 +7688,7 @@ diff -urN exim-4.30-orig/src/spool_mbox.c exim-4.30/src/spool_mbox.c
 +extern struct file_extension *file_extensions;
 +
 +int spool_mbox_ok = 0;
++uschar spooled_message_id[17];
 +
 +/* returns a pointer to the FILE, and puts the size in bytes into mbox_file_size */
 +
@@ -4749,6 +7701,8 @@ diff -urN exim-4.30-orig/src/spool_mbox.c exim-4.30/src/spool_mbox.c
 +  header_line *my_headerlist;
 +  struct stat statbuf;
 +  int i,j;
++  uschar *received;
++  uschar *timestamp;
 +  
 +  if (!spool_mbox_ok) {
 +    /* create scan directory, if not present */
@@ -4772,6 +7726,27 @@ diff -urN exim-4.30-orig/src/spool_mbox.c exim-4.30/src/spool_mbox.c
 +      debug_printf("unable to open file for writing: %s\n", mbox_path);
 +      return NULL;
 +    };
++    
++    /* Generate a preliminary Received: header and put it in the file.
++       We need to do this so SA can do DNS list checks */
++    timestamp = expand_string(US"${tod_full}");
++    received = expand_string(received_header_text);
++    if (received != NULL) {
++      uschar *my_received;
++      if (received[0] == 0) {
++        my_received = string_sprintf("Received: ; %s\n", timestamp);
++      }
++      else {
++        my_received = string_sprintf("%s; %s\n", received, timestamp);
++      }
++      i = fwrite(my_received, 1, Ustrlen(my_received), mbox_file);
++      if (i != Ustrlen(my_received)) {
++        debug_printf("error/short write on writing in: %s", mbox_path);
++        fclose(mbox_file);
++        return NULL;
++      };
++    };
++    
 +    
 +    /* write all header lines to mbox file */
 +    my_headerlist = header_list;
@@ -4820,6 +7795,7 @@ diff -urN exim-4.30-orig/src/spool_mbox.c exim-4.30/src/spool_mbox.c
 +    
 +    fclose(data_file);
 +    fclose(mbox_file);
++    Ustrcpy(spooled_message_id, message_id);
 +    spool_mbox_ok = 1;
 +  };
 +
@@ -4845,39 +7821,44 @@ diff -urN exim-4.30-orig/src/spool_mbox.c exim-4.30/src/spool_mbox.c
 +  file_extensions = NULL;
 +  spam_ok = 0;
 +  malware_ok = 0;
-+
-+  if (spool_mbox_ok) {
-+    uschar mbox_path[1024];
-+    uschar file_path[1024];
-+    int n;
-+    struct dirent *entry;
-+    DIR *tempdir;
 +  
++  if (spool_mbox_ok) {
++
 +    spool_mbox_ok = 0;
 +    
-+    snprintf(CS mbox_path, 1024, "%s/scan/%s", spool_directory, message_id);
-+  	
-+  	tempdir = opendir(CS mbox_path);
-+  	/* loop thru dir & delete entries */
-+  	n = 0;
-+  	do {
-+  	  entry = readdir(tempdir);
-+  	  if (entry == NULL) break;
-+  	  snprintf(CS file_path, 1024,"%s/scan/%s/%s", spool_directory, message_id, entry->d_name);
-+  	  if ( (Ustrcmp(entry->d_name,"..") != 0) && (Ustrcmp(entry->d_name,".") != 0) )
-+            n = unlink(CS file_path); 
-+  	} while (n > -1);
-+  	
-+  	closedir(tempdir);
-+  	
-+  	/* remove directory */
-+  	n = rmdir(CS mbox_path);
++    if (!no_mbox_unspool) {
++      uschar mbox_path[1024];
++      uschar file_path[1024];
++      int n;
++      struct dirent *entry;
++      DIR *tempdir;
++      
++      snprintf(CS mbox_path, 1024, "%s/scan/%s", spool_directory, spooled_message_id);
++    	
++    	tempdir = opendir(CS mbox_path);
++    	/* loop thru dir & delete entries */
++    	n = 0;
++    	do {
++    	  entry = readdir(tempdir);
++    	  if (entry == NULL) break;
++    	  snprintf(CS file_path, 1024,"%s/scan/%s/%s", spool_directory, spooled_message_id, entry->d_name);
++    	  if ( (Ustrcmp(entry->d_name,"..") != 0) && (Ustrcmp(entry->d_name,".") != 0) ) {
++    	    debug_printf("unspool_mbox(): unlinking '%s'\n", file_path);
++              n = unlink(CS file_path);
++            }; 
++    	} while (n > -1);
++    	
++    	closedir(tempdir);
++    	
++    	/* remove directory */
++    	n = rmdir(CS mbox_path);
++    };
 +  };
 +}
-diff -urN exim-4.30-orig/src/spool_out.c exim-4.30/src/spool_out.c
---- exim-4.30-orig/src/spool_out.c	Mon Dec  1 11:15:41 2003
-+++ exim-4.30/src/spool_out.c	Tue Dec  2 12:15:53 2003
-@@ -209,6 +209,7 @@
+diff -urN exim-4.33-orig/src/spool_out.c exim-4.33/src/spool_out.c
+--- exim-4.33-orig/src/spool_out.c	Wed May  5 12:08:36 2004
++++ exim-4.33/src/spool_out.c	Wed May  5 14:05:02 2004
+@@ -209,9 +209,14 @@
  if (sender_local) fprintf(f, "-local\n");
  if (local_error_message) fprintf(f, "-localerror\n");
  if (local_scan_data != NULL) fprintf(f, "-local_scan %s\n", local_scan_data);
@@ -4885,9 +7866,41 @@ diff -urN exim-4.30-orig/src/spool_out.c exim-4.30/src/spool_out.c
  if (deliver_manual_thaw) fprintf(f, "-manual_thaw\n");
  if (sender_set_untrusted) fprintf(f, "-sender_set_untrusted\n");
  
-diff -urN exim-4.30-orig/src/tnef.c exim-4.30/src/tnef.c
---- exim-4.30-orig/src/tnef.c	Thu Jan  1 01:00:00 1970
-+++ exim-4.30/src/tnef.c	Tue Dec  2 12:15:53 2003
++#ifdef BRIGHTMAIL
++if (bmi_verdicts != NULL) fprintf(f, "-bmi_verdicts %s\n", bmi_verdicts);
++#endif
++
+ #ifdef SUPPORT_TLS
+ if (tls_certificate_verified) fprintf(f, "-tls_certificate_verified\n");
+ if (tls_cipher != NULL) fprintf(f, "-tls_cipher %s\n", tls_cipher);
+diff -urN exim-4.33-orig/src/structs.h exim-4.33/src/structs.h
+--- exim-4.33-orig/src/structs.h	Wed May  5 12:08:36 2004
++++ exim-4.33/src/structs.h	Wed May  5 14:05:02 2004
+@@ -219,6 +219,9 @@
+   uschar *driver_name;            /* Must be first */
+ 
+   uschar *address_data;           /* Arbitrary data */
++#ifdef BRIGHTMAIL
++  uschar *bmi_rule;               /* Brightmail AntiSpam rule checking */
++#endif
+   uschar *cannot_route_message;   /* Used when routing fails */
+   uschar *condition;              /* General condition */
+   uschar *current_directory;      /* For use during delivery */
+@@ -247,6 +250,11 @@
+   uschar *transport_name;         /* Transport name */
+ 
+   BOOL    address_test;           /* Use this router when testing addresses */
++#ifdef BRIGHTMAIL
++  BOOL    bmi_deliver_alternate;  /* TRUE => BMI said that message should be delivered to alternate location */
++  BOOL    bmi_deliver_default;    /* TRUE => BMI said that message should be delivered to default location */
++  BOOL    bmi_dont_deliver;       /* TRUE => BMI said that message should not be delivered at all */
++#endif
+   BOOL    expn;                   /* Use this router when processing EXPN */
+   BOOL    caseful_local_part;     /* TRUE => don't lowercase */
+   BOOL    check_local_user;       /* TRUE => check local user */
+diff -urN exim-4.33-orig/src/tnef.c exim-4.33/src/tnef.c
+--- exim-4.33-orig/src/tnef.c	Thu Jan  1 01:00:00 1970
++++ exim-4.33/src/tnef.c	Wed May  5 14:05:02 2004
 @@ -0,0 +1,757 @@
 +/*************************************************
 +*     Exim - an Internet mail transport agent    *
@@ -5048,7 +8061,7 @@ diff -urN exim-4.30-orig/src/tnef.c exim-4.30/src/tnef.c
 +	uint8 a,b,c,d;
 +	uint32 ret;
 +
-+	if (tsp > tnef_limit)
++	if (tsp+4 > tnef_limit)
 +	{
 +		if ((_TNEF_verbose)||(_TNEF_stderrlogging)||(_TNEF_debug)) fprintf(stderr,"TNEF read_32() Attempting to read past end\n");
 +		return -1;
@@ -5076,7 +8089,7 @@ diff -urN exim-4.30-orig/src/tnef.c exim-4.30/src/tnef.c
 +	uint8 a,b;
 +	uint16 ret;
 +
-+	if (tsp > tnef_limit)
++	if (tsp+2 > tnef_limit)
 +	{
 +		if ((_TNEF_verbose)||(_TNEF_stderrlogging)||(_TNEF_debug)) fprintf(stderr,"TNEF read_16() Attempting to read past end\n");
 +		return -1;
@@ -5646,9 +8659,9 @@ diff -urN exim-4.30-orig/src/tnef.c exim-4.30/src/tnef.c
 +
 +
 +
-diff -urN exim-4.30-orig/src/tnef.h exim-4.30/src/tnef.h
---- exim-4.30-orig/src/tnef.h	Thu Jan  1 01:00:00 1970
-+++ exim-4.30/src/tnef.h	Tue Dec  2 12:15:53 2003
+diff -urN exim-4.33-orig/src/tnef.h exim-4.33/src/tnef.h
+--- exim-4.33-orig/src/tnef.h	Thu Jan  1 01:00:00 1970
++++ exim-4.33/src/tnef.h	Wed May  5 14:05:02 2004
 @@ -0,0 +1,1841 @@
 +/*************************************************
 +*     Exim - an Internet mail transport agent    *
@@ -7491,19 +10504,18 @@ diff -urN exim-4.30-orig/src/tnef.h exim-4.30/src/tnef.h
 +
 +
 +#endif  /* MAPITAGS_H */
-diff -urN exim-4.30-orig/src/version.c exim-4.30/src/version.c
---- exim-4.30-orig/src/version.c	Mon Dec  1 11:15:41 2003
-+++ exim-4.30/src/version.c	Wed Dec  3 10:37:27 2003
-@@ -11,7 +11,7 @@
+diff -urN exim-4.33-orig/src/version.c exim-4.33/src/version.c
+--- exim-4.33-orig/src/version.c	Wed May  5 12:08:36 2004
++++ exim-4.33/src/version.c	Wed May  5 14:06:27 2004
+@@ -11,6 +11,7 @@
  
  
- #define THIS_VERSION  "4.30"
--
-+#define EXISCAN_VERSION "14"
+ #define THIS_VERSION  "4.33"
++#define EXISCAN_VERSION "20"
+ 
  
  /* The header file cnumber.h contains a single line containing the
- compilation number, making it easy to have it updated automatically.
-@@ -40,6 +40,7 @@
+@@ -40,6 +41,7 @@
  version_cnumber_format = US"%d\0<<eximcnumber>>";
  sprintf(CS version_cnumber, CS version_cnumber_format, cnumber);
  version_string = US THIS_VERSION "\0<<eximversion>>";
