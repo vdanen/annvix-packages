@@ -1,11 +1,11 @@
 %define name	exim
-%define version 4.41
+%define version 4.42
 %define release 1avx
 
 %define build_mysql 0
 %define build_pgsql 0
 %define build_mon   0
-%define exiscanver  4.41-25
+%define exiscanver  4.42-27
 %define saversion   4.1
 
 %define alternatives 1
@@ -313,6 +313,11 @@ fi
 %config(noreplace) %{_sysconfdir}/exim/sa-exim_short.conf
 
 %changelog
+* Mon Sep 20 2004 Vincent Danen <vdanen@annvix.org> 4.41-2avx
+- 4.42
+- exiscan-acl 4.41-27
+- update run scripts
+
 * Thu Aug 19 2004 Vincent Danen <vdanen@annvix.org> 4.41-1avx
 - 4.41
 - exiscan-acl 4.41-25
