@@ -1,8 +1,7 @@
 %define name	curl
-%define version 7.10.7
-%define release	4sls
+%define version 7.11.1
+%define release	1sls
 
-%define real_version 7.10.7
 %define major	2
 %define libname %mklibname %{name} %{major}
 
@@ -20,10 +19,9 @@ Release:	%{release}
 License:	MIT
 Group:		Networking/Other
 URL:		http://curl.haxx.se/
-Source:		http://curl.haxx.se/download/%{name}-%{real_version}.tar.bz2
+Source:		http://curl.haxx.se/download/%{name}-%{version}.tar.bz2
 Patch0:		curl-7.5-missingfcntl_h.patch.bz2
 Patch1:		curl-7.10.4-compat-location-trusted.patch.bz2
-Patch2:		curl-7.10.7-64bit-fixes.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-buildroot
 BuildRequires:	bison groff-for-man openssl-devel zlib-devel
@@ -73,10 +71,9 @@ utilize libcurl.
 
 
 %prep
-%setup -q -n %{name}-%{real_version}
+%setup -q -n %{name}-%{version}
 %patch0 -p1
 %patch1 -p1
-%patch2 -p1 -b .64bit-fixes
 
 %build
 # A dynamic patch using perl but a bit agressive... (fpons)
@@ -115,7 +112,8 @@ make check
 %defattr(-,root,root)
 %attr(0755,root,root) %{_bindir}/curl
 %attr(0644,root,root) %{_mandir}/man1/curl.1*
-%{_datadir}/curl
+%dir %{_datadir}/curl
+%{_datadir}/curl/*
 
 %files -n %{libname}
 %defattr(-,root,root)
@@ -129,11 +127,19 @@ make check
 %attr(0755,root,root) %{_bindir}/curl-config
 %attr(0644,root,root) %{_mandir}/man1/curl-config.1*
 %{_libdir}/libcurl.so
+%dir %{_includedir}/curl
 %{_includedir}/curl/*
 %{_libdir}/libcurl*a
 %{_mandir}/man3/*
 
 %changelog
+* Sat Apr 24 2004 Vincent Danen <vdanen@opensls.org> 7.11.1-1sls
+- 7.11.1
+- drop P2; applied upstream
+- get rid of %%real_version macro, we'll never ship anything other than a
+  release
+- own %%_includedir/curl
+
 * Wed Mar 03 2004 Vincent Danen <vdanen@opensls.org> 7.10.7-4sls
 - minor spec cleanups
 
