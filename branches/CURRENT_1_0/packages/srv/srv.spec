@@ -1,8 +1,8 @@
-# $Id: srv.spec,v 1.10 2004/07/27 21:01:40 vdanen Exp $
+# $Id: srv.spec,v 1.11 2004/08/19 16:34:10 vdanen Exp $
 
 %define name	srv
 %define version 0.7
-%define release 1avx
+%define release 2avx
 
 Summary:	Tool to manage supervise-controlled services.
 Name: 		%{name}
@@ -82,6 +82,10 @@ mv %{buildroot}%{_bindir}/svc* %{buildroot}%{_sbindir}
 %{_mandir}/man1/svc-stop.1*
 
 %changelog
+* Thu Aug 19 2004 Vincent Danen <vdanen@annvix.org> 0.7-2avx
+- make srv *not* kill "rogue" sshd processes as that makes remote
+  upgrades of sshd impossible
+
 * Tue Jul 27 2004 Vincent Danen <vdanen@annvix.org> 0.7-1avx
 - remove srv-addinit and %%post scriptlet to add it to inittab; it's now
   done in initscripts
