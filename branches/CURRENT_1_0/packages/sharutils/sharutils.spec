@@ -1,6 +1,6 @@
 %define name	sharutils
 %define version	4.2.1
-%define release	16sls
+%define release	17sls
 
 #rh-4.2.1-12
 Summary:	The GNU shar utilities for packaging and unpackaging shell archives.
@@ -92,6 +92,9 @@ fi
 %{_mandir}/man?/*
 
 %changelog
+* Fri May 07 2004 Vincent Danen <vdanen@opensls.org> 4.2.1-17sls
+- rebuild against new libintl
+
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 4.2.1-16sls
 - minor spec cleanups
 
