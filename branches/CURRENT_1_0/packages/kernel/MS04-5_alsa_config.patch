@@ -51,7 +51,7 @@ diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff w1/sound/Co
 diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff w1/sound/Config.in w2/sound/Config.in
 --- w1/sound/Config.in	1970-01-01 01:00:00.000000000 +0100
 +++ w2/sound/Config.in	2003-08-13 23:51:56.000000000 +0200
-@@ -0,0 +1,39 @@
+@@ -0,0 +1,38 @@
 +# sound/Config.in
 +#
 +
@@ -62,7 +62,6 @@ diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff w1/sound/Co
 +if [ "$CONFIG_SND" != "n" ]; then
 +  source sound/core/Config.in
 +  source sound/drivers/Config.in
-+  source sound/usb/Config.in
 +fi
 +if [ "$CONFIG_SND" != "n" -a "$CONFIG_ISA" = "y" ]; then
 +  source sound/isa/Config.in

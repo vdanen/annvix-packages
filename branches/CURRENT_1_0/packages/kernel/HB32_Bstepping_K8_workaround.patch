@@ -1,0 +1,54 @@
+--- linux-2.4.22/arch/x86_64/mm/extable.c.amd64-Bstepping-workaround	2002-11-29 00:53:12.000000000 +0100
++++ linux-2.4.22/arch/x86_64/mm/extable.c	2003-11-10 10:32:22.000000000 +0100
+@@ -1,10 +1,11 @@
+ /*
+- * linux/arch/i386/mm/extable.c
++ * linux/arch/x86_64/mm/extable.c
+  */
+ 
+ #include <linux/config.h>
+ #include <linux/module.h>
+ #include <linux/spinlock.h>
++#include <linux/init.h>
+ #include <asm/uaccess.h>
+ 
+ extern const struct exception_table_entry __start___ex_table[];
+@@ -39,6 +40,10 @@ search_exception_table(unsigned long add
+ 	unsigned long ret = 0;
+ 	unsigned long flags;
+ 
++	/* Workaround for an Opteron issue */
++	if ((addr >> 32) == 0) 
++		addr |= 0xffffffffUL << 32; 
++
+ #ifndef CONFIG_MODULES
+ 	/* There is only the kernel to search.  */
+ 	ret = search_one_table(__start___ex_table, __stop___ex_table-1, addr);
+--- linux-2.4.22/arch/x86_64/kernel/entry.S.amd64-Bstepping-workaround	2003-11-10 10:20:05.000000000 +0100
++++ linux-2.4.22/arch/x86_64/kernel/entry.S	2003-11-10 10:32:22.000000000 +0100
+@@ -351,6 +351,7 @@ iret_label:	
+ 	.section .fixup,"ax"
+ 	/* force a signal here? this matches i386 behaviour */
+ bad_iret:
++	/* runs with kernelgs again */	
+ 	movq $-9999,%rdi	/* better code? */
+ 	jmp do_exit			
+ 	.previous	
+@@ -503,9 +504,14 @@ error_signal_test:
+ error_kernelspace:
+ 	incl %r15d
+ 	/* There are two places in the kernel that can potentially fault with
+-	   usergs. Handle them here. */	   
+-	cmpq $iret_label,RIP(%rsp)
+-	je   1f
++	   usergs. Handle them here. */
++	leaq iret_label(%rip),%rdx
++	cmpq %rdx,RIP(%rsp)
++	je 1f
++	/* check truncated address too. This works around a CPU issue */
++	movl %edx,%edx	/* zero extend */
++	cmpq %rdx,RIP(%rsp)
++	je 1f
+ 	cmpq $gs_change,RIP(%rsp)
+ 	jne  error_action	
+ 	/* iret_label and gs_change are handled by exception handlers

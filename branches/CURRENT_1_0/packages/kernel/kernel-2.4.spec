@@ -83,81 +83,95 @@
 #
 # Juan Quintela <quintela@mandrakesoft.com>
 
-%define sublevel 22
-%define mdkrelease 21
-%define use_patch 0
+%define sublevel	22
+%define mdkrelease	26
+%define use_patch	0
+
+%{!?build_opensls:%global build_opensls 0}
 
 # You shouldn't have to change any kernel/patch/version number
 # for 2.4 kernels
 
 # When we are using a pre/rc patch, the tarball is a sublevel -1
 %if %use_patch
-%define tar_version 2.4.%(expr %sublevel - 1)
-%define patchversion %{use_patch}q%{mdkrelease}
-%define realrelease 0.%{mdkrelease}mdk
+%define tar_version	2.4.%(expr %sublevel - 1)
+%define patchversion	%{use_patch}q%{mdkrelease}
+%define realrelease	0.%{mdkrelease}sls
 %else
-%define tar_version 2.4.%sublevel
-%define patchversion q%mdkrelease
-%define realrelease %{mdkrelease}mdk
+%define tar_version	2.4.%sublevel
+%define patchversion	q%mdkrelease
+%define realrelease	%{mdkrelease}sls
 %endif
 
 # never touch the folowing two fields
-%define rpmversion 1
-%define rpmrelease 1mdk
-%define realversion 2.4.%{sublevel}
-%define mdkversion %{realversion}.%{realrelease}
-%define patches_ver 2.4.%{sublevel}-%{patchversion}
+%define rpmversion	1
+%define rpmrelease	1sls
+%define realversion	2.4.%{sublevel}
+%define mdkversion	%{realversion}.%{realrelease}
+%define patches_ver	2.4.%{sublevel}-%{patchversion}
 
 # having different top level names for packges means
 # that you have to remove them by hard :(
 %define top_dir_name kernel-2.4
 
-%define build_dir ${RPM_BUILD_DIR}/%top_dir_name
-%define src_dir %{build_dir}/linux-%tar_version
-%define KVERREL %{realversion}-%{realrelease}
+%define build_dir	${RPM_BUILD_DIR}/%top_dir_name
+%define src_dir		%{build_dir}/linux-%tar_version
+%define KVERREL		%{realversion}-%{realrelease}
 
 # this is the config that contains all the drivers for the hardware/
 # things that I use (Juan Quintela).
-%define build_minimal 0
-%define build_acpi 1
+%define build_minimal	0
+%define build_acpi	1
 
-%define build_kheaders 0
-%define build_debug 0
-%define build_doc 1
-%define build_source 1
+%define build_kheaders	0
+%define build_debug	0
+%define build_doc	1
+%define build_source	1
 
 %define build_92 %(if [ `awk '{print $4}' /etc/mandrake-release` = 9.2 ];then echo 1; else echo 0; fi)
 %define build_91 %(if [ `awk '{print $4}' /etc/mandrake-release` = 9.1 ];then echo 1; else echo 0; fi)
 %define build_90 %(if [ `awk '{print $4}' /etc/mandrake-release` = 9.0 ];then echo 1; else echo 0; fi)
 %define build_82 %(if [ `awk '{print $4}' /etc/mandrake-release` = 8.2 ];then echo 1; else echo 0; fi)
 
-%define build_up 1
-%define build_smp 1
+%define build_up	1
+%define build_smp	1
 
 %ifarch alpha x86_64 ia64
-%define build_enterprise 0
+%define build_enterprise	0
 %else
-%define build_enterprise 1
+%define build_enterprise	1
 %endif
 
 %ifarch %{ix86} x86_64
-%define build_BOOT 1
+%define build_BOOT	1
 %else
-%define build_BOOT 0
+%define build_BOOT	0
 %endif
 
 %ifarch %{ix86} x86_64
-%define build_secure 1
+%define build_secure	1
 %else
-%define build_secure 0
+%define build_secure	0
 %endif
 
 %ifarch %{ix86}
-%define build_i686_up_4GB 1
-%define build_p3_smp_64GB 1
+%define build_i686_up_4GB	1
+%define build_p3_smp_64GB	1
 %else
-%define build_i686_up_4GB 0
-%define build_p3_smp_64GB 0
+%define build_i686_up_4GB	0
+%define build_p3_smp_64GB	0
+%endif
+
+%if %{build_opensls}
+%define build_i686_up_4GB	0
+%define build_p3_smp_64GB	0
+%define build_enterprise	0
+%define build_doc		0
+%define build_smp		1
+%define build_BOOT		1
+%define build_up		1
+%define build_secure		1
+%define build_92		1
 %endif
 
 # End of user definitions
@@ -192,43 +206,43 @@
 %{?_with_91: %global build_91 1}
 %{?_with_92: %global build_92 1}
 
-%define build_modules_description 1
+%define build_modules_description	1
 
 %if %build_82
-%define build_modules_description 0
+%define build_modules_description	0
 %endif
 
-%define kmake %make
+%define kmake	%make
 # there are places where parallel make don't work
-%define smake make
+%define smake	make
 
 # Aliases for amd64 builds (better make source links?)
 %define target_cpu	%(echo %{_target_cpu} | sed -e "s/amd64/x86_64/")
 %define target_arch	%(echo %{_arch} | sed -e "s/amd64/x86_64/")
 
-Summary: The Linux kernel (the core of the Linux operating system).
-Name: kernel-%{mdkversion}
-Version: %{rpmversion}
-Release: %{rpmrelease}
-License: GPL
-Group: System/Kernel and hardware
-ExclusiveArch: %{ix86} alpha ppc ia64 x86_64 amd64
-ExclusiveOS: Linux
-URL: http://www.kernel.org/
+Summary:	The Linux kernel (the core of the Linux operating system).
+Name:		kernel-%{mdkversion}
+Version:	%{rpmversion}
+Release:	%{rpmrelease}
+License:	GPL
+Group:		System/Kernel and hardware
+URL:		http://www.kernel.org/
+ExclusiveArch:	%{ix86} alpha ppc ia64 x86_64 amd64
+ExclusiveOS:	Linux
 
 ####################################################################
 #
 # Sources
 #
-Source0: ftp://ftp.kernel.org/pub/linux/kernel/v2.4/linux-%{tar_version}.tar.bz2
-Source4: README.kernel-sources
-Source5: README.Mandrake
+Source0:	ftp://ftp.kernel.org/pub/linux/kernel/v2.4/linux-%{tar_version}.tar.bz2
+Source4:	README.kernel-sources
+Source5:	README.Mandrake
 
-Source15: linux-mdkconfig.h
-Source16: linux-merge-config.awk
-Source17: linux-merge-modules.awk
+Source15:	linux-mdkconfig.h
+Source16:	linux-merge-config.awk
+Source17:	linux-merge-modules.awk
 
-Source100: linux-%{patches_ver}.tar.bz2
+Source100:	linux-%{patches_ver}.tar.bz2
 
 ####################################################################
 #
@@ -241,39 +255,32 @@ Source100: linux-%{patches_ver}.tar.bz2
 # Pre linus patch: ftp://ftp.kernel.org/pub/linux/kernel/v2.4/testing
 
 %if %use_patch
-Patch1: patch-%realversion-%use_patch.bz2
+Patch1:		patch-%realversion-%use_patch.bz2
 %endif
 
 #END
 ####################################################################
 
 # Defines for the things that are needed for all the kernels
-%if %build_82
-%define requires1 modutils >= 2.4.13-3mdk
-%else
-%define requires1 modutils >= 2.4.15-1mdk
-%endif
+%define requires1	modutils >= 2.4.15-1mdk
 
-%define requires2 mkinitrd >= 3.1.6-24mdk
-%define requires3 bootloader-utils >= 1.6
+%define requires2	mkinitrd >= 3.1.6-24mdk
+%define requires3	bootloader-utils >= 1.6
 
-%define conflicts kernel-pcmcia-cs <= 2.4.8-26mdk, iptables <= 1.2.4-1mdk, ksympoops < 2.4.9
-%define kprovides kernel = %{realversion}, alsa
+%define conflicts	kernel-pcmcia-cs <= 2.4.8-26mdk, iptables <= 1.2.4-1mdk, ksympoops < 2.4.9
+%define kprovides	kernel = %{realversion}, alsa
 
-BuildRoot: %{_tmppath}/%{name}-%{realversion}-build
-Provides: module-info, %kprovides
-Autoreqprov: no
-Requires: %requires1
-Requires: %requires2
-Requires: %requires3
-%if %build_92
-BuildRequires: gcc >= 3.3.1-0.6mdk
-%else
-BuildRequires: gcc
-%endif
-Conflicts: %conflicts
-Obsoletes: alsa, hackkernel, adiusbadsl_kernel
-Provides: alsa, hackkernel, adiusbadsl_kernel
+BuildRoot:	%{_tmppath}/%{name}-%{realversion}-build
+BuildRequires:	gcc >= 3.3.1-0.6mdk
+
+Provides:	module-info, %kprovides
+Autoreqprov:	no
+Requires:	%requires1
+Requires:	%requires2
+Requires:	%requires3
+Conflicts:	%conflicts
+Obsoletes:	alsa, hackkernel, adiusbadsl_kernel
+Provides:	alsa, hackkernel, adiusbadsl_kernel
 
 
 %description
@@ -282,30 +289,36 @@ Mandrake Linux operating system.  The kernel handles the basic functions
 of the operating system:  memory allocation, process allocation, device
 input and output, etc.
 
+For instructions for update, see:
+http://www.mandrakesecure.net/en/kernelupdate.php
+
 #
 # kernel-smp: Symmetric MultiProcessing kernel
 #
 
 %package -n kernel-smp-%{mdkversion}
-Summary: The Linux Kernel compiled for SMP machines.
-Group: System/Kernel and hardware
-Provides: %kprovides
-Requires: %requires1
-Requires: %requires2
-Requires: %requires3
+Summary:	The Linux Kernel compiled for SMP machines.
+Group:		System/Kernel and hardware
+Provides:	%kprovides
+Requires:	%requires1
+Requires:	%requires2
+Requires:	%requires3
 
 %description -n kernel-smp-%{mdkversion}
 This package includes a SMP version of the Linux %{realversion} kernel. It is
 required only on machines with two or more CPUs, although it should work
 fine on single-CPU boxes.
 
+For instructions for update, see:
+http://www.mandrakesecure.net/en/kernelupdate.php
+
 %package -n kernel-secure-%{mdkversion}
-Summary: The Linux Kernel compiled for SECURE machines.
-Group: System/Kernel and hardware
-Provides: %kprovides
-Requires: %requires1
-Requires: %requires2
-Requires: %requires3
+Summary:	The Linux Kernel compiled for SECURE machines.
+Group:		System/Kernel and hardware
+Provides:	%kprovides
+Requires:	%requires1
+Requires:	%requires2
+Requires:	%requires3
 
 %description -n kernel-secure-%{mdkversion}
 This package includes a SECURE version of the Linux %{realversion}
@@ -316,17 +329,20 @@ http://grsecurity.net/features.php
 
 for list of features we have included.
 
+For instructions for update, see:
+http://www.mandrakesecure.net/en/kernelupdate.php
+
 #
 # kernel-enterprise: Symmetric MultiProcessing kernel
 #
 
 %package -n kernel-enterprise-%{mdkversion}
-Summary: The Linux Kernel compiled with options for Enterprise server usage.
-Group: System/Kernel and hardware
-Provides: %kprovides
-Requires: %requires1
-Requires: %requires2
-Requires: %requires3
+Summary:	The Linux Kernel compiled with options for Enterprise server usage.
+Group:		System/Kernel and hardware
+Provides:	%kprovides
+Requires:	%requires1
+Requires:	%requires2
+Requires:	%requires3
 
 %description -n kernel-enterprise-%{mdkversion}
 This package includes a kernel that has appropriate configuration options
@@ -334,14 +350,17 @@ enabled for the typical large enterprise server.  This includes SMP support
 for multiple processor machines, support for large memory configurations
 and other appropriate items.
 
+For instructions for update, see:
+http://www.mandrakesecure.net/en/kernelupdate.php
+
 #
 # kernel-boot: BOOT Kernel
 #
 
 %package -n kernel-BOOT-%{mdkversion}
-Summary: The version of the Linux kernel used on installation boot disks.
-Group: System/Kernel and hardware
-Url: https://kenobi.mandrakesoft.com/~chmou/kernel/BOOT/
+Summary:	The version of the Linux kernel used on installation boot disks.
+Group:		System/Kernel and hardware
+URL:		https://kenobi.mandrakesoft.com/~chmou/kernel/BOOT/
 
 %description -n kernel-BOOT-%{mdkversion}
 This package includes a trimmed down version of the Linux kernel.
@@ -349,27 +368,32 @@ This kernel is used on the installation boot disks only and should not
 be used for an installed system, as many features in this kernel are
 turned off because of the size constraints.
 
+For instructions for update, see:
+http://www.mandrakesecure.net/en/kernelupdate.php
 
 %package -n kernel-i686-up-4GB-%{mdkversion}
-Summary: The Linux Kernel compiled for smp with 4GB.
-Group: System/Kernel and hardware
-Provides: %kprovides
-Requires: %requires1
-Requires: %requires2
-Requires: %requires3
+Summary:	The Linux Kernel compiled for smp with 4GB.
+Group:		System/Kernel and hardware
+Provides:	%kprovides
+Requires:	%requires1
+Requires:	%requires2
+Requires:	%requires3
 
 %description -n kernel-i686-up-4GB-%{mdkversion}
 This package includes a kernel that has appropriate configuration options
 enabled for the typical desktop with more than 1GB of memory.
 
+For instructions for update, see:
+http://www.mandrakesecure.net/en/kernelupdate.php
+
 
 %package -n kernel-p3-smp-64GB-%{mdkversion}
-Summary: The Linux Kernel compiled with options for pentium III, smp and 64GB memory.
-Group: System/Kernel and hardware
-Provides: %kprovides
-Requires: %requires1
-Requires: %requires2
-Requires: %requires3
+Summary:	The Linux Kernel compiled with options for pentium III, smp and 64GB memory.
+Group:		System/Kernel and hardware
+Provides:	%kprovides
+Requires:	%requires1
+Requires:	%requires2
+Requires:	%requires3
 
 %description -n kernel-p3-smp-64GB-%{mdkversion}
 This package includes a kernel that has appropriate configuration options
@@ -377,15 +401,18 @@ enabled for the typical large enterprise server.  This includes SMP support
 for multiple processor machines, support for large memory configurations (64GB)
 and support for pentium III.
 
+For instructions for update, see:
+http://www.mandrakesecure.net/en/kernelupdate.php
+
 
 %package -n kernel-source
-Version: %{realversion}
-Release: %{realrelease}
-Requires: glibc-devel, ncurses-devel, make, gcc
-Summary: The source code for the Linux kernel.
-Group: Development/Kernel
-Obsoletes: alsa-source
-Provides: alsa-source
+Summary:	The source code for the Linux kernel.
+Version:	%{realversion}
+Release:	%{realrelease}
+Requires:	glibc-devel, ncurses-devel, make, gcc
+Group:		Development/Kernel
+Obsoletes:	alsa-source
+Provides:	alsa-source
 
 %description -n kernel-source
 The kernel-source package contains the source code files for the Linux
@@ -399,10 +426,10 @@ doing).
 # kernel-doc: documentation for the Linux kernel
 #
 %package -n kernel-doc
-Version: %{version}
-Release: %{release}
-Summary: Various documentation bits found in the kernel source.
-Group: Books/Computer books
+Summary:	Various documentation bits found in the kernel source.
+Version:	%{version}
+Release:	%{release}
+Group:		Books/Computer books
 
 %description -n kernel-doc
 This package contains documentation files form the kernel source. Various
@@ -1040,6 +1067,32 @@ exit 0
 %endif
 
 %changelog
+* Mon Dec 29 2003 Vincent Danen <vdanen@opensls.org> 2.4.22-26sls
+- OpenSLS build
+- tidy spec
+- added ZZ01_propolice.patch to enable propolice protection
+
+* Mon Nov 10 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 2.4.22-25mdk
+- fix DOS partition table sanity checks code
+- updates from AMD64 cvs (2003/11/10):
+  * workaround a bug in B-stepping K8s
+  * increase exception stack size to 4 KB
+  * replace slow_smp_processor_id() with cpuid based version
+
+* Tue Nov  4 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 2.4.22-24mdk
+- enable PCMCIA IDE support on AMD64
+- some fixlets to the DOS partition table consistency checks code
+
+* Fri Oct 31 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 2.4.22-23mdk
+- amd64: enable KALLSYMS, handle acpi=on, some PCMCIA fixes
+- add some consistency checks to DOS type partition tables (make lilo happy)
+
+* Thu Oct 30 2003 Juan Quintela <quintela@mandrakesoft.com> 2.4.22-22mdk
+- trident oss driver should work now (this bug report was very old, sorry).
+- amd64 irda mismerged corrected (gb happy).
+- make menuconfig works inside alsa again.
+- HP d325 don't like acpi at all.
+
 * Fri Oct 24 2003 Juan Quintela <quintela@mandrakesoft.com> 2.4.22-21mdk
 - make xconfig should work again (svetoslav).
 - remove packet writing patches (was killing LG CDROMS).

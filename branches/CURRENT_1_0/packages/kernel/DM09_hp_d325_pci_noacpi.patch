@@ -5,7 +5,7 @@ diff -urNp --exclude-from=/home/quintela/config/misc/dontdiff q2/arch/i386/kerne
  			/* newer BIOS, Revision 1011, does work */
  			MATCH(DMI_BIOS_VERSION, "ASUS A7V ACPI BIOS Revision 1007"),
  			NO_MATCH }},
-+	{ disable_acpi_pci, "Hewlett Packard d325 ", {
++	{ acpi_disable, "Hewlett Packard d325 ", {
 +			MATCH(DMI_BOARD_VENDOR, "Hewlett-Packard"),
 +			MATCH(DMI_BOARD_NAME, "0830h"),
 +			NO_MATCH, NO_MATCH }},

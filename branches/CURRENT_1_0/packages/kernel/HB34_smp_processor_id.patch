@@ -1,0 +1,44 @@
+--- linux-2.4.22/include/asm-x86_64/smp.h.amd64-smp-processor-id	2003-08-25 13:44:44.000000000 +0200
++++ linux-2.4.22/include/asm-x86_64/smp.h	2003-11-10 10:34:35.000000000 +0100
+@@ -89,10 +89,8 @@ extern __inline int hard_smp_processor_i
+ 	return GET_APIC_ID(*(unsigned *)(APIC_BASE+APIC_ID));
+ }
+ 
+-extern int apic_disabled;
+-extern int slow_smp_processor_id(void);
+-#define safe_smp_processor_id() \
+-	(!apic_disabled ? hard_smp_processor_id() : slow_smp_processor_id())
++/* Assume apicid == cpuid */
++#define safe_smp_processor_id() (cpuid_ebx(1) >> 24) 
+ 
+ #endif /* !ASSEMBLY */
+ 
+--- linux-2.4.22/arch/x86_64/kernel/smp.c.amd64-smp-processor-id	2003-11-10 10:20:05.000000000 +0100
++++ linux-2.4.22/arch/x86_64/kernel/smp.c	2003-11-10 10:35:21.000000000 +0100
+@@ -548,26 +548,3 @@ asmlinkage void smp_call_function_interr
+ 		atomic_inc(&call_data->finished);
+ 	}
+ }
+-
+-/* Slow. Should be only used for debugging. */
+-int slow_smp_processor_id(void)
+-{ 
+-	int stack_location;
+-	unsigned long sp = (unsigned long)&stack_location; 
+-	int offset = 0, cpu;
+-
+-	for (offset = 0; (cpu_online_map >> offset); offset = cpu + 1) { 
+-		cpu = ffz(~(cpu_online_map >> offset));
+-
+-		if (sp >= (u64)cpu_pda[cpu].irqstackptr - IRQSTACKSIZE && 
+-		    sp <= (u64)cpu_pda[cpu].irqstackptr)
+-			return cpu;
+-
+-		unsigned long estack = init_tss[cpu].ist[0] - EXCEPTION_STKSZ;
+-		if (sp >= estack && sp <= estack+(1<<(PAGE_SHIFT+EXCEPTION_STK_ORDER)))
+-			return cpu;			
+-	}
+-
+-	return stack_smp_processor_id();
+-} 
+-
