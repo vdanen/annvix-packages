@@ -1,6 +1,6 @@
 %define name	python
 %define version	2.3
-%define release	4sls
+%define release	5sls
 
 %{!?build_opensls:%define build_opensls 0}
 
@@ -43,7 +43,9 @@ BuildRoot:	%_tmppath/%name-%version-%release-root
 BuildRequires:	XFree86-devel 
 BuildRequires:	blt
 BuildRequires:	db2-devel, db4-devel
+%if !%{build_opensls}
 BuildRequires:	emacs-bin
+%endif
 BuildRequires:	expat-devel
 BuildRequires:	gdbm-devel 
 BuildRequires:	gmp-devel
@@ -193,6 +195,7 @@ mkdir -p $RPM_BUILD_ROOT%{_mandir}
 # the shared library could be found when -L/usr/lib/python*/config is specified
 (cd $RPM_BUILD_ROOT%{_libdir}/python%{dirver}/config; ln -sf ../../libpython%{lib_major}.so .)
 
+%if !%{build_opensls}
 # emacs, I use it, I want it
 mkdir -p $RPM_BUILD_ROOT%{_datadir}/emacs/site-lisp
 install -m 644 Misc/python-mode.el $RPM_BUILD_ROOT%{_datadir}/emacs/site-lisp
@@ -203,6 +206,7 @@ cat <<EOF >$RPM_BUILD_ROOT%{_sysconfdir}/emacs/site-start.d/%{name}.el
 (setq auto-mode-alist (cons '("\\\\.py$" . python-mode) auto-mode-alist))
 (autoload 'python-mode "python-mode" "Mode for python files." t)
 EOF
+%endif
 
 # idle
 cp Tools/scripts/idle $RPM_BUILD_ROOT%{_bindir}/idle
@@ -251,6 +255,9 @@ EOF
 
 rm -f include.list main.list
 bzcat %{SOURCE2} | sed 's@%%{_libdir}@%{_libdir}@' > include.list
+%if !%{build_opensls}
+MODULESEXTRA="%{_datadir}/emacs/site-lisp/python-mode.el*"
+%endif
 cat >> modules-list << EOF
 %{_bindir}/python
 %{_bindir}/python2.3
@@ -268,7 +275,7 @@ cat >> modules-list << EOF
 %{_libdir}/python*/hotshot/*
 %{_libdir}/python*/site-packages/README
 %{_libdir}/python*/plat-linux2/*
-%{_datadir}/emacs/site-lisp/python-mode.el*
+$MODULESEXTRA
 EOF
 
 LD_LIBRARY_PATH=$RPM_BUILD_ROOT%{_libdir} $RPM_BUILD_ROOT%{_bindir}/python %{SOURCE3} $RPM_BUILD_ROOT include.list modules-list > main.list
@@ -285,7 +292,9 @@ rm -f modules-list main.list
 %dir %{_libdir}/python*
 %dir %{_libdir}/python*/lib-dynload
 %dir %{_libdir}/python*/site-packages
+%if !%{build_opensls}
 %config(noreplace) %{_sysconfdir}/emacs/site-start.d/%{name}.el
+%endif
 
 %files -n %{lib_name}
 %defattr(-,root,root)
@@ -332,6 +341,9 @@ rm -f modules-list main.list
 %clean_menus
 
 %changelog
+* Tue Dec 30 2003 Vincent Danen <vdanen@opensls.org> 2.3-5sls
+- get rid of all the emacs stuff
+
 * Tue Dec 02 2003 Vincent Danen <vdanen@opensls.org> 2.3-4sls
 - OpenSLS build
 - tidy spec
