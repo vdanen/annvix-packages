@@ -1,6 +1,6 @@
 %define name	apache-conf
 %define version	2.0.49
-%define release	1sls
+%define release	2sls
 
 # OE: conditional switches
 #(ie. use with rpm --rebuild):
@@ -259,6 +259,7 @@ fi
 %files 
 %defattr(-,root,root)
 %dir %{compat_dir}
+%dir %{compat_dir}/extramodules
 %dir %{compat_dir}/logs
 %dir %{ap_confd}
 %dir %{ap_logfiledir}
@@ -300,6 +301,11 @@ fi
 %attr(1333,apache,apache) %dir /var/apache-mm
 
 %changelog
+* Fri May 07 2004 Vincent Danen <vdanen@opensls.org> 2.0.49-2sls
+- add extramodules to file list (flepied)
+- updated mimetypes from cooker 2.0.48-2mdk:
+  - urpmi, urpmi-media, rpm, and OOo (flepied)
+
 * Fri May 07 2004 Vincent Danen <vdanen@opensls.org> 2.0.49-1sls
 - 2.0.49
 
