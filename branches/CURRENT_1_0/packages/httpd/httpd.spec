@@ -1,6 +1,6 @@
 %define name	apache2
-%define version	2.0.48
-%define release	8sls
+%define version	2.0.49
+%define release	1sls
 
 #
 #(ie. use with rpm --rebuild):
@@ -48,7 +48,7 @@
 %define ap_ssl_libs -lssl -lcrypto
 %endif
 
-%define real_version	2.0.48
+%define real_version	2.0.49
 %define ap_version	%{version}
 %define ap_release	%{release}
 %define sourcename	httpd-%{version}
@@ -101,7 +101,7 @@ Patch4:			apache2-suexec.patch.bz2
 # OE: http://distcache.sourceforge.net/
 Patch5:			httpd-2.0.48-distcache.patch.bz2
 # OE: http://bitbrook.de/software/mod_log_mysql/
-Patch6:			httpd-2.0.48-mod_log_mysql.diff.bz2
+Patch6:			httpd-2.0.49-mod_log_mysql.diff.bz2
 # OE: stolen from redhat
 Patch40:		httpd-2.0.45-cnfdir.patch.bz2
 Patch41:		httpd-2.0.45-parallel.patch.bz2
@@ -1293,6 +1293,10 @@ fi
 %{ap_abs_srcdir}
 
 %changelog
+* Fri May 07 2004 Vincent Danen <vdanen@opensls.org> 2.0.49-1sls
+- 2.0.49
+- rediff and update P6
+
 * Fri Feb 20 2004 Vincent Danen <vdanen@opensls.org> 2.0.48-8sls
 - fix supervise log run script 
 - add a conftest to each start, the output is sent to the supervise logs

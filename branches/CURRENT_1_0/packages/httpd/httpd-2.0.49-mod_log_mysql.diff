@@ -1,7 +1,77 @@
-diff -Naur httpd-2.0.48/modules/loggers/mod_log_config.c httpd-2.0.48.oden/modules/loggers/mod_log_config.c
---- httpd-2.0.48/modules/loggers/mod_log_config.c	2003-09-21 23:23:34.000000000 +0200
-+++ httpd-2.0.48.oden/modules/loggers/mod_log_config.c	2003-10-17 10:58:07.000000000 +0200
-@@ -60,7 +60,12 @@
+--- httpd-2.0.49.org/modules/loggers/mod_log_config.c	2004-03-03 04:07:50.000000000 -0700
++++ httpd-2.0.49/modules/loggers/mod_log_config.c	2003-10-17 02:58:07.000000000 -0600
+@@ -1,23 +1,71 @@
+-/* Copyright 1999-2004 The Apache Software Foundation
++/* ====================================================================
++ * The Apache Software License, Version 1.1
+  *
+- * Licensed under the Apache License, Version 2.0 (the "License");
+- * you may not use this file except in compliance with the License.
+- * You may obtain a copy of the License at
+- *
+- *     http://www.apache.org/licenses/LICENSE-2.0
+- *
+- * Unless required by applicable law or agreed to in writing, software
+- * distributed under the License is distributed on an "AS IS" BASIS,
+- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+- * See the License for the specific language governing permissions and
+- * limitations under the License.
++ * Copyright (c) 2000-2003 The Apache Software Foundation.  All rights
++ * reserved.
++ *
++ * Redistribution and use in source and binary forms, with or without
++ * modification, are permitted provided that the following conditions
++ * are met:
++ *
++ * 1. Redistributions of source code must retain the above copyright
++ *    notice, this list of conditions and the following disclaimer.
++ *
++ * 2. Redistributions in binary form must reproduce the above copyright
++ *    notice, this list of conditions and the following disclaimer in
++ *    the documentation and/or other materials provided with the
++ *    distribution.
++ *
++ * 3. The end-user documentation included with the redistribution,
++ *    if any, must include the following acknowledgment:
++ *       "This product includes software developed by the
++ *        Apache Software Foundation (http://www.apache.org/)."
++ *    Alternately, this acknowledgment may appear in the software itself,
++ *    if and wherever such third-party acknowledgments normally appear.
++ *
++ * 4. The names "Apache" and "Apache Software Foundation" must
++ *    not be used to endorse or promote products derived from this
++ *    software without prior written permission. For written
++ *    permission, please contact apache@apache.org.
++ *
++ * 5. Products derived from this software may not be called "Apache",
++ *    nor may "Apache" appear in their name, without prior written
++ *    permission of the Apache Software Foundation.
++ *
++ * THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED
++ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
++ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
++ * DISCLAIMED.  IN NO EVENT SHALL THE APACHE SOFTWARE FOUNDATION OR
++ * ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
++ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
++ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
++ * USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
++ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
++ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
++ * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
++ * SUCH DAMAGE.
++ * ====================================================================
++ *
++ * This software consists of voluntary contributions made by many
++ * individuals on behalf of the Apache Software Foundation.  For more
++ * information on the Apache Software Foundation, please see
++ * <http://www.apache.org/>.
++ *
++ * Portions of this software are based upon public domain software
++ * originally written at the National Center for Supercomputing Applications,
++ * University of Illinois, Urbana-Champaign.
+  */
+ 
+ /*
   * Modified by djm@va.pubnix.com:
   * If no TransferLog is given explicitly, decline to log.
   *
@@ -15,7 +85,7 @@ diff -Naur httpd-2.0.48/modules/loggers/mod_log_config.c httpd-2.0.48.oden/modul
   * common log module), and additional directives, LogFormat and CustomLog.
   *
   *
-@@ -70,12 +75,25 @@
+@@ -27,12 +75,25 @@
   *                        a custom format is set with LogFormat
   *    LogFormat format    Set a log format from TransferLog files
   *    CustomLog fn format
@@ -42,7 +112,7 @@ diff -Naur httpd-2.0.48/modules/loggers/mod_log_config.c httpd-2.0.48.oden/modul
   * There can be any number of TransferLog and CustomLog
   * commands. Each request will be logged to _ALL_ the
   * named files, in the appropriate format.
-@@ -90,11 +108,11 @@
+@@ -47,11 +108,11 @@
   * 
   * Examples:
   *
@@ -57,7 +127,7 @@ diff -Naur httpd-2.0.48/modules/loggers/mod_log_config.c httpd-2.0.48.oden/modul
   *    </VirtualHost>
   *
   * This will log using CLF to access_log any requests handled by the
-@@ -104,15 +122,15 @@
+@@ -61,15 +122,15 @@
   *
   * Note that the NCSA referer and user-agent logs are easily added with
   * CustomLog:
@@ -76,7 +146,7 @@ diff -Naur httpd-2.0.48/modules/loggers/mod_log_config.c httpd-2.0.48.oden/modul
   *
   * The argument to LogFormat and CustomLog is a string, which can include
   * literal characters copied into the log files, and '%' directives as
-@@ -134,8 +152,8 @@
+@@ -91,8 +152,8 @@
   * %...{Foobar}o:  The contents of Foobar: header line(s) in the reply.
   * %...p:  the port the request was served to
   * %...P:  the process ID of the child that serviced the request.
@@ -87,7 +157,7 @@ diff -Naur httpd-2.0.48/modules/loggers/mod_log_config.c httpd-2.0.48.oden/modul
   * %...r:  first line of request
   * %...s:  status.  For requests that got internally redirected, this
   *         is status of the *original* request --- %...>s for the last.
-@@ -146,6 +164,7 @@
+@@ -103,6 +164,7 @@
   * %...D:  the time taken to serve the request, in micro seconds.
   * %...u:  remote user (from auth; may be bogus if return status (%s) is 401)
   * %...U:  the URL path requested.
@@ -95,7 +165,7 @@ diff -Naur httpd-2.0.48/modules/loggers/mod_log_config.c httpd-2.0.48.oden/modul
   * %...v:  the configured name of the server (i.e. which virtual host?)
   * %...V:  the server name according to the UseCanonicalName setting
   * %...m:  the request method
-@@ -155,9 +174,9 @@
+@@ -112,9 +174,9 @@
   *         'X' = connection aborted before the response completed.
   *         '+' = connection may be kept alive after the response is sent.
   *         '-' = connection will be closed after the response is sent.
@@ -108,7 +178,23 @@ diff -Naur httpd-2.0.48/modules/loggers/mod_log_config.c httpd-2.0.48.oden/modul
   * The '...' can be nothing at all (e.g. "%h %u %r %s %b"), or it can
   * indicate conditions for inclusion of the item (which will cause it
   * to be replaced with '-' if the condition is not met).  Note that
-@@ -214,28 +233,34 @@
+@@ -144,7 +206,6 @@
+ #include "apr_lib.h"
+ #include "apr_hash.h"
+ #include "apr_optional.h"
+-#include "apr_anylock.h"
+ 
+ #define APR_WANT_STRFUNC
+ #include "apr_want.h"
+@@ -157,7 +218,6 @@
+ #include "http_log.h"
+ #include "http_protocol.h"
+ #include "util_time.h"
+-#include "ap_mpm.h"
+ 
+ #if APR_HAVE_UNISTD_H
+ #include <unistd.h>
+@@ -173,30 +233,35 @@
  
  static int xfer_flags = (APR_WRITE | APR_APPEND | APR_CREATE);
  static apr_fileperms_t xfer_perms = APR_OS_DEFAULT;
@@ -162,9 +248,11 @@ diff -Naur httpd-2.0.48/modules/loggers/mod_log_config.c httpd-2.0.48.oden/modul
 +static ap_log_writer_init *log_writer_init = NULL;
 +
  static int buffered_logs = 0; /* default unbuffered */
+-static apr_array_header_t *all_buffered_logs = NULL;
  
  /* POSIX.1 defines PIPE_BUF as the maximum number of bytes that is
-@@ -282,10 +307,10 @@
+  * guaranteed to be atomic when writing a pipe.  And PIPE_BUF >= 512
+@@ -242,23 +307,26 @@
   * request. format might be NULL, in which case the default_format
   * from the multi_log_state should be used, or if that is NULL as
   * well, use the CLF. 
@@ -178,7 +266,11 @@ diff -Naur httpd-2.0.48/modules/loggers/mod_log_config.c httpd-2.0.48.oden/modul
  typedef struct {
      apr_file_t *handle;
      apr_size_t outcnt;
-@@ -296,8 +321,12 @@
+     char outbuf[LOG_BUFSIZE];
+-    apr_anylock_t mutex;
+ } buffered_log;
+ 
+ typedef struct {
      const char *fname;
      const char *format_string;
      apr_array_header_t *format;
@@ -192,7 +284,7 @@ diff -Naur httpd-2.0.48/modules/loggers/mod_log_config.c httpd-2.0.48.oden/modul
  } config_log_state;
  
  /*
-@@ -306,168 +335,179 @@
+@@ -267,168 +335,179 @@
   */
  
  typedef struct {
@@ -354,14 +446,14 @@ diff -Naur httpd-2.0.48/modules/loggers/mod_log_config.c httpd-2.0.48.oden/modul
 -                     : "";
 +    d->data = r->protocol;
 +    d->type = AP_LOG_EHANDLER_RETURN_STRING;
- }
--static const char *log_status(request_rec *r, char *a)
++}
 +static void *log_request_query(request_rec *r, char *a, ap_log_ehandler_data *d)
 +{ 
 +    if (r->args)
 +        d->data=apr_pstrcat(r->pool, "?", r->args, NULL);
 +    d->type=AP_LOG_EHANDLER_RETURN_STRING;
-+}
+ }
+-static const char *log_status(request_rec *r, char *a)
 +static void *log_status(request_rec *r, char *a, ap_log_ehandler_data *d)
  {
 -    return pfmt(r->pool, r->status);
@@ -456,7 +548,7 @@ diff -Naur httpd-2.0.48/modules/loggers/mod_log_config.c httpd-2.0.48.oden/modul
      if ((cookies = apr_table_get(r->headers_in, "Cookie"))) {
          if ((start_cookie = ap_strstr_c(cookies,a))) {
              char *cookie, *end_cookie;
-@@ -478,169 +518,94 @@
+@@ -439,169 +518,94 @@
              if (end_cookie) {
                  *end_cookie = '\0';
              }
@@ -509,15 +601,11 @@ diff -Naur httpd-2.0.48/modules/loggers/mod_log_config.c httpd-2.0.48.oden/modul
 -         * for the custom format in a separate function.  (That's why
 -         * log_request_time_custom is not inlined right here.)
 -         */
-+    d->type=AP_LOG_EHANDLER_RETURN_DATETIME;
-+    d->data=apr_palloc(r->pool,sizeof(apr_time_t));
- #ifdef I_INSIST_ON_EXTRA_CYCLES_FOR_CLF_COMPLIANCE
+-#ifdef I_INSIST_ON_EXTRA_CYCLES_FOR_CLF_COMPLIANCE
 -        ap_explode_recent_localtime(&xt, apr_time_now());
-+    *((apr_time_t *) d->data) = apr_time_now();
- #else
+-#else
 -        ap_explode_recent_localtime(&xt, r->request_time);
-+    *((apr_time_t *) d->data) = r->request_time;
- #endif
+-#endif
 -        return log_request_time_custom(r, a, &xt);
 -    }
 -    else {                      /* CLF format */
@@ -527,11 +615,15 @@ diff -Naur httpd-2.0.48/modules/loggers/mod_log_config.c httpd-2.0.48.oden/modul
 -         */
 -        cached_request_time* cached_time = apr_palloc(r->pool,
 -                                                      sizeof(*cached_time));
--#ifdef I_INSIST_ON_EXTRA_CYCLES_FOR_CLF_COMPLIANCE
++    d->type=AP_LOG_EHANDLER_RETURN_DATETIME;
++    d->data=apr_palloc(r->pool,sizeof(apr_time_t));
+ #ifdef I_INSIST_ON_EXTRA_CYCLES_FOR_CLF_COMPLIANCE
 -        apr_time_t request_time = apr_time_now();
--#else
++    *((apr_time_t *) d->data) = apr_time_now();
+ #else
 -        apr_time_t request_time = r->request_time;
--#endif
++    *((apr_time_t *) d->data) = r->request_time;
+ #endif
 -        unsigned t_seconds = (unsigned)apr_time_sec(request_time);
 -        unsigned i = t_seconds & TIME_CACHE_MASK;
 -        memcpy(cached_time, &(request_time_cache[i]), sizeof(*cached_time));
@@ -558,7 +650,7 @@ diff -Naur httpd-2.0.48/modules/loggers/mod_log_config.c httpd-2.0.48.oden/modul
 -                         "[%02d/%s/%d:%02d:%02d:%02d %c%.2d%.2d]",
 -                         xt.tm_mday, apr_month_snames[xt.tm_mon],
 -                         xt.tm_year+1900, xt.tm_hour, xt.tm_min, xt.tm_sec,
--                         sign, timz / (60*60), timz % (60*60));
+-                         sign, timz / (60*60), (timz % (60*60)) / 60);
 -            cached_time->t_validate = t_seconds;
 -            memcpy(&(request_time_cache[i]), cached_time,
 -                   sizeof(*cached_time));
@@ -674,7 +766,7 @@ diff -Naur httpd-2.0.48/modules/loggers/mod_log_config.c httpd-2.0.48.oden/modul
  }
  
  /*****************************************************************
-@@ -654,7 +619,7 @@
+@@ -615,7 +619,7 @@
      const char *s;
      char *d;
  
@@ -683,7 +775,7 @@ diff -Naur httpd-2.0.48/modules/loggers/mod_log_config.c httpd-2.0.48.oden/modul
      it->conditions = NULL;
  
      s = *sa;
-@@ -713,7 +678,6 @@
+@@ -674,7 +678,6 @@
  static char *parse_log_item(apr_pool_t *p, log_format_item *it, const char **sa)
  {
      const char *s = *sa;
@@ -691,7 +783,7 @@ diff -Naur httpd-2.0.48/modules/loggers/mod_log_config.c httpd-2.0.48.oden/modul
  
      if (*s != '%') {
          return parse_log_misc_string(p, it, sa);
-@@ -725,14 +689,15 @@
+@@ -686,14 +689,15 @@
  
      if (*s == '%') {
          it->arg = "%";
@@ -709,7 +801,7 @@ diff -Naur httpd-2.0.48/modules/loggers/mod_log_config.c httpd-2.0.48.oden/modul
  
      while (*s) {
          int i;
-@@ -783,8 +748,8 @@
+@@ -744,8 +748,8 @@
              break;
  
          default:
@@ -720,7 +812,7 @@ diff -Naur httpd-2.0.48/modules/loggers/mod_log_config.c httpd-2.0.48.oden/modul
                  char dummy[2];
  
                  dummy[0] = s[-1];
-@@ -792,9 +757,8 @@
+@@ -753,9 +757,8 @@
                  return apr_pstrcat(p, "Unrecognized LogFormat directive %",
                                 dummy, NULL);
              }
@@ -731,7 +823,7 @@ diff -Naur httpd-2.0.48/modules/loggers/mod_log_config.c httpd-2.0.48.oden/modul
              }
              *sa = s;
              return NULL;
-@@ -815,9 +779,6 @@
+@@ -776,9 +779,6 @@
              return NULL;
          }
      }
@@ -741,7 +833,7 @@ diff -Naur httpd-2.0.48/modules/loggers/mod_log_config.c httpd-2.0.48.oden/modul
      return a;
  }
  
-@@ -826,11 +787,106 @@
+@@ -787,11 +787,106 @@
   * Actually logging.
   */
  
@@ -771,7 +863,7 @@ diff -Naur httpd-2.0.48/modules/loggers/mod_log_config.c httpd-2.0.48.oden/modul
  {
 -    const char *cp;
 +    apr_time_exp_t xt;
- 
++
 +    /* ###  I think getting the time again at the end of the request
 +     * just for logging is dumb.  i know it's "required" for CLF.
 +     * folks writing log parsing tools don't realise that out of order
@@ -813,7 +905,7 @@ diff -Naur httpd-2.0.48/modules/loggers/mod_log_config.c httpd-2.0.48.oden/modul
 +        memcpy(cached_time, &(request_time_cache[i]), sizeof(*cached_time));
 +        if ((t_seconds != cached_time->t) ||
 +            (t_seconds != cached_time->t_validate)) {
-+
+ 
 +            /* Invalid or old snapshot, so compute the proper time string
 +             * and store it in the cache
 +             */
@@ -851,7 +943,7 @@ diff -Naur httpd-2.0.48/modules/loggers/mod_log_config.c httpd-2.0.48.oden/modul
      /* First, see if we need to process this thing at all... */
  
      if (item->conditions && item->conditions->nelts != 0) {
-@@ -847,14 +903,22 @@
+@@ -808,14 +903,22 @@
  
          if ((item->condition_sense && in_list)
              || (!item->condition_sense && !in_list)) {
@@ -877,7 +969,7 @@ diff -Naur httpd-2.0.48/modules/loggers/mod_log_config.c httpd-2.0.48.oden/modul
  }
  
  static void flush_log(buffered_log *buf)
-@@ -876,9 +940,10 @@
+@@ -837,9 +940,10 @@
      int i;
      apr_size_t len = 0;
      apr_array_header_t *format;
@@ -890,7 +982,7 @@ diff -Naur httpd-2.0.48/modules/loggers/mod_log_config.c httpd-2.0.48.oden/modul
      if (cls->fname == NULL) {
          return DECLINED;
      }
-@@ -888,25 +953,14 @@
+@@ -849,25 +953,14 @@
       * to make.
       */
      if (cls->condition_var != NULL) {
@@ -921,7 +1013,7 @@ diff -Naur httpd-2.0.48/modules/loggers/mod_log_config.c httpd-2.0.48.oden/modul
      orig = r;
      while (orig->prev) {
          orig = orig->prev;
-@@ -915,20 +969,84 @@
+@@ -876,20 +969,84 @@
          r = r->next;
      }
  
@@ -1015,7 +1107,7 @@ diff -Naur httpd-2.0.48/modules/loggers/mod_log_config.c httpd-2.0.48.oden/modul
      return OK;
  }
  
-@@ -1039,21 +1157,87 @@
+@@ -1000,21 +1157,87 @@
      multi_log_state *mls = ap_get_module_config(cmd->server->module_config,
                                                  &log_config_module);
      config_log_state *cls;
@@ -1041,10 +1133,7 @@ diff -Naur httpd-2.0.48/modules/loggers/mod_log_config.c httpd-2.0.48.oden/modul
 +            else {
 +                cls->condition_var = apr_pstrdup(cmd->pool, &envclause[i]);
 +            }
-         }
--        if ((envclause[4] == '\0')
--            || ((envclause[4] == '!') && (envclause[5] == '\0'))) {
--            return "missing environment variable name";
++        }
 +        else if (strncasecmp(envclause, "status=", 7) == 0) {
 +            i = 7;
 +            if (cls->condition_sense = (envclause[i] == '!')) {
@@ -1086,7 +1175,10 @@ diff -Naur httpd-2.0.48/modules/loggers/mod_log_config.c httpd-2.0.48.oden/modul
 +                    }
 +                }
 +            }
-+        }
+         }
+-        if ((envclause[4] == '\0')
+-            || ((envclause[4] == '!') && (envclause[5] == '\0'))) {
+-            return "missing environment variable name";
 +        else {
 +            return "error in condition clause";
          }
@@ -1110,7 +1202,7 @@ diff -Naur httpd-2.0.48/modules/loggers/mod_log_config.c httpd-2.0.48.oden/modul
      cls->format_string = fmt;
      if (fmt == NULL) {
          cls->format = NULL;
-@@ -1061,8 +1245,7 @@
+@@ -1022,8 +1245,7 @@
      else {
          cls->format = parse_log_string(cmd->pool, fmt, &err_string);
      }
@@ -1120,16 +1212,18 @@ diff -Naur httpd-2.0.48/modules/loggers/mod_log_config.c httpd-2.0.48.oden/modul
      return err_string;
  }
  
-@@ -1080,8 +1263,6 @@
+@@ -1041,10 +1263,6 @@
  static const char *set_buffered_logs_on(cmd_parms *parms, void *dummy, int flag)
  {
      buffered_logs = flag;
--    ap_log_set_writer_init(ap_buffered_log_writer_init);
--    ap_log_set_writer(ap_buffered_log_writer);
+-    if (buffered_logs) {
+-        ap_log_set_writer_init(ap_buffered_log_writer_init);
+-        ap_log_set_writer(ap_buffered_log_writer);
+-    }
      return NULL;
  }
  static const command_rec config_log_cmds[] =
-@@ -1104,16 +1285,25 @@
+@@ -1067,16 +1285,25 @@
                                           config_log_state *cls,
                                           apr_array_header_t *default_format)
  {
@@ -1159,7 +1253,7 @@ diff -Naur httpd-2.0.48/modules/loggers/mod_log_config.c httpd-2.0.48.oden/modul
          return NULL; 
  
      return cls;
-@@ -1189,23 +1379,22 @@
+@@ -1152,23 +1379,22 @@
      buffered_log *buf;
      int i;
  
@@ -1188,21 +1282,69 @@ diff -Naur httpd-2.0.48/modules/loggers/mod_log_config.c httpd-2.0.48.oden/modul
              }
          }
      }
-@@ -1231,92 +1420,188 @@
+@@ -1178,17 +1404,10 @@
+ 
+ static int init_config_log(apr_pool_t *pc, apr_pool_t *p, apr_pool_t *pt, server_rec *s)
+ {
+-    int res;
+-
+-    /* First init the buffered logs array, which is needed when opening the logs. */
+-    if (buffered_logs) {
+-        all_buffered_logs = apr_array_make(p, 5, sizeof(buffered_log *));
+-    }
+-
+-    /* Next, do "physical" server, which gets default log fd and format
++    /* First, do "physical" server, which gets default log fd and format
+      * for the virtual servers, if they don't override...
+      */
+-    res = open_multi_logs(s, p);
++    int res = open_multi_logs(s, p);
+ 
+     /* Then, virtual servers */
+ 
+@@ -1201,39 +1420,30 @@
  
  static void init_child(apr_pool_t *p, server_rec *s)
  {
+-    int mpm_threads;
+-
+-    ap_mpm_query(AP_MPMQ_MAX_THREADS, &mpm_threads);
+-
 -    /* Now register the last buffer flush with the cleanup engine */
 -    if (buffered_logs) {
+-        int i;
+-        buffered_log **array = (buffered_log **)all_buffered_logs->elts;
+-        
 -        apr_pool_cleanup_register(p, s, flush_all_logs, flush_all_logs);
 +    multi_log_state *mls;
 +    apr_array_header_t *log_list;
 +    config_log_state *clsarray;
 +    buffered_log *buf;
 +    int i;
-+
+ 
+-        for (i = 0; i < all_buffered_logs->nelts; i++) {
+-            buffered_log *this = array[i];
+-            
+-#if APR_HAS_THREADS
+-            if (mpm_threads > 1) {
+-                apr_status_t rv;
 +    apr_pool_cleanup_register(p, s, flush_all_logs, flush_all_logs);
-+
+ 
+-                this->mutex.type = apr_anylock_threadmutex;
+-                rv = apr_thread_mutex_create(&this->mutex.lock.tm,
+-                                             APR_THREAD_MUTEX_DEFAULT,
+-                                             p);
+-                if (rv != APR_SUCCESS) {
+-                    ap_log_error(APLOG_MARK, APLOG_CRIT, rv, s,
+-                                 "could not initialize buffered log mutex, "
+-                                 "transfer log may become corrupted");
+-                    this->mutex.type = apr_anylock_none;
+-                }
+-            }
+-            else
+-#endif
+-            {
+-                this->mutex.type = apr_anylock_none;
 +    for (; s; s = s->next) {
 +        mls = ap_get_module_config(s->module_config, &log_config_module);
 +        if (mls->config_logs->nelts) {
@@ -1219,11 +1361,10 @@ diff -Naur httpd-2.0.48/modules/loggers/mod_log_config.c httpd-2.0.48.oden/modul
 +            for (i = 0; i < log_list->nelts; ++i) {
 +                if ((clsarray[i].writer) && (clsarray[i].writer->init))
 +                   clsarray[i].writer->init(p, s, clsarray[i].writer_data);
-+            }
-+        }
+             }
+         }
      }
- }
- 
+@@ -1242,173 +1452,257 @@
  static void ap_register_log_handler(apr_pool_t *p, char *tag, 
                                      ap_log_handler_fn_t *handler, int def)
  {
@@ -1419,13 +1560,17 @@ diff -Naur httpd-2.0.48/modules/loggers/mod_log_config.c httpd-2.0.48.oden/modul
 +static void *init_buffered_logs(apr_pool_t *p, void *handle) 
  {
      buffered_log *b;
-     b = apr_palloc(p, sizeof(buffered_log));
+-    b = apr_pcalloc(p, sizeof(buffered_log));
 -    b->handle = ap_default_log_writer_init(p, s, name);
++    b = apr_palloc(p, sizeof(buffered_log));
 +    b->handle = handle;
-     b->outcnt = 0;
++    b->outcnt = 0;
      
-     if (b->handle)
-@@ -1324,83 +1609,100 @@
+-    if (b->handle) {
+-        *(buffered_log **)apr_array_push(all_buffered_logs) = b;
++    if (b->handle)
+         return b;
+-    }
      else
          return NULL;
  }
@@ -1446,18 +1591,31 @@ diff -Naur httpd-2.0.48/modules/loggers/mod_log_config.c httpd-2.0.48.oden/modul
 +    apr_file_t *fd;
      apr_status_t rv;
 -    buffered_log *buf = (buffered_log*)handle;
--
  
--    if (len + buf->outcnt > LOG_BUFSIZE) {
--        flush_log(buf);
+-    if ((rv = APR_ANYLOCK_LOCK(&buf->mutex)) != APR_SUCCESS) {
+-        return rv;
 +    if (!fname) {
 +        ap_log_error(APLOG_MARK, APLOG_ERR, APR_EBADPATH, s,
 +                     "invalid transfer log path %s.", name);
 +        return NULL;
      }
+-
+-    if (len + buf->outcnt > LOG_BUFSIZE) {
+-        flush_log(buf);
++    rv = apr_file_open(&fd, fname, xfer_flags, xfer_perms, p);
++    if (rv != APR_SUCCESS) {
++        ap_log_error(APLOG_MARK, APLOG_ERR, rv, s,
++                     "could not open transfer log file %s.", fname);
++        return NULL;
+     }
 -    if (len >= LOG_BUFSIZE) {
 -        apr_size_t w;
--
++    if (buffered_logs)
++       return init_buffered_logs(p, fd);
++     else
++       return fd;
++}
+ 
 -        str = apr_palloc(r->pool, len + 1);
 -        for (i = 0, s = str; i < nelts; ++i) {
 -            memcpy(s, strs[i], strl[i]);
@@ -1466,12 +1624,7 @@ diff -Naur httpd-2.0.48/modules/loggers/mod_log_config.c httpd-2.0.48.oden/modul
 -        w = len;
 -        rv = apr_file_write(buf->handle, str, &w);
 -        
-+    rv = apr_file_open(&fd, fname, xfer_flags, xfer_perms, p);
-+    if (rv != APR_SUCCESS) {
-+        ap_log_error(APLOG_MARK, APLOG_ERR, rv, s,
-+                     "could not open transfer log file %s.", fname);
-+        return NULL;
-     }
+-    }
 -    else {
 -        for (i = 0, s = &buf->outbuf[buf->outcnt]; i < nelts; ++i) {
 -            memcpy(s, strs[i], strl[i]);
@@ -1479,12 +1632,6 @@ diff -Naur httpd-2.0.48/modules/loggers/mod_log_config.c httpd-2.0.48.oden/modul
 -        }
 -        buf->outcnt += len;
 -        rv = APR_SUCCESS;
-+    if (buffered_logs)
-+       return init_buffered_logs(p, fd);
-+     else
-+       return fd;
-+}
-+
 +static void *ap_pipe_log_writer_setup(apr_pool_t *p, server_rec *s, 
 +                                      const char* name)
 +{
@@ -1494,13 +1641,14 @@ diff -Naur httpd-2.0.48/modules/loggers/mod_log_config.c httpd-2.0.48.oden/modul
 +    if (pl == NULL) {
 +       return NULL;;
      }
--    return rv;
 +    if (buffered_logs)
 +       return init_buffered_logs(p, ap_piped_log_write_fd(pl));
 +     else
 +       return ap_piped_log_write_fd(pl);
 +}
-+
+ 
+-    APR_ANYLOCK_UNLOCK(&buf->mutex);
+-    return rv;
 +static void *ap_old_log_writer_init(apr_pool_t *p, server_rec *s,
 +                                    const char* name)
 +{
@@ -1590,7 +1738,7 @@ diff -Naur httpd-2.0.48/modules/loggers/mod_log_config.c httpd-2.0.48.oden/modul
      return OK;
  }
  
-@@ -1421,6 +1723,10 @@
+@@ -1429,6 +1723,10 @@
      APR_REGISTER_OPTIONAL_FN(ap_register_log_handler);
      APR_REGISTER_OPTIONAL_FN(ap_log_set_writer_init);
      APR_REGISTER_OPTIONAL_FN(ap_log_set_writer);
@@ -1601,15 +1749,86 @@ diff -Naur httpd-2.0.48/modules/loggers/mod_log_config.c httpd-2.0.48.oden/modul
  }
  
  module AP_MODULE_DECLARE_DATA log_config_module =
-@@ -1433,4 +1739,3 @@
+@@ -1441,4 +1739,3 @@
      config_log_cmds,            /* command apr_table_t */
      register_hooks              /* register hooks */
  };
 -
-diff -Naur httpd-2.0.48/modules/loggers/mod_log_config.h httpd-2.0.48.oden/modules/loggers/mod_log_config.h
---- httpd-2.0.48/modules/loggers/mod_log_config.h	2003-02-03 18:31:42.000000000 +0100
-+++ httpd-2.0.48.oden/modules/loggers/mod_log_config.h	2003-10-05 13:08:08.000000000 +0200
-@@ -64,17 +64,49 @@
+--- httpd-2.0.49.org/modules/loggers/mod_log_config.h	2004-02-09 13:53:18.000000000 -0700
++++ httpd-2.0.49/modules/loggers/mod_log_config.h	2003-10-05 05:08:08.000000000 -0600
+@@ -1,16 +1,59 @@
+-/* Copyright 2001-2004 The Apache Software Foundation
++/* ====================================================================
++ * The Apache Software License, Version 1.1
+  *
+- * Licensed under the Apache License, Version 2.0 (the "License");
+- * you may not use this file except in compliance with the License.
+- * You may obtain a copy of the License at
+- *
+- *     http://www.apache.org/licenses/LICENSE-2.0
+- *
+- * Unless required by applicable law or agreed to in writing, software
+- * distributed under the License is distributed on an "AS IS" BASIS,
+- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+- * See the License for the specific language governing permissions and
+- * limitations under the License.
++ * Copyright (c) 2000-2003 The Apache Software Foundation.  All rights
++ * reserved.
++ *
++ * Redistribution and use in source and binary forms, with or without
++ * modification, are permitted provided that the following conditions
++ * are met:
++ *
++ * 1. Redistributions of source code must retain the above copyright
++ *    notice, this list of conditions and the following disclaimer.
++ *
++ * 2. Redistributions in binary form must reproduce the above copyright
++ *    notice, this list of conditions and the following disclaimer in
++ *    the documentation and/or other materials provided with the
++ *    distribution.
++ *
++ * 3. The end-user documentation included with the redistribution,
++ *    if any, must include the following acknowledgment:
++ *       "This product includes software developed by the
++ *        Apache Software Foundation (http://www.apache.org/)."
++ *    Alternately, this acknowledgment may appear in the software itself,
++ *    if and wherever such third-party acknowledgments normally appear.
++ *
++ * 4. The names "Apache" and "Apache Software Foundation" must
++ *    not be used to endorse or promote products derived from this
++ *    software without prior written permission. For written
++ *    permission, please contact apache@apache.org.
++ *
++ * 5. Products derived from this software may not be called "Apache",
++ *    nor may "Apache" appear in their name, without prior written
++ *    permission of the Apache Software Foundation.
++ *
++ * THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED
++ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
++ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
++ * DISCLAIMED.  IN NO EVENT SHALL THE APACHE SOFTWARE FOUNDATION OR
++ * ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
++ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
++ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
++ * USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
++ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
++ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
++ * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
++ * SUCH DAMAGE.
++ * ====================================================================
++ *
++ * This software consists of voluntary contributions made by many
++ * individuals on behalf of the Apache Software Foundation.  For more
++ * information on the Apache Software Foundation, please see
++ * <http://www.apache.org/>.
++ *
++ * Portions of this software are based upon public domain software
++ * originally written at the National Center for Supercomputing Applications,
++ * University of Illinois, Urbana-Champaign.
+  */
+ 
+ #include "apr_optional.h"
+@@ -21,17 +64,49 @@
  #define _MOD_LOG_CONFIG_H 1
  
  /** 
@@ -1662,7 +1881,7 @@ diff -Naur httpd-2.0.48/modules/loggers/mod_log_config.h httpd-2.0.48.oden/modul
   */
  typedef apr_status_t ap_log_writer(
                              request_rec *r,
-@@ -83,23 +115,43 @@
+@@ -40,23 +115,43 @@
                              int *lengths,
                              int nelts,
                              apr_size_t len);
@@ -1693,7 +1912,8 @@ diff -Naur httpd-2.0.48/modules/loggers/mod_log_config.h httpd-2.0.48.oden/modul
   * you should probably set the writer at the same time (ie..before open_logs)
 + *
 + * ap_log_set_writer() deprecated, better use ap_register_log_ewriter()
-+ */
+  */
+-APR_DECLARE_OPTIONAL_FN(void, ap_log_set_writer, (ap_log_writer* func));
 +
 +APR_DECLARE_OPTIONAL_FN(ap_log_writer_init*, ap_log_set_writer_init,(ap_log_writer_init *func));
 +APR_DECLARE_OPTIONAL_FN(ap_log_writer*, ap_log_set_writer, (ap_log_writer* func));
@@ -1706,8 +1926,7 @@ diff -Naur httpd-2.0.48/modules/loggers/mod_log_config.h httpd-2.0.48.oden/modul
 + * setup called during ap_hook_open_logs
 + * init  called during ap_hook_child_init
 + * exit  called upon child exit (registered as pool cleanup from ap_hook_child_init())
-  */
--APR_DECLARE_OPTIONAL_FN(void, ap_log_set_writer, (ap_log_writer* func));
++ */
 +APR_DECLARE_OPTIONAL_FN(void, ap_register_log_ewriter, 
 +                        (apr_pool_t *p, char *key, 
 +                         ap_log_ewriter_setup *setup,
@@ -1717,10 +1936,81 @@ diff -Naur httpd-2.0.48/modules/loggers/mod_log_config.h httpd-2.0.48.oden/modul
 +                       );
  
  #endif /* MOD_LOG_CONFIG */
-diff -Naur httpd-2.0.48/modules/loggers/mod_logio.c httpd-2.0.48.oden/modules/loggers/mod_logio.c
---- httpd-2.0.48/modules/loggers/mod_logio.c	2003-02-03 18:31:42.000000000 +0100
-+++ httpd-2.0.48.oden/modules/loggers/mod_logio.c	2003-10-05 13:08:08.000000000 +0200
-@@ -72,7 +72,6 @@
+--- httpd-2.0.49.org/modules/loggers/mod_logio.c	2004-02-09 13:53:18.000000000 -0700
++++ httpd-2.0.49/modules/loggers/mod_logio.c	2003-10-05 05:08:08.000000000 -0600
+@@ -1,16 +1,59 @@
+-/* Copyright 2002-2004 The Apache Software Foundation
++/* ====================================================================
++ * The Apache Software License, Version 1.1
+  *
+- * Licensed under the Apache License, Version 2.0 (the "License");
+- * you may not use this file except in compliance with the License.
+- * You may obtain a copy of the License at
+- *
+- *     http://www.apache.org/licenses/LICENSE-2.0
+- *
+- * Unless required by applicable law or agreed to in writing, software
+- * distributed under the License is distributed on an "AS IS" BASIS,
+- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+- * See the License for the specific language governing permissions and
+- * limitations under the License.
++ * Copyright (c) 2002-2003 The Apache Software Foundation.  All rights
++ * reserved.
++ *
++ * Redistribution and use in source and binary forms, with or without
++ * modification, are permitted provided that the following conditions
++ * are met:
++ *
++ * 1. Redistributions of source code must retain the above copyright
++ *    notice, this list of conditions and the following disclaimer.
++ *
++ * 2. Redistributions in binary form must reproduce the above copyright
++ *    notice, this list of conditions and the following disclaimer in
++ *    the documentation and/or other materials provided with the
++ *    distribution.
++ *
++ * 3. The end-user documentation included with the redistribution,
++ *    if any, must include the following acknowledgment:
++ *       "This product includes software developed by the
++ *        Apache Software Foundation (http://www.apache.org/)."
++ *    Alternately, this acknowledgment may appear in the software itself,
++ *    if and wherever such third-party acknowledgments normally appear.
++ *
++ * 4. The names "Apache" and "Apache Software Foundation" must
++ *    not be used to endorse or promote products derived from this
++ *    software without prior written permission. For written
++ *    permission, please contact apache@apache.org.
++ *
++ * 5. Products derived from this software may not be called "Apache",
++ *    nor may "Apache" appear in their name, without prior written
++ *    permission of the Apache Software Foundation.
++ *
++ * THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED
++ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
++ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
++ * DISCLAIMED.  IN NO EVENT SHALL THE APACHE SOFTWARE FOUNDATION OR
++ * ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
++ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
++ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
++ * USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
++ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
++ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
++ * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
++ * SUCH DAMAGE.
++ * ====================================================================
++ *
++ * This software consists of voluntary contributions made by many
++ * individuals on behalf of the Apache Software Foundation.  For more
++ * information on the Apache Software Foundation, please see
++ * <http://www.apache.org/>.
++ *
++ * Portions of this software are based upon public domain software
++ * originally written at the National Center for Supercomputing Applications,
++ * University of Illinois, Urbana-Champaign.
+  */
+ 
+ /*
+@@ -29,7 +72,6 @@
  #include "apr_lib.h"
  #include "apr_hash.h"
  #include "apr_optional.h"
@@ -1728,7 +2018,7 @@ diff -Naur httpd-2.0.48/modules/loggers/mod_logio.c httpd-2.0.48.oden/modules/lo
  #define APR_WANT_STRFUNC
  #include "apr_want.h"
  
-@@ -83,6 +82,7 @@
+@@ -40,6 +82,7 @@
  #include "http_config.h"
  #include "http_connection.h"
  #include "http_protocol.h"
@@ -1736,7 +2026,7 @@ diff -Naur httpd-2.0.48/modules/loggers/mod_logio.c httpd-2.0.48.oden/modules/lo
  
  module AP_MODULE_DECLARE_DATA logio_module;
  
-@@ -111,20 +111,23 @@
+@@ -68,20 +111,23 @@
   * Format items...
   */
  
@@ -1765,7 +2055,7 @@ diff -Naur httpd-2.0.48/modules/loggers/mod_logio.c httpd-2.0.48.oden/modules/lo
  }
  
  /*
-@@ -196,9 +199,9 @@
+@@ -153,9 +199,9 @@
  
  static int logio_pre_config(apr_pool_t *p, apr_pool_t *plog, apr_pool_t *ptemp)
  {
@@ -1777,10 +2067,17 @@ diff -Naur httpd-2.0.48/modules/loggers/mod_logio.c httpd-2.0.48.oden/modules/lo
  
      if (log_pfn_register) {
          log_pfn_register(p, "I", log_bytes_in, 0);
-diff -Naur httpd-2.0.48/srclib/apr-util/misc/apr_reslist.c httpd-2.0.48.oden/srclib/apr-util/misc/apr_reslist.c
---- httpd-2.0.48/srclib/apr-util/misc/apr_reslist.c	2003-09-18 08:23:50.000000000 +0200
-+++ httpd-2.0.48.oden/srclib/apr-util/misc/apr_reslist.c	2003-11-01 17:08:21.000000000 +0100
-@@ -157,12 +157,9 @@
+--- httpd-2.0.49.org/srclib/apr-util/misc/apr_reslist.c	2004-02-13 02:52:43.000000000 -0700
++++ httpd-2.0.49/srclib/apr-util/misc/apr_reslist.c	2004-05-07 14:00:17.000000000 -0600
+@@ -49,6 +49,7 @@
+     int smax; /* soft maximum on the total number of resources */
+     int hmax; /* hard maximum on the total number of resources */
+     apr_interval_time_t ttl; /* TTL when we have too many resources */
++    apr_interval_time_t timeout; /* Timeout for waiting on resource */
+     apr_reslist_constructor constructor;
+     apr_reslist_destructor destructor;
+     void *params; /* opaque data passed to constructor and destructor calls */
+@@ -118,12 +119,9 @@
      res = apr_pcalloc(reslist->pool, sizeof(*res));
  
      rv = reslist->constructor(&res->opaque, reslist->params, reslist->pool);
@@ -1794,7 +2091,7 @@ diff -Naur httpd-2.0.48/srclib/apr-util/misc/apr_reslist.c httpd-2.0.48.oden/src
  }
  
  /**
-@@ -171,14 +168,7 @@
+@@ -132,14 +130,7 @@
   */
  static apr_status_t destroy_resource(apr_reslist_t *reslist, apr_res_t *res)
  {
@@ -1810,7 +2107,7 @@ diff -Naur httpd-2.0.48/srclib/apr-util/misc/apr_reslist.c httpd-2.0.48.oden/src
  }
  
  static apr_status_t reslist_cleanup(void *data_)
-@@ -226,6 +216,7 @@
+@@ -187,6 +178,7 @@
          /* Create the resource */
          rv = create_resource(reslist, &res);
          if (rv != APR_SUCCESS) {
@@ -1818,7 +2115,24 @@ diff -Naur httpd-2.0.48/srclib/apr-util/misc/apr_reslist.c httpd-2.0.48.oden/src
              apr_thread_mutex_unlock(reslist->listlock);
              return rv;
          }
-@@ -368,17 +359,13 @@
+@@ -313,7 +305,15 @@
+      * a new one, or something becomes free. */
+     else while (reslist->ntotal >= reslist->hmax
+                 && reslist->nidle <= 0) {
+-        apr_thread_cond_wait(reslist->avail, reslist->listlock);
++        if (reslist->timeout) {
++            if ((rv = apr_thread_cond_timedwait(reslist->avail, 
++                reslist->listlock, reslist->timeout)) != APR_SUCCESS) {
++                apr_thread_mutex_unlock(reslist->listlock);
++                return rv;
++            }
++        }
++        else
++            apr_thread_cond_wait(reslist->avail, reslist->listlock);
+     }
+     /* If we popped out of the loop, first try to see if there
+      * are new resources available for immediate use. */
+@@ -329,17 +329,13 @@
       * a resource to fill the slot and use it. */
      else {
          rv = create_resource(reslist, &res);
@@ -1840,3 +2154,25 @@ diff -Naur httpd-2.0.48/srclib/apr-util/misc/apr_reslist.c httpd-2.0.48.oden/src
      }
  }
  
+@@ -358,4 +354,21 @@
+     return reslist_maint(reslist);
+ }
+ 
++APU_DECLARE(void) apr_reslist_timeout_set(apr_reslist_t *reslist,
++                                          apr_interval_time_t timeout)
++{
++    reslist->timeout = timeout;
++}
++
++APU_DECLARE(apr_status_t) apr_reslist_invalidate(apr_reslist_t *reslist,
++                                                 void *resource)
++{
++    apr_status_t ret;
++    apr_thread_mutex_lock(reslist->listlock);
++    ret = reslist->destructor(resource, reslist->params, reslist->pool);
++    reslist->ntotal--;
++    apr_thread_mutex_unlock(reslist->listlock);
++    return ret;
++}
++
+ #endif  /* APR_HAS_THREADS */
