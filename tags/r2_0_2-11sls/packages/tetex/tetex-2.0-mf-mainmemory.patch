@@ -1,0 +1,11 @@
+--- tetex-src-2.0/texk/web2c/mf.ch~	2003-02-03 16:20:14.000000000 +0100
++++ tetex-src-2.0/texk/web2c/mf.ch	2003-02-03 16:20:14.000000000 +0100
+@@ -128,7 +128,7 @@
+ @!max_font_dimen=60; {maximum number of \&{fontdimen} parameters}
+ @#
+ @!inf_main_memory = 2999;
+-@!sup_main_memory = 8000000;
++@!sup_main_memory = 32000000;
+ 
+ @!inf_buf_size = 500;
+ @!sup_buf_size = 300000;
