@@ -1,57 +1,65 @@
+%define name	basesystem
+%define version 1.0
+%define release 1sls
+
 #rh-7.0-2
-Summary: The skeleton package which defines a simple Mandrake Linux system.
-Name: basesystem
-Version: 9.2
-Release: 1mdk
-License: GPL
-Group: System/Base
-BuildRoot: %{_tmppath}/%{name}-%{version}-buildroot
 
-Requires: setup filesystem sed initscripts console-tools utempter
-Requires: chkconfig coreutils SysVinit bdflush crontabs dev
-Requires: e2fsprogs etcskel findutils grep gzip kernel less 
-Requires: logrotate losetup mingetty modutils mount net-tools passwd procps
-Requires: psmisc mandrake-release rootfiles rpm sash shadow-utils 
-Requires: stat sysklogd tar termcap time util-linux vim
-Requires: vixie-cron which perl-base common-licenses
-Requires: ldconfig
+Summary:	The skeleton package which defines a simple OpenSLS system.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+Epoch:		1
+License:	GPL
+Group:		System/Base
 
+BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
+
+Requires:	setup filesystem sed initscripts console-tools utempter
+Requires:	chkconfig coreutils SysVinit bdflush crontabs dev
+Requires:	e2fsprogs etcskel findutils grep gzip kernel less 
+Requires:	logrotate losetup mingetty modutils mount net-tools passwd procps
+Requires:	psmisc mandrake-release rootfiles rpm sash shadow-utils 
+Requires:	stat sysklogd tar termcap time util-linux vim
+Requires:	vixie-cron which perl-base common-licenses
+Requires:	ldconfig
+Requires:	libgcc >= 3.2-1mdk
 # (gb) Add timezone database here for now before moving it to DrakX
-Requires: timezone
-
-# MDK 9.0 requires a working libgcc
-# Note: gcc3.2 is the system compiler there
-Requires: libgcc >= 3.2-1mdk
-
+Requires:	timezone
 %ifarch %ix86
-Requires: lilo mkbootdisk
+Requires:	lilo mkbootdisk
 %endif
 %ifarch alpha
-Requires: aboot
+Requires:	aboot
 %endif
 %ifarch sparc sparc64
-Requires: silo mkbootdisk
+Requires:	silo mkbootdisk
 %endif
 # (sb) need pdisk hfsutils ybin mktemp to setup bootloader PPC
 %ifarch ppc
-Requires: pdisk hfsutils ybin mktemp mkinitrd pmac-utils
+Requires:	pdisk hfsutils ybin mktemp mkinitrd pmac-utils
 %endif
 # (fg) 20001027 ia64 uses eli as a bootloader
 %ifarch ia64
-Requires: elilo mkinitrd
+Requires:	elilo mkinitrd
 %endif
 %ifarch x86_64
-Requires: lilo mkbootdisk
+Requires:	lilo mkbootdisk
 %endif
 
 %description
-Basesystem defines the components of a basic Mandrake Linux system (for
+Basesystem defines the components of a basic OpenSLS system (for
 example, the package installation order to use during bootstrapping).
 Basesystem should be the first package installed on a system, and it
 should never be removed.
+
 %files
 
 %changelog
+* Fri Nov 28 2003 Vincent Danen <vdanen@opensls.org> 1.0-1sls
+- change for OpenSLS
+- tidy spec
+- Epoch: 1
+
 * Thu Apr 17 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 9.2-1mdk
 - add mkbootdisk for x86-64
 
