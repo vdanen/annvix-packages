@@ -1,6 +1,6 @@
 %define name	apache
 %define version	1.3.29
-%define release	3sls
+%define release	4sls
 
 # New ADVX macros
 %define ADVXdir %{_datadir}/ADVX
@@ -32,6 +32,8 @@ Source2:	http://www.modssl.org/source/mod_ssl-%{EAPI_version}-%{modssl_apache_ve
 Source3:	http://www.modssl.org/source/mod_ssl-%{EAPI_version}-%{modssl_apache_version}.tar.gz.asc
 Source4:	README.ADVX
 Source5:	02_apache.afterboot
+Source6:	apache.run
+Source7:	apache-log.run
 Patch1:		apache_1.3.11-apxs.patch.bz2
 Patch2:		apache_1.3.26-srvroot.patch.bz2
 Patch3:		apache-1.3.23-dbm.patch.bz2
@@ -302,6 +304,11 @@ rm -f %{buildroot}%{_mandir}/man8/apxs*
 mkdir -p %{buildroot}%{_datadir}/afterboot
 install -m 0644 %{SOURCE5} %{buildroot}%{_datadir}/afterboot/02_apache
 
+mkdir -p %{buildroot}%{_srvdir}/apache/log
+mkdir -p %{buildroot}%{_srvlogdir}/apache
+install -m 0750 %{SOURCE6} %{buildroot}%{_srvdir}/apache/run
+install -m 0750 %{SOURCE7} %{buildroot}%{_srvdir}/apache/log/run
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
@@ -329,6 +336,11 @@ install -m 0644 %{SOURCE5} %{buildroot}%{_datadir}/afterboot/02_apache
 %{_sbindir}/httpd
 #%{_mandir}/man8/httpd.*
 %{_datadir}/afterboot/02_apache
+%dir %{_srvdir}/apache
+%dir %{_srvdir}/apache/log
+%{_srvdir}/apache/run
+%{_srvdir}/apache/log/run
+%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/apache
 
 %files modules
 %defattr(-,root,root)
@@ -348,6 +360,9 @@ install -m 0644 %{SOURCE5} %{buildroot}%{_datadir}/afterboot/02_apache
 /usr/src/apache_%{apache_version}
 
 %changelog
+* Mon Mar 02 2004 Vincent Danen <vdanen@opensls.org> 1.3.29-4sls
+- supervise scripts
+
 * Wed Feb 11 2004 Vincent Danen <vdanen@opensls.org> 1.3.29-3sls
 - more spec cleaning
 - README.ADVX in only the main package
