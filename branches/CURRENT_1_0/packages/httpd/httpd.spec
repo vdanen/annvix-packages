@@ -1,6 +1,6 @@
 %define name	apache2
 %define version	2.0.52
-%define release	3avx
+%define release	4avx
 
 #
 #(ie. use with rpm --rebuild):
@@ -1325,6 +1325,9 @@ rm -rf %{buildroot}%{ap_htdocsdir}/manual
 %{ap_abs_srcdir}
 
 %changelog
+* Thu Jan 06 2005 Vincent Danen <vdanen@annvix.org> 2.0.52-4avx
+- rebuild against new openssl
+
 * Wed Nov 10 2004 Vincent Danen <vdanen@annvix.org> 2.0.52-3avx
 - P106: patch to fix CAN-2004-0942
 

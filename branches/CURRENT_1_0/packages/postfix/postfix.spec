@@ -1,6 +1,6 @@
 %define name	postfix
 %define version	2.1.5
-%define release 1avx
+%define release 2avx
 %define epoch	1
 
 %define	openssl_ver	0.9.7d
@@ -448,6 +448,9 @@ fi
 
 
 %changelog
+* Wed Jan 05 2005 Vincent Danen <vdanen@annvix.org> 2.1.5-2avx
+- rebuild against new openssl
+
 * Sat Oct 16 2004 Vincent Danen <vdanen@annvix.org> 2.1.5-1avx
 - 2.1.5
 - remove support for experimental versions; we'll never ship an

@@ -1,6 +1,6 @@
 %define name	openssh
 %define version	3.9p1
-%define release 5avx
+%define release 6avx
 
 ## Do not apply any unauthorized patches to this package!
 ## - vdanen 05/18/01
@@ -316,6 +316,9 @@ do_dsa_keygen
 %{_datadir}/afterboot/04_openssh
 
 %changelog
+* Thu Jan 06 2005 Vincent Danen <vdanen@annvix.org> 3.9p1-6avx
+- rebuild against new openssl
+
 * Tue Sep 14 2004 Vincent Danen <vdanen@annvix.org> 3.9p1-5avx
 - don't own /var/empty; filesystem does (thus filesystem Requires)
 

@@ -1,6 +1,6 @@
 %define name	squid
 %define version	2.5.STABLE7
-%define release	1avx
+%define release	2avx
 
 %define their_version	2.5.STABLE7
 %define p_url   http://www.squid-cache.org/Versions/v2/2.5/bugs
@@ -341,6 +341,9 @@ fi
 %attr(0750,nobody,nogroup) %dir %{_srvlogdir}/squid
 
 %changelog
+* Wed Jan 05 2005 Vincent Danen <vdanen@annvix.org> 2.5.STABLE7-2avx
+- rebuild against new openssl
+
 * Tue Oct 17 2004 Vincent Danen <vdanen@annvix.org> 2.5.STABLE7-1avx
 - 2.5.STABLE7 (fixes CAN-2004-0918)
 - regen P0, P2

@@ -1,6 +1,6 @@
 %define name	openldap
 %define version	2.1.29
-%define release	9avx
+%define release	10avx
 
 %define major 		2
 %define migtools_ver	45
@@ -874,6 +874,9 @@ fi
 # - add cron-job to remove transaction logs (bdb)
 
 %changelog
+* Thu Jan 06 2005 Vincent Danen <vdanen@annvix.org> 2.1.29-10avx
+- rebuild against new openssl
+
 * Thu Sep 23 2004 Vincent Danen <vdanen@annvix.org> 2.1.29-9avx
 - make runsvstat a little quieter
 

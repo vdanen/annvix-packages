@@ -1,6 +1,6 @@
 %define name	ppp
 %define version	2.4.2
-%define release	1avx
+%define release	2avx
 
 Summary:	The PPP daemon and documentation for Linux 1.3.xx and greater.
 Name:		%{name}
@@ -177,6 +177,9 @@ install -m 0644 %{SOURCE4} %{buildroot}%{_sysconfdir}/logrotate.d/ppp
 %{_libdir}/pppd/%{version}/rp-pppoe.so
 
 %changelog
+* Thu Jan 06 2005 Vincent Danen <vdanen@annvix.org> 2.4.2-2avx
+- rebuild against new openssl
+
 * Tue Aug 17 2004 Vincent Danen <vdanen@annvix.org> 2.4.2-1avx
 - 2.4.2
 - own directories

@@ -1,6 +1,6 @@
 %define name	dump
 %define version 0.4b37
-%define release 1avx
+%define release 2avx
 
 %define rmtrealname rmt-dump
 
@@ -107,6 +107,9 @@ fi
 %{_mandir}/man8/rmt.8*
 
 %changelog
+* Wed Jan 05 2005 Vincent Danen <vdanen@annvix.org> 0.4b37-2avx
+- rebuild against new openssl
+
 * Thu Aug 18 2004 Vincent Danen <vdanen@annvix.org> 0.4b37-1avx
 - 0.4b37
 - drop P1, krb5 doesn't bundle libcom_err now (deaddog)
