@@ -1,14 +1,13 @@
 %define name	lilo
 %define version 22.5.7.2
-%define release 7sls
-
-%{!?build_opensls:%global build_opensls 0}
+%define release 8sls
+%define epoch	1
 
 Summary:	The boot loader for Linux and other operating systems.
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
-Epoch:		1
+Epoch:		%{epoch}
 Group:		System/Kernel and hardware
 License:	MIT
 URL:		http://brun.dyndns.org/pub/linux/lilo/
@@ -31,23 +30,13 @@ BuildRequires:	dev86 dev86-devel nasm
 PreReq:		/usr/bin/perl
 Conflicts:	lilo-doc < 22.5.7.2-6mdk
 Exclusivearch:	%{ix86}
+Provides:	bootloader
 
 %description
 LILO (LInux LOader) is a basic system program which boots your Linux
 system.  LILO loads the Linux kernel from a floppy or a hard drive, boots
 the kernel and passes control of the system to the kernel.  LILO can also
 boot other operating systems.
-
-%if !%{build_opensls}
-%package doc
-Summary:	More doc for %{name}
-Group:		System/Kernel and hardware
-Conflicts:	lilo < 22.5.7.2-6mdk
-BuildRequires:	tetex-latex tetex-dvips tetex-dvipdfm
-
-%description doc
-cf %{name} package
-%endif
 
 %prep
 %setup -q
@@ -75,53 +64,53 @@ dvipdfm -o Technical_Guide.pdf tech.dvi
 rm -f *.aux *.log *.toc)
 
 %install
-rm -rf $RPM_BUILD_ROOT
-mkdir -p $RPM_BUILD_ROOT/usr
-make install ROOT=$RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+mkdir -p %{buildroot}%{_prefix}
+make install ROOT=%{buildroot}
 
-install -d $RPM_BUILD_ROOT%{_bindir}
-mv $RPM_BUILD_ROOT/usr/sbin/* $RPM_BUILD_ROOT%{_bindir}
+install -d %{buildroot}%{_bindir}
+mv %{buildroot}%{_sbindir}/* %{buildroot}%{_bindir}
 
 # graphic addons, keep default options for bmp2mdk
 
 #%{__perl} ./bmp2mdk	mode:0x101 \
 #			timer:444,458,64+102,64+3 \
 #			entry:28,380,0,15,24,22 \
-#	<boot8.1.bmp >$RPM_BUILD_ROOT/boot/lilo-graphic/message
+#	<boot8.1.bmp >%{buildroot}/boot/lilo-graphic/message
 #%{__perl} ./bmp2mdk	mode:0x101 \
 #			timer:63+280,80+358,64+83,64+79 \
 #			entry:63+144,80+70,64+84,64+79,9,42 \
 #			clear:480,640,64+79 \
 #			pos:63,80 \
-#	<boot8.2.bmp >$RPM_BUILD_ROOT/boot/message-graphic
+#	<boot8.2.bmp >%{buildroot}/boot/message-graphic
 #%{__perl} ./bmp2mdk	mode:0x103 \
 #			timer:425,562,64+70,64+0 \
 #			entry:218,174,64+0,64+19,11,55 \
 #			clear:600,800,64+70 \
 #			pos:0,0 \
-#	<boot9.0.bmp >$RPM_BUILD_ROOT/boot/message-graphic
+#	<boot9.0.bmp >%{buildroot}/boot/message-graphic
 #%{__perl} ./bmp2mdk	mode:0x103 \
 #			timer:425,562,64+127,64+72 \
 #			entry:218,174,64+72,64+22,11,55 \
 #			clear:600,800,64+54 \
 #			pos:0,0 \
-#	<boot9.1.bmp >$RPM_BUILD_ROOT/boot/message-graphic
+#	<boot9.1.bmp >%{buildroot}/boot/message-graphic
 %{__perl} ./bmp2mdk	mode:0x103 \
 			timer:357,610,64+126,15 \
 			entry:161,144,64+127,15,13,54 \
 			progress:405,166,11,14,15 \
 			clear:600,800,64+127 \
 			pos:0,0 \
-	<boot9.2.bmp >$RPM_BUILD_ROOT/boot/message-graphic
+	<boot9.2.bmp >%{buildroot}/boot/message-graphic
 
-install bmp2mdk %buildroot%{_bindir}/lilo-bmp2mdk
+install bmp2mdk %{buildroot}%{_bindir}/lilo-bmp2mdk
 
-mkdir -p %buildroot/%{_mandir}/man{5,8}/
-install -m644 manPages/*.5 %buildroot/%{_mandir}/man5/
-install -m644 manPages/*.8 %buildroot/%{_mandir}/man8/
+mkdir -p %{buildroot}/%{_mandir}/man{5,8}/
+install -m644 manPages/*.5 %{buildroot}/%{_mandir}/man5/
+install -m644 manPages/*.8 %{buildroot}/%{_mandir}/man8/
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
 if [ -f /etc/lilo.conf ]; then
@@ -189,13 +178,13 @@ fi
 %{_bindir}/*
 %{_mandir}/*/*
 
-%if !%{build_opensls}
-%files doc
-%defattr(-,root,root)
-%doc doc/*.pdf CHANGES INCOMPAT QuickInst
-%endif
 
 %changelog
+* Tue Mar 02 2004 Vincent Danen <vdanen@opensls.org> 22.5.7.2-8sls
+- Provides: bootloader
+- remove %%build_opensls macros
+- spec cleanups
+
 * Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 22.5.7.2-7sls
 - OpenSLS build
 - tidy spec
