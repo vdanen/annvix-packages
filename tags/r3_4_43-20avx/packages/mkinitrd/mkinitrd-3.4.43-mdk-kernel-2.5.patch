@@ -1,0 +1,120 @@
+--- mkinitrd.kernel25	2005-01-19 13:42:29.000000000 -0700
++++ mkinitrd	2005-01-19 13:44:03.000000000 -0700
+@@ -39,6 +39,7 @@
+ modulefile=/etc/modules.conf
+ tmpdir=
+ rc=0
++kernel25=""
+ 
+ DEFAULT_DSDT_FILE="/boot/dsdt.aml"
+ dsdt_file=""
+@@ -59,15 +60,28 @@
+     exit 1
+ }
+ 
++check_kernel_25() {
++	local -i major minor
++
++	major=$(expr "$1" : '\([^.]\+\)\..*')
++	minor=$(expr "$1" : '[^.]\+\.\([^.]\+\)\..*')
++
++	if [ $major -ge 3 -o $major -eq 2 -a $minor -ge 5 ]; then
++		kernel25=yes
++		modulefile=/etc/modprobe.conf
++		splash=""
++	fi
++}
++
+ moduledep() {
+     if [ ! -f "/lib/modules/$kernel/modules.dep" ]; then
+ 	echo "No dep file found for kernel $kernel" >&2
+ 	exit 1
+     fi
+ 
+-    [ -n "$verbose" ] && echo "Looking for deps of module $1.o"
++    [ -n "$verbose" ] && echo "Looking for deps of module $1"
+     deps=$(awk 'BEGIN { searched=ARGV[2]; ARGV[2]=""; rc=1 } \
+-                function modname(filename) { match(filename, /\/([^\/]+)\.o/, ret); return ret[1] } \
++                function modname(filename) { match(filename, /\/([^\/]+)\.k?o/, ret); return ret[1] } \
+                 function show() { if (orig == searched) { print dep; orig=""; rc=0; exit } } \
+                 /^\/lib/ { show(); \
+                            orig=modname($1); \
+@@ -119,10 +133,18 @@
+     fmPath=`(cd /lib/modules/$kernel; find -type f -name $modName.o.gz | grep -v build)`
+ 
+     if [ -z "$fmPath" ]; then
++	fmPath=`(cd /lib/modules/$kernel; find -type f -name $modName.ko.gz | grep -v build)`
++    fi
++
++    if [ -z "$fmPath" ]; then
+         fmPath=`(cd /lib/modules/$kernel; find -type f -name $modName.o | grep -v build)`
+     fi
+ 
+     if [ -z "$fmPath" ]; then
++        fmPath=`(cd /lib/modules/$kernel; find -type f -name $modName.ko | grep -v build)`
++    fi
++
++    if [ -z "$fmPath" ]; then
+ 	if [ -n "$skiperrors" ]; then
+ 	    return
+ 	fi
+@@ -287,6 +309,8 @@
+     usage
+ fi
+ 
++check_kernel_25 "$kernel"
++
+ if [ -n "$img_vers" ]; then
+     target="$target-$kernel"
+ fi
+@@ -340,7 +364,7 @@
+ fi
+ 
+ if [ -n "$needusb" ]; then
+-    drivers=$(awk '/^alias usb-controller[0-9]* / { print $3}' < /etc/modules.conf)
++    drivers=$(awk '/^alias usb-controller[0-9]* / { print $3}' $modulefile)
+     if [ -n "$drivers" ]; then
+ 	for driver in $drivers; do
+ 	    findmodule $driver
+@@ -356,9 +380,10 @@
+     fi
+ 
+     if [ -f $modulefile ]; then
+-	scsimodules=`grep -E "alias[ 	]+scsi_hostadapter" $modulefile | grep -v '^[ 	]*#' | LC_ALL=C sort -u | awk '{ print $3 }'`
++	# support standard alias form
+ 	# support probeall form as found with Mandrake 8.1 and superior
+-	scsimodules="$scsimodules `sed -n 's/^ *probeall  *scsi_hostadapter//p' $modulefile`"
++	# support canonical probeall translation for module-init-tools
++	scsimodules=$(grep -E '[[:space:]]*(alias|probeall|install)[[:space:]]+scsi_hostadapter' $modulefile | sed 's/^.*scsi_hostadapter//;s/\/sbin\/modprobe//g;s/;//g;s/\/bin\/true//;s/||//')
+ 
+ 	if [ -n "$scsimodules" ]; then
+ 	    SAVEMODULES=$MODULES
+@@ -525,9 +550,17 @@
+ 
+ inst /sbin/nash "$MNTIMAGE/bin/nash"
+ if is_dietlibc_arch; then
+-    inst /sbin/insmod-DIET "$MNTIMAGE/bin/insmod"
++    if [[ -n "$kernel25" ]]; then
++	inst /sbin/insmod-25-DIET "$MNTIMAGE/bin/insmod"
++    else
++	inst /sbin/insmod-DIET "$MNTIMAGE/bin/insmod"
++    fi
+ else
+-    inst /sbin/insmod.static "$MNTIMAGE/bin/insmod"
++    if [[ -n "$kernel25" ]]; then
++	inst /sbin/insmod.static-25 "$MNTIMAGE/bin/insmod"
++    else
++	inst /sbin/insmod.static "$MNTIMAGE/bin/insmod"
++    fi
+ fi
+ ln -s ../bin/nash $MNTIMAGE/sbin/modprobe
+ 
+@@ -574,7 +607,7 @@
+     text=""
+     module=`echo $MODULE | sed "s|.*/||"`
+ 
+-    options=`sed -n -e "s/^options[ 	][ 	]*$module[ 	][ 	]*//p" $modulefile 2>/dev/null`
++    options=$(sed -n -e "s/^options[ 	][ 	]*$module[ 	][ 	]*//p" $modulefile 2>/dev/null)
+ 
+     if [ -n "$verbose" ]; then
+ 	if [ -n "$options" ]; then
