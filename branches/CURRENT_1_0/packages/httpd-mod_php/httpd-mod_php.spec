@@ -1,6 +1,6 @@
 %define name	%{ap_name}-%{mod_name}
 %define version %{ap_version}_%{phpversion}
-%define release	1avx
+%define release	2avx
 
 %define phpsource	%{_prefix}/src/php-devel
 %{expand:%(cat /usr/src/php-devel/PHP_BUILD||(echo -e "error: failed build dependencies:\n        php-devel >= 430 (4.3.0) is needed by this package." >/dev/stderr;kill -2 $PPID))}
@@ -102,10 +102,10 @@ cd %{extname}
 [ -e ./%{extname} ] && rm -fr ./%{extname}
 
 %post
-%ADVXpost
+%_post_srv httpd2
 
 %postun
-%ADVXpost
+%_post_srv httpd2
 
 %files
 %defattr(-,root,root)
@@ -115,6 +115,9 @@ cd %{extname}
 %{ap_webdoc}/*
 
 %changelog
+* Wed Jul 14 2004 Vincent Danen <vdanen@annvix.org> 2.0.49_4.3.8-2avx
+- use %%_post_srv rather than %%ADVXpost
+
 * Wed Jul 14 2004 Vincent Danen <vdanen@annvix.org> 2.0.49_4.3.8-1avx
 - php 4.3.8
 - remove ADVXpackage provides
