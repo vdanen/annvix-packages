@@ -1,7 +1,7 @@
 %define module 	PlRPC
 %define name	perl-%{module}
 %define version 0.2017
-%define release 3sls
+%define release 4sls
 
 Summary:	%{module} perl module
 Name: 		%{name}
@@ -28,11 +28,11 @@ Buildarch:	noarch
 %{__make}
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
 %clean 
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files 
 %defattr(-,root,root)
@@ -42,6 +42,9 @@ rm -rf $RPM_BUILD_ROOT
 %_mandir/man3*/*
 
 %changelog
+* Fri Feb 27 2004 Vincent Danen <vdanen@opensls.org> 0.2017-4sls
+- rebuild for new perl
+
 * Tue Dec 30 2003 Vincent Danen <vdanen@opensls.org> 0.2017-3sls
 - OpenSLS build
 - tidy spec

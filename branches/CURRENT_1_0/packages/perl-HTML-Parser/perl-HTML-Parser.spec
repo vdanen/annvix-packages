@@ -1,7 +1,7 @@
 %define module	HTML-Parser
 %define name	perl-%{module}
 %define version 3.31
-%define release 2sls
+%define release 3sls
 
 Summary: 	HTML-Parser module for perl (World_Wide_Web_HTML_HTTP_CGI/HTML)
 Name: 		%{name}
@@ -32,11 +32,11 @@ yes | %{__perl} Makefile.PL INSTALLDIRS=vendor
 make test
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
 %clean 
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -47,6 +47,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Fri Feb 27 2004 Vincent Danen <vdanen@opensls.org> 3.31-3sls
+- rebuild for new perl
+
 * Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 3.31-2sls
 - OpenSLS build
 - tidy spec

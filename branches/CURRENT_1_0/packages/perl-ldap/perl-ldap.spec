@@ -1,6 +1,6 @@
 %define name	perl-ldap
 %define version 0.29
-%define release 2sls
+%define release 3sls
 
 Summary:	Perl module for ldap
 Name:		%{name}
@@ -37,11 +37,11 @@ means that the library is truly cross-platform compatible.
 make
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -52,6 +52,9 @@ rm -rf $RPM_BUILD_ROOT
 %{perl_vendorlib}/Net/*
 
 %changelog
+* Fri Feb 27 2004 Vincent Danen <vdanen@opensls.org> 0.29-3sls
+- rebuild for new perl
+
 * Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 0.29-2sls
 - OpenSLS build
 - tidy spec

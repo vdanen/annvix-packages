@@ -1,7 +1,7 @@
 %define module	Locale-gettext
 %define name	perl-%{module}
 %define version	1.01
-%define release	10sls
+%define release	11sls
 
 Summary:	Internationalization for Perl.
 Name:		%{name}
@@ -41,11 +41,11 @@ make
 make test
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -55,6 +55,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/*/*
 
 %changelog
+* Fri Feb 27 2004 Vincent Danen <vdanen@opensls.org> 1.01-11sls
+- rebuild for new perl
+
 * Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 1.01-10sls
 - OpenSLS build
 - tidy spec

@@ -1,7 +1,7 @@
 %define module	Pg
 %define name	perl-%{module}
 %define version	2.0.2
-%define release	5sls
+%define release	6sls
 
 Summary:	A libpq-based PostgreSQL interface for Perl
 Name:		%{name}
@@ -43,11 +43,11 @@ export POSTGRES_LIB=`pg_config --libdir`
 #%{__make} test
 
 %install
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot} 
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
 %clean 
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot} 
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -58,6 +58,9 @@ export POSTGRES_LIB=`pg_config --libdir`
 %{_mandir}/man3*/*
 
 %changelog
+* Fri Feb 27 2004 Vincent Danen <vdanen@opensls.org> 2.0.2-6sls
+- rebuild for new perl
+
 * Tue Dec 30 2003 Vincent Danen <vdanen@opensls.org> 2.0.2-5sls
 - OpenSLS build
 - tidy spec

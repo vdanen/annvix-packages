@@ -1,7 +1,7 @@
 %define	module	HTML-Tagset
 %define name	perl-%{module}
 %define	version	3.03
-%define	release	8sls
+%define	release	9sls
 
 Summary: 	This module contains data tables useful in dealing with HTML.
 Name: 		%{name}
@@ -31,12 +31,12 @@ It provides no functions or methods.
 make
 make test
 
-%clean 
-rm -rf $RPM_BUILD_ROOT
-
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
+
+%clean
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -45,6 +45,9 @@ rm -rf $RPM_BUILD_ROOT
 %{perl_vendorlib}/HTML
 
 %changelog
+* Fri Feb 27 2004 Vincent Danen <vdanen@opensls.org> 3.03-9sls
+- rebuild for new perl
+
 * Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 3.03-8sls
 - OpenSLS build
 - tidy spec

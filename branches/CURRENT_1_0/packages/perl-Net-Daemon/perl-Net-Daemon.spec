@@ -1,7 +1,7 @@
 %define module 	Net-Daemon
 %define name	perl-%{module}
 %define version 0.37
-%define release 4sls
+%define release 5sls
 
 Summary:	%{module} perl module
 Name: 		%{name}
@@ -29,11 +29,11 @@ Requires: 	perl
 make
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
 %clean 
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files 
 %defattr(-,root,root)
@@ -43,6 +43,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/*/*
 
 %changelog
+* Fri Feb 27 2004 Vincent Danen <vdanen@opensls.org> 0.37-5sls
+- rebuild for new perl
+
 * Tue Dec 30 2003 Vincent Danen <vdanen@opensls.org> 0.37-4sls
 - OpenSLS build
 - tidy spec
