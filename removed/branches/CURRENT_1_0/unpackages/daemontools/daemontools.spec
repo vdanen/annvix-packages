@@ -1,6 +1,6 @@
 %define name	daemontools
 %define version 0.76
-%define release 9sls
+%define release 10sls
 
 %define cmddir	/command
 %define srvdir	/service
@@ -53,8 +53,8 @@ mkdir -p %{buildroot}%{_bindir}
 mkdir -p %{buildroot}%{_mandir}/man8
 mkdir -p %{buildroot}%{cmddir}
 mkdir -p %{buildroot}%{srvdir}
-mkdir -p %{buildroot}/var/log/supervise
-mkdir -p %{buildroot}/var/service
+mkdir -p %{buildroot}%{_srvlogdir}
+mkdir -p %{buildroot}%{_srvdir}
 install -s -m 755 command/* %{buildroot}%{_bindir}
 install -m 644 %{name}-%{version}-man/*.8 %{buildroot}%{_mandir}/man8
 for i in `cat package/commands`
@@ -65,7 +65,6 @@ done
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-rm -rf $RPM_BUILD_DIR/%{name}-%{version}
 
 
 %files
@@ -108,11 +107,15 @@ rm -rf $RPM_BUILD_DIR/%{name}-%{version}
 %dir %{cmddir}
 %{cmddir}/*
 %dir %{srvdir}
-%dir /var/log/supervise
-%dir /var/service
+%dir %{_srvlogdir}
+%dir %{_srvdir}
 
 
 %changelog
+* Wed Mar 03 2004 Vincent Danen <vdanen@opensls.org> 0.76-10sls
+- minor spec cleanups
+- supervise macros
+
 * Tue Dec 30 2003 Vincent Danen <vdanen@opensls.org> 0.76-9sls
 - own /var/log/supervise and /var/service
 
