@@ -1,0 +1,99 @@
+Status: ok
+
+Support --test with --monitor 
+
+This generates a test message against each array found at startup.
+
+
+ ----------- Diffstat output ------------
+ ./Monitor.c |    6 +++++-
+ ./ReadMe.c  |    1 +
+ ./mdadm.c   |    5 ++++-
+ ./mdadm.h   |    2 +-
+ 4 files changed, 11 insertions(+), 3 deletions(-)
+
+diff ./Monitor.c~current~ ./Monitor.c
+--- ./Monitor.c~current~	2003-12-04 10:41:20.000000000 +1100
++++ ./Monitor.c	2003-12-04 11:24:31.000000000 +1100
+@@ -46,7 +46,7 @@ static char *percentalerts[] = { 
+ int Monitor(mddev_dev_t devlist,
+ 	    char *mailaddr, char *alert_cmd,
+ 	    int period, int daemonise, int scan, int oneshot,
+-	    char *config)
++	    char *config, int test)
+ {
+ 	/*
+ 	 * Every few seconds, scan every md device looking for changes
+@@ -193,6 +193,8 @@ int Monitor(mddev_dev_t devlist,
+ 			int fd;
+ 			unsigned int i;
+ 
++			if (test)
++				alert("TestMessage", dev, NULL, mailaddr, alert_cmd);
+ 			fd = open(dev, O_RDONLY);
+ 			if (fd < 0) {
+ 				if (!st->err)
+@@ -395,6 +397,7 @@ int Monitor(mddev_dev_t devlist,
+ 			else
+ 				sleep(period);
+ 		}
++		test = 0;
+ 	}
+ 	return 0;
+ }
+@@ -422,6 +425,7 @@ static void alert(char *event, char *dev
+ 	}
+ 	if (mailaddr && 
+ 	    (strncmp(event, "Fail", 4)==0 || 
++	     strncmp(event, "Test", 4)==0 ||
+ 	     strncmp(event, "Degrade", 7)==0)) {
+ 		FILE *mp = popen(Sendmail, "w");
+ 		if (mp) {
+
+diff ./ReadMe.c~current~ ./ReadMe.c
+--- ./ReadMe.c~current~	2003-12-04 11:18:42.000000000 +1100
++++ ./ReadMe.c	2003-12-04 11:18:47.000000000 +1100
+@@ -410,6 +410,7 @@ char Help_monitor[] =
+ "  --scan        -s   : find mail-address/program in config file\n"
+ "  --daemonise   -f   : Fork and continue in child, parent exits\n"
+ "  --oneshot     -1   : Check for degraded arrays, then exit\n"
++"  --test        -t   : Generate a TestMessage event against each array at startup\n"
+ ;
+ 
+ 
+
+diff ./mdadm.c~current~ ./mdadm.c
+--- ./mdadm.c~current~	2003-12-04 11:20:13.000000000 +1100
++++ ./mdadm.c	2003-12-04 11:20:54.000000000 +1100
+@@ -455,6 +455,9 @@ int main(int argc, char *argv[])
+ 		case O(MONITOR,'1'): /* oneshot */
+ 			oneshot = 1;
+ 			continue;
++		case O(MONITOR,'t'): /* test */
++			test = 1;
++			continue;
+ 
+ 			/* now the general management options.  Some are applicable
+ 			 * to other modes. None have arguments.
+@@ -733,7 +736,7 @@ int main(int argc, char *argv[])
+ 			break;
+ 		}
+ 		rv= Monitor(devlist, mailaddr, program,
+-			    delay?delay:60, daemonise, scan, oneshot, configfile);
++			    delay?delay:60, daemonise, scan, oneshot, configfile, test);
+ 		break;
+ 	}
+ 	exit(rv);
+
+diff ./mdadm.h~current~ ./mdadm.h
+--- ./mdadm.h~current~	2003-12-04 10:30:09.000000000 +1100
++++ ./mdadm.h	2003-12-04 11:21:21.000000000 +1100
+@@ -179,7 +179,7 @@ extern int Examine(mddev_dev_t devlist, 
+ extern int Monitor(mddev_dev_t devlist,
+ 		   char *mailaddr, char *alert_cmd,
+ 		   int period, int daemonise, int scan, int oneshot,
+-		   char *config);
++		   char *config, int test);
+ 
+ extern int Kill(char *dev, int force);
+ 
