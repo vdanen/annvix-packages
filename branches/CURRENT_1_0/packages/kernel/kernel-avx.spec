@@ -84,7 +84,7 @@
 # Thomas Backlund <tmb@iki.fi>
 
 %define sublevel	29
-%define avxrelease	3
+%define avxrelease	6
 %define use_patch	0
 
 %{!?build_annvix:%global build_annvix 0}
@@ -871,9 +871,8 @@ exit 0
 %{_kerneldir}/mm
 %{_kerneldir}/net
 %{_kerneldir}/rsbac
-#%{_kerneldir}/linux-%{owl_kver}-%{owl_version}
-%{_kerneldir}/scripts
 %{_kerneldir}/security
+%{_kerneldir}/scripts
 %{_kerneldir}/include/acpi
 %{_kerneldir}/include/asm-generic
 %{_kerneldir}/include/asm-i386
@@ -908,6 +907,30 @@ exit 0
 %endif
 
 %changelog
+* Wed Mar 16 2005 Vincent Danen <vdanen@annvix.org> 2.4.29-6avx
+- disable RSBAC for 1.0-CURRENT; we'll try to get the policies and
+  everything in place for 1.1-RELEASE if we can, but right now even
+  in softmode RSBAC is too noisy; patches are moved into todo_patches
+- fix the tainted AES license on x86_64
+
+* Wed Mar 09 2005 Vincent Danen <vdanen@annvix.org> 2.4.29-5avx
+- RSBAC 1.2.4
+  - set CONFIG_RSBAC_LIST_TRANS=y
+  - set CONFIG_RSBAC_LIST_TRANS_MAX_TTL=3600
+  - set CONFIG_RSBAC_LIST_TRANS_RANDOM_TA=n
+  - set CONFIG_RSBAC_UM=n
+  - set CONFIG_RSBAC_AUTH_GROUP=n
+  - set CONFIG_RSBAC_CAP_LOG_MISSING=y
+  - unset CONFIG_RSBAC_LOG_PROGRAM_FILE
+  - unset CONFIG_RSBAC_LOG_PSEUDO
+  - set CONFIG_RSBAC_DAC_GROUP=y
+  - set CONFIG_RSBAC_FREEZE=y
+- include RSBAC bugfix 1 and 2
+- set CONFIG_HARDEN_STACK_SMART=n
+
+* Wed Feb 23 2005 Vincent Danen <vdanen@annvix.org> 2.4.29-4avx
+- set CONFIG_USB_UHCI_ALT=m
+
 * Wed Feb 23 2005 Vincent Danen <vdanen@annvix.org> 2.4.29-3avx
 - enable USB and USB keyboard support by default:
   - CONFIG_USB=y
