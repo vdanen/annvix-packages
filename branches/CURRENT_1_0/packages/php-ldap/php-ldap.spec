@@ -1,6 +1,6 @@
 %define name	php-%{modname}
 %define version	%{phpversion}
-%define release	2avx
+%define release	1avx
 
 %define phpsource	%{_prefix}/src/php-devel
 %define _docdir		%{_datadir}/doc/%{name}-%{version}
@@ -14,8 +14,6 @@
 %define mod_src		ldap.c
 %define mod_lib		"-lldap -llber"
 %define mod_def		"-DCOMPILE_DL_LDAP -DHAVE_LDAP_START_TLS_S"
-%define rlibs		libldap2 libsasl2 libopenssl0.9.7
-%define blibs		libldap-devel pam-devel libsasl-devel openssl-devel
 
 Summary:	The %{realname} module for PHP
 Name:		%{name}
@@ -27,10 +25,9 @@ URL:		http://www.php.net
 
 BuildRoot:	%{_tmppath}/%{name}-root
 BuildRequires:  php%{libversion}-devel
-BuildRequires:	%{blibs}
+BuildRequires:	libldap-devel, pam-devel libsasl-devel, openssl-devel
 
 Requires:	php%{libversion}
-Provides: 	ADVXpackage
 
 %description
 The %{name} package is a dynamic shared object (DSO) that adds
@@ -43,7 +40,12 @@ install this package in addition to the php package.
 cp -dpR %{phpsource}/extensions/%{dirname} .
 cd %{dirname}
 
-%{phpsource}/buildext %{modname} %{mod_src} %{mod_lib} %{mod_def}
+phpize
+%configure2_5x \
+  --with-ldap=shared,%{_prefix}
+
+%make
+mv modules/*.so .
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -51,17 +53,17 @@ cd %{dirname}
 
 install -d %{buildroot}%{phpdir}/extensions
 install -d %{buildroot}%{_docdir}
-install -d %{buildroot}%{_sysconfdir}/php
+install -d %{buildroot}%{_sysconfdir}/php.d
 
 install -m755 %{soname} %{buildroot}%{phpdir}/extensions/
 
 cat > %{buildroot}%{_docdir}/README <<EOF
 The %{name} package contains a dynamic shared object (DSO) for PHP. 
-To activate it, make sure a file /etc/php/%{inifile} is present and
+To activate it, make sure a file /etc/php.d/%{inifile} is present and
 contains the line 'extension = %{soname}'.
 EOF
 
-cat > %{buildroot}%{_sysconfdir}/php/%{inifile} << EOF
+cat > %{buildroot}%{_sysconfdir}/php.d/%{inifile} << EOF
 extension = %{soname}
 EOF
 
@@ -71,11 +73,19 @@ EOF
 
 %files 
 %defattr(-,root,root)
+%doc %dir %{_docdir}
 %doc %{_docdir}/README
 %{phpdir}/extensions/%{soname}
-%config(noreplace) %{_sysconfdir}/php/%{inifile}
+%config(noreplace) %{_sysconfdir}/php.d/%{inifile}
 
 %changelog
+* Wed Jul 14 2004 Vincent Danen <vdanen@annvix.org> 4.3.8-1avx
+- php 4.3.8
+- remove ADVXpackage provides
+- use phpize and %%configure2_5x (oden)
+- move scandir to /etc/php.d
+- own docdir
+
 * Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 4.3.7-2avx
 - Annvix build
 
