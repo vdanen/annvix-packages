@@ -1,6 +1,6 @@
 %define name	srv
 %define version 0.3
-%define release 1sls
+%define release 2sls
 
 Summary:	Tool to manage supervise-controlled services.
 Name: 		%{name}
@@ -12,7 +12,6 @@ URL:		http://opensls.org/cgi-bin/viewcvs.cgi/tools/srv/
 Source:		%{name}-%{version}.tar.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-root
-BuildArch:	noarch
 
 Requires:	daemontools >= 0.70
 Obsoletes:	supervise-scripts
@@ -30,16 +29,17 @@ A tool to manage supervise-controlled services.
 %build
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p %{buildroot}%{_prefix}
-
+gcc nothing.c -o nothing
 
 %install
-mkdir -p %{buildroot}{%{_sbindir},%{_mandir}/man8,%{_initrddir}}
+mkdir -p %{buildroot}{%{_bindir},%{_sbindir},%{_mandir}/man8,%{_initrddir}}
 install -m 0755 srv %{buildroot}%{_sbindir}
 install -m 0755 srv-start %{buildroot}%{_sbindir}
 install -m 0755 srv-stop %{buildroot}%{_sbindir}
 install -m 0755 srv-addinit %{buildroot}%{_sbindir}
 install -m 0755 srv.init %{buildroot}%{_initrddir}/srv
 install -m 0644 srv.8 %{buildroot}%{_mandir}/man8
+install -m 0755 nothing %{buildroot}%{_bindir}
 
 
 %post
@@ -57,11 +57,15 @@ rm -rf $RPM_BUILD_DIR/%{name}-%{version}
 %files
 %defattr(-,root,root)
 %{_sbindir}/*
+%{_bindir}/nothing
 %config(noreplace) %{_initrddir}/srv
 %{_mandir}/man8/srv.8*
 
 
 %changelog
+* Mon Jan 26 2004 Vincent Danen <vdanen@opensls.org> 0.3-2sls
+- include nothing
+
 * Fri Jan 23 2004 Vincent Danen <vdanen@opensls.org> 0.3-1sls
 - 0.3
 
