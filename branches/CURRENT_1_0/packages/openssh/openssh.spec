@@ -1,6 +1,6 @@
 %define name	openssh
-%define version	3.6.1p2
-%define release 13sls
+%define version	3.8p1
+%define release 1sls
 
 ## Do not apply any unauthorized patches to this package!
 ## - vdanen 05/18/01
@@ -12,13 +12,9 @@
 # overrides
 %global build_skey	 0
 %global build_krb5	 1
-%global build_scard	 0
-%global build_watchdog   0
 %{?_with_skey: %{expand: %%global build_skey 1}}
 %{?_with_krb5: %{expand: %%global build_krb5 1}}
 %{?_without_krb5: %{expand: %%global build_krb5 0}}
-%{?_with_watchdog: %{expand: %%global build_watchdog 1}}
-%{?_with_smartcard: %{expand: %%global build_scard 1}}
 
 Summary:	OpenSSH free Secure Shell (SSH) implementation
 Name:		%{name}
@@ -34,14 +30,9 @@ Source3:	ssh-copy-id.bz2
 Source6:	ssh-client.sh
 Source8:	sshd.run
 Source9:	sshd-log.run
-# this is never to be applied by default
-Source10:	openssh-%{wversion}-watchdog.patch.tar.bz2
-Patch1:		openssh-3.6.1p2-mdkconf.patch.bz2
+Patch1:		openssh-3.8p1-openslsconf.patch.bz2
 # authorized by Damien Miller <djm@openbsd.com>
-Patch3:		openssh-3.1p1-check-only-ssl-version.patch.bz2
-# (flepied) don't use killproc to avoid killing running sessions in some cases
-Patch5:		openssh-3.6.1p1-initscript.patch.bz2
-Patch6:		openssh-3.6.1p2-bufferfix.patch.bz2
+Patch2:		openssh-3.1p1-check-only-ssl-version.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
 BuildRequires:	groff-for-man, openssl-devel >= 0.9.7, pam-devel, tcp_wrappers-devel, zlib-devel
@@ -127,25 +118,10 @@ echo "Building with Kerberos5 support..."
 %if %{build_skey}
 echo "Building with S/KEY support..."
 %endif
-%if %{build_scard}
-echo "Building with smartcard support..."
-%endif
-%if %{build_watchdog}
-echo "Building with watchdog support..."
-%endif
 
 %setup -q
-%if %{build_watchdog}
-%setup -q -n %{name}-%{version} -D -T -a10
-%endif
-
-%patch1 -p1 -b .mdkconf
-%patch3 -p1 -b .ssl_ver
-%patch5 -p1 -b .initscript
-%patch6 -p0 -b .secfix
-%if %{build_watchdog}
-patch -p0 -b --suffix .wdog <%{name}-%{wversion}-watchdog.patch
-%endif
+%patch1 -p0 -b .opensls
+%patch2 -p1 -b .ssl_ver
 
 %build
 
@@ -169,9 +145,6 @@ CFLAGS="$RPM_OPT_FLAGS" ./configure \
 %if %{build_skey}
   --with-skey \
 %endif
-%if %{build_scard}
-  --with-smartcard \
-%endif
   --with-superuser-path=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 make
 
@@ -194,7 +167,6 @@ if [[ -f ssh_config.out ]]; then
 else
     install -m644 ssh_config $RPM_BUILD_ROOT%{_sysconfdir}/ssh/ssh_config
 fi
-echo "    StrictHostKeyChecking ask" >> $RPM_BUILD_ROOT%{_sysconfdir}/ssh/ssh_config
 
 mkdir -p $RPM_BUILD_ROOT%{_libdir}/ssh
 
@@ -209,9 +181,7 @@ install -m 644 contrib/ssh-copy-id.1 $RPM_BUILD_ROOT/%{_mandir}/man1/
 # create pre-authentication directory
 mkdir -p %{buildroot}/var/empty
 
-%if !%{build_scard}
 rm -f %{buildroot}%{_datadir}/ssh/Ssh.bin
-%endif
 
 mkdir -p %{buildroot}%{_srvdir}/sshd/log
 mkdir -p %{buildroot}%{_srvlogdir}/sshd
@@ -295,9 +265,6 @@ do_dsa_keygen
 %files
 %defattr(-,root,root)
 %doc ChangeLog OVERVIEW README* INSTALL CREDITS LICENCE TODO
-%if %{build_watchdog}
-%doc CHANGES-openssh-watchdog openssh-watchdog.html
-%endif
 %{_bindir}/ssh-keygen
 %dir %{_sysconfdir}/ssh
 %{_bindir}/ssh-keyscan
@@ -307,11 +274,6 @@ do_dsa_keygen
 %{_libdir}/ssh/ssh-keysign
 %{_bindir}/scp
 %{_mandir}/man1/scp.1*
-
-%if %{build_scard}
-%dir %{_datadir}/ssh
-%{_datadir}/ssh/Ssh.bin
-%endif
 
 %files clients
 %defattr(-,root,root)
@@ -346,12 +308,20 @@ do_dsa_keygen
 %{_srvdir}/sshd/run
 %{_srvdir}/sshd/log/run
 %dir %attr(0750,nobody,nogroup) %{_srvlogdir}/sshd
-
-
 %config(noreplace) %{_sysconfdir}/ssh/moduli
 %dir %attr(0755,root,root) /var/empty
 
+
 %changelog
+* Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 3.8p1-1sls
+- 3.8p1
+- rediff P1
+- drop P5 (no initscripts)
+- drop P6 (merged upstream)
+- rename P3 to P2
+- remove smartcard and watchdog build options
+- NOTE: Use the UsePAM option with caution!
+
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 3.6.1p2-13sls
 - minor spec cleanups
 - remove all gui stuff completely
