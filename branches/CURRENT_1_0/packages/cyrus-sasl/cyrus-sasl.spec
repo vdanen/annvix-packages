@@ -1,6 +1,6 @@
 %define name	cyrus-sasl
 %define version	2.1.19
-%define release	2avx
+%define release	3avx
 
 %define major	2
 %define libname	%mklibname sasl %{major}
@@ -367,6 +367,9 @@ fi
 %{_mandir}/man3/*
  
 %changelog
+* Thu Jan 06 2005 Vincent Danen <vdanen@annvix.org> 2.1.19-3avx
+- rebuild against new openssl
+
 * Thu Oct 07 2004 Vincent Danen <vdanen@annvix.org> 2.1.19-2avx
 - P4: fixes CAN-2004-0884
 
