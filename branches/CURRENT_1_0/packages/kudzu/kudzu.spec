@@ -1,15 +1,16 @@
 %define name	kudzu
-%define version	1.1.51
-%define release	4avx
+%define version	1.1.95
+%define release	1avx
 
-Summary:	The Red Hat Linux hardware probing tool.
+Summary:	The Red Hat Linux hardware probing tool
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	GPL
 Group:		Applications/System
-URL:		http://rhlinux.redhat.com/kudzu/
+URL:		http://fedora.redhat.com/projects/additional-projects/kudzu/
 Source:		kudzu-%{version}.tar.gz
+Patch0:		kudzu-1.1.95-avx-python2.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-root
 BuildPrereq:	pciutils-devel >= 2.1.11-1, python-devel python newt-devel
@@ -41,6 +42,7 @@ for hardware probing and configuration.
 
 %prep
 %setup -q
+%patch0 -p1 -b .python2
 
 # hack: do not start kudzu on s390/s390x on bootup
 %ifarch s390 s390x
@@ -54,7 +56,8 @@ make RPM_OPT_FLAGS="%{optflags} -I." all kudzu
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-make install install-program DESTDIR=%{buildroot} libdir=%{buildroot}%{_prefix}/%{_lib}
+make install install-program DESTDIR=%{buildroot} libdir=%{buildroot}%{_libdir}
+install -m 0755 fix-mouse-psaux %{buildroot}%{_sbindir}
 
 %find_lang %{name}
 
@@ -72,12 +75,10 @@ make install install-program DESTDIR=%{buildroot} libdir=%{buildroot}%{_prefix}/
 %doc README hwconf-description
 %{_sbindir}/kudzu
 %{_sbindir}/module_upgrade
-%{_sbindir}/updfstab
+%{_sbindir}/fix-mouse-psaux
 %{_mandir}/man8/*
 %config(noreplace) %{_sysconfdir}/sysconfig/kudzu
 %config %{_initrddir}/kudzu
-%config(noreplace) %{_sysconfdir}/updfstab.conf
-%config %{_sysconfdir}/updfstab.conf.default
 %{_libdir}/python*/site-packages/*
 
 %Files devel
@@ -87,6 +88,11 @@ make install install-program DESTDIR=%{buildroot} libdir=%{buildroot}%{_prefix}/
 %{_includedir}/kudzu
 
 %changelog
+* Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> - 1.1.95-1avx
+- 1.1.95
+- update url
+- P1: we don't rename python to python2 so fix Makefile
+
 * Wed Jun 22 2004 Vincent Danen <vdanen@annvix.org> - 1.1.51-4avx
 - require packages not files
 - Annvix build
