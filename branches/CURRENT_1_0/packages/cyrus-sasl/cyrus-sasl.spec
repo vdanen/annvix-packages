@@ -1,6 +1,6 @@
 %define name	cyrus-sasl
-%define version	2.1.15
-%define release	10avx
+%define version	2.1.19
+%define release	1avx
 
 %define major	2
 %define libname	%mklibname sasl %{major}
@@ -10,7 +10,7 @@ Summary:	SASL is the Simple Authentication and Security Layer.
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
-License:	OSI Approved
+License:	BSD style
 Group:		System/Libraries
 URL:		http://asg.web.cmu.edu/cyrus/download/
 Source0:	ftp://ftp.andrew.cmu.edu/pub/cyrus-mail/%{name}-%{version}.tar.gz
@@ -21,17 +21,16 @@ Source4:	saslauthd.run
 Source5:	saslauthd-log.run
 Source6:	saslauthd.8.bz2
 Patch0:		cyrus-sasl-doc-patch.bz2
-Patch1:		cyrus-sasl-2.1.12-rpath.patch.bz2
-Patch2:		cyrus-sasl-2.1.15-lib64.patch.bz2
+Patch1:		cyrus-sasl-2.1.18-mdk-no_rpath.patch.bz2
+Patch2:		cyrus-sasl-2.1.15-mdk-lib64.patch.bz2
+Patch3:		cyrus-sasl-2.1.17-fdr-gssapi-dynamic.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
-BuildRequires:  autoconf, automake, db4-devel, pam-devel, krb5-devel
+BuildRequires:  autoconf, automake1.7, db4-devel, pam-devel, krb5-devel
 BuildRequires:  openssl-devel >= 0.9.6a, libtool >= 1.4
 %{?!bootstrap:BuildRequires: openldap-devel}
 
-Prefix:		%{_prefix}
-Requires:	%{libname}
-Obsoletes:	cyrus-sasl >= 2.1.0
+Requires:	%{libname} = %{version}
 PreReq:		rpm-helper
 
 %description
@@ -176,12 +175,30 @@ This plugin implements the (unsupported) ntlm authentication.
 %prep
 %setup -q -n %{name}-%{version}
 %patch0 -p1
-%patch1 -p1
+%patch1 -p1 -b .rpath
 %patch2 -p1 -b .lib64
+%patch3 -p1 -b .gssapi
+
+rm -f config/ltconfig config/libtool.m4
+%__libtoolize -f -c
+aclocal-1.7 -I config -I cmulocal
+automake-1.7 -a -c -f
+autoheader
+autoconf -f
+pushd saslauthd
+    rm -f config/ltconfig
+    %__libtoolize -f -c
+    aclocal-1.7 -I ../config -I ../cmulocal
+    automake-1.7 -a -c -f
+    autoheader
+    autoconf -f
+popd
+
 
 %build
-
 %serverbuild
+# (bluca) trim spaces into CFLAGS or configure will whine
+export CFLAGS=`echo ${CFLAGS} | sed -e 's/  */ /'`
 
 export LDFLAGS="-L%{_libdir}"
 
@@ -197,10 +214,12 @@ export LDFLAGS="-L%{_libdir}"
 		--without-mysql \
 %{?!bootstrap:--with-ldap=/usr} \
 		--with-dbpath=/var/lib/sasl2/sasl.db \
-		--with-configdir=%{_libdir}/sasl2 \
 		--with-saslauthd=/var/lib/sasl2 
 
 %make
+pushd saslauthd
+    make testsaslauthd
+popd
 
 install saslauthd/LDAP_SASLAUTHD README.ldap
 
@@ -222,9 +241,11 @@ install -m644 */*.8 $RPM_BUILD_ROOT%{_mandir}/man8/
 
 # dbconverter-2 isn't installed by make install
 
-cd utils
-/bin/sh ../libtool --mode=install /usr/bin/install -c dbconverter-2 \
-  $RPM_BUILD_ROOT/%{_sbindir}/dbconverter-2
+pushd utils
+    /bin/sh ../libtool --mode=install /usr/bin/install -c dbconverter-2 \
+      $RPM_BUILD_ROOT/%{_sbindir}/dbconverter-2
+popd
+cp saslauthd/testsaslauthd %{buildroot}%{_sbindir}
 
 mkdir -p %{buildroot}%{_srvdir}/saslauthd/log
 mkdir -p %{buildroot}%{_srvlogdir}/saslauthd
@@ -234,6 +255,12 @@ install -m 0750 %{SOURCE5} %{buildroot}%{_srvdir}/saslauthd/log/run
 # fix the horribly broken manpage
 bzcat %{SOURCE6} >%{buildroot}%{_mandir}/man8/saslauthd.8
 
+pushd sample
+    /bin/sh ../libtool --mode=install /usr/bin/install -c client \
+      %{buildroot}%{_sbindir}/sasl-sample-client
+    /bin/sh ../libtool --mode=install /usr/bin/install -c server \
+      %{buildroot}%{_sbindir}/sasl-sample-server
+popd
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
@@ -251,14 +278,13 @@ fi
 %preun
 %_preun_srv saslauthd
 
-%post -n %{libname}
-/sbin/ldconfig
+%post -n %{libname} -p /sbin/ldconfig
 
 %postun -n %{libname} -p /sbin/ldconfig
 
 %files
 %defattr(-,root,root)
-%doc COPYING AUTHORS INSTALL NEWS README* ChangeLog sample/{client,server}
+%doc COPYING AUTHORS INSTALL NEWS README* ChangeLog
 %doc doc/{TODO,ONEWS,*.txt,*.html}
 %dir /var/lib/sasl2
 %attr (644,root,root) %config(noreplace) /etc/sysconfig/saslauthd
@@ -282,20 +308,17 @@ fi
 
 %files -n %{libname}-plug-otp
 %defattr(-,root,root)
-%{_libdir}/*/libotp*.so.*
-%{_libdir}/*/libotp.so
+%{_libdir}/*/libotp*.so*
 %{_libdir}/*/libotp*.la
 
 %files -n %{libname}-plug-sasldb
 %defattr(-,root,root)
-%{_libdir}/*/libsasldb*.so.*
-%{_libdir}/*/libsasldb.so
+%{_libdir}/*/libsasldb*.so*
 %{_libdir}/*/libsasldb*.la
 
 %files -n %{libname}-plug-gssapi
 %defattr(-,root,root)
-%{_libdir}/*/libgssapi*.so.*
-%{_libdir}/*/libgssapi*.so
+%{_libdir}/*/libgssapi*.so*
 %{_libdir}/*/libgssapi*.la
 
 %files -n %{libname}-plug-crammd5
@@ -342,6 +365,18 @@ fi
 %{_mandir}/man3/*
  
 %changelog
+* Mon Sep 20 2004 Vincent Danen <vdanen@annvix.org> 2.1.19-1avx
+- 2.1.19
+- drop %%_prefix
+- patch policy
+- sync with Mandrake 2.1.19-3mdk:
+  - add testsaslauthd (jmdault)
+  - add missing plugin files (jmdault)
+  - reworked P1 and added P3 from fedora (bluca)
+  - recreate autoconf stuff in prep (bluca)
+  - really install sample client and server (bluca)
+  - remove obsoletes on myself and fix library require (bluca)
+
 * Mon Sep 20 2004 Vincent Danen <vdanen@annvix.org> 2.1.15-10avx
 - update run scripts
 
