@@ -1,28 +1,29 @@
-%define amversion 1.7
-%define name automake%{amversion}
+%define name	automake%{amversion}
 %define version 1.7.6
-%define prefix %{_prefix}
-%define release 1mdk
+%define release 3sls
 
-Summary: A GNU tool for automatically creating Makefiles.
-Name: %{name}
-Version: %{version}
-Release: %{release}
-License: GPL
-Group: Development/Other
-Source:	ftp://ftp.gnu.org/gnu/automake/automake-%{version}.tar.bz2
-Patch: automake-1.7.6-infofiles.patch.bz2
-URL: http://sources.redhat.com/automake/
-Requires: /usr/bin/perl autoconf2.5
-BuildRequires: autoconf2.5 byacc flex gawk /usr/bin/perl tetex texinfo
-BuildArch: noarch
-BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
-Provides: automake = %{version}-%{release}
-Obsoletes: automake1.5
-Conflicts: automake < 1.4-22.p6.mdk
-PreReq:	/sbin/install-info /usr/sbin/update-alternatives
+%define amversion 1.7
 
 %define alternatives_install_cmd update-alternatives --install %{_bindir}/automake automake %{_bindir}/automake-%{amversion} 10 --slave %{_bindir}/aclocal aclocal %{_bindir}/aclocal-%{amversion}
+
+Summary:	A GNU tool for automatically creating Makefiles.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		Development/Other
+URL:		http://sources.redhat.com/automake/
+Source:		ftp://ftp.gnu.org/gnu/automake/automake-%{version}.tar.bz2
+Patch:		automake-1.7.6-infofiles.patch.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root
+BuildArch:	noarch
+BuildRequires:	autoconf2.5 byacc flex gawk /usr/bin/perl tetex texinfo
+
+PreReq:		/sbin/install-info, /usr/sbin/update-alternatives
+Requires:	/usr/bin/perl, autoconf2.5
+Provides:	automake = %{version}-%{release}
+Obsoletes:	automake1.5
 
 %description
 Automake is a tool for automatically generating Makefiles compliant with
@@ -45,14 +46,14 @@ make
 makeinfo automake.texi
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
 rm -f $RPM_BUILD_ROOT/%{_bindir}/{automake,aclocal}
 rm -f $RPM_BUILD_ROOT/%{_infodir}/*
 install -m 644 %{name}*info* $RPM_BUILD_ROOT/%{_infodir}
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
 %_install_info %name.info
@@ -77,6 +78,15 @@ fi
 %{_datadir}/aclocal*
 
 %changelog
+* Sun Feb 29 2004 Vincent Danen <vdanen@opensls.org> 1.7.6-3sls
+- remove %%{prefix}
+- minor spec cleanups
+
+* Sat Dec 13 2003 Vincent Danen <vdanen@opensls.org> 1.7.6-2sls
+- OpenSLS build
+- tidy spec
+- remove conflicts since it breaks new automake naming scheme
+
 * Fri Jul 11 2003 Guillaume Cottenceau <gc@mandrakesoft.com> 1.7.6-1mdk
 - new version
 

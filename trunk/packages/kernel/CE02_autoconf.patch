@@ -46,7 +46,7 @@ Changelog:
  fi
  
  DEFAULTS=arch/$ARCH/defconfig
-+KVER=$(sed -n 's/#define UTS_RELEASE "\(.*mdk\).*"$/\1/p' include/linux/version.h)
++KVER=$(sed -n 's/#define UTS_RELEASE "\(.*sls\).*"$/\1/p' include/linux/version.h)
 +KTYPE=$(sed -n 's/^#define __BOOT_KERNEL_\([^ ]*\) 1/\1/p' /boot/kernel.h|tr A-Z a-z)
 +[[ "$KTYPE" = "up" ]] && KTYPE=""
 +KCONF=/boot/config-${KVER}${KTYPE}
@@ -65,7 +65,7 @@ Changelog:
  	cat ${HEADER} >> ./kconfig.tk
  	./tkparse < ../arch/${ARCH}/config.in >> kconfig.tk
 -	echo "set defaults \"arch/${ARCH}/defconfig\"" >> kconfig.tk
-+	KVER=`sed -n 's/^.define UTS_RELEASE "\(.*mdk\).*"/\1/p' ../include/linux/version.h`; \
++	KVER=`sed -n 's/^.define UTS_RELEASE "\(.*sls\).*"/\1/p' ../include/linux/version.h`; \
 +	KTYPE=`sed -n 's/^.define __BOOT_KERNEL_\([^ ]*\) 1/\1/p' /boot/kernel.h|tr A-Z a-z`; \
 +	[[ "$$KTYPE" = "up" ]] && KTYPE="" ;\
 +	KCONF=/boot/config-$$KVER$$KTYPE ; \

@@ -1,33 +1,35 @@
 %define name	autoconf
 %define version	2.13
-%define prefix	%{_prefix}
-%define release 19mdk
+%define release 21sls
+%define epoch	1
+
 # Factorize uses of autoconf libdir home and handle only one exception in rpmlint
 %define aclibdir %{_prefix}/lib/autoconf
 
-Name: %{name}
-Summary: A GNU tool for automatically configuring source code.
-Version: %{version}
-Release: %{release}
-License: GPL
-Group: Development/Other
-Source: ftp://prep.ai.mit.edu/pub/gnu/autoconf/%{name}-%{version}.tar.bz2
-Source2: ac-wrapper.pl
-Source3: special_readme
-Patch0: autoconf-2.12-race.patch.bz2
-Patch1: autoconf-2.13-mawk.patch.bz2
-Patch2: autoconf-2.13-notmp.patch.bz2
-Patch3: autoconf-fix-for-gcc2.96-patch.bz2
-Patch4: autoconf-2.13-talk-about-2.5x-in-info.patch.bz2
-Prereq: /sbin/install-info
-Requires: gawk, m4, mktemp, perl
-Packager: Guillaume Cottenceau <gc@mandrakesoft.com>
-BuildRequires: texinfo m4
-BuildRoot: %_tmppath/%{name}-root
-BuildArch: noarch
-URL: http://sourceware.cygnus.com/autoconf/
-Requires: /usr/bin/perl perl-MDK-Common
-Epoch: 1
+Summary:	A GNU tool for automatically configuring source code.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+Epoch:		%{epoch}
+License:	GPL
+Group:		Development/Other
+URL:		http://sourceware.cygnus.com/autoconf/
+Source:		ftp://prep.ai.mit.edu/pub/gnu/autoconf/%{name}-%{version}.tar.bz2
+Source2:	ac-wrapper.pl
+Source3:	special_readme
+Patch0:		autoconf-2.12-race.patch.bz2
+Patch1:		autoconf-2.13-mawk.patch.bz2
+Patch2:		autoconf-2.13-notmp.patch.bz2
+Patch3:		autoconf-fix-for-gcc2.96-patch.bz2
+Patch4:		autoconf-2.13-talk-about-2.5x-in-info.patch.bz2
+
+BuildRoot:	%_tmppath/%{name}-root
+BuildArch:	noarch
+BuildRequires:	texinfo m4
+
+Prereq:		/sbin/install-info
+Requires:	gawk, m4, mktemp, perl
+Requires:	/usr/bin/perl, perl-MDK-Common
 
 %description
 GNU's Autoconf is a tool for configuring source code and Makefiles.
@@ -54,14 +56,14 @@ their use.
 %patch2 -p1
 %patch3 -p0
 %patch4 -p0
-install -m644 %{SOURCE3} IMPORTANT.README.MDK
+install -m644 %{SOURCE3} IMPORTANT.README.OpenSLS
 
 %build
 %configure
 make
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
 
 # We don't want to include the standards.info stuff in the package,
@@ -78,7 +80,7 @@ for i in autoconf autoheader autoreconf autoscan autoupdate ifnames; do
 done
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
 %_install_info autoconf.info
@@ -88,13 +90,20 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root)
-%doc README IMPORTANT.README.MDK
+%doc README IMPORTANT.README.OpenSLS
 %{_bindir}/*
 %{_datadir}/%{name}
 %{aclibdir}
 %{_infodir}/*
 
 %changelog
+* Sun Feb 29 2004 Vincent Danen <vdanen@opensls.org> 2.13-21sls
+- more spec cleanups
+
+* Sat Dec 13 2003 Vincent Danen <vdanen@opensls.org> 2.13-20sls
+- OpenSLS build
+- tidy spec
+
 * Tue Aug 19 2003 Guillaume Cottenceau <gc@mandrakesoft.com> 2.13-19mdk
 - own /usr/lib/autoconf, thx to markus pilzecker <pilzecker at free.fr>
 

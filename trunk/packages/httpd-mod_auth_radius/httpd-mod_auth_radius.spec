@@ -1,41 +1,42 @@
-#Module-Specific definitions
-%define mod_version 1.7PR1
-%define release 1mdk
-%define mod_name mod_auth_radius
-%define mod_conf 14_%{mod_name}.conf
-%define mod_so %{mod_name}.so
-%define sourcename %{mod_name}
+%define name	%{ap_name}-%{mod_name}
+%define version %{ap_version}_%{mod_version}
+%define release 1sls
 
-#New ADVX macros
+# Module-Specific definitions
+%define mod_version	1.7PR1
+%define mod_name	mod_auth_radius
+%define mod_conf	14_%{mod_name}.conf
+%define mod_so		%{mod_name}.so
+%define sourcename	%{mod_name}
+
+# New ADVX macros
 %define ADVXdir %{_datadir}/ADVX
 %{expand:%(cat %{ADVXdir}/ADVX-build)}
 %{expand:%%global ap_version %(%{apxs} -q ap_version)}
-
-# Standard Module Definitions
-%define name %{ap_name}-%{mod_name}
-%define version %{ap_version}_%{mod_version}
-
-#Standard ADVX requires
-Prereq:		%{ap_name} = %{ap_version}
-Prereq:		%{ap_name}-conf
-BuildRequires:  ADVX-build >= 9.2
-BuildRequires:  %{ap_name}-devel >= 2.0.43-5mdk
-Provides: 	ADVXpackage
-Provides:	AP20package
 
 Summary:	Mod_radius is a DSO module for the %{ap_name} Web server.
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
+License:	Apache License
 Group:		System/Servers
+URL:		https://www.gnarst.net/authradius/
 Source0:	%{mod_name}.tar.bz2
 Source1:	%{mod_conf}.bz2
 Patch0:		%{mod_name}-register.patch.bz2
 Patch1:		%{mod_name}-invalid-hostname.patch.bz2
 Patch2:		%{mod_name}-wierd_fix.patch.bz2
-License:	Apache License
-URL:		https://www.gnarst.net/authradius/
+
 BuildRoot:	%{_tmppath}/%{name}-buildroot
+# Standard ADVX requires
+BuildRequires:  ADVX-build >= 9.2
+BuildRequires:  %{ap_name}-devel >= 2.0.43-5mdk
+
+# Standard ADVX requires
+Prereq:		%{ap_name} = %{ap_version}
+Prereq:		%{ap_name}-conf
+Provides: 	ADVXpackage
+Provides:	AP20package
 
 %description
 Make %{ap_name} a RADIUS client for authentication and
@@ -53,14 +54,14 @@ mv mod_auth_radius_apache2.c mod_auth_radius.c
 %{apxs} -c mod_auth_radius.c -Wl,-lresolv
 
 %install
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %ADVXinstlib
 %ADVXinstconf %{SOURCE1} %{mod_conf}
 %ADVXinstdoc %{name}-%{version}
 
 %clean
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
 %ADVXpost
@@ -76,6 +77,16 @@ mv mod_auth_radius_apache2.c mod_auth_radius.c
 %doc mod_auth_radius.html
 
 %changelog
+* Fri May 07 2004 Vincent Danen <vdanen@opensls.org> 2.0.49_1.7PR1-1sls
+- apache 2.0.49
+
+* Wed Feb 18 2004 Vincent Danen <vdanen@opensls.org> 2.0.48_1.7PR1-3sls
+- small cleanups
+
+* Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 2.0.48_1.7PR1-2sls
+- OpenSLS build
+- tidy spec
+
 * Wed Nov 05 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.48_1.7PR1-1mdk
 - built for apache 2.0.48
 

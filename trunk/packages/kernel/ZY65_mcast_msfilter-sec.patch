@@ -1,0 +1,34 @@
+--- linux-2.4.22/net/ipv4/ip_sockglue.c.mcast	2004-04-20 17:02:53.000000000 -0600
++++ linux-2.4.22/net/ipv4/ip_sockglue.c	2004-04-20 17:06:21.000000000 -0600
+@@ -760,6 +760,11 @@
+ 			if (copy_from_user(gsf, optval, optlen)) {
+ 				goto mc_msf_out;
+ 			}
++			/* numsrc >= (4G-140)/128 overflow in 32 bits */        
++			if (gsf->gf_numsrc >= 0x1ffffff) {                      
++				err = -ENOBUFS;                                 
++				goto mc_msf_out;                                
++			}         
+ 			if (GROUP_FILTER_SIZE(gsf->gf_numsrc) < optlen) {
+ 				err = EINVAL;
+ 				goto mc_msf_out;
+--- linux-2.4.22/net/ipv6/ipv6_sockglue.c.mcast	2004-04-20 17:06:43.000000000 -0600
++++ linux-2.4.22/net/ipv6/ipv6_sockglue.c	2004-04-20 17:12:10.000000000 -0600
+@@ -466,6 +466,17 @@
+ 			kfree(gsf);
+ 			break;
+ 		}
++		/* numsrc >= (4G-140)/128 overflow in 32 bits */                
++		if (gsf->gf_numsrc >= 0x1ffffffU) {            
++			kfree(gsf);                    
++			retv = -ENOBUFS; 
++			break;                                        
++		}
++		if (GROUP_FILTER_SIZE(gsf->gf_numsrc) < optlen) {               
++			kfree(gsf);                   
++			retv = -EINVAL;             
++			break;                                                  
++		}
+ 		retv = ip6_mc_msfilter(sk, gsf);
+ 		kfree(gsf);
+ 

@@ -1,9 +1,10 @@
-%define name   expat
+%define name	expat
 %define version 1.95.6
-%define release 4mdk
-%define libname_orig libexpat
-%define major 0
-%define libname %mklibname %{name} %{major}
+%define release 6sls
+
+%define libname_orig	libexpat
+%define major		0
+%define libname		%mklibname %{name} %{major}
 
 Summary:	Expat is an XML parser written in C
 Name:		%{name}
@@ -14,18 +15,20 @@ Group:		Development/Other
 URL:		http://www.jclark.com/xml/expat.html
 Source:		ftp://ftp.jclark.com/pub/xml/%{name}-%{version}.tar.bz2
 Patch:		expat-1.95.6-enum.patch.bz2
-Requires:   %{libname} = %{version}-%{release}
+
 BuildRoot:	%_tmppath/%name-%version-%release-root
+
+Requires:	%{libname} = %{version}-%{release}
 
 %description
 Expat is an XML 1.0 parser written in C by James Clark.  It aims to be
 fully conforming. It is currently not a validating XML parser.
 
 %package -n %{libname}
-Summary: Main library for expat
-Group: Development/C
-Obsoletes: libexpat1_95
-Provides: libexpat1_95 = %version-%release
+Summary:	Main library for expat
+Group:		Development/C
+Obsoletes:	libexpat1_95
+Provides:	libexpat1_95 = %version-%release
 
 %description -n %{libname}
 This package contains the library needed to run programs dynamically
@@ -53,6 +56,7 @@ Development environment for the expat XML parser
 %make
  
 %install
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall mandir=$RPM_BUILD_ROOT/%{_mandir}/man1
 
 install -D -m 0644 doc/reference.html %buildroot%_docdir/%name-%version/reference.html
@@ -60,7 +64,7 @@ install -D -m 0644 doc/reference.html %buildroot%_docdir/%name-%version/referenc
 rm -f $RPM_BUILD_ROOT/%{_mandir}/xmlwf.1*
 
 %clean
-rm -rf %buildroot
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
@@ -87,6 +91,13 @@ rm -rf %buildroot
 %_libdir/libexpat.la
 
 %changelog
+* Thu Mar 04 2004 Vincent Danen <vdanen@opensls.org> - 1.95.6-6sls
+- minor spec cleanups
+
+* Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> - 1.95.6-5sls
+- OpenSLS build
+- tidy spec
+
 * Wed Jul  9 2003 Frederic Crozat <fcrozat@mandrakesoft.com> - 1.95.6-4mdk
 - Rebuild for new deps
 

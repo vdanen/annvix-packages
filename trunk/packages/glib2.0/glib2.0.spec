@@ -1,9 +1,13 @@
+%define name	glib%{api_version}
+%define version	%{major_version}.%{minor_version}.%{micro_version}
+%define release	3sls
+
 # enable_gtkdoc: Toggle if gtkdoc stuff should be rebuilt
 #	0 = no
 #	1 = yes
-%define enable_gtkdoc	1
+%define enable_gtkdoc	0
 
-%define req_pkgconfig_version 0.12
+%define req_pkgconfig_version	0.12
 
 # Note that this is NOT a relocatable package
 %define api_version	2.0
@@ -14,24 +18,26 @@
 %define minor_version 2
 %define micro_version 3
 
-Summary:   GIMP Toolkit and GIMP Drawing Kit support library
-Name:      glib%{api_version}
-Version:   %{major_version}.%{minor_version}.%{micro_version}
-Release:   1mdk
-License:   LGPL
-Group:     System/Libraries
-Source0:   ftp://ftp.gtk.org/pub/gtk/v%{api_version}/glib-%{version}.tar.bz2
-Source1:   glib20.sh.bz2
-Source2:   glib20.csh.bz2
-BuildRoot: %{_tmppath}/%{name}-%{version}-root
-URL:       http://www.gtk.org
-Requires:  common-licenses
-BuildRequires:  gettext
+Summary:	GIMP Toolkit and GIMP Drawing Kit support library
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	LGPL
+Group:		System/Libraries
+URL:		http://www.gtk.org
+Source0:	ftp://ftp.gtk.org/pub/gtk/v%{api_version}/glib-%{version}.tar.bz2
+Source1:	glib20.sh.bz2
+Source2:	glib20.csh.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-%{version}-root
+BuildRequires:	gettext
 BuildRequires:	pkgconfig >= %{req_pkgconfig_version}
 BuildRequires:	libtool >= 1.4.2-2mdk
 %if %enable_gtkdoc
 BuildRequires:	gtk-doc >= 0.10
 %endif
+
+Requires:	common-licenses
 
 %description
 Glib is a handy library of utility functions. This C
@@ -44,12 +50,12 @@ You should install Glib because many of your applications
 will depend on this library.
 
 %package -n %{lib_name}
-Summary: %{summary}
-Group: %{group}
+Summary:	%{summary}
+Group:		%{group}
 Provides:	glib2 = %{version}-%{release}
 Provides:	libglib2 = %{version}-%{release}
 Provides:	lib%{name} = %{version}-%{release}
-Conflicts:  libglib1.3_13
+Conflicts:	libglib1.3_13
 
 %description -n %{lib_name}
 Glib is a handy library of utility functions. This C
@@ -65,15 +71,15 @@ This package contains the library needed to run programs dynamically
 linked with the glib.
 
 %package -n %{lib_name}-devel
-Summary: Static libraries and header files of %{name}
-Group:   Development/C
+Summary:	Static libraries and header files of %{name}
+Group:		Development/C
 Provides:	glib2-devel = %{version}-%{release}
 Provides:	libglib2-devel = %{version}-%{release}
 Provides:	lib%{name}-devel = %{version}-%{release}
 Requires:	%{lib_name} = %{version}-%{release}
 Requires:	pkgconfig >= %{req_pkgconfig_version}
 Requires:	glib-gettextize >= %{version}
-Conflicts:  libglib1.3_13-devel
+Conflicts:	libglib1.3_13-devel
 
 %description -n %{lib_name}-devel
 Static libraries and header files for the support library for the GIMP's X
@@ -82,8 +88,8 @@ useful data structures.
 
 
 %package -n glib-gettextize
-Summary: Gettextize replacement
-Group: Development/Other
+Summary:	Gettextize replacement
+Group:		Development/Other
 
 %description -n glib-gettextize
 %{name} package is designed to replace gettextize completely.
@@ -111,9 +117,7 @@ packages can potentially benefict from the changes.
 make check
 
 %install
-rm -rf $RPM_BUILD_ROOT
-
-
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/profile.d
@@ -123,12 +127,14 @@ chmod a+x  $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/*
 
 %find_lang glib20
 
+
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post -n %{lib_name} -p /sbin/ldconfig
 
 %postun -n %{lib_name} -p /sbin/ldconfig
+
 
 %files -n %{lib_name} -f glib20.lang
 %defattr(-, root, root)
@@ -162,6 +168,13 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/glib-%{api_version}
 
 %changelog
+* Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 2.2.3-3sls
+- minor spec cleanups
+- remove %%build_opensls macro
+
+* Mon Dec 22 2003 Vincent Danen <vdanen@opensls.org> 2.2.3-2sls
+- OpenSLS build
+
 * Wed Aug 27 2003 Frederic Crozat <fcrozat@mandrakesoft.com> 2.2.3-1mdk
 - Release 2.2.3
 

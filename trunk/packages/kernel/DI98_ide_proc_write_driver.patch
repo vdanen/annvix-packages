@@ -45,14 +45,3 @@ diff -uNp t8/drivers/ide/ide-proc.c.orig t8/drivers/ide/ide-proc.c
  		return -EINVAL;
  	return count;
  }
---- linux-2.4.20-2mdk/drivers/ide/ide.c.ide-proc-write-driver	2002-12-09 14:38:17.000000000 +0300
-+++ linux-2.4.20-2mdk/drivers/ide/ide.c	2003-01-01 15:25:53.000000000 +0300
-@@ -3843,7 +3843,7 @@
- 		for (unit = 0; unit < MAX_DRIVES; ++unit) {
- 			ide_drive_t *drive = &hwif->drives[unit];
- 			char *req = drive->driver_req;
--			if (*req && !strstr(req, name))
-+			if (*req && !strstr(name, req))
- 				continue;
- 			if (drive->present && drive->media == media && drive->driver == driver && ++i > n)
- 				return drive;

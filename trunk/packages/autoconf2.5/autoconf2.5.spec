@@ -1,30 +1,32 @@
 %define name	autoconf2.5
-%define version	2.57
-%define prefix	%{_prefix}
-%define release 5mdk
+%define version	2.59
+%define release 1sls
+%define epoch	1
+
 # Factorize uses of autoconf libdir home and
 # handle only one exception in rpmlint
 %define aclibdir %{_prefix}/lib/autoconf
 
-Name: %{name}
-Summary: A GNU tool for automatically configuring source code.
-Version: %{version}
-Release: %{release}
-License: GPL
-Group: Development/Other
-Source: ftp://ftp.gnu.org/gnu/autoconf/autoconf-%{version}.tar.bz2
-Source2: special_readme2.5
-Source10: autoconf-site-start
-Patch0: autoconf-2.57-fix-info.patch.bz2
-Prereq: /sbin/install-info
-Packager: Guillaume Cottenceau <gc@mandrakesoft.com>
-BuildRequires: texinfo
-BuildArch: noarch
-Requires: gawk m4 mktemp /usr/bin/perl
-Requires: %{aclibdir}/ac-wrapper.pl
-URL: http://sourceware.cygnus.com/autoconf/
-BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot/
-Epoch: 1
+Summary:	A GNU tool for automatically configuring source code.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+Epoch:		%{epoch}
+License:	GPL
+Group:		Development/Other
+URL:		http://sourceware.cygnus.com/autoconf/
+Source:		ftp://ftp.gnu.org/gnu/autoconf/autoconf-%{version}.tar.bz2
+Source2:	special_readme2.5
+Source10:	autoconf-site-start
+Patch0:		autoconf-2.58-fix-info.patch.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot/
+BuildArch:	noarch
+BuildRequires:	texinfo
+
+Prereq:		/sbin/install-info
+Requires:	gawk, m4, mktemp, /usr/bin/perl
+Requires:	%{aclibdir}/ac-wrapper.pl
 
 %description
 GNU's Autoconf is a tool for configuring source code and Makefiles.
@@ -47,14 +49,14 @@ their use.
 %prep
 %setup -q -n autoconf-%{version}
 %patch0 -p0
-install -m644 %{SOURCE2} IMPORTANT.README.MDK
+install -m644 %{SOURCE2} IMPORTANT.README.OpenSLS
 
 %build
 %configure2_5x
 make
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
 rm -rf $RPM_BUILD_ROOT%{_infodir}/dir
 
@@ -70,17 +72,9 @@ ln -s ../..%{aclibdir}/ac-wrapper.pl $RPM_BUILD_ROOT%{_bindir}/autom4te
 
 mv $RPM_BUILD_ROOT%{_infodir}/autoconf.info $RPM_BUILD_ROOT%{_infodir}/autoconf-2.5x.info
 
-install -d $RPM_BUILD_ROOT%{_sysconfdir}/emacs/site-start.d
-install -m 644 %{SOURCE10} $RPM_BUILD_ROOT%{_sysconfdir}/emacs/site-start.d/%{name}.el
-
-# if emacs-bin was not here, *.el and *.elc files will be missing - install *.el files anyway
-if [ ! -d $RPM_BUILD_ROOT/%{_datadir}/emacs/site-lisp ]; then
-		mkdir -p $RPM_BUILD_ROOT/%{_datadir}/emacs/site-lisp
-		install -m644 lib/emacs/*.el $RPM_BUILD_ROOT/%{_datadir}/emacs/site-lisp
-fi
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
 %_install_info autoconf-2.5x.info
@@ -90,15 +84,26 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root)
-%doc README IMPORTANT.README.MDK
+%doc README IMPORTANT.README.OpenSLS
 %{_bindir}/*
 %{_datadir}/autoconf
-%config(noreplace) %{_sysconfdir}/emacs/site-start.d/*.el
-%{_datadir}/emacs/site-lisp/*.el*
 %{_infodir}/*
 %{_mandir}/*/*
 
 %changelog
+* Fri May 07 2004 Vincent Danen <vdanen@opensls.org> 2.59-1sls
+- 2.59
+
+* Sun Feb 29 2004 Vincent Danen <vdanen@opensls.org> 2.57-7sls
+- remove %%build_opensls macro
+- remove emacs files
+- more spec cleanups
+
+* Sat Dec 13 2003 Vincent Danen <vdanen@opensls.org> 2.57-6sls
+- OpenSLS build
+- tidy spec
+- use %%build_opensls to remove emacs files
+
 * Tue Jul 01 2003 Thierry Vignaud <tvignaud@mandrakesoft.com> 2.57-5mdk
 - fix info files packaging
 

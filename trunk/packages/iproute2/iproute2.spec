@@ -1,35 +1,37 @@
+%define name	iproute2
+%define version	2.4.7
+%define release	13sls
+
 # sync: rh-2.4.7-7
 
-%define snap 010824
+%define snap	010824
 
 Summary: 	Advanced IP routing and network device configuration tools.
-Name:		iproute2
-Version: 	2.4.7
-Release: 	11mdk
+Name:		%{name}
+Version: 	%{version}
+Release: 	%{release}
 License: 	GPL
-Url:		ftp://ftp.inr.ac.ru/ip-routing/
 Group:  	Networking/Other
-Source2: iproute2-man8.tar.bz2
+URL:		ftp://ftp.inr.ac.ru/ip-routing/
 Source: 	%{name}-%version-now-ss%snap.tar.bz2
+Source2:	iproute2-man8.tar.bz2
 # RH patches
-Patch0:	iproute2-2.2.4-docmake.patch.bz2
-Patch1: iproute2-misc.patch.bz2
-Patch2: iproute2-config.patch.bz2
-Patch4: iproute2-in_port_t.patch.bz2
-#Patch5 is fscking compilation against kernel22 in rh
-Patch6: iproute2-flags.patch.bz2
-Patch8: iproute2-2.4.7-hex.patch.bz2
-Patch9: iproute2-2.4.7-config.patch.bz2
+Patch0:		iproute2-2.2.4-docmake.patch.bz2
+Patch1:		iproute2-misc.patch.bz2
+Patch2:		iproute2-config.patch.bz2
+Patch4:		iproute2-in_port_t.patch.bz2
+Patch6:		iproute2-flags.patch.bz2
+Patch8:		iproute2-2.4.7-hex.patch.bz2
+Patch9:		iproute2-2.4.7-config.patch.bz2
 # MDK patches
-Patch100: iproute2-def-echo.patch.bz2
-Patch102: iproute2-2.4.7-bashfix.patch.bz2
-Patch103: iproute2-htb3.6_tc.patch.bz2
-Patch104: iproute2-2.4.7-now-ss010824-make.patch.bz2
-Patch105: iproute2-mult-deflt-gateways.patch.bz2
+Patch100:	iproute2-def-echo.patch.bz2
+Patch102:	iproute2-2.4.7-bashfix.patch.bz2
+Patch103:	iproute2-htb3.6_tc.patch.bz2
+Patch104:	iproute2-2.4.7-now-ss010824-make.patch.bz2
+Patch105:	iproute2-mult-deflt-gateways.patch.bz2
 
-
-BuildRequires:	tetex-dvips tetex-latex
 BuildRoot:	%_tmppath/%name-%version-%release-root
+
 Requires:	iputils
 
 %description
@@ -57,10 +59,9 @@ routing, fast NAT and packet scheduling.
 %build
 %define optflags -ggdb
 %make KERNEL_INCLUDE=/usr/include
-%make -C doc
 
 %install
-rm -fr $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 install -d $RPM_BUILD_ROOT/{sbin,%{_sysconfdir}/iproute2}
 
 install -m 755 ip/ifcfg $RPM_BUILD_ROOT/sbin
@@ -79,18 +80,27 @@ mkdir -p $RPM_BUILD_ROOT/%_mandir
 tar xfj %SOURCE2 -C $RPM_BUILD_ROOT/%_mandir/
 
 %clean
-rm -fr %buildroot
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr (-,root,root)
-%dir %{_sysconfdir}/iproute2
 %doc README README.iproute2+tc RELNOTES README.decnet
-%doc doc/*.dvi doc/*.ps doc/Plan examples/
+%doc doc/Plan examples/
+%dir %{_sysconfdir}/iproute2
 /sbin/*
 %_mandir/man8/*
 %attr(644,root,root) %config(noreplace) %{_sysconfdir}/iproute2/*
 
 %changelog
+* Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 2.4.7-13sls
+- minor spec cleanups
+- remove some *.ps and other unwanted docs
+- remove buildreq's on tetex-latex and tetex-dvips
+
+* Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 2.4.7-12sls
+- OpenSLS build
+- tidy spec
+
 * Fri Aug  8 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 2.4.7-11mdk
 - nuke kernel-source dep
 

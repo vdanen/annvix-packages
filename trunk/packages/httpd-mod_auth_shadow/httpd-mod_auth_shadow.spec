@@ -1,40 +1,41 @@
-#Module-Specific definitions
-%define mod_version 2.0
-%define release 1mdk
-%define mod_name mod_auth_shadow
-%define mod_conf 83_%{mod_name}.conf
-%define mod_so %{mod_name}.so
-%define sourcename %{mod_name}-%{mod_version}
+%define name	%{ap_name}-%{mod_name}
+%define version %{ap_version}_%{mod_version}
+%define release 1sls
 
-#New ADVX macros
+# Module-Specific definitions
+%define mod_version	2.0
+%define mod_name	mod_auth_shadow
+%define mod_conf	83_%{mod_name}.conf
+%define mod_so		%{mod_name}.so
+%define sourcename	%{mod_name}-%{mod_version}
+
+# New ADVX macros
 %define ADVXdir %{_datadir}/ADVX
 %{expand:%(cat %{ADVXdir}/ADVX-build)}
 %{expand:%%global ap_version %(%{apxs} -q ap_version)}
-
-# Standard Module Definitions
-%define name %{ap_name}-%{mod_name}
-%define version %{ap_version}_%{mod_version}
-
-#Standard ADVX requires
-Prereq:		%{ap_name} = %{ap_version}
-Prereq:		%{ap_name}-conf
-BuildRequires:  ADVX-build >= 9.2
-BuildRequires:  %{ap_name}-devel >= 2.0.44-6mdk
-Provides: 	ADVXpackage
-Provides:	AP20package
 
 Summary:	Shadow password authentication for the %{ap_name} web server
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
+License:	GPL
 Group:		System/Servers
+URL:		http://mod-auth-shadow.sourceforge.net/
 Source0:	%{sourcename}.tar.bz2
 Source1:	%{mod_conf}.bz2
 Patch0:		%{sourcename}-register.patch.bz2
 Patch1:		%{sourcename}-makefile.patch.bz2
-License:	GPL
-URL:		http://mod-auth-shadow.sourceforge.net/
+
 BuildRoot:	%{_tmppath}/%{name}-buildroot
+# Standard ADVX requires
+BuildRequires:  ADVX-build >= 9.2
+BuildRequires:  %{ap_name}-devel >= 2.0.44-6mdk
+
+# Standard ADVX requires
+Prereq:		%{ap_name} = %{ap_version}
+Prereq:		%{ap_name}-conf
+Provides: 	ADVXpackage
+Provides:	AP20package
 
 %description
 %{mod_name} is an %{ap_name} module which authenticates against
@@ -54,7 +55,7 @@ export PATH="$PATH:/usr/sbin"
 %make CFLAGS="%{optflags}" -f makefile
 
 %install
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %ADVXinstlib
 %ADVXinstconf %{SOURCE1} %{mod_conf}
@@ -64,7 +65,7 @@ install -d %{buildroot}%{_sbindir}
 install -m4755 validate %{buildroot}%{_sbindir}/
 
 %clean
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
 %ADVXpost
@@ -81,6 +82,16 @@ install -m4755 validate %{buildroot}%{_sbindir}/
 %attr(4755,root,root) %{_sbindir}/validate
 
 %changelog
+* Fri May 07 2004 Vincent Danen <vdanen@opensls.org> 2.0.49_2.0-1sls
+- apache 2.0.49
+
+* Wed Feb 18 2004 Vincent Danen <vdanen@opensls.org> 2.0.48_2.0-3sls
+- small cleanup
+
+* Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 2.0.48_2.0-2sls
+- OpenSLS build
+- tidy spec
+
 * Wed Nov 05 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.48_2.0-1mdk
 - built for apache 2.0.48
 

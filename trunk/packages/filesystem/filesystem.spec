@@ -1,56 +1,66 @@
-Summary: The basic directory layout for a Linux system.
-Name: filesystem
-Version: 2.1.3
-Release: 10mdk
-License: Public Domain
-Group: System/Base
-Source0: filesystem-%{version}.tar.bz2
-Buildroot: %{_tmppath}/%{name}-root
-Requires: setup
-BuildArchitectures: noarch
+%define name	filesystem
+%define version	2.1.4
+%define release	3sls
+
+Summary:	The basic directory layout for a Linux system.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	Public Domain
+Group:		System/Base
+Source0:	filesystem-%{version}.tar.bz2
+
+Buildroot:	%{_tmppath}/%{name}-root
+BuildArch:	noarch
+
+Requires:	setup
 
 %description
 The filesystem package is one of the basic packages that is installed on
-a Mandrake Linux system.  Filesystem  contains the basic directory layout
+an OpenSLS system.  Filesystem  contains the basic directory layout
 for a Linux operating system, including the correct permissions for the
 directories.
 
 %prep
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir $RPM_BUILD_ROOT
 
 tar xfj %{SOURCE0} -C $RPM_BUILD_ROOT
-mkdir -p $RPM_BUILD_ROOT/etc/ssl/
-mkdir -p $RPM_BUILD_ROOT/etc/xinetd.d/
-mv %{buildroot}/%{_prefix}/dict %{buildroot}/%{_datadir}
-mkdir -p $RPM_BUILD_ROOT/usr/local/include
-mkdir -p $RPM_BUILD_ROOT/usr/local/share
-mkdir -p $RPM_BUILD_ROOT/var/cache/man
-mkdir -p $RPM_BUILD_ROOT/usr/share/games
-mkdir -p $RPM_BUILD_ROOT/etc/security
-mkdir -p $RPM_BUILD_ROOT/etc/profile.d
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-%triggerpostun -- filesystem < 2.1.3-5mdk
-mkdir /mnt/disk 2>/dev/null ||:
-mkdir /mnt/cdrom 2>/dev/null ||:
-mkdir /mnt/floppy 2>/dev/null ||:
+## these scripts should be removed at some point before 1.0-RELEASE; they
+## only exist now for upgrade compatibility for the few people tracking CURRENT
+%pre
+if [ -d /var/db ]; then
+  mv /var/db/* /var/lib/misc 2>/dev/null
+  rm -rf /var/db
+fi
+if [ -d /var/spool/mail ]; then
+  mv /var/spool/mail /var/spool/mail.org
+fi
+
+%post
+if [ -d /var/spool/mail.org ]; then
+  mv /var/spool/mail.org/* /var/mail 2>/dev/null
+  rm -rf /var/spool/mail.org
+fi
 
 %files
 %defattr(0755,root,root)
 /bin
 /boot
-%dir /etc
-%dir /etc/profile.d
-%dir /etc/security
+%dir %{_sysconfdir}
+%dir %{_sysconfdir}/profile.d
+%dir %{_sysconfdir}/security
 /home
 /initrd
 /lib
 %dir /mnt
+%dir /media
 %dir /opt
 %attr(555,root,root) /proc
 %attr(750,root,root) /root
@@ -63,7 +73,6 @@ mkdir /mnt/floppy 2>/dev/null ||:
 /usr/share/doc
 %attr(555,root,root) %dir /usr/share/empty
 /usr/share/info
-/usr/share/games
 /usr/share/man
 /usr/share/misc
 /usr/share/pixmaps
@@ -76,18 +85,49 @@ mkdir /mnt/floppy 2>/dev/null ||:
 %attr(755,root,root) /var/lock/subsys
 /var/cache
 /var/log
-/var/mail
 /var/nis
 /var/opt
 /var/preserve
 /var/run
 %dir /var/spool
+/var/spool/mail
+%dir %attr(1755,root,root) %{_srvdir}
 %attr(0755,root,daemon) %dir /var/spool/lpd
-%attr(775,root,mail) /var/spool/mail
+%attr(775,root,mail) /var/mail
 %attr(1777,root,root) /var/tmp
 /var/yp
+/srv
 
 %changelog
+* Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 2.1.4-3sls
+- grrr... use some %%pre/%%post scripts to solve moving the symlinks around
+
+* Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 2.1.4-2sls
+- include /srv in the package
+
+* Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 2.1.4-1sls
+- 2.1.4: the great FHS cleanup:
+  - remove /etc/xinetd.d, /usr/local/games, /usr/games, /var/games,
+    /var/lib/games, /usr/lib/games
+  - add /var/service
+  - make /var/spool/mail a symlink to /var/mail rather than the other
+    way around
+  - make /srv
+  - make /var/db a symlink to /var/lib/misc
+  - create /media/{cdrom,floppy}
+
+* Thu Mar 04 2004 Vincent Danen <vdanen@opensls.org> 2.1.3-13sls
+- don't include /etc/xinet.d since we don't ship it or /usr/share/games
+  since we don't need it
+
+* Mon Dec 29 2003 Vincent Danen <vdanen@opensls.org> 2.1.3-12sls
+- add /var/service so we don't need to prereq supervise-scripts or
+  daemontools for every package
+
+* Sun Nov 30 2003 Vincent Danen <vdanen@opensls.org> 2.1.3-11sls
+- OpenSLS build
+- tidy spec
+
 * Tue Jul  8 2003 Frederic Lepied <flepied@mandrakesoft.com> 2.1.3-10mdk
 - own /etc/security and /etc/profile.d too
 

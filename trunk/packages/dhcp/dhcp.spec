@@ -1,17 +1,21 @@
-%define name dhcp
-%define their_version 3.0.1rc11
-%define url  ftp://ftp.isc.org/isc/dhcp
-%define _catdir /var/cache/man
+%define name	dhcp
+%define version	3.0
+%define release	1.rc13.1sls
+%define epoch	2
+
+%define their_version	3.0.1rc13
+%define _catdir		/var/cache/man
+
+%define _requires_exceptions perl(Win32API::Registry)
 
 Summary:	The ISC DHCP (Dynamic Host Configuration Protocol) server/relay agent/client
-Name:		dhcp
-Epoch:		2
-Version:	3.0
-Release:	1.rc12.2mdk
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+Epoch:		%{epoch}
 License:	Distributable
 Group:		System/Servers
-Url:		http://www.isc.org/dhcp.html
-
+URL:		http://www.isc.org/dhcp.html
 Source0:	ftp:///ftp.isc.org/isc/%{name}/%{name}-%{their_version}.tar.gz
 Source1:	dhcpd.conf.sample
 Source2:	dhcpd.init
@@ -20,12 +24,18 @@ Source4:	dhcrelay.init
 Source5:	update_dhcp.pl
 Source6:	dhcpreport.pl
 Source7:	ftp:///ftp.isc.org/isc/%{name}/%{name}-%{their_version}.tar.gz.asc
-Patch1:		%name-%{their_version}-ifup.patch.bz2
+Source8:	dhcpd.run
+Source9:	dhcpd-log.run
+Source10:	dhcrelay.run
+Source11:	dhcrelay-log.run
+Source12:	dhcpd.sysconfig
+Patch1:		dhcp-3.0.1rc11-ifup.patch.bz2
 
-BuildRequires:	perl sed gcc groff-for-man make patch tar bzip2 
-Prereq:		/sbin/chkconfig /sbin/service rpm-helper
-Requires:	/bin/sh
 BuildRoot:	%{_tmppath}/%{name}-%{version}-root
+BuildRequires:	perl sed gcc groff-for-man make patch tar bzip2 
+
+PreReq:		rpm-helper
+Requires:	/bin/sh
 Obsoletes:	dhcpd
 
 %description 
@@ -43,8 +53,6 @@ dhcp-server and/or dhcp-relay packages.
 %package common
 Summary:	The ISC DHCP (Dynamic Host Configuration Protocol) server
 Group:		System/Servers
-%define _requires_exceptions perl(Win32API::Registry)
-
 
 %description common
 DHCP (Dynamic Host Configuration Protocol) is a protocol which allows 
@@ -62,7 +70,7 @@ dhcp-server and/or dhcp-relay packages.
 %package server
 Summary:	The ISC DHCP (Dynamic Host Configuration Protocol) server
 Group:		System/Servers
-Requires:	dhcp-common = %version-%release, /bin/sh
+Requires:	dhcp-common = %epoch:%version-%release, /bin/sh
 Prereq:		rpm-helper
 Obsoletes:	dhcp
 
@@ -78,7 +86,7 @@ network. You will also need to install the base dhcp package.
 %package client
 Summary:	The ISC DHCP (Dynamic Host Configuration Protocol) client
 Group:		System/Servers
-Requires:	dhcp-common = %version-%release, /bin/sh
+Requires:	dhcp-common = %epoch:%version-%release, /bin/sh
 
 %description client
 DHCP client is the Internet Software Consortium (ISC) DHCP client for various
@@ -93,7 +101,7 @@ install the base dhcp package.
 %package relay
 Summary:	The ISC DHCP (Dynamic Host Configuration Protocol) relay
 Group:		System/Servers
-Requires:	dhcp-common = %version-%release /bin/sh
+Requires:	dhcp-common = %epoch:%version-%release /bin/sh
 Prereq:		rpm-helper
 
 %description relay
@@ -108,7 +116,7 @@ starting the server.
 %package devel
 Summary:	Development headers and libraries for the dhcpctl API
 Group:		Development/Other
-Requires:	dhcp-common = %version-%release
+Requires:	dhcp-common = %epoch:%version-%release
 
 %description devel
 DHCP devel contains all of the libraries and headers for developing with th
@@ -140,7 +148,7 @@ echo 'int main() { return sizeof(void *) != 8; }' | gcc -xc - -o is_ptr64
 %make
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p $RPM_BUILD_ROOT%{_bindir}
 
 %makeinstall_std
@@ -156,31 +164,33 @@ mkdir -p $RPM_BUILD_ROOT%{_bindir}
 #done
 
 mkdir -p $RPM_BUILD_ROOT%{_bindir}
-mkdir -p $RPM_BUILD_ROOT%{_initrddir}
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}
 mkdir -p $RPM_BUILD_ROOT%{_localstatedir}/dhcp
 cp -a %{SOURCE1} $RPM_BUILD_ROOT%{_sysconfdir}
 touch $RPM_BUILD_ROOT%{_localstatedir}/dhcp/dhcpd.leases
 touch $RPM_BUILD_ROOT%{_localstatedir}/dhcp/dhclient.leases
-install -m 0755 %{SOURCE2} $RPM_BUILD_ROOT%{_initrddir}/dhcpd
-install -m 0755 %SOURCE4 $RPM_BUILD_ROOT%{_initrddir}/dhcrelay
 install -m 0755 %SOURCE5 $RPM_BUILD_ROOT%{_sbindir}/
 install -m 0755 %SOURCE6 $RPM_BUILD_ROOT%{_sbindir}/
 mkdir -p %{buildroot}/%{_sysconfdir}/sysconfig
-touch $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/dhcpd
+install -m 0755 %{SOURCE12} %{buildroot}%{_sysconfdir}/sysconfig/dhcpd
 touch $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/dhcrelay
 find . -type d -exec chmod 0755 {} \;
 find . -type f -exec chmod 0644 {} \;
 
+rm -rf $RPM_BUILD_DIR/%{name}-%{their_version}/doc/ja_JP.eucJP
+
+mkdir -p %{buildroot}%{_srvdir}/{dhcpd,dhcrelay}/log
+mkdir -p %{buildroot}%{_srvlogdir}/{dhcpd,dhcrelay}
+install -m 0750 %{SOURCE8} %{buildroot}%{_srvdir}/dhcpd/run
+install -m 0750 %{SOURCE9} %{buildroot}%{_srvdir}/dhcpd/log/run
+install -m 0750 %{SOURCE10} %{buildroot}%{_srvdir}/dhcrelay/run
+install -m 0750 %{SOURCE11} %{buildroot}%{_srvdir}/dhcrelay/log/run
+
 %post server
-%_post_service dhcpd
+%_post_srv dhcpd
 # New dhcpd lease file
 if [ ! -f %{_localstatedir}/dhcp/dhcpd.leases ]; then
     touch %{_localstatedir}/dhcp/dhcpd.leases
-fi
-
-if [ $1 = 0 ]; then
-	%{_initrddir}/dhcpd start
 fi
 
 #update an eventual installed dhcp-2* server
@@ -189,22 +199,22 @@ if [ -f %{_sysconfdir}/dhcpd.conf ]; then
 fi
 
 %preun server
-%_preun_service dhcpd
+%_preun_srv dhcpd
 
 %postun server
 if [ "$1" -ge "1" ]; then
-            /sbin/service dhcpd condrestart >/dev/null 2>&1  
+            /usr/sbin/srv restart dhcpd >/dev/null 2>&1  
 fi
 
 %post relay
-%_post_service dhcrelay
+%_post_srv dhcrelay
 
 %preun relay
-%_preun_service dhcrelay
+%_preun_srv dhcrelay
 
 %postun relay
 if [ "$1" -ge "1" ]; then
-            /sbin/service dhcrelay condrestart >/dev/null 2>&1
+            /usr/sbin/srv restart dhcrelay >/dev/null 2>&1
 fi
 		 
 %post client
@@ -214,18 +224,18 @@ touch /var/lib/dhcp/dhclient.leases
 rm -rf /var/lib/dhcp/dhclient.leases
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files common
 %defattr(-,root,root)
-%doc  ANONCVS COPYRIGHT CHANGES README RELNOTES
+%doc  README RELNOTES
 %doc  doc contrib
 %dir  %{_localstatedir}/dhcp
+%{_mandir}/man5/dhcp-options.5*
 
 %files server
 %defattr(-,root,root)
 %doc server/dhcpd.conf 
-%config(noreplace) %{_initrddir}/dhcpd
 %config(noreplace) %{_sysconfdir}/dhcpd.conf.sample
 %config(noreplace) %{_sysconfdir}/sysconfig/dhcpd
 %{_sbindir}/dhcpd
@@ -236,17 +246,25 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man3/omapi.3*
 %{_mandir}/man5/dhcpd.conf.5*
 %{_mandir}/man5/dhcpd.leases.5*
-%{_mandir}/man5/dhcp-options.5*
 %{_mandir}/man5/dhcp-eval.5*
 %{_mandir}/man8/dhcpd.8*
 %config(noreplace) %ghost %{_localstatedir}/dhcp/dhcpd.leases
+%dir %{_srvdir}/dhcpd
+%dir %{_srvdir}/dhcpd/log
+%{_srvdir}/dhcpd/run
+%{_srvdir}/dhcpd/log/run
+%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/dhcpd
 
 %files relay
 %defattr(-,root,root)
 %{_sbindir}/dhcrelay
 %{_mandir}/man8/dhcrelay.8*
-%config(noreplace) %{_initrddir}/dhcrelay
 %config(noreplace) %{_sysconfdir}/sysconfig/dhcrelay
+%dir %{_srvdir}/dhcrelay
+%dir %{_srvdir}/dhcrelay/log
+%{_srvdir}/dhcrelay/run
+%{_srvdir}/dhcrelay/log/run
+%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/dhcrelay
 
 %files client
 %defattr(-,root,root)
@@ -266,6 +284,34 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/*
 
 %changelog
+* Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 3.0-1.rc13.1sls
+- 3.0-1.rc13
+- S12 is the default sysconfig file
+- add -q to OPTIONS in the run file
+- sync with 3.0-1.rc13.4mdk:
+  - beautify dhcpd.conf.sample (olivier)
+
+
+* Thu Mar 04 2004 Vincent Danen <vdanen@opensls.org> 3.0-1.rc12.6sls
+- minor spec cleanups
+- some syncs with 3.0-1.rc13.3mdk:
+  - remove the ja_JP.eucJP redundant directory (florin)
+  - move the dhcp-options manpage to the common package
+  - remove the no longer existing ANONCVS, CHANGES, COPYRIGHT files
+  - add epoch to requires
+
+* Wed Feb 04 2004 Vincent Danen <vdanen@opensls.org> 3.0-1.rc12.5sls
+- remove initscripts
+- supervise scripts
+- remove PreReq on chkconfig, service
+
+* Fri Jan 23 2004 Vincent Danen <vdanen@opensls.org> 3.0-1.rc12.4sls
+- real RC12
+
+* Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 3.0-1.rc12.3sls
+- OpenSLS build
+- tidy spec
+
 * Thu Sep 04 2003 Florin <florin@mandrakesoft.com> 3.0-1.rc12.2mdk
 - fix the postun script
 

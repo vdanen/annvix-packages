@@ -1,20 +1,22 @@
-%define release 4mdk
+%define name	diffutils
 %define version 2.8.4
+%define release 6sls
 
 Summary:	A GNU collection of diff utilities
-Name:		diffutils
-URL:		http://www.gnu.org/software/diffutils/
+Name:		%{name}
 Version:	%{version}
 Release:	%{release}
+License:	GPL
 Group:		Development/Other
+URL:		http://www.gnu.org/software/diffutils/
 Source:		ftp://ftp.gnu.org/pub/gnu/diffutils-%version.tar.bz2
 Source1:	%{name}-manpages.tar.bz2
-#Patch1:	http://wire.cadcamlab.org/misc/diffutils-2.7-k-opt.patch.bz2
 Patch2:		diffutils-2.8.4-i18n.patch.bz2
-License:	GPL
-Prereq:		/sbin/install-info
+
+BuildRoot:	%{_tmppath}/%{name}-root
 BuildRequires:	autoconf2.5
-Buildroot:	%{_tmppath}/%{name}-root
+
+Prereq:		/sbin/install-info
 
 %description
 Diffutils includes four utilities:  diff, cmp, diff3 and sdiff.
@@ -41,7 +43,7 @@ autoconf
 make check
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %makeinstall
 
@@ -59,7 +61,7 @@ rm -fr $RPM_BUILD_ROOT/%{_infodir}/dir
 %_remove_install_info diff.info
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files -f %{name}.lang
 %defattr(-,root,root)
@@ -69,6 +71,13 @@ rm -rf $RPM_BUILD_ROOT
 %{_infodir}/diff.info*
 
 %changelog
+* Thu Mar 04 2004 Vincent Danen <vdanen@opensls.org> 2.8.4-6sls
+- minor spec cleanups
+
+* Mon Dec 08 2003 Vincent Danen <vdanen@opensls.org> 2.8.4-5sls
+- OpenSLS build
+- tidy spec
+
 * Wed Jul 23 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 2.8.4-4mdk
 - rebuild
 - use %%make macro

@@ -1,6 +1,6 @@
 %define name	chkauth
 %define version 0.3
-%define release 1sls
+%define release 2sls
 	
 Summary:	Script to change authentification method (local, NIS, LDAP)
 Name:		%{name}
@@ -9,11 +9,11 @@ Release:	%{release}
 License:	GPL
 Group:		System/Configuration/Boot and Init
 Source0:	%{name}-%{version}.tar.bz2
+Patch0:		chkauth-0.3-pamfix.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-buildroot
 BuildArch:	noarch
 
-Prefix:		%{_prefix}
 Requires:	perl >= 5.0
 
 %description
@@ -25,19 +25,20 @@ Three kind of authentification are accepted : local (file), NIS (yp)
 and LDAP. 
 
 %prep
-%setup
+%setup -q
+%patch0 -p0
 
 %build
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p $RPM_BUILD_ROOT/%{_mandir}/man8/
 mkdir -p $RPM_BUILD_ROOT/%{_sbindir}
 install chkauth $RPM_BUILD_ROOT/%{_sbindir}
 install chkauth.8 $RPM_BUILD_ROOT/%{_mandir}/man8/
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -45,6 +46,11 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/*/*
 
 %changelog
+* Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 0.3-2sls
+- minor spec cleanups
+- remove %%prefix
+- P1: to fix pam auth, should use pam_unix not pam_pwdb
+
 * Tue Dec 02 2003 Vincent Danen <vdanen@opensls.org> 0.3-1sls
 - OpenSLS build
 - tidy spec

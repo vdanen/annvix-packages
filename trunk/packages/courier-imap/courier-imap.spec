@@ -1,70 +1,61 @@
-#
-# NOTE:  This package *must* be built non-root!!!
-#
+%define name	courier-imap
+%define version	2.1.2
+%define release	6sls
+
 %define _localstatedir	/var/run
 %define	authdaemondir	%{_localstatedir}/authdaemon.courier-imap
 %define	courierdatadir	%{_datadir}/courier
 %define	courierlibdir	%{_libdir}/courier
 %define	couriersysconfdir %{_sysconfdir}/courier
 
-# OE:
-# Please have some sane person redo this whole annoying spec file. 
+%define	courier_patch_version 0.42.0
 
-Name:		courier-imap
 Summary:	Courier-IMAP is an IMAP server that uses Maildirs
-Version:	2.1.2
-Release:	1mdk
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
 License:	GPL
 Group:		System/Servers
 URL:		http://www.courier-mta.org
 Source0:	%{name}-%{version}.tar.bz2
 Source1:	courier-imap-sysconftool-rpmupgrade.bz2
-
 # S4 & S5  originates from the works of Carlo Contavalli and can be found here:
 # http://www.commedia.it/ccontavalli/
-%define	courier_patch_version 0.42.0
 Source2:	courier_patch.tar.gz
 Source3:	courier_patch.tar.gz.asc
 Source4:	auto_maildir_creator.bz2
-
+Source5:	courier-imapd.run
+Source6:	courier-imapd-log.run
+Source7:	courier-imapds.run
+Source8:	courier-imapds-log.run
+Source9:	courier-pop3d.run
+Source10:	courier-pop3d-log.run
+Source11:	courier-pop3ds.run
+Source12:	courier-pop3ds-log.run
+Source13:	courier-imap.sysconfig
+Source14:	authdaemond.run
+Source15:	authdaemond-log.run
 # (fc) 1.4.2-2mdk fix missing command in initrd
 Patch0: 	courier-imap-1.6.1-initrd.patch.bz2
-
 Patch1:		courier-imap-2.1.2-auto_maildir_creator.patch.bz2
+Patch2:		courier-imap-2.1.1-configure.patch.bz2
+Patch3:		courier-imap-2.1.2-authnodaemon.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
-BuildPreReq:	autoconf2.5
-BuildPreReq:	coreutils
-BuildPreReq:	fam-devel
-BuildPreReq:	gdbm-devel
-BuildPreReq:	libtool
-BuildPreReq:	openssl-devel
-BuildPreReq:	pam-devel
-BuildPreReq:	perl
-BuildPreReq:	sed
-Requires:	chkconfig
-Requires:	coreutils
-Requires:	fam
-Requires:	gdbm
-#Requires:	libopenssl0.9.7
-Requires:	sed
-PreReq:		maildirmake++
-PreReq:		rpm-helper
-
+BuildPreReq:	autoconf2.5, coreutils, libtool, perl, sed
+BuildRequires:	openssl-devel, pam-devel, gdbm-devel
 # ldap subpackage:
 BuildRequires:	openldap-devel
-
 # mysql subpackage:
 BuildRequires:	MySQL-devel 
-
 # postgresql subpackage:
-BuildRequires:	postgresql-devel openssl-devel
+BuildRequires:	postgresql-devel
 
-# uw-imapd and courier can't be installed at the same time
-Conflicts:	uw-imap bincimap
-
-# Some packages require »imap«
-Provides:	imap imap-server
+Requires:	chkconfig, coreutils, gdbm, sed
+#Requires:	libopenssl0.9.7
+PreReq:		maildirmake++, rpm-helper
+Conflicts:	uw-imap, bincimap
+Provides:	imap, imap-server
 
 %description
 Courier-IMAP is an IMAP server for Maildir mailboxes.  This package contains
@@ -73,74 +64,63 @@ mail server package.  This package is a standalone version for use with
 other mail servers.  Do not install this package if you intend to install
 the full Courier mail server.  Install the Courier package instead.
 
-%package	pop
+%package pop
 Summary:	Courier-IMAP POP servers
 Group:		System/Servers
-PreReq:		rpm-helper
-PreReq:		maildirmake++
 Requires:	%{name} = %{version}-%{release}
-Provides:	pop pop-server
+Provides:	pop, pop-server
 Conflicts:	uw-imap-pop
 
-%description	pop
+%description pop
 This package contains the POP servers of the Courier-IMAP
 server suite.
 
-%package	ldap
+%package ldap
 Summary:	Courier-IMAP LDAP authentication driver.
 Group:		System/Servers
-PreReq:		rpm-helper
-PreReq:		maildirmake++
 Requires:	%{name} = %{version}-%{release}
 #Requires:	libldap2
 Conflicts:	%{name}-mysql %{name}-pgsql
 
-%description	ldap
+%description ldap
 This package contains the necessary files to allow Courier-IMAP to
 authenticate from an LDAP directory.  Install this package if you need the
 ability to use an LDAP directory for authentication.
 
-%package	mysql
+%package mysql
 Summary:	Courier-IMAP MySQL authentication driver.
 Group:		System/Servers
-PreReq:		rpm-helper
-PreReq:		maildirmake++
-Requires:	%{name} = %{version}-%{release}
-Requires:	MySQL-shared
+Requires:	%{name} = %{version}-%{release}, MySQL-shared
 Conflicts:	%{name}-ldap %{name}-pgsql
 
-%description	mysql
+%description mysql
 This package contains the necessary files to allow Courier-IMAP to
 authenticate using a MySQL database table.  Install this package if you need
 the ability to use a MySQL database table for authentication.
 
-%package	pgsql
+%package pgsql
 Summary:	Courier-IMAP PostgreSQL authentication driver.
 Group:		System/Servers
-PreReq:		rpm-helper
-PreReq:		maildirmake++
-Requires:	%{name} = %{version}-%{release}
-Requires:	postgresql-libs
+Requires:	%{name} = %{version}-%{release}, postgresql-libs
 Conflicts:	%{name}-ldap %{name}-mysql
 
-%description	pgsql
+%description pgsql
 This package contains the necessary files to allow Courier-IMAP to
 authenticate using a PostgreSQL database table.  Install this package if you
 need the ability to use a PostgreSQL database table for authentication.
 
-%package	utils
+%package utils
 Summary:	Courier-IMAP debugging utils.
 Group:		System/Servers
-PreReq:		maildirmake++
 Requires:	%{name} = %{version}-%{release}
 
-%description	utils
+%description utils
 This package contains the necessary files to debug the authentication
 modules for Courier-IMAP.
 
 You may also as of v1.6.0 use DEBUG_LOGIN.
 
-%package -n	maildirmake++
+%package -n maildirmake++
 Summary:	The maildirmake application by Mr. Sam
 Group:		System/Servers
 Provides:	maildirmake
@@ -155,14 +135,14 @@ maildirmake command.
 %prep
 %setup -q -a2
 %patch0 -p0 -b .initrd
-
-# apply the auto home dir creator patch
-#patch -p1 < courier_patch/courier_%{courier_patch_version}.diff
-
 %patch1 -p1 -b .auto_maildir_creator
+%ifarch amd64 x86_64
+%patch2 -p0 -b .config
+%endif
+%patch3 -p1 -b .nodaemon
 
 %build
-
+#(cd authlib; autoreconf)
 %configure2_5x \
     --enable-unicode \
     --enable-workarounds-for-imap-client-bugs \
@@ -182,14 +162,11 @@ maildirmake command.
 #make check
 
 %install
-if [ -d %{buildroot} ]; then rm -rf %{buildroot}; fi
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 mkdir -p %{buildroot}%{_sysconfdir}/pam.d
 
 %makeinstall_std
-
-mkdir -p %{buildroot}%{_initrddir}
-install -m755 courier-imap.sysvinit %{buildroot}%{_initrddir}/courier-imap
 
 # Fix imapd.dist
 perl -p -i -e 's|^IMAPDSTART=.*|IMAPDSTART=YES|' %{buildroot}%{couriersysconfdir}/imapd.dist
@@ -324,9 +301,29 @@ echo "MOD_MAILDIR_CREATOR=\"/bin/false\"" >> %{buildroot}%{couriersysconfdir}/im
 echo "MOD_MAILDIR_CREATOR=\"/bin/false\"" >> %{buildroot}%{couriersysconfdir}/pop3d.dist
 echo "MOD_MAILDIR_CREATOR=\"/bin/false\"" >> %{buildroot}%{couriersysconfdir}/pop3d-ssl.dist 
 
+mkdir -p %{buildroot}%{_srvdir}/{courier-imapd,courier-imapds,courier-pop3d,courier-pop3ds,authdaemond}/log
+mkdir -p %{buildroot}%{_srvlogdir}/{courier-imapd,courier-imapds,courier-pop3d,courier-pop3ds,authdaemond}
+install -m 0750 %{SOURCE5} %{buildroot}%{_srvdir}/courier-imapd/run
+install -m 0750 %{SOURCE6} %{buildroot}%{_srvdir}/courier-imapd/log/run
+install -m 0750 %{SOURCE7} %{buildroot}%{_srvdir}/courier-imapds/run
+install -m 0750 %{SOURCE8} %{buildroot}%{_srvdir}/courier-imapds/log/run
+install -m 0750 %{SOURCE9} %{buildroot}%{_srvdir}/courier-pop3d/run
+install -m 0750 %{SOURCE10} %{buildroot}%{_srvdir}/courier-pop3d/log/run
+install -m 0750 %{SOURCE11} %{buildroot}%{_srvdir}/courier-pop3ds/run
+install -m 0750 %{SOURCE12} %{buildroot}%{_srvdir}/courier-pop3ds/log/run
+install -m 0750 %{SOURCE14} %{buildroot}%{_srvdir}/authdaemond/run
+install -m 0750 %{SOURCE15} %{buildroot}%{_srvdir}/authdaemond/log/run
+
+mkdir -p %{buildroot}%{_sysconfdir}/sysconfig
+install -m 0644 %{SOURCE13} %{buildroot}%{_sysconfdir}/sysconfig/imapd
+install -m 0644 %{SOURCE13} %{buildroot}%{_sysconfdir}/sysconfig/imapd-ssl
+install -m 0644 %{SOURCE13} %{buildroot}%{_sysconfdir}/sysconfig/pop3d
+install -m 0644 %{SOURCE13} %{buildroot}%{_sysconfdir}/sysconfig/pop3d-ssl
+
 %post
 %{courierdatadir}/sysconftool `cat %{courierdatadir}/configlist` >/dev/null
-%_post_service courier-imap
+%_post_srv courier-imapd
+%_post_srv courier-imapds
 
 %create_ghostfile %{_localstatedir}/imapd.pid root root 0600
 %create_ghostfile %{_localstatedir}/imapd.pid.lock root root 0600
@@ -338,6 +335,8 @@ echo "MOD_MAILDIR_CREATOR=\"/bin/false\"" >> %{buildroot}%{couriersysconfdir}/po
 
 %post pop
 %{courierdatadir}/sysconftool `cat %{courierdatadir}/configlist.pop` >/dev/null
+%_post_srv courier-pop3d
+%_post_srv courier-pop3ds
 
 %create_ghostfile %{_localstatedir}/pop3d.pid root root 0600
 %create_ghostfile %{_localstatedir}/pop3d.pid.lock root root 0600
@@ -353,23 +352,31 @@ echo "MOD_MAILDIR_CREATOR=\"/bin/false\"" >> %{buildroot}%{couriersysconfdir}/po
 %post pgsql
 %{courierdatadir}/sysconftool `cat %{courierdatadir}/configlist.pgsql` >/dev/null
 
-%preun ldap
-for file in %{courierlibdir}/{imap,pop3d}{,-ssl}.rc ; do
-	[ -x ${file} ] && ${file} stop
-done
+%postun ldap
+%_preun_srv courier-imapd
+%_preun_srv courier-imapds
+%_preun_srv courier-pop3d
+%_preun_srv courier-pop3ds
 
-%preun mysql
-for file in %{courierlibdir}/{imap,pop3d}{,-ssl}.rc ; do
-	[ -x ${file} ] && ${file} stop
-done
+%postun mysql
+%_preun_srv courier-imapd
+%_preun_srv courier-imapds
+%_preun_srv courier-pop3d
+%_preun_srv courier-pop3ds
 
-%preun pgsql
-for file in %{courierlibdir}/{imap,pop3d}{,-ssl}.rc ; do
-	[ -x ${file} ] && ${file} stop
-done
+%postun pgsql
+%_preun_srv courier-imapd
+%_preun_srv courier-imapds
+%_preun_srv courier-pop3d
+%_preun_srv courier-pop3ds
 
 %preun 
-%_preun_service courier-imap
+%_preun_srv courier-imapd
+%_preun_srv courier-imapds
+
+%preun pop
+%_preun_srv courier-pop3d
+%_preun_srv courier-pop3ds
 
 %triggerpostun -- courier-imap
 test ! -f %{courierdatadir}/configlist || %{courierdatadir}/sysconftool-rpmupgrade `cat %{courierdatadir}/configlist` >/dev/null
@@ -384,55 +391,27 @@ test ! -f %{courierdatadir}/configlist.ldap || %{courierdatadir}/sysconftool-rpm
 test ! -f %{courierdatadir}/configlist.mysql || %{courierdatadir}/sysconftool-rpmupgrade `cat %{courierdatadir}/configlist.mysql` >/dev/null
 
 %clean
-if [ -d %{buildroot} ]; then rm -rf %{buildroot}; fi
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files -f authdaemon.files
 %defattr(-, root, root)
-%doc 00README.NOW.OR.SUFFER
-%doc INSTALL
-%doc INSTALL.html
-%doc NEWS
-%doc README
-%doc index.html
-%doc authlib/authlib.html
-%doc imap/FAQ.html
-%doc imap/README.html
-%doc imap/courierpop3d.html
-%doc imap/imapd.html
-%doc imap/mkimapdcert.html
-%doc imap/mkpop3dcert.html
-%doc imap/BUGS
-%doc imap/ChangeLog
-%doc imap/FAQ
-%doc imap/README.imap
+%doc 00README.NOW.OR.SUFFER INSTALL INSTALL.html NEWS README index.html
+%doc imap/FAQ.html imap/README.html imap/courierpop3d.html imap/imapd.html imap/mkimapdcert.html imap/mkpop3dcert.html
+%doc imap/BUGS imap/ChangeLog imap/FAQ imap/README.imap
 %doc liblock/lockmail.html
-%doc maildir/README.maildirfilter.html
-%doc maildir/README.maildirquota.html
-%doc maildir/README.sharedfolders.html
-%doc maildir/deliverquota.html
-%doc maildir/maildirquota.html
-%doc maildir/README.maildirquota.txt
-%doc maildir/README.sharedfolders.txt
-%doc rfc2045/makemime.html
-%doc rfc2045/reformime.html
-%doc rfc2045/rfc2045.html
-%doc rfc822/ChangeLog.rfc822
-%doc rfc822/rfc822.html
-%doc tcpd/README.couriertls
-%doc tcpd/couriertcpd.html
-%doc tcpd/couriertls.html
+%doc maildir/README.maildirfilter.html maildir/README.maildirquota.html maildir/README.sharedfolders.html maildir/deliverquota.html
+%doc maildir/maildirquota.html maildir/README.maildirquota.txt maildir/README.sharedfolders.txt
+%doc rfc2045/makemime.html rfc2045/reformime.html rfc2045/rfc2045.html rfc822/ChangeLog.rfc822 rfc822/rfc822.html
+%doc tcpd/README.couriertls tcpd/couriertcpd.html tcpd/couriertls.html
 %doc unicode/README.unicode
-%doc userdb/makeuserdb.html
-%doc userdb/userdb.html
-%doc userdb/userdbpw.html
-%doc automatic_maildir_creation_patch
+%doc userdb/makeuserdb.html userdb/userdb.html userdb/userdbpw.html automatic_maildir_creation_patch
+
 %config(noreplace) %{_sysconfdir}/pam.d/imap
 %dir %{couriersysconfdir}
 %attr(600, root, root) %config(noreplace) %{couriersysconfdir}/imapd.dist
 %attr(600, root, root) %config(noreplace) %{couriersysconfdir}/imapd-ssl.dist
 %config(noreplace) %{couriersysconfdir}/imapd.cnf
 %config(noreplace) %{couriersysconfdir}/quotawarnmsg.example
-%attr(755, root, root) %config(noreplace) %{_initrddir}/courier-imap
 %attr(644, root, root) %config(noreplace) %{couriersysconfdir}/authdaemonrc.dist
 %dir %{courierlibdir}
 %dir %{courierlibdir}/authlib
@@ -460,6 +439,7 @@ if [ -d %{buildroot} ]; then rm -rf %{buildroot}; fi
 %{_mandir}/man8/mkpop3dcert.8*
 %{_mandir}/man8/pw2userdb.8*
 %{_mandir}/man8/user*.8*
+%{_mandir}/man8/vchkpw2userdb.8*
 
 %{courierdatadir}/pw2userdb
 %{courierdatadir}/makeuserdb
@@ -477,6 +457,24 @@ if [ -d %{buildroot} ]; then rm -rf %{buildroot}; fi
 %ghost %attr(600, root, root) %{_localstatedir}/imapd.pid.lock
 %ghost %attr(600, root, root) %{_localstatedir}/imapd-ssl.pid.lock
 
+%dir %{_srvdir}/courier-imapd
+%dir %{_srvdir}/courier-imapd/log
+%{_srvdir}/courier-imapd/run
+%{_srvdir}/courier-imapd/log/run
+%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/courier-imapd
+%dir %{_srvdir}/courier-imapds
+%dir %{_srvdir}/courier-imapds/log
+%{_srvdir}/courier-imapds/run
+%{_srvdir}/courier-imapds/log/run
+%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/courier-imapds
+%config(noreplace) %{_sysconfdir}/sysconfig/imapd
+%config(noreplace) %{_sysconfdir}/sysconfig/imapd-ssl
+%dir %{_srvdir}/authdaemond
+%dir %{_srvdir}/authdaemond/log
+%{_srvdir}/authdaemond/run
+%{_srvdir}/authdaemond/log/run
+%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/authdaemond
+
 %files pop
 %defattr(-, root, root)
 %config(noreplace) %{_sysconfdir}/pam.d/pop3
@@ -493,6 +491,19 @@ if [ -d %{buildroot} ]; then rm -rf %{buildroot}; fi
 %ghost %attr(600, root, root) %{_localstatedir}/pop3d-ssl.pid
 %ghost %attr(600, root, root) %{_localstatedir}/pop3d.pid.lock
 %ghost %attr(600, root, root) %{_localstatedir}/pop3d-ssl.pid.lock
+
+%dir %{_srvdir}/courier-pop3d
+%dir %{_srvdir}/courier-pop3d/log
+%{_srvdir}/courier-pop3d/run
+%{_srvdir}/courier-pop3d/log/run
+%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/courier-pop3d
+%dir %{_srvdir}/courier-pop3ds
+%dir %{_srvdir}/courier-pop3ds/log
+%{_srvdir}/courier-pop3ds/run
+%{_srvdir}/courier-pop3ds/log/run
+%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/courier-pop3ds
+%config(noreplace) %{_sysconfdir}/sysconfig/pop3d
+%config(noreplace) %{_sysconfdir}/sysconfig/pop3d-ssl
 
 %files ldap -f authdaemon.files.ldap
 %defattr(-, root, root)
@@ -524,6 +535,31 @@ if [ -d %{buildroot} ]; then rm -rf %{buildroot}; fi
 %{_mandir}/man1/maildirmake++.1*
 
 %changelog
+* Fri Apr 23 2004 Vincent Danen <vdanen@opensls.org> 2.1.2-6sls
+- P3 makes authdaemond no longer daemonize itself so we can run under
+  supervise (thanks Brian Candler)
+- run scripts for authdaemond
+- remove initscript
+
+* Thu Mar 11 2004 Vincent Danen <vdanen@opensls.org> 2.1.2-5sls
+- supervise scripts
+- make all plugins %%postun rather than %%preun and use srv macros to
+  restart services (the previous method was flawed in that it just stopped
+  the service without restarting)
+- default sysconfig files for tuning tcpserver performance
+
+* Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 2.1.2-4sls
+- patch authlib/configure so that builds on amd64 (ignore failed res_query
+  error, only shows up on amd64)
+- minor spec cleanups
+
+* Tue Dec 30 2003 Vincent Danen <vdanen@opensls.org> 2.1.2-3sls
+- remove deps on fam
+
+* Thu Dec 04 2003 Vincent Danen <vdanen@opensls.org> 2.1.2-2sls
+- OpenSLS build
+- tidy spec
+
 * Sun Sep 14 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.1.2-1mdk
 - 2.1.2
 - fix invalid-build-requires

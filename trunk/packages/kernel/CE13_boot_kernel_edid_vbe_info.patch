@@ -94,17 +94,18 @@
 +#endif /* __KERNEL__ */
 +
 +#endif /* _LINUX_BOOTINFO_H__ */
---- linux-2.4.22/arch/x86_64/kernel/setup.c.boot-edid-vbe	2003-10-23 22:07:31.000000000 +0200
-+++ linux-2.4.22/arch/x86_64/kernel/setup.c	2003-10-23 22:08:01.000000000 +0200
-@@ -34,6 +34,7 @@
- #include <asm/processor.h>
- #include <linux/console.h>
+diff -uNp q1/arch/i386/kernel/setup.c.ce13.orig q1/arch/i386/kernel/setup.c
+--- q1/arch/i386/kernel/setup.c.ce13.orig	2003-12-29 11:03:50.000000000 +0100
++++ q1/arch/i386/kernel/setup.c	2003-12-29 11:09:00.000000000 +0100
+@@ -105,6 +105,7 @@
+ #include <linux/pci.h>
+ #include <linux/pci_ids.h>
  #include <linux/seq_file.h>
 +#include <linux/bootinfo.h>
- #include <asm/mtrr.h>
- #include <asm/uaccess.h>
- #include <asm/system.h>
-@@ -73,7 +74,8 @@ struct sys_desc_table_struct {
+ #include <asm/processor.h>
+ #include <linux/console.h>
+ #include <linux/module.h>
+@@ -162,7 +163,8 @@ struct sys_desc_table_struct {
  	unsigned short length;
  	unsigned char table[0];
  };
@@ -114,15 +115,24 @@
  struct e820map e820;
  
  unsigned char aux_device_present;
-@@ -199,6 +201,8 @@ void __init setup_arch(char **cmdline_p)
+@@ -212,6 +214,8 @@ extern int blk_nohighio;
+ #define INITRD_START (*(unsigned long *) (PARAM+0x218))
+ #define INITRD_SIZE (*(unsigned long *) (PARAM+0x21c))
+ #define DISK80_SIGNATURE_BUFFER (*(unsigned int*) (PARAM+DISK80_SIG_BUFFER))
++#define EDID_INFO (*(struct edid_info *) (PARAM+0x440))
++#define VBE_INFO (*(struct vbe_info *) (PARAM+0x540))
+ #define EDD_NR     (*(unsigned char *) (PARAM+EDDNR))
+ #define EDD_BUF     ((struct edd_info *) (PARAM+EDDBUF))
+ #define COMMAND_LINE ((char *) (PARAM+2048))
+@@ -1188,6 +1192,8 @@ void __init setup_arch(char **cmdline_p)
   	ROOT_DEV = to_kdev_t(ORIG_ROOT_DEV);
   	drive_info = DRIVE_INFO;
   	screen_info = SCREEN_INFO;
 +	edid_info = EDID_INFO;
 +	vbe_info = VBE_INFO;
- 	aux_device_present = AUX_DEVICE_INFO;
- 
- #ifdef CONFIG_BLK_DEV_RAM
+ 	apm_info.bios = APM_BIOS_INFO;
+ 	if( SYS_DESC_TABLE.length != 0 ) {
+ 		MCA_bus = SYS_DESC_TABLE.table[3] &0x2;
 --- linux-2.4.22/arch/x86_64/boot/video.S.boot-edid-vbe	2003-10-23 22:07:31.000000000 +0200
 +++ linux-2.4.22/arch/x86_64/boot/video.S	2003-10-23 22:08:01.000000000 +0200
 @@ -137,6 +137,10 @@ vid1:
@@ -299,17 +309,17 @@
  # VIDEO_SELECT-only variables
  mt_end:		.word	0	# End of video mode table if built
  edit_buf:	.space	6	# Line editor buffer
---- linux-2.4.22/arch/i386/kernel/setup.c.boot-edid-vbe	2003-10-23 22:07:31.000000000 +0200
-+++ linux-2.4.22/arch/i386/kernel/setup.c	2003-10-23 22:08:01.000000000 +0200
-@@ -105,6 +105,7 @@
- #include <linux/pci.h>
- #include <linux/pci_ids.h>
- #include <linux/seq_file.h>
-+#include <linux/bootinfo.h>
+--- linux-2.4.22/arch/x86_64/kernel/setup.c.boot-edid-vbe	2003-10-23 22:07:31.000000000 +0200
++++ linux-2.4.22/arch/x86_64/kernel/setup.c	2003-10-23 22:08:01.000000000 +0200
+@@ -34,6 +34,7 @@
  #include <asm/processor.h>
  #include <linux/console.h>
- #include <linux/module.h>
-@@ -160,7 +161,8 @@ struct sys_desc_table_struct {
+ #include <linux/seq_file.h>
++#include <linux/bootinfo.h>
+ #include <asm/mtrr.h>
+ #include <asm/uaccess.h>
+ #include <asm/system.h>
+@@ -73,7 +74,8 @@ struct sys_desc_table_struct {
  	unsigned short length;
  	unsigned char table[0];
  };
@@ -319,21 +329,12 @@
  struct e820map e820;
  
  unsigned char aux_device_present;
-@@ -211,6 +213,8 @@ extern int blk_nohighio;
- #define KERNEL_START (*(unsigned long *) (PARAM+0x214))
- #define INITRD_START (*(unsigned long *) (PARAM+0x218))
- #define INITRD_SIZE (*(unsigned long *) (PARAM+0x21c))
-+#define EDID_INFO (*(struct edid_info *) (PARAM+0x440))
-+#define VBE_INFO (*(struct vbe_info *) (PARAM+0x540))
- #define COMMAND_LINE ((char *) (PARAM+2048))
- #define COMMAND_LINE_SIZE 256
- 
-@@ -1166,6 +1170,8 @@ void __init setup_arch(char **cmdline_p)
+@@ -199,6 +201,8 @@ void __init setup_arch(char **cmdline_p)
   	ROOT_DEV = to_kdev_t(ORIG_ROOT_DEV);
   	drive_info = DRIVE_INFO;
   	screen_info = SCREEN_INFO;
 +	edid_info = EDID_INFO;
 +	vbe_info = VBE_INFO;
- 	apm_info.bios = APM_BIOS_INFO;
- 	if( SYS_DESC_TABLE.length != 0 ) {
- 		MCA_bus = SYS_DESC_TABLE.table[3] &0x2;
+ 	aux_device_present = AUX_DEVICE_INFO;
+ 
+ #ifdef CONFIG_BLK_DEV_RAM

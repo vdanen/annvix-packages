@@ -1,29 +1,35 @@
-%define url ftp://ftp.cvshome.org/pub
+%define name	cvs
+%define version	1.11.17
+%define release	1sls
+
+%define url	ftp://ftp.cvshome.org/pub
 %define _requires_exceptions tcsh
 
 Summary:	A version control system
-Name:		cvs
-Version:	1.11.6
-Release:	3mdk
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
 License:	GPL
 Group:		Development/Other
 URL:		http://www.cvshome.org/
-Requires:	/usr/bin/ssh zlib
-
 Source: 	%{url}/cvs-%{version}/cvs-%{version}.tar.bz2
 Source1: 	cvspserver
 Source2: 	cvs.conf
-Source3: 	cvs-xinetd
+Source4:	cvs.run
+Source5:	cvs-log.run
 Patch4: 	cvs-1.11.2-zlib.patch.bz2
-Patch6: 	cvs-1.11.6-errno.patch.bz2
+Patch6: 	cvs-1.11.15-errno.patch.bz2
 Patch8:		cvs-1.11-ssh.patch.bz2
 Patch11:	cvs-1.11.1-newline.patch.bz2
 Patch12:	cvs-1.11.4-first-login.patch.bz2
 Patch13:	cvs-1.11.2-no-zlib.patch.bz2
+Patch14:	cvs-1.11.17-localid.patch.bz2
 
-Prereq:		/sbin/install-info
-Buildroot:	%_tmppath/%name-%version-%release-root
+BuildRoot:	%_tmppath/%name-%version-%release-root
 BuildRequires:	texinfo, zlib-devel, krb5-devel
+
+Requires:	/usr/bin/ssh zlib
+Prereq:		/sbin/install-info
 
 %description
 CVS means Concurrent Version System; it is a version control
@@ -54,10 +60,11 @@ control system.
 %patch11 -p1 -b .newline
 %patch12 -p1 -b .first-login
 %patch13 -p1 -b .nozlib
+%patch14 -p1 -b .localid
 
 %build
 %serverbuild
-%configure2_5x
+%configure2_5x --with-tmpdir=/tmp
 
 %make
 
@@ -66,10 +73,8 @@ make -C doc info
 %{?rpmcheck:make check}
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-mkdir -p %buildroot/etc/xinetd.d/
-install -m644 %{SOURCE3} %buildroot/etc/xinetd.d/%{name}
 bzip2 -f doc/*.ps
 
 %makeinstall
@@ -79,23 +84,31 @@ install %{SOURCE1} $RPM_BUILD_ROOT%{_sbindir}
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/cvs
 install -m 644 %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/cvs
 
+# get rid of "no -f" so we don't have a Dep on this nonexistant interpretter
+perl -pi -e 's/no -f/\/bin\/sh/g' %{buildroot}%{_datadir}/cvs/contrib/sccs2rcs
+
+mkdir -p %{buildroot}%{_srvdir}/cvspserver/log
+install -m 0755 %{SOURCE4} %{buildroot}%{_srvdir}/cvspserver/run
+install -m 0755 %{SOURCE5} %{buildroot}%{_srvdir}/cvspserver/log/run
+mkdir -p %{buildroot}%{_srvlogdir}/cvspserver
+
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
+%_post_srv cvs
 %_install_info %{name}.info
 %_install_info cvsclient.info
 
 %preun
+%_preun_srv cvs
 %_remove_install_info %{name}.info
-
 %_remove_install_info cvsclient.info
 
 %files
 %defattr(-,root,root)
 %doc BUGS FAQ MINOR-BUGS NEWS PROJECTS TODO README
 %doc doc/*.ps.bz2
-%config(noreplace) /etc/xinetd.d/%{name}
 %{_bindir}/cvs
 %{_bindir}/cvsbug
 %{_bindir}/rcs2log
@@ -105,9 +118,44 @@ rm -rf $RPM_BUILD_ROOT
 %{_infodir}/cvs*
 %{_datadir}/cvs
 %{_sbindir}/cvspserver
+%dir %{_sysconfdir}/cvs
 %config(noreplace) %{_sysconfdir}/cvs/cvs.conf
+%dir %{_srvdir}/cvspserver
+%dir %{_srvdir}/cvspserver/log
+%{_srvdir}/cvspserver/run
+%{_srvdir}/cvspserver/log/run
+%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/cvspserver
 
 %changelog
+* Tue Jun 15 2004 Vincent Danen <vdanen@opensls.org> 1.11.17-1sls
+- 1.11.17 (security fixes for CAN-2004-0414, CAN-2004-0146, CAN-2004-0417,
+  CAN-2004-0418, CAN-2004-0396)
+- update P6, P14
+- personalize cvs.conf
+
+* Wed Mar 03 2004 Vincent Danen <vdanen@opensls.org> 1.11.11-1sls
+- 1.11.11
+- remove %%build_opensls macro
+- supervise macros
+- minor spec cleanups
+- use %%_post_srv and %%_preun_srv
+- merge with 1.11.11-1mdk:
+  - DIRM: /etc/cvs (flepied)
+  - add localid patch to be able to access xfree86 cvs repository cleanly
+    (flepied)
+
+* Tue Dec 30 2003 Vincent Danen <vdanen@opensls.org> 1.11.10-2sls
+- put supervise run scripts in if %%build_opensls; remove xinetd support
+
+* Tue Dec 09 2003 Vincent Danen <vdanen@opensls.org> 1.11.10-1sls
+- OpenSLS build
+- tidy spec
+- pass tmpdir to configure
+- fix a sccs2rcs script in contrib scripts which was making a Req on "no"
+
+* Fri Dec  5 2003 Stew Benedict <sbenedict@mandrakesoft.com> 1.11.10-0.1.92mdk
+- security update: drop patch0, patch14 (merged upstream), rework patch6
+
 * Fri Jul 25 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 1.11.6-3mdk
 - rebuild against new kerberos
 

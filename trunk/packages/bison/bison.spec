@@ -1,20 +1,23 @@
+%define name	bison
 %define version 1.875
-%define release 3mdk
+%define release 5sls
 
-Summary: A GNU general-purpose parser generator.
-Name: bison
-Version: %{version}
-Release: %{release}
-License: GPL
-Group: Development/Other
-url: http://www.gnu.org/software/bison/bison.html
-Source: http://ftp.gnu.org/gnu/bison/bison-%{version}.tar.bz2
-Patch0: bison-1.32-extfix.patch.bz2
+Summary:	A GNU general-purpose parser generator.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		Development/Other
+URL:		http://www.gnu.org/software/bison/bison.html
+Source:		http://ftp.gnu.org/gnu/bison/bison-%{version}.tar.bz2
+Patch0:		bison-1.32-extfix.patch.bz2
 # (fc) fixx gcc error 
-Patch1: bison-1.875-gccerror.patch.bz2
-Prereq: /sbin/install-info
-Buildroot: %{_tmppath}/%{name}-root
-Prefix: %{_prefix}
+Patch1:		bison-1.875-gccerror.patch.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-root
+
+Prereq:		/sbin/install-info
+Prefix:		%{_prefix}
 
 %description
 Bison is a general purpose parser generator which converts a grammar
@@ -43,7 +46,7 @@ CFLAGS=$RPM_OPT_FLAGS %configure2_5x datadir=%{_datadir} libdir=%{_datadir}
 %make LDFLAGS=-s
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 #%makeinstall datadir=$RPM_BUILD_ROOT/%{_libdir}
 %makeinstall datadir=$RPM_BUILD_ROOT/%{_datadir} libdir=$RPM_BUILD_ROOT/%{_datadir}
 
@@ -54,15 +57,14 @@ rm -rf $RPM_BUILD_ROOT/%{_libdir} $RPM_BUILD_ROOT/%{_datadir}/liby.a
 
 %find_lang %{name}
 
+%clean
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 %post
 %{_install_info bison.info}
-#/sbin/install-info %{_infodir}bison.info.bz2 %{_infodir}/dir --entry="* bison: (bison).                        The GNU parser generator."
 
 %preun
 %{_remove_install_info bison.info}
-#if [ $1 = 0 ]; then
-#  /sbin/install-info --delete %{_infodir}/bison.info.bz2 %{_prefix}/info/dir --entry="* bison: (bison).                        The GNU parser generator."
-#fi
 
 %files -f %{name}.lang
 %defattr(-,root,root)
@@ -71,10 +73,14 @@ rm -rf $RPM_BUILD_ROOT/%{_libdir} $RPM_BUILD_ROOT/%{_datadir}/liby.a
 %{_infodir}/bison.info*
 %{_bindir}/*
 
-%clean
-rm -rf $RPM_BUILD_ROOT
-
 %changelog
+* Tue Mar 02 2004 Vincent Danen <vdanen@opensls.org> - 1.875-5sls
+- minor spec cleanups
+
+* Wed Dec 17 2003 Vincent Danen <vdanen@opensls.org> - 1.875-4sls
+- OpenSLS build
+- tidy spec
+
 * Tue Jun 24 2003 Frederic Crozat <fcrozat@mandrakesoft.com> - 1.875-3mdk
 - Patch1: fix gcc error in yyerrlab1
 

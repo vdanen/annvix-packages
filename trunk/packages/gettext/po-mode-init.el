@@ -1,7 +1,6 @@
 ;; Use po-mode for translation files
 
-(autoload 'po-mode "po-mode" 
-  "Major mode for translators to edit PO files" t)
+(autoload 'po-mode "po-mode")
 (setq auto-mode-alist (cons '("\\.po[tx]?\\'\\|\\.po\\." . po-mode)
                             auto-mode-alist))
 

@@ -1,35 +1,38 @@
-%define major 2
-%define libname %mklibname sasl %{major}
-%define up_name cyrus-sasl
+%define name	cyrus-sasl
+%define version	2.1.15
+%define release	7sls
 
-Summary: SASL is the Simple Authentication and Security Layer.
-Name: %{up_name}
-Version: 2.1.15
-Release: 4mdk
-Source0: ftp://ftp.andrew.cmu.edu/pub/cyrus-mail/%{up_name}-%{version}.tar.gz
-Source1: ftp://ftp.andrew.cmu.edu/pub/cyrus-mail/%{up_name}-%{version}.tar.gz.sig
+%define major	2
+%define libname	%mklibname sasl %{major}
+%define up_name	cyrus-sasl
+
+Summary:	SASL is the Simple Authentication and Security Layer.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	OSI Approved
+Group:		System/Libraries
+URL:		http://asg.web.cmu.edu/cyrus/download/
+Source0:	ftp://ftp.andrew.cmu.edu/pub/cyrus-mail/%{name}-%{version}.tar.gz
+Source1:	ftp://ftp.andrew.cmu.edu/pub/cyrus-mail/%{name}-%{version}.tar.gz.sig
 Source2:        saslauthd.init
 Source3:        saslauthd.sysconfig
-Patch0:  cyrus-sasl-doc-patch.bz2
-Patch1:	 cyrus-sasl-2.1.12-rpath.patch.bz2
-Patch2: cyrus-sasl-2.1.15-lib64.patch.bz2
+Source4:	saslauthd.run
+Source5:	saslauthd-log.run
+Source6:	saslauthd.8.bz2
+Patch0:		cyrus-sasl-doc-patch.bz2
+Patch1:		cyrus-sasl-2.1.12-rpath.patch.bz2
+Patch2:		cyrus-sasl-2.1.15-lib64.patch.bz2
 
-License: OSI Approved
-Group: System/Libraries
-URL: http://asg.web.cmu.edu/cyrus/download/
-BuildRoot: %{_tmppath}/%{name}-%{version}-buildroot
-Prefix: %{_prefix}
-Requires: %{libname}
-Obsoletes: cyrus-sasl >= 2.1.0
-PreReq: rpm-helper
-BuildRequires:  autoconf
-BuildRequires:  automake
-BuildRequires:  db4-devel
-BuildRequires:  pam-devel
-BuildRequires:  openssl-devel >= 0.9.6a
-BuildRequires:  libtool >= 1.4
-BuildRequires:  krb5-devel
+BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
+BuildRequires:  autoconf, automake, db4-devel, pam-devel, krb5-devel
+BuildRequires:  openssl-devel >= 0.9.6a, libtool >= 1.4
 %{?!bootstrap:BuildRequires: openldap-devel}
+
+Prefix:		%{_prefix}
+Requires:	%{libname}
+Obsoletes:	cyrus-sasl >= 2.1.0
+PreReq:		rpm-helper
 
 %description
 SASL is the Simple Authentication and Security Layer, 
@@ -40,9 +43,8 @@ protocol interactions. If its use is negotiated, a security layer is inserted
 between the protocol and the connection. 
 
 %package -n %{libname}
-Summary: Libraries for SASL a the Simple Authentication and Security Layer.
-Group: System/Libraries
-
+Summary:	Libraries for SASL a the Simple Authentication and Security Layer.
+Group:		System/Libraries
 
 %description -n %{libname}
 SASL is the Simple Authentication and Security Layer, 
@@ -53,10 +55,10 @@ protocol interactions. If its use is negotiated, a security layer is inserted
 between the protocol and the connection. 
 
 %package -n %{libname}-devel
-Summary: Librairies for SASL a the Simple Authentication and Security Layer.
-Group: Development/C
-Provides: libsasl-devel
-Requires: %{libname} = %{version}
+Summary:	Librairies for SASL a the Simple Authentication and Security Layer.
+Group:		Development/C
+Provides:	libsasl-devel
+Requires:	%{libname} = %{version}
 
 %description -n %{libname}-devel
 SASL is the Simple Authentication and Security Layer, 
@@ -67,18 +69,18 @@ protocol interactions. If its use is negotiated, a security layer is inserted
 between the protocol and the connection. 
 
 %package -n %{libname}-plug-anonymous
-Summary: SASL ANONYMOUS mechanism plugin
-Group: System/Libraries
-Requires: %{libname} = %{version}
+Summary:	SASL ANONYMOUS mechanism plugin
+Group:		System/Libraries
+Requires:	%{libname} = %{version}
 
 %description -n %{libname}-plug-anonymous
 This plugin implements the SASL ANONYMOUS mechanism,
 used for anonymous authentication.
 
 %package -n %{libname}-plug-crammd5
-Summary: SASL CRAM-MD5 mechanism plugin
-Group: System/Libraries
-Requires: %{libname} = %{version}
+Summary:	SASL CRAM-MD5 mechanism plugin
+Group:		System/Libraries
+Requires:	%{libname} = %{version}
 
 %description -n %{libname}-plug-crammd5
 This plugin implements the SASL CRAM-MD5 mechanism.
@@ -87,9 +89,9 @@ number of protocols; it uses MD5 with a challenge/response system to
 authenticate the user.
 
 %package -n %{libname}-plug-digestmd5
-Summary: SASL DIGEST-MD5 mechanism plugin
-Group: System/Libraries
-Requires: %{libname} = %{version}
+Summary:	SASL DIGEST-MD5 mechanism plugin
+Group:		System/Libraries
+Requires:	%{libname} = %{version}
 
 %description -n %{libname}-plug-digestmd5
 This plugin implements the latest draft of the SASL DIGEST-MD5
@@ -97,17 +99,10 @@ mechanism.  Although not yet finalized, this is likely to become the
 new mandatory-to-implement authentication system in all new protocols.
 It's based on the digest md5 authentication system designed for HTTP.
 
-#%package plug-kerberos4
-#Summary: SASL KERBEROS_V4 mechanism plugin
-
-#%description plug-kerberos4
-#This plugin implements the SASL KERBEROS_V4 mechanism, allowing
-#authentication via kerberos version four.
-
 %package -n %{libname}-plug-plain
-Summary: SASL PLAIN mechanism plugin
-Group: System/Libraries
-Requires: %{libname} = %{version}
+Summary:	SASL PLAIN mechanism plugin
+Group:		System/Libraries
+Requires:	%{libname} = %{version}
 
 %description -n %{libname}-plug-plain
 This plugin implements the SASL PLAIN mechanism.  Although insecure,
@@ -116,9 +111,9 @@ is the only mechanism which gives the server a copy of the user's
 password.
 
 %package -n %{libname}-plug-scrammd5
-Summary: SASL SCRAM-MD5 mechanism plugin
-Group: System/Libraries
-Requires: %{libname} = %{version}
+Summary:	SASL SCRAM-MD5 mechanism plugin
+Group:		System/Libraries
+Requires:	%{libname} = %{version}
 
 %description -n %{libname}-plug-scrammd5
 This plugin implements the SASL SCRAM-MD5 mechanism.  Although
@@ -126,9 +121,9 @@ deprecated (this will be replaced by DIGEST-MD5 at some point), it may
 be useful for the time being.
 
 %package -n %{libname}-plug-login
-Summary: SASL LOGIN mechanism plugin
-Group: System/Libraries
-Requires: %{libname} = %{version}
+Summary:	SASL LOGIN mechanism plugin
+Group:		System/Libraries
+Requires:	%{libname} = %{version}
 
 %description -n %{libname}-plug-login
 This plugin implements the SASL LOGIN mechanism.
@@ -137,49 +132,49 @@ and will be dropped soon.
 Please use the plain plugin instead.
 
 %package -n %{libname}-plug-gssapi
-Summary: SASL GSSAPI mechanism plugin
-Group: System/Libraries
-Requires: %{libname} = %{version}
-Requires: krb5-libs
+Summary:	SASL GSSAPI mechanism plugin
+Group:		System/Libraries
+Requires:	%{libname} = %{version}
+Requires:	krb5-libs
  
 %description -n %{libname}-plug-gssapi
 This plugin implements the SASL GSSAPI (kerberos 5)mechanism.
 
 %package -n %{libname}-plug-otp
-Summary: SASL OTP mechanism plugin
-Group: System/Libraries
-Requires: %{libname} = %{version}
+Summary:	SASL OTP mechanism plugin
+Group:		System/Libraries
+Requires:	%{libname} = %{version}
 
 %description -n %{libname}-plug-otp
 This plugin implements the SASL OTP mechanism.
 
-
 %package -n %{libname}-plug-sasldb
-Summary: SASL sasldb mechanism plugin
-Group: System/Libraries
-Requires: %{libname} = %{version}
+Summary:	SASL sasldb mechanism plugin
+Group:		System/Libraries
+Requires:	%{libname} = %{version}
 
 %description -n %{libname}-plug-sasldb
 This plugin implements the SASL sasldb mechanism.
 
 %package -n %{libname}-plug-srp
-Summary: SASL srp mechanism plugin
-Group: System/Libraries
-Requires: %{libname} = %{version}
+Summary:	SASL srp mechanism plugin
+Group:		System/Libraries
+Requires:	%{libname} = %{version}
 
 %description -n %{libname}-plug-srp
 This plugin implements the srp  mechanism.
 
-
 %package -n %{libname}-plug-ntlm
-Summary: SASL ntlm authentication plugin
-Group: System/Libraries
-Requires: %{libname} = %{version}
+Summary:	SASL ntlm authentication plugin
+Group:		System/Libraries
+Requires:	%{libname} = %{version}
 
 %description -n %{libname}-plug-ntlm
 This plugin implements the (unsupported) ntlm authentication.
+
+
 %prep
-%setup -q -n %{up_name}-%{version}
+%setup -q -n %{name}-%{version}
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1 -b .lib64
@@ -210,16 +205,14 @@ export LDFLAGS="-L%{_libdir}"
 install saslauthd/LDAP_SASLAUTHD README.ldap
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p $RPM_BUILD_ROOT/var/lib/sasl2
-mkdir -p $RPM_BUILD_ROOT/etc/rc.d/init.d/
-mkdir -p $RPM_BUILD_ROOT/etc/sysconfig
+mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig
 
 
 %{__make} install DESTDIR=$RPM_BUILD_ROOT
 
-install %{SOURCE2} $RPM_BUILD_ROOT/etc/rc.d/init.d/saslauthd
-install %{SOURCE3} $RPM_BUILD_ROOT/etc/sysconfig/saslauthd
+install %{SOURCE3} $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/saslauthd
 # Install man pages in the expected location, even if they are
 # pre-formatted.
 install -m755 -d $RPM_BUILD_ROOT%{_mandir}/man8/
@@ -233,8 +226,16 @@ cd utils
 /bin/sh ../libtool --mode=install /usr/bin/install -c dbconverter-2 \
   $RPM_BUILD_ROOT/%{_sbindir}/dbconverter-2
 
+mkdir -p %{buildroot}%{_srvdir}/saslauthd/log
+mkdir -p %{buildroot}%{_srvlogdir}/saslauthd
+install -m 0750 %{SOURCE4} %{buildroot}%{_srvdir}/saslauthd/run
+install -m 0750 %{SOURCE5} %{buildroot}%{_srvdir}/saslauthd/log/run
+
+# fix the horribly broken manpage
+bzcat %{SOURCE6} >%{buildroot}%{_mandir}/man8/saslauthd.8
+
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
 #convert old sasldb
@@ -245,9 +246,10 @@ if [ -f /var/lib/sasl/sasl.db.rpmsave -a ! -f /var/lib/sasl2/sasl.db ]; then
    echo "" | /usr/sbin/dbconverter-2 /var/lib/sasl/sasl.db.rpmsave /var/lib/sasl2/sasl.db
 fi
 
-%_post_service saslauthd
+%_post_srv saslauthd
+
 %preun
-%_preun_service saslauthd
+%_preun_srv saslauthd
 
 %post -n %{libname}
 /sbin/ldconfig
@@ -259,9 +261,12 @@ fi
 %doc COPYING AUTHORS INSTALL NEWS README* ChangeLog sample/{client,server}
 %doc doc/{TODO,ONEWS,*.txt,*.html}
 %dir /var/lib/sasl2
-%attr (755,root,root) %config(noreplace) /etc/rc.d/init.d/saslauthd
 %attr (644,root,root) %config(noreplace) /etc/sysconfig/saslauthd
-
+%dir %{_srvdir}/saslauthd
+%dir %{_srvdir}/saslauthd/log
+%{_srvdir}/saslauthd/run
+%{_srvdir}/saslauthd/log/run
+%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/saslauthd
 %{_sbindir}/*
 %{_mandir}/man8/*
 %{_mandir}/cat8/*
@@ -278,16 +283,19 @@ fi
 %files -n %{libname}-plug-otp
 %defattr(-,root,root)
 %{_libdir}/*/libotp*.so.*
+%{_libdir}/*/libotp.so
 %{_libdir}/*/libotp*.la
 
 %files -n %{libname}-plug-sasldb
 %defattr(-,root,root)
 %{_libdir}/*/libsasldb*.so.*
+%{_libdir}/*/libsasldb.so
 %{_libdir}/*/libsasldb*.la
 
 %files -n %{libname}-plug-gssapi
 %defattr(-,root,root)
 %{_libdir}/*/libgssapi*.so.*
+%{_libdir}/*/libgssapi*.so
 %{_libdir}/*/libgssapi*.la
 
 %files -n %{libname}-plug-crammd5
@@ -334,6 +342,19 @@ fi
 %{_mandir}/man3/*
  
 %changelog
+* Wed Mar 03 2004 Vincent Danen <vdanen@opensls.org> 2.1.15-7sls
+- minor spec cleanups
+
+* Tue Feb 03 2004 Vincent Danen <vdanen@opensls.org> 2.1.15-6sls
+- supervise scripts
+- remove initscript
+- fix the saslauthd.8 manpage (a patch would be bigger than the file so
+  include it as S6)
+
+* Sat Dec 13 2003 Vincent Danen <vdanen@opensls.org> 2.1.15-5sls
+- OpenSLS build
+- tidy spec
+
 * Thu Aug 07 2003 Florin <florin@mandrakesoft.com> 2.1.15-4mdk
 - update the initscript and the sysconfig files (thx to L.Olivetti)
 

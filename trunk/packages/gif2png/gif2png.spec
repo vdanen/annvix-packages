@@ -1,37 +1,26 @@
-%define name gif2png
+%define name	gif2png
 %define version 2.4.7
-%define release 1mdk
+%define release 3sls
 
-Name: %{name}
-Summary: Tools for converting websites from using GIFs to using PNGs
-Summary(fr): Outils de conversion de sites: convertit les GIFs en PNGs.
-Summary(es): Herramienta para convertir sitios y imagenes de GIFs hacia PNGs.
-Version: %{version}
-Release: %{release}
-Source: http://www.catb.org/~esr/gif2png/%{name}-%{version}.tar.bz2
-Group: Graphics
-BuildRequires: libpng-devel zlib-devel
-URL: http://www.catb.org/~esr/gif2png/
-BuildRoot: %{_tmppath}/%{name}-buildroot
-License: MIT style
-Requires: python
+Summary:	Tools for converting websites from using GIFs to using PNGs
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	MIT style
+Group:		Graphics
+URL:		http://www.catb.org/~esr/gif2png/
+Source:		http://www.catb.org/~esr/gif2png/%{name}-%{version}.tar.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildRequires:	libpng-devel zlib-devel
+
+Requires:	python
 
 %description 
 Tools for converting GIFs to PNGs.  The program gif2png converts GIF files 
 to PNG files.  The Python script web2png converts an entire web tree, 
 also patching HTML pages to keep IMG SRC references correct.
 
-%description -l fr
-Outil de conversion du format GIF au format PNG. Le programme gif2png
-convertit les fichiers GIF au format PNG. Le script Python scanne une
-arborescence web complete et modifie aussi les pages HTML afin de référencer
-à nouveau les fichiers images <IMG SRC ...>.
-
-%description -l es
-Herramienta de conversion GIF hacia PNG. El programa gif2png convierte los
-archivos GIF al formato PNG. El script Python convierte un arbol web completo
-y modifica incluso las paginas html para poner al dia las referencias a
-imagenes <IMG SRC ...>.
 
 %prep
 %setup -q
@@ -41,12 +30,12 @@ imagenes <IMG SRC ...>.
 %make
  
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
 
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root,0755)
@@ -55,6 +44,14 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/*
 			 
 %changelog
+* Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 2.4.7-3sls
+- minor spec cleanups
+- get rid of the french and spanish descriptions
+
+* Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 2.4.7-2sls
+- OpenSLS build
+- tidy spec
+
 * Thu Jul 31 2003 Daouda LO <daouda@mandrakesoft.com> 2.4.7-1mdk
 - release 2.4.7
 - change url

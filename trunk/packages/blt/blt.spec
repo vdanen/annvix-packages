@@ -1,15 +1,18 @@
-%define major	2
-%define	libname	%mklibname %{name} %{major}
+%define name	blt
+%define version	2.4z
+%define release	7sls
+
+%define major		2
+%define	libname		%mklibname %{name} %{major}
 %define	libname_devel	%mklibname %{name} %{major} -d
 
 Summary:	A Tk toolkit extension, including widgets, geometry managers, etc.
-Name:		blt
-Version:	2.4z
-Release:	5mdk
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
 License:	MIT
 Group:		System/Libraries
-Url:		http://www.sourceforge.net/projects/blt
-
+URL:		http://www.sourceforge.net/projects/blt
 Source0:	BLT%{version}.tar.bz2
 Patch0:		blt2.4z-patch-2.patch.bz2
 Patch1:		blt2.4z-configure.in-disable-rpath.patch.bz2
@@ -17,9 +20,10 @@ Patch2:		blt2.4z-libdir.patch.bz2
 Patch3:		blt2.4z-mkdir_p.patch.bz2
 Patch4:		blt2.4z-64bit-fixes.patch.bz2
 
-Requires:	%libname
-BuildRequires:  XFree86-devel tcl tk
 BuildRoot:	%_tmppath/%name-%version-root
+BuildRequires:  XFree86-devel tcl tk
+
+Requires:	%libname
 
 %description
 BLT is an extension to the Tk toolkit. BLT's most useful feature is the
@@ -86,6 +90,7 @@ autoconf
 %make 
 
 %install
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
 
 ln -sf libBLT.so.2.4 $RPM_BUILD_ROOT%_libdir/libBLT.so
@@ -110,7 +115,7 @@ for i in bitmap graph tabset tree watch; do
 done
 
 %clean
-rm -fr $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post -n %libname -p /sbin/ldconfig
 %postun -n %libname -p /sbin/ldconfig
@@ -141,6 +146,13 @@ rm -fr $RPM_BUILD_ROOT
 %_libdir/*.a
 
 %changelog
+* Tue Mar 02 2004 Vincent Danen <vdanen@opensls.org> 2.4z-7sls
+- minor spec cleanups
+
+* Tue Dec 30 2003 Vincent Danen <vdanen@opensls.org> 2.4z-6sls
+- OpenSLS build
+- tidy spec
+
 * Thu Jul 31 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 2.4z-5mdk
 - Patch4: Some 64-bit fixes
 

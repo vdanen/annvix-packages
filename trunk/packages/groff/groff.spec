@@ -1,45 +1,43 @@
+%define name	groff
+%define version	1.19
+%define release	5sls
+
 # rh-1.18-3
 # deb-1.18-4
 
-Summary:  A document formatting system
-Name:     groff
-Version:  1.19
-Release:  3mdk
-License:  GPL
-Group:    Text tools
-BuildRequires: XFree86-devel
-BuildRequires: autoconf2.5
-BuildRequires: byacc
-BuildRequires: netpbm, netpbm-devel
-BuildRequires: texinfo >= 4.3
-BuildRequires: xpm-devel
-# For psselect:
-BuildRequires: psutils
-Url:      http://www.gnu.org/directory/GNU/groff.html
-Source0:  ftp://prep.ai.mit.edu/pub/gnu/groff/%name-%version.tar.bz2
-Source1:  troff-to-ps.fpi
-Source2:  README.A4
+Summary:	A document formatting system
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		Text tools
+URL:		http://www.gnu.org/directory/GNU/groff.html
+Source0:	ftp://prep.ai.mit.edu/pub/gnu/groff/%name-%version.tar.bz2
+Source1:	troff-to-ps.fpi
+Source2:	README.A4
 # nippon/multi-byte support from http://people.debian.org/~ukai/groff/
-Patch3:   groff_1.19-0.diff.bz2
-Patch4:   groff-1.18-info.patch.bz2
-Patch5:   groff-1.18-nohtml.patch.bz2
-Patch6:   groff-1.17.2-libsupc++.patch.bz2
-Patch102: groff-1.16.1-no-lbp-on-alpha.patch.bz2
-Patch107: groff-1.19-koi8-r.patch.bz2
+Patch3:		groff_1.19-0.diff.bz2
+Patch4:		groff-1.18-info.patch.bz2
+Patch5:		groff-1.18-nohtml.patch.bz2
+Patch6:		groff-1.17.2-libsupc++.patch.bz2
+Patch102:	groff-1.16.1-no-lbp-on-alpha.patch.bz2
+Patch107:	groff-1.19-koi8-r.patch.bz2
 # patch to improve working on utf-8 locales;
 # and also for Korean and simplified chinese to use -Tnippon
 # extended from japanese patch from from Mike Fabian <mfabian@suse.de>
 # -- pablo
-Patch108: groff-1.19-utf8.patch.bz2
+Patch108:	groff-1.19-utf8.patch.bz2
 # keeps apostrophes and dashes as ascii, but only for man pages
 # -- pablo
-Patch109: groff-1.19-dashes.patch.bz2
+Patch109:	groff-1.19-dashes.patch.bz2
 
-Requires:  mktemp groff-for-man
-Buildroot: %_tmppath/%name-root
-Obsoletes: groff-tools
-Provides:  groff-tools
-Prereq: /sbin/install-info
+BuildRoot:	%_tmppath/%name-root
+BuildRequires:	autoconf2.5, byacc, texinfo >= 4.3, xpm-devel
+
+Requires:	mktemp groff-for-man
+Obsoletes:	groff-tools
+Provides:	groff-tools
+Prereq:		/sbin/install-info
 
 %description
 Groff is a document formatting system.  Groff takes standard text and
@@ -54,8 +52,8 @@ to use groff with the X Window System, you'll also need to install the
 groff-gxditview package.
 
 %package for-man
-Summary: Parts of the groff formatting system that is required for viewing manpages
-Group: Text tools
+Summary:	Parts of the groff formatting system that is required for viewing manpages
+Group:		Text tools
 
 %description for-man
 The groff-for-man package contains the parts of the groff text processor
@@ -63,8 +61,8 @@ package that are required for viewing manpages.
 For a full groff package, install package groff.
 
 %package perl
-Summary: Parts of the groff formatting system that require Perl.
-Group: Text tools
+Summary:	Parts of the groff formatting system that require Perl.
+Group:		Text tools
 
 %description perl
 The groff-perl package contains the parts of the groff text processor
@@ -72,18 +70,6 @@ package that require Perl. These include the afmtodit font processor
 for creating PostScript font files, the grog utility that can be used
 to automatically determine groff command-line options, and the
 troff-to-ps print filter.
-
-%package gxditview
-Summary:	An X previewer for groff text processor output
-Group:		Text tools
-
-%description gxditview
-Gxditview displays the groff text processor's output on an X Window
-System display.
-
-If you are going to use groff as a text processor, you should install
-gxditview so that you preview your processed text files in X.  You'll also
-need to install the groff package and the X Window System.
 
 %prep
 
@@ -117,15 +103,12 @@ make depend
 %make 
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 PATH=$PATH:%_prefix/X11R6/bin
 mkdir -p $RPM_BUILD_ROOT{%_prefix,%_infodir,%_bindir,%_docdir/%name/%version/html/momdoc}
 %makeinstall manroot=%buildroot/%_mandir top_builddir=$PWD top_srcdir=$PWD common_words_file=$RPM_BUILD_ROOT%_datadir/%name/%version mkinstalldirs=mkdir
 install -m 644 doc/groff.info* $RPM_BUILD_ROOT/%_infodir
-pushd src/xditview
-%makeinstall DESTDIR=$RPM_BUILD_ROOT
 
-popd
 for i in s.tmac mse.tmac m.tmac; do
 	ln -s $i $RPM_BUILD_ROOT%_datadir/groff/%version/tmac/g$i
 done
@@ -205,27 +188,8 @@ for i in $(find $RPM_BUILD_ROOT -empty -type f); do echo " ">> $i;done
 
 mv $RPM_BUILD_ROOT%_docdir/{groff/%version/,%name-%version/}
 
-%files -f groff.list
-%defattr(-,root,root)
-%doc BUG-REPORT COPYING NEWS PROBLEMS README README.A4 TODO VERSION
-%_infodir/groff*
-
-%files for-man -f groff-for-man.list
-%defattr(-,root,root)
-%doc COPYING
-
-%files perl -f groff-perl.list
-%defattr(-,root,root)
-%doc COPYING
-%_libdir/rhs/*/*
-
-%files gxditview
-%defattr(-,root,root)
-%doc VERSION COPYING
-%config(noreplace) /etc/X11/app-defaults/GXditview
-%_prefix/X11R6/bin/gxditview
-%_prefix/X11R6/lib/X11/app-defaults/GXditview
-
+%clean
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
 %_install_info %name
@@ -233,11 +197,31 @@ mv $RPM_BUILD_ROOT%_docdir/{groff/%version/,%name-%version/}
 %preun
 %_remove_install_info %name
 
+%files -f groff.list
+%defattr(-,root,root)
+%doc BUG-REPORT COPYING NEWS PROBLEMS README README.A4 TODO VERSION
+%_infodir/groff*
 
-%clean
-rm -rf $RPM_BUILD_ROOT
+%files for-man -f groff-for-man.list
+%defattr(-,root,root)
+
+%files perl -f groff-perl.list
+%defattr(-,root,root)
+%_libdir/rhs/*/*
+
 
 %changelog
+* Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 1.19-5sls
+- remove %%build_opensls macro
+- minor spec cleanups
+- don't need COPYING in each file
+
+* Mon Dec 08 2003 Vincent Danen <vdanen@opensls.org> 1.19-4sls
+- OpenSLS build
+- tidy spec
+- use %%build_opensls macro to not build gxditview
+- if %%build_opensls don't BuildReq: netpbm, netpbm-devel, psutils
+
 * Thu Aug 21 2003 Pablo Saratxaga <pablo@@mandrakesoft.com> 1.19-3mdk
 - keep dashes and apostrophes as ascii for man pages in UTF-8 (bug #4212)
 

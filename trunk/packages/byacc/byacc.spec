@@ -1,6 +1,6 @@
 %define name	byacc
 %define version	1.9
-%define release	14mdk
+%define release	16sls
 
 Summary:	A public domain Yacc parser generator.
 Name:		%{name}
@@ -8,14 +8,15 @@ Version:	%{version}
 Release:	%{release}
 License:	Public Domain
 Group:		Development/Other
+URL:		ftp://ftp.cs.berkeley.edu/ucb/4bsd/
 Source:		ftp://ftp.cs.berkeley.edu/ucb/4bsd/byacc.%{version}.tar.bz2
 Patch0:		byacc-1.9-fixmanpage.patch.bz2
 Patch1:		byacc-1.9-automake.patch.bz2
 Patch2:		byacc-1.9-security.patch.bz2
 Patch3:		byacc-1.9-fix-includes.patch.bz2
+
 BuildRoot:	%{_tmppath}/%{name}-%{version}-build
 BuildRequires:	autoconf automake
-URL:		ftp://ftp.cs.berkeley.edu/ucb/4bsd/
 
 %description
 Byacc (Berkeley Yacc) is a public domain LALR parser generator which
@@ -59,13 +60,13 @@ done
 popd
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
 ( cd $RPM_BUILD_ROOT/usr/bin ; ln -s yacc byacc )
 
 %clean
 chmod u+w $RPM_BUILD_DIR/%{name}-%{version} -R
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -76,6 +77,13 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/*
 
 %changelog
+* Tue Mar 02 2004 Vincent Danen <vdanen@opensls.org> 1.9-16sls
+- minor spec cleanups
+
+* Wed Dec 17 2003 Vincent Danen <vdanen@opensls.org> 1.9-15sls
+- OpenSLS build
+- tidy spec
+
 * Wed Jul 23 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 1.9-14mdk
 - rebuild
 

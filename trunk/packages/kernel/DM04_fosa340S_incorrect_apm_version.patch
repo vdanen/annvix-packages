@@ -1,7 +1,7 @@
-diff -up t2/arch/i386/kernel/dmi_scan.c.orig t2/arch/i386/kernel/dmi_scan.c
---- t2/arch/i386/kernel/dmi_scan.c.orig	2002-09-06 12:06:34.000000000 +0200
-+++ t2/arch/i386/kernel/dmi_scan.c	2002-09-06 12:09:25.000000000 +0200
-@@ -376,6 +376,24 @@ static int __init apm_kills_local_apic_t
+diff -uNp t1/arch/i386/kernel/dmi_scan.c.dm04.orig t1/arch/i386/kernel/dmi_scan.c
+--- t1/arch/i386/kernel/dmi_scan.c.dm04.orig	2003-10-07 17:07:42.000000000 +0200
++++ t1/arch/i386/kernel/dmi_scan.c	2003-10-07 17:11:48.000000000 +0200
+@@ -372,6 +372,24 @@ static int __init local_apic_kills_bios(
  }
  
  /*
@@ -26,18 +26,18 @@ diff -up t2/arch/i386/kernel/dmi_scan.c.orig t2/arch/i386/kernel/dmi_scan.c
   *  Check for clue free BIOS implementations who use
   *  the following QA technique
   *
-@@ -723,6 +741,11 @@ static __initdata struct dmi_blacklist d
- 			MATCH(DMI_BOARD_NAME, "AL440LX"),
- 			NO_MATCH, NO_MATCH } },
- 
-+	{ force_apm_version_1_1, "FOSA 340S", {
+@@ -585,6 +603,11 @@ static __initdata struct dmi_blacklist d
+ 			MATCH(DMI_BIOS_VENDOR,"Intel Corp."),
+ 			MATCH(DMI_BIOS_VERSION,"A11")
+ 			} },
++{ force_apm_version_1_1, "FOSA 340S", {
 +			MATCH(DMI_BOARD_VENDOR, "American Megatrends Inc."),
 +			MATCH(DMI_BOARD_NAME, "340S8"),
-+			NO_MATCH, NO_MATCH } },
-+
- 	/* Problem Intel 440GX bioses */
- 
- 	{ broken_pirq, "SABR1 Bios", {			/* Bad $PIR */
++			NO_MATCH, NO_MATCH 
++			} },
+ 	{ set_apm_ints, "Dell Inspiron", {	/* Allow interrupts during suspend on Dell Inspiron laptops*/
+ 			MATCH(DMI_SYS_VENDOR, "Dell Computer Corporation"),
+ 			MATCH(DMI_PRODUCT_NAME, "Inspiron 4000"),
 diff -up t2/arch/i386/kernel/apm.c.orig t2/arch/i386/kernel/apm.c
 --- t2/arch/i386/kernel/apm.c.orig	2002-09-06 11:51:25.000000000 +0200
 +++ t2/arch/i386/kernel/apm.c	2002-09-06 12:05:52.000000000 +0200

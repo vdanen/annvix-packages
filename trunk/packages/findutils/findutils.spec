@@ -1,17 +1,21 @@
-Summary: The GNU versions of find utilities (find, xargs, and locate).
-Name: findutils
-Version: 4.1.20
-Release: 1mdk
-License: GPL
-Group: File tools
-URL: http://www.gnu.org/software/findutils/findutils.html
-Source0: ftp://alpha.gnu.org/gnu/findutils-%{version}.tar.bz2
-Source1: updatedb.cron.bz2
-Patch0: findutils-4.1.6-getshort.patch.bz2
-Patch1: findutils-53857.patch.bz2
-Patch2: findutils-4.1.7-usage.patch.bz2
-Prereq: /sbin/install-info
-Buildroot: %{_tmppath}/%{name}-root
+%define name	findutils
+%define version	4.1.20
+%define release	3sls
+
+Summary:	The GNU versions of find utilities (find, xargs, and locate).
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		File tools
+URL:		http://www.gnu.org/software/findutils/findutils.html
+Source0:	ftp://alpha.gnu.org/gnu/findutils-%{version}.tar.bz2
+Source1:	updatedb.cron.bz2
+Patch0:		findutils-4.1.6-getshort.patch.bz2
+Patch1:		findutils-53857.patch.bz2
+Patch2:		findutils-4.1.7-usage.patch.bz2
+Prereq:		/sbin/install-info
+Buildroot:	%{_tmppath}/%{name}-root
 
 %description
 The findutils package contains programs which will help you locate
@@ -37,7 +41,7 @@ useful for finding things on your system.
 %make
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p $RPM_BUILD_ROOT/%{_libdir}/findutils
 %makeinstall
 
@@ -60,7 +64,7 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/{locate,updatedb} \
 %_remove_install_info find.info
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files -f %{name}.lang
 %defattr(-,root,root)
@@ -73,6 +77,13 @@ rm -rf $RPM_BUILD_ROOT
 %{_infodir}/find.info*
 
 %changelog
+* Thu Mar 04 2004 Vincent Danen <vdanen@opensls.org> 4.1.20-3sls
+- minor spec cleanups
+
+* Sun Nov 30 2003 Vincent Danen <vdanen@opensls.org> 4.1.20-2sls
+- OpenSLS build
+- tidy spec
+
 * Mon Aug 18 2003 Thierry Vignaud <tvignaud@mandrakesoft.com> 4.1.20-1mdk
 - new release
 

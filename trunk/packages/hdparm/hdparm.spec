@@ -1,8 +1,9 @@
+%define name	hdparm
 %define version 5.4
-%define release 3mdk
+%define release 5sls
 
 Summary:	A utility for displaying and/or setting hard disk parameters.
-Name:		hdparm
+Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	BSD
@@ -10,7 +11,8 @@ Group:		System/Kernel and hardware
 URL:		http://www.ibiblio.org/pub/Linux/system/hardware
 Source:		ftp://sunsite.unc.edu/pub/Linux/system/hardware/%name-%version.tar.bz2
 Source1:	hdparm-sysconfig
-Buildroot:	%_tmppath/%name-%version-root
+
+BuildRoot:	%_tmppath/%name-%version-root
 
 %description
 Hdparm is a useful system utility for setting (E)IDE hard drive
@@ -26,7 +28,7 @@ make clean
 make
 
 %install
-rm -fr $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p ${RPM_BUILD_ROOT}/sbin
 install -D -m 0755 hdparm $RPM_BUILD_ROOT/sbin/hdparm
 install -D -m 0644 hdparm.8 $RPM_BUILD_ROOT%_mandir/man8/hdparm.8
@@ -37,7 +39,7 @@ install -D -m 0644 %SOURCE1 $RPM_BUILD_ROOT/etc/sysconfig/harddisks
 #install -m755 contrib/{idectl,ultrabayd} $RPM_BUILD_ROOT%_sbindir
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -47,6 +49,13 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) /etc/sysconfig/harddisks
 
 %changelog
+* Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 5.4-5sls
+- minor spec cleanups
+
+* Mon Dec 08 2003 Vincent Danen <vdanen@opensls.org> 5.4-4sls
+- OpenSLS build
+- tidy spec
+
 * Mon Aug 25 2003 Abel Cheung <deaddog@deaddog.org> 5.4-3mdk
 - Move ThinkPad contrib stuff to tpctl
 

@@ -1,30 +1,31 @@
-%define name gzip
+%define name	gzip
 %define version	1.2.4a
-%define release 12mdk
+%define release 14sls
 
-Name: %{name}
-Summary: The GNU data compression program
-Version: %{version}
-Release: %{release}
-Source: ftp://ftp.gnu.org/pub/gnu/gzip/gzip-1.2.4a.tar.bz2
-Patch: gzip-1.2.4-basename.patch.bz2
-Patch1: gzip-1.2.4-gzexe.patch.bz2
-Patch2: gzip-1.2.4a-mktemp.patch.bz2
-Patch3: gzip-1.2.4-zforce.patch.bz2
-Patch4: gzip-1.2.4-4g.patch.bz2
-Patch5: gzip-1.2.4a-fixinfo.patch.bz2
-Patch6: gzip-64bit.patch.bz2
-Patch7: gzip-better-output-when-segfaults.patch.bz2
-Patch8: gzip-security-fix-filenames-too-long.patch.bz2
-Patch9: gzip-1.2.4a-znew.patch.bz2
-URL: http://www.gzip.org/
-License: GPL
-Group: Archiving/Compression
-Packager: Guillaume Cottenceau <gc@mandrakesoft.com>
-BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
-Prereq:	/sbin/install-info
-Requires: mktemp less
-BuildRequires: texinfo
+Summary:	The GNU data compression program
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		Archiving/Compression
+URL:		http://www.gzip.org/
+Source:		ftp://ftp.gnu.org/pub/gnu/gzip/gzip-1.2.4a.tar.bz2
+Patch:		gzip-1.2.4-basename.patch.bz2
+Patch1:		gzip-1.2.4-gzexe.patch.bz2
+Patch2:		gzip-1.2.4a-mktemp.patch.bz2
+Patch3:		gzip-1.2.4-zforce.patch.bz2
+Patch4:		gzip-1.2.4-4g.patch.bz2
+Patch5:		gzip-1.2.4a-fixinfo.patch.bz2
+Patch6:		gzip-64bit.patch.bz2
+Patch7:		gzip-better-output-when-segfaults.patch.bz2
+Patch8:		gzip-security-fix-filenames-too-long.patch.bz2
+Patch9:		gzip-1.2.4a-znew.patch.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
+BuildRequires:	texinfo
+
+Requires:	mktemp less
+Prereq:		/sbin/install-info
 
 %description
 The gzip package contains the popular GNU gzip data compression
@@ -53,6 +54,7 @@ export DEFS="-DNO_ASM"
 make test
 
 %install
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 install -d $RPM_BUILD_ROOT/%{_mandir}
 
 %makeinstall mandir=$RPM_BUILD_ROOT/%{_mandir}/man1
@@ -90,7 +92,7 @@ chmod 755 $RPM_BUILD_ROOT/%{_bindir}/zless
 %_remove_install_info %{name}.info
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -101,6 +103,13 @@ rm -rf $RPM_BUILD_ROOT
 %{_infodir}/*
 
 %changelog
+* Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 1.2.4a-14sls
+- minor spec cleanups
+
+* Sun Nov 30 2003 Vincent Danen <vdanen@opensls.org> 1.2.4a-13sls
+- OpenSLS build
+- tidy spec
+
 * Mon Jun 16 2003 Vincent Danen <vdanen@mandrakesoft.com> 1.2.4a-12mdk
 - security fixes (CAN-2003-0367)
 

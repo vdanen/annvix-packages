@@ -1,27 +1,31 @@
-Name:		iptables
-Summary:	Tools for managing Linux kernel packet filtering capabilities
-Version:	1.2.8
-Release:	2mdk
+%define name	iptables
+%define version	1.2.9
+%define release	3sls
 
+Summary:	Tools for managing Linux kernel packet filtering capabilities
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		System/Kernel and hardware
+URL:		http://netfilter.org/
 Source:		http://www.netfilter.org/files/%{name}-%{version}.tar.bz2
 Source1:	iptables.init
 Source2:	ip6tables.init
 Source3:	iptables.config
 Source4:	ip6tables.config
-
-Patch1:		iptables-1.2.8-stealth_grsecurity.patch.bz2 
+Source5:	iptables-kernel-headers.tar.bz2
+Patch1:		iptables-1.2.9-stealth_grsecurity.patch.bz2 
 Patch2:		iptables-1.2.8-imq.patch.bz2 
 Patch3:		iptables-1.2.8-libiptc.h.patch.bz2 
 
-Group:		System/Kernel and hardware
-URL:		http://netfilter.org/
 BuildRoot:	%{_tmppath}/%{name}-%{version}-root
-License:	GPL
 BuildPrereq:	/usr/bin/perl
-BuildRequires:  kernel-source >= 2.4.13-3mdk
-Requires:	kernel >= 2.4.13
+BuildRequires:  kernel-source >= 2.4.24-3sls
+
+PreReq:		chkconfig, rpm-helper
+Requires:	kernel >= 2.4.25-3sls
 Provides:	userspace-ipfilter
-Prereq:		chkconfig, rpm-helper
 Conflicts:	ipchains
 
 %description
@@ -31,7 +35,7 @@ It allows you to set up firewalls and IP masquerading, etc.
 Install iptables if you need to set up firewalling for your
 network.
 
-Install this only if you are using the 2.4 kernels!!
+Install this only if you are using the 2.4 or 2.6 kernels!!
 
 %package ipv6
 Summary:	IPv6 support for iptables
@@ -51,7 +55,7 @@ Install iptables-ipv6 if you need to set up firewalling for your
 network and you're using ipv6.
 
 %prep
-%setup -q 
+%setup -q -a 5
 %patch1 -p1 -b .stealth
 %patch2 -p1 -b .imq
 %patch3 -p1 -b .libiptc
@@ -67,24 +71,51 @@ OPT=`echo $RPM_OPT_FLAGS | sed -e "s/-O./-O1/"`
 %else
 OPT="$RPM_OPT_FLAGS -DNDEBUG"
 %endif
-%make COPT_FLAGS="$OPT" LIBDIR=/lib all experimental
+# build against "vanilla" headers
+%make COPT_FLAGS="$OPT -I linux-2.6/include" LIBDIR=/lib all
+for i in extensions/*.so;do mv $i $i.vanilla;done
+%make clean
+# build against sls headers with pptp_conntrack
+%make COPT_FLAGS="$OPT -I linux-2.4/include" LIBDIR=/lib all experimental
+
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 # Dunno why this happens. -- Geoff
 %makeinstall_std BINDIR=/sbin MANDIR=%{_mandir} LIBDIR=/lib COPT_FLAGS="$RPM_OPT_FLAGS -DNETLINK_NFLOG=4" install-experimental
+mv %buildroot/lib/iptables %buildroot/lib/iptables-sls
+mkdir %buildroot/lib/iptables-vanilla
+cd extensions
+for i in *.so.vanilla;do
+	if cmp -s $i ${i%.vanilla}; then
+    		ln %buildroot/lib/iptables-sls/${i%.vanilla} %buildroot/lib/iptables-vanilla/${i%.vanilla}
+	else
+		cp $i %buildroot/lib/iptables-vanilla/${i%.vanilla}
+	fi
+done
+cd ..
 install -c -D -m755 %{SOURCE1} %buildroot%{_initrddir}/iptables
 install -c -D -m755 %{SOURCE2} %buildroot%{_initrddir}/ip6tables
 install -c -D -m644 %{SOURCE3} iptables.sample
 install -c -D -m644 %{SOURCE4} ip6tables.sample
 
 %clean
-rm -rf $RPM_BUILD_ROOT $RPM_BUILD_DIR/file.list.%{name}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+rm -rf $RPM_BUILD_DIR/file.list.%{name}
 
 %post
 %_post_service iptables
+# run only on fresh install
+if [ $1 = 1 ]; then
+    /sbin/service iptables check
+fi
+
+%triggerpostun -- iptables =< 1.2.9-1sls
+# fix upgrade from older versions
+/sbin/service iptables check
 
 %preun
+%_preun_service iptables
 %_preun_service iptables
 
 %post ipv6
@@ -100,9 +131,11 @@ rm -rf $RPM_BUILD_ROOT $RPM_BUILD_DIR/file.list.%{name}
 /sbin/iptables-save
 /sbin/iptables-restore
 %{_mandir}/*/iptables*
-%dir /lib/iptables
-/lib/iptables/libipt*
-%doc INSTALL KNOWN_BUGS iptables.sample
+%dir /lib/iptables-sls
+/lib/iptables-sls/libipt*
+%dir /lib/iptables-vanilla
+/lib/iptables-vanilla/libipt*
+%doc INSTALL INCOMPATIBILITIES iptables.sample
 
 %files ipv6
 %defattr(-,root,root,0755)
@@ -111,10 +144,31 @@ rm -rf $RPM_BUILD_ROOT $RPM_BUILD_DIR/file.list.%{name}
 /sbin/ip6tables-save
 /sbin/ip6tables-restore
 %{_mandir}/*/ip6tables*
-/lib/iptables/libip6t*
-%doc INSTALL KNOWN_BUGS ip6tables.sample
+/lib/iptables-sls/libip6t*
+/lib/iptables-vanilla/libip6t*
+%doc INSTALL INCOMPATIBILITIES ip6tables.sample
 
 %changelog
+* Wed Mar  3 2004 Thomas Backlund <tmb@iki.fi> 1.2.9-3sls
+- sync kernel-headers with 2.4.25-4sls
+
+* Wed Mar  3 2004 Thomas Backlund <tmb@iki.fi> 1.2.9-2sls
+- require kernel(-source) 2.4.25-3sls or better
+- fix symlinking for sls (not mandrake)
+
+* Wed Mar  3 2004 Thomas Backlund <tmb@iki.fi> 1.2.9-1sls
+- sync with mdk 1.2.9-5mdk
+  * fix detection of iptables version at boot (again)
+  * compatible with both 2.4 and 2.6 (with and without pptp_conntrack)
+  * added check option to initscripts
+  * IMQ should work now (cross fingers).
+  * reddiff stealth patch.
+  * 1.2.9.
+
+* Sat Dec 13 2003 Vincent Danen <vdanen@opensls.org> 1.2.8-3sls
+- OpenSLS build
+- tidy spec
+
 * Tue Aug 26 2003 Juan Quintela <quintela@mandrakesoft.com> 1.2.8-2mdk
 - added imq support.
 

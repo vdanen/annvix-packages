@@ -1,10 +1,14 @@
-%define	CTVER	%version
-%define	CDVER	1999.08.29
-%define MDK_KBD_VER 20030918
+%define name		console-tools
+%define version		0.2.3
+%define release		49sls
 
-%define major 0
-%define fname console
-%define libname %mklibname %fname %major
+%define	CTVER		%version
+%define	CDVER		1999.08.29
+%define MDK_KBD_VER	20030918
+
+%define major		0
+%define fname		console
+%define libname 	%mklibname %fname %major
 
 # /usr/lib/kbd/{conslefonts,consolemaps,keymaps} instead of
 # /usr/share/{conslefonts,consolemaps,keymaps}
@@ -13,11 +17,11 @@
 %define _datadir	%{kbddir}
 
 Summary:	Linux console tools
-Name:		console-tools
-Version:	0.2.3
-Release:	46mdk
-Group:		Terminals
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
 License:	GPL
+Group:		Terminals
 URL:		http://lct.sourceforge.net/
 Source0:	ftp://metalab.unc.edu/pub/Linux/system/keyboards/console-tools-%{CTVER}.tar.bz2
 Source1:	ftp://metalab.unc.edu/pub/Linux/system/keyboards/console-data-%{CDVER}.tar.bz2
@@ -31,49 +35,39 @@ Source8:	ctools-cyr.tar.bz2
 # on PPC we need to see whether mac or Linux keycodes are being used - stew
 Source9:	keytable.init.ppc
 Source10:	mac-keymaps.tar.bz2
-
-Prereq:		/sbin/chkconfig coreutils sed
-Obsoletes:	kbd
-Provides:	kbd
-BuildRequires:	flex libtool >= 1.3.3, sgml-tools
-Requires:	grep, /bin/gawk
-Buildroot:	%_tmppath/%name-%version-%release-root
-Prereq: rpm-helper
-PreReq:		%libname = %version-%release
-
 # docbook is unable to convert the sgml files to html
 # disabling them in the makefiles -- pablo
 Patch5:		console-tools-0.2.3-docbook.patch.bz2
-
 # Allow consolechars & loadkeys to run from the root partition
 Patch6:		console-tools-rootpart.patch.bz2
-
 # fixes a stupid error -- pablo
 Patch8:		console-tools-0.2.3-versioncoredump.patch.bz2
-
 # some keyboards cannot have the euro in AltGr-e -- pablo
 Patch9:		console-tools-0.2.3-noteuro.patch.bz2
-
 Patch10:	console-data-1999.08.29-mandrake.patch.bz2
 Patch11:	console-tools-0.2.3-tilde-with-twosuperior-in-french-keyboard.patch.bz2
 Patch12:	console-tools-0.2.3-setkeycodes-fixargument.patch.bz2
-
 # some modifications to cover PPC using Linux keycodes
 Patch13:	console-tools-0.2.3-ppc-using-linux-keycodes.patch.bz2
-
 # Thai kbds, keysysm and fonts -- pablo
-Patch14: http://www.links.nectec.or.th/~thep/th-console/console-data/console-data-thai_deb-1999.08.29-21.8.patch.bz2
-Patch15: http://www.links.nectec.or.th/~thep/th-console/console-tools/console-tools-thai_ksym.patch.bz2
-
+Patch14: 	http://www.links.nectec.or.th/~thep/th-console/console-data/console-data-thai_deb-1999.08.29-21.8.patch.bz2
+Patch15: 	http://www.links.nectec.or.th/~thep/th-console/console-tools/console-tools-thai_ksym.patch.bz2
 # gcc 3.3
-Patch16: console-tools-gcc33.patch.bz2
-
+Patch16: 	console-tools-gcc33.patch.bz2
 # this patch removes testing of start_unicode, otherwise console font
 # cannot be changed once in utf-8 mode -- pablo
-Patch17: console-tools-start_unicode.patch.bz2
-
+Patch17: 	console-tools-start_unicode.patch.bz2
 # pactch for a coredump when using compressed font files -- pablo
-Patch18: console-tools-0.2.3-compresscoredump.patch.bz2
+Patch18: 	console-tools-0.2.3-compresscoredump.patch.bz2
+
+BuildRoot:	%_tmppath/%name-%version-%release-root
+BuildRequires:	flex libtool >= 1.3.3
+
+Prereq:		chkconfig coreutils sed rpm-helper
+PreReq:		%libname = %version-%release
+Obsoletes:	kbd
+Provides:	kbd
+Requires:	grep, gawk
 
 %description
 This package contains utilities to load console fonts and
@@ -83,7 +77,7 @@ and keyboard maps.
 %package -n %{libname}
 Summary:	Libraries for console tools
 Group:		System/Libraries
-Provides:   lib%fname = %version-%release
+Provides:	lib%fname = %version-%release
 
 %description -n %{libname}
 This package contains libraries for console tools
@@ -94,7 +88,7 @@ Group:		Development/Other
 PreReq:		%libname = %version-%release
 Obsoletes:	%name-devel
 Provides:	%name-devel = %version-%release
-Provides:   lib%fname-devel = %version-%release
+Provides:	lib%fname-devel = %version-%release
 
 %description -n %{libname}-devel
 This package contains include and .so files for console tools
@@ -106,7 +100,7 @@ Group:		Development/Other
 PreReq:		%name-devel = %version-%release
 Obsoletes:	%name-static-devel
 Provides:	%name-static-devel = %version-%release
-Provides:   lib%fname-static-devel = %version-%release 
+Provides:  	lib%fname-static-devel = %version-%release 
 
 %description -n %{libname}-static-devel
 This package contains static libraries for console tools.
@@ -153,7 +147,7 @@ CFLAGS="%optflags -D_GNU_SOURCE"
 cd -
 
 %install
-rm -fr %buildroot
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 install -d -m 0755 %buildroot/%_prefix
 
 %makeinstall
@@ -208,7 +202,7 @@ rm -rf %buildroot/%{kbddir}/keymaps/mac
 %find_lang %name
 
 %clean
-rm -fr %buildroot
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
 %_post_service keytable
@@ -250,21 +244,12 @@ fi
 %files -f %name.lang
 %defattr(-,root,root)
 %doc README NEWS RELEASE
-#
-#
-#
 %config(noreplace) %_sysconfdir/profile.d/configure_keyboard.sh
-#
 %config(noreplace) %_sysconfdir/rc.d/init.d/keytable
-#
-#
-#
 %{_libdir}/*.la
-#
 %dir %{kbddir}
 %{kbddir}/consolefonts
 %{kbddir}/consoletrans
-#
 %dir %{kbddir}/keymaps
 %{kbddir}/unidata
 %{kbddir}/keymaps/include
@@ -329,9 +314,6 @@ fi
 %{_bindir}/vcstime
 %{_bindir}/vt-is-UTF8
 %{_bindir}/writevt
-#
-#
-#
 %{_mandir}/man1/*
 %{_mandir}/man4/*
 %{_mandir}/man5/*
@@ -354,6 +336,17 @@ fi
 %_libdir/*.a
 
 %changelog
+* Fri Jun 11 2004 Vincent Danen <vdanen@opensls.org> 0.2.3-49sls
+- require packages, not files
+
+* Tue Mar 02 2004 Vincent Danen <vdanen@opensls.org> 0.2.3-48sls
+- minor spec cleanups
+
+* Fri Nov 28 2003 Vincent Danen <vdanen@opensls.org> 0.2.3-47sls
+- OpenSLS build
+- remove dependency on sgml-tools so we save 16MB of useless docbook stuff
+- tidy spec
+
 * Mon Sep 22 2003 Pablo Saratxaga <pablo@mandrakesoft.com> 0.2.3-46mdk
 - fixed post install scripts to use right paths under /etc/sysconfig/console
 - added Uzbek cyrillic keyboard and font

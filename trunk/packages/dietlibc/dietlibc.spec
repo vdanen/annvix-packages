@@ -1,6 +1,6 @@
 %define name	dietlibc
-%define version 0.22
-%define release 7mdk
+%define version 0.24
+%define release 2sls
 
 Summary:	C library optimized for size
 Name:		%{name}
@@ -8,27 +8,19 @@ Version:	%{version}
 Release:	%{release}
 License:	GPL
 Group:		Development/Other
-Url:		http://www.fefe.de/dietlibc/
+URL:		http://www.fefe.de/dietlibc/
 Source0:	http://www.fefe.de/dietlibc/%{name}-%{version}.tar.bz2
 Patch0:		dietlibc-0.21-features.patch.bz2
 Patch1:		dietlibc-0.21-config.patch.bz2
 Patch2:		dietlibc-0.21-ppc64asppc.patch.bz2
 Patch3:		dietlibc-0.22-x86_64-sigaction.patch.bz2
-Patch4:		dietlibc-0.22-x86_64-elf.patch.bz2
 Patch5:		dietlibc-0.22-tests.patch.bz2
-Patch6:		dietlibc-0.22-fix-tests-warnings.patch.bz2
 Patch7:		dietlibc-0.22-lib64.patch.bz2
 Patch8:		dietlibc-0.22-net-ethernet.patch.bz2
 Patch9:		dietlibc-0.22-rpc-types.patch.bz2
-Patch10:	dietlibc-0.22-x86_64-syscall-retval.patch.bz2
-Patch11:	dietlibc-0.22-assert-fix.patch.bz2
-Patch12:	dietlibc-0.22-resolv.patch.bz2
-Patch13:	dietlibc-0.22-CAN-2003-0028.patch.bz2
-Patch14:	dietlibc-0.22-biarch-utmp.patch.bz2
-Patch15:	dietlibc-0.22-64bit-fixes.patch.bz2
-Patch16:	dietlibc-0.22-pmgetport-IPPROTO_TCP.patch.bz2
-Patch17:	dietlibc-0.22-rpc64.patch.bz2
 Patch18:	dietlibc-0.22-amd64-ioport.patch.bz2
+Patch19:	contrapolice-0.1.patch
+
 BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
 
 %description
@@ -48,22 +40,12 @@ Small libc for building embedded applications.
 %patch0 -p1 -b .features
 %patch1 -p1 -b .config
 %patch2 -p1 -b .ppc
-%patch3 -p1 -b .x86_64-sigaction
-%patch4 -p1 -b .x86_64-elf
+#%patch3 -p1 -b .x86_64-sigaction
 %patch5 -p1 -b .tests
-%patch6 -p1 -b .fix-tests-warnings
 %patch7 -p1 -b .lib64
 %patch8 -p1 -b .net-ethernet
-%patch9 -p1 -b .rpc-types
-%patch10 -p1 -b .x86_64-syscall-retval
-%patch11 -p1 -b .assert-fix
-%patch12 -p1 -b .resolv
-%patch13 -p1 -b .CAN-2003-0028
-%patch14 -p1 -b .biarch-utmp
-%patch15 -p1 -b .64bit-fixes
-%patch16 -p1 -b .pmgetport-IPPROTO_TCP
-%patch17 -p1 -b .rpc64
 %patch18 -p1 -b .amd64-ioport
+%patch19 -p1 -b .contrapolice
 
 %build
 %make
@@ -84,6 +66,20 @@ make DESTDIR=%{buildroot} install
 %{_mandir}/man*/*
 
 %changelog
+* Thu Mar 04 2004 Vincent Danen <vdanen@opensls.org> 0.24-2sls
+- rebuild
+
+* Mon Jan 26 2004 Vincent Danen <vdanen@opensls.org> 0.24-1sls
+- 0.24
+- contrapolice 0.1 for heap protection
+- remove P4, P6, P9, P10, P11, P12, P13, P14, P15, P16, P17: all
+  merged upstream
+- don't apply P3 as it prevents us from building on amd64
+
+* Tue Dec 30 2003 Vincent Danen <vdanen@opensls.org> 0.22-8sls
+- OpenSLS build
+- tidy spec
+
 * Wed Oct 29 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 0.22-7mdk
 - Patch18: Enable inb() and friends in <sys/io.h> on AMD64 too
 

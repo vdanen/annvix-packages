@@ -1,30 +1,41 @@
-%define real_name grub
-%define name %{real_name}
+%define name	grub
 %define version 0.93
-%define release 3mdk
+%define release 6sls
 
-Summary: GRand Unified Bootloader
-Name: %{name}
-Version: %{version}
-Release: %{release}
-Url: http://www.gnu.org/software/grub/
-Source0: ftp://alpha.gnu.org/gnu/grub/%{name}-%{version}.tar.bz2
-Patch0: grub-0.5.96.1-ezd.patch.bz2
-Patch1: grub-0.5.96.1-init-config-end--prepatch.patch.bz2
-Patch2: grub-0.90-i18n-messages-and-keytable2.patch.bz2
-Patch3: grub-0.91-altconfigfile2.patch.bz2
-Patch4: grub-0.90-grub-install.patch.bz2
-Patch6: grub-0.5.96.1-special-raid-devices.patch.bz2
-Patch7: grub-0.91-nice-magic.patch.bz2
-Patch8: grub-0.93-gcc33.patch.bz2
-Patch9: grub-0.93-add-our-own-memcpy.patch.bz2
+Summary:	GRand Unified Bootloader
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		System/Kernel and hardware
+URL:		http://www.gnu.org/software/grub/
+Source0:	ftp://alpha.gnu.org/gnu/grub/%{name}-%{version}.tar.bz2
+Patch0:		grub-0.5.96.1-ezd.patch.bz2
+Patch1:		grub-0.5.96.1-init-config-end--prepatch.patch.bz2
+Patch2:		grub-0.90-i18n-messages-and-keytable2.patch.bz2
+Patch3:		grub-0.91-altconfigfile2.patch.bz2
+Patch4:		grub-0.90-grub-install.patch.bz2
+Patch6:		grub-0.5.96.1-special-raid-devices.patch.bz2
+Patch7:		grub-0.91-nice-magic.patch.bz2
+Patch8:		grub-0.93-gcc33.patch.bz2
+Patch9:		grub-0.93-add-our-own-memcpy.patch.bz2
 
-License: GPL
-Group: System/Kernel and hardware
-BuildRequires: gpm-devel, ncurses-devel, tetex
-BuildRoot: %{_tmppath}/%{name}-buildroot
-Exclusivearch: %ix86
-Conflicts: initscripts <= 6.40.2-15mdk
+Patch10:	grub-0.93-configfile.patch
+Patch11:	grub-0.90-symlinkmenulst.patch
+Patch12:	grub-0.90-staticcurses.patch
+Patch13:	grub-0.93-largedisk.patch
+Patch14:	grub-0.93-graphics.patch.bz2
+Patch15:	grub-0.91-splashimagehelp.patch
+Patch16:	grub-0.93-graphics-bootterm.patch
+Patch17:	grub-0.92-hammer.patch
+Patch18:	grub-0.93-autoconf-fix.patch
+
+BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildRequires:	ncurses-devel, tetex
+
+Exclusivearch:	%ix86 amd64 x86_64
+Conflicts:	initscripts <= 6.40.2-15mdk
+Provides:	bootloader
 
 %description
 GRUB is a GPLed bootloader intended to unify bootloading across x86
@@ -33,15 +44,8 @@ it implements the Multiboot standard, which allows for flexible loading
 of multiple boot images (needed for modular kernels such as the GNU
 Hurd).
 
-%package doc
-Summary: More doc for grub
-Group: Books/Computer books
-
-%description doc
-cf package grub
-
 %prep
-%setup -q -n %{real_name}-%{version}
+%setup -q -n %{name}-%{version}
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
@@ -51,17 +55,29 @@ cf package grub
 %patch7 -p1
 %patch8 -p1
 %patch9 -p1 -z .pix
+%patch10 -p1 -b .10
+%patch11 -p1 -b .11
+%patch12 -p1 -b .12
+%patch13 -p0 -b .13
+%patch14 -p1 -b .14
+%patch15 -p1 -b .15
+%patch16 -p1 -b .16
+%patch17 -p1 -b .17
+%patch18 -p0 -b .autofix
 
 %build
-CFLAGS=-g %configure --disable-auto-linux-mem-opt
+rm -f configure && autoconf
+%ifarch amd64 x86_64
+LDFLAGS="-Wl,-static" ; export LDFLAGS
+%endif
+CFLAGS="-Os -g" %configure --sbindir=/sbin --disable-auto-linux-mem-opt
 %make
-#make -C docs dvi
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 make install DESTDIR=$RPM_BUILD_ROOT/
 
-rm -f $RPM_BUILD_ROOT{%{_bindir}/mbchk,%{_mandir}/*/mbchk*,%{_infodir}/dir*}
+rm -f $RPM_BUILD_ROOT%{_infodir}/dir
 
 install -d $RPM_BUILD_ROOT/boot/grub
 mv $RPM_BUILD_ROOT%{_datadir}/grub/*/* $RPM_BUILD_ROOT/boot/grub
@@ -70,36 +86,49 @@ mv $RPM_BUILD_ROOT%{_datadir}/grub/*/* $RPM_BUILD_ROOT/boot/grub
 rm -rf $RPM_BUILD_ROOT
 
 %post
-if [ -f /boot/grub/install.sh ]; then
-  if [ -x /usr/sbin/detectloader ]; then
-    LOADER=$(/usr/sbin/detectloader)
-    if [ "$LOADER" = "GRUB" ]; then
-      sh /boot/grub/install.sh > /dev/null
-    fi
-  fi
-fi
-
 %_install_info %{name}.info
-
 %_install_info multiboot.info
 
 %preun
 %_remove_install_info %{name}.info
-
 %_remove_install_info multiboot.info
 
 %files
 %defattr(-,root,root)
+%doc TODO BUGS NEWS ChangeLog docs/menu.lst
 /boot/grub
 %{_infodir}/*
 %{_mandir}/*/*
-%{_sbindir}/*
-
-%files doc
-%defattr(-,root,root)
-%doc TODO BUGS NEWS ChangeLog docs/menu.lst
+%{_bindir}/mbchk
+/sbin/*
 
 %changelog
+* Tue Mar 02 2004 Vincent Danen <vdanen@opensls.org> 0.93-6sls
+- Provides: bootloader
+
+* Tue Feb 24 2004 Vincent Danen <vdanen@opensls.org> 0.93-5sls
+- remove docs package
+- don't use %%build_opensls
+- docs in main package
+- amd64 support
+- don't remove mbchk files
+- files are in /sbin not /usr/sbin
+- get rid of the /boot/grub/install.sh stuff in %%post since we haven't had
+  that there in forever
+- sync some patches with fedora 0.93-7:
+  - P10/P11: grub.conf default, not menu.lst
+  - P12: link against curses statically
+  - P13: support large disks
+  - P14/P15/P16: graphics mode support
+  - P17: support to build on amd64
+- this gives us preliminary splash support but there are a lot of issues
+  with it to resolve
+
+* Wed Dec 03 2003 Vincent Danen <vdanen@opensls.org> 0.93-4sls
+- OpenSLS build
+- tidy spec
+- don't build doc with %%build_opensls
+
 * Mon Aug 18 2003 Pixel <pixel@mandrakesoft.com> 0.93-3mdk
 - don't include our own memcpy when building WITHOUT_LIBC_STUBS
 

@@ -1,40 +1,41 @@
-#Module-Specific definitions
-%define mod_version 4.0.1a
-%define release 1mdk
-%define mod_name mod_layout
-%define mod_conf 15_%{mod_name}.conf
-%define mod_so %{mod_name}.so
-%define sourcename %{mod_name}-%{mod_version}
+%define name	%{ap_name}-%{mod_name}
+%define version	%{ap_version}_%{mod_version}
+%define release 1sls
 
-#New ADVX macros
+# Module-Specific definitions
+%define mod_version	4.0.1a
+%define mod_name	mod_layout
+%define mod_conf	15_%{mod_name}.conf
+%define mod_so		%{mod_name}.so
+%define sourcename	%{mod_name}-%{mod_version}
+
+# New ADVX macros
 %define ADVXdir %{_datadir}/ADVX
 %{expand:%(cat %{ADVXdir}/ADVX-build)}
 %{expand:%%global ap_version %(%{apxs} -q ap_version)}
-
-# Standard Module Definitions
-%define name %{ap_name}-%{mod_name}
-%define version %{ap_version}_%{mod_version}
-
-#Standard ADVX requires
-Prereq:		%{ap_name} = %{ap_version}
-Prereq:		%{ap_name}-conf
-BuildRequires:  ADVX-build >= 9.2
-BuildRequires:  %{ap_name}-devel >= 2.0.43-5mdk
-Provides: 	ADVXpackage
-Provides:	AP20package
 
 Summary:	Add custom header and/or footers for %{ap_name}
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
+License:	BSD-style
 Group:		System/Servers
+URL:		http://software.tangent.org/
 Source0:	%{sourcename}.tar.bz2
 Source1:	%{mod_conf}.bz2
 Patch0:		%{mod_name}-%{mod_version}-register.patch.bz2
-License:	BSD-style
-URL:		http://software.tangent.org/
+
 BuildRoot:	%{_tmppath}/%{name}-buildroot
+# Standard ADVX requires
+BuildRequires:  ADVX-build >= 9.2
+BuildRequires:  %{ap_name}-devel >= 2.0.43-5mdk
+
 Prereq:		rpm-helper
+# Standard ADVX requires
+Prereq:		%{ap_name} = %{ap_version}
+Prereq:		%{ap_name}-conf
+Provides: 	ADVXpackage
+Provides:	AP20package
 
 %description
 Mod_Layout creates a framework for doing design. Whether you need
@@ -62,10 +63,6 @@ cat > index.html <<EOF
 for more information</p>
 
 <p>Meanwhile take a look at the %{ap_confd}/%{mod_conf} file</p>
-
-<p>Also please take the time to check out the 
-<a href=http://d-srv.com/modules_for_apache2.html>modules for apache2</a> 
-repository for Mandrake Linux.</p>
 
 <-- replace_me -->
 
@@ -101,6 +98,16 @@ perl -pi -e "s|_REPLACE_ME_|$NEW_URL|g" %{buildroot}%{ap_confd}/%{mod_conf}
 %doc ChangeLog INSTALL README index.html
 
 %changelog
+* Fri May 07 2004 Vincent Danen <vdanen@opensls.org> 2.0.49_4.0.1a-1sls
+- apache 2.0.49
+
+* Tue Feb 24 2004 Vincent Danen <vdanen@opensls.org> 2.0.48_4.0.1a-3sls
+- fix the index.html
+
+* Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 2.0.48_4.0.1a-2sls
+- OpenSLS build
+- tidy spec
+
 * Wed Nov 05 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.48_4.0.1a-1mdk
 - built for apache 2.0.48
 

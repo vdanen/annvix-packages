@@ -1,21 +1,22 @@
-# dosfstools.spec
-%define version 2.9
-%define release 1mdk
+%define name	dosfstools
+%define version 2.10
+%define release 1sls
 
-Summary: Utilities to create and check MS-DOS FAT filesystems.
-Name: dosfstools
-Source: ftp://ftp.uni-erlangen.de/pub/Linux/LOCAL/dosfstools/%{name}-%{version}.src.tar.bz2
-Patch0: dosfstools-2.8-x86_64.patch.bz2
-Patch1: mkdosfs.errno.patch.bz2
-Version: %{version}
-Release: %{release}
-License: GPL
-URL: ftp://ftp.uni-erlangen.de/pub/Linux/LOCAL/dosfstools
-Group: File tools
-Prefix: %{_prefix}
-Obsoletes: mkdosfs-ygg
-Provides: mkdosfs-ygg = %{version}
-BuildRoot: %{_tmppath}/%{name}-buildroot
+Summary:	Utilities to create and check MS-DOS FAT filesystems.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		File tools
+URL:		ftp://ftp.uni-erlangen.de/pub/Linux/LOCAL/dosfstools
+Source:		ftp://ftp.uni-erlangen.de/pub/Linux/LOCAL/dosfstools/%{name}-%{version}.src.tar.bz2
+Source1:	msdos_fs.h.bz2
+Patch0:		dosfstools-2.10-compile-against-2.4-header.patch.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-buildroot
+
+Obsoletes:	mkdosfs-ygg
+Provides:	mkdosfs-ygg = %{version}
 
 %description
 Inside of this package there are two utilities to create and to
@@ -26,25 +27,22 @@ code.
 
 %prep
 %setup -q
-%patch0 -p1 -b .x86_64
-%patch1 -p0 -b .errno
+%patch0 -p1 -b .kern24
+bzcat %{SOURCE1} >dosfsck/msdos_fs.h
 
 %build
-%make PREFIX=/%{_prefix} CFLAGS="$RPM_OPT_FLAGS"
+%make PREFIX=%{_prefix} CFLAGS="$RPM_OPT_FLAGS"
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 cp dosfsck/README README.fsck
 cp mkdosfs/README README.mkdosfs
 %makeinstall PREFIX=$RPM_BUILD_ROOT MANDIR=$RPM_BUILD_ROOT%{_mandir}/man8
 
-# as stated below, /sbin/fsck.* are not included in %files.
-#
-# Remove this link because for initscripts to don't have a fsck in a vfat
-# -- Use dosfsck luke --
+rm -f %{buildroot}/sbin/fsck.*
 
 %clean
-rm -r $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -56,6 +54,20 @@ rm -r $RPM_BUILD_ROOT
 %{_mandir}/man8/*
 
 %changelog
+* Fri Apr 30 2004 Vincent Danen <vdanen@opensls.org> 2.10-1sls
+- 2.10
+- ship with 2.4 kernel header (S1) and compile against it (P0) (peroyvind)
+- drop unapplied previous P0 and P1
+
+* Thu Mar 04 2004 Vincent Danen <vdanen@opensls.org> 2.9-3sls
+- minor spec cleanups
+- remove /sbin/fsck.*
+
+* Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 2.9-2sls
+- OpenSLS build
+- tidy spec
+- remove Prefix
+
 * Tue Jul 08 2003 François Pons <fpons@mandrakesoft.com> 2.9-1mdk
 - 2.9.
 

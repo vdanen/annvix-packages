@@ -1,17 +1,20 @@
-%define	version 1.3.22pl4
+%define name	dhcpcd
+%define	version	1.3.22pl4
+%define release	4sls
+
 %define	rversion 1.3.22-pl4
 
-Summary: DHCPC Daemon
-Name: dhcpcd
-Version: %{version}
-Release: 3mdk
-License: GPL
-Group: System/Servers
-Source: ftp://sunsite.unc.edu/pub/Linux/system/network/daemons/dhcpcd-%{rversion}.tar.bz2
-Patch1: dhcpcd-1.3.22-pl4-resolvrdv.patch.bz2
-#Patch0: dhcpcd-1.3.22-pl3.pid.patch.bz2
-Url: http://www.phystech.com/download/dhcpcd.html
-BuildRoot: %{_tmppath}/%{name}-root
+Summary:	DHCPC Daemon
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		System/Servers
+URL:		http://www.phystech.com/download/dhcpcd.html
+Source:		ftp://sunsite.unc.edu/pub/Linux/system/network/daemons/dhcpcd-%{rversion}.tar.bz2
+Patch0:		dhcpcd-1.3.22-pl4-resolvrdv.patch.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-root
 
 %description
 dhcpcd is an implementation of the DHCP  client  specified in
@@ -25,15 +28,14 @@ according to RFC1541 or draft-ietf-dhc-dhcp-09.
 
 %prep
 %setup -q -n %{name}-%{rversion}
-%patch1 -p1 -b .resolvrdv
-#%patch0 -p1
+%patch0 -p1 -b .resolvrdv
 
 %build
 %configure
 %make DEFS="$RPM_OPT_FLAGS"
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p $RPM_BUILD_ROOT/sbin 
 mkdir -p $RPM_BUILD_ROOT/%{_mandir}/man8
 mkdir -p $RPM_BUILD_ROOT/%{_sysconfdir}/dhcpc/
@@ -45,7 +47,7 @@ install -m 644 dhcpcd.8 $RPM_BUILD_ROOT/%{_mandir}/man8/dhcpcd.8
 touch $RPM_BUILD_ROOT/var/log/%{name}.log
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 
 %post
@@ -63,6 +65,10 @@ fi
 %ghost /var/log/%{name}.log
 
 %changelog
+* Sat May 29 2004 Vincent Danen <vdanen@opensls.org> 1.3.22pl4-4sls
+- OpenSLS build
+- tidy spec
+
 * Wed Jul 23 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 1.3.22pl4-3mdk
 - rebuild
 

@@ -1,27 +1,26 @@
-%define name gdbm
+%define name	gdbm
 %define version 1.8.0 
-%define release 24mdk
-%define lib_major 2
-%define lib_name %mklibname gdbm %{lib_major}
+%define release 26sls
 
-Summary: A GNU set of database routines which use extensible hashing.
-Name: %{name}
-Version: %{version}
-Release: %{release}
-Source: ftp://ftp.gnu.org/pub/gnu/%{name}-%{version}.tar.bz2
-# (deush comment) coming soon.. 
-Patch0: gdbm-1.8.0-jbj.patch.bz2
+%define lib_major	2
+%define lib_name	%mklibname gdbm %{lib_major}
+
+Summary:	A GNU set of database routines which use extensible hashing.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		System/Libraries
+Source:		ftp://ftp.gnu.org/pub/gnu/%{name}-%{version}.tar.bz2
+Patch0:		gdbm-1.8.0-jbj.patch.bz2
 # (deush) regenerate patch to apply with -p1
-Patch1: gdbm-1.8.0-asnonroot.patch.bz2
-# (deush comment) coming soon ..
-Patch2: gdbm-1.8.0-fixinfo.patch.bz2
+Patch1:		gdbm-1.8.0-asnonroot.patch.bz2
+Patch2:		gdbm-1.8.0-fixinfo.patch.bz2
 # (gb) use standard configure macros in Makefile.in
-Patch3: gdbm-1.8.0-std-configure-macros.patch.bz2
-License: GPL
-Packager: Daouda Lo <daouda@mandrakesoft.com>
-Group: System/Libraries
-Buildroot: %{_tmppath}/%{name}-root
-Buildrequires: texinfo
+Patch3:		gdbm-1.8.0-std-configure-macros.patch.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-root
+Buildrequires:	texinfo
 
 %description
 Gdbm is a GNU database indexing library, including routines
@@ -34,23 +33,24 @@ If you're a C developer and your programs need access to simple database
 routines, you should install gdbm.  You'll also need to install gdbm-devel.
 
 %package -n %{lib_name}
-Summary: Main library for gdbm
-Group: System/Libraries
-Obsoletes: %{name}, libgdbm1
-Provides: libgdbm1
-Provides: %{name} = %{version}-%{release}
+Summary:	Main library for gdbm
+Group:		System/Libraries
+Obsoletes:	%{name}, libgdbm1
+Provides:	libgdbm1
+Provides:	%{name} = %{version}-%{release}
+
 %description -n %{lib_name}
 This package provides library needed to run programs dynamically linked
 with gdbm.
 
 %package -n %{lib_name}-devel
-Summary: Development libraries and header files for the gdbm library.
-Group: Development/Databases
-Requires: %{lib_name} = %{version}
-Prereq: /sbin/install-info
-Obsoletes: %{name}-devel, libgdbm1-devel
-Provides: %{name}-devel, libgdbm1-devel
-Provides: %{lib_name}-devel, lib%{name}-devel
+Summary:	Development libraries and header files for the gdbm library.
+Group:		Development/Databases
+Requires:	%{lib_name} = %{version}
+Prereq:		/sbin/install-info
+Obsoletes:	%{name}-devel, libgdbm1-devel
+Provides:	%{name}-devel, libgdbm1-devel
+Provides:	%{lib_name}-devel, lib%{name}-devel
 
 %description -n %{lib_name}-devel
 Gdbm-devel contains the development libraries and header files
@@ -77,12 +77,15 @@ autoheader
 %make all info
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %makeinstall install-compat includedir=$RPM_BUILD_ROOT%{_includedir}/gdbm
 ln -sf gdbm/gdbm.h $RPM_BUILD_ROOT%{_includedir}/gdbm.h
 
 chmod 644  COPYING INSTALL NEWS README
+
+%clean
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post -n %{lib_name} -p /sbin/ldconfig
 
@@ -97,8 +100,8 @@ chmod 644  COPYING INSTALL NEWS README
 
 %files -n %{lib_name}
 %defattr(-,root,root)
-%{_libdir}/libgdbm.so.*
 %doc COPYING INSTALL NEWS README
+%{_libdir}/libgdbm.so.*
 
 %files -n %{lib_name}-devel
 %defattr(-,root,root)
@@ -111,10 +114,14 @@ chmod 644  COPYING INSTALL NEWS README
 %{_infodir}/gdbm*
 %{_mandir}/man3/*
 
-%clean
-rm -rf $RPM_BUILD_ROOT
-
 %changelog
+* Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 1.8.0-26sls
+- minor spec cleanups
+
+* Wed Dec 17 2003 Vincent Danen <vdanen@opensls.org> 1.8.0-25sls
+- OpenSLS build
+- tidy spec
+
 * Thu Aug 14 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 1.8.0 -24mdk
 - fix mklibname
 

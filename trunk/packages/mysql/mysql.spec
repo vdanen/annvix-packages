@@ -1,68 +1,45 @@
-%define name                    MySQL
-%define version			4.0.15
-%define release                 1mdk
-%define major                   12
-%define libname_orig    	mysql
-%define libname                 %mklibname %{libname_orig} %{major}
+%define name	MySQL
+%define version	4.0.18
+%define release	1sls
+
+%define major		12
+%define libname_orig	mysql
+%define libname		%mklibname %{libname_orig} %{major}
 
 %define shared_lib_version	12:0:0
 %define mysqld_user		mysql
-%define var                     /var
+%define var			/var
 
 %define _requires_exceptions perl(this)
 
 %define see_base For a description of MySQL see the base MySQL RPM or http://www.mysql.com
 
-# glibc-static-devel availability starts from MDK 9.0
-%define buildfor_mdk90	%(awk '{print ($4 >= "9.0")}' /etc/mandrake-release)
-# termcap-devel virtual package available since MDK 9.2
-%define buildfor_mdk92	%(awk '{print ($4 >= "9.2")}' /etc/mandrake-release)
-
 Summary:	MySQL: a very fast and reliable SQL database engine
-Group:          Databases
-Name: 		%{name}
+Name:		%{name}
 Version:	%{version}
-Release:        %{release}
+Release:	%{release}
 License:	GPL
-#Source:        http://www.mysql.com/Downloads/MySQL-3.23/
-Source:         ftp.free.fr:/pub/MySQL/Downloads/MySQL-4.0/mysql-%{version}.tar.bz2
-Source1:	ftp://ftp.free.fr:/pub/MySQL/Downloads/Manual/manual-split.tar.bz2
-Patch0:         mysql-4.0.14-init.patch.bz2
-Patch1:         mysql-3.23.42-bench.patch.bz2
-Patch2:		mysql-3.23.51-other-libc.patch.bz2
-Patch3:         mysql-3.23.54a-errno.patch.bz2
-Patch4: 	MySQL-4.0.11-fix-test-ssl-include.patch.bz2
-Patch5:		MySQL-4.0.11a-fix_install_scripts.patch.bz2
-Patch6: 	all_charset.patch.bz2
-Patch7: 	mysql-4.0.13-the.patch.bz2
-Patch8:		mysql-4.0.15-lib64.patch.bz2
-Patch9:		mysql-4.0.13-quotes.patch.bz2
-Icon:		mysql.gif
+Group:		Databases
 URL:            http://www.mysql.com
+Source:		ftp.free.fr:/pub/MySQL/Downloads/MySQL-4.0/mysql-%{version}.tar.bz2
+Source1:	ftp://ftp.free.fr:/pub/MySQL/Downloads/Manual/manual-split.tar.bz2
+Source2:	mysqld.run
+Source3:	mysqld-log.run
+Source4:	mysqld.sysconfig
+Patch1:		MySQL-4.0.16-fix_install_scripts.patch.bz2
+Patch2:		all_charset.patch.bz2
+Patch3:		mysql-4.0.17-lib64.patch.bz2
+Patch4:		mysql-4.0.18-securityscript.patch.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
+BuildRequires:	bison, db4-devel, glibc-static-devel, libstdc++5-static-devel, automake1.7
+BuildRequires:	termcap-devel
+BuildRequires:	ncurses-devel, python, openssl-static-devel, tetex, texinfo, zlib-devel
+
 Provides:       msqlormysql MySQL-server mysqlserver mysql
 Prereq:  	rpm-helper
 PreReq:		MySQL-common = %{version}-%{release}
 Obsoletes:      mysql MySQL-devel <= 3.23.39
-BuildRequires:  bison
-BuildRequires:	db4-devel
-BuildRequires:	glibc-static-devel
-BuildRequires:	libstdc++5-static-devel
-BuildRequires:	automake1.7
-%if %{buildfor_mdk92}
-BuildRequires:	termcap-devel
-%else
-BuildRequires:	libtermcap-devel
-%endif
-BuildRequires:	ncurses-devel
-BuildRequires:	python
-BuildRequires:	openssl-static-devel
-BuildRequires:	tetex
-BuildRequires:	texinfo
-BuildRequires:	zlib-devel
-%if %{buildfor_mdk90}
-BuildRequires:	glibc-static-devel
-%endif
-BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
 Conflicts:      MySQL-Max > 4.0.11
 
 %description
@@ -97,7 +74,6 @@ Common files for the MySQL(TM) database server.
 %package client
 Summary:        MySQL - Client
 Group:          Databases
-
 Obsoletes:      mysql-client
 Provides:       mysql-client 
 Requires:       %{libname} = %{version}-%{release}
@@ -110,7 +86,6 @@ This package contains the standard MySQL clients.
 %package bench
 Summary:        MySQL - Benchmarks and test system
 Group:          Databases
-
 Obsoletes:      mysql-bench
 Provides:       mysql-bench
 Requires:       MySQL-client = %{version}-%{release} perl
@@ -145,14 +120,14 @@ This package contains the shared libraries (*.so*) which certain
 languages and applications need to dynamically load and use MySQL.
 
 %package Max
-Release: %{release}
-Summary: MySQL - server with Berkeley DB and Innodb support
-Group: Databases
-Provides: mysql-Max = %{version}-%{release}
-Provides: msqlormysql MySQL-server mysqlserver mysql
-Obsoletes: mysql-Max
-PreReq: MySQL-common = %{version}-%{release} rpm-helper
-Conflicts: MySQL > 4.0.11
+Release:	%{release}
+Summary:	MySQL - server with Berkeley DB and Innodb support
+Group:		Databases
+Provides:	mysql-Max = %{version}-%{release}
+Provides:	msqlormysql MySQL-server mysqlserver mysql
+Obsoletes:	mysql-Max
+PreReq:		MySQL-common = %{version}-%{release} rpm-helper
+Conflicts:	MySQL > 4.0.11
 
 %description Max 
 Optional MySQL server binary that supports features
@@ -161,23 +136,11 @@ to MySQL basic server.
 
 %prep
 %setup -q -n mysql-%{version}
-%patch0 -p1 -b .server-stop
 
-##%patch1 -b .patch
-##%patch2 -p1 -b .other-libc
-
-#%patch3 -p1 -b .errno
-
-#%patch4 -p1 -b .my_net
-%patch5 -p1 -b .max
-
-%patch6 -p1 -b .charset
-%patch8 -p1 -b .lib64
-# 20030914 warly integrated upstream
-#%patch9 -p1 -b .quotes
-
-# remove this when the regex matching works better in /usr/lib/rpm/perl.req
-perl -pi -e "s|use the option --old_server.|the option --old_server should be used.|g" scripts/mysqlaccess.sh
+%patch1 -p0 -b .max
+%patch2 -p1 -b .charset
+%patch3 -p0 -b .lib64
+%patch4 -p0 -b .sec
 
 # 20021227 warly manual include files not in the archives
 # perl -pi -e 's/\@include reservedwords.texi//' ./Docs/manual.texi
@@ -299,15 +262,16 @@ automake-1.7
 
 BuildMySQL "--enable-shared" \
            "--enable-thread-safe-client" \
-	   "--without-berkeley-db --without-innodb"
+	   "--without-berkeley-db --with-innodb"
 
 nm --numeric-sort sql/mysqld > sql/mysqld.sym
 
 %install 
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 RBR=$RPM_BUILD_ROOT
 MBD=$RPM_BUILD_DIR/mysql-%{version}
 # Ensure that needed directories exists
-install -d $RBR%{_sysconfdir}/{logrotate.d,rc.d/init.d}
+install -d $RBR%{_sysconfdir}/logrotate.d
 install -d $RBR%{_localstatedir}/mysql/mysql
 install -d $RBR%{_datadir}/sql-bench
 install -d $RBR%{_datadir}/mysql-test
@@ -334,17 +298,16 @@ install -m644 $MBD/sql/mysqld.sym $RBR%{_libdir}/mysql/mysqld.sym
 
 install -m644 $MBD/support-files/mysql-log-rotate $RBR/etc/logrotate.d/mysql
 
-perl -pi -e 's/# chkconfig: 2345 90 90/# chkconfig: 2345 90 10/' $MBD/support-files/mysql.server
-install -m755 $MBD/support-files/mysql.server $RBR/etc/rc.d/init.d/mysql
-
-perl -pi -e 's/status mysqld/status mysqld-max/g' $MBD/support-files/mysql.server
-install -m755 $MBD/support-files/mysql.server $RBR/etc/rc.d/init.d/mysql-max
+mkdir -p %{buildroot}%{_srvdir}/mysqld/log
+mkdir -p %{buildroot}%{_srvlogdir}/mysqld
+install -m 0750 %{SOURCE2} %{buildroot}%{_srvdir}/mysqld/run
+install -m 0750 %{SOURCE3} %{buildroot}%{_srvdir}/mysqld/log/run
 
 # Install docs
 install -m644 $MBD/Docs/mysql.info \
  $RBR%{_infodir}/mysql.info
 
-for file in README COPYING COPYING.LIB Docs/manual_toc.html Docs/manual.html \
+for file in README COPYING Docs/manual_toc.html Docs/manual.html \
     Docs/manual.txt Docs/manual.texi Docs/manual.ps \
     support-files/my-huge.cnf support-files/my-large.cnf \
     support-files/my-medium.cnf support-files/my-small.cnf
@@ -380,6 +343,9 @@ rm -rf $RPM_BUILD_ROOT%{_datadir}/info/dir $RPM_BUILD_ROOT/shared-libs.tar
 rm -rf $RPM_BUILD_ROOT%{_datadir}/info/dir $RPM_BUILD_ROOT/shared-libs.tar
 rm -rf $RPM_BUILD_ROOT%{_bindir}/make_win_src_distribution
 
+mkdir -p %{buildroot}%{_sysconfdir}/sysconfig
+install -m 0644 %{SOURCE4} %{buildroot}%{_sysconfdir}/sysconfig/mysqld
+
 %find_lang mysql
 
 cat >> mysql.lang << EOF 
@@ -407,19 +373,19 @@ cat >> mysql.lang << EOF
 EOF
 
 %clean
-rm -rf %buildroot
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %pre common
-%_pre_useradd mysql %{_localstatedir}/mysql /bin/bash
+%_pre_useradd mysql %{_localstatedir}/mysql /bin/bash 82
 
 %post common
 %_install_info mysql.info
 
 %post
 # Initiate databases
-su - mysql -c "mysql_install_db -IN-RPM" > /dev/null
+/usr/bin/setuidgid mysql mysql_install_db -IN-RPM >/dev/null
 
-%_post_service mysql
+%_post_srv mysqld
 
 # Allow mysqld_safe to start mysqld and print a message before we exit
 sleep 2
@@ -452,19 +418,18 @@ fix_privileges()
     fi
 }
 
-if [ -f /var/lock/subsys/mysql ]; then
-    /sbin/service mysql stop &> /dev/null
+if [ "x`svstat /service/mysqld|grep down >/dev/null 2>&1; echo $?`" = "x0" ]; then
     fix_privileges
-    /sbin/service mysql start &> /dev/null 
 else
+    /usr/sbin/srv stop mysqld &> /dev/null
     fix_privileges
+    /usr/sbin/srv start mysqld &> /dev/null 
 fi
 
 %post Max
+/usr/bin/setuidgid mysql mysql_install_db -IN-RPM >/dev/null
 
-su - mysql -c "mysql_install_db -IN-RPM" > /dev/null
-
-%_post_service mysql-max
+%_post_srv mysqld
 # Allow mysqld_safe to start mysqld and print a message before we exit
 sleep 2
 
@@ -496,16 +461,16 @@ fix_privileges()
     fi
 }
 
-if [ -f /var/lock/subsys/mysql ]; then
-    /sbin/service mysql-max stop &> /dev/null
+if [ "x`svstat /service/mysqld|grep down >/dev/null 2>&1; echo $?`" = "x0" ]; then
     fix_privileges
-    /sbin/service mysql-max start &> /dev/null 
 else
+    /usr/sbin/srv stop mysqld &> /dev/null
     fix_privileges
+    /usr/sbin/srv start mysqld &> /dev/null 
 fi
 
 %preun
-%_preun_service mysql
+%_preun_srv mysqld
 # We do not remove the mysql user since it may still own a lot of
 # database files.
 
@@ -513,7 +478,7 @@ fi
 %_remove_install_info mysql.info
 
 %preun Max
-%_preun_service mysql-max
+%_preun_srv mysqld
 
 %post -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
@@ -551,6 +516,7 @@ fi
 %{_bindir}/mysqld_safe
 %{_bindir}/mysqld_multi
 %{_bindir}/my_print_defaults
+%{_bindir}/myisam_ftdump
 %{_infodir}/mysql.info*
 %config(noreplace) /etc/logrotate.d/mysql
 %dir %attr(-,mysql,mysql) %{_localstatedir}/mysql
@@ -558,6 +524,7 @@ fi
 %dir %attr(-,mysql,mysql) %{_localstatedir}/mysql/test
 %{_datadir}/mysql/binary-configure
 %{_datadir}/mysql/make_binary_distribution
+%{_datadir}/mysql/make_sharedlib_distribution
 %{_datadir}/mysql/mi_test_all
 %{_datadir}/mysql/mi_test_all.res
 %{_datadir}/mysql/my-huge.cnf
@@ -580,7 +547,12 @@ fi
 %defattr(-, root, root) 
 %{_sbindir}/mysqld
 %{_libdir}/mysql/mysqld.sym
-%config(noreplace) /etc/rc.d/init.d/mysql
+%dir %{_srvdir}/mysqld
+%dir %{_srvdir}/mysqld/log
+%{_srvdir}/mysqld/run
+%{_srvdir}/mysqld/log/run
+%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/mysqld
+%config(noreplace) %{_sysconfdir}/sysconfig/mysqld
 
 %files client
 %defattr(-, root, root)
@@ -626,9 +598,43 @@ fi
 %defattr(-, root, root)
 %{_sbindir}/mysqld-max
 %{_libdir}/mysql/mysqld-max.sym
-%config(noreplace) /etc/rc.d/init.d/mysql-max
+%dir %{_srvdir}/mysqld
+%dir %{_srvdir}/mysqld/log
+%{_srvdir}/mysqld/run
+%{_srvdir}/mysqld/log/run
+%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/mysqld
+%config(noreplace) %{_sysconfdir}/sysconfig/mysqld
 
 %changelog
+* Thu Apr 22 2004 Vincent Danen <vdanen@opensls.org> 4.0.18-1sls
+- 4.0.18
+- drop unused patches: P1, P2, P3, P4, P7, P9
+- drop P0; we do not need to patch the initscript anymore
+- add innodb support
+- renumber patches
+- remove icon
+- patch to fix CAN-2004-0381, CAN-2004-0388
+- fix runscript so $DATADIR is declared before it's used for the pid file
+- add default sysconfig/mysqld file
+- add sysconfig option to log to a file (off by default; works in
+  conjunction with the logrotate.d/mysql file)
+
+* Sun Mar 07 2004 Vincent Danen <vdanen@opensls.org> 4.0.15-5sls
+- minor spec cleanups
+
+* Wed Feb 04 2004 Vincent Danen <vdanen@opensls.org> 4.0.15-3sls
+- remove initscripts
+- supervise scripts
+- give mysql static uid/gid 82
+- use the same run files in both Max and non-Max installs since they
+  conflict and mysqld_safe makes the determination of which to use
+- change how we determine if mysqld is running
+
+* Wed Dec 17 2003 Vincent Danen <vdanen@opensls.org> 4.0.15-2sls
+- OpenSLS build
+- don't worry about older mdk distribs
+- tidy spec
+
 * Sun Sep 14 2003 Warly <warly@mandrakesoft.com> 4.0.15-1mdk
 - Security update
 

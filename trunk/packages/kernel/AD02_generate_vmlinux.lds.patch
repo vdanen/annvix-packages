@@ -6,7 +6,7 @@ diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff g1/arch/i38
  MAKEBOOT = $(MAKE) -C arch/$(ARCH)/boot
  
 +arch/i386/vmlinux.lds: arch/i386/vmlinux.lds.S FORCE
-+	$(CPP) -C -P -I$(HPATH) -imacros $(HPATH)/linux/config.h -imacros $(HPATH)/asm-i386/segment.h -imacros $(HPATH)/asm-i386/page_offset.h -Ui386 arch/i386/vmlinux.lds.S >arch/i386/vmlinux.lds
++	$(CPP) -C -P -I$(HPATH) -imacros $(HPATH)/linux/config.h -imacros $(HPATH)/asm-i386/segment.h -Ui386 arch/i386/vmlinux.lds.S >arch/i386/vmlinux.lds
 +
  vmlinux: arch/i386/vmlinux.lds
  

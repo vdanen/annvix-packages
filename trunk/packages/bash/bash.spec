@@ -1,59 +1,56 @@
+%define name	bash
+%define version	2.05b
+%define release	16sls
+
 %define i18ndate 20010418
 
-Summary: The GNU Bourne Again shell (bash).
-Name: bash
-Version: 2.05b
-Release: 14mdk
-Group: Shells
-BuildRequires: autoconf2.5
-BuildRequires: byacc
-BuildRequires: libtermcap-devel
-License: GPL
-Source0: ftp://ftp.gnu.org/pub/gnu/bash/bash-%{version}.tar.bz2
-Source1: ftp://ftp.gnu.org/pub/gnu/bash/bash-doc-%{version}.tar.bz2
-
-Source2: dot-bashrc
-Source3: dot-bash_profile
-Source4: dot-bash_logout
-Source5: alias.sh
-
-Patch0: bash-2.03-paths.patch.bz2
-Patch1: bash-2.02-security.patch.bz2
-Patch3: bash-2.03-profile.patch.bz2
-Patch4: bash-2.05b-readlinefixes.patch.bz2
-Patch5: bash-2.04-requires.patch.bz2
-Patch6: bash-2.04-compat.patch.bz2
-Patch7: bash-2.04-shellfunc.patch.bz2
-Patch8: bash-2.05b-ia64.patch.bz2
-Patch9: bash-2.05-s390x-unwind.patch.bz2
-Patch10: bash-2.05-ipv6-20010418.patch.bz2
-
-Patch51: ftp://ftp.cwru.edu/pub/bash/bash-2.05b-patches/bash205b-001.bz2
-Patch52: ftp://ftp.cwru.edu/pub/bash/bash-2.05b-patches/bash205b-002.bz2
-Patch53: ftp://ftp.cwru.edu/pub/bash/bash-2.05b-patches/bash205b-003.bz2
-Patch54: ftp://ftp.cwru.edu/pub/bash/bash-2.05b-patches/bash205b-004.bz2
-Patch55: ftp://ftp.cwru.edu/pub/bash/bash-2.05b-patches/bash205b-005.bz2
-Patch56: ftp://ftp.cwru.edu/pub/bash/bash-2.05b-patches/bash205b-006.bz2
-Patch57: ftp://ftp.cwru.edu/pub/bash/bash-2.05b-patches/bash205b-007.bz2
-
-Patch80: bash-2.05b-builtins.patch.bz2
-Patch81: bash-2.05b-configure-destdir.patch.bz2
-
-Patch90: bash-2.05b-disable-nontrivial-matches.patch.bz2
-
+Summary:	The GNU Bourne Again shell (bash).
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+Group:		Shells
+License:	GPL
+URL:		http://www.gnu.org/software/bash/bash.html
+Source0:	ftp://ftp.gnu.org/pub/gnu/bash/bash-%{version}.tar.bz2
+Source1:	ftp://ftp.gnu.org/pub/gnu/bash/bash-doc-%{version}.tar.bz2
+Source2:	dot-bashrc
+Source3:	dot-bash_profile
+Source4:	dot-bash_logout
+Source5:	alias.sh
+Patch0:		bash-2.03-paths.patch.bz2
+Patch1:		bash-2.02-security.patch.bz2
+Patch3:		bash-2.03-profile.patch.bz2
+Patch4:		bash-2.05b-readlinefixes.patch.bz2
+Patch5:		bash-2.04-requires.patch.bz2
+Patch6:		bash-2.04-compat.patch.bz2
+Patch7:		bash-2.04-shellfunc.patch.bz2
+Patch8:		bash-2.05b-ia64.patch.bz2
+Patch9:		bash-2.05-s390x-unwind.patch.bz2
+Patch10:	bash-2.05-ipv6-20010418.patch.bz2
+Patch51:	ftp://ftp.cwru.edu/pub/bash/bash-2.05b-patches/bash205b-001.bz2
+Patch52:	ftp://ftp.cwru.edu/pub/bash/bash-2.05b-patches/bash205b-002.bz2
+Patch53:	ftp://ftp.cwru.edu/pub/bash/bash-2.05b-patches/bash205b-003.bz2
+Patch54:	ftp://ftp.cwru.edu/pub/bash/bash-2.05b-patches/bash205b-004.bz2
+Patch55:	ftp://ftp.cwru.edu/pub/bash/bash-2.05b-patches/bash205b-005.bz2
+Patch56:	ftp://ftp.cwru.edu/pub/bash/bash-2.05b-patches/bash205b-006.bz2
+Patch57:	ftp://ftp.cwru.edu/pub/bash/bash-2.05b-patches/bash205b-007.bz2
+Patch80:	bash-2.05b-builtins.patch.bz2
+Patch81:	bash-2.05b-configure-destdir.patch.bz2
+Patch90:	bash-2.05b-disable-nontrivial-matches.patch.bz2
 #i18n
-Patch100: http://oss.software.ibm.com/developer/opensource/linux/patches/i18n/bash-2.05-%i18ndate.patch.bz2
-Patch101: http://oss.software.ibm.com/developer/opensource/linux/patches/i18n/bash-2.05-readline-%i18ndate.patch.bz2
-Patch102: http://oss.software.ibm.com/developer/opensource/linux/patches/i18n/bash-2.05-readline-i18n-0.4.patch.bz2
-Patch103: http://oss.software.ibm.com/developer/opensource/linux/patches/i18n/bash-2.05-i18n-0.5.patch.bz2
+Patch100:	http://oss.software.ibm.com/developer/opensource/linux/patches/i18n/bash-2.05-%i18ndate.patch.bz2
+Patch101:	http://oss.software.ibm.com/developer/opensource/linux/patches/i18n/bash-2.05-readline-%i18ndate.patch.bz2
+Patch102:	http://oss.software.ibm.com/developer/opensource/linux/patches/i18n/bash-2.05-readline-i18n-0.4.patch.bz2
+Patch103:	http://oss.software.ibm.com/developer/opensource/linux/patches/i18n/bash-2.05-i18n-0.5.patch.bz2
+Patch1000:	bash-strcoll-bug.diff.bz2
+Patch1002:	bash-2.05b-completion-fix.diff.bz2
 
-Patch1000: bash-strcoll-bug.diff.bz2
-Patch1002: bash-2.05b-completion-fix.diff.bz2
+BuildRoot:	%{_tmppath}/%{name}-root
+BuildRequires:	autoconf2.5
+BuildRequires:	byacc
+BuildRequires:	libtermcap-devel
 
-Prefix: %{_prefix}
-BuildRoot: %{_tmppath}/%{name}-root
-Conflicts: etcskel <= 1.63-11mdk, fileutils < 4.1-5mdk
-Url: http://www.gnu.org/software/bash/bash.html
+Conflicts:	etcskel <= 1.63-11mdk, fileutils < 4.1-5mdk
 
 %description
 Bash is a GNU project sh-compatible shell or command language
@@ -68,34 +65,6 @@ integer arithmetic in any base from two to 64. Bash is ultimately
 intended to conform to the IEEE POSIX P1003.2/ISO 9945.2 Shell and
 Tools standard.
 
-Bash is the default shell for Mandrake Linux. You should install
-bash because of its popularity and power. You'll probably end up
-using it.
-
-%package doc
-Group: Books/Computer books
-Summary: Documentation for the GNU Bourne Again shell (bash).
-Requires: bash = %{version}
-Url: http://www.gnu.org/software/bash/bash.html
-
-%description doc
-Bash is a GNU project sh-compatible shell or command language
-interpreter. Bash (Bourne Again shell) incorporates useful features
-from the Korn shell (ksh) and the C shell (csh). Most sh scripts
-can be run by bash without modification.
-
-Bash offers several improvements over sh, including command line
-editing, unlimited size command history, job control, shell
-functions and aliases, indexed arrays of unlimited size and 
-integer arithmetic in any base from two to 64. Bash is ultimately
-intended to conform to the IEEE POSIX P1003.2/ISO 9945.2 Shell and
-Tools standard.
-
-Bash is the default shell for Mandrake Linux. You should install
-bash because of its popularity and power. You'll probably end up
-using it.
-
-This package include doc guid examples and manual for zsh.
 
 %prep
 %setup -q -n bash-%{version} -a 1
@@ -153,7 +122,7 @@ libtoolize --copy --force
 %make -j1 CFLAGS="$RPM_OPT_FLAGS"
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
 #Sucks
 chmod +w doc/texinfo.tex
@@ -212,7 +181,7 @@ ln -s bash %buildroot/bin/rbash
 rm -f %buildroot{%_infodir/dir,%_mandir/man1/{echo,export,kill,printf,pwd,test}.1}
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files -f man.pages
 %defattr(-,root,root)
@@ -229,15 +198,19 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/bashbug.1*
 %{_bindir}/bashbug
 
-%files doc
-%defattr(-,root,root)
-%doc COMPAT NEWS NOTES POSIX
-%doc examples/bashdb/ examples/functions/ examples/misc/
-%doc examples/scripts.noah/ examples/scripts.v2/ examples/scripts/
-%doc examples/startup-files/
-%doc doc/*.ps doc/*.0 doc/*.html doc/article.txt
 
 %changelog
+* Tue Mar 02 2004 Vincent Danen <vdanen@opensls.org> 2.05b-16sls
+- remove %%build_opensls macro
+- remove %%prefix
+- minor spec cleanups
+
+* Tue Dec 02 2003 Vincent Danen <vdanen@opensls.org> 2.05b-15sls
+- OpenSLS build
+- tidy spec
+- use %%build_opensls macro to exclude docs
+- clean up the descriptions somewhat
+
 * Mon Jul  7 2003 Warly <warly@mandrakesoft.com> 2.05b-14mdk
 - really apply the patches (I sux)
 

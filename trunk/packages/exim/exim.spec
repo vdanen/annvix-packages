@@ -1,12 +1,12 @@
 %define name	exim
-%define version 4.24
-%define release 3sls
+%define version 4.34
+%define release 1sls
 
 %define build_mysql 0
 %define build_pgsql 0
-%define htmldocver  4.20
-%define exiscanver  4.24-13
-%define saversion   cvs-20030813
+%define htmldocver  4.30
+%define exiscanver  4.34-21
+%define saversion   4.0
 
 %define alternatives 1
 %define altpriority  40
@@ -24,22 +24,34 @@ Release:	%{release}
 Copyright:	GPL
 Group:		System/Servers
 URL:		http://www.exim.org
-Source:		ftp://ftp.exim.org/pub/exim/%{name}-%{version}.tar.bz2
+Source:		ftp://ftp.exim.org/pub/exim/exim4/%{name}-%{version}.tar.bz2
 Source1:	exim.aliases
 Source2:	exim.init
 Source3:	exim.sysconfig
 Source4:	exim.logrotate
 Source5:	exim.8
-Source6:	FAQ-html.tar.bz2
-Source7:	exim-html-%{htmldocver}.tar.bz2
 Source8:	eximconfig
 Source9:	exim.pam
-Source10:	ftp://ftp.exim.org/pub/exim/%{name}-%{version}.tar.bz2.sig
+Source10:	ftp://ftp.exim.org/pub/exim/exim4/%{name}-%{version}.tar.bz2.sig
 Source11:	http://www.exim.org/ftp/exim4/config.samples.tar.bz2
+# http://sa-exim.sourceforge.net/
 Source12:	sa-exim-%{saversion}.tar.gz
-Patch0:		exim-4.24-config.patch.bz2
+Source13:	exim.run
+Source14:	exim-log.run
+Patch0:		exim-4.33-config.patch.bz2
 Patch1:		http://duncanthrax.net/exiscan-acl/exiscan-acl-%{exiscanver}.patch.bz2
 Patch2:		exim-4.22-install.patch.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-%{version}
+BuildRequires:	tcp_wrappers-devel, pam-devel, openssl, openssl-devel, XFree86-devel, openldap-devel, lynx
+BuildRequires:	db4-devel >= 4.1
+%if %{build_mysql}
+BuildRequires:	libmysql-devel
+%endif
+%if %{build_pgsql}
+BuildRequires: postgresql-devel
+%endif
+
 PreReq:		rpm-helper
 %if %{alternatives}
 PreReq:		/usr/sbin/update-alternatives
@@ -48,16 +60,11 @@ Obsoletes:	sendmail postfix qmail smail
 %endif
 Requires:	chkconfig, initscripts, sh-utils, openssl, pam
 Requires:	openldap >= 2.0.11
-BuildRequires:	tcp_wrappers-devel, pam-devel, openssl, openssl-devel, XFree86-devel, libldap2-devel, lynx
+%ifarch amd64 x86_64
+Requires:	lib64db4.1
+%else
 Requires:	libdb4.1
-BuildRequires:	db4-devel >= 4.1
-%if %{build_mysql}
-BuildRequires:	libmysql-devel
 %endif
-%if %{build_pgsql}
-BuildRequires: postgresql-devel
-%endif
-Buildroot:	%{_tmppath}/%{name}-%{version}
 Provides:	smtpdaemon MTA
 
 %description
@@ -84,16 +91,6 @@ displays information about Exim's processing in an X window, and an
 administrator can perform a number of control actions from the window
 interface.
 
-%package doc
-Summary:	Exim documentation
-Group:		System/Servers
-Requires:	%{name}
-
-%description doc
-This package includes the Exim FAQ and Exim manual in HTML,
-PostScript and PDF formats.
-
-
 %package saexim
 Summary:	Exim SpamAssassin at SMTP time plugin
 Group:		System/Servers
@@ -105,13 +102,11 @@ at SMTP time as well as other nasty things like teergrubbing.
 
 
 %prep
-
 %setup -q
-%setup -q -T -D -a 7
 %setup -q -T -D -a 11
 %setup -q -T -D -a 12
 %patch0 -p1 -b .config
-%patch1 -p1
+%patch1 -p1 -b .exiscan
 %patch2 -p1 -b .install
 
 # apply the SA-exim dlopen patch
@@ -120,11 +115,6 @@ cat sa-exim*/localscan_dlopen_exim_4.20_or_better.patch | patch -p1
 %build
 # pre-build setup
 cp src/EDITME Local/Makefile
-mkdir faq
-pushd faq
-tar xvjf %{SOURCE6}
-popd
-mv exim-html-%{htmldocver} html
 cp exim_monitor/EDITME Local/eximon.conf
 
 # modify Local/Makefile for our builds
@@ -138,14 +128,16 @@ cp exim_monitor/EDITME Local/eximon.conf
   perl -pi -e 's|-lpq||g' Local/Makefile
   perl -pi -e 's|-I /usr/include/pgsql||g' Local/Makefile
 %endif
-
+%ifarch amd64 x86_64
+  perl -pi -e 's|X11\)/lib|X11\)/lib64|g' OS/Makefile-Linux
+%endif
 
 make RPM_OPT_FLAGS="$RPM_OPT_FLAGS"
 
 # build SA-exim
 cd sa-exim*
 make clean
-make SACONF=/etc/exim/sa-exim.conf
+make SACONF=/etc/exim/sa-exim.conf CFLAGS="$RPM_OPT_FLAGS" LDFLAGS="-shared -fPIC"
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -182,12 +174,15 @@ install -d -m 0750 %{buildroot}/var/spool/exim/input
 install -d -m 0750 %{buildroot}/var/spool/exim/msglog
 install -d -m 0750 %{buildroot}/var/log/exim
 
-mkdir -p %{buildroot}{%{_mandir}/man8,%{_initrddir},%{_sysconfdir}/{sysconfig,cron.weekly}}
-install -m 0700 %{SOURCE2} %{buildroot}%{_initrddir}/exim
+mkdir -p %{buildroot}{%{_mandir}/man8,%{_sysconfdir}/{sysconfig,cron.weekly}}
 install -m 0644 %{SOURCE3} %{buildroot}%{_sysconfdir}/sysconfig/exim
 install -m 0755 %{SOURCE4} %{buildroot}%{_sysconfdir}/cron.weekly/exim.logrotate
 install -m 0644 %{SOURCE5} %{buildroot}%{_mandir}/man8/exim.8
 install -m 0755 %{SOURCE8} %{buildroot}%{_sbindir}
+
+mkdir -p %{buildroot}{%{_srvdir}/exim/log,%{_srvlogdir}/exim}
+install -m 0755 %{SOURCE13} %{buildroot}%{_srvdir}/exim/run
+install -m 0755 %{SOURCE14} %{buildroot}%{_srvdir}/exim/log/run
 
 # install SA-exim
 cd sa-exim*
@@ -201,10 +196,9 @@ popd
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-rm -rf $RPM_BUILD_DIR/%{name}-%{version}
 
 %post
-%_post_service exim
+%_post_srv exim
 %if %{alternatives}
 %{alternatives_install_cmd}
 %endif
@@ -215,19 +209,6 @@ rm -rf $RPM_BUILD_DIR/%{name}-%{version}
 
 # alternatives changes the mode of /usr/bin/exim so we have to chmod
 chmod 4755 %{_bindir}/exim
-
-# we also have to hack msec because msec wants sendmail to be mode 2711
-# but it follows symlinks so we have to fix this by giving an override
-echo "Making msec aware of exim's special permissions..."
-grep -q -e '^/usr/bin/exim' %{_sysconfdir}/security/msec/perm.local 2>/dev/null \
- || echo "/usr/bin/exim   root.root   4755" >> %{_sysconfdir}/security/msec/perm.local
-
-# Now we go through the default msec perms and comment out all calls to sendmail
-echo "Disabling msec default permission checks for sendmail if required..."
-for i in `ls -1 %{_datadir}/msec/perm.[0-5]`; do
-  grep -q -e '^/usr/sbin/sendmail' $i 2>/dev/null && \
-    perl -pi -e 's|/usr/sbin/sendmail|#/usr/sbin/sendmail|g' $i
-done
 
 if [ $1 = 1 ]; then
   echo "Run %{_sbindir}/eximconfig to interactively configure exim"
@@ -241,33 +222,18 @@ fi
 %endif
 
 %preun
-%_preun_service exim
+%_preun_srv exim
 if [ $1 = 0 ]; then
   %if %{alternatives}
     update-alternatives --remove mta %{_sbindir}/sendmail.exim
   %endif
 fi
 
-%postun
-if [ "$1" -ge "1" ]; then
-	/sbin/service exim  condrestart > /dev/null 2>&1
-fi
-if [ $1 = 0 ]; then
-  echo "Restoring msec default permission checks for sendmail if required..."
-  for i in `ls -1 %{_datadir}/msec/perm.[0-5]`; do
-    grep -q -e '^\#/usr/sbin/sendmail' $i 2>/dev/null && \
-      perl -pi -e 's|#/usr/sbin/sendmail|/usr/sbin/sendmail|g' $i
-  done
-  echo "Cleaning perm.local.."
-  grep -q -e '^/usr/bin/exim' %{_sysconfdir}/security/msec/perm.local 2>/dev/null && \
-    perl -pi -e 's|/usr/bin/exim.*||g' %{_sysconfdir}/security/msec/perm.local
-fi
-      
 
 %files
 %defattr(755,root,root)
-%doc CHANGES LICENCE NOTICE README.UPDATING README
-%doc doc util/unknownuser.sh build-Linux-i386/transport-filter.pl
+%doc doc/ChangeLog LICENCE NOTICE README.UPDATING README
+%doc doc util/unknownuser.sh build-Linux-*/transport-filter.pl
 %doc util/cramtest.pl util/logargs.sh
 %doc doc/NewStuff doc/exiscan-acl-spec.txt
 %attr(4755,root,root) %{_bindir}/exim
@@ -276,6 +242,7 @@ fi
 %{_bindir}/exim_fixdb
 %{_bindir}/exim_tidydb
 %{_bindir}/exinext
+%{_bindir}/exipick
 %{_bindir}/exiwhat
 %{_bindir}/exim_dbmbuild
 %{_bindir}/exicyclog
@@ -310,19 +277,19 @@ fi
 %config(noreplace) %{_sysconfdir}/exim/aliases
 
 %defattr(-,root,root)
-%config(noreplace) %{_initrddir}/exim
 %config(noreplace) %{_sysconfdir}/sysconfig/exim
 %attr(0755,root,root) %config(noreplace) %{_sysconfdir}/cron.weekly/exim.logrotate
 %config(noreplace) %{_sysconfdir}/pam.d/exim
+%dir %{_srvdir}/exim
+%dir %{_srvdir}/exim/log
+%{_srvdir}/exim/run
+%{_srvdir}/exim/log/run
+%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/exim
 
 %files mon
 %defattr(-,root,root)
 %{_bindir}/eximon
 %{_bindir}/eximon.bin
-
-%files doc
-%defattr(-,root,root)
-%doc faq html config.samples util
 
 %files saexim
 %defattr(-,root,root)
@@ -333,6 +300,51 @@ fi
 %config(noreplace) %{_sysconfdir}/exim/sa-exim_short.conf
 
 %changelog
+* Mon May 10 2004 Vincent Danen <vdanen@opensls.org> 4.34-1sls
+- 4.34
+- exiscan-acl 4.34-21
+- remove P3; integrated upstream
+
+* Sat May 08 2004 Vincent Danen <vdanen@opensls.org> 4.33-1sls
+- 4.33
+- exiscan-acl 4.33-20
+- sa-exim 4.0
+- fix source url
+- include doc/ChangeLog instead of CHANGES
+- patch to fix CAN-2004-0400
+- rediff P0; default delivery is now to /var/mail rather than
+  /var/spool/mail
+
+* Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 4.30-7sls
+- remove mangling of msec
+
+* Thu Mar 04 2004 Vincent Danen <vdanen@opensls.org> 4.30-6sls
+- tidy spec
+- remove docs
+
+* Tue Jan 27 2004 Vincent Danen <vdanen@opensls.org> 4.30-5sls
+- use %%_post_srv and %%_preun_srv
+
+* Mon Jan 26 2004 Vincent Danen <vdanen@opensls.org> 4.30-4sls
+- remove initscript
+- use %%_srvdir and %%_srvlogdir macros
+
+* Sat Jan 10 2004 Vincent Danen <vdanen@opensls.org> 4.30-3sls
+- Requires lib64db4.1 if amd64
+
+* Mon Jan 05 2004 Vincent Danen <vdanen@opensls.org> 4.30-2sls
+- BuildRequires: openldap-devel not libldap2-devel (amd64)
+- if amd64, make eximon libs look in /usr/X11R6/lib64
+- pass -fPIC and -Wall to sa-exim build
+- supervise scripts
+
+* Sat Dec 06 2003 Vincent Danen <vdanen@opensls.org> 4.30-1sls
+- 4.30
+- exiscan-acl 4.30-14
+- 4.30 docs
+- sa-exim 3.1
+- rediff P0
+
 * Sun Nov 30 2003 Vincent Danen <vdanen@opensls.org> 4.24-3sls
 - strip support for old mdk releases
 - exiscan-acl 4.24-13

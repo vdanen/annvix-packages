@@ -1,19 +1,26 @@
+%define name	file
+%define version	4.03
+%define release	4sls
+
 %define libname %mklibname magic 1
+
 Summary:	A utility for determining file types.
-Name:		file
-Version:	4.03
-Release:	2mdk
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
 License:	BSD 
 Group:		File tools
-Url:		ftp://ftp.gw.com/mirrors/pub/unix/file/
+URL:		ftp://ftp.gw.com/mirrors/pub/unix/file/
 Source0:	ftp://ftp.gw.com/pub/unix/file/%{name}-%{version}.tar.bz2
 Source1:	magic.mime.bz2
 Patch0:		file-4.01-tex.patch.bz2
 Patch2:		file-4.01-perl.patch.bz2
 Patch3:		file-4.02-deps.patch.bz2
-Requires:	%{libname} = %{version}-%{release}
-Buildroot:	%{_tmppath}/%{name}-%{version}-buildroot
+
+BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
 BuildRequires:	perl, libtool, autoconf
+
+Requires:	%{libname} = %{version}-%{release}
 
 %description
 The file command is used to identify a particular file according to the
@@ -25,8 +32,9 @@ You should install the file package, since the file command is such a
 useful utility.
 
 %package -n %libname
-Group: System/Libraries
-Summary: Shared library for handling magic files.
+Summary:	Shared library for handling magic files.
+Group:		System/Libraries
+
 %description -n %libname
 The file command is used to identify a particular file according to the
 type of data contained by the file.  File can identify many different
@@ -37,11 +45,11 @@ Libmagic is a library for handlig the so called magic files the 'file'
 command is based on.
 
 %package -n %libname-devel
-Requires: %libname = %version-%release
-Requires: zlib-devel
-Provides: libmagic-devel = %version-%release
-Group: Development/C
-Summary: Development files to build applications that handle magic files.
+Summary:	Development files to build applications that handle magic files.
+Group:		Development/C
+Requires:	%libname = %version-%release
+Requires:	zlib-devel
+Provides:	libmagic-devel = %version-%release
 
 %description -n %libname-devel
 The file command is used to identify a particular file according to the
@@ -53,9 +61,9 @@ Libmagic is a library for handlig the so called magic files the 'file'
 command is based on. 
 
 %package -n %libname-static-devel
-Requires: %libname-devel = %version-%release
-Group: Development/C
-Summary: Static library to build applications that handle magic files.
+Summary:	Static library to build applications that handle magic files.
+Group:		Development/C
+Requires:	%libname-devel = %version-%release
 
 %description -n %libname-static-devel
 The file command is used to identify a particular file according to the
@@ -79,7 +87,7 @@ perl -p -i -e 's/sparc/SPARC/g' Magdir/*
 %make
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p $RPM_BUILD_ROOT%{_bindir}
 mkdir -p $RPM_BUILD_ROOT%{_mandir}/{man1,man5}
 mkdir -p $RPM_BUILD_ROOT%{_datadir}/misc
@@ -91,7 +99,7 @@ ln -sf %{_datadir}/misc/%{name}/magic $RPM_BUILD_ROOT%{_datadir}/misc/magic
 %postun -n %libname -p /sbin/ldconfig
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -117,6 +125,13 @@ rm -rf $RPM_BUILD_ROOT
 %_libdir/*.a
 
 %changelog
+* Thu Mar 04 2004 Vincent Danen <vdanen@opensls.org> 4.03-4sls
+- minor spec cleanups
+
+* Tue Dec 02 2003 Vincent Danen <vdanen@opensls.org> 4.03-3sls
+- OpenSLS build
+- tidy spec
+
 * Tue Jul 15 2003 Götz Waschk <waschk@linux-mandrake.com> 4.03-2mdk
 - rebuild for new rpm
 

@@ -1,30 +1,22 @@
-%define build_plf 0
-%{?_with_plf: %global build_plf 1}
-
 %define name	freetype2
 %define	version	2.1.4
-%define rel	6
-
-%if %{build_plf}
-%define release	%{rel}plf
-%else
-%define	release	%{rel}mdk
-%endif
+%define release	8sls
 
 %define major	6
 %define libname	%mklibname freetype %{major}
 
-Name:		%name
 Summary:	A free and portable TrueType font rendering engine
+Name:		%name
 Version:	%version
 Release:	%release
 License:	FreeType License/GPL
+Group:		System/Libraries
 URL:		http://www.freetype.org/
 Source0:	freetype-%{version}.tar.bz2
 Source1:	ftdocs-%{version}.tar.bz2
-Buildroot:	%{_tmppath}/%{name}-%{version}-%{release}-root
+
+BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires:	zlib-devel
-Group:		System/Libraries
 
 %description
 The FreeType2 engine is a free and portable TrueType font rendering engine.
@@ -44,11 +36,6 @@ engine.  It has been developed to provide TT support to a great
 variety of platforms and environments. Note that FreeType2 is a
 library, not a stand-alone application, though some utility
 applications are included
-%if %{build_plf}
-
-This PLF build has bytecode interpreter enabled
-which is covered by software patent
-%endif
 
 %package -n %{libname}-devel
 Summary:	Header files and static library for development with FreeType2
@@ -81,21 +68,17 @@ freetype2 package installed.
 %prep
 %setup -q -n freetype-%version -b 1
 
-%if %{build_plf}
-perl -pi -e 's|/\* #define  TT_CONFIG_OPTION_BYTECODE_INTERPRETER \*/|#define TT_CONFIG_OPTION_BYTECODE_INTERPRETER|' include/freetype/config/ftoption.h
-%endif
-
 %build
 %{?__cputoolize: %{__cputoolize} -c builds/unix}
 %configure2_5x
 %make
 
 %install
-rm -fr %buildroot
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
 
 %clean
-rm -fr %buildroot
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
@@ -118,6 +101,14 @@ rm -fr %buildroot
 %{_libdir}/*.a
 
 %changelog
+* Thu Mar 04 2004 Vincent Danen <vdanen@opensls.org> 2.1.4-8sls
+- minor spec cleanups
+
+* Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 2.1.4-7sls
+- OpenSLS build
+- tidy spec
+- remove PLF stuff
+
 * Wed Aug 28 2003 Laurent Culioli <laurent@pschit.net> 2.1.4-6mdk
 - fix conditional build
 

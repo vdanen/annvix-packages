@@ -11,11 +11,12 @@ diff -uNp t1/drivers/acpi/Config.in.ce12-1.orig t1/drivers/acpi/Config.in
    endmenu
  
  fi
---- linux-2.4.21/Documentation/Configure.help.ce12.orig	2003-08-24 02:33:33.000000000 +0200
-+++ linux-2.4.21/Documentation/Configure.help	2003-08-24 02:33:36.000000000 +0200
-@@ -19065,6 +19065,13 @@ CONFIG_ACPI_BUSMGR
-   handles PnP messages.  All ACPI devices use its services, so using
-   them requires saying Y here.
+diff -uNp q1/Documentation/Configure.help.ce12.orig q1/Documentation/Configure.help
+--- q1/Documentation/Configure.help.ce12.orig	2003-10-27 20:20:58.000000000 +0100
++++ q1/Documentation/Configure.help	2003-10-27 20:25:41.000000000 +0100
+@@ -19760,6 +19760,13 @@ CONFIG_ACPI_TOSHIBA
+   If you have a legacy free Toshiba laptop (such as the Libretto L1
+   series), say Y.
  
 +ACPI DSDT in initrd
 +CONFIG_ACPI_INITRD
@@ -24,9 +25,9 @@ diff -uNp t1/drivers/acpi/Config.in.ce12-1.orig t1/drivers/acpi/Config.in
 +  the overriden DSDT into the initrd, see http://gaugusch.at/kernel.shtml
 +  for more info. If unsure, say N here.
 +
- ACPI System Driver
- CONFIG_ACPI_SYS
-   This driver will enable your system to shut down using ACPI, and
+ Advanced Power Management BIOS support
+ CONFIG_APM
+   APM is a BIOS specification for saving power using several different
 --- linux-2.4.21/drivers/acpi/osl.c.ce12.orig	2003-08-24 02:33:20.000000000 +0200
 +++ linux-2.4.21/drivers/acpi/osl.c	2003-08-24 02:47:21.000000000 +0200
 @@ -34,6 +34,9 @@

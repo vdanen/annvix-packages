@@ -1,23 +1,23 @@
 %define name	dejagnu
 %define version 1.4.2
-%define release 5mdk
+%define release 7sls
 
 Summary:	A front end for testing other programs.
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 Epoch:		20010912
+Group:		Development/Other
 License:	GPL
 URL:		http://sourceware.cygnus.com
 Source:		%{name}-%{version}.tar.bz2 
 Patch2:		dejagnu-1.4.2-mkargs.patch.bz2
-Group:		Development/Other
-Requires:	common-licenses, tcl >= 8.0, expect >= 5.21
-Prereq:		/sbin/install-info
+
 BuildRoot:	%{_tmppath}/%{name}-%{version}-build
-BuildRequires:	autoconf automake libtool sgml-tools
-BuildRequires:	docbook-utils
-BuildArchitectures: noarch
+BuildRequires:	autoconf automake libtool
+BuildArch:	noarch
+
+Requires:	common-licenses, tcl >= 8.0, expect >= 5.21
 
 %description
 DejaGnu is an Expect/Tcl based framework for testing other programs.
@@ -40,45 +40,39 @@ export PATH=$PWD:$PATH
 make check
 )
 
-(cd doc
-  make overview.html
-  make overview.ps && bzip2 -9v overview.ps)
-
-(cd contrib/bluegnu2.0.3/doc
-  ./configure --prefix=%_prefix
-  %make)
-
 %install
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
 
-cd contrib/bluegnu2.0.3/doc
-%makeinstall
+mkdir -p %{buildroot}%{_mandir}/man1
+install -m 0644 contrib/bluegnu2.0.3/doc/dejagnu.1 %{buildroot}%{_mandir}/man1
 
 # Nuke unpackaged files
 rm -f $RPM_BUILD_ROOT%{_libdir}/config.guess
 rm -f $RPM_BUILD_ROOT%{_includedir}/dejagnu.h
 
 %clean
-rm -rf $RPM_BUILD_ROOT
-
-%post
-%_install_info %{name}.info
-
-%preun
-%_remove_install_info %{name}.info
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
 %doc AUTHORS NEWS README TODO
-%doc doc/overview doc/overview.ps.bz2
 %dir %{_datadir}/dejagnu
 %{_datadir}/dejagnu/*
 %{_bindir}/runtest
 %{_mandir}/man1/dejagnu.1*
 %{_mandir}/man1/runtest.1*
-%{_infodir}/dejagnu.info*
 
 %changelog
+* Thu Mar 04 2004 Vincent Danen <vdanen@opensls.org> 1.4.2-7sls
+- remove %%build_opensls macros
+- minor spec cleanups
+
+* Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 1.4.2-6sls
+- OpenSLS build
+- tidy spec
+- use %%build_opensls macro to not build any doc stuff
+
 * Fri Aug  1 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 1.4.2-5mdk
 - Add new runtest to PATH for make check
 

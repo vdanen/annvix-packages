@@ -1,23 +1,26 @@
-%define release 24mdk
+%define name	bdflush
+%define release 26sls
 %define version 1.5
-%define url ftp://tsx-11.mit.edu/pub/linux/sources/system/v1.2
+%define url	ftp://tsx-11.mit.edu/pub/linux/sources/system/v1.2
 
 Summary:	The process which starts the flushing of dirty buffers back to disk.
-Name:		bdflush
+Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	Public Domain
 Group:		System/Kernel and hardware
+URL:		%{url}
 Source:		%{url}/bdflush-1.5.tar.bz2
 Patch:		bdflush-1.5-axp.patch.bz2
 Patch1:		bdflush-1.5-glibc.patch.bz2
 Patch2:		bdflush-1.5-no-bdflush.patch.bz2
 Patch3:		bdflush-1.5-limit.patch.bz2
 Patch4:		bdflush-1.5_include_errno.patch.bz2
+
 Buildroot:	%{_tmppath}/%{name}-%{version}-buildroot
+
 Obsoletes:	bdflush-lowmem
 Provides:	bdflush-lowmem
-URL:		%{url}
 
 %description
 The bdflush process starts the kernel daemon which flushes dirty
@@ -42,21 +45,30 @@ perl -p -i -e "s/-Wall -O2/$RPM_OPT_FLAGS/" Makefile
 %make bdflush
 
 %install
-rm -rf $RPM_BUILD_ROOT
-install -s -m 755 bdflush -D $RPM_BUILD_ROOT/sbin/update
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+mkdir -p %{buildroot}{/sbin,%{_mandir}/man8}
 
-install -m 644 bdflush.8 -D $RPM_BUILD_ROOT/%{_mandir}/man8/bdflush.8
-ln -sf bdflush.8 $RPM_BUILD_ROOT/%{_mandir}/man8/update.8
+install -m 755 bdflush %{buildroot}/sbin/update
+install -m 644 bdflush.8 %{buildroot}/%{_mandir}/man8/update.8
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
 /sbin/update
-%{_mandir}/*/*
+%{_mandir}/man8/update.8*
 
 %changelog
+* Tue Mar 02 2004 Vincent Danen <vdanen@opensls.org> 1.5-26sls
+- minor spec cleanups
+- since the binary is named update, not bdflush, don't have a manpage named
+  bdflush
+
+* Fri Nov 28 2003 Vincent Danen <vdanen@opensls.org> 1.5-25sls
+- OpenSLS build
+- tidy spec
+
 * Tue Jul 22 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 1.5-24mdk
 - rebuild
 - cosmetics

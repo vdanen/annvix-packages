@@ -1,39 +1,41 @@
-%define name  db2
+%define name 	db2
 %define version 2.4.14
-%define release 8mdk
+%define release 10sls
 
-Summary: The BSD database library for C (version 2).
-Name: %{name}
-Version: %{version}
-Release: %{release}
-#Source: http://www.sleepycat.com/update/2.7.7/db-2.7.7.tar.gz
+Summary:	The BSD database library for C (version 2).
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	BSD
+Group:		System/Libraries
+URL:		http://www.sleepycat.com
+#Source:	http://www.sleepycat.com/update/2.7.7/db-2.7.7.tar.gz
 # Taken from glibc 2.1.3
-Source: %{name}-glibc-2.1.3.tar.bz2
+Source:		%{name}-glibc-2.1.3.tar.bz2
 # Patch to make it standalone
-Patch0: db2-glibc-2.1.3.patch.bz2
-Patch1: db2-2.4.14-db2.patch.bz2
-Patch2: db2-2.4.14-db_fileid-64bit-fix.patch.bz2
-URL: http://www.sleepycat.com
-License: BSD
-Group: System/Libraries
-PreReq: /sbin/ldconfig
-BuildRoot: %{_tmppath}/%{name}-root
-%ifnarch ia64
-Conflicts: glibc < 2.1.90
-%endif
+Patch0:		db2-glibc-2.1.3.patch.bz2
+Patch1:		db2-2.4.14-db2.patch.bz2
+Patch2:		db2-2.4.14-db_fileid-64bit-fix.patch.bz2
 
-%package devel
-Summary: Development libs/header files for Berkeley DB (version 2) library.
-Group: Development/C
-Requires: %{name} = %{version}
+BuildRoot:	%{_tmppath}/%{name}-root
+
+PreReq:		/sbin/ldconfig
 %ifnarch ia64
-Conflicts: glibc-devel < 2.1.90
+Conflicts:	glibc < 2.1.90
 %endif
 
 %description
 The Berkeley Database (Berkeley DB) is a programmatic toolkit that provides
 embedded database support for both traditional and client/server applications.
 This library used to be part of the glibc package.
+
+%package devel
+Summary:	Development libs/header files for Berkeley DB (version 2) library.
+Group:		Development/C
+Requires:	%{name} = %{version}
+%ifnarch ia64
+Conflicts:	glibc-devel < 2.1.90
+%endif
 
 %description devel
 The Berkeley Database (Berkeley DB) is a programmatic toolkit that provides
@@ -54,7 +56,7 @@ building programs which use Berkeley DB.
 CFLAGS="$RPM_OPT_FLAGS" %make
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p $RPM_BUILD_ROOT%{_includedir}/db2
 mkdir -p $RPM_BUILD_ROOT%{_libdir}
 mkdir -p $RPM_BUILD_ROOT%{_bindir}
@@ -76,10 +78,9 @@ for p in db_archive db_checkpoint db_deadlock db_dump db_load \
 done
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post -p /sbin/ldconfig
-
 %postun -p /sbin/ldconfig
 
 %files
@@ -105,6 +106,13 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/db2_stat
 
 %changelog
+* Tue Mar 03 2004 Vincent Danen <vdanen@opensls.org> 2.4.14-10sls
+- minor spec cleanups
+
+* Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 2.4.14-9sls
+- OpenSLS build
+- tidy spec
+
 * Tue Jul 22 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 2.4.14-8mdk
 - rebuild
 - drop Prefix tag

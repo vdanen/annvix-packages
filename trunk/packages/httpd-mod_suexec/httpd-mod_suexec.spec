@@ -1,38 +1,39 @@
-#New ADVX macros
+%define name	%{ap_name}-%{mod_name}
+%define version %{ap_version}
+%define release 1sls
+
+# New ADVX macros
 %define ADVXdir %{_datadir}/ADVX
 %{expand:%(cat %{ADVXdir}/ADVX-build)}
 %{expand:%%global ap_version %(%{apxs} -q ap_version)}
 
-#Module-Specific definitions
-%define release 1mdk
-%define mod_name mod_suexec
-%define mod_conf 69_%{mod_name}.conf
-%define mod_so %{mod_name}.so
-%define sourcename %{mod_name}-%{ap_version}
-
-# Standard Module Definitions
-%define name %{ap_name}-%{mod_name}
-%define version %{ap_version}
-
-#Standard ADVX requires
-Prereq:		%{ap_name} = %{ap_version}
-Prereq:		apache-conf
-BuildRequires:  ADVX-build >= 9.2
-BuildRequires:  %{ap_name}-devel >= 2.0.44-5mdk
-BuildRequires:  %{ap_name}-source >= 2.0.44-5mdk
-Provides: 	ADVXpackage
-Provides:	AP20package
+# Module-Specific definitions
+%define mod_name	mod_suexec
+%define mod_conf	69_%{mod_name}.conf
+%define mod_so		%{mod_name}.so
+%define sourcename	%{mod_name}-%{ap_version}
 
 Summary:	Allows CGI scripts to run as a specified user and Group
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
-Group:		System/Servers
-Source1:	%{mod_conf}.bz2
 License:	Apache License
+Group:		System/Servers
 URL:		http://httpd.apache.org/docs/suexec.html
+Source1:	%{mod_conf}.bz2
+
 BuildRoot:	%{_tmppath}/%{name}-buildroot
+# Standard ADVX requires
+BuildRequires:  ADVX-build >= 9.2
+BuildRequires:  %{ap_name}-devel >= 2.0.44-5mdk
+BuildRequires:  %{ap_name}-source >= 2.0.44-5mdk
+
 Prereq:		rpm-helper
+# Standard ADVX requires
+Prereq:		%{ap_name} = %{ap_version}
+Prereq:		apache-conf
+Provides: 	ADVXpackage
+Provides:	AP20package
 
 %description
 This module, in combination with the suexec support program
@@ -102,6 +103,16 @@ install suexec.8 %{buildroot}%{_mandir}/man8/%{ap_name}-suexec.8
 %{_mandir}/man8/*
 
 %changelog
+* Fri May 07 2004 Vincent Danen <vdanen@opensls.org> 2.0.49-1sls
+- apache 2.0.49
+
+* Tue Feb 24 2004 Vincent Danen <vdanen@opensls.org> 2.0.48-3sls
+- rebuild
+
+* Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 2.0.48-2sls
+- OpenSLS build
+- tidy spec
+
 * Wed Nov 05 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.48-1mdk
 - built for apache 2.0.48
 

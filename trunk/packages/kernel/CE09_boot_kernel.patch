@@ -6,7 +6,7 @@ diff -u linux/arch/i386/config.in.chmou linux/arch/i386/config.in
  mainmenu_option next_comment
  comment 'Kernel hacking'
 -
-+bool 'Make the kernel for install system (only usefull for distro makers)' CONFIG_BOOT_KERNEL
++bool 'Make the kernel for install system (only useful for distro makers)' CONFIG_BOOT_KERNEL
  bool 'Kernel debugging' CONFIG_DEBUG_KERNEL
  if [ "$CONFIG_DEBUG_KERNEL" != "n" ]; then
     bool '  Debug high memory support' CONFIG_DEBUG_HIGHMEM

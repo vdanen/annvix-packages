@@ -1,31 +1,31 @@
+%define name	bzip2
+%define version	1.0.2
+%define release	18sls
+
 %define libname_orig lib%{name}
-%define libname %mklibname %{name}_ 1
-%define buildpdf 0
+%define libname	%mklibname %{name}_ 1
 
-Summary: Extremely powerful file compression utility
-Name: bzip2
-Version: 1.0.2
-Release: 16mdk
-License: BSD
-Group: Archiving/Compression
-Source: ftp://sourceware.cygnus.com/pub/bzip2/v102/%name-%version.tar.bz2
-URL: http://sourceware.cygnus.com/bzip2/
-Source1: bzgrep
-Source2: bzme
-Source3: bzme.1
-Patch1: bzip2-2.libtoolizeautoconf.patch.bz2
-
+Summary:	Extremely powerful file compression utility
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	BSD
+Group:		Archiving/Compression
+URL:		http://sourceware.cygnus.com/bzip2/
+Source:		ftp://sourceware.cygnus.com/pub/bzip2/v102/%name-%version.tar.bz2
+Source1:	bzgrep
+Source2:	bzme
+Source3:	bzme.1
+Patch1:		bzip2-2.libtoolizeautoconf.patch.bz2
 # P2 implements a progress counter (in %). It also
 # display the percentage of the original file the new file is (size). 
 # URL: http://www.vanheusden.com/Linux/bzip2-1.0.2.diff.gz
-Patch2: bzip2-1.0.2.diff.bz2
+Patch2:		bzip2-1.0.2.diff.bz2
 
-BuildRoot: %_tmppath/%name-%version-root
-Requires: %libname = %version
-%if %buildpdf
-BuildRequires: tetex-dvips tetex-latex
-%endif
-BuildRequires: texinfo
+BuildRoot:	%_tmppath/%name-%version-root
+BuildRequires:	texinfo
+
+Requires:	%libname = %version
 
 %description
 Bzip2 compresses files using the Burrows-Wheeler block-sorting text
@@ -38,20 +38,21 @@ The command-line options are deliberately very similar to those of GNU Gzip,
 but they are not identical.
 
 %package -n %{libname}
-Summary: Libraries for developing apps which will use bzip2.
-Group: System/Libraries
+Summary:	Libraries for developing apps which will use bzip2.
+Group:		System/Libraries
+
 %description -n %libname
 Library of bzip2 functions, for developing apps which will use the
 bzip2 library (aka libz2).
 
-
 %package -n %{libname}-devel
-Summary: Header files for developing apps which will use bzip2.
-Group: Development/C
-Requires: %libname = %version
-Provides: %{libname_orig}-devel = %version-%release
-Provides: %name-devel
-Obsoletes: %name-devel
+Summary:	Header files for developing apps which will use bzip2.
+Group:		Development/C
+Requires:	%libname = %version
+Provides:	%{libname_orig}-devel = %version-%release
+Provides:	%name-devel
+Obsoletes:	%name-devel
+
 %description -n %libname-devel
 Header files and static library of bzip2 functions, for developing apps which
 will use the bzip2 library (aka libz2).
@@ -71,12 +72,9 @@ autoheader
 %build
 %configure --libdir=%_libdir
 make
-%if %buildpdf
-texi2dvi --pdf manual.texi
-%endif
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
 install -m 755 %SOURCE1 bzme $RPM_BUILD_ROOT%_bindir
 
@@ -86,6 +84,9 @@ cat > $RPM_BUILD_ROOT%_bindir/bzless <<EOF
 EOF
 chmod 755 $RPM_BUILD_ROOT%_bindir/bzless
 install -m 644 %SOURCE3 $RPM_BUILD_ROOT%_mandir/man1/
+
+%clean
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post -n %libname -p /sbin/ldconfig
 %postun -n %libname -p /sbin/ldconfig
@@ -104,18 +105,21 @@ install -m 644 %SOURCE3 $RPM_BUILD_ROOT%_mandir/man1/
 %files -n %libname-devel
 %defattr(-,root,root,755)
 %doc *.html LICENSE
-%if %buildpdf
-%doc manual.pdf
-%endif
 %_libdir/libbz2.a
 %_libdir/libbz2.la
 %_libdir/libbz2.so
 %_includedir/*.h
 
-%clean
-rm -rf $RPM_BUILD_ROOT
 
 %changelog
+* Tue Mar 02 2004 Vincent Danen <vdanen@opensls.org> 1.0.2-18sls
+- remove %%buildpdf
+- minor spec cleanups
+
+* Tue Dec 02 2003 Vincent Danen <vdanen@opensls.org> 1.0.2-17sls
+- OpenSLS build
+- tidy spec
+
 * Tue Jul 08 2003 Olivier Thauvin <thauvin@aerov.jussieu.fr> 1.0.2-16mdk
 - rebuild for new provides
 

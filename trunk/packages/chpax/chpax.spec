@@ -1,17 +1,18 @@
 %define name	chpax
 %define version	0.5
-%define release	1mdk
+%define release	3sls
 
-Name:		%{name}
 Summary:	Tool that allows PaX flags to be modified on a per-binary basis
+Name:		%{name}
 Version:	%{version}
 Release:	%{release}
+License:	Public Domain
+Group:		System/Configuration/Other
+URL:		http://pageexec.virtualave.net/
 Source0:	%{name}-%{version}.tar.bz2
 Patch0:		%{name}-%{version}-autotools.patch.bz2
-URL:		http://pageexec.virtualave.net/
-Group:		System/Configuration/Other
+
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
-License:	Public Domain
 BuildRequires:	autoconf2.5 automake1.7
 
 %description
@@ -33,19 +34,26 @@ automake-1.7 --foreign -a
 %make
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
 
 %clean 
-rm -rf $RPM_BUILD_ROOT 
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files 
-%defattr(-,root,root,0755) 
+%defattr(-,root,root) 
 %doc README ChangeLog
 %{_mandir}/man1/chpax.1*
 %{_sbindir}/chpax
 
 %changelog 
+* Tue Mar 02 2004 Vincent Danen <vdanen@opensls.org> 0.5-3sls
+- minor spec cleanups
+
+* Wed Dec 31 2003 Vincent Danen <vdanen@opensls.org> 0.5-2sls
+- OpenSLS build
+- tidy spec
+
 * Tue Dec 30 2003 Lenny Cartier <lenny@mandrakesoft.com> 0.5-1mdk
 - from Omer Shenker <chpax@omershenker.net> :
 	- Specfile for Mandrake

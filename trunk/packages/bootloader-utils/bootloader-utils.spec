@@ -1,32 +1,37 @@
+%define name	bootloader-utils
+%define version	1.6
+%define release	6sls
+
 %define _mypost_service() if [ $1 = 1 ]; then /sbin/chkconfig --add %{1}; fi;
 
-Summary: Small utils needed for the kernel
-Name: bootloader-utils
-Version: 1.6
-Release: 3mdk
-Source0: %{name}-%{version}.tar.bz2
-License: GPL
-Group: System/Kernel and hardware
-BuildRoot: %{_tmppath}/%{name}-buildroot
-Prefix: %{_prefix}
-Requires: perl-base
-Prereq: chkconfig
-PreReq: initscripts >= 7.06-21mdk
-Url: http://www.linux-mandrake.com/cgi-bin/cvsweb.cgi/soft/initscripts/mandrake/loader/
+Summary:	Small utils needed for the kernel
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		System/Kernel and hardware
+URL:		http://www.linux-mandrake.com/cgi-bin/cvsweb.cgi/soft/initscripts/mandrake/loader/
+Source0:	%{name}-%{version}.tar.bz2
+Patch0:		bootloader-utils-1.6-opensls.patch.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-buildroot
+
+Requires:	perl-base
+Prereq:		chkconfig, initscripts >= 7.06-21mdk
 
 %description
-
 Utils needed to install/remove a kernel.  Also for updating bootloaders.
 
 %prep
 %setup -q
+%patch0 -p0 -b .opensls
 
 %build
 make
 
 %install
-rm -rf $RPM_BUILD_ROOT
-make ROOT=$RPM_BUILD_ROOT mandir=%{_mandir} install
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+make ROOT=%{buildroot} mandir=%{_mandir} install
 
 %post
 %_mypost_service kheader
@@ -35,7 +40,7 @@ make ROOT=$RPM_BUILD_ROOT mandir=%{_mandir} install
 %_preun_service kheader
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -60,6 +65,26 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Jun 15 2004 Vincent Danen <vdanen@opensls.org> 1.6-6sls
+- look for grub.conf rather than menu.lst
+
+* Wed Mar  3 2004 Thomas Backlund <tmb@iki.fi> 1.6-5sls
+- sync with mdk 1.6-7mdk
+  * getroot() don't have arguement.
+  * append is not null anymore.
+  * ide-scsi removed from command line for all kernel (2.6 2.4).
+  *  when boot loader is grub, do not remove unrelated kernel entries (#5952)
+  * from Thomas Backlund <tmb@mandrake.org>:
+    o typo fixes
+    o make some messages somewhat more understandable
+  *  fix detectloader typo (perl now reports an error instead of silently ignoring the pb)
+- minor spec cleanups (vdanen)
+- remove %%prefix (vdanen)
+
+* Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 1.6-4sls
+- OpenSLS build
+- tidy spec
+
 * Wed Sep 17 2003 Thierry Vignaud <tvignaud@mandrakesoft.com> 1.6-3mdk
 - grub: fix finding root partition when fstan has commented out
   entries

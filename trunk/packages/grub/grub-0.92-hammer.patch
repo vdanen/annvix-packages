@@ -1,0 +1,32 @@
+--- grub-0.92/configure.in.hammer	2002-12-28 17:53:58.000000000 -0500
++++ grub-0.92/configure.in	2002-12-28 17:54:36.000000000 -0500
+@@ -22,6 +22,7 @@
+ 
+ case "$host_cpu" in
+ i[[3456]]86) host_cpu=i386 ;;
++x86_64) host_cpu=x86_64 ;;
+ *) AC_MSG_ERROR([unsupported CPU type]) ;;
+ esac
+ 
+@@ -45,6 +46,12 @@
+   default_CFLAGS=yes
+ fi
+ 
++# this should be checked before AC_PROG_CC
++if test "x$host_cpu" = xx86_64; then
++  CFLAGS="-m32 $CFLAGS"
++fi
++  
++
+ #
+ # Programs
+ #
+@@ -73,7 +80,7 @@
+ # optimization flags
+ if test "x$ac_cv_prog_gcc" = xyes; then
+   if test "x$default_CFLAGS" = xyes; then
+-    CFLAGS="-g"
++    CFLAGS="$CFLAGS -g"
+     # If the user specify the directory for binutils, add the option `-B'.
+     if test "x$with_binutils" != x; then
+       CFLAGS="-B$with_binutils/ $CFLAGS"

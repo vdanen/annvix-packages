@@ -1,75 +1,73 @@
+%define name	coreutils
+%define version	5.0
+%define release	8sls
+
 # fileutils: rh-4.1-4
 # sh-utils:  rh-2.0.12-2
 
 # for sh-utils :
 %define optflags $RPM_OPT_FLAGS -D_GNU_SOURCE=1
 
-Summary: The GNU core utilities: a set of tools commonly used in shell scripts
-Name:    coreutils
-Version: 5.0
-Release: 6mdk
-License: GPL
-Group:   System/Base
-Url:     ftp://alpha.gnu.org/gnu/coreutils/
+Summary:	The GNU core utilities: a set of tools commonly used in shell scripts
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		System/Base
+URL:		ftp://alpha.gnu.org/gnu/coreutils/
 
-Source0: ftp://prep.ai.mit.edu/pub/gnu/%name/%name-%version.tar.bz2
+Source0:	ftp://prep.ai.mit.edu/pub/gnu/%name/%name-%version.tar.bz2
 Source101:	DIR_COLORS
-Source102:  DIR_COLORS.xterm
-Source200:  su.pamd
-Source201:  help2man
-
+Source102:	DIR_COLORS.xterm
+Source200:	su.pamd
+Source201:	help2man
 Patch0:		coreutils-4.5.4-lug.patch.bz2
-
 # fileutils
-Patch101: fileutils-4.0-spacedir.patch.bz2
-Patch102: fileutils-4.0s-sparc.patch.bz2
-Patch103: coreutils-4.5.2-trunc.patch.bz2
-Patch105: coreutils-4.5.2-C.patch.bz2
-Patch107: fileutils-4.1.10-timestyle.patch.bz2
-Patch108: fileutils-4.1.5-afs.patch.bz2
-Patch111: coreutils-4.5.2-dumbterm.patch.bz2
-Patch112: fileutils-4.0u-glibc22.patch.bz2
-Patch113: coreutils-4.5.2-nolibrt.patch.bz2
-Patch114: fileutils-4.1-restorecolor.patch.bz2
-Patch115: fileutils-4.1.1-FBoptions.patch.bz2
-Patch1155: fileutils-4.1-force-option--override--interactive-option.patch.bz2
-Patch116: fileutils-4.1-dircolors_c.patch.bz2
-Patch117: fileutils-4.1-ls_c.patch.bz2
-Patch118: fileutils-4.1-ls_h.patch.bz2
-Patch152: coreutils-4.5.7-touch_errno.patch.bz2
-Patch153: fileutils-4.1.10-utmp.patch.bz2
-Patch180: coreutils-4.5.12-fr-fix.patch.bz2
-Patch500: textutils-2.0.17-mem.patch.bz2
-Patch502: textutils-2.0.21-man.patch.bz2
-
+Patch101:	fileutils-4.0-spacedir.patch.bz2
+Patch102:	fileutils-4.0s-sparc.patch.bz2
+Patch103:	coreutils-4.5.2-trunc.patch.bz2
+Patch105:	coreutils-4.5.2-C.patch.bz2
+Patch107:	fileutils-4.1.10-timestyle.patch.bz2
+Patch108:	fileutils-4.1.5-afs.patch.bz2
+Patch111:	coreutils-4.5.2-dumbterm.patch.bz2
+Patch112:	fileutils-4.0u-glibc22.patch.bz2
+Patch113:	coreutils-4.5.2-nolibrt.patch.bz2
+Patch114:	fileutils-4.1-restorecolor.patch.bz2
+Patch115:	fileutils-4.1.1-FBoptions.patch.bz2
+Patch1155:	fileutils-4.1-force-option--override--interactive-option.patch.bz2
+Patch116:	fileutils-4.1-dircolors_c.patch.bz2
+Patch117:	fileutils-4.1-ls_c.patch.bz2
+Patch118:	fileutils-4.1-ls_h.patch.bz2
+Patch152:	coreutils-4.5.7-touch_errno.patch.bz2
+Patch153:	fileutils-4.1.10-utmp.patch.bz2
+Patch180:	coreutils-4.5.12-fr-fix.patch.bz2
+Patch500:	textutils-2.0.17-mem.patch.bz2
+Patch502:	textutils-2.0.21-man.patch.bz2
 # sh-utils
-Patch702: coreutils-4.5.7-utmp.patch.bz2
-Patch703: sh-utils-2.0.11-dateman.patch.bz2
-Patch704: sh-utils-1.16-paths.patch.bz2
+Patch702:	coreutils-4.5.7-utmp.patch.bz2
+Patch703:	sh-utils-2.0.11-dateman.patch.bz2
+Patch704:	sh-utils-1.16-paths.patch.bz2
 # RMS will never accept the PAM patch because it removes his historical
 # rant about Twenex and the wheel group, so we'll continue to maintain
 # it here indefinitely.
-Patch706: coreutils-4.5.2-pam.patch.bz2
-Patch710: sh-utils-2.0-rfc822.patch.bz2
-Patch711: sh-utils-2.0.12-hname.patch.bz2
-
+Patch706:	coreutils-4.5.2-pam.patch.bz2
+Patch710:	sh-utils-2.0-rfc822.patch.bz2
+Patch711:	sh-utils-2.0.12-hname.patch.bz2
 # (sb) lin18nux/lsb compliance
-Patch800: http://www.li18nux.org/subgroups/utildev/patch/coreutils-4.5.9-i18n-0.2.patch.bz2
+Patch800:	http://www.li18nux.org/subgroups/utildev/patch/coreutils-4.5.9-i18n-0.2.patch.bz2
+Patch901:	coreutils-4.5.3-signal.patch.bz2
+Patch903:	coreutils-4.5.3-manpage.patch.bz2
+Patch904:	coreutils-5.0-allow_old_options.patch.bz2
+Patch905:	coreutils-5.0-du-fd_leak.patch.bz2
 
-Patch901: coreutils-4.5.3-signal.patch.bz2
-Patch903: coreutils-4.5.3-manpage.patch.bz2
-Patch904: coreutils-5.0-allow_old_options.patch.bz2
-Patch905: coreutils-5.0-du-fd_leak.patch.bz2
 
-
-BuildRoot: %_tmppath/%{name}-root
+BuildRoot:	%_tmppath/%{name}-root
 BuildRequires:	gettext termcap-devel pam-devel texinfo >= 4.3
-Requires:   pam >= 0.66-12
 
+Requires:  	pam >= 0.66-12
 Provides:	fileutils = %version, sh-utils = %version, stat, textutils = %version
 Obsoletes:	fileutils sh-utils stat textutils
-
-Conflicts:  tetex < 1.0.7-49mdk
+Conflicts:	tetex < 1.0.7-49mdk
 
 %description
 These are the GNU core utilities.  This package is the union of
@@ -85,7 +83,7 @@ Most of these programs have significant advantages over their Unix
 counterparts, such as greater speed, additional options, and fewer
 arbitrary limits.
 
-The following tools're included:
+The following tools are included:
 
   basename cat chgrp chmod chown chroot cksum comm cp csplit cut date dd
   df dir dircolors dirname du echo env expand expr factor false fmt fold
@@ -95,15 +93,15 @@ The following tools're included:
   split stat stty su sum sync tac tail tee test touch tr true tsort tty
   uname unexpand uniq unlink uptime users vdir wc who whoami yes
 
-
 %package doc
-Summary: Coreutils documentation in info format
-Group: Books/Computer books
-Requires: coreutils >= 4.5.4-2mdk
+Summary:	Coreutils documentation in info format
+Group:		Books/Computer books
+Requires:	coreutils >= 4.5.4-2mdk
 Prereq:		/sbin/install-info
- # it here indefinitely.
+
 %description doc
-This package
+Documentation for the coreutils package; includes manpages, an info file,
+and other miscellaneous documentation.
 
 %prep
 %setup -q
@@ -174,7 +172,7 @@ chmod +x man/help2man
 
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
 # man pages are not installed with make install
@@ -203,7 +201,7 @@ for i in env cut; do ln -sf ../../bin/$i $RPM_BUILD_ROOT/usr/bin; done
 install -c -m644 %SOURCE101 $RPM_BUILD_ROOT/etc/
 
 # su
-install -m 4755 src/su $RPM_BUILD_ROOT/bin
+install -m 0755 src/su $RPM_BUILD_ROOT/bin
 
 # These come from util-linux and/or procps.
 for i in hostname uptime ; do
@@ -219,10 +217,11 @@ bzip2 -f9 old/*/C* || :
 %find_lang %name
 
 # (sb) Deal with Installed (but unpackaged) file(s) found
-rm -f $RPM_BUILD_ROOT%{_datadir}/info/dir
+rm -f %{buildroot}%{_datadir}/info/dir
+rm -rf %{buildroot}%{_datadir}/locale/*/LC_TIME
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %pre doc
 # We must desinstall theses info files since they're merged in
@@ -243,6 +242,7 @@ done
 # package'll be installed 2 times because of trigger faillure
 true
 
+
 %files -f %{name}.lang
 %defattr(-,root,root)
 %config(noreplace) %{_sysconfdir}/D*
@@ -259,6 +259,15 @@ true
 %_mandir/man*/*
 
 %changelog
+* Mon Mar 02 2004 Vincent Danen <vdanen@opensls.org> 5.0-8sls
+- minor spec cleanups
+- /bin/su is not suid root anymore
+
+* Fri Nov 28 2003 Vincent Danen <vdanen@opensls.org> 5.0-7sls
+- OpenSLS build
+- tidy spec
+- use a decent description for -doc package
+
 * Sun Aug  3 2003 Pixel <pixel@mandrakesoft.com> 5.0-6mdk
 - allow old style options (eg: head -1)
   (we could keep the warning, but breaking backward compatibility is crazy)

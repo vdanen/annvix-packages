@@ -1,21 +1,25 @@
-%define version 0.4b32
-%define release 2mdk
+%define name	dump
+%define version 0.4b34
+%define release 4sls
 
 Summary:	Programs for backing up and restoring filesystems
-Name:		dump
+Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	BSD
 Group:		Archiving/Backup
-
+URL:		http://sourceforge.net/projects/dump/
 Source: 	http://download.sourceforge.net/dump/dump-%{version}.tar.bz2
 Patch:		dump-nonroot.patch.bz2
 Patch1:		dump-0.4b24-linking.patch.bz2
-Url:		http://sourceforge.net/projects/dump/
+Patch2:		dump-0.4b34-check-systypes.patch.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-root
+BuildRequires:	e2fsprogs-devel >= 1.15
+BuildRequires:	termcap-devel readline-devel
+BuildPreReq:	autoconf2.5
 
 Requires:	rmt
-BuildRequires:	e2fsprogs-devel >= 1.15
-BuildRoot:	%{_tmppath}/%{name}-root
 
 %description
 The dump package contains both dump and restore.  Dump examines files in
@@ -27,8 +31,8 @@ layered on top of the full backup.  Single files and directory subtrees
 may also be restored from full or partial backups.
 
 %package -n rmt
-Summary: Provides certain programs with access to remote tape devices.
-Group:	Archiving/Backup
+Summary:	Provides certain programs with access to remote tape devices.
+Group:		Archiving/Backup
 
 %description -n rmt
 The rmt utility provides remote access to tape devices for programs
@@ -39,6 +43,7 @@ restoring files from a backup) and tar (an archiving program).
 %setup -q
 %patch0 -p0
 %patch1 -p1 -b .link
+%patch2 -p1 -b .sys-types
 
 %build
 # libcom_err of e2fsprogs and krb5 conflict. Watch this hack. -- Geoff.
@@ -56,7 +61,7 @@ CFLAGS="$RPM_OPT_FLAGS -L$PWD/%{_lib}" %configure \
 %make GLIBDIR="-L$PWD/%{_lib}" OPT="$RPM_OPT_FLAGS -Wall -Wpointer-arith -Wstrict-prototypes -Wmissing-prototypes -Wno-char-subscripts"
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p $RPM_BUILD_ROOT/sbin
 mkdir -p ${RPM_BUILD_ROOT}%{_mandir}/man8
 
@@ -80,15 +85,13 @@ ln -sf dump.8 rdump.8
 ln -sf restore.8 rrestore.8
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
 %doc CHANGES COPYRIGHT KNOWNBUGS README THANKS TODO MAINTAINERS dump.lsm
 %attr(0664,root,disk)	%config(noreplace) %{_sysconfdir}/dumpdates
-#%attr(6755,root,tty)	/sbin/dump
 /sbin/dump
-#%attr(6755,root,tty)	/sbin/restore
 /sbin/restore
 /sbin/rdump
 /sbin/rrestore
@@ -100,12 +103,29 @@ rm -rf $RPM_BUILD_ROOT
 %files -n rmt
 %defattr(-,root,root)
 %doc COPYRIGHT
-#%attr(0755,root,root)	/sbin/rmt
 /sbin/rmt
 /etc/rmt
 %{_mandir}/man8/rmt.8*
 
 %changelog
+* Thu Mar 04 2004 Vincent Danen <vdanen@opensls.org> 0.4b34-4sls
+- minor spec cleanups
+
+* Mon Jan 05 2004 Vincent Danen <vdanen@opensls.org> 0.4b34-3sls
+- sync with 2mdk (gbeauchesne): make sure to check for <sys/types.h> prior
+  to actual types like quad_t
+- BuildPreReq: autoconf2.5
+
+* Mon Dec 02 2003 Vincent Danen <vdanen@opensls.org> 0.4b34-2sls
+- OpenSLS build
+- tidy spec
+
+* Mon Dec 01 2003 Vincent Danen <vdanen@mandrakesoft.com> 0.4b34-1.1.92mdk
+- bugfix update for 9.2
+
+* Fri Nov 28 2003 Nicolas Planel <nplanel@mandrakesoft.com> 0.4b34-1mdk
+- 0.4b34 (#147)
+
 * Wed Jul 23 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 0.4b32-2mdk
 - rebuild
 - use %%make macro

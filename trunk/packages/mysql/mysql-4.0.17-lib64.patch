@@ -1,0 +1,57 @@
+--- acinclude.m4	2003-12-14 22:23:47.000000000 +0100
++++ acinclude.m4.oden	2003-12-18 04:19:54.000000000 +0100
+@@ -743,8 +743,8 @@
+        fi
+       done
+ 
+-      for d in /usr/ssl/lib /usr/local/ssl/lib /usr/lib/openssl \
+-/usr/lib /usr/lib64 /opt/ssl/lib /opt/openssl/lib /usr/local/lib/ ; do
++      for d in /usr/ssl/$MYSQL_LIB /usr/local/ssl/$MYSQL_LIB /usr/$MYSQL_LIB/openssl \
++      /usr/$MYSQL_LIB /opt/ssl/$MYSQL_LIB /opt/openssl/$MYSQL_LIB /usr/local/$MYSQL_LIB/ ; do
+       if test -f $d/libssl.a || test -f $d/libssl.so || test -f $d/libssl.dylib ; then
+         OPENSSL_LIB=$d
+       fi
+@@ -1078,7 +1078,7 @@
+ dnl echo ["MYSQL_CHECK_BDB_DIR ($1)"]
+   dir="$1"
+ 
+-  MYSQL_CHECK_INSTALLED_BDB([$dir/include], [$dir/lib])
++  MYSQL_CHECK_INSTALLED_BDB([$dir/include], [$dir/$MYSQL_LIB])
+ 
+   if test X"$bdb_dir_ok" != Xinstalled; then
+     # test to see if it's a source dir
+--- configure.in	2003-12-14 22:23:49.000000000 +0100
++++ configure.in.oden	2003-12-18 04:18:06.000000000 +0100
+@@ -2113,6 +2113,32 @@
+ fi
+ AC_SUBST(tools_dirs)
+ 
++# Check for native library dir name
++case $host in
++*-*-linux*)
++  # Test if the compiler is 64bit
++  echo 'int i;' > conftest.$ac_ext
++  mysql_cv_cc_64bit_output=no
++  if AC_TRY_EVAL(ac_compile); then
++    case `/usr/bin/file conftest.$ac_objext` in
++    *"ELF 64"*)
++      mysql_cv_cc_64bit_output=yes
++      ;;
++    esac
++  fi
++  rm -rf conftest*
++  ;;
++esac
++
++case $host_cpu:$mysql_cv_cc_64bit_output in
++powerpc64:yes | s390x:yes | sparc64:yes | x86_64:yes)
++  MYSQL_LIB="lib64"
++  ;;
++*:*)
++  MYSQL_LIB="lib"
++  ;;
++esac
++
+ #MYSQL_CHECK_CPU
+ MYSQL_CHECK_MYSQLFS
+ MYSQL_CHECK_VIO

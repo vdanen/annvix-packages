@@ -1,24 +1,25 @@
-Summary: The GNU version of the awk text processing utility.
-Name: gawk
-Version: 3.1.2
-Release: 2mdk
-License: GPL
-Group: Text tools
-URL: http://www.gnu.org/software/gawk/gawk.html
-Source0: http://ftp.gnu.org/gnu/gawk/%{name}-%{version}.tar.bz2
-Source1: http://ftp.gnu.org/gnu/gawk/%{name}-%{version}-ps.tar.bz2
-#Patch0: gawk-3.1.0-debian-security.patch.bz2
-Patch1: gawk-3.1.2-replace-hardlinks-with-softlinks.patch.bz2
-Patch2: gawk-3.1.2-pgawk.patch.bz2
-Patch3: gawk-3.1.2-proc.patch.bz2
-#Patch: gawk-3.0-unaligned.patch.bz2
-# i18n.
-#Patch100: gawk-3.06-i18n-0.2.patch.bz2
-#this patch does not work!
-Provides: awk
-Buildroot: %{_tmppath}/%{name}-root
-Prereq: /sbin/install-info
-Prefix: %{_prefix}
+%define name	gawk
+%define version	3.1.2
+%define release	4sls
+
+Summary:	The GNU version of the awk text processing utility.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		Text tools
+URL:		http://www.gnu.org/software/gawk/gawk.html
+Source0:	http://ftp.gnu.org/gnu/gawk/%{name}-%{version}.tar.bz2
+Source1:	http://ftp.gnu.org/gnu/gawk/%{name}-%{version}-ps.tar.bz2
+Patch1:		gawk-3.1.2-replace-hardlinks-with-softlinks.patch.bz2
+Patch2:		gawk-3.1.2-pgawk.patch.bz2
+Patch3:		gawk-3.1.2-proc.patch.bz2
+Patch4:		gawk-3.1.2-regex.patch.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-root
+
+Provides:	awk
+PreReq:		/sbin/install-info
 
 %description
 The gawk packages contains the GNU version of awk, a text processing
@@ -31,25 +32,12 @@ awk.
 Install the gawk package if you need a text processing utility. Gawk is
 considered to be a standard Linux tool for processing text.
 
-%package doc
-Summary: Documentation about the GNU version of the awk text processing utility
-Group: Books/Computer books
-
-%description doc
-The gawk packages contains the GNU version of awk, a text processing
-utility.  Awk interprets a special-purpose programming language to do
-quick and easy text pattern matching and reformatting jobs. Gawk should
-be upwardly compatible with the Bell Labs research version of awk and
-is almost completely compliant with the 1993 POSIX 1003.2 standard for
-awk.
-
 %prep
 %setup -q -b 1
-#%patch0 -p1
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
-#%patch100 -p1 -b .i18n
+%patch4 -p1
 
 %build
 %configure
@@ -59,7 +47,7 @@ awk.
 make check
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall  bindir=$RPM_BUILD_ROOT/bin
 %find_lang %{name}
 
@@ -90,7 +78,7 @@ rm -f $RPM_BUILD_ROOT/bin/pgawk-%{version}
 %_remove_install_info gawk.info
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files -f %{name}.lang
 %defattr(-,root,root)
@@ -101,12 +89,21 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/*
 %{_datadir}/awk
 
-%files doc
-%defattr(-,root,root)
-%doc README COPYING FUTURES INSTALL LIMITATIONS NEWS
-%doc README_d POSIX.STD doc/gawk.ps doc/awkcard.ps
 
 %changelog
+* Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 3.1.2-4sls
+- minor spec cleanups
+- remove %%prefix
+- remove the doc package
+
+* Tue Dec 02 2003 Vincent Danen <vdanen@opensls.org> 3.1.2-3sls
+- OpenSLS build
+- tidy spec
+
+* Mon Nov 17 2003 Vincent Danen <vdanen@mandrakesoft.com> 3.1.2-2.1.92mdk
+- added patch from Luca Berra <bluca@vodka.it> to fix segfault when 
+  using character classes and locale
+
 * Fri Apr 18 2003 Guillaume Cottenceau <gc@mandrakesoft.com> 3.1.2-2mdk
 - use rawhide patch to fix parsing of /proc pseudo-files
 

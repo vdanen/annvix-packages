@@ -1,0 +1,15 @@
+--- tmb1/arch/i386/kernel/dmi_scan.c	2003-10-27 02:34:10.000000000 +0200
++++ tmb1/arch/i386/kernel/dmi_scan.c.new.c	2003-10-28 15:32:16.000000000 +0200
+@@ -907,6 +907,12 @@ static __initdata struct dmi_blacklist d
+ 			NO_MATCH, NO_MATCH
+ 			} },
+ 
++	{ local_apic_kills_bios, "HP ", {
++			MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
++			MATCH(DMI_PRODUCT_NAME, "Pavilion ze4300 (DG027A)"),
++			NO_MATCH, NO_MATCH
++			} },
++
+ 	{ local_apic_kills_bios, "Dell Inspiron", {
+ 			MATCH(DMI_SYS_VENDOR, "Dell Computer Corporation"),
+ 			MATCH(DMI_PRODUCT_NAME, "Inspiron"),

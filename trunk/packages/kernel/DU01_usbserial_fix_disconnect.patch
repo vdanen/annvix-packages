@@ -14,14 +14,3 @@
  	up (&port->sem);
  }
  
-@@ -1405,7 +1406,9 @@ static void usb_serial_disconnect(struct
- 				while (port->open_count > 0) {
- 					__serial_close(port, NULL);
- 				}
--				port->tty->driver_data = NULL;
-+				/* paranoia */
-+				if(port->tty) 
-+					port->tty->driver_data = NULL;
- 			}
- 			up (&port->sem);
- 		}
