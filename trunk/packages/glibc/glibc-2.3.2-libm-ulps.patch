@@ -1,0 +1,28 @@
+--- glibc-2.3.2/sysdeps/ia64/fpu/libm-test-ulps.libm-ulps	2003-04-02 16:21:00.000000000 +0200
++++ glibc-2.3.2/sysdeps/ia64/fpu/libm-test-ulps	2003-07-25 18:06:12.000000000 +0200
+@@ -1114,3 +1114,11 @@ ildouble: 2
+ ldouble: 2
+ 
+ # end of automatic generation
++
++Test "cos (0.80190127184058835) == 0.69534156199418473":
++double: 1
++idouble: 1
++Test "sincos (0.80190127184058835, &sin_res, &cos_res) puts 0.69534156199418473 in cos_res":
++double: 1
++idouble: 1
++
+--- glibc-2.3.2/sysdeps/x86_64/fpu/libm-test-ulps.libm-ulps	2003-03-25 16:49:40.000000000 +0100
++++ glibc-2.3.2/sysdeps/x86_64/fpu/libm-test-ulps	2003-07-25 18:06:12.000000000 +0200
+@@ -1275,3 +1275,11 @@ ildouble: 4
+ ldouble: 4
+ 
+ # end of automatic generation
++
++Test "cos (0.80190127184058835) == 0.69534156199418473":
++double: 1
++idouble: 1
++Test "sincos (0.80190127184058835, &sin_res, &cos_res) puts 0.69534156199418473 in cos_res":
++double: 1
++idouble: 1
++

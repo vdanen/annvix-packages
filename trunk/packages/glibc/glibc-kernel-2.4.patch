@@ -1,0 +1,45 @@
+--- libc/Makerules.jj	Mon Jun 25 07:33:27 2001
++++ libc/Makerules	Mon Jun 25 10:21:14 2001
+@@ -798,7 +798,7 @@ endif
+ 
+ ifeq (yes,$(build-shared))
+ ifeq (no,$(cross-compiling))
+-symbolic-link-prog := $(common-objpfx)elf/sln
++symbolic-link-prog := /sbin/sln
+ symbolic-link-list := $(common-objpfx)elf/symlink.list
+ define make-shlib-link
+ echo $(<F) $@ >> $(symbolic-link-list)
+--- libc/Makefile.jj	Wed Jun  6 10:06:32 2001
++++ libc/Makefile	Mon Jun 25 10:21:14 2001
+@@ -108,8 +108,8 @@ install-symbolic-link: subdir_install
+ 	rm -f $(symbolic-link-list)
+ 
+ install:
+-	-test ! -x $(common-objpfx)elf/ldconfig || LC_ALL=C LANGUAGE=C \
+-	  $(common-objpfx)elf/ldconfig $(addprefix -r ,$(install_root)) \
++	-test ! -x /sbin/ldconfig || LC_ALL=C LANGUAGE=C \
++	  /sbin/ldconfig $(addprefix -r ,$(install_root)) \
+ 				       $(slibdir) $(libdir)
+ ifneq (no,$(PERL))
+ ifeq (/usr,$(prefix))
+--- libc/Makeconfig.jj	Mon Jun 25 07:33:27 2001
++++ libc/Makeconfig	Mon Jun 25 10:32:44 2001
+@@ -516,18 +516,7 @@ elf-objpfx = $(common-objpfx)elf/
+ # How to run a program we just linked with our library.
+ # The program binary is assumed to be $(word 2,$^).
+ built-program-file = $(dir $(word 2,$^))$(notdir $(word 2,$^))
+-ifeq (yesyes,$(build-shared)$(elf))
+-comma = ,
+-sysdep-library-path = \
+-$(subst $(empty) ,:,$(strip $(patsubst -Wl$(comma)-rpath-link=%, %,\
+-				       $(filter -Wl$(comma)-rpath-link=%,\
+-						$(sysdep-LDFLAGS)))))
+-run-program-prefix = $(if $(findstring $(notdir $(built-program-file)), $(tests-static)),, \
+-			  $(elf-objpfx)$(rtld-installed-name) \
+-			  --library-path $(rpath-link)$(patsubst %,:%,$(sysdep-library-path)))
+-else
+ run-program-prefix =
+-endif
+ # Never use $(run-program-prefix) for the statically-linked %-bp test programs
+ built-program-cmd = $(patsubst %,$(run-program-prefix),\
+ 			$(filter-out %-bp,$(built-program-file))) \
