@@ -1,0 +1,105 @@
+--- mysql-4.0.14/support-files/mysql.server.sh.server-stop	2003-07-18 16:57:43.000000000 +0200
++++ mysql-4.0.14/support-files/mysql.server.sh	2003-08-08 13:52:16.000000000 +0200
+@@ -43,6 +43,10 @@
+ 
+ # The following variables are only set for letting mysql.server find things.
+ 
++# cbelisle@mandrakesoft : We need it to get the functions.
++INITD=/etc/rc.d/init.d
++. $INITD/functions
++
+ # Set some defaults
+ datadir=@localstatedir@
+ pid_file=
+@@ -138,16 +142,24 @@
+   'start')
+     # Start daemon
+ 
++    TMPDIR=/tmp 
++    export TMPDIR 
++    TMP=/tmp 
++    export TMP 
++
+     if test -x $bindir/mysqld_safe
+     then
+       # Give extra arguments to mysqld with the my.cnf file. This script may
+       # be overwritten at next upgrade.
+-      $bindir/mysqld_safe --datadir=$datadir --pid-file=$pid_file &
++      echo -n "Starting MySQL Server"      
++      $bindir/mysqld_safe --datadir=$datadir --pid-file=$pid_file 2>&1 | logger -t mysqld_safe &
++      success
+       # Make lock for RedHat / SuSE
+       if test -w /var/lock/subsys
+       then
+         touch /var/lock/subsys/mysql
+       fi
++      echo
+     else
+       echo "Can't execute $bindir/mysqld_safe from dir $basedir"
+     fi
+@@ -156,11 +168,14 @@
+   'stop')
+     # Stop daemon. We use a signal here to avoid having to know the
+     # root password.
++    unset TMPDIR
++    unset TMP
++    echo "Stopping MySQL Server"     
+     if test -s "$pid_file"
+     then
+       mysqld_pid=`cat $pid_file`
+-      echo "Killing mysqld with pid $mysqld_pid"
+       kill $mysqld_pid
++      echo -n "(pid $mysqld_pid)"
+       # mysqld should remove the pid_file when it exits, so wait for it.
+ 
+       sleep 1
+@@ -171,30 +186,43 @@
+         sleep 1
+       done
+       if [ -s $pid_file ]
+-         then echo " gave up waiting!"
++          then failure " gave up waiting!"
+       elif [ -n "$flags" ]
+-         then echo " done"
++          then success
++      else
++          success
+       fi
+       # delete lock for RedHat / SuSE
+       if test -f /var/lock/subsys/mysql
+       then
+         rm /var/lock/subsys/mysql
+       fi
++      echo  
+     else
+-      echo "No mysqld pid file found. Looked for $pid_file."
++      failure "No mysqld pid file found. Looked for $pid_file." 
++      echo 
+     fi
+     ;;
+-
++    
++   'status') 
++     status mysqld
++     ;; 
++    
++   'reload') 
++     $0 stop 
++     $0 start 
++     ;; 
++   
+   'restart')
+     # Stop the service and regardless of whether it was
+     # running or not, start it again.
+     $0 stop
+     $0 start
+-		;;
++    ;;
+ 
+   *)
+     # usage
+-    echo "Usage: $0 start|stop|restart"
++    echo "usage: $0 {start|stop|status|reload|restart}"
+     exit 1
+     ;;
+ esac
