@@ -1,6 +1,6 @@
 %define name	apache2
 %define version	2.0.49
-%define release	1sls
+%define release	2sls
 
 #
 #(ie. use with rpm --rebuild):
@@ -102,6 +102,7 @@ Patch4:			apache2-suexec.patch.bz2
 Patch5:			httpd-2.0.48-distcache.patch.bz2
 # OE: http://bitbrook.de/software/mod_log_mysql/
 Patch6:			httpd-2.0.49-mod_log_mysql.diff.bz2
+Patch7:			apache-2.0-can-2004-0488.patch.bz2
 # OE: stolen from redhat
 Patch40:		httpd-2.0.45-cnfdir.patch.bz2
 Patch41:		httpd-2.0.45-parallel.patch.bz2
@@ -495,6 +496,8 @@ build %{ap_name}-mod_perl, or your own custom version.
 
 # OE: http://bitbrook.de/software/mod_log_mysql/
 %patch6 -p1
+
+%patch7 -p1 -b .can-2004-0488
 
 # OE: stolen from redhat
 #%patch40 -p1
@@ -1293,6 +1296,9 @@ fi
 %{ap_abs_srcdir}
 
 %changelog
+* Thu Jun 03 2004 Vincent Danen <vdanen@opensls.org> 2.0.49-2sls
+- P7: security fix for CAN-2004-0488
+
 * Fri May 07 2004 Vincent Danen <vdanen@opensls.org> 2.0.49-1sls
 - 2.0.49
 - rediff and update P6
