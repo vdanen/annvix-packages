@@ -1,6 +1,6 @@
 %define name	lynx
 %define version 2.8.5
-%define release	1avx
+%define release	2avx
 %define epoch	1
 
 %define versio_	2-8-5
@@ -15,7 +15,7 @@ Group:		Networking/WWW
 URL:		http://lynx.isc.org
 Source0:	http://lynx.isc.org/current/%name%{version}.tar.bz2
 Patch0:		lynx2-8-5-adapt-to-modern-file-localizations.patch.bz2
-Patch1:		lynx2-8-5-default-config.patch.bz2
+Patch1:		lynx-2.8.5-avx-config.patch.bz2
 Patch2:		lynx2-8-4-fix-ugly-color.patch.bz2
 Patch10:	lynx2-8-5-tmp_dir.patch.bz2
 Patch11:	lynx2-8-5-don-t-accept-command-line-args-to-telnet.patch.bz2
@@ -116,6 +116,9 @@ fi
 %{_datadir}/lynx
 
 %changelog
+* Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> 2.8.5-2avx
+- update P1 so startfile points to our site
+
 * Tue Aug 17 2004 Vincent Danen <vdanen@annvix.org> 2.8.5-1avx
 - 2.8.5
 
