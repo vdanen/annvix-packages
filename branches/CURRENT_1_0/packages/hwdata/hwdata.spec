@@ -1,5 +1,5 @@
 %define name	hwdata
-%define version	0.145
+%define version	0.152
 %define release	1avx
 
 Summary:	Hardware identification and configuration data
@@ -39,6 +39,9 @@ rm -rf %{buildroot}%{_sysconfdir}/{hotplug,pcmcia}
 /usr/X11R6/lib/X11/Cards
 
 %changelog
+* Wed Mar 16 2005 Vincent Danen <vdanen@annvix.org> 0.152-1avx
+- 0.152
+
 * Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> 0.145-1avx
 - 0.145
 - remove config files for pcmcia and hotplug
