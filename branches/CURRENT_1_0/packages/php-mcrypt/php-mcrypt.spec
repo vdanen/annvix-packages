@@ -1,6 +1,6 @@
 %define name	php-%{modname}
 %define version	%{phpversion}
-%define release	4sls
+%define release	1sls
 
 %define phpsource	%{_prefix}/src/php-devel
 %define _docdir		%{_datadir}/doc/%{name}-%{version}
@@ -88,6 +88,9 @@ EOF
 %config(noreplace) %{_sysconfdir}/php/%{inifile}
 
 %changelog
+* Fri May 07 2004 Vincent Danen <vdanen@opensls.org> 4.3.6-1sls
+- php 4.3.6
+
 * Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 4.3.4-4sls
 - minor spec cleanups
 

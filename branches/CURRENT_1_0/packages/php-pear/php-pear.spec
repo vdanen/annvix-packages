@@ -1,6 +1,6 @@
 %define name	php-%{subname}
 %define version	%{phpversion}
-%define release	3sls
+%define release	1sls
 
 %define phpsource	%{_prefix}/src/php-devel
 %{expand:%(cat /usr/src/php-devel/PHP_BUILD||(echo -e "error: failed build dependencies:\n        php-devel >= 430 (4.3.0) is needed by this package." >/dev/stderr;kill -2 $PPID))}
@@ -89,6 +89,9 @@ rm -f %{buildroot}/%{_prefix}/php.ini-gopear
 %{_bindir}/pear
 
 %changelog
+* Fri May 07 2004 Vincent Danen <vdanen@opensls.org> 4.3.6-1sls
+- php 4.3.6
+
 * Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 4.3.4-3sls
 - minor spec cleanups
 
