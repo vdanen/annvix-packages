@@ -1,6 +1,6 @@
 %define name	php-%{modname}
 %define version	%{phpversion}
-%define release	1avx
+%define release	2avx
 
 %define phpsource	%{_prefix}/src/php-devel
 %define _docdir		%{_datadir}/doc/%{name}-%{version}
@@ -79,6 +79,9 @@ EOF
 %config(noreplace) %{_sysconfdir}/php.d/%{inifile}
 
 %changelog
+* Tue Aug 17 2004 Vincent Danen <vdanen@annvix.org> 4.3.8-2avx
+- rebuild against new openssl
+
 * Wed Jul 14 2004 Vincent Danen <vdanen@annvix.org> 4.3.8-1avx
 - php 4.3.8
 - remove ADVXpackage provides

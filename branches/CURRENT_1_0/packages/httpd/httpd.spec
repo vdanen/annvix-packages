@@ -1,6 +1,6 @@
 %define name	apache2
 %define version	2.0.49
-%define release	5avx
+%define release	6avx
 
 #
 #(ie. use with rpm --rebuild):
@@ -1282,6 +1282,9 @@ fi
 %{ap_abs_srcdir}
 
 %changelog
+* Fri Aug 13 2004 Vincent Danen <vdanen@annvix.org> 2.0.49-6avx
+- rebuild against new openssl
+
 * Wed Jul 14 2004 Vincent Danen <vdanen@annvix.org> 2.0.49-5avx
 - use %%_post_srv rather than %%ADVXctl although this is less
   than efficient (in either case) because apache will start and

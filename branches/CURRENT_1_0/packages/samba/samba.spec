@@ -1,6 +1,6 @@
 %define pkg_name	samba
 %define ver 		3.0.5
-%define rel 		2avx
+%define rel 		3avx
 %define vscanver 	0.3.5
 %define libsmbmajor 	0
 
@@ -1643,6 +1643,9 @@ update-alternatives --auto smbclient
 %exclude %{_mandir}/man1/smbsh*.1*
 
 %changelog
+* Tue Aug 17 2004 Vincent Danen <vdanen@annvix.org> 3.0.5-3avx
+- rebuild against new openssl
+
 * Fri Aug 13 2004 Vincent Danen <vdanen@annvix.org> 3.0.5-2avx
 - don't need libsmbclient move hack for x86_64 anymore
 - fix pid file location (#10666) (bgmilne)

@@ -1,6 +1,6 @@
 %define name	%{ap_name}-%{mod_name}
 %define version %{ap_version}_%{phpversion}
-%define release	2avx
+%define release	3avx
 
 %define phpsource	%{_prefix}/src/php-devel
 %{expand:%(cat /usr/src/php-devel/PHP_BUILD||(echo -e "error: failed build dependencies:\n        php-devel >= 430 (4.3.0) is needed by this package." >/dev/stderr;kill -2 $PPID))}
@@ -115,6 +115,9 @@ cd %{extname}
 %{ap_webdoc}/*
 
 %changelog
+* Tue Aug 17 2004 Vincent Danen <vdanen@annvix.org> 2.0.49_4.3.8-3avx
+- rebuild against new openssl
+
 * Wed Jul 14 2004 Vincent Danen <vdanen@annvix.org> 2.0.49_4.3.8-2avx
 - use %%_post_srv rather than %%ADVXpost
 

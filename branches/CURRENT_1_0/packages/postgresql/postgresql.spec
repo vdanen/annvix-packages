@@ -1,6 +1,6 @@
 %define name	postgresql
 %define version	7.4.3
-%define release	3avx
+%define release	4avx
 
 %define _requires_exceptions devel(libtcl8.4)\\|devel(libtcl8.4(64bit))
 
@@ -640,6 +640,9 @@ rm -f perlfiles.list
 %attr(-,postgres,postgres) %dir %{_libdir}/pgsql/test
 
 %changelog
+* Fri Aug 13 2004 Vincent Danen <vdanen@annvix.org> 7.4.3-4avx
+- rebuild against new openssl
+
 * Mon Jul 26 2004 Vincent Danen <vdanen@annvix.org> 7.4.3-3avx
 - fix the requires exceptions
 
