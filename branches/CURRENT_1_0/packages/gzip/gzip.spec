@@ -1,6 +1,6 @@
 %define name	gzip
 %define version	1.2.4a
-%define release 14sls
+%define release 15avx
 
 Summary:	The GNU data compression program
 Name:		%{name}
@@ -25,7 +25,7 @@ BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
 BuildRequires:	texinfo
 
 Requires:	mktemp less
-Prereq:		/sbin/install-info
+Prereq:		info-install
 
 %description
 The gzip package contains the popular GNU gzip data compression
@@ -103,6 +103,10 @@ chmod 755 $RPM_BUILD_ROOT/%{_bindir}/zless
 %{_infodir}/*
 
 %changelog
+* Thu Jun 24 2004 Vincent Danen <vdanen@annvix.org> 1.2.4a-15avx
+- require packages not files
+- Annvix build
+
 * Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 1.2.4a-14sls
 - minor spec cleanups
 
