@@ -5,7 +5,7 @@
     postrotate
 	# only restart if slapd is really running
 	if test -n "`ps acx|grep slapd`"; then
-		/usr/sbin/srv restart slapd
+		/sbin/service ldap restart
 	fi
     endscript
 }
