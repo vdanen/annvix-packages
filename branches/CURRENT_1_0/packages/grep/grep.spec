@@ -1,6 +1,6 @@
 %define name	grep
 %define version 2.5.1
-%define release 4sls
+%define release 5sls
 
 %define theirversion 2.5.1
 %define _bindir /bin
@@ -22,7 +22,7 @@ Requires:	/%{_lib}/libpcre.so.0
 Buildroot:	%{_tmppath}/%{name}-root
 BuildRequires:	bison 
 BuildRequires:	gettext
-BuildRequires:	libpcre-devel
+BuildRequires:	pcre-devel
 BuildRequires:  texinfo
 
 %description
@@ -103,6 +103,9 @@ rm -rf $RPM_BUILD_ROOT
 %_remove_install_info %{name}.info
 
 %changelog
+* Sat Jan 04 2004 Vincent Danen <vdanen@opensls.org> 2.5.1-5sls
+- requires pcre-devel not libpcre-devel (for amd64)
+
 * Sun Nov 30 2003 Vincent Danen <vdanen@opensls.org> 2.5.1-4sls
 - OpenSLS build
 - tidy spec
