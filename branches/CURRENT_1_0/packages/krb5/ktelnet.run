@@ -1,8 +1,8 @@
 #!/bin/sh
 PATH="/sbin:/usr/sbin:/bin:/usr/bin"
 
-# this runs telnet limiting the server to a maximum of 30 simultaneous 
-# connections. telnet.cdb is not required for the service to run
+# this runs telnetd and limits the server to a maximum of 30 simultaneous
+# connections (-c) using the ipsvd-instruct(5) directory ./peers for instructions,
+# and listening to all IPs on port 23 (telnet)
 
-exec /usr/bin/tcpserver -c30 -HRXv -llocalhost -x /etc/tcprules.d/telnet.cdb \
-0 23 /usr/sbin/telnetd -a none 2>&1
+exec /sbin/tcpsvd -c30 -v -llocalhost -i./peers 0 23 /usr/sbin/telnetd -a none 2>&1

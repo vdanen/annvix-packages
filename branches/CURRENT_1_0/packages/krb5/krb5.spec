@@ -1,6 +1,6 @@
 %define name	krb5
 %define version	1.3.4
-%define release	2avx
+%define release	3avx
 
 %define srcver	1.3
 %define LIBMAJ	1
@@ -45,6 +45,8 @@ Source35:	krb5kdc.run
 Source36:	krb5kdc-log.run
 Source37:	krb524d.run
 Source38:	krb524d-log.run
+Source39:	08_kftp.afterboot
+Source40:	08_ktelnet.afterboot
 Patch0:		krb5-1.2.2-telnetbanner.patch.bz2
 Patch1:		krb5-1.2.5-biarch-utmp.patch.bz2
 Patch2:		krb5-1.3-newline.patch.bz2
@@ -132,7 +134,8 @@ workstation.
 Summary:	A telnet-server with kerberos support
 Group:		System/Servers
 Requires:	%{libname} = %{version}
-Requires:	ucspi-tcp
+Requires:	ipsvd
+PreReq:		afterboot
 Obsoletes:	telnet-server
 Provides:	telnet-server
 
@@ -183,6 +186,8 @@ This version supports kerberos authentication.
 Summary:	A ftp-server with kerberos support
 Requires:	%{libname} = %{version}
 Group:		Networking/File transfer
+Requires:	ipsvd
+PreReq:		afterboot
 Provides:	ftpserver
 
 %description -n ftp-server-krb5
@@ -210,7 +215,7 @@ This version supports kerberos authentication.
 %patch15 -p1 -b .null
 %patch16 -p1 -b .efence
 %patch17 -p1 -b .rcp-sendlarge
-#%patch18 -p0 -b .2004-002
+%patch18 -p0 -b .2004-002
 %patch19 -p0 -b .2004-003
 
 find . -type f -name "*.fixinfo" -exec rm -fv "{}" ";"
@@ -329,6 +334,14 @@ install -m 0755 %{SOURCE36} %{buildroot}%{_srvdir}/krb5kdc/log/run
 install -m 0755 %{SOURCE37} %{buildroot}%{_srvdir}/krb524d/run
 install -m 0755 %{SOURCE38} %{buildroot}%{_srvdir}/krb524d/log/run
 
+mkdir -p %{buildroot}%{_srvdir}/{ktelnet,kftp}/peers
+touch %{buildroot}%{_srvdir}/{ktelnet,kftp}/peers/0
+chmod 0644 %{buildroot}%{_srvdir}/{ktelnet,kftp}/peers/0
+
+mkdir -p %{buildroot}%{_datadir}/afterboot
+install -m 0644 %{SOURCE39} %{buildroot}%{_datadir}/afterboot/08_kftp
+install -m 0644 %{SOURCE40} %{buildroot}%{_datadir}/afterboot/08_ktelnet
+
 bzcat %{SOURCE23} > $RPM_BUILD_DIR/%{name}-%{version}/doc/Mandrake-Kerberos-HOWTO.html
 
 find %{buildroot} -name "*\.h" | xargs perl -p -i -e "s|\<com_err|\<et/com_err|";
@@ -376,15 +389,23 @@ strip %{buildroot}%{_bindir}/{ksu,v4rcp}
 
 %post -n telnet-server-krb5
 %_post_srv ktelnet
+%_mkafterboot
 
 %preun -n telnet-server-krb5
 %_preun_srv ktelnet
 
+%postun -n telnet-server-krb5
+%_mkafterboot
+
 %post -n ftp-server-krb5
 %_post_srv kftp
+%_mkafterboot
 
 %preun -n ftp-server-krb5
 %_preun_srv kftp
+
+%postun -n ftp-server-krb5
+%_mkafterboot
 
 %files workstation
 %defattr(-,root,root)
@@ -530,9 +551,12 @@ strip %{buildroot}%{_bindir}/{ksu,v4rcp}
 %{_mandir}/man8/telnetd.8*
 %dir %{_srvdir}/ktelnet
 %dir %{_srvdir}/ktelnet/log
+%dir %{_srvdir}/ktelnet/peers
 %dir %attr(0750,nobody,nogroup) %{_srvlogdir}/ktelnet
 %{_srvdir}/ktelnet/run
 %{_srvdir}/ktelnet/log/run
+%config(noreplace) %{_srvdir}/ktelnet/peers/0
+%{_datadir}/afterboot/08_ktelnet
 
 
 %files -n telnet-client-krb5
@@ -553,11 +577,21 @@ strip %{buildroot}%{_bindir}/{ksu,v4rcp}
 %{_mandir}/man8/ftpd.8*
 %dir %{_srvdir}/kftp
 %dir %{_srvdir}/kftp/log
+%dir %{_srvdir}/kftp/peers
 %dir %attr(0750,nobody,nogroup) %{_srvlogdir}/kftp
 %{_srvdir}/kftp/run
 %{_srvdir}/kftp/log/run
+%config(noreplace) %{_srvdir}/kftp/peers/0
+%{_datadir}/afterboot/08_kftp
 
 %changelog
+* Fri Oct 08 2004 Vincent Danen <vdanen@annvix.org> 1.3.4-3avx
+- switch from tcpserver to tcpsvd
+- Requires: ipsvd
+- add the /service/{kftp,ktelnet}/peers directories to, by default,
+  allow all connections
+- add afterboot snippet
+
 * Fri Sep 17 2004 Vincent Danen <vdanen@annvix.org> 1.3.4-2avx
 - update run scripts
 - fix kftp/ktelnet log run scripts for log directory location
