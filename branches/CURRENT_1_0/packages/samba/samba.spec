@@ -1,6 +1,6 @@
 %define name	samba
 %define version	3.0.11
-%define release	2avx
+%define release	3avx
 
 %define smbldapver	0.8.6
 %define vscanver	0.3.5
@@ -754,6 +754,9 @@ fi
 %exclude %{_mandir}/man1/smbsh*.1*
 
 %changelog
+* Sat Mar 05 2005 Vincent Danen <vdanen@annvix.org> 3.0.11-3avx
+- rebuild against new libxml2
+
 * Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 3.0.11-2avx
 - use logger for logging
 - add the idmap_rid module (bgmilne)
