@@ -1,6 +1,6 @@
 %define name	initscripts
 %define version	7.06
-%define release	36sls
+%define release	37sls
 
 # 	$Id: initscripts.spec,v 1.329 2003/09/22 17:03:40 warly Exp $	
 
@@ -307,6 +307,7 @@ fi
 %dir %{_sysconfdir}/sysconfig/networking/profiles/default
 %config(noreplace) %{_sysconfdir}/sysconfig/networking/ifcfg-lo
 %config(noreplace) %{_sysconfdir}/sysconfig/rawdevices
+%config(noreplace) %{_sysconfdir}/sysconfig/system
 %config(noreplace) %{_sysconfdir}/sysconfig/network-scripts/network-functions
 %config(noreplace) %{_sysconfdir}/sysconfig/network-scripts/network-functions-ipv6
 %config(noreplace) %{_sysconfdir}/sysconfig/network-scripts/init.ipv6-global
@@ -404,6 +405,14 @@ fi
 # EDIT IN CVS NOT IN SOURCE PACKAGE (NO PATCH ALLOWED).
 
 %changelog
+* Tue Jun  1 2004 Vincent Danen <vdanen@opensls.org> 7.06-37sls
+- I never did like OK/PASSED/FAILED/etc. in all caps so change that
+- change some colors
+- on bootup have it say "[ver]-[tag]" rather than just "[ver]"
+- get rid of some msec stuff in rc.local
+- make initscripts own /etc/sysconfig/system to control issue rewrite's
+  and such since the mdk installer seems to make this file
+
 * Tue May 11 2004 Vincent Danen <vdanen@opensls.org> 7.06-36sls
 - add /var/log/btmp by default
 - rediff P2
