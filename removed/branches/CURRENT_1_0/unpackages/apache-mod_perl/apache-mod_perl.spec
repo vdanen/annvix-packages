@@ -1,6 +1,6 @@
 %define name	apache-mod_perl
 %define version	%{apache_version}_%{mod_perl_version}
-%define release	5sls
+%define release	1sls
 
 #New ADVX macros
 %define ADVXdir %{_datadir}/ADVX
@@ -409,6 +409,9 @@ cp %{SOURCE2} .
 %ADVXpost
 
 %changelog
+* Mon May 17 2004 Vincent Danen <vdanen@opensls.org> 1.3.31_1.29-1sls
+- apache 1.3.31
+
 * Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 1.3.29_1.29-5sls
 - rebuild for perl 5.8.4
 

@@ -1,6 +1,6 @@
 %define name	apache-suexec
 %define version %{apache_version}
-%define release 3sls
+%define release 1sls
 
 %{expand:%%define apache_version %(rpm -q apache-devel|sed 's/apache-devel-\([0-9].*\)-.*$/\1/')}
 %{expand:%%define apache_release %(rpm -q apache-devel|sed 's/apache-devel-[0-9].*-\(.*\)$/\1/')}
@@ -73,6 +73,9 @@ install suexec.8 %{buildroot}%{_mandir}/man8
 %{_mandir}/man8/*
 
 %changelog
+* Mon May 17 2004 Vincent Danen <vdanen@opensls.org> 1.3.31-1sls
+- apache 1.3.31
+
 * Tue Feb 24 2004 Vincent Danen <vdanen@opensls.org> 1.3.29-3sls
 - fix handling of libmm deps
 - some spec cleanups
