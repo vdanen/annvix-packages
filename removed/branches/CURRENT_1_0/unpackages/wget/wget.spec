@@ -1,6 +1,6 @@
 %define name	wget
 %define version	1.8.2
-%define release	13sls
+%define release	14sls
 
 Summary: 	A utility for retrieving files using the HTTP or FTP protocols.
 Name: 		%{name}
@@ -66,7 +66,7 @@ autoconf
 make check
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
 
 install -m755 util/rmold.pl %buildroot/%_bindir/rmold
@@ -80,7 +80,7 @@ msgfmt -v %SOURCE2 -o $RPM_BUILD_ROOT%{_datadir}/locale/zh_CN.GB2312/LC_MESSAGES
 
 
 %clean
-rm -fr %buildroot
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
 %_install_info %{name}.info
@@ -98,6 +98,9 @@ rm -fr %buildroot
 %_mandir/man1/wget.1*
 
 %changelog
+* Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 1.8.2-14sls
+- minor spec cleanups
+
 * Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 1.8.2-13sls
 - OpenSLS build
 - tidy spec

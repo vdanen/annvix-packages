@@ -1,6 +1,6 @@
 %define name	ucspi-tcp
 %define version 0.88
-%define release 8sls
+%define release 9sls
 
 Summary:	tcpserver and tcpclient for building TCP client-server apps
 Name:		%{name}
@@ -55,7 +55,7 @@ echo "/usr" >conf-home
 
 %build
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p $RPM_BUILD_ROOT
+mkdir -p %{buildroot}
 
 %make
 
@@ -75,7 +75,6 @@ install -m 644 *.8 %{buildroot}%{_mandir}/man8
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-rm -rf $RPM_BUILD_DIR/%{name}-%{version}
 rm -rf $RPM_BUILD_DIR/%{name}-%{version}-man
 
 
@@ -120,6 +119,9 @@ rm -rf $RPM_BUILD_DIR/%{name}-%{version}-man
 
 
 %changelog
+* Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 0.88-9sls
+- minor spec cleanups
+
 * Thu Dec 04 2003 Vincent Danen <vdanen@opensls.org> 0.88-8sls
 - OpenSLS build
 - tidy spec
