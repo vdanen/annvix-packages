@@ -1,6 +1,6 @@
 %define name	MySQL
 %define version	4.0.20
-%define release	4avx
+%define release	5avx
 
 %define major		12
 %define libname_orig	mysql
@@ -622,6 +622,9 @@ fi
 %config(noreplace) %{_sysconfdir}/sysconfig/mysqld
 
 %changelog
+* Wed Oct 06 2004 Vincent Danen <vdanen@annvix.org> 4.0.20-5avx
+- fix the scripts; it should now run flawlessly and fix bug #2
+
 * Mon Oct 04 2004 Vincent Danen <vdanen@annvix.org> 4.0.20-4avx
 - add a finish script
 - add an afterboot snippet

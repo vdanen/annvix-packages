@@ -19,4 +19,4 @@ if [ "$LOG" != "" ]; then
   LOGFILE="--log=$LOG"
 fi
 
-/usr/bin/mysqld_safe --datadir=$DATADIR --pid-file=$PID_FILE $LOGFILE $MYSQLD_OPTS 2>&1 & wait
+/usr/sbin/mysqld --basedir=/ --datadir=$DATADIR --user=mysql --pid-file=$PID_FILE $LOGFILE --skip-locking $MYSQLD_OPTS 2>&1

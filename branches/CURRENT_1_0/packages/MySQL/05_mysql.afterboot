@@ -44,11 +44,11 @@ as this can consume a lot of space on the system.  If you enable this
 logging, you should adjust the \fI/etc/logrotate.d/mysql\fR file
 accordingly.
 .LP
-Another note about logging in MySQL.  There are two other log flies that may
-help with administration of your database.  The first is
-\fI/var/lib/mysql/[FQDN].err\fR; this log file is unique to your system and
-is based on the system's hostname.  This file contains errors that are
-encountered during the day-to-day running of your system.  The other logs
+Another note about logging in MySQL.  There is one other log file that may
+help with administration of your database.  This is a directory of log files
+that are automatically rotated which contain information regarding the
+mysqld(1) daemon itself, and which also replace the error logfile found on other
+systems in \fI/var/lib/mysql/[hostname].err\fR. These other logs
 that also contain extra information are those contained in
 \fI/var/log/supervise/mysqld/\fR.  The most current log in this directory is
 called \fIcurrent\fR; the older logs are automatically rotated and their

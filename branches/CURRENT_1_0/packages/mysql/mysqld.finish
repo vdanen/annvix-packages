@@ -1,6 +1,6 @@
 #!/bin/sh
 PATH="/sbin:/usr/sbin:/bin:/usr/bin"
 
-# this kills off mysqld
+# this uses mysqladmin to shutdown mysqld, but we have to tell it where to find .my.cnf
 
-/usr/bin/mysqladmin shutdown
+HOME=/root /usr/bin/mysqladmin shutdown
