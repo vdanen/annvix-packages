@@ -1,6 +1,6 @@
 %define name	lsb-release
 %define version	1.4
-%define release	5sls
+%define release	6sls
 
 #
 #	Copyright 1999, International Business Machines, Inc.
@@ -25,8 +25,6 @@ Source:		lsb-release-1.4.tar.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-root
 
-Prefix:		%{_prefix}
-
 %description
 LSB version query program
 
@@ -45,10 +43,10 @@ the distribution.
 %setup
 
 %build
-rm -rf $RPM_BUILD_ROOT
 make
 
 %install
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 make prefix=%buildroot mandir=%buildroot/%{_mandir} install 
 mkdir -p %buildroot/etc
 cat > %buildroot/etc/lsb-release << EOF
@@ -60,7 +58,7 @@ DISTRIB_DESCRIPTION="OpenSLS"
 EOF
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -70,6 +68,10 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) /etc/lsb-release
 
 %changelog
+* Sat Mar 06 2004 Vincent Danen <vdanen@opensls.org> 1.4-6sls
+- minor spec cleanups
+- remove %%prefix
+
 * Tue Dec 30 2003 Vincent Danen <vdanen@opensls.org> 1.4-5sls
 - OpenSLS build
 - tidy spec
