@@ -1,11 +1,11 @@
---- gcc-3.3.1/gcc/Makefile.in	2003-11-26 17:48:42.000000000 -0700
-+++ gcc-3.3.1-protector/gcc/Makefile.in	2003-11-26 18:48:10.000000000 -0700
+--- gcc-3.3.1/gcc/Makefile.in	2004-06-17 23:15:42.000000000 -0600
++++ gcc-3.3.1-protector/gcc/Makefile.in	2004-06-18 09:34:57.000000000 -0600
 @@ -765,7 +765,7 @@
   sibcall.o simplify-rtx.o ssa.o ssa-ccp.o ssa-dce.o stmt.o		   \
   stor-layout.o stringpool.o timevar.o toplev.o tracer.o tree.o tree-dump.o \
   tree-inline.o unroll.o varasm.o varray.o version.o vmsdbgout.o vpt.o	   \
 - xcoffout.o et-forest.o callgraph.o web.o $(GGC) $(out_object_file) $(EXTRA_OBJS)
-+ xcoffout.o et-forest.o callgraph.o web.o protector.o $(GGC) $(out_object_file) $(EXTRA_OBJS)
++ xcoffout.o et-forest.o protector.o callgraph.o web.o $(GGC) $(out_object_file) $(EXTRA_OBJS)
  
  BACKEND = main.o libbackend.a
  
@@ -26,8 +26,8 @@
  
  $(out_object_file): $(out_file) $(CONFIG_H) $(TREE_H) $(GGC_H) \
     $(RTL_H) $(REGS_H) hard-reg-set.h real.h insn-config.h conditions.h \
---- gcc-3.3.1/gcc/calls.c	2003-11-26 17:48:42.000000000 -0700
-+++ gcc-3.3.1-protector/gcc/calls.c	2003-11-26 18:44:53.000000000 -0700
+--- gcc-3.3.1/gcc/calls.c	2004-06-17 23:15:43.000000000 -0600
++++ gcc-3.3.1-protector/gcc/calls.c	2004-06-17 23:18:53.000000000 -0600
 @@ -2331,7 +2331,7 @@
  	    /* For variable-sized objects, we must be called with a target
  	       specified.  If we were to allocate space on the stack here,
@@ -37,8 +37,8 @@
  
  	    mark_temp_addr_taken (d);
  	    structure_value_addr = XEXP (d, 0);
---- gcc-3.3.1/gcc/combine.c	2003-11-26 17:48:43.000000000 -0700
-+++ gcc-3.3.1-protector/gcc/combine.c	2003-11-26 18:44:53.000000000 -0700
+--- gcc-3.3.1/gcc/combine.c	2004-06-17 23:15:43.000000000 -0600
++++ gcc-3.3.1-protector/gcc/combine.c	2004-06-17 23:18:53.000000000 -0600
 @@ -3864,7 +3864,17 @@
  	  rtx inner_op0 = XEXP (XEXP (x, 0), 1);
  	  rtx inner_op1 = XEXP (x, 1);
@@ -82,8 +82,8 @@
  	return gen_binary (MINUS, mode,
  			   gen_binary (MINUS, mode, XEXP (x, 0),
  				       XEXP (XEXP (x, 1), 0)),
---- gcc-3.3.1/gcc/cse.c	2003-11-26 17:48:43.000000000 -0700
-+++ gcc-3.3.1-protector/gcc/cse.c	2003-11-26 18:44:53.000000000 -0700
+--- gcc-3.3.1/gcc/cse.c	2004-06-17 23:15:43.000000000 -0600
++++ gcc-3.3.1-protector/gcc/cse.c	2004-06-17 23:18:53.000000000 -0600
 @@ -4287,7 +4287,14 @@
  
  	      if (new_const == 0)
@@ -116,7 +116,7 @@
        /* Don't count call-insns, (set (reg 0) (call ...)), as a set.
  	 The hard function value register is used only once, to copy to
 --- gcc-3.3.1/gcc/explow.c	2003-04-07 16:58:12.000000000 -0600
-+++ gcc-3.3.1-protector/gcc/explow.c	2003-11-26 18:44:53.000000000 -0700
++++ gcc-3.3.1-protector/gcc/explow.c	2004-06-17 23:18:53.000000000 -0600
 @@ -86,7 +86,8 @@
    rtx tem;
    int all_constant = 0;
@@ -159,8 +159,8 @@
        LEGITIMIZE_ADDRESS (x, oldx, mode, win);
  
        /* PLUS and MULT can appear in special ways
---- gcc-3.3.1/gcc/expr.c	2003-11-26 17:48:43.000000000 -0700
-+++ gcc-3.3.1-protector/gcc/expr.c	2003-11-26 18:44:53.000000000 -0700
+--- gcc-3.3.1/gcc/expr.c	2004-06-17 23:15:44.000000000 -0600
++++ gcc-3.3.1-protector/gcc/expr.c	2004-06-17 23:18:53.000000000 -0600
 @@ -48,6 +48,7 @@
  #include "langhooks.h"
  #include "intl.h"
@@ -247,8 +247,8 @@
  	{
  	  rtx constant_term = const0_rtx;
  
---- gcc-3.3.1/gcc/flags.h	2003-11-26 17:48:43.000000000 -0700
-+++ gcc-3.3.1-protector/gcc/flags.h	2003-11-26 18:44:53.000000000 -0700
+--- gcc-3.3.1/gcc/flags.h	2004-06-17 23:15:44.000000000 -0600
++++ gcc-3.3.1-protector/gcc/flags.h	2004-06-17 23:18:53.000000000 -0600
 @@ -710,4 +710,13 @@
  #define HONOR_SIGN_DEPENDENT_ROUNDING(MODE) \
    (MODE_HAS_SIGN_DEPENDENT_ROUNDING (MODE) && !flag_unsafe_math_optimizations)
@@ -263,8 +263,8 @@
 +extern int warn_stack_protector;
 +
  #endif /* ! GCC_FLAGS_H */
---- gcc-3.3.1/gcc/function.c	2003-11-26 17:48:43.000000000 -0700
-+++ gcc-3.3.1-protector/gcc/function.c	2003-11-26 18:44:53.000000000 -0700
+--- gcc-3.3.1/gcc/function.c	2004-06-17 23:15:44.000000000 -0600
++++ gcc-3.3.1-protector/gcc/function.c	2004-06-17 23:18:53.000000000 -0600
 @@ -61,6 +61,7 @@
  #include "tm_p.h"
  #include "integrate.h"
@@ -376,8 +376,8 @@
  		emit_insn_before (gen_move_insn (temp, new_offset), object);
  	      else
  		{
---- gcc-3.3.1/gcc/gcse.c	2003-11-26 17:48:42.000000000 -0700
-+++ gcc-3.3.1-protector/gcc/gcse.c	2003-11-26 18:44:53.000000000 -0700
+--- gcc-3.3.1/gcc/gcse.c	2004-06-17 23:15:43.000000000 -0600
++++ gcc-3.3.1-protector/gcc/gcse.c	2004-06-17 23:18:53.000000000 -0600
 @@ -4211,7 +4211,7 @@
        /* Find an assignment that sets reg_used and is available
  	 at the start of the block.  */
@@ -387,15 +387,15 @@
  	continue;
  
        pat = set->expr;
---- gcc-3.3.1/gcc/integrate.c	2003-11-26 17:48:43.000000000 -0700
-+++ gcc-3.3.1-protector/gcc/integrate.c	2003-11-26 18:44:53.000000000 -0700
+--- gcc-3.3.1/gcc/integrate.c	2004-06-17 23:15:45.000000000 -0600
++++ gcc-3.3.1-protector/gcc/integrate.c	2004-06-17 23:18:53.000000000 -0600
 @@ -401,6 +401,10 @@
    /* These args would always appear unused, if not for this.  */
    TREE_USED (copy) = 1;
  
 +  /* The inlined variable is marked as INLINE not to sweep by propolice */
 +  if (flag_propolice_protection && TREE_CODE (copy) == VAR_DECL)
-+    DECL_INLINE (copy) = 1;
++    DECL_VAR_INLINE (copy) = 1;
 +
    /* Set the context for the new declaration.  */
    if (!DECL_CONTEXT (decl))
@@ -411,8 +411,8 @@
  	      emit_insn_after (seq, map->insns_at_start);
  	      return temp;
  	    }
---- gcc-3.3.1.ssp/gcc/libgcc-std.ver	2003-07-16 06:37:54.000000000 -0600
-+++ gcc-3.3.1/gcc/libgcc-std.ver	2004-02-07 19:46:02.000000000 -0700
+--- gcc-3.3.1/gcc/libgcc-std.ver	2003-07-16 06:37:54.000000000 -0600
++++ gcc-3.3.1-protector/gcc/libgcc-std.ver	2004-06-17 23:18:53.000000000 -0600
 @@ -174,6 +174,12 @@
    _Unwind_SjLj_RaiseException
    _Unwind_SjLj_ForcedUnwind
@@ -426,8 +426,8 @@
  }
  
  %inherit GCC_3.3 GCC_3.0
---- gcc-3.3.1.ssp/gcc/libgcc2.c	2004-02-07 19:31:02.000000000 -0700
-+++ gcc-3.3.1/gcc/libgcc2.c	2004-02-07 19:54:11.000000000 -0700
+--- gcc-3.3.1/gcc/libgcc2.c	2004-06-17 23:15:42.000000000 -0600
++++ gcc-3.3.1-protector/gcc/libgcc2.c	2004-06-17 23:18:53.000000000 -0600
 @@ -2160,3 +2160,104 @@
  #endif /* NEED_ATEXIT */
  
@@ -533,8 +533,8 @@
 +}
 +#endif
 +#endif
---- gcc-3.3.1/gcc/loop.c	2003-11-26 17:48:42.000000000 -0700
-+++ gcc-3.3.1-protector/gcc/loop.c	2003-11-26 18:44:53.000000000 -0700
+--- gcc-3.3.1/gcc/loop.c	2004-06-17 23:15:42.000000000 -0600
++++ gcc-3.3.1-protector/gcc/loop.c	2004-06-17 23:18:53.000000000 -0600
 @@ -6505,6 +6505,14 @@
    if (GET_CODE (*mult_val) == USE)
      *mult_val = XEXP (*mult_val, 0);
@@ -550,8 +550,8 @@
    if (is_addr)
      *pbenefit += address_cost (orig_x, addr_mode) - reg_address_cost;
    else
---- gcc-3.3.1/gcc/optabs.c	2003-11-26 17:48:42.000000000 -0700
-+++ gcc-3.3.1-protector/gcc/optabs.c	2003-11-26 18:44:53.000000000 -0700
+--- gcc-3.3.1/gcc/optabs.c	2004-06-17 23:15:42.000000000 -0600
++++ gcc-3.3.1-protector/gcc/optabs.c	2004-06-17 23:18:53.000000000 -0600
 @@ -703,6 +703,26 @@
    if (target)
      target = protect_from_queue (target, 1);
@@ -580,7 +580,7 @@
      {
        op0 = force_not_mem (op0);
 --- gcc-3.3.1/gcc/reload1.c	2003-06-06 23:30:09.000000000 -0600
-+++ gcc-3.3.1-protector/gcc/reload1.c	2003-11-26 18:44:54.000000000 -0700
++++ gcc-3.3.1-protector/gcc/reload1.c	2004-06-17 23:18:53.000000000 -0600
 @@ -42,6 +42,7 @@
  #include "toplev.h"
  #include "except.h"
@@ -589,6 +589,47 @@
  
  /* This file contains the reload pass of the compiler, which is
     run after register allocation has been done.  It checks that
+@@ -925,7 +926,7 @@
+       if (cfun->stack_alignment_needed)
+         assign_stack_local (BLKmode, 0, cfun->stack_alignment_needed);
+ 
+-      starting_frame_size = get_frame_size ();
++      starting_frame_size = get_frame_size () - get_frame_free_size ();
+ 
+       set_initial_elim_offsets ();
+       set_initial_label_offsets ();
+@@ -989,7 +990,7 @@
+ 	setup_save_areas ();
+ 
+       /* If we allocated another stack slot, redo elimination bookkeeping.  */
+-      if (starting_frame_size != get_frame_size ())
++      if (starting_frame_size != get_frame_size () - get_frame_free_size ())
+ 	continue;
+ 
+       if (caller_save_needed)
+@@ -1008,7 +1009,7 @@
+ 
+       /* If we allocated any new memory locations, make another pass
+ 	 since it might have changed elimination offsets.  */
+-      if (starting_frame_size != get_frame_size ())
++      if (starting_frame_size != get_frame_size () - get_frame_free_size ())
+ 	something_changed = 1;
+ 
+       {
+@@ -1100,11 +1101,11 @@
+   if (insns_need_reload != 0 || something_needs_elimination
+       || something_needs_operands_changed)
+     {
+-      HOST_WIDE_INT old_frame_size = get_frame_size ();
++      HOST_WIDE_INT old_frame_size = get_frame_size () - get_frame_free_size ();
+ 
+       reload_as_needed (global);
+ 
+-      if (old_frame_size != get_frame_size ())
++      if (old_frame_size != get_frame_size () - get_frame_free_size ())
+ 	abort ();
+ 
+       if (num_eliminable)
 @@ -1992,7 +1993,7 @@
        if (from_reg == -1)
  	{
@@ -598,8 +639,49 @@
  				  inherent_size == total_size ? 0 : -1);
  	  if (BYTES_BIG_ENDIAN)
  	    /* Cancel the  big-endian correction done in assign_stack_local.
+--- gcc-3.3.1/gcc/rtl.h	2004-06-17 23:15:43.000000000 -0600
++++ gcc-3.3.1-protector/gcc/rtl.h	2004-06-17 23:18:53.000000000 -0600
+@@ -440,6 +440,18 @@
+        			     __FUNCTION__);				\
+    _rtx; })
+ 
++#define RTL_FLAG_CHECK9(NAME, RTX, C1, C2, C3, C4, C5, C6, C7, C8, C9)	\
++  __extension__		 		 		 		\
++({ rtx const _rtx = (RTX);						\
++   if (GET_CODE(_rtx) != C1 && GET_CODE(_rtx) != C2	 		\
++       && GET_CODE(_rtx) != C3 && GET_CODE(_rtx) != C4			\
++       && GET_CODE(_rtx) != C5 && GET_CODE(_rtx) != C6			\
++       && GET_CODE(_rtx) != C7 && GET_CODE(_rtx) != C8			\
++       && GET_CODE(_rtx) != C9)						\
++     rtl_check_failed_flag  (NAME, _rtx, __FILE__, __LINE__,		\
++       			     __FUNCTION__);				\
++   _rtx; })
++
+ extern void rtl_check_failed_flag PARAMS ((const char *, rtx, const char *,
+       					   int, const char *))
+     ATTRIBUTE_NORETURN
+@@ -455,6 +467,7 @@
+ #define RTL_FLAG_CHECK6(NAME, RTX, C1, C2, C3, C4, C5, C6)		(RTX)
+ #define RTL_FLAG_CHECK7(NAME, RTX, C1, C2, C3, C4, C5, C6, C7)		(RTX)
+ #define RTL_FLAG_CHECK8(NAME, RTX, C1, C2, C3, C4, C5, C6, C7, C8)	(RTX)
++#define RTL_FLAG_CHECK9(NAME, RTX, C1, C2, C3, C4, C5, C6, C7, C8, C9)	(RTX)
+ #endif
+ 
+ #define CLEAR_RTX_FLAGS(RTX)	\
+@@ -549,9 +562,9 @@
+ #define LOG_LINKS(INSN)	XEXP(INSN, 7)
+ 
+ #define RTX_INTEGRATED_P(RTX)						\
+-  (RTL_FLAG_CHECK8("RTX_INTEGRATED_P", (RTX), INSN, CALL_INSN,		\
++  (RTL_FLAG_CHECK9("RTX_INTEGRATED_P", (RTX), INSN, CALL_INSN,		\
+ 		   JUMP_INSN, INSN_LIST, BARRIER, CODE_LABEL, CONST,	\
+-		   NOTE)->integrated)
++		   NOTE, PLUS)->integrated)
+ #define RTX_UNCHANGING_P(RTX)						\
+   (RTL_FLAG_CHECK3("RTX_UNCHANGING_P", (RTX), REG, MEM, CONCAT)->unchanging)
+ #define RTX_FRAME_RELATED_P(RTX)					\
 --- gcc-3.3.1/gcc/simplify-rtx.c	2003-07-03 01:38:22.000000000 -0600
-+++ gcc-3.3.1-protector/gcc/simplify-rtx.c	2003-11-26 18:44:54.000000000 -0700
++++ gcc-3.3.1-protector/gcc/simplify-rtx.c	2004-06-17 23:18:53.000000000 -0600
 @@ -1670,7 +1670,8 @@
    int n_ops = 2, input_ops = 2, input_consts = 0, n_consts;
    int first, negate, changed;
@@ -690,8 +772,8 @@
    /* Put a non-negated operand first.  If there aren't any, make all
       operands positive and negate the whole thing later.  */
  
---- gcc-3.3.1.ssp/gcc/toplev.c	2004-02-07 19:31:03.000000000 -0700
-+++ gcc-3.3.1/gcc/toplev.c	2004-02-07 20:04:30.000000000 -0700
+--- gcc-3.3.1/gcc/toplev.c	2004-06-17 23:15:44.000000000 -0600
++++ gcc-3.3.1-protector/gcc/toplev.c	2004-06-17 23:18:53.000000000 -0600
 @@ -952,6 +952,15 @@
     minimum function alignment.  Zero means no alignment is forced.  */
  int force_align_functions_log;
@@ -739,7 +821,7 @@
        /* Dump the rtl code if we are dumping rtl.  */
  
        if (open_dump_file (DFI_rtl, decl))
-@@ -5407,6 +5424,13 @@
+@@ -5407,6 +5424,12 @@
      /* The presence of IEEE signaling NaNs, implies all math can trap.  */
      if (flag_signaling_nans)
        flag_trapping_math = 1;
@@ -749,12 +831,23 @@
 +       so don't allow it.  */
 +    if (flag_stack_protection && !flag_propolice_protection)
 +      flag_propolice_protection = TRUE;
-+
  }
  
  /* Initialize the compiler back end.  */
+--- gcc-3.3.1/gcc/tree.h	2004-06-17 23:15:44.000000000 -0600
++++ gcc-3.3.1-protector/gcc/tree.h	2004-06-17 23:18:53.000000000 -0600
+@@ -1648,6 +1648,9 @@
+    where it is called.  */
+ #define DECL_INLINE(NODE) (FUNCTION_DECL_CHECK (NODE)->decl.inline_flag)
+ 
++/* Nonzero in a VAR_DECL means this variable is skipped by propolice. */
++#define DECL_VAR_INLINE(NODE) (VAR_DECL_CHECK (NODE)->decl.inline_flag)
++
+ /* Nonzero in a FUNCTION_DECL means this function has been found inlinable
+    only by virtue of -finline-functions  */
+ #define DID_INLINE_FUNC(NODE) \
 --- gcc-3.3.1/gcc/config/t-linux	2003-06-04 10:56:11.000000000 -0600
-+++ gcc-3.3.1-protector/gcc/config/t-linux	2003-11-26 18:44:54.000000000 -0700
++++ gcc-3.3.1-protector/gcc/config/t-linux	2004-06-17 23:18:53.000000000 -0600
 @@ -4,7 +4,7 @@
  # Compile crtbeginS.o and crtendS.o with pic.
  CRTSTUFF_T_CFLAGS_S = $(CRTSTUFF_T_CFLAGS) -fPIC
@@ -764,9 +857,82 @@
  
  # Override t-slibgcc-elf-ver to export some libgcc symbols with
  # the symbol versions that glibc used.
---- gcc-3.3.1.ssp/gcc/protector.c	1969-12-31 17:00:00.000000000 -0700
-+++ gcc-3.3.1/gcc/protector.c	2004-02-07 19:40:08.000000000 -0700
-@@ -0,0 +1,2624 @@
+--- gcc-3.3.1/gcc/config/arm/arm.md	2003-06-15 15:11:32.000000000 -0600
++++ gcc-3.3.1-protector/gcc/config/arm/arm.md	2004-06-17 23:18:53.000000000 -0600
+@@ -3948,7 +3948,13 @@
+ 	(match_operand:DI 1 "general_operand" ""))]
+   "TARGET_EITHER"
+   "
+-  if (TARGET_THUMB)
++  if (TARGET_ARM)
++    {
++      /* Everything except mem = const or mem = mem can be done easily */
++      if (GET_CODE (operands[0]) == MEM)
++        operands[1] = force_reg (DImode, operands[1]);
++    }
++  else /* TARGET_THUMB.... */
+     {
+       if (!no_new_pseudos)
+         {
+--- gcc-3.3.1/gcc/protector.h	1969-12-31 17:00:00.000000000 -0700
++++ gcc-3.3.1-protector/gcc/protector.h	2004-06-17 23:18:34.000000000 -0600
+@@ -0,0 +1,53 @@
++/* RTL buffer overflow protection function for GNU C compiler
++   Copyright (C) 1987, 88, 89, 92-7, 1998 Free Software Foundation, Inc.
++
++This file is part of GCC.
++
++GCC is free software; you can redistribute it and/or modify it under
++the terms of the GNU General Public License as published by the Free
++Software Foundation; either version 2, or (at your option) any later
++version.
++
++GCC is distributed in the hope that it will be useful, but WITHOUT ANY
++WARRANTY; without even the implied warranty of MERCHANTABILITY or
++FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
++for more details.
++
++You should have received a copy of the GNU General Public License
++along with GCC; see the file COPYING.  If not, write to the Free
++Software Foundation, 59 Temple Place - Suite 330, Boston, MA
++02111-1307, USA.  */
++
++
++/* declaration of GUARD variable */
++#define GUARD_m		Pmode
++#define UNITS_PER_GUARD MAX(BIGGEST_ALIGNMENT / BITS_PER_UNIT, GET_MODE_SIZE (GUARD_m))
++
++#ifndef L_stack_smash_handler
++
++/* insert a guard variable before a character buffer and change the order
++ of pointer variables, character buffers and pointer arguments */
++
++extern void prepare_stack_protection  PARAMS ((int inlinable));
++
++#ifdef TREE_CODE
++/* search a character array from the specified type tree */
++
++extern int search_string_def PARAMS ((tree names));
++#endif
++
++/* examine whether the input contains frame pointer addressing */
++
++extern int contains_fp PARAMS ((rtx op));
++
++/* Return size that is not allocated for stack frame. It will be allocated
++   to modify the home of pseudo registers called from global_alloc.  */
++
++extern HOST_WIDE_INT get_frame_free_size PARAMS ((void));
++
++/* allocate a local variable in the stack area before character buffers
++   to avoid the corruption of it */
++
++extern rtx assign_stack_local_for_pseudo_reg PARAMS ((enum machine_mode, HOST_WIDE_INT, int));
++
++#endif
+--- gcc-3.3.1/gcc/protector.c	1969-12-31 17:00:00.000000000 -0700
++++ gcc-3.3.1-protector/gcc/protector.c	2004-06-17 23:18:34.000000000 -0600
+@@ -0,0 +1,2725 @@
 +/* RTL buffer overflow protection function for GNU C compiler
 +   Copyright (C) 1987, 88, 89, 92-7, 1998 Free Software Foundation, Inc.
 +
@@ -813,12 +979,6 @@
 +#include "protector.h"
 +
 +
-+void prepare_stack_protection  PARAMS ((int inlinable));
-+int search_string_def PARAMS ((tree names));
-+rtx assign_stack_local_for_pseudo_reg PARAMS ((enum machine_mode,
-+					       HOST_WIDE_INT, int));
-+
-+
 +/* Warn when not issuing stack smashing protection for some reason */
 +int warn_stack_protector;
 +
@@ -862,6 +1022,7 @@
 +static int search_string_from_local_vars PARAMS ((tree block));
 +static int search_pointer_def PARAMS ((tree names));
 +static int search_func_pointer PARAMS ((tree type));
++static int check_used_flag PARAMS ((rtx x));
 +static void reset_used_flags_for_insns PARAMS ((rtx insn));
 +static void reset_used_flags_for_decls PARAMS ((tree block));
 +static void reset_used_flags_of_plus PARAMS ((rtx x));
@@ -887,11 +1048,11 @@
 +static void change_arg_use_of_insns_2
 +	PARAMS ((rtx insn, rtx orig, rtx *new, HOST_WIDE_INT size));
 +static void change_arg_use_in_operand
-+	PARAMS ((rtx x, rtx orig, rtx *new, HOST_WIDE_INT size));
++	PARAMS ((rtx insn, rtx x, rtx orig, rtx *new, HOST_WIDE_INT size));
 +static void validate_insns_of_varrefs PARAMS ((rtx insn));
 +static void validate_operand_of_varrefs PARAMS ((rtx insn, rtx *loc));
 +
-+#ifndef SUSPICIOUS_BUF_SUZE
++#ifndef SUSPICIOUS_BUF_SIZE
 +#define SUSPICIOUS_BUF_SIZE 8
 +#endif
 +
@@ -1383,6 +1544,64 @@
 +}
 +
 +
++/*
++ * check whether the specified rtx contains PLUS rtx with used flag.
++ */
++static int
++check_used_flag (x)
++     rtx x;
++{
++  register int i, j;
++  register enum rtx_code code;
++  register const char *format_ptr;
++
++  if (x == 0)
++    return FALSE;
++
++  code = GET_CODE (x);
++
++  switch (code)
++    {
++    case REG:
++    case QUEUED:
++    case CONST_INT:
++    case CONST_DOUBLE:
++    case SYMBOL_REF:
++    case CODE_LABEL:
++    case PC:
++    case CC0:
++      return FALSE;
++
++    case PLUS:
++      if (x->used)
++	return TRUE;
++
++    default:
++      break;
++    }
++
++  format_ptr = GET_RTX_FORMAT (code);
++  for (i = 0; i < GET_RTX_LENGTH (code); i++)
++    {
++      switch (*format_ptr++)
++	{
++	case 'e':
++	  if (check_used_flag (XEXP (x, i)))
++	    return TRUE;
++	  break;
++
++	case 'E':
++	  for (j = 0; j < XVECLEN (x, i); j++)
++	    if (check_used_flag (XVECEXP (x, i, j)))
++	      return TRUE;
++	  break;
++	}
++    }
++
++  return FALSE;
++}
++
++
 +static void
 +reset_used_flags_for_insns (insn)
 +     rtx insn;
@@ -1654,6 +1873,9 @@
 +    
 +  while (block && TREE_CODE(block)==BLOCK)
 +    {
++      /* arrange the location of character arrays in depth first.  */
++      arrange_var_order (BLOCK_SUBBLOCKS (block));
++
 +      types = BLOCK_VARS (block);
 +
 +      while (types)
@@ -1663,9 +1885,10 @@
 +	  if (! DECL_EXTERNAL (types) && ! TREE_STATIC (types)
 +	      && TREE_CODE (types) == VAR_DECL
 +	      && ! DECL_ARTIFICIAL (types)
-+	      && ! DECL_INLINE (types)	/* don't sweep inlined string */
++	      && ! DECL_VAR_INLINE (types)	/* don't sweep inlined string.  */
 +	      && DECL_RTL_SET_P (types)
 +	      && GET_CODE (DECL_RTL (types)) == MEM
++	      && GET_MODE (DECL_RTL (types)) == BLKmode
 +
 +	      && (is_array=0, search_string_def (TREE_TYPE (types))
 +		  || (! current_function_defines_vulnerable_string
@@ -1690,11 +1913,9 @@
 +		    ((TREE_INT_CST_LOW (DECL_SIZE (types)) + BITS_PER_UNIT - 1)
 +		     / BITS_PER_UNIT);
 +
-+		  if (GET_MODE (DECL_RTL (types)) == BLKmode)
-+		    {
-+		      int alignment = BIGGEST_ALIGNMENT / BITS_PER_UNIT;
-+		      var_size = CEIL_ROUND (var_size, alignment);
-+		    }
++		  /* confirmed it is BLKmode.  */
++		  int alignment = BIGGEST_ALIGNMENT / BITS_PER_UNIT;
++		  var_size = CEIL_ROUND (var_size, alignment);
 +
 +		  /* skip the variable if it is top of the region
 +		     specified by sweep_frame_offset */
@@ -1709,8 +1930,6 @@
 +
 +	  types = TREE_CHAIN(types);
 +	}
-+
-+      arrange_var_order (BLOCK_SUBBLOCKS (block));
 +
 +      block = BLOCK_CHAIN (block);
 +    }
@@ -2309,19 +2528,27 @@
 +	rtx seq;
 +	
 +	start_sequence ();
-+	change_arg_use_in_operand (PATTERN (insn), orig, new, size);
++	change_arg_use_in_operand (insn, PATTERN (insn), orig, new, size);
 +
 +	seq = get_insns ();
 +	end_sequence ();
 +	emit_insn_before (seq, insn);
++
++	/* load_multiple insn from virtual_incoming_args_rtx have several
++	   load insns. If every insn change the load address of arg
++	   to frame region, those insns are moved before the PARALLEL insn
++	   and remove the PARALLEL insn.  */
++	if (GET_CODE (PATTERN (insn)) == PARALLEL
++	    && XVECLEN (PATTERN (insn), 0) == 0)
++	  delete_insn (insn);
 +      }
 +}
 +
 +
 +
 +static void
-+change_arg_use_in_operand (x, orig, new, size)
-+     rtx x, orig, *new;
++change_arg_use_in_operand (insn, x, orig, new, size)
++     rtx insn, x, orig, *new;
 +     HOST_WIDE_INT size;
 +{
 +  register enum rtx_code code;
@@ -2442,6 +2669,29 @@
 +	}
 +      break;
 +
++    case PARALLEL:
++      for (j = 0; j < XVECLEN (x, 0); j++)
++	{
++	  change_arg_use_in_operand (insn, XVECEXP (x, 0, j), orig, new, size);
++	}
++      if (recog_memoized (insn) < 0)
++	{
++	  for (i = 0, j = 0; j < XVECLEN (x, 0); j++)
++	    {
++	      /* if parallel insn has a insn used virtual_incoming_args_rtx,
++		 the insn is removed from this PARALLEL insn.  */
++	      if (check_used_flag (XVECEXP (x, 0, j)))
++		{
++		  emit_insn (XVECEXP (x, 0, j));
++		  XVECEXP (x, 0, j) = NULL;
++		}
++	      else
++		XVECEXP (x, 0, i++) = XVECEXP (x, 0, j);
++	    }
++	  PUT_NUM_ELEM (XVEC (x, 0), i);
++	}
++      return;
++
 +    default:
 +      break;
 +    }
@@ -2457,7 +2707,7 @@
 +	    XEXP (x, i) = *new;
 +	    continue;
 +	  }
-+	change_arg_use_in_operand (XEXP (x, i), orig, new, size);
++	change_arg_use_in_operand (insn, XEXP (x, i), orig, new, size);
 +      }
 +    else if (*fmt == 'E')
 +      for (j = 0; j < XVECLEN (x, i); j++)
@@ -2469,7 +2719,7 @@
 +	      XVECEXP (x, i, j) = *new;
 +	      continue;
 +	    }
-+	  change_arg_use_in_operand (XVECEXP (x, i, j), orig, new, size);
++	  change_arg_use_in_operand (insn, XVECEXP (x, i, j), orig, new, size);
 +	}
 +}   
 +
@@ -2602,6 +2852,18 @@
 +}
 +
 +
++
++/* Return size that is not allocated for stack frame. It will be allocated
++   to modify the home of pseudo registers called from global_alloc.  */
++
++HOST_WIDE_INT
++get_frame_free_size ()
++{
++  if (! flag_propolice_protection)
++    return 0;
++
++  return push_allocated_offset - push_frame_offset;
++}
 +
 +
 +/*
@@ -2960,19 +3222,6 @@
 +	    rtx pattern = PATTERN (trial);
 +	    rtx set;
 +
-+	    /* update insn_chain with splitted insns
-+	       when it is called from global_alloc. */
-+	    if (cse_not_expected)
-+	      {
-+		struct insn_chain *chain = reload_insn_chain;
-+		for (; chain; chain = chain->next)
-+		  if (chain->insn == insn)
-+		    {
-+		      chain->insn = first;
-+		      break;
-+		    }
-+	      }
-+
 +	    /* update REG_EQUIV info to the first splitted insn */
 +	    if ((set = single_set (insn))
 +		&& find_reg_note (insn, REG_EQUIV, SET_SRC (set))
@@ -2982,6 +3231,24 @@
 +		  = gen_rtx_EXPR_LIST (REG_EQUIV,
 +				       SET_SRC (PATTERN (first)),
 +				       REG_NOTES (first));
++	      }
++
++	    /* copy the first insn of splitted insns to the original insn and
++	       delete the first insn,
++	       because the original insn is pointed from records:
++	       insn_chain, reg_equiv_init, used for global_alloc.  */
++	    if (cse_not_expected)
++	      {
++		add_insn_before (insn, first);
++		
++		/* Copy the various flags, and other information.  */
++		memcpy (insn, first, sizeof (struct rtx_def) - sizeof (rtunion));
++		PATTERN (insn) = PATTERN (first);
++		REG_NOTES (insn) = REG_NOTES (first);
++
++		/* then remove the first insn of splitted insns.  */
++		remove_insn (first);
++		INSN_DELETED_P (first) = 1;
 +	      }
 +
 +	    if (GET_CODE (pattern) == SET
@@ -3390,55 +3657,4 @@
 +
 +  return FALSE;
 +}
-+#endif
---- gcc-3.3.1/gcc/config/protector.h	1969-12-31 17:00:00.000000000 -0700
-+++ gcc-3.3.1-protector/gcc/protector.h	2003-11-26 18:48:24.000000000 -0700
-@@ -0,0 +1,48 @@
-+/* RTL buffer overflow protection function for GNU C compiler
-+   Copyright (C) 1987, 88, 89, 92-7, 1998 Free Software Foundation, Inc.
-+
-+This file is part of GCC.
-+
-+GCC is free software; you can redistribute it and/or modify it under
-+the terms of the GNU General Public License as published by the Free
-+Software Foundation; either version 2, or (at your option) any later
-+version.
-+
-+GCC is distributed in the hope that it will be useful, but WITHOUT ANY
-+WARRANTY; without even the implied warranty of MERCHANTABILITY or
-+FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-+for more details.
-+
-+You should have received a copy of the GNU General Public License
-+along with GCC; see the file COPYING.  If not, write to the Free
-+Software Foundation, 59 Temple Place - Suite 330, Boston, MA
-+02111-1307, USA.  */
-+
-+
-+/* declaration of GUARD variable */
-+#define GUARD_m		Pmode
-+#define UNITS_PER_GUARD MAX(BIGGEST_ALIGNMENT / BITS_PER_UNIT, GET_MODE_SIZE (GUARD_m))
-+
-+#ifndef L_stack_smash_handler
-+
-+/* insert a guard variable before a character buffer and change the order
-+ of pointer variables, character buffers and pointer arguments */
-+
-+extern void prepare_stack_protection  PARAMS ((int inlinable));
-+
-+#ifdef TREE_CODE
-+/* search a character array from the specified type tree */
-+
-+extern int search_string_def PARAMS ((tree names));
-+#endif
-+
-+/* examine whether the input contains frame pointer addressing */
-+
-+extern int contains_fp PARAMS ((rtx op));
-+
-+/* allocate a local variable in the stack area before character buffers
-+   to avoid the corruption of it */
-+
-+extern rtx assign_stack_local_for_pseudo_reg PARAMS ((enum machine_mode, HOST_WIDE_INT, int));
-+
 +#endif
