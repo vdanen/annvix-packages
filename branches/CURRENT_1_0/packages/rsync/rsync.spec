@@ -1,6 +1,8 @@
 %define name	rsync
 %define version	2.5.7
-%define release	2sls
+%define release	3sls
+
+%{!?build_opensls:%global build_opensls 0}
 
 Summary:	A program for synchronizing files over a network.
 Name:		%{name}
@@ -14,6 +16,8 @@ Source1:	rsync.html
 Source2:	rsyncd.conf.html
 Source3:	rsync.xinetd
 Source4:	ftp://rsync.samba.org/pub/rsync/%name-%version.tar.gz.sig.tgz
+Source5:	rsync.run
+Source6:	rsync-log.run
 Patch0:		rsync-2.5.4-draksync.patch.bz2
 Patch1:		rsync-2.5.6-nogroup.patch.bz2
 
@@ -56,19 +60,33 @@ mkdir -p $RPM_BUILD_ROOT{%_bindir,%_mandir/{man1,man5}}
 %makeinstall
 install -m644 %SOURCE1 %SOURCE2 .
 install -D -m 644 %SOURCE3 %buildroot%{_sysconfdir}/xinetd.d/rsync
+%if %{build_opensls}
+mkdir -p %{buildroot}/var/service/rsync/log
+install -m 0755 %{SOURCE5} %{buildroot}/var/service/rsync/run
+install -m 0755 %{SOURCE6} %{buildroot}/var/service/rsync/log/run
+%endif
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root)
+%doc tech_report.tex README COPYING *html
 %config(noreplace) %{_sysconfdir}/xinetd.d/%name
 %_bindir/rsync
+%if %{build_opensls}
+%dir /var/service/rsync
+%dir /var/service/rsync/log
+/var/service/rsync/run
+/var/service/rsync/log/run
+%endif
 %_mandir/man1/rsync.1*
 %_mandir/man5/rsyncd.conf.5*
-%doc tech_report.tex README COPYING *html
 
 %changelog
+* Mon Dec 29 2003 Vincent Danen <vdanen@opensls.org> 2.5.7-3sls
+- put supervise scripts in here if %%build_opensls
+
 * Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 2.5.7-2sls
 - OpenSLS build
 - tidy spec
