@@ -1,17 +1,13 @@
-%define name	%{ap_name}-%{mod_name}
-%define version %{ap_version}
+%define name	apache2-%{mod_name}
+%define version %{apache_version}
 %define release 1avx
 
-# New ADVX macros
-%define ADVXdir %{_datadir}/ADVX
-%{expand:%(cat %{ADVXdir}/ADVX-build)}
-%{expand:%%global ap_version %(%{apxs} -q ap_version)}
-
 # Module-Specific definitions
+%define apache_version	2.0.53
 %define mod_name	mod_suexec
 %define mod_conf	69_%{mod_name}.conf
 %define mod_so		%{mod_name}.so
-%define sourcename	%{mod_name}-%{ap_version}
+%define sourcename	%{mod_name}-%{apache_version}
 
 Summary:	Allows CGI scripts to run as a specified user and Group
 Name:		%{name}
@@ -23,17 +19,10 @@ URL:		http://httpd.apache.org/docs/suexec.html
 Source1:	%{mod_conf}.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-buildroot
-# Standard ADVX requires
-BuildRequires:  ADVX-build >= 9.2
-BuildRequires:  %{ap_name}-devel >= 2.0.44-5mdk
-BuildRequires:  %{ap_name}-source >= 2.0.44-5mdk
+BuildRequires:  apache2-devel >= %{apache_version}, apache2-source >= %{apache_version}
 
 Prereq:		rpm-helper
-# Standard ADVX requires
-Prereq:		%{ap_name} = %{ap_version}
-Prereq:		apache-conf
-Provides: 	ADVXpackage
-Provides:	AP20package
+Prereq:		apache2 >= %{apache_version}, apache2-conf
 
 %description
 This module, in combination with the suexec support program
@@ -45,66 +34,70 @@ same user who is running the web server.
 %prep
 %setup -c -T -n %{name}
 
-cp %{ap_includedir}/* .
+cp %{_includedir}/apache2/* .
 cp `apr-config --includedir`/* .
 cp `apu-config --includedir`/* .
 
 echo "#define AP_GID_MIN 100"  >> ap_config_auto.h
 echo "#define AP_UID_MIN 100"  >> ap_config_auto.h
-echo "#define AP_DOC_ROOT \"%{ap_datadir}\"" >> ap_config_auto.h
+echo "#define AP_DOC_ROOT \"/var/www\"" >> ap_config_auto.h
 echo "#define AP_HTTPD_USER \"apache\""  >> ap_config_auto.h
-echo "#define AP_LOG_EXEC \"%{ap_logfiledir}/suexec_log\""  >> ap_config_auto.h
+echo "#define AP_LOG_EXEC \"/var/log/httpd/suexec_log\""  >> ap_config_auto.h
 echo "#define AP_SAFE_PATH \"/usr/local/bin:/usr/bin:/bin\""  >> ap_config_auto.h
 echo "#define AP_SUEXEC_UMASK 0077"  >> ap_config_auto.h
 echo "#define AP_USERDIR_SUFFIX \"public_html\""  >> ap_config_auto.h
 
-cp %{ap_abs_srcdir}/docs/man/suexec.8 .
-cp %{ap_abs_srcdir}/docs/manual/mod/mod_suexec.html.en mod_suexec.html
-cp %{ap_abs_srcdir}/docs/manual/programs/suexec.html.en programs-suexec.html
-cp %{ap_abs_srcdir}/docs/manual/suexec.html.en suexec.html
-cp %{ap_abs_srcdir}/modules/generators/mod_suexec.c .
-cp %{ap_abs_srcdir}/modules/generators/mod_suexec.h .
-cp %{ap_abs_srcdir}/support/suexec.c .
-cp %{ap_abs_srcdir}/support/suexec.h .
+cp %{_prefix}/src/apache2-%{version}/docs/man/suexec.8 .
+cp %{_prefix}/src/apache2-%{version}/docs/manual/mod/mod_suexec.html.en mod_suexec.html
+cp %{_prefix}/src/apache2-%{version}/docs/manual/programs/suexec.html.en programs-suexec.html
+cp %{_prefix}/src/apache2-%{version}/docs/manual/suexec.html.en suexec.html
+cp %{_prefix}/src/apache2-%{version}/modules/generators/mod_suexec.c .
+cp %{_prefix}/src/apache2-%{version}/modules/generators/mod_suexec.h .
+cp %{_prefix}/src/apache2-%{version}/support/suexec.c .
+cp %{_prefix}/src/apache2-%{version}/support/suexec.h .
 
 %build
 
-gcc `%{apxs} -q CFLAGS -Wall` -I. -o suexec suexec.c
+gcc `%{_sbindir}/apxs2 -q CFLAGS -Wall` -I. -o suexec suexec.c
 
-%{apxs} -I. -c %{mod_name}.c
+%{_sbindir}/apxs2 -I. -c %{mod_name}.c
 
 %install
 [ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
 
-install -d %{buildroot}%{_sbindir}
-install -d %{buildroot}%{_mandir}/man8
+mkdir -p %{buildroot}%{_sbindir}
+mkdir -p %{buildroot}%{_mandir}/man8
+mkdir -p %{buildroot}%{_libdir}/apache2-extramodules
+mkdir -p %{buildroot}%{_sysconfdir}/httpd/conf.d
 
-install -m4711 suexec %{buildroot}%{_sbindir}/%{ap_name}-suexec
-install suexec.8 %{buildroot}%{_mandir}/man8/%{ap_name}-suexec.8
+install -m 0755 suexec %{buildroot}%{_sbindir}/apache2-suexec
+install suexec.8 %{buildroot}%{_mandir}/man8/apache2-suexec.8
 
-%ADVXinstlib
-%ADVXinstconf %{SOURCE1} %{mod_conf}
-%ADVXinstdoc %{name}-%{version}
+mkdir -p %{buildroot}%{_libdir}/apache2-extramodules
+mkdir -p %{buildroot}%{_sysconfdir}/httpd/conf.d
+install -m 0755 .libs/*.so %{buildroot}%{_libdir}/apache2-extramodules/
+bzcat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/conf.d/%{mod_conf}
+
+mkdir -p %{buildroot}/var/www/html/addon-modules
+ln -s ../../../../%{_docdir}/%{name}-%{version} %{buildroot}/var/www/html/addon-modules/%{name}-%{version}
 
 %clean
 [ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
 
-%post
-%ADVXpost
-
-%postun
-%ADVXpost
-
 %files
 %defattr(-,root,root)
 %doc mod_suexec.html suexec.html
-%config(noreplace) %{ap_confd}/%{mod_conf}
-%{ap_extralibs}/%{mod_so}
-%{ap_webdoc}/*
-%attr(4710,root,apache) %{_sbindir}/%{ap_name}-suexec
+%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/httpd/conf.d/%{mod_conf}
+%attr(0755,root,root) %{_libdir}/apache2-extramodules/%{mod_so}
+%attr(4710,root,apache) %{_sbindir}/apache2-suexec
 %{_mandir}/man8/*
+/var/www/html/addon-modules*
 
 %changelog
+* Sat Feb 26 2005 Vincent Danen <vdanen@annvix.org> 2.0.53-1avx
+- apache 2.0.53
+- remove ADVX stuff
+
 * Thu Oct 14 2004 Vincent Danen <vdanen@annvix.org> 2.0.52-1avx
 - apache 2.0.52
 - use ap*-config --includedir to get headers (oden)
