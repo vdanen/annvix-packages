@@ -3,4 +3,8 @@ PATH="/sbin:/usr/sbin:/bin:/usr/bin:$PATH"
 
 # this runs smbd under supervise
 
-exec /usr/sbin/smbd -i 2>&1
+. /usr/share/srv/functions
+
+checkdepends nmbd
+
+exec /usr/sbin/smbd -F 2>&1

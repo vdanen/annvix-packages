@@ -13,7 +13,7 @@
 # cvs should be submitted for inclusion in samba cvs.
 
 %define pkg_name	samba
-%define ver 		3.0.5pre1
+%define ver 		3.0.5
 %define rel 		1avx
 %define vscanver 	0.3.5
 %define libsmbmajor 	0
@@ -238,6 +238,7 @@ Source18:	winbindd.run
 Source19:	winbindd-log.run
 Source20:	smb-migrate.bz2
 Source21:	README.avx.sambamerge.bz2
+Source22:	ftp://samba.org/pub/samba/samba-%{source_ver}.tar.asc
 Patch1:		smbw.patch.bz2
 Patch2:		samba-3.0.2a-mdk-smbldap-config.patch.bz2
 Patch3:		samba-3.0.4-mdk-mandrake-packaging.patch.bz2
@@ -251,7 +252,7 @@ Patch4:		samba-3.0-smbmount-sbin.patch.bz2
 # samba CVS)
 %if %have_pversion && %have_pre
 %endif
-Requires:	pam >= 0.64, samba-common = %{version}
+Requires:	pam >= 0.64, samba-common = %{version}, srv >= 0.7
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-root
 BuildRequires:	pam-devel readline-devel libncurses-devel popt-devel
@@ -1657,6 +1658,14 @@ update-alternatives --auto smbclient
 %exclude %{_mandir}/man1/smbsh*.1*
 
 %changelog
+* Tue Jul 27 2004 Vincent Danen <vdanen@annvix.org> 3.0.5-1avx
+- 3.0.5 (fixes CAN-2004-0600, CAN-2004-0686)
+- include gpg signature
+- update run scripts for as-close-to-proper daemonization as
+  possible (but samba still forks which forces us to take drastic
+  measures)
+- Requires: srv >= 0.7
+
 * Wed Jul 21 2004 Vincent Danen <vdanen@annvix.org> 3.0.5pre1-1avx
 - 3.0.5pre1
 - remove symantec antvirus completely as it's the only one we need
