@@ -1,6 +1,6 @@
 %define name	lsb
 %define version	1.3
-%define release	9sls
+%define release	10sls
 
 Summary:	The skeleton package defining packages needed for LSB compliance.
 Name:		%{name}
@@ -37,6 +37,7 @@ will generate 1 test failure.  This is not enabled by default on OpenSLS.
 
  
 %install
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 install -d $RPM_BUILD_ROOT/usr/share/nls
 install -d $RPM_BUILD_ROOT/usr/share/tmac
 install -d $RPM_BUILD_ROOT/var/cache/fonts
@@ -74,7 +75,7 @@ cat << EOF > $RPM_BUILD_ROOT/etc/hosts.lpd
 # hosts.lpd     This file describes the names of the hosts which are
 #               allowed to use the remote printer services of this
 #               host.  This file is used by the LPD subsystem.
-#		Added to Mandrake Linux for LSB compiance.
+#		Added to OpenSLS for LSB compiance.
 EOF
 
 cat << EOF > $RPM_BUILD_ROOT/etc/networks
@@ -116,13 +117,13 @@ echo "       to 'atime' or you will see additional test failures."
 echo ""
 echo "Note3: You should also note that using the fstab option 'acl' for"
 echo "       Posix ACLs will generate 1 test failure.  This is not enabled"
-echo "       by default on Mandrake Linux."
+echo "       by default on OpenSLS."
 
 %postun
 %_postun_groupdel nobody
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-, root, root)
@@ -142,6 +143,10 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) /etc/gateways
 
 %changelog
+* Sat Mar 06 2004 Vincent Danen <vdanen@opensls.org> 1.3-10sls
+- minor spec cleanups
+- s/Mandrake Linux/OpenSLS/
+
 * Fri Feb 06 2004 Vincent Danen <vdanen@opensls.org> 1.3-9sls
 - nogroup has static gid 65533
 - remove %%build_opensls macro
