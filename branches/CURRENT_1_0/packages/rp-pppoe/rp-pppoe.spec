@@ -1,21 +1,20 @@
-Summary:		ADSL/PPPoE userspace driver
-Name:			rp-pppoe
-Version:		3.5
-Release: 		3mdk
+%define name	rp-pppoe
+%define version	3.5
+%define release	4sls
 
-Source:			http://www.roaringpenguin.com/%{name}-%{version}.tar.bz2
+Summary:	ADSL/PPPoE userspace driver
+Name:		%{name}
+Version:	%{version}
+Release: 	%{release}
+Source:		http://www.roaringpenguin.com/%{name}-%{version}.tar.bz2
+License:	GPL
+Group:		System/Servers
+URL:		http://www.roaringpenguin.com/pppoe
 
-Url:			http://www.roaringpenguin.com/pppoe
-License:		GPL
-Group:			System/Servers
-BuildRoot:		%_tmppath/%name-%version-root
-Requires:		ppp >= 2.4.1
-BuildRequires:		ppp
+BuildRoot:	%_tmppath/%name-%version-root
+BuildRequires:	ppp
 
-%package gui
-Group: 			System/Servers
-Summary:		GUI front-end for rp-pppoe.
-Requires:		rp-pppoe >= 3.4 /usr/bin/wish
+Requires:	ppp >= 2.4.1
 
 %description
 PPPoE (Point-to-Point Protocol over Ethernet) is a protocol used by
@@ -29,13 +28,7 @@ specification.
 It has been tested with many ISPs, such as the Canadian Sympatico HSE (High
 Speed Edition) service.
 
-%description gui
-This package contains the graphical frontend (tk-based) for rp-pppoe.
-
-Install this if you wish to have a graphical frontend for pppoe.
-
 %prep
-
 %setup -q
 
 %build
@@ -51,22 +44,6 @@ install -d -m 0755 %buildroot
 cd src
 make install RPM_INSTALL_ROOT=$RPM_BUILD_ROOT
 cd ..
-cd gui
-make install RPM_INSTALL_ROOT=$RPM_BUILD_ROOT
-cd ..
-# This is necessary for the gui to work, but it shouldn't be done here !
-mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/ppp/rp-pppoe-gui
-
-mkdir -p $RPM_BUILD_ROOT%{_menudir}
-cat << EOF > $RPM_BUILD_ROOT%{_menudir}/rp-pppoe-gui
-?package(rp-pppoe-gui):\
-needs="x11"\
-section="Networking/Remote access"\
-title="Tkpppoe"\
-longtitle="Frontend for rp-pppoe"\
-command="tkpppoe" \
-icon="remote_access_section.png"
-EOF
 
 perl -pi -e "s/restart/restart\|reload/g;" %{buildroot}%{_initrddir}/adsl
 
@@ -74,13 +51,6 @@ rm -rf %{buildroot}/usr/doc
 
 %clean
 rm -fr %buildroot
-
-
-%post gui
-%update_menus
-
-%postun gui
-%clean_menus
 
 
 %files
@@ -104,18 +74,12 @@ rm -fr %buildroot
 %config(noreplace)%{_initrddir}/adsl
 
 
-%files gui
-%defattr(-,root,root)
-%{_bindir}/tkpppoe
-%{_sbindir}/pppoe-wrapper
-%{_mandir}/man1/*
-%{_menudir}/*
-%dir %{_datadir}/tkpppoe
-%dir %{_sysconfdir}/ppp/rp-pppoe-gui
-%{_datadir}/tkpppoe/*
-
-
 %changelog
+* Fri Jan 23 2004 Vincent Danen <vdanen@opensls.org> 3.5-4sls
+- OpenSLS build
+- tidy spec
+- drop gui package
+
 * Fri Jul 25 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 3.5-3mdk
 - rebuild
 - macroize
