@@ -1,6 +1,6 @@
 %define name	passwd
 %define version	0.68
-%define release	5sls
+%define release	6sls
 
 Summary:	The passwd utility for setting/changing passwords using PAM
 Name:		%{name}
@@ -17,7 +17,7 @@ Patch1:		passwd-0.68-sec.patch.bz2
 BuildRoot:	%_tmppath/%name-root
 BuildRequires:	glib2-devel, libuser-devel, pam-devel, popt-devel
 
-Requires:	pam >= 0.59, pwdb >= 0.58, /etc/libuser.conf
+Requires:	pam >= 0.59, pwdb >= 0.58, libuser
 
 %description
 The passwd package contains a system utility (passwd) which sets
@@ -57,6 +57,9 @@ rm -f %buildroot%_mandir/man1/{chfn.1,chsh.1}
 %_mandir/man1/passwd.1*
 		
 %changelog
+* Fri Jun 11 2004 Vincent Danen <vdanen@opensls.org> 0.68-6sls
+- Requires: libuser, not /etc/libuser.conf
+
 * Mon May 17 2004 Vincent Danen <vdanen@opensls.org> 0.68-5sls
 - security fixes from Steve Grubb
 
