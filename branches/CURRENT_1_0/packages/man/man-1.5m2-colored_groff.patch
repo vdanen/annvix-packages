@@ -1,17 +1,17 @@
---- ./configure.color	2002-08-27 15:34:55.000000000 +0200
-+++ ./configure	2002-08-27 15:34:58.000000000 +0200
-@@ -83,6 +83,9 @@
+--- ./configure.color	2004-01-30 21:33:27.000000000 +0100
++++ ./configure	2004-01-30 21:33:34.000000000 +0100
+@@ -110,6 +110,9 @@
        -confdir)
            setconfdir=true;
            ;;
 +      -compatibility_mode_for_colored_groff )
 +          setcompatibility_mode_for_colored_groff=true;
 +          ;;
-       +lang)
- 	  setlang=true
+       -confprefix=*)
+           confprefix=`echo $arg | sed -e 's/-confprefix=//'`
  	  ;;
-@@ -483,6 +486,12 @@
-   FILTERS="troff nroff jnroff eqn neqn jneqn tbl col vgrind refer grap pic pager cmp cat awk"
+@@ -540,6 +543,12 @@
+     jnroff="$jnroff -c"
  fi
  
 +if [ "x$setcompatibility_mode_for_colored_groff" = "xtrue" ]; then

@@ -1,26 +1,6 @@
---- man-1.5i/src/apropos.sh.usr	Thu Jun  7 15:20:04 2001
-+++ man-1.5i/src/apropos.sh	Thu Jun  7 15:20:04 2001
-@@ -67,7 +67,7 @@
- found=0
- while [ $found = 0 -a -n "$1" ]
- do
--    for d in $manpath /usr/lib
-+    for d in /var/cache/man /usr/lib
-     do
-         if [ -f $d/whatis ]
-         then
-@@ -101,7 +101,7 @@
-     done
-     nothing=
-     found=0
--    for d in $manpath /usr/lib
-+    for d in /var/cache/man /usr/lib
-     do
-         if [ -f $d/whatis ]
-         then
---- man-1.5i/src/makewhatis.sh.usr	Thu Jun  7 15:20:04 2001
-+++ man-1.5i/src/makewhatis.sh	Thu Jun  7 15:20:30 2001
-@@ -81,7 +81,7 @@
+--- ./src/makewhatis.sh.usr	2004-01-30 00:14:40.000000000 +0100
++++ ./src/makewhatis.sh	2004-01-30 21:11:59.000000000 +0100
+@@ -111,7 +111,7 @@
  	continue;;
      -s) setsections=1
  	continue;;
@@ -29,7 +9,7 @@
  	update=1
  	continue;;
      -v) verbose=1
-@@ -121,14 +121,7 @@
+@@ -151,14 +151,7 @@
  # first truncate all the whatis files that will be created new,
  # then only update - we might visit the same directory twice
  if [ x$update = x ]; then
@@ -45,39 +25,39 @@
  fi
  
  for pages in man cat
-@@ -140,11 +133,6 @@
+@@ -170,11 +163,6 @@
       if [ x$verbose != x ]; then
- 	echo "about to enter $mandir" > /dev/tty
+ 	echo "about to enter $mandir" > /dev/stderr
       fi
 -     if [ -s ${mandir}/whatis -a $pages = man -a x$update = x ]; then
 -	if [ x$verbose != x ]; then
--	   echo skipping $mandir - we did it already > /dev/tty
+-	   echo skipping $mandir - we did it already > /dev/stderr
 -	fi
 -     else      
         here=`pwd`
         cd $mandir
         for i in $sections
-@@ -346,23 +334,14 @@
+@@ -393,23 +381,14 @@
  
         cd $here
  
 -       # kludge for Slackware's /usr/man/preformat
 -       if [ $mandir = /usr/man/preformat ]
-+       if [ -f /var/cache/man/whatis ]
-        then
+-       then
 -	 mandir1=/usr/man
 -       else
 -	 mandir1=$mandir
+-       fi
+-
+-       if [ -f ${mandir1}/whatis ]
++       if [ -f /var/cache/man/whatis ]
+        then
+-	 cat ${mandir1}/whatis >> $TMPFILE
 +	 cat /var/cache/man/whatis >> $TMPFILE
         fi
+-       sed '/^$/d' < $TMPFILE | sort | uniq > ${mandir1}/whatis
 +       sed '/^$/d' < $TMPFILE | sort | uniq > /var/cache/man/whatis
  
--       if [ -f ${mandir1}/whatis ]
--       then
--	 cat ${mandir1}/whatis >> $TMPFILE
--       fi
--       sed '/^$/d' < $TMPFILE | sort | uniq > ${mandir1}/whatis
--
 -       chmod 644 ${mandir1}/whatis
 +       chmod 644 /var/cache/man/whatis
         rm $TMPFILE

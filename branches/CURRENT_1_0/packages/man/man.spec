@@ -1,8 +1,8 @@
 %define name	man
-%define version	1.5k
-%define release	16avx
+%define version	1.5m2
+%define release	1avx
 
-Summary:	A set of documentation tools:  man, apropos and whatis.
+Summary:	A set of documentation tools:  man, apropos and whatis
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -16,19 +16,16 @@ Source3:	man.config.5
 # changed 'groff -Tlatin' to 'nroff' (no -T option); that makes auto-detect
 # the charset to use for the output -- pablo
 Patch1:		man-1.5k-confpath.patch.bz2
-Patch3:		man-1.5j-devtty.patch.bz2
 Patch4:		man-1.5h1-make.patch.bz2
 Patch5:		man-1.5k-nonascii.patch.bz2
-Patch6:		man-1.5k-security.patch.bz2
+Patch6:		man-1.5m2-security.patch.bz2
 Patch7:		man-1.5k-mandirs.patch.bz2
-Patch8:		man-1.5k-bug11621.patch.bz2
+Patch8:		man-1.5m2-bug11621.patch.bz2
 Patch9:		man-1.5k-sofix.patch.bz2
-Patch10:	man-1.5j-buildroot.patch.bz2
-Patch11:	man-1.5j-quoting.patch.bz2
-Patch12:	man-1.5i-ro-usr.patch.bz2
+Patch10:	man-1.5m2-buildroot.patch.bz2
+Patch12:	man-1.5m2-ro-usr.patch.bz2
 Patch14:	man-1.5i2-newline.patch.bz2
 Patch15:	man-1.5k-lookon.patch.bz2
-Patch16:	man-1.5i-oldwhatis.patch.bz2
 Patch17:	man-1.5j-utf8.patch.bz2
 # comment out the NJROFF line of man.conf, so that the nroff script
 # can take care of japanese -- pablo
@@ -36,21 +33,16 @@ Patch18:	man-1.5k-nroff.patch.bz2
 Patch19:	man-1.5i2-overflow.patch.bz2
 Patch22:	man-1.5j-nocache.patch.bz2
 Patch24:	man-1.5i2-initial.patch.bz2
-#Patch25:	man-1.5i2-legacy.patch.bz2
-Patch26:	man-1.5k-gcc33.patch.bz2
 # Japanese patches
 Patch51:	man-1.5h1-gencat.patch.bz2
-Patch100:	man-1.5g-bzip2.patch.bz2
-Patch101:	man-1.5k-bzip2whatis-v2.patch.bz2
+Patch101:	man-1.5m2-lang-aware_whatis.patch.bz2
 Patch102:	man-1.5g-nonrootbuild.patch.bz2
-Patch104:	man-1.5i2-tv_fhs.patch.bz2
+Patch104:	man-1.5m2-tv_fhs.patch.bz2
 Patch105:	man-1.5j-i18n.patch.bz2
 Patch106:	man-1.5j-perlman.patch.bz2
 Patch107:	man-1.5j-whatis2.patch.bz2
-Patch108:	man-1.5j-whatis-l10n.patch.bz2
-Patch200:	man-1.5k-colored_groff.patch.bz2
-Patch201:	man-1.5k-l10ned-whatis.patch.bz2
-Patch300:	man-1.5k-security-fix.patch.bz2
+Patch200:	man-1.5m2-colored_groff.patch.bz2
+Patch201:	man-1.5m2-l10ned-whatis.patch.bz2
 
 
 BuildRoot:	%_tmppath/%{name}-root
@@ -66,9 +58,6 @@ functions on your system. Apropos searches the whatis database
 (containing short descriptions of system commands) for a string. Whatis
 searches its own database for a complete word.
 
-The man package should be installed on your system because it is the
-primary way for find documentation on a Mandrake Linux system.
-
 
 %prep
 %setup -q
@@ -83,101 +72,91 @@ primary way for find documentation on a Mandrake Linux system.
 %patch12 -p1 -b .usr
 %patch14 -p1 -b .newline
 %patch15 -p1 -b .lookon
-%patch16 -p1 -b .md
 %patch51 -p1 -b .jp2
 %patch17 -p1 -b .utf8
 %patch18 -p1 -b ._nroff
 %patch19 -p1 -b .overflow
 %patch22 -p1 -b .nocache
 %patch24 -p1 -b .initial
-%patch3 -p1 -b .devtty
-%patch11 -p1 -b .quoting
 
-%patch100 -p1 -b .bzip2
 %patch101 -p1 -b .whatbz2
 %patch102 -p1
-%patch104 -p1 -b .tv_hhs
+%patch104 -p1 -b .tv_fhs
 %patch105 -p1 -b .i18n
 %patch106 -p0 -b .perl
 %patch107 -p0
-%patch108 -p0
-%patch200 -p0
-%patch201 -p0
-%patch300 -p1
-%patch26 -p1
+%patch200 -p0 -b .color
+%patch201 -p0 -b .l10n
 
 /bin/rm -f $RPM_BUILD_DIR/man-%{version}/man/en/man.conf.man
 
 %build
 (cd man; for i in `find -name man.conf.man`; do mv $i `echo $i|sed -e 's/conf.man/config.man/g'`;done)
-install -m 644 %SOURCE3 man/en/
+install -m 644 %{SOURCE3} man/en/
 ./configure -default -confdir /etc +fsstnd +sgid +fhs +lang all \
 	-compatibility_mode_for_colored_groff
-make CC="gcc -g $RPM_OPT_FLAGS -D_GNU_SOURCE"
+make CC="gcc -g %{optflags} -D_GNU_SOURCE"
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p  $RPM_BUILD_ROOT%{_bindir}
-mkdir -p  $RPM_BUILD_ROOT%{_sbindir}
-mkdir -p  $RPM_BUILD_ROOT%{_mandir}
-mkdir -p  $RPM_BUILD_ROOT%{_sysconfdir}/cron.{daily,weekly}
+mkdir -p  %{buildroot}%{_bindir}
+mkdir -p  %{buildroot}%{_sbindir}
+mkdir -p  %{buildroot}%{_mandir}
+mkdir -p  %{buildroot}%{_sysconfdir}/cron.{daily,weekly}
 perl -pi -e 's!/usr/man!/usr/share/man!g' conf_script
 perl -pi -e 's!mandir = .*$!mandir ='"%{_mandir}"'!g' man2html/Makefile
-make install PREFIX=$RPM_BUILD_ROOT/  mandir=$RPM_BUILD_ROOT/%{_mandir}
+make install PREFIX=%{buildroot}/  mandir=%{buildroot}/%{_mandir}
 
-install -m755 %SOURCE1 $RPM_BUILD_ROOT%{_sysconfdir}/cron.weekly/makewhatis.cron
-install -m755 %SOURCE2 $RPM_BUILD_ROOT%{_sysconfdir}/cron.daily/makewhatis.cron
+install -m755 %{SOURCE1} %{buildroot}%{_sysconfdir}/cron.weekly/makewhatis.cron
+install -m755 %{SOURCE2} %{buildroot}%{_sysconfdir}/cron.daily/makewhatis.cron
 
-mkdir -p $RPM_BUILD_ROOT/var/catman{local,X11}
+mkdir -p %{buildroot}/var/catman{local,X11}
 for i in 1 2 3 4 5 6 7 8 9 n; do
-	mkdir -p $RPM_BUILD_ROOT/var/catman/cat$i
-	mkdir -p $RPM_BUILD_ROOT/var/catman/local/cat$i
-	mkdir -p $RPM_BUILD_ROOT/var/catman/X11R6/cat$i
+	mkdir -p %{buildroot}/var/catman/cat$i
+	mkdir -p %{buildroot}/var/catman/local/cat$i
+	mkdir -p %{buildroot}/var/catman/X11R6/cat$i
 done
 
 
 ## added man2html stuff
 #pushd man2html
-#make install PREFIX=$RPM_BUILD_ROOT/
+#make install PREFIX=%{buildroot}/
 #popd
 
 # symlinks for manpath
-pushd $RPM_BUILD_ROOT
+pushd %{buildroot}
   ln -s man .%{_bindir}/manpath
   ln -s man.1.bz2 .%{_mandir}/man1/manpath.1.bz2
-  ls -d ./$RPM_BUILD_ROOT%{_mandir}/*
-  mv ./$RPM_BUILD_ROOT%{_mandir}/* ./%{_mandir}||true
-  mv ./$RPM_BUILD_ROOT%{_mandir}/man1/* ./%{_mandir}/man1
 #  perl -pi -e 's!nippon!latin1!g;s!-mandocj!-mandoc!g' etc/man.config
 popd
 
-/bin/rm -fr $RPM_BUILD_ROOT/%{_mandir}/{de,fr,it,pl}
-perl -pi -e 's!less -is!less -isr!g' $RPM_BUILD_ROOT%{_sysconfdir}/man.config
-#perl -pi -e 's!/usr/man!/usr/share/man!g' $RPM_BUILD_ROOT%{_sbindir}/makewhatis
+/bin/rm -fr %{buildroot}/%{_mandir}/{de,fr,it,pl}
+perl -pi -e 's!less -is!less -isr!g' %{buildroot}%{_sysconfdir}/man.config
+#perl -pi -e 's!/usr/man!/usr/share/man!g' %{buildroot}%{_sbindir}/makewhatis
 
 # Fix makewhatis perms
-chmod 755 $RPM_BUILD_ROOT%{_sbindir}/makewhatis
+chmod 755 %{buildroot}%{_sbindir}/makewhatis
 
 %clean
 #[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
-%config(noreplace) %{_sysconfdir}/cron.weekly/makewhatis.cron
-%config(noreplace) %{_sysconfdir}/cron.daily/makewhatis.cron
-%attr(2755,root,man)	%_bindir/man
-%_bindir/manpath
-%_bindir/apropos
-%_bindir/whatis
-%_bindir/man2dvi
-%_sbindir/makewhatis
+%{_sysconfdir}/cron.weekly/makewhatis.cron
+%{_sysconfdir}/cron.daily/makewhatis.cron
+%attr(2755,root,man)	%{_bindir}/man
+%{_bindir}/manpath
+%{_bindir}/apropos
+%{_bindir}/whatis
+%{_bindir}/man2dvi
+%{_sbindir}/makewhatis
 %config(noreplace) %{_sysconfdir}/man.config
-%_mandir/man8/*
-%_mandir/man5/*
-%_mandir/man1/*
+%{_mandir}/man8/*
+%{_mandir}/man5/*
+%{_mandir}/man1/*
 
-%_mandir/*/man?/*
-%_bindir/man2html
+%{_mandir}/*/man?/*
+%{_bindir}/man2html
 
 %attr(0775,root,man)	%dir /var/catman
 %attr(0775,root,man)	%dir /var/catman/cat[123456789n]
@@ -188,24 +167,36 @@ chmod 755 $RPM_BUILD_ROOT%{_sbindir}/makewhatis
 
 # translation of man program. It doesn't use gettext formatr, so
 # find_lang doesn't find them... manual setting is needed
-%lang(cs) %_datadir/locale/cs/man
-%lang(da) %_datadir/locale/da/man
-%lang(de) %_datadir/locale/de/man
-%lang(en) %_datadir/locale/en/man
-%lang(es) %_datadir/locale/es/man
-%lang(fi) %_datadir/locale/fi/man
-%lang(fr) %_datadir/locale/fr/man
-%lang(hr) %_datadir/locale/hr/man
-%lang(it) %_datadir/locale/it/man
-%lang(ja) %_datadir/locale/ja/man
-%lang(nl) %_datadir/locale/nl/man
-%lang(pl) %_datadir/locale/pl/man
-%lang(pt) %_datadir/locale/pt/man
-%lang(sl) %_datadir/locale/sl/man
-%lang(ru) %_datadir/locale/ru/man
+%lang(bg) %{_datadir}/locale/bg/man
+%lang(cs) %{_datadir}/locale/cs/man
+%lang(da) %{_datadir}/locale/da/man
+%lang(de) %{_datadir}/locale/de/man
+%lang(el) %{_datadir}/locale/el/man
+%lang(en) %{_datadir}/locale/en/man
+%lang(es) %{_datadir}/locale/es/man
+%lang(fi) %{_datadir}/locale/fi/man
+%lang(fr) %{_datadir}/locale/fr/man
+%lang(hr) %{_datadir}/locale/hr/man
+%lang(it) %{_datadir}/locale/it/man
+%lang(ja) %{_datadir}/locale/ja/man
+%lang(ko) %{_datadir}/locale/ko/man
+%lang(nl) %{_datadir}/locale/nl/man
+%lang(pl) %{_datadir}/locale/pl/man
+%lang(pt) %{_datadir}/locale/pt/man
+%lang(ro) %{_datadir}/locale/ro/man
+%lang(ru) %{_datadir}/locale/ru/man
+%lang(sl) %{_datadir}/locale/sl/man
 
 
 %changelog
+* Thu Mar 17 2005 Vincent Danen <vdanen@annvix.org> 1.5m2-1avx
+- 1.5m2
+- rediff P6, P8, P10,P104,  P201, P300 (tvignaud)
+- rediff and rename P101: bzip2 whatis part was meged upstream, only keep
+  LANG management part (tvignaud)
+- drop P3, P11, P16, P26, and P108 (merged upstream) (tvignaud)
+- spec cleanups
+
 * Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 1.5k-16avx
 - Annvix build
 

@@ -1,6 +1,6 @@
---- man-1.5j/configure.less	Thu Nov 22 14:53:05 2001
-+++ man-1.5j/configure	Thu Nov 22 15:01:21 2001
-@@ -329,17 +329,13 @@
+--- ./configure.less	2003-12-11 19:18:15.000000000 +0100
++++ ./configure	2003-12-11 19:20:03.000000000 +0100
+@@ -401,18 +401,13 @@
  
  if test "$ans" = "false"
  then
@@ -12,6 +12,7 @@
 -      if test -f $j/$i
 -      then
 -	eval F$i=$j/$i
+-	break
 -      fi
 -    done
 -  done
@@ -25,7 +26,7 @@
    troff=""
    nroff=""
    jnroff=""
-@@ -383,6 +379,19 @@
+@@ -457,6 +452,19 @@
        fi
      done
    done
