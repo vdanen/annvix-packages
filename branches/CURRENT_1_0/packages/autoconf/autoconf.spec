@@ -1,6 +1,6 @@
 %define name	autoconf
 %define version	2.13
-%define release 21sls
+%define release 22avx
 %define epoch	1
 
 # Factorize uses of autoconf libdir home and handle only one exception in rpmlint
@@ -27,9 +27,9 @@ BuildRoot:	%_tmppath/%{name}-root
 BuildArch:	noarch
 BuildRequires:	texinfo m4
 
-Prereq:		/sbin/install-info
+Prereq:		info-install
 Requires:	gawk, m4, mktemp, perl
-Requires:	/usr/bin/perl, perl-MDK-Common
+Requires:	perl, perl-MDK-Common
 
 %description
 GNU's Autoconf is a tool for configuring source code and Makefiles.
@@ -97,6 +97,10 @@ done
 %{_infodir}/*
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 2.13-22avx
+- Annvix build
+- require packages not files
+
 * Sun Feb 29 2004 Vincent Danen <vdanen@opensls.org> 2.13-21sls
 - more spec cleanups
 

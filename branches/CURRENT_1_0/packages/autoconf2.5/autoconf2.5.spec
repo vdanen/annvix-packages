@@ -1,6 +1,6 @@
 %define name	autoconf2.5
 %define version	2.59
-%define release 1sls
+%define release 2avx
 %define epoch	1
 
 # Factorize uses of autoconf libdir home and
@@ -24,9 +24,10 @@ BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot/
 BuildArch:	noarch
 BuildRequires:	texinfo
 
-Prereq:		/sbin/install-info
-Requires:	gawk, m4, mktemp, /usr/bin/perl
-Requires:	%{aclibdir}/ac-wrapper.pl
+Prereq:		info-install
+Requires:	gawk, m4, mktemp, perl
+# autoconf provides %{aclibdir}/ac-wrapper.pl, which we need
+Requires:	autoconf
 
 %description
 GNU's Autoconf is a tool for configuring source code and Makefiles.
@@ -91,6 +92,10 @@ mv $RPM_BUILD_ROOT%{_infodir}/autoconf.info $RPM_BUILD_ROOT%{_infodir}/autoconf-
 %{_mandir}/*/*
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 2.59-2avx
+- Annvix build
+- require packages not files
+
 * Fri May 07 2004 Vincent Danen <vdanen@opensls.org> 2.59-1sls
 - 2.59
 

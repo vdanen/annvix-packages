@@ -1,6 +1,6 @@
 %define name	automake%{amversion}
 %define version 1.7.6
-%define release 3sls
+%define release 4avx
 
 %define amversion 1.7
 
@@ -20,8 +20,8 @@ BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root
 BuildArch:	noarch
 BuildRequires:	autoconf2.5 byacc flex gawk /usr/bin/perl tetex texinfo
 
-PreReq:		/sbin/install-info, /usr/sbin/update-alternatives
-Requires:	/usr/bin/perl, autoconf2.5
+PreReq:		info-install, rpm
+Requires:	perl, autoconf2.5
 Provides:	automake = %{version}-%{release}
 Obsoletes:	automake1.5
 
@@ -78,6 +78,10 @@ fi
 %{_datadir}/aclocal*
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 1.7.6-4avx
+- Annvix build
+- require packages not files
+
 * Sun Feb 29 2004 Vincent Danen <vdanen@opensls.org> 1.7.6-3sls
 - remove %%{prefix}
 - minor spec cleanups
