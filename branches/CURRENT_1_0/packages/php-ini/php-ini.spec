@@ -1,5 +1,5 @@
 %define name	php-ini
-%define version	4.3.6
+%define version	4.3.7
 %define release	1sls
 
 Summary:	INI files for PHP
@@ -58,6 +58,9 @@ fi
 %doc %{_docdir}/%{name}-%{version}/*
 
 %changelog
+* Thu Jun 03 2004 Vincent Danen <vdanen@opensls.org> 4.3.7-1sls
+- 4.3.7
+
 * Fri May 07 2004 Vincent Danen <vdanen@opensls.org> 4.3.6-1sls
 - 4.3.6
 

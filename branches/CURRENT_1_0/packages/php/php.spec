@@ -1,5 +1,5 @@
 %define name	php
-%define version	4.3.6
+%define version	4.3.7
 %define release	1sls
 %define epoch	2
 
@@ -598,7 +598,10 @@ update-alternatives --remove php %{_bindir}/php-cli
 %{_includedir}/php
 
 %changelog
-* Tue Apr 13 2004 Vincent Danen <vdanen@opensls.org> 4.3.4-5sls
+* Thu Jun 03 2004 Vincent Danen <vdanen@opensls.org> 4.3.7-1sls
+- 4.3.7
+
+* Tue Apr 13 2004 Vincent Danen <vdanen@opensls.org> 4.3.6-1sls
 - 4.3.6
 - more epoch fixes
 - don't build with %%debug by default
