@@ -1,10 +1,8 @@
 %define name	tmdns
 %define version	0.1
-%define release	14sls
+%define release	15sls
 
 %define _prefix	/
-
-%{!?build_opensls:%global build_opensls 0}
 
 Summary:	A Multicast DNS Responder for Linux
 Name:		%{name}
@@ -53,24 +51,21 @@ make
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %makeinstall
-mkdir -p %{buildroot}{%{_initrddir},/sbin}
-./server/tmdns -P > %{buildroot}/etc/tmdns.conf 2>/dev/null
-install -m 0644 %{SOURCE1} %{buildroot}/etc/$(basename %{SOURCE1})
-install -m 0755 %{SOURCE2} %{buildroot}%{_initrddir}/tmdns
+mkdir -p %{buildroot}{/sbin,%{_sysconfdir}}
+./server/tmdns -P > %{buildroot}%{_sysconfdir}/tmdns.conf 2>/dev/null
+install -m 0644 %{SOURCE1} %{buildroot}%{_sysconfdir}/$(basename %{SOURCE1})
 install -m 0755 %{SOURCE3} %{buildroot}/sbin/$(basename %{SOURCE3})
 
-%if %{build_opensls}
 mkdir -p %{buildroot}/var/service/tmdns/log
 install -m 0755 %{SOURCE4} %{buildroot}/var/service/tmdns/run
 install -m 0755 %{SOURCE5} %{buildroot}/var/service/tmdns/log/run
 mkdir -p %{buildroot}/var/log/supervise/tmdns
-%endif
 
 %post
-%_post_service %{name}
+%_post_srv %{name}
 
 %preun
-%_preun_service  %{name}
+%_preun_srv  %{name}
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -78,19 +73,22 @@ mkdir -p %{buildroot}/var/log/supervise/tmdns
 %files
 %defattr(-,root,root)
 %doc README AUTHORS ChangeLog NEWS TODO docs/draft-cheshire-dnsext-multicastdns.txt
-%config(noreplace) %attr(755,root,root) %{_initrddir}/%{name}
-%config(noreplace) /etc/tmdns.conf
-%config(noreplace) /etc/tmdns.services
+%config(noreplace) %{_sysconfdir}/tmdns.conf
+%config(noreplace) %{_sysconfdir}/tmdns.services
 /sbin/*
 %if %{build_opensls}
-%dir /var/service/tmdns
-%dir /var/service/tmdns/log
-/var/service/tmdns/run
-/var/service/tmdns/log/run
-%dir %attr(0750,nobody,nogroup) /var/log/supervise/tmdns
+%dir %{_srvdir}/tmdns
+%dir %{_srvdir}/tmdns/log
+%{_srvdir}/tmdns/run
+%{_srvdir}/tmdns/log/run
+%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/tmdns
 %endif
 
 %changelog
+* Tue Feb 03 2004 Vincent Danen <vdanen@opensls.org> 0.1-15sls
+- remove initscript
+- macros
+
 * Sat Dec 13 2003 Vincent Danen <vdanen@opensls.org> 0.1-14sls
 - install supervise files if %%build_opensls
 - some spec cleaning
