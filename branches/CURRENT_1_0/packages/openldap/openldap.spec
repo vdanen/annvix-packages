@@ -1,6 +1,6 @@
 %define name	openldap
 %define version	2.1.22
-%define release	6sls
+%define release	7sls
 
 %define major 	2
 %define migtools_ver 40
@@ -31,13 +31,16 @@ Group: 		System/Servers
 URL: 		http://www.openldap.org
 # Openldap source
 Source0: 	%{name}-%{version}.tar.bz2
-Source12:	openldap-guide.tar.bz2
 # Specific source
 Source1: 	ldap.init
 Source2: 	%{name}.sysconfig
 Source19:	gencert.sh
 Source20:	ldap.logrotate
 Source21:	slapd.conf
+Source22:	slapd.run
+Source23:	slapd-log.run
+Source24:	slurpd.run
+Source25:	slurpd-log.run
 # Migration tools
 Source11:	http://www.padl.com/download/MigrationTools-%{migtools_ver}.tar.bz2
 Source3: 	migration-tools.txt
@@ -218,14 +221,6 @@ Requires: 	openldap-servers = %{version}-%{release}
 Module sql for OpenLDAP daemon
 %endif
 
-%package guide
-Summary: 	OpenLDAP administration guide
-Group: 		Books/Computer books
-Requires: 	openldap
-
-%description guide
-OpenLDAP guide
-
 
 %prep
 %setup -q -a 11
@@ -357,9 +352,12 @@ rm -Rf %{buildroot}
 #perl -pi -e "s|^#! /bin/sh|#!/bin/sh|g" %{buildroot}%{_bindir}/xrpcomp 
 perl -pi -e "s| -L../liblber/.libs||g" %{buildroot}%{_libdir}/libldap.la
 
-### Init scripts
-install -d %{buildroot}%{_initrddir}
-install -m 755 %{SOURCE1} %{buildroot}%{_initrddir}/ldap
+mkdir -p %{buildroot}%{_srvdir}/{slapd,slurpd}/log
+mkdir -p %{buildroot}%{_srvlogdir}/{slapd,slurpd}
+install -m 0755 %{SOURCE22} %{buildroot}%{_srvdir}/slapd/run
+install -m 0755 %{SOURCE23} %{buildroot}%{_srvdir}/slapd/log/run
+install -m 0755 %{SOURCE24} %{buildroot}%{_srvdir}/slurpd/run
+install -m 0755 %{SOURCE25} %{buildroot}%{_srvdir}/slurpd/log/run
 
 install -d %{buildroot}%{_sysconfdir}/sysconfig
 install -m 644 %{SOURCE2} %{buildroot}%{_sysconfdir}/sysconfig/ldap
@@ -414,10 +412,6 @@ cp MigrationTools-%{migtools_ver}/README README.migration
 cp %{SOURCE3} TOOLS.migration
 
 
-### Guide
-mkdir -p %{buildroot}/%{_docdir}/
-tar xvjf %{SOURCE12} -C %{buildroot}/%{_docdir}/
-
 ### gencert.sh
 install -m 755 %{SOURCE19} %{buildroot}/%{_datadir}/openldap
 
@@ -444,7 +438,7 @@ mkdir -p %{buildroot}%{_sysconfdir}/ssl/openldap
 
 
 %pre servers
-%_pre_useradd ldap %{_localstatedir}/ldap /bin/false
+%_pre_useradd ldap %{_localstatedir}/ldap /bin/false 76
 # allowing slapd to read hosts.allow and hosts.deny
 %{_bindir}/gpasswd -a ldap adm 1>&2 > /dev/null || :
 
@@ -456,17 +450,17 @@ then
 	echo "Making a backup to ldif file %{_localstatedir}/ldap/rpm-db-backup-%{db_conv}.ldif"
 	# For some reason, slapcat works in the shell when slapd is running
 	# but not via rpm ...
-	SLAPD_STATUS=`service ldap status|grep -q stopped;echo $?`
-	[ $SLAPD_STATUS -eq 1 ] && service ldap stop
+	SLAPD_STATUS=`srv status slapd|grep -q -v up;echo $?`
+	[ $SLAPD_STATUS -eq 1 ] && srv stop slapd
 	slapcat > %{_localstatedir}/ldap/rpm-db-backup-%{db_conv}.ldif ||:
-	[ $SLAPD_STATUS -eq 1 ] && service ldap start
+	[ $SLAPD_STATUS -eq 1 ] && srv start slapd
 #else
 #	echo "Found no incompatible db-type"
 fi
 
 %post servers
-SLAPD_STATUS=`service ldap status|grep -q stopped;echo $?`
-[ $SLAPD_STATUS -eq 1 ] && service ldap stop
+SLAPD_STATUS=`srv status slapd|grep -q -v up;echo $?`
+[ $SLAPD_STATUS -eq 1 ] && srv stop sldapd
 # bgmilne: part 2 of gdbm->dbb conversion for data created with 
 # original package for 9.1:
 if [ -n "`find %{_localstatedir}/ldap/*.%{db_conv} 2>&-`" ]
@@ -476,11 +470,11 @@ then
 		echo "Warning: Old ldap backup data in %{_localstatedir}/ldap-rpm-backup"
 		echo "If importing %{_localstatedir}/ldap/rpm-db-backup-%{db_conv}.ldif fails,"
 		echo "please do it manually by running (as root):"
-		echo "# service ldap stop"
+		echo "# srv stop sldapd"
 		echo "# slapadd -c -l %{_localstatedir}/ldap/rpm-db-backup-%{db_conv}.ldif"
 		echo "# slapindex"
 		echo "# chown ldap.ldap %{_localstatedir}/ldap/*"
-		echo "# service ldap start"
+		echo "# srv start slapd"
 	fi
 	if [ -e %{_localstatedir}/ldap/rpm-db-backup-%{db_conv}.ldif ]
 	then
@@ -495,7 +489,7 @@ fi
 # openldap-2.0.x->2.1.x on ldbm/dbb backend seems to need reindex regardless:
 slapindex
 chown ldap.ldap -R %{_localstatedir}/ldap/
-[ $SLAPD_STATUS -eq 1 ] && service ldap start
+[ $SLAPD_STATUS -eq 1 ] && srv start sldapd
 
 # Setup log facility for OpenLDAP
 if [ -f %{_sysconfdir}/syslog.conf ] ;then
@@ -563,7 +557,8 @@ done
 popd > /dev/null
 
 
-%_post_service ldap
+%_post_srv slapd
+%_post_srv slurpd
 
 # nscd reset
 if [ -f /var/lock/subsys/nscd ]; then
@@ -572,7 +567,7 @@ fi
 
 
 %preun servers
-%_preun_service ldap
+%_preun_srv slapd
 
 
 %postun servers
@@ -634,7 +629,6 @@ fi
 %{_datadir}/openldap/ucdata/*.dat
 
 %config(noreplace) %{_sysconfdir}/sysconfig/ldap
-%config(noreplace) %{_initrddir}/ldap
 %attr(750,ldap,ldap) %dir %{_localstatedir}/ldap
 %attr(755,ldap,ldap) %dir /var/run/ldap
 #%{_datadir}/openldap/*.help
@@ -643,6 +637,17 @@ fi
 %{_mandir}/man5/slapd.*.5*
 %{_mandir}/man5/slapd-*.5*
 %{_mandir}/man8/*
+%dir %{_srvdir}/slapd
+%dir %{_srvdir}/slapd/log
+%{_srvdir}/slapd/run
+%{_srvdir}/slapd/log/run
+%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/slapd
+%dir %{_srvdir}/slurpd
+%dir %{_srvdir}/slurpd/log
+%{_srvdir}/slurpd/run
+%{_srvdir}/slurpd/log/run
+%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/slurpd
+
 
 %attr(750,ldap,ldap) %dir /var/log/ldap
 %config(noreplace) %{_sysconfdir}/logrotate.d/ldap
@@ -669,10 +674,6 @@ fi
 %files -n %libname-devel-static
 %defattr(-,root,root)
 %{_libdir}/lib*.a
-
-%files guide
-%defattr(-,root,root)
-%doc %{_docdir}/%{name}-guide
 
 %files back_dnssrv
 %defattr(-,root,root)
@@ -707,6 +708,12 @@ fi
 
 
 %changelog
+* Tue Jan 27 2004 Vincent Danen <vdanen@opensls.org> 2.1.22-7sls
+- supervise scripts (still some incomplete calls to old service command in
+  the scriptlets; to be done when the others are converted (syslog, nscd))
+- remove the guide package
+- ldap has static uid/gid of 76
+
 * Mon Dec 02 2003 Vincent Danen <vdanen@opensls.org> 2.1.22-6sls
 - OpenSLS build
 - tidy spec
