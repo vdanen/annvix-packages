@@ -1,0 +1,783 @@
+diff -Nurw --exclude=CVS dietlibc/dietfeatures.h dietlibc.cp/dietfeatures.h
+--- dietlibc/dietfeatures.h	Sat Oct 11 11:36:49 2003
++++ dietlibc.cp/dietfeatures.h	Wed Nov 26 11:16:18 2003
+@@ -91,6 +91,16 @@
+ /* #define WANT_MALLOC_ZERO */
+ 
+ 
++/* do you want ContraPolice support? ContraPolice is a mechanism to protect
++ * buggy programs from buffer overflows on the heap being exploited.  To
++ * enforce it after every library call, you still have to enable CP_FORCE_CHECK,
++ * otherwise you have to do manual calls to cp_check()/cp_check_all().
++ */
++
++#define WANT_CONTRAPOLICE
++
++#define CP_FORCE_CHECK
++
+ /* stop uncommenting here ;-) */
+ #ifndef WANT_FASTER_STRING_ROUTINES
+ #define WANT_SMALL_STRING_ROUTINES
+diff -Nurw --exclude=CVS dietlibc/include/stdlib.h dietlibc.cp/include/stdlib.h
+--- dietlibc/include/stdlib.h	Thu Aug 21 19:18:56 2003
++++ dietlibc.cp/include/stdlib.h	Wed Nov 26 11:17:38 2003
+@@ -14,6 +14,10 @@
+ void free(void *ptr) __THROW;
+ void *realloc(void *ptr, size_t size) __THROW __attribute_malloc__;
+ 
++/* ContraPolice check functions */
++void cp_check(void *);
++void cp_check_all(void);
++
+ char *getenv(const char *name) __THROW __pure;
+ int putenv(const char *string) __THROW;
+ int setenv(const char *name, const char *value, int overwrite) __THROW;
+diff -Nurw --exclude=CVS dietlibc/lib/alloc.c dietlibc.cp/lib/alloc.c
+--- dietlibc/lib/alloc.c	Fri Nov  7 19:22:09 2003
++++ dietlibc.cp/lib/alloc.c	Thu Nov 27 21:09:53 2003
+@@ -1,6 +1,8 @@
+ /*
+  * malloc/free by O.Dreesen
+  *
++ * ContraPolice support by Andreas Krennmair
++ *
+  * first TRY:
+  *   lists w/magics
+  * and now the second TRY
+@@ -18,6 +20,12 @@
+ #include <stdlib.h>
+ #include <string.h>
+ 
++#ifdef WANT_CONTRAPOLICE
++#include <stdio.h> /* XXX for printf ... */
++#include <time.h>
++#include <fcntl.h>
++#endif
++
+ #include <sys/shm.h>	/* for PAGE_SIZE */
+ 
+ 
+@@ -31,14 +39,39 @@
+ #define NULL ((void*)0)
+ #endif
+ 
+-typedef struct {
++typedef struct __alloc {
+   void*  next;
+   size_t size;
++#ifdef WANT_CONTRAPOLICE
++  struct __alloc * cp_next;
++  size_t alloc_size;
++  uint32_t decoy;
++#endif
+ } __alloc_t;
+ 
++#ifdef WANT_CONTRAPOLICE
++
++static __alloc_t * cp_first = NULL;
++
++/* the decoy is placed right after the allocated memory 
++ * cp_f(__alloc_t.decoy) == __decoy_t.decoy must be true
++ * to make an allocated memory block pass as not overflowed
++ */
++
++typedef struct {
++  uint32_t decoy;
++} __decoy_t;
++
++#endif
++
++
+ #define BLOCK_START(b)	(((void*)(b))-sizeof(__alloc_t))
+ #define BLOCK_RET(b)	(((void*)(b))+sizeof(__alloc_t))
+ 
++#ifdef WANT_CONTRAPOLICE
++#define BLOCK_DECOY(b)        (__decoy_t *)(((char *)BLOCK_RET(b))+(((__alloc_t *)(b))->alloc_size))
++#endif
++
+ #define MEM_BLOCK_SIZE	PAGE_SIZE
+ #define PAGE_ALIGN(s)	(((s)+MEM_BLOCK_SIZE-1)&(unsigned long)(~(MEM_BLOCK_SIZE-1)))
+ 
+@@ -55,6 +88,106 @@
+   return mmap(0, size, PROT_READ|PROT_WRITE, MAP_ANONYMOUS|MAP_PRIVATE, -1, (size_t)0);
+ }
+ 
++#ifdef WANT_CONTRAPOLICE
++
++/* -- ContraPolice -------------------------------------- */
++
++static int cp_srand(int x, int * fd) {
++  int myfd;
++  srand(x);
++  myfd = open ("/dev/urandom", O_RDONLY);
++  if (myfd != -1) {
++    *fd = myfd;
++    return 1;
++  }
++  return 0;
++}
++
++static uint32_t cp_rand(void) {
++  static int initialized;
++  static int urand;
++  static int fd;
++  uint32_t x;
++  if (!initialized) {
++    urand = cp_srand(time(NULL) ^ getpid() ^ getppid(),&fd);
++    initialized = 1;
++  }
++  if (urand) {
++    ssize_t l = read(fd,&x,sizeof(x));
++    if (l!=sizeof(x)) { x = rand(); }
++  } else {
++    x = rand();
++  }
++  return x;
++}
++
++static inline uint32_t cp_f(uint32_t x) {
++  return x; /* should we improve this? */
++}
++
++static inline void cp_add_memblock(__alloc_t * x) {
++  /* simply add memory block to begin of list */
++  if (x) {
++    x->cp_next = cp_first;
++    cp_first = x;
++  }
++}
++
++static void cp_remove_memblock(__alloc_t * x) {
++  if (cp_first && x) {
++    __alloc_t * t;
++    if (cp_first == x) {
++      cp_first = x->next;
++    } else {
++      for (t=cp_first;t->next!=NULL;t=t->next) {
++        if (t->next == x) { t->next = x->next; break; }
++      }
++    }
++  }
++}
++
++static void cp_abort(void * x) {
++  
++  printf("ContraPolice: detected heap buffer overflow while checking address %p.\n",x); /* XXX this means bloat! */
++  abort();
++}
++
++void cp_check(void * x) {
++  if (cp_first && x) {
++    __alloc_t * t;
++    for (t=cp_first;t!=NULL;t=t->next) {
++      size_t alloc_size; 
++      uint32_t decoy;
++      alloc_size = t->alloc_size;
++      decoy = t->decoy;
++
++      /* the range check is done so that a heap overflow check
++       * can be done even when we only have an address to points
++       * to somewhere in the middle of a dynamically allocated buffer
++       */
++      if (((char *)x)>=((char *)BLOCK_RET(t)) && ((char *)x)<(((char *)BLOCK_RET(t))+alloc_size)) {
++        if ( (BLOCK_DECOY(t))->decoy != cp_f(decoy)) {
++          cp_abort(x);
++        }
++      }
++    }
++  }
++}
++
++void cp_check_all(void) {
++  if (cp_first) {
++    __alloc_t * t;
++    for (t=cp_first;t!=NULL;t=t->next) {
++      uint32_t decoy = ((__alloc_t *)t)->decoy;
++      if ((BLOCK_DECOY(t))->decoy != cp_f(decoy)) {
++        cp_abort(BLOCK_RET(t));
++      }
++    }
++  }
++}
++
++#endif
++
+ /* -- SMALL MEM ----------------------------------------------------------- */
+ 
+ static __alloc_t* __small_mem[8];
+@@ -130,6 +263,12 @@
+ static void _alloc_libc_free(void *ptr) {
+   register size_t size;
+   if (ptr) {
++ #ifdef WANT_CONTRAPOLICE
++ #ifdef CP_FORCECHECK
++    cp_check(BLOCK_START(ptr));
++ #endif
++    cp_remove_memblock(BLOCK_START(ptr));
++ #endif
+     size=((__alloc_t*)BLOCK_START(ptr))->size;
+     if (size) {
+       if (size<=__MAX_SMALL_SIZE)
+@@ -150,13 +289,19 @@
+ static void* _alloc_libc_malloc(size_t size) {
+   __alloc_t* ptr;
+   size_t need;
++  size_t orig_size = size;
+ #ifdef WANT_MALLOC_ZERO
+   if (!size) return BLOCK_RET(zeromem);
+ #else
+   if (!size) goto retzero;
+ #endif
++#ifdef WANT_CONTRAPOLICE
++  size+=sizeof(__alloc_t)+sizeof(__decoy_t);
++  if (size<(sizeof(__alloc_t)+sizeof(__decoy_t))) goto retzero;
++#else
+   size+=sizeof(__alloc_t);
+   if (size<sizeof(__alloc_t)) goto retzero;
++#endif
+   if (size<=__MAX_SMALL_SIZE) {
+     need=GET_SIZE(size);
+     ptr=__small_malloc(need);
+@@ -167,6 +312,11 @@
+   }
+   if (ptr==MAP_FAILED) goto err_out;
+   ptr->size=need;
++#ifdef WANT_CONTRAPOLICE
++  ptr->alloc_size = orig_size;
++  ((__decoy_t *)BLOCK_DECOY(ptr))->decoy = cp_f(ptr->decoy = cp_rand()); /* XXX set random value */
++  cp_add_memblock(ptr);
++#endif
+   return BLOCK_RET(ptr);
+ err_out:
+   (*__errno_location())=ENOMEM;
+@@ -189,10 +339,18 @@
+ void* __libc_realloc(void* ptr, size_t _size) {
+   register size_t size=_size;
+   if (ptr) {
++#if defined(WANT_CONTRAPOLICE) && defined(CP_FORCE_CHECK)
++    cp_check(BLOCK_START(ptr));
++#endif
+     if (size) {
+       __alloc_t* tmp=BLOCK_START(ptr);
++#ifdef WANT_CONTRAPOLICE
++      size+=(sizeof(__alloc_t)+sizeof(__decoy_t));
++      if (size<(sizeof(__alloc_t)+sizeof(__decoy_t))) goto retzero;
++#else
+       size+=sizeof(__alloc_t);
+       if (size<sizeof(__alloc_t)) goto retzero;
++#endif
+       size=(size<=__MAX_SMALL_SIZE)?GET_SIZE(size):PAGE_ALIGN(size);
+       if (tmp->size!=size) {
+ 	if ((tmp->size<=__MAX_SMALL_SIZE)) {
+@@ -201,7 +359,11 @@
+ 	    register __alloc_t* foo=BLOCK_START(new);
+ 	    size=foo->size;
+ 	    if (size>tmp->size) size=tmp->size;
++#ifdef WANT_CONTRAPOLICE
++            if (size) memcpy(new,ptr,size-(sizeof(__alloc_t)+sizeof(__decoy_t)));
++#else
+ 	    if (size) memcpy(new,ptr,size-sizeof(__alloc_t));
++#endif
+ 	    _alloc_libc_free(ptr);
+ 	  }
+ 	  ptr=new;
+@@ -209,6 +371,9 @@
+ 	else {
+ 	  register __alloc_t* foo;
+ 	  size=PAGE_ALIGN(size);
++#ifdef WANT_CONTRAPOLICE
++          cp_remove_memblock(tmp);
++#endif
+ 	  foo=mremap(tmp,tmp->size,size,MREMAP_MAYMOVE);
+ 	  if (foo==MAP_FAILED) {
+ retzero:
+@@ -217,6 +382,11 @@
+ 	  }
+ 	  else {
+ 	    foo->size=size;
++#ifdef WANT_CONTRAPOLICE
++            cp_add_memblock(foo);
++            foo->alloc_size = size-(sizeof(__alloc_t)+sizeof(__decoy_t));
++            ((__decoy_t *)BLOCK_DECOY(foo))->decoy = cp_f(foo->decoy = cp_rand());
++#endif
+ 	    ptr=BLOCK_RET(foo);
+ 	  }
+ 	}
+diff -Nurw --exclude=CVS dietlibc/lib/memccpy.c dietlibc.cp/lib/memccpy.c
+--- dietlibc/lib/memccpy.c	Tue Aug 14 18:56:50 2001
++++ dietlibc.cp/lib/memccpy.c	Wed Nov 26 11:14:06 2003
+@@ -1,5 +1,6 @@
+ #define _POSIX_SOURCE
+ #define _XOPEN_SOURCE
++#include "dietfeatures.h"
+ #include <sys/types.h>
+ #include <string.h>
+ 
+@@ -16,5 +17,8 @@
+     }
+     b++;
+   }
++#if defined(WANT_CONTRAPOLICE) && defined(CP_FORCE_CHECK)
++  cp_check(dst);
++#endif
+   return 0;
+ }
+diff -Nurw --exclude=CVS dietlibc/lib/memcpy.c dietlibc.cp/lib/memcpy.c
+--- dietlibc/lib/memcpy.c	Tue Aug 19 21:34:18 2003
++++ dietlibc.cp/lib/memcpy.c	Thu Nov 27 23:01:21 2003
+@@ -1,4 +1,5 @@
+ #include <sys/types.h>
++#include "dietfeatures.h"
+ 
+ /* gcc is broken and has a non-SUSv2 compliant internal prototype.
+  * This causes it to warn about a type mismatch here.  Ignore it. */
+@@ -10,5 +11,8 @@
+     *d = *s;
+     ++d; ++s;
+   }
++#if defined(WANT_CONTRAPOLICE) && defined(CP_FORCE_CHECK)
++  cp_check(dst);
++#endif
+   return dst;
+ }
+diff -Nurw --exclude=CVS dietlibc/lib/snprintf.c dietlibc.cp/lib/snprintf.c
+--- dietlibc/lib/snprintf.c	Tue Aug 14 18:56:50 2001
++++ dietlibc.cp/lib/snprintf.c	Wed Nov 26 11:12:20 2003
+@@ -1,3 +1,4 @@
++#include "dietfeatures.h"
+ #include <stdarg.h>
+ #include <sys/types.h>
+ #include <stdio.h>
+@@ -9,5 +10,8 @@
+   va_start(arg_ptr, format);
+   n=vsnprintf(str,size,format,arg_ptr);
+   va_end (arg_ptr);
++#if defined(WANT_CONTRAPOLICE) && defined(CP_FORCE_CHECK)
++  cp_check(str);
++#endif
+   return n;
+ }
+diff -Nurw --exclude=CVS dietlibc/lib/sprintf.c dietlibc.cp/lib/sprintf.c
+--- dietlibc/lib/sprintf.c	Tue Aug 14 18:56:50 2001
++++ dietlibc.cp/lib/sprintf.c	Wed Nov 26 11:12:29 2003
+@@ -1,3 +1,4 @@
++#include "dietfeatures.h"
+ #include <stdarg.h>
+ #include <sys/types.h>
+ #include <stdlib.h>
+@@ -10,5 +11,8 @@
+   va_start(arg_ptr, format);
+   n=vsprintf(dest,format,arg_ptr);
+   va_end (arg_ptr);
++#if defined(WANT_CONTRAPOLICE) && defined(CP_FORCE_CHECK)
++  cp_check(dest);
++#endif
+   return n;
+ }
+diff -Nurw --exclude=CVS dietlibc/lib/strcat.c dietlibc.cp/lib/strcat.c
+--- dietlibc/lib/strcat.c	Tue Jan  9 18:57:42 2001
++++ dietlibc.cp/lib/strcat.c	Wed Nov 26 11:09:42 2003
+@@ -13,6 +13,9 @@
+     if (!(*s = *t)) break; ++s; ++t;
+ #endif
+   }
++#if defined(WANT_CONTRAPOLICE) && defined(CP_FORCE_CHECK)
++  cp_check(dest);
++#endif
+   return dest;
+ }
+ 
+diff -Nurw --exclude=CVS dietlibc/lib/strcpy.c dietlibc.cp/lib/strcpy.c
+--- dietlibc/lib/strcpy.c	Tue Aug 19 21:34:18 2003
++++ dietlibc.cp/lib/strcpy.c	Wed Nov 26 11:09:15 2003
+@@ -13,6 +13,9 @@
+   }
+ #else
+   while (__likely(*dest++=*t++));
++#if defined(WANT_CONTRAPOLICE) && defined(CP_FORCE_CHECK)
++  cp_check(s);
++#endif
+   return s;
+ #endif
+ }
+diff -Nurw --exclude=CVS dietlibc/lib/strdup.c dietlibc.cp/lib/strdup.c
+--- dietlibc/lib/strdup.c	Tue Jan  9 18:57:43 2001
++++ dietlibc.cp/lib/strdup.c	Thu Nov 27 23:02:24 2003
+@@ -1,3 +1,4 @@
++#include "dietfeatures.h"
+ #include <string.h>
+ #include <stdlib.h>
+ 
+@@ -5,5 +6,8 @@
+   char *tmp=(char *)malloc(strlen(s)+1);
+   if (!tmp) return 0;
+   strcpy(tmp,s);
++#if defined(WANT_CONTRAPOLICE) && defined(CP_FORCE_CHECK)
++  cp_check(tmp);
++#endif
+   return tmp;
+ }
+diff -Nurw --exclude=CVS dietlibc/lib/strlcat.c dietlibc.cp/lib/strlcat.c
+--- dietlibc/lib/strlcat.c	Tue Jan  9 18:57:43 2001
++++ dietlibc.cp/lib/strlcat.c	Wed Nov 26 11:10:47 2003
+@@ -31,6 +31,7 @@
+ static char *rcsid = "$OpenBSD: strlcat.c,v 1.2 1999/06/17 16:28:58 millert Exp $";
+ #endif /* LIBC_SCCS and not lint */
+ 
++#include "dietfeatures.h"
+ #include <sys/types.h>
+ #include <string.h>
+ 
+@@ -67,6 +68,8 @@
+ 		s++;
+ 	}
+ 	*d = '\0';
+-
++#if defined(WANT_CONTRAPOLICE) && defined(CP_FORCE_CHECK)
++	cp_check(dst);
++#endif
+ 	return(dlen + (s - src));	/* count does not include NUL */
+ }
+diff -Nurw --exclude=CVS dietlibc/lib/strlcpy.c dietlibc.cp/lib/strlcpy.c
+--- dietlibc/lib/strlcpy.c	Tue Jan  9 18:57:43 2001
++++ dietlibc.cp/lib/strlcpy.c	Wed Nov 26 11:10:10 2003
+@@ -31,6 +31,7 @@
+ static char *rcsid = "$OpenBSD: strlcpy.c,v 1.3 1999/04/24 01:17:37 millert Exp $";
+ #endif /* LIBC_SCCS and not lint */
+ 
++#include "dietfeatures.h"
+ #include <sys/types.h>
+ #include <string.h>
+ 
+@@ -63,6 +64,8 @@
+ 		while (*s++)
+ 			;
+ 	}
+-
++#if defined(WANT_CONTRAPOLICE) && defined(CP_FORCE_CHECK)
++	cp_check(dst);
++#endif
+ 	return(s - src - 1);	/* count does not include NUL */
+ }
+diff -Nurw --exclude=CVS dietlibc/lib/strncat.c dietlibc.cp/lib/strncat.c
+--- dietlibc/lib/strncat.c	Wed Aug 20 01:03:14 2003
++++ dietlibc.cp/lib/strncat.c	Thu Nov 27 23:02:47 2003
+@@ -30,5 +30,8 @@
+   }
+   *s=0;
+ fini:
++#if defined(WANT_CONTRAPOLICE) && defined(CP_FORCE_CHECK)
++  cp_check(dest);
++#endif
+   return dest;
+ }
+diff -Nurw --exclude=CVS dietlibc/lib/strncpy.c dietlibc.cp/lib/strncpy.c
+--- dietlibc/lib/strncpy.c	Tue May  7 12:03:07 2002
++++ dietlibc.cp/lib/strncpy.c	Thu Nov 27 23:02:59 2003
+@@ -11,5 +11,8 @@
+   memset(dest,0,n);
+ #endif
+   memccpy(dest,src,0,n);
++#if defined(WANT_CONTRAPOLICE) && defined(CP_FORCE_CHECK)
++  cp_check(dest);
++#endif
+   return dest;
+ }
+diff -Nurw --exclude=CVS dietlibc/lib/strtok_r.c dietlibc.cp/lib/strtok_r.c
+--- dietlibc/lib/strtok_r.c	Sat Oct 11 11:36:49 2003
++++ dietlibc.cp/lib/strtok_r.c	Thu Nov 27 23:03:16 2003
+@@ -1,3 +1,4 @@
++#include "dietfeatures.h"
+ #include <string.h>
+ 
+ char*strtok_r(char*s,const char*delim,char**ptrptr) {
+@@ -11,5 +12,8 @@
+     if (__likely(*s)) *s++=0;	/* not the end ? => terminate it */
+   }
+   *ptrptr=s;
++#if defined(WANT_CONTRAPOLICE) && defined(CP_FORCE_CHECK)
++  cp_check(*ptrptr);
++#endif
+   return tmp;
+ }
+diff -Nurw --exclude=CVS dietlibc/lib/vsnprintf.c dietlibc.cp/lib/vsnprintf.c
+--- dietlibc/lib/vsnprintf.c	Fri Nov 14 16:16:46 2003
++++ dietlibc.cp/lib/vsnprintf.c	Thu Nov 27 23:03:37 2003
+@@ -4,6 +4,7 @@
+ #include <stdlib.h>
+ #include <string.h>
+ #include "dietstdio.h"
++#include "dietfeatures.h"
+ 
+ struct str_data {
+   unsigned char* str;
+@@ -35,5 +36,8 @@
+     if ((long)n>(long)size) str[size]=0;
+     else str[n]=0;
+   }
++#if defined(WANT_CONTRAPOLICE) && defined(CP_FORCE_CHECK)
++  cp_check(str);
++#endif
+   return n;
+ }
+diff -Nurw --exclude=CVS dietlibc/test/cp-test1.c dietlibc.cp/test/cp-test1.c
+--- dietlibc/test/cp-test1.c	Thu Jan  1 01:00:00 1970
++++ dietlibc.cp/test/cp-test1.c	Tue Nov 25 22:12:38 2003
+@@ -0,0 +1,9 @@
++#include <stdlib.h>
++#include <assert.h>
++
++int main(void) {
++  void * x = malloc(100);
++  assert(x);
++  cp_check(x);
++  return 0;
++}
+diff -Nurw --exclude=CVS dietlibc/test/cp-test10.c dietlibc.cp/test/cp-test10.c
+--- dietlibc/test/cp-test10.c	Thu Jan  1 01:00:00 1970
++++ dietlibc.cp/test/cp-test10.c	Tue Nov 25 22:29:40 2003
+@@ -0,0 +1,11 @@
++#include <stdlib.h>
++#include <assert.h>
++
++int main(void) {
++  void * x = malloc(100);
++  assert(x);
++  memset(x,'x',101);
++  free(x);
++  cp_check_all();
++  return 0;
++}
+diff -Nurw --exclude=CVS dietlibc/test/cp-test11.c dietlibc.cp/test/cp-test11.c
+--- dietlibc/test/cp-test11.c	Thu Jan  1 01:00:00 1970
++++ dietlibc.cp/test/cp-test11.c	Tue Nov 25 23:15:10 2003
+@@ -0,0 +1,11 @@
++#include <stdlib.h>
++#include <assert.h>
++
++int main(void) {
++  void * x = malloc(100);
++  assert(x);
++  memset(x,'x',101);
++  x = realloc(x,50);
++  cp_check(x);
++  return 0;
++}
+diff -Nurw --exclude=CVS dietlibc/test/cp-test12.c dietlibc.cp/test/cp-test12.c
+--- dietlibc/test/cp-test12.c	Thu Jan  1 01:00:00 1970
++++ dietlibc.cp/test/cp-test12.c	Tue Nov 25 23:15:40 2003
+@@ -0,0 +1,11 @@
++#include <stdlib.h>
++#include <assert.h>
++
++int main(void) {
++  void * x = malloc(5000);
++  assert(x);
++  memset(x,'x',5001);
++  x = realloc(x,4096);
++  cp_check(x);
++  return 0;
++}
+diff -Nurw --exclude=CVS dietlibc/test/cp-test13.c dietlibc.cp/test/cp-test13.c
+--- dietlibc/test/cp-test13.c	Thu Jan  1 01:00:00 1970
++++ dietlibc.cp/test/cp-test13.c	Tue Nov 25 23:17:15 2003
+@@ -0,0 +1,9 @@
++#include <stdlib.h>
++#include <assert.h>
++
++int main(void) {
++  void * x = malloc(5000);
++  assert(x);
++  cp_check(x);
++  return 0;
++}
+diff -Nurw --exclude=CVS dietlibc/test/cp-test14.c dietlibc.cp/test/cp-test14.c
+--- dietlibc/test/cp-test14.c	Thu Jan  1 01:00:00 1970
++++ dietlibc.cp/test/cp-test14.c	Tue Nov 25 23:17:28 2003
+@@ -0,0 +1,10 @@
++#include <stdlib.h>
++#include <assert.h>
++
++int main(void) {
++  void * x = malloc(5000);
++  assert(x);
++  memset(x,'x',5000);
++  cp_check(x);
++  return 0;
++}
+diff -Nurw --exclude=CVS dietlibc/test/cp-test15.c dietlibc.cp/test/cp-test15.c
+--- dietlibc/test/cp-test15.c	Thu Jan  1 01:00:00 1970
++++ dietlibc.cp/test/cp-test15.c	Tue Nov 25 23:17:43 2003
+@@ -0,0 +1,10 @@
++#include <stdlib.h>
++#include <assert.h>
++
++int main(void) {
++  void * x = malloc(5000);
++  assert(x);
++  memset(x,'x',5001); /* buffer overflow */
++  cp_check(x);
++  return 0;
++}
+diff -Nurw --exclude=CVS dietlibc/test/cp-test2.c dietlibc.cp/test/cp-test2.c
+--- dietlibc/test/cp-test2.c	Thu Jan  1 01:00:00 1970
++++ dietlibc.cp/test/cp-test2.c	Tue Nov 25 22:13:17 2003
+@@ -0,0 +1,10 @@
++#include <stdlib.h>
++#include <assert.h>
++
++int main(void) {
++  void * x = malloc(100);
++  assert(x);
++  memset(x,'x',100);
++  cp_check(x);
++  return 0;
++}
+diff -Nurw --exclude=CVS dietlibc/test/cp-test3.c dietlibc.cp/test/cp-test3.c
+--- dietlibc/test/cp-test3.c	Thu Jan  1 01:00:00 1970
++++ dietlibc.cp/test/cp-test3.c	Tue Nov 25 22:18:29 2003
+@@ -0,0 +1,10 @@
++#include <stdlib.h>
++#include <assert.h>
++
++int main(void) {
++  void * x = malloc(100);
++  assert(x);
++  memset(x,'x',101); /* buffer overflow */
++  cp_check(x);
++  return 0;
++}
+diff -Nurw --exclude=CVS dietlibc/test/cp-test4.c dietlibc.cp/test/cp-test4.c
+--- dietlibc/test/cp-test4.c	Thu Jan  1 01:00:00 1970
++++ dietlibc.cp/test/cp-test4.c	Tue Nov 25 22:20:49 2003
+@@ -0,0 +1,13 @@
++#include <stdlib.h>
++#include <assert.h>
++
++int main(void) {
++  void * x = malloc(100);
++  void * y;
++  assert(x);
++  memset(x,'x',101); /* buffer overflow */
++  y = malloc(30);
++  memset(y,'y',31);
++  cp_check_all();
++  return 0;
++}
+diff -Nurw --exclude=CVS dietlibc/test/cp-test5.c dietlibc.cp/test/cp-test5.c
+--- dietlibc/test/cp-test5.c	Thu Jan  1 01:00:00 1970
++++ dietlibc.cp/test/cp-test5.c	Tue Nov 25 22:19:58 2003
+@@ -0,0 +1,13 @@
++#include <stdlib.h>
++#include <assert.h>
++
++int main(void) {
++  void * x = malloc(100);
++  void * y;
++  assert(x);
++  memset(x,'x',100); /* buffer overflow */
++  y = malloc(30);
++  memset(y,'y',31);
++  cp_check(x);
++  return 0;
++}
+diff -Nurw --exclude=CVS dietlibc/test/cp-test6.c dietlibc.cp/test/cp-test6.c
+--- dietlibc/test/cp-test6.c	Thu Jan  1 01:00:00 1970
++++ dietlibc.cp/test/cp-test6.c	Tue Nov 25 22:21:09 2003
+@@ -0,0 +1,13 @@
++#include <stdlib.h>
++#include <assert.h>
++
++int main(void) {
++  void * x = malloc(100);
++  void * y;
++  assert(x);
++  memset(x,'x',101); /* buffer overflow */
++  y = malloc(30);
++  memset(y,'y',31);
++  cp_check(y);
++  return 0;
++}
+diff -Nurw --exclude=CVS dietlibc/test/cp-test7.c dietlibc.cp/test/cp-test7.c
+--- dietlibc/test/cp-test7.c	Thu Jan  1 01:00:00 1970
++++ dietlibc.cp/test/cp-test7.c	Tue Nov 25 22:21:35 2003
+@@ -0,0 +1,13 @@
++#include <stdlib.h>
++#include <assert.h>
++
++int main(void) {
++  void * x = malloc(100);
++  void * y;
++  assert(x);
++  memset(x,'x',100);
++  y = malloc(30);
++  memset(y,'y',31); /* buffer overflow */
++  cp_check(y);
++  return 0;
++}
+diff -Nurw --exclude=CVS dietlibc/test/cp-test8.c dietlibc.cp/test/cp-test8.c
+--- dietlibc/test/cp-test8.c	Thu Jan  1 01:00:00 1970
++++ dietlibc.cp/test/cp-test8.c	Tue Nov 25 22:21:51 2003
+@@ -0,0 +1,13 @@
++#include <stdlib.h>
++#include <assert.h>
++
++int main(void) {
++  void * x = malloc(100);
++  void * y;
++  assert(x);
++  memset(x,'x',100);
++  y = malloc(30);
++  memset(y,'y',30);
++  cp_check(y);
++  return 0;
++}
+diff -Nurw --exclude=CVS dietlibc/test/cp-test9.c dietlibc.cp/test/cp-test9.c
+--- dietlibc/test/cp-test9.c	Thu Jan  1 01:00:00 1970
++++ dietlibc.cp/test/cp-test9.c	Tue Nov 25 22:30:44 2003
+@@ -0,0 +1,11 @@
++#include <stdlib.h>
++#include <assert.h>
++
++int main(void) {
++  void * x = malloc(100);
++  assert(x);
++  memset(x,'x',101);
++  free(x);
++  cp_check(x);
++  return 0;
++}
+diff -Nurw --exclude=CVS dietlibc/test/run-cptest.sh dietlibc.cp/test/run-cptest.sh
+--- dietlibc/test/run-cptest.sh	Thu Jan  1 01:00:00 1970
++++ dietlibc.cp/test/run-cptest.sh	Tue Nov 25 23:19:40 2003
+@@ -0,0 +1,30 @@
++#!/bin/sh
++
++FILES="cp-test1.c cp-test2.c cp-test3.c cp-test4.c cp-test5.c cp-test6.c cp-test7.c cp-test8.c cp-test9.c cp-test10.c cp-test11.c cp-test12.c cp-test13.c cp-test14.c cp-test15.c"
++
++compile() {
++  diet -Os gcc $1 -o $2 2> /dev/null
++}
++
++run() {
++  echo -n "running $1 ..."
++  if ./$1 ; then
++    echo "OK"
++  else
++    echo "FAILED"
++  fi
++}
++
++echo "****************************************************************"
++echo "* ContraPolice test suite (kinda)                              *"
++echo "* tests that fail: 3, 4, 6, 7, 11, 12 and 15                   *"
++echo "****************************************************************"
++
++
++for f in $FILES ; do
++  f2=`basename $f .c`
++  compile $f $f2
++  run $f2
++  rm -f $f2
++done
++

@@ -1,0 +1,11 @@
+--- dietlibc-0.21/Makefile.ppc	2002-11-01 16:24:26.000000000 -0500
++++ dietlibc-0.21/Makefile	2002-11-01 16:25:06.000000000 -0500
+@@ -9,7 +9,7 @@
+ MAN1DIR=${prefix}/share/man/man1
+ INSTALLHOME=$(prefix)/lib/dietlibc
+ 
+-MYARCH:=$(shell uname -m | sed -e 's/i[4-9]86/i386/' -e 's/armv[3-6][lb]/arm/')
++MYARCH:=$(shell uname -m | sed -e 's/i[4-9]86/i386/' -e 's/armv[3-6][lb]/arm/' -e 's/ppc64/ppc/')
+ 
+ # This extra-ugly cruft is here so make will not run uname and sed each
+ # time it looks at $(OBJDIR).  This alone sped up running make when
