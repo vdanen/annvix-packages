@@ -1,6 +1,6 @@
 %define name	cvs
 %define version	1.11.17
-%define release	2avx
+%define release	3avx
 
 %define url	ftp://ftp.cvshome.org/pub
 %define _requires_exceptions tcsh
@@ -127,6 +127,9 @@ mkdir -p %{buildroot}%{_srvlogdir}/cvspserver
 %dir %attr(0750,nobody,nogroup) %{_srvlogdir}/cvspserver
 
 %changelog
+* Mon Sep 20 2004 Vincent Danen <vdanen@annvix.org> 1.11.17-3avx
+- updated run scripts
+
 * Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 1.11.17-2avx
 - Annvix build
 - require packages not files
