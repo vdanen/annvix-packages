@@ -1,0 +1,10 @@
+--- slocate-2.5/misc.c.chmou	Tue Jan 22 20:04:10 2002
++++ slocate-2.5/misc.c	Tue Jan 22 20:04:27 2002
+@@ -89,6 +89,7 @@
+ 
+ 			/* realloc more memory if more of the file is expected. */
+ 			fbuf = realloc(fbuf,tot_size+ALLOC_SIZE);
++			tot_size+=ALLOC_SIZE;
+ 
+ 			/* If realloc failes report and exit. */
+ 			if (!fbuf) {
