@@ -1,17 +1,18 @@
 %define name	chpax
 %define version	0.5
-%define release	1mdk
+%define release	2sls
 
-Name:		%{name}
 Summary:	Tool that allows PaX flags to be modified on a per-binary basis
+Name:		%{name}
 Version:	%{version}
 Release:	%{release}
+License:	Public Domain
+Group:		System/Configuration/Other
+URL:		http://pageexec.virtualave.net/
 Source0:	%{name}-%{version}.tar.bz2
 Patch0:		%{name}-%{version}-autotools.patch.bz2
-URL:		http://pageexec.virtualave.net/
-Group:		System/Configuration/Other
+
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
-License:	Public Domain
 BuildRequires:	autoconf2.5 automake1.7
 
 %description
@@ -46,6 +47,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_sbindir}/chpax
 
 %changelog 
+* Wed Dec 31 2003 Vincent Danen <vdanen@opensls.org> 0.5-2sls
+- OpenSLS build
+- tidy spec
+
 * Tue Dec 30 2003 Lenny Cartier <lenny@mandrakesoft.com> 0.5-1mdk
 - from Omer Shenker <chpax@omershenker.net> :
 	- Specfile for Mandrake
