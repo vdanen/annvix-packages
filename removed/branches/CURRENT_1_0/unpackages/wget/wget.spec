@@ -1,6 +1,6 @@
 %define name	wget
 %define version	1.8.2
-%define release	14sls
+%define release	15avx
 
 Summary: 	A utility for retrieving files using the HTTP or FTP protocols.
 Name: 		%{name}
@@ -29,7 +29,7 @@ BuildRoot: 	%_tmppath/%name-%version-%release-root
 BuildRequires:	gettext, openssl-devel, texinfo
 
 Provides: 	webclient webfetch
-Prereq: 	/sbin/install-info
+Prereq: 	info-install
 
 
 %description
@@ -98,6 +98,10 @@ msgfmt -v %SOURCE2 -o $RPM_BUILD_ROOT%{_datadir}/locale/zh_CN.GB2312/LC_MESSAGES
 %_mandir/man1/wget.1*
 
 %changelog
+* Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 1.8.2-15avx
+- require info-install, not the file
+- Annvix build
+
 * Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 1.8.2-14sls
 - minor spec cleanups
 
