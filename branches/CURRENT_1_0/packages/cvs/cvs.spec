@@ -1,6 +1,6 @@
 %define name	cvs
 %define version	1.11.17
-%define release	4avx
+%define release	5avx
 
 %define url	ftp://ftp.cvshome.org/pub
 %define _requires_exceptions tcsh
@@ -102,13 +102,13 @@ install -m 0644 %{SOURCE6} %{buildroot}%{_datadir}/afterboot/06_cvspserver
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
-%_post_srv cvs
+%_post_srv cvspserver
 %_install_info %{name}.info
 %_install_info cvsclient.info
 %_mkafterboot
 
 %preun
-%_preun_srv cvs
+%_preun_srv cvspserver
 %_remove_install_info %{name}.info
 %_remove_install_info cvsclient.info
 
@@ -140,6 +140,11 @@ install -m 0644 %{SOURCE6} %{buildroot}%{_datadir}/afterboot/06_cvspserver
 %{_datadir}/afterboot/06_cvspserver
 
 %changelog
+* Tue Jan 25 2005 Vincent Danen <vdanen@annvix.org> 1.11.17-5avx
+- update the run script; exec tcpsvd so that it will actually stop
+  when we want it to
+- service name is cvspserver, not cvs
+
 * Tue Oct 05 2004 Vincent Danen <vdanen@annvix.org> 1.11.17-4avx
 - switch from tcpserver to tcpsvd
 - Requires: ipsvd

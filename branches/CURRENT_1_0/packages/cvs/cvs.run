@@ -5,4 +5,4 @@ PATH="/sbin:/usr/sbin:/bin:/usr/bin"
 # connections (-c) using the ipsvd-instruct(5) directory ./peers for instructions,
 # and listening to all IPs on port 2401 (cvspserver)
 
-/sbin/tcpsvd -c30 -v -llocalhost -i./peers 0 2401 /usr/sbin/cvspserver 2>&1
+exec /sbin/tcpsvd -c30 -v -llocalhost -i./peers 0 2401 /usr/sbin/cvspserver 2>&1
