@@ -1,6 +1,6 @@
 %define name	srv
 %define version 0.1
-%define release 1sls
+%define release 2sls
 
 Summary:	Tool to manage supervise-controlled services.
 Name: 		%{name}
@@ -17,6 +17,7 @@ BuildArch:	noarch
 Requires:	daemontools >= 0.70
 Obsoletes:	supervise-scripts
 Provides:	supervise-scripts
+PreReq:		rpm-helper
 
 %description
 A tool to manage supervise-controlled services.
@@ -41,6 +42,13 @@ install -m 0755 srv.init %{buildroot}%{_initrddir}/srv
 install -m 0644 srv.8 %{buildroot}%{_mandir}/man8
 
 
+%post
+%_post_service srv
+
+
+%preun
+%_preun_service srv
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 rm -rf $RPM_BUILD_DIR/%{name}-%{version}
@@ -54,5 +62,9 @@ rm -rf $RPM_BUILD_DIR/%{name}-%{version}
 
 
 %changelog
+* Sun Jan 11 2004 Vincent Danen <vdanen@opensls.org> 0.1-2sls
+- PreReq: rpm-helper
+- add %%post and %%preun service stuff
+
 * Fri Jan 02 2004 Vincent Danen <vdanen@opensls.org> 0.1-1sls
 - 0.1
