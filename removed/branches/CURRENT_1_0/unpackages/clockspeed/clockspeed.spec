@@ -1,6 +1,6 @@
 %define name	clockspeed
 %define version	0.62
-%define release	2sls
+%define release	3sls
 
 Summary:	Clock speed measurement and manipulation
 Name:		%{name}
@@ -11,15 +11,18 @@ Group:		System/Servers
 URL:		http://cr.yp.to/clockspeed.html
 Source0:	%{name}-%{version}.tar.gz
 Source1:	clockspeed.run
-Source2:	clockspeed-log.run
 Source3:	taiclockd.run
 Source4:	taiclockd-log.run
+Source5:	98_clockspeed.afterboot
+Source6:	clockspeed.cron
+Source7:	clockspeed.sysconfig
 Patch0:		clockspeed-0.62-errno.patch.bz2
+Patch1:		clockspeed-0.62-path.patch.bz2
 
 Buildroot:	%{_tmppath}/%{name}-%{version}
 BuildRequires:	dietlibc-devel >= 0.20
 
-Requires:	daemontools
+Requires:	daemontools, afterboot
 Provides:	ntp
 
 %description
@@ -51,6 +54,7 @@ The static library and headers for %{name}.
 
 %setup -q
 %patch0 -p1
+%patch1 -p1 -b .path
 
 %build
 echo "diet gcc -Os -pipe" > conf-cc
@@ -83,20 +87,38 @@ install -m0644 taia.h %{buildroot}%{_includedir}/
 install -m0644 libtai.a %{buildroot}%{_libdir}/
 install -m0644 *.3 %{buildroot}%{_mandir}/man3/
 
-mkdir -p %{buildroot}%{_srvdir}/{clockspeed,taiclockd}/log
-mkdir -p %{buildroot}%{_srvlogdir}/{clockspeed,taiclockd}
+mkdir -p %{buildroot}%{_srvdir}/{clockspeed,taiclockd/log}
+mkdir -p %{buildroot}%{_srvlogdir}/taiclockd
 install -m 0755 %{SOURCE1} %{buildroot}%{_srvdir}/clockspeed/run
-install -m 0755 %{SOURCE2} %{buildroot}%{_srvdir}/clockspeed/log/run
 install -m 0755 %{SOURCE3} %{buildroot}%{_srvdir}/taiclockd/run
 install -m 0755 %{SOURCE4} %{buildroot}%{_srvdir}/taiclockd/log/run
 
+mkdir -p %{buildroot}/var/lib/clockspeed
+mkfifo -m 0600 %{buildroot}/var/lib/clockspeed/adjust
+touch %{buildroot}/var/lib/clockspeed/atto
+
+mkdir -p %{buildroot}%{_datadir}/afterboot
+install -m 0644 %{SOURCE5} %{buildroot}%{_datadir}/afterboot/98_clockspeed
+
+mkdir -p %{buildroot}%{_sysconfdir}/{cron.monthly,sysconfig}
+install -m 0640 %{SOURCE6} %{buildroot}%{_sysconfdir}/cron.monthly/clockspeed
+install -m 0640 %{SOURCE7} %{buildroot}%{_sysconfdir}/sysconfig/clockspeed
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
+%post
+%_mkafterboot
+
+%postun
+%_mkafterboot
 
 %files
 %defattr (-,root,root)
 %doc BLURB CHANGES README TODO INSTALL THANKS
 %{_sysconfdir}/leapsecs.dat
+%config(noreplace) %{_sysconfdir}/cron.monthly/clockspeed
+%config(noreplace) %{_sysconfdir}/sysconfig/clockspeed
 %{_bindir}/clockspeed
 %{_bindir}/clockadd
 %{_bindir}/clockview
@@ -110,15 +132,16 @@ install -m 0755 %{SOURCE4} %{buildroot}%{_srvdir}/taiclockd/log/run
 %{_mandir}/man1/taiclock.1*
 %{_mandir}/man1/taiclockd.1*
 %dir %{_srvdir}/clockspeed
-%dir %{_srvdir}/clockspeed/log
 %{_srvdir}/clockspeed/run
-%{_srvdir}/clockspeed/log/run
 %dir %{_srvdir}/taiclockd
 %dir %{_srvdir}/taiclockd/log
 %{_srvdir}/taiclockd/run
 %{_srvdir}/taiclockd/log/run
-%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/clockspeed
 %dir %attr(0750,nobody,nogroup) %{_srvlogdir}/taiclockd
+%dir /var/lib/clockspeed
+/var/lib/clockspeed/adjust
+%attr(0600,root,root) /var/lib/clockspeed/atto
+%{_datadir}/afterboot/98_clockspeed
 
 %files devel
 %defattr(-,root,root)
@@ -134,6 +157,15 @@ install -m 0755 %{SOURCE4} %{buildroot}%{_srvdir}/taiclockd/log/run
 %{_mandir}/man3/taia_pack.3*
 
 %changelog
+* Tue May 11 2004 Vincent Danen <vdanen@opensls.org> 0.62-3sls
+- P1: put adjustment fifo in /var/lib/clockspeed
+- include the adjustment fifo
+- /etc/cron.monthly/clockspeed adjusts the clock if
+  /etc/sysconfig/clockspeed is configured with an NTP server
+- include afterboot man snippet
+- atto file in /var/lib/clockspeed as well
+- clockspeed doesn't log anything so don't need a log service
+
 * Mon Mar 02 2004 Vincent Danen <vdanen@opensls.org> 0.62-2sls
 - macros
 
