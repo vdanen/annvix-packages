@@ -12,10 +12,12 @@ URL:		http://sourceforge.net/projects/dump/
 Source: 	http://download.sourceforge.net/dump/dump-%{version}.tar.bz2
 Patch:		dump-nonroot.patch.bz2
 Patch1:		dump-0.4b24-linking.patch.bz2
+Patch2:		dump-0.4b34-check-systypes.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-root
 BuildRequires:	e2fsprogs-devel >= 1.15
 BuildRequires:	termcap-devel readline-devel
+BuildPreReq:	autoconf2.5
 
 Requires:	rmt
 
@@ -41,6 +43,7 @@ restoring files from a backup) and tar (an archiving program).
 %setup -q
 %patch0 -p0
 %patch1 -p1 -b .link
+%patch2 -p1 -b .sys-types
 
 %build
 # libcom_err of e2fsprogs and krb5 conflict. Watch this hack. -- Geoff.
@@ -108,6 +111,11 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man8/rmt.8*
 
 %changelog
+* Mon Jan 05 2004 Vincent Danen <vdanen@opensls.org> 0.4b34-3sls
+- sync with 2mdk (gbeauchesne): make sure to check for <sys/types.h> prior
+  to actual types like quad_t
+- BuildPreReq: autoconf2.5
+
 * Mon Dec 02 2003 Vincent Danen <vdanen@opensls.org> 0.4b34-2sls
 - OpenSLS build
 - tidy spec
