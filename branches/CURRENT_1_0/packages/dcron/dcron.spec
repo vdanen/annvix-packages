@@ -1,6 +1,6 @@
 %define	name	dcron
 %define	version	2.9
-%define	release	3sls
+%define	release	4sls
 
 Summary:	Dillon's Cron Daemon
 Name:		%{name}
@@ -57,10 +57,10 @@ install -m0644 crond.8 %{buildroot}%{_mandir}/man8/
 
 install -m0644 %{SOURCE3} %{buildroot}%{_sysconfdir}/crontab
 
-install -d %{buildroot}/var/service/crond/log
-install -d %{buildroot}/var/log/supervise/crond
-install -m0755 %{SOURCE1} %{buildroot}/var/service/crond/run
-install -m0755 %{SOURCE2} %{buildroot}/var/service/crond/log/run
+install -d %{buildroot}%{_srvdir}/crond/log
+install -d %{buildroot}%{_srvlogdir}/crond
+install -m0755 %{SOURCE1} %{buildroot}%{_srvdir}/crond/run
+install -m0755 %{SOURCE2} %{buildroot}%{_srvdir}/crond/log/run
 
 %post
 if [[ -z `crontab -l | grep run-parts` ]]; then
@@ -89,13 +89,16 @@ fi
 %{_mandir}/man1/crontab.1*
 %{_mandir}/man8/crond.8*
 %dir %attr(0755,root,root) /var/spool/dcron/crontabs
-%dir /var/service/crond
-%dir /var/service/crond/log
-/var/service/crond/run
-/var/service/crond/log/run
-%dir %attr(0750,nobody,nogroup) /var/log/supervise/crond
+%dir %{_srvdir}/crond
+%dir %{_srvdir}/crond/log
+%{_srvdir}/crond/run
+%{_srvdir}/crond/log/run
+%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/crond
 
 %changelog
+* Thu Mar 04 2004 Vincent Danen <vdanen@opensls.org> 2.9-4sls
+- supervise macros
+
 * Sun Feb 01 2004 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.9-3sls
 - added S3, obsolete and mimic the crontabs package, but with tighter file
   and directory attributes
