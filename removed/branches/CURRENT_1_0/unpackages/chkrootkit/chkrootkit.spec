@@ -1,12 +1,8 @@
 %define name	chkrootkit
 %define version	0.42b
-%define release	2sls
+%define release	3sls
 
 %define build_diet 1
-
-# commandline overrides:
-# rpm -ba|--rebuild --with 'xxx'
-%{?_with_diet: %{expand: %%define build_diet 1}}
 
 Summary:	Checks system for rootkits
 Name:		%{name}
@@ -21,7 +17,6 @@ Patch0:		chkrootkit-0.42b-lib-path.patch.bz2
 BuildRoot:	%{_tmppath}/%{name}-buildroot
 BuildRequires:  glibc-static-devel
 
-Prefix:		%{_prefix}
 Requires:	binutils, fileutils, findutils, gawk, grep, net-tools, procps, sed, sh-utils, textutils
 %if %{build_diet}
 BuildRequires:	dietlibc-devel >= 0.20-1mdk
@@ -45,7 +40,7 @@ make CFLAGS="-DHAVE_LASTLOG_H -DLASTLOG_FILENAME='\"/var/log/lastlog\"' -DWTEMP_
 %endif
 
 %install
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 install -d %{buildroot}%{_sbindir}
 install -d %{buildroot}%{_libdir}/%{name}
@@ -54,7 +49,7 @@ install chkrootkit %{buildroot}%{_sbindir}/
 install check_wtmpx chklastlog chkproc chkwtmp ifpromisc strings %{buildroot}%{_libdir}/%{name}/
 
 %clean
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -63,6 +58,11 @@ install check_wtmpx chklastlog chkproc chkwtmp ifpromisc strings %{buildroot}%{_
 %{_libdir}/%{name}
 
 %changelog
+* Tue Mar 02 2004 Vincent Danen <vdanen@opensls.org> 0.42b-3sls
+- remove the --with diet stuff because it's redundant
+- remove %%prefix
+- minor spec cleanups
+
 * Wed Dec 31 2003 Vincent Danen <vdanen@opensls.org> 0.42b-2sls
 - OpenSLS build
 - tidy spec
