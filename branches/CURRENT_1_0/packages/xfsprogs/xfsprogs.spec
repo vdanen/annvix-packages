@@ -1,6 +1,6 @@
 %define name	xfsprogs
-%define version 2.6.3
-%define release 1sls
+%define version 2.6.13
+%define release 1avx
 
 %define url	ftp://oss.sgi.com/projects/xfs/download/cmd_tars
 
@@ -124,6 +124,10 @@ rm -rf %{buildroot}
 %{_mandir}/man3/*
 
 %changelog
+* Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 2.6.13-1avx
+- 2.6.13
+- Annvix build
+
 * Sun Feb 29 2004 Vincent Danen <vdanen@opensls.org> 2.6.3-1sls
 - remove %%{prefix}
 - 2.6.3
