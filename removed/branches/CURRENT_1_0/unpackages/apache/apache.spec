@@ -1,13 +1,17 @@
 %define name	apache
 %define version	1.3.29
-%define release	2sls
+%define release	3sls
 
-#New ADVX macros
+# New ADVX macros
 %define ADVXdir %{_datadir}/ADVX
 %{expand:%(cat %{ADVXdir}/ADVX-build)}
 
-%{expand:%%define mm_major %(mm-config --version|sed 's/MM \([0-9]\)\.\([0-9.].*\) \(.*\)$/\1/')}
-%{expand:%%define mm_minor %(mm-config --version|sed 's/MM \([0-9]\)\.\([0-9.].*\) \(.*\)$/\2/')}
+# the default version of mm required
+%define dmm_major	1
+%define dmm_minor	3.0
+
+%{expand:%%define mm_major %([ -x /usr/bin/mm-config ] && mm-config --version|sed 's/MM \([0-9]\)\.\([0-9.].*\) \(.*\)$/\1/' || echo "%{dmm_major}")}
+%{expand:%%define mm_minor %([ -x /usr/bin/mm-config ] && mm-config --version|sed 's/MM \([0-9]\)\.\([0-9.].*\) \(.*\)$/\2/' || echo "%{dmm_minor}")}
 %define mm_version %{mm_major}.%{mm_minor}
 
 %define apache_version		%{version}
@@ -15,7 +19,7 @@
 %define EAPI_version		2.8.16
 %define modssl_apache_version	%{apache_version}
 
-Summary:	The most widely used Web server on the Internet.
+Summary:	The Apache web server
 Name:		%{name}
 Version:	%{apache_version}
 Release:	%{apache_release}
@@ -27,9 +31,9 @@ Source1:	apache_%{version}.tar.gz.asc
 Source2:	http://www.modssl.org/source/mod_ssl-%{EAPI_version}-%{modssl_apache_version}.tar.gz
 Source3:	http://www.modssl.org/source/mod_ssl-%{EAPI_version}-%{modssl_apache_version}.tar.gz.asc
 Source4:	README.ADVX
+Source5:	02_apache.afterboot
 Patch1:		apache_1.3.11-apxs.patch.bz2
 Patch2:		apache_1.3.26-srvroot.patch.bz2
-#Patch3:	apache_1.3.20-nondbm.patch.bz2
 Patch3:		apache-1.3.23-dbm.patch.bz2
 Patch4:		Configuration.diff.bz2
 Patch5:		apache-1.3.29-baseversion.patch.bz2
@@ -48,11 +52,11 @@ BuildRequires:	db1-devel
 BuildRequires:	glibc-devel
 BuildRequires:	openssl-devel
 
-Prereq:		apache-modules >= %{apache_version}-%{apache_release}
-Prereq:		apache-conf >= %{apache_version}
-Prereq:		apache-common >= %{apache_version}-%{apache_release}
-Prereq:		rpm-helper
-Prereq:		mm = %{mm_major}.%{mm_minor}
+PreReq:		apache-modules >= %{apache_version}-%{apache_release}
+PreReq:		apache-conf >= %{apache_version}
+PreReq:		apache-common >= %{apache_version}-%{apache_release}
+PreReq:		rpm-helper afterboot
+PreReq:		mm = %{mm_major}.%{mm_minor}
 Provides:	webserver 
 Provides:	ADVXpackage
 Provides:	AP13package
@@ -113,7 +117,7 @@ for it, you'll need to install this package.
 
 %package source
 Summary:	Apache Source
-Group:		System/Servers
+Group:		Development/C
 Prereq:		mm = %{mm_major}.%{mm_minor}
 Prereq:		mm-devel = %{mm_major}.%{mm_minor}
 #No use to install it if you don't have libgdbm.so and libpthread.so!
@@ -131,7 +135,6 @@ The Apache 1.3 Source, including Mandrake patches and EAPI.
 Use this package to build apache-mod_perl, or your own custom version.
 
 %prep
-#unpack apache.
 %setup -q -n apache_%{apache_version}
 %patch1 -p1 
 %patch2 -p1 
@@ -142,6 +145,7 @@ Use this package to build apache-mod_perl, or your own custom version.
 %patch8 -p0
 %patch9 -p0
 
+echo "major: %{mm_major}; minor: %{mm_minor}"
 #Correct layout 
 perl -pi -e 's|" PLATFORM "|%{distribution}/%{apache_release}|;' \
 	src/main/http_main.c
@@ -264,7 +268,7 @@ else
 fi
 
 %install
-rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir %{buildroot}
 
 # install source
@@ -295,8 +299,11 @@ rm -f %{buildroot}%{_mandir}/man8/logresolve*
 rm -f %{buildroot}%{_mandir}/man8/rotatelogs*
 rm -f %{buildroot}%{_mandir}/man8/apxs*
 
+mkdir -p %{buildroot}%{_datadir}/afterboot
+install -m 0644 %{SOURCE5} %{buildroot}%{_datadir}/afterboot/02_apache
+
 %clean
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot} 
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 [ "../mod_ssl-%{EAPI_version}-%{modssl_apache_version}" != "/" ] && rm -rf ../mod_ssl-%{EAPI_version}-%{modssl_apache_version}
 
@@ -307,25 +314,27 @@ rm -f %{buildroot}%{_mandir}/man8/apxs*
 %post
 #JMD: do *not* use _post_service here, it is used in apache-conf, since we
 #can have both apache and apache-mod_perl
+%_mkafterboot
 %ADVXpost
 
 %postun
 #JMD: do *not* use _post_service here, otherwise it will uninstall
 #apache-mod_perl as well!!
+%_mkafterboot
 %ADVXpost
 
 %files 
 %defattr(-,root,root)
+%doc README.ADVX
 %{_sbindir}/httpd
 #%{_mandir}/man8/httpd.*
-%doc README.ADVX
+%{_datadir}/afterboot/02_apache
 
 %files modules
 %defattr(-,root,root)
 %{_libdir}/apache/*.exp
 %{_libdir}/apache/*.ep
 %{_libdir}/apache/*.so
-%doc README.ADVX
 
 %files devel
 %defattr(-,root,root)
@@ -333,14 +342,20 @@ rm -f %{buildroot}%{_mandir}/man8/apxs*
 %{_libdir}/apache/*.a
 %{_sbindir}/apxs
 #%{_mandir}/man8/apxs.*
-%doc README.ADVX
 
 %files source
 %defattr(-,root,root)
 /usr/src/apache_%{apache_version}
-%doc README.ADVX
 
 %changelog
+* Wed Feb 11 2004 Vincent Danen <vdanen@opensls.org> 1.3.29-3sls
+- more spec cleaning
+- README.ADVX in only the main package
+- make mm 1.3.0 the default wanted version of mm so we don't get
+  bad output on building and mm isn't installed
+- add afterboot snippet
+- PreReq: afterboot
+
 * Sat Jan 03 2004 Vincent Danen <vdanen@opensls.org> 1.3.29-2sls
 - OpenSLS build
 - tidy spec
