@@ -2,6 +2,8 @@
 %define version	0.61.2
 %define release	4sls
 
+%{!?build_opensls:%global build_opensls 0}
+
 %define majver		0
 %define lib_name_orig	%mklibname pwdb
 %define lib_name	%{lib_name_orig}%{majver}
@@ -80,7 +82,11 @@ ln -s defs/redhat.defs default.defs
 chmod -R g-s .
 
 %build
-%make
+%if %{build_opensls}
+  RPM_OPT_FLAGS="$RPM_OPT_FLAGS -fno-stack-protector" %make
+%else
+  %make
+%endif
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -121,9 +127,10 @@ rm -rf $RPM_BUILD_ROOT
 /%{_lib}/libpwdb.a
 
 %changelog
-* Wed Dec 03 2003 Vincent Danen <vdanen@opensls.org> 0.61.2-4sls
+* Mon Dec 22 2003 Vincent Danen <vdanen@opensls.org> 0.61.2-4sls
 - OpenSLS build
 - tidy spec
+- build without stack protection due to some symbol problems
 
 * Wed Jul 30 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 0.61.2-3mdk
 - mklibname
