@@ -1,0 +1,29 @@
+diff -ur ipv6calc-0.19.orig/ipv6calc.c ipv6calc-0.19/ipv6calc.c
+--- ipv6calc-0.19.orig/ipv6calc.c	2001-03-15 08:21:11.000000000 +0100
++++ ipv6calc-0.19/ipv6calc.c	2002-07-10 19:19:48.000000000 +0200
+@@ -27,14 +27,14 @@
+ 	printversion();
+ 	printcopyright();
+ 	fprintf(stderr, "This program formats and calculates IPv6 addresses\n");
+-	fprintf(stderr, "See '%s -?' for more details\n\n", PROGRAM_NAME);
++	fprintf(stderr, "See '%s -h' for more details\n\n", PROGRAM_NAME);
+ };
+ 
+ /* display help */
+ void printhelp() {
+ 	printversion();
+ 	printcopyright();
+-	fprintf(stderr, "Usage: (see '%s --command -?' for more help)\n", PROGRAM_NAME);
++	fprintf(stderr, "Usage: (see '%s --command -h' for more help)\n", PROGRAM_NAME);
+ 
+ 	addr_to_ip6int_printhelp();
+ 	addr_to_compressed_printhelp();
+@@ -149,7 +149,7 @@
+ 				command |= CMD_masksuffix;
+ 				break;
+ 			default:
+-				fprintf(stderr, "Don't understandUsage: (see '%s --command -?' for more help)\n", PROGRAM_NAME);
++				fprintf(stderr, "Don't understandUsage: (see '%s --command -h' for more help)\n", PROGRAM_NAME);
+ 				printhelp();
+ 				break;
+ 		};

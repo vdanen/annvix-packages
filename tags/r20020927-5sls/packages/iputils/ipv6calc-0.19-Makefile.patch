@@ -1,0 +1,16 @@
+--- ipv6calc-0.19/Makefile.warly	Sat Apr  7 17:14:28 2001
++++ ipv6calc-0.19/Makefile	Sat Apr  7 17:14:37 2001
+@@ -31,11 +31,11 @@
+ install:
+ 		make test
+ 		mkdir -p $(root)/bin/
+-		install -m 755 -o root -g root ipv6calc $(root)/bin/
++		install -m 755 ipv6calc $(root)/bin/
+ 
+ installonly:
+ 		mkdir -p $(root)/bin/
+-		install -m 755 -o root -g root ipv6calc $(root)/bin/
++		install -m 755 ipv6calc $(root)/bin/
+ 
+ test:
+ 		make
