@@ -1,31 +1,41 @@
 %define name	urpmi
 %define version	4.4
-%define release 46mdk
+%define release 47sls
+
+%{!?build_opensls:%global build_opensls 0}
 
 %define group %(perl -e 'printf "%%s\\n", "%_vendor" =~ /mandrake/i ? "System/Configuration/Packaging" : "System Environment/Base"')
 
 %{expand:%%define compat_perl_vendorlib %(perl -MConfig -e 'printf "%%s\n", "%{?perl_vendorlib:1}" ? "%%{perl_vendorlib}" : "$Config{installvendorlib}"')}
+%if %{build_opensls}
+%define use_locale	1
+%define allow_gurpmi	1
+%define req_webfetch	webfetch
+%define buildreq_locale	perl-MDK-Common-devel
+%else
 %{expand:%%define use_locale %%(perl -e 'printf "%%s\\n", "%_vendor" =~ /mandrake/i ? 1 : 0')}
 %{expand:%%define allow_gurpmi %%(perl -e 'printf "%%s\\n", "%_vendor" =~ /mandrake/i ? 1 : 0')}
 %{expand:%%define req_webfetch %%(perl -e 'printf "%%s\\n", "%_vendor" =~ /mandrake/i ? "webfetch" : "curl wget"')}
 %{expand:%%define buildreq_locale %%(perl -e 'printf "%%s\\n", "%_vendor" =~ /mandrake/i ? "perl-MDK-Common-devel" : ""')}
 %{expand:%%define distribution %%(perl -e 'printf "%%s\\n", ("%_vendor" =~ /mandrake/i ? "Mandrake Linux" : "Red Hat Linux")')}
 %{expand:%%define real_release %%(perl -e 'printf "%%s\\n", ("%_vendor" !~ /mandrake/i && ("%release" =~ /(.*?)mdk/)[0] || "%release")')}
+%endif
 
+Summary:	User mode rpm install
 Name:		%{name}
 Version:	%{version}
-Release:	%{real_release}
-Group:		%{group}
-Distribution:	%{distribution}
+Release:	%{release}
 License:	GPL
-Source0:	%{name}.tar.bz2
-Summary:	User mode rpm install
+Group:		%{group}
 URL:		http://cvs.mandrakesoft.com/cgi-bin/cvsweb.cgi/soft/urpmi
+Source0:	%{name}.tar.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildRequires:	%{buildreq_locale} bzip2-devel rpm-devel >= 4.0.3 
+BuildArch:	noarch
+
 Requires:	%{req_webfetch} eject gnupg
 PreReq:		perl-Locale-gettext >= 1.01-7 gettext rpmtools >= 4.5 perl-URPM >= 0.94
-BuildRequires:	%{buildreq_locale} bzip2-devel rpm-devel >= 4.0.3 
-BuildRoot:	%{_tmppath}/%{name}-buildroot
-BuildArch:	noarch
 
 %description
 urpmi takes care of dependencies between rpms, using a pool (or pools) of rpms.
@@ -228,6 +238,13 @@ $urpm->update_media(nolock => 1, nopubkey => 1);
 %{compat_perl_vendorlib}/urpm/parallel_ssh.pm
 
 %changelog
+* Fri Dec 18 2003 Vincent Danen <vdanen@opensls.org> 4.4-47sls
+- OpenSLS build
+- tidy spec
+- do a lot of %%define forces using %%build_opensls macro
+- remove Distribution tag
+- don't use %%real_release
+
 * Sun Dec 14 2003 François Pons <fpons@mandrakesoft.com> 4.4-46mdk
 - fixed improper restart and possible loop of restart.
 
