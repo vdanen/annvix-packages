@@ -1,0 +1,26 @@
+--- nfs-utils-0.3.3/utils/statd/statd.man.statd-manpage	Fri Aug 17 18:12:08 2001
++++ nfs-utils-0.3.3/utils/statd/statd.man	Fri Sep 28 12:01:40 2001
+@@ -23,7 +23,7 @@
+ For each NFS client or server machine to be monitored,
+ .B rpc.statd
+ creates a file in
+-.BR /var/lib/nfs/sm .
++.BR /var/lib/nfs/statd/sm .
+ When starting, it iterates through these files and notifies the
+ peer
+ .B rpc.statd
+@@ -127,11 +127,11 @@
+ manual pages.
+ 
+ .SH FILES
+-.BR /var/lib/nfs/state
++.BR /var/lib/nfs/statd/sm/state
+ .br
+-.BR /var/lib/nfs/sm/*
++.BR /var/lib/nfs/statd/sm/*
+ .br
+-.BR /var/lib/nfs/sm.bak/*
++.BR /var/lib/nfs/statd/sm.bak/*
+ .SH SEE ALSO
+ .BR rpc.nfsd(8),
+ .BR portmap(8)
