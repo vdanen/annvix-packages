@@ -1,6 +1,6 @@
 %define name	perl-URPM
 %define version 0.94
-%define release 12sls
+%define release 13sls
 
 %define real_name URPM
 
@@ -58,6 +58,9 @@ hdlist files and manage them in memory.
 
 
 %changelog
+* Sat Jun 11 2004 Vincent Danen <vdanen@opensls.org> 0.94-13sls
+- rebuild for perl 5.8.4
+
 * Fri Feb 27 2004 Vincent Danen <vdanen@opensls.org> 0.94-12sls
 - rebuild for new perl
 - remove %%build_opensls macros
