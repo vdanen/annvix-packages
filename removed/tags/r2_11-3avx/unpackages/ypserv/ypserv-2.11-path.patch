@@ -1,0 +1,11 @@
+--- ypserv-2.11/scripts/Makefile.in.path	2004-01-09 15:36:21.000000000 +0100
++++ ypserv-2.11/scripts/Makefile.in	2004-01-20 10:15:15.000000000 +0100
+@@ -153,7 +153,7 @@
+ MAINT_CHARSET = latin1
+ CLEANFILES = *~ ${SCRIPTS}
+ EXTRA_DIST = $(addsuffix .in,$(MANS)) $(addsuffix .in,$(SCRIPTS))
+-varypdir = /var/yp
++varypdir = $(prefix)/../var/yp
+ man_MANS = pwupdate.8 ypinit.8
+ libexec_SCRIPTS = ypxfr_1perhour ypxfr_1perday ypxfr_2perday \
+ 		create_printcap match_printcap pwupdate ypinit
