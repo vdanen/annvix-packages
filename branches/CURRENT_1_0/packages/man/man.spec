@@ -1,6 +1,6 @@
 %define name	man
 %define version	1.5k
-%define release	14sls
+%define release	15sls
 
 Summary:	A set of documentation tools:  man, apropos and whatis.
 Name:		%{name}
@@ -159,7 +159,7 @@ perl -pi -e 's!less -is!less -isr!g' $RPM_BUILD_ROOT%{_sysconfdir}/man.config
 chmod 755 $RPM_BUILD_ROOT%{_sbindir}/makewhatis
 
 %clean
-[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+#[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -206,6 +206,9 @@ chmod 755 $RPM_BUILD_ROOT%{_sbindir}/makewhatis
 
 
 %changelog
+* Tue Jun 15 2004 Vincent Danen <vdanen@opensls.org> 1.5k-15sls
+- include /usr/local/share/man in search path (modified P7)
+
 * Sat Mar 06 2004 Vincent Danen <vdanen@mandrakesoft.com> 1.5k-14sls
 - minor spec cleanups
 
