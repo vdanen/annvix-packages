@@ -1,0 +1,1446 @@
+# ncurses 5.3 - patch 20030111 - T.Dickey
+#
+# ------------------------------------------------------------------------------
+#
+# Ncurses 5.3 is at
+# 	ftp.gnu.org:/pub/gnu
+#
+# Patches for ncurses 5.3 are in the subdirectory
+# 	ftp://dickey.his.com/ncurses/5.3
+#
+# ------------------------------------------------------------------------------
+# NEWS                                |   24 +
+# dist.mk                             |    4 
+# doc/html/man/curs_get_wch.3x.html   |   12 
+# doc/html/man/curs_getyx.3x.html     |    2 
+# doc/html/man/curs_mouse.3x.html     |   38 +--
+# doc/html/man/curs_printw.3x.html    |   50 ++--
+# doc/html/man/curs_util.3x.html      |   28 +-
+# doc/html/man/form_fieldtype.3x.html |   26 +-
+# doc/html/man/infocmp.1m.html        |    6 
+# doc/html/man/terminfo.5.html        |  410 +++++++++++++++++++---------------
+# include/MKkey_defs.sh               |    8 
+# man/MKterminfo.sh                   |    6 
+# man/curs_get_wch.3x                 |   12 
+# man/make_sed.sh                     |    6 
+# misc/run_tic.in                     |    6 
+# misc/terminfo.src                   |    7 
+# ncurses/tinfo/MKkeys_list.sh        |    6 
+# ncurses/tty/lib_mvcur.c             |  129 ++++++----
+# ncurses/tty/tty_update.c            |   16 -
+# progs/MKtermsort.sh                 |    6 
+# 20 files changed, 445 insertions(+), 357 deletions(-)
+# ------------------------------------------------------------------------------
+Index: NEWS
+Prereq:  1.727 
+--- ncurses-5.3-20030105+/NEWS	Sun Jan  5 18:49:26 2003
++++ ncurses-5.3-20030111/NEWS	Sat Jan 11 20:55:48 2003
+@@ -1,4 +1,4 @@
+--- $Id: NEWS,v 1.727 2003/01/05 23:49:26 tom Exp $
++-- $Id: NEWS,v 1.728 2003/01/12 01:55:48 tom Exp $
+ 
+ This is a log of changes that ncurses has gone through since Zeyd started
+ working with Pavel Curtis' original work, pcurses, in 1992.
+@@ -6,13 +6,29 @@
+ Changes through 1.9.9e are recorded by Zeyd M. Ben-Halim.
+ Changes since 1.9.9e are recorded by Thomas Dickey.
+ 
++20030111
++	+ improve mvcur() by checking if it is safe to move when video
++	  attributes are set (msgr), and if not, reset/restore attributes
++	  within that function rather than doing it separately in the GoTo()
++	  function in tty_update.c (suggested by Philippe Blain).
++	+ add a message in run_tic.in to explain more clearly what does not
++	  work when attempting to create a symbolic link for /usr/lib/terminfo
++	  on OS/2 and other platforms with no symbolic links (report by John
++	  Polterak).
++	+ change several sed scripts to avoid using "\+" since it is not a BRE
++	  (basic regular expression).  One instance caused terminfo.5 to be
++	  misformatted on FreeBSD (from a FreeBSD bug report by Kazuo Horikawa
++	  <horikawa@FreeBSD.org>).
++	+ correct misspelled 'wint_t' in curs_get_wch.3x (Michael Elkins).
++
+ 20030105
+ 	+ improve description of terminfo operators, especially static/dynamic
+-	  variables (discussion with Mark I Manning IV <mark4th@earthlink.net>).
++	  variables (comments by Mark I Manning IV <mark4th@earthlink.net>).
+ 	+ demonstrate use of FIELDTYPE by modifying test/ncurses 'r' test to
+ 	  use the predefined TYPE_ALPHA field-type, and by defining a
+ 	  specialized type for the middle initial/name.
+-	+ fix MKterminfo.sh, workaround for POSIXLY_CORRECT misfeature of sed 4.0
++	+ fix MKterminfo.sh, another workaround for POSIXLY_CORRECT misfeature
++	  of sed 4.0
+ 	> Philippe Blain:
+ 	+ optimize can_clear_with() a little by testing first if the parameter
+ 	  is indeed a "blank".
+@@ -50,7 +66,7 @@
+ 	  by Philippe Blain).
+ 	+ use '%' as sed substitute delimiter in run_tic script to avoid
+ 	  problems with pathname delimiters such as ':' and '@' (report by John
+-	  Polterak.
++	  Polterak).
+ 	+ implement a workaround so that line-drawing works with screen's
+ 	  crippled UTF-8 support (tested with 3.9.13).  This only works with
+ 	  the wide-character support (--enable-widec); the normal library will
+Index: dist.mk
+Prereq:  1.341 
+--- ncurses-5.3-20030105+/dist.mk	Sun Jan  5 12:00:21 2003
++++ ncurses-5.3-20030111/dist.mk	Sat Jan 11 13:02:31 2003
+@@ -1,4 +1,4 @@
+-# $Id: dist.mk,v 1.341 2003/01/05 17:00:21 tom Exp $
++# $Id: dist.mk,v 1.342 2003/01/11 18:02:31 tom Exp $
+ # Makefile for creating ncurses distributions.
+ #
+ # This only needs to be used directly as a makefile by developers, but
+@@ -10,7 +10,7 @@
+ # These define the major/minor/patch versions of ncurses.
+ NCURSES_MAJOR = 5
+ NCURSES_MINOR = 3
+-NCURSES_PATCH = 20030105
++NCURSES_PATCH = 20030111
+ 
+ # We don't append the patch to the version, since this only applies to releases
+ VERSION = $(NCURSES_MAJOR).$(NCURSES_MINOR)
+Index: doc/html/man/curs_get_wch.3x.html
+--- ncurses-5.3-20030105+/doc/html/man/curs_get_wch.3x.html	Sat Jun 22 17:25:19 2002
++++ ncurses-5.3-20030111/doc/html/man/curs_get_wch.3x.html	Sat Jan 11 21:02:42 2003
+@@ -1,7 +1,7 @@
+ <!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+ <!-- 
+   ****************************************************************************
+-  * Copyright (c) 2002 Free Software Foundation, Inc.                        *
++  * Copyright (c) 2002,2003 Free Software Foundation, Inc.                   *
+   *                                                                          *
+   * Permission is hereby granted, free of charge, to any person obtaining a  *
+   * copy of this software and associated documentation files (the            *
+@@ -27,7 +27,7 @@
+   * sale, use or other dealings in this Software without prior written       *
+   * authorization.                                                           *
+   ****************************************************************************
+-  * @Id: curs_get_wch.3x,v 1.3 2002/05/18 21:48:53 tom Exp @
++  * @Id: curs_get_wch.3x,v 1.4 2003/01/11 21:16:25 Michael.Elkins Exp @
+ -->
+ <HTML>
+ <HEAD>
+@@ -52,10 +52,10 @@
+ <H2>SYNOPSIS</H2><PRE>
+        <STRONG>#include</STRONG> <STRONG>&lt;curses.h&gt;</STRONG>
+ 
+-       <STRONG>int</STRONG> <STRONG>get_wch(win_t</STRONG> <STRONG>*</STRONG><EM>wch</EM><STRONG>);</STRONG>
+-       <STRONG>int</STRONG> <STRONG>wget_wch(WINDOW</STRONG> <STRONG>*</STRONG><EM>win</EM><STRONG>,</STRONG> <STRONG>win_t</STRONG> <STRONG>*</STRONG><EM>wch</EM><STRONG>);</STRONG>
+-       <STRONG>int</STRONG> <STRONG>mvget_wch(int</STRONG> <EM>y</EM><STRONG>,</STRONG> <STRONG>int</STRONG> <EM>x</EM><STRONG>,</STRONG> <STRONG>win_t</STRONG> <STRONG>*</STRONG><EM>wch</EM><STRONG>);</STRONG>
+-       <STRONG>int</STRONG> <STRONG>mvwget_wch(WINDOW</STRONG> <STRONG>*</STRONG><EM>win</EM><STRONG>,</STRONG> <STRONG>int</STRONG> <EM>y</EM><STRONG>,</STRONG> <STRONG>int</STRONG> <EM>x</EM><STRONG>,</STRONG> <STRONG>win_t</STRONG> <STRONG>*</STRONG><EM>wch</EM><STRONG>);</STRONG>
++       <STRONG>int</STRONG> <STRONG>get_wch(wint_t</STRONG> <STRONG>*</STRONG><EM>wch</EM><STRONG>);</STRONG>
++       <STRONG>int</STRONG> <STRONG>wget_wch(WINDOW</STRONG> <STRONG>*</STRONG><EM>win</EM><STRONG>,</STRONG> <STRONG>wint_t</STRONG> <STRONG>*</STRONG><EM>wch</EM><STRONG>);</STRONG>
++       <STRONG>int</STRONG> <STRONG>mvget_wch(int</STRONG> <EM>y</EM><STRONG>,</STRONG> <STRONG>int</STRONG> <EM>x</EM><STRONG>,</STRONG> <STRONG>wint_t</STRONG> <STRONG>*</STRONG><EM>wch</EM><STRONG>);</STRONG>
++       <STRONG>int</STRONG> <STRONG>mvwget_wch(WINDOW</STRONG> <STRONG>*</STRONG><EM>win</EM><STRONG>,</STRONG> <STRONG>int</STRONG> <EM>y</EM><STRONG>,</STRONG> <STRONG>int</STRONG> <EM>x</EM><STRONG>,</STRONG> <STRONG>wint_t</STRONG> <STRONG>*</STRONG><EM>wch</EM><STRONG>);</STRONG>
+        <STRONG>int</STRONG> <STRONG>unget_wch(const</STRONG> <STRONG>wchar_t</STRONG> <EM>wch</EM><STRONG>);</STRONG>
+ 
+ 
+Index: doc/html/man/curs_getyx.3x.html
+--- ncurses-5.3-20030105+/doc/html/man/curs_getyx.3x.html	Sat Oct 12 19:27:50 2002
++++ ncurses-5.3-20030111/doc/html/man/curs_getyx.3x.html	Sat Jan 11 21:02:43 2003
+@@ -27,7 +27,7 @@
+   * sale, use or other dealings in this Software without prior written       *
+   * authorization.                                                           *
+   ****************************************************************************
+-  * @Id: curs_getyx.3x,v 1.8 2002/09/21 19:00:38 tom Exp @
++  * @Id: curs_getyx.3x,v 1.9 2002/12/21 22:22:16 tom Exp @
+ -->
+ <HTML>
+ <HEAD>
+Index: doc/html/man/curs_mouse.3x.html
+--- ncurses-5.3-20030105+/doc/html/man/curs_mouse.3x.html	Sat Jul 27 20:39:34 2002
++++ ncurses-5.3-20030111/doc/html/man/curs_mouse.3x.html	Sat Jan 11 21:02:47 2003
+@@ -28,7 +28,7 @@
+   * sale, use or other dealings in this Software without prior written       *
+   * authorization.                                                           *
+   ****************************************************************************
+-  * @Id: curs_mouse.3x,v 1.20 2002/07/20 14:52:14 tom Exp @
++  * @Id: curs_mouse.3x,v 1.21 2002/10/27 00:58:08 tom Exp @
+ -->
+ <HTML>
+ <HEAD>
+@@ -213,29 +213,36 @@
+        than  xterm  and  there  is  no gpm daemon running on your
+        machine, mouse events will not be visible  to  <STRONG><A HREF="ncurses.3x.html">ncurses(3x)</A></STRONG>
+        (and the <STRONG>wmousemask</STRONG> function will always return <STRONG>0</STRONG>).
++       If  the  terminfo entry contains a <STRONG>XM</STRONG> string, this is used
++       in the xterm mouse driver to control the way the  terminal
++       is initialized for mouse operation.  The default, if <STRONG>XM</STRONG> is
++       not found, corresponds to private mode 1000 of xterm:
++
++           \E[?1000%?%p1%{1}%=%th%el%;
++
+        The z member in the event structure is not presently used.
+-       It is intended for use with touch screens  (which  may  be
++       It  is  intended  for use with touch screens (which may be
+        pressure-sensitive)   or   with   3D-mice/trackballs/power
+        gloves.
+ 
+ 
+ </PRE>
+ <H2>BUGS</H2><PRE>
+-       Mouse events under xterm will not in fact be ignored  dur-
+-       ing  cooked mode, if they have been enabled by <STRONG>wmousemask</STRONG>.
+-       Instead, the xterm mouse report sequence  will  appear  in
++       Mouse  events under xterm will not in fact be ignored dur-
++       ing cooked mode, if they have been enabled by  <STRONG>wmousemask</STRONG>.
++       Instead,  the  xterm  mouse report sequence will appear in
+        the string read.
+ 
+        Mouse events under xterm will not be detected correctly in
+-       a window with its keypad bit off, since  they  are  inter-
+-       preted  as  a  variety  of  function  key.   Your terminfo
+-       description must have <STRONG>kmous</STRONG> set to "\E[M"  (the  beginning
++       a  window  with  its keypad bit off, since they are inter-
++       preted as  a  variety  of  function  key.   Your  terminfo
++       description  must  have <STRONG>kmous</STRONG> set to "\E[M" (the beginning
+        of the response from xterm for mouse clicks).
+ 
+-       Because  there  are  no  standard  terminal responses that
+-       would serve to identify terminals which support the  xterm
+-       mouse  protocol,  <STRONG>ncurses</STRONG> assumes that if your $TERM envi-
+-       ronment variable contains "xterm", or <STRONG>kmous</STRONG> is defined  in
++       Because there are  no  standard  terminal  responses  that
++       would  serve to identify terminals which support the xterm
++       mouse protocol, <STRONG>ncurses</STRONG> assumes that if your  $TERM  envi-
++       ronment  variable contains "xterm", or <STRONG>kmous</STRONG> is defined in
+        the terminal description, then the terminal may send mouse
+        events.
+ 
+@@ -243,13 +250,6 @@
+ </PRE>
+ <H2>SEE ALSO</H2><PRE>
+        <STRONG><A HREF="ncurses.3x.html">curses(3x)</A></STRONG>.
+-
+-
+-
+-
+-
+-
+-
+ 
+ 
+ 
+Index: doc/html/man/curs_printw.3x.html
+--- ncurses-5.3-20030105+/doc/html/man/curs_printw.3x.html	Sat Jul 27 20:39:35 2002
++++ ncurses-5.3-20030111/doc/html/man/curs_printw.3x.html	Sat Jan 11 21:02:48 2003
+@@ -27,7 +27,7 @@
+   * sale, use or other dealings in this Software without prior written       *
+   * authorization.                                                           *
+   ****************************************************************************
+-  * @Id: curs_printw.3x,v 1.12 2002/07/20 15:01:43 tom Exp @
++  * @Id: curs_printw.3x,v 1.13 2002/11/16 22:28:57 tom Exp @
+ -->
+ <HTML>
+ <HEAD>
+@@ -51,54 +51,54 @@
+ <H2>SYNOPSIS</H2><PRE>
+        <STRONG>#include</STRONG> <STRONG>&lt;curses.h&gt;</STRONG>
+ 
+-       <STRONG>int</STRONG> <STRONG>printw(char</STRONG> <STRONG>*fmt,</STRONG> <STRONG>...);</STRONG>
+-       <STRONG>int</STRONG> <STRONG>wprintw(WINDOW</STRONG> <STRONG>*win,</STRONG> <STRONG>char</STRONG> <STRONG>*fmt,</STRONG> <STRONG>...);</STRONG>
+-       <STRONG>int</STRONG> <STRONG>mvprintw(int</STRONG> <STRONG>y,</STRONG> <STRONG>int</STRONG> <STRONG>x,</STRONG> <STRONG>char</STRONG> <STRONG>*fmt,</STRONG> <STRONG>...);</STRONG>
+-       <STRONG>int</STRONG> <STRONG>mvwprintw(WINDOW</STRONG> <STRONG>*win,</STRONG> <STRONG>int</STRONG> <STRONG>y,</STRONG> <STRONG>int</STRONG> <STRONG>x,</STRONG> <STRONG>char</STRONG> <STRONG>*fmt,</STRONG> <STRONG>...);</STRONG>
+-       <STRONG>int</STRONG> <STRONG>vwprintw(WINDOW</STRONG> <STRONG>*win,</STRONG> <STRONG>char</STRONG> <STRONG>*fmt,</STRONG> <STRONG>va_list</STRONG> <STRONG>varglist);</STRONG>
+-       <STRONG>int</STRONG> <STRONG>vw_printw(WINDOW</STRONG> <STRONG>*win,</STRONG> <STRONG>char</STRONG> <STRONG>*fmt,</STRONG> <STRONG>va_list</STRONG> <STRONG>varglist);</STRONG>
++       <STRONG>int</STRONG> <STRONG>printw(const</STRONG> <STRONG>char</STRONG> <STRONG>*fmt,</STRONG> <STRONG>...);</STRONG>
++       <STRONG>int</STRONG> <STRONG>wprintw(WINDOW</STRONG> <STRONG>*win,</STRONG> <STRONG>const</STRONG> <STRONG>char</STRONG> <STRONG>*fmt,</STRONG> <STRONG>...);</STRONG>
++       <STRONG>int</STRONG> <STRONG>mvprintw(int</STRONG> <STRONG>y,</STRONG> <STRONG>int</STRONG> <STRONG>x,</STRONG> <STRONG>const</STRONG> <STRONG>char</STRONG> <STRONG>*fmt,</STRONG> <STRONG>...);</STRONG>
++       <STRONG>int</STRONG> <STRONG>mvwprintw(WINDOW</STRONG> <STRONG>*win,</STRONG> <STRONG>int</STRONG> <STRONG>y,</STRONG> <STRONG>int</STRONG> <STRONG>x,</STRONG> <STRONG>const</STRONG> <STRONG>char</STRONG>  <STRONG>*fmt,</STRONG>
++       <STRONG>...);</STRONG>
++       <STRONG>int</STRONG>  <STRONG>vwprintw(WINDOW</STRONG>  <STRONG>*win,</STRONG>  <STRONG>const</STRONG> <STRONG>char</STRONG> <STRONG>*fmt,</STRONG> <STRONG>va_list</STRONG> <STRONG>var-</STRONG>
++       <STRONG>glist);</STRONG>
++       <STRONG>int</STRONG> <STRONG>vw_printw(WINDOW</STRONG> <STRONG>*win,</STRONG> <STRONG>const</STRONG> <STRONG>char</STRONG> <STRONG>*fmt,</STRONG>  <STRONG>va_list</STRONG>  <STRONG>var-</STRONG>
++       <STRONG>glist);</STRONG>
+ 
+ 
+ </PRE>
+ <H2>DESCRIPTION</H2><PRE>
+-       The <STRONG>printw</STRONG>, <STRONG>wprintw</STRONG>, <STRONG>mvprintw</STRONG> and <STRONG>mvwprintw</STRONG>  routines  are
+-       analogous  to  <STRONG>printf</STRONG>  [see  <STRONG><A HREF="printf.3S.html">printf(3S)</A></STRONG>].   In effect, the
++       The  <STRONG>printw</STRONG>,  <STRONG>wprintw</STRONG>, <STRONG>mvprintw</STRONG> and <STRONG>mvwprintw</STRONG> routines are
++       analogous to <STRONG>printf</STRONG>  [see  <STRONG><A HREF="printf.3S.html">printf(3S)</A></STRONG>].   In  effect,  the
+        string that would be output by <STRONG>printf</STRONG> is output instead as
+        though <STRONG>waddstr</STRONG> were used on the given window.
+ 
+-       The  <STRONG>vwprintw</STRONG>  and  <STRONG>wv_printw</STRONG>  routines  are  analogous to
+-       <STRONG>vprintf</STRONG> [see <STRONG><A HREF="printf.3S.html">printf(3S)</A></STRONG>] and perform  a  <STRONG>wprintw</STRONG>  using  a
+-       variable  argument list.  The third argument is a <STRONG>va_list</STRONG>,
+-       a  pointer  to  a  list  of  arguments,  as   defined   in
++       The <STRONG>vwprintw</STRONG>  and  <STRONG>wv_printw</STRONG>  routines  are  analogous  to
++       <STRONG>vprintf</STRONG>  [see  <STRONG><A HREF="printf.3S.html">printf(3S)</A></STRONG>]  and  perform a <STRONG>wprintw</STRONG> using a
++       variable argument list.  The third argument is a  <STRONG>va_list</STRONG>,
++       a   pointer   to  a  list  of  arguments,  as  defined  in
+        <STRONG>&lt;stdarg.h&gt;</STRONG>.
+ 
+ 
+ </PRE>
+ <H2>RETURN VALUE</H2><PRE>
+-       Routines  that  return  an integer return <STRONG>ERR</STRONG> upon failure
+-       and <STRONG>OK</STRONG> (SVr4 only specifies "an integer value  other  than
++       Routines that return an integer return  <STRONG>ERR</STRONG>  upon  failure
++       and  <STRONG>OK</STRONG>  (SVr4 only specifies "an integer value other than
+        <STRONG>ERR</STRONG>") upon successful completion.
+ 
+ 
+ </PRE>
+ <H2>PORTABILITY</H2><PRE>
+-       The  XSI  Curses  standard,  Issue 4 describes these func-
+-       tions.  The function <STRONG>vwprintw</STRONG> is marked TO  BE  WITHDRAWN,
+-       and  is  to  be replaced by a function <STRONG>vw_printw</STRONG> using the
++       The XSI Curses standard, Issue  4  describes  these  func-
++       tions.   The  function <STRONG>vwprintw</STRONG> is marked TO BE WITHDRAWN,
++       and is to be replaced by a function  <STRONG>vw_printw</STRONG>  using  the
+        <STRONG>&lt;stdarg.h&gt;</STRONG> interface.  The Single Unix Specification, Ver-
+-       sion  2  states  that  <STRONG>vw_printw</STRONG>  is preferred to <STRONG>vwprintw</STRONG>
+-       since the latter  requires  including  <STRONG>&lt;varargs.h&gt;</STRONG>,  which
+-       cannot  be  used  in  the  same  file as <STRONG>&lt;stdarg.h&gt;</STRONG>.  This
+-       implementation uses  <STRONG>&lt;stdarg.h&gt;</STRONG>  for  both,  because  that
++       sion 2 states that <STRONG>vw_printw</STRONG>   is  preferred  to  <STRONG>vwprintw</STRONG>
++       since  the  latter  requires  including <STRONG>&lt;varargs.h&gt;</STRONG>, which
++       cannot be used in  the  same  file  as  <STRONG>&lt;stdarg.h&gt;</STRONG>.   This
++       implementation  uses  <STRONG>&lt;stdarg.h&gt;</STRONG>  for  both,  because that
+        header is included in <STRONG>&lt;curses.h</STRONG>&gt;.
+ 
+ 
+ </PRE>
+ <H2>SEE ALSO</H2><PRE>
+        <STRONG><A HREF="ncurses.3x.html">curses(3x)</A></STRONG>, <STRONG><A HREF="printf.3S.html">printf(3S)</A></STRONG>, <STRONG>vprintf(3S)</STRONG>
+-
+-
+-
+ 
+ 
+ 
+Index: doc/html/man/curs_util.3x.html
+--- ncurses-5.3-20030105+/doc/html/man/curs_util.3x.html	Sat Oct 12 19:27:58 2002
++++ ncurses-5.3-20030111/doc/html/man/curs_util.3x.html	Sat Jan 11 21:02:51 2003
+@@ -27,7 +27,7 @@
+   * sale, use or other dealings in this Software without prior written       *
+   * authorization.                                                           *
+   ****************************************************************************
+-  * @Id: curs_util.3x,v 1.9 2002/09/01 19:44:37 tom Exp @
++  * @Id: curs_util.3x,v 1.10 2002/12/21 22:21:37 tom Exp @
+ -->
+ <HTML>
+ <HEAD>
+@@ -110,17 +110,18 @@
+        The <STRONG>delay_output</STRONG> routine inserts an <EM>ms</EM>  millisecond  pause
+        in  output.   This  routine should not be used extensively
+        because padding characters are  used  rather  than  a  CPU
+-       pause.
++       pause.   If  no  padding character is specified, this uses
++       <STRONG>napms</STRONG> to perform the delay.
+ 
+-       The  <STRONG>flushinp</STRONG>  routine  throws away any typeahead that has
+-       been typed by the user and has not yet been  read  by  the
++       The <STRONG>flushinp</STRONG> routine throws away any  typeahead  that  has
++       been  typed  by  the user and has not yet been read by the
+        program.
+ 
+ 
+ </PRE>
+ <H2>RETURN VALUE</H2><PRE>
+-       Except  for  <STRONG>flushinp</STRONG>,  routines  that  return  an integer
+-       return <STRONG>ERR</STRONG> upon failure and <STRONG>OK</STRONG> (SVr4  specifies  only  "an
++       Except for  <STRONG>flushinp</STRONG>,  routines  that  return  an  integer
++       return  <STRONG>ERR</STRONG>  upon  failure and <STRONG>OK</STRONG> (SVr4 specifies only "an
+        integer value other than <STRONG>ERR</STRONG>") upon successful completion.
+ 
+        <STRONG>flushinp</STRONG> always returns <STRONG>OK</STRONG>.
+@@ -130,22 +131,21 @@
+ 
+ </PRE>
+ <H2>PORTABILITY</H2><PRE>
+-       The XSI Curses standard, Issue  4  describes  these  func-
+-       tions.   It  states  that <STRONG>unctrl</STRONG> and <STRONG>wunctrl</STRONG> will return a
+-       null pointer if unsuccessful,  but  does  not  define  any
++       The  XSI  Curses  standard,  Issue 4 describes these func-
++       tions.  It states that <STRONG>unctrl</STRONG> and <STRONG>wunctrl</STRONG>  will  return  a
++       null  pointer  if  unsuccessful,  but  does not define any
+        error conditions.
+ 
+        The SVr4 documentation describes the action of <STRONG>filter</STRONG> only
+-       in the vaguest terms.  The  description  here  is  adapted
+-       from  the  XSI Curses standard (which erroneously fails to
++       in  the  vaguest  terms.   The description here is adapted
++       from the XSI Curses standard (which erroneously  fails  to
+        describe the disabling of <STRONG>cuu</STRONG>).
+ 
+ 
+ </PRE>
+ <H2>SEE ALSO</H2><PRE>
+-       <STRONG><A HREF="ncurses.3x.html">curses(3x)</A></STRONG>, <STRONG><A HREF="curs_initscr.3x.html">curs_initscr(3x)</A></STRONG>, <STRONG><A HREF="curs_scr_dump.3x.html">curs_scr_dump(3x)</A></STRONG>.
+-
+-
++       <STRONG><A HREF="ncurses.3x.html">curses(3x)</A></STRONG>,       <STRONG><A HREF="curs_initscr.3x.html">curs_initscr(3x)</A></STRONG>,       <STRONG><A HREF="curs_kernel.3x.html">curs_kernel(3x)</A></STRONG>,
++       <STRONG><A HREF="curs_scr_dump.3x.html">curs_scr_dump(3x)</A></STRONG>.
+ 
+ 
+ 
+Index: doc/html/man/form_fieldtype.3x.html
+--- ncurses-5.3-20030105+/doc/html/man/form_fieldtype.3x.html	Sat Jun 22 17:25:33 2002
++++ ncurses-5.3-20030111/doc/html/man/form_fieldtype.3x.html	Sat Jan 11 21:02:55 2003
+@@ -2,7 +2,7 @@
+ <!-- 
+   * t
+   ****************************************************************************
+-  * Copyright (c) 1998,2000,2001 Free Software Foundation, Inc.              *
++  * Copyright (c) 1998-2001,2003 Free Software Foundation, Inc.              *
+   *                                                                          *
+   * Permission is hereby granted, free of charge, to any person obtaining a  *
+   * copy of this software and associated documentation files (the            *
+@@ -28,7 +28,7 @@
+   * sale, use or other dealings in this Software without prior written       *
+   * authorization.                                                           *
+   ****************************************************************************
+-  * @Id: form_fieldtype.3x,v 1.9 2001/08/04 20:36:25 William.Setzer Exp @
++  * @Id: form_fieldtype.3x,v 1.10 2003/01/05 21:05:54 tom Exp @
+ -->
+ <HTML>
+ <HEAD>
+@@ -86,17 +86,17 @@
+        The  function <STRONG>free_fieldtype</STRONG> frees the space allocated for
+        a given validation type.
+ 
+-       The function <STRONG>set_fieldtype</STRONG> associates  three  storage-man-
+-       agement functions with a field type.  The <EM>mak</EM><STRONG>_</STRONG><EM>arg</EM> function
+-       is automatically applied to the list of arguments you give
+-       <STRONG>set_field_type</STRONG>  when  attaching validation to a field; its
+-       job is to bundle these into  an  allocated  argument-block
+-       object which can later be passed to validation predicated.
+-       The other two hook arguments should copy  and  free  argu-
+-       ment-block  structures.   They  will be used by the forms-
+-       driver code. You must supply  the  <EM>mak</EM><STRONG>_</STRONG><EM>arg</EM>  function,  the
+-       other  two  are optional, you may supply NULL for them. In
+-       this case it is assumed,  that  <EM>mak</EM><STRONG>_</STRONG><EM>arg</EM>  doesn't  allocate
++       The function <STRONG>set_fieldtype_arg</STRONG> associates  three  storage-
++       management  functions  with  a  field  type.  The <EM>make</EM><STRONG>_</STRONG><EM>arg</EM>
++       function is automatically applied to the list of arguments
++       you  give  <STRONG>set_field_type</STRONG>  when  attaching validation to a
++       field; its job is to bundle these into an allocated  argu-
++       ment-block  object which can later be passed to validation
++       predicated.  The other two hook arguments should copy  and
++       free  argument-block structures.  They will be used by the
++       forms-driver code.  You must supply the <EM>make</EM><STRONG>_</STRONG><EM>arg</EM> function,
++       the  other two are optional, you may supply NULL for them.
++       In this case it is assumed that <EM>make</EM><STRONG>_</STRONG><EM>arg</EM> does not allocate
+        memory  but simply loads the argument into a single scalar
+        value.
+ 
+Index: doc/html/man/infocmp.1m.html
+--- ncurses-5.3-20030105+/doc/html/man/infocmp.1m.html	Sat Oct 12 19:28:05 2002
++++ ncurses-5.3-20030111/doc/html/man/infocmp.1m.html	Sat Jan 11 21:02:58 2003
+@@ -28,7 +28,7 @@
+   * sale, use or other dealings in this Software without prior written       *
+   * authorization.                                                           *
+   ****************************************************************************
+-  * @Id: infocmp.1m,v 1.30 2002/10/05 21:22:21 tom Exp @
++  * @Id: infocmp.1m,v 1.31 2002/12/21 22:22:47 tom Exp @
+ -->
+ <HTML>
+ <HEAD>
+@@ -313,8 +313,8 @@
+ 
+             An   SGR0  designates  an  empty  highlight  sequence
+             (equivalent to {SGR:NORMAL}).
+-       -
+-       l    Set output format to terminfo.
++
++       <STRONG>-l</STRONG>   Set output format to terminfo.
+ 
+        <STRONG>-p</STRONG>   Ignore padding specifications when comparing strings.
+ 
+Index: doc/html/man/terminfo.5.html
+--- ncurses-5.3-20030105+/doc/html/man/terminfo.5.html	Sat Aug 31 17:59:51 2002
++++ ncurses-5.3-20030111/doc/html/man/terminfo.5.html	Sat Jan 11 21:03:08 2003
+@@ -34,7 +34,7 @@
+   ****************************************************************************
+   * @Id: terminfo.head,v 1.10 2002/08/17 23:37:10 tom Exp @
+   * Head of terminfo man page ends here
+-  * @Id: terminfo.tail,v 1.35 2002/04/20 16:49:33 tom Exp @
++  * @Id: terminfo.tail,v 1.38 2003/01/05 22:47:05 tom Exp @
+   * Beginning of terminfo.tail file
+   *.TH
+ -->
+@@ -1221,38 +1221,75 @@
+        The parameter mechanism uses a stack and special  <STRONG>%</STRONG>  codes
+        to  manipulate  it.  Typically a sequence will push one of
+        the parameters onto the stack and then print  it  in  some
+-       format.  Often more complex operations are necessary.
++       format.   Print  (e.g.,  "%d")  is  a special case.  Other
++       operations, including "%t"  pop  their  operand  from  the
++       stack.  It is noted that more complex operations are often
++       necessary, e.g., in the <STRONG>sgr</STRONG> string.
+ 
+        The <STRONG>%</STRONG> encodings have the following meanings:
+ 
+-            %%        outputs `%'
+-            %<EM>[[</EM>:<EM>]flags][width[.precision]][</EM>doxXs<EM>]</EM>
+-                      as in <STRONG>printf</STRONG>, flags are [-+#] and space
+-            %c        print pop() like %c in printf()
+-            %s        print pop() like %s in printf()
+-
+-            %p[1-9]   push <EM>i</EM>'th parm
+-            %P[a-z]   set dynamic variable [a-z] to pop()
+-            %g[a-z]   get dynamic variable [a-z] and push it
+-            %P[A-Z]   set static variable [a-z] to pop()
+-            %g[A-Z]   get static variable [a-z] and push it
+-            %'<EM>c</EM>'      char constant <EM>c</EM>
+-            %{<EM>nn</EM>}     integer constant <EM>nn</EM>
+-            %l        push strlen(pop)
+-
+-            %+ %- %* %/ %m
+-                      arithmetic (%m is mod): push(pop() op pop())
+-            %&amp; %| %^  bit operations: push(pop() op pop())
+-            %= %&gt; %&lt;  logical operations: push(pop() op pop())
+-            %A, %O    logical and &amp; or operations (for conditionals)
+-            %! %~     unary operations push(op pop())
+-            %i        add 1 to first two parameters (for ANSI terminals)
+-
+-            %? expr %t thenpart %e elsepart %;
+-                      if-then-else, %e elsepart is optional.
+-                      else-if's are possible a la Algol 68:
+-                      %? c1 %t b1 %e c2 %t b2 %e c3 %t b3 %e c4 %t b4 %e %;
+-                      ci are conditions, bi are bodies.
++
++       %%   outputs `%'
++
++       %<EM>[[</EM>:<EM>]flags][width[.precision]][</EM>doxXs<EM>]</EM>
++            as in <STRONG>printf</STRONG>, flags are [-+#] and space
++
++       %c   print pop() like %c in <STRONG>printf</STRONG>
++
++       %s   print pop() like %s in <STRONG>printf</STRONG>
++
++       %p[1-9]
++            push <EM>i</EM>'th parameter
++
++       %P[a-z]
++            set dynamic variable [a-z] to pop()
++
++
++       %g[a-z]
++            get dynamic variable [a-z] and push it
++
++       %P[A-Z]
++            set static variable [a-z] to pop()
++
++       %g[A-Z]
++            get static variable [a-z] and push it
++
++            The terms  "static"  and  "dynamic"  are  misleading.
++            Historically,  these are simply two different sets of
++            variables, whose values are not reset  between  calls
++            to  <STRONG>tparm</STRONG>.   However,  that fact is not documented in
++            other implementations.  Relying on it will  adversely
++            impact portability to other implementations.
++
++       %'<EM>c</EM>' char constant <EM>c</EM>
++
++       %{<EM>nn</EM>}
++            integer constant <EM>nn</EM>
++
++       %l   push strlen(pop)
++
++       %+ %- %* %/ %m
++            arithmetic (%m is mod): push(pop() op pop())
++
++       %&amp; %| %^
++            bit operations: push(pop() op pop())
++
++       %= %&gt; %&lt;
++            logical operations: push(pop() op pop())
++
++       %A, %O
++            logical and &amp; or operations (for conditionals)
++
++       %! %~
++            unary operations push(op pop())
++
++       %i   add 1 to first two parameters (for ANSI terminals)
++
++       %? <EM>expr</EM> %t <EM>thenpart</EM> %e <EM>elsepart</EM> %;
++            if-then-else, %e <EM>elsepart</EM> is optional.  else-if's are
++            possible a la Algol 68:
++            %? c1 %t b1 %e c2 %t b2 %e c3 %t b3 %e c4 %t b4 %e %;
++            ci are conditions, bi are bodies.
+ 
+        Binary operations are in postfix form with the operands in
+        the usual order.  That  is,  to  get  x-5  one  would  use
+@@ -1531,6 +1568,7 @@
+ 
+            <STRONG>tparm</STRONG> <STRONG>parameter</STRONG>   <STRONG>attribute</STRONG>    <STRONG>escape</STRONG> <STRONG>sequence</STRONG>
+ 
++
+            none              none         \E[0m
+            p1                standout     \E[0;1;7m
+            p2                underline    \E[0;4m
+@@ -1568,7 +1606,6 @@
+          ;5         if p4               %?%p4%|%t;5%;
+          ;7         if p1 or p3         %?%p1%p3%|%t;7%;
+          ;8         if p7               %?%p7%|%t;8%;
+-
+          m          always              m
+          ^N or ^O   if p9 ^N, else ^O   %?%p9%t^N%e^O%;
+ 
+@@ -1622,170 +1659,168 @@
+        <STRONG>rmkx</STRONG>.  Otherwise the keypad is assumed to always transmit.
+        The  codes  sent by the left arrow, right arrow, up arrow,
+        down arrow, and home keys can be given  as  <STRONG>kcub1,</STRONG>  <STRONG>kcuf1,</STRONG>
+-       <STRONG>kcuu1,</STRONG>  <STRONG>kcud1,</STRONG>  and  <STRONG>khome</STRONG>  respectively.   If  there  are
+-       function keys such as f0, f1, ...,  f10,  the  codes  they
+-       send  can  be given as <STRONG>kf0,</STRONG> <STRONG>kf1,</STRONG> <STRONG>...,</STRONG> <STRONG>kf10</STRONG>.  If these keys
+-       have labels other than the default  f0  through  f10,  the
+-       labels  can  be  given  as <STRONG>lf0,</STRONG> <STRONG>lf1,</STRONG> <STRONG>...,</STRONG> <STRONG>lf10</STRONG>.  The codes
+-       transmitted by certain other special keys  can  be  given:
+-       <STRONG>kll</STRONG>  (home  down), <STRONG>kbs</STRONG> (backspace), <STRONG>ktbc</STRONG> (clear all tabs),
+-       <STRONG>kctab</STRONG> (clear the tab stop in  this  column),  <STRONG>kclr</STRONG>  (clear
+-       screen  or  erase  key),  <STRONG>kdch1</STRONG>  (delete  character), <STRONG>kdl1</STRONG>
+-       (delete line), <STRONG>krmir</STRONG> (exit insert mode), <STRONG>kel</STRONG> (clear to end
+-       of  line),  <STRONG>ked</STRONG>  (clear  to  end of screen), <STRONG>kich1</STRONG> (insert
+-       character or enter insert mode), <STRONG>kil1</STRONG> (insert  line),  <STRONG>knp</STRONG>
+-       (next  page),  <STRONG>kpp</STRONG>  (previous  page),  <STRONG>kind</STRONG>  (scroll  for-
+-       ward/down), <STRONG>kri</STRONG> (scroll backward/up), <STRONG>khts</STRONG> (set a tab stop
+-       in  this column).  In addition, if the keypad has a 3 by 3
+-       array of keys including the four  arrow  keys,  the  other
+-       five  keys  can  be  given as <STRONG>ka1</STRONG>, <STRONG>ka3</STRONG>, <STRONG>kb2</STRONG>, <STRONG>kc1</STRONG>, and <STRONG>kc3</STRONG>.
+-       These keys are useful when the effects of a 3 by 3  direc-
+-       tional pad are needed.
+-
+-       Strings  to  program  function keys can be given as <STRONG>pfkey</STRONG>,
+-       <STRONG>pfloc</STRONG>, and <STRONG>pfx</STRONG>.  A string to program screen labels  should
+-       be  specified  as  <STRONG>pln</STRONG>.   Each  of these strings takes two
+-       parameters: the function key number to program (from 0  to
+-       10)  and the string to program it with.  Function key num-
+-       bers out of this range may program  undefined  keys  in  a
+-       terminal  dependent  manner.   The  difference between the
+-       capabilities is that <STRONG>pfkey</STRONG> causes pressing the  given  key
+-       to  be the same as the user typing the given string; <STRONG>pfloc</STRONG>
++       <STRONG>kcuu1,</STRONG>  <STRONG>kcud1,</STRONG> and <STRONG>khome</STRONG> respectively.  If there are func-
++       tion keys such as f0, f1, ..., f10, the  codes  they  send
++       can  be  given as <STRONG>kf0,</STRONG> <STRONG>kf1,</STRONG> <STRONG>...,</STRONG> <STRONG>kf10</STRONG>.  If these keys have
++       labels other than the default f0 through f10,  the  labels
++       can  be given as <STRONG>lf0,</STRONG> <STRONG>lf1,</STRONG> <STRONG>...,</STRONG> <STRONG>lf10</STRONG>.  The codes transmit-
++       ted by certain other special keys can be given: <STRONG>kll</STRONG>  (home
++       down),  <STRONG>kbs</STRONG>  (backspace),  <STRONG>ktbc</STRONG>  (clear  all  tabs), <STRONG>kctab</STRONG>
++       (clear the tab stop in this column), <STRONG>kclr</STRONG> (clear screen or
++       erase  key), <STRONG>kdch1</STRONG> (delete character), <STRONG>kdl1</STRONG> (delete line),
++       <STRONG>krmir</STRONG> (exit insert mode), <STRONG>kel</STRONG> (clear to end of line),  <STRONG>ked</STRONG>
++       (clear to end of screen), <STRONG>kich1</STRONG> (insert character or enter
++       insert mode), <STRONG>kil1</STRONG> (insert line),  <STRONG>knp</STRONG>  (next  page),  <STRONG>kpp</STRONG>
++       (previous  page),  <STRONG>kind</STRONG> (scroll forward/down), <STRONG>kri</STRONG> (scroll
++       backward/up), <STRONG>khts</STRONG> (set a tab stop in  this  column).   In
++       addition, if the keypad has a 3 by 3 array of keys includ-
++       ing the four arrow keys, the other five keys can be  given
++       as  <STRONG>ka1</STRONG>,  <STRONG>ka3</STRONG>,  <STRONG>kb2</STRONG>,  <STRONG>kc1</STRONG>, and <STRONG>kc3</STRONG>.  These keys are useful
++       when the effects of a 3 by 3 directional pad are needed.
++       Strings to program function keys can be  given  as  <STRONG>pfkey</STRONG>,
++       <STRONG>pfloc</STRONG>,  and <STRONG>pfx</STRONG>.  A string to program screen labels should
++       be specified as <STRONG>pln</STRONG>.  Each  of  these  strings  takes  two
++       parameters:  the function key number to program (from 0 to
++       10) and the string to program it with.  Function key  num-
++       bers  out  of  this  range may program undefined keys in a
++       terminal dependent manner.   The  difference  between  the
++       capabilities  is  that <STRONG>pfkey</STRONG> causes pressing the given key
++       to be the same as the user typing the given string;  <STRONG>pfloc</STRONG>
+        causes the string to be executed by the terminal in local;
+-       and  <STRONG>pfx</STRONG>  causes  the string to be transmitted to the com-
++       and <STRONG>pfx</STRONG> causes the string to be transmitted  to  the  com-
+        puter.
+ 
+        The capabilities <STRONG>nlab</STRONG>, <STRONG>lw</STRONG> and <STRONG>lh</STRONG> define the number of pro-
+-       grammable  screen  labels  and their width and height.  If
+-       there are commands to turn the labels  on  and  off,  give
+-       them  in <STRONG>smln</STRONG> and <STRONG>rmln</STRONG>.  <STRONG>smln</STRONG> is normally output after one
++       grammable screen labels and their width  and  height.   If
++       there  are  commands  to  turn the labels on and off, give
++       them in <STRONG>smln</STRONG> and <STRONG>rmln</STRONG>.  <STRONG>smln</STRONG> is normally output after  one
+        or more pln sequences to make sure that the change becomes
+        visible.
+ 
+ 
+    <STRONG>Tabs</STRONG> <STRONG>and</STRONG> <STRONG>Initialization</STRONG>
+-       If  the terminal has hardware tabs, the command to advance
+-       to the next tab stop can be given as <STRONG>ht</STRONG>  (usually  control
+-       I).   A  ``back-tab''  command which moves leftward to the
++       If the terminal has hardware tabs, the command to  advance
++       to  the  next tab stop can be given as <STRONG>ht</STRONG> (usually control
++       I).  A ``back-tab'' command which moves  leftward  to  the
+        preceding tab stop can be given as <STRONG>cbt</STRONG>.  By convention, if
+-       the  teletype  modes indicate that tabs are being expanded
+-       by the computer rather than being sent  to  the  terminal,
+-       programs  should  not  use <STRONG>ht</STRONG> or <STRONG>cbt</STRONG> even if they are pre-
+-       sent, since the user may not have the tab  stops  properly
+-       set.   If  the  terminal  has hardware tabs which are ini-
++       the teletype modes indicate that tabs are  being  expanded
++       by  the  computer  rather than being sent to the terminal,
++       programs should not use <STRONG>ht</STRONG> or <STRONG>cbt</STRONG> even if  they  are  pre-
++       sent,  since  the user may not have the tab stops properly
++       set.  If the terminal has hardware  tabs  which  are  ini-
+        tially set every <EM>n</EM> spaces when the terminal is powered up,
+-       the  numeric  parameter <STRONG>it</STRONG> is given, showing the number of
+-       spaces the tabs are set to.  This is normally used by  the
+-       <EM>tset</EM>  command  to  determine  whether  to set the mode for
+-       hardware tab expansion, and whether to set the tab  stops.
+-       If  the  terminal  has tab stops that can be saved in non-
+-       volatile memory, the terminfo description can assume  that
++       the numeric parameter <STRONG>it</STRONG> is given, showing the  number  of
++       spaces  the tabs are set to.  This is normally used by the
++       <EM>tset</EM> command to determine whether  to  set  the  mode  for
++       hardware  tab expansion, and whether to set the tab stops.
++       If the terminal has tab stops that can be  saved  in  non-
++       volatile  memory, the terminfo description can assume that
+        they are properly set.
+ 
+-       Other  capabilities include <STRONG>is1</STRONG>, <STRONG>is2</STRONG>, and <STRONG>is3</STRONG>, initializa-
+-       tion strings for the terminal, <STRONG>iprog</STRONG>, the path name  of  a
+-       program  to be run to initialize the terminal, and <STRONG>if</STRONG>, the
+-       name of a file  containing  long  initialization  strings.
+-       These  strings are expected to set the terminal into modes
+-       consistent with the  rest  of  the  terminfo  description.
++       Other capabilities include <STRONG>is1</STRONG>, <STRONG>is2</STRONG>, and <STRONG>is3</STRONG>,  initializa-
++       tion  strings  for the terminal, <STRONG>iprog</STRONG>, the path name of a
++       program to be run to initialize the terminal, and <STRONG>if</STRONG>,  the
++       name  of  a  file  containing long initialization strings.
++       These strings are expected to set the terminal into  modes
++       consistent  with  the  rest  of  the terminfo description.
+        They are normally sent to the terminal, by the <EM>init</EM> option
+-       of the <EM>tput</EM> program, each time the  user  logs  in.   They
+-       will  be  printed  in the following order: run the program
+-       <STRONG>iprog</STRONG>; output <STRONG>is1</STRONG>; <STRONG>is2</STRONG>; set the margins  using  <STRONG>mgc</STRONG>,  <STRONG>smgl</STRONG>
+-       and  <STRONG>smgr</STRONG>;  set tabs using <STRONG>tbc</STRONG> and <STRONG>hts</STRONG>; print the file <STRONG>if</STRONG>;
++       of  the  <EM>tput</EM>  program,  each time the user logs in.  They
++       will be printed in the following order:  run  the  program
++       <STRONG>iprog</STRONG>;  output  <STRONG>is1</STRONG>;  <STRONG>is2</STRONG>; set the margins using <STRONG>mgc</STRONG>, <STRONG>smgl</STRONG>
++       and <STRONG>smgr</STRONG>; set tabs using <STRONG>tbc</STRONG> and <STRONG>hts</STRONG>; print the  file  <STRONG>if</STRONG>;
+        and finally output <STRONG>is3</STRONG>.
+ 
+-       Most initialization is done with  <STRONG>is2</STRONG>.   Special  terminal
++       Most  initialization  is  done with <STRONG>is2</STRONG>.  Special terminal
+        modes can be set up without duplicating strings by putting
+-       the common sequences in <STRONG>is2</STRONG> and special cases in  <STRONG>is1</STRONG>  and
+-       <STRONG>is3</STRONG>.   A pair of sequences that does a harder reset from a
+-       totally unknown state can be  analogously  given  as  <STRONG>rs1</STRONG>,
+-       <STRONG>rs2</STRONG>,  <STRONG>rf</STRONG>, and <STRONG>rs3</STRONG>, analogous to <STRONG>is2</STRONG> and <STRONG>if</STRONG>.  These strings
+-       are output by the <EM>reset</EM> program, which is  used  when  the
+-       terminal  gets into a wedged state.  Commands are normally
+-       placed in <STRONG>rs1</STRONG>, <STRONG>rs2</STRONG> <STRONG>rs3</STRONG> and <STRONG>rf</STRONG> only if they produce  annoy-
+-       ing  effects on the screen and are not necessary when log-
+-       ging in.  For example, the command to set the  vt100  into
+-       80-column  mode  would  normally  be  part  of <STRONG>is2</STRONG>, but it
+-       causes an annoying glitch of the screen and  is  not  nor-
+-       mally  needed  since the terminal is usually already in 80
++       the  common  sequences in <STRONG>is2</STRONG> and special cases in <STRONG>is1</STRONG> and
++       <STRONG>is3</STRONG>.  A pair of sequences that does a harder reset from  a
++       totally  unknown  state  can  be analogously given as <STRONG>rs1</STRONG>,
++       <STRONG>rs2</STRONG>, <STRONG>rf</STRONG>, and <STRONG>rs3</STRONG>, analogous to <STRONG>is2</STRONG> and <STRONG>if</STRONG>.  These  strings
++       are  output  by  the <EM>reset</EM> program, which is used when the
++       terminal gets into a wedged state.  Commands are  normally
++       placed  in <STRONG>rs1</STRONG>, <STRONG>rs2</STRONG> <STRONG>rs3</STRONG> and <STRONG>rf</STRONG> only if they produce annoy-
++       ing effects on the screen and are not necessary when  log-
++       ging  in.   For example, the command to set the vt100 into
++       80-column mode would normally  be  part  of  <STRONG>is2</STRONG>,  but  it
++       causes  an  annoying  glitch of the screen and is not nor-
++       mally needed since the terminal is usually already  in  80
+        column mode.
+ 
+        If there are commands to set and clear tab stops, they can
+-       be  given  as <STRONG>tbc</STRONG> (clear all tab stops) and <STRONG>hts</STRONG> (set a tab
+-       stop in the current column of every row).  If a more  com-
+-       plex  sequence  is  needed  to  set  the  tabs than can be
+-       described by this, the sequence can be placed  in  <STRONG>is2</STRONG>  or
++       be given as <STRONG>tbc</STRONG> (clear all tab stops) and <STRONG>hts</STRONG> (set  a  tab
++       stop  in the current column of every row).  If a more com-
++       plex sequence is needed  to  set  the  tabs  than  can  be
++       described  by  this,  the sequence can be placed in <STRONG>is2</STRONG> or
+        <STRONG>if</STRONG>.
+ 
+    <STRONG>Delays</STRONG> <STRONG>and</STRONG> <STRONG>Padding</STRONG>
+-       Many  older  and  slower  terminals  don't  support either
++       Many older  and  slower  terminals  don't  support  either
+        XON/XOFF or DTR handshaking, including hard copy terminals
+-       and  some  very  archaic CRTs (including, for example, DEC
+-       VT100s).  These may require padding characters after  cer-
++       and some very archaic CRTs (including,  for  example,  DEC
++       VT100s).   These may require padding characters after cer-
+        tain cursor motions and screen changes.
+ 
+        If the terminal uses xon/xoff handshaking for flow control
+-       (that is, it automatically emits ^S back to the host  when
++       (that  is, it automatically emits ^S back to the host when
+        its input buffers are close to full), set <STRONG>xon</STRONG>.  This capa-
+-       bility suppresses the emission of padding.  You  can  also
+-       set  it for memory-mapped console devices effectively that
+-       don't have a  speed  limit.   Padding  information  should
+-       still  be  included so that routines can make better deci-
++       bility  suppresses  the emission of padding.  You can also
++       set it for memory-mapped console devices effectively  that
++       don't  have  a  speed  limit.   Padding information should
++       still be included so that routines can make  better  deci-
+        sions about relative costs, but actual pad characters will
+        not be transmitted.
+ 
+-       If  <STRONG>pb</STRONG> (padding baud rate) is given, padding is suppressed
+-       at baud rates below the value of <STRONG>pb</STRONG>.  If the entry has  no
+-       padding  baud rate, then whether padding is emitted or not
++       If <STRONG>pb</STRONG> (padding baud rate) is given, padding is  suppressed
++       at  baud rates below the value of <STRONG>pb</STRONG>.  If the entry has no
++       padding baud rate, then whether padding is emitted or  not
+        is completely controlled by <STRONG>xon</STRONG>.
+ 
+-       If the terminal requires other than a null (zero)  charac-
+-       ter  as  a  pad,  then this can be given as <STRONG>pad</STRONG>.  Only the
++       If  the terminal requires other than a null (zero) charac-
++       ter as a pad, then this can be given  as  <STRONG>pad</STRONG>.   Only  the
+        first character of the <STRONG>pad</STRONG> string is used.
+ 
+ 
+    <STRONG>Status</STRONG> <STRONG>Lines</STRONG>
+-       Some terminals have an extra `status line'  which  is  not
+-       normally  used  by  software  (and thus not counted in the
++       Some  terminals  have  an extra `status line' which is not
++       normally used by software (and thus  not  counted  in  the
+        terminal's <STRONG>lines</STRONG> capability).
+ 
+-       The simplest case  is  a  status  line  which  is  cursor-
+-       addressable  but  not part of the main scrolling region on
+-       the screen; the Heathkit H19 has a  status  line  of  this
+-       kind,  as  would  a 24-line VT100 with a 23-line scrolling
+-       region set up on initialization.  This situation is  indi-
++       The  simplest  case  is  a  status  line  which is cursor-
++       addressable but not part of the main scrolling  region  on
++       the  screen;  the  Heathkit  H19 has a status line of this
++       kind, as would a 24-line VT100 with  a  23-line  scrolling
++       region  set up on initialization.  This situation is indi-
+        cated by the <STRONG>hs</STRONG> capability.
+ 
+        Some terminals with status lines need special sequences to
+-       access the status line.   These  may  be  expressed  as  a
++       access  the  status  line.   These  may  be expressed as a
+        string with single parameter <STRONG>tsl</STRONG> which takes the cursor to
+-       a given zero-origin column on the status line.  The  capa-
++       a  given zero-origin column on the status line.  The capa-
+        bility <STRONG>fsl</STRONG> must return to the main-screen cursor positions
+-       before the last <STRONG>tsl</STRONG>.  You may need  to  embed  the  string
+-       values  of <STRONG>sc</STRONG> (save cursor) and <STRONG>rc</STRONG> (restore cursor) in <STRONG>tsl</STRONG>
++       before  the  last  <STRONG>tsl</STRONG>.   You may need to embed the string
++       values of <STRONG>sc</STRONG> (save cursor) and <STRONG>rc</STRONG> (restore cursor) in  <STRONG>tsl</STRONG>
+        and <STRONG>fsl</STRONG> to accomplish this.
+ 
+-       The status line is normally assumed to be the  same  width
+-       as  the width of the terminal.  If this is untrue, you can
++       The  status  line is normally assumed to be the same width
++       as the width of the terminal.  If this is untrue, you  can
+        specify it with the numeric capability <STRONG>wsl</STRONG>.
+ 
+-       A command to erase or blank the status line may be  speci-
++       A  command to erase or blank the status line may be speci-
+        fied as <STRONG>dsl</STRONG>.
+ 
+-       The   boolean   capability  <STRONG>eslok</STRONG>  specifies  that  escape
++       The  boolean  capability  <STRONG>eslok</STRONG>  specifies   that   escape
+        sequences, tabs, etc., work ordinarily in the status line.
+ 
+-       The  <STRONG>ncurses</STRONG>  implementation does not yet use any of these
+-       capabilities.  They are documented here in case they  ever
++       The <STRONG>ncurses</STRONG> implementation does not yet use any  of  these
++       capabilities.   They are documented here in case they ever
+        become important.
+ 
+ 
+    <STRONG>Line</STRONG> <STRONG>Graphics</STRONG>
+-       Many  terminals  have  alternate character sets useful for
+-       forms-drawing.  Terminfo and <STRONG>curses</STRONG> build in  support  for
+-       the  drawing  characters supported by the VT100, with some
+-       characters from the AT&amp;T  4410v1  added.   This  alternate
++       Many terminals have alternate character  sets  useful  for
++       forms-drawing.   Terminfo  and <STRONG>curses</STRONG> build in support for
++       the drawing characters supported by the VT100,  with  some
++       characters  from  the  AT&amp;T  4410v1 added.  This alternate
+        character set may be specified by the <STRONG>acsc</STRONG> capability.
+ 
+                 <STRONG>Glyph</STRONG>             <STRONG>ACS</STRONG>            <STRONG>Ascii</STRONG>      <STRONG>VT100</STRONG>
+@@ -1803,6 +1838,7 @@
+        greater-than-or-equal-to   ACS_GEQUAL     &gt;          z
+        greek pi                   ACS_PI         *          {
+        horizontal line            ACS_HLINE      -          q
++
+        lantern symbol             ACS_LANTERN    #          i
+        large plus or crossover    ACS_PLUS       +          n
+        less-than-or-equal-to      ACS_LEQUAL     &lt;          y
+@@ -1823,59 +1859,59 @@
+        upper right corner         ACS_URCORNER   +          k
+        vertical line              ACS_VLINE      |          x
+ 
+-       The  best  way to define a new device's graphics set is to
+-       add a column to a copy of this table  for  your  terminal,
+-       giving   the   character   which   (when  emitted  between
+-       <STRONG>smacs</STRONG>/<STRONG>rmacs</STRONG> switches) will be rendered as the  correspond-
+-       ing  graphic.  Then read off the VT100/your terminal char-
+-       acter pairs right to left in sequence;  these  become  the
++       The best way to define a new device's graphics set  is  to
++       add  a  column  to a copy of this table for your terminal,
++       giving  the  character   which   (when   emitted   between
++       <STRONG>smacs</STRONG>/<STRONG>rmacs</STRONG>  switches) will be rendered as the correspond-
++       ing graphic.  Then read off the VT100/your terminal  char-
++       acter  pairs  right  to left in sequence; these become the
+        ACSC string.
+ 
+ 
+    <STRONG>Color</STRONG> <STRONG>Handling</STRONG>
+-       Most  color  terminals are either `Tektronix-like' or `HP-
+-       like'.  Tektronix-like terminals have a predefined set  of
+-       N  colors  (where N usually 8), and can set character-cell
++       Most color terminals are either `Tektronix-like'  or  `HP-
++       like'.   Tektronix-like terminals have a predefined set of
++       N colors (where N usually 8), and can  set  character-cell
+        foreground and background characters independently, mixing
+-       them  into  N  * N color-pairs.  On HP-like terminals, the
++       them into N * N color-pairs.  On  HP-like  terminals,  the
+        use must set each color pair up separately (foreground and
+-       background  are  not  independently  settable).   Up  to M
+-       color-pairs may be  set  up  from  2*M  different  colors.
++       background are  not  independently  settable).   Up  to  M
++       color-pairs  may  be  set  up  from  2*M different colors.
+        ANSI-compatible terminals are Tektronix-like.
+ 
+        Some basic color capabilities are independent of the color
+        method.  The numeric capabilities <STRONG>colors</STRONG> and <STRONG>pairs</STRONG> specify
+-       the  maximum numbers of colors and color-pairs that can be
+-       displayed simultaneously.  The <STRONG>op</STRONG> (original  pair)  string
+-       resets  foreground  and background colors to their default
+-       values for the terminal.  The <STRONG>oc</STRONG> string resets all  colors
+-       or  color-pairs  to their default values for the terminal.
+-       Some terminals  (including  many  PC  terminal  emulators)
+-       erase  screen  areas  with  the  current  background color
+-       rather than the power-up default background; these  should
++       the maximum numbers of colors and color-pairs that can  be
++       displayed  simultaneously.   The <STRONG>op</STRONG> (original pair) string
++       resets foreground and background colors to  their  default
++       values  for the terminal.  The <STRONG>oc</STRONG> string resets all colors
++       or color-pairs to their default values for  the  terminal.
++       Some  terminals  (including  many  PC  terminal emulators)
++       erase screen  areas  with  the  current  background  color
++       rather  than the power-up default background; these should
+        have the boolean capability <STRONG>bce</STRONG>.
+ 
+-       To  change the current foreground or background color on a
+-       Tektronix-type terminal, use <STRONG>setaf</STRONG> (set  ANSI  foreground)
+-       and  <STRONG>setab</STRONG>  (set ANSI background) or <STRONG>setf</STRONG> (set foreground)
+-       and <STRONG>setb</STRONG> (set background).  These take one parameter,  the
++       To change the current foreground or background color on  a
++       Tektronix-type  terminal,  use <STRONG>setaf</STRONG> (set ANSI foreground)
++       and <STRONG>setab</STRONG> (set ANSI background) or <STRONG>setf</STRONG>  (set  foreground)
++       and  <STRONG>setb</STRONG> (set background).  These take one parameter, the
+        color  number.   The  SVr4  documentation  describes  only
+-       <STRONG>setaf</STRONG>/<STRONG>setab</STRONG>; the XPG4 draft says  that  "If  the  terminal
++       <STRONG>setaf</STRONG>/<STRONG>setab</STRONG>;  the  XPG4  draft  says that "If the terminal
+        supports ANSI escape sequences to set background and fore-
+-       ground, they should be coded as <STRONG>setaf</STRONG> and  <STRONG>setab</STRONG>,  respec-
+-       tively.   If  the terminal supports other escape sequences
+-       to set background and foreground, they should be coded  as
+-       <STRONG>setf</STRONG>  and  <STRONG>setb</STRONG>, respectively.  The <EM>vidputs()</EM> function and
+-       the refresh functions use <STRONG>setaf</STRONG>  and  <STRONG>setab</STRONG>  if  they  are
++       ground,  they  should be coded as <STRONG>setaf</STRONG> and <STRONG>setab</STRONG>, respec-
++       tively.  If the terminal supports other  escape  sequences
++       to  set background and foreground, they should be coded as
++       <STRONG>setf</STRONG> and <STRONG>setb</STRONG>, respectively.  The <EM>vidputs()</EM>  function  and
++       the  refresh  functions  use  <STRONG>setaf</STRONG>  and <STRONG>setab</STRONG> if they are
+        defined."
+ 
+-       The  <STRONG>setaf</STRONG>/<STRONG>setab</STRONG>  and <STRONG>setf</STRONG>/<STRONG>setb</STRONG> capabilities take a single
+-       numeric argument each.  Argument values 0-7  are  portably
+-       defined  as  follows  (the  middle  column is the symbolic
+-       #define available in the header for the <STRONG>curses</STRONG> or  <STRONG>ncurses</STRONG>
+-       libraries).  The terminal hardware is free to map these as
+-       it likes, but the RGB values indicate normal locations  in
+-       color space.
++       The <STRONG>setaf</STRONG>/<STRONG>setab</STRONG> and <STRONG>setf</STRONG>/<STRONG>setb</STRONG> capabilities take  a  single
++       numeric argument each.  Argument values 0-7 of <STRONG>setaf</STRONG>/<STRONG>setab</STRONG>
++       are portably defined as follows (the middle column is  the
++       symbolic #define available in the header for the <STRONG>curses</STRONG> or
++       <STRONG>ncurses</STRONG> libraries).  The terminal hardware is free to  map
++       these  as  it  likes,  but  the RGB values indicate normal
++       locations in color space.
+ 
+              <STRONG>Color</STRONG>       <STRONG>#define</STRONG>       <STRONG>Value</STRONG>       <STRONG>RGB</STRONG>
+              black     <STRONG>COLOR_BLACK</STRONG>       0     0, 0, 0
+@@ -1887,6 +1923,21 @@
+              cyan      <STRONG>COLOR_CYAN</STRONG>        6     0,max,max
+              white     <STRONG>COLOR_WHITE</STRONG>       7     max,max,max
+ 
++       The argument values of <STRONG>setf</STRONG>/<STRONG>setb</STRONG>  historically  correspond
++       to a different mapping, i.e.,
++             <STRONG>Color</STRONG>       <STRONG>#define</STRONG>       <STRONG>Value</STRONG>       <STRONG>RGB</STRONG>
++             black     <STRONG>COLOR_BLACK</STRONG>       0     0, 0, 0
++             blue      <STRONG>COLOR_BLUE</STRONG>        1     0,0,max
++             green     <STRONG>COLOR_GREEN</STRONG>       2     0,max,0
++             cyan      <STRONG>COLOR_CYAN</STRONG>        3     0,max,max
++             red       <STRONG>COLOR_RED</STRONG>         4     max,0,0
++             magenta   <STRONG>COLOR_MAGENTA</STRONG>     5     max,0,max
++             yellow    <STRONG>COLOR_YELLOW</STRONG>      6     max,max,0
++             white     <STRONG>COLOR_WHITE</STRONG>       7     max,max,max
++       It is important to not confuse the two sets of color capa-
++       bilities; otherwise red/blue will be interchanged  on  the
++       display.
++
+        On  an  HP-like terminal, use <STRONG>scp</STRONG> with a color-pair number
+        parameter to set which color pair is current.
+ 
+@@ -2005,7 +2056,6 @@
+        text,  including  <STRONG>mc4</STRONG>,  is  transparently  passed  to  the
+        printer while an <STRONG>mc5p</STRONG> is in effect.
+ 
+-
+    <STRONG>Glitches</STRONG> <STRONG>and</STRONG> <STRONG>Braindamage</STRONG>
+        Hazeltine terminals, which do not allow `~' characters  to
+        be displayed should indicate <STRONG>hz</STRONG>.
+@@ -2055,6 +2105,7 @@
+        A capability can be canceled by placing <STRONG>xx@</STRONG> to the left of
+        the  use  reference that imports it, where <EM>xx</EM> is the capa-
+        bility.  For example, the entry
++
+                    2621-nl, smkx@, rmkx@, use=2621,
+ 
+        defines a 2621-nl that does not  have  the  <STRONG>smkx</STRONG>  or  <STRONG>rmkx</STRONG>
+@@ -2222,16 +2273,19 @@
+                                 descriptions
+ 
+ 
+-
+ </PRE>
+ <H2>SEE ALSO</H2><PRE>
+        <STRONG><A HREF="tic.1m.html">tic(1m)</A></STRONG>, <STRONG><A HREF="ncurses.3x.html">curses(3x)</A></STRONG>, <STRONG><A HREF="printf.3S.html">printf(3S)</A></STRONG>, <STRONG><A HREF="term.5.html">term(5)</A></STRONG>.
+ 
+ 
++
+ </PRE>
+ <H2>AUTHORS</H2><PRE>
+        Zeyd  M.  Ben-Halim,  Eric  S.  Raymond, Thomas E. Dickey.
+        Based on pcurses by Pavel Curtis.
++
++
++
+ 
+ 
+ 
+Index: include/MKkey_defs.sh
+Prereq:  1.10 
+--- ncurses-5.3-20030105+/include/MKkey_defs.sh	Sat Sep 28 19:32:16 2002
++++ ncurses-5.3-20030111/include/MKkey_defs.sh	Sat Jan 11 17:20:40 2003
+@@ -1,7 +1,7 @@
+ #! /bin/sh
+-# $Id: MKkey_defs.sh,v 1.10 2002/09/28 23:32:16 tom Exp $
++# $Id: MKkey_defs.sh,v 1.11 2003/01/11 22:20:40 tom Exp $
+ ##############################################################################
+-# Copyright (c) 2001,2002 Free Software Foundation, Inc.                     #
++# Copyright (c) 2001-2002,2003 Free Software Foundation, Inc.                #
+ #                                                                            #
+ # Permission is hereby granted, free of charge, to any person obtaining a    #
+ # copy of this software and associated documentation files (the "Software"), #
+@@ -49,10 +49,10 @@
+ if sort -k 6 $DATA >$data 2>/dev/null
+ then
+ 	# POSIX
+-	sed -e 's/[	]\+/	/g' < $DATA |sort -n -k 6 >$data
++	sed -e 's/[	][	]*/	/g' < $DATA |sort -n -k 6 >$data
+ else
+ 	# SunOS (and SVr4, marked as obsolete but still recognized)
+-	sed -e 's/[	]\+/	/g' < $DATA |sort -n +5 >$data
++	sed -e 's/[	][	]*/	/g' < $DATA |sort -n +5 >$data
+ fi
+ 
+ # add keys that we generate automatically:
+Index: man/MKterminfo.sh
+Prereq:  1.11 
+--- ncurses-5.3-20030105+/man/MKterminfo.sh	Sun Jan  5 15:23:39 2003
++++ ncurses-5.3-20030111/man/MKterminfo.sh	Sat Jan 11 16:42:12 2003
+@@ -1,5 +1,5 @@
+ #!/bin/sh
+-# $Id: MKterminfo.sh,v 1.11 2003/01/05 20:23:39 tom Exp $
++# $Id: MKterminfo.sh,v 1.12 2003/01/11 21:42:12 tom Exp $
+ #
+ # MKterminfo.sh -- generate terminfo.5 from Caps tabular data
+ #
+@@ -71,9 +71,9 @@
+ /%%-STOP-HERE-%%/q
+ /^#%/s/#%//p
+ /^#/d
+-s/[	]\+/	/g
++s/[	][	]*/	/g
+ s/$/T}/
+-s/	[A-Z0-9_()\-]\+	[0-9\-]\+	[Y\-][B\-][C\-][G\-][EK\-]\**	/	T{/
++s/	[A-Z0-9_()\-][A-Z0-9_()\-]*	[0-9\-][0-9\-]*	[Y\-][B\-][C\-][G\-][EK\-]\**	/	T{/
+ s/	bool	/	/p
+ s/	num	/	/p
+ s/	str	/	/p
+Index: man/curs_get_wch.3x
+Prereq:  1.3 
+--- ncurses-5.3-20030105+/man/curs_get_wch.3x	Sat May 18 17:48:53 2002
++++ ncurses-5.3-20030111/man/curs_get_wch.3x	Sat Jan 11 16:16:25 2003
+@@ -1,5 +1,5 @@
+ .\"***************************************************************************
+-.\" Copyright (c) 2002 Free Software Foundation, Inc.                        *
++.\" Copyright (c) 2002,2003 Free Software Foundation, Inc.                   *
+ .\"                                                                          *
+ .\" Permission is hereby granted, free of charge, to any person obtaining a  *
+ .\" copy of this software and associated documentation files (the            *
+@@ -26,7 +26,7 @@
+ .\" authorization.                                                           *
+ .\"***************************************************************************
+ .\"
+-.\" $Id: curs_get_wch.3x,v 1.3 2002/05/18 21:48:53 tom Exp $
++.\" $Id: curs_get_wch.3x,v 1.4 2003/01/11 21:16:25 Michael.Elkins Exp $
+ .TH curs_get_wch 3X ""
+ .SH NAME
+ \fBget_wch\fR,
+@@ -37,13 +37,13 @@
+ .SH SYNOPSIS
+ \fB#include <curses.h>\fR
+ .sp
+-\fBint get_wch(win_t *\fR\fIwch\fR\fB);\fR
++\fBint get_wch(wint_t *\fR\fIwch\fR\fB);\fR
+ .br
+-\fBint wget_wch(WINDOW *\fR\fIwin\fR\fB, win_t *\fR\fIwch\fR\fB);\fR
++\fBint wget_wch(WINDOW *\fR\fIwin\fR\fB, wint_t *\fR\fIwch\fR\fB);\fR
+ .br
+-\fBint mvget_wch(int \fR\fIy\fR\fB, int \fR\fIx\fR\fB, win_t *\fR\fIwch\fR\fB);\fR
++\fBint mvget_wch(int \fR\fIy\fR\fB, int \fR\fIx\fR\fB, wint_t *\fR\fIwch\fR\fB);\fR
+ .br
+-\fBint mvwget_wch(WINDOW *\fR\fIwin\fR\fB, int \fR\fIy\fR\fB, int \fR\fIx\fR\fB, win_t *\fR\fIwch\fR\fB);\fR
++\fBint mvwget_wch(WINDOW *\fR\fIwin\fR\fB, int \fR\fIy\fR\fB, int \fR\fIx\fR\fB, wint_t *\fR\fIwch\fR\fB);\fR
+ .br
+ \fBint unget_wch(const wchar_t \fR\fIwch\fR\fB);\fR
+ .SH DESCRIPTION
+Index: man/make_sed.sh
+Prereq:  1.5 
+--- ncurses-5.3-20030105+/man/make_sed.sh	Wed Feb 11 07:13:48 1998
++++ ncurses-5.3-20030111/man/make_sed.sh	Sat Jan 11 17:23:11 2003
+@@ -1,7 +1,7 @@
+ #!/bin/sh
+-# $Id: make_sed.sh,v 1.5 1998/02/11 12:13:48 tom Exp $
++# $Id: make_sed.sh,v 1.6 2003/01/11 22:23:11 tom Exp $
+ ##############################################################################
+-# Copyright (c) 1998 Free Software Foundation, Inc.                          #
++# Copyright (c) 1998,2003 Free Software Foundation, Inc.                     #
+ #                                                                            #
+ # Permission is hereby granted, free of charge, to any person obtaining a    #
+ # copy of this software and associated documentation files (the "Software"), #
+@@ -47,7 +47,7 @@
+ rm -f $UPPER $SCRIPT $RESULT
+ trap "rm -f $COL.* $INPUT $UPPER $SCRIPT $RESULT" 0 1 2 5 15
+ fgrep -v \# $1 | \
+-sed	-e 's/[	]\+/	/g' >$INPUT
++sed	-e 's/[	][	]*/	/g' >$INPUT
+ 
+ for F in 1 2 3 4
+ do
+Index: misc/run_tic.in
+Prereq:  1.12 
+--- ncurses-5.3-20030105+/misc/run_tic.in	Sat Dec 21 17:40:44 2002
++++ ncurses-5.3-20030111/misc/run_tic.in	Sat Jan 11 19:10:32 2003
+@@ -29,7 +29,7 @@
+ #
+ # Author: Thomas E. Dickey 1996,2000
+ #
+-# $Id: run_tic.in,v 1.12 2002/12/21 22:40:44 tom Exp $
++# $Id: run_tic.in,v 1.13 2003/01/12 00:10:32 tom Exp $
+ # This script is used to install terminfo.src using tic.  We use a script
+ # because the path checking is too awkward to do in a makefile.
+ #
+@@ -146,7 +146,9 @@
+ 		fi
+ 		if ( @LN_S@ $RELATIVE $TICDIR )
+ 		then
+-			echo '** linked '$TICDIR' for compatibility'
++			echo '** sym-linked '$TICDIR' for compatibility'
++		else
++			echo '** could not sym-link '$TICDIR' for compatibility'
+ 		fi
+ 	fi
+ fi
+Index: misc/terminfo.src
+--- ncurses-5.3-20030105+/misc/terminfo.src	Sat Nov 16 18:14:14 2002
++++ ncurses-5.3-20030111/misc/terminfo.src	Sat Jan 11 19:24:15 2003
+@@ -10,7 +10,7 @@
+ #
+ #------------------------------------------------------------------------------
+ #	Version 10.2.1
+-#	$Date: 2002/11/16 23:14:14 $
++#	$Date: 2003/01/12 00:24:15 $
+ #	terminfo syntax
+ #
+ #	Eric S. Raymond		(current maintainer)
+@@ -3729,7 +3729,7 @@
+ #### Pilot Pro Palm-Top
+ #
+ # Termcap for Top Gun Telnet and SSH on the Palm Pilot.
+-# http://www.isaac.cs.berkeley.edu/pilot/tgtelnet.html
++# http://www.ai/~iang/TGssh/
+ pilot|tgtelnet|Top Gun Telnet on the Palm Pilot Professional, 
+ 	OTbs, am, xenl, 
+ 	cols#39, lines#16, 
+@@ -19632,6 +19632,9 @@
+ #	* update xterm-xfree86 to current (patch 170) -TD
+ #	* add screen-bce, screen-s entries -TD
+ #	* add xterm-1002, xterm-1003 entries -TD
++#
++# 2003-01-11
++#	* update homepage for Top Gun Telnet/SSH
+ #
+ # The following sets edit modes for GNU EMACS.
+ # Local Variables:
+Index: ncurses/tinfo/MKkeys_list.sh
+Prereq:  1.2 
+--- ncurses-5.3-20030105+/ncurses/tinfo/MKkeys_list.sh	Sat Jun 16 12:50:35 2001
++++ ncurses-5.3-20030111/ncurses/tinfo/MKkeys_list.sh	Sat Jan 11 17:24:53 2003
+@@ -1,7 +1,7 @@
+ #! /bin/sh
+-# $Id: MKkeys_list.sh,v 1.2 2001/06/16 16:50:35 tom Exp $
++# $Id: MKkeys_list.sh,v 1.3 2003/01/11 22:24:53 tom Exp $
+ ##############################################################################
+-# Copyright (c) 2001 Free Software Foundation, Inc.                          #
++# Copyright (c) 2001,2003 Free Software Foundation, Inc.                     #
+ #                                                                            #
+ # Permission is hereby granted, free of charge, to any person obtaining a    #
+ # copy of this software and associated documentation files (the "Software"), #
+@@ -39,7 +39,7 @@
+ 
+ data=data$$
+ trap 'rm -f $data' 0 1 2 5 15
+-sed -e 's/[	]\+/	/g' < $DATA >$data
++sed -e 's/[	][	]*/	/g' < $DATA >$data
+ 
+ cat <<EOF
+ # These definitions were generated by $0 $DATA
+Index: ncurses/tty/lib_mvcur.c
+Prereq:  1.88 
+--- ncurses-5.3-20030105+/ncurses/tty/lib_mvcur.c	Sat Dec 21 18:52:57 2002
++++ ncurses-5.3-20030111/ncurses/tty/lib_mvcur.c	Sat Jan 11 20:49:03 2003
+@@ -1,5 +1,5 @@
+ /****************************************************************************
+- * Copyright (c) 1998-2001,2002 Free Software Foundation, Inc.              *
++ * Copyright (c) 1998-2002,2003 Free Software Foundation, Inc.              *
+  *                                                                          *
+  * Permission is hereby granted, free of charge, to any person obtaining a  *
+  * copy of this software and associated documentation files (the            *
+@@ -154,7 +154,7 @@
+ #include <term.h>
+ #include <ctype.h>
+ 
+-MODULE_ID("$Id: lib_mvcur.c,v 1.88 2002/12/21 23:52:57 tom Exp $")
++MODULE_ID("$Id: lib_mvcur.c,v 1.89 2003/01/12 01:49:03 tom Exp $")
+ 
+ #define CURRENT_ROW	SP->_cursrow	/* phys cursor row */
+ #define CURRENT_COLUMN	SP->_curscol	/* phys cursor column */
+@@ -842,67 +842,94 @@
+ mvcur(int yold, int xold, int ynew, int xnew)
+ /* optimized cursor move from (yold, xold) to (ynew, xnew) */
+ {
++    attr_t oldattr;
++    int code;
++
+     TR(TRACE_CALLS | TRACE_MOVE, (T_CALLED("mvcur(%d,%d,%d,%d)"),
+ 				  yold, xold, ynew, xnew));
+ 
+-    if (SP == 0)
+-	returnCode(ERR);
++    if (SP == 0) {
++	code = ERR;
++    } else if (yold == ynew && xold == xnew) {
++	code = OK;
++    } else {
+ 
+-    if (yold == ynew && xold == xnew)
+-	returnCode(OK);
++	/*
++	 * Most work here is rounding for terminal boundaries getting the
++	 * column position implied by wraparound or the lack thereof and
++	 * rolling up the screen to get ynew on the screen.
++	 */
++	if (xnew >= screen_columns) {
++	    ynew += xnew / screen_columns;
++	    xnew %= screen_columns;
++	}
+ 
+-    /*
+-     * Most work here is rounding for terminal boundaries getting the
+-     * column position implied by wraparound or the lack thereof and
+-     * rolling up the screen to get ynew on the screen.
+-     */
++	/*
++	 * Force restore even if msgr is on when we're in an alternate
++	 * character set -- these have a strong tendency to screw up the CR &
++	 * LF used for local character motions!
++	 */
++	oldattr = SP->_current_attr;
++	if ((oldattr & A_ALTCHARSET)
++	    || (oldattr && !move_standout_mode)) {
++	    TR(TRACE_CHARPUT, ("turning off (%#lx) %s before move",
++			       oldattr, _traceattr(oldattr)));
++	    (void) vidattr(A_NORMAL);
++	}
+ 
+-    if (xnew >= screen_columns) {
+-	ynew += xnew / screen_columns;
+-	xnew %= screen_columns;
+-    }
+-    if (xold >= screen_columns) {
+-	int l;
+-
+-	if (SP->_nl) {
+-	    l = (xold + 1) / screen_columns;
+-	    yold += l;
+-	    if (yold >= screen_lines)
+-		l -= (yold - screen_lines - 1);
+-
+-	    while (l > 0) {
+-		if (newline) {
+-		    TPUTS_TRACE("newline");
+-		    putp(newline);
+-		} else
+-		    putchar('\n');
+-		l--;
+-		if (xold > 0) {
+-		    if (carriage_return) {
+-			TPUTS_TRACE("carriage_return");
+-			putp(carriage_return);
++	if (xold >= screen_columns) {
++	    int l;
++
++	    if (SP->_nl) {
++		l = (xold + 1) / screen_columns;
++		yold += l;
++		if (yold >= screen_lines)
++		    l -= (yold - screen_lines - 1);
++
++		while (l > 0) {
++		    if (newline) {
++			TPUTS_TRACE("newline");
++			putp(newline);
+ 		    } else
+-			putchar('\r');
+-		    xold = 0;
++			putchar('\n');
++		    l--;
++		    if (xold > 0) {
++			if (carriage_return) {
++			    TPUTS_TRACE("carriage_return");
++			    putp(carriage_return);
++			} else
++			    putchar('\r');
++			xold = 0;
++		    }
+ 		}
++	    } else {
++		/*
++		 * If caller set nonl(), we cannot really use newlines to
++		 * position to the next row.
++		 */
++		xold = -1;
++		yold = -1;
+ 	    }
+-	} else {
+-	    /*
+-	     * If caller set nonl(), we cannot really use newlines to position
+-	     * to the next row.
+-	     */
+-	    xold = -1;
+-	    yold = -1;
+ 	}
+-    }
+ 
+-    if (yold > screen_lines - 1)
+-	yold = screen_lines - 1;
+-    if (ynew > screen_lines - 1)
+-	ynew = screen_lines - 1;
++	if (yold > screen_lines - 1)
++	    yold = screen_lines - 1;
++	if (ynew > screen_lines - 1)
++	    ynew = screen_lines - 1;
+ 
+-    /* destination location is on screen now */
+-    returnCode(onscreen_mvcur(yold, xold, ynew, xnew, TRUE));
++	/* destination location is on screen now */
++	code = onscreen_mvcur(yold, xold, ynew, xnew, TRUE);
++
++	/*
++	 * Restore attributes if we disabled them before moving.
++	 */
++	if (oldattr != SP->_current_attr) {
++	    TR(TRACE_CHARPUT, ("turning on (%#lx) %s after move",
++			       oldattr, _traceattr(oldattr)));
++	    (void) vidattr(oldattr);
++	}
++    }
++    returnCode(code);
+ }
+ 
+ #if defined(TRACE) || defined(NCURSES_TEST)
+Index: ncurses/tty/tty_update.c
+Prereq:  1.192 
+--- ncurses-5.3-20030105+/ncurses/tty/tty_update.c	Sun Jan  5 18:55:00 2003
++++ ncurses-5.3-20030111/ncurses/tty/tty_update.c	Sat Jan 11 20:33:11 2003
+@@ -73,7 +73,7 @@
+ 
+ #include <term.h>
+ 
+-MODULE_ID("$Id: tty_update.c,v 1.192 2003/01/05 23:55:00 tom Exp $")
++MODULE_ID("$Id: tty_update.c,v 1.193 2003/01/12 01:33:11 tom Exp $")
+ 
+ /*
+  * This define controls the line-breakout optimization.  Every once in a
+@@ -166,24 +166,10 @@
+ static inline void
+ GoTo(int const row, int const col)
+ {
+-    attr_t oldattr = SP->_current_attr;
+-
+     TR(TRACE_MOVE, ("GoTo(%d, %d) from (%d, %d)",
+ 		    row, col, SP->_cursrow, SP->_curscol));
+ 
+     position_check(SP->_cursrow, SP->_curscol, "GoTo");
+-
+-    /*
+-     * Force restore even if msgr is on when we're in an alternate
+-     * character set -- these have a strong tendency to screw up the
+-     * CR & LF used for local character motions!
+-     */
+-    if ((oldattr & A_ALTCHARSET)
+-	|| (oldattr && !move_standout_mode)) {
+-	TR(TRACE_CHARPUT, ("turning off (%#lx) %s before move",
+-			   oldattr, _traceattr(oldattr)));
+-	vidattr(A_NORMAL);
+-    }
+ 
+     mvcur(SP->_cursrow, SP->_curscol, row, col);
+     SP->_cursrow = row;
+Index: progs/MKtermsort.sh
+Prereq:  1.8 
+--- ncurses-5.3-20030105+/progs/MKtermsort.sh	Sat Jun 29 16:02:48 2002
++++ ncurses-5.3-20030111/progs/MKtermsort.sh	Sat Jan 11 17:23:50 2003
+@@ -1,10 +1,10 @@
+ #!/bin/sh
+-# $Id: MKtermsort.sh,v 1.8 2002/06/29 20:02:48 tom Exp $
++# $Id: MKtermsort.sh,v 1.9 2003/01/11 22:23:50 tom Exp $
+ #
+ # MKtermsort.sh -- generate indirection vectors for the various sort methods
+ #
+ ##############################################################################
+-# Copyright (c) 1998-2001,2002 Free Software Foundation, Inc.                #
++# Copyright (c) 1998-2002,2003 Free Software Foundation, Inc.                #
+ #                                                                            #
+ # Permission is hereby granted, free of charge, to any person obtaining a    #
+ # copy of this software and associated documentation files (the "Software"), #
+@@ -47,7 +47,7 @@
+ 
+ data=data$$
+ trap 'rm -f $data' 1 2 5 15
+-sed -e 's/[	]\+/	/g' < $DATA >$data
++sed -e 's/[	][	]*/	/g' < $DATA >$data
+ DATA=$data
+ 
+ echo "/*";
