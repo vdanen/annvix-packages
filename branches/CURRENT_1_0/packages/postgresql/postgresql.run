@@ -26,4 +26,7 @@ if [ "$USESSL" == "1" ] && [ -f $PGDATA/server.crt ]; then
   OPTS="$OPTS -l"
 fi
 
-exec /usr/bin/setuidgid postgres /usr/bin/postmaster -D $PGDATA $OPTS
+# when we receive the signal to shutdown, remove the postmaster pid
+trap 'rm -f $PGDATA/postmaster.pid'
+
+exec /usr/bin/setuidgid postgres /usr/bin/postmaster -D $PGDATA $OPTS 2>&1

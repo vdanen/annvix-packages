@@ -1,6 +1,6 @@
 %define name	postgresql
 %define version	7.3.4
-%define release	8sls
+%define release	9sls
 
 %{expand:%%define pyver %(python -c 'import sys;print(sys.version[0:3])')}
 %{expand:%%define perl_version %(rpm -q --qf %{EPOCH}:%{VERSION} perl)}
@@ -35,7 +35,6 @@ Source6:	ftp.postgresql.org:/pub/binary/v7.2/RPMS/README.rpm-dist.bz2
 Source7:	migration-scripts.tar.gz
 Source8:	logrotate.postgresql
 Source9:	http://jdbc.postgresql.org/download/pg73jdbc2ee.jar
-Source10:	README.postgresql.mdk
 # Daouda : script for dumping database (from RedHat)
 Source14:	mdk-pgdump.sh
 Source15:	postgresql-bashprofile
@@ -364,11 +363,17 @@ pushd  $RPM_BUILD_ROOT%{_libdir}/pgsql/test/regress/
 strip *.so
 popd
 
+# move the config samples to real config files
+pushd %{buildroot}%{_datadir}/pgsql
+mv postgresql.conf.sample postgresql.conf
+mv pg_ident.conf.sample pg_ident.conf
+mv pg_hba.conf.sample pg_hba.conf
+popd
+
 cp %{SOURCE51} %{SOURCE52} .
 
 bzip2 -cd %{SOURCE6} >  README.rpm-dist
 
-cp %{SOURCE10} README.mdk
 mv $RPM_BUILD_ROOT%{_docdir}/%{name}/html $RPM_BUILD_ROOT%{_docdir}/%{name}-docs-%{version}
 
 mkdir -p %{buildroot}%{_srvdir}/postgresql/log
@@ -405,11 +410,6 @@ rm -rf %{buildroot}%{_docdir}/%{name}-docs-%{version}
 
 %pre server
 %_pre_useradd postgres /var/lib/pgsql /bin/bash 75
-if [ ! -e /var/log/postgresql ]; then
-    touch /var/log/postgresql
-fi
-chown postgres:postgres /var/log/postgresql
-chmod 0700 /var/log/postgresql
 
 
 %post server
@@ -570,7 +570,7 @@ rm -f perlfiles.list
 
 %files server -f server.lst
 %defattr(-,root,root)
-%doc README.mdk README.v7.3 upgrade_tips_7.3
+%doc README.v7.3 upgrade_tips_7.3
 %{_bindir}/initdb
 %{_bindir}/initlocation
 %{_bindir}/ipcclean
@@ -590,7 +590,6 @@ rm -f perlfiles.list
 %{_mandir}/man1/postmaster.1*
 %{_datadir}/pgsql/postgres.bki
 %{_datadir}/pgsql/postgres.description
-%{_datadir}/pgsql/*.sample
 %dir %{_libdir}/pgsql
 %dir %{_datadir}/pgsql
 %attr(700,postgres,postgres) %dir %{pgdata}
@@ -600,6 +599,9 @@ rm -f perlfiles.list
 %{_libdir}/pgsql/*_and_*.so
 %{_datadir}/pgsql/conversion_create.sql
 %{_datadir}/pgsql/upgrade.pl
+%config(noreplace) %{_datadir}/pgsql/postgresql.conf
+%config(noreplace) %{_datadir}/pgsql/pg_ident.conf
+%config(noreplace) %{_datadir}/pgsql/pg_hba.conf
 %dir %{_srvdir}/postgresql
 %dir %{_srvdir}/postgresql/log
 %{_srvdir}/postgresql/run
@@ -667,6 +669,16 @@ rm -f perlfiles.list
 %attr(-,postgres,postgres) %dir %{_libdir}/pgsql/test
 
 %changelog
+* Thu Apr 22 2004 Vincent Danen <vdanen@opensls.org> 7.3.4-9sls
+- include default config files (not .sample) so we can run postgres "out of
+  the box" and mark them as %%config
+- don't create /var/log/postgresql if nothing is going to use it
+- fix run script to trap on exit and remove $PGDATA/postmaster.pid otherwise
+  we'll have a real hard time restarting the service next time
+- also redirect stderr to stdout for logging in run script
+- remove S10 (README.postgresql.mdk) as that data is in the afterboot man
+  section now
+
 * Mon Apr 12 2004 Vincent Danen <vdanen@opensls.org> 7.3.4-8sls
 - include epoch in perl requirements for -pl
 
