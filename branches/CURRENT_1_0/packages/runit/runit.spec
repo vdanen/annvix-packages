@@ -1,6 +1,6 @@
 %define	name	runit
 %define	version	1.0.4
-%define	release	5avx
+%define	release	6avx
 
 Summary:	A UN*X init scheme with service supervision
 Name:		%{name}
@@ -46,7 +46,7 @@ popd
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-mkdir -p %{buildroot}{/sbin,%{_mandir}/man8,%{_sysconfdir}/runit,%{_srvdir}/mingetty-tty{1,2,3,4,5,6}}
+mkdir -p %{buildroot}{/service,/sbin,%{_mandir}/man8,%{_sysconfdir}/runit,%{_srvdir}/mingetty-tty{1,2,3,4,5,6}}
 install -d %{buildroot}/sbin/
 install -d %{buildroot}%{_mandir}/man8
 
@@ -97,6 +97,7 @@ fi
 %doc %{name}-%{version}/doc/*.html
 %doc %{name}-%{version}/etc/2
 %doc %{name}-%{version}/etc/debian
+%dir /service
 %attr(0755,root,root) /sbin/runit
 %attr(0755,root,root) /sbin/init
 %attr(0755,root,root) /sbin/runsv
@@ -146,6 +147,9 @@ fi
 %attr(0755,root,root) %{_srvdir}/mingetty-tty6/finish
 
 %changelog
+* Fri Sep 17 2004 Vincent Danen <vdanen@annvix.org> 1.0.4-6avx
+- own /service since daemontools will soon be removed
+
 * Tue Sep 14 2004 Vincent Danen <vdanen@annvix.org> 1.0.4-5avx
 - don't ever restart the gettys
 - Requires: mingetty
