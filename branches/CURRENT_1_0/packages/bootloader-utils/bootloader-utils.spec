@@ -1,6 +1,6 @@
 %define name	bootloader-utils
 %define version	1.6
-%define release	5sls
+%define release	6sls
 
 %define _mypost_service() if [ $1 = 1 ]; then /sbin/chkconfig --add %{1}; fi;
 
@@ -8,10 +8,11 @@ Summary:	Small utils needed for the kernel
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
-Source0:	%{name}-%{version}.tar.bz2
 License:	GPL
 Group:		System/Kernel and hardware
 URL:		http://www.linux-mandrake.com/cgi-bin/cvsweb.cgi/soft/initscripts/mandrake/loader/
+Source0:	%{name}-%{version}.tar.bz2
+Patch0:		bootloader-utils-1.6-opensls.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-buildroot
 
@@ -23,13 +24,14 @@ Utils needed to install/remove a kernel.  Also for updating bootloaders.
 
 %prep
 %setup -q
+%patch0 -p0 -b .opensls
 
 %build
 make
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-make ROOT=$RPM_BUILD_ROOT mandir=%{_mandir} install
+make ROOT=%{buildroot} mandir=%{_mandir} install
 
 %post
 %_mypost_service kheader
@@ -63,6 +65,9 @@ make ROOT=$RPM_BUILD_ROOT mandir=%{_mandir} install
 
 
 %changelog
+* Tue Jun 15 2004 Vincent Danen <vdanen@opensls.org> 1.6-6sls
+- look for grub.conf rather than menu.lst
+
 * Wed Mar  3 2004 Thomas Backlund <tmb@iki.fi> 1.6-5sls
 - sync with mdk 1.6-7mdk
   * getroot() don't have arguement.
