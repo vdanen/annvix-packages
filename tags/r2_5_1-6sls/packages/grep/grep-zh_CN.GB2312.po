@@ -1,0 +1,363 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# 
+# First Translator: Wang Jian <larkw@263.net>
+# Second Translator: C.Y. Li <lcy@mail.cosix.com.cn>
+# Revision:
+# DATE: AUTHOR
+msgid ""
+msgstr ""
+"Project-Id-Version: grep-2.4\n"
+"POT-Creation-Date: 2000-02-02 01:04-0500\n"
+"PO-Revision-Date: 1999-05-24 16:00+0800\n"
+"Last-Translator: C.Y. Li <lcy@mail.cosix.com.cn>\n"
+"Language-Team: COSIX <lcy@mail.cosix.com.cn>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=gb2312\n"
+"Content-Transfer-Encoding: 8-bit\n"
+
+#: src/dfa.c:163 src/dfa.c:174 src/dfa.c:185 src/grep.c:902
+msgid "Memory exhausted"
+msgstr "内存耗尽"
+
+#: src/dfa.c:448
+msgid "Unfinished \\ escape"
+msgstr "没有结束的 \\ 转义"
+
+#. Cases:
+#. {M} - exact count
+#. {M,} - minimum count, maximum is infinity
+#. {M,N} - M through N
+#: src/dfa.c:581 src/dfa.c:587 src/dfa.c:597 src/dfa.c:605 src/dfa.c:620
+msgid "unfinished repeat count"
+msgstr "没有结束的重复计数"
+
+#: src/dfa.c:594 src/dfa.c:611 src/dfa.c:619 src/dfa.c:623
+msgid "malformed repeat count"
+msgstr "格式不正确的重复计数"
+
+#: src/dfa.c:688 src/dfa.c:691 src/dfa.c:718 src/dfa.c:722 src/dfa.c:723
+#: src/dfa.c:726 src/dfa.c:739 src/dfa.c:740
+msgid "Unbalanced ["
+msgstr "没有匹配的 ["
+
+#: src/dfa.c:886
+msgid "Unbalanced ("
+msgstr "没有匹配的 ("
+
+#: src/dfa.c:1000
+msgid "No syntax specified"
+msgstr "没有指定语法"
+
+#: src/dfa.c:1008
+msgid "Unbalanced )"
+msgstr "没有匹配的 )"
+
+#: src/dfa.c:1994
+msgid "out of memory"
+msgstr "内存不足"
+
+#: src/getopt.c:675
+#, c-format
+msgid "%s: option `%s' is ambiguous\n"
+msgstr "%s: 选项 `%s' 意义不明确\n"
+
+#: src/getopt.c:700
+#, c-format
+msgid "%s: option `--%s' doesn't allow an argument\n"
+msgstr "%s: 选项 `--%s' 不允许使用参数\n"
+
+#: src/getopt.c:705
+#, c-format
+msgid "%s: option `%c%s' doesn't allow an argument\n"
+msgstr "%s: 选项 `%c%s' 不允许使用参数\n"
+
+#: src/getopt.c:723 src/getopt.c:896
+#, c-format
+msgid "%s: option `%s' requires an argument\n"
+msgstr "%s: 选项 `%s' 需要一个参数\n"
+
+#. --option
+#: src/getopt.c:752
+#, c-format
+msgid "%s: unrecognized option `--%s'\n"
+msgstr "%s: 不认识的选项 `--%s'\n"
+
+#. +option or -option
+#: src/getopt.c:756
+#, c-format
+msgid "%s: unrecognized option `%c%s'\n"
+msgstr "%s: 不认识的选项 `%c%s'\n"
+
+#. 1003.2 specifies the format of this message.
+#: src/getopt.c:782
+#, c-format
+msgid "%s: illegal option -- %c\n"
+msgstr "%s: 不合法的选项 -- %c\n"
+
+#: src/getopt.c:785
+#, c-format
+msgid "%s: invalid option -- %c\n"
+msgstr "%s: 无效的选项 -- %c\n"
+
+#. 1003.2 specifies the format of this message.
+#: src/getopt.c:815 src/getopt.c:945
+#, c-format
+msgid "%s: option requires an argument -- %c\n"
+msgstr "%s: 选项需要参数 -- %c\n"
+
+#: src/getopt.c:862
+#, c-format
+msgid "%s: option `-W %s' is ambiguous\n"
+msgstr "%s: 选项 `-W %s' 意义不明确\n"
+
+#: src/getopt.c:880
+#, c-format
+msgid "%s: option `-W %s' doesn't allow an argument\n"
+msgstr "%s: 选项 `-W %s' 不允许使用参数\n"
+
+#: src/grep.c:185 src/grep.c:200 src/grep.c:293 src/grep.c:399 src/kwset.c:180
+#: src/kwset.c:186 src/obstack.c:471
+msgid "memory exhausted"
+msgstr "内存耗尽"
+
+#: src/grep.c:550 src/grep.c:1441
+msgid "writing output"
+msgstr "输出"
+
+#: src/grep.c:777
+#, c-format
+msgid "Binary file %s matches\n"
+msgstr "二进制文件 %s 匹配\n"
+
+#: src/grep.c:791
+msgid "(standard input)"
+msgstr "(标准准输出)"
+
+#: src/grep.c:887
+#, c-format
+msgid "%s: warning: %s: %s\n"
+msgstr "%s: 警告: %s: %s\n"
+
+#: src/grep.c:888
+msgid "recursive directory loop"
+msgstr "目录递归"
+
+#: src/grep.c:938
+#, c-format
+msgid "Usage: %s [OPTION]... PATTERN [FILE]...\n"
+msgstr "用法: %s [OPTION]... PATTERN [FILE]...\n"
+
+#: src/grep.c:939
+#, c-format
+msgid "Try `%s --help' for more information.\n"
+msgstr "使用 `%s --help' 得到更多的信息.\n"
+
+#: src/grep.c:943
+#, c-format
+msgid "Usage: %s [OPTION]... PATTERN [FILE] ...\n"
+msgstr "用法: %s [OPTION]... PATTERN [FILE] ...\n"
+
+#: src/grep.c:944
+#, fuzzy, c-format
+msgid ""
+"Search for PATTERN in each FILE or standard input.\n"
+"Example: %s -i 'hello world' menu.h main.c\n"
+"\n"
+"Regexp selection and interpretation:\n"
+msgstr ""
+"在每个 FILE 或标准输入中查找 PATTERN .\n"
+"举例: %s -i 'hello.*world' menu.h main.c\n"
+"\n"
+"正则表达式选择和解释:\n"
+
+#: src/grep.c:949
+#, fuzzy
+msgid ""
+"  -E, --extended-regexp     PATTERN is an extended regular expression\n"
+"  -F, --fixed-strings       PATTERN is a set of newline-separated strings\n"
+"  -G, --basic-regexp        PATTERN is a basic regular expression\n"
+msgstr ""
+"  -E, --extended-regexp     PATTERN 是扩展的正则表达式\n"
+"  -F, --fixed-regexp        PATTERN 是用newlines隔开的定长字符串\n"
+"  -G, --basic-regexp        PATTERN 是基本的正则表达式\n"
+
+#: src/grep.c:953
+msgid ""
+"  -e, --regexp=PATTERN      use PATTERN as a regular expression\n"
+"  -f, --file=FILE           obtain PATTERN from FILE\n"
+"  -i, --ignore-case         ignore case distinctions\n"
+"  -w, --word-regexp         force PATTERN to match only whole words\n"
+"  -x, --line-regexp         force PATTERN to match only whole lines\n"
+"  -z, --null-data           a data line ends in 0 byte, not newline\n"
+msgstr ""
+"  -e, --regexp=PATTERN      使用 PATTERN 作为正则表达式\n"
+"  -f, --file=FILE           从文件 FILE 中得到 PATTERN\n"
+"  -i, --ignore-case         忽略大小写差别\n"
+"  -w, --word-regexp         强制 PATTERN 仅匹配完整的词\n"
+"  -x, --line-regexp         强制 PATTERN 仅匹配完整的行\n"
+"  -z, --null-data           以0字节结尾的数据行，而非新行\n"
+
+#: src/grep.c:960
+#, fuzzy
+msgid ""
+"\n"
+"Miscellaneous:\n"
+"  -s, --no-messages         suppress error messages\n"
+"  -v, --invert-match        select non-matching lines\n"
+"  -V, --version             print version information and exit\n"
+"      --help                display this help and exit\n"
+"      --mmap                use memory-mapped input if possible\n"
+msgstr ""
+"\n"
+"其他:\n"
+"  -s, --no-messages         禁止错误信息\n"
+"  -v, --revert-match        查找不匹配的行\n"
+"  -V, --version             输出版本信息然后退出\n"
+"      --help                显示这个帮助信息,然后退出\n"
+"      --mmap                在可能的情况下以内存映射的方式输入\n"
+
+#: src/grep.c:968
+#, fuzzy
+msgid ""
+"\n"
+"Output control:\n"
+"  -b, --byte-offset         print the byte offset with output lines\n"
+"  -n, --line-number         print line number with output lines\n"
+"  -H, --with-filename       print the filename for each match\n"
+"  -h, --no-filename         suppress the prefixing filename on output\n"
+"  -q, --quiet, --silent     suppress all normal output\n"
+"      --binary-files=TYPE   assume that binary files are TYPE\n"
+"                            TYPE is 'binary', 'text', or 'without-match'.\n"
+"  -a, --text                equivalent to --binary-files=text\n"
+"  -I                        equivalent to --binary-files=without-match\n"
+"  -d, --directories=ACTION  how to handle directories\n"
+"                            ACTION is 'read', 'recurse', or 'skip'.\n"
+"  -r, --recursive           equivalent to --directories=recurse.\n"
+"  -L, --files-without-match only print FILE names containing no match\n"
+"  -l, --files-with-matches  only print FILE names containing matches\n"
+"  -c, --count               only print a count of matching lines per FILE\n"
+"  -Z, --null                print 0 byte after FILE name\n"
+msgstr ""
+"\n"
+"输出控制:\n"
+"  -b, --byte-offset         打印输出行的字节偏移量\n"
+"  -n, --line-number         打印输出很的行号\n"
+"  -H, --with-filename       打印每个匹配项的文件名\n"
+"  -h, --no-filename         在输出时不显示文件名\n"
+"  -q, --quiet, --silent     禁止所有的正常输出\n"
+"  -a, --text                不强制二进制输出\n"
+"  -d, --directories=ACTION  如何操作目录\n"
+"                            ACTION 是 'read', 'recurse', 或 'skip'.\n"
+"  -r, --recursive           等于 --directories=recurse.\n"
+"  -L, --files-without-match 仅打印不包含匹配行的文件名\n"
+"  -l, --files-with-matches  仅打印包含匹配行的文件名\n"
+"  -c, --count               仅打印每个文件包含的匹配行的个数\n"
+"  -Z, --null                文件名后打印零字节\n"
+
+#: src/grep.c:987
+msgid ""
+"\n"
+"Context control:\n"
+"  -B, --before-context=NUM  print NUM lines of leading context\n"
+"  -A, --after-context=NUM   print NUM lines of trailing context\n"
+"  -C, --context[=NUM]       print NUM (default 2) lines of output context\n"
+"                            unless overridden by -A or -B\n"
+"  -NUM                      same as --context=NUM\n"
+"  -U, --binary              do not strip CR characters at EOL (MSDOS)\n"
+"  -u, --unix-byte-offsets   report offsets as if CRs were not there (MSDOS)\n"
+"\n"
+"`egrep' means `grep -E'.  `fgrep' means `grep -F'.\n"
+"With no FILE, or when FILE is -, read standard input.  If less than\n"
+"two FILEs given, assume -h.  Exit status is 0 if match, 1 if no match,\n"
+"and 2 if trouble.\n"
+msgstr ""
+"\n"
+"上下文控制:\n"
+"  -B, --before-context=NUM  打印上下文前的 NUM 行\n"
+"  -A, --after-context=NUM   打印上下文后的 NUM 行\n"
+"  -C, --context[=NUM]       打印 NUM (缺省 2) 行上下文\n"
+"                            除费用A或B覆盖\n"
+"  -NUM                      和 --context=NUM 相同效果\n"
+"  -U, --binary              不去掉在行末尾的 CR (MSDOS)\n"
+"  -u, --unix-byte-offsets   报告偏移量时不考虑 CR (MSDOS)\n"
+"\n"
+"如果没有 -[GEF], 那么 `egrep'使用 -E, 'fgrep'用 -F,否则用 -G.\n"
+"如果没有 FILE, 或者 FILE 是 -, 从标准输入中读. 如果文件数目\n"
+"小于两个, 默认使用 -h. 如果有匹配的项, 退出码为 0, 没有则为 1.\n"
+"如果语法错误或系统错误, 退出码为 2.\n"
+
+#: src/grep.c:1002
+msgid ""
+"\n"
+"Report bugs to <bug-gnu-utils@gnu.org>.\n"
+msgstr ""
+"\n"
+"向 <bug-gnu-utils@gnu.org> 报告错误.\n"
+
+#: src/grep.c:1012
+msgid "conflicting matchers specified"
+msgstr "特定匹配冲突"
+
+#: src/grep.c:1203 src/grep.c:1210 src/grep.c:1219
+msgid "invalid context length argument"
+msgstr "无效的上下文长度参数"
+
+#: src/grep.c:1273
+msgid "unknown directories method"
+msgstr "不可知的编目方法"
+
+#: src/grep.c:1358
+msgid "unknown binary-files type"
+msgstr ""
+
+#: src/grep.c:1378
+#, c-format
+msgid "%s (GNU grep) %s\n"
+msgstr "%s (GNU grep) %s\n"
+
+#: src/grep.c:1380
+#, fuzzy
+msgid "Copyright 1988, 1992-1999, 2000 Free Software Foundation, Inc.\n"
+msgstr "Copyright (C) 1988, 1992-1998, 1999 Free Software Foundation, Inc.\n"
+
+#: src/grep.c:1382
+msgid ""
+"This is free software; see the source for copying conditions. There is NO\n"
+"warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n"
+msgstr ""
+"This is free software; see the source for copying conditions. There is NO\n"
+"warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n"
+
+#~ msgid "option %s"
+#~ msgstr "选项 %s"
+
+#~ msgid " with arg %s"
+#~ msgstr " 和参数 %s"
+
+#~ msgid "digits occur in two different argv-elements.\n"
+#~ msgstr "在两个不同的 argv 元素中出现了数字.\n"
+
+#~ msgid "option %c\n"
+#~ msgstr "选项 %c\n"
+
+#~ msgid "option a\n"
+#~ msgstr "选项 a\n"
+
+#~ msgid "option b\n"
+#~ msgstr "选项 b\n"
+
+#~ msgid "option c with value `%s'\n"
+#~ msgstr "选项 c 和值 `%s'\n"
+
+#~ msgid "option d with value `%s'\n"
+#~ msgstr "选项 d 和值 `%s'\n"
+
+#~ msgid "?? getopt returned character code 0%o ??\n"
+#~ msgstr "?? getopt 返回字符代码 0%o ??\n"
+
+#~ msgid "non-option ARGV-elements: "
+#~ msgstr "非选项的 ARGV 元素: "
+
+#~ msgid "memory exhausted\n"
+#~ msgstr "内存耗尽\n"
