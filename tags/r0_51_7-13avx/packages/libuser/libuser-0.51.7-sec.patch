@@ -1,0 +1,180 @@
+diff -ur libuser-0.51.7.orig/lib/config.c libuser-0.51.7/lib/config.c
+--- libuser-0.51.7.orig/lib/config.c	2002-01-29 18:30:45.000000000 -0500
++++ libuser-0.51.7/lib/config.c	2004-04-06 11:24:08.000000000 -0400
+@@ -77,7 +77,16 @@
+ 	if (fstat(fd, &st) != -1) {
+ 		/* Read the file's contents in. */
+ 		config->data = g_malloc0(st.st_size + 1);
+-		read(fd, config->data, st.st_size);
++		if (read(fd, config->data, st.st_size) == -1) {
++			g_free(config->data);
++			g_free(config);
++			close(fd);
++			return FALSE;
++		}
++	} else {
++		g_free(config);
++		close(fd);
++		return FALSE;
+ 	}
+ 	close(fd);
+ 
+diff -ur libuser-0.51.7.orig/lib/entity.c libuser-0.51.7/lib/entity.c
+--- libuser-0.51.7.orig/lib/entity.c	2002-03-01 15:21:16.000000000 -0500
++++ libuser-0.51.7/lib/entity.c	2004-04-06 10:49:20.000000000 -0400
+@@ -104,6 +104,7 @@
+ 	switch (ent->type) {
+ 		case lu_invalid:
+ 			fprintf(fp, " type = invalid\n");
++			break;
+ 		case lu_user:
+ 			fprintf(fp, " type = user\n");
+ 			break;
+diff -ur libuser-0.51.7.orig/lib/util.c libuser-0.51.7/lib/util.c
+--- libuser-0.51.7.orig/lib/util.c	2003-02-18 17:50:46.000000000 -0500
++++ libuser-0.51.7/lib/util.c	2004-04-06 11:57:07.000000000 -0400
+@@ -98,11 +98,12 @@
+ 	return (strchr(ACCEPTABLE, c) != NULL);
+ }
+ 
+-static void
++static gboolean
+ fill_urandom(char *output, size_t length)
+ {
+ 	int fd;
+ 	size_t got = 0;
++	ssize_t len;
+ 
+ 	fd = open("/dev/urandom", O_RDONLY);
+ 	g_return_if_fail(fd != -1);
+@@ -110,15 +111,23 @@
+ 	memset(output, '\0', length);
+ 
+ 	while (got < length) {
+-		read(fd, output + got, length - got);
++		len = read(fd, output + got, length - got);
++		if (len == -1) {
++			if (errno == EINTR)
++				continue;
++			else
++				return FALSE;
++		}
+ 		while (isprint(output[got]) &&
+ 		       !isspace(output[got]) &&
+-		       is_acceptable(output[got])) {
++		       is_acceptable(output[got]) && len) {
+ 			got++;
++			len--;
+ 		}
+ 	}
+ 
+ 	close(fd);
++	return TRUE;
+ }
+ 
+ static struct {
+@@ -158,7 +167,8 @@
+ 		 salt_type_info[i].salt_length +
+ 		 strlen(salt_type_info[i].separator) <
+ 		 sizeof(salt));
+-	fill_urandom(salt + len, salt_type_info[i].salt_length);
++	if (fill_urandom(salt + len, salt_type_info[i].salt_length) == FALSE)
++		return NULL;
+ 	strcat(salt, salt_type_info[i].separator);
+ 
+ 	return crypt(plain, salt);
+@@ -214,7 +224,7 @@
+ 	ret = (struct lu_lock*) lock;
+ 	do {
+ 		ret->lock.l_type = F_UNLCK;
+-		i = fcntl(ret->fd, F_SETLK, ret->lock);
++		i = fcntl(ret->fd, F_SETLK, &ret->lock);
+ 	} while ((i == -1) && ((errno == EINTR) || (errno == EAGAIN)));
+ 	g_free(ret);
+ }
+diff -ur libuser-0.51.7.orig/modules/files.c libuser-0.51.7/modules/files.c
+--- libuser-0.51.7.orig/modules/files.c	2003-02-18 22:35:21.000000000 -0500
++++ libuser-0.51.7/modules/files.c	2004-04-18 13:33:39.000000000 -0400
+@@ -97,7 +97,7 @@
+ 	char *backupname;
+ 	struct stat ist, ost;
+ 	char buf[CHUNK_SIZE];
+-	size_t len;
++	ssize_t len;
+ 
+ 	g_assert(filename != NULL);
+ 	g_assert(strlen(filename) > 0);
+@@ -1908,6 +1908,13 @@
+ 	} else {
+ 		password = lu_make_crypted(password,
+ 					   lu_common_default_salt_specifier(module));
++		if (password == NULL) {
++			g_free(value);
++			close(fd);
++			g_free(namestring);
++			g_free(filename);
++			return FALSE;
++		}
+ 	}
+ 
+ 	/* Now write our changes to the file. */
+@@ -2077,7 +2084,7 @@
+ 			     _("couldn't open `%s': %s"), filename,
+ 			     strerror(errno));
+ 		lu_util_lock_free(lock);
+-		fclose(fp);
++		close(fd);
+ 		g_free(filename);
+ 		return NULL;
+ 	}
+@@ -2186,7 +2193,7 @@
+ 			     _("couldn't open `%s': %s"), pwdfilename,
+ 			     strerror(errno));
+ 		lu_util_lock_free(lock);
+-		fclose(fp);
++		close(fd);
+ 		g_free(pwdfilename);
+ 		g_free(grpfilename);
+ 		return NULL;
+@@ -2275,7 +2282,7 @@
+ 			     _("couldn't open `%s': %s"), grpfilename,
+ 			     strerror(errno));
+ 		lu_util_lock_free(lock);
+-		fclose(fp);
++		close(fd);
+ 		g_free(pwdfilename);
+ 		g_free(grpfilename);
+ 		g_value_array_free(ret);
+@@ -2390,7 +2397,7 @@
+ 			     _("couldn't open `%s': %s"), pwdfilename,
+ 			     strerror(errno));
+ 		lu_util_lock_free(lock);
+-		fclose(fp);
++		close(fd);
+ 		g_free(pwdfilename);
+ 		g_free(grpfilename);
+ 		return NULL;
+@@ -2468,7 +2475,7 @@
+ 			     _("couldn't open `%s': %s"), grpfilename,
+ 			     strerror(errno));
+ 		lu_util_lock_free(lock);
+-		fclose(fp);
++		close(fd);
+ 		g_free(pwdfilename);
+ 		g_free(grpfilename);
+ 		return NULL;
+diff -ur libuser-0.51.7.orig/modules/ldap.c libuser-0.51.7/modules/ldap.c
+--- libuser-0.51.7.orig/modules/ldap.c	2003-02-19 03:14:10.000000000 -0500
++++ libuser-0.51.7/modules/ldap.c	2004-04-18 13:35:15.000000000 -0400
+@@ -1434,6 +1434,11 @@
+ 	if (strncmp(oldpassword, LU_CRYPTED, scheme_len) != 0) {
+ 		tmp = lu_make_crypted(oldpassword,
+ 				      lu_common_default_salt_specifier(module));
++		if (tmp == NULL) {
++			lu_error_new(error, lu_error_generic,
++			     _("error encrypting password"));
++			return FALSE;
++		}
+ 	} else {
+ 		tmp = ent->cache->cache(ent->cache, oldpassword + scheme_len);
+ 	}
