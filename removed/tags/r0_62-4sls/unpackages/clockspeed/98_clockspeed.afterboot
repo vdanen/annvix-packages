@@ -1,0 +1,43 @@
+.LP
+\fBConfiguring System Time (via NTP)\fR
+.LP
+Most Linux distributions come with the ntp program to talk to an NTP server
+to set the local system's time.  OpenSLS uses clockspeed instead because
+it reduces the dependency on always checking a remote NTP server and
+provides a hassle-free way of synchronizing other systems that also use
+clockspeed.
+.LP
+The first step is to find an NTP server; you will need the IP address of the
+NTP server rather than the DNS name.  To compute the difference between the
+remote clock and your clock, execute:
+.IP
+# sntpclock 1.2.3.4 | clockview
+.LP
+This will show you the difference between your clock and the remote clock
+(note that 1.2.3.4 is the IP address of the NTP server).  To set the clock
+using the remote clock's time, use:
+.IP
+# sntpclock 1.2.3.4 | clockadd
+.LP
+Once this is done, start the clockspeed service:
+.IP
+# srv add clockspeed
+.BR
+# srv start clockspeed
+.LP
+Give clockspeed a time measurement by executing:
+.IP
+# sntpclock 1.2.3.4 > /var/lib/clockspeed/adjust
+.LP
+After a few hours, give clockspeed a second time measurement using the same
+command you just executed.  After a few days, you can check how well
+clockspeed has adjusted your clock by executing:
+.IP
+# sntpclock 1.2.3.4 | clockview
+.LP
+You can give clockspeed another time measurement, again by piping the output
+of sntpclock(1) to \fI/var/lib/clockspeed/adjust\fR.  At this point, your
+clock should be fairly well adjusted.
+.LP
+A cronjob has been setup to automatically adjust the clock once a month. 
+The differences should be within a few milliseconds.

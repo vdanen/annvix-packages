@@ -1,0 +1,23 @@
+diff -Naur clockspeed-0.62/error.h clockspeed-0.62.oden/error.h
+--- clockspeed-0.62/error.h	1998-10-13 19:37:49.000000000 +0200
++++ clockspeed-0.62.oden/error.h	2003-03-25 23:09:38.000000000 +0100
+@@ -1,7 +1,7 @@
+ #ifndef ERROR_H
+ #define ERROR_H
+ 
+-extern int errno;
++#include <errno.h>
+ 
+ extern int error_intr;
+ extern int error_nomem;
+diff -Naur clockspeed-0.62/leapsecs_read.c clockspeed-0.62.oden/leapsecs_read.c
+--- clockspeed-0.62/leapsecs_read.c	1998-10-13 19:37:49.000000000 +0200
++++ clockspeed-0.62.oden/leapsecs_read.c	2003-03-25 23:09:55.000000000 +0100
+@@ -2,7 +2,6 @@
+ #include <sys/stat.h>
+ #include <fcntl.h>
+ #include <errno.h>
+-extern int errno;
+ #include "tai.h"
+ #include "leapsecs.h"
+ 
