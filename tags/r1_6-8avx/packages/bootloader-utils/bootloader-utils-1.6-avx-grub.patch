@@ -1,0 +1,28 @@
+--- bootloader-utils-1.6/grub.avx	2004-02-27 02:51:33.000000000 -0500
++++ bootloader-utils-1.6/grub	2005-02-04 14:31:39.000000000 -0500
+@@ -50,7 +50,7 @@
+ 
+ # we keep entry as hash for future use.
+ my (%main, %entry);
+-my $grub_conf = $ENV{GRUB_CONF} || "/boot/grub/menu.lst";
++my $grub_conf = $ENV{GRUB_CONF} || "/boot/grub/grub.conf";
+ 
+ `cp -f $grub_conf ${grub_conf}.old` if -f $grub_conf && !$debug;
+ 
+@@ -206,6 +206,16 @@
+ 	}
+     };
+     close F;
++    if ($part =~ "^/dev/md") {
++      my @x = split('/',$part);
++      my $foo = `grep $x[2] /proc/mdstat`;
++      my @x = split(' ',$foo);
++      my @x = split('\[',$x[4]);
++      $part = $x[0];
++      print "part is $part\n";
++      $part = "/dev/$part";
++    }
++    print "part is $part\n";
+     return  $part
+ }
+ sub basename { local $_ = shift; s|/*\s*$||; s|.*/||; $_ }
