@@ -1,6 +1,6 @@
 %define name	%{ap_name}-%{mod_name}
 %define version %{ap_version}_%{mod_version}
-%define release 2avx
+%define release 3avx
 
 # Module-Specific definitions
 %define mod_version	1.99_11
@@ -31,11 +31,9 @@ Source61:       apache2-mod_perl-testscript.pl
 
 BuildRoot:	%{_tmppath}/%{name}-buildroot
 BuildRequires:	perl-devel
-# JMD: THIS IS NEEDED FOR COMPATIBILITY OTHERWISE MANY FILES WILL CONFLICT
-BuildRequires:	mod_perl-common
 # Standard ADVX requires
 BuildRequires:	ADVX-build >= 9.2
-BuildRequires:	%{ap_name}-devel >= 2.0.43-5mdk
+BuildRequires:	%{ap_name}-devel >= 2.0.43-5mdk, db4-devel
 
 Prereq:		perl
 Requires:	apache2-mod_proxy
@@ -67,7 +65,6 @@ Summary:	Files needed for building XS modules that use mod_perl
 Group:		Development/C
 Requires:	%{name} = %{version}-%{release}
 Requires:	%{ap_name}-devel = %{ap_version}
-Requires:	mod_perl-common
 
 %description devel 
 The mod_perl-devel package contains the files needed for building XS
@@ -173,6 +170,11 @@ install -m644 xs/tables/current/Apache/FunctionTable.pm \
 %{ap_includedir}/*
 
 %changelog
+* Sat Sep 11 2004 Vincent Danen <vdanen@annvix.org> 2.0.49_1.99_11-3avx
+- rebuild against new perl
+- remove req's on mod_perl-common... apache 1.x is gone
+- BuildRequires: db4-devel
+
 * Sun Jun 27 2004 Vincent Danen <vdanen@annvix.org> 2.0.49_1.99_11-2avx
 - Annvix build
 
