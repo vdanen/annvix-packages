@@ -1,6 +1,6 @@
 %define name	apache-conf
 %define version	2.0.48
-%define release	2sls
+%define release	3sls
 
 # OE: conditional switches
 #(ie. use with rpm --rebuild):
@@ -40,7 +40,7 @@ Source11:	DynamicVhosts.conf
 Source12:	VirtualHomePages.conf
 Source14:	favicon.ico.bz2
 Source20:	index.shtml
-Source21:	mandrake.html
+Source21:	opensls.html
 Source22:	optim.html
 Source23:	logo.gif
 Source24:	apacheicon.gif
@@ -111,7 +111,6 @@ mkdir -p %{buildroot}%{compat_conf}
 mkdir -p %{buildroot}%{ap_confd}
 mkdir -p %{buildroot}%{ap_htdocsdir}
 mkdir -p %{buildroot}%{_sbindir}
-mkdir -p %{buildroot}%{_initrddir}
 mkdir -p %{buildroot}%{_sysconfdir}/logrotate.d
 mkdir -p %{buildroot}%{ap_logfiledir}
 mkdir -p %{buildroot}%{ap_datadir}
@@ -205,23 +204,13 @@ cat > %{buildroot}%{_sysconfdir}/logrotate.d/%{name} << EOF
     missingok
     nocompress
     prerotate
-	ADVXctl closelogs
+	svc -h /service/apache; svc -h /service/apache2
     endscript
     postrotate
-	ADVXctl closelogs
+	svc -h /service/apache; svc -h /service/apache2
     endscript
 }
 EOF
-
-#Install initscripts
-%define init_name httpd
-mkdir -p %{buildroot}%{_initrddir}
-install -m755 %{SOURCE0} %{buildroot}%{_initrddir}/%{init_name}
-rm -f %{buildroot}%{_sbindir}/apachectl*
-ln -s ../..%{_initrddir}/%{init_name}  %{buildroot}%{_sbindir}/ADVXctl
-ln -s ../..%{_initrddir}/%{init_name}  %{buildroot}%{_sbindir}/AESctl
-ln -s ../..%{_initrddir}/%{init_name}  %{buildroot}%{_sbindir}/apachectl
-ln -s ../..%{_initrddir}/%{init_name}  %{buildroot}%{_sbindir}/apachectl-perl
 
 install -m755 %{SOURCE30} %{buildroot}%{_sbindir}
 install -m755 %{SOURCE31} %{buildroot}%{_sbindir}
@@ -243,17 +232,19 @@ ln -sf ../..%{_libdir}/apache-extramodules \
         %{buildroot}%{ap_base}/extramodules
 
 %pre
-%_pre_useradd apache /var/www /bin/sh
+%_pre_useradd apache /var/www /bin/sh 74
 
 %post
 if [ $1 = "1" ]; then
   %{ADVXdir}/advx-checkifmigrate
 fi
-%_post_service httpd
+%_post_srv apache
+%_post_srv apache2
 %ADVXpost
 
 %preun
-%_preun_service httpd
+%_preun_srv apache
+%_preun_srv apache2
 %ADVXpost
 
 %postun
@@ -300,15 +291,24 @@ fi
 %config(noreplace) %{ap_htdocsdir}/index.shtml
 %attr(-,apache,apache) %dir %{ap_proxycachedir}
 %{_sbindir}/*
-%config %{_sysconfdir}/rc.d/*
 %config(noreplace) %{_sysconfdir}/logrotate.d/%{name}
 %{_docdir}/apache2-conf-%{version}/README.apache-conf
 %{_libdir}/ADVX/*
+%{ap_base}/extramodules
 #JMD: For compatibility with Apache 1.3
 #JMD: *never remove this!* 1333 is the *right* permission.
 %attr(1333,apache,apache) %dir /var/apache-mm
 
 %changelog
+* Tue Feb 24 2004 Vincent Danen <vdanen@opensls.org> 2.0.48-3sls
+- use static uid for user apache
+- get rid of initscript
+- supervise macros
+- ADVXctl is gone now so don't delete apachectl
+- include the /etc/httpd/conf/extramodules symlink
+- fix logrotation; should work
+- OpenSLS branding
+
 * Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 2.0.48-2sls
 - OpenSLS build
 - tidy spec

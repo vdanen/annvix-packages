@@ -3,7 +3,7 @@
 <head>
    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
    <meta name="GENERATOR" content="Mozilla/4.61 [en] (X11; I; Linux 2.2.9-23mdk i686) [Netscape]">
-   <meta name="Author" content="MandrakeSoft">
+   <meta name="Author" content="OpenSLS">
    <title>Welcome to the Advanced Extranet Server, ADVX!</title> 
    <LINK REL="SHORTCUT ICON" HREF="/favicon.ico">
 <!-- Background white, links blue (unvisited), navy (visited), red (active) --> </head>
@@ -103,20 +103,9 @@ href="http://www.advx.org/">ADVX.org Homepage</a>.
 <tr><td colspan=2>
 <H1>Secure your web server!</H1>
 <img align=left src="/icons/stamp.gif">
-Mandrake Linux now comes with SSL encryption (mod_ssl), we suggest you install it
+OpenSLS comes with SSL encryption (mod_ssl), we suggest you install it
 for more security. It comes with its own test key so you can start using it
-right now, or, thanks to Mandrake's new partnership with
-Thawte, you can now buy an SSL certificate through MandrakeSoft! See <a
-href=http://www.advx.org/thawte.php>this page</a> for more
-information. Thawte SSL certificates will enable the SSL on your web
-server, giving you the ability to communicate securely with your web
-customers. SSL security makes eavesdropping on your web traffic almost
-impossible. 
-<!-- 
-You might also want to try mod_sxnet: This product includes 
-software developed by Thawte Consulting and implements the Thawte Strong 
-Extranet version 1.1
--->
+right now.
 </tr></tr>
 <tr><td colspan=2>
 <hr width=100%>
