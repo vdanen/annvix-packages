@@ -1,0 +1,11 @@
+--- krb5-1.2.4/src/util/db2/obj/Makefile.in.pic	2002-02-28 02:15:52.000000000 +0100
++++ krb5-1.2.4/src/util/db2/obj/Makefile.in	2002-07-09 00:45:06.000000000 +0200
+@@ -39,7 +39,7 @@ CDEBUGFLAGS = @CFLAGS@
+ CFLAGS = $(CDEBUGFLAGS)
+ LOCALINCLUDES = -I. -I$(top_srcdir)/include -I$(top_srcdir)/mpool -I$(top_srcdir)/db \
+ 	-I$(top_srcdir)/hash -I$(top_srcdir)/btree -I$(top_srcdir)/recno
+-ALL_CFLAGS = $(DEFS) $(LOCALINCLUDES) $(CPPFLAGS) $(CFLAGS)
++ALL_CFLAGS = $(DEFS) $(LOCALINCLUDES) $(CPPFLAGS) $(CFLAGS) -fPIC
+ 
+ all:: $(LIBDB) db.h
+ 
