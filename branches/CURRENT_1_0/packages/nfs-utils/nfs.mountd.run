@@ -5,9 +5,8 @@ PATH="/sbin:/usr/sbin:/bin:/usr/bin"
 
 . /usr/share/srv/functions
 
-# make sure statd is started and wait until it's up
-#checkdepends statd
-#/sbin/svwaitup /service/statd
+# make sure nfs.statd is started and wait until it's up
+checkdepends nfs.statd
 
 . /etc/sysconfig/network
 
@@ -49,10 +48,9 @@ case $MOUNTD_NFS_V3 in
         ;;
 esac
 
-trap '/usr/bin/killall -9 nfsd' 0
 trap 'exit 2' 1 2 3 15
 
 /usr/sbin/exportfs -f 2>&1
 /usr/sbin/exportfs -r 2>&1
 /usr/sbin/rpc.nfsd -- $NFSDCOUNT 2>&1
-/usr/sbin/rpc.mountd -F $MOUNTD_OPTIONS 2>&1
+exec /usr/sbin/rpc.mountd -F $MOUNTD_OPTIONS 2>&1

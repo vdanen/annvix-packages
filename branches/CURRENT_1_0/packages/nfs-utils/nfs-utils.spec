@@ -1,6 +1,6 @@
 %define name	nfs-utils
 %define	version	1.0.6
-%define release	4avx
+%define release	5avx
 
 %define	url	ftp://ftp.kernel.org:/pub/linux/utils/nfs
 
@@ -197,6 +197,10 @@ fi
 %dir %attr(0750,nobody,nogroup) %{_srvlogdir}/nfs.statd
 
 %changelog
+* Sat Jan 29 2005 Vincent Danen <vdanen@annvix.org> 1.0.6-5avx
+- fix run scripts so the properly stop the services
+- enable checkdepends on nfs.statd
+
 * Thu Jan 06 2005 Vincent Danen <vdanen@annvix.org> 1.0.6-4avx
 - P7: patch to fix CAN-2004-0946
 
