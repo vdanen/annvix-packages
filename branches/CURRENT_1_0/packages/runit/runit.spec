@@ -1,6 +1,6 @@
 %define	name	runit
 %define	version	1.2.1
-%define	release	2avx
+%define	release	3avx
 
 Summary:	A UN*X init scheme with service supervision
 Name:		%{name}
@@ -13,7 +13,7 @@ Source0:	%{name}-%{version}.tar.bz2
 Source1:	annvix-runit.tar.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-buildroot
-BuildRequires:	dietlibc >= 0.27-2avx
+BuildRequires:	glibc-static-devel
 
 Requires:	SysVinit >= 2.85-7avx, initscripts, srv, mingetty
 Conflicts:	SysVinit <= 2.85-6avx
@@ -33,8 +33,8 @@ handles the tasks necessary to shutdown and halt or reboot.
 
 %build
 pushd %{name}-%{version}/src
-    echo "diet gcc -Os -pipe" > conf-cc
-    echo "diet gcc -Os -static -s" > conf-ld
+    echo "gcc %{optflags}" > conf-cc
+    echo "gcc -Os -static -s" > conf-ld
     make
 popd
 
@@ -142,6 +142,10 @@ fi
 %attr(0755,root,root) %{_srvdir}/mingetty-tty6/finish
 
 %changelog
+* Tue Jan 25 2005 Vincent Danen <vdanen@annvix.org> 1.0.5-3avx
+- build without dietlibc
+- remove BuildRequires: dietlibc; add BuildRequires: glibc-static-devel
+
 * Thu Jan 20 2005 Vincent Danen <vdanen@annvix.org> 1.0.5-2avx
 - rebuild against fixed dietlibc
 
