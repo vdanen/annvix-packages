@@ -1,6 +1,6 @@
 %define name	php-ini
 %define version	4.3.4
-%define release	3sls
+%define release	4sls
 
 Summary:	INI files for PHP
 Name:		%{name}
@@ -12,7 +12,6 @@ URL:		http://www.php.net
 Source0:	php.ini.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-root
-BuildArch:	noarch
 
 Provides: 	ADVXpackage
 
@@ -59,6 +58,9 @@ fi
 %doc %{_docdir}/%{name}-%{version}/*
 
 %changelog
+* Fri Jan 23 2004 Vincent Danen <vdanen@opensls.org> 4.3.4-4sls
+- no longer noarch due to amd64 vs. x86 libdir changes
+
 * Fri Jan 09 2004 Vincent Danen <vdanen@opensls.org> 4.3.4-3sls
 - replace /usr/lib/php/extensions in php.ini with EXTENSIONDIR so that
   we can dynamically create the extension dir (amd64)
