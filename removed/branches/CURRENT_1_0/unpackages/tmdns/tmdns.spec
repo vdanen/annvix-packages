@@ -1,8 +1,10 @@
 %define name	tmdns
 %define version	0.1
-%define release	13sls
+%define release	14sls
 
 %define _prefix	/
+
+%{!?build_opensls:%global build_opensls 0}
 
 Summary:	A Multicast DNS Responder for Linux
 Name:		%{name}
@@ -15,6 +17,8 @@ Source0:	%{name}-%{version}.tar.bz2
 Source1:	tmdns.services
 Source2:	tmdns.init
 Source3:	update-resolvrdv
+Source4:	tmdns.run
+Source5:	tmdns-log.run
 Patch1:		tmdns-0.1-paths.patch.bz2
 patch2:		tmdns-0.1-local.patch.bz2
 Patch3:		tmdns-0.1-libresolv.patch.bz2
@@ -46,13 +50,20 @@ autoconf
 make
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 %makeinstall
-mkdir -p $RPM_BUILD_ROOT/etc/
-./server/tmdns -P > $RPM_BUILD_ROOT/etc/tmdns.conf 2>/dev/null
-install -m644 %{SOURCE1} $RPM_BUILD_ROOT/etc/$(basename %{SOURCE1})
-install -D -m755 %{SOURCE2} $RPM_BUILD_ROOT%{_initrddir}/tmdns
-install -D -m755 %{SOURCE3} $RPM_BUILD_ROOT/sbin/$(basename %{SOURCE3})
+mkdir -p %{buildroot}{%{_initrddir},/sbin}
+./server/tmdns -P > %{buildroot}/etc/tmdns.conf 2>/dev/null
+install -m 0644 %{SOURCE1} %{buildroot}/etc/$(basename %{SOURCE1})
+install -m 0755 %{SOURCE2} %{buildroot}%{_initrddir}/tmdns
+install -m 0755 %{SOURCE3} %{buildroot}/sbin/$(basename %{SOURCE3})
+
+%if %{build_opensls}
+mkdir -p %{buildroot}/var/service/tmdns/log
+install -m 0755 %{SOURCE4} %{buildroot}/var/service/tmdns/run
+install -m 0755 %{SOURCE5} %{buildroot}/var/service/tmdns/log/run
+%endif
 
 %post
 %_post_service %{name}
@@ -61,7 +72,7 @@ install -D -m755 %{SOURCE3} $RPM_BUILD_ROOT/sbin/$(basename %{SOURCE3})
 %_preun_service  %{name}
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -70,8 +81,18 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) /etc/tmdns.conf
 %config(noreplace) /etc/tmdns.services
 /sbin/*
+%if %{build_opensls}
+%dir /var/service/tmdns
+%dir /var/service/tmdns/log
+/var/service/tmdns/run
+/var/service/tmdns/log/run
+%endif
 
 %changelog
+* Sat Dec 13 2003 Vincent Danen <vdanen@opensls.org> 0.1-14sls
+- install supervise files if %%build_opensls
+- some spec cleaning
+
 * Sat Dec 13 2003 Vincent Danen <vdanen@opensls.org> 0.1-13sls
 - OpenSLS build
 - tidy spec
