@@ -1155,11 +1155,11 @@ install -m755 source/client/mount.cifs %{buildroot}/bin/mount.cifs%{samba_major}
 
 %if %{build_opensls}
 # ucspi-tcp support
-mkdir -p %{buildroot}/var/supervise/swat/log
+mkdir -p %{buildroot}/var/service/swat/log
 mkdir -p %{buildroot}/var/log/supervise/swat
 mkdir -p %{buildroot}%{_sysconfdir}/tcprules.d
-install -m 0755 %{SOURCE8} %{buildroot}/var/supervise/swat/run
-install -m 0755 %{SOURCE9} %{buildroot}/var/supervise/swat/log/run
+install -m 0755 %{SOURCE8} %{buildroot}/var/service/swat/run
+install -m 0755 %{SOURCE9} %{buildroot}/var/service/swat/log/run
 install -m 0640 %{SOURCE10} %{buildroot}%{_sysconfdir}/tcprules.d/swat
 %else
 # xinetd support
@@ -1255,11 +1255,11 @@ perl -pi -e 's,/usr/sbin,%{_sbindir},g' $RPM_BUILD_ROOT/%{_sysconfdir}/xinetd.d/
 %endif
 
 %if %{build_opensls}
-mkdir -p %{buildroot}/var/supervise/{smbd,nmbd}/log
-install -m 0755 %{SOURCE11} %{buildroot}/var/supervise/smbd/run
-install -m 0755 %{SOURCE12} %{buildroot}/var/supervise/smbd/log/run
-install -m 0755 %{SOURCE13} %{buildroot}/var/supervise/nmbd/run
-install -m 0755 %{SOURCE14} %{buildroot}/var/supervise/nmbd/log/run
+mkdir -p %{buildroot}/var/service/{smbd,nmbd}/log
+install -m 0755 %{SOURCE11} %{buildroot}/var/service/smbd/run
+install -m 0755 %{SOURCE12} %{buildroot}/var/service/smbd/log/run
+install -m 0755 %{SOURCE13} %{buildroot}/var/service/nmbd/run
+install -m 0755 %{SOURCE14} %{buildroot}/var/service/nmbd/log/run
 mkdir -p %{buildroot}/var/log/supervise/{smbd,nmbd}
 %endif
 
@@ -1488,14 +1488,14 @@ update-alternatives --auto smbclient
 #%attr(0700,root,root) %{_datadir}/%{name}/scripts/*port_smbpasswd.pl
 %attr(0755,root,root) %{_datadir}/%{name}/scripts/convertSambaAccount
 %if %{build_opensls}
-%dir /var/supervise/smbd
-%dir /var/supervise/smbd/log
-%dir /var/supervise/nmbd
-%dir /var/supervise/nmbd/log
-/var/supervise/smbd/run
-/var/supervise/smbd/log/run
-/var/supervise/nmbd/run
-/var/supervise/nmbd/log/run
+%dir /var/service/smbd
+%dir /var/service/smbd/log
+%dir /var/service/nmbd
+%dir /var/service/nmbd/log
+/var/service/smbd/run
+/var/service/smbd/log/run
+/var/service/nmbd/run
+/var/service/nmbd/log/run
 %dir %attr(0750,nobody,nogroup) /var/log/supervise/smbd
 %dir %attr(0750,nobody,nogroup) /var/log/supervise/nmbd
 %endif
@@ -1514,11 +1514,11 @@ update-alternatives --auto smbclient
 %files swat
 %defattr(-,root,root)
 %if %{build_opensls}
-%dir /var/supervise/swat
-%dir /var/supervise/swat/log
+%dir /var/service/swat
+%dir /var/service/swat/log
 %dir %attr(0750,nobody,nogroup) /var/log/supervise/swat
-/var/supervise/swat/run
-/var/supervise/swat/log/run
+/var/service/swat/run
+/var/service/swat/log/run
 %config(noreplace) %{_sysconfdir}/tcprules.d/swat
 %else
 %config(noreplace) %{_sysconfdir}/xinetd.d/swat%{samba_major}
