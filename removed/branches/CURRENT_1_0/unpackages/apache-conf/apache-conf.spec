@@ -1,6 +1,6 @@
 %define name	apache-conf
 %define version	2.0.52
-%define release	2avx
+%define release	3avx
 
 # New ADVX macros
 %define ADVXdir %{_datadir}/ADVX
@@ -276,6 +276,9 @@ fi
 %{_datadir}/afterboot/03_apache2
 
 %changelog
+* Fri Feb 04 2005 Vincent Danen <vdanen@annvix.org> 2.0.52-3avx
+- rebuild against new dietlibc
+
 * Fri Dec 03 2004 Vincent Danen <vdanen@annvix.org> 2.0.52-2avx
 - make apache own the %%ap_htdocsdir and %%ap_datadir
 - fix the logrotate script:
