@@ -1,5 +1,5 @@
 %define name	bdflush
-%define release 25sls
+%define release 26sls
 %define version 1.5
 %define url	ftp://tsx-11.mit.edu/pub/linux/sources/system/v1.2
 
@@ -45,21 +45,26 @@ perl -p -i -e "s/-Wall -O2/$RPM_OPT_FLAGS/" Makefile
 %make bdflush
 
 %install
-rm -rf $RPM_BUILD_ROOT
-install -s -m 755 bdflush -D $RPM_BUILD_ROOT/sbin/update
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+mkdir -p %{buildroot}{/sbin,%{_mandir}/man8}
 
-install -m 644 bdflush.8 -D $RPM_BUILD_ROOT/%{_mandir}/man8/bdflush.8
-ln -sf bdflush.8 $RPM_BUILD_ROOT/%{_mandir}/man8/update.8
+install -m 755 bdflush %{buildroot}/sbin/update
+install -m 644 bdflush.8 %{buildroot}/%{_mandir}/man8/update.8
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
 /sbin/update
-%{_mandir}/*/*
+%{_mandir}/man8/update.8*
 
 %changelog
+* Tue Mar 02 2004 Vincent Danen <vdanen@opensls.org> 1.5-26sls
+- minor spec cleanups
+- since the binary is named update, not bdflush, don't have a manpage named
+  bdflush
+
 * Fri Nov 28 2003 Vincent Danen <vdanen@opensls.org> 1.5-25sls
 - OpenSLS build
 - tidy spec
