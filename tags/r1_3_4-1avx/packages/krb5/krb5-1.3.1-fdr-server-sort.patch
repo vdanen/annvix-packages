@@ -1,0 +1,222 @@
+Keep track of which KDC answered the previous request for a given library
+context.  When we want to send data to a KDC for a realm, if the one which
+answered last time is in the list of servers which might be consulted, move
+it to the top of the list.
+
+The aim is to compensate for servers which aren't responding, or which are
+taking so much time to respond, that a server to which we sent the request
+more than a second later responded before it.  An effect of this approach is
+that if the first server responds before we transmit to a second server, our
+behavior doesn't change.
+
+Removing unresponsive servers from the list could, on pathological networks,
+leave us with no servers in the list, so we won't do that.
+
+--- krb5-1.3.1/src/include/k5-int.h	2003-06-27 19:07:13.000000000 -0400
++++ krb5-1.3.1/src/include/k5-int.h	2004-02-09 20:39:09.000000000 -0500
+@@ -506,7 +506,8 @@
+ 				 const krb5_data *, krb5_data *, int, int);
+ krb5_error_code krb5int_sendto (krb5_context, const krb5_data *,
+ 				const struct addrlist *, krb5_data *,
+-				struct sockaddr *, socklen_t *);
++				struct sockaddr *, socklen_t *,
++				struct addrinfo **);
+ krb5_error_code krb5_get_krbhst (krb5_context, const krb5_data *, char *** );
+ krb5_error_code krb5_free_krbhst (krb5_context, char * const * );
+ krb5_error_code krb5_create_secure_file (krb5_context, const char * pathname);
+@@ -1037,6 +1038,8 @@
+ #ifdef KRB5_DNS_LOOKUP
+         krb5_boolean    profile_in_memory;
+ #endif /* KRB5_DNS_LOOKUP */
++
++        krb5_data       *previous_kdc, *previous_master_kdc;
+ };
+ 
+ /* could be used in a table to find an etype and initialize a block */
+@@ -1671,7 +1674,8 @@
+ 				      int, int, int, int);
+     krb5_error_code (*sendto_udp) (krb5_context, const krb5_data *msg,
+ 				   const struct addrlist *, krb5_data *reply,
+-				   struct sockaddr *, socklen_t *);
++				   struct sockaddr *, socklen_t *,
++				   struct addrinfo **);
+     krb5_error_code (*add_host_to_list)(struct addrlist *lp,
+ 					const char *hostname,
+ 					int port, int secport,
+--- krb5-1.3.1/src/lib/krb4/send_to_kdc.c	2004-02-09 20:22:43.000000000 -0500
++++ krb5-1.3.1/src/lib/krb4/send_to_kdc.c	2004-02-09 20:40:12.000000000 -0500
+@@ -47,6 +47,7 @@
+ /* These are really defaults from getservbyname() or hardcoded. */
+ static int cached_krb_udp_port = 0;
+ static int cached_krbsec_udp_port = 0;
++static krb5_data *cached_kdc_address = NULL;
+ 
+ int krb4int_send_to_kdc_addr(KTEXT, KTEXT, char *,
+ 			     struct sockaddr *, socklen_t *);
+@@ -176,12 +177,50 @@
+     if (al.naddrs == 0) {
+ 	DEB (("%s: can't find any Kerberos host.\n", prog));
+         retval = SKDC_CANT;
++    } else {
++        int j;
++        struct addrinfo *replier = NULL;
++        krb5_data *previous;
++
++        previous = cached_kdc_address;
++        if (previous)
++            for (j = 0; j < al.naddrs; j++)
++                if ((al.addrs[i]->ai_addrlen == previous->length) &&
++                    (memcmp(al.addrs[j]->ai_addr, previous->data,
++                               previous->length) == 0)) {
++                    struct addrinfo *tmp;
++                    tmp = al.addrs[0];
++                    al.addrs[0] = al.addrs[j];
++                    al.addrs[j] = tmp;
++                    break;
++                }
++        message.length = pkt->length;
++        message.data = (char *)pkt->dat; /* XXX yuck */
++        retval = internals.sendto_udp(NULL, &message, &al, &reply, addr,
++                                      addrlen, &replier);
++        if (replier) {
++            previous = (krb5_data *) malloc(sizeof(krb5_data));
++            previous->length = 0;
++            previous->data = NULL;
++            if (previous) {
++                previous->data = malloc (replier->ai_addrlen);
++                if (previous->data == NULL) {
++                    free (previous);
++                    previous = NULL;
++                } else {
++                    memcpy (previous->data, replier->ai_addr,
++                            replier->ai_addrlen);
++                    previous->length = replier->ai_addrlen;
++                }
++            }
++            if (cached_kdc_address) {
++                free(cached_kdc_address->data);
++                free(cached_kdc_address);
++            }
++            cached_kdc_address = previous;
++        }
+     }
+ 
+-    message.length = pkt->length;
+-    message.data = (char *)pkt->dat; /* XXX yuck */
+-    retval = internals.sendto_udp(NULL, &message, &al, &reply, addr,
+-				  addrlen);
+     DEB(("sendto_udp returns %d\n", retval));
+ free_al:
+     internals.free_addrlist(&al);
+--- krb5-1.3.1/src/lib/krb5/krb/init_ctx.c	2003-07-09 15:45:01.000000000 -0400
++++ krb5-1.3.1/src/lib/krb5/krb/init_ctx.c	2004-02-09 20:14:33.000000000 -0500
+@@ -224,6 +224,10 @@
+ 	ctx->use_conf_ktypes = 0;
+ 
+ 	ctx->udp_pref_limit = -1;
++
++	ctx->previous_kdc = NULL;
++	ctx->previous_master_kdc = NULL;
++
+ 	*context = ctx;
+ 	return 0;
+ 
+@@ -263,6 +267,11 @@
+ 	  ctx->ser_ctx = 0;
+      }
+ 
++     if (ctx->previous_kdc)
++          krb5_free_data(ctx, ctx->previous_kdc);
++     if (ctx->previous_master_kdc)
++          krb5_free_data(ctx, ctx->previous_master_kdc);
++
+      ctx->magic = 0;
+      free(ctx);
+ }
+--- krb5-1.3.1/src/lib/krb5/os/send524.c	2003-05-28 00:06:36.000000000 -0400
++++ krb5-1.3.1/src/lib/krb5/os/send524.c	2004-02-09 20:14:33.000000000 -0500
+@@ -102,7 +102,7 @@
+     if (al.naddrs == 0)
+ 	return KRB5_REALM_UNKNOWN;
+ 
+-    retval = krb5int_sendto (context, message, &al, reply, addr, addrlen);
++    retval = krb5int_sendto (context, message, &al, reply, addr, addrlen, NULL);
+     krb5int_free_addrlist (&al);
+     return retval;
+ #else
+--- krb5-1.3.1/src/lib/krb5/os/sendto_kdc.c	2003-03-04 15:55:19.000000000 -0500
++++ krb5-1.3.1/src/lib/krb5/os/sendto_kdc.c	2004-02-09 20:26:12.000000000 -0500
+@@ -321,7 +321,52 @@
+     }
+ 
+     if (addrs.naddrs > 0) {
+-	retval = krb5int_sendto (context, message, &addrs, reply, 0, 0);
++	int i;
++	struct addrinfo *replier = NULL;
++	krb5_data *previous;
++
++	if (use_master)
++	    previous = context->previous_master_kdc;
++	else
++	    previous = context->previous_kdc;
++	if (previous)
++	    for (i = 0; i < addrs.naddrs; i++)
++	        if ((addrs.addrs[i]->ai_addrlen == previous->length) &&
++		    (memcmp(addrs.addrs[i]->ai_addr, previous->data,
++			    previous->length) == 0)) {
++		    struct addrinfo *tmp;
++		    tmp = addrs.addrs[0];
++		    addrs.addrs[0] = addrs.addrs[i];
++		    addrs.addrs[i] = tmp;
++		    break;
++		}
++	retval = krb5int_sendto (context, message, &addrs, reply, 0, 0,
++				 &replier);
++	if (replier) {
++	    previous = (krb5_data *) malloc(sizeof(krb5_data));
++	    previous->length = 0;
++	    previous->data = NULL;
++	    if (previous) {
++	        previous->data = malloc (replier->ai_addrlen);
++		if (previous->data == NULL) {
++		    free (previous);
++		    previous = NULL;
++		} else {
++		    memcpy (previous->data, replier->ai_addr,
++		            replier->ai_addrlen);
++		    previous->length = replier->ai_addrlen;
++		}
++	    }
++	    if (use_master) {
++	        if (context->previous_master_kdc)
++	            krb5_free_data (context, context->previous_master_kdc);
++	        context->previous_master_kdc = previous;
++	    } else {
++	        if (context->previous_kdc)
++	            krb5_free_data (context, context->previous_kdc);
++	        context->previous_kdc = previous;
++	    }
++	}
+ 	krb5int_free_addrlist (&addrs);
+ 	if (retval == 0)
+ 	    return 0;
+@@ -961,7 +1006,8 @@
+ krb5_error_code
+ krb5int_sendto (krb5_context context, const krb5_data *message,
+ 		const struct addrlist *addrs, krb5_data *reply,
+-		struct sockaddr *localaddr, socklen_t *localaddrlen)
++		struct sockaddr *localaddr, socklen_t *localaddrlen,
++		struct addrinfo **replier)
+ {
+     int i, pass;
+     int delay_this_pass = 2;
+@@ -1070,6 +1116,9 @@
+     conns[winning_conn].x.in.buf = 0;
+     if (localaddr != 0 && localaddrlen != 0 && *localaddrlen > 0)
+ 	(void) getsockname(conns[winning_conn].fd, localaddr, localaddrlen);
++    /* If the caller cares, record which server won. */
++    if (replier)
++	*replier = conns[winning_conn].addr;
+ egress:
+     for (i = 0; i < n_conns; i++) {
+ 	if (conns[i].fd != INVALID_SOCKET)
