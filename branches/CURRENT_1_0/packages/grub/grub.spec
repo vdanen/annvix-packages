@@ -1,30 +1,35 @@
-%define real_name grub
-%define name %{real_name}
+%define name	grub
 %define version 0.93
-%define release 3mdk
+%define release 4sls
 
-Summary: GRand Unified Bootloader
-Name: %{name}
-Version: %{version}
-Release: %{release}
-Url: http://www.gnu.org/software/grub/
-Source0: ftp://alpha.gnu.org/gnu/grub/%{name}-%{version}.tar.bz2
-Patch0: grub-0.5.96.1-ezd.patch.bz2
-Patch1: grub-0.5.96.1-init-config-end--prepatch.patch.bz2
-Patch2: grub-0.90-i18n-messages-and-keytable2.patch.bz2
-Patch3: grub-0.91-altconfigfile2.patch.bz2
-Patch4: grub-0.90-grub-install.patch.bz2
-Patch6: grub-0.5.96.1-special-raid-devices.patch.bz2
-Patch7: grub-0.91-nice-magic.patch.bz2
-Patch8: grub-0.93-gcc33.patch.bz2
-Patch9: grub-0.93-add-our-own-memcpy.patch.bz2
+%{!?build_opensls:%global build_opensls 0}
 
-License: GPL
-Group: System/Kernel and hardware
-BuildRequires: gpm-devel, ncurses-devel, tetex
-BuildRoot: %{_tmppath}/%{name}-buildroot
-Exclusivearch: %ix86
-Conflicts: initscripts <= 6.40.2-15mdk
+Summary:	GRand Unified Bootloader
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		System/Kernel and hardware
+URL:		http://www.gnu.org/software/grub/
+Source0:	ftp://alpha.gnu.org/gnu/grub/%{name}-%{version}.tar.bz2
+Patch0:		grub-0.5.96.1-ezd.patch.bz2
+Patch1:		grub-0.5.96.1-init-config-end--prepatch.patch.bz2
+Patch2:		grub-0.90-i18n-messages-and-keytable2.patch.bz2
+Patch3:		grub-0.91-altconfigfile2.patch.bz2
+Patch4:		grub-0.90-grub-install.patch.bz2
+Patch6:		grub-0.5.96.1-special-raid-devices.patch.bz2
+Patch7:		grub-0.91-nice-magic.patch.bz2
+Patch8:		grub-0.93-gcc33.patch.bz2
+Patch9:		grub-0.93-add-our-own-memcpy.patch.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildRequires:	ncurses-devel, tetex
+%if !%{build_opensls}
+BuildRequires:	gpm-devel
+%endif
+
+Exclusivearch:	%ix86
+Conflicts:	initscripts <= 6.40.2-15mdk
 
 %description
 GRUB is a GPLed bootloader intended to unify bootloading across x86
@@ -33,15 +38,17 @@ it implements the Multiboot standard, which allows for flexible loading
 of multiple boot images (needed for modular kernels such as the GNU
 Hurd).
 
+%if !%{build_opensls}
 %package doc
-Summary: More doc for grub
-Group: Books/Computer books
+Summary:	More doc for grub
+Group:		Books/Computer books
 
 %description doc
 cf package grub
+%endif
 
 %prep
-%setup -q -n %{real_name}-%{version}
+%setup -q -n %{name}-%{version}
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
@@ -95,11 +102,18 @@ fi
 %{_mandir}/*/*
 %{_sbindir}/*
 
+%if !%{build_opensls}
 %files doc
 %defattr(-,root,root)
 %doc TODO BUGS NEWS ChangeLog docs/menu.lst
+%endif
 
 %changelog
+* Wed Dec 03 2003 Vincent Danen <vdanen@opensls.org> 0.93-4sls
+- OpenSLS build
+- tidy spec
+- don't build doc with %%build_opensls
+
 * Mon Aug 18 2003 Pixel <pixel@mandrakesoft.com> 0.93-3mdk
 - don't include our own memcpy when building WITHOUT_LIBC_STUBS
 
