@@ -1,6 +1,6 @@
 %define name	%{ap_name}-%{mod_name}
 %define version	%{ap_version}_%{mod_version}
-%define release	2sls
+%define release	3sls
 
 # Module-Specific definitions
 %define mod_version	2.2.7
@@ -60,17 +60,15 @@ cd pwauth
 %make CFLAGS="%{optflags}" LIB="-lpam -ldl"
 
 %install
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %ADVXinstlib
 %ADVXinstconf %{SOURCE1} %{mod_conf}
 %ADVXinstdoc %{name}-%{version}
 
 mkdir -p %{buildroot}%{ap_extralibs}
-install -m 755 -s pwauth/pwauth \
-        %{buildroot}%{ap_extralibs}/
-install -m 755 -s pwauth/unixgroup \
-        %{buildroot}%{ap_extralibs}/
+install -m 755 -s pwauth/pwauth %{buildroot}%{ap_extralibs}/
+install -m 755 -s pwauth/unixgroup %{buildroot}%{ap_extralibs}/
 
 install -d %{buildroot}%{_sysconfdir}/pam.d
 bzcat %{SOURCE2} > %{buildroot}%{_sysconfdir}/pam.d/pwauth
@@ -88,7 +86,7 @@ chmod 644 AUTHENTICATORS CHANGES INSTALL* README* TODO mod_auth_external.txt
 %ADVXpost
 
 %clean
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -102,6 +100,10 @@ chmod 644 AUTHENTICATORS CHANGES INSTALL* README* TODO mod_auth_external.txt
 %{ap_webdoc}/*
 
 %changelog
+* Wed Feb 11 2004 Vincent Danen <vdanen@opensls.org> 2.0.48_2.2.7-3sls
+- more spec cleanups
+- remove paths from pam.d file
+
 * Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 2.0.48_2.2.7-2sls
 - OpenSLS build
 - tidy spec
