@@ -1,6 +1,6 @@
 %define name	nfs-utils
-%define	version	1.0.5
-%define release	7avx
+%define	version	1.0.6
+%define release	1avx
 
 %define	url	ftp://ftp.kernel.org:/pub/linux/utils/nfs
 
@@ -141,6 +141,8 @@ fi
 
 %files
 %defattr(-,root,root)
+%doc README ChangeLog COPYING
+%doc nfs/*.html nfs/*.ps linux-nfs/*
 %config(noreplace) %{_sysconfdir}/sysconfig/nfs
 %config(noreplace) %ghost  %{_localstatedir}/nfs/xtab
 %config(noreplace) %ghost  %{_localstatedir}/nfs/etab
@@ -154,18 +156,18 @@ fi
 %{_sbindir}/nhfsstone
 %{_sbindir}/rpc.mountd
 %{_sbindir}/rpc.nfsd
-%{_mandir}/man5/exports.5.bz2
-%{_mandir}/man7/nfsd.7.bz2
-%{_mandir}/man8/exportfs.8.bz2
-%{_mandir}/man8/mountd.8.bz2
-%{_mandir}/man8/nfsd.8.bz2
-%{_mandir}/man8/nfsstat.8.bz2
-%{_mandir}/man8/nhfsgraph.8.bz2
-%{_mandir}/man8/nhfsnums.8.bz2
-%{_mandir}/man8/nhfsrun.8.bz2
-%{_mandir}/man8/nhfsstone.8.bz2
-%{_mandir}/man8/rpc.mountd.8.bz2
-%{_mandir}/man8/rpc.nfsd.8.bz2
+%{_mandir}/man5/exports.5*
+%{_mandir}/man7/nfsd.7*
+%{_mandir}/man8/exportfs.8*
+%{_mandir}/man8/mountd.8*
+%{_mandir}/man8/nfsd.8*
+%{_mandir}/man8/nfsstat.8*
+%{_mandir}/man8/nhfsgraph.8*
+%{_mandir}/man8/nhfsnums.8*
+%{_mandir}/man8/nhfsrun.8*
+%{_mandir}/man8/nhfsstone.8*
+%{_mandir}/man8/rpc.mountd.8*
+%{_mandir}/man8/rpc.nfsd.8*
 %dir %{_srvdir}/rpc.nfsd
 %dir %{_srvdir}/rpc.nfsd/log
 %{_srvdir}/rpc.nfsd/run
@@ -179,20 +181,17 @@ fi
 %{_srvdir}/rpc.mountd/log/run
 %dir %attr(0750,nobody,nogroup) %{_srvlogdir}/rpc.mountd
 
-%doc README ChangeLog COPYING
-%doc nfs/*.html nfs/*.ps linux-nfs/*
-
 %files clients
 %defattr(-,root,root)
 %doc README
 /sbin/rpc.lockd
 /sbin/rpc.statd
 %{_sbindir}/showmount
-%{_mandir}/man8/lockd.8.bz2
-%{_mandir}/man8/rpc.lockd.8.bz2
-%{_mandir}/man8/rpc.statd.8.bz2
-%{_mandir}/man8/statd.8.bz2
-%{_mandir}/man8/showmount.8.bz2
+%{_mandir}/man8/lockd.8*
+%{_mandir}/man8/rpc.lockd.8*
+%{_mandir}/man8/rpc.statd.8*
+%{_mandir}/man8/statd.8*
+%{_mandir}/man8/showmount.8*
 %dir %{_localstatedir}/nfs
 %dir %{_localstatedir}/nfs/state
 %dir %attr(700,rpcuser,rpcuser) /var/lib/nfs/statd
@@ -203,6 +202,9 @@ fi
 %dir %attr(0750,nobody,nogroup) %{_srvlogdir}/rpc.statd
 
 %changelog
+* Wed Sep 22 2004 Vincent Danen <vdanen@annvix.org> 1.0.6-1avx
+- 1.0.6
+
 * Fri Sep 17 2004 Vincent Danen <vdanen@annvix.org> 1.0.5-7avx
 - update run scripts
 - stop scripts are now finish scripts

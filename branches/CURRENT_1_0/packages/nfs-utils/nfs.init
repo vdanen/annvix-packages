@@ -59,6 +59,15 @@ fi
 case "$1" in
   start)
 	# Start daemons.
+
+	# Set the ports lockd should listen on
+	if [ -n "LOCKD_TCPPORT" ]; then
+	    /sbin/sysctl -w fs.nfs.nlm_tcpport=$LOCKD_TCPPORT >/dev/null 2>&1
+ 	fi
+	if [ -n "LOCKD_UDPPORT" ]; then
+	    /sbin/sysctl -w fs.nfs.nlm_udpport=$LOCKD_UDPPORT >/dev/null 2>&1
+	fi
+
 	# Apply input queue increase for nfs server
 	if [ "$TUNE_QUEUE" = "yes" ]; then
  	    /sbin/sysctl -w net.core.rmem_default=$NFSD_QS >/dev/null 2>&1
@@ -134,6 +143,15 @@ case "$1" in
 		killproc rpc.rquotad
 		echo
 	fi
+
+	# Reset the lockd ports if they were set
+	if [ -n "LOCKD_TCPPORT" ]; then
+	    /sbin/sysctl -w fs.nfs.nlm_tcpport=0 >/dev/null 2>&1
+	fi
+	if [ -n "LOCKD_UDPPORT" ]; then
+	    /sbin/sysctl -w fs.nfs.nlm_udpport=0 >/dev/null 2>&1
+	fi
+
 	# Do it the last so that clients can still access the server
 	# when the server is running.
 	action $"Stopping NFS services: " /usr/sbin/exportfs -au
@@ -173,4 +191,3 @@ case "$1" in
 esac
 
 exit 0
-

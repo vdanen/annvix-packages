@@ -25,6 +25,9 @@ fi
 [ -x /sbin/rpc.lockd ] || exit 0
 [ -x /sbin/rpc.statd ] || exit 0
 
+# Check for and source configuration file otherwise set defaults
+[ -f /etc/sysconfig/nfs ] && . /etc/sysconfig/nfs
+
 if [ -n "${STATD_HOSTNAME}" ]; then
     STATDARG="-n ${STATD_HOSTNAME}"
 else
@@ -39,7 +42,11 @@ case "$1" in
 	daemon rpc.lockd
 	echo
 	echo -n $"Starting NFS statd: "
-	daemon rpc.statd ${STATDARG}
+	# See if a statd's ports has been defined
+	[ -n "$STATD_PORT" ] && STATDARG="$STATDARG -p $STATD_PORT"
+	[ -n "$STATD_OUTGOING_PORT" ] \
+		&& STATDARG="$STATDARG -o $STATD_OUTGOING_PORT"
+	daemon rpc.statd "$STATDARG"
 	echo
 	touch /var/lock/subsys/nfslock
 	;;
