@@ -1,0 +1,11 @@
+--- Python-2.3/Modules/zipimport.c.64bit-fixes	2003-08-31 17:02:13.000000000 +0200
++++ Python-2.3/Modules/zipimport.c	2003-08-31 17:02:37.000000000 +0200
+@@ -875,7 +875,7 @@ get_data(char *archive, PyObject *toc_en
+ 				"zlib not available");
+ 		goto error;
+ 	}
+-	data = PyObject_CallFunction(decompress, "Ol", raw_data, -15);
++	data = PyObject_CallFunction(decompress, "Oi", raw_data, -15);
+ error:
+ 	Py_DECREF(raw_data);
+ 	return data;
