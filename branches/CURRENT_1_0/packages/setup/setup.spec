@@ -1,6 +1,8 @@
+# $Id: setup.spec,v 1.6 2004/08/11 22:57:55 vdanen Exp $
+
 %define name	setup
 %define version 2.4
-%define release 12avx
+%define release 13avx
 
 Summary:	A set of system configuration and setup files
 Name:		%{name}
@@ -81,6 +83,9 @@ if [ -x /usr/sbin/nscd ]; then
 fi
 
 %changelog
+* Wed Aug 11 2004 Vincent Danen <vdanen@annvix.org> 2.4-13avx
+- add uid/gid 400, 401, and 402 for RSBAC
+
 * Mon Jun 28 2004 Vincent Danen <vdanen@annvix.org> 2.4-12avx
 - fix the motd
 
