@@ -1,16 +1,6 @@
 %define name	doxygen
 %define version 1.3.3
-%define release 3sls
-
-%{!?build_opensls:%global build_opensls 0}
-
-%if %{build_opensls}
-%define builddoc 0
-%else
-%define builddoc 1
-%endif
-
-%{?_without_doc: %{expand: %%global builddoc 0}}
+%define release 4sls
 
 Summary:	Doxygen is THE documentation system for C/C++
 Name:		%{name}
@@ -27,12 +17,6 @@ Patch1:		doxygen-1.2.16-fix-for-qt3.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
 BuildRequires:	XFree86-devel, flex, gcc-c++
-%if !%{build_opensls}
-BuildRequires:	qt3-devel
-%endif
-%if %builddoc
-BuildRequires:	tetex-latex, ghostscript
-%endif
 
 %description
 Doxygen is a documentation system for C, C++ and IDL. It can generate
@@ -58,46 +42,32 @@ perl -pi -e "s|/lib$|/%{_lib}|" tmake/lib/linux-g++/tmake.conf
 find -type d -exec chmod 0755 {} \;
 
 %build
-%if %{build_opensls}
 ./configure
-%else
-export QTDIR=/usr/lib/qt3
-export PATH="$PATH:$QTDIR/bin"
-./configure --with-doxywizard
-%endif
 
 %make
-%if %builddoc
-make docs
-mv doc/float.sty latex
-mv doc/fancyhdr.sty latex
-make pdf
-mkdir pdf
-mv latex/doxygen_manual.pdf pdf
-%endif
 bzcat %{SOURCE1} > LICENSE
 
 %install
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 install -d ${RPM_BUILD_ROOT}%{_bindir}
 install -s bin/doxy* ${RPM_BUILD_ROOT}%{_bindir}
 
 %clean
-rm -rf ${RPM_BUILD_ROOT}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-, root, root)
-%if %builddoc
-%doc html examples pdf
-%endif
 %doc README LICENSE
 %{_bindir}/doxygen
 %{_bindir}/doxytag
 %{_bindir}/doxysearch
-%if !%{build_opensls}
-%{_bindir}/doxywizard
-%endif
 
 %changelog
+* Thu Mar 04 2004 Vincent Danen <vdanen@opensls.org> 1.3.3-4sls
+- remove %%build_opensls macro
+- minor spec cleanups
+- remove %%builddoc... we're never going to build them
+
 * Wed Dec 17 2003 Vincent Danen <vdanen@opensls.org> 1.3.3-3sls
 - OpenSLS build
 - tidy spec
