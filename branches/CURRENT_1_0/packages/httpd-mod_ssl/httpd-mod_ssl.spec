@@ -1,6 +1,6 @@
 %define name	apache2-%{mod_name}
 %define version	%{apache_version}
-%define release	1avx
+%define release	2avx
 
 # Module-Specific definitions
 %define apache_version	2.0.53
@@ -20,6 +20,7 @@ Source2: 	mod_ssl-gentestcrt.sh.bz2
 Source3: 	%{mod_conf}.bz2
 Source4: 	41_mod_ssl.default-vhost.conf.bz2
 Source5:	certwatch.tar.bz2
+Patch0:		certwatch-avx-annvix.patch
 
 BuildRoot:	%{_tmppath}/%{name}-buildroot
 BuildRequires:	openssl-devel
@@ -46,6 +47,8 @@ cp -p %{_prefix}/src/apache2-%{version}/modules/loggers/* .
 perl -pi -e "s|../../modules/loggers/||g" ssl_engine_vars.c
 
 tar xjf %{SOURCE5}
+
+%patch0 -p0 -b .avx
 
 %build
 
@@ -152,6 +155,14 @@ fi
 %{_mandir}/man8/certwatch.8*
 
 %changelog
+* Wed Mar 16 2005 Vincent Danen <vdanen@annvix.org> 2.0.53-2avx
+- P0: fix certwatch script so it doesn't use an initscript to get
+  the defines; and s/Mandrakelinux/Annvix
+- NOTE: certwatch.c needs to be fixed so that we can pass another
+  argument to it, namely the ServerAdmin email address as mailing
+  root@localhost is stupid (and bounces with default exim settings
+  anyways)
+
 * Sat Feb 26 2005 Vincent Danen <vdanen@annvix.org> 2.0.53-1avx
 - apache 2.0.53
 - add certwatch

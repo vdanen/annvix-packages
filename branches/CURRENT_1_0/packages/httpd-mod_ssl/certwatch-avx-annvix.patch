@@ -1,0 +1,69 @@
+--- certwatch/certwatch.cron~	2005-03-16 23:54:02.000000000 -0700
++++ certwatch/certwatch.cron	2005-03-16 23:54:02.000000000 -0700
+@@ -16,15 +16,51 @@
+ test -x $HTTPD || exit 0
+ test -r $CONF || exit 0
+ test -x /usr/sbin/certwatch || exit 0
+-test -x /usr/sbin/sendmail || exit 0
++test -x /usr/sbin/exim || exit 0
+ 
+-DEFINE=`/etc/rc.d/init.d/httpd define`
+-certs=`$HTTPD -t -f $CONF $DEFINE -DDUMP_CERTS  2>/dev/null`
++# taken from the httpd2 run script
++moduleargs() {
++	moduleargs=
++	for module in $1/*.so ; do
++		if [ -x ${module} ] ; then
++			module=`echo ${module} | awk '{
++				gsub(".*/","");
++				gsub("^mod_","");
++				gsub("^lib","");
++				gsub(".so$","");
++				print toupper($0)}'`
++			moduleargs="${moduleargs} -DHAVE_$module"
++		fi
++	done
++	echo ${moduleargs}
++}
++
++# Get the extra modules so only the main server gets them
++extramoduleargs() {
++	extramoduleargs=
++	for extramodule in $1/*.so ; do
++		if [ -x ${extramodule} ] ; then
++			extramodule=`echo ${extramodule} | awk '{
++				gsub(".*/","");
++				gsub("^mod_","");
++				gsub("^lib","");
++				gsub(".so$","");
++				print toupper($0)}'`
++			extramoduleargs="${extramoduleargs} -DHAVE_$extramodule" 
++		fi
++	done
++	echo ${extramoduleargs}
++}
++
++APACHEXMODS="-DAPACHE2 -DNO_DETACH `extramoduleargs /etc/httpd/2.0/extramodules`"
++APACHEREGMODS=`moduleargs /etc/httpd/2.0/modules`
++
++certs=`$HTTPD -t -f $CONF $APACHEXMODS $APACHEREGMODS -DDUMP_CERTS  2>/dev/null`
+ RETVAL=$?
+ test $RETVAL -eq 0 || exit 0
+ 
+ for c in $certs; do
+     # Check whether a warning message is needed, then issue one if so.
+     /usr/sbin/certwatch -q "$c" && 
+-    /usr/sbin/certwatch "$c" | /usr/sbin/sendmail -oem -oi -t 2>/dev/null
++    /usr/sbin/certwatch "$c" | /usr/sbin/exim -t 2>/dev/null
+ done
+--- certwatch/certwatch.c~	2005-03-17 00:01:18.000000000 -0700
++++ certwatch/certwatch.c	2005-03-17 00:01:18.000000000 -0700
+@@ -91,7 +91,7 @@
+     if (renew) {
+         fputs("  The certificate needs to be renewed; this can be done using the\n"
+               "  '/usr/bin/openssl' or the '/usr/lib/ssl/apache2-mod_ssl/gentestcrt.sh'\n"
+-              "  programs supplied with Mandrakelinux.\n\n"
++              "  programs supplied with Annvix.\n\n"
+               "  Browsers will not be able to correctly connect to this\n"
+               "  web site using SSL until the certificate is renewed.\n",
+               out);
