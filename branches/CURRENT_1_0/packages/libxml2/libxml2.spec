@@ -1,43 +1,29 @@
-%define buildfor $(awk '{print $4}' /etc/mandrake-release)
-%{expand:%%define buildfor8_1 %(A=$(awk '{print $4}' /etc/mandrake-release); if [ "$A" = 8.1 ]; then echo 1; else echo 0; fi)}
-%{expand:%%define buildfor8_2 %(A=$(awk '{print $4}' /etc/mandrake-release); if [ "$A" = 8.2 ]; then echo 1; else echo 0; fi)}
-%{expand:%%define buildfor9_0 %(A=$(awk '{print $4}' /etc/mandrake-release); if [ "$A" = 9.0 ]; then echo 1; else echo 0; fi)}
-%{expand:%%define buildfor9_1 %(A=$(awk '{print $4}' /etc/mandrake-release); if [ "$A" = 9.1 ]; then echo 1; else echo 0; fi)}
-%{expand:%%define buildfor9_2 %(A=$(awk '{print $4}' /etc/mandrake-release); if [ "$A" = 9.2 ]; then echo 1; else echo 0; fi)}
+%define name	libxml2
+%define version	2.5.11
+%define release	2sls
+
+%{!?build_opensls:%global build_opensls 0}
 
 %define major	2
 %define libname	%mklibname xml %{major}
-
-
-%if %buildfor8_1
-%define py_ver      2.1
-%endif
-
-%if %buildfor8_2 || %buildfor9_0 || %buildfor9_1 || %buildfor9_2
-%define py_ver      2.2
-%endif
-
-%if %buildfor9_2
-%define py_ver      2.3
-%endif
+%define py_ver	2.3
 
 Summary:	Library providing XML and HTML support
-Name:		libxml2 
-Version:	2.5.11
-Release:	1mdk
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
 License:	MIT
 Group: 		System/Libraries
-BuildRoot:	%_tmppath/%name-%version-%release-root
 URL:		http://www.xmlsoft.org/
 Source0:	ftp://xmlsoft.org/%{name}-%{version}.tar.bz2
 # (fc) 2.4.23-3mdk remove references to -L/usr/lib
 Patch1:		libxml2-2.4.23-libdir.patch.bz2
 
-BuildRequires:  gtk-doc
-BuildRequires:	python-devel >= %{py_ver}
-BuildRequires:	readline-devel
-BuildRequires:	zlib-devel
-BuildRequires:  autoconf2.5
+BuildRoot:	%_tmppath/%name-%version-%release-root
+BuildRequires:	python-devel >= %{py_ver}, readline-devel, zlib-devel, autoconf2.5
+%if !%{build_opensls}
+BuildRequires:	gtk-doc
+%endif
 
 %description
 This library allows to manipulate XML files. It includes support 
@@ -72,11 +58,11 @@ Requires: %{libname} >= %{version}
 This packages contains utils to manipulate XML files.
 
 %package -n %{libname}-python
-Summary: Python bindings for the libxml2 library
-Group: Development/Python
-Requires: %{libname} >= %{version}
-Requires: python >= %{py_ver}
-Provides: python-%{name} = %{version}-%{release}
+Summary:	Python bindings for the libxml2 library
+Group:		Development/Python
+Requires:	%{libname} >= %{version}
+Requires:	python >= %{py_ver}
+Provides:	python-%{name} = %{version}-%{release}
 
 %description -n %{libname}-python
 The libxml2-python package contains a module that permits applications
@@ -89,11 +75,11 @@ this includes parsing and validation even with complex DTDs, either
 at parse time or later once the document has been modified.
 
 %package -n %{libname}-devel
-Summary: Libraries, includes, etc. to develop XML and HTML applications
-Group: Development/C
-Requires: %{libname} = %{version}
-Requires: zlib-devel
-Provides: %{name}-devel = %{version}-%{release}
+Summary:	Libraries, includes, etc. to develop XML and HTML applications
+Group:		Development/C
+Requires:	%{libname} = %{version}
+Requires:	zlib-devel
+Provides:	%{name}-devel = %{version}-%{release}
 
 %description -n %{libname}-devel
 Libraries, include files, etc you can use to develop XML applications.
@@ -116,13 +102,7 @@ URI library.
 autoconf
 
 %build
-%if %buildfor8_1
-# don't try to update libtool on those platform
-%define __libtoolize /bin/true
-%configure
-%else
 %configure2_5x
-%endif
 
 %make
 
@@ -132,11 +112,7 @@ make check
 %install
 rm -rf $RPM_BUILD_ROOT
 
-%if %buildfor8_1
-make DESTDIR=$RPM_BUILD_ROOT install
-%else
 %makeinstall_std
-%endif
 
 # remove unpackaged files
 rm -rf	$RPM_BUILD_ROOT%{_prefix}/doc \
@@ -187,6 +163,12 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/aclocal/*
 
 %changelog
+* Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 2.5.11-2sls
+- OpenSLS build
+- tidy spec
+- drop support for mdk 8.1-9.1
+- use %%build_opensls to exclude BuildReq on gtk-doc
+
 * Tue Sep 09 2003 Frederic Crozat <fcrozat@mandrakesoft.com> 2.5.11-1mdk
 - Release 2.5.11
 
