@@ -1,0 +1,603 @@
+2003-07-18  Jakub Jelinek  <jakub@redhat.com>
+
+	* include/resolv.h (__resp): Declare.  Define to __libc_resp
+	if in libc.so.
+	(_res): If USE___THREAD, define to (*__resp).
+	* resolv/res_libc.c (_res): Normal .bss variable with compat_symbol
+	even if USE___THREAD.
+	(__resp): New __thread variable.
+	(__libc_resp): New alias.
+	* resolv/Versions (libc): Export _res@GLIBC_2.0 even if
+	USE_TLS && HAVE___THREAD.  Export __resp@@GLIBC_PRIVATE.
+	* sysdeps/generic/res-state.c (__res_state): Return __resp
+	if USE___THREAD.
+linuxthreads/
+	* descr.h (struct _pthread_descr_struct): Provide p_res member
+	even if USE_TLS && HAVE___THREAD.
+	* sysdeps/alpha/tls.h (TLS_INIT_TCB_SIZE, TLS_TCB_SIZE): Change to 0.
+	(TLS_INIT_TCB_ALIGN, TLS_TCB_ALIGN): Alignment of struct
+	_pthread_descr_struct.
+	(TLS_PRE_TCB_SIZE): Add sizeof (tcbhead_t) and pad to align.
+	If in ld.so and NPTL struct pthread is bigger than struct
+	_pthread_descr_struct, use NPTL struct pthread size.
+	(TLS_TCB_OFFSET): Define.
+	(INSTALL_DTV, INSTALL_NEW_DTV, GET_DTV, TLS_INIT_TP, THREAD_DTV,
+	THREAD_SELF, INIT_THREAD_SELF): Changed to match NPTL tls.h
+	definitions.
+	* sysdeps/i386/tls.h (TLS_TCB_SIZE): If in ld.so and NPTL struct
+	pthread is bigger than struct _pthread_descr_struct, use NPTL struct
+	pthread size.
+	* sysdeps/ia64/tls.h (TLS_PRE_TCB_SIZE): Likewise.
+	* sysdeps/powerpc/tls.h (TLS_PRE_TCB_SIZE): Likewise.
+	* sysdeps/s390/tls.h (TLS_TCB_SIZE): Likewise.
+	* sysdeps/sh/tls.h (TLS_PRE_TCB_SIZE): Likewise.
+	* sysdeps/x86_64/tls.h (TLS_TCB_SIZE): Likewise.
+	* sysdeps/pthread/res-state.c (__res_state): Return __resp
+	if USE___THREAD.
+	* sysdeps/pthread/Makefile (gen-as-const-headers): Add
+	nptl-struct-pthread.sym if nptl tree is present.
+	(before-compile): Add $(common-objpfx)nptl-struct-pthread.h
+	if nptl tree is not present.
+	(common-generated): Add nptl-struct-pthread.h.
+	($(common-objpfx)nptl-struct-pthread.h): New rule.
+	* sysdeps/pthread/nptl-struct-pthread.sym: New file.
+	* manager.c: Include resolv.h.
+	(pthread_start_thread): Initialize __resp.
+	* libc-tls-loc.c (__res_state): Return __resp.
+	* Makefile (tests): Add tst-_res1.
+	(modules-names, extra-objs, test-extras, test-modules): Add support
+	for test modules.
+	($(objpfx)tst-_res1mod2.so): Depend on $(objpfx)tst-_res1mod1.so.
+	($(objpfx)tst-_res1): Depend on $(objpfx)tst-_res1mod2.so and
+	-lpthread.
+	* tst-_res1.c: New test.
+	* tst-_res1mod1.c: New test.
+	* tst-_res1mod2.c: New test.
+
+--- glibc-2.3.2/include/resolv.h._res-compat	2003-02-24 21:25:57.000000000 +0100
++++ glibc-2.3.2/include/resolv.h	2003-08-22 12:02:20.000000000 +0200
+@@ -17,9 +17,10 @@
+ #  if USE___THREAD
+ #   undef _res
+ #   ifndef NOT_IN_libc
+-#    define _res __libc_res
++#    define __resp __libc_resp
+ #   endif
+-extern __thread struct __res_state _res attribute_tls_model_ie;
++#   define _res (*__resp)
++extern __thread struct __res_state *__resp attribute_tls_model_ie;
+ #  endif
+ # else
+ #  ifndef __BIND_NOSTATIC
+--- glibc-2.3.2/linuxthreads/sysdeps/alpha/tls.h._res-compat	2003-02-01 11:00:56.000000000 +0100
++++ glibc-2.3.2/linuxthreads/sysdeps/alpha/tls.h	2003-08-22 12:02:20.000000000 +0200
+@@ -53,54 +53,77 @@ typedef struct
+ #  include <sysdep.h>
+ 
+ /* This is the size of the initial TCB.  */
+-#  define TLS_INIT_TCB_SIZE	sizeof (tcbhead_t)
++#  define TLS_INIT_TCB_SIZE	0
+ 
+ /* Alignment requirements for the initial TCB.  */
+-#  define TLS_INIT_TCB_ALIGN	__alignof__ (tcbhead_t)
++#  define TLS_INIT_TCB_ALIGN	__alignof__ (struct _pthread_descr_struct)
+ 
+ /* This is the size of the TCB.  */
+-#  define TLS_TCB_SIZE		sizeof (tcbhead_t)
++#  define TLS_TCB_SIZE		0
+ 
+ /* Alignment requirements for the TCB.  */
+-#  define TLS_TCB_ALIGN		__alignof__ (tcbhead_t)
++#  define TLS_TCB_ALIGN		__alignof__ (struct _pthread_descr_struct)
+ 
+ /* This is the size we need before TCB.  */
+-#  define TLS_PRE_TCB_SIZE	sizeof (struct _pthread_descr_struct)
++#  ifndef IS_IN_rtld
++#   define TLS_PRE_TCB_SIZE \
++  (sizeof (struct _pthread_descr_struct)				\
++   + ((sizeof (tcbhead_t) + TLS_TCB_ALIGN - 1) & ~(TLS_TCB_ALIGN - 1)))
++#  else
++#   include <nptl-struct-pthread.h>
++#   define TLS_PRE_TCB_SIZE \
++  ((sizeof (struct _pthread_descr_struct) > NPTL_STRUCT_PTHREAD_SIZE	\
++    ? sizeof (struct _pthread_descr_struct) : NPTL_STRUCT_PTHREAD_SIZE)	\
++   + ((sizeof (tcbhead_t) + TLS_TCB_ALIGN - 1) & ~(TLS_TCB_ALIGN - 1)))
++#  endif
+ 
+ /* The DTV is allocated at the TP; the TCB is placed elsewhere.  */
+ #  define TLS_DTV_AT_TP 1
+ 
++/* The following assumes that TP (R2 or R13) points to the end of the
++   TCB + 0x7000 (per the ABI).  This implies that TCB address is
++   TP - 0x7000.  As we define TLS_DTV_AT_TP we can
++   assume that the pthread struct is allocated immediately ahead of the
++   TCB.  This implies that the pthread_descr address is
++   TP - (TLS_PRE_TCB_SIZE + 0x7000).  */
++/* ??? PPC uses offset 0x7000; seems like a good idea for alpha too,
++   but binutils not yet changed to match.  */
++#  define TLS_TCB_OFFSET 0
++
+ /* Install the dtv pointer.  The pointer passed is to the element with
+    index -1 which contain the length.  */
+ #  define INSTALL_DTV(TCBP, DTVP) \
+-  (((tcbhead_t *) (TCBP))->dtv = (DTVP) + 1)
++  (((tcbhead_t *) (TCBP))[-1].dtv = (DTVP) + 1)
+ 
+ /* Install new dtv for current thread.  */
+ #  define INSTALL_NEW_DTV(DTV) \
+-  (((tcbhead_t *)__builtin_thread_pointer ())->dtv = (DTV))
++  (THREAD_DTV() = (DTV))
+ 
+ /* Return dtv of given thread descriptor.  */
+ #  define GET_DTV(TCBP) \
+-  (((tcbhead_t *) (TCBP))->dtv)
++  (((tcbhead_t *) (TCBP))[-1].dtv)
+ 
+ /* Code to initially initialize the thread pointer.  This might need
+    special attention since 'errno' is not yet available and if the
+    operation can cause a failure 'errno' must not be touched.  */
+ # define TLS_INIT_TP(TCBP, SECONDCALL) \
+-  (__builtin_set_thread_pointer (TCBP), 0)
++  (__builtin_set_thread_pointer ((void *) (tcbp) + TLS_TCB_OFFSET), NULL)
+ 
+ /* Return the address of the dtv for the current thread.  */
+ #  define THREAD_DTV() \
+-  (((tcbhead_t *)__builtin_thread_pointer ())->dtv)
++  (((tcbhead_t *) (__builtin_thread_pointer () - TLS_TCB_OFFSET))[-1].dtv)
+ 
+ /* Return the thread descriptor for the current thread.  */
+ #  undef THREAD_SELF
+ #  define THREAD_SELF \
++  ((pthread_descr) (__builtin_thread_pointer () \
++		    - TLS_TCB_OFFSET - TLS_PRE_TCB_SIZE))
+   ((pthread_descr)__builtin_thread_pointer () - 1)
+ 
+ #  undef INIT_THREAD_SELF
+ #  define INIT_THREAD_SELF(DESCR, NR) \
+-  __builtin_set_thread_pointer ((struct _pthread_descr_struct *)(DESCR) + 1)
++  __builtin_set_thread_pointer ((char *)(DESCR) \
++				+ TLS_TCB_OFFSET + TLS_PRE_TCB_SIZE)
+ 
+ /* Get the thread descriptor definition.  */
+ #  include <linuxthreads/descr.h>
+--- glibc-2.3.2/linuxthreads/sysdeps/i386/tls.h._res-compat	2003-05-10 19:05:04.000000000 +0200
++++ glibc-2.3.2/linuxthreads/sysdeps/i386/tls.h	2003-08-22 12:02:20.000000000 +0200
+@@ -81,7 +81,14 @@ typedef struct
+ #  define TLS_INIT_TCB_ALIGN __alignof__ (tcbhead_t)
+ 
+ /* This is the size of the TCB.  */
+-#  define TLS_TCB_SIZE sizeof (struct _pthread_descr_struct)
++#  ifndef IS_IN_rtld
++#   define TLS_TCB_SIZE sizeof (struct _pthread_descr_struct)
++#  else
++#   include <nptl-struct-pthread.h>
++#   define TLS_TCB_SIZE \
++  (sizeof (struct _pthread_descr_struct) > NPTL_STRUCT_PTHREAD_SIZE	\
++   ? sizeof (struct _pthread_descr_struct) : NPTL_STRUCT_PTHREAD_SIZE)
++#  endif
+ 
+ /* Alignment requirements for the TCB.  */
+ #  define TLS_TCB_ALIGN __alignof__ (struct _pthread_descr_struct)
+--- glibc-2.3.2/linuxthreads/sysdeps/ia64/tls.h._res-compat	2003-03-20 10:19:50.000000000 +0100
++++ glibc-2.3.2/linuxthreads/sysdeps/ia64/tls.h	2003-08-22 12:02:20.000000000 +0200
+@@ -59,7 +59,14 @@ typedef struct
+ #  define TLS_TCB_SIZE sizeof (tcbhead_t)
+ 
+ /* This is the size we need before TCB.  */
+-#  define TLS_PRE_TCB_SIZE sizeof (struct _pthread_descr_struct)
++#  ifndef IS_IN_rtld
++#   define TLS_PRE_TCB_SIZE sizeof (struct _pthread_descr_struct)
++#  else
++#   include <nptl-struct-pthread.h>
++#   define TLS_PRE_TCB_SIZE \
++  (sizeof (struct _pthread_descr_struct) > NPTL_STRUCT_PTHREAD_SIZE	\
++   ? sizeof (struct _pthread_descr_struct) : NPTL_STRUCT_PTHREAD_SIZE)
++#  endif
+ 
+ /* Alignment requirements for the TCB.  */
+ #  define TLS_TCB_ALIGN __alignof__ (struct _pthread_descr_struct)
+--- glibc-2.3.2/linuxthreads/sysdeps/powerpc/tls.h._res-compat	2003-04-29 10:03:26.000000000 +0200
++++ glibc-2.3.2/linuxthreads/sysdeps/powerpc/tls.h	2003-08-22 12:02:20.000000000 +0200
+@@ -64,11 +64,19 @@ typedef struct
+ #  define TLS_TCB_ALIGN		__alignof__ (struct _pthread_descr_struct)
+ 
+ /* This is the size we need before TCB.  */
+-#  define TLS_PRE_TCB_SIZE \
++#  ifndef IS_IN_rtld
++#   define TLS_PRE_TCB_SIZE \
+   (sizeof (struct _pthread_descr_struct)				      \
+    + ((sizeof (tcbhead_t) + TLS_TCB_ALIGN - 1) & ~(TLS_TCB_ALIGN - 1)))
++#  else
++#   include <nptl-struct-pthread.h>
++#   define TLS_PRE_TCB_SIZE \
++  ((sizeof (struct _pthread_descr_struct) > NPTL_STRUCT_PTHREAD_SIZE	      \
++    ? sizeof (struct _pthread_descr_struct) : NPTL_STRUCT_PTHREAD_SIZE)	      \
++   + ((sizeof (tcbhead_t) + TLS_TCB_ALIGN - 1) & ~(TLS_TCB_ALIGN - 1)))
++#  endif
+ 
+-/* The following assumes that TP (R2 or R13) is points to the end of the
++/* The following assumes that TP (R2 or R13) points to the end of the
+    TCB + 0x7000 (per the ABI).  This implies that TCB address is
+    TP - 0x7000.  As we define TLS_DTV_AT_TP we can
+    assume that the pthread_descr is allocated immediately ahead of the
+--- glibc-2.3.2/linuxthreads/sysdeps/pthread/res-state.c._res-compat	2003-04-02 16:21:00.000000000 +0200
++++ glibc-2.3.2/linuxthreads/sysdeps/pthread/res-state.c	2003-08-22 12:02:20.000000000 +0200
+@@ -39,7 +39,9 @@ __res_state (void)
+       pthread_descr self = thread_self();
+       return LIBC_THREAD_GETMEM (self, p_resp);
+     }
+-#endif
+   return &_res;
++#else
++  return __resp;
++#endif
+ }
+ libc_hidden_def (__res_state)
+--- glibc-2.3.2/linuxthreads/sysdeps/pthread/Makefile._res-compat	2003-03-20 10:19:50.000000000 +0100
++++ glibc-2.3.2/linuxthreads/sysdeps/pthread/Makefile	2003-08-22 12:02:20.000000000 +0200
+@@ -11,3 +11,15 @@ endif
+ ifeq ($(subdir),posix)
+ CFLAGS-confstr.c += -DLIBPTHREAD_VERSION="\"$(shell sed 's/\(.*\) by .*/\1/' ../linuxthreads/Banner)\""
+ endif
++
++ifeq ($(subdir),csu)
++# Find out the size of NPTL struct pthread
++ifneq (,$(wildcard $(..)nptl/descr.h))
++gen-as-const-headers += nptl-struct-pthread.sym
++else
++before-compile += $(common-objpfx)nptl-struct-pthread.h
++common-generated += nptl-struct-pthread.h
++$(common-objpfx)nptl-struct-pthread.h:
++	@echo '#define NPTL_STRUCT_PTHREAD_SIZE 0' > $@
++endif
++endif
+--- glibc-2.3.2/linuxthreads/sysdeps/pthread/nptl-struct-pthread.sym._res-compat	2003-08-22 12:02:20.000000000 +0200
++++ glibc-2.3.2/linuxthreads/sysdeps/pthread/nptl-struct-pthread.sym	2003-08-22 12:02:20.000000000 +0200
+@@ -0,0 +1,13 @@
++#ifdef HAVE_TLS_SUPPORT
++# ifndef HAVE_FORCED_UNWIND
++#  define HAVE_FORCED_UNWIND 1
++# endif
++# define __need_struct_pthread_size
++# include <nptl/descr.h>
++#endif
++
++--
++
++#ifdef HAVE_TLS_SUPPORT
++NPTL_STRUCT_PTHREAD_SIZE	sizeof (struct pthread)
++#endif
+--- glibc-2.3.2/linuxthreads/sysdeps/s390/tls.h._res-compat	2003-02-01 11:00:56.000000000 +0100
++++ glibc-2.3.2/linuxthreads/sysdeps/s390/tls.h	2003-08-22 12:02:20.000000000 +0200
+@@ -72,7 +72,14 @@ typedef struct
+ #  define TLS_INIT_TCB_ALIGN __alignof__ (tcbhead_t)
+ 
+ /* This is the size of the TCB.  */
+-#  define TLS_TCB_SIZE sizeof (struct _pthread_descr_struct)
++#  ifndef IS_IN_rtld
++#   define TLS_TCB_SIZE sizeof (struct _pthread_descr_struct)
++#  else
++#   include <nptl-struct-pthread.h>
++#   define TLS_TCB_SIZE \
++  (sizeof (struct _pthread_descr_struct) > NPTL_STRUCT_PTHREAD_SIZE	\
++   ? sizeof (struct _pthread_descr_struct) : NPTL_STRUCT_PTHREAD_SIZE)
++#  endif
+ 
+ /* Alignment requirements for the TCB.  */
+ #  define TLS_TCB_ALIGN __alignof__ (struct _pthread_descr_struct)
+--- glibc-2.3.2/linuxthreads/sysdeps/sh/tls.h._res-compat	2003-03-20 10:19:50.000000000 +0100
++++ glibc-2.3.2/linuxthreads/sysdeps/sh/tls.h	2003-08-22 12:02:20.000000000 +0200
+@@ -64,7 +64,14 @@ typedef struct
+ #  define TLS_TCB_SIZE sizeof (tcbhead_t)
+ 
+ /* This is the size we need before TCB.  */
+-#  define TLS_PRE_TCB_SIZE sizeof (struct _pthread_descr_struct)
++#  ifndef IS_IN_rtld
++#   define TLS_PRE_TCB_SIZE sizeof (struct _pthread_descr_struct)
++#  else
++#   include <nptl-struct-pthread.h>
++#   define TLS_PRE_TCB_SIZE \
++  (sizeof (struct _pthread_descr_struct) > NPTL_STRUCT_PTHREAD_SIZE	\
++   ? sizeof (struct _pthread_descr_struct) : NPTL_STRUCT_PTHREAD_SIZE)
++#  endif
+ 
+ /* Alignment requirements for the TCB.  */
+ #  define TLS_TCB_ALIGN __alignof__ (struct _pthread_descr_struct)
+--- glibc-2.3.2/linuxthreads/sysdeps/x86_64/tls.h._res-compat	2003-07-07 17:14:56.000000000 +0200
++++ glibc-2.3.2/linuxthreads/sysdeps/x86_64/tls.h	2003-08-22 12:02:20.000000000 +0200
+@@ -63,7 +63,14 @@ typedef struct
+ #  define TLS_INIT_TCB_ALIGN __alignof__ (tcbhead_t)
+ 
+ /* This is the size of the TCB.  */
+-#  define TLS_TCB_SIZE sizeof (struct _pthread_descr_struct)
++#  ifndef IS_IN_rtld
++#   define TLS_TCB_SIZE sizeof (struct _pthread_descr_struct)
++#  else
++#   include <nptl-struct-pthread.h>
++#   define TLS_TCB_SIZE \
++  (sizeof (struct _pthread_descr_struct) > NPTL_STRUCT_PTHREAD_SIZE	\
++   ? sizeof (struct _pthread_descr_struct) : NPTL_STRUCT_PTHREAD_SIZE)
++#  endif
+ 
+ /* Alignment requirements for the TCB.  */
+ #  define TLS_TCB_ALIGN __alignof__ (struct _pthread_descr_struct)
+--- glibc-2.3.2/linuxthreads/descr.h._res-compat	2003-04-29 10:03:26.000000000 +0200
++++ glibc-2.3.2/linuxthreads/descr.h	2003-08-22 12:02:20.000000000 +0200
+@@ -163,8 +163,8 @@ struct _pthread_descr_struct
+   int * p_h_errnop;             /* pointer to used h_errno variable */
+   int p_h_errno;                /* error returned by last netdb function */
+   struct __res_state *p_resp;	/* Pointer to resolver state */
+-  struct __res_state p_res;	/* per-thread resolver state */
+ #endif
++  struct __res_state p_res;	/* per-thread resolver state */
+   int p_userstack;		/* nonzero if the user provided the stack */
+   void *p_guardaddr;		/* address of guard area or NULL */
+   size_t p_guardsize;		/* size of guard area */
+--- glibc-2.3.2/linuxthreads/manager.c._res-compat	2003-04-29 10:03:26.000000000 +0200
++++ glibc-2.3.2/linuxthreads/manager.c	2003-08-22 12:02:20.000000000 +0200
+@@ -28,6 +28,7 @@
+ #include <sys/time.h>
+ #include <sys/wait.h>           /* for waitpid macros */
+ #include <locale.h>		/* for __uselocale */
++#include <resolv.h>		/* for __resp */
+ 
+ #include <ldsodefs.h>
+ #include "pthread.h"
+@@ -287,6 +288,9 @@ pthread_start_thread(void *arg)
+   /* Initialize thread-locale current locale to point to the global one.
+      With __thread support, the variable's initializer takes care of this.  */
+   __uselocale (LC_GLOBAL_LOCALE);
++#else
++  /* Initialize __resp.  */
++  __resp = &self->p_resp;
+ #endif
+   /* Make gdb aware of new thread */
+   if (__pthread_threads_debug && __pthread_sig_debug > 0) {
+--- glibc-2.3.2/linuxthreads/libc-tls-loc.c._res-compat	2002-11-15 04:37:05.000000000 +0100
++++ glibc-2.3.2/linuxthreads/libc-tls-loc.c	2003-08-22 12:02:20.000000000 +0200
+@@ -43,7 +43,7 @@ __h_errno_location (void)
+ struct __res_state *
+ __res_state (void)
+ {
+-  return &_res;
++  return __resp;
+ }
+ 
+ #endif
+--- glibc-2.3.2/linuxthreads/tst-_res1.c._res-compat	2003-08-22 12:02:20.000000000 +0200
++++ glibc-2.3.2/linuxthreads/tst-_res1.c	2003-08-22 12:02:20.000000000 +0200
+@@ -0,0 +1,69 @@
++/* Copyright (C) 2003 Free Software Foundation, Inc.
++   This file is part of the GNU C Library.
++   Contributed by Jakub Jelinek <jakub@redhat.com>, 2003.
++
++   The GNU C Library is free software; you can redistribute it and/or
++   modify it under the terms of the GNU Lesser General Public
++   License as published by the Free Software Foundation; either
++   version 2.1 of the License, or (at your option) any later version.
++
++   The GNU C Library is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   Lesser General Public License for more details.
++
++   You should have received a copy of the GNU Lesser General Public
++   License along with the GNU C Library; if not, write to the Free
++   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
++   02111-1307 USA.  */
++
++/* Test whether _res in glibc 2.1.x and earlier (before __res_state()
++   was introduced) works.  Portable programs should never do the
++   dirty things below.  */
++
++#include <pthread.h>
++#include <resolv.h>
++#include <stdlib.h>
++#include <stdio.h>
++
++void *tf (void *resp)
++{
++  if (resp == &_res || resp == __res_state ())
++    abort ();
++  _res.retry = 24;
++  return NULL;
++}
++
++void do_test (struct __res_state *resp)
++{
++  if (resp != &_res || resp != __res_state ())
++    abort ();
++  if (_res.retry != 12)
++    abort ();
++}
++
++int main (void)
++{
++#undef _res
++  extern struct __res_state _res;
++  pthread_t th;
++
++  _res.retry = 12;
++  if (pthread_create (&th, NULL, tf, &_res) != 0)
++    {
++      puts ("create failed");
++      exit (1);
++    }
++
++  do_test (&_res);
++
++  if (pthread_join (th, NULL) != 0)
++    {
++      puts ("join failed");
++      exit (1);
++    }
++
++  do_test (&_res);
++
++  exit (0);
++}
+--- glibc-2.3.2/linuxthreads/tst-_res1mod1.c._res-compat	2003-08-22 12:02:20.000000000 +0200
++++ glibc-2.3.2/linuxthreads/tst-_res1mod1.c	2003-08-22 12:02:20.000000000 +0200
+@@ -0,0 +1,23 @@
++/* Copyright (C) 2003 Free Software Foundation, Inc.
++   This file is part of the GNU C Library.
++   Contributed by Jakub Jelinek <jakub@redhat.com>, 2003.
++
++   The GNU C Library is free software; you can redistribute it and/or
++   modify it under the terms of the GNU Lesser General Public
++   License as published by the Free Software Foundation; either
++   version 2.1 of the License, or (at your option) any later version.
++
++   The GNU C Library is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   Lesser General Public License for more details.
++
++   You should have received a copy of the GNU Lesser General Public
++   License along with the GNU C Library; if not, write to the Free
++   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
++   02111-1307 USA.  */
++
++#include <resolv.h>
++#undef _res
++
++struct __res_state _res;
+--- glibc-2.3.2/linuxthreads/tst-_res1mod2.c._res-compat	2003-08-22 12:02:20.000000000 +0200
++++ glibc-2.3.2/linuxthreads/tst-_res1mod2.c	2003-08-22 12:02:20.000000000 +0200
+@@ -0,0 +1 @@
++/* Nothing.  */
+--- glibc-2.3.2/linuxthreads/Makefile._res-compat	2003-07-07 17:14:54.000000000 +0200
++++ glibc-2.3.2/linuxthreads/Makefile	2003-08-22 12:02:20.000000000 +0200
+@@ -119,8 +119,17 @@ endif
+ 
+ ifeq (yes,$(build-shared))
+ tests-nodelete-yes = unload
++tests += tst-_res1
+ endif
+ 
++modules-names = tst-_res1mod1 tst-_res1mod2
++extra-objs += $(addsuffix .os,$(strip $(modules-names)))
++test-extras += $(modules-names)
++test-modules = $(addprefix $(objpfx),$(addsuffix .so,$(modules-names)))
++
++$(test-modules): $(objpfx)%.so: $(objpfx)%.os $(common-objpfx)shlib.lds
++	$(build-module)
++
+ all: # Make this the default target; it will be defined in Rules.
+ 
+ # What we install as libpthread.so for programs to link against is in fact a
+@@ -288,6 +297,11 @@ otherlibs += $(nssobjdir)/libnss_files.a
+              $(resolvobjdir)/libresolv.a
+ endif
+ 
++ifeq (yes,$(build-shared))
++$(objpfx)tst-_res1mod2.so: $(objpfx)tst-_res1mod1.so
++$(objpfx)tst-_res1: $(objpfx)tst-_res1mod2.so $(shared-thread-library)
++endif
++
+ ifeq (no,$(cross-compiling))
+ ifeq (yes,$(build-shared))
+ tests: $(objpfx)tst-signal.out $(objpfx)tst-cancel-wrappers.out
+--- glibc-2.3.2/resolv/res_libc.c._res-compat	2003-02-28 08:51:41.000000000 +0100
++++ glibc-2.3.2/resolv/res_libc.c	2003-08-22 12:02:20.000000000 +0200
+@@ -68,27 +68,26 @@ res_init(void) {
+ /* This needs to be after the use of _res in res_init, above.  */
+ #undef _res
+ 
+-#include <tls.h>
+-
+-#if USE___THREAD
+-/* With __thread support, this per-thread variable is used in all cases.  */
+-__thread struct __res_state _res;
+-extern __thread struct __res_state __libc_res __attribute__ ((alias ("_res")))
+-  attribute_hidden;
+-# define _res __libc_res
+-#else
+ /* The resolver state for use by single-threaded programs.
+    This differs from plain `struct __res_state _res;' in that it doesn't
+    create a common definition, but a plain symbol that resides in .bss,
+    which can have an alias.  */
+ struct __res_state _res __attribute__((section (".bss")));
+ 
++#include <tls.h>
++
++#if USE___THREAD
++#undef __resp
++__thread struct __res_state *__resp = &_res;
++extern __thread struct __res_state *__libc_resp
++  __attribute__ ((alias ("__resp"))) attribute_hidden;
++#endif
++
+ /* We declare this with compat_symbol so that it's not
+    visible at link time.  Programs must use the accessor functions.  */
+-# if defined HAVE_ELF && defined SHARED && defined DO_VERSIONING
+-#  include <shlib-compat.h>
++#if defined HAVE_ELF && defined SHARED && defined DO_VERSIONING
++# include <shlib-compat.h>
+ compat_symbol (libc, _res, _res, GLIBC_2_0);
+-# endif
+ #endif
+ 
+ #include <shlib-compat.h>
+--- glibc-2.3.2/resolv/Versions._res-compat	2002-12-16 12:02:29.000000000 +0100
++++ glibc-2.3.2/resolv/Versions	2003-08-22 12:02:20.000000000 +0200
+@@ -4,9 +4,11 @@ libc {
+   GLIBC_2.0 {
+ %if !(USE_TLS && HAVE___THREAD)
+     # global variables
+-    _h_errno; _res;
++    _h_errno;
+ %endif
+ 
++    _res;
++
+     # helper functions
+     __h_errno_location;
+ 
+@@ -34,7 +36,7 @@ libc {
+ 
+ %if USE_TLS && HAVE___THREAD
+     # This version is for the TLS symbol, GLIBC_2.0 is the old object symbol.
+-    h_errno; _res;
++    h_errno; __resp;
+ %endif
+   }
+ }
+--- glibc-2.3.2/sysdeps/generic/res-state.c._res-compat	2002-12-31 21:40:49.000000000 +0100
++++ glibc-2.3.2/sysdeps/generic/res-state.c	2003-08-22 12:02:20.000000000 +0200
+@@ -1,4 +1,4 @@
+-/* Copyright (C) 1996, 97, 98, 2002 Free Software Foundation, Inc.
++/* Copyright (C) 1996, 97, 98, 2002, 2003 Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+ 
+    The GNU C Library is free software; you can redistribute it and/or
+@@ -20,17 +20,26 @@
+ #include <tls.h>
+ 
+ #if ! USE___THREAD
++
+ # undef _res
+ extern struct __res_state _res;
+-#endif
+ 
+ /* When threaded, _res may be a per-thread variable.  */
+ struct __res_state *
+-#if ! USE___THREAD
+ weak_const_function
+-#endif
+ __res_state (void)
+ {
+   return &_res;
+ }
++
++#else
++
++struct __res_state *
++__res_state (void)
++{
++  return __resp;
++}
++
++#endif
++
+ libc_hidden_def (__res_state)

@@ -1,0 +1,56 @@
+--- glibc-2.3.1/nscd/connections.c.nscd-HUP	2003-01-20 10:04:33.000000000 +0100
++++ glibc-2.3.1/nscd/connections.c	2003-02-17 10:03:30.000000000 +0100
+@@ -575,7 +575,6 @@ start_threads (void)
+   nscd_run ((void *) 0);
+ }
+ 
+-
+ /* Look up the uid, gid, and supplementary groups to run nscd as. When
+    this function is called, we are not listening on the nscd socket yet so
+    we can just use the ordinary lookup functions without causing a lockup  */
+@@ -639,3 +638,18 @@ finish_drop_privileges (void)
+       exit (1);
+     }
+ }
++
++/* Handle the HUP signal which will force a dump of the cache */
++void
++sighup_handler (int signum)
++{
++    /* Prune the password database */
++    prune_cache (&dbs[pwddb], LONG_MAX);
++    
++    /* Prune the group database */
++    prune_cache (&dbs[grpdb], LONG_MAX);
++
++    /* Prune the host database */
++    prune_cache (&dbs[hstdb], LONG_MAX);
++}
++
+--- glibc-2.3.1/nscd/nscd.c.nscd-HUP	2003-01-20 10:04:33.000000000 +0100
++++ glibc-2.3.1/nscd/nscd.c	2003-02-17 10:03:30.000000000 +0100
+@@ -106,6 +106,9 @@ static struct argp argp =
+   options, parse_opt, NULL, doc,
+ };
+ 
++/* The SIGHUP handler is extern to this file */
++extern void sighup_handler(int signum);
++
+ int
+ main (int argc, char **argv)
+ {
+@@ -202,12 +205,13 @@ main (int argc, char **argv)
+       /* Ignore job control signals.  */
+       signal (SIGTTOU, SIG_IGN);
+       signal (SIGTTIN, SIG_IGN);
+-      signal (SIGTSTP, SIG_IGN);
++      signal (SIGTSTP, SIG_IGN);      
+     }
+ 
+   signal (SIGINT, termination_handler);
+   signal (SIGQUIT, termination_handler);
+   signal (SIGTERM, termination_handler);
++  signal (SIGHUP, sighup_handler);
+   signal (SIGPIPE, SIG_IGN);
+ 
+   /* Cleanup files created by a previous `bind'.  */
