@@ -1,14 +1,20 @@
+%define name 	tmpwatch
+%define version	2.9.0
+%define release	2sls
+
 # CVSROOT=':ext:user@devserv.devel.redhat.com:/home/devel/CVS'
-Name: tmpwatch
-Version: 2.9.0
-Release: 1mdk
-Summary: A utility for removing files based on when they were last accessed.
-Source: %{name}-%{version}.tar.bz2
-License: GPL
-Group: File tools
-Buildroot: %{_tmppath}/%{name}-root
-Requires: psmisc
-URL: ftp://ftp.redhat.com/pub/redhat/linux/rawhide/SRPMS/SRPMS/
+Summary:	A utility for removing files based on when they were last accessed.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		File tools
+URL:		ftp://ftp.redhat.com/pub/redhat/linux/rawhide/SRPMS/SRPMS/
+Source:		%{name}-%{version}.tar.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-root
+
+Requires:	psmisc
 
 %description
 The tmpwatch utility recursively searches through specified
@@ -48,6 +54,10 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %config(noreplace) %{_sysconfdir}/cron.daily/tmpwatch
 
 %changelog
+* Mon Dec 01 2003 Vincent Danen <vdanen@opensls.org> 2.9.0-2sls
+- OpenSLS build
+- tidy spec
+
 * Wed Jul 02 2003 Thierry Vignaud <tvignaud@mandrakesoft.com> 2.9.0-1mdk
 - new release
 

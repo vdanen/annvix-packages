@@ -1,23 +1,21 @@
-%define name unzip
+%define name	unzip
 %define version 5.50
-%define release 9mdk
+%define release 10sls
 %define src_ver 550
 
-Name: %{name}
-Summary: Unpacks ZIP files such as those made by pkzip under DOS
-Version: %{version}
-Release: %{release}
-Source0: ftp://ftp.icce.rug.nl/infozip/src/%{name}%{src_ver}.tar.bz2
+Summary:	Unpacks ZIP files such as those made by pkzip under DOS
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	BSD-like
+Group:		Archiving/Compression
+URL:		http://www.info-zip.org/pub/infozip/UnZip.html
+Source0:	ftp://ftp.icce.rug.nl/infozip/src/%{name}%{src_ver}.tar.bz2
+Patch0:		unzip541-patent-and-copyright-clean.patch.bz2
+Patch1:		unzip542-size-64bit.patch.bz2
+Patch2:		unzip-5.50-dotdot.patch.bz2
 
-
-Patch0: unzip541-patent-and-copyright-clean.patch.bz2
-Patch1: unzip542-size-64bit.patch.bz2
-Patch2: unzip-5.50-dotdot.patch.bz2
-URL: http://www.info-zip.org/pub/infozip/UnZip.html
-License: BSD-like
-Group: Archiving/Compression
-Packager: Guillaume Cottenceau <gc@mandrakesoft.com>
-BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
+BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
 
 %description
 unzip will list, test, or extract files from a ZIP archive, commonly found
@@ -83,6 +81,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Dec 03 2003 Vincent Danen <vdanen@opensls.org> 5.50-10sls
+- OpenSLS build
+- tidy spec
+
 * Sat Aug 16 2003 Vincent Danen <vdanen@mandrakesoft.com> 5.50-9mdk
 - use a better security patch
 

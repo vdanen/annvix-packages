@@ -1,16 +1,18 @@
+%define name	util-linux
+%define version	2.11z
+%define release	8sls
+
 # Maintainer util-linux@math.uio.no
 
 Summary:	A collection of basic system utilities
-Name:		util-linux
-Version:	2.11z
-Release: 7mdk
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
 License:	GPL
 Group:		System/Base
 URL:		ftp://ftp.win.tue.nl/pub/linux-local/utils/util-linux/
 # Alternative => ftp.kernel.org:/pub/linux/utils/util-linux/
-
 Source0:	ftp://ftp.win.tue.nl/pub/linux-local/utils/util-linux/util-linux-%version.tar.bz2
-
 Source1:	util-linux-2.7-login.pamd
 Source2:	util-linux-2.7-chfn.pamd
 Source3:	util-linux-2.7-chsh.pamd
@@ -19,15 +21,6 @@ Source7:	cramfs.h
 Source8:	nologin.c
 Source9:	nologin.8
 Source10:	kbdrate.tar.bz2
-
-BuildRequires:	gcc
-BuildRequires:	sed
-BuildRequires:	pam-devel
-BuildRequires:	ncurses-devel
-BuildRequires:	termcap-devel
-BuildRequires:	texinfo
-BuildRequires:	slang-devel
-BuildRequires:	zlib-devel
 # Change default config to switch mandrake config
 Patch0:		util-linux-2.11z-mdkconf.patch.bz2
 # We don't want to compile chkdupexe
@@ -52,34 +45,32 @@ Patch100:	mkcramfs.patch.bz2
 Patch101:	mkcramfs-quiet.patch.bz2
 #
 ########### START UNSUBMITTED
-
-Patch106: util-linux-2.11t-swaponsymlink-57301.patch.bz2
-Patch107: util-linux-2.11x-procpartitions-37436.patch.bz2
-Patch109: util-linux-2.11f-rawman.patch.bz2 
-Patch111: util-linux-2.11t-mkfsman.patch.bz2
-Patch114: util-linux-2.11t-dumboctal.patch.bz2
-Patch116: util-linux-2.11z-autodav.patch.bz2
-
-Patch120: util-linux-2.11t-alpha-buildfix.patch.bz2
+#
+Patch106:	util-linux-2.11t-swaponsymlink-57301.patch.bz2
+Patch107:	util-linux-2.11x-procpartitions-37436.patch.bz2
+Patch109:	util-linux-2.11f-rawman.patch.bz2 
+Patch111:	util-linux-2.11t-mkfsman.patch.bz2
+Patch114:	util-linux-2.11t-dumboctal.patch.bz2
+Patch116:	util-linux-2.11z-autodav.patch.bz2
+Patch120:	util-linux-2.11t-alpha-buildfix.patch.bz2
 ########### END UNSUBMITTED.
-
 ########
 # Mount patches
-Patch201: util-linux-2.11m-nolock-docs.patch.bz2
-Patch204: util-linux-2.11m-2gb.patch.bz2
-Patch206: util-linux-2.11m-kudzu.patch.bz2
-Patch207: util-linux-2.11x-swapon.patch.bz2
-Patch209: util-linux-2.11t-swapoff.patch.bz2
-Patch210: util-linux-2.11b-largefile.patch.bz2
-Patch211: util-linux-2.11z-user_label_umount.patch.bz2
-Patch213: util-linux-2.11z-loop-AES-v1.4h.patch.bz2
-Patch214: util-linux-2.11x-set-as-encrypted.patch.bz2
-Patch215: util-linux-2.11t-swapon-skip-encrypted.patch.bz2
-Patch216: util-linux-2.11y-nfsmount.patch.bz2
-Patch217: util-linux-2.11y-retryudp.patch.bz2
+Patch201:	util-linux-2.11m-nolock-docs.patch.bz2
+Patch204:	util-linux-2.11m-2gb.patch.bz2
+Patch206:	util-linux-2.11m-kudzu.patch.bz2
+Patch207:	util-linux-2.11x-swapon.patch.bz2
+Patch209:	util-linux-2.11t-swapoff.patch.bz2
+Patch210:	util-linux-2.11b-largefile.patch.bz2
+Patch211:	util-linux-2.11z-user_label_umount.patch.bz2
+Patch213:	util-linux-2.11z-loop-AES-v1.4h.patch.bz2
+Patch214:	util-linux-2.11x-set-as-encrypted.patch.bz2
+Patch215:	util-linux-2.11t-swapon-skip-encrypted.patch.bz2
+Patch216:	util-linux-2.11y-nfsmount.patch.bz2
+Patch217:	util-linux-2.11y-retryudp.patch.bz2
 # remove mode= from udf mounts (architecture done so that more may come)
-Patch218: util-linux-2.11z-mount-remove-silly-options-in-auto.patch.bz2
-
+Patch218:	util-linux-2.11z-mount-remove-silly-options-in-auto.patch.bz2
+#
 # Mandrake Specific patches
 # fix compilation related with miscfixes
 Patch1000:	util-linux-2.11h-fix-compilation.patch.bz2
@@ -99,7 +90,7 @@ Patch1205:	util-linux-2.11x-x86_64.patch.bz2
 Patch1206:	util-linux-2.11u-biarch-utmp.patch.bz2
 
 Obsoletes:	fdisk tunelp
-provides: fdisk, tunelp
+provides:	fdisk, tunelp
 %ifarch alpha sparc sparc64 ppc
 Obsoletes:	clock
 %endif
@@ -109,8 +100,17 @@ Conflicts:	initscripts <= 4.58, timeconfig <= 3.0.1
 #%endif
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-root
+BuildRequires:	gcc
+BuildRequires:	sed
+BuildRequires:	pam-devel
+BuildRequires:	ncurses-devel
+BuildRequires:	termcap-devel
+BuildRequires:	texinfo
+BuildRequires:	slang-devel
+BuildRequires:	zlib-devel
+
 Requires:	pam >= 0.66-4, shadow-utils >= 20000902-5
-Prereq: mktemp /bin/awk /usr/bin/cmp coreutils
+Prereq:		mktemp /bin/awk /usr/bin/cmp coreutils
 
 %description
 The util-linux package contains a large variety of low-level system
@@ -557,6 +557,10 @@ fi
 /sbin/losetup
 
 %changelog
+* Mon Dec 01 2003 Vincent Danen <vdanen@opensls.org> 2.11z-8sls
+- OpenSLS build
+- tidy spec
+
 * Thu Aug 14 2003 Guillaume Cottenceau <gc@mandrakesoft.com> 2.11z-7mdk
 - fix segfault in my patch of 2.11z-6mdk, /me sux
 

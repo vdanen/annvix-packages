@@ -1,8 +1,9 @@
-%define name syslinux
+%define name	syslinux
 %define version 1.76
-%define old_version 1.67
+%define release 11sls
+
+%define old_version	1.67
 %define pxelinux_version 2.06
-%define release 10mdk
 
 Summary:	A bootloader for linux using floppies, CD or PXE.
 Name:		%{name}
@@ -10,17 +11,19 @@ Version:	%{version}
 Release:	%{release}
 License:	GPL
 Group:		System/Kernel and hardware
+URL:		http://ftp.kernel.org/pub/linux/utils/boot/syslinux/
 Source0:	%{name}-%{version}.tar.bz2
 Source1:	%{name}-%{old_version}.tar.bz2
 Source2:	%{name}-%{pxelinux_version}.tar.bz2
-Url:		http://ftp.kernel.org/pub/linux/utils/boot/syslinux/
-BuildRoot:	%{_tmppath}/%{name}-buildroot/
-BuildRequires:	nasm >= 0.97, netpbm
 Patch0:         syslinux-1.67-use-vfat-instead-of-msdos.patch.bz2
 Patch1:		syslinux-1.75-graphic.patch.bz2
 Patch2:		syslinux-1.76-gcc-3.3.patch.bz2
 Patch3:		syslinux-1.67-gcc-3.3.patch.bz2
 Patch4:		syslinux-2.04-gcc-3.3.patch.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-buildroot/
+BuildRequires:	nasm >= 0.97, netpbm
+
 ExclusiveArch:	%{ix86}
 Obsoletes:	isolinux < %{version}
 Provides:	isolinux = %{version}
@@ -47,17 +50,17 @@ This version include a patched SYSLINUX for handling VESA graphic mode.
 
 %build
 make clean
-make DATE="Mandrake Linux"
+make DATE="OpenSLS"
 
 cd %{name}-%{old_version}
 make clean
-make DATE="Mandrake Linux"
+make DATE="OpenSLS"
 
 cd ../../%{name}-%{pxelinux_version}
 make clean
-make pxelinux.0 DATE="Mandrake Linux"
-make memdisk DATE="Mandrake Linux"
-make gethostip DATE="Mandrake Linux"
+make pxelinux.0 DATE="OpenSLS"
+make memdisk DATE="OpenSLS"
+make gethostip DATE="OpenSLS"
 
 
 %clean 
@@ -101,6 +104,10 @@ install -m 0644 ../%{name}-%{pxelinux_version}/memdisk/memdisk $RPM_BUILD_ROOT%{
 %{_libdir}/*
 
 %changelog
+* Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 1.76-11sls
+- OpenSLS build
+- tidy spec
+
 * Mon Aug 25 2003 Erwan Velu <erwan@mandrakesoft.com> 1.76-10mdk
 - New pxelinux 2.06 
 -- Fix problem that would occationally cause a boot failure, depending on the length of the kernel

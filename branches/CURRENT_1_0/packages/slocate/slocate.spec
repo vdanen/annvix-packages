@@ -1,7 +1,11 @@
-Name:		slocate
+%define name	slocate
+%define version	2.7
+%define release	3sls
+
 Summary:	Finds files on a system via a central database.
-Version:	2.7
-Release: 	2mdk
+Name:		%{name}
+Version:	%{version}
+Release: 	%{release}
 License:	GPL
 Group:		File tools
 URL:		http://www.geekreview.org/slocate/
@@ -13,8 +17,9 @@ Patch:		slocate-2.5-info.patch.bz2
 Patch1:		slocate-2.5-glibc-2.2.patch.bz2
 Patch2:		slocate-2.5-segfault.patch.bz2
 
-Prereq:		shadow-utils
 Buildroot:	%{_tmppath}/%{name}-root
+
+Prereq:		shadow-utils
 
 %description
 Slocate is a security-enhanced version of locate. Just like locate,
@@ -80,6 +85,10 @@ fi
 %config(noreplace) %{_sysconfdir}/updatedb.conf
 
 %changelog
+* Mon Dec 01 2003 Vincent Danen <vdanen@opensls.org> 2.7-3sls
+- OpenSLS build
+- tidy spec
+
 * Wed Jul 23 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 2.7-2mdk
 - rebuild
 - use %%make macro

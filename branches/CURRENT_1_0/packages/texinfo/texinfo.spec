@@ -1,18 +1,22 @@
+%define name	texinfo
+%define version	4.6
+%define release	2sls
+
 # rh-4.1-1
-Summary: Tools needed to create Texinfo format documentation files.
-Name: texinfo
-Version: 4.6
-Release: 1mdk
-License: GPL
-Group: Publishing
-URL: http://www.gnu.org/directory/GNU/texinfo.html
-BuildRequires: ncurses-devel
-BuildRequires: zlib-devel
-Source0: ftp://ftp.gnu.org/pub/gnu/texinfo/%name-%version.tar.bz2
-Source1: info-dir.bz2
-Patch1: texinfo-3.12h-fix.patch.bz2
-Patch107: texinfo-4.1-vikeys-segfault-fix.diff.bz2
-Buildroot: %_tmppath/%name-%version-root
+Summary:	Tools needed to create Texinfo format documentation files.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		Publishing
+URL:		http://www.gnu.org/directory/GNU/texinfo.html
+Source0:	ftp://ftp.gnu.org/pub/gnu/texinfo/%name-%version.tar.bz2
+Source1:	info-dir.bz2
+Patch1:		texinfo-3.12h-fix.patch.bz2
+Patch107:	texinfo-4.1-vikeys-segfault-fix.diff.bz2
+
+BuildRoot:	%_tmppath/%name-%version-root
+BuildRequires:	ncurses-devel, zlib-devel
 
 %description
 Texinfo is a documentation system that can produce both online information
@@ -28,9 +32,9 @@ online and print documentation from the same source file and/or if you are
 going to write documentation for the GNU Project.
 
 %package -n info
-Summary: A stand-alone TTY-based reader for GNU texinfo documentation.
-Group: System/Base
-Prereq: info-install
+Summary:	A stand-alone TTY-based reader for GNU texinfo documentation.
+Group:		System/Base
+Prereq:		info-install
 
 %description -n info
 The GNU project uses the texinfo file format for much of its
@@ -41,9 +45,9 @@ You should install info, because GNU's texinfo documentation is a valuable
 source of information about the software on your system.
 
 %package -n info-install
-Summary: Program to update the GNU texinfo documentation main page.
-Group: System/Base
-Requires: bzip2
+Summary:	Program to update the GNU texinfo documentation main page.
+Group:		System/Base
+Requires:	bzip2
 
 %description -n info-install
 The GNU project uses the texinfo file format for much of its
@@ -123,6 +127,10 @@ rm -rf $RPM_BUILD_ROOT
 %_mandir/man5/info.5*
 
 %changelog
+* Wed Dec 17 2003 Vincent Danen <vdanen@opensls.org> 4.6-2sls
+- OpenSLS build
+- tidy spec
+
 * Wed Jul 16 2003 Thierry Vignaud <tvignaud@mandrakesoft.com> 4.6-1mdk
 - new release
 

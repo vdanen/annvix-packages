@@ -1,21 +1,22 @@
-%define name usbutils
+%define name	usbutils
 %define version 0.11
-%define release 3mdk
+%define release 4sls
 
-Summary: Linux USB utilities
-Name: %{name}
-Version: %{version}
-Release: %{release}
-URL: http://usb.in.tum.de/download/usbutils
-Source0: http://usb.in.tum.de/download/usbutils/usbutils-%{version}.tar.bz2
+Summary:	Linux USB utilities
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		System/Kernel and hardware
+URL:		http://usb.in.tum.de/download/usbutils
+Source0:	http://usb.in.tum.de/download/usbutils/usbutils-%{version}.tar.bz2
 # 1.95 2002/01/13 (with 2 fixes + PHY below)
-Source1: http://www.linux-usb.org/usb.ids
-Patch0:  usbutils-0.11-fix-classes.patch.bz2 
-License: GPL
-Group: System/Kernel and hardware
-Packager: Pixel <pixel@mandrakesoft.com>
-BuildRoot: %{_tmppath}/%{name}-buildroot
-Prefix: %{_prefix}
+Source1:	http://www.linux-usb.org/usb.ids
+Patch0:		usbutils-0.11-fix-classes.patch.bz2 
+
+BuildRoot:	%{_tmppath}/%{name}-buildroot
+
+Prefix:		%{_prefix}
 
 %description
 usbutils contains a utility for inspecting devices connected to the USB bus.
@@ -50,6 +51,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 0.11-4sls
+- OpenSLS build
+- tidy spec
+
 * Sun Apr  6 2003 Pixel <pixel@mandrakesoft.com> 0.11-3mdk
 - update ids list
 - fix patch 0 (otherwise, one gets "Invalid product/subclass spec", bug #3654)

@@ -1,25 +1,30 @@
+%define name	sharutils
+%define version	4.2.1
+%define release	15sls
+
 #rh-4.2.1-12
-Summary: The GNU shar utilities for packaging and unpackaging shell archives.
-Name: sharutils
-Version: 4.2.1
-Release: 14mdk
-License: GPL
-Group: Archiving/Backup
-Source: ftp://prep.ai.mit.edu/pub/gnu/%name/%name-%version.tar.bz2
-Url:    http://www.gnu.org/software/sharutils/
-Patch1: sharutils-4.2-gmo.patch.bz2
-Patch2: sharutils-4.2-man.patch.bz2
-Patch3: sharutils-4.2-po.patch.bz2
-Patch4: sharutils-4.2-share.patch.bz2
-Patch5: sharutils-4.2-uudecode.patch.bz2
-Patch6: sharutils-4.2.1-mktemp.patch.bz2
-Patch7: sharutils-4.2.1-uudecode.patch.bz2
-Patch10: sharutils-4.2.1-remsync-typo.patch.bz2
-Patch11: sharutils-4.2.1-bogus-entries.patch.bz2
-Prereq: /sbin/install-info
-BuildRoot: %{_tmppath}/%{name}-root
-BuildRequires:	gettext
-BuildRequires:	texinfo
+Summary:	The GNU shar utilities for packaging and unpackaging shell archives.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		Archiving/Backup
+URL:		http://www.gnu.org/software/sharutils/
+Source:		ftp://prep.ai.mit.edu/pub/gnu/%name/%name-%version.tar.bz2
+Patch1:		sharutils-4.2-gmo.patch.bz2
+Patch2:		sharutils-4.2-man.patch.bz2
+Patch3:		sharutils-4.2-po.patch.bz2
+Patch4:		sharutils-4.2-share.patch.bz2
+Patch5:		sharutils-4.2-uudecode.patch.bz2
+Patch6:		sharutils-4.2.1-mktemp.patch.bz2
+Patch7:		sharutils-4.2.1-uudecode.patch.bz2
+Patch10:	sharutils-4.2.1-remsync-typo.patch.bz2
+Patch11:	sharutils-4.2.1-bogus-entries.patch.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-root
+BuildRequires:	gettext, texinfo
+
+PreReq:		/sbin/install-info
 
 %description
 The sharutils package contains the GNU shar utilities, a set of tools
@@ -87,6 +92,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man?/*
 
 %changelog
+* Sat Dec 13 2003 Vincent Danen <vdanen@opensls.org> 4.2.1-15sls
+- OpenSLS build
+- tidy spec
+
 * Mon Jul 21 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 4.2.1-14mdk
 - rebuild
 - rm -rf $RPM_BUILD_ROOT at the beginning of %%install

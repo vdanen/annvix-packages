@@ -1,11 +1,11 @@
 %define name	timeconfig
 %define version	3.2
-%define release	8mdk
+%define release	9sls
 
+Summary:	Text mode tools for setting system time parameters.
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
-Summary:	Text mode tools for setting system time parameters.
 License:	GPL
 Group:		System/Configuration/Other
 Source0:	timeconfig-%{version}.tar.bz2
@@ -15,13 +15,15 @@ Source3:	timeconfig-mini.png
 Source4:	timeconfig-large.png
 Source5:	timeconfig.pamd
 Source6:	timeconfig.apps
-Requires:	initscripts >= 2.81
-Requires:	usermode-consoleonly
-BuildRequires:	gettext libnewt-devel popt-devel slang-devel
 Patch0:		timeconfig-gmt.patch.bz2
 Patch1:		timeconfig-mdkconf.patch.bz2
-Prereq:		fileutils, gawk
+
 BuildRoot:	%{_tmppath}/%{name}-root
+BuildRequires:	gettext libnewt-devel popt-devel slang-devel
+
+Requires:	initscripts >= 2.81
+Requires:	usermode-consoleonly
+Prereq:		fileutils, gawk
 
 %description
 The timeconfig package contains two utilities: timeconfig and
@@ -102,6 +104,10 @@ fi
 %config(noreplace) %{_sysconfdir}/security/console.apps/timeconfig-auth
 
 %changelog
+* Mon Dec 01 2003 Vincent Danen <vdanen@opensls.org> 3.2-9sls
+- OpenSLS build
+- tidy spec
+
 * Fri Jun 06 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 3.2-8mdk
 - use double %%'s in changelog
 

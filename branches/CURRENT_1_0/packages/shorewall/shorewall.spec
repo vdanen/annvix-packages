@@ -1,30 +1,30 @@
-%define name shorewall
-%define samples_version 1.4.6
-%define version 1.4.6c
-%define md5sums_version %version
-%define release 2mdk
-%define ftp_path ftp://
+%define name	shorewall
+%define version 1.4.8
+%define release 3sls
 
-Summary: Shoreline Firewall is an iptables-based firewall for Linux systems.
-Name: %{name}
-Version: %{version}
-Release: %{release}
-Source0: %ftp_path/%{name}-%{version}.tgz
-Source1: %ftp_path/samples-%{version}/samples-%{samples_version}.tar.bz2
-Source2: %ftp_patch/md5sums
-Source3: init.sh
+%define samples_version	1.4.8
+%define md5sums_version	%version
+%define ftp_path	ftp://ftp.shorewall.net
 
-License: GPL
-Group: System/Servers
-Prefix: %{_prefix}
-URL: http://www.shorewall.net/
-BuildArch: noarch
-Requires: iptables
-Requires: chkconfig
-Provides: shorewall
-Conflicts: kernel <= 2.2
-BuildRoot: %{_tmppath}/%{name}-buildroot
-PreReq: rpm-helper
+Summary:	Shoreline Firewall is an iptables-based firewall for Linux systems.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		System/Servers
+URL:		http://www.shorewall.net/
+Source0:	%ftp_path/%{name}-%{version}.tgz
+Source1:	%ftp_path/samples-%{version}/samples-%{samples_version}.tar.bz2
+Source2:	%ftp_path/%{version}.md5sums
+Source3:	init.sh
+
+BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildArch:	noarch
+
+Prefix:		%{_prefix}
+Requires:	iptables, chkconfig
+Conflicts:	kernel <= 2.2
+PreReq:		rpm-helper
 
 %description
 The Shoreline Firewall, more commonly known as "Shorewall", is a Netfilter
@@ -32,8 +32,8 @@ The Shoreline Firewall, more commonly known as "Shorewall", is a Netfilter
 a multi-function gateway/ router/server or on a standalone GNU/Linux system.
 
 %package doc
-Summary:  Firewall scripts
-Group:    System/Servers
+Summary:	Firewall scripts
+Group:		System/Servers
 
 %description doc 
 The Shoreline Firewall, more commonly known as "Shorewall", is a Netfilter
@@ -57,6 +57,8 @@ mv  $RPM_BUILD_DIR/%{name}-%{version}/samples-%{samples_version}/ $RPM_BUILD_DIR
 
 %build
 find -name CVS | xargs rm -fr
+find -name "*~" | xargs rm -fr
+find documentation/ -type f | xargs chmod 0644 
 
 %install
 rm -rf %{buildroot}
@@ -84,6 +86,9 @@ rm -rf %{buildroot}
 %attr(700,root,root) %dir /etc/shorewall
 %attr(750,root,root) %{_initrddir}/shorewall
 
+%config(noreplace) %{_sysconfdir}/%{name}/accounting
+%config(noreplace) %{_sysconfdir}/%{name}/users
+%config(noreplace) %{_sysconfdir}/%{name}/usersets
 %config(noreplace) %{_sysconfdir}/%{name}/blacklist
 %config(noreplace) %{_sysconfdir}/%{name}/common.def
 %config(noreplace) %{_sysconfdir}/%{name}/hosts
@@ -117,6 +122,33 @@ rm -rf %{buildroot}
 %doc %attr(-,root,root) documentation/*
 
 %changelog
+* Mon Dec 08 2003 Vincent Danen <vdanen@opensls.org> 1.4.8-3sls
+- OpenSLS build
+- tidy spec
+
+* Mon Dec 01 2003 Vincent Danen <vdanen@mandrakesoft.com> 1.4.8-2.1.92mdk
+- bugfix update for 9.2
+
+* Tue Nov 18 2003 Florin <florin@mandrakesoft.com> 1.4.8-2mdk
+- rebuld
+
+* Wed Nov 12 2003 Florin <florin@mandrakesoft.com> 1.4.8-1mdk
+- 1.4.8
+- samples 1.4.8
+
+* Sun Nov 02 2003 Florin <florin@mandrakesoft.com> 1.4.8-0.RC2.1mdk
+- 1.4.8-RC2
+
+* Sun Oct 26 2003 Florin <florin@mandrakesoft.com> 1.4.7c-1mdk
+- 1.4.7c
+
+* Sat Oct 25 2003 Florin <florin@mandrakesoft.com> 1.4.7b-1mdk
+- 1.4.7b
+
+* Tue Oct 07 2003 Florin <florin@mandrakesoft.com> 1.4.7b-1mdk
+- 1.4.7 and samples 1.4.7
+- add accounting, users and usersets new configuration files
+
 * Mon Sep 08 2003 Florin <florin@mandrakesoft.com> 1.4.6c-2mdk
 - replace the stop patch with SOURCE1
 

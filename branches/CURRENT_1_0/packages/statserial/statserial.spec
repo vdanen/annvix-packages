@@ -1,17 +1,21 @@
+%define name	statserial
+%define version	1.1
+%define release	17sls
+
 Summary:	A tool which displays the status of serial port modem lines
-Name:		statserial
-Version:	1.1
-Release:	16mdk
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
 License:	BSD
 Group:		Communications
-Url:		ftp://sunsite.unc.edu/pub/Linux/system/serial/
-
+URL:		ftp://sunsite.unc.edu/pub/Linux/system/serial/
 Source:		ftp://sunsite.unc.edu/pub/Linux/system/serial/%{name}-%{version}.tar.bz2
 Patch:		%{name}-1.1-config.patch.bz2
 Patch1: 	%name-1.1-dev.patch.bz2
+
+BuildRoot:	%_tmppath/%name-%version-%release-root
 BuildRequires:	ncurses-devel
 BuildRequires:	glibc-static-devel 
-BuildRoot:	%_tmppath/%name-%version-%release-root
 
 %description
 The statserial utility displays a table of the signals on a standard
@@ -47,6 +51,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/statserial.1.bz2
 
 %changelog
+* Mon Dec 01 2003 Vincent Danen <vdanen@opensls.org> 1.1-17sls
+- OpenSLS build
+- tidy spec
+
 * Thu Jul 24 2003 Götz Waschk <waschk@linux-mandrake.com> 1.1-16mdk
 - fix buildrequires
 

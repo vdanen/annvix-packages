@@ -1,26 +1,30 @@
+%define name	tar
+%define version	1.13.25
+%define release	12sls
+
 # rh-1.3.25-4
 %define _bindir /bin
 
-Summary: A GNU file archiving program.
-Name: tar
-Version:  1.13.25
-Release: 11mdk
-License: GPL
-Group: Archiving/Backup
-URL:	http://www.gnu.org/software/tar/tar.html
-Source: ftp://ftp.gnu.org/pub/gnu/tar/tar-%{version}.tar.bz2
-Patch0: tar-1.13.18-manpage.patch.bz2
-Patch1: tar-1.13.25-sock.patch.bz2
-Patch7: tar-1.13.19-error.patch.bz2
-Patch8: tar-1.13.19-absolutenames.patch.bz2
-Patch9: tar-1.13.25-automake.patch.bz2
-Patch10: tar-1.13.25-corruption-fix.patch.bz2 
-Patch11: tar-dots.patch.bz2
-Patch105: tar-1.13.22-yIfilter.patch.bz2
+Summary:	A GNU file archiving program.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		Archiving/Backup
+URL:		http://www.gnu.org/software/tar/tar.html
+Source:		ftp://ftp.gnu.org/pub/gnu/tar/tar-%{version}.tar.bz2
+Patch0:		tar-1.13.18-manpage.patch.bz2
+Patch1:		tar-1.13.25-sock.patch.bz2
+Patch7:		tar-1.13.19-error.patch.bz2
+Patch8:		tar-1.13.19-absolutenames.patch.bz2
+Patch9:		tar-1.13.25-automake.patch.bz2
+Patch10:	tar-1.13.25-corruption-fix.patch.bz2 
+Patch11:	tar-dots.patch.bz2
+Patch105:	tar-1.13.22-yIfilter.patch.bz2
 
+Buildroot:	%{_tmppath}/%{name}-root
 
-Prereq: /sbin/install-info /sbin/rmt
-Buildroot: %{_tmppath}/%{name}-root
+Prereq:		/sbin/install-info /sbin/rmt
 
 %description
 The GNU tar program saves many files together into one archive and
@@ -89,6 +93,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Dec 01 2003 Vincent Danen <vdanen@opensls.org> 1.13.25-12sls
+- OpenSLS build
+- tidy spec
+
 * Wed Jul 23 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 1.13.25-11mdk
 - rebuild
 

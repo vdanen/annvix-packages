@@ -1,3 +1,7 @@
+%define name	tcltk
+%define version	%{tclvers}
+%define release	2sls
+
 %define tcl_major	8.4
 %define tk_major 	8.4
 %define tclx_major 	8.3
@@ -14,57 +18,53 @@
 %define itclvers 	3.2
 %define tcllibvers	1.3	
 
-%define release		1mdk
 
+Summary:	A Tcl/Tk development environment: tcl, tk, tix, tclX, expect, and itcl
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	BSD
+Group:		System/Libraries
+Source0:	ftp://tcl.activestate.com/pub/tcl/tcl8_4/tcl%{tclvers}-src.tar.bz2
+Source1:	ftp://tcl.activestate.com/pub/tcl/tcl8_4/tk%{tclvers}-src.tar.bz2
+Source2:	ftp://tcl.activestate.com/pub/tcl/expect/expect-%{expvers}.tar.bz2
+Source3:	ftp://tcl.activestate.com/pub/tcl/tclx/tclx%{tclxvers}.tar.bz2
+Source4:	http://prdownloads.sourceforge.net/tixlibrary/tix-%{tixvers}.tar.bz2
+Source5:	ftp://tcl.activestate.com/pub/tcl/itcl/itcl%{itclvers}.tar.bz2
+Source6:	http://prdownloads.sourceforge.net/tcllib/tcllib-%{tcllibvers}.tar.bz2
+Source40:	tclx-help.tar.bz2
+Source41:	tix-8.1.3-tk8.4.tar.bz2
+Patch0:		tcl-8.3.3-cruft.patch.bz2
+Patch1:		tcl-8.3.3-heiierarchy.patch.bz2
+Patch2:		tcl-8.3.3-makecfg.patch.bz2
+Patch3:		tcl-8.3.3-refcount.patch.bz2
+Patch4:		tcl-8.4.2-dlopen.patch.bz2
+Patch10:	expect-5.32.2-random.patch.bz2
+Patch11:	expect-5.32.2-alpha.patch.bz2
+Patch12:	expect-5.32.2-kibitz.patch.bz2
+Patch13:	expect-5.32.2-fixcat.patch.bz2
+Patch14:	expect-5.32.2-weather.patch.bz2
+Patch15:	expect-5.32.2-makecfg.patch.bz2
+Patch16:	expect-5.32.2-spawn.patch.bz2
+Patch17:	expect-5.32.2-expectk.patch.bz2
+Patch18:	expect-5.32.2-setpgrp.patch.bz2
+Patch19:	expect-5.32-libdir.patch.bz2
+Patch20:	tix-8.2.0b1-perf.patch.bz2
+Patch21:	tix-8.2.0b1-makecfg.patch.bz2
+Patch22:	tix-8.2.0b1-dirtree.patch.bz2
+Patch30:	itcl-3.2-symlink.patch.bz2
+Patch31:	itcl-3.2-makecfg.patch.bz2
+Patch32:	itcl-3.2-no-wish-test.patch.bz2
+Patch33:	itcl-3.2-libdir.patch.bz2
+Patch40:	tclx-8.3-makecfg.patch.bz2
+Patch41:	tclx-8.3-argv.patch.bz2
+Patch42:	tclx-8.3-varinit.patch.bz2
+Patch43:	tclx-8.3-nobuildhelp.patch.bz2
+Patch50:	tk-8.3.3-makecfg.patch.bz2
+Patch60:	tcllib-1.0-no-tclsh-test.patch.bz2
 
-Summary: A Tcl/Tk development environment: tcl, tk, tix, tclX, expect, and itcl
-Name: tcltk
-Version: %{tclvers}
-Release: %{release}
-Source0: ftp://tcl.activestate.com/pub/tcl/tcl8_4/tcl%{tclvers}-src.tar.bz2
-Source1: ftp://tcl.activestate.com/pub/tcl/tcl8_4/tk%{tclvers}-src.tar.bz2
-Source2: ftp://tcl.activestate.com/pub/tcl/expect/expect-%{expvers}.tar.bz2
-Source3: ftp://tcl.activestate.com/pub/tcl/tclx/tclx%{tclxvers}.tar.bz2
-Source4: http://prdownloads.sourceforge.net/tixlibrary/tix-%{tixvers}.tar.bz2
-Source5: ftp://tcl.activestate.com/pub/tcl/itcl/itcl%{itclvers}.tar.bz2
-Source6: http://prdownloads.sourceforge.net/tcllib/tcllib-%{tcllibvers}.tar.bz2
-Source40: tclx-help.tar.bz2
-Source41: tix-8.1.3-tk8.4.tar.bz2
-
-Patch0: tcl-8.3.3-cruft.patch.bz2
-Patch1: tcl-8.3.3-heiierarchy.patch.bz2
-Patch2: tcl-8.3.3-makecfg.patch.bz2
-Patch3: tcl-8.3.3-refcount.patch.bz2
-Patch4: tcl-8.4.2-dlopen.patch.bz2
-Patch10: expect-5.32.2-random.patch.bz2
-Patch11: expect-5.32.2-alpha.patch.bz2
-Patch12: expect-5.32.2-kibitz.patch.bz2
-Patch13: expect-5.32.2-fixcat.patch.bz2
-Patch14: expect-5.32.2-weather.patch.bz2
-Patch15: expect-5.32.2-makecfg.patch.bz2
-Patch16: expect-5.32.2-spawn.patch.bz2
-Patch17: expect-5.32.2-expectk.patch.bz2
-Patch18: expect-5.32.2-setpgrp.patch.bz2
-Patch19: expect-5.32-libdir.patch.bz2
-Patch20: tix-8.2.0b1-perf.patch.bz2
-Patch21: tix-8.2.0b1-makecfg.patch.bz2
-Patch22: tix-8.2.0b1-dirtree.patch.bz2
-Patch30: itcl-3.2-symlink.patch.bz2
-Patch31: itcl-3.2-makecfg.patch.bz2
-Patch32: itcl-3.2-no-wish-test.patch.bz2
-Patch33: itcl-3.2-libdir.patch.bz2
-Patch40: tclx-8.3-makecfg.patch.bz2
-Patch41: tclx-8.3-argv.patch.bz2
-Patch42: tclx-8.3-varinit.patch.bz2
-Patch43: tclx-8.3-nobuildhelp.patch.bz2
-Patch50: tk-8.3.3-makecfg.patch.bz2
-Patch60: tcllib-1.0-no-tclsh-test.patch.bz2
-
-License: BSD
-Group: System/Libraries
-Buildroot: %{_tmppath}/%{name}-root
-BuildRequires: XFree86-devel
-BuildRequires: groff
+BuildRoot:	%{_tmppath}/%{name}-root
+BuildRequires:	XFree86-devel,  groff
 
 %description
 Tcl is a simple scripting language designed to be embedded into
@@ -74,9 +74,9 @@ tclsh, a simple example of a Tcl application.
 
 %package -n tcl
 #Version: 8.0.3
-Summary: An embeddable scripting language.
-Group: System/Libraries
-URL: http://www.scriptics.com
+Summary:	An embeddable scripting language.
+Group:		System/Libraries
+URL:		http://www.scriptics.com
 
 %description -n tcl
 Tcl is a simple scripting language designed to be embedded into
@@ -89,9 +89,9 @@ development, you should also install the tk and tclx packages.
 
 %package -n tk
 #Version: 8.0.3
-Summary: Tk GUI toolkit for Tcl, with shared libraries
-Group: System/Libraries
-URL: http://www.scriptics.com
+Summary:	Tk GUI toolkit for Tcl, with shared libraries
+Group:		System/Libraries
+URL:		http://www.scriptics.com
 
 %description -n tk
 Tk is a X Windows widget set designed to work closely with the tcl
@@ -102,8 +102,8 @@ and Macintosh platforms.
 
 %package -n expect
 #Version: %{expvers}
-Summary: A tcl extension for simplifying program-script interaction.
-Group: System/Libraries
+Summary:	A tcl extension for simplifying program-script interaction.
+Group:		System/Libraries
 
 %description -n expect
 Expect is a tcl extension for automating interactive applications such
@@ -117,9 +117,9 @@ package.
 
 %package -n tclx
 #Version: %{tclXvers}
-Summary: Tcl/Tk extensions for POSIX systems.
-Group: System/Libraries
-URL: http://www.neosoft.com/
+Summary:	Tcl/Tk extensions for POSIX systems.
+Group:		System/Libraries
+URL:		http://www.neosoft.com/
 
 %description -n tclx
 TclX is a set of extensions which make it easier to use the Tcl
@@ -133,8 +133,8 @@ also need to install the tcl and tk packages.
 
 %package -n tix
 #Version: %{Tixvers}.6
-Summary: A set of capable widgets for Tk.
-Group: System/Libraries
+Summary:	A set of capable widgets for Tk.
+Group:		System/Libraries
 
 %description -n tix
 Tix (Tk Interface Extension), an add-on for the Tk widget set, is an
@@ -149,8 +149,8 @@ for Tk.  You'll also need to have the tcl and tk packages installed.
 
 %package -n itcl
 #Version: %{itclvers}
-Summary: object oriented mega widgets for tcl
-Group: System/Libraries
+Summary:	object oriented mega widgets for tcl
+Group:		System/Libraries
 
 %description -n itcl
 [incr Tcl] is an object-oriented extension of the Tcl language.  It
@@ -171,8 +171,8 @@ the resulting code is easier to understand and maintain.
 
 %package -n tcllib
 #Version: %{tcllibvers}
-Summary: Library of utility modules for tcl.
-Group: Development/Other
+Summary:	Library of utility modules for tcl.
+Group:		Development/Other
 
 %description -n tcllib
 Tcllib is a collection of utility modules for tcl. These modules provide
@@ -596,6 +596,10 @@ rm -f *.files
 %files -f tcllib.files -n tcllib
 
 %changelog
+* Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 8.4.2-2sls
+- OpenSLS build
+- tidy spec
+
 * Mon Apr 07 2003 Nicolas Planel <nplanel@mandrakesoft.com> 8.4.2-1mdk
 - 8.4.2.
 - Remove patch 0,1,2,3 and tcl-encoding source.

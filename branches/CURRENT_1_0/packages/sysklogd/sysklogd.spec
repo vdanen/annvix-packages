@@ -1,18 +1,23 @@
+%define name	sysklogd
+%define version	1.4.1
+%define release	6sls
+
 # rh 1.4.1-5
 
 Summary:	System logging and kernel message trapping daemons.
-Name:		sysklogd
-Version:	1.4.1
-Release: 	5mdk
+Name:		%{name}
+Version:	%{version}
+Release: 	%{release}
 License:	GPL
 Group:		System/Kernel and hardware 
 Source:		ftp://sunsite.unc.edu/pub/Linux/system/daemons/%{name}-%{version}rh.tar.bz2
 Patch0:		sysklogd-1.4.1rh-mdkconf.patch.bz2
 Patch1: 	sysklogd-1.4rh-do_not_use_initlog_when_restarting.patch.bz2
-Prereq:		fileutils, /sbin/chkconfig, initscripts >= 5.60
-Requires:	logrotate >= 3.3-8mdk, bash >= 2.0
+
 BuildRoot:	%{_tmppath}/%{name}-root
-Prereq:		rpm-helper
+
+Requires:	logrotate >= 3.3-8mdk, bash >= 2.0
+Prereq:		fileutils, /sbin/chkconfig, initscripts >= 5.60, rpm-helper
 
 %description
 The sysklogd package contains two system utilities (syslogd and klogd)
@@ -102,6 +107,10 @@ fi
 
 
 %changelog
+* Mon Dec 01 2003 Vincent Danen <vdanen@opensls.org> 1.4.1-6sls
+- OpenSLS build
+- tidy spec
+
 * Wed Apr  9 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 1.4.1-5mdk
 - Revert s/fileutils/coreutils/ the latter should provide the former
 
