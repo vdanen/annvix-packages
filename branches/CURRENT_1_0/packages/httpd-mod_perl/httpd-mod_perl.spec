@@ -1,6 +1,6 @@
 %define name	%{ap_name}-%{mod_name}
 %define version %{ap_version}_%{mod_version}
-%define release 3sls
+%define release 4sls
 
 # Module-Specific definitions
 %define mod_version	1.99_11
@@ -109,7 +109,7 @@ make test
 %endif
 
 %install
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 install -d %{buildroot}%{ap_extralibs}
 
@@ -145,7 +145,7 @@ install -m644 xs/tables/current/Apache/FunctionTable.pm \
     %{buildroot}%{perl_vendorarch}/Apache2/Apache/
 
 %clean
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
 %ADVXpost
@@ -172,6 +172,9 @@ install -m644 xs/tables/current/Apache/FunctionTable.pm \
 %{ap_includedir}/*
 
 %changelog
+* Fri Feb 20 2004 Vincent Danen <vdanen@opensls.org> 2.0.48_1.99_11-4sls
+- tiny cleanups
+
 * Sat Jan 03 2004 Vincent Danen <vdanen@opensls.org> 2.0.48_1.99_11-3sls
 - put back the mod_perl-common req's as we are shipping apache 1.x
 
