@@ -1,0 +1,38 @@
+--- util-linux-2.11f/fdisk/fdisk.c.org	Fri Sep 28 16:48:48 2001
++++ util-linux-2.11f/fdisk/fdisk.c	Fri Sep 28 16:51:09 2001
+@@ -754,7 +754,8 @@
+ 	int sec_fac;
+ 	long longsectors;
+ 	struct hd_big_geometry geometry;
+-	int res1, res2;
++	struct hd_geometry smallgeo;
++	int res1, res2,res3;
+ 
+ 	get_sectorsize(fd);
+ 	sec_fac = sector_size / 512;
+@@ -763,6 +764,7 @@
+ 
+ 	res1 = ioctl(fd, BLKGETSIZE, &longsectors);
+ 	res2 = ioctl(fd, HDIO_GETGEO_BIG, &geometry);
++	res3 = ioctl(fd, HDIO_GETGEO, &smallgeo);
+ 
+ 	/* never use geometry.cylinders - it is truncated */
+ 	heads = cylinders = sectors = 0;
+@@ -774,8 +776,15 @@
+ 			res2 = -1;
+ 		else if (dos_compatible_flag)
+ 			sector_offset = sectors;
+-	}
+-	if (res1 == 0 && res2 == 0) { 	/* normal case */
++	} else if (res3 == 0) {
++		heads = smallgeo.heads;
++		sectors = smallgeo.sectors;
++		if (heads * sectors == 0)
++			res2 = -1;
++		else if (dos_compatible_flag)
++			sector_offset = sectors;
++	};
++	if (res1 == 0 && (res2 == 0 || res3 == 0) ) { 	/* normal case */
+ 		cylinders = longsectors / (heads * sectors);
+ 		cylinders /= sec_fac;   /* do not round up */
+ 	} else if (res1 == 0) {		/* size but no geometry */

@@ -1,0 +1,51 @@
+--- ./mount/mount.c.gege	2003-06-04 20:20:14.000000000 +0200
++++ ./mount/mount.c	2003-06-04 20:32:24.000000000 +0200
+@@ -463,6 +463,38 @@
+      return ret;
+ }
+ 
++static void remove_opt(char* options, char* to_remove) {
++
++    if (options) {
++	char * end;
++	char * start = options;
++
++	char * newOpts = alloca(strlen(options) + 1);
++	*newOpts = '\0';
++
++	while (*start) {
++	    end = strchr(start, ',');
++	    if (!end) {
++		end = start + strlen(start);
++	    } else {
++		*end = '\0';
++		end++;
++	    }
++
++	    if (strncmp(start, to_remove, strlen(to_remove))) {
++		if (*newOpts)
++		    strcat(newOpts, ",");
++		strcat(newOpts, start);
++	    }
++
++	    start = end;
++	}
++
++	options = realloc(options, strlen(newOpts) + 1);
++	strcpy(options, newOpts);
++    }
++}
++
+ /*
+  * guess_fstype_and_mount()
+  *	Mount a single file system. Guess the type when unknown.
+@@ -490,6 +522,9 @@
+       }
+    }
+ 
++   if (*types && !strcmp(*types, "udf"))
++      remove_opt(mount_opts, "mode=");
++
+    /* Accept a comma-separated list of types, and try them one by one */
+    /* A list like "nonfs,.." indicates types not to use */
+    if (*types && strncmp(*types, "no", 2) && index(*types,',')) {
