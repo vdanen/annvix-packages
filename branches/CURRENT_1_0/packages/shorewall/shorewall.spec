@@ -1,8 +1,8 @@
 %define name	shorewall
-%define version 1.4.8
-%define release 4sls
+%define version 2.0.1
+%define release 1sls
 
-%define samples_version	1.4.8
+%define samples_version	2.0.1
 %define md5sums_version	%version
 %define ftp_path	ftp://ftp.shorewall.net
 
@@ -16,7 +16,10 @@ URL:		http://www.shorewall.net/
 Source0:	%ftp_path/%{name}-%{version}.tgz
 Source1:	%ftp_path/samples-%{version}/samples-%{samples_version}.tar.bz2
 Source2:	%ftp_path/%{version}.md5sums
-Source3:	init.sh
+Source3:	init.sh.bz2
+Source4:	bogons.bz2
+Source5:	rfc1918.bz2
+Patch0:		shorewall-2.0.1-kernel_modules_suffix.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-buildroot
 BuildArch:	noarch
@@ -42,9 +45,12 @@ a multi-function gateway/ router/server or on a standalone GNU/Linux system.
 This package contains the docs.
 %prep
 
-%setup 
+%setup -q
+%patch0 -p1 -b .kernel_modules_suffix
 
-cp -f %SOURCE3 $RPM_BUILD_DIR/%{name}-%{version}
+bzcat %SOURCE3 > $RPM_BUILD_DIR/%{name}-%{version}/init.sh
+bzcat %SOURCE4 > $RPM_BUILD_DIR/%{name}-%{version}/bogons
+bzcat %SOURCE5 > $RPM_BUILD_DIR/%{name}-%{version}/rfc1918
 tar xjf %SOURCE1
 
 cd  $RPM_BUILD_DIR/%{name}-%{version}/samples-%{samples_version}/
@@ -64,7 +70,11 @@ find documentation/ -type f | xargs chmod 0644
 export PREFIX=%{buildroot} ; \
 export OWNER=`id -n -u` ; \
 export GROUP=`id -n -g` ;\
-./install.sh %{_initrddir}
+./install.sh
+
+mkdir -p %{buildroot}%{_initrddir}
+mv %{buildroot}/etc/init.d/shorewall %{buildroot}%{_initrddir}/
+rm -rf %{buildroot}/etc/init.d
 
 # Suppress automatic replacement of "echo" by "gprintf" in the shorewall
 # startup script by RPM. This automatic replacement is broken.
@@ -86,20 +96,17 @@ export DONT_GPRINTIFY=1
 %attr(750,root,root) %{_initrddir}/shorewall
 
 %config(noreplace) %{_sysconfdir}/%{name}/accounting
-%config(noreplace) %{_sysconfdir}/%{name}/users
-%config(noreplace) %{_sysconfdir}/%{name}/usersets
 %config(noreplace) %{_sysconfdir}/%{name}/blacklist
-%config(noreplace) %{_sysconfdir}/%{name}/common.def
 %config(noreplace) %{_sysconfdir}/%{name}/hosts
 %config(noreplace) %{_sysconfdir}/%{name}/interfaces
 %config(noreplace) %{_sysconfdir}/%{name}/ecn
 %config(noreplace) %{_sysconfdir}/%{name}/masq
 %config(noreplace) %{_sysconfdir}/%{name}/modules
+%config(noreplace) %{_sysconfdir}/%{name}/netmap
 %config(noreplace) %{_sysconfdir}/%{name}/nat
 %config(noreplace) %{_sysconfdir}/%{name}/params
 %config(noreplace) %{_sysconfdir}/%{name}/policy
 %config(noreplace) %{_sysconfdir}/%{name}/proxyarp
-%config(noreplace) %{_sysconfdir}/%{name}/rfc1918
 %config(noreplace) %{_sysconfdir}/%{name}/routestopped
 %config(noreplace) %{_sysconfdir}/%{name}/rules
 %config(noreplace) %{_sysconfdir}/%{name}/shorewall.conf
@@ -112,6 +119,7 @@ export DONT_GPRINTIFY=1
 %config(noreplace) %{_sysconfdir}/%{name}/stop
 %config(noreplace) %{_sysconfdir}/%{name}/stopped
 %config(noreplace) %{_sysconfdir}/%{name}/init
+%config(noreplace) %{_sysconfdir}/%{name}/actions
 
 %attr(544,root,root) /sbin/shorewall
 
@@ -121,6 +129,13 @@ export DONT_GPRINTIFY=1
 %doc %attr(-,root,root) documentation/*
 
 %changelog
+* Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 2.0.1-1sls
+- 2.0.1
+- add netmap file
+- add the kernel modules extension patch (mdk bug #9311) (florin)
+- patch also fixes broken insmod (use modprobe instead) (florin)
+- add the bogons and rfc1918 sources (thomas)
+
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 1.4.8-4sls
 - minor spec cleanups
 - remove %%prefix

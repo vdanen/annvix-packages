@@ -44,7 +44,7 @@ RCDLINKS="2,S41 3,S41 6,K41"
 # Description:	  starts and stops the shorewall firewall
 ### END INIT INFO
 
-# chkconfig: 2345 25 90
+# chkconfig: 2345 03 90
 # description: Packet filtering firewall
 #
 
@@ -70,10 +70,10 @@ case "$1" in
 		exec /sbin/shorewall clear
 	;;
 	restart)
-		exec /sbin/shorewall restart
+		/sbin/shorewall check && /sbin/shorewall restart
 	;;
 	start)
-		exec /sbin/shorewall start
+		/sbin/shorewall check && /sbin/shorewall start
 	;;
 	status)
 		exec /sbin/shorewall status
