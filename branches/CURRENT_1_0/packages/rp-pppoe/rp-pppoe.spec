@@ -1,6 +1,6 @@
 %define name	rp-pppoe
 %define version	3.5
-%define release	7avx
+%define release	8avx
 
 Summary:	ADSL/PPPoE userspace driver
 Name:		%{name}
@@ -11,6 +11,7 @@ Group:		System/Servers
 URL:		http://www.roaringpenguin.com/pppoe
 Source:		http://www.roaringpenguin.com/%{name}-%{version}.tar.bz2
 Patch0:		rp-pppoe-3.5-avx-init.patch.bz2
+Patch1:		rp-pppoe-3.5-CAN-2004-0564.patch.bz2
 
 BuildRoot:	%_tmppath/%name-%version-root
 BuildRequires:	ppp
@@ -32,6 +33,7 @@ Speed Edition) service.
 %prep
 %setup -q
 %patch0 -p1
+%patch1 -p1 -b .can-2004-0564
 
 %build
 cd src
@@ -77,6 +79,9 @@ rm -rf %{buildroot}/usr/doc
 
 
 %changelog
+* Sat Dec 04 2004 Vincent Danen <vdanen@annvix.org> 3.5-8avx
+- P1: patch to fix CAN-2004-0564
+
 * Mon Jul 19 2004 Vincent Danen <vdanen@annvix.org> 3.5-7avx
 - start adsl after network but before shorewall
 
