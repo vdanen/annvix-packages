@@ -1,6 +1,6 @@
 %define name	exim
 %define version 4.30
-%define release 6sls
+%define release 7sls
 
 %define build_mysql 0
 %define build_pgsql 0
@@ -209,19 +209,6 @@ popd
 # alternatives changes the mode of /usr/bin/exim so we have to chmod
 chmod 4755 %{_bindir}/exim
 
-# we also have to hack msec because msec wants sendmail to be mode 2711
-# but it follows symlinks so we have to fix this by giving an override
-echo "Making msec aware of exim's special permissions..."
-grep -q -e '^/usr/bin/exim' %{_sysconfdir}/security/msec/perm.local 2>/dev/null \
- || echo "/usr/bin/exim   root.root   4755" >> %{_sysconfdir}/security/msec/perm.local
-
-# Now we go through the default msec perms and comment out all calls to sendmail
-echo "Disabling msec default permission checks for sendmail if required..."
-for i in `ls -1 %{_datadir}/msec/perm.[0-5]`; do
-  grep -q -e '^/usr/sbin/sendmail' $i 2>/dev/null && \
-    perl -pi -e 's|/usr/sbin/sendmail|#/usr/sbin/sendmail|g' $i
-done
-
 if [ $1 = 1 ]; then
   echo "Run %{_sbindir}/eximconfig to interactively configure exim"
 fi
@@ -241,21 +228,6 @@ if [ $1 = 0 ]; then
   %endif
 fi
 
-%postun
-if [ "$1" -ge "1" ]; then
-	/usr/sbin/srv restart exim
-fi
-if [ $1 = 0 ]; then
-  echo "Restoring msec default permission checks for sendmail if required..."
-  for i in `ls -1 %{_datadir}/msec/perm.[0-5]`; do
-    grep -q -e '^\#/usr/sbin/sendmail' $i 2>/dev/null && \
-      perl -pi -e 's|#/usr/sbin/sendmail|/usr/sbin/sendmail|g' $i
-  done
-  echo "Cleaning perm.local.."
-  grep -q -e '^/usr/bin/exim' %{_sysconfdir}/security/msec/perm.local 2>/dev/null && \
-    perl -pi -e 's|/usr/bin/exim.*||g' %{_sysconfdir}/security/msec/perm.local
-fi
-      
 
 %files
 %defattr(755,root,root)
@@ -326,6 +298,9 @@ fi
 %config(noreplace) %{_sysconfdir}/exim/sa-exim_short.conf
 
 %changelog
+* Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 4.30-7sls
+- remove mangling of msec
+
 * Thu Mar 04 2004 Vincent Danen <vdanen@opensls.org> 4.30-6sls
 - tidy spec
 - remove docs
