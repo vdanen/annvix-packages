@@ -1,9 +1,6 @@
-
-Remove installed/not-installed detection code.
-
---- apr-util-0.9.4/apu-config.in.config
-+++ apr-util-0.9.4/apu-config.in
-@@ -70,8 +70,6 @@
+--- apu-config.in	2004-09-15 22:01:52.538262419 +0200
++++ apu-config.in.oden	2004-09-15 22:05:43.138141698 +0200
+@@ -32,8 +32,6 @@
  
  APRUTIL_LIBNAME="@APRUTIL_LIBNAME@"
  
@@ -12,36 +9,10 @@ Remove installed/not-installed detection code.
  APR_XML_EXPAT_OLD="@APR_XML_EXPAT_OLD@"
  APU_DB_VERSION="@apu_db_version@"
  
-@@ -111,42 +109,7 @@
+@@ -76,15 +74,7 @@
      exit 1
  fi
  
--thisdir="`dirname $0`"
--thisdir="`cd $thisdir && pwd`"
--if test -d $bindir; then
--    tmpbindir="`cd $bindir && pwd`"
--else
--    tmpbindir=""
--fi
--# If we have the realpath program, use it to resolve symlinks.
--# Otherwise, being in a symlinked dir may result in incorrect output.
--if test -x "`which realpath 2>/dev/null`"; then
--    thisdir="`realpath $thisdir`"
--    if test -d "$APU_SOURCE_DIR"; then
--        APU_SOURCE_DIR="`realpath $APU_SOURCE_DIR`"
--    fi
--    if test -n "$tmpbindir"; then
--        tmpbindir="`realpath $tmpbindir`"
--    fi
--fi
--if test "$tmpbindir" = "$thisdir"; then
--    location=installed
--elif test "$APU_SOURCE_DIR" = "$thisdir"; then
--    location=source
--else
--    location=build
--fi
--
 -if test "$location" = "installed"; then
 -    LA_FILE="$libdir/lib${APRUTIL_LIBNAME}.la"
 -
@@ -49,14 +20,13 @@ Remove installed/not-installed detection code.
 -    LDFLAGS=`echo "$LDFLAGS" | sed -e "s $APU_BUILD_DIR/xml/expat $prefix g"`
 -    INCLUDES=`echo "$INCLUDES" | sed -e "s $APU_BUILD_DIR/xml/expat $prefix g" -e "s -I$prefix/lib  g"`
 -else
--    LA_FILE="$thisdir/lib${APRUTIL_LIBNAME}.la"
+-    LA_FILE="$APU_BUILD_DIR/lib${APRUTIL_LIBNAME}.la"
 -fi
--
 +LA_FILE="${libdir}/lib${APRUTIL_LIBNAME}.la"
+ 
  flags=""
  
- while test $# -gt 0; do
-@@ -173,32 +136,18 @@
+@@ -112,32 +102,17 @@
      flags="$flags $LIBS"
      ;;
      --includedir)
@@ -66,7 +36,7 @@ Remove installed/not-installed detection code.
 -        flags="$APU_SOURCE_DIR/include"
 -    else
 -        # this is for VPATH builds
--        flags="$thisdir/include $APU_SOURCE_DIR/include"
+-        flags="$APU_BUILD_DIR/include $APU_SOURCE_DIR/include"
 -    fi
 -    echo $flags
 +    echo $includedir
@@ -79,7 +49,7 @@ Remove installed/not-installed detection code.
 -        flags="$flags -I$APU_SOURCE_DIR/include $INCLUDES"
 -    else
 -        # this is for VPATH builds
--        flags="$flags -I$thisdir/include -I$APU_SOURCE_DIR/include $INCLUDES"
+-        flags="$flags -I$APU_BUILD_DIR/include -I$APU_SOURCE_DIR/include $INCLUDES"
 -    fi
 +    flags="$flags -I$includedir $INCLUDES"
      ;;
@@ -88,12 +58,11 @@ Remove installed/not-installed detection code.
      ;;
      --srcdir)
 -    echo $APU_SOURCE_DIR
-+    # Lie - nobody should care about this.
 +    echo ${libdir}/apr 
      exit 0
      ;;
      --version)
-@@ -206,31 +155,13 @@
+@@ -145,31 +120,13 @@
      exit 0
      ;;
      --link-ld)
@@ -101,7 +70,7 @@ Remove installed/not-installed detection code.
 -        ### avoid using -L if libdir is a "standard" location like /usr/lib
 -        flags="$flags -L$libdir -l$APRUTIL_LIBNAME"
 -    else
--        flags="$flags -L$thisdir -l$APRUTIL_LIBNAME"
+-        flags="$flags -L$APU_BUILD_DIR -l$APRUTIL_LIBNAME"
 -    fi
 +    flags="$flags -l$APRUTIL_LIBNAME"
      ;;

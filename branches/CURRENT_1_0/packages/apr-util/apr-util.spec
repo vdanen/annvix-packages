@@ -1,30 +1,9 @@
 %define name	apr-util
-%define version	0.9.5
+%define version	0.9.6
 %define release	1avx
 
 %define apuver	0
 %define libname	%mklibname %{name} %{apuver}
-
-#(ie. use with rpm --rebuild):
-#
-#	--with debug	Compile with debugging code
-# 
-#  enable build with debugging code: will _not_ strip away any debugging code,
-#  will _add_ -g3 to CFLAGS, will _add_ --enable-maintainer-mode to 
-#  configure.
-
-%define build_debug 0
-
-# commandline overrides:
-# rpm -ba|--rebuild --with 'xxx'
-%{?_with_debug: %{expand: %%define build_debug 1}}
-
-%if %{build_debug}
-# disable build root strip policy
-%define __spec_install_post %{_libdir}/rpm/brp-compress || :
-# This gives extra debugging and huge binaries
-%{expand:%%define optflags %{optflags} %([ ! $DEBUG ] && echo '-g3')}
-%endif
 
 Summary:	Apache Portable Runtime Utility library
 Name:		%{name}
@@ -33,22 +12,19 @@ Release:	%{release}
 License:	Apache License
 Group:		System/Libraries
 URL:		http://apr.apache.org/
-Source0:	%{name}-0.9.4.tar.gz
-Source1:	%{name}-0.9.4.tar.gz.asc
+Source0:	%{name}-%{version}.tar.gz
+Source1:	%{name}-%{version}.tar.gz.asc
 
-# OE: P0 is taken from the httpd-2.0.50.tar.gz source
-Patch0:		apr-util-0.9.4-0.9.5.diff.bz2
+Patch0:		apr-util-0.9.5-lib64.diff.bz2
 # OE: these are from fedora
 Patch1:		%{name}-0.9.3-deplibs.patch.bz2
-Patch2:		%{name}-0.9.3-config.patch.bz2
+Patch2:		%{name}-0.9.5-config.diff.bz2
 Patch7:         %{name}-0.9.4-xlate.patch.bz2
-# security fixes
-Patch100:	apr-util-0.9.4-CAN-2004-0786.diff.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
-BuildPrereq:	autoconf2.5
-BuildPrereq:	automake1.7
-BuildPrereq:	libtool
+#BuildPrereq:	autoconf2.5
+#BuildPrereq:	automake1.7
+#BuildPrereq:	libtool
 BuildPrereq:	doxygen
 BuildPrereq:	apr-devel >= 0.9.5
 BuildPrereq:	openldap-devel
@@ -82,7 +58,6 @@ Requires:	%{libname} = %{version}
 Requires:	apr-util = %{version}
 Requires:	apr-devel
 Requires:	openldap-devel
-Requires:	db4-devel
 Requires:	expat-devel
 Provides:	lib%{name}-devel %{name}-devel
 Obsoletes:	lib%{name}-devel %{name}-devel
@@ -95,14 +70,11 @@ library of C data structures and routines.
 
 %prep
 
-%setup -q -n %{name}-0.9.4
-%patch0 -p1 -b .0.9.5
+%setup -q -n %{name}-%{version}
+%patch0 -p0 -b .lib64
 %patch1 -p1 -b .deplibs
-%patch2 -p1 -b .config
+%patch2 -p0 -b .config
 %patch7 -p1 -b .xlate
-
-# security fixes
-%patch100 -p1 -b .CAN-2004-0786
 
 %build
 
@@ -129,16 +101,13 @@ EOF
 # We need to re-run ./buildconf because of any applied patch(es)
 #./buildconf --with-apr=%{_prefix}
 export WANT_AUTOCONF_2_5=1
-autoheader-1.7 && autoconf
+rm -f configure
+libtoolize --copy --force && aclocal-1.7 && autoconf --force
 
 %configure2_5x \
     --with-apr=%{_prefix} \
     --includedir=%{_includedir}/apr-%{apuver} \
     --with-installbuilddir=%{_libdir}/apr/build \
-%if %{build_debug}
-    --enable-debug \
-    --enable-maintainer-mode \
-%endif
     --enable-layout=ADVX \
     --with-ldap \
     --without-gdbm
@@ -146,24 +115,25 @@ autoheader-1.7 && autoconf
 %make
 make dox
 
+# Run the less verbose tests
+%define tests testmd5 testrmm teststrmatch testuri testxlate
+pushd test
+    make %{tests} testdbm
+    for t in %{tests}; do ./${t} || exit 1; done
+    ./testdbm auto tsdbm
+    ./testdbm -tDB auto tbdb.db
+popd
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %makeinstall_std
 
 # Documentation
-mv docs/dox/html html
+rm -rf html; mv docs/dox/html html
 
 # Unpackaged files
 rm -f %{buildroot}%{_libdir}/aprutil.exp
-
-%check
-# Run the less verbose tests
-%define tests testmd5 testrmm teststrmatch testuri testxlate
-cd test; make %{?_smp_mflags} %{tests} testdbm
-for t in %{tests}; do ./${t} || exit 1; done
-./testdbm auto tsdbm
-./testdbm -tDB auto tbdb.db
 
 %post -n %{libname} -p /sbin/ldconfig
 
@@ -186,6 +156,13 @@ for t in %{tests}; do ./${t} || exit 1; done
 %{_includedir}/apr-%{apuver}/*.h
 
 %changelog
+* Fri Feb 25 2005 Vincent Danen <vdanen@annvix.org> 0.9.6-1avx
+- 0.9.6
+- P0: lib64 fixes (oden)
+- run tests in %%build
+- remove db4-devel requires from -devel pkg (mdk bug #13906) (stefan)
+- remove debug build support
+
 * Thu Oct 14 2004 Vincent Danen <vdanen@annvix.org> 0.9.5-1avx
 - first Annvix package for the new-style apache2
 
