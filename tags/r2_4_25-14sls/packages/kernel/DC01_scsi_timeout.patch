@@ -1,0 +1,11 @@
+--- linux/drivers/scsi/sd.c.chmou	Mon Aug 20 18:36:26 2001
++++ linux/drivers/scsi/sd.c	Mon Aug 20 19:11:44 2001
+@@ -81,7 +81,7 @@
+  *  Time out in seconds for disks and Magneto-opticals (which are slower).
+  */
+ 
+-#define SD_TIMEOUT (30 * HZ)
++#define SD_TIMEOUT (60 * HZ)
+ #define SD_MOD_TIMEOUT (75 * HZ)
+ 
+ struct hd_struct *sd;

@@ -1,0 +1,12 @@
+diff -up test/arch/x86_64/mm/fault.c.orig test/arch/x86_64/mm/fault.c
+--- test/arch/x86_64/mm/fault.c.orig	2002-08-01 20:12:03.000000000 +0200
++++ test/arch/x86_64/mm/fault.c	2002-08-01 20:12:18.000000000 +0200
+@@ -159,7 +159,7 @@ again:
+ 		if (address + 128 < regs->rsp)
+ 			goto bad_area;
+ 	}
+-	if (expand_stack(vma, address))
++	if (expand_stack(vma, address, NULL))
+ 		goto bad_area;
+ /*
+  * Ok, we have a good vm_area for this memory access, so

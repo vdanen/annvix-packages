@@ -1,0 +1,36 @@
+--- linux-2.4.20/drivers/acpi/blacklist.c.dm08.orig	2003-04-15 02:59:48.000000000 +0200
++++ linux-2.4.20/drivers/acpi/blacklist.c	2003-04-15 04:04:46.000000000 +0200
+@@ -81,6 +81,12 @@ static struct acpi_blacklist_item acpi_b
+ 	/* IBM 600E - _ADR should return 7, but it returns 1 */
+ 	{"IBM   ", "TP600E  ", 0x00000105, ACPI_DSDT, less_than_or_equal, "Incorrect _ADR", 1},
+ 	{"ASUS\0\0", "P2B-S   ", 0, ACPI_DSDT, all_versions, "Bogus PCI routing", 1},
++	
++ 	{"VIA694", "AWRDACPI", 0,          ACPI_TABLE_DSDT, all_versions, "Bogus table", 1},
++ 	{"IBM   ", "TP-16   ", 0,          ACPI_TABLE_DSDT, all_versions, "Bogus PCI routing", 1},
++ 	{"IBM   ", "TP-T21  ", 0,          ACPI_TABLE_DSDT, all_versions, "Bogus PCI routing", 1},
++ 	{"Intel",  "Trajan",   0,          ACPI_TABLE_DSDT, all_versions, "Bogus table", 1},
++ 	{"SHARP ", "QS1     ", 0,          ACPI_TABLE_DSDT, all_versions, "Bogus table", 1},
+ 
+ 	{""}
+ };
+--- linux-2.4.20/arch/i386/kernel/dmi_scan.c.dm08.orig	2003-04-15 04:04:46.000000000 +0200
++++ linux-2.4.20/arch/i386/kernel/dmi_scan.c	2003-04-15 04:04:46.000000000 +0200
+@@ -699,6 +699,18 @@ static __initdata struct dmi_blacklist d
+ 			MATCH(DMI_BIOS_VERSION, "R0203D0"),
+ 			MATCH(DMI_BIOS_DATE, "05/12/00"), NO_MATCH
+ 			} },
++			
++	{ swab_apm_power_in_minutes, "Sony VAIO", {	/* Handle problems with APM on Sony Vaio PCG-Z600RE */
++			MATCH(DMI_BIOS_VENDOR, "Phoenix Technologies LTD"),
++			MATCH(DMI_BIOS_VERSION, "R0116Z1"),
++			NO_MATCH, NO_MATCH
++			} },
++	
++	{ swab_apm_power_in_minutes, "Sony VAIO", {	/* Handle problems with APM on Sony Vaio PCG-Z600RE */
++			MATCH(DMI_BIOS_VENDOR, "Phoenix Technologies LTD"),
++			MATCH(DMI_BIOS_VERSION, "RK116Z1"),
++			NO_MATCH, NO_MATCH
++			} },
+ 
+ 	{ swab_apm_power_in_minutes, "Sony VAIO", {	/* Handle problems with APM on Sony Vaio PCG-Z505LS */
+ 			MATCH(DMI_BIOS_VENDOR, "Phoenix Technologies LTD"),
