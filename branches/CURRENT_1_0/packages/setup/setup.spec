@@ -1,6 +1,6 @@
 %define name	setup
 %define version 2.4
-%define release 4sls
+%define release 5sls
 
 Summary:	A set of system configuration and setup files.
 Name:		%{name}
@@ -80,6 +80,9 @@ if [ -x /usr/sbin/nscd ]; then
 fi
 
 %changelog
+* Wed Feb 04 2004 Vincent Danen <vdanen@opensls.org> 2.4-5sls
+- cdwriter is gid 23, video is gid 25, usb is gid 20
+
 * Sat Jan 31 2004 Vincent Danen <vdanen@opensls.org> 2.4-4sls
 - remove conflicts because none of them are applicable
 - remove groups: uucp, audio, games
