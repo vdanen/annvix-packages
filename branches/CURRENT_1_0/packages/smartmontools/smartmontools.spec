@@ -1,6 +1,6 @@
 %define name	smartmontools
 %define version 5.26
-%define release 3sls
+%define release 4sls
 
 Summary:	SMARTmontools - for monitoring S.M.A.R.T. disks and devices
 Name:           %{name}
@@ -42,7 +42,7 @@ smartd will provide more information.
 %make
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
 mkdir -p %{buildroot}%{_srvdir}/smartd/log
@@ -55,13 +55,13 @@ mkdir -p %{buildroot}%{_sysconfdir}/sysconfig
 echo "INTERVAL=1800" > %{buildroot}%{_sysconfdir}/sysconfig/smartd
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
-#%_post_service smartd
+%_post_srv smartd
 
 %preun
-#%_preun_service smartd
+%_preun_srv smartd
 
 
 %files
@@ -82,7 +82,11 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
-* Mon Dec 29 2003 Vincent Danen <vdanen@opensls.org> 5.26-2sls
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 5.26-4sls
+- minor spec cleanups
+- srv macros
+
+* Mon Dec 29 2003 Vincent Danen <vdanen@opensls.org> 5.26-3sls
 - supervise scripts
 - remove initscript
 - create /etc/sysconfig/smartd to configure polling interval
