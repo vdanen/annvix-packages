@@ -1,30 +1,54 @@
-diff -Naur ppp-2.4.1/pppd/plugins/Makefile.linux ppp-2.4.1-oatm/pppd/plugins/Makefile.linux
---- ppp-2.4.1/pppd/plugins/Makefile.linux	2002-08-22 18:19:55.000000000 +0200
-+++ ppp-2.4.1-oatm/pppd/plugins/Makefile.linux	2002-08-22 18:21:06.000000000 +0200
-@@ -6,7 +6,7 @@
- LIBDIR = /usr/lib
- PLUGINDIR = $(LIBDIR)/pppd
+diff -u -r -N a/ppp/pppd/options.c ppp/pppd/options.c
+--- a/ppp/pppd/options.c	2003-03-03 06:11:46.000000000 +0100
++++ b/pppd/options.c	2003-07-01 11:17:12.000000000 +0200
+@@ -843,6 +843,22 @@
+ }
  
--all:	minconn.so passprompt.so pppoe/pppoe.so
-+all:	minconn.so passprompt.so pppoatm.so pppoe/pppoe.so
- 	$(MAKE) -C pppoe $(MFLAGS) all
- 
- pppoe/pppoe.so:
-@@ -18,7 +18,10 @@
- passprompt.so: passprompt.c
- 	$(CC) -o $@ $(LDFLAGS) $(CFLAGS) passprompt.c
- 
--install: minconn.so passprompt.so pppoe/pppoe.so
-+pppoatm.so: pppoatm.c
-+	$(CC) -o $@ $(LDFLAGS) $(CFLAGS) -D_linux_=1 -Werror pppoatm.c -latm
+ /*
++ * remove_option - permanently remove an option from consideration...
++ * for use by modules to remove choices which no longer make sense.
++ * returns true if found an option
++ */
++int remove_option(const char *name)
++{
++	option_t *o;
 +
-+install: minconn.so passprompt.so pppoatm.so pppoe/pppoe.so
- 	version=`awk -F '"' '/VERSION/ { print $$2; }' ../patchlevel.h`; \
- 	$(INSTALL) -d $(PLUGINDIR)/$$version; \
- 	$(INSTALL) $? $(PLUGINDIR)/$$version
-diff -Naur ppp-2.4.1/pppd/plugins/pppoatm.c ppp-2.4.1-oatm/pppd/plugins/pppoatm.c
---- ppp-2.4.1/pppd/plugins/pppoatm.c	1970-01-01 01:00:00.000000000 +0100
-+++ ppp-2.4.1-oatm/pppd/plugins/pppoatm.c	2002-08-22 18:21:06.000000000 +0200
++	o = find_option(name);
++	if (o == NULL)
++		return 0;
++	o->name = "";
++	return 1;
++}
++
++/*
+  * check_options - check that options are valid and consistent.
+  */
+ void
+diff -u -r -N a/ppp/pppd/plugins/Makefile.linux ppp/pppd/plugins/Makefile.linux
+--- a/ppp/pppd/plugins/Makefile.linux	2003-02-16 23:31:24.000000000 +0100
++++ b/pppd/plugins/Makefile.linux	2003-07-01 11:39:05.000000000 +0200
+@@ -6,7 +6,7 @@
+ SUBDIRS := rp-pppoe
+ # Uncomment the next line to include the radius authentication plugin
+ # SUBDIRS += radius
+-PLUGINS := minconn.so passprompt.so passwordfd.so
++PLUGINS := minconn.so passprompt.so passwordfd.so pppoatm.so
+ 
+ # include dependencies if present
+ ifeq (.depend,$(wildcard .depend))
+@@ -16,6 +16,9 @@
+ all:	$(PLUGINS)
+ 	for d in $(SUBDIRS); do $(MAKE) $(MFLAGS) -C $$d all; done
+ 
++pppoatm.so: pppoatm.c
++	$(CC) -o $@ $(LDFLAGS) $(CFLAGS) $^ -latm
++
+ %.so: %.c
+ 	$(CC) -o $@ $(LDFLAGS) $(CFLAGS) $^
+ 
+diff -u -r -N a/ppp/pppd/plugins/pppoatm.c ppp/pppd/plugins/pppoatm.c
+--- /dev/null	1970-01-01 01:00:00.000000000 +0100
++++ b/pppd/plugins/pppoatm.c	2003-07-01 11:39:37.000000000 +0200
 @@ -0,0 +1,232 @@
 +/* pppoatm.c - pppd plugin to implement PPPoATM protocol.
 + *
@@ -234,7 +258,7 @@ diff -Naur ppp-2.4.1/pppd/plugins/pppoatm.c ppp-2.4.1-oatm/pppd/plugins/pppoatm.
 +
 +void plugin_init(void)
 +{
-+#if _linux_
++#if defined(__linux__)
 +	extern int new_style_driver;	/* From sys-linux.c */
 +	if (!ppp_available() && !new_style_driver)
 +		fatal("Kernel doesn't support ppp_generic - "
@@ -258,3 +282,14 @@ diff -Naur ppp-2.4.1/pppd/plugins/pppoatm.c ppp-2.4.1-oatm/pppd/plugins/pppoatm.
 +    close: NULL,
 +    cleanup: NULL
 +};
+diff -u -r -N a/ppp/pppd/pppd.h ppp/pppd/pppd.h
+--- a/ppp/pppd/pppd.h	2003-04-07 02:01:46.000000000 +0200
++++ b/pppd/pppd.h	2003-07-01 11:18:54.000000000 +0200
+@@ -408,6 +408,7 @@
+     option_t *options;		/* List of command-line options */
+     /* Check requested options, assign defaults */
+     void (*check_options) __P((void));
++    int (*remove_option) __P((const char *)); /* Disable the specified option */
+     /* Configure interface for demand-dial */
+     int  (*demand_conf) __P((int unit));
+     /* Say whether to bring up link for this pkt */
