@@ -1,0 +1,41 @@
+--- tetex-src-2.0.2/texmf/fontname/typeface.map.orig	2003-01-23 23:00:00.000000000 +0100
++++ tetex-src-2.0.2/texmf/fontname/typeface.map	2003-08-29 20:24:10.000000000 +0200
+@@ -1,6 +1,6 @@
+ @c @mapfile{
+ @c   email = "tex-fonts@tug.org",
+-@c   date = "23 January 2003",
++@c   date = "29aug03",
+ @c   url = "http://tug.org/fontname/typeface.map",
+ @c   supported = "yes",
+ @c   docstring = "Typeface abbreviations."
+@@ -58,6 +58,7 @@
+ bg benguiat     Benguiat
+ bh bauhaus      Bauhaus
+ bi birch        Birch
++bj birka        Birka
+ bk bookman      Bookman m:MBookmanPS u:URWBookmanL
+ bl belwe        Belwe
+ bm bulmer       Bulmer
+@@ -98,7 +99,7 @@
+ co cochin       Cochin
+ cp copperpl     Copperplate
+ cq cheq         Cheq
+-cr courier      Courier m:MCourierPS m:CourierTwelveMT u:NumbusMonL
++cr courier      Courier m:MCourierPS m:CourierTwelveMT u:NimbusMonL
+ cs cntursbk     CenturySchoolbook
+ ct cheltenh     Cheltenham
+ cu centuros     CenturyOldStyle
+@@ -203,7 +204,7 @@
+ hr hvround      HelveticaRounded
+ hs hnseati      Hanseatic B:Swiss924BT
+ ht hoeflert     e:HoeflerText
+-hv helvetic     Helvetica u:NimbusSans u:NumbusSanL b:Swiss721BT b:Monospace821BT b:Swiss911BT d:Sans Newton n:SonoranSansSerif
++hv helvetic     Helvetica u:NimbusSans u:NimbusSanL b:Swiss721BT b:Monospace821BT b:Swiss911BT d:Sans Newton n:SonoranSansSerif
+ hw schadow      Schadow
+ hx huxleyvr     HuxleyVertical
+ i0 commscr      CommercialScript
+@@ -610,3 +611,4 @@
+ __ verve        Verve              
+ __ volutasc     VolutaScript         
+ __ zebrawoo     Zebrawood
++__ shouyi       Shouyi  @r{for mnm}
