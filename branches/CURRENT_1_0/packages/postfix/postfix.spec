@@ -1,6 +1,6 @@
 %define name	postfix
 %define version	2.1.5
-%define release 2avx
+%define release 3avx
 %define epoch	1
 
 %define	openssl_ver	0.9.7d
@@ -33,6 +33,12 @@
 %define maildrop_gid	79
 %define queue_directory	%{_var}/spool/postfix
 
+%if %alternatives
+%define post_install_parameters	daemon_directory=%{_libdir}/postfix command_directory=%{_sbindir} queue_directory=%{queue_directory} sendmail_path=%{_sbindir}/sendmail.postfix newaliases_path=%{_bindir}/newaliases.postfix mailq_path=%{_bindir}/mailq.postfix mail_owner=postfix setgid_group=%{maildrop_group} manpage_directory=%{_mandir} sample_directory=%{_docdir}/%name-%version/samples readme_directory=%{_docdir}/%name-%version/README_FILES html_directory=%{_docdir}/%name-%version/html 
+%else
+%define post_install_parameters	daemon_directory=%{_libdir}/postfix command_directory=%{_sbindir} queue_directory=%{queue_directory} sendmail_path=%{_sbindir}/sendmail newaliases_path=%{_bindir}/newaliases mailq_path=%{_bindir}/mailq mail_owner=postfix setgid_group=%{maildrop_group} manpage_directory=%{_mandir} sample_directory=%{_docdir}/%name-%version/samples readme_directory=%{_docdir}/%name-%version/README_FILES html_directory=%{_docdir}/%name-%version/html 
+%endif
+
 Summary:	Postfix Mail Transport Agent
 Name:		%{name}
 Version:	%{version}
@@ -48,6 +54,7 @@ Source3:	postfix-aliases
 Source4: 	ftp://ftp.aet.tu-cottbus.de/pub/postfix_tls/%{tlsno}.tar.gz
 Source5:	ftp://ftp.aet.tu-cottbus.de/pub/postfix_tls/%{tlsno}.tar.gz.sig
 Source6:	postfix.run
+Source7:	postfix-etc-pam.d-smtp
 Source10:	http://jimsun.LinxNet.com/misc/postfix-anti-UCE.txt
 Source11:	http://jimsun.LinxNet.com/misc/header_checks.txt
 Source12:	http://jimsun.LinxNet.com/misc/body_checks.txt
@@ -118,7 +125,8 @@ patch -p1 -F 1 -s -b -z .tls.orig < %{tlsno}/pfixtls.diff
 %endif
 
 %patch0 -p1 -b .avx
-mv conf/main.cf conf/main.cf.dist
+mkdir -p conf/dist
+mv conf/main.cf conf/dist
 cp %{SOURCE2} conf/main.cf
 # hack for 64bit
 if [ "%{_lib}" != "lib" ]; then
@@ -197,6 +205,12 @@ unset CCARGS AUXLIBS
 make DEBUG="" OPT="%{optflags}"
 #make manpages
 
+# add correct parameters to main.cf.dist
+LD_LIBRARY_PATH=$PWD/lib${LD_LIBRARY_PATH:+:}${LD_LIBRARY_PATH} \
+  ./src/postconf/postconf -c ./conf/dist -e \
+  %post_install_parameters
+mv conf/dist/main.cf conf/main.cf.dist
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
@@ -205,22 +219,14 @@ LD_LIBRARY_PATH=$PWD/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH} \
 sh postfix-install -non-interactive \
     install_root=%{buildroot} \
     config_directory=%{_sysconfdir}/postfix \
-    daemon_directory=%{_libdir}/postfix \
-    command_directory=%{_sbindir} \
-    queue_directory=%{queue_directory} \
-    sendmail_path=%{_sbindir}/sendmail.postfix \
-    newaliases_path=%{_bindir}/newaliases.postfix \
-    mailq_path=%{_bindir}/mailq.postfix \
-    mail_owner=postfix \
-    setgid_group=%{maildrop_group} \
-    manpage_directory=%{_mandir} \
-    sample_directory=%{_docdir}/%{name}-%{version}/samples \
-    readme_directory=%{_docdir}/%{name}-%{version}/README_FILES
-    html_directory=%{_docdir}/%{name}-%{version}/html \
+    %post_install_parameters \
     || exit 1
 
 # for sasl configuration
 mkdir -p %{buildroot}%{_sysconfdir}/postfix/sasl
+
+mkdir -p %{buildroot}%{_sysconfdir}/pam.d/
+install -c %{SOURCE6} %{buildroot}%{_sysconfdir}/pam.d/smtp
 
 # Change alias_maps and alias_database default directory to %{_sysconfdir}/postfix
 bin/postconf -c %{buildroot}%{_sysconfdir}/postfix -e \
@@ -269,6 +275,7 @@ perl -pi -e 's|aliases.5.bz2|aliases.postfix.5.bz2|g' %{buildroot}%{_sysconfdir}
 
 # install qshape
 install -c -m 0755 auxiliary/qshape/qshape.pl %{buildroot}%{_sbindir}/qshape
+cp man/man1/qshape.1 %{buildroot}%{_mandir}/man1/qshape.1
 
 mkdir -p %{buildroot}%{_srvdir}/postfix
 install -m 0750 %{SOURCE6} %{buildroot}%{_srvdir}/postfix/run
@@ -295,25 +302,21 @@ sh %{_sysconfdir}/postfix/post-install \
     html_directory=%{_docdir}/%{name}-%{version}/html \
     upgrade-package
 
-%if %{alternatives}
-    %{_sbindir}/sendmail.postfix -I
-%else
-    %{_sbindir}/sendmail -I
-%endif
-
 %_post_srv postfix
 %if %{alternatives}
     %{alternatives_install_cmd}
 %endif
 
-if [ -e %{_libdir}/sasl2/smtpd.conf -a ! -e %{_sysconfdir}/postfix/sasl/smtpd.conf ]; then
+# move previous sasl configuration files to new location if applicable
+saslpath="`postconf -h smtpd_sasl_path | cut -d: -f 1`"
+if [ -n "${saslpath}" -a "${saslpath%/}" != "%{_libdir}/sasl2}" -a -e %{_libdir}/sasl2/smtpd.conf -a ! -e ${saslpath}/smtpd.conf ]; then
     echo "Moving %{_libdir}/sasl2/smtpd.conf to %{_sysconfdir}/postfix/sasl/smtpd.conf"
-    mv %{_libdir}/sasl2/smtpd.conf %{_sysconfdir}/postfix/sasl/smtpd.conf
+    mv %{_libdir}/sasl2/smtpd.conf %{saslpath}/smtpd.conf
 fi
 
 %if %{alternatives}
-# (gc) necessary when we upgrade from a non alternativized package, because it's executed after the old files are removed
 %triggerpostun -- postfix
+# (gc) necessary when we upgrade from a non alternativized package, because it's executed after the old files are removed
 [ -e %{_sbindir}/sendmail.postfix ] && %{alternatives_install_cmd} || :
 %endif
 
@@ -354,6 +357,7 @@ fi
 %dir %{_sysconfdir}/postfix/sasl
 %attr(0755,root,root) %config(noreplace) %{_sysconfdir}/postfix/postfix-script
 %attr(0755,root,root) %config(noreplace) %{_sysconfdir}/postfix/post-install
+%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/pam.d/smtp
 %config(noreplace) %{_sysconfdir}/postfix/postfix-files
 %config(noreplace) %{_sysconfdir}/postfix/main.cf
 %config(noreplace) %{_sysconfdir}/postfix/main.cf.dist
@@ -448,6 +452,13 @@ fi
 
 
 %changelog
+* Fri Jan 28 2005 Vincent Danen <vdanen@annvix.org> 2.1.5-3avx
+- don't refresh aliases at install time (bluca)
+- provide a default /etc/pam.d/smtp for saslauthd users (bluca)
+- don't move sasl conf if not necessary (bluca)
+- make main.cf.dist a working config file (bluca)
+- include manpage for qshape (bluca)
+
 * Wed Jan 05 2005 Vincent Danen <vdanen@annvix.org> 2.1.5-2avx
 - rebuild against new openssl
 
