@@ -1,3 +1,9 @@
+%define name	db4
+%define version	4.1.25
+%define release	4sls
+
+%{!?build_opensls:%global build_opensls 0}
+
 # compatibility with legacy rpm
 %{!?_lib:%define _lib	lib}
 
@@ -14,49 +20,38 @@
 %define libdbtcl	%{libname_orig}tcl%{__soversion}
 %define libdbjava	%{libname_orig}java%{__soversion}
 
-# Define Mandrake Linux version we are building for
-%define mdkversion	%(perl -pe '/(\\d+)\\.(\\d)\\.?(\\d)?/; $_="$1$2".($3||0)' /etc/mandrake-release)
-
+%if !%{build_opensls}
 # Define to build Java bindings (default)
 %define build_java	1
+%else
+%define build_java	0
+%endif
 
 # Allow --with[out] JAVA rpm command line buil
 %{?_with_JAVA: %{expand: %%define build_java 1}}
 %{?_without_JAVA: %{expand: %%define build_java 0}}
 
-# Don't build Java bindings for any MDK release < 9.0
-%if %{mdkversion} < 900
-%define build_java	0
-%endif
-
-Summary: The Berkeley DB database library for C.
-Name: db4
-Version: 4.1.25
-Release: 3mdk
-Source: http://www.sleepycat.com/update/%{version}/db-%{version}.tar.bz2
-URL: http://www.sleepycat.com
-License: BSD
-Group: System/Libraries
-PreReq: /sbin/ldconfig
-BuildRequires: tcl, db1-devel
-%if %{mdkversion} >= 900
-BuildRequires: glibc-static-devel	
-%endif
-%if %{build_java}
-BuildRequires: gcc-java >= 3.1.1-0.8mdk
-%endif
-
-# https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=70362
-#Patch0: db-4.0.14-recover.patch.bz2
-
+Summary:	The Berkeley DB database library for C.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	BSD
+Group:		System/Libraries
+URL:		http://www.sleepycat.com
+Source:		http://www.sleepycat.com/update/%{version}/db-%{version}.tar.bz2
 #http://www.sleepycat.com/update/4.1.25/patch.4.1.25.html
-Patch1: http://www.sleepycat.com/update/4.1.25/patch.4.1.25.1
-
+Patch1:		http://www.sleepycat.com/update/4.1.25/patch.4.1.25.1
 # Add fast AMD64 mutexes
-Patch2: db-4.1.25-amd64-mutexes.patch.bz2
+Patch2:		db-4.1.25-amd64-mutexes.patch.bz2
 
-BuildRoot: %{_tmppath}/%{name}-root
-Prefix: %{_prefix}
+BuildRoot:	%{_tmppath}/%{name}-root
+BuildRequires:	tcl, db1-devel, glibc-static-devel	
+%if %{build_java}
+BuildRequires:	gcc-java >= 3.1.1-0.8mdk
+%endif
+
+Prefix:		%{_prefix}
+PreReq:		/sbin/ldconfig
 
 %description
 The Berkeley Database (Berkeley DB) is a programmatic toolkit that provides
@@ -65,9 +60,9 @@ Berkeley DB is used by many applications, including Python and Perl, so this
 should be installed on all systems.
 
 %package -n %{libname}
-Summary: The Berkeley DB database library for C.
-Group: System/Libraries
-PreReq: /sbin/ldconfig
+Summary:	The Berkeley DB database library for C.
+Group:		System/Libraries
+PreReq:		/sbin/ldconfig
 
 %description -n %{libname}
 The Berkeley Database (Berkeley DB) is a programmatic toolkit that provides
@@ -76,10 +71,10 @@ Berkeley DB is used by many applications, including Python and Perl, so this
 should be installed on all systems.
 
 %package -n %{libdbcxx}
-Summary: The Berkeley DB database library for C++.
-Group: System/Libraries
-PreReq: /sbin/ldconfig
-Provides: libdbcxx = %{version}-%{release}
+Summary:	The Berkeley DB database library for C++.
+Group:		System/Libraries
+PreReq:		/sbin/ldconfig
+Provides:	libdbcxx = %{version}-%{release}
 
 %description -n %{libdbcxx}
 The Berkeley Database (Berkeley DB) is a programmatic toolkit that provides
@@ -90,11 +85,12 @@ should be installed on all systems.
 This package contains the files needed to build C++ programs which use
 Berkeley DB.
 
+%if %{build_java}
 %package -n %{libdbjava}
-Summary: The Berkeley DB database library for C++.
-Group: System/Libraries
-PreReq: /sbin/ldconfig
-Provides: libdbjava = %{version}-%{release}
+Summary:	The Berkeley DB database library for C++.
+Group:		System/Libraries
+PreReq:		/sbin/ldconfig
+Provides:	libdbjava = %{version}-%{release}
 
 %description -n %{libdbjava}
 The Berkeley Database (Berkeley DB) is a programmatic toolkit that provides
@@ -104,12 +100,13 @@ should be installed on all systems.
 
 This package contains the files needed to build Java programs which use
 Berkeley DB.
+%endif
 
 %package -n %{libdbtcl}
-Summary: The Berkeley DB database library for TCL.
-Group: System/Libraries
-PreReq: /sbin/ldconfig
-Provides: libdbtcl = %{version}-%{release}
+Summary:	The Berkeley DB database library for TCL.
+Group:		System/Libraries
+PreReq:		/sbin/ldconfig
+Provides:	libdbtcl = %{version}-%{release}
 
 %description -n %{libdbtcl}
 The Berkeley Database (Berkeley DB) is a programmatic toolkit that provides
@@ -121,9 +118,9 @@ This package contains the header files, libraries, and documentation for
 building tcl programs which use Berkeley DB.
 
 %package utils
-Summary: Command line tools for managing Berkeley DB databases.
-Group: Databases
-Prefix: %{_prefix}
+Summary:	Command line tools for managing Berkeley DB databases.
+Group:		Databases
+Prefix:		%{_prefix}
 
 %description utils
 The Berkeley Database (Berkeley DB) is a programmatic toolkit that provides
@@ -135,16 +132,16 @@ and database recovery. DB supports C, C++, Java and Perl APIs.
 This package contains command line tools for managing Berkeley DB databases.
 
 %package -n %{libnamedev}
-Summary: Development libraries/header files for the Berkeley DB library.
-Group: Development/Databases
-Prefix: %{_prefix}
-Requires: %{libname} = %{version}-%{release}
-Requires: %{libdbtcl} = %{version}-%{release}
-Requires: %{libdbcxx} = %{version}-%{release}
-Provides: db-devel = %{version}-%{release}
-Provides: db4-devel = %{version}-%{release}
-Provides: libdb-devel = %{version}-%{release}
-Conflicts: %{libname_orig}3.3-devel, %{libname_orig}4.0-devel
+Summary:	Development libraries/header files for the Berkeley DB library.
+Group:		Development/Databases
+Prefix:		%{_prefix}
+Requires:	%{libname} = %{version}-%{release}
+Requires:	%{libdbtcl} = %{version}-%{release}
+Requires:	%{libdbcxx} = %{version}-%{release}
+Provides:	db-devel = %{version}-%{release}
+Provides:	db4-devel = %{version}-%{release}
+Provides:	libdb-devel = %{version}-%{release}
+Conflicts:	%{libname_orig}3.3-devel, %{libname_orig}4.0-devel
 
 %description -n %{libnamedev}
 The Berkeley Database (Berkeley DB) is a programmatic toolkit that provides
@@ -157,14 +154,14 @@ This package contains the header files, libraries, and documentation for
 building programs which use Berkeley DB.
 
 %package -n %{libnamestatic}
-Summary: Development static libraries files for the Berkeley DB library.
-Group: Development/Databases
-Prefix: %{_prefix}
-Requires: db4-devel = %{version}-%{release}
-Provides: db-static-devel = %{version}-%{release}
-Provides: db4-static-devel = %{version}-%{release}
-Provides: libdb-static-devel = %{version}-%{release}
-Conflicts: %{libname_orig}3.3-static-devel, %{libname_orig}4.0-static-devel
+Summary:	Development static libraries files for the Berkeley DB library.
+Group:		Development/Databases
+Prefix:		%{_prefix}
+Requires:	db4-devel = %{version}-%{release}
+Provides:	db-static-devel = %{version}-%{release}
+Provides:	db4-static-devel = %{version}-%{release}
+Provides:	libdb-static-devel = %{version}-%{release}
+Conflicts:	%{libname_orig}3.3-static-devel, %{libname_orig}4.0-static-devel
 
 %description -n %{libnamestatic}
 The Berkeley Database (Berkeley DB) is a programmatic toolkit that provides
@@ -394,6 +391,12 @@ rm -rf %{buildroot}
 %{_libdir}/*.a
 
 %changelog
+* Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 4.1.25-4sls
+- OpenSLS build
+- tidy spec
+- remove support for mdk < 9.0
+- use %%build_opensls to disable java builds
+
 * Fri Aug 22 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 4.1.25-3mdk
 - Add some provides & conflicts to ease installations
 
