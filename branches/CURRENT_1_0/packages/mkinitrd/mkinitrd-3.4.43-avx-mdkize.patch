@@ -1,289 +1,5 @@
---- ./nash/nash.c.gege	2003-02-11 18:03:27.000000000 +0100
-+++ ./nash/nash.c	2003-09-13 20:50:40.000000000 +0200
-@@ -51,7 +51,9 @@
- 
- /* Need to tell loop.h what the actual dev_t type is. */
- #undef dev_t
--#if defined(__alpha) || (defined(__sparc__) && defined(__arch64__))
-+#if defined(__x86_64__)
-+#define dev_t unsigned long
-+#elif defined(__alpha) || (defined(__sparc__) && defined(__arch64__))
- #define dev_t unsigned int
- #else
- #define dev_t unsigned short
-@@ -151,6 +153,7 @@
-     char * mntPoint;
-     char * deviceDir;
-     char * options = NULL;
-+    char * options_mount = NULL;
-     int mustRemove = 0;
-     int mustRemoveDir = 0;
-     int rc;
-@@ -260,45 +263,7 @@
- 	    start = end;
- 	}
- 
--	options = newOpts;
--    }
--
--    if (!strncmp("LABEL=", device, 6)) {
--	int major, minor;
--	char * devName;
--	char * ptr;
--	int i;
--
--	devName = get_spec_by_volume_label(device + 6, &major, &minor);
--
--	if (devName) {
--	    device = devName;
--	    if (access(device, F_OK)) {
--	        ptr = device;
--		i = 0;
--		while (*ptr)
--		    if (*ptr++ == '/')
--			i++;
--		if (i > 2) {
--		    deviceDir = alloca(strlen(device) + 1);
--		    strcpy(deviceDir, device);
--		    ptr = deviceDir + (strlen(device) - 1);
--		    while (*ptr != '/')
--			*ptr-- = '\0';
--		    if (mkdir(deviceDir, 0644)) {
--		      printf("mkdir: cannot create directory %s\n", deviceDir);
--		    } else {
--		      mustRemoveDir = 1;
--		    }
--		}
--		if (smartmknod(device, S_IFBLK | 0600, makedev(major, minor))) {
--		    printf("mount: cannot create device %s (%d,%d)\n",
--			   device, major, minor);
--		    return 1;
--		}
--		mustRemove = 1;
--	    }
--	}
-+	options_mount = newOpts;
-     }
- 
-     if (testing) {
-@@ -316,12 +281,23 @@
- 		(flags & MS_NOATIME) ? "noatime " : ""
- 	    );
-     } else {
--	if (mount(device, mntPoint, fsType, flags, options)) {
--	    printf("mount: error %d mounting %s\n", errno, fsType);
--	    rc = 1;
--	}
-+	    if (mount(device, mntPoint, fsType, flags, options_mount)) {
-+		    printf("mount: error %d mounting %s flags %s\n", errno, fsType, options);
-+		    if (flags != MS_MGC_VAL) {
-+			    printf("well, retrying without the option flags\n");
-+			    if (!mount(device, mntPoint, fsType, flags, NULL))
-+				    goto mount_ok;
-+			    printf("mount: error %d mounting %s\n", errno, fsType);
-+		    }
-+		    printf("well, retrying read-only without any flag\n");
-+		    if (mount(device, mntPoint, fsType, MS_MGC_VAL|MS_RDONLY, NULL)) {
-+			    printf("mount: error %d mounting %s\n", errno, fsType);
-+			    rc = 1;
-+		    }
-+	    }
-     }
- 
-+mount_ok:
-     if (mustRemove) unlink(device);
-     if (mustRemoveDir) rmdir(deviceDir);
- 
-@@ -567,6 +543,7 @@
- 	num -= 2;
-     }
- 
-+    if (!quiet || outFd != 1) {
-     for (i = 0; i < num;i ++) {
- 	if (i)
- 	    write(outFd, " ", 1);
-@@ -574,6 +551,7 @@
-     }
- 
-     write(outFd, "\n", 1);
-+    }
- 
-     if (outFd != 1) close(outFd);
- 
-@@ -648,22 +626,6 @@
-     while (*chptr && !isspace(*chptr)) chptr++;
-     *chptr = '\0';
- 
--    if (!strncmp(start, "LABEL=", 6)) {
--	if (get_spec_by_volume_label(start + 6, &major, &minor)) {
--	    if (smartmknod(path, S_IFBLK | 0600, makedev(major, minor))) {
--		printf("mount: cannot create device %s (%d,%d)\n",
--		       path, major, minor);
--		return 1;
--	    }
--
--	    return 0;
--	}
--
--	printf("mkrootdev: label %s not found\n", start + 6);
--
--	return 1;
--    }
--
-     fd = open("/proc/sys/kernel/real-root-dev", O_RDONLY, 0);
-     if (fd < 0) {
- 	printf("mkrootdev: failed to open /proc/sys/kernel/real-root-dev: %d\n", errno);
-@@ -686,6 +648,8 @@
- 	return 1;
-     }
- 
-+    unlink(path);
-+
-     if (smartmknod(path, S_IFBLK | 0700, devNum)) {
- 	printf("mkrootdev: mknod failed: %d\n", errno);
- 	return 1;
-@@ -1074,6 +1038,17 @@
-     return 0;
- }
- 
-+void handledevfsCommand()
-+{
-+    // I need to close my IO's in order to release the lock on initial /dev
-+    close(0); close(1); close(2);
-+
-+    if (umount("/initrd/dev"))
-+	    return;
-+
-+    mount("none", "/dev", "devfs", MS_MGC_VAL, NULL);
-+}
-+
- int runStartup(int fd) {
-     char contents[32768];
-     int i;
-@@ -1144,8 +1119,6 @@
- 	    rc = findCommand(chptr, end);
- 	else if (!strncmp(start, "findlodev", MAX(7, chptr - start)))
- 	    rc = findlodevCommand(chptr, end);
--	else if (!strncmp(start, "showlabels", MAX(10, chptr-start)))
--	    rc = display_uuid_cache();
- 	else if (!strncmp(start, "mkdevices", MAX(9, chptr-start)))
- 	    rc = mkdevicesCommand(chptr, end);
- 	else if (!strncmp(start, "sleep", MAX(5, chptr-start)))
-@@ -1154,6 +1127,8 @@
- 	    rc = mknodCommand(chptr, end);
-         else if (!strncmp(start, "readlink", MAX(8, chptr-start)))
-             rc = readlinkCommand(chptr, end);
-+	else if (!strncmp(start, "handledevfs", MAX(11, chptr - start)))
-+	    handledevfsCommand();
- 	else {
- 	    *chptr = '\0';
- 	    rc = otherCommand(start, chptr + 1, end, 1);
-@@ -1167,18 +1142,11 @@
- 
- int main(int argc, char **argv) {
-     int fd = 0;
--    char * name;
-     int rc;
-     int force = 0;
- 
--    name = strrchr(argv[0], '/');
--    if (!name) 
--	name = argv[0];
--    else
--	name++;
--
--    if (!strcmp(name, "modprobe"))
--	exit(0);
-+    if (strstr(argv[0], "modprobe"))
-+	    exit(0);
- 
-     testing = (getppid() != 0) && (getppid() != 1);
-     argv++, argc--;
-@@ -1197,6 +1165,27 @@
- 	}
-     }
- 
-+    if (mount("/proc", "/proc", "proc", 0, NULL))
-+	    printf("Couldn't mount proc filesystem\n");
-+    else {
-+	    int fd_cmdline = open("/proc/cmdline", O_RDONLY, 0);
-+	    if (fd_cmdline > 0) {
-+		    char buf[5000];
-+		    int i = read(fd_cmdline, buf, sizeof(buf));
-+		    if (i == -1)
-+			    printf("Couldn't read cmdline\n");
-+		    else {
-+			    buf[i] = '\0';
-+			    if (strstr(buf, "quiet"))
-+				    quiet = 1;
-+		    }
-+		    if (close(fd_cmdline))
-+			    printf("can't close, %d\n", errno);
-+	    }
-+	    if (umount("/proc"))
-+		    printf("Umount of proc failed: %d\n", errno);
-+    }
-+
-     if (force && !quiet)
- 	printf("(forcing normal run)\n");
- 
---- ./nash/Makefile.gege	2002-01-14 02:40:09.000000000 +0100
-+++ ./nash/Makefile	2003-09-13 20:50:40.000000000 +0200
-@@ -1,19 +1,23 @@
-+top_dir = ../mkinitrd_helper-subdir
-+
-+include $(top_dir)/Makefile.common
-+
-+
- CFLAGS=-Wall -DVERSION=\"$(VERSION)\" -g
- VERSION=$(shell awk -F= '/^VERSION=/ { print $$2 }' ../mkinitrd)
- 
- ARCH := $(patsubst i%86,i386,$(shell uname -m))
- ARCH := $(patsubst sparc%,sparc,$(ARCH))
- 
--ifeq (i386, $(ARCH))
--CC:=diet $(CC)
--else
--STATIC=-static
--endif
-+STATIC=$(LDFLAGS_STAGE1)
- 
- mandir=usr/share/man
- 
--nash: nash.o mount_by_label.o
--	$(CC) $(STATIC) -g $(LDFLAGS) -o $@ nash.o mount_by_label.o
-+nash: nash.o
-+	$(DIET) $(CC) $(STATIC) -g $(LDFLAGS) -o $@ $^ $(OBJ_ADD)
-+
-+%.o: %.c
-+	$(DIET) $(CC) $(CFLAGS) -c $< -o $@
- 
- clean:
- 	rm -f nash $(MINILIBC) nash.o mount_by_label.o
---- ./nash/nash.8.gege	2003-01-14 21:44:00.000000000 +0100
-+++ ./nash/nash.8	2003-09-13 20:50:40.000000000 +0200
-@@ -106,6 +106,13 @@
- \fBumount \fIpath\fR
- Unmounts the filesystem mounted at \fIpath\fR.
- 
-+.TP
-+\fBhandledevfs\fR
-+Useful after a pivot_root, because the devfs filesystem, if already
-+mounted by the kernel (with the use of kernel parameter
-+\fIdevfs=mount\fR), is at the wrong location (\fI/initrd/dev\fR instead of
-+\fI/dev\fR) and needs to be remounted at the correct location.
-+
- .SH RETURN VALUE
- Returns 0 is the last command succeeded or 1 if it failed.
- 
-@@ -123,4 +130,5 @@
- .SH AUTHOR
- .nf
- Erik Troan <ewt@redhat.com>
-+Patches for MandrakeSoft by Guillaume Cottenceau <gc at mandrakesoft.com>
- .fi
---- ./mkinitrd.gege	2003-03-05 00:13:47.000000000 +0100
-+++ ./mkinitrd	2003-09-13 20:50:55.000000000 +0200
+--- mkinitrd.mdk	2003-03-04 16:13:47.000000000 -0700
++++ mkinitrd	2005-01-19 13:39:43.000000000 -0700
 @@ -18,12 +18,14 @@
  #       Trond Eivind Glomsrød <teg@redhat.com>
  #       Jeremy Katz <katzj@redhat.com>
@@ -297,11 +13,11 @@
  export PATH
  
 -VERSION=3.4.43
-+VERSION=3.4.43-mdk
++VERSION=3.4.43-avx
  
  compress=1
  target=""
-@@ -35,26 +37,56 @@
+@@ -35,26 +37,46 @@
  builtins=""
  pivot=1
  modulefile=/etc/modules.conf
@@ -314,10 +30,6 @@
 -  IMAGESIZE=3000
 -fi
 -PRESCSIMODS="scsi_mod sd_mod unknown"
-+splash_dir=/usr/share/bootsplash/
-+splash=auto
-+theme=Mandrake
-+
 +DEFAULT_DSDT_FILE="/boot/dsdt.aml"
 +dsdt_file=""
 +
@@ -325,19 +37,13 @@
 +POSTSCSIMODS="sd_mod"
  fstab="/etc/fstab"
 +IGNOREMODS="$IGNOREMODS ppa imm ide-scsi ext2 usb-storage"
-+
-+[[ -f /etc/sysconfig/bootsplash ]] && source /etc/sysconfig/bootsplash
-+[[ -n $SPLASH ]] && splash=$SPLASH
-+[[ -n $THEME ]] && theme=$THEME
-+[[ $splash == no ]] && splash=
  
  usage () {
      echo "usage: `basename $0` [--version] [-v] [-f] [--preload <module>]" >&2
      echo "       [--omit-scsi-modules] [--omit-raid-modules] [--omit-lvm-modules]" >&2
      echo "       [--with=<module>] [--image-version] [--fstab=<fstab>] [--nocompress]" >&2
 -    echo "       [--builtin=<module>] [--nopivot] <initrd-image> <kernel-version>" >&2
-+    echo "       [--builtin=<module>] [--nopivot] [--tmpdir=<tmpdir>]" >&2
-+    echo "       [--splash={auto,resolution}] [--dsdt[=<dsdt.aml>]]" >&2
++    echo "       [--builtin=<module>] [--nopivot] [--tmpdir=<tmpdir>] [--dsdt[=<dsdt.aml>]]" >&2
 +    echo "       <initrd-image> <kernel-version>" >&2
      echo "" >&2
 -    echo "       (ex: `basename $0` /boot/initrd-2.2.5-15.img 2.2.5-15)" >&2
@@ -366,7 +72,7 @@
  findmodule() {
      skiperrors=""
  
-@@ -63,7 +95,7 @@
+@@ -63,7 +85,7 @@
  	shift
      fi
  
@@ -375,7 +81,7 @@
  
      if [ "$modName" = "off" -o "$modName" = "null" ]; then
  	return
-@@ -80,82 +112,62 @@
+@@ -80,82 +102,62 @@
  	return
      fi
  
@@ -495,7 +201,7 @@
  inst() {
      if [ "$#" != "2" ];then
          echo "usage: inst <file> <destination>"
-@@ -165,6 +177,11 @@
+@@ -165,6 +167,11 @@
      cp $1 $2
  }
  
@@ -507,7 +213,7 @@
  while [ $# -gt 0 ]; do
      case $1 in
  	--fstab*)
-@@ -176,6 +193,15 @@
+@@ -176,6 +183,15 @@
  	    fi		    
  	    ;;
  
@@ -523,7 +229,7 @@
  	--with*)
  	    if echo $1 | grep -q '=' ; then
  	    	modname=`echo $1 | sed 's/^--with=//'`
-@@ -231,7 +257,7 @@
+@@ -231,7 +247,7 @@
  	    PREMODS="$PREMODS $modname"
  	    ;;
  	--omit-scsi-modules)
@@ -532,19 +238,10 @@
  	    noscsi=1;
  	    ;;
  	--omit-raid-modules)
-@@ -246,6 +272,22 @@
+@@ -246,6 +262,13 @@
  	--with-usb)
  	    withusb=yes
  	    ;;
-+	--splash)
-+	    if echo $1 | grep '=' >/dev/null ; then
-+	    	splash=`echo $1 | sed 's/^--splash=//'`
-+	    else
-+		splash=$2
-+		shift
-+	    fi		    
-+	    [[ $splash == no ]] && splash=
-+	    ;;
 +	--dsdt)
 +	    if echo $1 | grep '=' >/dev/null ; then
 +	    	dsdt_file=`echo $1 | sed 's/^--dsdt=//'`
@@ -555,18 +252,7 @@
  	*)
  	    if [ -z "$target" ]; then
  		target=$1
-@@ -260,6 +302,10 @@
-     shift
- done
- 
-+if [[ $splash == auto && -f $splash_dir/scripts/detect-resolution ]];then
-+    splash=$( $splash_dir/scripts/detect-resolution )
-+fi
-+
- if [ -z "$target" -o -z "$kernel" ]; then
-     usage
- fi
-@@ -283,26 +329,12 @@
+@@ -283,26 +306,12 @@
      exit 1
  fi
  
@@ -598,7 +284,7 @@
  fi
  
  for n in $PREMODS; do
-@@ -311,6 +343,8 @@
+@@ -311,6 +320,8 @@
  
  needusb=""
  if [ -n "$withusb" ]; then
@@ -607,7 +293,7 @@
      # If / or /boot is on a USB device include the driver. With root by
      # label we could still get some odd behaviors
      for fs in / /boot ; do
-@@ -331,11 +365,9 @@
+@@ -331,11 +342,9 @@
  if [ -n "$needusb" ]; then
      drivers=$(awk '/^alias usb-controller[0-9]* / { print $3}' < /etc/modules.conf)
      if [ -n "$drivers" ]; then
@@ -619,7 +305,7 @@
  	findmodule sd_mod
  	findmodule usb-storage
      fi
-@@ -347,18 +379,28 @@
+@@ -347,18 +356,28 @@
      fi
  
      if [ -f $modulefile ]; then
@@ -653,7 +339,7 @@
  	fi
      fi
  fi
-@@ -366,8 +408,6 @@
+@@ -366,8 +385,6 @@
  # If we have ide devices and module ide, do the right thing
  ide=/proc/ide/ide*
  if [ -n "$ide" ]; then
@@ -662,7 +348,7 @@
      findmodule -ide-disk
  fi
  
-@@ -380,14 +420,6 @@
+@@ -380,14 +397,6 @@
      fi
  fi
  
@@ -677,7 +363,7 @@
  if [ -z "$noraid" -a -f /proc/mdstat ]; then
      # load appropriate raid devices if necessary -- we'll load whatever
      # /proc/mdstat suggests
-@@ -397,15 +429,10 @@
+@@ -397,15 +406,10 @@
  		    /proc/mdstat | sort -u); do
  	case $level in
  	linear)
@@ -693,7 +379,7 @@
  	    findmodule $level
  	    startraid=1
  	    ;;
-@@ -423,18 +450,28 @@
+@@ -423,18 +427,28 @@
  
  # check to see if we need to set up a loopback filesystem
  rootdev=$(awk '/^[ \t]*[^#]/ { if ($2 == "/") { print $1; }}' $fstab)
@@ -731,7 +417,7 @@
  
      basicmodules="$basicmodules -loop"
      if [ "$loopFs" = "vfat" -o "$loopFs" = "msdos" ]; then
-@@ -442,10 +479,13 @@
+@@ -442,10 +456,13 @@
      fi
      basicmodules="$basicmodules -${loopFs}"
  # check if the root fs is on a logical volume
@@ -749,7 +435,7 @@
  fi
  
  rootfs=$(awk '{ if ($1 !~ /^[ \t]*#/ && $2 == "/") { print $3; }}' $fstab)
-@@ -463,43 +503,34 @@
+@@ -463,43 +480,34 @@
  fi
  
  
@@ -814,7 +500,7 @@
  mkdir -p $MNTIMAGE
  mkdir -p $MNTIMAGE/lib
  mkdir -p $MNTIMAGE/bin
-@@ -509,16 +540,27 @@
+@@ -509,16 +517,27 @@
  mkdir -p $MNTIMAGE/proc
  mkdir -p $MNTIMAGE/sysroot
  ln -s bin $MNTIMAGE/sbin
@@ -845,7 +531,7 @@
  done
  
  # mknod'ing the devices instead of copying them works both with and
-@@ -531,16 +573,19 @@
+@@ -531,16 +550,19 @@
      mknod $MNTIMAGE/dev/tty$i c 4 $i
  done
  
@@ -869,7 +555,7 @@
  
      mknod $MNTIMAGE/dev/lvm b 109 0
  fi
-@@ -575,22 +619,25 @@
+@@ -575,22 +597,25 @@
  
  if [ -n "$startraid" ]; then
      for dev in $raiddevices; do
@@ -905,7 +591,7 @@
  elif [ -n "$root_lvm" ]; then
      echo "echo Scanning logical volumes" >> $RCFILE
      echo "vgscan" >> $RCFILE
-@@ -605,10 +652,13 @@
+@@ -605,10 +630,13 @@
  if [ -n "$pivot" ]; then
      echo "echo 0x0100 > /proc/sys/kernel/real-root-dev" >> $RCFILE
  
@@ -920,7 +606,7 @@
      echo "umount /initrd/proc" >> $RCFILE
  else
      echo "umount /proc" >> $RCFILE
-@@ -616,16 +666,48 @@
+@@ -616,16 +644,44 @@
  
  chmod +x $RCFILE
  
@@ -961,18 +647,14 @@
  fi
 -rm -rf $MNTIMAGE $MNTPOINT $IMAGE
 +
-+if [[ -n "$splash" && -f $splash_dir/scripts/make-boot-splash ]]; then
-+    $splash_dir/scripts/make-boot-splash $target $splash
-+fi
-+
 +if [[ -n "$dsdt_file" && -f "$dsdt_file" ]]; then
 +    echo -n "INITRDDSDT123DSDT123" >> $target
 +    cat "$dsdt_file" >> $target
 +fi
  
  exit $rc
---- ./mkinitrd.8.gege	2003-03-05 00:12:22.000000000 +0100
-+++ ./mkinitrd.8	2003-09-13 20:50:40.000000000 +0200
+--- mkinitrd.8.mdk	2003-03-04 16:12:22.000000000 -0700
++++ mkinitrd.8	2005-01-19 13:38:17.000000000 -0700
 @@ -8,7 +8,7 @@
           [--omit-raid-modules] [--omit-lvm-modules] 
           [--with=\fImodule\fR] [--image-version]

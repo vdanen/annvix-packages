@@ -1,6 +1,6 @@
 %define name	mkinitrd
 %define version 3.4.43
-%define release 17avx
+%define release 18avx
 %define epoch	1
 
 %define use_dietlibc 0
@@ -17,11 +17,13 @@ License:	GPL
 Group:		System/Kernel and hardware
 URL:		http://www.redhat.com/
 Source:		ftp://ftp.redhat.com/mkinitrd-%{version}.tar.bz2
-Source1:	mkinitrd_helper2.tar.bz2
-Patch0:		mkinitrd-3.4.43-mdkize.patch.bz2
+Source1:	mkinitrd_helper-3.5.15.1.tar.bz2
+Source2:	nash-4.1.18.tar.bz2
+Patch0:		mkinitrd-3.4.43-avx-mdkize.patch.bz2
 Patch1:		mkinitrd-3.1.6-shutup-insmod-busybox.patch.bz2
-Patch2:		mkinitrd-3.4.43-kernel-2.5.patch.bz2
+Patch2:		mkinitrd-3.4.43-mdk-kernel-2.5.patch.bz2
 Patch3:		mkinitrd-3.4.43-avx-mkdevices.patch.bz2
+Patch4:		mkinitrd-4.1.12-mdk-nash.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires:	perl
@@ -51,12 +53,13 @@ ramdisk using information found in the /etc/modules.conf file.
 
 %prep
 %setup -q -a 1
-%patch0 -p1 -b .mdk
+rm -rf nash
+tar xvjf %{SOURCE2}
+%patch0 -p0 -b .mdk
 %patch1 -p0
-%patch2 -p1 -b .kernel25
-%ifarch %{ix86}
-%patch3 -p1 -b .mkdevices
-%endif
+%patch2 -p0 -b .kernel25
+%patch3 -p0 -b .mkdevices
+%patch4 -p1 -b .mdk-nash
 perl -pi -e 's/grubby//' Makefile
 
 %build
@@ -85,6 +88,14 @@ rm -f %{buildroot}%{_mandir}/*/grubby*
 %{_mandir}/*/*
 
 %changelog
+* Wed Jan 19 2005 Vincent Danen <vdanen@annvix.rg> 3.4.43-18avx
+- pull nash out of mkinitrd-4.1.18 (fedora)
+- P4: mdk patches against this version of nash
+- regen P1 and remove all splash* stuff
+- regen P2
+- mkinitrd_helper 3.5.15.1
+- regen P3; add mountdev call - also make it valid for all archs
+
 * Tue Jan 18 2005 Vincent Danen <vdanen@annvix.rg> 3.4.43-17avx
 - macros
 
