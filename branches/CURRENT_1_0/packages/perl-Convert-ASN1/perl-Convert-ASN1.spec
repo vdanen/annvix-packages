@@ -1,7 +1,7 @@
 %define module	Convert-ASN1
 %define name	perl-%{module}
-%define version 0.16
-%define release 6sls
+%define version 0.18
+%define release 1sls
 
 Summary: 	ASN.1 Encode/Decode library for perl
 Name: 		%{name}
@@ -10,7 +10,7 @@ Release: 	%{release}
 License: 	GPL or Artistic
 Group: 		Development/Perl
 URL: 		http://www.cpan.org
-Source: 	http://www.cpan.org/authors/id/GBARR/%{name}-%{version}.tar.bz2
+Source: 	http://www.cpan.org/authors/id/GBARR/%{module}-%{version}.tar.bz2
 
 BuildRoot: 	%{_tmppath}/%{name}-buildroot/
 BuildArch: 	noarch
@@ -20,13 +20,13 @@ Prefix: 	%{_prefix}
 Requires:	perl >= 5.6
 
 %description
-Perl module used to encode and decode ASN.1 data structures using BER/DER
-rules.
+Perl module used to encode and decode ASN.1 data structures using
+BER/DER rules.
 
 Needed by webmin to handle the OpenLDAP modules properly.
 
 %prep
-%setup -q -n %{name}-%{version}
+%setup -q -n %{module}-%{version}
 
 %build
 %{__perl} Makefile.PL INSTALLDIRS=vendor
@@ -47,6 +47,9 @@ make test
 %{_mandir}/*/*
 
 %changelog
+* Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 0.18-1sls
+- 0.18
+
 * Wed Feb 25 2004 Vincent Danen <vdanen@opensls.org> 0.16-6sls
 - rebuild for new perl
 
