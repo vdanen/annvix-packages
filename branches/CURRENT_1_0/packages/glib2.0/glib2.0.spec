@@ -1,6 +1,6 @@
 %define name	glib%{api_version}
 %define version	%{major_version}.%{minor_version}.%{micro_version}
-%define release	4avx
+%define release	1avx
 
 # enable_gtkdoc: Toggle if gtkdoc stuff should be rebuilt
 #	0 = no
@@ -15,8 +15,8 @@
 %define lib_name	%mklibname %{name}_ %{lib_major}
 
 %define major_version 2
-%define minor_version 2
-%define micro_version 3
+%define minor_version 4
+%define micro_version 6
 
 Summary:	GIMP Toolkit and GIMP Drawing Kit support library
 Name:		%{name}
@@ -25,7 +25,7 @@ Release:	%{release}
 License:	LGPL
 Group:		System/Libraries
 URL:		http://www.gtk.org
-Source0:	ftp://ftp.gtk.org/pub/gtk/v%{api_version}/glib-%{version}.tar.bz2
+Source0:	ftp://ftp.gnome.org/pub/GNOME/sources/glib/glib-%{version}.tar.bz2
 Source1:	glib20.sh.bz2
 Source2:	glib20.csh.bz2
 
@@ -168,6 +168,9 @@ chmod a+x  $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/*
 %{_datadir}/glib-%{api_version}
 
 %changelog
+* Sun Sep 12 2004 Vincent Danen <vdanen@annvix.org> 2.4.6-1avx
+- 2.4.6
+
 * Thu Jun 24 2004 Vincent Danen <vdanen@annvix.org> 2.2.3-4avx
 - Annvix build
 
