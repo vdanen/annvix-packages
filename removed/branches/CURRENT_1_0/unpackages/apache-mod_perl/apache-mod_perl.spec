@@ -1,6 +1,6 @@
 %define name	apache-mod_perl
 %define version	%{apache_version}_%{mod_perl_version}
-%define release	3sls
+%define release	4sls
 
 #New ADVX macros
 %define ADVXdir %{_datadir}/ADVX
@@ -163,7 +163,7 @@ cp -dpR /usr/src/apache_%{apache_version} \
 	$RPM_BUILD_DIR/apache-mod_perl_%{apache_version}
 
 %build
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot} 
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 #JMD: do not use the serverbuild macro here, we pick the flags from apxs.
 
@@ -345,7 +345,7 @@ ln -sf ../..%{_libdir}/perl-apache %{buildroot}%{ap_base}/perl-modules
 cp %{SOURCE2} .
 
 %clean
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 # do some house cleaning..
 [ -e ../HTML-Embperl-%{embperl_version} ] && rm -fr ../HTML-Embperl-%{embperl_version}
@@ -355,10 +355,12 @@ cp %{SOURCE2} .
 %defattr(-,root,root)
 %config(noreplace) %{ap_addonconf}/proxied_handlers.pl
 %{_sbindir}/httpd-perl
-%doc README.ADVX
+%{ap_base}/perl-modules
 
 %files -n mod_perl-common
 %defattr(-,root,root)
+%doc perldocs/*
+%doc README.ADVX
 %{perl_vendorarch}/Apache.pm
 %dir %{perl_vendorarch}/Apache
 %{perl_vendorarch}/Apache/*
@@ -376,25 +378,21 @@ cp %{SOURCE2} .
 %{_mandir}/man3/mod_perl*
 %{ap_datadir}/perl/*.pl
 %{ap_webdoc}/mod_perl-*
-%doc perldocs/*
-%doc README.ADVX
 
 %files -n mod_perl-devel
 %defattr(-,root,root)
 %{perl_vendorarch}/auto/Apache/include/*
-%doc README.ADVX
 
 %files -n HTML-Embperl 
 %defattr(-,root,root)
+%doc embdoc/*
 %{ap_webdoc}/HTML-Embperl.html
 %{ap_datadir}/perl/HTML-Embperl-%{embperl_version}
-%doc embdoc/*
 %{_bindir}/embpexec.pl
 %{perl_vendorarch}/HTML/*
 %{perl_vendorarch}/auto/HTML/*
 %{_mandir}/man3/HTML*
 %{_mandir}/man1/*
-%doc README.ADVX
 
 %pre
 #Check config file sanity
@@ -411,6 +409,12 @@ cp %{SOURCE2} .
 %ADVXpost
 
 %changelog
+* Wed Feb 25 2004 Vincent Danen <vdanen@opensls.org> 1.3.29_1.29-4sls
+- rebuild for perl 5.8.3
+- README.ADVX in one package only
+- some spec cleanups
+- add unpackaged file /etc/httpd/perl-modules
+
 * Sat Jan 03 2004 Vincent Danen <vdanen@opensls.org> 1.3.29_1.29-3sls
 - OpenSLS build
 - tidy spec
