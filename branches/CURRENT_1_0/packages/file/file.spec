@@ -1,8 +1,9 @@
 %define name	file
-%define version	4.03
-%define release	5avx
+%define version	4.10
+%define release	1avx
 
-%define libname %mklibname magic 1
+%define major	1
+%define libname %mklibname magic %{major}
 
 Summary:	A utility for determining file types.
 Name:		%{name}
@@ -10,15 +11,14 @@ Version:	%{version}
 Release:	%{release}
 License:	BSD 
 Group:		File tools
-URL:		ftp://ftp.gw.com/mirrors/pub/unix/file/
-Source0:	ftp://ftp.gw.com/pub/unix/file/%{name}-%{version}.tar.bz2
+URL:		ftp://ftp.astron.com/pub/file/
+Source0:	ftp://ftp.astron.com/pub/file/%{name}-%{version}.tar.bz2
 Source1:	magic.mime.bz2
 Patch0:		file-4.01-tex.patch.bz2
 Patch2:		file-4.01-perl.patch.bz2
-Patch3:		file-4.02-deps.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
-BuildRequires:	perl, libtool, autoconf
+BuildRequires:	perl, libtool, autoconf, zlib-devel
 
 Requires:	%{libname} = %{version}-%{release}
 
@@ -31,11 +31,11 @@ different graphics formats.
 You should install the file package, since the file command is such a
 useful utility.
 
-%package -n %libname
+%package -n %{libname}
 Summary:	Shared library for handling magic files.
 Group:		System/Libraries
 
-%description -n %libname
+%description -n %{libname}
 The file command is used to identify a particular file according to the
 type of data contained by the file.  File can identify many different
 file types, including ELF binaries, system libraries, RPM packages, and
@@ -44,14 +44,14 @@ different graphics formats.
 Libmagic is a library for handlig the so called magic files the 'file'
 command is based on.
 
-%package -n %libname-devel
+%package -n %{libname}-devel
 Summary:	Development files to build applications that handle magic files.
 Group:		Development/C
-Requires:	%libname = %version-%release
-Requires:	zlib-devel
-Provides:	libmagic-devel = %version-%release
+Requires:	%{libname} = %{version}-%{release}
+Provides:	libmagic-devel = %{version}-%{release}
+Provides:	%{name}-devel = %{version}-%{release}
 
-%description -n %libname-devel
+%description -n %{libname}-devel
 The file command is used to identify a particular file according to the
 type of data contained by the file.  File can identify many different
 file types, including ELF binaries, system libraries, RPM packages, and
@@ -60,12 +60,12 @@ different graphics formats.
 Libmagic is a library for handlig the so called magic files the 'file'
 command is based on. 
 
-%package -n %libname-static-devel
+%package -n %{libname}-static-devel
 Summary:	Static library to build applications that handle magic files.
 Group:		Development/C
-Requires:	%libname-devel = %version-%release
+Requires:	%{libname}-devel = %{version}-%{release}
 
-%description -n %libname-static-devel
+%description -n %{libname}-static-devel
 The file command is used to identify a particular file according to the
 type of data contained by the file.  File can identify many different
 file types, including ELF binaries, system libraries, RPM packages, and
@@ -75,28 +75,28 @@ Libmagic is a library for handlig the so called magic files the 'file'
 command is based on. 
 
 %prep
+
 %setup -q
 %patch0 -p1 -b .tex
 %patch2 -p1 -b .perl
-%patch3 -p1 -b .deps
 
 %build
 CFLAGS="%{optflags} -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE"
-%configure2_5x --datadir=%_datadir/misc
+
+%configure2_5x --datadir=%{_datadir}/misc
 perl -p -i -e 's/sparc/SPARC/g' Magdir/*
 %make
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p $RPM_BUILD_ROOT%{_bindir}
-mkdir -p $RPM_BUILD_ROOT%{_mandir}/{man1,man5}
-mkdir -p $RPM_BUILD_ROOT%{_datadir}/misc
-%makeinstall datadir=$RPM_BUILD_ROOT%{_datadir}/misc
-bzcat %SOURCE1 > $RPM_BUILD_ROOT%{_datadir}/misc/magic.mime
-ln -sf %{_datadir}/misc/%{name}/magic $RPM_BUILD_ROOT%{_datadir}/misc/magic
- 
-%post -n %libname -p /sbin/ldconfig
-%postun -n %libname -p /sbin/ldconfig
+%makeinstall_std
+bzcat %{SOURCE1} > %{buildroot}%{_datadir}/misc/magic.mime
+ln -sf %{name}/magic %{buildroot}%{_datadir}/misc/magic
+
+install -m 0644 src/file.h %{buildroot}%{_includedir}/ 
+
+%post -n %{libname} -p /sbin/ldconfig
+%postun -n %{libname} -p /sbin/ldconfig
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -109,22 +109,28 @@ ln -sf %{_datadir}/misc/%{name}/magic $RPM_BUILD_ROOT%{_datadir}/misc/magic
 %{_mandir}/man1/file.1*
 %{_mandir}/man4/magic.4*
 
-%files -n %libname
+%files -n %{libname}
 %defattr(-,root,root)
-%_libdir/*.so.*
+%{_libdir}/*.so.*
 
-%files -n %libname-devel
+%files -n %{libname}-devel
 %defattr(-,root,root)
-%_libdir/*.so
-%_libdir/*.la
-%_includedir/magic.h
-%_mandir/man3/libmagic.3*
+%{_libdir}/*.so
+%{_libdir}/*.la
+%{_includedir}/file.h
+%{_includedir}/magic.h
+%{_mandir}/man3/libmagic.3*
 
-%files -n %libname-static-devel
+%files -n %{libname}-static-devel
 %defattr(-,root,root)
-%_libdir/*.a
+%{_libdir}/*.a
 
 %changelog
+* Sun Sep 12 2004 Vincent Danen <vdanen@annvix.org> 4.10-1avx
+- 4.10
+- remove P3: similar fix upstream
+- spec cleanups
+
 * Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 4.03-5avx
 - Annvix build
 
