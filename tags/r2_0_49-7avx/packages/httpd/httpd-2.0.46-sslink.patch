@@ -1,0 +1,50 @@
+diff -Naur httpd-2.0.46/acinclude.m4 httpd-2.0.46.oden/acinclude.m4
+--- httpd-2.0.46/acinclude.m4	2002-11-29 12:05:57.000000000 +0100
++++ httpd-2.0.46.oden/acinclude.m4	2003-06-08 13:47:04.000000000 +0200
+@@ -60,6 +60,7 @@
+   APACHE_SUBST(HTTPD_LDFLAGS)
+   APACHE_SUBST(UTIL_LDFLAGS)
+   APACHE_SUBST(LIBS)
++  APACHE_SUBST(SSL_LIBS)
+   APACHE_SUBST(DEFS)
+   APACHE_SUBST(INCLUDES)
+   APACHE_SUBST(NOTEST_CPPFLAGS)
+@@ -190,7 +191,7 @@
+ ])dnl
+ 
+ dnl
+-dnl APACHE_MODULE(name, helptext[, objects[, structname[, default[, config]]]])
++dnl APACHE_MODULE(name, helptext[, objects[, structname[, default[, config[, libs]]]]])
+ dnl
+ dnl default is one of:
+ dnl   yes    -- enabled by default. user must explicitly disable.
+@@ -266,7 +267,7 @@
+       fi
+       shared="";;
+     esac
+-    APACHE_MODPATH_ADD($1, $shared, $3)
++    APACHE_MODPATH_ADD($1, $shared, $3,, $7)
+   fi
+ ])dnl
+ 
+@@ -488,7 +489,7 @@
+       APR_ADDTO(LDFLAGS, [$ap_platform_runtime_link_flag$ap_ssltk_libdir])
+     fi
+   fi
+-  APR_ADDTO(LIBS, [-lssl -lcrypto])
++  APR_ADDTO(SSL_LIBS, [-lssl -lcrypto])
+   ap_cv_ssltk="$ap_ssltk_base"
+ fi
+ ])
+diff -Naur httpd-2.0.46/modules/ssl/config.m4 httpd-2.0.46.oden/modules/ssl/config.m4
+--- httpd-2.0.46/modules/ssl/config.m4	2002-03-29 08:36:01.000000000 +0100
++++ httpd-2.0.46.oden/modules/ssl/config.m4	2003-06-08 13:47:04.000000000 +0200
+@@ -79,7 +79,7 @@
+     APACHE_CHECK_SSL_TOOLKIT
+     AC_CHECK_FUNCS(SSL_set_state)
+     AC_CHECK_FUNCS(SSL_set_cert_store)
+-])
++], [\$(SSL_LIBS)])
+ 
+ dnl #  end of module specific part
+ APACHE_MODPATH_FINISH
