@@ -1,0 +1,7 @@
+?package(ocaml):\
+needs="text"\
+section="Applications/Development/Interpreters"\
+title="ocaml"\
+longtitle="Objective Caml"\
+command="ocaml"\
+icon=
