@@ -1,6 +1,6 @@
 %define name	setup
 %define version 2.4
-%define release 7sls
+%define release 9sls
 
 Summary:	A set of system configuration and setup files.
 Name:		%{name}
@@ -81,6 +81,14 @@ if [ -x /usr/sbin/nscd ]; then
 fi
 
 %changelog
+* Sat Jun 12 2004 Vincent Danen <vdanen@opensls.org> 2.4-9sls
+- revert umask changes; 077 and 027 are too strict (even OpenBSD uses
+  022 across the board), so we use 022 for all users
+
+* Fri Jun  6 2004 Vincent Danen <vdanen@opensls.org> 2.4-8sls
+- umask 077 for users and 027 for daemons
+- make csh.login better match bashrc for more consistency
+
 * Sat Apr 24 2004 Vincent Danen <vdanen@opensls.org> 2.4-7sls
 - add shadow file because our installer doesn't create one and everyone
   should be using shadow password anyways
