@@ -1,10 +1,10 @@
 %define name	libtool
 %define version	1.4.3
-%define release	8sls
+%define release	9sls
 
 %define lib_major	3
-%define lib_name_orig	%mklibname ltdl
-%define lib_name	%{lib_name_orig}%{lib_major}
+%define lib_name_orig	libltdl
+%define lib_name	%mklibname ltdl %{lib_major}
 
 Summary:	The GNU libtool, which simplifies the use of shared libraries
 Name:		%{name}
@@ -160,6 +160,9 @@ rm -fr %buildroot
 
 
 %changelog
+* Wed Dec 31 2003 Vincent Danen <vdanen@opensls.org> 1.4.3-9sls
+- sync with 8mdk (gbeauchesne): fix mklibnamification
+
 * Wed Dec 17 2003 Vincent Danen <vdanen@opensls.org> 1.4.3-8sls
 - OpenSLS build
 - tidy spec
