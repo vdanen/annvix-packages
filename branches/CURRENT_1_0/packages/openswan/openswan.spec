@@ -1,9 +1,9 @@
 %define name	openswan
-%define version	1.0.7
+%define version	1.0.9
 %define release	1avx
 %define epoch	1
 
-%define their_version	1.0.7
+%define their_version	1.0.9
 %define debug_package	%{nil}
 
 Summary:	An implementation of IPSEC & IKE for Linux.
@@ -130,6 +130,10 @@ popd
 %_post_service ipsec
 
 %changelog
+* Tue Feb 01 2005 Vincent Danen <vdanen@annvix.org> 1.0.9-1avx
+- 1.0.9 (fixes iDefense security advisory 01.26.05: Openswan XAUTH/PAM
+  Buffer Overflow Vulnerability)
+
 * Wed Aug 25 2004 Vincent Danen <vdanen@annvix.org> 1.0.7-1avx
 - drop to the stable 1.x branch (1.0.7)
 - fix the filelist
