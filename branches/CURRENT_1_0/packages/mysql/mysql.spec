@@ -1,6 +1,6 @@
 %define name	MySQL
 %define version	4.0.15
-%define release	2sls
+%define release	4sls
 
 %define major		12
 %define libname_orig	mysql
@@ -24,6 +24,8 @@ URL:            http://www.mysql.com
 Icon:		mysql.gif
 Source:		ftp.free.fr:/pub/MySQL/Downloads/MySQL-4.0/mysql-%{version}.tar.bz2
 Source1:	ftp://ftp.free.fr:/pub/MySQL/Downloads/Manual/manual-split.tar.bz2
+Source2:	mysqld.run
+Source3:	mysqld-log.run
 Patch0:		mysql-4.0.14-init.patch.bz2
 Patch1:		mysql-3.23.42-bench.patch.bz2
 Patch2:		mysql-3.23.51-other-libc.patch.bz2
@@ -286,7 +288,7 @@ nm --numeric-sort sql/mysqld > sql/mysqld.sym
 RBR=$RPM_BUILD_ROOT
 MBD=$RPM_BUILD_DIR/mysql-%{version}
 # Ensure that needed directories exists
-install -d $RBR%{_sysconfdir}/{logrotate.d,rc.d/init.d}
+install -d $RBR%{_sysconfdir}/logrotate.d
 install -d $RBR%{_localstatedir}/mysql/mysql
 install -d $RBR%{_datadir}/sql-bench
 install -d $RBR%{_datadir}/mysql-test
@@ -313,11 +315,10 @@ install -m644 $MBD/sql/mysqld.sym $RBR%{_libdir}/mysql/mysqld.sym
 
 install -m644 $MBD/support-files/mysql-log-rotate $RBR/etc/logrotate.d/mysql
 
-perl -pi -e 's/# chkconfig: 2345 90 90/# chkconfig: 2345 90 10/' $MBD/support-files/mysql.server
-install -m755 $MBD/support-files/mysql.server $RBR/etc/rc.d/init.d/mysql
-
-perl -pi -e 's/status mysqld/status mysqld-max/g' $MBD/support-files/mysql.server
-install -m755 $MBD/support-files/mysql.server $RBR/etc/rc.d/init.d/mysql-max
+mkdir -p %{buildroot}%{_srvdir}/mysqld/log
+mkdir -p %{buildroot}%{_srvlogdir}/mysqld
+install -m 0750 %{SOURCE2} %{buildroot}%{_srvdir}/mysqld/run
+install -m 0750 %{SOURCE3} %{buildroot}%{_srvdir}/mysqld/log/run
 
 # Install docs
 install -m644 $MBD/Docs/mysql.info \
@@ -389,16 +390,16 @@ EOF
 rm -rf %buildroot
 
 %pre common
-%_pre_useradd mysql %{_localstatedir}/mysql /bin/bash
+%_pre_useradd mysql %{_localstatedir}/mysql /bin/bash 82
 
 %post common
 %_install_info mysql.info
 
 %post
 # Initiate databases
-su - mysql -c "mysql_install_db -IN-RPM" > /dev/null
+/usr/bin/setuidgid mysql mysql_install_db -IN-RPM >/dev/null
 
-%_post_service mysql
+%_post_srv mysqld
 
 # Allow mysqld_safe to start mysqld and print a message before we exit
 sleep 2
@@ -431,19 +432,18 @@ fix_privileges()
     fi
 }
 
-if [ -f /var/lock/subsys/mysql ]; then
-    /sbin/service mysql stop &> /dev/null
+if [ "x`svstat /service/mysqld|grep down >/dev/null 2>&1; echo $?`" = "x0" ]; then
     fix_privileges
-    /sbin/service mysql start &> /dev/null 
 else
+    /usr/sbin/srv stop mysqld &> /dev/null
     fix_privileges
+    /usr/sbin/srv start mysqld &> /dev/null 
 fi
 
 %post Max
+/usr/bin/setuidgid mysql mysql_install_db -IN-RPM >/dev/null
 
-su - mysql -c "mysql_install_db -IN-RPM" > /dev/null
-
-%_post_service mysql-max
+%_post_srv mysqld
 # Allow mysqld_safe to start mysqld and print a message before we exit
 sleep 2
 
@@ -475,16 +475,16 @@ fix_privileges()
     fi
 }
 
-if [ -f /var/lock/subsys/mysql ]; then
-    /sbin/service mysql-max stop &> /dev/null
+if [ "x`svstat /service/mysqld|grep down >/dev/null 2>&1; echo $?`" = "x0" ]; then
     fix_privileges
-    /sbin/service mysql-max start &> /dev/null 
 else
+    /usr/sbin/srv stop mysqld &> /dev/null
     fix_privileges
+    /usr/sbin/srv start mysqld &> /dev/null 
 fi
 
 %preun
-%_preun_service mysql
+%_preun_srv mysqld
 # We do not remove the mysql user since it may still own a lot of
 # database files.
 
@@ -492,7 +492,7 @@ fi
 %_remove_install_info mysql.info
 
 %preun Max
-%_preun_service mysql-max
+%_preun_srv mysqld
 
 %post -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
@@ -559,7 +559,11 @@ fi
 %defattr(-, root, root) 
 %{_sbindir}/mysqld
 %{_libdir}/mysql/mysqld.sym
-%config(noreplace) /etc/rc.d/init.d/mysql
+%dir %{_srvdir}/mysqld
+%dir %{_srvdir}/mysqld/log
+%{_srvdir}/mysqld/run
+%{_srvdir}/mysqld/log/run
+%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/mysqld
 
 %files client
 %defattr(-, root, root)
@@ -605,9 +609,21 @@ fi
 %defattr(-, root, root)
 %{_sbindir}/mysqld-max
 %{_libdir}/mysql/mysqld-max.sym
-%config(noreplace) /etc/rc.d/init.d/mysql-max
+%dir %{_srvdir}/mysqld
+%dir %{_srvdir}/mysqld/log
+%{_srvdir}/mysqld/run
+%{_srvdir}/mysqld/log/run
+%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/mysqld
 
 %changelog
+* Wed Feb 04 2004 Vincent Danen <vdanen@opensls.org> 4.0.15-3sls
+- remove initscripts
+- supervise scripts
+- give mysql static uid/gid 82
+- use the same run files in both Max and non-Max installs since they
+  conflict and mysqld_safe makes the determination of which to use
+- change how we determine if mysqld is running
+
 * Wed Dec 17 2003 Vincent Danen <vdanen@opensls.org> 4.0.15-2sls
 - OpenSLS build
 - don't worry about older mdk distribs
