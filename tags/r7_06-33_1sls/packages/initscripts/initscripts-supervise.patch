@@ -1,0 +1,57 @@
+--- initscripts-7.06/rc.d/init.d/functions.org	2003-10-03 14:20:17.000000000 -0600
++++ initscripts-7.06/rc.d/init.d/functions	2003-10-05 18:28:57.000000000 -0600
+@@ -67,6 +67,54 @@
+    INITLOG_ARGS=
+ fi
+ 
++# read in service settings since most initscripts may make use of it
++if [ -f /etc/sysconfig/supervise ]; then
++      . /etc/sysconfig/supervise
++fi
++
++supervise_stop() {
++	SERV="supervise_${1}"
++	if [ "${!SERV}" = 1 -a -x /usr/bin/svc ]; then
++	   touch /service/$1/down
++	   /usr/bin/svc -d /service/$1
++	   return 1
++	fi
++}
++
++supervise_start() {
++	SERV="supervise_${1}"
++	if [ "${!SERV}" = 1 -a -x /usr/bin/svc ]; then
++	   rm -f /service/$1/down
++	   /usr/bin/svc -u /service/$1
++	   return 1
++	fi
++}
++
++supervise_hup() {
++	SERV="supervise_${1}"
++	if [ "${!SERV}" = 1 -a -x /usr/bin/svc ]; then
++	   /usr/bin/svc -h /service/$1
++	   return 1
++	fi
++}
++
++supervise_term() {
++	SERV="supervise_${1}"
++	if [ "${!SERV}" = 1 -a -x /usr/bin/svc ]; then
++	   /usr/bin/svc -t /service/$1
++	   return 1
++	fi
++}
++
++supervise_status() {
++	SERV="supervise_${1}"
++	if [ "${!SERV}" = 1 -a -x /usr/bin/svstat ]; then
++	   /usr/bin/svstat /service/$1
++	   /usr/bin/svstat /service/$1/log
++	   return 1
++	fi
++}
++
+ gprintf() {
+         if [ -x /bin/gettext -a -n "$1" ]; then 
+ 	   if [ -n "$GP_LANG" ]; then
