@@ -1,9 +1,9 @@
 %define name	mkinitrd
 %define version 3.4.43
-%define release 10sls
+%define release 11sls
 
 %define use_dietlibc 0
-%ifarch %{ix86} x86_64
+%ifarch %{ix86} x86_64 amd64
 %define use_dietlibc 1
 %endif
 
@@ -59,7 +59,7 @@ make -C mkinitrd_helper-subdir
 make
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 make BUILDROOT=$RPM_BUILD_ROOT mandir=%{_mandir} install
 %if %{use_dietlibc}
 mkdir -p $RPM_BUILD_ROOT/sbin
@@ -70,7 +70,7 @@ rm -f $RPM_BUILD_ROOT/sbin/{grubby,installkernel,new-kernel-pkg}
 rm -f $RPM_BUILD_ROOT%{_mandir}/*/grubby*
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-, root, root)
@@ -78,6 +78,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/*/*
 
 %changelog
+* Sat Mar 06 2004 Vincent Danen <vdanen@opensls.rg> 3.4.43-11sls
+- minor spec cleanups
+
 * Mon Dec 08 2003 Vincent Danen <vdanen@opensls.rg> 3.4.43-10sls
 - OpenSLS build
 - tidy spec

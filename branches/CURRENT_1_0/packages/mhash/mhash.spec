@@ -1,6 +1,6 @@
 %define name	mhash
 %define version	0.8.18
-%define release	4sls
+%define release	5sls
 
 %define major	2
 %define libname %mklibname %{name} %{major}
@@ -62,7 +62,7 @@ will use the mhash library.
 %make
 
 %install
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %makeinstall
 
@@ -70,7 +70,7 @@ will use the mhash library.
 %postun -n %{libname} -p /sbin/ldconfig
 
 %clean
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files -n %{libname}
 %defattr(-,root,root)
@@ -86,6 +86,9 @@ will use the mhash library.
 %{_includedir}/*.h
 
 %changelog
+* Sat Mar 06 2004 Vincent Danen <vdanen@opensls.org> 0.8.18-5sls
+- minor spec cleanups
+
 * Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 0.8.18-4sls
 - OpenSLS build
 - tidy spec

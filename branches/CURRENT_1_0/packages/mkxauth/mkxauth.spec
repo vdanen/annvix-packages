@@ -1,6 +1,6 @@
 %define name	mkxauth
 %define version	1.7
-%define release	9sls
+%define release	10sls
 
 Summary:	A utility for managing .Xauthority files.
 Name: 		%{name}
@@ -37,7 +37,7 @@ System (a good idea).
 %build
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p $RPM_BUILD_ROOT%{_prefix}/X11R6/bin
 mkdir -p $RPM_BUILD_ROOT%{_mandir}/man1
 
@@ -45,7 +45,7 @@ install -m 0755 mkxauth $RPM_BUILD_ROOT%{_prefix}/X11R6/bin/mkxauth
 install -m 0444 mkxauth.1x.bz2 $RPM_BUILD_ROOT%{_mandir}/man1/mkxauth.1x.bz2
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -53,6 +53,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/*
 
 %changelog
+* Sat Mar 06 2004 Vincent Danen <vdanen@opensls.org> 1.7-10sls
+- minor spec cleanups
+
 * Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 1.7-9sls
 - OpenSLS build
 - tidy spec

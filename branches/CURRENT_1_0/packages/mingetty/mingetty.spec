@@ -1,6 +1,6 @@
 %define name	mingetty
 %define version	1.00
-%define release	4sls
+%define release	5sls
 
 Summary: 	A compact getty program for virtual consoles only.
 Name: 		%{name}
@@ -27,14 +27,14 @@ lines (you should use the mgetty program instead for that purpose).
 %make
 
 %install
-rm -rf %buildroot
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p %buildroot/{sbin,%{_mandir}/man8}
 
 install -m 0755 mingetty %buildroot/sbin/
 install -m 0644 mingetty.8 %buildroot/%{_mandir}/man8/
 
 %clean
-rm -rf %buildroot
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -43,6 +43,9 @@ rm -rf %buildroot
 %{_mandir}/man8/*
 
 %changelog
+* Sat Mar 06 2004 Vincent Danen <vdanen@opensls.org> 1.00-5sls
+- minor spec cleanups
+
 * Mon Dec 01 2003 Vincent Danen <vdanen@opensls.org> 1.00-4sls
 - OpenSLS build
 - tidy spec

@@ -1,6 +1,6 @@
 %define name	mkbootdisk
 %define version 1.4.5
-%define release 8sls
+%define release 9sls
 
 Summary: 	Creates an initial ramdisk image for preloading modules.
 Name: 		%{name}
@@ -43,11 +43,11 @@ the system.
 %patch3 -p1
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %make BUILDROOT=$RPM_BUILD_ROOT install
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -55,6 +55,9 @@ rm -rf $RPM_BUILD_ROOT
 %attr(644,root,root) %{_mandir}/man8/mkbootdisk.8*
 
 %changelog
+* Sat Mar 06 2004 Vincent Danen <vdanen@opensls.org> 1.4.5-9sls
+- minor spec cleanups
+
 * Wed Dec 03 2003 Vincent Danen <vdanen@opensls.org> 1.4.5-8sls
 - OpenSLS build
 - tidy spec

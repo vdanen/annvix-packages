@@ -1,6 +1,6 @@
 %define name	mktemp
 %define version	1.5
-%define release	12sls
+%define release	13sls
 
 Summary:	A small utility for safely making /tmp files.
 Name:		%{name}
@@ -35,11 +35,12 @@ programs which will create and use unique /tmp files.
 CFLAGS="$RPM_OPT_FLAGS" make
 
 %install
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 perl -pi -e "s!/usr/man!%{_mandir}!g" Makefile
 %makeinstall ROOT="$RPM_BUILD_ROOT"
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -47,6 +48,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/mktemp.1*
 
 %changelog
+* Sat Mar 06 2004 Vincent Danen <vdanen@opensls.org> 1.5-13sls
+- minor spec cleanups
+
 * Mon Dec 08 2003 Vincent Danen <vdanen@opensls.org> 1.5-12sls
 - OpenSLS build
 - tidy spec
