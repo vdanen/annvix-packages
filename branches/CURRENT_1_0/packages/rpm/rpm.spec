@@ -3,7 +3,7 @@
 %define poptver		1.8.2
 # You need increase both release and poptrelease
 %define poptrelease	%{release}
-%define release		1sls
+%define release		2sls
 
 %define libver		4.2
 %define url		ftp://ftp.rpm.org/pub/rpm/dist/rpm-4.0.x
@@ -416,7 +416,7 @@ rm -f doc-copy/Makefile*
 
 # Fix links
 rm -f %{buildroot}%{_prefix}/lib/rpmpopt
-ln -s rpm/rpmpopt-%{version} %{buildroot}%{_prefix}/lib/rpmpopt
+ln -s rpm/rpmpopt-%{rpmversion} %{buildroot}%{_prefix}/lib/rpmpopt
 
 # Get rid of unpackaged files
 (cd $RPM_BUILD_ROOT;
@@ -454,7 +454,7 @@ Please remove (or at least rename) one of those files, and re-install.
     exit 1
 fi
 
-/usr/share/rpm-helper/add-user rpm $1 rpm /var/lib/rpm /bin/false
+/usr/share/rpm-helper/add-user rpm $1 rpm /var/lib/rpm /bin/false 68
 
 rm -rf /usr/lib/rpm/*-mandrake-*
 
@@ -680,6 +680,12 @@ fi
 %{_includedir}/popt.h
 
 %changelog
+* Thu Jun 03 2004 Vincent Danen <vdanen@opensls.org> 4.2.2-2sls
+- rpm needs a static uid/gid too: 68
+- sync with cooker 4.2.2-10mdk:
+  - fix /usr/lib/rpmpopt symlink (gbeauchesne)
+  - switch back to x86_64 packages on 64bit extended platforms (gbeauchesne)
+
 * Fri May 07 2004 Vincent Danen <vdanen@opensls.org> 4.2.2-1sls
 - 4.2.2
 - sync with cooker 4.2.2-8mdk:
