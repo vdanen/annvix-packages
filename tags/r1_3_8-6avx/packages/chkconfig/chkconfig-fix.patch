@@ -1,0 +1,12 @@
+--- chkconfig.c2	Thu Sep 14 15:58:14 2000
++++ chkconfig.c	Thu Sep 14 15:58:09 2000
+@@ -315,6 +315,9 @@
+ 	int method = GetInstallMethod();
+ 	int level= GetSecureLevel();
+ 
++	if (!(!name || !*name || poptGetArg(optCon)))
++		delService(name);
++
+ 	if (!name || !*name || poptGetArg(optCon)) 
+ 	    usage();
+ 	
