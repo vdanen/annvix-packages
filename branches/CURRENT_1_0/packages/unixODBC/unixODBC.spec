@@ -1,10 +1,21 @@
+%define name	unixODBC
+%define version	2.2.6
+%define release	5sls
+
+%{!?build_opensls:%global build_opensls 0}
+
 %define LIBMAJ 	2
 %define libname %mklibname %name %LIBMAJ
 %define libgtkgui_major	0
 %define libgtkgui_name	%mklibname gtkodbcconfig %{libgtkgui_major}
 
+%if %{build_opensls}
+%define qt_gui  0
+%define gtk_gui 0
+%else
 %define qt_gui  1
 %define gtk_gui 1
+%endif
 
 # Allow --with[out] <feature> at rpm command line build
 %{expand: %{?_without_QT:	%%global qt_gui 0}}
@@ -21,10 +32,12 @@
 %endif
 
 Summary: 	Unix ODBC driver manager and database drivers
-Name: 		unixODBC
-Version: 	2.2.6
-Release:	4mdk
-
+Name: 		%{name}
+Version: 	%{version}
+Release:	%{release}
+Group: 		Databases
+License: 	LGPL
+URL: 		http://www.unixODBC.org
 Source: 	http://www.unixodbc.org/%{name}-%{version}.tar.bz2
 Source2:	odbcinst.ini
 Source3:	qt-attic.tar.bz2
@@ -33,21 +46,17 @@ Patch0:		unixODBC-2.2.6-lib64.patch.bz2
 Patch1:		unixodbc-fix-compile-with-qt-3.1.1.patch.bz2
 Patch2:		unixodbc-fix-compile-with-qt-3.1.1.patch2.bz2
 
-Group: 		Databases
-License: 	LGPL
-URL: 		http://www.unixODBC.org
 BuildRoot: 	%_tmppath/%name-%version-%release-root
 # don't take away readline, we do want to build unixODBC with readline.
-BuildRequires:  bison flex readline-devel chrpath
+BuildRequires:	bison flex readline-devel chrpath
 %if %{update_libtool}
-BuildRequires:	gnome-common
 BuildRequires:	automake1.7
 %endif
 %if %{qt_gui}
 BuildRequires:  qt3-devel
 %endif
 %if %gtk_gui
-BuildRequires:	gnome-libs-devel
+BuildRequires:	gnome-libs-devel, gnome-common
 %endif
 
 %description
@@ -243,6 +252,12 @@ EOF
 
 find doc -name Makefile\* -exec rm {} \;
 
+%if !%{qt_gui}
+rm -f %{buildroot}%{_bindir}/{ODBCConfig,DataManager,DataManagerII,odbctest}
+rm -f %{buildroot}%{_libdir}/libodbcinstQ.so.1.0.0
+%endif
+
+
 %clean
 rm -rf $RPM_BUILD_ROOT 
 rm -f libodbc-libs.filelist
@@ -326,6 +341,14 @@ rm -f libodbc-libs.filelist
 %endif
 
 %changelog
+* Sat Dec 13 2003 Vincent Danen <vdanen@opensls.org> 2.2.6-5sls
+- OpenSLS build
+- tidy spec
+- use %%build_opensls to turn of QT/GTK+ stuff
+- remove some installed/unpackaged stuff since we don't build QT
+- move gnome-common req to only if we're building the GTK stuff as I don't
+  believe it's needed otherwise
+
 * Tue Sep  2 2003 Stew Benedict <sbenedict@mandrakesoft.com> 2.2.6-4mdk
 - fix buildrequires
 
