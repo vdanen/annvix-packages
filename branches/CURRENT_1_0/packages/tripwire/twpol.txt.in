@@ -444,7 +444,7 @@ SIG_HI        = 100 ;                # Critical files that are significant point
   /sbin/swapoff				-> $(SEC_CRIT) ;
   /sbin/telinit				-> $(SEC_CRIT) ;
   /bin/awk				-> $(SEC_CRIT) ;
-  /bin/bash2				-> $(SEC_CRIT) ;
+  /bin/bash3				-> $(SEC_CRIT) ;
   /bin/csh				-> $(SEC_CRIT) ;
   /bin/dnsdomainname			-> $(SEC_CRIT) ;
   /bin/domainname			-> $(SEC_CRIT) ;

@@ -1,6 +1,6 @@
 %define name	tripwire
 %define version	2.3.1.2
-%define release	16avx
+%define release	17avx
 
 Summary:	A system integrity assessment tool.
 Name:		%{name}
@@ -142,6 +142,9 @@ chmod 644 README Release_Notes ChangeLog COPYING policy/policyguide.txt TRADEMAR
 %{_datadir}/afterboot/98_tripwire
 
 %changelog
+* Sat Mar 05 2005 Vincent Danen <vdanen@annvix.org> 2.3.1.2-17avx
+- s/bash2/bash3/ in twpol.txt.in
+
 * Fri Mar 04 2005 Vincent Danen <vdanen@annvix.org> 2.3.1.2-16avx
 - drop /etc/init.d/random and /var/lock/subsys/random from default policy
   file
