@@ -3,7 +3,7 @@
 %define poptver		1.8
 # You need increase both release and poptrelease
 %define poptrelease	%{release}
-%define release		26sls
+%define release		27sls
 
 %define url		ftp://ftp.rpm.org/pub/rpm/dist/rpm-4.0.x
 %define pyver		%(python -V 2>&1 | cut -f2 -d" " | cut -f1,2 -d".")
@@ -639,6 +639,11 @@ fi
 %{_includedir}/popt.h
 
 %changelog
+* Tue Jan 27 2004 Vincent Danen <vdanen@opensls.org> 4.2-27sls
+- update P54 for new macros: %%_post_srv and %%_preun_srv to manage
+  supervise-controlled services
+- add another field to %%_pre_useradd for static uid/gid
+
 * Mon Jan 12 2004 Vincent Danen <vdanen@opensls.org> 4.2-26sls
 - P54: OpenSLS macros -> %%_srvdir = /var/service, %%_srvlogdir =
   /var/log/supervise, %%build_propolice (on if gcc+propolice installed),
