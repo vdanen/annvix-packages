@@ -1,10 +1,19 @@
+%define name	ocaml
+%define version	3.06
+%define release	13sls
+
+%{!?build_opensls:%global build_opensls 0}
+
 %define build_ocamlopt	1
 %define build_ocamltk	1
 
-Name:		ocaml
-Version:	3.06
-Release:	12mdk
 Summary:	The Objective Caml compiler and programming environment
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	QPL & LGPL
+Group:		Development/Other
+URL:		http://www.ocaml.org/
 Source0:	ftp://ftp.inria.fr/lang/caml-light/ocaml-3.06/ocaml-%{version}.tar.bz2
 Source1:	ftp://ftp.inria.fr/lang/caml-light/ocaml-3.06/ocaml-%{version}-refman.html.tar.bz2
 Source4:	%{name}.menu
@@ -22,29 +31,12 @@ Patch13:	%{name}-3.06-doc-fixes.patch.bz2
 Patch14:	%{name}-3.06-init-fixes.patch.bz2
 Patch15:	ocaml-3.06-amd64.patch.bz2
 Patch16:	ocaml-3.06-lib64.patch.bz2
-License:	QPL & LGPL
-Group:		Development/Other
-BuildRequires: XFree86-devel ncurses-devel tk
-URL:		http://www.ocaml.org/
-Packager:       Pixel <pixel@mandrakesoft.com>
+
 BuildRoot:	%{_tmppath}/ocaml-root
+BuildRequires: XFree86-devel ncurses-devel tk
+
 Obsoletes:	ocaml-emacs
 Provides:	ocaml-emacs
-
-%package doc
-Summary: Documentation for OCaml
-Group:   Books/Computer books
-Requires: %{name} = %{version}-%{release}
-
-%package -n camlp4
-Summary: Preprocessor for OCaml
-Group: Development/Other
-Requires: %{name} = %{version}-%{release}
-
-%package -n ocamltk
-Summary: Tk toolkit binding for OCaml
-Group: Development/Other
-Requires: %{name} = %{version}-%{release}
 
 %description
 Objective Caml is a high-level, strongly-typed, functional and object-oriented
@@ -54,11 +46,28 @@ This package comprises two batch compilers (a fast bytecode compiler and an
 optimizing native-code compiler), an interactive toplevel system, Lex&Yacc
 tools, a replay debugger, and a comprehensive library.
 
+%if !%{build_opensls}
+%package doc
+Summary:	Documentation for OCaml
+Group:		Books/Computer books
+Requires:	%{name} = %{version}-%{release}
+
 %description doc
 Documentation for OCaml
+%endif
+
+%package -n camlp4
+Summary:	Preprocessor for OCaml
+Group:		Development/Other
+Requires:	%{name} = %{version}-%{release}
 
 %description -n camlp4
 Preprocessor for OCaml
+
+%package -n ocamltk
+Summary:	Tk toolkit binding for OCaml
+Group:		Development/Other
+Requires:	%{name} = %{version}-%{release}
 
 %description -n ocamltk
 Tk toolkit binding for OCaml
@@ -151,9 +160,11 @@ rm -rf ${RPM_BUILD_ROOT}
 %{_datadir}/emacs/site-lisp/*
 %config(noreplace) %{_sysconfdir}/emacs/site-start.d/*
 
+%if !%{build_opensls}
 %files doc
 %defattr(-,root,root)
 %doc htmlman/* 
+%endif
 
 %if %{build_ocamltk}
 %files -n ocamltk
@@ -173,6 +184,11 @@ rm -rf ${RPM_BUILD_ROOT}
 %{_libdir}/ocaml/camlp4
 
 %changelog
+* Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 3.06-13sls
+- OpenSLS build
+- tidy spec
+- use %%build_opensls to not build -doc
+
 * Thu Jul 24 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 3.06-12mdk
 - Patch15: Integrate AMD64 port from 3.07b1
 - Patch16: Enough of lib64 fixery to build ocamltk on amd64
