@@ -1,8 +1,8 @@
-# $Id: srv.spec,v 1.13 2004/09/18 04:14:16 vdanen Exp $
+# $Id: srv.spec,v 1.15 2004/10/06 17:46:19 vdanen Exp $
 
 %define name	srv
 %define version 0.9
-%define release 2avx
+%define release 3avx
 
 Summary:	Tool to manage runsv-controlled services.
 Name: 		%{name}
@@ -41,6 +41,7 @@ install -m 0755 srv-stop %{buildroot}/sbin
 install -m 0644 srv.8 %{buildroot}%{_mandir}/man8
 install -m 0755 nothing %{buildroot}%{_bindir}
 install -m 0644 functions %{buildroot}%{_datadir}/srv
+install -m 0644 exceptions %{buildroot}%{_datadir}/srv
 
 
 %clean
@@ -53,9 +54,15 @@ install -m 0644 functions %{buildroot}%{_datadir}/srv
 %{_sbindir}/srv
 %{_bindir}/nothing
 %{_datadir}/srv/functions
+%config(noreplace) %{_datadir}/srv/exceptions
 %{_mandir}/man8/srv.8*
 
 %changelog
+* Wed Oct 06 2004 Vincent Danen <vdanen@annvix.org> 0.9-3avx
+- add %{_datadir}/srv/exceptions so we can have more services for
+  process killing exceptions than just sshd; so far we have both
+  sshd and mysqld here
+
 * Fri Sep 17 2004 Vincent Danen <vdanen@annvix.org> 0.9-2avx
 - add godown() function for a service to shut itself down if certain
   requirements (usually configuration-related) are not met
