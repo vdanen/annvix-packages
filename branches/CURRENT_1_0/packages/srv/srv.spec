@@ -1,6 +1,6 @@
 %define name	srv
-%define version 0.1
-%define release 2sls
+%define version 0.2
+%define release 1sls
 
 Summary:	Tool to manage supervise-controlled services.
 Name: 		%{name}
@@ -62,6 +62,9 @@ rm -rf $RPM_BUILD_DIR/%{name}-%{version}
 
 
 %changelog
+* Tue Jan 13 2004 Vincent Danen <vdanen@opensls.org> 0.2-1sls
+- 0.2
+
 * Sun Jan 11 2004 Vincent Danen <vdanen@opensls.org> 0.1-2sls
 - PreReq: rpm-helper
 - add %%post and %%preun service stuff
