@@ -1,6 +1,6 @@
 %define name	mtools
 %define version	3.9.9
-%define release	4sls
+%define release	5avx
 
 Summary:	Programs for accessing MS-DOS disks without mounting the disks
 Name: 		%{name}
@@ -19,7 +19,7 @@ Patch5: 	mtools-3.9.9-supermount.patch.bz2
 BuildRoot: 	%{_tmppath}/%{name}-root
 BuildRequires: 	XFree86-devel, texinfo
 
-PreReq: 	/sbin/install-info
+PreReq: 	info-install
 
 %description
 Mtools is a collection of utilities for accessing MS-DOS files.
@@ -86,6 +86,10 @@ cp -a $RPM_BUILD_ROOT%{_bindir}/mtools $RPM_BUILD_ROOT%{_bindir}/mformat
 %{_infodir}/%{name}.*
 
 %changelog
+* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 3.9.9-5avx
+- Require packages not files
+- Annvix build
+
 * Sun Mar 07 2004 Vincent Danen <vdanen@opensls.org> 3.9.9-4sls
 - minor spec cleanups
 
