@@ -1,6 +1,6 @@
 %define name	util-linux
 %define version	2.12
-%define release	1sls
+%define release	2sls
 
 # Maintainer util-linux@math.uio.no
 
@@ -105,7 +105,7 @@ BuildRequires:	slang-devel
 BuildRequires:	zlib-devel
 
 Requires:	pam >= 0.66-4, shadow-utils >= 20000902-5
-Prereq:		mktemp /bin/awk /usr/bin/cmp coreutils
+Prereq:		mktemp, gawk, diffutils, coreutils
 
 %description
 The util-linux package contains a large variety of low-level system
@@ -553,6 +553,9 @@ fi
 /sbin/losetup
 
 %changelog
+* Fri Jun 11 2004 Vincent Danen <vdanen@opensls.org> 2.12-2sls
+- fix PreReq to be dependant on packages, not files
+
 * Thu Apr 22 2004 Vincent Danen <vdanen@opensls.org> 2.12-1sls
 - 2.12
 - sync with 2.12-2mdk:
