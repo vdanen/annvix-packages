@@ -1,6 +1,6 @@
 %define name	apache2
 %define version	2.0.49
-%define release	2sls
+%define release	3avx
 
 #
 #(ie. use with rpm --rebuild):
@@ -23,7 +23,7 @@
 %define dbmver	db4
 
 # not everyone uses this, so define it here
-%define distribution	OpenSLS
+%define distribution	Annvix
 %define build_debug	1
 %define build_distcache	0
 
@@ -1296,6 +1296,9 @@ fi
 %{ap_abs_srcdir}
 
 %changelog
+* Sun Jun 27 2004 Vincent Danen <vdanen@annvix.org> 2.0.49-3avx
+- Annvix build
+
 * Thu Jun 03 2004 Vincent Danen <vdanen@opensls.org> 2.0.49-2sls
 - P7: security fix for CAN-2004-0488
 

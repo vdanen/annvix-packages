@@ -1,6 +1,6 @@
 %define name	%{ap_name}-%{mod_name}
 %define version	%{ap_version}_%{mod_version}
-%define release 1sls
+%define release 2avx
 
 # Module-Specific definitions
 %define mod_version	1.7.5
@@ -90,6 +90,9 @@ install -m0644 mod_security-snortrules.conf %{buildroot}%{ap_sysconfdir}/
 %{_sbindir}/snort2modsec.pl
 
 %changelog
+* Sun Jun 27 2004 Vincent Danen <vdanen@annvix.org> 2.0.49_1.7.5-2avx
+- Annvix build
+
 * Fri May 07 2004 Vincent Danen <vdanen@opensls.org> 2.0.49_1.7.5-1sls
 - apache 2.0.49
 

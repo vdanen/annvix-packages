@@ -1,6 +1,6 @@
 %define name	%{ap_name}-%{mod_name}
 %define version %{ap_version}_%{mod_version}
-%define release 1sls
+%define release 2avx
 
 # Module-Specific definitions
 %define mod_version	2.0
@@ -82,6 +82,9 @@ install -m4755 validate %{buildroot}%{_sbindir}/
 %attr(4755,root,root) %{_sbindir}/validate
 
 %changelog
+* Sun Jun 27 2004 Vincent Danen <vdanen@annvix.org> 2.0.49_2.0-2avx
+- Annvix build
+
 * Fri May 07 2004 Vincent Danen <vdanen@opensls.org> 2.0.49_2.0-1sls
 - apache 2.0.49
 

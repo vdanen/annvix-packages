@@ -1,6 +1,6 @@
 %define name	%{ap_name}-%{mod_name}
 %define version %{ap_version}_%{mod_version}
-%define release 1sls
+%define release 2avx
 
 # Module-Specific definitions
 %define mod_version	0.1
@@ -87,6 +87,9 @@ client is not validated.
 %doc readme.txt
 
 %changelog
+* Sun Jun 27 2004 Vincent Danen <vdanen@annvix.org> 2.0.49_0.1-2avx
+- Annvix build
+
 * Fri May 07 2004 Vincent Danen <vdanen@opensls.org> 2.0.49_0.1-1sls
 - apache 2.0.49
 

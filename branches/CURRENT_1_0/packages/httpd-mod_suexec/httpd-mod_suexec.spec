@@ -1,6 +1,6 @@
 %define name	%{ap_name}-%{mod_name}
 %define version %{ap_version}
-%define release 1sls
+%define release 2avx
 
 # New ADVX macros
 %define ADVXdir %{_datadir}/ADVX
@@ -103,6 +103,9 @@ install suexec.8 %{buildroot}%{_mandir}/man8/%{ap_name}-suexec.8
 %{_mandir}/man8/*
 
 %changelog
+* Sun Jun 27 2004 Vincent Danen <vdanen@annvix.org> 2.0.49-2avx
+- Annvix build
+
 * Fri May 07 2004 Vincent Danen <vdanen@opensls.org> 2.0.49-1sls
 - apache 2.0.49
 

@@ -1,6 +1,6 @@
 %define name	%{ap_name}-%{mod_name}
 %define version	%{ap_version}_%{mod_version}
-%define release	1sls
+%define release	2avx
 
 # Module-Specific definitions
 %define mod_version	2.2.7
@@ -100,6 +100,9 @@ chmod 644 AUTHENTICATORS CHANGES INSTALL* README* TODO mod_auth_external.txt
 %{ap_webdoc}/*
 
 %changelog
+* Sun Jun 27 2004 Vincent Danen <vdanen@annvix.org> 2.0.49_2.2.7-2avx
+- Annvix build
+
 * Fri May 07 2004 Vincent Danen <vdanen@opensls.org> 2.0.49_2.2.7-1sls
 - apache 2.0.49
 
