@@ -1,6 +1,6 @@
 %define name	gif2png
 %define version 2.4.7
-%define release 2sls
+%define release 3sls
 
 Summary:	Tools for converting websites from using GIFs to using PNGs
 Name:		%{name}
@@ -21,17 +21,6 @@ Tools for converting GIFs to PNGs.  The program gif2png converts GIF files
 to PNG files.  The Python script web2png converts an entire web tree, 
 also patching HTML pages to keep IMG SRC references correct.
 
-%description -l fr
-Outil de conversion du format GIF au format PNG. Le programme gif2png
-convertit les fichiers GIF au format PNG. Le script Python scanne une
-arborescence web complete et modifie aussi les pages HTML afin de référencer
-à nouveau les fichiers images <IMG SRC ...>.
-
-%description -l es
-Herramienta de conversion GIF hacia PNG. El programa gif2png convierte los
-archivos GIF al formato PNG. El script Python convierte un arbol web completo
-y modifica incluso las paginas html para poner al dia las referencias a
-imagenes <IMG SRC ...>.
 
 %prep
 %setup -q
@@ -41,12 +30,12 @@ imagenes <IMG SRC ...>.
 %make
  
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
 
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root,0755)
@@ -55,6 +44,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/*
 			 
 %changelog
+* Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 2.4.7-3sls
+- minor spec cleanups
+- get rid of the french and spanish descriptions
+
 * Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 2.4.7-2sls
 - OpenSLS build
 - tidy spec
