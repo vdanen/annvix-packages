@@ -1,17 +1,19 @@
---- acinclude.m4	2003-12-14 22:23:47.000000000 +0100
-+++ acinclude.m4.oden	2003-12-18 04:19:54.000000000 +0100
-@@ -743,8 +743,8 @@
+--- acinclude.m4.lib64	2004-09-06 16:29:36.000000000 -0600
++++ acinclude.m4	2004-10-21 20:27:49.000000000 -0600
+@@ -743,9 +743,9 @@
         fi
        done
  
 -      for d in /usr/ssl/lib /usr/local/ssl/lib /usr/lib/openssl \
--/usr/lib /usr/lib64 /opt/ssl/lib /opt/openssl/lib /usr/local/lib/ ; do
+-/usr/lib /usr/lib64 /opt/ssl/lib /opt/openssl/lib \
+-/usr/freeware/lib32 /usr/local/lib/ ; do
 +      for d in /usr/ssl/$MYSQL_LIB /usr/local/ssl/$MYSQL_LIB /usr/$MYSQL_LIB/openssl \
-+      /usr/$MYSQL_LIB /opt/ssl/$MYSQL_LIB /opt/openssl/$MYSQL_LIB /usr/local/$MYSQL_LIB/ ; do
++/usr/$MYSQL_LIB /opt/ssl/$MYSQL_LIB /opt/openssl/$MYSQL_LIB \
++/usr/freeware/lib32 /usr/local/$MYSQL_LIB ; do
        if test -f $d/libssl.a || test -f $d/libssl.so || test -f $d/libssl.dylib ; then
          OPENSSL_LIB=$d
        fi
-@@ -1078,7 +1078,7 @@
+@@ -1079,7 +1079,7 @@
  dnl echo ["MYSQL_CHECK_BDB_DIR ($1)"]
    dir="$1"
  
@@ -20,9 +22,9 @@
  
    if test X"$bdb_dir_ok" != Xinstalled; then
      # test to see if it's a source dir
---- configure.in	2003-12-14 22:23:49.000000000 +0100
-+++ configure.in.oden	2003-12-18 04:18:06.000000000 +0100
-@@ -2113,6 +2113,32 @@
+--- configure.in.lib64	2004-09-06 16:29:39.000000000 -0600
++++ configure.in	2004-10-21 20:22:06.000000000 -0600
+@@ -2148,6 +2148,32 @@
  fi
  AC_SUBST(tools_dirs)
  

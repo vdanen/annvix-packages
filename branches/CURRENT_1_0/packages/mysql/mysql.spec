@@ -1,6 +1,6 @@
 %define name	MySQL
-%define version	4.0.20
-%define release	5avx
+%define version	4.0.21
+%define release	1avx
 
 %define major		12
 %define libname_orig	mysql
@@ -21,17 +21,18 @@ Release:	%{release}
 License:	GPL
 Group:		Databases
 URL:            http://www.mysql.com
-Source:		ftp.free.fr:/pub/MySQL/Downloads/MySQL-4.0/mysql-%{version}.tar.bz2
-Source1:	ftp://ftp.free.fr:/pub/MySQL/Downloads/Manual/manual-split.tar.bz2
+Source:		ftp://mirror.cpsc.ucalgary.ca/mirror/mysql.com/Downloads/MySQL-4.0/mysql-%{version}.tar.gz
+Source1:	ftp://mirror.cpsc.ucalgary.ca/mirror/mysql.com//Downloads/Manual/manual-split.tar.gz
 Source2:	mysqld.run
 Source3:	mysqld-log.run
 Source4:	mysqld.sysconfig
 Source5:	mysqld.finish
 Source6:	05_mysql.afterboot
 Source7:	logrotate.mysqld
-Patch1:		MySQL-4.0.16-mdk-fix_install_scripts.patch.bz2
+Source8:	ftp://mirror.cpsc.ucalgary.ca/mirror/mysql.com/Downloads/MySQL-4.0/mysql-%{version}.tar.gz.asc
+Patch1:		mysql-4.0.21-avx-fix_install_scripts.patch.bz2
 Patch2:		mysql-mdk-all_charset.patch.bz2
-Patch3:		mysql-4.0.17-mdk-lib64.patch.bz2
+Patch3:		mysql-4.0.21-avx-lib64.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
 BuildRequires:	bison, db4-devel, glibc-static-devel, libstdc++-static-devel, automake1.7
@@ -319,7 +320,7 @@ do
 done
 
 pushd $RBR%{_docdir}/MySQL-%{version}/chapter
-tar tjvf %{SOURCE1}
+tar tzvf %{SOURCE1}
 popd
 
 #Fix libraries
@@ -425,7 +426,7 @@ fix_privileges()
     fi
 }
 
-if [ "x`runsvstat /service/mysqld|grep down >/dev/null 2>&1; echo $?`" = "x0" ]; then
+if [ "x`runsvstat /service/mysqld 2>&1|grep down >/dev/null 2>&1; echo $?`" = "x0" ]; then
     fix_privileges
 else
     /usr/sbin/srv stop mysqld &> /dev/null
@@ -542,6 +543,7 @@ fi
 %{_datadir}/mysql/my-large.cnf
 %{_datadir}/mysql/my-medium.cnf
 %{_datadir}/mysql/my-small.cnf
+%{_datadir}/mysql/my-innodb-heavy-4G.cnf
 %{_datadir}/mysql/mysql-*.spec
 %{_datadir}/mysql/mysql-log-rotate
 %{_datadir}/mysql/charsets
@@ -622,6 +624,14 @@ fi
 %config(noreplace) %{_sysconfdir}/sysconfig/mysqld
 
 %changelog
+* Fri Oct 22 2004 Vincent Danen <vdanen@annvix.org> 4.0.21-1avx
+- 4.0.21
+- updated manual-split package
+- include gpg signature and use original sources
+- rediff P1, P3
+- pick a better mirror
+- make runsvstat more silent
+
 * Wed Oct 06 2004 Vincent Danen <vdanen@annvix.org> 4.0.20-5avx
 - fix the scripts; it should now run flawlessly and fix bug #2
 

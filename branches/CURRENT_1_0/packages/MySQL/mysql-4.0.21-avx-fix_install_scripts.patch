@@ -1,7 +1,7 @@
---- scripts/mysql_install_db.sh	2003-10-17 07:29:20.000000000 +0200
-+++ scripts/mysql_install_db.sh.oden	2003-10-23 15:32:16.000000000 +0200
-@@ -82,10 +82,10 @@
-   execdir=@libexecdir@ 
+--- scripts/mysql_install_db.sh.max	2004-09-06 16:29:38.000000000 -0600
++++ scripts/mysql_install_db.sh	2004-10-21 20:19:01.000000000 -0600
+@@ -95,10 +95,10 @@
+   pkgdatadir=@pkgdatadir@
  else
    bindir="$basedir/bin"
 -if test -x "$basedir/libexec/mysqld"
@@ -13,50 +13,49 @@
  then
    execdir="@libexecdir@"
  else
-@@ -95,16 +95,25 @@
+@@ -118,16 +118,28 @@
+   scriptdir="./scripts"
+ fi
  
- mdata=$ldata/mysql
- 
--if test ! -x $execdir/mysqld
+-if test ! -x $mysqld
 +# Use the mysqld-max binary by default if the user doesn't specify a binary
-+if test -x $execdir/mysqld-max; 
++if test -x $mysqld-max
  then
--  if test "$IN_RPM" = "1"
--  then
--    echo "FATAL ERROR $execdir/mysqld not found!"
--    exit 1
+-  if test "$in_rpm" = 1
 +  MYSQLD=mysqld-max
 +else
-+  if test -x $execdir/mysqld
-+    then
++  if test -x $mysqld
+   then
+-    echo "FATAL ERROR $mysqld not found!"
+-    exit 1
 +    MYSQLD=mysqld
    else
--    echo "Didn't find $execdir/mysqld"
--    echo "You should do a 'make install' before executing this script"
--    exit 1
-+
-+    if test "$IN_RPM" -eq 1
+     echo "Didn't find $mysqld"
+     echo "You should do a 'make install' before executing this script"
+     exit 1
++      
++    if test "$in_rpm" = 1
 +    then
-+      echo "FATAL ERROR $execdir/mysqld not found!"
++      echo "FATAL ERROR $mysqld not found!"
 +      exit 1
 +    else
-+      echo "Didn't find $execdir/mysqld"
++      echo "Didn't find $mysqld"
 +      echo "You should do a 'make install' before executing this script"
 +      exit 1
 +    fi
    fi
  fi
  
-@@ -313,7 +322,7 @@
+@@ -340,7 +352,7 @@
  fi
  
  echo "Installing all prepared tables"
--if eval "$execdir/mysqld $defaults --bootstrap --skip-grant-tables \
-+if eval "$execdir/$MYSQLD $defaults --bootstrap --skip-grant-tables \
-          --basedir=$basedir --datadir=$ldata --skip-innodb --skip-bdb $args" << END_OF_DATA
+-if eval "$mysqld $defaults $mysqld_opt --bootstrap --skip-grant-tables \
++if eval "$execdir/$MYSQLD $defaults $mysqld_opt --bootstrap --skip-grant-tables \
+          --basedir=$basedir --datadir=$ldata --skip-innodb --skip-bdb \
+          $args" << END_OF_DATA
  use mysql;
- $c_d
-@@ -375,7 +384,7 @@
+@@ -403,7 +415,7 @@
    echo
    echo "Examine the logs in $ldata for more information."
    echo "You can also try to start the mysqld daemon with:"
