@@ -1,6 +1,6 @@
 %define name	portmap
 %define version	4.0
-%define release	27avx
+%define release	28avx
 %define ver	4
 
 Summary:	A program which manages RPC connections
@@ -9,8 +9,9 @@ Version:	%{version}
 Release:	%{release}
 Group:		System/Servers
 License:	BSD
+URL:		ftp://ftp.porcupine.org/pub/security/index.html
 Source0:	ftp://coast.cs.purdue.edu:/pub/tools/unix/netutils/portmap/portmap_%{ver}.tar.bz2
-Source1:	portmap.init
+Source1:	portmap.sysconfig
 Source2:	pmap_set.8.bz2
 Source3:	pmap_dump.8.bz2
 Source4:	portmap.8.bz2
@@ -22,12 +23,14 @@ Patch2:		portmap-4.0-cleanup.patch.bz2
 Patch3:		portmap-4.0-rpc_user.patch.bz2
 Patch4:		portmap-4.0-sigpipe.patch.bz2
 Patch5:		portmap-4.0-errno.patch.bz2
+Patch6:		portmap-4.0-pie.diff.bz2
+Patch7:		portmap_4-bind_to_ip_or_host_address.diff.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
 BuildRequires:	tcp_wrappers-devel
 
 Prereq:		rpm-helper
-Requires:	setup >= 2.1.9-38mdk
+Requires:	setup >= 2.4-16avx
 
 %description
 The portmapper program is a security tool which prevents theft of NIS
@@ -46,30 +49,33 @@ a server for protocols using RPC.
 %patch3 -p1
 %patch4 -p1
 %patch5 -p1
+%patch6 -p1
+%patch7 -p0
 
 %build
 %serverbuild
-make FACILITY=LOG_AUTH ZOMBIES='-DIGNORE_SIGCHLD -Dlint' LIBS="-lnsl" RPM_OPT_FLAGS="$RPM_OPT_FLAGS" \
+make FACILITY=LOG_AUTH ZOMBIES='-DIGNORE_SIGCHLD -Dlint' LIBS="-lnsl" RPM_OPT_FLAGS="%{optflags}" \
 	WRAP_DIR=%{_libdir}
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p $RPM_BUILD_ROOT/sbin
-mkdir -p $RPM_BUILD_ROOT/usr/sbin
+mkdir -p $RPM_BUILD_ROOT/{sbin,%{_sbindir},%{_mandir}/man8,%{_sysconfdir}/sysconfig}
 
-install -m 755 -s portmap $RPM_BUILD_ROOT/sbin
-install -m 755 -s pmap_set $RPM_BUILD_ROOT/usr/sbin
-install -m 755 -s pmap_dump $RPM_BUILD_ROOT/usr/sbin
+install -m 0755 -s portmap $RPM_BUILD_ROOT/sbin
+install -m 0755 -s pmap_set $RPM_BUILD_ROOT%{_sbindir}
+install -m 0755 -s pmap_dump $RPM_BUILD_ROOT%{_sbindir}
 
-mkdir -p $RPM_BUILD_ROOT%{_mandir}/man8
-install -m 644 %{SOURCE2} $RPM_BUILD_ROOT%{_mandir}/man8
-install -m 644 %{SOURCE3} $RPM_BUILD_ROOT%{_mandir}/man8
-install -m 644 %{SOURCE4} $RPM_BUILD_ROOT%{_mandir}/man8
+install -m 0644 %{SOURCE1} %{buildroot}%{_sysconfdir}/sysconfig/portmap
+install -m 0644 %{SOURCE2} $RPM_BUILD_ROOT%{_mandir}/man8
+install -m 0644 %{SOURCE3} $RPM_BUILD_ROOT%{_mandir}/man8
+install -m 0644 %{SOURCE4} $RPM_BUILD_ROOT%{_mandir}/man8
 
 mkdir -p %{buildroot}%{_srvdir}/portmap/log
 mkdir -p %{buildroot}%{_srvlogdir}/portmap
 install -m 0755 %{SOURCE5} %{buildroot}%{_srvdir}/portmap/run
 install -m 0755 %{SOURCE6} %{buildroot}%{_srvdir}/portmap/log/run
+
+strip %{buildroot}/sbin/portmap
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -92,18 +98,28 @@ install -m 0755 %{SOURCE6} %{buildroot}%{_srvdir}/portmap/log/run
 %files
 %defattr(-,root,root)
 %doc README CHANGES BLURB
+%config(noreplace) %{_sysconfdir}/sysconfig/portmap
 %dir %{_srvdir}/portmap
 %dir %{_srvdir}/portmap/log
-%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/portmap
+%dir %attr(0750,logger,logger) %{_srvlogdir}/portmap
 %{_srvdir}/portmap/run
 %{_srvdir}/portmap/log/run
 /sbin/portmap
-/usr/sbin/pmap_dump
-/usr/sbin/pmap_set
+%{_sbindir}/pmap_dump
+%{_sbindir}/pmap_set
 %{_mandir}/*/*
 
 
 %changelog
+* Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 4.0-28avx
+- use logger for logging
+- P7: allow portmapper to listen to only one hostname or IP and
+  a sysconfig file to define it
+- P3: updated from fedora
+- P6: from mdk, originally from fedora
+- add url
+- drop initscript
+
 * Mon Sep 20 2004 Vincent Danen <vdanen@annvix.org> 4.0-27avx
 - update run scripts
 
