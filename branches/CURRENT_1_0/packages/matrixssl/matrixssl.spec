@@ -1,5 +1,5 @@
 %define	name	matrixssl
-%define	version	1.2
+%define	version	1.2.2
 %define	release	1avx
 
 %define	major	1
@@ -12,7 +12,7 @@ Release:	%{release}
 License:	GPL
 Group:		System/Libraries
 URL:		http://www.matrixssl.org/
-Source0:	%{name}-1-2.tar.bz2
+Source0:	%{name}-1-2-2.tar.gz
 Patch0:		matrixssl-1.2-shared_and_static.diff.bz2
 Patch1:		matrixssl-1.2-debian.diff.bz2
 
@@ -138,6 +138,9 @@ rm -f examples/*.p12
 %{_libdir}/dietlibc/lib/*.a
 
 %changelog
+* Wed Oct 13 2004 Vincent Danen <vdanen@annvix.org> 1.2.2-1avx
+- 1.2.2
+
 * Sat Sep 11 2004 Vincent Danen <vdanen@annvix.org> 1.2-1avx
 - Annvix build; needed for ipsvd
 
