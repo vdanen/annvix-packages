@@ -14,7 +14,7 @@
 
 %define pkg_name	samba
 %define ver 		3.0.1
-%define rel 		3sls
+%define rel 		4sls
 %define vscanver 	0.3.4
 %define libsmbmajor 	0
 
@@ -1036,6 +1036,10 @@ install -m 755 source/nsswitch/pam_winbind.so $RPM_BUILD_ROOT/%{_lib}/security/p
 
 install -m755 source/bin/libsmbclient.a $RPM_BUILD_ROOT%{_libdir}/libsmbclient.a
 pushd $RPM_BUILD_ROOT/%{_libdir}
+%ifarch amd64 x86_64
+# for some reason libsmbclient gets installed into /usr/lib not /usr/lib64
+mv -f ../lib/libsmbclient.so* .
+%endif
 [ -f libsmbclient.so ] && mv -f libsmbclient.so libsmbclient.so.%{libsmbmajor}
 ln -sf libsmbclient.so.%{libsmbmajor} libsmbclient.so
 popd
@@ -1722,6 +1726,10 @@ update-alternatives --auto smbclient
 %exclude %{_mandir}/man1/smbsh*.1*
 
 %changelog
+* Fri Jan 09 2004 Vincent Danen <vdanen@opensls.org> 3.0.1-4sls
+- libsmbclient.so is installed into /usr/lib not /usr/lib64 so if building for
+  amd64, move it
+
 * Tue Dec 30 2003 Vincent Danen <vdanen@opensls.org> 3.0.1-3sls
 - OpenSLS build
 - tidy spec
