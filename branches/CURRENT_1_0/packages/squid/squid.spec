@@ -1,6 +1,6 @@
 %define name	squid
 %define version	2.5.STABLE3
-%define release	5sls
+%define release	6sls
 
 %define their_version	2.5.STABLE3
 %define p_url   http://www.squid-cache.org/Versions/v2/2.5/bugs
@@ -41,7 +41,7 @@ Patch3:		squid-2.5.STABLE2-ssl.patch.bz2
 BuildRoot:	%{_tmppath}/%{name}-root
 BuildRequires:	openldap-devel libsasl-devel openssl-devel >= 0.9.7 pam-devel
 
-Prereq:		/sbin/chkconfig logrotate shadow-utils rpm-helper
+Prereq:		logrotate shadow-utils rpm-helper
 
 %description
 Squid is a high-performance proxy caching server for Web clients,
@@ -132,7 +132,7 @@ mkdir -p %{buildroot}/etc/{logrotate.d,pam.d}
 
 install -m 0755 %{SOURCE11} %{buildroot}%{_srvdir}/squid/run
 install -m 0755 %{SOURCE12} %{buildroot}%{_srvdir}/squid/log/run
-install -m 0755 %{SOURCE13} %{buildroot}%{_srvdir}/squid/stop
+#install -m 0755 %{SOURCE13} %{buildroot}%{_srvdir}/squid/stop
 bzcat %{SOURCE3} > %{buildroot}/etc/logrotate.d/squid
 
 cp %{_builddir}/%{name}-%{their_version}/helpers/basic_auth/SMB/smb_auth.sh $RPM_BUILD_ROOT/%{_libexecdir}
@@ -184,7 +184,7 @@ rm -rf %{buildroot}/%{_datadir}/errors
 
 
 %pre
-%_pre_useradd squid /var/spool/squid /bin/false
+%_pre_useradd squid /var/spool/squid /bin/false 83
 
 for i in /var/log/squid /var/spool/squid ; do
         if [ -d $i ] ; then
@@ -195,7 +195,7 @@ for i in /var/log/squid /var/spool/squid ; do
 done
 
 %post
-%_post_service squid
+%_post_srv squid
  case "$LANG" in
   bg*)
      DIR=Bulgarian
@@ -270,10 +270,9 @@ done
 # ln -sf %{_libexecdir}/errors/$DIR %{_sysconfdir}/errors
 
 %preun
-%_preun_service squid
+%_preun_srv squid
 if [ $1 = 0 ] ; then
 	rm -f /var/log/squid/*
-        /sbin/chkconfig --del squid
 fi
 
 %postun
@@ -314,10 +313,15 @@ fi
 %dir %{_srvdir}/squid/log
 %{_srvdir}/squid/run
 %{_srvdir}/squid/log/run
-%{_srvdir}/squid/stop
+#%{_srvdir}/squid/stop
 %attr(0750,nobody,nogroup) %dir %{_srvlogdir}/squid
 
 %changelog
+* Fri Feb 06 2004 Vincent Danen <vdanen@opensls.org> 2.5.STABLE3-6sls
+- squid has static uid/gid 83
+- srv macros
+- change run script so we shouldn't have to use the stop script
+
 * Fri Jan 23 2004 Vincent Danen <vdanen@opensls.org> 2.5.STABLE3-5sls
 - fix the run and stop scripts (re: tmb)
 
