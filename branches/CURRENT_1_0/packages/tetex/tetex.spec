@@ -1,6 +1,6 @@
 %define name	tetex
 %define version	2.0.2
-%define release	14sls
+%define release	15avx
 
 %define pkgname		%{name}
 %define docversion	2.0.2
@@ -12,12 +12,12 @@
 %define jadename	jadetex
 %define jadeversion	3.12
 %define jaderelease_delta 79
-%define jaderelease	%(R=%{release}; echo $((${R/sls/} + %{jaderelease_delta}))sls)
+%define jaderelease	%(R=%{release}; echo $((${R/avx/} + %{jaderelease_delta}))avx)
 %define xmltexname	xmltex
 %define xmltexversion	1.9
 # reset the delta if changing the xmltexversion.
 %define xmltexrelease_delta 27
-%define xmltexrelease	%(R=%{release}; echo $((${R/sls/} + %{xmltexrelease_delta}))sls)
+%define xmltexrelease	%(R=%{release}; echo $((${R/avx/} + %{xmltexrelease_delta}))avx)
 
 %define vartexfonts	/var/lib/texmf
 
@@ -624,6 +624,9 @@ fi
 
 
 %changelog
+* Sat Jun 18 2004 Vincent Danen <vdanen@annvix.org> 2.0.2-15avx
+- Annvix build
+
 * Fri Apr 07 2004 Vincent Danen <vdanen@opensls.org> 2.0.2-14sls
 - sync with cooker 15mdk:
   - texmfgg archive updated to release 2.0.2d: (ghibo)
