@@ -1,8 +1,6 @@
 %define name	ncurses
 %define version	5.3
-%define release	1.20030215.4sls
-
-%{!?build_opensls:%global build_opensls 0}
+%define release	1.20030215.5sls
 
 %define patchdate	20021028
 %define lib_major	5
@@ -33,9 +31,6 @@ Patch17:	ftp://dickey.his.com/ncurses/%{version}/ncurses-5.3-20030215.patch.gz
 
 BuildRoot:	%{_tmppath}/%{name}-root
 BuildRequires:	sharutils
-%if !%{build_opensls}
-BuildRequires:	gpm-devel
-%endif
 
 PreReq:		/sbin/ldconfig
 
@@ -106,23 +101,18 @@ find . -name "*.orig" | xargs rm -f
 perl -pi -e 's|(test -n "\$host_alias" && ac_tool_prefix)=(.*)|\1=""|' ./configure
 
 %build
-%if %{build_opensls}
-GPMSWITCH="--without-gpm"
-%else
-GPMSWITCH="--with-gpm"
-%endif
 OPT_FLAGS=`echo "$RPM_OPT_FLAGS -DPURE_TERMINFO" | sed -e "s/-fomit-frame-pointer//g"`
 CFLAGS="$OPT_FLAGS" CXXFLAGS="$OPT_FLAGS" %configure \
 	--program-prefix= \
 	--with-normal --with-shared --without-debug --without-profile \
-	$GPMSWITCH --enable-termcap --enable-getcap \
+	--without-gpm --enable-termcap --enable-getcap \
 	--enable-const --enable-hard-tabs --enable-hash-map \
 	--enable-no-padding --enable-sigwinch --without-ada
 
 %make
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall prefix=$RPM_BUILD_ROOT/usr \
 	includedir=$RPM_BUILD_ROOT/usr/include/ncurses \
 	ticdir=$RPM_BUILD_ROOT/%{_datadir}/terminfo
@@ -170,6 +160,14 @@ find $RPM_BUILD_ROOT/%{_libdir}/*.a -not -name "*_g.a" -not -name "*_p.a" -type 
 
 mv $RPM_BUILD_ROOT/%{_mandir}/tack.1 $RPM_BUILD_ROOT/%{_mandir}/man1/tack.1
 
+# remove unpackaged files
+rm -rf %{buildroot}%{_libdir}/{libcurses.a,terminfo}
+rm -rf %{buildroot}%{_datadir}/terminfo/terminfo
+
+
+%clean
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 %post -n %{lib_name} -p /sbin/ldconfig
 
 %postun -n %{lib_name} -p /sbin/ldconfig
@@ -201,10 +199,12 @@ mv $RPM_BUILD_ROOT/%{_mandir}/tack.1 $RPM_BUILD_ROOT/%{_mandir}/man1/tack.1
 /usr/include/*.h
 %{_mandir}/man3/*
 
-%clean
-rm -rf $RPM_BUILD_ROOT
-
 %changelog
+* Sun Mar 07 2004 Vincent Danen <vdanen@opensls.org> 5.3-1.20030215.5sls
+- minor spec cleanups
+- remove %%build_opensls macro
+- remove unpackaged files
+
 * Sat Dec 06 2003 Vincent Danen <vdanen@opensls.org> 5.3-1.20030215.4sls
 - OpenSLS build
 - tidy spec
