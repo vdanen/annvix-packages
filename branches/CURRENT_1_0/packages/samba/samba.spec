@@ -13,10 +13,12 @@
 # cvs should be submitted for inclusion in samba cvs.
 
 %define pkg_name	samba
-%define ver 		3.0.1rc2
-%define rel 		2mdk
+%define ver 		3.0.1
+%define rel 		3sls
 %define vscanver 	0.3.4
 %define libsmbmajor 	0
+
+%{!?build_opensls:%global build_opensls 0}
 
 %{!?lib: %global lib lib}
 %{!?mklibname: %global mklibname(ds) %lib%{1}%{?2:%{2}}%{?3:_%{3}}%{-s:-static}%{-d:-devel}}
@@ -84,6 +86,13 @@
 %define have_rpmhelper	1
 
 # Set defaults for each version
+
+%if %{build_opensls}
+%define build_system	1
+%define build_alternatives	1
+%define build_cupspc	1
+%endif
+
 %if %build_mdk100
 %define build_system	1
 %define build_alternatives	1
@@ -166,7 +175,7 @@
 %define build_openav	0
 %define build_sophos 	0
 %define build_symantec 	0
-%define build_trend 0
+%define build_trend	0
 %if %build_vscan && %build_scanners
 #These can be enabled here by default
 # (kaspersky requires their library present)
@@ -189,7 +198,7 @@
 %global vfsdir examples.bin/VFS
 
 #Standard texts for descriptions:
-%define message_bugzilla() %(echo -e -n "Please file bug reports for this package at Mandrake bugzilla \\n(http://qa.mandrakesoft.com) under the product name %{1}")
+%define message_bugzilla() %(echo -e -n "Please file bug reports for this package at the OpenSLS Anthill\\n(http://opensls.org/anthill/) under the product name %{1}")
 %define message_system %(echo -e -n "NOTE: These packages of samba-%{version}, are provided, parallel installable\\nwith samba-2.2.x, to allow easy migration from samba-2.2.x to samba-%{version},\\nbut are not officially supported")
 
 #check gcc version to disable some optimisations on gcc-3.3.1
@@ -229,44 +238,48 @@
 %define alternative_major %{nil}
 %endif
 
-Summary: Samba SMB server.
-Name: %{pkg_name}%{samba_major}
-
+Summary:	Samba SMB server.
+Name:		%{pkg_name}%{samba_major}
 %if %have_pre
-Version: %{pre_ver}
+Version:	%{pre_ver}
 %else
-Version: %{source_ver}
+Version:	%{source_ver}
 %endif
-
 %if %have_prelease && !%have_pre
-Release: 1.%{prelease}mdk
+Release:	1.%{prelease}sls
 %endif
 %if %have_prelease && %have_pre
-Release: 0.%{pre_pre}.%{prelease}mdk
+Release:	0.%{pre_pre}.%{prelease}sls
 %endif
 %if !%have_prelease && !%have_pre
-Release: %{rel}
+Release:	%{rel}
 %endif
 %if !%have_prelease && %have_pre
-Release: 0.%{pre_pre}.%{rel}
+Release:	0.%{pre_pre}.%{rel}
 %endif
-
-License: GPL
-Group: System/Servers
-Source: ftp://samba.org/pub/samba/samba-%{source_ver}.tar.bz2
-URL:	http://www.samba.org
-Source1: samba.log
-Source3: samba.xinetd
-Source4: swat_48.png.bz2
-Source5: swat_32.png.bz2
-Source6: swat_16.png.bz2
-Source7: README.%{name}-mandrake-rpm
+License:	GPL
+Group:		System/Servers
+URL:		http://www.samba.org
+Source:		ftp://samba.org/pub/samba/samba-%{source_ver}.tar.bz2
+Source1:	samba.log
+Source3:	samba.xinetd
+Source4:	swat_48.png.bz2
+Source5:	swat_32.png.bz2
+Source6:	swat_16.png.bz2
+Source7:	README.%{name}-mandrake-rpm
+Source8:	swat.run
+Source9:	swat-log.run
+Source10:	swat.cdb
+Source11:	smbd.run
+Source12:	smbd-log.run
+Source13:	nmbd.run
+Source14:	nmbd-log.run
 %if %build_vscan
-Source8: samba-vscan-%{vscanver}.tar.bz2
+Source8:	samba-vscan-%{vscanver}.tar.bz2
 %endif
-Source10: samba-print-pdf.sh.bz2
-Patch1: smbw.patch.bz2
-Patch4: samba-3.0-smbmount-sbin.patch.bz2
+Source10:	samba-print-pdf.sh.bz2
+Patch1:		smbw.patch.bz2
+Patch4:		samba-3.0-smbmount-sbin.patch.bz2
 %if !%have_pversion
 # Version specific patches: current version
 %else
@@ -276,28 +289,30 @@ Patch4: samba-3.0-smbmount-sbin.patch.bz2
 # samba CVS)
 %if %have_pversion && %have_pre
 %endif
-Requires: pam >= 0.64, samba-common = %{version}
-BuildRequires: pam-devel readline-devel libncurses-devel popt-devel
-BuildRequires: libxml2-devel
+Requires:	pam >= 0.64, samba-common = %{version}
+
+BuildRoot:	%{_tmppath}/%{name}-%{version}-root
+BuildRequires:	pam-devel readline-devel libncurses-devel popt-devel
+BuildRequires:	libxml2-devel
 %ifnarch alpha
-BuildRequires: mysql-devel
+BuildRequires:	mysql-devel
 %endif
 %if %build_acl
-BuildRequires: libacl-devel
+BuildRequires:	libacl-devel
 %endif
 %if %build_mdk72
-BuildRequires: cups-devel
+BuildRequires:	cups-devel
 %else
-BuildRequires: libcups-devel
+BuildRequires:	libcups-devel
 %endif
-BuildRequires: libldap-devel
+BuildRequires:	libldap-devel
 %if %build_ads
-BuildRequires: libldap-devel krb5-devel
+BuildRequires:	libldap-devel krb5-devel
 %endif
-BuildRoot: %{_tmppath}/%{name}-%{version}-root
-Prefix: /usr
-Prereq: /sbin/chkconfig /bin/mktemp /usr/bin/killall
-Prereq: fileutils sed /bin/grep
+
+Prefix:		/usr
+Prereq:		/sbin/chkconfig /bin/mktemp /usr/bin/killall
+Prereq:		fileutils sed /bin/grep
 
 %description
 Samba provides an SMB server which can be used to provide
@@ -334,22 +349,22 @@ more information.
 %endif
 
 %package server
-URL:	http://www.samba.org
-Summary: Samba (SMB) server programs.
-Requires: %{name}-common = %{version}
+Summary:	Samba (SMB) server programs.
+Group:		System/Servers
+URL:		http://www.samba.org
+Requires:	%{name}-common = %{version}
 %if %have_rpmhelper
 PreReq:		rpm-helper
 %endif
-Group: Networking/Other
 %if %build_system
-Provides: samba
-Obsoletes: samba
-Provides:  samba-server-ldap
-Obsoletes: samba-server-ldap
-Provides:  samba3-server
-Obsoletes: samba3-server
+Provides:	samba
+Obsoletes:	samba
+Provides:	samba-server-ldap
+Obsoletes:	samba-server-ldap
+Provides:	samba3-server
+Obsoletes:	samba3-server
 %else
-#Provides: samba-server
+#Provides:	samba-server
 %endif
 
 %description server
@@ -379,22 +394,22 @@ docs directory for implementation details.
 %endif
 
 %package client
-URL:	http://www.samba.org
-Summary: Samba (SMB) client programs.
-Group: Networking/Other
-Requires: %{name}-common = %{version}
+Summary:	Samba (SMB) client programs.
+Group:		Networking/Other
+URL:		http://www.samba.org
+Requires:	%{name}-common = %{version}
 %if %build_alternatives
 #Conflicts:	samba-client < 2.2.8a-9mdk
 %endif
 %if %build_system
-Provides:  samba3-client
-Obsoletes: samba3-client
-Obsoletes: smbfs
+Provides:	samba3-client
+Obsoletes:	samba3-client
+Obsoletes:	smbfs
 %else
-#Provides: samba-client
+#Provides:	samba-client
 %endif
 %if !%build_system && %build_alternatives
-Provides: samba-client
+Provides:	samba-client
 %endif
 
 %description client
@@ -409,16 +424,16 @@ printing to SMB printers.
 %endif
 
 %package common
-URL:	http://www.samba.org
-Summary: Files used by both Samba servers and clients.
-Group: System/Servers
+Summary:	Files used by both Samba servers and clients.
+Group:		System/Servers
+URL:		http://www.samba.org
 %if %build_system
-Provides:  samba-common-ldap
-Obsoletes: samba-common-ldap
-Provides:  samba3-common
-Obsoletes: samba3-common
+Provides:	samba-common-ldap
+Obsoletes:	samba-common-ldap
+Provides:	samba3-common
+Obsoletes:	samba3-common
 %else
-#Provides: samba-common
+#Provides:	samba-common
 %endif
 
 %description common
@@ -431,41 +446,47 @@ packages of Samba.
 %message_system
 %endif
 
+%if !%{build_opensls}
 %package doc
-URL:	http://www.samba.org
-Summary: Documentation for Samba servers and clients.
-Group: System/Servers
-Requires: %{name}-common = %{version}
-%if %build_system
-Obsoletes: samba3-doc
-Provides:  samba3-doc
-%else
-#Provides: samba-doc
-%endif
+Summary:	Documentation for Samba servers and clients.
+Group:		System/Servers
+URL:		http://www.samba.org
+Requires:	%{name}-common = %{version}
+%%if %build_system
+Obsoletes:	samba3-doc
+Provides: 	samba3-doc
+%%else
+#Provides:	samba-doc
+%%endif
 
 %description doc
 Samba-doc provides documentation files for both the server and client
 packages of Samba.
-%if %have_pversion
+%%if %have_pversion
 %message_bugzilla samba3-doc
-%endif
-%if !%build_system
+%%endif
+%%if !%build_system
 %message_system
+%%endif
 %endif
 
 %package swat
-URL:	http://www.samba.org
-Summary: The Samba Web Administration Tool.
-Requires: %{name}-server = %{version}
-Requires: xinetd
-Group: System/Servers
-%if %build_system
-Provides:  samba-swat-ldap
-Obsoletes: samba-swat-ldap
-Provides:  samba3-swat
-Obsoletes: samba3-swat
+Summary:	The Samba Web Administration Tool.
+Group:		System/Servers
+URL:		http://www.samba.org
+Requires:	%{name}-server = %{version}
+%if %{build_opensls}
+Requires:	ucspi-tcp
 %else
-#Provides: samba-swat
+Requires:	xinetd
+%endif
+%if %build_system
+Provides: 	samba-swat-ldap
+Obsoletes:	samba-swat-ldap
+Provides: 	samba3-swat
+Obsoletes:	samba3-swat
+%else
+#Provides:	samba-swat
 %endif
 
 %description swat
@@ -486,14 +507,15 @@ Samba.
 
 %if %build_winbind
 %package winbind
-URL:	http://www.samba.org
-Summary: Samba-winbind daemon, utilities and documentation
-Group: System/Servers
-Requires: %{name}-common = %{version}
+Summary:	Samba-winbind daemon, utilities and documentation
+Group:		System/Servers
+URL:		http://www.samba.org
+Requires:	%{name}-common = %{version}
 %endif
 %if %build_winbind && !%build_system
-Conflicts: samba-winbind
+Conflicts:	samba-winbind
 %endif
+
 %if %build_winbind
 %description winbind
 Provides the winbind daemon and testing tools to allow authentication 
@@ -508,15 +530,16 @@ and group/user enumeration from a Windows or Samba domain controller.
 
 %if %build_wins
 %package -n nss_wins%{samba_major}
-URL:	http://www.samba.org
-Summary: Name Service Switch service for WINS
-Group: System/Servers
-Requires: %{name}-common = %{version}
-PreReq: glibc
+Summary:	Name Service Switch service for WINS
+Group:		System/Servers
+URL:		http://www.samba.org
+Requires:	%{name}-common = %{version}
+PreReq:		glibc
 %endif
 %if %build_wins && !%build_system
-Conflicts: nss_wins
+Conflicts:	nss_wins
 %endif
+
 %if %build_wins
 %description -n nss_wins%{samba_major}
 Provides the libnss_wins shared library which resolves NetBIOS names to 
@@ -531,18 +554,18 @@ IP addresses.
 
 %if %{?_with_test:1}%{!?_with_test:0}
 %package test
-URL:	http://www.samba.org
-Summary: Debugging and benchmarking tools for samba
-Group: System/Servers
-Requires: %{name}-common = %{version}
+Summary:	Debugging and benchmarking tools for samba
+Group:		System/Servers
+URL:		http://www.samba.org
+Requires:	%{name}-common = %{version}
 %endif
 %if %build_system && %{?_with_test:1}%{!?_with_test:0}
-Provides:  samba3-test samba3-debug
-Obsoletes: samba3-test samba3-debug
+Provides:	samba3-test samba3-debug
+Obsoletes:	samba3-test samba3-debug
 %endif
 %if !%build_system && %{?_with_test:1}%{!?_with_test:0}
-Provides: samba-test samba3-debug
-Obsoletes: samba3-debug
+Provides:	samba-test samba3-debug
+Obsoletes:	samba3-debug
 %endif
 %if %{?_with_test:1}%{!?_with_test:0}
 
@@ -553,9 +576,9 @@ the correct operation of tools against smb servers.
 
 %if %build_system
 %package -n %{libname}
-URL:		http://www.samba.org
-Summary: 	SMB Client Library
+Summary:	SMB Client Library
 Group:		System/Libraries
+URL:		http://www.samba.org
 Provides:	libsmbclient
 
 %description -n %{libname}
@@ -569,11 +592,11 @@ SMB shares.
 
 %if %build_system
 %package -n %{libname}-devel
-URL:		http://www.samba.org
-Summary: 	SMB Client Library Development files
+Summary:	SMB Client Library Development files
 Group:		System/Libraries
+URL:		http://www.samba.org
 Provides:	libsmbclient-devel
-Requires:       %{libname} = %{version}-%{release}
+Requires:	%{libname} = %{version}-%{release}
 
 %description -n %{libname}-devel
 This package contains the development files for the SMB client
@@ -586,11 +609,11 @@ the development of other software to access SMB shares.
 
 %if %build_system
 %package -n %{libname}-static-devel
-URL:            http://www.samba.org
-Summary:        SMB Client Static Library Development files
-Group:          System/Libraries
-Provides:       libsmbclient-static-devel = %{version}-%{release}
-Requires:       %{libname}-devel = %{version}-%{release}
+Summary:	SMB Client Static Library Development files
+Group:		System/Libraries
+URL:		http://www.samba.org
+Provides:	libsmbclient-static-devel = %{version}-%{release}
+Requires:	%{libname}-devel = %{version}-%{release}
 
 %description -n %{libname}-static-devel
 This package contains the static development files for the SMB
@@ -619,9 +642,9 @@ allowing the development of other software to access SMB shares.
 
 %ifnarch alpha
 %package passdb-mysql
-URL:		http://www.samba.org
 Summary:	Samba password database plugin for MySQL
 Group:		System/Libraries
+URL:		http://www.samba.org
 Requires:	%{name}-server = %{version}-%{release}
 %endif
 %ifnarch alpha && %build_system
@@ -637,9 +660,9 @@ database
 %endif
 
 %package passdb-xml
-URL:		http://www.samba.org
 Summary:	Samba password database plugin for XML files
 Group:		System/Libraries
+URL:		http://www.samba.org
 Requires:	%{name}-server = %{version}-%{release}
 %if %build_system
 Obsoletes:	samba3-passdb-xml 
@@ -659,11 +682,11 @@ backend allowing samba to store account details in XML files.
 #Antivirus packages:
 %if %build_fprot
 %package vscan-fprot
-Summary: On-access virus scanning for samba using FPROT
-Group: System/Servers
-Requires: %{name}-server = %{version}
-Provides: %{name}-vscan
-Autoreq: 0
+Summary:	On-access virus scanning for samba using FPROT
+Group:		System/Servers
+Requires:	%{name}-server = %{version}
+Provides:	%{name}-vscan
+Autoreq:	0
 %description vscan-fprot
 A vfs-module for samba to implement on-access scanning using the
 FPROT antivirus software (which must be installed to use this).
@@ -671,11 +694,11 @@ FPROT antivirus software (which must be installed to use this).
 
 %if %build_kaspersky
 %package vscan-kaspersky
-Summary: On-access virus scanning for samba using Kaspersky
-Group: System/Servers
-Requires: %{name}-server = %{version}
-Provides: %{name}-vscan
-Autoreq: 0
+Summary:	On-access virus scanning for samba using Kaspersky
+Group:		System/Servers
+Requires:	%{name}-server = %{version}
+Provides:	%{name}-vscan
+Autoreq:	0
 %description vscan-kaspersky
 A vfs-module for samba to implement on-access scanning using the
 Kaspersky antivirus software (which must be installed to use this).
@@ -683,11 +706,11 @@ Kaspersky antivirus software (which must be installed to use this).
 
 %if %build_mks
 %package vscan-mks
-Summary: On-access virus scanning for samba using MKS
-Group: System/Servers
-Requires: %{name}-server = %{version}
-Provides: %{name}-vscan
-Autoreq: 0
+Summary:	On-access virus scanning for samba using MKS
+Group:		System/Servers
+Requires:	%{name}-server = %{version}
+Provides:	%{name}-vscan
+Autoreq:	0
 %description vscan-mks
 A vfs-module for samba to implement on-access scanning using the
 MKS antivirus software (which must be installed to use this).
@@ -695,11 +718,11 @@ MKS antivirus software (which must be installed to use this).
 
 %if %build_openav
 %package vscan-openav
-Summary: On-access virus scanning for samba using OpenAntivirus
-Group: System/Servers
-Requires: %{name}-server = %{version}
-Provides: %{name}-vscan
-Autoreq: 0
+Summary:	On-access virus scanning for samba using OpenAntivirus
+Group:		System/Servers
+Requires:	%{name}-server = %{version}
+Provides:	%{name}-vscan
+Autoreq:	0
 %description vscan-openav
 A vfs-module for samba to implement on-access scanning using the
 OpenAntivirus antivirus software (which must be installed to use this).
@@ -707,11 +730,11 @@ OpenAntivirus antivirus software (which must be installed to use this).
 
 %if %build_sophos
 %package vscan-sophos
-Summary: On-access virus scanning for samba using Sophos
-Group: System/Servers
-Requires: %{name}-server = %{version}
-Provides: %{name}-vscan
-Autoreq: 0
+Summary:	On-access virus scanning for samba using Sophos
+Group:		System/Servers
+Requires:	%{name}-server = %{version}
+Provides:	%{name}-vscan
+Autoreq:	0
 %description vscan-sophos
 A vfs-module for samba to implement on-access scanning using the
 Sophos antivirus software (which must be installed to use this).
@@ -719,11 +742,11 @@ Sophos antivirus software (which must be installed to use this).
 
 %if %build_symantec
 %package vscan-symantec
-Summary: On-access virus scanning for samba using Symantec
-Group: System/Servers
-Requires: %{name}-server = %{version}
-Provides: %{name}-vscan
-Autoreq: 0
+Summary:	On-access virus scanning for samba using Symantec
+Group:		System/Servers
+Requires:	%{name}-server = %{version}
+Provides:	%{name}-vscan
+Autoreq:	0
 %description vscan-symantec
 A vfs-module for samba to implement on-access scanning using the
 Symantec antivirus software (which must be installed to use this).
@@ -731,11 +754,11 @@ Symantec antivirus software (which must be installed to use this).
 
 %if %build_trend
 %package vscan-trend
-Summary: On-access virus scanning for samba using Trend
-Group: System/Servers
-Requires: %{name}-server = %{version}
-Provides: %{name}-vscan
-Autoreq: 0
+Summary:	On-access virus scanning for samba using Trend
+Group:		System/Servers
+Requires:	%{name}-server = %{version}
+Provides:	%{name}-vscan
+Autoreq:	0
 %description vscan-trend
 A vfs-module for samba to implement on-access scanning using the
 Trend antivirus software (which must be installed to use this).
@@ -1130,6 +1153,15 @@ install -m755 source/client/mount.cifs %{buildroot}/bin/mount.cifs%{samba_major}
         mkdir -p $RPM_BUILD_ROOT/%{_libdir}/cups/backend
         ln -s %{_bindir}/smbspool%{alternative_major} $RPM_BUILD_ROOT/%{_libdir}/cups/backend/smb%{alternative_major}
 
+%if %{build_opensls}
+# ucspi-tcp support
+mkdir -p %{buildroot}/var/supervise/swat/log
+mkdir -p %{buildroot}/var/log/supervise/swat
+mkdir -p %{buildroot}%{_sysconfdir}/tcprules.d
+install -m 0755 %{SOURCE8} %{buildroot}/var/supervise/swat/run
+install -m 0755 %{SOURCE9} %{buildroot}/var/supervise/swat/log/run
+install -m 0640 %{SOURCE10} %{buildroot}%{_sysconfdir}/tcprules.d/swat
+%else
 # xinetd support
 
         mkdir -p $RPM_BUILD_ROOT/%{_sysconfdir}/xinetd.d
@@ -1160,6 +1192,7 @@ mkdir -p $RPM_BUILD_ROOT%{_liconsdir} $RPM_BUILD_ROOT%{_iconsdir} $RPM_BUILD_ROO
 bzcat %{SOURCE4} > $RPM_BUILD_ROOT%{_liconsdir}/swat%{samba_major}.png
 bzcat %{SOURCE5} > $RPM_BUILD_ROOT%{_iconsdir}/swat%{samba_major}.png
 bzcat %{SOURCE6} > $RPM_BUILD_ROOT%{_miconsdir}/swat%{samba_major}.png
+%endif
 
 bzcat %{SOURCE10}> $RPM_BUILD_ROOT%{_datadir}/%{name}/scripts/print-pdf
 
@@ -1221,10 +1254,22 @@ done
 perl -pi -e 's,/usr/sbin,%{_sbindir},g' $RPM_BUILD_ROOT/%{_sysconfdir}/xinetd.d/swat%{samba_major}
 %endif
 
+%if %{build_opensls}
+mkdir -p %{buildroot}/var/supervise/{smbd,nmbd}/log
+install -m 0755 %{SOURCE11} %{buildroot}/var/supervise/smbd/run
+install -m 0755 %{SOURCE12} %{buildroot}/var/supervise/smbd/log/run
+install -m 0755 %{SOURCE13} %{buildroot}/var/supervise/nmbd/run
+install -m 0755 %{SOURCE14} %{buildroot}/var/supervise/nmbd/log/run
+mkdir -p %{buildroot}/var/log/supervise/{smbd,nmbd}
+%endif
+
 #Clean up unpackaged files:
 for i in %{_bindir}/pam_smbpass.so %{_bindir}/smbwrapper.so;do
 rm -f %{buildroot}/$i
 done
+%if %{build_opensls}
+rm -rf %{buildroot}%{_datadir}/swat/using_samba
+%endif
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -1341,11 +1386,16 @@ if [ $1 = 0 ] ; then
 fi
 
 %post swat
+%if %{build_opensls}
+tcprules %{_sysconfdir}/tcprules.d/swat.cdb %{_sysconfdir}/tcprules.d/swat.tmp < %{_sysconfdir}/tcprules.d/swat
+%else
 if [ -f /var/lock/subsys/xinetd ]; then
         service xinetd reload >/dev/null 2>&1 || :
 fi
 %update_menus
+%endif
 
+%if !%{build_opensls}
 %postun swat
 
 # Remove swat entry from xinetd
@@ -1357,6 +1407,7 @@ fi
 if [ "$1" = "0" -a -x /usr/bin/update-menus ]; then /usr/bin/update-menus || true ; fi
 
 %clean_menus
+%endif
 
 %if %build_system
 %post -n %{libname} -p /sbin/ldconfig
@@ -1436,8 +1487,20 @@ update-alternatives --auto smbclient
 %{perl_vendorlib}/*.pm
 #%attr(0700,root,root) %{_datadir}/%{name}/scripts/*port_smbpasswd.pl
 %attr(0755,root,root) %{_datadir}/%{name}/scripts/convertSambaAccount
+%if %{build_opensls}
+%dir /var/supervise/smbd
+%dir /var/supervise/smbd/log
+%dir /var/supervise/nmbd
+%dir /var/supervise/nmbd/log
+/var/supervise/smbd/run
+/var/supervise/smbd/log/run
+/var/supervise/nmbd/run
+/var/supervise/nmbd/log/run
+%dir %attr(0750,nobody,nogroup) /var/log/supervise/smbd
+%dir %attr(0750,nobody,nogroup) /var/log/supervise/nmbd
+%endif
 
-
+%if !%{build_opensls}
 %files doc
 %defattr(-,root,root)
 %doc README COPYING Manifest Read-Manifest-Now
@@ -1446,16 +1509,26 @@ update-alternatives --auto smbclient
 %doc clean-docs/samba-doc/docs
 %doc clean-docs/samba-doc/examples
 %attr(-,root,root) %{_datadir}/swat%{samba_major}/using_samba/
+%endif
 
 %files swat
 %defattr(-,root,root)
+%if %{build_opensls}
+%dir /var/supervise/swat
+%dir /var/supervise/swat/log
+%dir %attr(0750,nobody,nogroup) /var/log/supervise/swat
+/var/supervise/swat/run
+/var/supervise/swat/log/run
+%config(noreplace) %{_sysconfdir}/tcprules.d/swat
+%else
 %config(noreplace) %{_sysconfdir}/xinetd.d/swat%{samba_major}
-#%attr(-,root,root) /sbin/*
-%{_sbindir}/swat%{samba_major}
 %{_menudir}/%{name}-swat
 %{_miconsdir}/*.png
 %{_liconsdir}/*.png
 %{_iconsdir}/*.png
+%endif
+#%attr(-,root,root) /sbin/*
+%{_sbindir}/swat%{samba_major}
 %attr(-,root,root) %{_datadir}/swat%{samba_major}/help/
 %attr(-,root,root) %{_datadir}/swat%{samba_major}/images/
 %attr(-,root,root) %{_datadir}/swat%{samba_major}/include/
@@ -1649,6 +1722,17 @@ update-alternatives --auto smbclient
 %exclude %{_mandir}/man1/smbsh*.1*
 
 %changelog
+* Tue Dec 30 2003 Vincent Danen <vdanen@opensls.org> 3.0.1-3sls
+- OpenSLS build
+- tidy spec
+- use %%build_opensls to disable req for xinetd and put req on ucspi-tcp
+  instead
+- build the swat.cdb in %%post; default rules allow 127. and nothing else
+- include supervise run files for smbd and nmbd
+
+* Fri Dec 19 2003 Buchan Milne <bgmilne@linux-mandrake.com> 3.0.1-2mdk
+- 3.0.1 final
+
 * Thu Dec 11 2003 Buchan Milne <bgmilne@linux-mandrake.com> 3.0.1-0.rc2.2mdk
 - 3.0.1rc2
 
