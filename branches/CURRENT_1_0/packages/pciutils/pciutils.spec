@@ -1,30 +1,31 @@
 %define name	pciutils
-%define version	2.1.99.test3
-%define release	2avx
+%define version	2.1.99.test8
+%define release	1avx
 
-%define rver	2.1.99-test3
+%define rver	2.1.99-test8
 
-Summary:	PCI bus related utilities.
+Summary:	PCI bus related utilities
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	GPL
 Group:		System/Kernel and hardware
 URL:		http://atrey.karlin.mff.cuni.cz/~mj/pciutils.html
-Source0:	ftp://atrey.karlin.mff.cuni.cz/pub/linux/pci/alpha/%{name}-%{rver}.tar.bz2
+Source0:	ftp://atrey.karlin.mff.cuni.cz/pub/linux/pci/alpha/%{name}-%{rver}.tar.gz
 Patch0:		pciutils-strip.patch.bz2
 Patch1:		pciutils-pciids.patch.bz2
 Patch2:		pciutils-2.1.10-scan.patch.bz2
 Patch3: 	pciutils-havepread.patch.bz2
 Patch4:		pciutils-2.1.99-test3-amd64.patch.bz2
+Patch5:		pciutils-typo.patch.bz2
+Patch6:		pciutils-devicetype.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-root
-BuildRequires:	wget
 %ifarch %{ix86}
 BuildRequires:	dietlibc-devel
 %endif
 
-Requires:	kernel >= 2.1.82
+Requires:	kernel >= 2.1.82, hwdata
 
 %description
 This package contains various utilities for inspecting and setting
@@ -47,52 +48,58 @@ devices connected to the PCI bus.
 %patch1 -p1 -b .pciids
 %patch2 -p1 -b .scan
 %patch3 -p1 -b .pread
-%patch4 -p1 -b .amd64
-
-./update-pciids.sh
+#%patch4 -p1 -b .amd64
+%patch5 -p1 -b .typo
+%patch6 -p1 -b .devicetype
 
 %build
 %ifarch %{ix86}
-make OPT="$RPM_OPT_FLAGS -fno-stack-protector -D_GNU_SOURCE=1" CC="diet gcc" PREFIX="/usr"
+make OPT="%{optflags} -fno-stack-protector -D_GNU_SOURCE=1" CC="diet gcc" PREFIX="/usr"
 mv lib/libpci.a lib/libpci_loader_a
 make clean
 %endif
 
-make OPT="$RPM_OPT_FLAGS -D_GNU_SOURCE=1" PREFIX="/usr"
+make OPT="%{optflags} -D_GNU_SOURCE=1" PREFIX="/usr"
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-install -d $RPM_BUILD_ROOT{%_bindir,%_mandir/man8,%_datadir,%_libdir,%_includedir/pci}
+install -d %{buildroot}{/sbin,%{_mandir}/man8,%{_libdir},%{_includedir}/pci}
 
-install -s lspci setpci $RPM_BUILD_ROOT%_bindir
-install -m 644 lspci.8 setpci.8 $RPM_BUILD_ROOT%_mandir/man8
-install -m 644 pci.ids $RPM_BUILD_ROOT%_datadir
-install -m 644 lib/libpci.a $RPM_BUILD_ROOT%_libdir
-install -m 644 lib/{pci.h,header.h,config.h} $RPM_BUILD_ROOT%_includedir/pci
+install -s lspci setpci %{buildroot}/sbin
+install -m 644 lspci.8 setpci.8 %{buildroot}%{_mandir}/man8
+install -m 644 lib/libpci.a %{buildroot}%{_libdir}
+install -m 644 lib/{pci.h,header.h,config.h,types.h} %{buildroot}%{_includedir}/pci
 
 %ifarch %{ix86}
-install lib/libpci_loader_a $RPM_BUILD_ROOT%{_libdir}/libpci_loader.a
+install lib/libpci_loader_a %{buildroot}%{_libdir}/libpci_loader.a
 %endif
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
-%defattr(-, root, root)
+%defattr(0644, root, root, 0755)
 %doc README ChangeLog pciutils.lsm
 %{_mandir}/man8/*
-%{_bindir}/*
-%{_datadir}/pci.ids
+%attr(0755,root,root) /sbin/*
 
 %files devel
-%defattr(-, root, root)
-%_libdir/libpci.a
+%defattr(0644, root, root, 0755)
+%{_libdir}/libpci.a
 %ifarch %{ix86}
-%_libdir/libpci_loader.a
+%{_libdir}/libpci_loader.a
 %endif
-%_includedir/pci
+%{_includedir}/pci
 
 %changelog
+* Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> 2.1.99-test8-1avx
+- 2.1.99-test8
+- sync patches with Fedora (P5, P6)
+- drop P4, fixed upstream
+- spec cleanups
+- relocate binaries to /sbin
+- drop BuildRequires: wget
+
 * Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 2.1.99-test3-2avx
 - Annvix build
 
