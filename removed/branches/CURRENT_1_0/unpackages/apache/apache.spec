@@ -1,6 +1,6 @@
 %define name	apache
 %define version	1.3.31
-%define release	1sls
+%define release	2avx
 
 # New ADVX macros
 %define ADVXdir %{_datadir}/ADVX
@@ -42,6 +42,7 @@ Patch5:		apache-1.3.31-baseversion.patch.bz2
 Patch6:		apache-1.3.14-mkstemp.patch.bz2
 Patch8:		apache-1.3.20.manpage.patch.bz2
 Patch9:		apache-1.3.22-man.patch.bz2
+Patch10:	apache-1.3.26-proxy-secfix.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
 BuildConflicts:	BerkeleyDB-devel
@@ -146,6 +147,7 @@ Use this package to build apache-mod_perl, or your own custom version.
 %patch6 -p1 -b .mkstemp
 %patch8 -p0
 %patch9 -p0
+%patch10 -p1 -b .can-2004-0492
 
 echo "major: %{mm_major}; minor: %{mm_minor}"
 #Correct layout 
@@ -360,6 +362,10 @@ install -m 0750 %{SOURCE7} %{buildroot}%{_srvdir}/apache/log/run
 /usr/src/apache_%{apache_version}
 
 %changelog
+* Sun Jun 27 2004 Vincent Danen <vdanen@annvix.org> 1.3.31-2avx
+- Annvix build
+- P10: security fix for CAN-2004-0492
+
 * Mon May 17 2004 Vincent Danen <vdanen@opensls.org> 1.3.31-1sls
 - 1.3.31
 - mod_ssl 2.8.17
