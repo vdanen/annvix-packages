@@ -1,5 +1,5 @@
 %define name	perl
-%define version	5.8.3
+%define version	5.8.4
 %define release	1sls
 %define epoch	2
 
@@ -25,18 +25,16 @@ Release:	%{release}
 Epoch:		%{epoch}
 License:	GPL or Artistic
 Group:		Development/Perl
-URL:		http://www.perl.com
+URL:		http://www.perl.org
 # ftp://ftp.funet.fi/pub/languages/perl/snap/perl@17574.tbz
 #ftp://ftp.funet.fi/pub/languages/perl/CPAN/src/perl-%{version}.tar.bz2
-Source0:	ftp://cpan.mirrors.easynet.fr/pub/ftp.cpan.org/src/perl-5.8.3.tar.bz2
+Source0: ftp://cpan.mirrors.easynet.fr/pub/ftp.cpan.org/src/perl-%{version}.tar.bz2
 # taken from debian
 Source1:	perl-headers-wanted
 Source2:	perl-5.8.0-RC2-special-h2ph-not-failing-on-machine_ansi_header.patch.bz2
-Source3:	http://www.cpan.org/authors/id/J/JV/JV/Getopt-Long-2.33_02.tar.bz2
 Patch3:		perl-5.8.1-RC3-norootcheck.patch.bz2
 Patch6:		perl-5.8.0-RC2-fix-LD_RUN_PATH-for-MakeMaker.patch.bz2
 Patch12:	perl-5.8.1-RC3-automatic-migration-from--make-install-PREFIX--to--makeinstall_std.patch.bz2
-Patch13:	perl-5.8.1-RC3-FHS-compliant-installvendorman-dirs.patch.bz2
 Patch14:	perl-5.8.1-RC3-install-files-using-chmod-644.patch.bz2
 Patch15:	perl-5.8.3-lib64.patch.bz2
 Patch16:	perl-5.8.2-perldoc-use-nroff-compatibility-option.patch.bz2
@@ -44,6 +42,8 @@ Patch20:	perl-5.8.0-use_gzip_layer.patch.bz2
 #(peroyvind) use -fPIC in stead of -fpic or else compile will fail on sparc (taken from redhat)
 Patch21:	perl-5.8.1-RC4-fpic-fPIC.patch.bz2
 Patch22:	perl-5.8.0-amd64.patch.bz2
+Patch23:	perl-5.8.4-patchlevel.patch.bz2
+Patch24:	perl-5.8.4-no-test-fcgi.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}
 # for NDBM
@@ -106,24 +106,25 @@ This is the documentation package for %{name}.
 
 
 %prep
-%setup -q -n %{name}-%{version}%{rel} -a 3
+%setup -q -n %{name}-%{version}%{rel} -a 2
 %patch3 -p1
 %patch6 -p1
 %patch12 -p1
-%patch13 -p1
 %patch14 -p1
 %patch15 -p1
 %patch16 -p1
 %patch20 -p1 -b .fpons
 %patch21 -p1 -b .peroyvind
 %patch22 -p1 -b .amd64
-
-(cd lib/Getopt ; rm -f Long.pm ; mv ../../Getopt-Long-*/lib/Getopt/Long.pm .)
-(cd lib/Getopt/Long ; rm -rf * ; mv ../../../Getopt-Long-*/{t,CHANGES,README} .)
+%patch23 -p0 -b .patchlevel
+%patch24 -p0 -b .notestfcgi
 
 %build
+%ifarch ppc
+  RPM_OPT_FLAGS=`echo "$RPM_OPT_FLAGS"|sed -e 's/-O2/-O1/g'`
+%endif
 sh Configure -des \
-  -Dinc_version_list="5.8.2/%{full_arch} 5.8.2 5.8.1/%{full_arch} 5.8.1 5.8.0/%{full_arch} 5.8.0 5.6.1 5.6.0" \
+  -Dinc_version_list="5.8.3/%{full_arch} 5.8.3 5.8.2/%{full_arch} 5.8.2 5.8.1/%{full_arch} 5.8.1 5.8.0/%{full_arch} 5.8.0 5.6.1 5.6.0" \
   -Darchname=%{arch}-%{_os} \
   -Dcc='%{__cc}' \
   -Doptimize="$RPM_OPT_FLAGS" \
@@ -145,7 +146,7 @@ make
 # for test, building a perl with no rpath
 # for test, unset RPM_BUILD_ROOT so that the MakeMaker trick is not triggered
 rm -f perl
-RPM_BUILD_ROOT="" make test CCDLFLAGS= 
+RPM_BUILD_ROOT="" make test_harness CCDLFLAGS= 
 rm -f perl
 make perl
 
@@ -190,7 +191,7 @@ s=/usr/share/spec-helper/spec-helper ; [ -x $s ] && $s
 %{_bindir}/perl5
 %{_bindir}/perl%{version}
 %attr(4711,root,root) %{_bindir}/sperl%{version}
-%attr(4711,root,root) %{_bindir}/suidperl
+%{_bindir}/suidperl
 %dir %{perl_root}
 %dir %{perl_root}/%{version}
 %dir %{perl_root}/%{version}/File
@@ -207,6 +208,7 @@ s=/usr/share/spec-helper/spec-helper ; [ -x $s ] && $s
 %{perl_root}/%{version}/AutoLoader.pm
 %{perl_root}/%{version}/Carp.pm
 %{perl_root}/%{version}/DirHandle.pm
+%{perl_root}/%{version}/%{full_arch}/Errno.pm
 %dir %{perl_root}/%{version}/Exporter
 %{perl_root}/%{version}/Exporter/Heavy.pm
 %{perl_root}/%{version}/Exporter.pm
@@ -424,6 +426,21 @@ EOF
 %defattr(-,root,root)
 
 %changelog
+* Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 5.8.4-1sls
+- 5.8.4
+- merge with cooker (5.8.4-1mdk):
+  - changed perl URL (rafael)
+  - FHS-compliane patch is no longer needed (rafael)
+  - a more recent Getopt::Long is now bundled with perl, remove it (rafael)
+  - add Errno.pm to perl-base
+  - remove setuid bit on suidperl (rafael)
+  - use 'make test_harness' instead of 'make test' (rafael)
+  - add a note in the 'perl -V' output to mention Mandrakesoft pathes
+    (rafael)
+  - force gcc optimization level to -O1 on ppc (rafael)
+  - disable test lib/CGI/t/fast.t, which may fail if perl-FCGI is already
+    installed on the system (rafael)
+
 * Wed Feb 24 2004 Vincent Danen <vdanen@opensls.org> 5.8.3-1sls
 - 5.8.3
 - spec cleanups
