@@ -1,15 +1,15 @@
 %define name			%{cross_prefix}gcc%{package_suffix}
 %define version			3.3.1
-%define release			4sls
+%define release			5sls
 
 %define branch			3.3
 %define branch_tag		%(perl -e 'printf "%%02d%%02d", split(/\\./,shift)' %{branch})
 
 # OpenSLS defaults
-%define build_propolice		1
+%define build_ssp		1
 
-%{expand: %{?_without_propolice:	%%global build_propolice 0}}
-%{expand: %{?_with_propolice:		%%global build_propolice 1}}
+%{expand: %{?_without_ssp:	%%global build_ssp 0}}
+%{expand: %{?_with_ssp:		%%global build_ssp 1}}
 
 %define biarches		x86_64
 
@@ -42,9 +42,6 @@
 #       Gcj 3.2         20
 %define gcj_alternative_priority 20
 %define gcj_alternative_programs jar rmic rmiregistry grepjar java
-
-# Define Mandrake Linux version we are building for
-%define mdkversion		%(perl -pe '/(\\d+)\\.(\\d)\\.?(\\d)?/; $_="$1$2".($3||0)' /etc/mandrake-release)
 
 # Define if building a cross compiler
 # FIXME: assume user does not define both cross and cross_bootstrap variables
@@ -139,7 +136,7 @@
 %define build_colorgcc		1
 %define build_debug		0
 
-%if %{build_propolice}
+%if %{build_ssp}
 %define build_ada		0
 %define build_doc		0
 %define build_pdf_doc		0
@@ -216,7 +213,7 @@
 %define libffi_name_orig	%{cross_prefix}libffi
 %define libffi_name		%{libffi_name_orig}%{libffi_major}
 
-%{expand:%%define mdk_version %(A=$(awk '{print $4}' /etc/mandrake-release); if [ -n "$A" ];then echo $A;else echo Cooker;fi)}
+%{expand:%%define sls_version %(awk '{print $3}' /etc/opensls-release)}
 
 Summary:	GNU Compiler Collection
 Name:		%{name}
@@ -295,8 +292,8 @@ Patch217: 	gcc33-libffi-ro-eh_frame.patch.bz2
 Patch218: 	gcc33-ia64-libjava-locks.patch.bz2
 Patch219: 	gcc33-rhl-testsuite.patch.bz2
 
-# Propolice Stack Protector http://www.research.ibm.com/trl/projects/security/ssp/
-Patch300:	gcc-3.3.1-protector-3.3-5.patch.bz2
+# Stack-Smashing Protector http://www.research.ibm.com/trl/projects/security/ssp/
+Patch300:	gcc-3.3.1-protector-3.3-7.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-root
 # Want updated alternatives priorities
@@ -324,9 +321,7 @@ Requires:	%{cross_prefix}glibc-devel >= 2.2.5-14mdk
 %if !%{build_cross_bootstrap}
 BuildRequires:	%{cross_prefix}glibc-devel >= 2.2.5-14mdk
 %endif
-%if %{mdkversion} >= 900
 BuildRequires:	%{cross_prefix}glibc-static-devel >= 2.2.5-14mdk
-%endif
 %if %{system_compiler}
 Obsoletes:	gcc%{branch}
 Provides:	gcc%{branch} = %{version}-%{release}
@@ -347,8 +342,8 @@ Fortran 77, Objective C and Java.
 If you have multiple versions of GCC installed on your system, it is
 preferred to type "gcc-$(gcc%{branch}-version)" (without double quotes) in
 order to use the GNU C compiler version %{version}.
-%if %build_propolice
-This version includes the Propolice stack protector (-fstack-protector)
+%if %build_ssp
+This version includes the SSP stack protector (-fstack-protector)
 option.
 %endif
 
@@ -854,8 +849,8 @@ patch -p0 < gcc/p/diffs/gcc-3.3.diff
 %patch117 -p1 -b .gpc-serialize-build
 
 # Mandrakezification for bug reports
-perl -pi -e "/bug_report_url/ and s/\"[^\"]+\"/\"<URL:https:\/\/qa.mandrakesoft.com\/>\"/;" \
-         -e '/version_string/ and s/([0-9]*(\.[0-9]*){1,3}).*(\";)$/\1 \(Mandrake Linux %{mdk_version} %{version}-%{release}\)\3/;' \
+perl -pi -e "/bug_report_url/ and s/\"[^\"]+\"/\"<URL:http:\/\/opensls.org\/anthill\/>\"/;" \
+         -e '/version_string/ and s/([0-9]*(\.[0-9]*){1,3}).*(\";)$/\1 \(OpenSLS %{sls_version} %{version}-%{release}\)\3/;' \
          gcc/version.c
 
 # ColorGCC patch
@@ -865,8 +860,8 @@ perl -pi -e 's|GCC_VERSION|%{version}|' colorgcc*
 )
 
 # ProPolice Stack Protector patch
-%if %build_propolice
-%patch300 -p1 -b .propolice
+%if %build_ssp
+%patch300 -p1 -b .ssp
 %endif
 
 %build
@@ -1399,16 +1394,16 @@ export DONT_STRIP=1
 export DONT_STRIP=1
 %endif
 
-%if %{build_propolice}
-# create propolice profile
+%if %{build_ssp}
+# create ssp profile
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/profile.d
-echo "# This tells rpm to compile everything with stack protection" >> $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/propolice.sh
-echo "" >> $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/propolice.sh
-echo "export STACK_PROTECTOR=true" >> $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/propolice.sh
-echo "# This tells rpm to compile everything with stack protection" >> $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/propolice.csh
-echo "" >> $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/propolice.csh
-echo "set STACK_PROTECTOR=true" >> $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/propolice.csh
-chmod 0755 $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/propolice.*
+echo "# This tells rpm to compile everything with stack protection" >> $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/ssp.sh
+echo "" >> $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/ssp.sh
+echo "export STACK_PROTECTOR=true" >> $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/ssp.sh
+echo "# This tells rpm to compile everything with stack protection" >> $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/ssp.csh
+echo "" >> $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/ssp.csh
+echo "set STACK_PROTECTOR=true" >> $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/ssp.csh
+chmod 0755 $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/ssp.*
 %endif
 
 
@@ -1615,9 +1610,9 @@ if [ "$1" = "0" ];then /sbin/install-info %{_infodir}/gcc.info.bz2 --dir=%{_info
 %defattr(-,root,root)
 #
 %doc gcc/README* gcc/*ChangeLog*
-%if %{build_propolice}
-%config(noreplace) %{_sysconfdir}/profile.d/propolice.sh
-%config(noreplace) %{_sysconfdir}/profile.d/propolice.csh
+%if %{build_ssp}
+%config(noreplace) %{_sysconfdir}/profile.d/ssp.sh
+%config(noreplace) %{_sysconfdir}/profile.d/ssp.csh
 %endif
 %{_mandir}/man1/%{program_prefix}gcc%{program_suffix}.1*
 %if "%{name}" == "gcc"
@@ -2128,6 +2123,12 @@ if [ "$1" = "0" ];then /sbin/install-info %{_infodir}/gcc.info.bz2 --dir=%{_info
 %endif
 
 %changelog
+* Sat Feb 07 2004 Vincent Danen <vdanen@opensls.org> 3.3.1-5sls
+- ssp 3.3-7; regenerated patch
+- s/propolice/ssp/ (aka use the real name)
+- build with new macros
+- more branding
+
 * Wed Dec 31 2003 Vincent Danen <vdanen@opensls.org> 3.3.1-4sls
 - sync with 3mdk (gbeauchesne): fix regmove, aka. fix gsl miscompilation on
   amd64 (mainline CVS)
