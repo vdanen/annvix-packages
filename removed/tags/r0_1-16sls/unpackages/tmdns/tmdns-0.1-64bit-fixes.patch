@@ -1,0 +1,18 @@
+--- tmdns-0.1/server/getifaddrs.c.64bit-fixes	2003-01-11 13:32:38.000000000 +0100
++++ tmdns-0.1/server/getifaddrs.c	2003-08-19 16:40:13.000000000 +0200
+@@ -72,6 +72,7 @@
+ #include "ifaddrs.h"
+ #include <stdlib.h>
+ #include <string.h>
++#include <unistd.h>
+ 
+ /*XXX IPv6*/
+ #if !HAVE_SOCKADDR_SA_LEN && !defined(SA_LEN)
+--- tmdns-0.1/server/info.c.64bit-fixes	2003-01-15 07:18:41.000000000 +0100
++++ tmdns-0.1/server/info.c	2003-08-19 16:41:33.000000000 +0200
+@@ -1,4 +1,4 @@
+-
++#define _GNU_SOURCE 1
+ #include <stdio.h>
+ 
+ #include <sys/utsname.h>
