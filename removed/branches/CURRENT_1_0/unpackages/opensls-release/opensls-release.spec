@@ -1,6 +1,6 @@
 %define name	opensls-release
 %define version	1.0
-%define release	0.1sls
+%define release	0.2sls
 
 %define distrib	Loki
 %define realversion 1.0-CURRENT
@@ -13,7 +13,6 @@ License:	GPL
 URL:		http://opensls.org/
 Group:		System/Configuration/Other
 Source:		%name.tar.bz2
-Icon:		mandrake-small.gif
 
 BuildRoot:	%{_tmppath}/%{name}-root
 
@@ -27,22 +26,27 @@ Open Secure Linux Server (OpenSLS) release file.
 %setup -n opensls-release
 
 %install
-mkdir -p $RPM_BUILD_ROOT/etc
-echo "OpenSLS release %{realversion} (%{distrib}) for %{_target_cpu}" > $RPM_BUILD_ROOT/etc/opensls-release
-ln -sf opensls-release $RPM_BUILD_ROOT/etc/redhat-release
-ln -sf opensls-release $RPM_BUILD_ROOT/etc/mandrake-release
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+mkdir -p %{buildroot}%{_sysconfdir}
+echo "OpenSLS release %{realversion} (%{distrib}) for %{_target_cpu}" > %{buildroot}%{_sysconfdir}/opensls-release
+ln -sf opensls-release %{buildroot}%{_sysconfdir}/redhat-release
+ln -sf opensls-release %{buildroot}%{_sysconfdir}/mandrake-release
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
 %doc CREDITS
-/etc/opensls-release
-/etc/mandrake-release
-/etc/redhat-release
+%{_sysconfdir}/opensls-release
+%{_sysconfdir}/mandrake-release
+%{_sysconfdir}/redhat-release
 
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 1.0-0.2sls
+- remove icon
+- macros
+
 * Sun Nov 30 2003 Vincent Danen <vdanen@opensls.org> 1.0-0.1sls
 - 1.0-CURRENT
 - for lack of a better icon, we'll leave mandrake-small.gif for the time
