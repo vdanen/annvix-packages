@@ -1,0 +1,520 @@
+--- mkinitrd-3.4.43/mkinitrd_helper-subdir/insmod-module-init-tools/backwards_compat.c.kernel25	2003-07-14 22:03:33.000000000 +0400
++++ mkinitrd-3.4.43/mkinitrd_helper-subdir/insmod-module-init-tools/backwards_compat.c	2003-07-14 22:03:33.000000000 +0400
+@@ -0,0 +1,69 @@
++/* Simple backwards compat code to exec old version */
++
++#ifndef CONFIG_NO_BACKWARDS_COMPAT
++
++#include <sys/types.h>
++#include <sys/stat.h>
++#include <unistd.h>
++#include <stdlib.h>
++#include <errno.h>
++#include <stdio.h>
++#include <string.h>
++#include <asm/unistd.h>
++
++#ifndef __ia64 /* breaks ia64. */
++_syscall2(long, create_module, const char *, name, size_t, size);
++#else
++#define create_module(name, size) \
++	syscall(__NR_create_module, (name), (size))
++#endif
++
++#include "testing.h"
++
++static void exec_old(const char *progname, char *argv[])
++{
++	char *sep;
++	pid_t pid;
++	char ascii_pid[32];
++	char pathname[strlen(argv[0])+1];
++	char oldname[strlen(progname) + strlen(argv[0]) + sizeof(".old")];
++
++	memset(pathname, 0, strlen(argv[0])+1);
++	sep = strrchr(argv[0], '/');
++	if (sep)
++		memcpy(pathname, argv[0], sep - argv[0]+1);
++	sprintf(oldname, "%s%s.old", pathname, progname);
++
++	/* Recursion detection: we need an env var since we can't
++	   change argv[0] (as older modutils uses it to determine
++	   behavior).  We *can* recurse in the case of old-style
++	   pre-install etc. commands, so make sure pid is exactly the
++	   same. */
++	pid = getpid();
++	snprintf(ascii_pid, sizeof(ascii_pid), "%lu", (unsigned long)pid);
++	if (strcmp(getenv("MODULE_RECURSE") ?: "", ascii_pid) == 0) {
++		fprintf(stderr, "WARNING: %s: I am not the old version!\n",
++			oldname);
++		return;
++	}
++	setenv("MODULE_RECURSE", ascii_pid, 1);
++
++	execvp(oldname, argv);
++	fprintf(stderr,
++		"Kernel requires old %s, but couldn't run %s: %s\n",
++		progname, oldname, strerror(errno));
++	exit(2);
++}
++
++static void try_old_version(const char *progname, char *argv[])
++{
++	errno = 0;
++	if (create_module(NULL, 0) >= 0 /* Uh oh, what have I just done? */
++	    || errno != ENOSYS)
++		exec_old(progname, argv);
++}
++#else /* CONFIG_NO_BACKWARDS_COMPAT */
++static inline void try_old_version(const char *progname, char *argv[])
++{
++}
++#endif /* !CONFIG_NO_BACKWARDS_COMPAT */
+--- mkinitrd-3.4.43/mkinitrd_helper-subdir/insmod-module-init-tools/insmod.c.kernel25	2003-07-14 22:03:33.000000000 +0400
++++ mkinitrd-3.4.43/mkinitrd_helper-subdir/insmod-module-init-tools/insmod.c	2003-07-14 22:03:33.000000000 +0400
+@@ -0,0 +1,112 @@
++/* insmod.c: insert a module into the kernel.
++    Copyright (C) 2001  Rusty Russell.
++    Copyright (C) 2002  Rusty Russell, IBM Corporation.
++
++    This program is free software; you can redistribute it and/or modify
++    it under the terms of the GNU General Public License as published by
++    the Free Software Foundation; either version 2 of the License, or
++    (at your option) any later version.
++
++    This program is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++    GNU General Public License for more details.
++
++    You should have received a copy of the GNU General Public License
++    along with this program; if not, write to the Free Software
++    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++*/
++#include <stdio.h>
++#include <string.h>
++#include <stdlib.h>
++#include <unistd.h>
++#include <fcntl.h>
++#include <sys/mman.h>
++#include <sys/types.h>
++#include <sys/stat.h>
++#include <unistd.h>
++#include <errno.h>
++#include <asm/unistd.h>
++
++#include "backwards_compat.c"
++
++#define __NR_new_init_module  __NR_init_module
++_syscall3(int, new_init_module, void *, map, unsigned long, len, char *, options);
++static void print_usage(const char *progname)
++{
++	fprintf(stderr, "Usage: %s filename [args]\n", progname);
++	exit(1);
++}
++
++/* We use error numbers in a loose translation... */
++static const char *moderror(int err)
++{
++	switch (err) {
++	case ENOEXEC:
++		return "Invalid module format";
++	case ENOENT:
++		return "Unknown symbol in module";
++	case ESRCH:
++		return "Module has wrong symbol version";
++	case EINVAL:
++		return "Invalid parameters";
++	default:
++		return strerror(err);
++	}
++}
++
++int main(int argc, char *argv[])
++{
++	unsigned int i;
++	int fd;
++	long int ret;
++	struct stat st;
++	unsigned long len;
++	void *map;
++	char *filename, *options = strdup("");
++	char *progname = argv[0];
++
++	try_old_version("insmod", argv);
++
++	filename = argv[1];
++	if (!filename)
++		print_usage(progname);
++
++	/* Rest is options */
++	for (i = 2; i < argc; i++) {
++		options = realloc(options,
++				  strlen(options) + 2 + strlen(argv[i]) + 2);
++		/* Spaces handled by "" pairs, but no way of escaping
++                   quotes */
++		if (strchr(argv[i], ' '))
++			strcat(options, "\"");
++		strcat(options, argv[i]);
++		if (strchr(argv[i], ' '))
++			strcat(options, "\"");
++		strcat(options, " ");
++	}
++
++	fd = open(filename, O_RDONLY, 0);
++	if (fd < 0) {
++		fprintf(stderr, "Can't open '%s': %s\n",
++			filename, strerror(errno));
++		exit(1);
++	}
++
++	fstat(fd, &st);
++	len = st.st_size;
++	map = mmap(NULL, len, PROT_READ, MAP_SHARED, fd, 0);
++	if (map == MAP_FAILED) {
++		fprintf(stderr, "Can't map '%s': %s\n",
++			filename, strerror(errno));
++		exit(1);
++	}
++
++	ret = new_init_module(map, len, options);
++	if (ret != 0) {
++		fprintf(stderr, "Error inserting '%s': %li %s\n",
++			filename, ret, moderror(errno));
++		exit(1);
++	}
++	exit(0);
++}
+--- mkinitrd-3.4.43/mkinitrd_helper-subdir/insmod-module-init-tools/Makefile.kernel25	2003-07-14 22:03:33.000000000 +0400
++++ mkinitrd-3.4.43/mkinitrd_helper-subdir/insmod-module-init-tools/Makefile	2003-07-14 22:03:33.000000000 +0400
+@@ -0,0 +1,30 @@
++ #******************************************************************************
++ #
++ #    insmod from busybox (i386 only)
++ #
++ # $Id: Makefile,v 1.5.8.1 2003/04/16 16:26:22 gbeauchesne Exp $
++ #
++ # Copyright (C) 1999,2000 by Lineo, inc.
++ #
++ #*****************************************************************************
++
++top_dir = ..
++
++include $(top_dir)/Makefile.common
++
++
++all: insmod
++
++clean:
++	rm -f *.o insmod
++
++
++FLAGS = -c -Wall -Os -fno-omit-frame-pointer -D_GNU_SOURCE
++
++
++insmod: insmod.o
++	$(DIET) gcc -o $@ $^
++	$(STRIPCMD) $@
++
++insmod.o: insmod.c backwards_compat.c testing.h
++	$(DIET) gcc $(FLAGS) $(INCLUDES) insmod.c
+--- mkinitrd-3.4.43/mkinitrd_helper-subdir/insmod-module-init-tools/testing.h.kernel25	2003-07-14 22:03:33.000000000 +0400
++++ mkinitrd-3.4.43/mkinitrd_helper-subdir/insmod-module-init-tools/testing.h	2003-07-14 22:03:33.000000000 +0400
+@@ -0,0 +1,154 @@
++#ifndef _TESTING_H
++#define _TESTING_H
++
++/* Testing code. */
++#ifdef JUST_TESTING
++
++#include <stdio.h>
++#include <unistd.h>
++#include <stdlib.h>
++#include <string.h>
++#include <errno.h>
++#include <stdarg.h>
++#include <sys/utsname.h>
++#include <asm/unistd.h>
++#include <sys/types.h>
++#include <dirent.h>
++
++int modtest_uname(struct utsname *buf)
++{
++	strcpy(buf->sysname, "Linux");
++	strcpy(buf->nodename, "fakenodename");
++	strcpy(buf->release, getenv("MODTEST_UNAME"));
++	strcpy(buf->version, "Fakeversion");
++	strcpy(buf->machine, "fakemachine");
++	return 0;
++}
++
++long modtest_create_module(const char *name, size_t size)
++{
++	if (getenv("MODTEST_DO_CREATE_MODULE"))
++		return 0;
++	errno = ENOSYS;
++	return -1;
++}
++
++static long int modtest_syscall(long int __sysno, ...)
++{
++	va_list ap;
++
++	switch (__sysno) {
++	case __NR_init_module: {
++		void *map;
++		size_t size;
++		char *optstring;
++
++		va_start(ap, __sysno);
++		map = va_arg(ap, void *);
++		size = va_arg(ap, size_t);
++		optstring = va_arg(ap, char *);
++
++		if (getenv("MODTEST_DUMP_INIT")) {
++			while (size) {
++				int ret;
++				ret = write(2, map, size);
++				if (ret < 0) exit(1);
++				size -= ret;
++				map += ret;
++			}
++		} else		
++			printf("INIT_MODULE: %u %s\n", size, optstring);
++		break;
++	}
++	case __NR_delete_module: {
++		char *modname;
++		unsigned int flags;
++		char flagnames[100];
++
++		va_start(ap, __sysno);
++		modname = va_arg(ap, char *);
++		flags = va_arg(ap, unsigned int);
++
++		flagnames[0] = '\0';
++		if (flags & O_EXCL)
++			strcat(flagnames, "EXCL ");
++		if (flags & O_TRUNC)
++			strcat(flagnames, "TRUNC ");
++		if (flags & O_NONBLOCK)
++			strcat(flagnames, "NONBLOCK ");
++		if (flags & ~(O_EXCL|O_TRUNC|O_NONBLOCK))
++			strcat(flagnames, "UNKNOWN ");
++
++		printf("DELETE_MODULE: %s %s\n", modname, flagnames);
++		break;
++	}
++	default:
++		printf("UNKNOWN SYSCALL: %lu\n", __sysno);
++		break;
++	}
++
++	return 0;
++}
++
++static const char *modtest_mapname(const char *path)
++{
++	unsigned int i;
++	char envname[64];
++
++	for (i = 0; ; i++) {
++		char *name; 
++		sprintf(envname, "MODTEST_OVERRIDE%u", i);
++		name = getenv(envname);
++		if (!name)
++			break;
++		if (strcmp(path, name) == 0) {
++			sprintf(envname, "MODTEST_OVERRIDE_WITH%u", i);
++			return getenv(envname);
++		}
++	}
++	return path;
++}
++
++void *modtest_fopen(const char *path, const char *mode)
++{
++	return fopen(modtest_mapname(path), mode);
++}
++
++int modtest_open(const char *path, int flags, mode_t mode)
++{
++	return open(modtest_mapname(path), flags, mode);
++}
++
++int modtest_stat(const char *file_name, struct stat *buf)
++{
++	return stat(modtest_mapname(file_name), buf);
++}
++
++DIR *modtest_opendir(const char *name)
++{
++	return opendir(modtest_mapname(name));
++}
++
++int modtest_system(const char *string)
++{
++	if (getenv("MODTEST_DO_SYSTEM"))
++		return system(string);
++	printf("SYSTEM: %s\n", string);
++	return 0;
++}
++
++/* create_module call */
++#undef create_module
++#define create_module modtest_create_module
++
++#define uname modtest_uname
++#define syscall modtest_syscall
++#define open modtest_open
++#define fopen modtest_fopen
++#define stat(name, ptr) modtest_stat(name, ptr)
++#define opendir modtest_opendir
++#define system modtest_system
++
++#endif /* JUST_TESTING */
++#endif /* _TESTING_H */
++
+--- mkinitrd-3.4.43/mkinitrd_helper-subdir/Makefile.kernel25	2003-04-16 22:56:00.000000000 +0400
++++ mkinitrd-3.4.43/mkinitrd_helper-subdir/Makefile	2003-07-14 22:03:33.000000000 +0400
+@@ -14,7 +14,7 @@
+  #*****************************************************************************
+ 
+ 
+-DIRS = insmod-busybox
++DIRS = insmod-busybox insmod-module-init-tools
+ 
+ 
+ all: dirs
+--- mkinitrd-3.4.43/mkinitrd.kernel25	2003-07-14 22:03:33.000000000 +0400
++++ mkinitrd-3.4.43/mkinitrd	2003-07-14 22:04:17.000000000 +0400
+@@ -39,6 +39,7 @@
+ modulefile=/etc/modules.conf
+ tmpdir=
+ rc=0
++kernel25=""
+ 
+ splash_dir=/usr/share/bootsplash/
+ splash=auto
+@@ -65,15 +66,28 @@
+     exit 1
+ }
+ 
++check_kernel_25() {
++	local -i major minor
++
++	major=$(expr "$1" : '\([^.]\+\)\..*')
++	minor=$(expr "$1" : '[^.]\+\.\([^.]\+\)\..*')
++
++	if [ $major -ge 3 -o $major -eq 2 -a $minor -ge 5 ]; then
++		kernel25=yes
++		modulefile=/etc/modprobe.conf
++		splash=""
++	fi
++}
++
+ moduledep() {
+     if [ ! -f "/lib/modules/$kernel/modules.dep" ]; then
+ 	echo "No dep file found for kernel $kernel" >&2
+ 	exit 1
+     fi
+ 
+-    [ -n "$verbose" ] && echo "Looking for deps of module $1.o"
++    [ -n "$verbose" ] && echo "Looking for deps of module $1"
+     deps=$(awk 'BEGIN { searched=ARGV[2]; ARGV[2]=""; rc=1 } \
+-                function modname(filename) { match(filename, /\/([^\/]+)\.o/, ret); return ret[1] } \
++                function modname(filename) { match(filename, /\/([^\/]+)\.k?o/, ret); return ret[1] } \
+                 function show() { if (orig == searched) { print dep; orig=""; rc=0; exit } } \
+                 /^\/lib/ { show(); \
+                            orig=modname($1); \
+@@ -125,10 +139,18 @@
+     fmPath=`(cd /lib/modules/$kernel; find -type f -name $modName.o.gz | grep -v build)`
+ 
+     if [ -z "$fmPath" ]; then
++	fmPath=`(cd /lib/modules/$kernel; find -type f -name $modName.ko.gz | grep -v build)`
++    fi
++
++    if [ -z "$fmPath" ]; then
+         fmPath=`(cd /lib/modules/$kernel; find -type f -name $modName.o | grep -v build)`
+     fi
+ 
+     if [ -z "$fmPath" ]; then
++        fmPath=`(cd /lib/modules/$kernel; find -type f -name $modName.ko | grep -v build)`
++    fi
++
++    if [ -z "$fmPath" ]; then
+ 	if [ -n "$skiperrors" ]; then
+ 	    return
+ 	fi
+@@ -291,14 +313,16 @@
+     shift
+ done
+ 
+-if [[ $splash == auto && -f $splash_dir/scripts/detect-resolution ]];then
+-    splash=$( $splash_dir/scripts/detect-resolution )
+-fi
+-
+ if [ -z "$target" -o -z "$kernel" ]; then
+     usage
+ fi
+ 
++check_kernel_25 "$kernel"
++
++if [[ $splash == auto && -f $splash_dir/scripts/detect-resolution ]];then
++    splash=$( $splash_dir/scripts/detect-resolution )
++fi
++
+ if [ -n "$img_vers" ]; then
+     target="$target-$kernel"
+ fi
+@@ -352,7 +376,7 @@
+ fi
+ 
+ if [ -n "$needusb" ]; then
+-    drivers=$(awk '/^alias usb-controller[0-9]* / { print $3}' < /etc/modules.conf)
++    drivers=$(awk '/^alias usb-controller[0-9]* / { print $3}' $modulefile)
+     if [ -n "$drivers" ]; then
+ 	for driver in $drivers; do
+ 	    findmodule $driver
+@@ -368,9 +392,10 @@
+     fi
+ 
+     if [ -f $modulefile ]; then
+-	scsimodules=`grep -E "alias[ 	]+scsi_hostadapter" $modulefile | grep -v '^[ 	]*#' | LC_ALL=C sort -u | awk '{ print $3 }'`
++	# support standard alias form
+ 	# support probeall form as found with Mandrake 8.1 and superior
+-	scsimodules="$scsimodules `sed -n 's/^ *probeall  *scsi_hostadapter//p' $modulefile`"
++	# support canonical probeall translation for module-init-tools
++	scsimodules=$(grep -E '[[:space:]]*(alias|probeall|install)[[:space:]]+scsi_hostadapter' $modulefile | sed 's/^.*scsi_hostadapter//;s/\/sbin\/modprobe//g;s/;//g;s/\/bin\/true//;s/||//')
+ 
+ 	if [ -n "$scsimodules" ]; then
+ 	    SAVEMODULES=$MODULES
+@@ -537,9 +562,17 @@
+ 
+ inst /sbin/nash "$MNTIMAGE/bin/nash"
+ if is_dietlibc_arch; then
+-    inst /sbin/insmod-DIET "$MNTIMAGE/bin/insmod"
++    if [[ -n "$kernel25" ]]; then
++	inst /sbin/insmod-25-DIET "$MNTIMAGE/bin/insmod"
++    else
++	inst /sbin/insmod-DIET "$MNTIMAGE/bin/insmod"
++    fi
+ else
+-    inst /sbin/insmod.static "$MNTIMAGE/bin/insmod"
++    if [[ -n "$kernel25" ]]; then
++	inst /sbin/insmod.static-25 "$MNTIMAGE/bin/insmod"
++    else
++	inst /sbin/insmod.static "$MNTIMAGE/bin/insmod"
++    fi
+ fi
+ ln -s ../bin/nash $MNTIMAGE/sbin/modprobe
+ 
+@@ -584,7 +617,7 @@
+     text=""
+     module=`echo $MODULE | sed "s|.*/||"`
+ 
+-    options=`sed -n -e "s/^options[ 	][ 	]*$module[ 	][ 	]*//p" $modulefile 2>/dev/null`
++    options=$(sed -n -e "s/^options[ 	][ 	]*$module[ 	][ 	]*//p" $modulefile 2>/dev/null)
+ 
+     if [ -n "$verbose" ]; then
+ 	if [ -n "$options" ]; then
