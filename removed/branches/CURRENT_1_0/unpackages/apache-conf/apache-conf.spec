@@ -1,6 +1,6 @@
 %define name	apache-conf
 %define version	2.0.53
-%define release	2avx
+%define release	3avx
 
 %define compat_dir	/etc/httpd
 %define compat_conf	/etc/httpd/conf
@@ -30,7 +30,7 @@ Source23:	logo.gif
 Source24:	apacheicon.gif
 Source25:	medbutton.png
 Source26:	stamp.gif
-Source29:	ADVX-icons.tar.bz2
+Source29:	annvix-icons.tar.bz2
 Source30:	advxaddmod
 Source31:	advxdelmod
 Source32:	advxfixconf
@@ -59,8 +59,6 @@ BuildRequires:	dietlibc-devel >= 0.20-1mdk
 
 Requires:	lynx >= 2.8.5
 Provides:	apache2-conf
-Provides:	ADVXpackage
-Provides:	AP20package
 #JMD: We have to do this here, since files have moved
 Obsoletes:	apache-common
 PreReq:		rpm-helper, afterboot
@@ -122,7 +120,7 @@ install -D -m 0644 %{SOURCE51} %{buildroot}%{_sysconfdir}/httpd/conf/httpd.conf
 install -D -m 0644 %{SOURCE6} %{buildroot}%{_sysconfdir}/httpd/conf/commonhttpd.conf
 install -D -m 0644 %{SOURCE2} %{buildroot}%{_sysconfdir}/httpd/conf/httpd2-perl.conf
 install -D -m 0644 %{SOURCE52} %{buildroot}%{_sysconfdir}/httpd/conf/httpd-perl.conf
-install -D -m 0644 %{SOURCE52} %{buildroot}%{_sysconfdir}/httpd/conf/fileprotector.conf
+install -D -m 0644 %{SOURCE103} %{buildroot}%{_sysconfdir}/httpd/conf/fileprotector.conf
 
 #For compatibility if someone installs Apache 2.0, then changes their
 #mind and installs 1.3 instead, they will need the config files!
@@ -274,6 +272,15 @@ fi
 %{_datadir}/afterboot/03_apache2
 
 %changelog
+* Sun Feb 27 2005 Vincent Danen <vdanen@annvix.org> 2.0.53-2avx
+- remove more ADVX-related stuff
+- remove the peruser, perchild, and metuxmpm sections from the config
+  files
+- use fileprotector.conf as fileprotector.conf and don't accidentally
+  copy the httpd2-perl.conf file
+- rename S29
+- remove webapps.d support
+
 * Sun Feb 27 2005 Vincent Danen <vdanen@annvix.org> 2.0.53-2avx
 - put back our index.shtml and optim.html
 - merge back changes to commonhttpd.conf

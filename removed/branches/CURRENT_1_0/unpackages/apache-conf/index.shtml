@@ -3,7 +3,7 @@
 <head>
    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
    <meta name="Author" content="Annvix">
-   <title>Welcome to the Advanced Extranet Server, ADVX!</title> 
+   <title>Welcome to the Apache2 webserver</title> 
    <LINK REL="SHORTCUT ICON" HREF="/favicon.ico">
 <!-- Background white, links blue (unvisited), navy (visited), red (active) --> </head>
 
@@ -11,10 +11,7 @@
 
 <table border=0>
     <tr>
-	<td valign=top>
-	    <a href=http://www.advx.org><img border=0 src=/icons/advx.png ALT="Powered by ADVX.org software" height=47 width=102 align=LEFT></a>
-	</td>
-	<td valign=top width=100%>
+	<td valign=top width=100% colspan="2">
 	    <h2><center>Welcome to <!--#echo var="HTTP_HOST" --></center></h2>
 	</td>
     </tr>
@@ -56,55 +53,14 @@
 	</td>
     </tr>
     <tr>
-	<td colspan=2>
-	    <center><a href="http://www.advx.org/"><img BORDER=0 SRC="/icons/logo.gif"></a></center>
-	    <br>
-	    <H1>What is the Advanced Extranet Server, or ADVX.org?</H1>
-	    <p>The Apache Web Server serves as the foundation for the Advanced
-	    Extranet Server project, ADVX.org. This fully modular, highly integrated and scalable solution 
-	    offers the following features:</p>
-	</td>
-    </tr>
-    <tr>
-	<td valign=top>
-	    <a href="http://www.apache.org/"><img align=left SRC="/icons/apache.png" ALT="Powered by Apache" BORDER=0 height=47 width=102 align=LEFT></a>
-	    <a href="http://www.php.net"><img align=left SRC="/icons/php.png" ALT="Powered by PHP Scripting Language" BORDER=0 height=47 width=102 align=LEFT></a>
-	    <a href="http://www.mysql.com"><img align=left SRC="/icons/mysql.png" ALT="Powered by MySQL Database" BORDER=0 height=47 width=102 align=LEFT></a>
-	    <a href="http://www.postgresql.com"><img align=left SRC="/icons/postgresql.png" ALT="Powered by PostgreSQL Database" BORDER=0 height=47 width=102 align=LEFT></a>
-	    <a href="http://www.modssl.org"><img align=left SRC="/icons/mod_ssl.png" ALT="Secured by mod_ssl Interface" BORDER=0 height=47 width=102 align=LEFT></a>
-	</td>
-	<td valign=top>
-	    <ul>
-		<li> Advanced Scripting, CGI and Dynamic content
-		<li> Database integration
-		<li> Content management and publishing tools
-		<li> Advanced User Authentication
-		<li> Strong Cryptography for the international market
-		<li> Shopping Carts
-		<li> Online Payment Processing
-		<li> Web-based e-mail and mailing lists
-		<li> Resources for Webmasters
-		<li> ISP tools for Virtual Hosting
-		<li> Advanced management tools
-		<li> ... and more!
-	    </ul>
-	</td>
-    </tr>
-    <tr>
-	<td colspan=2>
-	    <br>For more information, visit the <a href="http://www.advx.org/">ADVX.org Homepage</a>.  Annvix does
-	    not make use of the entire ADVX suite; only the web server-related software is made use of (ie. Apache
-	    and it's modules).
-	    <hr width=100%>
-	</td>
-    </tr>
-    <tr>
-	<td colspan=2>
-	    <H1>Secure your web server!</H1>
-	    <img align=left src="/icons/stamp.gif">
-	    Annvix comes with SSL encryption (mod_ssl), we suggest you install it
-	    for more security. It comes with its own test key so you can start using it
-	    right now.
+	<td valign=top colspan="2">
+	    <center>
+	    <a href="http://www.apache.org/"><img SRC="/icons/apache.png" ALT="Powered by Apache" BORDER=0 height=47 width=102></a>
+	    <a href="http://www.php.net"><img SRC="/icons/php.png" ALT="Powered by PHP Scripting Language" BORDER=0 height=47 width=102></a>
+	    <a href="http://www.mysql.com"><img SRC="/icons/mysql.png" ALT="Powered by MySQL Database" BORDER=0 height=47 width=102></a>
+	    <a href="http://www.postgresql.com"><img SRC="/icons/postgresql.png" ALT="Powered by PostgreSQL Database" BORDER=0 height=47 width=102></a>
+	    <a href="http://www.modssl.org"><img SRC="/icons/mod_ssl.png" ALT="Secured by mod_ssl Interface" BORDER=0 height=47 width=102></a>
+	    </center>
 	</td>
     </tr>
     <tr>
