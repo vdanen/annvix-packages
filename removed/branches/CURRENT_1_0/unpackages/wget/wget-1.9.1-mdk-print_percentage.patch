@@ -1,30 +1,24 @@
---- wget-1.8.orig/src/progress.c	Sat Dec  8 02:35:18 2001
-+++ wget-1.8/src/progress.c	Sat Dec  8 18:38:12 2001
-@@ -243,18 +243,58 @@
+--- ./src/progress.c.orig	2003-09-23 22:48:10.000000000 +0200
++++ ./src/progress.c	2003-12-11 10:29:23.000000000 +0100
+@@ -253,10 +253,58 @@
  }
  
  static void
 -print_percentage (long bytes, long expected)
+-{
+-  int percentage = (int)(100.0 * bytes / expected);
+-  logprintf (LOG_VERBOSE, "%3d%%", percentage);
 +print_percentage (long bytes, long expected,
 +                  long row_size,
 +                  long dltime, struct dot_progress *dp )
- {
--  int percentage = (int)(100.0 * bytes / expected);
--  logprintf (LOG_VERBOSE, "%3d%%", percentage);
--}
++{
 +  int percentage = -1;
 +  long d_time = 0; /* time elapsed since last call */
 +  long speed = 0; /* download speed in bytes/sec */
 +  long estimate = 0; /* estimated remaining time in seconds */
 +  char buf[100];
 +  char* pc;
- 
--static void
--print_download_speed (struct dot_progress *dp, long bytes, long dltime)
--{
--  logprintf (LOG_VERBOSE, " %s",
--	     retr_rate (bytes, dltime - dp->last_timer_value, 1));
--  dp->last_timer_value = dltime;
++  
 +  pc = buf;
 +  *pc = 0;
 +
@@ -68,8 +62,8 @@
 +  logprintf( LOG_VERBOSE, "%s", buf );
  }
  
- /* Dot-progress backend for progress_update. */
-@@ -288,9 +328,8 @@
+ static void
+@@ -298,9 +346,8 @@
  	  ++dp->rows;
  	  dp->dots = 0;
  
@@ -81,7 +75,7 @@
  	}
      }
  
-@@ -317,19 +356,14 @@
+@@ -327,19 +374,14 @@
  	logputs (LOG_VERBOSE, " ");
        logputs (LOG_VERBOSE, " ");
      }
