@@ -1,6 +1,6 @@
 %define name	libmcrypt
 %define version	2.5.7
-%define release	6sls
+%define release	7sls
 
 %define major	4
 %define libname	%mklibname mcrypt %{major}
@@ -17,8 +17,6 @@ Source1:	%{name}-%{version}.tar.gz.sig.asc
 
 BuildRoot:	%{_tmppath}/%{name}-buildroot
 BuildRequires:	libtool-devel
-
-Prefix:		%{_prefix}
 
 %description
 Libmcrypt is a thread-safe library providing a uniform interface
@@ -102,15 +100,14 @@ Install it if you want to develop such applications.
 %make
 
 %install
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
-
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
 
 %post -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
 
 %clean
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files -n %{libname}
 %defattr(-,root,root)
@@ -137,6 +134,10 @@ Install it if you want to develop such applications.
 %{_libdir}/%{name}/*.so
 
 %changelog
+* Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 2.5.7-7sls
+- remove %%prefix
+- minor spec cleanups
+
 * Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 2.5.7-6sls
 - OpenSLS build
 - tidy spec
