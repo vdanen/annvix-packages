@@ -1,0 +1,62 @@
+diff -urN krb5-1.3/src/kadmin/passwd/kpasswd_strings.et krb5-1.3-modified/src/kadmin/passwd/kpasswd_strings.et
+--- krb5-1.3/src/kadmin/passwd/kpasswd_strings.et	2002-11-06 01:42:56.000000000 +0100
++++ krb5-1.3-modified/src/kadmin/passwd/kpasswd_strings.et	2003-07-21 21:11:59.000000000 +0200
+@@ -23,7 +23,7 @@
+ 
+ # /* M5 */
+ error_code KPW_STR_CANT_OPEN_ADMIN_SERVER,
+-"Cannot establish a session with the Kerberos administrative server for\n\
++"Cannot establish a session with the Kerberos administrative server for\n"
+ realm %s. %s."
+ # /* <realm-name>, <Specific error message from admin server library>. */
+ 
+diff -urN krb5-1.3/src/lib/kadm5/chpass_util_strings.et krb5-1.3-modified/src/lib/kadm5/chpass_util_strings.et
+--- krb5-1.3/src/lib/kadm5/chpass_util_strings.et	2002-11-06 01:42:57.000000000 +0100
++++ krb5-1.3-modified/src/lib/kadm5/chpass_util_strings.et	2003-07-21 21:14:23.000000000 +0200
+@@ -16,33 +16,33 @@
+ error_code CHPASS_UTIL_PASSWORD_CHANGED, "Password changed.\n"
+ 
+ error_code CHPASS_UTIL_PASSWORD_IN_DICTIONARY,
+-"New password was found in a dictionary of possible passwords and\n\
+-therefore may be easily guessed. Please choose another password.\n\
++"New password was found in a dictionary of possible passwords and\n"
++therefore may be easily guessed. Please choose another password.\n"
+ See the ovpasswd man page for help in choosing a good password."
+ 
+ error_code CHPASS_UTIL_PASSWORD_NOT_CHANGED, "Password not changed."
+ 
+ error_code CHPASS_UTIL_PASSWORD_TOO_SHORT, 
+-"New password is too short.\n\
++"New password is too short.\n"
+ Please choose a password which is at least %d characters long."
+ #	/*  <pw-min-len> */
+ 
+ error_code CHPASS_UTIL_TOO_FEW_CLASSES, 
+-"New password does not have enough character classes.\n\
+-The character classes are:\n\
+-	- lower-case letters,\n\
+-	- upper-case letters,\n\
+-	- digits,\n\
+-	- punctuation, and\n\
+-	- all other characters (e.g., control characters).\n\
++"New password does not have enough character classes.\n"
++The character classes are:\n"
++	- lower-case letters,\n"
++	- upper-case letters,\n"
++	- digits,\n"
++	- punctuation, and\n"
++	- all other characters (e.g., control characters).\n"
+ Please choose a password with at least %d character classes."
+ # /* <min-classes> */
+ 
+ 
+ error_code CHPASS_UTIL_PASSWORD_TOO_SOON,
+-"Password cannot be changed because it was changed too recently.\n\
+-Please wait until %s before you change it.\n\
+-If you need to change your password before then, contact your system\n\
++"Password cannot be changed because it was changed too recently.\n"
++Please wait until %s before you change it.\n"
++If you need to change your password before then, contact your system\n"
+ security administrator."
+ # /* <ctime(last-pw-change+pw-min-life)> */
+ 

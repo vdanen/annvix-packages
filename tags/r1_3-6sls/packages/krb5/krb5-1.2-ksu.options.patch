@@ -1,0 +1,13 @@
+Adjust the command path, and enforce valid-shell checking.
+
+--- krb5-1.2-current/src/clients/ksu/Makefile.in	Tue Apr 25 18:02:04 2000
++++ krb5-1.2-current/src/clients/ksu/Makefile.in	Tue Apr 25 18:02:35 2000
+@@ -2,7 +2,7 @@
+ myfulldir=clients/ksu
+ mydir=ksu
+ BUILDTOP=$(REL)$(U)$(S)$(U)
+-DEFINES = -DGET_TGT_VIA_PASSWD -DPRINC_LOOK_AHEAD -DCMD_PATH='"/bin /local/bin"'
++DEFINES = -DGET_TGT_VIA_PASSWD -DPRINC_LOOK_AHEAD -DCMD_PATH='"/sbin /usr/sbin /bin /usr/bin /usr/X11R6/bin"' -DHAS_GETUSERSHELL
+ 
+ PROG_LIBPATH=-L$(TOPLIBD)
+ PROG_RPATH=$(KRB5_LIBDIR)

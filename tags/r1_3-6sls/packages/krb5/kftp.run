@@ -1,0 +1,8 @@
+#!/bin/sh
+PATH="/sbin:/usr/sbin:/bin:/usr/bin:$PATH"
+
+# this runs ftp limiting the server to a maximum of 30 simultaneous 
+# connections. ftp.cdb is not required for the service to run
+
+exec /usr/bin/tcpserver -c30 -HRXv -llocalhost -x /etc/tcprules.d/ftp.cdb \
+0 21 /usr/sbin/ftpd -l 2>&1

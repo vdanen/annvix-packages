@@ -1,0 +1,57 @@
+Make the environment inherited by login clean like NetKit's does.
+
+--- krb5-1.2/src/appl/bsd/krlogind.c	Fri Jun 23 19:44:41 2000
++++ krb5-1.2/src/appl/bsd/krlogind.c	Mon Jun 26 09:58:45 2000
+@@ -699,6 +699,9 @@
+ #else
+ 	struct sgttyb b;
+ #endif /* POSIX_TERMIOS */
++	char environ_term[sizeof(term) + 6];
++	char *environ[2] = {environ_term, NULL};
++
+ 	if ((retval = pty_open_slave(line, &t))) {
+ 	    fatal(f, error_message(retval));
+ 	    exit(1);
+@@ -800,31 +803,31 @@
+ 			    ""/*host*/, PTY_TTYSLOT_USABLE);
+ 	}
+ #endif
+-
+-#ifdef USE_LOGIN_F
+-/* use the vendors login, which has -p and -f. Tested on 
+- * AIX 4.1.4 and HPUX 10 
+- */
++    memset(environ_term, '\0', sizeof(environ_term));
++    snprintf(environ_term, sizeof(environ_term) - 1, "TERM=%s", term);
+     {
+         char *cp;
+         if ((cp = strchr(term,'/')))
+             *cp = '\0';
+-        setenv("TERM",term, 1);
+     }
+ 
++#ifdef USE_LOGIN_F
++/* use the vendors login, which has -p and -f. Tested on 
++ * AIX 4.1.4 and HPUX 10 
++ */
+     retval = pty_make_sane_hostname(fromp, maxhostlen,
+ 				    stripdomain, always_ip,
+ 				    &rhost_sane);
+     if (retval)
+         fatalperror(f, "failed make_sane_hostname");
+     if (passwd_req)
+-        execl(login_program, "login", "-p", "-h", rhost_sane,
+-          lusername, 0);
++        execle(login_program, "login", "-p", "-h", rhost_sane,
++          lusername, 0, environ);
+     else
+-        execl(login_program, "login", "-p", "-h", rhost_sane,
+-             "-f", lusername, 0);
++        execle(login_program, "login", "-p", "-h", rhost_sane,
++             "-f", lusername, 0, environ);
+ #else /* USE_LOGIN_F */
+-	execl(login_program, "login", "-r", rhost_sane, 0);
++	execle(login_program, "login", "-r", rhost_sane, 0, environ);
+ #endif /* USE_LOGIN_F */
+ 	syslog(LOG_ERR, "failed exec of %s: %s",
+ 	       login_program, error_message(errno));
