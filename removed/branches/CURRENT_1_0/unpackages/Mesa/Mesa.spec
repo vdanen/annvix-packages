@@ -1,6 +1,8 @@
 %define	name	Mesa
 %define version	5.0.1
-%define release	6sls
+%define release	7sls
+
+%global _unpackaged_files_terminate_build 0
 
 %define glx_ver			20001222
 %define glx_mesa_version 	3.2.1
@@ -19,8 +21,6 @@
 
 %define prefix		/usr/X11R6
 %define libdir		%{prefix}/%{_lib}
-
-%{!?build_opensls:%global build_opensls 0}
 
 Summary:	OpenGL 1.4 compatible 3D graphics library
 Name:		%{name}
@@ -108,20 +108,6 @@ Mesa is an OpenGL 1.4 compatible 3D graphics library.
 glut parts.
 
 This package contains the headers needed to compile Mesa programs.
-
-%if !%{build_opensls}
-%package demos
-Summary:	Demos for Mesa (OpenGL compatible 3D lib)
-Group:		Graphics
-Requires:	%{name} >= %{version}
-Provides:	hackMesa-demos = %{version}
-Obsoletes:	hackMesa-demos <= %{version}
-
-%description demos
-Mesa is an OpenGL 1.4 compatible 3D graphics library.
-
-This package contains some demo programs for the Mesa library.
-%endif
 
 %prep
 %setup -q -n Mesa-%{version}
@@ -256,16 +242,6 @@ CONFIGURE_XPATH="--x-includes=%{prefix}/include --x-libraries=%{prefix}/%{_lib}"
 
 %make
 
-%if !%{build_opensls}
-pushd demos
-for i in bounce clearspd drawpix gamma gears glinfo glutfx isosurf morph3d \
-         multiarb paltex pointblast reflect renormal \
-         spectex stex3d tessdemo texcyl texobj trispd winpos; do
-	make $i
-done	
-popd
-%endif
-
 # Skip utah_glx for alpha - (fg) also skip it for sparc - (jb) also added skip
 # for ppc - (fg) And for ia64 as well - (gb) on x86_64 as well
 
@@ -339,7 +315,7 @@ popd
 make prefix=%{prefix} mesa_so_version=%{mesa_so_version} -C GLwrapper-%{GLwrapper_version}
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p $RPM_BUILD_ROOT%{libdir}/mesa-demos-data
 mkdir -p $RPM_BUILD_ROOT/usr/include
 mkdir -p $RPM_BUILD_ROOT%{prefix}/etc
@@ -361,54 +337,6 @@ fi
 
 #install -m 0644 include/GL/glext.h $RPM_BUILD_ROOT%{prefix}/include/GL
 
-%if !%{build_opensls}
-mkdir -p $RPM_BUILD_ROOT%{prefix}/bin
-for i in bounce clearspd drawpix gamma gears glinfo glutfx isosurf morph3d \
-         multiarb paltex pointblast reflect renormal \
-         spectex stex3d tessdemo texcyl texobj trispd winpos; do
-  cp -v demos/$i $RPM_BUILD_ROOT%{prefix}/bin
-  if ! diff -q $RPM_BUILD_ROOT%{prefix}/bin/$i demos/.libs/$i; then
-    echo "PROBLEM INSTALLING DEMOS $i"
-    rm -f $RPM_BUILD_ROOT%{prefix}/bin/$i
-    cp -a demos/.libs/$i $RPM_BUILD_ROOT%{prefix}/bin/$i
-  fi
-done
-
-# (fg) So that demos at least work :)
-cp -v images/*rgb demos/isosurf.dat $RPM_BUILD_ROOT%{libdir}/mesa-demos-data
-
-# menu for demos
-install -m 755 -d $RPM_BUILD_ROOT%{_menudir}
-cat <<EOF >$RPM_BUILD_ROOT%{_menudir}/Mesa-demos
-?package(Mesa-demos):command="%{prefix}/bin/gears" \
-                     icon="mesa-demos-gears.png" \
-                     needs="x11" \
-                     section="Amusement/Toys" \
-                     title="Mesa gears" \
-                     longtitle="Gears 3D demonstration from Mesa 3D"
-
-?package(Mesa-demos):command="%{prefix}/bin/reflect" \
-                     icon="mesa-demos-reflect.png" \
-                     needs="x11" \
-                     section="Amusement/Toys" \
-                     title="Mesa reflect" \
-                     longtitle="Reflect 3D demonstration from Mesa 3D"
-
-?package(Mesa-demos):command="%{prefix}/bin/morph3d" \
-                     icon="mesa-demos-morph3d.png" \
-                     needs="x11" \
-                     section="Amusement/Toys" \
-                     title="Mesa morph" \
-                     longtitle="Morph 3D demonstration from Mesa 3D"
-EOF
-
-# icons for three demos examples [we lack a frontend
-# to launch the demos obviously]
-install -m 755 -d $RPM_BUILD_ROOT%{_miconsdir}
-install -m 755 -d $RPM_BUILD_ROOT%{_iconsdir}
-install -m 755 -d $RPM_BUILD_ROOT%{_liconsdir}
-tar jxvf %{SOURCE4} -C $RPM_BUILD_ROOT%{_iconsdir}
-%endif
 
 %ifarch alpha sparc sparc64 ppc ia64 x86_64
 echo 'Skipping utah_glx'
@@ -440,18 +368,14 @@ cd ..
 # install GLwrapper
 make DESTDIR=$RPM_BUILD_ROOT install -C GLwrapper-%{GLwrapper_version}
 
-cd $RPM_BUILD_ROOT/usr/include
-ln -sf ../X11R6/include/GL GL
-
 cd $RPM_BUILD_ROOT/%{libdir}/
 #ln -sf libGL.so.1 libGL.so
 #ln -sf libGL.so.%{mesa_so_version} libGL.so.1.4
-ln -sf libGLwrapper.so.%{GLwrapper_version} libGL.so.1
 ln -sf libGLU.so.1 libGLU.so
 #ln -sf libGLU.so.1 libGLU.so.3
 ln -sf libglut.so.3 libglut.so
 
-# remove any regerence to unpackaged file.
+# remove any reference to unpackaged file.
 rm -f $RPM_BUILD_ROOT%{prefix}/include/GL/gl.h
 rm -f $RPM_BUILD_ROOT%{prefix}/include/GL/glext.h
 rm -f $RPM_BUILD_ROOT%{prefix}/include/GL/gl_mangle.h
@@ -463,12 +387,14 @@ rm -f $RPM_BUILD_ROOT%{prefix}/include/GL/xmesa.h
 rm -f $RPM_BUILD_ROOT%{prefix}/include/GL/xmesa_x.h
 rm -f $RPM_BUILD_ROOT%{prefix}/include/GL/xmesa_xf86.h
 rm -f $RPM_BUILD_ROOT%{prefix}/include/GL/glxext.h
+rm -f $RPM_BUILD_ROOT%{libdir}/libGL.so
+rm -f $RPM_BUILD_ROOT%{libdir}/libGL.so.1
 
 # finally clean any .la file with still reference to tmppath.
 perl -pi -e "s|\S+$RPM_BUILD_DIR\S*||g" $RPM_BUILD_ROOT/%{libdir}/*.la
 
 %clean
-rm -fr $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post -n %{libglname} -p /sbin/ldconfig
 
@@ -481,16 +407,6 @@ rm -fr $RPM_BUILD_ROOT
 %post -n %{libglutname} -p /sbin/ldconfig 
 
 %postun -n %{libglutname} -p /sbin/ldconfig
-
-%if !%{build_opensls}
-%post demos
-%{update_menus}
-%endif
-
-%if !%{build_opensls}
-%postun demos
-%{clean_menus}
-%endif
 
 %files
 %defattr(-,root,root)
@@ -506,9 +422,6 @@ rm -fr $RPM_BUILD_ROOT
 
 %files -n %{libglname}
 %defattr(-,root,root)
-%doc docs/COPYRIGHT docs/README docs/README.X11 docs/COPYING
-%doc glx/docs/README.*
-%doc README.GLwrapper
 %{libdir}/libGL.so.1.*
 %{libdir}/libGLwrapper.so*
 %ifarch %{ix86}
@@ -537,17 +450,14 @@ rm -fr $RPM_BUILD_ROOT
 
 %files -n %{libgluname}
 %defattr(-,root,root)
-%doc docs/COPYRIGHT docs/README docs/README.X11 docs/COPYING
 %{libdir}/libGLU.so.*
 
 %files -n %{libglutname}
 %defattr(-,root,root)
-%doc docs/COPYRIGHT docs/README docs/README.X11 docs/COPYING
 %{libdir}/libglut.so.*
 
 %files -n %{libgluname}-devel
 %defattr(-,root,root)
-%doc docs/COPYRIGHT docs/README docs/README.X11 docs/COPYING
 %{prefix}/include/GL/glu.h
 %{prefix}/include/GL/glu_mangle.h
 %{libdir}/libGL.la
@@ -556,26 +466,19 @@ rm -fr $RPM_BUILD_ROOT
 
 %files -n %{libglutname}-devel
 %defattr(-,root,root)
-%doc docs/COPYRIGHT docs/README docs/README.X11 docs/COPYING
 %{prefix}/include/GL/glut.h
 %{prefix}/include/GL/glutf90.h
 %{libdir}/libglut.so
 %{libdir}/libglut.la
 
-%if !%{build_opensls}
-%files demos
-%defattr(-,root,root)
-%doc docs/COPYRIGHT docs/README docs/README.X11 docs/COPYING
-%{prefix}/bin/*
-%dir %{libdir}/mesa-demos-data
-%{libdir}/mesa-demos-data/*
-%{_menudir}/Mesa-demos
-%{_miconsdir}/*demos*.png
-%{_iconsdir}/*demos*.png
-%{_liconsdir}/*demos*.png
-%endif
-
 %changelog
+* Sat Mar 06 2004 Vincent Danen <vdanen@opensls.org> 5.0.1-7sls
+- minor spec cleanups
+- remove %%build_opensls macro
+- get rid of redundant docs
+- fix some unpackaged file errors
+- don't terminate on unpackaged files
+
 * Tue Dec 30 2003 Vincent Danen <vdanen@opensls.org> 5.0.1-6sls
 - OpenSLS build
 - tidy spec
