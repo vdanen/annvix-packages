@@ -1,0 +1,4 @@
+?package(vim-X11):command="/usr/X11R6/bin/gvim" needs="X11" \
+icon="gvim.png" section="Applications/Editors" \
+title="VI editor" longtitle="All-purpose text editor"
+
