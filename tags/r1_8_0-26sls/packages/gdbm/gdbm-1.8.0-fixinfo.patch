@@ -1,0 +1,13 @@
+--- gdbm-1.8.0/gdbm.texinfo.chmou	Wed May 19 06:35:25 1999
++++ gdbm-1.8.0/gdbm.texinfo	Mon Sep  4 14:40:37 2000
+@@ -2,6 +2,10 @@
+ @comment %**start of header (This is for running Texinfo on a region.)
+ @setfilename gdbm.info
+ @settitle gdbm
++@dircategory Libraries
++@direntry
++* gdbm: (gdbm).                   The GNU Database.
++@end direntry
+ @c @setchapternewpage odd
+ @comment %**end of header (This is for running Texinfo on a region.)
+ 
