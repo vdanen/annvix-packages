@@ -1,6 +1,6 @@
 %define name	setup
 %define version 2.4
-%define release 9sls
+%define release 10sls
 
 Summary:	A set of system configuration and setup files.
 Name:		%{name}
@@ -81,6 +81,10 @@ if [ -x /usr/sbin/nscd ]; then
 fi
 
 %changelog
+* Tue Jun 15 2004 Vincent Danen <vdanen@opensls.org> 2.4-10sls
+- include rpm in the default group/passwd/shadow files since on install
+  for some reason the rpm user doesn't get created
+
 * Sat Jun 12 2004 Vincent Danen <vdanen@opensls.org> 2.4-9sls
 - revert umask changes; 077 and 027 are too strict (even OpenBSD uses
   022 across the board), so we use 022 for all users
