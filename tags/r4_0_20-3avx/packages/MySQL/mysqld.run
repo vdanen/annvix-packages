@@ -1,0 +1,22 @@
+#!/bin/sh
+PATH="/sbin:/usr/sbin:/bin:/usr/bin"
+
+# this runs mysqld supervised
+
+umask 077
+
+DATADIR="/var/lib/mysql"
+PID_FILE="$DATADIR/`/bin/hostname`.pid"
+MYSQLD_OPTS=""
+LOG=""
+
+# overwrite the above
+if [ -f /etc/sysconfig/mysqld ]; then
+  . /etc/sysconfig/mysqld
+fi
+
+if [ "$LOG" != "" ]; then
+  LOGFILE="--log=$LOG"
+fi
+
+/usr/bin/mysqld_safe --datadir=$DATADIR --pid-file=$PID_FILE $LOGFILE $MYSQLD_OPTS 2>&1 & wait
