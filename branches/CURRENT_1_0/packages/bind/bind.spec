@@ -1,6 +1,6 @@
 %define name	bind
 %define version	9.2.3
-%define release	8avx
+%define release	9avx
 
 %define their_version	9.2.3
 
@@ -208,7 +208,7 @@ fi
 %doc CHANGES README FAQ COPYRIGHT
 %doc contrib/queryperf/README.queryperf
 %doc doc/draft doc/html doc/rfc doc/misc/
-%doc doc/dhcp-dynamic-dns-examples doc/chroot
+%doc doc/dhcp-dynamic-dns-examples
 %config(noreplace) %{_sysconfdir}/sysconfig/named
 %config(noreplace) %{_sysconfdir}/logrotate.d/named
 %config(noreplace) %attr(0600,named,named) %{_sysconfdir}/rndc.conf
@@ -250,12 +250,14 @@ fi
 %{_mandir}/man8/nslookup.8*
 
 %changelog
+* Fri Sep 17 2004 Vincent Danen <vdanen@annvix.org> 9.2.3-9avx
+- update run scripts
+
 * Tue Aug 17 2004 Vincent Danen <vdanen@annvix.org> 9.2.3-8avx
 - lots of spec cleanups
 - add the bsdcompat patch - bug #8840 (florin)
 - add note to S11 (named.ca) (oden)
 - use more aclocal and autoconf magic, including P5 (oden)
-
 
 * Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 9.2.3-7avx
 - Annvix build

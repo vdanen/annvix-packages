@@ -4,14 +4,14 @@
 
 set -e
 
-PATH="/sbin:/usr/sbin:/bin:/usr/bin:$PATH"
+PATH="/sbin:/usr/sbin:/bin:/usr/bin"
 
-# this runs postfix under supervise
+# this runs postfix supervised
 
 command_directory=`postconf -h command_directory`
 daemon_directory=`$command_directory/postconf -h daemon_directory`
 
-# kill postfix if running to ensure we run under svc
+# kill postfix if running to ensure we run supervised
 $daemon_directory/master -t || $command_directory/postfix stop
 
 # make consistency check
