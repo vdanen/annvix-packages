@@ -1,0 +1,11 @@
+--- console-tools-0.2.3/kbdtools/setkeycodes.c.chmou	Fri Apr  9 00:11:13 1999
++++ console-tools-0.2.3/kbdtools/setkeycodes.c	Thu Apr 26 17:05:49 2001
+@@ -63,7 +63,7 @@
+     if (-1 == (fd = get_console_fd(NULL)))
+       exit (1);
+ 
+-  while ( (argc - optind)  > 2) 
++  while ( (argc - optind)  >= 2) 
+     {
+       a.scancode = sc = strtol(argv[optind++], &ep, 16);
+       a.keycode = atoi(argv[optind++]);
