@@ -1,0 +1,57 @@
+--- pure-ftpd-1.0.14.orig/configuration-file/pure-ftpd.conf.in	2003-02-03 00:45:33.000000000 +0100
++++ pure-ftpd-1.0.14/configuration-file/pure-ftpd.conf.in	2003-02-03 00:50:19.000000000 +0100
+@@ -9,7 +9,7 @@
+ # instead of command-line options, please run the
+ # following command :
+ #
+-# @prefix@/sbin/pure-config.pl @prefix@/etc/pure-ftpd.conf
++# /usr/sbin/pure-config.pl /etc/pure-ftpd/pure-ftpd.conf
+ #
+ # RPM binary files use another configuration file by default :
+ # /etc/sysconfig/pure-ftpd
+@@ -110,23 +110,23 @@ MaxIdleTime                 15
+ 
+ # LDAP configuration file (see README.LDAP)
+ 
+-# LDAPConfigFile                /etc/pureftpd-ldap.conf
++# LDAPConfigFile                /etc/pure-ftpd/pureftpd-ldap.conf
+ 
+ 
+ 
+ # MySQL configuration file (see README.MySQL)
+ 
+-# MySQLConfigFile               /etc/pureftpd-mysql.conf
++# MySQLConfigFile               /etc/pure-ftpd/pureftpd-mysql.conf
+ 
+ 
+ # Postgres configuration file (see README.PGSQL)
+ 
+-# PGSQLConfigFile               /etc/pureftpd-pgsql.conf
++# PGSQLConfigFile               /etc/pure-ftpd/pureftpd-pgsql.conf
+ 
+ 
+ # PureDB user database (see README.Virtual-Users)
+ 
+-# PureDB                        /etc/pureftpd.pdb
++# PureDB                        /etc/pure-ftpd/pureftpd.pdb
+ 
+ 
+ # Path to pure-authd socket (see README.Authentication-Modules)
+@@ -137,7 +137,7 @@ MaxIdleTime                 15
+ 
+ # If you want to enable PAM authentication, uncomment the following line
+ 
+-# PAMAuthentication             yes
++PAMAuthentication             yes
+ 
+ 
+ 
+@@ -304,7 +304,7 @@ AnonymousCantUpload         no
+ # fw.c9x.org - jedi [13/Dec/1975:19:36:39] "GET /ftp/linux.tar.bz2" 200 21809338
+ # This log file can then be processed by www traffic analyzers.
+ 
+-# AltLog                     clf:/var/log/pureftpd.log
++AltLog                     clf:/var/log/pureftpd.log
+ 
+ 
+ 
