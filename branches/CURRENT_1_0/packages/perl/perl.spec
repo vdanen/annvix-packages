@@ -1,11 +1,12 @@
 %define name	perl
-%define version	5.8.5
+%define version	5.8.6
 %define release	1avx
 %define epoch	2
 
 %define rel	%nil
 %define _requires_exceptions Mac\\|VMS\\|perl >=\\|perl(Errno)\\|perl(Fcntl)\\|perl(IO)\\|perl(IO::File)\\|perl(IO::Socket::INET)\\|perl(IO::Socket::UNIX)\\|perl(Tk)\\|perl(Tk::Pod)
-%define threading 1
+%define threading 0
+%define debugging 0
 
 %if %threading
 %define thread_arch -thread-multi
@@ -18,7 +19,7 @@
 # Don't change to %{_libdir} as perl is clean and has arch-dependent subdirs
 %define perl_root	%{_prefix}/lib/perl5
 
-Summary:	The Perl programming language.
+Summary:	The Perl programming language
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -42,15 +43,21 @@ Patch20:	perl-5.8.4-use_gzip_layer.patch.bz2
 #(peroyvind) use -fPIC in stead of -fpic or else compile will fail on sparc (taken from redhat)
 Patch21:	perl-5.8.1-RC4-fpic-fPIC.patch.bz2
 Patch22:	perl-5.8.0-amd64.patch.bz2
-Patch23:	perl-5.8.5-patchlevel.patch.bz2
+Patch23:	perl-5.8.6-patchlevel.patch.bz2
 Patch24:	perl-5.8.4-no-test-fcgi.patch.bz2
 Patch25:	perl-5.8.5-RC1-cpan-signature-test.patch.bz2
 Patch26:	perl-5.8.5-removeemptyrpath.patch.bz2
+Patch27:	perl-5.8.6-23565.bz2
+Patch28:	perl-5.8.6-CAN-2005-0155_0156.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}
 # for NDBM
-BuildRequires:	db1-devel, db2-devel, gdbm-devel
-BuildRequires:	man
+BuildRequires:	db1-devel, db2-devel, gdbm-devel, man
+%ifarch x86_64
+BuildRequires:	devel(libgdbm_compat(64bit))
+%else
+BuildRequires:	devel(libgdbm_compat)
+%endif
 
 Requires:	perl-base = %{epoch}:%{version}-%{release}
 Requires:	%{name}-base
@@ -81,7 +88,7 @@ You need perl-base to have a full perl.
 
 
 %package base
-Summary:	The Perl programming language (base).
+Summary:	The Perl programming language (base)
 Group:		Development/Perl
 Provides:	perl(v5.6.0) perl(base) perl(bytes) perl(constant) perl(integer) perl(lib) perl(overload) perl(strict) perl(utf8) perl(vars) perl(warnings) perl(Carp::Heavy)
 
@@ -90,7 +97,7 @@ This is the base package for %{name}.
 
 
 %package devel
-Summary:	The Perl programming language (devel).
+Summary:	The Perl programming language (devel)
 Group:		Development/Perl
 Requires:	%{name} = %{epoch}:%{version}-%{release}
 
@@ -99,12 +106,13 @@ This is the devel package for %{name}.
 
 
 %package doc
-Summary:	The Perl programming language (documentation).
+Summary:	The Perl programming language (documentation)
 Group:		Development/Perl
 Requires:	%{name} = %{epoch}:%{version}-%{release}, groff-for-man
 
 %description doc
-This is the documentation package for %{name}.
+This is the documentation package for %{name}.  It also contains the
+'perldoc' program.
 
 
 %prep
@@ -122,26 +130,33 @@ This is the documentation package for %{name}.
 %patch24 -p0 -b .notestfcgi
 %patch25 -p0 -b .cpansigtest
 %patch26 -p0 -b .rpath
+%patch27 -p1
+%patch28 -p0
 
 %build
 %ifarch ppc
   RPM_OPT_FLAGS=`echo "$RPM_OPT_FLAGS"|sed -e 's/-O2/-O1/g'`
 %endif
+
 sh Configure -des \
-  -Dinc_version_list="5.8.4/%{full_arch} 5.8.4 5.8.3/%{full_arch} 5.8.3 5.8.2/%{full_arch} 5.8.2 5.8.1/%{full_arch} 5.8.1 5.8.0/%{full_arch} 5.8.0 5.6.1 5.6.0" \
+  -Dinc_version_list="5.8.5 5.8.4 5.8.3 5.8.2 5.8.1 5.8.0 5.6.1 5.6.0" \
   -Darchname=%{arch}-%{_os} \
   -Dcc='%{__cc}' \
+%if %{debugging}
+  -Doptimize=-g -DDEBUGGING \
+%else
   -Doptimize="$RPM_OPT_FLAGS" \
+%endif
   -Dprefix=%{_prefix} -Dvendorprefix=%{_prefix} -Dsiteprefix=%{_prefix} \
   -Dotherlibdirs=/usr/local/lib/perl5:/usr/local/lib/perl5/site_perl \
   -Dman3ext=3pm \
-  -Dcf_by=Annvix -Dmyhostname=localhost -Dperladmin=root@localhost \
+  -Dcf_by=Annvix -Dmyhostname=localhost -Dperladmin=root@localhost -Dcf_email=root@localhost \
   -Dd_dosuid \
   -Ud_csh \
   -Duseshrplib \
   -Accflags=-DPERL_DISABLE_PMC \
 %if %threading
-  -Dusethreads \
+  -Duseithreads \
 %endif
 %ifarch sparc
   -Ud_longdbl \
@@ -152,7 +167,7 @@ make
 # for test, building a perl with no rpath
 # for test, unset RPM_BUILD_ROOT so that the MakeMaker trick is not triggered
 rm -f perl
-RPM_BUILD_ROOT="" make test_harness CCDLFLAGS= 
+RPM_BUILD_ROOT="" make test_harness_notty CCDLFLAGS= 
 rm -f perl
 make perl
 
@@ -172,7 +187,12 @@ find %{buildroot} -name "CGI*" | xargs rm -rf
 cp -f utils/h2ph utils/h2ph_patched
 bzcat %{SOURCE2} | patch -p1
 
-LD_LIBRARY_PATH=. ./perl -Ilib utils/h2ph_patched -a -d %{buildroot}%{perl_root}/%{version}/%{full_arch} `cat %{SOURCE1}` > /dev/null ||:
+#%#ifarch x86_64
+# TODO figure out why the cleaner version with LD_PRELOAD doesn't work here.
+LD_LIBRARY_PATH=. ./perl -Ilib utils/h2ph_patched -a -d $RPM_BUILD_ROOT%{perl_root}/%{version}/%{full_arch} `cat %{SOURCE1}` > /dev/null ||:
+#%#else
+#LD_PRELOAD=`pwd`/libperl.so ./perl -Ilib utils/h2ph_patched -a -d %{buildroot}%{perl_root}/%{version}/%{full_arch} `cat %{SOURCE1}` > /dev/null ||:
+#%#endif
 
 (
     # i don't like hardlinks, having symlinks instead:
@@ -315,9 +335,9 @@ EOF
 
    cat > perl.list <<EOF
 %doc README
+%doc Artistic
 %{_bindir}/a2p
 %{_bindir}/perlbug
-%{_bindir}/perldoc
 %{_bindir}/find2perl
 %{_bindir}/pod2man
 %{_bindir}/pod2html
@@ -326,11 +346,32 @@ EOF
 %{_bindir}/splain
 %{_bindir}/s2p
 %{_mandir}/man3/*
+%exclude %{_mandir}/man3/Pod::Perldoc::ToChecker.3pm.bz2
+%exclude %{_mandir}/man3/Pod::Perldoc::ToMan.3pm.bz2
+%exclude %{_mandir}/man3/Pod::Perldoc::ToNroff.3pm.bz2
+%exclude %{_mandir}/man3/Pod::Perldoc::ToPod.3pm.bz2
+%exclude %{_mandir}/man3/Pod::Perldoc::ToRtf.3pm.bz2
+%exclude %{_mandir}/man3/Pod::Perldoc::ToText.3pm.bz2
+%exclude %{_mandir}/man3/Pod::Perldoc::ToTk.3pm.bz2
+%exclude %{_mandir}/man3/Pod::Perldoc::ToXml.3pm.bz2
 EOF
 
    cat > perl-doc.list <<EOF
 %{_bindir}/perldoc
 %{_mandir}/man1/perldoc.1.bz2
+%{perl_root}/%{version}/Pod/Perldoc.pm
+%{perl_root}/%{version}/Pod/Perldoc
+%{perl_root}/%{version}/Pod/Perldoc/BaseTo.pm
+%{perl_root}/%{version}/Pod/Perldoc/GetOptsOO.pm
+%{perl_root}/%{version}/Pod/Perldoc/ToChecker.pm
+%{perl_root}/%{version}/Pod/Perldoc/ToMan.pm
+%{perl_root}/%{version}/Pod/Perldoc/ToNroff.pm
+%{perl_root}/%{version}/Pod/Perldoc/ToPod.pm
+%{perl_root}/%{version}/Pod/Perldoc/ToRtf.pm
+%{perl_root}/%{version}/Pod/Perldoc/ToText.pm
+%{perl_root}/%{version}/Pod/Perldoc/ToTk.pm
+%{perl_root}/%{version}/Pod/Perldoc/ToXml.pm
+%{_mandir}/man3/Pod::Perldoc*
 EOF
 
    cat > perl-devel.list <<EOF
@@ -437,6 +478,22 @@ EOF
 %defattr(-,root,root)
 
 %changelog
+* Fri Sep 10 2004 Vincent Danen <vdanen@annvix.org> 5.8.5-1avx
+- 5.8.6
+- merged with cooker 5.8.6-3mdk:
+  - BuildRequires: libgdbm_compat (rgarciasuarez)
+  - remove support for threads
+  - remove bincompat directories (since we break binary compatibility)
+  - use "make test_harness_notty" for testing
+  - fix invocation of h2ph with correct libperl.so
+  - P27: integrate patch 23565 from the main patch; MakeMaker's default
+    MANIFEST.SKIP was borked
+  - workaround for build issues on x86_64
+  - add a "debugging" flag to build perl with -D enabled
+  - move the Pod::Perldoc::* modules to perl-doc
+  - add Artistic license in doc
+  - P28: fix for CAN-2005-0155, CAN-2005-0156
+
 * Fri Sep 10 2004 Vincent Danen <vdanen@annvix.org> 5.8.5-1avx
 - 5.8.5
 - define otherlibdirs to /usr/local/lib/perl5:/usr/local/lib/perl5/site_perl
