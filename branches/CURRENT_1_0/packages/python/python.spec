@@ -1,6 +1,6 @@
 %define name	python
 %define version	2.3.4
-%define release	1avx
+%define release	2avx
 
 %define docver  2.3.4
 %define dirver  2.3
@@ -277,6 +277,9 @@ rm -f modules-list main.list
 %postun -n %{lib_name} -p /sbin/ldconfig
 
 %changelog
+* Thu Jan 06 2005 Vincent Danen <vdanen@annvix.org> 2.3.4-2avx
+- rebuild against latest openssl
+
 * Tue Aug 17 2004 Vincent Danen <vdanen@annvix.org> 2.3.4-1avx
 - 2.3.4
 - BuildRequires: autoconf2.5, tk, tcl

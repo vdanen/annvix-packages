@@ -1,6 +1,6 @@
 %define name	libuser
 %define version	0.51.7
-%define release	12avx
+%define release	13avx
 
 %define python	2.3
 %define major	1
@@ -139,6 +139,9 @@ rm -rf	$RPM_BUILD_ROOT/usr/share/man/man3/userquota.3
 %{_datadir}/gtk-doc/html/*
 
 %changelog
+* Thu Jan 06 2005 Vincent Danen <vdanen@annvix.org> 0.51.7-13avx
+- rebuild against latest openssl
+
 * Tue Aug 17 2004 Vincent Danen <vdanen@annvix.org> 0.51.7-12avx
 - rebuild against latest openssl
 

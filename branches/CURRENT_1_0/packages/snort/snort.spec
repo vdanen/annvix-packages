@@ -1,6 +1,6 @@
 %define name	snort
 %define version	2.1.0
-%define release	8avx
+%define release	9avx
 
 # this is so the binaries won't be stripped so people will submit
 # meaningful bugreports
@@ -425,6 +425,9 @@ update-alternatives --remove %{name} %{_sbindir}/%{name}-bloat
 %attr(755,root,root) %{_sbindir}/%{name}-bloat
 
 %changelog
+* Thu Jan 06 2005 Vincent Danen <vdanen@annvix.org> 2.1.0-9avx
+- rebuild against latest openssl
+
 * Fri Sep 17 2004 Vincent Danen <vdanen@annvix.org> 2.1.0-8avx
 - update run scripts
 - update logrotate patch

@@ -1,6 +1,6 @@
 %define name	postgresql
 %define version	7.4.3
-%define release	6avx
+%define release	7avx
 
 %define _requires_exceptions devel(libtcl8.4)\\|devel(libtcl8.4(64bit))
 
@@ -645,6 +645,9 @@ rm -f perlfiles.list
 %attr(-,postgres,postgres) %dir %{_libdir}/pgsql/test
 
 %changelog
+* Thu Jan 06 2005 Vincent Danen <vdanen@annvix.org> 7.4.3-7avx
+- rebuild against latest openssl
+
 * Tue Dec 07 2004 Vincent Danen <vdanen@annvix.org> 7.4.3-6avx
 - P4: patch to fix CAN-2004-0977
 

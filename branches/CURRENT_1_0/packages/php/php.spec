@@ -1,6 +1,6 @@
 %define name	php
 %define version	4.3.10
-%define release	2avx
+%define release	3avx
 %define epoch	2
 
 %define libversion	4
@@ -604,6 +604,9 @@ update-alternatives --remove php %{_bindir}/php-cli
 %{_includedir}/php
 
 %changelog
+* Thu Jan 06 2005 Vincent Danen <vdanen@annvix.org> 4.3.10-3avx
+- rebuild against latest openssl
+
 * Fri Dec 17 2004 Vincent Danen <vdanen@annvix.org> 4.3.10-2avx
 - include the hardened-php patch (4.3.10-0.2.4)
 - drop P55

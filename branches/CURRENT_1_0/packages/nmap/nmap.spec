@@ -1,6 +1,6 @@
 %define name	nmap
 %define version	3.55
-%define release	1avx
+%define release	2avx
 %define epoch	1
 
 Summary:	Network exploration tool and security scanner
@@ -61,6 +61,9 @@ more.
 %{_mandir}/man1/nmap.*
 
 %changelog
+* Thu Jan 06 2005 Vincent Danen <vdanen@annvix.org> 3.55-2avx
+- rebuild against latest openssl
+
 * Tue Aug 17 2004 Vincent Danen <vdanen@annvix.org> 3.55-1avx
 - 3.55
 - better fix to recognize x86_64

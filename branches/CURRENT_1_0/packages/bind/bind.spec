@@ -1,6 +1,6 @@
 %define name	bind
 %define version	9.3.0
-%define release	2avx
+%define release	3avx
 
 %define their_version	9.3.0
 
@@ -254,6 +254,9 @@ fi
 %{_mandir}/man5/resolv.5*
 
 %changelog
+* Thu Jan 06 2005 Vincent Danen <vdanen@annvix.org> 9.3.0-3avx
+- rebuild against latest openssl
+
 * Tue Dec 21 2004 Vincent Danen <vdanen@annvix.org> 9.3.0-2avx
 - merge with mdk:
   - fix detection of res_mkquery(), aka file build on e.g. x86_64 (gbeauchesne)
