@@ -46,6 +46,23 @@ iftable() {
 	fi
 }
 
+check() {
+	if [ -n "$1" ]; then
+		rm -f /lib/iptables
+		ln -s /lib/iptables-${1} /lib/iptables
+		iftable nat -N __IPTCHECK__${1}__ >/dev/null 2>&1
+		iftable nat -A __IPTCHECK__${1}__ -j MASQUERADE >/dev/null 2>&1
+		res=$?
+		iftable nat -F __IPTCHECK__${1}__ >/dev/null 2>&1
+		iftable nat -X __IPTCHECK__${1}__ >/dev/null 2>&1
+		return $res
+	else
+		/sbin/modprobe ipt_MASQUERADE >/dev/null 2>&1
+		check sls || check vanilla
+		/sbin/modprobe -r ipt_MASQUERADE >/dev/null 2>&1
+	fi
+}
+
 start() {
 	# don't do squat if we don't have the config file
 	if [ -f $IPTABLES_CONFIG ]; then
@@ -84,6 +101,7 @@ stop() {
 
 case "$1" in
   start)
+	check
 	start
 	;;
 
@@ -155,8 +173,12 @@ case "$1" in
 	echo
 	;;
 
+  check)
+    check
+	;;
+
   *)
-	echo $"Usage: $0 {start|stop|restart|condrestart|status|panic|save}"
+	echo $"Usage: $0 {start|stop|restart|condrestart|status|panic|save|check}"
 	exit 1
 esac
 
