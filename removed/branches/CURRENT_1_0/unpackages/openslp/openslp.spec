@@ -1,6 +1,6 @@
 %define	name	openslp
 %define	version	1.0.11
-%define	release	5sls
+%define	release	7sls
 
 %define	major		1
 %define	libname		%mklibname %{name} %{major}
@@ -74,7 +74,7 @@ rm -rf `find -name CVS`
 %make
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 #fix doc
 rm -rf installeddoc
@@ -94,7 +94,7 @@ install -m 0750 %{SOURCE1} %{buildroot}%{_srvdir}/slpd/run
 install -m 0750 %{SOURCE2} %{buildroot}%{_srvdir}/slpd/log/run
 
 %clean
-rm -rf %buildroot
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
 %_post_srv slpd
@@ -136,6 +136,9 @@ rm -rf %buildroot
 
 
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 1.0.11-7sls
+- minor spec cleanups
+
 * Wed Feb 04 2004 Vincent Danen <vdanen@opensls.org> 1.0.11-6sls
 - remove initscript
 - supervise scripts
