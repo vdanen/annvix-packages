@@ -1,6 +1,6 @@
 %define name	apache2
 %define version	2.0.49
-%define release	7avx
+%define release	8avx
 
 #
 #(ie. use with rpm --rebuild):
@@ -104,6 +104,12 @@ Patch5:			httpd-2.0.48-distcache.patch.bz2
 Patch6:			httpd-2.0.49-mod_log_mysql.diff.bz2
 Patch7:			apache-2.0-can-2004-0488.patch.bz2
 Patch8:			apache-2.0.49-CAN-2004-0493.patch.bz2
+Patch9:			httpd-2.0.50-CAN-2004-0748-mod_ssl-input-filter-infinite-loop.dif.bz2
+Patch10:		httpd-2.0.50-CAN-2004-0751-mod_ssl-proxied-request-segfault.dif.bz2
+Patch11:		apache-2.0.50-can-2004-0747.patch.bz2
+Patch12:		apache-2.0.50-can-2004-0786.patch.bz2
+Patch13:		apache-2.0.50-can-2004-0809.patch.bz2
+
 # OE: stolen from redhat
 Patch40:		httpd-2.0.45-cnfdir.patch.bz2
 Patch41:		httpd-2.0.45-parallel.patch.bz2
@@ -480,6 +486,12 @@ build %{ap_name}-mod_perl, or your own custom version.
 # security
 %patch7 -p1 -b .can-2004-0488
 %patch8 -p0 -b .can-2004-0493
+%patch9 -p1 -b .can-2004-0748
+%patch10 -p1 -b .can-2004-0751
+%patch11 -p1 -b .can-2004-0747
+%patch12 -p1 -b .can-2004-0786
+%patch13 -p1 -b .can-2004-0809
+
 
 # OE: stolen from redhat
 #%patch40 -p1
@@ -1282,6 +1294,11 @@ fi
 %{ap_abs_srcdir}
 
 %changelog
+* Tue Sep 14 2004 Vincent Danen <vdanen@annvix.org> 2.0.49-8avx
+- P9-P13: security patches for CAN-2004-0748, CAN-2004-0751, 
+  CAN-2004-0747, CAN-2004-0786, and CAN-2004-0809
+- updated runscripts
+
 * Thu Aug 19 2004 Vincent Danen <vdanen@annvix.org> 2.0.49-7avx
 - log/run was still logging to /var/log/supervise/apache2 rather than
   ../httpd2; fixed
