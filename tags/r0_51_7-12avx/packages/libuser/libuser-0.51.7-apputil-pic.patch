@@ -1,0 +1,361 @@
+--- libuser-0.51.7/apps/Makefile.am.apputil-pic	2002-07-24 11:06:42.000000000 -0400
++++ libuser-0.51.7/apps/Makefile.am	2003-04-03 18:14:11.000000000 -0500
+@@ -13,63 +13,47 @@
+ 	luserdel \
+ 	lusermod
+ 
++noinst_LTLIBRARIES = libapputil.la
++
+ CFLAGS = @CFLAGS@ -I@PYTHON_INC@ @GOBJECT_CFLAGS@
+-LDADD = ../lib/libuser.la @GOBJECT_LIBS@ @PAM_MISC_LIBS@ @POPT_LIBS@ @CRYPT_LIBS@
++LDADD = libapputil.la ../lib/libuser.la @GOBJECT_LIBS@ @PAM_MISC_LIBS@ @POPT_LIBS@ @CRYPT_LIBS@
++
++libapputil_la_SOURCES = \
++        apputil.c \
++	apputil.h
+ 
+ lchsh_SOURCES = \
+-	apputil.c \
+-	apputil.h \
+ 	lchsh.c
+ 
+ lchfn_SOURCES = \
+-	apputil.c \
+-	apputil.h \
+ 	lchfn.c
+ 
+ lchage_SOURCES = \
+-	apputil.c \
+-	apputil.h \
+ 	lchage.c
+ 
+ lid_SOURCES = \
+ 	lid.c
+ 
+ luseradd_SOURCES = \
+-	apputil.c \
+-	apputil.h \
+ 	luseradd.c
+ 
+ lusermod_SOURCES = \
+-	apputil.c \
+-	apputil.h \
+ 	lusermod.c
+ 
+ luserdel_SOURCES = \
+-	apputil.c \
+-	apputil.h \
+ 	luserdel.c
+ 
+ lgroupadd_SOURCES = \
+-	apputil.c \
+-	apputil.h \
+ 	lgroupadd.c
+ 
+ lgroupmod_SOURCES = \
+-	apputil.c \
+-	apputil.h \
+ 	lgroupmod.c
+ 
+ lgroupdel_SOURCES = \
+-	apputil.c \
+-	apputil.h \
+ 	lgroupdel.c
+ 
+ lpasswd_SOURCES = \
+-	apputil.c \
+-	apputil.h \
+ 	lpasswd.c
+ 
+ lnewusers_SOURCES = \
+-	apputil.c \
+-	apputil.h \
+ 	lnewusers.c
+--- libuser-0.51.7/apps/Makefile.in.apputil-pic	2003-02-19 03:35:23.000000000 -0500
++++ libuser-0.51.7/apps/Makefile.in	2003-04-03 18:14:37.000000000 -0500
+@@ -135,25 +135,23 @@
+ 	luserdel \
+ 	lusermod
+ 
++noinst_LTLIBRARIES = libapputil.la
+ 
+ CFLAGS = @CFLAGS@ -I@PYTHON_INC@ @GOBJECT_CFLAGS@
+-LDADD = ../lib/libuser.la @GOBJECT_LIBS@ @PAM_MISC_LIBS@ @POPT_LIBS@ @CRYPT_LIBS@
++LDADD = libapputil.la ../lib/libuser.la @GOBJECT_LIBS@ @PAM_MISC_LIBS@ @POPT_LIBS@ @CRYPT_LIBS@
+ 
+-lchsh_SOURCES = \
++libapputil_la_SOURCES = \
+ 	apputil.c \
+-	apputil.h \
+-	lchsh.c
++	apputil.h
+ 
++lchsh_SOURCES = \
++	lchsh.c
+ 
+ lchfn_SOURCES = \
+-	apputil.c \
+-	apputil.h \
+ 	lchfn.c
+ 
+ 
+ lchage_SOURCES = \
+-	apputil.c \
+-	apputil.h \
+ 	lchage.c
+ 
+ 
+@@ -162,56 +160,46 @@
+ 
+ 
+ luseradd_SOURCES = \
+-	apputil.c \
+-	apputil.h \
+ 	luseradd.c
+ 
+ 
+ lusermod_SOURCES = \
+-	apputil.c \
+-	apputil.h \
+ 	lusermod.c
+ 
+ 
+ luserdel_SOURCES = \
+-	apputil.c \
+-	apputil.h \
+ 	luserdel.c
+ 
+ 
+ lgroupadd_SOURCES = \
+-	apputil.c \
+-	apputil.h \
+ 	lgroupadd.c
+ 
+ 
+ lgroupmod_SOURCES = \
+-	apputil.c \
+-	apputil.h \
+ 	lgroupmod.c
+ 
+ 
+ lgroupdel_SOURCES = \
+-	apputil.c \
+-	apputil.h \
+ 	lgroupdel.c
+ 
+ 
+ lpasswd_SOURCES = \
+-	apputil.c \
+-	apputil.h \
+ 	lpasswd.c
+ 
+ 
+ lnewusers_SOURCES = \
+-	apputil.c \
+-	apputil.h \
+ 	lnewusers.c
+ 
+ subdir = apps
+ mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
+ CONFIG_HEADER = $(top_builddir)/config.h
+ CONFIG_CLEAN_FILES =
++LTLIBRARIES = $(noinst_LTLIBRARIES)
++
++libapputil_la_LDFLAGS =
++libapputil_la_LIBADD =
++am_libapputil_la_OBJECTS = apputil.lo
++libapputil_la_OBJECTS = $(am_libapputil_la_OBJECTS)
+ bin_PROGRAMS = lchfn$(EXEEXT) lchsh$(EXEEXT)
+ sbin_PROGRAMS = lchage$(EXEEXT) lid$(EXEEXT) lgroupadd$(EXEEXT) \
+ 	lgroupdel$(EXEEXT) lgroupmod$(EXEEXT) lnewusers$(EXEEXT) \
+@@ -219,65 +207,65 @@
+ 	lusermod$(EXEEXT)
+ PROGRAMS = $(bin_PROGRAMS) $(sbin_PROGRAMS)
+ 
+-am_lchage_OBJECTS = apputil.$(OBJEXT) lchage.$(OBJEXT)
++am_lchage_OBJECTS = lchage.$(OBJEXT)
+ lchage_OBJECTS = $(am_lchage_OBJECTS)
+ lchage_LDADD = $(LDADD)
+-lchage_DEPENDENCIES = ../lib/libuser.la
++lchage_DEPENDENCIES = libapputil.la ../lib/libuser.la
+ lchage_LDFLAGS =
+-am_lchfn_OBJECTS = apputil.$(OBJEXT) lchfn.$(OBJEXT)
++am_lchfn_OBJECTS = lchfn.$(OBJEXT)
+ lchfn_OBJECTS = $(am_lchfn_OBJECTS)
+ lchfn_LDADD = $(LDADD)
+-lchfn_DEPENDENCIES = ../lib/libuser.la
++lchfn_DEPENDENCIES = libapputil.la ../lib/libuser.la
+ lchfn_LDFLAGS =
+-am_lchsh_OBJECTS = apputil.$(OBJEXT) lchsh.$(OBJEXT)
++am_lchsh_OBJECTS = lchsh.$(OBJEXT)
+ lchsh_OBJECTS = $(am_lchsh_OBJECTS)
+ lchsh_LDADD = $(LDADD)
+-lchsh_DEPENDENCIES = ../lib/libuser.la
++lchsh_DEPENDENCIES = libapputil.la ../lib/libuser.la
+ lchsh_LDFLAGS =
+-am_lgroupadd_OBJECTS = apputil.$(OBJEXT) lgroupadd.$(OBJEXT)
++am_lgroupadd_OBJECTS = lgroupadd.$(OBJEXT)
+ lgroupadd_OBJECTS = $(am_lgroupadd_OBJECTS)
+ lgroupadd_LDADD = $(LDADD)
+-lgroupadd_DEPENDENCIES = ../lib/libuser.la
++lgroupadd_DEPENDENCIES = libapputil.la ../lib/libuser.la
+ lgroupadd_LDFLAGS =
+-am_lgroupdel_OBJECTS = apputil.$(OBJEXT) lgroupdel.$(OBJEXT)
++am_lgroupdel_OBJECTS = lgroupdel.$(OBJEXT)
+ lgroupdel_OBJECTS = $(am_lgroupdel_OBJECTS)
+ lgroupdel_LDADD = $(LDADD)
+-lgroupdel_DEPENDENCIES = ../lib/libuser.la
++lgroupdel_DEPENDENCIES = libapputil.la ../lib/libuser.la
+ lgroupdel_LDFLAGS =
+-am_lgroupmod_OBJECTS = apputil.$(OBJEXT) lgroupmod.$(OBJEXT)
++am_lgroupmod_OBJECTS = lgroupmod.$(OBJEXT)
+ lgroupmod_OBJECTS = $(am_lgroupmod_OBJECTS)
+ lgroupmod_LDADD = $(LDADD)
+-lgroupmod_DEPENDENCIES = ../lib/libuser.la
++lgroupmod_DEPENDENCIES = libapputil.la ../lib/libuser.la
+ lgroupmod_LDFLAGS =
+ am_lid_OBJECTS = lid.$(OBJEXT)
+ lid_OBJECTS = $(am_lid_OBJECTS)
+ lid_LDADD = $(LDADD)
+-lid_DEPENDENCIES = ../lib/libuser.la
++lid_DEPENDENCIES = libapputil.la ../lib/libuser.la
+ lid_LDFLAGS =
+-am_lnewusers_OBJECTS = apputil.$(OBJEXT) lnewusers.$(OBJEXT)
++am_lnewusers_OBJECTS = lnewusers.$(OBJEXT)
+ lnewusers_OBJECTS = $(am_lnewusers_OBJECTS)
+ lnewusers_LDADD = $(LDADD)
+-lnewusers_DEPENDENCIES = ../lib/libuser.la
++lnewusers_DEPENDENCIES = libapputil.la ../lib/libuser.la
+ lnewusers_LDFLAGS =
+-am_lpasswd_OBJECTS = apputil.$(OBJEXT) lpasswd.$(OBJEXT)
++am_lpasswd_OBJECTS = lpasswd.$(OBJEXT)
+ lpasswd_OBJECTS = $(am_lpasswd_OBJECTS)
+ lpasswd_LDADD = $(LDADD)
+-lpasswd_DEPENDENCIES = ../lib/libuser.la
++lpasswd_DEPENDENCIES = libapputil.la ../lib/libuser.la
+ lpasswd_LDFLAGS =
+-am_luseradd_OBJECTS = apputil.$(OBJEXT) luseradd.$(OBJEXT)
++am_luseradd_OBJECTS = luseradd.$(OBJEXT)
+ luseradd_OBJECTS = $(am_luseradd_OBJECTS)
+ luseradd_LDADD = $(LDADD)
+-luseradd_DEPENDENCIES = ../lib/libuser.la
++luseradd_DEPENDENCIES = libapputil.la ../lib/libuser.la
+ luseradd_LDFLAGS =
+-am_luserdel_OBJECTS = apputil.$(OBJEXT) luserdel.$(OBJEXT)
++am_luserdel_OBJECTS = luserdel.$(OBJEXT)
+ luserdel_OBJECTS = $(am_luserdel_OBJECTS)
+ luserdel_LDADD = $(LDADD)
+-luserdel_DEPENDENCIES = ../lib/libuser.la
++luserdel_DEPENDENCIES = libapputil.la ../lib/libuser.la
+ luserdel_LDFLAGS =
+-am_lusermod_OBJECTS = apputil.$(OBJEXT) lusermod.$(OBJEXT)
++am_lusermod_OBJECTS = lusermod.$(OBJEXT)
+ lusermod_OBJECTS = $(am_lusermod_OBJECTS)
+ lusermod_LDADD = $(LDADD)
+-lusermod_DEPENDENCIES = ../lib/libuser.la
++lusermod_DEPENDENCIES = libapputil.la ../lib/libuser.la
+ lusermod_LDFLAGS =
+ 
+ DEFS = @DEFS@
+@@ -287,7 +275,7 @@
+ LIBS = @LIBS@
+ depcomp = $(SHELL) $(top_srcdir)/depcomp
+ am__depfiles_maybe = depfiles
+-@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/apputil.Po ./$(DEPDIR)/lchage.Po \
++@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/apputil.Plo ./$(DEPDIR)/lchage.Po \
+ @AMDEP_TRUE@	./$(DEPDIR)/lchfn.Po ./$(DEPDIR)/lchsh.Po \
+ @AMDEP_TRUE@	./$(DEPDIR)/lgroupadd.Po ./$(DEPDIR)/lgroupdel.Po \
+ @AMDEP_TRUE@	./$(DEPDIR)/lgroupmod.Po ./$(DEPDIR)/lid.Po \
+@@ -301,12 +289,13 @@
+ CCLD = $(CC)
+ LINK = $(LIBTOOL) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
+ 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
+-DIST_SOURCES = $(lchage_SOURCES) $(lchfn_SOURCES) $(lchsh_SOURCES) \
+-	$(lgroupadd_SOURCES) $(lgroupdel_SOURCES) $(lgroupmod_SOURCES) \
+-	$(lid_SOURCES) $(lnewusers_SOURCES) $(lpasswd_SOURCES) \
+-	$(luseradd_SOURCES) $(luserdel_SOURCES) $(lusermod_SOURCES)
++DIST_SOURCES = $(libapputil_la_SOURCES) $(lchage_SOURCES) \
++	$(lchfn_SOURCES) $(lchsh_SOURCES) $(lgroupadd_SOURCES) \
++	$(lgroupdel_SOURCES) $(lgroupmod_SOURCES) $(lid_SOURCES) \
++	$(lnewusers_SOURCES) $(lpasswd_SOURCES) $(luseradd_SOURCES) \
++	$(luserdel_SOURCES) $(lusermod_SOURCES)
+ DIST_COMMON = Makefile.am Makefile.in
+-SOURCES = $(lchage_SOURCES) $(lchfn_SOURCES) $(lchsh_SOURCES) $(lgroupadd_SOURCES) $(lgroupdel_SOURCES) $(lgroupmod_SOURCES) $(lid_SOURCES) $(lnewusers_SOURCES) $(lpasswd_SOURCES) $(luseradd_SOURCES) $(luserdel_SOURCES) $(lusermod_SOURCES)
++SOURCES = $(libapputil_la_SOURCES) $(lchage_SOURCES) $(lchfn_SOURCES) $(lchsh_SOURCES) $(lgroupadd_SOURCES) $(lgroupdel_SOURCES) $(lgroupmod_SOURCES) $(lid_SOURCES) $(lnewusers_SOURCES) $(lpasswd_SOURCES) $(luseradd_SOURCES) $(luserdel_SOURCES) $(lusermod_SOURCES)
+ 
+ all: all-am
+ 
+@@ -317,6 +306,17 @@
+ 	  $(AUTOMAKE) --gnu  apps/Makefile
+ Makefile: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.in  $(top_builddir)/config.status
+ 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@ $(am__depfiles_maybe)
++
++clean-noinstLTLIBRARIES:
++	-test -z "$(noinst_LTLIBRARIES)" || rm -f $(noinst_LTLIBRARIES)
++	@list='$(noinst_LTLIBRARIES)'; for p in $$list; do \
++	  dir="`echo $$p | sed -e 's|/[^/]*$$||'`"; \
++	  test -z "$dir" && dir=.; \
++	  echo "rm -f \"$${dir}/so_locations\""; \
++	  rm -f "$${dir}/so_locations"; \
++	done
++libapputil.la: $(libapputil_la_OBJECTS) $(libapputil_la_DEPENDENCIES) 
++	$(LINK)  $(libapputil_la_LDFLAGS) $(libapputil_la_OBJECTS) $(libapputil_la_LIBADD) $(LIBS)
+ binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
+ install-binPROGRAMS: $(bin_PROGRAMS)
+ 	@$(NORMAL_INSTALL)
+@@ -418,7 +418,7 @@
+ distclean-compile:
+ 	-rm -f *.tab.c
+ 
+-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apputil.Po@am__quote@
++@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apputil.Plo@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lchage.Po@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lchfn.Po@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lchsh.Po@am__quote@
+@@ -527,7 +527,7 @@
+ 	done
+ check-am: all-am
+ check: check-am
+-all-am: Makefile $(PROGRAMS)
++all-am: Makefile $(LTLIBRARIES) $(PROGRAMS)
+ 
+ installdirs:
+ 	$(mkinstalldirs) $(DESTDIR)$(bindir) $(DESTDIR)$(sbindir)
+@@ -559,7 +559,7 @@
+ clean: clean-am
+ 
+ clean-am: clean-binPROGRAMS clean-generic clean-libtool \
+-	clean-sbinPROGRAMS mostlyclean-am
++	clean-noinstLTLIBRARIES clean-sbinPROGRAMS mostlyclean-am
+ 
+ distclean: distclean-am
+ 
+@@ -597,17 +597,17 @@
+ 	uninstall-sbinPROGRAMS
+ 
+ .PHONY: GTAGS all all-am check check-am clean clean-binPROGRAMS \
+-	clean-generic clean-libtool clean-sbinPROGRAMS distclean \
+-	distclean-compile distclean-depend distclean-generic \
+-	distclean-libtool distclean-tags distdir dvi dvi-am info \
+-	info-am install install-am install-binPROGRAMS install-data \
+-	install-data-am install-exec install-exec-am install-info \
+-	install-info-am install-man install-sbinPROGRAMS install-strip \
+-	installcheck installcheck-am installdirs maintainer-clean \
+-	maintainer-clean-generic mostlyclean mostlyclean-compile \
+-	mostlyclean-generic mostlyclean-libtool tags uninstall \
+-	uninstall-am uninstall-binPROGRAMS uninstall-info-am \
+-	uninstall-sbinPROGRAMS
++	clean-generic clean-libtool clean-noinstLTLIBRARIES \
++	clean-sbinPROGRAMS distclean distclean-compile distclean-depend \
++	distclean-generic distclean-libtool distclean-tags distdir dvi \
++	dvi-am info info-am install install-am install-binPROGRAMS \
++	install-data install-data-am install-exec install-exec-am \
++	install-info install-info-am install-man install-sbinPROGRAMS \
++	install-strip installcheck installcheck-am installdirs \
++	maintainer-clean maintainer-clean-generic mostlyclean \
++	mostlyclean-compile mostlyclean-generic mostlyclean-libtool \
++	tags uninstall uninstall-am uninstall-binPROGRAMS \
++	uninstall-info-am uninstall-sbinPROGRAMS
+ 
+ # Tell versions [3.59,3.63) of GNU make to not export all variables.
+ # Otherwise a system limit (for SysV at least) may be exceeded.
