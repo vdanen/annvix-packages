@@ -1,6 +1,6 @@
 %define name	php-%{modname}_bundle
 %define version	%{phpversion}
-%define release	2avx
+%define release	1avx
 
 %define phpsource	%{_prefix}/src/php-devel
 %define _docdir		%{_datadir}/doc/%{name}-%{version}
@@ -11,8 +11,6 @@
 %define dirname		%{modname}
 %define soname		%{modname}.so
 %define inifile		16_%{modname}.ini
-%define rlibs		libgdbm2 libdb4.1
-%define blibs		gdbm-devel db4-devel
 
 
 Summary:	The %{realname} module for PHP
@@ -25,12 +23,11 @@ URL:		http://www.php.net
 
 BuildRoot:	%{_tmppath}/%{name}-root
 BuildRequires:  php%{libversion}-devel
-BuildRequires:	%{blibs}
+BuildRequires:	gdbm-devel db4-devel
 
 Requires:	php%{libversion}
 Provides:       php-dba_gdbm_db2 php-cdb php-db2 php-db3 php-db3 php-db4
 Obsoletes:      php-dba_gdbm_db2 php-cdb php-db2 php-db3 php-db3 php-db4
-Provides: 	ADVXpackage
 
 %description
 The %{name} package is a dynamic shared object (DSO) that adds
@@ -54,7 +51,7 @@ cd %{dirname}
 #	-DDBA_GDBM -DDBA_DB3 -DDB3_INCLUDE_FILE -DDBA_CDB"
 
 phpize
-%configure \
+%configure2_5x \
     --with-gdbm \
     --with-db4 \
     --with-cdb \
@@ -64,27 +61,23 @@ phpize
 %make
 mv modules/*.so .
 
-#########################################################
-## Nothing to be changed after this, except changelog! ##
-#########################################################
-
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 cd %{dirname}
 
 install -d %{buildroot}%{phpdir}/extensions
 install -d %{buildroot}%{_docdir}
-install -d %{buildroot}%{_sysconfdir}/php
+install -d %{buildroot}%{_sysconfdir}/php.d
 
 install -m755 %{soname} %{buildroot}%{phpdir}/extensions/
 
 cat > %{buildroot}%{_docdir}/README <<EOF
 The %{name} package contains a dynamic shared object (DSO) for PHP. 
-To activate it, make sure a file /etc/php/%{inifile} is present and
+To activate it, make sure a file /etc/php.d/%{inifile} is present and
 contains the line 'extension = %{soname}'.
 EOF
 
-cat > %{buildroot}%{_sysconfdir}/php/%{inifile} << EOF
+cat > %{buildroot}%{_sysconfdir}/php.d/%{inifile} << EOF
 extension = %{soname}
 EOF
 
@@ -94,11 +87,19 @@ EOF
 
 %files 
 %defattr(-,root,root)
+%doc %dir %{_docdir}
 %doc %{_docdir}/README
 %{phpdir}/extensions/%{soname}
-%config(noreplace) %{_sysconfdir}/php/%{inifile}
+%config(noreplace) %{_sysconfdir}/php.d/%{inifile}
 
 %changelog
+* Wed Jul 14 2004 Vincent Danen <vdanen@annvix.org> 4.3.8-1avx
+- php 4.3.8
+- remove ADVXpackage provides
+- use the %%configure2_5x macro (oden)
+- move scandir to /etc/php.d
+- own docdir
+
 * Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 4.3.7-2avx
 - Annvix build
 
