@@ -1,6 +1,6 @@
 %define name	m4
 %define version 1.4ppre2
-%define release 6sls
+%define release 7avx
 
 Summary:	The GNU macro processor.
 Name:		%{name}
@@ -14,7 +14,7 @@ Patch:		m4-1.4-glibc.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-buildroot
 
-Prereq:		/sbin/install-info
+Prereq:		info-install
 
 %description
 A GNU implementation of the traditional UNIX macro processor.  M4 is
@@ -63,6 +63,10 @@ fi
 %{_infodir}/*
 
 %changelog
+* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 1.4ppre2-7avx
+- require packages not files
+- Annvix build
+
 * Sat Mar 06 2004 Vincent Danen <vdanen@opensls.org> 1.4ppre2-6sls
 - minor spec cleanups
 

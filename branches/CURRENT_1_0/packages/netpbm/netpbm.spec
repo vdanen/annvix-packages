@@ -1,6 +1,6 @@
 %define name	netpbm
 %define version 9.24
-%define release 9sls
+%define release 10avx
 
 %define major			9
 %define libname	%mklibname	%{name} %{major}
@@ -25,7 +25,7 @@ Patch3:		netpbm-9.24-security-ac.patch
 Patch4:		netpbm-9.24-lib64.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-root
-BuildRequires:	flex, png-devel, jpeg-devel, tiff-devel, /usr/bin/perl
+BuildRequires:	flex, png-devel, jpeg-devel, tiff-devel, perl
 
 Requires:	%{libname} = %version-%release
 Obsoletes:	libgr-progs, libgr1-progs
@@ -212,6 +212,10 @@ perl -pi -e 's^/bin/perl^%{__perl}^' %buildroot/%{_bindir}/{ppmfade,ppmshadow}
 
 
 %changelog
+* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 9.24-10avx
+- require packages not files
+- Annvix build
+
 * Sun Mar 07 2004 Vincent Danen <vdanen@opensls.org> 9.24-9sls
 - minor spec cleanups
 

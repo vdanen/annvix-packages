@@ -1,6 +1,6 @@
 %define name	makedev
 %define version	4.1
-%define release 3sls
+%define release 4avx
 
 # synced with rh-3.3.1-1
 
@@ -20,7 +20,7 @@ Source:		%name-%version.tar.bz2
 BuildRoot:	%_tmppath/%name-root
 BuildArch:	noarch
 
-Prereq:		/usr/sbin/groupadd, /usr/sbin/useradd, sed, coreutils, mktemp
+Prereq:		shadow-utils, sed, coreutils, mktemp
 Requires:	bash, perl-base
 Provides:	dev, MAKEDEV
 Obsoletes:	dev, MAKEDEV
@@ -125,6 +125,10 @@ fi
 %dir %devrootdir
 
 %changelog
+* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 4.1-4avx
+- require packages not files
+- Annvix build
+
 * Sat Mar 06 2004 Vincent Danen <vdanen@opensls.org> 4.1-3sls
 - minor spec cleanups
 
