@@ -1,6 +1,6 @@
 %define name	%{ap_name}-%{mod_name}
 %define version %{ap_version}_%{mod_version}
-%define release 2sls
+%define release 3sls
 
 # Module-Specific definitions
 %define mod_version	2.0
@@ -55,7 +55,7 @@ export PATH="$PATH:/usr/sbin"
 %make CFLAGS="%{optflags}" -f makefile
 
 %install
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %ADVXinstlib
 %ADVXinstconf %{SOURCE1} %{mod_conf}
@@ -65,7 +65,7 @@ install -d %{buildroot}%{_sbindir}
 install -m4755 validate %{buildroot}%{_sbindir}/
 
 %clean
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
 %ADVXpost
@@ -82,6 +82,9 @@ install -m4755 validate %{buildroot}%{_sbindir}/
 %attr(4755,root,root) %{_sbindir}/validate
 
 %changelog
+* Wed Feb 18 2004 Vincent Danen <vdanen@opensls.org> 2.0.48_2.0-3sls
+- small cleanup
+
 * Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 2.0.48_2.0-2sls
 - OpenSLS build
 - tidy spec
