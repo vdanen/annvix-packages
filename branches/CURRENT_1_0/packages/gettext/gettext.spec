@@ -1,10 +1,10 @@
 %define name	gettext
-%define version 0.11.5
-%define release 9sls
+%define version 0.14.1
+%define release 1sls
 
-%define major	2
-%define libver	%{major}.2.0
-%define lib_name %mklibname intl %{major}
+%define major		3
+%define libver		%{major}.4.1
+%define lib_name	%mklibname intl %{major}
 
 Summary:	GNU libraries and utilities for producing multi-lingual messages.
 Name:		%{name}
@@ -13,22 +13,24 @@ Release:	%{release}
 License:	GPL
 Group:		System/Libraries
 URL:		http://www.gnu.org/software/gettext/
-Source:		ftp://ftp.gnu.org/pub/gnu/gettext-%version.tar.bz2
+Source:		%name-%version.tar.bz2
 Source1:	po-mode-init.el
-Patch1:		gettext-0.10.35-jbj.patch.bz2
-Patch4:		gettext-fix-gettextize.patch.bz2
+Patch0:		gettext-0.12.1-libtool-1.5.patch.bz2
 # patch to not issue error messages and warnings with some charset encodings
-# we support in MDK. -- pablo
-Patch5:		gettext-0.11-charsets.patch.bz2
-# patch to avoid a segfault on unknown charsets -- pablo
-Patch6:		gettext-0.11.2-unknowncharset.patch.bz2
-Patch7:		gettext-0.11.5-msgfmt-i18n.patch.bz2	
+# we support -- pablo
+Patch1:		gettext-0.12.1-charsets.patch.bz2
+Patch2:		gettext-0.14.1-amd64-libtool.patch
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
-BuildRequires:	autoconf2.5, bison, texinfo
+BuildRequires:	autoconf2.5, bison, texinfo, automake1.7, flex
 
 Requires:	%{name}-base = %{version}-%{release}
 Requires:	%{lib_name} = %{version}-%{release}
+%ifarch x86_64 amd64
+Requires:	lib64expat0
+%else
+Requires:	libexpat0
+%endif
 
 %description
 The GNU gettext package provides a set of tools and documentation for producing
@@ -48,6 +50,9 @@ into programs that you're developing, you should install gettext.
 Summary:	The dynamic libintl library for the gettext package.
 Group:		System/Libraries
 Provides:	libintl
+# when everything is built against the new gettext:
+#Provides:	libintl2
+#Obsoletes:	libintl2
 
 %description -n %{lib_name}
 This package contains the libintl library for the gettext package.
@@ -56,6 +61,8 @@ This package contains the libintl library for the gettext package.
 Summary:	GNU libraries and utilities for producing multi-lingual messages.
 Group:		Development/Other
 Requires:	%{name} = %{version}-%{release}
+Provides:	devel(libintl)
+PreReq:		/sbin/install-info
 
 %description devel
 Header files, used when the libc does not provide code of handling
@@ -70,50 +77,78 @@ Requires:	%{lib_name} = %{version}-%{release}
 The base package which includes the gettext binary.
 
 %prep
-%setup -q -n gettext-%{version}
-%patch1 -p1 -b .jbj
-perl -p -i -e 's/\ arm-\*/\ arm\*-\*/g' config.sub
-%patch4 -p0
-%patch5 -p1
-# patch to avoid a segfault on unknown encodings -- pablo
-%patch6 -p1
-%patch7 -p1
+%setup -q
+%patch0 -p0 -b .libtool15
+%patch1 -p1 -b .more_charsets
+%patch2 -p1 -b .amd64
+
 # autoconf doesn't like "AC_IN_PATH" to happen in a variable name
-find -type f | xargs perl -pi -e 's/HAVE_JAVAC_IN_PATH/HAVE_JAVA_C_IN_PATH/g'
+# (Abel) don't seen any problem for now
+#find -type f | xargs perl -pi -e 's/HAVE_JAVAC_IN_PATH/HAVE_JAVA_C_IN_PATH/g'
+# needed by patch1
+pushd gettext-runtime
+aclocal-1.7 -I . -I ./m4 -I ../gettext-tools/m4 -I ../config/m4
+WANT_AUTOCONF_2_5=1 autoconf
+automake-1.7
+popd
+# needed by patch2
+pushd gettext-runtime/libasprintf
+aclocal-1.7 -I . -I ../m4 -I ../../gettext-tools/m4 -I ../../config/m4
+WANT_AUTOCONF_2_5=1 autoconf
+automake-1.7
+popd
+
 
 %build
+%define __libtoolize /bin/true
 %configure2_5x --enable-shared --with-included-gettext
-# (gc) #### DO NOT USE #### percent-make or you'll suffer so much that hell would be a pleasure for you
-make
+
+# gettext now assumes automake 1.8 but we ship 1.7
+find -type f | xargs perl -pi -e 's/aclocal-1.8/aclocal-1.7/g'
+find -type f | xargs perl -pi -e 's/automake-1.8/automake-1.7/g'
+
+%make
+
+# success/fail depends on locale?
+#make check
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
-rm -f $RPM_BUILD_ROOT%{_infodir}/dir $RPM_BUILD_ROOT%{_includedir}/libintl.h $RPM_BUILD_ROOT%{_libdir}/gettext/gnu.gettext.*
+
+# fix file permissions
+chmod +x %{buildroot}%{_bindir}/gettext.sh
+
+# remove unwanted files
+rm -f %{buildroot}%{_includedir}/libintl.h \
+      %{buildroot}%{_datadir}/locale/locale.alias \
+      %{buildroot}%{_libdir}/GNU.Gettext.dll
+rm -f gettext-runtime/intl-java/javadoc2/package-list
 
 # remove non-standard lc directories
 for i in en@boldquot en@quot ; do rm -rf $RPM_BUILD_ROOT/%{_datadir}/locale/$i; done
-# 'zh' is in fact 'zh_TW'
-if [ ! -d $RPM_BUILD_ROOT/%{_datadir}/locale/zh_TW ]; then
-	[ -d $RPM_BUILD_ROOT/%{_datadir}/locale/zh ] && \
-		mv $RPM_BUILD_ROOT/%{_datadir}/locale/zh \
-			$RPM_BUILD_ROOT/%{_datadir}/locale/zh_TW
-fi
 
-%find_lang gettext
-
+# move installed doc back to %%doc
+rm -rf htmldoc examples
 mkdir htmldoc
-mv $RPM_BUILD_ROOT/usr/doc/gettext/* htmldoc
+for i in gettext-runtime/man/*.html; do
+  rm -f %{buildroot}%{_datadir}/doc/gettext/`basename $i`
+done
+rm -rf %{buildroot}%{_datadir}/gettext/javadoc*
+mv %{buildroot}%{_datadir}/doc/gettext/* %{buildroot}%{_datadir}/doc/libasprintf/* htmldoc
 
-cd $RPM_BUILD_ROOT
+# move crucial stuff to /lib and /bin
+pushd $RPM_BUILD_ROOT
 mkdir -p bin
 mkdir -p ./%{_lib}
-mv usr/bin/gettext bin
+mv usr/bin/gettext bin/
 ln -s ../../bin/gettext usr/bin/gettext
 mv .%{_libdir}/libintl.so.* ./%{_lib}/
-ln -sf ../../%{_lib}/libintl.so.%{libver} .%{_libdir}/libintl.so
+rm -f .%{_libdir}/libintl.so
+ln -s ../../%{_lib}/libintl.so.%{major} .%{_libdir}/libintl.so
+popd
 
-rm -fr $RPM_BUILD_ROOT/%_datadir/locale/locale.alias
+%find_lang %{name} --all-name
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -130,15 +165,18 @@ rm -fr $RPM_BUILD_ROOT/%_datadir/locale/locale.alias
 
 %files
 %defattr(-,root,root)
-%doc README COPYING ABOUT-NLS AUTHORS BUGS DISCLAIM NEWS THANKS TODO
+%doc README COPYING AUTHORS NEWS THANKS
 %{_bindir}/msg*
 %{_bindir}/xgettext
 %{_bindir}/autopoint
+%{_bindir}/envsubst
+%{_bindir}/gettext.sh
 %{_libdir}/%name/*
 %{_infodir}/gettext*
 %{_mandir}/man1/msg*
 %{_mandir}/man1/xgettext*
 %{_mandir}/man1/autopoint*
+%{_mandir}/man1/envsubst*
 %{_mandir}/man3/*
 
 %files base -f gettext.lang
@@ -153,6 +191,7 @@ rm -fr $RPM_BUILD_ROOT/%_datadir/locale/locale.alias
 %defattr(-,root,root)
 /%{_lib}/lib*.so.*
 %{_libdir}/lib*-*.*.so
+%{_libdir}/lib*.so*
 
 %files devel
 %defattr(-,root,root)
@@ -163,11 +202,32 @@ rm -fr $RPM_BUILD_ROOT/%_datadir/locale/locale.alias
 %{_libdir}/libgettextlib.so
 %{_libdir}/libgettextsrc.so
 %{_libdir}/libintl.so
+%{_libdir}/libasprintf.so
+%{_libdir}/libgettextpo.so
 %{_bindir}/gettextize
 %{_datadir}/gettext
 %{_datadir}/aclocal/*
+%{_includedir}/*
+%{_infodir}/autosprintf*
 
 %changelog
+* Fri Apr 30 2004 Vincent Danen <vdanen@opensls.org> 0.14.1-1sls
+- 0.14.1
+- rename P5 to P1
+- sorta sync with cooker (0.14.1-4mdk):
+  - P0: fix libtool 1.5 DESTDIR issue (abel)
+  - parallel make works now (abel)
+  - bump major to 3 (peroyvind)
+  - Provides: devel(libintl) on -devel pkg (charles)
+  - fix %%_libdir/libintl.so link (tvignaud)
+- fix amd64 compile (thanks gwenole)
+- Requires: lib64expat0 ifarch is amd64
+- hack to make it build with automake 1.7 (we don't ship 1.8)
+- NOTE: should Provides/Obsoletes: libintl2 for smooth upgrade before
+  1.0-RELEASE
+
+- remove P7; LSB is going to accomodate current gettext behaviour
+
 * Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 0.11.5-9sls
 - remove %%build_opensls macro
 - remove %%prefix
