@@ -1,6 +1,6 @@
 %define name	filesystem
 %define version	2.1.4
-%define release	1sls
+%define release	2sls
 
 Summary:	The basic directory layout for a Linux system.
 Name:		%{name}
@@ -79,8 +79,12 @@ tar xfj %{SOURCE0} -C $RPM_BUILD_ROOT
 %attr(775,root,mail) /var/mail
 %attr(1777,root,root) /var/tmp
 /var/yp
+/srv
 
 %changelog
+* Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 2.1.4-2sls
+- include /srv in the package
+
 * Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 2.1.4-1sls
 - 2.1.4: the great FHS cleanup:
   - remove /etc/xinetd.d, /usr/local/games, /usr/games, /var/games,
