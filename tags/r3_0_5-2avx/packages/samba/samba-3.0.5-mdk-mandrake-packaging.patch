@@ -1,0 +1,1257 @@
+--- samba-3.0.5/packaging/Mandrake/samba-3.0.2a-smbldap-config.patch.mdk	2004-08-13 00:15:17.611132092 +0200
++++ samba-3.0.5/packaging/Mandrake/samba-3.0.2a-smbldap-config.patch	2004-08-13 00:15:17.610132068 +0200
+@@ -0,0 +1,84 @@
++--- samba-3.0.2a/examples/LDAP/smbldap-tools/smbldap_conf.pm.orig	2003-12-10 22:59:17.000000000 +0100
+++++ samba-3.0.2a/examples/LDAP/smbldap-tools/smbldap_conf.pm	2004-03-01 22:59:01.535482375 +0100
++@@ -101,22 +101,22 @@
++ 
++ # LDAP Suffix
++ # Ex: $suffix = "dc=IDEALX,dc=ORG";
++-$suffix = "dc=IDEALX,dc=COM";
+++$suffix = "dc=example,dc=com";
++ 
++ 
++ # Where are stored Users
++ # Ex: $usersdn = "ou=Users,$suffix"; for ou=Users,dc=IDEALX,dc=ORG
++-$usersou = q(_USERS_);
+++$usersou = q(People);
++ $usersdn = "ou=$usersou,$suffix";
++ 
++ # Where are stored Computers
++ # Ex: $computersdn = "ou=Computers,$suffix"; for ou=Computers,dc=IDEALX,dc=ORG
++-$computersou = q(_COMPUTERS_);
+++$computersou = q(Hosts);
++ $computersdn = "ou=$computersou,$suffix";
++ 
++ # Where are stored Groups
++ # Ex $groupsdn = "ou=Groups,$suffix"; for ou=Groups,dc=IDEALX,dc=ORG
++-$groupsou = q(_GROUPS_);
+++$groupsou = q(Group);
++ $groupsdn = "ou=$groupsou,$suffix";
++ 
++ # Default scope Used
++@@ -130,7 +130,7 @@
++ ############################
++ # Bind DN used 
++ # Ex: $binddn = "cn=Manager,$suffix"; for cn=Manager,dc=IDEALX,dc=org
++-$binddn = "cn=Manager,$suffix";
+++$binddn = "cn=root,$suffix";
++ 
++ # Bind DN passwd used
++ # Ex: $bindpasswd = 'secret'; for 'secret'
++@@ -153,11 +153,11 @@
++ # Login defs
++ # Default Login Shell
++ # Ex: $_userLoginShell = q(/bin/bash);
++-$_userLoginShell = q(_LOGINSHELL_);
+++$_userLoginShell = q(/bin/bash);
++ 
++ # Home directory prefix (without username)
++ # Ex: $_userHomePrefix = q(/home/);
++-$_userHomePrefix = q(_HOMEPREFIX_);
+++$_userHomePrefix = q(/home);
++ 
++ # Gecos
++ $_userGecos = q(System User);
++@@ -187,19 +187,19 @@
++ # Ex: q(\\\\My-PDC-netbios-name\\homes) for \\My-PDC-netbios-name\homes
++ # Just comment this if you want to use the smb.conf 'logon home' directive
++ # and/or desabling roaming profiles
++-$_userSmbHome = q(\\\\_PDCNAME_\\homes);
+++#$_userSmbHome = q(\\\\_PDCNAME_\\homes);
++ 
++ # The UNC path to profiles locations without the username last extension
++ # (will be dynamically prepended)
++ # Ex: q(\\\\My-PDC-netbios-name\\profiles\\) for \\My-PDC-netbios-name\profiles
++ # Just comment this if you want to use the smb.conf 'logon path' directive
++ # and/or desabling roaming profiles
++-$_userProfile = q(\\\\_PDCNAME_\\profiles\\);
+++#$_userProfile = q(\\\\_PDCNAME_\\profiles\\);
++ 
++ # The default Home Drive Letter mapping
++ # (will be automatically mapped at logon time if home directory exist)
++ # Ex: q(U:) for U:
++-$_userHomeDrive = q(_HOMEDRIVE_);
+++#$_userHomeDrive = q(_HOMEDRIVE_);
++ 
++ # The default user netlogon script name
++ # if not used, will be automatically username.cmd
++@@ -216,7 +216,7 @@
++ # prefer mkntpwd... most of the time, it's a wise choice :-) 
++ $with_smbpasswd = 0;
++ $smbpasswd = "/usr/bin/smbpasswd";
++-$mk_ntpasswd = "/usr/local/sbin/mkntpwd";
+++$mk_ntpasswd = "/usr/sbin/mkntpwd";
++ 
++ # those next externals commands are kept fot the migration scripts and
++ # for the populate script: this will be updated as soon as possible
+--- samba-3.0.5/packaging/Mandrake/samba2.spec.tmpl.mdk	2004-07-20 18:28:19.000000000 +0200
++++ samba-3.0.5/packaging/Mandrake/samba2.spec.tmpl	2004-08-13 01:05:57.878622451 +0200
+@@ -1,4 +1,4 @@
+-# Note that this file exists in Mandrake packaging cvs (as samba3.spec)
++# Note that this file exists in Mandrake packaging cvs (as samba.spec)
+ # and samba cvs (as packaging/Mandrake/samba2.spec.tmpl).
+ # Keep in mind that any changes should take both locations into account
+ # Considerable effort has gone into making this possible, so that only
+@@ -13,9 +13,9 @@
+ # cvs should be submitted for inclusion in samba cvs.
+ 
+ %define pkg_name	samba
+-%define ver 		3.0.1pre3
+-%define rel 		5mdk
+-%define vscanver 	0.3.3beta1
++%define ver 		3.0.5
++%define rel 		2mdk
++%define vscanver 	0.3.5
+ %define libsmbmajor 	0
+ 
+ %{!?lib: %global lib lib}
+@@ -57,12 +57,7 @@
+ %endif
+ 
+ # We now do detection of the Mandrake release we are building on:
+-#%define build_cooker %(if [ `awk '{print $3}' /etc/mandrake-release` = "Cooker" ];then echo 1; else echo 0; fi)
+-#%define build_cooker %(if [[ `cat /etc/mandrake-release|grep Cooker` ]];then echo 1; else echo 0; fi)
+-%define build_mdk100 %(if [ `awk '{print $4}' /etc/mandrake-release` = 10.0 ];then echo 1; else echo 0; fi)
+-%define build_mdk92 %(if [ `awk '{print $4}' /etc/mandrake-release` = 9.2 ];then echo 1; else echo 0; fi)
+-%define build_mdk91 %(if [ `awk '{print $4}' /etc/mandrake-release` = 9.1 ];then echo 1; else echo 0; fi)
+-%define build_mdk90 %(if [ `awk '{print $4}' /etc/mandrake-release` = 9.0 ];then echo 1; else echo 0; fi)
++%{?!mdkversion: %define mdkversion %(perl -pe '/(\d+)\.(\d)\.?(\d)?/; $_="$1$2".($3||0)' /etc/mandrake-release)}
+ %define build_mdk82 %(if [ `awk '{print $4}' /etc/mandrake-release` = 8.2 ];then echo 1; else echo 0; fi)
+ %define build_mdk81 %(if [ `awk '{print $4}' /etc/mandrake-release` = 8.1 ];then echo 1; else echo 0; fi)
+ %define build_mdk80 %(if [ `awk '{print $4}' /etc/mandrake-release` = 8.0 ];then echo 1; else echo 0; fi)
+@@ -84,24 +79,18 @@
+ %define have_rpmhelper	1
+ 
+ # Set defaults for each version
+-%if %build_mdk100
++%if %mdkversion >= 1000
+ %define build_system	1
+-%define build_alternatives	1
+-%define build_cupspc	1
+ %endif
+ 
+-%if %build_mdk92
++%if %mdkversion >= 920
+ %define build_alternatives	1
+-%define build_cupspc	1
+ %endif
+ 
+-%if %build_mdk91
++%if %mdkversion >= 910
+ %define build_cupspc	1
+ %endif
+ 
+-%if %build_mdk90
+-%endif
+-
+ %if %build_mdk82
+ %define have_rpmhelper	0
+ %endif
+@@ -157,24 +146,43 @@
+ %{?_without_ads: %global build_non_default 1}
+ %{?_with_scanners: %global build_scanners 1}
+ %{?_with_scanners: %global build_non_default 1}
++%{?_without_scanners: %global build_scanners 0}
++%{?_without_scanners: %global build_non_default 1}
++%{?_with_vscan: %global build_vscan 1}
++%{?_with_vscan: %global build_non_default 1}
++%{?_without_vscan: %global build_vscan 0}
++%{?_without_vscan: %global build_non_default 1}
+ 
+ # As if that weren't enough, we're going to try building with antivirus
+ # support as an option also
+-%define build_fprot 	0
+-%define build_kaspersky 0
+-%define build_mks 	0
+-%define build_openav	0
+-%define build_sophos 	0
+-%define build_symantec 	0
+-%define build_trend 0
++%global build_clamav 	0
++%global build_fprot 	0
++%global build_fsav 	0
++%global build_icap 	0
++%global build_kaspersky 0
++%global build_mks 	0
++%global build_nai 	0
++%global build_openav	0
++%global build_sophos 	0
++%global build_symantec 	0
++%global build_trend	0
++%if %build_vscan
++# These we build by default
++%global build_clamav 	1
++%global build_icap 	1
++%endif
+ %if %build_vscan && %build_scanners
+-#These can be enabled here by default
+-# (kaspersky requires their library present)
+-%define build_fprot 	1
+-%define build_mks 	1
+-%define build_openav 	1
+-%define build_sophos 	1
+-%define build_trend 	1
++# These scanners are built if scanners are selected
++# symantec requires their library present and must be selected 
++# individually
++%global build_fprot 	1
++%global build_fsav 	1
++%global build_kaspersky 1
++%global build_mks 	1
++%global build_nai 	1
++%global build_openav	1
++%global build_sophos 	1
++%global build_trend 	1
+ %endif
+ %if %build_vscan
+ %{?_with_fprot: %{expand: %%global build_fprot 1}}
+@@ -201,7 +209,7 @@
+ %global serverbin 	editreg,pdbedit,profiles,smbcontrol,smbstatus,tdbbackup,tdbdump
+ %global serversbin nmbd,samba,smbd,mkntpwd
+ 
+-%global clientbin 	findsmb,nmblookup,smbclient,smbmnt,smbmount,smbprint,smbspool,smbtar,smbumount
++%global clientbin 	findsmb,nmblookup,smbclient,smbmnt,smbmount,smbprint,smbspool,smbtar,smbumount,smbget
+ %global client_bin 	mount.cifs
+ %global client_sbin 	mount.smb,mount.smbfs
+ 
+@@ -210,7 +218,7 @@
+ %ifarch alpha
+ %define build_expsam xml
+ %else
+-%define build_expsam mysql,xml
++%define build_expsam mysql,xml,pgsql
+ %endif
+ 
+ #Workaround missing macros in 8.x:
+@@ -263,12 +271,17 @@
+ Source7: README.%{name}-mandrake-rpm
+ %if %build_vscan
+ Source8: samba-vscan-%{vscanver}.tar.bz2
++BuildRequires: libmagic-devel
+ %endif
+ Source10: samba-print-pdf.sh.bz2
++Source11: smb-migrate.bz2
+ Patch1: smbw.patch.bz2
+ Patch4: samba-3.0-smbmount-sbin.patch.bz2
++Patch5:	samba-3.0.2a-smbldap-config.patch.bz2
+ %if !%have_pversion
+ # Version specific patches: current version
++Patch6: samba-3.0.5-mandrake-packaging.patch.bz2
++Patch7: samba-3.0.5-lib64.patch.bz2
+ %else
+ # Version specific patches: upcoming version
+ %endif
+@@ -278,7 +291,7 @@
+ %endif
+ Requires: pam >= 0.64, samba-common = %{version}
+ BuildRequires: pam-devel readline-devel libncurses-devel popt-devel
+-BuildRequires: libxml2-devel
++BuildRequires: libxml2-devel postgresql-devel
+ %ifnarch alpha
+ BuildRequires: mysql-devel
+ %endif
+@@ -571,7 +584,7 @@
+ %package -n %{libname}-devel
+ URL:		http://www.samba.org
+ Summary: 	SMB Client Library Development files
+-Group:		System/Libraries
++Group:		Development/C
+ Provides:	libsmbclient-devel
+ Requires:       %{libname} = %{version}-%{release}
+ 
+@@ -603,7 +616,7 @@
+ 
+ #%package passdb-ldap
+ #URL:		http://www.samba.org
+-#Summary:	Samba password database plugin for MySQL
++#Summary:	Samba password database plugin for LDAP
+ #Group:		System/Libraries
+ #
+ #%description passdb-ldap
+@@ -636,6 +649,27 @@
+ database
+ %endif
+ 
++#does postgresql build on alpha?
++#ifnarch alpha
++%package passdb-pgsql
++URL:		http://www.samba.org
++Summary:	Samba password database plugin for PostgreSQL
++Group:		System/Libraries
++Requires:	%{name}-server = %{version}-%{release}
++#endif
++#ifnarch alpha && %build_system
++%if %build_system
++Obsoletes:	samba3-passdb-pgsql
++Provides:	samba3-passdb-pgsql
++%endif
++#ifnarch alpha
++
++%description passdb-pgsql
++The passdb-pgsql package for samba provides a password database
++backend allowing samba to store account details in a PostgreSQL
++database
++#endif
++
+ %package passdb-xml
+ URL:		http://www.samba.org
+ Summary:	Samba password database plugin for XML files
+@@ -657,25 +691,57 @@
+ %endif
+ 
+ #Antivirus packages:
++%if %build_clamav
++%package vscan-clamav
++Summary: On-access virus scanning for samba using Clam Antivirus
++Group: System/Servers
++Requires: %{name}-server = %{version}
++Provides: %{name}-vscan
++Requires: clamd
++%description vscan-clamav
++A vfs-module for samba to implement on-access scanning using the
++Clam antivirus scanner daemon.
++%endif
++
+ %if %build_fprot
+ %package vscan-fprot
+ Summary: On-access virus scanning for samba using FPROT
+ Group: System/Servers
+ Requires: %{name}-server = %{version}
+ Provides: %{name}-vscan
+-Autoreq: 0
+ %description vscan-fprot
+ A vfs-module for samba to implement on-access scanning using the
+ FPROT antivirus software (which must be installed to use this).
+ %endif
+ 
++%if %build_fsav
++%package vscan-fsecure
++Summary: On-access virus scanning for samba using F-Secure
++Group: System/Servers
++Requires: %{name}-server = %{version}
++Provides: %{name}-vscan
++%description vscan-fsecure
++A vfs-module for samba to implement on-access scanning using the
++F-Secure antivirus software (which must be installed to use this).
++%endif
++
++%if %build_icap
++%package vscan-icap
++Summary: On-access virus scanning for samba using Clam Antivirus
++Group: System/Servers
++Requires: %{name}-server = %{version}
++Provides: %{name}-icap
++%description vscan-icap
++A vfs-module for samba to implement on-access scanning using
++ICAP-capable antivirus software.
++%endif
++
+ %if %build_kaspersky
+ %package vscan-kaspersky
+ Summary: On-access virus scanning for samba using Kaspersky
+ Group: System/Servers
+ Requires: %{name}-server = %{version}
+ Provides: %{name}-vscan
+-Autoreq: 0
+ %description vscan-kaspersky
+ A vfs-module for samba to implement on-access scanning using the
+ Kaspersky antivirus software (which must be installed to use this).
+@@ -687,19 +753,28 @@
+ Group: System/Servers
+ Requires: %{name}-server = %{version}
+ Provides: %{name}-vscan
+-Autoreq: 0
+ %description vscan-mks
+ A vfs-module for samba to implement on-access scanning using the
+ MKS antivirus software (which must be installed to use this).
+ %endif
+ 
++%if %build_nai
++%package vscan-nai
++Summary: On-access virus scanning for samba using NAI McAfee
++Group: System/Servers
++Requires: %{name}-server = %{version}
++Provides: %{name}-vscan
++%description vscan-nai
++A vfs-module for samba to implement on-access scanning using the
++NAI McAfee antivirus software (which must be installed to use this).
++%endif
++
+ %if %build_openav
+ %package vscan-openav
+ Summary: On-access virus scanning for samba using OpenAntivirus
+ Group: System/Servers
+ Requires: %{name}-server = %{version}
+ Provides: %{name}-vscan
+-Autoreq: 0
+ %description vscan-openav
+ A vfs-module for samba to implement on-access scanning using the
+ OpenAntivirus antivirus software (which must be installed to use this).
+@@ -711,7 +786,6 @@
+ Group: System/Servers
+ Requires: %{name}-server = %{version}
+ Provides: %{name}-vscan
+-Autoreq: 0
+ %description vscan-sophos
+ A vfs-module for samba to implement on-access scanning using the
+ Sophos antivirus software (which must be installed to use this).
+@@ -729,13 +803,13 @@
+ Symantec antivirus software (which must be installed to use this).
+ %endif
+ 
++
+ %if %build_trend
+ %package vscan-trend
+ Summary: On-access virus scanning for samba using Trend
+ Group: System/Servers
+ Requires: %{name}-server = %{version}
+ Provides: %{name}-vscan
+-Autoreq: 0
+ %description vscan-trend
+ A vfs-module for samba to implement on-access scanning using the
+ Trend antivirus software (which must be installed to use this).
+@@ -765,10 +839,11 @@
+ %endif
+ 
+ %if %{?_with_options:1}%{!?_with_options:0} && %build_scanners
+-%{error:--with scanners enables fprot,mks,openav,sophos and trend by default}
++#{error:--with scanners enables the following:%{?build_clamav:clamav,}%{?build_icap:icap,}%{?build_fprot:fprot,}%{?build_mks:mks,}%{?build_openav:openav,}%{?build_sophos:sophos,}%{?build_symantec:symantec,}%{?build_trend:trend}}
++%{error:--with scanners enables the following: clamav,icap,fprot,fsav,mks,nai,openav,sophos,trend}
+ %{error: }
+ %{error:To enable others (requires development libraries for the scanner):}
+-%{error:--with kaspersky     Enable on-access scanning with Kaspersky  - %opt_status %build_kaspersky}
++%{error:--with symantec           Enable on-access scanning with Symantec        - %opt_status %build_symantec}
+ %{error: }
+ %endif
+ 
+@@ -814,9 +889,12 @@
+ #%patch111 -p1
+ %patch1 -p1 -b .smbw
+ %patch4 -p1 -b .sbin
++%patch5 -p1
+ # Version specific patches: current version
+ %if !%have_pversion
+ echo "Applying patches for current version: %{ver}"
++%patch6 -p1 -b .mdk
++%patch7 -p1 -b .lib64
+ %else
+ # Version specific patches: upcoming version
+ echo "Applying patches for new versions: %{pversion}"
+@@ -828,7 +906,7 @@
+ %endif
+ 
+ # Fix quota compilation in glibc>2.3
+-%if %build_mdk91 || %build_mdk92
++%if %mdkversion >= 910 && %mdkversion < 1000
+ #grep "<linux/quota.h>" source/smbd/quotas.c >/dev/null && \
+ perl -pi -e 's@<linux/quota.h>@<sys/quota.h>@' source/smbd/quotas.c
+ %endif
+@@ -841,16 +919,17 @@
+ %if %build_vscan
+ cp -a %{vscandir} %{vfsdir}
+ #fix stupid directory names:
+-mv %{vfsdir}/%{vscandir}/openantivirus %{vfsdir}/%{vscandir}/oav
+-%endif
++#mv %{vfsdir}/%{vscandir}/openantivirus %{vfsdir}/%{vscandir}/oav
+ # Inline replacement of config dir
+-for av in fprot kaspersky mks oav sophos trend; do
+-	[ -e %{vfsdir}/%{vscandir}/$av/vscan-$av.h ] && perl -pi -e \
++for av in clamav fprotd fsav icap kavp mksd mcdaemon oav sophos symantec trend
++ do
++	[ -e %{vfsdir}/%{vscandir}/*/vscan-$av.h ] && perl -pi -e \
+ 	's,^#define PARAMCONF "/etc/samba,#define PARAMCONF "/etc/%{name},' \
+-	%{vfsdir}/%{vscandir}/$av/vscan-$av.h
++	%{vfsdir}/%{vscandir}/*/vscan-$av.h
+ done
+ #Inline edit vscan header:
+-perl -pi -e 's/^# define SAMBA_VERSION_MAJOR 2/# define SAMBA_VERSION_MAJOR 3/g' %{vfsdir}/%{vscandir}/include/vscan-global.h
++perl -pi -e 's/^# define SAMBA_VERSION_MAJOR 2/# define SAMBA_VERSION_MAJOR 3/g;s/# define SAMBA_VERSION_MINOR 2/# define SAMBA_VERSION_MINOR 0/g' %{vfsdir}/%{vscandir}/include/vscan-global.h
++%endif
+ 
+ # Edit some files when not building system samba:
+ %if !%build_system
+@@ -873,17 +952,17 @@
+ (cd source
+ CFLAGS=`echo "$RPM_OPT_FLAGS"|sed -e 's/-g//g'`
+ %if %gcc331
+-#CFLAGS=`echo "$CFLAGS"|sed -e 's/-O2/-Os/g'`
++CFLAGS=`echo "$CFLAGS"|sed -e 's/-O2/-O/g'`
+ %endif
+ # Don't use --with-fhs now, since it overrides libdir, it sets configdir, 
+ # lockdir,piddir logfilebase,privatedir and swatdir
+ %configure      --prefix=%{_prefix} \
+                 --sysconfdir=%{_sysconfdir}/%{name} \
+                 --localstatedir=/var \
+-                --libdir=%{_libdir}/%{name} \
++                --with-libdir=%{_libdir}/%{name} \
+                 --with-privatedir=%{_sysconfdir}/%{name} \
+ 		--with-lockdir=/var/cache/%{name} \
+-		--with-piddir=/var/run/%{name} \
++		--with-piddir=/var/run \
+                 --with-swatdir=%{_datadir}/swat%{samba_major} \
+                 --with-configdir=%{_sysconfdir}/%{name} \
+ 		--with-logfilebase=/var/log/%{name} \
+@@ -917,60 +996,34 @@
+ #                --with-fhs \
+ 
+ #Fix the make file so we don't create debug information on 9.2
+-%if %build_mdk92
++%if %mdkversion == 920
+ perl -pi -e 's/-g //g' Makefile
+ %endif
+ 
+ perl -pi -e 's|-Wl,-rpath,%{_libdir}||g;s|-Wl,-rpath -Wl,%{_libdir}||g' Makefile
+ 
+ make proto_exists
+-%make all libsmbclient smbfilter wins modules %{?_with_test: torture debug2html bin/log2pcap} bin/editreg client/mount.cifs
++%make all libsmbclient smbfilter wins modules %{?_with_test: torture debug3html bin/log2pcap} bin/editreg bin/smbget client/mount.cifs
+ 
+-
+-# Build VFS modules (experimental)
+-#cd ../%vfsdir
+-#_configure	--prefix=%{prefix} \
+-#		--mandir=%{prefix}/share/man
+-#make
+-#make CFLAGS="$RPM_OPT_FLAGS -I../../source -I../../source/include -I../../source/ubiqx \
+-#	-I../../source/smbwrapper -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE"
+ )
+ 
+ # Build mkntpasswd in examples/LDAP/ for smbldaptools
+ make -C examples.bin/LDAP/smbldap-tools/mkntpwd
+ 
+-# Build antivirus vfs objects:
+-%if %build_fprot
++%if %build_vscan
+ echo -e "\n\nBuild antivirus VFS modules\n\n"
+-echo "Building fprot"
+-(cd %{vfsdir}/%{vscandir}/fprot;make)
+-%endif
+-%if %build_kaspersky
+-echo "Building Kaspersky"
+-(cd %{vfsdir}/%{vscandir}/kavp
+-    perl -p -i -e "s|/usr/local/|/usr/|g" Makefile.KAV4
+-    make -f Makefile.KAV4
+-)
+-%endif
+-%if %build_mks
+-echo "Building mks"
+-(cd %{vfsdir}/%{vscandir}/mks;make)
+-%endif
+-%if %build_openav
+-echo "Building OpenAntivirus"
+-(cd %{vfsdir}/%{vscandir}/oav;make)
+-%endif
+-%if %build_sophos
+-echo "building sophos"
+-(cd %{vfsdir}/%{vscandir}/sophos;make)
++pushd %{vfsdir}/%{vscandir}
++%configure
++#sed -i -e 's,openantivirus,oav,g' Makefile
++sed -i -e 's,^\(.*clamd socket name.*=\).*,\1 /var/lib/clamav/clamd.socket,g' clamav/vscan-clamav.conf
++make
++popd
+ %endif
++
++# Build antivirus vfs objects
+ %if %build_symantec
+-echo "Building symantec"
+-(cd %{vfsdir}/%{vscandir}/symantec;make)
+-%endif
+-%if %build_trend
+-echo "Building Trend"
+-(cd %{vfsdir}/%{vscandir}/trend;make)
++echo "Building Symantec"
++make -C %{vfsdir}/%{vscandir} symantec
+ %endif
+ 
+ %install
+@@ -986,9 +1039,9 @@
+ mkdir -p $RPM_BUILD_ROOT%{_libdir}/%{name}/vfs
+ 
+ (cd source
+-make DESTDIR=$RPM_BUILD_ROOT LIBDIR=%{_libdir}/%{name} install installclientlib installmodules)
++make DESTDIR=$RPM_BUILD_ROOT LIBDIR=%{_libdir}/%{name} MANDIR=%{_mandir} install installclientlib installmodules)
+ 
+-install -m755 source/bin/editreg %{buildroot}/%{_bindir}
++install -m755 source/bin/{editreg,smbget} %{buildroot}/%{_bindir}
+ 
+ #need to stay
+ mkdir -p $RPM_BUILD_ROOT/{sbin,bin}
+@@ -1020,23 +1073,10 @@
+ # smbsh forgotten
+ #install -m 755 source/bin/smbsh $RPM_BUILD_ROOT%{_bindir}/
+ 
+-# Install VFS modules
+-#install -m755 %vfsdir/audit.so $RPM_BUILD_ROOT/%{_libdir}/samba/vfs
+-#for i in block recycle
+-#do
+-# install -m755 %vfsdir/$i/$i.so $RPM_BUILD_ROOT/%{_libdir}/samba/vfs
+-#done
+-
+-# Antivirus support:
+-#	mkdir -p $RPM_BUILD_ROOT%{_libdir}/samba/vfs/vscan
+-	for av in fprot kavp mks oav sophos symantec trend; do
+-		if [ -d %{vfsdir}/%{vscandir}/$av -a -e %{vfsdir}/%{vscandir}/$av/vscan-$av*.so ];then
+-			cp %{vfsdir}/%{vscandir}/$av/vscan-$av*.so \
+-				$RPM_BUILD_ROOT%{_libdir}/%{name}/vfs/
+-			cp %{vfsdir}/%{vscandir}/$av/vscan-$av*.conf \
+-				$RPM_BUILD_ROOT%{_sysconfdir}/%{name}
+-		fi
+-	done
++%if %build_vscan
++%makeinstall_std -C %{vfsdir}/%{vscandir}
++install -m 644 %{vfsdir}/%{vscandir}/*/vscan-*.conf %{buildroot}/%{_sysconfdir}/%{name}
++%endif
+ 	
+ #libnss_* not handled by make:
+ # Install the nsswitch library extension file
+@@ -1162,6 +1202,7 @@
+ bzcat %{SOURCE6} > $RPM_BUILD_ROOT%{_miconsdir}/swat%{samba_major}.png
+ 
+ bzcat %{SOURCE10}> $RPM_BUILD_ROOT%{_datadir}/%{name}/scripts/print-pdf
++bzcat %{SOURCE11}> $RPM_BUILD_ROOT%{_datadir}/%{name}/scripts/smb-migrate
+ 
+ # Fix configs when not building system samba:
+ 
+@@ -1184,6 +1225,7 @@
+     fi
+ done		
+ %endif
++rm -f %{buildroot}/sbin/mount.smbfs
+ # Link smbmount to /sbin/mount.smb and /sbin/mount.smbfs
+ #I don't think it's possible for make to do this ...
+ (cd $RPM_BUILD_ROOT/sbin
+@@ -1225,6 +1267,33 @@
+ rm -f %{buildroot}/$i
+ done
+ 
++# (sb) make a smb.conf.clean we can use for the merge, since an existing
++# smb.conf won't get overwritten
++cp $RPM_BUILD_ROOT/%{_sysconfdir}/%{name}/smb.conf $RPM_BUILD_ROOT/%{_datadir}/%{name}/smb.conf.clean
++
++# (sb) leave a README.mdk.conf to explain what has been done
++cat << EOF > $RPM_BUILD_ROOT/%{_datadir}/%{name}/README.mdk.conf
++In order to facilitate upgrading an existing samba install, and merging
++previous configuration data with any new syntax used by samba3, a merge
++script has attempted to combine your local configuration data with the
++new conf file format.  The merged data is in smb.conf, with comments like
++
++	# *** merged from original smb.conf: ***
++
++near the additional entries.  Any local shares should have been appended to
++smb.conf.  A log of what took place should be in: 
++
++	/var/log/samba/smb-migrate.log
++
++A clean samba3 smb.conf is in /usr/share/samba, named smb.conf.clean.
++Your original conf should be /etc/samba/smb.conf.tomerge.
++
++The actual merge script is /usr/share/samba/scripts/smb-migrate.
++
++Questions/issues: sbenedict@mandrakesoft.com
++
++EOF
++
+ %clean
+ rm -rf $RPM_BUILD_ROOT
+ 
+@@ -1273,6 +1342,23 @@
+ # And not loose our machine account SID
+ [ -f %{_sysconfdir}/MACHINE.SID ] && mv -f %{_sysconfdir}/MACHINE.SID %{_sysconfdir}/%{name}/ ||:
+ 
++%triggerpostun common -- samba-common < 3.0.1-3mdk
++# (sb) merge any existing smb.conf with new syntax file
++if [ $1 = 2 ]; then
++	# (sb) save existing smb.conf for merge
++	echo "Upgrade: copy smb.conf to smb.conf.tomerge for merging..."
++	cp -f %{_sysconfdir}/%{name}/smb.conf %{_sysconfdir}/%{name}/smb.conf.tomerge
++	echo "Upgrade: merging previous smb.conf..."
++	if [ -f %{_datadir}/%{name}/smb.conf.clean ]; then
++		cp %{_datadir}/%{name}/smb.conf.clean %{_sysconfdir}/%{name}/smb.conf
++		cp %{_datadir}/%{name}/README.mdk.conf %{_sysconfdir}/%{name}/
++		%{_datadir}/%{name}/scripts/smb-migrate commit
++	fi
++fi
++
++%postun common
++if [ -f %{_sysconfdir}/%{name}/README.mdk.conf ];then rm -f %{_sysconfdir}/%{name}/README.mdk.conf;fi
++
+ %if %build_winbind
+ %post winbind
+ if [ $1 = 1 ]; then
+@@ -1385,23 +1471,14 @@
+ 
+ %files server
+ %defattr(-,root,root)
+-#%attr(-,root,root) /sbin/*
+ %(for i in %{_sbindir}/{%{serversbin}}%{samba_major};do echo $i;done)
+-#%{_sbindir}/%{name}
+-#%{_sbindir}/smbd%{samba_major}
+-#%{_sbindir}/nmbd%{samba_major}
+-#%{_sbindir}/mkntpwd%{samba_major}
+-#%{_sbindir}/wrepld%{samba_major}
+ %(for i in %{_bindir}/{%{serverbin}}%{samba_major};do echo $i;done)
+-#%{_bindir}/smbcontrol%{samba_major}
+-#%{_bindir}/smbstatus%{samba_major}
+-#%{_bindir}/pdbedit%{samba_major}
+-#%{_bindir}/tdbbackup%{samba_major}
+-#%{_bindir}/profiles%{samba_major}
+-#%{_bindir}/editreg%{samba_major}
+ %attr(755,root,root) /%{_lib}/security/pam_smbpass*
+ %dir %{_libdir}/%{name}/vfs
+ %{_libdir}/%{name}/vfs/*.so
++%if %build_vscan
++%exclude %{_libdir}/%{name}/vfs/vscan*.so
++%endif
+ %dir %{_libdir}/%{name}/pdb
+ 
+ %attr(-,root,root) %config(noreplace) %{_sysconfdir}/%{name}/smbusers
+@@ -1410,16 +1487,7 @@
+ %attr(-,root,root) %config(noreplace) %{_sysconfdir}/logrotate.d/%{name}
+ %attr(-,root,root) %config(noreplace) %{_sysconfdir}/pam.d/%{name}
+ #%attr(-,root,root) %config(noreplace) %{_sysconfdir}/%{name}/samba-slapd.include
+-%{_mandir}/man1/smbstatus*.1*
+-%{_mandir}/man5/smbpasswd*.5*
+-%{_mandir}/man7/samba*.7*
+-%{_mandir}/man8/smbd*.8*
+-%{_mandir}/man8/nmbd*.8*
+-%{_mandir}/man8/pdbedit*.8*
+-%{_mandir}/man1/smbcontrol*.1*
+-%{_mandir}/man8/tdbbackup*.8*
+-%{_mandir}/man1/profiles*.1*
+-%{_mandir}/man1/editreg*.1*
++%(for i in %{_mandir}/man?/{%{serverbin},%{serversbin}}%{samba_major}\.[0-9]*;do echo $i|grep -v mkntpwd;done)
+ %attr(775,root,adm) %dir %{_localstatedir}/%{name}/netlogon
+ %attr(755,root,root) %dir %{_localstatedir}/%{name}/profiles
+ %attr(755,root,root) %dir %{_localstatedir}/%{name}/printers
+@@ -1475,6 +1543,8 @@
+ %defattr(-,root,root)
+ %(for i in %{_bindir}/{%{clientbin}}%{alternative_major};do echo $i;done)
+ %(for i in %{_mandir}/man?/{%{clientbin}}%{alternative_major}.?.*;do echo $i|grep -v smbprint;done)
++#xclude %{_mandir}/man?/smbget*
++%{_mandir}/man5/smbgetrc3.5*
+ %ifnarch alpha
+ %(for i in /sbin/{%{client_sbin}}%{alternative_major};do echo $i;done)
+ %attr(4755,root,root) /bin/mount.cifs%{alternative_major}
+@@ -1515,6 +1585,9 @@
+ %{_mandir}/man5/lmhosts*.5*
+ #%{_mandir}/man7/Samba*.7*
+ %dir %{_datadir}/swat%{samba_major}
++%attr(0750,root,adm) %{_datadir}/%{name}/scripts/smb-migrate
++%attr(-,root,root) %{_datadir}/%{name}/smb.conf.clean
++%attr(-,root,root) %{_datadir}/%{name}/README.mdk.conf
+ 
+ %if %build_winbind
+ %files winbind
+@@ -1584,11 +1657,29 @@
+ %{_libdir}/%{name}/pdb/*mysql.so
+ %endif
+ 
++#ifnarch alpha
++%files passdb-pgsql
++%defattr(-,root,root)
++%{_libdir}/%{name}/pdb/*pgsql.so
++#endif
++
+ %files passdb-xml
+ %defattr(-,root,root)
+ %{_libdir}/%{name}/pdb/*xml.so
+ 
+ #Files for antivirus support:
++%if %build_clamav
++%files vscan-clamav
++%defattr(-,root,root)
++%{_libdir}/%{name}/vfs/vscan-clamav.so
++%config(noreplace) %{_sysconfdir}/%{name}/vscan-clamav.conf
++%doc %{vfsdir}/%{vscandir}/INSTALL
++%endif
++%if !%build_clamav && %build_vscan
++%exclude %{_libdir}/%{name}/vfs/vscan-clamav.so
++%exclude %{_sysconfdir}/%{name}/vscan-clamav.conf
++%endif
++
+ %if %build_fprot
+ %files vscan-fprot
+ %defattr(-,root,root)
+@@ -1596,6 +1687,35 @@
+ %config(noreplace) %{_sysconfdir}/%{name}/vscan-fprotd.conf
+ %doc %{vfsdir}/%{vscandir}/INSTALL
+ %endif
++%if !%build_fprot && %build_vscan
++%exclude %{_libdir}/%{name}/vfs/vscan-fprotd.so
++%exclude %{_sysconfdir}/%{name}/vscan-fprotd.conf
++%endif
++
++%if %build_fsav
++%files vscan-fsecure
++%defattr(-,root,root)
++%{_libdir}/%{name}/vfs/vscan-fsav.so
++%config(noreplace) %{_sysconfdir}/%{name}/vscan-fsav.conf
++%doc %{vfsdir}/%{vscandir}/INSTALL
++%endif
++%if !%build_fsav && %build_vscan
++%exclude %{_libdir}/%{name}/vfs/vscan-fsav.so
++%exclude %{_sysconfdir}/%{name}/vscan-fsav.conf
++%endif
++
++%if %build_icap
++%files vscan-icap
++%defattr(-,root,root)
++%{_libdir}/%{name}/vfs/vscan-icap.so
++%config(noreplace) %{_sysconfdir}/%{name}/vscan-icap.conf
++%doc %{vfsdir}/%{vscandir}/INSTALL
++%endif
++%if !%build_icap && %build_vscan
++%exclude %{_libdir}/%{name}/vfs/vscan-icap.so
++%exclude %{_sysconfdir}/%{name}/vscan-icap.conf
++%endif
++
+ 
+ %if %build_kaspersky
+ %files vscan-kaspersky
+@@ -1604,6 +1724,10 @@
+ %config(noreplace) %{_sysconfdir}/%{name}/vscan-kavp.conf
+ %doc %{vfsdir}/%{vscandir}/INSTALL
+ %endif
++%if !%build_kaspersky && %build_vscan
++%exclude %{_libdir}/%{name}/vfs/vscan-kavp.so
++%exclude %{_sysconfdir}/%{name}/vscan-kavp.conf
++%endif
+ 
+ %if %build_mks
+ %files vscan-mks
+@@ -1612,6 +1736,22 @@
+ %config(noreplace) %{_sysconfdir}/%{name}/vscan-mks*.conf
+ %doc %{vfsdir}/%{vscandir}/INSTALL
+ %endif
++%if !%build_mks && %build_vscan
++%exclude %{_libdir}/%{name}/vfs/vscan-mksd.so
++%exclude %{_sysconfdir}/%{name}/vscan-mks*.conf
++%endif
++
++%if %build_nai
++%files vscan-nai
++%defattr(-,root,root)
++%{_libdir}/%{name}/vfs/vscan-mcdaemon.so
++%config(noreplace) %{_sysconfdir}/%{name}/vscan-mcdaemon.conf
++%doc %{vfsdir}/%{vscandir}/INSTALL
++%endif
++%if !%build_nai && %build_vscan
++%exclude %{_libdir}/%{name}/vfs/vscan-mcdaemon.so
++%exclude %{_sysconfdir}/%{name}/vscan-mcdaemon.conf
++%endif
+ 
+ %if %build_openav
+ %files vscan-openav
+@@ -1620,6 +1760,10 @@
+ %config(noreplace) %{_sysconfdir}/%{name}/vscan-oav.conf
+ %doc %{vfsdir}/%{vscandir}/INSTALL
+ %endif
++%if !%build_openav && %build_vscan
++%exclude %{_libdir}/%{name}/vfs/vscan-oav.so
++%exclude %{_sysconfdir}/%{name}/vscan-oav.conf
++%endif
+ 
+ %if %build_sophos
+ %files vscan-sophos
+@@ -1628,6 +1772,10 @@
+ %config(noreplace) %{_sysconfdir}/%{name}/vscan-sophos.conf
+ %doc %{vfsdir}/%{vscandir}/INSTALL
+ %endif
++%if !%build_sophos && %build_vscan
++%exclude %{_libdir}/%{name}/vfs/vscan-sophos.so
++%exclude %{_sysconfdir}/%{name}/vscan-sophos.conf
++%endif
+ 
+ %if %build_symantec
+ %files vscan-symantec
+@@ -1636,6 +1784,9 @@
+ %config(noreplace) %{_sysconfdir}/%{name}/vscan-symantec.conf
+ %doc %{vfsdir}/%{vscandir}/INSTALL
+ %endif
++%if !%build_symantec && %build_vscan
++%exclude %{_sysconfdir}/%{name}/vscan-symantec.conf
++%endif
+ 
+ %if %build_trend
+ %files vscan-trend
+@@ -1644,10 +1795,76 @@
+ %config(noreplace) %{_sysconfdir}/%{name}/vscan-trend.conf
+ %doc %{vfsdir}/%{vscandir}/INSTALL
+ %endif
++%if !%build_trend && %build_vscan
++%exclude %{_libdir}/%{name}/vfs/vscan-trend.so
++%exclude %{_sysconfdir}/%{name}/vscan-trend.conf
++%endif
+ 
+ %exclude %{_mandir}/man1/smbsh*.1*
+ 
+ %changelog
++* Thu Aug 12 2004 Buchan Milne <bgmilne@linux-mandrake.com> 3.0.5-2mdk
++- 3.0.5
++- fix pid file location (#10666)
++- merge amd64 fixes (P7)
++- make pdf printer work again, and other misc fixes to default config
++
++* Sun Jun 20 2004 Oden Eriksson <oeriksson@mandrakesoft.com> 3.0.5-0.pre1.3mdk
++- fix rpm group in libsmbclient0-devel (Goetz Waschk)
++
++* Sat Jun 19 2004 Oden Eriksson <oeriksson@mandrakesoft.com> 3.0.5-0.pre1.2mdk
++- fix deps
++
++* Wed May 26 2004 Buchan Milne <bgmilne@linux-mandrake.com>3.0.5-0.pre1.1mdk
++- fix building without scanners
++- 3.0.5pre1 (and drop patch from CVS)
++
++* Fri May 21 2004 Buchan Milne <bgmilne@linux-mandrake.com> 3.0.4-3mdk
++- re-work scanner support
++
++* Thu May 13 2004 Buchan Milne <bgmilne@linux-mandrake.com> 3.0.4-2mdk
++- 3.0.4
++- Patch for winbind (from samba bug 1315)
++
++* Thu Apr 29 2004 Buchan Milne <bgmilne@linux-mandrake.com> 3.0.2a-4mdk
++- Fix samba-vscan (0.3.5), add clamav and icap, and build scanners by default
++- Fix default vscan-clamav config and add sample config for homes share
++- Add pgsql passdb backend
++
++* Mon Mar 01 2004 Buchan Milne <bgmilne@linux-mandrake.com> 3.0.2a-3mdk
++- Fix default smbldap config
++- Don't clobber smb.conf backup for no reason
++
++* Mon Feb 16 2004 Buchan Milne <bgmilne@linux-mandrake.com> 3.0.2a-2mdk
++- 3.0.2a
++- Only update smb.conf in upgrade from <3.0.1-3mdk (via trigger) and update
++  upgrade script (stew)
++
++* Mon Feb 09 2004 Buchan Milne <bgmilne@linux0mandrake.com> 3.0.2-2mdk
++- 3.0.2
++
++* Mon Feb 02 2004 Buchan Milne <bgmilne@linux-mandrake.com> 3.0.2-0.rc2.1mdk
++- 3.0.2rc2
++
++* Tue Jan  6 2004 Stew Benedict <sbenedict@mandrakesoft.com> 3.0.1-5mdk
++- update migrate script, feedback from Luca Berra
++
++* Mon Jan  5 2004 Stew Benedict <sbenedict@mandrakesoft.com> 3.0.1-4mdk
++- re-enable relaxed CFLAGS to fix broken smbmount, smbclient
++
++* Fri Jan  2 2004 Stew Benedict <sbenedict@mandrakesoft.com> 3.0.1-3mdk
++- add migrate script to merge existing smb.conf
++
++* Fri Dec 19 2003 Buchan Milne <bgmilne@linux-mandrake.com> 3.0.1-2mdk
++- 3.0.1 final
++
++* Thu Dec 11 2003 Buchan Milne <bgmilne@linux-mandrake.com> 3.0.1-0.rc2.2mdk
++- 3.0.1rc2
++
++* Sat Dec 06 2003 Buchan Milne <bgmilne@linux-mandrake.com> 3.0.1-0.rc1.2mdk
++- rc1
++- samba-vscan-0.3.4
++
+ * Fri Dec 05 2003 Buchan Milne <bgmilne@linux-mandrake.com> 3.0.1-0.pre3.5mdk
+ - Allow winbind to start if old winbind ranges are used (ease upgrades)
+ 
+--- samba-3.0.5/packaging/Mandrake/smb-migrate.mdk	2004-08-13 00:15:17.614132163 +0200
++++ samba-3.0.5/packaging/Mandrake/smb-migrate	2004-08-13 00:15:17.614132163 +0200
+@@ -0,0 +1,197 @@
++#!/usr/bin/perl
++
++# migrate old samba2 smb.conf settings to new samba3 setup
++# as well as merge local configuration settings
++# Dec 3 2003 Stew Benedict <sbenedict@mandrakesoft.com>
++# revised Jan 6 2004 - dropping some parameters
++# revised Feb 11 2004 - don't try to process a config a second time
++
++# check command line arguments
++my $numargs = @ARGV;
++if ($numargs lt 1) {
++	print "useage: smb-migrate test|test-commit|commit\n";
++	exit(1);
++}
++
++# define some variables
++my $user_parms = 0;
++my $new_conf_file = "/etc/samba/smb.conf";
++my @new_conf;
++my $merged_conf_file = "/etc/samba/smb.conf";
++my $merge_comment = "# *** merged from original smb.conf: ***\n";
++my $uncomment_comment = "# *** uncommented from original smb.conf: ***\n";
++my $unique_comment = "# *** unique added from original smb.conf: ***\n";
++my @merge_log;
++my $log_file = "/var/log/samba/smb-migrate.log";
++my $to_merge = "/etc/samba/smb.conf.tomerge";
++
++if ($ARGV[0] eq "test" || $ARGV[0] eq "test-commit") {
++	$to_merge = "smb.conf"; 
++	$log_file = "smb-migrate.log";
++	$merged_conf_file = "smb.conf.merged";
++}
++
++# if the file has already been processed, don't do it again
++my $processed = `grep -c 'original smb.conf: ***' $to_merge`;
++if ($processed > 0) {
++	`cp $to_merge $new_conf_file`;
++	print "Already processed, aborting.\n";	
++	exit 0;
++}
++	
++# get the stripped, uncommented data from old smb.conf
++my @old_conf = `grep -v "^#" $to_merge | grep -v "^;" | grep -v "^\$"` or die;
++
++# use a clean config file as a starting point
++`cp /usr/share/samba/smb.conf.clean $new_conf_file` if $ARGV[0] !~ /test/;
++
++# and the whole new conf file we're going to merge with
++my @new_conf_org = `cat $new_conf_file` or die;
++
++mlog("Data to change/add in standard sections of smb.conf:\n\n");
++
++sub mlog {
++	my (@dstring) = @_;
++	if ($ARGV[0] eq "test") {
++		print "@dstring";
++	} else {
++		push @merge_log, @dstring;
++	}
++}
++
++sub merge_conf {
++	my ($header, $new_value) = @_;
++	my @parmlist = split " = ", $new_value;
++	my $match = 0;
++	my $comment = '';
++	$comment = $unique_comment if $continuation = 0;
++	$continuation = 1;
++	
++	# find the header in question
++	$index = 0;
++	foreach (@new_conf_org) {
++ 		if (/^\[$header\]|;\[$header\]|^; \[$header\]|^\[$header\$\]|;\[$header\$\]|^; \[$header\$\]/) {
++			# restore print$
++			$header = "print" . '$' if $header eq "print";
++			# if the header is commented, remove the comment
++			if (/^;\[|^#\[|^; \[/) {
++				my $entry = $_;
++				@new_conf_org[$index] =~ s/^;|^; |^#//g;
++				mlog("uncomment: $header line $index: $entry -> @new_conf_org[$index]");
++				splice(@new_conf_org, $index, 0, $uncomment_comment);
++				$index++
++			}
++			$start_loc = $index;
++#			print "[$header]: $start_loc\n";
++			last;
++		}
++		$index++
++	}
++	
++	my $elements = @new_conf_org;
++
++	# walk through this header's entries, update as needed
++	for ($i = $start_loc + 1; $i < $elements; $i++) {
++		# if we hit a new header, may be commented - bail out
++		my $is_header = @new_conf_org[$i];
++		$is_header =~ s/^ |\t|\n//;
++		if ($is_header =~ /^\[|;\[|#\[/) { 
++#			print "new header: $is_header at $i\n";
++			if ($match == 0) {
++				# it's possible the parameter is continued across multiple lines
++				$continuation = 0 if  $new_value !~ /\\$/;
++				# completely new entry, try to place it under the correct header
++#				print "new entry for [$header]: $new_value\n";
++				mlog("unique: $header line $last_index: $new_value");
++				splice(@new_conf_org, $last_index + 1, 0, $comment, $new_value);
++				$last_index++;$last_index++;
++			}
++			return;
++		}
++
++		# some syntax changes
++		if ($new_value =~ /winbind/) {
++			$old_value = $new_value; 
++			$new_value =~ s/winbind/idmap/;
++			mlog("syntax: $header: $old_value -> $new_value");
++		}
++
++		# partial match, decide whether to add or replace
++		if (@new_conf_org[$i] =~ /@parmlist[0]/) {
++			if (@new_conf_org[$i] !~ /^;|^#/) {
++				if (@new_conf_org[$i] ne $_) { 
++					mlog("update: $header line $i: @new_conf_org[$i] -> $new_value");
++					@new_conf_org[$i] = ";" . $new_conf_org[$i];
++					splice(@new_conf_org, $i + 1, 0, $merge_comment, $new_value);
++#					$match = 1;
++				}
++				$match = 1;
++			} else {
++				# is it really a definition or just a comment?
++				if (@new_conf_org[$i] =~ / = /) {
++					# commented in new config, add the old entry
++					mlog("add: $header line $i: @new_conf_org[$i] -> $new_value");
++					splice(@new_conf_org, $i + 1, 0, $merge_comment, $new_value);
++					$i++;$i++;
++					$match = 1;
++				}
++			}
++#			$match = 1 if $new_value eq @new_conf_org[$i];
++			$last_index = $i;
++			return if ($match eq 1);
++			$match = 0;
++		}	
++	}
++	return;
++}
++
++foreach (@old_conf) {
++	# check for section headers
++	if (/^\[/) {
++		# standard headers?
++		if (!/^\[global\]|^\[homes\]|^\[netlogon\]|^\[Profiles\]|^\[printers\]|^\[print\$\]|^\[pdf-generator\]/) {
++			# non-standard - add to new config
++			$user_parms = 1;
++			push (@new_conf, $_);
++		} else {
++			$user_parms = 0;
++			chop;
++			$header = $_;
++			s/\[|\]|\$//g;
++			$bare_header = $_;
++		}
++	} else {
++		# non-standard - add to new config
++		if ($user_parms == 1) {
++			push (@new_conf, $_);
++		} else {
++			# now we're working with standard settings
++			# update new config with values if they differ or are commented out
++			# translate any old nomenclature to the new style
++			# may still be some commented lines buried
++			# throw those out and try to merge into new config
++			if (!/^[ ]+#|^[ ]+;|^#|^;/) {
++#				print "$header: $_\n";
++				merge_conf($bare_header, $_);
++			}
++		}
++	}
++}
++
++# write the user config data to new smb.conf
++
++mlog("\nNew data for smb.conf:\n\n");
++mlog("@new_conf");
++
++if ($ARGV[0] eq "commit" || $ARGV[0] eq "test-commit") {
++	local *NEWCONF;
++	open(NEWCONF, "> $merged_conf_file");
++	print NEWCONF @new_conf_org;
++	print NEWCONF @new_conf;
++	close NEWCONF;
++	local *LOGFILE;
++	open(LOGFILE, "> $log_file");
++	print LOGFILE @merge_log;
++	close LOGFILE
++}
++
+--- samba-3.0.5/packaging/Mandrake/smb.conf.mdk	2004-07-20 18:28:19.000000000 +0200
++++ samba-3.0.5/packaging/Mandrake/smb.conf	2004-08-13 00:15:38.218623188 +0200
+@@ -129,10 +129,10 @@
+ # and gid's. winbind uid and winbind gid are the only required parameters.
+ #
+ # winbind uid is the range of uid's winbind can use when mapping RIDs to uid's
+-;  winbind uid = 10000-20000
++;  idmap uid = 10000-20000
+ #
+ # winbind gid is the range of uid's winbind can use when mapping RIDs to gid's
+-;  winbind gid = 10000-20000
++;  idmap gid = 10000-20000
+ #
+ # winbind separator is the character a user must use between their domain
+ # name and username, defaults to "\"
+@@ -263,15 +263,10 @@
+ # Use the samba2 LDAP schema:
+ ; passdb backend = ldapsam_compat:ldaps://ldap.mydomain.com smbpasswd guest
+ 
+-# Idmap settings:
++# Idmap settings (set idmap uid and idmap gid above):
+ # Idmap backend to use:
+ ; idmap backend = ldap:ldap://ldap.mydomain.com
+ 
+-# This is a range of unix user-id's that samba will map non-unix RIDs to,
+-# such as when using Winbind
+-; idmap uid = 10000-20000
+-; idmap gid = 10000-20000
+-  
+ # LDAP configuration for Domain Controlling:
+ # The account (dn) that samba uses to access the LDAP server
+ # This account needs to have write access to the LDAP tree
+@@ -356,12 +351,14 @@
+    comment = Home Directories
+    browseable = no
+    writable = yes
+-# You can enable VFS recycle bin on a per share basis:
+-# Uncomment the next 2 lines (make sure you create a
+-# .recycle folder in the base of the share and ensure
+-# all users will have write access to it. See
+-# examples/VFS/recycle/REAME in samba-doc for details
+-;   vfs object = /usr/lib/samba/vfs/recycle.so
++# You can enable VFS recycle bin and on-access virus-scanning on a per 
++# share basis:
++# Uncomment the next 2 lines (make sure you create a .recycle folder in 
++# the base of the share and ensure all users will have write access to it.
++# For virus scanning, install samba-vscan-clamav and ensure the clamd service
++# is running
++;   vfs objects = vscan-clamav recycle
++;   vscan-clamav: config-file = /etc/samba/vscan-clamav.conf
+ 
+ # Un-comment the following and create the netlogon directory for Domain Logons
+ ; [netlogon]
+@@ -373,7 +370,7 @@
+ #Uncomment the following 2 lines if you would like your login scripts to
+ #be created dynamically by ntlogon (check that you have it in the correct
+ #location (the default of the ntlogon rpm available in contribs)
+-;root preexec = /usr/bin/ntlogon -u %U -g %G -o %a -d /var/lib/samba/netlogon
++;root preexec = /usr/bin/ntlogon -u %U -g %G -o %a -d /var/lib/samba/netlogon/
+ ;root postexec = rm -f /var/lib/samba/netlogon/%U.bat
+ 
+ # Un-comment the following to provide a specific roving profile share
+@@ -382,11 +379,15 @@
+ ;    path = /var/lib/samba/profiles
+ ;    browseable = no
+ ;    guest ok = yes
++;    writable = yes
+ # This script can be enabled to create profile directories on the fly
+ # You may want to turn off guest acces if you enable this, as it
+ # hasn't been thoroughly tested.
+ ;root preexec = PROFILE=/var/lib/samba/profiles/%u; if [ ! -e $PROFILE ]; \
+ ;                then mkdir -pm700 $PROFILE; chown %u.%g $PROFILE;fi
++# If you want read-only profiles, fake permissions so windows clients think
++# they have written to the files
++; vfs objects = fake_perms
+ 
+ # NOTE: If you have a CUPS print system there is no need to 
+ # specifically define each individual printer.
+@@ -445,8 +446,11 @@
+    guest ok = No
+    printable = Yes
+    comment = PDF Generator (only valid users)
++   printing = bsd
++   printcap name = lpstat
+    #print command = /usr/share/samba/scripts/print-pdf file path win_path recipient IP &
+-   print command = /usr/share/samba/scripts/print-pdf %s ~%u //%L/%u %m %I "%J" &
++   print command = /usr/share/samba/scripts/print-pdf %s %H //%L/%u %m %I "%J" &
++    lpq command = /bin/true
+ 
+ # This one is useful for people to share files
+ ;[tmp]
+--- samba-3.0.5/packaging/Mandrake/winbind.init.mdk	2004-07-20 18:28:18.000000000 +0200
++++ samba-3.0.5/packaging/Mandrake/winbind.init	2004-08-13 00:15:17.615132187 +0200
+@@ -42,7 +42,7 @@
+ stop() {
+ 	echo -n "Shutting down Winbind services: "
+ 	RETVAL=1
+-	if [ "`grep -i 'winbind uid' /etc/samba/smb.conf | egrep -v [\#\;]`" -a "`grep -i 'idmap gid' /etc/samba/smb.conf | egrep -v [\#\;]`" ]; then
++	if [ "`grep -i -E '(idmap|winbind) uid' /etc/samba/smb.conf | egrep -v [\#\;]`" -a "`grep -i '(idmap|winbind) gid' /etc/samba/smb.conf | egrep -v [\#\;]`" ]; then
+ 		killproc winbindd
+ 		RETVAL=$?
+ 	fi
