@@ -1,12 +1,12 @@
 %define name	exim
-%define version 4.24
-%define release 3sls
+%define version 4.30
+%define release 1sls
 
 %define build_mysql 0
 %define build_pgsql 0
-%define htmldocver  4.20
-%define exiscanver  4.24-13
-%define saversion   cvs-20030813
+%define htmldocver  4.30
+%define exiscanver  4.30-14
+%define saversion   3.1
 
 %define alternatives 1
 %define altpriority  40
@@ -37,7 +37,7 @@ Source9:	exim.pam
 Source10:	ftp://ftp.exim.org/pub/exim/%{name}-%{version}.tar.bz2.sig
 Source11:	http://www.exim.org/ftp/exim4/config.samples.tar.bz2
 Source12:	sa-exim-%{saversion}.tar.gz
-Patch0:		exim-4.24-config.patch.bz2
+Patch0:		exim-4.30-config.patch.bz2
 Patch1:		http://duncanthrax.net/exiscan-acl/exiscan-acl-%{exiscanver}.patch.bz2
 Patch2:		exim-4.22-install.patch.bz2
 PreReq:		rpm-helper
@@ -333,6 +333,13 @@ fi
 %config(noreplace) %{_sysconfdir}/exim/sa-exim_short.conf
 
 %changelog
+* Sat Dec 06 2003 Vincent Danen <vdanen@opensls.org> 4.30-1sls
+- 4.30
+- exiscan-acl 4.30-14
+- 4.30 docs
+- sa-exim 3.1
+- rediff P0
+
 * Sun Nov 30 2003 Vincent Danen <vdanen@opensls.org> 4.24-3sls
 - strip support for old mdk releases
 - exiscan-acl 4.24-13

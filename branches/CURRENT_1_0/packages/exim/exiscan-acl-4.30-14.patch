@@ -1,6 +1,6 @@
-diff -urN exim-4.24-orig/OS/Makefile-Base exim-4.24/OS/Makefile-Base
---- exim-4.24-orig/OS/Makefile-Base	Mon Sep 22 10:29:52 2003
-+++ exim-4.24/OS/Makefile-Base	Mon Sep 29 10:07:15 2003
+diff -urN exim-4.30-orig/OS/Makefile-Base exim-4.30/OS/Makefile-Base
+--- exim-4.30-orig/OS/Makefile-Base	Mon Dec  1 11:15:41 2003
++++ exim-4.30/OS/Makefile-Base	Tue Dec  2 12:15:53 2003
 @@ -247,14 +247,14 @@
  # Targets for final binaries; the main one has a build number which is
  # updated each time. We don't bother with that for the auxiliaries.
@@ -60,14 +60,14 @@ diff -urN exim-4.24-orig/OS/Makefile-Base exim-4.24/OS/Makefile-Base
  tod.o:           $(HDRS) tod.c
  transport.o:     $(HDRS) transport.c
  tree.o:          $(HDRS) tree.c
-diff -urN exim-4.24-orig/README.EXISCAN exim-4.24/README.EXISCAN
---- exim-4.24-orig/README.EXISCAN	Thu Jan  1 01:00:00 1970
-+++ exim-4.24/README.EXISCAN	Mon Sep 29 10:07:15 2003
+diff -urN exim-4.30-orig/README.EXISCAN exim-4.30/README.EXISCAN
+--- exim-4.30-orig/README.EXISCAN	Thu Jan  1 01:00:00 1970
++++ exim-4.30/README.EXISCAN	Tue Dec  2 12:15:53 2003
 @@ -0,0 +1 @@
 +Please refer to doc/exiscan-acl-spec.txt
-diff -urN exim-4.24-orig/doc/exiscan-acl-examples.txt exim-4.24/doc/exiscan-acl-examples.txt
---- exim-4.24-orig/doc/exiscan-acl-examples.txt	Thu Jan  1 01:00:00 1970
-+++ exim-4.24/doc/exiscan-acl-examples.txt	Mon Sep 29 10:07:15 2003
+diff -urN exim-4.30-orig/doc/exiscan-acl-examples.txt exim-4.30/doc/exiscan-acl-examples.txt
+--- exim-4.30-orig/doc/exiscan-acl-examples.txt	Thu Jan  1 01:00:00 1970
++++ exim-4.30/doc/exiscan-acl-examples.txt	Tue Dec  2 12:15:53 2003
 @@ -0,0 +1,440 @@
 +--------------------------------------------------------------
 +exiscan-acl example configurations / FAQ
@@ -509,9 +509,9 @@ diff -urN exim-4.24-orig/doc/exiscan-acl-examples.txt exim-4.24/doc/exiscan-acl-
 +    you do not need to  put that information in a  header, but
 +    rather act on $spam_score_int directly.
 +    
-diff -urN exim-4.24-orig/doc/exiscan-acl-spec.txt exim-4.24/doc/exiscan-acl-spec.txt
---- exim-4.24-orig/doc/exiscan-acl-spec.txt	Thu Jan  1 01:00:00 1970
-+++ exim-4.24/doc/exiscan-acl-spec.txt	Mon Sep 29 10:07:15 2003
+diff -urN exim-4.30-orig/doc/exiscan-acl-spec.txt exim-4.30/doc/exiscan-acl-spec.txt
+--- exim-4.30-orig/doc/exiscan-acl-spec.txt	Thu Jan  1 01:00:00 1970
++++ exim-4.30/doc/exiscan-acl-spec.txt	Tue Dec  2 12:15:53 2003
 @@ -0,0 +1,483 @@
 +--------------------------------------------------------------
 +The exiscan-acl patch for exim4 - Documentation
@@ -996,9 +996,9 @@ diff -urN exim-4.24-orig/doc/exiscan-acl-spec.txt exim-4.24/doc/exiscan-acl-spec
 +--------------------------------------------------------------
 +End of file
 +--------------------------------------------------------------
-diff -urN exim-4.24-orig/exim_monitor/em_globals.c exim-4.24/exim_monitor/em_globals.c
---- exim-4.24-orig/exim_monitor/em_globals.c	Mon Sep 22 10:30:01 2003
-+++ exim-4.24/exim_monitor/em_globals.c	Mon Sep 29 10:07:15 2003
+diff -urN exim-4.30-orig/exim_monitor/em_globals.c exim-4.30/exim_monitor/em_globals.c
+--- exim-4.30-orig/exim_monitor/em_globals.c	Mon Dec  1 11:15:41 2003
++++ exim-4.30/exim_monitor/em_globals.c	Tue Dec  2 12:15:53 2003
 @@ -126,6 +126,8 @@
  BOOL    deliver_manual_thaw    = FALSE;
  BOOL    dont_deliver           = FALSE;
@@ -1016,10 +1016,10 @@ diff -urN exim-4.24-orig/exim_monitor/em_globals.c exim-4.24/exim_monitor/em_glo
  BOOL    log_timezone           = FALSE;
  int     message_age            = 0;
  uschar *message_id;
-diff -urN exim-4.24-orig/scripts/MakeLinks exim-4.24/scripts/MakeLinks
---- exim-4.24-orig/scripts/MakeLinks	Mon Sep 22 10:29:54 2003
-+++ exim-4.24/scripts/MakeLinks	Mon Sep 29 10:07:15 2003
-@@ -168,6 +168,7 @@
+diff -urN exim-4.30-orig/scripts/MakeLinks exim-4.30/scripts/MakeLinks
+--- exim-4.30-orig/scripts/MakeLinks	Mon Dec  1 11:15:41 2003
++++ exim-4.30/scripts/MakeLinks	Tue Dec  2 12:15:53 2003
+@@ -172,6 +172,7 @@
  
  ln -s ../src/dbfunctions.h     dbfunctions.h
  ln -s ../src/dbstuff.h         dbstuff.h
@@ -1027,7 +1027,7 @@ diff -urN exim-4.24-orig/scripts/MakeLinks exim-4.24/scripts/MakeLinks
  ln -s ../src/exim.h            exim.h
  ln -s ../src/functions.h       functions.h
  ln -s ../src/globals.h         globals.h
-@@ -175,8 +176,10 @@
+@@ -179,8 +180,10 @@
  ln -s ../src/macros.h          macros.h
  ln -s ../src/mytypes.h         mytypes.h
  ln -s ../src/osfunctions.h     osfunctions.h
@@ -1038,7 +1038,7 @@ diff -urN exim-4.24-orig/scripts/MakeLinks exim-4.24/scripts/MakeLinks
  
  ln -s ../src/acl.c             acl.c
  ln -s ../src/buildconfig.c     buildconfig.c
-@@ -186,6 +189,7 @@
+@@ -190,6 +193,7 @@
  ln -s ../src/dbfn.c            dbfn.c
  ln -s ../src/debug.c           debug.c
  ln -s ../src/deliver.c         deliver.c
@@ -1046,7 +1046,7 @@ diff -urN exim-4.24-orig/scripts/MakeLinks exim-4.24/scripts/MakeLinks
  ln -s ../src/directory.c       directory.c
  ln -s ../src/dns.c             dns.c
  ln -s ../src/drtables.c        drtables.c
-@@ -204,6 +208,7 @@
+@@ -208,6 +212,7 @@
  ln -s ../src/ip.c              ip.c
  ln -s ../src/log.c             log.c
  ln -s ../src/lss.c             lss.c
@@ -1054,7 +1054,7 @@ diff -urN exim-4.24-orig/scripts/MakeLinks exim-4.24/scripts/MakeLinks
  ln -s ../src/match.c           match.c
  ln -s ../src/moan.c            moan.c
  ln -s ../src/parse.c           parse.c
-@@ -212,6 +217,7 @@
+@@ -216,6 +221,7 @@
  ln -s ../src/rda.c             rda.c
  ln -s ../src/readconf.c        readconf.c
  ln -s ../src/receive.c         receive.c
@@ -1062,7 +1062,7 @@ diff -urN exim-4.24-orig/scripts/MakeLinks exim-4.24/scripts/MakeLinks
  ln -s ../src/retry.c           retry.c
  ln -s ../src/rewrite.c         rewrite.c
  ln -s ../src/rfc2047.c         rfc2047.c
-@@ -220,13 +226,16 @@
+@@ -224,13 +230,16 @@
  ln -s ../src/sieve.c           sieve.c
  ln -s ../src/smtp_in.c         smtp_in.c
  ln -s ../src/smtp_out.c        smtp_out.c
@@ -1079,9 +1079,9 @@ diff -urN exim-4.24-orig/scripts/MakeLinks exim-4.24/scripts/MakeLinks
  ln -s ../src/tod.c             tod.c
  ln -s ../src/transport.c       transport.c
  ln -s ../src/tree.c            tree.c
-diff -urN exim-4.24-orig/src/acl.c exim-4.24/src/acl.c
---- exim-4.24-orig/src/acl.c	Mon Sep 22 10:29:54 2003
-+++ exim-4.24/src/acl.c	Mon Sep 29 10:07:15 2003
+diff -urN exim-4.30-orig/src/acl.c exim-4.30/src/acl.c
+--- exim-4.30-orig/src/acl.c	Mon Dec  1 11:15:41 2003
++++ exim-4.30/src/acl.c	Wed Dec  3 08:07:24 2003
 @@ -7,6 +7,8 @@
  
  /* Code for handling Access Control Lists (ACLs) */
@@ -1098,27 +1098,26 @@ diff -urN exim-4.24-orig/src/acl.c exim-4.24/src/acl.c
 -enum { ACLC_ACL, ACLC_AUTHENTICATED, ACLC_CONDITION, ACLC_CONTROL, ACLC_DELAY,
 +enum { ACLC_ACL, ACLC_AUTHENTICATED, ACLC_CONDITION, ACLC_CONTROL, ACLC_DELAY, ACLC_DEMIME,
    ACLC_DNSLISTS, ACLC_DOMAINS, ACLC_ENCRYPTED, ACLC_ENDPASS, ACLC_HOSTS,
--  ACLC_LOCAL_PARTS, ACLC_LOG_MESSAGE, ACLC_MESSAGE, ACLC_RECIPIENTS,
--  ACLC_SENDER_DOMAINS, ACLC_SENDERS, ACLC_SET, ACLC_VERIFY };
-+  ACLC_LOCAL_PARTS, ACLC_LOG_MESSAGE, ACLC_MALWARE, ACLC_MESSAGE, ACLC_RECIPIENTS,
-+  ACLC_REGEX, ACLC_SENDER_DOMAINS, ACLC_SENDERS, ACLC_SET, ACLC_SPAM, ACLC_VERIFY };
+-  ACLC_LOCAL_PARTS, ACLC_LOG_MESSAGE, ACLC_LOGWRITE, ACLC_MESSAGE,
+-  ACLC_RECIPIENTS, ACLC_SENDER_DOMAINS, ACLC_SENDERS, ACLC_SET, ACLC_VERIFY };
++  ACLC_LOCAL_PARTS, ACLC_LOG_MESSAGE, ACLC_LOGWRITE, ACLC_MALWARE, ACLC_MESSAGE,
++  ACLC_RECIPIENTS, ACLC_REGEX, ACLC_SENDER_DOMAINS, ACLC_SENDERS, ACLC_SET, ACLC_SPAM, ACLC_VERIFY };
  
  /* ACL conditions/modifiers: "delay", "control", "endpass", "message",
--"log_message", and "set" are modifiers that look like conditions but always
-+"log_message", "set" and "spam" are modifiers that look like conditions but always
- return TRUE. They are used for their side effects. */
+ "log_message", "logwrite", and "set" are modifiers that look like conditions
+ but always return TRUE. They are used for their side effects. */
  
  static uschar *conditions[] = { US"acl", US"authenticated", US"condition",
 -  US"control", US"delay", US"dnslists", US"domains", US"encrypted",
--  US"endpass", US"hosts", US"local_parts", US"log_message", US"message",
--  US"recipients", US"sender_domains", US"senders", US"set", US"verify" };
+-  US"endpass", US"hosts", US"local_parts", US"log_message", US"logwrite",
+-  US"message", US"recipients", US"sender_domains", US"senders", US"set",
 +  US"control", US"delay", US"demime", US"dnslists", US"domains", US"encrypted",
-+  US"endpass", US"hosts", US"local_parts", US"log_message", US"malware", US"message",
-+  US"recipients", US"regex", US"sender_domains", US"senders", US"set", US"spam", US"verify" };
++  US"endpass", US"hosts", US"local_parts", US"log_message", US"logwrite", US"malware",
++  US"message", US"recipients", US"regex", US"sender_domains", US"senders", US"set", US"spam", 
+   US"verify" };
  
  /* Flags to indicate for which conditions /modifiers a string expansion is done
- at the outer level. In the other cases, expansion already occurs in the
-@@ -56,6 +58,7 @@
+@@ -57,6 +59,7 @@
    TRUE,    /* condition */
    TRUE,    /* control */
    TRUE,    /* delay */
@@ -1126,10 +1125,10 @@ diff -urN exim-4.24-orig/src/acl.c exim-4.24/src/acl.c
    TRUE,    /* dnslists */
    FALSE,   /* domains */
    FALSE,   /* encrypted */
-@@ -63,11 +66,14 @@
-   FALSE,   /* hosts */
+@@ -65,11 +68,14 @@
    FALSE,   /* local_parts */
    TRUE,    /* log_message */
+   TRUE,    /* logwrite */
 +  TRUE,    /* malware */
    TRUE,    /* message */
    FALSE,   /* recipients */
@@ -1141,7 +1140,7 @@ diff -urN exim-4.24-orig/src/acl.c exim-4.24/src/acl.c
    TRUE     /* verify */
  };
  
-@@ -79,6 +85,7 @@
+@@ -81,6 +87,7 @@
    FALSE,   /* condition */
    TRUE,    /* control */
    TRUE,    /* delay */
@@ -1149,10 +1148,10 @@ diff -urN exim-4.24-orig/src/acl.c exim-4.24/src/acl.c
    FALSE,   /* dnslists */
    FALSE,   /* domains */
    FALSE,   /* encrypted */
-@@ -86,11 +93,14 @@
-   FALSE,   /* hosts */
+@@ -89,11 +96,14 @@
    FALSE,   /* local_parts */
    TRUE,    /* log_message */
+   TRUE,    /* log_write */
 +  FALSE,   /* malware */
    TRUE,    /* message */
    FALSE,   /* recipients */
@@ -1164,7 +1163,7 @@ diff -urN exim-4.24-orig/src/acl.c exim-4.24/src/acl.c
    FALSE    /* verify */
  };
  
-@@ -110,6 +120,13 @@
+@@ -113,6 +123,13 @@
      (1<<ACL_WHERE_STARTTLS)|(ACL_WHERE_VRFY),
  
    0,                                               /* delay */
@@ -1178,21 +1177,21 @@ diff -urN exim-4.24-orig/src/acl.c exim-4.24/src/acl.c
    (1<<ACL_WHERE_NOTSMTP),                          /* dnslists */
  
    (1<<ACL_WHERE_NOTSMTP)|(1<<ACL_WHERE_AUTH)|      /* domains */
-@@ -134,6 +151,13 @@
-     (1<<ACL_WHERE_VRFY),
+@@ -138,6 +155,13 @@
  
    0,                                               /* log_message */
-+  
+   0,                                               /* logwrite */
++
 +  (1<<ACL_WHERE_NOTSMTP)|(1<<ACL_WHERE_AUTH)|      /* malware */
-+    (1<<ACL_WHERE_CONNECT)|(1<<ACL_WHERE_RCPT)|
-+    (1<<ACL_WHERE_ETRN)|(1<<ACL_WHERE_EXPN)|
-+    (1<<ACL_WHERE_MAIL)|(1<<ACL_WHERE_STARTTLS)|
-+    (1<<ACL_WHERE_VRFY),
++     (1<<ACL_WHERE_CONNECT)|(1<<ACL_WHERE_RCPT)|
++     (1<<ACL_WHERE_ETRN)|(1<<ACL_WHERE_EXPN)|
++     (1<<ACL_WHERE_MAIL)|(1<<ACL_WHERE_STARTTLS)|
++     (1<<ACL_WHERE_VRFY),
 +  
    0,                                               /* message */
  
    (1<<ACL_WHERE_NOTSMTP)|(1<<ACL_WHERE_AUTH)|      /* recipients */
-@@ -144,6 +168,12 @@
+@@ -148,6 +172,12 @@
      (1<<ACL_WHERE_MAIL)|(1<<ACL_WHERE_STARTTLS)|
      (1<<ACL_WHERE_VRFY),
  
@@ -1205,7 +1204,7 @@ diff -urN exim-4.24-orig/src/acl.c exim-4.24/src/acl.c
    (1<<ACL_WHERE_AUTH)|(1<<ACL_WHERE_CONNECT)|      /* sender_domains */
      (1<<ACL_WHERE_HELO)|
      (1<<ACL_WHERE_MAILAUTH)|
-@@ -158,6 +188,12 @@
+@@ -162,6 +192,12 @@
  
    0,                                               /* set */
  
@@ -1218,7 +1217,7 @@ diff -urN exim-4.24-orig/src/acl.c exim-4.24/src/acl.c
    /* Certain types of verify are always allowed, so we let it through
    always and check in the verify function itself */
  
-@@ -1109,6 +1145,10 @@
+@@ -1129,6 +1165,10 @@
        deliver_freeze = TRUE;
        deliver_frozen_at = time(NULL);
        }
@@ -1229,7 +1228,7 @@ diff -urN exim-4.24-orig/src/acl.c exim-4.24/src/acl.c
      else if (Ustrcmp(arg, "queue_only") == 0)
        {
        queue_only_policy = TRUE;
-@@ -1143,6 +1183,23 @@
+@@ -1163,6 +1203,23 @@
      rc = verify_check_dnsbl(&arg);
      break;
  
@@ -1253,7 +1252,7 @@ diff -urN exim-4.24-orig/src/acl.c exim-4.24/src/acl.c
      case ACLC_DOMAINS:
      rc = match_isinlist(addr->domain, &arg, 0, &domainlist_anchor,
        addr->domain_cache, MCL_DOMAIN, TRUE, &deliver_domain_data);
-@@ -1765,6 +1822,10 @@
+@@ -1816,6 +1873,10 @@
  smtp_command_argument = deliver_domain =
    deliver_localpart = deliver_address_data = NULL;
  
@@ -1264,9 +1263,9 @@ diff -urN exim-4.24-orig/src/acl.c exim-4.24/src/acl.c
  /* A DISCARD response is permitted only for message ACLs */
  
  if (rc == DISCARD)
-diff -urN exim-4.24-orig/src/configure.default exim-4.24/src/configure.default
---- exim-4.24-orig/src/configure.default	Mon Sep 22 10:29:55 2003
-+++ exim-4.24/src/configure.default	Mon Sep 29 10:07:15 2003
+diff -urN exim-4.30-orig/src/configure.default exim-4.30/src/configure.default
+--- exim-4.30-orig/src/configure.default	Mon Dec  1 11:15:41 2003
++++ exim-4.30/src/configure.default	Tue Dec  2 12:15:53 2003
 @@ -108,6 +108,25 @@
  
  # You should not change that setting until you understand how ACLs work.
@@ -1346,9 +1345,9 @@ diff -urN exim-4.24-orig/src/configure.default exim-4.24/src/configure.default
  
  ######################################################################
  #                      ROUTERS CONFIGURATION                         #
-diff -urN exim-4.24-orig/src/demime.c exim-4.24/src/demime.c
---- exim-4.24-orig/src/demime.c	Thu Jan  1 01:00:00 1970
-+++ exim-4.24/src/demime.c	Wed Oct 22 10:47:42 2003
+diff -urN exim-4.30-orig/src/demime.c exim-4.30/src/demime.c
+--- exim-4.30-orig/src/demime.c	Thu Jan  1 01:00:00 1970
++++ exim-4.30/src/demime.c	Tue Dec  2 12:15:53 2003
 @@ -0,0 +1,1276 @@
 +/*************************************************
 +*     Exim - an Internet mail transport agent    *
@@ -2626,9 +2625,9 @@ diff -urN exim-4.24-orig/src/demime.c exim-4.24/src/demime.c
 +  return 0;
 +}
 +
-diff -urN exim-4.24-orig/src/demime.h exim-4.24/src/demime.h
---- exim-4.24-orig/src/demime.h	Thu Jan  1 01:00:00 1970
-+++ exim-4.24/src/demime.h	Wed Oct 22 10:47:42 2003
+diff -urN exim-4.30-orig/src/demime.h exim-4.30/src/demime.h
+--- exim-4.30-orig/src/demime.h	Thu Jan  1 01:00:00 1970
++++ exim-4.30/src/demime.h	Tue Dec  2 12:15:53 2003
 @@ -0,0 +1,146 @@
 +/*************************************************
 +*     Exim - an Internet mail transport agent    *
@@ -2776,10 +2775,10 @@ diff -urN exim-4.24-orig/src/demime.h exim-4.24/src/demime.h
 +/* 240 */  16,   17,   18,   19,   20,   21,   22,   23,   24,   25,   26,   27,   28,   29,   30,   31 
 +};
 +
-diff -urN exim-4.24-orig/src/exim.c exim-4.24/src/exim.c
---- exim-4.24-orig/src/exim.c	Mon Sep 22 10:29:55 2003
-+++ exim-4.24/src/exim.c	Mon Sep 29 10:07:16 2003
-@@ -1426,6 +1426,7 @@
+diff -urN exim-4.30-orig/src/exim.c exim-4.30/src/exim.c
+--- exim-4.30-orig/src/exim.c	Mon Dec  1 11:15:41 2003
++++ exim-4.30/src/exim.c	Tue Dec  2 12:15:53 2003
+@@ -1500,6 +1500,7 @@
        printf("%s\n", CS version_copyright);
        version_printed = TRUE;
        show_whats_supported(stdout);
@@ -2787,10 +2786,10 @@ diff -urN exim-4.24-orig/src/exim.c exim-4.24/src/exim.c
        }
  
      else badarg = TRUE;
-diff -urN exim-4.24-orig/src/expand.c exim-4.24/src/expand.c
---- exim-4.24-orig/src/expand.c	Mon Sep 22 10:29:56 2003
-+++ exim-4.24/src/expand.c	Mon Sep 29 10:07:16 2003
-@@ -222,11 +222,14 @@
+diff -urN exim-4.30-orig/src/expand.c exim-4.30/src/expand.c
+--- exim-4.30-orig/src/expand.c	Mon Dec  1 11:15:41 2003
++++ exim-4.30/src/expand.c	Tue Dec  2 19:17:36 2003
+@@ -226,11 +226,14 @@
    { "caller_uid",          vtype_int,         &real_uid },
    { "compile_date",        vtype_stringptr,   &version_date },
    { "compile_number",      vtype_stringptr,   &version_cnumber },
@@ -2805,15 +2804,15 @@ diff -urN exim-4.24-orig/src/expand.c exim-4.24/src/expand.c
    { "home",                vtype_stringptr,   &deliver_home },
    { "host",                vtype_stringptr,   &deliver_host },
    { "host_address",        vtype_stringptr,   &deliver_host_address },
-@@ -245,6 +248,7 @@
-   { "local_part_suffix",   vtype_stringptr,   &deliver_localpart_suffix },
-   { "local_scan_data",     vtype_stringptr,   &local_scan_data },
+@@ -252,6 +255,7 @@
+   { "local_user_uid",      vtype_uid,         &local_user_uid },
    { "localhost_number",    vtype_int,         &host_number },
+   { "mailstore_basename",  vtype_stringptr,   &mailstore_basename },
 +  { "malware_name",        vtype_stringptr,   &malware_name },
    { "message_age",         vtype_int,         &message_age },
    { "message_body",        vtype_msgbody,     &message_body },
    { "message_body_end",    vtype_msgbody_end, &message_body_end },
-@@ -279,6 +283,7 @@
+@@ -287,6 +291,7 @@
    { "received_protocol",   vtype_stringptr,   &received_protocol },
    { "recipients",          vtype_recipients,  NULL },
    { "recipients_count",    vtype_int,         &recipients_count },
@@ -2821,7 +2820,7 @@ diff -urN exim-4.24-orig/src/expand.c exim-4.24/src/expand.c
    { "reply_address",       vtype_reply,       NULL },
    { "return_path",         vtype_stringptr,   &return_path },
    { "return_size_limit",   vtype_int,         &bounce_return_size_limit },
-@@ -306,6 +311,10 @@
+@@ -314,6 +319,10 @@
    { "sn7",                 vtype_filter_int,  &filter_sn[7] },
    { "sn8",                 vtype_filter_int,  &filter_sn[8] },
    { "sn9",                 vtype_filter_int,  &filter_sn[9] },
@@ -2832,9 +2831,9 @@ diff -urN exim-4.24-orig/src/expand.c exim-4.24/src/expand.c
    { "spool_directory",     vtype_stringptr,   &spool_directory },
    { "thisaddress",         vtype_stringptr,   &filter_thisaddress },
    { "tls_certificate_verified", vtype_int,    &tls_certificate_verified },
-diff -urN exim-4.24-orig/src/functions.h exim-4.24/src/functions.h
---- exim-4.24-orig/src/functions.h	Mon Sep 22 10:29:56 2003
-+++ exim-4.24/src/functions.h	Mon Sep 29 10:07:16 2003
+diff -urN exim-4.30-orig/src/functions.h exim-4.30/src/functions.h
+--- exim-4.30-orig/src/functions.h	Mon Dec  1 11:15:41 2003
++++ exim-4.30/src/functions.h	Tue Dec  2 12:15:53 2003
 @@ -66,6 +66,7 @@
  extern void    deliver_set_expansions(address_item *);
  extern int     deliver_split_address(address_item *);
@@ -2842,8 +2841,8 @@ diff -urN exim-4.24-orig/src/functions.h exim-4.24/src/functions.h
 +extern int     demime(uschar **);
  extern BOOL    directory_make(uschar *, uschar *, int, BOOL);
  extern dns_address *dns_address_from_rr(dns_answer *, dns_record *);
- extern void    dns_init(BOOL, BOOL);
-@@ -117,6 +118,7 @@
+ extern void    dns_build_reverse(uschar *, uschar *);
+@@ -118,6 +119,7 @@
  
  extern void    log_close_all(void);
  
@@ -2851,7 +2850,7 @@ diff -urN exim-4.24-orig/src/functions.h exim-4.24/src/functions.h
  extern int     match_address_list(uschar *, BOOL, uschar **, unsigned int *,
                   int, int);
  extern int     match_check_list(uschar **, int, tree_node **, unsigned int **,
-@@ -173,6 +175,7 @@
+@@ -174,6 +176,7 @@
  extern BOOL    receive_check_set_sender(uschar *);
  extern BOOL    receive_msg(BOOL);
  extern void    receive_swallow_smtp(void);
@@ -2859,7 +2858,7 @@ diff -urN exim-4.24-orig/src/functions.h exim-4.24/src/functions.h
  extern BOOL    regex_match_and_setup(const pcre *, uschar *, int, int);
  extern const pcre *regex_must_compile(uschar *, BOOL, BOOL);
  extern void    retry_add_item(address_item *, uschar *, int);
-@@ -230,6 +233,8 @@
+@@ -231,6 +234,8 @@
  extern BOOL    smtp_start_session(void);
  extern int     smtp_ungetc(int);
  extern int     smtp_write_command(smtp_outblock *, BOOL, char *, ...);
@@ -2868,7 +2867,7 @@ diff -urN exim-4.24-orig/src/functions.h exim-4.24/src/functions.h
  extern BOOL    spool_move_message(uschar *, uschar *, uschar *, uschar *);
  extern BOOL    spool_open_datafile(uschar *);
  extern int     spool_open_temp(uschar *);
-@@ -280,6 +285,8 @@
+@@ -281,6 +286,8 @@
  extern tree_node *tree_search(tree_node *, uschar *);
  extern void    tree_write(tree_node *, FILE *);
  
@@ -2877,9 +2876,9 @@ diff -urN exim-4.24-orig/src/functions.h exim-4.24/src/functions.h
  extern int     verify_address(address_item *, FILE *, int, int, BOOL *);
  extern int     verify_check_dnsbl(uschar **);
  extern int     verify_check_header_address(uschar **, uschar **, int);
-diff -urN exim-4.24-orig/src/globals.c exim-4.24/src/globals.c
---- exim-4.24-orig/src/globals.c	Mon Sep 22 10:29:56 2003
-+++ exim-4.24/src/globals.c	Mon Sep 29 10:09:07 2003
+diff -urN exim-4.30-orig/src/globals.c exim-4.30/src/globals.c
+--- exim-4.30-orig/src/globals.c	Mon Dec  1 11:15:41 2003
++++ exim-4.30/src/globals.c	Tue Dec  2 19:18:45 2003
 @@ -294,6 +294,7 @@
  uschar *auth_defer_msg         = US"reason not recorded";
  uschar *auth_defer_user_msg    = US"";
@@ -2920,16 +2919,16 @@ diff -urN exim-4.24-orig/src/globals.c exim-4.24/src/globals.c
 +uschar *found_extension        = NULL;
  uid_t   fixed_never_users[]    = { FIXED_NEVER_USERS };
  uschar *freeze_tell            = NULL;
- 
-@@ -585,6 +592,7 @@
- uschar *lookup_value           = NULL;
+ uschar *fudged_queue_times     = US"";
+@@ -591,6 +598,7 @@
  
  macro_item  *macros            = NULL;
+ uschar *mailstore_basename     = NULL;
 +uschar *malware_name           = NULL;
  int     max_username_length    = 0;
  int     message_age            = 0;
  uschar *message_body           = NULL;
-@@ -704,6 +712,7 @@
+@@ -710,6 +718,7 @@
  const pcre *regex_PIPELINING   = NULL;
  const pcre *regex_SIZE         = NULL;
  const pcre *regex_ismsgid      = NULL;
@@ -2937,7 +2936,7 @@ diff -urN exim-4.24-orig/src/globals.c exim-4.24/src/globals.c
  int     remote_delivery_count  = 0;
  int     remote_max_parallel    = 2;
  uschar *remote_sort_domains    = NULL;
-@@ -869,6 +878,11 @@
+@@ -886,6 +895,11 @@
  int     smtp_rlr_threshold     = INT_MAX;
  BOOL    smtp_use_pipelining    = FALSE;
  BOOL    smtp_use_size          = FALSE;
@@ -2949,9 +2948,9 @@ diff -urN exim-4.24-orig/src/globals.c exim-4.24/src/globals.c
  BOOL    split_spool_directory  = FALSE;
  uschar *spool_directory        = US SPOOL_DIRECTORY
  			   "\0<--------------Space to patch spool_directory->";
-diff -urN exim-4.24-orig/src/globals.h exim-4.24/src/globals.h
---- exim-4.24-orig/src/globals.h	Mon Sep 22 10:29:56 2003
-+++ exim-4.24/src/globals.h	Mon Sep 29 10:10:10 2003
+diff -urN exim-4.30-orig/src/globals.h exim-4.30/src/globals.h
+--- exim-4.30-orig/src/globals.h	Mon Dec  1 11:15:41 2003
++++ exim-4.30/src/globals.h	Tue Dec  2 19:19:27 2003
 @@ -135,6 +135,7 @@
  extern uschar *auth_defer_msg;         /* Error message for log */
  extern uschar *auth_defer_user_msg;    /* Error message for user */
@@ -2992,17 +2991,17 @@ diff -urN exim-4.24-orig/src/globals.h exim-4.24/src/globals.h
  extern uid_t   fixed_never_users[];    /* Can't be overridden */
 +extern uschar *found_extension;        /* demime acl condition: file extension found */
  extern uschar *freeze_tell;            /* Message on (some) freezings */
+ extern uschar *fudged_queue_times;     /* For use in test harness */
  
- extern uschar *gecos_name;             /* To be expanded when pattern matches */
-@@ -334,6 +341,7 @@
- extern uschar *lookup_value;           /* Value looked up from file */
+@@ -339,6 +346,7 @@
  
  extern macro_item *macros;             /* Configuration macros */
+ extern uschar *mailstore_basename;     /* For mailstore deliveries */
 +extern uschar *malware_name;           /* Name of virus or malware ("W32/Klez-H") */
  extern int     max_username_length;    /* For systems with broken getpwnam() */
  extern int     message_age;            /* In seconds */
  extern uschar *message_body;           /* Start of message body for filter */
-@@ -437,6 +445,7 @@
+@@ -442,6 +450,7 @@
  extern const pcre  *regex_PIPELINING;  /* For recognizing PIPELINING */
  extern const pcre  *regex_SIZE;        /* For recognizing SIZE settings */
  extern const pcre  *regex_ismsgid;     /* Compiled r.e. for message it */
@@ -3010,7 +3009,7 @@ diff -urN exim-4.24-orig/src/globals.h exim-4.24/src/globals.h
  extern int     remote_delivery_count;  /* Number of remote addresses */
  extern int     remote_max_parallel;    /* Maximum parallel delivery */
  extern uschar *remote_sort_domains;    /* Remote domain sorting order */
-@@ -524,6 +533,11 @@
+@@ -530,6 +539,11 @@
  extern BOOL    smtp_use_pipelining;    /* Global for passed connections */
  extern BOOL    smtp_use_size;          /* Global for passed connections */
  extern BOOL    split_spool_directory;  /* TRUE to use multiple subdirs */
@@ -3022,9 +3021,9 @@ diff -urN exim-4.24-orig/src/globals.h exim-4.24/src/globals.h
  extern uschar *spool_directory;        /* Name of spool directory */
  extern int     string_datestamp_offset;/* After insertion by string_format */
  extern BOOL    strip_excess_angle_brackets; /* Surrounding route-addrs */
-diff -urN exim-4.24-orig/src/malware.c exim-4.24/src/malware.c
---- exim-4.24-orig/src/malware.c	Thu Jan  1 01:00:00 1970
-+++ exim-4.24/src/malware.c	Mon Oct  6 16:22:54 2003
+diff -urN exim-4.30-orig/src/malware.c exim-4.30/src/malware.c
+--- exim-4.30-orig/src/malware.c	Thu Jan  1 01:00:00 1970
++++ exim-4.30/src/malware.c	Tue Dec  2 12:15:53 2003
 @@ -0,0 +1,1181 @@
 +/*************************************************
 +*     Exim - an Internet mail transport agent    *
@@ -4207,9 +4206,9 @@ diff -urN exim-4.24-orig/src/malware.c exim-4.24/src/malware.c
 +  close (sock);
 +  return OK;
 +}
-diff -urN exim-4.24-orig/src/readconf.c exim-4.24/src/readconf.c
---- exim-4.24-orig/src/readconf.c	Mon Sep 22 10:29:58 2003
-+++ exim-4.24/src/readconf.c	Mon Sep 29 10:07:16 2003
+diff -urN exim-4.30-orig/src/readconf.c exim-4.30/src/readconf.c
+--- exim-4.30-orig/src/readconf.c	Mon Dec  1 11:15:41 2003
++++ exim-4.30/src/readconf.c	Tue Dec  2 12:15:53 2003
 @@ -152,6 +152,7 @@
    { "allow_utf8_domains",       opt_bool,        &allow_utf8_domains },
    { "auth_advertise_hosts",     opt_stringptr,   &auth_advertise_hosts },
@@ -4218,7 +4217,7 @@ diff -urN exim-4.24-orig/src/readconf.c exim-4.24/src/readconf.c
    { "bi_command",               opt_stringptr,   &bi_command },
    { "bounce_message_file",      opt_stringptr,   &bounce_message_file },
    { "bounce_message_text",      opt_stringptr,   &bounce_message_text },
-@@ -309,6 +310,7 @@
+@@ -311,6 +312,7 @@
    { "smtp_receive_timeout",     opt_time,        &smtp_receive_timeout },
    { "smtp_reserve_hosts",       opt_stringptr,   &smtp_reserve_hosts },
    { "smtp_return_error_details",opt_bool,        &smtp_return_error_details },
@@ -4226,10 +4225,10 @@ diff -urN exim-4.24-orig/src/readconf.c exim-4.24/src/readconf.c
    { "split_spool_directory",    opt_bool,        &split_spool_directory },
    { "spool_directory",          opt_stringptr,   &spool_directory },
    { "strip_excess_angle_brackets", opt_bool,     &strip_excess_angle_brackets },
-diff -urN exim-4.24-orig/src/receive.c exim-4.24/src/receive.c
---- exim-4.24-orig/src/receive.c	Mon Sep 22 10:29:58 2003
-+++ exim-4.24/src/receive.c	Mon Sep 29 10:07:16 2003
-@@ -2919,12 +2919,31 @@
+diff -urN exim-4.30-orig/src/receive.c exim-4.30/src/receive.c
+--- exim-4.30-orig/src/receive.c	Mon Dec  1 11:15:41 2003
++++ exim-4.30/src/receive.c	Tue Dec  2 12:15:53 2003
+@@ -2978,12 +2978,31 @@
      {
      if (smtp_reply == NULL)
        {
@@ -4263,9 +4262,9 @@ diff -urN exim-4.24-orig/src/receive.c exim-4.24/src/receive.c
      }
  
    /* For batched SMTP, generate an error message on failure, and do
-diff -urN exim-4.24-orig/src/regex.c exim-4.24/src/regex.c
---- exim-4.24-orig/src/regex.c	Thu Jan  1 01:00:00 1970
-+++ exim-4.24/src/regex.c	Mon Sep 29 10:07:16 2003
+diff -urN exim-4.30-orig/src/regex.c exim-4.30/src/regex.c
+--- exim-4.30-orig/src/regex.c	Thu Jan  1 01:00:00 1970
++++ exim-4.30/src/regex.c	Tue Dec  2 12:15:53 2003
 @@ -0,0 +1,110 @@
 +/*************************************************
 +*     Exim - an Internet mail transport agent    *
@@ -4377,10 +4376,10 @@ diff -urN exim-4.24-orig/src/regex.c exim-4.24/src/regex.c
 +  /* no matches ... */
 +  return FAIL;
 +}
-diff -urN exim-4.24-orig/src/smtp_in.c exim-4.24/src/smtp_in.c
---- exim-4.24-orig/src/smtp_in.c	Mon Sep 22 10:29:59 2003
-+++ exim-4.24/src/smtp_in.c	Mon Sep 29 10:07:16 2003
-@@ -776,6 +776,7 @@
+diff -urN exim-4.30-orig/src/smtp_in.c exim-4.30/src/smtp_in.c
+--- exim-4.30-orig/src/smtp_in.c	Mon Dec  1 11:15:41 2003
++++ exim-4.30/src/smtp_in.c	Tue Dec  2 12:15:53 2003
+@@ -790,6 +790,7 @@
  acl_warn_headers = NULL;
  queue_only_policy = FALSE;
  deliver_freeze = FALSE;             /* Can be set by ACL */
@@ -4388,9 +4387,9 @@ diff -urN exim-4.24-orig/src/smtp_in.c exim-4.24/src/smtp_in.c
  sender_address = NULL;
  raw_sender = NULL;                  /* After SMTP rewrite, before qualifying */
  sender_address_unrewritten = NULL;  /* Set only after verify rewrite */
-diff -urN exim-4.24-orig/src/spam.c exim-4.24/src/spam.c
---- exim-4.24-orig/src/spam.c	Thu Jan  1 01:00:00 1970
-+++ exim-4.24/src/spam.c	Mon Sep 29 10:07:16 2003
+diff -urN exim-4.30-orig/src/spam.c exim-4.30/src/spam.c
+--- exim-4.30-orig/src/spam.c	Thu Jan  1 01:00:00 1970
++++ exim-4.30/src/spam.c	Tue Dec  2 12:15:53 2003
 @@ -0,0 +1,265 @@
 +/*************************************************
 +*     Exim - an Internet mail transport agent    *
@@ -4657,9 +4656,9 @@ diff -urN exim-4.24-orig/src/spam.c exim-4.24/src/spam.c
 +    return spam_rc;
 +  };
 +}
-diff -urN exim-4.24-orig/src/spam.h exim-4.24/src/spam.h
---- exim-4.24-orig/src/spam.h	Thu Jan  1 01:00:00 1970
-+++ exim-4.24/src/spam.h	Mon Sep 29 10:07:16 2003
+diff -urN exim-4.30-orig/src/spam.h exim-4.30/src/spam.h
+--- exim-4.30-orig/src/spam.h	Thu Jan  1 01:00:00 1970
++++ exim-4.30/src/spam.h	Tue Dec  2 12:15:53 2003
 @@ -0,0 +1,23 @@
 +/*************************************************
 +*     Exim - an Internet mail transport agent    *
@@ -4684,9 +4683,9 @@ diff -urN exim-4.24-orig/src/spam.h exim-4.24/src/spam.h
 +#define SHUT_WR 1
 +#endif
 +
-diff -urN exim-4.24-orig/src/spool_in.c exim-4.24/src/spool_in.c
---- exim-4.24-orig/src/spool_in.c	Mon Sep 22 10:30:00 2003
-+++ exim-4.24/src/spool_in.c	Mon Sep 29 10:11:53 2003
+diff -urN exim-4.30-orig/src/spool_in.c exim-4.30/src/spool_in.c
+--- exim-4.30-orig/src/spool_in.c	Mon Dec  1 11:15:41 2003
++++ exim-4.30/src/spool_in.c	Tue Dec  2 12:15:53 2003
 @@ -241,6 +241,7 @@
  body_linecount = 0;
  deliver_firsttime = FALSE;
@@ -4703,7 +4702,7 @@ diff -urN exim-4.24-orig/src/spool_in.c exim-4.24/src/spool_in.c
  message_linecount = 0;
  received_protocol = NULL;
  recipients_list = NULL;
-@@ -358,6 +360,8 @@
+@@ -363,6 +365,8 @@
      local_error_message = TRUE;
    else if (Ustrncmp(big_buffer, "-local_scan ", 12) == 0)
      local_scan_data = string_copy(big_buffer + 12);
@@ -4712,9 +4711,9 @@ diff -urN exim-4.24-orig/src/spool_in.c exim-4.24/src/spool_in.c
    else if (Ustrcmp(big_buffer, "-host_lookup_failed") == 0)
      host_lookup_failed = TRUE;
    else if (Ustrncmp(big_buffer, "-body_linecount", 15) == 0)
-diff -urN exim-4.24-orig/src/spool_mbox.c exim-4.24/src/spool_mbox.c
---- exim-4.24-orig/src/spool_mbox.c	Thu Jan  1 01:00:00 1970
-+++ exim-4.24/src/spool_mbox.c	Wed Oct 22 10:19:40 2003
+diff -urN exim-4.30-orig/src/spool_mbox.c exim-4.30/src/spool_mbox.c
+--- exim-4.30-orig/src/spool_mbox.c	Thu Jan  1 01:00:00 1970
++++ exim-4.30/src/spool_mbox.c	Tue Dec  2 12:15:53 2003
 @@ -0,0 +1,159 @@
 +/*************************************************
 +*     Exim - an Internet mail transport agent    *
@@ -4875,9 +4874,9 @@ diff -urN exim-4.24-orig/src/spool_mbox.c exim-4.24/src/spool_mbox.c
 +  	n = rmdir(CS mbox_path);
 +  };
 +}
-diff -urN exim-4.24-orig/src/spool_out.c exim-4.24/src/spool_out.c
---- exim-4.24-orig/src/spool_out.c	Mon Sep 22 10:30:00 2003
-+++ exim-4.24/src/spool_out.c	Mon Sep 29 10:07:16 2003
+diff -urN exim-4.30-orig/src/spool_out.c exim-4.30/src/spool_out.c
+--- exim-4.30-orig/src/spool_out.c	Mon Dec  1 11:15:41 2003
++++ exim-4.30/src/spool_out.c	Tue Dec  2 12:15:53 2003
 @@ -209,6 +209,7 @@
  if (sender_local) fprintf(f, "-local\n");
  if (local_error_message) fprintf(f, "-localerror\n");
@@ -4886,9 +4885,9 @@ diff -urN exim-4.24-orig/src/spool_out.c exim-4.24/src/spool_out.c
  if (deliver_manual_thaw) fprintf(f, "-manual_thaw\n");
  if (sender_set_untrusted) fprintf(f, "-sender_set_untrusted\n");
  
-diff -urN exim-4.24-orig/src/tnef.c exim-4.24/src/tnef.c
---- exim-4.24-orig/src/tnef.c	Thu Jan  1 01:00:00 1970
-+++ exim-4.24/src/tnef.c	Mon Sep 29 10:07:16 2003
+diff -urN exim-4.30-orig/src/tnef.c exim-4.30/src/tnef.c
+--- exim-4.30-orig/src/tnef.c	Thu Jan  1 01:00:00 1970
++++ exim-4.30/src/tnef.c	Tue Dec  2 12:15:53 2003
 @@ -0,0 +1,757 @@
 +/*************************************************
 +*     Exim - an Internet mail transport agent    *
@@ -5647,9 +5646,9 @@ diff -urN exim-4.24-orig/src/tnef.c exim-4.24/src/tnef.c
 +
 +
 +
-diff -urN exim-4.24-orig/src/tnef.h exim-4.24/src/tnef.h
---- exim-4.24-orig/src/tnef.h	Thu Jan  1 01:00:00 1970
-+++ exim-4.24/src/tnef.h	Mon Sep 29 10:07:16 2003
+diff -urN exim-4.30-orig/src/tnef.h exim-4.30/src/tnef.h
+--- exim-4.30-orig/src/tnef.h	Thu Jan  1 01:00:00 1970
++++ exim-4.30/src/tnef.h	Tue Dec  2 12:15:53 2003
 @@ -0,0 +1,1841 @@
 +/*************************************************
 +*     Exim - an Internet mail transport agent    *
@@ -7492,18 +7491,19 @@ diff -urN exim-4.24-orig/src/tnef.h exim-4.24/src/tnef.h
 +
 +
 +#endif  /* MAPITAGS_H */
-diff -urN exim-4.24-orig/src/version.c exim-4.24/src/version.c
---- exim-4.24-orig/src/version.c	Mon Sep 22 10:30:01 2003
-+++ exim-4.24/src/version.c	Mon Oct  6 15:05:16 2003
-@@ -11,6 +11,7 @@
+diff -urN exim-4.30-orig/src/version.c exim-4.30/src/version.c
+--- exim-4.30-orig/src/version.c	Mon Dec  1 11:15:41 2003
++++ exim-4.30/src/version.c	Wed Dec  3 10:37:27 2003
+@@ -11,7 +11,7 @@
  
  
- #define THIS_VERSION  "4.24"
-+#define EXISCAN_VERSION "13"
- 
+ #define THIS_VERSION  "4.30"
+-
++#define EXISCAN_VERSION "14"
  
  /* The header file cnumber.h contains a single line containing the
-@@ -40,6 +41,7 @@
+ compilation number, making it easy to have it updated automatically.
+@@ -40,6 +40,7 @@
  version_cnumber_format = US"%d\0<<eximcnumber>>";
  sprintf(CS version_cnumber, CS version_cnumber_format, cnumber);
  version_string = US THIS_VERSION "\0<<eximversion>>";

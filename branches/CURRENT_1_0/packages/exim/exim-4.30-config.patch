@@ -1,5 +1,5 @@
---- exim-4.24/src/EDITME.config	2003-09-22 02:29:54.000000000 -0600
-+++ exim-4.24/src/EDITME	2003-09-29 18:22:13.000000000 -0600
+--- exim-4.30/src/EDITME.config	2003-12-01 03:15:41.000000000 -0700
++++ exim-4.30/src/EDITME	2003-12-06 14:25:50.000000000 -0700
 @@ -98,7 +98,7 @@
  # /usr/local/sbin. The installation script will try to create this directory,
  # and any superior directories, if they do not exist.
@@ -20,14 +20,14 @@
  # In this case, Exim will use the first of them that exists when it is run.
 @@ -132,7 +132,7 @@
  # owner of a local mailbox.) Specifying these values as root is very strongly
- # discouraged. These values are compiled into the binary.
+ # discouraged.
  
 -EXIM_USER=
 +EXIM_USER=mail
  
- # If the setting of EXIM_USER is numeric (e.g. EXIM_USER=42), there must
- # also be a setting of EXIM_GROUP. If, on the other hand, you use a name
-@@ -192,7 +192,7 @@
+ # If you specify EXIM_USER as a name, this is looked up at build time, and the
+ # uid number is built into the binary. However, you can specify that this
+@@ -206,7 +206,7 @@
  
  # This one is very special-purpose, so is not included by default.
  
@@ -36,7 +36,7 @@
  
  
  #------------------------------------------------------------------------------
-@@ -222,9 +222,9 @@
+@@ -236,9 +236,9 @@
  # MBX, is included only when requested. If you do not know what this is about,
  # leave these settings commented out.
  
@@ -49,7 +49,7 @@
  
  
  #------------------------------------------------------------------------------
-@@ -239,19 +239,19 @@
+@@ -253,17 +253,17 @@
  LOOKUP_DBM=yes
  LOOKUP_LSEARCH=yes
  
@@ -74,12 +74,9 @@
 +LOOKUP_PASSWD=yes
 +LOOKUP_PGSQL=yes
  # LOOKUP_WHOSON=yes
--# LOOKUP_WILDLSEARCH=yes
-+LOOKUP_WILDLSEARCH=yes
- # LOOKUP_NWILDLSEARCH=yes
  
- 
-@@ -264,7 +264,7 @@
+ # These two settings are obsolete; all three lookups are compiled when
+@@ -283,7 +283,7 @@
  # with Solaris 7 onwards. Uncomment whichever of these you are using.
  
  # LDAP_LIB_TYPE=OPENLDAP1
@@ -88,7 +85,7 @@
  # LDAP_LIB_TYPE=NETSCAPE
  # LDAP_LIB_TYPE=SOLARIS
  
-@@ -280,8 +280,8 @@
+@@ -299,8 +299,8 @@
  # specified in INCLUDE. The settings below are just examples; -lpq is for
  # PostgreSQL, -lgds is for Interbase.
  
@@ -99,7 +96,7 @@
  
  #------------------------------------------------------------------------------
  # Compiling the Exim monitor: If you want to compile the Exim monitor, a
-@@ -365,8 +365,8 @@
+@@ -386,8 +386,8 @@
  # included in the Exim binary. You will then need to set up the run time
  # configuration to make use of the mechanism(s) selected.
  
@@ -110,7 +107,7 @@
  # AUTH_SPA=yes
  
  
-@@ -445,10 +445,10 @@
+@@ -466,10 +466,10 @@
  # leave these settings commented out.
  
  # This setting is required for any TLS support (either OpenSSL or GnuTLS)
@@ -123,7 +120,7 @@
  
  # Uncomment these settings if you are using GnuTLS
  # USE_GNUTLS=yes
-@@ -512,7 +512,7 @@
+@@ -533,7 +533,7 @@
  # %s. This will be replaced by one of the strings "main", "panic", or "reject"
  # to form the final file names. Some installations may want something like this:
  
@@ -132,7 +129,7 @@
  
  # which results in files with names /var/log/exim_mainlog, etc. The directory
  # in which the log files are placed must exist; Exim does not try to create
-@@ -588,7 +588,7 @@
+@@ -609,7 +609,7 @@
  # support, which is intended for use in conjunction with the SMTP AUTH
  # facilities, is included only when requested by the following setting:
  
@@ -141,7 +138,7 @@
  
  # You probably need to add -lpam to EXTRALIBS, and in some releases of
  # GNU/Linux -ldl is also needed.
-@@ -642,14 +642,14 @@
+@@ -663,14 +663,14 @@
  # this setting. See the manual section entitled "Use of tcpwrappers" in the
  # chapter on building and installing Exim.
  #
@@ -158,7 +155,7 @@
  #
  # but of course there may need to be other things in CFLAGS and EXTRALIBS_EXIM
  # as well.
-@@ -675,7 +675,7 @@
+@@ -696,7 +696,7 @@
  # aliases). The following setting can be changed to specify a different
  # location for the system alias file.
  
@@ -167,7 +164,7 @@
  
  
  
-@@ -698,8 +698,8 @@
+@@ -719,8 +719,8 @@
  # haven't got Perl, Exim will still build and run; you just won't be able to
  # use those utilities.
  
@@ -178,7 +175,7 @@
  # MV_COMMAND=/bin/mv
  # RM_COMMAND=/bin/rm
  # PERL_COMMAND=/usr/bin/perl
-@@ -896,7 +896,7 @@
+@@ -917,7 +917,7 @@
  # (process id) to a file so that it can easily be identified. The path of the
  # file can be specified here. Some installations may want something like this:
  
@@ -187,7 +184,7 @@
  
  # If PID_FILE_PATH is not defined, Exim writes a file in its spool directory
  # using the name "exim-daemon.pid".
-@@ -931,4 +931,5 @@
+@@ -952,4 +952,5 @@
  
  # SUPPORT_MOVE_FROZEN_MESSAGES=yes
  
