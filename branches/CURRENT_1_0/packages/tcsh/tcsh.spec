@@ -1,6 +1,6 @@
 %define name	tcsh
 %define version	6.12
-%define release	7sls
+%define release	8sls
 
 %define rversion %{version}.00
 
@@ -46,7 +46,7 @@ like syntax.
 %make
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p $RPM_BUILD_ROOT%{_mandir}/man1 $RPM_BUILD_ROOT/bin
 install -s tcsh $RPM_BUILD_ROOT/bin/tcsh
 install -m 644 tcsh.man $RPM_BUILD_ROOT%{_mandir}/man1/tcsh.1
@@ -54,11 +54,11 @@ ln -s tcsh.1 $RPM_BUILD_ROOT%{_mandir}/man1/csh.1
 ln -sf tcsh $RPM_BUILD_ROOT/bin/csh
 nroff -me eight-bit.me > eight-bit.txt
 
-mkdir -p %buildroot/etc/profile.d/
-install %{SOURCE1} %buildroot/etc/profile.d/$(basename %{SOURCE1})
+mkdir -p %buildroot%{_sysconfdir}/profile.d/
+install %{SOURCE1} %buildroot%{_sysconfdir}/profile.d/$(basename %{SOURCE1})
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
 /usr/share/rpm-helper/add-shell %name $1 /bin/csh
@@ -72,11 +72,14 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root)
 %doc NewThings FAQ Fixes eight-bit.txt complete.tcsh
 %doc Ported README* WishList Y2K
-%config(noreplace) /etc/profile.d/*
+%config(noreplace) %{_sysconfdir}/profile.d/*
 /bin/*
 %_mandir/*/*
 
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 6.12-8sls
+- minor spec cleanups
+
 * Tue Dec 30 2003 Vincent Danen <vdanen@opensls.org> 6.12-7sls
 - OpenSLS build
 - tidy spec

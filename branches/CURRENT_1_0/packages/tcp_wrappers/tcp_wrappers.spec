@@ -1,9 +1,6 @@
-# NOTE: This doesn't seem to compile with gcc 3.3.1 so no binary package
-# yet, just the src.rpm until someone can fix it
-
 %define name	tcp_wrappers
 %define version	7.6
-%define release	24sls
+%define release	25sls
 
 Summary: 	A security tool which acts as a wrapper for TCP daemons.
 Name: 		%{name}
@@ -45,7 +42,7 @@ Library and header files for the tcp_wrappers program
 %make  REAL_DAEMON_DIR=%{_sbindir} linux
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p $RPM_BUILD_ROOT/{%{_includedir},%{_libdir},%{_sbindir},%{_mandir}/man3,%{_mandir}/man5,%{_mandir}/man8}
 
 install -m 644 hosts_access.3 $RPM_BUILD_ROOT/%{_mandir}/man3
@@ -70,7 +67,7 @@ install -m 755 try-from $RPM_BUILD_ROOT/%{_sbindir}
 ar d $RPM_BUILD_ROOT/%{_libdir}/libwrap.a setenv.o
 
 %clean
-rm -Rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root,755)
@@ -85,6 +82,9 @@ rm -Rf $RPM_BUILD_ROOT
 %{_libdir}/libwrap.a
 
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 7.6-25sls
+- minor spec cleanups
+
 * Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 7.6-24sls
 - OpenSLS build
 - tidy spec

@@ -1,6 +1,6 @@
 %define name	syslinux
 %define version 1.76
-%define release 11sls
+%define release 12sls
 
 %define old_version	1.67
 %define pxelinux_version 2.06
@@ -63,11 +63,8 @@ make memdisk DATE="OpenSLS"
 make gethostip DATE="OpenSLS"
 
 
-%clean 
-rm -rf $RPM_BUILD_ROOT
-
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p $RPM_BUILD_ROOT%{_bindir}
 
 install -p syslinux-graphic $RPM_BUILD_ROOT%{_bindir}
@@ -96,6 +93,9 @@ install -m 0644 ../%{name}-%{pxelinux_version}/pxelinux.0 $RPM_BUILD_ROOT%{_libd
 install -m 0755 ../%{name}-%{pxelinux_version}/gethostip $RPM_BUILD_ROOT%{_bindir}/gethostip
 install -m 0644 ../%{name}-%{pxelinux_version}/memdisk/memdisk $RPM_BUILD_ROOT%{_libdir}/syslinux/memdisk
 
+%clean
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 %files
 %defattr(-,root,root)
 %doc COPYING NEWS README README.graphic TODO
@@ -104,6 +104,9 @@ install -m 0644 ../%{name}-%{pxelinux_version}/memdisk/memdisk $RPM_BUILD_ROOT%{
 %{_libdir}/*
 
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 1.76-12sls
+- minor spec cleanups
+
 * Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 1.76-11sls
 - OpenSLS build
 - tidy spec

@@ -1,6 +1,6 @@
 %define name	tcltk
 %define version	%{tclvers}
-%define release	2sls
+%define release	3sls
 
 %define tcl_major	8.4
 %define tk_major 	8.4
@@ -331,7 +331,7 @@ cd ../..
 #==========================================
 
 %install
-rm -rf ${RPM_BUILD_ROOT}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p ${RPM_BUILD_ROOT}
 rm -f *.files
 
@@ -584,7 +584,7 @@ perl -pi -e "s|/usr/lib/lib|%{_libdir}/lib|g" $RPM_BUILD_ROOT%{_libdir}/*.sh
 %postun -p /sbin/ldconfig -n tcllib
 
 %clean
-rm -rf ${RPM_BUILD_ROOT}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 rm -f *.files
 
 %files -f tcl.files -n tcl
@@ -596,6 +596,9 @@ rm -f *.files
 %files -f tcllib.files -n tcllib
 
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 8.4.2-3sls
+- minor spec cleanups
+
 * Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 8.4.2-2sls
 - OpenSLS build
 - tidy spec

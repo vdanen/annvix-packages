@@ -1,8 +1,6 @@
 %define name	timeconfig
 %define version	3.2
-%define release	10sls
-
-%{!?build_opensls:%global build_opensls 0}
+%define release	11sls
 
 Summary:	Text mode tools for setting system time parameters.
 Name:		%{name}
@@ -24,9 +22,6 @@ BuildRoot:	%{_tmppath}/%{name}-root
 BuildRequires:	gettext libnewt-devel popt-devel slang-devel
 
 Requires:	initscripts >= 2.81
-%if !%{build_opensls}
-Requires:	usermode-consoleonly
-%endif
 Prereq:		fileutils, gawk
 
 %description
@@ -45,32 +40,12 @@ time stored in the system clock.
 make RPM_OPT_FLAGS="$RPM_OPT_FLAGS"
 
 %install
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 make PREFIX=$RPM_BUILD_ROOT%{_prefix} install
 rm -f $RPM_BUILD_ROOT/usr/lib/zoneinfo
 
 # fix indonesian locale, its language code is 'id' not 'in'.
 mkdir -p $RPM_BUILD_ROOT/usr/share/locale/id/LC_MESSAGES
-
-%if !%{build_opensls}
-#install menu
-mkdir -p $RPM_BUILD_ROOT/%{_menudir}
-install -m644 %{SOURCE1} $RPM_BUILD_ROOT/%{_menudir}/timeconfig
-
-# (fg) 20000915 Icons from LN
-mkdir -p $RPM_BUILD_ROOT/%{_iconsdir}/{large,mini}
-
-install -m644 %{SOURCE2} $RPM_BUILD_ROOT/%{_iconsdir}
-install -m644 %{SOURCE3} $RPM_BUILD_ROOT/%{_miconsdir}/timeconfig.png
-install -m644 %{SOURCE4} $RPM_BUILD_ROOT/%{_liconsdir}/timeconfig.png
-
-# (fg) 20001004 In replacement of kdesu...
-mkdir -p $RPM_BUILD_ROOT/%{_sysconfdir}/{pam.d,security/console.apps}
-
-install -m644 %{SOURCE5} $RPM_BUILD_ROOT/%{_sysconfdir}/pam.d/timeconfig-auth
-install -m644 %{SOURCE6} $RPM_BUILD_ROOT/%{_sysconfdir}/security/console.apps/timeconfig-auth
-
-ln -fs /usr/bin/consolehelper $RPM_BUILD_ROOT/%{_sbindir}/timeconfig-auth
-%endif
 
 # remove unpackaged files
 rm -rf $RPM_BUILD_ROOT%{_mandir}/pt_BR/
@@ -78,7 +53,7 @@ rm -rf $RPM_BUILD_ROOT%{_mandir}/pt_BR/
 %{find_lang} %{name}
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
 if [ -L /etc/localtime ]; then
@@ -92,29 +67,16 @@ if [ -L /etc/localtime ]; then
 	echo "ZONE=\"$_FNAME\"" | sed -e "s|.*/zoneinfo/||" >> /etc/sysconfig/clock
     fi
 fi
-%if !%{build_opensls}
-%{update_menus}
-%endif
-
-%if !%{build_opensls}
-%postun
-%{clean_menus}
-%endif
 
 %files -f %{name}.lang
 %defattr(-,root,root)
 %{_sbindir}/*
 %{_mandir}/man*/*
-%if !%{build_opensls}
-%{_menudir}/timeconfig
-%{_iconsdir}/timeconfig.png
-%{_miconsdir}/timeconfig.png
-%{_liconsdir}/timeconfig.png
-%config(noreplace) %{_sysconfdir}/pam.d/timeconfig-auth
-%config(noreplace) %{_sysconfdir}/security/console.apps/timeconfig-auth
-%endif
 
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 3.2-11sls
+- minor spec cleanups
+
 * Tue Dec 30 2003 Vincent Danen <vdanen@opensls.org> 3.2-10sls
 - remove the console-helper stuff using %%build_opensls
 

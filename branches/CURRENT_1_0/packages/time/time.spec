@@ -1,6 +1,6 @@
 %define name	time
 %define version	1.7
-%define release	26sls
+%define release	27sls
 
 Summary:	A GNU utility for monitoring a program's use of system resources.
 Name:		%{name}
@@ -53,10 +53,11 @@ autoheader
 make LDFLAGS=-s
 
 %install
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
 %{_install_info %name.info}
@@ -71,6 +72,9 @@ rm -rf $RPM_BUILD_ROOT
 %_infodir/time.info*
 
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 1.7-27sls
+- minor spec cleanups
+
 * Mon Dec 01 2003 Vincent Danen <vdanen@opensls.org> 1.7-26sls
 - OpenSLS build
 - tidy spec

@@ -1,6 +1,6 @@
 %define name	texinfo
 %define version	4.6
-%define release	2sls
+%define release	3sls
 
 # rh-4.1-1
 Summary:	Tools needed to create Texinfo format documentation files.
@@ -68,7 +68,7 @@ make -C util LIBS=%{_libdir}/libz.a
 make check
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p $RPM_BUILD_ROOT/{etc,sbin}
 
 %makeinstall
@@ -82,7 +82,7 @@ popd
 %{find_lang} %name
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
 %_install_info %name
@@ -127,6 +127,9 @@ rm -rf $RPM_BUILD_ROOT
 %_mandir/man5/info.5*
 
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 4.6-3sls
+- minor spec cleanups
+
 * Wed Dec 17 2003 Vincent Danen <vdanen@opensls.org> 4.6-2sls
 - OpenSLS build
 - tidy spec

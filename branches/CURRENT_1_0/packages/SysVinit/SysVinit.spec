@@ -1,6 +1,6 @@
 %define name	SysVinit
 %define version 2.85
-%define release 4sls
+%define release 5sls
 %define url	ftp://ftp.cistron.nl/pub/people/miquels/software
 
 Summary:	Programs which control basic system processes.
@@ -63,7 +63,7 @@ cd ..
 make CFLAGS="%optflags -D_GNU_SOURCE" -C src
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 for I in sbin usr/bin %{_mandir}/man{1,3,5,8} etc var/run dev; do
 	mkdir -p $RPM_BUILD_ROOT/$I
 done
@@ -87,7 +87,7 @@ rm -rf	$RPM_BUILD_ROOT/usr/include
 exit 0
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -113,6 +113,9 @@ rm -rf $RPM_BUILD_ROOT
 %ghost /dev/initctl
 
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 2.85-5sls
+- minor spec cleanups
+
 * Fri Feb 06 2004 Vincent Danen <vdanen@opensls.org> 2.85-4sls
 - backout dietlibc support as it seems to cause INIT segfaults every second
   boot (reproducable on 3 different systems)

@@ -1,6 +1,6 @@
 %define name	tar
 %define version	1.13.25
-%define release	12sls
+%define release	13sls
 
 # rh-1.3.25-4
 %define _bindir /bin
@@ -62,7 +62,7 @@ export CFLAGS="$RPM_OPT_FLAGS -DHAVE_STRERROR -D_GNU_SOURCE"
 make check
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %makeinstall
 ln -sf tar $RPM_BUILD_ROOT/bin/gtar
@@ -81,7 +81,7 @@ rm -f $RPM_BUILD_ROOT/%_libdir/rmt
 %_remove_install_info %{name}.info
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files -f %{name}.lang
 %defattr(-,root,root)
@@ -93,6 +93,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 1.13.25-13sls
+- minor spec cleanups
+
 * Mon Dec 01 2003 Vincent Danen <vdanen@opensls.org> 1.13.25-12sls
 - OpenSLS build
 - tidy spec
