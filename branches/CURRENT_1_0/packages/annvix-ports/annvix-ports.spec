@@ -1,15 +1,15 @@
-%define name	opensls-ports
+%define name	annvix-ports
 %define version	1.0
-%define release	2sls
+%define release	3avx
 
 %define _portsprefix /usr/local
 
-Summary:	OpenSLS ports package
+Summary:	Annvix ports package
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	GPL
-URL:		http://opensls.org/
+URL:		http://annvix.org/
 Group:		System/Configuration/Other
 Source0:	README.ports
 Source1:	Makefile.ports
@@ -45,6 +45,9 @@ install -m 0644 %{SOURCE1} %{buildroot}%{_portsprefix}/ports/Makefile
 %{_portsprefix}/ports/Makefile
 
 %changelog
+* Mon Mar 28 2005 Vincent Danen <vdanen@annvix.org> 1.0-3avx
+- Annvix build
+
 * Thu Jun  3 2004 Vincent Danen <vdanen@opensls.org> 1.0-2sls
 - Requires: rpm-build
 
