@@ -1,11 +1,9 @@
 %define module	Tk
 %define name	perl-%{module}
 %define version 800.024
-%define release 5sls
+%define release 6sls
 
 %define _requires_exceptions Watch
-
-%{!?build_opensls:%global build_opensls 0}
 
 Summary:	Tk modules for Perl
 Name:		%{name}
@@ -18,9 +16,6 @@ Source:		ftp://sunsite.doc.ic.ac.uk/packages/CPAN/modules/by-module/Tk/Tk%{versi
 
 Buildroot:	%{_tmppath}/%{name}-buildroot
 BuildRequires:	perl-devel XFree86-devel
-%if !%{build_opensls}
-BuildRequires:	pwlib-devel
-%endif
 
 Provides:	perl/tk ptk pTk
 Requires:	perl
@@ -49,23 +44,6 @@ The licences for the various components differ, so check the copyright.
 
 This is the development package.
 
-%if !%{build_opensls}
-%package doc
-Summary:	Tk modules for Perl (documentation package)
-Group:		Development/Perl
-Requires:	perl-Tk = %{version}
-
-%description doc
-This package provides the modules and Tk code for Perl/Tk,
-as written by Nick Ing-Simmons (pTk), John Ousterhout(Tk),
-and Ioi Kim Lam(Tix).
-It gives you the ability to develop perl applications using the Tk GUI.
-It includes the source code for the Tk and Tix elements it uses.
-The licences for the various components differ, so check the copyright.
-
-This is the documentation package.
-%endif
-
 %prep
 %setup -q -n Tk%{version}
 find . -type f | xargs perl -pi -e 's|^#!.*/bin/perl\S*|#!/usr/bin/perl|'
@@ -80,7 +58,7 @@ perl -pi -e "s#--center#-c#" ./Tk/MMutil.pm
 %make OPTIMIZE="$RPM_OPT_FLAGS" LD_RUN_PATH=""
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 %{__chmod} 644 $RPM_BUILD_ROOT%{_mandir}/man3*/*
 
@@ -91,15 +69,13 @@ rm -f $RPM_BUILD_ROOT%{_mandir}/man1/{ptk{ed,sh},widget}.1*
 ## compress all .pm files (as using perl-PerlIO-gzip).
 #find $RPM_BUILD_ROOT -name "*.pm" | xargs gzip -9
 
-%if %{build_opensls}
 # get rid of all the pod files
 rm -f %{buildroot}%{perl_vendorarch}/Tk.pod
 rm -f %{buildroot}%{perl_vendorarch}/Tk/*.pod
 rm -f %{buildroot}%{perl_vendorarch}/Tk/README.Adjust
-%endif
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -133,17 +109,12 @@ rm -rf $RPM_BUILD_ROOT
 %{perl_vendorarch}/Tk/*.t
 %{perl_vendorarch}/Tk/typemap
 
-%if !%{build_opensls}
-%files doc
-%defattr(-,root,root)
-%doc COPYING
-%{perl_vendorarch}/Tk.pod
-%{perl_vendorarch}/Tk/*.pod
-%{perl_vendorarch}/Tk/README.Adjust
-%endif
-
 
 %changelog
+* Fri Feb 27 2004 Vincent Danen <vdanen@opensls.org> 800.024-6sls
+- remove %%build_opensls macro
+- rebuild for new perl
+
 * Tue Dec 30 2003 Vincent Danen <vdanen@opensls.org> 800.024-5sls
 - OpenSLS build
 - tidy spec
