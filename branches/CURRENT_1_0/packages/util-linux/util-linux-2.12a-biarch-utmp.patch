@@ -1,6 +1,6 @@
---- util-linux-2.11u/login-utils/login.c.biarch-utmp	2002-04-10 11:53:16.000000000 +0200
-+++ util-linux-2.11u/login-utils/login.c	2003-04-06 01:45:03.000000000 +0200
-@@ -315,7 +315,15 @@ logbtmp(const char *line, const char *us
+--- util-linux-2.12a/login-utils/login.c.biarch-utmp	2004-03-04 20:35:34.000000000 +0100
++++ util-linux-2.12a/login-utils/login.c	2004-07-19 18:27:26.031658627 +0200
+@@ -323,7 +323,15 @@
  	xstrncpy(ut.ut_line, line, sizeof(ut.ut_line));
  
  #if defined(_HAVE_UT_TV)	    /* in <utmpbits.h> included by <utmp.h> */
@@ -17,7 +17,7 @@
  #else
  	{
  		time_t t;
-@@ -940,7 +948,15 @@ Michael Riepe <michael@stud.uni-hannover
+@@ -923,7 +931,15 @@
  	strncpy(ut.ut_user, username, sizeof(ut.ut_user));
  	xstrncpy(ut.ut_line, tty_name, sizeof(ut.ut_line));
  #ifdef _HAVE_UT_TV		/* in <utmpbits.h> included by <utmp.h> */
@@ -34,18 +34,7 @@
  #else
  	{
  	    time_t t;
-@@ -1369,8 +1385,9 @@ dolastlog(int quiet) {
- 	if (!quiet) {
- 	    if (read(fd, (char *)&ll, sizeof(ll)) == sizeof(ll) &&
- 		ll.ll_time != 0) {
-+		time_t ll_time = ll.ll_time;
- 		printf(_("Last login: %.*s "),
--		       24-5, (char *)ctime(&ll.ll_time));
-+		       24-5, (char *)ctime(&ll_time));
- 		
- 		if (*ll.ll_host != '\0')
- 		  printf(_("from %.*s\n"),
-@@ -1382,7 +1399,7 @@ dolastlog(int quiet) {
+@@ -1377,7 +1393,7 @@
  	    lseek(fd, (off_t)pwd->pw_uid * sizeof(ll), SEEK_SET);
  	}
  	memset((char *)&ll, 0, sizeof(ll));

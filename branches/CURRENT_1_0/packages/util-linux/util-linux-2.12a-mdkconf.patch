@@ -1,11 +1,16 @@
---- util-linux-2.11z/MCONFIG.rhconfig	2002-11-25 05:29:48.000000000 -0500
-+++ util-linux-2.11z/MCONFIG	2003-04-14 01:24:37.000000000 -0400
-@@ -16,17 +16,17 @@ ARCH=$(shell echo $(CPU) | sed 's/i.86/i
+--- util-linux-2.12a/MCONFIG.rhconfig	2004-03-04 21:14:17.000000000 +0100
++++ util-linux-2.12a/MCONFIG	2004-07-19 18:18:29.321062317 +0200
+@@ -16,21 +16,21 @@
  # If HAVE_PAM is set to "yes", then login, chfn, chsh, and newgrp
  # will use PAM for authentication. Additionally, passwd will not be
  # installed as it is not PAM aware.
 -HAVE_PAM=no
 +HAVE_PAM=yes
+ 
+ # If HAVE_SELINUX is set to "yes", the login will make sure the user is
+ # logged into an appropriate security context
+-HAVE_SELINUX=no
++HAVE_SELINUX=yes
  
  # If HAVE_SHADOW is set to "yes", then login, chfn, chsh, newgrp, passwd,
  # and vipw will not be built or installed from the login-utils
@@ -21,7 +26,7 @@
  
  # If you use chfn and chsh from this package, REQUIRE_PASSWORD will require
  # non-root users to enter the account password before updating /etc/passwd.
-@@ -79,7 +79,7 @@ HAVE_KILL=no
+@@ -83,7 +83,7 @@
  # to the current user, allowing her to make a screendump and do other
  # nifty things on the console, but also allowing him to keep an open
  # file descriptor after logging out to trick the next user.
@@ -30,7 +35,7 @@
  
  # If HAVE_RESET is set to "yes", then reset won't be installed.  The version
  # of reset that comes with the ncurses package is less aggressive.
-@@ -102,6 +102,9 @@ SILENT_PG=no
+@@ -106,6 +106,9 @@
  # DISABLE_NLS to "yes".
  DISABLE_NLS=no
  
@@ -40,7 +45,7 @@
  # Different optimizations for different cpus.
  # gcc 3.0 likes options -mcpu=i486 instead of -m486
  ifeq "$(ARCH)" "intel"
-@@ -133,9 +136,9 @@ ERR_O=$(LIB)/err.o
+@@ -137,9 +140,9 @@
  
  # Set HAVE_SLANG to yes if you have slang (and prefer to use that for cfdisk)
  # (If neither HAVE_NCURSES nor HAVE_SLANG is defined, cfdisk is not made.)
@@ -52,7 +57,7 @@
  # No such subdirectory - slcurses.h lives in /usr/include
  #   (no extra definition required).
  LIBSLANG=-lslang
-@@ -198,7 +201,7 @@ INSTALLDIR=	$(INSTALL) -d -m $(DIRMODE)
+@@ -202,7 +205,7 @@
  INSTALLBIN=	$(INSTALL) -m $(BINMODE)
  INSTALLMAN=	$(INSTALL) -m $(MANMODE)
  INSTALLDAT=	$(INSTALL) -m $(DATMODE)

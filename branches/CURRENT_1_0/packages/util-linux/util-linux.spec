@@ -1,6 +1,6 @@
 %define name	util-linux
-%define version	2.12
-%define release	3avx
+%define version	2.12a
+%define release	1avx
 
 # Maintainer util-linux@math.uio.no
 
@@ -22,7 +22,7 @@ Source8:	nologin.c
 Source9:	nologin.8
 Source10:	kbdrate.tar.bz2
 # Change default config to switch mandrake config
-Patch0:		util-linux-2.11z-mdkconf.patch.bz2
+Patch0:		util-linux-2.12a-mdkconf.patch.bz2
 # We don't want to compile chkdupexe
 Patch1:		util-linux-2.11o-nochkdupexe.patch.bz2
 # limit the length of gecos size (security problem)
@@ -51,9 +51,12 @@ Patch111:	util-linux-2.11t-mkfsman.patch.bz2
 Patch114:	util-linux-2.11t-dumboctal.patch.bz2
 Patch115:	util-linux-2.12-fix-ioctl.patch.bz2
 Patch116:	util-linux-2.12pre-autodav.patch.bz2
+Patch120:	util-linux-2.12a-compilation.patch.bz2
 Patch121:	util-linux-2.12-pamsec.patch.bz2
 ########### END UNSUBMITTED.
 ########
+# Allow raw(8) to bind raw devices whose device nodes do not yet exist
+Patch160:	raw-handle-nonpresent-devs.patch.bz2
 # Mount patches
 Patch201:	util-linux-2.11m-nolock-docs.patch.bz2
 Patch204:	util-linux-2.11m-2gb.patch.bz2
@@ -68,7 +71,14 @@ Patch215:	util-linux-2.12-swapon-skip-encrypted.patch.bz2
 Patch216:	util-linux-2.11y-nfsmount.patch.bz2
 Patch217:	util-linux-2.11y-retryudp.patch.bz2
 # remove mode= from udf mounts (architecture done so that more may come)
-Patch218:	util-linux-2.11z-mount-remove-silly-options-in-auto.patch.bz2
+Patch218:	util-linux-2.12a-mount-remove-silly-options-in-auto.patch.bz2
+Patch219:	util-linux-2.12-lower-LOOP_PASSWORD_MIN_LENGTH-for-AES.patch.bz2
+# load cryptoloop and cypher modules when use cryptoapi
+Patch220:	util-linux-2.12a-cryptoapi-load-module.patch.bz2
+# (fc) 2.12a-11mdk add support for pamconsole mount option (fedora)
+patch221:	util-linux-2.12a-pamconsole.patch.bz2
+# (fc) 2.12a-11mdk add support for pamconsole mount option (fedora)
+patch222:	util-linux-2.12a-managed.patch.bz2
 #
 # Mandrake Specific patches
 # fix compilation related with miscfixes
@@ -82,7 +92,15 @@ Patch1202:	util-linux-2.11o-chfn-lsb-usergroups.patch.bz2
 # fix build on alpha with newer kernel-headers
 Patch1203:	util-linux-2.11m-cmos-alpha.patch.bz2
 # handle biarch struct utmp[x]
-Patch1206:	util-linux-2.11u-biarch-utmp.patch.bz2
+Patch1206:	util-linux-2.12a-biarch-utmp.patch.bz2
+# do not hide users option in mtab
+Patch1207:	util-linux-2.12a-users.patch.bz2
+# use glibc syscall() to use syscalls, ban use of <asm/unistd.h>
+Patch1208:	util-linux-2.12a-llseek-syscall.patch.bz2
+
+# Annvix patches
+Patch1250:	util-linux-2.12a-avx-noselinux.patch.bz2
+Patch1251:	util-linux-2.12a-avx-nostacksln.patch.bz2
 
 Obsoletes:	fdisk tunelp
 provides:	fdisk, tunelp
@@ -95,14 +113,7 @@ Conflicts:	initscripts <= 4.58, timeconfig <= 3.0.1
 #%endif
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-root
-BuildRequires:	gcc
-BuildRequires:	sed
-BuildRequires:	pam-devel
-BuildRequires:	ncurses-devel
-BuildRequires:	termcap-devel
-BuildRequires:	texinfo
-BuildRequires:	slang-devel
-BuildRequires:	zlib-devel
+BuildRequires:	gcc, sed, pam-devel, ncurses-devel, termcap-devel, texinfo, slang-devel, zlib-devel
 
 Requires:	pam >= 0.66-4, shadow-utils >= 20000902-5
 Prereq:		mktemp, gawk, diffutils, coreutils
@@ -114,7 +125,7 @@ others, Util-linux contains the fdisk configuration tool and the
 login program.
 
 %package -n mount
-Summary:	Programs for mounting and unmounting filesystems.
+Summary:	Programs for mounting and unmounting filesystems
 Group:		System/Base
 
 %description -n mount
@@ -127,7 +138,7 @@ from the tree.  Swapon and swapoff, respectively, specify and disable
 devices and files for paging and swapping.
 
 %package -n losetup
-Summary:	Programs for setting up and configuring loopback devices.
+Summary:	Programs for setting up and configuring loopback devices
 Group:		System/Configuration/Networking
 
 %description -n losetup
@@ -181,6 +192,10 @@ cp %{SOURCE8} %{SOURCE9} .
 %endif
 
 %patch1206 -p1 -b .biarch-utmp
+%patch1207 -p1 -b .users
+%patch1208 -p1 -b .llseek-syscall
+
+%patch160 -p1
 
 # mount patches
 %patch201 -p1 -b .docbug
@@ -195,7 +210,12 @@ cp %{SOURCE8} %{SOURCE9} .
 %patch215 -p1 -b .swapon-encrypted
 %patch216 -p1 -b .nfsmount
 %patch217 -p1 -b .retryudp
-%patch218 -p0
+%patch218 -p1 -b .silly
+%patch219 -p1 -b .loopAES-password
+%patch220 -p1 -b .load-module
+
+%patch221 -p1 -b .pamconsole
+%patch222 -p1 -b .managed
 
 %patch106 -p1 -b .swaponsymlink
 %patch107 -p1 -b .procpartitions
@@ -206,33 +226,36 @@ cp %{SOURCE8} %{SOURCE9} .
 %patch114 -p1 -b .dumboctal
 %patch115 -p1 -b .fix-ioctl
 %patch116 -p1 -b .autodav
+%patch120 -p1 -b .comp
 %patch121 -p1 -b .pamsec
 
-# USRLIB_DIR is %_libdir
+%patch1250 -p0 -b .noselinux
+%patch1251 -p0 -b .nostacksln
+
+# USRLIB_DIR is %{_libdir}
 perl -pi -e "s|(USRLIB_DIR)\s*=\s*(.*)|\1=%{_libdir}|" ./MCONFIG
 
 %build
 unset LINGUAS || :
 
 %configure
-make "OPT=$RPM_OPT_FLAGS -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE" \
-	HAVE_PIVOT_ROOT=yes \
-	%{?_smp_mflags}
-make CFLAGS="$RPM_OPT_FLAGS" -C partx %{?_smp_mflags}
+make "OPT=%{optflags} -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE" \
+	HAVE_PIVOT_ROOT=yes %{?_smp_mflags}
+make CFLAGS="%{optflags}" -C partx %{?_smp_mflags}
 
-cd rescuept
-cc $RPM_OPT_FLAGS -o rescuept rescuept.c
-cd ..
+pushd rescuept
+    cc %{optflags} -o rescuept rescuept.c
+popd
 
 %ifnarch s390 s390x
 pushd kbdrate
-    cc $RPM_OPT_FLAGS -o kbdrate kbdrate.c
+    cc %{optflags} -o kbdrate kbdrate.c
 popd
 %endif
 
-gcc $RPM_OPT_FLAGS -o mkcramfs mkcramfs.c -I. -lz
+gcc %{optflags} -o mkcramfs mkcramfs.c -I. -lz
 
-gcc $RPM_OPT_FLAGS -o nologin nologin.c
+gcc %{optflags} -o nologin nologin.c
 
 %ifarch ppc
 gcc clock-ppc.c -o clock-ppc
@@ -244,36 +267,36 @@ popd
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p ${RPM_BUILD_ROOT}/{bin,sbin}
-mkdir -p ${RPM_BUILD_ROOT}%{_bindir}
-mkdir -p ${RPM_BUILD_ROOT}%{_infodir}
-mkdir -p ${RPM_BUILD_ROOT}%{_mandir}/man{1,6,8,5}
-mkdir -p ${RPM_BUILD_ROOT}%{_sbindir}
-mkdir -p ${RPM_BUILD_ROOT}%{_sysconfdir}/{pam.d,security/console.apps}
+mkdir -p %{buildroot}/{bin,sbin}
+mkdir -p %{buildroot}%{_bindir}
+mkdir -p %{buildroot}%{_infodir}
+mkdir -p %{buildroot}%{_mandir}/man{1,6,8,5}
+mkdir -p %{buildroot}%{_sbindir}
+mkdir -p %{buildroot}%{_sysconfdir}/{pam.d,security/console.apps}
 
-make install DESTDIR=$RPM_BUILD_ROOT MANDIR=%buildroot/%{_mandir} INFODIR=%buildroot/%{_infodir}
+make install DESTDIR=%{buildroot} MANDIR=%{buildroot}/%{_mandir} INFODIR=%{buildroot}/%{_infodir}
 
-install -m 755 mount/pivot_root ${RPM_BUILD_ROOT}/sbin
-install -m 644 mount/pivot_root.8 ${RPM_BUILD_ROOT}%{_mandir}/man8
-install -m 755 rescuept/rescuept ${RPM_BUILD_ROOT}/sbin
+install -m 0755 mount/pivot_root %{buildroot}/sbin
+install -m 0644 mount/pivot_root.8 %{buildroot}%{_mandir}/man8
+install -m 0755 rescuept/rescuept %{buildroot}/sbin
 ln -f rescuept/README rescuept/README.rescuept
-install -m 755 mkcramfs ${RPM_BUILD_ROOT}/usr/bin
-install -m 755 nologin ${RPM_BUILD_ROOT}/sbin
-install -m 644 nologin.8 ${RPM_BUILD_ROOT}%{_mandir}/man8
+install -m 0755 mkcramfs %{buildroot}/usr/bin
+install -m 0755 nologin %{buildroot}/sbin
+install -m 0644 nologin.8 %{buildroot}%{_mandir}/man8
 %ifnarch s390 s390x
-install -m 555 kbdrate/kbdrate ${RPM_BUILD_ROOT}/sbin
-install -m 644 kbdrate/kbdrate.8 nologin.8 ${RPM_BUILD_ROOT}%{_mandir}/man8
+install -m 0755 kbdrate/kbdrate %{buildroot}/sbin
+install -m 0644 kbdrate/kbdrate.8 nologin.8 %{buildroot}%{_mandir}/man8
 %endif
-echo '.so man8/raw.8' > $RPM_BUILD_ROOT%{_mandir}/man8/rawdevices.8
+echo '.so man8/raw.8' > %{buildroot}%{_mandir}/man8/rawdevices.8
 
-install -m 555 partx/{addpart,delpart,partx} $RPM_BUILD_ROOT/sbin
+install -m 0755 partx/{addpart,delpart,partx} %{buildroot}/sbin
 
 # Correct mail spool path.
-perl -pi -e 's,/usr/spool/mail,/var/spool/mail,' ${RPM_BUILD_ROOT}%{_mandir}/man1/login.1
+perl -pi -e 's,/usr/spool/mail,/var/spool/mail,' %{buildroot}%{_mandir}/man1/login.1
 
 %ifarch sparc sparc64 sparcv9
-rm -rf ${RPM_BUILD_ROOT}%{_bindir}/sunhostid
-cat << E-O-F > ${RPM_BUILD_ROOT}%{_bindir}/sunhostid
+rm -rf %{buildroot}%{_bindir}/sunhostid
+cat << E-O-F > %{buildroot}%{_bindir}/sunhostid
 #!/bin/sh
 # this should be %{_bindir}/sunhostid or somesuch.
 # Copyright 1999 Peter Jones, <pjones@redhat.com> .  
@@ -285,44 +308,42 @@ echo \$idprom|dd bs=1 skip=27 count=6
 echo
 ) 2>/dev/null
 E-O-F
-chmod 755 ${RPM_BUILD_ROOT}%{_bindir}/sunhostid
+chmod 0755 %{buildroot}%{_bindir}/sunhostid
 %endif
-
-#gzip -9nf ${RPM_BUILD_ROOT}%{_infodir}/ipc.info
 
 %ifnarch s390 s390x
-install -m644 kbdrate/kbdrate.apps $RPM_BUILD_ROOT%{_sysconfdir}/security/console.apps/kbdrate
-install -m644 kbdrate/kbdrate.pam $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/kbdrate
+install -m 0644 kbdrate/kbdrate.apps %{buildroot}%{_sysconfdir}/security/console.apps/kbdrate
+install -m 0644 kbdrate/kbdrate.pam %{buildroot}%{_sysconfdir}/pam.d/kbdrate
 %endif
-pushd $RPM_BUILD_ROOT%_sysconfdir/pam.d
-  install -m 644 %SOURCE1 login
-  install -m 644 %SOURCE2 chfn
-  install -m 644 %SOURCE3 chsh
+pushd %{buildroot}%{_sysconfdir}/pam.d
+    install -m 0644 %{SOURCE1} login
+    install -m 0644 %{SOURCE2} chfn
+    install -m 0644 %{SOURCE3} chsh
 popd
 
 # We do not want dependencies on csh
-chmod 644 $RPM_BUILD_ROOT%_datadir/misc/getopt/*
+chmod 0644 %{buildroot}%{_datadir}/misc/getopt/*
 
 # This has dependencies on stuff in /usr
 %ifnarch sparc sparc64 sparcv9
-mv $RPM_BUILD_ROOT{/sbin/,/usr/sbin}/cfdisk
+mv %{buildroot}{/sbin/,/usr/sbin}/cfdisk
 %endif
 
 %ifarch ppc
-cp -f $RPM_BUILD_DIR/%name-%version/clock-ppc $RPM_BUILD_ROOT/sbin/clock-ppc
-mv $RPM_BUILD_ROOT/sbin/hwclock $RPM_BUILD_ROOT/sbin/clock-rs6k
-ln -sf clock-rs6k $RPM_BUILD_ROOT/sbin/hwclock
+cp -f $RPM_BUILD_DIR/%{name}-%{version}/clock-ppc %{buildroot}/sbin/clock-ppc
+mv %{buildroot}/sbin/hwclock %{buildroot}/sbin/clock-rs6k
+ln -sf clock-rs6k %{buildroot}/sbin/hwclock
 %endif
-ln -sf ../../sbin/hwclock $RPM_BUILD_ROOT/usr/sbin/hwclock
-ln -sf ../../sbin/clock $RPM_BUILD_ROOT/usr/sbin/clock
-ln -sf hwclock $RPM_BUILD_ROOT/sbin/clock
+ln -sf ../../sbin/hwclock %{buildroot}/usr/sbin/hwclock
+ln -sf ../../sbin/clock %{buildroot}/usr/sbin/clock
+ln -sf hwclock %{buildroot}/sbin/clock
 
 # remove stuff we don't want
-rm -f $RPM_BUILD_ROOT%_mandir/man1/{line,newgrp,pg}.1*
-rm -f $RPM_BUILD_ROOT%_bindir/{line,newgrp,pg}
-rm -f $RPM_BUILD_ROOT/sbin/sln
+rm -f %{buildroot}%{_mandir}/man1/{line,newgrp,pg}.1*
+rm -f %{buildroot}%{_bindir}/{line,newgrp,pg}
+rm -f %{buildroot}/sbin/sln
 
-%find_lang %name
+%find_lang %{name}
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -332,27 +353,30 @@ rm -f $RPM_BUILD_ROOT/sbin/sln
 %ifarch ppc
 ISCHRP=`grep CHRP /proc/cpuinfo`
 if [ -z "$ISCHRP" ]; then
-  ln -sf /sbin/clock-ppc /sbin/hwclock
+    ln -sf /sbin/clock-ppc /sbin/hwclock
 fi
 %endif
 
 %postun
 %_remove_install_info ipc.info
 
-%files -f %name.lang
+%files -f %{name}.lang
 %defattr(-,root,root)
 %doc */README.* HISTORY
+%config(noreplace) %{_sysconfdir}/fdprm
+%config(noreplace) %{_sysconfdir}/pam.d/chfn
+%config(noreplace) %{_sysconfdir}/pam.d/chsh
+%config(noreplace) %{_sysconfdir}/pam.d/login
+%ifnarch s390 s390x
+%config(noreplace) %{_sysconfdir}/pam.d/kbdrate
+%config(noreplace) %{_sysconfdir}/security/console.apps/kbdrate
+%endif
 
 /bin/arch
 /bin/dmesg
 /bin/kill
-%attr(755,root,root)	/bin/login
+%attr(0755,root,root)	/bin/login
 /bin/more
-
-%config(noreplace) %_sysconfdir/fdprm
-%config(noreplace) %_sysconfdir/pam.d/chfn
-%config(noreplace) %_sysconfdir/pam.d/chsh
-%config(noreplace) %_sysconfdir/pam.d/login
 
 /sbin/agetty
 /sbin/blockdev
@@ -374,12 +398,12 @@ fi
 /sbin/mkfs.bfs
 /sbin/fsck.cramfs
 /sbin/mkfs.cramfs
-%_mandir/man8/fsck.minix.8*
-%_mandir/man8/mkfs.minix.8*
-%_mandir/man8/mkfs.bfs.8*
+%{_mandir}/man8/fsck.minix.8*
+%{_mandir}/man8/mkfs.minix.8*
+%{_mandir}/man8/mkfs.bfs.8*
 /sbin/sfdisk
 
-%_mandir/man8/sfdisk.8*
+%{_mandir}/man8/sfdisk.8*
 %doc fdisk/sfdisk.examples
 %endif
 
@@ -397,141 +421,139 @@ fi
 /sbin/rescuept
 #/sbin/sln
 /sbin/nologin
-%_mandir/man8/nologin.8*
+%{_mandir}/man8/nologin.8*
 # Begin kbdrate stuff
 %ifnarch s390 s390x
 /sbin/kbdrate
 #/usr/bin/kbdrate
-%_mandir/man8/kbdrate.8*
-%config(noreplace) %_sysconfdir/pam.d/kbdrate
-%config(noreplace) %_sysconfdir/security/console.apps/kbdrate
+%{_mandir}/man8/kbdrate.8*
 %endif
 
-%_bindir/cal
-%attr(4711,root,root)	%_bindir/chfn
-%attr(4711,root,root)	%_bindir/chsh
-%_bindir/col
-%_bindir/colcrt
-%_bindir/colrm
-%_bindir/column
+%{_bindir}/cal
+%attr(4711,root,root)	%{_bindir}/chfn
+%attr(4711,root,root)	%{_bindir}/chsh
+%{_bindir}/col
+%{_bindir}/colcrt
+%{_bindir}/colrm
+%{_bindir}/column
 %ifarch %ix86 alpha armv4l ppc sparc sparc64 sparcv9 x86_64
-%_bindir/cytune
-%_mandir/man8/cytune.8*
+%{_bindir}/cytune
+%{_mandir}/man8/cytune.8*
 %endif
-%_bindir/ddate
-%_bindir/fdformat
-%_bindir/getopt
-%_bindir/hexdump
-%_bindir/ipcrm
-%_bindir/ipcs
-%_bindir/isosize
-%_mandir/man8/isosize.8*
-%_bindir/logger
-%_bindir/look
-%_bindir/mcookie
-%_bindir/mkcramfs
-%_bindir/namei
-%_bindir/raw
-%_bindir/rename
-%_bindir/renice
-%_bindir/rev
-%_bindir/script
-%_bindir/setfdprm
-%_bindir/setsid
-%_bindir/setterm
+%{_bindir}/ddate
+%{_bindir}/fdformat
+%{_bindir}/getopt
+%{_bindir}/hexdump
+%{_bindir}/ipcrm
+%{_bindir}/ipcs
+%{_bindir}/isosize
+%{_mandir}/man8/isosize.8*
+%{_bindir}/logger
+%{_bindir}/look
+%{_bindir}/mcookie
+%{_bindir}/mkcramfs
+%{_bindir}/namei
+%{_bindir}/raw
+%{_bindir}/rename
+%{_bindir}/renice
+%{_bindir}/rev
+%{_bindir}/script
+%{_bindir}/setfdprm
+%{_bindir}/setsid
+%{_bindir}/setterm
 %ifarch sparc sparc64 sparcv9
-%_bindir/sunhostid
+%{_bindir}/sunhostid
 %endif
-#%_bindir/tsort
-%_bindir/tailf
-%_bindir/ul
-%_bindir/whereis
-%attr(2755,root,tty)	%_bindir/write
+#%{_bindir}/tsort
+%{_bindir}/tailf
+%{_bindir}/ul
+%{_bindir}/whereis
+%attr(2755,root,tty)	%{_bindir}/write
 
 %ifarch sparc sparc64 sparcv9
 /sbin/cfdisk
 %else
-%_sbindir/cfdisk
+%{_sbindir}/cfdisk
 %endif
-%_mandir/man8/cfdisk.8*
+%{_mandir}/man8/cfdisk.8*
 
 %ifarch %ix86
-%_sbindir/rdev
-%_sbindir/ramsize
-%_sbindir/rootflags
-%_sbindir/vidmode
-%_mandir/man8/rdev.8*
-%_mandir/man8/ramsize.8*
-%_mandir/man8/rootflags.8*
-%_mandir/man8/vidmode.8*
+%{_sbindir}/rdev
+%{_sbindir}/ramsize
+%{_sbindir}/rootflags
+%{_sbindir}/vidmode
+%{_mandir}/man8/rdev.8*
+%{_mandir}/man8/ramsize.8*
+%{_mandir}/man8/rootflags.8*
+%{_mandir}/man8/vidmode.8*
 %endif
-%_sbindir/readprofile
+%{_sbindir}/readprofile
 %ifnarch s390
-%_sbindir/tunelp
+%{_sbindir}/tunelp
 %endif
-%_sbindir/vipw
-%_sbindir/vigr
+%{_sbindir}/vipw
+%{_sbindir}/vigr
 
-%_infodir/ipc.info*
+%{_infodir}/ipc.info*
 
-%_mandir/man1/arch.1*
-%_mandir/man1/cal.1*
-%_mandir/man1/chfn.1*
-%_mandir/man1/chsh.1*
-%_mandir/man1/col.1*
-%_mandir/man1/colcrt.1*
-%_mandir/man1/colrm.1*
-%_mandir/man1/column.1*
-%_mandir/man1/ddate.1*
-%_mandir/man1/getopt.1*
-%_mandir/man1/hexdump.1*
-#%_mandir/man1/hostid.1*
-%_mandir/man1/kill.1*
-%_mandir/man1/logger.1*
-%_mandir/man1/login.1*
-%_mandir/man1/look.1*
-%_mandir/man1/mcookie.1*
-%_mandir/man1/more.1*
-%_mandir/man1/namei.1*
-%_mandir/man1/readprofile.1*
-%_mandir/man1/rename.1*
-%_mandir/man1/rev.1*
-%_mandir/man1/script.1*
-%_mandir/man1/setterm.1*
-#%_mandir/man1/tsort.1*
-%_mandir/man1/tailf.1*
-%_mandir/man1/ul.1*
-%_mandir/man1/whereis.1*
-%_mandir/man1/write.1*
+%{_mandir}/man1/arch.1*
+%{_mandir}/man1/cal.1*
+%{_mandir}/man1/chfn.1*
+%{_mandir}/man1/chsh.1*
+%{_mandir}/man1/col.1*
+%{_mandir}/man1/colcrt.1*
+%{_mandir}/man1/colrm.1*
+%{_mandir}/man1/column.1*
+%{_mandir}/man1/ddate.1*
+%{_mandir}/man1/getopt.1*
+%{_mandir}/man1/hexdump.1*
+#%{_mandir}/man1/hostid.1*
+%{_mandir}/man1/kill.1*
+%{_mandir}/man1/logger.1*
+%{_mandir}/man1/login.1*
+%{_mandir}/man1/look.1*
+%{_mandir}/man1/mcookie.1*
+%{_mandir}/man1/more.1*
+%{_mandir}/man1/namei.1*
+%{_mandir}/man1/readprofile.1*
+%{_mandir}/man1/rename.1*
+%{_mandir}/man1/rev.1*
+%{_mandir}/man1/script.1*
+%{_mandir}/man1/setterm.1*
+#%{_mandir}/man1/tsort.1*
+%{_mandir}/man1/tailf.1*
+%{_mandir}/man1/ul.1*
+%{_mandir}/man1/whereis.1*
+%{_mandir}/man1/write.1*
 
-%_mandir/man8/agetty.8*
-%_mandir/man8/blockdev.8*
-%_mandir/man8/ctrlaltdel.8*
-%_mandir/man8/dmesg.8*
-%_mandir/man8/elvtune.8*
-%_mandir/man8/fdformat.8*
-%_mandir/man8/fdisk.8*
+%{_mandir}/man8/agetty.8*
+%{_mandir}/man8/blockdev.8*
+%{_mandir}/man8/ctrlaltdel.8*
+%{_mandir}/man8/dmesg.8*
+%{_mandir}/man8/elvtune.8*
+%{_mandir}/man8/fdformat.8*
+%{_mandir}/man8/fdisk.8*
 %ifnarch s390 s390x
-%_mandir/man8/hwclock.8*
+%{_mandir}/man8/hwclock.8*
 %endif
-%_mandir/man8/ipcrm.8*
-%_mandir/man8/ipcs.8*
-%_mandir/man8/mkfs.8*
-#%_mandir/man8/mkfs.bfs.8*
-%_mandir/man8/mkswap.8*
-%_mandir/man8/pivot_root.8*
-%_mandir/man8/raw.8*
-%_mandir/man8/rawdevices.8*
-%_mandir/man8/renice.8*
-%_mandir/man8/setfdprm.8*
-%_mandir/man8/setsid.8*
+%{_mandir}/man8/ipcrm.8*
+%{_mandir}/man8/ipcs.8*
+%{_mandir}/man8/mkfs.8*
+#%{_mandir}/man8/mkfs.bfs.8*
+%{_mandir}/man8/mkswap.8*
+%{_mandir}/man8/pivot_root.8*
+%{_mandir}/man8/raw.8*
+%{_mandir}/man8/rawdevices.8*
+%{_mandir}/man8/renice.8*
+%{_mandir}/man8/setfdprm.8*
+%{_mandir}/man8/setsid.8*
 # XXX this man page should be moved to glibc.
-%_mandir/man8/sln.8*
-%_mandir/man8/tunelp.8*
-%_mandir/man8/vigr.8*
-%_mandir/man8/vipw.8*
+%{_mandir}/man8/sln.8*
+%{_mandir}/man8/tunelp.8*
+%{_mandir}/man8/vigr.8*
+%{_mandir}/man8/vipw.8*
 
-%_datadir/misc/getopt
+%{_datadir}/misc/getopt
 
 %files -n mount
 %defattr(-,root,root)
@@ -540,19 +562,36 @@ fi
 %attr(4755,root,root)	/bin/umount
 /sbin/swapon
 /sbin/swapoff
-%_mandir/man5/fstab.5*
-%_mandir/man5/nfs.5*
-%_mandir/man8/mount.8*
-%_mandir/man8/swapoff.8*
-%_mandir/man8/swapon.8*
-%_mandir/man8/umount.8*
+%{_mandir}/man5/fstab.5*
+%{_mandir}/man5/nfs.5*
+%{_mandir}/man8/mount.8*
+%{_mandir}/man8/swapoff.8*
+%{_mandir}/man8/swapon.8*
+%{_mandir}/man8/umount.8*
 
 %files -n losetup
 %defattr(-,root,root)
-%_mandir/man8/losetup.8*
+%{_mandir}/man8/losetup.8*
 /sbin/losetup
 
 %changelog
+* Tue Mar 01 2005 Vincent Danen <vdanen@annvix.org> 2.12a-1avx
+- 2.12a (sync with cooker 2.12a-11mdk):
+  - P120: fix compilation issues (blino)
+  - P160: fix raw devices with udev (mdk bug #11511) (tvignaud)
+  - P128: fixes from blino, pixel
+  - P220: load cryptoapi and cypher modules when using cryptoapi (nplanel)
+  - P221: add support for "pamconsole" (fedora) (fcrozat)
+  - P222: add support for "managed" (fedora) (fcrozat)
+  - P1207: don't hide users option in mtab (blino)
+  - P1208: use glibc syscall() to use syscalls, ban use of <asm/unistd.h> (gb)
+  - fix unstripped-binary-or-object and non-standard-executable-perm for
+    /sbin/{addpart,delpart,kbdrate,partx}
+- spec cleanups
+- P1250: don't build with SELinux support
+- P1251: don't build sln with -fstack-protector because compiling static stuff
+  right now gives us symbol issues
+
 * Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 2.12-3avx
 - Annvix build
 
