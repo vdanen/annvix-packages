@@ -1,11 +1,13 @@
 %define	name	openntpd
-%define	version	20040824p
+%define	version	3.6p1
 %define	release	1avx
+%define epoch	1
 
 Summary:	OpenNTPD is a secure implementation of the Network Time Protocol
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
+Epoch:		%{epoch}
 License:	BSD
 Group:		System/Servers
 URL:		http://www.openntpd.org/
@@ -72,6 +74,10 @@ install -m 0750 %{SOURCE2} %{buildroot}%{_srvdir}/ntpd/log/run
 
 
 %changelog
+* Wed Nov  3 2004 Vincent Danen <vdanen@annvix.org> 3.6p1-1avx
+- 3.6p1
+- Epoch: 1
+
 * Mon Sep 13 2004 Vincent Danen <vdanen@annvix.org> 20040824p-1avx
 - initial Annvix package
 - P0: set ntp user to ntp, not _ntp
