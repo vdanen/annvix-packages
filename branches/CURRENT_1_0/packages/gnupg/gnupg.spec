@@ -1,6 +1,6 @@
 %define name	gnupg
-%define version 1.2.3
-%define release 6avx
+%define version 1.2.6
+%define release 1avx
 
 Summary:	GNU privacy guard - a free PGP replacement.
 Name:		%{name}
@@ -11,11 +11,8 @@ Group:		File tools
 URL:		http://www.gnupg.org
 Source:		ftp://ftp.gnupg.org/pub/gcrypt/gnupg/%{name}-%{version}.tar.bz2
 Source1:	ftp://ftp.gnupg.org/pub/gcrypt/gnupg/%{name}-%{version}.tar.bz2.sig
-Source2:	opensls-keys.tar.bz2
-Source3:	opensls-keys.tar.bz2.asc
-Patch0:		gnupg-1.0.7-options.patch.bz2
-Patch1:		gnupg-1.2.2-testsuite.patch.bz2
-Patch2:		gnupg-1.2.3-elgamal.patch.bz2
+Source2:	annvix-keys.tar.bz2
+Source3:	annvix-keys.tar.bz2.asc
 
 BuildRoot:	%{_tmppath}/%{name}-buildroot
 
@@ -29,11 +26,6 @@ with the proposed OpenPGP Internet standard as described in RFC2440.
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %setup -q
-%patch0 -p1 -b .mdkopts
-#%patch1 -p1 -b .testsuite
-pushd g10
-%patch2 -p0 -b .badkey
-popd
 
 %build
 %ifnarch sparc sparc64
@@ -102,6 +94,13 @@ tar xvjf %{SOURCE2} -C %{buildroot}%{_sysconfdir}/RPM-GPG-KEYS
 %attr(0644,root,root) %{_sysconfdir}/RPM-GPG-KEYS/*.asc
 
 %changelog
+* Sun Sep 12 2004 Vincent Danen <vdanen@annvix.org> 1.2.6-1avx
+- 1.2.6
+- s/opensls-keys/annvix-keys/
+- remove P2; fixed upstream
+- remove unapplied P1
+- remove P0; the mandrakesecure.net keyserver no longer exists
+
 * Thu Jun 24 2004 Vincent Danen <vdanen@annvix.org> 1.2.3-6avx
 - Annvix build
 
