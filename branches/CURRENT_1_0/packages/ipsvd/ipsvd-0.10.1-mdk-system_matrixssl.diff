@@ -1,12 +1,11 @@
-diff -Naur net/ipsvd-0.9.6/src/Makefile net.oden/ipsvd-0.9.6/src/Makefile
---- net/ipsvd-0.9.6/src/Makefile	2004-08-02 21:46:18.000000000 +0200
-+++ net.oden/ipsvd-0.9.6/src/Makefile	2004-08-04 20:54:43.791267112 +0200
+--- ipsvd-0.10.1/src/Makefile.oden	2005-01-16 11:34:35.000000000 +0100
++++ ipsvd-0.10.1/src/Makefile	2005-01-18 12:03:20.365791969 +0100
 @@ -24,24 +24,9 @@
  	./load ipsvd-cdb ipsvd_fmt.o ipsvd_check.o cdb.a dns.a unix.a byte.a \
  	  time.a `cat socket.lib`
  
--sslio: load sslio.o uidgid.o unix.a byte.a time.a matrixssl.a
--	./load sslio uidgid.o unix.a byte.a time.a matrixssl.a
+-sslio: load sslio.o uidgid.o sslerror_str.o unix.a byte.a time.a matrixssl.a
+-	./load sslio uidgid.o sslerror_str.o unix.a byte.a time.a matrixssl.a
 -
 -matrixssl.a: makelib matrixssl
 -	install -m0644 Makefile.matrixssl matrixssl/src/Makefile.matrixssl
@@ -23,9 +22,9 @@ diff -Naur net/ipsvd-0.9.6/src/Makefile net.oden/ipsvd-0.9.6/src/Makefile
 -	  <matrixssl/src/matrixConfig.h >matrixConfig.h && \
 -	    mv -f matrixConfig.h matrixssl/src/matrixConfig.h
 -	touch matrixssl
-+sslio: load sslio.o uidgid.o unix.a byte.a time.a /usr/lib/dietlibc/lib/libmatrixssl.a
++sslio: load sslio.o uidgid.o sslerror_str.o unix.a byte.a time.a /usr/lib/dietlibc/lib/libmatrixssl.a
 +	cp /usr/lib/dietlibc/include/matrixSsl.h .
-+	./load sslio uidgid.o unix.a byte.a time.a /usr/lib/dietlibc/lib/libmatrixssl.a
++	./load sslio uidgid.o sslerror_str.o unix.a byte.a time.a /usr/lib/dietlibc/lib/libmatrixssl.a
  
  check-tcpsvd: load check-tcpsvd.o unix.a byte.a socket.lib
  	./load check-tcpsvd unix.a byte.a `cat socket.lib`
@@ -38,7 +37,16 @@ diff -Naur net/ipsvd-0.9.6/src/Makefile net.oden/ipsvd-0.9.6/src/Makefile
  	./compile sslio.c
  
  check-tcpsvd.o: compile check-tcpsvd.c
-@@ -105,7 +90,6 @@
+@@ -94,7 +79,7 @@
+ uidgid.o: compile uidgid.c uidgid.h
+ 	./compile uidgid.c
+ 
+-sslerror_str.o: compile matrixSsl.h sslerror_str.c sslerror_str.h 
++sslerror_str.o: compile sslerror_str.c sslerror_str.h 
+ 	./compile sslerror_str.c
+ 
+ socket.lib: compile load trysocketlib.c
+@@ -108,7 +93,6 @@
  
  command.linux: sysdeps
  	( ( test "`cut -c1-5 <systype`" != 'linux' && echo nolinux ) || \
@@ -46,19 +54,3 @@ diff -Naur net/ipsvd-0.9.6/src/Makefile net.oden/ipsvd-0.9.6/src/Makefile
  	  echo sslio ) >command.linux
  
  nolinux:
-diff -Naur net/ipsvd-0.9.6/src/Makefile.matrixssl net.oden/ipsvd-0.9.6/src/Makefile.matrixssl
---- net/ipsvd-0.9.6/src/Makefile.matrixssl	2004-08-02 21:46:18.000000000 +0200
-+++ net.oden/ipsvd-0.9.6/src/Makefile.matrixssl	1970-01-01 01:00:00.000000000 +0100
-@@ -1,12 +0,0 @@
--include Makefile
--
--CC=../../compile
--LD=../../load
--LDFLAGS=
--DFLAGS=
--
--matrixssl.a: $(OBJECTS)
--	rm -f matrixssl.a
--	../../makelib matrixssl.a $(OBJECTS)
--#	ar cr libmatrixssl.a $(OBJECTS)
--#	ranlib libmatrixssl.a

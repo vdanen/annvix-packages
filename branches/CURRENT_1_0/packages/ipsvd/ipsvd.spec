@@ -1,6 +1,6 @@
 %define	name	ipsvd
-%define	version	0.9.6
-%define	release	2avx
+%define	version	0.10.1
+%define	release	1avx
 
 Summary:	Internet protocol service daemons
 Name:		%{name}
@@ -10,11 +10,12 @@ License:	BSD
 Group:		System/Servers
 URL:		http://smarden.org/ipsvd/
 Source0:	%{name}-%{version}.tar.bz2
-Patch0:		ipsvd-0.9.6-system_matrixssl.diff.bz2
+Patch0:		ipsvd-0.10.1-mdk-system_matrixssl.diff.bz2
+Patch1:		ipsvd-0.10.1-avx-matrixarch.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-buildroot
-BuildRequires:	dietlibc-devel >= 0.20
-BuildRequires:	matrixssl-devel
+BuildRequires:	dietlibc-devel >= 0.27-2avx
+BuildRequires:	matrixssl-devel >= 1.2.2-3avx
 
 %description
 ipsvd is a set of internet protocol service daemons for Unix. It 
@@ -45,20 +46,16 @@ tcpserver.
 %prep
 
 %setup -q -n net
-%patch0 -p1
+%patch0 -p0
+%patch1 -p0
+perl -pi -e s"|{ARCH}|${MYARCH}|g" Makefile
 
 %build
-%ifarch %ix86
-MARCH="-march=pentium"
-%else
-MARCH=""
-%endif
 pushd %{name}-%{version}/src
-    echo "diet -Os gcc $MARCH -pipe -nostdinc" > conf-cc
-    echo "diet -Os gcc $MARCH -static -s -nostdinc" > conf-ld
-    %ifarch x86_64 amd64
-        perl -pi -e 's|/usr/lib|/usr/lib64|g' Makefile
-    %endif
+    MYARCH=`uname -m | sed -e 's/i[4-9]86/i386/' -e 's/armv[3-6][lb]/arm/'`
+    perl -pi -e "s|{ARCH}|${MYARCH}|g" Makefile
+    echo "diet gcc -Os -pipe -nostdinc" > conf-cc
+    echo "diet gcc -Os -static -s -nostdinc" > conf-ld
     make
 popd
 
@@ -98,6 +95,12 @@ install -m0644 %{name}-%{version}/man/*.8 %{buildroot}%{_mandir}/man8/
 %attr(0644,root,root) %{_mandir}/man8/tcpsvd.8*
 
 %changelog
+* Thu Jan 20 2005 Vincent Danen <vdanen@annvix.org> 0.10.1-1avx
+- 0.10.0
+- take an updated P0 from mdk but fix it
+- require a newer matrixssl and dietlibc
+
+
 * Wed Oct 13 2004 Vincent Danen <vdanen@annvix.org> 0.9.6-2avx
 - build against newer matrixssl (1.2.2)
 

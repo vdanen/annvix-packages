@@ -1,0 +1,14 @@
+--- ipsvd-0.10.1/src/Makefile.vdanen	2005-01-20 19:38:10.000000000 -0700
++++ ipsvd-0.10.1/src/Makefile	2005-01-20 19:38:10.000000000 -0700
+@@ -24,9 +24,9 @@
+ 	./load ipsvd-cdb ipsvd_fmt.o ipsvd_check.o cdb.a dns.a unix.a byte.a \
+ 	  time.a `cat socket.lib`
+ 
+-sslio: load sslio.o uidgid.o sslerror_str.o unix.a byte.a time.a /usr/lib/dietlibc/lib/libmatrixssl.a
++sslio: load sslio.o uidgid.o sslerror_str.o unix.a byte.a time.a /usr/lib/dietlibc/lib-{ARCH}/libmatrixssl.a
+ 	cp /usr/lib/dietlibc/include/matrixSsl.h .
+-	./load sslio uidgid.o sslerror_str.o unix.a byte.a time.a /usr/lib/dietlibc/lib/libmatrixssl.a
++	./load sslio uidgid.o sslerror_str.o unix.a byte.a time.a /usr/lib/dietlibc/lib-{ARCH}/libmatrixssl.a
+ 
+ check-tcpsvd: load check-tcpsvd.o unix.a byte.a socket.lib
+ 	./load check-tcpsvd unix.a byte.a `cat socket.lib`
