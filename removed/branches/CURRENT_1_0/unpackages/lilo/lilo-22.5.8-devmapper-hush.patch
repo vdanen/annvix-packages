@@ -1,0 +1,23 @@
+--- lilo-22.5.8/geometry.c.hushdm	2003-12-19 23:27:07.000000000 +0100
++++ lilo-22.5.8/geometry.c	2003-12-19 23:40:29.000000000 +0100
+@@ -144,6 +144,8 @@
+     struct dm_task *dmt;
+     char major_name[32];
+     char dm_version[32];
++    char control[PATH_MAX];
++    int _control_fd;
+     int major;
+ #endif
+     char *here;
+@@ -180,6 +182,11 @@
+     }
+ 
+ #ifdef LCF_DEVMAPPER
++    snprintf(control, sizeof(control), "%s/control", dm_dir());
++    if ((_control_fd = open(control, O_RDWR)) < 0)
++	return;
++    close(_control_fd);
++
+     if (!(dmt = dm_task_create(DM_DEVICE_VERSION)))
+ 	return;
+     if (!dm_task_run(dmt))

@@ -1,5 +1,5 @@
---- lilo-22.5.1/README.graphic.pix	2003-04-02 12:41:36.000000000 +0200
-+++ lilo-22.5.1/README.graphic	2003-04-02 12:41:36.000000000 +0200
+--- lilo-22.5.9/README.graphic.pix	2004-08-02 11:59:50.139900871 +0200
++++ lilo-22.5.9/README.graphic	2004-08-02 11:59:50.138900844 +0200
 @@ -0,0 +1,73 @@
 +Managing graphic mode with LILO.
 +
@@ -74,9 +74,9 @@
 +to <fpons@mandrakesoft.com>.
 +
 +François Pons.
---- lilo-22.5.1/bmp2mdk.pix	2003-04-02 12:41:36.000000000 +0200
-+++ lilo-22.5.1/bmp2mdk	2003-04-02 12:41:36.000000000 +0200
-@@ -0,0 +1,172 @@
+--- lilo-22.5.9/bmp2mdk.pix	2004-08-02 11:59:50.139900871 +0200
++++ lilo-22.5.9/bmp2mdk	2004-08-02 12:46:27.389031629 +0200
+@@ -0,0 +1,190 @@
 +#!/usr/bin/perl
 +
 +#- Build a message file for syslinux-graphic from a BMP file.
@@ -141,7 +141,15 @@
 +		pos_y       => 0,
 +		pos_x       => 0,
 +	       );
++my $file;
 +foreach (@ARGV) {
++    /^file:(.*)/  and do {
++        $file = $1;
++	if (-e "$file.parameters") {
++	    $initcode{$1} = $2 while `cat $file.parameters` =~ /(.*)=(.*)/mg;
++	}
++        next;
++    };
 +    /^mode:(.*)/  and do { @initcode{qw(mode)} = map { eval "$_" } split /,/, $1; next };
 +    /^timer:(.*)/ and do { @initcode{qw(timer_y timer_x timer_bg timer_fg)} = map { eval "$_" } split /,/, $1; next };
 +    /^entry:(.*)/ and do { @initcode{qw(entry_y entry_x entry_bg entry_fg entry_h_chr entry_w_chr)} = map { eval "$_" } split /,/, $1; next };
@@ -161,6 +169,8 @@
 +   clear:h,w,c                  - clear before with color c, default is clear
 +                                  640x480 in color 0 (black).
 +   pos:y,x                      - set x,y for next pixmap, default is to (0,0).
++   file:file_name.bmp           - set the filename instead of using stdin
++                                  (if file_name.bmp.parameters exists, it is used)
 +no options assume no addition initcode given.
 +colors given in the range 0x40 and 0xBF are from picture palette used (shifted).
 +input image should be a 128 colors uncompressed BMP file.
@@ -174,14 +184,14 @@
 +	$ext_code |= 0x80;
 +	$ext_data .= pack "v", $initcode{mode};
 +    }
++    if ($initcode{progress_y} || $initcode{progress_x}) {
++	$ext_code |= 0x20;
++	$ext_data .= pack "v2C3", @initcode{qw(progress_y progress_x progress_h progress_w progress_c)};
++    }
 +    if ($initcode{timer_y} || $initcode{timer_x} || $initcode{entry_y} || $initcode{entry_x}) {
 +	$ext_code |= 0x08;
 +	$ext_data .= pack "v2C2 v2C4", @initcode{qw(timer_y timer_x timer_bg timer_fg
 +						    entry_y entry_x entry_bg entry_fg entry_h_chr entry_w_chr)};
-+    }
-+    if ($initcode{progress_y} || $initcode{progress_x}) {
-+	$ext_code |= 0x20;
-+	$ext_data .= pack "v2C3", @initcode{qw(progress_y progress_x progress_h progress_w progress_c)};
 +    }
 +    #- always set up clear.
 +    $ext_code |= 0x02;
@@ -197,7 +207,10 @@
 +}
 +
 +undef $/;
-+my $f = <STDIN>;
++my $f = $file ? do {
++    open(my $F, $file) or die "can't open $file: $!\n";
++    <$F>;
++} : <STDIN>;
 +
 +my ($width, $height, $nbcolors) = unpack "x18 V V x20 V", $f;
 +
@@ -208,6 +221,11 @@
 +for (my $i = 0; $i < 3 * $nbcolors; $i += 3) {
 +    ($palette[$i], $palette[$i + 2]) = ($palette[$i + 2], $palette[$i]);
 +}
++
++# we don't want more than 128 colors.
++# if the image contains indices above 128, it will be catched when scanning the image
++# so for now, accept $nbcolors > 128, just adjust it
++$nbcolors = 128 if $nbcolors > 128;
 +
 +print "\x0e\x04";
 +print pack "v v C C" . "C3" x $nbcolors, $width, $height, $nbcolors, 0, @palette;
@@ -249,9 +267,9 @@
 +}
 +
 +1;
---- lilo-22.5.1/lilo.h.pix	2003-03-16 18:53:24.000000000 +0100
-+++ lilo-22.5.1/lilo.h	2003-04-02 12:41:36.000000000 +0200
-@@ -269,7 +269,7 @@
+--- lilo-22.5.9/lilo.h.pix	2004-02-23 22:53:07.000000000 +0100
++++ lilo-22.5.9/lilo.h	2004-08-02 11:59:50.140900898 +0200
+@@ -297,7 +297,7 @@
  #define DC_MAGIC	0xf4f2	/* magic number of default cmd. line sector */
  #define DC_MGOFF	0x6b6d	/* magic number for disabled line */
  
@@ -260,9 +278,9 @@
  #define MAX_MENU_TITLE	37	/* maximum MENU title length */
  
  #define NEW_HDR_SIG	"HdrS"	/* setup header signature */
---- lilo-22.5.1/mdk_graphic.S.pix	2003-04-02 12:41:36.000000000 +0200
-+++ lilo-22.5.1/mdk_graphic.S	2003-04-02 12:41:36.000000000 +0200
-@@ -0,0 +1,791 @@
+--- lilo-22.5.9/mdk_graphic.S.pix	2004-08-02 11:59:50.141900925 +0200
++++ lilo-22.5.9/mdk_graphic.S	2004-08-02 11:59:50.141900925 +0200
+@@ -0,0 +1,856 @@
 +#if 0
 +;Copyright 2000 MandrakeSoft <fpons@mandrakesoft.com>
 +;
@@ -327,6 +345,38 @@
 +
 +arr_vector:
 +	br	input		; ignore the rest
++
++progress_display:
++	test byte [UseVESA],#1		; Silence if not VESA
++	jz progress_ret
++	pusha
++	push es
++	mov es,[VESA_winsegA]
++	mov bl,[ProgressPixel]
++	mov cx,[ProgressX]
++	mov ah,[ProgressXC]
++progress_enlarge_x:
++	mov dx,[ProgressY]
++	mov al,[ProgressYC]
++progress_enlarge_y:
++	push ax
++	push cx
++	push dx
++	call putpixel
++	pop dx
++	pop cx
++	pop ax
++	inc dx
++	dec al
++	jnz progress_enlarge_y
++	inc cx
++	dec ah
++	jnz progress_enlarge_x
++	mov [ProgressX],cx
++	pop es
++	popa
++progress_ret:
++	ret
 +
 +; copied from crt.S and modified for graphical adaptation
 +; timer_display:
@@ -662,6 +712,30 @@
 +		mov [ModeLo],al
 +		mov word [NextCharJump],#msg_ext_set_mode_hi
 +		ret
++msg_ext_progress_y_lo:
++		mov byte [ProgressY],al
++		mov word [NextCharJump],#msg_ext_progress_y_hi
++		ret
++msg_ext_progress_y_hi:
++		mov byte [ProgressY+1],al
++		mov word [NextCharJump],#msg_ext_progress_x_lo
++		ret
++msg_ext_progress_x_lo:
++		mov byte [ProgressX],al
++		mov word [NextCharJump],#msg_ext_progress_x_hi
++		ret
++msg_ext_progress_x_hi:
++		mov byte [ProgressX+1],al
++		mov word [NextCharJump],#msg_ext_progress_yc
++		ret
++msg_ext_progress_yc:
++		mov byte [ProgressYC],al
++		mov word [NextCharJump],#msg_ext_progress_xc
++		ret
++msg_ext_progress_xc:
++		mov byte [ProgressXC],al
++		mov word [NextCharJump],#msg_ext_progress_pixel
++		ret
 +msg_ext_timer_y_lo:
 +		mov byte [TimerY],al
 +		mov word [NextCharJump],#msg_ext_timer_y_hi
@@ -768,8 +842,7 @@
 +		mov byte [IgnoreCount],#2
 +		cmp ah,#0x40
 +		jz msg_ext_ret
-+		mov bx,#msg_ext_ignore
-+		mov byte [IgnoreCount],#7
++		mov bx,#msg_ext_progress_y_lo
 +		cmp ah,#0x20
 +		jz msg_ext_ret
 +		mov bx,#msg_ext_seek_y_lo
@@ -800,6 +873,9 @@
 +		call set_mode
 +msg_ext_follow_multiplex:
 +		jmp msg_ext_multiplex
++msg_ext_progress_pixel:
++		mov byte [ProgressPixel],al
++		jmp msg_ext_follow_multiplex
 +msg_ext_entry_max_length:
 +		mov byte [EntryMaxLength],al
 +		jmp msg_ext_follow_multiplex
@@ -1030,6 +1106,13 @@
 +ExtPutRectH:		dw 1			; Extended putrect Height
 +ExtPage:		dw -1			; Extended page for high resolution
 +
++ProgressPixel:		db 15
++ProgressYC:		db 3
++ProgressXC:		db 24
++			db 0
++ProgressX:		dw 0
++ProgressY:		dw 0
++
 +TimerY:			dw 456
 +TimerX:			dw 592
 +TimerBgColor:		db 0
@@ -1054,9 +1137,9 @@
 +VESA_byteline:		dw 0
 +
 +; end of mdk_graphic.S
---- lilo-22.5.1/second.S.pix	2003-03-14 23:17:02.000000000 +0100
-+++ lilo-22.5.1/second.S	2003-04-02 12:44:08.000000000 +0200
-@@ -450,9 +450,11 @@
+--- lilo-22.5.9/second.S.pix	2004-08-02 11:59:50.118900306 +0200
++++ lilo-22.5.9/second.S	2004-08-02 11:59:50.143900979 +0200
+@@ -470,9 +470,11 @@
  
  virtual_done:
  #endif
@@ -1069,7 +1152,7 @@
  	mov	[abs_cx],bx	! upper left of scroll area
  				! means screen is not cleared
  #endif
-@@ -586,7 +588,8 @@
+@@ -603,7 +605,8 @@
  	seg	es
  	cmp	byte ptr (si),#0 ! empty ?
  	je	iloop		! yes -> enter interactive mode
@@ -1079,7 +1162,7 @@
  
  ! No external parameters after timeout -> boot first image
  
-@@ -594,7 +597,7 @@
+@@ -611,7 +614,7 @@
  	pop	es
  	mov	si,#DFLCMD+2	! default command line ?
  	cmp	byte ptr (si),#0
@@ -1088,7 +1171,7 @@
  	mov	ax,nodfl	! no idea how to tell as86 to do jmp (addr) :-(
  	jmp	ax		! fall through
  
-@@ -631,9 +634,42 @@
+@@ -648,9 +651,42 @@
  
  	push	#SYSSEG
  	pop	ds
@@ -1131,7 +1214,7 @@
  
  	push	cs		! restore segment registers
  	pop	ds
-@@ -668,6 +704,14 @@
+@@ -685,6 +721,14 @@
  	inc	si
  	jmp	gotinp		! go on
  	
@@ -1146,7 +1229,7 @@
  tolist:
  #ifdef BITMAP
  	call	menu_exit
-@@ -680,7 +724,7 @@
+@@ -697,7 +741,7 @@
  	cmp	byte [abs_cx+1],#0
  	je	noNull		! skip cursor keys after Tab
  #endif
@@ -1155,7 +1238,7 @@
  	cmp	al,#0xE0	! extended keyboard
  	je	toNull
  	or	al,al		!
-@@ -695,6 +739,10 @@
+@@ -712,6 +756,10 @@
  	je	tolist		! yes -> list images
  	cmp	al,#63		! "?" ?
  	je	tolist		! yes -> list images
@@ -1166,7 +1249,7 @@
  	or	al,al		! NUL ?
  	je	nul		! yes -> go on
  	cmp	al,#8		! BS ?
-@@ -715,6 +763,11 @@
+@@ -732,6 +780,11 @@
  	je	input		! yes -> ignore it
  noblnk:	cmp	bx,#cmdline+CL_LENGTH ! at end of buffer ?
  	je	input		! yes -> ignore
@@ -1178,21 +1261,7 @@
  	xor	ah,ah		! cmdline is always NUL terminated
  	mov	(bx),ax		! store in the buffer
  	inc	bx		! increment pointer
-@@ -778,6 +831,13 @@
- #ifndef LCF_NOSERIAL
- 	mov	byte ptr break,#0 ! clear the break flag
- #endif
-+#ifdef MDK_GRAPHIC
-+	seg	cs
-+	test	byte [UseVESA],#1
-+	jz	no_need_to_change_to_text
-+	call	set_text_mode
-+no_need_to_change_to_text:
-+#endif
- 	push	cs		! set ES to CS
- 	pop	es
- 	xor	al,al		! mark end
-@@ -953,7 +1013,7 @@
+@@ -974,7 +1027,7 @@
  	cmp	byte ptr cmdline,#0 ! is there a default ?
  	jne	bcmd		! yes -> boot that image
  brfrst:	
@@ -1201,20 +1270,65 @@
  	mov	bx,[dimage]
  	imul	bx,#id_size
  	add	bx,#DESCR0	! boot the selected image
-@@ -986,6 +1046,12 @@
- 
- boot:
- 	mov	si,#cmdline	! locate start of options
+@@ -1079,6 +1132,15 @@
+ 	jne	dopw		! yes -> password required
+ toboot:	br	doboot		! ...
+ dopw:
++
 +#ifdef MDK_GRAPHIC
 +	seg	cs
-+	test	byte [UseVESA],#1
-+	jz	locopt
++	test	byte [UseVESA],#3
++	jz	dopw_next
 +	call	set_text_mode
++dopw_next:
 +#endif
- locopt:	lodsb
- 	or	al,al		! NUL ?
- 	je	optfnd		! yes -> no options
-@@ -2014,12 +2080,12 @@
++
+ #if defined(CRC_PASSWORDS) || defined(SHS_PASSWORDS)
+ 	push	bx		; save the image descriptor
+ ;;	BEG_FS
+@@ -1321,7 +1383,8 @@
+ 
+ ! Boot the image BX points to
+ 
+-doboot:	mov	byte ptr prechr,#61 ! switch to equal sign
++doboot:
++	mov	byte ptr prechr,#61 ! switch to equal sign
+ 	push	bx		! save image descr
+ 	mov	bx,#msg_l	! say hi
+ 	call	say
+@@ -1478,7 +1541,20 @@
+ 	jz	novga
+ vgaset:	seg	es
+ 	 mov	[VGA_SET],ax	! magic offset in the boot sector
+-novga:	push	bx		! use flags (BX) later
++novga:
++#ifdef MDK_GRAPHIC
++	seg	es
++	mov	ax,[VGA_SET]
++	sub	ax,#0x300
++	cmp	ax,#0x100
++	jb	novga2
++	seg	cs
++	test	byte [UseVESA],#1
++	jz	novga2
++	call	set_text_mode
++novga2:
++#endif
++	push	bx		! use flags (BX) later
+ 	test	bx,#FLAG_LOCK	! ... lock target ?
+ 	jnz	lockit		! yup -> do it
+ 	cmp	byte ptr dolock,#0 ! did user ask to lock new target ?
+@@ -1662,6 +1738,9 @@
+ 
+ 	mov	al,#0x2e	! print a dot
+ 	call	display
++#ifdef MDK_GRAPHIC
++	call	progress_display
++#endif
+ 	jmp	lfetch		! try again
+ 
+ ! Start the kernel
+@@ -2103,12 +2182,12 @@
  ! actual entry point is below at 'say:'
  
  say_loop:
@@ -1233,7 +1347,7 @@
  	cmp	al,#12		! ^L ?
  	jne	nocls		! no -> go on
  #ifdef MENU
-@@ -2029,6 +2095,11 @@
+@@ -2118,6 +2197,11 @@
  	cmp	BYTE [abs_cx+1],#0	; graphic screen on?
  	jne	tosnext
  #endif
@@ -1245,7 +1359,7 @@
  	push	bx
  	mov	ah,#0xf		! clear the local screen
  	int	0x10
-@@ -2052,17 +2123,44 @@
+@@ -2141,17 +2225,44 @@
  
  ! Display CR/LF
  
@@ -1293,7 +1407,7 @@
  #ifndef LCF_NOSERIAL
  	call	serdisp
  #endif
-@@ -2121,6 +2219,11 @@
+@@ -2210,6 +2321,11 @@
  	pop	ds
  #endif
  #endif
@@ -1302,10 +1416,10 @@
 +	test	byte [UseVESA],#1	! allow to write if VESA mode is not activated
 +	jnz	dispret
 +#endif
- 	xor	bh,bh		! display on screen
+ ;;;	xor	bh,bh		! display on screen
+ 	mov	bx,#7		! set color for TEXT interface
  	mov	ah,#14
- 	int	0x10
-@@ -2174,12 +2277,16 @@
+@@ -2264,12 +2380,16 @@
  	and	al,#0x7f	! strip 8th bit
  	jnz	gotch		! ignore NULs
  #endif
@@ -1324,7 +1438,7 @@
  	call	timer_display
  no_timer_display:
  #endif
-@@ -2958,6 +3065,10 @@
+@@ -3115,6 +3235,10 @@
  #include "strlen.S"
  #include "crt.S"
  #endif

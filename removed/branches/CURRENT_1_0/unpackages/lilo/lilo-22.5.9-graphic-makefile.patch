@@ -1,5 +1,5 @@
---- lilo-22.5.7.2/loader.h.pix	2003-05-31 23:28:37.000000000 +0200
-+++ lilo-22.5.7.2/loader.h	2003-08-21 00:19:56.000000000 +0200
+--- lilo-22.5.9/loader.h.pix	2003-05-31 23:28:37.000000000 +0200
++++ lilo-22.5.9/loader.h	2004-07-05 14:07:28.603197354 +0200
 @@ -11,6 +11,7 @@
  
  extern BUILTIN_FILE First;
@@ -8,8 +8,8 @@
  extern BUILTIN_FILE Third;
  extern BUILTIN_FILE Bitmap;
  extern BUILTIN_FILE Mbr;
---- lilo-22.5.7.2/loader.S.pix	2003-08-15 05:05:42.000000000 +0200
-+++ lilo-22.5.7.2/loader.S	2003-08-21 00:19:56.000000000 +0200
+--- lilo-22.5.9/loader.S.pix	2003-08-15 05:05:42.000000000 +0200
++++ lilo-22.5.9/loader.S	2004-07-05 14:07:28.603197354 +0200
 @@ -6,6 +6,7 @@
  
  	global	First
@@ -31,9 +31,9 @@
  Third		dd	ThirdEnd-$-4
  #ifdef LCF_BUILTIN
  incbin	"third.b"
---- lilo-22.5.7.2/Makefile.pix	2003-08-20 20:41:15.000000000 +0200
-+++ lilo-22.5.7.2/Makefile	2003-08-21 00:20:39.000000000 +0200
-@@ -82,7 +82,7 @@
+--- lilo-22.5.9/Makefile.pix	2004-04-09 01:36:15.000000000 +0200
++++ lilo-22.5.9/Makefile	2004-07-05 14:08:05.523302004 +0200
+@@ -84,7 +84,7 @@
  LD86=ld86 -0
  NASM=nasm
  
@@ -42,16 +42,16 @@
  LDFLAGS=#-Xlinker -qmagic
  LIBS=
  
-@@ -94,7 +94,7 @@
+@@ -96,7 +96,7 @@
  LIS=chain.lis disk.lis dparam.lis os2_d.lis first.lis second.lis \
    bootsect.lis third.lis mbr.lis bitmap.lis loader.lis pseudo.lis \
-   mbr2.lis
+   mbr2.lis pseudo1.lis
 -BFILES=first.b second.b third.b bitmap.b chain.b mbr.b mbr2.b \
 +BFILES=first.b second.b third.b second-graphic.b bitmap.b chain.b mbr.b mbr2.b \
-   bootsect.b pseudo.b
+   bootsect.b pseudo.b pseudo1.b
  CFILES=boot.c bsect.c cfg.c common.c device.c edit.c geometry.c \
    identify.c lilo.c map.c partition.c probe.c raid.c shs2.c temp.c
-@@ -173,7 +173,7 @@
+@@ -180,7 +180,7 @@
  edit:		$(EDIT)
  		$(CC) -Wall -s -O -DSTANDALONE -o edit $(EDIT) $(LDFLAGS)
  
@@ -60,7 +60,7 @@
  			chain.b os2_d.b mbr2.b
  		$(NASM) -f elf -o loader.o -l loader.lis  loader.s
  
-@@ -244,6 +244,9 @@
+@@ -263,6 +263,9 @@
  boot-text.b:	first.b second.b
  		(dd if=first.b bs=512 conv=sync; dd if=second.b) >boot-text.b
  
@@ -70,7 +70,7 @@
  boot-menu.b:	first.b third.b
  		(dd if=first.b bs=512 conv=sync; dd if=third.b) >boot-menu.b
  
-@@ -254,6 +257,7 @@
+@@ -273,6 +276,7 @@
  		$(CPP) -C -traditional -DLILO_ASM -o common.s common.h
  
  bitmap.o: bitmap.s common.s
@@ -78,9 +78,9 @@
  third.o: third.s common.s
  second.o: second.s common.s
  first.o: first.s common.s
-@@ -266,6 +270,10 @@
+@@ -285,6 +289,10 @@
  			graph.S menu.S strlen.S bitmap.S display4.S
- 		$(CPP) $(PCONFIG) -DTEXT=0xf2cf5bf3 second.S -o second.s
+ 		$(CPP) $(PCONFIG) -DTEXT=0xce60f1b7 second.S -o second.s
  
 +second-graphic.s:	second.S mdk_graphic.S read.S volume.S mapper.S biosdata.S shs3.S bdata.h lilo.h version.h \
 +			graph.S menu.S strlen.S bitmap.S display4.S
@@ -88,9 +88,9 @@
 +
  third.s:	second.S read.S volume.S mapper.S biosdata.S bdata.h lilo.h version.h \
  			graph.S menu.S strlen.S crt.S
- 		$(CPP) $(PCONFIG) -DMENU=0xe3005ce7 second.S -o third.s
---- lilo-22.5.7.2/bsect.c.pix	2003-08-15 07:52:13.000000000 +0200
-+++ lilo-22.5.7.2/bsect.c	2003-08-21 00:19:56.000000000 +0200
+ 		$(CPP) $(PCONFIG) -DMENU=0x662efe71 second.S -o third.s
+--- lilo-22.5.9/bsect.c.pix	2004-03-11 01:59:45.000000000 +0100
++++ lilo-22.5.9/bsect.c	2004-07-05 14:07:28.605197360 +0200
 @@ -84,14 +84,29 @@
  
  static PASSWORD *pwsave = NULL;

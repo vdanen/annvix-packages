@@ -1,0 +1,20 @@
+--- lilo-22.5.8/boot.c.page	2003-12-19 23:48:04.000000000 +0100
++++ lilo-22.5.8/boot.c	2003-12-19 23:48:08.000000000 +0100
+@@ -19,6 +19,7 @@
+ #include <errno.h>
+ #include <a.out.h>
+ #include <sys/stat.h>
++#include <asm/page.h>
+ 
+ #include "config.h"
+ #include "lilo.h"
+--- lilo-22.5.8/partition.c.page	2003-08-15 06:00:43.000000000 +0200
++++ lilo-22.5.8/partition.c	2003-12-19 23:48:26.000000000 +0100
+@@ -23,6 +23,7 @@
+ #include <asm/unistd.h>
+ #include <limits.h>
+ /*#include <linux/fs.h>*/
++#include <asm/page.h>
+ #include <time.h>
+ #include "config.h"
+ #include "lilo.h"
