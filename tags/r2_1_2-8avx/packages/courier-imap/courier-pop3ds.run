@@ -1,0 +1,30 @@
+#!/bin/sh
+PATH="/sbin:/usr/sbin:/bin:/usr/bin:$PATH"
+
+# this runs courier-imap's POP3S daemon under supervise
+
+# source the pop3s configuration
+[ -f /etc/courier/pop3d ] && . /etc/courier/pop3d
+[ -f /etc/courier/pop3d-ssl ] && . /etc/courier/pop3d-ssl
+
+# defaults; can be overwritten by sysconfig
+MAX_MEMORY="14000000"
+CONCURRENCY="250"
+SSLPORT="995"
+
+# source sysconfig file
+[ -f /etc/sysconfig/pop3d-ssl ] && . /etc/sysconfig/pop3d-ssl
+
+HOSTNAME="`hostname --fqdn`"
+
+LIBAUTHMODULES=""
+for f in `echo $AUTHMODULES`
+do
+    LIBAUTHMODULES="$LIBAUTHMODULES /usr/lib/courier/authlib/$f"
+done
+
+exec /usr/bin/softlimit -m "$MAX_MEMORY" \
+  /usr/bin/tcpserver -c"$CONCURRENCY" -vRhX \
+  -x /etc/tcprules.d/pop3d-ssl.cdb -l"$HOSTNAME" \
+  0 $SSLPORT /usr/bin/couriertls -server -tcpd /usr/sbin/pop3login $LIBAUTHMODULES \
+  /usr/bin/pop3d Maildir 2>&1
