@@ -1,8 +1,6 @@
 %define name	lsb
 %define version	1.3
-%define release	8sls
-
-%{!?build_opensls:%global build_opensls 0}
+%define release	9sls
 
 Summary:	The skeleton package defining packages needed for LSB compliance.
 Name:		%{name}
@@ -22,9 +20,6 @@ Requires:	pax lsb-release make smtpdaemon ed glibc_lsb
 Requires:	XFree86-devel expect lpddaemon perl-DBI glibc-i18ndata
 Requires:	vim-enhanced diffutils file gettext chkconfig
 Requires:	mtools csh
-%if !%{build_opensls}
-Requires:	/etc/sgml
-%endif
 
 %description
 The skeleton package defining packages needed for LSB compliance.
@@ -103,7 +98,7 @@ chmod 0644 $RPM_BUILD_ROOT/etc/gateways
 
 # (sb) concession for lsb-apache to run
 %pre
-%_pre_groupadd nobody
+%_pre_groupadd nobody 65533
 
 %post
 
@@ -147,6 +142,10 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) /etc/gateways
 
 %changelog
+* Fri Feb 06 2004 Vincent Danen <vdanen@opensls.org> 1.3-9sls
+- nogroup has static gid 65533
+- remove %%build_opensls macro
+
 * Tue Dec 30 2003 Vincent Danen <vdanen@opensls.org> 1.3-8sls
 - OpenSLS build
 - tidy spec
