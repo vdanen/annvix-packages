@@ -1,6 +1,6 @@
 %define name	initscripts
 %define version	7.06
-%define release	34sls
+%define release	35sls
 
 # 	$Id: initscripts.spec,v 1.329 2003/09/22 17:03:40 warly Exp $	
 
@@ -33,7 +33,6 @@ Requires:	gettext-base >= 0.10.35-20mdk
 Requires:	/sbin/fuser, which, setup >= 2.2.0-14mdk
 Requires:	/sbin/ip, /usr/sbin/arping
 Requires:	perl-MDK-Common >= 1.0.1
-Requires:	ifplugd
 Requires:	util-linux >= 2.10s, mount >= 2.11l, SysVinit
 Requires:	bootloader-utils > 1.4-1mdk
 Prereq:		chkconfig >= 1.3.8-3mdk, gawk, fileutils, /usr/bin/tr, grep
@@ -46,14 +45,14 @@ Conflicts:	XFree86-xfs < 4.2.0-12mdk
 
 %description
 The initscripts package contains the basic system scripts used to boot
-your SLS system, change run levels, and shut the system
-down cleanly.  Initscripts also contains the scripts that activate and
-deactivate most network interfaces.
+your OpenSLS system, change run levels, and shut the system down cleanly.
+Initscripts also contains the scripts that activate and deactivate most
+network interfaces.
 
 %prep
 %setup -q
 %patch0 -p2
-%patch2 -p1
+%patch2 -p0
 
 %build
 make
@@ -63,8 +62,8 @@ for i in *.po;do file $i|grep -q empty && rm -f $i;done && \
 popd
 
 %install
-rm -rf $RPM_BUILD_ROOT
-mkdir -p $RPM_BUILD_ROOT/etc
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}
 make ROOT=$RPM_BUILD_ROOT SUPERUSER=`id -un` SUPERGROUP=`id -gn` mandir=%{_mandir} install 
 mkdir -p $RPM_BUILD_ROOT/var/run/netreport
 chmod u=rwx,g=rwx,o=rx $RPM_BUILD_ROOT/var/run/netreport
@@ -72,7 +71,14 @@ chmod u=rwx,g=rwx,o=rx $RPM_BUILD_ROOT/var/run/netreport
 #MDK
 make -C mandrake/ install ROOT=$RPM_BUILD_ROOT mandir=%{_mandir}
 
-python mandrake/gprintify.py `find %{buildroot}/etc/rc.d -type f` `find %{buildroot}/sysconfig/network-scripts -type f`
+# OpenSLS
+pushd %{buildroot}%{_sysconfdir}/rc.d/init.d
+mv mandrake_firstime opensls_firstime
+mv mandrake_everytime opensls_everytme
+mv mandrake_consmap opensls_consmap
+popd
+
+python mandrake/gprintify.py `find %{buildroot}%{_sysconfdir}/rc.d -type f` `find %{buildroot}/sysconfig/network-scripts -type f`
 
 # warly 
 # put locale in /usr, gettext need /usr/share
@@ -90,20 +96,22 @@ python mandrake/gprintify.py `find %{buildroot}/etc/rc.d -type f` `find %{buildr
 %find_lang %{name}
 
 # remove S390 and isdn stuff
-rm -f $RPM_BUILD_ROOT/etc/sysconfig/init.s390 $RPM_BUILD_ROOT/etc/sysconfig/network-scripts/{ifdown-ippp,ifup-ctc,ifup-escon,ifup-ippp,ifup-iucv}
+rm -f $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/init.s390 $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/network-scripts/{ifdown-ippp,ifup-ctc,ifup-escon,ifup-ippp,ifup-iucv}
 
 # remove unpackaged files
-rm -f $RPM_BUILD_ROOT/etc/sysconfig/alsa
+rm -f $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/alsa
 rm -f $RPM_BUILD_ROOT/usr/share/alsa/alsa-utils
 rm -f $RPM_BUILD_ROOT/usr/bin/partmon
-rm -f $RPM_BUILD_ROOT/etc/rc.d/init.d/{alsa,dm,partmon,sound}
+rm -f $RPM_BUILD_ROOT/usr/sbin/supermount
+rm -f $RPM_BUILD_ROOT/usr/share/man/man8/supermount*
+rm -f $RPM_BUILD_ROOT%{_sysconfdir}/rc.d/init.d/{alsa,dm,partmon,sound}
 
 # we have our own copy of gprintify
 export DONT_GPRINTIFY=1
 
 %post
 ##Fixme
-touch /etc/sysconfig/i18n
+touch %{_sysconfdir}/sysconfig/i18n
 ##
 touch /var/log/wtmp
 touch /var/run/utmp
@@ -121,46 +129,46 @@ chmod 664 /var/log/wtmp /var/run/utmp
 # handle serial installs semi gracefully
 if [ $1 = 0 ]; then
   if [ "$TERM" = "vt100" ]; then
-      tmpfile=`mktemp /etc/sysconfig/tmp.XXXXXX`
-      sed -e '/BOOTUP=color/BOOTUP=serial/' /etc/sysconfig/init > $tmpfile
-      mv -f $tmpfile /etc/sysconfig/init
+      tmpfile=`mktemp %{_sysconfdir}/sysconfig/tmp.XXXXXX`
+      sed -e '/BOOTUP=color/BOOTUP=serial/' %{_sysconfdir}/sysconfig/init > $tmpfile
+      mv -f $tmpfile %{_sysconfdir}/sysconfig/init
   fi
 fi
 
 # dup of timeconfig %post - here to avoid a dependency
-if [ -L /etc/localtime ]; then
-    _FNAME=`ls -ld /etc/localtime | awk '{ print $11}' | sed 's/lib/share/'`
-    rm /etc/localtime
-    cp -f $_FNAME /etc/localtime
-    if ! grep -q "^ZONE=" /etc/sysconfig/clock ; then
-      echo "ZONE=\"$_FNAME"\" | sed -e "s|[^\"]*/usr/share/zoneinfo/||" >> /etc/sysconfig/clock
+if [ -L %{_sysconfdir}/localtime ]; then
+    _FNAME=`ls -ld %{_sysconfdir}/localtime | awk '{ print $11}' | sed 's/lib/share/'`
+    rm %{_sysconfdir}/localtime
+    cp -f $_FNAME %{_sysconfdir}/localtime
+    if ! grep -q "^ZONE=" %{_sysconfdir}/sysconfig/clock ; then
+      echo "ZONE=\"$_FNAME"\" | sed -e "s|[^\"]*/usr/share/zoneinfo/||" >> %{_sysconfdir}/sysconfig/clock
     fi
 fi
 
-# /etc/sysconfig/desktop format has changed
-if [ -r /etc/sysconfig/desktop ]; then
-    if ! grep -q = /etc/sysconfig/desktop; then
-        DESK=`cat /etc/sysconfig/desktop`
-        echo "DESKTOP=$DESK" > /etc/sysconfig/desktop
+# %{_sysconfdir}/sysconfig/desktop format has changed
+if [ -r %{_sysconfdir}/sysconfig/desktop ]; then
+    if ! grep -q = %{_sysconfdir}/sysconfig/desktop; then
+        DESK=`cat %{_sysconfdir}/sysconfig/desktop`
+        echo "DESKTOP=$DESK" > %{_sysconfdir}/sysconfig/desktop
     fi
 fi
 
 # handle serial installs semi gracefully
 if [ $1 = 0 ]; then
   if [ "$TERM" = "vt100" ]; then
-      tmpfile=/etc/sysconfig/tmp.$$
-      sed -e '/BOOTUP=color/BOOTUP=serial/' /etc/sysconfig/init > $tmpfile
-      mv -f $tmpfile /etc/sysconfig/init
+      tmpfile=%{_sysconfdir}/sysconfig/tmp.$$
+      sed -e '/BOOTUP=color/BOOTUP=serial/' %{_sysconfdir}/sysconfig/init > $tmpfile
+      mv -f $tmpfile %{_sysconfdir}/sysconfig/init
   fi
 fi
 
 # dup of timeconfig %post - here to avoid a dependency
-if [ -L /etc/localtime ]; then
-    _FNAME=`ls -ld /etc/localtime | awk '{ print $11}' | sed 's/lib/share/'`
-    rm /etc/localtime
-    cp -f $_FNAME /etc/localtime
-    if ! grep -q "^ZONE=" /etc/sysconfig/clock ; then
-      echo "ZONE=\"$_FNAME"\" | sed -e "s|[^\"]*/usr/share/zoneinfo/||" >> /etc/sysconfig/clock
+if [ -L %{_sysconfdir}/localtime ]; then
+    _FNAME=`ls -ld %{_sysconfdir}/localtime | awk '{ print $11}' | sed 's/lib/share/'`
+    rm %{_sysconfdir}/localtime
+    cp -f $_FNAME %{_sysconfdir}/localtime
+    if ! grep -q "^ZONE=" %{_sysconfdir}/sysconfig/clock ; then
+      echo "ZONE=\"$_FNAME"\" | sed -e "s|[^\"]*/usr/share/zoneinfo/||" >> %{_sysconfdir}/sysconfig/clock
     fi
 fi
 
@@ -168,9 +176,9 @@ fi
 for i in `echo $LANGUAGE:$LC_ALL:$LC_COLLATE:$LANG:C | tr ':' ' '`
 do
 	if [ -r %{_datadir}/locale/$i/LC_MESSAGES/initscripts.mo ]; then
-		mkdir -p /etc/locale/$i/LC_MESSAGES/
+		mkdir -p %{_sysconfdir}/locale/$i/LC_MESSAGES/
 		cp %{_datadir}/locale/$i/LC_MESSAGES/initscripts.mo \
-			/etc/locale/$i/LC_MESSAGES/
+			%{_sysconfdir}/locale/$i/LC_MESSAGES/
                 #
 		# warly
 		# FIXME: this should be done by each locale when installed or upgraded
@@ -178,11 +186,11 @@ do
 		pushd %{_datadir}/locale/$i/ > /dev/null && for j in LC_*
 		do
 			if [ -r $j -a ! -d $j ]; then
-			    cp $j /etc/locale/$i/
+			    cp $j %{_sysconfdir}/locale/$i/
 			fi
 		done && popd > /dev/null
 		if [ -r %{_datadir}/locale/$i/LC_MESSAGES/SYS_LC_MESSAGES ]; then
-			cp %{_datadir}/locale/$LANG/LC_MESSAGES/SYS_LC_MESSAGES /etc/locale/$i/LC_MESSAGES/
+			cp %{_datadir}/locale/$LANG/LC_MESSAGES/SYS_LC_MESSAGES %{_sysconfdir}/locale/$i/LC_MESSAGES/
 		fi
 		#
 		#
@@ -190,16 +198,16 @@ do
 	fi
 done
 
-%define initlvl_chg() if [[ -f /etc/rc3.d/S%{2}%{1} ]] && [[ -f /etc/rc5.d/S%{2}%{1} ]] && egrep -q 'chkconfig: [0-9]+ %{3}' /etc/init.d/%{1}; then chkconfig --add %{1} || : ; fi; \
+%define initlvl_chg() if [[ -f %{_sysconfdir}/rc3.d/S%{2}%{1} ]] && [[ -f %{_sysconfdir}/rc5.d/S%{2}%{1} ]] && egrep -q 'chkconfig: [0-9]+ %{3}' %{_sysconfdir}/init.d/%{1}; then chkconfig --add %{1} || : ; fi; \
 %{nil}
 
 # only needed on upgrade
 if [ $1 != 0 ]; then
 	# handle the switch to an independant prefdm initscript
-	if grep -q '^x:5' /etc/inittab; then
-		rm -f /etc/inittab.new
-		sed 's/x:5/#x:5/' < /etc/inittab > /etc/inittab.new
-		mv -f /etc/inittab.new /etc/inittab
+	if grep -q '^x:5' %{_sysconfdir}/inittab; then
+		rm -f %{_sysconfdir}/inittab.new
+		sed 's/x:5/#x:5/' < %{_sysconfdir}/inittab > %{_sysconfdir}/inittab.new
+		mv -f %{_sysconfdir}/inittab.new %{_sysconfdir}/inittab
 		chkconfig --add dm || :
 	fi
 
@@ -209,7 +217,7 @@ fi
 
 # usb is called from rc.sysinit now
 if [ "$1" -gt 0 ]; then
-	/bin/grep -q 'chkconfig:' /etc/init.d/usb 2> /dev/null && /sbin/chkconfig --del usb > /dev/null 2>&1 || :
+	/bin/grep -q 'chkconfig:' %{_sysconfdir}/init.d/usb 2> /dev/null && /sbin/chkconfig --del usb > /dev/null 2>&1 || :
 fi
 
 %preun
@@ -223,35 +231,35 @@ fi
 
 %triggerpostun -- initscripts <= 4.72
 
-. /etc/sysconfig/init
-. /etc/sysconfig/network
+. %{_sysconfdir}/sysconfig/init
+. %{_sysconfdir}/sysconfig/network
 
 # These are the non-default settings. By putting them at the end
-# of the /etc/sysctl.conf file, it will override the default
+# of the %{_sysconfdir}/sysctl.conf file, it will override the default
 # settings earlier in the file.
 
 if [ -n "$FORWARD_IPV4" -a "$FORWARD_IPV4" != "no" -a "$FORWARD_IPV4" != "false" ]; then
-	echo "# added by initscripts install on `date`" >> /etc/sysctl.conf
-	echo "net.ipv4.ip_forward = 1" >> /etc/sysctl.conf
+	echo "# added by initscripts install on `date`" >> %{_sysconfdir}/sysctl.conf
+	echo "net.ipv4.ip_forward = 1" >> %{_sysconfdir}/sysctl.conf
 fi
 
-newnet=`mktemp /etc/sysconfig/network.XXXXXX`
+newnet=`mktemp %{_sysconfdir}/sysconfig/network.XXXXXX`
 if [ -n "$newnet" ]; then
-  sed "s|FORWARD_IPV4.*|# FORWARD_IPV4 removed; see /etc/sysctl.conf|g" \
-   /etc/sysconfig/network > $newnet
+  sed "s|FORWARD_IPV4.*|# FORWARD_IPV4 removed; see %{_sysconfdir}/sysctl.conf|g" \
+   %{_sysconfdir}/sysconfig/network > $newnet
   sed "s|DEFRAG_IPV4.*|# DEFRAG_IPV4 removed; obsolete in 2.4. kernel|g" \
-   $newnet > /etc/sysconfig/network
+   $newnet > %{_sysconfdir}/sysconfig/network
   rm -f $newnet
 fi
 
 if [ -n "$MAGIC_SYSRQ" -a "$MAGIC_SYSRQ" != "no" ]; then
-	echo "# added by initscripts install on `date`" >> /etc/sysctl.conf
-	echo "kernel.sysrq = 1" >> /etc/sysctl.conf
+	echo "# added by initscripts install on `date`" >> %{_sysconfdir}/sysctl.conf
+	echo "kernel.sysrq = 1" >> %{_sysconfdir}/sysctl.conf
 fi
 if uname -m | grep -q sparc ; then
    if [ -n "$STOP_A" -a "$STOP_A" != "no" ]; then
-	echo "# added by initscripts install on `date`" >> /etc/sysctl.conf
-	echo "kernel.stop-a = 1" >> /etc/sysctl.conf
+	echo "# added by initscripts install on `date`" >> %{_sysconfdir}/sysctl.conf
+	echo "kernel.stop-a = 1" >> %{_sysconfdir}/sysctl.conf
    fi
 fi
 
@@ -260,88 +268,88 @@ if [ -f /var/lock/TMP_1ST ];then
 		rm -f /var/lock/TMP_1ST
 fi
 if [ "$1" = "0" ]; then
-	for i in /etc/locale/*/LC_MESSAGES/initscripts.mo
+	for i in %{_sysconfdir}/locale/*/LC_MESSAGES/initscripts.mo
 	do
 		rm -f $i
 		rmdir `dirname $i` >/dev/null 2> /dev/null
 	done
-	rmdir /etc/locale/* >/dev/null 2> /dev/null
+	rmdir %{_sysconfdir}/locale/* >/dev/null 2> /dev/null
 fi
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files -f %{name}.lang
 %defattr(-,root,root)
-%dir /etc/sysconfig/network-scripts
-%dir /etc/sysconfig/network-scripts/ifup.d
-%dir /etc/sysconfig/network-scripts/ifdown.d
-%config(noreplace) %verify(not md5 mtime size) /etc/adjtime
-%config(noreplace) /etc/sysconfig/init
-%config(noreplace) /etc/sysconfig/autofsck
-/etc/sysconfig/network-scripts/ifdown
+%dir %{_sysconfdir}/sysconfig/network-scripts
+%dir %{_sysconfdir}/sysconfig/network-scripts/ifup.d
+%dir %{_sysconfdir}/sysconfig/network-scripts/ifdown.d
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/adjtime
+%config(noreplace) %{_sysconfdir}/sysconfig/init
+%config(noreplace) %{_sysconfdir}/sysconfig/autofsck
+%{_sysconfdir}/sysconfig/network-scripts/ifdown
 %config(noreplace) /sbin/ifdown
-%config(noreplace) /etc/sysconfig/network-scripts/ifdown-post
-/etc/sysconfig/network-scripts/ifup
+%config(noreplace) %{_sysconfdir}/sysconfig/network-scripts/ifdown-post
+%{_sysconfdir}/sysconfig/network-scripts/ifup
 %config(noreplace) /sbin/ifup
-%dir /etc/sysconfig/console
-%dir /etc/sysconfig/console/consoletrans
-%dir /etc/sysconfig/console/consolefonts
-%dir /etc/sysconfig/networking
-%dir /etc/sysconfig/networking/tmp
-%dir /etc/sysconfig/networking/devices
-%dir /etc/sysconfig/networking/profiles
-%dir /etc/sysconfig/networking/profiles/default
-%config(noreplace) /etc/sysconfig/networking/ifcfg-lo
-%config(noreplace) /etc/sysconfig/rawdevices
-%config(noreplace) /etc/sysconfig/network-scripts/network-functions
-%config(noreplace) /etc/sysconfig/network-scripts/network-functions-ipv6
-%config(noreplace) /etc/sysconfig/network-scripts/init.ipv6-global
-%config(noreplace) /etc/sysconfig/network-scripts/ifcfg-lo
-%config(noreplace) /etc/sysconfig/network-scripts/ifup-ipx
-%config(noreplace) /etc/sysconfig/network-scripts/ifup-post
-%config(noreplace) /etc/sysconfig/network-scripts/ifdown-ppp
-%config(noreplace) /etc/sysconfig/network-scripts/ifdown-sl
-%config(noreplace) /etc/sysconfig/network-scripts/ifup-ppp
-%config(noreplace) /etc/sysconfig/network-scripts/ifup-sl
-%config(noreplace) /etc/sysconfig/network-scripts/ifup-routes
-%config(noreplace) /etc/sysconfig/network-scripts/ifup-plip
-%config(noreplace) /etc/sysconfig/network-scripts/ifup-plusb
-%config(noreplace) /etc/sysconfig/network-scripts/ifup-ipv6
-%config(noreplace) /etc/sysconfig/network-scripts/ifdown-ipv6
-%config(noreplace) /etc/sysconfig/network-scripts/ifup-sit
-%config(noreplace) /etc/sysconfig/network-scripts/ifdown-sit
-%config(noreplace) /etc/sysconfig/network-scripts/ifup-aliases
-%config(noreplace) /etc/sysconfig/network-scripts/ifdown-aliases
-#%config(noreplace) /etc/sysconfig/network-scripts/ifup-ippp
-#%config(noreplace) /etc/sysconfig/network-scripts/ifdown-ippp
-%config(noreplace) /etc/sysconfig/network-scripts/ifup-wireless
-%config(noreplace) /etc/X11/prefdm
-%config(noreplace) /etc/inittab
-%config(noreplace missingok) /etc/rc.d/rc[0-9].d/*
-/etc/init.d
-/etc/rc[0-9].d
-/etc/rc
-%dir /etc/rc.d/init.d
-/etc/rc.local
-/etc/rc.sysinit
-%config(noreplace) /etc/rc.d/init.d/*
-%config(noreplace) /etc/rc.d/rc
-%config(noreplace) /etc/rc.d/rc.local
-%config(noreplace) /etc/rc.d/rc.sysinit
-%config(noreplace) /etc/sysctl.conf
-%config(noreplace) /etc/profile.d/10lang.sh
-%config(noreplace) /etc/profile.d/10lang.csh
+%dir %{_sysconfdir}/sysconfig/console
+%dir %{_sysconfdir}/sysconfig/console/consoletrans
+%dir %{_sysconfdir}/sysconfig/console/consolefonts
+%dir %{_sysconfdir}/sysconfig/networking
+%dir %{_sysconfdir}/sysconfig/networking/tmp
+%dir %{_sysconfdir}/sysconfig/networking/devices
+%dir %{_sysconfdir}/sysconfig/networking/profiles
+%dir %{_sysconfdir}/sysconfig/networking/profiles/default
+%config(noreplace) %{_sysconfdir}/sysconfig/networking/ifcfg-lo
+%config(noreplace) %{_sysconfdir}/sysconfig/rawdevices
+%config(noreplace) %{_sysconfdir}/sysconfig/network-scripts/network-functions
+%config(noreplace) %{_sysconfdir}/sysconfig/network-scripts/network-functions-ipv6
+%config(noreplace) %{_sysconfdir}/sysconfig/network-scripts/init.ipv6-global
+%config(noreplace) %{_sysconfdir}/sysconfig/network-scripts/ifcfg-lo
+%config(noreplace) %{_sysconfdir}/sysconfig/network-scripts/ifup-ipx
+%config(noreplace) %{_sysconfdir}/sysconfig/network-scripts/ifup-post
+%config(noreplace) %{_sysconfdir}/sysconfig/network-scripts/ifdown-ppp
+%config(noreplace) %{_sysconfdir}/sysconfig/network-scripts/ifdown-sl
+%config(noreplace) %{_sysconfdir}/sysconfig/network-scripts/ifup-ppp
+%config(noreplace) %{_sysconfdir}/sysconfig/network-scripts/ifup-sl
+%config(noreplace) %{_sysconfdir}/sysconfig/network-scripts/ifup-routes
+%config(noreplace) %{_sysconfdir}/sysconfig/network-scripts/ifup-plip
+%config(noreplace) %{_sysconfdir}/sysconfig/network-scripts/ifup-plusb
+%config(noreplace) %{_sysconfdir}/sysconfig/network-scripts/ifup-ipv6
+%config(noreplace) %{_sysconfdir}/sysconfig/network-scripts/ifdown-ipv6
+%config(noreplace) %{_sysconfdir}/sysconfig/network-scripts/ifup-sit
+%config(noreplace) %{_sysconfdir}/sysconfig/network-scripts/ifdown-sit
+%config(noreplace) %{_sysconfdir}/sysconfig/network-scripts/ifup-aliases
+%config(noreplace) %{_sysconfdir}/sysconfig/network-scripts/ifdown-aliases
+#%config(noreplace) %{_sysconfdir}/sysconfig/network-scripts/ifup-ippp
+#%config(noreplace) %{_sysconfdir}/sysconfig/network-scripts/ifdown-ippp
+%config(noreplace) %{_sysconfdir}/sysconfig/network-scripts/ifup-wireless
+%config(noreplace) %{_sysconfdir}/X11/prefdm
+%config(noreplace) %{_sysconfdir}/inittab
+%config(noreplace missingok) %{_sysconfdir}/rc.d/rc[0-9].d/*
+%{_sysconfdir}/init.d
+%{_sysconfdir}/rc[0-9].d
+%{_sysconfdir}/rc
+%dir %{_sysconfdir}/rc.d/init.d
+%{_sysconfdir}/rc.local
+%{_sysconfdir}/rc.sysinit
+%config(noreplace) %{_sysconfdir}/rc.d/init.d/*
+%config(noreplace) %{_sysconfdir}/rc.d/rc
+%config(noreplace) %{_sysconfdir}/rc.d/rc.local
+%config(noreplace) %{_sysconfdir}/rc.d/rc.sysinit
+%config(noreplace) %{_sysconfdir}/sysctl.conf
+%config(noreplace) %{_sysconfdir}/profile.d/10lang.sh
+%config(noreplace) %{_sysconfdir}/profile.d/10lang.csh
 #mdk
-%config(noreplace) /etc/sysconfig/usb
+%config(noreplace) %{_sysconfdir}/sysconfig/usb
 #mdk
-%config(noreplace) /etc/profile.d/inputrc.sh
+%config(noreplace) %{_sysconfdir}/profile.d/inputrc.sh
 #mdk
-%config(noreplace) /etc/profile.d/inputrc.csh
+%config(noreplace) %{_sysconfdir}/profile.d/inputrc.csh
 #mdk
-%config(noreplace) /etc/profile.d/tmpdir.sh
+%config(noreplace) %{_sysconfdir}/profile.d/tmpdir.sh
 #mdk
-%config(noreplace) /etc/profile.d/tmpdir.csh
+%config(noreplace) %{_sysconfdir}/profile.d/tmpdir.csh
 /usr/sbin/sys-unconfig
 /sbin/setsysfont
 /bin/doexec
@@ -364,35 +372,39 @@ rm -rf $RPM_BUILD_ROOT
 %lang(ru)	%{_mandir}/ru/man*/*
 %lang(uk)	%{_mandir}/uk/man*/*
 %dir %attr(775,root,root) /var/run/netreport
-%dir /etc/ppp
-%dir /etc/ppp/ip-down.d
-%dir /etc/ppp/ip-up.d
-%dir /etc/ppp/peers
-%config(noreplace) /etc/ppp/ip-up
-%config(noreplace) /etc/ppp/ip-down
-%config(noreplace) /etc/ppp/ip-up.ipv6to4
-%config(noreplace) /etc/ppp/ip-down.ipv6to4
-%config(noreplace) /etc/ppp/ipv6-up
-%config(noreplace) /etc/ppp/ipv6-down
-%config(noreplace) /etc/initlog.conf
+%dir %{_sysconfdir}/ppp
+%dir %{_sysconfdir}/ppp/ip-down.d
+%dir %{_sysconfdir}/ppp/ip-up.d
+%dir %{_sysconfdir}/ppp/peers
+%config(noreplace) %{_sysconfdir}/ppp/ip-up
+%config(noreplace) %{_sysconfdir}/ppp/ip-down
+%config(noreplace) %{_sysconfdir}/ppp/ip-up.ipv6to4
+%config(noreplace) %{_sysconfdir}/ppp/ip-down.ipv6to4
+%config(noreplace) %{_sysconfdir}/ppp/ipv6-up
+%config(noreplace) %{_sysconfdir}/ppp/ipv6-down
+%config(noreplace) %{_sysconfdir}/initlog.conf
 %doc sysconfig.txt sysvinitfiles ChangeLog static-routes-ipv6 ipv6-tunnel.howto ipv6-6to4.howto
 %ghost %attr(0664,root,utmp) /var/log/wtmp
 %ghost %attr(0664,root,utmp) /var/run/utmp
-%config(noreplace) /etc/modules
-%config(noreplace) /etc/rc.d/rc.modules
-%ifnarch sparc
-/usr/sbin/supermount
-%endif
+%config(noreplace) %{_sysconfdir}/modules
+%config(noreplace) %{_sysconfdir}/rc.d/rc.modules
 /usr/bin/*
 # warly
 # gettext need /use/share/locale anyway
-#%dir /etc/locale
-#%dir /etc/locale/*
-#%dir /etc/locale/*/LC_MESSAGES
+#%dir %{_sysconfdir}/locale
+#%dir %{_sysconfdir}/locale/*
+#%dir %{_sysconfdir}/locale/*/LC_MESSAGES
 
 # EDIT IN CVS NOT IN SOURCE PACKAGE (NO PATCH ALLOWED).
 
 %changelog
+* Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 7.06-35sls
+- remove supermount
+- minor spec cleanups
+- remove ifplugd requirement
+- more OpenSLS branding
+- s/mandrake_{everytime,firstime,consmap}/opensls_{everytime,firstime,consmap}/
+
 * Tue Jan 27 2004 Vincent Danen <vdanen@opensls.org> 7.06-34sls
 - remove P1 (supervise functions)
 - remove dm, alsa, sound, partmon initscripts
