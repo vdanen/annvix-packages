@@ -1,13 +1,12 @@
 %define name	exim
-%define version 4.34
-%define release 2avx
+%define version 4.41
+%define release 1avx
 
 %define build_mysql 0
 %define build_pgsql 0
 %define build_mon   0
-%define htmldocver  4.30
-%define exiscanver  4.34-21
-%define saversion   4.0
+%define exiscanver  4.41-25
+%define saversion   4.1
 
 %define alternatives 1
 %define altpriority  40
@@ -147,6 +146,7 @@ make RPM_OPT_FLAGS="$RPM_OPT_FLAGS"
 
 # build SA-exim
 cd sa-exim*
+perl -pi -e 's|/usr/lib/exim4/local_scan|%{_libdir}/exim|g' INSTALL
 make clean
 make SACONF=/etc/exim/sa-exim.conf CFLAGS="$RPM_OPT_FLAGS" LDFLAGS="-shared -fPIC"
 
@@ -197,10 +197,10 @@ install -m 0755 %{SOURCE14} %{buildroot}%{_srvdir}/exim/log/run
 
 # install SA-exim
 cd sa-exim*
-mkdir -p %{buildroot}%{_prefix}/libexec/exim
-install -m 0644 *.so %{buildroot}%{_prefix}/libexec/exim
+mkdir -p %{buildroot}%{_libdir}/exim
+install -m 0644 *.so %{buildroot}%{_libdir}/exim
 install -m 0644 *.conf %{buildroot}%{_sysconfdir}/exim
-pushd %{buildroot}%{_prefix}/libexec/exim
+pushd %{buildroot}%{_libdir}/exim
 ln -s sa-exim*.so sa-exim.so
 popd
 
@@ -307,12 +307,19 @@ fi
 %files saexim
 %defattr(-,root,root)
 %doc sa-exim*/*.html sa-exim*/{ACKNOWLEDGEMENTS,INSTALL,LICENSE,TODO}
-%dir %{_prefix}/libexec/exim
-%{_prefix}/libexec/exim/*
+%dir %{_libdir}/exim
+%{_libdir}/exim/*
 %config(noreplace) %{_sysconfdir}/exim/sa-exim.conf
 %config(noreplace) %{_sysconfdir}/exim/sa-exim_short.conf
 
 %changelog
+* Thu Aug 19 2004 Vincent Danen <vdanen@annvix.org> 4.41-1avx
+- 4.41
+- exiscan-acl 4.41-25
+- sa-exim 4.1
+- move saexim libs from /usr/libexec/exim to %%{_libdir}/exim
+- update the patch location in the sa-exim INSTALL doc
+
 * Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 4.34-2avx
 - Annvix build
 - don't build the X11 monitor (%%build_mon macro)
