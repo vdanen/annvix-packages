@@ -1,8 +1,8 @@
 %define name	sed
-%define version	4.0.7
-%define release	4avx
+%define version	4.1.4
+%define release	1avx
 
-Summary:	A GNU stream text editor.
+Summary:	A GNU stream text editor
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -10,9 +10,8 @@ License:	GPL
 Group:		Editors
 URL:		http://www.gnu.org/software/sed/
 Source0:	ftp://ftp.gnu.org/pub/gnu/sed/sed-%{version}.tar.bz2
-Patch0:		http://oss.software.ibm.com/developer/opensource/linux/patches/i18n/sed-3.02-i18n-0.5.patch.bz2
 
-Buildroot:	%_tmppath/%name-%version-root
+Buildroot:	%{_tmppath}/%{name}-%{version}-root
 
 Prereq:		info-install
 
@@ -25,39 +24,41 @@ specified in a script file or from the command line.
 
 %prep
 %setup -q
-#%patch -p1 -b .i18n
 
 %build
-%configure
+%configure2_5x --bindir=/bin
 %make LDFLAGS=-s
 make check
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-%makeinstall
+%makeinstall_std
 
-mkdir $RPM_BUILD_ROOT/bin
-mv $RPM_BUILD_ROOT{%_bindir,/bin}/sed
+rm -rf %{buildroot}%{_datadir}/doc
 
-%find_lang %name
+%find_lang %{name}
 
 %post
-%_install_info %name.info
+%_install_info %{name}.info
 
 %preun
-%_remove_install_info %name.info
+%_remove_install_info %{name}.info
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-%files -f %name.lang
+%files -f %{name}.lang
 %defattr(-,root,root)
-%doc BUGS NEWS README
+%doc BUGS NEWS README doc/sed.html
 /bin/sed 
-%_infodir/sed.info*
-%_mandir/man1/sed.1.bz2
+%{_infodir}/sed.info*
+%{_mandir}/man1/sed.1.bz2
 
 %changelog
+* Fri Mar 04 2005 Vincent Danen <vdanen@annvix.org> 4.1.4-1avx
+- 4.1.4
+- spec cleanups
+
 * Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 4.0.7-4avx
 - require info-install rather than /sbin/install-info
 - Annvix build
