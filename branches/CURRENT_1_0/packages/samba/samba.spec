@@ -1,6 +1,6 @@
 %define name	samba
 %define version	3.0.11
-%define release	1avx
+%define release	2avx
 
 %define smbldapver	0.8.6
 %define vscanver	0.3.5
@@ -43,7 +43,7 @@ Patch8:         samba-3.0.11-avx-annvix-config.patch.bz2
 BuildRoot:      %{_tmppath}/%{name}-%{version}-root
 BuildRequires:  pam-devel readline-devel libncurses-devel popt-devel
 BuildRequires:  libxml2-devel postgresql-devel
-BuildRequires:  mysql-devel
+BuildRequires:  MySQL-devel
 BuildRequires:  libacl-devel
 BuildRequires:  libldap-devel krb5-devel
 
@@ -292,7 +292,7 @@ perl -pi -e 's/-g //g' Makefile
 perl -pi -e 's|-Wl,-rpath,%{_libdir}||g;s|-Wl,-rpath -Wl,%{_libdir}||g' Makefile
 
 make proto_exists
-%make all libsmbclient smbfilter wins modules bin/smbget client/mount.cifs
+%make all libsmbclient smbfilter wins modules bin/smbget client/mount.cifs bin/idmap_rid.so
 )
 
 pushd %{vfsdir}/%{vscandir}  
@@ -342,6 +342,10 @@ install -m 755 source/nsswitch/pam_winbind.so %{buildroot}/%{_lib}/security/pam_
 
 install -m755 source/bin/libsmbclient.a %{buildroot}%{_libdir}/libsmbclient.a
 
+# winbind idmap_rid:
+install -d %{buildroot}%{_libdir}/%{name}/idmap
+install source/bin/idmap_rid.so %{buildroot}%{_libdir}/%{name}/idmap
+
 # smbsh forgotten
 #install -m 755 source/bin/smbsh %{buildroot}%{_bindir}/
 
@@ -358,38 +362,14 @@ done
 
 # Install other stuff
 
-        install -m644 packaging/Mandrake/smbusers %{buildroot}%{_sysconfdir}/%{name}/smbusers
-        install -m755 packaging/Mandrake/smbprint %{buildroot}%{_bindir}
-        install -m755 packaging/Mandrake/findsmb %{buildroot}%{_bindir}
-        install -m755 packaging/Mandrake/smb.init %{buildroot}%{_sbindir}/%{name}
-	install -m755 packaging/Mandrake/winbind.init %{buildroot}%{_sbindir}/winbind
-        install -m644 packaging/Mandrake/samba.pamd %{buildroot}%{_sysconfdir}/pam.d/%{name}
-	install -m644 packaging/Mandrake/system-auth-winbind.pamd %{buildroot}%{_sysconfdir}/pam.d/system-auth-winbind
-        install -m644 %{SOURCE1} %{buildroot}%{_sysconfdir}/logrotate.d/%{name}
-
-# Install smbldap-tools scripts:
-for i in examples/LDAP/smbldap-tools-%{smbldapver}/smbldap-*; do
-	install -m 750 $i %{buildroot}%{_datadir}/%{name}/scripts/
-	ln -s %{_datadir}/%{name}/scripts/`basename $i` %{buildroot}/%{_bindir}/`basename $i|sed -e 's/\.pl//g'`
-done
-
-install -m 750 examples/LDAP/smbldap-tools-%{smbldapver}/smbldap_tools.pm %{buildroot}%{_datadir}/%{name}/scripts/
-
-# The conf file	
-install -m 640 examples/LDAP/smbldap-tools-%{smbldapver}/smbldap*.conf %{buildroot}%{_sysconfdir}/%{name}
-
-perl -pi -e 's,^(my.*_conf.*etc).*/(\w+\.conf.*),${1}/samba/${2},g' %{buildroot}%{_datadir}/%{name}/scripts/smbldap_tools.pm
-perl -pi -e 's,/usr/local/sbin/smbldap-passwd.pl,%{_datadir}/%{name}/scripts/smbldap-passwd.pl,g' %{buildroot}%{_datadir}/%{name}/scripts/smbldap-useradd.pl 
-
-# Link both smbldap*.pm into vendor-perl (any better ideas?)
-mkdir -p %{buildroot}%{perl_vendorlib}
-ln -s %{_sysconfdir}/%{name}/smbldap_conf.pm %{buildroot}%{perl_vendorlib}/smbldap_conf.pm
-ln -s %{_datadir}/%{name}/scripts/smbldap_tools.pm %{buildroot}%{perl_vendorlib}/smbldap_tools.pm
-#mkntpwd
-#install -m750 examples.bin/LDAP/smbldap-tools-%{smbldapver}/mkntpwd/mkntpwd %{buildroot}%{_sbindir}/mkntpwd
-
-# Samba smbpasswd migration script:
-install -m755 examples/LDAP/convertSambaAccount %{buildroot}%{_datadir}/%{name}/scripts/
+install -m644 packaging/Mandrake/smbusers %{buildroot}%{_sysconfdir}/%{name}/smbusers
+install -m755 packaging/Mandrake/smbprint %{buildroot}%{_bindir}
+install -m755 packaging/Mandrake/findsmb %{buildroot}%{_bindir}
+install -m755 packaging/Mandrake/smb.init %{buildroot}%{_sbindir}/%{name}
+install -m755 packaging/Mandrake/winbind.init %{buildroot}%{_sbindir}/winbind
+install -m644 packaging/Mandrake/samba.pamd %{buildroot}%{_sysconfdir}/pam.d/%{name}
+install -m644 packaging/Mandrake/system-auth-winbind.pamd %{buildroot}%{_sysconfdir}/pam.d/system-auth-winbind
+install -m644 %{SOURCE1} %{buildroot}%{_sysconfdir}/logrotate.d/%{name}
 
 # make a conf file for winbind from the default one:
 	cat packaging/Mandrake/smb.conf|sed -e  's/^;  winbind/  winbind/g;s/^;  obey pam/  obey pam/g; s/^;   printer admin = @"D/   printer admin = @"D/g;s/^;   password server = \*/   password server = \*/g;s/^;  template/  template/g; s/^   security = user/   security = domain/g' > packaging/Mandrake/smb-winbind.conf
@@ -569,14 +549,6 @@ fi
 %_preun_srv smbd
 %_preun_srv nmbd
 
-if [ $1 = 0 ] ; then
-# Let's not loose /var/cache/samba
-    if [ -d /var/cache/%{name} ]; then
-      mv -f /var/cache/%{name} /var/cache/%{name}.BAK
-    fi
-fi
-
-
 %post -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
 
@@ -621,14 +593,6 @@ fi
 %{_libdir}/%{name}/pdb/*pgsql.so
 %{_libdir}/%{name}/pdb/*xml.so
 
-%attr(0750,root,adm) %{_datadir}/%{name}/scripts/smbldap-*
-%attr(0750,root,adm) %{_bindir}/smbldap*
-%attr(0640,root,adm) %config(noreplace) %{_sysconfdir}/%{name}/smbldap*.conf
-%attr(0644,root,root) %{_datadir}/%{name}/scripts/smbldap_tools.pm
-%{perl_vendorlib}/*.pm
-#%attr(0700,root,root) %{_datadir}/%{name}/scripts/*port_smbpasswd.pl
-%attr(0755,root,root) %{_datadir}/%{name}/scripts/convertSambaAccount
-
 %dir %{_srvdir}/smbd
 %dir %{_srvdir}/smbd/log
 %dir %{_srvdir}/nmbd
@@ -637,14 +601,14 @@ fi
 %{_srvdir}/smbd/log/run
 %{_srvdir}/nmbd/run
 %{_srvdir}/nmbd/log/run
-%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/smbd
-%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/nmbd
+%dir %attr(0750,logger,logger) %{_srvlogdir}/smbd
+%dir %attr(0750,logger,logger) %{_srvlogdir}/nmbd
 
 %files swat
 %defattr(-,root,root)
 %dir %{_srvdir}/swat
 %dir %{_srvdir}/swat/log
-%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/swat
+%dir %attr(0750,logger,logger) %{_srvlogdir}/swat
 %{_srvdir}/swat/run
 %{_srvdir}/swat/log/run
 %{_sbindir}/swat
@@ -745,12 +709,13 @@ fi
 %{_bindir}/wbinfo
 %attr(755,root,root) /%{_lib}/security/pam_winbind*
 %attr(755,root,root) /%{_lib}/libnss_winbind*
+%attr(755,root,root) %{_libdir}/%{name}/idmap/idmap_rid.so
 %{_mandir}/man8/pam_winbind*.8*
 %{_mandir}/man8/winbindd*.8*
 %{_mandir}/man1/wbinfo*.1*
 %dir %{_srvdir}/winbindd
 %dir %{_srvdir}/winbindd/log
-%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/winbindd
+%dir %attr(0750,logger,logger) %{_srvlogdir}/winbindd
 %{_srvdir}/winbindd/run
 %{_srvdir}/winbindd/log/run
 
@@ -789,6 +754,12 @@ fi
 %exclude %{_mandir}/man1/smbsh*.1*
 
 %changelog
+* Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 3.0.11-2avx
+- use logger for logging
+- add the idmap_rid module (bgmilne)
+- put smbldap-tools as it's own package (bgmilne)
+- drop the unnecessary cache file backup (bgmilne)
+
 * Tue Feb 15 2005 Vincent Danen <vdanen@annvix.org> 3.0.11-1avx
 - 3.0.11
 - fix nmbd/log/run script
