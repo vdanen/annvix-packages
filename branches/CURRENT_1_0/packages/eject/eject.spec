@@ -1,6 +1,6 @@
 %define name	eject
 %define version 2.0.13
-%define release 5sls
+%define release 6sls
 
 Summary:	A program that ejects removable media using software control.
 Name:		%{name}
@@ -10,7 +10,6 @@ License:	GPL
 Group:		System/Kernel and hardware
 URL:		http://metalab.unc.edu/pub/Linux/utils/disk-management/
 Source:		http://metalab.unc.edu/pub/Linux/utils/disk-management/eject-%version.tar.bz2
-Patch:		eject-supermount.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-buildroot
 BuildRequires:	gettext
@@ -26,14 +25,13 @@ software control.
 
 %prep
 %setup -q
-%patch -p1 -b .supermount
 
 %build
 %configure
 %make DEFAULTDEVICE="/dev/cdrom"
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p $RPM_BUILD_ROOT%{_bindir}
 mkdir -p $RPM_BUILD_ROOT%{_mandir}/man1
 
@@ -42,7 +40,7 @@ mkdir -p $RPM_BUILD_ROOT%{_mandir}/man1
 %find_lang %name
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files -f %name.lang
 %defattr(-,root,root)
@@ -53,6 +51,10 @@ rm -rf $RPM_BUILD_ROOT
 %_mandir/man1/volname.1*
 
 %changelog
+* Thu Mar 04 2004 Vincent Danen <vdanen@opensls.org> 2.0.13-6sls
+- minor spec cleanups
+- remove the supermount patch
+
 * Mon Dec 08 2003 Vincent Danen <vdanen@opensls.org> 2.0.13-5sls
 - OpenSLS build
 - tidy spec
