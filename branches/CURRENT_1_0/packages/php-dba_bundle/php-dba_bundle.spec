@@ -93,6 +93,9 @@ EOF
 %config(noreplace) %{_sysconfdir}/php.d/%{inifile}
 
 %changelog
+* Thu Dec 16 2004 Vincent Danen <vdanen@annvix.org> 4.3.10-1avx
+- php 4.3.10
+
 * Wed Sep 29 2004 Vincent Danen <vdanen@annvix.org> 4.3.9-1avx
 - php 4.3.9
 

@@ -101,6 +101,9 @@ install -m755 %{soname} %{buildroot}%{phpdir}/extensions/
 %config(noreplace) %attr(0644,root,root) %{_sysconfdir}/php.d/%{inifile}
 
 %changelog
+* Thu Dec 16 2004 Vincent Danen <vdanen@annvix.org> 4.3.10_2.0.4-1avx
+- php 4.3.10
+
 * Thu Sep 30 2004 Vincent Danen <vdanen@annvix.org> 4.3.9_2.0.4-1avx
 - first Annvix build
 
