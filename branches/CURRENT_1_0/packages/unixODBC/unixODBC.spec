@@ -1,6 +1,6 @@
 %define name	unixODBC
 %define version	2.2.6
-%define release	5sls
+%define release	6sls
 
 %{!?build_opensls:%global build_opensls 0}
 
@@ -105,7 +105,7 @@ This package contains the include files and static libraries for development.
 %package gui-qt
 Summary: 	ODBC configurator, Data Source browser and ODBC test tool based on Qt
 Group: 		Databases
-Requires: 	%{name} = %version-%release
+Requires: 	%{name} = %version-%release %{libname}-qt
 
 %description gui-qt
 unixODBC aims to provide a complete ODBC solution for the Linux platform.
@@ -139,7 +139,8 @@ cd ../..
 %endif
 
 %build
-export QTDIR=%{_libdir}/qt3
+# QTDIR is always /usr/lib/qt3 because it has /lib{,64} in it too
+export QTDIR=%{_prefix}/lib/qt3
 
 # Search for qt/kde libraries in the right directories (avoid patch)
 # NOTE: please don't regenerate configure scripts below
@@ -304,12 +305,15 @@ rm -f libodbc-libs.filelist
 
 
 %files -n %{libname} -f libodbc-libs.filelist
+%defattr(-,root,root)
+%_libdir/libodbcpsql*.so
 
 %files -n %{libname}-devel 
 %defattr(-,root,root)
 %doc doc/
 %{_includedir}/*
 %_libdir/lib*.so
+%exclude %_libdir/libodbcpsql*.so
 %_libdir/*.a
 %_libdir/*.la
 
@@ -341,6 +345,13 @@ rm -f libodbc-libs.filelist
 %endif
 
 %changelog
+* Wed Dec 31 2003 Vincent Danen <vdanen@opensls.org> 2.2.6-6sls
+- sync with 5mdk (gbeauchesne): fix build on amd64
+- sync with 6mdk (sbenedict): anthill bug 51 - move postgres .so symlinks to
+  core lib for OOo
+- sync with 7mdk (sbenedict): add explicit requires to unixODBC-gui-qt
+  [Bug 6391]
+
 * Sat Dec 13 2003 Vincent Danen <vdanen@opensls.org> 2.2.6-5sls
 - OpenSLS build
 - tidy spec
