@@ -1,6 +1,6 @@
 %define name	nfs-utils
 %define	version	1.0.5
-%define release	6avx
+%define release	7avx
 
 %define	url	ftp://ftp.kernel.org:/pub/linux/utils/nfs
 
@@ -23,8 +23,8 @@ Source15:	rpc.nfsd.run
 Source16:	rpc.nfsd-log.run
 Source17:	rpc.mountd.run
 Source18:	rpc.mountd-log.run
-Source19:	rpc.mountd.stop
-Source20:	rpc.nfsd.stop
+Source19:	rpc.mountd.finish
+Source20:	rpc.nfsd.finish
 Patch1:		nfs-utils-0.2beta-nowrap.patch.bz2
 Patch3:		nfs-utils-0.3.3-statd-manpage.patch.bz2
 Patch4:		eepro-support.patch.bz2
@@ -104,8 +104,8 @@ install -m 0755 %{SOURCE15} %{buildroot}%{_srvdir}/rpc.nfsd/run
 install -m 0755 %{SOURCE16} %{buildroot}%{_srvdir}/rpc.nfsd/log/run
 install -m 0755 %{SOURCE17} %{buildroot}%{_srvdir}/rpc.mountd/run
 install -m 0755 %{SOURCE18} %{buildroot}%{_srvdir}/rpc.mountd/log/run
-install -m 0755 %{SOURCE19} %{buildroot}%{_srvdir}/rpc.mountd/stop
-install -m 0755 %{SOURCE20} %{buildroot}%{_srvdir}/rpc.nfsd/stop
+install -m 0755 %{SOURCE19} %{buildroot}%{_srvdir}/rpc.mountd/finish
+install -m 0755 %{SOURCE20} %{buildroot}%{_srvdir}/rpc.nfsd/finish
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -169,13 +169,13 @@ fi
 %dir %{_srvdir}/rpc.nfsd
 %dir %{_srvdir}/rpc.nfsd/log
 %{_srvdir}/rpc.nfsd/run
-%{_srvdir}/rpc.nfsd/stop
+%{_srvdir}/rpc.nfsd/finish
 %{_srvdir}/rpc.nfsd/log/run
 %dir %attr(0750,nobody,nogroup) %{_srvlogdir}/rpc.nfsd
 %dir %{_srvdir}/rpc.mountd
 %dir %{_srvdir}/rpc.mountd/log
 %{_srvdir}/rpc.mountd/run
-%{_srvdir}/rpc.mountd/stop
+%{_srvdir}/rpc.mountd/finish
 %{_srvdir}/rpc.mountd/log/run
 %dir %attr(0750,nobody,nogroup) %{_srvlogdir}/rpc.mountd
 
@@ -203,6 +203,10 @@ fi
 %dir %attr(0750,nobody,nogroup) %{_srvlogdir}/rpc.statd
 
 %changelog
+* Fri Sep 17 2004 Vincent Danen <vdanen@annvix.org> 1.0.5-7avx
+- update run scripts
+- stop scripts are now finish scripts
+
 * Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 1.0.5-6avx
 - Annvix build
 

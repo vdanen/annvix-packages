@@ -1,30 +1,12 @@
 #!/bin/sh
-PATH="/sbin:/usr/sbin:/bin:/usr/bin:$PATH"
+PATH="/sbin:/usr/sbin:/bin:/usr/bin"
 
-# this runs rpc.mountd under supervise
+# this runs rpc.mountd supervised
 
-# if portmap hasn't been linked, log an error and put the service down
-if [ ! -d /service/portmap ]; then
-  echo "portmap must be linked to /service to run this service!"
-  touch down
-  svc -d /service/rpc.mountd
-  touch log/down
-  svc -d /service/rpc.mountd/log
-  exit 0
-fi
-# if rpc.nfsd hasn't been linked, log an error and put the service down
-if [ ! -d /service/rpc.nfsd ]; then
-  echo "rpc.nfsd must be linked to /service to run this service!"
-  touch down
-  svc -d /service/rpc.mountd
-  touch log/down
-  svc -d /service/rpc.mountd/log
-  exit 0
-fi
+. /usr/share/srv/functions
 
-# we need to wait for portmap and rpc.nfsd
-[ "x`svstat /service/portmap|grep down >/dev/null 2>&1; echo $?`" = "x0" ] && sleep 10
-[ "x`svstat /service/rpc.nfsd|grep down >/dev/null 2>&1; echo $?`" = "x0" ] && sleep 10
+checkdepends portmap
+checkdepends rpc.nfsd
 
 . /etc/sysconfig/network
 
@@ -66,5 +48,6 @@ case $MOUNTD_NFS_V3 in
 esac
 
 /usr/sbin/exportfs -f 2>&1
+/usr/sbin/exportfs -r 2>&1
 
 exec /usr/sbin/rpc.mountd -F $MOUNTD_OPTIONS 2>&1
