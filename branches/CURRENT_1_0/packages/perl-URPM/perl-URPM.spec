@@ -1,6 +1,6 @@
 %define name	perl-URPM
-%define version 0.94
-%define release 14avx
+%define version 1.03
+%define release 1avx
 
 %define real_name URPM
 
@@ -38,7 +38,6 @@ hdlist files and manage them in memory.
 %build
 %{__perl} Makefile.PL INSTALLDIRS=vendor
 %{__make} OPTIMIZE="$RPM_OPT_FLAGS"
-%{__make} test
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -50,14 +49,17 @@ hdlist files and manage them in memory.
 %files
 %defattr(-,root,root)
 %doc README
-#%{_mandir}/man3pm/*
 %{compat_perl_vendorarch}/URPM.pm
 %{compat_perl_vendorarch}/URPM
 %dir %{compat_perl_vendorarch}/auto/URPM
 %{compat_perl_vendorarch}/auto/URPM/URPM.so
+%{_mandir}/man3/*
 
 
 %changelog
+* Tue Sep 14 2004 Vincent Danen <vdanen@annvix.org> 1.03-1avx
+- 1.03
+
 * Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 0.94-14avx
 - Annvix build
 
