@@ -1,6 +1,6 @@
 %define name	mkinitrd
 %define version 3.4.43
-%define release 19avx
+%define release 20avx
 %define epoch	1
 
 %define use_dietlibc 0
@@ -88,6 +88,9 @@ rm -f %{buildroot}%{_mandir}/*/grubby*
 %{_mandir}/*/*
 
 %changelog
+* Sun Feb 27 2005 Vincent Danen <vdanen@annvix.rg> 3.4.43-20avx
+- remove calls to handledevfs
+
 * Fri Feb 04 2005 Vincent Danen <vdanen@annvix.rg> 3.4.43-19avx
 - rebuild against new dietlibc
 
