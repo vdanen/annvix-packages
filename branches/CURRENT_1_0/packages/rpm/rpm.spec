@@ -3,7 +3,7 @@
 %define poptver		1.8
 # You need increase both release and poptrelease
 %define poptrelease	%{release}
-%define release		23sls
+%define release		24sls
 
 %define url		ftp://ftp.rpm.org/pub/rpm/dist/rpm-4.0.x
 %define pyver		%(python -V 2>&1 | cut -f2 -d" " | cut -f1,2 -d".")
@@ -56,7 +56,7 @@ Patch17:	rpm-4.2-gendiff-improved.patch.bz2
 Patch18:	rpm-4.2-langvar.patch.bz2
 # (fredl) script failures don't break install/upgrade/removal
 Patch22:	rpm-4.0.3-script-dont-fail.patch.bz2
-Patch23:	rpm-4.0.4-spec-mode-mdkconf.patch.bz2
+Patch23:	rpm-4.2-spec-mode-mdkconf.patch.bz2
 Patch24:	rpm-4.0.3-patch-exit.patch.bz2
 # (pablo) in turk I isn't the upper case of i
 # test: LC_ALL=tr rpm -q glibc
@@ -90,6 +90,7 @@ Patch50:	rpm-4.2-python-site-lisp.patch.bz2
 Patch51:	rpm-4.2-rpmal-fix-crash.patch.bz2
 # (vdanen) use stack protection by default
 Patch52:	rpm-4.2-stackmacros.patch.bz2
+Patch53:	rpm-4.2-unpackaged-links.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-root
 BuildRequires:	autoconf2.5
@@ -481,6 +482,8 @@ fi
 %attr(0755, rpm, rpm) %{rpmdir}/rpm[deiukqv]
 %attr(0644, rpm, rpm) %{rpmdir}/rpmpopt*
 %attr(0644, rpm, rpm) %{rpmdir}/rpmrc
+%{_libdir}/rpmpopt
+%{_libdir}/rpmrc
 %rpmattr	%{_prefix}/lib/rpm/rpm2cpio.sh
 %rpmattr	%{_prefix}/lib/rpm/tgpg
 
@@ -639,6 +642,23 @@ fi
 %{_includedir}/popt.h
 
 %changelog
+* Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 4.2-23sls
+- sync with 23mdk (flepied): 
+  - don't put prefix in spec file template created by emacs
+    spec-mode [bug #6282] (Gotz Waschk)
+  - also abort build when a symlink isn't listed [bug #6370] (Gotz Waschk)
+- sync with 24mdk (flepied):
+  - corrected wrong automatic perl-base requires [bug #6439]
+  - try to find interpreters only when the scripts begin with #! [bug #6430]
+  - don't put an automatic devel(linux-gate) depedendency [ bug #6553]
+  - auto-generate a dependency on pkgconfig if a .pc file is found in
+    /usr/lib(64)?/pkgconfig [bug #6438]
+- sync with 25mdk (flepied):
+  - really fix bug #6553
+  - take into account automatic perl Requires/Provides only when starting
+    with a capital letter
+
+
 * Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 4.2-23sls
 - bump to 23sls so we can upgrade from mdk 9.2+updates
 

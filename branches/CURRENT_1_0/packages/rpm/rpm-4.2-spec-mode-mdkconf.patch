@@ -1,5 +1,5 @@
---- ./rpm-spec-mode.el.chmou	2003-01-08 23:51:30.000000000 +0100
-+++ ./rpm-spec-mode.el	2003-01-08 23:51:55.000000000 +0100
+--- rpm-4.2/rpm-spec-mode.el.mdkel	2003-12-09 12:49:24.000000000 +0100
++++ rpm-4.2/rpm-spec-mode.el	2003-12-09 12:59:18.000000000 +0100
 @@ -61,9 +61,14 @@
  ;;
  
@@ -48,17 +48,18 @@
      ("%description")
      ("Distribution")
      ("DistURL")
-@@ -331,39 +346,130 @@
+@@ -331,39 +346,103 @@
      ("Version"))
    "List of elements that are valid tags.")
  
 +;; echo "(defvar rpm-group-tags-list"
-+;; echo "	;; Auto generated from Mandrake GROUPS file"
++;; echo "      ;; Auto generated from Mandrake linux GROUPS file"
 +;; printf "\t%s\n" "'("
-+;; for i in $(cat /usr/share/doc/*/GROUPS);do
-+;; 		printf "\t   %s%s%s\n" '("' $i '")'
++;; cat /usr/share/doc/*/GROUPS | while read i; do
++;;             printf "\t   %s%s%s\n" '("' "$i" '")'
 +;; done
 +;; printf "\t%s\n\t%s" ")" '"List of elements that are valid group tags.")'
++
  (defvar rpm-group-tags-list
 -  ;; From RPM 4.1 sources, file GROUPS.
 -  '(("Amusements/Games")
@@ -92,16 +93,14 @@
 -    ("User Interface/X Hardware Support")
 -    )
 -  "List of elements that are valid group tags.")
-+	;; Auto generated from Mandrake GROUPS file
++      ;; Auto generated from Mandrake Linux GROUPS file
 +	'(
 +	   ("Accessibility")
 +	   ("Archiving/Backup")
-+	   ("Archiving/Cd")
-+	   ("burning")
++	   ("Archiving/Cd burning")
 +	   ("Archiving/Compression")
 +	   ("Archiving/Other")
-+	   ("Books/Computer")
-+	   ("books")
++	   ("Books/Computer books")
 +	   ("Books/Faqs")
 +	   ("Books/Howtos")
 +	   ("Books/Litterature")
@@ -111,21 +110,16 @@
 +	   ("Development/C")
 +	   ("Development/C++")
 +	   ("Development/Databases")
-+	   ("Development/GNOME")
-+	   ("and")
-+	   ("GTK+")
++	   ("Development/GNOME and GTK+")
 +	   ("Development/Java")
-+	   ("Development/KDE")
-+	   ("and")
-+	   ("QT")
++	   ("Development/KDE and QT")
 +	   ("Development/Kernel")
 +	   ("Development/Other")
 +	   ("Development/Perl")
 +	   ("Development/Python")
 +	   ("Editors")
 +	   ("Emulators")
-+	   ("File")
-+	   ("tools")
++	   ("File tools")
 +	   ("Games/Adventure")
 +	   ("Games/Arcade")
 +	   ("Games/Boards")
@@ -134,45 +128,31 @@
 +	   ("Games/Puzzles")
 +	   ("Games/Sports")
 +	   ("Games/Strategy")
-+	   ("Graphical")
-+	   ("desktop/Enlightenment")
-+	   ("Graphical")
-+	   ("desktop/FVWM")
-+	   ("based")
-+	   ("Graphical")
-+	   ("desktop/GNOME")
-+	   ("Graphical")
-+	   ("desktop/Icewm")
-+	   ("Graphical")
-+	   ("desktop/KDE")
-+	   ("Graphical")
-+	   ("desktop/Other")
-+	   ("Graphical")
-+	   ("desktop/Sawfish")
-+	   ("Graphical")
-+	   ("desktop/Window")
-+	   ("Maker")
++	   ("Graphical desktop/Enlightenment")
++	   ("Graphical desktop/FVWM based")
++	   ("Graphical desktop/GNOME")
++	   ("Graphical desktop/Icewm")
++	   ("Graphical desktop/KDE")
++	   ("Graphical desktop/Other")
++	   ("Graphical desktop/Sawfish")
++	   ("Graphical desktop/Window Maker")
 +	   ("Graphics")
 +	   ("Monitoring")
 +	   ("Networking/Chat")
-+	   ("Networking/File")
-+	   ("transfer")
++	   ("Networking/File transfer")
 +	   ("Networking/IRC")
-+	   ("Networking/Instant")
-+	   ("messaging")
++	   ("Networking/Instant messaging")
 +	   ("Networking/Mail")
 +	   ("Networking/News")
 +	   ("Networking/Other")
-+	   ("Networking/Remote")
-+	   ("access")
++	   ("Networking/Remote access")
 +	   ("Networking/WWW")
 +	   ("Office")
 +	   ("Publishing")
 +	   ("Sciences/Astronomy")
 +	   ("Sciences/Biology")
 +	   ("Sciences/Chemistry")
-+	   ("Sciences/Computer")
-+	   ("science")
++	   ("Sciences/Computer science")
 +	   ("Sciences/Geosciences")
 +	   ("Sciences/Mathematics")
 +	   ("Sciences/Other")
@@ -180,30 +160,23 @@
 +	   ("Shells")
 +	   ("Sound")
 +	   ("System/Base")
-+	   ("System/Configuration/Boot")
-+	   ("and")
-+	   ("Init")
++	   ("System/Configuration/Boot and Init")
 +	   ("System/Configuration/Hardware")
 +	   ("System/Configuration/Networking")
 +	   ("System/Configuration/Other")
 +	   ("System/Configuration/Packaging")
 +	   ("System/Configuration/Printing")
 +	   ("System/Fonts/Console")
-+	   ("System/Fonts/True")
-+	   ("type")
++	   ("System/Fonts/True type")
 +	   ("System/Fonts/Type1")
-+	   ("System/Fonts/X11")
-+	   ("bitmap")
++	   ("System/Fonts/X11 bitmap")
 +	   ("System/Internationalization")
-+	   ("System/Kernel")
-+	   ("and")
-+	   ("hardware")
++	   ("System/Kernel and hardware")
 +	   ("System/Libraries")
 +	   ("System/Servers")
 +	   ("System/XFree86")
 +	   ("Terminals")
-+	   ("Text")
-+	   ("tools")
++	   ("Text tools")
 +	   ("Toys")
 +	   ("Video")
 +	)
@@ -211,7 +184,7 @@
  
  (defvar rpm-spec-mode-syntax-table nil
    "Syntax table in use in `rpm-spec-mode' buffers.")
-@@ -423,6 +529,7 @@
+@@ -423,6 +502,7 @@
    (define-key rpm-spec-mode-map "\C-c\C-xo" 'rpm-files-owner)
    (define-key rpm-spec-mode-map "\C-c\C-xp" 'rpm-change-target-option)
    (define-key rpm-spec-mode-map "\C-c\C-xr" 'rpm-toggle-rmsource)
@@ -219,7 +192,7 @@
    (define-key rpm-spec-mode-map "\C-c\C-xs" 'rpm-toggle-short-circuit)
    (define-key rpm-spec-mode-map "\C-c\C-xu" 'rpm-files-umask)
    ;;(define-key rpm-spec-mode-map "\C-q" 'indent-spec-exp)
-@@ -460,6 +567,8 @@
+@@ -460,6 +540,8 @@
                ("Build Options"
                 ["Short circuit" rpm-toggle-short-circuit
                  :style toggle :selected rpm-spec-short-circuit]
@@ -228,7 +201,7 @@
                 ["Remove source" rpm-toggle-rmsource
                  :style toggle :selected rpm-spec-rmsource]
                 ["Clean"         rpm-toggle-clean
-@@ -489,7 +598,7 @@
+@@ -489,7 +571,7 @@
  
  (defvar rpm-spec-font-lock-keywords
    '(
@@ -237,7 +210,7 @@
      ("^\\([a-zA-Z0-9]+\\)\\(\([a-zA-Z0-9,]+\)\\):"
       (1 rpm-spec-tag-face)
       (2 rpm-spec-ghost-face))
-@@ -599,20 +708,29 @@
+@@ -599,20 +681,29 @@
  
  (defun rpm-add-change-log-entry (&optional change-log-entry)
    "Find change log and add an entry for today."
@@ -281,7 +254,7 @@
  
  ;;------------------------------------------------------------
  
-@@ -879,7 +997,7 @@
+@@ -879,7 +970,7 @@
  (defun rpm-build (buildoptions)
    "Build this RPM package."
    (setq rpm-buffer-name
@@ -290,7 +263,7 @@
                  (file-name-nondirectory buffer-file-name) "*"))
    (rpm-process-check rpm-buffer-name)
    (if (get-buffer rpm-buffer-name)
-@@ -895,6 +1013,8 @@
+@@ -895,6 +986,8 @@
        (setq buildoptions (cons "--clean" buildoptions)))
    (if rpm-spec-short-circuit
        (setq buildoptions (cons "--short-circuit" buildoptions)))
@@ -299,7 +272,7 @@
    (if (and (not (equal rpm-spec-timecheck "0"))
             (not (equal rpm-spec-timecheck "")))
        (setq buildoptions (cons "--timecheck" (cons rpm-spec-timecheck
-@@ -926,20 +1046,14 @@
+@@ -926,20 +1019,14 @@
  (defun rpm-build-prepare (&optional arg)
    "Run a `rpmbuild -bp'."
    (interactive "p")
@@ -324,7 +297,7 @@
  
  (defun rpm-build-compile (&optional arg)
    "Run a `rpmbuild -bc'."
-@@ -956,29 +1070,20 @@
+@@ -956,29 +1043,20 @@
  (defun rpm-build-binary (&optional arg)
    "Run a `rpmbuild -bb'."
    (interactive "p")
@@ -360,7 +333,7 @@
  
  (defun rpm-process-check (buffer)
    "Check if BUFFER has a running process.
-@@ -1001,6 +1106,14 @@
+@@ -1001,6 +1079,14 @@
    (message (concat "Turned `--short-circuit' "
                     (if rpm-spec-short-circuit "on" "off") ".")))
  
@@ -375,7 +348,7 @@
  (defun rpm-toggle-rmsource (&optional arg)
    "Toggle `rpm-spec-rmsource'."
    (interactive "p")
-@@ -1059,6 +1172,7 @@
+@@ -1059,6 +1145,7 @@
                        (if rpm-spec-nobuild       "N")
                        (if rpm-spec-rmsource      "R")
                        (if rpm-spec-short-circuit "S")
@@ -383,7 +356,7 @@
                        ))
    (if (not (equal modes ""))
        (setq mode-name (concat mode-name ":" modes))))
-@@ -1106,14 +1220,14 @@
+@@ -1106,14 +1193,14 @@
    (interactive "p")
    (save-excursion
      (goto-char (point-min))
@@ -406,7 +379,7 @@
  
  ;;------------------------------------------------------------
  
-@@ -1154,6 +1268,21 @@
+@@ -1154,6 +1241,21 @@
                  version
                  (and release (concat "-" release)))))))
  
@@ -428,7 +401,7 @@
  (defun rpm-increase-release-with-macros ()
    (save-excursion
      (let ((str
-@@ -1169,10 +1298,11 @@
+@@ -1169,10 +1271,11 @@
                                             (match-end 1)))
                     (search-forward-regexp
                      (concat "%define[ \t]+" macros
@@ -444,8 +417,22 @@
                 str)))
          (setq dinrel inrel)
          (replace-match (concat "%define " dinrel))
-@@ -1198,30 +1328,24 @@
-       (setq name (match-string 1 file))))
+@@ -1186,42 +1289,28 @@
+     (setq file (if (buffer-file-name)
+                    (file-name-nondirectory (buffer-file-name))
+                  (buffer-name)))
+-    (cond
+-     ((eq (string-match "\\(.*\\)-\\([^-]*\\)-\\([^-]*\\).spec" file) 0)
+-      (setq name (match-string 1 file))
+-      (setq version (match-string 2 file))
+-      (setq release (match-string 3 file)))
+-     ((eq (string-match "\\(.*\\)-\\([^-]*\\).spec" file) 0)
+-      (setq name (match-string 1 file))
+-      (setq version (match-string 2 file)))
+-     ((eq (string-match "\\(.*\\).spec" file) 0)
+-      (setq name (match-string 1 file))))
++    (string-match "\\(.*\\).spec" file)
++    (setq name (match-string 1 file))
  
      (insert
 -     "Summary: "
@@ -481,7 +468,7 @@
 +	 "\nRelease: %{release}"
 +	 "\nSource0: %{name}-%{version}.tar.bz2"
 +	 "\nLicense: \nGroup: "
-+	 "\nBuildRoot: %{_tmppath}/%{name}-buildroot\nPrefix: %{_prefix}"
++	 "\nBuildRoot: %{_tmppath}/%{name}-buildroot\n"
 +	 "\n\n%description\n"
 +	 "\n%prep\n%setup -q\n\n%build\n\n%install\nrm -rf $RPM_BUILD_ROOT"
 +	 "\n\n\n%clean\nrm -rf $RPM_BUILD_ROOT"

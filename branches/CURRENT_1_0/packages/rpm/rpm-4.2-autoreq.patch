@@ -1,5 +1,5 @@
---- rpm-4.2/autodeps/linux.req.autoreq	2002-11-15 12:45:42.000000000 -0500
-+++ rpm-4.2/autodeps/linux.req	2003-07-07 07:11:09.000000000 -0400
+--- rpm-4.2/autodeps/linux.req.autoreq	2002-11-15 18:45:42.000000000 +0100
++++ rpm-4.2/autodeps/linux.req	2003-12-18 09:11:29.000000000 +0100
 @@ -16,15 +16,35 @@
      needed=1
  fi
@@ -39,7 +39,7 @@
  	grep ":.*shared object" | cut -d : -f1`
  
  interplist=
-@@ -52,7 +75,7 @@
+@@ -52,7 +72,7 @@
  	    printf "%s'$lib64'\n", $1
  	}
      }'
@@ -48,7 +48,7 @@
  
  #
  # --- Library dependency sonames.
-@@ -66,10 +89,17 @@
+@@ -66,20 +86,33 @@
  	    printf "%s'$lib64'\n", $1
  	}
      }'
@@ -59,7 +59,7 @@
  #
 +# --- Perl or python deps
 +for f in $filelist; do
-+    echo $f | sed -n -e "s@$RPM_BUILD_ROOT@@" -e 's@^/usr/lib/perl5/\(site_perl/\)\([0-9]\{1,\}\.[0-9]\{1,\}\)\.\([0-9]\{1,\}\).*$@perl-base >= \20\3@p' -e 's@^/usr/lib/perl5/\(vendor_perl\/\)\([.0-9]\{1,\}\).*$@perl-base >= 2:\2@p' -e 's@^/usr/\(lib\|lib64\)/python\([.0-9]\{1,\}\).*$@python-base >= \2@p'
++    echo $f | sed -n -e "s@$RPM_BUILD_ROOT@@" -e 's@^/usr/lib/perl5/\(site_perl/\)\([0-9]\{1,\}\.[0-9]\{1,\}\)\.\([0-9]\{1,\}\).*$@perl-base >= \2.\3@p' -e 's@^/usr/lib/perl5/\(vendor_perl\/\)\([.0-9]\{1,\}\).*$@perl-base >= 2:\2@p' -e 's@^/usr/\(lib\|lib64\)/python\([.0-9]\{1,\}\).*$@python-base >= \2@p'
 +done | sort -u
 +
 +
@@ -67,7 +67,10 @@
  # --- Script interpreters.
  for f in $scriptlist; do
      [ -r $f -a -x $f ] || continue
-@@ -79,7 +109,13 @@
+-    interp=`head -n 1 $f | sed -e 's/^\#\![ 	]*//' | cut -d" " -f1`
++    interp=`head -n 1 $f | grep '^#!' | sed -e 's/^\#\![ 	]*//' | cut -d" " -f1`
+     interplist="$interplist $interp"
+     case $interp in
      */perl)	perllist="$perllist $f" ;;
      esac
  done
@@ -82,7 +85,7 @@
  
  #
  # --- Add perl module files to perllist.
-@@ -114,7 +150,7 @@
+@@ -114,12 +147,12 @@
  	    print LIBNAME "(" $4 ")'$lib64'";
  	}
      '
@@ -91,7 +94,13 @@
  
  #
  # --- Perl modules.
-@@ -131,4 +167,15 @@
+ [ -x /usr/lib/rpm/perl.req -a -n "$perllist" ] && \
+-    echo $perllist | tr '[:blank:]' \\n | /usr/lib/rpm/perl.req | sort -u
++    echo $perllist | tr '[:blank:]' \\n | /usr/lib/rpm/perl.req | grep 'perl([A-Z]' | sort -u
+ 
+ #
+ # --- Python modules.
+@@ -131,4 +164,19 @@
  [ -x /usr/lib/rpm/tcl.req -a -n "$tcllist" ] && \
      echo $tcllist | tr '[:blank:]' \\n | /usr/lib/rpm/tcl.req | sort -u
  
@@ -104,11 +113,15 @@
 +	ldd ${i} \
 +	| grep -v "/\(lib\|lib64\)/ld-linux.*\.so" \
 +	| perl -p -e "s/\s+(\S+)\.so.*/devel(\1$lib64)/g"
-+done | egrep -v 'devel\(lib(c|pthread|rt)(\(64bit\))?\)' | sort -u
++done | egrep -v 'devel\(linux-gate|lib(c|pthread|rt)(\(64bit\))?\)' | sort -u
++
++#
++# --- pkgconfig
++echo $filelist |  tr '[:blank:]' '\n' | egrep -q '/usr/lib(64)?/pkgconfig/.*\.pc' && echo pkgconfig
 +
  exit 0
---- rpm-4.2/autodeps/linux.prov.autoreq	2002-04-08 15:42:52.000000000 -0400
-+++ rpm-4.2/autodeps/linux.prov	2003-07-07 07:02:38.000000000 -0400
+--- rpm-4.2/autodeps/linux.prov.autoreq	2002-04-08 21:42:52.000000000 +0200
++++ rpm-4.2/autodeps/linux.prov	2003-12-18 09:10:35.000000000 +0100
 @@ -5,7 +5,7 @@
  
  filelist=`sed "s/['\"]/\\\&/g"`
@@ -140,7 +153,7 @@
  # --- Perl modules.
  [ -x /usr/lib/rpm/perl.prov ] &&
 -    echo $filelist | tr '[:blank:]' \\n | grep '\.pm$' | /usr/lib/rpm/perl.prov | sort -u
-+    echo "$filelist" | tr '[:blank:]' \\n | grep '\.pm$' | /usr/lib/rpm/perl.prov | sort -u
++    echo "$filelist" | tr '[:blank:]' \\n | /usr/lib/rpm/perl.prov | grep 'perl([A-Z]' | sort -u
  
  #
  # --- Python modules.
@@ -164,8 +177,8 @@
 +done | sort -u
  
  exit 0
---- rpm-4.2/scripts/brp-strip-comment-note.autoreq	2002-11-15 12:52:51.000000000 -0500
-+++ rpm-4.2/scripts/brp-strip-comment-note	2003-07-07 07:02:38.000000000 -0400
+--- rpm-4.2/scripts/brp-strip-comment-note.autoreq	2002-11-15 18:52:51.000000000 +0100
++++ rpm-4.2/scripts/brp-strip-comment-note	2003-12-17 14:35:53.000000000 +0100
 @@ -10,7 +10,7 @@
          grep -v "^${RPM_BUILD_ROOT}/\?usr/lib/debug"  | \
  	sed -n -e 's/^\(.*\):[ 	]*ELF.*, stripped/\1/p'`; do
