@@ -64,6 +64,7 @@ install -D -m 644 %SOURCE3 %buildroot%{_sysconfdir}/xinetd.d/rsync
 mkdir -p %{buildroot}/var/service/rsync/log
 install -m 0755 %{SOURCE5} %{buildroot}/var/service/rsync/run
 install -m 0755 %{SOURCE6} %{buildroot}/var/service/rsync/log/run
+mkdir -p %{buildroot}/var/log/supervise/rsync
 %endif
 
 %clean
@@ -77,6 +78,7 @@ rm -rf $RPM_BUILD_ROOT
 %if %{build_opensls}
 %dir /var/service/rsync
 %dir /var/service/rsync/log
+%dir %attr(0750,nobody,nogroup) /var/log/supervise/rsync
 /var/service/rsync/run
 /var/service/rsync/log/run
 %endif
