@@ -1,0 +1,140 @@
+--- glibc-2.3.1/ctype/ctype-info.c.glibc22-compat	2002-09-05 17:21:48.000000000 -0400
++++ glibc-2.3.1/ctype/ctype-info.c	2002-11-25 11:50:18.000000000 -0500
+@@ -48,18 +48,32 @@ extern const char _nl_C_LC_CTYPE_class_a
+ 
+ #define b(t,x,o) (((const t *) _nl_C_LC_CTYPE_##x) + o)
+ 
++// const unsigned short int *__ctype_b = b (unsigned short int, class, 128);
++// const __uint32_t *__ctype32_b = b (__uint32_t, class32, 0);
++// const __int32_t *__ctype_tolower = b (__int32_t, tolower, 128);
++// const __int32_t *__ctype_toupper = b (__int32_t, toupper, 128);
++// const __uint32_t *__ctype32_tolower = b (__uint32_t, tolower, 128);
++// const __uint32_t *__ctype32_toupper = b (__uint32_t, toupper, 128);
++
++// compat_symbol (libc, __ctype_b, __ctype_b, GLIBC_2_0);
++// compat_symbol (libc, __ctype_tolower, __ctype_tolower, GLIBC_2_0);
++// compat_symbol (libc, __ctype_toupper, __ctype_toupper, GLIBC_2_0);
++// compat_symbol (libc, __ctype32_b, __ctype32_b, GLIBC_2_0);
++// compat_symbol (libc, __ctype32_tolower, __ctype32_tolower, GLIBC_2_2);
++// compat_symbol (libc, __ctype32_toupper, __ctype32_toupper, GLIBC_2_2);
++
++#endif
++
++/* Temporarily exported until all .a libraries are recompiled.  */
++#undef b
++#define b(t,x,o) (((const t *) _nl_C_LC_CTYPE_##x) + o)
++extern const char _nl_C_LC_CTYPE_class[] attribute_hidden;
++extern const char _nl_C_LC_CTYPE_class32[] attribute_hidden;
++extern const char _nl_C_LC_CTYPE_toupper[] attribute_hidden;
++extern const char _nl_C_LC_CTYPE_tolower[] attribute_hidden;
+ const unsigned short int *__ctype_b = b (unsigned short int, class, 128);
+ const __uint32_t *__ctype32_b = b (__uint32_t, class32, 0);
+ const __int32_t *__ctype_tolower = b (__int32_t, tolower, 128);
+ const __int32_t *__ctype_toupper = b (__int32_t, toupper, 128);
+ const __uint32_t *__ctype32_tolower = b (__uint32_t, tolower, 128);
+ const __uint32_t *__ctype32_toupper = b (__uint32_t, toupper, 128);
+-
+-compat_symbol (libc, __ctype_b, __ctype_b, GLIBC_2_0);
+-compat_symbol (libc, __ctype_tolower, __ctype_tolower, GLIBC_2_0);
+-compat_symbol (libc, __ctype_toupper, __ctype_toupper, GLIBC_2_0);
+-compat_symbol (libc, __ctype32_b, __ctype32_b, GLIBC_2_0);
+-compat_symbol (libc, __ctype32_tolower, __ctype32_tolower, GLIBC_2_2);
+-compat_symbol (libc, __ctype32_toupper, __ctype32_toupper, GLIBC_2_2);
+-
+-#endif
+--- glibc-2.3.1/elf/Versions.glibc22-compat	2002-10-10 02:44:25.000000000 -0400
++++ glibc-2.3.1/elf/Versions	2002-11-25 11:50:18.000000000 -0500
+@@ -32,6 +32,10 @@ ld {
+     _r_debug;
+   }
+   GLIBC_2.1 {
++    # This will be GLIBC_PRIVATE, just to give folks some time
++    # to fix their stuff
++    __libc_stack_end;
++
+     # functions used in other libraries
+     _dl_mcount;
+   }
+@@ -41,7 +45,7 @@ ld {
+   }
+   GLIBC_PRIVATE {
+     # Those are in the dynamic linker, but used by libc.so.
+-    __libc_enable_secure; __libc_stack_end;
++    __libc_enable_secure; # __libc_stack_end;
+     _dl_argv; _dl_catch_error; _dl_check_map_versions;
+     _dl_debug_printf; _dl_debug_state; _dl_dst_count;
+     _dl_dst_substitute; _dl_init; _dl_lookup_symbol; _dl_lookup_symbol_skip;
+--- glibc-2.3.1/locale/lc-ctype.c.glibc22-compat	2002-09-18 14:28:45.000000000 -0400
++++ glibc-2.3.1/locale/lc-ctype.c	2002-11-25 11:50:18.000000000 -0500
+@@ -75,18 +75,32 @@ _nl_postload_ctype (void)
+      We need those relocations so that a versioned definition with a COPY
+      reloc in an executable will override the libc.so definition.  */
+ 
+-compat_symbol (libc, __ctype_b, __ctype_b, GLIBC_2_0);
+-compat_symbol (libc, __ctype_tolower, __ctype_tolower, GLIBC_2_0);
+-compat_symbol (libc, __ctype_toupper, __ctype_toupper, GLIBC_2_0);
+-compat_symbol (libc, __ctype32_b, __ctype32_b, GLIBC_2_0);
+-compat_symbol (libc, __ctype32_tolower, __ctype32_tolower, GLIBC_2_2);
+-compat_symbol (libc, __ctype32_toupper, __ctype32_toupper, GLIBC_2_2);
++// compat_symbol (libc, __ctype_b, __ctype_b, GLIBC_2_0);
++// compat_symbol (libc, __ctype_tolower, __ctype_tolower, GLIBC_2_0);
++// compat_symbol (libc, __ctype_toupper, __ctype_toupper, GLIBC_2_0);
++// compat_symbol (libc, __ctype32_b, __ctype32_b, GLIBC_2_0);
++// compat_symbol (libc, __ctype32_tolower, __ctype32_tolower, GLIBC_2_2);
++// compat_symbol (libc, __ctype32_toupper, __ctype32_toupper, GLIBC_2_2);
+ 
++//  __ctype_b = current (uint16_t, CLASS, 128);
++//  __ctype_toupper = current (uint32_t, TOUPPER, 128);
++//  __ctype_tolower = current (uint32_t, TOLOWER, 128);
++//  __ctype32_b = current (uint32_t, CLASS32, 0);
++//  __ctype32_toupper = current (uint32_t, TOUPPER32, 0);
++//  __ctype32_tolower = current (uint32_t, TOLOWER32, 0);
++#endif
++
++  /* Temporary.  */
++  extern __const unsigned short int *__ctype_b; /* Characteristics.  */
++  extern __const __int32_t *__ctype_tolower; /* Case conversions.  */
++  extern __const __int32_t *__ctype_toupper; /* Case conversions.  */
++  extern const uint32_t *__ctype32_b;
++  extern const uint32_t *__ctype32_toupper;
++  extern const uint32_t *__ctype32_tolower;
+   __ctype_b = current (uint16_t, CLASS, 128);
+   __ctype_toupper = current (uint32_t, TOUPPER, 128);
+   __ctype_tolower = current (uint32_t, TOLOWER, 128);
+   __ctype32_b = current (uint32_t, CLASS32, 0);
+   __ctype32_toupper = current (uint32_t, TOUPPER32, 0);
+   __ctype32_tolower = current (uint32_t, TOLOWER32, 0);
+-#endif
+ }
+--- glibc-2.3.1/posix/Versions.glibc22-compat	2002-11-21 08:26:04.000000000 -0500
++++ glibc-2.3.1/posix/Versions	2002-11-25 11:50:18.000000000 -0500
+@@ -3,6 +3,9 @@ libc {
+     # functions with special/multiple interfaces
+     __bsd_getpgrp; __setpgid; __getpgid;
+ 
++    # This will be GLIBC_PRIVATE, just give Sun JDK some time to catch up
++    __libc_wait; __libc_waitpid;
++
+     # functions with required interface outside normal name space
+     _exit;
+ 
+@@ -83,6 +86,9 @@ libc {
+   GLIBC_2.1.2 {
+     # functions used in other libraries
+     __vfork;
++
++    # This will be GLIBC_PRIVATE, just give wine some time to catch up
++    __libc_fork; 
+   }
+   GLIBC_2.2 {
+     # p*
+@@ -121,7 +127,8 @@ libc {
+   GLIBC_PRIVATE {
+     # functions which have an additional interface since they are
+     # are cancelable.
+-    __libc_wait; __libc_waitpid; __libc_pause; __libc_nanosleep; __libc_fork;
++    # __libc_wait; __libc_waitpid;
++    __libc_pause; __libc_nanosleep; # __libc_fork;
+     __libc_pread; __libc_pread64; __libc_pwrite; __libc_pwrite64;
+     __waitid; __pselect;
+   }
