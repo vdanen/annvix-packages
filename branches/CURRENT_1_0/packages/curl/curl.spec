@@ -1,5 +1,5 @@
 %define name	curl
-%define version 7.12.1
+%define version 7.12.3
 %define release	1avx
 
 %define major	3
@@ -13,7 +13,7 @@
 %{?_with_CHECK: %{expand: %%define do_check 1}}
 %{?_without_CHECK: %{expand: %%define do_check 0}}
 
-Summary:	Gets a file from a FTP, GOPHER or HTTP server.
+Summary:	Gets a file from a FTP, GOPHER or HTTP server
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -21,7 +21,6 @@ License:	MIT
 Group:		Networking/Other
 URL:		http://curl.haxx.se/
 Source:		http://curl.haxx.se/download/%{name}-%{version}.tar.bz2
-Patch0:		curl-7.5-missingfcntl_h.patch.bz2
 Patch1:		curl-7.10.4-compat-location-trusted.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-buildroot
@@ -37,10 +36,8 @@ interaction or any kind of interactivity.
 curl offers a busload of useful tricks like proxy support, user
 authentication, ftp upload, HTTP post, file transfer resume and more.
 
-If you wish to install this package, you must also install the curl-lib
-package.
+This version is compiled with SSL (https) support.
 
-NOTE: This version is compiled with SSL (https) support.
 
 %package -n %{libname}
 Summary:	A library of functions for file transfer
@@ -53,7 +50,7 @@ libcurl is a library of functions for sending and receiving files through
 various protocols, including http and ftp.
 
 You should install this package if you plan to use any applications that 
-use libcurl
+use libcurl.
 
 
 %package -n %{libname}-devel
@@ -73,17 +70,16 @@ utilize libcurl.
 
 %prep
 %setup -q -n %{name}-%{version}
-%patch0 -p1
 %patch1 -p1
 
 %build
 %configure2_5x --with-ssl
 %make
 
-skip_tests=
+skip_tests="241"
 %ifarch x86_64
 # FIXME: RFC1867 tests hang on this architecture
-skip_tests="9 39 44"
+skip_tests="9 39 44 241 23 118 119 125 145 201 205 223 517"
 %endif
 [ -n "$skip_tests" ] && {
   mkdir ./tests/data/skip/
@@ -131,6 +127,12 @@ make check
 %{_mandir}/man3/*
 
 %changelog
+* Wed Dec 22 2004 Vincent Danen <vdanen@annvix.org> 7.12.3-1avx
+- 7.12.3
+- remove P0
+- skip new test #241 on both archs
+- skip tests 23 118 119 125 145 201 205 223 517 on x86_64
+
 * Tue Aug 17 2004 Vincent Danen <vdanen@annvix.org> 7.12.1-1avx
 - 7.12.1
 - remove fpons' "dynamic patch"
