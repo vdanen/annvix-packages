@@ -1,0 +1,29 @@
+--- glibc-2.2.2/sysdeps/generic/paths.h.chmou	Tue Feb 20 15:38:44 2001
++++ glibc-2.2.2/sysdeps/generic/paths.h	Tue Feb 20 16:16:03 2001
+@@ -61,13 +61,13 @@
+ #define	_PATH_UNIX	"/vmunix"
+ #define	_PATH_UTMP	"/var/run/utmp"
+ #define	_PATH_UTMP_DB	"/var/run/utmp.db"
+-#define	_PATH_VI	"/usr/bin/vi"
++#define	_PATH_VI	"/bin/vi"
+ #define	_PATH_WTMP	"/var/log/wtmp"
+ 
+ /* Provide trailing slash, since mostly used for building pathnames. */
+ #define	_PATH_DEV	"/dev/"
+ #define	_PATH_TMP	"/tmp/"
+-#define	_PATH_VARDB	"/var/db/"
++#define	_PATH_VARDB	"/var/lib/misc/"
+ #define	_PATH_VARRUN	"/var/run/"
+ #define	_PATH_VARTMP	"/var/tmp/"
+ 
+--- glibc-2.2.2/sysdeps/unix/sysv/linux/paths.h.chmou	Thu Nov 16 20:12:05 2000
++++ glibc-2.2.2/sysdeps/unix/sysv/linux/paths.h	Tue Feb 20 16:05:23 2001
+@@ -67,7 +67,7 @@
+ /* Provide trailing slash, since mostly used for building pathnames. */
+ #define	_PATH_DEV	"/dev/"
+ #define	_PATH_TMP	"/tmp/"
+-#define	_PATH_VARDB	"/var/db/"
++#define	_PATH_VARDB	"/var/lib/misc/"
+ #define	_PATH_VARRUN	"/var/run/"
+ #define	_PATH_VARTMP	"/var/tmp/"
+ 
