@@ -1,21 +1,22 @@
-# dosfstools.spec
+%define name	dosfstools
 %define version 2.9
-%define release 1mdk
+%define release 2sls
 
-Summary: Utilities to create and check MS-DOS FAT filesystems.
-Name: dosfstools
-Source: ftp://ftp.uni-erlangen.de/pub/Linux/LOCAL/dosfstools/%{name}-%{version}.src.tar.bz2
-Patch0: dosfstools-2.8-x86_64.patch.bz2
-Patch1: mkdosfs.errno.patch.bz2
-Version: %{version}
-Release: %{release}
-License: GPL
-URL: ftp://ftp.uni-erlangen.de/pub/Linux/LOCAL/dosfstools
-Group: File tools
-Prefix: %{_prefix}
-Obsoletes: mkdosfs-ygg
-Provides: mkdosfs-ygg = %{version}
-BuildRoot: %{_tmppath}/%{name}-buildroot
+Summary:	Utilities to create and check MS-DOS FAT filesystems.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		File tools
+URL:		ftp://ftp.uni-erlangen.de/pub/Linux/LOCAL/dosfstools
+Source:		ftp://ftp.uni-erlangen.de/pub/Linux/LOCAL/dosfstools/%{name}-%{version}.src.tar.bz2
+Patch0:		dosfstools-2.8-x86_64.patch.bz2
+Patch1:		mkdosfs.errno.patch.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-buildroot
+
+Obsoletes:	mkdosfs-ygg
+Provides:	mkdosfs-ygg = %{version}
 
 %description
 Inside of this package there are two utilities to create and to
@@ -56,6 +57,11 @@ rm -r $RPM_BUILD_ROOT
 %{_mandir}/man8/*
 
 %changelog
+* Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 2.9-2sls
+- OpenSLS build
+- tidy spec
+- remove Prefix
+
 * Tue Jul 08 2003 François Pons <fpons@mandrakesoft.com> 2.9-1mdk
 - 2.9.
 
