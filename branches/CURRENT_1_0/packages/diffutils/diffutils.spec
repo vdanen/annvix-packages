@@ -1,6 +1,6 @@
 %define name	diffutils
 %define version 2.8.4
-%define release 5sls
+%define release 6sls
 
 Summary:	A GNU collection of diff utilities
 Name:		%{name}
@@ -43,7 +43,7 @@ autoconf
 make check
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %makeinstall
 
@@ -61,7 +61,7 @@ rm -fr $RPM_BUILD_ROOT/%{_infodir}/dir
 %_remove_install_info diff.info
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files -f %{name}.lang
 %defattr(-,root,root)
@@ -71,6 +71,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_infodir}/diff.info*
 
 %changelog
+* Thu Mar 04 2004 Vincent Danen <vdanen@opensls.org> 2.8.4-6sls
+- minor spec cleanups
+
 * Mon Dec 08 2003 Vincent Danen <vdanen@opensls.org> 2.8.4-5sls
 - OpenSLS build
 - tidy spec

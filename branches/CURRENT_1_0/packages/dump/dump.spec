@@ -1,6 +1,6 @@
 %define name	dump
 %define version 0.4b34
-%define release 2sls
+%define release 4sls
 
 Summary:	Programs for backing up and restoring filesystems
 Name:		%{name}
@@ -61,7 +61,7 @@ CFLAGS="$RPM_OPT_FLAGS -L$PWD/%{_lib}" %configure \
 %make GLIBDIR="-L$PWD/%{_lib}" OPT="$RPM_OPT_FLAGS -Wall -Wpointer-arith -Wstrict-prototypes -Wmissing-prototypes -Wno-char-subscripts"
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p $RPM_BUILD_ROOT/sbin
 mkdir -p ${RPM_BUILD_ROOT}%{_mandir}/man8
 
@@ -85,15 +85,13 @@ ln -sf dump.8 rdump.8
 ln -sf restore.8 rrestore.8
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
 %doc CHANGES COPYRIGHT KNOWNBUGS README THANKS TODO MAINTAINERS dump.lsm
 %attr(0664,root,disk)	%config(noreplace) %{_sysconfdir}/dumpdates
-#%attr(6755,root,tty)	/sbin/dump
 /sbin/dump
-#%attr(6755,root,tty)	/sbin/restore
 /sbin/restore
 /sbin/rdump
 /sbin/rrestore
@@ -105,12 +103,14 @@ rm -rf $RPM_BUILD_ROOT
 %files -n rmt
 %defattr(-,root,root)
 %doc COPYRIGHT
-#%attr(0755,root,root)	/sbin/rmt
 /sbin/rmt
 /etc/rmt
 %{_mandir}/man8/rmt.8*
 
 %changelog
+* Thu Mar 04 2004 Vincent Danen <vdanen@opensls.org> 0.4b34-4sls
+- minor spec cleanups
+
 * Mon Jan 05 2004 Vincent Danen <vdanen@opensls.org> 0.4b34-3sls
 - sync with 2mdk (gbeauchesne): make sure to check for <sys/types.h> prior
   to actual types like quad_t

@@ -1,6 +1,6 @@
 %define name	dev86
 %define version	0.16.3
-%define release	3sls
+%define release	4sls
 
 Summary:	A real mode 80x86 assembler and linker.
 Name:		%{name}
@@ -72,7 +72,7 @@ quit
 !FooBar!
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 make DIST=$RPM_BUILD_ROOT MANDIR=$RPM_BUILD_ROOT/%_mandir install
 
@@ -95,7 +95,7 @@ ln -f bin86/README-0.4 README.bin86-0.4
 mv $RPM_BUILD_ROOT%_includedir $RPM_BUILD_ROOT%_libdir/bcc
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -122,6 +122,9 @@ rm -rf $RPM_BUILD_ROOT
 %_libdir/bcc/i386/lib*
 
 %changelog
+* Thu Mar 04 2004 Vincent Danen <vdanen@opensls.org> 0.16.3-4sls
+- minor spec cleanups
+
 * Sat Dec 13 2003 Vincent Danen <vdanen@opensls.org> 0.16.3-3sls
 - OpenSLS build
 - tidy spec
