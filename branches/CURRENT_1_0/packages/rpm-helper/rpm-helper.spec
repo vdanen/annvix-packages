@@ -1,6 +1,6 @@
 %define name	rpm-helper
 %define version	0.9.1
-%define release	7avx
+%define release	8avx
 
 Summary:	Helper scripts for rpm scriptlets
 Name:		%{name}
@@ -46,6 +46,9 @@ chmod 755 {add,del}-srv
 %_datadir/%name/*
 
 %changelog
+* Sun Sep 19 2004 Vincent Danen <vdanen@annvix.org> 0.9.1-8avx
+- update P0: s/svstat/runsvstat/
+
 * Mon Jul 05 2004 Vincent Danen <vdanen@annvix.org> 0.9.1-7avx
 - fix P0; some services were not restarting on upgrade and it was due
   to grep not being quiet
