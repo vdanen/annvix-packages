@@ -1,18 +1,23 @@
+%define name	reiserfsprogs
+%define version	3.6.11
+%define release	2sls
+%define epoch	1
 
+Summary:	The utilities to create Reiserfs volume.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+Epoch:		%{epoch}
+License:	GPL
+Group:		System/Kernel and hardware
+URL:		http://www.namesys.com/
+Source0:	ftp://ftp.namesys.com/pub/reiserfsprogs/%name-%version.tar.bz2
+Patch1:		reiserfsprogs-3.6.2-make-the-force-option-works-in-resize_reiserfs.patch.bz2
 
-Summary: The utilities to create Reiserfs volume.
-Name:    reiserfsprogs
-Version: 3.6.10
-Release: 1mdk
-Source0: ftp://ftp.namesys.com/pub/reiserfsprogs/%name-%version.tar.bz2
-Patch1: reiserfsprogs-3.6.2-make-the-force-option-works-in-resize_reiserfs.patch.bz2
-License: GPL
-Group: System/Kernel and hardware
-BuildRoot: %{_tmppath}/%{name}-%{version}-root
-Epoch: 1
-Url: http://www.namesys.com/
-Obsoletes: reiserfs-utils
-Provides: reiserfs-utils
+BuildRoot:	%{_tmppath}/%{name}-%{version}-root
+
+Obsoletes:	reiserfs-utils
+Provides:	reiserfs-utils
 
 %description
 Reiserfs is a file system using a plug-in based object oriented
@@ -42,7 +47,7 @@ create your own types of directories and files.
 %make OPTFLAGS="%optflags"
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p $RPM_BUILD_ROOT%_mandir/man8
 %makeinstall
 mv $RPM_BUILD_ROOT/{usr/,}sbin
@@ -52,7 +57,7 @@ ln -s mkreiserfs.8 $RPM_BUILD_ROOT%_mandir/man8/mkfs.reiserfs.8
 ln -s reiserfsck.8 $RPM_BUILD_ROOT%_mandir/man8/fsck.reiserfs.8
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -61,6 +66,16 @@ rm -rf $RPM_BUILD_ROOT
 %_mandir/*/*
 
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 3.6.11-2sls
+- minor spec cleanups
+
+* Fri Jan 09 2004 Vincent Danen <vdanen@opensls.org> 3.6.11-1sls
+- 3.6.11
+
+* Mon Dec 08 2003 Vincent Danen <vdanen@opensls.org> 3.6.10-2sls
+- OpenSLS build
+- tidy spec
+
 * Tue Jul 29 2003 Juan Quintela <quintela@mandrakesoft.com> 3.6.10-1mdk
 - reiser has a fsck program.
 - use %%configure2_5x.

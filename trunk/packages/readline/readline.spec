@@ -1,25 +1,28 @@
-## Do not apply library policy!!
-%define pversion 4.3
+%define name	readline
+%define version	4.3
+%define	release	9sls
 
+## Do not apply library policy!!
 %define lib_major	4
 %define lib_name_orig	%mklibname readline
 %define lib_name	%{lib_name_orig}%{lib_major}
 
-Summary: Library for reading lines from a terminal
-Name: readline
-Version: %{pversion}
-Release: 7mdk
-License: GPL
-Group: System/Libraries
-Source: ftp://ftp.gnu.org/pub/gnu/readline/readline-%{version}.tar.bz2
-Patch1: http://kldp.org/~mindgame/unix/hangul/readline/readline-4.1-i18n.patch.bz2
-Patch2: readline-4.3-guard.patch.bz2
-Patch3: readline-4.1-outdated.patch.bz2
-Patch4: readline-4.3-fixendkey.patch.bz2
-Patch5: readline-4.1-resize.patch.bz2
-Patch100: readline-4.3-vim-reapeat-fix.diff.bz2
-Patch101: readline-4.3-segfault-fix.diff.bz2
-Buildroot: %{_tmppath}/%{name}-root/
+Summary:	Library for reading lines from a terminal
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		System/Libraries
+Source:		ftp://ftp.gnu.org/pub/gnu/readline/readline-%{version}.tar.bz2
+Patch1:		http://kldp.org/~mindgame/unix/hangul/readline/readline-4.1-i18n.patch.bz2
+Patch2:		readline-4.3-guard.patch.bz2
+Patch3:		readline-4.1-outdated.patch.bz2
+Patch4:		readline-4.3-fixendkey.patch.bz2
+Patch5:		readline-4.1-resize.patch.bz2
+Patch100:	readline-4.3-vim-reapeat-fix.diff.bz2
+Patch101:	readline-4.3-segfault-fix.diff.bz2
+
+Buildroot:	%{_tmppath}/%{name}-root/
 
 %description
 The "readline" library will read a line from the terminal and return it,
@@ -28,22 +31,22 @@ It allows the programmer to give the user an easier-to-use and more
 intuitive interface.
 
 %package -n %{lib_name}
-Summary: Shared libraries for readline
-Group: System/Libraries
-Obsoletes: readline
-Provides: readline = %{version}-%{release}
+Summary:	Shared libraries for readline
+Group:		System/Libraries
+Obsoletes:	readline
+Provides:	readline = %{version}-%{release}
 
 %description -n %{lib_name}
 This package contains the library needed to run programs dynamically
 linked to readline.
 
 %package -n %{lib_name}-devel
-Summary: Files for developing programs that use the readline library.
-Group: Development/C
-Requires: %{lib_name} = %{version}-%{release}
-Obsoletes: readline-devel
-Provides: lib%{name}-devel = %{version}-%{release}
-Provides: readline-devel = %{version}-%{release}
+Summary:	Files for developing programs that use the readline library.
+Group:		Development/C
+Requires:	%{lib_name} = %{version}-%{release}
+Obsoletes:	readline-devel
+Provides:	lib%{name}-devel = %{version}-%{release}
+Provides:	readline-devel = %{version}-%{release}
 
 %description -n %{lib_name}-devel
 The "readline" library will read a line from the terminal and return it,
@@ -70,7 +73,7 @@ perl -p -i -e 's|-Wl,-rpath.*||' shlib/Makefile
 make static shared
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall install-shared
 # put all libs in /lib because some package needs it
 # before /usr is mounted
@@ -89,7 +92,7 @@ rm -f $RPM_BUILD_ROOT/%{_lib}/*.old
 perl -p -i -e 's|/usr/local/bin/perl|/usr/bin/perl|' doc/texi2html
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post -n %{lib_name} -p /sbin/ldconfig
 %postun -n %{lib_name} -p /sbin/ldconfig
@@ -118,6 +121,13 @@ rm -rf $RPM_BUILD_ROOT
 /%{_lib}/*so
 
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 4.3-9sls
+- minor spec cleanups
+
+* Mon Dec 08 2003 Vincent Danen <vdanen@opensls.org> 4.3-8sls
+- OpenSLS build
+- tidy spec
+
 * Thu Jul 31 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 4.3-7mdk
 - pfff, libification
 

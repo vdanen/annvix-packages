@@ -1,45 +1,42 @@
-%define name perl-libwww-perl
-%define real_name libwww-perl
-%define version 5.69
-%define release 2mdk
+%define module	libwww-perl
+%define name	perl-%{module}
+%define version 5.79
+%define release 1sls
 
-Summary: Libwww-perl module for perl
-Name: %{name}
-Version: %{version}
-Release: %{release}
-License: GPL or Artistic
-Group: Development/Perl
-Source0: %{real_name}-%{version}.tar.bz2
-Patch: %{real_name}-5.63.empty_header.patch.bz2
-Url: http://www.cpan.org
-Prefix: %{_prefix}
-BuildRequires:	perl-devel
-BuildRequires:	perl-HTML-Parser
-BuildRequires:	perl-URI
-BuildRequires: rpm-build >= 4.2-7mdk
-BuildArch: noarch
-BuildRoot: %{_tmppath}/%{name}-buildroot/
-Requires: perl, perl-HTML-Parser, perl-URI >= 1.10, perl-MIME-Base64, perl-libnet, perl-Digest-MD5
 %define _requires_exceptions Authen::NTLM\\|HTTP::GHTTP\\|Win32
+
+Summary:	Libwww-perl module for perl
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL or Artistic
+Group:		Development/Perl
+URL:		http://www.cpan.org
+Source0:	%{module}-%{version}.tar.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-buildroot/
+BuildArch:	noarch
+BuildRequires:	perl-devel, perl-HTML-Parser, perl-URI, rpm-build >= 4.2-7mdk
+
+Requires:	perl, perl-HTML-Parser, perl-URI >= 1.10, perl-MIME-Base64, perl-libnet, perl-Digest-MD5
+
 
 %description
 libwww-perl module for perl
 
 %prep
-%setup -q -n %{real_name}-%{version}
-%patch -p1
+%setup -q -n %{module}-%{version}
 
 %build
-%{__perl} Makefile.PL INSTALLDIRS=vendor PREFIX=%{prefix} </dev/null
-%make OPTIMIZE="$RPM_OPT_FLAGS" PREFIX=%{prefix}
-make test
+%{__perl} Makefile.PL INSTALLDIRS=vendor </dev/null
+%make
 
 %install
-rm -rf $RPM_BUILD_ROOT
-%makeinstall PREFIX=$RPM_BUILD_ROOT%{prefix}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+%makeinstall_std
 
 %clean 
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -58,6 +55,20 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 5.79-1sls
+- 5.79
+- remove P0; merged upstream
+- minor spec cleanups
+
+* Fri Feb 27 2004 Vincent Danen <vdanen@opensls.org> 5.69-4sls
+- rebuild for new perl
+- remove %%{prefix} tag
+
+* Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 5.69-3sls
+- OpenSLS build
+- tidy spec
+- comment out make test for the time being
+
 * Tue May 13 2003 Guillaume Cottenceau <gc@mandrakesoft.com> 5.69-2mdk
 - rebuild for new perl provides/requires
 - put some exceptions for unavailable perl modules

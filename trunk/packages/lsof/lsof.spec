@@ -1,16 +1,21 @@
-%define dname %{name}_%version
+%define name	lsof
+%define version	4.68
+%define release	3sls
 
-Summary: Lists files open by processes
-Name:    lsof
-Version: 4.68
-Release: 1mdk
-License: Free
-Url:	ftp://vic.cc.purdue.edu/pub/tools/unix/lsof/
-Group: Monitoring
-Source0: ftp://vic.cc.purdue.edu/pub/tools/unix/%name/%dname.tar.bz2
-Patch0: lsof_4.64-perl-example-fix.patch.bz2
-Patch1: lsof_4.60-has-security.patch.bz2
-BuildRoot: %_tmppath/%name-%version-build
+%define dname	%{name}_%version
+
+Summary:	Lists files open by processes
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	Free
+Group:		Monitoring
+URL:		ftp://vic.cc.purdue.edu/pub/tools/unix/lsof/
+Source0:	ftp://vic.cc.purdue.edu/pub/tools/unix/%name/%dname.tar.bz2
+Patch0:		lsof_4.64-perl-example-fix.patch.bz2
+Patch1:		lsof_4.60-has-security.patch.bz2
+
+BuildRoot:	%_tmppath/%name-%version-build
 
 %description
 Lsof's name stands for LiSt Open Files, and it does just that. It lists
@@ -32,7 +37,6 @@ system.
 %patch1 -p1
 
 %build
-rm -rf $RPM_BUILD_ROOT
 [ -d %{dname}/%{dname}_src ] && cd %{dname}/%{dname}_src
 
 LINUX_BASE=/proc
@@ -42,14 +46,14 @@ export LINUX_BASE
 %make DEBUG="$RPM_OPT_FLAGS"
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 [ -d %{dname}/%{dname}_src ] && cd %{dname}/%{dname}_src
 mkdir -p $RPM_BUILD_ROOT{%_sbindir,%_mandir/man8}
 install -s %name $RPM_BUILD_ROOT%_sbindir
 cp lsof.8 $RPM_BUILD_ROOT%_mandir/man8
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(644,root,root,755)
@@ -58,6 +62,13 @@ rm -rf $RPM_BUILD_ROOT
 %_mandir/man8/lsof.8*
 
 %changelog
+* Sat Mar 06 2004 Vincent Danen <vdanen@opensls.org> 4.68-3sls
+- minor spec cleanups
+
+* Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 4.68-2sls
+- OpenSLS build
+- tidy spec
+
 * Tue Jul 01 2003 Thierry Vignaud <tvignaud@mandrakesoft.com> 4.68-1mdk
 - new release
 

@@ -1,6 +1,6 @@
 %define name	libjpeg
 %define	version	6b
-%define release 32mdk
+%define release 34sls
 
 %define lib_major	62
 %define lib_name_orig	libjpeg
@@ -13,7 +13,6 @@ Release:	%release
 License:	GPL-like
 Group:		System/Libraries
 URL:		http://www.ijg.org/
-
 Source0:	ftp://ftp.uu.net/graphics/jpeg/jpegsrc.v6b.tar.bz2
 Patch0:		libjpeg-6b-arm.patch.bz2
 Patch1:		libjpeg-ia64-acknowledge.patch.bz2
@@ -26,7 +25,7 @@ Patch2:		jpegv6b-losslesscropndrop.patch.bz2
 # Use autoconf variables to know libdir et al.
 Patch3:		jpeg-6b-autoconf-vars.patch.bz2
 
-Buildroot:	%_tmppath/%name-%version-%release-root
+BuildRoot:	%_tmppath/%name-%version-%release-root
 
 %description
 The libjpeg package contains a shared library of functions for loading,
@@ -36,8 +35,8 @@ Install the libjpeg package if you need to manipulate JPEG files. You
 should also install the libjpeg-progs package.
 
 %package -n %{lib_name}
-Summary: A library for manipulating JPEG image format files.
-Group: System/Libraries
+Summary:	A library for manipulating JPEG image format files.
+Group:		System/Libraries
 Obsoletes:	%name
 Provides:       %{name} = %{version}-%{release}
 
@@ -126,7 +125,7 @@ LD_LIBRARY_PATH=$PWD make test
 %endif
 
 %install
-rm -rf %buildroot
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p %buildroot/{%{_bindir},%{_libdir},%{_includedir},%{_mandir}/man1}
 %makeinstall mandir=%buildroot/%{_mandir}/man1
 
@@ -135,7 +134,7 @@ mkdir -p %buildroot/{%{_bindir},%{_libdir},%{_includedir},%{_mandir}/man1}
 %postun -n %{lib_name} -p /sbin/ldconfig
 
 %clean
-rm -rf %buildroot
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files -n %{lib_name}
 %defattr(-,root,root)
@@ -144,23 +143,29 @@ rm -rf %buildroot
 
 %files -n %{lib_name}-devel
 %defattr(-,root,root)
-%doc README usage.doc change.log wizard.doc coderules.doc libjpeg.doc structure.doc example.c
+%doc usage.doc wizard.doc coderules.doc libjpeg.doc structure.doc example.c
 %{_libdir}/*.so
 %{_includedir}/*.h
 %{_libdir}/*.la
 
 %files -n %{lib_name}-static-devel
 %defattr(-,root,root)
-%doc README 
 %{_libdir}/*.a
 
 %files progs
 %defattr(-,root,root)
-%doc README change.log
 %{_bindir}/*
 %{_mandir}/man1/*
 
 %changelog
+* Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 6b-34sls
+- minor spec cleanups
+- get rid of same docs in multiple packages
+
+* Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 6b-33sls
+- OpenSLS build
+- tidy spec
+
 * Sat Aug  9 2003 Till Kamppeter <till@mandrakesoft.com> 6b-32mdk
 - Replaced Patch 2 by a patch for lossless cropping and joining of JPEG
   images to "jpegtran" (in "libjpeg-progs" package) from

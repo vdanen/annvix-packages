@@ -1,20 +1,23 @@
-%define name smartmontools
+%define name	smartmontools
 %define version 5.26
-%define release 1mdk
+%define release 4sls
 
+Summary:	SMARTmontools - for monitoring S.M.A.R.T. disks and devices
 Name:           %{name}
 Version:        %{version}
 Release:        %{release}
-Summary:	SMARTmontools - for monitoring S.M.A.R.T. disks and devices
 License:	GPL
 Group:		System/Kernel and hardware
 URL:            http://smartmontools.sourceforge.net/
-BuildRoot:      %{_tmppath}/%{name}-%{version}-root
-# tar.gz at download.sf.net/smartmontools/
 Source0:	%{name}-%{version}.tar.bz2
+Source1:	smartd.run
+Source2:	smartd-log.run
+
+BuildRoot:      %{_tmppath}/%{name}-%{version}-root
+
 Obsoletes:	smartsuite
 Provides:	smartsuite
-Prereq:		rpm-helper
+PreReq:		rpm-helper
 
 %description 
 SMARTmontools controls and monitors storage devices using the
@@ -39,39 +42,72 @@ smartd will provide more information.
 %make
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
+mkdir -p %{buildroot}%{_srvdir}/smartd/log
+mkdir -p %{buildroot}%{_srvlogdir}/smartd
+install -m 0755 %{SOURCE1} %{buildroot}%{_srvdir}/smartd/run
+install -m 0755 %{SOURCE2} %{buildroot}%{_srvdir}/smartd/log/run
+rm -rf %{buildroot}%{_initrddir}
+
+mkdir -p %{buildroot}%{_sysconfdir}/sysconfig
+echo "INTERVAL=1800" > %{buildroot}%{_sysconfdir}/sysconfig/smartd
+
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
-%_post_service smartd
+%_post_srv smartd
 
 %preun
-%_preun_service smartd
+%_preun_srv smartd
 
 
 %files
 %defattr(-,root,root)
-%config(noreplace) %{_sysconfdir}/smartd.conf
-%attr(744,root,root) %config(noreplace) %{_initrddir}/smartd
-%{_sbindir}/*
-%{_mandir}/man?/*
-
 %doc %{_docdir}/%{name}-%{version}
+%config(noreplace) %{_sysconfdir}/smartd.conf
+%config(noreplace) %{_sysconfdir}/sysconfig/smartd
+%{_sbindir}/smartd
+%{_sbindir}/smartctl
+%{_mandir}/man5/smartd.conf.5*
+%{_mandir}/man8/smartd.8*
+%{_mandir}/man8/smartctl.8*
+%dir %{_srvdir}/smartd
+%dir %{_srvdir}/smartd/log
+%{_srvdir}/smartd/run
+%{_srvdir}/smartd/log/run
+%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/smartd
 
 
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 5.26-4sls
+- minor spec cleanups
+- srv macros
+
+* Mon Dec 29 2003 Vincent Danen <vdanen@opensls.org> 5.26-3sls
+- supervise scripts
+- remove initscript
+- create /etc/sysconfig/smartd to configure polling interval
+- don't be lazy in the %%files listing
+
+* Mon Dec 29 2003 Vincent Danen <vdanen@opensls.org> 5.26-2sls
+- OpenSLS build
+- tidy spec
+
 * Thu Dec 4 2003 Erwan Velu <erwan@mandrakesoft.com> 5.26-1mdk
 - New release
 - Release are too fast theses days :)
+
 * Thu Nov 27 2003 Erwan Velu <erwan@mandrakesoft.com> 5.25-1mdk
 - New release
 - Fixing changelog entries :)
 - Removing Patch1 (merged upstream)
+
 * Mon Nov 1 2003 Erwan Velu <erwan@mandrakesoft.com> 5.1-23mdk
 - New release
+
 * Sat Nov 01 2003 Abel Cheung <deaddog@deaddog.org> 5.22-2mdk
 - don't restart smartd multiple times
 

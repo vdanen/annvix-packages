@@ -1,18 +1,25 @@
+%define name	make
+%define version	3.80
+%define release	8sls
+%define epoch	1
+
 Summary:	A GNU tool which simplifies the build process for users
-Name:		make
-Version:	3.80
-Release:	5mdk
-Epoch:		1
-Url:		http://www.gnu.org/directory/GNU/make.html
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+Epoch:		%{epoch}
 License:	GPL
 Group:		Development/Other
+URL:		http://www.gnu.org/directory/GNU/make.html
 Source:		ftp://ftp.gnu.org/pub/gnu/make/%name-%version.tar.bz2
 # to remove once those po files are included in standard sources
 Source1:	%{name}-pofiles.tar.bz2
 Patch0:		make-3.80-no-hires-timestamp.patch.bz2
+
+BuildRoot:	%_tmppath/%name-root
 BuildRequires:	gettext-devel
+
 Prereq:		/sbin/install-info
-Buildroot:	%_tmppath/%name-root
 
 %description
 A GNU tool for controlling the generation of executables and other
@@ -37,7 +44,7 @@ commonly used to simplify the process of installing programs.
 make check
 
 %install
-rm -rf $RPM_BUILD_ROOT/
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %makeinstall
 
@@ -52,7 +59,7 @@ done
 %find_lang %name
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
 %_install_info make.info
@@ -70,6 +77,16 @@ rm -rf $RPM_BUILD_ROOT
 %_infodir/make.info*
 
 %changelog
+* Fri May 09 2004 Vincent Danen <vdanen@opensls.org> 3.80-8sls
+- rebuild against new gettext
+
+* Sat Mar 06 2004 Vincent Danen <vdanen@opensls.org> 3.80-7sls
+- minor spec cleanups
+
+* Mon Dec 08 2003 Vincent Danen <vdanen@opensls.org> 3.80-6sls
+- OpenSLS build
+- tidy spec
+
 * Fri Jul 25 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 3.80-5mdk
 - Patch0: Don't use high resolution timestamp to nuke librt dep
 

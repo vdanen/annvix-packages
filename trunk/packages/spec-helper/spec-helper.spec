@@ -1,37 +1,40 @@
-%define name spec-helper
+%define name	spec-helper
 %define version 0.9.2
-%define release 3mdk
+%define release 5sls
 
-Summary: Tools to ease the creation of rpm packages
-Name: %{name}
-Version: %{version}
-Release: %{release}
+%define distrib	OpenSLS
+
+Summary:	Tools to ease the creation of rpm packages
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		Development/Other
+URL:		http://www.mandrakelinux.com
 # get the source from our cvs repository (see
 # http://www.linuxmandrake.com/en/cvs.php3)
-Source0: %{name}-%{version}.tar.bz2
-URL: http://www.linux-mandrake.com
-License: GPL
-Group: Development/Other
-BuildRoot: %{_tmppath}/%{name}-buildroot
-Prefix: %{_prefix}
-BuildArchitectures: noarch
-Requires: perl /sbin/ldconfig findutils /usr/bin/python gettext
+Source0:	%{name}-%{version}.tar.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildArch:	noarch
+
+Requires:	perl /sbin/ldconfig findutils /usr/bin/python gettext
 
 %description
-Tools to ease the creation of rpm packages for the Mandrake Linux distribution.
+Tools to ease the creation of rpm packages for the %{distrib} distribution.
 Compress man pages using bzip2, strip executables, convert links...
 
 %prep
-%setup
+%setup -q
 
 %build
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 make install DESTDIR=$RPM_BUILD_ROOT bindir=%{buildroot}/%{_bindir}
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -40,6 +43,16 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/spec-helper
 
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 0.9.2-5sls
+- minor spec cleanups
+- remove %%prefix
+- remove %%build_openssls
+
+* Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 0.9.2-4sls
+- OpenSLS build
+- tidy spec
+- fix URL
+
 * Thu Oct  9 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 0.9.2-3mdk
 - also nuke /lib64/security/ paths
 

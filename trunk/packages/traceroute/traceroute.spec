@@ -1,18 +1,21 @@
-Summary: Traces the route taken by packets over a TCP/IP network.
-Name: traceroute
-Version: 1.4a12
-Release: 4mdk
-License: BSD
-Group: Monitoring
-URL: http://www.chiark.greenend.org.uk/ucgi/~richard/cvsweb/debfix/packages/traceroute/
-Source: ftp://ftp.ee.lbl.gov/traceroute-%{version}.tar.bz2
-Patch1: traceroute-1.4a5-secfix.patch.bz2
-Patch3: traceroute-1.4a5-autoroute.patch.bz2
-Patch4: traceroute-1.4a5-autoroute2.patch.bz2
-Patch5: traceroute-1.4a5-unaligned.patch.bz2
-# (fg) 20001003 This patch fixes traceroute segfault and root exploit
-Prefix: %{_prefix}
-BuildRoot: %{_tmppath}/%{name}-root
+%define name	traceroute
+%define version	1.4a12
+%define release	6sls
+
+Summary:	Traces the route taken by packets over a TCP/IP network.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	BSD
+Group:		Monitoring
+URL:		http://www.chiark.greenend.org.uk/ucgi/~richard/cvsweb/debfix/packages/traceroute/
+Source:		ftp://ftp.ee.lbl.gov/traceroute-%{version}.tar.bz2
+Patch1:		traceroute-1.4a5-secfix.patch.bz2
+Patch3:		traceroute-1.4a5-autoroute.patch.bz2
+Patch4:		traceroute-1.4a5-autoroute2.patch.bz2
+Patch5:		traceroute-1.4a5-unaligned.patch.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-root
 
 %description
 The traceroute utility displays the route used by IP packets on their
@@ -38,21 +41,30 @@ export RPM_OPT_FLAGS="$RPM_OPT_FLAGS -DHAVE_IFF_LOOPBACK -DUSE_KERNEL_ROUTING_TA
 make 
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p ${RPM_BUILD_ROOT}/{%{_sbindir},%{_mandir}/man8}
 
 install traceroute ${RPM_BUILD_ROOT}/%{_sbindir}
 cp traceroute.8 ${RPM_BUILD_ROOT}/%{_mandir}/man8
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
-%attr(4755,root,bin)	%{_sbindir}/traceroute
+%attr(0755,root,bin)	%{_sbindir}/traceroute
 %{_mandir}/man8/traceroute.8.bz2
 
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 1.4a12-6sls
+- minor spec cleanups
+- remove %%prefix
+
+* Wed Dec 17 2003 Vincent Danen <vdanen@opensls.org> 1.4a12-5sls
+- OpenSLS build
+- tidy spec
+- remove suid bit
+
 * Fri Jul 18 2003 Warly <warly@mandrakesoft.com> 1.4a12-4mdk
 - rebuild
 

@@ -1,3 +1,19 @@
+%define name	php
+%define version	4.3.7
+%define release	1sls
+%define epoch	2
+
+%define libversion	4
+%define phpversion	%{version}
+%define phprelease	%{release}
+%define libname		%mklibname php_common %{libversion}
+
+%define phpdir		%{_libdir}/php
+%define	peardir		%{_datadir}/pear
+%define	phpsrcdir	%{_usrsrc}/php-devel
+
+%{!?build_propolice:%global build_propolice 0}
+
 %define _requires_exceptions BEGIN\\|mkinstalldirs
 
 # OE: conditional switches
@@ -10,7 +26,7 @@
 #  will _add_ -g3 to CFLAGS, will _add_ --enable-maintainer-mode to 
 #  configure.
 
-%define build_debug 1
+%define build_debug 0
 
 # commandline overrides:
 # rpm -ba|--rebuild --with 'xxx'
@@ -24,72 +40,60 @@
 %{expand:%%define optflags %{optflags} %([ ! $DEBUG ] && echo '-g3')}
 %endif
 
-%define libversion 432
-%define phpversion 4.3.4
-%define phprelease 1mdk
-%define libname %mklibname php_common %{libversion}
-
-%define phpdir %{_libdir}/php
-%define	peardir %{_datadir}/pear
-%define	phpsrcdir %{_usrsrc}/php-devel
+%if %{build_propolice}
+# symbols from stack protection cause the build to fail so until we figure
+# it out, don't build with -fstack-protector
+%{expand:%%define optflags %{optflags} %(echo '-fno-stack-protector')}
+%endif
 
 #The external_modules definition has been put in the %%build section
 #to clean things a bit
 
 Summary:	The PHP4 scripting language
-Name:		php
+Name:		%{name}
 Version:	%{phpversion}
 Release:	%{phprelease}
-Group:		Development/Other
+Epoch:		%{epoch}
 License:	PHP License
+Group:		Development/Other
 URL:		http://www.php.net
 Source0:	http://www.php.net/distributions/php-%{version}.tar.bz2
 Source3:	FAQ.php.bz2
 Source4:	php-test.bz2
-
 # wget -O ChangeLog-4.html http://www.php.net/ChangeLog-4.php
 Source5:	ChangeLog-4.html.bz2
-
 Patch0:		php-4.3.0-init.patch.bz2
-Patch1:		php-4.3.4RC3-shared.patch.bz2
-
+Patch1:		php-4.3.6-shared.patch.bz2
 Patch2:		php-4.3.0-imap.patch.bz2
 Patch3:		php-4.3.0-info.patch.bz2
 Patch4:		php-4.3.4RC3-64bit.patch.bz2
-Patch5:		php-4.3.4RC3-lib64.patch.bz2
+Patch5:		php-4.3.4-lib64.patch.bz2
 Patch6:		php-4.3.0-fix-pear.patch.bz2
 Patch7:		php-4.3.2-libtool.patch.bz2
-
 Patch9:		php-4.3.0-credits.patch.bz2
 Patch10:	php-4.3.0-no_egg.patch.bz2
-
 # Stolen from PLD
 #####################################################################
 Patch14:	php-4.3.0-mail.patch.bz2
 Patch15:	php-4.3.0-mcal-shared-lib.patch.bz2
 Patch16:	php-4.3.0-msession-shared-lib.patch.bz2
-
 #####################################################################
 # Stolen from RH
-Patch20:	php-4.3.1-dlopen.patch.bz2
-
+Patch20:	php-4.3.6-dlopen.patch.bz2
 #####################################################################
 # make the tests work better
 Patch30:	php-4.3.3-make_those_darn_tests_work.patch.bz2
+# Bug fixes:
+Patch40:	php-bug-22414.patch.bz2
 
+BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
 # this is to prevent that it will build against old libs
 BuildConflicts:	%libname
 BuildConflicts:	php_common
-BuildConflicts:	libphp_common430-430
-BuildConflicts:	php430-devel-430
-BuildConflicts:	libphp_common430
-BuildConflicts:	php430-devel
 BuildConflicts:	php-devel
-
 # Those two modules have tests that fail
 BuildConflicts:	php-mhash
 BuildConflicts:	php-mbstring
-
 BuildRequires:	chrpath
 BuildRequires:	bison
 BuildRequires:	byacc
@@ -99,9 +103,8 @@ BuildRequires:	glibc-devel
 BuildRequires:	openssl-devel >= 0.9.6, openssl >= 0.9.6
 BuildRequires:	pam-devel
 BuildRequires:	zlib-devel
-BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
+
 Provides: 	ADVXpackage
-Epoch:		2
 
 %description
 PHP4 is an HTML-embeddable scripting language.  PHP offers built-in database
@@ -114,24 +117,22 @@ You can build %{name} with some conditional build swithes;
 (ie. use with rpm --rebuild):
 --with debug   Compile with debugging code
 
-%package	cli
-Group:		Development/Other
+%package cli
 Summary:	Command-line interface to PHP
+Epoch:		%{epoch}
+Group:		Development/Other
 URL:		http://php.net
 PreReq:		php-ini
-Requires:	%libname = %{phpversion}-%{release}
+Requires:	%libname = %{epoch}:%{phpversion}-%{release}
 Provides:	php
 Provides:	php3
 Provides:	php4
 Provides:	php%{libversion} 
-Provides:	php430
-Obsoletes:	php430
 Obsoletes:	php
 Obsoletes:	php3
 Provides: 	ADVXpackage
-Epoch:		2
 
-%description	cli
+%description cli
 PHP4 is an HTML-embeddable scripting language.  PHP offers built-in database
 integration for several commercial and non-commercial database management
 systems, so writing a database-enabled script with PHP is fairly simple.  The
@@ -143,24 +144,22 @@ install libphp_common.
 If you need apache module support, you also need to install the mod_php
 package.
 
-%package	cgi
-Group:		Development/Other
+%package cgi
 Summary:	CGI interface to PHP
+Epoch:		%{epoch}
+Group:		Development/Other
 URL:		http://php.net
 PreReq:		php-ini
-Requires:	%libname = %{phpversion}-%{release}
+Requires:	%libname = %{epoch}:%{phpversion}-%{release}
 Provides:	php
 Provides:	php3
 Provides:	php4
 Provides:	php%{libversion}
-Provides:	php430
-Obsoletes:	php430
 Obsoletes:	php
 Obsoletes:	php3
 Provides: 	ADVXpackage
-Epoch:		2
 
-%description	cgi
+%description cgi
 PHP4 is an HTML-embeddable scripting language.  PHP offers built-in database
 integration for several commercial and non-commercial database management
 systems, so writing a database-enabled script with PHP is fairly simple.  The
@@ -172,59 +171,35 @@ install libphp_common.
 If you need apache module support, you also need to install the mod_php
 package.
 
-%package -n	%libname
-Group:		Development/Other
+%package -n %libname
 Summary:	Shared library for php
+Epoch:		%{epoch}
+Group:		Development/Other
 URL:		http://www.php.net
+Provides:	%libname = %{epoch}:%{phpversion}-%{release}
 Provides:	libphp_common = %{phpversion}-%{release}
-Provides:	libphp_common430 = 4.3.0-%{release}
-Obsoletes:	libphp_common430
-Obsoletes:	php-ftp
-Provides:	php-ftp
-Obsoletes:	php-pcre
-Provides:	php-pcre
-Obsoletes:	php-posix
-Provides:	php-posix
-Obsoletes:	php-session
-Provides:	php-session
-Obsoletes:	php-sysvsem
-Provides:	php-sysvsem
-Obsoletes:	php-sysvshm
-Provides:	php-sysvshm
-Obsoletes:	php-yp
-Provides:	php-yp
-Obsoletes:	php-zlib
-Provides:	php-zlib
-Obsoletes:	php-gettext
-Provides:	php-ctype
-Obsoletes:	php-ctype
-Obsoletes:	php-common
 Provides:	php-common
-Provides:	php-gettext
 Provides: 	ADVXpackage
-Epoch:		2
 
 %description -n	%libname
 This package provides the common files to run with different
 implementations of PHP. You need this package if you install the php
 standalone package or a webserver with php support (ie: mod_php).
 
-%package -n	php%{libversion}-devel
-Group:		Development/C
+%package -n php%{libversion}-devel
 Summary:	Development package for PHP4
+Epoch:		%{epoch}
+Group:		Development/C
 URL:		http://www.php.net
 Provides:	libphp_common-devel = %{phpversion}-%{release}
-Provides:	libphp_common430-devel = 4.3.0-%{release}
-Obsoletes:	libphp_common430-devel
 Requires:	libtool
-Requires:	%libname = %{phpversion}-%{release}
-Requires:	php%{libversion} = %{phpversion}-%{release}
+Requires:	%libname = %{epoch}:%{phpversion}-%{release}
+Requires:	php%{libversion} = %{epoch}:%{phpversion}-%{release}
 Requires:	openssl-devel >= 0.9.6
 Requires:	chrpath
 Provides:	php-devel
 Obsoletes:	php-devel
 Provides: 	ADVXpackage
-Epoch:		2
 
 %description -n	php%{libversion}-devel
 The php-devel package lets you compile dynamic extensions to PHP4. Included
@@ -238,6 +213,10 @@ SELF-CONTAINED-EXTENSIONS.
 %setup -q -n php-%{phpversion}
 %patch0 -p1 -b .init
 %patch1 -p1 -b .shared
+
+# fix soname (libversion)
+perl -pi -e 's|_PHP_SONAME_|%{libversion}|g' Makefile.global
+
 %patch2 -p0 -b .imap
 %patch3 -p1 -b .info
 %patch4 -p1 -b .64bit
@@ -256,10 +235,12 @@ SELF-CONTAINED-EXTENSIONS.
 
 #####################################################################
 # Stolen from RH
-%patch20 -p1 -b .dlopen
+%patch20 -p0 -b .dlopen
 
 # make the tests worky
 %patch30 -p0 -b .make_those_darn_tests_work
+
+%patch40 -p1 -b .22414
 
 # Change perms otherwise rpm would get fooled while finding requires
 chmod 644 tests/lang/*.inc
@@ -314,9 +295,10 @@ cat > php-devel/buildext <<EOF
 #!/bin/bash
 gcc -fPIC -shared %{optflags} \\
     -I. \`%{_bindir}/php-config --includes\` \\
-    -I/usr/include/freetype \\
-    -I/usr/include/openssl \\
-    -I/usr/include/\$1 \\
+    -I%{_includedir}/freetype \\
+    -I%{_includedir}/openssl \\
+    -I%{phpsrcdir}/ext \\
+    -I%{_includedir}/\$1 \\
     \$4 \$2 -o \$1.so \$3 -lc
 EOF
 
@@ -344,8 +326,10 @@ bzcat %{SOURCE5} > ChangeLog-4.html
 
 #LIBS="$LIBS -lpthread $krb5libs"; export LIBS
 #LIBS="$LIBS $krb5libs"; export LIBS
-EXTENSION_DIR="%{phpdir}/extensions"; export EXTENSION_DIR
-PROG_SENDMAIL="/usr/sbin/sendmail"; export PROG_SENDMAIL
+export oldstyleextdir=yes
+export EXTENSION_DIR="%{phpdir}/extensions"
+export PROG_SENDMAIL="%{_sbindir}/sendmail"
+export CFLAGS="%{optflags} -fPIC -L%{_libdir}"
 
 #############################################################################
 # EXTENSIONS HACK
@@ -390,9 +374,8 @@ php package, but that can be installed as external modules:
 EOF
 
 # Configure php
-CFLAGS="%{optflags} -fPIC -L%{_libdir}"; export CFLAGS
-
 #%%configure does not work!!!!
+
 ./configure \
     --prefix=%{_prefix} \
     --exec-prefix=%{_exec_prefix} \
@@ -422,6 +405,7 @@ CFLAGS="%{optflags} -fPIC -L%{_libdir}"; export CFLAGS
     --enable-magic-quotes \
 %if %{build_debug}
     --enable-maintainer-mode \
+    --enable-debug \
 %endif
     --enable-debugger \
     --enable-track-vars \
@@ -453,24 +437,19 @@ CFLAGS="%{optflags} -fPIC -L%{_libdir}"; export CFLAGS
 ###	This configuration makes a dependency on those libs:
 #	-ldl -lpam -lcrypt -lresolv -lm -lz
 
-#    This has been removed...
-#    --enable-experimental-zts \
-
-find -type f|xargs perl -pi -e "s|/no-debug-non-zts-\d+||;"
-
 #JMD Remove all the --without and --disable from the configure.
 #In fact, everything between --without-dba and --without-gdbm...
 #Yes, people can't scroll down a page to see some modules have been split
 #and it creates confusion, even with Oden's patch =(
 find -type f|xargs perl -pi -e  "s/'--without-dba'.*'--without-gdbm'//;"
 
-make
+%make
 
 chrpath -d sapi/cli/php
 chrpath -d sapi/cgi/php
 
 %install
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 # OE: make this somewhat short-circuitable
 if ! [ -f libphp_common.so.%{libversion} ]; then
@@ -574,9 +553,10 @@ ln -snf ../../../bin/libtool %{buildroot}%{phpdir}/build/libtool
 install -m0644 sapi/cli/php.1 %{buildroot}%{_mandir}/man1/
 
 %clean
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post -n %libname -p /sbin/ldconfig
+
 %postun -n %libname -p /sbin/ldconfig
 
 %pre cgi
@@ -618,6 +598,34 @@ update-alternatives --remove php %{_bindir}/php-cli
 %{_includedir}/php
 
 %changelog
+* Thu Jun 03 2004 Vincent Danen <vdanen@opensls.org> 4.3.7-1sls
+- 4.3.7
+
+* Tue Apr 13 2004 Vincent Danen <vdanen@opensls.org> 4.3.6-1sls
+- 4.3.6
+- more epoch fixes
+- don't build with %%debug by default
+- fix bug22414.phpbt (jmd)
+- rediff P1, P20 (oden)
+- spec cleanups/macros/etc. (oden)
+- libversion is 4, not 432
+- remove some unneeded BuildConflicts, Obsoletes, and Provides
+
+* Tue Apr 13 2004 Vincent Danen <vdanen@opensls.org> 4.3.4-5sls
+- fix epoch in requires
+
+* Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 4.3.4-4sls
+- minor spec cleanups
+
+* Fri Jan 09 2004 Oden Eriksson <oden.eriksson@kvikkjokk.net> 4.3.4-3sls
+- rediff P5; fix lib64 build (aka php-dba_bundle wasn't compiling)
+
+* Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 4.3.4-2sls
+- OpenSLS build
+- tidy spec
+- use %%build_propolice to add -fno-stack-protector until we can sort out
+  the build problems with __guard/etc. symbols
+
 * Tue Nov 04 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 4.3.4-1mdk
 - 4.3.4
 

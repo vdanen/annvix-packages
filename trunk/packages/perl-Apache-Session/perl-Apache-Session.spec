@@ -1,23 +1,23 @@
+%define name	perl-%{module}
 %define module	Apache-Session
 %define version	1.54
-%define release	6mdk
-
-Packager:	Jean-Michel Dault <jmdault@mandrakesoft.com>
-Vendor:		MandrakeSoft
+%define release	9sls
 
 Summary:	%{module}: Apache persistent user sessions
-Name:		perl-%{module}
+Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	GPL or Artistic
 Group:		Development/Perl
+URL:		http://www.cpan.org
 Source0:	%{module}-%{version}.tar.bz2
-Url:		http://www.cpan.org
+
 BuildRoot:	%{_tmppath}/%{name}-buildroot/
-Requires:	perl
 BuildRequires:	perl-DB_File perl-DBI perl-devel perl-Digest-MD5
-Requires:	perl-Digest-MD5
 BuildArch:	noarch
+
+Requires:	perl
+Requires:	perl-Digest-MD5
 
 %description
 Apache::Session is a persistence framework which is particularly useful
@@ -35,16 +35,16 @@ CFLAGS="$RPM_OPT_FLAGS" %{__perl} Makefile.PL INSTALLDIRS=vendor
 make
 make test
 
-%clean 
-rm -rf $RPM_BUILD_ROOT
-
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 eval `perl '-V:installarchlib'`
 mkdir -p $RPM_BUILD_ROOT/$installarchlib
 make PREFIX=$RPM_BUILD_ROOT%{_prefix} install
 %__os_install_post
 find $RPM_BUILD_ROOT%{_prefix} -type f -print | sed "s@^$RPM_BUILD_ROOT@@g" | grep -v perllocal.pod > %{module}-%{version}-filelist
+
+%clean 
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 
 %files
@@ -54,6 +54,17 @@ find $RPM_BUILD_ROOT%{_prefix} -type f -print | sed "s@^$RPM_BUILD_ROOT@@g" | gr
 %{perl_vendorlib}/Apache/*
 
 %changelog
+* Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 1.54-9sls
+- rebuild for perl 5.8.4
+
+* Wed Feb 25 2004 Vincent Danen <vdanen@opensls.org> 1.54-8sls
+- rebuild for new perl
+- some spec cleanups
+
+* Sat Jan 03 2004 Vincent Danen <vdanen@opensls.org> 1.54-7sls
+- OpenSLS build
+- tidy spec
+
 * Thu Aug 07 2003 Per Øyvind Karlsen <peroyvind@linux-mandrake.com> 1.54-6mdk
 - rebuild for new perl
 

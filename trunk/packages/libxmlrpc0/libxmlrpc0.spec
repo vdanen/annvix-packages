@@ -1,9 +1,11 @@
+%define name	%{libnamemajor}
+%define version	0.51
+%define release	7sls
+
 %define realname	xmlrpc
 %define libname		lib%{realname}
 %define major		0
 %define libnamemajor	%{libname}%{major}
-%define version		0.51
-%define release		5mdk
 
 Summary:	Library providing XMLPC support in C
 Name:		%{libnamemajor}
@@ -11,10 +13,12 @@ Version:	%{version}
 Release:	%{release}
 License:	BSD
 Group: 		System/Libraries
-BuildRoot:	%_tmppath/%name-%version-%release-root
 URL:		http://xmlrpc-epi.sourceforge.net/
 Source0:	xmlrpc-epi-%{version}.tar.bz2
 Patch0:		xmlrpc-epi-0.51-64bit-fixes.patch.bz2
+
+BuildRoot:	%_tmppath/%name-%version-%release-root
+
 Provides:	%{libname} = %{version}
 
 %description
@@ -25,10 +29,10 @@ based upon proprietary code written for internal usage at Epinions.com, and
 was later modified to incorporate concepts from the xmlrpc protocol.
  
 %package devel
-Summary: Libraries, includes, etc. to develop XML and HTML applications
-Group: Development/C
-Requires: %{libnamemajor} = %{version}
-Provides: %{libname}-devel = %{version}
+Summary:	Libraries, includes, etc. to develop XML and HTML applications
+Group:		Development/C
+Requires:	%{libnamemajor} = %{version}
+Provides:	%{libname}-devel = %{version}
 
 %description devel
 xmlrpc-epi is an implementation of the xmlrpc protocol in C. It provides an
@@ -54,7 +58,7 @@ perl -pi -e "s,-L/usr/local/lib\b,," configure
 make
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %makeinstall_std
 
@@ -62,7 +66,7 @@ rm -rf $RPM_BUILD_ROOT
 rm -f $RPM_BUILD_ROOT%{_bindir}/{client,hello_{client,server},memtest,sample,server{,_compliance_test}}
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 
 %post -p /sbin/ldconfig
@@ -83,6 +87,13 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/lib*.a
 
 %changelog
+* Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 0.51-7sls
+- minor spec cleanups
+
+* Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 0.51-6sls
+- OpenSLS build
+- tidy spec
+
 * Tue Jul 22 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 0.51-5mdk
 - rebuild
 

@@ -1,6 +1,7 @@
-%define name	perl-Pg
+%define module	Pg
+%define name	perl-%{module}
 %define version	2.0.2
-%define release	4mdk
+%define release	7sls
 
 Summary:	A libpq-based PostgreSQL interface for Perl
 Name:		%{name}
@@ -8,12 +9,13 @@ Version:	%{version}
 Release:	%{release}
 License:	GPL
 Group:		Development/Perl
-Source0:	pgperl-%{version}.tar.bz2
 URL:		http://gborg.postgresql.org/project/pgperl/projdisplay.php
+Source0:	pgperl-%{version}.tar.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
 BuildRequires:	perl-devel
 BuildRequires:	postgresql-devel
 BuildRequires:	postgresql-libs-devel
-BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
 
 %description
 pgperl is an interface between Perl and PostgreSQL. This uses the
@@ -41,11 +43,11 @@ export POSTGRES_LIB=`pg_config --libdir`
 #%{__make} test
 
 %install
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot} 
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
 %clean 
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot} 
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -56,6 +58,16 @@ export POSTGRES_LIB=`pg_config --libdir`
 %{_mandir}/man3*/*
 
 %changelog
+* Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 2.0.2-7sls
+- rebuild for perl 5.8.4
+
+* Fri Feb 27 2004 Vincent Danen <vdanen@opensls.org> 2.0.2-6sls
+- rebuild for new perl
+
+* Tue Dec 30 2003 Vincent Danen <vdanen@opensls.org> 2.0.2-5sls
+- OpenSLS build
+- tidy spec
+
 * Thu Sep 04 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.2-4mdk
 - fix buildrequires
 

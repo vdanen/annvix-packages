@@ -1,17 +1,21 @@
-%define ver 4
+%define name	portmap
+%define version	4.0
+%define release	25sls
+%define ver	4
 
 Summary:	A program which manages RPC connections
 Name:		portmap
-Version:	%{ver}.0
-Release:	21mdk
+Version:	%{version}
+Release:	%{release}
 Group:		System/Servers
 License:	BSD
-
 Source0:	ftp://coast.cs.purdue.edu:/pub/tools/unix/netutils/portmap/portmap_%{ver}.tar.bz2
 Source1:	portmap.init
 Source2:	pmap_set.8.bz2
 Source3:	pmap_dump.8.bz2
 Source4:	portmap.8.bz2
+Source5:	portmap.run
+Source6:	portmap-log.run
 Patch0:		portmap-4.0-linux.patch.bz2
 Patch1:		portmap-malloc.patch.bz2
 Patch2:		portmap-4.0-cleanup.patch.bz2
@@ -20,9 +24,10 @@ Patch4:		portmap-4.0-sigpipe.patch.bz2
 Patch5:		portmap-4.0-errno.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
-Prereq:		/sbin/chkconfig, rpm-helper
 BuildRequires:	tcp_wrappers-devel
-Requires: setup >= 2.1.9-38mdk
+
+Prereq:		/sbin/chkconfig, rpm-helper
+Requires:	setup >= 2.1.9-38mdk
 
 %description
 The portmapper program is a security tool which prevents theft of NIS
@@ -48,35 +53,38 @@ make FACILITY=LOG_AUTH ZOMBIES='-DIGNORE_SIGCHLD -Dlint' LIBS="-lnsl" RPM_OPT_FL
 	WRAP_DIR=%{_libdir}
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p $RPM_BUILD_ROOT/sbin
 mkdir -p $RPM_BUILD_ROOT/usr/sbin
-mkdir -p $RPM_BUILD_ROOT/etc/rc.d/init.d
 
 install -m 755 -s portmap $RPM_BUILD_ROOT/sbin
 install -m 755 -s pmap_set $RPM_BUILD_ROOT/usr/sbin
 install -m 755 -s pmap_dump $RPM_BUILD_ROOT/usr/sbin
-install -m 755 %{SOURCE1} $RPM_BUILD_ROOT%{_initrddir}/portmap
 
 mkdir -p $RPM_BUILD_ROOT%{_mandir}/man8
 install -m 644 %{SOURCE2} $RPM_BUILD_ROOT%{_mandir}/man8
 install -m 644 %{SOURCE3} $RPM_BUILD_ROOT%{_mandir}/man8
 install -m 644 %{SOURCE4} $RPM_BUILD_ROOT%{_mandir}/man8
 
+mkdir -p %{buildroot}%{_srvdir}/portmap/log
+mkdir -p %{buildroot}%{_srvlogdir}/portmap
+install -m 0755 %{SOURCE5} %{buildroot}%{_srvdir}/portmap/run
+install -m 0755 %{SOURCE6} %{buildroot}%{_srvdir}/portmap/log/run
+
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %pre
-%_pre_useradd rpc / /bin/false
+%_pre_useradd rpc / /bin/false 72
 
 %post
-%_post_service portmap
+%_post_srv portmap
 
 %triggerpostun -- portmap <= portmap-4.0-9
 /sbin/chkconfig --add portmap
 
 %preun
-%_preun_service portmap
+%_preun_srv portmap
 
 %postun
 %_postun_userdel rpc
@@ -84,15 +92,34 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(-,root,root)
 %doc README CHANGES BLURB
-
+%dir %{_srvdir}/portmap
+%dir %{_srvdir}/portmap/log
+%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/portmap
+%{_srvdir}/portmap/run
+%{_srvdir}/portmap/log/run
 /sbin/portmap
 /usr/sbin/pmap_dump
 /usr/sbin/pmap_set
 %{_mandir}/*/*
 
-%config(noreplace) %{_initrddir}/portmap
 
 %changelog
+* Tue Feb 03 2004 Vincent Danen <vdanen@opensls.org> 4.0-24sls
+- minor spec cleanups
+- srv macros
+
+* Tue Feb 03 2004 Vincent Danen <vdanen@opensls.org> 4.0-24sls
+- remove initscript
+- give rpc static uid/gid 72
+- use srv macros
+
+* Wed Dec 31 2003 Vincent Danen <vdanen@opensls.org> 4.0-23sls
+- supervise files
+
+* Mon Dec 02 2003 Vincent Danen <vdanen@opensls.org> 4.0-22sls
+- OpenSLS build
+- tidy spec
+
 * Mon Apr 28 2003 Warly <warly@mandrakesoft.com> 4.0-21mdk
 - fix rebuild
 

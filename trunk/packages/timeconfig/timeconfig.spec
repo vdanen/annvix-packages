@@ -1,11 +1,11 @@
 %define name	timeconfig
 %define version	3.2
-%define release	8mdk
+%define release	11sls
 
+Summary:	Text mode tools for setting system time parameters.
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
-Summary:	Text mode tools for setting system time parameters.
 License:	GPL
 Group:		System/Configuration/Other
 Source0:	timeconfig-%{version}.tar.bz2
@@ -15,13 +15,14 @@ Source3:	timeconfig-mini.png
 Source4:	timeconfig-large.png
 Source5:	timeconfig.pamd
 Source6:	timeconfig.apps
-Requires:	initscripts >= 2.81
-Requires:	usermode-consoleonly
-BuildRequires:	gettext libnewt-devel popt-devel slang-devel
 Patch0:		timeconfig-gmt.patch.bz2
 Patch1:		timeconfig-mdkconf.patch.bz2
-Prereq:		fileutils, gawk
+
 BuildRoot:	%{_tmppath}/%{name}-root
+BuildRequires:	gettext libnewt-devel popt-devel slang-devel
+
+Requires:	initscripts >= 2.81
+Prereq:		fileutils, gawk
 
 %description
 The timeconfig package contains two utilities: timeconfig and
@@ -39,31 +40,12 @@ time stored in the system clock.
 make RPM_OPT_FLAGS="$RPM_OPT_FLAGS"
 
 %install
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 make PREFIX=$RPM_BUILD_ROOT%{_prefix} install
 rm -f $RPM_BUILD_ROOT/usr/lib/zoneinfo
 
 # fix indonesian locale, its language code is 'id' not 'in'.
 mkdir -p $RPM_BUILD_ROOT/usr/share/locale/id/LC_MESSAGES
-
-
-#install menu
-mkdir -p $RPM_BUILD_ROOT/%{_menudir}
-install -m644 %{SOURCE1} $RPM_BUILD_ROOT/%{_menudir}/timeconfig
-
-# (fg) 20000915 Icons from LN
-mkdir -p $RPM_BUILD_ROOT/%{_iconsdir}/{large,mini}
-
-install -m644 %{SOURCE2} $RPM_BUILD_ROOT/%{_iconsdir}
-install -m644 %{SOURCE3} $RPM_BUILD_ROOT/%{_miconsdir}/timeconfig.png
-install -m644 %{SOURCE4} $RPM_BUILD_ROOT/%{_liconsdir}/timeconfig.png
-
-# (fg) 20001004 In replacement of kdesu...
-mkdir -p $RPM_BUILD_ROOT/%{_sysconfdir}/{pam.d,security/console.apps}
-
-install -m644 %{SOURCE5} $RPM_BUILD_ROOT/%{_sysconfdir}/pam.d/timeconfig-auth
-install -m644 %{SOURCE6} $RPM_BUILD_ROOT/%{_sysconfdir}/security/console.apps/timeconfig-auth
-
-ln -fs /usr/bin/consolehelper $RPM_BUILD_ROOT/%{_sbindir}/timeconfig-auth
 
 # remove unpackaged files
 rm -rf $RPM_BUILD_ROOT%{_mandir}/pt_BR/
@@ -71,7 +53,7 @@ rm -rf $RPM_BUILD_ROOT%{_mandir}/pt_BR/
 %{find_lang} %{name}
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
 if [ -L /etc/localtime ]; then
@@ -85,23 +67,23 @@ if [ -L /etc/localtime ]; then
 	echo "ZONE=\"$_FNAME\"" | sed -e "s|.*/zoneinfo/||" >> /etc/sysconfig/clock
     fi
 fi
-%{update_menus}
-
-%postun
-%{clean_menus}
 
 %files -f %{name}.lang
 %defattr(-,root,root)
 %{_sbindir}/*
 %{_mandir}/man*/*
-%{_menudir}/timeconfig
-%{_iconsdir}/timeconfig.png
-%{_miconsdir}/timeconfig.png
-%{_liconsdir}/timeconfig.png
-%config(noreplace) %{_sysconfdir}/pam.d/timeconfig-auth
-%config(noreplace) %{_sysconfdir}/security/console.apps/timeconfig-auth
 
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 3.2-11sls
+- minor spec cleanups
+
+* Tue Dec 30 2003 Vincent Danen <vdanen@opensls.org> 3.2-10sls
+- remove the console-helper stuff using %%build_opensls
+
+* Mon Dec 01 2003 Vincent Danen <vdanen@opensls.org> 3.2-9sls
+- OpenSLS build
+- tidy spec
+
 * Fri Jun 06 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 3.2-8mdk
 - use double %%'s in changelog
 

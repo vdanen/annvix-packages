@@ -1,18 +1,20 @@
-%define name		linux-atm
+%define name	linux-atm
+%define version	2.4.1
+%define release	5sls
+
 %define major		1
 %define libname		lib%{name}
 %define fulllibname	%mklibname %{name} %{major}
-%define version		2.4.1
-%define release		3mdk
 
+Summary:	Tools and libraries for ATM
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
-Summary:	Tools and libraries for ATM
 License:	GPL
 Group:		System/Libraries
-Url:		http://linux-atm.sourceforge.net
+URL:		http://linux-atm.sourceforge.net
 Source:		%{name}-%{version}.tar.bz2
+
 BuildRoot:	%{_tmppath}/%{name}-%{version}-build
 BuildRequires:	flex
 
@@ -40,7 +42,6 @@ This package contains development files needed to compile programs which
 use %{name}.
 
 %prep
-rm -rf $RPM_BUILD_ROOT
 %setup -q
 
 %build
@@ -48,10 +49,11 @@ rm -rf $RPM_BUILD_ROOT
 %make
 
 %install
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post -n %{fulllibname} -p /sbin/ldconfig
 
@@ -80,6 +82,13 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/*.la
 
 %changelog
+* Sat Mar 06 2004 Vincent Danen <vdanen@opensls.org> 2.4.1-5sls
+- minor spec cleanups
+
+* Fri Jan 23 2004 Vincent Danen <vdanen@opensls.org> 2.4.1-4sls
+- OpenSLS build
+- tidy spec
+
 * Fri Aug 08 2003 Guillaume Rousse <guillomovitch@linux-mandrake.com> 2.4.1-3mdk
 - rebuild
 

@@ -1,7 +1,11 @@
-Name:		slocate
+%define name	slocate
+%define version	2.7
+%define release	4sls
+
 Summary:	Finds files on a system via a central database.
-Version:	2.7
-Release: 	2mdk
+Name:		%{name}
+Version:	%{version}
+Release: 	%{release}
 License:	GPL
 Group:		File tools
 URL:		http://www.geekreview.org/slocate/
@@ -13,8 +17,9 @@ Patch:		slocate-2.5-info.patch.bz2
 Patch1:		slocate-2.5-glibc-2.2.patch.bz2
 Patch2:		slocate-2.5-segfault.patch.bz2
 
-Prereq:		shadow-utils
 Buildroot:	%{_tmppath}/%{name}-root
+
+Prereq:		shadow-utils
 
 %description
 Slocate is a security-enhanced version of locate. Just like locate,
@@ -35,7 +40,7 @@ find files anywhere on your system.
 chmod 644 AUTHORS INSTALL LICENSE README ChangeLog
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p $RPM_BUILD_ROOT/%{_bindir}
 mkdir -p $RPM_BUILD_ROOT%{_mandir}/man1
 mkdir -p $RPM_BUILD_ROOT/%{_sysconfdir}/cron.weekly
@@ -52,10 +57,10 @@ install -m 644 %{SOURCE3} $RPM_BUILD_ROOT/%{_sysconfdir}/
 install -m 755 %{SOURCE4} $RPM_BUILD_ROOT/%{_bindir}/updatedb
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %pre
-/usr/sbin/groupadd -r slocate 2> /dev/null || :
+%_pre_groupadd slocate 17
 
 %post
 if [ "$1" = "0" ]; then
@@ -66,8 +71,10 @@ fi
 %preun
 if [ "$1" = "0" ]; then 
   [ -f /var/lib/slocate/slocate.db ] && rm -f /var/lib/slocate/slocate.db || true
-  /usr/sbin/groupdel slocate 2>/dev/null || : 
 fi
+
+%postun
+%_postun_groupdel slocate
 
 %files
 %defattr(-,root,root,755)
@@ -80,6 +87,14 @@ fi
 %config(noreplace) %{_sysconfdir}/updatedb.conf
 
 %changelog
+* Mon Dec 08 2004 Vincent Danen <vdanen@opensls.org> 2.7-4sls
+- minor spec cleanups
+- assign slocate a static gid of 17 (%%_post_groupadd/%%_preun_groupdel)
+
+* Mon Dec 01 2003 Vincent Danen <vdanen@opensls.org> 2.7-3sls
+- OpenSLS build
+- tidy spec
+
 * Wed Jul 23 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 2.7-2mdk
 - rebuild
 - use %%make macro

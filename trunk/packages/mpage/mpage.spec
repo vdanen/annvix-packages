@@ -1,19 +1,22 @@
-Summary: A tool for printing multiple pages of text on each printed page.
-Name: mpage
-Version: 2.5.3
-Release: 5mdk
-License: BSD
-Group: System/Configuration/Printing
-Source: http://www.mesa.nl/pub/mpage/%name-%version.tar.bz2
-Patch0: mpage252-config.patch.bz2
-#Patch2: mpage-debian.patch.bz2
-# Japanese patch.bz2
-Patch10: mpage-2.5.3-j.patch.bz2
-Patch20: mpage-mfix.patch.bz2
-Patch21: mpage-psprint.patch.bz2
-Patch22: mpage-2.5.3-japanese-fix.patch.bz2
+%define name	mpage
+%define version	2.5.3
+%define release	7sls
 
-URL: http://www.mesa.nl/pub/mpage
+Summary:	A tool for printing multiple pages of text on each printed page.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	BSD
+Group:		System/Configuration/Printing
+URL:		http://www.mesa.nl/pub/mpage
+Source:		http://www.mesa.nl/pub/mpage/%name-%version.tar.bz2
+Patch0:		mpage252-config.patch.bz2
+# Japanese patch.bz2
+Patch10:	mpage-2.5.3-j.patch.bz2
+Patch20:	mpage-mfix.patch.bz2
+Patch21:	mpage-psprint.patch.bz2
+Patch22:	mpage-2.5.3-japanese-fix.patch.bz2
+
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 
 %description
@@ -30,7 +33,6 @@ long text documents without wasting paper.
 %prep
 %setup -q
 %patch0 -p1 -b .config
-#%patch2 -p1 -b .debian
 %patch10 -p1 -b .jp
 %patch20 -p1 -b .fix
 %patch21 -p1
@@ -40,14 +42,14 @@ long text documents without wasting paper.
 %make
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 make PREFIX=$RPM_BUILD_ROOT%_prefix MANDIR=$RPM_BUILD_ROOT%_mandir/man1 install
 mkdir -p $RPM_BUILD_ROOT%_libdir/%name
 cp -a Encodings/* $RPM_BUILD_ROOT%_libdir/%name
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -59,6 +61,13 @@ rm -rf $RPM_BUILD_ROOT
 %_datadir/mpage
 
 %changelog
+* Sun Mar 07 2004 Vincent Danen <vdanen@opensls.org> 2.5.3-7sls
+- minor spec cleanups
+
+* Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 2.5.3-6sls
+- OpenSLS build
+- tidy spec
+
 * Fri Jul 25 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 2.5.3-5mdk
 - rebuild
 - drop unapplied patch (P2)

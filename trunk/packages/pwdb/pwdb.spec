@@ -1,14 +1,19 @@
+%define name	pwdb
+%define version	0.61.2
+%define release	5sls
+
+%{!?build_propolice:%global build_propolice 0}
+
 %define majver		0
 %define lib_name_orig	%mklibname pwdb
 %define lib_name	%{lib_name_orig}%{majver}
 
 Summary:	The password database library
-Name:		pwdb
-Version:	0.61.2
-Release:	3mdk
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
 License:	GPL
 Group:		System/Libraries
-
 Source:		pwdb-%{PACKAGE_VERSION}.tar.bz2
 Patch0:		pwdb-0.61-includes.patch.bz2
 
@@ -77,10 +82,14 @@ ln -s defs/redhat.defs default.defs
 chmod -R g-s .
 
 %build
-%make
+%if %{build_propolice}
+  RPM_OPT_FLAGS="$RPM_OPT_FLAGS -fno-stack-protector" %make
+%else
+  %make
+%endif
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p $RPM_BUILD_ROOT/{%{_lib},%{_sysconfdir},%{_includedir}/pwdb}
 
 make	INCLUDED=$RPM_BUILD_ROOT%{_includedir}/pwdb \
@@ -97,7 +106,7 @@ ln -sf lib%{name}.so.%{version} $RPM_BUILD_ROOT/%{_lib}/lib%{name}.so.%{majver}
 %postun -n %{lib_name} -p /sbin/ldconfig
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files conf
 %defattr(-,root,root)
@@ -118,6 +127,15 @@ rm -rf $RPM_BUILD_ROOT
 /%{_lib}/libpwdb.a
 
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 0.61.2-5sls
+- minor spec cleanups
+- change %%build_opensls to %%build_propolice
+
+* Mon Dec 22 2003 Vincent Danen <vdanen@opensls.org> 0.61.2-4sls
+- OpenSLS build
+- tidy spec
+- build without stack protection due to some symbol problems
+
 * Wed Jul 30 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 0.61.2-3mdk
 - mklibname
 

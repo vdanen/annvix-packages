@@ -1,20 +1,17 @@
+%define name	setup
 %define version 2.4
-%define release 2mdk
+%define release 10sls
 
-Summary: A set of system configuration and setup files.
-Name: setup
-Version: %{version}
-Release: %{release}
-License: public domain
-Group: System/Configuration/Other
-# get the source from our cvs repository (see
-# http://www.linuxmandrake.com/en/cvs.php3)
-Source: setup-%{version}.tar.bz2
-Buildroot: %{_tmppath}/%{name}-root
-Conflicts: crontabs <= 1.7-12mdk
-Conflicts: bash <= 2.05-2mdk
-Conflicts: kdebase < 2.2.2-41mdk, proftpd < 1.2.5-0.rc1.3mdk, DansGuardian < 2.2.3-4mdk
-Url: http://www.linux-mandrake.com/cgi-bin/cvsweb.cgi/soft/setup/
+Summary:	A set of system configuration and setup files.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	Public Domain
+Group:		System/Configuration/Other
+URL:		http://opensls.org/cgi-bin/viewcvs.cgi/tools/setup
+Source:		setup-%{version}.tar.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-root
 
 %description
 The setup package contains a set of very important system
@@ -32,20 +29,21 @@ administration.
 %make CFLAGS="$RPM_OPT_FLAGS"
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 make install RPM_BUILD_ROOT=%buildroot mandir=%_mandir
 
 rm -rf $RPM_BUILD_ROOT/%{_datadir}/base-passwd $RPM_BUILD_ROOT/%{_sbindir}
 rm -f  `find $RPM_BUILD_ROOT/%{_mandir} -name 'update-passwd*'`
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
 %doc ChangeLog
 %verify(not md5 size mtime) %config(noreplace) /etc/passwd
 %verify(not md5 size mtime) %config(noreplace) /etc/group
+%verify(not md5 size mtime) %config(noreplace) /etc/shadow
 %_mandir/man8/*8*
 # find_lang can't find man pages yet :-(
 %lang(cs) %_mandir/cs/man8/*8*
@@ -83,6 +81,39 @@ if [ -x /usr/sbin/nscd ]; then
 fi
 
 %changelog
+* Tue Jun 15 2004 Vincent Danen <vdanen@opensls.org> 2.4-10sls
+- include rpm in the default group/passwd/shadow files since on install
+  for some reason the rpm user doesn't get created
+
+* Sat Jun 12 2004 Vincent Danen <vdanen@opensls.org> 2.4-9sls
+- revert umask changes; 077 and 027 are too strict (even OpenBSD uses
+  022 across the board), so we use 022 for all users
+
+* Fri Jun  6 2004 Vincent Danen <vdanen@opensls.org> 2.4-8sls
+- umask 077 for users and 027 for daemons
+- make csh.login better match bashrc for more consistency
+
+* Sat Apr 24 2004 Vincent Danen <vdanen@opensls.org> 2.4-7sls
+- add shadow file because our installer doesn't create one and everyone
+  should be using shadow password anyways
+
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 2.4-6sls
+- minor spec cleanups
+
+* Wed Feb 04 2004 Vincent Danen <vdanen@opensls.org> 2.4-5sls
+- cdwriter is gid 23, video is gid 25, usb is gid 20
+
+* Sat Jan 31 2004 Vincent Danen <vdanen@opensls.org> 2.4-4sls
+- remove conflicts because none of them are applicable
+- remove groups: uucp, audio, games
+- add groups: admin, cron
+- remove users: uucp, games
+- use a standard motd
+
+* Mon Dec 01 2003 Vincent Danen <vdanen@opensls.org> 2.4-3sls
+- OpenSLS build
+- tidy spec
+
 * Wed Aug 27 2003 Frederic Lepied <flepied@mandrakesoft.com> 2.4-2mdk
 - removed prereq on rpm-helper
 

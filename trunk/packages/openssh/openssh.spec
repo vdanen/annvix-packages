@@ -1,62 +1,39 @@
+%define name	openssh
+%define version	3.8p1
+%define release 2sls
+
 ## Do not apply any unauthorized patches to this package!
 ## - vdanen 05/18/01
 ##
 
-# Version of ssh-askpass
-%define aversion 1.2.4.1
-# Version of watchdog patch
-%define wversion 3.6p1
-
-# support older versions
-%define build_8x %(if [ `awk '{print $4}' /etc/mandrake-release` = 8.2 ];then echo 1; else echo 0; fi) 
-
 # overrides
 %global build_skey	 0
-%global build_krb5	 0
-%global build_scard	 0
-%global build_watchdog   0
-%global no_x11_askpass	 0
-%global no_gnome_askpass 0
+%global build_krb5	 1
 %{?_with_skey: %{expand: %%global build_skey 1}}
 %{?_with_krb5: %{expand: %%global build_krb5 1}}
-%{?_with_watchdog: %{expand: %%global build_watchdog 1}}
-%{?_with_smartcard: %{expand: %%global build_scard 1}}
-%{?_with_nox11askpass: %{expand: %%global no_x11_askpass 1}}
-%{?_with_nognomeaskpass: %{expand: %%global no_gnome_askpass 1}}
-
-
-%define name	openssh
-%define version	3.6.1p2
-%define release 8mdk
+%{?_without_krb5: %{expand: %%global build_krb5 0}}
 
 Summary:	OpenSSH free Secure Shell (SSH) implementation
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
+License:	BSD
+Group:		Networking/Remote access
 URL:		http://www.openssh.com/
 Source: 	ftp://ftp.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-%{version}.tar.gz
-Source1:	http://www.ntrnet.net/~jmknoble/software/x11-ssh-askpass/x11-ssh-askpass-%{aversion}.tar.bz2
 Source2: 	ftp://ftp.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-%{version}.tar.gz.sig
 # ssh-copy-id taken from debian, with "usage" added
 Source3:	ssh-copy-id.bz2 
-Source4: 	gnome-ssh-askpass.sh
-Source5: 	gnome-ssh-askpass.csh
+Source4:	denyusers.pam
+Source5:	04_openssh.afterboot
 Source6:	ssh-client.sh
-Source7:	openssh-xinetd.bz2
-# this is never to be applied by default
-Source10:	openssh-%{wversion}-watchdog.patch.tar.bz2
-Patch1:		openssh-3.6.1p2-mdkconf.patch.bz2
+Source8:	sshd.run
+Source9:	sshd-log.run
+Patch1:		openssh-3.8p1-openslsconf.patch.bz2
 # authorized by Damien Miller <djm@openbsd.com>
-Patch3:		openssh-3.1p1-check-only-ssl-version.patch.bz2
-# (flepied) don't use killproc to avoid killing running sessions in some cases
-Patch5:		openssh-3.6.1p1-initscript.patch.bz2
-Patch6:		openssh-3.6.1p2-bufferfix.patch.bz2
-License:	BSD
-Group:		Networking/Remote access
+Patch2:		openssh-3.1p1-check-only-ssl-version.patch.bz2
+
 BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
-Obsoletes:	ssh
-Provides:	ssh
-PreReq:		openssl >= 0.9.7
 BuildRequires:	groff-for-man, openssl-devel >= 0.9.7, pam-devel, tcp_wrappers-devel, zlib-devel
 BuildRequires:	db1-devel
 %if %{build_skey}
@@ -65,53 +42,10 @@ BuildRequires:	skey-devel, skey-static-devel
 %if %{build_krb5}
 BuildRequires:	krb5-devel
 %endif
-%if !%{no_x11_askpass}
-BuildRequires:  XFree86-devel
-%endif
-%if !%{no_gnome_askpass}
-BuildRequires:	gtk+2-devel
-%endif
 
-%package clients
-Summary:	OpenSSH Secure Shell protocol clients
-Requires:	%{name} = %{version}-%{release}
-Group:		Networking/Remote access
-Obsoletes:	ssh-clients, sftp
-Provides:	ssh-clients, sftp
-
-%package server
-Summary:	OpenSSH Secure Shell protocol server (sshd)
-PreReq:		%{name} = %{version}-%{release} chkconfig >= 0.9 
-PreReq:		pam >= 0.74
-%if !%{build_8x}
-PreReq:		rpm-helper
-%endif
-%if %{build_skey}
-Requires:	skey
-%endif
-Group:		System/Servers
-Obsoletes:	ssh-server
-Provides:	ssh-server
-
-%if !%{no_x11_askpass}
-%package askpass
-Summary:	OpenSSH X11 passphrase dialog
-Group:		Networking/Remote access
-Requires:	%{name} = %{version}-%{release}
-Obsoletes:	ssh-extras, ssh-askpass
-Provides:	%{name}-askpass, ssh-extras, ssh-askpass
-PreReq:		/usr/sbin/update-alternatives
-%endif
-
-%if !%{no_gnome_askpass}
-%package askpass-gnome
-Summary:	OpenSSH GNOME passphrase dialog
-Group:		Networking/Remote access
-Requires:	%{name} = %{version}-%{release}
-Obsoletes:	ssh-extras
-PreReq:		/usr/sbin/update-alternatives
-Provides:	%{name}-askpass, ssh-askpass, ssh-extras
-%endif
+Obsoletes:	ssh
+Provides:	ssh
+PreReq:		openssl >= 0.9.7, afterboot
 
 %description
 Ssh (Secure Shell) a program for logging into a remote machine and for
@@ -128,6 +62,13 @@ This package includes the core files necessary for both the OpenSSH
 client and server.  To make this package useful, you should also
 install openssh-clients, openssh-server, or both.
 
+%package clients
+Summary:	OpenSSH Secure Shell protocol clients
+Requires:	%{name} = %{version}-%{release}
+Group:		Networking/Remote access
+Obsoletes:	ssh-clients, sftp
+Provides:	ssh-clients, sftp
+
 %description clients
 Ssh (Secure Shell) a program for logging into a remote machine and for
 executing commands in a remote machine.  It is intended to replace
@@ -141,6 +82,18 @@ patented algorithms to separate libraries (OpenSSL).
 
 This package includes the clients necessary to make encrypted connections
 to SSH servers.
+
+%package server
+Summary:	OpenSSH Secure Shell protocol server (sshd)
+PreReq:		%{name} = %{version}-%{release} chkconfig >= 0.9 
+PreReq:		pam >= 0.74
+PreReq:		rpm-helper
+%if %{build_skey}
+Requires:	skey
+%endif
+Group:		System/Servers
+Obsoletes:	ssh-server
+Provides:	ssh-server
 
 %description server
 Ssh (Secure Shell) a program for logging into a remote machine and for
@@ -157,73 +110,17 @@ This package contains the secure shell daemon. The sshd is the server
 part of the secure shell protocol and allows ssh clients to connect to 
 your host.
 
-%if !%{no_x11_askpass}
-%description askpass
-Ssh (Secure Shell) a program for logging into a remote machine and for
-executing commands in a remote machine.  It is intended to replace
-rlogin and rsh, and provide secure encrypted communications between
-two untrusted hosts over an insecure network.  X11 connections and
-arbitrary TCP/IP ports can also be forwarded over the secure channel.
-
-OpenSSH is OpenBSD's rework of the last free version of SSH, bringing it
-up to date in terms of security and features, as well as removing all 
-patented algorithms to separate libraries (OpenSSL).
-
-This package contains Jim Knoble's <jmknoble@pobox.com> X11 passphrase 
-dialog.
-%endif
-
-%if !%{no_gnome_askpass}
-%description askpass-gnome
-Ssh (Secure Shell) a program for logging into a remote machine and for
-executing commands in a remote machine.  It is intended to replace
-rlogin and rsh, and provide secure encrypted communications between
-two untrusted hosts over an insecure network.  X11 connections and
-arbitrary TCP/IP ports can also be forwarded over the secure channel.
-
-OpenSSH is OpenBSD's rework of the last free version of SSH, bringing it
-up to date in terms of security and features, as well as removing all 
-patented algorithms to separate libraries (OpenSSL).
-
-This package contains the GNOME passphrase dialog.
-%endif
-
 %prep
-%if %{no_x11_askpass}
-echo "Building without x11 askpass..."
-%endif
-%if %{no_gnome_askpass}
-echo "Building without GNOME askpass..."
-%endif
 %if %{build_krb5}
 echo "Building with Kerberos5 support..."
 %endif
 %if %{build_skey}
 echo "Building with S/KEY support..."
 %endif
-%if %{build_scard}
-echo "Building with smartcard support..."
-%endif
-%if %{build_watchdog}
-echo "Building with watchdog support..."
-%endif
 
-%if %{no_x11_askpass}
 %setup -q
-%else
-%setup -q -a 1
-%endif
-%if %{build_watchdog}
-%setup -q -n %{name}-%{version} -D -T -a10
-%endif
-
-%patch1 -p1 -b .mdkconf
-%patch3 -p1 -b .ssl_ver
-%patch5 -p1 -b .initscript
-%patch6 -p0 -b .secfix
-%if %{build_watchdog}
-patch -p0 -b --suffix .wdog <%{name}-%{wversion}-watchdog.patch
-%endif
+%patch1 -p0 -b .opensls
+%patch2 -p1 -b .ssl_ver
 
 %build
 
@@ -247,39 +144,16 @@ CFLAGS="$RPM_OPT_FLAGS" ./configure \
 %if %{build_skey}
   --with-skey \
 %endif
-%if %{build_scard}
-  --with-smartcard \
-%endif
   --with-superuser-path=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 make
 
-%if !%{no_x11_askpass}
-pushd x11-ssh-askpass-%{aversion}
-CFLAGS="$RPM_OPT_FLAGS" ./configure \
-  --prefix=%{_prefix} --libdir=%{_libdir} \
-  --mandir=%{_mandir} --libexecdir=%{_libdir}/ssh \
-  --with-app-defaults-dir=%{_libdir}/X11/app-defaults
-xmkmf -a
-make
-popd
-%endif
-
-%if !%{no_gnome_askpass}
-pushd contrib
-make gnome-ssh-askpass2
-mv gnome-ssh-askpass2 gnome-ssh-askpass
-popd
-%endif
-
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 make install DESTDIR=$RPM_BUILD_ROOT/
 
 install -d $RPM_BUILD_ROOT%{_sysconfdir}/ssh
 install -d $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/
-install -d $RPM_BUILD_ROOT%{_initrddir}
 install -m644 contrib/redhat/sshd.pam $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/sshd
-install -m755 contrib/redhat/sshd.init $RPM_BUILD_ROOT%{_initrddir}/sshd
 
 if [[ -f sshd_config.out ]]; then 
 	install -m600 sshd_config.out $RPM_BUILD_ROOT%{_sysconfdir}/ssh/sshd_config
@@ -292,25 +166,12 @@ if [[ -f ssh_config.out ]]; then
 else
     install -m644 ssh_config $RPM_BUILD_ROOT%{_sysconfdir}/ssh/ssh_config
 fi
-echo "    StrictHostKeyChecking no" >> $RPM_BUILD_ROOT%{_sysconfdir}/ssh/ssh_config
+
+install -m640 %{SOURCE4} %{buildroot}%{_sysconfdir}/ssh/denyusers.pam
 
 mkdir -p $RPM_BUILD_ROOT%{_libdir}/ssh
-%if !%{no_x11_askpass}
-pushd x11-ssh-askpass-%{aversion}
-make DESTDIR=$RPM_BUILD_ROOT install
-make DESTDIR=$RPM_BUILD_ROOT install.man
-popd
-# fix x11-ssh-askpass manpage
-(cd $RPM_BUILD_ROOT%{_mandir}/man1; mv x11-ssh-askpass.1x x11-ssh-askpass.1)
-%endif
-
-(cd $RPM_BUILD_ROOT%{_bindir}; ln -s ../../%{_libdir}/ssh/ssh-askpass)
 
 install -d $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/
-%if !%{no_gnome_askpass}
-install -m 755 contrib/gnome-ssh-askpass $RPM_BUILD_ROOT%{_libdir}/ssh/gnome-ssh-askpass
-install -m 755 %{SOURCE4} %{SOURCE5} $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/
-%endif
 
 install -m 755 %{SOURCE6} $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/
 
@@ -321,26 +182,21 @@ install -m 644 contrib/ssh-copy-id.1 $RPM_BUILD_ROOT/%{_mandir}/man1/
 # create pre-authentication directory
 mkdir -p %{buildroot}/var/empty
 
-%if !%{build_scard}
 rm -f %{buildroot}%{_datadir}/ssh/Ssh.bin
-%endif
 
-# xinetd support (tv)
-mkdir -p $RPM_BUILD_ROOT%_sysconfdir/xinetd.d/
-bzcat %SOURCE7 > $RPM_BUILD_ROOT%_sysconfdir/xinetd.d/sshd-xinetd
+mkdir -p %{buildroot}%{_srvdir}/sshd/log
+mkdir -p %{buildroot}%{_srvlogdir}/sshd
+install -m 0755 %{SOURCE8} %{buildroot}%{_srvdir}/sshd/run
+install -m 0755 %{SOURCE9} %{buildroot}%{_srvdir}/sshd/log/run
 
+mkdir -p %{buildroot}%{_datadir}/afterboot
+install -m 0644 %{SOURCE5} %{buildroot}%{_datadir}/afterboot/04_openssh
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %pre server
-%if %{build_8x}
-  grep "^sshd:" %{_sysconfdir}/group >/dev/null || groupadd -g 94 -r sshd
-  grep "^sshd:" %{_sysconfdir}/passwd >/dev/null || useradd -u 94 -g 94 \
-    -s /bin/true -M -r sshd -d /var/empty -c "OpenSSH privsep user"
-%else
-  %_pre_useradd sshd /var/empty /bin/true
-%endif
+%_pre_useradd sshd /var/empty /bin/true 71
 
 %post server
 # do some key management; taken from the initscript
@@ -401,40 +257,19 @@ do_dsa_keygen() {
 do_rsa1_keygen
 do_rsa_keygen
 do_dsa_keygen
-%_post_service sshd
+%_post_srv sshd
+%_mkafterboot
 
 %preun server
-%_preun_service sshd
+%_preun_srv sshd
 
-%if !%{build_8x}
 %postun server
+%_mkafterboot
 %_postun_userdel sshd
-%endif
-
-%if !%{no_x11_askpass}
-%post askpass
-update-alternatives --install %{_libdir}/ssh/ssh-askpass ssh-askpass %{_libdir}/ssh/x11-ssh-askpass 10
-
-%postun askpass
-[ $1 = 0 ] || exit 0
-update-alternatives --remove ssh-askpass %{_libdir}/ssh/x11-ssh-askpass
-%endif
-
-%if !%{no_gnome_askpass}
-%post askpass-gnome
-update-alternatives --install %{_libdir}/ssh/ssh-askpass ssh-askpass %{_libdir}/ssh/gnome-ssh-askpass 20
-
-%postun askpass-gnome
-[ $1 = 0 ] || exit 0
-update-alternatives --remove ssh-askpass %{_libdir}/ssh/gnome-ssh-askpass
-%endif
 
 %files
 %defattr(-,root,root)
 %doc ChangeLog OVERVIEW README* INSTALL CREDITS LICENCE TODO
-%if %{build_watchdog}
-%doc CHANGES-openssh-watchdog openssh-watchdog.html
-%endif
 %{_bindir}/ssh-keygen
 %dir %{_sysconfdir}/ssh
 %{_bindir}/ssh-keyscan
@@ -444,11 +279,6 @@ update-alternatives --remove ssh-askpass %{_libdir}/ssh/gnome-ssh-askpass
 %{_libdir}/ssh/ssh-keysign
 %{_bindir}/scp
 %{_mandir}/man1/scp.1*
-
-%if %{build_scard}
-%dir %{_datadir}/ssh
-%{_datadir}/ssh/Ssh.bin
-%endif
 
 %files clients
 %defattr(-,root,root)
@@ -467,7 +297,6 @@ update-alternatives --remove ssh-askpass %{_libdir}/ssh/gnome-ssh-askpass
 %{_mandir}/man5/ssh_config.5*
 %config(noreplace) %{_sysconfdir}/ssh/ssh_config
 %attr(0755,root,root) %config(noreplace) %{_sysconfdir}/profile.d/ssh-client.sh
-%{_bindir}/ssh-askpass
 
 %files server
 %defattr(-,root,root)
@@ -478,34 +307,62 @@ update-alternatives --remove ssh-askpass %{_libdir}/ssh/gnome-ssh-askpass
 %{_mandir}/man8/sshd.8*
 %{_mandir}/man8/sftp-server.8*
 %attr(0600,root,root) %config(noreplace) %{_sysconfdir}/ssh/sshd_config
+%attr(0600,root,root) %config(noreplace) %{_sysconfdir}/ssh/denyusers.pam
 %attr(0600,root,root) %config(noreplace) %{_sysconfdir}/pam.d/sshd
-
-%config(noreplace) %_sysconfdir/xinetd.d/sshd-xinetd
-
-
+%dir %{_srvdir}/sshd
+%dir %{_srvdir}/sshd/log
+%{_srvdir}/sshd/run
+%{_srvdir}/sshd/log/run
+%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/sshd
 %config(noreplace) %{_sysconfdir}/ssh/moduli
-%config(noreplace) %{_initrddir}/sshd
 %dir %attr(0755,root,root) /var/empty
-
-%if !%{no_x11_askpass}
-%files askpass
-%defattr(-,root,root)
-%doc x11-ssh-askpass-%{aversion}/README
-%doc x11-ssh-askpass-%{aversion}/ChangeLog
-%doc x11-ssh-askpass-%{aversion}/SshAskpass*.ad
-%{_libdir}/ssh/x11-ssh-askpass
-%{_libdir}/X11/app-defaults/SshAskpass
-%{_mandir}/man1/x11-ssh-askpass.1*
-%endif
-
-%if !%{no_gnome_askpass}
-%files askpass-gnome
-%defattr(-,root,root)
-%{_libdir}/ssh/gnome-ssh-askpass
-%attr(0755,root,root) %config(noreplace) %{_sysconfdir}/profile.d/gnome-ssh-askpass.*
-%endif
+%{_datadir}/afterboot/04_openssh
 
 %changelog
+* Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 3.8p1-2sls
+- modify /etc/pam.d/sshd to use pam_listfile.so first on the auth stack so
+  even if UsePAM is enabled, we can still securely use PermitRootLogin
+  without-password without having to worry about it dropping down to a
+  password auth
+- new config file: /etc/ssh/denyusers.pam which contains root by default (S4)
+- include afterboot man-snippet
+
+* Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 3.8p1-1sls
+- 3.8p1
+- rediff P1
+- drop P5 (no initscripts)
+- drop P6 (merged upstream)
+- rename P3 to P2
+- remove smartcard and watchdog build options
+- NOTE: Use the UsePAM option with caution!
+
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 3.6.1p2-13sls
+- minor spec cleanups
+- remove all gui stuff completely
+- remove P7; we don't need to patch the initscript anymore
+- StricHostKeyChecking is ask by default
+- build kerberos support by default
+- remove ssh-askpass symlink
+
+* Tue Jan 27 2004 Vincent Danen <vdanen@opensls.org> 3.6.1p2-12sls
+- srv macros
+- sshd has static uid/gid 71
+
+* Fri Jan 23 2004 Vincent Danen <vdanen@opensls.org> 3.6.1p2-11sls
+- remove S7
+- no conditional %%build_opensls anymore
+- service macros
+- remove the initscript
+
+* Wed Dec 31 2003 Vincent Danen <vdanen@opensls.org> 3.6.1p2-10sls
+- include supervise files, remove xinetd files
+
+* Mon Dec 01 2003 Vincent Danen <vdanen@opensls.org> 3.6.1p2-9sls
+- OpenSLS build
+- tidy spec
+- use %%build_opensls macros to prevent x11-ish stuff from being built
+- patch initscript to work with supervise
+
 * Tue Sep 16 2003 Vincent Danen <vdanen@mandrakesoft.com> 3.6.1p2-8mdk
 - revised patch for security fix
 

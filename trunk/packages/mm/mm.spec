@@ -1,43 +1,23 @@
-%define	major	1
-%define libname %mklibname %name %major
-%define libnamedev %{libname}-devel
-%define libnamestatic %{libname}-static-devel
+%define name	mm
+%define version	1.3.0
+%define release	5sls
 
-Name:		mm
-Version:	1.3.0
-Release:	3mdk
+%define	major		1
+%define libname		%mklibname %name %major
+%define libnamedev	%{libname}-devel
+%define libnamestatic	%{libname}-static-devel
+
 Summary:	Shared Memory Abstraction Library
-Group:		Development/C
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
 License:	BSD-Style
+Group:		Development/C
+URL:		http://www.engelschall.com/sw/mm/
 Source:		http://www.engelschall.com/sw/mm/mm-%{version}.tar.bz2
 Patch:		mm-1.1.3-shtool.patch.bz2
-#Patch1:		mm-1.1.3-tmpfile.patch.bz2
-URL:		http://www.engelschall.com/sw/mm/
+
 BuildRoot:	%{_tmppath}/mm-%{version}-buildroot
-Prefix:	    	%{_prefix}
-
-%package -n %libname
-Summary:	Shared Memory Abstraction Library
-Group:		Development/C
-Obsoletes:	mm
-Provides:	mm = %{version}
-Provides:       ADVXpackage
-
-%package -n %libnamedev
-Group:		Development/C
-Summary:	Development files for mm.
-Requires:	%libname = %{version}
-Obsoletes:	mm-devel
-Provides:	%libnamedev, libmm-devel = %{version}, mm-devel = %{version}
-Provides:       ADVXpackage
-
-%package -n %libnamestatic
-Group:		Development/C
-Summary:	Development files for mm.
-Requires:	%libname = %{version}
-Obsoletes:	mm-static-devel
-Provides:	%libnamedev, libmm-static-devel = %{version}, mm-static-devel = %{version}
-Provides:       ADVXpackage
 
 %description
 The MM library is a 2-layer abstraction library which simplifies the usage of
@@ -62,6 +42,13 @@ Linux and Solaris and should also adjust itself for most other Unix platforms
 with it's GNU Autoconf and GNU Libtool based configuration and compilation
 procedure. 
 
+%package -n %libname
+Summary:	Shared Memory Abstraction Library
+Group:		Development/C
+Obsoletes:	mm
+Provides:	mm = %{version}
+Provides:       ADVXpackage
+
 %description -n %libname
 The MM library is a 2-layer abstraction library which simplifies the usage of
 shared memory between forked (and this way strongly related) processes under
@@ -85,6 +72,14 @@ Linux and Solaris and should also adjust itself for most other Unix platforms
 with it's GNU Autoconf and GNU Libtool based configuration and compilation
 procedure. 
 
+%package -n %libnamedev
+Summary:	Development files for mm.
+Group:		Development/C
+Requires:	%libname = %{version}
+Obsoletes:	mm-devel
+Provides:	%libnamedev, libmm-devel = %{version}, mm-devel = %{version}
+Provides:       ADVXpackage
+
 %description -n %libnamedev
 The MM library is a 2-layer abstraction library which simplifies the usage of
 shared memory between forked (and this way strongly related) processes under
@@ -96,6 +91,14 @@ inside those shared memory segments.
 
 This package contain files that are needed to develop applications which use
 the MM shared memory library.
+
+%package -n %libnamestatic
+Summary:	Development files for mm.
+Group:		Development/C
+Requires:	%libname = %{version}
+Obsoletes:	mm-static-devel
+Provides:	%libnamedev, libmm-static-devel = %{version}, mm-static-devel = %{version}
+Provides:       ADVXpackage
 
 %description -n %libnamestatic
 The MM library is a 2-layer abstraction library which simplifies the usage of
@@ -127,14 +130,14 @@ make
 make test
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
 perl -pi -e "s|/(.*)buildroot||g;" $RPM_BUILD_ROOT/usr/bin/mm-config
 
 rm -f %{buildroot}%{_libdir}/*.la
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post -p /sbin/ldconfig -n %libname
 %postun -p /sbin/ldconfig -n %libname
@@ -145,18 +148,26 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -n %libnamedev
 %defattr(-,root,root)
+%doc README LICENSE ChangeLog INSTALL PORTING THANKS
 %{_bindir}/*
 %{_libdir}/*.so
 %{_includedir}/*
 %{_mandir}/man1/*
 %{_mandir}/man3/*
-%doc README LICENSE ChangeLog INSTALL PORTING THANKS
 
 %files -n %libnamestatic
 %defattr(-,root,root)
 %{_libdir}/*.a
 
 %changelog
+* Sat Jan 04 2004 Vincent Danen <vdanen@opensls.org> 1.3.0-4sls
+- minor spec cleanups
+- remove %%prefix
+
+* Sat Jan 04 2004 Vincent Danen <vdanen@opensls.org> 1.3.0-4sls
+- OpenSLS build
+- tidy spec
+
 * Thu Aug 14 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 1.3.0-3mdk
 - fix mklibname
 

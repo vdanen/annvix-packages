@@ -1,22 +1,29 @@
-Summary: An enhanced version of csh, the C shell
-Name: tcsh
-Version: 6.12
+%define name	tcsh
+%define version	6.12
+%define release	8sls
+
 %define rversion %{version}.00
-Release: 6mdk
-License: BSD
-Group: Shells
-BuildRequires: libtermcap-devel groff-for-man
-Source: ftp://ftp.funet.fi/pub/unix/shells/tcsh/tcsh-%{version}.00.tar.bz2
-Source1: alias.csh
-Patch0: tcsh-6.12.00-utmp.patch.bz2
-Patch1: tcsh-6.09.00-termios.patch.bz2
-Patch5: tcsh-6.09.00-locale.patch.bz2
-Patch6: tcsh-6.10.00-glibc_compat.patch.bz2
-Patch7: tcsh-6.12.00-dspmbyte.patch.bz2
-Provides: csh = %{version}
-Prereq:	 coreutils, grep, rpm-helper >= 0.7
-URL: http://www.primate.wisc.edu/software/csh-tcsh-book/
-Buildroot: %_tmppath/%name-%version-%release-root
+
+Summary:	An enhanced version of csh, the C shell
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	BSD
+Group:		Shells
+URL:		http://www.primate.wisc.edu/software/csh-tcsh-book/
+Source:		ftp://ftp.funet.fi/pub/unix/shells/tcsh/tcsh-%{version}.00.tar.bz2
+Source1:	alias.csh
+Patch0:		tcsh-6.12.00-utmp.patch.bz2
+Patch1:		tcsh-6.09.00-termios.patch.bz2
+Patch5:		tcsh-6.09.00-locale.patch.bz2
+Patch6:		tcsh-6.10.00-glibc_compat.patch.bz2
+Patch7:		tcsh-6.12.00-dspmbyte.patch.bz2
+
+Buildroot:	%_tmppath/%name-%version-%release-root
+BuildRequires:	libtermcap-devel groff-for-man
+
+Provides:	csh = %{version}
+Prereq:		coreutils, grep, rpm-helper >= 0.7
 
 %description
 Tcsh is an enhanced but completely compatible version of csh, the C
@@ -39,7 +46,7 @@ like syntax.
 %make
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p $RPM_BUILD_ROOT%{_mandir}/man1 $RPM_BUILD_ROOT/bin
 install -s tcsh $RPM_BUILD_ROOT/bin/tcsh
 install -m 644 tcsh.man $RPM_BUILD_ROOT%{_mandir}/man1/tcsh.1
@@ -47,11 +54,11 @@ ln -s tcsh.1 $RPM_BUILD_ROOT%{_mandir}/man1/csh.1
 ln -sf tcsh $RPM_BUILD_ROOT/bin/csh
 nroff -me eight-bit.me > eight-bit.txt
 
-mkdir -p %buildroot/etc/profile.d/
-install %{SOURCE1} %buildroot/etc/profile.d/$(basename %{SOURCE1})
+mkdir -p %buildroot%{_sysconfdir}/profile.d/
+install %{SOURCE1} %buildroot%{_sysconfdir}/profile.d/$(basename %{SOURCE1})
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
 /usr/share/rpm-helper/add-shell %name $1 /bin/csh
@@ -65,11 +72,18 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root)
 %doc NewThings FAQ Fixes eight-bit.txt complete.tcsh
 %doc Ported README* WishList Y2K
-%config(noreplace) /etc/profile.d/*
+%config(noreplace) %{_sysconfdir}/profile.d/*
 /bin/*
 %_mandir/*/*
 
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 6.12-8sls
+- minor spec cleanups
+
+* Tue Dec 30 2003 Vincent Danen <vdanen@opensls.org> 6.12-7sls
+- OpenSLS build
+- tidy spec
+
 * Tue Jul 29 2003 Pixel <pixel@mandrakesoft.com> 6.12-6mdk
 - fix patch dspmbyte which was completly dumb/broken/...
   now dspmbyte is only set for kanji locales as expected

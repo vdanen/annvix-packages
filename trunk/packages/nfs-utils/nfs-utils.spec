@@ -1,31 +1,42 @@
+%define name	nfs-utils
 %define	version	1.0.5
-%define release	1mdk
+%define release	5sls
+
 %define	url	ftp://ftp.kernel.org:/pub/linux/utils/nfs
 
-Summary: The utilities for Linux NFS server.
-Name: nfs-utils
-Version: %{version}
-Release: %{release}
-Source0: %{url}/%{name}-%{version}.tar.bz2
-Source1: ftp://nfs.sourceforge.net/pub/nfs/nfs.doc.tar.bz2
-Source10: nfs.init
-Source11: nfslock.init
-Source12: nfs.sysconfig
-Group: Networking/Other
-Obsoletes: nfs-server knfsd nfs-server-clients
-Provides: nfs-server knfsd nfs-server-clients
-Requires: nfs-utils-clients, kernel >= 2.2.5, portmap >= 4.0
-License: GPL
-URL: %{url}
-ExcludeArch: armv4l
-Buildroot: %{_tmppath}/%{name}-root
-Epoch: 1
-Patch1: nfs-utils-0.2beta-nowrap.patch.bz2
-Patch3: nfs-utils-0.3.3-statd-manpage.patch.bz2
-Patch4: eepro-support.patch.bz2
-Patch5: nfs-utils-1.0.4-no-chown.patch.bz2
-Requires: setup >= 2.1.9-35mdk
-PreReq: rpm-helper
+Summary:	The utilities for Linux NFS server.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+Epoch:		1
+License:	GPL
+Group:		Networking/Other
+URL:		%{url}
+Source0:	%{url}/%{name}-%{version}.tar.bz2
+Source1:	ftp://nfs.sourceforge.net/pub/nfs/nfs.doc.tar.bz2
+Source10:	nfs.init
+Source11:	nfslock.init
+Source12:	nfs.sysconfig
+Source13:	rpc.statd.run
+Source14:	rpc.statd-log.run
+Source15:	rpc.nfsd.run
+Source16:	rpc.nfsd-log.run
+Source17:	rpc.mountd.run
+Source18:	rpc.mountd-log.run
+Source19:	rpc.mountd.stop
+Source20:	rpc.nfsd.stop
+Patch1:		nfs-utils-0.2beta-nowrap.patch.bz2
+Patch3:		nfs-utils-0.3.3-statd-manpage.patch.bz2
+Patch4:		eepro-support.patch.bz2
+Patch5:		nfs-utils-1.0.4-no-chown.patch.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-root
+
+ExcludeArch:	armv4l
+Obsoletes:	nfs-server knfsd nfs-server-clients
+Provides:	nfs-server knfsd nfs-server-clients
+Requires:	nfs-utils-clients, kernel >= 2.2.5, portmap >= 4.0, setup >= 2.1.9-35mdk
+PreReq:		rpm-helper
 
 %description
 The nfs-utils package provides a daemon for the kernel NFS server and
@@ -38,12 +49,12 @@ System) server on the remote host.  For example, showmount can display the
 clients which are mounted on that host.
 
 %package clients
-Summary: The utilities for Linux NFS client.
-Group: Networking/Other
-Obsoletes: knfsd-clients knfsd-lock
-Provides: knfsd-clients knfsd-lock
-Requires: kernel >= 2.2.5, portmap >= 4.0
-PreReq: rpm-helper
+Summary:	The utilities for Linux NFS client.
+Group:		Networking/Other
+Obsoletes:	knfsd-clients knfsd-lock
+Provides:	knfsd-clients knfsd-lock
+Requires:	kernel >= 2.2.5, portmap >= 4.0
+PreReq:		rpm-helper
 
 %description clients
 The nfs-utils package provides a daemon for the kernel NFS server and
@@ -72,50 +83,64 @@ clients which are mounted on that host.
 make all
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p $RPM_BUILD_ROOT{/sbin,/usr/sbin}
 mkdir -p ${RPM_BUILD_ROOT}%{_mandir}/{man5,man8}
-mkdir -p $RPM_BUILD_ROOT/etc/rc.d/init.d
 mkdir -p $RPM_BUILD_ROOT/etc/sysconfig
 mkdir -p $RPM_BUILD_ROOT/var/lib/nfs
 make install_prefix=$RPM_BUILD_ROOT MANDIR=$RPM_BUILD_ROOT%{_mandir} SBINDIR=$RPM_BUILD_ROOT%{_prefix}/sbin install
 install -s -m 755 tools/rpcdebug/rpcdebug $RPM_BUILD_ROOT/sbin
-install -m 755 %{SOURCE10} $RPM_BUILD_ROOT/etc/rc.d/init.d/nfs
-install -m 755 %{SOURCE11} $RPM_BUILD_ROOT/etc/rc.d/init.d/nfslock
 install -m 755 %{SOURCE12} $RPM_BUILD_ROOT/etc/sysconfig/nfs
 touch $RPM_BUILD_ROOT/var/lib/nfs/rmtab
 mv $RPM_BUILD_ROOT/usr/sbin/{rpc.lockd,rpc.statd} $RPM_BUILD_ROOT/sbin
 
 mkdir -p $RPM_BUILD_ROOT/var/lib/nfs/statd
 
+mkdir -p %{buildroot}%{_srvdir}/rpc.{statd,nfsd,mountd}/log
+mkdir -p %{buildroot}%{_srvlogdir}/rpc.{statd,nfsd,mountd}
+install -m 0755 %{SOURCE13} %{buildroot}%{_srvdir}/rpc.statd/run
+install -m 0755 %{SOURCE14} %{buildroot}%{_srvdir}/rpc.statd/log/run
+install -m 0755 %{SOURCE15} %{buildroot}%{_srvdir}/rpc.nfsd/run
+install -m 0755 %{SOURCE16} %{buildroot}%{_srvdir}/rpc.nfsd/log/run
+install -m 0755 %{SOURCE17} %{buildroot}%{_srvdir}/rpc.mountd/run
+install -m 0755 %{SOURCE18} %{buildroot}%{_srvdir}/rpc.mountd/log/run
+install -m 0755 %{SOURCE19} %{buildroot}%{_srvdir}/rpc.mountd/stop
+install -m 0755 %{SOURCE20} %{buildroot}%{_srvdir}/rpc.nfsd/stop
+
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
-%_post_service nfs
+%_post_srv rpc.mountd
+%_post_srv rpc.nfsd
 
 %create_ghostfile %{_localstatedir}/nfs/xtab root root 644
 %create_ghostfile %{_localstatedir}/nfs/etab root root 644
 %create_ghostfile %{_localstatedir}/nfs/rmtab root root 644
 
 %preun
-%_preun_service nfs
+# create a bare-bones /etc/exports
+if [ ! -s /etc/exports ]; then
+  echo "#" >/etc/exports
+  chmod 644 /etc/exports
+fi
+%_preun_srv rpc.mountd
+%_preun_srv rpc.nfsd
 
 %pre clients
-%_pre_useradd rpcuser /var/lib/nfs /bin/false
+%_pre_useradd rpcuser /var/lib/nfs /bin/false 73
 
 %post clients
-%_post_service nfslock 
+%_post_srv rpc.statd
 
 %preun clients
-%_preun_service nfslock
+%_preun_srv rpc.statd
 
 %postun clients
 %_postun_userdel rpcuser
 
 %files
 %defattr(-,root,root)
-%config(noreplace) %{_initrddir}/nfs
 %config(noreplace) %{_sysconfdir}/sysconfig/nfs
 %config(noreplace) %ghost  %{_localstatedir}/nfs/xtab
 %config(noreplace) %ghost  %{_localstatedir}/nfs/etab
@@ -141,26 +166,60 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man8/nhfsstone.8.bz2
 %{_mandir}/man8/rpc.mountd.8.bz2
 %{_mandir}/man8/rpc.nfsd.8.bz2
+%dir %{_srvdir}/rpc.nfsd
+%dir %{_srvdir}/rpc.nfsd/log
+%{_srvdir}/rpc.nfsd/run
+%{_srvdir}/rpc.nfsd/stop
+%{_srvdir}/rpc.nfsd/log/run
+%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/rpc.nfsd
+%dir %{_srvdir}/rpc.mountd
+%dir %{_srvdir}/rpc.mountd/log
+%{_srvdir}/rpc.mountd/run
+%{_srvdir}/rpc.mountd/stop
+%{_srvdir}/rpc.mountd/log/run
+%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/rpc.mountd
 
 %doc README ChangeLog COPYING
 %doc nfs/*.html nfs/*.ps linux-nfs/*
 
 %files clients
 %defattr(-,root,root)
+%doc README
 /sbin/rpc.lockd
 /sbin/rpc.statd
 %{_sbindir}/showmount
 %{_mandir}/man8/lockd.8.bz2
+%{_mandir}/man8/rpc.lockd.8.bz2
 %{_mandir}/man8/rpc.statd.8.bz2
 %{_mandir}/man8/statd.8.bz2
 %{_mandir}/man8/showmount.8.bz2
-%config(noreplace) %{_initrddir}/nfslock
 %dir %{_localstatedir}/nfs
 %dir %{_localstatedir}/nfs/state
-%doc README
 %dir %attr(700,rpcuser,rpcuser) /var/lib/nfs/statd
+%dir %{_srvdir}/rpc.statd
+%dir %{_srvdir}/rpc.statd/log
+%{_srvdir}/rpc.statd/run
+%{_srvdir}/rpc.statd/log/run
+%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/rpc.statd
 
 %changelog
+* Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 1.0.5-5sls
+- minor spec cleanups
+
+* Tue Jan 27 2004 Vincent Danen <vdanen@opensls.org> 1.0.5-4sls
+- make the supervise scripts more robust
+
+* Tue Jan 27 2004 Vincent Danen <vdanen@opensls.org> 1.0.5-3sls
+- supervise scripts
+- create barebones /etc/exports in %%post rather than the initscript
+- do some fancy tricking to have supervise think it's running rpc.nfsd
+- use %%_post_srv and %%_preun_srv macros
+- rpcuser is uid/gid 73
+
+* Mon Dec 08 2003 Vincent Danen <vdanen@opensls.org> 1.0.5-2sls
+- OpenSLS build
+- tidy spec
+
 * Tue Jul 22 2003 Juan Quintela <quintela@mandrakesoft.com> 1.0.5-1mdk
 - included the rest of created programs & manpages.
   Inquiring minds need nhfsgraph, nfgsnums and nhfsrun.

@@ -1,19 +1,23 @@
+%define name	passwd
+%define version	0.68
+%define release	6sls
+
 Summary:	The passwd utility for setting/changing passwords using PAM
-Name:		passwd
-Version:	0.68
-Release:	2mdk
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
 License:	BSD
 Group:		System/Base
-Source0:	passwd-%{version}.tar.bz2
-Patch:		passwd-0.67-manpath.patch.bz2
 # This url is stupid, someone come up with a better one _please_!
 URL:		http://www.freebsd.org
-Buildroot:	%_tmppath/%name-%version-%release-root
-Requires:	pam >= 0.59, pwdb >= 0.58, /etc/libuser.conf
-BuildRequires:	glib2-devel
-BuildRequires:	libuser-devel
-BuildRequires:	pam-devel
-BuildRequires:	popt-devel
+Source0:	passwd-%{version}.tar.bz2
+Patch:		passwd-0.67-manpath.patch.bz2
+Patch1:		passwd-0.68-sec.patch.bz2
+
+BuildRoot:	%_tmppath/%name-root
+BuildRequires:	glib2-devel, libuser-devel, pam-devel, popt-devel
+
+Requires:	pam >= 0.59, pwdb >= 0.58, libuser
 
 %description
 The passwd package contains a system utility (passwd) which sets
@@ -25,13 +29,14 @@ To use passwd, you should have PAM installed on your system.
 %prep
 
 %setup -q
-%patch -p1 
+%patch -p1
+%patch1 -p0 -b .sec
 
 %build
 %make
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 install -d %buildroot/%_bindir
 install -d %buildroot/%_mandir/man1
 
@@ -43,7 +48,7 @@ rm -f %buildroot%_bindir/{chfn,chsh}
 rm -f %buildroot%_mandir/man1/{chfn.1,chsh.1}
 
 %clean
-rm -fr %buildroot
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -52,6 +57,19 @@ rm -fr %buildroot
 %_mandir/man1/passwd.1*
 		
 %changelog
+* Fri Jun 11 2004 Vincent Danen <vdanen@opensls.org> 0.68-6sls
+- Requires: libuser, not /etc/libuser.conf
+
+* Mon May 17 2004 Vincent Danen <vdanen@opensls.org> 0.68-5sls
+- security fixes from Steve Grubb
+
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 0.68-4sls
+- minor spec cleanups
+
+* Mon Dec 01 2003 Vincent Danen <vdanen@opensls.org> 0.68-3sls
+- OpenSLS build
+- tidy spec
+
 * Mon Jul 21 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 0.68-2mdk
 - rebuild
 - rm -rf $RPM_BUILD_ROOT at the beginning of %%install

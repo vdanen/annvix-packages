@@ -1,21 +1,23 @@
-%define name %mklibname net 1.0
+%define name	%mklibname net 1.0
 %define version 1.0.2a
-%define release 2mdk
+%define release 4sls
 
-Summary: A C library for portable packet creation
-Name: %{name}-devel
-Version: %{version}
-Release: %{release}
-Source: http://www.packetfactory.net/libnet/dist/libnet-%{version}.tar.bz2
-Patch0: libnet-1.0.2a-strings.patch.bz2
-License: BSD style
-Group: System/Libraries
-URL: http://www.packetfactory.net/libnet
-BuildPreReq: libpcap
-BuildRoot: %{_tmppath}/%{name}-buildroot
-BuildRequires: libtool
-Conflicts: libnet, %{_lib}net1.1-devel
-Provides: net-devel = %version-%release
+Summary:	A C library for portable packet creation
+Name:		%{name}-devel
+Version:	%{version}
+Release:	%{release}
+License:	BSD style
+Group:		System/Libraries
+URL:		http://www.packetfactory.net/libnet
+Source:		http://www.packetfactory.net/libnet/dist/libnet-%{version}.tar.bz2
+Patch0:		libnet-1.0.2a-strings.patch.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildPreReq:	libpcap
+BuildRequires:	libtool
+
+Conflicts:	libnet, %{_lib}net1.1-devel
+Provides:	net-devel = %version-%release
 
 %description
 Libnet is an API to help with the construction and handling of network
@@ -28,8 +30,6 @@ write network tools and network test code.  See the manpage and sample
 test code for more detailed information
 
 %prep
-rm -rf $RPM_BUILD_ROOT
-
 %setup -n Libnet-%{version} -q
 %patch0 -p1 -b .strings
 
@@ -44,20 +44,19 @@ rm -rf $RPM_BUILD_ROOT
 find . -type 'd' -name "CVS" -print | xargs /bin/rm -rf
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p $RPM_BUILD_ROOT/%{_prefix}/{bin,%_lib,include}
 mkdir -p $RPM_BUILD_ROOT/%{_mandir}/man3
 make install DESTDIR=$RPM_BUILD_ROOT INSTALL="/usr/bin/install" MAN_PREFIX=%_mandir/man3
 rm -f $RPM_BUILD_ROOT/%{_libdir}/libpwrite
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
-%defattr (0755,root,root,755)
-%{_bindir}/*
-%defattr(0644,root,root,755)
+%defattr (0644,root,root,0755)
 %doc doc/* example
+%attr(0755,root,root) %{_bindir}/*
 %{_mandir}/man3/*
 %{_libdir}/*.a
 %{_includedir}/libnet.h
@@ -65,6 +64,13 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/libnet/*
 
 %changelog
+* Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 1.0.2a-4sls
+- minor spec cleanups
+
+* Tue Dec 30 2003 Vincent Danen <vdanen@opensls.org> 1.0.2a-3sls
+- OpenSLS build
+- tidy spec
+
 * Wed Aug 20 2003 Frederic Lepied <flepied@mandrakesoft.com> 1.0.2a-2mdk
 - libified
 

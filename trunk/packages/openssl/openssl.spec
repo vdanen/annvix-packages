@@ -1,31 +1,34 @@
-%define maj 0.9.7
-%define libname %mklibname %name %maj
-%define libnamedev %libname-devel
-%define libnamestatic %libname-static-devel
+%define name	openssl
+%define version	0.9.7b
+%define release	7sls
 
-# French policy is to not use ciphers stronger than 128 bits
-%define french_policy 0
+%define maj		0.9.7
+%define libname 	%mklibname %name %maj
+%define libnamedev	%libname-devel
+%define libnamestatic	%libname-static-devel
 
 Summary:	Secure Sockets Layer communications libs & utils
-Name:		openssl
-Version:	0.9.7b
-Release:	4mdk
-
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	BSD-like
+Group:		System/Libraries
+URL:		http://www.openssl.org/
 Source:		ftp://ftp.openssl.org/source/%{name}-%{version}.tar.bz2
-
-# (gb) 0.9.6b-5mdk: Limit available SSL ciphers to 128 bits
-Patch0:		openssl-0.9.6b-mdkconfig.patch.bz2
 # (fg) 20010202 Patch from RH: some funcs now implemented with ia64 asm
 Patch1:		openssl-0.9.7-ia64-asm.patch.bz2
 # (gb) 0.9.7b-4mdk: Handle RPM_OPT_FLAGS in Configure
 Patch2:		openssl-0.9.7b-optflags.patch.bz2
 # (gb) 0.9.7b-4mdk: Make it lib64 aware. TODO: detect in Configure
 Patch3:		openssl-0.9.7b-lib64.patch.bz2
+# security fixes: CAN-2003-0543, CAN-2003-0544, CAN-2003-0545
+Patch4:		openssl-0.9.6c-ccert.patch.bz2
+Patch5:		niscc-097.txt.bz2
+Patch6:		CAN-2004-0079.patch.bz2
+Patch7:		CAN-2004-0112.patch.bz2
 
-License:	BSD-like
-Group:		System/Libraries
-URL:		http://www.openssl.org/
 BuildRoot:	%_tmppath/%name-%version-root
+
 Requires:	%libname = %version-%release
 Requires:	/usr/bin/perl
 
@@ -96,17 +99,20 @@ Patches for many networking apps can be found at:
 
 %prep
 %setup -q -n %{name}-%{version}
-%if %{french_policy}
-%patch0 -p1 -b .frenchpolicy
-%endif
 %patch1 -p1 -b .ia64-asm
 %patch2 -p1 -b .optflags
 %patch3 -p1 -b .lib64
+%patch4 -p1 -b .ccert
+%patch5 -p1 -b .niscc
+%patch6 -p1 -b .can-2004-0079
+%patch7 -p1 -b .can-2004-0112
+
 perl -pi -e "s,^(LIB=).+$,\1%{_lib}," Makefile.org
 
 %build 
 # Don't carry out asm optimization on Alpha for now
-%ifarch alpha
+%ifarch alpha amd64 x86_64
+# [gb] likewise on amd64: seems broken and no time to review
 NO_ASM="no-asm"
 %endif
 sh config $NO_ASM --prefix=%_prefix --openssldir=%_libdir/ssl shared
@@ -116,7 +122,7 @@ export LD_LIBRARY_PATH=`pwd`${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
 make test
 
 %install
-rm -fr $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall INSTALL_PREFIX=$RPM_BUILD_ROOT MANDIR=%_mandir
 
 cp -aRf *.so* $RPM_BUILD_ROOT/%_libdir
@@ -158,7 +164,10 @@ ln -sf libssl.so.0.* libssl.so
 ln -sf libcrypto.so.0.* libcrypto.so
 
 %clean
-rm -fr %buildroot
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
+%post -n %{libname} -p /sbin/ldconfig
+%postun -n %{libname} -p /sbin/ldconfig
 
 %files 
 %defattr(-,root,root)
@@ -187,11 +196,23 @@ rm -fr %buildroot
 %defattr(-,root,root)
 %_libdir/lib*.a
 
-%post -n %{libname} -p /sbin/ldconfig
-
-%postun -n %{libname} -p /sbin/ldconfig
 
 %changelog
+* Wed Mar 17 2004 Vincent Danen <vdanen@opensls.org> 0.9.7b-7sls
+- remove %%french_policy macro
+- security fixes for CAN-2004-0079 and CAN-2004-0112
+- minor spec cleanups
+
+* Wed Dec 31 2003 Vincent Danen <vdanen@opensls.org> 0.9.7b-6sls
+- merge gbeauchesne's amd64 fix for broken asm optimizations (5mdk)
+
+* Mon Dec 02 2003 Vincent Danen <vdanen@opensls.org> 0.9.7b-5sls
+- OpenSLS build
+- tidy spec
+
+* Tue Sep 30 2003 Vincent Danen <vdanen@mandrakesoft.com> 0.9.7b-4.1.92mdk
+- security fixes: CAN-2003-0543, CAN-2003-0544, CAN-2003-0545
+
 * Thu Jul 31 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 0.9.7b-4mdk
 - Patch2: Make sure to handle RPM_OPT_FLAGS in Configure
 

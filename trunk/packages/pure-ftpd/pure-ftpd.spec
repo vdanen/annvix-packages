@@ -1,25 +1,29 @@
-prereq:		rpm-helper
+%define name	pure-ftpd
+%define	version 1.0.18
+%define release 1sls
 
-%define		name	pure-ftpd
-%define		version 1.0.16b
-%define 	release 1mdk
-
+Summary:	Lightweight, fast and secure FTP server
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
+License:	GPL
+Group:		System/Servers
 URL:		http://www.pureftpd.org
-Source:        	ftp://download.sourceforge.net/pub/sourceforge/pureftpd/%{name}-%{version}.tar.bz2
-Source1:       	pure-ftpd.init 
+Source:		ftp://download.sourceforge.net/pub/sourceforge/pureftpd/%{name}-%{version}.tar.bz2
+Source1:	pure-ftpd.init 
 Source2:	pure-ftpd.logrotate
 Source3:	pure-ftpd-xinetd.bz2
-Patch0:		pure-ftpd.mdkconf.patch.bz2
-Group:		System/Servers
-License:	GPL
-Provides:	ftp-server ftpserver pure-ftpd
+Source4:	pureftpd.run
+Source5:	pureftpd-log.run
+Patch0:		pure-ftpd-1.0.16b-slsconf.patch.bz2
+Patch1:		pure-ftpd-1.0.16b-pureconfig.patch
+
 BuildRoot:	%{_tmppath}/%{name}-%{version}
-Summary:	Lightweight, fast and secure FTP server
+BuildRequires:	pam-devel, openldap-devel, MySQL-devel, postgresql-devel
+
+PreReq:		rpm-helper
+Provides:	ftp-server ftpserver pure-ftpd
 Conflicts:	wu-ftpd, ncftpd, proftpd, anonftp, vsftpd
-BuildRequires:	pam-devel, libldap2-devel, MySQL-devel, postgresql-devel
 
 %description
 Pure-FTPd is a fast, production-quality, standard-comformant FTP server,
@@ -31,53 +35,28 @@ domains, built-in LS, anti-warez system, bandwidth throttling, FXP, bounded
 ports for passive downloads, UL/DL ratios, native LDAP and SQL support,
 Apache log files and more.
 
-%package 	anonymous
+%package anonymous
 Summary:	Anonymous support for pure-ftpd
 Group:		System/Servers
 Requires:	pure-ftpd
 
-%description 	anonymous
+%description anonymous
 This package provides anonymous support for pure-ftpd. 
 
-%package 	anon-upload
+%package anon-upload
 Summary:	Anonymous upload support for pure-ftpd
 Group:		System/Servers
 Requires:	pure-ftpd
 
-%description 	anon-upload
+%description anon-upload
 This package provides anonymous upload support for pure-ftpd. 
 
 %prep
 %setup -q -n %{name}-%{version}
-
-
 %setup -q -D -T -a 2
-%patch -p1 -b .mdkconf
 
-
-# make README.RPM:
-
-COMPILER="Compiler:               $(gcc -v 2>& 1|tail -1)"
-HARDWARE="Hardware platform:      $(uname -m)"
-LIBRARY="Library:                $(rpm -q glibc)"
-OSVERSION="Linux Kernel:           $(uname -sr)"
-PACKAGER="Packager:               %{packager}"
-MDKRELEASE="Linux-Mandrake release: $(cat /etc/mandrake-release)"
-RPMVERSION="RPM Version:            $(rpm -q rpm)"
-
-cat <<EOF >>$RPM_BUILD_DIR/%{name}-%{version}/README.RPM
-The pure-ftpd rpm packages were created in the following build environment:
-
-$MDKRELEASE
-$HARDWARE
-$OSVERSION
-$LIBRARY
-$COMPILER
-$RPMVERSION
-$PACKAGER
-
-EOF
-
+%patch0 -p1 -b .mdkconf
+%patch1 -p1 -b .pureconfig
 
 %build
 %configure2_5x	--with-paranoidmsg \
@@ -107,11 +86,11 @@ EOF
 %make
 
 %install 
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 make install-strip DESTDIR=%{buildroot}
 
 install -d -m 755 %{buildroot}%{_mandir}/man8/
 install -d -m 755 %{buildroot}%{_sbindir}
-install -d -m 755 %{buildroot}%{_sysconfdir}/rc.d/init.d/
 install -d -m 755 %{buildroot}%{_sysconfdir}/%{name}
 
 # Conf 
@@ -135,8 +114,6 @@ install -m 644 man/pure-statsdecode.8 %{buildroot}%{_mandir}/man8
 install -m 644 man/pure-quotacheck.8 %{buildroot}%{_mandir}/man8
 install -m 644 man/pure-authd.8 %{buildroot}%{_mandir}/man8
 
-install -m 755 %{SOURCE1} %{buildroot}%{_initrddir}/pure-ftpd
-
 # Pam 
 install -d -m 755 %{buildroot}%{_sysconfdir}/pam.d/
 install -m 644 pam/pure-ftpd %{buildroot}%{_sysconfdir}/pam.d/
@@ -149,16 +126,27 @@ install -m644 %{SOURCE2} %{buildroot}%{_sysconfdir}/logrotate.d/%{name}
 mkdir -p $RPM_BUILD_ROOT/var/ftp/pub/
 mkdir -p $RPM_BUILD_ROOT/var/ftp/incoming/
 
-# xinetd support (tv)
-mkdir -p $RPM_BUILD_ROOT%_sysconfdir/xinetd.d/
-bzcat %SOURCE3 > $RPM_BUILD_ROOT%_sysconfdir/xinetd.d/pure-ftpd-xinetd
+# supervise scripts
+mkdir -p %{buildroot}%{_srvdir}/pureftpd/log
+mkdir -p %{buildroot}%{_srvlogdir}/pureftpd
+install -m 0755 %{SOURCE4} %{buildroot}%{_srvdir}/pureftpd/run
+install -m 0755 %{SOURCE5} %{buildroot}%{_srvdir}/pureftpd/log/run
 
 %clean
-rm -rf "%{buildroot}"
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
-
 %defattr(-, root, root)
+%doc FAQ THANKS README.Authentication-Modules README.Windows README.Virtual-Users
+%doc README.Debian README README.Contrib README.Configuration-File AUTHORS CONTACT
+%doc HISTORY NEWS README.LDAP README.PGSQL README.MySQL README.Netfilter
+%doc pure-ftpd.png  contrib/pure-vpopauth.pl contrib/pure-stat.pl pureftpd.schema
+%config(noreplace) %{_sysconfdir}/%{name}/pure-ftpd.conf
+%config(noreplace) %{_sysconfdir}/%{name}/pureftpd-ldap.conf
+%config(noreplace) %{_sysconfdir}/%{name}/pureftpd-mysql.conf
+%config(noreplace) %{_sysconfdir}/%{name}/pureftpd-pgsql.conf
+%config(noreplace) %{_sysconfdir}/pam.d/pure-ftpd
+%config(noreplace) %{_sysconfdir}/logrotate.d/pure-ftpd
 %{_bindir}/pure-pw
 %{_bindir}/pure-pwconvert
 %{_bindir}/pure-statsdecode
@@ -170,20 +158,12 @@ rm -rf "%{buildroot}"
 %{_sbindir}/pure-mrtginfo
 %{_sbindir}/pure-quotacheck
 %{_sbindir}/pure-authd
-
-%config(noreplace) %{_sysconfdir}/rc.d/init.d/pure-ftpd
-%config(noreplace) %{_sysconfdir}/%{name}/pure-ftpd.conf
-%config(noreplace) %{_sysconfdir}/%{name}/pureftpd-ldap.conf
-%config(noreplace) %{_sysconfdir}/%{name}/pureftpd-mysql.conf
-%config(noreplace) %{_sysconfdir}/%{name}/pureftpd-pgsql.conf
-%config(noreplace) %{_sysconfdir}/pam.d/pure-ftpd
-
-%config(noreplace) %{_sysconfdir}/logrotate.d/pure-ftpd
-%config(noreplace) %_sysconfdir/xinetd.d/pure-ftpd-xinetd
-
 %attr(644,root,root)%{_mandir}/man8/*
-
-%doc FAQ THANKS README.Authentication-Modules README.Windows README.Virtual-Users README.Debian README README.Contrib README.Configuration-File AUTHORS CONTACT HISTORY NEWS README.LDAP README.PGSQL README.MySQL README.Netfilter pure-ftpd.png  contrib/pure-vpopauth.pl pureftpd.schema README.RPM
+%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/pureftpd
+%dir %{_srvdir}/pureftpd
+%dir %{_srvdir}/pureftpd/log
+%{_srvdir}/pureftpd/run
+%{_srvdir}/pureftpd/log/run
 
 %files anonymous
 %defattr(-, root, root)
@@ -204,18 +184,43 @@ for i in $USERS ;do
         cat %{_sysconfdir}/ftpusers | grep -q "^$i$" || echo $i >> %{_sysconfdir}/ftpusers
 done
 
-%_post_service pure-ftpd
+%_post_srv pure-ftpd
 
 %pre
-%_pre_useradd ftp /var/ftp /bin/false
+%_pre_useradd ftp /var/ftp /bin/false 81
 
 %postun
 %_postun_userdel ftp
 
 %preun
-%_preun_service pure-ftpd
+%_preun_srv pure-ftpd
 
 %changelog
+* Fri May 07 2004 Vincent Danen <vdanen@opensls.org> 1.0.18-1sls
+- 1.0.18
+
+* Wed Mar 03 2004 Vincent Danen <vdanen@opensls.org> 1.0.16b-5sls
+- pure-config.pl now prints the pure-ftpd commandline instead of executing
+  pure-ftpd (better for supervise) (P2)
+- by default Daemonize==no in config
+
+* Wed Feb 04 2004 Vincent Danen <vdanen@opensls.org> 1.0.16b-4sls
+- remove %%build_opensls macro
+- remove xinetd stuff
+- srv macros
+- remove initscript
+- /var/service not /var/supervise
+- ftp has static uid/gid 81
+
+* Sat Jan 03 2004 Vincent Danen <vdanen@opensls.org> 1.0.16b-3sls
+- BuildRequires: openldap-devel, not libldap2-devel (for amd64)
+
+* Tue Dec 30 2003 Vincent Danen <vdanen@opensls.org> 1.0.16b-2sls
+- OpenSLS build
+- tidy spec
+- remove README.RPM
+- if %%build_opensls add stuff for supervise, remove stuff for xinetd
+
 * Mon Oct 20 2003 Lenny Cartier <lenny@mandrakesoft.com> 1.0.16b-1mdk
 - 1.0.16
 

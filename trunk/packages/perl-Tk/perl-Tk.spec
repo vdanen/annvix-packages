@@ -1,33 +1,25 @@
-%define name perl-Tk
-%define real_name Tk
+%define module	Tk
+%define name	perl-%{module}
 %define version 800.024
-%define release 4mdk
+%define release 7sls
+
+%define _requires_exceptions Watch
 
 Summary:	Tk modules for Perl
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
-Group:		Development/Perl
-BuildRequires:	perl-devel pwlib-devel XFree86-devel
 License:	GPL or Artistic
+Group:		Development/Perl
 URL:		http://www.cpan.org
 Source:		ftp://sunsite.doc.ic.ac.uk/packages/CPAN/modules/by-module/Tk/Tk%{version}.tar.bz2
+
+Buildroot:	%{_tmppath}/%{name}-buildroot
+BuildRequires:	perl-devel XFree86-devel
+
 Provides:	perl/tk ptk pTk
 Requires:	perl
-Buildroot:	%{_tmppath}/%{name}-buildroot
-Provides: perl(Tk::LabRadio) perl(Tk::TextReindex)
-
-%define _requires_exceptions Watch
-
-%package devel
-Summary:	Tk modules for Perl (development package)
-Group:		Development/C
-Requires:	perl-Tk = %{version}
-
-%package doc
-Summary:	Tk modules for Perl (documentation package)
-Group:		Development/Perl
-Requires:	perl-Tk = %{version}
+Provides:	perl(Tk::LabRadio) perl(Tk::TextReindex)
 
 %description
 This package provides the modules and Tk code for Perl/Tk,
@@ -36,6 +28,11 @@ and Ioi Kim Lam(Tix).
 It gives you the ability to develop perl applications using the Tk GUI.
 It includes the source code for the Tk and Tix elements it uses.
 The licences for the various components differ, so check the copyright.
+
+%package devel
+Summary:	Tk modules for Perl (development package)
+Group:		Development/C
+Requires:	perl-Tk = %{version}
 
 %description devel
 This package provides the modules and Tk code for Perl/Tk,
@@ -46,16 +43,6 @@ It includes the source code for the Tk and Tix elements it uses.
 The licences for the various components differ, so check the copyright.
 
 This is the development package.
-
-%description doc
-This package provides the modules and Tk code for Perl/Tk,
-as written by Nick Ing-Simmons (pTk), John Ousterhout(Tk),
-and Ioi Kim Lam(Tix).
-It gives you the ability to develop perl applications using the Tk GUI.
-It includes the source code for the Tk and Tix elements it uses.
-The licences for the various components differ, so check the copyright.
-
-This is the documentation package.
 
 %prep
 %setup -q -n Tk%{version}
@@ -71,7 +58,7 @@ perl -pi -e "s#--center#-c#" ./Tk/MMutil.pm
 %make OPTIMIZE="$RPM_OPT_FLAGS" LD_RUN_PATH=""
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 %{__chmod} 644 $RPM_BUILD_ROOT%{_mandir}/man3*/*
 
@@ -82,8 +69,13 @@ rm -f $RPM_BUILD_ROOT%{_mandir}/man1/{ptk{ed,sh},widget}.1*
 ## compress all .pm files (as using perl-PerlIO-gzip).
 #find $RPM_BUILD_ROOT -name "*.pm" | xargs gzip -9
 
+# get rid of all the pod files
+rm -f %{buildroot}%{perl_vendorarch}/Tk.pod
+rm -f %{buildroot}%{perl_vendorarch}/Tk/*.pod
+rm -f %{buildroot}%{perl_vendorarch}/Tk/README.Adjust
+
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -117,15 +109,21 @@ rm -rf $RPM_BUILD_ROOT
 %{perl_vendorarch}/Tk/*.t
 %{perl_vendorarch}/Tk/typemap
 
-%files doc
-%defattr(-,root,root)
-%doc COPYING
-%{perl_vendorarch}/Tk.pod
-%{perl_vendorarch}/Tk/*.pod
-%{perl_vendorarch}/Tk/README.Adjust
-
 
 %changelog
+* Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 800.024-7sls
+- rebuild for perl 5.8.4
+
+* Fri Feb 27 2004 Vincent Danen <vdanen@opensls.org> 800.024-6sls
+- remove %%build_opensls macro
+- rebuild for new perl
+
+* Tue Dec 30 2003 Vincent Danen <vdanen@opensls.org> 800.024-5sls
+- OpenSLS build
+- tidy spec
+- use %%build_opensls to not build the -doc package
+- remove pwlib-devel as a BuildReq
+
 * Wed Aug 13 2003 Per Øyvind Karlsen <peroyvind@linux-mandrake.com> 800.024-4mdk
 - rebuild for new perl
 - drop Prefix tag

@@ -1,31 +1,38 @@
-%define phpsource       %{_prefix}/src/php-devel
-%define _docdir %{_datadir}/doc/%{name}-%{version}
+%define name	php-%{modname}
+%define version	%{phpversion}
+%define release	1sls
+
+%define phpsource	%{_prefix}/src/php-devel
+%define _docdir		%{_datadir}/doc/%{name}-%{version}
 %{expand:%(cat /usr/src/php-devel/PHP_BUILD||(echo -e "error: failed build dependencies:\n        php-devel >= 430 (4.3.0) is needed by this package." >/dev/stderr;kill -2 $PPID))}
 
-%define release 1mdk
+%define realname	Mhash
+%define modname		mhash
+%define dirname		%{modname}
+%define soname		%{modname}.so
+%define inifile		30_%{modname}.ini
+%define mod_src		%{modname}.c
+%ifarch amd64 x86_64
+%define rlibs		lib64mhash2
+%else
+%define rlibs		libmhash2
+%endif
 
-%define realname Mhash
-%define modname mhash
-%define dirname %{modname}
-%define soname %{modname}.so
-%define inifile 30_%{modname}.ini
-%define mod_src %{modname}.c
-%define rlibs libmhash2
-%define blibs libmhash2-devel
+%define blibs		libmhash-devel
 
 Summary:	The %{realname} module for PHP
-Name:		php-%{modname}
-Version:	%{phpversion}
+Name:		%{name}
+Version:	%{version}
 Release:	%{release}
+License:	PHP License
 Group:		System/Servers
 URL:		http://www.php.net
-License:	PHP License
-#Requires:	libphp_common%{libversion}
-#Requires:	%{rlibs}
-Requires:	php%{libversion}
+
+BuildRoot:	%{_tmppath}/%{name}-root
 BuildRequires:  php%{libversion}-devel
 BuildRequires:	%{blibs}
-BuildRoot:	%{_tmppath}/%{name}-root
+
+Requires:	php%{libversion}
 Provides: 	ADVXpackage
 
 %description
@@ -46,8 +53,8 @@ mv modules/*.so .
 
 
 %install
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 cd %{dirname}
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot} 
 install -d %{buildroot}%{phpdir}/extensions
 install -d %{buildroot}%{_docdir}
 install -d %{buildroot}%{_sysconfdir}/php
@@ -65,7 +72,7 @@ extension = %{soname}
 EOF
 
 %clean
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 [ -e ./%{dirname} ] && rm -fr ./%{dirname}
 
 %files 
@@ -75,6 +82,23 @@ EOF
 %config(noreplace) %{_sysconfdir}/php/%{inifile}
 
 %changelog
+* Thu Jun 03 2004 Vincent Danen <vdanen@opensls.org> 4.3.7-1sls
+- php 4.3.7
+
+* Fri May 07 2004 Vincent Danen <vdanen@opensls.org> 4.3.6-1sls
+- php 4.3.6
+
+* Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 4.3.4-4sls
+- minor spec cleanups
+
+* Sat Jan 03 2004 Vincent Danen <vdanen@opensls.org> 4.3.4-3sls
+- fix Reqs/BuildReq's for amd64 (not very clean, but fix in mhash spec
+  later)
+
+* Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 4.3.4-2sls
+- OpenSLS build
+- tidy spec
+
 * Wed Nov 05 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 4.3.4-1mdk
 - built for php 4.3.4
 

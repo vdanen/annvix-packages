@@ -1,19 +1,30 @@
-Name:		pciutils
-Version:	2.1.11
-Release:	4mdk
-Source0:	ftp://atrey.karlin.mff.cuni.cz/pub/linux/pci/%{name}-%{version}.tar.bz2
-URL:		http://atrey.karlin.mff.cuni.cz/~mj/pciutils.html
-Patch1:		pciutils-bufsiz.patch.bz2
-Patch10:	pciutils-2.1.11-pcimodules.patch.bz2
-Patch11:	pciutils-2.1.6-cardbusonlywhenroot.patch.bz2
-Patch12:	pciutils-2.1.9-unused.patch.bz2
-Patch13:	pciutils-2.1.10-x86_64.patch.bz2
-License:	GPL
-Buildroot:	%{_tmppath}/%{name}-%{version}-root
-Requires:	kernel >= 2.1.82
-BuildRequires:	wget
+%define name	pciutils
+%define version	2.1.99.test3
+%define release	1sls
+
+%define rver	2.1.99-test3
+
 Summary:	PCI bus related utilities.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
 Group:		System/Kernel and hardware
+URL:		http://atrey.karlin.mff.cuni.cz/~mj/pciutils.html
+Source0:	ftp://atrey.karlin.mff.cuni.cz/pub/linux/pci/alpha/%{name}-%{rver}.tar.bz2
+Patch0:		pciutils-strip.patch.bz2
+Patch1:		pciutils-pciids.patch.bz2
+Patch2:		pciutils-2.1.10-scan.patch.bz2
+Patch3: 	pciutils-havepread.patch.bz2
+Patch4:		pciutils-2.1.99-test3-amd64.patch.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-%{version}-root
+BuildRequires:	wget
+%ifarch %{ix86}
+BuildRequires:	dietlibc-devel
+%endif
+
+Requires:	kernel >= 2.1.82
 
 %description
 This package contains various utilities for inspecting and setting
@@ -22,36 +33,49 @@ kernel version 2.1.82 or newer (supporting the /proc/bus/pci
 interface).
 
 %package devel
-Summary: Linux PCI development library
-Group: Development/C
-Requires: %{name} = %{version}
+Summary:	Linux PCI development library
+Group:		Development/C
+Requires:	%{name} = %{version}
 
 %description devel
 This package contains a library for inspecting and setting
 devices connected to the PCI bus.
 
 %prep
-%setup -q
-%patch11 -p1
-%patch1 -p1 -b .bufsiz
-%patch10 -p1
-%patch12 -p1 -b .unused
-%patch13 -p1 -b .x86_64
+%setup -q -n %{name}-%{rver}
+%patch0 -p1 -b .strip
+%patch1 -p1 -b .pciids
+%patch2 -p1 -b .scan
+%patch3 -p1 -b .pread
+%patch4 -p1 -b .amd64
 
 ./update-pciids.sh
 
 %build
-make PREFIX=/usr OPT="$RPM_OPT_FLAGS"
+%ifarch %{ix86}
+make OPT="$RPM_OPT_FLAGS -fno-stack-protector -D_GNU_SOURCE=1" CC="diet gcc" PREFIX="/usr"
+mv lib/libpci.a lib/libpci_loader_a
+make clean
+%endif
+
+make OPT="$RPM_OPT_FLAGS -D_GNU_SOURCE=1" PREFIX="/usr"
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 install -d $RPM_BUILD_ROOT{%_bindir,%_mandir/man8,%_datadir,%_libdir,%_includedir/pci}
 
-install -s pcimodules lspci setpci $RPM_BUILD_ROOT%_bindir
-install -m 644 pcimodules.man lspci.8 setpci.8 $RPM_BUILD_ROOT%_mandir/man8
+install -s lspci setpci $RPM_BUILD_ROOT%_bindir
+install -m 644 lspci.8 setpci.8 $RPM_BUILD_ROOT%_mandir/man8
 install -m 644 pci.ids $RPM_BUILD_ROOT%_datadir
 install -m 644 lib/libpci.a $RPM_BUILD_ROOT%_libdir
 install -m 644 lib/{pci.h,header.h,config.h} $RPM_BUILD_ROOT%_includedir/pci
+
+%ifarch %{ix86}
+install lib/libpci_loader_a $RPM_BUILD_ROOT%{_libdir}/libpci_loader.a
+%endif
+
+%clean
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-, root, root)
@@ -62,14 +86,24 @@ install -m 644 lib/{pci.h,header.h,config.h} $RPM_BUILD_ROOT%_includedir/pci
 
 %files devel
 %defattr(-, root, root)
-%doc TODO
-%_libdir/*.a
+%_libdir/libpci.a
+%ifarch %{ix86}
+%_libdir/libpci_loader.a
+%endif
 %_includedir/pci
 
-%clean
-rm -rf $RPM_BUILD_ROOT
-
 %changelog
+* Mon Mar 15 2004 Vincent Danen <vdanen@opensls.org> 2.1.99-test3-1sls
+- 2.1.99-test3
+- sync patches with Fedora (support for dietlibc)
+
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 2.1.11-6sls
+- minor spec cleanups
+
+* Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 2.1.11-5sls
+- OpenSLS build
+- tidy spec
+
 * Thu Aug 14 2003 Pixel <pixel@mandrakesoft.com> 2.1.11-4mdk
 - distlint DIRM fix: own /usr/include/pci
 - get latest pci.ids

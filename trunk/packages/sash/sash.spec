@@ -1,10 +1,14 @@
+%define name	sash
+%define version	3.5
+%define release 8sls
+
 Summary:	A statically linked shell, including some built-in basic commands
-Name:		sash
-Version:	3.5
-Release:	6mdk
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
 License:	GPL
 Group:		Shells
-Url:        http://www.canb.auug.org.au/~dbell/
+URL:		http://www.canb.auug.org.au/~dbell/
 Source0:	http://www.canb.auug.org.au/~dbell/programs/sash-%{version}.tar.bz2
 Patch0:		sash-3.5-optflags.patch.bz2
 Patch1:		sash-3.4-scriptarg.patch.bz2
@@ -12,9 +16,10 @@ Patch2: 	sash-3.4-losetup.patch.bz2
 Patch3: 	sash-3.4-fix-loop__remove_it_when_kernel_headers_are_fixed.patch.bz2
 Patch4: 	sash-3.4-ignore-args.patch.bz2
 
+BuildRoot:	%_tmppath/%name-%version-%release-root
 BuildRequires:	zlib-devel glibc-static-devel
-Buildroot:	%_tmppath/%name-%version-%release-root
-Prereq:	 grep
+
+Prereq:		grep
 
 %description
 Sash is a simple, standalone, statically linked shell which includes
@@ -36,6 +41,7 @@ shared libraries.
 make RPM_OPT_FLAGS="$RPM_OPT_FLAGS"
 
 %install
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p $RPM_BUILD_ROOT/sbin
 mkdir -p $RPM_BUILD_ROOT%_mandir/man8
 
@@ -43,7 +49,7 @@ install -s -m755 sash $RPM_BUILD_ROOT/sbin
 install -m644 sash.1 $RPM_BUILD_ROOT%_mandir/man8/sash.8
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -51,6 +57,13 @@ rm -rf $RPM_BUILD_ROOT
 %_mandir/*/*
 
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 3.5-8sls
+- minor spec cleanups
+
+* Mon Dec 01 2003 Vincent Danen <vdanen@opensls.org> 3.5-7sls
+- OpenSLS build
+- tidy spec
+
 * Mon May  5 2003 Pixel <pixel@mandrakesoft.com> 3.5-6mdk
 - add "BuildRequires: glibc-static-devel"
 

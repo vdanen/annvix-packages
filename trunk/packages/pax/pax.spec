@@ -1,13 +1,19 @@
-Summary: POSIX File System Archiver
-Name: pax
-Version: 3.0
-Release: 4mdk
-License: GPL
-Group: Archiving/Backup
-Source: ftp://ftp.suse.com/pub/people/kukuk/pax/%{name}-%{version}.tar.bz2
-BuildRoot: %{_tmppath}/%{name}-root
-URL:	ftp://ftp.suse.com/pub/people/kukuk/pax/
-Requires: common-licenses
+%define name	pax
+%define version	3.0
+%define release	6sls
+
+Summary:	POSIX File System Archiver
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		Archiving/Backup
+URL:		ftp://ftp.suse.com/pub/people/kukuk/pax/
+Source:		ftp://ftp.suse.com/pub/people/kukuk/pax/%{name}-%{version}.tar.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-root
+
+Requires:	common-licenses
 
 %description
 'pax' is the POSIX standard archive tool.  It supports the two most
@@ -21,13 +27,13 @@ common forms of standard Unix archive (backup) files - CPIO and TAR.
 %make
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p %{buildroot}%{_bindir}
 mkdir -p %{buildroot}%{_mandir}/man1
 %makeinstall_std
 
 %clean
-rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -36,6 +42,13 @@ rm -rf %{buildroot}
 %{_mandir}/man1/*
 
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 3.0-6sls
+- minor spec cleanups
+
+* Tue Dec 30 2003 Vincent Danen <vdanen@opensls.org> 3.0-5sls
+- OpenSLS build
+- tidy spec
+
 * Mon Jul 21 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 3.0-4mdk
 - rebuild
 - rm -rf $RPM_BUILD_ROOT in the beginning of %%install

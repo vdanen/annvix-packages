@@ -1,36 +1,35 @@
-%define phpsource       %{_prefix}/src/php-devel
-%define _docdir %{_datadir}/doc/%{name}-%{version}
+%define name	php-%{modname}
+%define version	%{phpversion}
+%define release	1sls
+
+%define phpsource	%{_prefix}/src/php-devel
+%define _docdir		%{_datadir}/doc/%{name}-%{version}
 %{expand:%(cat /usr/src/php-devel/PHP_BUILD||(echo -e "error: failed build dependencies:\n        php-devel >= 430 (4.3.0) is needed by this package." >/dev/stderr;kill -2 $PPID))}
 
-%define release 1mdk
-
-%define realname LDAP
-%define modname ldap
-%define dirname %{modname}
-%define soname %{modname}.so
-%define inifile 27_%{modname}.ini
-%define mod_src ldap.c
-%define mod_lib "-lldap -llber"
-%define mod_def "-DCOMPILE_DL_LDAP -DHAVE_LDAP_START_TLS_S"
-%define rlibs libldap2 libsasl2 libopenssl0.9.7
-%define blibs libldap-devel pam-devel libsasl-devel openssl-devel
-#########################################################
-## Nothing to be changed after this, except changelog! ##
-#########################################################
+%define realname	LDAP
+%define modname		ldap
+%define dirname		%{modname}
+%define soname		%{modname}.so
+%define inifile		27_%{modname}.ini
+%define mod_src		ldap.c
+%define mod_lib		"-lldap -llber"
+%define mod_def		"-DCOMPILE_DL_LDAP -DHAVE_LDAP_START_TLS_S"
+%define rlibs		libldap2 libsasl2 libopenssl0.9.7
+%define blibs		libldap-devel pam-devel libsasl-devel openssl-devel
 
 Summary:	The %{realname} module for PHP
-Name:		php-%{modname}
-Version:	%{phpversion}
+Name:		%{name}
+Version:	%{version}
 Release:	%{release}
+License:	PHP License
 Group:		System/Servers
 URL:		http://www.php.net
-License:	PHP License
-#Requires:	libphp_common%{libversion}
-#Requires:	%{rlibs}
-Requires:	php%{libversion}
+
+BuildRoot:	%{_tmppath}/%{name}-root
 BuildRequires:  php%{libversion}-devel
 BuildRequires:	%{blibs}
-BuildRoot:	%{_tmppath}/%{name}-root
+
+Requires:	php%{libversion}
 Provides: 	ADVXpackage
 
 %description
@@ -47,8 +46,8 @@ cd %{dirname}
 %{phpsource}/buildext %{modname} %{mod_src} %{mod_lib} %{mod_def}
 
 %install
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 cd %{dirname}
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot} 
 
 install -d %{buildroot}%{phpdir}/extensions
 install -d %{buildroot}%{_docdir}
@@ -67,7 +66,7 @@ extension = %{soname}
 EOF
 
 %clean
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 [ -e ./%{dirname} ] && rm -fr ./%{dirname}
 
 %files 
@@ -77,6 +76,19 @@ EOF
 %config(noreplace) %{_sysconfdir}/php/%{inifile}
 
 %changelog
+* Thu Jun 03 2004 Vincent Danen <vdanen@opensls.org> 4.3.7-1sls
+- php 4.3.7
+
+* Fri May 07 2004 Vincent Danen <vdanen@opensls.org> 4.3.6-1sls
+- php 4.3.6
+
+* Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 4.3.4-3sls
+- minor spec cleanups
+
+* Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 4.3.4-2sls
+- OpenSLS build
+- tidy spec
+
 * Wed Nov 05 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 4.3.4-1mdk
 - built for php 4.3.4
 

@@ -1,9 +1,9 @@
 %define name	rcs
 %define version	5.7
-%define release	6mdk
+%define release	8sls
 
-Name:		%{name}
 Summary:	Revision Control System (RCS) file version management tools.
+Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	GPL
@@ -11,8 +11,8 @@ Group:		Development/Other
 Source:		ftp://ftp.gnu.org/pub/gnu/rcs-5.7.tar.bz2
 Patch:		rcs-5.7-stupidrcs.patch.bz2
 Patch1:		rcs-5.7-security.patch.bz2
-Prefix:		%{_prefix}
-Buildroot:	%{_tmppath}/%{name}-root
+
+BuildRoot:	%{_tmppath}/%{name}-root
 
 %description
 The Revision Control System (RCS) is a system for managing multiple
@@ -38,11 +38,14 @@ touch src/conf.h
 %make
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %makeinstall
 mkdir -p $RPM_BUILD_ROOT%{_mandir}
 mv $RPM_BUILD_ROOT/usr/man/* $RPM_BUILD_ROOT%{_mandir}
+
+%clean
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -51,10 +54,15 @@ mv $RPM_BUILD_ROOT/usr/man/* $RPM_BUILD_ROOT%{_mandir}
 %{_mandir}/man1/*
 %{_mandir}/man5/*
 
-%clean
-rm -rf $RPM_BUILD_ROOT
-
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 5.7-8sls
+- minor spec cleanups
+- remove %%prefix
+
+* Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 5.7-7sls
+- OpenSLS build
+- tidy spec
+
 * Fri May  2 2003 Frederic Lepied <flepied@mandrakesoft.com> 5.7-6mdk
 - rebuilt
 

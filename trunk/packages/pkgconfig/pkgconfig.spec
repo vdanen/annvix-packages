@@ -1,12 +1,17 @@
-Name: pkgconfig
-Version: 0.15.0
-Release: 3mdk
-Summary: Pkgconfig helps make building packages easier.
-Source:  http://www.freedesktop.org/software/pkgconfig/releases/pkgconfig-%version.tar.bz2
-URL: http://www.freedesktop.org/software/pkgconfig
-License: GPL
-Group: Development/Other
-BuildRoot: %{_tmppath}/%{name}-%{version}-root
+%define name	pkgconfig
+%define version	0.15.0
+%define release	5sls
+
+Summary:	Pkgconfig helps make building packages easier.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		Development/Other
+URL:		http://www.freedesktop.org/software/pkgconfig
+Source:		http://www.freedesktop.org/software/pkgconfig/releases/pkgconfig-%version.tar.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-root
 
 %description
 pkgconfig is a program which helps you gather information to make
@@ -26,14 +31,14 @@ In fact, it's required to build certain packages.
 make check
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %makeinstall_std
 
 mkdir -p $RPM_BUILD_ROOT%{_libdir}/pkgconfig
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -44,6 +49,13 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/*
 
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 0.15.0-5sls
+- minor spec cleanups
+
+* Mon Dec 01 2003 Vincent Danen <vdanen@opensls.org> 0.15.0-4sls
+- OpenSLS build
+- tidy spec
+
 * Wed Jul 30 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 0.15.0-3mdk
 - cputoolize since pkgconfig people don't use a single config.* script
 

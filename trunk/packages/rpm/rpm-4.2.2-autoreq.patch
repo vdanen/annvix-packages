@@ -1,0 +1,230 @@
+--- rpm-4.2.2/autodeps/linux.req.autoreq	2002-11-14 13:53:11.000000000 +0100
++++ rpm-4.2.2/autodeps/linux.req	2004-02-24 15:59:16.561812871 +0100
+@@ -16,15 +16,35 @@
+     needed=1
+ fi
+ 
++# --- Mandrake Linux specific part
++case "$LD_PRELOAD" in
++    *libfakeroot*)
++	unset LD_PRELOAD
++	;;
++esac
++
++RPM_BUILD_ROOT=$1
++RPM_ARCH=$2
++
++if [ -n "$RPM_BUILD_ROOT" ]; then
++    echo "Using BuildRoot: $RPM_BUILD_ROOT to search libs" 1>&2
++
++    lib_path_64=$RPM_BUILD_ROOT/usr/X11R6/lib64:$RPM_BUILD_ROOT/usr/lib64:$RPM_BUILD_ROOT/lib64
++    lib_path_32=$RPM_BUILD_ROOT/usr/X11R6/lib:$RPM_BUILD_ROOT/usr/lib:$RPM_BUILD_ROOT/lib
++    LD_LIBRARY_PATH=$lib_path_64:$lib_path_32
++    export LD_LIBRARY_PATH
++fi
++
++
+ #
+ # --- Grab the file manifest and classify files.
+ #filelist=`sed "s/['\"]/\\\&/g"`
+ filelist=`sed "s/[]['\"*?{}]/\\\\\&/g"`
+-exelist=`echo $filelist | xargs -r file | egrep -v ":.* (commands|script) " | \
++exelist=`echo "$filelist" | xargs -r file | egrep -v ":.* (commands|script) " | \
+ 	grep ":.*executable" | cut -d: -f1`
+-scriptlist=`echo $filelist | xargs -r file | \
++scriptlist=`echo "$filelist" | grep -v /usr/doc | grep -v /usr/share/doc | xargs -r file | \
+ 	egrep ":.* (commands|script) " | cut -d: -f1`
+-liblist=`echo $filelist | xargs -r file | \
++liblist=`echo "$filelist" | xargs -r file | \
+ 	grep ":.*shared object" | cut -d : -f1`
+ 
+ interplist=
+@@ -52,7 +72,7 @@
+ 	    printf "%s'$lib64'\n", $1
+ 	}
+     }'
+-  done | xargs -r -n 1 basename | sort -u
++  done | xargs -r -n 1 basename | sort -u | grep -v 'libsafe|libfakeroot'
+ 
+ #
+ # --- Library dependency sonames.
+@@ -66,20 +86,33 @@
+ 	    printf "%s'$lib64'\n", $1
+ 	}
+     }'
+-  done | xargs -r -n 1 basename | sort -u
++  done | xargs -r -n 1 basename | sort -u | grep -v 'libsafe|libfakeroot'
+ fi
+ 
+ #
++# --- Perl or python deps
++for f in $filelist; do
++    echo $f | sed -n -e "s@$RPM_BUILD_ROOT@@" -e 's@^/usr/lib/perl5/\(site_perl/\)\([0-9]\{1,\}\.[0-9]\{1,\}\)\.\([0-9]\{1,\}\).*$@perl-base >= \2.\3@p' -e 's@^/usr/lib/perl5/\(vendor_perl\/\)\([.0-9]\{1,\}\).*$@perl-base >= 2:\2@p' -e 's@^/usr/\(lib\|lib64\)/python\([.0-9]\{1,\}\).*$@python-base >= \2@p'
++done | sort -u
++
++
++#
+ # --- Script interpreters.
+ for f in $scriptlist; do
+     [ -r $f -a -x $f ] || continue
+-    interp=`head -n 1 $f | sed -e 's/^\#\![ 	]*//' | cut -d" " -f1`
++    interp=`head -n 1 $f | grep '^#!' | sed -e 's/^\#\![ 	]*//' | cut -d" " -f1`
+     interplist="$interplist $interp"
+     case $interp in
+     */perl)	perllist="$perllist $f" ;;
+     esac
+ done
+-[ -n "$interplist" ] && { echo "$interplist" | tr '[:blank:]' \\n | sort -u ; }
++if [ -n "$interplist" ]; then
++    for i in `echo "$interplist" | tr '[:blank:]' \\\n | sort -u`; do
++	if ! rpm -qf $i --qf '%{NAME}\n' 2>/dev/null; then
++	    echo $i
++	fi
++    done | sort -u | grep -v 'libsafe|libfakeroot'
++fi
+ 
+ #
+ # --- Add perl module files to perllist.
+@@ -114,12 +147,12 @@
+ 	    print LIBNAME "(" $4 ")'$lib64'";
+ 	}
+     '
+-done | sort -u
++done | sort -u | grep -v 'libsafe|libfakeroot'
+ 
+ #
+ # --- Perl modules.
+ [ -x /usr/lib/rpm/perl.req -a -n "$perllist" ] && \
+-    echo $perllist | tr '[:blank:]' \\n | /usr/lib/rpm/perl.req | sort -u
++    echo $perllist | tr '[:blank:]' \\n | /usr/lib/rpm/perl.req | grep 'perl([A-Z]' | sort -u
+ 
+ #
+ # --- Python modules.
+@@ -131,4 +164,19 @@
+ [ -x /usr/lib/rpm/tcl.req -a -n "$tcllist" ] && \
+     echo $tcllist | tr '[:blank:]' \\n | /usr/lib/rpm/tcl.req | sort -u
+ 
++#
++# --- .so files.
++for i in `echo $filelist | tr '[:blank:]' "\n" | egrep "(/usr(/X11R6)?)?/lib(|64)/[^/]+\.so$"`; do
++    objd=`objdump -p ${i} | grep SONAME`
++    lib64=`if file -L $i 2>/dev/null | grep "ELF 64-bit" >/dev/null; then echo "(64bit)"; fi` && \
++    [ -h ${i} -a -n "${objd}" ] && \
++	ldd ${i} \
++	| grep -v "/\(lib\|lib64\)/ld-linux.*\.so" \
++	| perl -p -e "s/\s+(\S+)\.so.*/devel(\1$lib64)/g"
++done | egrep -v 'devel\(linux-gate|lib(c|pthread|rt)(\(64bit\))?\)' | sort -u
++
++#
++# --- pkgconfig
++echo $filelist |  tr '[:blank:]' '\n' | egrep -q '/usr/lib(64)?/pkgconfig/.*\.pc' && echo pkgconfig
++
+ exit 0
+--- rpm-4.2.2/autodeps/linux.prov.autoreq	2002-04-08 21:13:35.000000000 +0200
++++ rpm-4.2.2/autodeps/linux.prov	2004-02-24 15:59:16.562812846 +0100
+@@ -5,7 +5,7 @@
+ 
+ filelist=`sed "s/['\"]/\\\&/g"`
+ 
+-solist=$(echo $filelist | grep "\\.so" | grep -v "^/lib/ld.so" | \
++solist=$(echo "$filelist" | grep -v "^/lib/ld\.so" | egrep '(/usr(/X11R6)?)?/lib(64)?/.*\.so' | \
+ 	xargs file -L 2>/dev/null | grep "ELF.*shared object" | cut -d: -f1)
+ pythonlist=
+ tcllist=
+@@ -20,14 +20,14 @@
+ #
+ # --- Library sonames and weak symbol versions (from glibc).
+ for f in $solist; do
+-    soname=$(objdump -p $f | awk '/SONAME/ {print $2}')
++    soname=$(objdump -p $f 2>/dev/null | awk '/SONAME/ {print $2}')
+ 
+     lib64=`if file -L $f 2>/dev/null | \
+ 	grep "ELF 64-bit" >/dev/null; then echo "$mark64"; fi`
+     if [ "$soname" != "" ]; then
+ 	if [ ! -L $f ]; then
+ 	    echo $soname$lib64
+-	    objdump -p $f | awk '
++	    objdump -p $f 2>/dev/null | awk '
+ 		BEGIN { START=0 ; }
+ 		/Version definitions:/ { START=1; }
+ 		/^[0-9]/ && (START==1) { print $4; }
+@@ -46,16 +46,25 @@
+ #
+ # --- Perl modules.
+ [ -x /usr/lib/rpm/perl.prov ] &&
+-    echo $filelist | tr '[:blank:]' \\n | grep '\.pm$' | /usr/lib/rpm/perl.prov | sort -u
++    echo "$filelist" | tr '[:blank:]' \\n | /usr/lib/rpm/perl.prov | grep 'perl([A-Z]' | sort -u
+ 
+ #
+ # --- Python modules.
+ [ -x /usr/lib/rpm/python.prov -a -n "$pythonlist" ] &&
+-    echo $pythonlist | tr '[:blank:]' \\n | /usr/lib/rpm/python.prov | sort -u
++    echo "$pythonlist" | tr '[:blank:]' \\n | /usr/lib/rpm/python.prov | sort -u
+ 
+ #
+ # --- Tcl modules.
+ [ -x /usr/lib/rpm/tcl.prov -a -n "$tcllist" ] &&
+-    echo $tcllist | tr '[:blank:]' \\n | /usr/lib/rpm/tcl.prov | sort -u
++    echo "$tcllist" | tr '[:blank:]' \\n | /usr/lib/rpm/tcl.prov | sort -u
++
++#
++# --- .so files.
++for i in `echo $filelist | tr '[:blank:]' "\n" | egrep '(/usr(/X11R6)?)?/lib(|64)(/gcc-lib/.+)?/[^/]+\.so$'`; do
++    objd=`objdump -p ${i} | grep SONAME`
++    [ -h ${i} -a -n "${objd}" ] && \
++    lib64=`if file -L $i 2>/dev/null | grep "ELF 64-bit" >/dev/null; then echo "(64bit)"; fi` && \
++    echo ${objd} | perl -p -e "s/.*SONAME\s+(\S+)\.so.*/devel(\1$lib64)/g"
++done | sort -u
+ 
+ exit 0
+--- rpm-4.2.2/scripts/brp-strip-comment-note.autoreq	2002-11-15 19:02:43.000000000 +0100
++++ rpm-4.2.2/scripts/brp-strip-comment-note	2004-02-24 15:59:16.562812846 +0100
+@@ -10,7 +10,7 @@
+         grep -v "^${RPM_BUILD_ROOT}/\?usr/lib/debug"  | \
+ 	sed -n -e 's/^\(.*\):[ 	]*ELF.*, stripped/\1/p'`; do
+ 	note="-R .note"
+-	if objdump -h $f | grep '^[ 	]*[0-9]*[ 	]*.note[ 	]' -A 1 | \
++	if objdump -h $f 2>/dev/null | grep '^[ 	]*[0-9]*[ 	]*.note[ 	]' -A 1 | \
+ 		grep ALLOC >/dev/null; then
+ 		note=
+ 	fi
+--- rpm-4.2.2/scripts/perl.prov.autoreq	2003-09-15 05:34:10.000000000 +0200
++++ rpm-4.2.2/scripts/perl.prov	2004-02-24 16:06:15.763568876 +0100
+@@ -55,7 +55,8 @@
+   # contents of the file.
+ 
+   foreach (<>) {
+-    process_file($_);
++    chomp $_;
++    process_file($_) if -f $_;
+   }
+ }
+ 
+@@ -80,7 +81,6 @@
+ sub process_file {
+ 
+   my ($file) = @_;
+-  chomp $file;
+   
+   open(FILE, "<$file") || return;
+ 
+--- rpm-4.2.2/scripts/perl.req.autoreq	2003-12-28 16:15:17.000000000 +0100
++++ rpm-4.2.2/scripts/perl.req	2004-02-24 16:05:56.139048037 +0100
+@@ -49,7 +49,8 @@
+   # contents of the file.
+   
+   foreach (<>) {
+-    process_file($_);
++    chomp $_;
++    process_file($_) if -f $_;
+   }
+ }
+ 
+@@ -74,7 +75,6 @@
+ sub process_file {
+   
+   my ($file) = @_;
+-  chomp $file;
+   
+   open(FILE, "<$file") || return;
+   

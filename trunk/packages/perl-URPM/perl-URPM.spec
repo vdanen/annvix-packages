@@ -1,34 +1,32 @@
-%define name perl-URPM
-%define real_name URPM
+%define name	perl-URPM
 %define version 0.94
-%define release 10mdk
+%define release 13sls
 
-%define group %(perl -e 'printf "%%s\\n", "%_vendor" =~ /mandrake/i ? "Development/Perl" : "Applications/CPAN"')
-%define rpm_version %(rpm -q --queryformat '%{VERSION}-%{RELEASE}' rpm)
+%define real_name URPM
+
+%define group		%(perl -e 'printf "%%s\\n", "%_vendor" =~ /mandrake/i ? "Development/Perl" : "Applications/CPAN"')
+%define rpm_version	%(rpm -q --queryformat '%{VERSION}-%{RELEASE}' rpm)
 
 %{expand:%%define compat_makeinstall_std %(perl -e 'printf "%%s\n", "%{?makeinstall_std:1}" ? "%%makeinstall_std" : "%%{__make} install PREFIX=%%{buildroot}%%{_prefix}"')}
 %{expand:%%define compat_perl_vendorarch %(perl -MConfig -e 'printf "%%s\n", "%{?perl_vendorarch:1}" ? "%%{perl_vendorarch}" : "$Config{installvendorarch}"')}
 %{expand:%%define buildreq_perl_devel %%(perl -e 'printf "%%s\\n", "%_vendor" =~ /mandrake/i ? "perl-devel" : "perl"')}
-%{expand:%%define distribution %%(perl -e 'printf "%%s\\n", ("%_vendor" =~ /mandrake/i ? "Mandrake Linux" : "Red Hat Linux")')}
-%{expand:%%define real_release %%(perl -e 'printf "%%s\\n", ("%_vendor" !~ /mandrake/i && ("%release" =~ /(.*?)mdk/)[0] || "%release")')}
 
-Packager:       François Pons <fpons@mandrakesoft.com>
 Summary:	URPM module for perl
 Name:		%{name}
 Version:	%{version}
-Release:	%{real_release}
+Release:	%{release}
 License:	GPL or Artistic
 Group:		%{group}
-Distribution:	%{distribution}
-Source:		%{real_name}-%{version}.tar.bz2
 URL:		http://cvs.mandrakesoft.com/cgi-bin/cvsweb.cgi/soft/perl-URPM
-Prefix:		%{_prefix}
+Source:		%{real_name}-%{version}.tar.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
 BuildRequires:	%{buildreq_perl_devel} rpm-devel >= 4.0.3 bzip2-devel
+
 Requires:	rpm >= %{rpm_version}, bzip2 >= 1.0
 Provides:	perl(URPM::Build) = %{version}-%{release}
 Provides:	perl(URPM::Resolve) = %{version}-%{release}
 Provides:	perl(URPM::Signature) = %{version}-%{release}
-BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
 
 %description
 The URPM module allows you to manipulate rpm files, rpm header files and
@@ -43,11 +41,11 @@ hdlist files and manage them in memory.
 %{__make} test
 
 %install
-%{__rm} -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %{compat_makeinstall_std}
 
 %clean 
-%{__rm} -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -60,6 +58,20 @@ hdlist files and manage them in memory.
 
 
 %changelog
+* Sat Jun 11 2004 Vincent Danen <vdanen@opensls.org> 0.94-13sls
+- rebuild for perl 5.8.4
+
+* Fri Feb 27 2004 Vincent Danen <vdanen@opensls.org> 0.94-12sls
+- rebuild for new perl
+- remove %%build_opensls macros
+- remove %%prefix tag
+
+* Fri Dec 18 2003 Vincent Danen <vdanen@opensls.org> 0.94-11sls
+- OpenSLS build
+- tidy spec
+- don't use %%real_release
+- don't set Distribution tag
+
 * Tue Dec  9 2003 François Pons <fpons@mandrakesoft.com> 0.94-10mdk
 - added compability with RH 7.3.
 

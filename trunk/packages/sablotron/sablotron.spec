@@ -1,27 +1,28 @@
-%define name sablotron
+%define name	sablotron
 %define version 0.98
-%define release 2mdk
+%define release 4sls
 
-%define	altname Sablot
-%define builddir $RPM_BUILD_DIR/%{altname}-%{version}
-%define lib_name_orig libsablotron
-%define lib_major 0
-%define lib_name %mklibname %{name} %{lib_major}
+%define	altname		Sablot
+%define builddir	$RPM_BUILD_DIR/%{altname}-%{version}
+%define lib_name_orig	libsablotron
+%define lib_major	0
+%define lib_name	%mklibname %{name} %{lib_major}
 
-Summary: 		XSLT processor
-Name: 			%{name}
-Version: 		%{version}
-Release: 		%{release}
-License: 		MPL/GPL
-Group: 			Development/Other
-URL:			http://www.gingerall.cz
-Source: 		http://www.gingerall.com:/perl/rd?url=sablot/%{altname}-%{version}.tar.bz2
-Patch:			sablot-lib-0.71.patch.bz2
-Requires:		expat >= 1.95.2
-Requires:		%{lib_name}
+Summary: 	XSLT processor
+Name: 		%{name}
+Version: 	%{version}
+Release: 	%{release}
+License: 	MPL/GPL
+Group: 		Development/Other
+URL:		http://www.gingerall.cz
+Source: 	http://www.gingerall.com:/perl/rd?url=sablot/%{altname}-%{version}.tar.bz2
+Patch:		sablot-lib-0.71.patch.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
 BuildRequires:  expat-devel >= 1.95.2
 
-BuildRoot:      %{_tmppath}/%{name}-%{version}-buildroot
+Requires:	expat >= 1.95.2
+Requires:	%{lib_name}
 
 %description
 Sablotron is a fast, compact and portable XML toolkit
@@ -33,19 +34,19 @@ specification, which is available for public and can be used as a base
 for multi-platform XML applications.
 
 %package -n %{lib_name}
-Summary:		Main library for sablotron
-Group:			System/Libraries
-Provides:		%{lib_name_orig} = %{version}-%{release}
+Summary:	Main library for sablotron
+Group:		System/Libraries
+Provides:	%{lib_name_orig} = %{version}-%{release}
 
 %description -n %{lib_name}
 Contains the library for sablotron.
 
 %package -n %{lib_name}-devel
-Summary: 		The development libraries and header files for Sablotron
-Requires: 		sablotron = %{version}
-Group: 			System/Libraries
-Requires: 		%{lib_name} = %{version}
-Provides: 		%{lib_name_orig}-devel = %{version}-%{release}
+Summary: 	The development libraries and header files for Sablotron
+Requires: 	sablotron = %{version}
+Group: 		System/Libraries
+Requires: 	%{lib_name} = %{version}
+Provides: 	%{lib_name_orig}-devel = %{version}-%{release}
 
 %description -n %{lib_name}-devel
 These are the development libraries and header files for Sablotron
@@ -62,7 +63,17 @@ export CXXFLAGS="${RPM_OPT_FLAGS}"
 #strip Sablot/engine/.libs/libsablot.so*
 
 %install
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall prefix=$RPM_BUILD_ROOT/%{_prefix}
+
+%clean
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
+%post -p /sbin/ldconfig
+%postun -p /sbin/ldconfig
+
+%post -n %{lib_name} -p /sbin/ldconfig
+%postun -n %{lib_name} -p /sbin/ldconfig
 
 %files
 %defattr(755,root,root)
@@ -72,8 +83,8 @@ export CXXFLAGS="${RPM_OPT_FLAGS}"
 
 %files -n %{lib_name}
 %defattr(-,root,root)
-%{_libdir}/libsablot.so.*
 %doc README RELEASE
+%{_libdir}/libsablot.so.*
 
 %files -n %{lib_name}-devel
 %defattr(-,root,root)
@@ -82,16 +93,14 @@ export CXXFLAGS="${RPM_OPT_FLAGS}"
 %{_libdir}/lib*.so
 %{_includedir}/*.h
 
-%clean
-rm -rf $RPM_BUILD_ROOT
-
-%post -p /sbin/ldconfig
-%postun -p /sbin/ldconfig
-
-%post -n %{lib_name} -p /sbin/ldconfig
-%postun -n %{lib_name} -p /sbin/ldconfig
-
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 0.98-4sls
+- minor spec cleanups
+
+* Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 0.98-3sls
+- OpenSLS build
+- tidy spec
+
 * Fri Jul 18 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 0.98-2mdk
 - rebuild
 

@@ -1,16 +1,18 @@
+%define name	util-linux
+%define version	2.12
+%define release	2sls
+
 # Maintainer util-linux@math.uio.no
 
 Summary:	A collection of basic system utilities
-Name:		util-linux
-Version:	2.11z
-Release: 7mdk
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
 License:	GPL
 Group:		System/Base
 URL:		ftp://ftp.win.tue.nl/pub/linux-local/utils/util-linux/
 # Alternative => ftp.kernel.org:/pub/linux/utils/util-linux/
-
-Source0:	ftp://ftp.win.tue.nl/pub/linux-local/utils/util-linux/util-linux-%version.tar.bz2
-
+Source0:	ftp://ftp.win.tue.nl/pub/linux-local/utils/util-linux/%{name}-%{version}.tar.bz2
 Source1:	util-linux-2.7-login.pamd
 Source2:	util-linux-2.7-chfn.pamd
 Source3:	util-linux-2.7-chsh.pamd
@@ -19,15 +21,6 @@ Source7:	cramfs.h
 Source8:	nologin.c
 Source9:	nologin.8
 Source10:	kbdrate.tar.bz2
-
-BuildRequires:	gcc
-BuildRequires:	sed
-BuildRequires:	pam-devel
-BuildRequires:	ncurses-devel
-BuildRequires:	termcap-devel
-BuildRequires:	texinfo
-BuildRequires:	slang-devel
-BuildRequires:	zlib-devel
 # Change default config to switch mandrake config
 Patch0:		util-linux-2.11z-mdkconf.patch.bz2
 # We don't want to compile chkdupexe
@@ -44,42 +37,39 @@ Patch61:	util-linux-2.11b-s390x.patch.bz2
 # fdisk: use 16 partitions as maximun
 # misc documentation fixes for man pages
 Patch70:	util-linux-2.11r-miscfixes.patch.bz2
-# Make fdisk work indeed if you don't have big disks support
-Patch81:	util-linux-2.11m-fdisk-fixes.patch.bz2
 # lot of cleanups for mkcramfs
 Patch100:	mkcramfs.patch.bz2
 # Make mkcramfs quieter, use --verbose for old behaviour
 Patch101:	mkcramfs-quiet.patch.bz2
 #
 ########### START UNSUBMITTED
-
-Patch106: util-linux-2.11t-swaponsymlink-57301.patch.bz2
-Patch107: util-linux-2.11x-procpartitions-37436.patch.bz2
-Patch109: util-linux-2.11f-rawman.patch.bz2 
-Patch111: util-linux-2.11t-mkfsman.patch.bz2
-Patch114: util-linux-2.11t-dumboctal.patch.bz2
-Patch116: util-linux-2.11z-autodav.patch.bz2
-
-Patch120: util-linux-2.11t-alpha-buildfix.patch.bz2
+#
+Patch106:	util-linux-2.12-swaponsymlink-57301.patch.bz2
+Patch107:	util-linux-2.11x-procpartitions-37436.patch.bz2
+Patch109:	util-linux-2.11f-rawman.patch.bz2 
+Patch111:	util-linux-2.11t-mkfsman.patch.bz2
+Patch114:	util-linux-2.11t-dumboctal.patch.bz2
+Patch115:	util-linux-2.12-fix-ioctl.patch.bz2
+Patch116:	util-linux-2.12pre-autodav.patch.bz2
+Patch121:	util-linux-2.12-pamsec.patch.bz2
 ########### END UNSUBMITTED.
-
 ########
 # Mount patches
-Patch201: util-linux-2.11m-nolock-docs.patch.bz2
-Patch204: util-linux-2.11m-2gb.patch.bz2
-Patch206: util-linux-2.11m-kudzu.patch.bz2
-Patch207: util-linux-2.11x-swapon.patch.bz2
-Patch209: util-linux-2.11t-swapoff.patch.bz2
-Patch210: util-linux-2.11b-largefile.patch.bz2
-Patch211: util-linux-2.11z-user_label_umount.patch.bz2
-Patch213: util-linux-2.11z-loop-AES-v1.4h.patch.bz2
-Patch214: util-linux-2.11x-set-as-encrypted.patch.bz2
-Patch215: util-linux-2.11t-swapon-skip-encrypted.patch.bz2
-Patch216: util-linux-2.11y-nfsmount.patch.bz2
-Patch217: util-linux-2.11y-retryudp.patch.bz2
+Patch201:	util-linux-2.11m-nolock-docs.patch.bz2
+Patch204:	util-linux-2.11m-2gb.patch.bz2
+Patch206:	util-linux-2.11m-kudzu.patch.bz2
+Patch207:	util-linux-2.11x-swapon.patch.bz2
+Patch209:	util-linux-2.11t-swapoff.patch.bz2
+Patch210:	util-linux-2.12-largefile.patch.bz2
+Patch211:	util-linux-2.12-user_label_umount.patch.bz2
+Patch213:	util-linux-2.12-loop-AES-v2.0e.patch.bz2
+Patch214:	util-linux-2.11x-set-as-encrypted.patch.bz2
+Patch215:	util-linux-2.12-swapon-skip-encrypted.patch.bz2
+Patch216:	util-linux-2.11y-nfsmount.patch.bz2
+Patch217:	util-linux-2.11y-retryudp.patch.bz2
 # remove mode= from udf mounts (architecture done so that more may come)
-Patch218: util-linux-2.11z-mount-remove-silly-options-in-auto.patch.bz2
-
+Patch218:	util-linux-2.11z-mount-remove-silly-options-in-auto.patch.bz2
+#
 # Mandrake Specific patches
 # fix compilation related with miscfixes
 Patch1000:	util-linux-2.11h-fix-compilation.patch.bz2
@@ -91,15 +81,11 @@ Patch1201:	util-linux-2.10s-clock-syntax-ppc.patch.bz2
 Patch1202:	util-linux-2.11o-chfn-lsb-usergroups.patch.bz2
 # fix build on alpha with newer kernel-headers
 Patch1203:	util-linux-2.11m-cmos-alpha.patch.bz2
-# Make mcookie using urandom first
-Patch1204:	util-linux-2.11m-mcookie-urandom.patch.bz2
-# fix x86_64 support
-Patch1205:	util-linux-2.11x-x86_64.patch.bz2
 # handle biarch struct utmp[x]
 Patch1206:	util-linux-2.11u-biarch-utmp.patch.bz2
 
 Obsoletes:	fdisk tunelp
-provides: fdisk, tunelp
+provides:	fdisk, tunelp
 %ifarch alpha sparc sparc64 ppc
 Obsoletes:	clock
 %endif
@@ -109,8 +95,17 @@ Conflicts:	initscripts <= 4.58, timeconfig <= 3.0.1
 #%endif
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-root
+BuildRequires:	gcc
+BuildRequires:	sed
+BuildRequires:	pam-devel
+BuildRequires:	ncurses-devel
+BuildRequires:	termcap-devel
+BuildRequires:	texinfo
+BuildRequires:	slang-devel
+BuildRequires:	zlib-devel
+
 Requires:	pam >= 0.66-4, shadow-utils >= 20000902-5
-Prereq: mktemp /bin/awk /usr/bin/cmp coreutils
+Prereq:		mktemp, gawk, diffutils, coreutils
 
 %description
 The util-linux package contains a large variety of low-level system
@@ -119,8 +114,8 @@ others, Util-linux contains the fdisk configuration tool and the
 login program.
 
 %package -n mount
-Summary: Programs for mounting and unmounting filesystems.
-Group: System/Base
+Summary:	Programs for mounting and unmounting filesystems.
+Group:		System/Base
 
 %description -n mount
 The mount package contains the mount, umount, swapon and swapoff
@@ -132,8 +127,8 @@ from the tree.  Swapon and swapoff, respectively, specify and disable
 devices and files for paging and swapping.
 
 %package -n losetup
-Summary: Programs for setting up and configuring loopback devices.
-Group: System/Configuration/Networking
+Summary:	Programs for setting up and configuring loopback devices.
+Group:		System/Configuration/Networking
 
 %description -n losetup
 Linux supports a special block device called the loop device, which
@@ -145,7 +140,7 @@ device.
 
 %prep
 
-%setup -q -a 10 
+%setup -q -a 10 0n %{name}-%{version}
 
 %patch0 -p1 -b .rhconfig
 %patch1 -p1 -b .nochkdupexe
@@ -185,8 +180,6 @@ cp %{SOURCE8} %{SOURCE9} .
 %patch1203 -p1
 %endif
 
-#%patch1204 -p1
-%patch1205 -p1 -b .x86_64
 %patch1206 -p1 -b .biarch-utmp
 
 # mount patches
@@ -210,10 +203,10 @@ cp %{SOURCE8} %{SOURCE9} .
 %patch111 -p1 -b .mkfsman
                                                                
 # Third time's the charm
-#%patch113 -p1 -b .ctty3
 %patch114 -p1 -b .dumboctal
+%patch115 -p1 -b .fix-ioctl
 %patch116 -p1 -b .autodav
-#%patch120 -p1 -b .alpha-buildfix
+%patch121 -p1 -b .pamsec
 
 # USRLIB_DIR is %_libdir
 perl -pi -e "s|(USRLIB_DIR)\s*=\s*(.*)|\1=%{_libdir}|" ./MCONFIG
@@ -250,7 +243,7 @@ pushd sys-utils
 popd
 
 %install
-rm -rf ${RPM_BUILD_ROOT}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p ${RPM_BUILD_ROOT}/{bin,sbin}
 mkdir -p ${RPM_BUILD_ROOT}%{_bindir}
 mkdir -p ${RPM_BUILD_ROOT}%{_infodir}
@@ -332,7 +325,7 @@ rm -f $RPM_BUILD_ROOT/sbin/sln
 %find_lang %name
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
 %_install_info ipc.info
@@ -366,6 +359,7 @@ fi
 /sbin/pivot_root
 %ifnarch s390 s390x
 /sbin/clock
+%{_sbindir}/clock
 %endif
 /sbin/ctrlaltdel
 /sbin/elvtune
@@ -449,6 +443,7 @@ fi
 %_bindir/sunhostid
 %endif
 #%_bindir/tsort
+%_bindir/tailf
 %_bindir/ul
 %_bindir/whereis
 %attr(2755,root,tty)	%_bindir/write
@@ -504,6 +499,7 @@ fi
 %_mandir/man1/script.1*
 %_mandir/man1/setterm.1*
 #%_mandir/man1/tsort.1*
+%_mandir/man1/tailf.1*
 %_mandir/man1/ul.1*
 %_mandir/man1/whereis.1*
 %_mandir/man1/write.1*
@@ -557,6 +553,29 @@ fi
 /sbin/losetup
 
 %changelog
+* Fri Jun 11 2004 Vincent Danen <vdanen@opensls.org> 2.12-2sls
+- fix PreReq to be dependant on packages, not files
+
+* Thu Apr 22 2004 Vincent Danen <vdanen@opensls.org> 2.12-1sls
+- 2.12
+- sync with 2.12-2mdk:
+  - rediff P210, P211, P116 (tvignaud)
+  - rediff P215, P106 (nplanel)
+  - remove P1205; merged upstream (tvignaud)
+  - loop AES 2.0e (P213) (nplanel)
+  - new patche: P115; ioctl fix (nplanel)
+  - fix shadow-utils requires version (#284) (nplanel)
+- P121: make sure return code from pam_chauthtok is being checked (re: Steve
+  Grubb)
+- drop all unapplied patches: P81, P113, P120, P1204
+
+* Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 2.11z-9sls
+- minor spec cleanups
+
+* Mon Dec 01 2003 Vincent Danen <vdanen@opensls.org> 2.11z-8sls
+- OpenSLS build
+- tidy spec
+
 * Thu Aug 14 2003 Guillaume Cottenceau <gc@mandrakesoft.com> 2.11z-7mdk
 - fix segfault in my patch of 2.11z-6mdk, /me sux
 

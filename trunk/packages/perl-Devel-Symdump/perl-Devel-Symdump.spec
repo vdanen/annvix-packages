@@ -1,8 +1,7 @@
+%define name	perl-%{module}
 %define module	Devel-Symdump
 %define version 2.03
-%define release 4mdk
-
-Packager: Jean-Michel Dault <jmdault@mandrakesoft.com>
+%define release 7sls
 
 Summary:	%{module} module for perl
 Name:		perl-%{module}
@@ -10,10 +9,11 @@ Version:	%{version}
 Release:	%{release}
 License:	GPL or Artistic
 Group:		Development/Perl
+URL:		http://www.cpan.org
 Source0:	%{module}-%{version}.tar.bz2
-Url:		http://www.cpan.org
-BuildRequires:	perl-devel >= 0:5.600
+
 BuildRoot:	%{_tmppath}/%{name}-buildroot/
+BuildRequires:	perl-devel >= 0:5.600
 BuildArch:	noarch
 
 %description
@@ -27,12 +27,12 @@ BuildArch:	noarch
 make
 make test
 
-%clean 
-rm -rf $RPM_BUILD_ROOT
-
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
+
+%clean
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -41,6 +41,17 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/*/*
 
 %changelog
+* Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 2.03-7sls
+- rebuild for perl 5.8.4
+
+* Wed Feb 25 2004 Vincent Danen <vdanen@opensls.org> 2.03-6sls
+- rebuild for new perl
+- minor spec cleanups
+
+* Sat Jan 03 2004 Vincent Danen <vdanen@opensls.org> 2.03-5sls
+- OpenSLS build
+- tidy spec
+
 * Wed Aug 13 2003 Per Øyvind Karlsen <peroyvind@linux-mandrake.com> 2.03-4mdk
 - rebuild for new perl
 - drop $RPM_OPT_FLAGS, noarch..

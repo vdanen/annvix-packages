@@ -1,16 +1,18 @@
 %define name	mingetty
-%define version	1.00
-%define release	3mdk
+%define version	1.06
+%define release	2sls
 
 Summary: 	A compact getty program for virtual consoles only.
-Name: 		%name
-Version: 	%version
-Release: 	%release
-Group: 		System/Base
+Name: 		%{name}
+Version: 	%{version}
+Release: 	%{release}
 License: 	GPL
+Group: 		System/Base
+URL:		ftp://jurix.jura.uni-sb.de/pub/linux/source/system/daemon/
 Source0: 	ftp://jurix.jura.uni-sb.de/pub/linux/source/system/daemons/%{name}-%{version}.tar.bz2
-Url:		ftp://jurix.jura.uni-sb.de/pub/linux/source/system/daemon/
+BuildRequires:	dietlibc-devel >= 0.20
 Patch0:		mingetty-1.00-opt.patch.bz2
+
 BuildRoot: 	%{_tmppath}/%{name}-root
 
 %description
@@ -23,25 +25,46 @@ lines (you should use the mgetty program instead for that purpose).
 %patch0 -p1 -b .opt
 
 %build
+%ifarch amd64 x86_64
 %make
+%else
+make \
+    CC="diet gcc" \
+    CFLAGS="-Os -Wall -pipe -D_GNU_SOURCE -D_BSD_SOURCE" \
+    LDFLAGS="-Os -static -s"
+%endif
 
 %install
-rm -rf %buildroot
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p %buildroot/{sbin,%{_mandir}/man8}
 
 install -m 0755 mingetty %buildroot/sbin/
 install -m 0644 mingetty.8 %buildroot/%{_mandir}/man8/
 
 %clean
-rm -rf %buildroot
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
-%doc COPYING
 /sbin/mingetty
 %{_mandir}/man8/*
 
 %changelog
+* Wed Mar 17 2004 Oden Eriksson <oden.eriksson@opensls.org> 1.06-2sls
+- build it against dietlibc for x86 (problems with amd64)
+- nuke %%doc COPYING
+
+* Mon Mar 15 2004 Vincent Danen <vdanen@opensls.org> 1.06-1sls
+- 1.06
+
+* Sat Mar 06 2004 Vincent Danen <vdanen@opensls.org> 1.00-5sls
+- minor spec cleanups
+
+* Mon Dec 01 2003 Vincent Danen <vdanen@opensls.org> 1.00-4sls
+- OpenSLS build
+- tidy spec
+- regen P0 to use RPM_OPT_FLAGS and not RPM_OPTS
+
 * Tue Apr  8 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 1.00-3mdk
 - Rebuild to hande biarch struct utmp
 

@@ -1,10 +1,14 @@
+%define name	unixODBC
+%define version	2.2.6
+%define release	8sls
+
 %define LIBMAJ 	2
 %define libname %mklibname %name %LIBMAJ
 %define libgtkgui_major	0
 %define libgtkgui_name	%mklibname gtkodbcconfig %{libgtkgui_major}
 
-%define qt_gui  1
-%define gtk_gui 1
+%define qt_gui  0
+%define gtk_gui 0
 
 # Allow --with[out] <feature> at rpm command line build
 %{expand: %{?_without_QT:	%%global qt_gui 0}}
@@ -21,10 +25,12 @@
 %endif
 
 Summary: 	Unix ODBC driver manager and database drivers
-Name: 		unixODBC
-Version: 	2.2.6
-Release:	4mdk
-
+Name: 		%{name}
+Version: 	%{version}
+Release:	%{release}
+Group: 		Databases
+License: 	LGPL
+URL: 		http://www.unixODBC.org
 Source: 	http://www.unixodbc.org/%{name}-%{version}.tar.bz2
 Source2:	odbcinst.ini
 Source3:	qt-attic.tar.bz2
@@ -33,21 +39,17 @@ Patch0:		unixODBC-2.2.6-lib64.patch.bz2
 Patch1:		unixodbc-fix-compile-with-qt-3.1.1.patch.bz2
 Patch2:		unixodbc-fix-compile-with-qt-3.1.1.patch2.bz2
 
-Group: 		Databases
-License: 	LGPL
-URL: 		http://www.unixODBC.org
 BuildRoot: 	%_tmppath/%name-%version-%release-root
 # don't take away readline, we do want to build unixODBC with readline.
-BuildRequires:  bison flex readline-devel chrpath
+BuildRequires:	bison flex readline-devel chrpath
 %if %{update_libtool}
-BuildRequires:	gnome-common
 BuildRequires:	automake1.7
 %endif
 %if %{qt_gui}
 BuildRequires:  qt3-devel
 %endif
 %if %gtk_gui
-BuildRequires:	gnome-libs-devel
+BuildRequires:	gnome-libs-devel, gnome-common
 %endif
 
 %description
@@ -96,7 +98,7 @@ This package contains the include files and static libraries for development.
 %package gui-qt
 Summary: 	ODBC configurator, Data Source browser and ODBC test tool based on Qt
 Group: 		Databases
-Requires: 	%{name} = %version-%release
+Requires: 	%{name} = %version-%release %{libname}-qt
 
 %description gui-qt
 unixODBC aims to provide a complete ODBC solution for the Linux platform.
@@ -130,7 +132,8 @@ cd ../..
 %endif
 
 %build
-export QTDIR=%{_libdir}/qt3
+# QTDIR is always /usr/lib/qt3 because it has /lib{,64} in it too
+export QTDIR=%{_prefix}/lib/qt3
 
 # Search for qt/kde libraries in the right directories (avoid patch)
 # NOTE: please don't regenerate configure scripts below
@@ -140,7 +143,7 @@ perl -pi -e "s@/lib(\"|\b[^/])@/%_lib\1@g if /(kde|qt)_(libdirs|libraries)=/" co
 make
 
 %install
-rm -fr %buildroot
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 # Short Circuit Compliant (tm).
 [ ! -f doc/Makefile ] && {
@@ -153,6 +156,17 @@ rm -fr %buildroot
 
 install -m 644 %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/
 perl -pi -e "s,/lib/,/%{_lib}/," $RPM_BUILD_ROOT%{_sysconfdir}/odbcinst.ini
+
+# (sb) use the versioned symlinks, rather than the .so's, this should
+# eliminate the issues with requiring -devel packages or having
+# to override auto requires
+
+pushd %{buildroot}
+newlink=`find usr/%{_lib} -type l -name 'libodbcpsql.so.*' | tail -1`
+perl -pi -e "s,usr/%{_lib}/libodbcpsql.so,$newlink,g" %{buildroot}%{_sysconfdir}/odbcinst.ini
+newlink=`find usr/%{_lib} -type l -name 'libodbcpsqlS.so.*'`
+perl -pi -e "s,usr/%{_lib}/libodbcpsqlS.so,$newlink,g" %{buildroot}%{_sysconfdir}/odbcinst.ini
+popd
 
 %if %gtk_gui
 # gODBCConfig must be built after installing the main unixODBC parts
@@ -174,7 +188,7 @@ cd ..
 %endif
 
 # drill out shared libraries for gODBCConfig *sigh*
-# also rill out the Qt inst library that doesn't seem to be used at the moment
+# also drill out the Qt inst library that doesn't seem to be used at the moment
 # by anyone ATM?
 echo "%defattr(-,root,root)" > libodbc-libs.filelist
 find $RPM_BUILD_ROOT%_libdir -name '*.so.*' | sed -e "s|$RPM_BUILD_ROOT||g" | grep -v -e gtk -e instQ >> libodbc-libs.filelist
@@ -243,8 +257,14 @@ EOF
 
 find doc -name Makefile\* -exec rm {} \;
 
+%if !%{qt_gui}
+rm -f %{buildroot}%{_bindir}/{ODBCConfig,DataManager,DataManagerII,odbctest}
+rm -f %{buildroot}%{_libdir}/libodbcinstQ.so.1.0.0
+%endif
+
+
 %clean
-rm -rf $RPM_BUILD_ROOT 
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 rm -f libodbc-libs.filelist
 
 %if %gtk_gui
@@ -289,6 +309,7 @@ rm -f libodbc-libs.filelist
 
 
 %files -n %{libname} -f libodbc-libs.filelist
+%defattr(-,root,root)
 
 %files -n %{libname}-devel 
 %defattr(-,root,root)
@@ -326,6 +347,31 @@ rm -f libodbc-libs.filelist
 %endif
 
 %changelog
+* Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 2.2.6-8sls
+- minor spec cleanups
+
+* Mon Jan 12 2004 Vincent Danen <vdanen@opensls.org> 2.2.6-7sls
+- remove %%build_opensls macros
+- sync with 2.2.7-2mdk (sbenedict):
+  - move .so symlinks back to -devel, fix /etc/odbcinst.ini to point to the
+    versioned symlinks, this should satisfy Bugzilla [6769] as well as
+    Anthill [15]
+
+* Wed Dec 31 2003 Vincent Danen <vdanen@opensls.org> 2.2.6-6sls
+- sync with 5mdk (gbeauchesne): fix build on amd64
+- sync with 6mdk (sbenedict): anthill bug 51 - move postgres .so symlinks to
+  core lib for OOo
+- sync with 7mdk (sbenedict): add explicit requires to unixODBC-gui-qt
+  [Bug 6391]
+
+* Sat Dec 13 2003 Vincent Danen <vdanen@opensls.org> 2.2.6-5sls
+- OpenSLS build
+- tidy spec
+- use %%build_opensls to turn of QT/GTK+ stuff
+- remove some installed/unpackaged stuff since we don't build QT
+- move gnome-common req to only if we're building the GTK stuff as I don't
+  believe it's needed otherwise
+
 * Tue Sep  2 2003 Stew Benedict <sbenedict@mandrakesoft.com> 2.2.6-4mdk
 - fix buildrequires
 

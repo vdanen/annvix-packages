@@ -1,19 +1,26 @@
-Summary: A program for synchronizing files over a network.
-Name: rsync
-Version: 2.5.7
-Release: 1mdk
-Group: Networking/File transfer
-URL: http://rsync.samba.org/
-Source:	ftp://rsync.samba.org/pub/rsync/%name-%version.tar.gz.tgz
-Source1: rsync.html
-Source2: rsyncd.conf.html
-Source3: rsync.xinetd
-Source4: ftp://rsync.samba.org/pub/rsync/%name-%version.tar.gz.sig.tgz
-Patch0: rsync-2.5.4-draksync.patch.bz2
-Patch1: rsync-2.5.6-nogroup.patch.bz2
-BuildRoot: %_tmppath/%name-root
-License: GPL
-BuildRequires: popt-devel
+%define name	rsync
+%define version	2.6.2
+%define release	1sls
+
+Summary:	A program for synchronizing files over a network.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		Networking/File transfer
+URL:		http://rsync.samba.org/
+Source:		ftp://rsync.samba.org/pub/rsync/%name-%version.tar.gz
+Source1:	rsync.html
+Source2:	rsyncd.conf.html
+Source3:	rsync.xinetd
+Source4:	ftp://rsync.samba.org/pub/rsync/%name-%version.tar.gz.sig
+Source5:	rsync.run
+Source6:	rsync-log.run
+Patch0:		rsync-2.5.4-draksync.patch.bz2
+Patch1:		rsync-2.6.0-nogroup.patch.bz2
+
+BuildRoot:	%_tmppath/%name-root
+BuildRequires:	popt-devel
 
 %description
 Rsync uses a quick and reliable algorithm to very quickly bring
@@ -45,25 +52,56 @@ echo '#define HAVE_INET_PTON 1' >> config.h
 make test
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p $RPM_BUILD_ROOT{%_bindir,%_mandir/{man1,man5}}
 
 %makeinstall
 install -m644 %SOURCE1 %SOURCE2 .
 install -D -m 644 %SOURCE3 %buildroot%{_sysconfdir}/xinetd.d/rsync
+mkdir -p %{buildroot}%{_srvdir}/rsync/log
+install -m 0755 %{SOURCE5} %{buildroot}%{_srvdir}/rsync/run
+install -m 0755 %{SOURCE6} %{buildroot}%{_srvdir}/rsync/log/run
+mkdir -p %{buildroot}%{_srvlogdir}/rsync
+
+%post
+%_post_srv rsync
+
+%preun
+%_preun_srv rsync
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
+%doc tech_report.tex README COPYING *html
 %config(noreplace) %{_sysconfdir}/xinetd.d/%name
 %_bindir/rsync
+%dir %{_srvdir}/rsync
+%dir %{_srvdir}/rsync/log
+%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/rsync
+%{_srvdir}/rsync/run
+%{_srvdir}/rsync/log/run
 %_mandir/man1/rsync.1*
 %_mandir/man5/rsyncd.conf.5*
-%doc tech_report.tex README COPYING *html
 
 %changelog
+* Mon May 10 2004 Vincent Danen <vdanen@opensls.org> 2.6.2-1sls
+- 2.6.2 (security update for CAN-2004-0426)
+- rediff P1
+
+* Mon Dec 29 2003 Vincent Danen <vdanen@opensls.org> 2.5.7-3sls
+- minor spec cleanups
+- remove %%build_opensls macro
+- srv macros
+
+* Mon Dec 29 2003 Vincent Danen <vdanen@opensls.org> 2.5.7-3sls
+- put supervise scripts in here if %%build_opensls
+
+* Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 2.5.7-2sls
+- OpenSLS build
+- tidy spec
+
 * Thu Dec  4 2003 Warly <warly@mandrakesoft.com> 2.5.7-1mdk
 - new version (security fix)
 

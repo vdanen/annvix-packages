@@ -1,10 +1,10 @@
 %define name	netpbm
 %define version 9.24
-%define release 7mdk
+%define release 9sls
 
-%define major	9
-%define libname	%mklibname %{name} %{major}
-%define	libname_devel	%{libname}-devel
+%define major			9
+%define libname	%mklibname	%{name} %{major}
+%define	libname_devel		%{libname}-devel
 %define libname_static_devel	%{libname}-static-devel
 
 
@@ -14,25 +14,22 @@ Version:	%version
 Release:	%release
 License:	GPL Artistic MIT
 Group:		Graphics
-
+URL:		http://netpbm.sourceforge.net/
 Source0:	netpbm-%version-nojbig.tar.bz2
 Source1:	mf50-netpbm_filters
 Source2:	test-images.tar.bz2
-
 Patch0:		netpbm-9.8-install.patch.bz2
 Patch1:		netpbm-9.9-time.patch.bz2
 Patch2: 	netpbm-9.24-struct.patch.bz2
 Patch3:		netpbm-9.24-security-ac.patch
 Patch4:		netpbm-9.24-lib64.patch.bz2
 
-BuildRequires:	flex
-BuildRequires:	png-devel, jpeg-devel, tiff-devel
-Buildrequires:	/usr/bin/perl
-Buildroot:	%{_tmppath}/%{name}-%{version}-root-%(id -u -n)
+BuildRoot:	%{_tmppath}/%{name}-%{version}-root
+BuildRequires:	flex, png-devel, jpeg-devel, tiff-devel, /usr/bin/perl
+
 Requires:	%{libname} = %version-%release
 Obsoletes:	libgr-progs, libgr1-progs
 Provides:	libgr-progs, libgr1-progs
-Url:		http://netpbm.sourceforge.net/
 
 %description
 The netpbm package contains a library of functions which support
@@ -40,20 +37,20 @@ programs for handling various graphics file formats, including .pbm
 (portable bitmaps), .pgm (portable graymaps), .pnm (portable anymaps),
 .ppm (portable pixmaps) and others.
 
-%package	-n %{libname}
+%package -n %{libname}
 Summary:        A library for handling different graphics file formats
 Group:          System/Libraries
 Provides:	lib%name
 Provides:	libgr, libgr1, libnetpbm1
 Obsoletes:      libgr, libgr1, libnetpbm1
 
-%description 	-n %{libname}
+%description -n %{libname}
 The netpbm package contains a library of functions which support
 programs for handling various graphics file formats, including .pbm
 (portable bitmaps), .pgm (portable graymaps), .pnm (portable anymaps),
 .ppm (portable pixmaps) and others.
 
-%package 	-n %{libname_devel}
+%package -n %{libname_devel}
 Summary:	Development tools for programs which will use the netpbm libraries
 Group:		Development/C
 Requires:	%{libname} = %version-%release
@@ -61,7 +58,7 @@ Provides:	lib%{name}-devel
 Obsoletes:	libgr-devel, libgr1-devel, libnetpbm1-devel
 Provides:	libgr-devel, libgr1-devel, libnetpbm1-devel, netpbm-devel
 
-%description 	-n %{libname_devel}
+%description -n %{libname_devel}
 The netpbm-devel package contains the header files and programmer's
 documentation for developing programs which can handle the various
 graphics file formats supported by the netpbm libraries.
@@ -71,7 +68,7 @@ graphics file formats supported by the netpbm libraries. You'll also
 need to have the netpbm package installed.
 
 
-%package 	-n %{libname_static_devel}
+%package -n %{libname_static_devel}
 Summary:	Static libraries for the netpbm libraries
 Group:		Development/C
 Requires:	%{libname}-devel = %version-%release
@@ -79,7 +76,7 @@ Provides:	lib%{name}-static-devel
 Obsoletes:	libgr-static-devel, libgr1-static-devel, libnetpbm1-static-devel
 Provides:	libgr-static-devel, libgr1-static-devel, libnetpbm1-static-devel, netpbm-static-devel
 
-%description 	-n %{libname_static_devel}
+%description -n %{libname_static_devel}
 The netpbm-devel package contains the staic libraries (.a)
 for developing programs which can handle the various
 graphics file formats supported by the netpbm libraries.
@@ -127,7 +124,7 @@ make \
 
 
 %install
-rm -rf %buildroot
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 # thanx redhat
 # Nasty hack to work around a useless ldconfig script
@@ -184,7 +181,7 @@ ln -sf libppm.so.9 %buildroot/%{_libdir}/libppm.so
 perl -pi -e 's^/bin/perl^%{__perl}^' %buildroot/%{_bindir}/{ppmfade,ppmshadow}
 
 %clean
-rm -rf %buildroot
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post   -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
@@ -196,19 +193,17 @@ rm -rf %buildroot
 
 %files 	-n %{libname_devel}
 %defattr(-,root,root)
-%doc COPYRIGHT.PATENT Netpbm.programming
+%doc Netpbm.programming
 %{_includedir}/*.h
 %attr(755,root,root) %{_libdir}/lib*.so
 %{_mandir}/man3/*
 
 %files 	-n %{libname_static_devel}
 %defattr(-,root,root)
-%doc COPYRIGHT.PATENT
 %{_libdir}/*.a
 
 %files
 %defattr(-,root,root)
-%doc COPYRIGHT.PATENT
 %attr(755,root,root) %{_bindir}/*
 %{_mandir}/man[15]/*
 %{_datadir}/%{name}-%{version}/*.map
@@ -217,6 +212,13 @@ rm -rf %buildroot
 
 
 %changelog
+* Sun Mar 07 2004 Vincent Danen <vdanen@opensls.org> 9.24-9sls
+- minor spec cleanups
+
+* Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 9.24-8sls
+- OpenSLS build
+- tidy spec
+
 * Wed Jul 30 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 9.24-7mdk
 - Patch4: lib64 fixes
 - Factor out mklibname invocations

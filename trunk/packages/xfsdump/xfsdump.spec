@@ -1,17 +1,18 @@
 %define	name	xfsdump
 %define	version	2.2.16
-%define	release	1mdk
+%define	release	1sls
 
 Summary:	Administrative utilities for the XFS filesystem.
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
-Source0:	%{name}-%{version}.src.tar.bz2
 License:	GPL
 Group:		System/Kernel and hardware
-BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
 URL:		http://oss.sgi.com/projects/xfs/
-BuildRequires:	attr-devel libext2fs-devel xfs-devel dm-devel
+Source0:	%{name}-%{version}.src.tar.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
+BuildRequires:	attr-devel, libext2fs-devel, xfs-devel >= 2.6.0, dm-devel
 BuildRequires:	ncurses-devel
 
 %description
@@ -33,6 +34,7 @@ subtrees may be restored from full or partial backups.
 
 %prep
 %setup -q
+
 # make it lib64 aware, better make a patch?
 perl -pi -e "/(libuuid|pkg_s?lib_dir)=/ and s|/lib\b|/%{_lib}|;" configure
 
@@ -41,13 +43,14 @@ perl -pi -e "/(libuuid|pkg_s?lib_dir)=/ and s|/lib\b|/%{_lib}|;" configure
 %make
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 make install DIST_ROOT=%{buildroot}/
 
 # nuke files already packaged as %doc
 rm -rf %{buildroot}%{_datadir}/doc/xfsdump/
+
 %clean
-rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -57,6 +60,11 @@ rm -rf %{buildroot}
 %{_mandir}/*/*
 
 %changelog
+* Sun Feb 29 2004 Vincent Danen <vdanen@opensls.org> 2.2.16-1sls
+- OpenSLS build
+- tidy spec
+- BuildRequires: xfs-devel >= 2.6.0
+
 * Thu Feb 26 2004 Thomas Backlund <tmb@mandrake.org> 2.2.16-1mdk
 - done by Per Øyvind Karlsen
   * 2.2.16

@@ -1,18 +1,20 @@
-%define	name	perl-Digest-SHA1
-%define	real_name Digest-SHA1
-%define	version	2.02
-%define	release	3mdk
+%define module	Digest-SHA1
+%define	name	perl-%{module}
+%define	version	2.04
+%define	release	4sls
 
 Summary:	Perl interface to the SHA1 Algorithm	
 Name:		%{name}
-Version:	2.04
-Release:	1mdk
+Version:	%{version}
+Release:	%{release}
 License:	GPL or Artistic
 Group:		Development/Perl
-Source:		http://www.cpan.org/authors/id/GAAS/%{real_name}-%{version}.tar.bz2
 URL:		http://www.cpan.org
-BuildRequires:	perl-devel
+Source:		http://www.cpan.org/authors/id/GAAS/%{module}-%{version}.tar.bz2
+
 BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildRequires:	perl-devel
+
 Provides:	perl-SHA1
 Requires:	perl
 
@@ -20,7 +22,7 @@ Requires:	perl
 Digest-SHA1 module for perl.
 
 %prep
-%setup -q -n %{real_name}-%{version}
+%setup -q -n %{module}-%{version}
 
 %build
 %{__perl} Makefile.PL INSTALLDIRS=vendor
@@ -28,11 +30,11 @@ Digest-SHA1 module for perl.
 make test
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
 %clean 
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -42,6 +44,17 @@ rm -rf $RPM_BUILD_ROOT
 %{perl_vendorarch}/auto
 
 %changelog
+* Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 2.04-4sls
+- rebuild for perl 5.8.4
+
+* Wed Feb 25 2004 Vincent Danen <vdanen@opensls.org> 2.04-3sls
+- rebuild for new perl
+- minor spec cleanups
+
+* Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 2.04-2sls
+- OpenSLS build
+- tidy spec
+
 * Thu Aug 21 2003 François Pons <fpons@mandrakesoft.com> 2.04-1mdk
 - 2.04.
 

@@ -1,18 +1,20 @@
-%define name m4
+%define name	m4
 %define version 1.4ppre2
-%define release 4mdk
+%define release 6sls
 
-Summary: The GNU macro processor.
-Name: %{name}
-Version: %{version}
-Release: %{release}
-License: GPL
-Group: Development/Other
-Url: http://www.seindal.dk/rene/gnu/
-Source: ftp://ftp.gnu.org/pub/gnu/m4-1.4.tar.bz2
-Patch: m4-1.4-glibc.patch.bz2
-Buildroot: %{_tmppath}/%{name}-buildroot
-Prereq: /sbin/install-info
+Summary:	The GNU macro processor.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		Development/Other
+URL:		http://www.seindal.dk/rene/gnu/
+Source:		ftp://ftp.gnu.org/pub/gnu/m4-1.4.tar.bz2
+Patch:		m4-1.4-glibc.patch.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-buildroot
+
+Prereq:		/sbin/install-info
 
 %description
 A GNU implementation of the traditional UNIX macro processor.  M4 is
@@ -25,7 +27,7 @@ not for running configure scripts.
 Install m4 if you need a macro processor.
 
 %prep
-%setup -n %name-1.4
+%setup -q -n %name-1.4
 
 %patch -p1
 
@@ -40,14 +42,11 @@ CFLAGS="$RPM_OPT_FLAGS" ./configure i586-mandrake-linux --prefix=%_prefix --exec
 make check
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
 
-%files
-%defattr(-,root,root)
-%doc NEWS README COPYING BACKLOG INSTALL THANKS ChangeLog
-%{_bindir}/m4
-%{_infodir}/*
+%clean
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
 /sbin/install-info %{_infodir}/m4.info.bz2 %{_infodir}/dir
@@ -57,10 +56,20 @@ if [ "$1" = 0 ]; then
     /sbin/install-info --delete %{_infodir}/m4.info.bz2 %{_infodir}/dir
 fi
 
-%clean
-rm -rf $RPM_BUILD_ROOT
+%files
+%defattr(-,root,root)
+%doc NEWS README COPYING BACKLOG INSTALL THANKS ChangeLog
+%{_bindir}/m4
+%{_infodir}/*
 
 %changelog
+* Sat Mar 06 2004 Vincent Danen <vdanen@opensls.org> 1.4ppre2-6sls
+- minor spec cleanups
+
+* Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 1.4ppre2-5sls
+- OpenSLS build
+- tidy spec
+
 * Wed Jul 23 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 1.4ppre2-4mdk
 - rebuild
 - rm -rf $RPM_BUILD_ROOT in %%install, not %%prep

@@ -1,7 +1,7 @@
-%define	name	perl-IO-Tty
 %define	module	IO-Tty
+%define	name	perl-%{module}
 %define	version	1.02
-%define	release	7mdk
+%define	release	11sls
 
 Summary:	IO-Tty perl module: interface to pseudo tty's
 Name: 		%{name}
@@ -9,10 +9,12 @@ Version: 	%{version}
 Release:	%{release} 
 License: 	GPL
 Group: 		Development/Perl
-Url:		http://www.cpan.org
+URL:		http://www.cpan.org
 Source:		ftp://ftp.perl.org/pub/CPAN/modules/by-module/IO/%{module}-%{version}.tar.bz2
+
 BuildRoot: 	%{_tmppath}/%{name}-buildroot
 BuildRequires:	perl-devel
+
 Requires: 	perl 
 
 %description
@@ -23,28 +25,42 @@ The IO::Tty and IO::Pty modules provide an interface to pseudo tty's.
 %setup -q -n %{module}-%{version}
 
 %build
-
 CFLAGS="$RPM_OPT_FLAGS" %{__perl} Makefile.PL INSTALLDIRS=vendor
 %make
 make test
 
 %install
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
 %clean 
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(644,root,root,755)
 %doc ChangeLog README
-%dir %{perl_vendorlib}/%{_arch}-linux-thread-multi/auto/IO/Tty
-%{perl_vendorlib}/%{_arch}-linux-thread-multi/auto/IO/Tty/*
-%{perl_vendorlib}/%{_arch}-linux-thread-multi/IO/*.pm
-%dir %{perl_vendorlib}/%{_arch}-linux-thread-multi/IO/Tty
-%{perl_vendorlib}/%{_arch}-linux-thread-multi/IO/Tty/*
+%dir %{perl_vendorarch}/auto/IO/Tty
+%{perl_vendorarch}/auto/IO/Tty/*
+%{perl_vendorarch}/IO/*.pm
+%dir %{perl_vendorarch}/IO/Tty
+%{perl_vendorarch}/IO/Tty/*
 %{_mandir}/*/*
 
 %changelog
+* Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 1.02-11sls
+- rebuild for perl 5.8.4
+
+* Fri Feb 27 2004 Vincent Danen <vdanen@opensls.org> 1.02-10sls
+- rebuild for new perl
+- minor spec cleanups
+
+* Wed Dec 31 2003 Vincent Danen <vdanen@opensls.org> 1.02-9sls
+- sync with 8mdk (gbeauchesne): fix build on amd64
+
+* Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 1.02-8sls
+- OpenSLS build
+- tidy spec
+
 * Wed Aug 13 2003 Per Øyvind Karlsen <peroyvind@linux-mandrake.com> 1.02-7mdk
 - rebuild for new perl
 - use %%make macro

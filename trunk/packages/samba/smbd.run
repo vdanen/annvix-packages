@@ -1,0 +1,6 @@
+#!/bin/sh
+PATH="/sbin:/usr/sbin:/bin:/usr/bin:$PATH"
+
+# this runs smbd under supervise
+
+exec /usr/sbin/smbd -i 2>&1

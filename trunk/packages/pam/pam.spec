@@ -1,102 +1,109 @@
-%define rhrelease 1
-%define pwdb_version 0.62
-%define db_version 4.1.25
+%define name	pam
+%define version	0.77
+%define release	13sls
 
-Summary: A security tool which provides authentication for applications.
-Name: pam
-Version: 0.77
-Release: 9mdk
-License: GPL or BSD
-Group: System/Libraries
-Source: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
-Source1: pam-redhat-%{version}-%{rhrelease}.tar.bz2
-Source2: other.pamd
-Source3: system-auth.pamd
-Source4: install-sh
-Patch0: pam-0.77-modutil-thread.patch.bz2
-Patch1: pam-0.77-include_path.patch.bz2
-Patch2: pam-0.77-build.patch.bz2
-Patch3: pam-0.75-linkage.patch.bz2
-Patch4: pam-0.75-prompt.patch.bz2
-Patch5: pam-0.75-return.patch.bz2
-Patch6: pam-0.75-security.patch.bz2
-Patch7: pam-0.77-string.patch.bz2
-Patch8: pam-0.77-userdb.patch.bz2
-Patch9: pam-0.75-group-reinit.patch.bz2
-Patch10: pam-0.77-lastlog-utmp.patch.bz2
-Patch11: pam-0.77-securetty-fail.patch.bz2
-Patch12: pam-0.75-time.patch.bz2
-Patch13: pam-0.77-issue.patch.bz2
-Patch14: pam-0.77-doc-rhl.patch.bz2
-Patch15: pam-0.77-bigcrypt-main.patch.bz2
-Patch16: pam-0.77-cracklib-init.patch.bz2
-Patch17: pam-0.77-filter-comments.patch.bz2
-Patch18: pam-0.75-unix-loop.patch.bz2
-Patch19: pam-0.77-unix-preserve.patch.bz2
-Patch20: pam-0.77-unix-brokenshadow.patch.bz2
-Patch21: pam-0.77-unix-hpux-aging.patch.bz2
-Patch22: pam-0.77-unix-nis.patch.bz2
-Patch23: pam-0.77-unix-nullok.patch.bz2
-Patch24: pam-0.77-issue-heap.patch.bz2
-Patch25: pam-0.75-listfile-tty.patch.bz2
-Patch26: pam-0.77-misc-err.patch.bz2
-Patch27: pam-0.77-unix-aixhash.patch.bz2
-Patch28: pam-0.75-sgml2latex.patch.bz2
-Patch29: pam-0.77-multicrack.patch.bz2
-Patch30: pam-0.75-isa.patch.bz2
-Patch31: pam-0.77-utmp-dev.patch.bz2
-Patch32: pam-0.77-pwdb-static.patch.bz2
-Patch33: pam-0.77-nss-reentrant.patch.bz2
-Patch34: pam-0.77-dbpam.patch.bz2
+%define rhrelease	1
+%define pwdb_version	0.62
+%define db_version	4.1.25
+%define libname		%mklibname %name 0
 
-Patch500: pam-0.77-mdkconf.patch.bz2
-Patch501: pam-0.74-loop.patch.bz2
-Patch502: pam-0.75-console-dead-x.patch.bz2
-Patch503: pam-0.77-devfsd.patch.bz2
-Patch504: pam-0.77-console-reset.patch.bz2
-Patch506: pam-0.77-lib64.patch.bz2
-patch507: pam-0.75-time-tty.patch.bz2
+Summary:	A security tool which provides authentication for applications.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL or BSD
+Group:		System/Libraries
+URL:		http://www.us.kernel.org/pub/linux/libs/pam/index.html
+Source:		ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
+Source1:	pam-redhat-%{version}-%{rhrelease}.tar.bz2
+Source2:	other.pamd
+Source3:	system-auth.pamd
+Source4:	install-sh
+Patch0:		pam-0.77-modutil-thread.patch.bz2
+Patch1:		pam-0.77-include_path.patch.bz2
+Patch2:		pam-0.77-build.patch.bz2
+Patch3:		pam-0.75-linkage.patch.bz2
+Patch4:		pam-0.75-prompt.patch.bz2
+Patch5:		pam-0.75-return.patch.bz2
+Patch6:		pam-0.75-security.patch.bz2
+Patch7:		pam-0.77-string.patch.bz2
+Patch8:		pam-0.77-userdb.patch.bz2
+Patch9:		pam-0.75-group-reinit.patch.bz2
+Patch10:	pam-0.77-lastlog-utmp.patch.bz2
+Patch11:	pam-0.77-securetty-fail.patch.bz2
+Patch12:	pam-0.75-time.patch.bz2
+Patch13:	pam-0.77-issue.patch.bz2
+Patch14:	pam-0.77-doc-rhl.patch.bz2
+Patch15:	pam-0.77-bigcrypt-main.patch.bz2
+Patch16:	pam-0.77-cracklib-init.patch.bz2
+Patch17:	pam-0.77-filter-comments.patch.bz2
+Patch18:	pam-0.75-unix-loop.patch.bz2
+Patch19:	pam-0.77-unix-preserve.patch.bz2
+Patch20:	pam-0.77-unix-brokenshadow.patch.bz2
+Patch21:	pam-0.77-unix-hpux-aging.patch.bz2
+Patch22:	pam-0.77-unix-nis.patch.bz2
+Patch23:	pam-0.77-unix-nullok.patch.bz2
+Patch24:	pam-0.77-issue-heap.patch.bz2
+Patch25:	pam-0.75-listfile-tty.patch.bz2
+Patch26:	pam-0.77-misc-err.patch.bz2
+Patch27:	pam-0.77-unix-aixhash.patch.bz2
+Patch28:	pam-0.75-sgml2latex.patch.bz2
+Patch29:	pam-0.77-multicrack.patch.bz2
+Patch30:	pam-0.75-isa.patch.bz2
+Patch31:	pam-0.77-utmp-dev.patch.bz2
+Patch32:	pam-0.77-pwdb-static.patch.bz2
+Patch33:	pam-0.77-nss-reentrant.patch.bz2
+Patch34:	pam-0.77-dbpam.patch.bz2
+
+Patch500:	pam-0.77-mdkconf.patch.bz2
+Patch501:	pam-0.74-loop.patch.bz2
+Patch502:	pam-0.75-console-dead-x.patch.bz2
+Patch503:	pam-0.77-devfsd.patch.bz2
+Patch504:	pam-0.77-console-reset.patch.bz2
+Patch506:	pam-0.77-lib64.patch.bz2
+patch507:	pam-0.75-time-tty.patch.bz2
 # (fc) 0.75-29mdk don't complain when / is owned by root.adm
-Patch508: Linux-PAM-0.75-pamtimestampadm.patch.bz2
-Patch509: pam-0.75-biarch-utmp.patch.bz2
-Patch510: pam-0.77-sigchld.patch.bz2
-Patch511: pam-0.77-verbose-limits.patch.bz2
-Patch512: pam-0.77-xauth-groups.patch.bz2
+Patch508:	Linux-PAM-0.75-pamtimestampadm.patch.bz2
+Patch509:	pam-0.75-biarch-utmp.patch.bz2
+Patch510:	pam-0.77-sigchld.patch.bz2
+Patch511:	pam-0.77-verbose-limits.patch.bz2
+Patch512:	pam-0.77-xauth-groups.patch.bz2
 
-Buildroot: %{_tmppath}/%{name}-%{version}-root
-Requires: cracklib-dicts, pwdb >= 0.54-2, initscripts >= 3.94
-PreReq: rpm-helper
-BuildRequires: bison cracklib-devel flex glib-devel pwdb-devel
-BuildRequires: linuxdoc-tools db4-devel
+Patch600:	pam-0.77-opensls.patch.bz2
 
-Obsoletes: pamconfig
-Provides: pamconfig
-Url: http://www.us.kernel.org/pub/linux/libs/pam/index.html
+BuildRoot:	%{_tmppath}/%{name}-%{version}-root
+BuildRequires:	bison cracklib-devel flex glib-devel pwdb-devel
+BuildRequires:	db4-devel
+
+Requires:	cracklib-dicts, pwdb >= 0.54-2, initscripts >= 3.94
+PreReq:		rpm-helper
+Obsoletes:	pamconfig
+Provides:	pamconfig
 
 %description
 PAM (Pluggable Authentication Modules) is a system security tool
 which allows system administrators to set authentication policy
 without having to recompile programs which do authentication.
 
-%package doc
-Summary: Additional documentation for %{name}
-Group: System/Libraries
-PreReq: %{name} = %version-%release
-BuildRequires: tetex-latex sgml-tools
+%package -n %{libname}
+Summary:	Libraries for %{name}
+Group:		System/Libraries
+Conflicts:	%{name} < 0.77-11sls
 
-%package devel
-Summary: Development headers and libraries for %{name}
-Group: 	Development/Other
-PreReq: %{name} = %version-%release
+%description -n %{libname}
+PAM (Pluggable Authentication Modules) is a system security tool
+which allows system administrators to set authentication policy
+without having to recompile programs which do authentication.
 
-%description doc
-PAM (Pluggable Authentication Modules) is a system security tool which
-allows system administrators to set authentication policy without
-having to recompile programs which do authentication.
 
-This is the documentation package of %{name}
+%package -n %{libname}-devel
+Summary:	Development headers and libraries for %{name}
+Group:		Development/Other
+PreReq:		%{libname} = %version-%release
+Provides:	%{name}-devel = %version-%release
+Obsoletes:	%{name}-devel <= 0.77-10sls
 
-%description devel
+%description -n %{libname}-devel
 PAM (Pluggable Authentication Modules) is a system security tool
 which allows system administrators to set authentication policy
 without having to recompile programs which do authentication.
@@ -156,6 +163,8 @@ cp %{SOURCE4} .
 %patch511 -p1 -b .verbose-limits
 %patch512 -p1 -b .xauth-groups
 
+%patch600 -p0 -b .opensls
+
 for readme in modules/pam_*/README ; do
 	cp -fv ${readme} doc/txts/README.`dirname ${readme} | sed -e 's|^modules/||'`
 done
@@ -175,7 +184,7 @@ CFLAGS="$RPM_OPT_FLAGS -fPIC" \
 make
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p $RPM_BUILD_ROOT%{_includedir}/security
 mkdir -p $RPM_BUILD_ROOT/%{_lib}/security
 make install FAKEROOT=$RPM_BUILD_ROOT LDCONFIG=:
@@ -208,13 +217,10 @@ rm -rf $RPM_BUILD_ROOT/%{_lib}/libpam{.a,c.*} \
   $RPM_BUILD_ROOT%{_datadir}/doc/pam
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-%pre
-%_pre_groupadd video
-
-%post -p /sbin/ldconfig
-%postun -p /sbin/ldconfig
+%post -n %libname -p /sbin/ldconfig
+%postun -n %libname -p /sbin/ldconfig
 
 %files
 %defattr(-,root,root)
@@ -227,21 +233,24 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) /etc/security/limits.conf
 %config(noreplace) /etc/security/pam_env.conf
 %config(noreplace) /etc/security/console.perms
-/%{_lib}/libpam.so.*
-/%{_lib}/libpam_misc.so.*
 %attr(4755,root,root) /sbin/pwdb_chkpwd
 /sbin/unix_chkpwd
 /sbin/pam_console_apply
 /sbin/pam_tally
 /sbin/pam_timestamp_check
-%dir /%{_lib}/security
-/%{_lib}/security/*.so
 %dir /etc/security/console.apps
 %dir /var/run/console
 %{_mandir}/man5/*
 %{_mandir}/man8/*
 
-%files devel
+%files -n %{libname}
+%defattr(-,root,root)
+/%{_lib}/libpam.so.*
+/%{_lib}/libpam_misc.so.*
+%dir /%{_lib}/security
+/%{_lib}/security/*.so
+
+%files -n %{libname}-devel
 %defattr(-,root,root)
 %doc Copyright
 /%{_lib}/libpam.so
@@ -250,11 +259,24 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/security/*.h
 %{_mandir}/man3/*
 
-%files doc
-%defattr(-,root,root)
-%doc doc/html doc/ps doc/txts doc/pdf doc/specs/rfc86.0.txt Copyright
-
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 0.77-13sls
+- minor spec cleanups
+
+* Fri Feb 06 2004 Vincent Danen <vdanen@opensls.org> 0.77-12sls
+- remove %%build_opensls macro
+- fix pam_console config for our removed groups (P600)
+- don't add group video here
+
+* Wed Dec 31 2003 Vincent Danen <vdanen@opensls.org> 0.77-11sls
+- sync with 10mdk (flepied): libification
+
+* Wed Dec 03 2003 Vincent Danen <vdanen@opensls.org> 0.77-10sls
+- OpenSLS build
+- tidy spec
+- don't build doc for %%build_opensls
+- put BuildReq on linuxdoc-tools for the doc package
+
 * Mon Sep  1 2003 Frederic Lepied <flepied@mandrakesoft.com> 0.77-9mdk
 - added a prereq on rpm-helper
 

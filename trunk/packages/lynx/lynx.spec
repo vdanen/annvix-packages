@@ -1,27 +1,30 @@
+%define name	lynx
 %define version 2.8.5
-%define versio_ 2-8-5
-%define subver dev.12
+%define release	0.%{subver}.16sls
+%define epoch	1
+
+%define versio_	2-8-5
+%define subver	dev.12
 
 Summary:	Text based browser for the world wide web
-Name:		lynx
+Name:		%{name}
 Version:	%{version}
-Release:	0.14mdk.%{subver}
+Release:	%{release}
+Epoch:		%{epoch}
 License:	GPL
-URL:		http://lynx.isc.org
 Group:		Networking/WWW
-BuildRequires:	gettext
-BuildRequires:	openssl-devel
-BuildRequires:	ncurses-devel
-Source0: http://lynx.isc.org/current/%name%{version}%{subver}.tar.bz2
-Patch0: lynx2-8-5-adapt-to-modern-file-localizations.patch.bz2
-Patch1: lynx2-8-5-default-config.patch.bz2
-Patch2: lynx2-8-4-fix-ugly-color.patch.bz2
-Patch10: lynx2-8-5-tmp_dir.patch.bz2
-Patch11: lynx2-8-5-don-t-accept-command-line-args-to-telnet.patch.bz2
+URL:		http://lynx.isc.org
+Source0:	http://lynx.isc.org/current/%name%{version}%{subver}.tar.bz2
+Patch0:		lynx2-8-5-adapt-to-modern-file-localizations.patch.bz2
+Patch1:		lynx2-8-5-default-config.patch.bz2
+Patch2:		lynx2-8-4-fix-ugly-color.patch.bz2
+Patch10:	lynx2-8-5-tmp_dir.patch.bz2
+Patch11:	lynx2-8-5-don-t-accept-command-line-args-to-telnet.patch.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root
+BuildRequires:	openssl-devel, zlib-devel, gettext, ncurses-devel
+
 Provides:	webclient lynx-ssl
-Buildroot:	%{_tmppath}/%{name}-%{version}-%{release}-root
-BuildRequires:	openssl-devel
-BuildRequires:	zlib-devel
 Obsoletes:	lynx-ssl
 
 %description
@@ -30,9 +33,6 @@ at displaying graphics, it has good support for HTML text formatting,
 forms, and tables.
 
 This version includes support for SSL encryption.
-
-WARNING: In some countries, it is illegal to export this package. In some
-countries, it may even be illegal to use it.
 
 
 %prep
@@ -87,7 +87,7 @@ OTHER`
 %make
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std install-help
 
 install -d $RPM_BUILD_ROOT%{_sysconfdir}
@@ -98,7 +98,7 @@ EOF
 %find_lang lynx
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %triggerpostun -- lynx < 2.8.5-0.13mdk.dev.12
 # handle lynx.cfg move from /etc to /usr/share/lynx
@@ -117,6 +117,14 @@ fi
 %{_datadir}/lynx
 
 %changelog
+* Sat Mar 06 2004 Vincent Danen <vdanen@opensls.org> 2.8.5-0.dev.12.16sls
+- minor spec cleanups
+
+* Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 2.8.5-0.dev.12.15sls
+- OpenSLS build
+- tidy spec
+- Epoch: 1 because we make the release tag make more sense
+
 * Wed Jul 23 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 2.8.5-0.14mdk.dev.12
 - rebuild
 

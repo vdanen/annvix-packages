@@ -1,17 +1,19 @@
 %define module 	Authen-PAM
+%define name	perl-%{module}
 %define version 0.14
-%define release 3mdk
+%define release 6sls
 
 Summary:	Perl interface to the PAM library
-Name: 		perl-%{module}
+Name: 		%{name}
 Version: 	%{version}
 Release: 	%{release}
 License:	GPL or Artistic
 Group:		Development/Perl
 URL:		http://www.cs.kuleuven.ac.be/~pelov/pam/
 Source0:	%{module}-%{version}.tar.bz2
-BuildRequires:	pam-devel perl-devel
+
 BuildRoot: 	%{_tmppath}/%{name}-%{version}-buildroot
+BuildRequires:	pam-devel perl-devel
 
 %description
 The Authen::PAM module provides a Perl interface to the PAM library.
@@ -27,11 +29,11 @@ one is simpler.
 
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
 %clean 
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -42,6 +44,17 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 0.14-6sls
+- rebuild for perl 5.8.4
+
+* Wed Feb 25 2004 Vincent Danen <vdanen@opensls.org> 0.14-5sls
+- rebuild for new perl
+- small spec cleanups
+
+* Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 0.14-4sls
+- OpenSLS build
+- tidy spec
+
 * Wed Aug 13 2003 Per Øyvind Karlsen <peroyvind@linux-mandrake.com> 0.14-3mdk
 - rebuild for new perl
 - don't use PREFIX

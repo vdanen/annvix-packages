@@ -1,92 +1,61 @@
-%define srcver 1.3
-%define LIBMAJ 1
-%define libname %mklibname %name %LIBMAJ
+%define name	krb5
+%define version	1.3
+%define release	8sls
+
+%define srcver	1.3
+%define LIBMAJ	1
+%define libname	%mklibname %name %LIBMAJ
 %define libnamedev %{libname}-devel
 
-Summary: The Kerberos network authentication system.
-Name: krb5
-Version: 1.3
-Release: 3mdk
-Source0: %{name}-%{version}.tar.gz
-Source1: kpropd.init.bz2
-Source2: krb524d.init.bz2
-Source3: kadmind.init.bz2
-Source4: krb5kdc.init.bz2
-Source5: krb5.conf.bz2
-Source6: krb5.sh.bz2
-Source7: krb5.csh.bz2
-Source8: kdcrotate.bz2
-Source9: kdc.conf.bz2
-Source10: kadm5.acl.bz2
-Source11: krsh.bz2
-Source12: krlogin.bz2
-Source13: eklogin.xinetd.bz2
-Source14: klogin.xinetd.bz2
-Source15: kshell.xinetd.bz2
-Source16: telnet-krb5.xinetd.bz2
-Source17: ftp-krb5.xinetd.bz2
-Source18: krb5server.init.bz2
-Source19: statglue.c.bz2
-Source20: telnet.16.xpm.bz2
-Source21: telnet.32.xpm.bz2
-Source22: telnet.48.xpm.bz2
-Source23: Mandrake-Kerberos-HOWTO.html.bz2
-Source24: %{name}-%{version}.tar.gz.asc
-Source25: http://web.mit.edu/kerberos/www/advisories/2003-004-krb4_patchkit.tar.gz
-Source26: http://web.mit.edu/kerberos/www/advisories/2003-004-krb4_patchkit.sig
+Summary:	The Kerberos network authentication system.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	MIT
+Group:		System/Libraries
+URL:		http://web.mit.edu/kerberos/www/
+Source0:	%{name}-%{version}.tar.gz
+Source1:	kpropd.init.bz2
+Source2:	krb524d.init.bz2
+Source3:	kadmind.init.bz2
+Source4:	krb5kdc.init.bz2
+Source5:	krb5.conf.bz2
+Source6:	krb5.sh.bz2
+Source7:	krb5.csh.bz2
+Source8:	kdcrotate.bz2
+Source9:	kdc.conf.bz2
+Source10:	kadm5.acl.bz2
+Source11:	krsh.bz2
+Source12:	krlogin.bz2
+Source18:	krb5server.init.bz2
+Source19:	statglue.c.bz2
+Source23:	Mandrake-Kerberos-HOWTO.html.bz2
+Source24:	%{name}-%{version}.tar.gz.asc
+Source25:	http://web.mit.edu/kerberos/www/advisories/2003-004-krb4_patchkit.tar.gz
+Source26:	http://web.mit.edu/kerberos/www/advisories/2003-004-krb4_patchkit.sig
+Source27:	ktelnet.run
+Source28:	ktelnet-log.run
+Source29:	kftp.run
+Source30:	kftp-log.run
+Source31:	kadmind.run
+Source32:	kadmind-log.run
+Source33:	kpropd.run
+Source34:	kpropd-log.run
+Source35:	krb5kdc.run
+Source36:	krb5kdc-log.run
+Source37:	krb524d.run
+Source38:	krb524d-log.run
+Patch0:		krb5-1.2.2-telnetbanner.patch.bz2
+Patch1:		krb5-1.2.5-biarch-utmp.patch.bz2
+Patch2:		krb5-1.3-newline.patch.bz2
+Patch3:		krb5-1.3-telnet.patch.bz2
+Patch4:		2004-001-an_to_ln_patch.txt.bz2
 
-Patch0: krb5-1.1-db.patch.bz2
-Patch1: krb5-1.1.1-tiocgltc.patch.bz2
-Patch2: krb5-1.1.1-libpty.patch.bz2
-Patch3: krb5-1.1.1-fixinfo.patch.bz2
-Patch4: krb5-1.1.1-manpages.patch.bz2
-Patch5: krb5-1.1.1-netkitr.patch.bz2
-Patch6: krb5-1.2-rlogind.patch.bz2
-Patch7: krb5-1.2-ksu.patch.bz2
-Patch8: krb5-1.2-ksu.options.patch.bz2
-Patch9: krb5-1.2-ksu.man.patch.bz2
-Patch10: krb5-1.2-quiet.patch.bz2
-Patch11: krb5-1.1.1-brokenrev.patch.bz2
-Patch12: krb5-1.2-spelling.patch.bz2
-Patch13: krb5-1.2.1-term.patch.bz2
-Patch14: krb5-1.2.1-passive.patch.bz2
-Patch15: krb5-1.2.1-forward.patch.bz2
-Patch16: krb5-1.2.1-heap.patch.bz2
-Patch17: krb5-1.2.2-wragg.patch.bz2
-Patch18: krb5-1.2.2-statglue.patch.bz2
-Patch19: krb5-1.2.2-by-address.patch.bz2
-Patch20: http://lite.mit.edu/krb5-1.2.2-ktany.patch.bz2
-Patch21: krb5-1.2.2-logauth.patch.bz2
-Patch22: krb5-1.2.2-size.patch.bz2
-Patch23: krb5-1.2.5-db2-configure.patch.bz2
-Patch24: krb5-1.2.2-telnetbanner.patch.bz2
-Patch25: krb5-1.2.4-pic.patch.bz2
-Patch26: krb5-1.2.4-tcl-libs.patch.bz2
-Patch27: krb5-1.2.5-biarch-utmp.patch.bz2
-Patch28: krb5-1.2.7-deps.patch.bz2
-Patch29: krb5-1.2.7-namelength.patch
-Patch30: krb5-1.2.7-errno.patch
-Patch31: gssftp-patch
-Patch32: krb5-1.2.7-reject-bad-transited.patch
-Patch33: krb5-1.2.7-krb524d-double-free.patch
-Patch34: krb5-1.2.8-princ_access.patch
-Patch35: krb5-1.2.8-varargs.patch
-Patch36: krb5-1.3-newline.patch.bz2
-Patch37: krb5-1.3-telnet.patch.bz2
+BuildRoot:	%{_tmppath}/%{name}-root
+BuildPrereq:	bison, flex, libtermcap-devel, texinfo, tcl
+BuildRequires:	libext2fs-devel
 
-# security
-Patch50: http://web.mit.edu/kerberos/www/advisories/MITKRB5-SA-2003-003-xdr.txt
-Patch51: http://web.mit.edu/kerberos/www/advisories/MITKRB5-SA-2003-005-patch.txt
-
-Patch52:	kbr5-fix-call-function.patch.bz2
-
-License: MIT
-URL: http://web.mit.edu/kerberos/www/
-Group: System/Libraries
-BuildRoot: %{_tmppath}/%{name}-root
-Prereq: grep, info, coreutils, /sbin/install-info
-BuildPrereq: bison, flex, libtermcap-devel, rsh, texinfo, tcl
-BuildRequires: libext2fs-devel
+PreReq:		grep, info, coreutils, /sbin/install-info
 
 %description
 Kerberos V5 is a trusted-third-party network authentication system,
@@ -94,11 +63,11 @@ which can improve your network's security by eliminating the insecure
 practice of cleartext passwords.
 
 %package -n %{libnamedev}
-Summary: Development files needed for compiling Kerberos 5 programs.
-Group: Development/Other
-Requires: %{libname} = %{version}
-Provides: krb-devel krb5-devel
-Obsoletes: krb-devel krb5-devel
+Summary:	Development files needed for compiling Kerberos 5 programs.
+Group:		Development/Other
+Requires:	%{libname} = %{version}
+Provides:	krb-devel krb5-devel
+Obsoletes:	krb-devel krb5-devel
 
 %description -n %{libnamedev}
 Kerberos is a network authentication system.  The krb5-devel package
@@ -107,11 +76,11 @@ contains the header files and libraries needed for compiling Kerberos
 need to install this package.
 
 %package -n %{libname}
-Summary: The shared libraries used by Kerberos 5.
-Group: System/Libraries
-Prereq: grep, /sbin/ldconfig, coreutils
-Provides: krb5-libs
-Obsoletes: krb5-libs
+Summary:	The shared libraries used by Kerberos 5.
+Group:		System/Libraries
+Prereq:		grep, /sbin/ldconfig, coreutils
+Provides:	krb5-libs
+Obsoletes:	krb5-libs
 
 %description -n %{libname}
 Kerberos is a network authentication system.  The krb5-libs package
@@ -119,10 +88,10 @@ contains the shared libraries needed by Kerberos 5.  If you're using
 Kerberos, you'll need to install this package.
 
 %package server
-Group: System/Servers
-Summary: The server programs for Kerberos 5.
-Requires: %{libname} = %{version}, %{name}-workstation = %{version}, words
-Prereq: grep, /sbin/install-info, /bin/sh, coreutils
+Group:		System/Servers
+Summary:	The server programs for Kerberos 5.
+Requires:	%{libname} = %{version}, %{name}-workstation = %{version}, words
+Prereq:		grep, /sbin/install-info, /bin/sh, coreutils
 
 %description server
 Kerberos is a network authentication system.  The krb5-server package
@@ -132,10 +101,10 @@ package (in other words, most people should NOT install this
 package).
 
 %package workstation
-Summary: Kerberos 5 programs for use on workstations.
-Group: System/Base
-Requires: %{libname} = %{version}
-Prereq: grep, /sbin/install-info, /bin/sh, coreutils
+Summary:	Kerberos 5 programs for use on workstations.
+Group:		System/Base
+Requires:	%{libname} = %{version}
+Prereq:		grep, /sbin/install-info, /bin/sh, coreutils
 
 %description workstation
 Kerberos is a network authentication system.  The krb5-workstation
@@ -145,11 +114,12 @@ network uses Kerberos, this package should be installed on every
 workstation.
 
 %package -n telnet-server-krb5
-Summary: A telnet-server with kerberos support
-Group: System/Servers
-Requires: %{libname} = %{version} xinetd
-Obsoletes: telnet-server
-Provides: telnet-server
+Summary:	A telnet-server with kerberos support
+Group:		System/Servers
+Requires:	%{libname} = %{version}
+Requires:	ucspi-tcp
+Obsoletes:	telnet-server
+Provides:	telnet-server
 
 %description -n telnet-server-krb5
 Telnet is a popular protocol for logging into remote systems over the Internet.
@@ -163,11 +133,11 @@ machine.
 This version supports kerberos authentication.
 
 %package -n telnet-client-krb5
-Summary: A telnet-client with kerberos support
-Group: System/Servers
-Requires: %{libname} = %{version}
-Obsoletes: telnet
-Provides: telnet
+Summary:	A telnet-client with kerberos support
+Group:		System/Servers
+Requires:	%{libname} = %{version}
+Obsoletes:	telnet
+Provides:	telnet
  
 %description -n telnet-client-krb5
 Telnet is a popular protocol for logging into remote systems over the Internet.
@@ -178,11 +148,11 @@ Install the telnet package if you want to telnet to remote machines.
 This version supports kerberos authentication.
 
 %package -n ftp-client-krb5
-Summary: A ftp-client with kerberos support
-Group: Networking/File transfer
-Requires: %{libname} = %{version}
-Obsoletes: ftp
-Provides: ftp
+Summary:	A ftp-client with kerberos support
+Group:		Networking/File transfer
+Requires:	%{libname} = %{version}
+Obsoletes:	ftp
+Provides:	ftp
 
 %description -n ftp-client-krb5
 The ftp package provides the standard UNIX command-line FTP client.
@@ -195,10 +165,10 @@ file transfers.
 This version supports kerberos authentication.
 
 %package -n ftp-server-krb5
-Summary: A ftp-server with kerberos support
-Requires: %{libname} = %{version}
-Group: Networking/File transfer
-Provides: ftpserver
+Summary:	A ftp-server with kerberos support
+Requires:	%{libname} = %{version}
+Group:		Networking/File transfer
+Provides:	ftpserver
 
 %description -n ftp-server-krb5
 The ftp-server package provides an ftp server.
@@ -207,57 +177,14 @@ This version supports kerberos authentication.
 
 %prep
 %setup -q -a 25
-#%patch0  -p0 -b .db
-#%patch1  -p0 -b .tciogltc OK
-#%patch2  -p0 -b .libpty	OK
-#%patch3  -p0 -b .fixinfo
-#%patch4  -p0 -b .manpages
-#%patch5  -p0 -b .netkitr
-#%patch6  -p1 -b .rlogind
-#%patch7  -p1 -b .ksu
-#%patch8 -p1 -b .ksu-options
-#%patch9 -p1 -b .ksu-man
-#%patch10 -p1 -b .quiet
-#%patch11 -p1 -b .brokenrev OK
-#%patch12 -p1 -b .spelling
-#%patch13 -p1 -b .term		OK
-#%patch14 -p1 -b .passive 	OK
-#%patch15 -p1 -b .forward
-#%patch16 -p1 -b .heap
-#%patch17 -p1 -b .wragg
-#%patch18 -p1 -b .statglue	OK
-#%patch19 -p0 -b .by-address
-#%patch20 -p1 -b .ktany
-#%patch21 -p1 -b .logauth
-#%patch22 -p1 -b .size
-#%patch23 -p1 -b .db2-configure
-%patch24 -p1 -b .banner
-#%ifarch ia64 x86_64
-#%patch25 -p1 -b .pic OK
-#%endif
-#%patch26 -p1 -b .tcl-libs
-%patch27 -p1 -b .biarch-utmp
-#%patch28 -p1 -b .deps
-#%patch29 -p1 -b .namelength
-#%patch30 -p1 -b .errno
-#%patch31 -p1 -b .gssftp-patch
-#%patch32 -p1 -b .reject-bad-transited.patch OK
-#%patch33 -p1 -b .double-free OK
-#%patch34 -p1 -b .princ_access
-#%patch35 -p1 -b .varargs
-%patch36 -p1 -b .newline
-%patch37 -p1 -b .telnet
+%patch0 -p1 -b .banner
+%patch1 -p1 -b .biarch-utmp
+%patch2 -p1 -b .newline
+%patch3 -p1 -b .telnet
+pushd src/lib/krb5/os
+%patch4 -p0 -b .2004-001
+popd
 
-# security
-#pushd src/lib/rpc
-#%patch50 -p0 -b .2003-003
-#popd
-#pushd src
-#patch -sp0 -b -z .2003-004-krb4 < ../2003-004-krb4_patchkit/patch.1.2.7
-#%patch51 -p0 -b .2003-005
-#popd
-
-#%patch52 -p1 -b .fix.call.function
 
 #bzcat %{SOURCE19} > src/util/profile/statglue.c
 find . -type f -name "*.fixinfo" -exec rm -fv "{}" ";"
@@ -311,7 +238,7 @@ find . -name Makefile | xargs perl -p -i -e "s@ %{_libdir}@ $RPM_BUILD_ROOT%{_li
 # make check TMPDIR=%{_tmppath}
 
 %install
-[ "$RPM_BUILD_ROOT" != "/" ] && rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 # Our shell scripts.
 mkdir -p $RPM_BUILD_ROOT%{_bindir}
@@ -349,15 +276,8 @@ bzcat %{SOURCE6} > $RPM_BUILD_ROOT/etc/profile.d/krb5.sh
 bzcat %{SOURCE7} > $RPM_BUILD_ROOT/etc/profile.d/krb5.csh
 
 # KDC init script.
-mkdir -p $RPM_BUILD_ROOT/%{_initrddir}
 mkdir -p $RPM_BUILD_ROOT/%{_sbindir}
-
-bzcat %{SOURCE4} > $RPM_BUILD_ROOT/%{_initrddir}/krb5kdc
-bzcat %{SOURCE3} > $RPM_BUILD_ROOT/%{_initrddir}/kadmin
-bzcat %{SOURCE1} > $RPM_BUILD_ROOT/%{_initrddir}/kprop
-bzcat %{SOURCE2} > $RPM_BUILD_ROOT/%{_initrddir}/krb524
 bzcat %{SOURCE8} > $RPM_BUILD_ROOT/%{_sbindir}/kdcrotate
-bzcat %{SOURCE18} > $RPM_BUILD_ROOT/%{_initrddir}/krb5server
 
 # The rest of the binaries and libraries and docs.
 cd src
@@ -370,25 +290,20 @@ make prefix=$RPM_BUILD_ROOT%_prefix \
 # Fixup strange shared library permissions.
 chmod 755 $RPM_BUILD_ROOT%{_libdir}/*.so*
 
-# Xinetd configuration files.
-mkdir -p $RPM_BUILD_ROOT/etc/xinetd.d/
-bzcat %{SOURCE16} > $RPM_BUILD_ROOT/etc/xinetd.d/telnet
-bzcat %{SOURCE17} > $RPM_BUILD_ROOT/etc/xinetd.d/ftp
-
-#telnet menu entries
-mkdir -p $RPM_BUILD_ROOT%{_menudir}
-cat << EOF >$RPM_BUILD_ROOT%{_menudir}/telnet
-?package(telnet): command="%{_bindir}/telnet" needs="text" \
-icon="telnet.xpm" section="Networking/Remote access" \
-title="Telnet" longtitle="Telnet client"
-EOF
-
-# icons for telnet client
-mkdir -p $RPM_BUILD_ROOT/%{_miconsdir}
-mkdir -p $RPM_BUILD_ROOT/%{_liconsdir}
-bzcat %{SOURCE20} > $RPM_BUILD_ROOT/%{_miconsdir}/telnet.xpm
-bzcat %{SOURCE21} > $RPM_BUILD_ROOT/%{_iconsdir}/telnet.xpm
-bzcat %{SOURCE22} > $RPM_BUILD_ROOT/%{_liconsdir}/telnet.xpm
+mkdir -p %{buildroot}%{_srvdir}/{ktelnet,kftp,kadmind,kpropd,krb5kdc,krb524d}/log
+mkdir -p %{buildroot}%{_srvlogdir}/{ktelnet,kftp,kadmind,kpropd,krb5kdc,krb524d}
+install -m 0755 %{SOURCE27} %{buildroot}%{_srvdir}/ktelnet/run
+install -m 0755 %{SOURCE28} %{buildroot}%{_srvdir}/ktelnet/log/run
+install -m 0755 %{SOURCE29} %{buildroot}%{_srvdir}/kftp/run
+install -m 0755 %{SOURCE30} %{buildroot}%{_srvdir}/kftp/log/run
+install -m 0755 %{SOURCE31} %{buildroot}%{_srvdir}/kadmind/run
+install -m 0755 %{SOURCE32} %{buildroot}%{_srvdir}/kadmind/log/run
+install -m 0755 %{SOURCE33} %{buildroot}%{_srvdir}/kpropd/run
+install -m 0755 %{SOURCE34} %{buildroot}%{_srvdir}/kpropd/log/run
+install -m 0755 %{SOURCE35} %{buildroot}%{_srvdir}/krb5kdc/run
+install -m 0755 %{SOURCE36} %{buildroot}%{_srvdir}/krb5kdc/log/run
+install -m 0755 %{SOURCE37} %{buildroot}%{_srvdir}/krb524d/run
+install -m 0755 %{SOURCE38} %{buildroot}%{_srvdir}/krb524d/log/run
 
 bzcat %{SOURCE23} > $RPM_BUILD_DIR/%{name}-%{version}/doc/Mandrake-Kerberos-HOWTO.html
 
@@ -402,106 +317,60 @@ find %{_builddir}/%{name}-%{version} -name "*\.h" | xargs perl -p -i -e "s|\<com
 find %{_builddir}/%{name}-%{version} -name "*\.h" | xargs perl -p -i -e "s|\"com_err|\"et/com_err|";
 
 %clean
-[ "$RPM_BUILD_ROOT" != "/" ] && rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post -n %{libname} -p /sbin/ldconfig
 
 %postun -n %{libname} -p /sbin/ldconfig
 
 %post server
-# Remove the init script for older servers.
-[ -x /etc/rc.d/init.d/krb5server ] && /sbin/chkconfig --del krb5server
-# Install the new ones.
-/sbin/chkconfig --add krb5kdc
-/sbin/chkconfig --add kadmin
-/sbin/chkconfig --add krb524
-/sbin/chkconfig --add kprop
+%_post_srv kadmind
+%_post_srv kpropd
+%_post_srv krb5kdc
+%_post_srv krb524d
+
 # Install info pages.
-/sbin/install-info %{_infodir}/krb425.info.bz2 %{_infodir}/dir
-/sbin/install-info %{_infodir}/krb5-admin.info.bz2 %{_infodir}/dir
-/sbin/install-info %{_infodir}/krb5-install.info.bz2 %{_infodir}/dir
+/sbin/install-info %{_infodir}/krb425.info.bz2 %{_infodir}/dir >/dev/null 2>&1
+/sbin/install-info %{_infodir}/krb5-admin.info.bz2 %{_infodir}/dir >/dev/null 2>&1
+/sbin/install-info %{_infodir}/krb5-install.info.bz2 %{_infodir}/dir >/dev/null 2>&1
 
 %preun server
-if [ "$1" = "0" ] ; then
-	/sbin/chkconfig --del krb5kdc
-	/sbin/chkconfig --del kadmin
-	/sbin/chkconfig --del krb524
-	/sbin/chkconfig --del kprop
-	/sbin/service krb5kdc stop > /dev/null 2>&1 || :
-	/sbin/service kadmin stop > /dev/null 2>&1 || :
-	/sbin/service krb524 stop > /dev/null 2>&1 || :
-	/sbin/service kprop stop > /dev/null 2>&1 || :
-#	/sbin/install-info --delete %{_infodir}/krb425.info.gz %{_infodir}/dir
-#	/sbin/install-info --delete %{_infodir}/krb5-admin.info.gz %{_infodir}/dir
-#	/sbin/install-info --delete %{_infodir}/krb5-install.info.gz %{_infodir}/dir
-fi
-
-%postun server
-if [ "$1" -ge 1 ] ; then
-	/sbin/service krb5kdc condrestart > /dev/null 2>&1 || :
-	/sbin/service kadmin condrestart > /dev/null 2>&1 || :
-	/sbin/service krb524 condrestart > /dev/null 2>&1 || :
-	/sbin/service kprop condrestart > /dev/null 2>&1 || :
+%_preun_srv kadmind
+%_preun_srv kpropd
+%_preun_srv krb5kdc
+%_preun_srv krb524d
+if [ "$1" = "0" ]; then
+  /sbin/install-info --delete %{_infodir}/krb425.info.bz2 %{_infodir}/dir >/dev/null 2>&1
+  /sbin/install-info --delete %{_infodir}/krb5-admin.info.bz2 %{_infodir}/dir >/dev/null 2>&1
+  /sbin/install-info --delete %{_infodir}/krb5-install.info.bz2 %{_infodir}/dir >/dev/null 2>&1
 fi
 
 %post workstation
-/sbin/install-info %{_infodir}/krb5-user.info %{_infodir}/dir
-/sbin/service xinetd reload > /dev/null 2>&1 || :
+/sbin/install-info %{_infodir}/krb5-user.info %{_infodir}/dir >/dev/null 2>&1
 
 %preun workstation
 if [ "$1" = "0" ] ; then
-	/sbin/install-info --delete %{_infodir}/krb5-user.info %{_infodir}/dir
+	/sbin/install-info --delete %{_infodir}/krb5-user.info %{_infodir}/dir >/dev/null 2>&1
 fi
-
-%postun workstation
-/sbin/service xinetd reload > /dev/null 2>&1 || :
 
 %post -n telnet-server-krb5
-/sbin/service xinetd reload > /dev/null 2>&1 || :
-ln -sf /bin/login /usr/sbin/login.krb5
-file="/etc/xinetd.d/telnet"
-if [ ! -f $file ] ; then
-	echo "Can't find xinetd file for telnet."
-	exit 1
-fi
-perl -pi -e "s|/usr/sbin/in\.telnetd|/usr/sbin/telnetd|g" $file
-# We already have the required flags (-a <some_auth_mode>)
-cat $file|egrep -q "server_args.*=.*-a[[:space:]]+.*$" && exit 0
-# Don't have -a <some_auth_mode>, check if we have server_args or not
-cat $file|egrep -q "server_args.*=.*$" && \
-	perl -pi -e "s|(server_args.*=.*$)|\1\ -a\ none|" $file && exit 0
-# Say, no server_args in xinetd file.
-perl -pi -e "s|(server.*=.*/usr/sbin/telnetd.*$)|\1\n\tserver_args\t=\ -a\ none|" $file && exit 0
+%_post_srv ktelnet
 
-%postun -n telnet-server-krb5
-/sbin/service xinetd reload > /dev/null 2>&1 || :
-
-%post -n telnet-client-krb5
-%{update_menus}
-
-%postun -n telnet-client-krb5
-%{clean_menus}
+%preun -n telnet-server-krb5
+%_preun_srv ktelnet
 
 %post -n ftp-server-krb5
-/sbin/service xinetd reload > /dev/null 2>&1 || :
-ln -sf /bin/login /usr/sbin/login.krb5
-file="/etc/xinetd.d/ftp"
-if [ ! -f $file ] ; then
-	echo "Can't find xinetd file for ftp."
-	exit 1
-fi
+%_post_srv kftp
 
-%postun -n ftp-server-krb5
-/sbin/service xinetd reload > /dev/null 2>&1 || :
+%preun -n ftp-server-krb5
+%_preun_srv kftp
 
 %files workstation
 %defattr(-,root,root)
-
-%config(noreplace) /etc/profile.d/krb5.sh
-%config(noreplace) /etc/profile.d/krb5.csh
-
 %doc doc/*.html doc/user*.ps.gz src/config-files/services.append
 %attr(0755,root,root) %doc src/config-files/convert-config-files
+%config(noreplace) /etc/profile.d/krb5.sh
+%config(noreplace) /etc/profile.d/krb5.csh
 %{_infodir}/krb5-user.info*
 
 %{_bindir}/gss-client
@@ -553,16 +422,26 @@ fi
 
 %files server
 %defattr(-,root,root)
-
-%attr(0755,root,root) %config(noreplace) %{_initrddir}/krb5kdc
-%attr(0755,root,root) %config(noreplace) %{_initrddir}/kadmin
-%attr(0755,root,root) %config(noreplace) %{_initrddir}/krb524
-%attr(0755,root,root) %config(noreplace) %{_initrddir}/kprop
-%attr(0755,root,root) %config(noreplace) %{_initrddir}/krb5server
-
-%doc doc/admin*.ps.gz doc/*html
-%doc doc/krb425*.ps.gz 
-%doc doc/install*.ps.gz
+%dir %{_srvdir}/kadmind
+%dir %{_srvdir}/kadmind/log
+%dir %attr(0750,nobody,nogroup) /var/log/supervise/kadmind
+%{_srvdir}/kadmind/run
+%{_srvdir}/kadmind/log/run
+%dir %{_srvdir}/kpropd
+%dir %{_srvdir}/kpropd/log
+%dir %attr(0750,nobody,nogroup) /var/log/supervise/kpropd
+%{_srvdir}/kpropd/run
+%{_srvdir}/kpropd/log/run
+%dir %{_srvdir}/krb5kdc
+%dir %{_srvdir}/krb5kdc/log
+%dir %attr(0750,nobody,nogroup) /var/log/supervise/krb5kdc
+%{_srvdir}/krb5kdc/run
+%{_srvdir}/krb5kdc/log/run
+%dir %{_srvdir}/krb524d
+%dir %{_srvdir}/krb524d/log
+%dir %attr(0750,nobody,nogroup) /var/log/supervise/krb524d
+%{_srvdir}/krb524d/run
+%{_srvdir}/krb524d/log/run
 
 %{_infodir}/krb5-admin.info*
 %{_infodir}/krb5-install.info*
@@ -629,16 +508,16 @@ fi
 %defattr(-,root,root)
 %{_sbindir}/telnetd
 %{_mandir}/man8/telnetd.8*
-%config(noreplace) /etc/xinetd.d/telnet
+%dir %{_srvdir}/ktelnet
+%dir %{_srvdir}/ktelnet/log
+%dir %attr(0750,nobody,nogroup) /var/log/supervise/ktelnet
+%{_srvdir}/ktelnet/run
+%{_srvdir}/ktelnet/log/run
 
 %files -n telnet-client-krb5
 %defattr(-,root,root)
 %{_bindir}/telnet
 %{_mandir}/man1/telnet.1*
-%{_menudir}/telnet
-%{_miconsdir}/telnet.xpm
-%{_iconsdir}/telnet.xpm
-%{_liconsdir}/telnet.xpm
 
 %files -n ftp-client-krb5
 %defattr(-,root,root)
@@ -649,9 +528,39 @@ fi
 %defattr(-,root,root)
 %{_sbindir}/ftpd
 %{_mandir}/man8/ftpd.8*
-%config(noreplace) /etc/xinetd.d/ftp
+%dir %{_srvdir}/kftp
+%dir %{_srvdir}/kftp/log
+%dir %attr(0750,nobody,nogroup) /var/log/supervise/kftp
+%{_srvdir}/kftp/run
+%{_srvdir}/kftp/log/run
 
 %changelog
+* Thu Jun 03 2004 Vincent Danen <vdanen@opensls.org> 1.3-8sls
+- remove all un-applied patches; renumber patches
+- P4: fix for MITKRB5-SA-2004-001
+
+* Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 1.3-7sls
+- minor spec cleanups
+
+* Tue Jan 27 2004 Vincent Danen <vdanen@opensls.org> 1.3-6sls
+- supervise macros
+- remove %%build_opensls macros
+- rename supervise files: telnet -> ktelnet, ftp -> kftp
+- remove postscript docs
+- supervise scripts; remove initscripts
+
+* Tue Dec 30 2003 Vincent Danen <vdanen@opensls.org> 1.3-5sls
+- supervise files; no xinetd
+- don't include menu entries or icons
+
+* Mon Dec 08 2003 Vincent Danen <vdanen@opensls.org> 1.3-4sls
+- OpenSLS build
+- tidy spec
+- remove prereq on rsh; doesn't seem to break anything and we definitely
+  don't want rsh installed
+- NOTE: need to figure out why we're not building this thing with any
+  optflags (also preventing us from using -fstack-protector)
+
 * Tue Sep 02 2003 Florin <florin@mandrakesoft.com> 1.3-3mdk
 - replace <com_err.h> with <et/com_err.h> in the headers
 

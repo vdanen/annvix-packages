@@ -1,12 +1,13 @@
+%define name	screen
+%define version	4.0.2
+%define release	1sls
+
 Summary:	A screen manager that supports multiple logins on one terminal
-Name:		screen
-Version:	3.9.15
-Release: 	2mdk
+Name:		%{name}
+Version:	%{version}
+Release: 	%{release}
 License:	GPL
 Group:		Terminals
-BuildRequires:	ncurses-devel
-BuildRequires:	utempter-devel
-BuildRequires:	texinfo
 URL:		http://www.gnu.org/software/screen
 Source0:	ftp://ftp.uni-erlangen.de/pub/utilities/screen/%{name}-%{version}.tar.bz2
 Patch0:		screen-3.7.6-compat21.patch.bz2
@@ -16,9 +17,14 @@ Patch4:		screen-3.9.11-fix-utmp.diff.bz2
 Patch5:		screen-3.9.11-max-window-size.diff.bz2
 Patch6:		screen-3.9.13-no-libelf.patch.bz2
 Patch7:		screen-3.9.11-biarch-utmp.patch.bz2
-Prefix:		%{_prefix}
-Prereq:		/sbin/install-info
+Patch8:		screen-3.9.15-overflow.patch.bz2
+
 BuildRoot:	%{_tmppath}/%{name}-root
+BuildRequires:	ncurses-devel
+BuildRequires:	utempter-devel
+BuildRequires:	texinfo
+
+Prereq:		/sbin/install-info
 
 %description
 The screen utility allows you to have multiple logins on just one
@@ -34,13 +40,13 @@ support multiple logins on one terminal.
 %setup -q
 %patch0 -p1 
 %patch1 -p1 
-%ifarch ppc
+# (sb) seems to be needed on x86 now too 
 %patch3 -p1
-%endif
 %patch4 -p1 
 %patch5 -p1 
 %patch6 -p1 -b .no-libelf
 %patch7 -p1 -b .biarch-utmp
+%patch8 -p1 -b .overflow
 
 %build
 %configure
@@ -60,6 +66,7 @@ rm doc/screen.info*
 # -D_GNU_SOURCE"
 
 %install
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p $RPM_BUILD_ROOT/%{_sysconfdir}/skel
 
 %makeinstall SCREENENCODINGS=%buildroot/%{_datadir}/screen/utf8encodings/
@@ -86,7 +93,7 @@ echo '  screen ()
 
 
 %clean
-rm -fr $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
 %_install_info %name.
@@ -107,6 +114,21 @@ rm -fr $RPM_BUILD_ROOT
 %{_datadir}/screen/
 
 %changelog
+* Mon May 10 2004 Vincent Danen <vdanen@opensls.org> 4.0.2-1sls
+- 4.0.2
+- linked against new libutempter
+
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 3.9.15-4sls
+- minor spec cleanups
+- remove %%prefix
+
+* Mon Dec 08 2003 Vincent Danen <vdanen@opensls.org> 3.9.15-3sls
+- OpenSLS build
+- tidy spec
+
+* Fri Nov 28 2003 Vincent Danen <vdanen@mandrakesoft.com> 3.9.15-2.1.92mdk
+- security fix
+
 * Sun Jun 15 2003 Stefan van der Eijk <stefan@eijk.nu> 3.9.15-2mdk
 - BuildRequires
 

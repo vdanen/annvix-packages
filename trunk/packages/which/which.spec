@@ -1,15 +1,21 @@
-Name:		which
+%define name	which
+%define version	2.16
+%define release	1sls
+
 Summary:	Displays where a particular program in your path is located.
-Version:	2.14
-Release:	5mdk
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
 License:	GPL
 Group:		System/Base
-Source:		ftp://ftp.gnu.org/gnu/which/%{name}-%{version}.tar.bz2
 URL:		ftp://ftp.gnu.org/gnu/which/
+Source:		ftp://ftp.gnu.org/gnu/which/%{name}-%{version}.tar.bz2
 Patch:		which-2.6.jbj.patch.bz2
 Patch1:		which-2.12-fixinfo.patch.bz2
-Patch2:		which-2.13-afs.patch.bz2
+Patch2:		which-2.16-afs.patch.bz2
+
 BuildRoot:	%_tmppath/%name-buildroot
+
 Prereq:		/sbin/install-info
 
 %description
@@ -27,13 +33,13 @@ the specified program is in your PATH.
 %make
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
 rm -rf %buildroot/%_infodir/dir
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
 %_install_info %{name}.info
@@ -49,6 +55,17 @@ rm -rf $RPM_BUILD_ROOT
 %_infodir/*
 
 %changelog
+* Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 2.16-1sls
+- 2.16
+- rediff and simplify P3 (tvignaud)
+
+* Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 2.14-7sls
+- minor spec cleanups
+
+* Mon Dec 01 2003 Vincent Danen <vdanen@opensls.org> 2.14-6sls
+- OpenSLS build
+- tidy spec
+
 * Tue Jul 22 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 2.14-5mdk
 - rebuild
 

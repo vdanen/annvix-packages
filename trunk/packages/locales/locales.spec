@@ -1,119 +1,118 @@
-#
-#
-#
+%define name	locales
 %define glibc_ver 2.3.2
-%define version   %{glibc_ver}
-%define release   5mdk
+%define version	%{glibc_ver}
+%define release	7sls
+
 # FIXME: please check on next build those we really need
 #%define _unpackaged_files_terminate_build 0
 
 # to define when building for PRC
 #%define build_for_PRC 1
 
-Summary: Base files for localization
-Name: locales
-Version: %{version}
-Release: %{release}
-License: GPL
-Group: System/Internationalization
+Summary:	Base files for localization
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		System/Internationalization
 
 # this file is used to circumvent limitations of glib in LC_COLLATE
 # re-definition after copy "..." statement 
 # glibc 2.2.4 solved a lot of problems; but there are still some ones
 #
-Source1: iso14651_hack
+Source1:	iso14651_hack
 
 # this one is on glibc, however there is the politic issue
 # of the naming of Taiwan 
-Source10: zh_TW_2
+Source10:	zh_TW_2
 
 # locales data
-Source11: ku_TR
-Source12: eo_XX
-Source13: kn_IN
-Source14: iu_CA
-Source16: kh_KH
-Source17: ph_PH
-Source18: pd_CA
-Source19: pd_US
-Source20: pd_DE
-Source21: pp_AN
-Source22: as_IN
+Source11:	ku_TR
+Source12:	eo_XX
+Source13:	kn_IN
+Source14:	iu_CA
+Source16:	kh_KH
+Source17:	ph_PH
+Source18:	pd_CA
+Source19:	pd_US
+Source20:	pd_DE
+Source21:	pp_AN
+Source22:	as_IN
 
 # Those exist in glibc >= 2.3.2 but the attached ones
 # are more correct/more complete
 
 # reordering still doesn't work in glibc 2.3
-Source30: hy_AM
+Source30:	hy_AM
 # various spelling fixes
-Source31: yi_US
+Source31:	yi_US
 # int_curr_symbol missing
-Source33: bn_BD
+Source33:	bn_BD
 # changed date format strings
-Source34: zh_CN
+Source34:	zh_CN
 
 # rewritten to take profit of new glibc reordering possibilities
-Source41: es_ES
-Source42: es@tradicional
+Source41:	es_ES
+Source42:	es@tradicional
 # LC_COLLATE has one line wrong
-Source43: bs_BA
+Source43:	bs_BA
 # glibc has sr_YU for latin, sr_YU@cyrillic for cyrillic;
 # we use (following Gnome Serbian translators) sr_YU for cyrillic
 # and sr_YU@Latn (and sh_YU) for latin
-Source44: sr_YU
-Source45: sh_YU
+Source44:	sr_YU
+Source45:	sh_YU
 # corrected LC_COLLATE
-Source46: sq_AL
+Source46:	sq_AL
 # LC_COLLATE for vietnamese is incorrect in glibc, and LC_CTIME seems
 # wrong too... 
-Source47: vi_VN
+Source47:	vi_VN
 # fixes in month names
-Source48: uz_UZ
+Source48:	uz_UZ
 # cyrillic version
-Source49: uz_UZ@Cyrl
+Source49:	uz_UZ@Cyrl
 # fixes in weekday names
-Source50: wa_BE
+Source50:	wa_BE
 # tr_TR from glibc has errors in LC_COLLATE
 # also, I added recognition of Yy and Nn in yes/noexpr
-Source51: tr_TR
+Source51:	tr_TR
 # changed to use tcomma/scomma instead tcedilla/scedilla
-Source52: ro_RO
+Source52:	ro_RO
 # ours has yesexpr/noexpr
-Source53: tg_TJ
-Source54: az_AZ
+Source53:	tg_TJ
+Source54:	az_AZ
 # ethiopic locales
-Source55: ad_ET
-Source56: gez_ER
-Source57: gez_ET
-Source58: qo_ET
-Source59: sx_ET
-Source60: sz_ET
-Source61: tig_ER
+Source55:	ad_ET
+Source56:	gez_ER
+Source57:	gez_ET
+Source58:	qo_ET
+Source59:	sx_ET
+Source60:	sz_ET
+Source61:	tig_ER
 # those ones are in glib but glibc 2.3.2 fails to compile its LC_COLLATE;
-Source62: am_ET
-Source63: collate_et
+Source62:	am_ET
+Source63:	collate_et
 
 # charset definitions
-Source71: CP1133
-Source72: MULELAO-1
-Source76: CP154
+Source71:	CP1133
+Source72:	MULELAO-1
+Source76:	CP154
 # todo: width field
-Source81: ISO-8859-9E
-Source82: TATAR-CYR
-Source85: KOI8-K
+Source81:	ISO-8859-9E
+Source82:	TATAR-CYR
+Source85:	KOI8-K
 
+BuildRoot:	%{_tmppath}/%{name}-root
+# glibc >= 2.2.5-6mdk now comes with glibc-i18ndata package
+BuildRequires:	glibc-i18ndata = %{glibc_ver}
 # it is arch dependen in fact
 #BuildArchitectures: noarch
-# to build this package glibc = %{glibc_ver} is needed (for locales definitions)
-Prereq: glibc = 6:%{glibc_ver}
 # no need to check for dependencies when building, there is no executables here
-AutoReqProv: no
-BuildRoot: %{_tmppath}/locales-root
-Icon: bulle-blank.xpm
+AutoReqProv:	no
+
+# to build this package glibc = %{glibc_ver} is needed (for locales definitions)
+Prereq:		glibc = 6:%{glibc_ver}
 # locales are very dependent on glibc version
-Requires: glibc = 6:%{glibc_ver}
-# glibc >= 2.2.5-6mdk now comes with glibc-i18ndata package
-BuildRequires: glibc-i18ndata = %{glibc_ver}
+Requires:	glibc = 6:%{glibc_ver}
 
 %description
 These are the base files for language localization.
@@ -125,7 +124,6 @@ LANG variable to their preferred language in their
 %prep
 
 %build
-rm -rf $RPM_BUILD_ROOT
 
 #mv /usr/share/locale /usr/share/locale_bak
 mkdir -p $RPM_BUILD_ROOT/usr/share/locale
@@ -602,7 +600,7 @@ chmod a+x softlink.pl
 cd ..
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -2730,6 +2728,14 @@ according to Xhosa language conventions.
 /usr/share/locale/zu*
 
 %changelog
+* Sat Mar 06 2004 Vincent Danen <vdanen@opensls.org> 2.3.2-7sls
+- minor spec cleanups
+- remove icon
+
+* Wed Dec 03 2003 Vincent Danen <vdanen@opensls.org> 2.3.2-6sls
+- OpenSLS build
+- tidy spec
+
 * Tue Sep 02 2003 Pablo Saratxaga <pablo@mandrakesoft.com> 2.3.2-5mdk
 - fixed yes/no expr for arabic locales
 - fixed Yiddish locale 

@@ -1,18 +1,24 @@
-Summary: A text file browser similar to more, but better.
-Name: less
-Version: 381
-Release: 2mdk
-License: GPL
-Url:	http://www.greenwoodsoftware.com/less
-Group: File tools
-BuildRequires: ncurses-devel
-Source: ftp://ftp.gnu.org/pub/gnu/less/%name-%version.tar.bz2
-Source1: faq_less.html
-Source2: lesspipe.sh
-Patch0: less-374-manpages.patch.bz2
-Buildroot: %_tmppath/%name-root
+%define name	less
+%define version	381
+%define release	4sls
+
+Summary:	A text file browser similar to more, but better.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		File tools
+URL:		http://www.greenwoodsoftware.com/less
+Source:		ftp://ftp.gnu.org/pub/gnu/less/%name-%version.tar.bz2
+Source1:	faq_less.html
+Source2:	lesspipe.sh
+Patch0:		less-374-manpages.patch.bz2
+
+Buildroot:	%_tmppath/%name-root
+BuildRequires:	ncurses-devel
+
 # lesspipe.sh requires file
-Requires: file
+Requires:	file
 
 %description
 The less utility is a text file browser that resembles more, but has
@@ -34,7 +40,7 @@ CFLAGS=$(echo "$RPM_OPT_FLAGS -DHAVE_LOCALE" | sed -e s/-fomit-frame-pointer//)
 %make 
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
 # faq
 install -m 644 %SOURCE1 .
@@ -51,17 +57,23 @@ EOF
 
 install -m 644 less{echo,pipe}.1 $RPM_BUILD_ROOT%_mandir/man1
 
+%clean
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 %files
 %defattr(-,root,root)
 %doc faq_less.html
 %attr(755,root,root)%_bindir/*
 %_mandir/man1/*
 
-
-%clean
-rm -rf $RPM_BUILD_ROOT
-
 %changelog
+* Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 381-4sls
+- minor spec cleanups
+
+* Sun Nov 30 2003 Vincent Danen <vdanen@opensls.org> 381-3sls
+- OpenSLS build
+- tidy spec
+
 * Sun Jun 15 2003 Stefan van der Eijk <stefan@eijk.nu> 381-2mdk
 - BuildRequires
 

@@ -1,8 +1,9 @@
-%define name zlib
+%define name	zlib
 %define version	1.1.4
-%define release 8mdk
-%define lib_major 1
-%define lib_name %{name}%{lib_major}
+%define release 10sls
+
+%define lib_major	1
+%define lib_name	%{name}%{lib_major}
 
 %define build_biarch 0
 # Enable bi-arch build on x86-64
@@ -10,20 +11,20 @@
 %define build_biarch 1
 %endif
 
-Name: %{name}
-Summary: The zlib compression and decompression library
-Version: %{version}
-Release: %{release}
-Source: http://prdownloads.sourceforge.net/libpng/zlib-%version.tar.bz2
-Patch0:	zlib-1.1.3-glibc.patch.bz2
-Patch1: zlib-1.1.4-multibuild.patch.bz2
-Patch2: zlib-1.1.4-build-fPIC.patch.bz2
-Patch3: zlib-1.1.4-gzprintf.patch.bz2
-Group: System/Libraries
-URL: http://www.gzip.org/zlib/
-License: BSD
-Packager: Guillaume Cottenceau <gc@mandrakesoft.com>
-BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
+Summary:	The zlib compression and decompression library
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	BSD
+Group:		System/Libraries
+URL:		http://www.gzip.org/zlib/
+Source:		http://prdownloads.sourceforge.net/libpng/zlib-%version.tar.bz2
+Patch0:		zlib-1.1.3-glibc.patch.bz2
+Patch1:		zlib-1.1.4-multibuild.patch.bz2
+Patch2:		zlib-1.1.4-build-fPIC.patch.bz2
+Patch3:		zlib-1.1.4-gzprintf.patch.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
 
 %description
 The zlib compression library provides in-memory compression and
@@ -34,10 +35,10 @@ the same stream interface.  The zlib library is used by many different
 system programs.
 
 %package -n %{lib_name}
-Summary: The zlib compression and decompression library
-Group: System/Libraries
-Obsoletes: libz, libz1, %{name}
-Provides: libz = %{version}-%{release} libz1 = %{version}-%{release} %{name} = %{version}-%{release}
+Summary:	The zlib compression and decompression library
+Group:		System/Libraries
+Obsoletes:	libz, libz1, %{name}
+Provides:	libz = %{version}-%{release} libz1 = %{version}-%{release} %{name} = %{version}-%{release}
 
 %description -n %{lib_name}
 The zlib compression library provides in-memory compression and
@@ -48,11 +49,11 @@ the same stream interface.  The zlib library is used by many different
 system programs.
 
 %package -n %{lib_name}-devel
-Summary: Header files and libraries for developing apps which will use zlib
-Group: Development/C
-Requires: %{lib_name} = %{version}-%{release}
-Obsoletes: libz1-devel, libz-devel, zlib-devel
-Provides: libz-devel = %{version}-%{release} libz1-devel = %{version}-%{release} %{name}-devel = %{version}-%{release}
+Summary:	Header files and libraries for developing apps which will use zlib
+Group:		Development/C
+Requires:	%{lib_name} = %{version}-%{release}
+Obsoletes:	libz1-devel, libz-devel, zlib-devel
+Provides:	libz-devel = %{version}-%{release} libz1-devel = %{version}-%{release} %{name}-devel = %{version}-%{release}
 
 %description -n %{lib_name}-devel
 The zlib-devel package contains the header files and libraries needed
@@ -89,8 +90,7 @@ popd
 %endif
 
 %install
-rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT/%{_prefix}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 install -d $RPM_BUILD_ROOT/%{_libdir}
 
 make install -C objs prefix=$RPM_BUILD_ROOT%{_prefix} libdir=$RPM_BUILD_ROOT%{_libdir}
@@ -113,7 +113,7 @@ ln -s ../../lib/libz.so.%{version} $RPM_BUILD_ROOT%{_prefix}/lib/
 %endif
 
 %clean
-rm -fr $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post -n %{lib_name} -p /sbin/ldconfig
 %postun -n %{lib_name} -p /sbin/ldconfig
@@ -130,7 +130,7 @@ rm -fr $RPM_BUILD_ROOT
 
 %files -n %{lib_name}-devel
 %defattr(-, root, root)
-%doc README ChangeLog algorithm.txt
+%doc ChangeLog algorithm.txt
 %{_libdir}/*.a
 %{_libdir}/*.so
 %if %{build_biarch}
@@ -141,6 +141,13 @@ rm -fr $RPM_BUILD_ROOT
 %{_mandir}/*/*
 
 %changelog
+* Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 1.1.4-10sls
+- minor spec cleanups
+
+* Sat Dec 13 2003 Vincent Danen <vdanen@opensls.org> 1.1.4-9sls
+- OpenSLS build
+- tidy spec
+
 * Tue Jul  8 2003 Guillaume Cottenceau <gc@mandrakesoft.com> 1.1.4-8mdk
 - rebuild for new devel provides
 

@@ -1,6 +1,6 @@
 %define name	mkbootdisk
-%define version 1.4.5
-%define release 7mdk
+%define version 1.5.1
+%define release 1sls
 
 Summary: 	Creates an initial ramdisk image for preloading modules.
 Name: 		%{name}
@@ -8,15 +8,16 @@ Version: 	%{version}
 Release: 	%{release}
 License: 	GPL
 Group: 		System/Kernel and hardware
-Source: 	%{name}-%{version}.tar.bz2
 URL:		http://www.redhat.com/swr/src/mkbootdisk-1.4.2-1.src.html
-Patch0: 	mkbootdisk-1.4.5-mdk.patch.bz2
-Patch1: 	mkbootdisk-1.4.2-devfs-compliant.patch.bz2
-Patch2: 	mkbootdisk-1.4.5-no-space-left-on-device.patch.bz2
-Patch3: 	mkbootdisk-1.4.5-syslinux-old.patch.bz2
+Source: 	%{name}-%{version}.tar.bz2
+Patch0: 	mkbootdisk-1.5.1-mdk.patch.bz2
+Patch1: 	mkbootdisk-1.5.1-devfs-compliant.patch.bz2
+
+BuildRoot: 	%{_tmppath}/%{name}-%{version}-root
+
 ExclusiveArch: 	sparc sparc64 %{ix86} x86_64 amd64
 ExclusiveOs: 	Linux
-Requires: 	mkinitrd /bin/awk dosfstools mktemp
+Requires: 	mkinitrd, gawk, dosfstools, mktemp
 Conflicts:	modutils < 2.3.11-5
 %ifarch %ix86 x86_64 amd64
 Requires:	syslinux >= 1.76-2mdk
@@ -24,7 +25,6 @@ Requires:	syslinux >= 1.76-2mdk
 %ifarch sparc sparc64
 Requires: 	silo genromfs
 %endif
-BuildRoot: 	%{_tmppath}/%{name}-%{version}-root
 
 %description
 The mkbootdisk program creates a standalone boot floppy disk for booting
@@ -35,17 +35,15 @@ the system.
 
 %prep
 %setup -q
-%patch0 -p1
-%patch1 -p1
-%patch2 -p1
-%patch3 -p1
+%patch0 -p1 -b .mdk
+%patch1 -p1 -b .devfs
 
 %install
-rm -rf $RPM_BUILD_ROOT
-%make BUILDROOT=$RPM_BUILD_ROOT install
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+%make BUILDROOT=$RPM_BUILD_ROOT mandir=%{_mandir} install
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -53,6 +51,19 @@ rm -rf $RPM_BUILD_ROOT
 %attr(644,root,root) %{_mandir}/man8/mkbootdisk.8*
 
 %changelog
+* Fri Jun 11 2004 Vincent Danen <vdanen@opensls.org> 1.5.1-1sls
+- 1.5.1
+- Requires: gawk rather than /bin/awk
+- rediff P0, P1 (tvignaud)
+- drop P2, P3 (tvignaud)
+
+* Sat Mar 06 2004 Vincent Danen <vdanen@opensls.org> 1.4.5-9sls
+- minor spec cleanups
+
+* Wed Dec 03 2003 Vincent Danen <vdanen@opensls.org> 1.4.5-8sls
+- OpenSLS build
+- tidy spec
+
 * Tue Aug  5 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 1.4.5-7mdk
 - amd64 rebuild
 

@@ -1,10 +1,17 @@
+%define name	ocaml
+%define version	3.06
+%define release	14sls
+
 %define build_ocamlopt	1
 %define build_ocamltk	1
 
-Name:		ocaml
-Version:	3.06
-Release:	12mdk
 Summary:	The Objective Caml compiler and programming environment
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	QPL & LGPL
+Group:		Development/Other
+URL:		http://www.ocaml.org/
 Source0:	ftp://ftp.inria.fr/lang/caml-light/ocaml-3.06/ocaml-%{version}.tar.bz2
 Source1:	ftp://ftp.inria.fr/lang/caml-light/ocaml-3.06/ocaml-%{version}-refman.html.tar.bz2
 Source4:	%{name}.menu
@@ -22,29 +29,9 @@ Patch13:	%{name}-3.06-doc-fixes.patch.bz2
 Patch14:	%{name}-3.06-init-fixes.patch.bz2
 Patch15:	ocaml-3.06-amd64.patch.bz2
 Patch16:	ocaml-3.06-lib64.patch.bz2
-License:	QPL & LGPL
-Group:		Development/Other
-BuildRequires: XFree86-devel ncurses-devel tk
-URL:		http://www.ocaml.org/
-Packager:       Pixel <pixel@mandrakesoft.com>
+
 BuildRoot:	%{_tmppath}/ocaml-root
-Obsoletes:	ocaml-emacs
-Provides:	ocaml-emacs
-
-%package doc
-Summary: Documentation for OCaml
-Group:   Books/Computer books
-Requires: %{name} = %{version}-%{release}
-
-%package -n camlp4
-Summary: Preprocessor for OCaml
-Group: Development/Other
-Requires: %{name} = %{version}-%{release}
-
-%package -n ocamltk
-Summary: Tk toolkit binding for OCaml
-Group: Development/Other
-Requires: %{name} = %{version}-%{release}
+BuildRequires:	XFree86-devel ncurses-devel tk
 
 %description
 Objective Caml is a high-level, strongly-typed, functional and object-oriented
@@ -54,11 +41,18 @@ This package comprises two batch compilers (a fast bytecode compiler and an
 optimizing native-code compiler), an interactive toplevel system, Lex&Yacc
 tools, a replay debugger, and a comprehensive library.
 
-%description doc
-Documentation for OCaml
+%package -n camlp4
+Summary:	Preprocessor for OCaml
+Group:		Development/Other
+Requires:	%{name} = %{version}-%{release}
 
 %description -n camlp4
 Preprocessor for OCaml
+
+%package -n ocamltk
+Summary:	Tk toolkit binding for OCaml
+Group:		Development/Other
+Requires:	%{name} = %{version}-%{release}
 
 %description -n ocamltk
 Tk toolkit binding for OCaml
@@ -96,14 +90,12 @@ make BYTECCCOMPOPTS="%{optflags}" NATIVECCCOMPOPTS="%{optflags}" opt opt.opt
 %endif
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 make install BINDIR=%{buildroot}%{_bindir} LIBDIR=%{buildroot}%{_libdir}/ocaml MANDIR=%{buildroot}%{_mandir}
 
 # remove stupid camlp4o.opt which can't work
 rm -f %{buildroot}%{_bindir}/camlp4*.opt
 rm -f %{buildroot}%{_mandir}/man1/camlp4*.opt.*
-
-(cd emacs; make install install-ocamltags BINDIR=%{buildroot}%{_bindir} EMACSDIR=%{buildroot}%{_datadir}/emacs/site-lisp)
 
 # fix
 perl -pi -e "s|$RPM_BUILD_ROOT||" $RPM_BUILD_ROOT%{_libdir}/ocaml/ld.conf
@@ -118,19 +110,10 @@ done
 %endif
 
 
-install -d $RPM_BUILD_ROOT%{_sysconfdir}/emacs/site-start.d
-cat <<EOF >$RPM_BUILD_ROOT%{_sysconfdir}/emacs/site-start.d/%{name}.el
-(require 'caml-font)
-(autoload 'caml-mode "caml" "Caml editing mode" t)
-(add-to-list 'auto-mode-alist '("\\\\.mli?$" . caml-mode))
-EOF
-
-# menu (kept in case we want to use it again one day)
-#install -d $RPM_BUILD_ROOT%{_menudir}
-#install -m 644 %{SOURCE4} $RPM_BUILD_ROOT%{_menudir}/%{name}
-
 # don't package mano man pages since we have the html files
 rm -rf $RPM_BUILD_ROOT%{_mandir}/mano
+rm -rf $RPM_BUILD_ROOT%{_mandir}/man1/ocpp.1*
+
 
 export EXCLUDE_FROM_STRIP="ocamldebug ocamlbrowser"
 
@@ -141,19 +124,12 @@ n="labltk|camlp4|ocamlbrowser|tkanim"
 (cd $RPM_BUILD_ROOT ; find usr/%{_lib}/ocaml   -type d -printf "%%%%dir /%%p\n" | egrep -v $n) >> %{name}.list
 
 %clean
-rm -rf ${RPM_BUILD_ROOT}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files -f %{name}.list
 %defattr(-,root,root)
 %doc Changes LICENSE README
 %{_mandir}/man*/*ocaml*
-#%{_menudir}/*
-%{_datadir}/emacs/site-lisp/*
-%config(noreplace) %{_sysconfdir}/emacs/site-start.d/*
-
-%files doc
-%defattr(-,root,root)
-%doc htmlman/* 
 
 %if %{build_ocamltk}
 %files -n ocamltk
@@ -173,6 +149,16 @@ rm -rf ${RPM_BUILD_ROOT}
 %{_libdir}/ocaml/camlp4
 
 %changelog
+* Sun Mar 07 2004 Vincent Danen <vdanen@opensls.org> 3.06-14sls
+- minor spec cleanups
+- remove %%build_opensls macro
+- remove emacs files
+
+* Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 3.06-13sls
+- OpenSLS build
+- tidy spec
+- use %%build_opensls to not build -doc
+
 * Thu Jul 24 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 3.06-12mdk
 - Patch15: Integrate AMD64 port from 3.07b1
 - Patch16: Enough of lib64 fixery to build ocamltk on amd64

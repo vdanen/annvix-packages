@@ -1,32 +1,32 @@
-%define name perl-Convert-ASN1
-%define real_name Convert-ASN1
-%define version 0.16
-%define release 4mdk
+%define module	Convert-ASN1
+%define name	perl-%{module}
+%define version 0.18
+%define release 1sls
 
 Summary: 	ASN.1 Encode/Decode library for perl
 Name: 		%{name}
 Version: 	%{version}
 Release: 	%{release}
 License: 	GPL or Artistic
-Distribution:	Mandrake Linux
 Group: 		Development/Perl
-Source: 	http://www.cpan.org/authors/id/GBARR/%{name}-%{version}.tar.bz2
-Prefix: 	%{_prefix}
-Url: 		http://www.cpan.org
-BuildRequires:	perl-devel
-BuildArch: 	noarch
+URL: 		http://www.cpan.org
+Source: 	http://www.cpan.org/authors/id/GBARR/%{module}-%{version}.tar.bz2
+
 BuildRoot: 	%{_tmppath}/%{name}-buildroot/
-#Requires: 	perl >= 5.600
+BuildArch: 	noarch
+BuildRequires:	perl-devel
+
+Prefix: 	%{_prefix}
 Requires:	perl >= 5.6
 
 %description
-Perl module used to encode and decode ASN.1 data structures using BER/DER
-rules.
+Perl module used to encode and decode ASN.1 data structures using
+BER/DER rules.
 
 Needed by webmin to handle the OpenLDAP modules properly.
 
 %prep
-%setup -q -n %{name}-%{version}
+%setup -q -n %{module}-%{version}
 
 %build
 %{__perl} Makefile.PL INSTALLDIRS=vendor
@@ -34,7 +34,7 @@ make
 make test
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
 %clean 
@@ -47,6 +47,16 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/*/*
 
 %changelog
+* Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 0.18-1sls
+- 0.18
+
+* Wed Feb 25 2004 Vincent Danen <vdanen@opensls.org> 0.16-6sls
+- rebuild for new perl
+
+* Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 0.16-5sls
+- OpenSLS build
+- tidy spec
+
 * Wed Aug 13 2003 Per Øyvind Karlsen <peroyvind@linux-mandrake.com> 0.16-4mdk
 - rebuild for new perl
 - don't use PREFIX

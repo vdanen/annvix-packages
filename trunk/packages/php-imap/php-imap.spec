@@ -1,37 +1,47 @@
-%define phpsource       %{_prefix}/src/php-devel
-%define _docdir %{_datadir}/doc/%{name}-%{version}
+%define name	php-%{modname}
+%define version	%{phpversion}
+%define release	1sls
+
+%define phpsource	%{_prefix}/src/php-devel
+%define _docdir		%{_datadir}/doc/%{name}-%{version}
 %{expand:%(cat /usr/src/php-devel/PHP_BUILD||(echo -e "error: failed build dependencies:\n        php-devel >= 430 (4.3.0) is needed by this package." >/dev/stderr;kill -2 $PPID))}
 
-%define release 1mdk
-
-%define realname IMAP
-%define modname imap
-%define dirname %{modname}
-%define soname %{modname}.so
-%define inifile 26_%{modname}.ini
-%define mod_src php_imap.c
-%define mod_lib "%{_libdir}/libc-client-PHP4.a -lpam -lcrypto -lssl -lc-client"
-%define mod_def "-DCOMPILE_DL_IMAP -DHAVE_IMAP2001 -DHAVE_IMAP_SSL -I%{_includedir}/openssl"
-%define rlibs libopenssl0.9.7
-%define blibs imap-devel >= 2001a pam-devel >= 0.75 openssl-devel
-
-#########################################################
-## Nothing to be changed after this, except changelog! ##
-#########################################################
+%define realname	IMAP
+%define modname		imap
+%define dirname		%{modname}
+%define soname		%{modname}.so
+%define inifile		26_%{modname}.ini
+%define mod_src		php_imap.c
 
 Summary:	The %{realname} module for PHP
-Name:		php-%{modname}
-Version:	%{phpversion}
+Name:		%{name}
+Version:	%{version}
 Release:	%{release}
+License:	PHP License
 Group:		System/Servers
 URL:		http://www.php.net
-License:	PHP License
-#Requires:	libphp_common%{libversion}
-#Requires:	%{rlibs}
-Requires:	php%{libversion}
-BuildRequires:  php%{libversion}-devel
-BuildRequires:	%{blibs}
+Source0:	ftp://ftp.cac.washington.edu/mail/imap-2002d.tar.bz2
+Source7:	flock.c
+Source8:	Makefile.imap.bz2
+Patch0: 	imap-2001a-ssl.patch.bz2
+Patch1: 	imap-2000-linux.patch.bz2
+Patch3:		imap-2001a-disable-mbox.patch.bz2
+Patch4:		imap-2001a-redhat.patch.bz2
+Patch5: 	imap-2000c-flock.patch.bz2
+Patch7: 	imap-2002d-version.patch.bz2
+Patch9:		imap-2000-glibc-2.2.2.patch.bz2
+Patch10:	imap-2002a-ssldocs.patch.bz2
+Patch11:	imap-2002-krbpath.patch.bz2
+Patch12:	imap-2001a-overflow.patch.bz2
+Patch14:	imap-2002a-ansi.patch.bz2
+Patch15:	imap-2002a-noprompt-makefile.patch.bz2
+
 BuildRoot:	%{_tmppath}/%{name}-root
+BuildRequires:  php%{libversion}-devel
+BuildRequires:	pam-devel >= 0.75
+BuildRequires:	openssl-devel
+
+Requires:	php%{libversion}
 Provides: 	ADVXpackage
 
 %description
@@ -40,16 +50,49 @@ The %{name} package is a dynamic shared object (DSO) that adds
 If you need %{realname} support for PHP applications, you will need to 
 install this package in addition to the php package.
 
-%build
-[ -e ./%{dirname} ] && rm -fr ./%{dirname}
-cp -dpR %{phpsource}/extensions/%{dirname} .
-cd %{dirname}
+%prep
 
-%{phpsource}/buildext %{modname} %{mod_src} %{mod_lib} %{mod_def}
+%setup -q -n imap-2002d
+
+rm -rf RCS
+
+%patch0 -p1 -b .ssl
+%patch1 -p1 -b .linxu
+%patch3 -p1 -b .mbox
+%patch4 -p1 -b .redhat
+%patch5 -p1 -b .flock
+%patch7 -p1 -b .version
+cp %{SOURCE7} src/osdep/unix/
+%patch9 -p1 -b .glibc
+%patch10 -p1
+%patch12 -p1 -b .overflow
+%patch14 -p1 -b .ansi
+%patch15 -p1 -b .noprompt
+
+%build
+
+# first build the static imap lib
+
+EXTRACFLAGS="$EXTRACFLAGS -DDISABLE_POP_PROXY=1"
+EXTRACFLAGS="$EXTRACFLAGS -I%{_includedir}/openssl"
+EXTRALDFLAGS="$EXTRALDFLAGS -L%{_libdir}"
+
+%make RPM_OPT_FLAGS="%{optflags} -fPIC -fno-omit-frame-pointer" \
+	EXTRACFLAGS="$EXTRACFLAGS" \
+	EXTRALDFLAGS="$EXTRALDFLAGS" \
+	SSLTYPE=unix.nopwd \
+	lnp
+
+# then the php-imap stuff
+
+cp -dpR %{phpsource}/extensions/%{dirname}/* .
+
+%{phpsource}/buildext %{modname} %{mod_src} \
+    "./c-client/c-client.a -lpam -lcrypto -lssl" \
+    "-DCOMPILE_DL_IMAP -DHAVE_IMAP2001 -DHAVE_IMAP_SSL -I%{_includedir}/openssl -I./src/c-client -I./c-client"
 
 %install
-cd %{dirname}
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot} 
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 install -d %{buildroot}%{phpdir}/extensions
 install -d %{buildroot}%{_docdir}
@@ -68,8 +111,7 @@ extension = %{soname}
 EOF
 
 %clean
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
-[ -e ./%{dirname} ] && rm -fr ./%{dirname}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files 
 %defattr(-,root,root)
@@ -78,6 +120,23 @@ EOF
 %config(noreplace) %{_sysconfdir}/php/%{inifile}
 
 %changelog
+* Thu Jun 03 2004 Vincent Danen <vdanen@opensls.org> 4.3.7-1sls
+- php 4.3.7
+
+* Fri May 07 2004 Vincent Danen <vdanen@opensls.org> 4.3.6-1sls
+- php 4.3.6
+
+* Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 4.3.4-4sls
+- minor spec cleanups
+- fixes to make imap compile properly
+
+* Wed Dec 31 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 4.3.4-3sls
+- built against provided c-client
+
+* Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 4.3.4-2sls
+- OpenSLS build
+- tidy spec
+
 * Wed Nov 05 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 4.3.4-1mdk
 - built for php 4.3.4
 

@@ -1,29 +1,23 @@
-#############################################################################
-# File		: rpmlint.spec
-# Package	: rpmlint
-# Author	: Frederic Lepied
-# Created on	: Tue Sep 28 07:18:06 1999
-# Version	: $Id: rpmlint.spec,v 1.70 2003/09/05 08:23:49 flepied Exp $
-# Purpose	: rules to create the rpmlint binary package.
-#############################################################################
+%define name	rpmlint
+%define version 0.59
+%define release 1sls
 
-%define name rpmlint
-%define version 0.52
-%define release 1mdk
+Summary:	RPM correctness checker
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+Source0:	%{name}-%{version}.tar.bz2
+Source1:	rpmlint.opensls.config
+License:	GPL
+Group:		Development/Other
+URL:		http://people.mandrakesoft.com/~flepied/projects/rpmlint/
 
-Summary: Rpm correctness checker
-Name: %{name}
-Version: %{version}
-Release: %{release}
-Source0: %{name}-%{version}.tar.bz2
-URL: http://people.mandrakesoft.com/~flepied/projects/rpmlint/
-License: GPL
-Group: Development/Other
-BuildRoot: %{_tmppath}/%{name}-buildroot
-Prefix: %{_prefix}
-Requires: python >= 1.5.2, rpm-python >= 3.0.3-35mdk, binutils, file, findutils, cpio, /lib/cpp, grep, /bin/bash
-BuildArchitectures: noarch
-BuildRequires: python >= 1.5.2, rpm-python >= 3.0.3-35mdk, make
+BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildArch:	noarch
+BuildRequires:	python >= 1.5.2, rpm-python >= 3.0.3-35mdk, make
+
+Requires:	python >= 1.5.2, rpm-python >= 3.0.3-35mdk, binutils, file
+Requires:	findutils, cpio, /lib/cpp, grep, /bin/bash
 
 %description
 Rpmlint is a tool to check common errors on rpm packages.
@@ -36,21 +30,30 @@ Binary and source packages can be checked.
 make
 
 %install
-rm -rf $RPM_BUILD_ROOT
-make install DESTDIR=$RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+make install DESTDIR=%{buildroot}
+install -m 0644 %{SOURCE1} %{buildroot}%{_sysconfdir}/rpmlint/config
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root,0755)
 %doc COPYING ChangeLog INSTALL README*
-%{prefix}/bin/*
-%{prefix}/share/rpmlint
-%config(noreplace) /etc/rpmlint/config
-%dir /etc/rpmlint
+%{_bindir}/*
+%{_datadir}/rpmlint
+%dir %{_sysconfdir}/rpmlint
+%config(noreplace) %{_sysconfdir}/rpmlint/config
 
 %changelog
+* Mon May 31 2004 Vincent Danen <vdanen@opensls.org> 0.59-1sls
+- 0.59
+- include a tailored default config
+
+* Mon Dec 01 2003 Vincent Danen <vdanen@opensls.org> 0.52-2sls
+- OpenSLS build
+- tidy spec
+
 * Fri Sep  5 2003 Frederic Lepied <flepied@mandrakesoft.com> 0.52-1mdk
 - TagsCheck.py: o added explicit-lib-dependency check
                 o added invalid-build-requires check

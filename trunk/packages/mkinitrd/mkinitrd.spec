@@ -1,32 +1,37 @@
-%define name mkinitrd
+%define name	mkinitrd
 %define version 3.4.43
-%define release 9mdk
+%define release 12sls
+%define epoch	1
 
 %define use_dietlibc 0
-%ifarch %{ix86} x86_64
+%ifarch %{ix86} x86_64 amd64
 %define use_dietlibc 1
 %endif
 
-Name: %{name}
-Summary: Creates an initial ramdisk image for preloading modules.
-Version: %{version}
-Release: %{release}
-License: GPL
-URL: http://www.redhat.com/
-Group: System/Kernel and hardware
-Source: mkinitrd-%{version}.tar.bz2
-Source1: mkinitrd_helper2.tar.bz2
-Patch0: mkinitrd-3.4.43-mdkize.patch.bz2
-Patch1: mkinitrd-3.1.6-shutup-insmod-busybox.patch.bz2
-Patch2: mkinitrd-3.4.43-kernel-2.5.patch.bz2
-Requires: mktemp >= 1.5-9mdk e2fsprogs /bin/sh coreutils grep mount gzip tar findutils >= 4.1.7-3mdk gawk
-BuildRequires: /usr/bin/perl
+Summary:	Creates an initial ramdisk image for preloading modules
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+Epoch:		%{epoch}
+License:	GPL
+Group:		System/Kernel and hardware
+URL:		http://www.redhat.com/
+Source:		ftp://ftp.redhat.com/mkinitrd-%{version}.tar.bz2
+Source1:	mkinitrd_helper2.tar.bz2
+Patch0:		mkinitrd-3.4.43-mdkize.patch.bz2
+Patch1:		mkinitrd-3.1.6-shutup-insmod-busybox.patch.bz2
+Patch2:		mkinitrd-3.4.43-kernel-2.5.patch.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root
+BuildRequires:	/usr/bin/perl
 %if %{use_dietlibc}
-BuildRequires: dietlibc-devel
+BuildRequires:	dietlibc-devel
 %else
-Requires: /sbin/insmod.static
+BuildRequires:	glibc-static-devel
+Requires:	/sbin/insmod.static
 %endif
-BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
+
+Requires:	mktemp >= 1.5-9mdk e2fsprogs /bin/sh coreutils grep mount gzip tar findutils >= 4.1.7-3mdk gawk
 
 %description
 Mkinitrd creates filesystem images for use as initial ramdisk (initrd)
@@ -45,7 +50,7 @@ ramdisk using information found in the /etc/modules.conf file.
 
 %prep
 %setup -q -a 1
-%patch0 -p1
+%patch0 -p1 -b .mdk
 %patch1 -p0
 %patch2 -p1 -b .kernel25
 perl -pi -e 's/grubby//' Makefile
@@ -57,7 +62,7 @@ make -C mkinitrd_helper-subdir
 make
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 make BUILDROOT=$RPM_BUILD_ROOT mandir=%{_mandir} install
 %if %{use_dietlibc}
 mkdir -p $RPM_BUILD_ROOT/sbin
@@ -68,7 +73,7 @@ rm -f $RPM_BUILD_ROOT/sbin/{grubby,installkernel,new-kernel-pkg}
 rm -f $RPM_BUILD_ROOT%{_mandir}/*/grubby*
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-, root, root)
@@ -76,6 +81,23 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/*/*
 
 %changelog
+* Tue Jun 15 2004 Vincent Danen <vdanen@opensls.rg> 3.4.43-12sls
+- revert to 3.4.43 because 3.5.18 is not playing nice with our kernels at all
+- Epoch: 1
+
+* Tue May 25 2004 Vincent Danen <vdanen@opensls.rg> 3.5.18-1sls
+- P4: fix "unknown module [x]" error when having more than one scsi_hostadapter
+  entry (ie. scsi_hostadapter[x])
+- 3.5.18 (merged with cooker 3.5.18-11mdk):
+  - (far too many things to mention)
+
+* Sat Mar 06 2004 Vincent Danen <vdanen@opensls.rg> 3.4.43-11sls
+- minor spec cleanups
+
+* Mon Dec 08 2003 Vincent Danen <vdanen@opensls.rg> 3.4.43-10sls
+- OpenSLS build
+- tidy spec
+
 * Sat Sep 13 2003 Guillaume Cottenceau <gc@mandrakesoft.com> 3.4.43-9mdk
 - fix error messages when creating initrd for root-on-lvm in devfs mode
 

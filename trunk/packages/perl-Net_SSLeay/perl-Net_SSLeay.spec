@@ -1,7 +1,7 @@
+%define module	Net_SSLeay
+%define name 	perl-%{module}
 %define version	1.25
-%define release	1mdk
-%define name 	perl-Net_SSLeay
-%define realname	Net_SSLeay.pm
+%define release	4sls
 
 Summary:        Net::SSLeay (module for perl)
 Name: 		%{name}
@@ -9,19 +9,23 @@ Version: 	%{version}
 Release: 	%{release}
 License: 	GPL
 Group: 		Development/Perl
-Source: 	%{realname}-%{version}.tar.bz2
-Patch:		%{realname}-1.25.large_tcp_read.patch.bz2
 URL: 		http://www.bacus.pt/Net_SSLeay/index.html
-BuildRequires:	openssl-devel perl-devel
+Source: 	%{module}.pm-%{version}.tar.bz2
+Patch:		%{module}.pm-1.25.large_tcp_read.patch.bz2
+Patch1:		Net_SSLeay-nobakus.patch.bz2
+
 BuildRoot: 	%{_tmppath}/%{name}-buildroot/
+BuildRequires:	openssl-devel perl-devel
+
 Requires: 	openssl >= 0.9.3a
 
 %description
 Net::SSLeay module for perl.
 
 %prep
-%setup -q -n %{realname}-%{version}
+%setup -q -n %{module}.pm-%{version}
 %patch -p1 -b .fpons
+%patch1 -p0 -b .nobakus
 
 # openssl_path is /usr here, therefore don't -I/usr/include and
 # especially don't (badly) hardcode standard library search path
@@ -38,14 +42,11 @@ perl -p -i -e 's|/usr/local/bin|/usr/bin|g;' *.pm examples/*
 make test
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
-# is that crazy? keep it the way fpons did anyway
-find $RPM_BUILD_ROOT/%{_prefix} -name "*.al" | xargs rm -f
-
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -56,6 +57,20 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/*/*
 
 %changelog
+* Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 1.25-4sls
+- rebuild for perl 5.8.4
+- keep autosplitted method, this package does not handle it well if you
+  remove them (fpons)
+
+* Fri Feb 27 2004 Vincent Danen <vdanen@opensls.org> 1.25-3sls
+- rebuild for new perl
+- P1: don't try doing an external test to bakus.pt because it doesn't seem
+  to exist and causes the tests to fail
+
+* Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 1.25-2sls
+- OpenSLS build
+- tidy spec
+
 * Thu Aug 21 2003 François Pons <fpons@mandrakesoft.com> 1.25-1mdk
 - created patch to allow large Net::SSLeay::tcp_read_all.
 - 1.25.

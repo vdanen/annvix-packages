@@ -1,6 +1,6 @@
 %define	name	symlinks
 %define	version	1.2
-%define release	15mdk
+%define release	17sls
 
 Summary:	A utility which maintains a system's symbolic links.
 Name:		%{name}
@@ -8,11 +8,12 @@ Version:	%{version}
 Release:	%{release}
 Group:		File tools
 License:	BSD-style
-Source0:	ftp://sunsite.unc.edu/pub/Linux/utils/file/%{name}-%{version}.tar.bz2
 URL:		http://www.ibiblio.org/pub/Linux/utils/file/
+Source0:	ftp://sunsite.unc.edu/pub/Linux/utils/file/%{name}-%{version}.tar.bz2
 Patch0:		%{name}-1.2-noroot.patch.bz2
-Buildrequires:	glibc-static-devel
-Buildroot:	%{_tmppath}/%{name}-%{version}-buildroot
+
+BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
+BuildRequires:	glibc-static-devel
 
 %description
 The symlinks utility performs maintenance on symbolic links.  Symlinks
@@ -32,12 +33,12 @@ perl -p -i -e "s/-O2/$RPM_OPT_FLAGS/" Makefile
 %make
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 install -s -m 755 %{name} -D $RPM_BUILD_ROOT%{_bindir}/%{name}
 install -m 644 %{name}.8 -D $RPM_BUILD_ROOT%{_mandir}/man8/%{name}.8
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -45,6 +46,13 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man8/%{name}.8*
 
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 1.2-17sls
+- minor spec cleanups
+
+* Mon Dec 08 2003 Vincent Danen <vdanen@opensls.org> 1.2-16sls
+- OpenSLS build
+- tidy spec
+
 * Thu Jul 24 2003 Götz Waschk <waschk@linux-mandrake.com> 1.2-15mdk
 - fix buildrequires
 

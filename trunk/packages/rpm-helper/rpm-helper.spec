@@ -1,25 +1,22 @@
-#############################################################################
-# Project         : Mandrake Linux
-# Module          : rpm-helper
-# File            : rpm-helper.spec
-# Version         : $Id: rpm-helper.spec,v 1.13 2003/09/17 13:52:51 flepied Exp $
-# Author          : Frederic Lepied
-# Created On      : Tue Jul  9 08:21:29 2002
-# Purpose         : rpm build rules
-#############################################################################
+%define name	rpm-helper
+%define version	0.9.1
+%define release	5sls
 
-Summary: Helper scripts for rpm scriptlets
-Name: rpm-helper
-Version: 0.9.1
-Release: 1mdk
-Source0: %name-%version.tar.bz2
-License: GPL
-Group: System/Configuration/Packaging
-URL: http://www.mandrakelinux.com/
-BuildArchitectures: noarch
-BuildRoot: %_tmppath/%name-buildroot
-Conflicts: chkconfig < 1.3.4-10mdk
-Requires: chkconfig, grep, shadow-utils, chkconfig, coreutils
+Summary:	Helper scripts for rpm scriptlets
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		System/Configuration/Packaging
+URL:		http://www.mandrakelinux.com/
+Source0:	%name-%version.tar.bz2
+Patch0:		opensls-supervise.patch.bz2
+
+BuildArch:	noarch
+BuildRoot:	%_tmppath/%name-buildroot
+
+Conflicts:	chkconfig < 1.3.4-10mdk
+Requires:	chkconfig, grep, shadow-utils, coreutils
 
 %description
 Helper scripts for rpm scriptlets to help create/remove :
@@ -29,23 +26,41 @@ Helper scripts for rpm scriptlets to help create/remove :
 - users
 
 %prep
-%setup
+%setup -q
+%patch0 -p0
 
 %build
+chmod 755 {add,del}-srv
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std LIBDIR=%_datadir/%name
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
 %doc README* ChangeLog AUTHORS
-%_datadir/%name
+%dir %_datadir/%name
+%_datadir/%name/*
 
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 0.9.1-5sls
+- minor spec cleanups
+
+* Tue Feb 03 2004 Vincent Danen <vdanen@opensls.org> 0.9.1-4sls
+- update P0 to add another field to add-group for static gid
+
+* Tue Jan 27 2004 Vincent Danen <vdanen@opensls.org> 0.9.1-3sls
+- P0: adds add-srv and del-srv scripts to manage supervised services, also
+  adds a sixth field to add-user so we can force a static uid
+- own %_datadir/%name
+
+* Tue Dec 09 2003 Vincent Danen <vdanen@opensls.org> 0.9.1-2sls
+- OpenSLS build
+- tidy spec
+
 * Wed Sep 17 2003 Frederic Lepied <flepied@mandrakesoft.com> 0.9.1-1mdk
 - don't depend on initscripts anymore
 

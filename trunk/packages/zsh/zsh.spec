@@ -1,38 +1,41 @@
-%define doc_version 4.1.1
-%define url ftp://ftp.zsh.org/pub/
+%define name	zsh
+%define version	4.1.1
+%define release	7sls
+%define epoch	1
 
-%define beta 0
+%define doc_version 4.1.1
+%define url	ftp://ftp.zsh.org/pub/
+
+%define beta	0
+
 %if %beta
 #%{expand:%%define full_preversion %(echo %version-%beta|sed -e 's!dev!dev-!g')}
 %define full_preversion %{expand:%(echo %version-%beta|sed -e 's!dev!dev-!g')}
+%define release	0.%beta.1sls
 %else
 %define full_preversion %version
 %endif
 
-Summary: A shell with lots of features.
-Name:    zsh
-Version: 4.1.1
-%if %beta
-Release: 0.%beta.1mdk
-%else
-Release: 3mdk
-%endif
-Url: http://www.zsh.org
-Source0: %{url}/%name-%{full_preversion}.tar.bz2
-Source1: %{url}/%name-%doc_version-doc.tar.bz2
-Source2: zcfg-mdk.tar.bz2
-Source3: http://zsh.sunsite.dk/Guide/zshguide.tar.bz2
-Patch1: zsh-3.1.6-dev-22-path.patch.bz2
-Patch2: zsh-4.0.1-pre-3-rpmnewopt.patch.bz2
-Patch101: zsh-serial.patch.bz2
-Patch102: zsh-4.1.0-dev-7-rebootin.patch.bz2
-License: GPL
-Group: Shells
-Prereq: coreutils grep rpm-helper >= 0.7
-Epoch: 1
-# Available in our contrib.
-BuildRequires: gcc libtermcap2-devel texinfo yodl
-BuildRoot: %_tmppath/%name-buildroot
+Summary:	A shell with lots of features.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+Epoch:		%{epoch}
+License:	GPL
+Group:		Shells
+URL:		http://www.zsh.org
+Source0:	%{url}/%name-%{full_preversion}.tar.bz2
+Source1:	%{url}/%name-%doc_version-doc.tar.bz2
+Source2:	zcfg-mdk.tar.bz2
+Patch1:		zsh-3.1.6-dev-22-path.patch.bz2
+Patch2:		zsh-4.0.1-pre-3-rpmnewopt.patch.bz2
+Patch101:	zsh-serial.patch.bz2
+Patch102:	zsh-4.1.0-dev-7-rebootin.patch.bz2
+
+BuildRoot:	%_tmppath/%name-buildroot
+BuildRequires:	gcc, libtermcap-devel >= 2.0, texinfo
+
+Prereq:		coreutils grep rpm-helper >= 0.7
 
 %description
 Zsh is a UNIX command interpreter (shell) usable as an
@@ -45,20 +48,6 @@ lots of other features
 
 Install the zsh package if you'd like to try out a different shell.
 
-%package doc
-Summary: The doc package of zsh
-Group: Books/Computer books
-
-%description doc
-Zsh is a UNIX command interpreter (shell) usable as an
-interactive login shell and as a shell script command
-processor. Of the standard shells, zsh most closely resembles
-ksh but includes many enhancements. Zsh has command-line editing,
-built-in spelling correction, programmable command completion,
-shell functions (with autoloading), a history mechanism, and a
-lots of other features
-
-This package include doc guid examples and manual for zsh.
 
 %prep
 %setup -q -a 2 -a 1 -n %name-%full_preversion
@@ -72,16 +61,16 @@ mv %name-%doc_version/Doc/* Doc/
 find | grep '~$' | xargs rm -f
 
 %build
-%ifnarch sparc
-%configure --enable-etcdir=%_sysconfdir --enable-function-subdirs --disable-debug
-%else
-%configure --enable-etcdir=%_sysconfdir --enable-function-subdirs --disable-lfs
+%ifarch sparc
+EXTRA_CONFIGURE_ARGS="--disable-lfs"
 %endif
+
+%configure2_5x --enable-etcdir=%_sysconfdir --enable-function-subdirs --disable-debug $EXTRA_CONFIGURE_ARGS
 
 make all
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 make install-strip DESTDIR=%buildroot
 make install.info DESTDIR=%buildroot
@@ -98,31 +87,8 @@ pushd $RPM_BUILD_ROOT/bin && {
 
 rm -f $RPM_BUILD_ROOT%_bindir/zsh-%full_preversion
 
-# Copy documentation.
-rm -rf docroot
-mkdir -p docroot/{Info_html,Examples,Documentation}/
-
-cp -a README docroot/
-cp -a Functions/Misc/* Misc/* Util/* docroot/Examples/
-cp -a INSTALL ChangeLog* docroot/Documentation 
-cp -a StartupFiles docroot/
-cp -a Etc/* docroot/Documentation
-mv docroot/Documentation/NEWS docroot/
-cp -a Doc/*html docroot/Info_html/
-
-mkdir -p docroot/Zsh_Guide
-tar xjf %SOURCE3 -C docroot/Zsh_Guide
-mv docroot/Zsh_Guide/zshguide/*html docroot/Zsh_Guide/
-rmdir docroot/Zsh_Guide/zshguide
-
-# Doc
-rm -f docroot/{StartupFiles/.distfiles,Examples/{Makefile*,*.yo},Documentation/{Makefile*,*.yo}}
-find docroot/ -name 'Makefile*' -o -name '.yo'|xargs rm -f
-find docroot/ -type f|xargs perl -pi -e 's@^#!%_prefix/local/bin/(perl|zsh)@#!%_bindir/\1@'
-mv docroot/Examples/compctl-examples docroot/StartupFiles
-
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
 /usr/share/rpm-helper/add-shell %name $1 /bin/zsh
@@ -134,7 +100,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root,0755)
-%doc docroot/README docroot/NEWS
+%doc README
 %config(noreplace) %_sysconfdir/z*
 /bin/%name
 %_mandir/man1/*.1*
@@ -146,12 +112,25 @@ rm -rf $RPM_BUILD_ROOT
 %_libdir/zsh/%{full_preversion}/
 %_datadir/zsh/site-functions/
 
-%files doc
-%defattr(-,root,root)
-%doc docroot/Documentation/ docroot/Examples/ docroot/Info_html/ docroot/StartupFiles/
-%doc docroot/Zsh_Guide ChangeLog*
 
 %changelog
+* Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 4.1.1-7sls
+- minor spec cleanups
+- don't even process doc files
+- remove S3 (guide)
+
+* Mon Jan 12 2004 Vincent Danen <vdanen@opensls.org> 4.1.1-6sls
+- remove %%build_opensls macro; remove -doc package
+
+* Wed Dec 31 2003 Vincent Danen <vdanen@opensls.org> 4.1.1-5sls
+- fix BuildReq and change %%configure handling
+
+* Wed Dec 03 2003 Vincent Danen <vdanen@opensls.org> 4.1.1-4sls
+- OpenSLS build
+- tidy spec
+- don't build doc for %%build_opensls
+- don't need yodl as a BuildReq
+
 * Mon Jul 21 2003 Warly <warly@mandrakesoft.com> 1:4.1.1
 - rebuild to fix segfault
 

@@ -1,3 +1,10 @@
+%define name	perl
+%define version	5.8.4
+%define release	1sls
+%define epoch	2
+
+%define rel	%nil
+%define _requires_exceptions Mac\\|VMS\\|perl >=\\|perl(Errno)\\|perl(Fcntl)\\|perl(IO)\\|perl(IO::File)\\|perl(IO::Socket::INET)\\|perl(IO::Socket::UNIX)\\|perl(Tk)\\|perl(Tk::Pod)
 %define threading 1
 
 %if %threading
@@ -6,86 +13,56 @@
 %define thread_arch %{nil}
 %endif
 
-%define arch %(echo %{_arch} | sed -e "s/amd64/x86_64/")
-%define full_arch %{arch}-%{_os}%{thread_arch}
+%define arch		%(echo %{_arch} | sed -e "s/amd64/x86_64/")
+%define full_arch	%{arch}-%{_os}%{thread_arch}
 # Don't change to %{_libdir} as perl is clean and has arch-dependent subdirs
-%define perl_root %{_prefix}/lib/perl5
+%define perl_root	%{_prefix}/lib/perl5
 
-Summary: The Perl programming language.
-Summary(de): Die Perl-Programmiersprache
-Name: perl
-Version: 5.8.1
-Release: 0.RC4.3mdk
-%define rel -RC4
-License: GPL or Artistic
-Group: Development/Perl
-Url: http://www.perl.com
-Epoch: 2
+Summary:	The Perl programming language.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+Epoch:		%{epoch}
+License:	GPL or Artistic
+Group:		Development/Perl
+URL:		http://www.perl.org
 # ftp://ftp.funet.fi/pub/languages/perl/snap/perl@17574.tbz
 #ftp://ftp.funet.fi/pub/languages/perl/CPAN/src/perl-%{version}.tar.bz2
-Source0: http://www.cpan.org/authors/id/J/JH/JHI/perl-5.8.1-RC4.tar.bz2
+Source0: ftp://cpan.mirrors.easynet.fr/pub/ftp.cpan.org/src/perl-%{version}.tar.bz2
 # taken from debian
-Source1: perl-headers-wanted
-Source2: perl-5.8.0-RC2-special-h2ph-not-failing-on-machine_ansi_header.patch.bz2
-Source3: http://www.cpan.org/authors/id/J/JV/JV/Getopt-Long-2.33_02.tar.bz2
-Patch3: perl-5.8.1-RC3-norootcheck.patch.bz2
-Patch6: perl-5.8.0-RC2-fix-LD_RUN_PATH-for-MakeMaker.patch.bz2
-Patch12: perl-5.8.1-RC3-automatic-migration-from--make-install-PREFIX--to--makeinstall_std.patch.bz2
-Patch13: perl-5.8.1-RC3-FHS-compliant-installvendorman-dirs.patch.bz2
-Patch14: perl-5.8.1-RC3-install-files-using-chmod-644.patch.bz2
-Patch15: perl-5.8.1-RC4-lib64.patch.bz2
-Patch16: perl-5.8.1-RC3-perldoc-use-nroff-compatibility-option.patch.bz2
-Patch20: perl-5.8.0-use_gzip_layer.patch.bz2
+Source1:	perl-headers-wanted
+Source2:	perl-5.8.0-RC2-special-h2ph-not-failing-on-machine_ansi_header.patch.bz2
+Patch3:		perl-5.8.1-RC3-norootcheck.patch.bz2
+Patch6:		perl-5.8.0-RC2-fix-LD_RUN_PATH-for-MakeMaker.patch.bz2
+Patch12:	perl-5.8.1-RC3-automatic-migration-from--make-install-PREFIX--to--makeinstall_std.patch.bz2
+Patch14:	perl-5.8.1-RC3-install-files-using-chmod-644.patch.bz2
+Patch15:	perl-5.8.3-lib64.patch.bz2
+Patch16:	perl-5.8.2-perldoc-use-nroff-compatibility-option.patch.bz2
+Patch20:	perl-5.8.0-use_gzip_layer.patch.bz2
 #(peroyvind) use -fPIC in stead of -fpic or else compile will fail on sparc (taken from redhat)
-Patch21: perl-5.8.1-RC4-fpic-fPIC.patch.bz2
-Patch22: perl-5.8.0-amd64.patch.bz2
+Patch21:	perl-5.8.1-RC4-fpic-fPIC.patch.bz2
+Patch22:	perl-5.8.0-amd64.patch.bz2
+Patch23:	perl-5.8.4-patchlevel.patch.bz2
+Patch24:	perl-5.8.4-no-test-fcgi.patch.bz2
 
-Packager: Pixel <pixel@mandrakesoft.com>
-Buildroot: %{_tmppath}/%{name}
-Requires: perl-base = %{epoch}:%{version}-%{release}
-Requires: %{name}-base
-Provides: libperl.so
-Provides: perl(getopts.pl)
-Provides: perl(ctime.pl)
-Provides: perl(flush.pl)
-Provides: perl(find.pl)
-
-Provides:  perl-MIME-Base64 perl-libnet perl-Storable perl-Digest-MD5 perl-Time-HiRes perl-Locale-Codes perl-Test-Simple perl-Time-HiRes
-Obsoletes: perl-MIME-Base64 perl-libnet perl-Storable perl-Digest-MD5 perl-Time-HiRes perl-Locale-Codes perl-Test-Simple perl-Time-HiRes
-Conflicts: perl-Parse-RecDescent < 1.80-6mdk
-Conflicts: perl-Filter < 1.28-6mdk
-Conflicts: apache-mod_perl <= 1.3.24_1.26-1mdk
-%define _requires_exceptions Mac\\|VMS\\|perl >=\\|perl(Errno)\\|perl(Fcntl)\\|perl(IO)\\|perl(IO::File)\\|perl(IO::Socket::INET)\\|perl(IO::Socket::UNIX)\\|perl(Tk)\\|perl(Tk::Pod)
-
-
+BuildRoot:	%{_tmppath}/%{name}
 # for NDBM
-BuildRequires: db1-devel 
-BuildRequires: db2-devel 
-BuildRequires: gdbm-devel
+BuildRequires:	db1-devel, db2-devel, gdbm-devel
+BuildRequires:	man
 
-BuildRequires: man
-
-
-%package base
-Version: %{version}
-Summary: The Perl programming language (base).
-Provides: perl(v5.6.0)
-Group: Development/Perl
-Url: http://www.perl.com
-
-%package devel
-Version: %{version}
-Summary: The Perl programming language (devel).
-Group: Development/Perl
-Url: http://www.perl.com
-Requires: %{name} = %{epoch}:%{version}-%{release}
-
-%package doc
-Version: %{version}
-Summary: The Perl programming language (documentation).
-Group: Development/Perl
-Url: http://www.perl.com
-Requires: %{name} = %{epoch}:%{version}-%{release}
+Requires:	perl-base = %{epoch}:%{version}-%{release}
+Requires:	%{name}-base
+Provides:	libperl.so
+Provides:	perl(getopts.pl)
+Provides:	perl(ctime.pl)
+Provides:	perl(flush.pl)
+Provides:	perl(find.pl)
+Provides:	perl(attributes) perl(fields) perl(locale) perl(subs)
+Provides: 	perl-MIME-Base64 perl-libnet perl-Storable perl-Digest-MD5 perl-Time-HiRes perl-Locale-Codes perl-Test-Simple perl-Time-HiRes
+Obsoletes:	perl-MIME-Base64 perl-libnet perl-Storable perl-Digest-MD5 perl-Time-HiRes perl-Locale-Codes perl-Test-Simple perl-Time-HiRes
+Conflicts:	perl-Parse-RecDescent < 1.80-6mdk
+Conflicts:	perl-Filter < 1.28-6mdk
+Conflicts:	apache-mod_perl <= 1.3.24_1.26-1mdk
 
 %description
 Perl is a high-level programming language with roots in C, sed, awk
@@ -100,40 +77,60 @@ system can handle Perl scripts.
 
 You need perl-base to have a full perl.
 
+
+%package base
+Summary:	The Perl programming language (base).
+Group:		Development/Perl
+Provides:	perl(v5.6.0) perl(base) perl(bytes) perl(constant) perl(integer) perl(lib) perl(overload) perl(strict) perl(utf8) perl(vars) perl(warnings)
+
 %description base
 This is the base package for %{name}.
+
+
+%package devel
+Summary:	The Perl programming language (devel).
+Group:		Development/Perl
+Requires:	%{name} = %{epoch}:%{version}-%{release}
 
 %description devel
 This is the devel package for %{name}.
 
+
+%package doc
+Summary:	The Perl programming language (documentation).
+Group:		Development/Perl
+Requires:	%{name} = %{epoch}:%{version}-%{release}, groff-for-man
+
 %description doc
 This is the documentation package for %{name}.
 
+
 %prep
-%setup -q -n %{name}-%{version}%{rel} -a 3
+%setup -q -n %{name}-%{version}%{rel} -a 2
 %patch3 -p1
 %patch6 -p1
 %patch12 -p1
-%patch13 -p1
 %patch14 -p1
 %patch15 -p1
 %patch16 -p1
 %patch20 -p1 -b .fpons
 %patch21 -p1 -b .peroyvind
 %patch22 -p1 -b .amd64
-
-(cd lib/Getopt ; rm -f Long.pm ; mv ../../Getopt-Long-*/lib/Getopt/Long.pm .)
-(cd lib/Getopt/Long ; rm -rf * ; mv ../../../Getopt-Long-*/{t,CHANGES,README} .)
+%patch23 -p0 -b .patchlevel
+%patch24 -p0 -b .notestfcgi
 
 %build
+%ifarch ppc
+  RPM_OPT_FLAGS=`echo "$RPM_OPT_FLAGS"|sed -e 's/-O2/-O1/g'`
+%endif
 sh Configure -des \
-  -Dinc_version_list="5.8.0/%{full_arch} 5.8.0 5.6.1 5.6.0" \
+  -Dinc_version_list="5.8.3/%{full_arch} 5.8.3 5.8.2/%{full_arch} 5.8.2 5.8.1/%{full_arch} 5.8.1 5.8.0/%{full_arch} 5.8.0 5.6.1 5.6.0" \
   -Darchname=%{arch}-%{_os} \
   -Dcc='%{__cc}' \
   -Doptimize="$RPM_OPT_FLAGS" \
   -Dprefix=%{_prefix} -Dvendorprefix=%{_prefix} -Dsiteprefix=%{_prefix} \
   -Dman3ext=3pm \
-  -Dcf_by=MandrakeSoft -Dmyhostname=localhost -Dperladmin=root@localhost \
+  -Dcf_by=OpenSLS -Dmyhostname=localhost -Dperladmin=root@localhost \
   -Dd_dosuid \
   -Ud_csh \
   -Duseshrplib \
@@ -149,34 +146,40 @@ make
 # for test, building a perl with no rpath
 # for test, unset RPM_BUILD_ROOT so that the MakeMaker trick is not triggered
 rm -f perl
-RPM_BUILD_ROOT="" make test CCDLFLAGS= 
+RPM_BUILD_ROOT="" make test_harness CCDLFLAGS= 
 rm -f perl
 make perl
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %makeinstall_std
 
-install -d $RPM_BUILD_ROOT%{perl_root}/vendor_perl/%{version}/%{full_arch}/auto
+install -d %{buildroot}%{perl_root}/vendor_perl/%{version}/%{full_arch}/auto
 
+# we prefer 0755 instead of 0555
+find %{buildroot} -name "*.so" | xargs chmod 0755
 
 # Delete CGI stuff, because CGI.pm is now a seperate package
-find $RPM_BUILD_ROOT -name "CGI*" | xargs rm -rf
+find %{buildroot} -name "CGI*" | xargs rm -rf
 
 cp -f utils/h2ph utils/h2ph_patched
 bzcat %{SOURCE2} | patch -p1
 
-LD_LIBRARY_PATH=. ./perl -Ilib utils/h2ph_patched -a -d $RPM_BUILD_ROOT%{perl_root}/%{version}/%{full_arch} `cat %{SOURCE1}` > /dev/null
+LD_LIBRARY_PATH=. ./perl -Ilib utils/h2ph_patched -a -d %{buildroot}%{perl_root}/%{version}/%{full_arch} `cat %{SOURCE1}` > /dev/null ||:
 
 (
     # i don't like hardlinks, having symlinks instead:
-    cd $RPM_BUILD_ROOT%{_bindir}
+    cd %{buildroot}%{_bindir}
     ln -sf perl5 perl
     ln -s perl%{version} perl5
 )
 
-rm -f $RPM_BUILD_ROOT%{_bindir}/{perlivp,psed}
+rm -f %{buildroot}%{_bindir}/{perlivp,psed}
+
+%ifarch ppc
+perl -ni -e 'print if !/sub __syscall_nr/' %{buildroot}%{perl_root}/%{version}/%{full_arch}/asm/unistd.ph
+%endif
 
 # call spec-helper before creating the file list
 # (spec-helper removes some files, and compress some others)
@@ -188,7 +191,7 @@ s=/usr/share/spec-helper/spec-helper ; [ -x $s ] && $s
 %{_bindir}/perl5
 %{_bindir}/perl%{version}
 %attr(4711,root,root) %{_bindir}/sperl%{version}
-%attr(4711,root,root) %{_bindir}/suidperl
+%{_bindir}/suidperl
 %dir %{perl_root}
 %dir %{perl_root}/%{version}
 %dir %{perl_root}/%{version}/File
@@ -198,11 +201,14 @@ s=/usr/share/spec-helper/spec-helper ; [ -x $s ] && $s
 %{perl_root}/%{version}/File/Spec.pm
 %dir %{perl_root}/%{version}/File/Spec
 %{perl_root}/%{version}/File/Spec/Unix.pm
+%dir %{perl_root}/%{version}/Getopt
+%{perl_root}/%{version}/Getopt/Long.pm
 %dir %{perl_root}/%{version}/Time
 %{perl_root}/%{version}/Time/Local.pm
 %{perl_root}/%{version}/AutoLoader.pm
 %{perl_root}/%{version}/Carp.pm
 %{perl_root}/%{version}/DirHandle.pm
+%{perl_root}/%{version}/%{full_arch}/Errno.pm
 %dir %{perl_root}/%{version}/Exporter
 %{perl_root}/%{version}/Exporter/Heavy.pm
 %{perl_root}/%{version}/Exporter.pm
@@ -325,12 +331,14 @@ EOF
 %{_bindir}/c2ph
 %{_bindir}/h2xs
 %{_bindir}/enc2xs
+%{_bindir}/instmodsh
 %{_bindir}/libnetcfg
 %{_bindir}/h2ph
 %{_bindir}/pl2pm
 %{_bindir}/podchecker
 %{_bindir}/podselect
 %{_bindir}/pod2usage
+%{_bindir}/prove
 %{_bindir}/xsubpp
 %{perl_root}/%{version}/Encode/encode.h
 %{perl_root}/%{version}/%{full_arch}/auto/DynaLoader/DynaLoader.a
@@ -362,7 +370,6 @@ EOF
 %{perl_root}/%{version}/%{full_arch}/CORE/opnames.h
 %{perl_root}/%{version}/%{full_arch}/CORE/pad.h
 %{perl_root}/%{version}/%{full_arch}/CORE/patchlevel.h
-%{perl_root}/%{version}/%{full_arch}/CORE/perl.h
 %{perl_root}/%{version}/%{full_arch}/CORE/perlapi.h
 %{perl_root}/%{version}/%{full_arch}/CORE/perlio.h
 %{perl_root}/%{version}/%{full_arch}/CORE/perliol.h
@@ -374,6 +381,7 @@ EOF
 %{perl_root}/%{version}/%{full_arch}/CORE/pp_proto.h
 %{perl_root}/%{version}/%{full_arch}/CORE/proto.h
 %{perl_root}/%{version}/%{full_arch}/CORE/reentr.h
+%{perl_root}/%{version}/%{full_arch}/CORE/reentr.inc
 %{perl_root}/%{version}/%{full_arch}/CORE/regcomp.h
 %{perl_root}/%{version}/%{full_arch}/CORE/regexp.h
 %{perl_root}/%{version}/%{full_arch}/CORE/regnodes.h
@@ -392,17 +400,17 @@ EOF
 
    rel_perl_root=`echo %{perl_root} | sed "s,/,,"`
    rel_mandir=`echo %{_mandir} | sed "s,/,,"`
-   (cd $RPM_BUILD_ROOT ; find $rel_perl_root/%{version} "(" -name "*.pod" -o -iname "Changes*" -o -iname "README*" ")" -printf "%%%%doc /%%p\n") >> perl-doc.list
-   (cd $RPM_BUILD_ROOT ; find $rel_mandir/man1          ! -type d -printf "/%%p\n") >> perl.list
-   (cd $RPM_BUILD_ROOT ; find $rel_perl_root/%{version} ! -type d -printf "/%%p\n") >> perl.list
-   (cd $RPM_BUILD_ROOT ; find $rel_perl_root/%{version} -type d -printf "%%%%dir /%%p\n") >> perl.list
+   (cd %{buildroot} ; find $rel_perl_root/%{version} "(" -name "*.pod" -o -iname "Changes*" -o -iname "README*" ")" -printf "%%%%doc /%%p\n") >> perl-doc.list
+   (cd %{buildroot} ; find $rel_mandir/man1          ! -type d -printf "/%%p\n") >> perl.list
+   (cd %{buildroot} ; find $rel_perl_root/%{version} ! -type d -printf "/%%p\n") >> perl.list
+   (cd %{buildroot} ; find $rel_perl_root/%{version} -type d -printf "%%%%dir /%%p\n") >> perl.list
    perl -ni -e 'BEGIN { open F, "perl-base.list"; $s{$_} = 1 foreach <F>; } print unless $s{$_}' perl.list
    perl -ni -e 'BEGIN { open F, "perl-devel.list"; $s{$_} = 1 foreach <F>; } print unless $s{$_}' perl.list
    perl -ni -e 'BEGIN { open F, "perl-doc.list"; !/perldiag/ and m|(/.*\n)| and $s{$1} = 1 foreach <F>; } print unless $s{$_}' perl.list
 )
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files -f perl.list
 %defattr(-,root,root)
@@ -418,6 +426,44 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root)
 
 %changelog
+* Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 5.8.4-1sls
+- 5.8.4
+- merge with cooker (5.8.4-1mdk):
+  - changed perl URL (rafael)
+  - FHS-compliane patch is no longer needed (rafael)
+  - a more recent Getopt::Long is now bundled with perl, remove it (rafael)
+  - add Errno.pm to perl-base
+  - remove setuid bit on suidperl (rafael)
+  - use 'make test_harness' instead of 'make test' (rafael)
+  - add a note in the 'perl -V' output to mention Mandrakesoft pathes
+    (rafael)
+  - force gcc optimization level to -O1 on ppc (rafael)
+  - disable test lib/CGI/t/fast.t, which may fail if perl-FCGI is already
+    installed on the system (rafael)
+
+* Wed Feb 24 2004 Vincent Danen <vdanen@opensls.org> 5.8.3-1sls
+- 5.8.3
+- spec cleanups
+- merge with cooker (5.8.3-5mdk):
+  - perldoc needs nroff (which is in groff-for-man) (pixel)
+  - fix asm/unistd.ph for arch ppc (thanks to Christiaan Welvaart &
+    Stew Benedict) (pixel)
+  - move Getopt::Long to perl-base (pixel)
+  - provide more perl([a-z].*) to ease transition (pixel)
+  - move CORE/perl.h from perl-devel to perl
+    (it is used in some cases when building simple non native modules)
+    (pixel)
+  - provide perl(strict) perl(vars) and a few more to allow transition with new
+    spec-helper rules (pixel)
+  - ignore h2ph failing on asm/intrinsics.h, mach_apicdef.h, mach_mpspec.h
+    (pixel)
+  - perl nows installs its .so files 0555, we prefer 0755 (pixel)
+  - 5.8.2 is compatible with 5.8.1, so have 5.8.1 in @INC (pixel)
+
+* Mon Dec 01 2003 Vincent Danen <vdanen@opensls.org> 5.8.1-0.RC4.4sls
+- OpenSLS build
+- tidy spec
+
 * Mon Sep  1 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 5.8.1-0.RC4.3mdk
 - perl-base shall have asm/break.ph on ia64
 

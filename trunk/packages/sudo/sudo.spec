@@ -1,16 +1,16 @@
-# use fakeroot -ba sudo.spec to build!
-%define pre p5
+%define name	sudo
+%define version	1.6.7
+%define release	0.p5.3sls
+%define epoch	1
 
-%define build_71 0
-%if %build_71
-%define _sysconfdir /etc
-%endif
+# use fakeroot -ba sudo.spec to build!
+%define pre	p5
 
 Summary:	Allows command execution as root for specified users.
-Name:		sudo
-Version:	1.6.7
-Release:	0.p5.1mdk
-Epoch:		1
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+Epoch:		%{epoch}
 License:	GPL
 Group:		System/Base
 URL:		http://www.courtesan.com/sudo
@@ -21,8 +21,11 @@ Source1:	ftp://ftp.courtesan.com:/pub/sudo/%name-%version%pre.tar.gz.sig
 Source:		ftp://ftp.courtesan.com:/pub/sudo/%name-%version.tar.gz
 Source1:	ftp://ftp.courtesan.com:/pub/sudo/%name-%version.tar.gz.sig
 %endif
+Source2:	sudoers.opensls
+
 BuildRoot:	%_tmppath/%name-%version
 BuildRequires:  pam-devel
+
 Requires:	/etc/pam.d/system-auth
 
 %description
@@ -41,48 +44,42 @@ CFLAGS="$RPM_OPT_FLAGS -D_GNU_SOURCE" \
 %make CFLAGS="$RPM_OPT_FLAGS -D_GNU_SOURCE"
 
 %install
-if [ -d $RPM_BUILD_ROOT ]; then rm -rf $RPM_BUILD_ROOT; fi
-mkdir -p $RPM_BUILD_ROOT/usr
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+mkdir -p %{buildroot}%{_prefix}
 
-%if %build_71
-make prefix=$RPM_BUILD_ROOT/usr sysconfdir=$RPM_BUILD_ROOT/etc \
- install_uid=$UID install_gid=$(id -g) sudoers=uid=$UID sudoers_gid=$(id -g) \
- install
-make prefix=$RPM_BUILD_ROOT/usr sysconfdir=$RPM_BUILD_ROOT/etc \
- install_uid=$UID install_gid=$(id -g) sudoers=uid=$UID sudoers_gid=$(id -g) \
- install-sudoers
-%else
 %makeinstall \
 install_uid=$UID install_gid=$(id -g) sudoers=uid=$UID sudoers_gid=$(id -g)
-%endif
 
-mkdir -p $RPM_BUILD_ROOT/var/run/sudo
-chmod 700 $RPM_BUILD_ROOT/var/run/sudo
+mkdir -p %{buildroot}/var/run/sudo
+chmod 700 %{buildroot}/var/run/sudo
 
 # Installing sample pam file
-mkdir -p $RPM_BUILD_ROOT/etc/pam.d
-cat > $RPM_BUILD_ROOT/etc/pam.d/sudo << EOF
+mkdir -p %{buildroot}%{_sysconfdir}/pam.d
+cat > %{buildroot}%{_sysconfdir}/pam.d/sudo << EOF
 #%PAM-1.0
-auth       required	/%{_lib}/security/pam_stack.so service=system-auth
-account    required	/%{_lib}/security/pam_stack.so service=system-auth
-password   required	/%{_lib}/security/pam_stack.so service=system-auth
-session    required	/%{_lib}/security/pam_stack.so service=system-auth
+auth       required	pam_stack.so service=system-auth
+account    required	pam_stack.so service=system-auth
+password   required	pam_stack.so service=system-auth
+session    required	pam_stack.so service=system-auth
 EOF
 
 # Installing logrotated file
-mkdir -p $RPM_BUILD_ROOT/etc/logrotate.d
-cat <<END >$RPM_BUILD_ROOT/etc/logrotate.d/sudo
+mkdir -p %{buildroot}%{_sysconfdir}/logrotate.d
+cat <<END >%{buildroot}%{_sysconfdir}/logrotate.d/sudo
 /var/log/sudo.log {
     missingok
     monthly
     compress
 }
 END
-chmod 755 $RPM_BUILD_ROOT/usr/bin/sudo
-chmod 755 $RPM_BUILD_ROOT/usr/sbin/visudo
+chmod 755 %{buildroot}%{_bindir}/sudo
+chmod 755 %{buildroot}%{_sbindir}/visudo
+
+# install our sudoers file
+install -m 0440 %{SOURCE2} %{buildroot}%{_sysconfdir}/sudoers
 
 %clean
-if [ -d $RPM_BUILD_ROOT ]; then rm -rf $RPM_BUILD_ROOT; fi
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -97,6 +94,16 @@ if [ -d $RPM_BUILD_ROOT ]; then rm -rf $RPM_BUILD_ROOT; fi
 /var/run/sudo
 
 %changelog
+* Tue Mar 02 2004 Vincent Danen <vdanen@opensls.org> 1:1.6.7-0.p5.3sls
+- fix pam file
+- macros and spec cleanups
+- S2: our own sudoers file; by default give group admin access to /bin/su
+
+* Mon Dec 08 2003 Vincent Danen <vdanen@opensls.org> 1:1.6.7-0.p5.2sls
+- OpenSLS build
+- tidy spec
+- remove %%build_71 macro
+
 * Fri Jul 18 2003 Warly <warly@mandrakesoft.com> 1:1.6.7-0.p5.1mdk
 - keed gz format and and site signature
 - new version

@@ -1,6 +1,6 @@
 %define name	sfio
 %define version	1999
-%define release	9mdk
+%define release	11sls
 
 Summary:	A Safe/Fast I/O Library
 Name:		%{name}
@@ -8,7 +8,7 @@ Version:	%{version}
 Release:	%{release}
 Group:		System/Libraries
 License:	AT&T Labs
-Url:		http://www.research.att.com/sw/tools/sfio/
+URL:		http://www.research.att.com/sw/tools/sfio/
 Source0:	sfio_1999.src.unix.tar.bz2
 Source1:	sfio_1999.src.unix.README
 Patch0:		sfio_1999.patch.bz2
@@ -16,7 +16,8 @@ Patch1:		sfio_1999.mdk.patch.bz2
 Patch2:		sfio-1999-implicit.patch.bz2
 Patch3:		sfio-1999-rettype.patch.bz2
 Patch4:		sfio-1999-pic.patch.bz2
-Buildroot:	%{_tmppath}/%{name}-%{version}-root
+
+BuildRoot:	%{_tmppath}/%{name}-%{version}-root
 BuildRequires:	ed
 
 %description
@@ -25,9 +26,9 @@ similar to that of Stdio, the ANSI C Standard I/O library, but via a
 distinct interface that is more powerful, robust and efficient.
 
 %package devel
-Group: Development/C
-Summary: Libraries, includes and other files for Safe/Fast I/O Library
-Requires: sfio = 1999
+Group:		Development/C
+Summary:	Libraries, includes and other files for Safe/Fast I/O Library
+Requires:	sfio = 1999
 
 %description devel
 This packages contains the libraries, include and other files
@@ -51,7 +52,7 @@ make -C src/lib/sfio libsfio.so install SONAME="lib%{name}.so.%{version}" CCMODE
 bzcat %{PATCH0} | patch -p0
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p $RPM_BUILD_ROOT/usr/include/sfio
 mkdir -p $RPM_BUILD_ROOT%{_libdir}
 mkdir -p $RPM_BUILD_ROOT/%{_mandir}
@@ -62,6 +63,11 @@ install lib/libsfio.so $RPM_BUILD_ROOT%{_libdir}/libsfio.so.1999
 install lib/*.a $RPM_BUILD_ROOT%{_libdir}/
 ( cd $RPM_BUILD_ROOT%{_libdir}/ ; ln -s libsfio.so.1999 libsfio.so )
 
+%clean
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
+%post -p /sbin/ldconfig
+%postun -p /sbin/ldconfig
 
 %files
 %defattr(-,root,root)
@@ -75,14 +81,14 @@ install lib/*.a $RPM_BUILD_ROOT%{_libdir}/
 %{_libdir}/*.so
 %{_libdir}/*.a
 
-%clean
-rm -rf $RPM_BUILD_ROOT
-
-%post -p /sbin/ldconfig
-
-%postun -p /sbin/ldconfig
-
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 1999-11sls
+- minor spec cleanups
+
+* Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 1999-10sls
+- OpenSLS build
+- tidy spec
+
 * Mon Aug  4 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 1999-9mdk
 - BuildRequires: ed
 

@@ -1,16 +1,18 @@
-Name: 		tcp_wrappers
-Version: 	7.6
-Release: 	23mdk
-Group: 		System/Servers	
+%define name	tcp_wrappers
+%define version	7.6
+%define release	25sls
+
 Summary: 	A security tool which acts as a wrapper for TCP daemons.
+Name: 		%{name}
+Version: 	%{version}
+Release: 	%{release}
+Group: 		System/Servers	
 License: 	BSD
-Url:		http://ftp.porcupine.org/pub/security/
+URL:		http://ftp.porcupine.org/pub/security/
 Source:	        http://ftp.porcupine.org/pub/security/tcp_wrappers_7.6.tar.bz2
-#Patch0: 	http://bofh.st/ipv6/downloads/www.imasy.or.jp/tcp_wrappers_7.6-ipv6-1.9.diff.bz2
+Patch0:         http://www.imasy.or.jp/~ume/ipv6/tcp_wrappers_7.6-ipv6-1.14.diff.bz2
 Patch1: 	tcp_wrappers_7.6-config.patch.2.bz2
 Patch2:		tcp_wrappers-7.16-ia64-compile-fix.patch.bz2
-
-Patch0:         http://www.imasy.or.jp/~ume/ipv6/tcp_wrappers_7.6-ipv6-1.14.diff.bz2
 
 BuildRoot: 	%{_tmppath}/%{name}-%{version}-buildroot
 
@@ -24,8 +26,8 @@ Install the tcp_wrappers program if you need a security tool for
 filtering incoming network services requests.
 
 %package devel
-Summary: A security library which acts as a wrapper for TCP daemons.
-Group: Development/C
+Summary:	A security library which acts as a wrapper for TCP daemons.
+Group:		Development/C
 
 %description devel
 Library and header files for the tcp_wrappers program
@@ -40,7 +42,7 @@ Library and header files for the tcp_wrappers program
 %make  REAL_DAEMON_DIR=%{_sbindir} linux
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p $RPM_BUILD_ROOT/{%{_includedir},%{_libdir},%{_sbindir},%{_mandir}/man3,%{_mandir}/man5,%{_mandir}/man8}
 
 install -m 644 hosts_access.3 $RPM_BUILD_ROOT/%{_mandir}/man3
@@ -65,7 +67,7 @@ install -m 755 try-from $RPM_BUILD_ROOT/%{_sbindir}
 ar d $RPM_BUILD_ROOT/%{_libdir}/libwrap.a setenv.o
 
 %clean
-rm -Rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root,755)
@@ -80,6 +82,13 @@ rm -Rf $RPM_BUILD_ROOT
 %{_libdir}/libwrap.a
 
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 7.6-25sls
+- minor spec cleanups
+
+* Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 7.6-24sls
+- OpenSLS build
+- tidy spec
+
 * Mon Jul 21 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 7.6-23mdk
 - rebuild
 - rm -rf $RPM_BUILD at the beginning of %%install

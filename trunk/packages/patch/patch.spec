@@ -1,20 +1,21 @@
-%define ver 2.5.9
-%define rel 1mdk
+%define name	patch
+%define version 2.5.9
+%define release 3sls
 
-Summary: The GNU patch command, for modifying/upgrading files.
-Name:    patch
-Version: %{ver}
-Release: %{rel}
-License: GPL
-URL:	 http://www.gnu.org/directory/GNU/patch.html
-Group:   Text tools
-Source:  ftp://alpha.gnu.org/gnu/patch/patch-%{ver}.tar.bz2
-Buildroot: %{_tmppath}/%{name}-root
-Patch1: patch-2.5.8-sigsegv.patch.bz2
-Patch2: patch-2.5.4-unreadable_to_readable.patch.bz2
-Patch3: patch-2.5.8-stderr.patch.bz2
-Patch5: patch-2.5.4-destdir.patch.bz2
-Prefix: %{_prefix}
+Summary:	The GNU patch command, for modifying/upgrading files.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		Text tools
+URL:		http://www.gnu.org/directory/GNU/patch.html
+Source:		ftp://alpha.gnu.org/gnu/patch/patch-%{version}.tar.bz2
+Patch1:		patch-2.5.8-sigsegv.patch.bz2
+Patch2:		patch-2.5.4-unreadable_to_readable.patch.bz2
+Patch3:		patch-2.5.8-stderr.patch.bz2
+Patch5:		patch-2.5.4-destdir.patch.bz2
+
+Buildroot:	%{_tmppath}/%{name}-root
 
 %description
 The patch program applies diff files to originals.  The diff command
@@ -46,11 +47,11 @@ make "CFLAGS=$RPM_OPT_FLAGS -D_GNU_SOURCE -W -Wall" LDFLAGS=-s
 
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -59,6 +60,14 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/*/*
 
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 2.5.9-3sls
+- minor spec cleanups
+- remove %%prefix
+
+* Sat Dec 13 2003 Vincent Danen <vdanen@opensls.org> 2.5.9-2sls
+- OpenSLS build
+- tidy spec
+
 * Wed Jul 02 2003 Thierry Vignaud <tvignaud@mandrakesoft.com> 2.5.9-1mdk
 - new release
 

@@ -1,30 +1,30 @@
-%define name shorewall
-%define samples_version 1.4.6
-%define version 1.4.6c
-%define md5sums_version %version
-%define release 2mdk
-%define ftp_path ftp://
+%define name	shorewall
+%define version 2.0.1
+%define release 2sls
 
-Summary: Shoreline Firewall is an iptables-based firewall for Linux systems.
-Name: %{name}
-Version: %{version}
-Release: %{release}
-Source0: %ftp_path/%{name}-%{version}.tgz
-Source1: %ftp_path/samples-%{version}/samples-%{samples_version}.tar.bz2
-Source2: %ftp_patch/md5sums
-Source3: init.sh
+%define samples_version	2.0.1
 
-License: GPL
-Group: System/Servers
-Prefix: %{_prefix}
-URL: http://www.shorewall.net/
-BuildArch: noarch
-Requires: iptables
-Requires: chkconfig
-Provides: shorewall
-Conflicts: kernel <= 2.2
-BuildRoot: %{_tmppath}/%{name}-buildroot
-PreReq: rpm-helper
+Summary:	Shoreline Firewall is an iptables-based firewall for Linux systems.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		System/Servers
+URL:		http://www.shorewall.net/
+Source0:	ftp://ftp.shorewall.net/%{name}-%{version}.tgz
+Source1:	ftp://ftp.shorewall.net/samples-%{version}/samples-%{samples_version}.tar.bz2
+Source2:	ftp://ftp.shorewall.net/%{version}.md5sums
+Source3:	init.sh.bz2
+Source4:	bogons.bz2
+Source5:	rfc1918.bz2
+Patch0:		shorewall-2.0.1-kernel_modules_suffix.patch.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildArch:	noarch
+
+Requires:	iptables, chkconfig
+Conflicts:	kernel <= 2.2
+PreReq:		rpm-helper
 
 %description
 The Shoreline Firewall, more commonly known as "Shorewall", is a Netfilter
@@ -32,8 +32,8 @@ The Shoreline Firewall, more commonly known as "Shorewall", is a Netfilter
 a multi-function gateway/ router/server or on a standalone GNU/Linux system.
 
 %package doc
-Summary:  Firewall scripts
-Group:    System/Servers
+Summary:	Firewall scripts
+Group:		System/Servers
 
 %description doc 
 The Shoreline Firewall, more commonly known as "Shorewall", is a Netfilter
@@ -43,9 +43,12 @@ a multi-function gateway/ router/server or on a standalone GNU/Linux system.
 This package contains the docs.
 %prep
 
-%setup 
+%setup -q
+%patch0 -p1 -b .kernel_modules_suffix
 
-cp -f %SOURCE3 $RPM_BUILD_DIR/%{name}-%{version}
+bzcat %SOURCE3 > $RPM_BUILD_DIR/%{name}-%{version}/init.sh
+bzcat %SOURCE4 > $RPM_BUILD_DIR/%{name}-%{version}/bogons
+bzcat %SOURCE5 > $RPM_BUILD_DIR/%{name}-%{version}/rfc1918
 tar xjf %SOURCE1
 
 cd  $RPM_BUILD_DIR/%{name}-%{version}/samples-%{samples_version}/
@@ -57,20 +60,26 @@ mv  $RPM_BUILD_DIR/%{name}-%{version}/samples-%{samples_version}/ $RPM_BUILD_DIR
 
 %build
 find -name CVS | xargs rm -fr
+find -name "*~" | xargs rm -fr
+find documentation/ -type f | xargs chmod 0644 
 
 %install
-rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 export PREFIX=%{buildroot} ; \
 export OWNER=`id -n -u` ; \
 export GROUP=`id -n -g` ;\
-./install.sh %{_initrddir}
+./install.sh
+
+mkdir -p %{buildroot}%{_initrddir}
+mv %{buildroot}/etc/init.d/shorewall %{buildroot}%{_initrddir}/
+rm -rf %{buildroot}/etc/init.d
 
 # Suppress automatic replacement of "echo" by "gprintf" in the shorewall
 # startup script by RPM. This automatic replacement is broken.
 export DONT_GPRINTIFY=1
 
 %clean
-rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
 %_post_service shorewall
@@ -84,18 +93,18 @@ rm -rf %{buildroot}
 %attr(700,root,root) %dir /etc/shorewall
 %attr(750,root,root) %{_initrddir}/shorewall
 
+%config(noreplace) %{_sysconfdir}/%{name}/accounting
 %config(noreplace) %{_sysconfdir}/%{name}/blacklist
-%config(noreplace) %{_sysconfdir}/%{name}/common.def
 %config(noreplace) %{_sysconfdir}/%{name}/hosts
 %config(noreplace) %{_sysconfdir}/%{name}/interfaces
 %config(noreplace) %{_sysconfdir}/%{name}/ecn
 %config(noreplace) %{_sysconfdir}/%{name}/masq
 %config(noreplace) %{_sysconfdir}/%{name}/modules
+%config(noreplace) %{_sysconfdir}/%{name}/netmap
 %config(noreplace) %{_sysconfdir}/%{name}/nat
 %config(noreplace) %{_sysconfdir}/%{name}/params
 %config(noreplace) %{_sysconfdir}/%{name}/policy
 %config(noreplace) %{_sysconfdir}/%{name}/proxyarp
-%config(noreplace) %{_sysconfdir}/%{name}/rfc1918
 %config(noreplace) %{_sysconfdir}/%{name}/routestopped
 %config(noreplace) %{_sysconfdir}/%{name}/rules
 %config(noreplace) %{_sysconfdir}/%{name}/shorewall.conf
@@ -108,15 +117,57 @@ rm -rf %{buildroot}
 %config(noreplace) %{_sysconfdir}/%{name}/stop
 %config(noreplace) %{_sysconfdir}/%{name}/stopped
 %config(noreplace) %{_sysconfdir}/%{name}/init
-
+%config(noreplace) %{_sysconfdir}/%{name}/actions
 %attr(544,root,root) /sbin/shorewall
-
+%attr(700,root,root) %dir %{_datadir}/%{name}
 %{_datadir}/%{name}/*
 
 %files doc 
 %doc %attr(-,root,root) documentation/*
 
 %changelog
+* Sat Jun 12 2004 Vincent Danen <vdanen@opensls.org> 2.0.1-2sls
+- own /usr/share/shorewall
+- small spec cleaning
+
+* Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 2.0.1-1sls
+- 2.0.1
+- add netmap file
+- add the kernel modules extension patch (mdk bug #9311) (florin)
+- patch also fixes broken insmod (use modprobe instead) (florin)
+- add the bogons and rfc1918 sources (thomas)
+
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 1.4.8-4sls
+- minor spec cleanups
+- remove %%prefix
+
+* Mon Dec 08 2003 Vincent Danen <vdanen@opensls.org> 1.4.8-3sls
+- OpenSLS build
+- tidy spec
+
+* Mon Dec 01 2003 Vincent Danen <vdanen@mandrakesoft.com> 1.4.8-2.1.92mdk
+- bugfix update for 9.2
+
+* Tue Nov 18 2003 Florin <florin@mandrakesoft.com> 1.4.8-2mdk
+- rebuld
+
+* Wed Nov 12 2003 Florin <florin@mandrakesoft.com> 1.4.8-1mdk
+- 1.4.8
+- samples 1.4.8
+
+* Sun Nov 02 2003 Florin <florin@mandrakesoft.com> 1.4.8-0.RC2.1mdk
+- 1.4.8-RC2
+
+* Sun Oct 26 2003 Florin <florin@mandrakesoft.com> 1.4.7c-1mdk
+- 1.4.7c
+
+* Sat Oct 25 2003 Florin <florin@mandrakesoft.com> 1.4.7b-1mdk
+- 1.4.7b
+
+* Tue Oct 07 2003 Florin <florin@mandrakesoft.com> 1.4.7b-1mdk
+- 1.4.7 and samples 1.4.7
+- add accounting, users and usersets new configuration files
+
 * Mon Sep 08 2003 Florin <florin@mandrakesoft.com> 1.4.6c-2mdk
 - replace the stop patch with SOURCE1
 

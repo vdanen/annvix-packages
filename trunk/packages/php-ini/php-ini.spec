@@ -1,13 +1,18 @@
-Name:		php-ini
-Version:	4.3.4
-Release:	1mdk
+%define name	php-ini
+%define version	4.3.7
+%define release	1sls
+
+Summary:	INI files for PHP
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	PHP License
 Group:		Development/Other
 URL:		http://www.php.net
-License:	PHP License
-Summary:	INI files for PHP
-BuildRoot:	%{_tmppath}/%{name}-root
-BuildArch:	noarch
 Source0:	php.ini.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-root
+
 Provides: 	ADVXpackage
 
 %description
@@ -16,19 +21,21 @@ The php-ini package contains the ini files required for PHP.
 %build
 
 %install
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 mkdir -p %{buildroot}%{_sysconfdir}
 mkdir -p %{buildroot}%{_sysconfdir}/php
 mkdir -p %{buildroot}%{_libdir}/php/extensions
 bzcat %{SOURCE0} > %{buildroot}%{_sysconfdir}/php.ini
 
+perl -pi -e 's|EXTENSIONDIR|%{_libdir}/php/extensions|g' %{buildroot}%{_sysconfdir}/php.ini
+
 mkdir -p %{buildroot}%{_docdir}/%{name}-%{version}
 echo "Thanks to Oden Eriksson for the scan-dir idea!" > \
         %{buildroot}%{_docdir}/%{name}-%{version}/CREDITS
 
 %clean
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
 #Since we use noreplace, we may have an old php.ini file which is not 
@@ -51,6 +58,26 @@ fi
 %doc %{_docdir}/%{name}-%{version}/*
 
 %changelog
+* Thu Jun 03 2004 Vincent Danen <vdanen@opensls.org> 4.3.7-1sls
+- 4.3.7
+
+* Fri May 07 2004 Vincent Danen <vdanen@opensls.org> 4.3.6-1sls
+- 4.3.6
+
+* Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 4.3.4-5sls
+- minor spec cleanups
+
+* Fri Jan 23 2004 Vincent Danen <vdanen@opensls.org> 4.3.4-4sls
+- no longer noarch due to amd64 vs. x86 libdir changes
+
+* Fri Jan 09 2004 Vincent Danen <vdanen@opensls.org> 4.3.4-3sls
+- replace /usr/lib/php/extensions in php.ini with EXTENSIONDIR so that
+  we can dynamically create the extension dir (amd64)
+
+* Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 4.3.4-2sls
+- OpenSLS build
+- tidy spec
+
 * Tue Nov 04 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 4.3.4-1mdk
 - built for 4.3.4
 

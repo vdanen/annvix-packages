@@ -1,0 +1,21 @@
+diff -urN shorewall-2.0.1/firewall shorewall-2.0.1-modified/firewall
+--- shorewall-2.0.1/firewall	2004-04-02 20:45:07.000000000 +0200
++++ shorewall-2.0.1-modified/firewall	2004-04-19 17:26:53.239106674 +0200
+@@ -3729,7 +3729,7 @@
+ 	    modulefile=$MODULESDIR/${modulename}.${suffix}
+ 
+ 	    if [ -f $modulefile ]; then
+-		insmod $modulefile $*
++		modprobe ${modulename} $*
+ 		return
+ 	    fi
+ 	done
+@@ -5925,7 +5925,7 @@
+     BLACKLISTNEWONLY=$(added_param_value_no BLACKLISTNEWONLY $BLACKLISTNEWONLY)
+     DISABLE_IPV6=$(added_param_value_no DISABLE_IPV6 $DISABLE_IPV6)
+     BRIDGING=$(added_param_value_no BRIDGING $BRIDGING)
+-    [ -n "$MODULE_SUFFIX" ] || MODULE_SUFFIX="o gz ko o.gz"
++    [ -n "$MODULE_SUFFIX" ] || MODULE_SUFFIX="o gz ko o.gz ko.gz"
+ 
+     #
+     # Strip the files that we use often

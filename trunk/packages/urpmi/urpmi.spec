@@ -1,31 +1,30 @@
 %define name	urpmi
 %define version	4.4
-%define release 46mdk
-
-%define group %(perl -e 'printf "%%s\\n", "%_vendor" =~ /mandrake/i ? "System/Configuration/Packaging" : "System Environment/Base"')
+%define release 49sls
 
 %{expand:%%define compat_perl_vendorlib %(perl -MConfig -e 'printf "%%s\n", "%{?perl_vendorlib:1}" ? "%%{perl_vendorlib}" : "$Config{installvendorlib}"')}
-%{expand:%%define use_locale %%(perl -e 'printf "%%s\\n", "%_vendor" =~ /mandrake/i ? 1 : 0')}
-%{expand:%%define allow_gurpmi %%(perl -e 'printf "%%s\\n", "%_vendor" =~ /mandrake/i ? 1 : 0')}
-%{expand:%%define req_webfetch %%(perl -e 'printf "%%s\\n", "%_vendor" =~ /mandrake/i ? "webfetch" : "curl wget"')}
-%{expand:%%define buildreq_locale %%(perl -e 'printf "%%s\\n", "%_vendor" =~ /mandrake/i ? "perl-MDK-Common-devel" : ""')}
-%{expand:%%define distribution %%(perl -e 'printf "%%s\\n", ("%_vendor" =~ /mandrake/i ? "Mandrake Linux" : "Red Hat Linux")')}
-%{expand:%%define real_release %%(perl -e 'printf "%%s\\n", ("%_vendor" !~ /mandrake/i && ("%release" =~ /(.*?)mdk/)[0] || "%release")')}
 
+%define use_locale	1
+%define allow_gurpmi	0
+%define allow_karun	0
+%define req_webfetch	webfetch
+%define buildreq_locale	perl-MDK-Common-devel
+
+Summary:	User mode rpm install
 Name:		%{name}
 Version:	%{version}
-Release:	%{real_release}
-Group:		%{group}
-Distribution:	%{distribution}
+Release:	%{release}
 License:	GPL
-Source0:	%{name}.tar.bz2
-Summary:	User mode rpm install
+Group:		System/Configuration/Packaging
 URL:		http://cvs.mandrakesoft.com/cgi-bin/cvsweb.cgi/soft/urpmi
+Source0:	%{name}.tar.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildRequires:	%{buildreq_locale} bzip2-devel rpm-devel >= 4.0.3 
+BuildArch:	noarch
+
 Requires:	%{req_webfetch} eject gnupg
 PreReq:		perl-Locale-gettext >= 1.01-7 gettext rpmtools >= 4.5 perl-URPM >= 0.94
-BuildRequires:	%{buildreq_locale} bzip2-devel rpm-devel >= 4.0.3 
-BuildRoot:	%{_tmppath}/%{name}-buildroot
-BuildArch:	noarch
 
 %description
 urpmi takes care of dependencies between rpms, using a pool (or pools) of rpms.
@@ -43,14 +42,7 @@ Obsoletes:	grpmi
 gurpmi is a graphical front-end to urpmi
 %endif
 
-#%package -n autoirpm
-#Summary: Auto install of rpm on demand
-#Requires: sh-utils urpmi gurpmi xtest gmessage gurpmi perl
-#Group: %{group}
-#
-#%description -n autoirpm
-#Auto install of rpm on demand
-
+%if %{allow_karun}
 %package -n urpmi-parallel-ka-run
 Summary:	Parallel extensions to urpmi using ka-run
 Requires:	urpmi >= %{version}-%{release} ka-run >= 2.0-15mdk
@@ -59,6 +51,7 @@ Group:		%{group}
 %description -n urpmi-parallel-ka-run
 urpmi-parallel-ka-run is an extensions module to urpmi for handling
 distributed installation using ka-run tools.
+%endif
 
 %package -n urpmi-parallel-ssh
 Summary:	Parallel extensions to urpmi using ssh and scp
@@ -73,8 +66,11 @@ distributed installation using ssh and scp tools.
 %setup -q -n %{name}
 
 %install
-%{__rm} -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %{__make} PREFIX=%{buildroot} MANDIR=%{buildroot}%{_mandir} install
+%if !%{allow_gurpmi}
+rm -f %{buildroot}%{_sbindir}/gurpmi
+%endif
 #install -d $RPM_BUILD_ROOT/var/lib/urpmi/autoirpm.scripts
 for dir in partial headers rpms
 do
@@ -86,21 +82,19 @@ cat <<EOF >%{buildroot}/etc/urpmi/inst.list
 # of being upgraded (typically kernel packages).
 kernel
 kernel-smp
-kernel-secure
-kernel-enterprise
-kernel-linus2.2
-kernel-linus2.4
-kernel22
-kernel22-secure
-kernel22-smp
-hackkernel
+kernel-BOOT
+kernel-build
 EOF
 
 mkdir -p %{buildroot}%{compat_perl_vendorlib}
 install -m 644 urpm.pm %{buildroot}%{compat_perl_vendorlib}/urpm.pm
+%if %{allow_gurpmi}
 install -m 644 gurpm.pm %{buildroot}%{compat_perl_vendorlib}/gurpm.pm
+%endif
 mkdir -p %{buildroot}%{compat_perl_vendorlib}/urpm
+%if %{allow_karun}
 install -m 644 urpm/parallel_ka_run.pm %{buildroot}%{compat_perl_vendorlib}/urpm/parallel_ka_run.pm
+%endif
 install -m 644 urpm/parallel_ssh.pm %{buildroot}%{compat_perl_vendorlib}/urpm/parallel_ssh.pm
 mkdir -p %{buildroot}%{_mandir}/man3
 pod2man urpm.pm >%{buildroot}%{_mandir}/man3/urpm.3
@@ -132,12 +126,15 @@ title="Software installer" longtitle="Graphical front end to install RPM files" 
 mimetypes="application/x-rpm" \
 multiple_files="true"
 EOF
+%else
+rm -f %{buildroot}%{_bindir}/gurpmi
 %endif
+
 
 %find_lang %{name}
 
 %clean
-rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %preun
 if [ "$1" = "0" ]; then
@@ -153,9 +150,6 @@ use urpm;
 $urpm = new urpm;
 $urpm->read_config;
 $urpm->update_media(nolock => 1, nopubkey => 1);
-
-#%preun -n autoirpm
-#[ -x %{_sbindir}/autoirpm.uninstall ] && %{_sbindir}/autoirpm.uninstall
 
 %if %{allow_gurpmi}
 %post -n gurpmi
@@ -203,24 +197,12 @@ $urpm->update_media(nolock => 1, nopubkey => 1);
 %{compat_perl_vendorlib}/gurpm.pm
 %endif
 
-#%files -n autoirpm
-#%defattr(-,root,root)
-#%dir /var/lib/urpmi/autoirpm.scripts
-#%config(noreplace) /etc/urpmi/autoirpm.deny
-#%{_sbindir}/autoirpm.*
-#%{_mandir}/man?/autoirpm*
-## find_lang isn't able to find man pages yet...
-#%lang(cs) %{_mandir}/cs/man?/autoirpm*
-#%lang(eu) %{_mandir}/eu/man?/autoirpm*
-#%lang(fr) %{_mandir}/fr/man?/autoirpm*
-#%lang(ru) %{_mandir}/ru/man?/autoirpm*
-#%{_bindir}/_irpm
-#%doc README-autoirpm-icons autoirpm.README
-
+%if %{allow_karun}
 %files -n urpmi-parallel-ka-run
 %defattr(-,root,root)
 %doc urpm/README.ka-run
 %{compat_perl_vendorlib}/urpm/parallel_ka_run.pm
+%endif
 
 %files -n urpmi-parallel-ssh
 %defattr(-,root,root)
@@ -228,6 +210,22 @@ $urpm->update_media(nolock => 1, nopubkey => 1);
 %{compat_perl_vendorlib}/urpm/parallel_ssh.pm
 
 %changelog
+* Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 4.4-49sls
+- remove %%build_opensls macro
+- minor spec cleanups
+
+* Tue Dec 30 2003 Vincent Danen <vdanen@opensls.org> 4.4-48sls
+- new macro: %%allow_karun which is off for OpenSLS builds
+- fix %%allow_gurpmi macro
+- don't build gurpmi
+
+* Fri Dec 18 2003 Vincent Danen <vdanen@opensls.org> 4.4-47sls
+- OpenSLS build
+- tidy spec
+- do a lot of %%define forces using %%build_opensls macro
+- remove Distribution tag
+- don't use %%real_release
+
 * Sun Dec 14 2003 François Pons <fpons@mandrakesoft.com> 4.4-46mdk
 - fixed improper restart and possible loop of restart.
 

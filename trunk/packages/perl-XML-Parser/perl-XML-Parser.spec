@@ -1,20 +1,22 @@
-%define	name	perl-XML-Parser
 %define	module	XML-Parser
-%define	version	2.31
-%define	release	8mdk
+%define	name	perl-%{module}
+%define	version	2.34
+%define	release	4sls
 
 Summary: 	A perl module for parsing XML documents
 Name: 		%{name}
-Version: 	2.34
-Release: 	1mdk
+Version: 	%{version}
+Release: 	%{release}
 License: 	GPL
 Group: 		Development/Perl
+URL: 		http://www.cpan.org
 Source: 	http://www.cpan.org/authors/id/C/CO/COOPERCL/%{module}-%{version}.tar.bz2
 Source1:	http://uucode.com/xml/perl/enc.tar.bz2
-Url: 		http://www.cpan.org
+
 BuildRoot: 	%{_tmppath}/%{name}-buildroot/
-Requires: 	perl, libexpat1_95
 BuildRequires: 	libexpat-devel perl-devel perl-libwww-perl perl-HTML-Parser
+
+Requires: 	perl, libexpat1_95
 
 %description
 A perl module for parsing XML documents
@@ -29,13 +31,13 @@ Needed by eGrail
 %make OPTIMIZE="$RPM_OPT_FLAGS"
 make test
 
-%clean 
-rm -rf $RPM_BUILD_ROOT
-
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 install -m 644 enc/koi8-r.enc $RPM_BUILD_ROOT%{perl_vendorarch}/XML/Parser/Encodings
+
+%clean
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -46,6 +48,17 @@ install -m 644 enc/koi8-r.enc $RPM_BUILD_ROOT%{perl_vendorarch}/XML/Parser/Encod
 
 
 %changelog
+* Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 2.34-4sls
+- rebuild for perl 5.8.4
+
+* Fri Feb 27 2004 Vincent Danen <vdanen@opensls.org> 2.34-3sls
+- rebuild for new perl
+- minor spec cleanups
+
+* Mon Dec 13 2003 Vincent Danen <vdanen@opensls.org> 2.34-2sls
+- OpenSLS build
+- tidy spec
+
 * Thu Aug 21 2003 François Pons <fpons@mandrakesoft.com> 2.34-1mdk
 - 2.34.
 

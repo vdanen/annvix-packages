@@ -1,20 +1,24 @@
-%define name libpcap
-%define	major 0
-%define minor 7
-%define finalname %{name}%{major}
+%define name	libpcap
+%define version	0.8.3
+%define release	1sls
+%define sname	pcap
 
-Name:		%{name}
+%define	major	0
+%define minor	8
+%define libname %mklibname %sname %major
+
 Summary:        A system-independent interface for user-level packet capture
-Version:	0.7.2
-Release:	2mdk
-URL:		http://www.tcpdump.org
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
 License:	BSD
-
+Group:		System/Libraries
+URL:		http://www.tcpdump.org
 Source:		http://www.tcpdump.org/release/libpcap-%{version}.tar.gz
 
-Group:		System/Libraries
-BuildRequires:	byacc flex
 BuildRoot:	%_tmppath/%name-%version-%release-root
+BuildRequires:	byacc flex
+
 Obsoletes:	libpcap
 Provides:	libpcap
 Provides:	libpcap = %{version}
@@ -27,14 +31,14 @@ different interface for packet capture, the libpcap authors created this
 system-independent API to ease in porting and to alleviate the need for
 several system-dependent packet capture modules in each application.
 
-%package -n %{finalname}
+%package -n %{libname}
 Summary:	A system-independent interface for user-level packet capture
 Group:          System/Libraries
 Obsoletes:      libpcap
 Provides:       libpcap
 Provides:	libpcap = %{version}
 
-%description -n %{finalname}
+%description -n %{libname}
 Libpcap provides a portable framework for low-level network monitoring.
 Libpcap can provide network statistics collection, security monitoring
 and network debugging.  Since almost every system vendor provides a
@@ -43,17 +47,16 @@ system-independent API to ease in porting and to alleviate the need for
 several system-dependent packet capture modules in each application.
 
 
-%package -n %{finalname}-devel
+%package -n %{libname}-devel
 Summary:	Static library and header files for the pcap library
 Group:		Development/C
 License: 	BSD
 Obsoletes:	libpcap-devel
-Provides:	libpcap-devel
 Provides:	libpcap-devel = %{version}
-Requires:	%{finalname} = %version-%release
-BuildRequires:	autoconf
+Requires:	%{libname} = %version-%release
+BuildRequires:	autoconf >= 2.5, automake >= 1.7
 
-%description -n %{finalname}-devel
+%description -n %{libname}-devel
 Libpcap provides a portable framework for low-level network monitoring.
 Libpcap can provide network statistics collection, security monitoring
 and network debugging.  Since almost every system vendor provides a
@@ -67,9 +70,11 @@ compile applications such as tcpdump, etc.
 %prep
 %setup -q  -n libpcap-%{version}
 
-autoheader
-aclocal
-autoconf
+export WANT_AUTOCONF_2_5=1
+
+autoheader-2.5x
+aclocal-1.7
+autoconf-2.5x
 
 %build
 %configure --enable-ipv6
@@ -84,7 +89,7 @@ autoconf
 gcc -Wl,-soname,libpcap.so.0 -shared -fpic -o libpcap.so.%{major}.%{minor} *.o
 
 %install
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 mkdir -p $RPM_BUILD_ROOT/{%{_includedir}/net,%{_libdir},%{_mandir}/man3}
 
@@ -98,31 +103,43 @@ pushd $RPM_BUILD_ROOT/%{_libdir} && {
 } && popd
 
 %clean
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-%post -n %{finalname} -p /sbin/ldconfig
+%post -n %{libname} -p /sbin/ldconfig
 
-%postun -n %{finalname} -p /sbin/ldconfig
+%postun -n %{libname} -p /sbin/ldconfig
 
-%post -n %{finalname}-devel -p /sbin/ldconfig
+%post -n %{libname}-devel -p /sbin/ldconfig
 
-%postun -n %{finalname}-devel -p /sbin/ldconfig
+%postun -n %{libname}-devel -p /sbin/ldconfig
 
-%files -n %{finalname}
+%files -n %{libname}
 %defattr(-,root,root)
 %doc README* CHANGES CREDITS FILES INSTALL.txt
-%doc LICENSE VERSION
+%doc LICENSE VERSION TODO
 %{_libdir}/libpcap.so.*
 
-%files -n %{finalname}-devel
+%files -n %{libname}-devel
 %defattr(-,root,root)
-%doc TODO
 %{_includedir}/*
 %{_libdir}/libpcap.so
 %{_libdir}/libpcap.a
 %{_mandir}/man3/pcap.3*
 
 %changelog
+* Fri Apr 30 2004 Vincent Danen <vdanen@opensls.org> 0.8.3-1sls
+- 0.8.3
+- mklibname
+- BuildRequires: autoconf >= 2.5, automake >= 1.7
+- drop redundant Provides
+
+* Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 0.7.2-4sls
+- minor spec cleanups
+
+* Tue Dec 09 2003 Vincent Danen <vdanen@opensls.org> 0.7.2-3sls
+- OpenSLS build
+- tidy spec
+
 * Thu Jul 31 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 0.7.2-2mdk
 - rebuild
 

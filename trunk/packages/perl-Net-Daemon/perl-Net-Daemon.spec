@@ -1,19 +1,22 @@
 %define module 	Net-Daemon
+%define name	perl-%{module}
 %define version 0.37
-%define release 3mdk
+%define release 6sls
 
 Summary:	%{module} perl module
-Name: 		perl-%{module}
+Name: 		%{name}
 Version: 	%{version}
 Release: 	%{release}
 License: 	GPL or Artistic
 Group:		Development/Perl
 URL:		ftp://ftp.funet.fi/pub/languages/perl/CPAN/authors/id/JWIED 
 Source0:	%{module}-%{version}.tar.bz2
-Requires: 	perl
+
 Buildrequires:  perl-devel >= 5.8.0
 BuildRoot: 	%{_tmppath}/%{name}-%{version}-buildroot
 Buildarch:	noarch
+
+Requires: 	perl
 
 %description
 %{module} - module for perl
@@ -26,11 +29,11 @@ Buildarch:	noarch
 make
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
 %clean 
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files 
 %defattr(-,root,root)
@@ -40,6 +43,16 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/*/*
 
 %changelog
+* Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 0.37-6sls
+- rebuild for perl 5.8.4
+
+* Fri Feb 27 2004 Vincent Danen <vdanen@opensls.org> 0.37-5sls
+- rebuild for new perl
+
+* Tue Dec 30 2003 Vincent Danen <vdanen@opensls.org> 0.37-4sls
+- OpenSLS build
+- tidy spec
+
 * Thu Aug 14 2003 Per Øyvind Karlsen <peroyvind@linux-mandrake.com> 0.37-3mdk
 - rebuild for new perl
 - drop $RPM_OPT_FLAGS, noarch..

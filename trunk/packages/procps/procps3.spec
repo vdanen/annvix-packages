@@ -1,21 +1,23 @@
-%define major_version	3
-%define minor_version	1
-%define revision		11
+%define name	procps
+%define version	3.2.1
+%define release	1sls
 
 Summary:	Utilities for monitoring your system and processes on your system
-Name:		procps
-Version:	%{major_version}.%{minor_version}.%{revision}
-Release:	2mdk
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
 License:	GPL
 Group:		Monitoring
-BuildRequires:	ncurses-devel
-Patch0:		procps-3.0.5-sysctlshutup.patch.bz2
 URL:		http://procps.sf.net/
 Source:		http://procps.sourceforge.net/%name-%version.tar.bz2
+Patch0:		procps-3.1.15-sysctlshutup.patch.bz2
+
 BuildRoot:	%_tmppath/%name-root
-Provides:	libproc.so.%{major_version}.%{minor_version} procps3
-Obsoletes: procps3
-Prereq: /bin/rm
+BuildRequires:	ncurses-devel
+
+Provides:	libproc.so.3.1 procps3
+Obsoletes:	procps3
+Prereq:		coreutils
 
 %description
 The procps package contains a set of system utilities which provide system
@@ -60,8 +62,8 @@ Developement headers and library for the proc library.
 make CC="gcc $RPM_OPT_FLAGS"
 
 %install
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 PATH=/sbin:$PATH
-rm -rf $RPM_BUILD_ROOT
 mkdir -p $RPM_BUILD_ROOT{{/usr,}/bin,/sbin,%_mandir/man{1,5,8},%_lib}
 
 %makeinstall_std ldconfig=/bin/true install="install -D" lib="$RPM_BUILD_ROOT/%{_lib}"
@@ -74,7 +76,7 @@ install -m 644 proc/*.h $RPM_BUILD_ROOT%{_includedir}/procps
 mv $RPM_BUILD_ROOT/bin/{,procps3-}kill
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post 
 /sbin/ldconfig
@@ -84,7 +86,6 @@ rm -f /etc/psdevtab /etc/psdatabase
 %postun -p /sbin/ldconfig
 
 %files
-
 %defattr(-,root,root)
 %doc NEWS BUGS TODO
 /%{_lib}/libproc.so.*
@@ -96,6 +97,7 @@ rm -f /etc/psdevtab /etc/psdatabase
 %_bindir/pmap
 %_bindir/pkill
 %_bindir/skill
+%_bindir/slabtop
 %_bindir/snice
 %_bindir/tload
 %_bindir/top
@@ -110,6 +112,7 @@ rm -f /etc/psdevtab /etc/psdatabase
 %_mandir/man1/pmap.1*
 %_mandir/man1/ps.1*
 %_mandir/man1/skill.1*
+%_mandir/man1/slabtop.1*
 %_mandir/man1/snice.1*
 %_mandir/man1/tload.1*
 %_mandir/man1/top.1*
@@ -128,6 +131,18 @@ rm -f /etc/psdevtab /etc/psdatabase
 /%_lib/libproc.so
 
 %changelog
+* Fri Jun 11 2004 Vincent Danen <vdanen@opensls.org> 3.2.1-1sls
+- PreReq: coreutils, not /bin/rm
+- 3.2.1
+- rediff P0
+
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 3.1.11-4sls
+- minor spec cleanups
+
+* Mon Dec 01 2003 Vincent Danen <vdanen@opensls.org> 3.1.11-3sls
+- OpenSLS build
+- tidy spec
+
 * Mon Aug  4 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 11-2mdk
 - lib64 fixes
 

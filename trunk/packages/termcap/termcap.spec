@@ -1,27 +1,28 @@
+%define name	termcap
 %define version 11.0.1
-%define release 8mdk
+%define release 10sls
 
-Summary: The terminal feature database used by certain applications.
-Name: termcap
-Version: %{version}
-Release: %{release}
-License: none
-Group: System/Libraries
-Source0: http://www.ccil.org/~esr/terminfo/termtypes.tc.bz2
-Patch0: termcap-linuxlat.patch.bz2
-Patch1: termcap-xtermchanges.patch.bz2
-Patch2: termcap-utf8.patch.bz2
+Summary:	The terminal feature database used by certain applications.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	none
+Group:		System/Libraries
+Source0:	http://www.ccil.org/~esr/terminfo/termtypes.tc.bz2
+Patch0:		termcap-linuxlat.patch.bz2
+Patch1:		termcap-xtermchanges.patch.bz2
+Patch2:		termcap-utf8.patch.bz2
 # (fc) 11.0.1-4mdk patch to correctly handle Home/End with X11R6 keycode
-Patch3: termcap-xtermX11R6.patch.bz2
+Patch3:		termcap-xtermX11R6.patch.bz2
 # (vdanen) 11.0.1-6mdk patch so Eterm is seen as a color-capable term
-Patch4: termcap-Eterm.patch.bz2
+Patch4:		termcap-Eterm.patch.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-root
 
 %ifarch sparc
-Obsoletes: termfiles_sparc
-Provides: termfiles_sparc
+Obsoletes:	termfiles_sparc
+Provides:	termfiles_sparc
 %endif
-
-BuildRoot: %{_tmppath}/%{name}-root
 
 %description
 The termcap package provides the /etc/termcap file.  /etc/termcap is
@@ -31,10 +32,12 @@ access various features of terminals (the bell, colors, and graphics,
 etc.).
 
 %prep
-rm -rf $RPM_BUILD_ROOT
-mkdir -p $RPM_BUILD_ROOT/etc
-bzcat %{SOURCE0} > $RPM_BUILD_ROOT/etc/termcap
-pushd $RPM_BUILD_ROOT/etc && {
+
+%install
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}
+bzcat %{SOURCE0} > $RPM_BUILD_ROOT%{_sysconfdir}/termcap
+pushd $RPM_BUILD_ROOT%{_sysconfdir} && {
 %patch0 -p0
 %patch1 -p0
 %patch2 -p0
@@ -42,16 +45,23 @@ pushd $RPM_BUILD_ROOT/etc && {
 %patch4 -p0
 } && popd
 # Remove unpackaged file(s)
-rm -rf	$RPM_BUILD_ROOT/etc/termcap.orig
+rm -rf	$RPM_BUILD_ROOT%{_sysconfdir}/termcap.orig
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
-%config(noreplace) %attr(644,root,root) /etc/termcap
+%config(noreplace) %attr(644,root,root) %{_sysconfdir}/termcap
 
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 11.0.1-10sls
+- minor spec cleanups
+
+* Tue Dec 09 2003 Vincent Danen <vdanen@opensls.org> 11.0.1-9sls
+- OpenSLS build
+- tidy spec
+
 * Thu Jul 24 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 11.0.1-8mdk
 - rebuild
 - fix use-of-RPM_SOURCE_DIR (rpmlint)

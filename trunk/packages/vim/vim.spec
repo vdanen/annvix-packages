@@ -1,41 +1,46 @@
+%define name	vim
+%define version	6.2
+%define release	14sls
+
 # Notes / Warning :
 # - this package is not prefixable
 # - to update official patches, aka SOURCE4, see README.mdk in SOURCE4
 
-%define url ftp://ftp.vim.org/pub/vim/unix/
+%define url	ftp://ftp.vim.org/pub/vim/unix/
 %define official_ptchlvl 72
+%define localedir $RPM_BUILD_ROOT%{_datadir}/locale/
 
 %{expand:%%define perl_version %(rpm -q perl|sed 's/perl-\([0-9].*\)-.*$/\1/')}
 
-Summary: VIsual editor iMproved 
-Name:	 vim
-Version: 6.2
-Release: 11mdk
-Url: http://www.vim.org
-Source0: %{url}/%name-%version.tar.bz2
-Source2: %{url}/extra/%name-%version-lang.tar.bz2
-Source3: gvim.menu.bz2
-Source4: vim-%version.%{official_ptchlvl}-patches.tar.bz2
-
+Summary:	VIsual editor iMproved 
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	Charityware
+Group:		Editors
+URL:		http://www.vim.org
+Source0:	%{url}/%name-%version.tar.bz2
+Source2:	%{url}/extra/%name-%version-lang.tar.bz2
+Source3:	gvim.menu.bz2
+Source4:	vim-%version.%{official_ptchlvl}-patches.tar.bz2
 # MDK patches
-Patch2: vim-5.6a-paths.patch.bz2
-Patch3: vim-6.2-rpm-spec-syntax.patch.bz2
-Patch8: vim-6.0af-man-path.patch.bz2
-Patch10: xxd-locale.patch.bz2
-Patch11: vim-6.2-gcc31.patch.bz2
-Patch20: vimrc_hebrew.patch.bz2
-Patch22: vim-6.1-fix-xterms-comments.patch.bz2
-Patch23: vim-6.1-remove-docs.patch.bz2
-Patch24: vim-6.1-outline-mode.patch.bz2 
-Patch25: vim-6.1-xterm-s-insert.patch.bz2 
-Patch26: vim-6.1-changelog-mode.patch.bz2
-Patch27: vim-6.1-rpm42.patch.bz2
-Patch28: vim-6.1-po-mode.patch.bz2
-Patch29: vim-6.2-spec-mode.diff.bz2
-License: Charityware
-Group: Editors
-BuildRoot: %_tmppath/%name-%version
-BuildRequires: perl-devel termcap-devel libgnomeui2-devel tclx
+Patch2:		vim-5.6a-paths.patch.bz2
+Patch3:		vim-6.2-rpm-spec-syntax.patch.bz2
+Patch8:		vim-6.0af-man-path.patch.bz2
+Patch10:	xxd-locale.patch.bz2
+Patch11:	vim-6.2-gcc31.patch.bz2
+Patch20:	vimrc_hebrew.patch.bz2
+Patch22:	vim-6.1-fix-xterms-comments.patch.bz2
+Patch23:	vim-6.1-remove-docs.patch.bz2
+Patch24:	vim-6.1-outline-mode.patch.bz2 
+Patch25:	vim-6.1-xterm-s-insert.patch.bz2 
+Patch26:	vim-6.1-changelog-mode.patch.bz2
+Patch27:	vim-6.1-rpm42.patch.bz2
+Patch28:	vim-6.1-po-mode.patch.bz2
+Patch29:	vim-6.2-spec-mode.diff.bz2
+
+BuildRoot:	%_tmppath/%name-%version
+BuildRequires:	perl-devel termcap-devel
 
 %description
 VIM (VIsual editor iMproved) is an updated and improved version of the vi
@@ -45,10 +50,10 @@ multi-level undo, block highlighting and more.  The vim-common package
 contains files which every VIM binary will need in order to run.
 
 %package common
-Summary: The common files needed by any version of the VIM editor.
-Group: Editors
-Requires: perl
-PreReq: coreutils 
+Summary:	The common files needed by any version of the VIM editor.
+Group:		Editors
+Requires:	perl
+PreReq:		coreutils 
 
 %description common
 VIM (VIsual editor iMproved) is an updated and improved version of the vi
@@ -58,10 +63,10 @@ multi-level undo, block highlighting and more.  The vim-common package
 contains files which every VIM binary will need in order to run.
 
 %package minimal
-Summary: A minimal version of the VIM editor.
-Group: Editors
-Provides: vim
-PreReq: /usr/sbin/update-alternatives
+Summary:	A minimal version of the VIM editor.
+Group:		Editors
+Provides:	vim
+PreReq:		/usr/sbin/update-alternatives
 
 %description minimal
 VIM (VIsual editor iMproved) is an updated and improved version of the vi
@@ -72,12 +77,12 @@ includes a minimal version of VIM, which is installed into /bin/vi for use
 when only the root partition is present.
 
 %package enhanced
-Summary: A version of the VIM editor which includes recent enhancements.
-Group: Editors
-Requires: vim-common >= %version
-Obsoletes: vim-color
-Provides: vim vim-color
-PreReq: /usr/sbin/update-alternatives
+Summary:	A version of the VIM editor which includes recent enhancements.
+Group:		Editors
+Requires:	vim-common >= %version
+Obsoletes:	vim-color
+Provides:	vim vim-color
+PreReq:		/usr/sbin/update-alternatives
 
 %description enhanced
 VIM (VIsual editor iMproved) is an updated and improved version of the vi
@@ -92,26 +97,6 @@ editor which includes recently added enhancements like interpreters for the
 Python and Perl scripting languages.  You'll also need to install the
 vim-common package.
 
-%package X11
-Summary: The VIM version of the vi editor for the X Window System.
-Group: Editors
-Provides: vim
-Requires: vim-common >= %version
-
-%description X11
-VIM (VIsual editor iMproved) is an updated and improved version of the vi
-editor.  Vi was the first real screen-based editor for UNIX, and is still
-very popular.  VIM improves on vi by adding new features: multiple windows,
-multi-level undo, block highlighting and more. VIM-X11 is a version of the
-VIM editor which will run within the X Window System.  If you install this
-package, you can run VIM as an X application with a full GUI interface and
-mouse support.
-
-Install the vim-X11 package if you'd like to try out a version of vi with
-graphics and mouse capabilities.  You'll also need to install the
-vim-common package.
-
-%define localedir $RPM_BUILD_ROOT%{_datadir}/locale/
 
 %prep
 %setup -q -b 2 -n vim62 -a4
@@ -138,25 +123,12 @@ done
 
 %build
 
-# First build: gvim
-LOCALEDIR=%localedir CFLAGS="$RPM_OPT_FLAGS" CXXFLAGS="$RPM_OPT_FLAGS" ./configure --prefix=%_prefix \
---enable-pythoninterp --enable-perlinterp --with-features=huge \
---disable-acl --with-x=yes --enable-gui=gnome2 --exec-prefix=%_prefix/X11R6 \
---enable-gtk2-check \
---enable-multibyte --enable-xim --enable-fontset --mandir=%_mandir \
---libdir=%_libdir --with-compiledby="%packager"
- 
-echo "#define MAX_FEAT 1" >> src/config.h
-
-make
-mv src/vim src/gvim
-make -C src clean
-
 # Second build: vim-enhanced
+
 CFLAGS="$RPM_OPT_FLAGS" CXXFLAGS="$RPM_OPT_FLAGS"  ./configure --prefix=%_prefix \
 --disable-acl --enable-pythoninterp --enable-perlinterp --with-features=huge \
 --libdir=%_libdir --with-compiledby="%packager" \
---with-x=no --enable-gui=no --exec-prefix=%_prefix
+--with-x=no --enable-gui=no --disable-gpm --exec-prefix=%_prefix
 
 make
 mv src/vim src/vim-enhanced
@@ -188,7 +160,7 @@ ln -s tutor.fr runtime/tutor/tutor.br
 ln -s menu_fr_fr.iso_8859-15.vim runtime/lang/menu_br
 
 %install
-rm -fr $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 [ ! -e mandrake ] && mv vim-%version.%{official_ptchlvl}-patches mandrake
 
@@ -200,7 +172,6 @@ mkdir -p $RPM_BUILD_ROOT{/bin,%_bindir,%_datadir/{vim,locale},%_prefix/X11R6/bin
 
 make -C src installmacros prefix=$RPM_BUILD_ROOT%_prefix VIMRTDIR=""
 
-install -s -m755 src/gvim $RPM_BUILD_ROOT%_prefix/X11R6/bin
 install -s -m755 src/vim-enhanced $RPM_BUILD_ROOT%_bindir
 install -s -m755 src/vim-minimal $RPM_BUILD_ROOT/bin/vim-minimal
 
@@ -210,7 +181,6 @@ for i in ex vimdiff; do
 	ln -sf vim-enhanced ./usr/bin/$i
 done
 rm -f ./usr/man/man1/rvim.1.bz2
-ln -sf gvim ./usr/X11R6/bin/vimx
 cd -
 
 # installing man pages
@@ -233,16 +203,8 @@ ln -f runtime/macros/README.txt README_macros.txt
 ln -f runtime/tools/README.txt README_tools.txt
 perl -p -i -e "s|#!/usr/local/bin/perl|#!/usr/bin/perl|" runtime/doc/*.pl
 
-# installing the menu icons & entry
-mkdir -p $RPM_BUILD_ROOT{%_miconsdir,%_liconsdir,%_menudir}
-cp runtime/vim16x16.png $RPM_BUILD_ROOT%_miconsdir/gvim.png
-cp runtime/vim32x32.png $RPM_BUILD_ROOT%_iconsdir/gvim.png
-cp runtime/vim48x48.png $RPM_BUILD_ROOT%_liconsdir/gvim.png
-bzcat %SOURCE3 > $RPM_BUILD_ROOT%_menudir/vim-X11
-
-
-# gvim and fontset (from Pablo) 2001/03/19
-echo 'set guifontset=-*-fixed-medium-r-normal--14-*-*-*-c-*-*-*,-*-*-medium-r-normal--14-*-*-*-c-*-*-*,-*-*-medium-r-normal--14-*-*-*-m-*-*-*,*' > $RPM_BUILD_ROOT%{_datadir}/vim/gvimrc
+# remove gvim manpage
+rm -f $RPM_BUILD_ROOT%_mandir/man1/gvim.1*
 		
 # fix the paths in the man pages
 for i in $RPM_BUILD_ROOT/usr/share/man/man1/*.1; do
@@ -258,6 +220,8 @@ ln -sf ../../../%_defaultdocdir/%name-common-%version/doc $RPM_BUILD_ROOT/usr/sh
 pushd $RPM_BUILD_ROOT/%_datadir/vim/lang
 	ln -s ../../locale/* .
 popd
+
+rm -f %{buildroot}%{_bindir}/{rview,view,rvim}
 
 %{find_lang} %name
 
@@ -331,16 +295,8 @@ update-alternatives --remove vi  /usr/bin/vim-enhanced
 update-alternatives --remove vim /usr/bin/vim-enhanced
 :
 
-# menu stuff
-%post X11
-%{update_menus}
-
-%postun X11
-%{clean_menus}
-
 %clean
-rm -rf $RPM_BUILD_ROOT
-rm -rf $RPM_BUILD_DIR/$RPM_PACKAGE_NAME
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files common -f vim.lang
 %defattr(-,root,root)
@@ -376,19 +332,17 @@ rm -rf $RPM_BUILD_DIR/$RPM_PACKAGE_NAME
 %_bindir/ex
 %_bindir/vimdiff
 
-%files X11
-%defattr(-,root,root)
-%doc README*.txt
-%_prefix/X11R6/bin/gvim
-%_prefix/X11R6/bin/vimx
-%_mandir/man1/gvim.1*
-%_iconsdir/gvim.png
-%_miconsdir/gvim.png
-%_liconsdir/gvim.png
-%_menudir/vim-X11
-%_datadir/vim/gvimrc
-
 %changelog
+* Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 6.2-14sls
+- minor spec cleanups
+
+* Mon Jan 12 2004 Vincent Danen <vdanen@opensls.org> 6.2-13sls
+- remove %%build_opensls tags
+
+* Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 6.2-12sls
+- OpenSLS build
+- don't build vim-x11 (use %%build_opensls macro)
+- don't enable gpm support in vim-enhanced
 
 * Thu Sep 04 2003 Thierry Vignaud <tvignaud@mandrakesoft.com> 6.2-11mdk
 - fix buildrequires for 64bit ports

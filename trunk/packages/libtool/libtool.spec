@@ -1,10 +1,10 @@
 %define name	libtool
 %define version	1.4.3
-%define release	7mdk
+%define release	11sls
 
 %define lib_major	3
-%define lib_name_orig	%mklibname ltdl
-%define lib_name	%{lib_name_orig}%{lib_major}
+%define lib_name_orig	libltdl
+%define lib_name	%mklibname ltdl %{lib_major}
 
 Summary:	The GNU libtool, which simplifies the use of shared libraries
 Name:		%{name}
@@ -12,7 +12,7 @@ Version:	%{version}
 Release:	%{release}
 License:	GPL
 Group:		Development/Other
-
+URL:		http://www.gnu.org/software/libtool/libtool.html
 Source:		ftp://ftp.gnu.org/gnu/libtool/libtool-%{version}.tar.bz2
 Source1:	libtool-cputoolize.sh
 # Geoff - patching ltmain.sh not ltmain.in coz that's the file that gets 
@@ -33,9 +33,10 @@ Patch10:	libtool-1.4.2-expsym-linux.patch.bz2
 Patch11:	libtool-1.4.3-amd64-alias.patch.bz2
 Patch12:	libtool-1.4.3-libtoolize--config-only.patch.bz2
 Patch13:	libtool-1.4.3-quotes.patch.bz2
-URL:		http://www.gnu.org/software/libtool/libtool.html
-PreReq:		/sbin/install-info
+
 BuildRoot:	%_tmppath/%name-%version-%release-root
+
+PreReq:		/sbin/install-info
 Requires:	file common-licenses
 
 %description
@@ -114,13 +115,14 @@ echo ====================TESTING END=====================
 ( cd demo ; make clean )
 
 %install
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
 sed -e "s,@prefix@,%{_prefix}," -e "s,@datadir@,%{_datadir}," %{SOURCE1} \
   > $RPM_BUILD_ROOT%{_bindir}/cputoolize
 chmod 755 $RPM_BUILD_ROOT%{_bindir}/cputoolize
 
 %clean
-rm -fr %buildroot
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
 %_install_info %{name}.info
@@ -138,6 +140,7 @@ rm -fr %buildroot
 %doc THANKS TODO ChangeLog*
 %_bindir/*
 %_infodir/libtool.info*
+%dir %_datadir/libtool
 %_datadir/libtool/co*
 %_datadir/libtool/lt*
 %_datadir/aclocal/libtool.m4
@@ -159,6 +162,19 @@ rm -fr %buildroot
 
 
 %changelog
+* Sat Jun 11 2004 Vincent Danen <vdanen@opensls.org> 1.4.3-11sls
+- own /usr/share/libtool
+
+* Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 1.4.3-10sls
+- minor spec cleanups
+
+* Wed Dec 31 2003 Vincent Danen <vdanen@opensls.org> 1.4.3-9sls
+- sync with 8mdk (gbeauchesne): fix mklibnamification
+
+* Wed Dec 17 2003 Vincent Danen <vdanen@opensls.org> 1.4.3-8sls
+- OpenSLS build
+- tidy spec
+
 * Thu Jul 31 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 1.4.3-7mdk
 - Patch13: quote tests correctly
 

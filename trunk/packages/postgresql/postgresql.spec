@@ -1,71 +1,65 @@
+%define name	postgresql
+%define version	7.3.4
+%define release	9sls
+
 %{expand:%%define pyver %(python -c 'import sys;print(sys.version[0:3])')}
-%{expand:%%define perl_version %(rpm -q perl|sed 's/perl-\([0-9].*\)-.*$/\1/')}
+%{expand:%%define perl_version %(rpm -q --qf %{EPOCH}:%{VERSION} perl)}
 
-%define initd %{_sysconfdir}/rc.d/init.d
-%define pgdata /var/lib/pgsql
-%define logrotatedir %{_sysconfdir}/logrotate.d
+%define pgdata		/var/lib/pgsql
+%define logrotatedir	%{_sysconfdir}/logrotate.d
 
-%define major 3
-%define major_tcl 2
-%define major_ecpg 3
+%define major		3
+%define major_tcl	2
+%define major_ecpg	3
 
 %define current_major_version 7.3
 
-%define libname %mklibname pq %{major}
-%define libpgtcl %mklibname pgtcl %{major_tcl}
-%define libecpg %mklibname ecpg %{major_ecpg}
+%define libname		%mklibname pq %{major}
+%define libpgtcl	%mklibname pgtcl %{major_tcl}
+%define libecpg		%mklibname ecpg %{major_ecpg}
 
 Summary: 	PostgreSQL client programs and libraries.
-Name:		postgresql
-Version:	7.3.4
-Release:	2mdk
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
 License:	BSD
 Group:		Databases
-
-Source0: ftp://ftp.postgresql.org/pub/source/v%{version}/postgresql-%{version}.tar.gz
-
-Source1: http://jdbc.postgresql.org/download/pg73jdbc1.jar 
-Source2: http://jdbc.postgresql.org/download/pg73jdbc2.jar 
-Source3: http://jdbc.postgresql.org/download/pg73jdbc3.jar
-Source4: http://www.rbt.ca/postgresql/upgrade/upgrade.pl
-Source5: ftp://ftp.postgresql.org/pub/source/v%{version}/postgresql-%{version}.tar.gz.md5
-
-Source6: ftp.postgresql.org:/pub/binary/v7.2/RPMS/README.rpm-dist.bz2
-Source7: migration-scripts.tar.gz
-Source8: logrotate.postgresql
-
-Source9: http://jdbc.postgresql.org/download/pg73jdbc2ee.jar
-
-Source10: README.postgresql.mdk
-Source11: postgresql.init
-
-#Source13: odbcinst.ini
-
+URL:		http://www.postgresql.org/ 
+Source0:	ftp://ftp.postgresql.org/pub/source/v%{version}/postgresql-%{version}.tar.gz
+Source1:	http://jdbc.postgresql.org/download/pg73jdbc1.jar 
+Source2:	http://jdbc.postgresql.org/download/pg73jdbc2.jar 
+Source3:	http://jdbc.postgresql.org/download/pg73jdbc3.jar
+Source4:	http://www.rbt.ca/postgresql/upgrade/upgrade.pl
+Source5:	ftp://ftp.postgresql.org/pub/source/v%{version}/postgresql-%{version}.tar.gz.md5
+Source6:	ftp.postgresql.org:/pub/binary/v7.2/RPMS/README.rpm-dist.bz2
+Source7:	migration-scripts.tar.gz
+Source8:	logrotate.postgresql
+Source9:	http://jdbc.postgresql.org/download/pg73jdbc2ee.jar
 # Daouda : script for dumping database (from RedHat)
-Source14: mdk-pgdump.sh
-Source15: postgresql-bashprofile
-Source20: postgres16.xpm
-Source21: postgres32.xpm
-Source22: postgres48.xpm
+Source14:	mdk-pgdump.sh
+Source15:	postgresql-bashprofile
+Source20:	postgresql.run
+Source21:	postgresql-log.run
+Source22:	postgresql.sysconfig
+Source23:	01_postgresql.afterboot
+Source51:	README.v7.3
+Source52:	upgrade_tips_7.3
+Patch1:		rpm-pgsql-7.2.patch.bz2
+Patch2:		postgresql-7.2rc2-betterquote.patch.bz2
+Patch4:		postgresql-7.3-tighten.patch.bz2
+Patch5:		pgaccess-7.2.patch.bz2
+Patch6:		postgresql-7.2.1-perl-use-INSTALLDIRS-vendor.patch.bz2
+Patch7:		postgresql-7.3.3-pythondir.patch.bz2
+Patch8:		postgresql-7.3.4-amd64-testsuite.patch.bz2
 
-Source51: README.v7.3
-Source52: upgrade_tips_7.3
+BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root
+BuildRequires:	XFree86-devel bison flex gettext libtermcap-devel ncurses-devel openssl-devel pam-devel
+BuildRequires:	perl-devel python-devel readline-devel >= 4.3 tk zlib-devel
 
-Patch1: rpm-pgsql-7.2.patch.bz2
-Patch2: postgresql-7.2rc2-betterquote.patch.bz2
-Patch4: postgresql-7.3-tighten.patch.bz2
-Patch5: pgaccess-7.2.patch.bz2
-Patch6: postgresql-7.2.1-perl-use-INSTALLDIRS-vendor.patch.bz2
-Patch7: postgresql-7.3.3-pythondir.patch.bz2
-Patch8: postgresql-7.3.4-amd64-testsuite.patch.bz2
-
-Requires: perl sfio
-Prereq: rpm-helper
-Url: http://www.postgresql.org/ 
-Provides: postgresql-clients
-Obsoletes: postgresql-clients
-Buildroot: %{_tmppath}/%{name}-%{version}-%{release}-root
-BuildRequires:	XFree86-devel bison flex gettext libtermcap-devel ncurses-devel openssl-devel pam-devel perl-devel python-devel readline-devel >= 4.3 tk zlib-devel
+Requires:	perl sfio
+Prereq:		rpm-helper
+Provides:	postgresql-clients
+Obsoletes:	postgresql-clients
 
 %description
 PostgreSQL is an advanced Object-Relational database management system
@@ -86,10 +80,10 @@ server, you need this package. You also need to install this package
 if you're installing the postgresql-server package.
 
 %package -n %{libname}
-Summary: The shared libraries required for any PostgreSQL clients.
-Group: System/Libraries
-Obsoletes: postgresql-libs
-Provides: postgresql-libs = %{version}-%{release} libpq = %{version}-%{release}
+Summary:	The shared libraries required for any PostgreSQL clients.
+Group:		System/Libraries
+Obsoletes:	postgresql-libs
+Provides:	postgresql-libs = %{version}-%{release} libpq = %{version}-%{release}
 
 %description -n %{libname}
 C and C++ libraries to enable user programs to communicate with the
@@ -97,59 +91,59 @@ PostgreSQL database backend. The backend can be on another machine and
 accessed through TCP/IP.
 
 %package -n %{libname}-devel
-Summary: Development library for libpq2
-Group: Development/C
-Requires: %{libname} = %{version}-%{release}
-Provides: postgresql-libs-devel = %{version}-%{release} libpq-devel = %{version}-%{release}
+Summary:	Development library for libpq2
+Group:		Development/C
+Requires:	%{libname} = %{version}-%{release}
+Provides:	postgresql-libs-devel = %{version}-%{release} libpq-devel = %{version}-%{release}
 
 %description -n %{libname}-devel
 Development libraries for libpq
 
 %package -n %{libpgtcl}
-Summary: Tcl/Tk library and front-end for PostgreSQL.
-Group: System/Libraries
-Requires: tcl => 8.0
-Provides: libpgtcl = %{version}-%{release}
+Summary:	Tcl/Tk library and front-end for PostgreSQL.
+Group:		System/Libraries
+Requires:	tcl => 8.0
+Provides:	libpgtcl = %{version}-%{release}
 
 %description -n %{libpgtcl}
 A library to enable Tcl/Tk scripts to communicate with the PostgreSQL
 database backend.
 
 %package -n %{libpgtcl}-devel
-Summary: Tcl/Tk development library and front-end for PostgreSQL.
-Group: Development/C
-Requires: %{libpgtcl} = %{version}-%{release}
-Provides: libpgtcl-devel = %{version}-%{release} 
+Summary:	Tcl/Tk development library and front-end for PostgreSQL.
+Group:		Development/C
+Requires:	%{libpgtcl} = %{version}-%{release}
+Provides:	libpgtcl-devel = %{version}-%{release} 
 
 %description -n %{libpgtcl}-devel
 Development library to libpgtcl2.
 
 %package -n %{libecpg}
-Summary: Shared library libecpg for PostgreSQL
-Group: System/Libraries
-Requires: postgresql = %{version}-%{release}
-Provides: libecpg = %{version}-%{release}
+Summary:	Shared library libecpg for PostgreSQL
+Group:		System/Libraries
+Requires:	postgresql = %{version}-%{release}
+Provides:	libecpg = %{version}-%{release}
 
 %description -n %{libecpg}
 Libecpg is used by programs built with ecpg (Embedded PostgreSQL for C)
 Use postgresql-dev to develop such programs.
 
 %package -n %{libecpg}-devel
-Summary: Development library to libecpg.
-Group: Development/C
-Requires: %{libecpg} = %{version}-%{release}
-Provides: libecpg-devel = %{version}-%{release} 
+Summary:	Development library to libecpg.
+Group:		Development/C
+Requires:	%{libecpg} = %{version}-%{release}
+Provides:	libecpg-devel = %{version}-%{release} 
 
 %description -n %{libecpg}-devel
 Development library to libecpg.
 
 %package server
-Summary: The programs needed to create and run a PostgreSQL server.
-Group: Databases
-Provides: sqlserver
-Prereq: rpm-helper %{_sbindir}/useradd
-Requires: postgresql = %{version}-%{release}
-Conflicts: postgresql < 7.3
+Summary:	The programs needed to create and run a PostgreSQL server.
+Group:		Databases
+Provides:	sqlserver
+Prereq:		rpm-helper %{_sbindir}/useradd afterboot
+Requires:	postgresql = %{version}-%{release}
+Conflicts:	postgresql < 7.3
 
 %description server
 The postgresql-server package includes the programs needed to create
@@ -164,34 +158,24 @@ to install the postgresql and postgresql-devel packages.
 
 If you never played with PostgreSQL before, please read README.mdk.
 
-%package docs
-Summary: Extra documentation for PostgreSQL
-Group: Databases
-
-%description docs
-The postgresql-docs package includes the SGML source for the documentation
-as well as the documentation in other formats, and some extra documentation.
-Install this package if you want to help with the PostgreSQL documentation
-project, or if you want to generate printed documentation.
-
 %package contrib
-Summary: Contributed binaries distributed with PostgreSQL
-Group: Databases
-Requires: libpq = %{version}-%{release} postgresql = %{version}-%{release}
-Requires: libpq = %{version}-%{release} 
-Requires: perl-Pg
+Summary:	Contributed binaries distributed with PostgreSQL
+Group:		Databases
+Requires:	libpq = %{version}-%{release} postgresql = %{version}-%{release}
+Requires:	libpq = %{version}-%{release} 
+Requires:	perl-Pg
 
 %description contrib
 The postgresql-contrib package includes the contrib tree distributed with
 the PostgreSQL tarball.  Selected contrib modules are prebuilt.
 
 %package devel
-Summary: PostgreSQL development header files and libraries.
-Group: Development/Databases
-Requires: postgresql = %{version}-%{release} libpq = %{version}-%{release}
-Requires: %{libpgtcl} = %{version}-%{release}
-Requires: %{libecpg} = %{version}-%{release}
-# Requires: libpgsqlodbc = %{version}-%{release}
+Summary:	PostgreSQL development header files and libraries.
+Group:		Development/Databases
+Requires:	postgresql = %{version}-%{release} libpq = %{version}-%{release}
+Requires:	%{libpgtcl} = %{version}-%{release}
+Requires:	%{libecpg} = %{version}-%{release}
+# Requires:	libpgsqlodbc = %{version}-%{release}
 
 %description devel
 The postgresql-devel package contains the header files and libraries
@@ -203,10 +187,10 @@ you're installing postgresql-server, you need to install this
 package.
 
 %package pl
-Summary: The PL/Perl procedural language for PostgreSQL.
-Group: Databases
-Obsoletes: libpgsql2
-Requires: postgresql = %{version} perl-base = %{perl_version}
+Summary:	The PL/Perl procedural language for PostgreSQL.
+Group:		Databases
+Obsoletes:	libpgsql2
+Requires:	postgresql = %{version} perl-base = %{perl_version}
 
 %description pl
 PostgreSQL is an advanced Object-Relational database management
@@ -214,10 +198,10 @@ system.  The postgresql-pl package contains the the PL/Perl, PL/Tcl, and PL/Pyth
 procedural languages for the backend.  PL/Pgsql is part of the core server package.
 
 %package tcl
-Summary: A Tcl client library, and the PL/Tcl procedural language for PostgreSQL.
-Group: Databases
-Requires: tcl >= 8.0 postgresql = %{version}-%{release}
-Requires: %{libpgtcl} = %{version}-%{release}
+Summary:	A Tcl client library, and the PL/Tcl procedural language for PostgreSQL.
+Group:		Databases
+Requires:	tcl >= 8.0 postgresql = %{version}-%{release}
+Requires:	%{libpgtcl} = %{version}-%{release}
 
 %description tcl
 PostgreSQL is an advanced Object-Relational database management
@@ -225,9 +209,9 @@ system.  The postgresql-tcl package contains the pg-enhanced pgtclsh,
 and the PL/Tcl procedural language for the backend.
 
 %package python
-Summary: Development module for Python code to access a PostgreSQL DB.
-Group: Databases
-Requires: python >= %{pyver} postgresql = %{version}-%{release}
+Summary:	Development module for Python code to access a PostgreSQL DB.
+Group:		Databases
+Requires:	python >= %{pyver} postgresql = %{version}-%{release}
 
 %description python
 PostgreSQL is an advanced Object-Relational database management
@@ -236,9 +220,9 @@ developers to use when writing Python code for accessing a PostgreSQL
 database.
 
 %package jdbc
-Summary: Files needed for Java programs to access a PostgreSQL database.
-Group: Databases
-Requires: postgresql = %{version}-%{release}
+Summary:	Files needed for Java programs to access a PostgreSQL database.
+Group:		Databases
+Requires:	postgresql = %{version}-%{release}
 
 %description jdbc
 PostgreSQL is an advanced Object-Relational database management
@@ -246,9 +230,9 @@ system. The postgresql-jdbc package includes the .jar file needed for
 Java programs to access a PostgreSQL database.
 
 %package test
-Summary: The test suite distributed with PostgreSQL.
-Group: Databases
-Requires: postgresql = %{version}-%{release}
+Summary:	The test suite distributed with PostgreSQL.
+Group:		Databases
+Requires:	postgresql = %{version}-%{release}
 
 %description test
 PostgreSQL is an advanced Object-Relational database management
@@ -257,7 +241,6 @@ binaries of various tests for the PostgreSQL database management
 system, including regression tests and benchmarks.
 
 %prep
-rm -rf $RPM_BUILD_ROOT
 %setup -q
 
 # 20021202 warly to be tested
@@ -335,7 +318,7 @@ make all
 popd
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 make DESTDIR=$RPM_BUILD_ROOT pkglibdir=%{_libdir}/pgsql install 
 make -C contrib DESTDIR=$RPM_BUILD_ROOT pkglibdir=%{_libdir}/pgsql install
@@ -370,9 +353,6 @@ install -d -m 700 $RPM_BUILD_ROOT/var/lib/pgsql/backups
 # postgres' .bash_profile
 install -m 644 %{SOURCE15} $RPM_BUILD_ROOT/var/lib/pgsql/.bash_profile
 
-# Create the multiple postmaster startup directory
-install -d -m 700 $RPM_BUILD_ROOT/etc/sysconfig/pgsql
-
 # tests. There are many files included here that are unnecessary, but include
 # them anyway for completeness.
 mkdir -p $RPM_BUILD_ROOT%{_libdir}/pgsql/test
@@ -383,19 +363,29 @@ pushd  $RPM_BUILD_ROOT%{_libdir}/pgsql/test/regress/
 strip *.so
 popd
 
+# move the config samples to real config files
+pushd %{buildroot}%{_datadir}/pgsql
+mv postgresql.conf.sample postgresql.conf
+mv pg_ident.conf.sample pg_ident.conf
+mv pg_hba.conf.sample pg_hba.conf
+popd
+
 cp %{SOURCE51} %{SOURCE52} .
-
-#mdk icons 
-#install -D -m644 %{SOURCE20} $RPM_BUILD_ROOT%{_miconsdir}/postgres.xpm
-#install -D -m644 %{SOURCE21} $RPM_BUILD_ROOT%{_iconsdir}/postgres.xpm
-#install -D -m644 %{SOURCE22} $RPM_BUILD_ROOT%{_liconsdir}/postgres.xpm
-
-install -D -m755 %{SOURCE11} $RPM_BUILD_ROOT%{initd}/postgresql
 
 bzip2 -cd %{SOURCE6} >  README.rpm-dist
 
-cp %{SOURCE10} README.mdk
 mv $RPM_BUILD_ROOT%{_docdir}/%{name}/html $RPM_BUILD_ROOT%{_docdir}/%{name}-docs-%{version}
+
+mkdir -p %{buildroot}%{_srvdir}/postgresql/log
+mkdir -p %{buildroot}%{_srvlogdir}/postgresql
+install -m 0755 %{SOURCE20} %{buildroot}%{_srvdir}/postgresql/run
+install -m 0755 %{SOURCE21} %{buildroot}%{_srvdir}/postgresql/log/run
+
+mkdir -p %{buildroot}%{_sysconfdir}/sysconfig
+install -m 0644 %{SOURCE22} %{buildroot}%{_sysconfdir}/sysconfig/postgresql
+
+mkdir -p %{buildroot}%{_datadir}/afterboot
+install -m 0644 %{SOURCE23} %{buildroot}%{_datadir}/afterboot/01_postgresql
 
 %find_lang libpq
 %find_lang libecpg
@@ -416,100 +406,45 @@ rm -fr $RPM_BUILD_ROOT%{_datadir}/doc/postgresql/contrib/
 
 make check
 
+rm -rf %{buildroot}%{_docdir}/%{name}-docs-%{version}
+
 %pre server
-%_pre_useradd postgres /var/lib/pgsql /bin/bash
-if [ ! -e /var/log/postgresql ]; then
-    touch /var/log/postgresql
-fi
-chown postgres.postgres /var/log/postgresql
-chmod 0700 /var/log/postgresql
+%_pre_useradd postgres /var/lib/pgsql /bin/bash 75
 
-# large objects are not dumped by dumpall, so do nothing if we detect some
-test_lo_db ()
-{   
-    su - postgres -c "psql -d template1 -At -F ' ' -c 'SELECT datname from pg_database WHERE datallowconn ORDER BY 1;'" | \
-    while read DATABASE; do
-	su - postgres -c "psql -d $DATABASE -A -F ' ' -c '\lo_list'" | grep -E '([0-9]+ row.?)' | (grep -q -v '(0 rows)' && return 0) || continue &> /dev/null
-	return 0
-    done
-}
-
-dump_data ()
-{
-    cp -f %{pgdata}/data/pg_hba.conf %{pgdata}/data/pg_hba.conf.mdk_update
-    cp -f %{_datadir}/pgsql/pg_hba.conf.sample %{pgdata}/data/pg_hba.conf
-    service postgresql start
-    if [ ! -f $file ]; then
-# This does not work nicely, because pg_dumpall override -Fc and does not allow custom format dumping. As a consequence large objects are not dumped.
-#      su - postgres -c "pg_dumpall -b -o -Fc > $file" &> /dev/null
-       rm -rf %{pgdata}/rpmtmp
-       su - postgres -c "mkdir %{pgdata}/rpmtmp"
-       su - postgres -c "pg_dumpall | gzip > $file" 
-    fi
-    service postgresql stop
-    cp -f %{pgdata}/data/pg_hba.conf.mdk_update %{pgdata}/data/pg_hba.conf
-}
-
-file=%{pgdata}/rpmtmp/pg_dumpall-%{version}-%{release}.psql.gz
-
-if [[ $1 -ge 1 ]] && grep -vq %{current_major_version} %{pgdata}/data/PG_VERSION &> /dev/null; then
-# the psql -c '\lo_list' does not work inside rpm script for version < 7.3
-    if ! test_lo_db; then
-        if [ -f /var/lock/subsys/postgresql ]; then
-            service postgresql stop
-	    dump_data
-        else 
-            dump_data
-        fi
-    fi
-fi
 
 %post server
 /sbin/ldconfig
+%_mkafterboot
 
-restor_dump ()
-{
-    mv -f %{pgdata}/data %{pgdata}/initdb.i18n %{pgdata}/rpmtmp/
-
-    cp -f %{pgdata}/data/pg_hba.conf %{pgdata}/data/pg_hba.conf.mdk_update
-    cp -f %{_datadir}/pgsql/pg_hba.conf.sample %{pgdata}/data/pg_hba.conf
-
-# This does not work nicely, because pg_dumpall override -Fc and does not allow custom format dumping. As a consequence large objects are not dumped.
-#       if service postgresql start && su - postgres -c "pg_restore -Fc -o -f $file" &> /dev/null; then 
-    service postgresql start > /dev/null
-    if [ -f /var/lock/subsys/postgresql ] && su - postgres -c "gzip -cd $file | psql template1" > /dev/null; then 
-        mv -f %{pgdata}/rpmtmp/initdb.i18n %{pgdata}/rpmtmp/initdb.i18n.rpmsave &> /dev/null
-        mv -f %{pgdata}/rpmtmp/data/postmaster.opts %{pgdata}/data/postmaster.opts.rpmsave &> /dev/null
-        find %{pgdata}/rpmtmp/data -name "*.conf" -exec mv -f {} {}.rpmsave \; -exec mv {}.rpmsave %{pgdata}/data/ \;
-        rm -rf %{pgdata}/rpmtmp
-    else
-        service postgresql stop
-        rm -f $file %{pgdata}initdb.i18n
-        rm -rf %{pgdata}/data
-        mv -f %{pgdata}/rpmtmp/data %{pgdata}/rpmtmp/initdb.i18n %{pgdata}/
-        rmdir %{pgdata}/rpmtmp &> /dev/null
-    fi
-    cp -f %{pgdata}/data/pg_hba.conf.mdk_update %{pgdata}/data/pg_hba.conf
-}
-
-file=%{pgdata}/rpmtmp/pg_dumpall-%{version}-%{release}.psql.gz
-if grep -vq %{current_major_version} %{pgdata}/data/PG_VERSION &> /dev/null && [[ $1 -ge 1 && -f $file ]]; then
-    if [ -f /var/lock/subsys/postgresql ]; then 
-        service postgresql stop &> /dev/null
-        restore_dump
-        service postgresql start &> /dev/null
-    else
-        restore_dump
-    fi
+PGDATA="%{pgdata}/data"
+# create the database if it doesn't exist
+if [ ! -f $PGDATA/PG_VERSION ] && [ ! -d $PGDATA/base ]; then
+  if [ ! -d $PGDATA ]; then
+    mkdir -p $PGDATA
+    chown postgres:postgres $PGDATA
+    chmod 700 $PGDATA
+  fi
+  # Make sure the locale from the initdb is preserved for later startups...
+  [ -f %{_sysconfdir}/sysconfig/i18n ] && cp %{_sysconfdir}/sysconfig/i18n $PGDATA/../initdb.i18n
+  # Just in case no locale was set, use en_US
+  [ ! -f %{_sysconfdir}/sysconfig/i18n ] && echo "LANG=en_US" >$PGDATA/../initdb.i18n
+  # Is expanded this early to be used in the command su runs
+  echo "export LANG LC_ALL LC_CTYPE LC_COLLATE LC_NUMERIC LC_TIME" >> $PGDATA/../initdb.i18n
+  # Initialize the database
+  su -l postgres -s /bin/sh -c "/usr/bin/initdb --pgdata=$PGDATA >/dev/null 2>&1" </dev/null
+  [ -f $PGDATA/PG_VERSION ] && echo "Database successfully initialized!"
+  [ ! -f $PGDATA/PG_VERSION ] && echo "Database was NOT successfully initalized!"
 fi
 
-%_post_service %{name}
+
+%_post_srv postgresql
 
 %preun server
-%_preun_service %{name}
+%_preun_srv postgersql
 
 %postun server
 /sbin/ldconfig
+%_mkafterboot
 %_postun_userdel postgres
 
 %post -n %{libname} -p /sbin/ldconfig
@@ -522,7 +457,7 @@ fi
 %postun -n %{libecpg} -p /sbin/ldconfig
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 rm -f perlfiles.list
 
 %files -f main.lst 
@@ -573,10 +508,6 @@ rm -f perlfiles.list
 %files -n %{libecpg}-devel
 %defattr(-,root,root)
 %{_libdir}/libecpg.so
-
-%files docs
-%defattr(-,root,root)
-%doc %{_docdir}/%{name}-docs-%{version}
 
 %files contrib
 %defattr(-,root,root)
@@ -639,8 +570,7 @@ rm -f perlfiles.list
 
 %files server -f server.lst
 %defattr(-,root,root)
-%config(noreplace) %{initd}/postgresql
-%doc README.mdk README.v7.3 upgrade_tips_7.3
+%doc README.v7.3 upgrade_tips_7.3
 %{_bindir}/initdb
 %{_bindir}/initlocation
 %{_bindir}/ipcclean
@@ -660,7 +590,6 @@ rm -f perlfiles.list
 %{_mandir}/man1/postmaster.1*
 %{_datadir}/pgsql/postgres.bki
 %{_datadir}/pgsql/postgres.description
-%{_datadir}/pgsql/*.sample
 %dir %{_libdir}/pgsql
 %dir %{_datadir}/pgsql
 %attr(700,postgres,postgres) %dir %{pgdata}
@@ -670,6 +599,16 @@ rm -f perlfiles.list
 %{_libdir}/pgsql/*_and_*.so
 %{_datadir}/pgsql/conversion_create.sql
 %{_datadir}/pgsql/upgrade.pl
+%config(noreplace) %{_datadir}/pgsql/postgresql.conf
+%config(noreplace) %{_datadir}/pgsql/pg_ident.conf
+%config(noreplace) %{_datadir}/pgsql/pg_hba.conf
+%dir %{_srvdir}/postgresql
+%dir %{_srvdir}/postgresql/log
+%{_srvdir}/postgresql/run
+%{_srvdir}/postgresql/log/run
+%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/postgresql
+%config(noreplace) %{_sysconfdir}/sysconfig/postgresql
+%{_datadir}/afterboot/01_postgresql
 
 %files devel
 %defattr(-,root,root)
@@ -730,6 +669,47 @@ rm -f perlfiles.list
 %attr(-,postgres,postgres) %dir %{_libdir}/pgsql/test
 
 %changelog
+* Thu Apr 22 2004 Vincent Danen <vdanen@opensls.org> 7.3.4-9sls
+- include default config files (not .sample) so we can run postgres "out of
+  the box" and mark them as %%config
+- don't create /var/log/postgresql if nothing is going to use it
+- fix run script to trap on exit and remove $PGDATA/postmaster.pid otherwise
+  we'll have a real hard time restarting the service next time
+- also redirect stderr to stdout for logging in run script
+- remove S10 (README.postgresql.mdk) as that data is in the afterboot man
+  section now
+
+* Mon Apr 12 2004 Vincent Danen <vdanen@opensls.org> 7.3.4-8sls
+- include epoch in perl requirements for -pl
+
+* Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 7.3.4-7sls
+- minor spec cleanups
+
+* Sat Jan 31 2004 Vincent Danen <vdanen@opensls.org> 7.3.4-6sls
+- add afterboot snippet
+- use %%_mkafterboot macro
+- Requires: afterboot
+
+* Tue Jan 27 2004 Vincent Danen <vdanen@opensls.org> 7.3.4-5sls
+- use srv macros
+- postgres user has static uid/gid of 75
+
+* Sun Jan 25 2004 Vincent Danen <vdanen@opensls.org> 7.3.4-4sls
+- init the db in %%post
+- don't try to do the admin's work for them; we don't want to be responsible
+  for something going wrong so remove all stuff to automate dumps/restores
+- remove %%build_opensls macros
+- supervise scripts
+- remove icons
+- remove initscript
+- make /etc/sysconfig/postgresql to hold some options for the supervise
+  script
+
+* Wed Dec 17 2003 Vincent Danen <vdanen@opensls.org> 7.3.4-3sls
+- OpenSLS build
+- tidy spec
+- use %%build_opensls macro to not build -doc package
+
 * Sun Aug 31 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 7.3.4-2mdk
 - Patch8: amd64 has comparable math precision to alpha
 

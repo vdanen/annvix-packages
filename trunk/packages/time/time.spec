@@ -1,19 +1,25 @@
-Summary: A GNU utility for monitoring a program's use of system resources.
-Name: time
-Version: 1.7
-Release: 25mdk
-License: GPL
-Group: Monitoring
-URL: http://www.gnu.org/directory/GNU/time.html
-Source: http://ftp.gnu.org/pub/gnu/time/time-1.7.tar.bz2
-Patch0: time-1.7.info.patch.bz2
-Patch1: time-1.7-ressource.patch.bz2
-Patch2: time-1.7-quiet.1.patch.bz2
-Patch3: time-1.7-fixinfo.patch.bz2 
-Patch4: time-1.7-build.patch.bz2
+%define name	time
+%define version	1.7
+%define release	27sls
+
+Summary:	A GNU utility for monitoring a program's use of system resources.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		Monitoring
+URL:		http://www.gnu.org/directory/GNU/time.html
+Source:		http://ftp.gnu.org/pub/gnu/time/time-1.7.tar.bz2
+Patch0:		time-1.7.info.patch.bz2
+Patch1:		time-1.7-ressource.patch.bz2
+Patch2:		time-1.7-quiet.1.patch.bz2
+Patch3:		time-1.7-fixinfo.patch.bz2 
+Patch4:		time-1.7-build.patch.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-root
 BuildRequires:	texinfo
-BuildRoot: %{_tmppath}/%{name}-root
-PreReq: /sbin/install-info
+
+PreReq:		/sbin/install-info
 
 %description
 The GNU time utility runs another program, collects information about
@@ -47,10 +53,11 @@ autoheader
 make LDFLAGS=-s
 
 %install
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
 %{_install_info %name.info}
@@ -65,6 +72,13 @@ rm -rf $RPM_BUILD_ROOT
 %_infodir/time.info*
 
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 1.7-27sls
+- minor spec cleanups
+
+* Mon Dec 01 2003 Vincent Danen <vdanen@opensls.org> 1.7-26sls
+- OpenSLS build
+- tidy spec
+
 * Mon Apr 07 2003 Thierry Vignaud <tvignaud@mandrakesoft.com> 1.7-25mdk
 - force install ordering for post-scripts (#3413)
 

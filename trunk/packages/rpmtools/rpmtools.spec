@@ -1,32 +1,32 @@
-%define name rpmtools
-%define release 13mdk
-
-# do not modify here, see Makefile in the CVS
-%define version 4.5
+%define name	rpmtools
+%define version	4.5
+%define release 16sls
 
 %{expand:%%define rpm_version %(rpm -q --queryformat '%{VERSION}-%{RELEASE}' rpm)}
 
-Summary: Contains various rpm command-line tools
-Name: %{name}
-Version: %{version}
-Release: %{release}
+Summary:	Contains various rpm command-line tools
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		System/Configuration/Packaging
+URL:		http://cvs.mandrakesoft.com/cgi-bin/cvsweb.cgi/soft/rpmtools
 # get the source from our cvs repository (see
 # http://www.linuxmandrake.com/en/cvs.php3)
-Source0: %{name}-%{version}.tar.bz2
-License: GPL
-Group: System/Configuration/Packaging
-URL: http://cvs.mandrakesoft.com/cgi-bin/cvsweb.cgi/soft/rpmtools
-BuildRoot: %{_tmppath}/%{name}-buildroot
-Prefix: %{_prefix}
+Source0:	%{name}-%{version}.tar.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-buildroot
 BuildRequires:	bzip2-devel gcc perl-devel rpm-devel >= 4.0
-Requires: rpm >= %{rpm_version} bzip2 >= 1.0 perl-URPM >= 0.50-2mdk
-Conflicts: rpmtools-compat <= 2.0 rpmtools-devel <= 2.0
+
+Requires:	rpm >= %{rpm_version} bzip2 >= 1.0 perl-URPM >= 0.50-2mdk perl-base >= 5.8.4
+Conflicts:	rpmtools-compat <= 2.0 rpmtools-devel <= 2.0
+Provides:	perl(packdrake)
 
 %description
 Various tools needed by urpmi and drakxtools for handling rpm files.
 
 %prep
-%setup
+%setup -q
 
 %build
 (
@@ -37,13 +37,13 @@ Various tools needed by urpmi and drakxtools for handling rpm files.
 %{make} CFLAGS="$RPM_OPT_FLAGS -DRPM_42"
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %{make} install PREFIX=$RPM_BUILD_ROOT
 %{makeinstall_std} -C packdrake-pm
 rm -f $RPM_BUILD_ROOT%{perl_archlib}/perllocal.pod
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -57,6 +57,24 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/*/*
 
 %changelog
+* Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 4.5-16sls
+- sync with 20mdk:
+  - add some options to gendistrib/genhdlist (thauvin)
+  - add provides perl(packdrake) (warly)
+  - add --dest option to genhdlist (thauvin)
+  - fix dir parsing (Thx Pascal Terjan) (thauvin)
+  - fix genhdlist without arg (thauvin)
+  - add a --quiet option to packdrake (rafael)
+  - add a dep on perl-base (rafael)
+
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 4.5-15sls
+- minor spec cleanups
+- remove %%prefix
+
+* Mon Dec 08 2003 Vincent Danen <vdanen@opensls.org> 4.5-14sls
+- OpenSLS build
+- tidy spec
+
 * Thu Aug 28 2003 François Pons <fpons@mandrakesoft.com> 4.5-13mdk
 - added support for %%{ARCH} in gendistrib.
 - removing remaining MD5SUM files when running gendistrib.

@@ -1,9 +1,10 @@
-%define patchdate 20021028
-%define version 5.3
-%define name ncurses
-%define release 1.20030215.3mdk
-%define lib_major 5
-%define lib_name %mklibname %{name} %{lib_major}
+%define name	ncurses
+%define version	5.3
+%define release	1.20030215.6sls
+
+%define patchdate	20021028
+%define lib_major	5
+%define lib_name	%mklibname %{name} %{lib_major}
 
 Summary:	A CRT screen handling and optimization package
 Name:		%{name}
@@ -11,28 +12,27 @@ Version:	%{version}
 Release:	%{release}
 License:	MIT
 Group:		System/Libraries
-Url:		http://ring.jah.ne.jp/pub/GNU/ncurses/
+URL:		http://ring.jah.ne.jp/pub/GNU/ncurses/
 Source0:	http://ring.jah.ne.jp/pub/GNU/ncurses/%{name}-%{version}.tar.bz2
 Source4:	ncurses-resetall.sh
-Source5:    	ncurses-usefull-terms
+Source5:	ncurses-usefull-terms
 Patch1:		ncurses-5.1-xterm-debian.patch.bz2
 Patch2:		ncurses-5.1-setuid2.patch.bz2
 Patch3:		ncurses-5.2-64bit.patch.bz2
 Patch4:		ncurses-5.3-parallel.patch.bz2
-
-Patch10:         ftp://dickey.his.com/ncurses/%{version}/patch-5.3-20021231.sh
-Patch11:         ftp://dickey.his.com/ncurses/%{version}/ncurses-5.3-20030105.patch.gz
-Patch12:         ftp://dickey.his.com/ncurses/%{version}/ncurses-5.3-20030111.patch.gz
-Patch13:         ftp://dickey.his.com/ncurses/%{version}/ncurses-5.3-20030118.patch.gz
-Patch14:         ftp://dickey.his.com/ncurses/%{version}/ncurses-5.3-20030125.patch.gz
-Patch15:         ftp://dickey.his.com/ncurses/%{version}/ncurses-5.3-20030201.patch.gz
-Patch16:         ftp://dickey.his.com/ncurses/%{version}/ncurses-5.3-20030208.patch.gz
-Patch17:         ftp://dickey.his.com/ncurses/%{version}/ncurses-5.3-20030215.patch.gz
+Patch10:	ftp://dickey.his.com/ncurses/%{version}/patch-5.3-20021231.sh
+Patch11:	ftp://dickey.his.com/ncurses/%{version}/ncurses-5.3-20030105.patch.gz
+Patch12:	ftp://dickey.his.com/ncurses/%{version}/ncurses-5.3-20030111.patch.gz
+Patch13:	ftp://dickey.his.com/ncurses/%{version}/ncurses-5.3-20030118.patch.gz
+Patch14:	ftp://dickey.his.com/ncurses/%{version}/ncurses-5.3-20030125.patch.gz
+Patch15:	ftp://dickey.his.com/ncurses/%{version}/ncurses-5.3-20030201.patch.gz
+Patch16:	ftp://dickey.his.com/ncurses/%{version}/ncurses-5.3-20030208.patch.gz
+Patch17:	ftp://dickey.his.com/ncurses/%{version}/ncurses-5.3-20030215.patch.gz
 
 BuildRoot:	%{_tmppath}/%{name}-root
+BuildRequires:	sharutils
 
 PreReq:		/sbin/ldconfig
-BuildRequires: gpm-devel sharutils
 
 %description
 The curses library routines are a terminal-independent method of updating
@@ -41,10 +41,10 @@ library is a freely distributable replacement for the discontinued 4.4BSD
 classic curses library.
 
 %package -n %{lib_name}
-Summary: The development files for applications which use ncurses
+Summary:	The development files for applications which use ncurses
+Group:		System/Libraries
 Obsoletes:	ncurses3
-Requires: ncurses
-Group: System/Libraries
+Requires:	ncurses
 
 %description -n %{lib_name}
 The curses library routines are a terminal-independent method of updating
@@ -53,19 +53,19 @@ library is a freely distributable replacement for the discontinued 4.4BSD
 classic curses library.
 
 %package extraterms
-Summary: Some exotic terminal descriptions
-Group: System/Libraries
-Requires: ncurses
+Summary:	Some exotic terminal descriptions
+Group:		System/Libraries
+Requires:	ncurses
 
 %description extraterms
 Install the ncurses-extraterms package if you use some exotic terminals.
 
 %package -n %{lib_name}-devel
-Summary: The development files for applications which use ncurses
-Group: Development/C
-Provides: libncurses-devel ncurses-devel
-Obsoletes: libncurses-devel ncurses-devel
-Requires: %{lib_name} = %{version}
+Summary:	The development files for applications which use ncurses
+Group:		Development/C
+Provides:	libncurses-devel ncurses-devel
+Obsoletes:	libncurses-devel ncurses-devel
+Requires:	%{lib_name} = %{version}
 
 %description -n %{lib_name}-devel
 The header files and libraries for developing applications that use
@@ -105,14 +105,14 @@ OPT_FLAGS=`echo "$RPM_OPT_FLAGS -DPURE_TERMINFO" | sed -e "s/-fomit-frame-pointe
 CFLAGS="$OPT_FLAGS" CXXFLAGS="$OPT_FLAGS" %configure \
 	--program-prefix= \
 	--with-normal --with-shared --without-debug --without-profile \
-	--with-gpm --enable-termcap --enable-getcap \
+	--without-gpm --enable-termcap --enable-getcap \
 	--enable-const --enable-hard-tabs --enable-hash-map \
 	--enable-no-padding --enable-sigwinch --without-ada
 
 %make
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall prefix=$RPM_BUILD_ROOT/usr \
 	includedir=$RPM_BUILD_ROOT/usr/include/ncurses \
 	ticdir=$RPM_BUILD_ROOT/%{_datadir}/terminfo
@@ -160,6 +160,14 @@ find $RPM_BUILD_ROOT/%{_libdir}/*.a -not -name "*_g.a" -not -name "*_p.a" -type 
 
 mv $RPM_BUILD_ROOT/%{_mandir}/tack.1 $RPM_BUILD_ROOT/%{_mandir}/man1/tack.1
 
+# remove unpackaged files
+rm -rf %{buildroot}%{_libdir}/{libcurses.a,terminfo}
+rm -rf %{buildroot}%{_datadir}/terminfo/terminfo
+
+
+%clean
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 %post -n %{lib_name} -p /sbin/ldconfig
 
 %postun -n %{lib_name} -p /sbin/ldconfig
@@ -167,6 +175,7 @@ mv $RPM_BUILD_ROOT/%{_mandir}/tack.1 $RPM_BUILD_ROOT/%{_mandir}/man1/tack.1
 %files -f %{name}.list
 %defattr(-,root,root)
 %doc README ANNOUNCE
+%dir %{_datadir}/terminfo
 %{_datadir}/tabset
 %{_bindir}/*
 %{_mandir}/man1/*
@@ -191,10 +200,20 @@ mv $RPM_BUILD_ROOT/%{_mandir}/tack.1 $RPM_BUILD_ROOT/%{_mandir}/man1/tack.1
 /usr/include/*.h
 %{_mandir}/man3/*
 
-%clean
-rm -rf $RPM_BUILD_ROOT
-
 %changelog
+* Sat Jun 12 2004 Vincent Danen <vdanen@opensls.org> 5.3-1.20030215.6sls
+- own /usr/share/terminfo
+
+* Sun Mar 07 2004 Vincent Danen <vdanen@opensls.org> 5.3-1.20030215.5sls
+- minor spec cleanups
+- remove %%build_opensls macro
+- remove unpackaged files
+
+* Sat Dec 06 2003 Vincent Danen <vdanen@opensls.org> 5.3-1.20030215.4sls
+- OpenSLS build
+- tidy spec
+- use %%build_opensls to build without gpm support
+
 * Wed Jul 09 2003 Laurent MONTEL <lmontel@mandrakesoft.com> 5.3-1.20030215.3mdk
 - Rebuild
 

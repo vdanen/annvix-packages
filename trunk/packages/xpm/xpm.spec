@@ -1,3 +1,7 @@
+%define name	xpm
+%define version	3.4k
+%define release	29sls
+
 %define prefix	/usr/X11R6
 %define	major	4
 %define	LIBVER	4.11
@@ -5,29 +9,26 @@
 %define libnamedev %mklibname %name %major -d
 
 Summary:	A pixmap library for the X Window System
-Name:		xpm
-Version:	3.4k
-Release:	27mdk
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
 License:	MIT
 Group:		System/Libraries
-Packager:	David BAUDENS <baudens@mandrakesoft.com>
 URL:		http://freshmeat.net/redir/libxpm/18465/url_homepage/
-
 Source0:	ftp://ftp.x.org/contrib/libraries/xpm-%{version}.tar.bz2
 Source1:	ftp://ftp.x.org/contrib/libraries/xpm-doc-A4.PS.gz 
 Source2:	ftp://ftp.x.org/contrib/libraries/xpm-tutorial.PS.gz 
 Source3:	ftp://ftp.x.org/contrib/libraries/xpm-FAQ.html
 Source4:	ftp://ftp.x.org/contrib/libraries/xpm-README.html
 Source5:	ftp://ftp.x.org/contrib/libraries/xpm_examples.tar.bz2
-
 Patch0:		xpm-3.4k-shlib.patch.bz2
 Patch1:		xpm-3.4k-fixes.patch.bz2
 Patch2:		xpm-3.4k-alpha.patch.bz2
 Patch3:		xpm-3.4k-xfree43merge.patch.bz2
 Patch4:		xpm-3.4k-64bit-fixes.patch.bz2
 
-BuildRequires:	XFree86-devel
 BuildRoot:	%_tmppath/%name-%version-root
+BuildRequires:	XFree86-devel
 
 %description
 The xpm package contains the XPM pixmap library for the X Window
@@ -79,11 +80,12 @@ cp lib/*.h exports/include/X11
 %make CDEBUGFLAGS="$RPM_OPT_FLAGS" CXXDEBUGFLAGS="$RPM_OPT_FLAGS"
 
 %install
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 make DESTDIR=$RPM_BUILD_ROOT install
 ln -sf libXpm.so.%{LIBVER} $RPM_BUILD_ROOT%prefix/%{_lib}/libXpm.so
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post -n %libname -p /sbin/ldconfig
 %postun -n %libname -p /sbin/ldconfig
@@ -95,14 +97,21 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -n %libnamedev
 %defattr(-,root,root)
-%doc xpm-doc-A4.PS.gz xpm-tutorial.PS.gz xpm-FAQ.html xpm-README.html xpm_examples.tar.bz2
-%doc doc/xpm.PS.gz
+%doc xpm-FAQ.html xpm-README.html xpm_examples.tar.bz2
 %prefix/bin/*
 %prefix/include/X11/*
 %prefix/%{_lib}/libXpm.a
 %prefix/%{_lib}/libXpm.so
 
 %changelog
+* Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 3.4k-29sls
+- minor spec cleanups
+- remove postscript docs
+
+* Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 3.4k-28sls
+- OpenSLS build
+- tidy spec
+
 * Thu Nov 13 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 3.4k-27mdk
 - Patch3: Merge code base to XFree86 4.3-25mdk
 - Patch4: 64-bit fixes, aka finally make rfb to work

@@ -1,7 +1,7 @@
 %define module	DBI
 %define name	perl-%{module}
 %define version 1.38
-%define release 1mdk
+%define release 4sls
 
 Summary:	The Perl Database Interface by Tim Bunce
 Name:		%{name}
@@ -9,12 +9,13 @@ Version:	%{version}
 Release:	%{release}
 License:	GPL
 Group:		Development/Perl
-Requires:	perl
 URL:		http://www.cpan.org
 Source:		%{module}-%{version}.tar.bz2
-Prefix:		%{_prefix}
+
+BuildRoot:	%{_tmppath}/%{name}-root
 BuildRequires:	perl-devel
-Buildroot:	%{_tmppath}/%{name}-root
+
+Requires:	perl
 
 %description
 The Perl Database Interface (DBI) is a database access Application Programming
@@ -49,13 +50,13 @@ then use dbiprof to analyze the profile files.
 %setup -q -n %{module}-%{version}
 
 %build
-%{__perl} Makefile.PL INSTALLDIRS=vendor PREFIX=%{prefix}
-make OPTIMIZE="$RPM_OPT_FLAGS" PREFIX=%{prefix}
+%{__perl} Makefile.PL INSTALLDIRS=vendor PREFIX=%{_prefix}
+make OPTIMIZE="$RPM_OPT_FLAGS" PREFIX=%{_prefix}
 make test
 
 %install
-rm -rf $RPM_BUILD_ROOT 
-%makeinstall PREFIX=$RPM_BUILD_ROOT%{prefix}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+%makeinstall PREFIX=$RPM_BUILD_ROOT%{_prefix}
 
 # remove Win32 stuff
 rm -rf $RPM_BUILD_ROOT%{perl_vendorarch}/Win32
@@ -64,7 +65,7 @@ rm -f $RPM_BUILD_ROOT%{_mandir}/man3pm/Win32::DBIODBC.3pm
 rm -f $RPM_BUILD_ROOT%{_mandir}/man3pm/DBI::W32ODBC.3pm
 
 %clean
-rm -rf $RPM_BUILD_ROOT 
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -99,6 +100,18 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man3*/DBI::ProfileDumper::Apache.3pm.*
 
 %changelog
+* Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 1.38-4sls
+- rebuild for perl 5.8.4
+
+* Wed Feb 25 2004 Vincent Danen <vdanen@opensls.org> 1.38-3sls
+- rebuild for new perl
+- minor spec cleanups
+- remove Prefix
+
+* Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 1.38-2sls
+- OpenSLS build
+- tidy spec
+
 * Sat Aug 23 2003 Guillaume Rousse <guillomovitch@linux-mandrake.com> 1.38-1mdk
 - 1.38
 - dropped patch

@@ -1,20 +1,21 @@
-%define name perl-ldap
-%define version 0.29
-%define real_version 0.29
-%define release 1mdk
+%define name	perl-ldap
+%define version 0.31
+%define release 1sls
 
-Summary: Perl module for ldap
-Name: %{name}
-Version: %{version}
-Release: %{release}
-URL: http://www.cpan.org
-Source0: http:///www.cpan.org/authors/id/G/GB/GBARR/%{name}-%{real_version}.tar.bz2
-License: Artistic
-Group: Development/Perl
-BuildRequires: perl-devel >= 5.8.0
-BuildArch: noarch
-BuildRoot: %{_tmppath}/%{name}-buildroot
-Requires: perl-Authen-SASL >= 2.00 perl-XML-Parser perl-Convert-ASN1 >= 0.07
+Summary:	Perl module for ldap
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	Artistic
+Group:		Development/Perl
+URL:		http://www.cpan.org
+Source:		http:///www.cpan.org/authors/id/G/GB/GBARR/%{name}-%{version}.tar.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildArch:	noarch
+BuildRequires:	perl-devel >= 5.8.0
+
+Requires:	perl-Authen-SASL >= 2.00 perl-XML-Parser perl-Convert-ASN1 >= 0.07
 
 %description
 The perl-ldap distribution is a collection of perl modules 
@@ -29,28 +30,39 @@ searches of LDAP directories with only a small amount of code.
 means that the library is truly cross-platform compatible. 
 
 %prep
-%setup -q -n %{name}-%{real_version}
+%setup -q -n %{name}-%{version}
 
 %build
 %{__perl} Makefile.PL INSTALLDIRS=vendor
 make
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
 %doc CREDITS README RELEASE_NOTES
 %{_mandir}/*/*
-%{perl_vendorlib}/LWP/*
-%{perl_vendorlib}/Bundle/*
-%{perl_vendorlib}/Net/*
+%{perl_vendorlib}/LWP
+%{perl_vendorlib}/Bundle
+%{perl_vendorlib}/Net
 
 %changelog
+* Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 0.31-1sls
+- 0.31
+- own dirs
+
+* Fri Feb 27 2004 Vincent Danen <vdanen@opensls.org> 0.29-3sls
+- rebuild for new perl
+
+* Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 0.29-2sls
+- OpenSLS build
+- tidy spec
+
 * Thu Aug 21 2003 François Pons <fpons@mandrakesoft.com> 0.29-1mdk
 - 0.29.
 

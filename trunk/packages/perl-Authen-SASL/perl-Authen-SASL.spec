@@ -1,19 +1,22 @@
 %define module	Authen-SASL
+%define name	perl-%{module}
 %define version 2.04
-%define release 2mdk
+%define release 5sls
 
 Summary:	%{module} module for perl
-Name:		perl-%{module}
+Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	GPL or Artistic
 Group:		Development/Perl
+URL:		http://www.cpan.org
 Source0:	%{module}-%{version}.tar.bz2
-Url:		http://www.cpan.org
-BuildRequires:	perl-devel
+
 BuildRoot:	%{_tmppath}/%{name}-buildroot/
-Requires:	perl
+BuildRequires:	perl-devel
 BuildArch:	noarch
+
+Requires:	perl
 
 %description
 %{module} module for perl
@@ -26,12 +29,12 @@ BuildArch:	noarch
 make
 make test
 
-%clean 
-rm -rf $RPM_BUILD_ROOT
-
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
+
+%clean
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -40,6 +43,17 @@ rm -rf $RPM_BUILD_ROOT
 %{perl_vendorlib}/Authen
 
 %changelog
+* Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 2.04-5sls
+- rebuild for perl 5.8.4
+
+* Wed Feb 25 2004 Vincent Danen <vdanen@opensls.org> 2.04-4sls
+- rebuild for new perl
+- some spec cleanups
+
+* Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 2.04-3sls
+- OpenSLS build
+- tidy spec
+
 * Wed Aug 13 2003 Per Øyvind Karlsen <peroyvind@linux-mandrake.com> 2.04-2mdk
 - rebuild for new perl
 - drop $RPM_OPT_FLAGS, noarch..
