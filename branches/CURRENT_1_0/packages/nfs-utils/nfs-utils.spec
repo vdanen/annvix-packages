@@ -1,10 +1,10 @@
 %define name	nfs-utils
 %define	version	1.0.6
-%define release	1avx
+%define release	2avx
 
 %define	url	ftp://ftp.kernel.org:/pub/linux/utils/nfs
 
-Summary:	The utilities for Linux NFS server.
+Summary:	The utilities for Linux NFS server
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -17,18 +17,16 @@ Source1:	ftp://nfs.sourceforge.net/pub/nfs/nfs.doc.tar.bz2
 Source10:	nfs.init
 Source11:	nfslock.init
 Source12:	nfs.sysconfig
-Source13:	rpc.statd.run
-Source14:	rpc.statd-log.run
-Source15:	rpc.nfsd.run
-Source16:	rpc.nfsd-log.run
-Source17:	rpc.mountd.run
-Source18:	rpc.mountd-log.run
-Source19:	rpc.mountd.finish
-Source20:	rpc.nfsd.finish
+Source13:	nfs.statd.run
+Source14:	nfs.statd-log.run
+Source15:	nfs.mountd.run
+Source16:	nfs.mountd-log.run
+Source17:	nfs.mountd.finish
 Patch1:		nfs-utils-0.2beta-nowrap.patch.bz2
 Patch3:		nfs-utils-0.3.3-statd-manpage.patch.bz2
 Patch4:		eepro-support.patch.bz2
 Patch5:		nfs-utils-1.0.4-no-chown.patch.bz2
+Patch6:		nfs-utils-1.0.6-CAN-2004-1014.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-root
 
@@ -72,6 +70,7 @@ clients which are mounted on that host.
 %patch3 -p1 -b .statd-manpage
 %patch4 -p1 -b .eepro-support
 %patch5 -p1 -b .no-chown
+%patch6 -p2 -b .can-2004-1014
 
 %build
 #
@@ -84,35 +83,35 @@ make all
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p $RPM_BUILD_ROOT{/sbin,/usr/sbin}
-mkdir -p ${RPM_BUILD_ROOT}%{_mandir}/{man5,man8}
-mkdir -p $RPM_BUILD_ROOT/etc/sysconfig
-mkdir -p $RPM_BUILD_ROOT/var/lib/nfs
-make install_prefix=$RPM_BUILD_ROOT MANDIR=$RPM_BUILD_ROOT%{_mandir} SBINDIR=$RPM_BUILD_ROOT%{_prefix}/sbin install
-install -s -m 755 tools/rpcdebug/rpcdebug $RPM_BUILD_ROOT/sbin
-install -m 755 %{SOURCE12} $RPM_BUILD_ROOT/etc/sysconfig/nfs
-touch $RPM_BUILD_ROOT/var/lib/nfs/rmtab
-mv $RPM_BUILD_ROOT/usr/sbin/{rpc.lockd,rpc.statd} $RPM_BUILD_ROOT/sbin
 
-mkdir -p $RPM_BUILD_ROOT/var/lib/nfs/statd
+mkdir -p %{buildroot}{/sbin,%{_sbindir}}
+mkdir -p %{buildroot}%{_mandir}/{man5,man8}
+mkdir -p %{buildroot}%{_sysconfdir}/sysconfig
+mkdir -p %{buildroot}/var/lib/nfs
 
-mkdir -p %{buildroot}%{_srvdir}/rpc.{statd,nfsd,mountd}/log
-mkdir -p %{buildroot}%{_srvlogdir}/rpc.{statd,nfsd,mountd}
-install -m 0755 %{SOURCE13} %{buildroot}%{_srvdir}/rpc.statd/run
-install -m 0755 %{SOURCE14} %{buildroot}%{_srvdir}/rpc.statd/log/run
-install -m 0755 %{SOURCE15} %{buildroot}%{_srvdir}/rpc.nfsd/run
-install -m 0755 %{SOURCE16} %{buildroot}%{_srvdir}/rpc.nfsd/log/run
-install -m 0755 %{SOURCE17} %{buildroot}%{_srvdir}/rpc.mountd/run
-install -m 0755 %{SOURCE18} %{buildroot}%{_srvdir}/rpc.mountd/log/run
-install -m 0755 %{SOURCE19} %{buildroot}%{_srvdir}/rpc.mountd/finish
-install -m 0755 %{SOURCE20} %{buildroot}%{_srvdir}/rpc.nfsd/finish
+make install_prefix=%{buildroot} MANDIR=%{buildroot}%{_mandir} SBINDIR=%{buildroot}%{_sbindir} install
+install -s -m 755 tools/rpcdebug/rpcdebug %{buildroot}/sbin
+install -m 755 %{SOURCE12} %{buildroot}%{_sysconfdir}/sysconfig/nfs
+
+touch %{buildroot}/var/lib/nfs/rmtab
+mv %{buildroot}%{_sbindir}/{rpc.lockd,rpc.statd} %{buildroot}/sbin
+
+mkdir -p %{buildroot}/var/lib/nfs/statd
+
+mkdir -p %{buildroot}%{_srvdir}/nfs.{statd,mountd}/log
+mkdir -p %{buildroot}%{_srvlogdir}/nfs.{statd,mountd}
+install -m 0755 %{SOURCE13} %{buildroot}%{_srvdir}/nfs.statd/run
+install -m 0755 %{SOURCE14} %{buildroot}%{_srvdir}/nfs.statd/log/run
+install -m 0755 %{SOURCE15} %{buildroot}%{_srvdir}/nfs.mountd/run
+install -m 0755 %{SOURCE16} %{buildroot}%{_srvdir}/nfs.mountd/log/run
+install -m 0755 %{SOURCE17} %{buildroot}%{_srvdir}/nfs.mountd/finish
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
-%_post_srv rpc.mountd
-%_post_srv rpc.nfsd
+%_post_srv nfs.statd
+%_post_srv nfs.mountd
 
 %create_ghostfile %{_localstatedir}/nfs/xtab root root 644
 %create_ghostfile %{_localstatedir}/nfs/etab root root 644
@@ -120,12 +119,12 @@ install -m 0755 %{SOURCE20} %{buildroot}%{_srvdir}/rpc.nfsd/finish
 
 %preun
 # create a bare-bones /etc/exports
-if [ ! -s /etc/exports ]; then
-  echo "#" >/etc/exports
-  chmod 644 /etc/exports
+if [ ! -s %{_sysconfdir}/exports ]; then
+  echo "#" >%{_sysconfdir}/exports
+  chmod 644 %{_sysconfdir}/exports
 fi
-%_preun_srv rpc.mountd
-%_preun_srv rpc.nfsd
+%_preun_srv nfs.statd
+%_preun_srv nfs.mountd
 
 %pre clients
 %_pre_useradd rpcuser /var/lib/nfs /bin/false 73
@@ -168,18 +167,12 @@ fi
 %{_mandir}/man8/nhfsstone.8*
 %{_mandir}/man8/rpc.mountd.8*
 %{_mandir}/man8/rpc.nfsd.8*
-%dir %{_srvdir}/rpc.nfsd
-%dir %{_srvdir}/rpc.nfsd/log
-%{_srvdir}/rpc.nfsd/run
-%{_srvdir}/rpc.nfsd/finish
-%{_srvdir}/rpc.nfsd/log/run
-%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/rpc.nfsd
-%dir %{_srvdir}/rpc.mountd
-%dir %{_srvdir}/rpc.mountd/log
-%{_srvdir}/rpc.mountd/run
-%{_srvdir}/rpc.mountd/finish
-%{_srvdir}/rpc.mountd/log/run
-%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/rpc.mountd
+%dir %{_srvdir}/nfs.mountd
+%dir %{_srvdir}/nfs.mountd/log
+%{_srvdir}/nfs.mountd/run
+%{_srvdir}/nfs.mountd/finish
+%{_srvdir}/nfs.mountd/log/run
+%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/nfs.mountd
 
 %files clients
 %defattr(-,root,root)
@@ -195,13 +188,20 @@ fi
 %dir %{_localstatedir}/nfs
 %dir %{_localstatedir}/nfs/state
 %dir %attr(700,rpcuser,rpcuser) /var/lib/nfs/statd
-%dir %{_srvdir}/rpc.statd
-%dir %{_srvdir}/rpc.statd/log
-%{_srvdir}/rpc.statd/run
-%{_srvdir}/rpc.statd/log/run
-%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/rpc.statd
+%dir %{_srvdir}/nfs.statd
+%dir %{_srvdir}/nfs.statd/log
+%{_srvdir}/nfs.statd/run
+%{_srvdir}/nfs.statd/log/run
+%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/nfs.statd
 
 %changelog
+* Sat Dec 04 2004 Vincent Danen <vdanen@annvix.org> 1.0.6-2avx
+- P6: patch to fix CAN-2004-1014
+- completely rework runscripts: remove rpc.statd, rpc.mountd, and
+  rpc.nfsd services; we now have nfs.mountd and nfs.statd -- this
+  should solve bug #3
+- spec cleanups
+
 * Wed Sep 22 2004 Vincent Danen <vdanen@annvix.org> 1.0.6-1avx
 - 1.0.6
 
