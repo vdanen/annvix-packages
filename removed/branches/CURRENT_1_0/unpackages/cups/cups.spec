@@ -1,132 +1,95 @@
-##### TARGET SYSTEM #####
-
-# Mandrake 8.x: 0  Mandrake 7.x: 1
-%define buildfor72 0
+%define name	cups
+%define version	1.1.19
+%define release	11sls
 
 %define major	2
 %define libname	%mklibname cups %{major}
-
-##### GENERAL STUFF #####
-
-Summary:	Common Unix Printing System - Server package
-Name:		cups
-Version:	1.1.19
-Release:	10mdk
-License:	GPL
-Group:		System/Servers
 %define real_version %{version}
 
-##### SOURCE FILES #####
-
-Source: ftp://ftp.easysw.com/pub/cups/%{real_version}/%{name}-%{real_version}-source.tar.bz2
-#Source: ftp://ftp.easysw.com/pub/cups/%{real_version}/cups-cvs20030226.tar.bz2
+Summary:	Common Unix Printing System - Server package
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		System/Servers
+URL:		http://www.cups.org
+Source:		ftp://ftp.easysw.com/pub/cups/%{real_version}/%{name}-%{real_version}-source.tar.bz2
+#Source:	ftp://ftp.easysw.com/pub/cups/%{real_version}/cups-cvs20030226.tar.bz2
 # Small C program to get list of all installed PPD files
-Source1: poll_ppd_base.c.bz2
+Source1:	poll_ppd_base.c.bz2
 # Small C program to list the printer-specific options of a particular printer
-Source2: lphelp.c.bz2
+Source2:	lphelp.c.bz2
 # Icon for the Mandrake menu
-Source3: cups.png.bz2
+Source3:	cups.png.bz2
 # Complete replacement for startup script to have it the
 # Mandrake way
-Source5: cups.startup.bz2
+Source5:	cups.startup.bz2
 # Script for cleaning up the PPD files
-Source6: cleanppd.pl.bz2
+Source6:	cleanppd.pl.bz2
 # Perl script for automatic configuration of CUPS, especially access
 # restrictions and broadcasting
-Source7: correctcupsconfig.bz2
+Source7:	correctcupsconfig.bz2
 # Downdated pstops filter due to problems with multiple page documents
-#Source9: pstops-1.1.6-3.c.bz2
+#Source9:	pstops-1.1.6-3.c.bz2
 # Backend filter for HPOJ from Mark Horn (mark@hornclan.com)
-#Source10: http://www.hornclan.com/~mark/cups/ptal.2002011801.bz2
+#Source10:	http://www.hornclan.com/~mark/cups/ptal.2002011801.bz2
 # Backend filter for nprint (Novell client) from Mark Horn
 # (mark@hornclan.com)
-Source11: http://www.hornclan.com/~mark/cups/nprint.2002011801.bz2
+Source11:	http://www.hornclan.com/~mark/cups/nprint.2002011801.bz2
 # AppleTalk/netatalk backend for CUPS
-Source12: http://www.oeh.uni-linz.ac.at/~rupi/pap/pap-backend.tar.bz2
-Source13: http://www.oeh.uni-linz.ac.at/~rupi/pap/pap-docu.pdf.bz2
-Source14: http://www.linuxprinting.org/download/printing/photo_print.bz2
-Source15: http://printing.kde.org/downloads/pdfdistiller.bz2
-Source16: cjktexttops.bz2
-Patch1: cups-1.1.15-cupsdconf.patch.bz2
-Patch2: cups-1.1.9-nopassword.patch.bz2
-#Patch4: cups-1.1.3-mimetypes.patch.bz2
-#Patch5: cups-1.1.3-mdktestpage.patch.bz2
-Patch6: cups-1.1.16-pamconfig.patch.bz2
-#Patch6: cups-1.1.3-pamconfig.patch.bz2
-Patch7: cups-1.1.5-documentationhtml.patch.bz2
-Patch8: cups-1.1.5-ENCRYPTIONtxt.patch.bz2
-Patch9: cups-1.1.6-lp-lpr.patch.bz2
-#Patch10: cups-1.1.6-3-cgi-bin.patch.bz2
-#Patch11: cups-1.1.6-pstoraster-gcc-2.96.patch.bz2
-#Patch12: cups-1.1.9-ownerships.patch.bz2
-#Patch13: cups-1.1.9-ipph-ippmaxattrvalues.patch.bz2
-#Patch14: cups-1.1.13-ipp-security.patch.bz2
-#Patch15: cups-1.1.15-lib64.patch.bz2
-#Patch16: cups-1.1.15-background.patch.bz2
-#Patch17: cups-1.1.15-a2ps-landscape-fix.patch.bz2
-#Patch18: cups-1.1.17-idefense.patch.bz2
-#Patch19: cups-1.1.18-usb-serialnumber.patch.bz2
-#Patch20: cups-1.1.18-hstrerror.patch.bz2
-#Patch21: cups-1.1.19-ipp.c.patch.bz2
-Patch22: cups-1.1.19-dont-broadcast-localhost.patch.bz2
+Source12:	http://www.oeh.uni-linz.ac.at/~rupi/pap/pap-backend.tar.bz2
+Source13:	http://www.oeh.uni-linz.ac.at/~rupi/pap/pap-docu.pdf.bz2
+Source14:	http://www.linuxprinting.org/download/printing/photo_print.bz2
+Source15:	http://printing.kde.org/downloads/pdfdistiller.bz2
+Source16:	cjktexttops.bz2
+Patch1:		cups-1.1.15-cupsdconf.patch.bz2
+Patch2:		cups-1.1.9-nopassword.patch.bz2
+#Patch4:	cups-1.1.3-mimetypes.patch.bz2
+#Patch5:	cups-1.1.3-mdktestpage.patch.bz2
+Patch6:		cups-1.1.16-pamconfig.patch.bz2
+#Patch6:	cups-1.1.3-pamconfig.patch.bz2
+Patch7:		cups-1.1.5-documentationhtml.patch.bz2
+Patch8:		cups-1.1.5-ENCRYPTIONtxt.patch.bz2
+Patch9:		cups-1.1.6-lp-lpr.patch.bz2
+#Patch10:	cups-1.1.6-3-cgi-bin.patch.bz2
+#Patch11:	cups-1.1.6-pstoraster-gcc-2.96.patch.bz2
+#Patch12:	cups-1.1.9-ownerships.patch.bz2
+#Patch13:	cups-1.1.9-ipph-ippmaxattrvalues.patch.bz2
+#Patch14:	cups-1.1.13-ipp-security.patch.bz2
+#Patch15:	cups-1.1.15-lib64.patch.bz2
+#Patch16:	cups-1.1.15-background.patch.bz2
+#Patch17:	cups-1.1.15-a2ps-landscape-fix.patch.bz2
+#Patch18:	cups-1.1.17-idefense.patch.bz2
+#Patch19:	cups-1.1.18-usb-serialnumber.patch.bz2
+#Patch20:	cups-1.1.18-hstrerror.patch.bz2
+#Patch21:	cups-1.1.19-ipp.c.patch.bz2
+Patch22:	cups-1.1.19-dont-broadcast-localhost.patch.bz2
 
-##### ADDITIONAL DEFINITIONS #####
+BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildRequires:	autoconf2.5, openssl-devel, pam-devel, libopenslp-devel
 
-Url: http://www.cups.org
-BuildRoot: %{_tmppath}/%{name}-buildroot
-# Moved this "Requires:" entry to CUPS-Drivers package
-#Requires: ghostscript >= 5.50-15mdk
-%if %{buildfor72}
-Requires: rpm >= 3.0.4-6mdk /usr/sbin/update-alternatives openssl net-tools
-Provides: libcups1 cups-common
-%else
-Requires: %{libname} >= %{version}-%{release} cups-common >= %{version}-%{release} openssl net-tools
-%endif
-Requires: printer-testpages
+Requires:	%{libname} >= %{version}-%{release} cups-common >= %{version}-%{release} openssl net-tools
+Requires:	printer-testpages
 # To satisfy LSB/FHS
-Provides: lpddaemon
-BuildRequires:	autoconf2.5
-BuildRequires:	openssl-devel
-BuildRequires:	pam-devel
-BuildRequires:	libopenslp-devel
-
-
-##### SUB-PACKAGES #####
+Provides:	lpddaemon
 
 %description
 The Common Unix Printing System provides a portable printing layer for 
 UNIX(TM) operating systems. It has been developed by Easy Software Products 
 to promote a standard printing solution for all UNIX vendors and users. 
 CUPS provides the System V and Berkeley command-line interfaces.
-%if !%{buildfor72}
 This is the main package needed for CUPS servers (machines where a
 printer is connected to or which host a queue for a network
 printer). It can also be used on CUPS clients so that they simply pick
 up broadcasted printer information from other CUPS servers and do not
 need to be assigned to a specific CUPS server by an
 /etc/cups/client.conf file.
-%endif
 
-%if %{buildfor72}
-%package devel
-Summary: Common Unix Printing System - development environment
-License: GPL
-Group: Development/C
-Requires: cups >= %{version}-%{release} openssl openssl-devel
-Provides: libcups1-devel
-
-%description devel
-The Common Unix Printing System provides a portable printing layer for
-UNIX(TM) operating systems. This is the development package for creating
-additional printer drivers, printing software, and other CUPS services.
-%endif
-
-%if !%{buildfor72}
 %package common
-Summary: Common Unix Printing System - Common stuff
-License: GPL
-Group: System/Servers
-Requires: %{libname} >= %{version}-%{release} rpm >= 3.0.4-6mdk /usr/sbin/update-alternatives openssl net-tools
+Summary:	Common Unix Printing System - Common stuff
+License:	GPL
+Group:		System/Servers
+Requires:	%{libname} >= %{version}-%{release} rpm >= 3.0.4-6mdk /usr/sbin/update-alternatives openssl net-tools
 
 %description common
 The Common Unix Printing System provides a portable printing layer for
@@ -136,16 +99,14 @@ pages, locales, and a sample configuration file for daemon-less CUPS
 clients (/etc/cups/client.conf).
 
 This package you need for both CUPS clients and servers. 
-%endif
 
-%if !%{buildfor72}
 %package -n %{libname}
-Summary: Common Unix Printing System - CUPS library
-License: LGPL
-Group: System/Servers
-Requires: openssl net-tools
-Obsoletes: libcups1
-Provides: libcups1 = %{version}
+Summary:	Common Unix Printing System - CUPS library
+License:	LGPL
+Group:		System/Servers
+Requires:	openssl net-tools
+Obsoletes:	libcups1
+Provides:	libcups1 = %{version}
 
 %description -n %{libname}
 The Common Unix Printing System provides a portable printing layer for
@@ -157,26 +118,25 @@ This package you need for both CUPS clients and servers. It is also
 needed by Samba.
 
 %package -n %{libname}-devel
-Summary: Common Unix Printing System - Development environment "libcups"
-License: LGPL
-Group: Development/C
-Requires: %{libname} >= %{version}-%{release} openssl openssl-devel
-Provides: libcups-devel = %{version}-%{release}
-Obsoletes: cups-devel, libcups1-devel
-Provides: cups-devel, libcups1-devel
+Summary:	Common Unix Printing System - Development environment "libcups"
+License:	LGPL
+Group:		Development/C
+Requires:	%{libname} >= %{version}-%{release} openssl openssl-devel
+Provides:	libcups-devel = %{version}-%{release}
+Obsoletes:	cups-devel, libcups1-devel
+Provides:	cups-devel, libcups1-devel
 
 %description -n %{libname}-devel
 The Common Unix Printing System provides a portable printing layer for
 UNIX(TM) operating systems. This is the development package for
 creating additional printer drivers, printing software, and other CUPS
 services using the main CUPS library "libcups".
-%endif
 
 %package serial
-Summary: Common Unix Printing System - Backend for serial port printers
-License: GPL
-Group: System/Servers
-Requires: cups >= %{version}-%{release}
+Summary:	Common Unix Printing System - Backend for serial port printers
+License:	GPL
+Group:		System/Servers
+Requires:	cups >= %{version}-%{release}
 
 %description serial
 The Common Unix Printing System provides a portable printing layer for
@@ -186,7 +146,6 @@ ports takes several seconds (and so the startup time of the CUPS
 daemon with this backend present) and therefore it is not recommended
 to install this package when one has no serial port printer.
 
-##### PREP #####
 
 %prep
 
@@ -326,9 +285,8 @@ bzcat %{SOURCE16} > cjktexttops
 ##### BUILD #####
 
 %build
-%if !%{buildfor72}
 %serverbuild
-%endif
+
 # For 'configure' the macro is not used, because otherwise one does not get the
 # /etc and /var directories correctly hardcoded into the executables (they
 # would get /usr/etc and /usr/var. In addition, the "--with-docdir" option
@@ -543,37 +501,11 @@ install -m644 config.h $RPM_BUILD_ROOT%{_includedir}/cups/
 %post
 /sbin/ldconfig
 # Let CUPS daemon be automatically started at boot time
-%if !%{buildfor72}
 %_post_service cups
-%else
-if [ $1 = 1 ]; then
-  /sbin/chkconfig --add cups;
-else
-  if [ -f /var/lock/subsys/cups ]; then
-       service cups restart > /dev/null 2>/dev/null || :
-  fi
-fi
-%endif
 
 ##menu
 %{update_menus}
 
-%if %{buildfor72}
-/sbin/ldconfig
-# Set permissions/ownerships for lppasswd
-chown lp.root %{_bindir}/lppasswd
-chmod 4755 %{_bindir}/lppasswd
-# Set up update-alternatives entries
-%{_sbindir}/update-alternatives --install %{_bindir}/lpr lpr %{_bindir}/lpr-cups 10 --slave %{_mandir}/man1/lpr.1.bz2 lpr.1.bz2 %{_mandir}/man1/lpr-cups.1.bz2
-%{_sbindir}/update-alternatives --install %{_bindir}/lpq lpq %{_bindir}/lpq-cups 10 --slave %{_mandir}/man1/lpq.1.bz2 lpq.1.bz2 %{_mandir}/man1/lpq-cups.1.bz2
-%{_sbindir}/update-alternatives --install %{_bindir}/lprm lprm %{_bindir}/lprm-cups 10 --slave %{_mandir}/man1/lprm.1.bz2 lprm.1.bz2 %{_mandir}/man1/lprm-cups.1.bz2
-%{_sbindir}/update-alternatives --install %{_bindir}/lp lp %{_bindir}/lp-cups 10 --slave %{_mandir}/man1/lp.1.bz2 lp.1.bz2 %{_mandir}/man1/lp-cups.1.bz2
-%{_sbindir}/update-alternatives --install %{_bindir}/cancel cancel %{_bindir}/cancel-cups 10 --slave %{_mandir}/man1/cancel.1.bz2 cancel.1.bz2 %{_mandir}/man1/cancel-cups.1.bz2
-%{_sbindir}/update-alternatives --install %{_bindir}/lpstat lpstat %{_bindir}/lpstat-cups 10 --slave %{_mandir}/man1/lpstat.1.bz2 lpstat.1.bz2 %{_mandir}/man1/lpstat-cups.1.bz2
-%{_sbindir}/update-alternatives --install %{_sbindir}/lpc lpc %{_sbindir}/lpc-cups 10 --slave %{_mandir}/man8/lpc.8.bz2 lpc.1.bz2 %{_mandir}/man8/lpc-cups.8.bz2
-%endif
-
-%if !%{buildfor72}
 %post common
 # Set permissions/ownerships for lppasswd
 chown lp.root %{_bindir}/lppasswd
@@ -586,39 +518,14 @@ chmod 4755 %{_bindir}/lppasswd
 %{_sbindir}/update-alternatives --install %{_bindir}/cancel cancel %{_bindir}/cancel-cups 10 --slave %{_mandir}/man1/cancel.1.bz2 cancel.1.bz2 %{_mandir}/man1/cancel-cups.1.bz2
 %{_sbindir}/update-alternatives --install %{_bindir}/lpstat lpstat %{_bindir}/lpstat-cups 10 --slave %{_mandir}/man1/lpstat.1.bz2 lpstat.1.bz2 %{_mandir}/man1/lpstat-cups.1.bz2
 %{_sbindir}/update-alternatives --install %{_sbindir}/lpc lpc %{_sbindir}/lpc-cups 10 --slave %{_mandir}/man8/lpc.8.bz2 lpc.1.bz2 %{_mandir}/man8/lpc-cups.8.bz2
-%endif
 
-%if !%{buildfor72}
 %post -n %{libname}
 /sbin/ldconfig
-%endif
 
 %preun
 # Let CUPS daemon not be automatically started at boot time any more
-%if !%{buildfor72}
 %_preun_service cups
-%else
-if [ $1 = 0 ]; then
-  service cups stop > /dev/null 2>/dev/null || :
-  /sbin/chkconfig --del cups
-fi
-%endif
 
-%if %{buildfor72}
-/sbin/ldconfig
-if [ "$1" = 0 ]; then
-  # Remove update-alternatives entries
-  %{_sbindir}/update-alternatives --remove lpr %{_bindir}/lpr-cups
-  %{_sbindir}/update-alternatives --remove lpq %{_bindir}/lpq-cups
-  %{_sbindir}/update-alternatives --remove lprm %{_bindir}/lprm-cups
-  %{_sbindir}/update-alternatives --remove lp %{_bindir}/lp-cups
-  %{_sbindir}/update-alternatives --remove cancel %{_bindir}/cancel-cups
-  %{_sbindir}/update-alternatives --remove lpstat %{_bindir}/lpstat-cups
-  %{_sbindir}/update-alternatives --remove lpc %{_sbindir}/lpc-cups
-fi
-%endif
-
-%if !%{buildfor72}
 %preun common
 if [ "$1" = 0 ]; then
   # Remove update-alternatives entries
@@ -630,24 +537,16 @@ if [ "$1" = 0 ]; then
   %{_sbindir}/update-alternatives --remove lpstat %{_bindir}/lpstat-cups
   %{_sbindir}/update-alternatives --remove lpc %{_sbindir}/lpc-cups
 fi
-%endif
 
-%if !%{buildfor72}
 %preun -n %{libname}
 /sbin/ldconfig
-%endif
 
 %postun
 ## menu
 %{update_menus}
-%if %{buildfor72}
-/sbin/ldconfig
-%endif
 
-%if !%{buildfor72}
 %postun -n %{libname}
 /sbin/ldconfig
-%endif
 
 ##### CLEAN UP #####
 
@@ -660,20 +559,6 @@ rm -rf $RPM_BUILD_ROOT
 #####cups
 %files
 %defattr(-,root,root)
-%if %{buildfor72}
-%dir %config(noreplace) %{_sysconfdir}/cups
-%config(noreplace) %{_sysconfdir}/cups/client.conf
-%{_sbindir}/*
-%{_bindir}/*
-%{_datadir}/locale/*/*
-%{_mandir}/*/*
-#{_mandir}/*/*/*
-%{_libdir}/libcups.so.*
-%{_libdir}/libcupsimage.so.*
-# This ".so" link is in the main package but not in the devel package
-# because it is needed for the function overloading in XPP and QTCUPS
-%{_libdir}/libcups.so
-%endif
 %doc %{_defaultdocdir}/%{name}
 %config(noreplace) %attr(711,lp,root) %{_sysconfdir}/cups/certs
 %config(noreplace) %{_sysconfdir}/cups/classes.conf
@@ -718,17 +603,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_iconsdir}/locolor/16x16/apps/*
 %{_menudir}/*
 
-%if %{buildfor72}
-%files devel
-%defattr(-,root,root)
-%{_includedir}/cups/*
-#Do not include /usr/lib/libcups.a because otherwise XPP and other programs
-#which overload CUPS library functions would not compile
-#{_libdir}/*.a
-%{_libdir}/libcupsimage.so
-%endif
-
-%if !%{buildfor72}
 #####cups-common
 %files common
 %defattr(-,root,root)
@@ -746,9 +620,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/locale/*/*
 %{_mandir}/*/*
 #{_mandir}/*/*/*
-%endif
 
-%if !%{buildfor72}
 #####%{libname}
 %files -n %{libname}
 %defattr(-,root,root)
@@ -762,7 +634,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/*.a
 %{_libdir}/*.so
 %{_bindir}/cups-config
-%endif
 
 %files serial
 %defattr(-,root,root)
@@ -772,6 +643,11 @@ rm -rf $RPM_BUILD_ROOT
 ##### CHANGELOG #####
 
 %changelog
+* Sat Dec 13 2003 Vincent Danen <vdanen@opensls.org> 1.1.19-11sls
+- OpenSLS build
+- tidy spec (but still needs a lot more cleaning)
+- remove support for older mdk versions
+
 * Wed Sep 17 2003 Till Kamppeter <till@mandrakesoft.com> 1.1.19-10mdk
 - Fixed bug 5615 by means of the following two changes:
   o Make the CUPS daemon not sending broadcast packages with the host name
