@@ -1,6 +1,6 @@
 %define name	clockspeed
 %define version	0.62
-%define release	3sls
+%define release	4sls
 
 Summary:	Clock speed measurement and manipulation
 Name:		%{name}
@@ -24,6 +24,7 @@ BuildRequires:	dietlibc-devel >= 0.20
 
 Requires:	daemontools, afterboot
 Provides:	ntp
+ExclusiveArch:	%{ix86}
 
 %description
 clockspeed uses a hardware tick counter to compensate for a
@@ -101,7 +102,7 @@ mkdir -p %{buildroot}%{_datadir}/afterboot
 install -m 0644 %{SOURCE5} %{buildroot}%{_datadir}/afterboot/98_clockspeed
 
 mkdir -p %{buildroot}%{_sysconfdir}/{cron.monthly,sysconfig}
-install -m 0640 %{SOURCE6} %{buildroot}%{_sysconfdir}/cron.monthly/clockspeed
+install -m 0750 %{SOURCE6} %{buildroot}%{_sysconfdir}/cron.monthly/clockspeed
 install -m 0640 %{SOURCE7} %{buildroot}%{_sysconfdir}/sysconfig/clockspeed
 
 %clean
@@ -157,6 +158,10 @@ install -m 0640 %{SOURCE7} %{buildroot}%{_sysconfdir}/sysconfig/clockspeed
 %{_mandir}/man3/taia_pack.3*
 
 %changelog
+* Tue Jun 15 2004 Vincent Danen <vdanen@opensls.org> 0.62-4sls
+- cron file needs to be executable
+- make exclusive to x86; on amd64 it doesn't work very well
+
 * Tue May 11 2004 Vincent Danen <vdanen@opensls.org> 0.62-3sls
 - P1: put adjustment fifo in /var/lib/clockspeed
 - include the adjustment fifo
