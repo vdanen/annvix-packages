@@ -1,6 +1,6 @@
 %define name	tetex
 %define version	2.0.2
-%define release	11sls
+%define release	12sls
 
 %{!?build_opensls:%global build_opensls 0}
 
@@ -257,6 +257,7 @@ Requires:	tetex = %{PACKAGE_VERSION}
 This package contains C headers and libraries, for developing TeX
 applications using kpathsea library.
 
+%if !%{build_opensls}
 %package -n %{jadename}
 Summary:	TeX macros used by Jade TeX output.
 Version: 	%{jadeversion}
@@ -274,6 +275,7 @@ Requires: 	openjade >= 1.3.1
 JadeTeX contains the additional LaTeX macros necessary for taking Jade
 TeX output files and processing them as TeX files, to obtain DVI, Postscript
 or PDF files for example.
+%endif
 
 %package -n %{xmltexname}
 Summary:	Namespace-aware XML parser written in TeX.
@@ -315,7 +317,7 @@ HTML files which can be read with any WWW browser.
 
 %prep
 %if %{build_opensls}
-%setup -q -n %{name}-src-%{tetexversion} -a 7 -a 8 -a 9
+%setup -q -n %{name}-src-%{tetexversion} -a 8 -a 9
 %else
 %setup -q -n %{name}-src-%{tetexversion} -a 7 -a 8 -a 9 -a 20
 %endif
@@ -349,9 +351,11 @@ cp -p texmf/metafont/config/mf.ini texmf/metafont/config/mf-nowin.ini
 # languages
 %patch22 -p1
 
+%if !%{build_opensls}
 # basque for jadetex
 %patch23 -p1
 %patch24 -p1
+%endif
 
 # passivetex 1.24
 %patch25 -p1
@@ -385,6 +389,7 @@ sh ./reautoconf
 # Don't use the 'make' macro, it doesn't work, even on comments.
 %make
 
+%if !%{build_opensls}
 # jadetex
 (CURRENTDIR=`pwd`
  cd %{jadename}-%{jadeversion}
@@ -394,6 +399,7 @@ sh ./reautoconf
 	pdfjadetex.ini uentities.sty unicode.sty ut1omlgc.fd \
 	$CURRENTDIR/texmf/tex/jadetex
 )
+%endif
 
 # xmltex
 (CURRENTDIR=`pwd`
@@ -442,10 +448,12 @@ tar cf - texmf | tar xf - -C $RPM_BUILD_ROOT%{_datadir}
 
 export PATH=$RPM_BUILD_ROOT/%{_bindir}:$PATH
 
+%if !%{build_opensls}
 # jadetex man page
 (cd %{jadename}-%{jadeversion}
  install -m 644 jadetex.1 pdfjadetex.1 $RPM_BUILD_ROOT%{_mandir}/man1
 )
+%endif
 
 rm -f $RPM_BUILD_ROOT%{_infodir}/dir
 bzip2 -9f $RPM_BUILD_ROOT%{_infodir}/*info* || true
@@ -514,7 +522,9 @@ echo "%attr(755,root,root) %dir /usr/local/share/texmf" >> filelist.full
 # subpackages
 grep -v "/doc/" filelist.full | grep latex 	> filelist.latex
 
+%if !%{build_opensls}
 grep -v "/doc/" filelist.full | grep jadetex	> filelist.jadetex
+%endif
 
 grep -v "/doc/" filelist.full | grep xmltex	> filelist.xmltex
 
@@ -580,6 +590,9 @@ EOF
 
 # now files listed only once, i.e. not included in any subpackage, will
 # go in the main package
+%if !%{build_opensls}
+EXTRACAT="filelist.jadetex"
+%endif
 cat filelist.full \
     filelist.latex \
     filelist.xdvi \
@@ -590,10 +603,9 @@ cat filelist.full \
     filelist.doc \
     filelist.dvipdfm \
     filelist.mfwin \
-    filelist.jadetex \
     filelist.xmltex \
     filelist.context \
-    filelist.texi2html | \
+    filelist.texi2html $EXTRACAT | \
     sort | uniq -u > filelist.main
 
 # xdvi menu things
@@ -662,9 +674,11 @@ exit 0
 exit 0
 %endif
 
+%if !%{build_opensls}
 %post -n %{jadename}
 [ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash 2> /dev/null
 exit 0
+%endif
 
 %post -n %{xmltexname}
 [ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash 2> /dev/null
@@ -716,9 +730,11 @@ exit 0
 exit 0
 %endif
 
+%if !%{build_opensls}
 %postun -n %{jadename}
 [ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash 2> /dev/null
 exit 0
+%endif
 
 %postun -n %{xmltexname}
 [ -x /usr/bin/texhash ] && /usr/bin/env - /usr/bin/texhash 2> /dev/null
@@ -792,9 +808,11 @@ fi
 %files -f filelist.devel devel
 %defattr(-,root,root)
 
+%if !%{build_opensls}
 %files -f filelist.jadetex -n %{jadename}
 %defattr(-,root,root)
 %doc %{jadename}-%{jadeversion}/doc/* %{jadename}-%{jadeversion}/ChangeLog
+%endif
 
 %files -f filelist.xmltex -n %{xmltexname}
 %defattr(-,root,root)
@@ -810,7 +828,10 @@ fi
 
 
 %changelog
-* Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 2.0.2-11.1sls
+* Tue Dec 30 2003 Vincent Danen <vdanen@opensls.org> 2.0.2-12sls
+- don't build jadetex for %%build_opensls
+
+* Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 2.0.2-11sls
 - OpenSLS build
 - tidy spec
 - use %%build_opensls to exclude packaging xdvi, mfwin, and doc
