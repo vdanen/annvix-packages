@@ -1,6 +1,6 @@
 %define name	autoconf2.5
-%define version	2.57
-%define release 7sls
+%define version	2.59
+%define release 1sls
 %define epoch	1
 
 # Factorize uses of autoconf libdir home and
@@ -18,7 +18,7 @@ URL:		http://sourceware.cygnus.com/autoconf/
 Source:		ftp://ftp.gnu.org/gnu/autoconf/autoconf-%{version}.tar.bz2
 Source2:	special_readme2.5
 Source10:	autoconf-site-start
-Patch0:		autoconf-2.57-fix-info.patch.bz2
+Patch0:		autoconf-2.58-fix-info.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot/
 BuildArch:	noarch
@@ -91,6 +91,9 @@ mv $RPM_BUILD_ROOT%{_infodir}/autoconf.info $RPM_BUILD_ROOT%{_infodir}/autoconf-
 %{_mandir}/*/*
 
 %changelog
+* Fri May 07 2004 Vincent Danen <vdanen@opensls.org> 2.59-1sls
+- 2.59
+
 * Sun Feb 29 2004 Vincent Danen <vdanen@opensls.org> 2.57-7sls
 - remove %%build_opensls macro
 - remove emacs files
