@@ -1,6 +1,6 @@
 %define name	dosfstools
 %define version 2.9
-%define release 2sls
+%define release 3sls
 
 Summary:	Utilities to create and check MS-DOS FAT filesystems.
 Name:		%{name}
@@ -34,18 +34,15 @@ code.
 %make PREFIX=/%{_prefix} CFLAGS="$RPM_OPT_FLAGS"
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 cp dosfsck/README README.fsck
 cp mkdosfs/README README.mkdosfs
 %makeinstall PREFIX=$RPM_BUILD_ROOT MANDIR=$RPM_BUILD_ROOT%{_mandir}/man8
 
-# as stated below, /sbin/fsck.* are not included in %files.
-#
-# Remove this link because for initscripts to don't have a fsck in a vfat
-# -- Use dosfsck luke --
+rm -f %{buildroot}/sbin/fsck.*
 
 %clean
-rm -r $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -57,6 +54,10 @@ rm -r $RPM_BUILD_ROOT
 %{_mandir}/man8/*
 
 %changelog
+* Thu Mar 04 2004 Vincent Danen <vdanen@opensls.org> 2.9-3sls
+- minor spec cleanups
+- remove /sbin/fsck.*
+
 * Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 2.9-2sls
 - OpenSLS build
 - tidy spec
