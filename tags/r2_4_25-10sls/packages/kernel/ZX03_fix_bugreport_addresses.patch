@@ -1,0 +1,44 @@
+--- old/MAINTAINERS	2003-11-28 20:28:20.000000000 +0200
++++ old/MAINTAINERS.new	2003-12-09 20:29:47.000000000 +0200
+@@ -463,11 +463,9 @@ M:	Pasztor Szilard <don@itc.hu>
+ S:	Supported
+ 
+ CONFIGURE, MENUCONFIG, XCONFIG
+-P:	Michael Elizabeth Chastain
+-M:	mec@shout.net
+ L:	kbuild-devel@lists.sourceforge.net
+ W:	http://kbuild.sourceforge.net
+-S:	Maintained
++S:	Obsolete
+ 
+ CONFIGURE.HELP
+ P:	Steven P. Cole
+--- old/scripts/Menuconfig	2003-11-28 20:28:09.000000000 +0200
++++ old/scripts/Menuconfig.new	2003-12-09 20:34:58.000000000 +0200
+@@ -844,8 +844,12 @@ EOM
+ 			sed 's/^/ Q> /' MCerror
+ 			cat <<EOM
+ 
+-Please report this to the maintainer <mec@shout.net>.  You may also
+-send a problem report to <linux-kernel@vger.kernel.org>.
++Please report this to your distribution if problems persist after
++you have upgraded to their latest kernel release. For a stable
++OpenSLS release the address is: http://opensls.org/anthill/ and for 
++development there is a mailing-list at http://opensls.org/archives/
++If you are sure this problem exists also in kernel.org kernels,
++you may also send a problem report to <linux-kernel@vger.kernel.org>.
+ 
+ Please indicate the kernel version you are trying to configure and
+ which menu you were trying to enter when this error occurred.
+@@ -906,9 +910,8 @@ You may also need to rebuild lxdialog.  
+ the /usr/src/linux/scripts/lxdialog directory and issuing the 
+ "make clean all" command.
+ 
+-If you have verified that your ncurses install is correct, you may email
+-the maintainer <mec@shout.net> or post a message to
+-<linux-kernel@vger.kernel.org> for additional assistance. 
++If you have verified that your ncurses install is correct, you may post
++a message to <linux-kernel@vger.kernel.org> for additional assistance.
+ 
+ EOM
+ 			cleanup

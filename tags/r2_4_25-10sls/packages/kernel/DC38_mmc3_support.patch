@@ -1,0 +1,506 @@
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff w3/drivers/cdrom/cdrom.c w4/drivers/cdrom/cdrom.c
+--- w3/drivers/cdrom/cdrom.c	2002-11-29 00:53:12.000000000 +0100
++++ w4/drivers/cdrom/cdrom.c	2003-08-21 00:09:01.000000000 +0200
+@@ -465,6 +465,12 @@ int cdrom_open(struct inode *ip, struct 
+ 	if ((cdi = cdrom_find_device(dev)) == NULL)
+ 		return -ENODEV;
+ 
++	/* Do this on open.  Don't wait for mount, because they might
++	   not be mounting, but opening with O_NONBLOCK */
++	/* But do it earlier so that media_change can (re)sense MMC3
++	   profile and tune mask accordingly. <appro@fy.chalmers.se> */
++	check_disk_change(dev);
++
+ 	if ((fp->f_mode & FMODE_WRITE) && !CDROM_CAN(CDC_DVD_RAM))
+ 		return -EROFS;
+ 
+@@ -478,9 +484,11 @@ int cdrom_open(struct inode *ip, struct 
+ 	if (!ret) cdi->use_count++;
+ 
+ 	cdinfo(CD_OPEN, "Use count for \"/dev/%s\" now %d\n", cdi->name, cdi->use_count);
++#if 0
+ 	/* Do this on open.  Don't wait for mount, because they might
+ 	    not be mounting, but opening with O_NONBLOCK */
+ 	check_disk_change(dev);
++#endif
+ 	return ret;
+ }
+ 
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff w3/drivers/scsi/sr.c w4/drivers/scsi/sr.c
+--- w3/drivers/scsi/sr.c	2003-06-13 16:51:36.000000000 +0200
++++ w4/drivers/scsi/sr.c	2003-08-21 00:09:01.000000000 +0200
+@@ -31,6 +31,9 @@
+  *	 Modified by Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+  *	 check resource allocation in sr_init and some cleanups
+  *
++ *	 Nov 5 2001, Aug 5 2002. Modified by Andy Polyakov
++ *	 <appro@fy.chalmers.se> to support MMC-3 complaint DVD+RW units.
++ *
+  */
+ 
+ #include <linux/module.h>
+@@ -86,6 +89,7 @@ static struct Scsi_Device_Template sr_te
+ 
+ Scsi_CD *scsi_CDs;
+ static int *sr_sizes;
++void sr_set_sizes(int minor,int size) { sr_sizes[minor]=size; }
+ 
+ static int *sr_blocksizes;
+ static int *sr_hardsizes;
+@@ -169,9 +173,6 @@ int sr_media_change(struct cdrom_device_
+ 	/* If the disk changed, the capacity will now be different,
+ 	 * so we force a re-read of this information */
+ 	if (retval) {
+-		/* check multisession offset etc */
+-		sr_cd_check(cdi);
+-
+ 		/* 
+ 		 * If the disk changed, the capacity will now be different,
+ 		 * so we force a re-read of this information 
+@@ -180,12 +181,32 @@ int sr_media_change(struct cdrom_device_
+ 		 * has changed.
+ 		 */
+ 		scsi_CDs[MINOR(cdi->dev)].needs_sector_size = 1;
+-
+ 		scsi_CDs[MINOR(cdi->dev)].device->sector_size = 2048;
++		/* DVD+RW bookkeeping, mark clean */
++		scsi_CDs[MINOR(cdi->dev)].media_written = 0;
++
++		/* check multisession offset etc */
++		sr_cd_check(cdi);
+ 	}
+ 	return retval;
+ }
+ 
++static void flush_intr(Scsi_Cmnd *SCpnt)
++{   
++    /* this is a temporary hack which suspends i/o if unexpected happens */
++    if (driver_byte(SCpnt->result) != 0 && SCpnt->sense_buffer[0] & 0xF0) {
++	printk("sr%d: unable to \"SYNCHRONIZE CACHE\" [%02x/%02x/%02x]? "
++		"Suspending I/O...\n",
++		DEVICE_NR(SCpnt->request.rq_dev),
++		SCpnt->sense_buffer[2],
++		SCpnt->sense_buffer[12],
++		SCpnt->sense_buffer[13]);
++	SCpnt->device->changed = 1;
++    }
++
++    scsi_release_request(SCpnt->sc_request);
++}
++
+ /*
+  * rw_intr is the interrupt routine for the device driver.  It will be notified on the
+  * end of a SCSI read / write, and will take on of several actions based on success or failure.
+@@ -261,6 +282,81 @@ static void rw_intr(Scsi_Cmnd * SCpnt)
+ 		}
+ 	}
+ 
++	if (scsi_CDs[device_nr].mmc3_profile == 0x1A &&
++	    driver_byte(result) != 0 &&
++	    SCpnt->sense_buffer[0] & 0xF0) /* permit for vendor codes */ {
++		if (SCpnt->sense_buffer[2] == MEDIUM_ERROR &&
++		    SCpnt->sense_buffer[12] == 0x15 && 
++		    SCpnt->request.cmd == WRITE) {
++			printk("sr%d: This one beats me! Suspending I/O...\n",
++				device_nr),
++			SCpnt->device->changed = 1;
++		}
++		else if (SCpnt->sense_buffer[2] == ILLEGAL_REQUEST &&
++		    SCpnt->sense_buffer[12] == 0x2c) do {
++			Scsi_Request *SRpnt;
++
++			printk ("sr%d: injecting \"SYNCHRONIZE CACHE\"\n",
++				device_nr);
++
++			SRpnt = scsi_allocate_request (SCpnt->device);
++			if (SRpnt==NULL) {
++				printk ("sr%d: out of kernel memory:-(\n",
++					device_nr),
++				SCpnt->device->changed=1;
++				break; /* mind do{}while(0) around */
++			}
++
++			SRpnt->sr_cmnd[0]=0x35;
++			SRpnt->sr_cmd_len=10;
++			SRpnt->sr_data_direction = SCSI_DATA_NONE;
++			SRpnt->sr_timeout_per_command = 30*HZ;
++			SRpnt->sr_done=flush_intr;
++
++#if 0			/* scsi_insert_special_req isn't exported :-( */
++			scsi_insert_special_req(SRpnt,1);
++#else
++			/*
++			 * As scsi_insert_special_req is not exported, I
++			 * just copy corresponding code from scsi_lib.c.
++			 * This is a TEMPORARY solution and the ONLY
++			 * reason for doing this is that I don't want to
++			 * patch scsi_syms.c just yet! Below is inlined
++			 * call to __scsi_insert_special(q,rq,SRpnt,1)
++			 * from 2.4.18.
++			 */
++			{   request_queue_t *q=&SRpnt->sr_device->request_queue;
++			    struct request *rq=&SRpnt->sr_request;
++			    unsigned long flags;
++
++			    rq->cmd = SPECIAL;
++			    rq->special = SRpnt;
++			    rq->q = NULL;
++			    rq->nr_segments = 0;
++			    rq->elevator_sequence = 0;
++
++			    spin_lock_irqsave(&io_request_lock, flags);
++
++			    list_add(&rq->queue, &q->queue_head);
++
++			    q->request_fn(q);
++
++			    spin_unlock_irqrestore(&io_request_lock, flags);
++			}
++#endif
++			/*
++			 * fake "LOGICAL UNIT IS IN PROCESS OF BECOMING READY"
++			 * for current command to fool scsi_io_completion().
++			 */
++			SCpnt->sense_buffer[0]=0xF0;
++			SCpnt->sense_buffer[2]&=0xF0;
++			SCpnt->sense_buffer[2]|=NOT_READY;
++			SCpnt->sense_buffer[12]=4;
++			SCpnt->sense_buffer[13]=1;
++			good_sectors=0;
++		} while (0);
++	}
++
+ 	/*
+ 	 * This calls the generic completion function, now that we know
+ 	 * how many actual sectors finished, and how many sectors we need
+@@ -442,6 +538,8 @@ static int sr_init_command(Scsi_Cmnd * S
+ 	case WRITE:
+ 		SCpnt->cmnd[0] = WRITE_10;
+ 		SCpnt->sc_data_direction = SCSI_DATA_WRITE;
++		/* bookkeeping, mark dirty */
++		scsi_CDs[dev].media_written = 1;
+ 		break;
+ 	case READ:
+ 		SCpnt->cmnd[0] = READ_10;
+@@ -691,9 +789,9 @@ void get_sectorsize(int i)
+ 
+ void get_capabilities(int i)
+ {
+-	unsigned char cmd[6];
++	unsigned char cmd[10];
+ 	unsigned char *buffer;
+-	int rc, n;
++	int rc, n, len;
+ 
+ 	static char *loadmech[] =
+ 	{
+@@ -713,13 +811,32 @@ void get_capabilities(int i)
+ 		printk(KERN_ERR "sr: out of memory.\n");
+ 		return;
+ 	}
++#if 0
++#define	GET_CAPABILITIES_USES_MODE_SENSE_6
+ 	cmd[0] = MODE_SENSE;
+ 	cmd[1] = (scsi_CDs[i].device->scsi_level <= SCSI_2) ?
+ 		 ((scsi_CDs[i].device->lun << 5) & 0xe0) : 0;
+ 	cmd[2] = 0x2a;
+-	cmd[4] = 128;
++	cmd[4] = len = 128;
+ 	cmd[3] = cmd[5] = 0;
+-	rc = sr_do_ioctl(i, cmd, buffer, 128, 1, SCSI_DATA_READ, NULL);
++#else
++	/*
++	 * Why favor MODE_SENSE_10 over MODE_SENSE_6?
++	 * - SCSI-3 MMC specifies MODE_SENSE_10 only.
++	 * - non-SCSI transports (e.g. ATAPI, USB) translate
++	 *   MODE_SENSE to MODE_SENSE_10 anyway, so why give
++	 *   them a chance to screw things up?
++	 */
++	n=0;
++retry_mode_sense_10:	/* Workaround for USB connected units */
++	cmd[0] = MODE_SENSE_10;
++	cmd[1] = (scsi_CDs[i].device->scsi_level <= SCSI_2) ?
++		 ((scsi_CDs[i].device->lun << 5) & 0xe0) : 0;
++	cmd[2] = 0x2a;
++	cmd[8] = len = 8+16+n; /* header+page+block_descriptor_length */
++	cmd[3] = cmd[4] = cmd[5] = cmd[6] = cmd[7] = cmd[9] = 0;
++#endif
++	rc = sr_do_ioctl(i, cmd, buffer, len, 1, SCSI_DATA_READ, NULL);
+ 
+ 	if (rc) {
+ 		/* failed, drive doesn't have capabilities mode page */
+@@ -731,7 +848,15 @@ void get_capabilities(int i)
+ 		printk("sr%i: scsi-1 drive\n", i);
+ 		return;
+ 	}
++#ifdef	GET_CAPABILITIES_USES_MODE_SENSE_6
++#undef	GET_CAPABILITIES_USES_MODE_SENSE_6
+ 	n = buffer[3] + 4;
++#else
++	len = (buffer[6]<<8) + buffer[7];
++	if (len>(512-8-16)) return; /* never happens in real life */
++	if (n<len) { n=len; goto retry_mode_sense_10; }
++	n = 8+len; /* header+block_descriptor_length */
++#endif
+ 	scsi_CDs[i].cdi.speed = ((buffer[n + 8] << 8) + buffer[n + 9]) / 176;
+ 	scsi_CDs[i].readcd_known = 1;
+ 	scsi_CDs[i].readcd_cdda = buffer[n + 5] & 0x01;
+@@ -795,7 +920,14 @@ static int sr_packet(struct cdrom_device
+ 	if (device->scsi_level <= SCSI_2)
+ 		cgc->cmd[1] |= device->lun << 5;
+ 
+-	cgc->stat = sr_do_ioctl(MINOR(cdi->dev), cgc->cmd, cgc->buffer, cgc->buflen, cgc->quiet, cgc->data_direction, cgc->sense);
++	cgc->stat = sr_do_ioctl(MINOR(cdi->dev), cgc->cmd, cgc->buffer, cgc->buflen,
++#if 1
++		/* what a dirty hack!!! */
++		(cgc->timeout & ~1) | cgc->quiet,
++#else
++		cgc->quiet,
++#endif
++		cgc->data_direction, cgc->sense);
+ 
+ 	return cgc->stat;
+ }
+@@ -890,6 +1022,8 @@ void sr_finish()
+ 		scsi_CDs[i].device->remap = 1;
+ 		scsi_CDs[i].readcd_known = 0;
+ 		scsi_CDs[i].readcd_cdda = 0;
++		scsi_CDs[i].media_written = 0;
++		scsi_CDs[i].close_track_sniffed = 0;
+ 		sr_sizes[i] = scsi_CDs[i].capacity >> (BLOCK_SIZE_BITS - 9);
+ 
+ 		scsi_CDs[i].cdi.ops = &sr_dops;
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff w3/drivers/scsi/sr.h w4/drivers/scsi/sr.h
+--- w3/drivers/scsi/sr.h	2003-08-01 13:22:59.000000000 +0200
++++ w4/drivers/scsi/sr.h	2003-08-21 00:09:01.000000000 +0200
+@@ -12,6 +12,9 @@
+  *       Modified by Eric Youngdale eric@andante.org to
+  *       add scatter-gather, multiple outstanding request, and other
+  *       enhancements.
++ *
++ *       Nov 5, 2001. Modified by Andy Polyakov <appro@fy.chalmers.se>
++ *       to support MMC-3 complaint DVD+RW units.
+  */
+ 
+ #ifndef _SR_H
+@@ -31,6 +34,9 @@ typedef struct {
+ 	unsigned xa_flag:1;	/* CD has XA sectors ? */
+ 	unsigned readcd_known:1;	/* drive supports READ_CD (0xbe) */
+ 	unsigned readcd_cdda:1;	/* reading audio data using READ_CD */
++	unsigned media_written:1;	/* dirty flag, DVD+RW bookkeeping */
++	unsigned close_track_sniffed:1;	/* dirty flag, DVD+RW bookkeeping */
++	unsigned short mmc3_profile;	/* current MMC3 profile, see sr_vendor.c */
+ 	struct cdrom_device_info cdi;
+ } Scsi_CD;
+ 
+@@ -51,10 +57,13 @@ int sr_dev_ioctl(struct cdrom_device_inf
+ 
+ int sr_read_sector(int minor, int lba, int blksize, unsigned char *dest);
+ int sr_is_xa(int minor);
++void sr_set_sizes(int minor,int size);
+ 
+ /* sr_vendor.c */
+ void sr_vendor_init(int minor);
+ int sr_cd_check(struct cdrom_device_info *);
+ int sr_set_blocklength(int minor, int blocklength);
++/* anchor for DVD+RW "finalization" at unlock */
++void sr_vendor_lock_door (int minor,int lock);
+ 
+ #endif
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff w3/drivers/scsi/sr_ioctl.c w4/drivers/scsi/sr_ioctl.c
+--- w3/drivers/scsi/sr_ioctl.c	2002-11-29 00:53:14.000000000 +0100
++++ w4/drivers/scsi/sr_ioctl.c	2003-08-21 00:09:01.000000000 +0200
+@@ -175,6 +182,13 @@ int sr_do_ioctl(int target, unsigned cha
+ 			err = -EIO;
+ 		}
+ 	}
++	else if (sr_cmd[0]==0x5B) {
++		/* Even though this flag is commented as DVD+RW specific
++		 * in sr.h, no check if currently mounted media is DVD+RW
++		 * is performed. That's because the flag does good in
++		 * in either case. */
++		scsi_CDs[target].close_track_sniffed=1;
++	}
+ 
+ 	if (sense)
+ 		memcpy(sense, SRpnt->sr_sense_buffer, sizeof(*sense));
+@@ -214,6 +228,7 @@ int sr_tray_move(struct cdrom_device_inf
+ 
+ int sr_lock_door(struct cdrom_device_info *cdi, int lock)
+ {
++	sr_vendor_lock_door (MINOR(cdi->dev),lock);
+ 	return scsi_ioctl(scsi_CDs[MINOR(cdi->dev)].device,
+ 		      lock ? SCSI_IOCTL_DOORLOCK : SCSI_IOCTL_DOORUNLOCK,
+ 			  0);
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff w3/drivers/scsi/sr_vendor.c w4/drivers/scsi/sr_vendor.c
+--- w3/drivers/scsi/sr_vendor.c	2001-07-05 20:28:17.000000000 +0200
++++ w4/drivers/scsi/sr_vendor.c	2003-08-21 00:09:01.000000000 +0200
+@@ -32,6 +32,10 @@
+  *   - HP:      Much like SONY, but a little different... (Thomas)
+  *              HP-Writers only ??? Maybe other CD-Writers work with this too ?
+  *              HP 6020 writers now supported.
++ * --------------------------------------------------------------------------
++ *
++ *	 Nov 5 2001, Aug 8 2002. Modified by Andy Polyakov
++ *       <appro@fy.chalmers.se> to support MMC-3 complaint DVD+RW units.
+  */
+ 
+ #include <linux/config.h>
+@@ -60,19 +64,120 @@
+ 
+ #define VENDOR_ID (scsi_CDs[minor].vendor)
+ 
++static unsigned short sr_mmc3_profile (int minor)
++{
++	unsigned char cmd [10], buffer [12];
++	int rc, mmc3_profile;
++
++	/* Read MMC-3 profile */
++	cmd[0] = 0x46;			/* GET CONFIGURATION		*/
++	cmd[1] = (scsi_CDs[minor].device->scsi_level <= SCSI_2) ?
++	         (scsi_CDs[minor].device->lun << 5) : 0;
++	cmd[2] = cmd[3] = 0;		/* Starting Feature Number	*/
++	cmd[4] = cmd[5] = cmd [6] = 0;	/* Reserved			*/
++	cmd[7] = 0; cmd [8] = 8;	/* Allocation Length		*/
++	cmd[9] = 0;			/* Control			*/
++	rc = sr_do_ioctl(minor, cmd, buffer, 8, 1, SCSI_DATA_READ, NULL);
++	if (rc) {	/* doesn't seem to support MMC3 profiles!!!	*/
++		mmc3_profile = 0xFFFF;
++	} else {
++		mmc3_profile = buffer[6]<<8|buffer[7];
++		switch (mmc3_profile) {
++		    case 0x12:	/* DVD-RAM	*/
++		    case 0x1A:	/* DVD+RW	*/
++			scsi_CDs[minor].cdi.mask &= ~CDC_DVD_RAM;
++			scsi_CDs[minor].device->writeable = 1;
++			break;
++		    case 0x1B:	/* DVD+R	*/
++			/* Needed for accessing of opened media */
++			cmd[0] = 0x23;	/* READ FORMAT CAPACITIES */
++			cmd[8] = 12; 
++			rc = sr_do_ioctl(minor, cmd, buffer, 12,
++					 1, SCSI_DATA_READ, NULL);
++		        if (!rc) {
++			    scsi_CDs[minor].capacity = ((buffer[4] << 24) |
++							(buffer[5] << 16) |
++							(buffer[6] << 8)  |
++							 buffer[7]) * 4;
++			    scsi_CDs[minor].device->sector_size = 2048;
++			    sr_set_sizes(minor, scsi_CDs[minor].capacity >>
++						(BLOCK_SIZE_BITS - 9));
++			    scsi_CDs[minor].needs_sector_size = 0;
++			}
++			/* no break; */
++		    default:
++			scsi_CDs[minor].cdi.mask |= CDC_DVD_RAM;
++			scsi_CDs[minor].device->writeable = 0;
++		}
++	}
++	scsi_CDs[minor].mmc3_profile = mmc3_profile;
++	return mmc3_profile;
++}
++
++void sr_vendor_lock_door (int minor,int lock)
++{
++	unsigned char cmd [10];
++
++	if (lock != 0) return;
++
++	if ( (scsi_CDs[minor].media_written) &&
++	     (scsi_CDs[minor].mmc3_profile == 0x1A) ) {
++		printk ("sr%i: dirty DVD+RW media, \"finalizing\"\n",minor);
++
++		memset (cmd,0,10);
++		cmd[0] = 0x35;	/* FLUSH CACHE		*/
++		sr_do_ioctl(minor, cmd, NULL, 0, 0, SCSI_DATA_NONE, NULL);
++		memset (cmd,0,10);
++
++		memset (cmd,0,10);
++		cmd[0] = 0x5B;	/* CLOSE TRACK/SESSION  */
++		sr_do_ioctl(minor, cmd, NULL, 0, 3000*HZ, SCSI_DATA_NONE, NULL);
++
++		memset (cmd,0,10);
++		cmd[0] = 0x5B;	/* CLOSE TRACK/SESSION	*/
++		cmd[2] = 2;	/* Close session	*/
++		sr_do_ioctl(minor, cmd, NULL, 0, 3000*HZ, SCSI_DATA_NONE, NULL);
++
++		/* bookkeeping, mark clean and changed */
++		scsi_CDs[minor].media_written = 0;
++		scsi_CDs[minor].close_track_sniffed = 0;
++		scsi_CDs[minor].device->changed = 1;
++	}
++	else if (scsi_CDs[minor].close_track_sniffed) {
++		scsi_CDs[minor].close_track_sniffed = 0;
++		scsi_CDs[minor].device->changed = 1;
++	}
++}
++
+ void sr_vendor_init(int minor)
+ {
+ #ifndef CONFIG_BLK_DEV_SR_VENDOR
++	int rc;
++
+ 	VENDOR_ID = VENDOR_SCSI3;
++
++	/* check for MMC-3 Profile capability */
++	rc = sr_mmc3_profile (minor);
++	if (rc != 0xFFFF)
++		printk ("sr%i: mmc-3 profile capable,"
++			" current profile: %Xh\n", minor, rc);
++	return;
+ #else
+ 	char *vendor = scsi_CDs[minor].device->vendor;
+ 	char *model = scsi_CDs[minor].device->model;
++	int rc;
+ 
+ 	/* default */
+ 	VENDOR_ID = VENDOR_SCSI3;
+-	if (scsi_CDs[minor].readcd_known)
+-		/* this is true for scsi3/mmc drives - no more checks */
++	if (scsi_CDs[minor].readcd_known) {
++		/* this is true for scsi3/mmc drives */
++		/* check for MMC-3 Profile capability */
++		rc = sr_mmc3_profile (minor);
++		if (rc != 0xFFFF)
++			printk ("sr%i: mmc-3 profile capable,"
++				" current profile: %Xh\n", minor, rc);
+ 		return;
++	}
+ 
+ 	if (scsi_CDs[minor].device->type == TYPE_WORM) {
+ 		VENDOR_ID = VENDOR_WRITER;
+@@ -159,6 +264,16 @@ int sr_cd_check(struct cdrom_device_info
+ 	int rc, no_multi, minor;
+ 
+ 	minor = MINOR(cdi->dev);
++
++	if ((VENDOR_ID == VENDOR_SCSI3) && 
++	    (scsi_CDs[minor].mmc3_profile != 0xFFFF)) {
++		rc = sr_mmc3_profile (minor);
++		if (rc != 0xFFFF)
++			printk ("sr%i: mmc-3 profile: %Xh\n", minor,rc);
++		else
++			printk ("sr%i: Failed to sense mmc-3 profile\n",minor);
++	}
++
+ 	if (scsi_CDs[minor].cdi.mask & CDC_MULTI_SESSION)
+ 		return 0;
+ 
+@@ -178,11 +293,15 @@ int sr_cd_check(struct cdrom_device_info
+ 		cmd[1] = (scsi_CDs[minor].device->scsi_level <= SCSI_2) ?
+ 		         (scsi_CDs[minor].device->lun << 5) : 0;
+ 		cmd[8] = 12;
+-		cmd[9] = 0x40;
++#if 1
++		cmd[2] = 1;	/* SCSI-3 MMC spec says so */
++#else
++		cmd[9] = 0x40;	/* Where does this come from? */
++#endif
+ 		rc = sr_do_ioctl(minor, cmd, buffer, 12, 1, SCSI_DATA_READ, NULL);
+ 		if (rc != 0)
+ 			break;
+-		if ((buffer[0] << 8) + buffer[1] < 0x0a) {
++		if (((buffer[0] << 8) + buffer[1]) < 8) {
+ 			printk(KERN_INFO "sr%d: Hmm, seems the drive "
+ 			   "doesn't support multisession CD's\n", minor);
+ 			no_multi = 1;

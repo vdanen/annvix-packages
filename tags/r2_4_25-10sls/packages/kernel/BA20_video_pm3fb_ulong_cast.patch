@@ -1,0 +1,18 @@
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff 2.4.19-rc3/drivers/video/pm3fb.c test/drivers/video/pm3fb.c
+--- 2.4.19-rc3/drivers/video/pm3fb.c	2002-07-22 18:43:34.000000000 +0200
++++ test/drivers/video/pm3fb.c	2002-07-22 18:48:09.000000000 +0200
+@@ -3830,11 +3830,9 @@ void cleanup_module(void)
+ 				    (unsigned char *) -1) {
+ 					pm3fb_unmapIO(l_fb_info);
+ #if (defined KERNEL_2_4) || (defined KERNEL_2_5)
+-					release_mem_region(l_fb_info->p_fb,
+-							   l_fb_info->
+-							   fb_size);
+-					release_mem_region(l_fb_info->
+-							   pIOBase,
++					release_mem_region((u_long)l_fb_info->p_fb,
++							   l_fb_info->fb_size);
++					release_mem_region((u_long)l_fb_info->pIOBase,
+ 							   PM3_REGS_SIZE);
+ #endif /* KERNEL_2_4 or KERNEL_2_5 */
+ 				}

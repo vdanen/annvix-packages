@@ -1,0 +1,48 @@
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff 2.4.19-rc3/fs/nfs/nfs3proc.c test/fs/nfs/nfs3proc.c
+--- 2.4.19-rc3/fs/nfs/nfs3proc.c	2002-07-22 18:43:34.000000000 +0200
++++ test/fs/nfs/nfs3proc.c	2002-07-22 18:48:09.000000000 +0200
+@@ -45,7 +45,7 @@ nfs3_rpc_call_wrapper(struct rpc_clnt *c
+ 
+ #define rpc_call(clnt, proc, argp, resp, flags) \
+ 		nfs3_rpc_call_wrapper(clnt, proc, argp, resp, flags)
+-#define rpc_call_sync(clnt, msg, flags) \
++#define rpc_call_sync2(clnt, msg, flags) \
+ 		nfs3_rpc_wrapper(clnt, msg, flags)
+ 
+ /*
+@@ -181,7 +181,7 @@ nfs3_proc_read(struct inode *inode, stru
+ 
+ 	dprintk("NFS call  read %d @ %Ld\n", count, (long long)offset);
+ 	fattr->valid = 0;
+-	status = rpc_call_sync(NFS_CLIENT(inode), &msg, flags);
++	status = rpc_call_sync2(NFS_CLIENT(inode), &msg, flags);
+ 	dprintk("NFS reply read: %d\n", status);
+ 	*eofp = res.eof;
+ 	return status;
+@@ -207,7 +207,7 @@ nfs3_proc_write(struct inode *inode, str
+ 		rpcflags |= NFS_RPC_SWAPFLAGS;
+ 	arg.stable = (flags & NFS_RW_SYNC) ? NFS_FILE_SYNC : NFS_UNSTABLE;
+ 
+-	status = rpc_call_sync(NFS_CLIENT(inode), &msg, rpcflags);
++	status = rpc_call_sync2(NFS_CLIENT(inode), &msg, rpcflags);
+ 
+ 	dprintk("NFS reply read: %d\n", status);
+ 	return status < 0? status : res.count;
+@@ -290,7 +290,7 @@ nfs3_proc_remove(struct inode *dir, stru
+ 
+ 	dprintk("NFS call  remove %s\n", name->name);
+ 	dir_attr.valid = 0;
+-	status = rpc_call_sync(NFS_CLIENT(dir), &msg, 0);
++	status = rpc_call_sync2(NFS_CLIENT(dir), &msg, 0);
+ 	nfs_refresh_inode(dir, &dir_attr);
+ 	dprintk("NFS reply remove: %d\n", status);
+ 	return status;
+@@ -461,7 +461,7 @@ nfs3_proc_readdir(struct inode *dir, str
+ 			plus? "plus" : "", (unsigned int) cookie);
+ 
+ 	dir_attr.valid = 0;
+-	status = rpc_call_sync(NFS_CLIENT(dir), &msg, 0);
++	status = rpc_call_sync2(NFS_CLIENT(dir), &msg, 0);
+ 	nfs_refresh_inode(dir, &dir_attr);
+ 	dprintk("NFS reply readdir: %d\n", status);
+ 	return status;
