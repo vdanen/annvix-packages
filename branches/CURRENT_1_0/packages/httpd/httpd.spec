@@ -1,8 +1,6 @@
 %define name	apache2
 %define version	2.0.48
-%define release	6sls
-
-%{!?build_opensls:%global build_opensls 0}
+%define release	7sls
 
 #
 #(ie. use with rpm --rebuild):
@@ -25,12 +23,7 @@
 %define dbmver	db4
 
 # not everyone uses this, so define it here
-%if %{build_opensls}
-%define distribution OpenSLS
-%else
-%define distribution Mandrake Linux
-%endif
-
+%define distribution	OpenSLS
 %define build_debug	1
 %define build_distcache	0
 
@@ -68,7 +61,7 @@
 %define ap_name		apache2
 %define apr_name	%mklibname apr 0
 
-Summary:		The most widely used Web server on the Internet.
+Summary:		The Apache2 web server.
 Name:			%{ap_name}
 Version:		%{ap_version}
 Release:		%{ap_release}
@@ -81,10 +74,6 @@ Source2: 		README.ADVX
 Source3:		apache-old-changelog
 Source4:		apache2_transparent_png_icons.tar.bz2
 Source5: 		gentestcrt.sh.bz2
-# JMD: took mod_cgi.c from httpd-2.1-dev since it fixes a nasty
-# bug (and potential DoS attack) [Apache Bug 22030]
-# vdanen: don't apply this because it causes a lot of other problems
-#Source6:		httpd-2.1-dev-mod_cgi.c.bz2
 Source7:		apache2.run
 Source8:		apache2-log.run
 # please keep this logic.
@@ -98,6 +87,7 @@ Source56:		56_mod_disk_cache.conf.bz2
 Source57:		57_mod_mem_cache.conf.bz2
 Source58:		58_mod_file_cache.conf.bz2
 Source59:		59_mod_deflate.conf.bz2
+Source60:		03_apache2.afterboot
 
 Patch0:			httpd-2.0.46-sslink.patch.bz2
 Patch1:			httpd-2.0.36-suexec.patch.bz2
@@ -136,10 +126,11 @@ BuildRequires:		distcache-devel >= 1.4.2
 %endif
 BuildConflicts: 	BerkeleyDB-devel
 
-Prereq:			%{ap_name}-conf >= 2.0.46-2mdk
-Prereq:			%{ap_name}-common
-Prereq: 		%{ap_name}-modules = %{ap_version}
-Prereq:			%{apr_name} = %{ap_version}
+PreReq:			%{ap_name}-conf >= 2.0.46-2mdk
+PreReq:			%{ap_name}-common
+PreReq: 		%{ap_name}-modules = %{ap_version}
+PreReq:			%{apr_name} = %{ap_version}
+PreReq:			afterboot srv rpm-helper
 Requires:		libtool  >= 1.4.2
 Provides:		webserver 
 Provides:		apache
@@ -166,19 +157,6 @@ You can build %{ap_name} with some conditional build swithes;
 
 (ie. use with rpm --rebuild):
 --with debug   Compile with debugging code
-
-%package manual
-Summary:	The %{ap_name} Manual
-Group:		System/Servers
-Provides: 	ADVXpackage
-Provides: 	AP20package
-#This is to fix a wrong require in MDK9.0
-Obsoletes:	apache-manual <= 1.3.26
-Provides:	apache-manual
-
-%description manual
-This package contains the %{ap_name} server documentation in HTML
-format.
 
 %package common
 Summary:	Files common for %{ap_name} and %{ap_name}-mod_perl installations
@@ -243,7 +221,7 @@ for normal operation of the web server.
 
 %package mod_dav
 Summary:	Distributed Authoring and Versioning (WebDAV)
-Group:                 System/Servers
+Group:		System/Servers
 Prereq:		%{ap_name}-conf
 Prereq:		%{ap_name}-common
 Prereq:		%{ap_name}-modules = %{ap_version}
@@ -485,7 +463,7 @@ for %{ap_name}, you'll need to install this package.
 
 %package source
 Summary:	The %{ap_name} Source
-Group:		System/Servers
+Group:		Development/C
 #No use to install it if you don't have libgdbm.so and libpthread.so!
 Requires:	db1-devel
 #Do not require libdb*-devel, it breaks the upgrade from 9.0 to 9.1.
@@ -504,8 +482,6 @@ build %{ap_name}-mod_perl, or your own custom version.
 %prep
 
 %setup -q -n %{sourcename}
-# vdanen: don't apply this bad source
-#bzcat %{SOURCE6} > modules/generators/mod_cgi.c
 %patch0 -p1
 %patch1 -p0
 %patch2 -p0
@@ -841,9 +817,6 @@ make install \
 	logfiledir=%{buildroot}%{ap_logfiledir} \
 	proxycachedir=%{buildroot}%{ap_proxycachedir}
 
-# This was intruduced Sat Jun 15 2002, but it didn't work... ;(
-#make DESTDIR=%{buildroot} install
-
 pushd %{buildroot}%{_sbindir}
     rm -f suexec
 popd
@@ -938,15 +911,6 @@ bzcat %{SOURCE57} > %{buildroot}/%{ap_confd}/57_mod_mem_cache.conf
 bzcat %{SOURCE58} > %{buildroot}/%{ap_confd}/58_mod_file_cache.conf
 bzcat %{SOURCE59} > %{buildroot}/%{ap_confd}/59_mod_deflate.conf
 
-cat << EOF > %{buildroot}/%{ap_confd}/00_manual.conf
-Alias /manual/ /usr/share/doc/%{ap_name}-manual-%{ap_version}/
-Alias /manual-2.0/ /usr/share/doc/%{ap_name}-manual-%{ap_version}/
-<Directory /usr/share/doc/%{ap_name}-manual-%{ap_version}>	
-    Order allow,deny
-    Allow from all
-</Directory>
-EOF
-
 install -d %{buildroot}%{ap_sslconf}
 cat > %{buildroot}%{ap_sslconf}/README.test-certificates <<EOF
 Use the %{ap_ssldir}/gentestcrt.sh script to generate your own,
@@ -962,26 +926,6 @@ mv %{buildroot}%{ap_libexecdir}/mod_auth_ldap.so %{buildroot}%{ap_extralibs}
 # make libtool a (dangling) symlink
 ln -snf ../../../bin/libtool %{buildroot}%{ap_installbuilddir}/libtool
 
-# fix manual
-pushd %{buildroot}%{ap_htdocsdir}/manual
-    for i in `find -name "*.html.en"`; do
-	new_name=`echo $i | sed -e "s/.html.en/.html/g"`
-	mv -f $i $new_name
-    done
-
-# we don't need these
-    for i in `find -name "footer.html"` `find -name "header.html"`; do
-	rm -f $i
-    done
-
-# we only want to provide png files...
-find -type f -name "*.html" | xargs perl -p -i -e "s|\.gif|\.png|g"
-
-# we only want to provide png files...
-find -type f -name "*.gif" | xargs gif2png -d -O
-
-popd
-
 # we only want to provide png files...
 find %{buildroot}%{ap_datadir}/icons -type f -name "*.gif" | xargs rm
 
@@ -991,14 +935,6 @@ install -m755 support/list_hooks.pl %{buildroot}%{_sbindir}/list_hooks.pl
 install -m755 support/logresolve.pl %{buildroot}%{_sbindir}/logresolve.pl
 install -m755 support/log_server_status %{buildroot}%{_sbindir}/log_server_status
 install -m755 support/.libs/ab-ssl %{buildroot}%{_sbindir}/ab-ssl
-
-#Install manual
-install -d %{buildroot}%{_docdir}/%{ap_name}-manual-%{ap_version}
-install -d %{buildroot}%{ap_datadir}
-pushd %{buildroot}%{ap_htdocsdir}
-    tar c -C . manual | tar x -C $RPM_BUILD_DIR/%{sourcename}
-    rm -rf manual
-popd
 
 cp %{SOURCE2} $RPM_BUILD_DIR/%{sourcename}
 
@@ -1048,8 +984,14 @@ mkdir -p %{buildroot}%{_srvlogdir}/apache2
 install -m 0755 %{SOURCE7} %{buildroot}%{_srvdir}/apache2/run
 install -m 0755 %{SOURCE8} %{buildroot}%{_srvdir}/apache2/log/run
 
+mkdir -p %{buildroot}%{_datadir}/afterboot
+install -m 0644 %{SOURCE60} %{buildroot}%{_datadir}/afterboot/03_apache2
+
+# remove manual
+rm -rf %{buildroot}%{ap_htdocsdir}/manual
+
 %clean
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot} 
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 #Clean up "install source" and other generated dirs
 [ "../tmp-%{sourcename}%{ap_abs_srcdir}" != "/" ] && rm -rf ../tmp-%{sourcename}%{ap_abs_srcdir}
@@ -1127,17 +1069,11 @@ fi
 %postun mod_deflate
 %ADVXpost
 
-%post manual
-%ADVXpost
-
-%postun manual
-%ADVXpost
-
 %post devel -p /sbin/ldconfig
 %preun devel -p /sbin/ldconfig
 
 %pre common
-%_pre_useradd apache %{ap_datadir} /bin/sh
+%_pre_useradd apache %{ap_datadir} /bin/sh 74
 
 %postun common
 %_postun_userdel apache
@@ -1148,16 +1084,17 @@ fi
 %post
 #JMD: do *not* use _post_service here, it is used in %{ap_name}-conf, since we
 #can have both %{ap_name} and %{ap_name}-mod_perl
+%_mkafterboot
 %ADVXpost
 
 %postun
 #JMD: do *not* use _post_service here, otherwise it will uninstall
 #apache-mod_perl as well!!
+%_mkafterboot
 %ADVXpost
 
 %files
 %defattr(-,root,root)
-%doc README.ADVX
 %doc highperformance.conf
 %doc httpd2-VANILLA.conf
 %doc ssl.conf
@@ -1171,6 +1108,7 @@ fi
 %{_srvdir}/apache2/run
 %{_srvdir}/apache2/log/run
 %dir %attr(0750,nobody,nogroup) %{_srvlogdir}/apache2
+%{_datadir}/afterboot/03_apache2
 
 %files modules
 #Do not put apache.apache here, otherwise anyone with web access can 
@@ -1218,7 +1156,6 @@ fi
 %dir %{ap_extralibs}
 %dir %{ap_prefix}
 %{ap_prefix}/*
-%doc README.ADVX
 
 %files mod_proxy
 %defattr(-,root,root)
@@ -1250,7 +1187,6 @@ fi
 %files mod_dav
 %defattr(-,root,root)
 %dir %{ap_davdir}
-%doc README.ADVX
 %config(noreplace) %{ap_confd}/*_mod_dav.conf
 %{ap_libexecdir}/mod_dav.so
 %{ap_libexecdir}/mod_dav_fs.so
@@ -1260,7 +1196,6 @@ fi
 %{ap_extralibs}/mod_ldap.so
 %{ap_extralibs}/mod_auth_ldap.so
 %config(noreplace) %{ap_confd}/*_mod_ldap.conf
-%doc README.ADVX
 
 %files mod_cache
 %defattr(-,root,root)
@@ -1291,6 +1226,7 @@ fi
 #Do not put apache.apache for the rest, otherwise anyone with web access can 
 #tamper with the files!!!!
 %defattr(-,root,root)
+%doc README.ADVX
 %dir %{ap_datadir}/error
 %dir %{ap_datadir}/error/include
 %config(noreplace,missingok) %{ap_datadir}/error/README
@@ -1313,18 +1249,10 @@ fi
 %attr(0755,root,root) %{_sbindir}/list_hooks.pl
 %attr(0755,root,root) %{_sbindir}/logresolve.pl
 %attr(0755,root,root) %{_sbindir}/log_server_status
-%doc README.ADVX
 #JMD: Removed for Apache2 since mm is not used anymore
 #Maybe we'll add it again someday.
 #(By the way, 1333 is the *right* permission.)
 #%attr(1333,apache,apache) %dir /var/apache-mm
-
-%files manual
-#Do not put apache.apache here, otherwise anyone with web access can 
-#tamper with the files!!!!
-%defattr(-,root,root)
-%config(noreplace) %{ap_confd}/00_manual.conf
-%doc manual/* README.ADVX
 
 %files -n %{apr_name}
 #Do not put apache.apache here, otherwise anyone with web access can 
@@ -1348,7 +1276,6 @@ fi
 %attr(0755,root,root) %{ap_installbuilddir}/config.nice
 %attr(0755,root,root) %{_sbindir}/envvars-std
 %{apxs}
-%doc README.ADVX
 %doc srclib/apr/CHANGES srclib/apr/README* srclib/apr/docs/*
 %attr(0755,root,root) %{_bindir}/ap*-config
 %attr(0644,root,root) %{_libdir}/*.exp
@@ -1364,9 +1291,17 @@ fi
 #tamper with the files!!!!
 %defattr(-,root,root)
 %{ap_abs_srcdir}
-%doc README.ADVX
 
 %changelog
+* Wed Feb 11 2004 Vincent Danen <vdanen@opensls.org> 2.0.48-7sls
+- remove %%build_opensls macros
+- remove the manual package
+- README.ADVX only in the common package
+- more spec cleanups
+- apache gets static uid/gid 74
+- PreReq: srv, afterboot, rpm-helper
+- add afterboot snippet
+
 * Fri Jan 23 2004 Vincent Danen <vdanen@opensls.org> 2.0.48-6sls
 - sync with 5mdk (jmdault):
   - fix mod_auth_ldap (link with ldap, ber, crypto, ssl)
