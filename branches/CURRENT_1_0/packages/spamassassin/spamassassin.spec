@@ -1,6 +1,6 @@
 %define name	spamassassin
 %define version	2.63
-%define release	4sls
+%define release	5sls
 
 %define fname	Mail-SpamAssassin
 %define instdir	vendor
@@ -79,7 +79,7 @@ user's own mail user-agent application.
     DESTDIR="%{buildroot}/%{_prefix}" \
     SYSCONFDIR=%{_sysconfdir} < /dev/null
 
-%make OPTIMIZE="%{optflags}"
+%make OPTIMIZE="%{optflags}" CFLAGS="%{optflags}"
 
 # got root?
 # make test
@@ -142,6 +142,9 @@ chmod 666 /var/spool/spamassassin/auto-whitelist.db
 %{_mandir}/man3*/*
 
 %changelog
+* Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 2.63-5sls
+- build against perl 5.8.4
+
 * Mon Mar 22 2004 Vincent Danen <vdanen@opensls.org> 2.63-4sls
 - fix syntax error in run script
 
