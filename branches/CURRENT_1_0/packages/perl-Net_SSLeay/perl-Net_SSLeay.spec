@@ -1,7 +1,7 @@
 %define module	Net_SSLeay
 %define name 	perl-%{module}
 %define version	1.25
-%define release	2sls
+%define release	3sls
 
 Summary:        Net::SSLeay (module for perl)
 Name: 		%{name}
@@ -12,6 +12,7 @@ Group: 		Development/Perl
 URL: 		http://www.bacus.pt/Net_SSLeay/index.html
 Source: 	%{module}.pm-%{version}.tar.bz2
 Patch:		%{module}.pm-1.25.large_tcp_read.patch.bz2
+Patch1:		Net_SSLeay-nobakus.patch.bz2
 
 BuildRoot: 	%{_tmppath}/%{name}-buildroot/
 BuildRequires:	openssl-devel perl-devel
@@ -24,6 +25,7 @@ Net::SSLeay module for perl.
 %prep
 %setup -q -n %{module}.pm-%{version}
 %patch -p1 -b .fpons
+%patch1 -p0 -b .nobakus
 
 # openssl_path is /usr here, therefore don't -I/usr/include and
 # especially don't (badly) hardcode standard library search path
@@ -40,14 +42,14 @@ perl -p -i -e 's|/usr/local/bin|/usr/bin|g;' *.pm examples/*
 make test
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
 # is that crazy? keep it the way fpons did anyway
 find $RPM_BUILD_ROOT/%{_prefix} -name "*.al" | xargs rm -f
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -58,6 +60,11 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/*/*
 
 %changelog
+* Fri Feb 27 2004 Vincent Danen <vdanen@opensls.org> 1.25-3sls
+- rebuild for new perl
+- P1: don't try doing an external test to bakus.pt because it doesn't seem
+  to exist and causes the tests to fail
+
 * Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 1.25-2sls
 - OpenSLS build
 - tidy spec
