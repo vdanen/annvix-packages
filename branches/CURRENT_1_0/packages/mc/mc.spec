@@ -1,6 +1,6 @@
 %define name	mc
 %define version	4.6.0
-%define release	6sls
+%define release	7sls
 
 Summary:	A user-friendly file manager and visual shell
 Name:		%{name}
@@ -17,6 +17,8 @@ Patch31:	mc-4.6.0-init.patch.bz2
 # (fc) fix xpdf outputing garbage on stdout (bug #4094)
 Patch0:		mc-4.6.0-xpdf.patch.bz2
 Patch1:		mc-CVE-CAN-2003-1023.patch.bz2
+Patch2:		mc-4.6.0_CAN-2004-0226-0231-0232.patch.bz2
+Patch3:		mc-4.6.0-nota.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-root
 BuildRequires:	libext2fs-devel pam-devel
@@ -36,6 +38,8 @@ files, and poke into RPMs for specific files.  :-)
 %patch23 -p1 -b .toolbarpo
 %patch31 -p1 -b .initlevel
 %patch1 -p1 -b .buff
+%patch2 -p1 -b .multcans
+%patch3 -p1 -b .nota
 
 %build
 %serverbuild
@@ -113,6 +117,10 @@ chmod 755 $RPM_BUILD_ROOT/%{_libdir}/mc/cons.saver
 %{_datadir}/mc/term/*
 
 %changelog
+* Mon May 10 2004 Vincent Danen <vdanen@opensls.org> - 4.6.0-7sls
+- P2 fixes CAN-2004-0226, CAN-2004-0231, CAN-2004-0232
+- P3 don't build ta locale as it breaks build (sbenedict)
+
 * Sat Mar 06 2004 Vincent Danen <vdanen@opensls.org> - 4.6.0-6sls
 - minor spec cleanups
 
