@@ -1,6 +1,6 @@
 %define name	rootfiles
 %define version	9.1
-%define	release	1sls
+%define	release	2sls
 
 Summary:	The basic required files for the root user's directory
 Name:		%{name}
@@ -10,6 +10,7 @@ Release:	%{release}
 License:	Public Domain
 Group:		System/Base
 Source:		%name-%version.tar.bz2
+Patch0:		rootfiles-rootwarning.patch.bz2
 
 BuildRoot:	%_tmppath/%name-%version-%release-root
 BuildArch:	noarch
@@ -23,29 +24,18 @@ users' home directories.
 %prep
 
 %setup -q
+%patch0 -p0 -b .warn
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 install -d %buildroot/root
 make install RPM_BUILD_ROOT=%buildroot
 
 %clean
-rm -rf $RPM_BUILD_ROOT
-
-%pre
-# we used to put .Xclients in this package -- back it up if it's been
-# customized
-cd /root
-if [ -f .Xclients -a -x /bin/awk ]; then
-    m=`md5sum .Xclients | awk '{ print $1 }'`
-    if [ $m != "506b9496f2853fc9fee6c6b1c5f3ee48" ]; then
-	mv .Xclients .Xclients.rpmsave
-    fi
-fi
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
-%doc ChangeLog 
 %config(noreplace) /root/.Xdefaults
 %config(noreplace) /root/.bash_logout
 %config(noreplace) /root/.bash_profile
@@ -56,6 +46,12 @@ fi
 %attr(0700,root,root) /root/tmp/
 
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 9.1-2sls
+- minor spec cleanups
+- remove the %%pre backup of Xclients files
+- add warning about logging in as root
+- remove Changelog doc (no one cares)
+
 * Mon Dec 01 2003 Vincent Danen <vdanen@opensls.org> 9.1-1sls
 - OpenSLS build
 - tidy spec
