@@ -1,21 +1,14 @@
 %define name	unixODBC
 %define version	2.2.6
-%define release	6sls
-
-%{!?build_opensls:%global build_opensls 0}
+%define release	7sls
 
 %define LIBMAJ 	2
 %define libname %mklibname %name %LIBMAJ
 %define libgtkgui_major	0
 %define libgtkgui_name	%mklibname gtkodbcconfig %{libgtkgui_major}
 
-%if %{build_opensls}
 %define qt_gui  0
 %define gtk_gui 0
-%else
-%define qt_gui  1
-%define gtk_gui 1
-%endif
 
 # Allow --with[out] <feature> at rpm command line build
 %{expand: %{?_without_QT:	%%global qt_gui 0}}
@@ -164,6 +157,17 @@ rm -fr %buildroot
 install -m 644 %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/
 perl -pi -e "s,/lib/,/%{_lib}/," $RPM_BUILD_ROOT%{_sysconfdir}/odbcinst.ini
 
+# (sb) use the versioned symlinks, rather than the .so's, this should
+# eliminate the issues with requiring -devel packages or having
+# to override auto requires
+
+pushd %{buildroot}
+newlink=`find usr/%{_lib} -type l -name 'libodbcpsql.so.*' | tail -1`
+perl -pi -e "s,usr/%{_lib}/libodbcpsql.so,$newlink,g" %{buildroot}%{_sysconfdir}/odbcinst.ini
+newlink=`find usr/%{_lib} -type l -name 'libodbcpsqlS.so.*'`
+perl -pi -e "s,usr/%{_lib}/libodbcpsqlS.so,$newlink,g" %{buildroot}%{_sysconfdir}/odbcinst.ini
+popd
+
 %if %gtk_gui
 # gODBCConfig must be built after installing the main unixODBC parts
 cd gODBCConfig
@@ -184,7 +188,7 @@ cd ..
 %endif
 
 # drill out shared libraries for gODBCConfig *sigh*
-# also rill out the Qt inst library that doesn't seem to be used at the moment
+# also drill out the Qt inst library that doesn't seem to be used at the moment
 # by anyone ATM?
 echo "%defattr(-,root,root)" > libodbc-libs.filelist
 find $RPM_BUILD_ROOT%_libdir -name '*.so.*' | sed -e "s|$RPM_BUILD_ROOT||g" | grep -v -e gtk -e instQ >> libodbc-libs.filelist
@@ -306,14 +310,12 @@ rm -f libodbc-libs.filelist
 
 %files -n %{libname} -f libodbc-libs.filelist
 %defattr(-,root,root)
-%_libdir/libodbcpsql*.so
 
 %files -n %{libname}-devel 
 %defattr(-,root,root)
 %doc doc/
 %{_includedir}/*
 %_libdir/lib*.so
-%exclude %_libdir/libodbcpsql*.so
 %_libdir/*.a
 %_libdir/*.la
 
@@ -345,6 +347,13 @@ rm -f libodbc-libs.filelist
 %endif
 
 %changelog
+* Mon Jan 12 2004 Vincent Danen <vdanen@opensls.org> 2.2.6-7sls
+- remove %%build_opensls macros
+- sync with 2.2.7-2mdk (sbenedict):
+  - move .so symlinks back to -devel, fix /etc/odbcinst.ini to point to the
+    versioned symlinks, this should satisfy Bugzilla [6769] as well as
+    Anthill [15]
+
 * Wed Dec 31 2003 Vincent Danen <vdanen@opensls.org> 2.2.6-6sls
 - sync with 5mdk (gbeauchesne): fix build on amd64
 - sync with 6mdk (sbenedict): anthill bug 51 - move postgres .so symlinks to
