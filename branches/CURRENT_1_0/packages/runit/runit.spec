@@ -1,6 +1,6 @@
 %define	name	runit
 %define	version	1.2.1
-%define	release	1avx
+%define	release	2avx
 
 Summary:	A UN*X init scheme with service supervision
 Name:		%{name}
@@ -13,7 +13,7 @@ Source0:	%{name}-%{version}.tar.bz2
 Source1:	annvix-runit.tar.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-buildroot
-BuildRequires:	dietlibc >= 0.27-1avx
+BuildRequires:	dietlibc >= 0.27-2avx
 
 Requires:	SysVinit >= 2.85-7avx, initscripts, srv, mingetty
 Conflicts:	SysVinit <= 2.85-6avx
@@ -142,7 +142,10 @@ fi
 %attr(0755,root,root) %{_srvdir}/mingetty-tty6/finish
 
 %changelog
-* Wed Oct 13 2004 Vincent Danen <vdanen@annvix.org> 1.0.5-1avx
+* Thu Jan 20 2005 Vincent Danen <vdanen@annvix.org> 1.0.5-2avx
+- rebuild against fixed dietlibc
+
+* Thu Jan 20 2005 Vincent Danen <vdanen@annvix.org> 1.0.5-1avx
 - 1.2.1
 - don't set -march=pentium anymore
 
