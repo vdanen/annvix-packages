@@ -1,6 +1,6 @@
 %define name	exim
 %define version 4.30
-%define release 2sls
+%define release 3sls
 
 %define build_mysql 0
 %define build_pgsql 0
@@ -51,7 +51,11 @@ Obsoletes:	sendmail postfix qmail smail
 Requires:	chkconfig, initscripts, sh-utils, openssl, pam
 Requires:	openldap >= 2.0.11
 BuildRequires:	tcp_wrappers-devel, pam-devel, openssl, openssl-devel, XFree86-devel, openldap-devel, lynx
+%ifarch amd64 x86_64
+Requires:	lib64db4.1
+%else
 Requires:	libdb4.1
+%endif
 BuildRequires:	db4-devel >= 4.1
 %if %{build_mysql}
 BuildRequires:	libmysql-devel
@@ -346,6 +350,9 @@ fi
 %config(noreplace) %{_sysconfdir}/exim/sa-exim_short.conf
 
 %changelog
+* Sat Jan 10 2004 Vincent Danen <vdanen@opensls.org> 4.30-3sls
+- Requires lib64db4.1 if amd64
+
 * Mon Jan 05 2004 Vincent Danen <vdanen@opensls.org> 4.30-2sls
 - BuildRequires: openldap-devel not libldap2-devel (amd64)
 - if amd64, make eximon libs look in /usr/X11R6/lib64
