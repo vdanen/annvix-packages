@@ -1,6 +1,6 @@
 %define name	apache2
 %define version	2.0.49
-%define release	6avx
+%define release	7avx
 
 #
 #(ie. use with rpm --rebuild):
@@ -74,8 +74,8 @@ Source2: 		README.ADVX
 Source3:		apache-old-changelog
 Source4:		apache2_transparent_png_icons.tar.bz2
 Source5: 		gentestcrt.sh.bz2
-Source7:		apache2.run
-Source8:		apache2-log.run
+Source7:		httpd2.run
+Source8:		httpd2-log.run
 # please keep this logic.
 Source30:		30_mod_proxy.conf.bz2
 Source40: 		40_mod_ssl.conf.bz2
@@ -1282,6 +1282,10 @@ fi
 %{ap_abs_srcdir}
 
 %changelog
+* Thu Aug 19 2004 Vincent Danen <vdanen@annvix.org> 2.0.49-7avx
+- log/run was still logging to /var/log/supervise/apache2 rather than
+  ../httpd2; fixed
+
 * Fri Aug 13 2004 Vincent Danen <vdanen@annvix.org> 2.0.49-6avx
 - rebuild against new openssl
 
