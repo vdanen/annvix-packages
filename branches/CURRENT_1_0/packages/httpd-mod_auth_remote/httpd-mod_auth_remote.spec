@@ -1,6 +1,6 @@
 %define name	%{ap_name}-%{mod_name}
 %define version %{ap_version}_%{mod_version}
-%define release 3sls
+%define release 4sls
 
 # Module-Specific definitions
 %define mod_version	0.1
@@ -64,14 +64,14 @@ client is not validated.
 %{apxs} -c %{mod_name}.c
 
 %install
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %ADVXinstlib
 %ADVXinstconf %{SOURCE1} %{mod_conf}
 %ADVXinstdoc %{name}-%{version}
 
 %clean
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
 %ADVXpost
@@ -87,6 +87,9 @@ client is not validated.
 %doc readme.txt
 
 %changelog
+* Wed Feb 18 2004 Vincent Danen <vdanen@opensls.org> 2.0.48_0.1-4sls
+- small tidy
+
 * Tue Dec 23 2003 Vincent Danen <vdanen@opensls.org> 2.0.48_0.1-3sls
 - new version from author (bugfixes)
 - fix url
