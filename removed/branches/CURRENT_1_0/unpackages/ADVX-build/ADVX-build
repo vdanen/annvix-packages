@@ -29,7 +29,7 @@
 %global ap_proxycachedir	/var/cache/httpd
 
 %global ap_includedir 		%{_includedir}/%{ap_name}
-%global ap_sslconf		%{_sysconfdir}/ssl/apache
+%global ap_sslconf		%{_sysconfdir}/ssl/%{ap_name}
 %global ap_ssldir		%{_libdir}/ssl/%{ap_name}-mod_ssl
 
 %global ap_davdir		/var/lib/dav

@@ -1,6 +1,6 @@
 %define name	ADVX-build
-%define version	9.2
-%define release	5avx
+%define version	10
+%define release	1avx
 
 Summary:	ADVX-build contains tools and macros to build ADVX
 Name:		%{name}
@@ -13,8 +13,6 @@ Source0:	ADVX-build.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-root
 BuildArch:	noarch
-
-Provides:	ADVXpackage
 
 %description
 ADVX-build contains a set of tools and macros to build ADVX
@@ -34,15 +32,20 @@ echo "See http://www.advx.org/devel.policy.php for more info" > \
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+[ "./%{name}" != "/" ] && rm -rf ./%{name}
 
 %files 
 %defattr(-,root,root)
-%dir %{_docdir}/%{name}-%{version}
 %doc %{_docdir}/%{name}-%{version}/README
+%dir %{_docdir}/%{name}-%{version}
 %dir %{_datadir}/ADVX
-%attr(0644,root,root) %{_datadir}/ADVX/ADVX-build
+%attr(0644,root,root) %{_datadir}/ADVX/*
 
 %changelog
+* Thu Oct 14 2004 Vincent Danen <vdanen@annvix.org> 10-1avx
+- 10
+- remove redundant provides
+
 * Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 9.2-5avx
 - Annvix build
 
