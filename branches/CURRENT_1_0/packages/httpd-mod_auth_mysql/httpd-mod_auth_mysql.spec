@@ -1,44 +1,30 @@
-%define name	%{ap_name}-%{mod_name}
-%define version %{ap_version}_%{mod_version}
+%define name	apache2-%{mod_name}
+%define version %{apache_version}_%{mod_version}
 %define release 1avx
 
 # Module-Specific definitions
-%define mod_version	1.11
+%define apache_version	2.0.53
+%define mod_version	2.8.1
 %define mod_name	mod_auth_mysql
 %define mod_conf	12_%{mod_name}.conf
 %define mod_so		%{mod_name}.so
 %define sourcename	%{mod_name}-%{mod_version}
 
-# New ADVX macros
-%define ADVXdir %{_datadir}/ADVX
-%{expand:%(cat %{ADVXdir}/ADVX-build)}
-%{expand:%%global ap_version %(%{apxs} -q ap_version)}
-
-Summary:	Basic authentication for the %{ap_name} web server using a MySQL database.
+Summary:	Basic authentication for the apache2 web server using a MySQL database
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	Apache License
 Group:		System/Servers
-URL:		ftp://ftp.kciLink.com/pub/
-Source0:	ftp://ftp.kciLink.com/pub/%{mod_name}.c.bz2
-Source1:	ftp://ftp.kciLink.com/pub/mysql-group-auth.txt.bz2
-Source2:	%{mod_conf}.bz2
-Patch0:		%{mod_name}-1.11-ap2.patch.bz2
-Patch1:		%{mod_name}-1.11-register.patch.bz2
-Patch2:		%{mod_name}-newapi.patch.bz2
+URL:		http://sourceforge.net/projects/modauthmysql/
+Source0:	mod_auth_mysql-%{mod_version}.tar.bz2
+Source1:	%{mod_conf}.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-buildroot
-BuildPrereq:	MySQL-devel
-# Standard ADVX requires
-BuildRequires:  ADVX-build >= 9.2
-BuildRequires:  %{ap_name}-devel >= 2.0.44-5mdk
+BuildRequires:  apache2-devel >= %{apache_version}, MySQL-devel
 
-# Standard ADVX requires
-Prereq:		%{ap_name} = %{ap_version}
-Prereq:		%{ap_name}-conf
-Provides: 	ADVXpackage
-Provides:	AP20package
+Prereq:		apache2 = %{apache_version}
+Prereq:		apache2-conf
 
 %description
 mod_auth_mysql can be used to limit access to documents served by
@@ -46,42 +32,39 @@ a web server by checking data in a MySQL database.
 
 %prep
 
-%setup -q -c -T
-bzcat %{SOURCE0} > mod_auth_mysql.c
-bzcat %{SOURCE1} > mysql-group-auth.txt
-cat mod_auth_mysql.c | tail +84 | head -101 | cut -c 4- > mod_auth_mysql.txt
-%patch0 -p0 -b .ap2
-%patch1
-%patch2
+%setup -q -n %{mod_name}-%{mod_version}
 
 %build
 
-%{apxs} -c mod_auth_mysql.c -I%{_includedir}/mysql -Wl,-lmysqlclient
+%{_sbindir}/apxs2 -c -DAPACHE2 -L%{_libdir}/mysql -I%{_includedir}/mysql -Wl,-lmysqlclient mod_auth_mysql.c
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-%ADVXinstlib
-%ADVXinstconf %{SOURCE2} %{mod_conf}
-%ADVXinstdoc %{name}-%{version}
+mkdir -p %{buildroot}%{_libdir}/apache2-extramodules
+mkdir -p %{buildroot}%{_sysconfdir}/httpd/conf.d
+install -m 0755 .libs/*.so %{buildroot}%{_libdir}/apache2-extramodules/
+bzcat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/conf.d/%{mod_conf}
+
+mkdir -p %{buildroot}/var/www/html/addon-modules
+ln -s ../../../../%{_docdir}/%{name}-%{version} %{buildroot}/var/www/html/addon-modules/%{name}-%{version}
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-%post
-%ADVXpost
-
-%postun
-%ADVXpost
-
 %files
 %defattr(-,root,root)
-%doc *.txt
-%{ap_extralibs}/%{mod_so}
-%config(noreplace) %{ap_confd}/%{mod_conf}
-%{ap_webdoc}/*
+%doc README CHANGES BUILD
+%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/httpd/conf.d/%{mod_conf}
+%attr(0755,root,root) %{_libdir}/apache2-extramodules/%{mod_so}
+/var/www/html/addon-modules/*
 
 %changelog
+* Sat Feb 26 2005 Vincent Danen <vdanen@annvix.org> 2.0.53_2.8.1-1avx
+- 2.8.1
+- apache 2.0.53
+- get rid of ADVX stuff
+
 * Thu Oct 14 2004 Vincent Danen <vdanen@annvix.org> 2.0.52_1.11-1avx
 - apache 2.0.52
 
