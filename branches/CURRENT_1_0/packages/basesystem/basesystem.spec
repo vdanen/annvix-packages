@@ -1,6 +1,6 @@
 %define name	basesystem
 %define version 1.0
-%define release 4sls
+%define release 5sls
 %define epoch	1
 
 #rh-7.0-2
@@ -19,7 +19,7 @@ Requires:	setup filesystem sed initscripts console-tools utempter
 Requires:	chkconfig coreutils SysVinit bdflush crontabs dev
 Requires:	e2fsprogs etcskel findutils grep gzip kernel less 
 Requires:	logrotate losetup mingetty modutils mount net-tools passwd procps
-Requires:	psmisc mandrake-release rootfiles rpm sash shadow-utils 
+Requires:	psmisc opensls-release rootfiles rpm sash shadow-utils 
 Requires:	stat sysklogd tar termcap time util-linux vim
 Requires:	crond which perl-base common-licenses srv daemontools ucspi-tcp afterboot
 Requires:	bootloader
@@ -54,6 +54,9 @@ should never be removed.
 %files
 
 %changelog
+* Sat Mar 13 2004 Vincent Danen <vdanen@opensls.org> 1.0-5sls
+- Requires: s/mandrake-release/opensls-release/
+
 * Tue Mar 02 2004 Vincent Danen <vdanen@opensls.org> 1.0-4sls
 - Requires: afterboot
 - remove specific requires for bootloaders for multiple archs, instead make
