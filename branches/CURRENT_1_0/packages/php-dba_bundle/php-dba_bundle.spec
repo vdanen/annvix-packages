@@ -1,6 +1,6 @@
 %define name	php-%{modname}_bundle
 %define version	%{phpversion}
-%define release	1avx
+%define release	2avx
 
 %define phpsource	%{_prefix}/src/php-devel
 %define _docdir		%{_datadir}/doc/%{name}-%{version}
@@ -93,6 +93,9 @@ EOF
 %config(noreplace) %{_sysconfdir}/php.d/%{inifile}
 
 %changelog
+* Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> 4.3.10-2avx
+- rebuild against new gdbm
+
 * Thu Dec 16 2004 Vincent Danen <vdanen@annvix.org> 4.3.10-1avx
 - php 4.3.10
 

@@ -1,6 +1,6 @@
 %define name	courier-imap
 %define version	2.1.2
-%define release	15avx
+%define release	16avx
 
 %define _localstatedir	/var/run
 %define	authdaemondir	%{_localstatedir}/authdaemon.courier-imap
@@ -561,6 +561,9 @@ test ! -f %{courierdatadir}/configlist.mysql || %{courierdatadir}/sysconftool-rp
 %{_mandir}/man1/maildirmake++.1*
 
 %changelog
+* Thu Feb 04 2005 Vincent Danen <vdanen@annvix.org> 2.1.2-16avx
+- rebuild against new gdbm
+
 * Wed Jan 05 2005 Vincent Danen <vdanen@annvix.org> 2.1.2-15avx
 - rebuild against new openssl
 

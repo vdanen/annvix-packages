@@ -1,6 +1,6 @@
 %define name	apache2
 %define version	2.0.52
-%define release	4avx
+%define release	5avx
 
 #
 #(ie. use with rpm --rebuild):
@@ -1325,6 +1325,9 @@ rm -rf %{buildroot}%{ap_htdocsdir}/manual
 %{ap_abs_srcdir}
 
 %changelog
+* Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> 2.0.52-5avx
+- rebuild against new gdbm
+
 * Thu Jan 06 2005 Vincent Danen <vdanen@annvix.org> 2.0.52-4avx
 - rebuild against new openssl
 
