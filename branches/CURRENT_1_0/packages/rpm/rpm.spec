@@ -3,7 +3,7 @@
 %define poptver		1.8.2
 # You need increase both release and poptrelease
 %define poptrelease	%{release}
-%define release		4avx
+%define release		5avx
 
 %define libver		4.2
 %define url		ftp://ftp.rpm.org/pub/rpm/dist/rpm-4.0.x
@@ -26,9 +26,9 @@
 %define _datadir /usr/share
 %define _defaultdocdir /usr/share/doc
 
-%define build_propolice		1
-%{expand: %{?_without_propolice:	%%define build_propolice 0}}
-%{expand: %{?_with_propolice:		%%define build_propolice 1}}
+%define build_ssp		1
+%{expand: %{?_without_ssp:	%%define build_ssp 0}}
+%{expand: %{?_with_ssp:		%%define build_ssp 1}}
 
 # Define directory which holds rpm config files, and some binaries actually
 # NOTE: it remains */lib even on lib64 platforms as only one version
@@ -93,10 +93,13 @@ Patch51:	rpm-4.2-rpmal-fix-crash.patch.bz2
 # (vdanen) use stack protection by default
 Patch52:	rpm-4.2-stackmacros.patch.bz2
 Patch53:	rpm-4.2-unpackaged-links.patch.bz2
-Patch54:	rpm-4.2-annvix.patch.bz2
+Patch54:	rpm-4.2.2-avx-annvix-conf.patch.bz2
 Patch55:	rpm-4.2.2-file.patch.bz2
 Patch56:	rpm-4.2.2-enable-typo.patch.bz2
 Patch57:	rpm-4.2.2-db_private.patch.bz2
+Patch58:	http://pauln.truemesh.com/tmp/rpm-4.2.2-python-none.patch.bz2
+Patch59:	rpm-4.2.2-mdk-x86-cpuid.patch.bz2
+Patch60:	rpm-4.2.2-mdk-mono.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-root
 BuildRequires:	autoconf2.5 >= 2.57
@@ -272,7 +275,7 @@ bzcat %{SOURCE2} > rpm-spec-mode.el
 %patch49 -p1 -b .provides
 %patch50 -p1 -b .exclude-strip
 #%patch51 -p1 -b .rpmal-fix-crash
-%if %build_propolice
+%if %build_ssp
 %patch52 -p1 -b .stackmacro
 %endif
 %patch53 -p1 -b .links
@@ -280,6 +283,9 @@ bzcat %{SOURCE2} > rpm-spec-mode.el
 %patch55 -p1 -b .file
 %patch56 -p1 -b .typo
 %patch57 -p1 -b .db_private
+%patch58 -p1 -b .python-none
+%patch59 -p1 -b .x86-cpuid
+%patch60 -p1 -b .mono
 
 # Nuke nonexistant/unused type checks
 perl -ni -e '/^AC_TYPE_ST_RDEV_T/ or print' configure.ac
@@ -302,8 +308,8 @@ AutoGen "zlib" zlib
 AutoGen "file" file
 AutoGen "rpm" .
 
-# Use system elfutils, beecrypt
-for d in elfutils beecrypt; do
+# Use system elfutils, beecrypt, zlib
+for d in elfutils beecrypt zlib; do
     mv $d orig.$d
 done
 
@@ -314,6 +320,7 @@ done
 # (vdanen): don't build rpm with stack protection
 #CPPFLAGS="-I/usr/include/libelf" CFLAGS="$RPM_OPT_FLAGS -fno-stack-protector" CXXFLAGS="$RPM_OPT_FLAGS -fno-stack-protector" ./configure --prefix=%{_prefix} --sysconfdir=/etc --localstatedir=/var --mandir=%{_datadir}/man --infodir=%{_datadir}/info --enable-nls --without-javaglue --disable-posixmutexes --with-python=%{pyver}
 CPPFLAGS="-I/usr/include/libelf" CFLAGS="$RPM_OPT_FLAGS" CXXFLAGS="$RPM_OPT_FLAGS" ./configure --prefix=%{_prefix} --sysconfdir=/etc --localstatedir=/var --mandir=%{_datadir}/man --infodir=%{_datadir}/info --enable-nls --without-javaglue --disable-posixmutexes --with-python=%{pyver}
+# Allow parallel build
 perl -p -i -e 's/conftest\.s/conftest\$\$.s/' config.status
 
 # XXX hack out O_DIRECT support in db4 for now.
@@ -373,10 +380,10 @@ ln -s ../../%{_lib}/libpopt.so.0 $RPM_BUILD_ROOT%{_libdir}
 ln -sf libpopt.so.0 $RPM_BUILD_ROOT%{_libdir}/libpopt.so
 
 %ifarch ppc powerpc
-ln -sf ppc-mandrake-linux $RPM_BUILD_ROOT%{rpmdir}/powerpc-mandrake-linux
+ln -sf ppc-annvix-linux $RPM_BUILD_ROOT%{rpmdir}/powerpc-annvix-linux
 %endif
 
-mv -f $RPM_BUILD_ROOT%{rpmdir}/brp-redhat $RPM_BUILD_ROOT%{rpmdir}/brp-mandrake
+mv -f $RPM_BUILD_ROOT%{rpmdir}/brp-redhat $RPM_BUILD_ROOT%{rpmdir}/brp-annvix
 
 mv -f $RPM_BUILD_ROOT/%{rpmdir}/rpmdiff $RPM_BUILD_ROOT/%{_bindir}
 
@@ -414,6 +421,8 @@ rm -f doc-copy/Makefile*
 #install -d $RPM_BUILD_ROOT/%{_datadir}/man/man3
 #install -m 644 apidocs/man/man3/* $RPM_BUILD_ROOT/%{_datadir}/man/man3/
 
+mkdir -p %{buildroot}/var/spool/repackage
+
 # Fix links
 rm -f %{buildroot}%{_prefix}/lib/rpmpopt
 ln -s rpm/rpmpopt-%{rpmversion} %{buildroot}%{_prefix}/lib/rpmpopt
@@ -433,7 +442,7 @@ ln -s rpm/rpmpopt-%{rpmversion} %{buildroot}%{_prefix}/lib/rpmpopt
 $RPM_BUILD_ROOT%{rpmdir}/find-lang.sh $RPM_BUILD_ROOT %{name}
 $RPM_BUILD_ROOT%{rpmdir}/find-lang.sh $RPM_BUILD_ROOT popt
 
-$RPM_BUILD_ROOT%{rpmdir}/brp-mandrake
+$RPM_BUILD_ROOT%{rpmdir}/brp-annvix
 exit 0
 
 %clean
@@ -456,7 +465,7 @@ fi
 
 /usr/share/rpm-helper/add-user rpm $1 rpm /var/lib/rpm /bin/false 68
 
-rm -rf /usr/lib/rpm/*-mandrake-*
+rm -rf /usr/lib/rpm/*-annvix-*
 
 %post
 /sbin/ldconfig
@@ -509,6 +518,7 @@ fi
 %{_libdir}/librpmio-%{libver}.so
 %{_libdir}/librpmbuild-%{libver}.so
 
+%dir /var/spool/repackage
 %dir /var/lib/rpm/alternatives/
 %dir /etc/alternatives
 %dir %{rpmdir}
@@ -680,10 +690,25 @@ fi
 %{_includedir}/popt.h
 
 %changelog
-* Fri Jun 18 2004 Vincent Danen <vdanen@opensls.org> 4.2.2-4avx
+* Sun Aug 08 2004 Vincent Danen <vdanen@annvix.org> 4.2.2-5avx
+- change %%build_propolice to %%build_ssp
+- change brp-mandrake to brp-annvix
+- on ppc builds use annvix rather than mandrake
+- rediff P54 to add brp-annvix change and %%_ext change from sls to avx,
+  and to change %%build_propolice to %%build_ssp
+- sync with cooker 4.2.2-15mdk:
+  - P59: use a correct implementation of cpuid (Gwenole)
+  - P58: return None instead of [] in rpm-python (Paul Nasrat)
+  - add /var/spool/repackage (bug #9874)
+  - handle /usr/lib/gcc/ directories for devel() deps too (Gwenole)
+  - P60: use mono-find-requires and mono-find-provides if present (Gotz Waschk)
+    (bug #7201)
+  - use system zlib
+
+* Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 4.2.2-4avx
 - rebuild with new gcc
 
-* Thu Jun 17 2004 Vincent Danen <vdanen@opensls.org> 4.2.2-3avx
+* Thu Jun 17 2004 Vincent Danen <vdanen@annvix.org> 4.2.2-3avx
 - Annvix build
 
 * Thu Jun 03 2004 Vincent Danen <vdanen@opensls.org> 4.2.2-2sls

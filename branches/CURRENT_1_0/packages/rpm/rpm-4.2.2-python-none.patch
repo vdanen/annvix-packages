@@ -1,0 +1,37 @@
+--- rpm-4.2.2/python/header-py.c.python-none	2004-01-14 16:25:46.000000000 +0000
++++ rpm-4.2.2/python/header-py.c	2004-04-30 13:36:45.918883432 +0100
+@@ -485,6 +485,7 @@
+ 	}
+     }
+ 
++    /* Retrieve data from extension or header. */
+     if (ext) {
+         ext->u.tagFunction(s->h, &type, (const void **) &data, &count, &freeData);
+     } else {
+@@ -492,9 +493,23 @@
+             PyErr_SetString(PyExc_KeyError, "unknown header tag");
+             return NULL;
+         }
+-
+-	if (!rpmHeaderGetEntry(s->h, tag, &type, &data, &count))
+-	    return PyList_New(0);
++        
++	if (!rpmHeaderGetEntry(s->h, tag, &type, &data, &count)) {
++	    switch (tag) {
++	    case RPMTAG_EPOCH:
++	    case RPMTAG_NAME:
++	    case RPMTAG_VERSION:
++	    case RPMTAG_RELEASE:
++	    case RPMTAG_ARCH:
++	    case RPMTAG_OS:
++		Py_INCREF(Py_None);
++		return Py_None;
++		break;
++	    default:
++		return PyList_New(0);
++		break;
++	    }
++	}
+     }
+ 
+     switch (tag) {
