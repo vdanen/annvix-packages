@@ -1,6 +1,6 @@
 %define name	mdadm
-%define version	1.6.0
-%define release	5avx
+%define version	1.9.0
+%define release	1avx
 
 %define use_dietlibc 0
 %ifarch %{ix86}
@@ -17,7 +17,7 @@ Release:	%{release}
 License:	GPL
 Group:		System/Kernel and hardware
 URL:		http://www.cse.unsw.edu.au/~neilb/source/mdadm/
-Source:		http://cgi.cse.unsw.edu.au/~neilb/source/mdadm/%{name}-%{version}.tar.bz2
+Source:		http://www.cse.unsw.edu.au/~neilb/source/mdadm/%{name}-%{version}.tar.bz2
 Source1:	mdmonitor.init.bz2
 Source2:	mdadm.run
 Source3:	mdadm-log.run
@@ -28,7 +28,7 @@ BuildRequires:	man groff groff-for-man
 BuildRequires:	dietlibc-devel
 %endif
 
-Prereq:		rpm-helper
+Prereq:		rpm-helper, gawk
 
 %description 
 mdadm is a program that can be used to create, manage, and monitor
@@ -46,7 +46,7 @@ chmod 644 ChangeLog
 
 %build
 %if %{use_dietlibc}
-make mdassemble CXFLAGS="%{optflags}" SYSCONFDIR="%{_sysconfdir}"
+make mdassemble CXFLAGS="%{optflags} -DMDASSEMBLE_AUTO" SYSCONFDIR="%{_sysconfdir}"
 %endif
 make CXFLAGS="%{optflags}" SYSCONFDIR="%{_sysconfdir}"
 
@@ -77,9 +77,9 @@ install -m 0755 %{SOURCE3} %{buildroot}%{_srvdir}/mdadm/log/run
 %files
 %defattr(-,root,root)
 %doc TODO ChangeLog mdadm.conf-example ANNOUNCE-%{version}
-%{_sbindir}/mdadm
+%attr(0755,root,root) %{_sbindir}/mdadm
 %if %{use_dietlibc}
-%{_sbindir}/mdassemble
+%attr(0755,root,root) %{_sbindir}/mdassemble
 %endif
 %config(noreplace,missingok)/%{_sysconfdir}/mdadm.conf
 %{_mandir}/man*/md*
@@ -90,6 +90,9 @@ install -m 0755 %{SOURCE3} %{buildroot}%{_srvdir}/mdadm/log/run
 %{_srvdir}/mdadm/log/run
 
 %changelog
+* Tue Mar 01 2005 Vincent Danen <vdanen@annvix.org> 1.9.0-1avx
+- 1.9.0
+
 * Fri Feb 04 2005 Vincent Danen <vdanen@annvix.org> 1.6.0-5avx
 - rebuild against new dietlibc
 
