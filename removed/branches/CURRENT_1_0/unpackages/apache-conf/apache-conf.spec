@@ -1,6 +1,6 @@
 %define name	apache-conf
 %define version	2.0.53
-%define release	1avx
+%define release	2avx
 
 %define compat_dir	/etc/httpd
 %define compat_conf	/etc/httpd/conf
@@ -274,6 +274,10 @@ fi
 %{_datadir}/afterboot/03_apache2
 
 %changelog
+* Sun Feb 27 2005 Vincent Danen <vdanen@annvix.org> 2.0.53-2avx
+- put back our index.shtml and optim.html
+- merge back changes to commonhttpd.conf
+
 * Fri Feb 25 2005 Vincent Danen <vdanen@annvix.org> 2.0.53-1avx
 - 2.0.53
 - get rid of ADVX stuff
