@@ -1,17 +1,21 @@
-Summary: A small utility for safely making /tmp files.
-Name: mktemp
-%define version 1.5
-Version: %{version}
-Release: 11mdk
-License: BSD
-Group: File tools
-Source: ftp://ftp.openbsd.org/pub/OpenBSD/src/usr.bin/mktemp-%{version}.tar.bz2
-Patch: mktemp-1.5-linux.patch.bz2
-Patch1: mktemp-1.5-man.patch.bz2
-Patch2: mktemp-build-nonroot.patch.bz2
-Patch3: mktemp-1.5-mkdtemp.patch.bz2
-Url: http://www.openbsd.org/
-Buildroot: %{_tmppath}/%{name}-root
+%define name	mktemp
+%define version	1.5
+%define release	12sls
+
+Summary:	A small utility for safely making /tmp files.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	BSD
+Group:		File tools
+URL:		http://www.openbsd.org/
+Source:		ftp://ftp.openbsd.org/pub/OpenBSD/src/usr.bin/mktemp-%{version}.tar.bz2
+Patch:		mktemp-1.5-linux.patch.bz2
+Patch1:		mktemp-1.5-man.patch.bz2
+Patch2:		mktemp-build-nonroot.patch.bz2
+Patch3:		mktemp-1.5-mkdtemp.patch.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-root
 
 %description
 The mktemp utility takes a given file name template and overwrites
@@ -28,7 +32,7 @@ programs which will create and use unique /tmp files.
 %patch2 -p1
 
 %build
-make
+CFLAGS="$RPM_OPT_FLAGS" make
 
 %install
 perl -pi -e "s!/usr/man!%{_mandir}!g" Makefile
@@ -43,6 +47,11 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/mktemp.1*
 
 %changelog
+* Mon Dec 08 2003 Vincent Danen <vdanen@opensls.org> 1.5-12sls
+- OpenSLS build
+- tidy spec
+- pass CFLAGS on to make
+
 * Sun May 25 2003 Olivier Thauvin <thauvin@aerov.jussieu.fr> 1.5-11mdk
 - rebuild for rpm 4.2
 
