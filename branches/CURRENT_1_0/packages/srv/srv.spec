@@ -1,5 +1,5 @@
 %define name	srv
-%define version 0.2
+%define version 0.3
 %define release 1sls
 
 Summary:	Tool to manage supervise-controlled services.
@@ -62,6 +62,9 @@ rm -rf $RPM_BUILD_DIR/%{name}-%{version}
 
 
 %changelog
+* Fri Jan 23 2004 Vincent Danen <vdanen@opensls.org> 0.3-1sls
+- 0.3
+
 * Tue Jan 13 2004 Vincent Danen <vdanen@opensls.org> 0.2-1sls
 - 0.2
 
