@@ -1,20 +1,21 @@
-%define name smartmontools
+%define name	smartmontools
 %define version 5.26
-%define release 1mdk
+%define release 2sls
 
+Summary:	SMARTmontools - for monitoring S.M.A.R.T. disks and devices
 Name:           %{name}
 Version:        %{version}
 Release:        %{release}
-Summary:	SMARTmontools - for monitoring S.M.A.R.T. disks and devices
 License:	GPL
 Group:		System/Kernel and hardware
 URL:            http://smartmontools.sourceforge.net/
-BuildRoot:      %{_tmppath}/%{name}-%{version}-root
-# tar.gz at download.sf.net/smartmontools/
 Source0:	%{name}-%{version}.tar.bz2
+
+BuildRoot:      %{_tmppath}/%{name}-%{version}-root
+
 Obsoletes:	smartsuite
 Provides:	smartsuite
-Prereq:		rpm-helper
+PreReq:		rpm-helper
 
 %description 
 SMARTmontools controls and monitors storage devices using the
@@ -63,15 +64,22 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Dec 29 2003 Vincent Danen <vdanen@opensls.org> 5.26-2sls
+- OpenSLS build
+- tidy spec
+
 * Thu Dec 4 2003 Erwan Velu <erwan@mandrakesoft.com> 5.26-1mdk
 - New release
 - Release are too fast theses days :)
+
 * Thu Nov 27 2003 Erwan Velu <erwan@mandrakesoft.com> 5.25-1mdk
 - New release
 - Fixing changelog entries :)
 - Removing Patch1 (merged upstream)
+
 * Mon Nov 1 2003 Erwan Velu <erwan@mandrakesoft.com> 5.1-23mdk
 - New release
+
 * Sat Nov 01 2003 Abel Cheung <deaddog@deaddog.org> 5.22-2mdk
 - don't restart smartd multiple times
 

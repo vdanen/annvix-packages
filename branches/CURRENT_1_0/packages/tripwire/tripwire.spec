@@ -1,33 +1,39 @@
-%define ext 2
+%define name	tripwire
+%define version	2.3.1.2
+%define release	8sls
 
-Summary: A system integrity assessment tool.
-Name: tripwire
-Version: 2.3.1.2
-Release: 7mdk
-License: GPL
-Group: Monitoring
-Source0: http://download.sourceforge.net/tripwire/tripwire-2.3.1-2.tar.bz2
-Source1: tripwire.cron
-Source2: tripwire.txt
-Source3: tripwire.gif
-Source4: twcfg.txt.in
-Source5: twinstall.sh.in
-Source6: twpol.txt.in
-Source7: README.RPM
-Patch0: tripwire-2.3.0-50-rfc822.patch.bz2
-Patch1: tripwire-2.3.1-2-fhs.patch.bz2
-Patch2: tripwire-2.3.1-gcc3.patch.bz2
-Patch3: tripwire-jbj.patch.bz2
-Patch4: tripwire-mkstemp.patch.bz2
-Patch5:	tripwire-2.3.1-2-gcc-3.3.patch.bz2
-URL: http://www.tripwire.org/
-Requires: sed, grep >= 2.3, gzip, tar, gawk
-Buildrequires: gcc-c++, libstdc++
+%define ext	2
+
+Summary:	A system integrity assessment tool.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		Monitoring
+URL:		http://www.tripwire.org/
+Source0:	http://download.sourceforge.net/tripwire/tripwire-2.3.1-2.tar.bz2
+Source1:	tripwire.cron
+Source2:	tripwire.txt
+Source3:	tripwire.gif
+Source4:	twcfg.txt.in
+Source5:	twinstall.sh.in
+Source6:	twpol.txt.in
+Source7:	README.RPM
+Patch0:		tripwire-2.3.0-50-rfc822.patch.bz2
+Patch1:		tripwire-2.3.1-2-fhs.patch.bz2
+Patch2:		tripwire-2.3.1-gcc3.patch.bz2
+Patch3:		tripwire-jbj.patch.bz2
+Patch4:		tripwire-mkstemp.patch.bz2
+Patch5:		tripwire-2.3.1-2-gcc-3.3.patch.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-%{version}-root
+Buildrequires:	gcc-c++, libstdc++
+
+Requires:	sed, grep >= 2.3, gzip, tar, gawk
 # Tripwire is NOT 64bit clean, nor endian clean, and only works properly
 # on x86 architecture. The open source code doesn't seem to be maintained,
 # so this is probably unlikely to change.  We exclude non x86 arches.
-ExclusiveArch: %{ix86}
-BuildRoot: %{_tmppath}/%{name}-%{version}-root
+ExclusiveArch:	%{ix86}
 
 %description
 Tripwire is a very valuable security tool for Linux systems, if it is
@@ -129,6 +135,10 @@ rm -fr $RPM_BUILD_ROOT
 %attr(0755,root,root) %{_sbindir}/*
 
 %changelog
+* Mon Dec 29 2003 Vincent Danen <vdanen@opensls.org> 2.3.1.2-8sls
+- OpenSLS build
+- tidy spec
+
 * Mon Jul 14 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 2.3.1.2-7mdk
 - fix gcc-3.3 build (P5)
 
