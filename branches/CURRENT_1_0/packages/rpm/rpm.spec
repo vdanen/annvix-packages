@@ -3,7 +3,7 @@
 %define poptver		1.8.2
 # You need increase both release and poptrelease
 %define poptrelease	%{release}
-%define release		2sls
+%define release		3avx
 
 %define libver		4.2
 %define url		ftp://ftp.rpm.org/pub/rpm/dist/rpm-4.0.x
@@ -93,7 +93,7 @@ Patch51:	rpm-4.2-rpmal-fix-crash.patch.bz2
 # (vdanen) use stack protection by default
 Patch52:	rpm-4.2-stackmacros.patch.bz2
 Patch53:	rpm-4.2-unpackaged-links.patch.bz2
-Patch54:	rpm-4.2-opensls.patch.bz2
+Patch54:	rpm-4.2-annvix.patch.bz2
 Patch55:	rpm-4.2.2-file.patch.bz2
 Patch56:	rpm-4.2.2-enable-typo.patch.bz2
 Patch57:	rpm-4.2.2-db_private.patch.bz2
@@ -276,7 +276,7 @@ bzcat %{SOURCE2} > rpm-spec-mode.el
 %patch52 -p1 -b .stackmacro
 %endif
 %patch53 -p1 -b .links
-%patch54 -p1 -b .opensls
+%patch54 -p1 -b .annvix
 %patch55 -p1 -b .file
 %patch56 -p1 -b .typo
 %patch57 -p1 -b .db_private
@@ -680,6 +680,9 @@ fi
 %{_includedir}/popt.h
 
 %changelog
+* Thu Jun 17 2004 Vincent Danen <vdanen@opensls.org> 4.2.2-3avx
+- Annvix build
+
 * Thu Jun 03 2004 Vincent Danen <vdanen@opensls.org> 4.2.2-2sls
 - rpm needs a static uid/gid too: 68
 - sync with cooker 4.2.2-10mdk:

@@ -1,4 +1,4 @@
---- rpm-4.2/platform.in.opensls	2004-02-03 20:11:57.000000000 -0700
+--- rpm-4.2/platform.in.annvix	2004-02-03 20:11:57.000000000 -0700
 +++ rpm-4.2/platform.in	2004-02-03 20:12:48.000000000 -0700
 @@ -217,7 +217,7 @@
  @mandrake@%{nil}
@@ -24,14 +24,14 @@
  @mandrake@%{nil}
 +
 +@mandrake@#---------------------------------------------------------------------
-+@mandrake@#	OpenSLS vendor specific macros
-+@mandrake@# 	Vincent Danen <vdanen@opensls.org>
++@mandrake@#	Annvix vendor specific macros
++@mandrake@# 	Vincent Danen <vdanen@annvix.org>
 +@mandrake@#
 +@mandrake@#
 +@mandrake@%_srvdir		%{_var}/service
 +@mandrake@%_srvlogdir		%{_var}/log/supervise
-+@mandrake@%_vendor		OpenSLS
-+@mandrake@%_real_vendor		opensls
++@mandrake@%_vendor		Annvix
++@mandrake@%_real_vendor		annvix
 +@mandrake@%_target_platform	%{_target_cpu}-%{_real_vendor}-%{_target_os}%{?_gnu}
 +@mandrake@
 +@mandrake@# RPM extension
