@@ -1,6 +1,6 @@
 %define name	kudzu
 %define version	1.1.51
-%define release	3sls
+%define release	4avx
 
 Summary:	The Red Hat Linux hardware probing tool.
 Name:		%{name}
@@ -18,7 +18,7 @@ BuildPrereq:	dietlibc
 %endif
 
 Obsoletes:	rhs-hwdiag setconsole
-Prereq:		chkconfig, modutils >= 2.3.11-5, /etc/init.d
+Prereq:		chkconfig, modutils >= 2.3.11-5, initscripts
 Requires:	pam >= 0.74-17, hwdata, python-base
 %ifarch x86_64 amd64
 Requires:	lib64newt0.51
@@ -87,6 +87,10 @@ make install install-program DESTDIR=%{buildroot} libdir=%{buildroot}%{_prefix}/
 %{_includedir}/kudzu
 
 %changelog
+* Wed Jun 22 2004 Vincent Danen <vdanen@annvix.org> - 1.1.51-4avx
+- require packages not files
+- Annvix build
+
 * Thu Mar 18 2004 Vincent Danen <vdanen@opensls.org> - 1.1.51-3sls
 - fix deps for amd64
 

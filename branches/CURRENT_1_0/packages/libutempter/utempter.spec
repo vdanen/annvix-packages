@@ -1,6 +1,6 @@
 %define name	libutempter
 %define version	1.1.1
-%define release	1sls
+%define release	2avx
 %define sname	utempter
 
 %define major	0
@@ -18,7 +18,7 @@ Source1:	ftp://ftp.altlinux.org/pub/people/ldv/utempter/%{name}-%{version}.tar.b
 
 BuildRoot:	%{_tmppath}/%{name}-root
 
-Prereq:		/sbin/ldconfig, fileutils, grep
+Prereq:		ldconfig, fileutils, grep
 Requires:	%{libname} = %{version}
 
 %description
@@ -83,6 +83,10 @@ make CC=gcc libexecdir="%{_libexecdir}"
 
 
 %changelog
+* Wed Jun 23 2004 Vincent Danen <vdanen@annvix.org> 1.1.1-2avx
+- require packages not files
+- Annvix build
+
 * Mon May 10 2004 Vincent Danen <vdanen@opensls.org> 1.1.1-1sls
 - change to libutempter 1.1.1 from altlinux for better security than RH's
   utempter

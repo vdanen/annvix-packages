@@ -1,6 +1,6 @@
 %define name	libtool
 %define version	1.4.3
-%define release	11sls
+%define release	12avx
 
 %define lib_major	3
 %define lib_name_orig	libltdl
@@ -36,7 +36,7 @@ Patch13:	libtool-1.4.3-quotes.patch.bz2
 
 BuildRoot:	%_tmppath/%name-%version-%release-root
 
-PreReq:		/sbin/install-info
+PreReq:		info-install
 Requires:	file common-licenses
 
 %description
@@ -162,6 +162,10 @@ chmod 755 $RPM_BUILD_ROOT%{_bindir}/cputoolize
 
 
 %changelog
+* Wed Jun 23 2004 Vincent Danen <vdanen@annvix.org> 1.4.3-12avx
+- require packages not files
+- Annvix build
+
 * Sat Jun 11 2004 Vincent Danen <vdanen@opensls.org> 1.4.3-11sls
 - own /usr/share/libtool
 
