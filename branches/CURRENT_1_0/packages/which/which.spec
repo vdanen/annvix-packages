@@ -1,6 +1,6 @@
 %define name	which
-%define version	2.14
-%define release	7sls
+%define version	2.16
+%define release	1sls
 
 Summary:	Displays where a particular program in your path is located.
 Name:		%{name}
@@ -12,7 +12,7 @@ URL:		ftp://ftp.gnu.org/gnu/which/
 Source:		ftp://ftp.gnu.org/gnu/which/%{name}-%{version}.tar.bz2
 Patch:		which-2.6.jbj.patch.bz2
 Patch1:		which-2.12-fixinfo.patch.bz2
-Patch2:		which-2.13-afs.patch.bz2
+Patch2:		which-2.16-afs.patch.bz2
 
 BuildRoot:	%_tmppath/%name-buildroot
 
@@ -55,6 +55,10 @@ rm -rf %buildroot/%_infodir/dir
 %_infodir/*
 
 %changelog
+* Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 2.16-1sls
+- 2.16
+- rediff and simplify P3 (tvignaud)
+
 * Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 2.14-7sls
 - minor spec cleanups
 
