@@ -1,6 +1,6 @@
 %define name	krb5
 %define version	1.3.6
-%define release	3avx
+%define release	4avx
 
 %define srcver	1.3
 %define LIBMAJ	1
@@ -65,6 +65,7 @@ Patch14:	krb5-1.3.1-fdr-server-sort.patch.bz2
 Patch15:	krb5-1.3.1-fdr-null.patch.bz2
 Patch16:	krb5-1.3.2-fdr-efence.patch.bz2
 Patch17:	krb5-1.3.3-fdr-rcp-sendlarge.patch.bz2
+Patch18:	krb5-1.3.6-MITKRB5-SA-2005-001-telnet.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-root
 BuildRequires:	bison, flex, libtermcap-devel, texinfo, tcl
@@ -213,6 +214,9 @@ This version supports kerberos authentication.
 %patch15 -p1 -b .null
 %patch16 -p1 -b .efence
 %patch17 -p1 -b .rcp-sendlarge
+pushd src/appl/telnet/telnet
+%patch18 -p0 -b .mitkrb5-sa-2005-001
+popd
 
 find . -type f -name "*.fixinfo" -exec rm -fv "{}" ";"
 gzip doc/*.ps
@@ -581,6 +585,10 @@ strip %{buildroot}%{_bindir}/{ksu,v4rcp}
 %{_datadir}/afterboot/08_kftp
 
 %changelog
+* Tue Mar 29 2005 Vincent Danen <vdanen@annvix.org> 1.3.6-4avx
+- P18: security fix for MITKRB5-SA-2005-001 (CAN-2005-0469 and
+  CAN-2005-0468)
+
 * Fri Mar 04 2005 Vincent Danen <vdanen@annvix.org> 1.3.6-3avx
 - logger for krb5kdc
 
