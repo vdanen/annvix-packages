@@ -1,6 +1,6 @@
 %define name		e2fsprogs
-%define version		1.34
-%define release		4avx
+%define version		1.35
+%define release		1avx
 
 %define	_root_sbindir	/sbin
 %define	_root_libdir	/%_lib
@@ -113,6 +113,8 @@ rm -f %{buildroot}%_root_libdir/{libblkid,libcom_err,libe2p,libext2fs,libss,libu
 
 %find_lang %name
 
+chmod +x %{buildroot}%{_bindir}/{mk_cmds,compile_et}
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
@@ -144,6 +146,7 @@ rm -f %{buildroot}%_root_libdir/{libblkid,libcom_err,libe2p,libext2fs,libss,libu
 %_root_sbindir/e2image
 %_root_sbindir/findfs
 %_root_sbindir/mkfs.ext3
+%_sbindir/filefrag
 %_sbindir/mklost+found
 
 %_bindir/chattr
@@ -161,6 +164,7 @@ rm -f %{buildroot}%_root_libdir/{libblkid,libcom_err,libe2p,libext2fs,libss,libu
 %_mandir/man8/e2fsck.8*
 %_mandir/man8/e2image.8.bz2
 %_mandir/man8/e2label.8*
+%_mandir/man8/filefrag.8*
 %_mandir/man8/findfs.8.bz2
 %_mandir/man8/fsck.8*
 %_mandir/man8/fsck.ext2.8.bz2
@@ -192,7 +196,7 @@ rm -f %{buildroot}%_root_libdir/{libblkid,libcom_err,libe2p,libext2fs,libss,libu
 %_mandir/man3/libblkid.3.bz2
 
 %files -n %libname-devel
-%defattr(-,root,root)
+%defattr(-,root,root,755)
 %_infodir/libext2fs.info*
 %_bindir/compile_et
 %_mandir/man1/compile_et.1*
@@ -225,6 +229,10 @@ rm -f %{buildroot}%_root_libdir/{libblkid,libcom_err,libe2p,libext2fs,libss,libu
 
 
 %changelog
+* Thu Aug 18 2004 Vincent Danen <vdanen@annvix.org> 1.35-1avx
+- 1.35
+- fix perms (tvignaud)
+
 * Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 1.34-4avx
 - Annvix build
 
