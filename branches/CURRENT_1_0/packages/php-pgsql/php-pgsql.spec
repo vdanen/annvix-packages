@@ -1,6 +1,6 @@
 %define name	php-%{modname}
 %define version	%{phpversion}
-%define release	1avx
+%define release	2avx
 
 %define phpsource	%{_prefix}/src/php-devel
 %define _docdir		%{_datadir}/doc/%{name}-%{version}
@@ -80,6 +80,9 @@ EOF
 %config(noreplace) %{_sysconfdir}/php.d/%{inifile}
 
 %changelog
+* Thu Jan 06 2005 Vincent Danen <vdanen@annvix.org> 4.3.10-2avx
+- rebuild against latest openssl
+
 * Fri Dec 17 2004 Vincent Danen <vdanen@annvix.org> 4.3.10-1avx
 - php 4.3.10
 
