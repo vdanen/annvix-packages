@@ -1,7 +1,7 @@
 %define name	perl-%{module}
 %define module	Devel-Symdump
 %define version 2.03
-%define release 6sls
+%define release 7sls
 
 Summary:	%{module} module for perl
 Name:		perl-%{module}
@@ -41,6 +41,9 @@ make test
 %{_mandir}/*/*
 
 %changelog
+* Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 2.03-7sls
+- rebuild for perl 5.8.4
+
 * Wed Feb 25 2004 Vincent Danen <vdanen@opensls.org> 2.03-6sls
 - rebuild for new perl
 - minor spec cleanups

@@ -1,7 +1,7 @@
 %define module	HTML-Parser
 %define name	perl-%{module}
 %define version 3.31
-%define release 3sls
+%define release 4sls
 
 Summary: 	HTML-Parser module for perl (World_Wide_Web_HTML_HTTP_CGI/HTML)
 Name: 		%{name}
@@ -47,6 +47,9 @@ make test
 
 
 %changelog
+* Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 3.31-4sls
+- rebuild for perl 5.8.4
+
 * Fri Feb 27 2004 Vincent Danen <vdanen@opensls.org> 3.31-3sls
 - rebuild for new perl
 

@@ -1,7 +1,7 @@
 %define module	URI
 %define name	perl-%{module}
 %define version 1.25
-%define release 3sls
+%define release 4sls
 
 %define _requires_exceptions perl(Business::ISBN)
 
@@ -50,6 +50,9 @@ make test
 %{_mandir}/*/*
 
 %changelog
+* Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 1.25-4sls
+- rebuild for perl 5.8.4
+
 * Fri Feb 27 2004 Vincent Danen <vdanen@opensls.org> 1.25-3sls
 - rebuild for new perl
 

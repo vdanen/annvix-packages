@@ -1,7 +1,7 @@
 %define module	XML-SAX
 %define name	perl-%{module}
 %define version 0.12
-%define release 5sls
+%define release 6sls
 
 Summary:	%{module} module for perl
 Name:		%{name}
@@ -57,6 +57,9 @@ make test
 %{_mandir}/*/*
 
 %changelog
+* Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 0.12-6sls
+- rebuild for perl 5.8.4
+
 * Fri Feb 27 2004 Vincent Danen <vdanen@opensls.org> 0.12-5sls
 - rebuild for new perl
 - minor spec cleanups

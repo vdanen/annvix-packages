@@ -1,7 +1,7 @@
 %define	module	IO-Tty
 %define	name	perl-%{module}
 %define	version	1.02
-%define	release	10sls
+%define	release	11sls
 
 Summary:	IO-Tty perl module: interface to pseudo tty's
 Name: 		%{name}
@@ -47,6 +47,9 @@ make test
 %{_mandir}/*/*
 
 %changelog
+* Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 1.02-11sls
+- rebuild for perl 5.8.4
+
 * Fri Feb 27 2004 Vincent Danen <vdanen@opensls.org> 1.02-10sls
 - rebuild for new perl
 - minor spec cleanups

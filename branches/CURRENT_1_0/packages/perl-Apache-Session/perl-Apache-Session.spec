@@ -1,7 +1,7 @@
 %define name	perl-%{module}
 %define module	Apache-Session
 %define version	1.54
-%define release	8sls
+%define release	9sls
 
 Summary:	%{module}: Apache persistent user sessions
 Name:		%{name}
@@ -54,6 +54,9 @@ find $RPM_BUILD_ROOT%{_prefix} -type f -print | sed "s@^$RPM_BUILD_ROOT@@g" | gr
 %{perl_vendorlib}/Apache/*
 
 %changelog
+* Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 1.54-9sls
+- rebuild for perl 5.8.4
+
 * Wed Feb 25 2004 Vincent Danen <vdanen@opensls.org> 1.54-8sls
 - rebuild for new perl
 - some spec cleanups

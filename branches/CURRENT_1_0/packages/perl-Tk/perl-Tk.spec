@@ -1,7 +1,7 @@
 %define module	Tk
 %define name	perl-%{module}
 %define version 800.024
-%define release 6sls
+%define release 7sls
 
 %define _requires_exceptions Watch
 
@@ -111,6 +111,9 @@ rm -f %{buildroot}%{perl_vendorarch}/Tk/README.Adjust
 
 
 %changelog
+* Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 800.024-7sls
+- rebuild for perl 5.8.4
+
 * Fri Feb 27 2004 Vincent Danen <vdanen@opensls.org> 800.024-6sls
 - remove %%build_opensls macro
 - rebuild for new perl

@@ -1,7 +1,7 @@
 %define module	Locale-gettext
 %define name	perl-%{module}
 %define version	1.01
-%define release	11sls
+%define release	12sls
 
 Summary:	Internationalization for Perl.
 Name:		%{name}
@@ -55,6 +55,9 @@ make test
 %{_mandir}/*/*
 
 %changelog
+* Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 1.01-12sls
+- rebuild for perl 5.8.4
+
 * Fri Feb 27 2004 Vincent Danen <vdanen@opensls.org> 1.01-11sls
 - rebuild for new perl
 

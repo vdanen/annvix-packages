@@ -1,7 +1,7 @@
 %define	module	XML-Parser
 %define	name	perl-%{module}
 %define	version	2.34
-%define	release	3sls
+%define	release	4sls
 
 Summary: 	A perl module for parsing XML documents
 Name: 		%{name}
@@ -48,6 +48,9 @@ install -m 644 enc/koi8-r.enc $RPM_BUILD_ROOT%{perl_vendorarch}/XML/Parser/Encod
 
 
 %changelog
+* Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 2.34-4sls
+- rebuild for perl 5.8.4
+
 * Fri Feb 27 2004 Vincent Danen <vdanen@opensls.org> 2.34-3sls
 - rebuild for new perl
 - minor spec cleanups

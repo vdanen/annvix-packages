@@ -1,7 +1,7 @@
 %define module	Expect
 %define name	perl-%{module}
 %define version 1.15
-%define release 8sls
+%define release 9sls
 
 Summary:	Expect perl module
 Name: 		%{name}
@@ -50,6 +50,9 @@ make test
 %{_mandir}/*/*
 
 %changelog
+* Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 1.15-9sls
+- rebuild for perl 5.8.4
+
 * Wed Feb 25 2004 Vincent Danen <vdanen@opensls.org> 1.15-8sls
 - rebuild for new perl
 - minor spec cleanups

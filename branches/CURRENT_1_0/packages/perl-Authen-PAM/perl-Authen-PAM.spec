@@ -1,7 +1,7 @@
 %define module 	Authen-PAM
 %define name	perl-%{module}
 %define version 0.14
-%define release 5sls
+%define release 6sls
 
 Summary:	Perl interface to the PAM library
 Name: 		%{name}
@@ -44,6 +44,9 @@ one is simpler.
 
 
 %changelog
+* Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 0.14-6sls
+- rebuild for perl 5.8.4
+
 * Wed Feb 25 2004 Vincent Danen <vdanen@opensls.org> 0.14-5sls
 - rebuild for new perl
 - small spec cleanups

@@ -3,7 +3,7 @@
 # do not change the version here, change in MDK/Common.pm.pl
 %define name	perl-MDK-Common
 %define version 1.1.6
-%define release 5sls
+%define release 6sls
 
 %ifarch x86_64
 %define build_option	PERL_CHECKER_TARGET='debug-code BCSUFFIX=""'
@@ -77,6 +77,9 @@ make install PREFIX="$RPM_BUILD_ROOT%{_prefix}" %build_option
 
 # MODIFY IN THE CVS: cvs.mandrakesoft.com:/cooker soft/perl-MDK-Common
 %changelog
+* Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 1.1.6-6sls
+- rebuild for perl 5.8.4
+
 * Fri Feb 27 2004 Vincent Danen <vdanen@opensls.org> 1.1.6-5sls
 - rebuild for new perl
 - spec cleanups

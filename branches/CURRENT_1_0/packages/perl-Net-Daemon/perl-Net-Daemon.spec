@@ -1,7 +1,7 @@
 %define module 	Net-Daemon
 %define name	perl-%{module}
 %define version 0.37
-%define release 5sls
+%define release 6sls
 
 Summary:	%{module} perl module
 Name: 		%{name}
@@ -43,6 +43,9 @@ make
 %{_mandir}/*/*
 
 %changelog
+* Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 0.37-6sls
+- rebuild for perl 5.8.4
+
 * Fri Feb 27 2004 Vincent Danen <vdanen@opensls.org> 0.37-5sls
 - rebuild for new perl
 

@@ -1,7 +1,7 @@
 %define	name	perl-%{module}
 %define	module	BSD-Resource
 %define	version	1.22
-%define	release	5sls
+%define	release	6sls
 
 Summary:	%{module} module for perl 
 Name:		%{name}
@@ -44,6 +44,9 @@ find . -type f | xargs %{__perl} -p -i -e "s|^#\!/usr/local/bin/perl|#\!/usr/bin
 %{_mandir}/man*/*
 
 %changelog
+* Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 1.22-6sls
+- rebuild for perl 5.8.4
+
 * Wed Feb 25 2004 Vincent Danen <vdanen@opensls.org> 1.22-5sls
 - rebuild for new perl
 

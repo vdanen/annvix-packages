@@ -1,7 +1,7 @@
 %define module	DBI
 %define name	perl-%{module}
 %define version 1.38
-%define release 3sls
+%define release 4sls
 
 Summary:	The Perl Database Interface by Tim Bunce
 Name:		%{name}
@@ -100,6 +100,9 @@ rm -f $RPM_BUILD_ROOT%{_mandir}/man3pm/DBI::W32ODBC.3pm
 %{_mandir}/man3*/DBI::ProfileDumper::Apache.3pm.*
 
 %changelog
+* Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 1.38-4sls
+- rebuild for perl 5.8.4
+
 * Wed Feb 25 2004 Vincent Danen <vdanen@opensls.org> 1.38-3sls
 - rebuild for new perl
 - minor spec cleanups
