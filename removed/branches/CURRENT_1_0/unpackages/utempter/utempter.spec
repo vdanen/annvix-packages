@@ -1,6 +1,6 @@
 %define name	utempter
 %define version	0.5.2
-%define release	15sls
+%define release	16sls
 
 %define major		0
 %define lib_name_orig	%mklibname utempter
@@ -17,6 +17,7 @@ URL:		http://www.redhat.com
 Source:		%{name}-%{version}.tar.bz2
 Patch0:		utempter-0.5.2-makevars.patch.bz2
 Patch1:		utempter-0.5.2-biarch-utmp.patch.bz2
+Patch2:		utempter-0.5.2-sec.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-root
 
@@ -52,6 +53,7 @@ Header files for writing apps using libutempter
 %setup -q
 %patch0 -p1 -b .makevars
 %patch1 -p1 -b .biarch-utmp
+%patch2 -p1 -b .usec
 
 %build
 make RPM_OPT_FLAGS="$RPM_OPT_FLAGS"
@@ -85,6 +87,9 @@ ln -sf lib%{name}.so.%{version} $RPM_BUILD_ROOT%{_libdir}/lib%{name}.so.%{major}
 
 
 %changelog
+* Fri Apr 16 2004 Vincent Danen <vdanen@opensls.org> 0.5.2-16sls
+- security fix for problem found by Steve Grubb
+
 * Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 0.5.2-15sls
 - minor spec cleanups
 - docs only in main package
