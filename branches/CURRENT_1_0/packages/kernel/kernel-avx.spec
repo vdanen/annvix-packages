@@ -83,8 +83,8 @@
 #
 # Thomas Backlund <tmb@iki.fi>
 
-%define sublevel	25
-%define avxrelease	19
+%define sublevel	26
+%define avxrelease	5
 %define use_patch	0
 
 %{!?build_opensls:%global build_opensls 0}
@@ -889,9 +889,8 @@ exit 0
 %{_kerneldir}/lib
 %{_kerneldir}/mm
 %{_kerneldir}/net
+%{_kerneldir}/rsbac
 %{_kerneldir}/scripts
-#%{_kerneldir}/grsecurity
-%{_kerneldir}/security
 %{_kerneldir}/include/acpi
 %{_kerneldir}/include/asm-generic
 %{_kerneldir}/include/asm-i386
@@ -901,18 +900,19 @@ exit 0
 %{_kerneldir}/include/math-emu
 %{_kerneldir}/include/net
 %{_kerneldir}/include/pcmcia
+%{_kerneldir}/include/rsbac
 %{_kerneldir}/include/scsi
 %{_kerneldir}/include/video
-#Freeswan
-%{_kerneldir}/include/crypto
-%{_kerneldir}/include/freeswan
-%{_kerneldir}/include/freeswan.h
-%{_kerneldir}/include/mast.h
-%{_kerneldir}/include/pfkey.h
-%{_kerneldir}/include/pfkeyv2.h
-%{_kerneldir}/include/openswan.h
-%{_kerneldir}/include/zlib
-%{_kerneldir}/README.openswan-2
+#Openswan 2.x.x
+#%{_kerneldir}/include/crypto
+#%{_kerneldir}/include/freeswan
+#%{_kerneldir}/include/freeswan.h
+#%{_kerneldir}/include/mast.h
+#%{_kerneldir}/include/pfkey.h
+#%{_kerneldir}/include/pfkeyv2.h
+#%{_kerneldir}/include/openswan.h
+#%{_kerneldir}/include/zlib
+# %{_kerneldir}/README.openswan-2
 %doc README.annvix-kernel-sources
 %doc README.Annvix
 #endif %build_source
@@ -925,6 +925,47 @@ exit 0
 %endif
 
 %changelog
+* Wed Aug 04 2004 Thomas Backlund <tmb@annvix.org> 2.4.26-5avx
+- revert DVD-RW write support for now (DI04)
+
+* Sun Jul 25 2004 Thomas Backlund <tmb@annvix.org> 2.4.26-4avx
+- remove -rsbac from EXTRAVERSION (SL65)
+- fix RSBAC pm_getname-rsbac_pm_all_list_t (SL66)
+- remove RSBAC unneded __fput (SL67)
+- fix rsbac_is_initialized checks (SL68)
+- remove ipsec buildtime symlinks with mrproper (ZZ02)
+
+* Wed Jul 21 2004 Thomas Backlund <tmb@annvix.org> 2.4.26-3avx
+- add RSBAC x86_64 missing defines bugfix v1.2.3-4 (SL64)
+- enable RSBAC_SOFTMODE
+- enable RSBAC_DEBUG
+
+* Tue Jul 20 2004 Thomas Backlund <tmb@annvix.org> 2.4.26-2avx
+- disable openswan 2.1.4 patches (DF02, DF03)
+- add openswan 1.0.6 support (DF05)
+- add RSBAC v1.2.3 core files (SL60)
+- integrate RSBAC v1.2.3 in kernel (SL61)
+- add RSBAC AUTH bugfix v1.2.3-1 (SL62)
+- add RSBAC JAIL bugfix v1.2.3-3 (SL63)
+- update spec and config scripts for RSBAC and openswan
+- update configs
+
+* Sat Jul 17 2004 Thomas Backlund <tmb@annvix.org> 2.4.26-1avx
+- upgrade to kernel.org 2.4.26
+- drop patches merged upstream: 
+  * (BA58, BG08, BJ04, DI02, HB05, ND01)
+  * (ZY58, ZY59, ZY60, ZY61, ZY62, ZY64)
+- drop patches fixed upstream: (DC03, ZY66)
+- drop selinux support: (SL51)
+- rediff/fix patches (DI97, DM09, DU21, ZY65)
+- update libata to 2.4.27-rc3 (DI01)
+- update ide subsystem to 2.4.27-rc3 (DI02)
+- add ide/libata fixes and nvida sata_support from Jeff Garzik (DI03)
+- add fix for hang on C1 Halt Disconnect on nForce2 boards (CB11)
+- add missing WARN_ON define (CB06)
+- add misssing ifdef CONFIG_SWIOTLB on x86_64 pci-gart (HB33)
+- update configs
+
 * Wed Jul 03 2004 Thomas Backlund <tmb@annvix.org> 2.4.25-19avx
 - security and bugfixes:
   * chown DAC check (ZY71)
