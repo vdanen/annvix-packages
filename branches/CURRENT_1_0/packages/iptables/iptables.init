@@ -58,7 +58,7 @@ check() {
 		return $res
 	else
 		/sbin/modprobe ipt_MASQUERADE >/dev/null 2>&1
-		check sls || check vanilla
+		check avx || check vanilla
 		/sbin/modprobe -r ipt_MASQUERADE >/dev/null 2>&1
 	fi
 }

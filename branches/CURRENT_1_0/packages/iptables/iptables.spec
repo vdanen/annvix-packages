@@ -1,6 +1,6 @@
 %define name	iptables
 %define version	1.2.9
-%define release	5avx
+%define release	6avx
 
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 Name:		%{name}
@@ -169,6 +169,9 @@ fi
 %{_mandir}/man3/*
 
 %changelog
+* Thu Nov 18 2004 Vincent Danen <vdanen@annvix.org> 1.2.9-6avx
+- fix iptables.init: s/sls/avx/
+
 * Tue Nov 02 2004 Vincent Danen <vdanen@annvix.org> 1.2.9-5avx
 - P4: patch to fix CAN-2004-0986
 - s/sls/avx/
