@@ -1,10 +1,10 @@
-# $Id: srv.spec,v 1.11 2004/08/19 16:34:10 vdanen Exp $
+# $Id: srv.spec,v 1.12 2004/09/12 04:02:17 vdanen Exp $
 
 %define name	srv
-%define version 0.7
-%define release 2avx
+%define version 0.9
+%define release 1avx
 
-Summary:	Tool to manage supervise-controlled services.
+Summary:	Tool to manage runsv-controlled services.
 Name: 		%{name}
 Version:	%{version}
 Release: 	%{release}
@@ -12,22 +12,21 @@ License:	GPL
 Group:		System/Servers
 URL:		http://annvix.org/cgi-bin/viewcvs.cgi/tools/srv/
 Source:		%{name}-%{version}.tar.bz2
-Source1:	http://em.ca/~bruceg/supervise-scripts/supervise-scripts-3.3.tar.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-root
 
-Requires:	daemontools >= 0.70, initscripts >= 7.06-41avx
+Requires:	runit >= 1.0.4, initscripts >= 7.06-41avx
 Obsoletes:	supervise-scripts
 Provides:	supervise-scripts
 PreReq:		rpm-helper
 
 %description
-A tool to manage supervise-controlled services.
+A tool to manage runsv-controlled services.
 
 
 %prep
 %setup -q
-%setup -q -n %{name}-%{version} -D -T -a1
+%setup -q -n %{name}-%{version}
 
 %build
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -43,18 +42,6 @@ install -m 0644 srv.8 %{buildroot}%{_mandir}/man8
 install -m 0755 nothing %{buildroot}%{_bindir}
 install -m 0644 functions %{buildroot}%{_datadir}/srv
 
-# supervise scripts
-pushd supervise-scripts-3.3
-make prefix=%{buildroot}%{_prefix} install
-popd
-
-# move manpages to appropriate location
-mkdir -p %{buildroot}%{_mandir}/man1
-mv -f %{buildroot}%{_prefix}/man/man1/* %{buildroot}%{_mandir}/man1
-
-# remove unwanted files and move stuff around
-rm -f %{buildroot}%{_bindir}/svscan*
-mv %{buildroot}%{_bindir}/svc* %{buildroot}%{_sbindir}
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -64,24 +51,16 @@ mv %{buildroot}%{_bindir}/svc* %{buildroot}%{_sbindir}
 /sbin/srv-start
 /sbin/srv-stop
 %{_sbindir}/srv
-%{_sbindir}/svc-add
-%{_sbindir}/svc-isdown
-%{_sbindir}/svc-isup
-%{_sbindir}/svc-remove
-%{_sbindir}/svc-start
-%{_sbindir}/svc-status
-%{_sbindir}/svc-stop
-%{_sbindir}/svc-waitdown
-%{_sbindir}/svc-waitup
 %{_bindir}/nothing
 %{_datadir}/srv/functions
 %{_mandir}/man8/srv.8*
-%{_mandir}/man1/svc-add.1*
-%{_mandir}/man1/svc-remove.1*
-%{_mandir}/man1/svc-start.1*
-%{_mandir}/man1/svc-stop.1*
 
 %changelog
+* Sat Sep 11 2004 Vincent Danen <vdanen@annvix.org> 0.9-1avx
+- 0.9
+- overhaul srv to work with runit (runsv) rather than daemontools (supervise);
+  this can use more work but this should be a sufficient transition for now
+
 * Thu Aug 19 2004 Vincent Danen <vdanen@annvix.org> 0.7-2avx
 - make srv *not* kill "rogue" sshd processes as that makes remote
   upgrades of sshd impossible
