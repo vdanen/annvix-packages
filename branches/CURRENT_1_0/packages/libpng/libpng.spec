@@ -1,6 +1,7 @@
 %define name	libpng
 %define version	1.2.5
-%define release	8sls
+%define release	9sls
+%define epoch	2
 
 %define lib_name_orig	libpng
 %define lib_major	3
@@ -10,7 +11,7 @@ Summary: 	A library of functions for manipulating PNG image format files
 Name: 		%{name}
 Version: 	%{version}
 Release:	%{release}
-Epoch: 		2
+Epoch: 		%{epoch}
 License: 	GPL-like
 Group: 		System/Libraries
 URL: 		http://www.libpng.org/pub/png/libpng.html
@@ -79,7 +80,7 @@ perl -pi -e 's|^prefix=.*|prefix=%{_prefix}|' Makefile
 make test
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p $RPM_BUILD_ROOT%{_prefix}
 %makeinstall LIBPATH="\$(prefix)/%{_lib}"
 mkdir -p $RPM_BUILD_ROOT%{_mandir}/man{3,5}
@@ -88,6 +89,9 @@ install -m 644 png.5 $RPM_BUILD_ROOT%{_mandir}/man5/png3.5
 
 # remove unpackaged files
 rm -rf $RPM_BUILD_ROOT%{_prefix}/man
+
+%clean
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post -n %{lib_name} -p /sbin/ldconfig
 %postun -n %{lib_name} -p /sbin/ldconfig
@@ -101,8 +105,8 @@ rm -rf $RPM_BUILD_ROOT%{_prefix}/man
 
 %files -n %{lib_name}-devel
 %defattr(-,root,root)
-%doc *.txt example.c README TODO CHANGES
 %{_bindir}/libpng12-config
+%{_bindir}/libpng-config
 %{_includedir}/*
 %{_libdir}/libpng.so
 %{_libdir}/libpng12.so
@@ -111,14 +115,13 @@ rm -rf $RPM_BUILD_ROOT%{_prefix}/man
 
 %files -n %{lib_name}-static-devel
 %defattr(-,root,root)
-%doc README
 %{_libdir}/libpng*.a
 
-
-%clean
-rm -rf %buildroot
-
 %changelog
+* Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 1.2.5-9sls
+- minor spec cleanups
+- get rid of duplicated doc files
+
 * Wed Dec 17 2003 Vincent Danen <vdanen@opensls.org> 1.2.5-8sls
 - OpenSLS build
 - tidy spec
