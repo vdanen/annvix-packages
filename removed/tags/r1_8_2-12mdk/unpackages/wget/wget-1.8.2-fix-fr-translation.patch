@@ -1,0 +1,11 @@
+--- ./po/fr.po.tv	2003-09-06 23:18:26.000000000 +0200
++++ ./po/fr.po	2003-09-06 23:18:46.000000000 +0200
+@@ -228,7 +228,7 @@
+ 
+ #: src/ftp.c:851
+ msgid " (unauthoritative)\n"
+-msgstr " (non autorisée)\n"
++msgstr " (non sûre)\n"
+ 
+ #: src/ftp.c:877
+ #, c-format

@@ -1,0 +1,75 @@
+--- wget-1.8.1.orig/doc/sample.wgetrc
++++ wget-1.8.1/doc/sample.wgetrc
+@@ -7,7 +7,7 @@
+ ## not contain a comprehensive list of commands -- look at the manual
+ ## to find out what you can put into this file.
+ ## 
+-## Wget initialization file can reside in /usr/local/etc/wgetrc
++## Wget initialization file can reside in /etc/wgetrc
+ ## (global, for all users) or $HOME/.wgetrc (for a single user).
+ ##
+ ## To use the settings in this file, you will have to uncomment them,
+@@ -16,7 +16,7 @@
+ 
+ 
+ ##
+-## Global settings (useful for setting up in /usr/local/etc/wgetrc).
++## Global settings (useful for setting up in /etc/wgetrc).
+ ## Think well before you change them, since they may reduce wget's
+ ## functionality, and make it behave contrary to the documentation:
+ ##
+--- wget-1.8.1.orig/doc/sample.wgetrc.munged_for_texi_inclusion
++++ wget-1.8.1/doc/sample.wgetrc.munged_for_texi_inclusion
+@@ -7,7 +7,7 @@
+ ## not contain a comprehensive list of commands -- look at the manual
+ ## to find out what you can put into this file.
+ ## 
+-## Wget initialization file can reside in /usr/local/etc/wgetrc
++## Wget initialization file can reside in /etc/wgetrc
+ ## (global, for all users) or $HOME/.wgetrc (for a single user).
+ ##
+ ## To use the settings in this file, you will have to uncomment them,
+@@ -16,7 +16,7 @@
+ 
+ 
+ ##
+-## Global settings (useful for setting up in /usr/local/etc/wgetrc).
++## Global settings (useful for setting up in /etc/wgetrc).
+ ## Think well before you change them, since they may reduce wget's
+ ## functionality, and make it behave contrary to the documentation:
+ ##
+--- wget-1.8.1.orig/doc/wget.texi
++++ wget-1.8.1/doc/wget.texi
+@@ -196,12 +196,12 @@
+ Most of the features are fully configurable, either through command line
+ options, or via the initialization file @file{.wgetrc} (@pxref{Startup
+ File}).  Wget allows you to define @dfn{global} startup files
+-(@file{/usr/local/etc/wgetrc} by default) for site settings.
++(@file{/etc/wgetrc} by default) for site settings.
+ 
+ @ignore
+ @c man begin FILES
+ @table @samp
+-@item /usr/local/etc/wgetrc
++@item /etc/wgetrc
+ Default location of the @dfn{global} startup file.
+ 
+ @item .wgetrc
+@@ -1879,7 +1896,7 @@
+ @cindex location of wgetrc
+ 
+ When initializing, Wget will look for a @dfn{global} startup file,
+-@file{/usr/local/etc/wgetrc} by default (or some prefix other than
++@file{/etc/wgetrc} by default (or some prefix other than
+ @file{/usr/local}, if Wget was not installed there) and read commands
+ from there, if it exists.
+ 
+@@ -1891,7 +1908,7 @@
+ 
+ The fact that user's settings are loaded after the system-wide ones
+ means that in case of collision user's wgetrc @emph{overrides} the
+-system-wide wgetrc (in @file{/usr/local/etc/wgetrc} by default).
++system-wide wgetrc (in @file{/etc/wgetrc} by default).
+ Fascist admins, away!
+ 
+ @node Wgetrc Syntax, Wgetrc Commands, Wgetrc Location, Startup File
