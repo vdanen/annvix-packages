@@ -1,6 +1,6 @@
 %define name	zcip
 %define version	4
-%define release	4sls
+%define release	5sls
 
 %define srcver	4
 
@@ -18,8 +18,6 @@ Patch1:		zcip-4-gcc3.patch.bz2
 BuildRoot:	%{_tmppath}/%{name}-buildroot
 BuildRequires:	net-devel = 1.0.2a, libpcap-devel, glibc-static-devel
 
-Prefix:		%{_prefix}
-
 %description
 This is an implementation of the ad-hoc link-local IP autoconfiguration
 algorithm described in the IETF Draft "Dynamic Configuration of IPv4
@@ -34,14 +32,14 @@ link-local addresses".
 %make CFLAGS="$RPM_OPT_FLAGS -DSTORAGE_DIR=\\\"%{_localstatedir}/zcip\\\""
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p %{buildroot}/sbin %{buildroot}%{_mandir}/man8
 install zcip %{buildroot}/sbin
 install -m 644 zcip.8 %{buildroot}%{_mandir}/man8
 mkdir -p %{buildroot}%{_localstatedir}/zcip
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -51,6 +49,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_localstatedir}/zcip
 
 %changelog
+* Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 4-5sls
+- minor spec cleanups
+- remove %%prefix
+
 * Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 4-4sls
 - OpenSLS build
 - tidy spec
