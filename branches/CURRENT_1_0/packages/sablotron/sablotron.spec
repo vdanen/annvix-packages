@@ -1,6 +1,6 @@
 %define name	sablotron
 %define version 0.98
-%define release 3sls
+%define release 4sls
 
 %define	altname		Sablot
 %define builddir	$RPM_BUILD_DIR/%{altname}-%{version}
@@ -63,7 +63,17 @@ export CXXFLAGS="${RPM_OPT_FLAGS}"
 #strip Sablot/engine/.libs/libsablot.so*
 
 %install
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall prefix=$RPM_BUILD_ROOT/%{_prefix}
+
+%clean
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
+%post -p /sbin/ldconfig
+%postun -p /sbin/ldconfig
+
+%post -n %{lib_name} -p /sbin/ldconfig
+%postun -n %{lib_name} -p /sbin/ldconfig
 
 %files
 %defattr(755,root,root)
@@ -73,8 +83,8 @@ export CXXFLAGS="${RPM_OPT_FLAGS}"
 
 %files -n %{lib_name}
 %defattr(-,root,root)
-%{_libdir}/libsablot.so.*
 %doc README RELEASE
+%{_libdir}/libsablot.so.*
 
 %files -n %{lib_name}-devel
 %defattr(-,root,root)
@@ -83,16 +93,10 @@ export CXXFLAGS="${RPM_OPT_FLAGS}"
 %{_libdir}/lib*.so
 %{_includedir}/*.h
 
-%clean
-rm -rf $RPM_BUILD_ROOT
-
-%post -p /sbin/ldconfig
-%postun -p /sbin/ldconfig
-
-%post -n %{lib_name} -p /sbin/ldconfig
-%postun -n %{lib_name} -p /sbin/ldconfig
-
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 0.98-4sls
+- minor spec cleanups
+
 * Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 0.98-3sls
 - OpenSLS build
 - tidy spec

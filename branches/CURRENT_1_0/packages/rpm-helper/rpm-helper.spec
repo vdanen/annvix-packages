@@ -1,18 +1,18 @@
 %define name	rpm-helper
 %define version	0.9.1
-%define release	4sls
+%define release	5sls
 
 Summary:	Helper scripts for rpm scriptlets
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
-Source0:	%name-%version.tar.bz2
-Patch0:		opensls-supervise.patch.bz2
 License:	GPL
 Group:		System/Configuration/Packaging
 URL:		http://www.mandrakelinux.com/
+Source0:	%name-%version.tar.bz2
+Patch0:		opensls-supervise.patch.bz2
 
-BuildArchitectures: noarch
+BuildArch:	noarch
 BuildRoot:	%_tmppath/%name-buildroot
 
 Conflicts:	chkconfig < 1.3.4-10mdk
@@ -33,11 +33,11 @@ Helper scripts for rpm scriptlets to help create/remove :
 chmod 755 {add,del}-srv
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std LIBDIR=%_datadir/%name
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -46,6 +46,9 @@ rm -rf $RPM_BUILD_ROOT
 %_datadir/%name/*
 
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 0.9.1-5sls
+- minor spec cleanups
+
 * Tue Feb 03 2004 Vincent Danen <vdanen@opensls.org> 0.9.1-4sls
 - update P0 to add another field to add-group for static gid
 

@@ -14,7 +14,7 @@
 
 %define pkg_name	samba
 %define ver 		3.0.1
-%define rel 		5sls
+%define rel 		6sls
 %define vscanver 	0.3.4
 %define libsmbmajor 	0
 
@@ -910,7 +910,7 @@ echo "Building Trend"
 %endif
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p $RPM_BUILD_ROOT
 
 #Ensure all docs are readable
@@ -1146,7 +1146,7 @@ done
 rm -rf %{buildroot}%{_datadir}/swat/using_samba
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post server
 
@@ -1559,6 +1559,9 @@ update-alternatives --auto smbclient
 %exclude %{_mandir}/man1/smbsh*.1*
 
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 3.0.1-6sls
+- minor spec cleanups
+
 * Tue Feb 03 2004 Vincent Danen <vdanen@opensls.org> 3.0.1-5sls
 - srv macros
 - strip all support for mdk releases

@@ -1,6 +1,6 @@
 %define name	rp-pppoe
 %define version	3.5
-%define release	4sls
+%define release	5sls
 
 Summary:	ADSL/PPPoE userspace driver
 Name:		%{name}
@@ -38,7 +38,7 @@ autoconf
 %make
 
 %install
-rm -fr %buildroot
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 install -d -m 0755 %buildroot
 
 cd src
@@ -50,7 +50,7 @@ perl -pi -e "s/restart/restart\|reload/g;" %{buildroot}%{_initrddir}/adsl
 rm -rf %{buildroot}/usr/doc
 
 %clean
-rm -fr %buildroot
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 
 %files
@@ -75,6 +75,9 @@ rm -fr %buildroot
 
 
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 3.5-5sls
+- minor spec cleanups
+
 * Fri Jan 23 2004 Vincent Danen <vdanen@opensls.org> 3.5-4sls
 - OpenSLS build
 - tidy spec
