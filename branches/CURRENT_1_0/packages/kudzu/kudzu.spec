@@ -1,6 +1,6 @@
 %define name	kudzu
 %define version	1.1.51
-%define release	1sls
+%define release	2sls
 
 Summary:	The Red Hat Linux hardware probing tool.
 Name:		%{name}
@@ -19,7 +19,7 @@ BuildPrereq:	dietlibc
 
 Obsoletes:	rhs-hwdiag setconsole
 Prereq:		chkconfig, modutils >= 2.3.11-5, /etc/init.d
-Requires:	pam >= 0.74-17, hwdata, python-base, newt
+Requires:	pam >= 0.74-17, hwdata, python-base, libnewt0.51
 
 %description
 Kudzu is a hardware probing tool run at system boot time to determine
@@ -82,5 +82,8 @@ make install install-program DESTDIR=%{buildroot} libdir=%{buildroot}%{_prefix}/
 %{_includedir}/kudzu
 
 %changelog
+* Mon Mar 15 2004 Vincent Danen <vdanen@opensls.org> - 1.1.51-2sls
+- Requires: s/newt/libnewt0.51/
+
 * Mon Mar 15 2004 Vincent Danen <vdanen@opensls.org> - 1.1.51-1sls
 - first OpenSLS build; from Fedora
