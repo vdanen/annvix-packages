@@ -3,7 +3,8 @@
 
 # <version>-<release> tags for glibc main package
 %define glibcversion	2.3.2
-%define glibcrelease	19sls
+%define glibcrelease	20sls
+%define epoch		6
 
 # <version>-<release> tags from kernel package where headers were
 # actually extracted from
@@ -114,7 +115,7 @@ Summary:	The GNU libc libraries
 Name:		%{name}
 Version:	%{glibcversion}
 Release:	%{glibcrelease}
-Epoch:		6
+Epoch:		%{epoch}
 License:	LGPL
 Group:		System/Libraries
 URL:		http://www.gnu.org/software/glibc/
@@ -282,7 +283,7 @@ Obsoletes:	libc-debug, libc-headers, libc-devel, linuxthreads-devel
 %if !%{build_debug}
 Obsoletes:	glibc-debug
 %endif
-Requires:	%{name} = %{glibcversion}-%{glibcrelease}
+Requires:	%{name} = %{epoch}:%{glibcversion}-%{glibcrelease}
 Obsoletes:	kernel-headers
 Provides:	kernel-headers = 1:%{kheaders_ver}
 %ifnarch ppc
@@ -309,7 +310,7 @@ use the standard C libraries.
 %package static-devel
 Summary:	Static libraries for GNU C library
 Group:		Development/C
-Requires:	%{name}-devel = %{glibcversion}-%{glibcrelease}
+Requires:	%{name}-devel = %{epoch}:%{glibcversion}-%{glibcrelease}
 
 %description static-devel
 The glibc-static-devel package contains the static libraries necessary
@@ -352,10 +353,10 @@ Install nscd if you need a name service lookup caching daemon.
 
 %if %{build_debug}
 %package debug
-Summary: Shared standard C libraries with debugging information
-Group: System/Libraries
-Requires: %{name} = %{glibcversion}-%{glibcrelease}
-Autoreq: false
+Summary:	Shared standard C libraries with debugging information
+Group:		System/Libraries
+Requires:	%{name} = %{epoch}:%{glibcversion}-%{glibcrelease}
+Autoreq:	false
 
 %description debug
 The glibc-debug package contains shared standard C libraries with
@@ -369,7 +370,7 @@ LD_LIBRARY_PATH variable prior to starting the debugger.
 %package utils
 Summary:	Development utilities from GNU C library
 Group:		Development/Other
-Requires:	%{name} = %{glibcversion}-%{glibcrelease}
+Requires:	%{name} = %{epoch}:%{glibcversion}-%{glibcrelease}
 
 %description utils
 The glibc-utils package contains memusage, a memory usage profiler,
@@ -1325,6 +1326,9 @@ fi
 %endif
 
 %changelog
+* Tue Apr 13 2004 Vincent Danen <vdanen@opensls.org> 2.3.2-20sls
+- fix requires for epoch
+
 * Wed Feb 24 2004 Vincent Danen <vdanen@opensls.org> 2.3.2-19sls
 - new build option: build_heapprot which enables or disables heap
   protection; for now we disable it until the author can get it fixed on
