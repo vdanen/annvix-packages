@@ -1,6 +1,6 @@
 %define name	grep
 %define version 2.5.1
-%define release 7sls
+%define release 8sls
 
 %define _bindir /bin
 
@@ -17,7 +17,7 @@ Patch1:		grep-2.5.1-i18n-0.1.patch.bz2
 BuildRoot:	%{_tmppath}/%{name}-root
 BuildRequires:	gettext pcre-devel texinfo
 
-Requires:	/%{_lib}/libpcre.so.0
+Requires:	libpcre
 
 %description
 The GNU versions of commonly used grep utilities.  Grep searches one or
@@ -60,6 +60,9 @@ rm -rf %{buildroot}%{_infodir}
 %{_mandir}/*/*
 
 %changelog
+* Fri Jun 11 2004 Vincent Danen <vdanen@opensls.org> 2.5.1-8sls
+- Requires: libpcre, not /lib/libpcre.so.0
+
 * Fri Jun 11 2004 Vincent Danen <vdanen@opensls.org> 2.5.1-7sls
 - drop unapplied P0
 - drop BuildRequires: bison
