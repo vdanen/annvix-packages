@@ -1,6 +1,6 @@
 %define name	apache2
 %define version	2.0.48
-%define release	7sls
+%define release	8sls
 
 #
 #(ie. use with rpm --rebuild):
@@ -1293,6 +1293,10 @@ fi
 %{ap_abs_srcdir}
 
 %changelog
+* Fri Feb 20 2004 Vincent Danen <vdanen@opensls.org> 2.0.48-8sls
+- fix supervise log run script 
+- add a conftest to each start, the output is sent to the supervise logs
+
 * Wed Feb 11 2004 Vincent Danen <vdanen@opensls.org> 2.0.48-7sls
 - remove %%build_opensls macros
 - remove the manual package

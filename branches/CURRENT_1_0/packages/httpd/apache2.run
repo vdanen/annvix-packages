@@ -67,4 +67,7 @@ HTTPDCONF="-f $CONF/httpd2.conf"
 APACHEXMODS="-DAPACHE2 -DNO_DETACH `extramoduleargs /etc/httpd/2.0/extramodules`"
 APACHEREGMODS=`moduleargs /etc/httpd/2.0/modules`
 
-exec /usr/sbin/httpd2 $HTTPDCONF $DEFINE $APACHEXMODS $APACHEREGMODS 2>&1
+exec 2>&1
+echo -n "Executing conftest...  "
+/usr/sbin/httpd2 -t $HTTPDCONF $DEFINE $APACHEXMODS $APACHEREGMODS 2>&1
+exec /usr/sbin/httpd2 $HTTPDCONF $DEFINE $APACHEXMODS $APACHEREGMODS
