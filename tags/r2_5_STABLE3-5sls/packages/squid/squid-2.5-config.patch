@@ -1,0 +1,61 @@
+diff -urN squid-2.5.STABLE1/src/cf.data.pre squid-2.5.STABLE1-modified/src/cf.data.pre
+--- squid-2.5.STABLE1/src/cf.data.pre	2002-09-04 15:35:01.000000000 +0200
++++ squid-2.5.STABLE1-modified/src/cf.data.pre	2002-10-18 15:59:46.000000000 +0200
+@@ -2071,7 +2071,7 @@
+ #http_access allow our_networks
+ 
+ # And finally deny all other access to this proxy
+-http_access deny all
++http_access allow localhost
+ NOCOMMENT_END
+ DOC_END
+ 
+@@ -2286,7 +2286,7 @@
+ 
+ NAME: cache_mgr
+ TYPE: string
+-DEFAULT: webmaster
++DEFAULT: root
+ LOC: Config.adminEmail
+ DOC_START
+ 	Email-address of local cache manager who will receive
+@@ -2526,7 +2526,7 @@
+ 
+ NAME: logfile_rotate
+ TYPE: int
+-DEFAULT: 10
++DEFAULT: 0
+ LOC: Config.Log.rotateNumber
+ DOC_START
+ 	Specifies the number of logfile rotations to make when you
+@@ -3060,7 +3060,18 @@
+ 	If you wish to create your own versions of the default
+ 	(English) error files, either to customize them to suit your
+ 	language or company copy the template English files to another
++	directory where the error files are read from.
++	/usr/lib/squid/errors contains sets of error files
++	in different languages. The default error directory
++	is /etc/squid/errors, which is a link to one of these
++	error sets.
++
++	If you wish to create your own versions of the error files,
++	either to customize them to suit your language or company,
++	copy the template English files to another
+ 	directory and point this tag at them.
++
++error_directory @DEFAULT_ERROR_DIR@
+ DOC_END
+ 
+ NAME: minimum_retry_timeout
+diff -urN squid-2.5.STABLE1/src/defines.h squid-2.5.STABLE1-modified/src/defines.h
+--- squid-2.5.STABLE1/src/defines.h	2002-08-08 22:17:39.000000000 +0200
++++ squid-2.5.STABLE1-modified/src/defines.h	2002-10-18 16:00:34.000000000 +0200
+@@ -219,7 +219,7 @@
+ 
+ /* were to look for errors if config path fails */
+ #ifndef DEFAULT_SQUID_ERROR_DIR
+-#define DEFAULT_SQUID_ERROR_DIR "/usr/local/squid/etc/errors"
++#define DEFAULT_SQUID_ERROR_DIR "/usr/squid/errors"
+ #endif
+ 
+ /* gb_type operations */
