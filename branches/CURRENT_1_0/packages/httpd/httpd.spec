@@ -1,6 +1,6 @@
 %define name	apache2
 %define version	2.0.49
-%define release	4avx
+%define release	5avx
 
 #
 #(ie. use with rpm --rebuild):
@@ -24,7 +24,7 @@
 
 # not everyone uses this, so define it here
 %define distribution	Annvix
-%define build_debug	1
+%define build_debug	0
 %define build_distcache	0
 
 # commandline overrides:
@@ -34,7 +34,7 @@
 
 %if %{build_debug}
 # disable build root strip policy
-%define __spec_install_post %{_libdir}/rpm/brp-compress || :
+%define __spec_install_post %{_prefix}/lib/rpm/brp-compress || :
 
 # This gives extra debuggin and huge binaries
 %{expand:%%define optflags %{optflags} %([ ! $DEBUG ] && echo '-g3')}
@@ -136,8 +136,6 @@ PreReq:			afterboot srv rpm-helper
 Requires:		libtool  >= 1.4.2
 Provides:		webserver 
 Provides:		apache
-Provides: 		ADVXpackage
-Provides: 		AP20package
 #2.0.45 is binary compatible with 2.0.44, permit use of modules
 #from the old version
 Provides:		%{ap_name} = 2.0.44
@@ -151,10 +149,6 @@ server on the Internet.
 This version of %{ap_name} is fully modular, and many modules are available in
 pre-compiled formats, like PHP4 and mod_auth_external.
 
-Check for available Apache2 modules for %{distribution} at:
-http://www.deserve-it.com/modules_for_apache2.html
-(most of them can be installed from the contribs repository)
-
 You can build %{ap_name} with some conditional build swithes;
 
 (ie. use with rpm --rebuild):
@@ -167,8 +161,6 @@ Prereq:		rpm-helper
 Prereq:		%{apr_name} = %{ap_version}
 Obsoletes:	apache-common
 Provides:	apache-common
-Provides: 	ADVXpackage
-Provides: 	AP20package
 
 %description common
 This package contains files required for both %{ap_name} and %{ap_name}-mod_perl
@@ -214,8 +206,6 @@ Provides:	%{ap_name}-mod_unique_id = %{version}
 Provides:	%{ap_name}-mod_userdir = %{version}
 Provides:	%{ap_name}-mod_usertrack = %{version}
 Provides:	%{ap_name}-mod_vhost_alias = %{version}
-Provides:	ADVXpackage
-Provides:	AP20package
 
 %description modules
 This package contains standard modules for %{ap_name}. It is required
@@ -229,8 +219,6 @@ Prereq:		%{ap_name}-common
 Prereq:		%{ap_name}-modules = %{ap_version}
 Prereq:		%{apr_name} = %{ap_version}
 Provides:	%{ap_name}-mod_dav_fs = %{version}
-Provides: 	ADVXpackage
-Provides: 	AP20package
 
 %description mod_dav
 This module provides class 1 and class 2 WebDAV ('Web-based
@@ -251,8 +239,6 @@ Prereq:		%{apr_name} = %{ap_version}
 #Requires:	distcache
 Requires:	libdistcache1 >= 1.4.2
 %endif
-Provides: 	ADVXpackage
-Provides: 	AP20package
 
 %description mod_ssl
 This module provides SSL v2/v3 and TLS v1 support for the Apache
@@ -272,8 +258,6 @@ Prereq:		%{ap_name}-common
 Prereq:		%{ap_name}-modules = %{ap_version}
 Prereq:		%{apr_name} = %{ap_version}
 Provides:	%{ap_name}-mod_auth_ldap.so = %{version}
-Provides: 	ADVXpackage
-Provides: 	AP20package
 
 %description mod_ldap
 This module was created to improve the performance of websites
@@ -421,8 +405,6 @@ Summary:	The Apache Portable Runtime library
 Group:		System/Libraries
 Provides:	libapr apr
 Obsoletes:	libapr apr
-Provides: 	ADVXpackage
-Provides: 	AP20package
 
 %description -n	%{apr_name}
 The Apache Portable Run-time libraries have been designed to provide a
@@ -442,6 +424,7 @@ Requires:	expat-devel
 Requires:	glibc-devel
 Requires:	openssl-devel
 Requires:	libtool  >= 1.4.2
+Requires:	pcre-devel
 %if %{build_distcache}
 Requires:	distcache-devel >= 1.4.2
 %endif
@@ -449,8 +432,6 @@ Provides:	%{ap_name}-mod_ssl-devel
 Obsoletes:	%{ap_name}-mod_ssl-devel
 Provides:	libapr-devel apr-devel
 Obsoletes:	libapr-devel apr-devel
-Provides: 	ADVXpackage
-Provides: 	AP20package
 
 %description devel
 The %{ap_name}-devel package contains the source code for the %{ap_name}
@@ -474,8 +455,6 @@ Requires:	db1-devel
 #Requires:	%{dbver}-devel
 Requires:	gdbm-devel
 Requires:	glibc-devel
-Provides: 	ADVXpackage
-Provides: 	AP20package
 
 %description source
 The %{ap_name} Source, including %{distribution} patches. Use this package to
@@ -966,6 +945,7 @@ install -d %{buildroot}%{ap_proxycachedir}/mod_ssl
 touch %{buildroot}%{ap_proxycachedir}/mod_ssl/scache.dir
 touch %{buildroot}%{ap_proxycachedir}/mod_ssl/scache.pag
 touch %{buildroot}%{ap_proxycachedir}/mod_ssl/scache.sem
+touch %{buildroot}%{ap_proxycachedir}/mod_ssl/ssl_scache
 
 #########################################################################################
 # install phase done
@@ -985,10 +965,10 @@ file %{buildroot}/%{_sbindir}/*|grep linked|grep -v httpd2|cut -f1 -d:| \
 	xargs %{__strip} -s
 %endif
 
-mkdir -p %{buildroot}%{_srvdir}/apache2/log
-mkdir -p %{buildroot}%{_srvlogdir}/apache2
-install -m 0755 %{SOURCE7} %{buildroot}%{_srvdir}/apache2/run
-install -m 0755 %{SOURCE8} %{buildroot}%{_srvdir}/apache2/log/run
+mkdir -p %{buildroot}%{_srvdir}/httpd2/log
+mkdir -p %{buildroot}%{_srvlogdir}/httpd2
+install -m 0755 %{SOURCE7} %{buildroot}%{_srvdir}/httpd2/run
+install -m 0755 %{SOURCE8} %{buildroot}%{_srvdir}/httpd2/log/run
 
 mkdir -p %{buildroot}%{_datadir}/afterboot
 install -m 0644 %{SOURCE60} %{buildroot}%{_datadir}/afterboot/03_apache2
@@ -1008,10 +988,10 @@ rm -rf %{buildroot}%{ap_htdocsdir}/manual
 %postun -n %{apr_name} -p /sbin/ldconfig
 
 %post mod_proxy
-%ADVXpost
+%_post_srv httpd2
 
 %postun mod_proxy
-%ADVXpost
+%_post_srv httpd2
 
 %post mod_ssl
 if [ $1 = "1" ]; then 
@@ -1028,52 +1008,53 @@ fi
 %create_ghostfile %{ap_proxycachedir}/mod_ssl/scache.dir  apache root 0600
 %create_ghostfile %{ap_proxycachedir}/mod_ssl/scache.pag  apache root 0600
 %create_ghostfile %{ap_proxycachedir}/mod_ssl/scache.sem  apache root 0600
-%ADVXpost
+%create_ghostfile %{ap_proxycachedir}/mod_ssl/ssl_scache  apache root 0600
+%_post_srv httpd2
 
 %postun mod_ssl
-%ADVXpost
+%_post_srv httpd2
 
 %post mod_dav
-%ADVXpost
+%_post_srv httpd2
 
 %postun mod_dav
-%ADVXpost
+%_post_srv httpd2
 
 %post mod_ldap
-%ADVXpost
+%_post_srv httpd2
 
 %postun mod_ldap
-%ADVXpost
+%_post_srv httpd2
 
 %post mod_cache
-%ADVXpost
+%_post_srv httpd2
 
 %postun mod_cache
-%ADVXpost
+%_post_srv httpd2
 
 %post mod_disk_cache
-%ADVXpost
+%_post_srv httpd2
 
 %postun mod_disk_cache
-%ADVXpost
+%_post_srv httpd2
 
 %post mod_mem_cache
-%ADVXpost
+%_post_srv httpd2
 
 %postun mod_mem_cache
-%ADVXpost
+%_post_srv httpd2
 
 %post mod_file_cache
-%ADVXpost
+%_post_srv httpd2
 
 %postun mod_file_cache
-%ADVXpost
+%_post_srv httpd2
 
 %post mod_deflate
-%ADVXpost
+%_post_srv httpd2
 
 %postun mod_deflate
-%ADVXpost
+%_post_srv httpd2
 
 %post devel -p /sbin/ldconfig
 %preun devel -p /sbin/ldconfig
@@ -1085,19 +1066,19 @@ fi
 %_postun_userdel apache
 
 %post modules
-%ADVXpost
+%_post_srv httpd2
 
 %post
 #JMD: do *not* use _post_service here, it is used in %{ap_name}-conf, since we
 #can have both %{ap_name} and %{ap_name}-mod_perl
 %_mkafterboot
-%ADVXpost
+%_post_srv httpd2
 
 %postun
 #JMD: do *not* use _post_service here, otherwise it will uninstall
 #apache-mod_perl as well!!
 %_mkafterboot
-%ADVXpost
+%_post_srv httpd2
 
 %files
 %defattr(-,root,root)
@@ -1109,11 +1090,11 @@ fi
 %doc httpd-std.conf
 %doc apache-old-changelog
 %{_sbindir}/%{ap_progname}
-%dir %{_srvdir}/apache2
-%dir %{_srvdir}/apache2/log
-%{_srvdir}/apache2/run
-%{_srvdir}/apache2/log/run
-%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/apache2
+%dir %{_srvdir}/httpd2
+%dir %{_srvdir}/httpd2/log
+%{_srvdir}/httpd2/run
+%{_srvdir}/httpd2/log/run
+%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/httpd2
 %{_datadir}/afterboot/03_apache2
 
 %files modules
@@ -1161,6 +1142,7 @@ fi
 %{ap_libexecdir}/*.exp
 %dir %{ap_extralibs}
 %dir %{ap_prefix}
+%exclude %{ap_prefix}/build/
 %{ap_prefix}/*
 
 %files mod_proxy
@@ -1185,14 +1167,15 @@ fi
 %attr(0755,root,root) %{ap_ssldir}/gentestcrt.sh
 ##JMD: Not yet, conflicts with the old mod_ssl
 ##%dir %{ap_sslconf}
-%attr(0700,root,root) %dir %{ap_proxycachedir}/mod_ssl
+%attr(0700,apache,root) %dir %{ap_proxycachedir}/mod_ssl
 %attr(0600,apache,root) %ghost %{ap_proxycachedir}/mod_ssl/scache.dir
 %attr(0600,apache,root) %ghost %{ap_proxycachedir}/mod_ssl/scache.pag
 %attr(0600,apache,root) %ghost %{ap_proxycachedir}/mod_ssl/scache.sem
+%attr(0600,apache,root) %ghost %{ap_proxycachedir}/mod_ssl/ssl_scache
 
 %files mod_dav
 %defattr(-,root,root)
-%dir %{ap_davdir}
+%attr(-,apache,apache) %dir %{ap_davdir}
 %config(noreplace) %{ap_confd}/*_mod_dav.conf
 %{ap_libexecdir}/mod_dav.so
 %{ap_libexecdir}/mod_dav_fs.so
@@ -1299,6 +1282,22 @@ fi
 %{ap_abs_srcdir}
 
 %changelog
+* Wed Jul 14 2004 Vincent Danen <vdanen@annvix.org> 2.0.49-5avx
+- use %%_post_srv rather than %%ADVXctl although this is less
+  than efficient (in either case) because apache will start and
+  stop a dozen times if you upgrade a dozen modules (need hooks
+  in urpmi perhaps?)
+- update the afterboot man-snippet
+- remove ADVX Provides
+- fix __spec_install_post
+- apache2-devel requires pcre-devel
+- don't enable debug by default
+- sync with 2.0.48-6mdk:
+  - /var/lib/dav owned by apache, otherwise mod_dav doesn't work
+    properly (misc)
+  - fix #6308 (mod_ssl error due to incorrect perms) (misc)
+  - fix various [DIRM],[CFLP] (misc)
+
 * Mon Jun 28 2004 Vincent Danen <vdanen@annvix.org> 2.0.49-4avx
 - P8: security fix for CAN-2004-0493
 
