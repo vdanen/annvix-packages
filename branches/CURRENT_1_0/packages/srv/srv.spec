@@ -1,8 +1,8 @@
-# $Id: srv.spec,v 1.12 2004/09/12 04:02:17 vdanen Exp $
+# $Id: srv.spec,v 1.13 2004/09/18 04:14:16 vdanen Exp $
 
 %define name	srv
 %define version 0.9
-%define release 1avx
+%define release 2avx
 
 Summary:	Tool to manage runsv-controlled services.
 Name: 		%{name}
@@ -56,6 +56,10 @@ install -m 0644 functions %{buildroot}%{_datadir}/srv
 %{_mandir}/man8/srv.8*
 
 %changelog
+* Fri Sep 17 2004 Vincent Danen <vdanen@annvix.org> 0.9-2avx
+- add godown() function for a service to shut itself down if certain
+  requirements (usually configuration-related) are not met
+
 * Sat Sep 11 2004 Vincent Danen <vdanen@annvix.org> 0.9-1avx
 - 0.9
 - overhaul srv to work with runit (runsv) rather than daemontools (supervise);
