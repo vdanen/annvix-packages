@@ -1,6 +1,6 @@
 %define	name	dcron
 %define	version	2.9
-%define	release	6avx
+%define	release	7avx
 
 Summary:	Dillon's Cron Daemon
 Name:		%{name}
@@ -22,7 +22,7 @@ Patch0:		dcron29-dietlibc-patch.diff.bz2
 BuildRoot:	%{_tmppath}/%{name}-buildroot
 BuildRequires:	dietlibc-devel >= 0.20-1mdk
 
-PreReq:		rpm-helper, srv, daemontools, setup
+PreReq:		rpm-helper, srv, runit, setup
 Conflicts:	vixie-cron
 Obsoletes:	crontabs
 Provides:	crond, crontabs
@@ -96,6 +96,10 @@ fi
 %dir %attr(0750,nobody,nogroup) %{_srvlogdir}/crond
 
 %changelog
+* Sat Sep 11 2004 Vincent Danen <vdanen@annvix.org> 2.9-7avx
+- Requires: s/daemontools/runit/
+- update run scripts
+
 * Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 2.9-6avx
 - Annvix build
 
