@@ -1,6 +1,6 @@
 %define name	gnupg
 %define version 1.2.6
-%define release 1avx
+%define release 2avx
 
 Summary:	GNU privacy guard - a free PGP replacement.
 Name:		%{name}
@@ -13,6 +13,7 @@ Source:		ftp://ftp.gnupg.org/pub/gcrypt/gnupg/%{name}-%{version}.tar.bz2
 Source1:	ftp://ftp.gnupg.org/pub/gcrypt/gnupg/%{name}-%{version}.tar.bz2.sig
 Source2:	annvix-keys.tar.bz2
 Source3:	annvix-keys.tar.bz2.asc
+Patch0:		gnupg-1.2.5-cfb.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-buildroot
 
@@ -26,6 +27,7 @@ with the proposed OpenPGP Internet standard as described in RFC2440.
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %setup -q
+%patch0 -p1 -b .can-2005-0366
 
 %build
 %ifnarch sparc sparc64
@@ -94,6 +96,9 @@ tar xvjf %{SOURCE2} -C %{buildroot}%{_sysconfdir}/RPM-GPG-KEYS
 %attr(0644,root,root) %{_sysconfdir}/RPM-GPG-KEYS/*.asc
 
 %changelog
+* Thu Mar 17 2005 Vincent Danen <vdanen@annvix.org> 1.2.6-2avx
+- P0: patch to fix CAN-2005-0366
+
 * Sun Sep 12 2004 Vincent Danen <vdanen@annvix.org> 1.2.6-1avx
 - 1.2.6
 - s/opensls-keys/annvix-keys/
