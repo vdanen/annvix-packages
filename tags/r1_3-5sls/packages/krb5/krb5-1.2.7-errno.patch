@@ -1,0 +1,43 @@
+--- krb5-1.2.7/src/include/kerberosIV/krb.h.jj	2000-06-02 18:05:20.000000000 -0400
++++ krb5-1.2.7/src/include/kerberosIV/krb.h	2002-12-09 11:08:11.000000000 -0500
+@@ -413,6 +413,7 @@ typedef struct msg_dat MSG_DAT;
+ #include <time.h>		/* For localtime, etc */
+ #include <sys/time.h>
+ #endif
++#include <errno.h>
+ #endif /* !_WINDOWS */
+ 
+ 
+--- krb5-1.2.7/src/util/ss/help.c.jj	2000-05-01 11:53:37.000000000 -0400
++++ krb5-1.2.7/src/util/ss/help.c	2002-12-09 12:52:58.000000000 -0500
+@@ -12,8 +12,6 @@
+ #include "ss_internal.h"
+ #include "copyright.h"
+ 
+-extern int errno;
+-
+ void ss_help (argc, argv, sci_idx, info_ptr)
+     int argc;
+     char const * const *argv;
+--- krb5-1.2.7/src/util/ss/pager.c.jj	1995-04-27 12:41:15.000000000 -0400
++++ krb5-1.2.7/src/util/ss/pager.c	2002-12-09 12:54:06.000000000 -0500
+@@ -17,7 +17,6 @@
+ static char MORE[] = "more";
+ extern char *_ss_pager_name;
+ extern char *getenv();
+-extern int errno;
+ 
+ /*
+  * this needs a *lot* of work....
+--- krb5-1.2.7/src/util/ss/ss.h.jj	1998-03-30 12:10:33.000000000 -0500
++++ krb5-1.2.7/src/util/ss/ss.h	2002-12-09 12:55:05.000000000 -0500
+@@ -8,8 +8,7 @@
+ #define _ss_h __FILE__
+ 
+ #include <ss/ss_err.h>
+-
+-extern int errno;
++#include <errno.h>
+ 
+ #ifdef __STDC__
+ #define __SS_CONST const
