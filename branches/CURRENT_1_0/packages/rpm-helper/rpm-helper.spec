@@ -1,12 +1,13 @@
 %define name	rpm-helper
 %define version	0.9.1
-%define release	2sls
+%define release	3sls
 
 Summary:	Helper scripts for rpm scriptlets
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 Source0:	%name-%version.tar.bz2
+Patch0:		opensls-supervise.patch.bz2
 License:	GPL
 Group:		System/Configuration/Packaging
 URL:		http://www.mandrakelinux.com/
@@ -25,9 +26,11 @@ Helper scripts for rpm scriptlets to help create/remove :
 - users
 
 %prep
-%setup
+%setup -q
+%patch0 -p0
 
 %build
+chmod 755 {add,del}-srv
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -39,9 +42,15 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(-,root,root)
 %doc README* ChangeLog AUTHORS
-%_datadir/%name
+%dir %_datadir/%name
+%_datadir/%name/*
 
 %changelog
+* Tue Jan 27 2004 Vincent Danen <vdanen@opensls.org> 0.9.1-3sls
+- P0: adds add-srv and del-srv scripts to manage supervised services, also
+  adds a sixth field to add-user so we can force a static uid
+- own %_datadir/%name
+
 * Tue Dec 09 2003 Vincent Danen <vdanen@opensls.org> 0.9.1-2sls
 - OpenSLS build
 - tidy spec
