@@ -1,6 +1,6 @@
 %define name	SysVinit
 %define version 2.85
-%define release 5sls
+%define release 6avx
 %define url	ftp://ftp.cistron.nl/pub/people/miquels/software
 
 Summary:	Programs which control basic system processes.
@@ -113,6 +113,9 @@ exit 0
 %ghost /dev/initctl
 
 %changelog
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 2.85-6avx
+- Annvix release
+
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 2.85-5sls
 - minor spec cleanups
 
