@@ -1,6 +1,6 @@
 %define name	openssh
 %define version	3.6.1p2
-%define release 9sls
+%define release 10sls
 
 ## Do not apply any unauthorized patches to this package!
 ## - vdanen 05/18/01
@@ -47,6 +47,8 @@ Source4: 	gnome-ssh-askpass.sh
 Source5: 	gnome-ssh-askpass.csh
 Source6:	ssh-client.sh
 Source7:	openssh-xinetd.bz2
+Source8:	sshd.run
+Source9:	sshd-log.run
 # this is never to be applied by default
 Source10:	openssh-%{wversion}-watchdog.patch.tar.bz2
 Patch1:		openssh-3.6.1p2-mdkconf.patch.bz2
@@ -332,9 +334,16 @@ mkdir -p %{buildroot}/var/empty
 rm -f %{buildroot}%{_datadir}/ssh/Ssh.bin
 %endif
 
+%if %{build_opensls}
+mkdir -p %{buildroot}/var/service/sshd/log
+mkdir -p %{buildroot}/var/log/supervise/sshd
+install -m 0755 %{SOURCE8} %{buildroot}/var/service/sshd/run
+install -m 0755 %{SOURCE9} %{buildroot}/var/service/sshd/log/run
+%else
 # xinetd support (tv)
 mkdir -p $RPM_BUILD_ROOT%_sysconfdir/xinetd.d/
 bzcat %SOURCE7 > $RPM_BUILD_ROOT%_sysconfdir/xinetd.d/sshd-xinetd
+%endif
 
 
 %clean
@@ -486,8 +495,15 @@ update-alternatives --remove ssh-askpass %{_libdir}/ssh/gnome-ssh-askpass
 %{_mandir}/man8/sftp-server.8*
 %attr(0600,root,root) %config(noreplace) %{_sysconfdir}/ssh/sshd_config
 %attr(0600,root,root) %config(noreplace) %{_sysconfdir}/pam.d/sshd
-
+%if %{build_opensls}
+%dir /var/service/sshd
+%dir /var/service/sshd/log
+/var/service/sshd/run
+/var/service/sshd/log/run
+%dir %attr(0750,nobody,nogroup) /var/log/supervise/sshd
+%else
 %config(noreplace) %_sysconfdir/xinetd.d/sshd-xinetd
+%endif
 
 
 %config(noreplace) %{_sysconfdir}/ssh/moduli
@@ -513,6 +529,9 @@ update-alternatives --remove ssh-askpass %{_libdir}/ssh/gnome-ssh-askpass
 %endif
 
 %changelog
+* Wed Dec 31 2003 Vincent Danen <vdanen@opensls.org> 3.6.1p2-10sls
+- include supervise files, remove xinetd files
+
 * Mon Dec 01 2003 Vincent Danen <vdanen@opensls.org> 3.6.1p2-9sls
 - OpenSLS build
 - tidy spec
