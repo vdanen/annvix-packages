@@ -1,0 +1,26 @@
+--- grub-0.93/stage2/char_io.c.pix	2002-12-03 00:49:07.000000000 +0100
++++ grub-0.93/stage2/char_io.c	2003-08-18 18:04:18.000000000 +0200
+@@ -1207,6 +1207,13 @@
+   return ! errnum;
+ }
+ 
++#ifndef GRUB_UTIL
++void *
++memcpy (void *to, const void *from, int len) {
++  return grub_memmove(to, from, len);
++}
++#endif
++
+ void *
+ grub_memmove (void *to, const void *from, int len)
+ {
+--- grub-0.93/stage2/shared.h.pix	2003-08-18 17:55:45.000000000 +0200
++++ grub-0.93/stage2/shared.h	2003-08-18 17:55:45.000000000 +0200
+@@ -346,7 +346,6 @@
+    circularararity. */
+ #ifndef WITHOUT_LIBC_STUBS
+ #define memmove grub_memmove
+-#define memcpy grub_memmove	/* we don't need a separate memcpy */
+ #define memset grub_memset
+ #define isspace grub_isspace
+ #define printf grub_printf
