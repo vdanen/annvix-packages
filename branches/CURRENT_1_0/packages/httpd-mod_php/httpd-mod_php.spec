@@ -1,6 +1,6 @@
 %define name	%{ap_name}-%{mod_name}
 %define version %{ap_version}_%{phpversion}
-%define release	4sls
+%define release	1sls
 
 %define phpsource	%{_prefix}/src/php-devel
 %{expand:%(cat /usr/src/php-devel/PHP_BUILD||(echo -e "error: failed build dependencies:\n        php-devel >= 430 (4.3.0) is needed by this package." >/dev/stderr;kill -2 $PPID))}
@@ -137,6 +137,9 @@ cd %{extname}
 %{ap_webdoc}/*
 
 %changelog
+* Fri May 09 2004 Vincent Danen <vdanen@opensls.org> 2.0.49_4.3.6-1sls
+- build for php 4.3.6 and apache 2.0.49
+
 * Tue Feb 24 2004 Vincent Danen <vdanen@opensls.org> 2.0.48_4.3.4-4sls
 - fix the wierd BuildRequires for php-devel
 
