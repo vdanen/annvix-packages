@@ -1,0 +1,220 @@
+--- libuser-0.51.7/python/Makefile.am.python-module-pic	2002-01-24 17:04:04.000000000 -0500
++++ libuser-0.51.7/python/Makefile.am	2003-04-03 18:32:07.000000000 -0500
+@@ -4,14 +4,14 @@
+ 
+ pythondir = $(libdir)/python@PYTHON_VERSION@/site-packages/
+ 
+-python_PROGRAMS = libusermodule.so @QUOTAMODULE@
+-EXTRA_PROGRAMS = libuserquotamodule.so
++python_LTLIBRARIES = libusermodule.la @QUOTAMODULE@
++EXTRA_LTLIBRARIES = libuserquotamodule.la
+ noinst_SCRIPTS = $(srcdir)/test-script $(srcdir)/quota-script
+ 
+-libusermodule_so_SOURCES = libusermodule.c common.h debug.h
+-libusermodule_so_LDFLAGS = -module -shared @GOBJECT_LIBS@ @PAM_MISC_LIBS@ @CRYPT_LIBS@
+-libusermodule_so_LDADD = ../apps/apputil.o ../lib/libuser.la
++libusermodule_la_SOURCES = libusermodule.c common.h debug.h
++libusermodule_la_LDFLAGS = -module -avoid-version -shared @GOBJECT_LIBS@ @PAM_MISC_LIBS@ @CRYPT_LIBS@
++libusermodule_la_LIBADD = ../apps/libapputil.la ../lib/libuser.la
+ 
+-libuserquotamodule_so_SOURCES = quotamodule.c debug.h
+-libuserquotamodule_so_LDFLAGS = -module -shared @GLIB_LIBS@ @CRYPT_LIBS@
+-libuserquotamodule_so_LDADD = ../lib/libuserquota.la
++libuserquotamodule_la_SOURCES = quotamodule.c debug.h
++libuserquotamodule_la_LDFLAGS = -module -avoid-version -shared @GLIB_LIBS@ @CRYPT_LIBS@
++libuserquotamodule_la_LIBADD = ../lib/libuserquota.la
+--- libuser-0.51.7/python/Makefile.in.orig	2003-02-19 03:35:23.000000000 -0500
++++ libuser-0.51.7/python/Makefile.in	2003-04-03 18:39:55.000000000 -0500
+@@ -125,31 +125,29 @@
+ 
+ pythondir = $(libdir)/python@PYTHON_VERSION@/site-packages/
+ 
+-python_PROGRAMS = libusermodule.so @QUOTAMODULE@
+-EXTRA_PROGRAMS = libuserquotamodule.so
++python_LTLIBRARIES = libusermodule.la @QUOTAMODULE@
++EXTRA_LTLIBRARIES = libuserquotamodule.la
+ noinst_SCRIPTS = $(srcdir)/test-script $(srcdir)/quota-script
+ 
+-libusermodule_so_SOURCES = libusermodule.c common.h debug.h
+-libusermodule_so_LDFLAGS = -module -shared @GOBJECT_LIBS@ @PAM_MISC_LIBS@ @CRYPT_LIBS@
+-libusermodule_so_LDADD = ../apps/apputil.o ../lib/libuser.la
+-
+-libuserquotamodule_so_SOURCES = quotamodule.c debug.h
+-libuserquotamodule_so_LDFLAGS = -module -shared @GLIB_LIBS@ @CRYPT_LIBS@
+-libuserquotamodule_so_LDADD = ../lib/libuserquota.la
++libusermodule_la_SOURCES = libusermodule.c common.h debug.h
++libusermodule_la_LDFLAGS = -module -avoid-version -shared @GOBJECT_LIBS@ @PAM_MISC_LIBS@ @CRYPT_LIBS@
++libusermodule_la_LIBADD = ../apps/libapputil.la ../lib/libuser.la
++
++libuserquotamodule_la_SOURCES = quotamodule.c debug.h
++libuserquotamodule_la_LDFLAGS = -module -avoid-version -shared @GLIB_LIBS@ @CRYPT_LIBS@
++libuserquotamodule_la_LIBADD = ../lib/libuserquota.la
+ subdir = python
+ mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
+ CONFIG_HEADER = $(top_builddir)/config.h
+ CONFIG_CLEAN_FILES =
+-EXTRA_PROGRAMS = libuserquotamodule.so$(EXEEXT)
+-python_PROGRAMS = libusermodule.so$(EXEEXT) @QUOTAMODULE@
+-PROGRAMS = $(python_PROGRAMS)
+-
+-am_libusermodule_so_OBJECTS = libusermodule.$(OBJEXT)
+-libusermodule_so_OBJECTS = $(am_libusermodule_so_OBJECTS)
+-libusermodule_so_DEPENDENCIES = ../apps/apputil.o ../lib/libuser.la
+-am_libuserquotamodule_so_OBJECTS = quotamodule.$(OBJEXT)
+-libuserquotamodule_so_OBJECTS = $(am_libuserquotamodule_so_OBJECTS)
+-libuserquotamodule_so_DEPENDENCIES = ../lib/libuserquota.la
++LTLIBRARIES = $(python_LTLIBRARIES)
++
++libusermodule_la_DEPENDENCIES = ../apps/libapputil.la ../lib/libuser.la
++am_libusermodule_la_OBJECTS = libusermodule.lo
++libusermodule_la_OBJECTS = $(am_libusermodule_la_OBJECTS)
++libuserquotamodule_la_DEPENDENCIES = ../lib/libuserquota.la
++am_libuserquotamodule_la_OBJECTS = quotamodule.lo
++libuserquotamodule_la_OBJECTS = $(am_libuserquotamodule_la_OBJECTS)
+ SCRIPTS = $(noinst_SCRIPTS)
+ 
+ 
+@@ -160,8 +158,8 @@
+ LIBS = @LIBS@
+ depcomp = $(SHELL) $(top_srcdir)/depcomp
+ am__depfiles_maybe = depfiles
+-@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/libusermodule.Po \
+-@AMDEP_TRUE@	./$(DEPDIR)/quotamodule.Po
++@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/libusermodule.Plo \
++@AMDEP_TRUE@	./$(DEPDIR)/quotamodule.Plo
+ COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
+ 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+ LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) \
+@@ -169,10 +167,10 @@
+ CCLD = $(CC)
+ LINK = $(LIBTOOL) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
+ 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
+-DIST_SOURCES = $(libusermodule_so_SOURCES) \
+-	$(libuserquotamodule_so_SOURCES)
++DIST_SOURCES = $(libusermodule_la_SOURCES) \
++	$(libuserquotamodule_la_SOURCES)
+ DIST_COMMON = Makefile.am Makefile.in
+-SOURCES = $(libusermodule_so_SOURCES) $(libuserquotamodule_so_SOURCES)
++SOURCES = $(libusermodule_la_SOURCES) $(libuserquotamodule_la_SOURCES)
+ 
+ all: all-am
+ 
+@@ -183,31 +181,31 @@
+ 	  $(AUTOMAKE) --gnu  python/Makefile
+ Makefile: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.in  $(top_builddir)/config.status
+ 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@ $(am__depfiles_maybe)
+-pythonPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
+-install-pythonPROGRAMS: $(python_PROGRAMS)
++pythonLTLIBRARIES_INSTALL = $(INSTALL_PROGRAM)
++install-pythonLTLIBRARIES: $(python_LTLIBRARIES)
+ 	@$(NORMAL_INSTALL)
+ 	$(mkinstalldirs) $(DESTDIR)$(pythondir)
+-	@list='$(python_PROGRAMS)'; for p in $$list; do \
++	@list='$(python_LTLIBRARIES)'; for p in $$list; do \
+ 	  p1=`echo $$p|sed 's/$(EXEEXT)$$//'`; \
+ 	  if test -f $$p \
+ 	     || test -f $$p1 \
+ 	  ; then \
+ 	    f=`echo "$$p1" | sed 's,^.*/,,;$(transform);s/$$/$(EXEEXT)/'`; \
+-	   echo " $(INSTALL_PROGRAM_ENV) $(LIBTOOL) --mode=install $(pythonPROGRAMS_INSTALL) $$p $(DESTDIR)$(pythondir)/$$f"; \
+-	   $(INSTALL_PROGRAM_ENV) $(LIBTOOL) --mode=install $(pythonPROGRAMS_INSTALL) $$p $(DESTDIR)$(pythondir)/$$f; \
++	   echo " $(INSTALL_PROGRAM_ENV) $(LIBTOOL) --mode=install $(pythonLTLIBRARIES_INSTALL) $$p $(DESTDIR)$(pythondir)/$$f"; \
++	   $(INSTALL_PROGRAM_ENV) $(LIBTOOL) --mode=install $(pythonLTLIBRARIES_INSTALL) $$p $(DESTDIR)$(pythondir)/$$f; \
+ 	  else :; fi; \
+ 	done
+ 
+-uninstall-pythonPROGRAMS:
++uninstall-pythonLTLIBRARIES:
+ 	@$(NORMAL_UNINSTALL)
+-	@list='$(python_PROGRAMS)'; for p in $$list; do \
++	@list='$(python_LTLIBRARIES)'; for p in $$list; do \
+ 	  f=`echo "$$p" | sed 's,^.*/,,;s/$(EXEEXT)$$//;$(transform);s/$$/$(EXEEXT)/'`; \
+ 	  echo " rm -f $(DESTDIR)$(pythondir)/$$f"; \
+ 	  rm -f $(DESTDIR)$(pythondir)/$$f; \
+ 	done
+ 
+-clean-pythonPROGRAMS:
+-	@list='$(python_PROGRAMS)'; for p in $$list; do \
++clean-pythonLTLIBRARIES:
++	@list='$(python_LTLIBRARIES)'; for p in $$list; do \
+ 	  f=`echo $$p|sed 's/$(EXEEXT)$$//'`; \
+ 	  echo " rm -f $$p $$f"; \
+ 	  rm -f $$p $$f ; \
+@@ -218,6 +216,10 @@
+ libuserquotamodule.so$(EXEEXT): $(libuserquotamodule_so_OBJECTS) $(libuserquotamodule_so_DEPENDENCIES) 
+ 	@rm -f libuserquotamodule.so$(EXEEXT)
+ 	$(LINK) $(libuserquotamodule_so_LDFLAGS) $(libuserquotamodule_so_OBJECTS) $(libuserquotamodule_so_LDADD) $(LIBS)
++libusermodule.la: $(libusermodule_la_OBJECTS) $(libusermodule_la_DEPENDENCIES)
++	$(LINK) -rpath $(pythondir) $(libusermodule_la_LDFLAGS) $(libusermodule_la_OBJECTS) $(libusermodule_la_LIBADD) $(LIBS)
++libuserquotamodule.la: $(libuserquotamodule_la_OBJECTS) $(libuserquotamodule_la_DEPENDENCIES) 
++	$(LINK)  $(libuserquotamodule_la_LDFLAGS) $(libuserquotamodule_la_OBJECTS) $(libuserquotamodule_la_LIBADD) $(LIBS)
+ 
+ mostlyclean-compile:
+ 	-rm -f *.$(OBJEXT) core *.core
+@@ -225,8 +227,8 @@
+ distclean-compile:
+ 	-rm -f *.tab.c
+ 
+-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libusermodule.Po@am__quote@
+-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/quotamodule.Po@am__quote@
++@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libusermodule.Plo@am__quote@
++@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/quotamodule.Plo@am__quote@
+ 
+ distclean-depend:
+ 	-rm -rf ./$(DEPDIR)
+@@ -323,7 +325,7 @@
+ 	done
+ check-am: all-am
+ check: check-am
+-all-am: Makefile $(PROGRAMS) $(SCRIPTS)
++all-am: Makefile $(LTLIBRARIES) $(SCRIPTS)
+ 
+ installdirs:
+ 	$(mkinstalldirs) $(DESTDIR)$(pythondir)
+@@ -354,7 +356,7 @@
+ 	@echo "it deletes files that may require special tools to rebuild."
+ clean: clean-am
+ 
+-clean-am: clean-generic clean-libtool clean-pythonPROGRAMS \
++clean-am: clean-generic clean-libtool clean-pythonLTLIBRARIES \
+ 	mostlyclean-am
+ 
+ distclean: distclean-am
+@@ -370,7 +372,7 @@
+ 
+ info-am:
+ 
+-install-data-am: install-pythonPROGRAMS
++install-data-am: install-pythonLTLIBRARIES
+ 
+ install-exec-am:
+ 
+@@ -389,19 +391,19 @@
+ mostlyclean-am: mostlyclean-compile mostlyclean-generic \
+ 	mostlyclean-libtool
+ 
+-uninstall-am: uninstall-info-am uninstall-pythonPROGRAMS
++uninstall-am: uninstall-info-am uninstall-pythonLTLIBRARIES
+ 
+ .PHONY: GTAGS all all-am check check-am clean clean-generic \
+-	clean-libtool clean-pythonPROGRAMS distclean distclean-compile \
+-	distclean-depend distclean-generic distclean-libtool \
+-	distclean-tags distdir dvi dvi-am info info-am install \
+-	install-am install-data install-data-am install-exec \
+-	install-exec-am install-info install-info-am install-man \
+-	install-pythonPROGRAMS install-strip installcheck \
+-	installcheck-am installdirs maintainer-clean \
++	clean-libtool clean-pythonLTLIBRARIES distclean \
++	distclean-compile distclean-depend distclean-generic \
++	distclean-libtool distclean-tags distdir dvi dvi-am info \
++	info-am install install-am install-data install-data-am \
++	install-exec install-exec-am install-info install-info-am \
++	install-man install-pythonLTLIBRARIES install-strip \
++	installcheck installcheck-am installdirs maintainer-clean \
+ 	maintainer-clean-generic mostlyclean mostlyclean-compile \
+ 	mostlyclean-generic mostlyclean-libtool tags uninstall \
+-	uninstall-am uninstall-info-am uninstall-pythonPROGRAMS
++	uninstall-am uninstall-info-am uninstall-pythonLTLIBRARIES
+ 
+ # Tell versions [3.59,3.63) of GNU make to not export all variables.
+ # Otherwise a system limit (for SysV at least) may be exceeded.
