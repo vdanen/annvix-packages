@@ -1,6 +1,6 @@
 %define name	shorewall
 %define version 2.0.6
-%define release 1avx
+%define release 2avx
 
 %define samples_version	2.0.1
 
@@ -66,10 +66,9 @@ export DONT_GPRINTIFY=1
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
-%_post_service shorewall
-
-%preun
-%_preun_service shorewall
+if [ "$1" == "1" ]; then
+    chkconfig --add shorewall
+fi
 
 %files
 %defattr(-,root,root)
@@ -109,6 +108,11 @@ export DONT_GPRINTIFY=1
 
 
 %changelog
+* Wed Sep 22 2004 Vincent Danen <vdanen@annvix.org> 2.0.6-2avx
+- remove some macros; now we add shorewall via chkconfig if it's an
+  install, otherwise leave it alone as there is no need to restart
+  the "service" on upgrade
+
 * Mon Jul 19 2004 Vincent Danen <vdanen@annvix.org> 2.0.6-1avx
 - 2.0.6
 - start shorewall at S12, after the network
