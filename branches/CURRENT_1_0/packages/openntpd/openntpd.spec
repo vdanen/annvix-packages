@@ -1,5 +1,5 @@
 %define	name	openntpd
-%define	version	3.6p1
+%define	version	3.6.1p1
 %define	release	1avx
 %define epoch	1
 
@@ -30,10 +30,11 @@ and can act as NTP server itself, redistributing the local clock.
 
 %prep
 %setup -q
-%patch0 -p0 -b .ntpuser
 
 %build
-%configure2_5x
+%configure2_5x \
+    --with-privsep-user=ntp \
+    --with-privsep-path=/var/empty
 %make
 
 %install
@@ -66,7 +67,7 @@ install -m 0750 %{SOURCE2} %{buildroot}%{_srvdir}/ntpd/log/run
 %{_sbindir}/ntpd
 %{_mandir}/man5/ntpd.conf.5*
 %{_mandir}/man8/ntpd.8*
-%dir %attr(0750,nobody,nogroup) %dir %{_srvlogdir}/ntpd
+%dir %attr(0750,logger,logger) %dir %{_srvlogdir}/ntpd
 %dir %{_srvdir}/ntpd
 %{_srvdir}/ntpd/run
 %dir %{_srvdir}/ntpd/log
@@ -74,6 +75,11 @@ install -m 0750 %{SOURCE2} %{buildroot}%{_srvdir}/ntpd/log/run
 
 
 %changelog
+* Fri Mar 04 2005 Vincent Danen <vdanen@annvix.org> 3.6.1p1-1avx
+- 3.6.1p1
+- user logger for logging
+- drop P1; specify privsep user and path instead
+
 * Wed Nov  3 2004 Vincent Danen <vdanen@annvix.org> 3.6p1-1avx
 - 3.6p1
 - Epoch: 1
