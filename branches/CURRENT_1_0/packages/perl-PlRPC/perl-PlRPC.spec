@@ -1,17 +1,19 @@
 %define module 	PlRPC
+%define name	perl-%{module}
 %define version 0.2017
-%define release 2mdk
+%define release 3sls
 
 Summary:	%{module} perl module
-Name: 		perl-%{module}
+Name: 		%{name}
 Version: 	%{version}
 Release: 	%{release}
 License: 	GPL or Artistic
 Group:		Development/Perl
 URL:		ftp://ftp.funet.fi/pub/languages/perl/CPAN/authors/id/JWIED
 Source0:	%{module}-%{version}.tar.bz2
+
 BuildRoot: 	%{_tmppath}/%{name}-%{version}-buildroot
-BuildRequires:	perl-Net-Daemon perl-Storable perl-devel
+BuildRequires:	perl-Net-Daemon perl-devel
 Buildarch:	noarch
 
 %description
@@ -40,6 +42,11 @@ rm -rf $RPM_BUILD_ROOT
 %_mandir/man3*/*
 
 %changelog
+* Tue Dec 30 2003 Vincent Danen <vdanen@opensls.org> 0.2017-3sls
+- OpenSLS build
+- tidy spec
+- remove redundant perl-Storable BuildReq (part of perl)
+
 * Thu Aug 14 2003 Per Øyvind Karlsen <peroyvind@linux-mandrake.com> 0.2017-2mdk
 - rebuild for new perl
 - drop PREFIX
