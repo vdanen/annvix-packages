@@ -1,0 +1,110 @@
+--- rpm-4.2/lib/rpmrc.c.amd64	2004-01-15 21:28:18.000000000 +0100
++++ rpm-4.2/lib/rpmrc.c	2004-01-15 21:28:18.000000000 +0100
+@@ -1278,6 +1278,13 @@
+ 	}
+ #	endif
+ 
++#	if defined(__linux__) && defined(__amd64__)
++	{
++	  /* Defaults to amd64 if compiler supports __amd64__ */
++	  strcpy(un.machine, "amd64");
++	}
++#	endif
++
+ #	if defined(__linux__) && defined(__powerpc__)
+ 	{
+ 	    unsigned pvr = 0;
+--- rpm-4.2/build/parseSpec.c.amd64	2004-01-15 21:28:16.000000000 +0100
++++ rpm-4.2/build/parseSpec.c	2004-01-15 21:28:18.000000000 +0100
+@@ -187,6 +187,16 @@
+ }
+ /*@=boundswrite@*/
+ 
++static const char *getAlternateArch(const char *arch)
++{
++    const char *alternate_arch = NULL;
++    if (! strncmp("x86_64", arch, sizeof("x86_64")-1))
++      alternate_arch = "amd64";
++    else if (! strncmp("amd64", arch, sizeof("amd64")-1))
++      alternate_arch = "x86_64";
++    return alternate_arch;
++}
++
+ /*@-boundswrite@*/
+ int readLine(Spec spec, int strip)
+ {
+@@ -274,13 +284,15 @@
+ 	match = 0;
+     } else if (! strncmp("%ifarch", s, sizeof("%ifarch")-1)) {
+ 	const char *arch = rpmExpand("%{_target_cpu}", NULL);
++	const char *alternate_arch = getAlternateArch(arch);
+ 	s += 7;
+-	match = matchTok(arch, s);
++	match = matchTok(arch, s) || (alternate_arch && matchTok(alternate_arch, s));
+ 	arch = _free(arch);
+     } else if (! strncmp("%ifnarch", s, sizeof("%ifnarch")-1)) {
+ 	const char *arch = rpmExpand("%{_target_cpu}", NULL);
++	const char *alternate_arch = getAlternateArch(arch);
+ 	s += 8;
+-	match = !matchTok(arch, s);
++	match = !matchTok(arch, s) && (!alternate_arch || !matchTok(alternate_arch, s));
+ 	arch = _free(arch);
+     } else if (! strncmp("%ifos", s, sizeof("%ifos")-1)) {
+ 	const char *os = rpmExpand("%{_target_os}", NULL);
+--- rpm-4.2/rpmrc.in.amd64	2004-01-15 21:28:17.000000000 +0100
++++ rpm-4.2/rpmrc.in	2004-01-15 21:30:28.000000000 +0100
+@@ -19,6 +19,7 @@
+ optflags: athlon -O2 -fomit-frame-pointer -pipe -march=athlon %{debugcflags}
+ optflags: ia64 -O2 -pipe %{debugcflags}
+ optflags: x86_64 -O2 -pipe %{debugcflags}
++optflags: amd64 -O2 -pipe %{debugcflags}
+   
+   # XXX Please note that -mieee has been added in rpm-3.0.5.
+ optflags: alpha -O2 -mieee -mcpu=ev5 -pipe %{debugcflags}
+@@ -127,6 +128,7 @@
+ arch_canon:	sh: sh		17
+ arch_canon:	xtensa: xtensa	18
+ 
++arch_canon:	amd64:	amd64	19
+ arch_canon:	x86_64:	x86_64	19
+ 
+ #############################################################
+@@ -205,8 +207,8 @@
+ 
+ buildarchtranslate: ia64: ia64
+ 
+-buildarchtranslate: x86_64: x86_64
+-buildarchtranslate: amd64: x86_64
++buildarchtranslate: x86_64: amd64
++buildarchtranslate: amd64: amd64
+ 
+ #############################################################
+ # Architecture compatibility
+@@ -365,6 +367,7 @@
+ 
+ buildarch_compat: ia64: noarch
+ 
++buildarch_compat: amd64: noarch
+ buildarch_compat: x86_64: noarch
+ buildarch_compat: amd64: noarch
+ 
+--- rpm-4.2/installplatform.amd64	2004-01-15 21:28:17.000000000 +0100
++++ rpm-4.2/installplatform	2004-01-15 21:28:18.000000000 +0100
+@@ -35,7 +35,7 @@
+   alpha*) SUBSTS='s_alpha_alpha_ s_alpha_alphaev5_ s_alpha_alphaev56_ s_alpha_alphapca56_ s_alpha_alphaev6_ s_alpha_alphaev67_' ;;
+   sparc*) SUBSTS='s_sparc\(64\|v9\)_sparc_ s_sparc64_sparcv9_;s_sparc\([^v]\|$\)_sparcv9\1_ s_sparcv9_sparc64_;s_sparc\([^6]\|$\)_sparc64\1_' ;;
+   powerpc*|ppc*) SUBSTS='s_ppc64_ppc_ s_ppc\([^6]\|$\)_ppc64\1_ s_${arch}_ppciseries_ s_${arch}_ppcpseries_' ;;
+-  x86_64*) SUBSTS='s/x86_64/x86_64/' ;;
++  x86_64*|amd64*) SUBSTS="s/${arch}/x86_64/ s/${arch}/amd64/" ;;
+   s390*) SUBSTS='s_s390x_s390_ s_s390\([^x]\|$\)_s390x\1_' ;;
+   *) SUBSTS=y___ ;;
+ esac
+@@ -69,7 +69,7 @@
+     ppc-linux) MULTILIBNO=1 ;;
+     ppc64-linux) LIB=lib64; MULTILIBNO=2 ;;
+     i?86-linux|athlon-linux) MULTILIBNO=1 ;;
+-    x86_64-linux) LIB=lib64; MULTILIBNO=2 ;;
++    x86_64-linux|amd64-linux) LIB=lib64; MULTILIBNO=2 ;;
+   esac
+ 
+   if [ -n "$MULTILIBNO" ]; then
