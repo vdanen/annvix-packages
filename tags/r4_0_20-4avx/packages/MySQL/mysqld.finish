@@ -1,0 +1,6 @@
+#!/bin/sh
+PATH="/sbin:/usr/sbin:/bin:/usr/bin"
+
+# this kills off mysqld
+
+/usr/bin/mysqladmin shutdown
