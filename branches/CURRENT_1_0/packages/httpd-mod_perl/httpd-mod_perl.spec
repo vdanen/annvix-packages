@@ -1,6 +1,6 @@
 %define name	%{ap_name}-%{mod_name}
 %define version %{ap_version}_%{mod_version}
-%define release 1avx
+%define release 2avx
 
 # Module-Specific definitions
 %define mod_version	1.99_11
@@ -170,6 +170,9 @@ install -m644 xs/tables/current/Apache/FunctionTable.pm \
 %{ap_includedir}/*
 
 %changelog
+* Wed Feb 02 2005 Vincent Danen <vdanen@annvix.org> 2.0.52_1.99_11-2avx
+- rebuild against new perl
+
 * Thu Oct 14 2004 Vincent Danen <vdanen@annvix.org> 2.0.52_1.99_11-1avx
 - apache 2.0.52
 
