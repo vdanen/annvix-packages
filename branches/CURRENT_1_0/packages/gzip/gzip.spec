@@ -1,6 +1,6 @@
 %define name	gzip
 %define version	1.2.4a
-%define release 13sls
+%define release 14sls
 
 Summary:	The GNU data compression program
 Name:		%{name}
@@ -54,6 +54,7 @@ export DEFS="-DNO_ASM"
 make test
 
 %install
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 install -d $RPM_BUILD_ROOT/%{_mandir}
 
 %makeinstall mandir=$RPM_BUILD_ROOT/%{_mandir}/man1
@@ -91,7 +92,7 @@ chmod 755 $RPM_BUILD_ROOT/%{_bindir}/zless
 %_remove_install_info %{name}.info
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -102,6 +103,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_infodir}/*
 
 %changelog
+* Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 1.2.4a-14sls
+- minor spec cleanups
+
 * Sun Nov 30 2003 Vincent Danen <vdanen@opensls.org> 1.2.4a-13sls
 - OpenSLS build
 - tidy spec

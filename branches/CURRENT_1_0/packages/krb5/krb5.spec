@@ -1,6 +1,6 @@
 %define name	krb5
 %define version	1.3
-%define release	6sls
+%define release	7sls
 
 %define srcver	1.3
 %define LIBMAJ	1
@@ -319,7 +319,7 @@ find . -name Makefile | xargs perl -p -i -e "s@ %{_libdir}@ $RPM_BUILD_ROOT%{_li
 # make check TMPDIR=%{_tmppath}
 
 %install
-[ "$RPM_BUILD_ROOT" != "/" ] && rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 # Our shell scripts.
 mkdir -p $RPM_BUILD_ROOT%{_bindir}
@@ -398,7 +398,7 @@ find %{_builddir}/%{name}-%{version} -name "*\.h" | xargs perl -p -i -e "s|\<com
 find %{_builddir}/%{name}-%{version} -name "*\.h" | xargs perl -p -i -e "s|\"com_err|\"et/com_err|";
 
 %clean
-[ "$RPM_BUILD_ROOT" != "/" ] && rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post -n %{libname} -p /sbin/ldconfig
 
@@ -616,6 +616,9 @@ fi
 %{_srvdir}/kftp/log/run
 
 %changelog
+* Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 1.3-7sls
+- minor spec cleanups
+
 * Tue Jan 27 2004 Vincent Danen <vdanen@opensls.org> 1.3-6sls
 - supervise macros
 - remove %%build_opensls macros

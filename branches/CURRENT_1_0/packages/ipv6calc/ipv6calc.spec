@@ -1,6 +1,6 @@
 %define name	ipv6calc
 %define version	0.46
-%define release	1sls
+%define release	2sls
 
 Summary:	IPv6 address format change and calculation utility
 Name:		%{name}
@@ -39,7 +39,7 @@ done
 %make CFLAGS="%{optflags} -I../getopt/ -I../ -I../lib/"
 
 %install
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot} 
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 install -d %{buildroot}/bin
 install -d %{buildroot}%{_bindir}
@@ -49,7 +49,7 @@ install -m0755 ipv6logconv/ipv6logconv %{buildroot}%{_bindir}/
 install -m0755 ipv6logstats/ipv6logstats %{buildroot}%{_bindir}/
 
 %clean
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot} 
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -65,5 +65,8 @@ install -m0755 ipv6logstats/ipv6logstats %{buildroot}%{_bindir}/
 %attr(0755,root,root) %{_bindir}/ipv6logstats
 
 %changelog
+* Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 0.46-2sls
+- minor spec cleanups
+
 * Wed Dec 31 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 0.46-1sls
 - initial OpenSLS package, used bits from PLD

@@ -1,6 +1,6 @@
 %define name	hdparm
 %define version 5.4
-%define release 4sls
+%define release 5sls
 
 Summary:	A utility for displaying and/or setting hard disk parameters.
 Name:		%{name}
@@ -28,7 +28,7 @@ make clean
 make
 
 %install
-rm -fr $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p ${RPM_BUILD_ROOT}/sbin
 install -D -m 0755 hdparm $RPM_BUILD_ROOT/sbin/hdparm
 install -D -m 0644 hdparm.8 $RPM_BUILD_ROOT%_mandir/man8/hdparm.8
@@ -39,7 +39,7 @@ install -D -m 0644 %SOURCE1 $RPM_BUILD_ROOT/etc/sysconfig/harddisks
 #install -m755 contrib/{idectl,ultrabayd} $RPM_BUILD_ROOT%_sbindir
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -49,6 +49,9 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) /etc/sysconfig/harddisks
 
 %changelog
+* Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 5.4-5sls
+- minor spec cleanups
+
 * Mon Dec 08 2003 Vincent Danen <vdanen@opensls.org> 5.4-4sls
 - OpenSLS build
 - tidy spec

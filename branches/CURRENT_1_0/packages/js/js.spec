@@ -1,6 +1,6 @@
 %define name	js
 %define version	1.5
-%define release	0.%{lib_release}.6sls
+%define release	0.%{lib_release}.7sls
 
 %{!?build_propolice:%global build_propolice 0}
 
@@ -72,7 +72,7 @@ OPTFLAGS="%{optflags} -fPIC"
 BUILD_OPT=1 CFLAGS=$OPTFLAGS make -f Makefile.ref 
 
 %install
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 install -d %{buildroot}%{_bindir}
 install -d %{buildroot}%{_libdir}
@@ -97,7 +97,7 @@ install -m755 src/Linux_All_OPT.OBJ/%{name} %{buildroot}%{_bindir}/
 %postun -n %{libname} -p /sbin/ldconfig
 
 %clean
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -111,12 +111,14 @@ install -m755 src/Linux_All_OPT.OBJ/%{name} %{buildroot}%{_bindir}/
 
 %files -n %{libname}-devel
 %defattr(-,root,root)
-%doc README
 %{_includedir}/*
 %{_libdir}/*.so
 %{_libdir}/*.a
 
 %changelog
+* Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 1.5-0.rc5.7sls
+- minor spec cleanups
+
 * Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 1.5-0.rc5.6sls
 - OpenSLS build
 - tidy spec
