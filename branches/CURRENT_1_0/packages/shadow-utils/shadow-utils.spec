@@ -1,6 +1,6 @@
 %define name	shadow-utils
 %define version	4.0.3
-%define release	6sls
+%define release	7sls
 
 #rh-20000902-10
 #%define url	ftp://ftp.ists.pwr.wroc.pl/pub/linux/shadow/beta
@@ -168,7 +168,7 @@ export CFLAGS="$RPM_OPT_FLAGS -D_BSD_SOURCE=1 -D_FILE_OFFSET_BITS=64"
 make
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 make install DESTDIR=$RPM_BUILD_ROOT gnulocaledir=$RPM_BUILD_ROOT/%{_datadir}/locale
 
 install -d -m 750 $RPM_BUILD_ROOT%{_sysconfdir}/default
@@ -186,7 +186,7 @@ perl -pi -e "s/encrpted/encrypted/g" $RPM_BUILD_ROOT%{_mandir}/man8/newusers.8
 %find_lang shadow
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 rm -rf build-$RPM_ARCH
 
 %files -f shadow.lang
@@ -234,6 +234,9 @@ rm -rf build-$RPM_ARCH
 %{_mandir}/man8/faillog.8*
 
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 4.0.3-7sls
+- minor spec cleanups
+
 * Mon Dec 01 2003 Vincent Danen <vdanen@opensls.org> 4.0.3-6sls
 - OpenSLS build
 - tidy spec

@@ -1,6 +1,6 @@
 %define name	sfio
 %define version	1999
-%define release	10sls
+%define release	11sls
 
 Summary:	A Safe/Fast I/O Library
 Name:		%{name}
@@ -52,7 +52,7 @@ make -C src/lib/sfio libsfio.so install SONAME="lib%{name}.so.%{version}" CCMODE
 bzcat %{PATCH0} | patch -p0
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p $RPM_BUILD_ROOT/usr/include/sfio
 mkdir -p $RPM_BUILD_ROOT%{_libdir}
 mkdir -p $RPM_BUILD_ROOT/%{_mandir}
@@ -63,6 +63,11 @@ install lib/libsfio.so $RPM_BUILD_ROOT%{_libdir}/libsfio.so.1999
 install lib/*.a $RPM_BUILD_ROOT%{_libdir}/
 ( cd $RPM_BUILD_ROOT%{_libdir}/ ; ln -s libsfio.so.1999 libsfio.so )
 
+%clean
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
+%post -p /sbin/ldconfig
+%postun -p /sbin/ldconfig
 
 %files
 %defattr(-,root,root)
@@ -76,14 +81,10 @@ install lib/*.a $RPM_BUILD_ROOT%{_libdir}/
 %{_libdir}/*.so
 %{_libdir}/*.a
 
-%clean
-rm -rf $RPM_BUILD_ROOT
-
-%post -p /sbin/ldconfig
-
-%postun -p /sbin/ldconfig
-
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 1999-11sls
+- minor spec cleanups
+
 * Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 1999-10sls
 - OpenSLS build
 - tidy spec

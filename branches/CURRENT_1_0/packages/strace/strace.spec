@@ -1,6 +1,6 @@
 %define name	strace
 %define version	4.4.98
-%define release	2sls
+%define release	3sls
 #define cvsdate	20030410
 
 Summary:	Tracks and displays system calls associated with a running process.
@@ -32,7 +32,7 @@ received by a process.
 %make
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p $RPM_BUILD_ROOT/%{_bindir}
 mkdir -p $RPM_BUILD_ROOT/%{_mandir}/man1
 %makeinstall man1dir=%buildroot/%{_mandir}/man1
@@ -41,7 +41,7 @@ mkdir -p $RPM_BUILD_ROOT/%{_mandir}/man1
 rm -f $RPM_BUILD_ROOT%{_bindir}/strace-graph
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -50,6 +50,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/strace.1*
 
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 4.4.98-3sls
+- minor spec cleanups
+
 * Mon Dec 01 2003 Vincent Danen <vdanen@opensls.org> 4.4.98-2sls
 - OpenSLS build
 

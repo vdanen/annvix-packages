@@ -1,6 +1,6 @@
 %define	name	symlinks
 %define	version	1.2
-%define release	16sls
+%define release	17sls
 
 Summary:	A utility which maintains a system's symbolic links.
 Name:		%{name}
@@ -33,12 +33,12 @@ perl -p -i -e "s/-O2/$RPM_OPT_FLAGS/" Makefile
 %make
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 install -s -m 755 %{name} -D $RPM_BUILD_ROOT%{_bindir}/%{name}
 install -m 644 %{name}.8 -D $RPM_BUILD_ROOT%{_mandir}/man8/%{name}.8
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -46,6 +46,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man8/%{name}.8*
 
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 1.2-17sls
+- minor spec cleanups
+
 * Mon Dec 08 2003 Vincent Danen <vdanen@opensls.org> 1.2-16sls
 - OpenSLS build
 - tidy spec

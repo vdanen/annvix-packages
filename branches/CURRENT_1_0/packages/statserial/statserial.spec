@@ -1,6 +1,6 @@
 %define name	statserial
 %define version	1.1
-%define release	17sls
+%define release	18sls
 
 Summary:	A tool which displays the status of serial port modem lines
 Name:		%{name}
@@ -36,14 +36,14 @@ port or modem problems.
 %{make} CFLAGS="$RPM_OPT_FLAGS -O3"
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p $RPM_BUILD_ROOT/{%{_bindir},%{_mandir}/man1}
 
 install -m 755 -s statserial $RPM_BUILD_ROOT%{_bindir}/statserial
 install -m 444 statserial.1 $RPM_BUILD_ROOT%{_mandir}/man1/statserial.1
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -51,6 +51,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/statserial.1.bz2
 
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 1.1-18sls
+- minor spec cleanups
+
 * Mon Dec 01 2003 Vincent Danen <vdanen@opensls.org> 1.1-17sls
 - OpenSLS build
 - tidy spec

@@ -8,9 +8,9 @@
  # Options to klogd
  # -2 prints all kernel oops messages twice; once for klogd to decode, and
  #    once for processing with 'ksymoops'
---- sysklogd-1.4.1rh/redhat/syslog.conf.rhs.opensls	Tue Aug 14 15:49:33 2001
-+++ sysklogd-1.4.1rh/redhat/syslog.conf.rhs	Wed Nov 28 20:27:11 2001
-@@ -1,26 +1,55 @@
+--- sysklogd-1.4.1rh/redhat/syslog.conf.rhs.slsconf	2001-08-14 13:49:33.000000000 -0600
++++ sysklogd-1.4.1rh/redhat/syslog.conf.rhs	2004-03-08 20:14:06.000000000 -0700
+@@ -1,26 +1,52 @@
 -# Log all kernel messages to the console.
 -# Logging much else clutters up the screen.
 -#kern.*							/dev/console
@@ -22,7 +22,7 @@
  # Log anything (except mail) of level info or higher.
  # Don't log private authentication messages!
 -*.info;mail.none;authpriv.none;cron.none		/var/log/messages
-+*.info;mail.none;;news.none;authpriv.none					-/var/log/messages
++*.info;mail.none;;news.none;authpriv.none			-/var/log/messages
  
  # The authpriv file has restricted access.
 -authpriv.*						/var/log/secure
@@ -77,9 +77,7 @@
  # Save boot messages also to boot.log
 -local7.*						/var/log/boot.log
 +local7.*							-/var/log/boot.log
-+
-+# Explanations from Mandrake Linux configuration tools
-+local1.*							-/var/log/explanations
+
 --- sysklogd-1.4.1rh/redhat/syslog.log.opensls	2001-07-08 22:23:33.000000000 -0600
 +++ sysklogd-1.4.1rh/redhat/syslog.log	2004-02-04 14:03:38.000000000 -0700
 @@ -1,6 +1,14 @@

@@ -1,6 +1,6 @@
 %define name	spamassassin
 %define version	2.63
-%define release	1sls
+%define release	2sls
 
 %define fname	Mail-SpamAssassin
 %define instdir	vendor
@@ -85,7 +85,7 @@ user's own mail user-agent application.
 # make test
 
 %install
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %makeinstall_std
 
@@ -103,7 +103,7 @@ install -m 0750 %{SOURCE1} %{buildroot}%{_srvdir}/spamd/run
 install -m 0750 %{SOURCE2} %{buildroot}%{_srvdir}/spamd/log/run
 
 %clean
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
 [ -f %{_sysconfdir}/spamassassin.cf ] && /bin/mv %{_sysconfdir}/spamassassin.cf %{_sysconfdir}/mail/spamassassin/migrated.cf || true
@@ -142,6 +142,9 @@ chmod 666 /var/spool/spamassassin/auto-whitelist.db
 %{_mandir}/man3*/*
 
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 2.63-2sls
+- minor spec cleanups
+
 * Wed Jan 21 2004 Vincent Danen <vdanen@opensls.org> 2.63-1sls
 - OpenSLS build
 - tidy spec

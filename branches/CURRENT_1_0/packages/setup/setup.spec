@@ -1,6 +1,6 @@
 %define name	setup
 %define version 2.4
-%define release 5sls
+%define release 6sls
 
 Summary:	A set of system configuration and setup files.
 Name:		%{name}
@@ -29,14 +29,14 @@ administration.
 %make CFLAGS="$RPM_OPT_FLAGS"
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 make install RPM_BUILD_ROOT=%buildroot mandir=%_mandir
 
 rm -rf $RPM_BUILD_ROOT/%{_datadir}/base-passwd $RPM_BUILD_ROOT/%{_sbindir}
 rm -f  `find $RPM_BUILD_ROOT/%{_mandir} -name 'update-passwd*'`
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -80,6 +80,9 @@ if [ -x /usr/sbin/nscd ]; then
 fi
 
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 2.4-6sls
+- minor spec cleanups
+
 * Wed Feb 04 2004 Vincent Danen <vdanen@opensls.org> 2.4-5sls
 - cdwriter is gid 23, video is gid 25, usb is gid 20
 

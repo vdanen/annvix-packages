@@ -1,6 +1,6 @@
 %define name	sysklogd
 %define version	1.4.1
-%define release	7sls
+%define release	8sls
 
 # rh 1.4.1-5
 
@@ -32,7 +32,7 @@ places, like sendmail logs, security logs, error logs, etc.
 %prep
 
 %setup -q -n %{name}-%{version}rh
-%patch0 -p1 -b .mkdconf
+%patch0 -p1 -b .slsconf
 %patch1 -p1 -b .initlog
 
 %build
@@ -40,9 +40,8 @@ places, like sendmail logs, security logs, error logs, etc.
 %make
 
 %install
-rm -rf $RPM_BUILD_ROOT
-mkdir -p $RPM_BUILD_ROOT{/etc,%{_bindir},%{_mandir}/man{5,8},/usr/sbin}
-mkdir -p $RPM_BUILD_ROOT/sbin
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+mkdir -p $RPM_BUILD_ROOT{%{_sysconfdir},%{_bindir},%{_mandir}/man{5,8},%{_sbindir},/sbin}
 
 make install TOPDIR=$RPM_BUILD_ROOT MANDIR=$RPM_BUILD_ROOT%{_mandir} \
 	MAN_OWNER=`id -nu`
@@ -64,7 +63,7 @@ install -m 0750 %{SOURCE3} %{buildroot}%{_srvdir}/klogd/run
 install -m 0750 %{SOURCE4} %{buildroot}%{_srvdir}/klogd/log/run
 
 %clean
-rm -fr $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %pre
 # Because RPM do not know the difference about a file or a directory,
@@ -129,7 +128,12 @@ fi
 
 
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 1.4.1-8sls
+- minor spec cleanups
+
 * Wed Feb 04 2004 Vincent Danen <vdanen@opensls.org> 1.4.1-7sls
+
+
 - remove initscripts
 - supervise scripts
 - rediff/rename P0; we're using svc to restart syslogd for log rotation

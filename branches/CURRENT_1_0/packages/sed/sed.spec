@@ -1,6 +1,6 @@
 %define name	sed
 %define version	4.0.7
-%define release	2sls
+%define release	3sls
 
 Summary:	A GNU stream text editor.
 Name:		%{name}
@@ -33,7 +33,7 @@ specified in a script file or from the command line.
 make check
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
 
 mkdir $RPM_BUILD_ROOT/bin
@@ -48,7 +48,7 @@ mv $RPM_BUILD_ROOT{%_bindir,/bin}/sed
 %_remove_install_info %name.info
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files -f %name.lang
 %defattr(-,root,root)
@@ -58,6 +58,9 @@ rm -rf $RPM_BUILD_ROOT
 %_mandir/man1/sed.1.bz2
 
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 4.0.7-3sls
+- minor spec cleanups
+
 * Mon Dec 01 2003 Vincent Danen <vdanen@opensls.org> 4.0.7-2sls
 - OpenSLS build
 - use %%make macro

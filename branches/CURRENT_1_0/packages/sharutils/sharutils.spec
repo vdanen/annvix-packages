@@ -1,6 +1,6 @@
 %define name	sharutils
 %define version	4.2.1
-%define release	15sls
+%define release	16sls
 
 #rh-4.2.1-12
 Summary:	The GNU shar utilities for packaging and unpackaging shell archives.
@@ -59,7 +59,7 @@ Install sharutils if you send binary files through email very often.
 %make
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
 
 # man pages are not installed with make install
@@ -82,7 +82,7 @@ fi
 %{_remove_install_info %name.info}
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files -f %{name}.lang
 %defattr(-,root,root,755)
@@ -92,6 +92,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man?/*
 
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 4.2.1-16sls
+- minor spec cleanups
+
 * Sat Dec 13 2003 Vincent Danen <vdanen@opensls.org> 4.2.1-15sls
 - OpenSLS build
 - tidy spec
