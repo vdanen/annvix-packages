@@ -3,7 +3,7 @@
 
 # <version>-<release> tags for glibc main package
 %define glibcversion	2.3.2
-%define glibcrelease	21avx
+%define glibcrelease	22avx
 %define epoch		6
 
 # <version>-<release> tags from kernel package where headers were
@@ -786,9 +786,12 @@ rm -rf %buildroot/%{_datadir}/zoneinfo/{posix,right}
 # Don't include ld.so.cache
 rm -f $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.cache
 
-# Include ld.so.conf
+# Include ld.so.conf so we can include non-default /usr/local libs
 %if "%{name}" == "glibc"
 echo "/usr/local/lib" > $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf
+if [ "%{_lib}" == "lib64" ]; then
+  echo "/usr/local/lib64" >> $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf
+fi
 chmod 644 $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf
 %endif
 
@@ -1326,6 +1329,9 @@ fi
 %endif
 
 %changelog
+* Wed Jul 14 2004 Vincent Danen <vdanen@annvix.org> 2.3.2-22avx
+- x86_64 needs /usr/local/lib64 also
+
 * Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 2.3.2-21avx
 - Annvix build
 - require packages not files
