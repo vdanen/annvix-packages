@@ -1,6 +1,6 @@
 %define name	openldap
 %define version	2.1.29
-%define release	5avx
+%define release	6avx
 
 %define major 		2
 %define migtools_ver	45
@@ -655,8 +655,8 @@ if [ -f %{_sysconfdir}/syslog.conf ] ;then
 		echo -e "local${cntlog}.*\t\t\t\t\t\t\t-/var/log/ldap/ldap.log" >> %{_sysconfdir}/syslog.conf
 
 		# reset syslog daemon
-		if [ "`svstat /service/syslogd|grep -q up; echo $?`" == "0" ]; then
-        		svc -h /service/syslogd  > /dev/null 2>/dev/null || : 
+		if [ "`runsvstat /service/syslogd|grep -q up; echo $?`" == "0" ]; then
+        		runsvctrl h /service/syslogd  > /dev/null 2>/dev/null || : 
 		fi
 	else
 		echo "I can't set syslog local-user!"
@@ -703,8 +703,8 @@ popd > /dev/null
 %_post_srv slurpd
 
 # nscd reset
-if [ "`svstat /service/nscd|grep -q up; echo $?`" == "0" ]; then
-	svc -h /service/nscd  > /dev/null 2>/dev/null || : 
+if [ "`runsvstat /service/nscd|grep -q up; echo $?`" == "0" ]; then
+	runsvctrl h /service/nscd  > /dev/null 2>/dev/null || : 
 fi
 
 
@@ -719,8 +719,8 @@ if [ $1 = 0 ]; then
 	perl -pi -e "s|^.*ldap.*\n||g" %{_sysconfdir}/syslog.conf 
 
 	# reset syslog daemon
-	if [ "`svstat /service/syslogd|grep -q up; echo $?`" == "0" ]; then
-        	svc -h /service/syslogd  > /dev/null 2>/dev/null || : 
+	if [ "`runsvstat /service/syslogd|grep -q up; echo $?`" == "0" ]; then
+        	runsvctrl h /service/syslogd  > /dev/null 2>/dev/null || : 
 	fi
 fi
 %_postun_userdel ldap
@@ -874,6 +874,11 @@ fi
 # - add cron-job to remove transaction logs (bdb)
 
 %changelog
+* Fri Sep 17 2004 Vincent Danen <vdanen@annvix.org> 2.1.29-6avx
+- update run scripts
+- s/svc/runsvctrl/ in spec
+- update logrotate script
+
 * Tue Aug 17 2004 Vincent Danen <vdanen@annvix.org> 2.1.29-5avx
 - rebuild against latest openssl
 
