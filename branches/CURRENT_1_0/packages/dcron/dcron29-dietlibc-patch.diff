@@ -1,6 +1,74 @@
-diff -Naur dcron/crond.8 dcron.oden/crond.8
---- dcron/crond.8	1999-02-10 07:22:37.000000000 +0100
-+++ dcron.oden/crond.8	2004-01-31 12:21:36.000000000 +0100
+diff -dru dcron/Makefile dcron.fjo/Makefile
+--- dcron/Makefile	Tue Dec 17 21:08:49 2002
++++ dcron.fjo/Makefile	Mon Apr 28 21:39:11 2003
+@@ -10,16 +10,27 @@
+ D_OBJS = crontab.o subs.o
+ PROTOS= protos.h
+ DISTTAR= /home/httpd/htdocs/FreeSrc/dcron29.tgz
++STRIP=strip
++DESTDIR=
++BINDIR=/usr/bin
++SBINDIR=/usr/bin
++MANDIR=/usr/man
++CRONTAB_OWNER=root.cron
++CROND_OWNER=root.wheel
++CRONTAB_PERM=4750
++CROND_PERM=0700
++
++.PHONY:	all clean cleano install tar
+ 
+ all:	${PROTOS} crond crontab
+ 
+-crond:	${OBJS}
++crond:	${OBJS} ${PROTOS}
+ 	${CC} ${CFLAGS} -o crond ${OBJS} ${LIB}
+-	strip crond
++	$(STRIP) crond
+ 
+-crontab:  ${D_OBJS}
++crontab:  ${D_OBJS} ${PROTOS}
+ 	${CC} ${CFLAGS} -o crontab ${D_OBJS}
+-	strip crontab
++	$(STRIP) crontab
+ 
+ protos.h: ${SRCS} ${D_SRCS}
+ 	fgrep -h Prototype ${SRCS} ${D_SRCS} >protos.h
+@@ -30,19 +41,19 @@
+ cleano:
+ 	rm -f *.o dcron.tgz $(PROTOS)
+ 
+-install:
+-	rm -f /usr/bin/crond /usr/bin/crontab
+-	cp crond crontab /usr/bin
+-	chown root.wheel /usr/bin/crond
+-	chown root.cron /usr/bin/crontab
+-	chmod 700 /usr/bin/crond
+-	chmod 4750 /usr/bin/crontab
+-	-mkdirs /usr/man/man1
+-	-mkdirs /usr/man/man8
+-	cp crontab.1 /usr/man/man1
+-	cp crond.8 /usr/man/man8
+-	chmod 444 /usr/man/man1/crontab.1
+-	chmod 444 /usr/man/man8/crond.8
++install:	crontab crond
++	mkdir -p $(DESTDIR)$(BINDIR) $(DESTDIR)$(SBINDIR) \
++	$(DESTDIR)$(MANDIR)/man1 $(DESTDIR)$(MANDIR)/man8
++	cp crontab $(DESTDIR)$(BINDIR)
++	cp crond $(DESTDIR)$(SBINDIR)
++	chown $(CRONTAB_OWNER) $(DESTDIR)$(BINDIR)/crontab
++	chown $(CROND_OWNER) $(DESTDIR)$(SBINDIR)/crond
++	chmod $(CRONTAB_PERM) $(DESTDIR)$(BINDIR)/crontab
++	chmod $(CROND_PERM) $(DESTDIR)$(SBINDIR)/crond
++	cp crontab.1 $(DESTDIR)$(MANDIR)/man1
++	cp crond.8 $(DESTDIR)$(MANDIR)/man8
++	chmod 444 $(DESTDIR)$(MANDIR)/man1/crontab.1
++	chmod 444 $(DESTDIR)$(MANDIR)/man8/crond.8
+ 
+ # dillon-specific
+ #
+diff -dru dcron/crond.8 dcron.fjo/crond.8
+--- dcron/crond.8	Wed Feb 10 07:22:37 1999
++++ dcron.fjo/crond.8	Mon Apr 28 21:39:11 2003
 @@ -4,7 +4,7 @@
  .SH NAME
  crond \- cron daemon (Dillon's Cron)
@@ -21,7 +89,7 @@ diff -Naur dcron/crond.8 dcron.oden/crond.8
 +.TP 0.5i
 +.B "-p pidfile"
 +specify file which the pid of crond should be written into (default:
-+/var/run/dcron/crond.pid).
++/var/run/crond.pid).
  .SH DESCRIPTION
  .B crond 
  is responsible for scanning the crontab files and running
@@ -35,30 +103,26 @@ diff -Naur dcron/crond.8 dcron.oden/crond.8
  Unlike
  .B crontab
  , the crond program does not leave an open descriptor to the file for the
-diff -Naur dcron/defs.h dcron.oden/defs.h
---- dcron/defs.h	2002-12-17 21:06:51.000000000 +0100
-+++ dcron.oden/defs.h	2004-01-31 12:35:58.000000000 +0100
-@@ -21,12 +21,16 @@
- #include <sys/wait.h>
- #include <sys/stat.h>
- #include <sys/resource.h>
-+#include <sys/termios.h>
- 
- #define Prototype extern
- #define arysize(ary)	(sizeof(ary)/sizeof((ary)[0]))
- 
- #ifndef CRONTABS
--#define CRONTABS	"/var/spool/cron/crontabs"
-+#define CRONTABS	"/var/spool/dcron/crontabs"
-+#endif
-+#ifndef PIDFILE
-+#define PIDFILE		"/var/run/dcron/dcron.pid"
+diff -dru dcron/defs.h dcron.fjo/defs.h
+--- dcron/defs.h	Tue Dec 17 21:06:51 2002
++++ dcron.fjo/defs.h	Mon Apr 28 21:39:11 2003
+@@ -49,9 +49,12 @@
+ #ifndef PATH_VI
+ #define PATH_VI		"/usr/bin/vi"	/* location of vi	*/
  #endif
- #ifndef TMPDIR
- #define TMPDIR		"/tmp"
-diff -Naur dcron/job.c dcron.oden/job.c
---- dcron/job.c	2002-12-17 21:05:35.000000000 +0100
-+++ dcron.oden/job.c	2004-01-31 12:21:36.000000000 +0100
++#ifndef PIDFILE
++#define PIDFILE		"/var/run/crond.pid"
++#endif
+ 
+ 
+-#define VERSION	"V2.9"
++#define VERSION	"V2.9-fjo2"
+ 
+ typedef struct CronFile {
+     struct CronFile *cf_Next;
+diff -dru dcron/job.c dcron.fjo/job.c
+--- dcron/job.c	Tue Dec 17 21:05:35 2002
++++ dcron.fjo/job.c	Mon Apr 28 21:40:43 2003
 @@ -10,6 +10,9 @@
  
  Prototype void RunJob(CronFile *file, CronLine *line);
@@ -153,9 +217,9 @@ diff -Naur dcron/job.c dcron.oden/job.c
 +   */
 +  *(mailer + argc) = NULL;
 +}
-diff -Naur dcron/main.c dcron.oden/main.c
---- dcron/main.c	2002-12-17 21:05:44.000000000 +0100
-+++ dcron.oden/main.c	2004-01-31 12:21:44.000000000 +0100
+diff -dru dcron/main.c dcron.fjo/main.c
+--- dcron/main.c	Tue Dec 17 21:05:44 2002
++++ dcron.fjo/main.c	Mon Apr 28 21:40:18 2003
 @@ -23,6 +23,7 @@
  short ForegroundOpt;
  char  *CDir = CRONTABS;
@@ -201,88 +265,9 @@ diff -Naur dcron/main.c dcron.oden/main.c
      }
  
      /* 
-diff -Naur dcron/Makefile dcron.oden/Makefile
---- dcron/Makefile	2002-12-17 21:08:49.000000000 +0100
-+++ dcron.oden/Makefile	2004-01-31 12:27:47.000000000 +0100
-@@ -1,8 +1,8 @@
- # Makefile for dillon's cron and crontab
- #
- 
--CC  = gcc
--CFLAGS = -O2 -Wall -Wstrict-prototypes
-+CC  = diet gcc
-+CFLAGS = -Os -Wall -Wstrict-prototypes
- LIB = 
- SRCS = main.c subs.c database.c job.c
- OBJS = main.o subs.o database.o job.o
-@@ -10,16 +10,27 @@
- D_OBJS = crontab.o subs.o
- PROTOS= protos.h
- DISTTAR= /home/httpd/htdocs/FreeSrc/dcron29.tgz
-+STRIP=strip
-+DESTDIR=
-+BINDIR=/usr/bin
-+SBINDIR=/usr/bin
-+MANDIR=/usr/man
-+CRONTAB_OWNER=root:cron
-+CROND_OWNER=root:wheel
-+CRONTAB_PERM=4750
-+CROND_PERM=0700
-+
-+.PHONY:	all clean cleano install tar
- 
- all:	${PROTOS} crond crontab
- 
--crond:	${OBJS}
-+crond:	${OBJS} ${PROTOS}
- 	${CC} ${CFLAGS} -o crond ${OBJS} ${LIB}
--	strip crond
-+	$(STRIP) crond
- 
--crontab:  ${D_OBJS}
-+crontab:  ${D_OBJS} ${PROTOS}
- 	${CC} ${CFLAGS} -o crontab ${D_OBJS}
--	strip crontab
-+	$(STRIP) crontab
- 
- protos.h: ${SRCS} ${D_SRCS}
- 	fgrep -h Prototype ${SRCS} ${D_SRCS} >protos.h
-@@ -30,19 +41,19 @@
- cleano:
- 	rm -f *.o dcron.tgz $(PROTOS)
- 
--install:
--	rm -f /usr/bin/crond /usr/bin/crontab
--	cp crond crontab /usr/bin
--	chown root.wheel /usr/bin/crond
--	chown root.cron /usr/bin/crontab
--	chmod 700 /usr/bin/crond
--	chmod 4750 /usr/bin/crontab
--	-mkdirs /usr/man/man1
--	-mkdirs /usr/man/man8
--	cp crontab.1 /usr/man/man1
--	cp crond.8 /usr/man/man8
--	chmod 444 /usr/man/man1/crontab.1
--	chmod 444 /usr/man/man8/crond.8
-+install:	crontab crond
-+	mkdir -p $(DESTDIR)$(BINDIR) $(DESTDIR)$(SBINDIR) \
-+	$(DESTDIR)$(MANDIR)/man1 $(DESTDIR)$(MANDIR)/man8
-+	cp crontab $(DESTDIR)$(BINDIR)
-+	cp crond $(DESTDIR)$(SBINDIR)
-+	chown $(CRONTAB_OWNER) $(DESTDIR)$(BINDIR)/crontab
-+	chown $(CROND_OWNER) $(DESTDIR)$(SBINDIR)/crond
-+	chmod $(CRONTAB_PERM) $(DESTDIR)$(BINDIR)/crontab
-+	chmod $(CROND_PERM) $(DESTDIR)$(SBINDIR)/crond
-+	cp crontab.1 $(DESTDIR)$(MANDIR)/man1
-+	cp crond.8 $(DESTDIR)$(MANDIR)/man8
-+	chmod 644 $(DESTDIR)$(MANDIR)/man1/crontab.1
-+	chmod 644 $(DESTDIR)$(MANDIR)/man8/crond.8
- 
- # dillon-specific
- #
-diff -Naur dcron/subs.c dcron.oden/subs.c
---- dcron/subs.c	1999-02-10 07:31:46.000000000 +0100
-+++ dcron.oden/subs.c	2004-01-31 12:21:44.000000000 +0100
+diff -dru dcron/subs.c dcron.fjo/subs.c
+--- dcron/subs.c	Wed Feb 10 07:31:46 1999
++++ dcron.fjo/subs.c	Mon Apr 28 21:39:46 2003
 @@ -11,7 +11,7 @@
  Prototype void log(int level, const char *ctl, ...);
  Prototype void log9(const char *ctl, ...);
@@ -301,31 +286,3 @@ diff -Naur dcron/subs.c dcron.oden/subs.c
  {
      va_list va;
      char buf[2048];
-@@ -79,7 +79,7 @@
- 
-     buf[0] = 0;
-     if (useDate)
--	strftime(buf, 128, "%d-%b-%y %H:%M  ", tp);
-+	strftime(buf, 128, "%d-%b-%Y %H:%M  ", tp);
-     vsnprintf(buf + strlen(buf), nmax, ctl, va);
-     return(strlen(buf));
- }
-@@ -97,9 +97,15 @@
-         log(9, "failed to get uid for %s", user);
-         return(-1);
-     }
--    setenv("USER", pas->pw_name, 1);
--    setenv("HOME", pas->pw_dir, 1);
--    setenv("SHELL", "/bin/sh", 1);
-+    {
-+        char buf[256];
-+        snprintf(buf, sizeof(buf), "USER=%s", pas->pw_name);
-+        putenv(buf);
-+        snprintf(buf, sizeof(buf), "HOME=%s", pas->pw_dir);
-+        putenv(buf);
-+        snprintf(buf, sizeof(buf), "SHELL=%s", "/bin/sh");
-+        putenv(buf);
-+    }
- 
-     /*
-      * Change running state to the user in question

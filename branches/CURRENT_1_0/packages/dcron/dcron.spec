@@ -1,6 +1,6 @@
 %define	name	dcron
 %define	version	2.9
-%define	release	7avx
+%define	release	8avx
 
 Summary:	Dillon's Cron Daemon
 Name:		%{name}
@@ -13,11 +13,8 @@ Source0:	dcron29.tar.bz2
 Source1:	dcron.run
 Source2:	dcron-log.run
 Source3:	etc-crontab
-
-# OE: P0 originates from patches I found here:
-# http://www.ogris.de/diet/
-# ftp://ftp.icm.edu.pl/vol/rzm3/openpkg/current/SRC/dcron-2.9-20031020.src.rpm
-Patch0:		dcron29-dietlibc-patch.diff.bz2
+Patch0:		http://www.ogris.de/diet/dcron29-dietlibc-patch.diff.bz2
+Patch1:		dcron29-avx-paths.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-buildroot
 BuildRequires:	dietlibc-devel >= 0.20-1mdk
@@ -35,7 +32,8 @@ paid to feature development in favor of usability and reliability.
 %prep
 
 %setup -q -n dcron
-%patch -p1
+%patch0 -p1
+%patch1 -p1 -b .avx
 perl -pi -e "s|VISUAL|EDITOR|g" crontab.*
 
 %build
@@ -96,6 +94,11 @@ fi
 %dir %attr(0750,nobody,nogroup) %{_srvlogdir}/crond
 
 %changelog
+* Tue Sep 21 2004 Vincent Danen <vdanen@annvix.org> 2.9-8avx
+- use the original dietlibc patch
+- P1 for path customizations and chown fixes
+- clean up run scripts
+
 * Sat Sep 11 2004 Vincent Danen <vdanen@annvix.org> 2.9-7avx
 - Requires: s/daemontools/runit/
 - update run scripts
