@@ -1,6 +1,6 @@
 %define name	lvm
 %define version 1.0.8
-%define release 2avx
+%define release 3avx
 
 Summary:	Logical Volume Manager administration tools
 Name:		%{name}
@@ -13,6 +13,7 @@ Source0:	ftp://ftp.sistina.com/pub/LVM/1.0/%{name}_%{version}.tar.bz2
 
 Patch1:		LVM-1.0.1-fix-kernel-headers-build.patch.bz2
 Patch2:		LVM-1.0.1-static.patch.bz2
+Patch3:		lvm10-CAN-2004-0972.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-buildroot
 
@@ -29,6 +30,7 @@ in volume groups.
 cd %{version}
 %patch1 -p2 -b .fixkheaders
 %patch2 -p2 -b .static
+%patch3 -p2 -b .can-2004-0972
 
 %build
 cd %{version}
@@ -53,6 +55,9 @@ rm -rf $RPM_BUILD_ROOT/%{_lib} $RPM_BUILD_ROOT/%{_libdir}
 %{_mandir}/man8/*
 
 %changelog
+* Wed Nov 10 2004 Vincent Danen <vdanen@annvix.org> 1.0.8-3avx
+- P3: security fix for CAN-2004-0972
+
 * Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 1.0.8-2avx
 - Annvix build
 
