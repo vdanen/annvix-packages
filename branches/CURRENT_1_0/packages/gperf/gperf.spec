@@ -1,13 +1,19 @@
+%define name	gperf
+%define version	3.0.1
+%define release	2sls
+
 Summary:	A perfect hash function generator
-Name:	 	gperf
-Version:	3.0.1
-Release:	1mdk
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
 License:	GPL
+Group:		Development/Other
 URL:		http://www.gnu.org/software/gperf/
 Source:		ftp://ftp.gnu.org/gnu/gperf/%{name}-%{version}.tar.bz2
-Group:		Development/Other
-Prereq:		/sbin/install-info
+
 BuildRoot:	%{_tmppath}/%{name}-root
+
+PreReq:		/sbin/install-info
 
 %description
 Gperf is a perfect hash function generator written in C++.  Simply
@@ -47,6 +53,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_infodir}/gperf.info*
 
 %changelog
+* Tue Dec 30 2003 Vincent Danen <vdanen@opensls.org> 3.0.1-2sls
+- OpenSLS build
+- tidy spec
+
 * Wed Aug 20 2003 Giuseppe Ghibò <ghibo@mandrakesoft.com> 3.0.1-1mdk
 - Release: 3.0.1.
 

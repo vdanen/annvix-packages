@@ -1,19 +1,25 @@
+%define name	mtools
+%define version	3.9.9
+%define release	3sls
+
 Summary:	Programs for accessing MS-DOS disks without mounting the disks
-Name: 		mtools
-Version: 	3.9.9
-Release: 	2mdk
+Name: 		%{name}
+Version: 	%{version}
+Release: 	%{release}
 License: 	GPL
 Group: 		File tools
-BuildRequires: 	XFree86-devel, texinfo
+URL: 		http://www.tux.org/pub/tux/knaff/mtools/index.html
 Source: 	http://www.tux.org/pub/tux/knaff/mtools/%{name}-%{version}.tar.bz2 
-Url: 		http://www.tux.org/pub/tux/knaff/mtools/index.html
-Buildroot: 	%{_tmppath}/%{name}-root
 Patch0: 	mtools-3.9.1-linux.patch.bz2
 Patch1: 	mtools-3.9.7-20000619.diff.bz2
 Patch2: 	mtools-3.9.6-atari.patch.bz2
 Patch4: 	mtools-3.9.8-fs.patch.bz2
 Patch5: 	mtools-3.9.9-supermount.patch.bz2
-Prereq: 	/sbin/install-info
+
+BuildRoot: 	%{_tmppath}/%{name}-root
+BuildRequires: 	XFree86-devel, texinfo
+
+PreReq: 	/sbin/install-info
 
 %description
 Mtools is a collection of utilities for accessing MS-DOS files.
@@ -80,6 +86,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_infodir}/%{name}.*
 
 %changelog
+* Tue Dec 30 2003 Vincent Danen <vdanen@opensls.org> 3.9.9-3sls
+- OpenSLS build
+- tidy spec
+
 * Mon Aug 25 2003 François Pons <fpons@mandrakesoft.com> 3.9.9-2mdk
 - created patch to release supermount lock if needed.
 

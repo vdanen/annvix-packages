@@ -1,22 +1,29 @@
-Summary: An enhanced version of csh, the C shell
-Name: tcsh
-Version: 6.12
+%define name	tcsh
+%define version	6.12
+%define release	7sls
+
 %define rversion %{version}.00
-Release: 6mdk
-License: BSD
-Group: Shells
-BuildRequires: libtermcap-devel groff-for-man
-Source: ftp://ftp.funet.fi/pub/unix/shells/tcsh/tcsh-%{version}.00.tar.bz2
-Source1: alias.csh
-Patch0: tcsh-6.12.00-utmp.patch.bz2
-Patch1: tcsh-6.09.00-termios.patch.bz2
-Patch5: tcsh-6.09.00-locale.patch.bz2
-Patch6: tcsh-6.10.00-glibc_compat.patch.bz2
-Patch7: tcsh-6.12.00-dspmbyte.patch.bz2
-Provides: csh = %{version}
-Prereq:	 coreutils, grep, rpm-helper >= 0.7
-URL: http://www.primate.wisc.edu/software/csh-tcsh-book/
-Buildroot: %_tmppath/%name-%version-%release-root
+
+Summary:	An enhanced version of csh, the C shell
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	BSD
+Group:		Shells
+URL:		http://www.primate.wisc.edu/software/csh-tcsh-book/
+Source:		ftp://ftp.funet.fi/pub/unix/shells/tcsh/tcsh-%{version}.00.tar.bz2
+Source1:	alias.csh
+Patch0:		tcsh-6.12.00-utmp.patch.bz2
+Patch1:		tcsh-6.09.00-termios.patch.bz2
+Patch5:		tcsh-6.09.00-locale.patch.bz2
+Patch6:		tcsh-6.10.00-glibc_compat.patch.bz2
+Patch7:		tcsh-6.12.00-dspmbyte.patch.bz2
+
+Buildroot:	%_tmppath/%name-%version-%release-root
+BuildRequires:	libtermcap-devel groff-for-man
+
+Provides:	csh = %{version}
+Prereq:		coreutils, grep, rpm-helper >= 0.7
 
 %description
 Tcsh is an enhanced but completely compatible version of csh, the C
@@ -70,6 +77,10 @@ rm -rf $RPM_BUILD_ROOT
 %_mandir/*/*
 
 %changelog
+* Tue Dec 30 2003 Vincent Danen <vdanen@opensls.org> 6.12-7sls
+- OpenSLS build
+- tidy spec
+
 * Tue Jul 29 2003 Pixel <pixel@mandrakesoft.com> 6.12-6mdk
 - fix patch dspmbyte which was completly dumb/broken/...
   now dspmbyte is only set for kanji locales as expected

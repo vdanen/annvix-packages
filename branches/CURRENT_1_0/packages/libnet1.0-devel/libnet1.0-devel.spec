@@ -1,21 +1,23 @@
-%define name %mklibname net 1.0
+%define name	%mklibname net 1.0
 %define version 1.0.2a
-%define release 2mdk
+%define release 3sls
 
-Summary: A C library for portable packet creation
-Name: %{name}-devel
-Version: %{version}
-Release: %{release}
-Source: http://www.packetfactory.net/libnet/dist/libnet-%{version}.tar.bz2
-Patch0: libnet-1.0.2a-strings.patch.bz2
-License: BSD style
-Group: System/Libraries
-URL: http://www.packetfactory.net/libnet
-BuildPreReq: libpcap
-BuildRoot: %{_tmppath}/%{name}-buildroot
-BuildRequires: libtool
-Conflicts: libnet, %{_lib}net1.1-devel
-Provides: net-devel = %version-%release
+Summary:	A C library for portable packet creation
+Name:		%{name}-devel
+Version:	%{version}
+Release:	%{release}
+License:	BSD style
+Group:		System/Libraries
+URL:		http://www.packetfactory.net/libnet
+Source:		http://www.packetfactory.net/libnet/dist/libnet-%{version}.tar.bz2
+Patch0:		libnet-1.0.2a-strings.patch.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildPreReq:	libpcap
+BuildRequires:	libtool
+
+Conflicts:	libnet, %{_lib}net1.1-devel
+Provides:	net-devel = %version-%release
 
 %description
 Libnet is an API to help with the construction and handling of network
@@ -65,6 +67,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/libnet/*
 
 %changelog
+* Tue Dec 30 2003 Vincent Danen <vdanen@opensls.org> 1.0.2a-3sls
+- OpenSLS build
+- tidy spec
+
 * Wed Aug 20 2003 Frederic Lepied <flepied@mandrakesoft.com> 1.0.2a-2mdk
 - libified
 

@@ -1,6 +1,6 @@
 %define name	dietlibc
 %define version 0.22
-%define release 7mdk
+%define release 8sls
 
 Summary:	C library optimized for size
 Name:		%{name}
@@ -8,7 +8,7 @@ Version:	%{version}
 Release:	%{release}
 License:	GPL
 Group:		Development/Other
-Url:		http://www.fefe.de/dietlibc/
+URL:		http://www.fefe.de/dietlibc/
 Source0:	http://www.fefe.de/dietlibc/%{name}-%{version}.tar.bz2
 Patch0:		dietlibc-0.21-features.patch.bz2
 Patch1:		dietlibc-0.21-config.patch.bz2
@@ -29,6 +29,7 @@ Patch15:	dietlibc-0.22-64bit-fixes.patch.bz2
 Patch16:	dietlibc-0.22-pmgetport-IPPROTO_TCP.patch.bz2
 Patch17:	dietlibc-0.22-rpc64.patch.bz2
 Patch18:	dietlibc-0.22-amd64-ioport.patch.bz2
+
 BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
 
 %description
@@ -84,6 +85,10 @@ make DESTDIR=%{buildroot} install
 %{_mandir}/man*/*
 
 %changelog
+* Tue Dec 30 2003 Vincent Danen <vdanen@opensls.org> 0.22-8sls
+- OpenSLS build
+- tidy spec
+
 * Wed Oct 29 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 0.22-7mdk
 - Patch18: Enable inb() and friends in <sys/io.h> on AMD64 too
 
