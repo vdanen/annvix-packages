@@ -1,0 +1,11 @@
+--- libtool-1.5.6/tests/Makefile.am.tests	2003-08-01 04:46:41.000000000 +0800
++++ libtool-1.5.6/tests/Makefile.am	2004-05-02 02:52:45.171610176 +0800
+@@ -14,7 +14,7 @@
+ 
+ COMMON_TESTS = \
+ 	cdemo-static.test cdemo-make.test cdemo-exec.test \
+-	demo-static.test demo-make.test demo-exec.test \
++	demo-static.test demo-conf.test demo-make.test demo-exec.test \
+ 	demo-inst.test demo-unst.test \
+ 	depdemo-static.test depdemo-make.test \
+ 	depdemo-exec.test depdemo-inst.test depdemo-unst.test \
