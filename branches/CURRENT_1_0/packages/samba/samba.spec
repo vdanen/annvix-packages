@@ -1,6 +1,6 @@
 %define pkg_name	samba
-%define ver 		3.0.5
-%define rel 		3avx
+%define ver 		3.0.7
+%define rel 		1avx
 %define vscanver 	0.3.5
 %define libsmbmajor 	0
 
@@ -53,8 +53,6 @@
 %define build_ldap 	0
 %define build_ads	1
 %define build_scanners	0
-# CUPS supports functionality for 'printcap name = cups' (9.0 and later):
-%define build_cupspc	0
 # %_{pre,postun}_service are provided by rpm-helper in 9.0 and later
 %define have_rpmhelper	1
 
@@ -62,7 +60,6 @@
 
 %define build_system	1
 %define build_alternatives	1
-%define build_cupspc	1
 
 # Allow commandline option overrides (borrowed from Vince's qmail srpm):
 # To use it, do rpm [-ba|--rebuild] --with 'xxx'
@@ -227,9 +224,12 @@ Source21:	README.avx.sambamerge.bz2
 Source22:	ftp://samba.org/pub/samba/samba-%{source_ver}.tar.asc
 Patch1:		smbw.patch.bz2
 Patch2:		samba-3.0.2a-mdk-smbldap-config.patch.bz2
-Patch3:		samba-3.0.5-mdk-mandrake-packaging.patch.bz2
+Patch3:		samba-3.0.6-mdk-mandrake-packaging.patch.bz2
 Patch4:		samba-3.0-smbmount-sbin.patch.bz2
 Patch5:		samba-3.0.5-mdk-lib64.patch.bz2
+Patch6:		samba-3.0.6-mdk-smbmount-unixext.patch.bz2
+Patch7:		samba-3.0.6-mdk-revert-libsmbclient-move.patch.bz2
+Patch8:		samba-3.0.7-avx-annvix-config.patch.bz2
 %if !%have_pversion
 # Version specific patches: current version
 %else
@@ -250,7 +250,6 @@ BuildRequires:	mysql-devel
 %if %build_acl
 BuildRequires:	libacl-devel
 %endif
-BuildRequires:	libcups-devel
 BuildRequires:	libldap-devel
 %if %build_ads
 BuildRequires:	libldap-devel krb5-devel
@@ -801,7 +800,10 @@ echo -e "\n%{name}-%{version}-%{release}\n">>%{SOURCE7}
 %if !%have_pversion
 echo "Applying patches for current version: %{ver}"
 %patch3 -p1 -b .mdk
-%patch5 -p1 -b .lib64
+#%patch5 -p1 -b .lib64
+%patch6 -p1 -b .unixext
+%patch7 -p1 -b .libsmbdir
+%patch8 -p1 -b .avx
 %else
 # Version specific patches: upcoming version
 echo "Applying patches for new versions: %{pversion}"
@@ -1048,10 +1050,6 @@ install -m755 examples/LDAP/convertSambaAccount $RPM_BUILD_ROOT/%{_datadir}/%{na
 install -m644 packaging/Mandrake/smb.conf $RPM_BUILD_ROOT/%{_sysconfdir}/%{name}/smb.conf
 cat packaging/Mandrake/smb.conf | \
 sed -e 's/^;   printer admin = @adm/   printer admin = @adm/g' >$RPM_BUILD_ROOT/%{_sysconfdir}/%{name}/smb.conf
-%if %build_cupspc
-perl -pi -e 's/printcap name = lpstat/printcap name = cups/g' $RPM_BUILD_ROOT/%{_sysconfdir}/%{name}/smb.conf
-perl -pi -e 's/printcap name = lpstat/printcap name = cups/g' $RPM_BUILD_ROOT/%{_sysconfdir}/%{name}/smb-winbind.conf
-%endif
 
 #%if !%build_system
 # Fix script paths in smb.conf
@@ -1141,6 +1139,9 @@ install -m 0755 %{SOURCE17} %{buildroot}%{_srvdir}/nmbd/log/run
 install -m 0755 %{SOURCE18} %{buildroot}%{_srvdir}/winbindd/run
 install -m 0755 %{SOURCE19} %{buildroot}%{_srvdir}/winbindd/log/run
 mkdir -p %{buildroot}%{_srvlogdir}/{smbd,nmbd,winbindd}
+
+mv %{buildroot}%{_sysconfdir}/samba/smb.conf %{buildroot}%{_sysconfdir}/samba/smb.conf_full
+install -m 0640 packaging/Mandrake/smb.conf.secure %{buildroot}%{_sysconfdir}/samba/smb.conf
 
 #Clean up unpackaged files:
 for i in %{_bindir}/pam_smbpass.so %{_bindir}/smbwrapper.so;do
@@ -1394,7 +1395,7 @@ update-alternatives --auto smbclient
 %(for i in %{_bindir}/{%{clientbin}}%{alternative_major};do echo $i;done)
 %(for i in %{_mandir}/man?/{%{clientbin}}%{alternative_major}.?.*;do echo $i|grep -v smbprint;done)
 #xclude %{_mandir}/man?/smbget*
-%{_mandir}/man5/smbgetrc3.5*
+%{_mandir}/man5/smbgetrc%{alternative_major}.5*
 %ifnarch alpha
 %(for i in /sbin/{%{client_sbin}}%{alternative_major};do echo $i;done)
 %attr(4755,root,root) /bin/mount.cifs%{alternative_major}
@@ -1427,6 +1428,7 @@ update-alternatives --auto smbclient
 #%{_libdir}/%{name}/valid.dat
 %dir %{_sysconfdir}/%{name}
 %attr(-,root,root) %config(noreplace) %{_sysconfdir}/%{name}/smb.conf
+%attr(-,root,root) %config(noreplace) %{_sysconfdir}/%{name}/smb.conf_full
 %attr(-,root,root) %config(noreplace) %{_sysconfdir}/%{name}/smb-winbind.conf
 %attr(-,root,root) %config(noreplace) %{_sysconfdir}/%{name}/lmhosts
 %dir %{_localstatedir}/%{name}
@@ -1643,6 +1645,24 @@ update-alternatives --auto smbclient
 %exclude %{_mandir}/man1/smbsh*.1*
 
 %changelog
+* Mon Sep 13 2004 Vincent Danen <vdanen@annvix.org> 3.0.7-1avx
+- 3.0.7 - security update for CAN-2004-0807 and CAN-2004-0808
+- P8: move old smb.conf to smb.conf_full and use a new secure (small!)
+  smb.conf
+- updated runscripts
+- don't apply P5 (broken)
+- P6: from Urban Widmark via Robert Sim (anthill bug 1086) to be able
+  to disable unix extensions in smbmount (and via 'unix extensions' in
+  smb.conf) (bgmilne)
+- update P3 from mandrake
+- sync smb.conf with drakwizard (which also fixes quoting of macros which
+  can have spaces) (bgmilne)
+- add example admin share (bgmilne)
+- P7: keep libsmbclient.so where it belongs (bgmilne)
+- remove cups support, but keep the smbspool link to cups in case someone
+  installs cups on their own
+- NOTE: this spec still needs a major overhaul
+
 * Tue Aug 17 2004 Vincent Danen <vdanen@annvix.org> 3.0.5-3avx
 - rebuild against new openssl
 

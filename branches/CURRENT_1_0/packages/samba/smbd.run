@@ -1,7 +1,7 @@
 #!/bin/sh
 PATH="/sbin:/usr/sbin:/bin:/usr/bin:$PATH"
 
-# this runs smbd under supervise
+# this runs smbd supervised
 
 . /usr/share/srv/functions
 
