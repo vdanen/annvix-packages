@@ -1,6 +1,7 @@
-%define	name			Mesa
-%define version			5.0.1
-%define release 5mdk
+%define	name	Mesa
+%define version	5.0.1
+%define release	6sls
+
 %define glx_ver			20001222
 %define glx_mesa_version 	3.2.1
 %define mesa_so_version 	1.4.501
@@ -19,59 +20,70 @@
 %define prefix		/usr/X11R6
 %define libdir		%{prefix}/%{_lib}
 
-Name:			%{name}
-Version:		%{version}
-Release:		%{release}
-Packager:		François Pons <fpons@mandrakesoft.com>
-Summary:		OpenGL 1.4 compatible 3D graphics library
-Group:			System/Libraries
-BuildRequires:		XFree86-devel autoconf2.5 tcl texinfo
-BuildRequires:		binutils >= 2.9.1.0.19a
-BuildRequires:		libstdc++-devel >= 3.2
-BuildRoot:		%{_tmppath}/%{name}-%{version}-root
-URL:			http://www.mesa3d.org
+%{!?build_opensls:%global build_opensls 0}
 
-Source:			ftp://ftp.mesa3d.org/pub/mesa/MesaLib-%{version}.tar.bz2
-Source1:		ftp://ftp.mesa3d.org/pub/mesa/MesaDemos-%{version}.tar.bz2
-Source2:		http://utah-glx.sourceforge.net/glx-%{glx_ver}.tar.bz2
-Source4:		%{name}-icons.tar.bz2
-Source5:		ftp://ftp.mesa3d.org/pub/mesa/MesaLib-%{glx_mesa_version}.tar.bz2
-Source6:		GLwrapper-%{GLwrapper_version}.tar.bz2
+Summary:	OpenGL 1.4 compatible 3D graphics library
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+Group:		System/Libraries
+URL:		http://www.mesa3d.org
+License:	MIT
+Source:		ftp://ftp.mesa3d.org/pub/mesa/MesaLib-%{version}.tar.bz2
+Source1:	ftp://ftp.mesa3d.org/pub/mesa/MesaDemos-%{version}.tar.bz2
+Source2:	http://utah-glx.sourceforge.net/glx-%{glx_ver}.tar.bz2
+Source4:	%{name}-icons.tar.bz2
+Source5:	ftp://ftp.mesa3d.org/pub/mesa/MesaLib-%{glx_mesa_version}.tar.bz2
+Source6:	GLwrapper-%{GLwrapper_version}.tar.bz2
+Patch1:		%{name}-4.0.3-remove-rpath.patch.bz2
+Patch3:		%{name}-3.3-gcc-2.96.patch.bz2
+Patch4:		%{name}-3.5-opt.patch.bz2
+Patch5:		Mesa-4.0.2-GLU-libsupc++.patch.bz2
+Patch10:	glx-rename_glx_so.patch.bz2
+Patch13:	Mesa-3.4-glxARB.patch.bz2
+Patch14:	glx-mach64tmp.patch.bz2
+Patch15:	Mesa-5.0.1-gcc3.3.patch.bz2
 
-Patch1:			%{name}-4.0.3-remove-rpath.patch.bz2
-Patch3:			%{name}-3.3-gcc-2.96.patch.bz2
-Patch4:			%{name}-3.5-opt.patch.bz2
-Patch5:			Mesa-4.0.2-GLU-libsupc++.patch.bz2
-Patch10:		glx-rename_glx_so.patch.bz2
-Patch13:		Mesa-3.4-glxARB.patch.bz2
-Patch14:		glx-mach64tmp.patch.bz2
-Patch15: Mesa-5.0.1-gcc3.3.patch.bz2
+BuildRoot:	%{_tmppath}/%{name}-%{version}-root
+BuildRequires:	XFree86-devel autoconf2.5 tcl texinfo
+BuildRequires:	binutils >= 2.9.1.0.19a
+BuildRequires:	libstdc++-devel >= 3.2
 
-License:		MIT
-Prefix:			%{prefix}
-Requires:		%{libglname} = %{version}-%{release}
-Provides:		hackMesa = %{version}
-Obsoletes:		hackMesa <= %{version}
+Prefix:		%{prefix}
+Requires:	%{libglname} = %{version}-%{release}
+Provides:	hackMesa = %{version}
+Obsoletes:	hackMesa <= %{version}
+
+%description
+Mesa is an OpenGL 1.4 compatible 3D graphics library.
 
 %package -n %{libglname}
 Summary:	Files for Mesa (GL and GLX libs)
 Group:		System/Libraries
 
-# Mesa-devel is provided by XFree86-devel now.
-#%package -n libMesaGL1-devel
-#Summary:		Development files for Mesa (OpenGL compatible 3D lib)
-#Group:			Development/C
-#Requires:		%{name}, Mesa-common-devel
+%description -n %{libglname}
+Mesa is an OpenGL 1.4 compatible 3D graphics library.
+GL and GLX parts.
 
 %package -n %{libgluname}
 Summary:	Files for Mesa (GLU libs)
 Group:		System/Libraries
+
+%description -n %{libgluname}
+Mesa is an OpenGL 1.4 compatible 3D graphics library.
+GLU parts.
 
 %package -n %{libgluname}-devel
 Summary:	Development files for GLU libs
 Group:		Development/C
 Requires:	%{libgluname} = %{version}-%{release}
 Provides:	lib%{gluname}-devel = %{version}-%{release}
+
+%description -n %{libgluname}-devel
+Mesa is an OpenGL 1.4 compatible 3D graphics library.
+GLU parts.
+
+This package contains the headers needed to compile Mesa programs.
 
 %package -n %{libglutname}
 Summary:	Files for Mesa (glut libs)
@@ -80,6 +92,10 @@ Requires:	%{libgluname} = %{version}-%{release}
 Provides:	Mesa-common = %{version}-%{release} hackMesa-common = %{version}
 Obsoletes:	Mesa-common <= %{version} hackMesa-common <= %{version}
 
+%description -n %{libglutname}
+Mesa is an OpenGL 1.4 compatible 3D graphics library.
+glut and GLU parts.
+
 %package -n %{libglutname}-devel
 Summary:	Development files for glut libs
 Group:		Development/C
@@ -87,6 +103,13 @@ Requires:	%{libglutname} = %{version}-%{release} %{libgluname}-devel = %{version
 Provides:	lib%{glutname}-devel = %{version}-%{release} Mesa-common-devel = %{version}-%{release} hackMesa-common-devel = %{version}
 Obsoletes:	Mesa-common-devel <= %{version} hackMesa-common-devel <= %{version}
 
+%description -n %{libglutname}-devel
+Mesa is an OpenGL 1.4 compatible 3D graphics library.
+glut parts.
+
+This package contains the headers needed to compile Mesa programs.
+
+%if !%{build_opensls}
 %package demos
 Summary:	Demos for Mesa (OpenGL compatible 3D lib)
 Group:		Graphics
@@ -94,42 +117,11 @@ Requires:	%{name} >= %{version}
 Provides:	hackMesa-demos = %{version}
 Obsoletes:	hackMesa-demos <= %{version}
 
-%description
-Mesa is an OpenGL 1.4 compatible 3D graphics library.
-
-%description -n %{libglname}
-Mesa is an OpenGL 1.4 compatible 3D graphics library.
-GL and GLX parts.
-
-#%description libMesaGL1-devel
-#Mesa is an OpenGL 1.4 compatible 3D graphics library.
-#
-#This package contains the headers needed to compile Mesa programs.
-
-%description -n %{libgluname}
-Mesa is an OpenGL 1.4 compatible 3D graphics library.
-GLU parts.
-
-%description -n %{libgluname}-devel
-Mesa is an OpenGL 1.4 compatible 3D graphics library.
-GLU parts.
-
-This package contains the headers needed to compile Mesa programs.
-
-%description -n %{libglutname}
-Mesa is an OpenGL 1.4 compatible 3D graphics library.
-glut and GLU parts.
-
-%description -n %{libglutname}-devel
-Mesa is an OpenGL 1.4 compatible 3D graphics library.
-glut parts.
-
-This package contains the headers needed to compile Mesa programs.
-
 %description demos
 Mesa is an OpenGL 1.4 compatible 3D graphics library.
 
 This package contains some demo programs for the Mesa library.
+%endif
 
 %prep
 %setup -q -n Mesa-%{version}
@@ -264,6 +256,7 @@ CONFIGURE_XPATH="--x-includes=%{prefix}/include --x-libraries=%{prefix}/%{_lib}"
 
 %make
 
+%if !%{build_opensls}
 pushd demos
 for i in bounce clearspd drawpix gamma gears glinfo glutfx isosurf morph3d \
          multiarb paltex pointblast reflect renormal \
@@ -271,6 +264,7 @@ for i in bounce clearspd drawpix gamma gears glinfo glutfx isosurf morph3d \
 	make $i
 done	
 popd
+%endif
 
 # Skip utah_glx for alpha - (fg) also skip it for sparc - (jb) also added skip
 # for ppc - (fg) And for ia64 as well - (gb) on x86_64 as well
@@ -367,6 +361,7 @@ fi
 
 #install -m 0644 include/GL/glext.h $RPM_BUILD_ROOT%{prefix}/include/GL
 
+%if !%{build_opensls}
 mkdir -p $RPM_BUILD_ROOT%{prefix}/bin
 for i in bounce clearspd drawpix gamma gears glinfo glutfx isosurf morph3d \
          multiarb paltex pointblast reflect renormal \
@@ -413,6 +408,7 @@ install -m 755 -d $RPM_BUILD_ROOT%{_miconsdir}
 install -m 755 -d $RPM_BUILD_ROOT%{_iconsdir}
 install -m 755 -d $RPM_BUILD_ROOT%{_liconsdir}
 tar jxvf %{SOURCE4} -C $RPM_BUILD_ROOT%{_iconsdir}
+%endif
 
 %ifarch alpha sparc sparc64 ppc ia64 x86_64
 echo 'Skipping utah_glx'
@@ -486,11 +482,15 @@ rm -fr $RPM_BUILD_ROOT
 
 %postun -n %{libglutname} -p /sbin/ldconfig
 
+%if !%{build_opensls}
 %post demos
 %{update_menus}
+%endif
 
+%if !%{build_opensls}
 %postun demos
 %{clean_menus}
+%endif
 
 %files
 %defattr(-,root,root)
@@ -562,6 +562,7 @@ rm -fr $RPM_BUILD_ROOT
 %{libdir}/libglut.so
 %{libdir}/libglut.la
 
+%if !%{build_opensls}
 %files demos
 %defattr(-,root,root)
 %doc docs/COPYRIGHT docs/README docs/README.X11 docs/COPYING
@@ -572,8 +573,14 @@ rm -fr $RPM_BUILD_ROOT
 %{_miconsdir}/*demos*.png
 %{_iconsdir}/*demos*.png
 %{_liconsdir}/*demos*.png
+%endif
 
 %changelog
+* Tue Dec 30 2003 Vincent Danen <vdanen@opensls.org> 5.0.1-6sls
+- OpenSLS build
+- tidy spec
+- use %%build_opensls to prevent building demos
+
 * Thu Jul 10 2003 Laurent MONTEL <lmontel@mandrakesoft.com> 5.0.1-5mdk
 - Rebuild
 
