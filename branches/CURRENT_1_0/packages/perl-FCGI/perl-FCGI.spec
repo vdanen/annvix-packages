@@ -1,7 +1,7 @@
 %define modname	FCGI
 %define name	perl-%{modname}
 %define version	0.67
-%define release 4sls
+%define release 5sls
 
 Summary:	A Fast CGI module for Perl
 Name:		%{name}
@@ -37,11 +37,11 @@ echo | CFLAGS="$RPM_OPT_FLAGS" %{__perl} Makefile.PL INSTALLDIRS=vendor
 %make
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
 %clean 
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -51,6 +51,10 @@ rm -rf $RPM_BUILD_ROOT
 %{perl_vendorarch}/auto/FCGI
 
 %changelog
+* Wed Feb 25 2004 Vincent Danen <vdanen@opensls.org> 0.67-5sls
+- rebuild for new perl
+- minor spec cleanups
+
 * Tue Dec 30 2003 Vincent Danen <vdanen@opensls.org> 0.67-4sls
 - OpenSLS build
 - tidy spec

@@ -1,7 +1,7 @@
 %define module	Expect
 %define name	perl-%{module}
 %define version 1.15
-%define release 7sls
+%define release 8sls
 
 Summary:	Expect perl module
 Name: 		%{name}
@@ -36,11 +36,11 @@ make
 make test
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
 %clean 
-rm -rf ${RPM_BUILD_ROOT}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(644,root,root,755)
@@ -50,6 +50,10 @@ rm -rf ${RPM_BUILD_ROOT}
 %{_mandir}/*/*
 
 %changelog
+* Wed Feb 25 2004 Vincent Danen <vdanen@opensls.org> 1.15-8sls
+- rebuild for new perl
+- minor spec cleanups
+
 * Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 1.15-7sls
 - OpenSLS build
 - tidy spec

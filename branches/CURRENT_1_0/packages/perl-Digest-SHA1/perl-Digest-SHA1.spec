@@ -1,7 +1,7 @@
 %define module	Digest-SHA1
 %define	name	perl-%{module}
 %define	version	2.04
-%define	release	2sls
+%define	release	3sls
 
 Summary:	Perl interface to the SHA1 Algorithm	
 Name:		%{name}
@@ -30,11 +30,11 @@ Digest-SHA1 module for perl.
 make test
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
 %clean 
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -44,6 +44,10 @@ rm -rf $RPM_BUILD_ROOT
 %{perl_vendorarch}/auto
 
 %changelog
+* Wed Feb 25 2004 Vincent Danen <vdanen@opensls.org> 2.04-3sls
+- rebuild for new perl
+- minor spec cleanups
+
 * Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 2.04-2sls
 - OpenSLS build
 - tidy spec

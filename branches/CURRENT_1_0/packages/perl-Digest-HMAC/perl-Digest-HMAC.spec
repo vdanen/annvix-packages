@@ -1,7 +1,7 @@
 %define module	Digest-HMAC
 %define	name	perl-%{module}
 %define	version	1.01
-%define	release	12sls
+%define	release	13sls
 
 Summary:	Keyed-Hashing for Message Authentication
 Name:		%{name}
@@ -31,11 +31,11 @@ make
 make test
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
 %clean 
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -44,6 +44,10 @@ rm -rf $RPM_BUILD_ROOT
 %{perl_vendorlib}/Digest
 
 %changelog
+* Wed Feb 25 2004 Vincent Danen <vdanen@opensls.org> 1.01-13sls
+- rebuild for new perl
+- minor spec cleanups
+
 * Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 1.01-12sls
 - OpenSLS build
 - tidy spec

@@ -1,7 +1,7 @@
 %define name	perl-%{module}
 %define module	Devel-Symdump
 %define version 2.03
-%define release 5sls
+%define release 6sls
 
 Summary:	%{module} module for perl
 Name:		perl-%{module}
@@ -27,12 +27,12 @@ BuildArch:	noarch
 make
 make test
 
-%clean 
-rm -rf $RPM_BUILD_ROOT
-
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
+
+%clean
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -41,6 +41,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/*/*
 
 %changelog
+* Wed Feb 25 2004 Vincent Danen <vdanen@opensls.org> 2.03-6sls
+- rebuild for new perl
+- minor spec cleanups
+
 * Sat Jan 03 2004 Vincent Danen <vdanen@opensls.org> 2.03-5sls
 - OpenSLS build
 - tidy spec
