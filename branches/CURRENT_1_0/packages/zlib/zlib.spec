@@ -1,6 +1,6 @@
 %define name	zlib
 %define version	1.1.4
-%define release 9sls
+%define release 10sls
 
 %define lib_major	1
 %define lib_name	%{name}%{lib_major}
@@ -90,8 +90,7 @@ popd
 %endif
 
 %install
-rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT/%{_prefix}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 install -d $RPM_BUILD_ROOT/%{_libdir}
 
 make install -C objs prefix=$RPM_BUILD_ROOT%{_prefix} libdir=$RPM_BUILD_ROOT%{_libdir}
@@ -114,7 +113,7 @@ ln -s ../../lib/libz.so.%{version} $RPM_BUILD_ROOT%{_prefix}/lib/
 %endif
 
 %clean
-rm -fr $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post -n %{lib_name} -p /sbin/ldconfig
 %postun -n %{lib_name} -p /sbin/ldconfig
@@ -131,7 +130,7 @@ rm -fr $RPM_BUILD_ROOT
 
 %files -n %{lib_name}-devel
 %defattr(-, root, root)
-%doc README ChangeLog algorithm.txt
+%doc ChangeLog algorithm.txt
 %{_libdir}/*.a
 %{_libdir}/*.so
 %if %{build_biarch}
@@ -142,6 +141,9 @@ rm -fr $RPM_BUILD_ROOT
 %{_mandir}/*/*
 
 %changelog
+* Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 1.1.4-10sls
+- minor spec cleanups
+
 * Sat Dec 13 2003 Vincent Danen <vdanen@opensls.org> 1.1.4-9sls
 - OpenSLS build
 - tidy spec

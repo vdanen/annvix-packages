@@ -6,7 +6,7 @@
 
 %define name    xinitrc
 %define version 2.4.4
-%define release 77sls
+%define release 78sls
 
 Summary:	The default startup script for the X Window System
 Name:		%{name}
@@ -31,14 +31,14 @@ to configure your X Window System session or to start a window manager.
 
 %prep
 
-%setup
+%setup -q
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 make install R=$RPM_BUILD_ROOT/
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -56,6 +56,9 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) /etc/X11/xinit.d/Mod_Meta_L_Disable
 
 %changelog
+* Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 2.4.4-78sls
+- minor spec cleanups
+
 * Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 2.4.4-77sls
 - OpenSLS build
 - tidy spec
