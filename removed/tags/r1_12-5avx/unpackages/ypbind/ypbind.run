@@ -1,0 +1,9 @@
+#!/bin/sh
+PATH="/sbin:/usr/sbin:/bin:/usr/bin:$PATH"
+
+# this runs ypbind under supervise
+
+. /etc/sysconfig/network
+
+exec 2>&1
+exec /sbin/ypbind -d
