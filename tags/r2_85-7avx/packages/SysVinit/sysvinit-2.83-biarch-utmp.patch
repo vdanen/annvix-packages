@@ -1,0 +1,42 @@
+--- sysvinit-2.83/src/utmp.c.biarch-utmp	2003-04-05 19:17:02.000000000 +0200
++++ sysvinit-2.83/src/utmp.c	2003-04-05 19:30:54.000000000 +0200
+@@ -76,9 +76,17 @@ char *line)			/* Which line is this */
+ 	 */
+ 	memset(&utmp, 0, sizeof(utmp));
+ #if defined(__GLIBC__)
+-	gettimeofday(&utmp.ut_tv, NULL);
++	if (sizeof (utmp.ut_tv) == sizeof (struct timeval))
++	  gettimeofday((struct timeval *) &utmp.ut_tv, NULL);
++	else
++	  {
++	    struct timeval tv;
++	    gettimeofday(&tv, NULL);
++	    utmp.ut_tv.tv_sec = tv.tv_sec;
++	    utmp.ut_tv.tv_usec = tv.tv_usec;
++	  }
+ #else
+-	time(&utmp.ut_time);
++	utmp.ut_time = time(NULL);
+ #endif
+ 	utmp.ut_pid  = pid;
+ 	utmp.ut_type = type;
+@@ -144,9 +152,17 @@ char *oldline)			/* Line of old utmp ent
+ 	utmp.ut_pid = pid;
+ 	strncpy(utmp.ut_id, id, sizeof(utmp.ut_id));
+ #if defined(__GLIBC__)
+-	gettimeofday(&utmp.ut_tv, NULL);
++	if (sizeof (utmp.ut_tv) == sizeof (struct timeval))
++	  gettimeofday((struct timeval *) &utmp.ut_tv, NULL);
++	else
++	  {
++	    struct timeval tv;
++	    gettimeofday(&tv, NULL);
++	    utmp.ut_tv.tv_sec = tv.tv_sec;
++	    utmp.ut_tv.tv_usec = tv.tv_usec;
++	  }
+ #else
+-	time(&utmp.ut_time);
++	utmp.ut_time = time(NULL);
+ #endif
+ 	strncpy(utmp.ut_user, user, UT_NAMESIZE);
+ 	if (line) strncpy(utmp.ut_line, line, UT_LINESIZE);
