@@ -1,0 +1,60 @@
+#!/bin/sh
+# Emulate the jdk javac command using gcj
+# (c) 2002 Bernhard Rosenkraenzer <bero@bero.org>
+LIBGCJ_ZIP_FILE=/usr/share/java/libgcj-@GCJ_VERSION@.jar
+if [ -n "$CLASSPATH" ]; then
+	clp="$CLASSPATH:$LIBGCJ_ZIP_FILE"
+else
+	clp="$LIBGCJ_ZIP_FILE"
+fi
+unset DEST || :
+while [ "$#" != 0 ]; do
+	if [ "$1" = "-J-version" ]; then
+		echo 'java version "@JDK_VERSION@"' 1>&2
+		gcj --version 1>&2
+		exit 0
+	elif [ "$1" = "-classpath" ]; then
+		shift
+		clp=`echo $1 | sed "s~.*/lib/rt.jar~$LIBGCJ_ZIP_FILE~"`
+	elif [ "$1" = "-d" ]; then
+		# Class files will be put into this directory
+		shift
+		DEST="$1"
+	elif [ "`echo $1 |cut -b1`" = "-" ]; then
+		# Yuck. Unknown parameter. Let's pretend nothing happened.
+		echo "Warning: $1 not understood. Ignoring." >&2
+	else
+		files="$files $1"
+	fi
+	shift
+done
+if ! echo $clp |grep -q $LIBGCJ_ZIP_FILE; then
+	# We NEED this
+	clp="$clp:$LIBGCJ_ZIP_FILE"
+fi
+gcj -C -classpath "$clp" $files
+if [ "$?" != "0" ]; then
+	exit $?
+fi
+if [ -n "$DEST" ]; then
+	for i in $files; do
+		[ -e "$i" ] || continue # skip parameters...
+		classes="`jv-scan --list-class $i`"
+		dir="`dirname $i`"
+		for class in $classes; do
+			file="`echo $class |sed -e 's,\.,/,g'`"
+			classname="`basename $file`"
+			tree="`dirname $file`"
+			if [ -e "$dir/${classname}.class" ]; then
+				mkdir -p "$DEST/$tree"
+				if ! ERR="`LANG=C mv \"$dir/${classname}.class\" \"$DEST/$tree\" 2>&1`"; then
+					if ! echo $ERR |grep -q "are the same file"; then
+						echo $ERR >&2
+						exit 1
+					fi
+				fi
+			fi
+		done
+	done
+fi
+exit 0

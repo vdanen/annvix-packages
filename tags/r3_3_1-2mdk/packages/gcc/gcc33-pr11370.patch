@@ -1,0 +1,87 @@
+2003-08-08  Roger Sayle  <roger@eyesopen.com>
+
+	PR c/11370
+	* calls.c (emit_call_1): Don't bother popping the arguments off of
+	the stack after a noreturn function call;  The adjustment is dead.
+	(expand_call): Likewise.
+
+2003-08-08  Roger Sayle  <roger@eyesopen.com>
+
+	PR c/11370
+	* gcc.dg/Wunreachable-6.c: New testcase.
+	* gcc.dg/Wunreachable-7.c: New testcase.
+
+--- gcc-3.3.1/gcc/testsuite/gcc.dg/Wunreachable-6.c.pr11370	2003-09-01 12:01:28.000000000 +0200
++++ gcc-3.3.1/gcc/testsuite/gcc.dg/Wunreachable-6.c	2003-09-01 12:01:19.000000000 +0200
+@@ -0,0 +1,18 @@
++/* PR c/11370  */
++/* { dg-do compile } */
++/* { dg-options "-Wunreachable-code" } */
++
++int main(int argc, char *argv[])
++{
++  if (argc != 1)
++    exit(1);
++
++  {
++    int ix;  /* { dg-bogus "will never be executed" } */
++    ix = printf("hello\n");
++    printf("%d\n", ix);
++  }
++
++  return 0;
++}
++
+--- gcc-3.3.1/gcc/testsuite/gcc.dg/Wunreachable-7.c.pr11370	2003-09-01 12:01:33.000000000 +0200
++++ gcc-3.3.1/gcc/testsuite/gcc.dg/Wunreachable-7.c	2003-09-01 12:01:19.000000000 +0200
+@@ -0,0 +1,18 @@
++/* PR c/11370  */
++/* { dg-do compile } */
++/* { dg-options "-O2 -Wunreachable-code" } */
++
++int main(int argc, char *argv[])
++{
++  if (argc != 1)
++    exit(1);
++
++  {
++    int ix;  /* { dg-bogus "will never be executed" } */
++    ix = printf("hello\n");
++    printf("%d\n", ix);
++  }
++
++  return 0;
++}
++
+--- gcc-3.3.1/gcc/calls.c.pr11370	2003-09-01 11:56:50.000000000 +0200
++++ gcc-3.3.1/gcc/calls.c	2003-09-01 12:00:35.000000000 +0200
+@@ -641,6 +641,10 @@ emit_call_1 (funexp, fndecl, funtype, st
+      if the context of the call as a whole permits.  */
+   inhibit_defer_pop = old_inhibit_defer_pop;
+ 
++  /* Don't bother cleaning up after a noreturn function.  */
++  if (ecf_flags & (ECF_NORETURN | ECF_LONGJMP))
++    return;
++
+   if (n_popped > 0)
+     {
+       if (!already_popped)
+@@ -3101,6 +3105,7 @@ expand_call (exp, target, ignore)
+ 
+       /* Verify that we've deallocated all the stack we used.  */
+       if (pass
++	  && ! (flags & (ECF_NORETURN | ECF_LONGJMP))
+ 	  && old_stack_allocated != stack_pointer_delta - pending_stack_adjust)
+ 	abort ();
+ 
+@@ -3194,6 +3199,10 @@ expand_call (exp, target, ignore)
+ 	    }
+ 
+ 	  emit_barrier_after (last);
++
++	  /* Stack adjustments after a noreturn call are dead code.  */
++	  stack_pointer_delta = old_stack_allocated;
++	  pending_stack_adjust = 0;
+ 	}
+ 
+       if (flags & ECF_LONGJMP)
