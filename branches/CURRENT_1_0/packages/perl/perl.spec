@@ -1,6 +1,6 @@
 %define name	perl
-%define version	5.8.4
-%define release	2avx
+%define version	5.8.5
+%define release	1avx
 %define epoch	2
 
 %define rel	%nil
@@ -37,13 +37,15 @@ Patch6:		perl-5.8.0-RC2-fix-LD_RUN_PATH-for-MakeMaker.patch.bz2
 Patch12:	perl-5.8.1-RC3-automatic-migration-from--make-install-PREFIX--to--makeinstall_std.patch.bz2
 Patch14:	perl-5.8.1-RC3-install-files-using-chmod-644.patch.bz2
 Patch15:	perl-5.8.3-lib64.patch.bz2
-Patch16:	perl-5.8.2-perldoc-use-nroff-compatibility-option.patch.bz2
-Patch20:	perl-5.8.0-use_gzip_layer.patch.bz2
+Patch16:	perl-5.8.5-RC1-perldoc-use-nroff-compatibility-option.patch.bz2
+Patch20:	perl-5.8.4-use_gzip_layer.patch.bz2
 #(peroyvind) use -fPIC in stead of -fpic or else compile will fail on sparc (taken from redhat)
 Patch21:	perl-5.8.1-RC4-fpic-fPIC.patch.bz2
 Patch22:	perl-5.8.0-amd64.patch.bz2
-Patch23:	perl-5.8.4-patchlevel.patch.bz2
+Patch23:	perl-5.8.5-patchlevel.patch.bz2
 Patch24:	perl-5.8.4-no-test-fcgi.patch.bz2
+Patch25:	perl-5.8.5-RC1-cpan-signature-test.patch.bz2
+Patch26:	perl-5.8.5-removeemptyrpath.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}
 # for NDBM
@@ -81,7 +83,7 @@ You need perl-base to have a full perl.
 %package base
 Summary:	The Perl programming language (base).
 Group:		Development/Perl
-Provides:	perl(v5.6.0) perl(base) perl(bytes) perl(constant) perl(integer) perl(lib) perl(overload) perl(strict) perl(utf8) perl(vars) perl(warnings)
+Provides:	perl(v5.6.0) perl(base) perl(bytes) perl(constant) perl(integer) perl(lib) perl(overload) perl(strict) perl(utf8) perl(vars) perl(warnings) perl(Carp::Heavy)
 
 %description base
 This is the base package for %{name}.
@@ -112,28 +114,32 @@ This is the documentation package for %{name}.
 %patch12 -p1
 %patch14 -p1
 %patch15 -p1
-%patch16 -p1
+%patch16 -p0
 %patch20 -p1 -b .fpons
 %patch21 -p1 -b .peroyvind
 %patch22 -p1 -b .amd64
 %patch23 -p0 -b .patchlevel
 %patch24 -p0 -b .notestfcgi
+%patch25 -p0 -b .cpansigtest
+%patch26 -p0 -b .rpath
 
 %build
 %ifarch ppc
   RPM_OPT_FLAGS=`echo "$RPM_OPT_FLAGS"|sed -e 's/-O2/-O1/g'`
 %endif
 sh Configure -des \
-  -Dinc_version_list="5.8.3/%{full_arch} 5.8.3 5.8.2/%{full_arch} 5.8.2 5.8.1/%{full_arch} 5.8.1 5.8.0/%{full_arch} 5.8.0 5.6.1 5.6.0" \
+  -Dinc_version_list="5.8.4/%{full_arch} 5.8.4 5.8.3/%{full_arch} 5.8.3 5.8.2/%{full_arch} 5.8.2 5.8.1/%{full_arch} 5.8.1 5.8.0/%{full_arch} 5.8.0 5.6.1 5.6.0" \
   -Darchname=%{arch}-%{_os} \
   -Dcc='%{__cc}' \
   -Doptimize="$RPM_OPT_FLAGS" \
   -Dprefix=%{_prefix} -Dvendorprefix=%{_prefix} -Dsiteprefix=%{_prefix} \
+  -Dotherlibdirs=/usr/local/lib/perl5:/usr/local/lib/perl5/site_perl \
   -Dman3ext=3pm \
   -Dcf_by=Annvix -Dmyhostname=localhost -Dperladmin=root@localhost \
   -Dd_dosuid \
   -Ud_csh \
   -Duseshrplib \
+  -Accflags=-DPERL_DISABLE_PMC \
 %if %threading
   -Dusethreads \
 %endif
@@ -175,10 +181,11 @@ LD_LIBRARY_PATH=. ./perl -Ilib utils/h2ph_patched -a -d %{buildroot}%{perl_root}
     ln -s perl%{version} perl5
 )
 
-rm -f %{buildroot}%{_bindir}/{perlivp,psed}
+rm -f %{buildroot}%{_bindir}/perlivp %{buildroot}%{_mandir}/man1/perlivp.1
 
 %ifarch ppc
 perl -ni -e 'print if !/sub __syscall_nr/' %{buildroot}%{perl_root}/%{version}/%{full_arch}/asm/unistd.ph
+perl -ni -e 'print unless m/sub __syscall_nr/' %{buildroot}%{perl_root}/%{version}/%{full_arch}/asm/unistd.ph
 %endif
 
 # call spec-helper before creating the file list
@@ -203,10 +210,13 @@ s=/usr/share/spec-helper/spec-helper ; [ -x $s ] && $s
 %{perl_root}/%{version}/File/Spec/Unix.pm
 %dir %{perl_root}/%{version}/Getopt
 %{perl_root}/%{version}/Getopt/Long.pm
+%{perl_root}/%{version}/Getopt/Std.pm
 %dir %{perl_root}/%{version}/Time
 %{perl_root}/%{version}/Time/Local.pm
 %{perl_root}/%{version}/AutoLoader.pm
+%dir %{perl_root}/%{version}/Carp
 %{perl_root}/%{version}/Carp.pm
+%{perl_root}/%{version}/Carp/Heavy.pm
 %{perl_root}/%{version}/DirHandle.pm
 %{perl_root}/%{version}/%{full_arch}/Errno.pm
 %dir %{perl_root}/%{version}/Exporter
@@ -226,11 +236,12 @@ s=/usr/share/spec-helper/spec-helper ; [ -x $s ] && $s
 %{perl_root}/%{version}/utf8_heavy.pl
 %{perl_root}/%{version}/unicore/Exact.pl
 %{perl_root}/%{version}/unicore/Canonical.pl
+%{perl_root}/%{version}/unicore/PVA.pl
 %{perl_root}/%{version}/unicore/To/Lower.pl
 %{perl_root}/%{version}/unicore/To/Fold.pl
 %{perl_root}/%{version}/unicore/To/Upper.pl
-%{perl_root}/%{version}/unicore/lib/Word.pl
-%{perl_root}/%{version}/unicore/lib/Digit.pl
+%{perl_root}/%{version}/unicore/lib/gc_sc/Word.pl
+%{perl_root}/%{version}/unicore/lib/gc_sc/Digit.pl
 %{perl_root}/%{version}/vars.pm
 %dir %{perl_root}/%{version}/warnings
 %{perl_root}/%{version}/warnings/register.pm
@@ -338,6 +349,7 @@ EOF
 %{_bindir}/podchecker
 %{_bindir}/podselect
 %{_bindir}/pod2usage
+%{_bindir}/psed
 %{_bindir}/prove
 %{_bindir}/xsubpp
 %{perl_root}/%{version}/Encode/encode.h
@@ -347,7 +359,6 @@ EOF
 %{perl_root}/%{version}/%{full_arch}/CORE/XSUB.h
 %{perl_root}/%{version}/%{full_arch}/CORE/av.h
 %{perl_root}/%{version}/%{full_arch}/CORE/cc_runtime.h
-%{perl_root}/%{version}/%{full_arch}/CORE/config.h
 %{perl_root}/%{version}/%{full_arch}/CORE/cop.h
 %{perl_root}/%{version}/%{full_arch}/CORE/cv.h
 %{perl_root}/%{version}/%{full_arch}/CORE/dosish.h
@@ -400,8 +411,8 @@ EOF
 
    rel_perl_root=`echo %{perl_root} | sed "s,/,,"`
    rel_mandir=`echo %{_mandir} | sed "s,/,,"`
-   (cd %{buildroot} ; find $rel_perl_root/%{version} "(" -name "*.pod" -o -iname "Changes*" -o -iname "README*" ")" -printf "%%%%doc /%%p\n") >> perl-doc.list
-   (cd %{buildroot} ; find $rel_mandir/man1          ! -type d -printf "/%%p\n") >> perl.list
+   (cd %{buildroot} ; find $rel_perl_root/%{version} "(" -name "*.pod" -o -iname "Changes*" -o -iname "ChangeLog*" -o -iname "README*" ")" -a -not -name perldiag.pod -printf "%%%%doc /%%p\n") >> perl-doc.list
+   (cd %{buildroot} ; find $rel_mandir/man1 ! -name "perlivp.1*" ! -type d -printf "/%%p\n") >> perl.list
    (cd %{buildroot} ; find $rel_perl_root/%{version} ! -type d -printf "/%%p\n") >> perl.list
    (cd %{buildroot} ; find $rel_perl_root/%{version} -type d -printf "%%%%dir /%%p\n") >> perl.list
    perl -ni -e 'BEGIN { open F, "perl-base.list"; $s{$_} = 1 foreach <F>; } print unless $s{$_}' perl.list
@@ -426,6 +437,28 @@ EOF
 %defattr(-,root,root)
 
 %changelog
+* Fri Sep 10 2004 Vincent Danen <vdanen@annvix.org> 5.8.5-1avx
+- 5.8.5
+- define otherlibdirs to /usr/local/lib/perl5:/usr/local/lib/perl5/site_perl
+  so one can install modules into /usr/local (eventually good for ports,
+  good for CPAN-based installs with a prefix of /usr/local)
+- merge with cooker (5.8.5-3mdk) (rgarciasuarez):
+  - psed(1) wasn't installed
+  - the manpage for perlivp(1) (which isn't installed) was installed
+  - remove perldiag.pod from perl-doc
+  - add compilation flag -DPERL_DISABLE_PMC
+  - restore loading of .pm.gz files by adjusting P20
+  - Carp::Heavy should be in perl-base, as it's required by Carp.pm
+  - add manually a provides for perl(Carp::Heavy)
+  - move Getopt::Std from perl to perl-base
+  - move some changelogs from perl to perl-doc
+  - move CORE/config.h from perl-devel to perl; this is necessary for MakeMaker
+    (and thus CPAN.pm) to work
+  - fix CPAN signature test when Module::Signature is installed
+  - move unicore/PVA.pl into perl-base
+  - P26: prevent including an empty rpath in .so files produced by MakeMaker
+  - fix for generation of unistd.ph on ppc (Christiaan Welvaart)
+
 * Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 5.8.4-2avx
 - Annvix build
 

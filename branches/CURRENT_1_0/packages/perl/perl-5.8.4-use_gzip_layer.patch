@@ -1,9 +1,11 @@
---- perl-5.8.0/pp_ctl.c.fpons	2002-07-09 18:42:38.000000000 +0200
-+++ perl-5.8.0/pp_ctl.c	2003-02-13 11:56:39.000000000 +0100
-@@ -2882,6 +2882,19 @@
-     else {
- 	fp = PerlIO_open(name, mode);
+--- perl-5.8.4/pp_ctl.c.orig	2004-06-08 16:57:11.000000000 +0200
++++ perl-5.8.4/pp_ctl.c	2004-06-08 17:04:59.000000000 +0200
+@@ -2942,7 +2942,21 @@
      }
+     return fp;
+ #else
+-    return PerlIO_open(name, mode);
++    PerlIO *fp = PerlIO_open(name, mode);
 +    if (!fp) {
 +	SV *pmgzsv = Perl_newSVpvf(aTHX_ "%s%s", name, ".gz");
 +	char *pmgz = SvPV_nolen(pmgzsv);
@@ -17,6 +19,7 @@
 +	    fp = PerlIO_openn(aTHX_ ":gzip", mode, -1, 0, 0, NULL, 1, &pmgzsv);
 +	}
 +    }
-     return fp;
++    return fp;
+ #endif /* !PERL_DISABLE_PMC */
  }
  
