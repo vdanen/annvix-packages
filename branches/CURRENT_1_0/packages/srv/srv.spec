@@ -1,6 +1,6 @@
 %define name	srv
 %define version 0.4
-%define release 1sls
+%define release 2sls
 
 Summary:	Tool to manage supervise-controlled services.
 Name: 		%{name}
@@ -75,6 +75,9 @@ rm -rf $RPM_BUILD_DIR/%{name}-%{version}
 %{_mandir}/man1/*
 
 %changelog
+* Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 0.4-2sls
+- fix from Oden to handle restarts better
+
 * Tue Mar 02 2004 Vincent Danen <vdanen@opensls.org> 0.4-1sls
 - 0.4
 - include Bruce's supervise-scripts (3.3)
