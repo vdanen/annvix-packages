@@ -1,18 +1,24 @@
-Summary: A text file browser similar to more, but better.
-Name: less
-Version: 381
-Release: 2mdk
-License: GPL
-Url:	http://www.greenwoodsoftware.com/less
-Group: File tools
-BuildRequires: ncurses-devel
-Source: ftp://ftp.gnu.org/pub/gnu/less/%name-%version.tar.bz2
-Source1: faq_less.html
-Source2: lesspipe.sh
-Patch0: less-374-manpages.patch.bz2
-Buildroot: %_tmppath/%name-root
+%define name	less
+%define version	381
+%define release	3sls
+
+Summary:	A text file browser similar to more, but better.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		File tools
+URL:		http://www.greenwoodsoftware.com/less
+Source:		ftp://ftp.gnu.org/pub/gnu/less/%name-%version.tar.bz2
+Source1:	faq_less.html
+Source2:	lesspipe.sh
+Patch0:		less-374-manpages.patch.bz2
+
+Buildroot:	%_tmppath/%name-root
+BuildRequires:	ncurses-devel
+
 # lesspipe.sh requires file
-Requires: file
+Requires:	file
 
 %description
 The less utility is a text file browser that resembles more, but has
@@ -62,6 +68,10 @@ install -m 644 less{echo,pipe}.1 $RPM_BUILD_ROOT%_mandir/man1
 rm -rf $RPM_BUILD_ROOT
 
 %changelog
+* Sun Nov 30 2003 Vincent Danen <vdanen@opensls.org> 381-3sls
+- OpenSLS build
+- tidy spec
+
 * Sun Jun 15 2003 Stefan van der Eijk <stefan@eijk.nu> 381-2mdk
 - BuildRequires
 

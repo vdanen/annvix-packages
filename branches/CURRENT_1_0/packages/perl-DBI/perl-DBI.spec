@@ -1,7 +1,7 @@
 %define module	DBI
 %define name	perl-%{module}
 %define version 1.38
-%define release 1mdk
+%define release 2sls
 
 Summary:	The Perl Database Interface by Tim Bunce
 Name:		%{name}
@@ -9,12 +9,14 @@ Version:	%{version}
 Release:	%{release}
 License:	GPL
 Group:		Development/Perl
-Requires:	perl
 URL:		http://www.cpan.org
 Source:		%{module}-%{version}.tar.bz2
-Prefix:		%{_prefix}
+
+BuildRoot:	%{_tmppath}/%{name}-root
 BuildRequires:	perl-devel
-Buildroot:	%{_tmppath}/%{name}-root
+
+Prefix:		%{_prefix}
+Requires:	perl
 
 %description
 The Perl Database Interface (DBI) is a database access Application Programming
@@ -99,6 +101,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man3*/DBI::ProfileDumper::Apache.3pm.*
 
 %changelog
+* Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 1.38-2sls
+- OpenSLS build
+- tidy spec
+
 * Sat Aug 23 2003 Guillaume Rousse <guillomovitch@linux-mandrake.com> 1.38-1mdk
 - 1.38
 - dropped patch

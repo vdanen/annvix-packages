@@ -1,19 +1,22 @@
 %define module	XML-NamespaceSupport
+%define name	perl-%{module}
 %define version 1.08
-%define release 3mdk
+%define release 4sls
 
 Summary:	%{module} module for perl
-Name:		perl-%{module}
+Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	MPL
 Group:		Development/Perl
+URL:		http://www.cpan.org
 Source0:	%{module}-%{version}.tar.bz2
-Url:		http://www.cpan.org
-BuildRequires:	perl-devel 
+
 BuildRoot:	%{_tmppath}/%{name}-buildroot/
-Requires:	perl
 BuildArch:	noarch
+BuildRequires:	perl-devel 
+
+Requires:	perl
 
 %description
 %{module} module for perl
@@ -47,6 +50,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 1.08-4sls
+- OpenSLS build
+- tidy spec
+
 * Thu Aug 14 2003 Per Øyvind Karlsen <peroyvind@linux-mandrake.com> 1.08-3mdk
 - rebuild for new perl
 - drop $RPM_OPT_FLAGS, noarch..

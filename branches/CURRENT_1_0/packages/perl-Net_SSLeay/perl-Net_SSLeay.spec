@@ -1,7 +1,7 @@
+%define module	Net_SSLeay
+%define name 	perl-%{module}
 %define version	1.25
-%define release	1mdk
-%define name 	perl-Net_SSLeay
-%define realname	Net_SSLeay.pm
+%define release	2sls
 
 Summary:        Net::SSLeay (module for perl)
 Name: 		%{name}
@@ -9,18 +9,20 @@ Version: 	%{version}
 Release: 	%{release}
 License: 	GPL
 Group: 		Development/Perl
-Source: 	%{realname}-%{version}.tar.bz2
-Patch:		%{realname}-1.25.large_tcp_read.patch.bz2
 URL: 		http://www.bacus.pt/Net_SSLeay/index.html
-BuildRequires:	openssl-devel perl-devel
+Source: 	%{module}.pm-%{version}.tar.bz2
+Patch:		%{module}.pm-1.25.large_tcp_read.patch.bz2
+
 BuildRoot: 	%{_tmppath}/%{name}-buildroot/
+BuildRequires:	openssl-devel perl-devel
+
 Requires: 	openssl >= 0.9.3a
 
 %description
 Net::SSLeay module for perl.
 
 %prep
-%setup -q -n %{realname}-%{version}
+%setup -q -n %{module}.pm-%{version}
 %patch -p1 -b .fpons
 
 # openssl_path is /usr here, therefore don't -I/usr/include and
@@ -56,6 +58,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/*/*
 
 %changelog
+* Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 1.25-2sls
+- OpenSLS build
+- tidy spec
+
 * Thu Aug 21 2003 François Pons <fpons@mandrakesoft.com> 1.25-1mdk
 - created patch to allow large Net::SSLeay::tcp_read_all.
 - 1.25.

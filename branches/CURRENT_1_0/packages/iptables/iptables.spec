@@ -1,27 +1,30 @@
-Name:		iptables
-Summary:	Tools for managing Linux kernel packet filtering capabilities
-Version:	1.2.8
-Release:	2mdk
+%define name	iptables
+%define version	1.2.8
+%define release	3sls
 
+Summary:	Tools for managing Linux kernel packet filtering capabilities
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		System/Kernel and hardware
+URL:		http://netfilter.org/
 Source:		http://www.netfilter.org/files/%{name}-%{version}.tar.bz2
 Source1:	iptables.init
 Source2:	ip6tables.init
 Source3:	iptables.config
 Source4:	ip6tables.config
-
 Patch1:		iptables-1.2.8-stealth_grsecurity.patch.bz2 
 Patch2:		iptables-1.2.8-imq.patch.bz2 
 Patch3:		iptables-1.2.8-libiptc.h.patch.bz2 
 
-Group:		System/Kernel and hardware
-URL:		http://netfilter.org/
 BuildRoot:	%{_tmppath}/%{name}-%{version}-root
-License:	GPL
 BuildPrereq:	/usr/bin/perl
 BuildRequires:  kernel-source >= 2.4.13-3mdk
+
+PreReq:		chkconfig, rpm-helper
 Requires:	kernel >= 2.4.13
 Provides:	userspace-ipfilter
-Prereq:		chkconfig, rpm-helper
 Conflicts:	ipchains
 
 %description
@@ -115,6 +118,10 @@ rm -rf $RPM_BUILD_ROOT $RPM_BUILD_DIR/file.list.%{name}
 %doc INSTALL KNOWN_BUGS ip6tables.sample
 
 %changelog
+* Sat Dec 13 2003 Vincent Danen <vdanen@opensls.org> 1.2.8-3sls
+- OpenSLS build
+- tidy spec
+
 * Tue Aug 26 2003 Juan Quintela <quintela@mandrakesoft.com> 1.2.8-2mdk
 - added imq support.
 

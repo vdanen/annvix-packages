@@ -1,16 +1,18 @@
-Summary:		The basic required files for the root user's directory
-Name:			rootfiles
+%define name	rootfiles
+%define version	9.1
+%define	release	1sls
+
+Summary:	The basic required files for the root user's directory
+Name:		%{name}
 # MODIFY IN THE CVS !!
-Version:		9.1
-Release:		0.1mdk
-License:		Public Domain
-Group:			System/Base
-Packager:		David BAUDENS <baudens@mandrakesoft.com>
+Version:	%{version}
+Release:	%{release}
+License:	Public Domain
+Group:		System/Base
+Source:		%name-%version.tar.bz2
 
-Source:			%name-%version.tar.bz2
-
-BuildRoot:		%_tmppath/%name-%version-%release-root
-BuildArch:		noarch
+BuildRoot:	%_tmppath/%name-%version-%release-root
+BuildArch:	noarch
 
 %description
 The rootfiles package contains basic required files that are placed
@@ -54,6 +56,10 @@ fi
 %attr(0700,root,root) /root/tmp/
 
 %changelog
+* Mon Dec 01 2003 Vincent Danen <vdanen@opensls.org> 9.1-1sls
+- OpenSLS build
+- tidy spec
+
 * Sat Nov 30 2002 Yves Duret <yves@zarb.org> 9.1-0.1mdk
 - bashrc: source /etc/bashrc after PATH redefinition (for bash_completion)
   thanks Guillaume Rousse.

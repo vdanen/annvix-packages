@@ -1,18 +1,20 @@
-%define name m4
+%define name	m4
 %define version 1.4ppre2
-%define release 4mdk
+%define release 5sls
 
-Summary: The GNU macro processor.
-Name: %{name}
-Version: %{version}
-Release: %{release}
-License: GPL
-Group: Development/Other
-Url: http://www.seindal.dk/rene/gnu/
-Source: ftp://ftp.gnu.org/pub/gnu/m4-1.4.tar.bz2
-Patch: m4-1.4-glibc.patch.bz2
-Buildroot: %{_tmppath}/%{name}-buildroot
-Prereq: /sbin/install-info
+Summary:	The GNU macro processor.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		Development/Other
+URL:		http://www.seindal.dk/rene/gnu/
+Source:		ftp://ftp.gnu.org/pub/gnu/m4-1.4.tar.bz2
+Patch:		m4-1.4-glibc.patch.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-buildroot
+
+Prereq:		/sbin/install-info
 
 %description
 A GNU implementation of the traditional UNIX macro processor.  M4 is
@@ -61,6 +63,10 @@ fi
 rm -rf $RPM_BUILD_ROOT
 
 %changelog
+* Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 1.4ppre2-5sls
+- OpenSLS build
+- tidy spec
+
 * Wed Jul 23 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 1.4ppre2-4mdk
 - rebuild
 - rm -rf $RPM_BUILD_ROOT in %%install, not %%prep

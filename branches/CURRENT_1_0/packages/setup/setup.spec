@@ -1,20 +1,23 @@
+%define name	setup
 %define version 2.4
-%define release 2mdk
+%define release 3sls
 
-Summary: A set of system configuration and setup files.
-Name: setup
-Version: %{version}
-Release: %{release}
-License: public domain
-Group: System/Configuration/Other
+Summary:	A set of system configuration and setup files.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	Public Domain
+Group:		System/Configuration/Other
+URL:		http://www.linux-mandrake.com/cgi-bin/cvsweb.cgi/soft/setup/
 # get the source from our cvs repository (see
 # http://www.linuxmandrake.com/en/cvs.php3)
-Source: setup-%{version}.tar.bz2
-Buildroot: %{_tmppath}/%{name}-root
-Conflicts: crontabs <= 1.7-12mdk
-Conflicts: bash <= 2.05-2mdk
-Conflicts: kdebase < 2.2.2-41mdk, proftpd < 1.2.5-0.rc1.3mdk, DansGuardian < 2.2.3-4mdk
-Url: http://www.linux-mandrake.com/cgi-bin/cvsweb.cgi/soft/setup/
+Source:		setup-%{version}.tar.bz2
+
+Buildroot:	%{_tmppath}/%{name}-root
+
+Conflicts:	crontabs <= 1.7-12mdk
+Conflicts:	bash <= 2.05-2mdk
+Conflicts:	kdebase < 2.2.2-41mdk, proftpd < 1.2.5-0.rc1.3mdk, DansGuardian < 2.2.3-4mdk
 
 %description
 The setup package contains a set of very important system
@@ -83,6 +86,10 @@ if [ -x /usr/sbin/nscd ]; then
 fi
 
 %changelog
+* Mon Dec 01 2003 Vincent Danen <vdanen@opensls.org> 2.4-3sls
+- OpenSLS build
+- tidy spec
+
 * Wed Aug 27 2003 Frederic Lepied <flepied@mandrakesoft.com> 2.4-2mdk
 - removed prereq on rpm-helper
 

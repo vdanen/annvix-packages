@@ -1,58 +1,62 @@
-Summary: A set of documentation tools:  man, apropos and whatis.
-Name: man
-Version: 1.5k
-Release: 12mdk
-License: GPL
-Group: System/Base
-Url:	 ftp://ftp.win.tue.nl:/pub/linux-local/utils/man
-Source0: ftp://ftp.win.tue.nl/pub/linux-local/utils/man/man-%version.tar.bz2
-Source1: makewhatis.cronweekly
-Source2: makewhatis.crondaily
-Source3: man.config.5
+%define name	man
+%define version	1.5k
+%define release	13sls
+
+Summary:	A set of documentation tools:  man, apropos and whatis.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		System/Base
+URL:		ftp://ftp.win.tue.nl:/pub/linux-local/utils/man
+Source0:	ftp://ftp.win.tue.nl/pub/linux-local/utils/man/man-%version.tar.bz2
+Source1:	makewhatis.cronweekly
+Source2:	makewhatis.crondaily
+Source3:	man.config.5
 # changed 'groff -Tlatin' to 'nroff' (no -T option); that makes auto-detect
 # the charset to use for the output -- pablo
-Patch1: man-1.5k-confpath.patch.bz2
-Patch3: man-1.5j-devtty.patch.bz2
-Patch4: man-1.5h1-make.patch.bz2
-Patch5: man-1.5k-nonascii.patch.bz2
-Patch6: man-1.5k-security.patch.bz2
-Patch7: man-1.5k-mandirs.patch.bz2
-Patch8: man-1.5k-bug11621.patch.bz2
-Patch9: man-1.5k-sofix.patch.bz2
-Patch10: man-1.5j-buildroot.patch.bz2
-Patch11: man-1.5j-quoting.patch.bz2
-Patch12: man-1.5i-ro-usr.patch.bz2
-Patch14: man-1.5i2-newline.patch.bz2
-Patch15: man-1.5k-lookon.patch.bz2
-Patch16: man-1.5i-oldwhatis.patch.bz2
-Patch17: man-1.5j-utf8.patch.bz2
+Patch1:		man-1.5k-confpath.patch.bz2
+Patch3:		man-1.5j-devtty.patch.bz2
+Patch4:		man-1.5h1-make.patch.bz2
+Patch5:		man-1.5k-nonascii.patch.bz2
+Patch6:		man-1.5k-security.patch.bz2
+Patch7:		man-1.5k-mandirs.patch.bz2
+Patch8:		man-1.5k-bug11621.patch.bz2
+Patch9:		man-1.5k-sofix.patch.bz2
+Patch10:	man-1.5j-buildroot.patch.bz2
+Patch11:	man-1.5j-quoting.patch.bz2
+Patch12:	man-1.5i-ro-usr.patch.bz2
+Patch14:	man-1.5i2-newline.patch.bz2
+Patch15:	man-1.5k-lookon.patch.bz2
+Patch16:	man-1.5i-oldwhatis.patch.bz2
+Patch17:	man-1.5j-utf8.patch.bz2
 # comment out the NJROFF line of man.conf, so that the nroff script
 # can take care of japanese -- pablo
-Patch18: man-1.5k-nroff.patch.bz2
-Patch19: man-1.5i2-overflow.patch.bz2
-Patch22: man-1.5j-nocache.patch.bz2
-Patch24: man-1.5i2-initial.patch.bz2
-#Patch25: man-1.5i2-legacy.patch.bz2
-Patch26: man-1.5k-gcc33.patch.bz2
-
+Patch18:	man-1.5k-nroff.patch.bz2
+Patch19:	man-1.5i2-overflow.patch.bz2
+Patch22:	man-1.5j-nocache.patch.bz2
+Patch24:	man-1.5i2-initial.patch.bz2
+#Patch25:	man-1.5i2-legacy.patch.bz2
+Patch26:	man-1.5k-gcc33.patch.bz2
 # Japanese patches
-Patch51: man-1.5h1-gencat.patch.bz2
-Patch100: man-1.5g-bzip2.patch.bz2
-Patch101: man-1.5k-bzip2whatis-v2.patch.bz2
-Patch102: man-1.5g-nonrootbuild.patch.bz2
-Patch104: man-1.5i2-tv_fhs.patch.bz2
-Patch105: man-1.5j-i18n.patch.bz2
-Patch106: man-1.5j-perlman.patch.bz2
-Patch107: man-1.5j-whatis2.patch.bz2
-Patch108: man-1.5j-whatis-l10n.patch.bz2
-Patch200: man-1.5k-colored_groff.patch.bz2
-Patch201: man-1.5k-l10ned-whatis.patch.bz2
-Patch300: man-1.5k-security-fix.patch.bz2
+Patch51:	man-1.5h1-gencat.patch.bz2
+Patch100:	man-1.5g-bzip2.patch.bz2
+Patch101:	man-1.5k-bzip2whatis-v2.patch.bz2
+Patch102:	man-1.5g-nonrootbuild.patch.bz2
+Patch104:	man-1.5i2-tv_fhs.patch.bz2
+Patch105:	man-1.5j-i18n.patch.bz2
+Patch106:	man-1.5j-perlman.patch.bz2
+Patch107:	man-1.5j-whatis2.patch.bz2
+Patch108:	man-1.5j-whatis-l10n.patch.bz2
+Patch200:	man-1.5k-colored_groff.patch.bz2
+Patch201:	man-1.5k-l10ned-whatis.patch.bz2
+Patch300:	man-1.5k-security-fix.patch.bz2
 
 
-Buildroot: %_tmppath/%{name}-root/
-Requires: groff-for-man
-Prereq:	setup
+BuildRoot:	%_tmppath/%{name}-root
+
+Requires:	groff-for-man
+Prereq:		setup
 
 %description
 The man package includes three tools for finding information and/or
@@ -200,6 +204,10 @@ chmod 755 $RPM_BUILD_ROOT/usr/sbin/makewhatis
 
 
 %changelog
+* Mon Dec 02 2003 Vincent Danen <vdanen@mandrakesoft.com> 1.5k-13sls
+- OpenSLS build
+- tidy spec
+
 * Wed Jul 23 2003 Thierry Vignaud <tvignaud@mandrakesoft.com> 1.5k-12mdk
 - fix patch 107
 

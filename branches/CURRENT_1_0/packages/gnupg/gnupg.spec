@@ -1,9 +1,9 @@
-%define name gnupg
+%define name	gnupg
 %define version 1.2.3
-%define release 3mdk
+%define release 4sls
 
-Name:		%{name}
 Summary:	GNU privacy guard - a free PGP replacement.
+Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	GPL
@@ -15,8 +15,9 @@ Source2:	mdk-keys.tar.bz2
 Source3:	mdk-keys.tar.bz2.sig
 Patch0:		gnupg-1.0.7-options.patch.bz2
 Patch1:		gnupg-1.2.2-testsuite.patch.bz2
+Patch2:		gnupg-1.2.3-elgamal.patch.bz2
+
 BuildRoot:	%{_tmppath}/%{name}-buildroot
-Packager:	Vincent Danen <vdanen@mandrakesoft.com>
 
 %description
 GnuPG is GNU's tool for secure communication and data storage.
@@ -30,6 +31,9 @@ with the proposed OpenPGP Internet standard as described in RFC2440.
 %setup -q
 %patch0 -p1 -b .mdkopts
 #%patch1 -p1 -b .testsuite
+pushd g10
+%patch2 -p0 -b .badkey
+popd
 
 %build
 %ifnarch sparc sparc64
@@ -99,6 +103,13 @@ rm -rf $RPM_BUILD_DIR/%{name}-%{version}
 %attr(0644,root,root) %{_sysconfdir}/RPM-GPG-KEYS/*.asc
 
 %changelog
+* Tue Dec 02 2003 Vincent Danen <vdanen@opensls.org> 1.2.3-4sls
+- OpenSLS build
+- tidy spec
+
+* Thu Nov 27 2003 Vincent Danen <vdanen@mandrakesoft.com> 1.2.3-3.1.92mdk
+- security fix (elgamal vuln)
+
 * Tue Aug 26 2003 Vincent Danen <vdanen@mandrakesoft.com> 1.2.3-3mdk
 - remove import of gpg keys for rpm as it apparently corrupts the rpmdb
 

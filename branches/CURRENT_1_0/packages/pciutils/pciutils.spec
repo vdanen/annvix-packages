@@ -1,19 +1,25 @@
-Name:		pciutils
-Version:	2.1.11
-Release:	4mdk
-Source0:	ftp://atrey.karlin.mff.cuni.cz/pub/linux/pci/%{name}-%{version}.tar.bz2
+%define name	pciutils
+%define version	2.1.11
+%define release	5sls
+
+Summary:	PCI bus related utilities.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		System/Kernel and hardware
 URL:		http://atrey.karlin.mff.cuni.cz/~mj/pciutils.html
+Source0:	ftp://atrey.karlin.mff.cuni.cz/pub/linux/pci/%{name}-%{version}.tar.bz2
 Patch1:		pciutils-bufsiz.patch.bz2
 Patch10:	pciutils-2.1.11-pcimodules.patch.bz2
 Patch11:	pciutils-2.1.6-cardbusonlywhenroot.patch.bz2
 Patch12:	pciutils-2.1.9-unused.patch.bz2
 Patch13:	pciutils-2.1.10-x86_64.patch.bz2
-License:	GPL
-Buildroot:	%{_tmppath}/%{name}-%{version}-root
-Requires:	kernel >= 2.1.82
+
+BuildRoot:	%{_tmppath}/%{name}-%{version}-root
 BuildRequires:	wget
-Summary:	PCI bus related utilities.
-Group:		System/Kernel and hardware
+
+Requires:	kernel >= 2.1.82
 
 %description
 This package contains various utilities for inspecting and setting
@@ -70,6 +76,10 @@ install -m 644 lib/{pci.h,header.h,config.h} $RPM_BUILD_ROOT%_includedir/pci
 rm -rf $RPM_BUILD_ROOT
 
 %changelog
+* Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 2.1.11-5sls
+- OpenSLS build
+- tidy spec
+
 * Thu Aug 14 2003 Pixel <pixel@mandrakesoft.com> 2.1.11-4mdk
 - distlint DIRM fix: own /usr/include/pci
 - get latest pci.ids

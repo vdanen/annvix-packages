@@ -1,4 +1,8 @@
-%define maj 0.9.7
+%define name	openssl
+%define version	0.9.7b
+%define release	5sls
+
+%define maj	0.9.7
 %define libname %mklibname %name %maj
 %define libnamedev %libname-devel
 %define libnamestatic %libname-static-devel
@@ -7,12 +11,13 @@
 %define french_policy 0
 
 Summary:	Secure Sockets Layer communications libs & utils
-Name:		openssl
-Version:	0.9.7b
-Release:	4mdk
-
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	BSD-like
+Group:		System/Libraries
+URL:		http://www.openssl.org/
 Source:		ftp://ftp.openssl.org/source/%{name}-%{version}.tar.bz2
-
 # (gb) 0.9.6b-5mdk: Limit available SSL ciphers to 128 bits
 Patch0:		openssl-0.9.6b-mdkconfig.patch.bz2
 # (fg) 20010202 Patch from RH: some funcs now implemented with ia64 asm
@@ -21,11 +26,12 @@ Patch1:		openssl-0.9.7-ia64-asm.patch.bz2
 Patch2:		openssl-0.9.7b-optflags.patch.bz2
 # (gb) 0.9.7b-4mdk: Make it lib64 aware. TODO: detect in Configure
 Patch3:		openssl-0.9.7b-lib64.patch.bz2
+# security fixes: CAN-2003-0543, CAN-2003-0544, CAN-2003-0545
+Patch4:                openssl-0.9.6c-ccert.patch.bz2
+Patch5:                niscc-097.txt.bz2
 
-License:	BSD-like
-Group:		System/Libraries
-URL:		http://www.openssl.org/
 BuildRoot:	%_tmppath/%name-%version-root
+
 Requires:	%libname = %version-%release
 Requires:	/usr/bin/perl
 
@@ -102,6 +108,9 @@ Patches for many networking apps can be found at:
 %patch1 -p1 -b .ia64-asm
 %patch2 -p1 -b .optflags
 %patch3 -p1 -b .lib64
+%patch4 -p1 -b .ccert
+%patch5 -p1 -b .niscc
+
 perl -pi -e "s,^(LIB=).+$,\1%{_lib}," Makefile.org
 
 %build 
@@ -192,6 +201,13 @@ rm -fr %buildroot
 %postun -n %{libname} -p /sbin/ldconfig
 
 %changelog
+* Mon Dec 02 2003 Vincent Danen <vdanen@mandrakesoft.com> 0.9.7b-5sls
+- OpenSLS build
+- tidy spec
+
+* Tue Sep 30 2003 Vincent Danen <vdanen@mandrakesoft.com> 0.9.7b-4.1.92mdk
+- security fixes: CAN-2003-0543, CAN-2003-0544, CAN-2003-0545
+
 * Thu Jul 31 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 0.9.7b-4mdk
 - Patch2: Make sure to handle RPM_OPT_FLAGS in Configure
 

@@ -1,42 +1,40 @@
-%define name modutils
+%define name	modutils
 %define version 2.4.25
-%define release 2mdk
+%define release 3sls
+
 %define url ftp://ftp.kernel.org:/pub/linux/utils/kernel/modutils/v2.4
 %define priority 10
 
 %define toalternate insmod lsmod modprobe rmmod depmod modinfo
 
-Summary: The kernel daemon (kerneld) and kernel module utilities.
-Name: %{name}
-Version: %{version}
-Release: %{release}
-License: GPL
-Group:  System/Kernel and hardware
+Summary:	The kernel daemon (kerneld) and kernel module utilities.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		System/Kernel and hardware
+URL:		%{url}
+Source0:	%{url}/%{name}-%{version}.tar.bz2
+Source1:	modules.conf
+Source2:	macros
+Patch1:		modutils-2.4.13-systemmap.patch.bz2
+Patch2:		modutils-2.4.2-prepost.patch.bz2
+Patch3:		modutils-2.4.6-silence.patch.bz2
+Patch4:		modutils-2.4.12-ppc3264.patch.bz2
+Patch100:	modutils-2.4.22-various-aliases.patch.bz2
+Patch101:	modutils-2.4.13-no-scsi_hostadapter-off.patch.bz2
+Patch102:	modutils-2.4.22-pre_post_and_usbmouse.patch.bz2
 
-Source0: %{url}/%{name}-%{version}.tar.bz2
-Source1: modules.conf
-Source2: macros
-
-Patch1: modutils-2.4.13-systemmap.patch.bz2
-Patch2: modutils-2.4.2-prepost.patch.bz2
-Patch3: modutils-2.4.6-silence.patch.bz2
-Patch4: modutils-2.4.12-ppc3264.patch.bz2
-
-Patch100: modutils-2.4.22-various-aliases.patch.bz2
-Patch101: modutils-2.4.13-no-scsi_hostadapter-off.patch.bz2
-Patch102: modutils-2.4.22-pre_post_and_usbmouse.patch.bz2
-
-BuildRoot: %{_tmppath}/%{name}-buildroot
-Prefix: %{_prefix}
-Url: %{url}
-Prereq: /sbin/chkconfig, /usr/sbin/update-alternatives
-ExclusiveOs: Linux
+BuildRoot:	%{_tmppath}/%{name}-buildroot
 BuildRequires:	bison flex zlib-devel gperf glibc-static-devel
-Obsoletes: modules
-Provides: modules
+
+Prefix:		%{_prefix}
+Prereq:		/sbin/chkconfig, /usr/sbin/update-alternatives
+ExclusiveOs:	Linux
+Obsoletes:	modules
+Provides:	modules
 
 %description
-
 The modutils packages includes the kerneld program for automatic
 loading and unloading of modules under 2.2 and 2.4 kernels, as well as
 other module management programs.  Examples of loaded and unloaded
@@ -187,6 +185,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man8/ksyms.8*
 
 %changelog
+* Mon Dec 01 2003 Vincent Danen <vdanen@opensls.org> 2.4.25-3sls
+- OpenSLS build
+- tidy spec
+
 * Fri Aug 29 2003 Juan Quintela <quintela@mandrakesoft.com> 2.4.25-2mdk
 - /lib/modutils dir belongs to this package.
 

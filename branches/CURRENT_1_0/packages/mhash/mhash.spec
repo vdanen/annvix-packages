@@ -1,18 +1,19 @@
 %define name	mhash
 %define version	0.8.18
-%define release	3mdk
+%define release	4sls
 
-%define major 2
+%define major	2
 %define libname %mklibname %{name} %{major}
 
 Summary:	Thread-safe hash library
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
-Group:		System/Libraries
-Source:		%{name}-%{version}.tar.bz2
 License:	BSD
+Group:		System/Libraries
 URL:		http://mhash.sourceforge.net/
+Source:		%{name}-%{version}.tar.bz2
+
 BuildRoot:	%{_tmppath}/%{name}-buildroot
 
 %description
@@ -23,7 +24,7 @@ used to compute checksums, message digests, and other signatures.
 The HMAC support implements the basics for message authentication, 
 following RFC 2104.
 
-%package -n	%{libname}
+%package -n %{libname}
 Summary:	Thread-safe hash library
 Group:		System/Libraries
 
@@ -35,7 +36,7 @@ used to compute checksums, message digests, and other signatures.
 The HMAC support implements the basics for message authentication,
 following RFC 2104.
 
-%package -n	%{libname}-devel
+%package -n %{libname}-devel
 Summary:	Header files and libraries for developing apps which will use mhash
 Group:		Development/C
 Requires:	%{libname} = %{version}
@@ -85,6 +86,10 @@ will use the mhash library.
 %{_includedir}/*.h
 
 %changelog
+* Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 0.8.18-4sls
+- OpenSLS build
+- tidy spec
+
 * Mon Nov 10 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 0.8.18-3mdk
 - new url
 - misc spec file fixes

@@ -1,6 +1,6 @@
 %define name 	nss_ldap
 %define version 207
-%define release 2mdk
+%define release 5sls
 %define pam_ldap_version 164
 
 Summary:	NSS library and PAM module for LDAP.
@@ -10,11 +10,6 @@ Release: 	%{release}
 License:	LGPL
 Group:		System/Libraries
 URL: 		http://www.padl.com/
-BuildRequires:	db4-devel >= 4.1.25
-BuildRequires:	gdbm-devel
-BuildRequires:	libldap2-devel-static >= 2.0.7-7.1mdk
-BuildRequires:	openssl-devel >= 0.9.6
-BuildRequires:	pam-devel
 Source0:	%{name}-%{version}.tar.bz2
 Source1: 	pam_ldap-%{pam_ldap_version}.tar.bz2
 Source2:	ldap-mdk.conf
@@ -23,7 +18,13 @@ Patch1:		nss_ldap-150-db3.patch.bz2
 Patch2:		pam_ldap-156-makefile.patch.bz2
 Patch3: 	pam_ldap-107-dnsconfig.patch.bz2
 Patch4:		pam_ldap-164-fix-duplicate-definition.patch.bz2
+Patch5:		nss_ldap-207-db4.patch.bz2
+
 BuildRoot: 	%{_tmppath}/%{name}-%{version}-buildroot
+BuildRequires:	db4-devel >= 4.1.25
+BuildRequires:	libldap-devel >= 2.0.7-7.1mdk
+BuildRequires:	openssl-devel >= 0.9.6
+BuildRequires:	pam-devel
 
 %description
 This package includes two LDAP access clients: nss_ldap and pam_ldap.
@@ -54,6 +55,7 @@ rm -rf $RPM_BUILD_ROOT
 %setup -q -a 1
 %patch0 -p1 -b .makefile
 %patch1 -p1 -b .db3
+%patch5 -p1 -b .db4
 pushd pam_ldap-%{pam_ldap_version}
 %patch2 -p1 -b .pam_makefile
 %patch3 -p1 -b .dnsconfig
@@ -69,7 +71,7 @@ rm -rf $RPM_BUILD_ROOT
 # Build nss_ldap.
 aclocal && automake && autoheader && autoconf
 %configure --enable-schema-mapping --with-ldap-lib=openldap --enable-debug \
---enable-rfc2307bis --enable-ids-uid --libdir=/lib
+--enable-rfc2307bis --enable-ids-uid --libdir=/%_lib
 %__make INST_UID=`id -u` INST_GID=`id -g`
 
 # Build pam_ldap.
@@ -77,7 +79,7 @@ pushd pam_ldap-%{pam_ldap_version}
 touch NEWS
 aclocal && automake && autoheader && autoconf
 export CFLAGS="$CFLAGS -fno-strict-aliasing"
-%configure --with-ldap-lib=openldap --libdir=/lib
+%configure --with-ldap-lib=openldap --libdir=/%_lib
 %__make
 popd
 
@@ -85,16 +87,16 @@ popd
 rm -rf $RPM_BUILD_ROOT
 
 install -d $RPM_BUILD_ROOT%{_sysconfdir}
-install -d $RPM_BUILD_ROOT/lib/security
+install -d $RPM_BUILD_ROOT/%_lib/security
 
 # Install the nsswitch module.
 %make install DESTDIR="${RPM_BUILD_ROOT}" INST_UID=`id -u` INST_GID=`id -g` \
-	libdir=/lib
+	libdir=/%_lib
 
 
 # Install the module for PAM.
 pushd pam_ldap-%{pam_ldap_version}
-%make install DESTDIR="$RPM_BUILD_ROOT" libdir=/lib
+%make install DESTDIR="$RPM_BUILD_ROOT" libdir=/%_lib
 popd
 echo "secret" > $RPM_BUILD_ROOT/%{_sysconfdir}/ldap.secret
 
@@ -124,14 +126,30 @@ fi
 %doc nsswitch.ldap certutil ldap.conf
 %attr (600,root,root) %config(noreplace) %{_sysconfdir}/ldap.secret
 %attr (644,root,root) %config(noreplace) %{_sysconfdir}/ldap.conf
-/lib/*so*
+/%_lib/*so*
 
 %files -n pam_ldap 
 %defattr(-,root,root)
 %doc pam_ldap-%{pam_ldap_version}/{AUTHORS,NEWS,COPYING,COPYING.LIB,README,ChangeLog,pam.d,chsh,chfn,ldap.conf}
-/lib/security/*so*
+/%_lib/security/*so*
 
 %changelog
+* Tue Dec 02 2003 Vincent Danen <vdanen@opensls.org> 207-5sls
+- OpenSLS build
+- tidy spec
+
+* Mon Nov 17 2003 Vincent Danen <vdanen@mandrakesoft.com> 207-4.1.92mdk
+- fixes from Luca Berra <bluca@vodka.it>
+  - fix looking for db4 libraries
+  - remove buildrequire for gdbm, static ldap libs
+  - buildrequires: ldap-devel
+
+* Fri Oct 17 2003 Vincent Danen <vdanen@mandrakesoft.com> 207-4mdk
+- use /%%_lib not /lib so libs are installed in the right place for amd64
+
+* Fri Sep 26 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 207-3mdk
+- fix deps
+
 * Thu Sep 18 2003 Florin <florin@mandrakesoft.com> 207-2mdk
 - rebuild
 

@@ -1,19 +1,22 @@
+%define name	passwd
+%define version	0.68
+%define release	3sls
+
 Summary:	The passwd utility for setting/changing passwords using PAM
-Name:		passwd
-Version:	0.68
-Release:	2mdk
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
 License:	BSD
 Group:		System/Base
-Source0:	passwd-%{version}.tar.bz2
-Patch:		passwd-0.67-manpath.patch.bz2
 # This url is stupid, someone come up with a better one _please_!
 URL:		http://www.freebsd.org
-Buildroot:	%_tmppath/%name-%version-%release-root
+Source0:	passwd-%{version}.tar.bz2
+Patch:		passwd-0.67-manpath.patch.bz2
+
+BuildRoot:	%_tmppath/%name-root
+BuildRequires:	glib2-devel, libuser-devel, pam-devel, popt-devel
+
 Requires:	pam >= 0.59, pwdb >= 0.58, /etc/libuser.conf
-BuildRequires:	glib2-devel
-BuildRequires:	libuser-devel
-BuildRequires:	pam-devel
-BuildRequires:	popt-devel
 
 %description
 The passwd package contains a system utility (passwd) which sets
@@ -52,6 +55,10 @@ rm -fr %buildroot
 %_mandir/man1/passwd.1*
 		
 %changelog
+* Mon Dec 01 2003 Vincent Danen <vdanen@opensls.org> 0.68-3sls
+- OpenSLS build
+- tidy spec
+
 * Mon Jul 21 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 0.68-2mdk
 - rebuild
 - rm -rf $RPM_BUILD_ROOT at the beginning of %%install

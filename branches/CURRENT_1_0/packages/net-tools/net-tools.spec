@@ -1,26 +1,29 @@
+%define name	net-tools
 %define version 1.60
-%define release 9mdk
+%define release 10sls
+
 %define url http://www.tazenda.demon.co.uk/phil/net-tools/
 
-Summary: The basic tools for setting up networking.
-Name: net-tools
-Version: %{version}
-Release: %{release}
-License: GPL
-Group: System/Configuration/Networking
-URL: %{url}
-Source0: %{url}/net-tools-%{version}.tar.bz2
-Source1: net-tools-1.54-config.h.bz2
-Source2: net-tools-1.54-config.make.bz2
-Source3: net-tools-1.54-config.status.bz2
-Source5: ether-wake.c
+Summary:	The basic tools for setting up networking.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		System/Configuration/Networking
+URL:		%{url}
+Source0:	%{url}/net-tools-%{version}.tar.bz2
+Source1:	net-tools-1.54-config.h.bz2
+Source2:	net-tools-1.54-config.make.bz2
+Source3:	net-tools-1.54-config.status.bz2
+Source5:	ether-wake.c
+Patch1:		net-tools-1.54-ipvs.patch.bz2
+Patch2:		net-tools-1.57-bug22040.patch.bz2
+Patch3:		net-tools-1.60-manydevs.patch.bz2
+Patch4:		net-tools-1.60-virtualname.patch.bz2
+Patch5:		net-tools-1.60-gcc-3.3.patch.bz2
+
 BuildRequires:	gettext
-BuildRoot: %{_tmppath}/%{name}-root
-Patch1: net-tools-1.54-ipvs.patch.bz2
-Patch2: net-tools-1.57-bug22040.patch.bz2
-Patch3: net-tools-1.60-manydevs.patch.bz2
-Patch4: net-tools-1.60-virtualname.patch.bz2
-Patch5:	net-tools-1.60-gcc-3.3.patch.bz2
+BuildRoot:	%{_tmppath}/%{name}-root
 
 %description
 The net-tools package contains the basic tools needed for setting up
@@ -74,6 +77,10 @@ rm -rf $RPM_BUILD_ROOT
 %lang(pt_BR)	%{_mandir}/pt_BR/man[158]/*
 
 %changelog
+* Mon Dec 01 2003 Vincent Danen <vdanen@opensls.org> 1.60-10sls
+- OpenSLS build
+- tidy spec
+
 * Wed Jul 23 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 1.60-9mdk
 - fix gcc-3.3 patch (P5)
 

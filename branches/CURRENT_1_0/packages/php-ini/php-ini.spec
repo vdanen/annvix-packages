@@ -1,13 +1,19 @@
-Name:		php-ini
-Version:	4.3.4
-Release:	1mdk
+%define name	php-ini
+%define version	4.3.4
+%define release	2sls
+
+Summary:	INI files for PHP
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	PHP License
 Group:		Development/Other
 URL:		http://www.php.net
-License:	PHP License
-Summary:	INI files for PHP
+Source0:	php.ini.bz2
+
 BuildRoot:	%{_tmppath}/%{name}-root
 BuildArch:	noarch
-Source0:	php.ini.bz2
+
 Provides: 	ADVXpackage
 
 %description
@@ -51,6 +57,10 @@ fi
 %doc %{_docdir}/%{name}-%{version}/*
 
 %changelog
+* Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 4.3.4-2sls
+- OpenSLS build
+- tidy spec
+
 * Tue Nov 04 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 4.3.4-1mdk
 - built for 4.3.4
 

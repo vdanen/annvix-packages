@@ -1,10 +1,14 @@
+%define name	sash
+%define version	3.5
+%define release 7sls
+
 Summary:	A statically linked shell, including some built-in basic commands
-Name:		sash
-Version:	3.5
-Release:	6mdk
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
 License:	GPL
 Group:		Shells
-Url:        http://www.canb.auug.org.au/~dbell/
+URL:		http://www.canb.auug.org.au/~dbell/
 Source0:	http://www.canb.auug.org.au/~dbell/programs/sash-%{version}.tar.bz2
 Patch0:		sash-3.5-optflags.patch.bz2
 Patch1:		sash-3.4-scriptarg.patch.bz2
@@ -14,6 +18,7 @@ Patch4: 	sash-3.4-ignore-args.patch.bz2
 
 BuildRequires:	zlib-devel glibc-static-devel
 Buildroot:	%_tmppath/%name-%version-%release-root
+
 Prereq:	 grep
 
 %description
@@ -51,6 +56,10 @@ rm -rf $RPM_BUILD_ROOT
 %_mandir/*/*
 
 %changelog
+* Mon Dec 01 2003 Vincent Danen <vdanen@opensls.org> 3.5-7sls
+- OpenSLS build
+- tidy spec
+
 * Mon May  5 2003 Pixel <pixel@mandrakesoft.com> 3.5-6mdk
 - add "BuildRequires: glibc-static-devel"
 

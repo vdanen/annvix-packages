@@ -1,23 +1,25 @@
-%define theirversion 2.5.1
+%define name	grep
 %define version 2.5.1
-%define _bindir /bin
-%define release 3mdk
+%define release 4sls
 
-Summary: The GNU versions of grep pattern matching utilities.
-Name: grep
-Version: %{version}
-Release: %{release}
-License: GPL
-Group: File tools
-Source: ftp://ftp.gnu.org/pub/gnu/grep/%{name}-%{theirversion}.tar.bz2
+%define theirversion 2.5.1
+%define _bindir /bin
+
+Summary:	The GNU versions of grep pattern matching utilities.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		File tools
+Source:		ftp://ftp.gnu.org/pub/gnu/grep/%{name}-%{theirversion}.tar.bz2
 # Chinese locale
-Source10: grep-zh_TW.po.bz2
-Source11: grep-zh_CN.GB2312.po.bz2
-Patch0: grep-2.5-factorize-egrep-and-fgrep.patch.bz2
-Patch1: grep-2.5-i18n-patch.bz2
-URL: http://www.gnu.org/software/grep/grep.html
-Requires: /%{_lib}/libpcre.so.0
-Buildroot: %{_tmppath}/%{name}-root
+Source10:	grep-zh_TW.po.bz2
+Source11:	grep-zh_CN.GB2312.po.bz2
+Patch0:		grep-2.5-factorize-egrep-and-fgrep.patch.bz2
+Patch1:		grep-2.5-i18n-patch.bz2
+URL:		http://www.gnu.org/software/grep/grep.html
+Requires:	/%{_lib}/libpcre.so.0
+Buildroot:	%{_tmppath}/%{name}-root
 BuildRequires:	bison 
 BuildRequires:	gettext
 BuildRequires:	libpcre-devel
@@ -33,9 +35,9 @@ You should install grep on your system, because it is a very useful utility
 for searching through text files, for system administration tasks, etc.
 
 %package doc
-Summary: Grep documentation in info format
-Group: Books/Computer books
-Prereq: /sbin/install-info
+Summary:	Grep documentation in info format
+Group:		Books/Computer books
+Prereq:		/sbin/install-info
 
 %description doc
 The GNU versions of commonly used grep utilities.  Grep searches one or
@@ -101,6 +103,10 @@ rm -rf $RPM_BUILD_ROOT
 %_remove_install_info %{name}.info
 
 %changelog
+* Sun Nov 30 2003 Vincent Danen <vdanen@opensls.org> 2.5.1-4sls
+- OpenSLS build
+- tidy spec
+
 * Thu Jul 31 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 2.5.1-3mdk
 - Requires: /%{_lib}/libpcre.so.0
 

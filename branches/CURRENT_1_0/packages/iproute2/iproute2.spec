@@ -1,35 +1,38 @@
+%define name	iproute2
+%define version	2.4.7
+%define release	12sls
+
 # sync: rh-2.4.7-7
 
-%define snap 010824
+%define snap	010824
 
 Summary: 	Advanced IP routing and network device configuration tools.
-Name:		iproute2
-Version: 	2.4.7
-Release: 	11mdk
+Name:		%{name}
+Version: 	%{version}
+Release: 	%{release}
 License: 	GPL
-Url:		ftp://ftp.inr.ac.ru/ip-routing/
 Group:  	Networking/Other
-Source2: iproute2-man8.tar.bz2
+URL:		ftp://ftp.inr.ac.ru/ip-routing/
 Source: 	%{name}-%version-now-ss%snap.tar.bz2
+Source2:	iproute2-man8.tar.bz2
 # RH patches
-Patch0:	iproute2-2.2.4-docmake.patch.bz2
-Patch1: iproute2-misc.patch.bz2
-Patch2: iproute2-config.patch.bz2
-Patch4: iproute2-in_port_t.patch.bz2
-#Patch5 is fscking compilation against kernel22 in rh
-Patch6: iproute2-flags.patch.bz2
-Patch8: iproute2-2.4.7-hex.patch.bz2
-Patch9: iproute2-2.4.7-config.patch.bz2
+Patch0:		iproute2-2.2.4-docmake.patch.bz2
+Patch1:		iproute2-misc.patch.bz2
+Patch2:		iproute2-config.patch.bz2
+Patch4:		iproute2-in_port_t.patch.bz2
+Patch6:		iproute2-flags.patch.bz2
+Patch8:		iproute2-2.4.7-hex.patch.bz2
+Patch9:		iproute2-2.4.7-config.patch.bz2
 # MDK patches
-Patch100: iproute2-def-echo.patch.bz2
-Patch102: iproute2-2.4.7-bashfix.patch.bz2
-Patch103: iproute2-htb3.6_tc.patch.bz2
-Patch104: iproute2-2.4.7-now-ss010824-make.patch.bz2
-Patch105: iproute2-mult-deflt-gateways.patch.bz2
+Patch100:	iproute2-def-echo.patch.bz2
+Patch102:	iproute2-2.4.7-bashfix.patch.bz2
+Patch103:	iproute2-htb3.6_tc.patch.bz2
+Patch104:	iproute2-2.4.7-now-ss010824-make.patch.bz2
+Patch105:	iproute2-mult-deflt-gateways.patch.bz2
 
-
-BuildRequires:	tetex-dvips tetex-latex
 BuildRoot:	%_tmppath/%name-%version-%release-root
+BuildRequires:	tetex-dvips tetex-latex
+
 Requires:	iputils
 
 %description
@@ -91,6 +94,10 @@ rm -fr %buildroot
 %attr(644,root,root) %config(noreplace) %{_sysconfdir}/iproute2/*
 
 %changelog
+* Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 2.4.7-12sls
+- OpenSLS build
+- tidy spec
+
 * Fri Aug  8 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 2.4.7-11mdk
 - nuke kernel-source dep
 

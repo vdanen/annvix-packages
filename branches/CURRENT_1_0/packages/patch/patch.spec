@@ -1,20 +1,23 @@
-%define ver 2.5.9
-%define rel 1mdk
+%define name	patch
+%define version 2.5.9
+%define release 2sls
 
-Summary: The GNU patch command, for modifying/upgrading files.
-Name:    patch
-Version: %{ver}
-Release: %{rel}
-License: GPL
-URL:	 http://www.gnu.org/directory/GNU/patch.html
-Group:   Text tools
-Source:  ftp://alpha.gnu.org/gnu/patch/patch-%{ver}.tar.bz2
-Buildroot: %{_tmppath}/%{name}-root
-Patch1: patch-2.5.8-sigsegv.patch.bz2
-Patch2: patch-2.5.4-unreadable_to_readable.patch.bz2
-Patch3: patch-2.5.8-stderr.patch.bz2
-Patch5: patch-2.5.4-destdir.patch.bz2
-Prefix: %{_prefix}
+Summary:	The GNU patch command, for modifying/upgrading files.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		Text tools
+URL:		http://www.gnu.org/directory/GNU/patch.html
+Source:		ftp://alpha.gnu.org/gnu/patch/patch-%{version}.tar.bz2
+Patch1:		patch-2.5.8-sigsegv.patch.bz2
+Patch2:		patch-2.5.4-unreadable_to_readable.patch.bz2
+Patch3:		patch-2.5.8-stderr.patch.bz2
+Patch5:		patch-2.5.4-destdir.patch.bz2
+
+Buildroot:	%{_tmppath}/%{name}-root
+
+Prefix:		%{_prefix}
 
 %description
 The patch program applies diff files to originals.  The diff command
@@ -59,6 +62,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/*/*
 
 %changelog
+* Sat Dec 13 2003 Vincent Danen <vdanen@opensls.org> 2.5.9-2sls
+- OpenSLS build
+- tidy spec
+
 * Wed Jul 02 2003 Thierry Vignaud <tvignaud@mandrakesoft.com> 2.5.9-1mdk
 - new release
 

@@ -1,25 +1,21 @@
-#############################################################################
-# Project         : Mandrake Linux
-# Module          : rpm-helper
-# File            : rpm-helper.spec
-# Version         : $Id: rpm-helper.spec,v 1.13 2003/09/17 13:52:51 flepied Exp $
-# Author          : Frederic Lepied
-# Created On      : Tue Jul  9 08:21:29 2002
-# Purpose         : rpm build rules
-#############################################################################
+%define name	rpm-helper
+%define version	0.9.1
+%define release	2sls
 
-Summary: Helper scripts for rpm scriptlets
-Name: rpm-helper
-Version: 0.9.1
-Release: 1mdk
-Source0: %name-%version.tar.bz2
-License: GPL
-Group: System/Configuration/Packaging
-URL: http://www.mandrakelinux.com/
+Summary:	Helper scripts for rpm scriptlets
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+Source0:	%name-%version.tar.bz2
+License:	GPL
+Group:		System/Configuration/Packaging
+URL:		http://www.mandrakelinux.com/
+
 BuildArchitectures: noarch
-BuildRoot: %_tmppath/%name-buildroot
-Conflicts: chkconfig < 1.3.4-10mdk
-Requires: chkconfig, grep, shadow-utils, chkconfig, coreutils
+BuildRoot:	%_tmppath/%name-buildroot
+
+Conflicts:	chkconfig < 1.3.4-10mdk
+Requires:	chkconfig, grep, shadow-utils, coreutils
 
 %description
 Helper scripts for rpm scriptlets to help create/remove :
@@ -46,6 +42,10 @@ rm -rf $RPM_BUILD_ROOT
 %_datadir/%name
 
 %changelog
+* Tue Dec 09 2003 Vincent Danen <vdanen@opensls.org> 0.9.1-2sls
+- OpenSLS build
+- tidy spec
+
 * Wed Sep 17 2003 Frederic Lepied <flepied@mandrakesoft.com> 0.9.1-1mdk
 - don't depend on initscripts anymore
 

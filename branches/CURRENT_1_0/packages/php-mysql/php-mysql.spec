@@ -1,37 +1,35 @@
-%define phpsource       %{_prefix}/src/php-devel
-%define _docdir %{_datadir}/doc/%{name}-%{version}
+%define name	php-%{modname}
+%define version	%{phpversion}
+%define release	2sls
+
+%define phpsource	%{_prefix}/src/php-devel
+%define _docdir		%{_datadir}/doc/%{name}-%{version}
 %{expand:%(cat /usr/src/php-devel/PHP_BUILD||(echo -e "error: failed build dependencies:\n        php-devel >= 430 (4.3.0) is needed by this package." >/dev/stderr;kill -2 $PPID))}
 
-%define release 1mdk
-
-%define realname MySQL
-%define modname mysql
-%define dirname %{modname}
-%define soname %{modname}.so
-%define inifile 34_%{modname}.ini
-%define mod_src php_mysql.c
-%define mod_lib "-lmysqlclient -lpthread -lcrypt -lz -lnsl -lm"
-%define mod_def "-DCOMPILE_DL_MYSQL -DHAVE_MYSQL -DMYSQL_SOCK=\"/var/lib/mysql/mysql.sock\""
-%define rlibs libmysql12 >= 4.0.10
-%define blibs MySQL-devel >= 4.0.10
-
-#########################################################
-## Nothing to be changed after this, except changelog! ##
-#########################################################
+%define realname	MySQL
+%define modname		mysql
+%define dirname		%{modname}
+%define soname		%{modname}.so
+%define inifile		34_%{modname}.ini
+%define mod_src		php_mysql.c
+%define mod_lib		"-lmysqlclient -lpthread -lcrypt -lz -lnsl -lm"
+%define mod_def		"-DCOMPILE_DL_MYSQL -DHAVE_MYSQL -DMYSQL_SOCK=\"/var/lib/mysql/mysql.sock\""
+%define rlibs		libmysql12 >= 4.0.10
+%define blibs		MySQL-devel >= 4.0.10
 
 Summary:	The %{realname} module for PHP
-Name:		php-%{modname}
-Version:	%{phpversion}
+Name:		%{name}
+Version:	%{version}
 Release:	%{release}
+License:	PHP License
 Group:		System/Servers
 URL:		http://www.php.net
-License:	PHP License
-#Requires:	libphp_common%{libversion}
-#Requires:	%{rlibs}
-Requires:	php%{libversion}
+
+BuildRoot:	%{_tmppath}/%{name}-root
 BuildRequires:  php%{libversion}-devel
 BuildRequires:	%{blibs}
-BuildRoot:	%{_tmppath}/%{name}-root
+
+Requires:	php%{libversion}
 Provides: 	ADVXpackage
 
 
@@ -79,6 +77,10 @@ EOF
 %config(noreplace) %{_sysconfdir}/php/%{inifile}
 
 %changelog
+* Fri Dec 18 2003 Vincent Danen <vdanen@opensls.org> 4.3.4-2sls
+- OpenSLS build
+- tidy spec
+
 * Wed Nov 05 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 4.3.4-1mdk
 - built for php 4.3.4
 

@@ -1,18 +1,25 @@
-Name: perl-Locale-gettext
-Version: 1.01
-Release: 9mdk
-Group: Development/Perl
-License: GPL or Artistic
-URL: http://www.cpan.org/modules/by-module/Locale
-Source: http://www.cpan.org/modules/by-module/Locale/gettext-%{version}.tar.gz
-Patch0: gettext-1.01-fix-example-in-README.patch.bz2
-Patch1: gettext-1.01-includes.patch.bz2
-Patch2: gettext-1.01-add-iconv.patch.bz2
-Summary: Internationalization for Perl.
-BuildRequires: gettext-devel perl-devel
-BuildRoot: %{_tmppath}/%{name}-root
-Obsoletes: perl-gettext
-Conflicts: nlpr <= 0.0.1-2mdk, drakfloppy <= 0.43-10mdk, urpmi <= 3.6-4mdk
+%define module	Locale-gettext
+%define name	perl-%{module}
+%define version	1.01
+%define release	10sls
+
+Summary:	Internationalization for Perl.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL or Artistic
+Group:		Development/Perl
+URL:		http://www.cpan.org/modules/by-module/Locale
+Source:		http://www.cpan.org/modules/by-module/Locale/gettext-%{version}.tar.gz
+Patch0:		gettext-1.01-fix-example-in-README.patch.bz2
+Patch1:		gettext-1.01-includes.patch.bz2
+Patch2:		gettext-1.01-add-iconv.patch.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-root
+BuildRequires:	gettext-devel perl-devel
+
+Obsoletes:	perl-gettext
+Conflicts:	nlpr <= 0.0.1-2mdk, drakfloppy <= 0.43-10mdk, urpmi <= 3.6-4mdk
 
 %description
 The gettext module permits access from perl to the gettext() family of
@@ -48,6 +55,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/*/*
 
 %changelog
+* Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 1.01-10sls
+- OpenSLS build
+- tidy spec
+
 * Wed Aug 13 2003 Per Øyvind Karlsen <peroyvind@linux-mandrake.com> 1.01-9mdk
 - rebuild for new perl
 - use %%makeinstall_std macro

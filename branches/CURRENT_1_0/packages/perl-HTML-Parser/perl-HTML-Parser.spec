@@ -1,7 +1,7 @@
-%define name perl-%{real_name}
-%define real_name HTML-Parser
+%define module	HTML-Parser
+%define name	perl-%{module}
 %define version 3.31
-%define release 1mdk
+%define release 2sls
 
 Summary: 	HTML-Parser module for perl (World_Wide_Web_HTML_HTTP_CGI/HTML)
 Name: 		%{name}
@@ -9,10 +9,12 @@ Version: 	%{version}
 Release: 	%{release}
 License: 	GPL or Artistic
 Group: 		Development/Perl
-Source: 	ftp://ftp.cpan.org/pub/perl/CPAN/modules/by-module/HTML/%{real_name}-%{version}.tar.bz2
-Url: 		http://www.cpan.org
-BuildRequires:	perl-devel perl-HTML-Tagset
+URL: 		http://www.cpan.org
+Source:		ftp://ftp.cpan.org/pub/perl/CPAN/modules/by-module/HTML/%{module}-%{version}.tar.bz2
+
 BuildRoot: 	%{_tmppath}/%{name}-buildroot/
+BuildRequires:	perl-devel perl-HTML-Tagset
+
 Requires: 	perl perl-HTML-Tagset >= 3.03
 
 %description
@@ -20,7 +22,7 @@ HTML-Parser module for perl to parse and extract information
 from HTML documents.
 
 %prep
-%setup -q -n %{real_name}-%{version}
+%setup -q -n %{module}-%{version}
 
 %build
 # compile with default options (prompt() checks for STDIN being a terminal).
@@ -45,6 +47,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 3.31-2sls
+- OpenSLS build
+- tidy spec
+
 * Thu Aug 21 2003 François Pons <fpons@mandrakesoft.com> 3.31-1mdk
 - 3.31.
 

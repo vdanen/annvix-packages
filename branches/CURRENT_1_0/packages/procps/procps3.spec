@@ -1,21 +1,23 @@
-%define major_version	3
-%define minor_version	1
-%define revision		11
+%define name	procps
+%define version	3.1.11
+%define release	3sls
 
 Summary:	Utilities for monitoring your system and processes on your system
-Name:		procps
-Version:	%{major_version}.%{minor_version}.%{revision}
-Release:	2mdk
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
 License:	GPL
 Group:		Monitoring
-BuildRequires:	ncurses-devel
-Patch0:		procps-3.0.5-sysctlshutup.patch.bz2
 URL:		http://procps.sf.net/
 Source:		http://procps.sourceforge.net/%name-%version.tar.bz2
+Patch0:		procps-3.0.5-sysctlshutup.patch.bz2
+
 BuildRoot:	%_tmppath/%name-root
-Provides:	libproc.so.%{major_version}.%{minor_version} procps3
-Obsoletes: procps3
-Prereq: /bin/rm
+BuildRequires:	ncurses-devel
+
+Provides:	libproc.so.3.1 procps3
+Obsoletes:	procps3
+Prereq:		/bin/rm
 
 %description
 The procps package contains a set of system utilities which provide system
@@ -128,6 +130,10 @@ rm -f /etc/psdevtab /etc/psdatabase
 /%_lib/libproc.so
 
 %changelog
+* Mon Dec 01 2003 Vincent Danen <vdanen@opensls.org> 3.1.11-3sls
+- OpenSLS build
+- tidy spec
+
 * Mon Aug  4 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 11-2mdk
 - lib64 fixes
 

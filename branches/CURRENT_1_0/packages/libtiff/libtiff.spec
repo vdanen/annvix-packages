@@ -1,6 +1,6 @@
 %define name	libtiff
 %define	version	3.5.7
-%define release 10mdk
+%define release 12sls
 
 %define lib_version	3.5
 %define lib_major	3
@@ -13,7 +13,7 @@ Version:	%{version}
 Release:	%{release}
 License:	BSD-like
 Group:		System/Libraries
-Url:		http://www.libtiff.org/
+URL:		http://www.libtiff.org/
 Source0:	ftp://ftp.remotesensing.org/pub/libtiff/tiff-v%{version}.tar.bz2
 Patch0:		tiff-v3.5-shlib.patch.bz2
 Patch1:		%{name}-3.5.5-codecs.patch.bz2
@@ -21,9 +21,10 @@ Patch2:		%{name}-3.5.5-stupid_cd_output.patch.bz2
 Patch3:		%{name}-3.5.5-buildroot.patch.bz2
 Patch4:		tiff-v3.5.7-64bit.patch.bz2
 Patch5:		tiff-v3.5.7-x86_64.patch.bz2
-BuildRequires:	libjpeg-devel
-BuildRequires:	zlib-devel
+Patch6:		tiff-v3.5.7-deps.patch.bz2
+
 BuildRoot:	%_tmppath/%{name}-%{version}-root
+BuildRequires:	libjpeg-devel, 	zlib-devel
 
 %description
 The libtiff package contains a library of functions for manipulating TIFF
@@ -86,6 +87,7 @@ library.
 %patch3 -p1 -b .buildroot
 %patch4 -p1 -b .64bit
 %patch5 -p1 -b .x86_64
+%patch6 -p1 -b .deps
 
 %build
 find . -type 'd' -name 'CVS' | xargs rm -fr
@@ -147,6 +149,13 @@ rm -rf %{buildroot}
 %_libdir/*.a
 
 %changelog
+* Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 3.5.7-12sls
+- OpenSLS build
+- tidy spec
+
+* Thu Oct  9 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 3.5.7-11mdk
+- build libtiff with -lm
+
 * Wed Jul 30 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 3.5.7-10mdk
 - mkbliname, cputoolize, fixlets
 

@@ -1,8 +1,9 @@
+%define name	hdparm
 %define version 5.4
-%define release 3mdk
+%define release 4sls
 
 Summary:	A utility for displaying and/or setting hard disk parameters.
-Name:		hdparm
+Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	BSD
@@ -10,7 +11,8 @@ Group:		System/Kernel and hardware
 URL:		http://www.ibiblio.org/pub/Linux/system/hardware
 Source:		ftp://sunsite.unc.edu/pub/Linux/system/hardware/%name-%version.tar.bz2
 Source1:	hdparm-sysconfig
-Buildroot:	%_tmppath/%name-%version-root
+
+BuildRoot:	%_tmppath/%name-%version-root
 
 %description
 Hdparm is a useful system utility for setting (E)IDE hard drive
@@ -47,6 +49,10 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) /etc/sysconfig/harddisks
 
 %changelog
+* Mon Dec 08 2003 Vincent Danen <vdanen@opensls.org> 5.4-4sls
+- OpenSLS build
+- tidy spec
+
 * Mon Aug 25 2003 Abel Cheung <deaddog@deaddog.org> 5.4-3mdk
 - Move ThinkPad contrib stuff to tpctl
 

@@ -1,6 +1,6 @@
 %define name	libjpeg
 %define	version	6b
-%define release 32mdk
+%define release 33sls
 
 %define lib_major	62
 %define lib_name_orig	libjpeg
@@ -13,7 +13,6 @@ Release:	%release
 License:	GPL-like
 Group:		System/Libraries
 URL:		http://www.ijg.org/
-
 Source0:	ftp://ftp.uu.net/graphics/jpeg/jpegsrc.v6b.tar.bz2
 Patch0:		libjpeg-6b-arm.patch.bz2
 Patch1:		libjpeg-ia64-acknowledge.patch.bz2
@@ -26,7 +25,7 @@ Patch2:		jpegv6b-losslesscropndrop.patch.bz2
 # Use autoconf variables to know libdir et al.
 Patch3:		jpeg-6b-autoconf-vars.patch.bz2
 
-Buildroot:	%_tmppath/%name-%version-%release-root
+BuildRoot:	%_tmppath/%name-%version-%release-root
 
 %description
 The libjpeg package contains a shared library of functions for loading,
@@ -36,8 +35,8 @@ Install the libjpeg package if you need to manipulate JPEG files. You
 should also install the libjpeg-progs package.
 
 %package -n %{lib_name}
-Summary: A library for manipulating JPEG image format files.
-Group: System/Libraries
+Summary:	A library for manipulating JPEG image format files.
+Group:		System/Libraries
 Obsoletes:	%name
 Provides:       %{name} = %{version}-%{release}
 
@@ -161,6 +160,10 @@ rm -rf %buildroot
 %{_mandir}/man1/*
 
 %changelog
+* Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 6b-33sls
+- OpenSLS build
+- tidy spec
+
 * Sat Aug  9 2003 Till Kamppeter <till@mandrakesoft.com> 6b-32mdk
 - Replaced Patch 2 by a patch for lossless cropping and joining of JPEG
   images to "jpegtran" (in "libjpeg-progs" package) from

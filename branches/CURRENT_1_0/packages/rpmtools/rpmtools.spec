@@ -1,26 +1,26 @@
-%define name rpmtools
-%define release 13mdk
-
-# do not modify here, see Makefile in the CVS
-%define version 4.5
+%define name	rpmtools
+%define version	4.5
+%define release 14sls
 
 %{expand:%%define rpm_version %(rpm -q --queryformat '%{VERSION}-%{RELEASE}' rpm)}
 
-Summary: Contains various rpm command-line tools
-Name: %{name}
-Version: %{version}
-Release: %{release}
+Summary:	Contains various rpm command-line tools
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		System/Configuration/Packaging
+URL:		http://cvs.mandrakesoft.com/cgi-bin/cvsweb.cgi/soft/rpmtools
 # get the source from our cvs repository (see
 # http://www.linuxmandrake.com/en/cvs.php3)
-Source0: %{name}-%{version}.tar.bz2
-License: GPL
-Group: System/Configuration/Packaging
-URL: http://cvs.mandrakesoft.com/cgi-bin/cvsweb.cgi/soft/rpmtools
-BuildRoot: %{_tmppath}/%{name}-buildroot
-Prefix: %{_prefix}
+Source0:	%{name}-%{version}.tar.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-buildroot
 BuildRequires:	bzip2-devel gcc perl-devel rpm-devel >= 4.0
-Requires: rpm >= %{rpm_version} bzip2 >= 1.0 perl-URPM >= 0.50-2mdk
-Conflicts: rpmtools-compat <= 2.0 rpmtools-devel <= 2.0
+
+Prefix:		%{_prefix}
+Requires:	rpm >= %{rpm_version} bzip2 >= 1.0 perl-URPM >= 0.50-2mdk
+Conflicts:	rpmtools-compat <= 2.0 rpmtools-devel <= 2.0
 
 %description
 Various tools needed by urpmi and drakxtools for handling rpm files.
@@ -57,6 +57,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/*/*
 
 %changelog
+* Mon Dec 08 2003 Vincent Danen <vdanen@opensls.org> 4.5-14sls
+- OpenSLS build
+- tidy spec
+
 * Thu Aug 28 2003 François Pons <fpons@mandrakesoft.com> 4.5-13mdk
 - added support for %%{ARCH} in gendistrib.
 - removing remaining MD5SUM files when running gendistrib.

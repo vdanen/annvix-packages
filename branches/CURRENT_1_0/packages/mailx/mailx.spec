@@ -1,24 +1,28 @@
-Summary: The /bin/mail program, which is used to send mail via shell scripts.
-Name: mailx
-Version: 8.1.1
-Release: 23mdk
-License: BSD
-Group: Networking/Mail
-Source: ftp://ftp.debian.org/pub/debian/hamm/source/mail/mailx-8.1.1.tar.bz2
+%define name	mailx
+%define version	8.1.1
+%define release	24sls
+
+Summary:	The /bin/mail program, which is used to send mail via shell scripts.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	BSD
+Group:		Networking/Mail
+Source:		ftp://ftp.debian.org/pub/debian/hamm/source/mail/mailx-8.1.1.tar.bz2
 # not strictly debian patch, i modified it --Geoff
-Patch0: mailx-8.1.1.debian.patch.bz2
-Patch1: mailx-8.1.1.security.patch.bz2
-Patch2: mailx-8.1.1.nolock.patch.bz2
-Patch3: mailx-8.1.1.debian2.patch.bz2
-Patch4: mailx-noroot.patch.bz2
-#Patch5: mailx-geoffdiff.patch.bz2
-Patch6: mailx-8.1.1-version.patch.bz2
-Patch7: mailx-8.1.1-forbid-shellescape-in-interactive-and-setuid.patch.bz2
-Patch8: mailx-8.1.1-help-files.patch.bz2
-Patch9: mailx-8.1.1-makefile-create-dirs.patch.bz2
-Patch10: mailx-8.1.1-includes.patch.bz2 
-Patch11: mailx-8.1.1-fseek.patch.bz2
-BuildRoot: %{_tmppath}/%{name}-root
+Patch0:		mailx-8.1.1.debian.patch.bz2
+Patch1:		mailx-8.1.1.security.patch.bz2
+Patch2:		mailx-8.1.1.nolock.patch.bz2
+Patch3:		mailx-8.1.1.debian2.patch.bz2
+Patch4:		mailx-noroot.patch.bz2
+Patch6:		mailx-8.1.1-version.patch.bz2
+Patch7:		mailx-8.1.1-forbid-shellescape-in-interactive-and-setuid.patch.bz2
+Patch8:		mailx-8.1.1-help-files.patch.bz2
+Patch9:		mailx-8.1.1-makefile-create-dirs.patch.bz2
+Patch10:	mailx-8.1.1-includes.patch.bz2 
+Patch11:	mailx-8.1.1-fseek.patch.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-root
 
 %description
 The mailx package installs the /bin/mail program, which is used to send
@@ -72,6 +76,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/*
 
 %changelog
+* Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 8.1.1-24sls
+- OpenSLS build
+- tidy spec
+
 * Mon Jul 21 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 8.1.1-23mdk
 - rebuild
 - use %%makeinstall_std macro

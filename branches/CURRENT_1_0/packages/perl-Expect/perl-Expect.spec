@@ -1,7 +1,7 @@
-%define name perl-Expect
-%define module Expect
+%define module	Expect
+%define name	perl-%{module}
 %define version 1.15
-%define release 6mdk
+%define release 7sls
 
 Summary:	Expect perl module
 Name: 		%{name}
@@ -9,14 +9,17 @@ Version: 	%{version}
 Release:	%{release} 
 License: 	GPL
 Group: 		Development/Perl
-Url:		http://www.cpan.org
+URL:		http://www.cpan.org
 Source:		ftp://ftp.perl.org/pub/CPAN/modules/by-module/Expect/Expect-%{version}.tar.bz2
-BuildRoot: 	%{_tmppath}/%{name}-buildroot
-Prefix:		%{_prefix}
 Patch0:		%{name}-paths.patch.bz2
-Requires: 	perl, perl-IO-Tty
-BuildRequires:	perl-IO-Tty >= 1.02, perl-devel
+
+BuildRoot: 	%{_tmppath}/%{name}-buildroot
 BuildArch:	noarch
+BuildRequires:	perl-IO-Tty >= 1.02, perl-devel
+
+Prefix:		%{_prefix}
+Requires: 	perl, perl-IO-Tty
+
 
 %description
 Expect perl module.
@@ -47,6 +50,10 @@ rm -rf ${RPM_BUILD_ROOT}
 %{_mandir}/*/*
 
 %changelog
+* Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 1.15-7sls
+- OpenSLS build
+- tidy spec
+
 * Wed Aug 13 2003 Per Øyvind Karlsen <peroyvind@linux-mandrake.com> 1.15-6mdk
 - rebuild for new perl
 - rm -rf $RPM_BUILD_ROOT in %%install, not %%prep

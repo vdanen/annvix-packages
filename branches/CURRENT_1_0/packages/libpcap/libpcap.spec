@@ -1,20 +1,23 @@
-%define name libpcap
-%define	major 0
-%define minor 7
+%define name	libpcap
+%define version	0.7.2
+%define release	3sls
+
+%define	major	0
+%define minor	7
 %define finalname %{name}%{major}
 
-Name:		%{name}
 Summary:        A system-independent interface for user-level packet capture
-Version:	0.7.2
-Release:	2mdk
-URL:		http://www.tcpdump.org
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
 License:	BSD
-
+Group:		System/Libraries
+URL:		http://www.tcpdump.org
 Source:		http://www.tcpdump.org/release/libpcap-%{version}.tar.gz
 
-Group:		System/Libraries
-BuildRequires:	byacc flex
 BuildRoot:	%_tmppath/%name-%version-%release-root
+BuildRequires:	byacc flex
+
 Obsoletes:	libpcap
 Provides:	libpcap
 Provides:	libpcap = %{version}
@@ -123,6 +126,10 @@ pushd $RPM_BUILD_ROOT/%{_libdir} && {
 %{_mandir}/man3/pcap.3*
 
 %changelog
+* Tue Dec 09 2003 Vincent Danen <vdanen@opensls.org> 0.7.2-3sls
+- OpenSLS build
+- tidy spec
+
 * Thu Jul 31 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 0.7.2-2mdk
 - rebuild
 

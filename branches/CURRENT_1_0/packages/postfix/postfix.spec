@@ -1,18 +1,19 @@
-%define name		postfix
+%define name	postfix
+%define version	2.0.13
+%define release 4sls
+
 # If set to 0 if official version, 1 if snapshot
 %define experimental	0
-%define version	2.0.13
-%define release 3mdk
 %define releasedate 	20020508
 
 %define	openssl_ver	0.9.7b
 %define tlsno 		pfixtls-0.8.15-%version-%openssl_ver
 
 %if ! %{experimental}
-Version:		%{version}
+%define ver		%{version}
 %define ftp_directory	official
 %else
-Version: 		%{version}-%{releasedate}
+%define ver		%{version}-%{releasedate}
 %define ftp_directory	experimental
 %endif
 
@@ -50,11 +51,13 @@ Version: 		%{version}-%{releasedate}
 %define copy_cmd copy() { file="`ls --sort=time $1 |head -n 1`"; ln -f "$file" "$2" 2>/dev/null || cp -df "$file" "$2"; }
 
 
-Name:		%{name}
 Summary:	Postfix Mail Transport Agent
+Name:		%{name}
+Version:	%{ver}
 Release:	%{release}
 Epoch:		1
-Packager:	Yves Duret <yduret@mandrakesoft.com>
+License:	IBM Public License
+Group:		System/Servers
 URL:		http://www.postfix.org/
 Source0: 	ftp://ftp.porcupine.org/mirrors/postfix-release/%{ftp_directory}/%{name}-%{version}.tar.gz
 Source1:	ftp://ftp.porcupine.org/mirrors/postfix-release/%{ftp_directory}/%{name}-%{version}.tar.gz.sig
@@ -63,19 +66,41 @@ Source5:	postfix-aliases
 Source6: 	postfix-chroot-setup.awk
 Source8:	ftp://ftp.aet.tu-cottbus.de/pub/postfix_tls/%{tlsno}.tar.gz.sig
 Source9: 	ftp://ftp.aet.tu-cottbus.de/pub/postfix_tls/%{tlsno}.tar.gz
-Source10:   postfix.chroot_info
+Source10:	postfix.chroot_info
 Patch0:		postfix-2.0.12-config-mdk.patch.bz2
 Patch1:		postfix-alternatives-mdk.patch.bz2
 Patch12:	postfix-smtp_sasl_proto.c.patch.bz2
 # applied if %with_SMTPD_MULTILINE_GREETING=1
 Patch99:	postfix-1.1.12-20021124-multiline-greeting.patch.bz2
 
-License:	IBM Public License
-Group:		System/Servers
+BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root
+BuildRequires:	db4-devel, gawk, /usr/bin/perl, sed, ed
+BuildConflicts:	BerkeleyDB-devel
+%if %{with_LDAP}
+BuildRequires:	openldap >= 1.2.9, openldap-devel >= 1.2.9
+%endif
 
-Provides:	smtpdaemon
-Provides:   	MailTransportAgent
-#Conflicts:	sendmail qmail
+%if %{with_PCRE}
+Requires:	pcre
+BuildRequires:	pcre, libpcre-devel
+%endif
+
+%if %{with_MYSQL}
+Requires:	MySQL, MySQL-client
+BuildRequires:	MySQL, MySQL-client, MySQL-devel
+%endif
+
+%if %{with_SASL}
+Requires:	cyrus-sasl
+BuildRequires:	cyrus-sasl, libsasl-devel
+%endif
+
+%if %{with_TLS}
+Requires:	openssl >= %openssl_ver
+BuildRequires:	openssl-devel
+%endif
+
+Provides:	smtpdaemon, MailTransportAgent
 Requires:	procmail
 # we need the postdrop group (gid 36)
 Requires:	setup >= 2.2.0-26mdk
@@ -85,33 +110,6 @@ PreReq: 	rpm-helper >= 0.3
 PreReq:		/usr/sbin/update-alternatives
 %else
 Obsoletes:	sendmail exim qmail
-%endif
-BuildRequires:	db4-devel, gawk, /usr/bin/perl, sed, ed
-BuildConflicts:	BerkeleyDB-devel
-BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root
-
-%if %{with_LDAP}
-BuildRequires: openldap >= 1.2.9, openldap-devel >= 1.2.9
-%endif
-
-%if %{with_PCRE}
-Requires: pcre
-BuildRequires: pcre, libpcre-devel
-%endif
-
-%if %{with_MYSQL}
-Requires: MySQL, MySQL-client
-BuildRequires: MySQL, MySQL-client, MySQL-devel
-%endif
-
-%if %{with_SASL}
-Requires: cyrus-sasl
-BuildRequires: cyrus-sasl, libsasl-devel
-%endif
-
-%if %{with_TLS}
-Requires: openssl >= %openssl_ver
-BuildRequires: openssl-devel
 %endif
 
 
@@ -514,6 +512,10 @@ rm -rf %buildroot
 
 
 %changelog
+* Wed Dec 17 2003 Vincent Danen <vdanen@opensls.org> 2.0.13-4sls
+- OpenSLS build
+- tidy spec
+
 * Mon Aug 18 2003 Guillaume Cottenceau <gc@mandrakesoft.com> 2.0.13-3mdk
 - add CHROOT_INFO.README.MANDRAKE in doc section, in particular to
   explain how to sync system and chroot files

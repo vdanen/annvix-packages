@@ -1,6 +1,6 @@
 %define name	mkxauth
 %define version	1.7
-%define release	8mdk
+%define release	9sls
 
 Summary:	A utility for managing .Xauthority files.
 Name: 		%{name}
@@ -8,12 +8,14 @@ Version: 	%{version}
 Release: 	%{release}
 License: 	GPL
 Group: 		File tools
-Url:		http://www.tummy.com/krud/packages/mkxauth.html
-Source0: 	%{name}-%{version}.tar.bz2
-BuildArch: noarch
+URL:		http://www.tummy.com/krud/packages/mkxauth.html
+Source: 	%{name}-%{version}.tar.bz2
+
+BuildRoot: 	%{_tmppath}/%{name}-%{version}-root
+BuildArch:	noarch
+
 Requires: 	/usr/X11R6/bin/xauth textutils fileutils sh-utils procps gzip
 Prefix: 	%{_prefix}/X11R6
-BuildRoot: 	%{_tmppath}/%{name}-%{version}-root
 
 %description
 The mkxauth utility helps create and maintain X authentication
@@ -51,6 +53,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/*
 
 %changelog
+* Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 1.7-9sls
+- OpenSLS build
+- tidy spec
+
 * Sun May 25 2003 Olivier Thauvin <thauvin@aerov.jussieu.fr> 1.7-8mdk
 - rebuild for rpm 4.2
 

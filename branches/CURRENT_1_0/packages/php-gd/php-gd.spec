@@ -1,37 +1,37 @@
-%define phpsource       %{_prefix}/src/php-devel
-%define _docdir %{_datadir}/doc/%{name}-%{version}
+%define	name	php-%{modname}
+%define version	%{phpversion}
+%define release	2sls
+
+%define phpsource	%{_prefix}/src/php-devel
+%define _docdir		%{_datadir}/doc/%{name}-%{version}
 %{expand:%(cat /usr/src/php-devel/PHP_BUILD||(echo -e "error: failed build dependencies:\n        php-devel >= 430 (4.3.0) is needed by this package." >/dev/stderr;kill -2 $PPID))}
 
-%define release 1mdk
-
-%define realname GD
-%define modname gd
-%define dirname %{modname}
-%define soname %{modname}.so
-%define inifile 23_%{modname}.ini
+%define realname	GD
+%define modname		gd
+%define dirname		%{modname}
+%define soname		%{modname}.so
+%define inifile		23_%{modname}.ini
 
 
 Summary:	The %{realname} module for PHP
-Name:		php-%{modname}
-Version:	%{phpversion}
+Name:		%{name}
+Version:	%{version}
 Release:	%{release}
+License:	PHP License
 Group:		System/Servers
 URL:		http://www.php.net
-License:	PHP License
-Requires:	php%{libversion}
-BuildRequires:  php%{libversion}-devel
+
 BuildRoot:	%{_tmppath}/%{name}-root
-#No longer required since builtin in PHP
-#Requires:      libgd1.8 >= 1.8.4
-Requires:       libpng >= 1.2.0
+BuildRequires:  php%{libversion}-devel
 BuildRequires:  freetype2-devel
 BuildRequires:  libjpeg-devel
-#No longer required since builtin in PHP
-#BuildRequires:  gd-devel >= 1.8.4
 BuildRequires:  libpng-devel 
 BuildRequires:  libxpm-devel
 BuildRequires:  XFree86-devel
 BuildRequires:  chrpath >= 0.10-4mdk
+
+Requires:	php%{libversion}
+Requires:       libpng >= 1.2.0
 Provides:       mod_php-gd
 Provides:       mod_php3-gd
 Obsoletes:      mod_php-gd
@@ -112,6 +112,10 @@ EOF
 %config(noreplace) %{_sysconfdir}/php/%{inifile}
 
 %changelog
+* Fri Dec 18 2003 Vincent Danen <vdanen@opensls.org> 4.3.4-2sls
+- OpenSLS build
+- tidy spec
+
 * Wed Nov 05 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 4.3.4-1mdk
 - built for php 4.3.4
 

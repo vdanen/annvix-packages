@@ -1,7 +1,9 @@
-%define name perl-URI
-%define real_name URI
+%define module	URI
+%define name	perl-%{module}
 %define version 1.25
-%define release 1mdk
+%define release 2sls
+
+%define _requires_exceptions perl(Business::ISBN)
 
 Summary: 	URI module for perl (World_Wide_Web_HTML_HTTP_CGI/URI)
 Name: 		%{name}
@@ -9,13 +11,14 @@ Version: 	%{version}
 Release: 	%{release}
 License: 	GPL or Artistic
 Group: 		Development/Perl
-Source: 	http://www.cpan.org/authors/id/GAAS/%{real_name}-%{version}.tar.bz2
-Url: 		http://www.cpan.org
-BuildRequires:	perl-devel rpm-build >= 4.2-7mdk
-BuildArch: 	noarch
+URL: 		http://www.cpan.org
+Source: 	http://www.cpan.org/authors/id/GAAS/%{module}-%{version}.tar.bz2
+
 BuildRoot: 	%{_tmppath}/%{name}-buildroot/
+BuildArch: 	noarch
+BuildRequires:	perl-devel rpm-build >= 4.2-7mdk
+
 Requires: 	perl
-%define _requires_exceptions perl(Business::ISBN)
 
 %description
 Perl module which implements the URI class. Object of this class
@@ -25,7 +28,7 @@ in RFC 2396.
 Needed by eGrail
 
 %prep
-%setup -q -n %{real_name}-%{version}
+%setup -q -n %{module}-%{version}
 
 %build
 %{__perl} Makefile.PL INSTALLDIRS=vendor
@@ -47,6 +50,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/*/*
 
 %changelog
+* Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 1.25-2sls
+- OpenSLS build
+- tidy spec
+
 * Thu Aug 21 2003 François Pons <fpons@mandrakesoft.com> 1.25-1mdk
 - 1.25.
 

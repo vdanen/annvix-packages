@@ -1,16 +1,21 @@
-%define dname %{name}_%version
+%define name	lsof
+%define version	4.68
+%define release	2sls
 
-Summary: Lists files open by processes
-Name:    lsof
-Version: 4.68
-Release: 1mdk
-License: Free
-Url:	ftp://vic.cc.purdue.edu/pub/tools/unix/lsof/
-Group: Monitoring
-Source0: ftp://vic.cc.purdue.edu/pub/tools/unix/%name/%dname.tar.bz2
-Patch0: lsof_4.64-perl-example-fix.patch.bz2
-Patch1: lsof_4.60-has-security.patch.bz2
-BuildRoot: %_tmppath/%name-%version-build
+%define dname	%{name}_%version
+
+Summary:	Lists files open by processes
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	Free
+Group:		Monitoring
+URL:		ftp://vic.cc.purdue.edu/pub/tools/unix/lsof/
+Source0:	ftp://vic.cc.purdue.edu/pub/tools/unix/%name/%dname.tar.bz2
+Patch0:		lsof_4.64-perl-example-fix.patch.bz2
+Patch1:		lsof_4.60-has-security.patch.bz2
+
+BuildRoot:	%_tmppath/%name-%version-build
 
 %description
 Lsof's name stands for LiSt Open Files, and it does just that. It lists
@@ -58,6 +63,10 @@ rm -rf $RPM_BUILD_ROOT
 %_mandir/man8/lsof.8*
 
 %changelog
+* Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 4.68-2sls
+- OpenSLS build
+- tidy spec
+
 * Tue Jul 01 2003 Thierry Vignaud <tvignaud@mandrakesoft.com> 4.68-1mdk
 - new release
 

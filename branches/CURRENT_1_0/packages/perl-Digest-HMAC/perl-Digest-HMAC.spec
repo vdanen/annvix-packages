@@ -1,7 +1,7 @@
-%define	name	perl-Digest-HMAC
-%define	real_name Digest-HMAC
+%define module	Digest-HMAC
+%define	name	perl-%{module}
 %define	version	1.01
-%define	release	11mdk
+%define	release	12sls
 
 Summary:	Keyed-Hashing for Message Authentication
 Name:		%{name}
@@ -9,11 +9,13 @@ Version:	%{version}
 Release:	%{release}
 License:	GPL or Artistic
 Group:		Development/Perl
-Source:		http://www.cpan.org/authors/id/GAAS/%{real_name}-%{version}.tar.bz2
 URL:		http://www.cpan.org
-BuildArch:	noarch
-BuildRequires:	perl-devel
+Source:		http://www.cpan.org/authors/id/GAAS/%{module}-%{version}.tar.bz2
+
 BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildRequires:	perl-devel
+BuildArch:	noarch
+
 Provides:	perl-HMAC
 Requires:	perl perl-Digest-SHA1
 
@@ -21,7 +23,7 @@ Requires:	perl perl-Digest-SHA1
 Digest-HMAC module for perl.
 
 %prep
-%setup -q -n %{real_name}-%{version}
+%setup -q -n %{module}-%{version}
 
 %build
 %{__perl} Makefile.PL INSTALLDIRS=vendor
@@ -42,6 +44,10 @@ rm -rf $RPM_BUILD_ROOT
 %{perl_vendorlib}/Digest
 
 %changelog
+* Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 1.01-12sls
+- OpenSLS build
+- tidy spec
+
 * Wed Aug 13 2003 Per Øyvind Karlsen <peroyvind@linux-mandrake.com> 1.01-11mdk
 - rebuild for new perl
 - drop Prefix tag

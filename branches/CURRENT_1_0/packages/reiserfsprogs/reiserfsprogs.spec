@@ -1,18 +1,22 @@
+%define name	reiserfsprogs
+%define version	3.6.10
+%define release	2sls
 
+Summary:	The utilities to create Reiserfs volume.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+Epoch:		1
+License:	GPL
+Group:		System/Kernel and hardware
+URL:		http://www.namesys.com/
+Source0:	ftp://ftp.namesys.com/pub/reiserfsprogs/%name-%version.tar.bz2
+Patch1:		reiserfsprogs-3.6.2-make-the-force-option-works-in-resize_reiserfs.patch.bz2
 
-Summary: The utilities to create Reiserfs volume.
-Name:    reiserfsprogs
-Version: 3.6.10
-Release: 1mdk
-Source0: ftp://ftp.namesys.com/pub/reiserfsprogs/%name-%version.tar.bz2
-Patch1: reiserfsprogs-3.6.2-make-the-force-option-works-in-resize_reiserfs.patch.bz2
-License: GPL
-Group: System/Kernel and hardware
-BuildRoot: %{_tmppath}/%{name}-%{version}-root
-Epoch: 1
-Url: http://www.namesys.com/
-Obsoletes: reiserfs-utils
-Provides: reiserfs-utils
+BuildRoot:	%{_tmppath}/%{name}-%{version}-root
+
+Obsoletes:	reiserfs-utils
+Provides:	reiserfs-utils
 
 %description
 Reiserfs is a file system using a plug-in based object oriented
@@ -61,6 +65,10 @@ rm -rf $RPM_BUILD_ROOT
 %_mandir/*/*
 
 %changelog
+* Mon Dec 08 2003 Vincent Danen <vdanen@opensls.org> 3.6.10-2sls
+- OpenSLS build
+- tidy spec
+
 * Tue Jul 29 2003 Juan Quintela <quintela@mandrakesoft.com> 3.6.10-1mdk
 - reiser has a fsck program.
 - use %%configure2_5x.

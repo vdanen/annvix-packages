@@ -1,32 +1,34 @@
-%define name mkinitrd
+%define name	mkinitrd
 %define version 3.4.43
-%define release 9mdk
+%define release 10sls
 
 %define use_dietlibc 0
 %ifarch %{ix86} x86_64
 %define use_dietlibc 1
 %endif
 
-Name: %{name}
-Summary: Creates an initial ramdisk image for preloading modules.
-Version: %{version}
-Release: %{release}
-License: GPL
-URL: http://www.redhat.com/
-Group: System/Kernel and hardware
-Source: mkinitrd-%{version}.tar.bz2
-Source1: mkinitrd_helper2.tar.bz2
-Patch0: mkinitrd-3.4.43-mdkize.patch.bz2
-Patch1: mkinitrd-3.1.6-shutup-insmod-busybox.patch.bz2
-Patch2: mkinitrd-3.4.43-kernel-2.5.patch.bz2
-Requires: mktemp >= 1.5-9mdk e2fsprogs /bin/sh coreutils grep mount gzip tar findutils >= 4.1.7-3mdk gawk
-BuildRequires: /usr/bin/perl
+Summary:	Creates an initial ramdisk image for preloading modules.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		System/Kernel and hardware
+URL:		http://www.redhat.com/
+Source:		mkinitrd-%{version}.tar.bz2
+Source1:	mkinitrd_helper2.tar.bz2
+Patch0:		mkinitrd-3.4.43-mdkize.patch.bz2
+Patch1:		mkinitrd-3.1.6-shutup-insmod-busybox.patch.bz2
+Patch2:		mkinitrd-3.4.43-kernel-2.5.patch.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root
+BuildRequires:	/usr/bin/perl
 %if %{use_dietlibc}
-BuildRequires: dietlibc-devel
+BuildRequires:	dietlibc-devel
 %else
-Requires: /sbin/insmod.static
+Requires:	/sbin/insmod.static
 %endif
-BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
+
+Requires:	mktemp >= 1.5-9mdk e2fsprogs /bin/sh coreutils grep mount gzip tar findutils >= 4.1.7-3mdk gawk
 
 %description
 Mkinitrd creates filesystem images for use as initial ramdisk (initrd)
@@ -76,6 +78,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/*/*
 
 %changelog
+* Mon Dec 08 2003 Vincent Danen <vdanen@opensls.rg> 3.4.43-10sls
+- OpenSLS build
+- tidy spec
+
 * Sat Sep 13 2003 Guillaume Cottenceau <gc@mandrakesoft.com> 3.4.43-9mdk
 - fix error messages when creating initrd for root-on-lvm in devfs mode
 

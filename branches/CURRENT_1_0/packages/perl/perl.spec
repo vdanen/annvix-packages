@@ -1,3 +1,9 @@
+%define name	perl
+%define version	5.8.1
+%define release	0.RC4.4sls
+
+%define rel	-RC4
+%define _requires_exceptions Mac\\|VMS\\|perl >=\\|perl(Errno)\\|perl(Fcntl)\\|perl(IO)\\|perl(IO::File)\\|perl(IO::Socket::INET)\\|perl(IO::Socket::UNIX)\\|perl(Tk)\\|perl(Tk::Pod)
 %define threading 1
 
 %if %threading
@@ -11,81 +17,66 @@
 # Don't change to %{_libdir} as perl is clean and has arch-dependent subdirs
 %define perl_root %{_prefix}/lib/perl5
 
-Summary: The Perl programming language.
-Summary(de): Die Perl-Programmiersprache
-Name: perl
-Version: 5.8.1
-Release: 0.RC4.3mdk
-%define rel -RC4
-License: GPL or Artistic
-Group: Development/Perl
-Url: http://www.perl.com
-Epoch: 2
+Summary:	The Perl programming language.
+Summary(de):	Die Perl-Programmiersprache
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+Epoch:		2
+License:	GPL or Artistic
+Group:		Development/Perl
+URL:		http://www.perl.com
 # ftp://ftp.funet.fi/pub/languages/perl/snap/perl@17574.tbz
 #ftp://ftp.funet.fi/pub/languages/perl/CPAN/src/perl-%{version}.tar.bz2
-Source0: http://www.cpan.org/authors/id/J/JH/JHI/perl-5.8.1-RC4.tar.bz2
+Source0:	http://www.cpan.org/authors/id/J/JH/JHI/perl-5.8.1-RC4.tar.bz2
 # taken from debian
-Source1: perl-headers-wanted
-Source2: perl-5.8.0-RC2-special-h2ph-not-failing-on-machine_ansi_header.patch.bz2
-Source3: http://www.cpan.org/authors/id/J/JV/JV/Getopt-Long-2.33_02.tar.bz2
-Patch3: perl-5.8.1-RC3-norootcheck.patch.bz2
-Patch6: perl-5.8.0-RC2-fix-LD_RUN_PATH-for-MakeMaker.patch.bz2
-Patch12: perl-5.8.1-RC3-automatic-migration-from--make-install-PREFIX--to--makeinstall_std.patch.bz2
-Patch13: perl-5.8.1-RC3-FHS-compliant-installvendorman-dirs.patch.bz2
-Patch14: perl-5.8.1-RC3-install-files-using-chmod-644.patch.bz2
-Patch15: perl-5.8.1-RC4-lib64.patch.bz2
-Patch16: perl-5.8.1-RC3-perldoc-use-nroff-compatibility-option.patch.bz2
-Patch20: perl-5.8.0-use_gzip_layer.patch.bz2
+Source1:	perl-headers-wanted
+Source2:	perl-5.8.0-RC2-special-h2ph-not-failing-on-machine_ansi_header.patch.bz2
+Source3:	http://www.cpan.org/authors/id/J/JV/JV/Getopt-Long-2.33_02.tar.bz2
+Patch3:		perl-5.8.1-RC3-norootcheck.patch.bz2
+Patch6:		perl-5.8.0-RC2-fix-LD_RUN_PATH-for-MakeMaker.patch.bz2
+Patch12:	perl-5.8.1-RC3-automatic-migration-from--make-install-PREFIX--to--makeinstall_std.patch.bz2
+Patch13:	perl-5.8.1-RC3-FHS-compliant-installvendorman-dirs.patch.bz2
+Patch14:	perl-5.8.1-RC3-install-files-using-chmod-644.patch.bz2
+Patch15:	perl-5.8.1-RC4-lib64.patch.bz2
+Patch16:	perl-5.8.1-RC3-perldoc-use-nroff-compatibility-option.patch.bz2
+Patch20:	perl-5.8.0-use_gzip_layer.patch.bz2
 #(peroyvind) use -fPIC in stead of -fpic or else compile will fail on sparc (taken from redhat)
-Patch21: perl-5.8.1-RC4-fpic-fPIC.patch.bz2
-Patch22: perl-5.8.0-amd64.patch.bz2
+Patch21:	perl-5.8.1-RC4-fpic-fPIC.patch.bz2
+Patch22:	perl-5.8.0-amd64.patch.bz2
 
-Packager: Pixel <pixel@mandrakesoft.com>
-Buildroot: %{_tmppath}/%{name}
-Requires: perl-base = %{epoch}:%{version}-%{release}
-Requires: %{name}-base
-Provides: libperl.so
-Provides: perl(getopts.pl)
-Provides: perl(ctime.pl)
-Provides: perl(flush.pl)
-Provides: perl(find.pl)
-
-Provides:  perl-MIME-Base64 perl-libnet perl-Storable perl-Digest-MD5 perl-Time-HiRes perl-Locale-Codes perl-Test-Simple perl-Time-HiRes
-Obsoletes: perl-MIME-Base64 perl-libnet perl-Storable perl-Digest-MD5 perl-Time-HiRes perl-Locale-Codes perl-Test-Simple perl-Time-HiRes
-Conflicts: perl-Parse-RecDescent < 1.80-6mdk
-Conflicts: perl-Filter < 1.28-6mdk
-Conflicts: apache-mod_perl <= 1.3.24_1.26-1mdk
-%define _requires_exceptions Mac\\|VMS\\|perl >=\\|perl(Errno)\\|perl(Fcntl)\\|perl(IO)\\|perl(IO::File)\\|perl(IO::Socket::INET)\\|perl(IO::Socket::UNIX)\\|perl(Tk)\\|perl(Tk::Pod)
-
-
+BuildRoot:	%{_tmppath}/%{name}
 # for NDBM
-BuildRequires: db1-devel 
-BuildRequires: db2-devel 
-BuildRequires: gdbm-devel
+BuildRequires:	db1-devel, db2-devel, gdbm-devel
+BuildRequires:	man
 
-BuildRequires: man
-
+Requires:	perl-base = %{epoch}:%{version}-%{release}
+Requires:	%{name}-base
+Provides:	libperl.so
+Provides:	perl(getopts.pl)
+Provides:	perl(ctime.pl)
+Provides:	perl(flush.pl)
+Provides:	perl(find.pl)
+Provides: 	perl-MIME-Base64 perl-libnet perl-Storable perl-Digest-MD5 perl-Time-HiRes perl-Locale-Codes perl-Test-Simple perl-Time-HiRes
+Obsoletes:	perl-MIME-Base64 perl-libnet perl-Storable perl-Digest-MD5 perl-Time-HiRes perl-Locale-Codes perl-Test-Simple perl-Time-HiRes
+Conflicts:	perl-Parse-RecDescent < 1.80-6mdk
+Conflicts:	perl-Filter < 1.28-6mdk
+Conflicts:	apache-mod_perl <= 1.3.24_1.26-1mdk
 
 %package base
-Version: %{version}
-Summary: The Perl programming language (base).
-Provides: perl(v5.6.0)
-Group: Development/Perl
-Url: http://www.perl.com
+Summary:	The Perl programming language (base).
+Group:		Development/Perl
+Provides:	perl(v5.6.0)
 
 %package devel
-Version: %{version}
-Summary: The Perl programming language (devel).
-Group: Development/Perl
-Url: http://www.perl.com
-Requires: %{name} = %{epoch}:%{version}-%{release}
+Summary:	The Perl programming language (devel).
+Group:		Development/Perl
+Requires:	%{name} = %{epoch}:%{version}-%{release}
 
 %package doc
-Version: %{version}
-Summary: The Perl programming language (documentation).
-Group: Development/Perl
-Url: http://www.perl.com
-Requires: %{name} = %{epoch}:%{version}-%{release}
+Summary:	The Perl programming language (documentation).
+Group:		Development/Perl
+Requires:	%{name} = %{epoch}:%{version}-%{release}
 
 %description
 Perl is a high-level programming language with roots in C, sed, awk
@@ -133,7 +124,7 @@ sh Configure -des \
   -Doptimize="$RPM_OPT_FLAGS" \
   -Dprefix=%{_prefix} -Dvendorprefix=%{_prefix} -Dsiteprefix=%{_prefix} \
   -Dman3ext=3pm \
-  -Dcf_by=MandrakeSoft -Dmyhostname=localhost -Dperladmin=root@localhost \
+  -Dcf_by=OpenSLS -Dmyhostname=localhost -Dperladmin=root@localhost \
   -Dd_dosuid \
   -Ud_csh \
   -Duseshrplib \
@@ -418,6 +409,10 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root)
 
 %changelog
+* Mon Dec 01 2003 Vincent Danen <vdanen@opensls.org> 5.8.1-0.RC4.4sls
+- OpenSLS build
+- tidy spec
+
 * Mon Sep  1 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 5.8.1-0.RC4.3mdk
 - perl-base shall have asm/break.ph on ia64
 

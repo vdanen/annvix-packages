@@ -1,6 +1,6 @@
 %define name	libtool
 %define version	1.4.3
-%define release	7mdk
+%define release	8sls
 
 %define lib_major	3
 %define lib_name_orig	%mklibname ltdl
@@ -12,7 +12,7 @@ Version:	%{version}
 Release:	%{release}
 License:	GPL
 Group:		Development/Other
-
+URL:		http://www.gnu.org/software/libtool/libtool.html
 Source:		ftp://ftp.gnu.org/gnu/libtool/libtool-%{version}.tar.bz2
 Source1:	libtool-cputoolize.sh
 # Geoff - patching ltmain.sh not ltmain.in coz that's the file that gets 
@@ -33,9 +33,10 @@ Patch10:	libtool-1.4.2-expsym-linux.patch.bz2
 Patch11:	libtool-1.4.3-amd64-alias.patch.bz2
 Patch12:	libtool-1.4.3-libtoolize--config-only.patch.bz2
 Patch13:	libtool-1.4.3-quotes.patch.bz2
-URL:		http://www.gnu.org/software/libtool/libtool.html
-PreReq:		/sbin/install-info
+
 BuildRoot:	%_tmppath/%name-%version-%release-root
+
+PreReq:		/sbin/install-info
 Requires:	file common-licenses
 
 %description
@@ -159,6 +160,10 @@ rm -fr %buildroot
 
 
 %changelog
+* Wed Dec 17 2003 Vincent Danen <vdanen@opensls.org> 1.4.3-8sls
+- OpenSLS build
+- tidy spec
+
 * Thu Jul 31 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 1.4.3-7mdk
 - Patch13: quote tests correctly
 

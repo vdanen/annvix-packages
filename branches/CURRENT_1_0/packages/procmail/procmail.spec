@@ -1,9 +1,9 @@
 %define	name	procmail
-%define	release	4mdk
 %define	version	3.22
+%define	release	5sls
 
 Summary:	The procmail mail processing program.
-Name:		procmail
+Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	GPL/Artistic
@@ -12,7 +12,9 @@ URL:		http://www.procmail.org
 Source0:	ftp://ftp.procmail.org/pub/procmail/%{name}-%{version}.tar.bz2
 Patch1:		%{name}-3.22-lockf.patch.bz2
 Patch2:		%{name}-3.22-pixelpb.patch.bz2
+
 BuildRoot:	%{_tmppath}/%{name}-root
+
 Provides:	MailTransportAgent
 
 %description
@@ -62,10 +64,15 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man5/*5*
 
 %changelog
+* Mon Dec 08 2003 Vincent Danen <vdanen@opensls.org> 3.22-5sls
+- OpenSLS build
+- tidy spec
+
 * Sat Jul 12 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 3.22-4mdk
 - rebuild
 - cosmetics
 - drop useless Prefix tag
+
 * Thu Jan 10 2002 Warly <warly@mandrakesoft.com> 3.22-3mdk
 - rpmlint fixes
 

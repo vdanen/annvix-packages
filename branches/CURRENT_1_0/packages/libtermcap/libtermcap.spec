@@ -1,6 +1,6 @@
 %define name	libtermcap
 %define version	2.0.8
-%define release	35mdk
+%define release	36sls
 
 %define lib_major	2
 %define lib_name_orig	libtermcap
@@ -10,11 +10,10 @@ Summary:	A basic system library for accessing the termcap database
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
-Source:		termcap-%{version}.tar.bz2
-Url:		ftp://metalab.unc.edu/pub/Linux/GCC/
 License:	LGPL
 Group:		System/Libraries
-
+URL:		ftp://metalab.unc.edu/pub/Linux/GCC/
+Source:		termcap-%{version}.tar.bz2
 Patch0:		termcap-2.0.8-shared.patch.bz2
 Patch1:		termcap-2.0.8-setuid.patch.bz2
 Patch2:		termcap-2.0.8-instnoroot.patch.bz2
@@ -30,9 +29,10 @@ Patch10:	libtermcap-aaargh.patch.bz2
 # (gc) conflicting definition of `bcopy' against latest glibc 2.1.95
 Patch11:	termcap-fix-glibc-2.2.patch.bz2
 
-Requires:	%_sysconfdir/termcap
 BuildRoot:	%_tmppath/%name-%version-%release-root
 BuildRequires:	texinfo
+
+Requires:	%_sysconfdir/termcap
 
 %description
 The libtermcap package contains a basic system library needed to access
@@ -144,6 +144,10 @@ fi
 %_includedir/termcap.h
 
 %changelog
+* Wed Dec 17 2003 Vincent Danen <vdanen@opensls.org> 2.0.8-36sls
+- OpenSLS build
+- tidy spec
+
 * Mon Aug  4 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 2.0.8-35mdk
 - Put back libtermcap-devel provides as nobody uses termcap-devel
 

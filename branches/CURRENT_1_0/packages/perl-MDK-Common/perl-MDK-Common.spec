@@ -1,44 +1,47 @@
 # MODIFY IN THE CVS: cvs.mandrakesoft.com:/cooker soft/perl-MDK-Common
 
 # do not change the version here, change in MDK/Common.pm.pl
+%define name	perl-MDK-Common
 %define version 1.1.6
-%define release 3mdk
+%define release 4sls
 
 %ifarch x86_64
-%define build_option PERL_CHECKER_TARGET='debug-code BCSUFFIX=""'
-%define require_ocaml /usr/bin/ocamlrun
+%define build_option	PERL_CHECKER_TARGET='debug-code BCSUFFIX=""'
+%define require_ocaml	/usr/bin/ocamlrun
 %else
-%define build_option %nil
-%define require_ocaml %nil
+%define build_option	%nil
+%define require_ocaml	%nil
 %endif
 
-Summary: Various simple functions
-Name: perl-MDK-Common
-Version: %{version}
-Release: %{release}
-URL: http://cvs.mandrakesoft.com/cgi-bin/cvsweb.cgi/soft/perl-MDK-Common/
-Source0: %{name}.tar.bz2
-License: GPL
-Group: Development/Perl
-Conflicts: drakxtools-newt < 9.1-30mdk, drakconf < 9.1-14mdk
-BuildRoot: %{_tmppath}/%{name}-buildroot
-BuildRequires: ocaml >= 3.06
-Provides: perl(MDK::Common) = %{version}
-Provides: perl(MDK::Common::DataStructure)  
-Provides: perl(MDK::Common::File)  
-Provides: perl(MDK::Common::Func)  
-Provides: perl(MDK::Common::Globals)  
-Provides: perl(MDK::Common::Math)  
-Provides: perl(MDK::Common::String)  
-Provides: perl(MDK::Common::System)  
-Provides: perl(MDK::Common::Various)  
+Summary:	Various simple functions
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		Development/Perl
+URL:		http://cvs.mandrakesoft.com/cgi-bin/cvsweb.cgi/soft/perl-MDK-Common/
+Source0:	%{name}.tar.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildRequires:	ocaml >= 3.06
+
+Conflicts:	drakxtools-newt < 9.1-30mdk, drakconf < 9.1-14mdk
+Provides:	perl(MDK::Common) = %{version}
+Provides:	perl(MDK::Common::DataStructure)  
+Provides:	perl(MDK::Common::File)  
+Provides:	perl(MDK::Common::Func)  
+Provides:	perl(MDK::Common::Globals)  
+Provides:	perl(MDK::Common::Math)  
+Provides:	perl(MDK::Common::String)  
+Provides:	perl(MDK::Common::System)  
+Provides:	perl(MDK::Common::Various)  
 
 
 %package devel
-Summary: Various verifying scripts
-Group: Development/Perl
-AutoReqProv: 0
-Requires: perl-base >= 2:5.8.0 %{require_ocaml}
+Summary:	Various verifying scripts
+Group:		Development/Perl
+AutoReqProv:	0
+Requires:	perl-base >= 2:5.8.0 %{require_ocaml}
 
 %description
 Various simple functions created for DrakX
@@ -72,6 +75,10 @@ rm -rf $RPM_BUILD_ROOT
 
 # MODIFY IN THE CVS: cvs.mandrakesoft.com:/cooker soft/perl-MDK-Common
 %changelog
+* Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 1.1.6-4sls
+- OpenSLS build
+- tidy spec
+
 * Mon Sep  1 2003 Pixel <pixel@mandrakesoft.com> 1.1.6-3mdk
 - MDK::Common::System::list_users() should list user 500 if it exists
 

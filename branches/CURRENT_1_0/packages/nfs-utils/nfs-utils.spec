@@ -1,31 +1,34 @@
+%define name	nfs-utils
 %define	version	1.0.5
-%define release	1mdk
+%define release	2sls
+
 %define	url	ftp://ftp.kernel.org:/pub/linux/utils/nfs
 
-Summary: The utilities for Linux NFS server.
-Name: nfs-utils
-Version: %{version}
-Release: %{release}
-Source0: %{url}/%{name}-%{version}.tar.bz2
-Source1: ftp://nfs.sourceforge.net/pub/nfs/nfs.doc.tar.bz2
-Source10: nfs.init
-Source11: nfslock.init
-Source12: nfs.sysconfig
-Group: Networking/Other
-Obsoletes: nfs-server knfsd nfs-server-clients
-Provides: nfs-server knfsd nfs-server-clients
-Requires: nfs-utils-clients, kernel >= 2.2.5, portmap >= 4.0
-License: GPL
-URL: %{url}
-ExcludeArch: armv4l
-Buildroot: %{_tmppath}/%{name}-root
-Epoch: 1
-Patch1: nfs-utils-0.2beta-nowrap.patch.bz2
-Patch3: nfs-utils-0.3.3-statd-manpage.patch.bz2
-Patch4: eepro-support.patch.bz2
-Patch5: nfs-utils-1.0.4-no-chown.patch.bz2
-Requires: setup >= 2.1.9-35mdk
-PreReq: rpm-helper
+Summary:	The utilities for Linux NFS server.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+Epoch:		1
+License:	GPL
+Group:		Networking/Other
+URL:		%{url}
+Source0:	%{url}/%{name}-%{version}.tar.bz2
+Source1:	ftp://nfs.sourceforge.net/pub/nfs/nfs.doc.tar.bz2
+Source10:	nfs.init
+Source11:	nfslock.init
+Source12:	nfs.sysconfig
+Patch1:		nfs-utils-0.2beta-nowrap.patch.bz2
+Patch3:		nfs-utils-0.3.3-statd-manpage.patch.bz2
+Patch4:		eepro-support.patch.bz2
+Patch5:		nfs-utils-1.0.4-no-chown.patch.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-root
+
+ExcludeArch:	armv4l
+Obsoletes:	nfs-server knfsd nfs-server-clients
+Provides:	nfs-server knfsd nfs-server-clients
+Requires:	nfs-utils-clients, kernel >= 2.2.5, portmap >= 4.0, setup >= 2.1.9-35mdk
+PreReq:		rpm-helper
 
 %description
 The nfs-utils package provides a daemon for the kernel NFS server and
@@ -38,12 +41,12 @@ System) server on the remote host.  For example, showmount can display the
 clients which are mounted on that host.
 
 %package clients
-Summary: The utilities for Linux NFS client.
-Group: Networking/Other
-Obsoletes: knfsd-clients knfsd-lock
-Provides: knfsd-clients knfsd-lock
-Requires: kernel >= 2.2.5, portmap >= 4.0
-PreReq: rpm-helper
+Summary:	The utilities for Linux NFS client.
+Group:		Networking/Other
+Obsoletes:	knfsd-clients knfsd-lock
+Provides:	knfsd-clients knfsd-lock
+Requires:	kernel >= 2.2.5, portmap >= 4.0
+PreReq:		rpm-helper
 
 %description clients
 The nfs-utils package provides a daemon for the kernel NFS server and
@@ -161,6 +164,10 @@ rm -rf $RPM_BUILD_ROOT
 %dir %attr(700,rpcuser,rpcuser) /var/lib/nfs/statd
 
 %changelog
+* Mon Dec 08 2003 Vincent Danen <vdanen@opensls.org> 1.0.5-2sls
+- OpenSLS build
+- tidy spec
+
 * Tue Jul 22 2003 Juan Quintela <quintela@mandrakesoft.com> 1.0.5-1mdk
 - included the rest of created programs & manpages.
   Inquiring minds need nhfsgraph, nfgsnums and nhfsrun.

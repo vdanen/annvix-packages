@@ -1,12 +1,14 @@
-%define ver 4
+%define name	portmap
+%define version	4.0
+%define release	22sls
+%define ver	4
 
 Summary:	A program which manages RPC connections
 Name:		portmap
-Version:	%{ver}.0
-Release:	21mdk
+Version:	%{version}
+Release:	%{release}
 Group:		System/Servers
 License:	BSD
-
 Source0:	ftp://coast.cs.purdue.edu:/pub/tools/unix/netutils/portmap/portmap_%{ver}.tar.bz2
 Source1:	portmap.init
 Source2:	pmap_set.8.bz2
@@ -20,9 +22,10 @@ Patch4:		portmap-4.0-sigpipe.patch.bz2
 Patch5:		portmap-4.0-errno.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
-Prereq:		/sbin/chkconfig, rpm-helper
 BuildRequires:	tcp_wrappers-devel
-Requires: setup >= 2.1.9-38mdk
+
+Prereq:		/sbin/chkconfig, rpm-helper
+Requires:	setup >= 2.1.9-38mdk
 
 %description
 The portmapper program is a security tool which prevents theft of NIS
@@ -93,6 +96,10 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{_initrddir}/portmap
 
 %changelog
+* Mon Dec 02 2003 Vincent Danen <vdanen@opensls.org> 4.0-22sls
+- OpenSLS build
+- tidy spec
+
 * Mon Apr 28 2003 Warly <warly@mandrakesoft.com> 4.0-21mdk
 - fix rebuild
 

@@ -1,6 +1,6 @@
 %define name	gmp
 %define version	4.1.2
-%define release	3mdk
+%define release	4sls
 
 %define lib_major	3
 %define lib_name_orig	%mklibname %{name}
@@ -10,15 +10,14 @@ Summary:	A GNU arbitrary precision library
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
+License:	LGPL 
+Group:		System/Libraries
 URL:		http://www.swox.com/gmp/
-
 Source:		ftp://ftp.gnu.org/pub/gnu/gmp/%{name}-%{version}.tar.bz2
 Patch0:		gmp-4.1-x86_64.patch.bz2
 Patch1:		gmp-4.1-gcc-version.patch.bz2
 Patch2:		gmp-4.1.2-mpz_gcd_ui-retval.patch.bz2
 
-License:	LGPL 
-Group:		System/Libraries
 BuildRoot:	%_tmppath/%name-%version-%release-root
 
 %description
@@ -117,6 +116,10 @@ rm -fr %buildroot
 %{_infodir}/gmp.info*
 
 %changelog
+* Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 4.1.2-4sls
+- OpenSLS build
+- tidy spec
+
 * Thu Jul 10 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 4.1.2-3mdk
 - Fix libification
 - Patch2: Fix mpz_gcd_ui() on longlong limb systems (upstream patch)

@@ -7,23 +7,25 @@
 # Purpose	: rules to create the rpmlint binary package.
 #############################################################################
 
-%define name rpmlint
+%define name	rpmlint
 %define version 0.52
-%define release 1mdk
+%define release 2sls
 
-Summary: Rpm correctness checker
-Name: %{name}
-Version: %{version}
-Release: %{release}
-Source0: %{name}-%{version}.tar.bz2
-URL: http://people.mandrakesoft.com/~flepied/projects/rpmlint/
-License: GPL
-Group: Development/Other
-BuildRoot: %{_tmppath}/%{name}-buildroot
-Prefix: %{_prefix}
-Requires: python >= 1.5.2, rpm-python >= 3.0.3-35mdk, binutils, file, findutils, cpio, /lib/cpp, grep, /bin/bash
+Summary:	RPM correctness checker
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+Source0:	%{name}-%{version}.tar.bz2
+License:	GPL
+Group:		Development/Other
+URL:		http://people.mandrakesoft.com/~flepied/projects/rpmlint/
+Prefix:		%{_prefix}
+
+BuildRoot:	%{_tmppath}/%{name}-buildroot
 BuildArchitectures: noarch
-BuildRequires: python >= 1.5.2, rpm-python >= 3.0.3-35mdk, make
+BuildRequires:	python >= 1.5.2, rpm-python >= 3.0.3-35mdk, make
+
+Requires: python >= 1.5.2, rpm-python >= 3.0.3-35mdk, binutils, file, findutils, cpio, /lib/cpp, grep, /bin/bash
 
 %description
 Rpmlint is a tool to check common errors on rpm packages.
@@ -51,6 +53,10 @@ rm -rf $RPM_BUILD_ROOT
 %dir /etc/rpmlint
 
 %changelog
+* Mon Dec 01 2003 Vincent Danen <vdanen@opensls.org> 0.52-2sls
+- OpenSLS build
+- tidy spec
+
 * Fri Sep  5 2003 Frederic Lepied <flepied@mandrakesoft.com> 0.52-1mdk
 - TagsCheck.py: o added explicit-lib-dependency check
                 o added invalid-build-requires check

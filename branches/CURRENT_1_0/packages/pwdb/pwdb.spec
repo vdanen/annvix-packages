@@ -1,14 +1,17 @@
+%define name	pwdb
+%define version	0.61.2
+%define release	4sls
+
 %define majver		0
 %define lib_name_orig	%mklibname pwdb
 %define lib_name	%{lib_name_orig}%{majver}
 
 Summary:	The password database library
-Name:		pwdb
-Version:	0.61.2
-Release:	3mdk
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
 License:	GPL
 Group:		System/Libraries
-
 Source:		pwdb-%{PACKAGE_VERSION}.tar.bz2
 Patch0:		pwdb-0.61-includes.patch.bz2
 
@@ -118,6 +121,10 @@ rm -rf $RPM_BUILD_ROOT
 /%{_lib}/libpwdb.a
 
 %changelog
+* Wed Dec 03 2003 Vincent Danen <vdanen@opensls.org> 0.61.2-4sls
+- OpenSLS build
+- tidy spec
+
 * Wed Jul 30 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 0.61.2-3mdk
 - mklibname
 

@@ -1,20 +1,20 @@
-%define name gif2png
+%define name	gif2png
 %define version 2.4.7
-%define release 1mdk
+%define release 2sls
 
-Name: %{name}
-Summary: Tools for converting websites from using GIFs to using PNGs
-Summary(fr): Outils de conversion de sites: convertit les GIFs en PNGs.
-Summary(es): Herramienta para convertir sitios y imagenes de GIFs hacia PNGs.
-Version: %{version}
-Release: %{release}
-Source: http://www.catb.org/~esr/gif2png/%{name}-%{version}.tar.bz2
-Group: Graphics
-BuildRequires: libpng-devel zlib-devel
-URL: http://www.catb.org/~esr/gif2png/
-BuildRoot: %{_tmppath}/%{name}-buildroot
-License: MIT style
-Requires: python
+Summary:	Tools for converting websites from using GIFs to using PNGs
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	MIT style
+Group:		Graphics
+URL:		http://www.catb.org/~esr/gif2png/
+Source:		http://www.catb.org/~esr/gif2png/%{name}-%{version}.tar.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildRequires:	libpng-devel zlib-devel
+
+Requires:	python
 
 %description 
 Tools for converting GIFs to PNGs.  The program gif2png converts GIF files 
@@ -55,6 +55,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/*
 			 
 %changelog
+* Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 2.4.7-2sls
+- OpenSLS build
+- tidy spec
+
 * Thu Jul 31 2003 Daouda LO <daouda@mandrakesoft.com> 2.4.7-1mdk
 - release 2.4.7
 - change url

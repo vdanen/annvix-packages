@@ -1,14 +1,20 @@
+%define name	shadow-utils
+%define version	4.0.3
+%define release	6sls
+
 #rh-20000902-10
 #%define url	ftp://ftp.ists.pwr.wroc.pl/pub/linux/shadow/beta
 %define url     ftp.pld.org.pl:/software/shadow
 %define _unpackaged_files_terminate_build 0
 
 Summary:	Utilities for managing shadow password files and user/group accounts
-Name:		shadow-utils
-Version:	4.0.3
-Release:	5mdk
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
 Epoch:		1
-
+License:	BSD
+Group:		System/Base
+URL:		%{url}
 Source0:	%{url}/shadow-%{version}.tar.bz2
 Source1:	shadow-970616.login.defs
 Source2:	shadow-970616.useradd
@@ -16,72 +22,67 @@ Source3:	adduser.8
 Source4:	pwunconv.8
 Source5:	grpconv.8
 Source6:	grpunconv.8
-
-Patch1000: shadow-20000902-mdk.patch.bz2
-Patch0: shadow-4.0.3-mdk.patch.bz2
-Patch1001: shadow-20000902-nscd.patch.bz2
-Patch1: shadow-4.0.3-nscd.patch.bz2
-Patch2: shadow-19990827-group.patch.bz2
-Patch1003: shadow-20000902-vipw.patch.bz2
-Patch3: shadow-4.0.3-vipw.patch.bz2
-Patch1004: shadow-20000826-preserve.patch.bz2
-Patch4: shadow-4.0.3-preserve.patch.bz2
-Patch5: shadow-4.0.3-mailspool.patch.bz2
-Patch6: shadow-20000902-usg.patch.bz2
-Patch7: shadow-20000902-old.patch.bz2
-Patch8: shadow-20000902-man.patch.bz2
-Patch9: shadow-20000902-64.patch.bz2
-
-Patch100: shadow-20000826-no-syslog-setlocale.patch.bz2
-Patch101: shadow-20000902-useradd-LSB-compliance.patch.bz2
-Patch1102: shadow-20000902-useradd-umask.patch.bz2
-Patch102: shadow-4.0.3-useradd-umask.patch.bz2
-
-patch200: shadow-000_manpages.diff.bz2
-patch201: shadow-001_src_Makefile.am.diff.bz2
-patch202: shadow-002_src_login.c.diff.bz2
-patch203: shadow-003_src_newgrp.c.diff.bz2
-patch204: shadow-004_src_su.c.diff.bz2
-patch205: shadow-005_src_lastlogin.c.diff.bz2
-patch206: shadow-006_src_useradd.c.diff.bz2
-patch207: shadow-007_cppw.diff.bz2
-patch208: shadow-008_readonly_root.diff.bz2
-patch209: shadow-009_logoutd.diff.bz2
-patch210: shadow-010_src_passwd.c.diff.bz2
-patch211: shadow-011_doc_README.debian.diff.bz2
-patch212: shadow-012_libmisc_sulog.c.diff.bz2
-patch213: shadow-013_fix_shadowconfig.bz2
-patch214: shadow-014_libmisc_xmalloc.c.diff.bz2
+Patch1000:	shadow-20000902-mdk.patch.bz2
+Patch0:		shadow-4.0.3-mdk.patch.bz2
+Patch1001:	shadow-20000902-nscd.patch.bz2
+Patch1:		shadow-4.0.3-nscd.patch.bz2
+Patch2:		shadow-19990827-group.patch.bz2
+Patch1003:	shadow-20000902-vipw.patch.bz2
+Patch3:		shadow-4.0.3-vipw.patch.bz2
+Patch1004:	shadow-20000826-preserve.patch.bz2
+Patch4:		shadow-4.0.3-preserve.patch.bz2
+Patch5:		shadow-4.0.3-mailspool.patch.bz2
+Patch6:		shadow-20000902-usg.patch.bz2
+Patch7:		shadow-20000902-old.patch.bz2
+Patch8:		shadow-20000902-man.patch.bz2
+Patch9:		shadow-20000902-64.patch.bz2
+Patch100:	shadow-20000826-no-syslog-setlocale.patch.bz2
+Patch101:	shadow-20000902-useradd-LSB-compliance.patch.bz2
+Patch1102:	shadow-20000902-useradd-umask.patch.bz2
+Patch102:	shadow-4.0.3-useradd-umask.patch.bz2
+patch200:	shadow-000_manpages.diff.bz2
+patch201:	shadow-001_src_Makefile.am.diff.bz2
+patch202:	shadow-002_src_login.c.diff.bz2
+patch203:	shadow-003_src_newgrp.c.diff.bz2
+patch204:	shadow-004_src_su.c.diff.bz2
+patch205:	shadow-005_src_lastlogin.c.diff.bz2
+patch206:	shadow-006_src_useradd.c.diff.bz2
+patch207:	shadow-007_cppw.diff.bz2
+patch208:	shadow-008_readonly_root.diff.bz2
+patch209:	shadow-009_logoutd.diff.bz2
+patch210:	shadow-010_src_passwd.c.diff.bz2
+patch211:	shadow-011_doc_README.debian.diff.bz2
+patch212:	shadow-012_libmisc_sulog.c.diff.bz2
+patch213:	shadow-013_fix_shadowconfig.bz2
+patch214:	shadow-014_libmisc_xmalloc.c.diff.bz2
 # patch215 is ia64 support in *generated* files
-patch216: shadow-016_subsystem_shell_fix.diff.bz2
-patch217: shadow-017_su_root_hack.diff.bz2
-patch218: shadow-018_expiry_man_page.diff.bz2
+patch216:	shadow-016_subsystem_shell_fix.diff.bz2
+patch217:	shadow-017_su_root_hack.diff.bz2
+patch218:	shadow-018_expiry_man_page.diff.bz2
 # patch219 contains *generated* files
-patch220: shadow-020_silence_alarm.diff.bz2
-patch221: shadow-021_man_shadowconfig_usr_doc.diff.bz2
-patch222: shadow-022_su_user.diff.bz2
-patch223: shadow-023_group_shadow_cleanup.diff.bz2
-patch224: shadow-024_shadowconfig_grpck_prune.diff.bz2
-patch225: shadow-025_note_chage_lossage.diff.bz2
+patch220:	shadow-020_silence_alarm.diff.bz2
+patch221:	shadow-021_man_shadowconfig_usr_doc.diff.bz2
+patch222:	shadow-022_su_user.diff.bz2
+patch223:	shadow-023_group_shadow_cleanup.diff.bz2
+patch224:	shadow-024_shadowconfig_grpck_prune.diff.bz2
+patch225:	shadow-025_note_chage_lossage.diff.bz2
 # patch226 is bullshit
-patch227: shadow-027_commonio_fix.diff.bz2
+patch227:	shadow-027_commonio_fix.diff.bz2
 # patch228 add /var/mail which we don't want
 # patch229 is bullshit
-patch230: shadow-030_less_rabid_argument_checking.diff.bz2
-patch231: shadow-031_passwd_5_no_aging.diff.bz2
-patch232: shadow-032_login.defs_maildir.diff.bz2
+patch230:	shadow-030_less_rabid_argument_checking.diff.bz2
+patch231:	shadow-031_passwd_5_no_aging.diff.bz2
+patch232:	shadow-032_login.defs_maildir.diff.bz2
 # patch233 add /var/mail which we don't want
-patch234: shadow-034_login_1_file_locations.diff.bz2
+patch234:	shadow-034_login_1_file_locations.diff.bz2
 # patch235 contains *generated* files
-
 # this may depend on previous patches
-Patch500: shadow-4.0.3-biarch-utmp.patch.bz2
+Patch500:	shadow-4.0.3-biarch-utmp.patch.bz2
 
-License:	BSD
-Group:		System/Base
+BuildRoot:	%{_tmppath}/%{name}-buildroot
 BuildRequires:	gettext-devel
 BuildRequires:  automake1.7
-Buildroot:	%{_tmppath}/%{name}-buildroot
+
 Obsoletes:	adduser, newgrp
 Provides: 	adduser, newgrp, shadow-utils > 20000902-5
 Prefix:		%{_prefix}
@@ -233,6 +234,10 @@ rm -rf build-$RPM_ARCH
 %{_mandir}/man8/faillog.8*
 
 %changelog
+* Mon Dec 01 2003 Vincent Danen <vdanen@opensls.org> 4.0.3-6sls
+- OpenSLS build
+- tidy spec
+
 * Mon Apr 14 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 4.0.3-5mdk
 - Patch500: Handle biarch struct utmp
 - BuildRequires: automake1.7, until both are independently executable

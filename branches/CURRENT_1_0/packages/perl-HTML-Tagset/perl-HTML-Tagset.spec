@@ -1,7 +1,7 @@
-%define name	perl-HTML-Tagset
 %define	module	HTML-Tagset
+%define name	perl-%{module}
 %define	version	3.03
-%define	release	7mdk
+%define	release	8sls
 
 Summary: 	This module contains data tables useful in dealing with HTML.
 Name: 		%{name}
@@ -9,11 +9,13 @@ Version: 	%{version}
 Release: 	%{release}
 License: 	GPL
 Group: 		Development/Perl
-Source:		http://www.cpan.org/authors/id/S/SB/SBURKE/%{module}-%{version}.tar.bz2
 URL:		http://www.cpan.org
+Source:		http://www.cpan.org/authors/id/S/SB/SBURKE/%{module}-%{version}.tar.bz2
+
+BuildRoot: 	%{_tmppath}/%{name}-buildroot/
 BuildArch:	noarch
 BuildRequires:	perl-devel
-BuildRoot: 	%{_tmppath}/%{name}-buildroot/
+
 Requires: 	perl
 
 %description
@@ -43,6 +45,10 @@ rm -rf $RPM_BUILD_ROOT
 %{perl_vendorlib}/HTML
 
 %changelog
+* Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 3.03-8sls
+- OpenSLS build
+- tidy spec
+
 * Wed Aug 13 2003 Per Øyvind Karlsen <peroyvind@linux-mandrake.com> 3.03-7mdk
 - rebuild against new perl
 - drop Prefix tag

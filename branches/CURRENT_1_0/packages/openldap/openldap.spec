@@ -1,14 +1,14 @@
 %define name	openldap
 %define version	2.1.22
-%define release	5mdk
+%define release	6sls
 
-%define major 		2
-%define migtools_ver 	40
-%define fname ldap
-%define libname %mklibname %fname %major
+%define major 	2
+%define migtools_ver 40
+%define fname	ldap
+%define libname	%mklibname %fname %major
 
 #localstatedir is passed directly to configure, and we want it to be /var/lib
-#define _localstatedir %{_var}/run
+#define _localstatedir	%{_var}/run
 %define	_libexecdir	%{_sbindir}
 
 # Allow --with[out] SASL at rpm command line build
@@ -29,23 +29,19 @@ Release: 	%{release}
 License: 	Artistic
 Group: 		System/Servers
 URL: 		http://www.openldap.org
-
 # Openldap source
 Source0: 	%{name}-%{version}.tar.bz2
 Source12:	openldap-guide.tar.bz2
-
 # Specific source
 Source1: 	ldap.init
 Source2: 	%{name}.sysconfig
 Source19:	gencert.sh
 Source20:	ldap.logrotate
 Source21:	slapd.conf
-
 # Migration tools
 Source11:	http://www.padl.com/download/MigrationTools-%{migtools_ver}.tar.bz2
 Source3: 	migration-tools.txt
 Source4: 	migrate_automount.pl
-
 # Extended Schema 
 Source50: 	rfc822-MailMember.schema
 Source51: 	autofs.schema
@@ -59,8 +55,6 @@ Source58: 	http://debian.jones.dk/debian/local/honda/pool-ldapv3/woody-jones/ope
 Source59: 	http://debian.jones.dk/debian/local/honda/pool-ldapv3/woody-jones/openldap2/schemas/cron.schema
 Source60:	http://debian.jones.dk/debian/local/honda/pool-ldapv3/woody-jones/openldap2/schemas/qmailControl.schema
 Source61:	krb5-kdc.schema
-
-
 # Chris Patches
 Patch0: 	%{name}-2.0.7-config.patch.bz2
 Patch1:		%{name}-2.0.7-module.patch.bz2
@@ -70,14 +64,12 @@ Patch4: 	%{name}-2.0.7-db3.patch.bz2
 Patch22:	%{name}-libtool.patch.bz2
 Patch24:	%{name}-2.0.18-libtool.patch.bz2
 Patch25:	%{name}-2.0.25-liblber.patch.bz2
-
 # RH + PLD Patches
 Patch6: 	%{name}-2.0.3-krb5-1.1.patch.bz2
 Patch8:		%{name}-conffile.patch.bz2
 Patch10:	%{name}-sql.patch.bz2
 Patch12:	%{name}-syslog.patch.bz2
 Patch15:	%{name}-cldap.patch.bz2
-
 # Migration tools Patch
 Patch40: 	MigrationTools-34-instdir.patch.bz2
 Patch41: 	MigrationTools-36-mktemp.patch.bz2
@@ -93,6 +85,7 @@ Patch47:	openldap-2.0.27-maildrop.schema.patch.bz2
 Patch48:	openldap-2.0.27-slapd-Makefile.patch.bz2
 Patch49:	openldap-2.1.22-libtool.patch.bz2
 
+BuildRoot: 	%{_tmppath}/%{name}-%{version}-root
 %{?_with_cyrussasl:BuildRequires: 	libsasl-devel}
 %{?_with_kerberos:BuildRequires:	krb5-devel}
 BuildRequires:	openssl-devel, perl, autoconf
@@ -102,7 +95,7 @@ BuildRequires: 	libunixODBC-devel
 %endif
 BuildRequires: 	db4-devel >= 4.1.25, libtool-devel
 BuildRequires:  ncurses-devel >= 5.0, tcp_wrappers-devel
-BuildRoot: 	%{_tmppath}/%{name}-%{version}-root
+
 Requires: 	%libname = %{version}-%{release}
 Requires:	shadow-utils, setup >= 2.2.0-6mdk
 
@@ -714,6 +707,10 @@ fi
 
 
 %changelog
+* Mon Dec 02 2003 Vincent Danen <vdanen@opensls.org> 2.1.22-6sls
+- OpenSLS build
+- tidy spec
+
 * Thu Aug 14 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 2.1.22-5mdk
 - Fix deps
 

@@ -1,23 +1,29 @@
+%define name	makedev
+%define version	4.1
+%define release 2sls
+
 # synced with rh-3.3.1-1
 
-%define devrootdir /lib/root-mirror
-%define dev_lock /var/lock/subsys/dev
-%define makedev_lock /var/lock/subsys/makedev
+%define devrootdir	/lib/root-mirror
+%define dev_lock	/var/lock/subsys/dev
+%define makedev_lock	/var/lock/subsys/makedev
 
-Name: makedev
-Version: 4.1
-Release: 1mdk
-Group: System/Kernel and hardware
-License: GPL
-URL:	http://cvs.mandrakesoft.com/cgi-bin/cvsweb.cgi/soft/makedev/
-Source: %name-%version.tar.bz2
-Summary: A program used for creating the device files in /dev.
-BuildRoot: %_tmppath/%name-root
+Summary:	A program used for creating the device files in /dev.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		System/Kernel and hardware
+URL:		http://cvs.mandrakesoft.com/cgi-bin/cvsweb.cgi/soft/makedev/
+Source:		%name-%version.tar.bz2
+
+BuildRoot:	%_tmppath/%name-root
 BuildArchitectures: noarch
-Prereq: /usr/sbin/groupadd, /usr/sbin/useradd, sed, coreutils, mktemp
-Requires: bash, perl-base
-Provides: dev, MAKEDEV
-Obsoletes: dev, MAKEDEV
+
+Prereq:		/usr/sbin/groupadd, /usr/sbin/useradd, sed, coreutils, mktemp
+Requires:	bash, perl-base
+Provides:	dev, MAKEDEV
+Obsoletes:	dev, MAKEDEV
 # coreutils => /bin/mkdir
 
 %description
@@ -27,13 +33,8 @@ correspond to a particular device supported by Linux (serial or printer
 ports, scanners, sound cards, tape drives, CD-ROM drives, hard drives,
 etc.) and interface with the drivers in the kernel.
 
-The makedev package is a basic part of your Mandrake Linux system and it needs
+The makedev package is a basic part of your SLS system and it needs
 to be installed.
-
-#The Mandrake Linux operating system uses file system entries to represent
-#devices (CD-ROMs, floppy drives, etc.) attached to the machine. All of
-#these entries are in the /dev tree (although they don't have to be).
-#This package contains the most commonly used /dev entries.
 
 %prep
 %setup -q
@@ -124,6 +125,10 @@ fi
 %dir %devrootdir
 
 %changelog
+* Mon Dec 01 2003 Vincent Danen <vdanen@opensls.org> 4.1-2sls
+- OpenSLS build
+- tidy spec
+
 * Wed Sep 17 2003 Thierry Vignaud <tvignaud@mandrakesoft.com> 4.1-1mdk
 - smoother update
 - fix rare "empty /dev/ on update" bug

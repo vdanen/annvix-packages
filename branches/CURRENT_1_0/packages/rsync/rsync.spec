@@ -1,19 +1,24 @@
-Summary: A program for synchronizing files over a network.
-Name: rsync
-Version: 2.5.7
-Release: 1mdk
-Group: Networking/File transfer
-URL: http://rsync.samba.org/
-Source:	ftp://rsync.samba.org/pub/rsync/%name-%version.tar.gz.tgz
-Source1: rsync.html
-Source2: rsyncd.conf.html
-Source3: rsync.xinetd
-Source4: ftp://rsync.samba.org/pub/rsync/%name-%version.tar.gz.sig.tgz
-Patch0: rsync-2.5.4-draksync.patch.bz2
-Patch1: rsync-2.5.6-nogroup.patch.bz2
-BuildRoot: %_tmppath/%name-root
-License: GPL
-BuildRequires: popt-devel
+%define name	rsync
+%define version	2.5.7
+%define release	2sls
+
+Summary:	A program for synchronizing files over a network.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		Networking/File transfer
+URL:		http://rsync.samba.org/
+Source:		ftp://rsync.samba.org/pub/rsync/%name-%version.tar.gz.tgz
+Source1:	rsync.html
+Source2:	rsyncd.conf.html
+Source3:	rsync.xinetd
+Source4:	ftp://rsync.samba.org/pub/rsync/%name-%version.tar.gz.sig.tgz
+Patch0:		rsync-2.5.4-draksync.patch.bz2
+Patch1:		rsync-2.5.6-nogroup.patch.bz2
+
+BuildRoot:	%_tmppath/%name-root
+BuildRequires:	popt-devel
 
 %description
 Rsync uses a quick and reliable algorithm to very quickly bring
@@ -64,6 +69,10 @@ rm -rf $RPM_BUILD_ROOT
 %doc tech_report.tex README COPYING *html
 
 %changelog
+* Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 2.5.7-2sls
+- OpenSLS build
+- tidy spec
+
 * Thu Dec  4 2003 Warly <warly@mandrakesoft.com> 2.5.7-1mdk
 - new version (security fix)
 

@@ -1,9 +1,9 @@
 %define name	rcs
 %define version	5.7
-%define release	6mdk
+%define release	7sls
 
-Name:		%{name}
 Summary:	Revision Control System (RCS) file version management tools.
+Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	GPL
@@ -11,8 +11,10 @@ Group:		Development/Other
 Source:		ftp://ftp.gnu.org/pub/gnu/rcs-5.7.tar.bz2
 Patch:		rcs-5.7-stupidrcs.patch.bz2
 Patch1:		rcs-5.7-security.patch.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-root
+
 Prefix:		%{_prefix}
-Buildroot:	%{_tmppath}/%{name}-root
 
 %description
 The Revision Control System (RCS) is a system for managing multiple
@@ -55,6 +57,10 @@ mv $RPM_BUILD_ROOT/usr/man/* $RPM_BUILD_ROOT%{_mandir}
 rm -rf $RPM_BUILD_ROOT
 
 %changelog
+* Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 5.7-7sls
+- OpenSLS build
+- tidy spec
+
 * Fri May  2 2003 Frederic Lepied <flepied@mandrakesoft.com> 5.7-6mdk
 - rebuilt
 

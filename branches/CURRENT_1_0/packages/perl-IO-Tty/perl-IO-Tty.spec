@@ -1,7 +1,7 @@
-%define	name	perl-IO-Tty
 %define	module	IO-Tty
+%define	name	perl-%{module}
 %define	version	1.02
-%define	release	7mdk
+%define	release	8sls
 
 Summary:	IO-Tty perl module: interface to pseudo tty's
 Name: 		%{name}
@@ -9,10 +9,12 @@ Version: 	%{version}
 Release:	%{release} 
 License: 	GPL
 Group: 		Development/Perl
-Url:		http://www.cpan.org
+URL:		http://www.cpan.org
 Source:		ftp://ftp.perl.org/pub/CPAN/modules/by-module/IO/%{module}-%{version}.tar.bz2
+
 BuildRoot: 	%{_tmppath}/%{name}-buildroot
 BuildRequires:	perl-devel
+
 Requires: 	perl 
 
 %description
@@ -45,6 +47,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/*/*
 
 %changelog
+* Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 1.02-8sls
+- OpenSLS build
+- tidy spec
+
 * Wed Aug 13 2003 Per Øyvind Karlsen <peroyvind@linux-mandrake.com> 1.02-7mdk
 - rebuild for new perl
 - use %%make macro

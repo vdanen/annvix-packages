@@ -1,22 +1,22 @@
-%define name perl-Convert-ASN1
-%define real_name Convert-ASN1
+%define module	Convert-ASN1
+%define name	perl-%{module}
 %define version 0.16
-%define release 4mdk
+%define release 5sls
 
 Summary: 	ASN.1 Encode/Decode library for perl
 Name: 		%{name}
 Version: 	%{version}
 Release: 	%{release}
 License: 	GPL or Artistic
-Distribution:	Mandrake Linux
 Group: 		Development/Perl
+URL: 		http://www.cpan.org
 Source: 	http://www.cpan.org/authors/id/GBARR/%{name}-%{version}.tar.bz2
-Prefix: 	%{_prefix}
-Url: 		http://www.cpan.org
-BuildRequires:	perl-devel
-BuildArch: 	noarch
+
 BuildRoot: 	%{_tmppath}/%{name}-buildroot/
-#Requires: 	perl >= 5.600
+BuildArch: 	noarch
+BuildRequires:	perl-devel
+
+Prefix: 	%{_prefix}
 Requires:	perl >= 5.6
 
 %description
@@ -47,6 +47,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/*/*
 
 %changelog
+* Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 0.16-5sls
+- OpenSLS build
+- tidy spec
+
 * Wed Aug 13 2003 Per Øyvind Karlsen <peroyvind@linux-mandrake.com> 0.16-4mdk
 - rebuild for new perl
 - don't use PREFIX

@@ -1,14 +1,19 @@
-Summary: Rotates, compresses, and mails system logs
-Name: logrotate
-Version: 3.6.6
-Release: 2mdk
-License: GPL
-Group: File tools
-BuildRequires: popt-devel
-Source0: ftp://ftp.redhat.com/pub/redhat/code/logrotate/logrotate-%{PACKAGE_VERSION}.tar.bz2
-Source1: logrotate.conf.mdk.bz2
-BuildRoot: %{_tmppath}/logrotate.root
-URL: ftp://ftp.redhat.com/pub/redhat/linux/rawhide/SRPMS/SRPMS/
+%define name	logrotate
+%define version	3.6.6
+%define release	3sls
+
+Summary:	Rotates, compresses, and mails system logs
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		File tools
+URL:		ftp://ftp.redhat.com/pub/redhat/linux/rawhide/SRPMS/SRPMS/
+Source0:	ftp://ftp.redhat.com/pub/redhat/code/logrotate/logrotate-%{PACKAGE_VERSION}.tar.bz2
+Source1:	logrotate.conf.mdk.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildRequires:	popt-devel
 
 %description
 Logrotate is designed to ease administration of systems that generate
@@ -45,6 +50,10 @@ rm -rf $RPM_BUILD_ROOT
 %attr(0755, root, root) %dir %{_sysconfdir}/%{name}.d
 
 %changelog
+* Sun Nov 30 2003 Vincent Danen <vdanen@opensls.org> 3.6.6-3sls
+- OpenSLS build
+- tidy spec
+
 * Tue Jul 22 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 3.6.6-2mdk
 - rebuild
 - macroize

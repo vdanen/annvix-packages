@@ -1,36 +1,38 @@
-%define phpsource       %{_prefix}/src/php-devel
-%define _docdir %{_datadir}/doc/%{name}-%{version}
+%define name	php-%{modname}
+%define version	%{phpversion}
+%define release	2sls
+
+%define phpsource	%{_prefix}/src/php-devel
+%define _docdir		%{_datadir}/doc/%{name}-%{version}
 %{expand:%(cat /usr/src/php-devel/PHP_BUILD||(echo -e "error: failed build dependencies:\n        php-devel >= 430 (4.3.0) is needed by this package." >/dev/stderr;kill -2 $PPID))}
 
-%define release 1mdk
-
-%define realname XSLT
-%define modname xslt
-%define dirname %{modname}
-%define soname %{modname}.so
-%define inifile 52_%{modname}.ini
-%define mod_src "xslt.c sablot.c" 
-%define mod_lib "-lsablot -lexpat -ljs -lstdc++ -lgcc"
-%define mod_def "-DCOMPILE_DL_XSLT -DHAVE_XSLT -DHAVE_SABLOT_BACKEND -DHAVE_DLFCN_H -DHAVE_LIBEXPAT2 -DHAVE_SABLOT_SET_ENCODING"
-%define rlibs libexpat0 libsablotron0 >= 0.90 libjs1 >= 1.5 libstdc++5 libgcc1
-%define blibs expat-devel libsablotron-devel js-devel >= 1.5 libstdc++-devel libgcc1
+%define realname	XSLT
+%define modname		xslt
+%define dirname		%{modname}
+%define soname		%{modname}.so
+%define inifile		52_%{modname}.ini
+%define mod_src		"xslt.c sablot.c" 
+%define mod_lib		"-lsablot -lexpat -ljs -lstdc++ -lgcc"
+%define mod_def		"-DCOMPILE_DL_XSLT -DHAVE_XSLT -DHAVE_SABLOT_BACKEND -DHAVE_DLFCN_H -DHAVE_LIBEXPAT2 -DHAVE_SABLOT_SET_ENCODING"
+%define rlibs		libexpat0 libsablotron0 >= 0.90 libjs1 >= 1.5 libstdc++5 libgcc1
+%define blibs		expat-devel libsablotron-devel js-devel >= 1.5 libstdc++-devel libgcc1
 
 Summary:	The %{realname} module for PHP
-Name:		php-%{modname}
-Version:	%{phpversion}
+Name:		%{name}
+Version:	%{version}
 Release:	%{release}
+License:	PHP License
 Group:		System/Servers
 URL:		http://www.php.net
-License:	PHP License
 Source0:	foo.xml
 Source1:	foo.xsl
 Source2:	run.php
-#Requires:	libphp_common%{libversion}
-#Requires:	%{rlibs}
-Requires:	php%{libversion}
+
+BuildRoot:	%{_tmppath}/%{name}-root
 BuildRequires:  php%{libversion}-devel
 BuildRequires:	%{blibs}
-BuildRoot:	%{_tmppath}/%{name}-root
+
+Requires:	php%{libversion}
 Provides: 	ADVXpackage
 
 %description
@@ -85,6 +87,10 @@ EOF
 %config(noreplace) %{_sysconfdir}/php/%{inifile}
 
 %changelog
+* Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 4.3.4-2sls
+- OpenSLS build
+- tidy spec
+
 * Wed Nov 05 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 4.3.4-1mdk
 - built for php 4.3.4
 
