@@ -1,0 +1,369 @@
+--- XFree86-4.3/xc/lib/Xft/Xft.h.xft212	2003-02-25 22:57:53.000000000 +0100
++++ XFree86-4.3/xc/lib/Xft/Xft.h	2003-09-08 13:51:16.000000000 +0200
+@@ -27,7 +27,7 @@
+ 
+ #define XFT_MAJOR	2
+ #define XFT_MINOR	1
+-#define XFT_REVISION	0
++#define XFT_REVISION	2
+ #define XFT_VERSION	((XFT_MAJOR * 10000) + (XFT_MINOR * 100) + (XFT_REVISION))
+ #define XftVersion	XFT_VERSION
+ 
+--- XFree86-4.3/xc/lib/Xft/xft.pc.in.xft212	2002-05-24 01:01:56.000000000 +0200
++++ XFree86-4.3/xc/lib/Xft/xft.pc.in	2003-09-08 13:51:16.000000000 +0200
+@@ -11,5 +11,5 @@
+ Description: X FreeType library
+ Version: @PACKAGE_VERSION@
+ Requires: fontconfig
+-Libs: -L${libdir} -lXft ${freetypelibs} ${xrenderlibs}
++Libs: -L${libdir} -lXft -lX11 ${freetypelibs} ${xrenderlibs}
+ Cflags: -I${includedir} ${freetypecflags} ${xrendercflags}
+--- XFree86-4.3/xc/lib/Xft/xftglyphs.c.xft212	2002-10-11 19:53:02.000000000 +0200
++++ XFree86-4.3/xc/lib/Xft/xftglyphs.c	2003-09-08 13:51:16.000000000 +0200
+@@ -534,9 +534,14 @@
+ 	    }
+ 	    else
+ 	    {
+-		xftg->bitmap = malloc (sizergba);
+-		if (xftg->bitmap)
+-		    memcpy (xftg->bitmap, bufBitmapRgba, sizergba);
++		if (sizergba)
++		{
++		    xftg->bitmap = malloc (sizergba);
++		    if (xftg->bitmap)
++			memcpy (xftg->bitmap, bufBitmapRgba, sizergba);
++		}
++		else
++		    xftg->bitmap = 0;
+ 	    }
+ 	}
+ 	else
+@@ -575,9 +580,14 @@
+ 	    }
+ 	    else
+ 	    {
+-		xftg->bitmap = malloc (size);
+-		if (xftg->bitmap)
+-		    memcpy (xftg->bitmap, bufBitmap, size);
++		if (size)
++		{
++		    xftg->bitmap = malloc (size);
++		    if (xftg->bitmap)
++			memcpy (xftg->bitmap, bufBitmap, size);
++		}
++		else
++		    xftg->bitmap = 0;
+ 	    }
+ 	}
+ 	font->glyph_memory += xftg->glyph_memory;
+@@ -734,7 +744,7 @@
+ 		offset = 1;
+ 	}
+ 	ent = ent + offset;
+-	if (ent > font->hash_value)
++	if (ent >= font->hash_value)
+ 	    ent -= font->hash_value;
+     }
+     return font->hash_table[ent].glyph;
+--- XFree86-4.3/xc/lib/Xft/xft-config.in.xft212	2002-05-28 17:59:32.000000000 +0200
++++ XFree86-4.3/xc/lib/Xft/xft-config.in	2003-09-08 13:51:16.000000000 +0200
+@@ -89,7 +89,7 @@
+ fi
+ 
+ if test "$echo_libs" = "yes" ; then
+- libs="-lXft ${freetypelibs} ${fontconfiglibs} ${xrenderlibs}"
++ libs="-lXft -lX11 ${freetypelibs} ${fontconfiglibs} ${xrenderlibs}"
+  if test "${libdir}" != "/usr/lib" ; then
+   echo -L${libdir} $libs
+  else
+--- XFree86-4.3/xc/lib/Xft/xftdraw.c.xft212	2002-10-11 19:53:02.000000000 +0200
++++ XFree86-4.3/xc/lib/Xft/xftdraw.c	2003-09-08 13:51:16.000000000 +0200
+@@ -177,6 +177,7 @@
+     draw->colormap = 0;
+     draw->render.pict = 0;
+     draw->core.gc = 0;
++    draw->core.use_pixmap = 0;
+     draw->clip_type = XftClipTypeNone;
+     draw->subwindow_mode = ClipByChildren;
+     XftMemAlloc (XFT_MEM_DRAW, sizeof (XftDraw));
+@@ -202,6 +203,7 @@
+     draw->colormap = 0;
+     draw->render.pict = 0;
+     draw->core.gc = 0;
++    draw->core.use_pixmap = 0;
+     draw->clip_type = XftClipTypeNone;
+     draw->subwindow_mode = ClipByChildren;
+     XftMemAlloc (XFT_MEM_DRAW, sizeof (XftDraw));
+@@ -724,7 +726,7 @@
+ 	    {
+ 		XftGlyphFontSpecRender (draw->dpy, _XftDrawOp (draw, color),
+ 					src, draw->render.pict,
+-					0, 0, glyphs, i - start);
++					0, 0, glyphs + start , i - start);
+ 	    }
+ 	}
+ 	else
+@@ -732,7 +734,7 @@
+ 	    while (i < len && !((XftFontInt *) glyphs[i].font)->format)
+ 		i++;
+ 	    if (_XftDrawCorePrepare (draw, color))
+-		XftGlyphFontSpecCore (draw, color, glyphs, len);
++		XftGlyphFontSpecCore (draw, color, glyphs + start, i - start);
+ 	}
+     }
+ }
+--- XFree86-4.3/xc/lib/Xft/xftname.c.xft212	2002-05-24 09:02:38.000000000 +0200
++++ XFree86-4.3/xc/lib/Xft/xftname.c	2003-09-08 13:51:16.000000000 +0200
+@@ -40,6 +40,7 @@
+ {
+     if (_XftNameInitialized)
+ 	return;
++    _XftNameInitialized = True;
+     FcNameRegisterObjectTypes (_XftObjectTypes, NUM_OBJECT_TYPES);
+ }
+ 
+--- XFree86-4.3/xc/lib/Xft/xftfreetype.c.xft212	2002-10-11 19:53:02.000000000 +0200
++++ XFree86-4.3/xc/lib/Xft/xftfreetype.c	2003-09-08 13:51:16.000000000 +0200
+@@ -51,7 +51,7 @@
+ 
+     for (f = _XftFtFiles; f; f = f->next)
+     {
+-	if (!strcmp (f->file, (void *) file) && f->id == id)
++	if (!strcmp (f->file, (char *) file) && f->id == id)
+ 	{
+ 	    ++f->ref;
+ 	    if (XftDebug () & XFT_DBG_REF)
+@@ -74,13 +74,14 @@
+     f->ref = 1;
+     
+     f->file = (char *) (f+1);
+-    strcpy (f->file, (void *) file);
++    strcpy (f->file, (char *) file);
+     f->id = id;
+     
+     f->lock = 0;
+     f->face = 0;
+     f->xsize = 0;
+     f->ysize = 0;
++    f->matrix.xx = f->matrix.xy = f->matrix.yx = f->matrix.yy = 0;
+     return f;
+ }
+ 
+@@ -103,6 +104,7 @@
+     f->face = face;
+     f->xsize = 0;
+     f->ysize = 0;
++    f->matrix.xx = f->matrix.xy = f->matrix.yx = f->matrix.yy = 0;
+     return f;
+ }
+ 
+@@ -638,6 +676,7 @@
+     int			alloc_size;
+     int			ascent, descent, height;
+     int			i;
++    int			num_glyphs;
+ 
+     if (!info)
+ 	return 0;
+@@ -699,55 +738,16 @@
+ 	    case FC_RGBA_BGR:
+ 	    case FC_RGBA_VRGB:
+ 	    case FC_RGBA_VBGR:
+-		pf.depth = 32;
+-		pf.type = PictTypeDirect;
+-		pf.direct.alpha = 24;
+-		pf.direct.alphaMask = 0xff;
+-		pf.direct.red = 16;
+-		pf.direct.redMask = 0xff;
+-		pf.direct.green = 8;
+-		pf.direct.greenMask = 0xff;
+-		pf.direct.blue = 0;
+-		pf.direct.blueMask = 0xff;
+-		format = XRenderFindFormat(dpy, 
+-					   PictFormatType|
+-					   PictFormatDepth|
+-					   PictFormatAlpha|
+-					   PictFormatAlphaMask|
+-					   PictFormatRed|
+-					   PictFormatRedMask|
+-					   PictFormatGreen|
+-					   PictFormatGreenMask|
+-					   PictFormatBlue|
+-					   PictFormatBlueMask,
+-					   &pf, 0);
++		format = XRenderFindStandardFormat (dpy, PictStandardARGB32);
+ 		break;
+ 	    default:
+-		pf.depth = 8;
+-		pf.type = PictTypeDirect;
+-		pf.direct.alpha = 0;
+-		pf.direct.alphaMask = 0xff;
+-		format = XRenderFindFormat(dpy, 
+-					   PictFormatType|
+-					   PictFormatDepth|
+-					   PictFormatAlpha|
+-					   PictFormatAlphaMask,
+-					   &pf, 0);
++		format = XRenderFindStandardFormat (dpy, PictStandardA8);
+ 		break;
+ 	    }
+ 	}
+ 	else
+ 	{
+-	    pf.depth = 1;
+-	    pf.type = PictTypeDirect;
+-	    pf.direct.alpha = 0;
+-	    pf.direct.alphaMask = 0x1;
+-	    format = XRenderFindFormat(dpy, 
+-				       PictFormatType|
+-				       PictFormatDepth|
+-				       PictFormatAlpha|
+-				       PictFormatAlphaMask,
+-				       &pf, 0);
++	    format = XRenderFindStandardFormat (dpy, PictStandardA1);
+ 	}
+ 	
+ 	if (!format)
+@@ -769,8 +769,13 @@
+ 	rehash_value = 0;
+     }
+     
++    /*
++     * Sometimes the glyphs are numbered 1..n, other times 0..n-1,
++     * accept either numbering scheme by making room in the table
++     */
++    num_glyphs = face->num_glyphs + 1;
+     alloc_size = (sizeof (XftFontInt) + 
+-		  face->num_glyphs * sizeof (XftGlyph *) +
++		  num_glyphs * sizeof (XftGlyph *) +
+ 		  hash_value * sizeof (XftUcsHash));
+     font = malloc (alloc_size);
+     
+@@ -867,8 +872,8 @@
+      * Per glyph information
+      */
+     font->glyphs = (XftGlyph **) (font + 1);
+-    memset (font->glyphs, '\0', face->num_glyphs * sizeof (XftGlyph *));
+-    font->num_glyphs = face->num_glyphs;
++    memset (font->glyphs, '\0', num_glyphs * sizeof (XftGlyph *));
++    font->num_glyphs = num_glyphs;
+     /*
+      * Unicode hash table information
+      */
+@@ -929,9 +934,13 @@
+ static void
+ XftFontDestroy (Display *dpy, XftFont *public)
+ {
+-    XftFontInt	*font = (XftFontInt *) public;
+-    int		i;
++    XftDisplayInfo  *info = _XftDisplayInfoGet (dpy, False);
++    XftFontInt	    *font = (XftFontInt *) public;
++    int		    i;
+     
++    /* note reduction in memory use */
++    if (info)
++	info->glyph_memory -= font->glyph_memory;
+     /* Clean up the info */
+     XftFontInfoEmpty (dpy, &font->info);
+     /* Free the glyphset */
+--- XFree86-4.3/xc/lib/Xft/Imakefile.xft212	2003-02-25 23:18:03.000000000 +0100
++++ XFree86-4.3/xc/lib/Xft/Imakefile	2003-09-08 13:51:16.000000000 +0200
+@@ -46,7 +46,7 @@
+ INCLUDES=$(FONTCONFIGINCLUDES) $(FREETYPE2INCLUDES) $(WARNINGS)
+ DEFINES=$(FREETYPE2DEFINES) $(RENDERDEFINES)
+ 
+-XFT_REVISION=0
++XFT_REVISION=2
+ 
+ FREETYPE_LIBS=$(FREETYPE2LIB)
+ FREETYPE_CFLAGS=$(FREETYPE2INCLUDES)
+--- XFree86-4.3/xc/lib/Xft/xftrender.c.xft212	2002-12-14 02:59:38.000000000 +0100
++++ XFree86-4.3/xc/lib/Xft/xftrender.c	2003-09-10 17:47:41.000000000 +0200
+@@ -1,7 +1,7 @@
+ /*
+- * $XFree86: xc/lib/Xft/xftrender.c,v 1.15 2002/12/14 01:59:38 dawes Exp $
++ * $Id: xftrender.c,v 1.17 2003/05/02 21:42:56 keithp Exp $
+  *
+- * Copyright � 2000 Keith Packard, member of The XFree86 Project, Inc.
++ * Copyright Â© 2000 Keith Packard, member of The XFree86 Project, Inc.
+  *
+  * Permission to use, copy, modify, distribute, and sell this software and its
+  * documentation for any purpose is hereby granted without fee, provided that
+@@ -386,6 +386,31 @@
+ 	free (glyphs);
+ }
+ 
++/*
++ * Choose which format to draw text in when drawing with fonts
++ * of different formats.  The trick is that ARGB formats aren't
++ * compatible with A formats as PictOpAdd does the wrong thing, so
++ * fall back to an A format when presented with an ARGB and A format
++ */
++
++#define XftIsARGBFormat(a)  ((a)->depth == 32)
++
++static XRenderPictFormat *
++XftPreferFormat (Display *dpy, XRenderPictFormat *a, XRenderPictFormat *b)
++{
++    XRenderPictFormat	*prefer = 0;
++    
++    if (a == b)
++	prefer = a;
++    else if (XftIsARGBFormat(a) != XftIsARGBFormat(b))
++	prefer = XRenderFindStandardFormat (dpy, PictStandardA8);
++    else if (a->depth > b->depth)
++	prefer = a;
++    else
++	prefer = b;
++    return prefer;
++}
++
+ void
+ XftGlyphFontSpecRender (Display			    *dpy,
+ 			int			    op,
+@@ -399,6 +424,7 @@
+     int		    i, j;
+     XftFont	    *prevPublic;
+     XftFontInt	    *firstFont;
++    XRenderPictFormat	*format;
+     FT_UInt	    missing[XFT_NMISSING];
+     int		    nmissing;
+     int		    n;
+@@ -496,6 +522,7 @@
+     if (i == nglyphs)
+ 	goto bail2;
+     glyph = firstFont->glyphs[g];
++    format = firstFont->format;
+     x = glyphs[i].x + glyph->metrics.xOff;
+     y = glyphs[i].y + glyph->metrics.yOff;
+     prevPublic = 0;
+@@ -516,6 +543,8 @@
+ 	    if (pub != prevPublic || x != glyphs[i].x || y != glyphs[i].y)
+ 	    {
+ 		prevPublic = pub;
++		if (font->format != format)
++		    format = XftPreferFormat (dpy, font->format, format);
+ 		x = glyphs[i].x;
+ 		y = glyphs[i].y;
+ 		++nelt;
+@@ -586,17 +615,17 @@
+     }
+     switch (width) {
+     case 1:
+-	XRenderCompositeText8 (dpy, op, src, dst, firstFont->format,
++	XRenderCompositeText8 (dpy, op, src, dst, format,
+ 			       srcx, srcy, glyphs[0].x, glyphs[0].y,
+ 			       elts, nelt);
+ 	break;
+     case 2:
+-	XRenderCompositeText16 (dpy, op, src, dst, firstFont->format,
++	XRenderCompositeText16 (dpy, op, src, dst, format,
+ 				srcx, srcy, glyphs[0].x, glyphs[0].y,
+ 				(XGlyphElt16 *) elts, nelt);
+ 	break;
+     case 4:
+-	XRenderCompositeText32 (dpy, op, src, dst, firstFont->format,
++	XRenderCompositeText32 (dpy, op, src, dst, format,
+ 				srcx, srcy, glyphs[0].x, glyphs[0].y,
+ 				(XGlyphElt32 *) elts, nelt);
+ 	break;
