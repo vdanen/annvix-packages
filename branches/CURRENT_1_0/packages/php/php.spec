@@ -1,6 +1,6 @@
 %define name	php
-%define version	4.3.8
-%define release	2avx
+%define version	4.3.9
+%define release	1avx
 %define epoch	2
 
 %define libversion	4
@@ -53,7 +53,7 @@ Epoch:		%{epoch}
 License:	PHP License
 Group:		Development/Other
 URL:		http://www.php.net
-Source0:	http://www.php.net/distributions/php-%{version}.tar.bz2
+Source0:	http://static.php.net/www.php.net/distributions/php-%{version}.tar.bz2
 Source3:	FAQ.php.bz2
 Source4:	php-test.bz2
 # wget -O ChangeLog-4.html http://www.php.net/ChangeLog-4.php
@@ -63,12 +63,12 @@ Patch1:		php-4.3.6-mdk-shared.patch.bz2
 Patch2:		php-4.3.0-mdk-imap.patch.bz2
 Patch3:		php-4.3.0-mdk-info.patch.bz2
 Patch4:		php-4.3.4RC3-mdk-64bit.patch.bz2
-Patch5:		php-4.3.6-mdk-lib64.patch.bz2
+Patch5:		php-4.3.9-mdk-lib64.patch.bz2
 Patch6:		php-4.3.0-mdk-fix-pear.patch.bz2
 Patch7:		php-4.3.2-mdk-libtool.patch.bz2
 Patch8:		php-4.3.6-mdk-credits.patch.bz2
-Patch9:		php-4.3.0-mdk-no_egg.patch.bz2
-Patch10:	php-4.3.6-mdk-phpize.diff.bz2
+Patch9:		php-4.3.9-mdk-no_egg.patch.bz2
+Patch10:	php-4.3.9-mdk-phpize.patch.bz2
 Patch11:	php-4.3.7-mdk-run-tests.diff.bz2
 
 # from PLD (20-40)
@@ -91,15 +91,12 @@ Patch53:	php-4.3.2-fdr-libtool15.patch.bz2
 Patch54:	php-4.3.1-fdr-odbc.patch.bz2
 Patch55:	php-4.3.2-fdr-db4.patch.bz2
 Patch56:	php-4.3.6-fdr-umask.patch.bz2
-Patch57:	php-4.3.7-fdr-handler.patch.bz2
-Patch58:	php-4.3.7-fdr-gmppowm.patch.bz2
 
 # General fixes (70+)
 # make the tests work better
 Patch70:	php-4.3.3-mdk-make_those_darn_tests_work.patch.bz2
 # Bug fixes:
 Patch71:	php-4.3.4-mdk-bug-22414.patch.bz2
-Patch72:	php-4.3.8-cvs-closesocket.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
 # this is to prevent that it will build against old libs
@@ -264,14 +261,11 @@ perl -pi -e "s|_PHP_SONAME_|%{libversion}|g" Makefile.global
 %patch54 -p1
 %patch55 -p1
 %patch56 -p1
-%patch57 -p1
-%patch58 -p1
 
 # make the tests work better
 %patch70 -p0 -b .make_those_darn_tests_work
 # upstream fix bugs
 %patch71 -p1 -b .22414
-%patch72 -p1
 
 # Change perms otherwise rpm would get fooled while finding requires
 chmod 644 tests/lang/*.inc
@@ -615,6 +609,11 @@ update-alternatives --remove php %{_bindir}/php-cli
 %{_includedir}/php
 
 %changelog
+* Wed Sep 29 2004 Vincent Danen <vdanen@annvix.org> 4.3.9-1avx
+- 4.3.9
+- rediff P5, P9, P10
+- drop P57, P58, P72 (applied upstream)
+
 * Fri Aug 13 2004 Vincent Danen <vdanen@annvix.org> 4.3.8-2avx
 - P72: fix anthill #965; patch from CVS
 

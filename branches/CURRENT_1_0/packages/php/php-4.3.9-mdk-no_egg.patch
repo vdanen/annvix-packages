@@ -1,36 +1,3 @@
-diff -Naur php-4.3.0/ext/standard/info.c php-4.3.0.oden/ext/standard/info.c
---- php-4.3.0/ext/standard/info.c	2002-11-14 22:17:00.000000000 +0100
-+++ php-4.3.0.oden/ext/standard/info.c	2003-01-14 08:36:58.000000000 +0100
-@@ -371,9 +371,7 @@
- 			if (SG(request_info).request_uri) {
- 				PUTS(SG(request_info).request_uri);
- 			}
--			if ((ta->tm_mon==3) && (ta->tm_mday==1)) {
--				PUTS("?="PHP_EGG_LOGO_GUID"\" alt=\"Thies!\" /></a>");
--			} else {
-+			{
- 				PUTS("?="PHP_LOGO_GUID"\" alt=\"PHP Logo\" /></a>");
- 			}
- 		}
-@@ -888,18 +886,6 @@
- }
- /* }}} */
- 
--/* {{{ proto string php_egg_logo_guid(void)
--   Return the special ID used to request the PHP logo in phpinfo screens*/
--PHP_FUNCTION(php_egg_logo_guid)
--{
--	if (ZEND_NUM_ARGS() != 0) {
--		WRONG_PARAM_COUNT;
--	}
--
--	RETURN_STRINGL(PHP_EGG_LOGO_GUID, sizeof(PHP_EGG_LOGO_GUID)-1, 1);
--}
--/* }}} */
--
- /* {{{ proto string zend_logo_guid(void)
-    Return the special ID used to request the Zend logo in phpinfo screens*/
- PHP_FUNCTION(zend_logo_guid)
 diff -Naur php-4.3.0/ext/standard/info.h php-4.3.0.oden/ext/standard/info.h
 --- php-4.3.0/ext/standard/info.h	2002-10-06 19:04:10.000000000 +0200
 +++ php-4.3.0.oden/ext/standard/info.h	2003-01-14 08:37:32.000000000 +0100
@@ -823,3 +790,35 @@ diff -Naur php-4.3.0/main/php_logos.c php-4.3.0.oden/main/php_logos.c
  	php_register_info_logo(ZEND_LOGO_GUID   , "image/gif", zend_logo   , sizeof(zend_logo));
  
  	return SUCCESS;
+--- php-4.3.9/ext/standard/info.c.orig	2004-09-29 22:02:54.000000000 -0600
++++ php-4.3.9/ext/standard/info.c	2004-09-29 22:06:22.000000000 -0600
+@@ -412,9 +412,7 @@
+ 			if (SG(request_info).request_uri) {
+ 				PUTS(SG(request_info).request_uri);
+ 			}
+-			if ((ta->tm_mon==3) && (ta->tm_mday==1)) {
+-				PUTS("?="PHP_EGG_LOGO_GUID"\" alt=\"Nadia!\" /></a>");
+-			} else {
++			{
+ 				PUTS("?="PHP_LOGO_GUID"\" alt=\"PHP Logo\" /></a>");
+ 			}
+ 		}
+@@ -920,18 +918,6 @@
+ }
+ /* }}} */
+ 
+-/* {{{ proto string php_egg_logo_guid(void)
+-   Return the special ID used to request the PHP logo in phpinfo screens*/
+-PHP_FUNCTION(php_egg_logo_guid)
+-{
+-	if (ZEND_NUM_ARGS() != 0) {
+-		WRONG_PARAM_COUNT;
+-	}
+-
+-	RETURN_STRINGL(PHP_EGG_LOGO_GUID, sizeof(PHP_EGG_LOGO_GUID)-1, 1);
+-}
+-/* }}} */
+-
+ /* {{{ proto string zend_logo_guid(void)
+    Return the special ID used to request the Zend logo in phpinfo screens*/
+ PHP_FUNCTION(zend_logo_guid)
