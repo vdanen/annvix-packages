@@ -1,6 +1,6 @@
---- perl-5.8.1-RC4/Configure.pix	2003-08-01 14:24:02.000000000 +0200
-+++ perl-5.8.1-RC4/Configure	2003-08-03 22:00:34.000000000 +0200
-@@ -1218,6 +1218,13 @@
+--- perl-5.8.3/Configure.pix	2003-12-05 12:57:56.000000000 +0100
++++ perl-5.8.3/Configure	2004-01-20 11:40:49.870037953 +0100
+@@ -1228,17 +1228,24 @@
  : no include file wanted by default
  inclwanted=''
  
@@ -11,10 +11,8 @@
 +  *) lib='lib';;
 +esac
 +
- siteman1dir=''
- siteman3dir=''
- sitescript=''
-@@ -1229,12 +1236,12 @@
+ groupstype=''
+ libnames=''
  : change the next line if compiling for Xenix/286 on Xenix/386
  xlibpth='/usr/lib/386 /lib/386'
  : Possible local library directories to search.
@@ -31,7 +29,7 @@
  test -f /usr/shlib/libc.so && glibpth="/usr/shlib $glibpth"
  test -f /shlib/libc.so     && glibpth="/shlib $glibpth"
  
-@@ -10282,9 +10289,9 @@
+@@ -10290,9 +10297,9 @@
  		else
  			for net in net socket
  			do
@@ -44,7 +42,7 @@
  					if $contains socket libc.list >/dev/null 2>&1; then
  						d_socket="$define"
  						socketlib="-l$net"
-@@ -21104,6 +21111,7 @@
+@@ -21114,6 +21121,7 @@
  ldflags_uselargefiles='$ldflags_uselargefiles'
  ldlibpthname='$ldlibpthname'
  less='$less'

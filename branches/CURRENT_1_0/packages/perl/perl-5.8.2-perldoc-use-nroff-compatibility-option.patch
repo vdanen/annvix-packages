@@ -1,5 +1,5 @@
---- perl-5.8.1-RC3/lib/Pod/Perldoc/ToMan.pm.pix	2003-07-27 23:12:13.000000000 +0200
-+++ perl-5.8.1-RC3/lib/Pod/Perldoc/ToMan.pm	2003-07-31 13:39:39.000000000 +0200
+--- perl-5.8.2/lib/Pod/Perldoc/ToMan.pm.pix	2003-10-23 22:29:23.000000000 +0200
++++ perl-5.8.2/lib/Pod/Perldoc/ToMan.pm	2003-11-10 11:06:22.000000000 +0100
 @@ -52,7 +52,7 @@
        ($self->{'__bindir'}  || die "no bindir set?!"  ),
        ($self->{'__pod2man'} || die "no pod2man set?!" ),
@@ -8,13 +8,13 @@
 +    . " $switches --lax $file | $render -c -man"
    ;               # no temp file, just a pipe!
  
-   # I hear persistent reports that adding a -c switch to $render
-@@ -60,6 +60,8 @@
+   # Thanks to Brendan O'Dea for contributing the following block
+@@ -69,6 +69,8 @@
    # don't have a -c switch, so that adding it here would presumably
    # be a Bad Thing   -- sburke@cpan.org
  
 +  # [Pixel] our man do have the -c switch, using it!!
 +
-   $command .= " | col -x" if $^O =~ /hpux/;
+   $command .= " | col -x" if Pod::Perldoc::IS_HPUX;
    
    defined(&Pod::Perldoc::DEBUG)
