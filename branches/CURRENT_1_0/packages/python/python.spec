@@ -1,8 +1,8 @@
 %define name	python
-%define version	2.3
-%define release	7sls
+%define version	2.3.3
+%define release	1sls
 
-%define docver  2.3
+%define docver  2.3.3
 %define dirver  2.3
 
 %define lib_major	%{dirver}
@@ -84,7 +84,6 @@ compared to Tcl, Perl, Scheme or Java.
 %package -n %{lib_name}-devel
 Summary:	The libraries and header files needed for Python development
 Group:		Development/Python
-Icon:		python-devel-logo.xpm
 Requires:	%{name} = %version-%release
 Requires:	%{lib_name} = %{version}-%{release}
 Obsoletes:	%{name}-devel
@@ -105,7 +104,6 @@ documentation.
 %package -n tkinter
 Summary:	A graphical user interface for the Python scripting language
 Group:		Development/Python
-Icon:		python-tkinter-logo.xpm
 Requires:	python = %version-%release
 
 %description -n tkinter
@@ -276,6 +274,11 @@ rm -f modules-list main.list
 %postun -n %{lib_name} -p /sbin/ldconfig
 
 %changelog
+* Fri May 07 2004 Vincent Danen <vdanen@opensls.org> 2.3.3-1sls
+- 2.3.3
+- add traceback.py* to python-base
+- remove icons
+
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 2.3-7sls
 - minor spec cleanups
 - remove %%build_opensls macro
