@@ -1,6 +1,6 @@
 %define name	MySQL
-%define version	4.1.10
-%define release	2avx
+%define version	4.1.10a
+%define release	1avx
 
 %define major		14
 %define libname		%mklibname mysql %{major}
@@ -598,10 +598,10 @@ fi
 %{_libdir}/*.a
 %{_libdir}/mysql/*.a
 
-# NOTE: multiarch
-# http://cvs.mandrakesoft.com/cgi-bin/cvsweb.cgi/SPECS/MySQL/MySQL.spec.diff?r1=1.67&r2=1.69
-
 %changelog
+* Tue Mar 15 2005 Vincent Danen <vdanen@annvix.org> 4.1.10a-1avx
+- 4.0.10a; security fixes for CAN-2005-0709, CAN-2005-0710, CAN-2005-0711
+
 * Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 4.1.10-2avx
 - user logger for logging
 - multiarch
