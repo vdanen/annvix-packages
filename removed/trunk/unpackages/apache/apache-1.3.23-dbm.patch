@@ -1,0 +1,37 @@
+--- ./src/helpers/find-dbm-lib.mdk	Fri Jan 25 11:19:03 2002
++++ ./src/helpers/find-dbm-lib	Fri Jan 25 11:21:18 2002
+@@ -19,6 +19,10 @@
+ 			# Red Hat needs this; ndbm.h lives in db1
+ 			CFLAGS="$CFLAGS -I/usr/include/db1"
+ 		    fi
++                elif ./helpers/TestCompile lib db; then
++		        # For Red Hat Linux 7.x, where the dbmmanage perl
++			# script is actually a db3 application.
++			DBM_LIB="-ldb"
+ 		elif ./helpers/TestCompile lib db1 dbm_open; then
+ 		    # For Red Hat 7, if not handled by the ndbm case above
+ 		    DBM_LIB="-ldb1"
+--- ./src/modules/standard/mod_rewrite.h.mdk	Fri Jan 25 11:22:00 2002
++++ ./src/modules/standard/mod_rewrite.h	Fri Jan 25 11:22:41 2002
+@@ -130,7 +130,8 @@
+      * so we also need to know the file extension
+      */
+ #ifndef NO_DBM_REWRITEMAP
+-#include <ndbm.h>
++#define DB_DBM_HSEARCH 1
++#include <db.h>
+ #if defined(DBM_SUFFIX)
+ #define NDBM_FILE_SUFFIX DBM_SUFFIX
+ #elif defined(__FreeBSD__) || (defined(DB_LOCK) && defined(DB_SHMEM))
+--- ./src/modules/standard/mod_auth_dbm.c.mdk	Fri Jan 25 11:23:07 2002
++++ ./src/modules/standard/mod_auth_dbm.c	Fri Jan 25 11:24:23 2002
+@@ -81,7 +81,8 @@
+ #define dbm_fetch sdbm_fetch
+ #define dbm_close sdbm_close
+ #else
+-#include <ndbm.h>
++#define DB_DBM_HSEARCH 1
++#include <db.h>
+ #endif
+ 
+ /*
