@@ -84,7 +84,7 @@
 # Thomas Backlund <tmb@iki.fi>
 
 %define sublevel	25
-%define slsrelease	4
+%define slsrelease	10
 %define use_patch	0
 
 %{!?build_opensls:%global build_opensls 0}
@@ -881,6 +881,7 @@ exit 0
 %{_kerneldir}/fs
 %{_kerneldir}/init
 %{_kerneldir}/ipc
+%{_kerneldir}/kdb
 %{_kerneldir}/kernel
 %{_kerneldir}/lib
 %{_kerneldir}/mm
@@ -920,6 +921,422 @@ exit 0
 %endif
 
 %changelog
+* Fri Apr  2 2004 Thomas Backlund <tmb@iki.fi> 2.4.25-10sls
+- DI01_2.4.25-libata15.patch
+  * adds support for latest libata (SATA support)
+- MB60_iteraid_1.43.tar
+  * adds support for IT8212 RAID controller
+- MB61_iteraid_fix_includes.patch
+  * correct includes for relocation to 3rdparty
+- update ND01_forcedeth to 0.25
+- update SL01_ea patch to 0.8.71
+- update SL11_acl patch to 0.8.71
+- update SL21_nfsacl patch to 0.8.71
+- update SL31_sec patch to 0.8.71
+- update SL51_selinux1 to 2.4.25 final
+- drop SL41_enable_xfs_acl.patch (merged in 0.8.71 series)
+
+* Wed Mar 31 2004 Thomas Backlund <tmb@iki.fi> 2.4.25-9sls
+- add support for 3rdparty drivers
+- minor cleanups
+- full patchlist:
+- DC45_pci.ids_20040331tmb.patch
+  * updates pci.ids to 2004-03-31 + my addons
+- MB01_3rdparty-1.0.tar
+  * basesystem for 3rdparty modules
+- MB02_3rdparty_merge.patch
+  * 3rdparty config and makefile handling
+- MB10_bcm5820_ssl_accelerator.tar
+  * add support for Broadcom bcm5820 SSL accelerator
+- MB11_bcm5820_license_tag.patch
+  * fixes license on bcm5820
+- MB12_bcm5820_rotate_left.patch
+  * fix bcm5820 rotate_left
+- MB13_bcm5820_lots_of_fixes.patch
+  * more fixes to bcm5820
+- MB20_bcm44xx_3.0.7.tar
+  * add support for Broadcom 44xx series NIC
+- MB30_bcm57xx_7.1.9.tar
+  * add support for Broadcom 57xx series NIC
+- MB40_pdc_ultra_1.00.0.10.tar
+  * support Promise ultra IDE controllers
+- MB41_pdc_ultra_no_mmio.patch
+  * add missing ifdef MMIO to pdc_ultra
+- MB42_pdc_20376.patch
+  * support another Promise SATA150 chip
+- MB43_pdc_20319.patch
+  * support another Promise SATA150 TX4 chip
+- MB44_pdc-ultra_unused_var.patch
+  * remove unused var from pdc-ultra
+- MB45_pdc_ultra_updates.patch
+  * more updates to Promise pdc_ultra and some security fixes
+- MB50_ppp-mppe-0.9.6.tar
+  * adds support for mppe en+crypted pptp
+- ZA01_license_tags.patch
+  * fix some missing license tags
+- ZA02_endif_compilation_fixes.patch
+  * removes some compilation complaints
+- ZZ01_fix_bugreport_addresses.patch
+  * fix bugreport address to point to OpenSLS, 
+    and remove some obsolete info
+
+* Mon Mar 29 2004 Thomas Backlund <tmb@mandrake.org> 2.4.25-8sls
+- add support for i2c/lmsensors
+- usb fixes, filesystem fixes
+- amd64 fixes
+- full patchlist:
+- DL01_i2c_2.8.4.patch
+  * adds i2c monitoring support
+- DL03_lm_sensors_2.8.4.patch
+  * adds lm-sensors support
+- DL04_add_sensors.h.patch
+  * fix missing sensors.h
+- DL05_scx200_acb_i2c_fixes.patch
+  * fixes scx200_acb i2c for 2.8.4
+- DL06_scx200_i2c_fixes.patch
+  * fixes scx200 i2c for 2.8.4
+- DL07_stradis_i2c_fixes.patch
+  * fixes stradis i2c for 2.8.4
+- DL08_acorn_char_i2c_fixes.patch
+  * fixes acorn i2c for 2.8.4
+- DL09_i2c-adap-ite_i2c_fixes.patch
+  * fixes adap-ite i2c for 2.8.4
+- DL10_i2c_nforce2.patch
+  * adds missing i2c support for nForce2
+- DL13_dmasound_i2c_fix.patch
+  * fixes dmasound i2c for 2.8.4
+- DM04_fosa340S_incorrect_apm_version.patch
+  * workaround buggy fosa3340S that reports wrong apm version
+- DM05_legacyfree_e-pc43.patch
+  * fix for legacyfree keyboards on e-pc
+- DM06_hp_local_apic_kill_bios.patch
+  * disable local apic on hp e-pc
+- DM07_more_no_local_apic.patch
+  * blacklist local apic on Compaq Presario 711EA, MSI-6380E
+- DM08_acpi_apm_blacklist.patch
+  * blacklist acpi_table_dsdt  on Via964, IBM TP-16/T21, 
+    Intel Trajan, Sharp QS1.
+  * blacklist apm on Sony Vaio PCG-Z600RE
+- DM09_hp_d325_pci_noacpi.patch
+  * disable acpi on hp d325
+- DM10_toshiba_sattellite_noapic.patch
+  * disable apic on Toshiba Satellite 2435
+- DM11_disable_local_apic_hp_pavillion_ze43xx.patch
+  * disable local apic on hp pavillion ze43xx
+- DS04_trident_fixes.patch
+  * fix trident/ali ac97 audio driver
+- DU01_usbserial_fix_disconnect.patch
+  * fix disconnect on usbserial
+- DU03_kaweth_disable_debug.patch
+  * disable debugging on kaweth
+- DU04_du_e100_support.patch
+  * adds another usb ethernet support
+- DU06_usbdnet_update.patch
+  * update usbnet, adds support for usb host to host transfers
+  * adds support for safe (encapsulated) usb serial transfers
+- DU15_usbdnet_usb_serial_device_type_changed.patch
+  * fix safe_serial module
+- DU18_ibm_ix00_lookup.patch
+  * fix usb hangs on IBM i1200/i1300
+- DU19_usb_vai_pcg_fx503_fix.patch
+  * fix usb irq on sony vaios
+- DU20_scanlogic_support.patch
+  * fix for Scanlogic usb-ide
+- DU21_usb_storage_unusual_devs.patch
+  * add support for many usb storage devices
+- DU23_usb_storage_US_FL_INIT_RESET.patch
+  * add support for usb reset on init
+- DU26_safe_serial_cleanup.patch
+  * clean up safe_serial drivers
+- DU30_w9968_fix_compilation.patch
+  * fixes compilation errors on usb w9968
+- DV08_i810fb-0.23.patch
+  * add support for i81x framebuffer
+- DV21_vesafb_vram_option_docs.patch
+  * fix text vesafb documentation
+- DV22_video_i2c_fixes.patch
+  * fix video i2c for 2.8.4
+- FB02_autoload_freevxfs.patch
+  * fix freevxfs autoloading
+- FB04_enable_xfs_acl.patch
+  * readd support for ACL on XFS
+- FC01_davfs_0.2.4.patch
+  * add support for WebDAV filesystems
+- FC02_davfs__FUNCTION__.patch
+  * fix WebDAV driver
+- FD01-devfs-dynamic-disk.patch
+  * devfs dynamic disk support
+- FD02_devfs_for_rawio.patch
+  * devfs rawio support
+- FD03_devfs_minilogd_fix.patch
+  * fix devfs minilog hang
+- FD04_dos_partition_table_consistency.patch
+  * adds check for partition table consitency
+- FE02_BUF_LOCKED.patch
+  * fix post-processing on locked buffers
+- FN05_iocharset.patch
+  * disable complaints about ntfs "iocharset is depreceated, use nls=..."
+- FS63_fat_not_readonly.patch
+  * disable extra readonly chack as the VFS alrady have checked it
+- FS91_file_readahead_ide_cd_and_floppy.patch
+  * modifiy readaheads for ide-cd and floppys
+- FX10_fix_xfs_VM_IO.patch
+  * adds missing VM_IO to xfs
+- G01_ppa_no_cable_warning.patch
+  * suppress warning about nonexistant ppa cable
+- G02_ldm_validate_partition_table.patch
+  * fix ldm partition table warnings
+- HB09_binfmt_name.patch
+  * fix binfmt name on amd64
+- HB25_aa_mm.patch
+  * fix mm on amd64
+- HB26_aa_numa.patch
+  * fix numa on amd64
+- HB29_amd64_kallsyms.patch
+  * add kallsyms to amd64
+- HB30_acpi_on.patch
+  * support acpi=on boot option for amd64
+
+* Sat Mar 27 2004 Thomas Backlund <tmb@mandrake.org> 2.4.25-7sls
+- mostly driver fixes, some addons
+- adds aes encrypted loop support
+- full patchlist:
+- DB07_scsi_kmod_fix_pb_initrd.patch
+  * dont have kmod request scsi_hostadapter when scsi support 
+    is built as modules
+- DC01_scsi_timeout.patch
+  * change scsi scan timeout from 30 to 60 sec
+- DC03_hide_ip_interface.patch
+  * add support for hiding ip addresses
+- DC04_sse_for_raid5xor.patch
+  * use sse intructions for raid5 xor if possible
+- DC05_eepro100_fix.patch
+  * fix eepro100 nic loosing resources
+- DC08_e820_proc.patch
+  * add suooprt for e820
+- DC10_isdn_olitec_gazel.patch
+  * add support for ISDN olitec
+- DC12_loop_AES_1.7a.patch
+  * add support for encrypted loopback
+- DC15_ecc_check.patch
+  * add support for eec checking
+- DC18_ppp_mppe_support.patch
+  * add support for mppe in ppp headers
+- DC22_ecc_add_another_amd.patch
+  * add support for another ecc system
+- DC23_legacyfree_keyboard.patch
+  * add support for systems with legacyfree boards
+- DC24_md_quiet.patch
+  * quiet down md messages
+- DC26_scsi_error_timeout.patch
+  * fix scsi timing out errors
+- DC29_convert_aes_to_module.patch
+  * converts aes to module
+- DC30_loop_set_current_state.patch
+  * fix aes loop stuck in 'D' state
+- DC31_aes_module_license.patch
+  * correct aes licence
+- DC34_eepro100_ICH5.patch
+  * add ICH5 ids to eepro100 driver
+- DC35_aic7xxx_build_fixes.patch
+  * add missing ifdef MMAPIO
+- DC38_mmc3_support.patch
+  * add support for mmc-3 dwd+rw
+- DC47_sungem_64bit_ULL.patch
+  * sungem needs to be 64bit ULL
+- DC50_cciss_size_of_vars.patch
+  * ccis needs to be 64bit ULL
+- DC59_scsi_qlogic_fixes.patch
+  * qlogic needs to be 64bit ULL
+- DI93_ide_scsi_device_selection.patch
+  * ide-scsi should only claim requested drives
+- DI95_ide_small.patch
+  * make ide subsystem small in BOOT kernels
+- DI97_quiet_ide.patch
+  * quiet down ide complaints
+- DI98_ide_proc_write_driver.patch
+  * fix /proc/ide/hdX/driver for ide_scan_device
+
+* Fri Mar 26 2004 Thomas Backlund <tmb@mandrake.org> 2.4.25-6sls
+- some kernel fixes, some acpi fixes, some apic fixes
+- add upport for DSDT in initrd
+- add Andreas VM, kernel debugger
+- add Juans mini-lowlatency fixes
+- full patchlist:
+- CA05_main-more-args.patch
+  * adds support for more kernel boottime args
+- CB02_speed_bootmem_check.patch
+  * speedup bootmem check
+- CB05_warn_if_not_ulong.patch
+  * warn if parameters are not ulong
+- CB07_enable_lapic_as_default.patch
+  * enables local apic by default
+- CB08_fix_menuconfig.patch
+  * fix menuconfig for long menus
+- CB09_fix_ver_linux_head.patch
+  * fix ver_linux report
+- CB10_dmi_data_fixes.patch
+  * fix dmi_scan checks
+- CC02_vm-cleanups-3.patch
+  * use Andrea Arcangeli's VM
+- CC03_vm_raend-race-1.patch
+  * use Andrea Arcangeli's VM
+- CC04_VM_IO-4.patch
+  * use Andrea Arcangeli's VM
+- CC05_silent-stack-overflow-20.patch
+  * use Andrea Arcangeli's VM
+- CC06_anon-lrp-race-butter-fix-1.patch
+  * use Andrea Arcangeli's VM
+- CC07_execve-mm-fast-path-safe-1.patch
+  * use Andrea Arcangeli's VM
+- CC12_try_to_free_pages_nozone-4.patch
+  * use Andrea Arcangeli's VM
+- CC14_read_write_tweaks-3.patch
+  * use Andrea Arcangeli's VM
+- CC16_activate_page_cleanup-1.patch
+  * use Andrea Arcangeli's VM
+- CC18_active_page_swapout-1.patch
+  * use Andrea Arcangeli's VM
+- CC21_buffer-page-uptodate-1.patch
+  * use Andrea Arcangeli's VM
+- CC24_rt-alloc-1.patch
+  * use Andrea Arcangeli's VM
+- CC25_vm-anon-lru-3.patch
+  * use Andrea Arcangeli's VM
+- CC26-per-cpu-pages-4.patch
+  * use Andrea Arcangeli's VM
+- CC28_try_to_free_buffers-invariant-1.patch
+  * use Andrea Arcangeli's VM
+- CC29_rest-2.patch
+  * use Andrea Arcangeli's VM
+- CC30_pte-dirty-bit-in-hardware-1.patch
+  * use Andrea Arcangeli's VM
+- CC40_numa-mm-7.patch
+  * use Andrea Arcangeli's VM
+- CD05_print_also_hexblocknumber.patch
+  * printt inode block as hex too
+- CD06_cardmanager_version.patch
+  * fix reported cardmanager version
+- CD09_lowlatency-fixes-14.patch
+  * Juans mini-lowlatency patch
+- CE01_keyboardsilence.patch
+  * dont report keyboard timeouts
+- CE03_apic_quiet.patch
+  * make apic errors more silent
+- CE04_oomavoidance.patch
+  * fix pgalloc schedule_timeout
+- CE05_no_ps2mouse.patch
+  * fix missing ps2mouse init
+- CE06_tcp_allow_options_after_00.patch
+  * allow netfilter ipt_unclean options after 00
+- CE08_Makefile_need_mrproper_support.patch
+  * make sure kernel build knows when mrproper is needed
+- CE12_twaked_dsdt_initrd.patch
+  * allow support for loading tweaked DSDT table from initrd
+- CE13_boot_kernel_edid_vbe_info.patch
+  * pass edid and vbe info from bootkernel (can be used in a graphical installer)
+- CE20_lsb_ttyio.patch
+  * fix ttyip pgrp check
+- CE21_console_fix_overlapping_mem.patch
+   fix console overlapping memory
+- CE25_acpi=on.patch
+  * add acpi=on support for ix86
+- CE27_BadRAM.patch
+  * add support for BadRAM excusions (light version of IBM ChipKill)
+- CK01_kdb-v4.3-2.4.25-common-2.patch
+  * add kernel debugger support
+- CK02_kdb-v4.3-2.4.25-i386-1.patch
+  * add kernel debugger support
+- CK03_kdb_vmlinux.lds.patch
+  * add kernel debugger support
+- CK04_kdb_local_pages_dont_exist.patch
+  * add kernel debugger support
+
+* Wed Mar 24 2004 Thomas Backlund <tmb@mandrake.org> 2.4.25-5sls
+- mostly code cleanups, patchlist follows:
+- BA02_setup_move_functions.patch
+  * reloacates flag_is_changeable macro
+- BA03_usb_kaweth.patch
+  * fixes private_header declaration
+- BA10_i2o_block_unused_function.patch
+  * removes unused function
+- BA11_via_8231_irqrouter.patch
+  * adds 2 VIA irq routers
+- BA19_video_aty128fb_pmac_only_idfdefs.patch
+  * aty128fb is pmac only
+- BA20_video_pm3fb_ulong_cast.patch
+  * fixes pm3fb ulong release_mem_region
+- BA24_NCR820_unused_functions.patch
+  * remove unused functions in NCR820
+- BA28_i2o_pci_missing_prototype.patch
+  * adds missing prototype
+- BA42_awe_wave_right_isapnp_declaration.patch
+  * fix sb awe isapnp declaration
+- BA43_wd7000_initialize_p.patch
+  * disables broken initializion check
+- BA44_atm_mpc_right_colocation_attribute.patch
+  * fix mpc attribute
+- BA56_sound_ad1889.patch
+  * fix ad1889 check
+- BA58_ide_siimage.patch
+  * adds missing return
+- BA59_cardbus.patch
+  * fix pci_device_scan
+- BB02_fix_flags_definitions.patch
+  * fix sym53c8xx flags variable
+- BB04_befs_ULL.patch
+  * make befs_bt_inval ULL
+- BB05_matroxfb_remove_MINFO.patch
+  * remove MINFO_FROM(md) call
+- BE03_sstfb_debug_fix.patch
+  * move variable that is used only for debugging
+- BG01_af_irda.patch
+  * removes unneeded length check
+- BG04_video_riva_remove_error_out_kfree.patch
+  * removes unused error_out_kfree
+- BG05_usb_storage_sddr.patch
+  * disables sddr09_request_sense
+- BG08_amd74xx.patch
+  * removes unused ata66_amd74xx check
+- BG09_ide_generic.patch
+  * disables unknown_chipset
+- BG10_ns83820_PHY_CODE_IS_FINISHED.patch
+  * adds missing ifdef...endif
+- BG11_mtd_amd76xrom_err_out_none.patch
+  * disables err_out_none
+- BH02_intermezzo_fix_init.patch
+  * fix intermezzo init
+- BH03_hfs_variables.patch
+  * fix variables init
+- BH04_coda_vdir.patch
+  * fix vdir check
+- BH05_sound_ali5455.patch
+  * fix variables init
+- BI01_hamradio_scc.patch
+  * fix hamradio variable init
+- BI03_char_vt.patch
+  * fix vt vhecks
+- BI04_cpqhp_pci.patch
+  * fix tdevice variable init
+- BI05_isdn_fourbri.patch
+  * fix variable init
+- BJ01_hiddev_report_event.patch
+  * add missing hiddev_report_event
+- BJ02_isdn_ppp.patch
+  * fix uprog.len check
+- BJ04_net_bonding_bond_alb.patch
+  * fix bond_alb_xmit check
+- BJ05_iph5526_service_params_check.patch
+  * fix iph5526 fibre channel service_params check
+- BJ06_ppp_generic.patch
+  * fix uprog.len check
+- BJ07_tokenring_3c359.patch
+  * fix variable init
+- BJ08_pcmcia_DONT_SEND.patch
+  * fix pcmcia transfer check
+- BJ09_scsi_AM53C974.patch
+  * fix hostdata transfer
+
 * Fri Mar  5 2004 Thomas Backlund <tmb@mandrake.org> 2.4.25-4sls
 - require atleast bootloader-utils 1.6-5sls
 - conflict older iptables than 1.2.9-2sls

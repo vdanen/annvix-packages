@@ -1,0 +1,16 @@
+diff -urN --exclude-from=/home/mitica/quintela/config/misc/dontdiff work/drivers/scsi/sym53c8xx_2/sym_glue.c 2.4.19-rc1-x86_64/drivers/scsi/sym53c8xx_2/sym_glue.c
+--- work/drivers/scsi/sym53c8xx_2/sym_glue.c	2001-12-21 18:41:55.000000000 +0100
++++ 2.4.19-rc1-x86_64/drivers/scsi/sym53c8xx_2/sym_glue.c	2002-07-04 16:34:02.000000000 +0200
+@@ -1694,7 +1694,7 @@
+ 	if (len)
+ 		return -EINVAL;
+ 	else {
+-		long flags;
++		unsigned long flags;
+ 
+ 		SYM_LOCK_HCB(np, flags);
+ 		sym_exec_user_command (np, uc);
+
+
+
+

@@ -1,0 +1,72 @@
+From ul-kernel-return-1048-andrea=suse.de@lists.unitedlinux.com  Wed Sep 25 20:54:40 2002
+Return-Path: <ul-kernel-return-1048-andrea=suse.de@lists.unitedlinux.com>
+Received: from Hermes.suse.de (Hermes.suse.de [10.10.96.4])
+	by wotan.suse.de (Postfix on SuSE Linux 7.2 (i386)) with ESMTP id 1256E186698
+	for <andrea@wotan.suse.de>; Wed, 25 Sep 2002 20:54:40 +0200 (CEST)
+Received: by Hermes.suse.de (Postfix)
+	id 04953D861; Wed, 25 Sep 2002 20:54:40 +0200 (MEST)
+Received: from Cantor.suse.de (ns.suse.de [213.95.15.193])
+	by Hermes.suse.de (Postfix) with ESMTP id E8F9FD866
+	for <andrea@suse.de>; Wed, 25 Sep 2002 20:54:39 +0200 (MEST)
+Received: from lists.suse.com (lists.suse.com [217.9.113.69])
+	by Cantor.suse.de (Postfix) with SMTP id 44D821485B
+	for <andrea@suse.de>; Wed, 25 Sep 2002 20:54:39 +0200 (MEST)
+Received: (qmail 14245 invoked by alias); 25 Sep 2002 18:54:38 -0000
+Mailing-List: contact ul-kernel-help@lists.unitedlinux.com; run by ezmlm
+Precedence: bulk
+X-No-Archive: yes
+List-Post: <mailto:ul-kernel@lists.unitedlinux.com>
+List-Help: <mailto:ul-kernel-help@lists.unitedlinux.com>
+List-Unsubscribe: <mailto:ul-kernel-unsubscribe-andrea=suse.de@lists.unitedlinux.com>
+List-Subscribe: <mailto:ul-kernel-subscribe@lists.unitedlinux.com>
+X-Mailinglist: ul-kernel
+X-Message-Number-for-archive: 1048
+Reply-To: ul-kernel@lists.unitedlinux.com
+Delivered-To: mailing list ul-kernel@lists.unitedlinux.com
+Received: (qmail 14236 invoked from network); 25 Sep 2002 18:54:37 -0000
+Date:	Wed, 25 Sep 2002 15:54:29 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: ul-kernel@lists.unitedlinux.com
+In-Reply-To: <20020925172501.GD1239@dualathlon.random>
+Message-ID: <Pine.LNX.4.44L.0209251553030.22735-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease:	aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: [ul-kernel] [alanr@unix.sh: summary of realtime memory issue]
+
+On Wed, 25 Sep 2002, Andrea Arcangeli wrote:
+> On Wed, Sep 25, 2002 at 01:11:58PM -0300, Rik van Riel wrote:
+> > -		if (!(gfp_mask & __GFP_WAIT))
+> > +		if (!(gfp_mask & __GFP_WAIT) || current->rt_priority)
+>
+> It would be better to allow RT tasks to go ahead only between min and
+> min >> 2. So basically down to min >> 1 and not min >> 2.
+
+Agreed, does the patch below look better ?
+
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+http://www.surriel.com/		http://distro.conectiva.com/
+Spamtraps of the month:  september@surriel.com trac@trac.org
+
+
+--- linux/mm/page_alloc.c.rthack	2002-09-25 12:06:28.000000000 -0300
++++ linux/mm/page_alloc.c	2002-09-25 15:53:56.000000000 -0300
+@@ -339,6 +339,8 @@
+ 		min = z->watermarks[class_idx].min;
+ 		if (!(gfp_mask & __GFP_WAIT))
+ 			min >>= 2;
++		else if (current->rt_priority)
++			min >>= 1;
+ 		if (zone_free_pages(z, order) > min) {
+ 			page = rmqueue(z, order);
+ 			if (page)
+
+
+-- 
+To unsubscribe, email: ul-kernel-unsubscribe@lists.unitedlinux.com
+For additional commands, email: ul-kernel-help@lists.unitedlinux.com
+

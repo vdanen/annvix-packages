@@ -1,0 +1,22 @@
+diff -uNp q1/drivers/pcmcia/cardbus.c.ba59.orig q1/drivers/pcmcia/cardbus.c
+--- q1/drivers/pcmcia/cardbus.c.ba59.orig	2003-12-26 10:52:14.000000000 +0100
++++ q1/drivers/pcmcia/cardbus.c	2003-12-29 10:40:18.000000000 +0100
+@@ -55,6 +55,7 @@
+ #include <linux/mm.h>
+ #include <linux/pci.h>
+ #include <linux/ioport.h>
++#include <linux/init.h>
+ #include <asm/irq.h>
+ #include <asm/io.h>
+ 
+@@ -221,6 +222,10 @@ fail:
+ 	return -1;
+ }
+ 
++/* This function is supposed to not be exported anymore.
++   This is its only user. */
++struct pci_dev * __devinit pci_scan_device(struct pci_dev *temp);
++
+ struct pci_dev *cb_scan_slot(struct pci_dev *temp, struct list_head *list)
+ {
+ 	struct pci_dev *dev;

@@ -1,0 +1,56 @@
+--- sp3/include/asm-i386/pgtable.h.~1~	2003-09-29 18:47:36.000000000 +0200
++++ sp3/include/asm-i386/pgtable.h	2003-10-01 18:17:19.000000000 +0200
+@@ -451,4 +451,6 @@ int change_page_attr(struct page *, int,
+ 
+ #define io_remap_page_range remap_page_range
+ 
++#define PTE_DIRTY_BIT_IN_HARDWARE
++
+ #endif /* _I386_PGTABLE_H */
+--- sp3/include/asm-x86_64/pgtable.h.~1~	2003-09-29 18:47:41.000000000 +0200
++++ sp3/include/asm-x86_64/pgtable.h	2003-10-01 18:17:05.000000000 +0200
+@@ -469,5 +469,6 @@ extern void clear_kernel_mapping(unsigne
+ 
+ #define pgtable_cache_init()   do { } while (0)
+ 
++#define PTE_DIRTY_BIT_IN_HARDWARE
+ 
+ #endif /* _X86_64_PGTABLE_H */
+--- sp3/mm/memory.c.~1~	2003-09-29 18:48:54.000000000 +0200
++++ sp3/mm/memory.c	2003-10-01 18:19:59.000000000 +0200
+@@ -1251,10 +1251,35 @@ static int do_swap_page(struct mm_struct
+ 	mm->rss++;
+ 	pte = mk_pte(page, vma->vm_page_prot);
+ 	if (make_exclusive_page(page, write_access)) {
++#ifdef PTE_DIRTY_BIT_IN_HARDWARE
+ 		if (write_access)
+ 			pte = pte_mkdirty(pte);
+ 		if (vma->vm_flags & VM_WRITE)
+ 			pte = pte_mkwrite(pte);
++#else
++		/*
++		 * When the page is in the swapcache, we can't mark
++		 * the pte writeable without marking it dirty too
++		 * otherwise architectures doing the dirty bit in software
++		 * will not flush the page to disk, before releasing
++		 * the swapcache. That's why we need an #ifdef here.
++		 * Those architectures have to trigger a writeprotect
++		 * fault on the not writeable swapcache to set the pte as
++		 * dirty.
++		 *
++		 * If this is a read fault, we let the writeprotect
++		 * fault to mark the page writeable and dirty if needed.
++		 * This way if the page is still in the swapcache and it's
++		 * clean, we can swapout it zerocost.
++		 *
++		 * This version is safe for archs with the dirty bit
++		 * in hardware too (the other way around not), so if nothing
++		 * is specified in the asm headers, the kernel will compile
++		 * this one to go safe.
++		 */
++		if (write_access)
++			pte = pte_mkdirty(pte_mkwrite(pte));
++#endif
+ 	}
+ 	mark_page_accessed(page);
+ 

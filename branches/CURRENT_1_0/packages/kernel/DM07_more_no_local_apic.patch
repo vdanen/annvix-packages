@@ -1,0 +1,23 @@
+--- linux-2.4.22/arch/i386/kernel/dmi_scan.c.dm07.orig	2003-08-28 03:11:42.000000000 +0200
++++ linux-2.4.22/arch/i386/kernel/dmi_scan.c	2003-08-28 03:12:31.000000000 +0200
+@@ -875,6 +875,20 @@ static __initdata struct dmi_blacklist d
+ 
+ 	/* Machines which have problems handling enabled local APICs */
+ 
++	{ local_apic_kills_bios, "Microstar MS-6380E", {
++			MATCH(DMI_SYS_VENDOR, "MSI"),
++			MATCH(DMI_PRODUCT_NAME, "MS-6380E"),
++			MATCH(DMI_BOARD_VENDOR, "MSI"),
++			MATCH(DMI_BOARD_NAME, "MS-6380E"),
++			} },
++
++	{ local_apic_kills_bios, "Compaq Pressario 711EA", {
++			MATCH(DMI_SYS_VENDOR, "Compaq"),
++			MATCH(DMI_PRODUCT_NAME, "Presario 711EA 470030-327"),
++			MATCH(DMI_BOARD_VENDOR, "Compaq"),
++			MATCH(DMI_BOARD_NAME, "0760h"),
++			} },
++
+ 	{ local_apic_kills_bios, "HP ", {
+ 			MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
+ 			MATCH(DMI_PRODUCT_NAME, "e-pc      "),

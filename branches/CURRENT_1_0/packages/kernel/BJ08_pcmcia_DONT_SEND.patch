@@ -1,0 +1,38 @@
+diff -uNp q1/drivers/pcmcia/i82092.c.bj08.orig q1/drivers/pcmcia/i82092.c
+--- q1/drivers/pcmcia/i82092.c.bj08.orig	2003-10-27 17:39:07.000000000 +0100
++++ q1/drivers/pcmcia/i82092.c	2003-10-27 18:55:33.000000000 +0100
+@@ -788,7 +788,7 @@ static int i82092aa_set_io_map(unsigned 
+ 		leave("i82092aa_set_io_map with invalid map");
+ 		return -EINVAL;
+ 	}
+-	if ((io->start > 0xffff) || (io->stop > 0xffff) || (io->stop < io->start)){
++	if (io->stop < io->start){
+ 		leave("i82092aa_set_io_map with invalid io");
+ 		return -EINVAL;
+ 	}
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff --exclude='defconfig*' --exclude='log.*' --exclude='log2?' w2/drivers/pcmcia/i82365.c w1/drivers/pcmcia/i82365.c
+--- w2/drivers/pcmcia/i82365.c	2002-11-29 00:53:14.000000000 +0100
++++ w1/drivers/pcmcia/i82365.c	2003-08-20 12:03:55.000000000 +0200
+@@ -1287,8 +1287,7 @@ static int i365_set_io_map(u_short sock,
+ 	  "%#4.4x-%#4.4x)\n", sock, io->map, io->flags,
+ 	  io->speed, io->start, io->stop);
+     map = io->map;
+-    if ((map > 1) || (io->start > 0xffff) || (io->stop > 0xffff) ||
+-	(io->stop < io->start)) return -EINVAL;
++    if ((map > 1) || (io->stop < io->start)) return -EINVAL;
+     /* Turn off the window before changing anything */
+     if (i365_get(sock, I365_ADDRWIN) & I365_ENA_IO(map))
+ 	i365_bclr(sock, I365_ADDRWIN, I365_ENA_IO(map));
+diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff --exclude='defconfig*' --exclude='log.*' --exclude='log2?' w2/drivers/pcmcia/tcic.c w1/drivers/pcmcia/tcic.c
+--- w2/drivers/pcmcia/tcic.c	2002-11-29 00:53:14.000000000 +0100
++++ w1/drivers/pcmcia/tcic.c	2003-08-20 12:05:00.000000000 +0200
+@@ -844,8 +844,7 @@ static int tcic_set_io_map(unsigned int 
+     DEBUG(1, "tcic: SetIOMap(%d, %d, %#2.2x, %d ns, "
+ 	  "%#4.4x-%#4.4x)\n", lsock, io->map, io->flags,
+ 	  io->speed, io->start, io->stop);
+-    if ((io->map > 1) || (io->start > 0xffff) || (io->stop > 0xffff) ||
+-	(io->stop < io->start)) return -EINVAL;
++    if ((io->map > 1) || (io->stop < io->start)) return -EINVAL;
+     tcic_setw(TCIC_ADDR+2, TCIC_ADR2_INDREG | (psock << TCIC_SS_SHFT));
+     addr = TCIC_IWIN(psock, io->map);
+ 
