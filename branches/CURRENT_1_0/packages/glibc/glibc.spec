@@ -4,9 +4,11 @@
 # Define Mandrake Linux version we are building for
 %define mdkversion	%(perl -pe '/(\\d+)\\.(\\d)\\.?(\\d)?/; $_="$1$2".($3||0)' /etc/mandrake-release)
 
+%{!?build_opensls:%global build_opensls 0}
+
 # <version>-<release> tags for glibc main package
 %define glibcversion	2.3.2
-%define glibcrelease	14mdk
+%define glibcrelease	14.1sls
 # <version>-<release> tags from kernel package where headers were
 # actually extracted from
 %define kheaders_ver	2.4.22
@@ -219,6 +221,7 @@ Patch37:	glibc-2.3.2-aliasing-fixes.patch.bz2
 Patch38:	glibc-2.3.2-dlerror-fix.patch.bz2
 Patch39:	glibc-2.3.2-iofwide.patch.bz2
 Patch40:	glibc-2.3.2-i586-if-no-cmov.patch.bz2
+Patch41:	glibc-2.3.2-propolice.patch.bz2
 
 # Generated from Kernel RPM
 Patch100:	kernel-headers-include-%{kheaders_ver}.%{kheaders_rel}.patch.bz2
@@ -452,6 +455,9 @@ GNU C library in PDF format.
 %patch38 -p1 -b .dlerror-fix
 %patch39 -p1 -b .iofwide
 %patch40 -p1 -b .i586-if-no-cmov
+%if %build_opensls
+%patch41 -p1 -b .propolice
+%endif
 
 # If we are building enablekernel 2.x.y glibc on older kernel,
 # we have to make sure no binaries compiled against that glibc
@@ -609,7 +615,11 @@ function BuildGlibc() {
     --enable-add-ons=yes --without-cvs \
     --without-tls --without-__thread $ExtraFlags \
     --enable-kernel=$EnableKernel --with-headers=$KernelHeaders ${1+"$@"}
+%if %build_opensls
+  %make -r CFLAGS="$BuildFlags" PARALLELMFLAGS=
+%else
   %make -r CFLAGS="$BuildFlags" PARALLELMFLAGS=-s
+%endif
   popd
 }
 
@@ -1304,6 +1314,10 @@ fi
 %endif
 
 %changelog
+* Sat Dec 06 2003 Vincent Danen <vdanen@opensls.org> 2.3.2-14.1sls
+- OpenSLS build
+- P41: propolice patch; use %%build_opensls macros
+
 * Fri Aug 29 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 2.3.2-14mdk
 - Patch40: Avoid */lib/i686 compiled libraries to be loaded if the
   host doesn't support CMOV instructions
