@@ -1,0 +1,110 @@
+--- zcip-4/zcip.c.fred	2003-08-20 23:00:48.000000000 +0200
++++ zcip-4/zcip.c	2003-08-20 23:03:55.000000000 +0200
+@@ -167,6 +167,7 @@
+ #endif
+ 
+ #ifdef CHECK_KERNEL_SOCKETFILTERS
++#include	<linux/types.h>
+ #include	<linux/filter.h>
+ 
+ //
+@@ -1060,7 +1061,7 @@
+ 	    FILE *fp = fopen(this_if->if_aname, "w");
+ 
+ 	    if (fp != NULL) {
+-		fprintf(fp, "%li", ntohl(this_if->ip.s_addr));
++		fprintf(fp, "%uli", ntohl(this_if->ip.s_addr));
+ 		fclose(fp);
+ 		print("Stored address %s for %s\n", inet_ntoa(this_if->ip), this_if->if_aname);
+ 		return 0;
+@@ -1266,14 +1267,14 @@
+ }
+ 
+ void version(void) {
+-    printf("zcip release " RELEASE "
+-Copyright (C) 2001-2002 Various authors
+-zcip comes with NO WARRANTY,
+-to the extent permitted by law.
+-You may redistribute copies of zcip
+-under the terms of the 3-clause BSD license.
+-For more information about these matters,
+-see the file named Copyright.
++    printf("zcip release " RELEASE "\
++Copyright (C) 2001-2002 Various authors\
++zcip comes with NO WARRANTY,\
++to the extent permitted by law.\
++You may redistribute copies of zcip\
++under the terms of the 3-clause BSD license.\
++For more information about these matters,\
++see the file named Copyright.\
+ ");
+ 
+     exit (0);
+@@ -1281,19 +1282,19 @@
+ 
+ 
+ void usage(int exit_code) {
+-    printf("usage: zcip [OPTIONS]
+-Zeroconf IPv4 Link-Local Address Configuration
+-OPTIONS:
+-    -h, --help               Print this help, and exit.
+-    -i, --interface IFNAME   Use interface IFNAME.
+-                             If not provided it uses 'eth0'.
+-    -r, --randseed           Seeds RNG with random # rather than MAC address.
+-    -s, --syslog             Output to syslog instead of stdout.
+-    -v, --version            Print the version information, and exit.
+-
+-This program does the ad-hoc link-local IPv4 auto-configuration trick, as
+-described in the IETF Internet Draft 'Dynamic Configuration of IPv4
+-Link-Local Addresses'.
++    printf("usage: zcip [OPTIONS]\
++Zeroconf IPv4 Link-Local Address Configuration\
++OPTIONS:\
++    -h, --help               Print this help, and exit.\
++    -i, --interface IFNAME   Use interface IFNAME.\
++                             If not provided it uses 'eth0'.\
++    -r, --randseed           Seeds RNG with random # rather than MAC address.\
++    -s, --syslog             Output to syslog instead of stdout.\
++    -v, --version            Print the version information, and exit.\
++\
++This program does the ad-hoc link-local IPv4 auto-configuration trick, as\
++described in the IETF Internet Draft 'Dynamic Configuration of IPv4\
++Link-Local Addresses'.\
+ ");
+ 
+     exit (exit_code);
+--- zcip-4/make-arp.c.fred	2002-09-11 00:14:10.000000000 +0200
++++ zcip-4/make-arp.c	2003-08-20 23:04:37.000000000 +0200
+@@ -106,19 +106,19 @@
+ 
+ 
+ void usage(int exit_code) {
+-    printf("
+-make-arp -- sends arbitrary ARP Requests
+-
+-usage: make-arp [OPTIONS] [sea=SOURCE-EA] [sip=SOURCE-IP] tea=TARGET-EA tip=TARGET-IP
+-
+-OPTIONS:
+-
+-    -h          Print this help.
+-
+-
+-Only ARP Requests for now.  In the Ethernet header, the source EA is
+-mine and the target EA is the broadcast address FF:FF:FF:FF:FF:FF.
+-
++    printf("\
++make-arp -- sends arbitrary ARP Requests\
++\
++usage: make-arp [OPTIONS] [sea=SOURCE-EA] [sip=SOURCE-IP] tea=TARGET-EA tip=TARGET-IP\
++\
++OPTIONS:\
++\
++    -h          Print this help.\
++\
++\
++Only ARP Requests for now.  In the Ethernet header, the source EA is\
++mine and the target EA is the broadcast address FF:FF:FF:FF:FF:FF.\
++\
+ ");
+ 
+     exit (exit_code);
