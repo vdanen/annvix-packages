@@ -1,6 +1,6 @@
 %define name	courier-imap
 %define version	2.1.2
-%define release	5sls
+%define release	6sls
 
 %define _localstatedir	/var/run
 %define	authdaemondir	%{_localstatedir}/authdaemon.courier-imap
@@ -33,10 +33,13 @@ Source10:	courier-pop3d-log.run
 Source11:	courier-pop3ds.run
 Source12:	courier-pop3ds-log.run
 Source13:	courier-imap.sysconfig
+Source14:	authdaemond.run
+Source15:	authdaemond-log.run
 # (fc) 1.4.2-2mdk fix missing command in initrd
 Patch0: 	courier-imap-1.6.1-initrd.patch.bz2
 Patch1:		courier-imap-2.1.2-auto_maildir_creator.patch.bz2
 Patch2:		courier-imap-2.1.1-configure.patch.bz2
+Patch3:		courier-imap-2.1.2-authnodaemon.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
 BuildPreReq:	autoconf2.5, coreutils, libtool, perl, sed
@@ -136,6 +139,7 @@ maildirmake command.
 %ifarch amd64 x86_64
 %patch2 -p0 -b .config
 %endif
+%patch3 -p1 -b .nodaemon
 
 %build
 #(cd authlib; autoreconf)
@@ -163,9 +167,6 @@ maildirmake command.
 mkdir -p %{buildroot}%{_sysconfdir}/pam.d
 
 %makeinstall_std
-
-mkdir -p %{buildroot}%{_initrddir}
-install -m755 courier-imap.sysvinit %{buildroot}%{_initrddir}/courier-imap
 
 # Fix imapd.dist
 perl -p -i -e 's|^IMAPDSTART=.*|IMAPDSTART=YES|' %{buildroot}%{couriersysconfdir}/imapd.dist
@@ -300,8 +301,8 @@ echo "MOD_MAILDIR_CREATOR=\"/bin/false\"" >> %{buildroot}%{couriersysconfdir}/im
 echo "MOD_MAILDIR_CREATOR=\"/bin/false\"" >> %{buildroot}%{couriersysconfdir}/pop3d.dist
 echo "MOD_MAILDIR_CREATOR=\"/bin/false\"" >> %{buildroot}%{couriersysconfdir}/pop3d-ssl.dist 
 
-mkdir -p %{buildroot}%{_srvdir}/{courier-imapd,courier-imapds,courier-pop3d,courier-pop3ds}/log
-mkdir -p %{buildroot}%{_srvlogdir}/{courier-imapd,courier-imapds,courier-pop3d,courier-pop3ds}
+mkdir -p %{buildroot}%{_srvdir}/{courier-imapd,courier-imapds,courier-pop3d,courier-pop3ds,authdaemond}/log
+mkdir -p %{buildroot}%{_srvlogdir}/{courier-imapd,courier-imapds,courier-pop3d,courier-pop3ds,authdaemond}
 install -m 0750 %{SOURCE5} %{buildroot}%{_srvdir}/courier-imapd/run
 install -m 0750 %{SOURCE6} %{buildroot}%{_srvdir}/courier-imapd/log/run
 install -m 0750 %{SOURCE7} %{buildroot}%{_srvdir}/courier-imapds/run
@@ -310,6 +311,8 @@ install -m 0750 %{SOURCE9} %{buildroot}%{_srvdir}/courier-pop3d/run
 install -m 0750 %{SOURCE10} %{buildroot}%{_srvdir}/courier-pop3d/log/run
 install -m 0750 %{SOURCE11} %{buildroot}%{_srvdir}/courier-pop3ds/run
 install -m 0750 %{SOURCE12} %{buildroot}%{_srvdir}/courier-pop3ds/log/run
+install -m 0750 %{SOURCE14} %{buildroot}%{_srvdir}/authdaemond/run
+install -m 0750 %{SOURCE15} %{buildroot}%{_srvdir}/authdaemond/log/run
 
 mkdir -p %{buildroot}%{_sysconfdir}/sysconfig
 install -m 0644 %{SOURCE13} %{buildroot}%{_sysconfdir}/sysconfig/imapd
@@ -409,7 +412,6 @@ test ! -f %{courierdatadir}/configlist.mysql || %{courierdatadir}/sysconftool-rp
 %attr(600, root, root) %config(noreplace) %{couriersysconfdir}/imapd-ssl.dist
 %config(noreplace) %{couriersysconfdir}/imapd.cnf
 %config(noreplace) %{couriersysconfdir}/quotawarnmsg.example
-%attr(755, root, root) %config(noreplace) %{_initrddir}/courier-imap
 %attr(644, root, root) %config(noreplace) %{couriersysconfdir}/authdaemonrc.dist
 %dir %{courierlibdir}
 %dir %{courierlibdir}/authlib
@@ -467,6 +469,11 @@ test ! -f %{courierdatadir}/configlist.mysql || %{courierdatadir}/sysconftool-rp
 %dir %attr(0750,nobody,nogroup) %{_srvlogdir}/courier-imapds
 %config(noreplace) %{_sysconfdir}/sysconfig/imapd
 %config(noreplace) %{_sysconfdir}/sysconfig/imapd-ssl
+%dir %{_srvdir}/authdaemond
+%dir %{_srvdir}/authdaemond/log
+%{_srvdir}/authdaemond/run
+%{_srvdir}/authdaemond/log/run
+%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/authdaemond
 
 %files pop
 %defattr(-, root, root)
@@ -528,6 +535,12 @@ test ! -f %{courierdatadir}/configlist.mysql || %{courierdatadir}/sysconftool-rp
 %{_mandir}/man1/maildirmake++.1*
 
 %changelog
+* Fri Apr 23 2004 Vincent Danen <vdanen@opensls.org> 2.1.2-6sls
+- P3 makes authdaemond no longer daemonize itself so we can run under
+  supervise (thanks Brian Candler)
+- run scripts for authdaemond
+- remove initscript
+
 * Thu Mar 11 2004 Vincent Danen <vdanen@opensls.org> 2.1.2-5sls
 - supervise scripts
 - make all plugins %%postun rather than %%preun and use srv macros to
