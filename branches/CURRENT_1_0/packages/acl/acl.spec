@@ -1,10 +1,10 @@
 %define name	acl
-%define version 2.2.13
-%define release 4sls
+%define version 2.2.22
+%define release 1sls
 
-%define lib_name_orig	libacl
+%define lib_name_orig	lib%{name}
 %define lib_major	1
-%define lib_name	%mklibname acl %{lib_major}
+%define lib_name	%mklibname %{name} %{lib_major}
 
 Summary:	Command for manipulating access control lists
 Name:		%{name}
@@ -97,6 +97,10 @@ rm -rf %{buildroot}%{_docdir}/acl
 %{_includedir}/sys/acl.h
 
 %changelog
+* Sun Feb 29 2004 Vincent Danen <vdanen@opensls.org> 2.2.22-1sls
+- 2.2.22
+- libname fixes
+
 * Mon Feb 09 2004 Vincent Danen <vdanen@opensls.org> 2.2.13-4sls
 - more spec cleanups
 
