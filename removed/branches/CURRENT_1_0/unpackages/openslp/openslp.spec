@@ -14,10 +14,12 @@ License:	BSD-like
 Group:		Networking/Other
 URL:		http://www.openslp.org/
 Source0:	ftp://openslp.org/pub/openslp/%{name}-%{version}/%{name}-%{version}.tar.bz2
+Source1:	slpd.run
+Source2:	slpd-log.run
 
 BuildRoot:	%{_tmppath}/%{name}-root
 
-PreReq:		/sbin/chkconfig, /sbin/service, rpm-helper
+PreReq:		rpm-helper
 Requires:	%{libname}
 
 %description
@@ -85,16 +87,20 @@ IDENT=slp
 DESCRIPTIVE="SLP Service Agent"
 ONBOOT="yes"
 EOF
-install -m 755 etc/slpd.all_init -D %buildroot/%_initrddir/slpd
+
+mkdir -p %{buildroot}%{_srvdir}/slpd/log
+mkdir -p %{buildroot}%{_srvlogdir}/slpd
+install -m 0750 %{SOURCE1} %{buildroot}%{_srvdir}/slpd/run
+install -m 0750 %{SOURCE2} %{buildroot}%{_srvdir}/slpd/log/run
 
 %clean
 rm -rf %buildroot
 
 %post
-%_post_service slpd
+%_post_srv slpd
 
-%PreUn 
-%_preun_service slpd
+%preun 
+%_preun_srv slpd
 
 %post -n %{libname} -p /sbin/ldconfig
 
@@ -108,9 +114,13 @@ rm -rf %buildroot
 %config(noreplace) %_sysconfdir/slp.spi
 %config(noreplace) %_sysconfdir/sysconfig/daemons/slpd
 %defattr(755,root,root,755)
-%config(noreplace) %_initrddir/slpd
 %_sbindir/slpd
 %_bindir/slptool
+%dir %{_srvdir}/slpd
+%dir %{_srvdir}/slpd/log
+%{_srvdir}/slpd/run
+%{_srvdir}/slpd/log/run
+%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/slpd
 
 %files -n %{libname}
 %defattr(-,root,root)
@@ -126,6 +136,10 @@ rm -rf %buildroot
 
 
 %changelog
+* Wed Feb 04 2004 Vincent Danen <vdanen@opensls.org> 1.0.11-6sls
+- remove initscript
+- supervise scripts
+
 * Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 1.0.11-5sls
 - OpenSLS build
 - tidy spec

@@ -1,0 +1,6 @@
+#!/bin/sh
+PATH="/sbin:/usr/sbin:/bin:/usr/bin:$PATH"
+
+# this runs slpd under supervise
+
+exec /usr/sbin/slpd -d
