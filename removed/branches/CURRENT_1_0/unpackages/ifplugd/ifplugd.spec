@@ -1,18 +1,23 @@
+%define name	ifplugd
+%define version	0.15
+%define release	5sls
+
 %define libdaemonver 0.2
 
-Summary: Detect and perform actions when an ethernet cable is (un)plugged.
-Name: ifplugd
-Version: 0.15
-Release: 4mdk
-Source0: http://www.stud.uni-hamburg.de/~lennart/projects/ifplugd/%{name}-%{version}.tar.bz2
-Source1: http://www.stud.uni-hamburg.de/~lennart/projects/libdaemon/libdaemon-%{libdaemonver}.tar.bz2
-Patch0: ifplugd-0.14-exit-status.patch.bz2
-Patch1: ifplugd-0.15-force-up-on-error.patch.bz2
-Patch2: ifplugd-0.15-startup.patch.bz2
-License: GPL
-Group: System/Configuration/Networking
-URL: http://www.stud.uni-hamburg.de/users/lennart/projects/ifplugd/
-BuildRoot: %{_tmppath}/%{name}-buildroot
+Summary:	Detect and perform actions when an ethernet cable is (un)plugged.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	GPL
+Group:		System/Configuration/Networking
+URL:		http://www.stud.uni-hamburg.de/users/lennart/projects/ifplugd/
+Source0:	http://www.stud.uni-hamburg.de/~lennart/projects/ifplugd/%{name}-%{version}.tar.bz2
+Source1:	http://www.stud.uni-hamburg.de/~lennart/projects/libdaemon/libdaemon-%{libdaemonver}.tar.bz2
+Patch0:		ifplugd-0.14-exit-status.patch.bz2
+Patch1:		ifplugd-0.15-force-up-on-error.patch.bz2
+Patch2:		ifplugd-0.15-startup.patch.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-buildroot
 BuildRequires:	doxygen lynx
 
 %description
@@ -63,6 +68,11 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{_sysconfdir}/ifplugd/ifplugd.action
 
 %changelog
+* Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 0.15-5sls
+- OpenSLS build
+- tidy spec
+- NOTE: this package should be removed once initscripts is updated properly
+
 * Wed Aug 20 2003 Frederic Lepied <flepied@mandrakesoft.com> 0.15-4mdk
 - corrected startup sequence to prevent a bug when called from hotplug
 - corrected patch1
