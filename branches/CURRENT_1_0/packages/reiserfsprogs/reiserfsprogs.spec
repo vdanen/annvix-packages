@@ -1,12 +1,13 @@
 %define name	reiserfsprogs
 %define version	3.6.11
-%define release	1sls
+%define release	2sls
+%define epoch	1
 
 Summary:	The utilities to create Reiserfs volume.
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
-Epoch:		1
+Epoch:		%{epoch}
 License:	GPL
 Group:		System/Kernel and hardware
 URL:		http://www.namesys.com/
@@ -46,7 +47,7 @@ create your own types of directories and files.
 %make OPTFLAGS="%optflags"
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p $RPM_BUILD_ROOT%_mandir/man8
 %makeinstall
 mv $RPM_BUILD_ROOT/{usr/,}sbin
@@ -56,7 +57,7 @@ ln -s mkreiserfs.8 $RPM_BUILD_ROOT%_mandir/man8/mkfs.reiserfs.8
 ln -s reiserfsck.8 $RPM_BUILD_ROOT%_mandir/man8/fsck.reiserfs.8
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -65,6 +66,9 @@ rm -rf $RPM_BUILD_ROOT
 %_mandir/*/*
 
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 3.6.11-2sls
+- minor spec cleanups
+
 * Fri Jan 09 2004 Vincent Danen <vdanen@opensls.org> 3.6.11-1sls
 - 3.6.11
 

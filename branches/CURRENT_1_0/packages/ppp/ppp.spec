@@ -1,6 +1,6 @@
 %define name	ppp
 %define version	2.4.1
-%define release	13sls
+%define release	14sls
 
 Summary:	The PPP daemon and documentation for Linux 1.3.xx and greater.
 Name:		%{name}
@@ -117,6 +117,7 @@ make RPM_OPT_FLAGS="$OPT_FLAGS -DDO_BSD_COMPRESS=0"
 make -C pppd/plugins -f Makefile.linux
 
 %install
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p %{buildroot}/{%{_sbindir},%{_mandir}/man8,%{_sysconfdir}/{ppp/peers,pam.d}}
 
 make install \
@@ -140,7 +141,7 @@ chmod 0644 README.MSCHAP80
 #mknod %{buildroot}/dev/ppp c 108 0
 
 %clean
-rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -168,6 +169,9 @@ rm -rf %{buildroot}
 %{_libdir}/pppd/%{version}/pppoe.so
 
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 2.4.1-14sls
+- minor spec cleanups
+
 * Fri Jan 23 2004 Vincent Danen <vdanen@opensls.org> 2.4.1-13sls
 - OpenSLS build
 - tidy spec

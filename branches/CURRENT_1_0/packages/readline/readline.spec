@@ -1,6 +1,6 @@
 %define name	readline
 %define version	4.3
-%define	release	8sls
+%define	release	9sls
 
 ## Do not apply library policy!!
 %define lib_major	4
@@ -73,7 +73,7 @@ perl -p -i -e 's|-Wl,-rpath.*||' shlib/Makefile
 make static shared
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall install-shared
 # put all libs in /lib because some package needs it
 # before /usr is mounted
@@ -92,7 +92,7 @@ rm -f $RPM_BUILD_ROOT/%{_lib}/*.old
 perl -p -i -e 's|/usr/local/bin/perl|/usr/bin/perl|' doc/texi2html
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post -n %{lib_name} -p /sbin/ldconfig
 %postun -n %{lib_name} -p /sbin/ldconfig
@@ -121,6 +121,9 @@ rm -rf $RPM_BUILD_ROOT
 /%{_lib}/*so
 
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 4.3-9sls
+- minor spec cleanups
+
 * Mon Dec 08 2003 Vincent Danen <vdanen@opensls.org> 4.3-8sls
 - OpenSLS build
 - tidy spec

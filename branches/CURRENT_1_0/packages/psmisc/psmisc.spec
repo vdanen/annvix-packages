@@ -1,6 +1,6 @@
 %define name	psmisc
 %define version	21.3
-%define release	3sls
+%define release	4sls
 
 Summary:	Utilities for managing processes on your system.
 Name:		%{name}
@@ -31,7 +31,7 @@ of processes that are using specified files or filesystems.
 %configure
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
 mkdir $RPM_BUILD_ROOT/sbin
 mv $RPM_BUILD_ROOT%{_bindir}/fuser $RPM_BUILD_ROOT/sbin/
@@ -39,7 +39,7 @@ mv $RPM_BUILD_ROOT%{_bindir}/fuser $RPM_BUILD_ROOT/sbin/
 %find_lang %{name}
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files -f %{name}.lang
 %defattr(-,root,root)
@@ -51,6 +51,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/pstree.1*
 
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 21.3-4sls
+- minor spec cleanups
+
 * Mon Dec 01 2003 Vincent Danen <vdanen@opensls.org> 21.3-3sls
 - OpenSLS build
 

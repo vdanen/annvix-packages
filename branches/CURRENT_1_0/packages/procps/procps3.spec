@@ -1,6 +1,6 @@
 %define name	procps
 %define version	3.1.11
-%define release	3sls
+%define release	4sls
 
 Summary:	Utilities for monitoring your system and processes on your system
 Name:		%{name}
@@ -62,8 +62,8 @@ Developement headers and library for the proc library.
 make CC="gcc $RPM_OPT_FLAGS"
 
 %install
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 PATH=/sbin:$PATH
-rm -rf $RPM_BUILD_ROOT
 mkdir -p $RPM_BUILD_ROOT{{/usr,}/bin,/sbin,%_mandir/man{1,5,8},%_lib}
 
 %makeinstall_std ldconfig=/bin/true install="install -D" lib="$RPM_BUILD_ROOT/%{_lib}"
@@ -76,7 +76,7 @@ install -m 644 proc/*.h $RPM_BUILD_ROOT%{_includedir}/procps
 mv $RPM_BUILD_ROOT/bin/{,procps3-}kill
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post 
 /sbin/ldconfig
@@ -86,7 +86,6 @@ rm -f /etc/psdevtab /etc/psdatabase
 %postun -p /sbin/ldconfig
 
 %files
-
 %defattr(-,root,root)
 %doc NEWS BUGS TODO
 /%{_lib}/libproc.so.*
@@ -130,6 +129,9 @@ rm -f /etc/psdevtab /etc/psdatabase
 /%_lib/libproc.so
 
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 3.1.11-4sls
+- minor spec cleanups
+
 * Mon Dec 01 2003 Vincent Danen <vdanen@opensls.org> 3.1.11-3sls
 - OpenSLS build
 - tidy spec

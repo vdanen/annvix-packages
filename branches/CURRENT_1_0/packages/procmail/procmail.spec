@@ -1,6 +1,6 @@
 %define	name	procmail
 %define	version	3.22
-%define	release	5sls
+%define	release	6sls
 
 Summary:	The procmail mail processing program.
 Name:		%{name}
@@ -34,7 +34,7 @@ find . -type d -exec chmod 755 {} \;
 echo -n -e "\n"|  %make CFLAGS="$RPM_OPT_FLAGS"
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p $RPM_BUILD_ROOT/%{_bindir}
 mkdir -p $RPM_BUILD_ROOT/%{_mandir}/{man1,man5}
 
@@ -48,22 +48,22 @@ mv $RPM_BUILD_ROOT/usr/man/man5/* $RPM_BUILD_ROOT%{_mandir}/man5/
 rm -f examples/mailstat
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
+%doc FAQ HISTORY README KNOWN_BUGS FEATURES examples
 %attr(6755,root,mail)	%{_bindir}/procmail
 %attr(2755,root,mail)	%{_bindir}/lockfile
-
-%doc FAQ HISTORY README KNOWN_BUGS FEATURES examples
-
 %{_bindir}/formail
 %{_bindir}/mailstat
-
 %{_mandir}/man1/*1*
 %{_mandir}/man5/*5*
 
 %changelog
+* Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 3.22-6sls
+- minor spec cleanups
+
 * Mon Dec 08 2003 Vincent Danen <vdanen@opensls.org> 3.22-5sls
 - OpenSLS build
 - tidy spec
