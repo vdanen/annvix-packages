@@ -1,3 +1,7 @@
+%define name	openssh
+%define version	3.6.1p2
+%define release 9sls
+
 ## Do not apply any unauthorized patches to this package!
 ## - vdanen 05/18/01
 ##
@@ -24,10 +28,10 @@
 %{?_with_nox11askpass: %{expand: %%global no_x11_askpass 1}}
 %{?_with_nognomeaskpass: %{expand: %%global no_gnome_askpass 1}}
 
-
-%define name	openssh
-%define version	3.6.1p2
-%define release 8mdk
+%if %{build_opensls}
+%global no_x11_askpass 1
+%global no_gnome_askpass 1
+%endif
 
 Summary:	OpenSSH free Secure Shell (SSH) implementation
 Name:		%{name}
@@ -51,12 +55,11 @@ Patch3:		openssh-3.1p1-check-only-ssl-version.patch.bz2
 # (flepied) don't use killproc to avoid killing running sessions in some cases
 Patch5:		openssh-3.6.1p1-initscript.patch.bz2
 Patch6:		openssh-3.6.1p2-bufferfix.patch.bz2
+Patch7:		openssh-3.6.1p2-supervise.patch.bz2
 License:	BSD
 Group:		Networking/Remote access
+
 BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
-Obsoletes:	ssh
-Provides:	ssh
-PreReq:		openssl >= 0.9.7
 BuildRequires:	groff-for-man, openssl-devel >= 0.9.7, pam-devel, tcp_wrappers-devel, zlib-devel
 BuildRequires:	db1-devel
 %if %{build_skey}
@@ -71,6 +74,10 @@ BuildRequires:  XFree86-devel
 %if !%{no_gnome_askpass}
 BuildRequires:	gtk+2-devel
 %endif
+
+Obsoletes:	ssh
+Provides:	ssh
+PreReq:		openssl >= 0.9.7
 
 %package clients
 Summary:	OpenSSH Secure Shell protocol clients
@@ -506,6 +513,12 @@ update-alternatives --remove ssh-askpass %{_libdir}/ssh/gnome-ssh-askpass
 %endif
 
 %changelog
+* Mon Dec 01 2003 Vincent Danen <vdanen@opensls.org> 3.6.1p2-9sls
+- OpenSLS build
+- tidy spec
+- use %%build_opensls macros to prevent x11-ish stuff from being built
+- patch initscript to work with supervise
+
 * Tue Sep 16 2003 Vincent Danen <vdanen@mandrakesoft.com> 3.6.1p2-8mdk
 - revised patch for security fix
 
