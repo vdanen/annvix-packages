@@ -1,6 +1,6 @@
 %define name	apache-conf
 %define version	2.0.49
-%define release	2sls
+%define release	3sls
 
 # OE: conditional switches
 #(ie. use with rpm --rebuild):
@@ -204,10 +204,10 @@ cat > %{buildroot}%{_sysconfdir}/logrotate.d/%{name} << EOF
     missingok
     nocompress
     prerotate
-	svc -h /service/apache; svc -h /service/apache2
+	[[ -d /service/apache ]] && svc -h /service/apache; [[ -d /service/apache2 ]] && svc -h /service/apache2
     endscript
     postrotate
-	svc -h /service/apache; svc -h /service/apache2
+	[[ -d /service/apache ]] && svc -h /service/apache; [[ -d /service/apache2 ]] && svc -h /service/apache2
     endscript
 }
 EOF
@@ -301,6 +301,11 @@ fi
 %attr(1333,apache,apache) %dir /var/apache-mm
 
 %changelog
+* Sun May 09 2004 Vincent Danen <vdanen@opensls.org> 2.0.49-3sls
+- fix logrotate file
+- make sure httpd2 uses /var/run/httpd2.pid and httpd2-perl uses
+  /var/run/httpd-perl2.pid
+
 * Fri May 07 2004 Vincent Danen <vdanen@opensls.org> 2.0.49-2sls
 - add extramodules to file list (flepied)
 - updated mimetypes from cooker 2.0.48-2mdk:
