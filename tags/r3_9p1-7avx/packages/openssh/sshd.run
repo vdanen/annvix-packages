@@ -1,0 +1,9 @@
+#!/bin/sh
+PATH="/sbin:/usr/sbin:/bin:/usr/bin:$PATH"
+
+# this runs sshd under supervise
+
+# source sysconfig settings
+[ -f /etc/sysconfig/sshd ] && . /etc/sysconfig/sshd
+
+exec /usr/sbin/sshd -D $OPTIONS 2>&1
