@@ -1,6 +1,6 @@
 %define	name	runit
 %define	version	1.2.1
-%define	release	4avx
+%define	release	5avx
 
 Summary:	A UN*X init scheme with service supervision
 Name:		%{name}
@@ -142,6 +142,12 @@ fi
 %attr(0755,root,root) %{_srvdir}/mingetty-tty6/finish
 
 %changelog
+* Fri Mar 04 2005 Vincent Danen <vdanen@annvix.org> 1.0.5-5avx
+- instead of waiting 350secs for all services to stop, we wait
+  180secs; this is because logged in ssh users will cause this
+  timeout as sshd will not die with any children running.  3
+  minutes is more than reasonable
+
 * Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> 1.0.5-4avx
 - build against new dietlibc
 
