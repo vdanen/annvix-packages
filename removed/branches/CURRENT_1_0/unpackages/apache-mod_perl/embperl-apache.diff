@@ -1,0 +1,15 @@
+--- src/modules/perl/Makefile.orig	Mon Jul 24 01:22:23 2000
++++ src/modules/perl/Makefile	Mon Jul 24 01:24:00 2000
+@@ -39,10 +40,10 @@
+ PERL_XSUBPP=perl /usr/lib/perl5/5.6.0/ExtUtils/xsubpp -typemap /usr/lib/perl5/5.6.0/ExtUtils/typemap
+ PERL_AR=ar
+ PERL_RANLIB=:
+-PERL_STATIC_EXTS=Apache Apache::Constants Apache::ModuleConfig Apache::Log Apache::URI Apache::Util Apache::Connection Apache::Server Apache::File Apache::Table 
++PERL_STATIC_EXTS=Apache Apache::Constants Apache::ModuleConfig Apache::Log Apache::URI Apache::Util Apache::Connection Apache::Server Apache::File Apache::Table HTML::EmbPerl
+ PERL_STATIC_AR=
+ PERL_STATIC_SRCS=Apache.c Constants.c ModuleConfig.c Log.c URI.c Util.c Connection.c Server.c File.c Table.c
+-PERL_STATIC_OBJS=Apache.o Constants.o ModuleConfig.o Log.o URI.o Util.o Connection.o Server.o File.o Table.o
++PERL_STATIC_OBJS=Apache.o Constants.o ModuleConfig.o Log.o URI.o Util.o Connection.o Server.o File.o Table.o $(EPDIR)/Embperl.o $(EPDIR)/epmain.o $(EPDIR)/epio.o $(EPDIR)/epeval.o $(EPDIR)/epcmd.o $(EPDIR)/epchar.o $(EPDIR)/eputil.o
+ PERL_STATIC_OBJS_PIC=Apache.lo Constants.lo ModuleConfig.lo Log.lo URI.lo Util.lo Connection.lo Server.lo File.lo Table.lo
+ PERL_SSI=yes
+ CFLAGS_SHLIB=-fpic -DSHARED_MODULE
