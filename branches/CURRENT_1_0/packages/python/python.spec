@@ -1,6 +1,6 @@
 %define name	python
 %define version	2.4
-%define release	1avx
+%define release	2avx
 
 %define docver  2.4
 %define dirver  2.4
@@ -32,6 +32,7 @@ Patch4:		Python-2.4-lib64.patch.bz2
 # FIXME: incomplete for proper bi-arch support as #if/#else/#endif
 # clauses generally should have been handled
 Patch5:		Python-2.2.2-biarch-headers.patch.bz2
+Patch6:		python-2.4-psf-2005-001.patch.bz2
 
 BuildRoot:	%_tmppath/%name-%version-%release-root
 BuildRequires:	XFree86-devel 
@@ -124,6 +125,7 @@ of a Annvix distribution.
 %patch3 -p1 -b .no-local-incpath
 %patch4 -p1 -b .lib64
 %patch5 -p1 -b .biarch-headers
+%patch6 -p0 -b .can-2005-0089
 autoconf
 
 mkdir html
@@ -143,7 +145,7 @@ export OPT
 
 %make
 # all tests must pass
-make test TESTOPTS="-l -x test_linuxaudiodev"
+make test TESTOPTS="-l -x test_linuxaudiodev -x test_openpty"
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -277,6 +279,11 @@ rm -f modules-list main.list
 %postun -n %{lib_name} -p /sbin/ldconfig
 
 %changelog
+* Wed Feb 09 2005 Vincent Danen <vdanen@annvix.org> 2.4-2avx
+- P6: fix for CAN-2005-0089
+- make test without testing test_openpty since it fails if python is built
+  in a chroot
+
 * Wed Feb 02 2005 Vincent Danen <vdanen@annvix.org> 2.4-1avx
 - 2.4
 - drop P6; applied upstream
