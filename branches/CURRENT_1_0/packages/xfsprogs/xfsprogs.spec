@@ -1,6 +1,6 @@
 %define name	xfsprogs
-%define version 2.5.4
-%define release 3sls
+%define version 2.6.3
+%define release 1sls
 
 %define url	ftp://oss.sgi.com/projects/xfs/download/cmd_tars
 
@@ -20,7 +20,6 @@ Source0:	%{url}/%{name}-%{version}.src.tar.bz2
 BuildRoot:	%{_tmppath}/%{name}-buildroot
 BuildRequires:	libext2fs-devel
 
-Prefix:		%{_prefix}
 Prereq:		/sbin/ldconfig
 Requires:	common-licenses
 
@@ -125,6 +124,10 @@ rm -rf %{buildroot}
 %{_mandir}/man3/*
 
 %changelog
+* Sun Feb 29 2004 Vincent Danen <vdanen@opensls.org> 2.6.3-1sls
+- remove %%{prefix}
+- 2.6.3
+
 * Mon Dec 08 2003 Vincent Danen <vdanen@opensls.org> 2.5.4-3sls
 - OpenSLS build
 - tidy spec
