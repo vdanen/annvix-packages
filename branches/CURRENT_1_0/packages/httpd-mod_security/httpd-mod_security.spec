@@ -1,20 +1,16 @@
-%define name	%{ap_name}-%{mod_name}
-%define version	%{ap_version}_%{mod_version}
+%define name	apache2-%{mod_name}
+%define version	%{apache_version}_%{mod_version}
 %define release 1avx
 
 # Module-Specific definitions
+%define apache_version	2.0.53
 %define mod_version	1.7.5
 %define mod_name	mod_security
 %define mod_conf	82_%{mod_name}.conf
 %define mod_so		%{mod_name}.so
 %define sourcename	%{mod_name}-%{mod_version}
 
-# New ADVX macros
-%define ADVXdir %{_datadir}/ADVX
-%{expand:%(cat %{ADVXdir}/ADVX-build)}
-%{expand:%%global ap_version %(%{apxs} -q ap_version)}
-
-Summary:	Mod_security is a DSO module for the %{ap_name} Web server.
+Summary:	Mod_security is a DSO module for the apache2 Web server
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -26,16 +22,11 @@ Source1:	%{mod_conf}.bz2
 Source2:	snortrules-snapshot-CURRENT.tar.gz
 Source3:	%{sourcename}.tar.gz.asc
 
-# Standard ADVX requires
 BuildRoot:	%{_tmppath}/%{name}-buildroot
-BuildPreReq:	ADVX-build >= 9.2
-BuildRequires:	%{ap_name}-devel >= 2.0.44-6mdk
+BuildRequires:	apache2-devel >= %{apache_version}
 
-Prereq:		%{ap_name} = %{ap_version}
-Prereq:		%{ap_name}-conf
+Prereq:		apache2 >= %{apache_version}, apache2-conf
 Prereq:		rpm-helper
-Provides: 	ADVXpackage
-Provides:	AP20package
 
 %description
 ModSecurity is an open source intrustion detection and prevention
@@ -56,40 +47,43 @@ perl util/snort2modsec.pl rules/web*.rules >> mod_security-snortrules.conf
 
 %build
 cp apache2/%{mod_name}.c .
-%{apxs} -c %{mod_name}.c
+%{_sbindir}/apxs2 -c %{mod_name}.c
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-%ADVXinstlib
-%ADVXinstconf %{SOURCE1} %{mod_conf}
-%ADVXinstdoc %{name}-%{version}
+mkdir -p %{buildroot}%{_libdir}/apache2-extramodules
+mkdir -p %{buildroot}%{_sysconfdir}/httpd/conf.d
+install -m 0755 .libs/*.so %{buildroot}%{_libdir}/apache2-extramodules/
+bzcat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/conf.d/%{mod_conf}
 
-install -d %{buildroot}%{_sbindir}
-install -d %{buildroot}%{ap_sysconfdir}
+mkdir -p %{buildroot}/var/www/html/addon-modules
+ln -s ../../../../%{_docdir}/%{name}-%{version} %{buildroot}/var/www/html/addon-modules/%{name}-%{version}
 
-install -m0755 util/snort2modsec.pl %{buildroot}%{_sbindir}/
-install -m0644 mod_security-snortrules.conf %{buildroot}%{ap_sysconfdir}/
+mkdir -p %{buildroot}{%{_sbindir},%{_sysconfdir}/httpd/2.0/conf}
+
+install -m 0755 util/snort2modsec.pl %{buildroot}%{_sbindir}/
+install -m 0644 mod_security-snortrules.conf %{buildroot}%{_sysconfdir}/httpd/2.0/conf
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-%post
-%ADVXpost
-
-%postun
-%ADVXpost
-
 %files
 %defattr(-,root,root)
-%doc tests CHANGES README httpd.conf* mod_security-manual-*.pdf
-%config(noreplace) %{ap_sysconfdir}/mod_security-snortrules.conf
-%config(noreplace) %{ap_confd}/%{mod_conf}
-%{ap_extralibs}/%{mod_so}
-%{ap_webdoc}/*
-%{_sbindir}/snort2modsec.pl
+%doc tests CHANGES README httpd.conf*
+%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/httpd/2.0/conf/mod_security-snortrules.conf
+%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/httpd/conf.d/%{mod_conf}
+%attr(0755,root,root) %{_libdir}/apache2-extramodules/%{mod_so}
+%attr(0755,root,root) %{_sbindir}/snort2modsec.pl
+/var/www/html/addon-modules/*
 
 %changelog
+* Sat Feb 26 2005 Vincent Danen <vdanen@annvix.org> 2.0.53_1.8.6-1avx
+- 1.8.6
+- apache 2.0.53
+- remove ADVX stuff
+- remove pdf docs
+
 * Thu Oct 14 2004 Vincent Danen <vdanen@annvix.org> 2.0.52_1.7.5-1avx
 - apache 2.0.52
 
