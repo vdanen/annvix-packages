@@ -1,0 +1,44 @@
+--- netpbm-9.24/pnm/pnmflip.c.struct	Tue Apr  9 16:26:46 2002
++++ netpbm-9.24/pnm/pnmflip.c	Tue Apr  9 16:26:32 2002
+@@ -191,7 +191,7 @@
+ static void __inline__
+ transformPoint( int const col, int const newcols,
+                 int const row, int const newrows, 
+-                struct xformMatrix const xform, 
++                struct xformMatrix const * xform, 
+                 int * const newcolP, int * const newrowP ) {
+     /* Transform a point:
+     **
+@@ -199,10 +199,10 @@
+     **  [ x y 1 ] [ c d 0 ] = [ x2 y2 1 ]
+     **            [ e f 1 ]
+     */
+-    *newcolP = xform.a * col + xform.c * row + 
+-        xform.e * ( newcols - 1 );
+-    *newrowP = xform.b * col + xform.d * row + 
+-        xform.f * ( newrows - 1 );
++    *newcolP = xform->a * col + xform->c * row + 
++        xform->e * ( newcols - 1 );
++    *newrowP = xform->b * col + xform->d * row + 
++        xform->f * ( newrows - 1 );
+ }
+ 
+ 
+@@ -224,7 +224,7 @@
+         pnm_readpnmrow( ifp, xelrow, cols, maxval, format );
+         for ( col = 0; col < cols; ++col ) {
+             int newcol, newrow;
+-            transformPoint( col, newcols, row, newrows, xform,
++            transformPoint( col, newcols, row, newrows, &xform,
+                             &newcol, &newrow );
+             newxels[newrow][newcol] = xelrow[col];
+         }
+@@ -259,7 +259,7 @@
+         pbm_readpbmrow( ifp, bitrow, cols, format );
+         for ( col = 0; col < cols; ++col ) {
+             int newcol, newrow;
+-            transformPoint( col, newcols, row, newrows, xform,
++            transformPoint( col, newcols, row, newrows, &xform,
+                             &newcol, &newrow );
+             newbits[newrow][newcol] = bitrow[col];
+         }

@@ -1,0 +1,11 @@
+--- glibc-2.2/elf/ldconfig.c.chmou	Sat Nov 25 17:16:57 2000
++++ glibc-2.2/elf/ldconfig.c	Sat Nov 25 17:18:59 2000
+@@ -892,6 +892,8 @@
+ {
+   int remaining;
+ 
++  if (getenv("DURING_INSTALL") && argc == 1) exit(0);
++  
+   /* Parse and process arguments.  */
+   argp_parse (&argp, argc, argv, 0, &remaining, NULL);
+ 

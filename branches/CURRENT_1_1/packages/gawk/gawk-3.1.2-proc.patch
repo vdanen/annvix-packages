@@ -1,0 +1,131 @@
+# by Aharon Robbins <arnold@skeeve.com>
+# Avoid 'Cannot allocate memory' error due to pseudo-files in /proc.
+
+--- gawk/io.c
++++ gawk/io.c
+@@ -2487,11 +2487,13 @@
+ 
+                                 /* <reset pointers>=                                                        */
+                                 bp = iop->dataend;
++#if 0
+                         } else {
+                                 /* <save position, grow buffer>=                                            */
+                                 iop->scanoff = bp - iop->off;
+                                 grow_iop_buffer(iop);
+                                 bp = iop->off + iop->scanoff;
++#endif
+                         }
+                 }
+ 
+@@ -2506,11 +2508,16 @@
+                         /* Use read to put more data into the buffer. If we've read                 */
+                         /* as many characters as in the file, don't try to read more.               */
+                         /*                                                                          */
++                        /* Well, not quite.  Linux files such as /proc/filesystems show             */
++                        /* up to stat() as though they're of size zero, but in fact they            */
++                        /* have data in them.  IMHO this is a Linux bug.                            */
++                        /*                                                                          */
+                         /*                                                                          */
+                         /* <put more data into the buffer>=                                         */
+                         if ((iop->flag & IOP_IS_INTERNAL) != 0) {
+                                 iop->flag |= IOP_AT_EOF;
+-                        } else if (S_ISREG(iop->sbuf.st_mode) && iop->total >= iop->sbuf.st_size)
++                        } else if (S_ISREG(iop->sbuf.st_mode) && iop->sbuf.st_size > 0
++                                   && iop->total >= iop->sbuf.st_size)
+                                 iop->flag |= IOP_AT_EOF;
+                         else {
+ #define min(x, y) (x < y ? x : y)
+@@ -2549,7 +2556,8 @@
+                                 else {
+                                         iop->dataend += iop->count;
+                                         iop->total += iop->count;
+-                                        if (S_ISREG(iop->sbuf.st_mode) && iop->total >= iop->sbuf.st_size)
++                                        if (S_ISREG(iop->sbuf.st_mode) && iop->sbuf.st_size > 0
++                                            && iop->total >= iop->sbuf.st_size)
+                                                 iop->flag |= IOP_AT_EOF;
+                                         /* reset the sentinel */
+                                         /* <set sentinel>=                                                          */
+@@ -2729,11 +2737,13 @@
+ 
+                                 /* <reset pointers>=                                                        */
+                                 bp = iop->dataend;
++#if 0
+                         } else {
+                                 /* <save position, grow buffer>=                                            */
+                                 iop->scanoff = bp - iop->off;
+                                 grow_iop_buffer(iop);
+                                 bp = iop->off + iop->scanoff;
++#endif
+                         }
+                 }
+ 
+@@ -2748,11 +2758,16 @@
+                         /* Use read to put more data into the buffer. If we've read                 */
+                         /* as many characters as in the file, don't try to read more.               */
+                         /*                                                                          */
++                        /* Well, not quite.  Linux files such as /proc/filesystems show             */
++                        /* up to stat() as though they're of size zero, but in fact they            */
++                        /* have data in them.  IMHO this is a Linux bug.                            */
++                        /*                                                                          */
+                         /*                                                                          */
+                         /* <put more data into the buffer>=                                         */
+                         if ((iop->flag & IOP_IS_INTERNAL) != 0) {
+                                 iop->flag |= IOP_AT_EOF;
+-                        } else if (S_ISREG(iop->sbuf.st_mode) && iop->total >= iop->sbuf.st_size)
++                        } else if (S_ISREG(iop->sbuf.st_mode) && iop->sbuf.st_size > 0
++                                   && iop->total >= iop->sbuf.st_size)
+                                 iop->flag |= IOP_AT_EOF;
+                         else {
+ #define min(x, y) (x < y ? x : y)
+@@ -2791,7 +2806,8 @@
+                                 else {
+                                         iop->dataend += iop->count;
+                                         iop->total += iop->count;
+-                                        if (S_ISREG(iop->sbuf.st_mode) && iop->total >= iop->sbuf.st_size)
++                                        if (S_ISREG(iop->sbuf.st_mode) && iop->sbuf.st_size > 0
++                                            && iop->total >= iop->sbuf.st_size)
+                                                 iop->flag |= IOP_AT_EOF;
+                                         /* reset the sentinel */
+                                         /* <set sentinel>=                                                          */
+@@ -2993,11 +3009,13 @@
+ 
+                                 /* <reset pointers>=                                                        */
+                                 bp = iop->dataend;
++#if 0
+                         } else {
+                                 /* <save position, grow buffer>=                                            */
+                                 iop->scanoff = bp - iop->off;
+                                 grow_iop_buffer(iop);
+                                 bp = iop->off + iop->scanoff;
++#endif
+                         }
+                 }
+ 
+@@ -3012,11 +3030,16 @@
+                         /* Use read to put more data into the buffer. If we've read                 */
+                         /* as many characters as in the file, don't try to read more.               */
+                         /*                                                                          */
++                        /* Well, not quite.  Linux files such as /proc/filesystems show             */
++                        /* up to stat() as though they're of size zero, but in fact they            */
++                        /* have data in them.  IMHO this is a Linux bug.                            */
++                        /*                                                                          */
+                         /*                                                                          */
+                         /* <put more data into the buffer>=                                         */
+                         if ((iop->flag & IOP_IS_INTERNAL) != 0) {
+                                 iop->flag |= IOP_AT_EOF;
+-                        } else if (S_ISREG(iop->sbuf.st_mode) && iop->total >= iop->sbuf.st_size)
++                        } else if (S_ISREG(iop->sbuf.st_mode) && iop->sbuf.st_size > 0
++                                   && iop->total >= iop->sbuf.st_size)
+                                 iop->flag |= IOP_AT_EOF;
+                         else {
+ #define min(x, y) (x < y ? x : y)
+@@ -3055,7 +3078,8 @@
+                                 else {
+                                         iop->dataend += iop->count;
+                                         iop->total += iop->count;
+-                                        if (S_ISREG(iop->sbuf.st_mode) && iop->total >= iop->sbuf.st_size)
++                                        if (S_ISREG(iop->sbuf.st_mode) && iop->sbuf.st_size > 0
++                                            && iop->total >= iop->sbuf.st_size)
+                                                 iop->flag |= IOP_AT_EOF;
+                                         /* reset the sentinel */
+                                         /* <set sentinel>=                                                          */

@@ -1,0 +1,11 @@
+--- passwd-0.67/Makefile.deush	2002-07-29 13:18:37.000000000 +0200
++++ passwd-0.67/Makefile	2002-07-29 13:18:54.000000000 +0200
+@@ -30,7 +30,7 @@
+ CVSTAG = r$(subst .,-,$(VERSION)-$(RELEASE))
+ 
+ bindir=/usr/bin
+-mandir=/usr/man
++mandir=/usr/share/man
+ 
+ all: date.h $(PROGS) pwdstat
+ #	chmod 4555 $(PROGS)

@@ -1,0 +1,38 @@
+--- /dev/null	1970-01-01 01:00:00.000000000 +0100
++++ zsh-4.1.0-dev-7/Completion/Mandrake/Command/_rebootin	2003-04-21 17:13:20.000000000 +0200
+@@ -0,0 +1,27 @@
++#compdef rebootin
++
++local loader=$(sudo detectloader -q)
++
++_arguments -C -s \
++    '-n[No immediate reboot just  set the flags for next reboot.]' \
++    '-f[Create a /fastboot file to reboot in fastboot mode]' \
++    '*::arguments:->loader_entry'
++
++local expl
++case $state in
++    loader_entry)
++	case $loader in
++	    GRUB)
++		if [ -r /boot/grub/menu.lst ];then
++		compadd $(awk '{ if ($1 ~ /^title/) print $2 }' /boot/grub/menu.lst)
++		fi
++		;;
++	    LILO)
++		if [ -r /etc/lilo.conf ];then
++		compadd $(awk -F= '{ if ($0 ~ /label=/) print $2 }' /etc/lilo.conf)
++		fi
++		;;
++	    *)
++		;;
++	esac
++esac
+--- zsh-4.1.0-dev-7/Completion/Mandrake/Command/.distfiles.chmou	2002-10-15 19:59:40.000000000 +0200
++++ zsh-4.1.0-dev-7/Completion/Mandrake/Command/.distfiles	2003-04-21 17:13:59.000000000 +0200
+@@ -1,4 +1,5 @@
+ DISTFILES_SRC='
+ .distfiles
+ _urpmi
++_rebootin
+ '

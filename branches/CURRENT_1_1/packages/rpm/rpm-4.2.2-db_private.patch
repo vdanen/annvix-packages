@@ -1,0 +1,19 @@
+--- rpm-4.2.2/rpmdb/db3.c.db_private	2003-11-23 14:46:05.000000000 +0100
++++ rpm-4.2.2/rpmdb/db3.c	2004-02-19 14:42:44.267717842 +0100
+@@ -983,11 +983,16 @@ static int db3open(rpmdb rpmdb, rpmTag r
+ #if HAVE_LIBPTHREAD
+ 	if (rpmdb->db_dbenv == NULL) {
+ 	    /* Set DB_PRIVATE if posix mutexes are not shared. */
++#if 1
++	    /* Always set it for the time being.  */
++	    dbi->dbi_eflags |= DB_PRIVATE;
++#else
+ 	    xx = db3_pthread_nptl();
+ 	    if (xx) {
+ 		dbi->dbi_eflags |= DB_PRIVATE;
+ 		rpmMessage(RPMMESS_DEBUG, _("unshared posix mutexes found(%d), adding DB_PRIVATE, using fcntl lock\n"), xx);
+ 	    }
++#endif
+ 	}
+ #endif
+ 

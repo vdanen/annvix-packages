@@ -1,0 +1,23 @@
+diff -ruN util-linux-2.11t/mount.orig/swapon.c util-linux-2.11t/mount/swapon.c
+--- util-linux-2.11t/mount.orig/swapon.c	2002-07-29 15:20:04.000000000 +0200
++++ util-linux-2.11t/mount/swapon.c	2002-07-29 15:26:41.000000000 +0200
+@@ -339,6 +339,7 @@
+ 			fclose(swaps);
+ 		}
+ 
++		if (streq (program_name, "swapon")) {
+ 		while ((fstab = getmntent(fp)) != NULL) {
+ 		        int i;
+ 			char *special = fstab->mnt_fsname;
+@@ -361,6 +362,11 @@
+ 				     status |= do_swapon(special, priority);
+ 			}
+ 		}
++		} else { /* swapoff -- we don't need to parse fstab */
++		       int i;
++		       for(i=0; i<numSwaps; i++)
++			      swapoff(swapList[i]);
++		}
+ 	}
+ 
+ 	while (*argv != NULL)

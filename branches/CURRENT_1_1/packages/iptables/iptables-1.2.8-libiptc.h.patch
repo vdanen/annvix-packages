@@ -1,0 +1,11 @@
+diff -urNp --exclude-from=/home/quintela/config/misc/dontdiff iptables-1.2.8/iptables.c iptables-1.2.8b/iptables.c
+--- iptables-1.2.8/iptables.c	2003-09-09 09:34:05.000000000 +0200
++++ iptables-1.2.8b/iptables.c	2003-09-09 09:32:42.000000000 +0200
+@@ -39,6 +39,7 @@
+ #include <iptables.h>
+ #include <fcntl.h>
+ #include <sys/wait.h>
++#include "libiptc/libiptc.h"
+ 
+ #ifndef TRUE
+ #define TRUE 1
