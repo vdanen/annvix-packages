@@ -1,6 +1,6 @@
 %define name	%{ap_name}-%{mod_name}
 %define version	%{ap_version}_%{mod_version}
-%define release 2sls
+%define release 3sls
 
 # Module-Specific definitions
 %define mod_version	4.0.1a
@@ -64,10 +64,6 @@ for more information</p>
 
 <p>Meanwhile take a look at the %{ap_confd}/%{mod_conf} file</p>
 
-<p>Also please take the time to check out the 
-<a href=http://d-srv.com/modules_for_apache2.html>modules for apache2</a> 
-repository for Mandrake Linux.</p>
-
 <-- replace_me -->
 
 EOF
@@ -102,6 +98,9 @@ perl -pi -e "s|_REPLACE_ME_|$NEW_URL|g" %{buildroot}%{ap_confd}/%{mod_conf}
 %doc ChangeLog INSTALL README index.html
 
 %changelog
+* Tue Feb 24 2004 Vincent Danen <vdanen@opensls.org> 2.0.48_4.0.1a-3sls
+- fix the index.html
+
 * Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 2.0.48_4.0.1a-2sls
 - OpenSLS build
 - tidy spec
