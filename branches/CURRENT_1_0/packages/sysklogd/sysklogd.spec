@@ -1,6 +1,6 @@
 %define name	sysklogd
 %define version	1.4.1
-%define release	12avx
+%define release	13avx
 
 Summary:	System logging and kernel message trapping daemons.
 Name:		%{name}
@@ -117,6 +117,12 @@ fi
 
 
 %changelog
+* Sun Oct 17 2004 Vincent Danen <vdanen@annvix.org> 1.4.1-13avx
+- s/OpenSLS/Annvix/ in syslog.conf (re: Jean-Pierre Denis)
+- remove cron.* entries from syslog.conf because dcron logs to svlogd,
+  thus logs are in /var/log/supervise/crond (in other words, get rid of
+  useless empty 0 byte cron logs)
+
 * Fri Sep 17 2004 Vincent Danen <vdanen@annvix.org> 1.4.1-12avx
 - updated run scripts
 - minor spec cleanups
