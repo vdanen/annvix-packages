@@ -1,8 +1,6 @@
 %define name	js
 %define version	1.5
-%define release	0.%{lib_release}.7sls
-
-%{!?build_propolice:%global build_propolice 0}
+%define release	0.%{lib_release}.8avx
 
 %define lib_release	rc5
 %define major		1
@@ -61,12 +59,8 @@ cd src
 cd src
 perl -pi -e "s/-shared/-shared -lc -soname libjs.so.1/;" config/Linux_All.mk
 
-%if %{build_propolice}
 # undefined symbol errors, so for the moment don't enable stack protection
 OPTFLAGS="%{optflags} -fno-stack-protector -fPIC"
-%else
-OPTFLAGS="%{optflags} -fPIC"
-%endif
 
 #JMD: %make does *not* work!
 BUILD_OPT=1 CFLAGS=$OPTFLAGS make -f Makefile.ref 
@@ -116,6 +110,10 @@ install -m755 src/Linux_All_OPT.OBJ/%{name} %{buildroot}%{_bindir}/
 %{_libdir}/*.a
 
 %changelog
+* Thu Jun 24 2004 Vincent Danen <vdanen@annvix.org> 1.5-0.rc5.8avx
+- Annvix build
+- remove %%build_propolice macro, build with stack protection off by default
+
 * Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 1.5-0.rc5.7sls
 - minor spec cleanups
 
