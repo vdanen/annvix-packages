@@ -1,6 +1,6 @@
 %define name	postfix
 %define version	2.0.13
-%define release 8avx
+%define release 9avx
 %define epoch	1
 
 # If set to 0 if official version, 1 if snapshot
@@ -520,6 +520,9 @@ done
 
 
 %changelog
+* Tue Aug 17 2004 Vincent Danen <vdanen@annvix.org> 2.0.13-9avx
+- rebuild against latest openssl
+
 * Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 2.0.13-8avx
 - Annvix build
 
