@@ -1,6 +1,9 @@
 %define name	XFree86
 %define version 4.3
-%define release 24.1sls
+%define release 24.2sls
+
+%{!?build_opensls:%global build_opensls 0}
+%{!?build_propolice:%global build_propolice 0}
 
 %define _unpackaged_files_terminate_build 0
 %define baseversion 420
@@ -411,6 +414,7 @@ Provides:	XFree86-static-devel = %{version}-%{release}
 %{xfsta} includes the X11R6 static libraries needed to
 build statically linked programs.
 
+%if !%{build_opensls}
 %package doc
 Summary:	Documentation on various X11 programming interfaces
 Group:		System/XFree86
@@ -421,6 +425,7 @@ on the various X APIs, libraries, and other interfaces.  If you need
 low level X documentation, you will find it here.  Topics include the
 X protocol, the ICCCM window manager standard, ICE session management,
 the font server API, etc.
+%endif
 
 %package Xvfb
 Summary:	A virtual framebuffer X Windows System server for XFree86.
@@ -471,7 +476,8 @@ Obsoletes:	xserver-wrapper
 %description server
 XFree86-server is the new generation of X server from XFree86.
 
-%ifarch %{ix86}
+%if !%{build_opensls}
+%%ifarch %{ix86}
 %package glide-module
 Summary:	The glide module for XFree86 server.
 Group:		System/XFree86
@@ -480,6 +486,7 @@ BuildRequires:	Glide_V3-DRI-devel >= cvs-2mdk
 
 %description glide-module
 glide module for XFree86.
+%%endif
 %endif
 
 %package xfs
@@ -626,9 +633,10 @@ cd -
 %patch800 -p1 -b .branch-4.3
 %patch801 -p1 -b .xi-lock
 %patch802 -p1 -b .font-security
-%if %{build_propolice}
-%patch803 -p0 -b .propolice
-%endif
+# (vdanen) until we get this module thing sorted out...
+#%if %{build_propolice}
+#%patch803 -p0 -b .propolice
+#%endif
 
 # backup the original files (so we can look at them later) and use our own
 cp xc/nls/compose.dir xc/nls/compose.dir.orig
@@ -646,10 +654,10 @@ NO_MERGE_CONSTANTS=$(if %{__cc} -fno-merge-constants -S -o /dev/null -xc /dev/nu
 # Build with -fno-strict-aliasing if gcc >= 3.1 is used
 NO_STRICT_ALIASING=$(%{__cc} -dumpversion | awk -F "." '{ if (int($1)*100+int($2) >= 301) print "-fno-strict-aliasing" }')
 
-%if %{build_opensls}
+%if %{build_propolice}
 # (vdanen) for the time being, build without stack protection until we can
 # figure out how to build just the modules without protection
-RPM_OPT_FLAGS="$RPM_OPT_FLAGS -fno-stack-protector"
+RPM_OPT_FLAGS=`echo $RPM_OPT_FLAGS |sed 's/-fstack-protector//'`
 %endif
 
 %if ! %{BuildDebugVersion}
@@ -712,11 +720,13 @@ cat >xc/config/cf/host.def <<END
 #define UseXserverWrapper	YES
 #define BuildXF86DRI		YES
 #define BuildXF86DRM		NO
-%ifarch %{ix86}
+%if !%{build_opensls}
+%%ifarch %{ix86}
 #define HasGlide2		NO
 #define Glide2IncDir		/usr/include/glide2
 #define HasGlide3		YES
 #define Glide3IncDir		/usr/include/glide3
+%%endif
 %endif
 #define UseGccMakeDepend	NO
 #define HasLinuxInput		YES
@@ -816,6 +826,11 @@ mkdir mdk-fonts
 bzcat %{SOURCE151} | tar xf - -C mdk-fonts
 
 %build
+%if %{build_propolice}
+# (vdanen) for the time being, build without stack protection until we can
+# figure out how to build just the modules without protection
+RPM_OPT_FLAGS=`echo $RPM_OPT_FLAGS |sed 's/-fstack-protector//'`
+%endif
 
 %if ! %{BuildDebugVersion}
 # compiling with -g is too huge
@@ -1396,11 +1411,13 @@ rm -rf $RPM_BUILD_ROOT
 %doc /usr/X11R6/lib/X11/XF86Config-4.eg
 /usr/X11R6/bin/XFree86
 
-%ifarch %{ix86}
+%if !%{build_opensls}
+%%ifarch %{ix86}
 %files glide-module
 %defattr(-,root,root,-)
 #%{x11shlibdir}/modules/drivers/glide_drv.o
 %{x11shlibdir}/modules/dri/tdfx_dri.so
+%%endif
 %endif
 
 %files
@@ -1825,9 +1842,11 @@ rm -rf $RPM_BUILD_ROOT
 /usr/X11R6/bin/Xnest
 /usr/X11R6/man/man1/Xnest.1x*
 
+%if !%{build_opensls}
 %files doc
 %defattr(-,root,root,-)
 %doc xc/doc/hardcopy/*
+%endif
 
 %files 75dpi-fonts
 %defattr(-,root,root,-)
@@ -1912,6 +1931,10 @@ rm -rf $RPM_BUILD_ROOT
 %{x11libdir}/X11/xedit
 
 %changelog
+* Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 4.3-24.2sls
+- use %%build_opensls macro to not build -doc package
+- don't build glide stuff
+
 * Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 4.3-24.1sls
 - P803: enable propolice support or we get unresolved symbols
 - temporarily disable stack protection because the modules can't handle it;
