@@ -1,5 +1,5 @@
---- mkbootdisk-1.4.2/mkbootdisk.pix	Thu Aug 30 00:17:59 2001
-+++ mkbootdisk-1.4.2/mkbootdisk	Thu Aug 30 00:17:59 2001
+--- mkbootdisk-1.5.1/mkbootdisk-mdk	2004-05-13 20:53:22.729145617 +0200
++++ mkbootdisk-1.5.1/mkbootdisk	2004-05-13 20:55:03.941933806 +0200
 @@ -6,7 +6,8 @@
  
  pause=yes
@@ -8,11 +8,11 @@
 +device=/dev/floppy/0 ; [ -e $device ] || device=/dev/fd0
 +loop=/dev/loop/7 ; [ -e $device ] || device=/dev/loop7
  unset verbose
- unset witheth
- unset mkinitrdargs
-@@ -110,7 +111,7 @@
- [ -f /lib/modules/$kernel/fs/msdos.o ] &&
- 	withfs="$withfs --with msdos"
+ unset kernelargs
+ unset mountopts
+@@ -95,7 +96,7 @@
+ 
+ 
  # yves from chmou fix loopback devices
 -rootdev=`awk '$1 ~ /^[^#]/ && $2 == "/" { print $4 ~ /loop/ ? "/dev/loop7" : $1 }' /etc/fstab`
 +rootdev=`awk '$1 ~ /^[^#]/ && $2 == "/" { print $4 ~ /loop/ ? ENVIRON["loop"] : $1 }' /etc/fstab`
