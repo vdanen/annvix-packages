@@ -1,0 +1,33 @@
+--- devfsd/modules.devfs.orig	Sun Mar 17 21:38:23 2002
++++ devfsd/modules.devfs	Sun Mar 17 21:41:39 2002
+@@ -49,8 +52,9 @@
+ alias     /dev/sd*		/dev/sd
+ 
+ # SCSI CD-ROMs
+ probeall  /dev/sr		scsi_hostadapter sr_mod
+-alias     /dev/sr*		/dev/sr
++probeall  /dev/scd		scsi_hostadapter sr_mod
++alias     /dev/scd*		/dev/scd
+-alias     /dev/scsi/*/cd	sr_mod
++alias     /dev/scsi/*/cd	/dev/scd
+ 
+ # SCSI tapes
+--- devfsd0/compat_name.c	2002-08-17 18:46:21.000000000 +0200
++++ devfsd/compat_name.c	2002-08-17 19:07:26.000000000 +0200
+@@ -111,6 +112,7 @@
+     {"loop/",      "loop%s"},
+     {"floppy/",    "fd%s"},
+     {"cdroms/",    NULL},
++    {"scd",    "sr%s"},
+     {"rd/",        "ram%s"},
+     {"pg/",      "pg%s"},           /*  Parallel port generic ATAPI interface*/
+     {"md/",        "md%s"},         /*  Meta-devices                         */
+@@ -201,7 +196,7 @@
+ 	}
+ 	else if (strcmp (devname + namelen - 2, "cd") == 0)
+ 	{
+-	    sprintf (buffer, "sr%u", minor);
++	    sprintf (buffer, "scd%u", minor);
+ 	    compat_name = buffer;
+ 	}
+ 	else if (strcmp (devname + namelen - 4, "disc") == 0)
