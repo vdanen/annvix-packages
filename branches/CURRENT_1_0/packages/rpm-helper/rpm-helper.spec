@@ -1,6 +1,6 @@
 %define name	rpm-helper
 %define version	0.9.1
-%define release	9avx
+%define release	10avx
 
 Summary:	Helper scripts for rpm scriptlets
 Name:		%{name}
@@ -46,6 +46,9 @@ chmod 755 {add,del}-srv
 %_datadir/%name/*
 
 %changelog
+* Tue Sep 21 2004 Vincent Danen <vdanen@annvix.org> 0.9.1-10avx
+- fix add-srv scriptlet again; we need to grep for "run" not "up"
+
 * Tue Sep 21 2004 Vincent Danen <vdanen@annvix.org> 0.9.1-9avx
 - fix add-srv scriptlet; now we test if a service exists before trying
   to run runsvstat on it, and we also redirect runsvstat's output to
