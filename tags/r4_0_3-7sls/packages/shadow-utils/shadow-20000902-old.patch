@@ -1,0 +1,13 @@
+This directory doesn't exist when you extract the sources -- newer autoconf
+complains about that.
+--- shadow-20000902/configure.in	Fri Jan 25 16:55:10 2002
++++ shadow-20000902/configure.in	Fri Jan 25 16:55:07 2002
+@@ -305,7 +305,7 @@
+ 	lib/Makefile src/Makefile Makefile
+ 	contrib/Makefile debian/Makefile doc/Makefile etc/Makefile
+ 	intl/Makefile intl/po2tbl.sed po/Makefile.in
+-	etc/pam.d/Makefile old/Makefile
++	etc/pam.d/Makefile
+ 	redhat/Makefile redhat/shadow-utils.spec,
+ 	echo timestamp > stamp-h)
+ 
