@@ -1,6 +1,6 @@
 %define name	cyrus-sasl
-%define version	2.1.19
-%define release	4avx
+%define version	2.1.20
+%define release	1avx
 
 %define major	2
 %define libname	%mklibname sasl %{major}
@@ -19,11 +19,10 @@ Source3:        saslauthd.sysconfig
 Source4:	saslauthd.run
 Source5:	saslauthd-log.run
 Source6:	saslauthd.8.bz2
-Patch0:		cyrus-sasl-doc-patch.bz2
+Patch0:		cyrus-sasl-2.1.20-avx-doc.patch.bz2
 Patch1:		cyrus-sasl-2.1.19-mdk-no_rpath.patch.bz2
 Patch2:		cyrus-sasl-2.1.15-mdk-lib64.patch.bz2
-Patch3:		cyrus-sasl-2.1.17-fdr-gssapi-dynamic.patch.bz2
-Patch4:		cyrus-sasl-CAN-2004-0884.patch.bz2
+Patch3:		cyrus-sasl-2.1.20-fdr-gssapi-dynamic.patch.bz2
 Patch5:		cyrus-sasl-2.1.19-mdk-pic.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
@@ -193,7 +192,6 @@ supporting MySQL and PostgreSQL.
 %patch1 -p1 -b .rpath
 %patch2 -p1 -b .lib64
 %patch3 -p1 -b .gssapi
-%patch4 -p0 -b .can-2004-0884
 %patch5 -p1 -b .pic
 
 rm -f config/ltconfig config/libtool.m4
@@ -398,6 +396,11 @@ fi
 %{_mandir}/man3/*
  
 %changelog
+* Tue Mar 15 2005 Vincent Danen <vdanen@annvix.org> 2.1.20-1avx
+- 2.1.20
+- rediff P0, P3
+- drop P4; merged upstream
+
 * Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 2.1.19-4avx
 - multiarch
 - use automake1.8 (bluca)
