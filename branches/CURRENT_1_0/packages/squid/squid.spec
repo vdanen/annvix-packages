@@ -1,8 +1,8 @@
 %define name	squid
-%define version	2.5.STABLE5
-%define release	6avx
+%define version	2.5.STABLE7
+%define release	1avx
 
-%define their_version	2.5.STABLE5
+%define their_version	2.5.STABLE7
 %define p_url   http://www.squid-cache.org/Versions/v2/2.5/bugs
 %define p_name  squid-2.5.stable5
 
@@ -32,26 +32,14 @@ Source11:	squid.run
 Source12:	squid-log.run
 Source13:	squid.stop
 Source14:	squid.sysconfig.bz2
-Patch0:		squid-2.5.STABLE2-make.patch.bz2
+Patch0:		squid-2.5.STABLE7-avx-make.patch.bz2
 Patch1:		squid-2.5-config.patch.bz2
-Patch2:		squid-2.5.STABLE3-user_group.patch.bz2
+Patch2:		squid-2.5.STABLE7-avx-user_group.patch.bz2
 Patch3:		squid-2.5.STABLE2-ssl.patch.bz2
 Patch4:		squid-2.5.STABLE5-pipe.patch.bz2
-Patch5:		squid-2.5.STABLE5-warning.patch.bz2
-Patch6:		squid-2.5.STABLE5-ntlm_fetch_string.patch.bz2
-Patch100:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE5-post_assert.patch.bz2
-Patch101:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE5-digest_blank.patch.bz2
-Patch102:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE5-rfc1035NameUnpack.patch.bz2
-Patch103:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE5-ntlm_assert.patch.bz2
-Patch104:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE5-ldap.patch.bz2
-Patch105:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE5-helper_warning.patch.bz2
-Patch106:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE5-pkgconfig.patch.bz2
-Patch107:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE5-vary.patch.bz2
-Patch108:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE5-lin22_poll.patch.bz2
-Patch109:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE5-version.patch.bz2
-Patch110:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE5-deny_info.patch.bz2
-Patch111:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE5-CONNECT_timeout.patch.bz2
-Patch112:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE5-cache_swap_log.patch.bz2
+# Upstream bugfix patches
+Patch100:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE7-LDAP_version_documentation.patch.bz2
+Patch101:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE7-half_closed_POST.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-root
 BuildRequires:	openldap-devel libsasl-devel openssl-devel >= 0.9.7 pam-devel
@@ -80,21 +68,8 @@ Install squid if you need a proxy caching server.
 %patch0 -p1
 %patch3 -p1 -b .ssl
 %patch4 -p1 -b .pipe
-%patch5 -p1 -b .warning
-%patch6 -p1 -b .can-2004-0832
 %patch100 -p1
 %patch101 -p1
-%patch102 -p1
-%patch103 -p1
-%patch104 -p1
-%patch105 -p1
-%patch106 -p1
-%patch107 -p1
-%patch108 -p1
-%patch109 -p1
-%patch110 -p1
-%patch111 -p1
-%patch112 -p1
 
 bzcat %{SOURCE10} > helpers/basic_auth/winbind/winbindd_nss.h
 bzcat %{SOURCE10} > helpers/ntlm_auth/winbind/winbindd_nss.h
@@ -366,6 +341,12 @@ fi
 %attr(0750,nobody,nogroup) %dir %{_srvlogdir}/squid
 
 %changelog
+* Tue Oct 17 2004 Vincent Danen <vdanen@annvix.org> 2.5.STABLE7-1avx
+- 2.5.STABLE7 (fixes CAN-2004-0918)
+- regen P0, P2
+- drop P5, P6, P100-P1112 (merged upstream)
+- add new P100, P101 (STABLE7 fixes)
+
 * Mon Sep 20 2004 Vincent Danen <vdanen@annvix.org> 2.5.STABLE5-6avx
 - update run scripts
 
