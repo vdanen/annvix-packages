@@ -1,7 +1,6 @@
-# do not change the version here, change in MDK/Common.pm.pl
 %define name	perl-MDK-Common
-%define version 1.1.6
-%define release 7avx
+%define version 1.1.18
+%define release 1avx
 
 %ifarch x86_64
 %define build_option	PERL_CHECKER_TARGET='debug-code BCSUFFIX=""'
@@ -11,7 +10,7 @@
 %define require_ocaml	%nil
 %endif
 
-Summary:	Various simple functions
+Summary:	Various simple functions for Mandrakelinux tools
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -21,18 +20,12 @@ URL:		http://cvs.mandrakesoft.com/cgi-bin/cvsweb.cgi/soft/perl-MDK-Common/
 Source0:	%{name}.tar.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-buildroot
-BuildRequires:	ocaml >= 3.06
+BuildRequires:	ocaml >= 3.08
 
 Conflicts:	drakxtools-newt < 9.1-30mdk, drakconf < 9.1-14mdk
-Provides:	perl(MDK::Common) = %{version}
-Provides:	perl(MDK::Common::DataStructure)  
-Provides:	perl(MDK::Common::File)  
-Provides:	perl(MDK::Common::Func)  
-Provides:	perl(MDK::Common::Globals)  
-Provides:	perl(MDK::Common::Math)  
-Provides:	perl(MDK::Common::String)  
-Provides:	perl(MDK::Common::System)  
-Provides:	perl(MDK::Common::Various)  
+
+%description
+Various simple functions created for DrakX
 
 
 %package devel
@@ -40,9 +33,6 @@ Summary:	Various verifying scripts
 Group:		Development/Perl
 AutoReqProv:	0
 Requires:	perl-base >= 2:5.8.0 %{require_ocaml}
-
-%description
-Various simple functions created for DrakX
 
 %description devel
 Various verifying scripts created for DrakX
@@ -55,7 +45,10 @@ make test %build_option
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-make install PREFIX="$RPM_BUILD_ROOT%{_prefix}" %build_option
+%makeinstall_std %build_option
+
+# remove unwanted files
+rm -rf %{buildroot}%{_sysconfdir}/emacs
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -64,16 +57,22 @@ make install PREFIX="$RPM_BUILD_ROOT%{_prefix}" %build_option
 %defattr(-,root,root)
 %doc COPYING
 %dir %{perl_vendorlib}/MDK
-%{perl_vendorlib}/MDK
+%{perl_vendorlib}/MDK/*
 
 %files devel
 %defattr(-,root,root)
-%doc index.html tutorial.html
+%doc index.html tutorial.html perl_checker.src/perl_checker.html
 %{_bindir}/*
 %{perl_vendorlib}/perl_checker_fake_packages
+%{_datadir}/vim/ftplugin/*
 
 
 %changelog
+* Tue Sep 14 2004 Vincent Danen <vdanen@annvix.org> 1.1.18-1avx
+- 1.1.18
+- remove unwanted emacs files
+- require newer ocaml
+
 * Sat Jun 26 2004 Vincent Danen <vdanen@annvix.org> 1.1.6-7avx
 - Annvix build
 
