@@ -1,6 +1,6 @@
 %define name	apache-conf
-%define version	2.0.49
-%define release	7avx
+%define version	2.0.52
+%define release	1avx
 
 # OE: conditional switches
 #(ie. use with rpm --rebuild):
@@ -66,6 +66,9 @@ Source53:	ap13chkconfig
 Source54:	advxrun1.3
 Source55:	advxrun2.0
 Source99:	README.apache-conf
+Source100:	httpd2.run
+Source101:	httpd2-log.run
+Source102:	03_apache2.afterboot
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
 BuildPreReq:	ADVX-build >= 9.2
@@ -80,7 +83,7 @@ Provides:	ADVXpackage
 Provides:	AP20package
 #JMD: We have to do this here, since files have moved
 Obsoletes:	apache-common
-PreReq:		rpm-helper
+PreReq:		rpm-helper, afterboot
 
 %description
 This package contains configuration files for apache and 
@@ -224,6 +227,15 @@ install -m755 %{SOURCE55} %{buildroot}%{_sbindir}
 mkdir -p %{buildroot}%{_docdir}/apache2-conf-%{version}
 install -m644 %{SOURCE99} %{buildroot}%{_docdir}/apache2-conf-%{version}
 
+mkdir -p %{buildroot}%{_srvdir}/httpd2/log
+mkdir -p %{buildroot}%{_srvlogdir}/httpd2
+install -m 0755 %{SOURCE100} %{buildroot}%{_srvdir}/httpd2/run
+install -m 0755 %{SOURCE101} %{buildroot}%{_srvdir}/httpd2/log/run
+
+mkdir -p %{buildroot}%{_datadir}/afterboot
+install -m 0644 %{SOURCE102} %{buildroot}%{_datadir}/afterboot/03_apache2
+
+
 #Apache 1.3 compatibility
 mkdir -p %{buildroot}%{_libdir}/apache-extramodules
 mkdir -p %{buildroot}%{ap_base}/apache-extramodules
@@ -233,6 +245,7 @@ ln -sf ../..%{_libdir}/apache-extramodules \
 
 %pre
 %_pre_useradd apache /var/www /bin/sh 74
+%_mkafterboot
 
 %post
 if [ $1 = "1" ]; then
@@ -249,6 +262,7 @@ fi
 
 %postun
 %_postun_userdel apache
+%_mkafterboot
 
 %clean
 [ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
@@ -299,8 +313,20 @@ fi
 #JMD: For compatibility with Apache 1.3
 #JMD: *never remove this!* 1333 is the *right* permission.
 %attr(1333,apache,apache) %dir /var/apache-mm
+%dir %{_srvdir}/httpd2
+%dir %{_srvdir}/httpd2/log
+%{_srvdir}/httpd2/run
+%{_srvdir}/httpd2/log/run
+%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/httpd2
+%{_datadir}/afterboot/03_apache2
 
 %changelog
+* Thu Oct 14 2004 Vincent Danen <vdanen@annvix.org> 2.0.50-1avx
+- 2.0.52
+- move runscripts and afterboot snippet here from apache2
+- update the default index.shtml and related pages; make it more
+  Annvix specific and clean it up (what an awful mess)
+
 * Fri Sep 17 2004 Vincent Danen <vdanen@annvix.org> 2.0.49-7avx
 - update logrotate script
 
