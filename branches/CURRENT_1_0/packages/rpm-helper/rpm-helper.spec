@@ -1,6 +1,6 @@
 %define name	rpm-helper
 %define version	0.9.1
-%define release	6avx
+%define release	7avx
 
 Summary:	Helper scripts for rpm scriptlets
 Name:		%{name}
@@ -10,7 +10,7 @@ License:	GPL
 Group:		System/Configuration/Packaging
 URL:		http://www.mandrakelinux.com/
 Source0:	%name-%version.tar.bz2
-Patch0:		annvix-supervise.patch.bz2
+Patch0:		rpm-helper-0.9.1-avx-supervise.patch.bz2
 
 BuildArch:	noarch
 BuildRoot:	%_tmppath/%name-buildroot
@@ -46,6 +46,10 @@ chmod 755 {add,del}-srv
 %_datadir/%name/*
 
 %changelog
+* Mon Jul 05 2004 Vincent Danen <vdanen@annvix.org> 0.9.1-7avx
+- fix P0; some services were not restarting on upgrade and it was due
+  to grep not being quiet
+
 * Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 0.9.1-6avx
 - Annvix build
 
