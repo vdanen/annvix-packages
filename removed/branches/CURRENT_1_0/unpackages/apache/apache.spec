@@ -1,6 +1,6 @@
 %define name	apache
-%define version	1.3.29
-%define release	4sls
+%define version	1.3.31
+%define release	1sls
 
 # New ADVX macros
 %define ADVXdir %{_datadir}/ADVX
@@ -16,7 +16,7 @@
 
 %define apache_version		%{version}
 %define apache_release		%{release}
-%define EAPI_version		2.8.16
+%define EAPI_version		2.8.17
 %define modssl_apache_version	%{apache_version}
 
 Summary:	The Apache web server
@@ -38,7 +38,7 @@ Patch1:		apache_1.3.11-apxs.patch.bz2
 Patch2:		apache_1.3.26-srvroot.patch.bz2
 Patch3:		apache-1.3.23-dbm.patch.bz2
 Patch4:		Configuration.diff.bz2
-Patch5:		apache-1.3.29-baseversion.patch.bz2
+Patch5:		apache-1.3.31-baseversion.patch.bz2
 Patch6:		apache-1.3.14-mkstemp.patch.bz2
 Patch8:		apache-1.3.20.manpage.patch.bz2
 Patch9:		apache-1.3.22-man.patch.bz2
@@ -360,6 +360,11 @@ install -m 0750 %{SOURCE7} %{buildroot}%{_srvdir}/apache/log/run
 /usr/src/apache_%{apache_version}
 
 %changelog
+* Mon May 17 2004 Vincent Danen <vdanen@opensls.org> 1.3.31-1sls
+- 1.3.31
+- mod_ssl 2.8.17
+- rediff P5
+
 * Mon Mar 02 2004 Vincent Danen <vdanen@opensls.org> 1.3.29-4sls
 - supervise scripts
 
