@@ -3,7 +3,7 @@
 
 # <version>-<release> tags for glibc main package
 %define glibcversion	2.3.2
-%define glibcrelease	23avx
+%define glibcrelease	24avx
 %define epoch		6
 
 # <version>-<release> tags from kernel package where headers were
@@ -173,6 +173,7 @@ Patch39:	glibc-2.3.2-iofwide.patch.bz2
 Patch40:	glibc-2.3.2-i586-if-no-cmov.patch.bz2
 Patch41:	glibc-2.3.2-propolice.patch.bz2
 Patch42:	crypt_blowfish-glibc-2.2.diff.bz2
+Patch43:	glibc-2.3.2-trustix-tempfile.patch.bz2
 
 # Generated from Kernel RPM
 Patch100:	kernel-headers-include-%{kheaders_ver}.%{kheaders_rel}.patch.bz2
@@ -453,6 +454,7 @@ GNU C library in PDF format.
 rm crypt_blowfish-*/crypt.h
 cp -a crypt_blowfish-*/*.[chS] crypt
 %patch42 -p0 -b .blowfish
+%patch43 -p1 -b .can-2004-0968
 
 # If we are building enablekernel 2.x.y glibc on older kernel,
 # we have to make sure no binaries compiled against that glibc
@@ -1314,6 +1316,9 @@ fi
 %endif
 
 %changelog
+* Mon Dec 20 2004 Vincent Danen <vdanen@annvix.org> 2.3.2-24avx
+- P43: patch from Trustix to fix CAN-2004-0968
+
 * Sat Sep 18 2004 Vincent Danen <vdanen@annvix.org> 2.3.2-23avx
 - update run scripts
 - give nscd a finish script
