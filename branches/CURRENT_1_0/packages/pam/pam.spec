@@ -1,12 +1,9 @@
 %define name	pam
 %define version	0.77
-%define release	10sls
+%define release	10.1sls
 
 %define rhrelease	1
-%define pwdb_version	0.62
 %define db_version	4.1.25
-
-%{!?build_opensls:%global build_opensls 0}
 
 Summary:	A security tool which provides authentication for applications.
 Name:		%{name}
@@ -20,6 +17,20 @@ Source1:	pam-redhat-%{version}-%{rhrelease}.tar.bz2
 Source2:	other.pamd
 Source3:	system-auth.pamd
 Source4:	install-sh
+# From SUSE
+Source10:	ftp://ftp.suse.com/pub/people/kukuk/pam/pam_unix2/pam_unix2-1.18.tar.bz2
+Source11:	ftp://ftp.suse.com/pub/people/kukuk/pam/pam_pwcheck/pam_pwcheck-2.4.tar.bz2
+Source12:	pam_homecheck-1.3.tar.bz2
+Source14:	pam_make-0.1.tar.bz2
+Source15:	http://www.openwall.com/pam/modules/pam_passwdqc/pam_passwdqc-0.7.3.tar.bz2
+Source16:	http://www.openwall.com/pam/modules/pam_userpass/pam_userpass-0.5.1.tar.bz2
+Source17:	http://www.openwall.com/pam/modules/pam_mktemp/pam_mktemp-0.2.4.tar.bz2
+Source20:	README.blowfish
+Source21:	README.cracklib
+Source22:	README.md5
+Source24:	unix2_chkpwd.c
+Source25:	unix_chkpwd.8
+Source26:	unix2_chkpwd.8
 Patch0:		pam-0.77-modutil-thread.patch.bz2
 Patch1:		pam-0.77-include_path.patch.bz2
 Patch2:		pam-0.77-build.patch.bz2
@@ -70,11 +81,17 @@ Patch510:	pam-0.77-sigchld.patch.bz2
 Patch511:	pam-0.77-verbose-limits.patch.bz2
 Patch512:	pam-0.77-xauth-groups.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-root
-BuildRequires:	bison cracklib-devel flex glib-devel pwdb-devel
-BuildRequires:	db4-devel
+# From SUSE:
+Patch600:	pam_unix2.dif
+Patch602:	pam_make-0.1.dif
+Patch603:	pam_passwdqc-0.7.3.dif
+Patch604:	pam_userpass-0.5.1.dif
+Patch605:	pam_mktemp-0.2.4.dif
 
-Requires:	cracklib-dicts, pwdb >= 0.54-2, initscripts >= 3.94
+BuildRoot:	%{_tmppath}/%{name}-%{version}-root
+BuildRequires:	bison cracklib-devel flex db4-devel libxcrypt-devel
+
+Requires:	cracklib-dicts, initscripts >= 3.94
 PreReq:		rpm-helper
 Obsoletes:	pamconfig
 Provides:	pamconfig
@@ -83,21 +100,6 @@ Provides:	pamconfig
 PAM (Pluggable Authentication Modules) is a system security tool
 which allows system administrators to set authentication policy
 without having to recompile programs which do authentication.
-
-%if !%{build_opensls}
-%package doc
-Summary:	Additional documentation for %{name}
-Group:		System/Libraries
-PreReq:		%{name} = %version-%release
-BuildRequires:	tetex-latex sgml-tools linuxdoc-tools
-
-%description doc
-PAM (Pluggable Authentication Modules) is a system security tool which
-allows system administrators to set authentication policy without
-having to recompile programs which do authentication.
-
-This is the documentation package of %{name}
-%endif
 
 %package devel
 Summary:	Development headers and libraries for %{name}
@@ -112,7 +114,7 @@ without having to recompile programs which do authentication.
 This is the devlopement librairies for %{name}
 
 %prep
-%setup -q -n Linux-PAM-%{version} -a 1
+%setup -q -n Linux-PAM-%{version} -a 1 -a 10 -a 11 -a 12 -a 14 -a 15 -a 16 -a 17
 cp %{SOURCE4} .
 
 %patch0  -p1 -b .modutil-thread
@@ -147,7 +149,7 @@ cp %{SOURCE4} .
 %patch29 -p1 -b .multicrack
 %patch30 -p1 -b .isa
 %patch31 -p1 -b .utmp-dev
-%patch32 -p1 -b .pwdb-static
+#%patch32 -p1 -b .pwdb-static
 %patch33 -p1 -b .nss-reentrant
 %patch34 -p1 -b .dbpam
 
@@ -164,12 +166,31 @@ cp %{SOURCE4} .
 %patch511 -p1 -b .verbose-limits
 %patch512 -p1 -b .xauth-groups
 
+pushd pam_unix2-*
+%patch600 -p0 -b .pam_unix2
+popd
+pushd pam_make-*
+%patch602 -p0 -b .pam_make
+popd
+pushd pam_passwdqc-*
+%patch603 -p0 -b .pam_passwdqc
+popd
+pushd pam_userpass-*
+%patch604 -p0 -b .pam_userpass
+popd
+pushd pam_mktemp-*
+%patch605 -p0 -b .pam_mktemp
+popd
+
 for readme in modules/pam_*/README ; do
 	cp -fv ${readme} doc/txts/README.`dirname ${readme} | sed -e 's|^modules/||'`
 done
 autoconf
 
 %build
+# get rid of modules we don't want from here
+rm -rf modules/pam_{console,pwdb,radius}
+
 CFLAGS="$RPM_OPT_FLAGS -fPIC" \
 ./configure \
 	--prefix=/ \
@@ -181,6 +202,25 @@ CFLAGS="$RPM_OPT_FLAGS -fPIC" \
 	--enable-fakeroot=$RPM_BUILD_ROOT
 # %%make doesn't work
 make
+
+# extra modules
+cd $RPM_BUILD_DIR/Linux-PAM-%{version}
+for i in pam_* ; do
+  cd $i;
+  if [ -x configure ] ; then
+    CFLAGS="$RPM_OPT_FLAGS -fPIC" \
+      ./configure --prefix=/ --libdir=/%{_lib} --infodir=%{_infodir} \
+      --mandir=%{_mandir} --enable-static-libpam --enable-securedir=/%{_lib}/security \
+      --enable-fakeroot=$RPM_BUILD_ROOT
+    make
+  else
+     make CFLAGS="$RPM_OPT_FLAGS -fPIC -DHAVE_SHADOW -DLINUX_PAM"
+  fi
+  cd ..
+done
+
+gcc -o $RPM_BUILD_DIR/unix2_chkpwd $RPM_OPT_FLAGS %{SOURCE24} -lpam
+
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -208,12 +248,43 @@ if [ -d ${dir} ] ; then
 fi
 done
 
-#remove unpackaged files
+# install the extra modules
+install -m 0755 $RPM_BUILD_DIR/unix2_chkpwd $RPM_BUILD_ROOT/sbin
+for i in pam_* ; do
+  cd $i
+  make DESTDIR=$RPM_BUILD_ROOT install
+  cd ..
+done
+
+# remove pam_unix.so and make a hardlink to pam_unix2.so
+rm -f $RPM_BUILD_ROOT/%{_lib}/security/pam_unix.so
+ln -f $RPM_BUILD_ROOT/%{_lib}/security/pam_unix2.so $RPM_BUILD_ROOT/%{_lib}/security/pam_unix.so
+
+# install some README's
+mkdir modules-doc
+for i in pam_*/README ; do
+  cp -fpv ${i} modules-doc/README.`dirname ${i}`
+done
+cd modules
+for i in pam_*/README ; do
+  cp -fpv ${i} ../modules-doc/README.`dirname ${i}`
+done
+cd ..
+cp %{SOURCE20} modules-doc
+cp %{SOURCE21} modules-doc
+cp %{SOURCE22} modules-doc
+
+# the extra manpages
+install -m 0644 %{SOURCE25} $RPM_BUILD_ROOT%{_mandir}/man8/
+install -m 0644 %{SOURCE26} $RPM_BUILD_ROOT%{_mandir}/man8/
+
+# remove unpackaged files
 rm -rf $RPM_BUILD_ROOT/%{_lib}/libpam{.a,c.*} \
   $RPM_BUILD_ROOT/%{_lib}/security/pam_filter/upperLOWER \
   $RPM_BUILD_ROOT%{_sysconfdir}/security/chroot.conf \
   $RPM_BUILD_ROOT%{_prefix}/doc/Linux-PAM \
-  $RPM_BUILD_ROOT%{_datadir}/doc/pam
+  $RPM_BUILD_ROOT%{_datadir}/doc/pam \
+  $RPM_BUILD_ROOT%{_initrddir}/boot.restore_permissions
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -226,6 +297,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root)
+%doc modules-doc/*
 %dir /etc/pam.d
 %config(noreplace) /etc/pam.d/other
 %config(noreplace) /etc/pam.d/system-auth
@@ -234,19 +306,17 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) /etc/security/group.conf
 %config(noreplace) /etc/security/limits.conf
 %config(noreplace) /etc/security/pam_env.conf
-%config(noreplace) /etc/security/console.perms
+%config(noreplace) /etc/security/pam_pwcheck.conf
+%config(noreplace) /etc/security/pam_unix2.conf
 /%{_lib}/libpam.so.*
 /%{_lib}/libpam_misc.so.*
-%attr(4755,root,root) /sbin/pwdb_chkpwd
+#%attr(4755,root,root) /sbin/pwdb_chkpwd
 /sbin/unix_chkpwd
-/sbin/pam_console_apply
 /sbin/pam_tally
 /sbin/pam_timestamp_check
+/sbin/unix2_chkpwd
 %dir /%{_lib}/security
 /%{_lib}/security/*.so
-%dir /etc/security/console.apps
-%dir /var/run/console
-%{_mandir}/man5/*
 %{_mandir}/man8/*
 
 %files devel
@@ -258,13 +328,19 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/security/*.h
 %{_mandir}/man3/*
 
-%if !%{build_opensls}
-%files doc
-%defattr(-,root,root)
-%doc doc/html doc/ps doc/txts doc/pdf doc/specs/rfc86.0.txt Copyright
-%endif
-
 %changelog
+* Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 0.77-10.1sls
+- remove glib-devel and pwdb/pwdb-devel BuildReq/Req's
+- don't apply P32 (pwdb-static.patch)
+- remove %%build_opensls macros... this one is OpenSLS-specific
+- don't build pam_console
+- don't build pam_pwdb
+- don't build pam_radius (requires pwdb)
+- BuildRequires: libxcrypt-devel
+- new modules based on SUSE pam-modules: pam_unix2, pam_pwcheck,
+  pam_homecheck, pam_make
+- new owl modules: pam_passwdqc, pam_userpass, pam_mktemp
+
 * Wed Dec 03 2003 Vincent Danen <vdanen@opensls.org> 0.77-10sls
 - OpenSLS build
 - tidy spec

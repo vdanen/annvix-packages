@@ -1,14 +1,15 @@
 #%PAM-1.0
 
-auth        required      /lib/security/pam_env.so
-auth        sufficient    /lib/security/pam_unix.so likeauth nullok
-auth        required      /lib/security/pam_deny.so
+auth		required	pam_env.so
+auth		sufficient	pam_unix2.so nullok
+auth		required	pam_deny.so
 
-account     required      /lib/security/pam_unix.so
+account		required	pam_unix2.so
 
-password    required      /lib/security/pam_cracklib.so retry=3
-password    sufficient    /lib/security/pam_unix.so nullok use_authtok md5 shadow
-password    required      /lib/security/pam_deny.so
+#password	required	pam_cracklib.so retry=3
+password	required	pam_pwcheck.so nullok
+password	required	pam_unix2.so nullok use_authtok
+password	required	pam_deny.so
 
-session     required      /lib/security/pam_limits.so
-session     required      /lib/security/pam_unix.so
+session		required	pam_limits.so
+session		required	pam_unix2.so
