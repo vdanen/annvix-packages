@@ -1,7 +1,7 @@
 %define name 	nss_ldap
-%define version 207
-%define release 7avx
-%define pam_ldap_version 164
+%define version 220
+%define release 1avx
+%define pam_ldap_version 169
 
 Summary:	NSS library and PAM module for LDAP.
 Name: 		%{name}
@@ -14,11 +14,10 @@ Source0:	%{name}-%{version}.tar.bz2
 Source1: 	pam_ldap-%{pam_ldap_version}.tar.bz2
 Source2:	ldap-mdk.conf
 Patch0:		nss_ldap-makefile.patch.bz2
-Patch1:		nss_ldap-150-db3.patch.bz2
+Patch1:		nss_ldap-220-avx-db4.patch.bz2
 Patch2:		pam_ldap-156-makefile.patch.bz2
 Patch3: 	pam_ldap-107-dnsconfig.patch.bz2
 Patch4:		pam_ldap-164-fix-duplicate-definition.patch.bz2
-Patch5:		nss_ldap-207-db4.patch.bz2
 
 BuildRoot: 	%{_tmppath}/%{name}-%{version}-buildroot
 BuildRequires:	db4-devel >= 4.1.25
@@ -40,7 +39,7 @@ Release: 	%{release}
 License:	LGPL
 Group:		System/Libraries
 URL: 		http://www.padl.com/
-Requires:	nss_ldap >= 207
+Requires:	nss_ldap >= %{version}
 
 %description -n pam_ldap
 Pam_ldap is a module for Linux-PAM that supports password changes, V2
@@ -52,8 +51,7 @@ Install nss_ldap if you need LDAP access clients.
 %prep
 %setup -q -a 1
 %patch0 -p1 -b .makefile
-%patch1 -p1 -b .db3
-%patch5 -p1 -b .db4
+%patch1 -p1 -b .db4
 pushd pam_ldap-%{pam_ldap_version}
 %patch2 -p1 -b .pam_makefile
 %patch3 -p1 -b .dnsconfig
@@ -66,7 +64,8 @@ popd
 %build
 %serverbuild
 # Build nss_ldap.
-aclocal && automake && autoheader && autoconf
+#aclocal && automake && autoheader && autoconf
+autoreconf
 %configure --enable-schema-mapping --with-ldap-lib=openldap --enable-debug \
 --enable-rfc2307bis --enable-ids-uid --libdir=/%_lib
 %__make INST_UID=`id -u` INST_GID=`id -g`
@@ -128,6 +127,13 @@ rm -rf %{buildroot}%{_libdir}/libnss_ldap.so.2
 /%_lib/security/*so*
 
 %changelog
+* Wed Jun 30 2004 Vincent Danen <vdanen@annvix.org> 220-1avx
+- pam_ldap 169
+- nss_ldap 220
+- remove P1 (obsolete)
+- rediff P5 and rename to P1
+- always have pam_ldap require this packaged version of nss_ldap
+
 * Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 207-7avx
 - Annvix build
 
