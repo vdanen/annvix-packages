@@ -1,6 +1,6 @@
 %define name	portmap
 %define version	4.0
-%define release	25sls
+%define release	26avx
 %define ver	4
 
 Summary:	A program which manages RPC connections
@@ -26,7 +26,7 @@ Patch5:		portmap-4.0-errno.patch.bz2
 BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
 BuildRequires:	tcp_wrappers-devel
 
-Prereq:		/sbin/chkconfig, rpm-helper
+Prereq:		rpm-helper
 Requires:	setup >= 2.1.9-38mdk
 
 %description
@@ -104,7 +104,11 @@ install -m 0755 %{SOURCE6} %{buildroot}%{_srvdir}/portmap/log/run
 
 
 %changelog
-* Tue Feb 03 2004 Vincent Danen <vdanen@opensls.org> 4.0-24sls
+* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 4.0-26avx
+- remove req on chkconfig
+- Annvix build
+
+* Tue Feb 03 2004 Vincent Danen <vdanen@opensls.org> 4.0-25sls
 - minor spec cleanups
 - srv macros
 
