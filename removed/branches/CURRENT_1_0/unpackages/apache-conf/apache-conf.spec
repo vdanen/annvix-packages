@@ -1,17 +1,6 @@
 %define name	apache-conf
 %define version	2.0.52
-%define release	1avx
-
-# OE: conditional switches
-#(ie. use with rpm --rebuild):
-#	--with diet	Compile advxsplitlogfile against dietlibc
-# regarding "--with diet", check: http://d-srv.com/Cooker/apache2-conf-2_0_40ADVX-14mdk.html
-
-%define build_diet 0
-
-# commandline overrides:
-# rpm -ba|--rebuild --with 'xxx'
-%{?_with_diet: %{expand: %%define build_diet 1}}
+%define release	2avx
 
 # New ADVX macros
 %define ADVXdir %{_datadir}/ADVX
@@ -28,7 +17,6 @@ Release:	%{release}
 License:	Apache License
 Group:		System/Servers
 URL:		http://www.advx.org
-Source0:	httpd.init.mandrake
 Source1:	httpd2.conf
 Source2:	httpd2-perl.conf
 Source3:	mime.types
@@ -63,8 +51,7 @@ Source46:	advx-cleanremove
 Source51:	httpd.conf
 Source52:	httpd-perl.conf
 Source53:	ap13chkconfig
-Source54:	advxrun1.3
-Source55:	advxrun2.0
+Source98:	robots.txt
 Source99:	README.apache-conf
 Source100:	httpd2.run
 Source101:	httpd2-log.run
@@ -72,13 +59,10 @@ Source102:	03_apache2.afterboot
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
 BuildPreReq:	ADVX-build >= 9.2
-%if %{build_diet}
 BuildRequires:	dietlibc-devel >= 0.20-1mdk
-%endif
 
 Requires:	lynx >= 2.8.5
 Provides:	apache2-conf
-Provides:	apache-conf = 1.3.28
 Provides:	ADVXpackage
 Provides:	AP20package
 #JMD: We have to do this here, since files have moved
@@ -96,20 +80,15 @@ without having to re-compile the whole suite to change a logo or config
 file.
 
 %prep
-
-%build
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
+%setup -q -c -T -n %{name}-%{version}
 cp %{SOURCE35} .
 
-%if %{build_diet}
-    # OE: use the power of dietlibc
-    diet gcc %{optflags} -s -static -nostdinc -o advxsplitlogfile-DIET advxsplitlogfile.c
-%else
-    gcc %{optflags} -o advxsplitlogfile advxsplitlogfile.c
-%endif
+%build
+diet gcc -Os -s -static -nostdinc -o advxsplitlogfile-DIET advxsplitlogfile.c
+gcc %{optflags} -o advxsplitlogfile advxsplitlogfile.c
 
 %install
-
+[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
 mkdir -p %{buildroot}%{compat_conf}
 mkdir -p %{buildroot}%{ap_confd}
 mkdir -p %{buildroot}%{ap_htdocsdir}
@@ -126,11 +105,8 @@ mkdir -p %{buildroot}%{ADVXdir}
 mkdir -p %{buildroot}%{_libdir}/ADVX/contribs
 mkdir -p %{buildroot}%{_libdir}/ADVX/contribs
 
-%if %{build_diet}
-    install -m755 advxsplitlogfile-DIET %{buildroot}%{_libdir}/ADVX/contribs/
-%else
-    install -m755 advxsplitlogfile %{buildroot}%{_libdir}/ADVX/contribs/
-%endif
+install -m755 advxsplitlogfile-DIET %{buildroot}%{_libdir}/ADVX/contribs/
+install -m755 advxsplitlogfile %{buildroot}%{_libdir}/ADVX/contribs/
 
 install -m755 %{SOURCE40} %{buildroot}%{ADVXdir}
 install -m755 %{SOURCE41} %{buildroot}%{ADVXdir}
@@ -198,17 +174,14 @@ EOF
 install -d -m755 %{buildroot}%{_sysconfdir}/logrotate.d
 
 cat > %{buildroot}%{_sysconfdir}/logrotate.d/%{name} << EOF
-%{ap_logfiledir}/access_log %{ap_logfiledir}/error_log %{ap_logfiledir}/agent_log %{ap_logfiledir}/referer_log %{ap_logfiledir}/apache_runtime_status
-%{ap_logfiledir}/ssl_mutex %{ap_logfiledir}/ssl_access_log %{ap_logfiledir}/ssl_error_log %{ap_logfiledir}/ssl_agent_log %{ap_logfiledir}/ssl_request_log 
-%{ap_logfiledir}/suexec_log 
+%{ap_logfiledir}/*log
 {
+    size=2000M
     rotate 5
     monthly
     missingok
     nocompress
-    prerotate
-	[[ -d /service/httpd2 ]] && runsvctrl h /service/httpd2 >/dev/null 2>&1
-    endscript
+    notifempty
     postrotate
 	[[ -d /service/httpd2 ]] && runsvctrl h /service/httpd2 >/dev/null 2>&1
     endscript
@@ -221,8 +194,6 @@ install -m755 %{SOURCE32} %{buildroot}%{_sbindir}
 install -m755 %{SOURCE33} %{buildroot}%{_sbindir}
 install -m755 %{SOURCE34} %{buildroot}%{_sbindir}
 install -m755 %{SOURCE53} %{buildroot}%{_sbindir}
-install -m755 %{SOURCE54} %{buildroot}%{_sbindir}
-install -m755 %{SOURCE55} %{buildroot}%{_sbindir}
 
 mkdir -p %{buildroot}%{_docdir}/apache2-conf-%{version}
 install -m644 %{SOURCE99} %{buildroot}%{_docdir}/apache2-conf-%{version}
@@ -235,13 +206,8 @@ install -m 0755 %{SOURCE101} %{buildroot}%{_srvdir}/httpd2/log/run
 mkdir -p %{buildroot}%{_datadir}/afterboot
 install -m 0644 %{SOURCE102} %{buildroot}%{_datadir}/afterboot/03_apache2
 
+install -m 0644 %{SOURCE98} %{buildroot}%{ap_htdocsdir}/robots.txt
 
-#Apache 1.3 compatibility
-mkdir -p %{buildroot}%{_libdir}/apache-extramodules
-mkdir -p %{buildroot}%{ap_base}/apache-extramodules
-#link modules dir
-ln -sf ../..%{_libdir}/apache-extramodules \
-        %{buildroot}%{ap_base}/extramodules
 
 %pre
 %_pre_useradd apache /var/www /bin/sh 74
@@ -251,14 +217,10 @@ ln -sf ../..%{_libdir}/apache-extramodules \
 if [ $1 = "1" ]; then
   %{ADVXdir}/advx-checkifmigrate
 fi
-%_post_srv apache
 %_post_srv apache2
-%ADVXpost
 
 %preun
-%_preun_srv apache
 %_preun_srv apache2
-%ADVXpost
 
 %postun
 %_postun_userdel apache
@@ -267,13 +229,9 @@ fi
 %clean
 [ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
 
-#Clean up some
-[ "advxsplitlogfile" != "/" ] && rm -f advxsplitlogfile*
-
 %files 
 %defattr(-,root,root)
 %dir %{compat_dir}
-%dir %{compat_dir}/extramodules
 %dir %{compat_dir}/logs
 %dir %{ap_confd}
 %dir %{ap_logfiledir}
@@ -292,27 +250,24 @@ fi
 %dir %{ap_webdoc}
 %{ap_webdoc}/*
 %config(noreplace) %{ap_webdoc}/.htaccess
-%dir %{ap_datadir}
+%attr(0755,apache,apache) %dir %{ap_datadir}
 %dir %{ap_datadir}/cgi-bin
 %{ap_datadir}/cgi-bin/*
 %dir %{ap_datadir}/perl
 %{ap_datadir}/perl/*
 %dir %{ap_datadir}/icons
 %{ap_datadir}/icons/*
-%dir %{ap_htdocsdir}
+%attr(0755,apache,apache) %dir %{ap_htdocsdir}
 %{ap_htdocsdir}/platform.html
 %{ap_htdocsdir}/optim.html
 %config(noreplace) %{ap_htdocsdir}/favicon.ico
 %config(noreplace) %{ap_htdocsdir}/index.shtml
+%config(noreplace) %{ap_htdocsdir}/robots.txt
 %attr(-,apache,apache) %dir %{ap_proxycachedir}
 %{_sbindir}/*
 %config(noreplace) %{_sysconfdir}/logrotate.d/%{name}
 %{_docdir}/apache2-conf-%{version}/README.apache-conf
 %{_libdir}/ADVX/*
-%{ap_base}/extramodules
-#JMD: For compatibility with Apache 1.3
-#JMD: *never remove this!* 1333 is the *right* permission.
-%attr(1333,apache,apache) %dir /var/apache-mm
 %dir %{_srvdir}/httpd2
 %dir %{_srvdir}/httpd2/log
 %{_srvdir}/httpd2/run
@@ -321,7 +276,22 @@ fi
 %{_datadir}/afterboot/03_apache2
 
 %changelog
-* Thu Oct 14 2004 Vincent Danen <vdanen@annvix.org> 2.0.50-1avx
+* Fri Dec 03 2004 Vincent Danen <vdanen@annvix.org> 2.0.52-2avx
+- make apache own the %%ap_htdocsdir and %%ap_datadir
+- fix the logrotate script:
+  - go back to specifying *log rather than explicit log names (ie. so we can catch
+    vhosts, etc.)
+  - rotate logfiles 2GB and larger for sure
+  - remove the prerotate script; why restart apache twice for each logfile?
+- remove /var/apache-mm since we don't care about apache 1.3 anymore
+- likewise for /etc/httpd/extramodules symlink
+- add robots.txt file after looking at the suse stuff... (oden)
+- always build the diet binary of advxlogsplitlogfile
+- update the configs
+- drop S54 and S55 (toggle between apache 2 and apache 1.3)
+- drop S0 (don't need the initscript anymore)
+
+* Thu Oct 14 2004 Vincent Danen <vdanen@annvix.org> 2.0.52-1avx
 - 2.0.52
 - move runscripts and afterboot snippet here from apache2
 - update the default index.shtml and related pages; make it more
