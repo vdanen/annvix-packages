@@ -1,6 +1,6 @@
 %define name	spamassassin
 %define version	2.63
-%define release	3sls
+%define release	4sls
 
 %define fname	Mail-SpamAssassin
 %define instdir	vendor
@@ -142,6 +142,9 @@ chmod 666 /var/spool/spamassassin/auto-whitelist.db
 %{_mandir}/man3*/*
 
 %changelog
+* Mon Mar 22 2004 Vincent Danen <vdanen@opensls.org> 2.63-4sls
+- fix syntax error in run script
+
 * Mon Mar 22 2004 Vincent Danen <vdanen@opensls.org> 2.63-3sls
 - fix supervise scripts; spamd should not run in daemon mode
 
