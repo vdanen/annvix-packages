@@ -1,6 +1,6 @@
 %define name	libpng
 %define version	1.2.5
-%define release	10sls
+%define release	11sls
 %define epoch	2
 
 %define lib_name_orig	libpng
@@ -17,6 +17,7 @@ Group: 		System/Libraries
 URL: 		http://www.libpng.org/pub/png/libpng.html
 Source: 	ftp://ftp.uu.net/graphics/png/src/%{name}-%{version}.tar.bz2
 Patch0:		libpng-1.2.5-mdkconf.patch.bz2
+Patch1:		libpng-can-2004-0421.patch.bz2
 
 BuildRoot: 	%{_tmppath}/%{name}-%{version}-root
 BuildRequires: 	zlib-devel
@@ -72,6 +73,7 @@ Libpng development static libraries.
 %prep
 %setup -q -n %{name}-%{version}
 %patch0 -p1 -b .mdkconf
+%patch1 -p1 -b .can-2004-0421
 ln -s scripts/makefile.linux ./Makefile
 perl -pi -e 's|^prefix=.*|prefix=%{_prefix}|' Makefile
 
@@ -118,6 +120,9 @@ rm -rf $RPM_BUILD_ROOT%{_prefix}/man
 %{_libdir}/libpng*.a
 
 %changelog
+* Mon Apr 19 2004 Vincent Danen <vdanen@opensls.org> 1.2.5-11sls
+- P1: fix CAN-2004-0421
+
 * Mon Apr 12 2004 Vincent Danen <vdanen@opensls.org> 1.2.5-10sls
 - fix epoch in requires
 
