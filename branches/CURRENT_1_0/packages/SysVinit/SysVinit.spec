@@ -1,6 +1,6 @@
 %define name	SysVinit
 %define version 2.85
-%define release 3sls
+%define release 4sls
 %define url	ftp://ftp.cistron.nl/pub/people/miquels/software
 
 Summary:	Programs which control basic system processes.
@@ -23,9 +23,10 @@ Patch100:	sysvinit-2.77-shutdown.patch.bz2
 Patch101:	sysvinit-2.83-libcrypt.patch.bz2
 Patch102:	sysvinit-2.83-biarch-utmp.patch.bz2
 Patch105:	sysvinit-disable-respawn-more-quickly.patch.bz2
-Patch106:	sysvinit-2.85-dietlibc-patch.diff.bz2
-BuildRequires:	glibc-static-devel dietlibc-devel
-Buildroot:	%{_tmppath}/%name-root
+
+BuildRoot:	%{_tmppath}/%name-root
+BuildRequires:	glibc-static-devel
+
 Requires:	pam >= 0.66-5
 
 %description
@@ -51,7 +52,6 @@ of all other programs.
 %patch100 -p0 -b .shutdown
 %patch101 -p1 -b .libcrypt
 %patch102 -p1 -b .biarch-utmp
-%patch106 -p1 -b .diet
 
 %build
 # cpp hack workaround
@@ -60,10 +60,7 @@ perl -pi -e "s,\"paths.h\",\"pathsfoo.h\",g" *
 mv paths.h pathsfoo.h
 cd ..
 
-make \
-  CC="diet -Os gcc" \
-  CFLAGS="-Wall -s -nostdinc -D_BSD_SOURCE -D_GNU_SOURCE -fstack-protector" \
-  LDFLAGS="-s" LCRYPT="" -C src
+make CFLAGS="%optflags -D_GNU_SOURCE" -C src
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -116,6 +113,10 @@ rm -rf $RPM_BUILD_ROOT
 %ghost /dev/initctl
 
 %changelog
+* Fri Feb 06 2004 Vincent Danen <vdanen@opensls.org> 2.85-4sls
+- backout dietlibc support as it seems to cause INIT segfaults every second
+  boot (reproducable on 3 different systems)
+
 * Fri Jan 30 2004 Vincent Danen <vdanen@opensls.org> 2.85-3sls
 - P106: dietlibc support (re: oden)
 
