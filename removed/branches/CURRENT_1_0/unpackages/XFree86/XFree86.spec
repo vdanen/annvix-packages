@@ -1,8 +1,7 @@
 %define name	XFree86
 %define version 4.3
-%define release 24.3sls
+%define release 25sls
 
-%{!?build_opensls:%global build_opensls 0}
 %{!?build_propolice:%global build_propolice 0}
 
 %define _unpackaged_files_terminate_build 0
@@ -73,6 +72,8 @@ Source10:	system.twmrc
 # from Arnd Bergmann <std7652@et.FH-Osnabrueck.DE>
 # only used when not build with fontconfig
 Source11:	XftConfig
+Source12:	xfs.run
+Source13:	xfs-log.run
 Source100:	Euro.xmod.bz2
 Source102:	eurofonts-X11.tar.bz2
 # some bdf fonts made by us, to cover encodings which haven't
@@ -240,7 +241,7 @@ BuildRequires:	fontconfig-devel >= 2.1-4mdk
 Requires:	pam >= 0.66-18, util-linux, sh-utils, xinitrc >= 2.4.4-10mdk
 Requires:	XFree86 >= 3.3.6
 Requires:	gcc-cpp
-Prereq:		/sbin/chkconfig utempter XFree86-libs = %{version}
+Prereq:		utempter XFree86-libs = %{version}
 %if %{with_new_fontconfig_Xft}
 PreReq:		fontconfig
 %endif
@@ -416,19 +417,6 @@ Provides:	XFree86-static-devel = %{version}-%{release}
 %{xfsta} includes the X11R6 static libraries needed to
 build statically linked programs.
 
-%if !%{build_opensls}
-%package doc
-Summary:	Documentation on various X11 programming interfaces
-Group:		System/XFree86
-
-%description doc
-XFree86-doc provides a great deal of extensive PostScript documentation
-on the various X APIs, libraries, and other interfaces.  If you need
-low level X documentation, you will find it here.  Topics include the
-X protocol, the ICCCM window manager standard, ICE session management,
-the font server API, etc.
-%endif
-
 %package Xvfb
 Summary:	A virtual framebuffer X Windows System server for XFree86.
 Group:		System/XFree86
@@ -477,19 +465,6 @@ Obsoletes:	xserver-wrapper
 
 %description server
 XFree86-server is the new generation of X server from XFree86.
-
-%if !%{build_opensls}
-%%ifarch %{ix86}
-%package glide-module
-Summary:	The glide module for XFree86 server.
-Group:		System/XFree86
-Requires:	XFree86-server = %{version}-%{release}, libglide3.so.3
-BuildRequires:	Glide_V3-DRI-devel >= cvs-2mdk
-
-%description glide-module
-glide module for XFree86.
-%%endif
-%endif
 
 %package xfs
 Group:		System/Servers
@@ -723,14 +698,6 @@ cat >xc/config/cf/host.def <<END
 #define UseXserverWrapper	YES
 #define BuildXF86DRI		YES
 #define BuildXF86DRM		NO
-%if !%{build_opensls}
-%%ifarch %{ix86}
-#define HasGlide2		NO
-#define Glide2IncDir		/usr/include/glide2
-#define HasGlide3		YES
-#define Glide3IncDir		/usr/include/glide3
-%%endif
-%endif
 #define UseGccMakeDepend	NO
 #define HasLinuxInput		YES
 #define LinkGLToUsrInclude	NO
@@ -995,12 +962,11 @@ mv $RPM_BUILD_ROOT/usr/X11R6/lib/X11/XF86Config.eg $RPM_BUILD_ROOT/usr/X11R6/lib
 # we install our own config file for the xfs package
 mkdir -p $RPM_BUILD_ROOT/etc/X11/fs
 install -m 644 %{SOURCE6} $RPM_BUILD_ROOT/etc/X11/fs/config
-mkdir -p $RPM_BUILD_ROOT/etc/rc.d/init.d
-install -m 755 %{SOURCE5} $RPM_BUILD_ROOT/etc/rc.d/init.d/xfs
 
-# install service for xdm
-#install -m 755 $RPM_SOURCE_DIR/xdm.init \
-#	$RPM_BUILD_ROOT/etc/rc.d/init.d/xdm
+mkdir -p %{buildroot}%{_srvdir}/xfs/log
+mkdir -p %{buildroot}%{_srvlogdir}/xfs
+install -m 0750 %{SOURCE12} %{buildroot}%{_srvdir}/xfs/run
+install -m 0750 %{SOURCE13} %{buildroot}%{_srvdir}/xfs/log/run
 
 # we get xinit from a separate package
 rm -rf $RPM_BUILD_ROOT/usr/X11R6/lib/X11/xinit
@@ -1135,40 +1101,6 @@ find $RPM_BUILD_ROOT%{x11shlibdir} -type f -maxdepth 1 -name '*.a' -print | egre
 rm -f static-only.list
 find $RPM_BUILD_ROOT%{x11shlibdir} -type f -maxdepth 1 -name '*.a' -print | egrep $FILTER | sed s@$RPM_BUILD_ROOT@@ > static-only.list
 
-%if !%{build_opensls}
-# Menu support
-mkdir -p $RPM_BUILD_ROOT%{_menudir} $RPM_BUILD_ROOT/etc/menu-methods
-install -m 755 %{SOURCE9} $RPM_BUILD_ROOT/etc/menu-methods/twm
-cat > $RPM_BUILD_ROOT%{_menudir}/%{name} << EOF
-#?package(%{name}): needs=x11 section=Multimedia/Graphics longtitle="Bitmap: editor for X bitmap files" title=Bitmap command=bitmap
-#?package(%{name}): needs=x11 section=Applications/Development/Tools longtitle="Editres: resource editor for X Toolkit applications" title=Editres command=editres
-#?package(%{name}): needs=x11 section=Office longtitle="Xclipboard: clipboard for text cut and paste operations in X" title=Xclipboard command=xclipboard
-#?package(%{name}): needs=x11 section=Office hints="Clocks" longtitle="Xclock (analog): analog clock for X" title="Xclock (analog)" command="xclock -analog"
-#?package(%{name}): needs=x11 section=Office hints="Clocks" longtitle="Xclock (digital): digital clock for X" title="Xclock (digital)" command="xclock -digital"
-?package(%{name}): needs=x11 section=Applications/Monitoring icon=xconsole.xpm longtitle="Xconsole: monitor system console messages with X" title=Xconsole command=xconsole
-#?package(%{name}): needs=x11 section=Office longtitle="Xcutsel: interchange between cut buffer and selection in X" title=Xcutsel command=xcutsel
-?package(%{name}): needs=x11 section=Applications/Accessibility icon=xmag.xpm longtitle="Xmag: magnify parts of the X screen" title=Xmag command=xmag
-?package(%{name}): needs=x11 section=Applications/Monitoring icon=xkill.xpm longtitle="Xkill: kill X clients" title=Xkill command=xkill
-#?package(%{name}): needs=x11 section=Amusement/Toys longtitle="Xlogo: display X logo" title=Xlogo command=xlogo
-?package(%{name}): needs=x11 section=Applications/Monitoring icon=xrefresh.xpm longtitle="Xrefresh: redraw X screen" title=Xrefresh command=xrefresh
-#?package(%{name}): needs=x11 section=Multimedia/Graphics longtitle="X Window Snapshot: take snapshot of any X window (xwd|xwud)" title="X Window Snapshot" command="xwd | xwud"
-?package(%{name}): needs=wm section=Session/Windowmanagers icon=twm.xpm longtitle="Twm: Tab Window Manager" title=Twm command=twm
-EOF
-
-install -d %buildroot/%_menudir/
-cat > %buildroot/%_menudir/X11R6-contrib << EOF
-?package(X11R6-contrib): needs=x11 icon="mathematics_section.png" section="Applications/Sciences/Mathematics" title="Calculator" longtitle="Scientific calculator for X" command="xcalc"
-?package(X11R6-contrib): needs=x11 icon="publishing_section.png" section="Applications/Publishing" title="XDitview" longtitle="Ditroff previewer" command=xditview
-?package(X11R6-contrib): needs=x11 icon="editors_section.png" section="Applications/Editors" title="XEdit" longtitle="Small editor" command=xedit
-?package(X11R6-contrib): needs=x11 icon="xeyes.xpm" section="Amusement/Toys" title="XEyes" longtitle="Watchful Eyes" command=xeyes
-#?package(X11R6-contrib): needs=x11 icon="toys_section.png" section="Amusement/Toys" title="ICO" longtitle="Animate an icosahedron or other polyhedron" command="ico"
-?package(X11R6-contrib): needs=x11 icon="text_tools_section.png" section="Applications/Text tools" title="Font Selector" longtitle="Select X Fonts" command="xfontsel"
-?package(X11R6-contrib): needs=x11 icon="xload.xpm" section="Applications/Monitoring" title="XLoad" longtitle="Display system load" command="xload"
-EOF
-
-install -m 644 %{SOURCE10} $RPM_BUILD_ROOT/etc/X11/twm/system.twmrc-menu
-%endif
-
 #not needed, failsafe use twm
 %if 0
 mkdir -p $RPM_BUILD_ROOT/etc/X11/wmsession.d
@@ -1232,13 +1164,6 @@ rm -rf $RPM_BUILD_ROOT%{_sysconfdir}/X11/twm/system.twmrc \
  $RPM_BUILD_ROOT%{x11libdir}/X11/fonts/{util,CID,local}
 
 %post
-
-%if !%{build_opensls}
-%update_menus
-
-%make_session
-%endif
-
 for d in misc Speedo Type1 TTF mdk; do
     cd /usr/X11R6/lib/X11/fonts/$d
     mkfontdir || :
@@ -1248,14 +1173,6 @@ fc-cache || :
 
 %if ! %{with_new_fontconfig_Xft}
 xftcache > /dev/null 2>&1 || :
-%endif
-
-%postun
-
-%if !%{build_opensls}
-%clean_menus
-
-%make_session
 %endif
 
 %pre
@@ -1285,10 +1202,6 @@ done << EOF
 /etc/X11/xdm/authdir /var/lib/xdm ../../../var/lib/xdm
 EOF
 
-#%postun
-#if [ $1 = 0 ]; then
-#    /sbin/chkconfig --del xdm
-#fi
 
 %post -n %{xflib}
 grep -q "^%{x11shlibdir}$" /etc/ld.so.conf || echo "%{x11shlibdir}" >> /etc/ld.so.conf
@@ -1364,10 +1277,10 @@ if [ "$1" = "0" ]; then
 fi
 
 %pre xfs
-%_pre_useradd xfs /etc/X11/fs /bin/false
+%_pre_useradd xfs /etc/X11/fs /bin/false 70
 
 # for msec high security levels
-%_pre_groupadd xgrp xfs
+%_pre_groupadd xgrp 16 xfs
 
 
 %post xfs
@@ -1383,28 +1296,14 @@ if [ "$1" -gt 1 ]; then
 		fi
 	done
 fi
-%_post_service xfs
+%_post_srv xfs
 
-# handle init sequence change
-if [ -f /etc/rc5.d/S90xfs ] && grep -q 'chkconfig: 2345 20 10' /etc/init.d/xfs; then
-	/sbin/chkconfig --add xfs
-fi
 
 %preun xfs
-%_preun_service xfs
+%_preun_srv xfs
 
 %postun xfs
 %_postun_userdel xfs
-
-%if !%{build_opensls}
-%post -n X11R6-contrib
-%update_menus
-%endif
-
-%if !%{build_opensls}
-%postun -n X11R6-contrib
-%clean_menus
-%endif
 
 %post server
 
@@ -1421,15 +1320,6 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root,-)
 %doc /usr/X11R6/lib/X11/XF86Config-4.eg
 /usr/X11R6/bin/XFree86
-
-%if !%{build_opensls}
-%%ifarch %{ix86}
-%files glide-module
-%defattr(-,root,root,-)
-#%{x11shlibdir}/modules/drivers/glide_drv.o
-%{x11shlibdir}/modules/dri/tdfx_dri.so
-%%endif
-%endif
 
 %files
 %defattr(-,root,root,-)
@@ -1459,20 +1349,11 @@ rm -rf $RPM_BUILD_ROOT
 /etc/X11/xdm/chooser
 %dir /var/lib/xdm
 
-#%config /etc/rc.d/init.d/xdm
 %config(noreplace) /etc/pam.d/xserver
 %config(noreplace) /etc/pam.d/xdm
 %config(missingok noreplace) /etc/security/console.apps/xserver
-%if !%{build_opensls}
-%config(noreplace) /etc/X11/twm/system.twmrc-menu
-%config(noreplace) /etc/menu-methods/twm
-%endif
 %config(noreplace) /etc/X11/xsm/system.xsm
 %config(noreplace) /etc/logrotate.d/xdm
-
-%if !%{build_opensls}
-%{_menudir}/%{name}
-%endif
 
 %if %{with_new_fontconfig_Xft}
 # XftConfig is no longer present or used
@@ -1857,12 +1738,6 @@ rm -rf $RPM_BUILD_ROOT
 /usr/X11R6/bin/Xnest
 /usr/X11R6/man/man1/Xnest.1x*
 
-%if !%{build_opensls}
-%files doc
-%defattr(-,root,root,-)
-%doc xc/doc/hardcopy/*
-%endif
-
 %files 75dpi-fonts
 %defattr(-,root,root,-)
 %dir /usr/X11R6/lib/X11/fonts/75dpi
@@ -1896,7 +1771,11 @@ rm -rf $RPM_BUILD_ROOT
 #%doc xtt-%{xtt_ver}/doc/*
 %attr(-,xfs,xfs) %dir /etc/X11/fs
 %attr(-,xfs,xfs) %config(noreplace) /etc/X11/fs/config
-%config(noreplace) /etc/rc.d/init.d/xfs
+%dir %{_srvdir}/xfs
+%dir %{_srvdir}/xfs/log
+%{_srvdir}/xfs/run
+%{_srvdir}/xfs/log/run
+%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/xfs
 %config(noreplace) /etc/X11/encodings.dir
 /usr/X11R6/lib/X11/fs
 #/usr/X11R6/bin/fsinfo
@@ -1913,9 +1792,6 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -n X11R6-contrib
 %defattr(-,root,root,-)
-%if !%{build_opensls}
-%_menudir/X11R6-contrib
-%endif
 /usr/X11R6/bin/ico
 /usr/X11R6/bin/listres
 /usr/X11R6/bin/viewres
@@ -1948,6 +1824,13 @@ rm -rf $RPM_BUILD_ROOT
 %{x11libdir}/X11/xedit
 
 %changelog
+* Wed Feb 04 2004 Vincent Danen <vdanen@opensls.org> 4.3-25sls
+- get rid of %%build_opensls macros
+- remove xfs initscript; supervise scripts
+- xfs is static uid/gid 70
+- xgrp is static gid 16
+- remove PreReq: chkconfig
+
 * Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 4.3-24.3sls
 - get rid of the menu stuff so we don't need menu package
 - P804: fix for CAN-2003-0690 (pam_setcred in xdm)
