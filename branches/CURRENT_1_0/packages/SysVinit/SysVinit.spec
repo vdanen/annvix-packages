@@ -1,9 +1,9 @@
 %define name	SysVinit
 %define version 2.85
-%define release 7avx
+%define release 8avx
 %define url	ftp://ftp.cistron.nl/pub/people/miquels/software
 
-Summary:	Programs which control basic system processes.
+Summary:	Programs which control basic system processes
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -11,6 +11,8 @@ License:	GPL
 Group:		System/Configuration/Boot and Init
 URL:		%{url}
 Source:		%{url}/sysvinit-%{version}.tar.bz2
+Source1:	reboot.avx
+Source2:	halt.avx
 Patch2:		sysvinit-2.77-md5-be.patch.bz2
 Patch3:		sysvinit-2.78-halt.patch.bz2
 Patch4:		sysvinit-2.78-autofsck.patch.bz2
@@ -24,7 +26,7 @@ Patch101:	sysvinit-2.83-libcrypt.patch.bz2
 Patch102:	sysvinit-2.83-biarch-utmp.patch.bz2
 Patch105:	sysvinit-disable-respawn-more-quickly.patch.bz2
 
-BuildRoot:	%{_tmppath}/%name-root
+BuildRoot:	%{_tmppath}/%{name}-%{version}-root
 BuildRequires:	glibc-static-devel
 
 Requires:	pam >= 0.66-5
@@ -35,6 +37,9 @@ the very basic functions of your system. SysVinit includes the init
 program, the first program started by the Linux kernel when the 
 system boots.  Init then controls the startup, running and shutdown
 of all other programs.
+
+NOTE: Annvix uses runit to handle init's duties, but this package still
+contains some useful utilities to manage the running of the system.
 
 %prep
 %setup -q -n sysvinit-%{version}
@@ -60,31 +65,36 @@ perl -pi -e "s,\"paths.h\",\"pathsfoo.h\",g" *
 mv paths.h pathsfoo.h
 cd ..
 
-make CFLAGS="%optflags -D_GNU_SOURCE" -C src
+make CFLAGS="%{optflags} -D_GNU_SOURCE" -C src
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 for I in sbin usr/bin %{_mandir}/man{1,3,5,8} etc var/run dev; do
-	mkdir -p $RPM_BUILD_ROOT/$I
+	mkdir -p %{buildroot}/$I
 done
 
-make -C src ROOT=$RPM_BUILD_ROOT MANDIR=%{_mandir} \
+make -C src ROOT=%{buildroot} MANDIR=%{_mandir} \
 	BIN_OWNER=`id -nu` BIN_GROUP=`id -ng` install
 
 # If this already exists, just do nothing (the ||: part)
-mknod --mode=0600 $RPM_BUILD_ROOT/dev/initctl p ||:
-ln -snf killall5 $RPM_BUILD_ROOT/sbin/pidof
+mknod --mode=0600 %{buildroot}/dev/initctl p ||:
+ln -snf killall5 %{buildroot}/sbin/pidof
 
-chmod 755 $RPM_BUILD_ROOT/usr/bin/utmpdump
+chmod 755 %{buildroot}/usr/bin/utmpdump
 
-# Remove unpacjaged file(s)
-rm -rf	$RPM_BUILD_ROOT/usr/include
+# move around files for runit
+rm -rf	%{buildroot}/usr/include
 mv %{buildroot}/sbin/init %{buildroot}/sbin/init.sysv
+mv %{buildroot}%{_mandir}/man8/init.8 %{buildroot}%{_mandir}/man8/init.sysv.8
+rm -f %{buildroot}%{_mandir}/man8/telinit.8
+rm -f %{buildroot}/sbin/{halt,reboot,poweroff}
+rm -f %{buildroot}%{_mandir}/man8/{halt,reboot,poweroff}.8*
+install -m 0750 %{SOURCE1} %{buildroot}/sbin/reboot
+install -m 0750 %{SOURCE2} %{buildroot}/sbin/halt
 
 %post
 [ ! -p /dev/initctl ] && rm -f /dev/initctl && mknod --mode=0600 /dev/initctl p || :
 [ -e /var/run/initrunlvl ] && ln -s ../var/run/initrunlvl /etc/initrunlvl || :
-[ -x /sbin/telinit -a -p /dev/initctl -a -f /proc/1/exe -a -d /proc/1/root ] && /sbin/telinit u || :
 exit 0
 
 %clean
@@ -98,7 +108,6 @@ exit 0
 /sbin/init.sysv
 /sbin/killall5
 /sbin/pidof
-/sbin/poweroff
 /sbin/reboot
 /sbin/runlevel
 /sbin/shutdown
@@ -114,6 +123,10 @@ exit 0
 %ghost /dev/initctl
 
 %changelog
+* Sat Feb 12 2005 Vincent Danen <vdanen@annvix.org> 2.85-8avx
+- provide new halt/reboot scripts that are wrappers to shutdown
+  (get rid of errors about not knowing the current runlevel due to runit)
+
 * Sat Sep 11 2004 Vincent Danen <vdanen@annvix.org> 2.85-7avx
 - move /sbin/init to /sbin/init.sysv
 
