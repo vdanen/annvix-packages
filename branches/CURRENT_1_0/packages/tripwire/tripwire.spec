@@ -1,8 +1,6 @@
 %define name	tripwire
 %define version	2.3.1.2
-%define release	15avx
-
-%define ext	2
+%define release	16avx
 
 Summary:	A system integrity assessment tool.
 Name:		%{name}
@@ -77,7 +75,8 @@ rm -rf STLport*
 touch STLport_r STLport_d
 
 # Do not parallelize this with _smp_flags or -j
-make release RPM_OPT_FLAGS="%{optflags}"
+# this is a static app and building static apps with SSP is broken right now
+make release RPM_OPT_FLAGS="%{optflags} -fno-stack-protector"
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -143,6 +142,12 @@ chmod 644 README Release_Notes ChangeLog COPYING policy/policyguide.txt TRADEMAR
 %{_datadir}/afterboot/98_tripwire
 
 %changelog
+* Fri Mar 04 2005 Vincent Danen <vdanen@annvix.org> 2.3.1.2-16avx
+- drop /etc/init.d/random and /var/lock/subsys/random from default policy
+  file
+- add /dev/erandom and /dev/frandom to default policy file
+- build with -fno-stack-protector until we fix building static SSP-enabled apps
+
 * Thu Oct 14 2004 Vincent Danen <vdanen@annvix.org> 2.3.1.2-15avx
 - fix some typeos in the default policy
 - fix some space issues in the afterboot snippet

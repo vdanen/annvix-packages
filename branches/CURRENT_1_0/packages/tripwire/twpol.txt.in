@@ -514,7 +514,6 @@ SIG_HI        = 100 ;                # Critical files that are significant point
   /etc/init.d/killall			-> $(SEC_CONFIG) ;
   /etc/init.d/kudzu			-> $(SEC_CONFIG) ;
   /etc/init.d/network			-> $(SEC_CONFIG) ;
-  /etc/init.d/random			-> $(SEC_CONFIG) ;
   /etc/init.d/rawdevices		-> $(SEC_CONFIG) ;
   /etc/init.d/single			-> $(SEC_CONFIG) ;
   /etc/init.d/usb			-> $(SEC_CONFIG) ;
@@ -581,6 +580,8 @@ SIG_HI        = 100 ;                # Critical files that are significant point
   /dev/tty5				-> $(SEC_CONFIG) ;
   /dev/tty6				-> $(SEC_CONFIG) ;
   /dev/urandom				-> $(SEC_CONFIG) ;
+  /dev/erandom				-> $(SEC_CONFIG) ;
+  /dev/frandom				-> $(SEC_CONFIG) ;
   /dev/initctl				-> $(SEC_CONFIG) ;
   /var/lock/subsys			-> $(SEC_CONFIG) ;
   /var/lock/subsys/autofs		-> $(SEC_CONFIG) ;
@@ -591,7 +592,6 @@ SIG_HI        = 100 ;                # Critical files that are significant point
   /var/lock/subsys/kudzu		-> $(SEC_CONFIG) ;
   /var/lock/subsys/netfs		-> $(SEC_CONFIG) ;
   /var/lock/subsys/network		-> $(SEC_CONFIG) ;
-  /var/lock/subsys/random		-> $(SEC_CONFIG) ;
   /var/run				-> $(SEC_CONFIG) ;
   /var/log				-> $(SEC_INVARIANT) ; # log files change, directories shouldn't
   /etc/issue.net			-> $(SEC_CONFIG) -i ; # Inode number changes
