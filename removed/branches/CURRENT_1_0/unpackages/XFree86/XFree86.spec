@@ -1,6 +1,6 @@
 %define name	XFree86
 %define version 4.3
-%define release 25sls
+%define release 26sls
 
 %{!?build_propolice:%global build_propolice 0}
 
@@ -889,7 +889,7 @@ make CDEBUGFLAGS="$RPM_OPT_FLAGS -fno-fast-math -g"
 %endif
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 mkdir -p $RPM_BUILD_ROOT/etc/pam.d
 install -m 644 %{SOURCE3} $RPM_BUILD_ROOT/etc/pam.d/xserver
@@ -1314,7 +1314,7 @@ if [ $1 -gt 1 ]; then
 fi
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files server -f modules.list
 %defattr(-,root,root,-)
@@ -1824,6 +1824,9 @@ rm -rf $RPM_BUILD_ROOT
 %{x11libdir}/X11/xedit
 
 %changelog
+* Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 4.3-26sls
+- minor spec cleanups
+
 * Wed Feb 04 2004 Vincent Danen <vdanen@opensls.org> 4.3-25sls
 - get rid of %%build_opensls macros
 - remove xfs initscript; supervise scripts
