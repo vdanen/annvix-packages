@@ -1,6 +1,6 @@
 %define name	courier-imap
 %define version	2.1.2
-%define release	10avx
+%define release	11avx
 
 %define _localstatedir	/var/run
 %define	authdaemondir	%{_localstatedir}/authdaemon.courier-imap
@@ -324,6 +324,7 @@ install -m 0644 %{SOURCE13} %{buildroot}%{_sysconfdir}/sysconfig/pop3d-ssl
 %{courierdatadir}/sysconftool `cat %{courierdatadir}/configlist` >/dev/null
 %_post_srv courier-imapd
 %_post_srv courier-imapds
+%_post_srv authdaemond
 
 %create_ghostfile %{_localstatedir}/imapd.pid root root 0600
 %create_ghostfile %{_localstatedir}/imapd.pid.lock root root 0600
@@ -357,22 +358,26 @@ install -m 0644 %{SOURCE13} %{buildroot}%{_sysconfdir}/sysconfig/pop3d-ssl
 %_preun_srv courier-imapds
 %_preun_srv courier-pop3d
 %_preun_srv courier-pop3ds
+%_preun_srv authdaemond
 
 %postun mysql
 %_preun_srv courier-imapd
 %_preun_srv courier-imapds
 %_preun_srv courier-pop3d
 %_preun_srv courier-pop3ds
+%_preun_srv authdaemond
 
 %postun pgsql
 %_preun_srv courier-imapd
 %_preun_srv courier-imapds
 %_preun_srv courier-pop3d
 %_preun_srv courier-pop3ds
+%_preun_srv authdaemond
 
 %preun 
 %_preun_srv courier-imapd
 %_preun_srv courier-imapds
+%_preun_srv authdaemond
 
 %preun pop
 %_preun_srv courier-pop3d
@@ -535,6 +540,9 @@ test ! -f %{courierdatadir}/configlist.mysql || %{courierdatadir}/sysconftool-rp
 %{_mandir}/man1/maildirmake++.1*
 
 %changelog
+* Thu Aug 19 2004 Vincent Danen <vdanen@annvix.org> 2.1.2-11avx
+- authdaemond needs to restart on upgrades and such also
+
 * Tue Aug 17 2004 Vincent Danen <vdanen@annvix.org> 2.1.2-10avx
 - rebuild against new openssl
 
