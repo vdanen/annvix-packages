@@ -1,0 +1,10 @@
+diff -urNp tcllib-1.0.orig/configure.in tcllib-1.0/configure.in
+--- tcllib-1.0.orig/configure.in	2001-07-17 21:49:16.000000000 +0200
++++ tcllib-1.0/configure.in	2002-04-29 01:32:50.000000000 +0200
+@@ -28,6 +28,5 @@ AC_SUBST(CYGPATH)
+ 
+ AC_PROG_INSTALL
+ SC_SIMPLE_EXEEXT
+-SC_PROG_TCLSH
+ 
+ AC_OUTPUT([Makefile])
