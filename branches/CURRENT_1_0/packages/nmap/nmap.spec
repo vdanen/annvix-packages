@@ -1,12 +1,13 @@
 %define name	nmap
 %define version	3.48
-%define release	2sls
+%define release	3sls
+%define epoch	1
 
 Summary:	Network exploration tool and security scanner
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
-Epoch:		1
+Epoch:		%{epoch}
 License:	GPL
 Group:		Networking/Other
 URL:		http://www.insecure.org/nmap/
@@ -38,12 +39,12 @@ CFLAGS="%{optflags}" ./configure --prefix=%{_prefix} --libdir=%{_libdir} --libex
 %make 
 
 %install
-rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall nmapdatadir=%{buildroot}%{_datadir}/nmap
 
 
 %clean
-rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 
 %files 
@@ -56,6 +57,9 @@ rm -rf %{buildroot}
 %{_mandir}/man1/nmap.*
 
 %changelog
+* Sun Mar 07 2004 Vincent Danen <vdanen@opensls.org> 3.48-3sls
+- minor spec cleanups
+
 * Sun Jan 11 2004 Vincent Danen <vdanen@opensls.org> 3.48-2sls
 - OpenSLS build
 - tidy spec

@@ -1,6 +1,6 @@
 %define name	netpbm
 %define version 9.24
-%define release 8sls
+%define release 9sls
 
 %define major			9
 %define libname	%mklibname	%{name} %{major}
@@ -124,7 +124,7 @@ make \
 
 
 %install
-rm -rf %buildroot
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 # thanx redhat
 # Nasty hack to work around a useless ldconfig script
@@ -181,7 +181,7 @@ ln -sf libppm.so.9 %buildroot/%{_libdir}/libppm.so
 perl -pi -e 's^/bin/perl^%{__perl}^' %buildroot/%{_bindir}/{ppmfade,ppmshadow}
 
 %clean
-rm -rf %buildroot
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post   -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
@@ -193,19 +193,17 @@ rm -rf %buildroot
 
 %files 	-n %{libname_devel}
 %defattr(-,root,root)
-%doc COPYRIGHT.PATENT Netpbm.programming
+%doc Netpbm.programming
 %{_includedir}/*.h
 %attr(755,root,root) %{_libdir}/lib*.so
 %{_mandir}/man3/*
 
 %files 	-n %{libname_static_devel}
 %defattr(-,root,root)
-%doc COPYRIGHT.PATENT
 %{_libdir}/*.a
 
 %files
 %defattr(-,root,root)
-%doc COPYRIGHT.PATENT
 %attr(755,root,root) %{_bindir}/*
 %{_mandir}/man[15]/*
 %{_datadir}/%{name}-%{version}/*.map
@@ -214,6 +212,9 @@ rm -rf %buildroot
 
 
 %changelog
+* Sun Mar 07 2004 Vincent Danen <vdanen@opensls.org> 9.24-9sls
+- minor spec cleanups
+
 * Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 9.24-8sls
 - OpenSLS build
 - tidy spec

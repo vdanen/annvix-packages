@@ -1,6 +1,6 @@
 %define name	mpage
 %define version	2.5.3
-%define release	6sls
+%define release	7sls
 
 Summary:	A tool for printing multiple pages of text on each printed page.
 Name:		%{name}
@@ -42,14 +42,14 @@ long text documents without wasting paper.
 %make
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 make PREFIX=$RPM_BUILD_ROOT%_prefix MANDIR=$RPM_BUILD_ROOT%_mandir/man1 install
 mkdir -p $RPM_BUILD_ROOT%_libdir/%name
 cp -a Encodings/* $RPM_BUILD_ROOT%_libdir/%name
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -61,6 +61,9 @@ rm -rf $RPM_BUILD_ROOT
 %_datadir/mpage
 
 %changelog
+* Sun Mar 07 2004 Vincent Danen <vdanen@opensls.org> 2.5.3-7sls
+- minor spec cleanups
+
 * Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 2.5.3-6sls
 - OpenSLS build
 - tidy spec

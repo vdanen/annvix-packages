@@ -1,11 +1,11 @@
 %define name	openldap
 %define version	2.1.22
-%define release	9sls
+%define release	10sls
 
-%define major 	2
-%define migtools_ver 40
-%define fname	ldap
-%define libname	%mklibname %fname %major
+%define major 		2
+%define migtools_ver	40
+%define fname		ldap
+%define libname		%mklibname %fname %major
 
 #localstatedir is passed directly to configure, and we want it to be /var/lib
 #define _localstatedir	%{_var}/run
@@ -259,7 +259,6 @@ autoconf
 cp -p contrib/ldapc++/install-sh build/
 
 %build
-[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %serverbuild
 
 #
@@ -336,7 +335,7 @@ cp -p contrib/ldapc++/install-sh build/
 %make 
 
 %install
-rm -Rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
 
@@ -434,7 +433,6 @@ mkdir -p %{buildroot}%{_sysconfdir}/ssl/openldap
 
 %clean 
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-#rm -rf $RPM_BUILD_DIR/%{name}-%{version}
 
 
 %pre servers
@@ -708,6 +706,9 @@ fi
 
 
 %changelog
+* Sun Mar 07 2004 Vincent Danen <vdanen@opensls.org> 2.1.22-10sls
+- minor spec cleanups
+
 * Tue Feb 03 2004 Vincent Danen <vdanen@opensls.org> 2.1.22-9sls
 - s/sldapd/slapd/
 

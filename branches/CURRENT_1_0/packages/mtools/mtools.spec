@@ -1,6 +1,6 @@
 %define name	mtools
 %define version	3.9.9
-%define release	3sls
+%define release	4sls
 
 Summary:	Programs for accessing MS-DOS disks without mounting the disks
 Name: 		%{name}
@@ -42,7 +42,7 @@ Mtools should be installed if you need to use MS-DOS disks.
 make
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p $RPM_BUILD_ROOT/%{_prefix} $RPM_BUILD_ROOT%{_sysconfdir}
 %makeinstall
 /usr/bin/install -c -m 644 mtools.conf $RPM_BUILD_ROOT%{_sysconfdir}
@@ -51,7 +51,7 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/mformat
 cp -a $RPM_BUILD_ROOT%{_bindir}/mtools $RPM_BUILD_ROOT%{_bindir}/mformat
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
 %_install_info %{name}.info
@@ -86,6 +86,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_infodir}/%{name}.*
 
 %changelog
+* Sun Mar 07 2004 Vincent Danen <vdanen@opensls.org> 3.9.9-4sls
+- minor spec cleanups
+
 * Tue Dec 30 2003 Vincent Danen <vdanen@opensls.org> 3.9.9-3sls
 - OpenSLS build
 - tidy spec

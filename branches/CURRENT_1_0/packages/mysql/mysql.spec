@@ -1,6 +1,6 @@
 %define name	MySQL
 %define version	4.0.15
-%define release	4sls
+%define release	5sls
 
 %define major		12
 %define libname_orig	mysql
@@ -285,6 +285,7 @@ BuildMySQL "--enable-shared" \
 nm --numeric-sort sql/mysqld > sql/mysqld.sym
 
 %install 
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 RBR=$RPM_BUILD_ROOT
 MBD=$RPM_BUILD_DIR/mysql-%{version}
 # Ensure that needed directories exists
@@ -387,7 +388,7 @@ cat >> mysql.lang << EOF
 EOF
 
 %clean
-rm -rf %buildroot
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %pre common
 %_pre_useradd mysql %{_localstatedir}/mysql /bin/bash 82
@@ -616,6 +617,9 @@ fi
 %dir %attr(0750,nobody,nogroup) %{_srvlogdir}/mysqld
 
 %changelog
+* Sun Mar 07 2004 Vincent Danen <vdanen@opensls.org> 4.0.15-5sls
+- minor spec cleanups
+
 * Wed Feb 04 2004 Vincent Danen <vdanen@opensls.org> 4.0.15-3sls
 - remove initscripts
 - supervise scripts
