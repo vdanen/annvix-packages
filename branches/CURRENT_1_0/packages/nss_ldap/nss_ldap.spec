@@ -1,6 +1,6 @@
 %define name 	nss_ldap
 %define version 207
-%define release 5sls
+%define release 6sls
 %define pam_ldap_version 164
 
 Summary:	NSS library and PAM module for LDAP.
@@ -50,8 +50,6 @@ policies, access authorization, crypted hashes, etc.
 Install nss_ldap if you need LDAP access clients.
 
 %prep
-rm -rf $RPM_BUILD_ROOT
-
 %setup -q -a 1
 %patch0 -p1 -b .makefile
 %patch1 -p1 -b .db3
@@ -66,7 +64,6 @@ cp ../resolve.h .
 popd
 
 %build
-rm -rf $RPM_BUILD_ROOT
 %serverbuild
 # Build nss_ldap.
 aclocal && automake && autoheader && autoconf
@@ -84,7 +81,7 @@ export CFLAGS="$CFLAGS -fno-strict-aliasing"
 popd
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 install -d $RPM_BUILD_ROOT%{_sysconfdir}
 install -d $RPM_BUILD_ROOT/%_lib/security
@@ -104,21 +101,18 @@ install %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/ldap.conf
 
 # Remove unpackaged file
 rm -rf $RPM_BUILD_ROOT%{_sysconfdir}/nsswitch.ldap
+rm -rf %{buildroot}%{_libdir}/libnss_ldap.so.2
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
 /sbin/ldconfig
-if [ -f /etc/init.d/nscd ]; then
-	/sbin/service nscd restart >/dev/null 2>/dev/null || :
-fi
+%_post_srv nscd
 
 %postun
 /sbin/ldconfig
-if [ -f /etc/init.d/nscd ]; then
-	/sbin/service nscd restart >/dev/null 2>/dev/null || :
-fi
+%_preun_srv nscd
 
 %files
 %defattr(-,root,root)
@@ -134,6 +128,10 @@ fi
 /%_lib/security/*so*
 
 %changelog
+* Sun Mar 07 2004 Vincent Danen <vdanen@opensls.org> 207-6sls
+- minor spec cleanups
+- use _srv macros to restart nscd
+
 * Tue Dec 02 2003 Vincent Danen <vdanen@opensls.org> 207-5sls
 - OpenSLS build
 - tidy spec
