@@ -1,6 +1,6 @@
 %define name	krb5
 %define version	1.3
-%define release	4sls
+%define release	5sls
 
 %define srcver	1.3
 %define LIBMAJ	1
@@ -41,6 +41,10 @@ Source23:	Mandrake-Kerberos-HOWTO.html.bz2
 Source24:	%{name}-%{version}.tar.gz.asc
 Source25:	http://web.mit.edu/kerberos/www/advisories/2003-004-krb4_patchkit.tar.gz
 Source26:	http://web.mit.edu/kerberos/www/advisories/2003-004-krb4_patchkit.sig
+Source27:	telnet.run
+Source28:	telnet-log.run
+Source29:	ftp.run
+Source30:	ftp-log.run
 Patch0:		krb5-1.1-db.patch.bz2
 Patch1:		krb5-1.1.1-tiocgltc.patch.bz2
 Patch2:		krb5-1.1.1-libpty.patch.bz2
@@ -150,7 +154,12 @@ workstation.
 %package -n telnet-server-krb5
 Summary:	A telnet-server with kerberos support
 Group:		System/Servers
-Requires:	%{libname} = %{version} xinetd
+Requires:	%{libname} = %{version}
+%if %{build_opensls}
+Requires:	ucspi-tcp
+%else
+Requires:	xinetd
+%endif
 Obsoletes:	telnet-server
 Provides:	telnet-server
 
@@ -373,6 +382,14 @@ make prefix=$RPM_BUILD_ROOT%_prefix \
 # Fixup strange shared library permissions.
 chmod 755 $RPM_BUILD_ROOT%{_libdir}/*.so*
 
+%if %{build_opensls}
+mkdir -p %{buildroot}/var/service/{telnet,ftp}/log
+mkdir -p %{buildroot}/var/log/supervise/{telnet,ftp}
+install -m 0755 %{SOURCE27} %{buildroot}/var/service/telnet/run
+install -m 0755 %{SOURCE28} %{buildroot}/var/service/telnet/log/run
+install -m 0755 %{SOURCE29} %{buildroot}/var/service/ftp/run
+install -m 0755 %{SOURCE30} %{buildroot}/var/service/ftp/log/run
+%else
 # Xinetd configuration files.
 mkdir -p $RPM_BUILD_ROOT/etc/xinetd.d/
 bzcat %{SOURCE16} > $RPM_BUILD_ROOT/etc/xinetd.d/telnet
@@ -392,6 +409,7 @@ mkdir -p $RPM_BUILD_ROOT/%{_liconsdir}
 bzcat %{SOURCE20} > $RPM_BUILD_ROOT/%{_miconsdir}/telnet.xpm
 bzcat %{SOURCE21} > $RPM_BUILD_ROOT/%{_iconsdir}/telnet.xpm
 bzcat %{SOURCE22} > $RPM_BUILD_ROOT/%{_liconsdir}/telnet.xpm
+%endif
 
 bzcat %{SOURCE23} > $RPM_BUILD_DIR/%{name}-%{version}/doc/Mandrake-Kerberos-HOWTO.html
 
@@ -449,16 +467,21 @@ fi
 
 %post workstation
 /sbin/install-info %{_infodir}/krb5-user.info %{_infodir}/dir
+%if !%{build_opensls}
 /sbin/service xinetd reload > /dev/null 2>&1 || :
+%endif
 
 %preun workstation
 if [ "$1" = "0" ] ; then
 	/sbin/install-info --delete %{_infodir}/krb5-user.info %{_infodir}/dir
 fi
 
+%if !%{build_opensls}
 %postun workstation
 /sbin/service xinetd reload > /dev/null 2>&1 || :
+%endif
 
+%if !%{build_opensls}
 %post -n telnet-server-krb5
 /sbin/service xinetd reload > /dev/null 2>&1 || :
 ln -sf /bin/login /usr/sbin/login.krb5
@@ -475,16 +498,24 @@ cat $file|egrep -q "server_args.*=.*$" && \
 	perl -pi -e "s|(server_args.*=.*$)|\1\ -a\ none|" $file && exit 0
 # Say, no server_args in xinetd file.
 perl -pi -e "s|(server.*=.*/usr/sbin/telnetd.*$)|\1\n\tserver_args\t=\ -a\ none|" $file && exit 0
+%endif
 
+%if !%{build_opensls}
 %postun -n telnet-server-krb5
 /sbin/service xinetd reload > /dev/null 2>&1 || :
+%endif
 
+%if !%{build_opensls}
 %post -n telnet-client-krb5
 %{update_menus}
+%endif
 
+%if !%{build_opensls}
 %postun -n telnet-client-krb5
 %{clean_menus}
+%endif
 
+%if !%{build_opensls}
 %post -n ftp-server-krb5
 /sbin/service xinetd reload > /dev/null 2>&1 || :
 ln -sf /bin/login /usr/sbin/login.krb5
@@ -493,9 +524,12 @@ if [ ! -f $file ] ; then
 	echo "Can't find xinetd file for ftp."
 	exit 1
 fi
+%endif
 
+%if !%{build_opensls}
 %postun -n ftp-server-krb5
 /sbin/service xinetd reload > /dev/null 2>&1 || :
+%endif
 
 %files workstation
 %defattr(-,root,root)
@@ -632,16 +666,26 @@ fi
 %defattr(-,root,root)
 %{_sbindir}/telnetd
 %{_mandir}/man8/telnetd.8*
+%if %{build_opensls}
+%dir /var/service/telnet
+%dir /var/service/telnet/log
+%dir %attr(0750,nobody,nogroup) /var/log/supervise/telnet
+/var/service/telnet/run
+/var/service/telnet/log/run
+%else
 %config(noreplace) /etc/xinetd.d/telnet
+%endif
 
 %files -n telnet-client-krb5
 %defattr(-,root,root)
 %{_bindir}/telnet
 %{_mandir}/man1/telnet.1*
+%if !%{build_opensls}
 %{_menudir}/telnet
 %{_miconsdir}/telnet.xpm
 %{_iconsdir}/telnet.xpm
 %{_liconsdir}/telnet.xpm
+%endif
 
 %files -n ftp-client-krb5
 %defattr(-,root,root)
@@ -652,9 +696,21 @@ fi
 %defattr(-,root,root)
 %{_sbindir}/ftpd
 %{_mandir}/man8/ftpd.8*
+%if %{build_opensls}
+%dir /var/service/ftp
+%dir /var/service/ftp/log
+%dir %attr(0750,nobody,nogroup) /var/log/supervise/ftp
+/var/service/ftp/run
+/var/service/ftp/log/run
+%else
 %config(noreplace) /etc/xinetd.d/ftp
+%endif
 
 %changelog
+* Tue Dec 30 2003 Vincent Danen <vdanen@opensls.org> 1.3-5sls
+- supervise files; no xinetd
+- don't include menu entries or icons
+
 * Mon Dec 08 2003 Vincent Danen <vdanen@opensls.org> 1.3-4sls
 - OpenSLS build
 - tidy spec
