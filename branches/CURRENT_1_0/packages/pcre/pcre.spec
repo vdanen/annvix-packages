@@ -1,16 +1,10 @@
 %define name	pcre
-%define version	4.3
-%define	release	7sls
+%define version	4.5
+%define	release	1sls
 
 %define major		0
-%define libname_orig	%mklibname pcre
-%define libname		%{libname_orig}%{major}
-
-# define to update aclocal.m4 with new libtool.m4
-%define regenerate_configure 0
-%ifarch x86_64 mips
-%define regenerate_configure 1
-%endif
+%define libname_orig	lib%{name}
+%define libname		%mklibname pcre %{major}
 
 Summary: 	PCRE is a Perl-compatible regular expression library
 Name:	 	%{name}
@@ -20,10 +14,9 @@ License: 	BSD-Style
 Group: 		File tools
 URL: 		http://www.pcre.org/
 Source:		%name-%version.tar.bz2
-Patch0:		%{name}-4.3-avoid-link-path.patch.bz2
 
 BuildRoot: 	%{_tmppath}/%{name}-%{version}-buildroot
-BuildRequires:	autoconf2.5
+BuildRequires:	autoconf2.5, automake1.7
 
 Requires: 	%{libname} = %{version}
 
@@ -63,10 +56,11 @@ library.
 
 %prep
 %setup -q
-%patch0 -p1 -b .linkpath
-%if %{regenerate_configure}
-aclocal && autoconf
-%endif
+
+# always regen, otherwise libtool will behave funny
+%__libtoolize -c -f
+aclocal-1.7
+autoconf
 
 %build
 %configure2_5x --enable-utf8
@@ -117,6 +111,16 @@ ln -s ../../%_lib/lib%{name}.so.%{major}.* .
 %_mandir/man3/*.3*
 
 %changelog
+* Fri Jun 11 2004 Vincent Danen <vdanen@opensls.org> 4.5-1sls
+- 4.5
+- remove P0
+- Requires: automake1.7
+- sync with cooker 4.5-4mdk:
+  - (gb) fix deps (abel)
+  - don't need to regen auto* stuff, cputoolize would do the job (abel)
+  - BuildRequires: automake1.7
+
+
 * Tue Mar 02 2004 Vincent Danen <vdanen@opensls.org> 4.3-7sls
 - BuildRequires: autoconf2.5
 - minor spec cleanups
