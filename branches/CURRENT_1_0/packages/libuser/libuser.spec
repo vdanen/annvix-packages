@@ -1,19 +1,31 @@
-%define python 2.3
-%define major 1
+%define name	libuser
+%define version	0.51.7
+%define release	8sls
 
-Name: libuser
-Version: 0.51.7
-Release: 7mdk
-Group: System/Configuration/Other
-License: LGPL
-Source: libuser-%{version}.tar.bz2
-Patch0: libuser-0.51.7-apputil-pic.patch.bz2
-Patch1: libuser-0.51.7-python-module-pic.patch.bz2
-Patch2: libuser-0.51-modules-pic.patch.bz2
-URL: http://qa.mandrakesoft.com
-BuildRequires:	gettext	glib2-devel	libldap-devel libsasl-devel	linuxdoc-tools openssl-devel pam-devel popt-devel python-devel
-BuildRoot: %{_tmppath}/%{name}-root
-Summary: A user and group account administration library.
+%{!?build_opensls:%global build_opensls 0}
+
+%define python	2.3
+%define major	1
+
+Summary:	A user and group account administration library
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	LGPL
+Group:		System/Configuration/Other
+URL:		http://qa.mandrakesoft.com
+Source:		libuser-%{version}.tar.bz2
+Patch0:		libuser-0.51.7-apputil-pic.patch.bz2
+Patch1:		libuser-0.51.7-python-module-pic.patch.bz2
+Patch2:		libuser-0.51-modules-pic.patch.bz2
+Patch3:		libuser-nobloodysgml.patch.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-root
+BuildRequires:	gettext, glib2-devel, libldap-devel, libsasl-devel
+BuildRequires:	openssl-devel, pam-devel, popt-devel, python-devel
+%if !%{build_opensls}
+BuildRequires:	linuxdoc-tools
+%endif
 
 %description
 The libuser library implements a standardized interface for manipulating
@@ -24,25 +36,25 @@ Sample applications modeled after those included with the shadow password
 suite are included.
 
 %package -n %name-python
-Group: Development/Python
-Summary: Library bindings for python
+Group:		Development/Python
+Summary:	Library bindings for python
 
 %description -n %name-python
 this package contains the python library for python applications that 
 use libuser
 
 %package -n %name%major
-Group: System/Libraries
-Summary: The actual libraries for libuser.
+Group:		System/Libraries
+Summary:	The actual libraries for libuser.
 
 %description -n %name%major
 This is the actual library for the libuser library.
 
 %package -n %name%major-devel
-Group: Development/C
-Summary: Files needed for developing applications which use libuser.
-Requires: %{name}%major = %{version}-%{release}
-Provides: %name-devel = %version-%release
+Group:		Development/C
+Summary:	Files needed for developing applications which use libuser.
+Requires:	%{name}%major = %{version}-%{release}
+Provides:	%name-devel = %version-%release
 
 %description -n %name%major-devel
 The libuser-devel package contains header files, static libraries, and other
@@ -53,6 +65,10 @@ files useful for developing applications with libuser.
 %patch0 -p1 -b .apputil-pic
 %patch1 -p1 -b .python-module-pic
 %patch2 -p1 -b .modules-pic
+%if %{build_opensls}
+%patch3 -p1 -b .nosgml
+%endif
+
 %build
 export CFLAGS="$RPM_OPT_FLAGS -DG_DISABLE_ASSERT -I/usr/include/sasl" 
 %configure2_5x \
@@ -129,6 +145,11 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/gtk-doc/html/*
 
 %changelog
+* Mon Dec 22 2003 Vincent Danen <vdanen@opensls.org> 0.51.7-8sls
+- OpenSLS build
+- tidy spec
+- use %%build_opensls to apply P3; don't build sgml junk
+
 * Thu Aug  7 2003 Daouda LO <daouda@mandrakesoft.com> 0.51.7-7mdk
 - rebuild against latest python
 
