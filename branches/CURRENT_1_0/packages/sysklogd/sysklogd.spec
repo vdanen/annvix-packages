@@ -1,6 +1,6 @@
 %define name	sysklogd
 %define version	1.4.1
-%define release	6sls
+%define release	7sls
 
 # rh 1.4.1-5
 
@@ -11,13 +11,17 @@ Release: 	%{release}
 License:	GPL
 Group:		System/Kernel and hardware 
 Source:		ftp://sunsite.unc.edu/pub/Linux/system/daemons/%{name}-%{version}rh.tar.bz2
-Patch0:		sysklogd-1.4.1rh-mdkconf.patch.bz2
+Source1:	syslogd.run
+Source2:	syslogd-log.run
+Source3:	klogd.run
+Source4:	klogd-log.run
+Patch0:		sysklogd-1.4.1rh-opensls.patch.bz2
 Patch1: 	sysklogd-1.4rh-do_not_use_initlog_when_restarting.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-root
 
 Requires:	logrotate >= 3.3-8mdk, bash >= 2.0
-Prereq:		fileutils, /sbin/chkconfig, initscripts >= 5.60, rpm-helper
+PreReq:		fileutils, initscripts >= 5.60, rpm-helper
 
 %description
 The sysklogd package contains two system utilities (syslogd and klogd)
@@ -46,12 +50,18 @@ make install TOPDIR=$RPM_BUILD_ROOT MANDIR=$RPM_BUILD_ROOT%{_mandir} \
 install -m644 redhat/syslog.conf.rhs $RPM_BUILD_ROOT/etc/syslog.conf
 
 mkdir -p $RPM_BUILD_ROOT/etc/{rc.d/init.d,logrotate.d,sysconfig}
-install -m755 redhat/syslog.init $RPM_BUILD_ROOT/etc/rc.d/init.d/syslog
 install -m644 redhat/syslog.log $RPM_BUILD_ROOT/etc/logrotate.d/syslog
 install -m644 redhat/syslog $RPM_BUILD_ROOT/etc/sysconfig/syslog
 
 chmod 755 $RPM_BUILD_ROOT/sbin/syslogd
 chmod 755 $RPM_BUILD_ROOT/sbin/klogd
+
+mkdir -p %{buildroot}%{_srvdir}/{syslogd,klogd}/log
+mkdir -p %{buildroot}%{_srvlogdir}/{syslogd,klogd}
+install -m 0750 %{SOURCE1} %{buildroot}%{_srvdir}/syslogd/run
+install -m 0750 %{SOURCE2} %{buildroot}%{_srvdir}/syslogd/log/run
+install -m 0750 %{SOURCE3} %{buildroot}%{_srvdir}/klogd/run
+install -m 0750 %{SOURCE4} %{buildroot}%{_srvdir}/klogd/log/run
 
 %clean
 rm -fr $RPM_BUILD_ROOT
@@ -84,14 +94,17 @@ do
     [ -f $file ] || touch $file && chmod 600 $file
 done
 
-%_post_service syslog
+%_post_srv syslogd
+%_post_srv klogd
 
 %preun
-%_preun_service syslog
+%_preun_srv syslogd
+%_preun_srv klogd
 
 %postun
 if [ "$1" -ge "1" ]; then
-	service syslog condrestart > /dev/null 2>&1
+	/usr/sbin/srv restart klogd > /dev/null 2>&1
+	/usr/sbin/srv restart syslogd > /dev/null 2>&1
 fi	
 
 
@@ -101,12 +114,26 @@ fi
 %config(noreplace) %{_sysconfdir}/syslog.conf
 %config(noreplace) %{_sysconfdir}/sysconfig/syslog
 %config(noreplace) %{_sysconfdir}/logrotate.d/syslog
-%config(noreplace) %{_initrddir}/syslog
 /sbin/*
 %{_mandir}/*/*
+%dir %{_srvdir}/syslogd
+%dir %{_srvdir}/syslogd/log
+%{_srvdir}/syslogd/run
+%{_srvdir}/syslogd/log/run
+%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/syslogd
+%dir %{_srvdir}/klogd
+%dir %{_srvdir}/klogd/log
+%{_srvdir}/klogd/run
+%{_srvdir}/klogd/log/run
+%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/klogd
 
 
 %changelog
+* Wed Feb 04 2004 Vincent Danen <vdanen@opensls.org> 1.4.1-7sls
+- remove initscripts
+- supervise scripts
+- rediff/rename P0; we're using svc to restart syslogd for log rotation
+
 * Mon Dec 01 2003 Vincent Danen <vdanen@opensls.org> 1.4.1-6sls
 - OpenSLS build
 - tidy spec
