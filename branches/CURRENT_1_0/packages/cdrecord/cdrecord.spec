@@ -1,10 +1,10 @@
 %define name	cdrecord
 %define version 2.01
-%define release 0.a18.6avx
+%define release 0.a38.1avx
 %define epoch	4
 
 %define archname cdrtools
-%define dversion 2.01a18
+%define dversion 2.01a38
 
 %define mkisofs_ver	2.01
 %define mkisofs_rel	%release
@@ -19,10 +19,16 @@ License:	GPL
 Group:		Archiving/Cd burning
 URL:		http://www.fokus.gmd.de/research/cc/glone/employees/joerg.schilling/private/cdrecord.html
 Source:		ftp://ftp.berlios.de/pub/cdrecord/%{archname}-%{dversion}.tar.bz2
+Patch0:		cdrtools-2.01a28-mdk-o_excl.patch.bz2
+Patch1:		cdrtools-2.01a27-mdk-writemode.patch.bz2
 # http://www.abcpages.com/~mache/cdrecord-dvd.html
-Patch0:		cdrtools-2.01a15-dvd.patch.bz2
+Patch2:		cdrtools-2.01a32-dvd.patch.bz2
+Patch3:		cdrtools-2.01a38-mdk-rawio.patch.bz2
+Patch4:		cdrtools-2.01a38-mdk-warnings.patch.bz2
+Patch5:		cdrecord-2.01-CAN-2004-0806.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{dversion}-buildroot
+BuildRequires:	libpcap-devel
 
 Requires:	mkisofs
 PreReq:		rpm-helper
@@ -57,15 +63,32 @@ This is the mkisofs package.  It is used to create ISO 9660
 file system images for creating CD-ROMs. Now includes support
 for making bootable "El Torito" CD-ROMs.
 
+%package isotools
+Summary:	Collection of ISO file related tools
+Group:		Archiving/Cd burning
+
+%description isotools
+The following tools are included: isodebug, isodump, isoinfo,
+and isovfy.
+
+
 %prep
 %setup -q -n %{archname}-%{version}
-%patch0 -p1 -z .dvd
+%patch0 -p1 -z .o_excl
+%patch1 -p1 -z .writemode
+%patch2 -p1 -z .dvd
+#%patch3 -p1 -z .rawio
+%patch4 -p1 -z .warnings
+%patch5 -p1 -z .can-2004-0806
 
 %build
 ln -sf i586-linux-cc.rul RULES/ia64-linux-cc.rul
 ln -sf i586-linux-cc.rul RULES/x86_64-linux-cc.rul
 ln -sf i586-linux-cc.rul RULES/amd64-linux-cc.rul
-ln -sf i686-linux-cc.rul RULES/athlon-linux-cc.rul
+ln -sf i686-linux-cc.rul RULES/athlon-linux-cc.rulf
+
+perl -pi -e 's|/usr/src/linux/include|/usr/include|' DEFAULTS/Defaults.linux
+perl -pi -e 's|^KX_ARCH:=.*|XK_ARCH:=  %{_target_cpu}|' RULES/mk-gmake.id
 
 ./Gmake
 
@@ -76,6 +99,7 @@ ln -sf i686-linux-cc.rul RULES/athlon-linux-cc.rul
 
 rm -f %{buildroot}%{_bindir}/cdda2wav
 rm -f %{buildroot}%{_mandir}/man1/cdda2wav.1*
+rm -f %{buildroot}%{_mandir}/man1/cdda2ogg.1*
 
 # Move libraries to the right directories
 [[ "%_lib" != "lib" ]] && \
@@ -89,16 +113,15 @@ mv $RPM_BUILD_ROOT%{_prefix}/lib $RPM_BUILD_ROOT%{_libdir}/
 %attr(-,root,root) %doc AN-%{dversion} Changelog README*
 %attr(6755,root,cdwriter) %{_bindir}/cdrecord
 %attr(755,root,cdwriter) %{_bindir}/devdump
-%attr(755,root,cdwriter) %{_bindir}/isodump
-%attr(755,root,cdwriter) %{_bindir}/isodebug
-%attr(755,root,cdwriter) %{_bindir}/isoinfo
-%attr(755,root,cdwriter) %{_bindir}/isovfy
 %attr(755,root,cdwriter) %{_bindir}/scgcheck
-%attr(2750,root,cdwriter) %{_bindir}/readcd
+%attr(6750,root,cdwriter) %{_bindir}/readcd
+%attr(755,root,cdwriter) %{_bindir}/skel
 %attr(755,root,cdwriter) %{_sbindir}/rscsi
 %attr(644,root,root) %{_mandir}/man1/cdrecord.1*
 %attr(644,root,root) %{_mandir}/man1/readcd.1*
 %attr(644,root,root) %{_mandir}/man1/scgcheck.1*
+%attr(644,root,root) %{_mandir}/man5/makefiles.5*
+%attr(644,root,root) %{_mandir}/man5/makerules.5*
 %attr(644,root,root) %{_mandir}/man8/isoinfo.8*
 
 %files devel
@@ -116,7 +139,47 @@ mv $RPM_BUILD_ROOT%{_prefix}/lib $RPM_BUILD_ROOT%{_libdir}/
 %attr(644,root,root) %{_mandir}/man8/mkisofs.8*
 %attr(644,root,root) %{_mandir}/man8/mkhybrid.8*
 
+%files isotools
+%defattr(-,root,root)
+%attr(755,root,cdwriter) %{_bindir}/isodump
+%attr(755,root,cdwriter) %{_bindir}/isodebug
+%attr(755,root,cdwriter) %{_bindir}/isoinfo
+%attr(755,root,cdwriter) %{_bindir}/isovfy
+
 %changelog
+* Tue Sep 07 2004 Vincent Danen <vdanen@annvix.org> 2.01-0.a38.1avx
+- 2.0.1alpha38
+- apply security fix for CAN-2004-0806
+- don't apply P3; needs 2.6 kernel support?
+- sync with cooker 2.01-0.a38.1mdk (warly):
+  - fix format syntax problem in command line
+  - use glibc kernel headers
+  - remove a get_configuration which was disabling DMA on some burners,
+    based on a CJ Kucera suggestion
+  - default to ATA probing in scanbus if no SCSI devices found
+  - fix DVD+R detection on some burners
+  - add -dvd in version
+  - does not display ATA bus devices if dev= is passed with scanbus
+    (needed by xcdroast DVD patch)
+  - fix DVD+RW formating
+  - fix arch detection to use %%_target_cpu 
+  - get inspiration from Red Hat patch to open with E_EXCL to lock the device
+    and prevent some broken burners to interupt the burning when magicdev, for
+    example, poll the device
+  - fix burning speed multiplier for DVD
+  - fix bad dvd extension added to wrong place
+  - does not fisplay the burning mode warning
+  - fix a typeo in command line parsing (thanks to Stephen Beahm)
+  - add speed selection support in DVD mode
+  - fix DVD+RW formating when done for the first time
+  - fix speed selection on LG burner
+  - fix speed factor when burning CD in a DVD burner
+  - add a warning to scanbus when the ATA bus is selected
+  - new package: isotools; with ISO files related commands
+  - add Couriousous patch to keep rawio capabilities to be able to burn as
+   user with linux 2.6.8
+  - remove some warnings
+
 * Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 2.01-0.a18.6avx
 - Annvix build
 
