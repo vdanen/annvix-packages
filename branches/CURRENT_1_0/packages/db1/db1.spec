@@ -1,6 +1,6 @@
 %define name	db1
 %define version 1.85
-%define release 10sls
+%define release 11sls
 
 Summary:	The BSD database library for C (version 1).
 Name:		%{name}
@@ -16,7 +16,6 @@ Patch1:		db.%{version}-include.patch.bz2
 BuildRoot:	%{_tmppath}/%{name}-root
 
 PreReq:		/sbin/ldconfig
-Prefix:		%{_prefix}
 # this is a symlink not a real soname, so it has to be explicitely put
 # in a provides line -- pablo
 Provides:	libdb1.so.2
@@ -34,7 +33,6 @@ This library used to be part of the glibc package.
 %package devel
 Summary:	Development libs/header files for Berkeley DB (version 1) library.
 Group:		Development/C
-Prefix:		%{_prefix}
 Requires:	%{name} = %{version}
 %ifnarch ia64
 Conflicts:	glibc-devel < 2.1.90
@@ -52,7 +50,6 @@ building programs which use Berkeley DB.
 %package tools
 Summary:	Tools for Berkeley DB (version 1) library.
 Group:		Databases
-Prefix:		%{_prefix}
 
 %description tools
 Tools to manipulate Berkeley Databases (Berkeley DB).
@@ -70,7 +67,7 @@ ln -s include db1
 %make OORG="$RPM_OPT_FLAGS" 
 
 %install
-rm -rf ${RPM_BUILD_ROOT}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p ${RPM_BUILD_ROOT}%{_includedir}/db1
 mkdir -p ${RPM_BUILD_ROOT}/%{_libdir}
 mkdir -p ${RPM_BUILD_ROOT}/%{_bindir}
@@ -89,10 +86,9 @@ install -m644 ../../include/mpool.h	$RPM_BUILD_ROOT/%{_includedir}/db1/
 install -s -m755 db_dump185		$RPM_BUILD_ROOT/%{_bindir}/db1_dump185
 
 %clean
-rm -rf ${RPM_BUILD_ROOT}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post -p /sbin/ldconfig
-
 %postun -p /sbin/ldconfig
 
 %files
@@ -113,6 +109,10 @@ rm -rf ${RPM_BUILD_ROOT}
 %{_bindir}/db1_dump185
 
 %changelog
+* Wed Mar 03 2004 Vincent Danen <vdanen@opensls.org> 1.85-11sls
+- remove %%prefix
+- minor spec cleanups
+
 * Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 1.85-10sls
 - OpenSLS build
 - tidy spec
