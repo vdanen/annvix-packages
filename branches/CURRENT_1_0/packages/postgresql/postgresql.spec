@@ -1,13 +1,10 @@
 %define name	postgresql
 %define version	7.3.4
-%define release	3sls
-
-%{!?build_opensls:%global build_opensls 0}
+%define release	4sls
 
 %{expand:%%define pyver %(python -c 'import sys;print(sys.version[0:3])')}
 %{expand:%%define perl_version %(rpm -q perl|sed 's/perl-\([0-9].*\)-.*$/\1/')}
 
-%define initd		%{_sysconfdir}/rc.d/init.d
 %define pgdata		/var/lib/pgsql
 %define logrotatedir	%{_sysconfdir}/logrotate.d
 
@@ -39,13 +36,12 @@ Source7:	migration-scripts.tar.gz
 Source8:	logrotate.postgresql
 Source9:	http://jdbc.postgresql.org/download/pg73jdbc2ee.jar
 Source10:	README.postgresql.mdk
-Source11:	postgresql.init
 # Daouda : script for dumping database (from RedHat)
 Source14:	mdk-pgdump.sh
 Source15:	postgresql-bashprofile
-Source20:	postgres16.xpm
-Source21:	postgres32.xpm
-Source22:	postgres48.xpm
+Source20:	postgresql.run
+Source21:	postgresql-log.run
+Source22:	postgresql.sysconfig
 Source51:	README.v7.3
 Source52:	upgrade_tips_7.3
 Patch1:		rpm-pgsql-7.2.patch.bz2
@@ -161,18 +157,6 @@ PostgreSQL databases and/or your own PostgreSQL server. You also need
 to install the postgresql and postgresql-devel packages.
 
 If you never played with PostgreSQL before, please read README.mdk.
-
-%if !%{build_opensls}
-%package docs
-Summary:	Extra documentation for PostgreSQL
-Group:		Databases
-
-%description docs
-The postgresql-docs package includes the SGML source for the documentation
-as well as the documentation in other formats, and some extra documentation.
-Install this package if you want to help with the PostgreSQL documentation
-project, or if you want to generate printed documentation.
-%endif
 
 %package contrib
 Summary:	Contributed binaries distributed with PostgreSQL
@@ -370,9 +354,6 @@ install -d -m 700 $RPM_BUILD_ROOT/var/lib/pgsql/backups
 # postgres' .bash_profile
 install -m 644 %{SOURCE15} $RPM_BUILD_ROOT/var/lib/pgsql/.bash_profile
 
-# Create the multiple postmaster startup directory
-install -d -m 700 $RPM_BUILD_ROOT/etc/sysconfig/pgsql
-
 # tests. There are many files included here that are unnecessary, but include
 # them anyway for completeness.
 mkdir -p $RPM_BUILD_ROOT%{_libdir}/pgsql/test
@@ -385,17 +366,18 @@ popd
 
 cp %{SOURCE51} %{SOURCE52} .
 
-#mdk icons 
-#install -D -m644 %{SOURCE20} $RPM_BUILD_ROOT%{_miconsdir}/postgres.xpm
-#install -D -m644 %{SOURCE21} $RPM_BUILD_ROOT%{_iconsdir}/postgres.xpm
-#install -D -m644 %{SOURCE22} $RPM_BUILD_ROOT%{_liconsdir}/postgres.xpm
-
-install -D -m755 %{SOURCE11} $RPM_BUILD_ROOT%{initd}/postgresql
-
 bzip2 -cd %{SOURCE6} >  README.rpm-dist
 
 cp %{SOURCE10} README.mdk
 mv $RPM_BUILD_ROOT%{_docdir}/%{name}/html $RPM_BUILD_ROOT%{_docdir}/%{name}-docs-%{version}
+
+mkdir -p %{buildroot}%{_srvdir}/postgresql/log
+mkdir -p %{buildroot}%{_srvlogdir}/postgresql
+install -m 0755 %{SOURCE20} %{buildroot}%{_srvdir}/postgresql/run
+install -m 0755 %{SOURCE21} %{buildroot}%{_srvdir}/postgresql/log/run
+
+mkdir -p %{buildroot}%{_sysconfdir}/sysconfig
+install -m 0644 %{SOURCE22} %{buildroot}%{_sysconfdir}/sysconfig/postgresql
 
 %find_lang libpq
 %find_lang libecpg
@@ -416,9 +398,7 @@ rm -fr $RPM_BUILD_ROOT%{_datadir}/doc/postgresql/contrib/
 
 make check
 
-%if %{build_opensls}
 rm -rf %{buildroot}%{_docdir}/%{name}-docs-%{version}
-%endif
 
 %pre server
 %_pre_useradd postgres /var/lib/pgsql /bin/bash
@@ -428,89 +408,35 @@ fi
 chown postgres.postgres /var/log/postgresql
 chmod 0700 /var/log/postgresql
 
-# large objects are not dumped by dumpall, so do nothing if we detect some
-test_lo_db ()
-{   
-    su - postgres -c "psql -d template1 -At -F ' ' -c 'SELECT datname from pg_database WHERE datallowconn ORDER BY 1;'" | \
-    while read DATABASE; do
-	su - postgres -c "psql -d $DATABASE -A -F ' ' -c '\lo_list'" | grep -E '([0-9]+ row.?)' | (grep -q -v '(0 rows)' && return 0) || continue &> /dev/null
-	return 0
-    done
-}
-
-dump_data ()
-{
-    cp -f %{pgdata}/data/pg_hba.conf %{pgdata}/data/pg_hba.conf.mdk_update
-    cp -f %{_datadir}/pgsql/pg_hba.conf.sample %{pgdata}/data/pg_hba.conf
-    service postgresql start
-    if [ ! -f $file ]; then
-# This does not work nicely, because pg_dumpall override -Fc and does not allow custom format dumping. As a consequence large objects are not dumped.
-#      su - postgres -c "pg_dumpall -b -o -Fc > $file" &> /dev/null
-       rm -rf %{pgdata}/rpmtmp
-       su - postgres -c "mkdir %{pgdata}/rpmtmp"
-       su - postgres -c "pg_dumpall | gzip > $file" 
-    fi
-    service postgresql stop
-    cp -f %{pgdata}/data/pg_hba.conf.mdk_update %{pgdata}/data/pg_hba.conf
-}
-
-file=%{pgdata}/rpmtmp/pg_dumpall-%{version}-%{release}.psql.gz
-
-if [[ $1 -ge 1 ]] && grep -vq %{current_major_version} %{pgdata}/data/PG_VERSION &> /dev/null; then
-# the psql -c '\lo_list' does not work inside rpm script for version < 7.3
-    if ! test_lo_db; then
-        if [ -f /var/lock/subsys/postgresql ]; then
-            service postgresql stop
-	    dump_data
-        else 
-            dump_data
-        fi
-    fi
-fi
 
 %post server
 /sbin/ldconfig
 
-restor_dump ()
-{
-    mv -f %{pgdata}/data %{pgdata}/initdb.i18n %{pgdata}/rpmtmp/
-
-    cp -f %{pgdata}/data/pg_hba.conf %{pgdata}/data/pg_hba.conf.mdk_update
-    cp -f %{_datadir}/pgsql/pg_hba.conf.sample %{pgdata}/data/pg_hba.conf
-
-# This does not work nicely, because pg_dumpall override -Fc and does not allow custom format dumping. As a consequence large objects are not dumped.
-#       if service postgresql start && su - postgres -c "pg_restore -Fc -o -f $file" &> /dev/null; then 
-    service postgresql start > /dev/null
-    if [ -f /var/lock/subsys/postgresql ] && su - postgres -c "gzip -cd $file | psql template1" > /dev/null; then 
-        mv -f %{pgdata}/rpmtmp/initdb.i18n %{pgdata}/rpmtmp/initdb.i18n.rpmsave &> /dev/null
-        mv -f %{pgdata}/rpmtmp/data/postmaster.opts %{pgdata}/data/postmaster.opts.rpmsave &> /dev/null
-        find %{pgdata}/rpmtmp/data -name "*.conf" -exec mv -f {} {}.rpmsave \; -exec mv {}.rpmsave %{pgdata}/data/ \;
-        rm -rf %{pgdata}/rpmtmp
-    else
-        service postgresql stop
-        rm -f $file %{pgdata}initdb.i18n
-        rm -rf %{pgdata}/data
-        mv -f %{pgdata}/rpmtmp/data %{pgdata}/rpmtmp/initdb.i18n %{pgdata}/
-        rmdir %{pgdata}/rpmtmp &> /dev/null
-    fi
-    cp -f %{pgdata}/data/pg_hba.conf.mdk_update %{pgdata}/data/pg_hba.conf
-}
-
-file=%{pgdata}/rpmtmp/pg_dumpall-%{version}-%{release}.psql.gz
-if grep -vq %{current_major_version} %{pgdata}/data/PG_VERSION &> /dev/null && [[ $1 -ge 1 && -f $file ]]; then
-    if [ -f /var/lock/subsys/postgresql ]; then 
-        service postgresql stop &> /dev/null
-        restore_dump
-        service postgresql start &> /dev/null
-    else
-        restore_dump
-    fi
+PGDATA="%{pgdata}/data"
+# create the database if it doesn't exist
+if [ ! -f $PGDATA/PG_VERSION ] && [ ! -d $PGDATA/base ]; then
+  if [ ! -d $PGDATA ]; then
+    mkdir -p $PGDATA
+    chown postgres.postgres $PGDATA
+    chmod 700 $PGDATA
+  fi
+  # Make sure the locale from the initdb is preserved for later startups...
+  [ -f %{_sysconfdir}/sysconfig/i18n ] && cp %{_sysconfdir}/sysconfig/i18n $PGDATA/../initdb.i18n
+  # Just in case no locale was set, use en_US
+  [ ! -f %{_sysconfdir}/sysconfig/i18n ] && echo "LANG=en_US" >$PGDATA/../initdb.i18n
+  # Is expanded this early to be used in the command su runs
+  echo "export LANG LC_ALL LC_CTYPE LC_COLLATE LC_NUMERIC LC_TIME" >> $PGDATA/../initdb.i18n
+  # Initialize the database
+  su -l postgres -s /bin/sh -c "/usr/bin/initdb --pgdata=$PGDATA >/dev/null 2>&1" </dev/null
+  [ -f $PGDATA/PG_VERSION ] && echo "Database successfully initialized!"
+  [ ! -f $PGDATA/PG_VERSION ] && echo "Database was NOT successfully initalized!"
 fi
 
-%_post_service %{name}
+
+#%_post_service %{name}
 
 %preun server
-%_preun_service %{name}
+#%_preun_service %{name}
 
 %postun server
 /sbin/ldconfig
@@ -578,12 +504,6 @@ rm -f perlfiles.list
 %defattr(-,root,root)
 %{_libdir}/libecpg.so
 
-%if !%{build_opensls}
-%files docs
-%defattr(-,root,root)
-%doc %{_docdir}/%{name}-docs-%{version}
-%endif
-
 %files contrib
 %defattr(-,root,root)
 %doc contrib/*/README.* contrib/spi/*.example
@@ -645,7 +565,6 @@ rm -f perlfiles.list
 
 %files server -f server.lst
 %defattr(-,root,root)
-%config(noreplace) %{initd}/postgresql
 %doc README.mdk README.v7.3 upgrade_tips_7.3
 %{_bindir}/initdb
 %{_bindir}/initlocation
@@ -676,6 +595,12 @@ rm -f perlfiles.list
 %{_libdir}/pgsql/*_and_*.so
 %{_datadir}/pgsql/conversion_create.sql
 %{_datadir}/pgsql/upgrade.pl
+%dir %{_srvdir}/postgresql
+%dir %{_srvdir}/postgresql/log
+%{_srvdir}/postgresql/run
+%{_srvdir}/postgresql/log/run
+%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/postgresql
+%config(noreplace) %{_sysconfdir}/sysconfig/postgresql
 
 %files devel
 %defattr(-,root,root)
@@ -736,6 +661,17 @@ rm -f perlfiles.list
 %attr(-,postgres,postgres) %dir %{_libdir}/pgsql/test
 
 %changelog
+* Sun Jan 25 2004 Vincent Danen <vdanen@opensls.org> 7.3.4-4sls
+- init the db in %%post
+- don't try to do the admin's work for them; we don't want to be responsible
+  for something going wrong so remove all stuff to automate dumps/restores
+- remove %%build_opensls macros
+- supervise scripts
+- remove icons
+- remove initscript
+- make /etc/sysconfig/postgresql to hold some options for the supervise
+  script
+
 * Wed Dec 17 2003 Vincent Danen <vdanen@opensls.org> 7.3.4-3sls
 - OpenSLS build
 - tidy spec
