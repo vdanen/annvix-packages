@@ -1,6 +1,6 @@
 %define name	courier-imap
 %define version	2.1.2
-%define release	16avx
+%define release	17avx
 
 %define _localstatedir	/var/run
 %define	authdaemondir	%{_localstatedir}/authdaemon.courier-imap
@@ -480,21 +480,21 @@ test ! -f %{courierdatadir}/configlist.mysql || %{courierdatadir}/sysconftool-rp
 %{_srvdir}/courier-imapd/run
 %{_srvdir}/courier-imapd/log/run
 %config(noreplace) %{_srvdir}/courier-imapd/peers/0
-%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/courier-imapd
+%dir %attr(0750,logger,logger) %{_srvlogdir}/courier-imapd
 %dir %{_srvdir}/courier-imapds
 %dir %{_srvdir}/courier-imapds/log
 %dir %{_srvdir}/courier-imapds/peers
 %{_srvdir}/courier-imapds/run
 %{_srvdir}/courier-imapds/log/run
 %config(noreplace) %{_srvdir}/courier-imapds/peers/0
-%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/courier-imapds
+%dir %attr(0750,logger,logger) %{_srvlogdir}/courier-imapds
 %config(noreplace) %{_sysconfdir}/sysconfig/imapd
 %config(noreplace) %{_sysconfdir}/sysconfig/imapd-ssl
 %dir %{_srvdir}/authdaemond
 %dir %{_srvdir}/authdaemond/log
 %{_srvdir}/authdaemond/run
 %{_srvdir}/authdaemond/log/run
-%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/authdaemond
+%dir %attr(0750,logger,logger) %{_srvlogdir}/authdaemond
 %{_datadir}/afterboot/09_courier-imap
 
 %files pop
@@ -520,14 +520,14 @@ test ! -f %{courierdatadir}/configlist.mysql || %{courierdatadir}/sysconftool-rp
 %{_srvdir}/courier-pop3d/run
 %{_srvdir}/courier-pop3d/log/run
 %config(noreplace) %{_srvdir}/courier-pop3d/peers/0
-%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/courier-pop3d
+%dir %attr(0750,logger,logger) %{_srvlogdir}/courier-pop3d
 %dir %{_srvdir}/courier-pop3ds
 %dir %{_srvdir}/courier-pop3ds/log
 %dir %{_srvdir}/courier-pop3ds/peers
 %{_srvdir}/courier-pop3ds/run
 %{_srvdir}/courier-pop3ds/log/run
 %config(noreplace) %{_srvdir}/courier-pop3ds/peers/0
-%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/courier-pop3ds
+%dir %attr(0750,logger,logger) %{_srvlogdir}/courier-pop3ds
 %config(noreplace) %{_sysconfdir}/sysconfig/pop3d
 %config(noreplace) %{_sysconfdir}/sysconfig/pop3d-ssl
 
@@ -561,6 +561,9 @@ test ! -f %{courierdatadir}/configlist.mysql || %{courierdatadir}/sysconftool-rp
 %{_mandir}/man1/maildirmake++.1*
 
 %changelog
+* Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 2.1.2-17avx
+- use logger for logging
+
 * Thu Feb 04 2005 Vincent Danen <vdanen@annvix.org> 2.1.2-16avx
 - rebuild against new gdbm
 

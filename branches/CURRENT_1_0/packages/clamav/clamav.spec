@@ -1,6 +1,6 @@
 %define name	clamav
 %define version	0.83
-%define release	1avx
+%define release	2avx
 
 %define	major	1
 %define libname	%mklibname %{name} %{major}
@@ -221,7 +221,7 @@ done
 %dir %{_srvdir}/freshclam/log
 %{_srvdir}/freshclam/run
 %{_srvdir}/freshclam/log/run
-%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/freshclam
+%dir %attr(0750,logger,logger) %{_srvlogdir}/freshclam
 
 %files -n clamd
 %defattr(-,root,root)
@@ -234,7 +234,7 @@ done
 %dir %{_srvdir}/clamd/log
 %{_srvdir}/clamd/run
 %{_srvdir}/clamd/log/run
-%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/clamd
+%dir %attr(0750,logger,logger) %{_srvlogdir}/clamd
 
 %files -n %{name}-db
 %defattr(-,root,root)
@@ -259,6 +259,9 @@ done
 %{_libdir}/pkgconfig/libclamav.pc
       
 %changelog
+* Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 0.83-2avx
+- use logger for logging
+
 * Wed Feb 16 2005 Vincent Danen <vdanen@annvix.org> 0.83-1avx
 - 0.83
 - first Annvix build

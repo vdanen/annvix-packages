@@ -1,6 +1,6 @@
 %define name	nfs-utils
 %define	version	1.0.6
-%define release	5avx
+%define release	6avx
 
 %define	url	ftp://ftp.kernel.org:/pub/linux/utils/nfs
 
@@ -174,7 +174,7 @@ fi
 %{_srvdir}/nfs.mountd/run
 %{_srvdir}/nfs.mountd/finish
 %{_srvdir}/nfs.mountd/log/run
-%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/nfs.mountd
+%dir %attr(0750,logger,logger) %{_srvlogdir}/nfs.mountd
 
 %files clients
 %defattr(-,root,root)
@@ -194,9 +194,12 @@ fi
 %dir %{_srvdir}/nfs.statd/log
 %{_srvdir}/nfs.statd/run
 %{_srvdir}/nfs.statd/log/run
-%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/nfs.statd
+%dir %attr(0750,logger,logger) %{_srvlogdir}/nfs.statd
 
 %changelog
+* Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 1.0.6-6avx
+- use logger for logging
+
 * Sat Jan 29 2005 Vincent Danen <vdanen@annvix.org> 1.0.6-5avx
 - fix run scripts so the properly stop the services
 - enable checkdepends on nfs.statd

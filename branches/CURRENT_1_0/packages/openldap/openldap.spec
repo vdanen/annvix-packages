@@ -1,6 +1,6 @@
 %define name	openldap
 %define version	2.1.29
-%define release	11avx
+%define release	12avx
 
 %define major 		2
 %define migtools_ver	45
@@ -796,12 +796,12 @@ fi
 %dir %{_srvdir}/slapd/log
 %{_srvdir}/slapd/run
 %{_srvdir}/slapd/log/run
-%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/slapd
+%dir %attr(0750,logger,logger) %{_srvlogdir}/slapd
 %dir %{_srvdir}/slurpd
 %dir %{_srvdir}/slurpd/log
 %{_srvdir}/slurpd/run
 %{_srvdir}/slurpd/log/run
-%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/slurpd
+%dir %attr(0750,logger,logger) %{_srvlogdir}/slurpd
 
 
 %attr(750,ldap,ldap) %dir /var/log/ldap
@@ -874,6 +874,9 @@ fi
 # - add cron-job to remove transaction logs (bdb)
 
 %changelog
+* Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 2.1.29-12avx
+- use logger for logging
+
 * Wed Feb 02 2005 Vincent Danen <vdanen@annvix.org> 2.1.29-11avx
 - rebuild against new perl
 

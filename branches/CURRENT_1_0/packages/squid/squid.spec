@@ -1,6 +1,6 @@
 %define name	squid
 %define version	2.5.STABLE8
-%define release	1avx
+%define release	2avx
 
 %define their_version	2.5.STABLE8
 %define p_url   http://www.squid-cache.org/Versions/v2/2.5/bugs
@@ -343,9 +343,12 @@ fi
 %{_srvdir}/squid/run
 %{_srvdir}/squid/log/run
 #%{_srvdir}/squid/stop
-%attr(0750,nobody,nogroup) %dir %{_srvlogdir}/squid
+%attr(0750,logger,logger) %dir %{_srvlogdir}/squid
 
 %changelog
+* Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 2.5.STABLE8-2avx
+- use logger for logging
+
 * Fri Feb 18 2005 Vincent Danen <vdanen@annvix.org> 2.5.STABLE8-1avx
 - 2.5.STABLE8
 - sync with current bugfix patches

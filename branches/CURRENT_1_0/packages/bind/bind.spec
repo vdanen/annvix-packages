@@ -1,6 +1,6 @@
 %define name	bind
 %define version	9.3.0
-%define release	3avx
+%define release	4avx
 
 %define their_version	9.3.0
 
@@ -221,7 +221,7 @@ fi
 %{_srvdir}/named/run
 %{_srvdir}/named/stop
 %{_srvdir}/named/log/run
-%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/named
+%dir %attr(0750,logger,logger) %{_srvlogdir}/named
 %attr(0755,root,root) %{_sbindir}/*
 %{_mandir}/man3/lwres*.3*
 %{_mandir}/man5/named.conf.5*
@@ -254,6 +254,9 @@ fi
 %{_mandir}/man5/resolv.5*
 
 %changelog
+* Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 9.3.0-4avx
+- use logger for logging
+
 * Thu Jan 06 2005 Vincent Danen <vdanen@annvix.org> 9.3.0-3avx
 - rebuild against latest openssl
 

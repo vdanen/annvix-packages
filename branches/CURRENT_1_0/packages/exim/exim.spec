@@ -1,6 +1,6 @@
 %define name	exim
 %define version 4.44
-%define release 2avx
+%define release 3avx
 
 %define build_mysql 0
 %define build_pgsql 0
@@ -20,7 +20,7 @@ Name:		%{name}
 Summary:	The exim mail transfer agent
 Version:	%{version}
 Release:	%{release}
-Copyright:	GPL
+License:	GPL
 Group:		System/Servers
 URL:		http://www.exim.org
 Source:		ftp://ftp.exim.org/pub/exim/exim4/%{name}-%{version}.tar.gz
@@ -275,7 +275,7 @@ fi
 %dir %{_srvdir}/exim/log
 %{_srvdir}/exim/run
 %{_srvdir}/exim/log/run
-%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/exim
+%dir %attr(0750,logger,logger) %{_srvlogdir}/exim
 
 %files saexim
 %defattr(-,root,root)
@@ -286,6 +286,9 @@ fi
 %config(noreplace) %{_sysconfdir}/exim/sa-exim_short.conf
 
 %changelog
+* Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 4.44-3avx
+- use logger for logging
+
 * Wed Feb 02 2005 Vincent Danen <vdanen@annvix.org> 4.44-2avx
 - rebuild against new perl
 

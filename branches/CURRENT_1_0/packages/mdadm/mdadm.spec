@@ -1,6 +1,6 @@
 %define name	mdadm
 %define version	1.9.0
-%define release	1avx
+%define release	2avx
 
 %define use_dietlibc 0
 %ifarch %{ix86}
@@ -85,11 +85,14 @@ install -m 0755 %{SOURCE3} %{buildroot}%{_srvdir}/mdadm/log/run
 %{_mandir}/man*/md*
 %dir %{_srvdir}/mdadm
 %dir %{_srvdir}/mdadm/log
-%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/mdadm
+%dir %attr(0750,logger,logger) %{_srvlogdir}/mdadm
 %{_srvdir}/mdadm/run
 %{_srvdir}/mdadm/log/run
 
 %changelog
+* Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 1.9.0-2avx
+- use logger for logging
+
 * Tue Mar 01 2005 Vincent Danen <vdanen@annvix.org> 1.9.0-1avx
 - 1.9.0
 

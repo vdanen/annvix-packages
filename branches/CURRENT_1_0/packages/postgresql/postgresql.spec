@@ -1,6 +1,6 @@
 %define name	postgresql
 %define version	8.0.1
-%define release	2avx
+%define release	3avx
 
 %define _requires_exceptions devel(libtcl8.4)\\|devel(libtcl8.4(64bit))
 
@@ -538,7 +538,7 @@ rm -f perlfiles.list
 %{_srvdir}/postgresql/run
 %{_srvdir}/postgresql/finish
 %{_srvdir}/postgresql/log/run
-%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/postgresql
+%dir %attr(0750,logger,logger) %{_srvlogdir}/postgresql
 %config(noreplace) %{_sysconfdir}/sysconfig/postgresql
 %{_datadir}/afterboot/01_postgresql
 
@@ -572,6 +572,9 @@ rm -f perlfiles.list
 %attr(-,postgres,postgres) %dir %{_libdir}/pgsql/test
 
 %changelog
+* Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 8.0.1-3avx
+- use logger for logging
+
 * Wed Feb 23 2005 Vincent Danen <vdanen@annvix.org> 8.0.1-2avx
 - update the afterboot snippet to mention upgrading tips
 - s/su/chpst/ in the spec

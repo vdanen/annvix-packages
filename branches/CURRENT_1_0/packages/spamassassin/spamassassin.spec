@@ -1,6 +1,6 @@
 %define name	spamassassin
 %define version	2.64
-%define release	3avx
+%define release	4avx
 
 %define fname	Mail-SpamAssassin
 %define instdir	vendor
@@ -129,7 +129,7 @@ chmod 666 /var/spool/spamassassin/auto-whitelist.db
 %dir %{_srvdir}/spamd/log
 %{_srvdir}/spamd/run
 %{_srvdir}/spamd/log/run
-%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/spamd
+%dir %attr(0750,logger,logger) %{_srvlogdir}/spamd
 
 %files tools
 %defattr(-,root,root)
@@ -142,6 +142,9 @@ chmod 666 /var/spool/spamassassin/auto-whitelist.db
 %{_mandir}/man3*/*
 
 %changelog
+* Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 2.64-4avx
+- use logger for logging
+
 * Wed Feb 02 2005 Vincent Danen <vdanen@annvix.org> 2.64-3avx
 - rebuild against new perl
 
