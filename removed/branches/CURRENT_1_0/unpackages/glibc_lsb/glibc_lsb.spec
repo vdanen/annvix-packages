@@ -1,13 +1,16 @@
-Name        	: glibc_lsb
-Version     	: 2.3.1
-Release     	: 1mdk
-Group       	: System/Libraries
-Summary     	: LSB dynamic loader links.
-License   	: LGPL
-URL         	: http://www.gnu.org/software/libc/
+%define name	glibc_lsb
+%define version 2.3.1
+%define release 2sls
 
-BuildRoot   	: %{_tmppath}/%{name}-%{version}-root
-Requires	: lsb >= 1.3-5mdk
+Summary:	LSB dynamic loader links.
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+Group:		System/Libraries
+License:	LGPL
+URL:		http://www.gnu.org/software/libc/
+BuildRoot:	%{_tmppath}/%{name}-%{version}-root
+Requires:	lsb >= 1.3-5mdk
 
 %description
 Provides ld-lsb* dynamic loader links for LSB compliance.
@@ -39,6 +42,10 @@ export DONT_SYMLINK_LIBS=1
 %endif
 
 %changelog
+* Sun Nov 30 2003 Vincent Danen <vdanen@opensls.org> 2.3.1-2sls
+- build for OpenSLS
+- tidy spec
+
 * Tue Feb 18 2003 Stew Benedict <sbenedict@mandrakesoft.com> 2.3.1-1mdk
 - only provide ld-lsb* links, change version to track system glibc
 
