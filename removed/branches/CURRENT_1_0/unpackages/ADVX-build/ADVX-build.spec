@@ -1,6 +1,6 @@
 %define name	ADVX-build
 %define version	9.2
-%define release	4sls
+%define release	5avx
 
 Summary:	ADVX-build contains tools and macros to build ADVX
 Name:		%{name}
@@ -43,6 +43,9 @@ echo "See http://www.advx.org/devel.policy.php for more info" > \
 %attr(0644,root,root) %{_datadir}/ADVX/ADVX-build
 
 %changelog
+* Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 9.2-5avx
+- Annvix build
+
 * Mon Feb 09 2004 Vincent Danen <vdanen@opensls.org> 9.2-4sls
 - spec cleanups
 - own %%{_datadir}/ADVX
