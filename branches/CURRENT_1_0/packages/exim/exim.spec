@@ -1,6 +1,6 @@
 %define name	exim
 %define version 4.30
-%define release 3sls
+%define release 4sls
 
 %define build_mysql 0
 %define build_pgsql 0
@@ -190,16 +190,15 @@ install -d -m 0750 %{buildroot}/var/spool/exim/input
 install -d -m 0750 %{buildroot}/var/spool/exim/msglog
 install -d -m 0750 %{buildroot}/var/log/exim
 
-mkdir -p %{buildroot}{%{_mandir}/man8,%{_initrddir},%{_sysconfdir}/{sysconfig,cron.weekly}}
-install -m 0700 %{SOURCE2} %{buildroot}%{_initrddir}/exim
+mkdir -p %{buildroot}{%{_mandir}/man8,%{_sysconfdir}/{sysconfig,cron.weekly}}
 install -m 0644 %{SOURCE3} %{buildroot}%{_sysconfdir}/sysconfig/exim
 install -m 0755 %{SOURCE4} %{buildroot}%{_sysconfdir}/cron.weekly/exim.logrotate
 install -m 0644 %{SOURCE5} %{buildroot}%{_mandir}/man8/exim.8
 install -m 0755 %{SOURCE8} %{buildroot}%{_sbindir}
 
-mkdir -p %{buildroot}{/var/service/exim/log,/var/log/supervise/exim}
-install -m 0755 %{SOURCE13} %{buildroot}/var/service/exim/run
-install -m 0755 %{SOURCE14} %{buildroot}/var/service/exim/log/run
+mkdir -p %{buildroot}{%{_srvdir}/exim/log,%{_srvlogdir}/exim}
+install -m 0755 %{SOURCE13} %{buildroot}%{_srvdir}/exim/run
+install -m 0755 %{SOURCE14} %{buildroot}%{_srvdir}/exim/log/run
 
 # install SA-exim
 cd sa-exim*
@@ -322,15 +321,14 @@ fi
 %config(noreplace) %{_sysconfdir}/exim/aliases
 
 %defattr(-,root,root)
-%config(noreplace) %{_initrddir}/exim
 %config(noreplace) %{_sysconfdir}/sysconfig/exim
 %attr(0755,root,root) %config(noreplace) %{_sysconfdir}/cron.weekly/exim.logrotate
 %config(noreplace) %{_sysconfdir}/pam.d/exim
-%dir /var/service/exim
-%dir /var/service/exim/log
-/var/service/exim/run
-/var/service/exim/log/run
-%dir %attr(0750,nobody,nogroup) /var/log/supervise/exim
+%dir %{_srvdir}/exim
+%dir %{_srvdir}/exim/log
+%{_srvdir}/exim/run
+%{_srvdir}/exim/log/run
+%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/exim
 
 %files mon
 %defattr(-,root,root)
@@ -350,6 +348,10 @@ fi
 %config(noreplace) %{_sysconfdir}/exim/sa-exim_short.conf
 
 %changelog
+* Mon Jan 26 2004 Vincent Danen <vdanen@opensls.org> 4.30-4sls
+- remove initscript
+- use %%_srvdir and %%_srvlogdir macros
+
 * Sat Jan 10 2004 Vincent Danen <vdanen@opensls.org> 4.30-3sls
 - Requires lib64db4.1 if amd64
 
