@@ -1,6 +1,6 @@
 %define name	mdadm
 %define version	1.5.0
-%define release	1sls
+%define release	2sls
 
 %define use_dietlibc 0
 %ifarch %{ix86}
@@ -51,7 +51,7 @@ make mdassemble CXFLAGS="%{optflags}" SYSCONFDIR="%{_sysconfdir}"
 make CXFLAGS="%{optflags}" SYSCONFDIR="%{_sysconfdir}"
 
 %install
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 make DESTDIR=%{buildroot} MANDIR=%{_mandir} BINDIR=%{_sbindir} install
 install -D -m 644 mdadm.conf-example %{buildroot}%{_sysconfdir}/mdadm.conf
@@ -66,7 +66,7 @@ install -m 0755 %{SOURCE2} %{buildroot}%{_srvdir}/mdadm/run
 install -m 0755 %{SOURCE3} %{buildroot}%{_srvdir}/mdadm/log/run
 
 %clean
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %preun
 %_preun_srv mdadm
@@ -90,6 +90,9 @@ install -m 0755 %{SOURCE3} %{buildroot}%{_srvdir}/mdadm/log/run
 %{_srvdir}/mdadm/log/run
 
 %changelog
+* Sat Mar 06 2004 Vincent Danen <vdanen@opensls.org> 1.5.0-2sls
+- minor spec cleanups
+
 * Sat Jan 31 2004 Vincent Danen <vdanen@opensls.org> 1.5.0-1sls
 - 1.5.0
 - drop all upstream-applied patches
