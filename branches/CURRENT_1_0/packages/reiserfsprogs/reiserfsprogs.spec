@@ -1,6 +1,6 @@
 %define name	reiserfsprogs
-%define version	3.6.10
-%define release	2sls
+%define version	3.6.11
+%define release	1sls
 
 Summary:	The utilities to create Reiserfs volume.
 Name:		%{name}
@@ -65,6 +65,9 @@ rm -rf $RPM_BUILD_ROOT
 %_mandir/*/*
 
 %changelog
+* Fri Jan 09 2004 Vincent Danen <vdanen@opensls.org> 3.6.11-1sls
+- 3.6.11
+
 * Mon Dec 08 2003 Vincent Danen <vdanen@opensls.org> 3.6.10-2sls
 - OpenSLS build
 - tidy spec
