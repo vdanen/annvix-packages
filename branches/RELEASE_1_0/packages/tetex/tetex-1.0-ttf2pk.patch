@@ -1,0 +1,67 @@
+--- teTeX-1.0/ttf2pk/Makefile.in.ttf2pk	Thu Sep  3 07:12:57 1998
++++ teTeX-1.0/ttf2pk/Makefile.in	Tue Oct  9 17:41:36 2001
+@@ -17,7 +17,7 @@
+ CC = @CC@
+ CPP = @CPP@
+ 
+-LIBTOOL = ../../libtool
++LIBTOOL = /usr/bin/libtool 
+ MKINSTALLDIRS = $(srcdir)/../../mkinstalldirs
+ 
+ include MakeSub
+@@ -60,13 +60,13 @@
+ 
+ default all: $(PROGRAMS)
+ 
+-ttf2pk: $(ttf2pkobjs) $(LIBDIR)/libttf.la
++ttf2pk: $(ttf2pkobjs)
+ 	$(LIBTOOL) --mode=link $(CC) $(FT_CFLAGS) -o ttf2pk $(ttf2pkobjs) \
+-                                     $(LIBDIR)/libttf.la $(LDFLAGS)
++                                     $(LDFLAGS)
+ 
+-ttf2tfm: $(ttf2tfmobjs) $(LIBDIR)/libttf.la
++ttf2tfm: $(ttf2tfmobjs)
+ 	$(LIBTOOL) --mode=link $(CC) $(FT_CFLAGS) -o ttf2tfm $(ttf2tfmobjs) \
+-                                     $(LIBDIR)/libttf.la $(LDFLAGS)
++                                     $(LDFLAGS)
+ 
+ install: $(PROGRAMS)
+ 	$(MKINSTALLDIRS) $(bindir) $(mandir)/man1
+@@ -87,11 +87,10 @@
+ 	-$(RMF) dep.end $(PROGRAMS)
+ 	-$(RMF) *~ *.orig core *.core
+ 	-$(RMF) config.cache config.log config.status Makefile MakeSub
+-	-$(RMF) .libs/*
+-	-$(RMDIR) .libs
++	-[ -d .libs ] && ( $(RMF) .libs/*; $(RMDIR) .libs ) || /bin/true
+ 
+ do_clean:
+-	-$(RMF) *.o
++	-$(RMF) *.o ttf2pk ttf2tfm *.bak
+ 
+ 
+ depend:
+--- teTeX-1.0/ttf2pk/configure.in.ttf2pk	Thu Jun 10 23:51:36 1999
++++ teTeX-1.0/ttf2pk/configure.in	Tue Oct  9 17:41:53 2001
+@@ -5,7 +5,8 @@
+ dnl Some tests are omitted since we assume that you've built the
+ dnl FreeType library successfully.
+ 
+-AC_INIT(../../lib/freetype.h)
++AC_INIT(ttf2pk.c)
++AC_CONFIG_AUX_DIR(../config)
+ 
+ AC_CANONICAL_SYSTEM
+ 
+@@ -48,9 +49,8 @@
+ AC_CHECK_LIB(intl, gettext)
+ 
+ OLDLIBS=$LIBS
+-LIBS="$LIBS -L../../lib/.libs"
+-CPPFLAGS="-I$srcdir/../../lib $CPPFLAGS"
+-AC_CHECK_LIB(ttf, TT_Init_FreeType, LIBS="$LIBS -lttf",[
++CPPFLAGS="$CPPFLAGS -I/usr/include/freetype"
++AC_CHECK_LIB(ttf, TT_Init_FreeType, OLDLIBS="$LIBS -lttf",[
+              AC_MSG_ERROR([Can't find ttf library! Compile FreeType first.])])
+ LIBS=$OLDLIBS
+ 

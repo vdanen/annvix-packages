@@ -1,0 +1,11 @@
+--- run-tests.php	2004-05-26 20:23:23.000000000 +0200
++++ run-tests.php.oden	2004-06-08 12:33:31.702063932 +0200
+@@ -408,7 +408,7 @@
+ 			$automake = shell_exec('automake --version');
+ 			$autoconf = shell_exec('autoconf --version');
+ 			/* Always use the generated libtool - Mac OSX uses 'glibtool' */
+-			$libtool = shell_exec('./libtool --version');
++			$libtool = shell_exec('libtool --version');
+ 			/* Try the most common flags for 'version' */
+ 			$flags = array('-v', '-V', '--version');
+ 			$cc_status=0;

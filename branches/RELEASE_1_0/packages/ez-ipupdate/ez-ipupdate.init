@@ -1,0 +1,98 @@
+#!/bin/bash
+#
+# Laurent Culioli <laurent@mandrakesoft.com>
+# some idea stollen from the ez-ipudate website (  mdepot@mediaone.net )
+# Startup script for ez-ipudate  $Revision: 1.0 $
+#
+# chkconfig: 345 55 45
+#  
+# processname: ez-ipupdate
+# description: check and update your IP to dynamic DNS Server
+# pidfile: /var/run/ez-ipudpate.pid
+# config: /etc/ez-ipupdate.conf
+
+
+# Make sure relevant files exist
+[ -f /usr/bin/ez-ipupdate ] || exit 0
+[ -f /etc/ez-ipupdate.conf ] || exit 0
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+# Source networking configuration.
+. /etc/sysconfig/network
+
+# Check that networking is up.
+[ ${NETWORKING} = "no" ] && exit 0
+
+ez_config=/etc/ez-ipupdate.conf
+ez_bin=/usr/bin/ez-ipupdate
+ez_cache=`grep -E '^[[:space:]]*cache-file' $ez_config |  cut -d "=" -f2 `
+prog="ez-ipupdate"
+
+RETVAL=0
+
+start() {
+    # Start daemons.
+    if [ -n "`/sbin/pidof ez-ipupdate`" ]; then
+        echo -n $"$prog: already running"
+        return 1
+    fi
+    echo -n $"Starting $prog: "
+    $ez_bin -d -c $ez_config  >/dev/null 2>/dev/null
+    RETVAL=$?
+    usleep 100000
+    if [ -z "`/sbin/pidof ez-ipupdate`" ]; then
+        # The child processes have died after fork()ing, e.g.
+        # because of a broken config file
+        RETVAL=1
+    fi
+    [ $RETVAL -ne 0 ] && failure $"$prog startup"
+    [ $RETVAL -eq 0 ] && touch /var/lock/subsys/ez-ipupdate && success $"$prog startup"
+    echo
+    return $RETVAL
+}
+
+stop() {
+    # Stop daemons.
+    echo -n $"Shutting down $prog: "
+    killproc ez-ipupdate
+    RETVAL=$?
+    echo
+    [ $RETVAL -eq 0 ] && rm -f /var/lock/subsys/ez-ipupdate
+    return $RETVAL
+}
+
+# See how we were called.
+case "$1" in
+	start)
+		start
+		;;
+	stop)
+		stop
+		;;
+	restart|reload)
+		stop
+		start
+		RETVAL=$?
+		;;
+	condrestart)
+ 	        if [ -f /var/lock/subsys/ez-ipupdate ]; then
+        	   stop
+  	       	   start
+           	   RETVAL=$?
+       		fi
+       		;;
+
+        status)
+		status ez-ipupdate
+		RETVAL=$?
+		LAST_IP=`cat $ez_cache | cut -d "," -f2`
+		echo "last IP update : $LAST_IP"
+		;;
+	*)
+		echo $"Usage: ez-ipupdate  {start|stop|restart|reload|condrestart|status}"
+		RETVAL=1
+esac
+exit $RETVAL
+

@@ -1,0 +1,17 @@
+--- tiff-v3.5.7/libtiff/tif_dirread.c.CAN-2004-0804	2004-10-14 14:07:16.000000000 -0600
++++ tiff-v3.5.7/libtiff/tif_dirread.c	2004-10-14 14:24:27.000000000 -0600
+@@ -1366,10 +1366,13 @@
+ 	if (rowbytes > 8192) {
+ 		stripbytes = rowbytes;
+ 		rowsperstrip = 1;
+-	} else {
++	} else if (rowbytes > 0 ) {
+ 		rowsperstrip = 8192 / rowbytes;
+ 		stripbytes = rowbytes * rowsperstrip;
+ 	}
++        else
++            return;
++
+ 	/* never increase the number of strips in an image */
+ 	if (rowsperstrip >= td->td_rowsperstrip)
+ 		return;

@@ -1,0 +1,20 @@
+--- ./src/apropos.sh.l10n	2004-01-30 21:35:11.000000000 +0100
++++ ./src/apropos.sh	2004-01-30 21:35:49.000000000 +0100
+@@ -70,7 +70,7 @@
+ found=0
+ while [ $found = 0 -a -n "$1" ]
+ do
+-    for d in /var/cache/man $manpath /usr/lib
++    for d in /var/cache/man/$LANG /var/cache/man $manpath /usr/lib
+     do
+         if [ -f $d/whatis ]
+         then
+@@ -104,7 +104,7 @@
+     done
+     nothing=
+     found=0
+-    for d in /var/cache/man $manpath /usr/lib
++    for d in /var/cache/man/$LANG /var/cache/man $manpath /usr/lib
+     do
+         if [ -f $d/whatis ]
+         then

@@ -1,0 +1,228 @@
+--- dietlibc-0.24/ppc64/setjmp.S.ppc64-setjmp	2003-10-10 09:17:46.000000000 -0400
++++ dietlibc-0.24/ppc64/setjmp.S	2004-12-14 11:54:20.472065365 -0500
+@@ -3,54 +3,57 @@
+ #ifdef PIC
+ #define JUMPTARGET(name) name##@plt
+ #else
+-#define JUMPTARGET(name) name
++#define JUMPTARGET(name) .name
+ #endif
+ 
+-.global __sigsetjmp
+-.type __sigsetjmp,@function
++		.quad	.__sigsetjmp,.TOC.@tocbase,0
++		.previous
++		.size	__sigsetjmp,24
++		.type	.__sigsetjmp,@function
++		.globl	.__sigsetjmp
+ .align 2
+-__sigsetjmp:
+-        stw  1,(JB_GPR1*4)(3)
++.__sigsetjmp:
++        std  1,(JB_GPR1*8)(3)
+         mflr 0
+-        stw  2,(JB_GPR2*4)(3)
+-        stw  14,((JB_GPRS+0)*4)(3)
+-        stfd 14,((JB_FPRS+0*2)*4)(3)
+-        stw  0,(JB_LR*4)(3)
+-        stw  15,((JB_GPRS+1)*4)(3)
+-        stfd 15,((JB_FPRS+1*2)*4)(3)
++        std  2,(JB_GPR2*8)(3)
++        std  14,((JB_GPRS+0)*8)(3)
++        stfd 14,((JB_FPRS+0*2)*8)(3)
++        std  0,(JB_LR*8)(3)
++        std  15,((JB_GPRS+1)*8)(3)
++        stfd 15,((JB_FPRS+1*2)*8)(3)
+         mfcr 0
+-        stw  16,((JB_GPRS+2)*4)(3)
+-        stfd 16,((JB_FPRS+2*2)*4)(3)
+-        stw  0,(JB_CR*4)(3)
+-        stw  17,((JB_GPRS+3)*4)(3)
+-        stfd 17,((JB_FPRS+3*2)*4)(3)
+-        stw  18,((JB_GPRS+4)*4)(3)
+-        stfd 18,((JB_FPRS+4*2)*4)(3)
+-        stw  19,((JB_GPRS+5)*4)(3)
+-        stfd 19,((JB_FPRS+5*2)*4)(3)
+-        stw  20,((JB_GPRS+6)*4)(3)
+-        stfd 20,((JB_FPRS+6*2)*4)(3)
+-        stw  21,((JB_GPRS+7)*4)(3)
+-        stfd 21,((JB_FPRS+7*2)*4)(3)
+-        stw  22,((JB_GPRS+8)*4)(3)
+-        stfd 22,((JB_FPRS+8*2)*4)(3)
+-        stw  23,((JB_GPRS+9)*4)(3)
+-        stfd 23,((JB_FPRS+9*2)*4)(3)
+-        stw  24,((JB_GPRS+10)*4)(3)
+-        stfd 24,((JB_FPRS+10*2)*4)(3)
+-        stw  25,((JB_GPRS+11)*4)(3)
+-        stfd 25,((JB_FPRS+11*2)*4)(3)
+-        stw  26,((JB_GPRS+12)*4)(3)
+-        stfd 26,((JB_FPRS+12*2)*4)(3)
+-        stw  27,((JB_GPRS+13)*4)(3)
+-        stfd 27,((JB_FPRS+13*2)*4)(3)
+-        stw  28,((JB_GPRS+14)*4)(3)
+-        stfd 28,((JB_FPRS+14*2)*4)(3)
+-        stw  29,((JB_GPRS+15)*4)(3)
+-        stfd 29,((JB_FPRS+15*2)*4)(3)
+-        stw  30,((JB_GPRS+16)*4)(3)
+-        stfd 30,((JB_FPRS+16*2)*4)(3)
+-        stw  31,((JB_GPRS+17)*4)(3)
+-        stfd 31,((JB_FPRS+17*2)*4)(3)
++        std  16,((JB_GPRS+2)*8)(3)
++        stfd 16,((JB_FPRS+2*2)*8)(3)
++        std  0,(JB_CR*8)(3)
++        std  17,((JB_GPRS+3)*8)(3)
++        stfd 17,((JB_FPRS+3*2)*8)(3)
++        std  18,((JB_GPRS+4)*8)(3)
++        stfd 18,((JB_FPRS+4*2)*8)(3)
++        std  19,((JB_GPRS+5)*8)(3)
++        stfd 19,((JB_FPRS+5*2)*8)(3)
++        std  20,((JB_GPRS+6)*8)(3)
++        stfd 20,((JB_FPRS+6*2)*8)(3)
++        std  21,((JB_GPRS+7)*8)(3)
++        stfd 21,((JB_FPRS+7*2)*8)(3)
++        std  22,((JB_GPRS+8)*8)(3)
++        stfd 22,((JB_FPRS+8*2)*8)(3)
++        std  23,((JB_GPRS+9)*8)(3)
++        stfd 23,((JB_FPRS+9*2)*8)(3)
++        std  24,((JB_GPRS+10)*8)(3)
++        stfd 24,((JB_FPRS+10*2)*8)(3)
++        std  25,((JB_GPRS+11)*8)(3)
++        stfd 25,((JB_FPRS+11*2)*8)(3)
++        std  26,((JB_GPRS+12)*8)(3)
++        stfd 26,((JB_FPRS+12*2)*8)(3)
++        std  27,((JB_GPRS+13)*8)(3)
++        stfd 27,((JB_FPRS+13*2)*8)(3)
++        std  28,((JB_GPRS+14)*8)(3)
++        stfd 28,((JB_FPRS+14*2)*8)(3)
++        std  29,((JB_GPRS+15)*8)(3)
++        stfd 29,((JB_FPRS+15*2)*8)(3)
++        std  30,((JB_GPRS+16)*8)(3)
++        stfd 30,((JB_FPRS+16*2)*8)(3)
++        std  31,((JB_GPRS+17)*8)(3)
++        stfd 31,((JB_FPRS+17*2)*8)(3)
+         b JUMPTARGET (__sigjmp_save)
+-.size __sigsetjmp,.-__sigsetjmp
++.size .__sigsetjmp,.-.__sigsetjmp
+--- dietlibc-0.24/ppc64/__longjmp.S.ppc64-setjmp	2003-10-10 09:17:46.000000000 -0400
++++ dietlibc-0.24/ppc64/__longjmp.S	2004-12-14 11:54:20.473065146 -0500
+@@ -1,59 +1,54 @@
+ #include <setjmp.h>
+ 
+-
+-#ifdef PIC
+-#define JUMPTARGET(name) name##@plt
+-#else
+-#define JUMPTARGET(name) name
+-#endif
+-
+-.global __longjmp
+-.type __longjmp,@function
++		.quad	.__longjmp,.TOC.@tocbase,0
++		.previous
++		.size	__longjmp,24
++		.type	.__longjmp,@function
++		.globl	.__longjmp
+ .align 2
+-__longjmp:
+-	lwz 1,(JB_GPR1*4)(3)
+-	lwz 2,(JB_GPR2*4)(3)
+-	lwz 0,(JB_LR*4)(3)
+-	lwz 14,((JB_GPRS+0)*4)(3)
+-	lfd 14,((JB_FPRS+0*2)*4)(3)
+-	lwz 15,((JB_GPRS+1)*4)(3)
+-	lfd 15,((JB_FPRS+1*2)*4)(3)
+-	lwz 16,((JB_GPRS+2)*4)(3)
+-	lfd 16,((JB_FPRS+2*2)*4)(3)
+-	lwz 17,((JB_GPRS+3)*4)(3)
+-	lfd 17,((JB_FPRS+3*2)*4)(3)
+-	lwz 18,((JB_GPRS+4)*4)(3)
+-	lfd 18,((JB_FPRS+4*2)*4)(3)
+-	lwz 19,((JB_GPRS+5)*4)(3)
+-	lfd 19,((JB_FPRS+5*2)*4)(3)
+-	lwz 20,((JB_GPRS+6)*4)(3)
+-	lfd 20,((JB_FPRS+6*2)*4)(3)
++.__longjmp:
++	ld  1,(JB_GPR1*8)(3)
++	ld  2,(JB_GPR2*8)(3)
++	ld  0,(JB_LR*8)(3)
++	ld  14,((JB_GPRS+0)*8)(3)
++	lfd 14,((JB_FPRS+0*2)*8)(3)
++	ld  15,((JB_GPRS+1)*8)(3)
++	lfd 15,((JB_FPRS+1*2)*8)(3)
++	ld  16,((JB_GPRS+2)*8)(3)
++	lfd 16,((JB_FPRS+2*2)*8)(3)
++	ld  17,((JB_GPRS+3)*8)(3)
++	lfd 17,((JB_FPRS+3*2)*8)(3)
++	ld  18,((JB_GPRS+4)*8)(3)
++	lfd 18,((JB_FPRS+4*2)*8)(3)
++	ld  19,((JB_GPRS+5)*8)(3)
++	lfd 19,((JB_FPRS+5*2)*8)(3)
++	ld  20,((JB_GPRS+6)*8)(3)
++	lfd 20,((JB_FPRS+6*2)*8)(3)
+ 	mtlr 0
+-	lwz 21,((JB_GPRS+7)*4)(3)
+-	lfd 21,((JB_FPRS+7*2)*4)(3)
+-	lwz 22,((JB_GPRS+8)*4)(3)
+-	lfd 22,((JB_FPRS+8*2)*4)(3)
+-	lwz 0,(JB_CR*4)(3)
+-	lwz 23,((JB_GPRS+9)*4)(3)
+-	lfd 23,((JB_FPRS+9*2)*4)(3)
+-	lwz 24,((JB_GPRS+10)*4)(3)
+-	lfd 24,((JB_FPRS+10*2)*4)(3)
+-	lwz 25,((JB_GPRS+11)*4)(3)
+-	lfd 25,((JB_FPRS+11*2)*4)(3)
++	ld  21,((JB_GPRS+7)*8)(3)
++	lfd 21,((JB_FPRS+7*2)*8)(3)
++	ld  22,((JB_GPRS+8)*8)(3)
++	lfd 22,((JB_FPRS+8*2)*8)(3)
++	ld  0,(JB_CR*8)(3)
++	ld  23,((JB_GPRS+9)*8)(3)
++	lfd 23,((JB_FPRS+9*2)*8)(3)
++	ld  24,((JB_GPRS+10)*8)(3)
++	lfd 24,((JB_FPRS+10*2)*8)(3)
++	ld  25,((JB_GPRS+11)*8)(3)
++	lfd 25,((JB_FPRS+11*2)*8)(3)
+ 	mtcrf 0xFF,0
+-	lwz 26,((JB_GPRS+12)*4)(3)
+-	lfd 26,((JB_FPRS+12*2)*4)(3)
+-	lwz 27,((JB_GPRS+13)*4)(3)
+-	lfd 27,((JB_FPRS+13*2)*4)(3)
+-	lwz 28,((JB_GPRS+14)*4)(3)
+-	lfd 28,((JB_FPRS+14*2)*4)(3)
+-	lwz 29,((JB_GPRS+15)*4)(3)
+-	lfd 29,((JB_FPRS+15*2)*4)(3)
+-	lwz 30,((JB_GPRS+16)*4)(3)
+-	lfd 30,((JB_FPRS+16*2)*4)(3)
+-	lwz 31,((JB_GPRS+17)*4)(3)
+-	lfd 31,((JB_FPRS+17*2)*4)(3)
++	ld  26,((JB_GPRS+12)*8)(3)
++	lfd 26,((JB_FPRS+12*2)*8)(3)
++	ld  27,((JB_GPRS+13)*8)(3)
++	lfd 27,((JB_FPRS+13*2)*8)(3)
++	ld  28,((JB_GPRS+14)*8)(3)
++	lfd 28,((JB_FPRS+14*2)*8)(3)
++	ld  29,((JB_GPRS+15)*8)(3)
++	lfd 29,((JB_FPRS+15*2)*8)(3)
++	ld  30,((JB_GPRS+16)*8)(3)
++	lfd 30,((JB_FPRS+16*2)*8)(3)
++	ld  31,((JB_GPRS+17)*8)(3)
++	lfd 31,((JB_FPRS+17*2)*8)(3)
+ 	mr 3,4
+ 	blr
+-.size __longjmp,.-__longjmp
+-
++.size .__longjmp,.-.__longjmp
+--- dietlibc-0.24/include/setjmp.h.ppc64-setjmp	2003-10-10 09:17:46.000000000 -0400
++++ dietlibc-0.24/include/setjmp.h	2004-12-14 12:24:04.179364491 -0500
+@@ -177,7 +177,11 @@ typedef int __jmp_buf[24];
+ # define JB_GPRS   3  /* GPRs 14 through 31 are saved, 18 in total */
+ # define JB_CR     21 /* Condition code registers. */
+ # define JB_FPRS   22 /* FPRs 14 through 31 are saved, 18*2 words total */
++# if defined(powerpc)
+ # define JB_SIZE   (58*4)
++# else
++# define JB_SIZE   (58*8)
++# endif
+ #ifndef __ASSEMBLER__
+ typedef long int __jmp_buf[58];
+ #endif

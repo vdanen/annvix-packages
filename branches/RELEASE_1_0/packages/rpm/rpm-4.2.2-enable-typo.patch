@@ -1,0 +1,30 @@
+--- rpm-4.2.2/rpmio/rpmio.h.fred	2003-12-01 22:58:13.000000000 +0100
++++ rpm-4.2.2/rpmio/rpmio.h	2004-01-16 14:04:33.000000000 +0100
+@@ -501,7 +501,7 @@
+ int fdClose( /*@only@*/ void * cookie)
+ 	/*@globals errno, fileSystem, systemState, internalState @*/
+ 	/*@modifies *cookie, errno, fileSystem, systemState, internalState @*/;
+-#define	fdClose(_fd)		fdio->close(_fd)
++#define	fdCLose(_fd)		fdio->close(_fd)
+ 
+ /**
+  */
+--- rpm-4.2.2/rpmio/rpmio.c.fred	2003-12-01 22:58:13.000000000 +0100
++++ rpm-4.2.2/rpmio/rpmio.c	2004-01-16 14:14:28.000000000 +0100
+@@ -61,7 +61,6 @@
+ #undef	fdWrite
+ #define	fdWrite	__fdWrite
+ #undef	fdClose
+-#define	fdClose	__fdClose
+ 
+ #include "ugid.h"
+ #include "rpmmessages.h"
+@@ -428,7 +427,7 @@
+     return rc;
+ }
+ 
+-static int fdClose( /*@only@*/ void * cookie)
++int fdClose( /*@only@*/ void * cookie)
+ 	/*@globals errno, fileSystem, systemState, internalState @*/
+ 	/*@modifies errno, fileSystem, systemState, internalState @*/
+ {

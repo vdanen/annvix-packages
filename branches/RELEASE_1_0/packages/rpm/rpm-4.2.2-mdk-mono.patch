@@ -1,0 +1,26 @@
+--- rpm-4.2.2/autodeps/linux.req.mono	2004-07-27 16:26:39.000000000 +0200
++++ rpm-4.2.2/autodeps/linux.req	2004-07-28 11:58:06.120387675 +0200
+@@ -179,4 +179,10 @@
+ # --- pkgconfig
+ echo $filelist |  tr '[:blank:]' '\n' | egrep -q '/usr/lib(64)?/pkgconfig/.*\.pc' && echo pkgconfig
+ 
++#
++# --- mono requires
++if [ -x /usr/bin/mono-find-requires ]; then
++echo $filelist | tr [:blank:] \\n | /usr/bin/mono-find-requires
++fi
++
+ exit 0
+--- rpm-4.2.2/autodeps/linux.prov.mono	2004-07-27 16:26:39.000000000 +0200
++++ rpm-4.2.2/autodeps/linux.prov	2004-07-28 11:57:57.346302315 +0200
+@@ -67,4 +67,10 @@
+     echo ${objd} | perl -p -e "s/.*SONAME\s+(\S+)\.so.*/devel(\1$lib64)/g"
+ done | sort -u
+ 
++#
++# --- mono provides
++if [ -x /usr/bin/mono-find-provides ]; then
++echo $filelist | tr [:blank:] \\n | /usr/bin/mono-find-provides
++fi
++
+ exit 0

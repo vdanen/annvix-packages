@@ -1,0 +1,11 @@
+--- shadow-4.0.3/src/useradd.c.useradd-umask	2002-11-14 22:54:44.000000000 +0100
++++ shadow-4.0.3/src/useradd.c	2002-11-14 23:01:31.000000000 +0100
+@@ -1898,7 +1898,7 @@
+ 		}
+ 		chown (user_home, user_id, user_gid);
+ #if 1
+-		chmod (user_home, 0777 & ~getdef_num ("UMASK", 077));
++		chmod (user_home, 0777 & ~getdef_num ("UMASK", 0066));
+ #else
+ 		chmod (user_home, 0755);
+ #endif

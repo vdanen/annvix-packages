@@ -1,0 +1,116 @@
+--- Makefile.org	2004-09-28 22:52:14.000000000 +0200
++++ Makefile.org.oden	2004-11-08 01:55:06.134407380 +0100
+@@ -25,6 +25,7 @@
+ # Normally it is left empty.
+ INSTALL_PREFIX=
+ INSTALLTOP=/usr/local/ssl
++LIB=lib
+ 
+ # Do not edit this manually. Use Configure --openssldir=DIR do change this!
+ OPENSSLDIR=/usr/local/ssl
+@@ -324,7 +325,7 @@
+ 	( set -x; ${CC} --verbose -dynamiclib -o lib$$i${SHLIB_EXT} \
+ 		lib$$i.a $$libs -all_load -current_version ${SHLIB_MAJOR}.${SHLIB_MINOR} \
+ 		-compatibility_version ${SHLIB_MAJOR}.`echo ${SHLIB_MINOR} | cut -d. -f1` \
+-		-install_name ${INSTALLTOP}/lib/lib$$i${SHLIB_EXT} ) || exit 1; \
++		-install_name ${INSTALLTOP}/$(LIB)/lib$$i${SHLIB_EXT} ) || exit 1; \
+ 	libs="-l`basename $$i${SHLIB_EXT} .dylib` $$libs"; \
+ 	echo "" ; \
+ 	done
+@@ -391,7 +392,7 @@
+ 		fi; \
+ 		( set -x; ${CC} ${SHARED_LDFLAGS} \
+ 			-shared -msym -o lib$$i.so \
+-			-rpath  ${INSTALLTOP}/lib \
++			-rpath  ${INSTALLTOP}/$(LIB) \
+ 			-set_version "${SHLIB_VERSION_HISTORY}${SHLIB_VERSION_NUMBER}" \
+ 			-all lib$$i.a -none $$libs ${EX_LIBS} -lc ) || exit 1; \
+ 		libs="-l$$i $$libs"; \
+@@ -603,7 +604,7 @@
+ openssl.pc: Makefile
+ 	@ ( echo 'prefix=$(INSTALLTOP)'; \
+ 	    echo 'exec_prefix=$${prefix}'; \
+-	    echo 'libdir=$${exec_prefix}/lib'; \
++	    echo 'libdir=$${exec_prefix}/$(LIB)'; \
+ 	    echo 'includedir=$${prefix}/include'; \
+ 	    echo ''; \
+ 	    echo 'Name: OpenSSL'; \
+@@ -794,8 +795,8 @@
+ 
+ install_sw:
+ 	@$(PERL) $(TOP)/util/mkdir-p.pl $(INSTALL_PREFIX)$(INSTALLTOP)/bin \
+-		$(INSTALL_PREFIX)$(INSTALLTOP)/lib \
+-		$(INSTALL_PREFIX)$(INSTALLTOP)/lib/pkgconfig \
++		$(INSTALL_PREFIX)$(INSTALLTOP)/$(LIB) \
++		$(INSTALL_PREFIX)$(INSTALLTOP)/$(LIB)/pkgconfig \
+ 		$(INSTALL_PREFIX)$(INSTALLTOP)/include/openssl \
+ 		$(INSTALL_PREFIX)$(OPENSSLDIR)/misc \
+ 		$(INSTALL_PREFIX)$(OPENSSLDIR)/certs \
+@@ -816,14 +817,14 @@
+ 	do \
+ 		if [ -f "$$i" ]; then \
+ 		(       echo installing $$i; \
+-			cp $$i $(INSTALL_PREFIX)$(INSTALLTOP)/lib/$$i.new; \
++			cp $$i $(INSTALL_PREFIX)$(INSTALLTOP)/$(LIB)/$$i.new; \
+ 			if egrep 'define OPENSSL_FIPS' $(TOP)/include/openssl/opensslconf.h > /dev/null; then \
+ 				: ; \
+ 			else \
+-				$(RANLIB) $(INSTALL_PREFIX)$(INSTALLTOP)/lib/$$i.new; \
++				$(RANLIB) $(INSTALL_PREFIX)$(INSTALLTOP)/$(LIB)/$$i.new; \
+ 			fi; \
+-			chmod 644 $(INSTALL_PREFIX)$(INSTALLTOP)/lib/$$i.new; \
+-			mv -f $(INSTALL_PREFIX)$(INSTALLTOP)/lib/$$i.new $(INSTALL_PREFIX)$(INSTALLTOP)/lib/$$i ); \
++			chmod 644 $(INSTALL_PREFIX)$(INSTALLTOP)/$(LIB)/$$i.new; \
++			mv -f $(INSTALL_PREFIX)$(INSTALLTOP)/$(LIB)/$$i.new $(INSTALL_PREFIX)$(INSTALLTOP)/$(LIB)/$$i ); \
+ 		fi; \
+ 	done;
+ 	@if [ -n "$(SHARED_LIBS)" ]; then \
+@@ -833,22 +834,22 @@
+ 			if [ -f "$$i" -o -f "$$i.a" ]; then \
+ 			(       echo installing $$i; \
+ 				if [ "$(PLATFORM)" != "Cygwin" ]; then \
+-					cp $$i $(INSTALL_PREFIX)$(INSTALLTOP)/lib/$$i.new; \
+-					chmod 555 $(INSTALL_PREFIX)$(INSTALLTOP)/lib/$$i.new; \
+-					mv -f $(INSTALL_PREFIX)$(INSTALLTOP)/lib/$$i.new $(INSTALL_PREFIX)$(INSTALLTOP)/lib/$$i; \
++					cp $$i $(INSTALL_PREFIX)$(INSTALLTOP)/$(LIB)/$$i.new; \
++					chmod 555 $(INSTALL_PREFIX)$(INSTALLTOP)/$(LIB)/$$i.new; \
++					mv -f $(INSTALL_PREFIX)$(INSTALLTOP)/$(LIB)/$$i.new $(INSTALL_PREFIX)$(INSTALLTOP)/$(LIB)/$$i; \
+ 				else \
+ 					c=`echo $$i | sed 's/^lib\(.*\)\.dll/cyg\1-$(SHLIB_VERSION_NUMBER).dll/'`; \
+ 					cp $$c $(INSTALL_PREFIX)$(INSTALLTOP)/bin/$$c.new; \
+ 					chmod 755 $(INSTALL_PREFIX)$(INSTALLTOP)/bin/$$c.new; \
+ 					mv -f $(INSTALL_PREFIX)$(INSTALLTOP)/bin/$$c.new $(INSTALL_PREFIX)$(INSTALLTOP)/bin/$$c; \
+-					cp $$i.a $(INSTALL_PREFIX)$(INSTALLTOP)/lib/$$i.a.new; \
+-					chmod 644 $(INSTALL_PREFIX)$(INSTALLTOP)/lib/$$i.a.new; \
+-					mv -f $(INSTALL_PREFIX)$(INSTALLTOP)/lib/$$i.a.new $(INSTALL_PREFIX)$(INSTALLTOP)/lib/$$i.a; \
++					cp $$i.a $(INSTALL_PREFIX)$(INSTALLTOP)/$(LIB)/$$i.a.new; \
++					chmod 644 $(INSTALL_PREFIX)$(INSTALLTOP)/$(LIB)/$$i.a.new; \
++					mv -f $(INSTALL_PREFIX)$(INSTALLTOP)/$(LIB)/$$i.a.new $(INSTALL_PREFIX)$(INSTALLTOP)/$(LIB)/$$i.a; \
+ 				fi ); \
+ 			fi; \
+ 		done; \
+ 		(	here="`pwd`"; \
+-			cd $(INSTALL_PREFIX)$(INSTALLTOP)/lib; \
++			cd $(INSTALL_PREFIX)$(INSTALLTOP)/$(LIB); \
+ 			set $(MAKE); \
+ 			$$1 -f $$here/Makefile link-shared ); \
+ 		if [ "$(INSTALLTOP)" != "/usr" ]; then \
+@@ -862,13 +863,13 @@
+ 	do \
+ 		if [ -f "$$i" ]; then \
+ 		(       echo installing $$i; \
+-			cp $$i $(INSTALL_PREFIX)$(INSTALLTOP)/lib/$$i.new; \
+-			chmod 644 $(INSTALL_PREFIX)$(INSTALLTOP)/lib/$$i.new; \
+-			mv -f $(INSTALL_PREFIX)$(INSTALLTOP)/lib/$$i.new $(INSTALL_PREFIX)$(INSTALLTOP)/lib/$$i ); \
++			cp $$i $(INSTALL_PREFIX)$(INSTALLTOP)/$(LIB)/$$i.new; \
++			chmod 644 $(INSTALL_PREFIX)$(INSTALLTOP)/$(LIB)/$$i.new; \
++			mv -f $(INSTALL_PREFIX)$(INSTALLTOP)/$(LIB)/$$i.new $(INSTALL_PREFIX)$(INSTALLTOP)/$(LIB)/$$i ); \
+ 		fi; \
+ 	done;
+-	cp openssl.pc $(INSTALL_PREFIX)$(INSTALLTOP)/lib/pkgconfig
+-	chmod 644 $(INSTALL_PREFIX)$(INSTALLTOP)/lib/pkgconfig/openssl.pc
++	cp openssl.pc $(INSTALL_PREFIX)$(INSTALLTOP)/$(LIB)/pkgconfig
++	chmod 644 $(INSTALL_PREFIX)$(INSTALLTOP)/$(LIB)/pkgconfig/openssl.pc
+ 
+ install_docs:
+ 	@$(PERL) $(TOP)/util/mkdir-p.pl \

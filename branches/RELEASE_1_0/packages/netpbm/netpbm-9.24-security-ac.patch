@@ -1,0 +1,703 @@
+diff -u --new-file --exclude-from /home/devel/alan/exclude --recursive netpbm-9.24/pbm/atktopbm.c netpbm-9.24-ac/pbm/atktopbm.c
+--- netpbm-9.24/pbm/atktopbm.c	Thu Dec 19 10:46:24 2002
++++ netpbm-9.24-ac/pbm/atktopbm.c	Thu Dec 19 10:46:13 2002
+@@ -322,8 +322,7 @@
+ 	*rwidth = width;
+ 	*rheight = height;
+ 	rowlen = (width + 7) / 8;
+-	*destaddr = (unsigned char *) malloc (sizeof(unsigned char) * height *
+-rowlen);
++	*destaddr = (unsigned char *) malloc3 (sizeof(unsigned char), height, rowlen);
+ 	for (row = 0;   row < height;   row++)
+ 	  {
+ 	    long c;
+diff -u --new-file --exclude-from /home/devel/alan/exclude --recursive netpbm-9.24/pbm/icontopbm.c netpbm-9.24-ac/pbm/icontopbm.c
+--- netpbm-9.24/pbm/icontopbm.c	Thu Dec 19 10:46:24 2002
++++ netpbm-9.24-ac/pbm/icontopbm.c	Thu Dec 19 10:46:13 2002
+@@ -10,6 +10,8 @@
+ ** implied warranty.
+ */
+ 
++#include <string.h>
++#include <limits.h>
+ #include "pbm.h"
+ 
+ static void ReadIconFile ARGS(( FILE* file, int* width, int* height, short** data ));
+@@ -137,6 +139,11 @@
+     if ( *height <= 0 )
+ 	pm_error( "invalid height: %d", *height );
+ 
++    if ( *width > INT_MAX - 16 || *width < 0)
++    	pm_error( "invalid width: %d", *width);
++    
++    overflow2(*width + 16, *height);
++    
+     data_length = BitmapSize( *width, *height );
+     *data = (short*) malloc( data_length );
+     if ( *data == NULL )
+diff -u --new-file --exclude-from /home/devel/alan/exclude --recursive netpbm-9.24/pbm/libpbm1.c netpbm-9.24-ac/pbm/libpbm1.c
+--- netpbm-9.24/pbm/libpbm1.c	Thu Dec 19 10:46:24 2002
++++ netpbm-9.24-ac/pbm/libpbm1.c	Thu Dec 19 10:46:13 2002
+@@ -36,14 +36,19 @@
+           const int format, const int cols, const int rows,
+           enum pm_check_code * const retval_p) {
+ 
++    if (rows < 0 || cols < 0)
++    	pm_error("invalid image");
+     if (check_type != PM_CHECK_BASIC) {
+         if (retval_p) *retval_p = PM_CHECK_UNKNOWN_TYPE;
+     } else if (format != RPBM_FORMAT) {
+         if (retval_p) *retval_p = PM_CHECK_UNCHECKABLE;
+     } else {        
++    	/* signed to unsigned so wont wrap */
+         const unsigned int bytes_per_row = (cols+7)/8;
+         const unsigned int need_raster_size = rows * bytes_per_row;
+         
++        overflow2(bytes_per_row, rows);
++        
+         pm_check(file, check_type, need_raster_size, retval_p);
+     }
+ }
+diff -u --new-file --exclude-from /home/devel/alan/exclude --recursive netpbm-9.24/pbm/libpbm5.c netpbm-9.24-ac/pbm/libpbm5.c
+--- netpbm-9.24/pbm/libpbm5.c	Thu Dec 19 10:46:24 2002
++++ netpbm-9.24-ac/pbm/libpbm5.c	Thu Dec 19 10:46:13 2002
+@@ -767,15 +767,18 @@
+     fn->frows = frows;
+     fn->fcols = fcols;
+     
+-    glyph = (struct glyph*) malloc( sizeof(struct glyph) * 95 );
++    glyph = (struct glyph*) malloc2( sizeof(struct glyph), 95 );
+     if ( glyph == (struct glyph*) 0 )
+ 	pm_error( "out of memory allocating glyphs" );
+     
+-    bmap = (char*) malloc( fn->maxwidth * fn->maxheight * 95 );
++    bmap = (char*) malloc3( fn->maxwidth, fn->maxheight, 95 );
+     if ( bmap == (char*) 0)
+ 	pm_error( "out of memory allocating glyph data" );
+ 
+     /* Now fill in the 0,0 coords. */
++    overflow2(char_height, 2);
++    overflow2(char_width, 2);
++    
+     row = char_height * 2;
+     col = char_width * 2;
+     for ( ch = 0; ch < 95; ++ch )
+@@ -1022,7 +1025,7 @@
+ 				glyph->x = atoi(arg[3]);
+ 				glyph->y = atoi(arg[4]);
+ 
+-				if (!(glyph->bmap = (char*)malloc(glyph->width * glyph->height)))
++				if (!(glyph->bmap = (char*)malloc2(glyph->width, glyph->height)))
+ 					pm_error("no memory for font glyph byte map");
+ 
+ 				if (readline(fp, line, arg) < 0) { fclose(fp); return 0; }
+diff -u --new-file --exclude-from /home/devel/alan/exclude --recursive netpbm-9.24/pbm/libpbmvms.c netpbm-9.24-ac/pbm/libpbmvms.c
+--- netpbm-9.24/pbm/libpbmvms.c	Thu Dec 19 10:46:24 2002
++++ netpbm-9.24-ac/pbm/libpbmvms.c	Thu Dec 19 10:46:14 2002
+@@ -1,3 +1,5 @@
++#warning "NOT AUDITED"
++
+ /***************************************************************************
+   This file contains library routines needed to build Netpbm for VMS.
+   However, as of 2000.05.26, when these were split out of libpbm1.c
+diff -u --new-file --exclude-from /home/devel/alan/exclude --recursive netpbm-9.24/pbm/mdatopbm.c netpbm-9.24-ac/pbm/mdatopbm.c
+--- netpbm-9.24/pbm/mdatopbm.c	Thu Dec 19 10:46:24 2002
++++ netpbm-9.24-ac/pbm/mdatopbm.c	Thu Dec 19 10:46:14 2002
+@@ -235,9 +235,14 @@
+ 	pm_readlittleshort(infile, &yy); nInRows = yy;
+ 	pm_readlittleshort(infile, &yy); nInCols = yy;
+ 
++	overflow2(nOutCols, 8);
+ 	nOutCols = 8*nInCols;
+ 	nOutRows = nInRows;
+-	if (bScale) nOutRows *= 2;
++	if (bScale) 
++	{
++		overflow2(nOutRows, 2);
++		nOutRows *= 2;
++	}
+ 
+ 	data = pbm_allocarray(nOutCols, nOutRows);
+ 	mdrow = malloc(nInCols);
+diff -u --new-file --exclude-from /home/devel/alan/exclude --recursive netpbm-9.24/pbm/mgrtopbm.c netpbm-9.24-ac/pbm/mgrtopbm.c
+--- netpbm-9.24/pbm/mgrtopbm.c	Thu Dec 19 10:46:24 2002
++++ netpbm-9.24-ac/pbm/mgrtopbm.c	Thu Dec 19 10:46:13 2002
+@@ -108,6 +108,12 @@
+                  head.magic[0], head.magic[1] );
+         pad = -1;  /* should never reach here */
+     }
++    
++    if(head.h_wide < ' ' || head.l_wide < ' ')
++    	pm_error("bad width/height chars in MGR file");
++    
++    overflow_add(*colsP, pad);
++    
+     *colsP = ( ( (int) head.h_wide - ' ' ) << 6 ) + ( (int) head.l_wide - ' ' );
+     *rowsP = ( ( (int) head.h_high - ' ' ) << 6 ) + ( (int) head.l_high - ' ' );
+     *padrightP = ( ( *colsP + pad - 1 ) / pad ) * pad - *colsP;
+diff -u --new-file --exclude-from /home/devel/alan/exclude --recursive netpbm-9.24/pbm/pbmclean.c netpbm-9.24-ac/pbm/pbmclean.c
+--- netpbm-9.24/pbm/pbmclean.c	Thu Dec 19 10:46:24 2002
++++ netpbm-9.24-ac/pbm/pbmclean.c	Thu Dec 19 10:46:13 2002
+@@ -147,7 +147,7 @@
+     inrow[0] = inrow[1];
+     inrow[1] = inrow[2];
+     inrow[2] = shuffle ;
+-    if (row+1 < rows) {
++    if (row <= rows) {
+         /* Read the "next" row in from the file.  Allocate buffer if neeeded */
+         if (inrow[2] == NULL)
+             inrow[2] = pbm_allocrow(cols);
+diff -u --new-file --exclude-from /home/devel/alan/exclude --recursive netpbm-9.24/pbm/pbmlife.c netpbm-9.24-ac/pbm/pbmlife.c
+--- netpbm-9.24/pbm/pbmlife.c	Thu Dec 19 10:46:24 2002
++++ netpbm-9.24-ac/pbm/pbmlife.c	Thu Dec 19 10:46:14 2002
+@@ -54,7 +54,7 @@
+ 	prevrow = thisrow;
+ 	thisrow = nextrow;
+ 	nextrow = temprow;
+-	if ( row < rows - 1 )
++	if ( row <= rows )
+ 	    pbm_readpbmrow( ifp, nextrow, cols, format );
+ 
+         for ( col = 0; col < cols; ++col )
+diff -u --new-file --exclude-from /home/devel/alan/exclude --recursive netpbm-9.24/pbm/pbmpage.c netpbm-9.24-ac/pbm/pbmpage.c
+--- netpbm-9.24/pbm/pbmpage.c	Thu Dec 19 10:46:24 2002
++++ netpbm-9.24-ac/pbm/pbmpage.c	Thu Dec 19 10:46:14 2002
+@@ -15,6 +15,7 @@
+ #include <math.h>
+ #include <stdio.h>
+ #include <stdlib.h>
++#include <string.h>
+ #include "pbm.h"
+ 
+ /* Support both US and A4. */
+@@ -143,6 +144,9 @@
+     /* We round the allocated row space up to a multiple of 8 so the ugly
+        fast code below can work.
+        */
++       
++    overflow_add(Width, 7);
++    
+     pbmrow = pbm_allocrow(((Width+7)/8)*8);
+     
+     bitmap_cursor = 0;
+diff -u --new-file --exclude-from /home/devel/alan/exclude --recursive netpbm-9.24/pbm/pbmpscale.c netpbm-9.24-ac/pbm/pbmpscale.c
+--- netpbm-9.24/pbm/pbmpscale.c	Thu Dec 19 10:46:24 2002
++++ netpbm-9.24-ac/pbm/pbmpscale.c	Thu Dec 19 10:46:13 2002
+@@ -108,8 +108,9 @@
+    inrow[0] = inrow[1] = inrow[2] = NULL;
+    pbm_readpbminit(ifd, &columns, &rows, &format) ;
+ 
++   overflow2(columns, scale);
+    outrow = pbm_allocrow(columns*scale) ;
+-   flags = (unsigned char *)malloc(sizeof(unsigned char)*columns) ;
++   flags = (unsigned char *)malloc2(sizeof(unsigned char), columns) ;
+    if (flags == NULL) pm_perror("out of memory") ;
+ 
+    pbm_writepbminit(stdout, columns*scale, rows*scale, 0) ;
+diff -u --new-file --exclude-from /home/devel/alan/exclude --recursive netpbm-9.24/pbm/pbmreduce.c netpbm-9.24-ac/pbm/pbmreduce.c
+--- netpbm-9.24/pbm/pbmreduce.c	Thu Dec 19 10:46:24 2002
++++ netpbm-9.24-ac/pbm/pbmreduce.c	Thu Dec 19 10:46:14 2002
+@@ -92,8 +92,9 @@
+ 
+     if ( halftone == QT_FS ) {
+         /* Initialize Floyd-Steinberg. */
+-        thiserr = (long*) malloc( ( newcols + 2 ) * sizeof(long) );
+-        nexterr = (long*) malloc( ( newcols + 2 ) * sizeof(long) );
++        overflow_add(newcols, 2);
++        thiserr = (long*) malloc2( ( newcols + 2 ), sizeof(long) );
++        nexterr = (long*) malloc2( ( newcols + 2 ), sizeof(long) );
+         if ( thiserr == 0 || nexterr == 0 )
+           pm_error( "out of memory" );
+ 
+diff -u --new-file --exclude-from /home/devel/alan/exclude --recursive netpbm-9.24/pbm/pbmtext.c netpbm-9.24-ac/pbm/pbmtext.c
+--- netpbm-9.24/pbm/pbmtext.c	Thu Dec 19 10:46:24 2002
++++ netpbm-9.24-ac/pbm/pbmtext.c	Thu Dec 19 10:46:13 2002
+@@ -82,12 +82,14 @@
+         
+         for (i = 1; i < argc; i++) {
+             if (i > 1) {
++                overflow_add(totaltextsize, 1);
+                 totaltextsize += 1;
+                 cmdline_p->text = realloc(cmdline_p->text, totaltextsize);
+                 if (cmdline_p->text == NULL)
+                     pm_error("out of memory");
+                 strcat(cmdline_p->text, " ");
+             } 
++            overflow_add(totaltextsize, strlen(argv[i]));
+             totaltextsize += strlen(argv[i]);
+             cmdline_p->text = realloc(cmdline_p->text, totaltextsize);
+             if (cmdline_p->text == NULL)
+@@ -328,11 +330,12 @@
+            */
+ 
+     maxlines = 50;  /* initial value */
+-    *input_textP = (char**) malloc(maxlines * sizeof(char*));
++    *input_textP = (char**) malloc2(maxlines, sizeof(char*));
+     if (*input_textP == NULL)
+         pm_error("out of memory");
+ 
+     if (cmdline_text) {
++        overflow_add(strlen(cmdline_text), 1);
+         (*input_textP)[0] = malloc(strlen(cmdline_text)+1);
+         if ((*input_textP)[0] == NULL)
+             pm_error("Out of memory.");
+@@ -347,7 +350,9 @@
+         while (fgets(buf, sizeof(buf), stdin) != NULL) {
+             fix_control_chars(buf, fn);
+             if (*linesP >= maxlines) {
++                overflow2(maxlines, 2);
+                 maxlines *= 2;
++                overflow2(maxlines, sizeof(char *));
+                 *input_textP = (char**) realloc((char*) *input_textP, 
+                                                 maxlines * sizeof(char*));
+                 if(*input_textP == NULL)
+@@ -426,6 +431,7 @@
+         hmargin = fn->maxwidth;
+ 	} else {
+         vmargin = fn->maxheight;
++        overflow2(2, fn->maxwidth);
+         hmargin = 2 * fn->maxwidth;
+ 	}
+ 
+@@ -441,10 +447,15 @@
+     } else
+         lp = input_text;
+     
++    overflow2(2, vmargin);
++    overflow2(lines, fn->maxheight);
++    overflow_add(vmargin * 2, lines * fn->maxheight);
+     rows = 2 * vmargin + lines * fn->maxheight;
+ 
+     compute_image_width(lp, lines, fn, cmdline.space, &maxwidth, &maxleftb);
+ 
++    overflow2(2, hmargin);
++    overflow_add(2*hmargin, maxwidth);
+     cols = 2 * hmargin + maxwidth;
+     bits = pbm_allocarray(cols, rows);
+ 
+diff -u --new-file --exclude-from /home/devel/alan/exclude --recursive netpbm-9.24/pbm/pbmto10x.c netpbm-9.24-ac/pbm/pbmto10x.c
+--- netpbm-9.24/pbm/pbmto10x.c	Thu Dec 19 10:46:24 2002
++++ netpbm-9.24-ac/pbm/pbmto10x.c	Thu Dec 19 10:46:14 2002
+@@ -50,7 +50,7 @@
+ 		res_60x72();
+ 
+ 	pm_close(ifp);
+-	exit(0);
++	return 0;
+ }
+ 
+ static void
+@@ -84,6 +84,8 @@
+ 	char		*stripe, *sP;
+ 
+ 	stripe = malloc(cols);
++        if(stripe == NULL)
++        	pm_error("out of memory");
+ 	for (i = 0; i < LOW_RES_ROWS; ++i)
+ 		bitrows[i] = pbm_allocrow(cols);
+ 	printf("\033A\010");		/* '\n' = 8/72 */
+@@ -117,6 +119,8 @@
+ 	char		*stripe, *sP;
+ 
+ 	stripe = malloc(cols);
++	if(stripe == NULL)
++		pm_error("out of memory");
+ 	for (i = 0; i < HIGH_RES_ROWS; ++i)
+ 		bitrows[i] = pbm_allocrow(cols);
+ 	printf("\0333\001");			/* \n = 1/144" */
+diff -u --new-file --exclude-from /home/devel/alan/exclude --recursive netpbm-9.24/pbm/pbmto4425.c netpbm-9.24-ac/pbm/pbmto4425.c
+--- netpbm-9.24/pbm/pbmto4425.c	Thu Dec 19 10:46:24 2002
++++ netpbm-9.24-ac/pbm/pbmto4425.c	Thu Dec 19 10:46:13 2002
+@@ -1,4 +1,5 @@
+ #include "pbm.h"
++#include <string.h>
+ 
+ /*extern char *sys_errlist[];
+ char *malloc();*/
+@@ -70,7 +71,7 @@
+   xres = vmap_width * 2;
+   yres = vmap_height * 3;
+ 
+-  vmap = malloc(vmap_width * vmap_height * sizeof(char));
++  vmap = malloc3(vmap_width, vmap_height, sizeof(char));
+   if(vmap == NULL)
+ 	{
+ 	  pm_error( "Cannot allocate memory" );
+diff -u --new-file --exclude-from /home/devel/alan/exclude --recursive netpbm-9.24/pbm/pbmtoascii.c netpbm-9.24-ac/pbm/pbmtoascii.c
+--- netpbm-9.24/pbm/pbmtoascii.c	Thu Dec 19 10:46:24 2002
++++ netpbm-9.24-ac/pbm/pbmtoascii.c	Thu Dec 19 10:46:14 2002
+@@ -115,9 +115,11 @@
+         pm_usage( usage );
+ 
+     pbm_readpbminit( ifp, &cols, &rows, &format );
++    overflow_add(cols, gridx);
+     ccols = ( cols + gridx - 1 ) / gridx;
+     bitrow = pbm_allocrow( cols );
+     sig = (int*) pm_allocrow( ccols, sizeof(int) );
++    overflow_add(ccols, 1);
+     line = (char*) pm_allocrow( ccols + 1, sizeof(char) );
+ 
+     for ( row = 0; row < rows; row += gridy )
+diff -u --new-file --exclude-from /home/devel/alan/exclude --recursive netpbm-9.24/pbm/pbmtoatk.c netpbm-9.24-ac/pbm/pbmtoatk.c
+--- netpbm-9.24/pbm/pbmtoatk.c	Thu Dec 19 10:46:24 2002
++++ netpbm-9.24-ac/pbm/pbmtoatk.c	Thu Dec 19 10:46:14 2002
+@@ -65,6 +65,7 @@
+     bitrow = pbm_allocrow( cols );
+ 
+     /* Compute padding to round cols up to the nearest multiple of 16. */
++    overflow_add(cols, 15);
+     padright = ( ( cols + 15 ) / 16 ) * 16 - cols;
+ 
+     printf ("\\begindata{raster,%d}\n", 1);
+diff -u --new-file --exclude-from /home/devel/alan/exclude --recursive netpbm-9.24/pbm/pbmtocmuwm.c netpbm-9.24-ac/pbm/pbmtocmuwm.c
+--- netpbm-9.24/pbm/pbmtocmuwm.c	Thu Dec 19 10:46:24 2002
++++ netpbm-9.24-ac/pbm/pbmtocmuwm.c	Thu Dec 19 10:46:14 2002
+@@ -43,6 +43,7 @@
+     bitrow = pbm_allocrow( cols );
+     
+     /* Round cols up to the nearest multiple of 8. */
++    overflow_add(cols, 7);
+     padright = ( ( cols + 7 ) / 8 ) * 8 - cols;
+ 
+     putinit( rows, cols );
+diff -u --new-file --exclude-from /home/devel/alan/exclude --recursive netpbm-9.24/pbm/pbmtogem.c netpbm-9.24-ac/pbm/pbmtogem.c
+--- netpbm-9.24/pbm/pbmtogem.c	Thu Dec 19 10:46:24 2002
++++ netpbm-9.24-ac/pbm/pbmtogem.c	Thu Dec 19 10:46:13 2002
+@@ -123,6 +123,7 @@
+   bitsperitem = 0;
+   bitshift = 7;
+   outcol = 0;
++  overflow_add(cols, 7);
+   outmax = (cols + 7) / 8;
+   outrow = (unsigned char *) pm_allocrow (outmax, sizeof (unsigned char));
+   lastrow = (unsigned char *) pm_allocrow (outmax, sizeof (unsigned char));
+diff -u --new-file --exclude-from /home/devel/alan/exclude --recursive netpbm-9.24/pbm/pbmtogo.c netpbm-9.24-ac/pbm/pbmtogo.c
+--- netpbm-9.24/pbm/pbmtogo.c	Thu Dec 19 10:46:24 2002
++++ netpbm-9.24-ac/pbm/pbmtogo.c	Thu Dec 19 10:46:14 2002
+@@ -90,6 +90,7 @@
+     bitrow = pbm_allocrow(cols);
+ 
+     /* Round cols up to the nearest multiple of 8. */
++    overflow_add(cols, 7);
+     rucols = ( cols + 7 ) / 8;
+     bytesperrow = rucols;       /* GraphOn uses bytes */
+     rucols = rucols * 8;
+diff -u --new-file --exclude-from /home/devel/alan/exclude --recursive netpbm-9.24/pbm/pbmtoicon.c netpbm-9.24-ac/pbm/pbmtoicon.c
+--- netpbm-9.24/pbm/pbmtoicon.c	Thu Dec 19 10:46:24 2002
++++ netpbm-9.24-ac/pbm/pbmtoicon.c	Thu Dec 19 10:46:14 2002
+@@ -42,6 +42,7 @@
+     bitrow = pbm_allocrow( cols );
+     
+     /* Round cols up to the nearest multiple of 16. */
++    overflow_add(cols, 15);
+     pad = ( ( cols + 15 ) / 16 ) * 16 - cols;
+     padleft = pad / 2;
+     padright = pad - padleft;
+diff -u --new-file --exclude-from /home/devel/alan/exclude --recursive netpbm-9.24/pbm/pbmtolj.c netpbm-9.24-ac/pbm/pbmtolj.c
+--- netpbm-9.24/pbm/pbmtolj.c	Thu Dec 19 10:46:24 2002
++++ netpbm-9.24-ac/pbm/pbmtolj.c	Thu Dec 19 10:46:14 2002
+@@ -29,6 +29,7 @@
+ 
+ #include "pbm.h"
+ #include <assert.h>
++#include <string.h>
+ 
+ static int dpi = 75;
+ static int floating = 0;  /* suppress the ``ESC & l 0 E'' ? */
+@@ -122,7 +123,11 @@
+     pbm_readpbminit( ifp, &cols, &rows, &format );
+     bitrow = pbm_allocrow( cols );
+ 
++    overflow_add(cols, 8);
+     rowBufferSize = (cols + 7) / 8;
++    overflow_add(rowBufferSize, 128);
++    overflow_add(rowBufferSize, rowBufferSize+128);
++    overflow_add(rowBufferSize+10, rowBufferSize/8);
+     packBufferSize = rowBufferSize + (rowBufferSize + 127) / 128 + 1;
+     deltaBufferSize = rowBufferSize + rowBufferSize / 8 + 10;
+ 
+diff -u --new-file --exclude-from /home/devel/alan/exclude --recursive netpbm-9.24/pbm/pbmtomacp.c netpbm-9.24-ac/pbm/pbmtomacp.c
+--- netpbm-9.24/pbm/pbmtomacp.c	Thu Dec 19 10:46:24 2002
++++ netpbm-9.24-ac/pbm/pbmtomacp.c	Thu Dec 19 10:46:14 2002
+@@ -102,6 +102,7 @@
+   if( !lflg )
+     left = 0;
+ 
++  overflow_add(left, MAX_COLS - 1);
+   if( rflg )
+   { if( right - left >= MAX_COLS )
+       right = left + MAX_COLS - 1;
+@@ -112,6 +113,8 @@
+   if( !tflg )
+     top = 0;
+ 
++  overflow_add(top, MAX_LINES - 1);
++
+   if( bflg )
+   { if( bottom - top >= MAX_LINES )
+       bottom = top + MAX_LINES - 1;
+diff -u --new-file --exclude-from /home/devel/alan/exclude --recursive netpbm-9.24/pbm/pbmtomda.c netpbm-9.24-ac/pbm/pbmtomda.c
+--- netpbm-9.24/pbm/pbmtomda.c	Thu Dec 19 10:46:24 2002
++++ netpbm-9.24-ac/pbm/pbmtomda.c	Thu Dec 19 10:46:14 2002
+@@ -152,6 +152,8 @@
+ 
+ 	if (bScale)	nOutRows = nInRows / 2;
+ 	else		nOutRows = nInRows;
++
++	overflow_add(nOutRows, 3);
+ 	nOutRows = ((nOutRows + 3) / 4) * 4;
+ 					 /* MDA wants rows a multiple of 4 */	
+ 	nOutCols = nInCols / 8;
+diff -u --new-file --exclude-from /home/devel/alan/exclude --recursive netpbm-9.24/pbm/pbmtomgr.c netpbm-9.24-ac/pbm/pbmtomgr.c
+--- netpbm-9.24/pbm/pbmtomgr.c	Thu Dec 19 10:46:24 2002
++++ netpbm-9.24-ac/pbm/pbmtomgr.c	Thu Dec 19 10:46:14 2002
+@@ -43,6 +43,7 @@
+     bitrow = pbm_allocrow( cols );
+     
+     /* Round cols up to the nearest multiple of 8. */
++    overflow_add(cols, 7);
+     padright = ( ( cols + 7 ) / 8 ) * 8 - cols;
+ 
+     putinit( rows, cols );
+diff -u --new-file --exclude-from /home/devel/alan/exclude --recursive netpbm-9.24/pbm/pbmtoppa/pbm.c netpbm-9.24-ac/pbm/pbmtoppa/pbm.c
+--- netpbm-9.24/pbm/pbmtoppa/pbm.c	Thu Dec 19 10:46:24 2002
++++ netpbm-9.24-ac/pbm/pbmtoppa/pbm.c	Thu Dec 19 10:46:14 2002
+@@ -105,6 +105,7 @@
+     return 0;
+ 
+   case P4:
++    overflow_add(pbm->width, 7);
+     tmp=(pbm->width+7)/8;
+     tmp2=fread(data,1,tmp,pbm->fptr);
+     if(tmp2 == tmp)
+@@ -129,7 +130,8 @@
+     return;
+ 
+   pbm->unread = 1;
+-  pbm->revdata = malloc ((pbm->width+7)/8);
++  overflow_add(pbm->width, 7);
++  pbm->revdata = malloc((pbm->width+7)/8);
+   memcpy (pbm->revdata, data, (pbm->width+7)/8);
+   pbm->current_line--;
+ }
+diff -u --new-file --exclude-from /home/devel/alan/exclude --recursive netpbm-9.24/pbm/pbmtoppa/pbmtoppa.c netpbm-9.24-ac/pbm/pbmtoppa/pbmtoppa.c
+--- netpbm-9.24/pbm/pbmtoppa/pbmtoppa.c	Thu Dec 19 10:46:24 2002
++++ netpbm-9.24-ac/pbm/pbmtoppa/pbmtoppa.c	Thu Dec 19 10:46:14 2002
+@@ -447,6 +447,7 @@
+     }
+   }
+ 
++  overflow_add(Width, 7);
+   Pwidth=(Width+7)/8;
+   printer.fptr=out;
+ 
+diff -u --new-file --exclude-from /home/devel/alan/exclude --recursive netpbm-9.24/pbm/pbmtox10bm.c netpbm-9.24-ac/pbm/pbmtox10bm.c
+--- netpbm-9.24/pbm/pbmtox10bm.c	Thu Dec 19 10:46:24 2002
++++ netpbm-9.24-ac/pbm/pbmtox10bm.c	Thu Dec 19 10:46:14 2002
+@@ -57,6 +57,7 @@
+     bitrow = pbm_allocrow( cols );
+ 
+     /* Compute padding to round cols up to the nearest multiple of 16. */
++    overflow_add(cols, 15);
+     padright = ( ( cols + 15 ) / 16 ) * 16 - cols;
+ 
+     printf( "#define %s_width %d\n", name, cols );
+diff -u --new-file --exclude-from /home/devel/alan/exclude --recursive netpbm-9.24/pbm/pbmtoxbm.c netpbm-9.24-ac/pbm/pbmtoxbm.c
+--- netpbm-9.24/pbm/pbmtoxbm.c	Thu Dec 19 10:46:24 2002
++++ netpbm-9.24-ac/pbm/pbmtoxbm.c	Thu Dec 19 10:46:14 2002
+@@ -93,6 +93,8 @@
+     bitrow = pbm_allocrow( cols );
+     
+     /* Compute padding to round cols up to the nearest multiple of 8. */
++    
++    overflow_add(cols, 8);
+     padright = ( ( cols + 7 ) / 8 ) * 8 - cols;
+ 
+     printf( "#define %s_width %d\n", name, cols );
+diff -u --new-file --exclude-from /home/devel/alan/exclude --recursive netpbm-9.24/pbm/pbmtoybm.c netpbm-9.24-ac/pbm/pbmtoybm.c
+--- netpbm-9.24/pbm/pbmtoybm.c	Thu Dec 19 10:46:24 2002
++++ netpbm-9.24-ac/pbm/pbmtoybm.c	Thu Dec 19 10:46:14 2002
+@@ -45,6 +45,7 @@
+     bitrow = pbm_allocrow( cols );
+     
+     /* Compute padding to round cols up to the nearest multiple of 16. */
++    overflow_add(cols, 16);
+     padright = ( ( cols + 15 ) / 16 ) * 16 - cols;
+ 
+     putinit( cols, rows );
+diff -u --new-file --exclude-from /home/devel/alan/exclude --recursive netpbm-9.24/pbm/pbmtozinc.c netpbm-9.24-ac/pbm/pbmtozinc.c
+--- netpbm-9.24/pbm/pbmtozinc.c	Thu Dec 19 10:46:24 2002
++++ netpbm-9.24-ac/pbm/pbmtozinc.c	Thu Dec 19 10:46:14 2002
+@@ -66,6 +66,7 @@
+     bitrow = pbm_allocrow( cols );
+ 
+     /* Compute padding to round cols up to the nearest multiple of 16. */
++    overflow_add(cols, 16);
+     padright = ( ( cols + 15 ) / 16 ) * 16 - cols;
+ 
+     printf( "USHORT %s[] = {\n",name);
+diff -u --new-file --exclude-from /home/devel/alan/exclude --recursive netpbm-9.24/pbm/pktopbm.c netpbm-9.24-ac/pbm/pktopbm.c
+--- netpbm-9.24/pbm/pktopbm.c	Thu Dec 19 10:46:24 2002
++++ netpbm-9.24-ac/pbm/pktopbm.c	Thu Dec 19 10:46:13 2002
+@@ -255,7 +255,8 @@
+       if (turnon) flagbyte &= 7 ;		/* long or short form */
+       if (flagbyte == 7) {			/* long form preamble */
+ 	 integer packetlength = get32() ;	/* character packet length */
+-	 car = get32() ;			/* character number */
++	 car = get32() ;			/* character number */	
++	 overflow_add(packetlength, pktopbm_pkloc);
+ 	 endofpacket = packetlength + pktopbm_pkloc ;	/* calculate end of packet */
+          if ((car >= MAXPKCHAR) || !filename[car]) {
+ 	    ignorechar(car, endofpacket);
+diff -u --new-file --exclude-from /home/devel/alan/exclude --recursive netpbm-9.24/pbm/thinkjettopbm.l netpbm-9.24-ac/pbm/thinkjettopbm.l
+--- netpbm-9.24/pbm/thinkjettopbm.l	Fri Jan  4 10:12:53 2002
++++ netpbm-9.24-ac/pbm/thinkjettopbm.l	Thu Dec 19 10:46:14 2002
+@@ -71,7 +71,9 @@
+ <RASTERMODE>\033\*b{DIG}+W  {
+                             int l;
+                             if (rowCount >= rowCapacity) {
++				overflow_add(rowCapacity, 100);
+                                 rowCapacity += 100;
++				overflow2(rowCapacity, sizeof *rows);
+                                 rows = realloc (rows, rowCapacity * sizeof *rows);
+                                 if (rows == NULL)
+                                     pm_error ("Out of memory.");
+@@ -163,6 +165,8 @@
+     /*
+      * Quite simple since ThinkJet bit arrangement matches PBM
+      */
++
++    overflow2(maxRowLength, 8);
+     pbm_writepbminit(stdout, maxRowLength*8, rowCount, 0);
+ 
+     packed_bitrow = malloc(maxRowLength);
+diff -u --new-file --exclude-from /home/devel/alan/exclude --recursive netpbm-9.24/pbm/ybmtopbm.c netpbm-9.24-ac/pbm/ybmtopbm.c
+--- netpbm-9.24/pbm/ybmtopbm.c	Thu Dec 19 10:46:24 2002
++++ netpbm-9.24-ac/pbm/ybmtopbm.c	Thu Dec 19 10:46:13 2002
+@@ -88,6 +88,7 @@
+ 	pm_error( "EOF / read error" );
+ 
+     *depthP = 1;
++    overflow_add(*colsP, 15);
+     *padrightP = ( ( *colsP + 15 ) / 16 ) * 16 - *colsP;
+     bitsperitem = 0;
+     }
+--- netpbm-9.24/pbm/libpm.c.security	2002-01-25 17:18:05.000000000 -0700
++++ netpbm-9.24/pbm/libpm.c	2003-03-19 11:05:23.000000000 -0700
+@@ -14,9 +14,10 @@
+ **************************************************************************/
+ 
+ #include <stdio.h>
++#include <limits.h>
+ #include "version.h"
+ #include "compile.h"
+-#include "shhopt.h"
++#include "shhopt.h"
+ #include "pm.h"
+ 
+ #include <stdarg.h>
+@@ -38,7 +39,7 @@
+ pm_allocrow(int const cols, int const size) {
+     register char* itrow;
+ 
+-    itrow = (char*) malloc( cols * size );
++    itrow = (char*) malloc2( cols , size );
+     if ( itrow == (char*) 0 )
+         pm_error( "out of memory allocating a row" );
+     return itrow;
+@@ -56,10 +57,10 @@
+     char** its;
+     int i;
+ 
+-    its = (char**) malloc( rows * sizeof(char*) );
++    its = (char**) malloc2( rows, sizeof(char*) );
+     if ( its == (char**) 0 )
+         pm_error( "out of memory allocating an array" );
+-    its[0] = (char*) malloc( rows * cols * size );
++    its[0] = (char*) malloc3( rows, cols, size );
+     if ( its[0] == (char*) 0 )
+         pm_error( "out of memory allocating an array" );
+     for ( i = 1; i < rows; ++i )
+@@ -77,10 +78,12 @@
+ pm_allocarray(int const cols, int const rows, int const size) {
+     char** its;
+     int i;
+-    its = (char**) malloc( (rows + 1) * sizeof(char*) );
++    
++    overflow_add(rows, 1);
++    its = (char**) malloc2( (rows + 1),  sizeof(char*) );
+     if ( its == (char**) 0 )
+         pm_error( "out of memory allocating an array" );
+-    its[rows] = its[0] = (char*) malloc( rows * cols * size );
++    its[rows] = its[0] = (char*) malloc3( rows. cols, size );
+     if ( its[0] != (char*) 0 )
+         for ( i = 1; i < rows; ++i )
+             its[i] = &(its[0][i * cols * size]);
+@@ -878,4 +881,52 @@
+ }
+ 
+ 
+-
++/*
++ *	Maths wrapping
++ */
++ 
++void overflow2(int a, int b)
++{
++	if(a < 0 || b < 0)
++		pm_error("object too large");
++	if(b == 0)
++		return;
++	if(a > INT_MAX / b)
++		pm_error("object too large");
++}
++
++void overflow3(int a, int b, int c)
++{
++	overflow2(a,b);
++	overflow2(a*b, c);
++}
++
++void overflow_add(int a, int b)
++{
++	if( a > INT_MAX - b)
++		pm_error("object too large");
++}
++
++void *malloc2(int a, int b)
++{
++	overflow2(a, b);
++	if(a*b == 0)
++		pm_error("Zero byte allocation");
++	return malloc(a*b);
++}
++
++void *malloc3(int a, int b, int c)
++{
++	overflow3(a, b, c);
++	if(a*b*c == 0)
++		pm_error("Zero byte allocation");
++	return malloc(a*b*c);
++}
++
++void *realloc2(void * a, int b, int c)
++{
++	overflow2(b, c);
++	if(b*c == 0)
++		pm_error("Zero byte allocation");
++	return realloc(a, b*c);
++}
+--- netpbm-9.24/pbm/pm.h.security	2002-01-03 13:35:23.000000000 -0700
++++ netpbm-9.24/pbm/pm.h	2003-03-19 11:01:22.000000000 -0700
+@@ -217,6 +217,11 @@
+          const unsigned int need_raster_size,
+          enum pm_check_code * const retval_p);
+ 
++void *malloc2(int, int);
++void *malloc3(int, int, int);
++void overflow2(int, int);
++void overflow3(int, int, int);
++void overflow_add(int, int);
+ 
+ /* By making this <> instead of "", we avoid making shhopt.h a dependency
+    of every program in the package when we do make dep.

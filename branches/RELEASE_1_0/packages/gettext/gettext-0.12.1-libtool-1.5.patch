@@ -1,0 +1,27 @@
+--- config/ltmain.sh.bak	2003-06-28 17:04:45.000000000 +0800
++++ config/ltmain.sh	2003-06-28 19:46:56.000000000 +0800
+@@ -3581,15 +3581,23 @@
+ 	fi
+ 
+ 	tmp_deplibs=
++	inst_prefix_arg=
+ 	for test_deplib in $deplibs; do
+ 		case " $convenience " in
+ 		*" $test_deplib "*) ;;
+ 		*) 
+-			tmp_deplibs="$tmp_deplibs $test_deplib"
++			if test -n "$inst_prefix_dir" && (echo "$test_deplib" | grep -- "$inst_prefix_dir" >/dev/null); then
++				inst_prefix_arg="$test_deplib"
++			else
++				tmp_deplibs="$tmp_deplibs $test_deplib"
++			fi
+ 			;;
+ 		esac
+ 	done
+ 	deplibs="$tmp_deplibs" 
++	if test -n "$inst_prefix_arg"; then
++		deplibs="$inst_prefix_arg $deplibs"
++	fi
+ 
+ 	if test -n "$convenience"; then
+ 	  if test -n "$whole_archive_flag_spec"; then

@@ -1,0 +1,11 @@
+--- ./modules.devfs.nv	2002-08-28 16:39:10.000000000 +0200
++++ ./modules.devfs	2002-08-28 16:39:34.000000000 +0200
+@@ -129,6 +129,8 @@
+ # Raw I/O devices
+ alias	/dev/rawctl		/dev/raw
+ 
++# Nvidia driver
++alias /dev/nvidia*   NVdriver
+ 
+ # Pull in the configuration file. Do this last because modprobe(8) processes in
+ # per^H^H^Hreverse order and the sysadmin may want to over-ride what is in the

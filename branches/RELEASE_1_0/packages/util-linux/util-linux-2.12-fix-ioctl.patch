@@ -1,0 +1,72 @@
+diff -ruNp util-linux-2.12.orig/disk-utils/blockdev.c util-linux-2.12/disk-utils/blockdev.c
+--- util-linux-2.12.orig/disk-utils/blockdev.c	2004-01-30 13:37:31.031466433 +0100
++++ util-linux-2.12/disk-utils/blockdev.c	2004-01-30 13:40:04.403762127 +0100
+@@ -24,8 +24,8 @@
+ #define BLKRASET   _IO(0x12,98)
+ #define BLKRAGET   _IO(0x12,99)
+ #define BLKSSZGET  _IO(0x12,104)
+-#define BLKBSZGET  _IOR(0x12,112,sizeof(int))
+-#define BLKBSZSET  _IOW(0x12,113,sizeof(int))
++#define BLKBSZGET  _IOR(0x12,112,int)
++#define BLKBSZSET  _IOW(0x12,113,int)
+ #endif
+ 
+ /* Maybe <linux/hdreg.h> could be included */
+diff -ruNp util-linux-2.12.orig/disk-utils/elvtune.c util-linux-2.12/disk-utils/elvtune.c
+--- util-linux-2.12.orig/disk-utils/elvtune.c	2004-01-30 13:37:31.031466433 +0100
++++ util-linux-2.12/disk-utils/elvtune.c	2004-01-30 13:40:19.405736717 +0100
+@@ -37,8 +37,8 @@ typedef struct blkelv_ioctl_arg_s {
+ 	int max_bomb_segments;
+ } blkelv_ioctl_arg_t;
+ 
+-#define BLKELVGET   _IOR(0x12,106,sizeof(blkelv_ioctl_arg_t))
+-#define BLKELVSET   _IOW(0x12,107,sizeof(blkelv_ioctl_arg_t))
++#define BLKELVGET   _IOR(0x12,106,blkelv_ioctl_arg_t)
++#define BLKELVSET   _IOW(0x12,107,blkelv_ioctl_arg_t)
+ 
+ static void
+ usage(void) {
+diff -ruNp util-linux-2.12.orig/fdisk/common.h util-linux-2.12/fdisk/common.h
+--- util-linux-2.12.orig/fdisk/common.h	2004-01-30 13:37:31.053463463 +0100
++++ util-linux-2.12/fdisk/common.h	2004-01-30 13:47:54.842188543 +0100
+@@ -1,12 +1,13 @@
+ /* common stuff for fdisk, cfdisk, sfdisk */
+ 
+ /* including <linux/fs.h> fails */
++#include <sys/types.h>
+ #include <sys/ioctl.h>
+ #define BLKRRPART    _IO(0x12,95)    /* re-read partition table */
+ #define BLKGETSIZE   _IO(0x12,96)    /* return device size */
+ #define BLKFLSBUF    _IO(0x12,97)    /* flush buffer cache */
+ #define BLKSSZGET    _IO(0x12,104)   /* get block device sector size */
+-#define BLKGETSIZE64 _IOR(0x12,114,8)	/* 8 = sizeof(u64) */
++#define BLKGETSIZE64 _IOR(0x12,114,__u64)	/* 8 = sizeof(u64) */
+ 
+ /* including <linux/hdreg.h> also fails */
+ struct hd_geometry {
+diff -ruNp util-linux-2.12.orig/hwclock/rtc.c util-linux-2.12/hwclock/rtc.c
+--- util-linux-2.12.orig/hwclock/rtc.c	2004-01-30 13:37:31.063462113 +0100
++++ util-linux-2.12/hwclock/rtc.c	2004-01-30 13:44:06.872992962 +0100
+@@ -39,8 +39,8 @@ struct sparc_rtc_time
+         int     year;   /* Year (0-99) */
+ };
+ 
+-#define RTCGET _IOR('p', 20, struct sparc_rtc_time)
+-#define RTCSET _IOW('p', 21, struct sparc_rtc_time)
++#define RTCGET _IOR('p', 20, sparc_rtc_time)
++#define RTCSET _IOW('p', 21, sparc_rtc_time)
+ 
+ 
+ /* non-sparc stuff */
+diff -ruNp util-linux-2.12.orig/partx/gpt.c util-linux-2.12/partx/gpt.c
+--- util-linux-2.12.orig/partx/gpt.c	2004-01-30 13:37:31.107456173 +0100
++++ util-linux-2.12/partx/gpt.c	2004-01-30 13:45:19.806148436 +0100
+@@ -41,7 +41,7 @@
+ #define BLKGETLASTSECT  _IO(0x12,108)   /* get last sector of block device */
+ #define BLKGETSIZE _IO(0x12,96)	        /* return device size */
+ #define BLKSSZGET  _IO(0x12,104)	/* get block device sector size */
+-#define BLKGETSIZE64 _IOR(0x12,114,sizeof(uint64_t))	/* return device size in bytes (u64 *arg) */
++#define BLKGETSIZE64 _IOR(0x12,114,uint64_t)	/* return device size in bytes (u64 *arg) */
+ 
+ struct blkdev_ioctl_param {
+         unsigned int block;

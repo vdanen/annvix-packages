@@ -1,0 +1,5 @@
+#!/bin/sh
+
+# logging for the courier-pop3d service
+
+exec /sbin/chpst -u logger /sbin/svlogd -tt /var/log/supervise/courier-pop3d

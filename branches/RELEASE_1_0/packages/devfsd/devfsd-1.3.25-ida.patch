@@ -1,0 +1,30 @@
+--- ./compat_name.c.ida	2002-08-17 19:12:29.000000000 +0200
++++ ./compat_name.c	2002-08-17 19:14:56.000000000 +0200
+@@ -220,6 +220,13 @@
+ 	    compat_name = buffer;
+ 	}
+ 	return (compat_name);
++	}
++	else if (strncmp (devname, "ida/", 4) == 0) { 
++			if (strcmp (devname + namelen - 4, "disc") == 0)
++				sprintf ( buffer, "ida/c%dd%d", minor / 16 / 16, minor / 16 % 16);
++			else if (strncmp (ptr = (strrchr (devname, '/') +1), "part", 4) == 0)
++				sprintf (buffer, "ida/c%dd%dp%s", minor / 16 / 16, minor / 16 % 16, ptr + 4);
++			compat_name = buffer;
+     }
+ 	else if (strncmp (devname, "vcc/", 4) == 0)
+     {
+--- ./devfsd.c.ida	2002-03-25 07:59:40.000000000 +0100
++++ ./devfsd.c	2002-08-17 19:12:29.000000000 +0200
+@@ -1462,6 +1462,11 @@
+       case AC_RMOLDCOMPAT:
+ 	compat_name = get_old_name (info->devname, info->namelen, compat_buf,
+ 				    info->major, info->minor);
++	if ( strncmp (info->devname, "ida/", 4) == 0) {
++		ptr = (strrchr (info->devname, '/') +1);
++		if ( (strncmp (ptr, "part", 4) == 0) || (strncmp (ptr, "disc", 5) == 0) )
++			dest_name = info->devname+4;
++	}
+ 	break;
+       case AC_MKNEWCOMPAT:
+       case AC_RMNEWCOMPAT:
