@@ -1,6 +1,6 @@
 %define name	afterboot
 %define version 0.1
-%define release 1sls
+%define release 2sls
 
 Summary:	Dynamic afterboot manpage
 Name: 		%{name}
@@ -37,7 +37,7 @@ touch %{buildroot}%{_mandir}/man8/afterboot.8.bz2
 
 
 %post
-%{_datadir}/afterboot/mkafterboot
+%_mkafterboot
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -52,5 +52,8 @@ rm -rf $RPM_BUILD_DIR/%{name}-%{version}
 
 
 %changelog
+* Sat Jan 31 2004 Vincent Danen <vdanen@opensls.org> 0.1-2sls
+- use %%_mkafterboot macro
+
 * Sat Jan 31 2004 Vincent Danen <vdanen@opensls.org> 0.1-1sls
 - 0.1
