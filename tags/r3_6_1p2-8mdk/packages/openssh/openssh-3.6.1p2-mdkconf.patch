@@ -1,0 +1,66 @@
+--- openssh-3.6.1p2/contrib/redhat/sshd.pam.mdkconf	2002-05-10 04:19:23.000000000 +0200
++++ openssh-3.6.1p2/contrib/redhat/sshd.pam	2003-08-25 10:43:37.000000000 +0200
+@@ -4,5 +4,3 @@
+ account    required     /lib/security/pam_stack.so service=system-auth
+ password   required     /lib/security/pam_stack.so service=system-auth
+ session    required     /lib/security/pam_stack.so service=system-auth
+-session    required     /lib/security/pam_limits.so
+-session    optional     /lib/security/pam_console.so
+--- openssh-3.6.1p2/ssh_config.mdkconf	2002-07-04 02:19:41.000000000 +0200
++++ openssh-3.6.1p2/ssh_config	2003-08-25 10:43:25.000000000 +0200
+@@ -34,3 +34,7 @@
+ #   Cipher 3des
+ #   Ciphers aes128-cbc,3des-cbc,blowfish-cbc,cast128-cbc,arcfour,aes192-cbc,aes256-cbc
+ #   EscapeChar ~
++
++Host *
++  ForwardX11 yes
++  Protocol 2,1
+--- openssh-3.6.1p2/sshd_config.mdkconf	2002-09-27 05:21:58.000000000 +0200
++++ openssh-3.6.1p2/sshd_config	2003-08-25 10:43:25.000000000 +0200
+@@ -11,15 +11,15 @@
+ # default value.
+ 
+ #Port 22
+-#Protocol 2,1
++Protocol 2,1
+ #ListenAddress 0.0.0.0
+ #ListenAddress ::
+ 
+ # HostKey for protocol version 1
+-#HostKey /etc/ssh/ssh_host_key
++HostKey /etc/ssh/ssh_host_key
+ # HostKeys for protocol version 2
+-#HostKey /etc/ssh/ssh_host_rsa_key
+-#HostKey /etc/ssh/ssh_host_dsa_key
++HostKey /etc/ssh/ssh_host_rsa_key
++HostKey /etc/ssh/ssh_host_dsa_key
+ 
+ # Lifetime and size of ephemeral version 1 server key
+ #KeyRegenerationInterval 3600
+@@ -33,7 +33,7 @@
+ # Authentication:
+ 
+ #LoginGraceTime 120
+-#PermitRootLogin yes
++PermitRootLogin no
+ #StrictModes yes
+ 
+ #RSAAuthentication yes
+@@ -73,14 +73,14 @@
+ # Warning: enabling this may bypass the setting of 'PasswordAuthentication'
+ #PAMAuthenticationViaKbdInt no
+ 
+-#X11Forwarding no
++X11Forwarding yes
+ #X11DisplayOffset 10
+ #X11UseLocalhost yes
+ #PrintMotd yes
+ #PrintLastLog yes
+ #KeepAlive yes
+ #UseLogin no
+-#UsePrivilegeSeparation yes
++UsePrivilegeSeparation yes
+ #PermitUserEnvironment no
+ #Compression yes
+ 
