@@ -1,6 +1,6 @@
 %define name	mdadm
-%define version	1.5.0
-%define release	2sls
+%define version	1.6.0
+%define release	2avx
 
 %define use_dietlibc 0
 %ifarch %{ix86}
@@ -90,6 +90,12 @@ install -m 0755 %{SOURCE3} %{buildroot}%{_srvdir}/mdadm/log/run
 %{_srvdir}/mdadm/log/run
 
 %changelog
+* Mon Jun 14 2004 Thomas Backlund <tmb@annvix.org> 1.6.0-2avx
+- swith to new name Annvix / avx
+
+* Mon Jun 14 2004 Thomas Backlund <tmb@iki.fi> 1.6.0-1sls
+- 1.6.0
+
 * Sat Mar 06 2004 Vincent Danen <vdanen@opensls.org> 1.5.0-2sls
 - minor spec cleanups
 
