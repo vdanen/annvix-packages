@@ -1,6 +1,6 @@
 %define name	php
-%define version	4.3.9
-%define release	1avx
+%define version	4.3.10
+%define release	2avx
 %define epoch	2
 
 %define libversion	4
@@ -55,30 +55,28 @@ Group:		Development/Other
 URL:		http://www.php.net
 Source0:	http://static.php.net/www.php.net/distributions/php-%{version}.tar.bz2
 Source3:	FAQ.php.bz2
-Source4:	php-test.bz2
-# wget -O ChangeLog-4.html http://www.php.net/ChangeLog-4.php
-Source5:	ChangeLog-4.html.bz2
+Source4:	php-4.3.10-php-test.bz2
 Patch0:		php-4.3.0-mdk-init.patch.bz2
 Patch1:		php-4.3.6-mdk-shared.patch.bz2
 Patch2:		php-4.3.0-mdk-imap.patch.bz2
 Patch3:		php-4.3.0-mdk-info.patch.bz2
 Patch4:		php-4.3.4RC3-mdk-64bit.patch.bz2
-Patch5:		php-4.3.9-mdk-lib64.patch.bz2
+Patch5:		php-4.3.10-mdk-lib64.patch.bz2
 Patch6:		php-4.3.0-mdk-fix-pear.patch.bz2
 Patch7:		php-4.3.2-mdk-libtool.patch.bz2
 Patch8:		php-4.3.6-mdk-credits.patch.bz2
 Patch9:		php-4.3.9-mdk-no_egg.patch.bz2
 Patch10:	php-4.3.9-mdk-phpize.patch.bz2
 Patch11:	php-4.3.7-mdk-run-tests.diff.bz2
+Patch12:	hardened-php-4.3.10-0.2.4.patch.gz
 
 # from PLD (20-40)
 Patch20:	php-4.3.0-pld-mail.patch.bz2
-Patch21:	php-4.3.6-pld-mcal-shared-lib.patch.bz2
+Patch21:	php-4.3.10-pld-mcal-shared-lib.patch.bz2
 Patch22:	php-4.3.6-pld-msession-shared-lib.patch.bz2
 Patch23:	php-4.3.3RC3-pld-cpdf-fix.patch.bz2
 Patch24:	php-4.3.3RC3-pld-db-shared.patch.bz2
 Patch25:	php-4.3.0-pld-hyperwave-fix.patch.bz2
-Patch26:	php-4.3.6-pld-php-mssql-shared.patch.bz2
 Patch27:	php-4.3.3RC3-pld-sybase-fix.patch.bz2
 Patch28:	php-4.3.0-pld-wddx-fix.patch.bz2
 Patch29:	php-4.3.0-pld-xmlrpc-fix.patch.bz2
@@ -89,8 +87,7 @@ Patch51:	php-4.2.1-fdr-ldap-TSRM.patch.bz2
 Patch52:	php-4.2.2-fdr-cxx.patch.bz2
 Patch53:	php-4.3.2-fdr-libtool15.patch.bz2
 Patch54:	php-4.3.1-fdr-odbc.patch.bz2
-Patch55:	php-4.3.2-fdr-db4.patch.bz2
-Patch56:	php-4.3.6-fdr-umask.patch.bz2
+Patch56:	php-4.3.10-fdr-umask.patch.bz2
 
 # General fixes (70+)
 # make the tests work better
@@ -240,6 +237,7 @@ perl -pi -e "s|_PHP_SONAME_|%{libversion}|g" Makefile.global
 %patch9 -p1
 %patch10 -p1 -b .phpize
 %patch11 -p0
+%patch12 -p1
 
 # from PLD
 %patch20 -p1
@@ -248,7 +246,6 @@ perl -pi -e "s|_PHP_SONAME_|%{libversion}|g" Makefile.global
 %patch23 -p1
 %patch24 -p1
 %patch25 -p1
-%patch26 -p1
 %patch27 -p1
 %patch28 -p1
 %patch29 -p1
@@ -259,7 +256,6 @@ perl -pi -e "s|_PHP_SONAME_|%{libversion}|g" Makefile.global
 %patch52 -p1
 %patch53 -p1
 %patch54 -p1
-%patch55 -p1
 %patch56 -p1
 
 # make the tests work better
@@ -338,7 +334,6 @@ cat > php-devel/PHP_BUILD <<EOF
 %%global phpsrcdir %{phpsrcdir}
 EOF
 
-bzcat %{SOURCE5} > ChangeLog-4.html
 
 %build
 # this _has_ to be executed!
@@ -597,7 +592,7 @@ update-alternatives --remove php %{_bindir}/php-cli
 %files -n php%{libversion}-devel
 %defattr(-,root,root)
 %doc SELF-CONTAINED-EXTENSIONS CODING_STANDARDS README.* TODO EXTENSIONS
-%doc Zend/ZEND_* ChangeLog-4.html
+%doc Zend/ZEND_*
 %attr(0755,root,root) %{_bindir}/php-config
 %attr(0755,root,root) %{_bindir}/phpextdist
 %attr(0755,root,root) %{_bindir}/phpize
@@ -609,6 +604,19 @@ update-alternatives --remove php %{_bindir}/php-cli
 %{_includedir}/php
 
 %changelog
+* Fri Dec 17 2004 Vincent Danen <vdanen@annvix.org> 4.3.10-2avx
+- include the hardened-php patch (4.3.10-0.2.4)
+- drop P55
+- drop S5 as it's redundant
+- rename S4
+- use the lib64 patch from mandrake (P5)
+- rediff P21
+
+* Thu Dec 16 2004 Vincent Danen <vdanen@annvix.org> 4.3.10-1avx
+- 4.3.10
+- rediff P5, P55, P56
+- drop P26
+
 * Wed Sep 29 2004 Vincent Danen <vdanen@annvix.org> 4.3.9-1avx
 - 4.3.9
 - rediff P5, P9, P10

@@ -1,10 +1,9 @@
-diff -Naur php-4.3.6/ext/mcal/config.m4 php-4.3.6.oden/ext/mcal/config.m4
---- php-4.3.6/ext/mcal/config.m4	2004-05-21 11:04:19.694409342 +0200
-+++ php-4.3.6.oden/ext/mcal/config.m4	2004-05-21 11:03:25.884889844 +0200
+--- php-4.3.10/ext/mcal/config.m4.orig	2004-12-17 18:58:19.000000000 -0700
++++ php-4.3.10/ext/mcal/config.m4	2004-12-17 19:01:42.000000000 -0700
 @@ -20,7 +20,7 @@
    done
  
-   for i in $MCAL_DIR $MCAL_DIR/mcal $MCAL_DIR/mcal/$PHP_LIBDIR $MCAL_DIR/$PHP_LIBDIR/mcal $MCAL_DIR/$PHP_LIBDIR; do
+   for i in $MCAL_DIR $MCAL_DIR/mcal $MCAL_DIR/mcal/$PHP_LIBNAME $MCAL_DIR/$PHP_LIBNAME/mcal $MCAL_DIR/$PHP_LIBNAME; do
 -    if test -r "$i/libmcal.a"; then
 +    if test -r "$i/libmcal.so" -o -r "$i/libmcal.a"; then
        MCAL_LIBRARY=$i
