@@ -1,6 +1,6 @@
 %define name	prelude-manager
 %define version	0.8.7
-%define release	2mdk
+%define release	3sls
 
 %define _localstatedir /var
 
@@ -8,23 +8,25 @@ Summary:	Prelude Hybrid Intrusion Detection System Manager
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
+License:	GPL
+Group:		System/Servers
+URL:		http://www.prelude-ids.org/
 Source0:	%{name}-%{version}.tar.bz2
 Source1:	%{name}.init.bz2
 Patch0:		%{name}-0.8.7-single_slash_fix.diff.bz2
 Patch1:		%{name}-0.8.7-CVS_fix.diff.bz2
-License:	GPL
-Group:		System/Servers
-URL:		http://www.prelude-ids.org/
+
+BuildRoot:	%{_tmppath}/%{name}-%{version}-root
 BuildRequires:	libprelude-devel
 BuildRequires:	MySQL-devel
 BuildRequires:	postgresql-devel
 BuildRequires:	postgresql-libs-devel
 BuildRequires:	libxml2-devel
+
 PreReq:		rpm-helper
 Requires:	libprelude >= 0.8.4
 Provides:	prelude
 Obsoletes:	prelude >= 0.4.2 prelude-doc
-BuildRoot:	%{_tmppath}/%{name}-%{version}-root
 
 %description
 Prelude Manager is the main program of the Prelude Hybrid IDS
@@ -39,79 +41,43 @@ Support for filtering plugins allows you to hook in different
 places in the Manager to define custom criteria for alert relaying
 and logging. 
 
-%package	mysql-plugin
+%package mysql-plugin
 Summary:	MySQL report plugin for Prelude IDS Manager
 Group:		System/Servers
 Requires:	%{name} = %{version}
 Requires:	MySQL-shared-libs
 
-%description	mysql-plugin
-Prelude Manager is the main program of the Prelude Hybrid IDS
-suite. It is a multithreaded server which handles connections from
-the Prelude sensors. It is able to register local or remote
-sensors, let the operator configure them remotely, receive alerts,
-and store alerts in a database or any format supported by
-reporting plugins, thus providing centralized logging and
-analysis. It also provides relaying capabilities for failover and
-replication. The IDMEF standard is used for alert representation.
-Support for filtering plugins allows you to hook in different
-places in the Manager to define custom criteria for alert relaying
-and logging.
-
-This plugin adds Database logging capabilities to the Prelude IDS
+%description mysql-plugin
+This plugin adds MySQL logging capabilities to the Prelude IDS
 Manager.
 
-%package	pgsql-plugin
-Summary:	MySQL report plugin for Prelude IDS Manager
+%package pgsql-plugin
+Summary:	PostgreSQL report plugin for Prelude IDS Manager
 Group:		System/Servers
 Requires:	%{name} = %{version}
 Requires:	postgresql-libs
 
-%description	pgsql-plugin
-Prelude Manager is the main program of the Prelude Hybrid IDS
-suite. It is a multithreaded server which handles connections from
-the Prelude sensors. It is able to register local or remote
-sensors, let the operator configure them remotely, receive alerts,
-and store alerts in a database or any format supported by
-reporting plugins, thus providing centralized logging and
-analysis. It also provides relaying capabilities for failover and
-replication. The IDMEF standard is used for alert representation.
-Support for filtering plugins allows you to hook in different
-places in the Manager to define custom criteria for alert relaying
-and logging.
-
-This plugin adds Database logging capabilities to the Prelude IDS
+%description pgsql-plugin
+This plugin adds PostgreSQL logging capabilities to the Prelude IDS
 Manager.
 
-%package	xml-plugin
+%package xml-plugin
 Summary:	XML report plugin for Prelude IDS Manager
 Group:		System/Servers
 Requires:	%{name} = %{version}
 
-%description	xml-plugin
-Prelude Manager is the main program of the Prelude Hybrid IDS
-suite. It is a multithreaded server which handles connections from
-the Prelude sensors. It is able to register local or remote
-sensors, let the operator configure them remotely, receive alerts,
-and store alerts in a database or any format supported by
-reporting plugins, thus providing centralized logging and
-analysis. It also provides relaying capabilities for failover and
-replication. The IDMEF standard is used for alert representation.
-Support for filtering plugins allows you to hook in different
-places in the Manager to define custom criteria for alert relaying
-and logging.
-
+%description xml-plugin
 This plugin adds XML logging capabilities to the Prelude IDS
 Manager.
 
-%package	devel
+%package devel
 Summary:	Libraries, includes, etc. to develop Prelude IDS Manager plugins
 Group:		Development/C
 Requires:	%{name} = %{version}
 BuildRequires:	libprelude-devel
 Requires:	libprelude
 
-%description	devel
+%description devel
 Prelude Manager is the main program of the Prelude Hybrid IDS
 suite. It is a multithreaded server which handles connections from
 the Prelude sensors. It is able to register local or remote
@@ -241,6 +207,11 @@ touch /var/log/prelude-manager/prelude.log
 %{_includedir}/%{name}
 
 %changelog
+* Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 0.8.7-3sls
+- OpenSLS build
+- tidy spec
+- short descriptions for plugins
+
 * Tue Sep 09 2003 Florin Grad <florin@mandrakesoft.com> 0.8.7-2mdk
 - use the modified libprelude
 
