@@ -37,7 +37,7 @@
 -DEFAULT_SWAP_DIR = $(localstatedir)/cache
 +DEFAULT_CACHE_LOG = $(localstatedir)/log/squid/cache.log
 +DEFAULT_ACCESS_LOG = $(localstatedir)/log/squid/access.log
-+DEFAULT_STORE_LOG = $(localstatedir)/var/log/store.log
++DEFAULT_STORE_LOG = $(localstatedir)/log/squid/store.log
 +DEFAULT_PID_FILE = $(localstatedir)/run/squid.pid
 +DEFAULT_SWAP_DIR = $(localstatedir)/spool/squid
  DEFAULT_PINGER = $(libexecdir)/`echo pinger | sed '$(transform);s/$$/$(EXEEXT)/'`

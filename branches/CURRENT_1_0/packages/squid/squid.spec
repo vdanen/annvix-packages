@@ -1,8 +1,8 @@
 %define name	squid
-%define version	2.5.STABLE7
-%define release	4avx
+%define version	2.5.STABLE8
+%define release	1avx
 
-%define their_version	2.5.STABLE7
+%define their_version	2.5.STABLE8
 %define p_url   http://www.squid-cache.org/Versions/v2/2.5/bugs
 %define p_name  squid-2.5.stable5
 
@@ -38,31 +38,10 @@ Patch2:		squid-2.5.STABLE7-avx-user_group.patch.bz2
 Patch3:		squid-2.5.STABLE2-ssl.patch.bz2
 Patch4:		squid-2.5.STABLE5-pipe.patch.bz2
 # Upstream bugfix patches
-Patch100:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE7-LDAP_version_documentation.patch.bz2
-Patch101:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE7-half_closed_POST.patch.bz2
-Patch102:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE7_req_resp_header.patch.bz2
-Patch103:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE7-helper_shutdown.patch.bz2
-Patch104:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE7-non_blocking_disk.patch.bz2
-Patch105:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE7-blank_response.patch.bz2
-Patch106:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE7-dothost.patch.bz2
-Patch107:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE7-PURGE_internal.patch.bz2
-Patch108:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE7-httpd_accel_vport.patch.bz2
-Patch109:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE7-cachemgr_vmobjects.patch.bz2
-Patch110:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE7-empty_acls.patch.bz2
-Patch111:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE7-close_other.patch.bz2
-Patch112:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE7-fakeauth_auth.patch.bz2
-Patch113:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE7-gopher_html_parsing.patch.bz2
-Patch114:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE7-wccp_denial_of_service.patch.bz2
-Patch115:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE7-dns_memleak.patch.bz2
-Patch116:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE7-fqdn_truncated.patch.bz2
-Patch117:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE7-ldap_spaces.patch.bz2
-Patch118:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE7-header_parsing.patch.bz2
-Patch119:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE7-httpd_accel_no_pmtu_disc.patch.bz2
-Patch120:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE7-ftp_datachannel.patch.bz2
-Patch121:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE7-short_icons_urls.patch.bz2
-Patch122:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE7-response_splitting.patch.bz2
-Patch123:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE7-wccp_buffer_overflow.patch.bz2
-Patch124:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE7-oversize_reply_headers.patch.bz2
+Patch100:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE8-dns_assert.patch.bz2
+Patch101:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE8-format_fixes.patch.bz2
+Patch102:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE8-html_high_chars.patch.bz2
+Patch103:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE8-ftp_cleanup.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-root
 BuildRequires:	openldap-devel libsasl-devel openssl-devel >= 0.9.7 pam-devel
@@ -95,27 +74,7 @@ Install squid if you need a proxy caching server.
 %patch101 -p1
 %patch102 -p1
 %patch103 -p1
-%patch104 -p1
-%patch105 -p1
-%patch106 -p1
-%patch107 -p1
-%patch108 -p1
-%patch109 -p1
-%patch110 -p1
-%patch111 -p1
-%patch112 -p1
-%patch113 -p1
-%patch114 -p1
-%patch115 -p1
-%patch116 -p1
-%patch117 -p1
-%patch118 -p1
-%patch119 -p1
-%patch120 -p1
-%patch121 -p1
-%patch122 -p1
-%patch123 -p1
-%patch124 -p1
+
 
 bzcat %{SOURCE10} > helpers/basic_auth/winbind/winbindd_nss.h
 bzcat %{SOURCE10} > helpers/ntlm_auth/winbind/winbindd_nss.h
@@ -127,7 +86,7 @@ pwd
 perl -p -i -e "s|^SAMBAPREFIX.*|SAMBAPREFIX = /usr|" helpers/basic_auth/SMB/Makefile.in
 perl -p -i -e "s|^icondir.*|icondir = \\$\(libexecdir\)/icons|" icons/Makefile.am icons/Makefile.in
 
-grep -r "local/bin/perl" %{_builddir} |sed -e "s/:.*$//g" | xargs perl -p -i -e "s@local/bin/perl@bin/perl@g"
+grep -r "local/bin/perl" %{_builddir}/%{name}-%{version} |sed -e "s/:.*$//g" | xargs perl -p -i -e "s@local/bin/perl@bin/perl@g"
 
 %configure \
 	--enable-poll \
@@ -387,6 +346,12 @@ fi
 %attr(0750,nobody,nogroup) %dir %{_srvlogdir}/squid
 
 %changelog
+* Fri Feb 18 2005 Vincent Danen <vdanen@annvix.org> 2.5.STABLE8-1avx
+- 2.5.STABLE8
+- sync with current bugfix patches
+- fix P0 so that the store.log location is correct
+- don't grep the entire builddir, just *our* builddir
+
 * Tue Feb 01 2005 Vincent Danen <vdanen@annvix.org> 2.5.STABLE7-4avx
 - P123: fix for CAN-2005-0211
 - P124: security fix for oversized reply headers (no CVE name yet)
