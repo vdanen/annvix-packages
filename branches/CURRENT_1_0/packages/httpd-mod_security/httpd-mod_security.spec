@@ -90,6 +90,9 @@ install -m0644 mod_security-snortrules.conf %{buildroot}%{ap_sysconfdir}/
 %{_sbindir}/snort2modsec.pl
 
 %changelog
+* Fri May 07 2004 Vincent Danen <vdanen@opensls.org> 2.0.49_1.7.5-1sls
+- apache 2.0.49
+
 * Tue Feb 24 2004 Vincent Danen <vdanen@opensls.org> 2.0.48_1.7.5-1sls
 - 1.7.5 (potential security fix)
 - use the tar.gz and include the detached pgp sig

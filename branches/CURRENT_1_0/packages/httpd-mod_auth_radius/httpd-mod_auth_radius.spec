@@ -1,6 +1,6 @@
 %define name	%{ap_name}-%{mod_name}
 %define version %{ap_version}_%{mod_version}
-%define release 3sls
+%define release 1sls
 
 # Module-Specific definitions
 %define mod_version	1.7PR1
@@ -77,6 +77,9 @@ mv mod_auth_radius_apache2.c mod_auth_radius.c
 %doc mod_auth_radius.html
 
 %changelog
+* Fri May 07 2004 Vincent Danen <vdanen@opensls.org> 2.0.49_1.7PR1-1sls
+- apache 2.0.49
+
 * Wed Feb 18 2004 Vincent Danen <vdanen@opensls.org> 2.0.48_1.7PR1-3sls
 - small cleanups
 

@@ -1,6 +1,6 @@
 %define name	%{ap_name}-%{mod_name}
 %define version %{ap_version}_%{mod_version}
-%define release 4sls
+%define release 1sls
 
 # Module-Specific definitions
 %define mod_version	0.1
@@ -87,6 +87,9 @@ client is not validated.
 %doc readme.txt
 
 %changelog
+* Fri May 07 2004 Vincent Danen <vdanen@opensls.org> 2.0.49_0.1-1sls
+- apache 2.0.49
+
 * Wed Feb 18 2004 Vincent Danen <vdanen@opensls.org> 2.0.48_0.1-4sls
 - small tidy
 

@@ -1,6 +1,6 @@
 %define name	%{ap_name}-%{mod_name}
 %define version %{ap_version}_%{mod_version}
-%define release 5sls
+%define release 1sls
 
 # Module-Specific definitions
 %define mod_version	1.99_11
@@ -173,6 +173,9 @@ install -m644 xs/tables/current/Apache/FunctionTable.pm \
 %{ap_includedir}/*
 
 %changelog
+* Fri May 07 2004 Vincent Danen <vdanen@opensls.org> 2.0.49_1.99_11-1sls
+- apache 2.0.49
+
 * Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 2.0.48_1.99_11-5sls
 - rebuild for perl 5.8.4
 - require exact version of perl, including epoch

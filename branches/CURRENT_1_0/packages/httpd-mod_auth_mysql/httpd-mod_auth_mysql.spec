@@ -1,6 +1,6 @@
 %define name	%{ap_name}-%{mod_name}
 %define version %{ap_version}_%{mod_version}
-%define release 3sls
+%define release 1sls
 
 # Module-Specific definitions
 %define mod_version	1.11
@@ -82,6 +82,9 @@ cat mod_auth_mysql.c | tail +84 | head -101 | cut -c 4- > mod_auth_mysql.txt
 %{ap_webdoc}/*
 
 %changelog
+* Fri May 07 2004 Vincent Danen <vdanen@opensls.org> 2.0.49_1.11-1sls
+- apache 2.0.49
+
 * Wed Feb 18 2004 Vincent Danen <vdanen@opensls.org> 2.0.48_1.11-3sls
 - little cleanups
 
