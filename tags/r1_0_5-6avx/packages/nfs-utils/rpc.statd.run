@@ -1,0 +1,30 @@
+#!/bin/sh
+PATH="/sbin:/usr/sbin:/bin:/usr/bin:$PATH"
+
+# this runs rpc.statd under supervise
+
+. /etc/sysconfig/network
+
+if [ -n "${STATD_HOSTNAME}" ]; then
+  STATDARG="-n ${STATD_HOSTNAME}"
+else
+  STATDARG=""
+fi
+
+# if portmap hasn't been linked, log an error and put the service down
+if [ ! -d /service/portmap ]; then
+  echo "portmap must be linked to /service to run this service!"
+  touch down
+  svc -d /service/rpc.statd
+  touch log/down
+  svc -d /service/rpc.statd/log
+  exit 0
+fi
+
+# we need to wait for portmap; supervise will restart us so if portmap isn't
+# running, quit
+[ "x`svstat /service/portmap|grep down >/dev/null 2>&1; echo $?`" == "x0" ] && exit
+
+/sbin/rpc.lockd 2>&1
+
+exec /sbin/rpc.statd -F ${STATDARG} 2>&1
