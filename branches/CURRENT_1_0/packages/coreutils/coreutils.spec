@@ -1,6 +1,6 @@
 %define name	coreutils
 %define version	5.0
-%define release	7sls
+%define release	8sls
 
 # fileutils: rh-4.1-4
 # sh-utils:  rh-2.0.12-2
@@ -83,7 +83,7 @@ Most of these programs have significant advantages over their Unix
 counterparts, such as greater speed, additional options, and fewer
 arbitrary limits.
 
-The following tools're included:
+The following tools are included:
 
   basename cat chgrp chmod chown chroot cksum comm cp csplit cut date dd
   df dir dircolors dirname du echo env expand expr factor false fmt fold
@@ -172,7 +172,7 @@ chmod +x man/help2man
 
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
 # man pages are not installed with make install
@@ -201,7 +201,7 @@ for i in env cut; do ln -sf ../../bin/$i $RPM_BUILD_ROOT/usr/bin; done
 install -c -m644 %SOURCE101 $RPM_BUILD_ROOT/etc/
 
 # su
-install -m 4755 src/su $RPM_BUILD_ROOT/bin
+install -m 0755 src/su $RPM_BUILD_ROOT/bin
 
 # These come from util-linux and/or procps.
 for i in hostname uptime ; do
@@ -217,10 +217,11 @@ bzip2 -f9 old/*/C* || :
 %find_lang %name
 
 # (sb) Deal with Installed (but unpackaged) file(s) found
-rm -f $RPM_BUILD_ROOT%{_datadir}/info/dir
+rm -f %{buildroot}%{_datadir}/info/dir
+rm -rf %{buildroot}%{_datadir}/locale/*/LC_TIME
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %pre doc
 # We must desinstall theses info files since they're merged in
@@ -258,6 +259,10 @@ true
 %_mandir/man*/*
 
 %changelog
+* Mon Mar 02 2004 Vincent Danen <vdanen@opensls.org> 5.0-8sls
+- minor spec cleanups
+- /bin/su is not suid root anymore
+
 * Fri Nov 28 2003 Vincent Danen <vdanen@opensls.org> 5.0-7sls
 - OpenSLS build
 - tidy spec
