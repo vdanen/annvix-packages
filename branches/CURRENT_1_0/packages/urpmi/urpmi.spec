@@ -1,5 +1,5 @@
 %define name	urpmi
-%define version	4.5
+%define version	4.6.14
 %define release 1avx
 
 %{expand:%%define compat_perl_vendorlib %(perl -MConfig -e 'printf "%%s\n", "%{?perl_vendorlib:1}" ? "%%{perl_vendorlib}" : "$Config{installvendorlib}"')}
@@ -8,7 +8,7 @@
 %define allow_karun	0
 %define buildreq_locale	perl-MDK-Common-devel
 
-Summary:	User mode rpm install
+Summary:	Command-line software installation tool
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -22,33 +22,37 @@ BuildRequires:	%{buildreq_locale} bzip2-devel rpm-devel >= 4.0.3 gettext
 BuildArch:	noarch
 
 Requires:	webfetch eject gnupg
-PreReq:		perl-Locale-gettext >= 1.01-7 rpmtools >= 4.5 perl-URPM >= 0.96
+PreReq:		perl-Locale-gettext >= 1.01-7 rpmtools >= 5.0.2 perl-URPM >= 1.04
 
 %description
 urpmi takes care of dependencies between rpms, using a pool (or pools) of rpms.
 
-urpmi can be looked at thus:  rpm vs. urpmi with insmod vs. modprobe or as
-rpm vs. urpmi with dpkg vs. apt.
+urpmi is Annvix's console-based software installation tool, developed by
+Mandrakesoft. urpmi will follow package dependencies -- in other words, it will
+install all the other software required by the software you ask it to install --
+and it's capable of obtaining packages from a variety of media, including 
+installation CD-ROMs, your local hard disk, and remote sources such as web or FTP
+sites.
 
 
 %if %{allow_karun}
 %package -n urpmi-parallel-ka-run
-Summary:	Parallel extensions to urpmi using ka-run
+Summary:	Parallel extension to urpmi using ka-run
 Requires:	urpmi >= %{version}-%{release} ka-run >= 2.0-15mdk
 Group:		%{group}
 
 %description -n urpmi-parallel-ka-run
-urpmi-parallel-ka-run is an extensions module to urpmi for handling
+urpmi-parallel-ka-run is an extension module to urpmi for handling
 distributed installation using ka-run tools.
 %endif
 
 %package -n urpmi-parallel-ssh
-Summary:	Parallel extensions to urpmi using ssh and scp
+Summary:	Parallel extension to urpmi using ssh and scp
 Requires:	urpmi >= %{version}-%{release} openssh-clients perl
 Group:		%{group}
 
 %description -n urpmi-parallel-ssh
-urpmi-parallel-ssh is an extensions module to urpmi for handling
+urpmi-parallel-ssh is an extension module to urpmi for handling
 distributed installation using ssh and scp tools.
 
 %prep
@@ -58,14 +62,16 @@ distributed installation using ssh and scp tools.
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %{__make} PREFIX=%{buildroot} MANDIR=%{buildroot}%{_mandir} install
+
 # remove gurpmi
-rm -f %{buildroot}%{_sbindir}/gurpmi
-#install -d %{buildroot}/var/lib/urpmi/autoirpm.scripts
+rm -f %{buildroot}%{_sbindir}/gurpmi*
+rm -f %{buildroot}%{_bindir}/gurpmi*
+
 for dir in partial headers rpms
 do
   install -d %{buildroot}/var/cache/urpmi/$dir
 done
-#install -m 644 autoirpm.deny %{buildroot}%{_sysconfdir}/urpmi
+
 cat <<EOF >%{buildroot}%{_sysconfdir}/urpmi/inst.list
 # Here you can specify packages that need to be installed instead
 # of being upgraded.
@@ -83,17 +89,11 @@ done
 mkdir -p %{buildroot}%{_mandir}/man3
 pod2man urpm.pm >%{buildroot}%{_mandir}/man3/urpm.3
 
-#find %{buildroot}%{_datadir}/locale -name %{name}.mo | \
-#    perl -pe 'm|locale/([^/_]*)(.*)|; $_ = "%%lang($1) %{_datadir}/locale/$1$2\n"' > %{name}.lang
-
 mv -f %{buildroot}%{_bindir}/rpm-find-leaves %{buildroot}%{_bindir}/urpmi_rpm-find-leaves
 
 # logrotate
 install -d -m 755 %{buildroot}%{_sysconfdir}/logrotate.d
 install -m 644 %{name}.logrotate %{buildroot}%{_sysconfdir}/logrotate.d/%{name}
-
-# remove unpackaged files
-rm -f %{buildroot}%{_bindir}/gurpmi
 
 %if ! %{allow_karun}
 rm -f %{buildroot}%{compat_perl_vendorlib}/urpm/parallel_ka_run.pm
@@ -116,9 +116,11 @@ exit 0
 
 %post -p /usr/bin/perl
 use urpm;
-$urpm = new urpm;
-$urpm->read_config;
-$urpm->update_media(nolock => 1, nopubkey => 1);
+if (-e "/etc/urpmi/urpmi.cfg") {
+    $urpm = new urpm;
+    $urpm->read_config;
+    $urpm->update_media(nolock => 1, nopubkey => 1);
+}
 
 
 %files -f %{name}.lang
@@ -171,7 +173,12 @@ $urpm->update_media(nolock => 1, nopubkey => 1);
 %{compat_perl_vendorlib}/urpm/parallel_ssh.pm
 
 %changelog
-* Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 4.4-50avx
+* Wed Feb 02 2005 Vincent Danen <vdanen@annvix.org> 4.6-1avx
+- 4.6.14
+- update description
+- PreReq: perl-URPM >= 1.04, rpmtools >= 5.0.2
+
+* Tue Sep 14 2004 Vincent Danen <vdanen@annvix.org> 4.5-1avx
 - 4.5
 - Requires: perl (on urpmi-parallel-ssh)
 - remove gurpmi completely
