@@ -1,8 +1,8 @@
 %define name	dhcp
 %define version	3.0
-%define release	1.rc12.3sls
+%define release	1.rc12.4sls
 
-%define their_version	3.0.1rc11
+%define their_version	3.0.1rc12
 %define _catdir		/var/cache/man
 
 %define _requires_exceptions perl(Win32API::Registry)
@@ -23,7 +23,7 @@ Source4:	dhcrelay.init
 Source5:	update_dhcp.pl
 Source6:	dhcpreport.pl
 Source7:	ftp:///ftp.isc.org/isc/%{name}/%{name}-%{their_version}.tar.gz.asc
-Patch1:		%name-%{their_version}-ifup.patch.bz2
+Patch1:		dhcp-3.0.1rc11-ifup.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-root
 BuildRequires:	perl sed gcc groff-for-man make patch tar bzip2 
@@ -268,6 +268,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/*
 
 %changelog
+* Fri Jan 23 2004 Vincent Danen <vdanen@opensls.org> 3.0-1.rc12.4sls
+- real RC12
+
 * Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 3.0-1.rc12.3sls
 - OpenSLS build
 - tidy spec
