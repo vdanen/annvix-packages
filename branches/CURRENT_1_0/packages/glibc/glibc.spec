@@ -8,11 +8,11 @@
 
 # <version>-<release> tags for glibc main package
 %define glibcversion	2.3.2
-%define glibcrelease	16sls
+%define glibcrelease	17sls
 # <version>-<release> tags from kernel package where headers were
 # actually extracted from
-%define kheaders_ver	2.4.22
-%define kheaders_rel	0.3mdk
+%define kheaders_ver	2.4.23
+%define kheaders_rel	0.rc5.2mdk
 # Don't care about locales/* and pt_chown
 %define _unpackaged_files_terminate_build 0
 # Add errno compat hack for errata
@@ -95,6 +95,12 @@
 %define build_utils	0
 %define build_i18ndata	0
 %define build_timezone	0
+%endif
+
+%if %{build_opensls}
+%define build_doc	0
+%define build_pdf_doc	0
+%define build_utils	0
 %endif
 
 # Allow --with[out] <feature> at rpm command line build
@@ -1317,12 +1323,13 @@ fi
 %endif
 
 %changelog
-* Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 2.3.2-16sls
+* Tue Dec 23 2003 Vincent Danen <vdanen@opensls.org> 2.3.2-17sls
+- update kernel headers to 2.4.23-0.rc5.2mdk
+- don't build doc, pdf-doc, or utils
+
+* Mon Dec 08 2003 Vincent Danen <vdanen@opensls.org> 2.3.2-16sls
 - OpenSLS build
 - P41: propolice patch; use %%build_opensls macros
-- crypt_blowfish 0.4.5 (from Owl)
-- P42: crypt_blowfish patch for glibc from SUSE
-- note: there is a missing BuildReq somewhere as building segfaults on hades
 
 * Thu Oct  9 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 2.3.2-15mdk
 - Rebuild with latest rpm so that libraries in EXCLUDE_FROM_STRIP are

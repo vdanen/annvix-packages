@@ -616,13 +616,13 @@
  #define _PPC_IO_H
  
 -#include <linux/config.h>
+ #include <linux/mm.h>
  #include <linux/types.h>
- #include <asm/page.h>
- #include <asm/byteorder.h>
-@@ -374,4 +372,3 @@ static inline int isa_check_signature(un
- #define dma_cache_wback_inv(_start,_size)	do { } while (0)
+ #include <asm/mmu.h>
+@@ -441,4 +439,3 @@
  
- #endif
+ #endif /* CONFIG_NOT_COHERENT_CACHE */
+ #endif /* _PPC_IO_H */
 -#endif /* __KERNEL__ */
 --- kernel-headers/asm-s390/bitops.h.kheaders	2002-08-02 20:39:45.000000000 -0400
 +++ kernel-headers/asm-s390/bitops.h	2002-12-17 05:22:41.000000000 -0500
@@ -1638,7 +1638,7 @@
 - */
 -#define ioremap(__offset, __size)	((void *)(__offset))
 -#define ioremap_nocache(X,Y)		ioremap((X),(Y))
--#define iounmap(__addr)			do { } while(0)
+-#define iounmap(__addr)			do { (void)(__addr); } while(0)
 -
 -/* Similarly for SBUS. */
 -#define sbus_ioremap(__res, __offset, __size, __name) \
@@ -1665,22 +1665,26 @@
  #endif /* !(__SPARC64_IO_H) */
 --- kernel-headers/asm-sparc64/ptrace.h.kheaders	1998-01-12 18:15:58.000000000 -0500
 +++ kernel-headers/asm-sparc64/ptrace.h	2002-12-17 05:22:41.000000000 -0500
-@@ -95,12 +95,6 @@ struct sparc_trapf {
+@@ -93,16 +93,6 @@
+ #define TRACEREG32_SZ	sizeof(struct pt_regs32)
  #define STACKFRAME32_SZ	sizeof(struct sparc_stackf32)
- #define REGWIN32_SZ	sizeof(struct reg_window32)
  
 -#ifdef __KERNEL__
 -#define user_mode(regs) (!((regs)->tstate & TSTATE_PRIV))
 -#define instruction_pointer(regs) ((regs)->tpc)
 -extern void show_regs(struct pt_regs *);
+-#define force_successful_syscall_return() \
+-do { \
+-	current->thread.flags |= SPARC_FLAG_SYS_SUCCESS; \
+-} while (0)
 -#endif
 -
  #else /* __ASSEMBLY__ */
  /* For assembly code. */
  #define TRACEREG_SZ		0xa0
-@@ -111,11 +105,6 @@ extern void show_regs(struct pt_regs *);
+@@ -111,11 +101,6 @@
+ #define TRACEREG32_SZ		0x50
  #define STACKFRAME32_SZ		0x60
- #define REGWIN32_SZ		0x40
  
 -#include <asm/asm_offsets.h>
 -#endif
@@ -2119,27 +2123,14 @@
   */
   
 -#ifdef CONFIG_SMP
- #define NR_CPUS	32		/* Max processors that can be running in SMP */
+-#define NR_CPUS	CONFIG_NR_CPUS
 -#else
--#define NR_CPUS 1
+-#define NR_CPUS	1
 -#endif
++#define NR_CPUS	sizeof(long)
  
  #define MIN_THREADS_LEFT_FOR_ROOT 4
  
---- kernel-headers/linux/videodev2.h.kheaders	2002-12-17 11:09:56.000000000 +0100
-+++ kernel-headers/linux/videodev2.h	2002-12-18 11:19:23.000000000 +0100
-@@ -13,7 +13,11 @@
-  *		Justin Schoeman
-  *		et al.
-  */
-+#ifdef __KERNEL__
- #include <linux/time.h> /* need struct timeval */
-+#else
-+#include <sys/time.h>
-+#endif
- 
- /*
-  *	M I S C E L L A N E O U S
 --- kernel-headers/linux/wireless.h.kheaders	2003-08-12 06:28:54.000000000 +0200
 +++ kernel-headers/linux/wireless.h	2003-08-12 11:11:33.000000000 +0200
 @@ -72,7 +72,6 @@
