@@ -1,6 +1,6 @@
 %define name	shadow-utils
 %define version	4.0.3
-%define release	8sls
+%define release	10avx
 
 #rh-20000902-10
 #%define url	ftp://ftp.ists.pwr.wroc.pl/pub/linux/shadow/beta
@@ -164,6 +164,12 @@ rm -rf build-$RPM_ARCH
 %{_mandir}/man8/faillog.8*
 
 %changelog
+* Sun Jun 27 2004 Vincent Danen <vdanen@annvix.org> 4.0.3-10avx
+- Annvix build
+
+* Fri Jun 04 2004 Vincent Danen <vdanen@opensls.org> 4.0.3-9sls
+- make umask for useradd 0066 rather than 0022
+
 * Fri May 07 2004 Vincent Danen <vdanen@opensls.org> 4.0.3-8sls
 - do not copy rpmsave, rpmorig, and .rpmnew files from /etc/skel (warly)
 - major patch cleanup, remove all unapplied patches: P7, P8, P9, P200, P201,

@@ -5,7 +5,7 @@
  		chown (user_home, user_id, user_gid);
  #if 1
 -		chmod (user_home, 0777 & ~getdef_num ("UMASK", 077));
-+		chmod (user_home, 0777 & ~getdef_num ("UMASK", 0022));
++		chmod (user_home, 0777 & ~getdef_num ("UMASK", 0066));
  #else
  		chmod (user_home, 0755);
  #endif
