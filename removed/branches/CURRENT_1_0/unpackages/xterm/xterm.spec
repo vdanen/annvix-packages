@@ -1,6 +1,6 @@
 %define name	xterm
 %define version	179
-%define release	2sls
+%define release	3sls
 
 Summary:	The standard terminal emulator for the X Window System
 Name:		%{name}
@@ -10,7 +10,6 @@ License:	MIT
 Group:		Terminals
 URL:		http://dickey.his.com/xterm
 Source0:	ftp://dickey.his.com/xterm/%name-%version.tar.bz2
-Source1:	xterm-icons.tar.bz2
 Patch1:		xterm-172-alt-meta-mod.patch.bz2
 Patch2:		xterm-177-biarch-utmp.patch.bz2
 
@@ -39,7 +38,7 @@ running in the window whenever it is resized.
 make
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 r=$RPM_BUILD_ROOT
 make install appsdir=$r/usr/X11R6/lib/X11/app-defaults bindir=$r/usr/X11R6/bin  mandir=$r/usr/X11R6/man/man1 
 
@@ -53,21 +52,6 @@ cat << EOF >> $r/usr/X11R6/lib/X11/app-defaults/XTerm
 *.PtyInitialErase: on
 *.backarrowKeyIsErase: on
 EOF
-
-mkdir -p $r%_menudir
-cat << EOF > $r%_menudir/xterm
-?package(%name):\
-  needs=X11\
-  section=%group\
-  title="XTerm"\
-  longtitle="%summary"\
-  command="/usr/X11R6/bin/xterm -name Terminal"\
-  icon="xterm-terminal.png"
-EOF
-
-mkdir -p $RPM_BUILD_ROOT{%_liconsdir,%_miconsdir}
-# icons
-tar xfj %SOURCE1 -C $RPM_BUILD_ROOT%_iconsdir
 
 ## strange, if xterm isn't launched with -name xxxx parameter it doesn't
 ## take in account the ressources --> wrong font in unicode mode --> segfault
@@ -85,15 +69,7 @@ EOF
 chmod a+rx $r/usr/X11R6/bin/xterm
 
 %clean
-rm -rf $RPM_BUILD_ROOT
-
-%post
-%update_menus
-update-alternatives --install /usr/X11R6/bin/xvt xvt /usr/X11R6/bin/xterm 18 || :
-
-%postun
-%clean_menus
-[[ "$1" = "0" ]] && update-alternatives --remove xvt /usr/X11R6/bin/xterm || :
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -101,12 +77,12 @@ update-alternatives --install /usr/X11R6/bin/xvt xvt /usr/X11R6/bin/xterm 18 || 
 %_prefix/X11R6/bin/*
 %_prefix/X11R6/man/*/*
 %_prefix/X11R6/lib/X11/app-defaults/*
-%_menudir/%name
-%_iconsdir/xterm-terminal.png
-%_iconsdir/large/xterm-terminal.png
-%_iconsdir/mini/xterm-terminal.png
 
 %changelog
+* Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 179-3sls
+- minor spec cleanups
+- remove menu entry and icons
+
 * Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 179-2sls
 - OpenSLS build
 - tidy spec
