@@ -1,6 +1,6 @@
 %define name	snort
 %define version	2.1.0
-%define release	4sls
+%define release	5sls
 
 # this is so the binaries won't be stripped so people will submit
 # meaningful bugreports
@@ -425,6 +425,9 @@ update-alternatives --remove %{name} %{_sbindir}/%{name}-bloat
 %attr(755,root,root) %{_sbindir}/%{name}-bloat
 
 %changelog
+* Fri Apr 30 2004 Vincent Danen <vdanen@opensls.org> 2.1.0-5sls
+- rebuild against new libpcap 0.8.3
+
 * Thu Mar 04 2004 Vincent Danen <vdanen@opensls.org> 2.1.0-4sls
 - minor spec cleanups
 - fix logrotation (P2)
