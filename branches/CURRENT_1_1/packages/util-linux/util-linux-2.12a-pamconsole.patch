@@ -1,0 +1,138 @@
+--- util-linux-2.12a/mount/mount.c.pamconsole	2005-02-14 13:19:53.386779665 +0100
++++ util-linux-2.12a/mount/mount.c	2005-02-14 13:34:50.812021561 +0100
+@@ -127,16 +127,17 @@
+ #define MS_NOAUTO	0x80000000
+ #define MS_USERS	0x40000000
+ #define MS_USER		0x20000000
++#define MS_PAMCONSOLE   0x04000000
+ #define MS_OWNER	0x10000000
+ #define MS_NETDEV	0x00020000
+ #define MS_ENCRYPT	0x00030000
+ #define MS_LOOP		0x00010000
+ 
+ /* Options that we keep the mount system call from seeing.  */
+-#define MS_NOSYS	(MS_NOAUTO|MS_USERS|MS_USER|MS_NETDEV|MS_ENCRYPT|MS_LOOP)
++#define MS_NOSYS	(MS_NOAUTO|MS_USERS|MS_USER|MS_NETDEV|MS_ENCRYPT|MS_LOOP|MS_PAMCONSOLE)
+ 
+ /* Options that we keep from appearing in the options field in the mtab.  */
+-#define MS_NOMTAB	(MS_REMOUNT|MS_NOAUTO|MS_USER)
++#define MS_NOMTAB	(MS_REMOUNT|MS_NOAUTO|MS_USER|MS_PAMCONSOLE)
+ 
+ /* Options that we make ordinary users have by default.  */
+ #define MS_SECURE	(MS_NOEXEC|MS_NOSUID|MS_NODEV)
+@@ -170,6 +171,8 @@
+   { "encrypted", 0, 0, MS_ENCRYPT },	/* Device encrypted */
+   { "_netdev",	0, 0, MS_NETDEV },	/* Device accessible only via network */
+   /* add new options here */
++  { "pamconsole",   0, 0, MS_PAMCONSOLE }, /* Allow users at console to mount */
++  { "nopamconsole", 0, 1, MS_PAMCONSOLE }, /* Console user has no special privs */
+ #ifdef MS_NOSUB
+   { "sub",	0, 1, MS_NOSUB	},	/* allow submounts */
+   { "nosub",	0, 0, MS_NOSUB	},	/* don't allow submounts */
+@@ -291,7 +294,7 @@
+ 				*mask &= ~om->mask;
+ 			else
+ 				*mask |= om->mask;
+-			if ((om->mask == MS_USER || om->mask == MS_USERS)
++			if ((om->mask == MS_USER || om->mask == MS_USERS || om->mask == MS_PAMCONSOLE)
+ 			    && !om->inv)
+ 				*mask |= MS_SECURE;
+ 			if ((om->mask == MS_OWNER) && !om->inv)
+@@ -609,6 +612,29 @@
+ 	      }
+ 	  }
+       }
++
++      /* Red Hat patch: allow users at console to mount when fstab
++	 contains the console option. This option should not be used
++	 in a high security environment but is useful to give console
++ 	 users the possibility of using locally attached devices
++         such as USB keychains and USB harddisks where it is now suitable
++	 to give the console owner write access to the device node */
++      if (*flags & MS_PAMCONSOLE) {
++	char *username;
++	char pamconsole_file_name[256];
++	struct stat sb;
++	
++	username = getusername ();
++	
++	if (username != NULL) {
++	  snprintf (pamconsole_file_name, sizeof (pamconsole_file_name), 
++		    "/var/run/console/%s", username);
++	  if (stat (pamconsole_file_name, &sb) == 0) {
++	    *flags |= MS_USER;
++	  }
++	}
++      }
++
+       /* James Kehl <mkehl@gil.com.au> came with a similar patch:
+ 	 allow an arbitrary user to mount when he is the owner of
+ 	 the mount-point and has write-access to the device.
+@@ -625,7 +651,7 @@
+ 	  *user = getusername();
+   }
+ 
+-  if (*flags & MS_OWNER)
++  if (*flags & MS_OWNER | MS_PAMCONSOLE)
+       *flags &= ~MS_OWNER;
+ }
+ 
+--- util-linux-2.12a/mount/umount.c.pamconsole	2004-03-05 02:03:17.000000000 +0100
++++ util-linux-2.12a/mount/umount.c	2005-02-14 13:36:24.721953115 +0100
+@@ -541,7 +541,7 @@
+ 	struct mntentchn *mc, *fs;
+ 	char *file;
+ 	string_list options;
+-	int fstab_has_user, fstab_has_users, fstab_has_owner, ok;
++	int fstab_has_user, fstab_has_users, fstab_has_owner, fstab_has_pamconsole, ok;
+ 
+ 	file = canonicalize(arg); /* mtab paths are canonicalized */
+ 	if (verbose > 1)
+@@ -598,12 +598,15 @@
+ 		fstab_has_user = contains(options, "user");
+ 		fstab_has_users = contains(options, "users");
+ 		fstab_has_owner = contains(options, "owner");
++		fstab_has_pamconsole = contains(options, "pamconsole");
+ 		ok = 0;
+ 
+ 		if (fstab_has_users)
+ 			ok = 1;
+ 
+-		if (!ok && (fstab_has_user || fstab_has_owner)) {
++		if (!ok && (fstab_has_user || fstab_has_owner || fstab_has_pamconsole)) {
++			char pamconsole_file_name[256];
++			struct stat sb;
+ 			char *user = getusername();
+ 
+ 			options = parse_list (mc->m.mnt_opts);
+@@ -611,6 +614,14 @@
+ 
+ 			if (user && mtab_user && streq (user, mtab_user))
+ 				ok = 1;
++
++			/*pam_console user check*/
++			if (user && fstab_has_pamconsole) {
++				snprintf (pamconsole_file_name, sizeof (pamconsole_file_name), "/var/run/console/%s", user);
++	      			if (stat (pamconsole_file_name, &sb) == 0) {
++					ok = 1;
++	      			}
++			}
+ 		}
+ 		if (!ok)
+ 			die (2, _("umount: only %s can unmount %s from %s"),
+--- util-linux-2.12a/mount/fstab.5.pamconsole	2002-11-01 02:00:50.000000000 +0100
++++ util-linux-2.12a/mount/fstab.5	2005-02-14 13:31:38.195941445 +0100
+@@ -156,10 +156,10 @@
+ .BR nfs (5).
+ Common for all types of file system are the options ``noauto''
+ (do not mount when "mount -a" is given, e.g., at boot time), ``user''
+-(allow a user to mount), and ``owner''
+-(allow device owner to mount), and ``_netdev'' (device requires network
++(allow a user to mount), ``owner''
++(allow device owner to mount), ``pamconsole'' (allow a user at the console to mount), and ``_netdev'' (device requires network
+ to be available).
+-The ``owner'' and ``_netdev'' options are Linux-specific.
++The ``owner'', ``pamconsole'' and ``_netdev'' options are Linux-specific.
+ For more details, see
+ .BR mount (8).
+ 

@@ -1,0 +1,67 @@
+diff -Naur mysql-4.1.9/bdb/dbinc/mutex.h mysql-4.1.9.oden/bdb/dbinc/mutex.h
+--- mysql-4.1.9/bdb/dbinc/mutex.h	2005-01-11 23:06:01.000000000 +0100
++++ mysql-4.1.9.oden/bdb/dbinc/mutex.h	2005-01-30 20:39:14.327183645 +0100
+@@ -693,6 +693,31 @@
+ #endif
+ #endif
+ 
++/*********************************************************************
++ * amd64/gcc assembly.
++ *********************************************************************/
++#ifdef HAVE_MUTEX_X86_64_GCC_ASSEMBLY
++typedef unsigned char tsl_t;
++
++#ifdef LOAD_ACTUAL_MUTEX_CODE
++/*
++ * For gcc/amd64, 0 is clear, 1 is set.
++ */
++#define  MUTEX_SET(tsl) ({           \
++	register tsl_t *__l = (tsl);          \
++	int __r;              \
++	asm volatile("mov $1,%%rax; lock; xchgb %1,%%al; xor $1,%%rax"\
++		: "=&a" (__r), "=m" (*__l)          \
++		: "1" (*__l)            \
++		);                \
++	__r & 1;              \
++})
++
++#define  MUTEX_UNSET(tsl)  (*(tsl) = 0)
++#define  MUTEX_INIT(tsl)   MUTEX_UNSET(tsl)
++#endif
++#endif
++
+ /*
+  * Mutex alignment defaults to one byte.
+  *
+diff -Naur mysql-4.1.9/bdb/dist/aclocal/mutex.ac mysql-4.1.9.oden/bdb/dist/aclocal/mutex.ac
+--- mysql-4.1.9/bdb/dist/aclocal/mutex.ac	2005-01-11 23:06:02.000000000 +0100
++++ mysql-4.1.9.oden/bdb/dist/aclocal/mutex.ac	2005-01-30 20:39:50.869954298 +0100
+@@ -425,6 +425,17 @@
+ ], [db_cv_mutex="S390/gcc-assembly"])
+ fi
+ 
++# AMD64/gcc: FreeBSD, NetBSD, BSD/OS, Linux
++if test "$db_cv_mutex" = no; then
++AC_TRY_COMPILE(,[
++#if (defined(x86_64) || defined(__x86_64__)) && defined(__GNUC__)
++	exit(0);
++#else
++	FAIL TO COMPILE/LINK
++#endif
++], [db_cv_mutex="x86_64/gcc-assembly"])
++fi
++
+ # ia86/gcc: Linux
+ if test "$db_cv_mutex" = no; then
+ AC_TRY_COMPILE(,[
+@@ -570,6 +581,10 @@
+ 			AC_DEFINE(HAVE_MUTEX_X86_GCC_ASSEMBLY)
+ 			AH_TEMPLATE(HAVE_MUTEX_X86_GCC_ASSEMBLY,
+ 			    [Define to 1 to use the GCC compiler and x86 assembly language mutexes.]);;
++x86_64/gcc-assembly)	ADDITIONAL_OBJS="mut_tas${o} $ADDITIONAL_OBJS"
++			AC_DEFINE(HAVE_MUTEX_X86_64_GCC_ASSEMBLY)
++			AH_TEMPLATE(HAVE_MUTEX_X86_64_GCC_ASSEMBLY,
++			    [Define to 1 to use the GCC compiler and amd64 assembly language mutexes.]);;
+ UNIX/fcntl)		AC_MSG_WARN(
+ 			    [NO FAST MUTEXES FOUND FOR THIS COMPILER/ARCHITECTURE.])
+ 			ADDITIONAL_OBJS="mut_fcntl${o} $ADDITIONAL_OBJS"

@@ -1,0 +1,122 @@
+--- Linux-PAM-0.77/modules/pam_console/pam_console_setowner.c.console-setowner	2004-09-10 09:41:17.342945728 +0200
++++ Linux-PAM-0.77/modules/pam_console/pam_console_setowner.c	2004-09-10 09:46:36.504425808 +0200
+@@ -0,0 +1,90 @@
++/*===========================================================================
++ * Project         : Mandrakelinux
++ * Module          : pam_console
++ * File            : pam_console_setowner.c
++ * Version         : $Id$
++ * Author          : Frederic Lepied
++ * Created On      : Thu Sep  9 21:53:22 2004
++ * Purpose         : 
++ *===========================================================================*/
++
++static const char rcs_id[] = "$Id$";
++static const char compile_id[] = "$Compile: " __FILE__ " " __DATE__ " " __TIME__ " $";
++
++/*
++ **********************************************************************
++ *
++ * Included files
++ *
++ **********************************************************************
++ */
++
++#include "pam_console_apply_devfsd.c"
++
++/*
++ **********************************************************************
++ *
++ * Constants
++ *
++ **********************************************************************
++ */
++
++/*
++ **********************************************************************
++ *
++ * Macros
++ *
++ **********************************************************************
++ */
++
++/*
++ **********************************************************************
++ *
++ * New types
++ *
++ **********************************************************************
++ */
++
++/*
++ **********************************************************************
++ *
++ * External functions
++ *
++ **********************************************************************
++ */
++
++/*
++ **********************************************************************
++ *
++ * External variables
++ *
++ **********************************************************************
++ */
++
++/*
++ **********************************************************************
++ *
++ * Global variables
++ *
++ **********************************************************************
++ */
++
++int
++main(int argc, char * argv[])
++{
++  debug = getenv("PAM_DEBUG") != NULL;
++  
++  if (argc == 2)
++    return pam_console_apply_single(argv[1]);
++
++  return 1;
++}
++
++
++/*
++ * Local variables:
++ * mode: c
++ * End:
++ *
++ * pam_console_setowner.c ends here
++ */
+--- Linux-PAM-0.77/modules/pam_console/Makefile.console-setowner	2004-09-10 09:41:17.287954088 +0200
++++ Linux-PAM-0.77/modules/pam_console/Makefile	2004-09-10 09:47:59.918744904 +0200
+@@ -48,7 +48,7 @@
+ 
+ ####################### don't edit below #######################
+ 
+-all: dirs $(LIBSHARED) pam_console_apply_devfsd.so $(LIBSTATIC) register $(BINARY)
++all: dirs $(LIBSHARED) pam_console_apply_devfsd.so $(LIBSTATIC) register $(BINARY) pam_console_setowner
+ 
+ dynamic/%.o : %.c
+ 	$(CC) $(CFLAGS) $(DYNAMIC) $(TARGET_ARCH) -c $< -o $@
+@@ -72,6 +72,9 @@
+ $(BINARY): $(BINSRC)
+ 	$(CC) $(CFLAGS) $(TARGET_ARCH) -o $@ $^ -Wl,-Bstatic $(LDFLAGS) -Wl,-Bdynamic ../../libpam/libpam.so -lc
+ 
++pam_console_setowner: pam_console_setowner.c pam_console_apply_devfsd.c regerr.c chmod.c modechange.c config.lex.c config.tab.c
++	$(CC) $(CFLAGS) $(TARGET_ARCH) -o $@ pam_console_setowner.c -Wl,-Bstatic $(LDFLAGS) -Wl,-Bdynamic ../../libpam/libpam.so -lc
++
+ ifdef DYNAMIC
+ $(LIBOBJD): $(LIBSRC)
+ endif
+@@ -114,6 +117,7 @@
+ 	$(MKDIR) -m $(LOCKMODE) $(FAKEROOT)$(LOCKDIR) $(FAKEROOT)/$(SCONFIGD)/console.apps && bash -f ../install_conf "$(FAKEROOT)" "$(SCONFIGD)" "$(INSTALLED_CONFILE)" "$(TITLE)" "$(LOCAL_CONFILE)"
+ 	test -d  $(FAKEROOT)$(SUPLEMENTED) || install -m 755 -d $(FAKEROOT)$(SUPLEMENTED)
+ 	install -m 555 $(BINARY) $(FAKEROOT)$(SUPLEMENTED)
++	install -m 555 pam_console_setowner $(FAKEROOT)$(SUPLEMENTED)
+ 
+ 
+ remove:

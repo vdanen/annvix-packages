@@ -1,0 +1,10 @@
+#!/bin/sh
+PATH="/sbin:/usr/sbin:/bin:/usr/bin:$PATH"
+
+# this runs freshclam supervised
+
+. /usr/share/srv/functions
+
+checkdepends clamd
+
+exec /usr/bin/freshclam -d --config-file /etc/freshclam.conf 2>&1

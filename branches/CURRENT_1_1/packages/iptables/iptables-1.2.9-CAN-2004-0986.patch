@@ -1,0 +1,46 @@
+diff -ruN iptables-1.2.9.org/ip6tables.c iptables-1.2.9/ip6tables.c
+--- iptables-1.2.9.org/ip6tables.c	2004-11-02 14:44:56.000000000 -0700
++++ iptables-1.2.9/ip6tables.c	2004-11-02 14:46:42.000000000 -0700
+@@ -844,7 +844,7 @@
+ 			if (!isalnum(vianame[i]) 
+ 			    && vianame[i] != '_' 
+ 			    && vianame[i] != '.') {
+-				printf("Warning: wierd character in interface"
++				printf("Warning: weird character in interface"
+ 				       " `%s' (No aliases, :, ! or *).\n",
+ 				       vianame);
+ 				break;
+@@ -1566,8 +1566,9 @@
+ 	if (procfile < 0)
+ 		return NULL;
+ 
+-	ret = malloc(1024);
++	ret = (char *)malloc(1024);
+ 	if (ret) {
++		memset (ret, 0, 1024);
+ 		switch (read(procfile, ret, 1024)) {
+ 		case -1: goto fail;
+ 		case 1024: goto fail; /* Partial read.  Wierd */
+diff -ruN iptables-1.2.9.org/iptables.c iptables-1.2.9/iptables.c
+--- iptables-1.2.9.org/iptables.c	2004-11-02 14:44:56.000000000 -0700
++++ iptables-1.2.9/iptables.c	2004-11-02 14:46:03.000000000 -0700
+@@ -783,7 +783,7 @@
+ 			if (!isalnum(vianame[i]) 
+ 			    && vianame[i] != '_' 
+ 			    && vianame[i] != '.') {
+-				printf("Warning: wierd character in interface"
++				printf("Warning: weird character in interface"
+ 				       " `%s' (No aliases, :, ! or *).\n",
+ 				       vianame);
+ 				break;
+@@ -1563,8 +1563,9 @@
+ 	if (procfile < 0)
+ 		return NULL;
+ 
+-	ret = malloc(1024);
++	ret = (char *)malloc(1024);
+ 	if (ret) {
++		memset (ret, 0, 1024);
+ 		switch (read(procfile, ret, 1024)) {
+ 		case -1: goto fail;
+ 		case 1024: goto fail; /* Partial read.  Wierd */
