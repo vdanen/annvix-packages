@@ -1,11 +1,7 @@
 %define name	lilo
 %define version 22.5.9
-%define release 1avx
+%define release 3avx
 %define epoch	1
-
-%define DEVMAPPER	1
-%{?_with_devmapper:	%{expand: %%global DEVMAPPER 1}}
-%{?_without_devmapper:	%{expand: %%global DEVMAPPER 0}}
 
 Summary:	The boot loader for Linux and other operating systems
 Name:		%{name}
@@ -33,19 +29,15 @@ Patch28:	lilo-22.5.9-never-relocate-when-has-partititions.patch.bz2
 Patch29:	lilo-22.5.9-initialize-Volume-IDs-with-no-fanfare.patch.bz2
 Patch30:	lilo-22.5.9-test-edd.patch.bz2
 Patch31:	lilo-22.5.9-exit_code_1_when_aborting.patch.bz2
-Patch98:	http://www.saout.de/misc/lilo-22.5.9-devmapper.patch.bz2
-Patch99:	lilo-22.5.8-devmapper-hush.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-root
 BuildRequires:	dev86 dev86-devel nasm
-%if %{DEVMAPPER}
-BuildRequires:	device-mapper-devel
-%endif
 
 PreReq:		perl
 Conflicts:	lilo-doc < 22.5.7.2-6mdk
 Exclusivearch:	%{ix86}
 Provides:	bootloader
+
 
 %description
 LILO (LInux LOader) is a basic system program which boots your Linux
@@ -69,10 +61,6 @@ boot other operating systems.
 %patch29 -p1
 %patch30 -p1
 %patch31 -p1
-%if %{DEVMAPPER}
-%patch98 -p1 -b .dm
-%patch99 -p1 -b .hushdm
-%endif
 
 # graphic pictures.
 bzip2 -dc %{SOURCE1} | tar xvf -
@@ -186,6 +174,13 @@ fi
 
 
 %changelog
+* Wed Oct 13 2004 Vincent Danen <vdanen@annvix.org> 22.5.9-3avx
+- Revert device mapper changes as it does not work on x86_64 at
+  all until lilo compiles on x86_64
+
+* Wed Oct 13 2004 Vincent Danen <vdanen@annvix.org> 22.5.9-2avx
+- Requires: libdevmapper
+
 * Fri Sep 24 2004 Vincent Danen <vdanen@annvix.org> 22.5.9-1avx
 - 22.5.9
 - use the xxx.bmp.parameters
