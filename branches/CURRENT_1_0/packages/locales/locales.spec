@@ -1,7 +1,7 @@
 %define name	locales
 %define glibc_ver 2.3.2
 %define version	%{glibc_ver}
-%define release	7sls
+%define release	8avx
 
 # FIXME: please check on next build those we really need
 #%define _unpackaged_files_terminate_build 0
@@ -103,7 +103,7 @@ Source85:	KOI8-K
 
 BuildRoot:	%{_tmppath}/%{name}-root
 # glibc >= 2.2.5-6mdk now comes with glibc-i18ndata package
-BuildRequires:	glibc-i18ndata = %{glibc_ver}
+BuildRequires:	glibc-i18ndata = 6:%{glibc_ver}
 # it is arch dependen in fact
 #BuildArchitectures: noarch
 # no need to check for dependencies when building, there is no executables here
@@ -2728,6 +2728,10 @@ according to Xhosa language conventions.
 /usr/share/locale/zu*
 
 %changelog
+* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 2.3.2-8avx
+- Annvix build
+- include epoch in BuildRequires
+
 * Sat Mar 06 2004 Vincent Danen <vdanen@opensls.org> 2.3.2-7sls
 - minor spec cleanups
 - remove icon
