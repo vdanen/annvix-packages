@@ -1,0 +1,5 @@
+#!/bin/sh
+
+# logging for the slurpd service
+
+exec /sbin/chpst -u slurpd /sbin/svlogd -tt /var/log/supervise/slurpd
