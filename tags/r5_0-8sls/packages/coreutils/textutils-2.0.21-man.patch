@@ -1,0 +1,10 @@
+--- textutils-2.0.21/man/sort.1.foo	Tue Feb 26 13:25:28 2002
++++ textutils-2.0.21/man/sort.1	Tue Feb 26 13:30:56 2002
+@@ -65,6 +65,7 @@
+ .TP
+ \fB\-u\fR, \fB\-\-unique\fR
+ with \fB\-c\fR: check for strict ordering
++.br
+ otherwise: output only the first of an equal run
+ .TP
+ \fB\-z\fR, \fB\-\-zero\-terminated\fR
