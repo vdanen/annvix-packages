@@ -1,6 +1,6 @@
 %define name	openldap
 %define version	2.1.29
-%define release	4avx
+%define release	5avx
 
 %define major 		2
 %define migtools_ver	45
@@ -874,6 +874,9 @@ fi
 # - add cron-job to remove transaction logs (bdb)
 
 %changelog
+* Tue Aug 17 2004 Vincent Danen <vdanen@annvix.org> 2.1.29-5avx
+- rebuild against latest openssl
+
 * Wed Jun 30 2004 Vincent Danen <vdanen@annvix.org> 2.1.29-4avx
 - fix slapd's run file; we need to give the loglevel to slapd's "-d"
   parameter in order for logging to work
