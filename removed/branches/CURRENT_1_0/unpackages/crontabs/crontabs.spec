@@ -1,6 +1,6 @@
 %define name	crontabs
 %define version	1.10
-%define release	4sls
+%define release	5sls
 
 Summary:	Root crontab files used to schedule the execution of programs.
 Name:		%{name}
@@ -44,6 +44,9 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_sysconfdir}/cron.monthly
 
 %changelog
+* Sat Jan 31 2004 Vincent Danen <vdanen@opensls.org> 1.10-5sls
+- fix the syntax of the crontabs to work better with dcron
+
 * Fri Nov 28 2003 Vincent Danen <vdanen@opensls.org> 1.10-4sls
 - OpenSLS build
 - tidy spec
