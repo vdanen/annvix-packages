@@ -1,6 +1,6 @@
 %define name	syslinux
 %define version 1.76
-%define release 13avx
+%define release 14avx
 
 %define old_version	1.67
 %define pxelinux_version 2.06
@@ -50,17 +50,17 @@ This version include a patched SYSLINUX for handling VESA graphic mode.
 
 %build
 make clean
-make DATE="OpenSLS"
+make DATE="Annvix"
 
 cd %{name}-%{old_version}
 make clean
-make DATE="OpenSLS"
+make DATE="Annvix"
 
 cd ../../%{name}-%{pxelinux_version}
 make clean
-make pxelinux.0 DATE="OpenSLS"
-make memdisk DATE="OpenSLS"
-make gethostip DATE="OpenSLS"
+make pxelinux.0 DATE="Annvix"
+make memdisk DATE="Annvix"
+make gethostip DATE="Annvix"
 
 
 %install
@@ -104,6 +104,9 @@ install -m 0644 ../%{name}-%{pxelinux_version}/memdisk/memdisk $RPM_BUILD_ROOT%{
 %{_libdir}/*
 
 %changelog
+* Sun Aug 01 2004 Vincent Danen <vdanen@annvix.org> 1.76-14avx
+- s/OpenSLS/Annvix/
+
 * Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 1.76-13avx
 - Annvix build
 
