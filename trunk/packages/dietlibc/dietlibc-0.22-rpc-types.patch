@@ -1,0 +1,54 @@
+--- dietlibc-0.22/include/rpc/types.h.rpc-types	2003-02-19 18:01:11.000000000 -0500
++++ dietlibc-0.22/include/rpc/types.h	2003-02-19 17:59:41.000000000 -0500
+@@ -59,6 +59,16 @@ typedef unsigned long rpcport_t;
+ #ifndef makedev /* ie, we haven't already included it */
+ #include <sys/types.h>
+ #endif
++
++# ifndef __dietlibc_u_char_defined
++typedef char* caddr_t;
++typedef uint32_t u_long;
++typedef unsigned char u_char;
++typedef unsigned short u_short;
++typedef unsigned int u_int;
++# define __dietlibc_u_char_defined
++#endif
++
+ #include <sys/time.h>
+ #include <sys/param.h>
+ 
+--- dietlibc-0.22/include/sys/types.h.rpc-types	2002-11-04 15:38:10.000000000 -0500
++++ dietlibc-0.22/include/sys/types.h	2003-02-19 17:59:28.000000000 -0500
+@@ -101,21 +101,24 @@ typedef unsigned short sa_family_t;
+ 
+ #ifdef _BSD_SOURCE
+ /* die, BSD, die! */
++typedef uint16_t nshort;
++typedef uint32_t ntime;
++typedef uint32_t nlong;
++typedef uint32_t ulong;
++typedef uint16_t n_short;
++typedef uint32_t n_time;
++typedef uint32_t n_long;
++# ifndef __dietlibc_u_char_defined
+ typedef char* caddr_t;
++typedef uint32_t u_long;
+ typedef unsigned char u_char;
+ typedef unsigned short u_short;
+ typedef unsigned int u_int;
++# define __dietlibc_u_char_defined
++# endif
+ typedef unsigned char uchar;
+ typedef unsigned short ushort;
+ typedef unsigned int uint;
+-typedef uint32_t u_long;
+-typedef uint32_t n_long;
+-typedef uint32_t n_time;
+-typedef uint16_t n_short;
+-typedef uint32_t ulong;
+-typedef uint32_t nlong;
+-typedef uint32_t ntime;
+-typedef uint16_t nshort;
+ #endif
+ 
+ #ifdef _GNU_SOURCE
