@@ -1,6 +1,6 @@
 %define name	ypserv
 %define version	2.11
-%define release 1sls
+%define release 2avx
 
 Summary:	The NIS (Network Information Service) server
 Name:		%{name}
@@ -9,7 +9,6 @@ Release:	%{release}
 License:	GPL
 Group:		System/Servers
 URL:		http://www.linux-nis.org/
-
 Source0:	ftp://ftp.kernel.org/pub/linux/utils/net/NIS/ypserv-%{PACKAGE_VERSION}.tar.bz2
 Source1:	ftp://ftp.kernel.org/pub/linux/utils/net/NIS/ypserv-%{PACKAGE_VERSION}.tar.bz2.sign
 Source2:	ypserv.run
@@ -23,8 +22,9 @@ Patch1: 	ypserv-2.1-syslog.patch.bz2
 Patch2: 	ypserv-2.11-path.patch.bz2
 Patch3:		ypserv-2.10-nomap.patch.bz2
 
-Buildroot:	%_tmppath/%name-%version-%release-root
+BuildRoot:	%_tmppath/%name-%version-%release-root
 BuildRequires:	libgdbm-devel, libopenslp-devel
+
 Requires:	portmap, make
 Prereq:		rpm-helper
 
@@ -117,6 +117,9 @@ install -m 0750 %{SOURCE7} %{buildroot}%{_srvdir}/rpc.ypxfrd/log/run
 %dir %attr(0750,nobody,nogroup) %{_srvlogdir}/rpc.ypxfrd
 
 %changelog
+* Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 2.11-2avx
+- Annvix build
+
 * Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 2.11-1sls
 - OpenSLS build
 - tidy spec
