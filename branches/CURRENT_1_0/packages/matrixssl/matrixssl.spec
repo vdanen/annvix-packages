@@ -1,9 +1,10 @@
 %define	name	matrixssl
 %define	version	1.2.2
-%define	release	2avx
+%define	release	3avx
 
 %define	major	1
 %define libname	%mklibname %{name} %{major}
+%define diethome	%{_prefix}/lib/dietlibc
 
 Summary:	MatrixSSL is an embedded SSL implementation
 Name:		%{name}
@@ -17,7 +18,7 @@ Patch0:		matrixssl-1.2-shared_and_static.diff.bz2
 Patch1:		matrixssl-1.2-debian.diff.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-root
-BuildRequires:	dietlibc-devel >= 0.20
+BuildRequires:	dietlibc-devel >= 0.27-2avx
 
 %description
 PeerSec MatrixSSL is an embedded SSL implementation designed for 
@@ -47,8 +48,8 @@ operating systems, cipher suites, and cryptography providers.
 %package -n %{libname}-devel
 Summary:	Static library and header files for the %{name} library
 Group:		Development/C
-Obsoletes:	%{name}-devel %{_lib}%{name}-devel
-Provides:	%{name}-devel %{_lib}%{name}-devel
+Obsoletes:	%{name}-devel lib%{name}-devel
+Provides:	%{name}-devel lib%{name}-devel
 Requires:	%{libname} = %{version}-%{release}
 Requires:	dietlibc-devel >= 0.20
 
@@ -91,8 +92,11 @@ make -C dietlibc/src CC="diet -Os gcc" \
 %install
 [ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
 
+MYARCH=`uname -m | sed -e 's/i[4-9]86/i386/' -e 's/armv[3-6][lb]/arm/'`
+
 install -d %{buildroot}%{_includedir}
-install -d %{buildroot}%{_libdir}/dietlibc/{lib,include}
+install -d %{buildroot}%{diethome}/{lib-${MYARCH},include}
+install -d %{buildroot}%{_libdir}
 
 # install the glibc version
 install -m0755 src/lib%{name}.so %{buildroot}%{_libdir}/lib%{name}.so.%{version}
@@ -102,8 +106,8 @@ install -m0644 src/lib%{name}.a %{buildroot}%{_libdir}/
 install -m0644 matrixSsl.h %{buildroot}%{_includedir}/
 
 # install the dietlibc version
-install -m0644 dietlibc/src/lib%{name}.a %{buildroot}%{_libdir}/dietlibc/lib/
-install -m0644 dietlibc/matrixSsl.h %{buildroot}%{_libdir}/dietlibc/include/
+install -m0644 dietlibc/src/lib%{name}.a %{buildroot}%{diethome}/lib-${MYARCH}/
+install -m0644 dietlibc/matrixSsl.h %{buildroot}%{diethome}/include/
 
 # cleanup the examples directory
 rm -f examples/*.sln
@@ -132,12 +136,16 @@ rm -f examples/*.p12
 %doc doc/MatrixSSLSocketApi.pdf
 %doc examples
 %{_includedir}/*
-%{_libdir}/dietlibc/include/*
+%{diethome}/include/*
 %{_libdir}/*.so
 %{_libdir}/*.a
-%{_libdir}/dietlibc/lib/*.a
+%{diethome}/lib-*/*.a
 
 %changelog
+* Thu Jan 20 2005 Vincent Danen <vdanen@annvix.org> 1.2.2-3avx
+- revert lib64 "fixes"
+- rebuild against new dietlibc and use %%diethome with MYARCH
+
 * Wed Jan 05 2005 Vincent Danen <vdanen@annvix.org> 1.2.2-2avx
 - lib64 fixes (oden)
 
