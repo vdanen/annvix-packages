@@ -1,10 +1,10 @@
 %define name	attr
-%define version 2.4.7
-%define release 4sls
+%define version 2.4.14
+%define release 1sls
 
-%define lib_name_orig	%mklibname attr
+%define lib_name_orig	lib%{name}
 %define lib_major	1
-%define lib_name	%{lib_name_orig}%{lib_major}
+%define lib_name	%mklibname %{name} %{lib_major}
 
 Summary:	Utility for managing filesystem extended attributes.
 Name:		%{name}
@@ -101,10 +101,14 @@ rm -rf %{buildroot}/%{_lib}/libattr.{a,la}
 %{_libdir}/*a
 %{_mandir}/man3/*
 %{_mandir}/man5/*
-%dir %{_includedir}/attr
-%{_includedir}/attr/*
+%dir %{_includedir}/%{name}
+%{_includedir}/%{name}/*
 
 %changelog
+* Sun Feb 29 2004 Vincent Danen <vdanen@opensls.org> 2.4.14-1sls
+- 2.4.14
+- proper use of mklibname (per)
+
 * Tue Feb 24 2004 Vincent Danen <vdanen@opensls.org> 2.4.7-4sls
 - remove %%{_prefix}
 - minor spec cleanups
