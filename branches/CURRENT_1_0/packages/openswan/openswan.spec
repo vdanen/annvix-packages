@@ -1,8 +1,8 @@
 %define name	openswan
-%define version	2.1.2
-%define release	2avx
+%define version	2.1.4
+%define release	1avx
 
-%define their_version	2.1.2
+%define their_version	2.1.4
 %define debug_package	%{nil}
 
 Summary:	An implementation of IPSEC & IKE for Linux.
@@ -106,6 +106,9 @@ rm -rf %{buildroot}%{_defaultdocdir}/freeswan
 %_post_service ipsec
 
 %changelog
+* Mon Jun 28 2004 Vincent Danen <vdanen@annvix.org> 2.1.4-1avx
+- 2.1.4; security fix for CAN-2004-0590
+
 * Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 2.1.2-2avx
 - require packages, not files
 - Annvix build
