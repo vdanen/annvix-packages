@@ -1,6 +1,6 @@
 %define name	apache2
 %define version	2.0.48
-%define release	5sls
+%define release	6sls
 
 %{!?build_opensls:%global build_opensls 0}
 
@@ -47,7 +47,7 @@
 %{expand:%%define optflags %{optflags} %([ ! $DEBUG ] && echo '-g3')}
 %endif
 
-%define ap_ldap_libs -lldap -llber -lsasl2
+%define ap_ldap_libs -lldap -llber -lsasl2 -lssl -lcrypto
 
 %if %{build_distcache}
 %define ap_ssl_libs -lssl -lcrypto -ldistcache -lnal
@@ -85,6 +85,8 @@ Source5: 		gentestcrt.sh.bz2
 # bug (and potential DoS attack) [Apache Bug 22030]
 # vdanen: don't apply this because it causes a lot of other problems
 #Source6:		httpd-2.1-dev-mod_cgi.c.bz2
+Source7:		apache2.run
+Source8:		apache2-log.run
 # please keep this logic.
 Source30:		30_mod_proxy.conf.bz2
 Source40: 		40_mod_ssl.conf.bz2
@@ -763,6 +765,7 @@ for lib in ldap lber sasl sasl2 ssl crypto distcache nal; do
 done
 
 %{__sed}  '/SH_LINK.*util_ldap/ s/$/ %{ap_ldap_libs}/' modules/experimental/modules.mk > tmp; %{__mv} tmp modules/experimental/modules.mk
+%{__sed}  '/SH_LINK.*auth_ldap/ s/$/ %{ap_ldap_libs}/' modules/experimental/modules.mk > tmp; %{__mv} tmp modules/experimental/modules.mk
 %{__sed}  '/SH_LINK.*mod_ssl/ s/$/ %{ap_ssl_libs}/' modules/ssl/modules.mk > tmp; %{__mv} tmp modules/ssl/modules.mk
 
 mv README.distcache modules/ssl/
@@ -1040,6 +1043,11 @@ file %{buildroot}/%{_sbindir}/*|grep linked|grep -v httpd2|cut -f1 -d:| \
 	xargs %{__strip} -s
 %endif
 
+mkdir -p %{buildroot}%{_srvdir}/apache2/log
+mkdir -p %{buildroot}%{_srvlogdir}/apache2
+install -m 0755 %{SOURCE7} %{buildroot}%{_srvdir}/apache2/run
+install -m 0755 %{SOURCE8} %{buildroot}%{_srvdir}/apache2/log/run
+
 %clean
 [ "%{buildroot}" != "/" ] && rm -rf %{buildroot} 
 
@@ -1149,7 +1157,6 @@ fi
 
 %files
 %defattr(-,root,root)
-%{_sbindir}/%{ap_progname}
 %doc README.ADVX
 %doc highperformance.conf
 %doc httpd2-VANILLA.conf
@@ -1158,6 +1165,12 @@ fi
 %doc highperformance-std.conf
 %doc httpd-std.conf
 %doc apache-old-changelog
+%{_sbindir}/%{ap_progname}
+%dir %{_srvdir}/apache2
+%dir %{_srvdir}/apache2/log
+%{_srvdir}/apache2/run
+%{_srvdir}/apache2/log/run
+%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/apache2
 
 %files modules
 #Do not put apache.apache here, otherwise anyone with web access can 
@@ -1354,6 +1367,11 @@ fi
 %doc README.ADVX
 
 %changelog
+* Fri Jan 23 2004 Vincent Danen <vdanen@opensls.org> 2.0.48-6sls
+- sync with 5mdk (jmdault):
+  - fix mod_auth_ldap (link with ldap, ber, crypto, ssl)
+- supervise scripts
+
 * Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 2.0.48-5sls
 - OpenSLS build
 - tidy spec
