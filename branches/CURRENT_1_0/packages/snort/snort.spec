@@ -1,6 +1,6 @@
 %define name	snort
 %define version	2.1.0
-%define release	3sls
+%define release	4sls
 
 # this is so the binaries won't be stripped so people will submit
 # meaningful bugreports
@@ -20,6 +20,7 @@ Source0:	http://www.snort.org/dl/%{name}-%{version}.tar.bz2
 Source1:	snortd.run
 Source2:	snortd-log.run
 Patch1:		snort-2.1.0-lib64.patch.bz2
+Patch2:		snort-2.1.0-logrotate.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-root
 BuildRequires:	autoconf
@@ -129,6 +130,7 @@ Snort compiled with flexresp+mysql+postgresql support.
 
 %setup -q -n %{name}-%{version}
 %patch1 -p1 -b .lib64
+%patch2 -p1 -b .svc
 
 # fix pid file path
 echo "#define _PATH_VARRUN \"/var/run/%{name}\"" >> acconfig.h
@@ -267,7 +269,7 @@ cd ..
 }
 
 %install
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot} 
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 install -d %{buildroot}%{_sysconfdir}/%{name}/rules
 install -d %{buildroot}%{_sysconfdir}/sysconfig
@@ -380,7 +382,7 @@ update-alternatives --install %{_sbindir}/%{name} %{name} %{_sbindir}/%{name}-bl
 update-alternatives --remove %{name} %{_sbindir}/%{name}-bloat
 
 %clean
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot} 
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -423,6 +425,10 @@ update-alternatives --remove %{name} %{_sbindir}/%{name}-bloat
 %attr(755,root,root) %{_sbindir}/%{name}-bloat
 
 %changelog
+* Thu Mar 04 2004 Vincent Danen <vdanen@opensls.org> 2.1.0-4sls
+- minor spec cleanups
+- fix logrotation (P2)
+
 * Tue Feb 03 2004 Vincent Danen <vdanen@opensls.org> 2.1.0-3sls
 - supervise scripts
 - remove initscript
