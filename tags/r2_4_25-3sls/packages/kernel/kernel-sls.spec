@@ -1,0 +1,997 @@
+# -*- Mode: rpm-spec -*-
+# 	$Id: kernel-sls.spec,v 1.1 2004/03/01 00:00:00 tmb@iki.fi $
+
+# First: Get versions names right is complicated (tm)
+# Second: kernel allways have the version & release number in the name
+#         this is done to preserving a working kernel when you install 
+#         a new one
+# Stored in %rpmrversion & %rpmrelease
+#
+# We want to reflect in the kernel naming:
+#   - vanilla kernel in with is based (ex. 2.4.25) 
+#     this version is stored in %realversion
+#   - Number of OpenSLS kernel based on this vanilla kernel (ex. 2sls).
+#     stored in %slsrelease.
+#    
+# That gives us a nice name: 2.4.25-2sls
+# 
+# As version and release are allways fixed, name of the package is 
+# going to be:
+#        kernel-2.4.25-2sls-1-1sls
+#
+# Confused already?
+#
+# Now there arrive pre/rc kernels.  This kernels have the particularity
+# that they have the name of the new kernel, but they are based in the
+# tar file of the old kernel, i.e. names are basically:
+#  - vanilla kernel: 2.4.25
+#  - patch name: 2.4.26-pre3
+#    stored in %use_patch
+#  - Number of OpenSLS kernel based in this pre kernel 2sls
+#
+# That gives us a nice name again: 2.4.26-pre3.2sls
+# Problems now are:
+#   - sublevel of vanilla kernel 25 (needed for tar file)
+#   - sublevel of kernel is 26 (needed for prepatch and naming 
+#     the package).
+# This explains the need of %tar_version, because this will be different
+# of %real_version if there is a pre/rc patch.
+# 
+# Still with me?
+# 
+# There are still a problem, when real 2.4.26 cames out, it will have
+# a mane like: 
+#              2.4.26-1sls
+# this name is (for rpm ordering of versions) smaller than:
+#              2.4.26-pre3.2sls
+# to fix that we add a 0 to the name (and appear the need of realrelease)
+# in the pre/rc
+# 	       2.4.26-0.pre3.2sls
+#
+# Take one aspirine.  Relax.
+#
+# Problem now is that names are just really ugly, and specially
+# lilo/grub names are very difficult to read/type.
+# Notice that the extra .0 is there only to make visual comparations 
+# easy, but it is an annoyance.
+#
+# Lilo name for this kernel will be:
+#       2426-0.pre3.2sls
+# And as everybody knows, putting dot's in lilo names is not nice.
+# Then we change the kernel name (for loaders, and directory names only)
+# to a more userfriendly:
+# 		2.4.25pre3-2sls
+# That way, smp, enterprise versions continue to have the well known names
+# in the loader of:
+#		2426pre3-2smp
+#
+# For a non pre/rc kernel define (real examples in brakets)
+#     2.4.X.Ysls [2.4.25-2sls]
+# where
+#	%sublvel = X 	[25]
+#   	%slsrelease = Y [2]
+#	%use_patch 0	[0]
+#
+# For a pre/rc kernel do:
+#	2.4.X.0.Y.Zsls [2.4.26-0.pre3.2sls]
+# where
+#	%sublvel = X 	[26]
+#   	%slsrelease = Z [2]
+#	%use_patch Y	[pre3]
+#
+# I hope this is all clear now. If you have any doubt, please mail me at:
+#
+# Thomas Backlund <tmb@iki.fi>
+
+%define sublevel	25
+%define slsrelease	3
+%define use_patch	0
+
+# This is only to make life easier for people that creates derivated kernels
+# or to rename the kernels :)
+%define kname  		kernel
+
+
+# You shouldn't have to change any kernel/patch/version number
+# for 2.4 kernels
+
+# When we are using a pre/rc patch, the tarball is a sublevel -1
+%if %use_patch
+%define tar_version	2.4.%(expr %sublevel - 1)
+%define patchversion	%{use_patch}sls%{slsrelease}
+%define realrelease	0.%{slsrelease}sls
+%else
+%define tar_version	2.4.%sublevel
+%define patchversion	sls%slsrelease
+%define realrelease	%{slsrelease}sls
+%endif
+
+# never touch the folowing two fields
+%define rpmversion	1
+%define rpmrelease	1sls
+%define realversion	2.4.%{sublevel}
+%define slsversion	%{realversion}-%{realrelease}
+%define patches_ver	2.4.%{sublevel}-%{patchversion}
+
+# having different top level names for packges means
+# that you have to remove them by hard :(
+%define top_dir_name %{kname}-sls
+
+%define build_dir	${RPM_BUILD_DIR}/%top_dir_name
+%define src_dir		%{build_dir}/linux-%tar_version
+%define KVERREL		%{realversion}-%{realrelease}
+
+# this is the config that contains all the drivers for the hardware/
+# things that I use (Juan Quintela).
+%define build_minimal	0
+%define build_acpi	1
+
+%define build_kheaders	0
+%define build_debug	0
+%define build_doc	0
+%define build_source	1
+
+%define build_10 %(if [ `awk '{print $4}' /etc/opensls-release` = 1.0 ];then echo 1; else echo 0; fi)
+
+%define build_BOOT	1
+%define build_build	1
+%define build_up	1
+%define build_smp	1
+
+# End of user definitions
+%{?_without_BOOT: %global build_BOOT 0}
+%{?_without_build: %global build_build 0}
+%{?_without_up: %global build_up 0}
+%{?_without_smp: %global build_smp 0}
+%{?_without_doc: %global build_doc 0}
+%{?_without_source: %global build_source 0}
+%{?_without_minimal: %global build_minimal 0}
+%{?_without_debug: %global build_debug 0}
+%{?_without_acpi: %global build_acpi 0}
+
+%{?_with_BOOT: %global build_BOOT 1}
+%{?_with_build: %global build_build 1}
+%{?_with_up: %global build_up 1}
+%{?_with_smp: %global build_smp 1}
+%{?_with_doc: %global build_doc 1}
+%{?_with_source: %global build_source 1}
+%{?_with_minimal: %global build_minimal 1}
+%{?_with_debug: %global build_debug 1}
+%{?_with_acpi: %global build_acpi 1}
+
+%{?_with_kheaders: %global build_kheaders 1}
+%{?_with_10: %global build_10 1}
+
+%define build_modules_description	1
+
+%define build_nosrc 			0
+%{?_with_nosrc: %global build_nosrc 1}
+
+
+
+%define kmake	%make
+# there are places where parallel make don't work
+%define smake	make
+
+# Aliases for amd64 builds (better make source links?)
+%define target_cpu	%(echo %{_target_cpu} | sed -e "s/amd64/x86_64/")
+%define target_arch	%(echo %{_arch} | sed -e "s/amd64/x86_64/")
+
+Summary:	The Linux kernel (the core of the Linux operating system).
+Name:		%{kname}-%{slsversion}
+Version:	%{rpmversion}
+Release:	%{rpmrelease}
+License:	GPL
+Group:		System/Kernel and hardware
+URL:		http://www.kernel.org/
+ExclusiveArch:	%{ix86} x86_64 amd64
+ExclusiveOS:	Linux
+
+####################################################################
+#
+# Sources
+#
+### This is for full SRC RPM
+Source0: ftp://ftp.kernel.org/pub/linux/kernel/v2.4/linux-%{tar_version}.tar.bz2
+
+### This is for stripped SRC RPM
+%if %build_nosrc
+NoSource: 0
+%endif
+Source1: linux-%{tar_version}.tar.bz2.info
+
+Source4:	README.sls-kernel-sources
+Source5:	README.OpenSLS
+
+Source15:	linux-slsconfig.h
+Source16:	sls-linux-merge-config.awk
+Source17:	sls-linux-merge-modules.awk
+
+Source100:	linux-%{patches_ver}.tar.bz2
+
+####################################################################
+#
+# Patches
+
+#
+# Patch0 to Patch100 are for core kernel upgrades.
+#
+
+# Pre linus patch: ftp://ftp.kernel.org/pub/linux/kernel/v2.4/testing
+
+%if %use_patch
+Patch1:		patch-%realversion-%use_patch.bz2
+%endif
+
+#END
+####################################################################
+
+# Defines for the things that are needed for all the kernels
+
+%define requires1	modutils >= 2.4.25-3sls
+
+%define requires2	mkinitrd >= 3.4.43-10sls
+%define requires3	bootloader-utils >= 1.6-4sls
+
+%define conflicts	iptables <= 1.2.8-3sls
+%define kprovides	kernel = %{realversion}
+
+BuildRoot:	%{_tmppath}/%{name}-%{realversion}-build
+BuildRequires:	gcc >= 3.3.1-5sls
+
+Provides:	module-info, %kprovides
+Autoreqprov:	no
+Requires:	%requires1
+Requires:	%requires2
+Requires:	%requires3
+Conflicts:	%conflicts
+
+#
+# kernel: Secured up kernel
+#
+
+%description
+This package includes a SECURE version of the Linux %{realversion}
+kernel. This package add options for kernel that make it more secure
+for servers and such. See :
+
+For more info on the secure features, go to:
+http://grsecurity.net/features.php
+
+For instructions for update, see:
+http://www.mandrakesecure.net/en/kernelupdate.php
+
+#
+# kernel-smp: Symmetric MultiProcessing kernel
+#
+
+%package -n %{kname}-smp-%{slsversion}
+Summary:	The Secured Linux Kernel compiled for SMP machines.
+Group:		System/Kernel and hardware
+Provides:	%kprovides
+Requires:	%requires1
+Requires:	%requires2
+Requires:	%requires3
+
+%description -n %{kname}-smp-%{slsversion}
+This package includes a SECURE 4GB SMP version of the Linux %{realversion}
+kernel. It is required only on machines with two or more CPUs, although it
+should work fine on single-CPU boxes.
+
+For more info on the secure features, go to:
+http://grsecurity.net/features.php
+
+For instructions for update, see:
+http://www.mandrakesecure.net/en/kernelupdate.php
+
+
+#
+# kernel-build: standard up kernel without security features
+#
+
+%package -n %{kname}-build-%{slsversion}
+Summary:	The Linux kernel compiled without security features.
+Group:		System/Kernel and hardware
+Provides:	%kprovides
+Requires:	%requires1
+Requires:	%requires2
+Requires:	%requires3
+
+%description -n %{kname}-build-%{slsversion}
+The kernel package contains the Linux kernel (vmlinuz), the core of your
+Mandrake Linux operating system.  The kernel handles the basic functions
+of the operating system:  memory allocation, process allocation, device
+input and output, etc.
+
+This is a base kernel with no security features enabled.
+
+For instructions for update, see:
+http://www.mandrakesecure.net/en/kernelupdate.php
+
+
+#
+# kernel-boot: BOOT Kernel
+#
+
+%package -n %{kname}-BOOT-%{slsversion}
+Summary:	The version of the Linux kernel used on installation boot disks.
+Group:		System/Kernel and hardware
+URL:		https://kenobi.mandrakesoft.com/~chmou/kernel/BOOT/
+
+%description -n %{kname}-BOOT-%{slsversion}
+This package includes a trimmed down version of the Linux kernel.
+This kernel is used on the installation boot disks only and should not
+be used for an installed system, as many features in this kernel are
+turned off because of the size constraints.
+
+For instructions for update, see:
+http://www.mandrakesecure.net/en/kernelupdate.php
+
+
+#
+# kernel-source: Kernel source
+#
+
+%package -n %{kname}-source
+Summary:	The source code for the Linux kernel.
+Version:	%{realversion}
+Release:	%{realrelease}
+Requires:	glibc-devel, ncurses-devel, make, gcc
+Group:		Development/Kernel
+
+%description -n %{kname}-source
+The kernel-source package contains the source code files for the Linux
+kernel. These source files are needed to build most C programs, since
+they depend on the constants defined in the source code. The source
+files can also be used to build a custom kernel that is better tuned to
+your particular hardware, if you are so inclined (and you know what you're
+doing).
+
+
+#
+# kernel-doc: documentation for the Linux kernel
+#
+
+%package -n %{kname}-doc
+Summary:	Various documentation bits found in the kernel source.
+Version:	%{version}
+Release:	%{release}
+Group:		Books/Computer books
+
+%description -n %{kname}-doc
+This package contains documentation files form the kernel source. Various
+bits of information about the Linux kernel and the device drivers shipped
+with it are documented in these files. You also might want install this
+package if you need a reference to the options that can be passed to Linux
+kernel modules at load time.
+
+#
+# End packages - here begins build stage
+#
+%prep
+%setup -q -n %top_dir_name -c
+
+%setup -q -n %top_dir_name -D -T -a100
+
+%define patches_dir ../%{patches_ver}/
+
+cd %src_dir
+%if %use_patch
+%patch1 -p1
+%endif
+
+
+%{patches_dir}/scripts/apply_patches
+
+# PATCH END
+#
+# Setup Begin
+#
+
+# Prepare all the variables for calling create configs
+
+%if %build_debug
+%define debug --debug
+%else
+%define debug --no-debug
+%endif
+
+%if %build_acpi
+%define acpi --acpi
+%else
+%define acpi --no-acpi
+%endif
+
+%if %build_minimal
+%define minimal --minimal
+%else
+%define minimal --no-minimal
+%endif
+
+%{patches_dir}/scripts/create_configs %debug %acpi %minimal --user_cpu="%{target_cpu}"
+
+# make sure the kernel has the sublevel we know it has...
+LC_ALL=C perl -p -i -e "s/^SUBLEVEL.*/SUBLEVEL = %{sublevel}/" Makefile
+
+# get rid of unwanted files
+find . -name '*~' -o -name '*.orig' -o -name '*.append' |xargs rm -f
+
+%if %build_kheaders
+
+kheaders_dirs=`echo $PWD/include/{asm-*,linux,sound}`
+
+pushd %build_dir
+install -d kernel-headers/
+cp -a $kheaders_dirs kernel-headers/
+tar cf kernel-headers-%slsversion.tar kernel-headers/
+bzip2 -9f kernel-headers-%slsversion.tar
+rm -rf kernel-headers/
+# build_kheaders
+%endif
+
+
+%build
+# Common target directories
+%define _kerneldir /usr/src/linux-%{KVERREL}
+%define _bootdir /boot
+%define _modulesdir /lib/modules
+%define _savedheaders ../../savedheaders/
+
+# Directories definition needed for building
+%define temp_root %{build_dir}/temp-root
+%define temp_source %{temp_root}%{_kerneldir}
+%define temp_boot %{temp_root}%{_bootdir}
+%define temp_modules %{temp_root}%{_modulesdir}
+
+DependKernel() {
+	name=$1
+	extension=$2
+	echo "Make dep for kernel $extension"
+	%smake -s mrproper
+
+	# We can't use only defconfig anyore because we have the autoconf patch,
+
+	if [ -z "$name" ]; then
+		config_name="defconfig"
+	else
+		config_name="defconfig-$name"
+	fi
+		cp arch/%{target_arch}/$config_name .config
+
+	# make sure EXTRAVERSION says what we want it to say
+	LC_ALL=C perl -p -i -e "s/^EXTRAVERSION.*/EXTRAVERSION = -$extension/" Makefile
+	%smake oldconfig
+	%smake dep
+}
+
+BuildKernel() {
+	KernelVer=$1
+	echo "Building kernel $KernelVer"
+
+	%ifarch %{ix86} x86_64
+	%kmake bzImage
+	%endif
+
+	%kmake modules
+
+	# first make sure we are not loosing any .ver files to make mrporper's
+	# removal of zero sized files.
+	find include/linux/modules -size 0 | while read file ; do \
+		echo > $file
+	done
+
+	## Start installing stuff
+	install -d %{temp_boot}
+	install -m 644 System.map %{temp_boot}/System.map-$KernelVer
+	install -m 644 .config %{temp_boot}/config-$KernelVer
+
+	%ifarch %{ix86}
+	cp -f arch/i386/boot/bzImage %{temp_boot}/vmlinuz-$KernelVer
+	%endif
+	%ifarch x86_64
+	cp -f arch/x86_64/boot/bzImage %{temp_boot}/vmlinuz-$KernelVer
+	%endif
+
+	# modules
+	install -d %{temp_modules}/$KernelVer
+	%smake INSTALL_MOD_PATH=%{temp_root} KERNELRELEASE=$KernelVer modules_install 
+}
+
+SaveHeaders() {
+	flavour=$1
+	flavour_name="`echo $flavour | sed 's/-/_/g'`"
+%if %build_source
+	HeadersRoot=%{temp_source}/savedheaders
+	HeadersArch=$HeadersRoot/%{target_cpu}/$flavour
+	echo "Saving hearders for $flavour %{target_cpu}"
+
+	# deal with the kernel headers that are version specific
+	install -d $HeadersArch
+	install -m 644 include/linux/autoconf.h $HeadersArch/autoconf.h
+	install -m 644 include/linux/version.h $HeadersArch/version.h
+	mv include/linux/modules $HeadersArch
+    	echo "%{target_cpu} $flavour_name %{_savedheaders}%{target_cpu}/$flavour/" >> $HeadersRoot/list
+%endif
+}
+
+CreateFiles() {
+	kversion=$1
+	output=../kernel_files.$kversion
+
+	echo "%defattr(-,root,root)" > $output
+	echo "%{_bootdir}/config-${kversion}" >> $output
+	echo "%{_bootdir}/vmlinuz-${kversion}" >> $output
+	echo "%{_bootdir}/System.map-${kversion}" >> $output
+	echo "%dir %{_modulesdir}/${kversion}/" >> $output
+	echo "%{_modulesdir}/${kversion}/kernel" >> $output
+	echo "%{_modulesdir}/${kversion}/modules.*" >> $output
+	echo "%doc README.sls-kernel-sources" >> $output
+	echo "%doc README.OpenSLS" >> $output
+}
+
+CreateKernel() {
+	flavour=$1
+
+	if [ "$flavour" = "up" ]; then
+		KernelVer=%{KVERREL}
+		DependKernel "" %realrelease
+	else
+		KernelVer=%{KVERREL}$flavour
+		DependKernel $flavour %{realrelease}$flavour
+	fi
+
+	BuildKernel $KernelVer
+	if [[ "$flavour" != "BOOT" ]];then	
+		SaveHeaders $flavour
+	fi
+        CreateFiles $KernelVer
+}
+
+
+CreateKernelNoName() {
+	arch=$1
+	nprocs=$2
+	memory=$3
+
+        name=$arch-$nprocs-$memory
+	extension="%realrelease-$name"
+
+	KernelVer="%{KVERREL}-$arch-$nprocs-$memory"
+	DependKernel $name $extension
+	BuildKernel $KernelVer
+	SaveHeaders $name
+        CreateFiles $KernelVer
+}
+
+###
+# DO it...
+###
+
+# Create a simulacro of %buildroot
+rm -rf %{temp_root}
+install -d %{temp_root}
+
+#make sure we are in the directory
+cd %src_dir
+
+%if %build_BOOT
+CreateKernel BOOT
+%endif
+
+%if %build_smp
+CreateKernel smp
+%endif
+
+%if %build_build
+CreateKernel build
+%endif
+
+%if %build_up
+CreateKernel up
+%endif
+
+# We don't make to repeat the depend code at the install phase
+%if %build_source
+DependKernel "" %{realrelease}custom
+%endif
+
+###
+### install
+###
+%install
+install -m 644 %{SOURCE4}  .
+install -m 644 %{SOURCE5}  .
+
+cd %src_dir
+# Directories definition needed for installing
+%define target_source %{buildroot}/%{_kerneldir}
+%define target_boot %{buildroot}%{_bootdir}
+%define target_modules %{buildroot}%{_modulesdir}
+
+# We want to be able to test several times the install part
+rm -rf %{buildroot}
+cp -a %{temp_root} %{buildroot}
+
+# Create directories infastructure
+%if %build_source
+install -d %{target_source} 
+
+tar cf - . | tar xf - -C %{target_source}
+chmod -R a+rX %{target_source}
+
+# we remove all the source files that we don't ship
+
+# first architecture files
+for i in alpha arm cris ia64 m68k mips mips64 parisc ppc ppc64 s390 s390x sh sh64 sparc sparc64; do
+	rm -rf %{target_source}/arch/$i
+	rm -rf %{target_source}/include/asm-$i
+done
+
+# my patches dir, this should go in other dir
+rm -rf %{target_source}/%{patches_ver}
+
+# other misc files
+rm -f %{target_source}/{.config.old,.depend,.hdepend}
+
+# We need this to prevent someone doing a make *config without mrproper
+touch %{target_source}/.need_mrproper
+
+# We used to have a copy of DependKernel here
+# Now, we make sure that the thing in the linux dir is what we want it to be
+
+# We need to fix the patchs in .*depend files  after we fix the paths
+find %{target_source} -name ".*depend" | \
+while read file ; do
+    mv $file $file.old
+    sed -e "s|[^ ]*\(/usr/src/linux\)|\1|g" < $file.old > $file
+    rm -f $file.old
+done
+
+# Try to put some smarter autoconf.h and version.h and modversions.h files in place
+pushd %{target_source}/include/linux ; {
+install -m 644 %{SOURCE15} rhconfig.h
+rm -rf modules modversions.h autoconf.h version.h
+# create modversions.h
+cat > modversions.h <<EOF
+#ifndef _LINUX_MODVERSIONS_H
+#define _LINUX_MODVERSIONS_H
+#include <linux/rhconfig.h>
+#include <linux/modsetver.h>
+EOF
+list=`find %{_savedheaders} -name "*.ver" -exec basename '{}' \; | sort -u`
+mkdir modules
+for l in $list; do
+    sed 's,$,modules/'$l, %{_savedheaders}list | awk -f %{SOURCE17} > modules/$l
+    touch -r modules/$l modules/`basename $l .ver`.stamp
+    echo '#include <linux/modules/'$l'>' >> modversions.h
+done
+echo '#endif /* _LINUX_MODVERSIONS_H */' >> modversions.h
+# Create autoconf.h file
+echo '#include <linux/rhconfig.h>' > autoconf.h
+sed 's,$,autoconf.h,' %{_savedheaders}list | awk -f %{SOURCE16} >> autoconf.h
+# Create version.h
+echo "#include <linux/rhconfig.h>" >> version.h
+loop_cnt=0
+for i in smp up build; do
+	if [ -d %{_savedheaders}%{target_cpu}/$i -a \
+	     -f %{_savedheaders}%{target_cpu}/$i/version.h ]; then
+		name=`echo $i | sed 's/-/_/g'`
+		if [ $loop_cnt = 0 ]; then
+      			buf="#if defined(__module__$name)"
+      			previous_i="$i"
+      			loop_cnt=1
+    		else
+      			echo "$buf" >> version.h
+      			grep UTS_RELEASE %{_savedheaders}%{target_cpu}/${previous_i}/version.h >> version.h
+ 	     		buf="#elif defined(__module__$name)"
+      			previous_i="$i"
+      			loop_cnt=`expr $loop_cnt + 1`
+    		fi
+    fi
+done
+#write last lines
+if [ $loop_cnt -eq 0 ]; then
+	echo "You need to build at least one kernel"
+	exit 1;
+fi
+
+if [ $loop_cnt -gt 1 ]; then
+	echo "#else" >> version.h
+fi
+
+grep UTS_RELEASE %{_savedheaders}%{target_cpu}/${previous_i}/version.h >> version.h
+
+if [ $loop_cnt -gt 1 ]; then
+	echo "#endif" >> version.h
+fi
+
+# Any of the version.h are ok, as they only differ in the first line
+ls %{_savedheaders}%{target_cpu}/*/version.h | head -n 1 | xargs grep -v UTS_RELEASE >> version.h
+rm -rf %{_savedheaders}
+} ; popd
+#endif build_source
+%endif
+# Gzip module and relink the link to a .gz module
+find %{target_modules} -type f -name '*.o'|xargs gzip -9f
+for i in $(find %{target_modules} -type l -name '*.o');do
+    link=$(LC_ALL=C perl -e 'print readlink shift, "\n"' $i)
+    ln -s $link.gz $i.gz
+    rm -f $i
+done
+
+for i in %{target_modules}/*; do
+	rm -f $i/build $i/modules.*
+	rm -rf  $i/pcmcia/
+done
+
+# sniff, if we gzipped all the modules, we change the stamp :(
+# we really need the depmod -ae here
+
+pushd %{target_modules}
+for i in *; do
+	/sbin/depmod -u -ae -b %{buildroot} -r -F %{target_boot}/System.map-$i $i
+	echo $?
+done
+
+%if %build_modules_description
+for i in *; do
+	pushd $i
+	echo "Creating module.description for $i"
+	modules=`find . -name "*.o" -o -name "*.o.gz"`
+	/sbin/modinfo -f '%{filename} %{description}\n' $modules \
+	| perl -lne 'print "$1\t$3" if m|([^/]*)\.o(\.gz)? "(.*)"|'  > modules.description
+	popd
+done
+%endif
+popd
+
+
+###
+### clean
+###
+
+%clean
+rm -rf %{buildroot}
+# We don't want to remove this, the whole reason of its existence is to be 
+# able to do several rpm --short-circuit -bi for testing install 
+# phase without repeating compilation phase
+#rm -rf %{temp_root} 
+
+###
+### scripts
+###
+
+%define options_preun -a -R -S -c
+%define options_post -a -s -c
+
+# up kernel
+%preun
+/sbin/installkernel %options_preun %{KVERREL}
+exit 0
+
+%post
+/sbin/installkernel %options_post %{KVERREL}
+
+%postun
+/sbin/kernel_remove_initrd %{KVERREL}
+
+# smp kernel
+%preun -n %{kname}-smp-%{slsversion}
+/sbin/installkernel %options_preun %{KVERREL}smp
+exit 0
+
+%post -n %{kname}-smp-%{slsversion}
+/sbin/installkernel %options_post %{KVERREL}smp
+
+%postun -n %{kname}-smp-%{slsversion}
+/sbin/kernel_remove_initrd %{KVERREL}smp
+
+# build kernel
+%preun -n %{kname}-build-%{slsversion}
+/sbin/installkernel %options_preun %{KVERREL}build
+exit 0
+
+%post -n %{kname}-build-%{slsversion}
+/sbin/installkernel %options_post %{KVERREL}build
+
+%postun -n %{kname}-build-%{slsversion}
+/sbin/kernel_remove_initrd %{KVERREL}build
+
+# BOOT kernel
+%preun -n %{kname}-BOOT-%{slsversion}
+/sbin/installkernel %options_preun %{KVERREL}BOOT
+exit 0
+
+%post -n %{kname}-BOOT-%{slsversion}
+/sbin/installkernel %options_post %{KVERREL}BOOT
+
+%postun -n %{kname}-BOOT-%{slsversion}
+/sbin/kernel_remove_initrd %{KVERREL}BOOT
+
+### kernel source
+%post -n %{kname}-source
+cd /usr/src
+rm -f linux
+ln -snf linux-%{KVERREL} linux
+/sbin/service kheader start 2>/dev/null >/dev/null || :
+# we need to create /build only when there is a source tree.
+
+for i in /lib/modules/%{KVERREL}*; do
+	if [ -d $i ]; then
+		ln -sf /usr/src/linux-%{KVERREL} $i/build
+	fi
+done
+
+%postun -n %{kname}-source
+if [ -L /usr/src/linux ]; then 
+    if [ -L /usr/src/linux -a `ls -l /usr/src/linux 2>/dev/null| awk '{ print $11 }'` = "linux-%{KVERREL}" ]; then
+	[ $1 = 0 ] && rm -f /usr/src/linux
+    fi
+fi
+# we need to delete <modules>/build at unsinstall
+for i in /lib/modules/%{KVERREL}*/build; do
+	if [ -L $i ]; then
+		rm -f $i
+	fi
+done
+exit 0
+
+###
+### file lists
+###
+
+%if %build_up
+%files -f kernel_files.%{KVERREL}
+%endif
+
+%if %build_smp
+%files -n %{kname}-smp-%{slsversion} -f kernel_files.%{KVERREL}smp
+%endif
+
+%if %build_build
+%files -n %{kname}-build-%{slsversion} -f kernel_files.%{KVERREL}build
+%endif
+
+%if %build_BOOT
+%files -n %{kname}-BOOT-%{slsversion} -f kernel_files.%{KVERREL}BOOT
+%endif
+
+%if %build_source
+%files -n %{kname}-source
+%defattr(-,root,root)
+%dir %{_kerneldir}
+%dir %{_kerneldir}/arch
+%dir %{_kerneldir}/include
+%{_kerneldir}/.config
+%{_kerneldir}/.need_mrproper
+%{_kerneldir}/COPYING
+%{_kerneldir}/CREDITS
+%{_kerneldir}/Documentation
+%{_kerneldir}/MAINTAINERS
+%{_kerneldir}/Makefile
+%{_kerneldir}/README
+%{_kerneldir}/REPORTING-BUGS
+%{_kerneldir}/Rules.make
+%{_kerneldir}/arch/i386
+%{_kerneldir}/arch/x86_64
+%{_kerneldir}/crypto
+%{_kerneldir}/drivers
+%{_kerneldir}/fs
+%{_kerneldir}/init
+%{_kerneldir}/ipc
+%{_kerneldir}/kernel
+%{_kerneldir}/lib
+%{_kerneldir}/mm
+%{_kerneldir}/net
+%{_kerneldir}/scripts
+#%{_kerneldir}/grsecurity
+%{_kerneldir}/security
+%{_kerneldir}/include/acpi
+%{_kerneldir}/include/asm-generic
+%{_kerneldir}/include/asm-i386
+%{_kerneldir}/include/asm-x86_64
+%{_kerneldir}/include/asm
+%{_kerneldir}/include/linux
+%{_kerneldir}/include/math-emu
+%{_kerneldir}/include/net
+%{_kerneldir}/include/pcmcia
+%{_kerneldir}/include/scsi
+%{_kerneldir}/include/video
+#Freeswan
+%{_kerneldir}/include/crypto
+%{_kerneldir}/include/freeswan
+%{_kerneldir}/include/freeswan.h
+%{_kerneldir}/include/mast.h
+%{_kerneldir}/include/pfkey.h
+%{_kerneldir}/include/pfkeyv2.h
+%{_kerneldir}/include/zlib
+%{_kerneldir}/README.freeswan
+%doc README.sls-kernel-sources
+%doc README.OpenSLS
+#endif %build_source
+%endif
+
+%if %build_doc
+%files -n %{kname}-doc
+%defattr(-,root,root)
+%doc linux-%{tar_version}/Documentation/*
+%endif
+
+%changelog
+* Wed Mar  3 2004 Thomas Backlund <tmb@mandrake.org> 2.4.25-3sls
+- AA01_compile_fixes.patch
+  * fixes mips specific code
+- AA01_fix_Rules_make.patch
+  * fixes Rules.make
+- AA02_force-inline-memcmp.patch
+  * workaround newer gcc when building with __OPTIMIZE_SIZE__
+- AD01_rename_vmlinux.lds_vmlinux.lds.in.sh
+  * renames vmlinux.lds and...
+- AD02_generate_vmlinux.lds.patch
+  * recreates a correct one
+- DP01_imq.patch
+  * adds support for Intermediate Queueing device, needed for QoS
+- enable IMQ provided by DN20, DN21
+- SL01_ea_0.8.68.patch
+  * adds support for extended attributes
+- SL11_acl_0.8.70.patch
+  * adds support for Access Control Lists
+- SL21_nfsacl_0.8.70.patch
+  * adds ACL for NFS
+- SL31_sec_0.8.69.patch
+  * adds support for security descriptors 
+- SL41_enable_xfs_acl.patch
+  * enables ACL on XFS
+- SL51_selinux1.patch
+  * adds NSA SELinux 
+- remove %%build_opensls macro (vdanen)
+    
+* Mon Mar  1 2004 Thomas Backlund <tmb@mandrake.org> 2.4.25-2sls
+- DF01_freeswan-2.0.5.patch
+  * adds support for freeswan ipsec vpn
+- add full iptables capabilities (based on mdk patches):
+  * DN02_74_nat-range-fix.patch
+    - fixes logic bug in NAT range calulations
+  * DN10_nth.patch
+    - adds support for Nth match filtering rules on IPv4
+  * DN11_nth6.patch
+    - adds support for Nth match filtering rules on IPv6
+  * DN12_psd.patch
+    - adds support for psd filtering rules, detects tcp/udp portscans
+  * DN13_time.patch
+    - adds support for packet arrival/departure filtering rules
+  * DN14_h323_conntrack-nat.patch
+    - adds NAT connection tracking for h.323 protocol 
+  * DN15_ipt_TARPIT.patch
+    - adds support for TARPIT filtering rules
+  * DN16_pptp_conntrack-nat.patch
+    - adds NAT connection tracking for pptp protocol 
+  * DN17_string.patch
+    - adds support for filtering based on specific strings
+  * DN20_IMQ.patch
+    - adds IMQ target support for IPv4
+  * DN21_IMQ_ipv6.patch
+    - adds IMQ target support for IPv6
+  * DN90_match_stealth.patch
+    - add support for stealth filtering of syn packets
+  * DN91_iplimit.patch
+    - adds support for limiting connections by IP address or address blocks
+  * DN92_license_tags.patch
+    - adds missing licences
+
+* Sun Feb 29 2004 Thomas Backlund <tmb@mandrake.org> 2.4.25-1sls
+- Start fresh with 2.4.25 - First OpenSLS specific build
+- base specs/buildsystem on current kernel-tmb and mdk specs
+  * remove unneeded info/functions/defines from spec and scripts
+- rename kernel top_dir to kernel-sls so it can coexist with mdk
+- rename all files in SOURCES so they can coexist with mdk kernels
+- make kernel-source always readable by all (chmod -R a+rX)
+- kernel-build is now smp + highmem
+- add .desc description files for patches tree
+- add patch.index in the patch tarball to keep track of all patches
+- ZY01_ProPolice.patch
+  * enable propolice stack protection
+
+# Local Variables:
+# rpm-spec-insert-changelog-version-with-shell: t
+# End:

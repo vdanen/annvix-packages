@@ -1,0 +1,67 @@
+AA00_COMPILE_FIXES.desc
+    AA01_compile_fixes.patch
+    - fixes mips specific code
+    AA01_fix_Rules_make.patch
+    - fixes Rules.make
+    AA02_force-inline-memcmp.patch
+    - workaround newer gcc when building with __OPTIMIZE_SIZE__
+    AD01_rename_vmlinux.lds_vmlinux.lds.in.sh
+    AD02_generate_vmlinux.lds.patch
+    - renames vmlinux.lds and recreates a correct one
+
+DF00_FREESWAN.desc
+    DF01_freeswan-2.0.5.patch
+    - adds support for freeswan ipsec vpn
+    
+DN00_NETFILTER.desc
+    DN02_74_nat-range-fix.patch
+    - fixes logic bug in NAT range calulations
+    DN10_nth.patch
+    - adds support for Nth match filtering rules on IPv4
+    DN11_nth6.patch
+    - adds support for Nth match filtering rules on IPv6
+    DN12_psd.patch
+    - adds support for psd filtering rules, detects tcp/udp portscans
+    DN13_time.patch
+    - adds support for packet arrival/departure filtering rules
+    DN14_h323_conntrack-nat.patch
+    - adds NAT connection tracking for h.323 protocol 
+    DN15_ipt_TARPIT.patch
+    - adds support for TARPIT filtering rules
+    DN16_pptp_conntrack-nat.patch
+    - adds NAT connection tracking for pptp protocol 
+    DN17_string.patch
+    - adds support for filtering based on specific strings
+    DN20_IMQ.patch
+    - adds IMQ target support for IPv4
+    DN21_IMQ_ipv6.patch
+    - adds IMQ target support for IPv6
+    DN90_match_stealth.patch
+    - add support for stealth filtering of syn packets
+    DN91_iplimit.patch
+    - adds support for limiting connections by IP address or address blocks
+    DN92_license_tags.patch
+    - adds missing license tags
+    DP01_imq.patch
+    - adds support for Intermediate Queueing device, needed for QoS
+
+SL00_SECURITY.desc
+    SL01_ea_0.8.68.patch
+    - adds support for extended attributes
+    SL11_acl_0.8.70.patch
+    - adds support for Access Control Lists
+    SL21_nfsacl_0.8.70.patch
+    - adds ACL for NFS
+    SL31_sec_0.8.69.patch
+    - adds support for security descriptors 
+    SL41_enable_xfs_acl.patch
+    - enables ACL on XFS
+    SL51_selinux1.patch
+    - adds NSA SELinux 
+
+ZY00_PROPOLICE.desc
+    ZY01_ProPolice.patch
+    - adds support for propolice stack protection
+
+ZZ00_EXTRAS.desc
+
