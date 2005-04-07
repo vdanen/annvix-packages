@@ -6,15 +6,13 @@ on a 32-bit, else they will interfere with each other.  Also increase a
 timeout that has been observed to get violated under heavy load.
 
 
-diff -Naur mysql-4.1.9.orig/mysql-test/mysql-test-run.sh mysql-4.1.9/mysql-test/mysql-test-run.sh
---- mysql-4.1.9.orig/mysql-test/mysql-test-run.sh	2005-01-11 17:06:03.000000000 -0500
-+++ mysql-4.1.9/mysql-test/mysql-test-run.sh	2005-01-15 19:44:10.780699826 -0500
-@@ -200,12 +200,24 @@
+--- mysql-4.1.11/mysql-test/mysql-test-run.sh.testing	2005-04-06 17:42:58.000000000 -0600
++++ mysql-4.1.11/mysql-test/mysql-test-run.sh	2005-04-06 17:45:47.000000000 -0600
+@@ -200,11 +200,25 @@
  
  MASTER_RUNNING=0
  MASTER1_RUNNING=0
 -MASTER_MYPORT=9306
--MASTER_MYPORT1=9307
  SLAVE_RUNNING=0
 -SLAVE_MYPORT=9308 # leave room for 2 masters for cluster tests
 -MYSQL_MANAGER_PORT=9305 # needs to be out of the way of slaves
@@ -36,15 +34,7 @@ diff -Naur mysql-4.1.9.orig/mysql-test/mysql-test-run.sh mysql-4.1.9/mysql-test/
 +    NDBCLUSTER_PORT=9350
 +    ;;
 +esac
++
  MYSQL_MANAGER_PW_FILE=$MYSQL_TEST_DIR/var/tmp/manager.pwd
  MYSQL_MANAGER_LOG=$MYSQL_TEST_DIR/var/log/manager.log
  MYSQL_MANAGER_USER=root
-@@ -230,7 +242,7 @@
- SLEEP_TIME_FOR_FIRST_MASTER=400		# Enough time to create innodb tables
- SLEEP_TIME_FOR_SECOND_MASTER=400
- SLEEP_TIME_FOR_FIRST_SLAVE=400
--SLEEP_TIME_FOR_SECOND_SLAVE=30
-+SLEEP_TIME_FOR_SECOND_SLAVE=60
- CHARACTER_SET=latin1
- DBUSER=""
- START_WAIT_TIMEOUT=10

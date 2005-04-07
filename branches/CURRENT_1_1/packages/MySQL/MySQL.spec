@@ -1,5 +1,5 @@
 %define name	MySQL
-%define version	4.1.10a
+%define version	4.1.11
 %define release	1avx
 
 %define major		14
@@ -20,8 +20,8 @@ Release:	%{release}
 License:	GPL
 Group:		Databases
 URL:            http://www.mysql.com
-Source:		ftp://mirror.cpsc.ucalgary.ca/mirror/mysql.com/Downloads/MySQL-4.1/mysql-%{version}.tar.gz
-Source1:	ftp://mirror.cpsc.ucalgary.ca/mirror/mysql.com/Downloads/MySQL-4.1/mysql-%{version}.tar.gz.asc
+Source:		ftp://ftp.mysql.serenitynet.com/MySQL-4.1/mysql-%{version}.tar.gz
+Source1:	ftp://ftp.mysql.serenitynet.com/MySQL-4.1/mysql-%{version}.tar.gz.asc
 Source2:	mysqld.run
 Source3:	mysqld-log.run
 Source4:	mysqld.sysconfig
@@ -35,7 +35,7 @@ Patch2:		mysql-4.1.7-manual_split.diff.bz2
 Patch3:		mysql-errno.patch.bz2
 Patch4:		mysql-libdir.patch.bz2
 Patch5:		mysql-4.1.10-libtool.diff.bz2
-Patch6:		mysql-testing.patch.bz2
+Patch6:		mysql-4.1.11-rh-testing.patch.bz2
 # Add fast AMD64 mutexes
 Patch7:		db-4.1.24-amd64-mutexes.diff.bz2
 # NPTL pthreads mutexes are evil
@@ -157,6 +157,14 @@ to MySQL basic server.
 %patch8 -p1 -b .pthreadsmutexes
 %patch9 -p0 -b .disable-pthreadsmutexes
 
+# hack to fix a bug in the make Docs files otherwise the make fails
+touch Docs/Images/myaccess-odbc.txt Docs/Images/myaccess.txt Docs/Images/myarchitecture.txt \
+  Docs/Images/mydll-properties.txt Docs/Images/mydsn-example.txt Docs/Images/mydsn-icon.txt \
+  Docs/Images/mydsn-options.txt Docs/Images/mydsn-setup.txt Docs/Images/mydsn-test-fail.txt \
+  Docs/Images/mydsn-test-success.txt Docs/Images/mydsn-trace.txt Docs/Images/mydsn.txt \
+  Docs/Images/myflowchart.txt Docs/Images/cluster-components-1.txt Docs/Images/multi-comp-1.txt \
+  Docs/errmsg-table.texi Docs/cl-errmsg-table.texi
+
 # fix annoyances
 perl -pi -e "s|AC_PROG_RANLIB|AC_PROG_LIBTOOL|g" configure*
 perl -pi -e "s|^MAX_C_OPTIMIZE.*|MAX_C_OPTIMIZE=\"\"|g" configure*
@@ -166,10 +174,8 @@ perl -pi -e "s|^MAX_CXX_OPTIMIZE.*|MAX_CXX_OPTIMIZE=\"\"|g" configure*
 %build
 # Run aclocal in order to get an updated libtool.m4 in generated
 # configure script for "new" architectures (aka. x86_64, mips)
+export WANT_AUTOCONF_2_5=1
 libtoolize --copy --force; aclocal-1.7; autoconf; automake-1.7
-
-# XXX: we may need this:
-#%define __libtoolize /bin/true
 
 pushd bdb/dist
     sh ./s_config
@@ -203,7 +209,7 @@ export MYSQL_BUILD_CXXFLAGS="$CXXFLAGS"
 #
 export PATH=${MYSQL_BUILD_PATH:-/bin:/usr/bin}	
 
-# The --enable-assembler simply does nothing on systems that does not
+# The --enable-assembler simply does nothing on systems that do not
 # support assembler speedups.
 
 MYSQL_COMMON_CONFIGURE="--prefix=/ \
@@ -351,23 +357,24 @@ EOF
 
 %multiarch_binaries %{buildroot}%{_bindir}/mysql_config
 %multiarch_includes %{buildroot}%{_includedir}/mysql/my_config.h
-%multiarch_includes %{buildroot}%{_includedir}/mysql/my_config-ndb.h
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %pre common
-%_pre_useradd mysql %{_localstatedir}/mysql /bin/bash 82
+%_pre_useradd %{mysqld_user} %{_localstatedir}/mysql /bin/bash 82
 
 %post common
 %_install_info mysql.info
 %_mkafterboot
 
 %post
+chown -R %{mysqld_user}:%{mysqld_user} %{_localstatedir}/mysql
+chmod 0711 %{_localstatedir}/mysql
 # Initialize database
 export TMPDIR="%{_localstatedir}/mysql/.tmp"
 export TMP="${TMPDIR}"
-/sbin/chpst -u mysql mysql_install_db --rpm --user=mysql >/dev/null
+/sbin/chpst -u %{mysqld_user} %{_bindir}/mysql_install_db --rpm --user=%{mysqld_user}
 
 %_post_srv mysqld
 
@@ -402,19 +409,21 @@ fix_privileges()
     fi
 }
 
-if [ "x`runsvstat /service/mysqld 2>&1|grep down >/dev/null 2>&1; echo $?`" = "x0" ]; then
+if [ "x`runsvstat /service/mysqld 2>&1|grep -q ": run"; echo $?`" == "x1" ]; then
     fix_privileges
 else
-    /usr/sbin/srv stop mysqld &> /dev/null
+    /usr/sbin/srv stop mysqld >/dev/null 2>&1
     fix_privileges
-    /usr/sbin/srv start mysqld &> /dev/null 
+    /usr/sbin/srv start mysqld >/dev/null 2>&1
 fi
 
 %post Max
+chown -R %{mysqld_user}:%{mysqld_user} %{_localstatedir}/mysql
+chmod 0711 %{_localstatedir}/mysql
 # Initialize database
 export TMPDIR="%{_localstatedir}/mysql/.tmp"
 export TMP="${TMPDIR}"
-/sbin/chpst -u mysql mysql_install_db --rpm --user=mysql >/dev/null
+/sbin/chpst -u %{mysqld_user} %{_bindir}/mysql_install_db --rpm --user=%{mysqld_user}
 
 %_post_srv mysqld
 # Allow mysqld_safe to start mysqld and print a message before we exit
@@ -451,9 +460,9 @@ fix_privileges()
 if [ "x`runsvstat /service/mysqld|grep down >/dev/null 2>&1; echo $?`" = "x0" ]; then
     fix_privileges
 else
-    /usr/sbin/srv stop mysqld &> /dev/null
+    /usr/sbin/srv stop mysqld >/dev/null 2>&1
     fix_privileges
-    /usr/sbin/srv start mysqld &> /dev/null 
+    /usr/sbin/srv start mysqld >/dev/null 2>&1 
 fi
 
 
@@ -599,6 +608,14 @@ fi
 %{_libdir}/mysql/*.a
 
 %changelog
+* Wed Apr 06 2005 Vincent Danen <vdanen@annvix.org> 4.1.11-1avx
+- 4.1.11; fixes an additional found case of CAN-2004-0957
+- spec cleanups
+- update P6
+- update source URLs
+- hack to fix make Docs
+- fix runsvstat logic
+
 * Tue Mar 15 2005 Vincent Danen <vdanen@annvix.org> 4.1.10a-1avx
 - 4.0.10a; security fixes for CAN-2005-0709, CAN-2005-0710, CAN-2005-0711
 
