@@ -1,6 +1,6 @@
 %define name	sharutils
 %define version	4.2.1
-%define release	18avx
+%define release	19avx
 
 #rh-4.2.1-12
 Summary:	The GNU shar utilities for packaging and unpackaging shell archives.
@@ -20,9 +20,12 @@ Patch6:		sharutils-4.2.1-mktemp.patch.bz2
 Patch7:		sharutils-4.2.1-uudecode.patch.bz2
 Patch10:	sharutils-4.2.1-remsync-typo.patch.bz2
 Patch11:	sharutils-4.2.1-bogus-entries.patch.bz2
+Patch12:	sharutils-4.2.1-CAN-2004-1772.patch.bz2
+Patch13:	sharutils-4.2.1-CAN-2004-1773.patch.bz2
+Patch14:	sharutils-4.2.1-deb-302412.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-root
-BuildRequires:	gettext, texinfo
+BuildRequires:	texinfo
 
 PreReq:		info-install
 
@@ -52,34 +55,36 @@ Install sharutils if you send binary files through email very often.
 %patch7 -p1
 %patch10 -p1
 %patch11 -p1
+%patch12 -p0 -b .can-2004-1772
+%patch13 -p1 -b .can-2004-1773
+%patch14 -p1 -b .deb-302412
 
 %build
 %configure
+
+# do not need to link with libintl explicitly for gettext support
+perl -pi -e 's/-lintl//g' src/Makefile
 
 %make
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-%makeinstall
-
-# man pages are not installed with make install
-make mandir=$RPM_BUILD_ROOT%{_mandir} install-man
+%makeinstall install-man
 
 # fix japanese catalog file
-if [ -d $RPM_BUILD_ROOT/%{_datadir}/locale/ja_JP.EUC/LC_MESSAGES ]; then
-   mkdir -p $RPM_BUILD_ROOT/%{_datadir}/locale/ja/LC_MESSAGES
-   mv $RPM_BUILD_ROOT/%{_datadir}/locale/ja_JP.EUC/LC_MESSAGES/*mo \
-		$RPM_BUILD_ROOT/%{_datadir}/locale/ja/LC_MESSAGES
-   rm -rf $RPM_BUILD_ROOT/%{_datadir}/locale/ja_JP.EUC
+if [ -d %{buildroot}/%{_datadir}/locale/ja_JP.EUC/LC_MESSAGES ]; then
+    pushd %{buildroot}%{_datadir}/locale
+        mv ja_JP.EUC ja
+    popd
 fi
 
 %find_lang %{name}
 
 %post
-%{_install_info %name.info}
+%_install_info %{name}.info
 
 %preun
-%{_remove_install_info %name.info}
+%_remove_install_info %{name}.info
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -92,6 +97,13 @@ fi
 %{_mandir}/man?/*
 
 %changelog
+* Mon Apr 04 2005 Vincent Danen <vdanen@annvix.org> 4.2.1-19avx
+- P12: security patch for CAN-2004-1772
+- P13: security patch for CAN-2004-1773
+- P14: security patch for debian bug #302412
+- don't explicitly link with libintl for gettext support (abel)
+- P3: fixed to add charset to po files (abel)
+
 * Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 4.2.1-18avx
 - require info-install, not /sbin/install-info
 - Annvix build
