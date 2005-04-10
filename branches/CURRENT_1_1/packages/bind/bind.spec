@@ -1,8 +1,9 @@
 %define name	bind
 %define version	9.3.0
-%define release	4avx
+%define release	5avx
 
 %define their_version	9.3.0
+%define build_daemon	0
 
 Summary:	A DNS (Domain Name System) server.
 Name:		%{name}
@@ -130,42 +131,53 @@ gcc %{optflags} -o dns-keygen %{SOURCE5}
 pushd doc
     rm -rf html
 popd
-mkdir -p ${RPM_BUILD_ROOT}%{_sysconfdir}/{logrotate.d,sysconfig}
-mkdir -p ${RPM_BUILD_ROOT}/usr/{bin,lib,sbin,include}
-mkdir -p ${RPM_BUILD_ROOT}%{_var}/{run/named,named}
-mkdir -p ${RPM_BUILD_ROOT}%{_mandir}/{man1,man3,man5,man8}
-mkdir -p ${RPM_BUILD_ROOT}%{_docdir}/
+%if %{build_daemon}
+    mkdir -p %{buildroot}%{_sysconfdir}/{logrotate.d,sysconfig}
+    mkdir -p %{buildroot}%{_sbindir}
+    mkdir -p %{buildroot}%{_var}/{run/named,named}
+    mkdir -p %{buildroot}%{_mandir}/man3
+%endif
+
+mkdir -p %{buildroot}{%{_bindir},%{_includedir},%{_libdir}}
+mkdir -p %{buildroot}%{_mandir}/{man1,man5,man8}
+mkdir -p %{buildroot}%{_docdir}/
 
 %makeinstall_std
-install -m0600 bin/rndc/rndc.conf %{buildroot}%{_sysconfdir}
-touch %{buildroot}%{_sysconfdir}/rndc.key
-install -m0755 contrib/named-bootconf/named-bootconf.sh %{buildroot}%{_sbindir}/named-bootconf
-install -m0755 contrib/nanny/nanny.pl %{buildroot}%{_sbindir}/
-#install -m0755 contrib/queryperf/queryperf %{buildroot}%{_sbindir}/
-install -m644 %{SOURCE3} %{buildroot}%{_sysconfdir}/logrotate.d/named
-
-install -m0755 dns-keygen -D %{buildroot}%{_sbindir}/dns-keygen
-cp %{SOURCE6} %{buildroot}%{_sbindir}
-cp %{SOURCE8} %{buildroot}%{_sbindir}
-cp %{SOURCE10} %{buildroot}%{_sbindir}
-
-echo "; Use \"dig @A.ROOT-SERVERS.NET . ns\" to update this file if it's outdated." >named.cache
-cat %{SOURCE11} >>named.cache
-install -m 644 named.cache %{buildroot}%{_var}/named/named.ca
-
 #tar -xjf %{SOURCE1} -C %{buildroot}%{_mandir}
 # fix man pages
 mv %{buildroot}%{_mandir}/man8/named.conf.5 %{buildroot}%{_mandir}/man5/
 install -m 0644 man5/resolver.5 %{buildroot}%{_mandir}/man5/
 ln -s resolver.5.bz2 %{buildroot}%{_mandir}/man5/resolv.5.bz2
 
-install -m0644 %{SOURCE4} %{buildroot}%{_sysconfdir}/sysconfig/named
+%if %{build_daemon}
+    install -m0600 bin/rndc/rndc.conf %{buildroot}%{_sysconfdir}
+    touch %{buildroot}%{_sysconfdir}/rndc.key
+    install -m0755 contrib/named-bootconf/named-bootconf.sh %{buildroot}%{_sbindir}/named-bootconf
+    install -m0755 contrib/nanny/nanny.pl %{buildroot}%{_sbindir}/
+    #install -m0755 contrib/queryperf/queryperf %{buildroot}%{_sbindir}/
+    install -m644 %{SOURCE3} %{buildroot}%{_sysconfdir}/logrotate.d/named
 
-mkdir -p %{buildroot}%{_srvdir}/named/log
-mkdir -p %{buildroot}%{_srvlogdir}/named
-install -m 0750 %{SOURCE12} %{buildroot}%{_srvdir}/named/run
-install -m 0750 %{SOURCE13} %{buildroot}%{_srvdir}/named/stop
-install -m 0750 %{SOURCE14} %{buildroot}%{_srvdir}/named/log/run
+    install -m0755 dns-keygen -D %{buildroot}%{_sbindir}/dns-keygen
+    cp %{SOURCE6} %{buildroot}%{_sbindir}
+    cp %{SOURCE8} %{buildroot}%{_sbindir}
+    cp %{SOURCE10} %{buildroot}%{_sbindir}
+
+    echo "; Use \"dig @A.ROOT-SERVERS.NET . ns\" to update this file if it's outdated." >named.cache
+    cat %{SOURCE11} >>named.cache
+    install -m 644 named.cache %{buildroot}%{_var}/named/named.ca
+    install -m0644 %{SOURCE4} %{buildroot}%{_sysconfdir}/sysconfig/named
+
+    mkdir -p %{buildroot}%{_srvdir}/named/log
+    mkdir -p %{buildroot}%{_srvlogdir}/named
+    install -m 0750 %{SOURCE12} %{buildroot}%{_srvdir}/named/run
+    install -m 0750 %{SOURCE13} %{buildroot}%{_srvdir}/named/stop
+    install -m 0750 %{SOURCE14} %{buildroot}%{_srvdir}/named/log/run
+%else
+    rm -rf %{buildroot}%{_sbindir}
+    rm -rf %{buildroot}%{_mandir}/man3
+    rm -rf %{buildroot}%{_mandir}/man5/{named.conf,rndc.conf}*
+    rm -rf %{buildroot}%{_mandir}/man8/{dnssec-keygen,dnssec-signzone,lwresd,named-checkconf,named-checkzone,named.8,rndc-confgen,rndc.8}*
+%endif
 
 # the following 3 lines is needed to make it short-circuit compliant.
 pushd doc
@@ -175,6 +187,7 @@ popd
 mkdir -p doc/html
 cp -f `find . -type f |grep html |sed -e 's#\/%{name}-%{their_version}##'|grep -v contrib` ${RPM_BUILD_DIR}/%{name}-%{their_version}/doc/html 
 
+%if %{build_daemon}
 %pre
 %_pre_useradd named /var/named /bin/false 80
 
@@ -202,10 +215,12 @@ fi
 
 %postun
 %_postun_userdel named
+%endif
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
+%if %{build_daemon}
 %files
 %defattr(-,root,root)
 %doc CHANGES README FAQ COPYRIGHT
@@ -235,6 +250,7 @@ fi
 %attr(-,named,named) %dir /var/named
 %attr(-,named,named) %config %{_var}/named/named.ca
 %attr(-,named,named) %dir /var/run/named
+%endif
 
 %files devel
 %defattr(-,root,root)
@@ -254,6 +270,11 @@ fi
 %{_mandir}/man5/resolv.5*
 
 %changelog
+* Sat Apr 09 2005 Vincent Danen <vdanen@annvix.org> 9.3.0-5avx
+- add %%build_daemon macro so we can build bind-{utils,devel} but not
+  named itself (since we want things like dig, host, etc.); by default
+  we do not build the daemon
+
 * Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 9.3.0-4avx
 - use logger for logging
 
