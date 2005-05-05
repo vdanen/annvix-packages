@@ -1,6 +1,6 @@
 %define name	cvs
 %define version	1.11.19
-%define release	2avx
+%define release	3avx
 
 %define url	ftp://ftp.cvshome.org/pub
 %define _requires_exceptions tcsh
@@ -24,6 +24,7 @@ Patch6: 	cvs-1.11.15-errno.patch.bz2
 Patch8:		cvs-1.11-ssh.patch.bz2
 Patch11:	cvs-1.11.1-newline.patch.bz2
 Patch12:	cvs-1.11.4-first-login.patch.bz2
+Patch13:	cvs-1.11.19-CAN-2005-0753.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
 BuildRequires:	autoconf2.5, texinfo, zlib-devel, krb5-devel
@@ -59,6 +60,7 @@ control system.
 %patch8 -p1 -b .ssh
 %patch11 -p1 -b .newline
 %patch12 -p1 -b .first-login
+%patch13 -p1 -b .can-2005-0753
 
 %build
 export SENDMAIL="%{_sbindir}/sendmail"
@@ -137,6 +139,9 @@ install -m 0644 %{SOURCE6} %{buildroot}%{_datadir}/afterboot/06_cvspserver
 %{_datadir}/afterboot/06_cvspserver
 
 %changelog
+* Thu May 05 2005 Vincent Danen <vdanen@annvix.org> 1.11.19-3avx
+- P13: security fix for CAN-2005-0753
+
 * Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 1.11.19-2avx
 - no need to lose our cvs.conf; put it back
 
