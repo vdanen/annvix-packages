@@ -1,0 +1,84 @@
+--- cvs-1.11.19/src/patch.c.can-2005-0753	2005-01-31 15:15:02.000000000 -0700
++++ cvs-1.11.19/src/patch.c	2005-04-19 12:56:32.249830944 -0600
+@@ -390,6 +390,7 @@
+     struct utimbuf t;
+     char *vers_tag, *vers_head;
+     char *rcs = NULL;
++    char *rcs_orig = NULL;
+     RCSNode *rcsfile;
+     FILE *fp1, *fp2, *fp3;
+     int ret = 0;
+@@ -420,7 +421,7 @@
+     if ((rcsfile->flags & VALID) && (rcsfile->flags & INATTIC))
+ 	isattic = 1;
+ 
+-    rcs = xmalloc (strlen (finfo->file) + sizeof (RCSEXT) + 5);
++    rcs_orig = rcs = xmalloc (strlen (finfo->file) + sizeof (RCSEXT) + 5);
+     (void) sprintf (rcs, "%s%s", finfo->file, RCSEXT);
+ 
+     /* if vers_head is NULL, may have been removed from the release */
+@@ -762,8 +763,8 @@
+ 	free (vers_tag);
+     if (vers_head != NULL)
+ 	free (vers_head);
+-    if (rcs != NULL)
+-	free (rcs);
++    if (rcs_orig != NULL)
++	free (rcs_orig);
+     return ret;
+ }
+ 
+--- cvs-1.11.19/src/login.c.can-2005-0753	2005-04-19 12:12:58.007630004 -0600
++++ cvs-1.11.19/src/login.c	2005-04-19 12:12:58.009629644 -0600
+@@ -119,7 +119,7 @@
+ 
+ 	if (isspace(*(linebuf + 1)))
+ 	    /* special case since strtoul ignores leading white space */
+-	    entry_version = 0;
++	    q = linebuf + 1;
+ 	else
+ 	    entry_version = strtoul (linebuf + 1, &q, 10);
+ 
+--- cvs-1.11.19/src/rcs.c.can-2005-0753	2005-01-31 15:15:08.000000000 -0700
++++ cvs-1.11.19/src/rcs.c	2005-04-19 12:59:15.122417308 -0600
+@@ -3030,8 +3030,7 @@
+     if (retval != NULL)
+ 	return (retval);
+ 
+-    if (!force_tag_match ||
+-	(vers != NULL && RCS_datecmp (vers->date, date) <= 0))
++    if (vers && (!force_tag_match || RCS_datecmp (vers->date, date) <= 0))
+ 	return xstrdup (vers->version);
+     else
+ 	return NULL;
+@@ -4118,7 +4117,7 @@
+     size_t len;
+     int free_value = 0;
+     char *log = NULL;
+-    size_t loglen;
++    size_t loglen = 0;
+     Node *vp = NULL;
+ #ifdef PRESERVE_PERMISSIONS_SUPPORT
+     uid_t rcs_owner = (uid_t) -1;
+@@ -7443,7 +7442,7 @@
+ 
+ 		for (ln = 0; ln < headlines.nlines; ++ln)
+ 		{
+-		    char buf[80];
++		    char *buf;
+ 		    /* Period which separates year from month in date.  */
+ 		    char *ym;
+ 		    /* Period which separates month from day in date.  */
+@@ -7454,10 +7453,12 @@
+ 		    if (prvers == NULL)
+ 			prvers = vers;
+ 
++		    buf = xmalloc (strlen (prvers->version) + 24);
+ 		    sprintf (buf, "%-12s (%-8.8s ",
+ 			     prvers->version,
+ 			     prvers->author);
+ 		    cvs_output (buf, 0);
++		    free (buf);
+ 
+ 		    /* Now output the date.  */
+ 		    ym = strchr (prvers->date, '.');
