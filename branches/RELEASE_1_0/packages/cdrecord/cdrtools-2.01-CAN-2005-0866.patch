@@ -1,0 +1,44 @@
+@DPATCH@
+diff -urNad cdrtools-2.0+a38/rscsi/rscsi.c /tmp/dpep.l2wivh/cdrtools-2.0+a38/rscsi/rscsi.c
+--- cdrtools-2.0+a38/rscsi/rscsi.c	2005-03-24 10:17:28.576747584 +0100
++++ /tmp/dpep.l2wivh/cdrtools-2.0+a38/rscsi/rscsi.c	2005-03-24 10:17:38.950170584 +0100
+@@ -163,8 +163,19 @@
+ 		debug_name = *argv;
+ #endif
+ 
+-	if (debug_name != NULL)
+-		debug_file = fopen(debug_name, "w");
++	if (debug_name != NULL) {
++		/* Try to be careful when opening debug files, might be
++		 * created in an unsafe location 
++		 * */
++		int fd = open(debug_name, O_CREAT | O_EXCL | O_TRUNC | O_RDWR, 0600);
++		if (fd > -1) 
++			debug_file = fdopen(fd, "w");
++		else {
++			rscsirespond(-1, geterrno());
++			exit(EX_BAD);
++		}
++	}
++
+ 		
+ 	if (argc > 0) {
+ 		if (debug_file == 0) {
+diff -urNad cdrtools-2.0+a38/rscsi/rscsi.dfl /tmp/dpep.l2wivh/cdrtools-2.0+a38/rscsi/rscsi.dfl
+--- cdrtools-2.0+a38/rscsi/rscsi.dfl	2005-03-24 10:17:27.853857480 +0100
++++ /tmp/dpep.l2wivh/cdrtools-2.0+a38/rscsi/rscsi.dfl	2005-03-24 10:17:38.952170280 +0100
+@@ -9,10 +9,11 @@
+ 
+ # 
+ # The file where debug info should go to.
+-# If you don't like debugging (e.g. for speed) comment out
+-# the this line.
++# This is commented out by default to speed up the program.
++# If you enable it make sure you substitute SAFE_DIR to a safe directory
++# to debug to.
+ #
+-#DEBUG=/tmp/RSCSI
++#DEBUG=SAFE_DIR/rscsi.dbg
+ 
+ #
+ # Each USER= entry adds the listed user to the users who may run rscsi

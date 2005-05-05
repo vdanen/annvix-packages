@@ -1,6 +1,6 @@
 %define name	cdrecord
 %define version 2.01
-%define release 0.a38.1avx
+%define release 0.a38.2avx
 %define epoch	4
 
 %define archname cdrtools
@@ -26,6 +26,7 @@ Patch2:		cdrtools-2.01a32-dvd.patch.bz2
 Patch3:		cdrtools-2.01a38-mdk-rawio.patch.bz2
 Patch4:		cdrtools-2.01a38-mdk-warnings.patch.bz2
 Patch5:		cdrecord-2.01-CAN-2004-0806.patch.bz2
+Patch6:		cdrtools-2.01-CAN-2005-0866.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{dversion}-buildroot
 BuildRequires:	libpcap-devel
@@ -80,6 +81,7 @@ and isovfy.
 #%patch3 -p1 -z .rawio
 %patch4 -p1 -z .warnings
 %patch5 -p1 -z .can-2004-0806
+%patch6 -p1 -z .can-2005-0866
 
 %build
 ln -sf i586-linux-cc.rul RULES/ia64-linux-cc.rul
@@ -147,6 +149,9 @@ mv $RPM_BUILD_ROOT%{_prefix}/lib $RPM_BUILD_ROOT%{_libdir}/
 %attr(755,root,cdwriter) %{_bindir}/isovfy
 
 %changelog
+* Wed Apr 20 2005 Vincent Danen <vdanen@annvix.org> 2.01-0.a38.2avx
+- P6: security patch for CAN-2005-0866
+
 * Tue Sep 07 2004 Vincent Danen <vdanen@annvix.org> 2.01-0.a38.1avx
 - 2.0.1alpha38
 - apply security fix for CAN-2004-0806
