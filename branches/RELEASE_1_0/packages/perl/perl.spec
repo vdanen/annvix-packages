@@ -1,6 +1,6 @@
 %define name	perl
 %define version	5.8.6
-%define release	2avx
+%define release	3avx
 %define epoch	2
 
 %define rel	%nil
@@ -49,7 +49,7 @@ Patch25:	perl-5.8.5-RC1-cpan-signature-test.patch.bz2
 Patch26:	perl-5.8.5-removeemptyrpath.patch.bz2
 Patch27:	perl-5.8.6-23565.bz2
 Patch28:	perl-5.8.6-CAN-2005-0155_0156.patch.bz2
-Patch29:	perl-5.8.3-owl-rmtree.diff.bz2
+Patch29:	perl-5.8.5-CAN-2005-0448.patch.bz2
 Patch30:	perl-5.8.6-CAN-2004-0976.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}
@@ -125,16 +125,16 @@ This is the documentation package for %{name}.  It also contains the
 %patch14 -p1
 %patch15 -p1
 %patch16 -p0
-%patch20 -p1 -b .fpons
-%patch21 -p1 -b .peroyvind
-%patch22 -p1 -b .amd64
-%patch23 -p0 -b .patchlevel
-%patch24 -p0 -b .notestfcgi
-%patch25 -p0 -b .cpansigtest
-%patch26 -p0 -b .rpath
+%patch20 -p1
+%patch21 -p1
+%patch22 -p1
+%patch23 -p0
+%patch24 -p0
+%patch25 -p0
+%patch26 -p0
 %patch27 -p1
 %patch28 -p0
-%patch29 -p1
+%patch29 -p1 
 %patch30 -p0
 
 %build
@@ -482,6 +482,10 @@ EOF
 %defattr(-,root,root)
 
 %changelog
+* Fri May 06 2005 Vincent Danen <vdanen@annvix.org> 5.8.6-3avx
+- P29: fix CAN-2005-448 (replaces and includes fix for CAN-2004-0452)
+- drop -b on patches
+
 * Tue Feb 08 2005 Vincent Danen <vdanen@annvix.org> 5.8.6-2avx
 - P29: fix CAN-2004-0452 (from Openwall)
 - P30: fix CAN-2004-0976
