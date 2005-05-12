@@ -1,6 +1,6 @@
 %define name	tcpdump
 %define version	3.8.3
-%define release	2avx
+%define release	3avx
 %define epoch	2
 
 Summary:	A network traffic monitoring tool
@@ -12,6 +12,10 @@ License:	BSD
 Group:	 	Monitoring
 URL:		http://www.tcpdump.org
 Source:		http://www.tcpdump.org/release/%{name}-%{version}.tar.bz2
+Patch0:		tcpdump-3.8.2-bgp-dos.patch.bz2
+Patch1:		tcpdump-3.8.2-isis-dos.patch.bz2
+Patch2:		tcpdump-3.8.2-ldp-dos.patch.bz2
+Patch3:		tcpdump-3.8.2-rsvp-dos.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-buildroot
 BuildRequires:	libpcap-devel
@@ -26,6 +30,10 @@ Install tcpdump if you need a program to monitor network traffic.
 
 %prep
 %setup -q
+%patch0 -p1 -b .bgp-dos
+%patch1 -p1 -b .isis-dos
+%patch2 -p1 -b .ldp-dos
+%patch3 -p1 -b .rsvp-dos
 
 %build
 libtoolize --copy --force
@@ -51,6 +59,9 @@ make install DESTDIR=$RPM_BUILD_ROOT
 %{_mandir}/man1/tcpdump.1*
 
 %changelog
+* Thu May 12 2005 Vincent Danen <vdanen@annvix.org> 3.8.3-3avx
+- P0-P3: security fixes for CAN-2005-1278, CAN-2005-1279, CAN-2005-1280
+
 * Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 3.8.3-2avx
 - Annvix build
 
