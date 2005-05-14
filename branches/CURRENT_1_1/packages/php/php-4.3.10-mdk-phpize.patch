@@ -1,0 +1,96 @@
+diff -Naur php-4.3.11/scripts/phpize.in php-4.3.11.oden/scripts/phpize.in
+--- php-4.3.11/scripts/phpize.in	2005-04-01 15:34:23.103889336 +0200
++++ php-4.3.11.oden/scripts/phpize.in	2005-04-01 15:33:05.046755824 +0200
+@@ -5,10 +5,11 @@
+ phpdir="@libdir@/php/build"
+ includedir="$prefix/include/php"
+ builddir="`pwd`"
++export WANT_AUTOCONF_2_5="1"
+ 
+ FILES_BUILD="mkdep.awk scan_makefile_in.awk shtool libtool.m4"
+ FILES="acinclude.m4 Makefile.global config.sub config.guess ltmain.sh"
+-CLEAN_FILES="$FILES *.o *.lo *.la .deps .libs/ build/ include/ modules/ install-sh \
++CLEAN_FILES="$FILES *.so *.o *.lo *.la .deps .libs/ build/ include/ modules/ autom*.cache install-sh \
+     mkinstalldirs missing config.nice config.sub config.guess configure configure.in \
+ 	aclocal.m4 config.h config.h.in conftest* ltmain.sh libtool config.cache autom4te.cache/ \
+ 	config.log config.status Makefile Makefile.fragments Makefile.objects confdefs.h"
+@@ -64,47 +65,25 @@
+   echo "Zend Extension Api No:  "$ZEND_EXTENSION_API_NO
+ }
+ 
+-phpize_no_shtool()
+-{
+-  echo <<EOF
+-shtool at '$builddir/build/shtool' not executable. 
+-Make sure that the file exists and is executable and then rerun this script. 
+-
+-EOF
+-}
+-
+-phpize_check_shtool()
+-{
+-  test -x "$builddir/build/shtool" || chmod +x "$builddir/build/shtool"
+-
+-  if test ! -x "$builddir/build/shtool"; then
+-    phpize_no_shtool
+-    exit 1
+-  fi
+-}
+-
+-
+ phpize_copy_files()
+ {
+   test -d build || mkdir build
+  
+   (cd "$phpdir" && cp $FILES_BUILD "$builddir"/build)
+   (cd "$phpdir" && cp $FILES "$builddir")
+-  (cd "$builddir" && cat ./build/libtool.m4 >> acinclude.m4)
+ }
+ 
+ phpize_replace_prefix()
+ {
+-  sed \
+-  -e "s#@prefix@#$prefix#" \
+-  < "$phpdir/phpize.m4" > configure.in
++cp $phpdir/phpize.m4 configure.in
+ }
+ 
+ phpize_autotools()
+ {
+-  aclocal    || exit 1
++  aclocal-1.7 || exit 1
+   autoconf   || exit 1
+   autoheader || exit 1
++  libtoolize --copy --force || exit 1
+ }
+ 
+ # Main script
+@@ -131,6 +110,7 @@
+ 
+   # Default
+   *)
++
+      phpize_check_configm4 0
+ 
+      phpize_print_api_numbers
+@@ -143,8 +123,6 @@
+ 
+      phpize_autotools
+ 
+-     phpize_check_shtool
+-
+      ;;
+ esac
+ 
+diff -Naur php-4.3.11/scripts/phpize.m4 php-4.3.11.oden/scripts/phpize.m4
+--- php-4.3.11/scripts/phpize.m4	2005-04-01 15:34:23.103889336 +0200
++++ php-4.3.11.oden/scripts/phpize.m4	2005-04-01 15:33:25.570635720 +0200
+@@ -69,7 +69,7 @@
+ CPPFLAGS="$CPPFLAGS -DHAVE_CONFIG_H"
+ CFLAGS_CLEAN='$(CFLAGS)'
+ 
+-test "$prefix" = "NONE" && prefix="/usr/local"
++test "$prefix" = "NONE" && prefix="/usr"
+ test "$exec_prefix" = "NONE" && exec_prefix='$(prefix)'
+ 
+ PHP_SUBST(PHP_MODULES)
