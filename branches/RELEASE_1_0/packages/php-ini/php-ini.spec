@@ -1,5 +1,5 @@
 %define name	php-ini
-%define version	4.3.10
+%define version	4.3.11
 %define release	1avx
 
 Summary:	INI files for PHP
@@ -42,6 +42,9 @@ perl -pi -e 's|EXTENSIONDIR|%{_libdir}/php/extensions|g' %{buildroot}%{_sysconfd
 %dir %{_libdir}/php/extensions
 
 %changelog
+* Sat May 14 2005 Vincent Danen <vdanen@annvix.org> 4.3.11-1avx
+- php 4.3.11
+
 * Fri Dec 17 2004 Vincent Danen <vdanen@annvix.org> 4.3.10-1avx
 - spec cleanups
 - remove %%post migratory stuff

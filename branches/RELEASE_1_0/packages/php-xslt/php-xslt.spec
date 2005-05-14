@@ -1,8 +1,8 @@
 %define name	php-%{modname}
 %define version	%{phpversion}
-%define release	3avx
+%define release	1avx
 
-%define phpversion	4.3.10
+%define phpversion	4.3.11
 %define phpsource       %{_prefix}/src/php-devel
 %define phpdir		%{_libdir}/php
 
@@ -80,6 +80,9 @@ EOF
 %{phpdir}/extensions/%{soname}
 
 %changelog
+* Sat May 14 2005 Vincent Danen <vdanen@annvix.org> 4.3.11-1avx
+- php 4.3.11
+
 * Sat Mar 05 2005 Vincent Danen <vdanen@annvix.org> 4.3.10-3avx
 - rebuild for new libxml2 and libxslt
 

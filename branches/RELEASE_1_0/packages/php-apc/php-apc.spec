@@ -1,9 +1,9 @@
 %define name	php-%{modname}
 %define version	%{phpversion}_%{rver}
 %define rver	2.0.4
-%define release	2avx
+%define release	1avx
 
-%define phpversion	4.3.10
+%define phpversion	4.3.11
 %define phpsource       %{_prefix}/src/php-devel
 %define phpdir		%{_libdir}/php
 
@@ -101,6 +101,9 @@ install -m755 %{soname} %{buildroot}%{phpdir}/extensions/
 %config(noreplace) %attr(0644,root,root) %{_sysconfdir}/php.d/%{inifile}
 
 %changelog
+* Sat May 14 2005 Vincent Danen <vdanen@annvix.org> 4.3.11_2.0.4-1avx
+- php 4.3.11
+
 * Sat Feb 26 2005 Vincent Danen <vdanen@annvix.org> 4.3.10_2.0.4-2avx
 - rebuild and cleanups
 
