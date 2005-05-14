@@ -1,8 +1,8 @@
 %define name	php-%{subname}
 %define version	%{phpversion}
-%define release	2avx
+%define release	1avx
 
-%define phpversion	4.3.10
+%define phpversion	4.3.11
 %define phpsource       %{_prefix}/src/php-devel
 %define phpdir		%{_libdir}/php
 %define peardir		%{_datadir}/pear
@@ -109,6 +109,9 @@ mkdir %{buildroot}%{peardir}/packages
 %{_bindir}/pear
 
 %changelog
+* Sat May 14 2005 Vincent Danen <vdanen@annvix.org> 4.3.11-1avx
+- php 4.3.11
+
 * Sat Feb 26 2005 Vincent Danen <vdanen@annvix.org> 4.3.10-2avx
 - spec cleanups
 
