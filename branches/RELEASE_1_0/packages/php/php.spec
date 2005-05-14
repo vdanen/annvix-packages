@@ -1,6 +1,6 @@
 %define name	php
-%define version	4.3.10
-%define release	5avx
+%define version	4.3.11
+%define release	1avx
 %define epoch	2
 
 %define libversion	4
@@ -58,19 +58,19 @@ Patch0:		php-4.3.0-mdk-init.patch.bz2
 Patch1:		php-4.3.6-mdk-shared.patch.bz2
 Patch2:		php-4.3.0-mdk-imap.patch.bz2
 Patch4:		php-4.3.4RC3-mdk-64bit.patch.bz2
-Patch5:		php-4.3.10-mdk-lib64.patch.bz2
+Patch5:		php-4.3.11-mdk-lib64.patch.bz2
 Patch6:		php-4.3.0-mdk-fix-pear.patch.bz2
-Patch7:		php-4.3.2-mdk-libtool.patch.bz2
-Patch9:		php-4.3.9-mdk-no_egg.patch.bz2
-Patch10:	php-4.3.9-mdk-phpize.patch.bz2
+Patch7:		php-4.3.11-mdk-libtool.patch.bz2
+Patch9:		php-4.3.11-mdk-no_egg.patch.bz2
+Patch10:	php-4.3.10-mdk-phpize.patch.bz2
 Patch11:	php-4.3.7-mdk-run-tests.diff.bz2
 
 # from PLD (20-40)
 Patch20:	php-4.3.0-pld-mail.patch.bz2
 Patch21:	php-4.3.10-pld-mcal-shared-lib.patch.bz2
 Patch22:	php-4.3.6-pld-msession-shared-lib.patch.bz2
-Patch23:	php-4.3.3RC3-pld-cpdf-fix.patch.bz2
-Patch24:	php-4.3.3RC3-pld-db-shared.patch.bz2
+Patch23:	php-4.3.11-pld-cpdf-fix.patch.bz2
+Patch24:	php-4.3.11-pld-db-shared.patch.bz2
 Patch25:	php-4.3.0-pld-hyperwave-fix.patch.bz2
 Patch27:	php-4.3.3RC3-pld-sybase-fix.patch.bz2
 Patch28:	php-4.3.0-pld-wddx-fix.patch.bz2
@@ -227,7 +227,7 @@ perl -pi -e "s|_PHP_SONAME_|%{libversion}|g" Makefile.global
 %patch4 -p1
 %patch5 -p1
 %patch6 -p1 -b .fix-pear
-%patch7 -p1 -b .libtool
+%patch7 -p0 -b .libtool
 %patch9 -p1
 %patch10 -p1 -b .phpize
 %patch11 -p0
@@ -236,8 +236,8 @@ perl -pi -e "s|_PHP_SONAME_|%{libversion}|g" Makefile.global
 %patch20 -p1
 %patch21 -p1
 %patch22 -p1
-%patch23 -p1
-%patch24 -p1
+%patch23 -p0
+%patch24 -p0
 %patch25 -p1
 %patch27 -p1
 %patch28 -p1
@@ -586,6 +586,11 @@ update-alternatives --remove php %{_bindir}/php-cli
 %{_includedir}/php
 
 %changelog
+* Sat May 14 2005 Vincent Danen <vdanen@annvix.org> 4.3.11-1avx
+- 4.3.11: security fixes for CAN-2005-0524, CAN-2005-0525, CAN-2005-1042,
+  and CAN-2005-1043
+- rediffed patches P5, P7, P9, P10, P23, P24 from Mandriva
+
 * Sat Mar 05 2005 Vincent Danen <vdanen@annvix.org> 4.3.10-5avx
 - rebuild against new libxml2 and libxslt
 - enable multiarch stuff

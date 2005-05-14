@@ -1,7 +1,7 @@
-diff -Naur php-4.3.10/acinclude.m4 php-4.3.10.oden/acinclude.m4
---- php-4.3.10/acinclude.m4	2004-12-11 12:17:21.000000000 +0100
-+++ php-4.3.10.oden/acinclude.m4	2004-12-16 10:13:03.295235088 +0100
-@@ -180,7 +180,7 @@
+diff -Naur php-4.3.11/acinclude.m4 php-4.3.11.oden/acinclude.m4
+--- php-4.3.11/acinclude.m4	2005-01-25 14:03:06.000000000 +0100
++++ php-4.3.11.oden/acinclude.m4	2005-04-01 13:47:44.597610144 +0200
+@@ -194,7 +194,7 @@
    unset ac_new_flags
    for i in [$]$1; do
      case [$]i in
@@ -10,7 +10,7 @@ diff -Naur php-4.3.10/acinclude.m4 php-4.3.10.oden/acinclude.m4
      *[)] ac_new_flags="[$]ac_new_flags [$]i" ;;
      esac
    done
-@@ -836,7 +836,7 @@
+@@ -856,7 +856,7 @@
  dnl add a library to linkpath/runpath
  dnl
  AC_DEFUN([PHP_ADD_LIBPATH],[
@@ -19,7 +19,7 @@ diff -Naur php-4.3.10/acinclude.m4 php-4.3.10.oden/acinclude.m4
      PHP_EXPAND_PATH($1, ai_p)
      ifelse([$2],,[
        _PHP_ADD_LIBPATH_GLOBAL([$ai_p])
-@@ -1539,6 +1539,40 @@
+@@ -1571,6 +1571,40 @@
    	fi
  ])
  
@@ -60,7 +60,7 @@ diff -Naur php-4.3.10/acinclude.m4 php-4.3.10.oden/acinclude.m4
  
  dnl
  dnl PHP_CHECK_LIBRARY(library, function [, action-found [, action-not-found [, extra-libs]]])
-@@ -1626,8 +1660,8 @@
+@@ -1724,8 +1758,8 @@
        if test -r $i/include/openssl/evp.h; then
          OPENSSL_INCDIR=$i/include
        fi
@@ -71,7 +71,7 @@ diff -Naur php-4.3.10/acinclude.m4 php-4.3.10.oden/acinclude.m4
        fi
        test -n "$OPENSSL_INCDIR" && test -n "$OPENSSL_LIBDIR" && break
      done
-@@ -1748,8 +1782,8 @@
+@@ -1846,8 +1880,8 @@
        AC_MSG_ERROR([Please specify the install prefix of iconv with --with-iconv=<DIR>])
      fi
    
@@ -82,7 +82,7 @@ diff -Naur php-4.3.10/acinclude.m4 php-4.3.10.oden/acinclude.m4
      then
        PHP_CHECK_LIBRARY($iconv_lib_name, libiconv, [
          found_iconv=yes
-@@ -1759,10 +1793,10 @@
+@@ -1857,10 +1891,10 @@
            found_iconv=yes
            PHP_DEFINE(HAVE_ICONV,1,[ext/iconv])
          ], [], [
@@ -95,10 +95,10 @@ diff -Naur php-4.3.10/acinclude.m4 php-4.3.10.oden/acinclude.m4
        ])
      fi
    fi
-diff -Naur php-4.3.10/aclocal.m4 php-4.3.10.oden/aclocal.m4
---- php-4.3.10/aclocal.m4	2004-12-14 18:55:17.000000000 +0100
-+++ php-4.3.10.oden/aclocal.m4	2004-12-16 10:13:03.297234784 +0100
-@@ -180,7 +180,7 @@
+diff -Naur php-4.3.11/aclocal.m4 php-4.3.11.oden/aclocal.m4
+--- php-4.3.11/aclocal.m4	2005-03-30 16:35:19.000000000 +0200
++++ php-4.3.11.oden/aclocal.m4	2005-04-01 13:47:44.599609840 +0200
+@@ -194,7 +194,7 @@
    unset ac_new_flags
    for i in [$]$1; do
      case [$]i in
@@ -107,7 +107,7 @@ diff -Naur php-4.3.10/aclocal.m4 php-4.3.10.oden/aclocal.m4
      *[)] ac_new_flags="[$]ac_new_flags [$]i" ;;
      esac
    done
-@@ -836,7 +836,7 @@
+@@ -856,7 +856,7 @@
  dnl add a library to linkpath/runpath
  dnl
  AC_DEFUN([PHP_ADD_LIBPATH],[
@@ -116,7 +116,7 @@ diff -Naur php-4.3.10/aclocal.m4 php-4.3.10.oden/aclocal.m4
      PHP_EXPAND_PATH($1, ai_p)
      ifelse([$2],,[
        _PHP_ADD_LIBPATH_GLOBAL([$ai_p])
-@@ -1539,6 +1539,41 @@
+@@ -1571,6 +1571,41 @@
    	fi
  ])
  
@@ -158,7 +158,7 @@ diff -Naur php-4.3.10/aclocal.m4 php-4.3.10.oden/aclocal.m4
  
  dnl
  dnl PHP_CHECK_LIBRARY(library, function [, action-found [, action-not-found [, extra-libs]]])
-@@ -1626,8 +1661,8 @@
+@@ -1724,8 +1759,8 @@
        if test -r $i/include/openssl/evp.h; then
          OPENSSL_INCDIR=$i/include
        fi
@@ -169,7 +169,7 @@ diff -Naur php-4.3.10/aclocal.m4 php-4.3.10.oden/aclocal.m4
        fi
        test -n "$OPENSSL_INCDIR" && test -n "$OPENSSL_LIBDIR" && break
      done
-@@ -1748,8 +1783,8 @@
+@@ -1846,8 +1881,8 @@
        AC_MSG_ERROR([Please specify the install prefix of iconv with --with-iconv=<DIR>])
      fi
    
@@ -180,7 +180,7 @@ diff -Naur php-4.3.10/aclocal.m4 php-4.3.10.oden/aclocal.m4
      then
        PHP_CHECK_LIBRARY($iconv_lib_name, libiconv, [
          found_iconv=yes
-@@ -1759,10 +1794,10 @@
+@@ -1857,10 +1892,10 @@
            found_iconv=yes
            PHP_DEFINE(HAVE_ICONV,1,[ext/iconv])
          ], [], [
@@ -193,10 +193,10 @@ diff -Naur php-4.3.10/aclocal.m4 php-4.3.10.oden/aclocal.m4
        ])
      fi
    fi
-diff -Naur php-4.3.10/configure.in php-4.3.10.oden/configure.in
---- php-4.3.10/configure.in	2004-12-14 17:07:49.000000000 +0100
-+++ php-4.3.10.oden/configure.in	2004-12-16 10:13:03.297234784 +0100
-@@ -128,6 +128,10 @@
+diff -Naur php-4.3.11/configure.in php-4.3.11.oden/configure.in
+--- php-4.3.11/configure.in	2005-03-30 16:18:36.000000000 +0200
++++ php-4.3.11.oden/configure.in	2005-04-01 13:49:10.210594992 +0200
+@@ -132,6 +132,10 @@
  PHP_RUNPATH_SWITCH
  
  PHP_PROG_RE2C
@@ -204,12 +204,12 @@ diff -Naur php-4.3.10/configure.in php-4.3.10.oden/configure.in
 +dnl check for libdir name
 +PHP_CHECK_LIBNAME
 +
- AC_PROG_RANLIB
  AC_PROG_LN_S
  AC_PROG_AWK
-diff -Naur php-4.3.10/ext/bz2/config.m4 php-4.3.10.oden/ext/bz2/config.m4
---- php-4.3.10/ext/bz2/config.m4	2004-01-21 06:04:50.000000000 +0100
-+++ php-4.3.10.oden/ext/bz2/config.m4	2004-12-16 10:41:29.092914424 +0100
+ AC_PROG_YACC
+diff -Naur php-4.3.11/ext/bz2/config.m4 php-4.3.11.oden/ext/bz2/config.m4
+--- php-4.3.11/ext/bz2/config.m4	2004-01-21 06:04:50.000000000 +0100
++++ php-4.3.11.oden/ext/bz2/config.m4	2005-04-01 13:47:44.601609536 +0200
 @@ -27,12 +27,12 @@
    PHP_CHECK_LIBRARY(bz2, BZ2_bzerror, 
    [
@@ -225,9 +225,9 @@ diff -Naur php-4.3.10/ext/bz2/config.m4 php-4.3.10.oden/ext/bz2/config.m4
    ])
  
    PHP_NEW_EXTENSION(bz2, bz2.c, $ext_shared)
-diff -Naur php-4.3.10/ext/cpdf/config.m4 php-4.3.10.oden/ext/cpdf/config.m4
---- php-4.3.10/ext/cpdf/config.m4	2003-10-01 04:53:53.000000000 +0200
-+++ php-4.3.10.oden/ext/cpdf/config.m4	2004-12-16 10:41:29.093914272 +0100
+diff -Naur php-4.3.11/ext/cpdf/config.m4 php-4.3.11.oden/ext/cpdf/config.m4
+--- php-4.3.11/ext/cpdf/config.m4	2004-12-30 08:02:16.000000000 +0100
++++ php-4.3.11.oden/ext/cpdf/config.m4	2005-04-01 13:51:01.499676480 +0200
 @@ -4,7 +4,7 @@
    AC_ARG_WITH(jpeg-dir,
    [  --with-jpeg-dir[=DIR]     CPDF: Set the path to libjpeg install prefix.],[
@@ -237,7 +237,7 @@ diff -Naur php-4.3.10/ext/cpdf/config.m4 php-4.3.10.oden/ext/cpdf/config.m4
          CPDF_JPEG_DIR=$i
          break;
        fi
-@@ -14,11 +14,11 @@
+@@ -13,11 +13,11 @@
        AC_MSG_ERROR([libjpeg.(a|so) not found.])
      fi
      PHP_CHECK_LIBRARY(jpeg, jpeg_read_header, [
@@ -251,7 +251,7 @@ diff -Naur php-4.3.10/ext/cpdf/config.m4 php-4.3.10.oden/ext/cpdf/config.m4
      ])
    ],)
  ])
-@@ -27,7 +27,7 @@
+@@ -26,7 +26,7 @@
    AC_ARG_WITH(tiff-dir,
    [  --with-tiff-dir[=DIR]     CPDF: Set the path to libtiff install prefix.],[
      for i in $withval /usr/local /usr; do
@@ -260,7 +260,7 @@ diff -Naur php-4.3.10/ext/cpdf/config.m4 php-4.3.10.oden/ext/cpdf/config.m4
          CPDF_TIFF_DIR=$i
          break;
        fi
-@@ -37,11 +37,11 @@
+@@ -35,11 +35,11 @@
        AC_MSG_ERROR([libtiff.(a|so) not found.])
      fi
      PHP_CHECK_LIBRARY(tiff, TIFFOpen, [
@@ -274,24 +274,26 @@ diff -Naur php-4.3.10/ext/cpdf/config.m4 php-4.3.10.oden/ext/cpdf/config.m4
      ])
    ],)
  ])
-@@ -66,12 +66,12 @@
- 
-         PHP_CHECK_LIBRARY(cpdf, cpdf_open, [
-           PHP_ADD_INCLUDE($CPDFLIB_INCLUDE)
--          PHP_ADD_LIBRARY_WITH_PATH(cpdf, $i/lib, CPDF_SHARED_LIBADD)
-+          PHP_ADD_LIBRARY_WITH_PATH(cpdf, $i/$PHP_LIBNAME, CPDF_SHARED_LIBADD)
-           AC_DEFINE(HAVE_CPDFLIB,1,[Whether you have cpdflib])
+@@ -65,13 +65,13 @@
          ], [
            AC_MSG_ERROR([Cpdflib module requires cpdflib >= 2.])
          ], [
 -          -L$i/lib $CPDF_SHARED_LIBADD
 +          -L$i/$PHP_LIBNAME $CPDF_SHARED_LIBADD
          ])
-         break
-       fi
-diff -Naur php-4.3.10/ext/crack/config.m4 php-4.3.10.oden/ext/crack/config.m4
---- php-4.3.10/ext/crack/config.m4	2003-10-01 04:53:54.000000000 +0200
-+++ php-4.3.10.oden/ext/crack/config.m4	2004-12-16 10:41:29.101913056 +0100
+       ], [
+-        -L$i/lib $CPDF_SHARED_LIBADD
++        -L$i/$PHP_LIBNAME $CPDF_SHARED_LIBADD
+       ])
+ 
+-      PHP_ADD_LIBRARY_WITH_PATH($cpdf_libname, $i/lib, CPDF_SHARED_LIBADD)
++      PHP_ADD_LIBRARY_WITH_PATH($cpdf_libname, $i/$PHP_LIBNAME, CPDF_SHARED_LIBADD)
+       PHP_ADD_INCLUDE($CPDFLIB_INCLUDE)
+       AC_DEFINE(HAVE_CPDFLIB,1,[Whether you have cpdflib])
+       break
+diff -Naur php-4.3.11/ext/crack/config.m4 php-4.3.11.oden/ext/crack/config.m4
+--- php-4.3.11/ext/crack/config.m4	2004-12-31 04:10:59.000000000 +0100
++++ php-4.3.11.oden/ext/crack/config.m4	2005-04-01 13:47:44.601609536 +0200
 @@ -7,7 +7,7 @@
  
  if test "$PHP_CRACK" != "no"; then
@@ -299,11 +301,11 @@ diff -Naur php-4.3.10/ext/crack/config.m4 php-4.3.10.oden/ext/crack/config.m4
 -  for i in $PHP_CRACK/lib $PHP_CRACK/cracklib /usr/local/lib /usr/lib; do
 +  for i in $PHP_CRACK/$PHP_LIBNAME $PHP_CRACK/cracklib /usr/local/$PHP_LIBNAME /usr/$PHP_LIBNAME; do
      test -f $i/libcrack.$SHLIB_SUFFIX_NAME -o -f $i/libcrack.a && CRACK_LIBDIR=$i && break
+     test -f $i/libcrack_krb5.$SHLIB_SUFFIX_NAME -o -f $i/libcrack_krb5.a && CRACK_LIBDIR=$i && break
    done
- 
-diff -Naur php-4.3.10/ext/curl/config.m4 php-4.3.10.oden/ext/curl/config.m4
---- php-4.3.10/ext/curl/config.m4	2003-03-23 19:16:12.000000000 +0100
-+++ php-4.3.10.oden/ext/curl/config.m4	2004-12-16 10:41:29.093914272 +0100
+diff -Naur php-4.3.11/ext/curl/config.m4 php-4.3.11.oden/ext/curl/config.m4
+--- php-4.3.11/ext/curl/config.m4	2005-02-09 17:23:49.000000000 +0100
++++ php-4.3.11.oden/ext/curl/config.m4	2005-04-01 13:47:44.601609536 +0200
 @@ -51,7 +51,7 @@
  
    PHP_ADD_INCLUDE($CURL_DIR/include)
@@ -330,9 +332,9 @@ diff -Naur php-4.3.10/ext/curl/config.m4 php-4.3.10.oden/ext/curl/config.m4
    ])
  
  dnl  if test "$PHP_CURLWRAPPERS" != "no" ; then
-diff -Naur php-4.3.10/ext/cyrus/config.m4 php-4.3.10.oden/ext/cyrus/config.m4
---- php-4.3.10/ext/cyrus/config.m4	2003-10-03 07:25:32.000000000 +0200
-+++ php-4.3.10.oden/ext/cyrus/config.m4	2004-12-16 10:41:29.101913056 +0100
+diff -Naur php-4.3.11/ext/cyrus/config.m4 php-4.3.11.oden/ext/cyrus/config.m4
+--- php-4.3.11/ext/cyrus/config.m4	2003-10-03 07:25:32.000000000 +0200
++++ php-4.3.11.oden/ext/cyrus/config.m4	2005-04-01 13:47:44.602609384 +0200
 @@ -16,7 +16,7 @@
    for i in $PHP_CYRUS /usr/local /usr; do
      if test -r $i/include/cyrus/imclient.h && test "$found_cyrus" = "no"; then
@@ -367,19 +369,19 @@ diff -Naur php-4.3.10/ext/cyrus/config.m4 php-4.3.10.oden/ext/cyrus/config.m4
          break 2
        fi
      done
-diff -Naur php-4.3.10/ext/dba/config.m4 php-4.3.10.oden/ext/dba/config.m4
---- php-4.3.10/ext/dba/config.m4	2004-09-25 17:32:20.000000000 +0200
-+++ php-4.3.10.oden/ext/dba/config.m4	2004-12-16 10:41:29.092914424 +0100
+diff -Naur php-4.3.11/ext/dba/config.m4 php-4.3.11.oden/ext/dba/config.m4
+--- php-4.3.11/ext/dba/config.m4	2005-01-22 02:37:12.000000000 +0100
++++ php-4.3.11.oden/ext/dba/config.m4	2005-04-01 13:47:44.602609384 +0200
 @@ -21,7 +21,7 @@
  dnl Assign INCLUDE/LFLAGS from PREFIX
- AC_DEFUN(PHP_DBA_STD_ASSIGN,[
+ AC_DEFUN([PHP_DBA_STD_ASSIGN],[
    if test -n "$THIS_PREFIX" && test "$THIS_PREFIX" != "/usr"; then
 -    THIS_LFLAGS=$THIS_PREFIX/lib
 +    THIS_LFLAGS=$THIS_PREFIX/$PHP_LIBNAME
    fi
  ])
  
-@@ -86,7 +86,7 @@
+@@ -85,7 +85,7 @@
          AC_DEFINE_UNQUOTED(GDBM_INCLUDE_FILE, "$THIS_INCLUDE", [ ])
          AC_DEFINE(DBA_GDBM, 1, [ ]) 
          THIS_LIBS=gdbm
@@ -388,7 +390,7 @@ diff -Naur php-4.3.10/ext/dba/config.m4 php-4.3.10.oden/ext/dba/config.m4
      fi
      
      PHP_DBA_STD_ASSIGN
-@@ -118,7 +118,7 @@
+@@ -117,7 +117,7 @@
            AC_DEFINE_UNQUOTED(NDBM_INCLUDE_FILE, "$THIS_INCLUDE", [ ])
            AC_DEFINE(DBA_NDBM, 1, [ ]) 
            THIS_LIBS=$LIB
@@ -397,9 +399,9 @@ diff -Naur php-4.3.10/ext/dba/config.m4 php-4.3.10.oden/ext/dba/config.m4
          if test -n "$THIS_LIBS"; then
            break
          fi
-@@ -136,8 +136,8 @@
+@@ -135,8 +135,8 @@
  dnl parameters(version, library list, function)
- AC_DEFUN(PHP_DBA_DB_CHECK,[
+ AC_DEFUN([PHP_DBA_DB_CHECK],[
    for LIB in $2; do
 -    if test -f $THIS_PREFIX/lib/lib$LIB.a -o -f $THIS_PREFIX/lib/lib$LIB.$SHLIB_SUFFIX_NAME; then
 -      PHP_TEMP_LDFLAGS(-L$THIS_PREFIX/lib, -l$LIB,[
@@ -408,7 +410,7 @@ diff -Naur php-4.3.10/ext/dba/config.m4 php-4.3.10.oden/ext/dba/config.m4
          AC_TRY_LINK([
  #include "$THIS_INCLUDE"
          ],[
-@@ -329,7 +329,7 @@
+@@ -328,7 +328,7 @@
            fi
            AC_DEFINE(DBA_DBM, 1, [ ]) 
            THIS_LIBS=$LIB
@@ -417,7 +419,7 @@ diff -Naur php-4.3.10/ext/dba/config.m4 php-4.3.10.oden/ext/dba/config.m4
          if test -n "$THIS_LIBS"; then
            break
          fi
-@@ -371,7 +371,7 @@
+@@ -370,7 +370,7 @@
            AC_DEFINE_UNQUOTED(CDB_INCLUDE_FILE, "$THIS_INCLUDE", [ ])
            AC_DEFINE(DBA_CDB, 1, [ ]) 
            THIS_LIBS=$LIB
@@ -426,9 +428,9 @@ diff -Naur php-4.3.10/ext/dba/config.m4 php-4.3.10.oden/ext/dba/config.m4
          if test -n "$THIS_LIBS"; then
            break
          fi
-diff -Naur php-4.3.10/ext/domxml/config.m4 php-4.3.10.oden/ext/domxml/config.m4
---- php-4.3.10/ext/domxml/config.m4	2002-10-30 18:42:36.000000000 +0100
-+++ php-4.3.10.oden/ext/domxml/config.m4	2004-12-16 10:41:29.104912600 +0100
+diff -Naur php-4.3.11/ext/domxml/config.m4 php-4.3.11.oden/ext/domxml/config.m4
+--- php-4.3.11/ext/domxml/config.m4	2004-12-30 08:02:17.000000000 +0100
++++ php-4.3.11.oden/ext/domxml/config.m4	2005-04-01 13:47:44.602609384 +0200
 @@ -50,7 +50,7 @@
  
    PHP_DOM_CHECK_VERSION
@@ -496,9 +498,9 @@ diff -Naur php-4.3.10/ext/domxml/config.m4 php-4.3.10.oden/ext/domxml/config.m4
  
    PHP_ADD_INCLUDE($DOMEXSLT_DIR/include)
  
-diff -Naur php-4.3.10/ext/fbsql/config.m4 php-4.3.10.oden/ext/fbsql/config.m4
---- php-4.3.10/ext/fbsql/config.m4	2003-10-01 04:53:55.000000000 +0200
-+++ php-4.3.10.oden/ext/fbsql/config.m4	2004-12-16 10:41:29.102912904 +0100
+diff -Naur php-4.3.11/ext/fbsql/config.m4 php-4.3.11.oden/ext/fbsql/config.m4
+--- php-4.3.11/ext/fbsql/config.m4	2003-10-01 04:53:55.000000000 +0200
++++ php-4.3.11.oden/ext/fbsql/config.m4	2005-04-01 13:47:44.602609384 +0200
 @@ -13,7 +13,7 @@
    FBSQL_INSTALLATION_DIR=""
    if test "$PHP_FBSQL" = "yes"; then
@@ -523,9 +525,9 @@ diff -Naur php-4.3.10/ext/fbsql/config.m4 php-4.3.10.oden/ext/fbsql/config.m4
    PHP_ADD_INCLUDE($FBSQL_INSTALLATION_DIR/include)
    PHP_SUBST(FBSQL_SHARED_LIBADD)
  fi
-diff -Naur php-4.3.10/ext/gd/config.m4 php-4.3.10.oden/ext/gd/config.m4
---- php-4.3.10/ext/gd/config.m4	2004-07-27 14:44:44.000000000 +0200
-+++ php-4.3.10.oden/ext/gd/config.m4	2004-12-16 10:41:29.092914424 +0100
+diff -Naur php-4.3.11/ext/gd/config.m4 php-4.3.11.oden/ext/gd/config.m4
+--- php-4.3.11/ext/gd/config.m4	2005-01-04 07:52:18.000000000 +0100
++++ php-4.3.11.oden/ext/gd/config.m4	2005-04-01 13:47:44.602609384 +0200
 @@ -51,7 +51,7 @@
    if test "$PHP_JPEG_DIR" != "no"; then
  
@@ -631,7 +633,7 @@ diff -Naur php-4.3.10/ext/gd/config.m4 php-4.3.10.oden/ext/gd/config.m4
      ])
    fi
  ])
-@@ -362,7 +362,7 @@
+@@ -364,7 +364,7 @@
    done
  
  dnl Library path
@@ -640,9 +642,9 @@ diff -Naur php-4.3.10/ext/gd/config.m4 php-4.3.10.oden/ext/gd/config.m4
      test -f "$PHP_GD/$i/libgd.$SHLIB_SUFFIX_NAME" -o -f "$PHP_GD/$i/libgd.a" && GD_LIB="$PHP_GD/$i"
    done
  
-diff -Naur php-4.3.10/ext/gettext/config.m4 php-4.3.10.oden/ext/gettext/config.m4
---- php-4.3.10/ext/gettext/config.m4	2003-10-01 04:53:58.000000000 +0200
-+++ php-4.3.10.oden/ext/gettext/config.m4	2004-12-16 10:41:29.104912600 +0100
+diff -Naur php-4.3.11/ext/gettext/config.m4 php-4.3.11.oden/ext/gettext/config.m4
+--- php-4.3.11/ext/gettext/config.m4	2003-10-01 04:53:58.000000000 +0200
++++ php-4.3.11.oden/ext/gettext/config.m4	2005-04-01 13:47:44.603609232 +0200
 @@ -14,7 +14,7 @@
      AC_MSG_ERROR(Cannot locate header file libintl.h)
    fi
@@ -652,9 +654,9 @@ diff -Naur php-4.3.10/ext/gettext/config.m4 php-4.3.10.oden/ext/gettext/config.m
    GETTEXT_INCDIR=$GETTEXT_DIR/include
    
    O_LDFLAGS=$LDFLAGS
-diff -Naur php-4.3.10/ext/gmp/config.m4 php-4.3.10.oden/ext/gmp/config.m4
---- php-4.3.10/ext/gmp/config.m4	2003-11-19 05:44:24.000000000 +0100
-+++ php-4.3.10.oden/ext/gmp/config.m4	2004-12-16 10:41:29.092914424 +0100
+diff -Naur php-4.3.11/ext/gmp/config.m4 php-4.3.11.oden/ext/gmp/config.m4
+--- php-4.3.11/ext/gmp/config.m4	2003-11-19 05:44:24.000000000 +0100
++++ php-4.3.11.oden/ext/gmp/config.m4	2005-04-01 13:47:44.603609232 +0200
 @@ -21,13 +21,13 @@
      [],[
        AC_MSG_ERROR([GNU MP Library version 4.1.2 or greater required.])
@@ -672,9 +674,9 @@ diff -Naur php-4.3.10/ext/gmp/config.m4 php-4.3.10.oden/ext/gmp/config.m4
    PHP_ADD_INCLUDE($GMP_DIR/include)
  
    PHP_NEW_EXTENSION(gmp, gmp.c, $ext_shared)
-diff -Naur php-4.3.10/ext/hwapi/config.m4 php-4.3.10.oden/ext/hwapi/config.m4
---- php-4.3.10/ext/hwapi/config.m4	2002-09-19 22:14:33.000000000 +0200
-+++ php-4.3.10.oden/ext/hwapi/config.m4	2004-12-16 10:41:29.102912904 +0100
+diff -Naur php-4.3.11/ext/hwapi/config.m4 php-4.3.11.oden/ext/hwapi/config.m4
+--- php-4.3.11/ext/hwapi/config.m4	2002-09-19 22:14:33.000000000 +0200
++++ php-4.3.11.oden/ext/hwapi/config.m4	2005-04-01 13:47:44.603609232 +0200
 @@ -23,7 +23,7 @@
  
    PHP_ADD_INCLUDE($HWAPI_DIR/include/hwapi)
@@ -684,9 +686,9 @@ diff -Naur php-4.3.10/ext/hwapi/config.m4 php-4.3.10.oden/ext/hwapi/config.m4
    AC_DEFINE(HAVE_HWAPI,1,[ ])
  
    PHP_REQUIRE_CXX
-diff -Naur php-4.3.10/ext/iconv/config.m4 php-4.3.10.oden/ext/iconv/config.m4
---- php-4.3.10/ext/iconv/config.m4	2004-12-06 21:37:56.000000000 +0100
-+++ php-4.3.10.oden/ext/iconv/config.m4	2004-12-16 10:41:29.102912904 +0100
+diff -Naur php-4.3.11/ext/iconv/config.m4 php-4.3.11.oden/ext/iconv/config.m4
+--- php-4.3.11/ext/iconv/config.m4	2005-01-10 22:38:56.000000000 +0100
++++ php-4.3.11.oden/ext/iconv/config.m4	2005-04-01 13:47:44.603609232 +0200
 @@ -24,7 +24,7 @@
      fi
  
@@ -696,42 +698,10 @@ diff -Naur php-4.3.10/ext/iconv/config.m4 php-4.3.10.oden/ext/iconv/config.m4
  
      if test -r $PHP_ICONV_PREFIX/include/giconv.h; then
        PHP_ICONV_H_PATH="$PHP_ICONV_PREFIX/include/giconv.h"
-diff -Naur php-4.3.10/ext/imap/config.m4 php-4.3.10.oden/ext/imap/config.m4
---- php-4.3.10/ext/imap/config.m4	2004-01-17 01:01:06.000000000 +0100
-+++ php-4.3.10.oden/ext/imap/config.m4	2004-12-16 10:41:29.093914272 +0100
-@@ -71,7 +71,7 @@
-     fi
- 
-     for i in $SEARCH_PATHS; do
--      if test -f $i/lib/libkrb5.a || test -f $i/lib/libkrb5.$SHLIB_SUFFIX_NAME; then
-+      if test -f $i/$PHP_LIBNAME/libkrb5.a || test -f $i/$PHP_LIBNAME/libkrb5.$SHLIB_SUFFIX_NAME; then
-         PHP_KERBEROS_DIR=$i
-         break
-       fi
-@@ -84,7 +84,7 @@
-       ])
-     fi
-     AC_DEFINE(HAVE_IMAP_KRB,1,[ ])
--    PHP_ADD_LIBPATH($PHP_KERBEROS_DIR/lib, IMAP_SHARED_LIBADD)
-+    PHP_ADD_LIBPATH($PHP_KERBEROS_DIR/$PHP_LIBNAME, IMAP_SHARED_LIBADD)
-     PHP_ADD_LIBRARY(gssapi_krb5, 1, IMAP_SHARED_LIBADD)
-     PHP_ADD_LIBRARY(krb5, 1, IMAP_SHARED_LIBADD)
-     PHP_ADD_LIBRARY(k5crypto, 1, IMAP_SHARED_LIBADD)
-@@ -116,11 +116,11 @@
-   AC_MSG_CHECKING([whether SSL libraries are needed for c-client])
- 
-   if test "$PHP_IMAP_SSL" != "no"; then
--    AC_MSG_RESULT([$PHP_IMAP_SSL/lib])
-+    AC_MSG_RESULT([$PHP_IMAP_SSL/$PHP_LIBNAME])
-     AC_DEFINE(HAVE_IMAP_SSL,1,[ ])
-     PHP_ADD_LIBRARY_DEFER(ssl,    1, IMAP_SHARED_LIBADD)
-     PHP_ADD_LIBRARY_DEFER(crypto, 1, IMAP_SHARED_LIBADD)
--    PHP_ADD_LIBPATH($PHP_IMAP_SSL/lib, IMAP_SHARED_LIBADD)
-+    PHP_ADD_LIBPATH($PHP_IMAP_SSL/$PHP_LIBNAME, IMAP_SHARED_LIBADD)
-   else
-     AC_MSG_RESULT(no)
-   fi
-@@ -178,13 +178,13 @@
+diff -Naur php-4.3.11/ext/imap/config.m4 php-4.3.11.oden/ext/imap/config.m4
+--- php-4.3.11/ext/imap/config.m4	2005-01-11 05:56:57.000000000 +0100
++++ php-4.3.11.oden/ext/imap/config.m4	2005-04-01 13:53:25.127841680 +0200
+@@ -160,13 +160,13 @@
  
      if test -r "$IMAP_DIR/c-client/c-client.a"; then
        ln -s "$IMAP_DIR/c-client/c-client.a" "$IMAP_DIR/c-client/libc-client.a" >/dev/null 2>&1
@@ -748,9 +718,9 @@ diff -Naur php-4.3.10/ext/imap/config.m4 php-4.3.10.oden/ext/imap/config.m4
        IMAP_LIB_CHK(c-client)
      done
  
-diff -Naur php-4.3.10/ext/ingres_ii/config.m4 php-4.3.10.oden/ext/ingres_ii/config.m4
---- php-4.3.10/ext/ingres_ii/config.m4	2003-01-23 06:33:17.000000000 +0100
-+++ php-4.3.10.oden/ext/ingres_ii/config.m4	2004-12-16 10:41:29.103912752 +0100
+diff -Naur php-4.3.11/ext/ingres_ii/config.m4 php-4.3.11.oden/ext/ingres_ii/config.m4
+--- php-4.3.11/ext/ingres_ii/config.m4	2003-01-23 06:33:17.000000000 +0100
++++ php-4.3.11.oden/ext/ingres_ii/config.m4	2005-04-01 13:47:44.603609232 +0200
 @@ -23,10 +23,10 @@
      AC_MSG_ERROR(Cannot find iiapi.h under $II_DIR/files)
    fi
@@ -765,9 +735,9 @@ diff -Naur php-4.3.10/ext/ingres_ii/config.m4 php-4.3.10.oden/ext/ingres_ii/conf
    fi
  
    PHP_ADD_LIBRARY_WITH_PATH(iiapi, $II_LIB_DIR, II_SHARED_LIBADD)
-diff -Naur php-4.3.10/ext/ircg/config.m4 php-4.3.10.oden/ext/ircg/config.m4
---- php-4.3.10/ext/ircg/config.m4	2003-01-21 06:09:33.000000000 +0100
-+++ php-4.3.10.oden/ext/ircg/config.m4	2004-12-16 10:41:29.099913360 +0100
+diff -Naur php-4.3.11/ext/ircg/config.m4 php-4.3.11.oden/ext/ircg/config.m4
+--- php-4.3.11/ext/ircg/config.m4	2003-01-21 06:09:33.000000000 +0100
++++ php-4.3.11.oden/ext/ircg/config.m4	2005-04-01 13:47:44.603609232 +0200
 @@ -26,7 +26,7 @@
    
    PHP_EVAL_LIBLINE(`$IRCG_CONFIG --ldflags`)
@@ -777,12 +747,12 @@ diff -Naur php-4.3.10/ext/ircg/config.m4 php-4.3.10.oden/ext/ircg/config.m4
    PHP_ADD_INCLUDE($PHP_IRCG/include)
    if test "$PHP_SAPI" = "thttpd"; then
      AC_DEFINE(IRCG_WITH_THTTPD, 1, [Whether thttpd is available])
-diff -Naur php-4.3.10/ext/java/config.m4 php-4.3.10.oden/ext/java/config.m4
---- php-4.3.10/ext/java/config.m4	2003-04-04 19:43:13.000000000 +0200
-+++ php-4.3.10.oden/ext/java/config.m4	2004-12-16 10:41:29.099913360 +0100
+diff -Naur php-4.3.11/ext/java/config.m4 php-4.3.11.oden/ext/java/config.m4
+--- php-4.3.11/ext/java/config.m4	2004-12-30 08:02:17.000000000 +0100
++++ php-4.3.11.oden/ext/java/config.m4	2005-04-01 13:47:44.604609080 +0200
 @@ -57,17 +57,17 @@
  
- AC_DEFUN(JAVA_CHECK_LIB, [
+ AC_DEFUN([JAVA_CHECK_LIB], [
   AC_MSG_CHECKING([Checking for libjava])
 - if test -d $PHP_JAVA/lib/kaffe; then
 -   PHP_ADD_LIBPATH($PHP_JAVA/lib)
@@ -825,9 +795,9 @@ diff -Naur php-4.3.10/ext/java/config.m4 php-4.3.10.oden/ext/java/config.m4
  
     for i in $PHP_JAVA/include/*; do
       test -f $i/jni_md.h && JAVA_INCLUDE="$JAVA_INCLUDE $i"
-diff -Naur php-4.3.10/ext/ldap/config.m4 php-4.3.10.oden/ext/ldap/config.m4
---- php-4.3.10/ext/ldap/config.m4	2003-07-01 02:02:29.000000000 +0200
-+++ php-4.3.10.oden/ext/ldap/config.m4	2004-12-16 10:41:29.100913208 +0100
+diff -Naur php-4.3.11/ext/ldap/config.m4 php-4.3.11.oden/ext/ldap/config.m4
+--- php-4.3.11/ext/ldap/config.m4	2004-12-30 08:02:17.000000000 +0100
++++ php-4.3.11.oden/ext/ldap/config.m4	2005-04-01 13:47:44.604609080 +0200
 @@ -6,15 +6,15 @@
    if test -f $1/include/ldap.h; then
      LDAP_DIR=$1
@@ -847,9 +817,9 @@ diff -Naur php-4.3.10/ext/ldap/config.m4 php-4.3.10.oden/ext/ldap/config.m4
    fi
  ])
  
-diff -Naur php-4.3.10/ext/mcal/config.m4 php-4.3.10.oden/ext/mcal/config.m4
---- php-4.3.10/ext/mcal/config.m4	2002-03-27 11:26:16.000000000 +0100
-+++ php-4.3.10.oden/ext/mcal/config.m4	2004-12-16 10:41:29.100913208 +0100
+diff -Naur php-4.3.11/ext/mcal/config.m4 php-4.3.11.oden/ext/mcal/config.m4
+--- php-4.3.11/ext/mcal/config.m4	2002-03-27 11:26:16.000000000 +0100
++++ php-4.3.11.oden/ext/mcal/config.m4	2005-04-01 13:47:44.604609080 +0200
 @@ -19,7 +19,7 @@
      fi
    done
@@ -859,19 +829,19 @@ diff -Naur php-4.3.10/ext/mcal/config.m4 php-4.3.10.oden/ext/mcal/config.m4
      if test -r "$i/libmcal.a"; then
        MCAL_LIBRARY=$i
      fi
-diff -Naur php-4.3.10/ext/mcrypt/config.m4 php-4.3.10.oden/ext/mcrypt/config.m4
---- php-4.3.10/ext/mcrypt/config.m4	2003-10-01 04:54:00.000000000 +0200
-+++ php-4.3.10.oden/ext/mcrypt/config.m4	2004-12-16 10:41:29.104912600 +0100
+diff -Naur php-4.3.11/ext/mcrypt/config.m4 php-4.3.11.oden/ext/mcrypt/config.m4
+--- php-4.3.11/ext/mcrypt/config.m4	2005-01-22 02:37:12.000000000 +0100
++++ php-4.3.11.oden/ext/mcrypt/config.m4	2005-04-01 13:55:37.796672952 +0200
 @@ -23,7 +23,7 @@
      [
        AC_DEFINE(HAVE_MCRYPT_GENERIC_DEINIT,1,[ ])
      ],[],[
--      -L$MCRYPT_DIR/lib
-+      -L$MCRYPT_DIR/$PHP_LIBNAME
+-      -L$MCRYPT_DIR/lib -lltdl
++      -L$MCRYPT_DIR/$PHP_LIBNAME -lltdl
      ])
  
    ],[
-@@ -37,7 +37,7 @@
+@@ -35,7 +35,7 @@
        [
          AC_DEFINE(HAVE_MCRYPT_GENERIC_DEINIT,1,[ ])
        ],[],[
@@ -880,14 +850,17 @@ diff -Naur php-4.3.10/ext/mcrypt/config.m4 php-4.3.10.oden/ext/mcrypt/config.m4
        ])
      ],[
        PHP_CHECK_LIBRARY(mcrypt, init_mcrypt, 
-@@ -46,14 +46,14 @@
+@@ -44,16 +44,16 @@
        ],[
          AC_MSG_ERROR([Sorry, I was not able to diagnose which libmcrypt version you have installed.])
        ],[
 -        -L$MCRYPT_DIR/lib
 +        -L$MCRYPT_DIR/$PHP_LIBNAME
        ])
-     ],[])
+     ],[
+-      -L$MCRYPT_DIR/lib
++      -L$MCRYPT_DIR/$PHP_LIBNAME
+     ])
    ],[
 -    -L$MCRYPT_DIR/lib -lltdl
 +    -L$MCRYPT_DIR/$PHP_LIBNAME -lltdl
@@ -898,9 +871,9 @@ diff -Naur php-4.3.10/ext/mcrypt/config.m4 php-4.3.10.oden/ext/mcrypt/config.m4
    PHP_ADD_INCLUDE($MCRYPT_DIR/include)
  
    PHP_NEW_EXTENSION(mcrypt, mcrypt.c, $ext_shared)
-diff -Naur php-4.3.10/ext/mcve/config.m4 php-4.3.10.oden/ext/mcve/config.m4
---- php-4.3.10/ext/mcve/config.m4	2004-12-08 07:48:11.000000000 +0100
-+++ php-4.3.10.oden/ext/mcve/config.m4	2004-12-16 10:41:29.100913208 +0100
+diff -Naur php-4.3.11/ext/mcve/config.m4 php-4.3.11.oden/ext/mcve/config.m4
+--- php-4.3.11/ext/mcve/config.m4	2004-12-08 07:48:11.000000000 +0100
++++ php-4.3.11.oden/ext/mcve/config.m4	2005-04-01 13:47:44.604609080 +0200
 @@ -68,7 +68,7 @@
    CPPFLAGS=$saved_CPPFLAGS
  
@@ -910,9 +883,9 @@ diff -Naur php-4.3.10/ext/mcve/config.m4 php-4.3.10.oden/ext/mcve/config.m4
  
    dnl Build test. Check for libmcve or libmonetra
    dnl libmonetra_compat.h handle's MCVE_ -> M_ conversion
-diff -Naur php-4.3.10/ext/mhash/config.m4 php-4.3.10.oden/ext/mhash/config.m4
---- php-4.3.10/ext/mhash/config.m4	2003-10-01 04:54:01.000000000 +0200
-+++ php-4.3.10.oden/ext/mhash/config.m4	2004-12-16 10:41:29.102912904 +0100
+diff -Naur php-4.3.11/ext/mhash/config.m4 php-4.3.11.oden/ext/mhash/config.m4
+--- php-4.3.11/ext/mhash/config.m4	2003-10-01 04:54:01.000000000 +0200
++++ php-4.3.11.oden/ext/mhash/config.m4	2005-04-01 13:47:44.604609080 +0200
 @@ -15,7 +15,7 @@
    fi
  
@@ -922,9 +895,9 @@ diff -Naur php-4.3.10/ext/mhash/config.m4 php-4.3.10.oden/ext/mhash/config.m4
  
    PHP_NEW_EXTENSION(mhash, mhash.c, $ext_shared)
    PHP_SUBST(MHASH_SHARED_LIBADD)
-diff -Naur php-4.3.10/ext/ming/config.m4 php-4.3.10.oden/ext/ming/config.m4
---- php-4.3.10/ext/ming/config.m4	2003-07-11 09:48:33.000000000 +0200
-+++ php-4.3.10.oden/ext/ming/config.m4	2004-12-16 10:41:29.100913208 +0100
+diff -Naur php-4.3.11/ext/ming/config.m4 php-4.3.11.oden/ext/ming/config.m4
+--- php-4.3.11/ext/ming/config.m4	2003-07-11 09:48:33.000000000 +0200
++++ php-4.3.11.oden/ext/ming/config.m4	2005-04-01 13:47:44.604609080 +0200
 @@ -9,7 +9,7 @@
    AC_CHECK_LIB(m, sin)
  
@@ -948,9 +921,9 @@ diff -Naur php-4.3.10/ext/ming/config.m4 php-4.3.10.oden/ext/ming/config.m4
  
    AC_MSG_CHECKING([for destroySWFBlock])
    AC_TRY_RUN([
-diff -Naur php-4.3.10/ext/msession/config.m4 php-4.3.10.oden/ext/msession/config.m4
---- php-4.3.10/ext/msession/config.m4	2002-03-12 17:25:11.000000000 +0100
-+++ php-4.3.10.oden/ext/msession/config.m4	2004-12-16 10:41:29.106912296 +0100
+diff -Naur php-4.3.11/ext/msession/config.m4 php-4.3.11.oden/ext/msession/config.m4
+--- php-4.3.11/ext/msession/config.m4	2002-03-12 17:25:11.000000000 +0100
++++ php-4.3.11.oden/ext/msession/config.m4	2005-04-01 13:47:44.606608776 +0200
 @@ -6,12 +6,12 @@
  [  --with-msession[=DIR]   Include msession support])
   
@@ -975,9 +948,9 @@ diff -Naur php-4.3.10/ext/msession/config.m4 php-4.3.10.oden/ext/msession/config
  	PHOENIX_INCLUDE="-I$PHOENIX_DIR"
  	PHP_SUBST(PHOENIX_LIB)
  
-diff -Naur php-4.3.10/ext/msql/config.m4 php-4.3.10.oden/ext/msql/config.m4
---- php-4.3.10/ext/msql/config.m4	2002-03-12 17:25:28.000000000 +0100
-+++ php-4.3.10.oden/ext/msql/config.m4	2004-12-16 10:41:29.100913208 +0100
+diff -Naur php-4.3.11/ext/msql/config.m4 php-4.3.11.oden/ext/msql/config.m4
+--- php-4.3.11/ext/msql/config.m4	2004-12-30 08:02:17.000000000 +0100
++++ php-4.3.11.oden/ext/msql/config.m4	2005-04-01 13:47:44.606608776 +0200
 @@ -31,7 +31,7 @@
        MSQL_LIBDIR=/usr/local/Hughes/lib
      else
@@ -987,9 +960,9 @@ diff -Naur php-4.3.10/ext/msql/config.m4 php-4.3.10.oden/ext/msql/config.m4
      fi
      PHP_ADD_LIBRARY_WITH_PATH(msql, $MSQL_LIBDIR, MSQL_SHARED_LIBADD)
      PHP_ADD_INCLUDE($MSQL_INCDIR)
-diff -Naur php-4.3.10/ext/mssql/config.m4 php-4.3.10.oden/ext/mssql/config.m4
---- php-4.3.10/ext/mssql/config.m4	2004-12-08 19:59:11.000000000 +0100
-+++ php-4.3.10.oden/ext/mssql/config.m4	2004-12-16 10:41:29.102912904 +0100
+diff -Naur php-4.3.11/ext/mssql/config.m4 php-4.3.11.oden/ext/mssql/config.m4
+--- php-4.3.11/ext/mssql/config.m4	2004-12-08 19:59:11.000000000 +0100
++++ php-4.3.11.oden/ext/mssql/config.m4	2005-04-01 13:47:44.606608776 +0200
 @@ -32,12 +32,12 @@
      fi
    fi  
@@ -1006,9 +979,9 @@ diff -Naur php-4.3.10/ext/mssql/config.m4 php-4.3.10.oden/ext/mssql/config.m4
  
    PHP_ADD_INCLUDE($MSSQL_INCDIR)
    PHP_ADD_LIBRARY_WITH_PATH(sybdb, $MSSQL_LIBDIR, MSSQL_SHARED_LIBADD)
-diff -Naur php-4.3.10/ext/mysql/config.m4 php-4.3.10.oden/ext/mysql/config.m4
---- php-4.3.10/ext/mysql/config.m4	2003-12-31 12:28:38.000000000 +0100
-+++ php-4.3.10.oden/ext/mysql/config.m4	2004-12-16 10:41:29.102912904 +0100
+diff -Naur php-4.3.11/ext/mysql/config.m4 php-4.3.11.oden/ext/mysql/config.m4
+--- php-4.3.11/ext/mysql/config.m4	2004-12-30 08:02:17.000000000 +0100
++++ php-4.3.11.oden/ext/mysql/config.m4	2005-04-01 13:47:44.606608776 +0200
 @@ -114,7 +114,7 @@
  
    MYSQL_MODULE_TYPE=external
@@ -1030,9 +1003,9 @@ diff -Naur php-4.3.10/ext/mysql/config.m4 php-4.3.10.oden/ext/mysql/config.m4
      else
        PHP_ADD_LIBRARY(z,, MYSQL_SHARED_LIBADD)
        PHP_CHECK_LIBRARY(mysqlclient, mysql_errno, [], [
-diff -Naur php-4.3.10/ext/ncurses/config.m4 php-4.3.10.oden/ext/ncurses/config.m4
---- php-4.3.10/ext/ncurses/config.m4	2003-12-09 21:33:22.000000000 +0100
-+++ php-4.3.10.oden/ext/ncurses/config.m4	2004-12-16 10:41:29.104912600 +0100
+diff -Naur php-4.3.11/ext/ncurses/config.m4 php-4.3.11.oden/ext/ncurses/config.m4
+--- php-4.3.11/ext/ncurses/config.m4	2003-12-09 21:33:22.000000000 +0100
++++ php-4.3.11.oden/ext/ncurses/config.m4	2005-04-01 13:47:44.607608624 +0200
 @@ -40,18 +40,18 @@
  
     PHP_CHECK_LIBRARY($LIBNAME, $LIBSYMBOL, [
@@ -1056,9 +1029,9 @@ diff -Naur php-4.3.10/ext/ncurses/config.m4 php-4.3.10.oden/ext/ncurses/config.m
     ])
   
     AC_CHECK_LIB($LIBNAME, color_set,   [AC_DEFINE(HAVE_NCURSES_COLOR_SET,  1, [ ])])
-diff -Naur php-4.3.10/ext/oci8/config.m4 php-4.3.10.oden/ext/oci8/config.m4
---- php-4.3.10/ext/oci8/config.m4	2004-02-03 15:22:34.000000000 +0100
-+++ php-4.3.10.oden/ext/oci8/config.m4	2004-12-16 10:41:29.100913208 +0100
+diff -Naur php-4.3.11/ext/oci8/config.m4 php-4.3.11.oden/ext/oci8/config.m4
+--- php-4.3.11/ext/oci8/config.m4	2005-02-25 12:33:24.000000000 +0100
++++ php-4.3.11.oden/ext/oci8/config.m4	2005-04-01 13:54:51.568700672 +0200
 @@ -23,16 +23,16 @@
    if test -s "$OCI8_DIR/orainst/unix.rgs"; then
      OCI8_VERSION=`grep '"ocommon"' $OCI8_DIR/orainst/unix.rgs | sed 's/[ ][ ]*/:/g' | cut -d: -f 6 | cut -c 2-4`
@@ -1082,7 +1055,7 @@ diff -Naur php-4.3.10/ext/oci8/config.m4 php-4.3.10.oden/ext/oci8/config.m4
        OCI8_VERSION=8.0
      else
        OCI8_VERSION=8.1
-@@ -72,10 +72,10 @@
+@@ -107,10 +107,10 @@
      OCI8_INCLUDES="$OCI8_INCLUDES -I$OCI8_DIR/plsql/public"
    fi
  
@@ -1097,7 +1070,7 @@ diff -Naur php-4.3.10/ext/oci8/config.m4 php-4.3.10.oden/ext/oci8/config.m4
    fi
  
    AC_OCI8_VERSION($OCI8_DIR)
-@@ -84,12 +84,12 @@
+@@ -119,12 +119,12 @@
        PHP_ADD_LIBRARY_WITH_PATH(nlsrtl3, "", OCI8_SHARED_LIBADD)
        PHP_ADD_LIBRARY_WITH_PATH(core4, "", OCI8_SHARED_LIBADD)
        PHP_ADD_LIBRARY_WITH_PATH(psa, "", OCI8_SHARED_LIBADD)
@@ -1112,7 +1085,7 @@ diff -Naur php-4.3.10/ext/oci8/config.m4 php-4.3.10.oden/ext/oci8/config.m4
  
        dnl 
        dnl OCI_ATTR_STATEMENT is not available in all 8.1.x versions
-@@ -99,7 +99,7 @@
+@@ -134,7 +134,7 @@
  
      9.0)
        PHP_ADD_LIBRARY(clntsh, 1, OCI8_SHARED_LIBADD)
@@ -1121,7 +1094,7 @@ diff -Naur php-4.3.10/ext/oci8/config.m4 php-4.3.10.oden/ext/oci8/config.m4
        AC_DEFINE(HAVE_OCI8_ATTR_STATEMENT,1,[ ])
  
        dnl These functions are only available in version >= 9.2
-@@ -110,15 +110,15 @@
+@@ -145,16 +145,16 @@
            AC_DEFINE(HAVE_OCI_9_2,1,[ ])
            OCI8_VERSION=9.2
          ], [], [
@@ -1133,14 +1106,15 @@ diff -Naur php-4.3.10/ext/oci8/config.m4 php-4.3.10.oden/ext/oci8/config.m4
 +        -L$OCI8_DIR/$PHP_LIBNAME $OCI8_SHARED_LIBADD
        ])
        ;;
+ 
      10.1)
        PHP_ADD_LIBRARY(clntsh, 1, OCI8_SHARED_LIBADD)
 -      PHP_ADD_LIBPATH($OCI8_DIR/lib, OCI8_SHARED_LIBADD)
 +      PHP_ADD_LIBPATH($OCI8_DIR/$PHP_LIBNAME, OCI8_SHARED_LIBADD)
        AC_DEFINE(HAVE_OCI8_ATTR_STATEMENT,1,[ ])
        AC_DEFINE(HAVE_OCI_9_2,1,[ ])
-       ;;
-@@ -139,10 +139,10 @@
+       AC_DEFINE(HAVE_OCI8_TEMP_LOB,1,[ ])
+@@ -178,10 +178,10 @@
        PHP_ADD_LIBRARY(ocijdbc8, 1, OCI8_SHARED_LIBADD)
        AC_DEFINE(HAVE_OCI8_TEMP_LOB,1,[ ])
      ], [], [
@@ -1152,10 +1126,37 @@ diff -Naur php-4.3.10/ext/oci8/config.m4 php-4.3.10.oden/ext/oci8/config.m4
 +    -L$OCI8_DIR/$PHP_LIBNAME $OCI8_SHARED_LIBADD
    ])
  
-   PHP_NEW_EXTENSION(oci8, oci8.c, $ext_shared)
-diff -Naur php-4.3.10/ext/odbc/config.m4 php-4.3.10.oden/ext/odbc/config.m4
---- php-4.3.10/ext/odbc/config.m4	2003-11-25 09:08:30.000000000 +0100
-+++ php-4.3.10.oden/ext/odbc/config.m4	2004-12-16 10:41:29.101913056 +0100
+   dnl
+@@ -191,7 +191,7 @@
+   [
+     AC_DEFINE(PHP_OCI8_HAVE_COLLECTIONS,1,[ ])
+   ], [], [
+-    -L$OCI8_DIR/lib $OCI8_SHARED_LIBADD
++    -L$OCI8_DIR/$PHP_LIBNAME $OCI8_SHARED_LIBADD
+   ])
+ 
+ 
+@@ -209,7 +209,7 @@
+ dnl Generally the Instant Client can be anywhere so the user must pass in the
+ dnl directory to the libraries.  But on Linux we default to the most recent
+ dnl version in /usr/lib
+-    PHP_OCI8_INSTANT_CLIENT=`ls -d /usr/lib/oracle/*/client/lib  2> /dev/null | tail -1`
++    PHP_OCI8_INSTANT_CLIENT=`ls -d /usr/$PHP_LIBNAME/oracle/*/client/lib  2> /dev/null | tail -1`
+     if test -z "$PHP_OCI8_INSTANT_CLIENT"; then
+       AC_MSG_ERROR([Oracle Instant Client directory not found. Try --with-oci8-instant-client=DIR])
+     fi
+@@ -221,7 +221,7 @@
+   AC_MSG_CHECKING([Oracle Instant Client SDK header directory])
+ 
+ dnl Header directory for Instant Client SDK RPM install
+-  OCISDKRPMINC=`echo "$PHP_OCI8_INSTANT_CLIENT" | sed -e 's!^/usr/lib/oracle/\(.*\)/client/lib[[/]]*$!/usr/include/oracle/\1/client!'`
++  OCISDKRPMINC=`echo "$PHP_OCI8_INSTANT_CLIENT" | sed -e 's!^/usr/$PHP_LIBNAME/oracle/\(.*\)/client/lib[[/]]*$!/usr/include/oracle/\1/client!'`
+ 
+ dnl Header directory for Instant Client SDK zip file install
+   OCISDKZIPINC=$PHP_OCI8_INSTANT_CLIENT/sdk/include
+diff -Naur php-4.3.11/ext/odbc/config.m4 php-4.3.11.oden/ext/odbc/config.m4
+--- php-4.3.11/ext/odbc/config.m4	2005-01-18 22:21:16.000000000 +0100
++++ php-4.3.11.oden/ext/odbc/config.m4	2005-04-01 13:47:44.607608624 +0200
 @@ -101,8 +101,8 @@
    fi
    if test "$withval" != "no"; then
@@ -1192,9 +1193,9 @@ diff -Naur php-4.3.10/ext/odbc/config.m4 php-4.3.10.oden/ext/odbc/config.m4
 -      ODBC_LIBDIR=$withval/lib
 +      ODBC_LIBDIR=$withval/$PHP_LIBNAME
      fi
-     ODBC_INCLUDE=-I$ODBC_INCDIR
-     ODBC_LFLAGS=-L$ODBC_LIBDIR
-@@ -302,7 +302,7 @@
+ 	
+     if ! test -f "$ODBC_INCDIR/sqlcli1.h"; then
+@@ -311,7 +311,7 @@
          ODBC_LIBDIR=/usr/local/birdstep/lib
      else
          ODBC_INCDIR=$withval/include
@@ -1203,7 +1204,7 @@ diff -Naur php-4.3.10/ext/odbc/config.m4 php-4.3.10.oden/ext/odbc/config.m4
      fi
      ODBC_INCLUDE=-I$ODBC_INCDIR
      ODBC_TYPE=birdstep
-@@ -340,7 +340,7 @@
+@@ -349,7 +349,7 @@
    fi
    if test "$withval" != "no"; then
      ODBC_INCDIR=$withval/include
@@ -1212,7 +1213,7 @@ diff -Naur php-4.3.10/ext/odbc/config.m4 php-4.3.10.oden/ext/odbc/config.m4
      ODBC_LFLAGS=-L$ODBC_LIBDIR
      ODBC_INCLUDE=-I$ODBC_INCDIR
      ODBC_LIBS=$CUSTOM_ODBC_LIBS
-@@ -366,11 +366,11 @@
+@@ -375,11 +375,11 @@
      withval=/usr/local
    fi
    if test "$withval" != "no"; then
@@ -1226,7 +1227,7 @@ diff -Naur php-4.3.10/ext/odbc/config.m4 php-4.3.10.oden/ext/odbc/config.m4
      ODBC_LIBS=-liodbc
      AC_DEFINE(HAVE_IODBC,1,[ ])
      AC_DEFINE(HAVE_ODBC2,1,[ ])
-@@ -396,7 +396,7 @@
+@@ -405,7 +405,7 @@
    fi
    if test "$withval" != "no"; then
      ODBC_INCDIR=$withval/include
@@ -1235,7 +1236,7 @@ diff -Naur php-4.3.10/ext/odbc/config.m4 php-4.3.10.oden/ext/odbc/config.m4
      ODBC_LFLAGS=-L$ODBC_LIBDIR
      ODBC_INCLUDE=-I$ODBC_INCDIR
      ODBC_LIBS=-lesoobclient
-@@ -423,7 +423,7 @@
+@@ -432,7 +432,7 @@
    fi
    if test "$withval" != "no"; then
      ODBC_INCDIR=$withval/include
@@ -1244,7 +1245,7 @@ diff -Naur php-4.3.10/ext/odbc/config.m4 php-4.3.10.oden/ext/odbc/config.m4
      ODBC_LFLAGS=-L$ODBC_LIBDIR
      ODBC_INCLUDE=-I$ODBC_INCDIR
      ODBC_LIBS=-lodbc
-@@ -472,7 +472,7 @@
+@@ -481,7 +481,7 @@
  
    if test "$withval" != "no"; then
      ODBC_INCDIR=$withval/include
@@ -1253,9 +1254,9 @@ diff -Naur php-4.3.10/ext/odbc/config.m4 php-4.3.10.oden/ext/odbc/config.m4
      ODBC_INCLUDE=-I$ODBC_INCDIR
      ODBC_LFLAGS=-L$ODBC_LIBDIR
      ODBC_INCLUDE=-I$ODBC_INCDIR
-diff -Naur php-4.3.10/ext/pcre/config.m4 php-4.3.10.oden/ext/pcre/config.m4
---- php-4.3.10/ext/pcre/config.m4	2003-12-16 23:14:55.000000000 +0100
-+++ php-4.3.10.oden/ext/pcre/config.m4	2004-12-16 10:41:29.101913056 +0100
+diff -Naur php-4.3.11/ext/pcre/config.m4 php-4.3.11.oden/ext/pcre/config.m4
+--- php-4.3.11/ext/pcre/config.m4	2003-12-16 23:14:55.000000000 +0100
++++ php-4.3.11.oden/ext/pcre/config.m4	2005-04-01 13:47:44.607608624 +0200
 @@ -25,7 +25,7 @@
        AC_MSG_ERROR([Could not find pcre.h in $PHP_PCRE_REGEX])
      fi
@@ -1265,9 +1266,9 @@ diff -Naur php-4.3.10/ext/pcre/config.m4 php-4.3.10.oden/ext/pcre/config.m4
        test -f $j/libpcre.a -o -f $j/libpcre.$SHLIB_SUFFIX_NAME && PCRE_LIBDIR=$j
      done
      
-diff -Naur php-4.3.10/ext/pdf/config.m4 php-4.3.10.oden/ext/pdf/config.m4
---- php-4.3.10/ext/pdf/config.m4	2004-11-29 10:13:39.000000000 +0100
-+++ php-4.3.10.oden/ext/pdf/config.m4	2004-12-16 10:41:29.093914272 +0100
+diff -Naur php-4.3.11/ext/pdf/config.m4 php-4.3.11.oden/ext/pdf/config.m4
+--- php-4.3.11/ext/pdf/config.m4	2004-11-29 10:13:39.000000000 +0100
++++ php-4.3.11.oden/ext/pdf/config.m4	2005-04-01 13:47:44.608608472 +0200
 @@ -40,11 +40,11 @@
    if test "$PHP_JPEG_DIR" != "no"; then
      PHP_CHECK_LIBRARY(jpeg,jpeg_read_header, 
@@ -1337,9 +1338,9 @@ diff -Naur php-4.3.10/ext/pdf/config.m4 php-4.3.10.oden/ext/pdf/config.m4
          ])
        else
          AC_MSG_ERROR([pdflib.h not found! Check the path passed to --with-pdflib=<PATH>. PATH should be the install prefix directory.])
-diff -Naur php-4.3.10/ext/pfpro/config.m4 php-4.3.10.oden/ext/pfpro/config.m4
---- php-4.3.10/ext/pfpro/config.m4	2003-10-01 04:54:03.000000000 +0200
-+++ php-4.3.10.oden/ext/pfpro/config.m4	2004-12-16 10:41:29.103912752 +0100
+diff -Naur php-4.3.11/ext/pfpro/config.m4 php-4.3.11.oden/ext/pfpro/config.m4
+--- php-4.3.11/ext/pfpro/config.m4	2003-10-01 04:54:03.000000000 +0200
++++ php-4.3.11.oden/ext/pfpro/config.m4	2005-04-01 13:47:44.608608472 +0200
 @@ -14,16 +14,16 @@
        PFPRO_INC_DIR=$i
      elif test -r $i/include/$PFPRO_HDR; then
@@ -1361,10 +1362,10 @@ diff -Naur php-4.3.10/ext/pfpro/config.m4 php-4.3.10.oden/ext/pfpro/config.m4
      fi
  
  	test -n "$PFPRO_INC_DIR" && test -n "$PFPRO_LIB_DIR" && break
-diff -Naur php-4.3.10/ext/pgsql/config.m4 php-4.3.10.oden/ext/pgsql/config.m4
---- php-4.3.10/ext/pgsql/config.m4	2002-06-26 15:07:40.000000000 +0200
-+++ php-4.3.10.oden/ext/pgsql/config.m4	2004-12-16 10:41:29.103912752 +0100
-@@ -29,7 +29,7 @@
+diff -Naur php-4.3.11/ext/pgsql/config.m4 php-4.3.11.oden/ext/pgsql/config.m4
+--- php-4.3.11/ext/pgsql/config.m4	2004-12-30 08:02:18.000000000 +0100
++++ php-4.3.11.oden/ext/pgsql/config.m4	2005-04-01 13:47:44.608608472 +0200
+@@ -26,7 +26,7 @@
        fi
      done
  
@@ -1373,9 +1374,9 @@ diff -Naur php-4.3.10/ext/pgsql/config.m4 php-4.3.10.oden/ext/pgsql/config.m4
        if test -f "$i/$j/libpq.so" || test -f "$i/$j/libpq.a"; then 
          PGSQL_LIBDIR=$i/$j
        fi
-diff -Naur php-4.3.10/ext/pspell/config.m4 php-4.3.10.oden/ext/pspell/config.m4
---- php-4.3.10/ext/pspell/config.m4	2003-08-09 20:43:58.000000000 +0200
-+++ php-4.3.10.oden/ext/pspell/config.m4	2004-12-16 10:41:29.105912448 +0100
+diff -Naur php-4.3.11/ext/pspell/config.m4 php-4.3.11.oden/ext/pspell/config.m4
+--- php-4.3.11/ext/pspell/config.m4	2005-02-17 04:51:50.000000000 +0100
++++ php-4.3.11.oden/ext/pspell/config.m4	2005-04-01 13:47:44.608608472 +0200
 @@ -27,7 +27,7 @@
  		AC_MSG_ERROR(Cannot find pspell)
  	fi
@@ -1383,11 +1384,11 @@ diff -Naur php-4.3.10/ext/pspell/config.m4 php-4.3.10.oden/ext/pspell/config.m4
 -	PSPELL_LIBDIR=$PSPELL_DIR/lib
 +	PSPELL_LIBDIR=$PSPELL_DIR/$PHP_LIBNAME
  
- 	AC_DEFINE(HAVE_PSPELL,1,[ ])
- 	PHP_SUBST(PSPELL_SHARED_LIBADD)
-diff -Naur php-4.3.10/ext/qtdom/config.m4 php-4.3.10.oden/ext/qtdom/config.m4
---- php-4.3.10/ext/qtdom/config.m4	2002-11-18 06:06:37.000000000 +0100
-+++ php-4.3.10.oden/ext/qtdom/config.m4	2004-12-16 10:41:29.103912752 +0100
+ 	PHP_ADD_LIBRARY_WITH_PATH(pspell, $PSPELL_LIBDIR, PSPELL_SHARED_LIBADD)
+ 
+diff -Naur php-4.3.11/ext/qtdom/config.m4 php-4.3.11.oden/ext/qtdom/config.m4
+--- php-4.3.11/ext/qtdom/config.m4	2002-11-18 06:06:37.000000000 +0100
++++ php-4.3.11.oden/ext/qtdom/config.m4	2005-04-01 13:47:44.608608472 +0200
 @@ -9,16 +9,16 @@
    case $PHP_QTDOM in
      yes)
@@ -1410,9 +1411,9 @@ diff -Naur php-4.3.10/ext/qtdom/config.m4 php-4.3.10.oden/ext/qtdom/config.m4
          QTDOM_INCDIR=$PHP_QTDOM/include
        fi
        ;;
-diff -Naur php-4.3.10/ext/readline/config.m4 php-4.3.10.oden/ext/readline/config.m4
---- php-4.3.10/ext/readline/config.m4	2003-10-01 04:54:04.000000000 +0200
-+++ php-4.3.10.oden/ext/readline/config.m4	2004-12-16 10:41:29.106912296 +0100
+diff -Naur php-4.3.11/ext/readline/config.m4 php-4.3.11.oden/ext/readline/config.m4
+--- php-4.3.11/ext/readline/config.m4	2003-10-01 04:54:04.000000000 +0200
++++ php-4.3.11.oden/ext/readline/config.m4	2005-04-01 13:47:44.608608472 +0200
 @@ -31,20 +31,20 @@
  
    PHP_CHECK_LIBRARY(readline, readline,
@@ -1452,9 +1453,9 @@ diff -Naur php-4.3.10/ext/readline/config.m4 php-4.3.10.oden/ext/readline/config
    ])
  
    PHP_NEW_EXTENSION(readline, readline.c, $ext_shared, cli)
-diff -Naur php-4.3.10/ext/session/config.m4 php-4.3.10.oden/ext/session/config.m4
---- php-4.3.10/ext/session/config.m4	2003-10-01 04:54:06.000000000 +0200
-+++ php-4.3.10.oden/ext/session/config.m4	2004-12-16 10:41:29.103912752 +0100
+diff -Naur php-4.3.11/ext/session/config.m4 php-4.3.11.oden/ext/session/config.m4
+--- php-4.3.11/ext/session/config.m4	2003-10-01 04:54:06.000000000 +0200
++++ php-4.3.11.oden/ext/session/config.m4	2005-04-01 13:47:44.608608472 +0200
 @@ -25,7 +25,7 @@
      AC_MSG_ERROR(cannot find mm library)
    fi
@@ -1464,9 +1465,9 @@ diff -Naur php-4.3.10/ext/session/config.m4 php-4.3.10.oden/ext/session/config.m
    PHP_ADD_INCLUDE($MM_DIR/include)
    AC_DEFINE(HAVE_LIBMM, 1, [Whether you have libmm])
  fi
-diff -Naur php-4.3.10/ext/snmp/config.m4 php-4.3.10.oden/ext/snmp/config.m4
---- php-4.3.10/ext/snmp/config.m4	2003-09-23 10:16:47.000000000 +0200
-+++ php-4.3.10.oden/ext/snmp/config.m4	2004-12-16 10:41:29.101913056 +0100
+diff -Naur php-4.3.11/ext/snmp/config.m4 php-4.3.11.oden/ext/snmp/config.m4
+--- php-4.3.11/ext/snmp/config.m4	2003-09-23 10:16:47.000000000 +0200
++++ php-4.3.11.oden/ext/snmp/config.m4	2005-04-01 13:47:44.608608472 +0200
 @@ -46,12 +46,12 @@
          test -f $i/snmp/include/ucd-snmp/snmp.h && SNMP_INCDIR=$i/snmp/include/ucd-snmp
        done
@@ -1482,9 +1483,9 @@ diff -Naur php-4.3.10/ext/snmp/config.m4 php-4.3.10.oden/ext/snmp/config.m4
      fi
  
      if test -z "$SNMP_INCDIR"; then
-diff -Naur php-4.3.10/ext/swf/config.m4 php-4.3.10.oden/ext/swf/config.m4
---- php-4.3.10/ext/swf/config.m4	2002-03-12 17:35:59.000000000 +0100
-+++ php-4.3.10.oden/ext/swf/config.m4	2004-12-16 10:41:29.093914272 +0100
+diff -Naur php-4.3.11/ext/swf/config.m4 php-4.3.11.oden/ext/swf/config.m4
+--- php-4.3.11/ext/swf/config.m4	2002-03-12 17:35:59.000000000 +0100
++++ php-4.3.11.oden/ext/swf/config.m4	2005-04-01 13:47:44.609608320 +0200
 @@ -6,12 +6,12 @@
  [  --with-swf[=DIR]        Include swf support])
  
@@ -1509,9 +1510,33 @@ diff -Naur php-4.3.10/ext/swf/config.m4 php-4.3.10.oden/ext/swf/config.m4
    AC_DEFINE(HAVE_SWF,1,[ ])
  
    PHP_NEW_EXTENSION(swf, swf.c, $ext_shared)
-diff -Naur php-4.3.10/ext/xml/config.m4 php-4.3.10.oden/ext/xml/config.m4
---- php-4.3.10/ext/xml/config.m4	2003-10-03 07:25:42.000000000 +0200
-+++ php-4.3.10.oden/ext/xml/config.m4	2004-12-16 10:41:29.093914272 +0100
+diff -Naur php-4.3.11/ext/sybase/config.m4 php-4.3.11.oden/ext/sybase/config.m4
+--- php-4.3.11/ext/sybase/config.m4	2002-03-12 17:36:10.000000000 +0100
++++ php-4.3.11.oden/ext/sybase/config.m4	2005-04-01 13:58:07.031985736 +0200
+@@ -13,7 +13,7 @@
+     SYBASE_LIBDIR=/home/sybase/lib
+   else
+     SYBASE_INCDIR=$PHP_SYBASE/include
+-    SYBASE_LIBDIR=$PHP_SYBASE/lib
++    SYBASE_LIBDIR=$PHP_SYBASE/$PHP_LIBNAME
+   fi
+   PHP_ADD_INCLUDE($SYBASE_INCDIR)
+   PHP_ADD_LIBRARY_WITH_PATH(sybdb, $SYBASE_LIBDIR, SYBASE_SHARED_LIBADD)
+diff -Naur php-4.3.11/ext/sybase_ct/config.m4 php-4.3.11.oden/ext/sybase_ct/config.m4
+--- php-4.3.11/ext/sybase_ct/config.m4	2003-06-18 20:29:04.000000000 +0200
++++ php-4.3.11.oden/ext/sybase_ct/config.m4	2005-04-01 13:58:47.922769392 +0200
+@@ -21,7 +21,7 @@
+     SYBASE_CT_LIBDIR=/home/sybase/lib
+   else
+     SYBASE_CT_INCDIR=$PHP_SYBASE_CT/include
+-    SYBASE_CT_LIBDIR=$PHP_SYBASE_CT/lib
++    SYBASE_CT_LIBDIR=$PHP_SYBASE_CT/$PHP_LIBNAME
+   fi
+ 
+   if test -f $SYBASE_CT_INCDIR/ctpublic.h; then
+diff -Naur php-4.3.11/ext/xml/config.m4 php-4.3.11.oden/ext/xml/config.m4
+--- php-4.3.11/ext/xml/config.m4	2004-12-20 21:38:18.000000000 +0100
++++ php-4.3.11.oden/ext/xml/config.m4	2005-04-01 13:47:44.609608320 +0200
 @@ -31,7 +31,7 @@
      PHP_NEW_EXTENSION(xml, xml.c, $ext_shared)
  
@@ -1530,9 +1555,9 @@ diff -Naur php-4.3.10/ext/xml/config.m4 php-4.3.10.oden/ext/xml/config.m4
      PHP_SUBST(XML_SHARED_LIBADD)
    fi
  fi
-diff -Naur php-4.3.10/ext/xmlrpc/config.m4 php-4.3.10.oden/ext/xmlrpc/config.m4
---- php-4.3.10/ext/xmlrpc/config.m4	2003-10-03 07:25:43.000000000 +0200
-+++ php-4.3.10.oden/ext/xmlrpc/config.m4	2004-12-16 10:41:29.105912448 +0100
+diff -Naur php-4.3.11/ext/xmlrpc/config.m4 php-4.3.11.oden/ext/xmlrpc/config.m4
+--- php-4.3.11/ext/xmlrpc/config.m4	2003-10-03 07:25:43.000000000 +0200
++++ php-4.3.11.oden/ext/xmlrpc/config.m4	2005-04-01 13:47:44.609608320 +0200
 @@ -23,9 +23,9 @@
  
    testval=no
@@ -1552,9 +1577,9 @@ diff -Naur php-4.3.10/ext/xmlrpc/config.m4 php-4.3.10.oden/ext/xmlrpc/config.m4
 -  PHP_ADD_LIBRARY_WITH_PATH(xmlrpc, $XMLRPC_DIR/lib, XMLRPC_SHARED_LIBADD)
 +  PHP_ADD_LIBRARY_WITH_PATH(xmlrpc, $XMLRPC_DIR/$PHP_LIBNAME, XMLRPC_SHARED_LIBADD)
  fi
-diff -Naur php-4.3.10/ext/xslt/config.m4 php-4.3.10.oden/ext/xslt/config.m4
---- php-4.3.10/ext/xslt/config.m4	2004-08-18 07:14:16.000000000 +0200
-+++ php-4.3.10.oden/ext/xslt/config.m4	2004-12-16 10:41:29.101913056 +0100
+diff -Naur php-4.3.11/ext/xslt/config.m4 php-4.3.11.oden/ext/xslt/config.m4
+--- php-4.3.11/ext/xslt/config.m4	2004-08-18 07:14:16.000000000 +0200
++++ php-4.3.11.oden/ext/xslt/config.m4	2005-04-01 13:47:44.609608320 +0200
 @@ -98,10 +98,10 @@
  
      found_expat=no
@@ -1619,11 +1644,11 @@ diff -Naur php-4.3.10/ext/xslt/config.m4 php-4.3.10.oden/ext/xslt/config.m4
  
    AC_DEFINE(HAVE_XSLT, 1, [ ])
  fi
-diff -Naur php-4.3.10/ext/zip/config.m4 php-4.3.10.oden/ext/zip/config.m4
---- php-4.3.10/ext/zip/config.m4	2002-12-09 19:28:03.000000000 +0100
-+++ php-4.3.10.oden/ext/zip/config.m4	2004-12-16 10:41:29.093914272 +0100
-@@ -20,7 +20,7 @@
-     AC_MSG_ERROR(Cannot find libzzip)
+diff -Naur php-4.3.11/ext/zip/config.m4 php-4.3.11.oden/ext/zip/config.m4
+--- php-4.3.11/ext/zip/config.m4	2004-12-31 03:57:08.000000000 +0100
++++ php-4.3.11.oden/ext/zip/config.m4	2005-04-01 13:47:44.609608320 +0200
+@@ -24,7 +24,7 @@
+   	AC_DEFINE(HAVE_NEW_ZZIPLIB,1,[ ])	
    fi
  
 -  ZZIPLIB_LIBDIR=$ZZIPLIB_DIR/lib
@@ -1631,9 +1656,9 @@ diff -Naur php-4.3.10/ext/zip/config.m4 php-4.3.10.oden/ext/zip/config.m4
  
    PHP_CHECK_LIBRARY(zzip, zzip_open,
    [
-diff -Naur php-4.3.10/ext/zlib/config0.m4 php-4.3.10.oden/ext/zlib/config0.m4
---- php-4.3.10/ext/zlib/config0.m4	2003-07-02 01:54:44.000000000 +0200
-+++ php-4.3.10.oden/ext/zlib/config0.m4	2004-12-16 10:41:29.101913056 +0100
+diff -Naur php-4.3.11/ext/zlib/config0.m4 php-4.3.11.oden/ext/zlib/config0.m4
+--- php-4.3.11/ext/zlib/config0.m4	2003-07-02 01:54:44.000000000 +0200
++++ php-4.3.11.oden/ext/zlib/config0.m4	2005-04-01 13:47:44.609608320 +0200
 @@ -41,10 +41,10 @@
    ],[
      AC_MSG_ERROR(ZLIB extension requires zlib >= 1.0.9)
@@ -1647,9 +1672,9 @@ diff -Naur php-4.3.10/ext/zlib/config0.m4 php-4.3.10.oden/ext/zlib/config0.m4
  
    PHP_ZLIB_DIR=$ZLIB_DIR
    PHP_ADD_LIBRARY(z,, ZLIB_SHARED_LIBADD)
-diff -Naur php-4.3.10/scripts/Makefile.frag php-4.3.10.oden/scripts/Makefile.frag
---- php-4.3.10/scripts/Makefile.frag	2003-12-01 17:12:42.000000000 +0100
-+++ php-4.3.10.oden/scripts/Makefile.frag	2004-12-16 10:13:03.302234024 +0100
+diff -Naur php-4.3.11/scripts/Makefile.frag php-4.3.11.oden/scripts/Makefile.frag
+--- php-4.3.11/scripts/Makefile.frag	2005-01-20 02:43:19.000000000 +0100
++++ php-4.3.11.oden/scripts/Makefile.frag	2005-04-01 13:47:44.609608320 +0200
 @@ -4,7 +4,7 @@
  #
  
@@ -1659,22 +1684,22 @@ diff -Naur php-4.3.10/scripts/Makefile.frag php-4.3.10.oden/scripts/Makefile.fra
  
  BUILD_FILES = \
  	scripts/phpize.m4 \
-diff -Naur php-4.3.10/scripts/phpize.in php-4.3.10.oden/scripts/phpize.in
---- php-4.3.10/scripts/phpize.in	2004-06-19 22:37:55.000000000 +0200
-+++ php-4.3.10.oden/scripts/phpize.in	2004-12-16 10:13:03.302234024 +0100
-@@ -1,7 +1,7 @@
- #! /bin/sh
+diff -Naur php-4.3.11/scripts/phpize.in php-4.3.11.oden/scripts/phpize.in
+--- php-4.3.11/scripts/phpize.in	2005-01-25 13:55:55.000000000 +0100
++++ php-4.3.11.oden/scripts/phpize.in	2005-04-01 13:47:44.609608320 +0200
+@@ -2,7 +2,7 @@
  
+ # Variable declaration
  prefix='@prefix@'
 -phpdir="$prefix/lib/php/build"
 +phpdir="@libdir@/php/build"
  includedir="$prefix/include/php"
  builddir="`pwd`"
  
-diff -Naur php-4.3.10/scripts/phpize.m4 php-4.3.10.oden/scripts/phpize.m4
---- php-4.3.10/scripts/phpize.m4	2003-09-03 10:07:51.000000000 +0200
-+++ php-4.3.10.oden/scripts/phpize.m4	2004-12-16 10:13:03.302234024 +0100
-@@ -47,6 +47,7 @@
+diff -Naur php-4.3.11/scripts/phpize.m4 php-4.3.11.oden/scripts/phpize.m4
+--- php-4.3.11/scripts/phpize.m4	2005-03-17 09:13:21.000000000 +0100
++++ php-4.3.11.oden/scripts/phpize.m4	2005-04-01 13:47:44.610608168 +0200
+@@ -45,6 +45,7 @@
  AC_PROG_CC_C_O
  
  PHP_RUNPATH_SWITCH
