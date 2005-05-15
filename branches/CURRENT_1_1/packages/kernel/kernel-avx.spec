@@ -83,8 +83,8 @@
 #
 # Thomas Backlund <tmb@iki.fi>
 
-%define sublevel	29
-%define avxrelease	6
+%define sublevel	30
+%define avxrelease	2
 %define use_patch	0
 
 %{!?build_annvix:%global build_annvix 0}
@@ -115,7 +115,7 @@
 %define avxversion	%{realversion}-%{realrelease}
 %define patches_ver	2.4.%{sublevel}-%{patchversion}
 %define owl_version	ow1
-%define owl_kver	2.4.29
+%define owl_kver	2.4.30
 
 # having different top level names for packges means
 # that you have to remove them by hard :(
@@ -746,8 +746,8 @@ rm -rf %{buildroot}
 ### scripts
 ###
 
-%define options_preun -a -R -S -c
-%define options_post -a -s -c
+%define options_preun -g -R -S -c
+%define options_post -g -s -c
 
 # up kernel
 %preun
@@ -870,7 +870,7 @@ exit 0
 %{_kerneldir}/lib
 %{_kerneldir}/mm
 %{_kerneldir}/net
-%{_kerneldir}/rsbac
+#%{_kerneldir}/rsbac
 %{_kerneldir}/security
 %{_kerneldir}/scripts
 %{_kerneldir}/include/acpi
@@ -882,7 +882,7 @@ exit 0
 %{_kerneldir}/include/math-emu
 %{_kerneldir}/include/net
 %{_kerneldir}/include/pcmcia
-%{_kerneldir}/include/rsbac
+#%{_kerneldir}/include/rsbac
 %{_kerneldir}/include/scsi
 %{_kerneldir}/include/video
 #Openswan 2.x.x
@@ -907,11 +907,24 @@ exit 0
 %endif
 
 %changelog
+* Sat May 14 2005 Vincent Danen <vdanen@annvix.org> 2.4.30-2avx
+- Openwall kernel patch 2.4.30-ow3 (SL80, rediffed)
+- this update fixes CAN-2005-0794, CAN-2005-0750, CAN-2005-0384
+  (mainline) and CAN-2005-1263 (via Openwall patch)
+
+* Wed Apr 13 2005 Vincent Danen <vdanen@annvix.org> 2.4.30-1avx
+- 2.4.30
+- rediff DL01, HB06
+- Openwall kernel patch 2.4.30-ow1 (SL80, rediffed)
+- set CONFIG_SCSI_SATA_QSTOR=m
+- pass -g to installkernel rather than -a because it always wants to
+  find lilo.conf otherwise (and since we don't ship lilo, we don't care
+  about lilo)
+
 * Wed Mar 16 2005 Vincent Danen <vdanen@annvix.org> 2.4.29-6avx
 - disable RSBAC for 1.0-CURRENT; we'll try to get the policies and
   everything in place for 1.1-RELEASE if we can, but right now even
   in softmode RSBAC is too noisy; patches are moved into todo_patches
-- fix the tainted AES license on x86_64
 
 * Wed Mar 09 2005 Vincent Danen <vdanen@annvix.org> 2.4.29-5avx
 - RSBAC 1.2.4
