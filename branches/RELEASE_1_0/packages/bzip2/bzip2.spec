@@ -1,6 +1,6 @@
 %define name	bzip2
-%define version	1.0.2
-%define release	19avx
+%define version	1.0.3
+%define release	1avx
 
 %define libname_orig lib%{name}
 %define libname	%mklibname %{name}_ 1
@@ -11,21 +11,23 @@ Version:	%{version}
 Release:	%{release}
 License:	BSD
 Group:		Archiving/Compression
-URL:		http://sourceware.cygnus.com/bzip2/
-Source:		ftp://sourceware.cygnus.com/pub/bzip2/v102/%name-%version.tar.bz2
+URL:		http://www.bzip.org/
+Source:		http://www.bzip.org/1.0.3/%{name}-%{version}.tar.gz
 Source1:	bzgrep
 Source2:	bzme
 Source3:	bzme.1
-Patch1:		bzip2-2.libtoolizeautoconf.patch.bz2
+Patch0:		bzip2-1.0.2-mdv-mktemp.patch.bz2
+Patch1:		bzip2-1.0.3-mdv-makefile.patch.bz2
 # P2 implements a progress counter (in %). It also
 # display the percentage of the original file the new file is (size). 
 # URL: http://www.vanheusden.com/Linux/bzip2-1.0.2.diff.gz
 Patch2:		bzip2-1.0.2.diff.bz2
+Patch3:		bzip2-1.0.2-CAN-2005-0953.patch.bz2
 
-BuildRoot:	%_tmppath/%name-%version-root
+BuildRoot:	%{_tmppath}/%{name}-%{version}-root
 BuildRequires:	texinfo
 
-Requires:	%libname = %version
+Requires:	%{libname} = %{version}, mktemp
 
 %description
 Bzip2 compresses files using the Burrows-Wheeler block-sorting text
@@ -38,7 +40,7 @@ The command-line options are deliberately very similar to those of GNU Gzip,
 but they are not identical.
 
 %package -n %{libname}
-Summary:	Libraries for developing apps which will use bzip2.
+Summary:	Libraries for developing apps which will use bzip2
 Group:		System/Libraries
 
 %description -n %libname
@@ -46,12 +48,12 @@ Library of bzip2 functions, for developing apps which will use the
 bzip2 library (aka libz2).
 
 %package -n %{libname}-devel
-Summary:	Header files for developing apps which will use bzip2.
+Summary:	Header files for developing apps which will use bzip2
 Group:		Development/C
-Requires:	%libname = %version
-Provides:	%{libname_orig}-devel = %version-%release
-Provides:	%name-devel
-Obsoletes:	%name-devel
+Requires:	%{libname} = %{version}
+Provides:	%{libname_orig}-devel = %{version}-%{release}
+Provides:	%{name}-devel
+Obsoletes:	%{name}-devel
 
 %description -n %libname-devel
 Header files and static library of bzip2 functions, for developing apps which
@@ -59,59 +61,71 @@ will use the bzip2 library (aka libz2).
 
 %prep
 %setup -q
-cp %SOURCE2 .
-%patch1 -p1
+cp %{SOURCE2} .
+%patch0 -p1 -b .mktemp
+%patch1 -p1 -b .makefile
 %patch2 -p1
-cp m4/largefile.m4 .
-libtoolize -f --automake
-aclocal -I m4
-autoconf
-automake -a --foreign
-autoheader
+%patch3 -p1 -b .can-2005-0953
+
+echo "lib = %{_lib}" >>config.in
+echo "CFLAGS = %{optflags}" >>config.in
 
 %build
-%configure --libdir=%_libdir
-make
+%make
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
-install -m 755 %SOURCE1 bzme $RPM_BUILD_ROOT%_bindir
+install -m 0755 %{SOURCE1} bzme %{buildroot}%{_bindir}
 
-cat > $RPM_BUILD_ROOT%_bindir/bzless <<EOF
+cat > %{buildroot}%{_bindir}/bzless <<EOF
 #!/bin/sh
-%_bindir/bunzip2 -c "\$@" | %_bindir/less
+%{_bindir}/bunzip2 -c "\$@" | %{_bindir}/less
 EOF
-chmod 755 $RPM_BUILD_ROOT%_bindir/bzless
-install -m 644 %SOURCE3 $RPM_BUILD_ROOT%_mandir/man1/
+chmod 0755 %{buildroot}%{_bindir}/bzless
+install -m 0644 %{SOURCE3} %{buildroot}%{_mandir}/man1/
+
+install -m 0644 bzlib_private.h %{buildroot}%{_includedir}/
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-%post -n %libname -p /sbin/ldconfig
-%postun -n %libname -p /sbin/ldconfig
+%post -n %{libname} -p /sbin/ldconfig
+%postun -n %{libname} -p /sbin/ldconfig
 
 %files
 %defattr(-,root,root,755)
 %doc README LICENSE
-%_bindir/*
-%_mandir/man1/*
+%{_bindir}/*
+%{_mandir}/man1/*
 
 %files -n %libname
 %defattr(-,root,root,755)
 %doc LICENSE
-%_libdir/libbz2.so.*
+%{_libdir}/libbz2.so.*
 
 %files -n %libname-devel
 %defattr(-,root,root,755)
 %doc *.html LICENSE
-%_libdir/libbz2.a
-%_libdir/libbz2.la
-%_libdir/libbz2.so
-%_includedir/*.h
+%{_libdir}/libbz2.a
+%{_libdir}/libbz2.la
+%{_libdir}/libbz2.so
+%{_includedir}/*.h
 
 
 %changelog
+* Wed May 18 2005 Vincent Danen <vdanen@annvix.org> 1.0.3-1avx
+- 1.0.3 (fixes CAN-2005-1260)
+- P1: mktemp support (Requires: mktemp); rediffed from Mandriva
+- P2: get rid of the automake stuff (gbeauchesne)
+- P3: patch to fix CAN-2005-0953
+- spec cleanups
+- include bzdiff and bzmore
+- bzme: allow to force compression with -F option (mandriva bug #11183);
+  patch from Michael Scherer (oblin)
+- fix URL/source URL
+- make sure bzlib_private.h still gets included
+
 * Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 1.0.2-19avx
 - Annvix build
 

@@ -134,9 +134,10 @@ compress ()
 	# Compare size in order to only keep the smallest file
 	SIZE2=$(du "$TARGET"|cut -f 1 -d "	")
 	SIZE2_o=$(du -b "$TARGET"|cut -f 1 -d "	")
-	if [[ $SIZE_o -lt $SIZE2_o ]]
+	if [[ $SIZE_o -lt $SIZE2_o && -z $force_compress ]]
 	then
 		echo "=> $TARGET is bigger than $1 ($SIZE"kb" => $SIZE2"kb") !!!"
+		echo "Use -F to force the recompression"
 		[[ -z $keep ]] && rm -f "$TARGET"
 	else
 		echo "=> $TARGET ($SIZE"kb" => $SIZE2"kb")"
@@ -145,12 +146,13 @@ compress ()
 	fi
 }
 
-while getopts fhk opt;  do
+while getopts Ffhk opt;  do
   case "$opt" in
+      F) force_compress="yes";;
       f) force="yes";;
       k) keep="yes";;
       h)
-	  echo "Usage: bzme [-fhk] file.*.({,t}gz|Z|zip)"
+	  echo "Usage: bzme [-Ffhk] file.*.({,t}gz|Z|zip)"
 	  exit 1;;
       *)
 	  echo "See bzme -h for usage"
@@ -158,6 +160,8 @@ while getopts fhk opt;  do
   esac
 done
 shift $((OPTIND - 1))
+
+echo keeping: $keep
 
 while [[ "$1" != "" ]]
 do
