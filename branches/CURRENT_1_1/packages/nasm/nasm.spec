@@ -1,6 +1,6 @@
 %define name	nasm
-%define version	0.98.35
-%define release	5avx
+%define version	0.98.39
+%define release	1avx
 
 Summary:	The Netwide Assembler, a portable x86 assembler with Intel-like syntax
 Name:		%{name}
@@ -8,8 +8,9 @@ Version:	%{version}
 Release:	%{release}
 License:	LGPL
 Group:		Development/Other
-URL:		http://nasm.2y.net
-Source:		%{name}-%{version}.tar.bz2
+URL:		http://nasm.sourceforge.net
+Source:		http://prdownloads.sourceforge.net/nasm/%{name}-%{version}.tar.bz2
+Patch0:		nasm-0.98.39-CAN-2005-1194.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-buildroot
 BuildRequires:	groff, texinfo
@@ -31,10 +32,11 @@ include linker, library manager, loader, and information dump.
 %prep
 
 %setup -q
+%patch0 -p1 -b .can-2005-1194
 
 %build
 rm -f config.cache config.status config.log
-%configure
+%configure2_5x
 %make
 %make rdf
 
@@ -56,7 +58,7 @@ mkdir -p $RPM_BUILD_ROOT/{%{_bindir},%{_infodir},%{_mandir}/man1}
 
 %files rdoff
 %defattr(-,root,root)
-%doc rdoff/README rdoff/doc/v1-v2
+%doc rdoff/README rdoff/doc/v1-v2.txt
 %{_bindir}/rdfdump
 %{_bindir}/ldrdf
 %{_bindir}/rdx
@@ -66,6 +68,11 @@ mkdir -p $RPM_BUILD_ROOT/{%{_bindir},%{_infodir},%{_mandir}/man1}
 %{_bindir}/rdf2com
 
 %changelog
+* Wed May 18 2005 Vincent Danen <vdanen@annvix.org> 0.98.39-1avx
+- 0.98.39 (includes security fix for CAN-2004-1287)
+- P0: patch to fix CAN-2005-1194
+- fix configure macro
+
 * Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 0.98.35-5avx
 - Annvix build
 
