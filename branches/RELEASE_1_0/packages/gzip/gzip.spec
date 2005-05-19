@@ -1,6 +1,6 @@
 %define name	gzip
 %define version	1.2.4a
-%define release 17avx
+%define release 18avx
 
 Summary:	The GNU data compression program
 Name:		%{name}
@@ -21,6 +21,9 @@ Patch7:		gzip-better-output-when-segfaults.patch.bz2
 Patch8:		gzip-security-fix-filenames-too-long.patch.bz2
 Patch9:		gzip-1.2.4a-znew.patch.bz2
 Patch10:	gzip-1.2.4a-zdiff-CAN-2004-0970.patch.bz2
+Patch11:	gzip-1.2.4a-CAN-2005-1228.patch.bz2
+Patch12:	gzip-1.2.4a-CAN-2005-0988.patch.bz2
+Patch13:	gzip-1.2.4a-CAN-2005-0758.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
 BuildRequires:	texinfo
@@ -45,6 +48,9 @@ program.  Gzipped files have a .gz extension.
 %patch8 -p1
 %patch9 -p1 -b .znew
 %patch10 -p0 -b .can-2004-0970
+%patch11 -p1 -b .can-2005-1228
+%patch12 -p1 -b .can-2005-0988
+%patch13 -p1 -b .can-2005-0758
 
 %build
 export DEFS="-DNO_ASM"
@@ -102,6 +108,11 @@ chmod 755 %{buildroot}%{_bindir}/zless
 %{_infodir}/*
 
 %changelog
+* Wed May 18 2005 Vincent Danen <vdanen@annvix.org> 1.2.4a-18avx
+- P11: security fix for CAN-2005-1228
+- P12: security fix for CAN-2005-0988
+- P13: security fix for CAN-2005-0758
+
 * Tue Jun 29 2004 Vincent Danen <vdanen@annvix.org> 1.2.4a-17avx
 - P10: fix temp file probs in zdiff (CAN-2004-0970)
 
