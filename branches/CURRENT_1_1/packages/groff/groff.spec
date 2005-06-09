@@ -1,6 +1,6 @@
 %define name	groff
 %define version	1.19
-%define release	6avx
+%define release	7avx
 
 # rh-1.18-3
 # deb-1.18-4
@@ -12,7 +12,7 @@ Release:	%{release}
 License:	GPL
 Group:		Text tools
 URL:		http://www.gnu.org/directory/GNU/groff.html
-Source0:	ftp://prep.ai.mit.edu/pub/gnu/groff/%name-%version.tar.bz2
+Source0:	ftp://prep.ai.mit.edu/pub/gnu/groff/%{name}-%{version}.tar.bz2
 Source1:	troff-to-ps.fpi
 Source2:	README.A4
 # nippon/multi-byte support from http://people.debian.org/~ukai/groff/
@@ -32,10 +32,10 @@ Patch108:	groff-1.19-utf8.patch.bz2
 # -- pablo
 Patch109:	groff-1.19-dashes.patch.bz2
 
-BuildRoot:	%_tmppath/%name-root
-BuildRequires:	autoconf2.5, byacc, texinfo < 4.7, xpm-devel
+BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
+BuildRequires:	autoconf2.5, byacc, texinfo >= 4.3, xpm-devel
 
-Requires:	mktemp groff-for-man
+Requires:	mktemp groff-for-man = %{version}-%{release}
 Obsoletes:	groff-tools
 Provides:	groff-tools
 Prereq:		info-install
@@ -92,7 +92,7 @@ cp -f %SOURCE2 ./
 WANT_AUTOCONF_2_5=1 autoconf
 
 %build
-PATH=$PATH:%_prefix/X11R6/bin
+PATH=$PATH:%{_prefix}/X11R6/bin
 export MAKEINFO=$HOME/cvs/texinfo/makeinfo/makeinfo
 %configure2_5x --enable-japanese
 make top_builddir=$PWD top_srcdir=$PWD
@@ -107,113 +107,119 @@ make depend
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-PATH=$PATH:%_prefix/X11R6/bin
-mkdir -p $RPM_BUILD_ROOT{%_prefix,%_infodir,%_bindir,%_docdir/%name/%version/html/momdoc}
-%makeinstall manroot=%buildroot/%_mandir top_builddir=$PWD top_srcdir=$PWD common_words_file=$RPM_BUILD_ROOT%_datadir/%name/%version mkinstalldirs=mkdir
-install -m 644 doc/groff.info* $RPM_BUILD_ROOT/%_infodir
+PATH=$PATH:%{_prefix}/X11R6/bin
+mkdir -p %{buildroot}{%{_prefix},%{_infodir},%{_bindir},%{_docdir}/%{name}/%{version}/html/momdoc}
+%makeinstall manroot=%buildroot/%{_mandir} top_builddir=$PWD top_srcdir=$PWD common_words_file=%{buildroot}%{_datadir}/%{name}/%{version} mkinstalldirs=mkdir
+install -m 644 doc/groff.info* %{buildroot}/%{_infodir}
 
 for i in s.tmac mse.tmac m.tmac; do
-	ln -s $i $RPM_BUILD_ROOT%_datadir/groff/%version/tmac/g$i
+	ln -s $i %{buildroot}%{_datadir}/groff/%{version}/tmac/g$i
 done
 for i in troff tbl pic eqn neqn refer lookbib indxbib soelim nroff; do
-	ln -s $i $RPM_BUILD_ROOT/%_bindir/g$i
+	ln -s $i %{buildroot}/%{_bindir}/g$i
 done
 
 # Build system is compressing man-pages
 for i in eqn.1 indxbib.1 lookbib.1 nroff.1 pic.1 refer.1 soelim.1 tbl.1 troff.1; do
-		ln -s $i%{_extension} $RPM_BUILD_ROOT/%_mandir/man1/g$i%{_extension}
+		ln -s $i%{_extension} %{buildroot}/%{_mandir}/man1/g$i%{_extension}
 done
 
-mkdir -p $RPM_BUILD_ROOT/%_libdir/rhs/rhs-printfilters
-install -m755 %{SOURCE1} $RPM_BUILD_ROOT/%_libdir/rhs/rhs-printfilters
+mkdir -p %{buildroot}/%{_libdir}/rhs/rhs-printfilters
+install -m755 %{SOURCE1} %{buildroot}/%{_libdir}/rhs/rhs-printfilters
 
 # call spec-helper before creating the file list
 s=/usr/share/spec-helper/spec-helper ; [ -x $s ] && $s
 
 cat <<EOF > groff.list
-/%_datadir/groff/%version/eign
-/%_datadir/groff/%version/font/devX100
-/%_datadir/groff/%version/font/devX100-12
-/%_datadir/groff/%version/font/devX75
-/%_datadir/groff/%version/font/devX75-12
-/%_datadir/groff/%version/font/devdvi
-/%_datadir/groff/%version/font/devhtml
-/%_datadir/groff/%version/font/devlbp
-/%_datadir/groff/%version/font/devlj4
-/%_datadir/groff/%version/font/devps
+%{_datadir}/groff/%{version}/eign
+%{_datadir}/groff/%{version}/font/devX100
+%{_datadir}/groff/%{version}/font/devX100-12
+%{_datadir}/groff/%{version}/font/devX75
+%{_datadir}/groff/%{version}/font/devX75-12
+%{_datadir}/groff/%{version}/font/devdvi
+%{_datadir}/groff/%{version}/font/devhtml
+%{_datadir}/groff/%{version}/font/devlbp
+%{_datadir}/groff/%{version}/font/devlj4
+%{_datadir}/groff/%{version}/font/devps
 EOF
 
 cat <<EOF > groff-for-man.list
-%_bindir/troff
-%_bindir/nroff
-%_bindir/tbl
-%_bindir/gtbl
-%_bindir/gnroff
-%_bindir/grotty
-%_bindir/groff
-%_bindir/gtroff
-%dir %_datadir/groff
-%dir %_datadir/groff/%version
-%_datadir/groff/%version/tmac
-%dir %_datadir/groff/%version/font
-%_datadir/groff/%version/font/devascii
-#TV%_datadir/groff/%version/font/devascii8
-#TV%_datadir/groff/%version/font/devkoi8-r
-%_datadir/groff/%version/font/devlatin1
-#TV%_datadir/groff/%version/font/devnippon
-%_datadir/groff/%version/font/devutf8
-%dir %_datadir/groff/site-tmac
-%_datadir/groff/site-tmac/man.local
-%_datadir/groff/site-tmac/mdoc.local
+%{_bindir}/troff
+%{_bindir}/nroff
+%{_bindir}/tbl
+%{_bindir}/gtbl
+%{_bindir}/gnroff
+%{_bindir}/grotty
+%{_bindir}/groff
+%{_bindir}/gtroff
+%dir %{_datadir}/groff
+%dir %{_datadir}/groff/%{version}
+%{_datadir}/groff/%{version}/tmac
+%dir %{_datadir}/groff/%{version}/font
+%{_datadir}/groff/%{version}/font/devascii
+#TV%{_datadir}/groff/%{version}/font/devascii8
+#TV%{_datadir}/groff/%{version}/font/devkoi8-r
+%{_datadir}/groff/%{version}/font/devlatin1
+#TV%{_datadir}/groff/%{version}/font/devnippon
+%{_datadir}/groff/%{version}/font/devutf8
+%dir %{_datadir}/groff/site-tmac
+%{_datadir}/groff/site-tmac/man.local
+%{_datadir}/groff/site-tmac/mdoc.local
 EOF
 
 cat <<EOF > groff-perl.list
-%_bindir/grog
-%_bindir/mmroff
-%_bindir/afmtodit
-%_mandir/man1/afmtodit.1.bz2
-%_mandir/man1/grog.1.bz2
-%_mandir/man1/mmroff.1.bz2
+%{_bindir}/grog
+%{_bindir}/mmroff
+%{_bindir}/afmtodit
+%{_mandir}/man1/afmtodit.1.bz2
+%{_mandir}/man1/grog.1.bz2
+%{_mandir}/man1/mmroff.1.bz2
 EOF
 
 dirs=usr/share/man/*
-(cd $RPM_BUILD_ROOT ; find usr/bin usr/share/man usr/share/groff/%version/tmac ! -type d -printf "/%%p\n") >> %name.list
-(cd $RPM_BUILD_ROOT ; find usr/share/groff/%version/tmac/* -type d -printf "%%%%dir /%%p\n") >> %name.list
+(cd %{buildroot} ; find usr/bin usr/share/man usr/share/groff/%{version}/tmac ! -type d -printf "/%%p\n") >> %{name}.list
+(cd %{buildroot} ; find usr/share/groff/%{version}/tmac/* -type d -printf "%%%%dir /%%p\n") >> %{name}.list
 
-perl -ni -e 'BEGIN { open F, "%{name}-for-man.list"; $s{$_} = 1 foreach <F>; } print unless $s{$_}' %name.list
-perl -ni -e 'BEGIN { open F, "%{name}-perl.list"; $s{$_} = 1 foreach <F>; } print unless $s{$_}' %name.list
+perl -ni -e 'BEGIN { open F, "%{name}-for-man.list"; $s{$_} = 1 foreach <F>; } print unless $s{$_}' %{name}.list
+perl -ni -e 'BEGIN { open F, "%{name}-perl.list"; $s{$_} = 1 foreach <F>; } print unless $s{$_}' %{name}.list
 # japanese environment is crazy; doc.tmac seems superior than docj.tmac
-ln -sf doc.tmac $RPM_BUILD_ROOT/usr/share/groff/%version/tmac/docj.tmac
+ln -sf doc.tmac %{buildroot}/usr/share/groff/%{version}/tmac/docj.tmac
 
-#TV cp -a {,$RPM_BUILD_ROOT/usr/share/groff/%version/}font/devkoi8-r
+#TV cp -a {,%{buildroot}/usr/share/groff/%{version}/}font/devkoi8-r
 
-for i in $(find $RPM_BUILD_ROOT -empty -type f); do echo " ">> $i;done
+for i in $(find %{buildroot} -empty -type f); do echo " ">> $i;done
 
-mv $RPM_BUILD_ROOT%_docdir/{groff/%version/,%name-%version/}
+mv %{buildroot}%{_docdir}/{groff/%{version}/,%{name}-%{version}/}
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
-%_install_info %name
+%_install_info %{name}
 
 %preun
-%_remove_install_info %name
+%_remove_install_info %{name}
 
 %files -f groff.list
 %defattr(-,root,root)
 %doc BUG-REPORT COPYING NEWS PROBLEMS README README.A4 TODO VERSION
-%_infodir/groff*
+%{_infodir}/groff*
 
 %files for-man -f groff-for-man.list
 %defattr(-,root,root)
 
 %files perl -f groff-perl.list
 %defattr(-,root,root)
-%_libdir/rhs/*/*
+%{_libdir}/rhs/*/*
 
 
 %changelog
+* Sat Jun 04 2005 Vincent Danen <vdanen@annvix.org> 1.19-7avx
+- bootstrap build
+- change buildrequires from texinfo < 4.7 to >= 4.3
+- make groff depends on groff-for-man %%version-%%release
+- spec cleanups
+
 * Thu Jun 24 2004 Vincent Danen <vdanen@annvix.org> 1.19-6avx
 - require packages not files
 - Annvix build
