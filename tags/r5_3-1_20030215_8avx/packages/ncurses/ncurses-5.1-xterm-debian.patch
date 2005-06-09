@@ -1,0 +1,11 @@
+--- ncurses-5.1/misc/terminfo.src.warly	Tue Sep 19 18:01:52 2000
++++ ncurses-5.1/misc/terminfo.src	Tue Sep 19 18:04:29 2000
+@@ -2718,7 +2718,7 @@
+ #
+ # Redhat Linux 6.x distributes XFree86 xterm as "nxterm", which uses bce
+ # colors; note that this is not compatible with the 5.2 version.
+-nxterm|xterm-color|generic color xterm, 
++nxterm|xterm-debian|xterm-color|generic color xterm, 
+ 	ncv@, 
+ 	op=\E[m, use=xterm-r6, use=klone+color, 
+ 
