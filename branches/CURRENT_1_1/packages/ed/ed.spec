@@ -1,10 +1,10 @@
 %define name	ed
 %define version	0.2
-%define release	33avx
+%define release	34avx
 
 %define _exec_prefix /
 
-Summary:	The GNU line editor.
+Summary:	The GNU line editor
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -12,11 +12,12 @@ License:	GPL
 Group:		Text tools
 URL:		http://www.gnu.org/software/ed/ed.html 
 Source:		ftp://ftp.gnu.org/pub/gnu/ed/ed-0.2.tar.bz2
-Patch:		ed-0.2-security-tempfile.patch.bz2
+Patch0:		ed-0.2-security-tempfile.patch.bz2
 Patch1:		ed-0.2-fixinfo.patch.bz2
 Patch2:		ed-0.2-li18nux-patch.bz2
 
-Buildroot:	%{_tmppath}/%{name}-root
+BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
+BuildRequires:	autoconf2.1
 
 Prereq:		info-install
 
@@ -32,12 +33,13 @@ won't use it much.
 
 %prep
 %setup -q
-%patch -p1
+%patch0 -p1
 %patch1 -p1
 %patch2 -p1
 
 %build
-rm -f ./configure && autoconf
+rm -f ./configure
+WANT_AUTOCONF_2_1=1 autoconf
 rm -f regex.*
 %configure
 
@@ -68,6 +70,10 @@ make check
 %{_mandir}/*/*
 
 %changelog
+* Sat Jun 04 2005 Vincent Danen <vdanen@annvix.org> 0.2-34avx
+- bootstrap build
+- for the use of autoconf2.1 (peroyvind)
+
 * Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 0.2-33avx
 - Annvix build
 - require packages not files
