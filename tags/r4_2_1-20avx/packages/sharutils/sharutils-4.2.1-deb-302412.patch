@@ -1,0 +1,20 @@
+--- sharutils-4.2.1.orig/src/unshar.c
++++ sharutils-4.2.1/src/unshar.c
+@@ -424,13 +424,15 @@
+       }
+   else
+     {
++#ifdef __MSDOS__
+       sprintf (name_buffer, "/tmp/unsh.%05d", (int) getpid ());
+       unlink (name_buffer);
+ 
+       if (file = fopen (name_buffer, "w+"), !file)
+ 	error (EXIT_FAILURE, errno, name_buffer);
+-#ifndef __MSDOS__
+-      unlink (name_buffer);	/* will be deleted on fclose */
++#else
++      if (file = tmpfile(), !file)
++	error (EXIT_FAILURE, errno, "tmpfile");
+ #endif
+ 
+       while (size_read = fread (copy_buffer, 1, sizeof (copy_buffer), stdin),
