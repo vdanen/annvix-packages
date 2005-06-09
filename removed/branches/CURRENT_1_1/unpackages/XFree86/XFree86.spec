@@ -637,7 +637,7 @@ NO_STRICT_ALIASING=$(%{__cc} -dumpversion | awk -F "." '{ if (int($1)*100+int($2
 
 # (vdanen) for the time being, build without stack protection until we can
 # figure out how to build just the modules without protection
-RPM_OPT_FLAGS=`echo $RPM_OPT_FLAGS |sed 's/-fstack-protector//'`
+RPM_OPT_FLAGS=`echo $RPM_OPT_FLAGS |sed 's/-fstack-protector-all//'`
 
 %if ! %{BuildDebugVersion}
 # compiling with -g is too huge
@@ -799,7 +799,7 @@ bzcat %{SOURCE151} | tar xf - -C mdk-fonts
 %build
 # (vdanen) for the time being, build without stack protection until we can
 # figure out how to build just the modules without protection
-RPM_OPT_FLAGS=`echo $RPM_OPT_FLAGS |sed 's/-fstack-protector//'`
+RPM_OPT_FLAGS=`echo $RPM_OPT_FLAGS |sed 's/-fstack-protector-all//'`
 
 %if ! %{BuildDebugVersion}
 # compiling with -g is too huge
@@ -1826,6 +1826,9 @@ fi
 %{x11libdir}/X11/xedit
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 4.3-32avx
+- bootstrap build
+
 * Mon Sep 20 2004 Vincent Danen <vdanen@annvix.org> 4.3-31avx
 - P806: patch to fix CAN-2004-0687 and CAN-2004-0688
 - update run scripts
