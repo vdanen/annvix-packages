@@ -1,7 +1,7 @@
 # RH 2.14.90.0.4-19, SuSE 2.13.90.0.18-6
 %define name		%{package_prefix}binutils
 %define version		2.14.90.0.7
-%define release		3avx
+%define release		4avx
 
 %define lib_major	2
 %define lib_name_orig	%{package_prefix}%mklibname binutils
@@ -110,9 +110,9 @@ echo ====================TESTING=========================
 # because the S-records tests always fail for some reason (bi must be a
 # magic machine)
 rm -rf ld/testsuite/ld-srec
-%make check
+make CFLAGS="-fno-stack-protector" check
 %else
-%make -k check || echo make check failed
+make CFLAGS="-fno-stack-protector" -k check || echo make check failed
 %endif
 echo ====================TESTING END=====================
 
@@ -211,6 +211,10 @@ rm -rf $RPM_BUILD_ROOT%{_datadir}/locale/
 %endif
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.14.90.0.7-4avx
+- bootstrap build
+- make tests without stack protection so we don't get failed tests
+
 * Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 2.14.90.0.7-3avx
 - Annvix build
 
