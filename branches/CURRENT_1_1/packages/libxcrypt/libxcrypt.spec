@@ -1,6 +1,6 @@
 %define name	libxcrypt
 %define version	2.0
-%define release	3avx
+%define release	4avx
 
 Summary:	Crypt library for DES, MD5, and blowfish
 Name:		%{name}
@@ -41,16 +41,6 @@ necessary to develop your own software using libxcrypt.
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
-# i don't think this is the right way to do this..
-pushd %{buildroot}%{_libdir}
-mv libxcrypt.1.2.0 libxcrypt.so.1.2.0
-ln -s libxcrypt.so.1.2.0 libxcrypt.so.1
-ln -s libxcrypt.so.1.2.0 libxcrypt.so
-popd
-
-mkdir -p %{buildroot}/%{_lib}
-mv -v %{buildroot}%{_libdir}/libxcrypt.so.* %{buildroot}/%{_lib}
-ln -sf ../../%{_lib}/libxcrypt.so.1 %{buildroot}%{_libdir}/libxcrypt.so
 
 # remove unpackaged files
 rm -f %{buildroot}%{_libdir}/libxcrypt
@@ -62,7 +52,7 @@ rm -f %{buildroot}%{_libdir}/libxcrypt.1
 %files
 %defattr(-,root,root)
 %doc README NEWS README.ufc-crypt AUTHORS THANKS
-/%{_lib}/libxcrypt.so.*
+%{_libdir}/libxcrypt.so.*
 
 %files devel
 %defattr(-,root,root)
@@ -70,9 +60,13 @@ rm -f %{buildroot}%{_libdir}/libxcrypt.1
 %{_libdir}/libxcrypt.a
 %{_libdir}/libxcrypt.la
 %{_libdir}/libxcrypt.so
-/%{_lib}/libxcrypt.1
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.0-4avx
+- bootstrap build
+- get rid of the ugly hacks we don't need anymore
+- put the lib files in %%_libdir rather than /lib
+
 * Wed Jun 22 2004 Vincent Danen <vdanen@annvix.org> 2.0-3avx
 - Annvix build
 
