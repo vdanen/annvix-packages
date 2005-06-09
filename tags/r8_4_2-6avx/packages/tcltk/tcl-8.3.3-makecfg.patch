@@ -1,0 +1,220 @@
+--- tcl8.3.3/unix/configure.makecfg	Fri Apr  6 14:51:46 2001
++++ tcl8.3.3/unix/configure	Mon Jul  9 21:16:02 2001
+@@ -5012,11 +5012,11 @@
+ 	    CFLAGS_OPTIMIZE="${CFLAGS_OPTIMIZE} -D__NO_STRING_INLINES -D__NO_MATH_INLINES"
+ 
+ 	    if test "$have_dl" = yes; then
+-		SHLIB_LD="${CC} -shared"
++		SHLIB_LD="${CC} -shared -Wl,-soname,libtcl.so.0"
+ 		DL_OBJS="tclLoadDl.o"
+ 		DL_LIBS="-ldl"
+ 		LDFLAGS="-rdynamic"
+-		LD_SEARCH_FLAGS='-Wl,-rpath,${LIB_RUNTIME_DIR}'
++		LD_SEARCH_FLAGS=''
+ 	    else
+ 		ac_safe=`echo "dld.h" | sed 'y%./+-%__p_%'`
+ echo $ac_n "checking for dld.h""... $ac_c" 1>&6
+--- tcl8.3.3/unix/tclConfig.sh.in.makecfg	Fri Apr  6 14:51:46 2001
++++ tcl8.3.3/unix/tclConfig.sh.in	Tue Jul 10 09:12:32 2001
+@@ -39,7 +39,7 @@
+ TCL_SHARED_BUILD=@TCL_SHARED_BUILD@
+ 
+ # The name of the Tcl library (may be either a .a file or a shared library):
+-TCL_LIB_FILE='@TCL_LIB_FILE@'
++TCL_LIB_FILE='libtcl${TCL_DBGX}.so'
+ 
+ # Flag to indicate whether shared libraries need export files.
+ TCL_NEEDS_EXP_FILE=@TCL_NEEDS_EXP_FILE@
+@@ -106,15 +106,11 @@
+ TCL_RANLIB='@RANLIB@'
+ 
+ # -l flag to pass to the linker to pick up the Tcl library
+-TCL_LIB_FLAG='@TCL_LIB_FLAG@'
+-
+-# String to pass to linker to pick up the Tcl library from its
+-# build directory.
+-TCL_BUILD_LIB_SPEC='@TCL_BUILD_LIB_SPEC@'
++TCL_LIB_FLAG='-ltcl${TCL_DBGX}'
+ 
+ # String to pass to linker to pick up the Tcl library from its
+ # installed directory.
+-TCL_LIB_SPEC='@TCL_LIB_SPEC@'
++TCL_LIB_SPEC='-L/usr/lib -ltcl${TCL_DBGX}'
+ 
+ # Indicates whether a version numbers should be used in -l switches
+ # ("ok" means it's safe to use switches like -ltcl7.5;  "nodots" means
+@@ -127,13 +123,13 @@
+ # extension, and anything else needed).  May depend on the variables
+ # VERSION and SHLIB_SUFFIX.  On most UNIX systems this is
+ # ${VERSION}${SHLIB_SUFFIX}.
+-TCL_SHARED_LIB_SUFFIX='@CFG_TCL_SHARED_LIB_SUFFIX@'
++TCL_SHARED_LIB_SUFFIX='${DBGX}${SHLIB_SUFFIX}'
+ 
+ # String that can be evaluated to generate the part of an unshared library
+ # name that comes after the "libxxx" (includes version number, if any,
+ # extension, and anything else needed).  May depend on the variable
+ # VERSION.  On most UNIX systems this is ${VERSION}.a.
+-TCL_UNSHARED_LIB_SUFFIX='@CFG_TCL_UNSHARED_LIB_SUFFIX@'
++TCL_UNSHARED_LIB_SUFFIX='${DBGX}.a'
+ 
+ # Location of the top-level source directory from which Tcl was built.
+ # This is the directory that contains a README file as well as
+@@ -143,6 +139,10 @@
+ # compiled.
+ TCL_SRC_DIR='@TCL_SRC_DIR@'
+ 
++# String to pass to linker to pick up the Tcl library from its
++# build directory.
++TCL_BUILD_LIB_SPEC='-L@TCL_SRC_DIR@/unix -ltcl${TCL_DBGX}'
++
+ # List of standard directories in which to look for packages during
+ # "package require" commands.  Contains the "prefix" directory plus also
+ # the "exec_prefix" directory, if it is different.
+@@ -152,21 +152,21 @@
+ TCL_SUPPORTS_STUBS=1
+ 
+ # The name of the Tcl stub library (.a):
+-TCL_STUB_LIB_FILE='@TCL_STUB_LIB_FILE@'
++TCL_STUB_LIB_FILE='libtclstub${TCL_DBGX}.a'
+ 
+ # -l flag to pass to the linker to pick up the Tcl stub library
+-TCL_STUB_LIB_FLAG='@TCL_STUB_LIB_FLAG@'
++TCL_STUB_LIB_FLAG='-ltclstub${TCL_DBGX}'
+ 
+ # String to pass to linker to pick up the Tcl stub library from its
+ # build directory.
+-TCL_BUILD_STUB_LIB_SPEC='@TCL_BUILD_STUB_LIB_SPEC@'
++TCL_BUILD_STUB_LIB_SPEC='-L@TCL_SRC_DIR@/unix -ltclstub${TCL_DBGX}'
+ 
+ # String to pass to linker to pick up the Tcl stub library from its
+ # installed directory.
+-TCL_STUB_LIB_SPEC='@TCL_STUB_LIB_SPEC@'
++TCL_STUB_LIB_SPEC='-L/usr/lib -ltclstub${TCL_DBGX}'
+ 
+ # Path to the Tcl stub library in the build directory.
+-TCL_BUILD_STUB_LIB_PATH='@TCL_BUILD_STUB_LIB_PATH@'
++TCL_BUILD_STUB_LIB_PATH='/usr/lib/libtclstub${TCL_DBGX}.a'
+ 
+ # Path to the Tcl stub library in the install directory.
+-TCL_STUB_LIB_PATH='@TCL_STUB_LIB_PATH@'
++TCL_STUB_LIB_PATH='/usr/lib/libtclstub${TCL_DBGX}.a'
+--- tcl8.3.3/unix/Makefile.in.makecfg	Fri Apr  6 14:51:46 2001
++++ tcl8.3.3/unix/Makefile.in	Tue Aug  7 15:25:10 2001
+@@ -76,18 +76,18 @@
+ TCL_DBGX		= @TCL_DBGX@
+ 
+ # warning flags
+-CFLAGS_WARNING		= @CFLAGS_WARNING@
++CFLAGS_WARNING		= -Wall
+ 
+ # The default switches for optimization or debugging
+ CFLAGS_DEBUG		= @CFLAGS_DEBUG@
+-CFLAGS_OPTIMIZE		= @CFLAGS_OPTIMIZE@
++CFLAGS_OPTIMIZE		= -O2
+ 
+ # To change the compiler switches, for example to change from optimization to
+ # debugging symbols, change the following line:
+ #CFLAGS			= $(CFLAGS_DEBUG)
+ #CFLAGS			= $(CFLAGS_OPTIMIZE)
+ #CFLAGS			= $(CFLAGS_DEBUG) $(CFLAGS_OPTIMIZE)
+-CFLAGS			= @CFLAGS@
++CFLAGS			= -O2
+ 
+ # To disable ANSI-C procedure prototypes reverse the comment characters
+ # on the following lines:
+@@ -133,13 +133,13 @@
+ #MEM_DEBUG_FLAGS	= -DTCL_MEM_DEBUG
+ 
+ # To enable support for stubs in Tcl.
+-STUB_LIB_FILE		= @STUB_LIB_FILE@
++STUB_LIB_FILE		= libtclstub.a
+ 
+-TCL_STUB_LIB_FILE	= @TCL_STUB_LIB_FILE@
+-#TCL_STUB_LIB_FILE	= libtclstub.a
++#TCL_STUB_LIB_FILE	= @TCL_STUB_LIB_FILE@
++TCL_STUB_LIB_FILE	= libtclstub.a
+ 
+-TCL_STUB_LIB_FLAG	= @TCL_STUB_LIB_FLAG@
+-#TCL_STUB_LIB_FLAG	= -ltclstub
++#TCL_STUB_LIB_FLAG	= @TCL_STUB_LIB_FLAG@
++TCL_STUB_LIB_FLAG	= -ltclstub
+ 
+ # To enable compilation debugging reverse the comment characters on
+ # one of the following lines.
+@@ -195,11 +195,11 @@
+ BUILD_DLTEST		= @BUILD_DLTEST@
+ #BUILD_DLTEST		=
+ 
+-TCL_LIB_FILE		= @TCL_LIB_FILE@
+-#TCL_LIB_FILE		= libtcl.a
++#TCL_LIB_FILE		= @TCL_LIB_FILE@
++TCL_LIB_FILE		= libtcl.so.0
+ 
+-TCL_LIB_FLAG		= @TCL_LIB_FLAG@
+-#TCL_LIB_FLAG		= -ltcl
++#TCL_LIB_FLAG		= @TCL_LIB_FLAG@
++TCL_LIB_FLAG		= -ltcl
+ 
+ TCL_EXP_FILE		= @TCL_EXP_FILE@
+ TCL_BUILD_EXP_FILE	= @TCL_BUILD_EXP_FILE@
+@@ -397,7 +397,7 @@
+ 
+ all: binaries libraries doc
+ 
+-binaries: ${TCL_LIB_FILE} $(TCL_STUB_LIB_FILE) $(TCL_BUILD_EXP_FILE) tclsh
++binaries: ${TCL_LIB_FILE} libtcl.so $(TCL_STUB_LIB_FILE) $(TCL_BUILD_EXP_FILE) tclsh
+ 
+ libraries:
+ 
+@@ -410,6 +410,9 @@
+ 	@MAKE_LIB@
+ 	$(RANLIB) ${TCL_LIB_FILE}
+ 
++libtcl.so: ${TCL_LIB_FILE}
++	ln -sf $< $@
++
+ ${STUB_LIB_FILE}: ${STUB_LIB_OBJS}
+ 	rm -f ${STUB_LIB_FILE}
+ 	@MAKE_STUB_LIB@
+@@ -428,11 +431,11 @@
+ 
+ 
+ tclsh: ${TCLSH_OBJS} ${TCL_LIB_FILE}
+-	${CC} @LDFLAGS@ ${TCLSH_OBJS} @TCL_BUILD_LIB_SPEC@ ${LIBS} \
++	${CC} @LDFLAGS@ ${TCLSH_OBJS} -L$(UNIX_DIR) -ltcl ${LIBS} \
+ 		@TCL_LD_SEARCH_FLAGS@ -o tclsh
+ 
+ tcltest: ${TCLTEST_OBJS} ${TCL_LIB_FILE} ${BUILD_DLTEST}
+-	${CC} @LDFLAGS@ ${TCLTEST_OBJS} @TCL_BUILD_LIB_SPEC@ ${LIBS} \
++	${CC} @LDFLAGS@ ${TCLTEST_OBJS} -L$(UNIX_DIR) -ltcl ${LIBS} \
+ 		@TCL_LD_SEARCH_FLAGS@ -o tcltest
+ 
+ # Note, in the target below TCL_LIBRARY needs to be set or else
+@@ -525,6 +528,7 @@
+ 	    fi
+ 	@echo "Installing $(TCL_LIB_FILE) to $(LIB_INSTALL_DIR)/"
+ 	@$(INSTALL_DATA) $(TCL_LIB_FILE) $(LIB_INSTALL_DIR)/$(TCL_LIB_FILE)
++	@cp -d libtcl.so $(LIB_INSTALL_DIR)/libtcl.so
+ 	@(cd $(LIB_INSTALL_DIR); $(RANLIB) $(TCL_LIB_FILE))
+ 	@chmod 555 $(LIB_INSTALL_DIR)/$(TCL_LIB_FILE)
+ 	@if test "$(TCL_BUILD_EXP_FILE)" != ""; then \
+@@ -532,8 +536,8 @@
+ 	    $(INSTALL_DATA) $(TCL_BUILD_EXP_FILE) \
+ 			$(LIB_INSTALL_DIR)/$(TCL_EXP_FILE); \
+ 	    fi
+-	@echo "Installing tclsh as $(BIN_INSTALL_DIR)/tclsh$(VERSION)"
+-	@$(INSTALL_PROGRAM) tclsh $(BIN_INSTALL_DIR)/tclsh$(VERSION)
++	@echo "Installing tclsh as $(BIN_INSTALL_DIR)/tclsh"
++	@$(INSTALL_PROGRAM) tclsh $(BIN_INSTALL_DIR)/tclsh
+ 	@echo "Installing tclConfig.sh to $(LIB_INSTALL_DIR)/"
+ 	@$(INSTALL_DATA) tclConfig.sh $(LIB_INSTALL_DIR)/tclConfig.sh
+ 	@if test "$(TCL_STUB_LIB_FILE)" != "" ; then \
+@@ -974,7 +978,7 @@
+ xttest:  ${XTTEST_OBJS} ${GENERIC_OBJS} ${UNIX_OBJS} ${COMPAT_OBJS} \
+ 	@DL_OBJS@ ${BUILD_DLTEST}
+ 	${CC} ${XTTEST_OBJS} ${GENERIC_OBJS} ${UNIX_OBJS} ${COMPAT_OBJS} \
+-		@DL_OBJS@ @TCL_BUILD_LIB_SPEC@ ${LIBS} \
++		@DL_OBJS@ -L$(UNIX_DIR) -ltcl ${LIBS} \
+ 		@TCL_LD_SEARCH_FLAGS@ -L/usr/openwin/lib -lXt -o xttest
+ 
+ tclXtNotify.o: $(UNIX_DIR)/tclXtNotify.c
