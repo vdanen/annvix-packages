@@ -1,6 +1,6 @@
 %define name	elfutils
 %define version	0.89
-%define release	1avx
+%define release	2avx
 
 %define major	1
 %define libname	%mklibname %{name} %{major}
@@ -181,6 +181,9 @@ chmod +x $RPM_BUILD_ROOT%{_libdir}/elfutils/lib*.so*
 %{_libdir}/libdwarf*.so.*
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.89-2avx
+- bootstrap build
+
 * Sun Sep 12 2004 Vincent Danen <vdanen@annvix.org> 0.89-1avx
 - 0.89
 - P0: fix some -Werror issues (gbeauchesne)

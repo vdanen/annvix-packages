@@ -1,6 +1,6 @@
 %define name	glib%{api_version}
 %define version	%{major_version}.%{minor_version}.%{micro_version}
-%define release	1avx
+%define release	2avx
 
 # enable_gtkdoc: Toggle if gtkdoc stuff should be rebuilt
 #	0 = no
@@ -168,6 +168,9 @@ chmod a+x  $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/*
 %{_datadir}/glib-%{api_version}
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.6.3-2avx
+- bootstrap build
+
 * Mon Feb 28 2005 Vincent Danen <vdanen@annvix.org> 2.6.3-1avx
 - 2.6.3
 - fix download url

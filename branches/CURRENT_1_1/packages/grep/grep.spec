@@ -1,10 +1,10 @@
 %define name	grep
 %define version 2.5.1
-%define release 9avx
+%define release 10avx
 
 %define _bindir /bin
 
-Summary:	The GNU versions of grep pattern matching utilities.
+Summary:	The GNU versions of grep pattern matching utilities
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -60,6 +60,9 @@ rm -rf %{buildroot}%{_infodir}
 %{_mandir}/*/*
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.5.1-10avx
+- bootstrap build
+
 * Thu Jun 24 2004 Vincent Danen <vdanen@opensls.org> 2.5.1-9avx
 - Annvix build
 

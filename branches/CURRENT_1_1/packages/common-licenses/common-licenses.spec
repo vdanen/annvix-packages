@@ -1,6 +1,6 @@
 %define name	common-licenses
 %define version 1.0
-%define release 10avx
+%define release 11avx
 
 Summary:	Contains the various common licenses uses by the distribution
 Name:		%{name}
@@ -36,6 +36,9 @@ cp -a %{name} %{buildroot}%{_datadir}
 
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.0-11avx
+- bootstrap build
+
 * Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 1.0-10avx
 - Annvix build
 

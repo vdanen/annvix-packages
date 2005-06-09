@@ -1,6 +1,6 @@
 %define name	ocaml
 %define version	3.08
-%define release	1avx
+%define release	2avx
 %define mainver 3.08.0
 
 %define build_ocamlopt	1
@@ -134,6 +134,9 @@ n="labltk|camlp4|ocamlbrowser|tkanim"
 %{_libdir}/ocaml/camlp4
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 3.08-2avx
+- bootstrap build
+
 * Tue Sep 14 2004 Vincent Danen <vdanen@annvix.org> 3.08-1avx
 - 3.08.0
 - drop patches applied upstream

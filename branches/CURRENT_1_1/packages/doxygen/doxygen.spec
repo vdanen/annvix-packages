@@ -1,6 +1,6 @@
 %define name	doxygen
 %define version 1.3.3
-%define release 5avx
+%define release 6avx
 
 Summary:	Doxygen is THE documentation system for C/C++
 Name:		%{name}
@@ -63,6 +63,9 @@ install -s bin/doxy* ${RPM_BUILD_ROOT}%{_bindir}
 %{_bindir}/doxysearch
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.3.3-6avx
+- bootstrap build
+
 * Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 1.3.3-5avx
 - Annvix build
 - remove BuildReq on XFree86-devel

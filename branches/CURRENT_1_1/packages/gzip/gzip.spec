@@ -1,6 +1,6 @@
 %define name	gzip
 %define version	1.2.4a
-%define release 18avx
+%define release 19avx
 
 Summary:	The GNU data compression program
 Name:		%{name}
@@ -108,6 +108,9 @@ chmod 755 %{buildroot}%{_bindir}/zless
 %{_infodir}/*
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.2.4a-19avx
+- bootstrap build
+
 * Wed May 18 2005 Vincent Danen <vdanen@annvix.org> 1.2.4a-18avx
 - P11: security fix for CAN-2005-1228
 - P12: security fix for CAN-2005-0988

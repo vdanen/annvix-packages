@@ -1,6 +1,6 @@
 %define name	libpcap
 %define version	0.8.3
-%define release	2avx
+%define release	3avx
 %define sname	pcap
 
 %define	major	0
@@ -127,6 +127,9 @@ pushd $RPM_BUILD_ROOT/%{_libdir} && {
 %{_mandir}/man3/pcap.3*
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.8.3-3avx
+- bootstrap build
+
 * Wed Jun 23 2004 Vincent Danen <vdanen@annvix.org> 0.8.3-2avx
 - Annvix build
 

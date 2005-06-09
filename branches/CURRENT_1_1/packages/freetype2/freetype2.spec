@@ -1,6 +1,6 @@
 %define name	freetype2
 %define	version	2.1.4
-%define release	9avx
+%define release	10avx
 
 %define major	6
 %define libname	%mklibname freetype %{major}
@@ -101,6 +101,9 @@ freetype2 package installed.
 %{_libdir}/*.a
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.1.4-10avx
+- bootstrap build
+
 * Fri Jun 25 2004 Vincent Danen <vdanen@opensls.org> 2.1.4-9avx
 - Annvix build
 

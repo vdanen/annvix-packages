@@ -1,6 +1,6 @@
 %define name	libmcrypt
 %define version	2.5.7
-%define release	9avx
+%define release	10avx
 
 %define major	4
 %define libname	%mklibname mcrypt %{major}
@@ -137,6 +137,9 @@ make check
 %{_libdir}/%{name}/*.so
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.5.7-10avx
+- bootstrap build
+
 * Sat Mar 05 2005 Vincent Danen <vdanen@annvix.org> 2.5.7-9avx
 - multiarch support
 - run make check

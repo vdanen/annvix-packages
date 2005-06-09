@@ -1,8 +1,8 @@
 %define name	mingetty
 %define version	1.06
-%define release	5avx
+%define release	6avx
 
-Summary: 	A compact getty program for virtual consoles only.
+Summary: 	A compact getty program for virtual consoles only
 Name: 		%{name}
 Version: 	%{version}
 Release: 	%{release}
@@ -46,6 +46,9 @@ install -m 0644 mingetty.8 %buildroot/%{_mandir}/man8/
 %{_mandir}/man8/*
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.06-6avx
+- bootstrap build
+
 * Fri Feb 04 2005 Vincent Danen <vdanen@annvix.org> 1.06-5avx
 - rebuild against new dietlibc
 

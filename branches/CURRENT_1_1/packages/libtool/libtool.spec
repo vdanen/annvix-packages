@@ -1,6 +1,6 @@
 %define name	libtool
 %define version	1.5.12
-%define release	1avx
+%define release	2avx
 
 %define lib_major	3
 %define libname_orig	libltdl
@@ -191,6 +191,9 @@ chmod 755 %{buildroot}%{_bindir}/cputoolize
 
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.5.12-2avx
+- bootstrap build
+
 * Mon Feb 28 2005 Vincent Danen <vdanen@annvix.org> 1.5.12-1avx
 - 1.5.12
 - sync all patches with Mandrake 1.5.12-4mdk

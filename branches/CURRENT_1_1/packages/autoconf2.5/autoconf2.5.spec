@@ -1,6 +1,6 @@
 %define name	autoconf2.5
 %define version	2.59
-%define release 3avx
+%define release 4avx
 %define epoch	1
 
 %define docheck 1
@@ -109,6 +109,9 @@ mv $RPM_BUILD_ROOT%{_infodir}/autoconf.info $RPM_BUILD_ROOT%{_infodir}/autoconf-
 %{scriptdir}
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.59-3avx
+- bootstrap build
+
 * Mon Feb 28 2005 Vincent Danen <vdanen@annvix.org> 2.59-3avx
 - requires autconf2.1 for wrapper
 - call this package's autoconf when no configure.in or configure.ac

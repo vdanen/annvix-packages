@@ -1,8 +1,8 @@
 %define name	less
 %define version	382
-%define release	1avx
+%define release	2avx
 
-Summary:	A text file browser similar to more, but better.
+Summary:	A text file browser similar to more, but better
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -64,6 +64,9 @@ install -m 644 less{echo,pipe}.1 %{buildroot}%{_mandir}/man1
 %{_mandir}/man1/*
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 382-2avx
+- bootstrap build
+
 * Wed Sep 22 2004 Vincent Danen <vdanen@annvix.org> 382-1avx
 - 382
 - spec cleanups

@@ -1,6 +1,6 @@
 %define name	dejagnu
 %define version 1.4.2
-%define release 8avx
+%define release 9avx
 
 Summary:	A front end for testing other programs.
 Name:		%{name}
@@ -48,8 +48,8 @@ mkdir -p %{buildroot}%{_mandir}/man1
 install -m 0644 contrib/bluegnu2.0.3/doc/dejagnu.1 %{buildroot}%{_mandir}/man1
 
 # Nuke unpackaged files
-rm -f $RPM_BUILD_ROOT%{_libdir}/config.guess
-rm -f $RPM_BUILD_ROOT%{_includedir}/dejagnu.h
+rm -f %{buildroot}%{_libdir}/config.guess
+rm -f %{buildroot}%{_includedir}/dejagnu.h
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -64,6 +64,9 @@ rm -f $RPM_BUILD_ROOT%{_includedir}/dejagnu.h
 %{_mandir}/man1/runtest.1*
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.4.2-9avx
+- bootstrap build
+
 * Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 1.4.2-8avx
 - Annvix build
 

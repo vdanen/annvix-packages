@@ -1,6 +1,6 @@
 %define name	diffutils
 %define version 2.8.4
-%define release 7avx
+%define release 8avx
 
 Summary:	A GNU collection of diff utilities
 Name:		%{name}
@@ -71,6 +71,9 @@ rm -fr $RPM_BUILD_ROOT/%{_infodir}/dir
 %{_infodir}/diff.info*
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.8.4-8avx
+- bootstrap build
+
 * Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 2.8.4-7avx
 - requiere packages not files
 - Annvix build

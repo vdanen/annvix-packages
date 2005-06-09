@@ -1,8 +1,8 @@
 %define name	db1
 %define version 1.85
-%define release 12avx
+%define release 13avx
 
-Summary:	The BSD database library for C (version 1).
+Summary:	The BSD database library for C (version 1)
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -64,7 +64,7 @@ gzip -9 docs/*.ps
 cd PORT/linux
 # otherwise "db1/db.h" not found
 ln -s include db1
-%make OORG="$RPM_OPT_FLAGS" 
+%make OORG="%{optflags}" 
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -109,6 +109,9 @@ install -s -m755 db_dump185		$RPM_BUILD_ROOT/%{_bindir}/db1_dump185
 %{_bindir}/db1_dump185
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.85-13avx
+- bootstrap build
+
 * Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 1.85-12avx
 - Annvix build
 

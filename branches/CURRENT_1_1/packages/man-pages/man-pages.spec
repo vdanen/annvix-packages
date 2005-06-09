@@ -1,6 +1,6 @@
 %define name	man-pages
 %define version	2.01
-%define release 1avx
+%define release 2avx
 
 %define LANG	en
 
@@ -129,6 +129,9 @@ tar xfj %{SOURCE11} -C %{buildroot}%{_mandir}
 %{_mandir}/man?/*
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.01-2avx
+- bootstrap build
+
 * Thu Mar 17 2005 Vincent Danen <vdanen@annvix.org> 2.01-1avx
 - 2.01
 - spec cleanups

@@ -1,8 +1,8 @@
 %define name	eject
 %define version 2.0.13
-%define release	7avx
+%define release	8avx
 
-Summary:	A program that ejects removable media using software control.
+Summary:	A program that ejects removable media using software control
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -51,6 +51,9 @@ mkdir -p $RPM_BUILD_ROOT%{_mandir}/man1
 %_mandir/man1/volname.1*
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.0.13-8avx
+- bootstrap build
+
 * Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 2.0.13-7avx
 - Annvix build
 

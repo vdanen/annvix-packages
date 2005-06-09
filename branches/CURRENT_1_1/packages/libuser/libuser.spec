@@ -1,6 +1,6 @@
 %define name	libuser
 %define version	0.53.2
-%define release	1avx
+%define release	2avx
 
 %define major	1
 %define libname	%mklibname user %{major}
@@ -130,6 +130,9 @@ rm -rf %{buildroot}%{_libdir}/python%{pyver}/site-packages/*a
 %attr(0644,root,root) %{_libdir}/pkgconfig/*
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.53.2-2avx
+- bootstrap build
+
 * Mon Feb 28 2005 Vincent Danen <vdanen@annvix.org> 0.53.2-1avx
 - 0.53.2
 - remove redundant BuildRequires (stefan)

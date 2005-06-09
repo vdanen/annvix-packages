@@ -1,8 +1,8 @@
 %define name	m4
 %define version 1.4ppre2
-%define release 7avx
+%define release 8avx
 
-Summary:	The GNU macro processor.
+Summary:	The GNU macro processor
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -63,6 +63,9 @@ fi
 %{_infodir}/*
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.4ppre2-8avx
+- bootstrap build
+
 * Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 1.4ppre2-7avx
 - require packages not files
 - Annvix build

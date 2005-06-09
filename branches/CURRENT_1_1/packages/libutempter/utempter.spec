@@ -1,6 +1,6 @@
 %define name	libutempter
 %define version	1.1.1
-%define release	2avx
+%define release	3avx
 %define sname	utempter
 
 %define major	0
@@ -83,6 +83,9 @@ make CC=gcc libexecdir="%{_libexecdir}"
 
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.1.1-3avx
+- bootstrap build
+
 * Wed Jun 23 2004 Vincent Danen <vdanen@annvix.org> 1.1.1-2avx
 - require packages not files
 - Annvix build

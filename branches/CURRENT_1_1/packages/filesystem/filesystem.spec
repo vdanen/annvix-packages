@@ -1,6 +1,6 @@
 %define name	filesystem
 %define version	2.1.5
-%define release	2avx
+%define release	3avx
 
 Summary:	The basic directory layout for an Annvix system
 Name:		%{name}
@@ -96,6 +96,9 @@ popd
 /srv
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.1.5-3avx
+- bootstrap build
+
 * Thu Mar 03 2005 Vincent Danen <vdanen@opensls.org> 2.1.5-2avx
 - own /var/log/supervise
 

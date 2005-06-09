@@ -1,8 +1,8 @@
 %define name	cpio
 %define version 2.5
-%define release 9avx
+%define release 10avx
 
-Summary:	A GNU archiving program.
+Summary:	A GNU archiving program
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -82,6 +82,9 @@ rm -f $RPM_BUILD_ROOT%{_mandir}/man1/mt.1
 %{_mandir}/man1/cpio.1*
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.5-10avx
+- bootstrap build
+
 * Wed Feb 09 2005 Vincent Danen <vdanen@annvix.org> 2.5-9avx
 - P13: patch to fix CAN-1999-1572
 

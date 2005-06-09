@@ -1,6 +1,6 @@
 %define name	iproute2
 %define version	2.4.7
-%define release	15avx
+%define release	16avx
 
 # sync: rh-2.4.7-7
 
@@ -94,6 +94,9 @@ tar xfj %SOURCE2 -C $RPM_BUILD_ROOT/%_mandir/
 %attr(644,root,root) %config(noreplace) %{_sysconfdir}/iproute2/*
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.4.7-16avx
+- bootstrap build
+
 * Tue Dec 07 2004 Vincent Danen <vdanen@annvix.org> 2.4.7-15avx
 - P106: patch to fix CAN-2003-0856
 

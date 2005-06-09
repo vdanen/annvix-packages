@@ -1,6 +1,6 @@
 %define name	libpng
 %define version	1.2.5
-%define release	14avx
+%define release	15avx
 %define epoch	2
 
 %define lib_name_orig	libpng
@@ -120,6 +120,9 @@ rm -rf $RPM_BUILD_ROOT%{_prefix}/man
 %{_libdir}/libpng*.a
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.2.5-15avx
+- bootstrap build
+
 * Wed Aug 04 2004 Vincent Danen <vdanen@annvix.org> 1.2.5-14avx
 - replace P1 and P2 with an official patch from the libpng team, which also
   fixes CAN-2004-0597, CAN-2004-0598, and CAN-2004-599

@@ -1,12 +1,12 @@
 %define name		e2fsprogs
 %define version		1.35
-%define release		1avx
+%define release		2avx
 
 %define	_root_sbindir	/sbin
 %define	_root_libdir	/%_lib
 %define libname		%mklibname ext2fs 2
 
-Summary:	Utilities used for the second extended (ext2) filesystem.
+Summary:	Utilities used for the second extended (ext2) filesystem
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -229,6 +229,9 @@ chmod +x %{buildroot}%{_bindir}/{mk_cmds,compile_et}
 
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.35-2avx
+- bootstrap build
+
 * Thu Aug 18 2004 Vincent Danen <vdanen@annvix.org> 1.35-1avx
 - 1.35
 - fix perms (tvignaud)

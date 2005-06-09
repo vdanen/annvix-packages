@@ -1,6 +1,6 @@
 %define name	bzip2
 %define version	1.0.3
-%define release	1avx
+%define release	2avx
 
 %define libname_orig lib%{name}
 %define libname	%mklibname %{name}_ 1
@@ -114,6 +114,9 @@ install -m 0644 bzlib_private.h %{buildroot}%{_includedir}/
 
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.0.3-2avx
+- bootstrap build
+
 * Wed May 18 2005 Vincent Danen <vdanen@annvix.org> 1.0.3-1avx
 - 1.0.3 (fixes CAN-2005-1260)
 - P1: mktemp support (Requires: mktemp); rediffed from Mandriva

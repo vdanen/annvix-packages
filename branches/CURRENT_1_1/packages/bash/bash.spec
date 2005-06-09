@@ -1,6 +1,6 @@
 %define name	bash
 %define version	3.0
-%define release	1avx
+%define release	2avx
 
 %define i18ndate 20010626
 
@@ -249,6 +249,9 @@ install -c -m 0644 bash-dynamic/doc/bash.info %{buildroot}%{_infodir}/
 
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 3.0-2avx
+- bootstrap build
+
 * Fri Mar 04 2005 Vincent Danen <vdanen@annvix.org> 3.0-1avx
 - 3.0
 - BuildRequires: s/byacc/bison/ (stefan)

@@ -1,6 +1,6 @@
 %define name	curl
 %define version 7.13.0
-%define release	1avx
+%define release	2avx
 
 %define major	3
 %define libname %mklibname %{name} %{major}
@@ -144,6 +144,9 @@ make check
 %{_mandir}/man3/*
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 7.13.0-2avx
+- bootstrap build
+
 * Mon Feb 28 2005 Vincent Danen <vdanen@annvix.org> 7.13.0-1avx
 - 7.13.0
 - P2: 64bit fixes in the testsuite for curl_getdate() with 64bit

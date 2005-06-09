@@ -1,11 +1,11 @@
 %define name	gdbm
 %define version 1.8.3
-%define release 1avx
+%define release 2avx
 
 %define lib_major	3
 %define lib_name	%mklibname gdbm %{lib_major}
 
-Summary:	A GNU set of database routines which use extensible hashing.
+Summary:	A GNU set of database routines which use extensible hashing
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -17,7 +17,7 @@ Patch0:		gdbm-1.8.0-jbj.patch.bz2
 # (deush) regenerate patch to apply with -p1
 Patch1:		gdbm-1.8.3-asnonroot.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-root
+BuildRoot:	%{_tmppath}/%{name}-%{version}-root
 Buildrequires:	texinfo autoconf2.5 automake1.7
 
 %description
@@ -112,7 +112,10 @@ chmod 644  COPYING INSTALL NEWS README
 %{_mandir}/man3/*
 
 %changelog
-* Thu Jun 24 2004 Vincent Danen <vdanen@annvix.org> 1.8.0-27avx
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.8.3-2avx
+- bootstrap build
+
+* Thu Jun 24 2004 Vincent Danen <vdanen@annvix.org> 1.8.3-1avx
 - 1.8.3
 - sync with cooker 1.8.3-2mdk:
   - force the use of autoconf2.5 and automake1.7 (peroyvind)

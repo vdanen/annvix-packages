@@ -1,8 +1,8 @@
 %define name 	db2
 %define version 2.4.14
-%define release 11avx
+%define release 12avx
 
-Summary:	The BSD database library for C (version 2).
+Summary:	The BSD database library for C (version 2)
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -106,6 +106,9 @@ done
 %{_bindir}/db2_stat
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.4.14-12avx
+- bootstrap build
+
 * Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 2.4.14-11avx
 - Annvix build
 

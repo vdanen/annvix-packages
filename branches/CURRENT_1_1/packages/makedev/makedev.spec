@@ -1,6 +1,6 @@
 %define name	makedev
 %define version	4.1
-%define release 5avx
+%define release 6avx
 
 # synced with rh-3.3.1-1
 
@@ -127,6 +127,9 @@ fi
 %dir %devrootdir
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 4.1-6avx
+- bootstrap build
+
 * Fri Feb 04 2005 Vincent Danen <vdanen@annvix.org> 4.1-5avx
 - s/SLS/Annvix/
 - add the erandom and frandom device nodes

@@ -1,6 +1,6 @@
 %define name	automake%{amversion}
 %define version 1.7.9
-%define release 1avx
+%define release 2avx
 
 %define amversion 1.7
 
@@ -94,6 +94,9 @@ fi
 %{_datadir}/aclocal*
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.7.9-2avx
+- bootstrap build
+
 * Fri Sep 24 2004 Vincent Danen <vdanen@annvix.org> 1.7.9-1avx
 - 1.7.9
 - tune up alternative priority (abel)

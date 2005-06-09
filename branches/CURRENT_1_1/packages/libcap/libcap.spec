@@ -1,6 +1,6 @@
 %define name 	libcap
 %define version	1.10
-%define release	1avx
+%define release	2avx
 %define sname	cap
 
 %define major	1
@@ -92,5 +92,8 @@ chmod +x %{buildroot}%{_libdir}/*.so.*
 %{_mandir}/man3/*
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.10-2avx
+- bootstrap build
+
 * Wed Jun 23 2004 Vincent Danen <vdanen@annvix.org> 1.10-1avx
 - first Annvix build, based on Fedora spec

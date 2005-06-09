@@ -1,11 +1,11 @@
 %define name	file
 %define version	4.10
-%define release	1avx
+%define release	2avx
 
 %define major	1
 %define libname %mklibname magic %{major}
 
-Summary:	A utility for determining file types.
+Summary:	A utility for determining file types
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -126,6 +126,9 @@ install -m 0644 src/file.h %{buildroot}%{_includedir}/
 %{_libdir}/*.a
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 4.10-2avx
+- bootstrap build
+
 * Sun Sep 12 2004 Vincent Danen <vdanen@annvix.org> 4.10-1avx
 - 4.10
 - remove P3: similar fix upstream

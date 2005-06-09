@@ -1,6 +1,6 @@
 %define name	man
 %define version	1.5m2
-%define release	1avx
+%define release	2avx
 
 Summary:	A set of documentation tools:  man, apropos and whatis
 Name:		%{name}
@@ -189,6 +189,9 @@ chmod 755 %{buildroot}%{_sbindir}/makewhatis
 
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.5m2-2avx
+- bootstrap build
+
 * Thu Mar 17 2005 Vincent Danen <vdanen@annvix.org> 1.5m2-1avx
 - 1.5m2
 - rediff P6, P8, P10,P104,  P201, P300 (tvignaud)

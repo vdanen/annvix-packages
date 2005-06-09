@@ -1,6 +1,6 @@
 %define name	%{libnet}%{branch}
 %define version 1.0.2a
-%define release 6avx
+%define release 7avx
 
 %define libnet	%mklibname net
 %define branch	1.0
@@ -69,6 +69,9 @@ rm -f %{buildroot}/%{_libdir}/libpwrite
 %{_includedir}/libnet/*
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.0.2a-7avx
+- bootstrap build
+
 * Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 1.0.2a-6avx
 - more appropriate provides
 - spec cleanups

@@ -1,6 +1,6 @@
 %define name	%{libnamemajor}
 %define version	0.51
-%define release	8avx
+%define release	9avx
 
 %define realname	xmlrpc
 %define libname		lib%{realname}
@@ -87,6 +87,9 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/{client,hello_{client,server},memtest,sample,ser
 %{_libdir}/lib*.a
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.51-9avx
+- bootstrap build
+
 * Wed Jun 23 2004 Vincent Danen <vdanen@annvix.org> 0.51-8avx
 - Annvix build
 

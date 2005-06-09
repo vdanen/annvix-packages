@@ -1,6 +1,6 @@
 %define name	gmp
 %define version	4.1.2
-%define release	6avx
+%define release	7avx
 
 %define lib_major	3
 %define lib_name_orig	%mklibname %{name}
@@ -18,7 +18,7 @@ Patch0:		gmp-4.1-x86_64.patch.bz2
 Patch1:		gmp-4.1-gcc-version.patch.bz2
 Patch2:		gmp-4.1.2-mpz_gcd_ui-retval.patch.bz2
 
-BuildRoot:	%_tmppath/%name-%version-%release-root
+BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
 
 %description
 The gmp package contains GNU MP, a library for arbitrary precision
@@ -87,7 +87,7 @@ install the gmp package.
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 install -d %buildroot/%_libdir %buildroot/%_infodir %buildroot/%_includedir
 %makeinstall
-rm -f $RPM_BUILD_ROOT/%{_infodir}/dir
+rm -f %{buildroot}%{_infodir}/dir
 
 %post -n %{lib_name} -p /sbin/ldconfig
 %postun -n %{lib_name} -p /sbin/ldconfig
@@ -117,6 +117,9 @@ rm -f $RPM_BUILD_ROOT/%{_infodir}/dir
 %{_infodir}/gmp.info*
 
 %changelog
+* Sat Jun 04 2005 Vincent Danen <vdanen@annvix.org> 4.1.2-7avx
+- bootstrap build
+
 * Thu Jun 24 2004 Vincent Danen <vdanen@annvix.org> 4.1.2-6avx
 - Annvix build
 

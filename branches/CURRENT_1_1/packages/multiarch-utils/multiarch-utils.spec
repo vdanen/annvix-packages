@@ -1,6 +1,6 @@
 %define name	multiarch-utils
 %define version	1.0.7
-%define release 1avx
+%define release 2avx
 
 Summary:	Tools to help creation of multiarch binaries and includes
 Name:		%{name}
@@ -42,6 +42,9 @@ binaries and include files during RPM package build.
 %{_prefix}/X11R6/lib/X11/config/multiarch-dispatch-host.def
 
 %changelog
+* Thu Jun 02 2005 Vincent Danen <vdanen@annvix.org> 1.0.7-2avx
+- bootstrap build
+
 * Tue Mar 01 2005 Vincent Danen <vdanen@mandrakesoft.com> 1.0.7-1avx
 - first Annvix build
 

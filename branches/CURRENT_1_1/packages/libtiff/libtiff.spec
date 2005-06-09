@@ -1,6 +1,6 @@
 %define name	libtiff
 %define	version	3.5.7
-%define release 15avx
+%define release 16avx
 
 %define lib_version	3.5
 %define lib_major	3
@@ -156,6 +156,9 @@ ln -sf %{name}.so.%{lib_version} %{name}.so.%{lib_major}
 %_libdir/*.a
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 3.5.7-16avx
+- bootstrap build
+
 * Wed Oct 20 2004 Vincent Danen <vdanen@annvix.org> 3.5.7-15avx
 - P7-P10: security fixes for CAN-2004-0803, CAN-2004-0804, and
   CAN-2004-0886

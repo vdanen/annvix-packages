@@ -1,6 +1,6 @@
 %define name	libxslt
 %define version	1.1.12
-%define release	1avx
+%define release	2avx
 
 %define xml_version_required	2.6.15
 %define major			1
@@ -142,6 +142,9 @@ rm -rf %{buildroot}%{_docdir}/%{name}-%{version} \
 %{_datadir}/aclocal/*
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.1.12-2avx
+- bootstrap build
+
 * Sat Mar 05 2005 Vincent Danen <vdanen@annvix.org> 1.1.12-1avx
 - 1.1.12
 - use %%pyver macro

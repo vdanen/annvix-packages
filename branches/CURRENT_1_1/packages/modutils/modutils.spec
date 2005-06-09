@@ -1,13 +1,13 @@
 %define name	modutils
 %define version 2.4.26
-%define release 3avx
+%define release 4avx
 
 %define url ftp://ftp.kernel.org:/pub/linux/utils/kernel/modutils/v2.4
 %define priority 10
 
 %define toalternate insmod lsmod modprobe rmmod depmod modinfo
 
-Summary:	The kernel daemon (kerneld) and kernel module utilities.
+Summary:	The kernel daemon (kerneld) and kernel module utilities
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -187,6 +187,9 @@ done
 %{_mandir}/man8/ksyms.8*
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.4.26-4avx
+- bootstrap build
+
 * Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 2.4.26-3avx
 - Annvix build
 

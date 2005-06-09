@@ -1,6 +1,6 @@
 %define name	make
 %define version	3.80
-%define release	9avx
+%define release	10avx
 %define epoch	1
 
 Summary:	A GNU tool which simplifies the build process for users
@@ -77,6 +77,9 @@ done
 %_infodir/make.info*
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 3.80-10avx
+- bootstrap build
+
 * Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 3.80-9avx
 - require packages not files
 - Annvix build

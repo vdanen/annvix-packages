@@ -1,9 +1,9 @@
 %define name	basesystem
 %define version 1.0
-%define release 7avx
+%define release 8avx
 %define epoch	1
 
-Summary:	The skeleton package which defines a simple Annvix system.
+Summary:	The skeleton package which defines a simple Annvix system
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -43,6 +43,9 @@ should never be removed.
 %files
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.0-8avx
+- bootstrap build
+
 * Tue Sep 14 2004 Vincent Danen <vdanen@annvix.org> 1.0-7avx
 - Requires: runit
 - remove Requires: daemontools, ucspi-tcp, mkbootdisk

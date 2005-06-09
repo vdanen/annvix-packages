@@ -1,13 +1,13 @@
 %define name	krb5
 %define version	1.3.6
-%define release	4avx
+%define release	5avx
 
 %define srcver	1.3
 %define LIBMAJ	1
 %define libname	%mklibname %name %LIBMAJ
 %define libnamedev %{libname}-devel
 
-Summary:	The Kerberos network authentication system.
+Summary:	The Kerberos network authentication system
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -585,6 +585,9 @@ strip %{buildroot}%{_bindir}/{ksu,v4rcp}
 %{_datadir}/afterboot/08_kftp
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.3.6-5avx
+- bootstrap build
+
 * Tue Mar 29 2005 Vincent Danen <vdanen@annvix.org> 1.3.6-4avx
 - P18: security fix for MITKRB5-SA-2005-001 (CAN-2005-0469 and
   CAN-2005-0468)

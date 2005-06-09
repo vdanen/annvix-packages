@@ -1,6 +1,6 @@
 %define name	mkinitrd
 %define version 3.4.43
-%define release 20avx
+%define release 21avx
 %define epoch	1
 
 %define use_dietlibc 0
@@ -88,6 +88,9 @@ rm -f %{buildroot}%{_mandir}/*/grubby*
 %{_mandir}/*/*
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 3.4.43-21avx
+- bootstrap build
+
 * Sun Feb 27 2005 Vincent Danen <vdanen@annvix.rg> 3.4.43-20avx
 - remove calls to handledevfs
 

@@ -1,6 +1,6 @@
 %define name	gperf
 %define version	3.0.1
-%define release	4avx
+%define release	5avx
 
 Summary:	A perfect hash function generator
 Name:		%{name}
@@ -53,6 +53,9 @@ rm -f $RPM_BUILD_ROOT%{_datadir}/doc/gperf/gperf.html
 %{_infodir}/gperf.info*
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 3.0.1-5avx
+- bootstrap build
+
 * Thu Jun 24 2004 Vincent Danen <vdanen@opensls.org> 3.0.1-4avx
 - Annvix build
 

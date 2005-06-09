@@ -1,6 +1,6 @@
 %define name	SysVinit
 %define version 2.85
-%define release 9avx
+%define release 10avx
 %define url	ftp://ftp.cistron.nl/pub/people/miquels/software
 
 Summary:	Programs which control basic system processes
@@ -126,6 +126,9 @@ exit 0
 %ghost /dev/initctl
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.85-10avx
+- bootstrap build
+
 * Fri Mar 04 2005 Vincent Danen <vdanen@annvix.org> 2.85-9avx
 - put back halt/reboot/poweroff and use P12 to silence warnings
 - renumber patches

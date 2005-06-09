@@ -1,6 +1,6 @@
 %define name	dietlibc
 %define version 0.28
-%define release 1avx
+%define release 2avx
 
 # This is eventually a biarch package, so no %_lib for diethome
 %define diethome	%{_prefix}/lib/dietlibc
@@ -134,6 +134,9 @@ make DESTDIR=%{buildroot} install
 %{_mandir}/man*/*
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.28-2avx
+- bootstrap build
+
 * Wed Feb 02 2005 Vincent Danen <vdanen@annvix.org> 0.28-1avx
 - 0.28
 - drop P7, P8, P10, P11, P12, P19, P20 (merged upstream)

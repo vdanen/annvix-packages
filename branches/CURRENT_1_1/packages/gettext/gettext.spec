@@ -1,19 +1,19 @@
 %define name	gettext
 %define version 0.14.1
-%define release 2avx
+%define release 3avx
 
 %define major		3
 %define libver		%{major}.4.1
 %define lib_name	%mklibname intl %{major}
 
-Summary:	GNU libraries and utilities for producing multi-lingual messages.
+Summary:	GNU libraries and utilities for producing multi-lingual messages
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	GPL
 Group:		System/Libraries
 URL:		http://www.gnu.org/software/gettext/
-Source:		%name-%version.tar.bz2
+Source:		%{name}-%{version}.tar.bz2
 Source1:	po-mode-init.el
 Patch0:		gettext-0.12.1-libtool-1.5.patch.bz2
 # patch to not issue error messages and warnings with some charset encodings
@@ -126,7 +126,7 @@ rm -f %{buildroot}%{_includedir}/libintl.h \
 rm -f gettext-runtime/intl-java/javadoc2/package-list
 
 # remove non-standard lc directories
-for i in en@boldquot en@quot ; do rm -rf $RPM_BUILD_ROOT/%{_datadir}/locale/$i; done
+for i in en@boldquot en@quot ; do rm -rf %{buildroot}/%{_datadir}/locale/$i; done
 
 # move installed doc back to %%doc
 rm -rf htmldoc examples
@@ -138,7 +138,7 @@ rm -rf %{buildroot}%{_datadir}/gettext/javadoc*
 mv %{buildroot}%{_datadir}/doc/gettext/* %{buildroot}%{_datadir}/doc/libasprintf/* htmldoc
 
 # move crucial stuff to /lib and /bin
-pushd $RPM_BUILD_ROOT
+pushd %{buildroot}
 mkdir -p bin
 mkdir -p ./%{_lib}
 mv usr/bin/gettext bin/
@@ -211,6 +211,9 @@ popd
 %{_infodir}/autosprintf*
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.14.1-3avx
+- bootstrap build
+
 * Thu Jun 24 2004 Vincent Danen <vdanen@annvix.org> 0.14.1-2avx
 - Annvix build
 

@@ -1,12 +1,12 @@
 %define	name	dmapi
 %define	version	2.1.0
-%define	release	2avx
+%define	release	3avx
 
 %define lib_name_orig	libdm
 %define lib_major	0
 %define lib_name	%mklibname dm %{lib_major}
 
-Summary:	Data Management API runtime environment.
+Summary:	Data Management API runtime environment
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -87,6 +87,9 @@ rm -rf %{buildroot}%{_datadir}/doc/dmapi
 %{_includedir}/*/*
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.1.0-3avx
+- bootstrap build
+
 * Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 2.1.0-2avx
 - Annvix build
 

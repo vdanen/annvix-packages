@@ -1,6 +1,6 @@
 %define name	libxml2
 %define version	2.6.17
-%define release	1avx
+%define release	2avx
 
 %define major	2
 %define libname	%mklibname xml %{major}
@@ -188,6 +188,9 @@ rm -rf	%{buildroot}%{_prefix}/doc \
 %{_datadir}/aclocal/*
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.6.17-2avx
+- bootstrap build
+
 * Sat Mar 05 2005 Vincent Danen <vdanen@annvix.org> 2.6.17-1avx
 - 2.6.17
 - multiarch support

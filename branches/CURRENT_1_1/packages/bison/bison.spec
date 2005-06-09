@@ -1,8 +1,8 @@
 %define name	bison
 %define version 1.875
-%define release 6avx
+%define release 7avx
 
-Summary:	A GNU general-purpose parser generator.
+Summary:	A GNU general-purpose parser generator
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -14,7 +14,7 @@ Patch0:		bison-1.32-extfix.patch.bz2
 # (fc) fixx gcc error 
 Patch1:		bison-1.875-gccerror.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-root
+BuildRoot:	%{_tmppath}/%{name}-%{version}-root
 
 Prereq:		info-install
 
@@ -73,6 +73,9 @@ rm -rf $RPM_BUILD_ROOT/%{_libdir} $RPM_BUILD_ROOT/%{_datadir}/liby.a
 %{_bindir}/*
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.875-7avx
+- bootstrap build
+
 * Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> - 1.875-6avx
 - Annvix build
 - require packages not files

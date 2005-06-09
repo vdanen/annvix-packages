@@ -1,6 +1,6 @@
 %define name	expat
 %define version 1.95.6
-%define release 7avx
+%define release 8avx
 
 %define libname_orig	libexpat
 %define major		0
@@ -91,6 +91,9 @@ rm -f $RPM_BUILD_ROOT/%{_mandir}/xmlwf.1*
 %_libdir/libexpat.la
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.95.6-8avx
+- bootstrap build
+
 * Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> - 1.95.6-7avx
 - Annvix build
 

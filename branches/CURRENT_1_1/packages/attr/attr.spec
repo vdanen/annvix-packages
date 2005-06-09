@@ -1,6 +1,6 @@
 %define name	attr
 %define version 2.4.16
-%define release 1avx
+%define release 2avx
 
 %define lib_name_orig	lib%{name}
 %define lib_major	1
@@ -105,6 +105,9 @@ rm -rf %{buildroot}/%{_lib}/libattr.{a,la}
 %{_includedir}/%{name}/*
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.4.16-2avx
+- bootstrap build
+
 * Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 2.4.16-1avx
 - 2.4.16
 - Annvix build

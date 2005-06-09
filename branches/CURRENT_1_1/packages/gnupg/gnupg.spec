@@ -1,8 +1,8 @@
 %define name	gnupg
 %define version 1.2.6
-%define release 2avx
+%define release 3avx
 
-Summary:	GNU privacy guard - a free PGP replacement.
+Summary:	GNU privacy guard - a free PGP replacement
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -96,6 +96,9 @@ tar xvjf %{SOURCE2} -C %{buildroot}%{_sysconfdir}/RPM-GPG-KEYS
 %attr(0644,root,root) %{_sysconfdir}/RPM-GPG-KEYS/*.asc
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.2.6-3avx
+- bootstrap build
+
 * Thu Mar 17 2005 Vincent Danen <vdanen@annvix.org> 1.2.6-2avx
 - P0: patch to fix CAN-2005-0366
 

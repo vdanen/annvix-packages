@@ -1,9 +1,9 @@
 %define name	iputils
 %define version	20%{ver}
-%define release	8avx
+%define release	9avx
 %define ver	020927
 
-Summary:	Network monitoring tools including ping.
+Summary:	Network monitoring tools including ping
 Name:		%{name}
 Version: 	%{version}
 Release:	%{release}
@@ -109,6 +109,9 @@ install -c doc/tracepath.8 ${RPM_BUILD_ROOT}%{_mandir}/man8/
 %{_mandir}/man8/*
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 20020927-9avx
+- bootstrap build
+
 * Thu Jun 24 2004 Vincent Danen <vdanen@annvix.org> 20020927-8avx
 - Annvix build
 

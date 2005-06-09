@@ -1,10 +1,10 @@
 %define name	net-tools
 %define version 1.60
-%define release 12avx
+%define release 13avx
 
 %define url http://www.tazenda.demon.co.uk/phil/net-tools/
 
-Summary:	The basic tools for setting up networking.
+Summary:	The basic tools for setting up networking
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -76,6 +76,9 @@ rm -rf %{buildroot}%{_mandir}/{de,pt_BR,fr}
 %{_mandir}/man[158]/*
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.60-13avx
+- bootstrap build
+
 * Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 1.60-12avx
 - Annvix build
 

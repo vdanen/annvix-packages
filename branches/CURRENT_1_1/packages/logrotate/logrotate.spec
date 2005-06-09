@@ -1,6 +1,6 @@
 %define name	logrotate
 %define version	3.7.1
-%define release	1avx
+%define release	2avx
 
 Summary:	Rotates, compresses, and mails system logs
 Name:		%{name}
@@ -56,6 +56,9 @@ touch %{buildroot}/var/lib/logrotate.status
 %attr(0644, root, root) %verify(not size md5 mtime) %config(noreplace) /var/lib/logrotate.status
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 3.7.1-2avx
+- bootstrap build
+
 * Fri Dec 03 2004 Vincent Danen <vdanen@annvix.org> 3.7.1-1avx
 - 3.7.1
 

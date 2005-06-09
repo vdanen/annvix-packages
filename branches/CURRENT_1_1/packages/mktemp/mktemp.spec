@@ -1,6 +1,6 @@
 %define name	mktemp
 %define version	1.6
-%define release	1avx
+%define release	2avx
 
 Summary:	A small utility for safely making /tmp files
 Name:		%{name}
@@ -52,6 +52,9 @@ perl -pi -e "s!/usr/man!%{_mandir}!g" Makefile
 %{_mandir}/man1/mktemp.1*
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.6-2avx
+- bootstrap build
+
 * Thu Sep 23 2004 Vincent Danen <vdanen@annvix.org> 1.6-1avx
 - OpenBSD CVS rev 1.13 (we'll call this 1.6)
 - rework patches and drop those no longer needed

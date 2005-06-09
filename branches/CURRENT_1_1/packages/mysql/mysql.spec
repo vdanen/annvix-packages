@@ -1,6 +1,6 @@
 %define name	MySQL
 %define version	4.1.11
-%define release	1avx
+%define release	2avx
 
 %define major		14
 %define libname		%mklibname mysql %{major}
@@ -608,6 +608,9 @@ fi
 %{_libdir}/mysql/*.a
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 4.1.11-2avx
+- bootstrap build
+
 * Wed Apr 06 2005 Vincent Danen <vdanen@annvix.org> 4.1.11-1avx
 - 4.1.11; fixes an additional found case of CAN-2004-0957
 - spec cleanups

@@ -1,8 +1,8 @@
 %define name	gawk
 %define version	3.1.2
-%define release	5avx
+%define release	6avx
 
-Summary:	The GNU version of the awk text processing utility.
+Summary:	The GNU version of the awk text processing utility
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -91,6 +91,9 @@ rm -f $RPM_BUILD_ROOT/bin/pgawk-%{version}
 
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 3.1.2-6avx
+- bootstrap build
+
 * Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 3.1.2-5avx
 - require packages not files
 - Annvix build

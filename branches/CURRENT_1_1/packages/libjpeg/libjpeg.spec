@@ -1,6 +1,6 @@
 %define name	libjpeg
 %define	version	6b
-%define release 35avx
+%define release 36avx
 
 %define lib_major	62
 %define lib_name_orig	libjpeg
@@ -158,6 +158,9 @@ mkdir -p %buildroot/{%{_bindir},%{_libdir},%{_includedir},%{_mandir}/man1}
 %{_mandir}/man1/*
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 6b-36avx
+- bootstrap build
+
 * Wed Jun 23 2004 Vincent Danen <vdanen@annvix.org> 6b-35avx
 - Annvix build
 

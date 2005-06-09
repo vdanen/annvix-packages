@@ -1,7 +1,7 @@
 # Defined in CVS makefile.
 %define name	etcskel
 %define version 1.63
-%define release 18avx
+%define release 19avx
 
 Summary:	Annvix default files for new users' home directories
 Name:		%{name}
@@ -45,6 +45,9 @@ make install RPM_BUILD_ROOT=$RPM_BUILD_ROOT
 %config(noreplace) /etc/skel/tmp
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.63-19avx
+- bootstrap build
+
 * Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 1.63-18avx
 - Annvix build
 

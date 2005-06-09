@@ -1,6 +1,6 @@
 %define pkgname	autoconf
 %define version	2.13
-%define release 23avx
+%define release 24avx
 %define epoch	1
 
 # Factorize uses of autoconf libdir home and handle only one exception in rpmlint
@@ -106,6 +106,9 @@ cp install-sh $RPM_BUILD_ROOT%{_datadir}/autoconf
 %{_infodir}/*
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.13-24avx
+- bootstrap build
+
 * Mon Feb 28 2005 Vincent Danen <vdanen@annvix.org> 2.13-23avx
 - now known as autoconf2.1
 - wrapper script is in autoconf2.5

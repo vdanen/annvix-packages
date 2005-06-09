@@ -1,6 +1,6 @@
 %define name	dmidecode
 %define version 2.3
-%define release 2avx
+%define release 3avx
 
 Summary:	Tool for dumping a computer's DMI table contents
 Name:		%{name}
@@ -45,6 +45,9 @@ mkdir -p $RPM_BUILD_ROOT%{_sbindir}
 %{_sbindir}/*
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.3-3avx
+- bootstrap build
+
 * Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 2.3-2avx
 - Annvix build
 

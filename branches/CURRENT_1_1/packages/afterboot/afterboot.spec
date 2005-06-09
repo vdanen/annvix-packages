@@ -2,7 +2,7 @@
 
 %define name	afterboot
 %define version 0.2
-%define release 2avx
+%define release 3avx
 
 Summary:	Dynamic afterboot manpage
 Name: 		%{name}
@@ -53,6 +53,9 @@ touch %{buildroot}%{_mandir}/man8/afterboot.8.bz2
 
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.2-3avx
+- bootstrap build
+
 * Sat Oct 09 2004 Vincent Danen <vdanen@opensls.org> 0.2-2avx
 - update a few things: s/supervise/runsv/ and s/setuidgid/chpst/
 

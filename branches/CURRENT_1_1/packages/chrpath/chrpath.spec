@@ -1,6 +1,6 @@
 %define name	chrpath
 %define version	0.12
-%define release	2avx
+%define release	3avx
 
 Summary: 	Dynamic library load path (rpath) alterer
 Name: 		%{name}
@@ -41,6 +41,9 @@ rm -fr %{buildroot}%{_prefix}/doc
 %_mandir/man1/chrpath.1*
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.12-3avx
+- bootstrap build
+
 * Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 0.12-2avx
 - Annvix build
 

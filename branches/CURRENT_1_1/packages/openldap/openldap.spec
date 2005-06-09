@@ -1,6 +1,6 @@
 %define name	openldap
 %define version	2.1.29
-%define release	13avx
+%define release	14avx
 
 %define major 		2
 %define migtools_ver	45
@@ -26,7 +26,7 @@
 %{?_without_sql: %global sql 0}
 %global back_perl 0
 
-Summary: 	LDAP servers and sample clients.
+Summary: 	LDAP servers and sample clients
 Name: 		%{name}
 Version: 	%{version}
 Release: 	%{release}
@@ -874,6 +874,9 @@ fi
 # - add cron-job to remove transaction logs (bdb)
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.1.29-14avx
+- bootstrap build
+
 * Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 2.1.29-13avx
 - really use logger in the run scripts (have I done a few too many
   of these today?)

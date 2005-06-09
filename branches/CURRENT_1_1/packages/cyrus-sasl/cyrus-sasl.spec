@@ -1,6 +1,6 @@
 %define name	cyrus-sasl
 %define version	2.1.20
-%define release	1avx
+%define release	2avx
 
 %define major	2
 %define libname	%mklibname sasl %{major}
@@ -396,6 +396,9 @@ fi
 %{_mandir}/man3/*
  
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.1.20-2avx
+- bootstrap build
+
 * Tue Mar 15 2005 Vincent Danen <vdanen@annvix.org> 2.1.20-1avx
 - 2.1.20
 - rediff P0, P3

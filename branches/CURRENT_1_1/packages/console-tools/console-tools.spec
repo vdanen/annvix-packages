@@ -1,6 +1,6 @@
 %define name		console-tools
 %define version		0.2.3
-%define release		51avx
+%define release		52avx
 
 %define	CTVER		%{version}
 %define	CDVER		1999.08.29
@@ -346,7 +346,10 @@ fi
 %_libdir/*.a
 
 %changelog
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 0.2.3-50avx
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.2.3-52avx
+- bootstrap build
+
+* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 0.2.3-51avx
 - sync with cooker 0.2.3-49mdk:
   - fix gcc-3.4 build (P19) (peroyvind)
   - force use of automake1.{4,7} and autoconf2.5 (peroyvind)

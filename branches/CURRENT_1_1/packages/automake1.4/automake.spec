@@ -1,6 +1,6 @@
 %define amname	automake
 %define version 1.4
-%define release 0.%patchlevel.27avx
+%define release 0.%patchlevel.28avx
 
 %define amversion	1.4
 %define patchlevel	p6
@@ -88,6 +88,9 @@ fi
 %dir %{_datadir}/aclocal
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.4-0.p6.28avx
+- bootstrap build
+
 * Fri Sep 24 2004 Vincent Danen <vdanen@annvix.org> 1.4-0.p6.27avx
 - this is now automake1.4
 - add --without-check option to disable 'make check' (abel)

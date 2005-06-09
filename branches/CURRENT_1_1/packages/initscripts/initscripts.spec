@@ -1,6 +1,6 @@
 %define name	initscripts
 %define version	7.61.1
-%define release	1avx
+%define release	2avx
 
 # 	$Id: initscripts.spec,v 1.329 2003/09/22 17:03:40 warly Exp $	
 
@@ -384,6 +384,9 @@ fi
 
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 7.61.1-2avx
+- bootstrap build
+
 * Tue Mar 01 2005 Vincent Danen <vdanen@annvix.org> 7.61.1-1avx
 - rediff our patch
 - drop SELinux stuff

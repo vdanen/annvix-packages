@@ -1,6 +1,6 @@
 %define name	libtermcap
 %define version	2.0.8
-%define release	38avx
+%define release	39avx
 
 %define lib_major	2
 %define lib_name_orig	libtermcap
@@ -143,6 +143,9 @@ fi
 %_includedir/termcap.h
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.0.8-39avx
+- bootstrap build
+
 * Wed Jun 23 2004 Vincent Danen <vdanen@annvix.org> 2.0.8-38avx
 - Annvix build
 

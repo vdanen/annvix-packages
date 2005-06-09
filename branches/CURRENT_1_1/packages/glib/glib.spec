@@ -1,6 +1,6 @@
 %define name	glib
 %define version	1.2.10
-%define release	15avx
+%define release	16avx
 
 %define libname  %mklibname %{name} %{major}
 %define major    1.2
@@ -111,6 +111,9 @@ make check
 %{_infodir}/%{name}*
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.2.10-16avx
+- bootstrap build
+
 * Mon Feb 28 2005 Vincent Danen <vdanen@annvix.org> 1.2.10-15avx
 - P2: fix build with gcc 3.4 (fedora)
 - P3: fix underquoted m4 definitions (fedora)

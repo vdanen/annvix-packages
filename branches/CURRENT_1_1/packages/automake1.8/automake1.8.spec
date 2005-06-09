@@ -1,5 +1,5 @@
 %define version 1.9.4
-%define release 1avx
+%define release 2avx
 
 %define amversion 1.9
 %define pkgamversion 1.8
@@ -116,6 +116,9 @@ fi
 %{_datadir}/aclocal*
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.9.4-2avx
+- bootstrap build
+
 * Mon Feb 28 2005 Vincent Danen <vdanen@annvix.org> 1.9.4-1avx
 - first Annvix build
 - we get 10 tests failing: auxdir2.test, cond17.test, txinfo3.test,

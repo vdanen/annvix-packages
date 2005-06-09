@@ -1,10 +1,10 @@
 %define name	cdialog
 %define version	0.9b
-%define release	7avx
+%define release	8avx
 
 %define datetag 20030308
 
-Summary:	A utility for creating TTY dialog boxes.
+Summary:	A utility for creating TTY dialog boxes
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -54,6 +54,9 @@ mkdir -p %{buildroot}%{_mandir}/man1
 %{_mandir}/man1/dialog.1.bz2
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.9b-8avx
+- bootstrap build
+
 * Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 0.9b-7avx
 - Annvix build
 

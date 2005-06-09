@@ -1,6 +1,6 @@
 %define name	ncurses
 %define version	5.3
-%define release	1.20030215.7avx
+%define release	1.20030215.8avx
 
 %define patchdate	20021028
 %define lib_major	5
@@ -201,6 +201,9 @@ rm -rf %{buildroot}%{_datadir}/terminfo/terminfo
 %{_mandir}/man3/*
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 5.3-1.20030215.8avx
+- bootstrap build
+
 * Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 5.3-1.20030215.7avx
 - Require packages not files
 - Annvix build

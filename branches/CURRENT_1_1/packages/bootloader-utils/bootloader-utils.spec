@@ -1,6 +1,6 @@
 %define name	bootloader-utils
 %define version	1.6
-%define release	9avx
+%define release	10avx
 
 %define _mypost_service() if [ $1 = 1 ]; then /sbin/chkconfig --add %{1}; fi;
 
@@ -65,6 +65,9 @@ make ROOT=%{buildroot} mandir=%{_mandir} install
 
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.6-10avx
+- bootstrap build
+
 * Sat Feb 05 2005 Vincent Danen <vdanen@annvix.org> 1.6-9avx
 - put back in the parts of the old patch we forgot
 - also don't have detectloader look for lilo.conf

@@ -1,6 +1,6 @@
 %define name	chkconfig
 %define version	1.3.13
-%define release	1avx
+%define release	2avx
 
 Summary:	A system tool for maintaining the /etc/rc*.d hierarchy
 Name:		%{name}
@@ -104,6 +104,9 @@ rm -f %{buildroot}%{_sbindir}/{alternatives,update-alternatives} %{buildroot}%{_
 %{_mandir}/man8/ntsysv.8*
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.3.13-2avx
+- bootstrap build
+
 * Mon Feb 28 2005 Vincent Danen <vdanen@annvix.org> 1.3.13-1avx
 - 1.3.13
 - fix LSB logic (flepied)

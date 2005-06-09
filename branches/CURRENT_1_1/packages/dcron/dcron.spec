@@ -1,6 +1,6 @@
 %define	name	dcron
 %define	version	2.9
-%define	release	10avx
+%define	release	11avx
 
 Summary:	Dillon's Cron Daemon
 Name:		%{name}
@@ -93,6 +93,9 @@ fi
 %dir %attr(0750,logger,logger) %{_srvlogdir}/crond
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.9-11avx
+- bootstrap build
+
 * Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 2.9-10avx
 - user logger for logging
 
