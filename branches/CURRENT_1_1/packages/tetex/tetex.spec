@@ -1,6 +1,6 @@
 %define name	tetex
 %define version	2.0.2
-%define release	15avx
+%define release	16avx
 
 %define pkgname		%{name}
 %define docversion	2.0.2
@@ -624,6 +624,9 @@ fi
 
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.0.2-16avx
+- bootstrap build
+
 * Sat Jun 18 2004 Vincent Danen <vdanen@annvix.org> 2.0.2-15avx
 - Annvix build
 

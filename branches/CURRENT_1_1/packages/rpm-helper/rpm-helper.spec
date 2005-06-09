@@ -1,6 +1,6 @@
 %define name	rpm-helper
 %define version	0.10
-%define release	10avx
+%define release	11avx
 
 Summary:	Helper scripts for rpm scriptlets
 Name:		%{name}
@@ -46,6 +46,9 @@ chmod 755 {add,del}-srv
 %{_datadir}/%{name}/*
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.10-2avx
+- bootstrap build
+
 * Tue Mar 01 2005 Vincent Danen <vdanen@annvix.org> 0.10-1avx
 - 0.10
 - tidy spec

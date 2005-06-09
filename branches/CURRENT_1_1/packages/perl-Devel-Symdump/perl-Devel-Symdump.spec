@@ -1,7 +1,7 @@
 %define name	perl-%{module}
 %define module	Devel-Symdump
 %define version 2.03
-%define release 9avx
+%define release 10avx
 
 Summary:	%{module} module for perl
 Name:		perl-%{module}
@@ -41,6 +41,9 @@ make test
 %{_mandir}/*/*
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.03-10avx
+- bootstrap build
+
 * Wed Feb 02 2005 Vincent Danen <vdanen@annvix.org> 2.03-9avx
 - rebuild against new perl
 

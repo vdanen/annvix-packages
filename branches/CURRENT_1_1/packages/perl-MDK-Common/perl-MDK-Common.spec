@@ -1,6 +1,6 @@
 %define name	perl-MDK-Common
 %define version 1.1.22
-%define release 1avx
+%define release 2avx
 
 %ifarch x86_64
 %define build_option	PERL_CHECKER_TARGET='debug-code BCSUFFIX=""'
@@ -68,6 +68,9 @@ rm -rf %{buildroot}%{_sysconfdir}/emacs
 
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.1.22-2avx
+- bootstrap build
+
 * Tue Mar 01 2005 Vincent Danen <vdanen@annvix.org> 1.1.22-1avx
 - 1.1.22
 - don't call "make test" as "make" is doing all that's needed and

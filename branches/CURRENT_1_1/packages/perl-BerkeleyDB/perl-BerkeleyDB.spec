@@ -1,7 +1,7 @@
 %define module	BerkeleyDB
 %define name	perl-%{module}
 %define version	0.26
-%define release	1avx
+%define release	2avx
 
 Summary:	Perl module for BerkeleyDB 2.x and greater
 Name:		%{name}
@@ -52,6 +52,9 @@ make test
 %{_mandir}/*/*
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.26-2avx
+- bootstrap build
+
 * Tue Mar 01 2005 Vincent Danen <vdanen@annvix.org> 0.26-1avx
 - first Annvix build
 

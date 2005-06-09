@@ -1,6 +1,6 @@
 %define name	spec-helper
 %define version 0.11
-%define release 1avx
+%define release 2avx
 
 %define distrib	Annvix
 
@@ -43,6 +43,9 @@ make install DESTDIR=%{buildroot} bindir=%{buildroot}/%{_bindir}
 %{_datadir}/spec-helper
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.11-2avx
+- bootstrap build
+
 * Fri Mar 04 2005 Vincent Danen <vdanen@annvix.org> 0.11-1avx
 - 0.11
   - handle filenames starting with - (flepid)

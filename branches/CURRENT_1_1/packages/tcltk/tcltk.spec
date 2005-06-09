@@ -1,6 +1,6 @@
 %define name	tcltk
 %define version	%{tclvers}
-%define release	5avx
+%define release	6avx
 
 %define tcl_major	8.4
 %define tk_major 	8.4
@@ -596,6 +596,9 @@ rm -f *.files
 %files -f tcllib.files -n tcllib
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 8.4.2-6avx
+- bootstrap build
+
 * Mon Aug 30 2004 Vincent Danen <vdanen@annvix.org> 8.4.2-5avx
 - fix dangling symlink (tixwish)
 

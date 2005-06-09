@@ -1,7 +1,7 @@
 %define module	Digest-SHA1
 %define	name	perl-%{module}
 %define	version	2.04
-%define	release	6avx
+%define	release	7avx
 
 Summary:	Perl interface to the SHA1 Algorithm	
 Name:		%{name}
@@ -44,6 +44,9 @@ make test
 %{perl_vendorarch}/auto
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.04-7avx
+- bootstrap build
+
 * Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> 2.04-6avx
 - rebuild against new perl
 

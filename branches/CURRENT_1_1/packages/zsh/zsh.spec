@@ -1,6 +1,6 @@
 %define name	zsh
 %define version	4.2.4
-%define release	2avx
+%define release	3avx
 %define epoch	1
 
 %define doc_version 4.2.4
@@ -104,6 +104,9 @@ rm -f %{buildroot}%{_bindir}/zsh-%{version}
 
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 4.2.4-3avx
+- bootstrap build
+
 * Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 4.2.4-2avx
 - update S2 to set resource limits in /etc/zshrc
 

@@ -1,6 +1,6 @@
 %define name	pcre
 %define version	4.5
-%define	release	2avx
+%define	release	3avx
 
 %define major		0
 %define libname_orig	lib%{name}
@@ -111,6 +111,9 @@ ln -s ../../%_lib/lib%{name}.so.%{major}.* .
 %_mandir/man3/*.3*
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 4.5-3avx
+- bootstrap build
+
 * Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 4.5-2avx
 - Annvix build
 

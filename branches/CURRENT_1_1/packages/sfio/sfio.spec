@@ -1,6 +1,6 @@
 %define name	sfio
 %define version	1999
-%define release	12avx
+%define release	13avx
 
 Summary:	A Safe/Fast I/O Library
 Name:		%{name}
@@ -82,6 +82,9 @@ install lib/*.a $RPM_BUILD_ROOT%{_libdir}/
 %{_libdir}/*.a
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1999-13avx
+- bootstrap build
+
 * Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 1999-12avx
 - Annvix build
 

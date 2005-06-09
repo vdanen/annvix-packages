@@ -1,7 +1,7 @@
 %define module	Hdlist
 %define name	perl-%{module}
 %define version	0.07
-%define release 1avx
+%define release 2avx
 
 Summary:	Perl bindings to use rpmlib and manage hdlist files
 Name:		%{name}
@@ -59,6 +59,9 @@ testing and development purposes only. API may change.
 %{_mandir}/*/*
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.07-2avx
+- bootstrap build
+
 * Mon Mar 28 2005 Vincent Danen <vdanen@annvix.org> 0.07-1avx
 - first Annvix build
 

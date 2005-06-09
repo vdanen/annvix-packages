@@ -1,6 +1,6 @@
 %define name	xfsprogs
 %define version 2.6.13
-%define release 1avx
+%define release 2avx
 
 %define url	ftp://oss.sgi.com/projects/xfs/download/cmd_tars
 
@@ -124,6 +124,9 @@ rm -rf %{buildroot}
 %{_mandir}/man3/*
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.6.13-2avx
+- bootstrap build
+
 * Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 2.6.13-1avx
 - 2.6.13
 - Annvix build

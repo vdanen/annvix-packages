@@ -1,7 +1,7 @@
 %define module  Tie-IxHash
 %define name	perl-%{module}
 %define version 1.21
-%define release 1avx
+%define release 2avx
 %define	pdir	Tie
 
 
@@ -46,6 +46,9 @@ make test
 %{perl_vendorlib}/Tie/IxHash.pm
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.21-2avx
+- bootstrap build
+
 * Sat Feb 26 2005 Vincent Danen <vdanen@annvix.org> 1.21-1avx
 - first Annvix build
 

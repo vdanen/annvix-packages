@@ -1,6 +1,6 @@
 %define name	openssl
 %define version	0.9.7e
-%define release	1avx
+%define release	2avx
 
 %define maj		0.9.7
 %define libname 	%mklibname %name %maj
@@ -198,7 +198,10 @@ rm -f %{buildroot}%{_mandir}/man7/Modes*
 
 
 %changelog
-* Sat Dec 04 2004 Vincent Danen <vdanen@annvix.org> 0.9.7d-3avx
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.9.7e-2avx
+- bootstrap build
+
+* Sat Dec 04 2004 Vincent Danen <vdanen@annvix.org> 0.9.7e-1avx
 - 0.9.7e
 - use original sources and include gpg sig
 - updated P2 and P3 from mdk

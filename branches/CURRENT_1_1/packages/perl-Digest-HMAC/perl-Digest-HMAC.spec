@@ -1,7 +1,7 @@
 %define module	Digest-HMAC
 %define	name	perl-%{module}
 %define	version	1.01
-%define	release	16avx
+%define	release	17avx
 
 Summary:	Keyed-Hashing for Message Authentication
 Name:		%{name}
@@ -44,6 +44,9 @@ make test
 %{perl_vendorlib}/Digest
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.01-17avx
+- bootstrap build
+
 * Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> 1.01-16avx
 - rebuild against new perl
 

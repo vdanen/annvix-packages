@@ -1,6 +1,6 @@
 %define name	pam
 %define version	0.77
-%define release	17avx
+%define release	18avx
 
 %define rhrelease	5
 %define libname		%mklibname %name 0
@@ -285,6 +285,9 @@ touch %{buildroot}%{_sysconfdir}/environment
 
 # mdk pam-0.77-26mdk
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.77-18avx
+- bootstrap build
+
 * Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 0.77-17avx
 - revert the pam.d/{other,system-auth} changes that crept in from mdk
   packages

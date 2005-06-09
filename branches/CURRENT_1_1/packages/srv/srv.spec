@@ -2,7 +2,7 @@
 
 %define name	srv
 %define version 0.9
-%define release 3avx
+%define release 4avx
 
 Summary:	Tool to manage runsv-controlled services.
 Name: 		%{name}
@@ -58,6 +58,9 @@ install -m 0644 exceptions %{buildroot}%{_datadir}/srv
 %{_mandir}/man8/srv.8*
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.9-4avx
+- bootstrap build
+
 * Wed Oct 06 2004 Vincent Danen <vdanen@annvix.org> 0.9-3avx
 - add %{_datadir}/srv/exceptions so we can have more services for
   process killing exceptions than just sshd; so far we have both

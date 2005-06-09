@@ -1,8 +1,8 @@
 %define name	tcp_wrappers
 %define version	7.6
-%define release	26avx
+%define release	27avx
 
-Summary: 	A security tool which acts as a wrapper for TCP daemons.
+Summary: 	A security tool which acts as a wrapper for TCP daemons
 Name: 		%{name}
 Version: 	%{version}
 Release: 	%{release}
@@ -82,6 +82,9 @@ ar d $RPM_BUILD_ROOT/%{_libdir}/libwrap.a setenv.o
 %{_libdir}/libwrap.a
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 7.6-27avx
+- bootstrap build
+
 * Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 7.6-26avx
 - Annvix build
 

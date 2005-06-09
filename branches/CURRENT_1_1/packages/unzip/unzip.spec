@@ -1,6 +1,6 @@
 %define name	unzip
 %define version 5.50
-%define release 12avx
+%define release 13avx
 %define src_ver 550
 
 Summary:	Unpacks ZIP files such as those made by pkzip under DOS
@@ -78,6 +78,9 @@ EOF
 
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 5.50-13avx
+- bootstrap build
+
 * Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 5.50-12avx
 - Annvix build
 

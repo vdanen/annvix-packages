@@ -1,6 +1,6 @@
 %define name	sed
 %define version	4.1.4
-%define release	1avx
+%define release	2avx
 
 Summary:	A GNU stream text editor
 Name:		%{name}
@@ -55,6 +55,9 @@ rm -rf %{buildroot}%{_datadir}/doc
 %{_mandir}/man1/sed.1.bz2
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 4.1.4-2avx
+- bootstrap build
+
 * Fri Mar 04 2005 Vincent Danen <vdanen@annvix.org> 4.1.4-1avx
 - 4.1.4
 - spec cleanups

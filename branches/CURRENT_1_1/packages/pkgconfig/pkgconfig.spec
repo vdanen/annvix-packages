@@ -1,8 +1,8 @@
 %define name	pkgconfig
 %define version	0.15.0
-%define release	6avx
+%define release	7avx
 
-Summary:	Pkgconfig helps make building packages easier.
+Summary:	Pkgconfig helps make building packages easier
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -49,6 +49,9 @@ mkdir -p $RPM_BUILD_ROOT%{_libdir}/pkgconfig
 %{_mandir}/man1/*
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.15.0-7avx
+- bootstrap build
+
 * Tue Jun 22 2004 Vincent Danen <vdanen@opensls.org> 0.15.0-6avx
 - Annvix build
 

@@ -1,7 +1,7 @@
 %define module	Apache-Test
 %define name	perl-%{module}
 %define version	1.20
-%define release	1avx
+%define release	2avx
 
 Summary:	Apache::Test - Test.pm wrapper with helpers for testing Apache
 Name: 		%{name}
@@ -50,6 +50,9 @@ developed for testing mod_perl 2.0.
 %{_mandir}/*/*
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.20-2avx
+- bootstrap build
+
 * Sat Feb 26 2005 Vincent Danen <vdanen@annvix.org> 1.20-1avx
 - first Annvix build
 

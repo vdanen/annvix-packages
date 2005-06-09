@@ -1,7 +1,7 @@
 %define module	DBI
 %define name	perl-%{module}
 %define version 1.47
-%define release 1avx
+%define release 2avx
 
 Summary:	The Perl Database Interface
 Name:		%{name}
@@ -103,6 +103,9 @@ rm -f %{buildroot}%{_mandir}/man3pm/Roadmap.3pm*
 %{_mandir}/man3*/DBI::ProfileDumper::Apache.3pm.*
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.47-2avx
+- bootstrap build
+
 * Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> 1.47-1avx
 - 1.47
 - use %%make and %%makeinstall_std macros (peroyvind)

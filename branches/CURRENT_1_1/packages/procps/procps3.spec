@@ -1,6 +1,6 @@
 %define name	procps
 %define version	3.2.1
-%define release	2avx
+%define release	3avx
 
 Summary:	Utilities for monitoring your system and processes on your system
 Name:		%{name}
@@ -131,6 +131,9 @@ rm -f /etc/psdevtab /etc/psdatabase
 /%_lib/libproc.so
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 3.2.1-3avx
+- bootstrap build
+
 * Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 3.2.1-2avx
 - Annvix build
 

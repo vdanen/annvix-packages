@@ -1,9 +1,9 @@
 %define	module	HTML-Tagset
 %define name	perl-%{module}
 %define	version	3.03
-%define	release	12avx
+%define	release	13avx
 
-Summary: 	This module contains data tables useful in dealing with HTML.
+Summary: 	This module contains data tables useful in dealing with HTML
 Name: 		%{name}
 Version: 	%{version}
 Release: 	%{release}
@@ -45,6 +45,9 @@ make test
 %{perl_vendorlib}/HTML
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 3.31-13avx
+- bootstrap build
+
 * Wed Feb 02 2005 Vincent Danen <vdanen@annvix.org> 3.31-12avx
 - rebuild against new perl
 

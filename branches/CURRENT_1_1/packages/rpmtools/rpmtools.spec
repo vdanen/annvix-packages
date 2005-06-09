@@ -1,6 +1,6 @@
 %define name	rpmtools
 %define version	5.0.18
-%define release 1avx
+%define release 2avx
 
 %{expand:%%define rpm_version %(rpm -q --queryformat '%{VERSION}-%{RELEASE}' rpm)}
 # perl-Compress-Zlib is only "suggested"
@@ -58,6 +58,9 @@ Various tools needed by urpmi and drakxtools for handling rpm files.
 %{_mandir}/*/*
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 5.0.18-2avx
+- bootstrap build
+
 * Thu Mar 17 2005 Vincent Danen <vdanen@annvix.org> 5.0.18-1avx
 - 5.0.18
 

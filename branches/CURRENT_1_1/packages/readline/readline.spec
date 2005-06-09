@@ -1,6 +1,6 @@
 %define name	readline
 %define version	4.3
-%define	release	10avx
+%define	release	11avx
 
 ## Do not apply library policy!!
 %define lib_major	4
@@ -121,6 +121,9 @@ perl -p -i -e 's|/usr/local/bin/perl|/usr/bin/perl|' doc/texi2html
 /%{_lib}/*so
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 4.3-11avx
+- bootstrap build
+
 * Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 4.3-10avx
 - Annvix build
 

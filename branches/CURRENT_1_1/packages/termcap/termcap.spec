@@ -1,6 +1,6 @@
 %define name	termcap
 %define version 11.0.1
-%define release 11avx
+%define release 12avx
 
 Summary:	The terminal feature database used by certain applications.
 Name:		%{name}
@@ -55,6 +55,9 @@ rm -rf	$RPM_BUILD_ROOT%{_sysconfdir}/termcap.orig
 %config(noreplace) %attr(644,root,root) %{_sysconfdir}/termcap
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 11.0.1-12avx
+- bootstrap build
+
 * Sat Jun 19 2004 Vincent Danen <vdanen@annvix.org> 11.0.1-11avx
 - Annvix build
 

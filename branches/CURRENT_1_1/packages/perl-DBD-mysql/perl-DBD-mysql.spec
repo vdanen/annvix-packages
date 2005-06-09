@@ -1,7 +1,7 @@
 %define	module	DBD-mysql
 %define	name	perl-%{module}
 %define version 2.9004
-%define release 1avx
+%define release 2avx
 
 Summary:	DBD MySQL Perl Emulation Layer
 Name:		%{name}
@@ -9,12 +9,14 @@ Version:	%{version}
 Release:	%{release}
 License:	GPL
 Group:		Development/Databases
-Source:		http://www.cpan.org/modules/by-module/DBD/%{module}-%{version}.tar.bz2
 URL:		http://search.cpan.org/dist/%{module}
+Source:		http://www.cpan.org/modules/by-module/DBD/%{module}-%{version}.tar.bz2
+
 Buildroot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
-Requires:	perl
 BuildRequires:	MySQL-devel perl-DBI
 BuildRequires:	perl-devel
+
+Requires:	perl
 Provides:	perl-Mysql
 Obsoletes:	perl-Mysql
 
@@ -50,6 +52,9 @@ will easily be portable to other DBMS's.
 %{_mandir}/*/*
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.9004-2avx
+- bootstrap build
+
 * Fri Feb 25 2005 Vincent Danen <vdanen@annvix.org> 2.9004-1avx
 - first annvix build
 

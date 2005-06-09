@@ -1,7 +1,7 @@
 %define module	URI
 %define name	perl-%{module}
 %define version 1.35
-%define release 1avx
+%define release 2avx
 
 %define _requires_exceptions perl(Business::ISBN)
 
@@ -48,6 +48,9 @@ make test
 %{_mandir}/*/*
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.35-2avx
+- bootstrap build
+
 * Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> 1.35-1avx
 - 1.35
 - update description

@@ -1,6 +1,6 @@
 %define name	rpmconstant
 %define version	0.0.4
-%define release 1avx
+%define release 2avx
 
 %define major	0
 %define libname	%mklibname %{name} %{major}
@@ -82,6 +82,9 @@ You need this package to build applications using librpmconstant.
 %{_libdir}/lib%{name}.la
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.0.4-2avx
+- bootstrap build
+
 * Mon Mar 28 2005 Vincent Danen <vdanen@annvix.org> 0.0.4-1avx
 - first Annvix build
 

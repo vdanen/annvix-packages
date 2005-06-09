@@ -1,7 +1,7 @@
 %define	module	XML-Parser
 %define	name	perl-%{module}
 %define	version	2.34
-%define	release	6avx
+%define	release	7avx
 
 Summary: 	A perl module for parsing XML documents
 Name: 		%{name}
@@ -48,6 +48,9 @@ install -m 644 enc/koi8-r.enc $RPM_BUILD_ROOT%{perl_vendorarch}/XML/Parser/Encod
 
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.34-7avx
+- bootstrap build
+
 * Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> 2.34-6avx
 - rebuild against new perl
 

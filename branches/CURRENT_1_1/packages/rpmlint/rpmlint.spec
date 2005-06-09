@@ -1,6 +1,6 @@
 %define name	rpmlint
 %define version 0.67
-%define release 1avx
+%define release 2avx
 
 Summary:	RPM correctness checker
 Name:		%{name}
@@ -46,6 +46,9 @@ install -m 0644 %{SOURCE1} %{buildroot}%{_sysconfdir}/rpmlint/config
 %config(noreplace) %{_sysconfdir}/rpmlint/config
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.67-2avx
+- bootstrap build
+
 * Tue Mar 01 2005 Vincent Danen <vdanen@annvix.org> 0.67-1avx
 - 0.67:
   - added obsolete-on-name error: a package sould not obsolete itself, as

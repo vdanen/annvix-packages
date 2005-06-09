@@ -1,7 +1,7 @@
 %define	name	perl-%{module}
 %define	module	BSD-Resource
 %define	version	1.22
-%define	release	8avx
+%define	release	9avx
 
 Summary:	%{module} module for perl 
 Name:		%{name}
@@ -44,6 +44,9 @@ find . -type f | xargs %{__perl} -p -i -e "s|^#\!/usr/local/bin/perl|#\!/usr/bin
 %{_mandir}/man*/*
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.22-9avx
+- bootstrap build
+
 * Wed Feb 02 2005 Vincent Danen <vdanen@annvix.org> 1.22-8avx
 - rebuild against new perl
 

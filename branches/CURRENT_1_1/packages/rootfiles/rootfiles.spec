@@ -1,6 +1,6 @@
 %define name	rootfiles
 %define version	9.1
-%define	release	4avx
+%define	release	5avx
 
 Summary:	The basic required files for the root user's directory
 Name:		%{name}
@@ -45,6 +45,9 @@ make install RPM_BUILD_ROOT=%buildroot
 %attr(0700,root,root) /root/tmp/
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 9.1-5avx
+- bootstrap build
+
 * Mon Jul 19 2004 Vincent Danen <vdanen@annvix.org> 9.1-4avx
 - update P0 so that if one connects via rsync (where logname is undefined)
   the error doesn't go to STDOUT

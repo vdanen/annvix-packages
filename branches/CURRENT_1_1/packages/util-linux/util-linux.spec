@@ -1,6 +1,6 @@
 %define name	util-linux
 %define version	2.12a
-%define release	1avx
+%define release	2avx
 
 # Maintainer util-linux@math.uio.no
 
@@ -575,6 +575,9 @@ fi
 /sbin/losetup
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.12a-2avx
+- bootstrap build
+
 * Tue Mar 01 2005 Vincent Danen <vdanen@annvix.org> 2.12a-1avx
 - 2.12a (sync with cooker 2.12a-11mdk):
   - P120: fix compilation issues (blino)

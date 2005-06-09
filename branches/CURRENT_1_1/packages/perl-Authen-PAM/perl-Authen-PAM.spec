@@ -1,7 +1,7 @@
 %define module 	Authen-PAM
 %define name	perl-%{module}
 %define version 0.14
-%define release 8avx
+%define release 9avx
 
 Summary:	Perl interface to the PAM library
 Name: 		%{name}
@@ -44,6 +44,9 @@ one is simpler.
 
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.14-9avx
+- bootstrap build
+
 * Wed Feb 02 2005 Vincent Danen <vdanen@annvix.org> 0.14-8avx
 - rebuild against new perl
 

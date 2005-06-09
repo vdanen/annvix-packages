@@ -1,9 +1,9 @@
 %define name 	tmpwatch
 %define version	2.9.0
-%define release	4avx
+%define release	5avx
 
 # CVSROOT=':ext:user@devserv.devel.redhat.com:/home/devel/CVS'
-Summary:	A utility for removing files based on when they were last accessed.
+Summary:	A utility for removing files based on when they were last accessed
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -55,6 +55,9 @@ chmod 0755 $RPM_BUILD_ROOT/etc/cron.daily/tmpwatch
 %attr(755,root,root) %config(noreplace) %{_sysconfdir}/cron.daily/tmpwatch
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.9.0-5avx
+- bootstrap build
+
 * Sat Jun 19 2004 Vincent Danen <vdanen@annvix.org> 2.9.0-4avx
 - Annvix build
 

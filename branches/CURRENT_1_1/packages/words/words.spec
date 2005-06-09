@@ -1,6 +1,6 @@
 %define name	words
 %define version	2
-%define release	22avx
+%define release	23avx
 
 %define _dict_dir /usr/share/dict/
 
@@ -34,10 +34,10 @@ spelling.
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p $RPM_BUILD_ROOT%{_dict_dir}
+mkdir -p %{buildroot}%{_dict_dir}
 
-cp usr/dict/linux.words $RPM_BUILD_ROOT/%{_dict_dir}
-ln -sf linux.words $RPM_BUILD_ROOT%{_dict_dir}words
+cp usr/dict/linux.words %{buildroot}/%{_dict_dir}
+ln -sf linux.words %{buildroot}%{_dict_dir}words
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -50,6 +50,9 @@ ln -sf linux.words $RPM_BUILD_ROOT%{_dict_dir}words
 %{_dict_dir}words
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2-23avx
+- bootstrap build
+
 * Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 2-22avx
 - Annvix build
 

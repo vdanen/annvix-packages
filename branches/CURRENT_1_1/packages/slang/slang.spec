@@ -1,6 +1,6 @@
 %define name	slang
 %define version 1.4.9
-%define release 8avx
+%define release 9avx
 
 %define docversion	1.4.8
 %define major		1
@@ -118,6 +118,9 @@ rm -rf	%{buildroot}/usr/doc/slang
 %{_includedir}/slang/*.h
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.4.9-9avx
+- bootstrap build
+
 * Mon Mar 28 2005 Vincent Danen <vdanen@annvix.org> 1.4.9-8avx
 - fix ownership
 

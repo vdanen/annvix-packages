@@ -1,7 +1,7 @@
 %define module	Config-IniFiles
 %define name	perl-%{module}
 %define version	2.38
-%define release	1avx
+%define release	2avx
 
 Summary:	Config-IniFiles module for perl
 Name:		%{name}
@@ -44,6 +44,9 @@ chmod 644 README
 %{_mandir}/*/*
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.38-2avx
+- bootstrap build
+
 * Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 2.38-1avx
 - first Annvix build, for rpmtools
 

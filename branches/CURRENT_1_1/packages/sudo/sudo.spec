@@ -1,9 +1,9 @@
 %define name	sudo
 %define version	1.6.8p2
-%define release	1avx
+%define release	2avx
 %define epoch	1
 
-Summary:	Allows command execution as root for specified users.
+Summary:	Allows command execution as root for specified users
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -89,6 +89,9 @@ install -m 0440 %{SOURCE2} %{buildroot}%{_sysconfdir}/sudoers
 /var/run/sudo
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1:1.6.8p2-2avx
+- bootstrap build
+
 * Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 1:1.6.8p2-1avx
 - 1.6.8p2; fixes a security flaw regarding bash scripts
 - fix naming convention

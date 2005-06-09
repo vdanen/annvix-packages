@@ -1,6 +1,6 @@
 %define name	texinfo
 %define version	4.8
-%define release	2avx
+%define release	3avx
 
 Summary:	Tools needed to create Texinfo format documentation files
 Name:		%{name}
@@ -132,6 +132,9 @@ popd
 %{_mandir}/man1/install-info.1*
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 4.8-3avx
+- bootstrap build
+
 * Sun Mar 06 2005 Vincent Danen <vdanen@annvix.org> 4.8-2avx
 - fix conflicts on info-install vs. info
 

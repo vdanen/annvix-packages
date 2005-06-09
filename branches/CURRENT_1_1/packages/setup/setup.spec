@@ -2,7 +2,7 @@
 
 %define name	setup
 %define version 2.5
-%define release 3avx
+%define release 4avx
 
 Summary:	A set of system configuration and setup files
 Name:		%{name}
@@ -91,6 +91,9 @@ fi
 %dir /var/lib/rsbac
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.5-4avx
+- bootstrap build
+
 * Sat Mar 19 2005 Vincent Danen <vdanen@annvix.org> 2.5-3avx
 - add /etc/sysconfig/ulimits to determine defaults for max number of user procs,
   max number of open files, and max data segment size

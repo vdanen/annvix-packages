@@ -1,7 +1,7 @@
 %define module	Crypt-SmbHash
 %define name	perl-%{module}
 %define version	0.12
-%define release	1avx
+%define release	2avx
 
 Summary:	Crypt::SmbHash Perl module - generate LM/NT hashes like smbpasswd
 Name:		%{name}
@@ -43,6 +43,9 @@ Samba's 'password' files, like smbpasswd.
 %{_mandir}/man3/*
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.12-2avx
+- bootstrap build
+
 * Tue Feb 15 2005 Vincent Danen <vdanen@annvix.org> 0.12-1avx
 - initial Annvix package for new smbldap-tools in samba-3.0.11
 - major spec cleanup

@@ -1,6 +1,6 @@
 %define name	tar
 %define version	1.14
-%define release	1avx
+%define release	2avx
 
 %define rmtrealname	rmt-tar
 %define _bindir		/bin
@@ -108,6 +108,9 @@ fi
 
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.14-2avx
+- bootstrap build
+
 * Fri Aug 13 2004 Vincent Danen <vdanen@annvix.org> 1.14-1avx
 - 1.14
 - patch policy

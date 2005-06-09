@@ -1,6 +1,6 @@
 %define name	postgresql
 %define version	8.0.1
-%define release	4avx
+%define release	5avx
 
 %define _requires_exceptions devel(libtcl8.4)\\|devel(libtcl8.4(64bit))
 
@@ -569,6 +569,9 @@ rm -f perlfiles.list
 %attr(-,postgres,postgres) %dir %{_libdir}/pgsql/test
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 8.0.1-5avx
+- bootstrap build
+
 * Wed Mar 16 2005 Vincent Danen <vdanen@annvix.org> 8.0.1-4avx
 - fix plperl linkage over libperl.so for all archs (nanardon)
 - patches to fix CAN-2005-0227, CAN-2005-0245, CAN-2005-0247

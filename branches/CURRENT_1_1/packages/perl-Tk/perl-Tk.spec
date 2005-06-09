@@ -1,7 +1,7 @@
 %define module	Tk
 %define name	perl-%{module}
 %define version 804.027
-%define release 1avx
+%define release 2avx
 
 %define _requires_exceptions Watch
 
@@ -112,7 +112,10 @@ rm -f %{buildroot}%{perl_vendorarch}/Tk/README.Adjust
 
 
 %changelog
-* Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> 800.024-9avx
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 800.027-2avx
+- bootstrap build
+
+* Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> 800.027-1avx
 - 804.027
 - spec cleanups
 

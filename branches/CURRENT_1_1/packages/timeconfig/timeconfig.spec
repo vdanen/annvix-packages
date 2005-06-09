@@ -1,8 +1,8 @@
 %define name	timeconfig
 %define version	3.2
-%define release	13avx
+%define release	14avx
 
-Summary:	Text mode tools for setting system time parameters.
+Summary:	Text mode tools for setting system time parameters
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -74,6 +74,9 @@ fi
 %{_mandir}/man*/*
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 3.2-14avx
+- bootstrap build
+
 * Mon Feb 28 2005 Vincent Danen <vdanen@annvix.org> 3.2-13avx
 - rebuild against new newt/slang
 

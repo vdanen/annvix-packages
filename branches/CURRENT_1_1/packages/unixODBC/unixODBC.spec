@@ -1,6 +1,6 @@
 %define name	unixODBC
 %define version	2.2.10
-%define release	1avx
+%define release	2avx
 
 %define LIBMAJ	1
 %define libname %mklibname %name %{LIBMAJ}
@@ -160,6 +160,9 @@ rm -f libodbc-libs.filelist
 %{_libdir}/*.la
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.2.10-2avx
+- bootstrap build
+
 * Fri Mar 04 2005 Vincent Danen <vdanen@annvix.org> 2.2.10-1avx
 - 2.2.10
 - pull out the gui pkgs completely

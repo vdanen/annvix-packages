@@ -1,6 +1,6 @@
 %define name	shadow-utils
 %define version	4.0.3
-%define release	11avx
+%define release	12avx
 
 #rh-20000902-10
 #%define url	ftp://ftp.ists.pwr.wroc.pl/pub/linux/shadow/beta
@@ -166,6 +166,9 @@ rm -rf build-$RPM_ARCH
 %{_mandir}/man8/faillog.8*
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 4.0.3-12avx
+- bootstrap build
+
 * Tue Jun 29 2004 Vincent Danen <vdanen@annvix.org> 4.0.3-11avx
 - P12 (from Owl): Properly check the return value from pam_chauthtok()
   in libmisc/pwdcheck.c: passwd_check() that is used by chfn and chsh

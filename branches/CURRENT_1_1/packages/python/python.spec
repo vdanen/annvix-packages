@@ -1,6 +1,6 @@
 %define name	python
 %define version	2.4
-%define release	2avx
+%define release	3avx
 
 %define docver  2.4
 %define dirver  2.4
@@ -139,7 +139,7 @@ cat > Modules/Setup.local << EOF
 linuxaudiodev linuxaudiodev.c
 EOF
 
-OPT="$RPM_OPT_FLAGS -g"
+OPT="%{optflags} -g"
 export OPT
 %configure2_5x --with-threads --with-cycle-gc --with-cxx=g++ --without-libdb --enable-ipv6 --enable-shared
 
@@ -149,60 +149,60 @@ make test TESTOPTS="-l -x test_linuxaudiodev -x test_openpty"
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p $RPM_BUILD_ROOT%{_prefix}
+mkdir -p %{buildroot}%{_prefix}
 
 # fix Makefile to get rid of reference to distcc
 perl -pi -e "/^CC=/ and s/distcc/gcc/" Makefile
 
 # set the install path
 echo '[install_scripts]' >setup.cfg
-echo 'install_dir='"${RPM_BUILD_ROOT}/usr/bin" >>setup.cfg
+echo 'install_dir='"%{buildroot}%{_bindir}" >>setup.cfg
 
 # python is not GNU and does not know fsstd
-mkdir -p $RPM_BUILD_ROOT%{_mandir}
+mkdir -p %{buildroot}%{_mandir}
 %makeinstall_std
 
-(cd $RPM_BUILD_ROOT%{_libdir}; ln -sf libpython%{lib_major}.so.* libpython%{lib_major}.so)
+(cd %{buildroot}%{_libdir}; ln -sf libpython%{lib_major}.so.* libpython%{lib_major}.so)
 
 # Provide a libpython%{dirver}.so symlink in /usr/lib/puthon*/config, so that
 # the shared library could be found when -L/usr/lib/python*/config is specified
-(cd $RPM_BUILD_ROOT%{_libdir}/python%{dirver}/config; ln -sf ../../libpython%{lib_major}.so .)
+(cd %{buildroot}%{_libdir}/python%{dirver}/config; ln -sf ../../libpython%{lib_major}.so .)
 
 # smtpd proxy
 mv -f %{buildroot}%{_bindir}/smtpd.py %{buildroot}%{_libdir}/python%{dirver}/
 
 # idle
-cp Tools/scripts/idle $RPM_BUILD_ROOT%{_bindir}/idle
+cp Tools/scripts/idle %{buildroot}%{_bindir}/idle
 
 # modulator
-cat << EOF > $RPM_BUILD_ROOT%{_bindir}/modulator
+cat << EOF > %{buildroot}%{_bindir}/modulator
 #!/bin/bash
 exec %{_libdir}/python%{dirver}/site-packages/modulator/modulator.py
 EOF
-cp -r Tools/modulator $RPM_BUILD_ROOT%{_libdir}/python%{dirver}/site-packages/
+cp -r Tools/modulator %{buildroot}%{_libdir}/python%{dirver}/site-packages/
 
 # pynche
-cat << EOF > $RPM_BUILD_ROOT%{_bindir}/pynche
+cat << EOF > %{buildroot}%{_bindir}/pynche
 #!/bin/bash
 exec %{_libdir}/python%{dirver}/site-packages/pynche/pynche
 EOF
 rm -f Tools/pynche/*.pyw
-cp -r Tools/pynche $RPM_BUILD_ROOT%{_libdir}/python%{dirver}/site-packages/
+cp -r Tools/pynche %{buildroot}%{_libdir}/python%{dirver}/site-packages/
 
-chmod 755 $RPM_BUILD_ROOT%{_bindir}/{idle,modulator,pynche}
+chmod 755 %{buildroot}%{_bindir}/{idle,modulator,pynche}
 
 ln -f Tools/modulator/README Tools/modulator/README.modulator
 ln -f Tools/pynche/README Tools/pynche/README.pynche
 
 rm -f modules-list.full
-for n in $RPM_BUILD_ROOT%{_libdir}/python%{dirver}/*; do
+for n in %{buildroot}%{_libdir}/python%{dirver}/*; do
   [ -d $n ] || echo $n
 done >> modules-list.full
 
-for mod in $RPM_BUILD_ROOT%{_libdir}/python%{dirver}/lib-dynload/* ; do
+for mod in %{buildroot}%{_libdir}/python%{dirver}/lib-dynload/* ; do
   [ `basename $mod` = _tkinter.so ] || echo $mod
 done >> modules-list.full
-sed -e "s|$RPM_BUILD_ROOT||g" < modules-list.full > modules-list
+sed -e "s|%{buildroot}||g" < modules-list.full > modules-list
 
 
 rm -f include.list main.list
@@ -227,10 +227,10 @@ cat >> modules-list << EOF
 $MODULESEXTRA
 EOF
 
-LD_LIBRARY_PATH=$RPM_BUILD_ROOT%{_libdir} $RPM_BUILD_ROOT%{_bindir}/python %{SOURCE3} $RPM_BUILD_ROOT include.list modules-list > main.list
+LD_LIBRARY_PATH=%{buildroot}%{_libdir} %{buildroot}%{_bindir}/python %{SOURCE3} %{buildroot} include.list modules-list > main.list
 
 # fix non real scripts
-chmod 644 $RPM_BUILD_ROOT%{_libdir}/python*/test/test_{binascii,grp,htmlparser}.py*
+chmod 644 %{buildroot}%{_libdir}/python*/test/test_{binascii,grp,htmlparser}.py*
 # fix python library not stripped
 chmod u+w %{buildroot}%{_libdir}/libpython2.4.so.1.0
 
@@ -279,6 +279,9 @@ rm -f modules-list main.list
 %postun -n %{lib_name} -p /sbin/ldconfig
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.4-3avx
+- bootstrap build
+
 * Wed Feb 09 2005 Vincent Danen <vdanen@annvix.org> 2.4-2avx
 - P6: fix for CAN-2005-0089
 - make test without testing test_openpty since it fails if python is built

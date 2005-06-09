@@ -1,8 +1,8 @@
 %define name	patch
 %define version 2.5.9
-%define release 4avx
+%define release 5avx
 
-Summary:	The GNU patch command, for modifying/upgrading files.
+Summary:	The GNU patch command, for modifying/upgrading files
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -15,7 +15,7 @@ Patch2:		patch-2.5.4-unreadable_to_readable.patch.bz2
 Patch3:		patch-2.5.8-stderr.patch.bz2
 Patch5:		patch-2.5.4-destdir.patch.bz2
 
-Buildroot:	%{_tmppath}/%{name}-root
+Buildroot:	%{_tmppath}/%{name}-%{version}-root
 
 %description
 The patch program applies diff files to originals.  The diff command
@@ -43,7 +43,7 @@ applications.
 %configure --disable-largefile
 %endif
 
-make "CFLAGS=$RPM_OPT_FLAGS -D_GNU_SOURCE -W -Wall" LDFLAGS=-s
+make "CFLAGS=%{optflags} -D_GNU_SOURCE -W -Wall" LDFLAGS=-s
 
 
 %install
@@ -60,6 +60,9 @@ make "CFLAGS=$RPM_OPT_FLAGS -D_GNU_SOURCE -W -Wall" LDFLAGS=-s
 %{_mandir}/*/*
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.5.9-5avx
+- bootstrap build
+
 * Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 2.5.9-4avx
 - Annvix build
 

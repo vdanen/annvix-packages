@@ -1,6 +1,6 @@
 %define name	xpm
 %define version	3.4k
-%define release	30avx
+%define release	31avx
 
 %define prefix	/usr/X11R6
 %define	major	4
@@ -104,6 +104,9 @@ ln -sf libXpm.so.%{LIBVER} $RPM_BUILD_ROOT%prefix/%{_lib}/libXpm.so
 %prefix/%{_lib}/libXpm.so
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 3.4k-31avx
+- bootstrap build
+
 * Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 3.4k-30avx
 - Annvix build
 

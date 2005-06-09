@@ -1,7 +1,7 @@
 %define module	Convert-ASN1
 %define name	perl-%{module}
 %define version 0.18
-%define release 3avx
+%define release 4avx
 
 Summary: 	ASN.1 Encode/Decode library for perl
 Name: 		%{name}
@@ -47,6 +47,9 @@ make test
 %{_mandir}/*/*
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.18-4avx
+- bootstrap build
+
 * Wed Feb 02 2005 Vincent Danen <vdanen@annvix.org> 0.18-3avx
 - rebuild against new perl
 

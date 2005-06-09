@@ -1,6 +1,6 @@
 %define name	vim
 %define version	6.3
-%define release	3avx
+%define release	4avx
 
 # Notes / Warning :
 # - this package is not prefixable
@@ -354,6 +354,9 @@ update-alternatives --remove vim /usr/bin/vim-enhanced
 %{_bindir}/vimdiff
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 6.3-4avx
+- bootstrap build
+
 * Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> 6.3-3avx
 - rebuild against new python
 

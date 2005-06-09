@@ -1,9 +1,9 @@
 %define module	Term-ReadLine-Gnu
 %define name	perl-%{module}
 %define version 1.15
-%define release 1avx
+%define release 2avx
 
-Summary:	GNU Readline for perl.
+Summary:	GNU Readline for perl
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -61,6 +61,9 @@ perl -pi -e 's!/usr/local/bin/perl!/usr/bin/perl!g' $RPM_BUILD_ROOT%perl_vendora
 %{perl_vendorarch}/auto/Term
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.15-2avx
+- bootstrap build
+
 * Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> 1.15-1avx
 - 1.15
 

@@ -1,7 +1,7 @@
 %define module	YAML
 %define name	perl-%{module}
 %define version 0.36
-%define release 1avx
+%define release 2avx
 
 Summary:	YAML Ain't Markup Language (tm)
 Name:		%{name}
@@ -50,6 +50,9 @@ make test
 %{_mandir}/*/*
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.36-2avx
+- bootstrap build
+
 * Sat Feb 26 2005 Vincent Danen <vdanen@annvix.org> 0.36-1avx
 - first Annvix build
 

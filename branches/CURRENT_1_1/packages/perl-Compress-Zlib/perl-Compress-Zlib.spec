@@ -1,7 +1,7 @@
 %define	module	Compress-Zlib
 %define	name	perl-%{module}
 %define	version	1.33
-%define	release	1avx
+%define	release	2avx
 
 Summary:	%{module} module for perl
 Name:		%{name}
@@ -43,6 +43,9 @@ make test
 %{perl_vendorarch}/auto/Compress
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.33-2avx
+- bootstrap build
+
 * Wed Feb 02 2005 Vincent Danen <vdanen@annvix.org> 1.33-1avx
 - first Annvix build (required for rpmtools)
 

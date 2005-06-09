@@ -1,6 +1,6 @@
 %define name	perl-URPM
 %define version 1.11
-%define release 1avx
+%define release 2avx
 
 %define real_name URPM
 
@@ -59,6 +59,9 @@ hdlist files and manage them in memory.
 
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.11-2avx
+- bootstrap build
+
 * Thu Mar 17 2005 Vincent Danen <vdanen@annvix.org> 1.11-1avx
 - 1.11
 

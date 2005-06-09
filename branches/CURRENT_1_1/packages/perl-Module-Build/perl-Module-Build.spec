@@ -1,7 +1,7 @@
 %define	module	Module-Build
 %define	name	perl-%{module}
 %define version 0.2608
-%define release 1avx
+%define release 2avx
 
 Summary:	Build and install Perl modules
 Name:		%{name}
@@ -52,6 +52,9 @@ perl Build.PL installdirs=vendor
 %{_mandir}/*/*
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.2608-2avx
+- bootstrap build
+
 * Sat Feb 26 2005 Vincent Danen <vdanen@annvix.org> 0.2608-1avx
 - first Annvix build
 

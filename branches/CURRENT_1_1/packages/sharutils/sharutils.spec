@@ -1,9 +1,9 @@
 %define name	sharutils
 %define version	4.2.1
-%define release	19avx
+%define release	20avx
 
 #rh-4.2.1-12
-Summary:	The GNU shar utilities for packaging and unpackaging shell archives.
+Summary:	The GNU shar utilities for packaging and unpackaging shell archives
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -97,6 +97,9 @@ fi
 %{_mandir}/man?/*
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 4.2.1-20avx
+- bootstrap build
+
 * Mon Apr 04 2005 Vincent Danen <vdanen@annvix.org> 4.2.1-19avx
 - P12: security patch for CAN-2004-1772
 - P13: security patch for CAN-2004-1773

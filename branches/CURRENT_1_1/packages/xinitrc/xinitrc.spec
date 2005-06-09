@@ -1,6 +1,6 @@
 %define name    xinitrc
 %define version 2.4.4
-%define release 79avx
+%define release 80avx
 
 Summary:	The default startup script for the X Window System
 Name:		%{name}
@@ -50,6 +50,9 @@ make install R=$RPM_BUILD_ROOT/
 %config(noreplace) /etc/X11/xinit.d/Mod_Meta_L_Disable
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.4.4-80avx
+- bootstrap build
+
 * Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 2.4.4-79avx
 - Annvix build
 

@@ -1,8 +1,8 @@
 %define name	psmisc
 %define version	21.3
-%define release	5avx
+%define release	6avx
 
-Summary:	Utilities for managing processes on your system.
+Summary:	Utilities for managing processes on your system
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -51,6 +51,9 @@ mv $RPM_BUILD_ROOT%{_bindir}/fuser $RPM_BUILD_ROOT/sbin/
 %{_mandir}/man1/pstree.1*
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 21.3-6avx
+- bootstrap build
+
 * Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 21.3-5avx
 - Annvix build
 

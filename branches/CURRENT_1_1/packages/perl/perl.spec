@@ -1,6 +1,6 @@
 %define name	perl
 %define version	5.8.6
-%define release	3avx
+%define release	4avx
 %define epoch	2
 
 %define rel	%nil
@@ -139,7 +139,7 @@ This is the documentation package for %{name}.  It also contains the
 
 %build
 %ifarch ppc
-  RPM_OPT_FLAGS=`echo "$RPM_OPT_FLAGS"|sed -e 's/-O2/-O1/g'`
+  RPM_OPT_FLAGS=`echo "%{optflags}"|sed -e 's/-O2/-O1/g'`
 %endif
 
 sh Configure -des \
@@ -149,7 +149,7 @@ sh Configure -des \
 %if %{debugging}
   -Doptimize=-g -DDEBUGGING \
 %else
-  -Doptimize="$RPM_OPT_FLAGS" \
+  -Doptimize="%{optflags}" \
 %endif
   -Dprefix=%{_prefix} -Dvendorprefix=%{_prefix} -Dsiteprefix=%{_prefix} \
   -Dotherlibdirs=/usr/local/lib/perl5:/usr/local/lib/perl5/site_perl \
@@ -193,7 +193,7 @@ bzcat %{SOURCE2} | patch -p1
 
 #%#ifarch x86_64
 # TODO figure out why the cleaner version with LD_PRELOAD doesn't work here.
-LD_LIBRARY_PATH=. ./perl -Ilib utils/h2ph_patched -a -d $RPM_BUILD_ROOT%{perl_root}/%{version}/%{full_arch} `cat %{SOURCE1}` > /dev/null ||:
+LD_LIBRARY_PATH=. ./perl -Ilib utils/h2ph_patched -a -d %{buildroot}%{perl_root}/%{version}/%{full_arch} `cat %{SOURCE1}` > /dev/null ||:
 #%#else
 #LD_PRELOAD=`pwd`/libperl.so ./perl -Ilib utils/h2ph_patched -a -d %{buildroot}%{perl_root}/%{version}/%{full_arch} `cat %{SOURCE1}` > /dev/null ||:
 #%#endif
@@ -482,6 +482,9 @@ EOF
 %defattr(-,root,root)
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 5.8.6-4avx
+- bootstrap build
+
 * Fri May 06 2005 Vincent Danen <vdanen@annvix.org> 5.8.6-3avx
 - P29: fix CAN-2005-448 (replaces and includes fix for CAN-2004-0452)
 - drop -b on patches

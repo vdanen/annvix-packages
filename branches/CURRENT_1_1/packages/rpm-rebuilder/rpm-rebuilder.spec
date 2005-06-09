@@ -1,6 +1,6 @@
 %define name	rpm-rebuilder
 %define version	0.21
-%define release	1avx
+%define release	2avx
 
 Summary:	Tools to build/check distributions
 Name:		%{name}
@@ -54,6 +54,9 @@ rm -rf %{buildroot}%{_sysconfdir}/bash_completion.d
 %_datadir/rpm-rebuilder
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.21-2avx
+- bootstrap build
+
 * Tue Mar 01 2005 Vincent Danen <vdanen@mandrakesoft.com> 0.21-1avx
 - first Annvix build
 - don't include bash completion stuff

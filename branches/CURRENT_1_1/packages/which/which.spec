@@ -1,8 +1,8 @@
 %define name	which
 %define version	2.16
-%define release	2avx
+%define release	3avx
 
-Summary:	Displays where a particular program in your path is located.
+Summary:	Displays where a particular program in your path is located
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -55,6 +55,9 @@ rm -rf %buildroot/%_infodir/dir
 %_infodir/*
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.16-3avx
+- bootstrap build
+
 * Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 2.16-2avx
 - require info-install, not the file
 - Annvix build

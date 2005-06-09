@@ -1,8 +1,8 @@
 %define	name	xfsdump
 %define	version	2.2.21
-%define	release	1avx
+%define	release	2avx
 
-Summary:	Administrative utilities for the XFS filesystem.
+Summary:	Administrative utilities for the XFS filesystem
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -60,6 +60,9 @@ rm -rf %{buildroot}%{_datadir}/doc/xfsdump/
 %{_mandir}/*/*
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.2.21-2avx
+- bootstrap build
+
 * Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 2.2.21-1avx
 - 2.2.21
 - Annvix build
