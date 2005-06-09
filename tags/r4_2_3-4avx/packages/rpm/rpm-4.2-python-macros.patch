@@ -1,0 +1,13 @@
+--- rpm-4.2/macros.in.python-macros	2003-09-10 10:57:52.000000000 +0200
++++ rpm-4.2/macros.in	2003-09-10 11:07:46.000000000 +0200
+@@ -1082,6 +1082,10 @@ done \
+   %{-C:cd ${_mydir}; unset _mydir}
+ 
+ #------------------------------------------------------------------------------
++# Useful python macros
++%pyver	%(python -V 2>&1 | cut -f2 -d" " | cut -f1,2 -d".")
++
++#------------------------------------------------------------------------------
+ # Useful perl macros 
+ # (initially from Artur Frysiak <wiget@t17.ds.pwr.wroc.pl>)
+ # (modified by Pixel <pixel@mandrakesoft.com>)
