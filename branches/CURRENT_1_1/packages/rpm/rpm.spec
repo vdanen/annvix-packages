@@ -3,7 +3,7 @@
 %define poptver		1.8.3
 # You need increase both release and poptrelease
 %define poptrelease	%{release}
-%define release		2avx
+%define release		3avx
 
 %define libver		4.2
 %define url		ftp://ftp.rpm.org/pub/rpm/dist/rpm-4.0.x
@@ -355,9 +355,11 @@ popd
 # (vdanen): don't build rpm with stack protection on any platforms until
 # we move the symbols from gcc to glibc
 %ifarch x86_64 amd64
-CPPFLAGS="-I/usr/include/libelf" CFLAGS="$RPM_OPT_FLAGS -fno-stack-protector" CXXFLAGS="$RPM_OPT_FLAGS -fno-stack-protector" ./configure --prefix=%{_prefix} --sysconfdir=%{_sysconfdir} --localstatedir=/var --mandir=%{_datadir}/man --infodir=%{_datadir}/info --enable-nls --without-javaglue --disable-posixmutexes --with-python=%{pyver}
+CPPFLAGS="-I/usr/include/libelf" CFLAGS="$RPM_OPT_FLAGS" CXXFLAGS="$RPM_OPT_FLAGS" ./configure --prefix=%{_prefix} --sysconfdir=%{_sysconfdir} --localstatedir=/var --mandir=%{_datadir}/man --infodir=%{_datadir}/info --enable-nls --without-javaglue --disable-posixmutexes --with-python=%{pyver}
+#CPPFLAGS="-I/usr/include/libelf" CFLAGS="$RPM_OPT_FLAGS -fno-stack-protector" CXXFLAGS="$RPM_OPT_FLAGS -fno-stack-protector" ./configure --prefix=%{_prefix} --sysconfdir=%{_sysconfdir} --localstatedir=/var --mandir=%{_datadir}/man --infodir=%{_datadir}/info --enable-nls --without-javaglue --disable-posixmutexes --with-python=%{pyver}
 %else
-CPPFLAGS="-I/usr/include/libelf" CFLAGS="$RPM_OPT_FLAGS -fno-stack-protector" CXXFLAGS="$RPM_OPT_FLAGS -fno-stack-protector" ./configure --prefix=%{_prefix} --sysconfdir=%{_sysconfdir} --localstatedir=/var --mandir=%{_datadir}/man --infodir=%{_datadir}/info --enable-nls --without-javaglue --disable-posixmutexes --with-python=%{pyver} --with-glob
+CPPFLAGS="-I/usr/include/libelf" CFLAGS="$RPM_OPT_FLAGS" CXXFLAGS="$RPM_OPT_FLAGS" ./configure --prefix=%{_prefix} --sysconfdir=%{_sysconfdir} --localstatedir=/var --mandir=%{_datadir}/man --infodir=%{_datadir}/info --enable-nls --without-javaglue --disable-posixmutexes --with-python=%{pyver} --with-glob
+#CPPFLAGS="-I/usr/include/libelf" CFLAGS="$RPM_OPT_FLAGS -fno-stack-protector" CXXFLAGS="$RPM_OPT_FLAGS -fno-stack-protector" ./configure --prefix=%{_prefix} --sysconfdir=%{_sysconfdir} --localstatedir=/var --mandir=%{_datadir}/man --infodir=%{_datadir}/info --enable-nls --without-javaglue --disable-posixmutexes --with-python=%{pyver} --with-glob
 %endif
 # Allow parallel build
 perl -p -i -e 's/conftest\.s/conftest\$\$.s/' config.status
@@ -759,6 +761,9 @@ fi
 %{_libdir}/libpopt.so
 
 %changelog
+* Thu Jun 02 2005 Vincent Danen <vdanen@annvix.org> 4.2.3-3avx
+- bootstrap build
+
 * Tue Mar 01 2005 Vincent Danen <vdanen@annvix.org> 4.2.3-2avx
 - changed group System/XFree86 to System/X11
 - require multiarch-utils >= 1.0.7
