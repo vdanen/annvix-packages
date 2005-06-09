@@ -1,6 +1,6 @@
 %define name	db4
 %define version	4.1.25
-%define release	6avx
+%define release	7avx
 
 # compatibility with legacy rpm
 %{!?_lib:%define _lib	lib}
@@ -16,16 +16,8 @@
 
 %define libdbcxx	%{libname_orig}cxx%{__soversion}
 %define libdbtcl	%{libname_orig}tcl%{__soversion}
-%define libdbjava	%{libname_orig}java%{__soversion}
 
-# Define to build Java bindings (default)
-%define build_java	0
-
-# Allow --with[out] JAVA rpm command line buil
-%{?_with_JAVA: %{expand: %%define build_java 1}}
-%{?_without_JAVA: %{expand: %%define build_java 0}}
-
-Summary:	The Berkeley DB database library for C.
+Summary:	The Berkeley DB database library for C
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -36,13 +28,13 @@ Source:		http://www.sleepycat.com/update/%{version}/db-%{version}.tar.bz2
 #http://www.sleepycat.com/update/4.1.25/patch.4.1.25.html
 Patch1:		http://www.sleepycat.com/update/4.1.25/patch.4.1.25.1
 # Add fast AMD64 mutexes
-Patch2:		db-4.1.25-amd64-mutexes.patch.bz2
+Patch2:		db-4.1.25-mdk-amd64-mutexes.patch.bz2
+# NPTL pthreads mutexes are evil
+Patch3:		db-4.2.52-mdk-disable-pthreadsmutexes.patch.bz2
+Patch4:		db-4.2.52-mdk-db185.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-root
 BuildRequires:	tcl, db1-devel, glibc-static-devel	
-%if %{build_java}
-BuildRequires:	gcc-java >= 3.1.1-0.8mdk
-%endif
 
 PreReq:		ldconfig
 
@@ -78,22 +70,6 @@ should be installed on all systems.
 This package contains the files needed to build C++ programs which use
 Berkeley DB.
 
-%if %{build_java}
-%package -n %{libdbjava}
-Summary:	The Berkeley DB database library for C++.
-Group:		System/Libraries
-PreReq:		ldconfig
-Provides:	libdbjava = %{version}-%{release}
-
-%description -n %{libdbjava}
-The Berkeley Database (Berkeley DB) is a programmatic toolkit that provides
-embedded database support for both traditional and client/server applications.
-Berkeley DB is used by many applications, including Python and Perl, so this
-should be installed on all systems.
-
-This package contains the files needed to build Java programs which use
-Berkeley DB.
-%endif
 
 %package -n %{libdbtcl}
 Summary:	The Berkeley DB database library for TCL.
@@ -169,6 +145,8 @@ use Berkeley DB.
 #%patch0 -p1 -b .recover
 %patch1
 %patch2 -p1 -b .amd64-mutexes
+%patch3 -p1 -b .pthreadsmutexes
+%patch4 -p1 -b .db185
 
 # Remove tags files which we don't need.
 find . -name tags | xargs rm -f
@@ -209,31 +187,15 @@ set +x	# XXX painful to watch
 fixup_href `find . -name "*.html"`
 set -x	# XXX painful to watch
  
+chmod -R u+w dist
+(cd dist && ./s_config)
+
 %build
-CFLAGS="$RPM_OPT_FLAGS"
+CFLAGS="%{optflags}"
 %ifarch ppc
 CFLAGS="$CFLAGS -D_GNU_SOURCE -D_REENTRANT"
 %endif
 export CFLAGS
-
-%if %{build_java}
-# Use javac trampoline from gcj
-mkdir -p build_unix/gcj
-pushd build_unix/gcj;
-cat > javac << EOF
-#!/bin/sh
-exec /usr/bin/gcj-javac-`gcj -dumpversion` "\$@"
-EOF
-chmod +x javac
-export PATH=$PWD:$PATH
-# Kludge lookup of <jni.h> and make configure grab the right one from gcj
-ln -s `gcj -print-file-name=include`/libgcj include
-popd
-%endif
-
-%if %{build_java}
-ENABLE_JAVA="--enable-java"
-%endif
 
 pushd build_unix
 CONFIGURE_TOP="../dist" %configure2_5x \
@@ -241,63 +203,30 @@ CONFIGURE_TOP="../dist" %configure2_5x \
 	--enable-shared --enable-static --enable-rpc \
 	--enable-tcl --with-tcl=%{_libdir} \
 	--enable-cxx $ENABLE_JAVA --enable-test  \
+        --disable-pthreadsmutexes \
 	# --enable-diagnostic \
 	# --enable-debug --enable-debug_rop --enable-debug_wop \
 	# --enable-posixmutexes
 
-%make libdb=%{_libdb_a} %{_libdb_a}
-%make libcxx=%{_libcxx_a} %{_libcxx_a}
-
-# Static link with old db-185 libraries.
-/bin/sh ./libtool --mode=compile cc -c -O2 -g -g -I/usr/include/db1 -I../dist/../include -D_REENTRANT  ../dist/../db_dump185/db_dump185.c
-cc -s -static -o db_dump185 db_dump185.lo -L%{_libdir} -ldb1
-
-# Compile rest normally.
-%make libdb=%{_libdb_a} libcxx=%{_libcxx_a} TCFLAGS='-I$(builddir)'
+%make
 popd
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p %{buildroot}%{_includedir}
-mkdir -p %{buildroot}%{_libdir}
-%makeinstall -C build_unix libdb=%{_libdb_a} libcxx=%{_libcxx_a}
-chmod +x %{buildroot}/%{_libdir}/*.so*
+make -C build_unix install_setup install_include install_lib install_utilities \
+	includedir=%{buildroot}%{_includedir}/db4 \
+	libdir=%{buildroot}%{_libdir} \
+	bindir=%{buildroot}%{_bindir} \
+	emode=755
 
-# XXX annoying
-set -x
-cd %{buildroot}
+ln -sf db4/db.h %{buildroot}%{_includedir}/db.h
 
-# XXX This was the /lib handling code for db3. Keep it in case db4
-# will be installed in /lib
-#  mkdir -p ./%{_lib}
-#  mv .%{_libdir}/libdb[-.]*so* ./%{_lib}
+# we don't ship db4.2 (yet)
+## XXX This is needed for parallel install with db4.2
+#for F in %{buildroot}%{_bindir}/*db_* ; do
+#   mv $F `echo $F | sed -e 's,db_,db41_,'`
+#done
 
-mkdir -p .%{_includedir}/db4
-mv .%{_prefix}/include/*.h .%{_includedir}/db4
-ln -sf db4/db.h .%{_includedir}/db.h
-# XXX This was the /lib handling code for db3. Keep it in case db4
-# will be installed in /lib
-# XXX Rather than hack *.la (see below), create /usr/lib/libdb-4.0.so symlink.
-#  ln -sf ../../%{_lib}/libdb-%{__soversion}.so .%{_libdir}/libdb-%{__soversion}.so
-# XXX This is needed for packaging db4 for Red Hat 6.x
-#  for F in .%{_prefix}/bin/db_* ; do
-#    mv $F `echo $F | sed -e 's,/db_,/db4_,'`
-#  done
-cd -
-set +x
-
-# XXX libdb-3.1.so is in /lib teach libtool as well
-#perl -pi -e 's,/usr,,' %{buildroot}%{_libdir}/libdb-%{__soversion}.la
-
-# Move db.jar file to the correct place, and version it
-%if %{build_java}
-mkdir -p %{buildroot}%{_datadir}/java
-mv %{buildroot}%{_libdir}/db.jar %{buildroot}%{_datadir}/java/db-%{__soversion}.jar
-%endif
-
-# remove this because of new rpm build install check policy
-rm -rf %{buildroot}/usr/docs
-#rm -f  %{buildroot}/%{_libdir}/libdb_java-%{__soversion}.la
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -308,41 +237,27 @@ rm -rf %{buildroot}/usr/docs
 %post -n %{libdbcxx} -p /sbin/ldconfig
 %postun -n %{libdbcxx} -p /sbin/ldconfig
 
-%if %{build_java}
-%post -n %{libdbjava} -p /sbin/ldconfig
-%postun -n %{libdbjava} -p /sbin/ldconfig
-%endif
- 
 %post -n %{libdbtcl} -p /sbin/ldconfig
 %postun -n %{libdbtcl} -p /sbin/ldconfig
 
 %files -n %{libname}
-%defattr(-,root,root)
+%defattr(0644,root,root,0755)
 %doc LICENSE README
-%{_libdir}/libdb-%{__soversion}.so
+%attr(0755,root,root) %{_libdir}/libdb-%{__soversion}.so
 
 %files -n %{libdbcxx}
-%defattr(-,root,root) 
+%defattr(0755,root,root) 
 %{_libdir}/libdb_cxx-%{__soversion}.so
 
-%if %{build_java}
-%files -n %{libdbjava}
-%defattr(-,root,root) 
-%doc docs/api_java
-%{_libdir}/libdb_java-%{__soversion}.so
-%{_libdir}/libdb_java-%{__soversion}.la
-%{_datadir}/java/db-%{__soversion}.jar
-%endif
-
 %files -n %{libdbtcl}
-%defattr(-,root,root)
-%{_libdir}/libdb_tcl-%{__soversion}.la
+%defattr(0755,root,root)
 %{_libdir}/libdb_tcl-%{__soversion}.so
 
 %files utils
-%defattr(-,root,root)
-%doc docs/utility
-%{_bindir}/berkeley_db_svc
+%defattr(0644,root,root,0755)
+%doc docs/utility/*
+%defattr(0755,root,root)
+%{_bindir}/berkeley_db*_svc
 %{_bindir}/db*_archive
 %{_bindir}/db*_checkpoint
 %{_bindir}/db*_deadlock
@@ -356,32 +271,41 @@ rm -rf %{buildroot}/usr/docs
 %{_bindir}/db*_verify
 
 %files -n %{libnamedev}
-%defattr(-,root,root)
-%doc docs/api_c docs/api_cxx docs/api_java docs/api_tcl docs/index.html
+%defattr(0644,root,root,0755)
+%doc docs/api_c docs/api_cxx docs/api_tcl docs/index.html
 %doc docs/ref docs/sleepycat docs/images
 %doc examples_c examples_cxx
-%{_libdir}/libdb-%{__soversion}.la
-%{_libdir}/libdb_cxx-%{__soversion}.la
-%{_libdir}/%{_libdb_a}
-%{_libdir}/%{_libcxx_a}
+%dir %{_includedir}/db4
 %{_includedir}/db4/db.h
 %{_includedir}/db4/db_185.h
 %{_includedir}/db4/db_cxx.h
 %{_includedir}/db4/cxx_common.h
 %{_includedir}/db4/cxx_except.h
 %{_includedir}/db.h
-%{_libdir}/libdb_cxx-4.so
-%{_libdir}/libdb-4.so
 %{_libdir}/libdb.so
+%{_libdir}/libdb-4.so
+%{_libdir}/libdb-%{__soversion}.la
 %{_libdir}/libdb_cxx.so
+%{_libdir}/libdb_cxx-4.so
+%{_libdir}/libdb_cxx-%{__soversion}.la
 %{_libdir}/libdb_tcl.so
 %{_libdir}/libdb_tcl-4.so
+%{_libdir}/libdb_tcl-%{__soversion}.la
 
 %files -n %{libnamestatic}
-%defattr(-,root,root)
+%defattr(0644,root,root,0755)
 %{_libdir}/*.a
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 4.1.25-7avx
+- bootstrap build
+- remove java support entirely
+- sync with mdk 4.1.25-8mdk:
+  - P4: fix x86_64 mutexes from previous merge (gb)
+  - P3: disable pthreads mutexes (bluca)
+  - own %%_includedir/db4 (thauvin)
+- get (silently) updated P2 from mdk srpm
+
 * Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 4.1.25-6avx
 - Annvix build
 - require packages not files
