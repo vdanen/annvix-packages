@@ -1,0 +1,32 @@
+2003-04-23  Jakub Jelinek  <jakub@redhat.com>
+
+	* config/i386/i386.c (x86_64_sign_extended_value): Don't allow
+	tls_symbolic_operand.
+	(x86_64_zero_extended_value): Likewise.
+
+--- gcc-3.3.1/gcc/config/i386/i386.c.x86_64-tls-fix	2003-07-07 07:19:35.000000000 +0200
++++ gcc-3.3.1/gcc/config/i386/i386.c	2003-07-16 13:49:02.000000000 +0200
+@@ -4267,7 +4267,8 @@ x86_64_sign_extended_value (value)
+ 	 library.  Don't count TLS SYMBOL_REFs here, since they should fit
+ 	 only if inside of UNSPEC handled below.  */
+       case SYMBOL_REF:
+-	return (ix86_cmodel == CM_SMALL || ix86_cmodel == CM_KERNEL);
++	return (ix86_cmodel == CM_SMALL || ix86_cmodel == CM_KERNEL)
++	       && !tls_symbolic_operand (value, GET_MODE (value));
+ 
+       /* For certain code models, the code is near as well.  */
+       case LABEL_REF:
+@@ -4371,9 +4372,11 @@ x86_64_zero_extended_value (value)
+ 	  return !(INTVAL (value) & ~(HOST_WIDE_INT) 0xffffffff);
+ 	break;
+ 
+-      /* For certain code models, the symbolic references are known to fit.  */
++      /* For certain code models, the symbolic references are known to fit.
++	 Don't count TLS SYMBOL_REFs here.  */
+       case SYMBOL_REF:
+-	return ix86_cmodel == CM_SMALL;
++	return (ix86_cmodel == CM_SMALL
++		&& !tls_symbolic_operand (value, GET_MODE (value)));
+ 
+       /* For certain code models, the code is near as well.  */
+       case LABEL_REF:
