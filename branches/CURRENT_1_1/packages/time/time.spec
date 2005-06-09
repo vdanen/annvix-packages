@@ -1,22 +1,22 @@
 %define name	time
 %define version	1.7
-%define release	28avx
+%define release	29avx
 
-Summary:	A GNU utility for monitoring a program's use of system resources.
+Summary:	A GNU utility for monitoring a program's use of system resources
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	GPL
 Group:		Monitoring
 URL:		http://www.gnu.org/directory/GNU/time.html
-Source:		http://ftp.gnu.org/pub/gnu/time/time-1.7.tar.bz2
+Source:		http://ftp.gnu.org/pub/gnu/time/%{name}-%{version}.tar.bz2
 Patch0:		time-1.7.info.patch.bz2
 Patch1:		time-1.7-ressource.patch.bz2
 Patch2:		time-1.7-quiet.1.patch.bz2
 Patch3:		time-1.7-fixinfo.patch.bz2 
 Patch4:		time-1.7-build.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-root
+BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
 BuildRequires:	texinfo
 
 PreReq:		info-install
@@ -42,9 +42,11 @@ printf-style format string to include various resource measurements.
 %patch2 -p0
 %patch3 -p1
 %patch4 -p0
-aclocal
+
+export FORCE_AUTOCONF_2_5=1
+aclocal-1.4
 autoconf
-automake -a
+automake-1.4 -a
 autoheader
 
 %build
@@ -60,18 +62,23 @@ make LDFLAGS=-s
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
-%{_install_info %name.info}
+%_install_info %{name}.info
 
 %preun
-%{_remove_install_info %name.info}
+%_remove_install_info %{name}.info
 
 %files
 %defattr(-,root,root)
 %doc NEWS README
-%_bindir/time
-%_infodir/time.info*
+%{_bindir}/time
+%{_infodir}/%{name}.info*
 
 %changelog
+* Sat Jun 04 2005 Vincent Danen <vdanen@annvix.org> 1.7-29avx
+- bootstrap build
+- force use of autoconf2.5 and automake-1.4 (peroyvind)
+- spec cleanups
+
 * Sat Jun 19 2004 Vincent Danen <vdanen@annvix.org> 1.7-28avx
 - require info-install rather than a file
 - Annvix build
