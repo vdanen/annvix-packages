@@ -1,8 +1,8 @@
 %define name	byacc
 %define version	1.9
-%define release	17avx
+%define release	18avx
 
-Summary:	A public domain Yacc parser generator.
+Summary:	A public domain Yacc parser generator
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -15,7 +15,7 @@ Patch1:		byacc-1.9-automake.patch.bz2
 Patch2:		byacc-1.9-security.patch.bz2
 Patch3:		byacc-1.9-fix-includes.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-build
+BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
 BuildRequires:	autoconf automake
 
 %description
@@ -34,10 +34,12 @@ chmod -R +w .
 %patch2 -p1 
 %patch3 -p1 
 
+export FORCE_AUTOCONF_2_5=1
 autoheader
-automake --add-missing --foreign
-aclocal
+automake-1.4 --add-missing --foreign
+aclocal-1.4
 autoconf
+touch config.h.in
 
 %build
 %configure
@@ -62,7 +64,7 @@ popd
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
-( cd $RPM_BUILD_ROOT/usr/bin ; ln -s yacc byacc )
+( cd %{buildroot}/usr/bin ; ln -s yacc byacc )
 
 %clean
 chmod u+w $RPM_BUILD_DIR/%{name}-%{version} -R
@@ -77,6 +79,10 @@ chmod u+w $RPM_BUILD_DIR/%{name}-%{version} -R
 %{_mandir}/man1/*
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.9-18avx
+- bootstrap build
+- force use of automake1.4 and autoconf2.5 (peroyvind)
+
 * Fri Jun 25 2004 Vincent Danen <vdanen@opensls.org> 1.9-17avx
 - Annvix build
 
