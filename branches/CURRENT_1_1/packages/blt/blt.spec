@@ -1,12 +1,12 @@
 %define name	blt
 %define version	2.4z
-%define release	9avx
+%define release	10avx
 
 %define major		2
 %define	libname		%mklibname %{name} %{major}
 %define	libname_devel	%mklibname %{name} %{major} -d
 
-Summary:	A Tk toolkit extension, including widgets, geometry managers, etc.
+Summary:	A Tk toolkit extension, including widgets, geometry managers, etc
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -20,10 +20,10 @@ Patch2:		blt2.4z-libdir.patch.bz2
 Patch3:		blt2.4z-mkdir_p.patch.bz2
 Patch4:		blt2.4z-64bit-fixes.patch.bz2
 
-BuildRoot:	%_tmppath/%name-%version-root
+BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
 BuildRequires:  XFree86-devel tcl tk
 
-Requires:	%libname
+Requires:	%{libname}
 
 %description
 BLT is an extension to the Tk toolkit. BLT's most useful feature is the
@@ -45,12 +45,12 @@ installed in order to use BLT.
 
 This package provides TCL libraries needed to use BLT.
 
-%package -n %libname
+%package -n %{libname}
 Summary:	Shared libraries needed to use BLT
 Group:		System/Libraries
 Requires:	blt-scripts = %{version}
 
-%description -n %libname
+%description -n %{libname}
 BLT is an extension to the Tk toolkit. BLT's most useful feature is the
 provision of more widgets for Tk, but it also provides more geometry managers
 and miscellaneous other commands. Note that you won't need to do any patching
@@ -59,15 +59,15 @@ installed in order to use BLT.
 
 This package provides libraries needed to use BLT.
 
-%package -n %libname_devel
+%package -n %{libname_devel}
 Summary:	Headers of BLT
 Group:		Development/Other
-Requires:	%libname = %version-%release
-Provides:	lib%name-devel = %version-%release
+Requires:	%{libname} = %{version}-%{release}
+Provides:	lib%{name}-devel = %{version}-%{release}
 Obsoletes:	blt-devel
 Provides:	blt-devel
 
-%description -n %libname_devel
+%description -n %{libname_devel}
 BLT is an extension to the Tk toolkiy. BLT's most useful feature is the
 provision of more widgets for Tk, but it also provides more geometry managers
 and miscellaneous other commands. Note that you won't need to any patching
@@ -77,7 +77,7 @@ installed in order to use BLT.
 This package provides headers needed to build packages based on BLT.
 
 %prep
-%setup -q -n %name%version
+%setup -q -n %{name}%{version}
 %patch0 -p1
 %patch1 -p1 -b .rpath
 %patch2 -p1 -b .libdir
@@ -93,32 +93,32 @@ autoconf
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
 
-ln -sf libBLT24.so $RPM_BUILD_ROOT%_libdir/libBLT.so
-ln -sf libBLTlite24.so $RPM_BUILD_ROOT%_libdir/libBLTlite.so
-ln -sf bltwish24 $RPM_BUILD_ROOT%_bindir/bltwish
-ln -sf bltsh24 $RPM_BUILD_ROOT%_bindir/bltsh
+ln -sf libBLT24.so %{buildroot}%{_libdir}/libBLT.so
+ln -sf libBLTlite24.so %{buildroot}%{_libdir}/libBLTlite.so
+ln -sf bltwish24 %{buildroot}%{_bindir}/bltwish
+ln -sf bltsh24 %{buildroot}%{_bindir}/bltsh
 
-# Dadou - 2.4u-2mdk - Don't put in %%_libdir things which should be in %%_docdir
-rm -fr $RPM_BUILD_ROOT/%_prefix/lib/blt2.4/demos
-rm -fr $RPM_BUILD_ROOT/%_prefix/lib/blt2.4/NEWS
-rm -fr $RPM_BUILD_ROOT/%_prefix/lib/blt2.4/PROBLEMS
-rm -fr $RPM_BUILD_ROOT/%_prefix/lib/blt2.4/README
+# Dadou - 2.4u-2mdk - Don't put in %%{_libdir} things which should be in %%_docdir
+rm -fr %{buildroot}/%_prefix/lib/blt2.4/demos
+rm -fr %{buildroot}/%_prefix/lib/blt2.4/NEWS
+rm -fr %{buildroot}/%_prefix/lib/blt2.4/PROBLEMS
+rm -fr %{buildroot}/%_prefix/lib/blt2.4/README
 
 # Dadou - 2.4u-2mdk - Remove +x permissions in %%_docdir to be sure that RPM
 #                     will don't want some strange dependencies
-perl -pi -e "s|local/||" $RPM_BUILD_DIR/%name%version/demos/scripts/page.tcl
-perl -pi -e "s|local/||" $RPM_BUILD_DIR/%name%version/html/hiertable.html
+perl -pi -e "s|local/||" $RPM_BUILD_DIR/%{name}%{version}/demos/scripts/page.tcl
+perl -pi -e "s|local/||" $RPM_BUILD_DIR/%{name}%{version}/html/hiertable.html
 
 # Dadou - 2.4u-2mdk - Prevent conflicts with other packages
 for i in bitmap graph tabset tree watch; do
-	mv $RPM_BUILD_ROOT/%_mandir/mann/$i{,-blt}.n
+	mv %{buildroot}/%{_mandir}/mann/$i{,-blt}.n
 done
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-%post -n %libname -p /sbin/ldconfig
-%postun -n %libname -p /sbin/ldconfig
+%post -n %{libname} -p /sbin/ldconfig
+%postun -n %{libname} -p /sbin/ldconfig
 
 %files
 %defattr(-,root,root,-)
@@ -126,9 +126,9 @@ done
 %doc demos/
 %doc examples/
 %doc html/
-%_bindir/*
-%_mandir/mann/*
-%_mandir/man3/*
+%{_bindir}/*
+%{_mandir}/mann/*
+%{_mandir}/man3/*
 
 %files scripts
 %defattr(-,root,root,-)
@@ -136,16 +136,20 @@ done
 %dir %{_prefix}/lib/blt2.4
 %{_prefix}/lib/blt2.4/*
 
-%files -n %libname
+%files -n %{libname}
 %defattr(-,root,root,-)
-%_libdir/*.so
+%{_libdir}/*.so
 
-%files -n %libname_devel
+%files -n %{libname_devel}
 %defattr(-,root,root,-)
-%_includedir/*
-%_libdir/*.a
+%{_includedir}/*
+%{_libdir}/*.a
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.4z-10avx
+- bootstrap build
+- spec cleanups
+
 * Mon Aug 30 2004 Vincent Danen <vdanen@annvix.org> 2.4z-9avx
 - fix dangling symlinks
 
