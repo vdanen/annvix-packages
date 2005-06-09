@@ -1,6 +1,6 @@
 %define name	fontconfig
 %define version	2.2.1
-%define release	9avx
+%define release	10avx
 
 %define fontconfig_major	1
 %define lib_name		%mklibname %{name} %{fontconfig_major}
@@ -79,8 +79,8 @@ will use fontconfig.
 
 %build
 
-%configure --with-add-fonts="/usr/X11R6/lib/X11/fonts,/opt/ttfonts,/usr/share/yudit/fonts" --disable-docs
-%make
+%configure2_5x --with-add-fonts="/usr/X11R6/lib/X11/fonts,/opt/ttfonts,/usr/share/yudit/fonts" --disable-docs
+make
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -125,6 +125,10 @@ rm -rf $RPM_BUILD_ROOT%{_datadir}/doc/fontconfig
 %{_mandir}/man3/*
 
 %changelog
+* Sat Jun 04 2005 Vincent Danen <vdanen@annvix.org> 2.2.1-10avx
+- bootstrap build
+- fix build, use %%configure2_5x
+
 * Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> - 2.2.1-9avx
 - Annvix build
 
