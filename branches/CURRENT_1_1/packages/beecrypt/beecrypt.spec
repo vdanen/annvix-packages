@@ -1,9 +1,8 @@
 %define name	beecrypt
 %define version	3.1.0
-%define release	2avx
+%define release	3avx
 
-%define	with_python		--with-python
-%define	with_python_version	2.3%{nil}
+%define	with_python_version	2.4%{nil}
 
 %define libname		%mklibname beecrypt 6
 %define libnamedev	%{libname}-devel
@@ -19,34 +18,30 @@ Source0:	http://prdownloads.sourceforge.net/beecrypt/%{name}-3.1.0.tar.bz2
 Patch0:		beecrypt-3.1.0-rh.patch.bz2
 Patch1:		beecrypt-3.1.0-automake1.7.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-buildroot
-BuildPreReq:	doxygen
+BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
+BuildPreReq:	doxygen, python-devel >= %{with_python_version}
 BuildRequires:	automake1.7
-%if %{?with_python:1}0
-BuildPreReq:	python-devel >= %{with_python_version}
-%endif
 
 %description
 Beecrypt is a general-purpose cryptography library.
 
-%package -n %libname
+%package -n %{libname}
 Summary:	An open source cryptography library.
 Group:		System/Libraries
 
-%description -n %libname
+%description -n %{libname}
 Beecrypt is a general-purpose cryptography library.
 
-%package -n %libnamedev
+%package -n %{libnamedev}
 Summary:	Files needed for developing applications with beecrypt.
 Group:		Development/C
 Requires:	%{libname} = %{version}-%{release}
 Provides:	libbeecrypt-devel = %{version}-%{release}
 
-%description -n %libnamedev
+%description -n %{libnamedev}
 Beecrypt is a general-purpose cryptography library.  This package contains
 files needed for developing applications with beecrypt.
 
-%if %{?with_python:1}0
 %package python
 Summary:	Files needed for python applications using beecrypt.
 Group:		Development/C
@@ -56,7 +51,6 @@ Requires:	%{libname} = %{version}-%{release}
 %description python
 Beecrypt is a general-purpose cryptography library.  This package contains
 files needed for using python with beecrypt.
-%endif
 
 %prep
 %setup -q
@@ -67,7 +61,8 @@ files needed for using python with beecrypt.
 
 %build
 
-%configure2_5x --enable-shared --enable-static %{?with_python}
+%configure2_5x --enable-shared --enable-static --with-python \
+    CPPFLAGS="-I%{_includedir}/python%{with_python_version}"
 
 %make
 doxygen
@@ -77,7 +72,7 @@ doxygen
 %makeinstall_std
 
 # XXX nuke unpackaged files, artifacts from using libtool to produce module
-rm -f ${RPM_BUILD_ROOT}%{_libdir}/python%{with_python_version}/site-packages/_bc.*a
+rm -f %{buildroot}%{_libdir}/python%{with_python_version}/site-packages/_bc.*a
 
 # XXX delete next line to build with legacy, non-check aware, rpmbuild.
 %check
@@ -88,9 +83,8 @@ make bench || :
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-%post -n %libname -p /sbin/ldconfig
-
-%postun -n %libname -p /sbin/ldconfig
+%post -n %{libname} -p /sbin/ldconfig
+%postun -n %{libname} -p /sbin/ldconfig
 
 %files -n %libname
 %defattr(-,root,root)
@@ -105,13 +99,16 @@ make bench || :
 %{_libdir}/*.la
 %{_libdir}/*.so
 
-%if %{?with_python:1}0
 %files python
 %defattr(-,root,root)
 %{_libdir}/python%{with_python_version}/site-packages/_bc.so
-%endif
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 3.1.0-3avx
+- bootstrap build
+- always build with python support as we need python-devel to compile
+  even without the python package (eh?)
+
 * Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 3.1.0-2avx
 - Annvix build
 
