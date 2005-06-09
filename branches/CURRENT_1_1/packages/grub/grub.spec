@@ -1,6 +1,6 @@
 %define name	grub
 %define version 0.95
-%define release 1avx
+%define release 2avx
 
 Summary:	GRand Unified Bootloader
 Name:		%{name}
@@ -112,7 +112,7 @@ Hurd).
 aclocal-1.7
 WANT_AUTOCONF_2_5=1 autoconf
 automake-1.7 --force-missing
-CFLAGS="-Os -g" ; export CFLAGS
+CFLAGS="-Os -g -fno-stack-protector-all" ; export CFLAGS
 %ifarch x86_64
 CFLAGS="$CFLAGS -static" ; export CFLAGS
 %endif
@@ -157,6 +157,10 @@ ln -s ../boot/grub/grub.conf %{buildroot}%{_sysconfdir}/grub.conf
 %config(noreplace) %{_sysconfdir}/grub.conf
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.95-2avx
+- bootstrap build
+- build without stack protection
+
 * Fri Feb 04 2005 Vincent Danen <vdanen@opensls.org> 0.95-1avx
 - 0.95
 - remodel to follow the FDR spec completely (only use FDR patches)
