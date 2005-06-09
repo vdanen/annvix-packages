@@ -1,0 +1,14 @@
+--- rpm-4.2/popt/popt.c.execvp-error-report	2002-08-22 18:34:48.000000000 +0200
++++ rpm-4.2/popt/popt.c	2003-04-28 11:48:02.000000000 +0200
+@@ -444,7 +444,10 @@
+ 
+     rc = execvp(argv[0], (char *const *)argv);
+ 
+-    return POPT_ERROR_ERRNO;
++    fprintf(stderr, "%s: %s\n",
++	    argv[0], poptStrerror(POPT_ERROR_ERRNO));
++
++    exit(EXIT_FAILURE);
+ }
+ /*@=bounds =boundswrite @*/
+ 
