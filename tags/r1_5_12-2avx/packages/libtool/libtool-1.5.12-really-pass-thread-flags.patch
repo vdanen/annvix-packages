@@ -1,0 +1,20 @@
+--- libtool-1.5.12/ltmain.in.really-pass-thread-flags	2005-02-11 09:53:07.051534000 -0500
++++ libtool-1.5.12/ltmain.in	2005-02-11 09:55:11.149567355 -0500
+@@ -1537,7 +1537,7 @@ EOF
+ 	;;
+ 
+      -mt|-mthreads|-kthread|-Kthread|-pthread|-pthreads|--thread-safe)
+-	compiler_flags="$compiler_flags $arg"
++	deplibs="$deplibs $arg"
+ 	continue
+ 	;;
+ 
+@@ -2026,7 +2026,7 @@ EOF
+ 	    compile_deplibs="$deplib $compile_deplibs"
+ 	    finalize_deplibs="$deplib $finalize_deplibs"
+ 	  else
+-	    compiler_flags="$compiler_flags $deplib"
++	    deplibs="$deplib $deplibs"
+ 	  fi
+ 	  continue
+ 	  ;;
