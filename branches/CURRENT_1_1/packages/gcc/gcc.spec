@@ -1,15 +1,9 @@
 %define name			%{cross_prefix}gcc%{package_suffix}
 %define version			3.3.1
-%define release			6avx
+%define release			7avx
 
 %define branch			3.3
 %define branch_tag		%(perl -e 'printf "%%02d%%02d", split(/\\./,shift)' %{branch})
-
-# Annvix defaults
-%define build_ssp		1
-
-%{expand: %{?_without_ssp:	%%global build_ssp 0}}
-%{expand: %{?_with_ssp:		%%global build_ssp 1}}
 
 %define biarches		x86_64
 
@@ -136,14 +130,13 @@
 %define build_colorgcc		1
 %define build_debug		0
 
-%if %{build_ssp}
+# We don't want this in Annvix
 %define build_ada		0
 %define build_doc		0
 %define build_pdf_doc		0
 %define build_fortran		0
 %define build_java		0
 %define build_pascal		0
-%endif
 
 # Allow --with[out] <feature> at rpm command line build
 %{expand: %{?_without_PDF:	%%global build_pdf_doc 0}}
@@ -293,7 +286,9 @@ Patch218: 	gcc33-ia64-libjava-locks.patch.bz2
 Patch219: 	gcc33-rhl-testsuite.patch.bz2
 
 # Stack-Smashing Protector http://www.research.ibm.com/trl/projects/security/ssp/
+# We're using the HLFS patches instead: http://www.linuxfromscratch.org/~robert/hlfs/current
 Patch300:	gcc-3.3.2-protector-3.3.2-2.patch.bz2
+Patch301:	gcc-3.3-ssp-4.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-root
 # Want updated alternatives priorities
@@ -342,10 +337,9 @@ Fortran 77, Objective C and Java.
 If you have multiple versions of GCC installed on your system, it is
 preferred to type "gcc-$(gcc%{branch}-version)" (without double quotes) in
 order to use the GNU C compiler version %{version}.
-%if %build_ssp
+
 This version includes the SSP stack protector (-fstack-protector)
 option.
-%endif
 
 %package -n %{libgcc_name}
 Summary:	GNU C library
@@ -849,7 +843,7 @@ patch -p0 < gcc/p/diffs/gcc-3.3.diff
 %patch117 -p1 -b .gpc-serialize-build
 
 # Annvix information for bug reports
-perl -pi -e "/bug_report_url/ and s/\"[^\"]+\"/\"<URL:http:\/\/annvix.org\/anthill\/>\"/;" \
+perl -pi -e "/bug_report_url/ and s/\"[^\"]+\"/\"<URL:https:\/\/bugs.annvix.org\/>\"/;" \
          -e '/version_string/ and s/([0-9]*(\.[0-9]*){1,3}).*(\";)$/\1 \(Annvix %{avx_version} %{version}-%{release}\)\3/;' \
          gcc/version.c
 
@@ -860,9 +854,8 @@ perl -pi -e 's|GCC_VERSION|%{version}|' colorgcc*
 )
 
 # ProPolice Stack Protector patch
-%if %build_ssp
-%patch300 -p1 -b .ssp
-%endif
+#%patch300 -p1 -b .ssp
+%patch301 -p1 -b .ssp
 
 %build
 # Force a seperate object dir
@@ -878,7 +871,10 @@ export PATH=$PATH:$PWD/bin
 # Make bootstrap-lean
 CC=gcc
 OPT_FLAGS=`echo $RPM_OPT_FLAGS|sed -e 's/-fno-rtti//g' -e 's/-fno-exceptions//g'`
+# remove this from rpm optflags
 OPT_FLAGS=`echo $OPT_FLAGS|sed -e 's/-fstack-protector//g'`
+# but we want to build with -fstack-protector-all
+OPT_FLAGS="$OPT_FLAGS -fstack-protector-all"
 %if %{build_debug}
 OPT_FLAGS=`echo "$OPT_FLAGS -g" | sed -e "s/-fomit-frame-pointer//g"`
 %endif
@@ -1026,7 +1022,7 @@ cd ..
 echo ====================TESTING END=====================
  
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 # Fix HTML docs for libstdc++-v3
 perl -pi -e \
@@ -1036,17 +1032,17 @@ ln -sf documentation.html libstdc++-v3/docs/html/index.html
 find libstdc++-v3/docs/html -name CVS | xargs rm -rf
 
 # Create some directories, just to make sure (e.g. ColorGCC)
-mkdir -p $RPM_BUILD_ROOT%{_bindir}
-mkdir -p $RPM_BUILD_ROOT%{_mandir}
-mkdir -p $RPM_BUILD_ROOT%{_infodir}
-mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}
+mkdir -p %{buildroot}%{_bindir}
+mkdir -p %{buildroot}%{_mandir}
+mkdir -p %{buildroot}%{_infodir}
+mkdir -p %{buildroot}%{_sysconfdir}
 
 # ColorGCC stuff
 %if %{build_colorgcc}
 (cd colorgcc-%{color_gcc_version};
-  install -m 755 colorgcc $RPM_BUILD_ROOT%{_bindir}/colorgcc-%{version}
-  ln -s colorgcc-%{version} $RPM_BUILD_ROOT%{_bindir}/colorgcc
-  install -m 644 colorgccrc $RPM_BUILD_ROOT%{_sysconfdir}/
+  install -m 755 colorgcc %{buildroot}%{_bindir}/colorgcc-%{version}
+  ln -s colorgcc-%{version} %{buildroot}%{_bindir}/colorgcc
+  install -m 644 colorgccrc %{buildroot}%{_sysconfdir}/
   for i in COPYING CREDITS ChangeLog; do
     [ ! -f ../$i.colorgcc ] && mv -f $i ../$i.colorgcc
   done
@@ -1054,24 +1050,32 @@ mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}
 %endif
 
 pushd obj-%{gcc_target_platform};
-  %makeinstall slibdir=$RPM_BUILD_ROOT/%{_lib}
+
+# update specs to force -fstack-protector-all on everything we build
+perl -pi -e 's@\*cc1:\n@$_%(cc1_ssp) @;' gcc/specs &&
+perl -pi -e 's@\*cc1plus:\n@$_%(cc1_ssp) @;' gcc/specs &&
+echo '*cc1_ssp:
+%{!fno-stack-protector*: -fstack-protector-all}
+' >> gcc/specs
+
+  %makeinstall slibdir=%{buildroot}/%{_lib}
   %if %{build_ada}
-  make -C gcc ada.install-info DESTDIR=$RPM_BUILD_ROOT
-  for f in $RPM_BUILD_ROOT%{_infodir}/gnat_ug_unx.info*; do
+  make -C gcc ada.install-info DESTDIR=%{buildroot}
+  for f in %{buildroot}%{_infodir}/gnat_ug_unx.info*; do
     sed -e "s/gnat_ug_unx/gnat_ug/g" $f > ${f/gnat_ug_unx/gnat_ug}
   done
-  chmod 644 $RPM_BUILD_ROOT%{_infodir}/gnat*
+  chmod 644 %{buildroot}%{_infodir}/gnat*
   %endif
 popd
 
-FULLVER=`$RPM_BUILD_ROOT%{_bindir}/%{gcc_target_platform}-gcc%{program_suffix} --version | head -n 1 | cut -d' ' -f3`
-FULLPATH=$(dirname $RPM_BUILD_ROOT%{_libdir}/gcc-lib/%{gcc_target_platform}/%{version}/cc1)
+FULLVER=`%{buildroot}%{_bindir}/%{gcc_target_platform}-gcc%{program_suffix} --version | head -n 1 | cut -d' ' -f3`
+FULLPATH=$(dirname %{buildroot}%{_libdir}/gcc-lib/%{gcc_target_platform}/%{version}/cc1)
 
 #if [ "%{gcc_target_platform}" != "%{_target_platform}" ]; then
-#   mv -f $RPM_BUILD_ROOT%{_bindir}/%{gcc_target_platform}-gcc $RPM_BUILD_ROOT%{_bindir}/%{_target_platform}-gcc
+#   mv -f %{buildroot}%{_bindir}/%{gcc_target_platform}-gcc %{buildroot}%{_bindir}/%{_target_platform}-gcc
 #fi
 
-file $RPM_BUILD_ROOT/%{_bindir}/* | grep ELF | cut -d':' -f1 | xargs strip || :
+file %{buildroot}/%{_bindir}/* | grep ELF | cut -d':' -f1 | xargs strip || :
 strip $FULLPATH/cc1
 %if %{build_cxx}
 strip $FULLPATH/cc1plus
@@ -1087,16 +1091,16 @@ strip $FULLPATH/{jc1,jvgenmain}
 %endif
 
 # Create /usr/bin/%{program_prefix}gcc%{branch}-version that contains the full version of gcc
-cat >$RPM_BUILD_ROOT%{_bindir}/%{program_prefix}gcc%{branch}-version <<EOF
+cat >%{buildroot}%{_bindir}/%{program_prefix}gcc%{branch}-version <<EOF
 #!/bin/sh
 echo "$FULLVER"
 EOF
-chmod 0755 $RPM_BUILD_ROOT%{_bindir}/%{program_prefix}gcc%{branch}-version
+chmod 0755 %{buildroot}%{_bindir}/%{program_prefix}gcc%{branch}-version
 
 # Fix program names
 # (gb) For each primary program in every package, I want it to be
 # named <program>-<version>
-(cd $RPM_BUILD_ROOT%{_bindir}; for file in cpp gcc g++ gcj g77 gpc gpidump; do
+(cd %{buildroot}%{_bindir}; for file in cpp gcc g++ gcj g77 gpc gpidump; do
   file_version="${file}-%{version}"
   if [ -x "$file" -a "(" ! -x "$file_version" -o -L "$file_version" ")" ]; then
     cp -f $file $file_version
@@ -1112,28 +1116,28 @@ chmod 0755 $RPM_BUILD_ROOT%{_bindir}/%{program_prefix}gcc%{branch}-version
 done)
 
 # Fix some links
-ln -sf gcc $RPM_BUILD_ROOT%{_bindir}/cc
-rm -f $RPM_BUILD_ROOT%{_infodir}/dir
+ln -sf gcc %{buildroot}%{_bindir}/cc
+rm -f %{buildroot}%{_infodir}/dir
 
 # First, move 32-bit libraries to the right directories
 %ifarch %{biarches}
-mkdir -p $RPM_BUILD_ROOT%{_prefix}/lib
-mv $RPM_BUILD_ROOT%{_libdir}/32/* $RPM_BUILD_ROOT%{_prefix}/lib
-rm -rf $RPM_BUILD_ROOT%{_libdir}/32
-ln -sf ../lib $RPM_BUILD_ROOT%{_libdir}/32
+mkdir -p %{buildroot}%{_prefix}/lib
+mv %{buildroot}%{_libdir}/32/* %{buildroot}%{_prefix}/lib
+rm -rf %{buildroot}%{_libdir}/32
+ln -sf ../lib %{buildroot}%{_libdir}/32
 
-mkdir -p $RPM_BUILD_ROOT/lib
-rm -rf $RPM_BUILD_ROOT/%{_lib}/32
-ln -sf ../lib $RPM_BUILD_ROOT/%{_lib}/32
+mkdir -p %{buildroot}/lib
+rm -rf %{buildroot}/%{_lib}/32
+ln -sf ../lib %{buildroot}/%{_lib}/32
 %endif
 
 # Dispatch Ada 95 libraries (special case)
 %if %{build_ada}
 pushd $FULLPATH/adalib
   rm -f libgnarl.so* libgnat.so*
-  mv -f libgnarl-*.so.* $RPM_BUILD_ROOT%{_libdir}/
+  mv -f libgnarl-*.so.* %{buildroot}%{_libdir}/
   ln -s ../../../../../%{_lib}/libgnarl-*.so.* libgnarl.so
-  mv -f libgnat-*.so.* $RPM_BUILD_ROOT%{_libdir}/
+  mv -f libgnat-*.so.* %{buildroot}%{_libdir}/
   ln -s ../../../../../%{_lib}/libgnat-*.so.* libgnat.so
 popd
 %endif
@@ -1161,7 +1165,7 @@ DispatchLibs() {
 	%ifarch %{biarches}
 	[ -d 32 ] || mkdir 32
 	(cd 32;
-	mkdir -p $RPM_BUILD_ROOT%{_prefix}/lib
+	mkdir -p %{buildroot}%{_prefix}/lib
 	$STRIP_DEBUG ../../../../32/$crosslibdir/$libname.so.$libversion
 	$STRIP_DEBUG ../../../../32/$crosslibdir/$libname.a
 	ln -s ../../../../32/$libname.so.$libversion $libname.so
@@ -1219,33 +1223,33 @@ DispatchLibs() {
 # Move Java headers to /usr/include/libgcj-<version>
 %if %{build_java}
 if [ "%{libjava_includedir}" != "%{_includedir}" ]; then
-  mkdir -p $RPM_BUILD_ROOT%{libjava_includedir}
-  mv $RPM_BUILD_ROOT%{_includedir}/j*.h $RPM_BUILD_ROOT%{libjava_includedir}/
+  mkdir -p %{buildroot}%{libjava_includedir}
+  mv %{buildroot}%{_includedir}/j*.h %{buildroot}%{libjava_includedir}/
   for dir in gcj gnu java javax; do
-    mkdir -p $RPM_BUILD_ROOT%{libjava_includedir}/$dir
-    mv $RPM_BUILD_ROOT%{_includedir}/$dir/* $RPM_BUILD_ROOT%{libjava_includedir}/$dir/
-    rmdir $RPM_BUILD_ROOT%{_includedir}/$dir
+    mkdir -p %{buildroot}%{libjava_includedir}/$dir
+    mv %{buildroot}%{_includedir}/$dir/* %{buildroot}%{libjava_includedir}/$dir/
+    rmdir %{buildroot}%{_includedir}/$dir
   done
 
   # move <gcj/libgcj-config.h> too
-  mv $FULLPATH/include/gcj/libgcj-config.h $RPM_BUILD_ROOT%{libjava_includedir}/gcj/
+  mv $FULLPATH/include/gcj/libgcj-config.h %{buildroot}%{libjava_includedir}/gcj/
   rmdir $FULLPATH/include/gcj
 
   # include <libgcj/XXX.h> should lead to <libgcj-VERSION/XXX.h>
-  ln -s %{libjava_includedir} $RPM_BUILD_ROOT%{_libdir}/gcc-lib/%{gcc_target_platform}/%{version}/include/libgcj
-  ln -s %{libjava_includedir} $RPM_BUILD_ROOT%{_includedir}/libgcj
+  ln -s %{libjava_includedir} %{buildroot}%{_libdir}/gcc-lib/%{gcc_target_platform}/%{version}/include/libgcj
+  ln -s %{libjava_includedir} %{buildroot}%{_includedir}/libgcj
 fi
 %endif
 
 # Move libgcj.spec to compiler-specific directories
 %if %{build_java}
-mv $RPM_BUILD_ROOT%{_libdir}/libgcj.spec $FULLPATH/libgcj.spec
+mv %{buildroot}%{_libdir}/libgcj.spec $FULLPATH/libgcj.spec
 %endif
 
 # Rename jar because it could clash with Kaffe's if this gcc
 # is primary compiler (aka don't have the -<version> extension)
 %if %{build_java}
-(cd $RPM_BUILD_ROOT%{_bindir}/;
+(cd %{buildroot}%{_bindir}/;
   mv jar%{program_suffix} gcj-jar-%{version}
   for app in grepjar rmic rmiregistry; do
     mv $app%{program_suffix} gcj-$app-%{version}
@@ -1255,7 +1259,7 @@ mv $RPM_BUILD_ROOT%{_libdir}/libgcj.spec $FULLPATH/libgcj.spec
 
 # Add java and javac wrappers
 %if %{build_java}
-(cd $RPM_BUILD_ROOT%{_bindir}/;
+(cd %{buildroot}%{_bindir}/;
   SED_PATTERN="s|@GCJ_VERSION@|%{version}|;s|@JDK_VERSION@|%{JDK_VERSION}|;s|@JDK_INCLUDES@|-I%{libjava_includedir}|;"
   bzcat %{SOURCE1} | sed -e "$SED_PATTERN" > gcj-java-%{version}
   chmod 0755 gcj-java-%{version}
@@ -1268,11 +1272,11 @@ mv $RPM_BUILD_ROOT%{_libdir}/libgcj.spec $FULLPATH/libgcj.spec
 
 # Move <cxxabi.h> to compiler-specific directories
 %if %{build_cxx}
-mv $RPM_BUILD_ROOT%{libstdcxx_includedir}/cxxabi.h $FULLPATH/include/
+mv %{buildroot}%{libstdcxx_includedir}/cxxabi.h $FULLPATH/include/
 %endif
 
 # Fix links to binaries
-(cd $RPM_BUILD_ROOT%{_bindir};
+(cd %{buildroot}%{_bindir};
 	for file in cpp gcc; do [ -x $file ] && mv $file "$file"-%{version}; done
 	%if %{build_cxx}
 	for file in g++ c++; do [ -x $file ] && mv $file "$file"-%{version}; done
@@ -1283,7 +1287,7 @@ mv $RPM_BUILD_ROOT%{libstdcxx_includedir}/cxxabi.h $FULLPATH/include/
 )
 
 # Link gnatgcc to gcc
-ln -sf gcc $RPM_BUILD_ROOT%{_bindir}/gnatgcc
+ln -sf gcc %{buildroot}%{_bindir}/gnatgcc
 
 # Create an empty file with perms 0755
 FakeAlternatives() {
@@ -1295,55 +1299,55 @@ FakeAlternatives() {
 }
 
 # Alternatives provide /lib/cpp and %{_bindir}/cpp
-(cd $RPM_BUILD_ROOT%{_bindir}; FakeAlternatives cpp)
-(mkdir -p $RPM_BUILD_ROOT/lib; cd $RPM_BUILD_ROOT/lib; ln -sf %{_bindir}/cpp cpp)
+(cd %{buildroot}%{_bindir}; FakeAlternatives cpp)
+(mkdir -p %{buildroot}/lib; cd %{buildroot}/lib; ln -sf %{_bindir}/cpp cpp)
 
 # Alternatives provide /usr/bin/{g77,f77}
-(cd $RPM_BUILD_ROOT%{_bindir}; FakeAlternatives g77 f77)
+(cd %{buildroot}%{_bindir}; FakeAlternatives g77 f77)
 
 # Alternatives provide /usr/bin/c++
-(cd $RPM_BUILD_ROOT%{_bindir}; FakeAlternatives c++)
+(cd %{buildroot}%{_bindir}; FakeAlternatives c++)
 
 # Alternatives provide java programs
-(cd $RPM_BUILD_ROOT%{_bindir}; FakeAlternatives %{gcj_alternative_programs} javac)
+(cd %{buildroot}%{_bindir}; FakeAlternatives %{gcj_alternative_programs} javac)
 
 # Alternatives provide jdk-config script
-(cd $RPM_BUILD_ROOT%{_bindir}; FakeAlternatives jdk-config)
+(cd %{buildroot}%{_bindir}; FakeAlternatives jdk-config)
 
 # Move libgcc_s.so* to /%{_lib}
-(cd $RPM_BUILD_ROOT/%{_lib};
+(cd %{buildroot}/%{_lib};
   chmod 0755 libgcc_s.so.%{libgcc_major}
 %if %{build_cross}
-  mkdir -p $RPM_BUILD_ROOT%{target_libdir}
-  mv -f libgcc_s.so.%{libgcc_major} $RPM_BUILD_ROOT%{target_libdir}/libgcc_s-%{version}.so.%{libgcc_major}
-  ln -sf libgcc_s-%{version}.so.%{libgcc_major} $RPM_BUILD_ROOT%{target_libdir}/libgcc_s.so.%{libgcc_major}
-  ln -sf libgcc_s.so.%{libgcc_major} $RPM_BUILD_ROOT%{target_libdir}/libgcc_s.so
+  mkdir -p %{buildroot}%{target_libdir}
+  mv -f libgcc_s.so.%{libgcc_major} %{buildroot}%{target_libdir}/libgcc_s-%{version}.so.%{libgcc_major}
+  ln -sf libgcc_s-%{version}.so.%{libgcc_major} %{buildroot}%{target_libdir}/libgcc_s.so.%{libgcc_major}
+  ln -sf libgcc_s.so.%{libgcc_major} %{buildroot}%{target_libdir}/libgcc_s.so
 %else
   mv -f libgcc_s.so.%{libgcc_major} libgcc_s-%{version}.so.%{libgcc_major}
   ln -sf libgcc_s-%{version}.so.%{libgcc_major} libgcc_s.so.%{libgcc_major}
-  ln -sf ../../%{_lib}/libgcc_s.so.%{libgcc_major} $RPM_BUILD_ROOT%{_libdir}/libgcc_s.so
+  ln -sf ../../%{_lib}/libgcc_s.so.%{libgcc_major} %{buildroot}%{_libdir}/libgcc_s.so
 %endif
 %ifarch ppc
   chmod 0755 libgcc_s_nof.so.%{libgcc_major}
   mv -f libgcc_s_nof.so.%{libgcc_major} libgcc_s_nof-%{version}.so.%{libgcc_major}
   ln -sf libgcc_s_nof-%{version}.so.%{libgcc_major} libgcc_s_nof.so.%{libgcc_major}
-  ln -sf ../../%{_lib}/libgcc_s_nof.so.%{libgcc_major} $RPM_BUILD_ROOT%{_libdir}/libgcc_s_nof.so
+  ln -sf ../../%{_lib}/libgcc_s_nof.so.%{libgcc_major} %{buildroot}%{_libdir}/libgcc_s_nof.so
 %endif
 )
 # Handle 32-bit libgcc
 %ifarch %{biarches}
-(cd $RPM_BUILD_ROOT/lib;
+(cd %{buildroot}/lib;
   chmod 0755 libgcc_s.so.%{libgcc_major}
   mv -f libgcc_s.so.%{libgcc_major} libgcc_s-%{version}.so.%{libgcc_major}
   ln -sf libgcc_s-%{version}.so.%{libgcc_major} libgcc_s.so.%{libgcc_major}
-  ln -sf ../../lib/libgcc_s.so.%{libgcc_major} $RPM_BUILD_ROOT%{_prefix}/lib/libgcc_s.so
-  ln -sf ../../lib/libgcc_s.so.%{libgcc_major} $RPM_BUILD_ROOT%{_prefix}/lib/libgcc_s_32.so
+  ln -sf ../../lib/libgcc_s.so.%{libgcc_major} %{buildroot}%{_prefix}/lib/libgcc_s.so
+  ln -sf ../../lib/libgcc_s.so.%{libgcc_major} %{buildroot}%{_prefix}/lib/libgcc_s_32.so
 )
 %endif
 
 # Create c89 and c99 wrappers
 %if %{system_compiler}
-cat > $RPM_BUILD_ROOT%{_prefix}/bin/c89 <<"EOF"
+cat > %{buildroot}%{_prefix}/bin/c89 <<"EOF"
 #!/bin/sh
 fl="-std=c89"
 for opt; do
@@ -1355,7 +1359,7 @@ for opt; do
 done
 exec %{_bindir}/gcc-%{version} $fl ${1+"$@"}
 EOF
-cat > $RPM_BUILD_ROOT%{_prefix}/bin/c99 <<"EOF"
+cat > %{buildroot}%{_prefix}/bin/c99 <<"EOF"
 #!/bin/sh
 fl="-std=c99"
 for opt; do
@@ -1367,11 +1371,11 @@ for opt; do
 done
 exec %{_bindir}/gcc-%{version} $fl ${1+"$@"}
 EOF
-chmod 755 $RPM_BUILD_ROOT%{_prefix}/bin/c?9
+chmod 755 %{buildroot}%{_prefix}/bin/c?9
 %endif
 
 # FIXME: cpp, gcov manpages names
-(cd $RPM_BUILD_ROOT%{_mandir}/man1;
+(cd %{buildroot}%{_mandir}/man1;
   if [[ -n "%{program_prefix}%{program_suffix}" ]]; then
     for f in gcov cpp gcc g++ g77 gpc; do
       [[ -f "$f.1" ]] && mv $f.1 %{program_prefix}$f%{program_suffix}.1
@@ -1380,7 +1384,7 @@ chmod 755 $RPM_BUILD_ROOT%{_prefix}/bin/c?9
 )
 
 # Remove unpackaged files
-rm -rf $RPM_BUILD_ROOT%{_prefix}/doc
+rm -rf %{buildroot}%{_prefix}/doc
 
 # In case we are cross-compiling, don't bother to remake symlinks and
 # don't let spec-helper when stripping files either
@@ -1394,21 +1398,9 @@ export DONT_STRIP=1
 export DONT_STRIP=1
 %endif
 
-%if %{build_ssp}
-# create ssp profile
-mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/profile.d
-echo "# This tells rpm to compile everything with stack protection" >> $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/ssp.sh
-echo "" >> $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/ssp.sh
-echo "export STACK_PROTECTOR=true" >> $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/ssp.sh
-echo "# This tells rpm to compile everything with stack protection" >> $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/ssp.csh
-echo "" >> $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/ssp.csh
-echo "set STACK_PROTECTOR=true" >> $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/ssp.csh
-chmod 0755 $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/ssp.*
-%endif
-
 
 %clean
-#rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %post
 update-alternatives --install %{_bindir}/gcc gcc %{_bindir}/%{program_prefix}gcc-%{version} %{alternative_priority}
@@ -1610,10 +1602,6 @@ if [ "$1" = "0" ];then /sbin/install-info %{_infodir}/gcc.info.bz2 --dir=%{_info
 %defattr(-,root,root)
 #
 %doc gcc/README* gcc/*ChangeLog*
-%if %{build_ssp}
-%config(noreplace) %{_sysconfdir}/profile.d/ssp.sh
-%config(noreplace) %{_sysconfdir}/profile.d/ssp.csh
-%endif
 %{_mandir}/man1/%{program_prefix}gcc%{program_suffix}.1*
 %if "%{name}" == "gcc"
 %{_mandir}/man1/gcov%{program_suffix}.1*
@@ -2123,6 +2111,18 @@ if [ "$1" = "0" ];then /sbin/install-info %{_infodir}/gcc.info.bz2 --dir=%{_info
 %endif
 
 %changelog
+* Thu Jan 27 2005 Vincent Danen <vdanen@annvix.org> 3.3.1-7avx
+- use the HLFS SSP patches (P301) and regen P300 for rejects
+  [gcc/Makefile.in]
+- fix url for bug reports
+- remove /etc/profile.d/ssp.{sh,csh} files as the only specs with
+  %%build_ssp are gcc and rpm
+- remove %%build_ssp macro; *always* build with SSP
+- update specs to make gcc always compile stuff with -fstack-protector-all
+  (thanks Robert)
+- some macros
+- build gcc itself with -fstack-protector-all
+
 * Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 3.3.1-6avx
 - Annvix build
 - ssp 3.3.2-2; regenerated patch
