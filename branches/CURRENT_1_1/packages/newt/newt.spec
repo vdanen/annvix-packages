@@ -1,6 +1,6 @@
 %define name	newt
 %define version 0.51.6
-%define release 1avx
+%define release 2avx
 
 %define majver		0.51
 %define libname		%mklibname %{name} %{majver}
@@ -66,12 +66,15 @@ use newt.
 %patch0 -p0
 %patch1 -p0
 %patch2 -p1
-%patch3 -p0 -b .nostatic
+#%patch3 -p0 -b .nostatic
 
 %build
-export CFLAGS="%{optflags} -fno-stack-protector"
-export CXXFLAGS="%{optflags} -fno-stack-protector"
-export FFLAGS="%{optflags} -fno-stack-protector"
+#export CFLAGS="%{optflags} -fno-stack-protector"
+#export CXXFLAGS="%{optflags} -fno-stack-protector"
+#export FFLAGS="%{optflags} -fno-stack-protector"
+export CFLAGS="%{optflags}"
+export CXXFLAGS="%{optflags}"
+export FFLAGS="%{optflags}"
 %configure --without-gpm-support
 
 %make
@@ -111,6 +114,10 @@ rm -rf  %{buildroot}%{_libdir}/python{1.5,2.0,2.1,2.2,2.3}
 %{_libdir}/libnewt.so
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.51.6-2avx
+- bootstrap build
+- don't apply P3 and build with stack protection
+
 * Mon Feb 28 2005 Vincent Danen <vdanen@annvix.org> 0.51.6-1avx
 - 0.51.6
 - use %%pyver macro
