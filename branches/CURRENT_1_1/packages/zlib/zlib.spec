@@ -1,14 +1,24 @@
-%define name	zlib
-%define version	1.1.4
-%define release 12avx
+#
+# spec file for package zlib
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		zlib
+%define version		1.2.2.2
+%define release 	1avx
 
 %define lib_major	1
 %define lib_name	%{name}%{lib_major}
 
-%define build_biarch 0
-# Enable bi-arch build on x86-64
-%ifarch x86_64
-%define build_biarch 1
+%define build_biarch	0
+
+# Enable bi-arch build on x86-64 and sparc64
+%ifarch x86_64 sparc64
+    %define build_biarch 1
 %endif
 
 Summary:	The zlib compression and decompression library
@@ -18,13 +28,14 @@ Release:	%{release}
 License:	BSD
 Group:		System/Libraries
 URL:		http://www.gzip.org/zlib/
-Source:		http://prdownloads.sourceforge.net/libpng/zlib-%version.tar.bz2
-Patch0:		zlib-1.1.3-glibc.patch.bz2
-Patch1:		zlib-1.1.4-multibuild.patch.bz2
-Patch2:		zlib-1.1.4-build-fPIC.patch.bz2
-Patch3:		zlib-1.1.4-gzprintf.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
+Source:		http://prdownloads.sourceforge.net/libpng/%{name}-%{version}.tar.bz2
+Patch0:		zlib-1.2.1-glibc.patch.bz2
+Patch1:		zlib-1.2.1-multibuild.patch.bz2
+Patch2:		zlib-1.2.2.2-build-fPIC.patch.bz2
+Patch3:		zlib-1.2.1.1-deb-alt-inflate.patch.bz2
+
+BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
 
 %description
 The zlib compression library provides in-memory compression and
@@ -33,6 +44,7 @@ data.  This version of the library supports only one compression method
 (deflation), but other algorithms may be added later, which will have
 the same stream interface.  The zlib library is used by many different
 system programs.
+
 
 %package -n %{lib_name}
 Summary:	The zlib compression and decompression library
@@ -47,6 +59,7 @@ data.  This version of the library supports only one compression method
 (deflation), but other algorithms may be added later, which will have
 the same stream interface.  The zlib library is used by many different
 system programs.
+
 
 %package -n %{lib_name}-devel
 Summary:	Header files and libraries for developing apps which will use zlib
@@ -63,60 +76,66 @@ library.
 Install the zlib-devel package if you want to develop applications that
 will use the zlib library.
 
+
 %prep
-%setup -q -n zlib-%{version}
+%setup -q
 %patch0 -p1
 %patch1 -p1 -b .multibuild
 %patch2 -p1 -b .build-fPIC
-%patch3 -p1 -b .gzprintf
+
 
 %build
 mkdir objs
 pushd objs
-  CFLAGS="$RPM_OPT_FLAGS" \
-  ../configure --shared --prefix=%{_prefix} --libdir=%{_libdir}
-  %make
-  make test
+    CFLAGS="%{optflags}" \
+        ../configure --shared --prefix=%{_prefix} --libdir=%{_libdir}
+    %make
+    make test
+    ln -s ../zlib.3 .
 popd
 
 %if %{build_biarch}
-mkdir objs32
-pushd objs32
-  CFLAGS="$RPM_OPT_FLAGS" CC="%{__cc} -m32" \
-  ../configure --shared --prefix=%{_prefix}
-  %make
-  make test
-popd
+    OPT_FLAGS="%{optflags}"
+    %ifarch sparc64
+        OPT_FLAGS=`echo $OPT_FLAGS|sed -e 's/-m64//g' -e 's/-m32//g' -e 's/-mcpu=ultrasparc/-mtune=ultrasparc/g'`
+    %endif
+    mkdir objs32
+    pushd objs32
+        CFLAGS="$OPT_FLAGS" CC="%{__cc} -m32" \
+            ../configure --shared --prefix=%{_prefix}
+        %make
+        make test
+    popd
 %endif
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-install -d $RPM_BUILD_ROOT/%{_libdir}
+install -d %{buildroot}/%{_libdir}
 
-make install -C objs prefix=$RPM_BUILD_ROOT%{_prefix} libdir=$RPM_BUILD_ROOT%{_libdir}
+make install -C objs prefix=%{buildroot}%{_prefix} libdir=%{buildroot}%{_libdir}
 %if %{build_biarch}
-make install-libs -C objs32 prefix=$RPM_BUILD_ROOT%{_prefix}
+    make install-libs -C objs32 prefix=%{buildroot}%{_prefix}
 %endif
 
-install -m644 zutil.h $RPM_BUILD_ROOT/%{_includedir}/zutil.h
-install -d $RPM_BUILD_ROOT/%{_mandir}/man3
-install -m644 zlib.3 $RPM_BUILD_ROOT/%{_mandir}/man3
-
-install -d $RPM_BUILD_ROOT/%{_lib}
-mv $RPM_BUILD_ROOT%{_libdir}/*.so.* $RPM_BUILD_ROOT/%{_lib}/
-ln -s ../../%{_lib}/libz.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
+install -d %{buildroot}/%{_lib}
+mv %{buildroot}%{_libdir}/*.so.* %{buildroot}/%{_lib}/
+ln -s ../../%{_lib}/libz.so.%{version} %{buildroot}%{_libdir}/
 
 %if %{build_biarch}
-install -d $RPM_BUILD_ROOT/lib
-mv $RPM_BUILD_ROOT%{_prefix}/lib/*.so.* $RPM_BUILD_ROOT/lib/
-ln -s ../../lib/libz.so.%{version} $RPM_BUILD_ROOT%{_prefix}/lib/
+    install -d %{buildroot}/lib
+    mv %{buildroot}%{_prefix}/lib/*.so.* %{buildroot}/lib/
+    ln -s ../../lib/libz.so.%{version} %{buildroot}%{_prefix}/lib/
 %endif
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
+
 %post -n %{lib_name} -p /sbin/ldconfig
 %postun -n %{lib_name} -p /sbin/ldconfig
+
 
 %files -n %{lib_name}
 %defattr(-, root, root)
@@ -124,8 +143,8 @@ ln -s ../../lib/libz.so.%{version} $RPM_BUILD_ROOT%{_prefix}/lib/
 /%{_lib}/libz.so.*
 %{_libdir}/libz.so.*
 %if %{build_biarch}
-/lib/libz.so.*
-%{_prefix}/lib/libz.so.*
+    /lib/libz.so.*
+    %{_prefix}/lib/libz.so.*
 %endif
 
 %files -n %{lib_name}-devel
@@ -134,13 +153,22 @@ ln -s ../../lib/libz.so.%{version} $RPM_BUILD_ROOT%{_prefix}/lib/
 %{_libdir}/*.a
 %{_libdir}/*.so
 %if %{build_biarch}
-%{_prefix}/lib/*.a
-%{_prefix}/lib/*.so
+    %{_prefix}/lib/*.a
+    %{_prefix}/lib/*.so
 %endif
 %{_includedir}/*
 %{_mandir}/*/*
 
 %changelog
+* Wed Jun 08 2005 Vincent Danen <vdanen@annvix.org> 1.2.2.2-1avx
+- 1.2.2.2
+- enable biarch build for sparc64 (stefan)
+- updated P0 and P1 from Mandriva; old P3 merged upstream
+- new P3 from debian for fixes (flepied)
+- updated P2: make sure we are compiling DSO with -fPIC in configure
+  tests (gbeauchesne)
+- start work to make specs more readable and "clean"
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.1.4-12avx
 - bootstrap build
 
