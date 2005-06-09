@@ -1,6 +1,6 @@
 %define name			%{cross_prefix}gcc%{package_suffix}
 %define version			3.3.1
-%define release			7avx
+%define release			8avx
 
 %define branch			3.3
 %define branch_tag		%(perl -e 'printf "%%02d%%02d", split(/\\./,shift)' %{branch})
@@ -289,6 +289,7 @@ Patch219: 	gcc33-rhl-testsuite.patch.bz2
 # We're using the HLFS patches instead: http://www.linuxfromscratch.org/~robert/hlfs/current
 Patch300:	gcc-3.3.2-protector-3.3.2-2.patch.bz2
 Patch301:	gcc-3.3-ssp-4.patch.bz2
+Patch302:	gcc-3.3.1-avx-hardened-specs.patch
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-root
 # Want updated alternatives priorities
@@ -844,7 +845,7 @@ patch -p0 < gcc/p/diffs/gcc-3.3.diff
 
 # Annvix information for bug reports
 perl -pi -e "/bug_report_url/ and s/\"[^\"]+\"/\"<URL:https:\/\/bugs.annvix.org\/>\"/;" \
-         -e '/version_string/ and s/([0-9]*(\.[0-9]*){1,3}).*(\";)$/\1 \(Annvix %{avx_version} %{version}-%{release}\)\3/;' \
+         -e '/version_string/ and s/([0-9]*(\.[0-9]*){1,3}).*(\";)$/\1 \((ssp) Annvix %{avx_version} %{version}-%{release}\)\3/;' \
          gcc/version.c
 
 # ColorGCC patch
@@ -871,10 +872,6 @@ export PATH=$PATH:$PWD/bin
 # Make bootstrap-lean
 CC=gcc
 OPT_FLAGS=`echo $RPM_OPT_FLAGS|sed -e 's/-fno-rtti//g' -e 's/-fno-exceptions//g'`
-# remove this from rpm optflags
-OPT_FLAGS=`echo $OPT_FLAGS|sed -e 's/-fstack-protector//g'`
-# but we want to build with -fstack-protector-all
-OPT_FLAGS="$OPT_FLAGS -fstack-protector-all"
 %if %{build_debug}
 OPT_FLAGS=`echo "$OPT_FLAGS -g" | sed -e "s/-fomit-frame-pointer//g"`
 %endif
@@ -1051,12 +1048,10 @@ mkdir -p %{buildroot}%{_sysconfdir}
 
 pushd obj-%{gcc_target_platform};
 
-# update specs to force -fstack-protector-all on everything we build
-perl -pi -e 's@\*cc1:\n@$_%(cc1_ssp) @;' gcc/specs &&
-perl -pi -e 's@\*cc1plus:\n@$_%(cc1_ssp) @;' gcc/specs &&
-echo '*cc1_ssp:
-%{!fno-stack-protector*: -fstack-protector-all}
-' >> gcc/specs
+  # update specs to force -fstack-protector-all on everything we build
+  cd gcc
+  patch -p0 < %{PATCH302}
+  cd ..
 
   %makeinstall slibdir=%{buildroot}/%{_lib}
   %if %{build_ada}
@@ -2111,7 +2106,12 @@ if [ "$1" = "0" ];then /sbin/install-info %{_infodir}/gcc.info.bz2 --dir=%{_info
 %endif
 
 %changelog
-* Thu Jan 27 2005 Vincent Danen <vdanen@annvix.org> 3.3.1-7avx
+* Thu Jun 02 2005 Vincent Danen <vdanen@annvix.org> 3.3.1-8avx
+- recompile with stack protection enabled
+- note in version string that ssp is enabled
+- P302: patch the specs file during build; using perl seems to fail
+
+* Thu Jun 02 2005 Vincent Danen <vdanen@annvix.org> 3.3.1-7avx
 - use the HLFS SSP patches (P301) and regen P300 for rejects
   [gcc/Makefile.in]
 - fix url for bug reports
@@ -2121,7 +2121,7 @@ if [ "$1" = "0" ];then /sbin/install-info %{_infodir}/gcc.info.bz2 --dir=%{_info
 - update specs to make gcc always compile stuff with -fstack-protector-all
   (thanks Robert)
 - some macros
-- build gcc itself with -fstack-protector-all
+- bootstrap build; don't build with -fstack-protector-all
 
 * Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 3.3.1-6avx
 - Annvix build
