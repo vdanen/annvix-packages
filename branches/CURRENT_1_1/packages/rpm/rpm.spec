@@ -3,7 +3,7 @@
 %define poptver		1.8.3
 # You need increase both release and poptrelease
 %define poptrelease	%{release}
-%define release		3avx
+%define release		4avx
 
 %define libver		4.2
 %define url		ftp://ftp.rpm.org/pub/rpm/dist/rpm-4.0.x
@@ -761,6 +761,9 @@ fi
 %{_libdir}/libpopt.so
 
 %changelog
+* Thu Jun 02 2005 Vincent Danen <vdanen@annvix.org> 4.2.3-4avx
+- compile against ourself
+
 * Thu Jun 02 2005 Vincent Danen <vdanen@annvix.org> 4.2.3-3avx
 - bootstrap build
 
