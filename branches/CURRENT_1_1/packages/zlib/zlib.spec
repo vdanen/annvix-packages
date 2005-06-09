@@ -1,6 +1,6 @@
 %define name	zlib
 %define version	1.1.4
-%define release 11avx
+%define release 12avx
 
 %define lib_major	1
 %define lib_name	%{name}%{lib_major}
@@ -141,6 +141,9 @@ ln -s ../../lib/libz.so.%{version} $RPM_BUILD_ROOT%{_prefix}/lib/
 %{_mandir}/*/*
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.1.4-12avx
+- bootstrap build
+
 * Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 1.1.4-11avx
 - Annvix build
 
