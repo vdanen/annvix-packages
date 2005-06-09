@@ -3,7 +3,7 @@
 %define poptver		1.8.3
 # You need increase both release and poptrelease
 %define poptrelease	%{release}
-%define release		4avx
+%define release		5avx
 
 %define libver		4.2
 %define url		ftp://ftp.rpm.org/pub/rpm/dist/rpm-4.0.x
@@ -352,14 +352,10 @@ popd
 # NOTE: Don't add libdir specification here as rpm data files really
 # have to go to /usr/lib/rpm and we support only one rpm program per
 # architecture
-# (vdanen): don't build rpm with stack protection on any platforms until
-# we move the symbols from gcc to glibc
 %ifarch x86_64 amd64
 CPPFLAGS="-I/usr/include/libelf" CFLAGS="$RPM_OPT_FLAGS" CXXFLAGS="$RPM_OPT_FLAGS" ./configure --prefix=%{_prefix} --sysconfdir=%{_sysconfdir} --localstatedir=/var --mandir=%{_datadir}/man --infodir=%{_datadir}/info --enable-nls --without-javaglue --disable-posixmutexes --with-python=%{pyver}
-#CPPFLAGS="-I/usr/include/libelf" CFLAGS="$RPM_OPT_FLAGS -fno-stack-protector" CXXFLAGS="$RPM_OPT_FLAGS -fno-stack-protector" ./configure --prefix=%{_prefix} --sysconfdir=%{_sysconfdir} --localstatedir=/var --mandir=%{_datadir}/man --infodir=%{_datadir}/info --enable-nls --without-javaglue --disable-posixmutexes --with-python=%{pyver}
 %else
 CPPFLAGS="-I/usr/include/libelf" CFLAGS="$RPM_OPT_FLAGS" CXXFLAGS="$RPM_OPT_FLAGS" ./configure --prefix=%{_prefix} --sysconfdir=%{_sysconfdir} --localstatedir=/var --mandir=%{_datadir}/man --infodir=%{_datadir}/info --enable-nls --without-javaglue --disable-posixmutexes --with-python=%{pyver} --with-glob
-#CPPFLAGS="-I/usr/include/libelf" CFLAGS="$RPM_OPT_FLAGS -fno-stack-protector" CXXFLAGS="$RPM_OPT_FLAGS -fno-stack-protector" ./configure --prefix=%{_prefix} --sysconfdir=%{_sysconfdir} --localstatedir=/var --mandir=%{_datadir}/man --infodir=%{_datadir}/info --enable-nls --without-javaglue --disable-posixmutexes --with-python=%{pyver} --with-glob
 %endif
 # Allow parallel build
 perl -p -i -e 's/conftest\.s/conftest\$\$.s/' config.status
@@ -761,6 +757,10 @@ fi
 %{_libdir}/libpopt.so
 
 %changelog
+* Thu Jun 02 2005 Vincent Danen <vdanen@annvix.org> 4.2.3-5avx
+- rebuild with stack protection enabled
+- update macros to use -fstack-protector-all instead of -fstack-protector
+
 * Thu Jun 02 2005 Vincent Danen <vdanen@annvix.org> 4.2.3-4avx
 - compile against ourself
 
