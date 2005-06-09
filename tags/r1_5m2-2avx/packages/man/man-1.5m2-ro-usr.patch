@@ -1,0 +1,67 @@
+--- ./src/makewhatis.sh.usr	2004-01-30 00:14:40.000000000 +0100
++++ ./src/makewhatis.sh	2004-01-30 21:11:59.000000000 +0100
+@@ -111,7 +111,7 @@
+ 	continue;;
+     -s) setsections=1
+ 	continue;;
+-    -u) findarg="-ctime 0"
++    -u) findarg="-newer /var/cache/man/whatis"
+ 	update=1
+ 	continue;;
+     -v) verbose=1
+@@ -151,14 +151,7 @@
+ # first truncate all the whatis files that will be created new,
+ # then only update - we might visit the same directory twice
+ if [ x$update = x ]; then
+-   for pages in man cat
+-   do
+-      eval path="\$$pages"path
+-      for mandir in $path
+-      do
+-	 cp /dev/null $mandir/whatis
+-      done
+-   done
++   cp /dev/null /var/cache/man/whatis
+ fi
+ 
+ for pages in man cat
+@@ -170,11 +163,6 @@
+      if [ x$verbose != x ]; then
+ 	echo "about to enter $mandir" > /dev/stderr
+      fi
+-     if [ -s ${mandir}/whatis -a $pages = man -a x$update = x ]; then
+-	if [ x$verbose != x ]; then
+-	   echo skipping $mandir - we did it already > /dev/stderr
+-	fi
+-     else      
+        here=`pwd`
+        cd $mandir
+        for i in $sections
+@@ -393,23 +381,14 @@
+ 
+        cd $here
+ 
+-       # kludge for Slackware's /usr/man/preformat
+-       if [ $mandir = /usr/man/preformat ]
+-       then
+-	 mandir1=/usr/man
+-       else
+-	 mandir1=$mandir
+-       fi
+-
+-       if [ -f ${mandir1}/whatis ]
++       if [ -f /var/cache/man/whatis ]
+        then
+-	 cat ${mandir1}/whatis >> $TMPFILE
++	 cat /var/cache/man/whatis >> $TMPFILE
+        fi
+-       sed '/^$/d' < $TMPFILE | sort | uniq > ${mandir1}/whatis
++       sed '/^$/d' < $TMPFILE | sort | uniq > /var/cache/man/whatis
+ 
+-       chmod 644 ${mandir1}/whatis
++       chmod 644 /var/cache/man/whatis
+        rm $TMPFILE
+-     fi
+    done
+ done
+ 
