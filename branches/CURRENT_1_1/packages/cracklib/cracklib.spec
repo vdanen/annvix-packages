@@ -1,13 +1,13 @@
 %define name	cracklib
 %define version	2.7
-%define release	20avx
+%define release	21avx
 
 %define root	crack
 %define maj	2
 %define libname	%mklibname %root %maj
 %define libnamedev %libname-devel
 
-Summary:	A password-checking library.
+Summary:	A password-checking library
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -88,21 +88,18 @@ perl -p -i -e "s/\) -g/\)/" cracklib/Makefile
 chmod -R og+rX .
 
 %build
-# the libs don't build properly with SSP enabled
-RPM_OPT_FLAGS="$RPM_OPT_FLAGS -fno-stack-protector"
-
-make all RPM_OPT_FLAGS="$RPM_OPT_FLAGS" \
+make all RPM_OPT_FLAGS="%{optflags}" \
 	libdir=%{_libdir} datadir=%{_datadir}
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p $RPM_BUILD_ROOT{%{_sbindir},%{_libdir},%{_includedir}}
+mkdir -p %{buildroot}{%{_sbindir},%{_libdir},%{_includedir}}
 make install \
-	ROOT=$RPM_BUILD_ROOT \
+	ROOT=%{buildroot} \
 	sbindir=%{_sbindir} \
 	libdir=%{_libdir} \
 	includedir=%{_includedir}
-ln -sf libcrack.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libcrack.so.%{maj}
+ln -sf libcrack.so.%{version} %{buildroot}%{_libdir}/libcrack.so.%{maj}
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -126,6 +123,10 @@ ln -sf libcrack.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libcrack.so.%{maj}
 %{_libdir}/cracklib_dict*
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.7-21avx
+- bootstrap build
+- re-enable stack protection
+
 * Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 2.7-20avx
 - Annvix build
 - remove %%build_propolice macro; build without ssp by default

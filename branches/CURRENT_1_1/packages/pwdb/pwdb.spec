@@ -1,6 +1,6 @@
 %define name	pwdb
 %define version	0.62
-%define release	1avx
+%define release	2avx
 
 %define majver		0
 %define lib_name_orig	%mklibname pwdb
@@ -80,8 +80,7 @@ ln -s defs/redhat.defs default.defs
 chmod -R g-s .
 
 %build
-# this package doesn't compile with ssp enabled
-RPM_OPT_FLAGS="$RPM_OPT_FLAGS -fno-stack-protector" %make
+RPM_OPT_FLAGS="%{optflags}" %make
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -122,6 +121,10 @@ ln -sf lib%{name}.so.%{version} $RPM_BUILD_ROOT/%{_lib}/lib%{name}.so.%{majver}
 /%{_lib}/libpwdb.a
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.62-2avx
+- bootstrap build
+- re-enable stack protection
+
 * Fri Sep 24 2004 Vincent Danen <vdanen@annvix.org> 0.62-1avx
 - 0.62
 
