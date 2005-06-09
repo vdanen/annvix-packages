@@ -1,0 +1,11 @@
+--- tar-1.14/src/incremen.c.scandir	2004-05-25 02:15:41.416152448 +0800
++++ tar-1.14/src/incremen.c	2004-05-25 02:17:15.266884968 +0800
+@@ -133,6 +133,8 @@ scan_path (struct obstack *stk, char *pa
+   if (! dirp)
+     {
+       savedir_error (path);
++      errno = 1;
++      return NULL;
+     }
+   errno = 0;
+ 
