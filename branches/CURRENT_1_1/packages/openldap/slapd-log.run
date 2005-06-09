@@ -1,5 +1,6 @@
 #!/bin/sh
 
-# logging for the slapd service
+# this writes logs as user nobody into /var/log/supervise/slapd; make 
+# sure this directory exists and is writable by nobody!
 
-exec /sbin/chpst -u logger /sbin/svlogd -tt /var/log/supervise/slapd
+exec /sbin/chpst -u nobody /sbin/svlogd -tt /var/log/supervise/slapd

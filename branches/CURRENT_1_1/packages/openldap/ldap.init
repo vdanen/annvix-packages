@@ -43,8 +43,11 @@ slurpd=/usr/sbin/slurpd
 export TMPDIR=/var/tmp
 
 check_slurpd() {
-	if grep -Eq "^[[:space:]]*replica[[:space:]]+(host|uri)" /etc/openldap/slapd.conf; then
-		return 0
+	if grep -Eq "^[[:space:]]*replica[[:space:]]+(host|uri)" /etc/openldap/slapd.conf
+		then STARTSLURPD="${STARTSLURPD:-yes}"
+	fi
+	if [ "${STARTSLURPD:-no}" == "yes" ]
+	then return 0
 	fi
 
 	return 1
@@ -108,7 +111,6 @@ stop() {
 	RETVAL=$?
 	echo
 
-	if [ $RETVAL -eq 0 ]; then
 	    if [ -e /var/lock/subsys/ldapr ]; then
 		gprintf "Stopping slurpd: "
 		killproc ${slurpd} 2>/dev/null
@@ -116,8 +118,8 @@ stop() {
 		echo
 		[ $RETVAL2 -eq 0 ] && rm -f /var/lock/subsys/ldapr
 	    fi
-	fi
         [ $RETVAL -eq 0 ] && rm -f /var/lock/subsys/ldap /var/run/ldap/slapd.args
+	[ $RETVAL -eq 0 -a $RETVAL2 -eq 0 ] || RETVAL=1
 	return $RETVAL
 }
 
@@ -160,7 +162,6 @@ case "$1" in
         ;;
     stop)
         stop
-	recover
         ;;
     status)
         status ${slapd}
@@ -170,7 +171,6 @@ case "$1" in
 	;;
     restart)
 	stop
-	recover
 	start
 	;;
     reload)
