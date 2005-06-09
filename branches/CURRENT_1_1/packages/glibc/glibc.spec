@@ -3,7 +3,7 @@
 
 # <version>-<release> tags for glibc main package
 %define glibcversion	2.3.2
-%define glibcrelease	26avx
+%define glibcrelease	27avx
 %define epoch		6
 
 # <version>-<release> tags from kernel package where headers were
@@ -580,6 +580,9 @@ function BuildGlibc() {
   if [[ "%{build_profile}" = "0" ]]; then
     ExtraFlags="$ExtraFlags --disable-profile"
   fi
+
+  # Disable gcc SSP for this build; we can't build glibc until we upgrade to 2.3.4
+  BuildFlags="$BuildFlags -fno-stack-protector"
 
   # Kernel headers directory
   KernelHeaders=$PWD/kernel-headers
@@ -1320,6 +1323,11 @@ fi
 %endif
 
 %changelog
+* Thu Jun 02 2005 Vincent Danen <vdanen@annvix.org> 2.3.2-27avx
+- build with -fno-stack-protector; we have to build glibc unprotected
+  until we upgrade to 2.3.4 now that we're moving everything from
+  libgcc to libc
+
 * Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 2.3.2-26avx
 - user logger for logging
 
