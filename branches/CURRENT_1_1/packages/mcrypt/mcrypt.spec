@@ -1,6 +1,6 @@
 %define name	mcrypt
 %define version 2.6.4
-%define release 5avx
+%define release 6avx
 
 Summary:	Data encryption/decryption program
 Name:		%{name}
@@ -13,7 +13,7 @@ Source0:	%{name}-%{version}.tar.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-buildroot
 BuildRequires:	libmhash-devel >= 0.8.15
-BuildRequires:	libmcrypt-devel >= 2.5.0
+BuildRequires:	libmcrypt-devel >= 2.5.0, libltdl-devel
 
 %description
 A replacement for the old unix crypt(1) command. Mcrypt
@@ -50,6 +50,10 @@ CBC, ECB, OFB and CFB modes of encryption are supported.
 %{_mandir}/man1/*
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.6.4-6avx
+- rebuild
+- buildrequires: libltdl-devel
+
 * Thu Aug 18 2004 Vincent Danen <vdanen@annvix.org> 2.6.4-5avx
 - use %%configure2_5x
 - remove unneeded deps and make deps version specific
