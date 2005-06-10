@@ -1,6 +1,6 @@
 %define name	uschedule
 %define version	0.7.0
-%define release	3avx
+%define release	4avx
 
 Summary:	Scheduling service
 Name:		%{name}
@@ -14,7 +14,7 @@ Source0:	%{name}-%{version}.tar.gz
 BuildRoot:	%{_tmppath}/%{name}-%{version}
 BuildRequires:	dietlibc-devel >= 0.20
 
-Requires:	daemontools
+Requires:	srv
 
 %description
 uschedule is not cron and uschedule is not at - it does offer
@@ -76,6 +76,10 @@ popd
 %{_mandir}/man8/*
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 0.7.0-4avx
+- rebuild
+- requires: s/daemontools/srv/
+
 * Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 0.7.0-3avx
 - Annvix build
 
