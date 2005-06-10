@@ -1,6 +1,6 @@
 %define name	cdrecord
 %define version 2.01
-%define release 0.a38.2avx
+%define release 0.a38.3avx
 %define epoch	4
 
 %define archname cdrtools
@@ -149,6 +149,9 @@ mv $RPM_BUILD_ROOT%{_prefix}/lib $RPM_BUILD_ROOT%{_libdir}/
 %attr(755,root,cdwriter) %{_bindir}/isovfy
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.01-0.a38.3avx
+- rebuild
+
 * Wed Apr 20 2005 Vincent Danen <vdanen@annvix.org> 2.01-0.a38.2avx
 - P6: security patch for CAN-2005-0866
 
