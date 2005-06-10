@@ -1,6 +1,6 @@
 %define name	memtest86+
 %define version	1.15
-%define release	1avx
+%define release	2avx
 
 Summary: 	A stand alone memory test for i386 architecture systems
 Name: 		%{name}
@@ -11,6 +11,7 @@ Group: 		System/Kernel and hardware
 URL: 		http://www.memtest.org
 Source0: 	http://www.memtest.org/download/memtest_source_v%{version}.tar.bz2
 Source1: 	memtest86.pm
+Patch0:		memtest86-1.15-avx-nostack.patch.bz2
 
 BuildRoot: 	%{_tmppath}/%{name}-%{version}-root
 BuildRequires: 	dev86
@@ -27,6 +28,7 @@ missfailures that are detected by Memtest86.
 
 %prep
 %setup -q -n %{name}_v%{version} 
+%patch0 -p0
 
 %build
 %make
@@ -55,6 +57,10 @@ install -m755 %{SOURCE1} %{buildroot}%{_datadir}/loader/memtest86
 %{_datadir}/loader/memtest86
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 1.15-2avx
+- rebuild
+- P0: don't build with stack protection
+
 * Sat Jun 19 2004 Thomas Backlund <tmb@annvix.org> 1.15-1avx
 - 1.15
 - swith to new name: Annvix / avx
