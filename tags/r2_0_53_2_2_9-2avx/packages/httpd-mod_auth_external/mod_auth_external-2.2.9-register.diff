@@ -1,0 +1,19 @@
+--- mod_auth_external.c	2004-08-22 21:42:29.000000000 +0200
++++ mod_auth_external.c.oden	2005-02-13 23:22:04.141016702 +0100
+@@ -806,9 +806,16 @@
+     return HTTP_UNAUTHORIZED;
+ }
+ 
++static int extauth_init_handler(apr_pool_t *p, apr_pool_t *plog, apr_pool_t *ptemp,
++                             server_rec *s)
++{
++    ap_add_version_component(p, "mod_auth_external/2.2.9");
++    return OK;
++}
+ 
+ static void register_hooks(apr_pool_t *p)
+ {
++    ap_hook_post_config(extauth_init_handler, NULL, NULL, APR_HOOK_MIDDLE);
+     ap_hook_check_user_id(extauth_basic_user, NULL, NULL, APR_HOOK_MIDDLE);
+     ap_hook_auth_checker(extauth_check_auth, NULL, NULL, APR_HOOK_MIDDLE);
+ }
