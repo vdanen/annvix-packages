@@ -1,8 +1,8 @@
 %define name	tripwire
 %define version	2.3.1.2
-%define release	17avx
+%define release	18avx
 
-Summary:	A system integrity assessment tool.
+Summary:	A system integrity assessment tool
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -75,8 +75,7 @@ rm -rf STLport*
 touch STLport_r STLport_d
 
 # Do not parallelize this with _smp_flags or -j
-# this is a static app and building static apps with SSP is broken right now
-make release RPM_OPT_FLAGS="%{optflags} -fno-stack-protector"
+make release RPM_OPT_FLAGS="%{optflags}"
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -142,6 +141,10 @@ chmod 644 README Release_Notes ChangeLog COPYING policy/policyguide.txt TRADEMAR
 %{_datadir}/afterboot/98_tripwire
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.3.1.2-18avx
+- rebuild
+- re-enable stack protection
+
 * Sat Mar 05 2005 Vincent Danen <vdanen@annvix.org> 2.3.1.2-17avx
 - s/bash2/bash3/ in twpol.txt.in
 
