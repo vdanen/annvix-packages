@@ -4,7 +4,7 @@
 
 # Module-Specific definitions
 %define apache_version	2.0.53
-%define phpversion	4.3.10
+%define phpversion	4.3.11
 %define mod_name	mod_php
 %define mod_conf	70_%{mod_name}.conf
 %define mod_so		%{mod_name}4.so
@@ -87,6 +87,10 @@ ln -s ../../../../%{_docdir}/%{name}-%{version} %{buildroot}/var/www/html/addon-
 /var/www/html/addon-modules/*
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.0.53_4.3.11-1avx
+- rebuild
+- php 4.3.11
+
 * Sat Feb 26 2005 Vincent Danen <vdanen@annvix.org> 2.0.53_4.3.10-1avx
 - apache 2.0.53
 - remove ADVX stuff
