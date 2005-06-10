@@ -1,10 +1,10 @@
 %define name	mkxauth
 %define version	1.7
-%define release	11avx
+%define release	12avx
 
 %define _prefix	/usr/X11R6
 
-Summary:	A utility for managing .Xauthority files.
+Summary:	A utility for managing .Xauthority files
 Name: 		%{name}
 Version: 	%{version}
 Release: 	%{release}
@@ -54,6 +54,9 @@ install -m 0444 mkxauth.1x.bz2 $RPM_BUILD_ROOT%{_mandir}/man1/mkxauth.1x.bz2
 %{_mandir}/man1/*
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 1.7-12avx
+- rebuild
+
 * Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 1.7-11avx
 - Annvix build
 - require packages not files

@@ -1,6 +1,6 @@
 %define	name	php-%{modname}
 %define version	%{phpversion}
-%define release	1avx
+%define release	2avx
 
 %define phpversion	4.3.11
 %define phpsource       %{_prefix}/src/php-devel
@@ -88,6 +88,9 @@ EOF
 %{phpdir}/extensions/%{soname}
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 4.3.11-2avx
+- rebuild
+
 * Sat May 14 2005 Vincent Danen <vdanen@annvix.org> 4.3.11-1avx
 - php 4.3.11
 

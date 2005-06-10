@@ -1,6 +1,6 @@
 %define name	apache2
 %define version	2.0.53
-%define release	1avx
+%define release	2avx
 
 #
 #(ie. use with rpm --rebuild):
@@ -1335,6 +1335,9 @@ rm -rf %{buildroot}/var/www/html/manual
 %{srcdir}
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.0.53-2avx
+- rebuild
+
 * Fri Feb 25 2005 Vincent Danen <vdanen@annvix.org> 2.0.53-1avx
 - 2.0.53
 - drop P105, P106 (upstream)

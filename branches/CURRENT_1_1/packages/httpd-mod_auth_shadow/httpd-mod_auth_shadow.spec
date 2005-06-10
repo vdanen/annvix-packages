@@ -1,6 +1,6 @@
 %define name	apache2-%{mod_name}
 %define version %{apache_version}_%{mod_version}
-%define release 1avx
+%define release 2avx
 
 # Module-Specific definitions
 %define apache_version	2.0.53
@@ -70,6 +70,9 @@ install -m4755 validate %{buildroot}%{_sbindir}/
 %attr(4755,root,root) %{_sbindir}/validate
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.0.53_2.0-2avx
+- rebuild
+
 * Sat Feb 26 2005 Vincent Danen <vdanen@annvix.org> 2.0.53_2.0-1avx
 - apache 2.0.53
 - remove ADVX stuff

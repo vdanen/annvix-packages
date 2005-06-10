@@ -1,6 +1,6 @@
 %define name	apache2-%{mod_name}
 %define version %{apache_version}_%{mod_version}
-%define release 1avx
+%define release 2avx
 
 # Module-Specific definitions
 %define apache_version	2.0.53
@@ -65,6 +65,9 @@ ln -s ../../../../%{_docdir}/%{name}-%{version} %{buildroot}/var/www/html/addon-
 /var/www/html/addon-modules/*
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.0.53_1.7PR1-2avx
+- rebuild
+
 * Sat Feb 26 2005 Vincent Danen <vdanen@annvix.org> 2.0.53_1.7PR1-1avx
 - apache 2.0.53
 - remove ADVX stuff

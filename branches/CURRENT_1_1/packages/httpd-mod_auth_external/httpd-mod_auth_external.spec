@@ -1,6 +1,6 @@
 %define name	apache2-%{mod_name}
 %define version	%{apache_version}_%{mod_version}
-%define release	1avx
+%define release	2avx
 
 # Module-Specific definitions
 %define apache_version	2.0.53
@@ -61,6 +61,9 @@ chmod 644 AUTHENTICATORS CHANGES INSTALL* README* TODO
 /var/www/html/addon-modules/*
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.0.53_2.2.9-2avx
+- rebuild
+
 * Fri Feb 25 2005 Vincent Danen <vdanen@annvix.org> 2.0.53_2.2.9-1avx
 - apache 2.0.53
 - mod_auth_external 2.2.9

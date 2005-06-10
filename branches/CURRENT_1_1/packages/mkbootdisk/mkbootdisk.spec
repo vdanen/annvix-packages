@@ -1,8 +1,8 @@
 %define name	mkbootdisk
 %define version 1.5.1
-%define release 2avx
+%define release 3avx
 
-Summary: 	Creates an initial ramdisk image for preloading modules.
+Summary: 	Creates an initial ramdisk image for preloading modules
 Name: 		%{name}
 Version: 	%{version}
 Release: 	%{release}
@@ -51,6 +51,9 @@ the system.
 %attr(644,root,root) %{_mandir}/man8/mkbootdisk.8*
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 1.5.1-3avx
+- rebuild
+
 * Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 1.5.1-2avx
 - Annvix build
 

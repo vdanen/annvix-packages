@@ -1,6 +1,6 @@
 %define name	apache2-%{mod_name}
 %define version %{apache_version}_%{mod_version}
-%define release 0.RC4.1avx
+%define release 0.RC4.2avx
 
 # Module-Specific definitions
 %define apache_version	2.0.53
@@ -220,6 +220,9 @@ rm -f %{buildroot}%{_mandir}/man3/Bundle::ApacheTest.3pm
 %{_includedir}/apache2/*
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.0.53_2.0.0-0.RC4.2avx
+- rebuild
+
 * Wed Feb 02 2005 Vincent Danen <vdanen@annvix.org> 2.0.53_2.0.0-0.RC4.1avx
 - 2.0.0-RC4
 - apache 2.0.53

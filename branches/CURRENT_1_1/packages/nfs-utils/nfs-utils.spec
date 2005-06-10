@@ -1,6 +1,6 @@
 %define name	nfs-utils
 %define	version	1.0.6
-%define release	6avx
+%define release	7avx
 
 %define	url	ftp://ftp.kernel.org:/pub/linux/utils/nfs
 
@@ -197,6 +197,9 @@ fi
 %dir %attr(0750,logger,logger) %{_srvlogdir}/nfs.statd
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 1.0.6-7avx
+- rebuild
+
 * Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 1.0.6-6avx
 - use logger for logging
 

@@ -1,6 +1,6 @@
 %define name	openssh
 %define version	4.0p1
-%define release 1avx
+%define release 2avx
 
 ## Do not apply any unauthorized patches to this package!
 ## - vdanen 05/18/01
@@ -316,6 +316,9 @@ do_dsa_keygen
 %{_datadir}/afterboot/04_openssh
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 4.0p1-2avx
+- rebuild
+
 * Wed Mar 16 2005 Vincent Danen <vdanen@annvix.org> 4.0p1-1avx
 - 4.0p1
 - rediff P1

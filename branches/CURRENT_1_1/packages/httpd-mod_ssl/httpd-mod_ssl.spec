@@ -1,6 +1,6 @@
 %define name	apache2-%{mod_name}
 %define version	%{apache_version}
-%define release	4avx
+%define release	5avx
 
 # Module-Specific definitions
 %define apache_version	2.0.53
@@ -155,6 +155,9 @@ fi
 %{_mandir}/man8/certwatch.8*
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.0.53-5avx
+- rebuild
+
 * Fri Mar 18 2005 Vincent Danen <vdanen@annvix.org> 2.0.53-4avx
 - remove ADVX macro
 

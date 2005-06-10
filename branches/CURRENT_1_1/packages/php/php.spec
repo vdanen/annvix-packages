@@ -1,6 +1,6 @@
 %define name	php
 %define version	4.3.11
-%define release	1avx
+%define release	2avx
 %define epoch	2
 
 %define libversion	4
@@ -586,6 +586,9 @@ update-alternatives --remove php %{_bindir}/php-cli
 %{_includedir}/php
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 4.3.11-2avx
+- rebuild
+
 * Sat May 14 2005 Vincent Danen <vdanen@annvix.org> 4.3.11-1avx
 - 4.3.11: security fixes for CAN-2005-0524, CAN-2005-0525, CAN-2005-1042,
   and CAN-2005-1043

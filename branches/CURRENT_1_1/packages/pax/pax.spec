@@ -1,6 +1,6 @@
 %define name	pax
 %define version	3.0
-%define release	7avx
+%define release	8avx
 
 Summary:	POSIX File System Archiver
 Name:		%{name}
@@ -42,6 +42,9 @@ mkdir -p %{buildroot}%{_mandir}/man1
 %{_mandir}/man1/*
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 3.0-8avx
+- rebuild
+
 * Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 3.0-7avx
 - Annvix build
 

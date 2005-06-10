@@ -1,6 +1,6 @@
 %define name	mtools
 %define version	3.9.9
-%define release	6avx
+%define release	7avx
 
 Summary:	Programs for accessing MS-DOS disks without mounting the disks
 Name: 		%{name}
@@ -85,6 +85,9 @@ cp -a %{buildroot}%{_bindir}/mtools %{buildroot}%{_bindir}/mformat
 %{_infodir}/%{name}.*
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 3.9.9-7avx
+- rebuild
+
 * Sat Jan 29 2005 Vincent Danen <vdanen@annvix.org> 3.9.9-6avx
 - build without X support
 

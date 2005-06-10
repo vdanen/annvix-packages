@@ -1,6 +1,6 @@
 %define name	apache2-%{mod_name}
 %define version	%{apache_version}_%{mod_version}
-%define release 1avx
+%define release 2avx
 
 # Module-Specific definitions
 %define apache_version	2.0.53
@@ -86,6 +86,9 @@ perl -pi -e "s|_REPLACE_ME_|$NEW_URL|g" %{buildroot}%{_sysconfdir}/httpd/conf.d/
 /var/www/html/addon-modules/*
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.0.53_4.0.1a-2avx
+- rebuild
+
 * Sat Feb 26 2005 Vincent Danen <vdanen@annvix.org> 2.0.53_4.0.1a-1avx
 - apache 2.0.53
 - remove ADVX stuff

@@ -1,6 +1,6 @@
 %define	name	openntpd
 %define	version	3.6.1p1
-%define	release	1avx
+%define	release	2avx
 %define epoch	1
 
 Summary:	OpenNTPD is a secure implementation of the Network Time Protocol
@@ -75,6 +75,9 @@ install -m 0750 %{SOURCE2} %{buildroot}%{_srvdir}/ntpd/log/run
 
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 3.6.1p1-2avx
+- rebuild
+
 * Fri Mar 04 2005 Vincent Danen <vdanen@annvix.org> 3.6.1p1-1avx
 - 3.6.1p1
 - user logger for logging

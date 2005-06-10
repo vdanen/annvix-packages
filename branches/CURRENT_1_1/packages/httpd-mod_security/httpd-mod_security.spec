@@ -1,6 +1,6 @@
 %define name	apache2-%{mod_name}
 %define version	%{apache_version}_%{mod_version}
-%define release 1avx
+%define release 2avx
 
 # Module-Specific definitions
 %define apache_version	2.0.53
@@ -78,6 +78,9 @@ install -m 0644 mod_security-snortrules.conf %{buildroot}%{_sysconfdir}/httpd/2.
 /var/www/html/addon-modules/*
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.0.53_1.8.6-2avx
+- rebuild
+
 * Sat Feb 26 2005 Vincent Danen <vdanen@annvix.org> 2.0.53_1.8.6-1avx
 - 1.8.6
 - apache 2.0.53

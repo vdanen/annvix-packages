@@ -1,12 +1,12 @@
 %define name	openswan
 %define version	1.0.9
-%define release	2avx
+%define release	3avx
 %define epoch	1
 
 %define their_version	1.0.9
 %define debug_package	%{nil}
 
-Summary:	An implementation of IPSEC & IKE for Linux.
+Summary:	An implementation of IPSEC & IKE for Linux
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -131,6 +131,9 @@ popd
 %_post_service ipsec
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 1.0.9-3avx
+- rebuild
+
 * Wed Feb 02 2005 Vincent Danen <vdanen@annvix.org> 1.0.9-2avx
 - remove des_crypt.3 as it conflicts with man-pages
 

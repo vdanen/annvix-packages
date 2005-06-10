@@ -1,6 +1,6 @@
 %define name	php-ini
 %define version	4.3.11
-%define release	1avx
+%define release	2avx
 
 Summary:	INI files for PHP
 Name:		%{name}
@@ -42,6 +42,9 @@ perl -pi -e 's|EXTENSIONDIR|%{_libdir}/php/extensions|g' %{buildroot}%{_sysconfd
 %dir %{_libdir}/php/extensions
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 4.3.11-2avx
+- rebuild
+
 * Sat May 14 2005 Vincent Danen <vdanen@annvix.org> 4.3.11-1avx
 - php 4.3.11
 

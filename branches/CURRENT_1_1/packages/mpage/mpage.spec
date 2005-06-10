@@ -1,8 +1,8 @@
 %define name	mpage
 %define version	2.5.3
-%define release	8avx
+%define release	9avx
 
-Summary:	A tool for printing multiple pages of text on each printed page.
+Summary:	A tool for printing multiple pages of text on each printed page
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -61,6 +61,9 @@ cp -a Encodings/* $RPM_BUILD_ROOT%_libdir/%name
 %_datadir/mpage
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.5.3-9avx
+- rebuild
+
 * Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 2.5.3-8avx
 - Annvix build
 
