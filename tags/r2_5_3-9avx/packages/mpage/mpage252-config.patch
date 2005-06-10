@@ -1,0 +1,23 @@
+diff -urN mpage-orig/Makefile mpage-2.5.1/Makefile
+--- mpage-orig/Makefile	Mon Mar 16 22:52:40 1998
++++ mpage-2.5.1/Makefile	Wed May  5 12:05:50 1999
+@@ -45,8 +45,8 @@
+ #          A4 for European A4
+ #  See glob.c for all possibilities
+ #
+-# PAGESIZE=Letter
+-PAGESIZE=A4
++PAGESIZE=Letter
++# PAGESIZE=A4
+ 
+ #
+ # Define your spooler type
+@@ -108,7 +108,7 @@
+ # If you are using gcc, you probably don't need to change anything here.
+ 
+ # Linux:
+-CFLAGS = -O2 -s $(DEFS) -Wall
++CFLAGS = -s $(DEFS) $(RPM_OPT_FLAGS) -Wall
+ 
+ # AIX (xlC on aix 4):
+ #CFLAGS = -O2 -s $(DEFS)
