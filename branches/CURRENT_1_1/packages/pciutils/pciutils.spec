@@ -1,6 +1,6 @@
 %define name	pciutils
 %define version	2.1.99.test8
-%define release	2avx
+%define release	3avx
 
 %define rver	2.1.99-test8
 
@@ -92,6 +92,9 @@ install lib/libpci_loader_a %{buildroot}%{_libdir}/libpci_loader.a
 %{_includedir}/pci
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.1.99.test8-3avx
+- rebuild
+
 * Fri Feb 04 2005 Vincent Danen <vdanen@annvix.org> 2.1.99-test8-2avx
 - rebuild against new dietlibc
 

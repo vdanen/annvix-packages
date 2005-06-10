@@ -1,6 +1,6 @@
 %define name	squid
 %define version	2.5.STABLE8
-%define release	2avx
+%define release	3avx
 
 %define their_version	2.5.STABLE8
 %define p_url   http://www.squid-cache.org/Versions/v2/2.5/bugs
@@ -346,6 +346,9 @@ fi
 %attr(0750,logger,logger) %dir %{_srvlogdir}/squid
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.5.STABLE8-3avx
+- rebuild
+
 * Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 2.5.STABLE8-2avx
 - use logger for logging
 

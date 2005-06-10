@@ -1,6 +1,6 @@
 %define name	chpax
 %define version	0.5
-%define release	4avx
+%define release	5avx
 
 Summary:	Tool that allows PaX flags to be modified on a per-binary basis
 Name:		%{name}
@@ -47,6 +47,9 @@ automake-1.7 --foreign -a
 %{_sbindir}/chpax
 
 %changelog 
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 0.5-5avx
+- rebuild
+
 * Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 0.5-4avx
 - Annvix build
 

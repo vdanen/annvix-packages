@@ -1,6 +1,6 @@
 %define name	pure-ftpd
 %define	version 1.0.20
-%define release 1avx
+%define release 2avx
 
 Summary:	Lightweight, fast and secure FTP server
 Name:		%{name}
@@ -199,7 +199,10 @@ done
 %dir /var/ftp/incoming/
 
 %changelog
-* Mon Sep 20 2004 Vincent Danen <vdanen@annvix.org> 1.0.19-2avx
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 1.0.19-2avx
+- rebuild
+
+* Mon Sep 20 2004 Vincent Danen <vdanen@annvix.org> 1.0.20-1avx
 - 1.0.20
 - enable largefile support
 - user logger for logging

@@ -1,6 +1,6 @@
 %define name	nasm
 %define version	0.98.39
-%define release	1avx
+%define release	2avx
 
 Summary:	The Netwide Assembler, a portable x86 assembler with Intel-like syntax
 Name:		%{name}
@@ -68,6 +68,9 @@ mkdir -p $RPM_BUILD_ROOT/{%{_bindir},%{_infodir},%{_mandir}/man1}
 %{_bindir}/rdf2com
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 0.98.39-2avx
+- rebuild
+
 * Wed May 18 2005 Vincent Danen <vdanen@annvix.org> 0.98.39-1avx
 - 0.98.39 (includes security fix for CAN-2004-1287)
 - P0: patch to fix CAN-2005-1194

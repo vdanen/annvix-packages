@@ -1,6 +1,6 @@
 %define name	acl
 %define version 2.2.23
-%define release 2avx
+%define release 3avx
 
 %define lib_name_orig	lib%{name}
 %define lib_major	1
@@ -99,6 +99,9 @@ rm -rf %{buildroot}%{_docdir}/acl
 %{_includedir}/sys/acl.h
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.2.23-3avx
+- rebuild
+
 * Fri Mar 04 2005 Vincent Danen <vdanen@annvix.org> 2.2.23-2avx
 - if we list the libattr libtool file in our libtool file, at least
   ensure the location is right (bgmilne)

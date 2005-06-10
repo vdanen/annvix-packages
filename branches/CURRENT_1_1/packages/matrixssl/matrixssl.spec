@@ -1,6 +1,6 @@
 %define	name	matrixssl
 %define	version	1.2.2
-%define	release	4avx
+%define	release	5avx
 
 %define	major	1
 %define libname	%mklibname %{name} %{major}
@@ -142,6 +142,9 @@ rm -f examples/*.p12
 %{diethome}/lib-*/*.a
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 1.2.2-5avx
+- rebuild
+
 * Fri Feb 04 2005 Vincent Danen <vdanen@annvix.org> 1.2.2-4avx
 - rebuild against new dietlibc
 

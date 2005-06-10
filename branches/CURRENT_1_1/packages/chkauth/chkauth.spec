@@ -1,6 +1,6 @@
 %define name	chkauth
 %define version 0.3
-%define release 6avx
+%define release 7avx
 	
 Summary:	Script to change authentification method (local, NIS, LDAP)
 Name:		%{name}
@@ -46,6 +46,9 @@ install chkauth.8 %{buildroot}/%{_mandir}/man8/
 %{_mandir}/*/*
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 0.3-7avx
+- rebuild
+
 * Mon Mar 28 2005 Vincent Danen <vdanen@annvix.org> 0.3-6avx
 - update P0 with minor fixes
 

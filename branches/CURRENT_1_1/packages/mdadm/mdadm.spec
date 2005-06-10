@@ -1,6 +1,6 @@
 %define name	mdadm
 %define version	1.9.0
-%define release	2avx
+%define release	3avx
 
 %define use_dietlibc 0
 %ifarch %{ix86}
@@ -90,6 +90,9 @@ install -m 0755 %{SOURCE3} %{buildroot}%{_srvdir}/mdadm/log/run
 %{_srvdir}/mdadm/log/run
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 1.9.0-3avx
+- rebuild
+
 * Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 1.9.0-2avx
 - use logger for logging
 

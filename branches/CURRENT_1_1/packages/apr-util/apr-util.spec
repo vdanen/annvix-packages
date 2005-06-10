@@ -1,6 +1,6 @@
 %define name	apr-util
 %define version	0.9.6
-%define release	1avx
+%define release	2avx
 
 %define apuver	0
 %define libname	%mklibname %{name} %{apuver}
@@ -156,6 +156,9 @@ rm -f %{buildroot}%{_libdir}/aprutil.exp
 %{_includedir}/apr-%{apuver}/*.h
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 0.9.6-2avx
+- rebuild
+
 * Fri Feb 25 2005 Vincent Danen <vdanen@annvix.org> 0.9.6-1avx
 - 0.9.6
 - P0: lib64 fixes (oden)

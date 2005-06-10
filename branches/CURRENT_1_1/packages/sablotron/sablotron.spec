@@ -1,6 +1,6 @@
 %define name	sablotron
 %define version 0.98
-%define release 5avx
+%define release 6avx
 
 %define	altname		Sablot
 %define builddir	$RPM_BUILD_DIR/%{altname}-%{version}
@@ -94,6 +94,9 @@ export CXXFLAGS="${RPM_OPT_FLAGS}"
 %{_includedir}/*.h
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 0.98-6avx
+- rebuild
+
 * Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 0.98-5avx
 - Annvix build
 

@@ -1,6 +1,6 @@
 %define name	rp-pppoe
 %define version	3.5
-%define release	8avx
+%define release	9avx
 
 Summary:	ADSL/PPPoE userspace driver
 Name:		%{name}
@@ -79,6 +79,9 @@ rm -rf %{buildroot}/usr/doc
 
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 3.5-9avx
+- rebuild
+
 * Sat Dec 04 2004 Vincent Danen <vdanen@annvix.org> 3.5-8avx
 - P1: patch to fix CAN-2004-0564
 

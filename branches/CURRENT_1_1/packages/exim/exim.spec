@@ -1,6 +1,6 @@
 %define name	exim
 %define version 4.50
-%define release 1avx
+%define release 2avx
 
 %define build_mysql 0
 %define build_pgsql 0
@@ -283,6 +283,9 @@ fi
 %config(noreplace) %{_sysconfdir}/exim/sa-exim_short.conf
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 4.50-2avx
+- rebuild
+
 * Wed Mar 16 2005 Vincent Danen <vdanen@annvix.org> 4.50-1avx
 - 4.50
 - exiscan is now integrated in exim, so drop P1

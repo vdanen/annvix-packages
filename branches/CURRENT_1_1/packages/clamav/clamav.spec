@@ -1,6 +1,6 @@
 %define name	clamav
 %define version	0.83
-%define release	2avx
+%define release	3avx
 
 %define	major	1
 %define libname	%mklibname %{name} %{major}
@@ -259,6 +259,9 @@ done
 %{_libdir}/pkgconfig/libclamav.pc
       
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 0.83-3avx
+- rebuild
+
 * Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 0.83-2avx
 - use logger for logging
 

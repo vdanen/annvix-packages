@@ -1,6 +1,6 @@
 %define name	js
 %define version	1.5
-%define release	0.%{lib_release}.8avx
+%define release	0.%{lib_release}.9avx
 
 %define lib_release	rc5
 %define major		1
@@ -110,6 +110,9 @@ install -m755 src/Linux_All_OPT.OBJ/%{name} %{buildroot}%{_bindir}/
 %{_libdir}/*.a
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 1.5-0.rc5.9avx
+- rebuild
+
 * Thu Jun 24 2004 Vincent Danen <vdanen@annvix.org> 1.5-0.rc5.8avx
 - Annvix build
 - remove %%build_propolice macro, build with stack protection off by default

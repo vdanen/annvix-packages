@@ -1,6 +1,6 @@
 %define name	smartmontools
 %define version 5.33
-%define release 1avx
+%define release 2avx
 
 Summary:	SMARTmontools - for monitoring S.M.A.R.T. disks and devices
 Name:           %{name}
@@ -83,6 +83,9 @@ echo "INTERVAL=1800" > %{buildroot}%{_sysconfdir}/sysconfig/smartd
 
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 5.33-2avx
+- rebuild
+
 * Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 5.33-1avx
 - 5.33
 - use logger for logging

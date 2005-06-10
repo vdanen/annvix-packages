@@ -1,6 +1,6 @@
 %define name	linux-atm
 %define version	2.4.1
-%define release	6avx
+%define release	7avx
 
 %define major		1
 %define libname		lib%{name}
@@ -82,6 +82,9 @@ use %{name}.
 %{_libdir}/*.la
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.4.1-7avx
+- rebuild
+
 * Wed Jun 23 2004 Vincent Danen <vdanen@annvix.org> 2.4.1-6avx
 - Annvix build
 

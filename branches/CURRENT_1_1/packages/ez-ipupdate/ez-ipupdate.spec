@@ -1,6 +1,6 @@
 %define name	ez-ipupdate
 %define version 3.0.11b8
-%define release 2avx
+%define release 3avx
 
 Summary:	Client for Dynamic DNS Services
 Name:		%{name}
@@ -74,6 +74,9 @@ install -m 755 %{SOURCE1} %{buildroot}%{_initrddir}/ez-ipupdate
 
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 3.0.11b8-3avx
+- rebuild
+
 * Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 3.0.11b8-2avx
 - Annvix build
 

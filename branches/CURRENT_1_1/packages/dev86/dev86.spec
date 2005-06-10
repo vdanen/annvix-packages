@@ -1,8 +1,8 @@
 %define name	dev86
 %define version	0.16.3
-%define release	5avx
+%define release	6avx
 
-Summary:	A real mode 80x86 assembler and linker.
+Summary:	A real mode 80x86 assembler and linker
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -122,6 +122,9 @@ mv $RPM_BUILD_ROOT%_includedir $RPM_BUILD_ROOT%_libdir/bcc
 %_libdir/bcc/i386/lib*
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 0.16.3-6avx
+- rebuild
+
 * Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 0.16.3-5avx
 - Annvix build
 

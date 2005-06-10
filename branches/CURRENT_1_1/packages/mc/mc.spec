@@ -1,6 +1,6 @@
 %define name	mc
 %define version	4.6.0
-%define release	10avx
+%define release	11avx
 
 Summary:	A user-friendly file manager and visual shell
 Name:		%{name}
@@ -140,6 +140,9 @@ chmod 755 $RPM_BUILD_ROOT/%{_libdir}/mc/cons.saver
 %{_datadir}/mc/term/
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 4.6.0-11avx
+- rebuild
+
 * Mon Feb 28 2005 Vincent Danen <vdanen@annvix.org> - 4.6.0-10avx
 - P16: make the wrapper script work (oden)
 

@@ -1,8 +1,8 @@
 %define name	hdparm
 %define version 5.6
-%define release 1avx
+%define release 2avx
 
-Summary:	A utility for displaying and/or setting hard disk parameters.
+Summary:	A utility for displaying and/or setting hard disk parameters
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -46,6 +46,9 @@ install -D -m 0644 %SOURCE1 $RPM_BUILD_ROOT/etc/sysconfig/harddisks
 %config(noreplace) /etc/sysconfig/harddisks
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 5.6-2avx
+- rebuild
+
 * Wed Aug 25 2004 Vincent Danen <vdanen@annvix.org> 5.6-1avx
 - 5.6
 - update /etc/sysconfig/harddisks with more info

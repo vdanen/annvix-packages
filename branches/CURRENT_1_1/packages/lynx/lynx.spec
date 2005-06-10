@@ -1,6 +1,6 @@
 %define name	lynx
 %define version 2.8.5
-%define release	2avx
+%define release	3avx
 %define epoch	1
 
 %define versio_	2-8-5
@@ -116,6 +116,9 @@ fi
 %{_datadir}/lynx
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.8.5-3avx
+- rebuild
+
 * Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> 2.8.5-2avx
 - update P1 so startfile points to our site
 

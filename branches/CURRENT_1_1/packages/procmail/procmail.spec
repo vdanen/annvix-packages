@@ -1,6 +1,6 @@
 %define	name	procmail
 %define	version	3.22
-%define	release	7avx
+%define	release	8avx
 
 Summary:	The procmail mail processing program
 Name:		%{name}
@@ -61,6 +61,9 @@ rm -f examples/mailstat
 %{_mandir}/man5/*5*
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 3.22-8avx
+- rebuild
+
 * Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 3.22-7avx
 - Annvix build
 

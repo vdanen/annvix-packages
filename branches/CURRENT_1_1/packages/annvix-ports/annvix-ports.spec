@@ -1,6 +1,6 @@
 %define name	annvix-ports
 %define version	1.0
-%define release	3avx
+%define release	4avx
 
 %define _portsprefix /usr/local
 
@@ -45,6 +45,9 @@ install -m 0644 %{SOURCE1} %{buildroot}%{_portsprefix}/ports/Makefile
 %{_portsprefix}/ports/Makefile
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 1.0-4avx
+- rebuild
+
 * Mon Mar 28 2005 Vincent Danen <vdanen@annvix.org> 1.0-3avx
 - Annvix build
 

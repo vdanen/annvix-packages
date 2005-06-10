@@ -1,6 +1,6 @@
 %define name	hwdata
 %define version	0.152
-%define release	1avx
+%define release	2avx
 
 Summary:	Hardware identification and configuration data
 Name:		%{name}
@@ -39,6 +39,9 @@ rm -rf %{buildroot}%{_sysconfdir}/{hotplug,pcmcia}
 /usr/X11R6/lib/X11/Cards
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 0.152-2avx
+- rebuild
+
 * Wed Mar 16 2005 Vincent Danen <vdanen@annvix.org> 0.152-1avx
 - 0.152
 

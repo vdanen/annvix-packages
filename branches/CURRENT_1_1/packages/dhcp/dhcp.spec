@@ -1,6 +1,6 @@
 %define name	dhcp
 %define version	3.0.2
-%define release	1avx
+%define release	2avx
 %define epoch	2
 
 %define their_version	3.0.1
@@ -274,6 +274,9 @@ rm -rf %{_localstatedir}/dhcp/dhclient.leases
 %{_includedir}/*
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 3.0.2-2avx
+- rebuild
+
 * Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 3.0.2-1avx
 - 3.0.2
 - require setup >= 2.4-16avx

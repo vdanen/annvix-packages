@@ -1,8 +1,8 @@
 %define name	traceroute
 %define version	1.4a12
-%define release	7avx
+%define release	8avx
 
-Summary:	Traces the route taken by packets over a TCP/IP network.
+Summary:	Traces the route taken by packets over a TCP/IP network
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -56,6 +56,9 @@ cp traceroute.8 ${RPM_BUILD_ROOT}/%{_mandir}/man8
 %{_mandir}/man8/traceroute.8.bz2
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 1.4a12-8avx
+- rebuild
+
 * Sat Jun 19 2004 Vincent Danen <vdanen@annvix.org> 1.4a12-7avx
 - Annvix build
 

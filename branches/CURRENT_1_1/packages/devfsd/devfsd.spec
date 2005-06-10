@@ -1,6 +1,6 @@
 %define name	devfsd
 %define version	1.3.25
-%define release	38avx
+%define release	39avx
 %define rname	devfsd
 
 %define state_dir	/lib/dev-state
@@ -227,6 +227,9 @@ fi
 
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 1.3.25-39avx
+- rebuild
+
 * Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 1.3.25-38avx
 - Annvix build
 

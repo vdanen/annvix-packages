@@ -1,6 +1,6 @@
 %define name	statserial
 %define version	1.1
-%define release	19avx
+%define release	20avx
 
 Summary:	A tool which displays the status of serial port modem lines
 Name:		%{name}
@@ -51,6 +51,9 @@ install -m 444 statserial.1 $RPM_BUILD_ROOT%{_mandir}/man1/statserial.1
 %{_mandir}/man1/statserial.1.bz2
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 1.1-20avx
+- rebuild
+
 * Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 1.1-19avx
 - Annvix build
 

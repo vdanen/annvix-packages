@@ -1,6 +1,6 @@
 %define name	usbutils
 %define version 0.11
-%define release	6avx
+%define release	7avx
 
 Summary:	Linux USB utilities
 Name:		%{name}
@@ -49,6 +49,9 @@ rm -f $RPM_BUILD_ROOT{%_includedir/libusb.h,%_libdir/libusb*}
 
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 0.11-7avx
+- rebuild
+
 * Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 0.11-6avx
 - Annvix build
 

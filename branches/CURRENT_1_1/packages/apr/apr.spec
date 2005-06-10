@@ -1,6 +1,6 @@
 %define name	apr
 %define version	0.9.6
-%define release	1avx
+%define release	2avx
 %define epoch	1
 
 %define aprver	0
@@ -184,6 +184,9 @@ rm -f %{buildroot}%{_libdir}/apr.exp
 %{_includedir}/apr-%{aprver}/*.h
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 0.9.6-2avx
+- rebuild
+
 * Fri Feb 25 2005 Vincent Danen <vdanen@annvix.org> 0.9.6-1avx
 - 0.9.6
 - drop P3 merged upstream

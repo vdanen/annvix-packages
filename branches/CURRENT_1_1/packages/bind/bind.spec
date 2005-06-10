@@ -1,11 +1,11 @@
 %define name	bind
 %define version	9.3.0
-%define release	5avx
+%define release	6avx
 
 %define their_version	9.3.0
 %define build_daemon	0
 
-Summary:	A DNS (Domain Name System) server.
+Summary:	A DNS (Domain Name System) server
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -270,6 +270,9 @@ fi
 %{_mandir}/man5/resolv.5*
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 9.3.0-6avx
+- rebuild
+
 * Sat Apr 09 2005 Vincent Danen <vdanen@annvix.org> 9.3.0-5avx
 - add %%build_daemon macro so we can build bind-{utils,devel} but not
   named itself (since we want things like dig, host, etc.); by default

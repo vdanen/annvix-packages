@@ -1,8 +1,8 @@
 %define	name	symlinks
 %define	version	1.2
-%define release	18avx
+%define release	19avx
 
-Summary:	A utility which maintains a system's symbolic links.
+Summary:	A utility which maintains a system's symbolic links
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -46,6 +46,9 @@ install -m 644 %{name}.8 -D $RPM_BUILD_ROOT%{_mandir}/man8/%{name}.8
 %{_mandir}/man8/%{name}.8*
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 1.2-19avx
+- rebuild
+
 * Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 1.2-18avx
 - Annvix build
 

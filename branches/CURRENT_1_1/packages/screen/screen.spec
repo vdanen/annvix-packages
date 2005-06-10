@@ -1,6 +1,6 @@
 %define name	screen
 %define version	4.0.2
-%define release	2avx
+%define release	3avx
 
 Summary:	A screen manager that supports multiple logins on one terminal
 Name:		%{name}
@@ -114,6 +114,9 @@ echo '  screen ()
 %{_datadir}/screen/
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 4.0.2-3avx
+- rebuild
+
 * Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 4.0.2-2avx
 - requires info-install rather than /sbin/install-info
 - Annvix build

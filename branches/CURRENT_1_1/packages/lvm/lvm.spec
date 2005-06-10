@@ -1,6 +1,6 @@
 %define name	lvm
 %define version 1.0.8
-%define release 3avx
+%define release 4avx
 
 Summary:	Logical Volume Manager administration tools
 Name:		%{name}
@@ -55,6 +55,9 @@ rm -rf $RPM_BUILD_ROOT/%{_lib} $RPM_BUILD_ROOT/%{_libdir}
 %{_mandir}/man8/*
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 1.0.8-4avx
+- rebuild
+
 * Wed Nov 10 2004 Vincent Danen <vdanen@annvix.org> 1.0.8-3avx
 - P3: security fix for CAN-2004-0972
 

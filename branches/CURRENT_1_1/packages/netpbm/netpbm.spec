@@ -1,6 +1,6 @@
 %define name	netpbm
 %define version 9.24
-%define release 11avx
+%define release 12avx
 
 %define major			9
 %define libname	%mklibname	%{name} %{major}
@@ -214,6 +214,9 @@ perl -pi -e 's^/bin/perl^%{__perl}^' %{buildroot}%{_bindir}/{ppmfade,ppmshadow}
 
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 9.24-12avx
+- rebuild
+
 * Fri Sep 24 2004 Vincent Danen <vdanen@annvix.org> 9.24-11avx
 - include missing security patch for CAN-2003-0924
 - spec cleanups

@@ -1,6 +1,6 @@
 %define name	lsof
 %define version	4.68
-%define release	4avx
+%define release	5avx
 
 %define dname	%{name}_%version
 
@@ -62,6 +62,9 @@ cp lsof.8 $RPM_BUILD_ROOT%_mandir/man8
 %_mandir/man8/lsof.8*
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 4.68-5avx
+- rebuild
+
 * Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 4.68-4avx
 - Annvix build
 

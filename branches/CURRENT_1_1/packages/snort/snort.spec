@@ -1,6 +1,6 @@
 %define name	snort
 %define version	2.3.0
-%define release	1avx
+%define release	2avx
 
 Summary:	An intrusion detection system
 Name:		%{name}
@@ -543,6 +543,9 @@ update-alternatives --remove %{name} %{_sbindir}/%{name}-inline+flexresp
 %attr(755,root,root) %{_sbindir}/%{name}-bloat
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.3.0-2avx
+- rebuild
+
 * Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> 2.3.0-1avx
 - 2.3.0
 - use logger for logging

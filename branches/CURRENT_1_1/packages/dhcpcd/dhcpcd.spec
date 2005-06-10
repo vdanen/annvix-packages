@@ -1,6 +1,6 @@
 %define name	dhcpcd
 %define	version	1.3.22pl4
-%define release	6avx
+%define release	7avx
 
 %define	rversion 1.3.22-pl4
 
@@ -65,6 +65,9 @@ fi
 %ghost /var/log/%{name}.log
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 1.3.22pl4-7avx
+- rebuild
+
 * Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 1.3.22pl4-6avx
 - spec cleanups
 

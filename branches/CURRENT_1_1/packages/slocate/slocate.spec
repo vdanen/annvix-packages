@@ -1,8 +1,8 @@
 %define name	slocate
 %define version	2.7
-%define release	5avx
+%define release	6avx
 
-Summary:	Finds files on a system via a central database.
+Summary:	Finds files on a system via a central database
 Name:		%{name}
 Version:	%{version}
 Release: 	%{release}
@@ -87,6 +87,9 @@ fi
 %config(noreplace) %{_sysconfdir}/updatedb.conf
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.7-6avx
+- rebuild
+
 * Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 2.7-5avx
 - Annvix build
 

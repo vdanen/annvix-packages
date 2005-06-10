@@ -1,6 +1,6 @@
 %define name	rsec
 %define version	0.51
-%define release	1avx
+%define release	2avx
 
 Summary:	Security Reporting tool for Annvix
 Name:		%{name}
@@ -76,6 +76,9 @@ touch /var/log/security.log && chmod 0640 /var/log/security.log
 %ghost %attr(0640,root,root) /var/log/security.log
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 0.51-2avx
+- rebuild
+
 * Sun Feb 13 2005 Vincent Danen <vdanen@annvix.org> 0.51-1avx
 - 0.51: new option to exclude certain directories from the world-writeable file check
 

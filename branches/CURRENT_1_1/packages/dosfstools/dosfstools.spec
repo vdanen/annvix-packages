@@ -1,8 +1,8 @@
 %define name	dosfstools
 %define version 2.10
-%define release 2avx
+%define release 3avx
 
-Summary:	Utilities to create and check MS-DOS FAT filesystems.
+Summary:	Utilities to create and check MS-DOS FAT filesystems
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -54,6 +54,9 @@ rm -f %{buildroot}/sbin/fsck.*
 %{_mandir}/man8/*
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.10-3avx
+- rebuild
+
 * Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 2.10-2avx
 - Annvix build
 

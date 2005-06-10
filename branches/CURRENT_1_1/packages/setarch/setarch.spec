@@ -1,6 +1,6 @@
 %define name	setarch
 %define version	1.7
-%define	release	1avx
+%define	release	2avx
 
 Summary:	Kernel personality setter
 Name:		%{name}
@@ -64,6 +64,9 @@ done
 %{_mandir}/man8/*.8*
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 1.7-2avx
+- rebuild
+
 * Tue Mar 01 2005 Vincent Danen <vdanen@annvix.org> 1.7-1avx
 - first Annvix build
 

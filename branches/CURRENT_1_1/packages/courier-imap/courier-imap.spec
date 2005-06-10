@@ -1,6 +1,6 @@
 %define name	courier-imap
 %define version	2.1.2
-%define release	18avx
+%define release	19avx
 
 %define _localstatedir	/var/run
 %define	authdaemondir	%{_localstatedir}/authdaemon.courier-imap
@@ -566,6 +566,9 @@ test ! -f %{courierdatadir}/configlist.mysql || %{courierdatadir}/sysconftool-rp
 %{_mandir}/man1/maildirmake++.1*
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.1.2-19avx
+- rebuild
+
 * Sat Apr 02 2005 Vincent Danen <vdanen@annvix.org> 2.1.2-18avx
 - set AUTHDIR in runscriptappropriate on x86_64
 

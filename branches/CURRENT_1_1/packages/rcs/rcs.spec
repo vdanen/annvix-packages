@@ -1,8 +1,8 @@
 %define name	rcs
 %define version	5.7
-%define release	9avx
+%define release	10avx
 
-Summary:	Revision Control System (RCS) file version management tools.
+Summary:	Revision Control System (RCS) file version management tools
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -55,6 +55,9 @@ mv $RPM_BUILD_ROOT/usr/man/* $RPM_BUILD_ROOT%{_mandir}
 %{_mandir}/man5/*
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 5.7-10avx
+- rebuild
+
 * Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 5.7-9avx
 - Annvix build
 

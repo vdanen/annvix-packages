@@ -1,6 +1,6 @@
 %define name	mhash
 %define version	0.8.18
-%define release	6avx
+%define release	7avx
 
 %define major	2
 %define libname %mklibname %{name} %{major}
@@ -86,6 +86,9 @@ will use the mhash library.
 %{_includedir}/*.h
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 0.8.18-7avx
+- rebuild
+
 * Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 0.8.18-6avx
 - Annvix build
 

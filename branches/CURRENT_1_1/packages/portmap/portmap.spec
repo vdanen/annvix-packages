@@ -1,6 +1,6 @@
 %define name	portmap
 %define version	4.0
-%define release	28avx
+%define release	29avx
 %define ver	4
 
 Summary:	A program which manages RPC connections
@@ -111,6 +111,9 @@ strip %{buildroot}/sbin/portmap
 
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 4.0-29avx
+- rebuild
+
 * Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 4.0-28avx
 - use logger for logging
 - P7: allow portmapper to listen to only one hostname or IP and

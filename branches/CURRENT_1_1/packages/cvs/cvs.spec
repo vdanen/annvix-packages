@@ -1,6 +1,6 @@
 %define name	cvs
 %define version	1.11.19
-%define release	3avx
+%define release	4avx
 
 %define url	ftp://ftp.cvshome.org/pub
 %define _requires_exceptions tcsh
@@ -139,6 +139,9 @@ install -m 0644 %{SOURCE6} %{buildroot}%{_datadir}/afterboot/06_cvspserver
 %{_datadir}/afterboot/06_cvspserver
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 1.11.19-4avx
+- rebuild
+
 * Thu May 05 2005 Vincent Danen <vdanen@annvix.org> 1.11.19-3avx
 - P13: security fix for CAN-2005-0753
 

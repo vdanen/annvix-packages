@@ -1,6 +1,6 @@
 %define name	am-utils
 %define version	6.0.9
-%define release	9avx
+%define release	10avx
 %define epoch	2
 %define major	2
 
@@ -147,6 +147,9 @@ rm -f %{buildroot}/amd
 %{_libdir}/*.la
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 6.0.9-10avx
+- rebuild
+
 * Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 6.0.9-9avx
 - first Annvix build, to replace autofs
 

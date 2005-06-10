@@ -1,6 +1,6 @@
 %define name	tcsh
 %define version	6.12
-%define release	9avx
+%define release	10avx
 
 %define rversion %{version}.00
 
@@ -77,6 +77,9 @@ install %{SOURCE1} %buildroot%{_sysconfdir}/profile.d/$(basename %{SOURCE1})
 %_mandir/*/*
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 6.12-10avx
+- rebuild
+
 * Sat Jun 19 2004 Vincent Danen <vdanen@annvix.org> 6.12-9avx
 - Annvix build
 

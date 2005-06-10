@@ -1,6 +1,6 @@
 %define name	dump
 %define version 0.4b37
-%define release 2avx
+%define release 3avx
 
 %define rmtrealname rmt-dump
 
@@ -107,6 +107,9 @@ fi
 %{_mandir}/man8/rmt.8*
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 0.4b37-3avx
+- rebuild
+
 * Wed Jan 05 2005 Vincent Danen <vdanen@annvix.org> 0.4b37-2avx
 - rebuild against new openssl
 

@@ -1,6 +1,6 @@
 %define name	ksymoops
 %define version 2.4.9
-%define release 3avx
+%define release 4avx
 
 Summary:	Kernel oops and error message decoder
 Name:		%{name}
@@ -55,6 +55,9 @@ install -m 644 %{SOURCE3} .
 
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.4.9-4avx
+- rebuild
+
 * Tue Feb 15 2005 Vincent Danen <vdanen@mandrakesoft.com> 2.4.9-3avx
 - first Annvix build
 

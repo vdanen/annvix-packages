@@ -1,6 +1,6 @@
 %define name	postfix
 %define version	2.1.5
-%define release 3avx
+%define release 4avx
 %define epoch	1
 
 %define	openssl_ver	0.9.7d
@@ -452,6 +452,9 @@ fi
 
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.1.5-4avx
+- rebuild
+
 * Fri Jan 28 2005 Vincent Danen <vdanen@annvix.org> 2.1.5-3avx
 - don't refresh aliases at install time (bluca)
 - provide a default /etc/pam.d/smtp for saslauthd users (bluca)

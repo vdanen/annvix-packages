@@ -1,10 +1,10 @@
 %define name	shorewall
 %define version 2.0.6
-%define release 2avx
+%define release 3avx
 
 %define samples_version	2.0.1
 
-Summary:	Shoreline Firewall is an iptables-based firewall for Linux systems.
+Summary:	Shoreline Firewall is an iptables-based firewall for Linux systems
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -108,6 +108,9 @@ fi
 
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.0.6-3avx
+- rebuild
+
 * Wed Sep 22 2004 Vincent Danen <vdanen@annvix.org> 2.0.6-2avx
 - remove some macros; now we add shorewall via chkconfig if it's an
   install, otherwise leave it alone as there is no need to restart

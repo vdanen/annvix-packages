@@ -1,6 +1,6 @@
 %define name	tcpdump
 %define version	3.8.3
-%define release	3avx
+%define release	4avx
 %define epoch	2
 
 Summary:	A network traffic monitoring tool
@@ -59,6 +59,9 @@ make install DESTDIR=$RPM_BUILD_ROOT
 %{_mandir}/man1/tcpdump.1*
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 3.8.3-4avx
+- rebuild
+
 * Thu May 12 2005 Vincent Danen <vdanen@annvix.org> 3.8.3-3avx
 - P0-P3: security fixes for CAN-2005-1278, CAN-2005-1279, CAN-2005-1280
 

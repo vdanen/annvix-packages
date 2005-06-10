@@ -1,6 +1,6 @@
 %define name 	smbldap-tools
 %define version 0.8.7
-%define release 5avx
+%define release 6avx
 
 Summary:	User & Group administration tools for Samba-OpenLDAP
 Name: 		%{name}
@@ -78,6 +78,9 @@ install -m 0755 mkntpwd/mkntpwd %{buildroot}%{_sbindir}/
 %{perl_vendorlib}/smbldap_tools.pm
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 0.8.7-6avx
+- rebuild
+
 * Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 0.8.7-5avx
 - first Annvix package
 

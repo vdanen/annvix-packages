@@ -1,6 +1,6 @@
 %define name	kudzu
 %define version	1.1.111
-%define release	1avx
+%define release	2avx
 
 Summary:	The Red Hat Linux hardware probing tool
 Name:		%{name}
@@ -84,6 +84,9 @@ install -m 0755 fix-mouse-psaux %{buildroot}%{_sbindir}
 %{_includedir}/kudzu
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 1.1.95-2avx
+- rebuild
+
 * Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> - 1.1.95-1avx
 - 1.1.111
 - don't build with dietlibc anymore

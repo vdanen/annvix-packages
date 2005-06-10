@@ -1,9 +1,9 @@
 %define name	reiserfsprogs
 %define version	3.6.19
-%define release	1avx
+%define release	2avx
 %define epoch	1
 
-Summary:	The utilities to create Reiserfs volume.
+Summary:	The utilities to create Reiserfs volume
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -67,6 +67,9 @@ ln -s reiserfsck.8 %{buildroot}%{_mandir}/man8/fsck.reiserfs.8
 %{_mandir}/*/*
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 3.6.19-2avx
+- rebuild
+
 * Sat Mar 05 2005 Vincent Danen <vdanen@annvix.org> 3.6.19-1avx
 - 3.6.19
 

@@ -1,7 +1,7 @@
 %define name	locales
 %define glibc_ver 2.3.2
 %define version	%{glibc_ver}
-%define release	8avx
+%define release	9avx
 
 # FIXME: please check on next build those we really need
 #%define _unpackaged_files_terminate_build 0
@@ -2728,6 +2728,9 @@ according to Xhosa language conventions.
 /usr/share/locale/zu*
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.3.2-9avx
+- rebuild
+
 * Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 2.3.2-8avx
 - Annvix build
 - include epoch in BuildRequires

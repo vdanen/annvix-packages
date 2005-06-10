@@ -1,6 +1,6 @@
 %define name	distriblint
 %define version 0.1.2
-%define release 1avx
+%define release 2avx
 
 Summary:	Tools to check integrity of rpms repository
 Name:		%{name}
@@ -53,6 +53,9 @@ make test
 %_mandir/*/*
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 0.1.2-2avx
+- rebuild
+
 * Tue Mar 01 2005 Vincent Danen <vdanen@annvix.org> 0.1.2-1avx
 - first Annvix build
 

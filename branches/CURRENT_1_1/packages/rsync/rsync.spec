@@ -1,8 +1,8 @@
 %define name	rsync
 %define version	2.6.3
-%define release	1avx
+%define release	2avx
 
-Summary:	A program for synchronizing files over a network.
+Summary:	A program for synchronizing files over a network
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -99,6 +99,9 @@ install -m 0644 %{SOURCE7} %{buildroot}%{_datadir}/afterboot/07_rsync
 %{_datadir}/afterboot/07_rsync
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.6.3-2avx
+- rebuild
+
 * Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 2.6.3-1avx
 - 2.6.3
 - use logger for logging
