@@ -1,0 +1,7 @@
+#!/bin/sh
+PATH="/sbin:/usr/sbin:/bin:/usr/bin:$PATH"
+
+# this runs swat limiting the server to a maximum of 30 simultaneous 
+# connections. swat.cdb is not required for the service to run
+
+exec /sbin/tcpsvd -c30 -v -llocalhost -i./peers 0 901 /usr/sbin/swat 2>&1
