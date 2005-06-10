@@ -1,0 +1,24 @@
+--- src/matrixConfig.h	2004-07-27 22:22:44.000000000 +0200
++++ src/matrixConfig.h.oden	2004-08-04 19:05:29.107730472 +0200
+@@ -83,7 +83,7 @@
+ 	different threads.  The library will still be single threaded,
+ 	but will serialize access to the session cache with a mutex.
+ */
+-#define USE_MULTITHREADING
++/* #define USE_MULTITHREADING */
+ 
+ /******************************************************************************/
+ /*
+--- src/os/linux/linux.c	2004-07-27 22:11:31.000000000 +0200
++++ src/os/linux/linux.c.oden	2004-08-04 19:09:02.544283184 +0200
+@@ -298,8 +298,8 @@
+ 	} else {
+ 		deltaticks = (0xFFFFFFFF - prevTicks) + 1 + t;
+ 	}
+-	deltat = ((deltaticks * 1000) + (CLK_TCK / 2)) / CLK_TCK;
+-                                                                     
++	deltat = ((deltaticks * 1000) + (CLOCKS_PER_SEC / 2)) / CLOCKS_PER_SEC;
++
+ /*
+  *	Add the delta to the previous elapsed time.
+  */
