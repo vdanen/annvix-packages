@@ -1,6 +1,6 @@
 %define name	chkrootkit
 %define version	0.43
-%define release	3avx
+%define release	4avx
 
 %define build_diet 1
 
@@ -59,6 +59,9 @@ install strings-static %{buildroot}%{_prefix}/lib/%{name}/strings
 %{_prefix}/lib/%{name}
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 0.43-4avx
+- rebuild
+
 * Fri Feb 04 2005 Vincent Danen <vdanen@annvix.org> 0.43-3avx
 - rebuild against new dietlibc
 

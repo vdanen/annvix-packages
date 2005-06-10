@@ -1,6 +1,6 @@
 %define name	ADVX-build
 %define version	10
-%define release	1avx
+%define release	2avx
 
 Summary:	ADVX-build contains tools and macros to build ADVX
 Name:		%{name}
@@ -42,6 +42,9 @@ echo "See http://www.advx.org/devel.policy.php for more info" > \
 %attr(0644,root,root) %{_datadir}/ADVX/*
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 10-2avx
+- rebuild
+
 * Thu Oct 14 2004 Vincent Danen <vdanen@annvix.org> 10-1avx
 - 10
 - remove redundant provides

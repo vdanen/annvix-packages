@@ -1,8 +1,8 @@
 %define name	chkfontpath
 %define version	1.9.10
-%define release	4avx
+%define release	5avx
 
-Summary:	Simple interface for editing the font path for the X font server.
+Summary:	Simple interface for editing the font path for the X font server
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -42,6 +42,9 @@ perl -pi -e "s!/usr/man!%{_mandir}!g" Makefile man/Makefile
 %attr(-,root,root)%{_mandir}/man8/chkfontpath.8*
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 1.9.10-5avx
+- rebuild
+
 * Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 1.9.10-4avx
 - require packages not files
 - Annvix build
