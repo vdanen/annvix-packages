@@ -1,6 +1,6 @@
 %define name	pdns
 %define version	2.9.17
-%define release	3avx
+%define release	4avx
 
 Summary:	PowerDNS is a versatile database-driven nameserver
 Name:		%{name}
@@ -242,6 +242,9 @@ install -m 0755 %{SOURCE4} %{buildroot}%{_srvdir}/pdnsr/log/run
 %{_libdir}/pdns/*.a
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.9.17-4avx
+- rebuild
+
 * Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 2.9.17-3avx
 - use logger for logging
 

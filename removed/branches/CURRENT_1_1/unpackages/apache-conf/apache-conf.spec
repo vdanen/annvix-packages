@@ -1,6 +1,6 @@
 %define name	apache-conf
 %define version	2.0.53
-%define release	4avx
+%define release	5avx
 
 %define compat_dir	/etc/httpd
 %define compat_conf	/etc/httpd/conf
@@ -272,6 +272,9 @@ fi
 %{_datadir}/afterboot/03_apache2
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.0.53-5avx
+- rebuild
+
 * Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 2.0.53-4avx
 = user logger for logging
 
