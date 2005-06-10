@@ -1,0 +1,54 @@
+
+Use the system pcre library.  Don't install pcre headers.
+
+Upstream-PR: 27550
+Upstream-Status: Really useful to get upstream
+ 
+--- httpd-2.0.47/configure.in.syspcre
++++ httpd-2.0.47/configure.in
+@@ -108,17 +108,6 @@
+ APU_BINDIR=`$apu_config --bindir`
+ APU_INCLUDEDIR=`$apu_config --includedir`
+ 
+-dnl In case we picked up CC and CPP from APR, get that info into the
+-dnl config cache so that PCRE uses it.  Otherwise, CC and CPP used for
+-dnl PCRE and for our config tests will be whatever PCRE determines.
+-AC_PROG_CC
+-AC_PROG_CPP
+-
+-echo $ac_n "${nl}Configuring PCRE regular expression library ...${nl}"
+-
+-APR_SUBDIR_CONFIG(srclib/pcre,
+-                  [--prefix=$prefix --exec-prefix=$exec_prefix --libdir=$libdir --includedir=$includedir --bindir=$bindir])
+-
+ echo $ac_n "${nl}Configuring Apache httpd ...${nl}"
+ 
+ dnl Absolute source/build directory
+@@ -467,7 +456,7 @@
+   AC_DEFINE_UNQUOTED(AP_SUEXEC_UMASK, 0$withval, [umask for suexec'd process] ) ] )
+ 
+ dnl AP_LIBS specifies the actual libraries. note we have some required libs.
+-AP_LIBS="$abs_builddir/srclib/pcre/libpcre.la $AP_LIBS"
++AP_LIBS="$AP_LIBS -lpcre -lpcreposix"
+ 
+ dnl APR should go after the other libs, so the right symbols can be picked up
+ AP_LIBS="$AP_LIBS `$apu_config --link-libtool` `$apr_config --link-libtool`"
+@@ -503,7 +492,7 @@
+ APACHE_FAST_OUTPUT(Makefile modules/Makefile srclib/Makefile) 
+ APACHE_FAST_OUTPUT(os/beos/Makefile os/os2/Makefile os/Makefile)
+ APACHE_FAST_OUTPUT(os/unix/Makefile server/Makefile)
+-APACHE_FAST_OUTPUT(support/Makefile srclib/pcre/Makefile)
++APACHE_FAST_OUTPUT(support/Makefile)
+ 
+ if test -d ./test; then
+     APACHE_FAST_OUTPUT(test/Makefile)
+--- httpd-2.0.47/Makefile.in.syspcre
++++ httpd-2.0.47/Makefile.in
+@@ -177,7 +177,6 @@
+ 	@cp -p $(srcdir)/modules/http/mod_core.h $(DESTDIR)$(includedir)
+ 	@cp -p $(srcdir)/modules/proxy/mod_proxy.h $(DESTDIR)$(includedir)
+ 	@cp -p $(srcdir)/modules/ssl/*.h $(DESTDIR)$(includedir)
+-	@cp -p $(srcdir)/srclib/pcre/pcre*.h $(DESTDIR)$(includedir)
+ 	@cp -p $(srcdir)/os/$(OS_DIR)/*.h $(DESTDIR)$(includedir)
+ 	@chmod 644 $(DESTDIR)$(includedir)/*.h
+ 
