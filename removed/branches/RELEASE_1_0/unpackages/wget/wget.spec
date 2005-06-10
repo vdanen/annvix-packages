@@ -1,6 +1,6 @@
 %define name	wget
 %define version	1.9.1
-%define release	2avx
+%define release	3avx
 
 Summary: 	A utility for retrieving files using the HTTP or FTP protocols
 Name: 		%{name}
@@ -23,6 +23,7 @@ Patch10:	wget-1.8.2-referer-opt-typo.patch.bz2
 Patch11:	wget-1.9.1-mdk-fix-fr-translation.patch.bz2
 Patch12:	wget-1.9.1-mdk-fix-de-translation.patch.bz2
 Patch13:	wget-1.9.1-mdk-LFS.patch.bz2
+Patch14:	wget-1.9.1-suse-sanitize.patch.bz2
 
 BuildRoot: 	%_tmppath/%name-%version-%release-root
 BuildRequires:	gettext, openssl-devel, texinfo, autoconf2.5
@@ -55,6 +56,7 @@ configurability.
 %patch11 -p0 -b .frtypo
 %patch12 -p0 -b .detypo
 %patch13 -p1 -b .lfs
+%patch14 -p1 -b .can-2004-1487_1488
 
 %build
 #aclocal
@@ -92,6 +94,9 @@ install -m755 util/rmold.pl %buildroot/%_bindir/rmold
 %_mandir/man1/wget.1*
 
 %changelog
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 1.9.1-3avx
+- P14: patch from SUSE to fix CAN-2004-1487 and CAN-2004-1488
+
 * Wed Dec 22 2004 Vincent Danen <vdanen@annvix.org> 1.9.1-2avx
 - P13: fix large file support (mdk anthill #1166)
 
