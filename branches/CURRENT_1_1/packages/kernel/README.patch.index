@@ -79,7 +79,7 @@ DN00_NETFILTER_PATCHES.desc
 	DN12_psd.patch
 	- adds support for psd filtering rules, detects tcp/udp portscans
 	DN13_time.patch
-	- adds support for packet arrival/departure filtering rules
+	- adds support for packet arrival/departure filtering rules (patch-o-matic)
 	DN14_h323_conntrack-nat.patch
 	- adds NAT connection tracking for h.323 protocol 
 	DN15_ipt_TARPIT.patch
@@ -279,12 +279,14 @@ SL00_SECURITY.desc
 	- various small fixes
 	SL70_rsbac-bugfix-v1.2.3-9.patch
 	- more small fixes
-	SL80_linux-2.4.29-ow1.diff
+	SL80_linux-2.4.31-ow1.diff
 	- http://www.openwall.com/linux/ (Openwall security enhancements/fixes)
 		- (vdanen) 01/20/05 - rediffed to work with RSBAC
 	SL81_frandom-2.patch
 	- http://www.linuxfromscratch.org/~robert/hlfs/current/hlfs-patches-20050106/linux-2.4.27-frandom-2.patch
 	  (adds frandom/erandom devices)
+	SL82_nostack.patch
+	- build with -fno-stack-protector-all
 
 ZY50_SECURITY_FIXES.desc
 

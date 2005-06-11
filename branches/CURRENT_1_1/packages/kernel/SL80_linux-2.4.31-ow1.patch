@@ -1,6 +1,6 @@
-diff -urpPX nopatch linux-2.4.30/Documentation/Configure.help linux/Documentation/Configure.help
---- linux-2.4.30/Documentation/Configure.help	Mon Apr  4 05:42:19 2005
-+++ linux/Documentation/Configure.help	Thu Apr  7 23:23:01 2005
+diff -urpPX nopatch linux-2.4.31/Documentation/Configure.help linux/Documentation/Configure.help
+--- linux-2.4.31/Documentation/Configure.help	Mon Apr  4 01:42:19 2005
++++ linux/Documentation/Configure.help	Fri Jun  3 00:30:39 2005
 @@ -4690,6 +4690,12 @@ CONFIG_BINFMT_ELF
    ld.so (check the file <file:Documentation/Changes> for location and
    latest version).
@@ -127,21 +127,21 @@ diff -urpPX nopatch linux-2.4.30/Documentation/Configure.help linux/Documentatio
  
  #
  # A couple of things I keep forgetting:
-diff -urpPX nopatch linux-2.4.30/Makefile linux/Makefile
---- linux-2.4.30/Makefile	Mon Apr  4 05:42:20 2005
-+++ linux/Makefile	Thu May 12 02:52:10 2005
+diff -urpPX nopatch linux-2.4.31/Makefile linux/Makefile
+--- linux-2.4.31/Makefile	Fri Jun  3 00:26:41 2005
++++ linux/Makefile	Fri Jun  3 00:32:50 2005
 @@ -1,7 +1,7 @@
  VERSION = 2
  PATCHLEVEL = 4
- SUBLEVEL = 30
+ SUBLEVEL = 31
 -EXTRAVERSION =
-+EXTRAVERSION = -ow3
++EXTRAVERSION = -ow1
  
  KERNELRELEASE=$(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION)
  
-diff -urpPX nopatch linux-2.4.30/arch/alpha/config.in linux/arch/alpha/config.in
---- linux-2.4.30/arch/alpha/config.in	Wed Nov 17 14:54:21 2004
-+++ linux/arch/alpha/config.in	Thu Apr  7 23:23:01 2005
+diff -urpPX nopatch linux-2.4.31/arch/alpha/config.in linux/arch/alpha/config.in
+--- linux-2.4.31/arch/alpha/config.in	Wed Nov 17 11:54:21 2004
++++ linux/arch/alpha/config.in	Fri Jun  3 00:30:39 2005
 @@ -315,6 +315,9 @@ if [ "$CONFIG_BINFMT_AOUT" != "n" ]; the
  fi
  
@@ -161,9 +161,9 @@ diff -urpPX nopatch linux-2.4.30/arch/alpha/config.in linux/arch/alpha/config.in
  
  mainmenu_option next_comment
  comment 'Kernel hacking'
-diff -urpPX nopatch linux-2.4.30/arch/alpha/defconfig linux/arch/alpha/defconfig
---- linux-2.4.30/arch/alpha/defconfig	Wed Feb 18 16:36:30 2004
-+++ linux/arch/alpha/defconfig	Thu Apr  7 23:23:01 2005
+diff -urpPX nopatch linux-2.4.31/arch/alpha/defconfig linux/arch/alpha/defconfig
+--- linux-2.4.31/arch/alpha/defconfig	Wed Feb 18 13:36:30 2004
++++ linux/arch/alpha/defconfig	Fri Jun  3 00:30:39 2005
 @@ -72,6 +72,7 @@ CONFIG_KCORE_ELF=y
  # CONFIG_KCORE_AOUT is not set
  # CONFIG_BINFMT_AOUT is not set
@@ -188,9 +188,9 @@ diff -urpPX nopatch linux-2.4.30/arch/alpha/defconfig linux/arch/alpha/defconfig
  
  #
  # Kernel hacking
-diff -urpPX nopatch linux-2.4.30/arch/alpha/kernel/osf_sys.c linux/arch/alpha/kernel/osf_sys.c
---- linux-2.4.30/arch/alpha/kernel/osf_sys.c	Fri Jun 13 18:51:29 2003
-+++ linux/arch/alpha/kernel/osf_sys.c	Thu Apr  7 23:23:01 2005
+diff -urpPX nopatch linux-2.4.31/arch/alpha/kernel/osf_sys.c linux/arch/alpha/kernel/osf_sys.c
+--- linux-2.4.31/arch/alpha/kernel/osf_sys.c	Fri Jun 13 14:51:29 2003
++++ linux/arch/alpha/kernel/osf_sys.c	Fri Jun  3 00:30:39 2005
 @@ -1346,6 +1346,8 @@ arch_get_unmapped_area(struct file *filp
  
  	if (len > limit)
@@ -200,9 +200,9 @@ diff -urpPX nopatch linux-2.4.30/arch/alpha/kernel/osf_sys.c linux/arch/alpha/ke
  
  	/* First, see if the given suggestion fits.
  
-diff -urpPX nopatch linux-2.4.30/arch/arm/config.in linux/arch/arm/config.in
---- linux-2.4.30/arch/arm/config.in	Wed Nov 17 14:54:21 2004
-+++ linux/arch/arm/config.in	Thu Apr  7 23:23:01 2005
+diff -urpPX nopatch linux-2.4.31/arch/arm/config.in linux/arch/arm/config.in
+--- linux-2.4.31/arch/arm/config.in	Wed Nov 17 11:54:21 2004
++++ linux/arch/arm/config.in	Fri Jun  3 00:30:39 2005
 @@ -499,6 +499,9 @@ choice 'Kernel core (/proc/kcore) format
  	 A.OUT		CONFIG_KCORE_AOUT" ELF
  tristate 'Kernel support for a.out binaries' CONFIG_BINFMT_AOUT
@@ -222,9 +222,9 @@ diff -urpPX nopatch linux-2.4.30/arch/arm/config.in linux/arch/arm/config.in
  
  mainmenu_option next_comment
  comment 'Kernel hacking'
-diff -urpPX nopatch linux-2.4.30/arch/arm/defconfig linux/arch/arm/defconfig
---- linux-2.4.30/arch/arm/defconfig	Wed Feb 18 16:36:30 2004
-+++ linux/arch/arm/defconfig	Thu Apr  7 23:23:01 2005
+diff -urpPX nopatch linux-2.4.31/arch/arm/defconfig linux/arch/arm/defconfig
+--- linux-2.4.31/arch/arm/defconfig	Wed Feb 18 13:36:30 2004
++++ linux/arch/arm/defconfig	Fri Jun  3 00:30:39 2005
 @@ -83,8 +83,9 @@ CONFIG_SYSCTL=y
  CONFIG_NWFPE=y
  CONFIG_KCORE_ELF=y
@@ -252,9 +252,9 @@ diff -urpPX nopatch linux-2.4.30/arch/arm/defconfig linux/arch/arm/defconfig
  
  #
  # Kernel hacking
-diff -urpPX nopatch linux-2.4.30/arch/cris/config.in linux/arch/cris/config.in
---- linux-2.4.30/arch/cris/config.in	Wed Nov 17 14:54:21 2004
-+++ linux/arch/cris/config.in	Thu Apr  7 23:23:01 2005
+diff -urpPX nopatch linux-2.4.31/arch/cris/config.in linux/arch/cris/config.in
+--- linux-2.4.31/arch/cris/config.in	Wed Nov 17 11:54:21 2004
++++ linux/arch/cris/config.in	Fri Jun  3 00:30:39 2005
 @@ -31,6 +31,9 @@ bool 'BSD Process Accounting' CONFIG_BSD
  bool 'Sysctl support' CONFIG_SYSCTL
  
@@ -274,9 +274,9 @@ diff -urpPX nopatch linux-2.4.30/arch/cris/config.in linux/arch/cris/config.in
  
  mainmenu_option next_comment
  comment 'Kernel hacking'
-diff -urpPX nopatch linux-2.4.30/arch/cris/defconfig linux/arch/cris/defconfig
---- linux-2.4.30/arch/cris/defconfig	Wed Feb 18 16:36:30 2004
-+++ linux/arch/cris/defconfig	Thu Apr  7 23:23:01 2005
+diff -urpPX nopatch linux-2.4.31/arch/cris/defconfig linux/arch/cris/defconfig
+--- linux-2.4.31/arch/cris/defconfig	Wed Feb 18 13:36:30 2004
++++ linux/arch/cris/defconfig	Fri Jun  3 00:30:39 2005
 @@ -18,6 +18,7 @@ CONFIG_SYSVIPC=y
  # CONFIG_BSD_PROCESS_ACCT is not set
  # CONFIG_SYSCTL is not set
@@ -301,9 +301,9 @@ diff -urpPX nopatch linux-2.4.30/arch/cris/defconfig linux/arch/cris/defconfig
  
  #
  # Kernel hacking
-diff -urpPX nopatch linux-2.4.30/arch/i386/config.in linux/arch/i386/config.in
---- linux-2.4.30/arch/i386/config.in	Wed Nov 17 14:54:21 2004
-+++ linux/arch/i386/config.in	Thu Apr  7 23:23:01 2005
+diff -urpPX nopatch linux-2.4.31/arch/i386/config.in linux/arch/i386/config.in
+--- linux-2.4.31/arch/i386/config.in	Wed Nov 17 11:54:21 2004
++++ linux/arch/i386/config.in	Fri Jun  3 00:30:39 2005
 @@ -327,6 +327,9 @@ if [ "$CONFIG_PROC_FS" = "y" ]; then
  fi
  tristate 'Kernel support for a.out binaries' CONFIG_BINFMT_AOUT
@@ -333,9 +333,9 @@ diff -urpPX nopatch linux-2.4.30/arch/i386/config.in linux/arch/i386/config.in
  
  mainmenu_option next_comment
  comment 'Kernel hacking'
-diff -urpPX nopatch linux-2.4.30/arch/i386/defconfig linux/arch/i386/defconfig
---- linux-2.4.30/arch/i386/defconfig	Wed Jan 19 17:09:25 2005
-+++ linux/arch/i386/defconfig	Thu Apr  7 23:23:01 2005
+diff -urpPX nopatch linux-2.4.31/arch/i386/defconfig linux/arch/i386/defconfig
+--- linux-2.4.31/arch/i386/defconfig	Wed Jan 19 14:09:25 2005
++++ linux/arch/i386/defconfig	Fri Jun  3 00:30:39 2005
 @@ -115,9 +115,10 @@ CONFIG_SYSVIPC=y
  CONFIG_SYSCTL=y
  CONFIG_KCORE_ELF=y
@@ -367,9 +367,9 @@ diff -urpPX nopatch linux-2.4.30/arch/i386/defconfig linux/arch/i386/defconfig
  
  #
  # Kernel hacking
-diff -urpPX nopatch linux-2.4.30/arch/i386/kernel/head.S linux/arch/i386/kernel/head.S
---- linux-2.4.30/arch/i386/kernel/head.S	Fri Nov 28 21:26:19 2003
-+++ linux/arch/i386/kernel/head.S	Thu Apr  7 23:23:01 2005
+diff -urpPX nopatch linux-2.4.31/arch/i386/kernel/head.S linux/arch/i386/kernel/head.S
+--- linux-2.4.31/arch/i386/kernel/head.S	Fri Nov 28 18:26:19 2003
++++ linux/arch/i386/kernel/head.S	Fri Jun  3 00:30:39 2005
 @@ -433,7 +433,11 @@ ENTRY(gdt_table)
  	.quad 0x0000000000000000	/* not used */
  	.quad 0x00cf9a000000ffff	/* 0x10 kernel 4GB code at 0x00000000 */
@@ -382,9 +382,9 @@ diff -urpPX nopatch linux-2.4.30/arch/i386/kernel/head.S linux/arch/i386/kernel/
  	.quad 0x00cff2000000ffff	/* 0x2b user   4GB data at 0x00000000 */
  	.quad 0x0000000000000000	/* not used */
  	.quad 0x0000000000000000	/* not used */
-diff -urpPX nopatch linux-2.4.30/arch/i386/kernel/signal.c linux/arch/i386/kernel/signal.c
---- linux-2.4.30/arch/i386/kernel/signal.c	Wed Nov 17 14:54:21 2004
-+++ linux/arch/i386/kernel/signal.c	Thu Apr  7 23:23:01 2005
+diff -urpPX nopatch linux-2.4.31/arch/i386/kernel/signal.c linux/arch/i386/kernel/signal.c
+--- linux-2.4.31/arch/i386/kernel/signal.c	Wed Nov 17 11:54:21 2004
++++ linux/arch/i386/kernel/signal.c	Fri Jun  3 00:30:39 2005
 @@ -421,11 +421,15 @@ static void setup_frame(int sig, struct 
  	if (ka->sa.sa_flags & SA_RESTORER) {
  		err |= __put_user(ka->sa.sa_restorer, &frame->pretcode);
@@ -417,9 +417,9 @@ diff -urpPX nopatch linux-2.4.30/arch/i386/kernel/signal.c linux/arch/i386/kerne
  	}
  
  	if (err)
-diff -urpPX nopatch linux-2.4.30/arch/i386/kernel/traps.c linux/arch/i386/kernel/traps.c
---- linux-2.4.30/arch/i386/kernel/traps.c	Fri Nov 29 02:53:09 2002
-+++ linux/arch/i386/kernel/traps.c	Thu Apr  7 23:23:01 2005
+diff -urpPX nopatch linux-2.4.31/arch/i386/kernel/traps.c linux/arch/i386/kernel/traps.c
+--- linux-2.4.31/arch/i386/kernel/traps.c	Thu Nov 28 23:53:09 2002
++++ linux/arch/i386/kernel/traps.c	Fri Jun  3 00:30:39 2005
 @@ -397,13 +397,209 @@ DO_ERROR(11, SIGBUS,  "segment not prese
  DO_ERROR(12, SIGBUS,  "stack segment", stack_segment)
  DO_ERROR_INFO(17, SIGBUS, "alignment check", alignment_check, BUS_ADRALN, get_cr2())
@@ -630,34 +630,9 @@ diff -urpPX nopatch linux-2.4.30/arch/i386/kernel/traps.c linux/arch/i386/kernel
  
  	current->thread.error_code = error_code;
  	current->thread.trap_no = 13;
-diff -urpPX nopatch linux-2.4.30/arch/i386/mm/pageattr.c linux/arch/i386/mm/pageattr.c
---- linux-2.4.30/arch/i386/mm/pageattr.c	Sun Aug  8 03:26:04 2004
-+++ linux/arch/i386/mm/pageattr.c	Fri Apr 22 14:19:32 2005
-@@ -119,19 +119,15 @@ __change_page_attr(struct page *page, pg
- 	kpte_page = virt_to_page(((unsigned long)kpte) & PAGE_MASK);
- 	if (pgprot_val(prot) != pgprot_val(PAGE_KERNEL)) { 
- 		if ((pte_val(*kpte) & _PAGE_PSE) == 0) {
--			pte_t old = *kpte;
--			pte_t standard = mk_pte(page, PAGE_KERNEL); 
--
- 			set_pte_atomic(kpte, mk_pte(page, prot)); 
--			if (pte_same(old,standard))
--				atomic_inc(&kpte_page->count);
- 		} else {
- 			struct page *split = split_large_page(address, prot); 
- 			if (!split)
- 				return -ENOMEM;
--			atomic_inc(&kpte_page->count); 	
- 			set_pmd_pte(kpte,address,mk_pte(split, PAGE_KERNEL));
-+			kpte_page = split;
- 		}	
-+		atomic_inc(&kpte_page->count);
- 	} else if ((pte_val(*kpte) & _PAGE_PSE) == 0) { 
- 		set_pte_atomic(kpte, mk_pte(page, PAGE_KERNEL));
- 		atomic_dec(&kpte_page->count); 
-diff -urpPX nopatch linux-2.4.30/arch/ia64/config.in linux/arch/ia64/config.in
---- linux-2.4.30/arch/ia64/config.in	Wed Nov 17 14:54:21 2004
-+++ linux/arch/ia64/config.in	Thu Apr  7 23:23:01 2005
+diff -urpPX nopatch linux-2.4.31/arch/ia64/config.in linux/arch/ia64/config.in
+--- linux-2.4.31/arch/ia64/config.in	Wed Nov 17 11:54:21 2004
++++ linux/arch/ia64/config.in	Fri Jun  3 00:30:39 2005
 @@ -124,6 +124,9 @@ bool 'System V IPC' CONFIG_SYSVIPC
  bool 'BSD Process Accounting' CONFIG_BSD_PROCESS_ACCT
  bool 'Sysctl support' CONFIG_SYSCTL
@@ -676,9 +651,9 @@ diff -urpPX nopatch linux-2.4.30/arch/ia64/config.in linux/arch/ia64/config.in
  
  mainmenu_option next_comment
  comment 'Kernel hacking'
-diff -urpPX nopatch linux-2.4.30/arch/ia64/defconfig linux/arch/ia64/defconfig
---- linux-2.4.30/arch/ia64/defconfig	Mon Apr  4 05:42:19 2005
-+++ linux/arch/ia64/defconfig	Thu Apr  7 23:23:01 2005
+diff -urpPX nopatch linux-2.4.31/arch/ia64/defconfig linux/arch/ia64/defconfig
+--- linux-2.4.31/arch/ia64/defconfig	Mon Apr  4 01:42:19 2005
++++ linux/arch/ia64/defconfig	Fri Jun  3 00:30:39 2005
 @@ -60,6 +60,7 @@ CONFIG_SYSVIPC=y
  # CONFIG_BSD_PROCESS_ACCT is not set
  CONFIG_SYSCTL=y
@@ -703,9 +678,9 @@ diff -urpPX nopatch linux-2.4.30/arch/ia64/defconfig linux/arch/ia64/defconfig
  
  #
  # Kernel hacking
-diff -urpPX nopatch linux-2.4.30/arch/m68k/config.in linux/arch/m68k/config.in
---- linux-2.4.30/arch/m68k/config.in	Wed Nov 17 14:54:21 2004
-+++ linux/arch/m68k/config.in	Thu Apr  7 23:23:01 2005
+diff -urpPX nopatch linux-2.4.31/arch/m68k/config.in linux/arch/m68k/config.in
+--- linux-2.4.31/arch/m68k/config.in	Wed Nov 17 11:54:21 2004
++++ linux/arch/m68k/config.in	Fri Jun  3 00:30:39 2005
 @@ -99,6 +99,9 @@ if [ "$CONFIG_PROC_FS" = "y" ]; then
  fi
  tristate 'Kernel support for a.out binaries' CONFIG_BINFMT_AOUT
@@ -725,9 +700,9 @@ diff -urpPX nopatch linux-2.4.30/arch/m68k/config.in linux/arch/m68k/config.in
  
  mainmenu_option next_comment
  comment 'Kernel hacking'
-diff -urpPX nopatch linux-2.4.30/arch/m68k/defconfig linux/arch/m68k/defconfig
---- linux-2.4.30/arch/m68k/defconfig	Wed Feb 18 16:36:30 2004
-+++ linux/arch/m68k/defconfig	Thu Apr  7 23:23:01 2005
+diff -urpPX nopatch linux-2.4.31/arch/m68k/defconfig linux/arch/m68k/defconfig
+--- linux-2.4.31/arch/m68k/defconfig	Wed Feb 18 13:36:30 2004
++++ linux/arch/m68k/defconfig	Fri Jun  3 00:30:39 2005
 @@ -44,8 +44,9 @@ CONFIG_SYSVIPC=y
  CONFIG_SYSCTL=y
  CONFIG_KCORE_ELF=y
@@ -755,9 +730,9 @@ diff -urpPX nopatch linux-2.4.30/arch/m68k/defconfig linux/arch/m68k/defconfig
  
  #
  # Kernel hacking
-diff -urpPX nopatch linux-2.4.30/arch/mips/config-shared.in linux/arch/mips/config-shared.in
---- linux-2.4.30/arch/mips/config-shared.in	Wed Jan 19 17:09:27 2005
-+++ linux/arch/mips/config-shared.in	Thu Apr  7 23:23:01 2005
+diff -urpPX nopatch linux-2.4.31/arch/mips/config-shared.in linux/arch/mips/config-shared.in
+--- linux-2.4.31/arch/mips/config-shared.in	Wed Jan 19 14:09:27 2005
++++ linux/arch/mips/config-shared.in	Fri Jun  3 00:30:39 2005
 @@ -845,6 +845,9 @@ define_bool CONFIG_KCORE_ELF y
  define_bool CONFIG_KCORE_AOUT n
  define_bool CONFIG_BINFMT_AOUT n
@@ -777,9 +752,9 @@ diff -urpPX nopatch linux-2.4.30/arch/mips/config-shared.in linux/arch/mips/conf
  
  mainmenu_option next_comment
  comment 'Kernel hacking'
-diff -urpPX nopatch linux-2.4.30/arch/mips/defconfig linux/arch/mips/defconfig
---- linux-2.4.30/arch/mips/defconfig	Wed Jan 19 17:09:27 2005
-+++ linux/arch/mips/defconfig	Thu Apr  7 23:23:01 2005
+diff -urpPX nopatch linux-2.4.31/arch/mips/defconfig linux/arch/mips/defconfig
+--- linux-2.4.31/arch/mips/defconfig	Wed Jan 19 14:09:27 2005
++++ linux/arch/mips/defconfig	Fri Jun  3 00:30:39 2005
 @@ -143,6 +143,7 @@ CONFIG_KCORE_ELF=y
  # CONFIG_KCORE_AOUT is not set
  # CONFIG_BINFMT_AOUT is not set
@@ -804,9 +779,9 @@ diff -urpPX nopatch linux-2.4.30/arch/mips/defconfig linux/arch/mips/defconfig
  
  #
  # Kernel hacking
-diff -urpPX nopatch linux-2.4.30/arch/mips/kernel/irixelf.c linux/arch/mips/kernel/irixelf.c
---- linux-2.4.30/arch/mips/kernel/irixelf.c	Wed Jan 19 17:09:29 2005
-+++ linux/arch/mips/kernel/irixelf.c	Thu Apr  7 23:23:01 2005
+diff -urpPX nopatch linux-2.4.31/arch/mips/kernel/irixelf.c linux/arch/mips/kernel/irixelf.c
+--- linux-2.4.31/arch/mips/kernel/irixelf.c	Wed Jan 19 14:09:29 2005
++++ linux/arch/mips/kernel/irixelf.c	Fri Jun  3 00:30:39 2005
 @@ -8,6 +8,7 @@
   * Copyright 1993, 1994: Eric Youngdale (ericy@cais.com).
   */
@@ -845,9 +820,9 @@ diff -urpPX nopatch linux-2.4.30/arch/mips/kernel/irixelf.c linux/arch/mips/kern
  
  /* Called through irix_syssgi() to map an elf image given an FD,
   * a phdr ptr USER_PHDRP in userspace, and a count CNT telling how many
-diff -urpPX nopatch linux-2.4.30/arch/mips64/defconfig linux/arch/mips64/defconfig
---- linux-2.4.30/arch/mips64/defconfig	Wed Jan 19 17:09:30 2005
-+++ linux/arch/mips64/defconfig	Thu Apr  7 23:23:01 2005
+diff -urpPX nopatch linux-2.4.31/arch/mips64/defconfig linux/arch/mips64/defconfig
+--- linux-2.4.31/arch/mips64/defconfig	Wed Jan 19 14:09:30 2005
++++ linux/arch/mips64/defconfig	Fri Jun  3 00:30:39 2005
 @@ -147,6 +147,7 @@ CONFIG_KCORE_ELF=y
  # CONFIG_KCORE_AOUT is not set
  # CONFIG_BINFMT_AOUT is not set
@@ -872,9 +847,9 @@ diff -urpPX nopatch linux-2.4.30/arch/mips64/defconfig linux/arch/mips64/defconf
  
  #
  # Kernel hacking
-diff -urpPX nopatch linux-2.4.30/arch/mips64/kernel/linux32.c linux/arch/mips64/kernel/linux32.c
---- linux-2.4.30/arch/mips64/kernel/linux32.c	Mon Apr  4 05:42:19 2005
-+++ linux/arch/mips64/kernel/linux32.c	Thu Apr  7 23:23:01 2005
+diff -urpPX nopatch linux-2.4.31/arch/mips64/kernel/linux32.c linux/arch/mips64/kernel/linux32.c
+--- linux-2.4.31/arch/mips64/kernel/linux32.c	Mon Apr  4 01:42:19 2005
++++ linux/arch/mips64/kernel/linux32.c	Fri Jun  3 00:30:39 2005
 @@ -398,6 +398,22 @@ int do_execve32(char * filename, u32 * a
  	if (IS_ERR(dentry))
  		return retval;
@@ -977,9 +952,9 @@ diff -urpPX nopatch linux-2.4.30/arch/mips64/kernel/linux32.c linux/arch/mips64/
  	if (ret > 0)
  		dnotify_parent(file->f_dentry, DN_MODIFY);
  out:
-diff -urpPX nopatch linux-2.4.30/arch/parisc/config.in linux/arch/parisc/config.in
---- linux-2.4.30/arch/parisc/config.in	Wed Nov 17 14:54:21 2004
-+++ linux/arch/parisc/config.in	Thu Apr  7 23:23:01 2005
+diff -urpPX nopatch linux-2.4.31/arch/parisc/config.in linux/arch/parisc/config.in
+--- linux-2.4.31/arch/parisc/config.in	Wed Nov 17 11:54:21 2004
++++ linux/arch/parisc/config.in	Fri Jun  3 00:30:39 2005
 @@ -89,6 +89,9 @@ bool 'BSD Process Accounting' CONFIG_BSD
  bool 'Sysctl support' CONFIG_SYSCTL
  define_bool CONFIG_KCORE_ELF y
@@ -999,9 +974,9 @@ diff -urpPX nopatch linux-2.4.30/arch/parisc/config.in linux/arch/parisc/config.
  
  mainmenu_option next_comment
  comment 'Kernel hacking'
-diff -urpPX nopatch linux-2.4.30/arch/parisc/defconfig linux/arch/parisc/defconfig
---- linux-2.4.30/arch/parisc/defconfig	Wed Feb 18 16:36:30 2004
-+++ linux/arch/parisc/defconfig	Thu Apr  7 23:23:01 2005
+diff -urpPX nopatch linux-2.4.31/arch/parisc/defconfig linux/arch/parisc/defconfig
+--- linux-2.4.31/arch/parisc/defconfig	Wed Feb 18 13:36:30 2004
++++ linux/arch/parisc/defconfig	Fri Jun  3 00:30:39 2005
 @@ -56,6 +56,7 @@ CONFIG_SYSVIPC=y
  CONFIG_SYSCTL=y
  CONFIG_KCORE_ELF=y
@@ -1026,9 +1001,9 @@ diff -urpPX nopatch linux-2.4.30/arch/parisc/defconfig linux/arch/parisc/defconf
  
  #
  # Kernel hacking
-diff -urpPX nopatch linux-2.4.30/arch/parisc/kernel/sys_parisc32.c linux/arch/parisc/kernel/sys_parisc32.c
---- linux-2.4.30/arch/parisc/kernel/sys_parisc32.c	Mon Apr  4 05:42:19 2005
-+++ linux/arch/parisc/kernel/sys_parisc32.c	Thu Apr  7 23:23:01 2005
+diff -urpPX nopatch linux-2.4.31/arch/parisc/kernel/sys_parisc32.c linux/arch/parisc/kernel/sys_parisc32.c
+--- linux-2.4.31/arch/parisc/kernel/sys_parisc32.c	Mon Apr  4 01:42:19 2005
++++ linux/arch/parisc/kernel/sys_parisc32.c	Fri Jun  3 00:30:39 2005
 @@ -189,6 +189,23 @@ do_execve32(char * filename, u32 * argv,
  
  	DBG(("do_execve32(%s, %p, %p, %p)\n", filename, argv, envp, regs));
@@ -1079,9 +1054,9 @@ diff -urpPX nopatch linux-2.4.30/arch/parisc/kernel/sys_parisc32.c linux/arch/pa
  	fput(file);
  
  bad_file:
-diff -urpPX nopatch linux-2.4.30/arch/ppc/config.in linux/arch/ppc/config.in
---- linux-2.4.30/arch/ppc/config.in	Sun Aug  8 03:26:04 2004
-+++ linux/arch/ppc/config.in	Thu Apr  7 23:23:01 2005
+diff -urpPX nopatch linux-2.4.31/arch/ppc/config.in linux/arch/ppc/config.in
+--- linux-2.4.31/arch/ppc/config.in	Sat Aug  7 23:26:04 2004
++++ linux/arch/ppc/config.in	Fri Jun  3 00:30:39 2005
 @@ -384,6 +384,7 @@ if [ "$CONFIG_PROC_FS" = "y" ]; then
  fi
  define_bool CONFIG_BINFMT_ELF y
@@ -1099,9 +1074,9 @@ diff -urpPX nopatch linux-2.4.30/arch/ppc/config.in linux/arch/ppc/config.in
  
  mainmenu_option next_comment
  comment 'Kernel hacking'
-diff -urpPX nopatch linux-2.4.30/arch/ppc/defconfig linux/arch/ppc/defconfig
---- linux-2.4.30/arch/ppc/defconfig	Wed Jan 19 17:09:36 2005
-+++ linux/arch/ppc/defconfig	Thu Apr  7 23:23:01 2005
+diff -urpPX nopatch linux-2.4.31/arch/ppc/defconfig linux/arch/ppc/defconfig
+--- linux-2.4.31/arch/ppc/defconfig	Wed Jan 19 14:09:36 2005
++++ linux/arch/ppc/defconfig	Fri Jun  3 00:30:39 2005
 @@ -59,7 +59,8 @@ CONFIG_SYSVIPC=y
  CONFIG_KCORE_ELF=y
  CONFIG_BINFMT_ELF=y
@@ -1128,9 +1103,9 @@ diff -urpPX nopatch linux-2.4.30/arch/ppc/defconfig linux/arch/ppc/defconfig
  
  #
  # Kernel hacking
-diff -urpPX nopatch linux-2.4.30/arch/ppc64/config.in linux/arch/ppc64/config.in
---- linux-2.4.30/arch/ppc64/config.in	Wed Feb 18 16:36:30 2004
-+++ linux/arch/ppc64/config.in	Thu Apr  7 23:23:01 2005
+diff -urpPX nopatch linux-2.4.31/arch/ppc64/config.in linux/arch/ppc64/config.in
+--- linux-2.4.31/arch/ppc64/config.in	Wed Feb 18 13:36:30 2004
++++ linux/arch/ppc64/config.in	Fri Jun  3 00:30:39 2005
 @@ -82,6 +82,9 @@ if [ "$CONFIG_PROC_FS" = "y" ]; then
  fi
  
@@ -1150,9 +1125,9 @@ diff -urpPX nopatch linux-2.4.30/arch/ppc64/config.in linux/arch/ppc64/config.in
  
  mainmenu_option next_comment
  comment 'Kernel hacking'
-diff -urpPX nopatch linux-2.4.30/arch/ppc64/defconfig linux/arch/ppc64/defconfig
---- linux-2.4.30/arch/ppc64/defconfig	Wed Nov 17 14:54:21 2004
-+++ linux/arch/ppc64/defconfig	Thu Apr  7 23:23:01 2005
+diff -urpPX nopatch linux-2.4.31/arch/ppc64/defconfig linux/arch/ppc64/defconfig
+--- linux-2.4.31/arch/ppc64/defconfig	Wed Nov 17 11:54:21 2004
++++ linux/arch/ppc64/defconfig	Fri Jun  3 00:30:39 2005
 @@ -56,6 +56,7 @@ CONFIG_SYSVIPC=y
  # CONFIG_BSD_PROCESS_ACCT is not set
  CONFIG_KCORE_ELF=y
@@ -1177,9 +1152,9 @@ diff -urpPX nopatch linux-2.4.30/arch/ppc64/defconfig linux/arch/ppc64/defconfig
  
  #
  # Kernel hacking
-diff -urpPX nopatch linux-2.4.30/arch/ppc64/kernel/sys_ppc32.c linux/arch/ppc64/kernel/sys_ppc32.c
---- linux-2.4.30/arch/ppc64/kernel/sys_ppc32.c	Mon Apr  4 05:42:19 2005
-+++ linux/arch/ppc64/kernel/sys_ppc32.c	Thu Apr  7 23:23:01 2005
+diff -urpPX nopatch linux-2.4.31/arch/ppc64/kernel/sys_ppc32.c linux/arch/ppc64/kernel/sys_ppc32.c
+--- linux-2.4.31/arch/ppc64/kernel/sys_ppc32.c	Mon Apr  4 01:42:19 2005
++++ linux/arch/ppc64/kernel/sys_ppc32.c	Fri Jun  3 00:30:39 2005
 @@ -250,8 +250,11 @@ asmlinkage long sys32_readv(u32 fd, stru
  		goto bad_file;
  
@@ -1230,9 +1205,9 @@ diff -urpPX nopatch linux-2.4.30/arch/ppc64/kernel/sys_ppc32.c linux/arch/ppc64/
  
  	bprm.file = file;
  	bprm.filename = filename;
-diff -urpPX nopatch linux-2.4.30/arch/s390/config.in linux/arch/s390/config.in
---- linux-2.4.30/arch/s390/config.in	Wed Nov 17 14:54:21 2004
-+++ linux/arch/s390/config.in	Thu Apr  7 23:23:01 2005
+diff -urpPX nopatch linux-2.4.31/arch/s390/config.in linux/arch/s390/config.in
+--- linux-2.4.31/arch/s390/config.in	Wed Nov 17 11:54:21 2004
++++ linux/arch/s390/config.in	Fri Jun  3 00:30:39 2005
 @@ -58,6 +58,9 @@ bool 'BSD Process Accounting' CONFIG_BSD
  bool 'Sysctl support' CONFIG_SYSCTL
  define_bool CONFIG_KCORE_ELF y
@@ -1252,9 +1227,9 @@ diff -urpPX nopatch linux-2.4.30/arch/s390/config.in linux/arch/s390/config.in
  
  mainmenu_option next_comment
  comment 'Kernel hacking'
-diff -urpPX nopatch linux-2.4.30/arch/s390/defconfig linux/arch/s390/defconfig
---- linux-2.4.30/arch/s390/defconfig	Wed Jan 19 17:09:37 2005
-+++ linux/arch/s390/defconfig	Thu Apr  7 23:23:01 2005
+diff -urpPX nopatch linux-2.4.31/arch/s390/defconfig linux/arch/s390/defconfig
+--- linux-2.4.31/arch/s390/defconfig	Wed Jan 19 14:09:37 2005
++++ linux/arch/s390/defconfig	Fri Jun  3 00:30:39 2005
 @@ -46,6 +46,7 @@ CONFIG_SYSVIPC=y
  CONFIG_SYSCTL=y
  CONFIG_KCORE_ELF=y
@@ -1279,9 +1254,9 @@ diff -urpPX nopatch linux-2.4.30/arch/s390/defconfig linux/arch/s390/defconfig
  
  #
  # Kernel hacking
-diff -urpPX nopatch linux-2.4.30/arch/s390x/config.in linux/arch/s390x/config.in
---- linux-2.4.30/arch/s390x/config.in	Wed Nov 17 14:54:21 2004
-+++ linux/arch/s390x/config.in	Thu Apr  7 23:23:01 2005
+diff -urpPX nopatch linux-2.4.31/arch/s390x/config.in linux/arch/s390x/config.in
+--- linux-2.4.31/arch/s390x/config.in	Wed Nov 17 11:54:21 2004
++++ linux/arch/s390x/config.in	Fri Jun  3 00:30:39 2005
 @@ -61,6 +61,9 @@ bool 'BSD Process Accounting' CONFIG_BSD
  bool 'Sysctl support' CONFIG_SYSCTL
  define_bool CONFIG_KCORE_ELF y
@@ -1301,9 +1276,9 @@ diff -urpPX nopatch linux-2.4.30/arch/s390x/config.in linux/arch/s390x/config.in
  
  mainmenu_option next_comment
  comment 'Kernel hacking'
-diff -urpPX nopatch linux-2.4.30/arch/s390x/defconfig linux/arch/s390x/defconfig
---- linux-2.4.30/arch/s390x/defconfig	Wed Nov 17 14:54:21 2004
-+++ linux/arch/s390x/defconfig	Thu Apr  7 23:23:01 2005
+diff -urpPX nopatch linux-2.4.31/arch/s390x/defconfig linux/arch/s390x/defconfig
+--- linux-2.4.31/arch/s390x/defconfig	Wed Nov 17 11:54:21 2004
++++ linux/arch/s390x/defconfig	Fri Jun  3 00:30:39 2005
 @@ -47,6 +47,7 @@ CONFIG_SYSVIPC=y
  CONFIG_SYSCTL=y
  CONFIG_KCORE_ELF=y
@@ -1328,9 +1303,9 @@ diff -urpPX nopatch linux-2.4.30/arch/s390x/defconfig linux/arch/s390x/defconfig
  
  #
  # Kernel hacking
-diff -urpPX nopatch linux-2.4.30/arch/s390x/kernel/linux32.c linux/arch/s390x/kernel/linux32.c
---- linux-2.4.30/arch/s390x/kernel/linux32.c	Mon Apr  4 05:42:19 2005
-+++ linux/arch/s390x/kernel/linux32.c	Thu Apr  7 23:23:01 2005
+diff -urpPX nopatch linux-2.4.31/arch/s390x/kernel/linux32.c linux/arch/s390x/kernel/linux32.c
+--- linux-2.4.31/arch/s390x/kernel/linux32.c	Mon Apr  4 01:42:19 2005
++++ linux/arch/s390x/kernel/linux32.c	Fri Jun  3 00:30:39 2005
 @@ -1196,8 +1196,11 @@ asmlinkage long sys32_readv(int fd, stru
  		goto bad_file;
  
@@ -1381,9 +1356,9 @@ diff -urpPX nopatch linux-2.4.30/arch/s390x/kernel/linux32.c linux/arch/s390x/ke
  
  	bprm.file = file;
  	bprm.filename = filename;
-diff -urpPX nopatch linux-2.4.30/arch/sh/config.in linux/arch/sh/config.in
---- linux-2.4.30/arch/sh/config.in	Wed Nov 17 14:54:21 2004
-+++ linux/arch/sh/config.in	Thu Apr  7 23:23:01 2005
+diff -urpPX nopatch linux-2.4.31/arch/sh/config.in linux/arch/sh/config.in
+--- linux-2.4.31/arch/sh/config.in	Wed Nov 17 11:54:21 2004
++++ linux/arch/sh/config.in	Fri Jun  3 00:30:39 2005
 @@ -283,6 +283,9 @@ if [ "$CONFIG_PROC_FS" = "y" ]; then
  	 A.OUT		CONFIG_KCORE_AOUT" ELF
  fi
@@ -1403,9 +1378,9 @@ diff -urpPX nopatch linux-2.4.30/arch/sh/config.in linux/arch/sh/config.in
  
  mainmenu_option next_comment
  comment 'Kernel hacking'
-diff -urpPX nopatch linux-2.4.30/arch/sh/defconfig linux/arch/sh/defconfig
---- linux-2.4.30/arch/sh/defconfig	Wed Feb 18 16:36:30 2004
-+++ linux/arch/sh/defconfig	Thu Apr  7 23:23:01 2005
+diff -urpPX nopatch linux-2.4.31/arch/sh/defconfig linux/arch/sh/defconfig
+--- linux-2.4.31/arch/sh/defconfig	Wed Feb 18 13:36:30 2004
++++ linux/arch/sh/defconfig	Fri Jun  3 00:30:39 2005
 @@ -48,6 +48,7 @@ CONFIG_CF_ENABLER=y
  CONFIG_KCORE_ELF=y
  # CONFIG_KCORE_AOUT is not set
@@ -1430,9 +1405,9 @@ diff -urpPX nopatch linux-2.4.30/arch/sh/defconfig linux/arch/sh/defconfig
  
  #
  # Kernel hacking
-diff -urpPX nopatch linux-2.4.30/arch/sparc/config.in linux/arch/sparc/config.in
---- linux-2.4.30/arch/sparc/config.in	Wed Nov 17 14:54:21 2004
-+++ linux/arch/sparc/config.in	Thu Apr  7 23:23:01 2005
+diff -urpPX nopatch linux-2.4.31/arch/sparc/config.in linux/arch/sparc/config.in
+--- linux-2.4.31/arch/sparc/config.in	Wed Nov 17 11:54:21 2004
++++ linux/arch/sparc/config.in	Fri Jun  3 00:30:39 2005
 @@ -74,6 +74,9 @@ if [ "$CONFIG_PROC_FS" = "y" ]; then
  fi
  tristate 'Kernel support for a.out binaries' CONFIG_BINFMT_AOUT
@@ -1452,9 +1427,9 @@ diff -urpPX nopatch linux-2.4.30/arch/sparc/config.in linux/arch/sparc/config.in
  
  mainmenu_option next_comment
  comment 'Kernel hacking'
-diff -urpPX nopatch linux-2.4.30/arch/sparc/defconfig linux/arch/sparc/defconfig
---- linux-2.4.30/arch/sparc/defconfig	Wed Apr 14 17:05:27 2004
-+++ linux/arch/sparc/defconfig	Thu Apr  7 23:23:01 2005
+diff -urpPX nopatch linux-2.4.31/arch/sparc/defconfig linux/arch/sparc/defconfig
+--- linux-2.4.31/arch/sparc/defconfig	Wed Apr 14 13:05:27 2004
++++ linux/arch/sparc/defconfig	Fri Jun  3 00:30:39 2005
 @@ -49,9 +49,10 @@ CONFIG_SYSVIPC=y
  # CONFIG_BSD_PROCESS_ACCT is not set
  CONFIG_SYSCTL=y
@@ -1484,9 +1459,9 @@ diff -urpPX nopatch linux-2.4.30/arch/sparc/defconfig linux/arch/sparc/defconfig
  
  #
  # Kernel hacking
-diff -urpPX nopatch linux-2.4.30/arch/sparc/kernel/sys_sparc.c linux/arch/sparc/kernel/sys_sparc.c
---- linux-2.4.30/arch/sparc/kernel/sys_sparc.c	Mon Aug 25 15:44:40 2003
-+++ linux/arch/sparc/kernel/sys_sparc.c	Thu Apr  7 23:23:01 2005
+diff -urpPX nopatch linux-2.4.31/arch/sparc/kernel/sys_sparc.c linux/arch/sparc/kernel/sys_sparc.c
+--- linux-2.4.31/arch/sparc/kernel/sys_sparc.c	Mon Aug 25 11:44:40 2003
++++ linux/arch/sparc/kernel/sys_sparc.c	Fri Jun  3 00:30:39 2005
 @@ -52,6 +52,8 @@ unsigned long arch_get_unmapped_area(str
  	/* See asm-sparc/uaccess.h */
  	if (len > TASK_SIZE - PAGE_SIZE)
@@ -1496,9 +1471,9 @@ diff -urpPX nopatch linux-2.4.30/arch/sparc/kernel/sys_sparc.c linux/arch/sparc/
  	if (ARCH_SUN4C_SUN4 && len > 0x20000000)
  		return -ENOMEM;
  	if (!addr)
-diff -urpPX nopatch linux-2.4.30/arch/sparc64/config.in linux/arch/sparc64/config.in
---- linux-2.4.30/arch/sparc64/config.in	Wed Nov 17 14:54:21 2004
-+++ linux/arch/sparc64/config.in	Thu Apr  7 23:23:01 2005
+diff -urpPX nopatch linux-2.4.31/arch/sparc64/config.in linux/arch/sparc64/config.in
+--- linux-2.4.31/arch/sparc64/config.in	Wed Nov 17 11:54:21 2004
++++ linux/arch/sparc64/config.in	Fri Jun  3 00:30:39 2005
 @@ -79,6 +79,9 @@ if [ "$CONFIG_SPARC32_COMPAT" != "n" ]; 
     bool '  Kernel support for 32-bit (ie. SunOS) a.out binaries' CONFIG_BINFMT_AOUT32
  fi
@@ -1518,9 +1493,9 @@ diff -urpPX nopatch linux-2.4.30/arch/sparc64/config.in linux/arch/sparc64/confi
  
  mainmenu_option next_comment
  comment 'Kernel hacking'
-diff -urpPX nopatch linux-2.4.30/arch/sparc64/defconfig linux/arch/sparc64/defconfig
---- linux-2.4.30/arch/sparc64/defconfig	Wed Jan 19 17:09:38 2005
-+++ linux/arch/sparc64/defconfig	Thu Apr  7 23:23:01 2005
+diff -urpPX nopatch linux-2.4.31/arch/sparc64/defconfig linux/arch/sparc64/defconfig
+--- linux-2.4.31/arch/sparc64/defconfig	Wed Jan 19 14:09:38 2005
++++ linux/arch/sparc64/defconfig	Fri Jun  3 00:30:39 2005
 @@ -70,7 +70,8 @@ CONFIG_SPARC32_COMPAT=y
  CONFIG_BINFMT_ELF32=y
  # CONFIG_BINFMT_AOUT32 is not set
@@ -1547,9 +1522,9 @@ diff -urpPX nopatch linux-2.4.30/arch/sparc64/defconfig linux/arch/sparc64/defco
  
  #
  # Kernel hacking
-diff -urpPX nopatch linux-2.4.30/arch/sparc64/kernel/sys_sparc.c linux/arch/sparc64/kernel/sys_sparc.c
---- linux-2.4.30/arch/sparc64/kernel/sys_sparc.c	Mon Aug 25 15:44:40 2003
-+++ linux/arch/sparc64/kernel/sys_sparc.c	Thu Apr  7 23:23:01 2005
+diff -urpPX nopatch linux-2.4.31/arch/sparc64/kernel/sys_sparc.c linux/arch/sparc64/kernel/sys_sparc.c
+--- linux-2.4.31/arch/sparc64/kernel/sys_sparc.c	Mon Aug 25 11:44:40 2003
++++ linux/arch/sparc64/kernel/sys_sparc.c	Fri Jun  3 00:30:39 2005
 @@ -63,6 +63,8 @@ unsigned long arch_get_unmapped_area(str
  		task_size = 0xf0000000UL;
  	if (len > task_size || len > -PAGE_OFFSET)
@@ -1559,9 +1534,9 @@ diff -urpPX nopatch linux-2.4.30/arch/sparc64/kernel/sys_sparc.c linux/arch/spar
  	if (!addr)
  		addr = TASK_UNMAPPED_BASE;
  
-diff -urpPX nopatch linux-2.4.30/arch/sparc64/kernel/sys_sparc32.c linux/arch/sparc64/kernel/sys_sparc32.c
---- linux-2.4.30/arch/sparc64/kernel/sys_sparc32.c	Mon Apr  4 05:42:19 2005
-+++ linux/arch/sparc64/kernel/sys_sparc32.c	Thu Apr  7 23:23:01 2005
+diff -urpPX nopatch linux-2.4.31/arch/sparc64/kernel/sys_sparc32.c linux/arch/sparc64/kernel/sys_sparc32.c
+--- linux-2.4.31/arch/sparc64/kernel/sys_sparc32.c	Mon Apr  4 01:42:19 2005
++++ linux/arch/sparc64/kernel/sys_sparc32.c	Fri Jun  3 00:30:39 2005
 @@ -1222,8 +1222,11 @@ asmlinkage long sys32_readv(int fd, stru
  		goto bad_file;
  
@@ -1612,9 +1587,9 @@ diff -urpPX nopatch linux-2.4.30/arch/sparc64/kernel/sys_sparc32.c linux/arch/sp
  
  	bprm.file = file;
  	bprm.filename = filename;
-diff -urpPX nopatch linux-2.4.30/arch/x86_64/config.in linux/arch/x86_64/config.in
---- linux-2.4.30/arch/x86_64/config.in	Wed Nov 17 14:54:21 2004
-+++ linux/arch/x86_64/config.in	Thu Apr  7 23:23:01 2005
+diff -urpPX nopatch linux-2.4.31/arch/x86_64/config.in linux/arch/x86_64/config.in
+--- linux-2.4.31/arch/x86_64/config.in	Wed Nov 17 11:54:21 2004
++++ linux/arch/x86_64/config.in	Fri Jun  3 00:30:39 2005
 @@ -118,6 +118,9 @@ if [ "$CONFIG_PROC_FS" = "y" ]; then
  fi
  #tristate 'Kernel support for a.out binaries' CONFIG_BINFMT_AOUT
@@ -1634,9 +1609,9 @@ diff -urpPX nopatch linux-2.4.30/arch/x86_64/config.in linux/arch/x86_64/config.
  
  mainmenu_option next_comment
  comment 'Kernel hacking'
-diff -urpPX nopatch linux-2.4.30/arch/x86_64/defconfig linux/arch/x86_64/defconfig
---- linux-2.4.30/arch/x86_64/defconfig	Wed Apr 14 17:05:28 2004
-+++ linux/arch/x86_64/defconfig	Thu Apr  7 23:23:01 2005
+diff -urpPX nopatch linux-2.4.31/arch/x86_64/defconfig linux/arch/x86_64/defconfig
+--- linux-2.4.31/arch/x86_64/defconfig	Wed Apr 14 13:05:28 2004
++++ linux/arch/x86_64/defconfig	Fri Jun  3 00:30:39 2005
 @@ -67,6 +67,7 @@ CONFIG_SYSVIPC=y
  CONFIG_SYSCTL=y
  CONFIG_KCORE_ELF=y
@@ -1661,60 +1636,9 @@ diff -urpPX nopatch linux-2.4.30/arch/x86_64/defconfig linux/arch/x86_64/defconf
  
  #
  # Kernel hacking
-diff -urpPX nopatch linux-2.4.30/arch/x86_64/kernel/e820.c linux/arch/x86_64/kernel/e820.c
---- linux-2.4.30/arch/x86_64/kernel/e820.c	Sun Aug  8 03:26:04 2004
-+++ linux/arch/x86_64/kernel/e820.c	Fri Apr 22 14:19:36 2005
-@@ -594,7 +594,10 @@ void __init parse_mem_cmdline (char ** c
- 			ioapic_force = 1;
- 			skip_ioapic_setup = 0;
- 		}
--		
-+		else if (!memcmp(from, "noexec=", 7)) { 
-+			extern int nonx_setup(char *);
-+			nonx_setup(from + 7);
-+		}					
- 	next:
- 		c = *(from++);
- 		if (!c)
-diff -urpPX nopatch linux-2.4.30/arch/x86_64/kernel/process.c linux/arch/x86_64/kernel/process.c
---- linux-2.4.30/arch/x86_64/kernel/process.c	Wed Apr 14 17:05:28 2004
-+++ linux/arch/x86_64/kernel/process.c	Fri Apr 22 14:19:42 2005
-@@ -185,7 +185,6 @@ int __init select_idle_routine(struct cp
- 		}
- 		return 1;
- 	}
--	pm_idle = default_idle;
- 	return 1;
- }
- 
-diff -urpPX nopatch linux-2.4.30/arch/x86_64/kernel/setup64.c linux/arch/x86_64/kernel/setup64.c
---- linux-2.4.30/arch/x86_64/kernel/setup64.c	Wed Apr 14 17:05:28 2004
-+++ linux/arch/x86_64/kernel/setup64.c	Fri Apr 22 14:21:00 2005
-@@ -53,7 +53,7 @@ noforce (default) Don't enable by defaul
- 
- */ 
- 
--static int __init nonx_setup(char *str)
-+int __init nonx_setup(char *str)
- {
- 	if (!strncmp(str, "on",3)) { 
- 		__supported_pte_mask |= _PAGE_NX; 
-diff -urpPX nopatch linux-2.4.30/arch/x86_64/kernel/smp.c linux/arch/x86_64/kernel/smp.c
---- linux-2.4.30/arch/x86_64/kernel/smp.c	Fri Nov 28 21:26:19 2003
-+++ linux/arch/x86_64/kernel/smp.c	Fri Apr 22 14:19:35 2005
-@@ -228,7 +228,8 @@ static void inline leave_mm (unsigned lo
- 		BUG();
- 	clear_bit(cpu, &cpu_tlbstate[cpu].active_mm->cpu_vm_mask);
- 	/* flush TLB before it goes away. this stops speculative prefetches */
--	__flush_tlb(); 
-+	*read_pda(level4_pgt) = __pa(init_mm.pgd) | _PAGE_TABLE;
-+	__flush_tlb();
- }
- 
- /*
-diff -urpPX nopatch linux-2.4.30/arch/x86_64/kernel/sys_x86_64.c linux/arch/x86_64/kernel/sys_x86_64.c
---- linux-2.4.30/arch/x86_64/kernel/sys_x86_64.c	Fri Nov 28 21:26:19 2003
-+++ linux/arch/x86_64/kernel/sys_x86_64.c	Thu Apr  7 23:23:01 2005
+diff -urpPX nopatch linux-2.4.31/arch/x86_64/kernel/sys_x86_64.c linux/arch/x86_64/kernel/sys_x86_64.c
+--- linux-2.4.31/arch/x86_64/kernel/sys_x86_64.c	Fri Nov 28 18:26:19 2003
++++ linux/arch/x86_64/kernel/sys_x86_64.c	Fri Jun  3 00:30:39 2005
 @@ -94,6 +94,8 @@ unsigned long arch_get_unmapped_area(str
  	if (len > end)
  		return -ENOMEM;
@@ -1724,43 +1648,9 @@ diff -urpPX nopatch linux-2.4.30/arch/x86_64/kernel/sys_x86_64.c linux/arch/x86_
  
  	for (vma = find_vma(current->mm, addr); ; vma = vma->vm_next) {
  		/* At this point:  (!vma || addr < vma->vm_end). */
-diff -urpPX nopatch linux-2.4.30/arch/x86_64/mm/pageattr.c linux/arch/x86_64/mm/pageattr.c
---- linux-2.4.30/arch/x86_64/mm/pageattr.c	Wed Apr 14 17:05:28 2004
-+++ linux/arch/x86_64/mm/pageattr.c	Fri Apr 22 14:19:15 2005
-@@ -55,7 +55,7 @@ static void flush_kernel_map(void * addr
- 			asm volatile("clflush (%0)" :: "r" (address + i)); 
- 	} else
- 		asm volatile("wbinvd":::"memory"); 
--	__flush_tlb_one(address);
-+	__flush_tlb_all();
- }
- 
- /* no more special protections in this 2MB area - revert to a
-@@ -101,18 +101,15 @@ __change_page_attr(unsigned long address
- 	kpte_page = virt_to_page(((unsigned long)kpte) & PAGE_MASK);
- 	if (pgprot_val(prot) != pgprot_val(PAGE_KERNEL)) { 
- 		if ((pte_val(*kpte) & _PAGE_PSE) == 0) { 
--			pte_t old = *kpte;
--			pte_t standard = mk_pte(page, PAGE_KERNEL); 
--
- 			set_pte(kpte, mk_pte(page, prot)); 
--			if (pte_same(old,standard))
--				atomic_inc(&kpte_page->count);
- 		} else {
- 			struct page *split = split_large_page(address, prot); 
- 			if (!split)
- 				return -ENOMEM;
- 			set_pte(kpte,mk_pte(split, PAGE_KERNEL));
--		}	
-+			kpte_page = split;
-+		}
-+		atomic_inc(&kpte_page->count);	
- 	} else if ((pte_val(*kpte) & _PAGE_PSE) == 0) { 
- 		set_pte(kpte, mk_pte(page, PAGE_KERNEL));
- 		atomic_dec(&kpte_page->count); 
-diff -urpPX nopatch linux-2.4.30/crypto/cipher.c linux/crypto/cipher.c
---- linux-2.4.30/crypto/cipher.c	Sun Aug  8 03:26:04 2004
-+++ linux/crypto/cipher.c	Thu Apr  7 23:23:01 2005
+diff -urpPX nopatch linux-2.4.31/crypto/cipher.c linux/crypto/cipher.c
+--- linux-2.4.31/crypto/cipher.c	Sat Aug  7 23:26:04 2004
++++ linux/crypto/cipher.c	Fri Jun  3 00:30:39 2005
 @@ -235,6 +235,8 @@ int crypto_init_cipher_ops(struct crypto
  	case CRYPTO_TFM_MODE_ECB:
  		ops->cit_encrypt = ecb_encrypt;
@@ -1770,9 +1660,9 @@ diff -urpPX nopatch linux-2.4.30/crypto/cipher.c linux/crypto/cipher.c
  		break;
  		
  	case CRYPTO_TFM_MODE_CBC:
-diff -urpPX nopatch linux-2.4.30/fs/binfmt_aout.c linux/fs/binfmt_aout.c
---- linux-2.4.30/fs/binfmt_aout.c	Wed Jan 19 17:10:10 2005
-+++ linux/fs/binfmt_aout.c	Thu Apr  7 23:23:01 2005
+diff -urpPX nopatch linux-2.4.31/fs/binfmt_aout.c linux/fs/binfmt_aout.c
+--- linux-2.4.31/fs/binfmt_aout.c	Wed Jan 19 14:10:10 2005
++++ linux/fs/binfmt_aout.c	Fri Jun  3 00:30:39 2005
 @@ -4,6 +4,7 @@
   *  Copyright (C) 1991, 1992, 1996  Linus Torvalds
   */
@@ -1791,9 +1681,9 @@ diff -urpPX nopatch linux-2.4.30/fs/binfmt_aout.c linux/fs/binfmt_aout.c
  #ifdef __sparc__
  	if (N_MAGIC(ex) == NMAGIC) {
  		loff_t pos = fd_offset;
-diff -urpPX nopatch linux-2.4.30/fs/exec.c linux/fs/exec.c
---- linux-2.4.30/fs/exec.c	Wed Jan 19 17:10:10 2005
-+++ linux/fs/exec.c	Thu Apr  7 23:23:01 2005
+diff -urpPX nopatch linux-2.4.31/fs/exec.c linux/fs/exec.c
+--- linux-2.4.31/fs/exec.c	Wed Jan 19 14:10:10 2005
++++ linux/fs/exec.c	Fri Jun  3 00:30:39 2005
 @@ -109,6 +109,7 @@ static inline void put_binfmt(struct lin
   */
  asmlinkage long sys_uselib(const char * library)
@@ -1856,9 +1746,9 @@ diff -urpPX nopatch linux-2.4.30/fs/exec.c linux/fs/exec.c
  
  	bprm.p = PAGE_SIZE*MAX_ARG_PAGES-sizeof(void *);
  	memset(bprm.page, 0, MAX_ARG_PAGES*sizeof(bprm.page[0])); 
-diff -urpPX nopatch linux-2.4.30/fs/file_table.c linux/fs/file_table.c
---- linux-2.4.30/fs/file_table.c	Mon Apr  4 05:42:20 2005
-+++ linux/fs/file_table.c	Thu Apr  7 23:23:01 2005
+diff -urpPX nopatch linux-2.4.31/fs/file_table.c linux/fs/file_table.c
+--- linux-2.4.31/fs/file_table.c	Mon Apr  4 01:42:20 2005
++++ linux/fs/file_table.c	Fri Jun  3 00:30:39 2005
 @@ -43,6 +43,7 @@ struct file * get_empty_filp(void)
  	new_one:
  		memset(f, 0, sizeof(*f));
@@ -1875,9 +1765,9 @@ diff -urpPX nopatch linux-2.4.30/fs/file_table.c linux/fs/file_table.c
  	filp->f_dentry = dentry;
  	filp->f_uid    = current->fsuid;
  	filp->f_gid    = current->fsgid;
-diff -urpPX nopatch linux-2.4.30/fs/namei.c linux/fs/namei.c
---- linux-2.4.30/fs/namei.c	Mon Apr  4 05:42:20 2005
-+++ linux/fs/namei.c	Thu Apr  7 23:23:01 2005
+diff -urpPX nopatch linux-2.4.31/fs/namei.c linux/fs/namei.c
+--- linux-2.4.31/fs/namei.c	Mon Apr  4 01:42:20 2005
++++ linux/fs/namei.c	Fri Jun  3 00:30:39 2005
 @@ -14,6 +14,7 @@
  /* [Feb-Apr 2000, AV] Rewrite to the new namespace architecture.
   */
@@ -2029,9 +1919,9 @@ diff -urpPX nopatch linux-2.4.30/fs/namei.c linux/fs/namei.c
  
  	error = may_create(dir, new_dentry);
  	if (error)
-diff -urpPX nopatch linux-2.4.30/fs/nfsd/vfs.c linux/fs/nfsd/vfs.c
---- linux-2.4.30/fs/nfsd/vfs.c	Mon Apr  4 05:42:20 2005
-+++ linux/fs/nfsd/vfs.c	Thu Apr  7 23:23:01 2005
+diff -urpPX nopatch linux-2.4.31/fs/nfsd/vfs.c linux/fs/nfsd/vfs.c
+--- linux-2.4.31/fs/nfsd/vfs.c	Mon Apr  4 01:42:20 2005
++++ linux/fs/nfsd/vfs.c	Fri Jun  3 00:30:39 2005
 @@ -464,6 +464,9 @@ nfsd_open(struct svc_rqst *rqstp, struct
  	memset(filp, 0, sizeof(*filp));
  	filp->f_op    = fops_get(inode->i_fop);
@@ -2042,9 +1932,9 @@ diff -urpPX nopatch linux-2.4.30/fs/nfsd/vfs.c linux/fs/nfsd/vfs.c
  	filp->f_dentry = dentry;
  	filp->f_vfsmnt = fhp->fh_export->ex_mnt;
  	filp->f_maxcount = INT_MAX;
-diff -urpPX nopatch linux-2.4.30/fs/proc/base.c linux/fs/proc/base.c
---- linux-2.4.30/fs/proc/base.c	Wed Jan 19 17:10:11 2005
-+++ linux/fs/proc/base.c	Thu Apr  7 23:23:01 2005
+diff -urpPX nopatch linux-2.4.31/fs/proc/base.c linux/fs/proc/base.c
+--- linux-2.4.31/fs/proc/base.c	Wed Jan 19 14:10:11 2005
++++ linux/fs/proc/base.c	Fri Jun  3 00:30:39 2005
 @@ -773,7 +773,12 @@ static struct inode *proc_pid_make_inode
  	inode->i_gid = 0;
  	if (ino == PROC_PID_INO || task_dumpable(task)) {
@@ -2070,9 +1960,9 @@ diff -urpPX nopatch linux-2.4.30/fs/proc/base.c linux/fs/proc/base.c
  	inode->i_op = &proc_base_inode_operations;
  	inode->i_fop = &proc_base_operations;
  	inode->i_nlink = 3;
-diff -urpPX nopatch linux-2.4.30/fs/proc/generic.c linux/fs/proc/generic.c
---- linux-2.4.30/fs/proc/generic.c	Wed Jan 19 17:10:11 2005
-+++ linux/fs/proc/generic.c	Thu Apr  7 23:23:01 2005
+diff -urpPX nopatch linux-2.4.31/fs/proc/generic.c linux/fs/proc/generic.c
+--- linux-2.4.31/fs/proc/generic.c	Wed Jan 19 14:10:11 2005
++++ linux/fs/proc/generic.c	Fri Jun  3 00:30:39 2005
 @@ -396,7 +396,9 @@ static int proc_register(struct proc_dir
  static void proc_kill_inodes(struct proc_dir_entry *de)
  {
@@ -2084,9 +1974,9 @@ diff -urpPX nopatch linux-2.4.30/fs/proc/generic.c linux/fs/proc/generic.c
  
  	/*
  	 * Actually it's a partial revoke().
-diff -urpPX nopatch linux-2.4.30/fs/proc/inode.c linux/fs/proc/inode.c
---- linux-2.4.30/fs/proc/inode.c	Fri Nov 28 21:26:21 2003
-+++ linux/fs/proc/inode.c	Thu Apr  7 23:23:01 2005
+diff -urpPX nopatch linux-2.4.31/fs/proc/inode.c linux/fs/proc/inode.c
+--- linux-2.4.31/fs/proc/inode.c	Fri Nov 28 18:26:21 2003
++++ linux/fs/proc/inode.c	Fri Jun  3 00:30:39 2005
 @@ -4,6 +4,7 @@
   *  Copyright (C) 1991, 1992  Linus Torvalds
   */
@@ -2135,9 +2025,9 @@ diff -urpPX nopatch linux-2.4.30/fs/proc/inode.c linux/fs/proc/inode.c
  	return s;
  
  out_no_root:
-diff -urpPX nopatch linux-2.4.30/fs/proc/root.c linux/fs/proc/root.c
---- linux-2.4.30/fs/proc/root.c	Wed Nov 17 14:54:21 2004
-+++ linux/fs/proc/root.c	Thu Apr  7 23:23:01 2005
+diff -urpPX nopatch linux-2.4.31/fs/proc/root.c linux/fs/proc/root.c
+--- linux-2.4.31/fs/proc/root.c	Wed Nov 17 11:54:21 2004
++++ linux/fs/proc/root.c	Fri Jun  3 00:30:39 2005
 @@ -8,6 +8,7 @@
  
  #include <asm/uaccess.h>
@@ -2165,9 +2055,9 @@ diff -urpPX nopatch linux-2.4.30/fs/proc/root.c linux/fs/proc/root.c
  	proc_net_stat = proc_mkdir("net/stat", NULL);
  
  #ifdef CONFIG_SYSVIPC
-diff -urpPX nopatch linux-2.4.30/fs/read_write.c linux/fs/read_write.c
---- linux-2.4.30/fs/read_write.c	Mon Apr  4 05:42:20 2005
-+++ linux/fs/read_write.c	Fri Apr  8 00:03:53 2005
+diff -urpPX nopatch linux-2.4.31/fs/read_write.c linux/fs/read_write.c
+--- linux-2.4.31/fs/read_write.c	Mon Apr  4 01:42:20 2005
++++ linux/fs/read_write.c	Fri Jun  3 00:30:39 2005
 @@ -122,7 +122,9 @@ static inline loff_t llseek(struct file 
  	if (file->f_op && file->f_op->llseek)
  		fn = file->f_op->llseek;
@@ -2283,9 +2173,9 @@ diff -urpPX nopatch linux-2.4.30/fs/read_write.c linux/fs/read_write.c
  	if (ret > 0)
  		dnotify_parent(file->f_dentry, DN_MODIFY);
  out:
-diff -urpPX nopatch linux-2.4.30/include/asm-i386/a.out.h linux/include/asm-i386/a.out.h
---- linux-2.4.30/include/asm-i386/a.out.h	Fri Jun 16 22:33:06 1995
-+++ linux/include/asm-i386/a.out.h	Fri Apr  8 00:54:58 2005
+diff -urpPX nopatch linux-2.4.31/include/asm-i386/a.out.h linux/include/asm-i386/a.out.h
+--- linux-2.4.31/include/asm-i386/a.out.h	Fri Jun 16 18:33:06 1995
++++ linux/include/asm-i386/a.out.h	Fri Jun  3 00:30:39 2005
 @@ -19,7 +19,16 @@ struct exec
  
  #ifdef __KERNEL__
@@ -2303,9 +2193,9 @@ diff -urpPX nopatch linux-2.4.30/include/asm-i386/a.out.h linux/include/asm-i386
  
  #endif
  
-diff -urpPX nopatch linux-2.4.30/include/asm-i386/processor.h linux/include/asm-i386/processor.h
---- linux-2.4.30/include/asm-i386/processor.h	Wed Feb 18 16:36:32 2004
-+++ linux/include/asm-i386/processor.h	Fri Apr  8 00:54:59 2005
+diff -urpPX nopatch linux-2.4.31/include/asm-i386/processor.h linux/include/asm-i386/processor.h
+--- linux-2.4.31/include/asm-i386/processor.h	Wed Feb 18 13:36:32 2004
++++ linux/include/asm-i386/processor.h	Fri Jun  3 00:30:39 2005
 @@ -261,10 +261,28 @@ extern unsigned int mca_pentium_flag;
   */
  #define TASK_SIZE	(PAGE_OFFSET)
@@ -2335,38 +2225,9 @@ diff -urpPX nopatch linux-2.4.30/include/asm-i386/processor.h linux/include/asm-
  
  /*
   * Size of io_bitmap in longwords: 32 is ports 0-0x3ff.
-diff -urpPX nopatch linux-2.4.30/include/asm-x86_64/mmu_context.h linux/include/asm-x86_64/mmu_context.h
---- linux-2.4.30/include/asm-x86_64/mmu_context.h	Fri Nov 29 02:53:15 2002
-+++ linux/include/asm-x86_64/mmu_context.h	Fri Apr 22 14:18:56 2005
-@@ -60,9 +60,11 @@ static inline void switch_mm(struct mm_s
- 			out_of_line_bug();
- 		if(!test_and_set_bit(cpu, &next->cpu_vm_mask)) {
- 			/* We were in lazy tlb mode and leave_mm disabled 
--			 * tlb flush IPI delivery. We must flush our tlb.
-+			 * tlb flush IPI delivery. We must reload the page 
-+			 * table.
- 			 */
--			local_flush_tlb();
-+			*read_pda(level4_pgt) = __pa(next->pgd) | _PAGE_TABLE;
-+			__flush_tlb();
- 		}
- 		if (!test_and_set_bit(cpu, &next->context.cpuvalid))
- 			load_LDT(next);
-diff -urpPX nopatch linux-2.4.30/include/asm-x86_64/unistd.h linux/include/asm-x86_64/unistd.h
---- linux-2.4.30/include/asm-x86_64/unistd.h	Wed Nov 17 14:54:22 2004
-+++ linux/include/asm-x86_64/unistd.h	Fri Apr 22 14:20:42 2005
-@@ -673,7 +673,7 @@ static inline long close(unsigned int fd
- }
- 
- extern long sys_exit(int) __attribute__((noreturn));
--static inline void exit(int error_code)
-+extern inline void exit(int error_code)
- {
- 	sys_exit(error_code);
- }
-diff -urpPX nopatch linux-2.4.30/include/linux/a.out.h linux/include/linux/a.out.h
---- linux-2.4.30/include/linux/a.out.h	Thu Nov 22 22:46:18 2001
-+++ linux/include/linux/a.out.h	Fri Apr  8 00:54:59 2005
+diff -urpPX nopatch linux-2.4.31/include/linux/a.out.h linux/include/linux/a.out.h
+--- linux-2.4.31/include/linux/a.out.h	Thu Nov 22 19:46:18 2001
++++ linux/include/linux/a.out.h	Fri Jun  3 00:30:39 2005
 @@ -37,6 +37,9 @@ enum machine_type {
    M_MIPS2 = 152		/* MIPS R6000/R4000 binary */
  };
@@ -2377,9 +2238,9 @@ diff -urpPX nopatch linux-2.4.30/include/linux/a.out.h linux/include/linux/a.out
  #if !defined (N_MAGIC)
  #define N_MAGIC(exec) ((exec).a_info & 0xffff)
  #endif
-diff -urpPX nopatch linux-2.4.30/include/linux/elf.h linux/include/linux/elf.h
---- linux-2.4.30/include/linux/elf.h	Wed Feb 18 16:36:32 2004
-+++ linux/include/linux/elf.h	Fri Apr  8 00:56:32 2005
+diff -urpPX nopatch linux-2.4.31/include/linux/elf.h linux/include/linux/elf.h
+--- linux-2.4.31/include/linux/elf.h	Wed Feb 18 13:36:32 2004
++++ linux/include/linux/elf.h	Fri Jun  3 00:30:39 2005
 @@ -260,6 +260,8 @@ typedef struct {
  #define R_MIPS_LOVENDOR		100
  #define R_MIPS_HIVENDOR		127
@@ -2389,9 +2250,9 @@ diff -urpPX nopatch linux-2.4.30/include/linux/elf.h linux/include/linux/elf.h
  
  /*
   * Sparc ELF relocation types
-diff -urpPX nopatch linux-2.4.30/include/linux/fs.h linux/include/linux/fs.h
---- linux-2.4.30/include/linux/fs.h	Mon Apr  4 05:42:20 2005
-+++ linux/include/linux/fs.h	Fri Apr  8 00:54:59 2005
+diff -urpPX nopatch linux-2.4.31/include/linux/fs.h linux/include/linux/fs.h
+--- linux-2.4.31/include/linux/fs.h	Mon Apr  4 01:42:20 2005
++++ linux/include/linux/fs.h	Fri Jun  3 00:30:39 2005
 @@ -585,7 +585,10 @@ struct file {
  	/* preallocated helper kiobuf to speedup O_DIRECT */
  	struct kiobuf		*f_iobuf;
@@ -2454,9 +2315,9 @@ diff -urpPX nopatch linux-2.4.30/include/linux/fs.h linux/include/linux/fs.h
  
  /*
   * Common dentry functions for inclusion in the VFS
-diff -urpPX nopatch linux-2.4.30/include/linux/kernel.h linux/include/linux/kernel.h
---- linux-2.4.30/include/linux/kernel.h	Mon Apr  4 05:42:20 2005
-+++ linux/include/linux/kernel.h	Fri Apr  8 00:54:58 2005
+diff -urpPX nopatch linux-2.4.31/include/linux/kernel.h linux/include/linux/kernel.h
+--- linux-2.4.31/include/linux/kernel.h	Mon Apr  4 01:42:20 2005
++++ linux/include/linux/kernel.h	Fri Jun  3 00:30:39 2005
 @@ -176,6 +176,26 @@ extern void dump_stack(void);
  #define max_t(type,x,y) \
  	({ type __x = (x); type __y = (y); __x > __y ? __x: __y; })
@@ -2484,9 +2345,9 @@ diff -urpPX nopatch linux-2.4.30/include/linux/kernel.h linux/include/linux/kern
  extern void __out_of_line_bug(int line) ATTRIB_NORET;
  #define out_of_line_bug() __out_of_line_bug(__LINE__)
  
-diff -urpPX nopatch linux-2.4.30/include/linux/proc_fs.h linux/include/linux/proc_fs.h
---- linux-2.4.30/include/linux/proc_fs.h	Wed Jan 19 17:10:12 2005
-+++ linux/include/linux/proc_fs.h	Fri Apr  8 00:55:05 2005
+diff -urpPX nopatch linux-2.4.31/include/linux/proc_fs.h linux/include/linux/proc_fs.h
+--- linux-2.4.31/include/linux/proc_fs.h	Wed Jan 19 14:10:12 2005
++++ linux/include/linux/proc_fs.h	Fri Jun  3 00:30:39 2005
 @@ -95,7 +95,7 @@ extern struct proc_dir_entry *create_pro
  						struct proc_dir_entry *parent);
  extern void remove_proc_entry(const char *name, struct proc_dir_entry *parent);
@@ -2496,9 +2357,9 @@ diff -urpPX nopatch linux-2.4.30/include/linux/proc_fs.h linux/include/linux/pro
  extern struct super_block *proc_read_super(struct super_block *,void *,int);
  extern struct inode * proc_get_inode(struct super_block *, int, struct proc_dir_entry *);
  
-diff -urpPX nopatch linux-2.4.30/include/linux/sched.h linux/include/linux/sched.h
---- linux-2.4.30/include/linux/sched.h	Wed Jan 19 17:10:12 2005
-+++ linux/include/linux/sched.h	Fri Apr  8 00:54:59 2005
+diff -urpPX nopatch linux-2.4.31/include/linux/sched.h linux/include/linux/sched.h
+--- linux-2.4.31/include/linux/sched.h	Wed Jan 19 14:10:12 2005
++++ linux/include/linux/sched.h	Fri Jun  3 00:30:39 2005
 @@ -436,6 +436,8 @@ struct task_struct {
  
  #define PF_USEDFPU	0x00100000	/* task used FPU this quantum (SMP) */
@@ -2508,9 +2369,9 @@ diff -urpPX nopatch linux-2.4.30/include/linux/sched.h linux/include/linux/sched
  /*
   * Ptrace flags
   */
-diff -urpPX nopatch linux-2.4.30/init/do_mounts.c linux/init/do_mounts.c
---- linux-2.4.30/init/do_mounts.c	Fri Nov 28 21:26:21 2003
-+++ linux/init/do_mounts.c	Thu Apr  7 23:23:01 2005
+diff -urpPX nopatch linux-2.4.31/init/do_mounts.c linux/init/do_mounts.c
+--- linux-2.4.31/init/do_mounts.c	Fri Nov 28 18:26:21 2003
++++ linux/init/do_mounts.c	Fri Jun  3 00:30:39 2005
 @@ -348,6 +348,7 @@ static void __init mount_block_root(char
  {
  	char *fs_names = __getname();
@@ -2540,9 +2401,9 @@ diff -urpPX nopatch linux-2.4.30/init/do_mounts.c linux/init/do_mounts.c
  	}
  	panic("VFS: Unable to mount root fs on %s", kdevname(ROOT_DEV));
  out:
-diff -urpPX nopatch linux-2.4.30/ipc/shm.c linux/ipc/shm.c
---- linux-2.4.30/ipc/shm.c	Sat Aug  3 04:39:46 2002
-+++ linux/ipc/shm.c	Thu Apr  7 23:23:01 2005
+diff -urpPX nopatch linux-2.4.31/ipc/shm.c linux/ipc/shm.c
+--- linux-2.4.31/ipc/shm.c	Sat Aug  3 00:39:46 2002
++++ linux/ipc/shm.c	Fri Jun  3 00:30:39 2005
 @@ -149,13 +149,40 @@ static void shm_close (struct vm_area_st
  	shp->shm_lprid = current->pid;
  	shp->shm_dtim = CURRENT_TIME;
@@ -2584,9 +2445,9 @@ diff -urpPX nopatch linux-2.4.30/ipc/shm.c linux/ipc/shm.c
  
  static int shm_mmap(struct file * file, struct vm_area_struct * vma)
  {
-diff -urpPX nopatch linux-2.4.30/ipc/util.c linux/ipc/util.c
---- linux-2.4.30/ipc/util.c	Mon Aug 25 15:44:44 2003
-+++ linux/ipc/util.c	Thu Apr  7 23:23:01 2005
+diff -urpPX nopatch linux-2.4.31/ipc/util.c linux/ipc/util.c
+--- linux-2.4.31/ipc/util.c	Mon Aug 25 11:44:44 2003
++++ linux/ipc/util.c	Fri Jun  3 00:30:39 2005
 @@ -346,8 +346,15 @@ int ipc_parse_version (int *cmd)
  
  void sem_exit (void)
@@ -2604,9 +2465,9 @@ diff -urpPX nopatch linux-2.4.30/ipc/util.c linux/ipc/util.c
  
  asmlinkage long sys_semget (key_t key, int nsems, int semflg)
  {
-diff -urpPX nopatch linux-2.4.30/kernel/exit.c linux/kernel/exit.c
---- linux-2.4.30/kernel/exit.c	Fri Nov 29 02:53:15 2002
-+++ linux/kernel/exit.c	Thu Apr  7 23:23:01 2005
+diff -urpPX nopatch linux-2.4.31/kernel/exit.c linux/kernel/exit.c
+--- linux-2.4.31/kernel/exit.c	Thu Nov 28 23:53:15 2002
++++ linux/kernel/exit.c	Fri Jun  3 00:30:39 2005
 @@ -22,6 +22,9 @@
  #include <asm/mmu_context.h>
  
@@ -2627,9 +2488,9 @@ diff -urpPX nopatch linux-2.4.30/kernel/exit.c linux/kernel/exit.c
  	__exit_files(tsk);
  	__exit_fs(tsk);
  	exit_namespace(tsk);
-diff -urpPX nopatch linux-2.4.30/kernel/printk.c linux/kernel/printk.c
---- linux-2.4.30/kernel/printk.c	Wed Nov 17 14:54:22 2004
-+++ linux/kernel/printk.c	Thu Apr  7 23:23:01 2005
+diff -urpPX nopatch linux-2.4.31/kernel/printk.c linux/kernel/printk.c
+--- linux-2.4.31/kernel/printk.c	Wed Nov 17 11:54:22 2004
++++ linux/kernel/printk.c	Fri Jun  3 00:30:39 2005
 @@ -299,8 +299,13 @@ out:
  
  asmlinkage long sys_syslog(int type, char * buf, int len)
@@ -2644,179 +2505,9 @@ diff -urpPX nopatch linux-2.4.30/kernel/printk.c linux/kernel/printk.c
  	return do_syslog(type, buf, len);
  }
  
-diff -urpPX nopatch linux-2.4.30/lib/rwsem-spinlock.c linux/lib/rwsem-spinlock.c
---- linux-2.4.30/lib/rwsem-spinlock.c	Wed Jan 19 17:10:13 2005
-+++ linux/lib/rwsem-spinlock.c	Thu May 12 01:44:06 2005
-@@ -127,12 +127,12 @@ void fastcall __down_read(struct rw_sema
- 
- 	rwsemtrace(sem,"Entering __down_read");
- 
--	spin_lock(&sem->wait_lock);
-+	spin_lock_irq(&sem->wait_lock);
- 
- 	if (sem->activity>=0 && list_empty(&sem->wait_list)) {
- 		/* granted */
- 		sem->activity++;
--		spin_unlock(&sem->wait_lock);
-+		spin_unlock_irq(&sem->wait_lock);
- 		goto out;
- 	}
- 
-@@ -147,7 +147,7 @@ void fastcall __down_read(struct rw_sema
- 	list_add_tail(&waiter.list,&sem->wait_list);
- 
- 	/* we don't need to touch the semaphore struct anymore */
--	spin_unlock(&sem->wait_lock);
-+	spin_unlock_irq(&sem->wait_lock);
- 
- 	/* wait to be given the lock */
- 	for (;;) {
-@@ -169,9 +169,10 @@ void fastcall __down_read(struct rw_sema
- int fastcall __down_read_trylock(struct rw_semaphore *sem)
- {
- 	int ret = 0;
-+	unsigned long flags;
- 	rwsemtrace(sem,"Entering __down_read_trylock");
- 
--	spin_lock(&sem->wait_lock);
-+	spin_lock_irqsave(&sem->wait_lock, flags);
- 
- 	if (sem->activity>=0 && list_empty(&sem->wait_list)) {
- 		/* granted */
-@@ -179,7 +180,7 @@ int fastcall __down_read_trylock(struct 
- 		ret = 1;
- 	}
- 
--	spin_unlock(&sem->wait_lock);
-+	spin_unlock_irqrestore(&sem->wait_lock, flags);
- 
- 	rwsemtrace(sem,"Leaving __down_read_trylock");
- 	return ret;
-@@ -196,12 +197,12 @@ void fastcall __down_write(struct rw_sem
- 
- 	rwsemtrace(sem,"Entering __down_write");
- 
--	spin_lock(&sem->wait_lock);
-+	spin_lock_irq(&sem->wait_lock);
- 
- 	if (sem->activity==0 && list_empty(&sem->wait_list)) {
- 		/* granted */
- 		sem->activity = -1;
--		spin_unlock(&sem->wait_lock);
-+		spin_unlock_irq(&sem->wait_lock);
- 		goto out;
- 	}
- 
-@@ -216,7 +217,7 @@ void fastcall __down_write(struct rw_sem
- 	list_add_tail(&waiter.list,&sem->wait_list);
- 
- 	/* we don't need to touch the semaphore struct anymore */
--	spin_unlock(&sem->wait_lock);
-+	spin_unlock_irq(&sem->wait_lock);
- 
- 	/* wait to be given the lock */
- 	for (;;) {
-@@ -238,9 +239,10 @@ void fastcall __down_write(struct rw_sem
- int fastcall __down_write_trylock(struct rw_semaphore *sem)
- {
- 	int ret = 0;
-+	unsigned long flags;
- 	rwsemtrace(sem,"Entering __down_write_trylock");
- 
--	spin_lock(&sem->wait_lock);
-+	spin_lock_irqsave(&sem->wait_lock, flags);
- 
- 	if (sem->activity==0 && list_empty(&sem->wait_list)) {
- 		/* granted */
-@@ -248,7 +250,7 @@ int fastcall __down_write_trylock(struct
- 		ret = 1;
- 	}
- 
--	spin_unlock(&sem->wait_lock);
-+	spin_unlock_irqrestore(&sem->wait_lock, flags);
- 
- 	rwsemtrace(sem,"Leaving __down_write_trylock");
- 	return ret;
-@@ -259,14 +261,15 @@ int fastcall __down_write_trylock(struct
-  */
- void fastcall __up_read(struct rw_semaphore *sem)
- {
-+	unsigned long flags;
- 	rwsemtrace(sem,"Entering __up_read");
- 
--	spin_lock(&sem->wait_lock);
-+	spin_lock_irqsave(&sem->wait_lock, flags);
- 
- 	if (--sem->activity==0 && !list_empty(&sem->wait_list))
- 		sem = __rwsem_wake_one_writer(sem);
- 
--	spin_unlock(&sem->wait_lock);
-+	spin_unlock_irqrestore(&sem->wait_lock, flags);
- 
- 	rwsemtrace(sem,"Leaving __up_read");
- }
-@@ -276,15 +279,16 @@ void fastcall __up_read(struct rw_semaph
-  */
- void fastcall __up_write(struct rw_semaphore *sem)
- {
-+	unsigned long flags;
- 	rwsemtrace(sem,"Entering __up_write");
- 
--	spin_lock(&sem->wait_lock);
-+	spin_lock_irqsave(&sem->wait_lock, flags);
- 
- 	sem->activity = 0;
- 	if (!list_empty(&sem->wait_list))
- 		sem = __rwsem_do_wake(sem);
- 
--	spin_unlock(&sem->wait_lock);
-+	spin_unlock_irqrestore(&sem->wait_lock, flags);
- 
- 	rwsemtrace(sem,"Leaving __up_write");
- }
-diff -urpPX nopatch linux-2.4.30/lib/rwsem.c linux/lib/rwsem.c
---- linux-2.4.30/lib/rwsem.c	Wed Nov 17 14:54:22 2004
-+++ linux/lib/rwsem.c	Fri Apr 22 14:18:46 2005
-@@ -127,7 +127,7 @@ static inline struct rw_semaphore *rwsem
- 	set_task_state(tsk,TASK_UNINTERRUPTIBLE);
- 
- 	/* set up my own style of waitqueue */
--	spin_lock(&sem->wait_lock);
-+	spin_lock_irq(&sem->wait_lock);
- 	waiter->task = tsk;
- 	get_task_struct(tsk);
- 
-@@ -142,7 +142,7 @@ static inline struct rw_semaphore *rwsem
- 	if (!(count & RWSEM_ACTIVE_MASK))
- 		sem = __rwsem_do_wake(sem);
- 
--	spin_unlock(&sem->wait_lock);
-+	spin_unlock_irq(&sem->wait_lock);
- 
- 	/* wait to be given the lock */
- 	for (;;) {
-@@ -195,15 +195,16 @@ struct rw_semaphore fastcall *rwsem_down
-  */
- struct rw_semaphore fastcall *rwsem_wake(struct rw_semaphore *sem)
- {
-+	unsigned long flags;
- 	rwsemtrace(sem,"Entering rwsem_wake");
- 
--	spin_lock(&sem->wait_lock);
-+	spin_lock_irqsave(&sem->wait_lock, flags);
- 
- 	/* do nothing if list empty */
- 	if (!list_empty(&sem->wait_list))
- 		sem = __rwsem_do_wake(sem);
- 
--	spin_unlock(&sem->wait_lock);
-+	spin_unlock_irqrestore(&sem->wait_lock, flags);
- 
- 	rwsemtrace(sem,"Leaving rwsem_wake");
- 
-diff -urpPX nopatch linux-2.4.30/mm/filemap.c linux/mm/filemap.c
---- linux-2.4.30/mm/filemap.c	Mon Apr  4 05:42:20 2005
-+++ linux/mm/filemap.c	Thu May 12 01:43:46 2005
+diff -urpPX nopatch linux-2.4.31/mm/filemap.c linux/mm/filemap.c
+--- linux-2.4.31/mm/filemap.c	Fri Jun  3 00:26:42 2005
++++ linux/mm/filemap.c	Fri Jun  3 00:30:39 2005
 @@ -1824,6 +1824,7 @@ static int file_send_actor(read_descript
  	if (size > count)
  		size = count;
@@ -2865,18 +2556,9 @@ diff -urpPX nopatch linux-2.4.30/mm/filemap.c linux/mm/filemap.c
  
  		retval = desc.written;
  		if (!retval)
-@@ -2604,6 +2618,8 @@ static long madvise_willneed(struct vm_a
- 	if (end > vma->vm_end)
- 		end = vma->vm_end;
- 	end = ((end - vma->vm_start) >> PAGE_SHIFT) + vma->vm_pgoff;
-+
-+	error = -EIO;
- 
- 	/* round to cluster boundaries if this isn't a "random" area. */
- 	if (!VM_RandomReadHint(vma)) {
-diff -urpPX nopatch linux-2.4.30/mm/mmap.c linux/mm/mmap.c
---- linux-2.4.30/mm/mmap.c	Wed Jan 19 17:10:13 2005
-+++ linux/mm/mmap.c	Thu Apr  7 23:23:01 2005
+diff -urpPX nopatch linux-2.4.31/mm/mmap.c linux/mm/mmap.c
+--- linux-2.4.31/mm/mmap.c	Wed Jan 19 14:10:13 2005
++++ linux/mm/mmap.c	Fri Jun  3 00:30:39 2005
 @@ -3,6 +3,7 @@
   *
   * Written by obz.
@@ -2897,24 +2579,9 @@ diff -urpPX nopatch linux-2.4.30/mm/mmap.c linux/mm/mmap.c
  
  	for (vma = find_vma(current->mm, addr); ; vma = vma->vm_next) {
  		/* At this point:  (!vma || addr < vma->vm_end). */
-diff -urpPX nopatch linux-2.4.30/net/netlink/af_netlink.c linux/net/netlink/af_netlink.c
---- linux-2.4.30/net/netlink/af_netlink.c	Mon Apr  4 05:42:20 2005
-+++ linux/net/netlink/af_netlink.c	Fri Apr 22 14:20:05 2005
-@@ -980,9 +980,11 @@ static int netlink_dump(struct sock *sk)
- 	len = cb->dump(skb, cb);
- 
- 	if (len > 0) {
-+		sock_hold(sk);
- 		spin_unlock(&sk->protinfo.af_netlink->cb_lock);
- 		skb_queue_tail(&sk->receive_queue, skb);
- 		sk->data_ready(sk, len);
-+		sock_put(sk);
- 		return 0;
- 	}
- 
-diff -urpPX nopatch linux-2.4.30/net/socket.c linux/net/socket.c
---- linux-2.4.30/net/socket.c	Wed Jan 19 17:10:14 2005
-+++ linux/net/socket.c	Thu Apr  7 23:23:01 2005
+diff -urpPX nopatch linux-2.4.31/net/socket.c linux/net/socket.c
+--- linux-2.4.31/net/socket.c	Wed Jan 19 14:10:14 2005
++++ linux/net/socket.c	Fri Jun  3 00:30:39 2005
 @@ -1307,10 +1307,18 @@ asmlinkage long sys_setsockopt(int fd, i
  asmlinkage long sys_getsockopt(int fd, int level, int optname, char *optval, int *optlen)
  {
@@ -2934,9 +2601,9 @@ diff -urpPX nopatch linux-2.4.30/net/socket.c linux/net/socket.c
  		if (level == SOL_SOCKET)
  			err=sock_getsockopt(sock,level,optname,optval,optlen);
  		else
-diff -urpPX nopatch linux-2.4.30/security/Common.in linux/security/Common.in
---- linux-2.4.30/security/Common.in	Thu Jan  1 03:00:00 1970
-+++ linux/security/Common.in	Thu Apr  7 23:23:01 2005
+diff -urpPX nopatch linux-2.4.31/security/Common.in linux/security/Common.in
+--- linux-2.4.31/security/Common.in	Thu Jan  1 00:00:00 1970
++++ linux/security/Common.in	Fri Jun  3 00:30:39 2005
 @@ -0,0 +1,11 @@
 +#
 +# Security options common to all architectures
@@ -2949,9 +2616,9 @@ diff -urpPX nopatch linux-2.4.30/security/Common.in linux/security/Common.in
 +if [ "$CONFIG_SYSVIPC" = "y" ]; then
 +   bool 'Destroy shared memory segments not in use' CONFIG_HARDEN_SHM
 +fi
-diff -urpPX nopatch linux-2.4.30/security/Config.in linux/security/Config.in
---- linux-2.4.30/security/Config.in	Thu Jan  1 03:00:00 1970
-+++ linux/security/Config.in	Thu Apr  7 23:23:01 2005
+diff -urpPX nopatch linux-2.4.31/security/Config.in linux/security/Config.in
+--- linux-2.4.31/security/Config.in	Thu Jan  1 00:00:00 1970
++++ linux/security/Config.in	Fri Jun  3 00:30:39 2005
 @@ -0,0 +1,9 @@
 +#
 +# Security options
@@ -2962,8 +2629,8 @@ diff -urpPX nopatch linux-2.4.30/security/Config.in linux/security/Config.in
 +source security/Common.in
 +
 +endmenu
---- linux-2.4.30/fs/binfmt_elf.c.sl80.orig	2005-05-14 13:13:11.000000000 -0600
-+++ linux-2.4.30/fs/binfmt_elf.c	2005-05-14 13:15:46.000000000 -0600
+--- linux-2.4.31/fs/binfmt_elf.c.sl80.orig	2005-06-10 15:23:17.000000000 -0400
++++ linux-2.4.31/fs/binfmt_elf.c	2005-06-10 15:27:17.000000000 -0400
 @@ -9,6 +9,7 @@
   * Copyright 1993, 1994: Eric Youngdale (ericy@cais.com).
   */
@@ -2982,41 +2649,34 @@ diff -urpPX nopatch linux-2.4.30/security/Config.in linux/security/Config.in
  static unsigned long elf_map (struct file *, unsigned long, struct elf_phdr *, int, int);
  extern int dump_fpu (struct pt_regs *, elf_fpregset_t *);
  extern void dump_thread(struct pt_regs *, struct user *);
-@@ -77,11 +80,21 @@
+@@ -77,12 +80,21 @@
  #define ELF_NAME "elf"
  #endif
  
 -static struct linux_binfmt elf_format = {
 -	NULL, THIS_MODULE, load_elf_binary, load_elf_library, elf_core_dump, ELF_EXEC_PAGESIZE, ELF_NAME
 +#ifndef CONFIG_HARDEN_STACK
-+ static
-+ #endif
-+ struct linux_binfmt elf_format = {
-+       NULL, THIS_MODULE, load_elf_binary,
-+ #ifdef CONFIG_BINFMT_ELF_AOUT
-+       load_elf_library,
-+ #else
-+       NULL,
-+ #endif
-+       elf_core_dump, ELF_EXEC_PAGESIZE
-+
++static
++#endif
++struct linux_binfmt elf_format = {
++      NULL, THIS_MODULE, load_elf_binary,
++#ifdef CONFIG_BINFMT_ELF_AOUT
++      load_elf_library,
++#else
++      NULL,
++#endif
++      elf_core_dump, ELF_EXEC_PAGESIZE
  };
- 
+-
 -#define BAD_ADDR(x)	((unsigned long)(x) > TASK_SIZE)
+-
++  
 +#define BAD_ADDR(x)   ((unsigned long)(x) >= TASK_SIZE)
- 
++  
  static int set_brk(unsigned long start, unsigned long end)
  {
-@@ -226,7 +239,7 @@
- 	}
- 
- 	__put_user((elf_addr_t)argc,--sp);
--	current->mm->arg_start = (unsigned long) p;
-+	current->mm->arg_end = current->mm->arg_start = (unsigned long) p;
- 	while (argc-->0) {
- 		__put_user((elf_caddr_t)(unsigned long)p,argv++);
- 		len = strnlen_user(p, PAGE_SIZE*MAX_ARG_PAGES);
-@@ -236,6 +249,7 @@
+ 	start = ELF_PAGEALIGN(start);
+@@ -236,6 +248,7 @@
  	}
  	__put_user(NULL, argv);
  	current->mm->arg_end = current->mm->env_start = (unsigned long) p;
@@ -3024,7 +2684,7 @@ diff -urpPX nopatch linux-2.4.30/security/Config.in linux/security/Config.in
  	while (envc-->0) {
  		__put_user((elf_caddr_t)(unsigned long)p,envp++);
  		len = strnlen_user(p, PAGE_SIZE*MAX_ARG_PAGES);
-@@ -408,6 +422,7 @@
+@@ -408,6 +421,7 @@
  	return error;
  }
  
@@ -3032,7 +2692,7 @@ diff -urpPX nopatch linux-2.4.30/security/Config.in linux/security/Config.in
  static unsigned long load_aout_interp(struct exec * interp_ex,
  			     struct file * interpreter)
  {
-@@ -455,6 +470,7 @@
+@@ -455,6 +469,7 @@
  out:
  	return elf_entry;
  }
@@ -3040,7 +2700,7 @@ diff -urpPX nopatch linux-2.4.30/security/Config.in linux/security/Config.in
  
  /*
   * These are the functions used to load ELF style executables and shared
-@@ -462,7 +478,9 @@
+@@ -462,7 +477,9 @@
   */
  
  #define INTERPRETER_NONE 0
@@ -3050,7 +2710,7 @@ diff -urpPX nopatch linux-2.4.30/security/Config.in linux/security/Config.in
  #define INTERPRETER_ELF 2
  
  
-@@ -486,7 +504,9 @@
+@@ -486,7 +503,9 @@
  	struct elfhdr elf_ex;
  	struct elfhdr interp_elf_ex;
    	struct exec interp_ex;
@@ -3060,7 +2720,7 @@ diff -urpPX nopatch linux-2.4.30/security/Config.in linux/security/Config.in
  	struct files_struct *files;
  	
  	/* Get the exec-header */
-@@ -616,6 +636,7 @@
+@@ -616,6 +635,7 @@
  
  	/* Some simple consistency checks for the interpreter */
  	if (elf_interpreter) {
@@ -3068,7 +2728,7 @@ diff -urpPX nopatch linux-2.4.30/security/Config.in linux/security/Config.in
  		interpreter_type = INTERPRETER_ELF | INTERPRETER_AOUT;
  
  		/* Now figure out which format our binary is */
-@@ -623,6 +644,9 @@
+@@ -623,6 +643,9 @@
  		    (N_MAGIC(interp_ex) != ZMAGIC) &&
  		    (N_MAGIC(interp_ex) != QMAGIC))
  			interpreter_type = INTERPRETER_ELF;
@@ -3078,7 +2738,7 @@ diff -urpPX nopatch linux-2.4.30/security/Config.in linux/security/Config.in
  
  		if (memcmp(interp_elf_ex.e_ident, ELFMAG, SELFMAG) != 0)
  			interpreter_type &= ~INTERPRETER_ELF;
-@@ -631,6 +655,7 @@
+@@ -631,6 +654,7 @@
  		if (!interpreter_type)
  			goto out_free_dentry;
  
@@ -3086,7 +2746,7 @@ diff -urpPX nopatch linux-2.4.30/security/Config.in linux/security/Config.in
  		/* Make sure only one type was selected */
  		if ((interpreter_type & INTERPRETER_ELF) &&
  		     interpreter_type != INTERPRETER_ELF) {
-@@ -638,6 +663,7 @@
+@@ -638,6 +662,7 @@
  			// printk(KERN_WARNING "ELF: Ambiguous type, using ELF\n");
  			interpreter_type = INTERPRETER_ELF;
  		}
@@ -3094,7 +2754,7 @@ diff -urpPX nopatch linux-2.4.30/security/Config.in linux/security/Config.in
  		/* Verify the interpreter has a valid arch */
  		if ((interpreter_type == INTERPRETER_ELF) &&
  		    !elf_check_arch(&interp_elf_ex))
-@@ -650,6 +676,7 @@
+@@ -650,6 +675,7 @@
  	/* OK, we are done with that, now set up the arg stuff,
  	   and then start this sucker up */
  
@@ -3102,7 +2762,7 @@ diff -urpPX nopatch linux-2.4.30/security/Config.in linux/security/Config.in
  	if (!bprm->sh_bang) {
  		char * passed_p;
  
-@@ -665,6 +692,7 @@
+@@ -665,6 +691,7 @@
  		  }
  		}
  	}
@@ -3110,7 +2770,7 @@ diff -urpPX nopatch linux-2.4.30/security/Config.in linux/security/Config.in
  
  	/* Flush all traces of the currently running executable */
  	retval = flush_old_exec(bprm);
-@@ -684,6 +712,9 @@
+@@ -684,6 +711,9 @@
  	current->mm->end_code = 0;
  	current->mm->mmap = NULL;
  	current->flags &= ~PF_FORKNOEXEC;
@@ -3120,7 +2780,7 @@ diff -urpPX nopatch linux-2.4.30/security/Config.in linux/security/Config.in
  	elf_entry = (unsigned long) elf_ex.e_entry;
  
  	/* Do this so that we can load the interpreter, if need be.  We will
-@@ -813,10 +844,12 @@
+@@ -813,10 +843,12 @@
  	padzero(elf_bss);
  
  	if (elf_interpreter) {
@@ -3133,7 +2793,7 @@ diff -urpPX nopatch linux-2.4.30/security/Config.in linux/security/Config.in
  			elf_entry = load_elf_interp(&interp_elf_ex,
  						    interpreter,
  						    &interp_load_addr);
-@@ -836,7 +869,9 @@
+@@ -836,7 +868,9 @@
  
  	kfree(elf_phdata);
  
@@ -3143,7 +2803,7 @@ diff -urpPX nopatch linux-2.4.30/security/Config.in linux/security/Config.in
  		sys_close(elf_exec_fileno);
  
  	set_binfmt(&elf_format);
-@@ -850,10 +885,14 @@
+@@ -850,10 +884,14 @@
  			&elf_ex,
  			load_addr, load_bias,
  			interp_load_addr,
@@ -3158,7 +2818,7 @@ diff -urpPX nopatch linux-2.4.30/security/Config.in linux/security/Config.in
  	current->mm->start_brk = current->mm->brk = elf_brk;
  	current->mm->end_code = end_code;
  	current->mm->start_code = start_code;
-@@ -924,9 +963,9 @@
+@@ -924,9 +962,9 @@
  	goto out;
  }
  
@@ -3169,7 +2829,7 @@ diff -urpPX nopatch linux-2.4.30/security/Config.in linux/security/Config.in
  static int load_elf_library(struct file *file)
  {
  	struct elf_phdr *elf_phdata;
-@@ -944,8 +983,9 @@
+@@ -944,8 +982,9 @@
  		goto out;
  
  	/* First of all, some simple consistency checks */
@@ -3181,7 +2841,7 @@ diff -urpPX nopatch linux-2.4.30/security/Config.in linux/security/Config.in
  		goto out;
  
  	/* Now read in all of the header information */
-@@ -1003,6 +1043,7 @@
+@@ -1003,6 +1042,7 @@
  out:
  	return error;
  }
@@ -3189,12 +2849,9 @@ diff -urpPX nopatch linux-2.4.30/security/Config.in linux/security/Config.in
  
  /*
   * Note that some platforms still use traditional core dumps and not
-@@ -1163,11 +1204,14 @@
- 	/* first copy the parameters from user space */
- 	memset(&psinfo, 0, sizeof(psinfo));
+@@ -1165,9 +1205,12 @@
  	{
--		int i, len;
-+		unsigned int i, len;
+ 		unsigned int i, len;
  
 -		len = current->mm->arg_end - current->mm->arg_start;
 -		if (len >= ELF_PRARGSZ)

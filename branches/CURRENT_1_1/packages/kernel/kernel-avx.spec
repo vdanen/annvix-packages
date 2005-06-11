@@ -83,8 +83,8 @@
 #
 # Thomas Backlund <tmb@iki.fi>
 
-%define sublevel	30
-%define avxrelease	2
+%define sublevel	31
+%define avxrelease	1
 %define use_patch	0
 
 %{!?build_annvix:%global build_annvix 0}
@@ -115,7 +115,7 @@
 %define avxversion	%{realversion}-%{realrelease}
 %define patches_ver	2.4.%{sublevel}-%{patchversion}
 %define owl_version	ow1
-%define owl_kver	2.4.30
+%define owl_kver	2.4.31
 
 # having different top level names for packges means
 # that you have to remove them by hard :(
@@ -907,6 +907,15 @@ exit 0
 %endif
 
 %changelog
+* Sat Jun 11 2005 Vincent Danen <vdanen@annvix.org> 2.4.31-1avx
+- 2.4.31 (includes CAN-2005-1263 fix upstream)
+- rediff DC12, DL01
+- update DN13 with latest netfilter time patch (required to build
+  the latest iptables)
+- Openwall kernel patch 2.4.31-ow1 (SL80, rediffed)
+- SL82: don't build with -fstack-protector-all
+- x86_64: CONFIG_SWIOTLB=y
+
 * Sat May 14 2005 Vincent Danen <vdanen@annvix.org> 2.4.30-2avx
 - Openwall kernel patch 2.4.30-ow3 (SL80, rediffed)
 - this update fixes CAN-2005-0794, CAN-2005-0750, CAN-2005-0384
