@@ -1,33 +1,44 @@
-%define name	syslinux
-%define version 1.76
-%define release 14avx
+#
+# spec file for package syslinux
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		syslinux
+%define version 	1.76
+%define release 	15avx
 
 %define old_version	1.67
-%define pxelinux_version 2.06
+%define pxelinux_ver	2.13
 
-Summary:	A bootloader for linux using floppies, CD or PXE.
+Summary:	A bootloader for linux using floppies, CD or PXE
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	GPL
 Group:		System/Kernel and hardware
 URL:		http://ftp.kernel.org/pub/linux/utils/boot/syslinux/
+
 Source0:	%{name}-%{version}.tar.bz2
 Source1:	%{name}-%{old_version}.tar.bz2
-Source2:	%{name}-%{pxelinux_version}.tar.bz2
+Source2:	%{name}-%{pxelinux_ver}.tar.bz2
 Patch0:         syslinux-1.67-use-vfat-instead-of-msdos.patch.bz2
 Patch1:		syslinux-1.75-graphic.patch.bz2
 Patch2:		syslinux-1.76-gcc-3.3.patch.bz2
 Patch3:		syslinux-1.67-gcc-3.3.patch.bz2
-Patch4:		syslinux-2.04-gcc-3.3.patch.bz2
+Patch5:		syslinux-1.76-mdk-kernel-length.patch.bz2
+Patch6:		syslinux-1.76-avx-nostack.patch
+Patch7:		syslinux-2.13-avx-nostack.patch
 
-BuildRoot:	%{_tmppath}/%{name}-buildroot/
+BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
 BuildRequires:	nasm >= 0.97, netpbm
 
 ExclusiveArch:	%{ix86}
 Obsoletes:	isolinux < %{version}
 Provides:	isolinux = %{version}
-
 
 %description
 SYSLINUX is a boot loader for the Linux operating system which
@@ -37,15 +48,28 @@ and other special-purpose boot disks.
 
 This version include a patched SYSLINUX for handling VESA graphic mode.
 
+
+%package devel
+Summary:	Development environment for SYSLINUX add-on modules
+Group:		Development/Other
+
+%description devel
+The SYSLINUX boot loader contains an API, called COM32, for writing
+sophisticated add-on modules.  This package contains the libraries
+necessary to compile such modules.
+
+
 %prep
 %setup -q -n %{name}-%{version}
-%setup -q -b 2 -n %{name}-%{pxelinux_version}
-%patch4 -p1 -b .gcc3.3
+%setup -q -b 2 -n %{name}-%{pxelinux_ver}
+%patch7 -p1 -b .nostack
 %setup -q -a 1 -n %{name}-%{version}
 %patch0 -p0
 %patch1 -p1
 %patch2 -p1 -b .gcc3.3
 %patch3 -p1 -b .gcc3.3
+%patch5 -p1 -b .klen
+%patch6 -p1 -b .nostack
 
 
 %build
@@ -56,54 +80,82 @@ cd %{name}-%{old_version}
 make clean
 make DATE="Annvix"
 
-cd ../../%{name}-%{pxelinux_version}
+cd ../../%{name}-%{pxelinux_ver}
 make clean
 make pxelinux.0 DATE="Annvix"
 make memdisk DATE="Annvix"
 make gethostip DATE="Annvix"
+make
 
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p $RPM_BUILD_ROOT%{_bindir}
+mkdir -p %{buildroot}%{_bindir}
 
-install -p syslinux-graphic $RPM_BUILD_ROOT%{_bindir}
-install -p syslinux $RPM_BUILD_ROOT%{_bindir}/syslinux-original
-install -p %{name}-%{old_version}/syslinux $RPM_BUILD_ROOT%{_bindir}/syslinux-old
-ln -s syslinux-graphic $RPM_BUILD_ROOT%{_bindir}/syslinux
-install -m 0755 ppmtolss16 $RPM_BUILD_ROOT%{_bindir}/ppmtolss16
-install -d $RPM_BUILD_ROOT%{_libdir}
-install -d $RPM_BUILD_ROOT%{_libdir}/syslinux
+install -p syslinux-graphic %{buildroot}%{_bindir}
+install -p syslinux %{buildroot}%{_bindir}/syslinux-original
+install -p %{name}-%{old_version}/syslinux %{buildroot}%{_bindir}/syslinux-old
+ln -s syslinux-graphic %{buildroot}%{_bindir}/syslinux
+install -m 0755 ppmtolss16 %{buildroot}%{_bindir}/ppmtolss16
+install -d %{buildroot}%{_libdir}
+install -d %{buildroot}%{_libdir}/syslinux
 
 #ISOLINUX PART
-install -m 0644 isolinux-graphic.bin $RPM_BUILD_ROOT%{_libdir}/syslinux
-install -m 0644 isolinux.bin $RPM_BUILD_ROOT%{_libdir}/syslinux/isolinux-original.bin
-install -m 0644 %{name}-%{old_version}/isolinux.bin $RPM_BUILD_ROOT%{_libdir}/syslinux/isolinux-old.bin
-ln -s isolinux-graphic.bin $RPM_BUILD_ROOT%{_libdir}/syslinux/isolinux.bin
-install -m 0644 isolinux-debug-graphic.bin $RPM_BUILD_ROOT%{_libdir}/syslinux
-install -m 0644 isolinux-debug.bin $RPM_BUILD_ROOT%{_libdir}/syslinux/isolinux-debug-original.bin
-install -m 0644 %{name}-%{old_version}/isolinux-debug.bin $RPM_BUILD_ROOT%{_libdir}/syslinux/isolinux-debug-old.bin
-ln -s isolinux-debug-graphic.bin $RPM_BUILD_ROOT%{_libdir}/syslinux/isolinux-debug.bin
+install -m 0644 isolinux-graphic.bin %{buildroot}%{_libdir}/syslinux
+install -m 0644 isolinux.bin %{buildroot}%{_libdir}/syslinux/isolinux-original.bin
+install -m 0644 %{name}-%{old_version}/isolinux.bin %{buildroot}%{_libdir}/syslinux/isolinux-old.bin
+ln -s isolinux-graphic.bin %{buildroot}%{_libdir}/syslinux/isolinux.bin
+install -m 0644 isolinux-debug-graphic.bin %{buildroot}%{_libdir}/syslinux
+install -m 0644 isolinux-debug.bin %{buildroot}%{_libdir}/syslinux/isolinux-debug-original.bin
+install -m 0644 %{name}-%{old_version}/isolinux-debug.bin %{buildroot}%{_libdir}/syslinux/isolinux-debug-old.bin
+ln -s isolinux-debug-graphic.bin %{buildroot}%{_libdir}/syslinux/isolinux-debug.bin
 
 #PXE PART
-install -m 0644 pxelinux-graphic.0 $RPM_BUILD_ROOT%{_libdir}/syslinux
-install -m 0644 pxelinux.0 $RPM_BUILD_ROOT%{_libdir}/syslinux/pxelinux-old.0
-install -m 0644 ../%{name}-%{pxelinux_version}/pxelinux.0 $RPM_BUILD_ROOT%{_libdir}/syslinux/pxelinux.0
-#ln -s pxelinux-graphic.0 $RPM_BUILD_ROOT%{_libdir}/syslinux/pxelinux.0
-install -m 0755 ../%{name}-%{pxelinux_version}/gethostip $RPM_BUILD_ROOT%{_bindir}/gethostip
-install -m 0644 ../%{name}-%{pxelinux_version}/memdisk/memdisk $RPM_BUILD_ROOT%{_libdir}/syslinux/memdisk
+install -m 0644 pxelinux-graphic.0 %{buildroot}%{_libdir}/syslinux
+install -m 0644 pxelinux.0 %{buildroot}%{_libdir}/syslinux/pxelinux-old.0
+install -m 0644 ../%{name}-%{pxelinux_ver}/pxelinux.0 %{buildroot}%{_libdir}/syslinux/pxelinux.0
+install -m 0755 ../%{name}-%{pxelinux_ver}/gethostip %{buildroot}%{_bindir}/gethostip
+install -m 0644 ../%{name}-%{pxelinux_ver}/memdisk/memdisk %{buildroot}%{_libdir}/syslinux/memdisk
+install -m 0755 ../%{name}-%{pxelinux_ver}/mkdiskimage %{buildroot}%{_bindir}
+
+pushd ../%{name}-%{pxelinux_ver}/
+    cp mkdiskimage sys2ansi.pl keytab-lilo.pl %{buildroot}%{_libdir}/syslinux
+    cd com32
+    make install BINDIR=%{buildroot}%{_bindir} LIBDIR=%{buildroot}%{_libdir} INCLUDEDIR=%{buildroot}%{_includedir}
+popd
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
 %doc COPYING NEWS README README.graphic TODO
 %doc syslinux.doc isolinux.doc pxelinux.doc
 %{_bindir}/*
-%{_libdir}/*
+%{_libdir}/syslinux/*.c32
+%{_libdir}/syslinux/*.bin
+%{_libdir}/syslinux/*.0
+%{_libdir}/syslinux/memdisk
+%{_libdir}/syslinux/*.pl
+%{_libdir}/syslinux/mkdiskimage
+
+%files devel
+%defattr(-,root,root)
+%{_libdir}/syslinux/com32
+
 
 %changelog
+* Fri Jun 10 2005 Vincent Danen <vdanen@annvix.org> 1.76-15avx
+- rebuild
+- P6, P7: build without stack protection
+- add mkdiskimage
+- pxelinux 2.13
+- P5: for syslinux-1.76 (backport from 2.06-pre1): fix problem that
+  would occassionally cause a boot failure, depending on the length
+  of the kernel (blino)
+
 * Sun Aug 01 2004 Vincent Danen <vdanen@annvix.org> 1.76-14avx
 - s/OpenSLS/Annvix/
 
@@ -148,7 +200,7 @@ install -m 0644 ../%{name}-%{pxelinux_version}/memdisk/memdisk $RPM_BUILD_ROOT%{
 
 * Thu Jan 16 2003 Erwan Velu <erwan@mandrakesoft.com> 1.76-4mdk
 - Including new version of pxelinux, memdisk and gethostip (2.00)
-- Adding subversion %{pxelinux_version}
+- Adding subversion %%{pxelinux_version}
 
 * Fri Sep 20 2002 Guillaume Cottenceau <gc@mandrakesoft.com> 1.76-3mdk
 - fix double fponsux (combo)
