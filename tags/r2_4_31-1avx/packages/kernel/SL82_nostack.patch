@@ -1,0 +1,31 @@
+--- linux-2.4.31/Makefile.avx	2005-06-10 15:54:30.000000000 -0400
++++ linux-2.4.31/Makefile	2005-06-10 15:54:30.000000000 -0400
+@@ -17,7 +17,7 @@
+ FINDHPATH	= $(HPATH)/asm $(HPATH)/linux $(HPATH)/scsi $(HPATH)/net $(HPATH)/math-emu
+ 
+ HOSTCC  	= gcc
+-HOSTCFLAGS	= -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer
++HOSTCFLAGS	= -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-stack-protector-all
+ 
+ CROSS_COMPILE 	=
+ 
+@@ -94,7 +94,7 @@
+ CPPFLAGS := -D__KERNEL__ -I$(HPATH)
+ 
+ CFLAGS := $(CPPFLAGS) -Wall -Wstrict-prototypes -Wno-trigraphs -O2 \
+-	  -fno-strict-aliasing -fno-common
++	  -fno-strict-aliasing -fno-common -fno-stack-protector-all
+ ifndef CONFIG_FRAME_POINTER
+ CFLAGS += -fomit-frame-pointer
+ endif
+--- linux-2.4.31/arch/x86_64/Makefile.avx	2005-06-11 11:06:59.000000000 -0400
++++ linux-2.4.31/arch/x86_64/Makefile	2005-06-11 11:07:21.000000000 -0400
+@@ -25,7 +25,7 @@
+ # early bootup linking needs 32bit. You can either use real 32bit tools
+ # here or 64bit tools switch to 32bit mode.
+ # 
+-IA32_CC := $(CROSS_COMPILE)gcc -m32 -O2 -fomit-frame-pointer -nostdinc -I $(HPATH)
++IA32_CC := $(CROSS_COMPILE)gcc -m32 -O2 -fomit-frame-pointer -fno-stack-protector-all -nostdinc -I $(HPATH)
+ IA32_LD := $(CROSS_COMPILE)ld -m elf_i386
+ IA32_AS := $(CROSS_COMPILE)gcc -m32 -Wa,--32 -D__ASSEMBLY__ -traditional -c -nostdinc -I $(HPATH) 
+ IA32_OBJCOPY := $(CROSS_COMPILE)objcopy
