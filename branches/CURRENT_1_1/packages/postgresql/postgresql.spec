@@ -1,12 +1,21 @@
-%define name	postgresql
-%define version	8.0.1
-%define release	5avx
+#
+# spec file for package postgresql
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		postgresql
+%define version		8.0.1
+%define release		6avx
 
 %define _requires_exceptions devel(libtcl8.4)\\|devel(libtcl8.4(64bit))
 
-%define pyver %(python -c 'import sys;print(sys.version[0:3])')
-%define perl_version %(rpm -q --qf "%{VERSION}" perl)
-%define perl_epoch %(rpm -q --qf "%{EPOCH}" perl)
+%define pyver		%(python -c 'import sys;print(sys.version[0:3])')
+%define perl_version	%(rpm -q --qf "%{VERSION}" perl)
+%define perl_epoch	%(rpm -q --qf "%{EPOCH}" perl)
 
 %define pgdata		/var/lib/pgsql
 %define logrotatedir	%{_sysconfdir}/logrotate.d
@@ -26,6 +35,7 @@ Release:	%{release}
 License:	BSD
 Group:		Databases
 URL:		http://www.postgresql.org/ 
+
 Source0:	ftp://ftp.postgresql.org/pub/source/v%{version}/postgresql-%{version}.tar.bz2
 Source1:	http://jdbc.postgresql.org/download/pg74.214.jdbc1.jar 
 Source2:	http://jdbc.postgresql.org/download/pg74.214.jdbc2.jar 
@@ -47,11 +57,14 @@ Source23:	01_postgresql.afterboot
 Source24:	postgresql.finish
 Source51:	README.v7.3
 Source52:	upgrade_tips_7.3
+Source53:	CAN-2005-1409-1410-update-dbs.sh
 Patch0:		postgresql-7.4.1-mdk-pkglibdir.patch.bz2
 Patch1:		postgresql-7.4.5-CAN-2005-0227.patch
 Patch2:		postgresql-7.4.5-CAN-2005-0245_0247.patch
+Patch3:		postgresql-8.0.1-CAN-2005-1409.patch
+Patch4:		postgresql-8.0.1-CAN-2005-1410.patch
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root
+BuildRoot:	%{_tmppath}/%{name}-%{version}-buildrootroot
 BuildRequires:	bison flex gettext termcap-devel ncurses-devel openssl-devel pam-devel
 BuildRequires:	perl-devel python-devel readline-devel >= 4.3 zlib-devel
 
@@ -78,6 +91,7 @@ If you want to manipulate a PostgreSQL database on a remote PostgreSQL
 server, you need this package. You also need to install this package
 if you're installing the postgresql-server package.
 
+
 %package -n %{libname}
 Summary:	The shared libraries required for any PostgreSQL clients
 Group:		System/Libraries
@@ -89,6 +103,7 @@ C and C++ libraries to enable user programs to communicate with the
 PostgreSQL database backend. The backend can be on another machine and
 accessed through TCP/IP.
 
+
 %package -n %{libname}-devel
 Summary:	Development library for libpq2
 Group:		Development/C
@@ -97,6 +112,7 @@ Provides:	postgresql-libs-devel = %{version}-%{release} libpq-devel = %{version}
 
 %description -n %{libname}-devel
 Development libraries for libpq
+
 
 %package -n %{libecpg}
 Summary:	Shared library libecpg for PostgreSQL
@@ -108,6 +124,7 @@ Provides:	libecpg = %{version}-%{release}
 Libecpg is used by programs built with ecpg (Embedded PostgreSQL for C)
 Use postgresql-dev to develop such programs.
 
+
 %package -n %{libecpg}-devel
 Summary:	Development library to libecpg
 Group:		Development/C
@@ -116,6 +133,7 @@ Provides:	libecpg-devel = %{version}-%{release}
 
 %description -n %{libecpg}-devel
 Development library to libecpg.
+
 
 %package server
 Summary:	The programs needed to create and run a PostgreSQL server
@@ -136,6 +154,7 @@ postgresql-server if you want to create and maintain your own
 PostgreSQL databases and/or your own PostgreSQL server. You also need
 to install the postgresql and postgresql-devel packages.
 
+
 %package contrib
 Summary:	Contributed binaries distributed with PostgreSQL
 Group:		Databases
@@ -146,6 +165,7 @@ Requires:	perl-Pg
 %description contrib
 The postgresql-contrib package includes the contrib tree distributed with
 the PostgreSQL tarball.  Selected contrib modules are prebuilt.
+
 
 %package devel
 Summary:	PostgreSQL development header files and libraries
@@ -162,6 +182,7 @@ develop applications which will interact with a PostgreSQL server. If
 you're installing postgresql-server, you need to install this
 package.
 
+
 %package pl
 Summary:	The PL/Perl procedural language for PostgreSQL
 Group:		Databases
@@ -174,6 +195,7 @@ system.  The postgresql-pl package contains the the PL/Perl, PL/Tcl,
 and PL/Python procedural languages for the backend.  PL/Pgsql is part
 of the core server package.
 
+
 %package jdbc
 Summary:	Files needed for Java programs to access a PostgreSQL database
 Group:		Databases
@@ -183,6 +205,7 @@ Requires:	postgresql = %{version}-%{release}
 PostgreSQL is an advanced Object-Relational database management
 system. The postgresql-jdbc package includes the .jar file needed for
 Java programs to access a PostgreSQL database.
+
 
 %package test
 Summary:	The test suite distributed with PostgreSQL
@@ -196,33 +219,35 @@ system. The postgresql-test package includes the sources and pre-built
 binaries of various tests for the PostgreSQL database management
 system, including regression tests and benchmarks.
 
+
 %prep
 %setup -q
 
 %patch0 -p0 -b .pkglibdir
 %patch1 -p1 -b .can-2005-0227
 %patch2 -p1 -b .can-2005-0245_0247
+%patch3 -p1 -b .can-2005-1409
+%patch4 -p1 -b .can-2005-1410
 
 %build
 
 pushd src
-#(deush) if libtool exist, copy some files 
-if [ -d %{_datadir}/libtool ]
-then
-   cp %{_datadir}/libtool/config.* .
-fi
+    #(deush) if libtool exist, copy some files 
+    if [ -d %{_datadir}/libtool ]; then
+        cp %{_datadir}/libtool/config.* .
+    fi
 
-# doesn't build on PPC with full optimization (sb)
-%ifnarch ppc
-CFLAGS="${CFLAGS:-$RPM_OPT_FLAGS}" ; export CFLAGS
-CXXFLAGS="${CXXFLAGS:-$RPM_OPT_FLAGS}" ; export CXXFLAGS
-%endif
+    # doesn't build on PPC with full optimization (sb)
+    %ifnarch ppc
+        CFLAGS="${CFLAGS:-$RPM_OPT_FLAGS}" ; export CFLAGS
+        CXXFLAGS="${CXXFLAGS:-$RPM_OPT_FLAGS}" ; export CXXFLAGS
+    %endif
 
-#fix -ffast-math problem (deush)
-%ifnarch ppc
-%serverbuild
-CFLAGS=`echo $RPM_OPT_FLAGS|xargs -n 1|grep -v ffast-math|xargs -n 100`
-%endif
+    #fix -ffast-math problem (deush)
+    %ifnarch ppc
+        %serverbuild
+        CFLAGS=`echo $RPM_OPT_FLAGS|xargs -n 1|grep -v ffast-math|xargs -n 100`
+    %endif
 popd
 
 %configure --disable-rpath \
@@ -254,8 +279,9 @@ perl -pi -e 's|^all:|LINK.shared=\$(COMPILER) -shared -Wl,-rpath,\$(rpathdir),-s
 %make -C contrib pkglibdir=%{_libdir}/pgsql all
 
 pushd src/test
-make all
+    make all
 popd
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -263,30 +289,30 @@ popd
 make DESTDIR=%{buildroot} pkglibdir=%{_libdir}/pgsql install 
 make -C contrib DESTDIR=%{buildroot} pkglibdir=%{_libdir}/pgsql install
 
-install -m 755 %{SOURCE1} %{buildroot}%{_datadir}/pgsql
-install -m 755 %{SOURCE2} %{buildroot}%{_datadir}/pgsql
-install -m 755 %{SOURCE3} %{buildroot}%{_datadir}/pgsql
-install -m 755 %{SOURCE9} %{buildroot}%{_datadir}/pgsql
+install -m 0755 %{SOURCE1} %{buildroot}%{_datadir}/pgsql
+install -m 0755 %{SOURCE2} %{buildroot}%{_datadir}/pgsql
+install -m 0755 %{SOURCE3} %{buildroot}%{_datadir}/pgsql
+install -m 0755 %{SOURCE9} %{buildroot}%{_datadir}/pgsql
 
-install -m 755 %{SOURCE4} %{buildroot}%{_datadir}/pgsql/upgrade.pl
+install -m 0755 %{SOURCE4} %{buildroot}%{_datadir}/pgsql/upgrade.pl
 
 # install the dump script
-install -m755 %{SOURCE14} %{buildroot}%{_bindir}/avx-pgdump.sh
+install -m 0755 %{SOURCE14} %{buildroot}%{_bindir}/avx-pgdump.sh
 
 # install odbcinst.ini
 mkdir -p %{buildroot}%{_sysconfdir}/pgsql
 
 # copy over Makefile.global to the include dir....
-install -m755 src/Makefile.global %{buildroot}%{_includedir}/pgsql/
+install -m 0755 src/Makefile.global %{buildroot}%{_includedir}/pgsql/
 
 # PGDATA needs removal of group and world permissions due to pg_pwd hole.
-install -d -m 700 %{buildroot}/var/lib/pgsql/data
+install -d -m 0700 %{buildroot}/var/lib/pgsql/data
 
 # backups of data go here...
-install -d -m 700 %{buildroot}/var/lib/pgsql/backups
+install -d -m 0700 %{buildroot}/var/lib/pgsql/backups
 
 # postgres' .bash_profile
-install -m 644 %{SOURCE15} %{buildroot}/var/lib/pgsql/.bash_profile
+install -m 0644 %{SOURCE15} %{buildroot}/var/lib/pgsql/.bash_profile
 
 # tests. There are many files included here that are unnecessary, but include
 # them anyway for completeness.
@@ -295,17 +321,17 @@ cp -a src/test/regress %{buildroot}%{_libdir}/pgsql/test
 install -m 0755 contrib/spi/refint.so %{buildroot}%{_libdir}/pgsql/test/regress
 install -m 0755 contrib/spi/autoinc.so %{buildroot}%{_libdir}/pgsql/test/regress
 pushd  %{buildroot}%{_libdir}/pgsql/test/regress/
-strip *.so
+    strip *.so
 popd
 
-cp %{SOURCE51} %{SOURCE52} .
+cp %{SOURCE51} %{SOURCE52} %{SOURCE53} .
 
 bzip2 -cd %{SOURCE6} >  README.rpm-dist
 
 pushd $RPM_BUILD_DIR
-tar xvjf %{SOURCE10}
-install -D -m 0755 mdk/mdk_update_dump.sh %{buildroot}%{_datadir}/pgsql/avx/avx_update_dump
-install -m 0755 mdk/mdk_update_restore.sh %{buildroot}%{_datadir}/pgsql/avx/avx_update_restore
+    tar xvjf %{SOURCE10}
+    install -D -m 0755 mdk/mdk_update_dump.sh %{buildroot}%{_datadir}/pgsql/avx/avx_update_dump
+    install -m 0755 mdk/mdk_update_restore.sh %{buildroot}%{_datadir}/pgsql/avx/avx_update_restore
 popd
 
 mv %{buildroot}%{_docdir}/%{name}/html %{buildroot}%{_docdir}/%{name}-docs-%{version}
@@ -346,6 +372,7 @@ make check
 
 rm -rf %{buildroot}%{_docdir}/%{name}-docs-%{version}
 
+
 %pre server
 %_pre_useradd postgres /var/lib/pgsql /bin/bash 75
 
@@ -357,43 +384,55 @@ rm -rf %{buildroot}%{_docdir}/%{name}-docs-%{version}
 PGDATA="%{pgdata}/data"
 # create the database if it doesn't exist
 if [ ! -f $PGDATA/PG_VERSION ] && [ ! -d $PGDATA/base ]; then
-  if [ ! -d $PGDATA ]; then
-    mkdir -p $PGDATA
-    chown postgres:postgres $PGDATA
-    chmod 700 $PGDATA
-  fi
-  # Make sure the locale from the initdb is preserved for later startups...
-  [ -f %{_sysconfdir}/sysconfig/i18n ] && cp %{_sysconfdir}/sysconfig/i18n $PGDATA/../initdb.i18n
-  # Just in case no locale was set, use en_US
-  [ ! -f %{_sysconfdir}/sysconfig/i18n ] && echo "LANG=en_US" >$PGDATA/../initdb.i18n
-  # Is expanded this early to be used in the command su runs
-  echo "export LANG LC_ALL LC_CTYPE LC_COLLATE LC_NUMERIC LC_TIME" >> $PGDATA/../initdb.i18n
-  # Initialize the database
-  /sbin/chpst -u postgres /usr/bin/initdb --pgdata=$PGDATA >/dev/null 2>&1 </dev/null
-  [ -f $PGDATA/PG_VERSION ] && echo "Database successfully initialized!"
-  [ ! -f $PGDATA/PG_VERSION ] && echo "Database was NOT successfully initalized!"
+    if [ ! -d $PGDATA ]; then
+        mkdir -p $PGDATA
+        chown postgres:postgres $PGDATA
+        chmod 700 $PGDATA
+    fi
+    # Make sure the locale from the initdb is preserved for later startups...
+    [ -f %{_sysconfdir}/sysconfig/i18n ] && cp %{_sysconfdir}/sysconfig/i18n $PGDATA/../initdb.i18n
+    # Just in case no locale was set, use en_US
+    [ ! -f %{_sysconfdir}/sysconfig/i18n ] && echo "LANG=en_US" >$PGDATA/../initdb.i18n
+    # Is expanded this early to be used in the command su runs
+    echo "export LANG LC_ALL LC_CTYPE LC_COLLATE LC_NUMERIC LC_TIME" >> $PGDATA/../initdb.i18n
+    # Initialize the database
+    /sbin/chpst -u postgres /usr/bin/initdb --pgdata=$PGDATA >/dev/null 2>&1 </dev/null
+    [ -f $PGDATA/PG_VERSION ] && echo "Database successfully initialized!"
+    [ ! -f $PGDATA/PG_VERSION ] && echo "Database was NOT successfully initalized!"
 fi
 
-
+if [ $1 -gt 1 ]; then
+    echo "" 
+    echo "After install, you must run %{_docdir}/%{name}-server-%{version}/CAN-2005-1409-1410-update-dbs.sh"
+    echo "in order to upgrade your databases to protect against the vulnerabilities described in CAN-2005-1409"
+    echo "and CAN-2005-1410.  PostgreSQL must be running when you run this script."
+    echo "" 
+fi
 %_post_srv postgresql
+
 
 %preun server
 %_preun_srv postgersql
+
 
 %postun server
 /sbin/ldconfig
 %_mkafterboot
 %_postun_userdel postgres
 
+
 %post -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
+
 
 %post -n %{libecpg} -p /sbin/ldconfig
 %postun -n %{libecpg} -p /sbin/ldconfig
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 rm -f perlfiles.list
+
 
 %files -f main.lst 
 %defattr(-,root,root)
@@ -498,7 +537,7 @@ rm -f perlfiles.list
 
 %files server -f server.lst
 %defattr(-,root,root)
-%doc README.v7.3 upgrade_tips_7.3
+%doc README.v7.3 upgrade_tips_7.3 CAN-2005-1409-1410-update-dbs.sh
 %{_bindir}/initdb
 %{_bindir}/ipcclean
 %{_bindir}/pg_controldata 
@@ -568,7 +607,14 @@ rm -f perlfiles.list
 %attr(-,postgres,postgres) %{_libdir}/pgsql/test/*
 %attr(-,postgres,postgres) %dir %{_libdir}/pgsql/test
 
+
 %changelog
+* Sat Jun 11 2005 Vincent Danen <vdanen@annvix.org> 8.0.1-6avx
+- P3: fix CAN-2005-1409
+- P4: fix CAN-2005-1410
+- S53: upgrade script to update databases
+- spec cleanups
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 8.0.1-5avx
 - bootstrap build
 
