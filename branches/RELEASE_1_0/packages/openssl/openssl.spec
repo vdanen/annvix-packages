@@ -1,6 +1,6 @@
 %define name	openssl
 %define version	0.9.7e
-%define release	1avx
+%define release	1.1avx
 
 %define maj		0.9.7
 %define libname 	%mklibname %name %maj
@@ -23,6 +23,7 @@ Patch2:		openssl-0.9.7e-mdk-optflags.patch.bz2
 # (gb) 0.9.7b-4mdk: Make it lib64 aware. TODO: detect in Configure
 Patch3:		openssl-0.9.7e-mdk-lib64.patch.bz2
 Patch4:		openssl-0.9.7c-CAN-2004-0975.patch.bz2
+Patch5:		openssl-0.9.7e-can-2005-0109.patch
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-root
 
@@ -100,6 +101,7 @@ Patches for many networking apps can be found at:
 %patch2 -p0 -b .optflags
 %patch3 -p0 -b .lib64
 %patch4 -p1 -b .can-2004-0975
+%patch5 -p1 -b .can-2005-0109
 
 perl -pi -e "s,^(LIB=).+$,\1%{_lib}," Makefile.org
 
@@ -198,6 +200,9 @@ rm -f %{buildroot}%{_mandir}/man7/Modes*
 
 
 %changelog
+* Sat Jun 11 2005 Vincent Danen <vdanen@annvix.org> 0.9.7d-3.1avx
+- P5: security fix for CAN-2005-0109
+
 * Sat Dec 04 2004 Vincent Danen <vdanen@annvix.org> 0.9.7d-3avx
 - 0.9.7e
 - use original sources and include gpg sig
