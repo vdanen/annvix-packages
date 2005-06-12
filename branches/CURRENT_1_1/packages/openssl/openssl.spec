@@ -1,6 +1,15 @@
-%define name	openssl
-%define version	0.9.7e
-%define release	2avx
+#
+# spec file for package openssl
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		openssl
+%define version		0.9.7e
+%define release		3avx
 
 %define maj		0.9.7
 %define libname 	%mklibname %name %maj
@@ -14,6 +23,7 @@ Release:	%{release}
 License:	BSD-like
 Group:		System/Libraries
 URL:		http://www.openssl.org/
+
 Source:		ftp://ftp.openssl.org/source/%{name}-%{version}.tar.gz
 Source1:	ftp://ftp.openssl.org/source/%{name}-%{version}.tar.gz.asc
 # (fg) 20010202 Patch from RH: some funcs now implemented with ia64 asm
@@ -23,8 +33,9 @@ Patch2:		openssl-0.9.7e-mdk-optflags.patch.bz2
 # (gb) 0.9.7b-4mdk: Make it lib64 aware. TODO: detect in Configure
 Patch3:		openssl-0.9.7e-mdk-lib64.patch.bz2
 Patch4:		openssl-0.9.7c-CAN-2004-0975.patch.bz2
+Patch5:		openssl-0.9.7e-can-2005-0109.patch
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-root
+BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
 
 Requires:	%{libname} = %{version}-%{release}
 Requires:	perl
@@ -32,12 +43,11 @@ Requires:	perl
 %description
 The openssl certificate management tool and the shared libraries that provide
 various encryption and decription algorithms and protocols, including DES, RC4,
-RSA and SSL.
-This product includes software developed by the OpenSSL Project for use in the
-OpenSSL Toolkit (http://www.openssl.org/).
-This product includes cryptographic software written by Eric Young
-(eay@cryptsoft.com).
+RSA and SSL.  This product includes software developed by the OpenSSL Project
+for use in the OpenSSL Toolkit (http://www.openssl.org/).  This product
+includes cryptographic software written by Eric Young (eay@cryptsoft.com).
 This product includes software written by Tim Hudson (tjh@cryptsoft.com).
+
 
 %package -n %{libnamedev}
 Summary:	Secure Sockets Layer communications static libs & headers & utils
@@ -49,12 +59,11 @@ Obsoletes:	openssl-devel
 %description -n %{libnamedev}
 The static libraries and include files needed to compile apps with support
 for various cryptographic algorithms and protocols, including DES, RC4, RSA
-and SSL.
-This product includes software developed by the OpenSSL Project for use in
-the OpenSSL Toolkit (http://www.openssl.org/).
-This product includes cryptographic software written by Eric Young
-(eay@cryptsoft.com).
+and SSL.  This product includes software developed by the OpenSSL Project
+for use in the OpenSSL Toolkit (http://www.openssl.org/).  This product
+includes cryptographic software written by Eric Young (eay@cryptsoft.com).
 This product includes software written by Tim Hudson (tjh@cryptsoft.com).
+
 Patches for many networking apps can be found at: 
 	ftp://ftp.psy.uq.oz.au/pub/Crypto/SSLapps/
 
@@ -68,12 +77,11 @@ Provides:	libopenssl-static-devel openssl-static-devel = %{version}-%{release}
 %description -n %{libnamestatic}
 The static libraries and include files needed to compile apps with support
 for various cryptographic algorithms and protocols, including DES, RC4, RSA
-and SSL.
-This product includes software developed by the OpenSSL Project for use in
-the OpenSSL Toolkit (http://www.openssl.org/).
-This product includes cryptographic software written by Eric Young
-(eay@cryptsoft.com).
+and SSL.  This product includes software developed by the OpenSSL Project
+for use in the OpenSSL Toolkit (http://www.openssl.org/).  This product
+includes cryptographic software written by Eric Young (eay@cryptsoft.com).
 This product includes software written by Tim Hudson (tjh@cryptsoft.com).
+
 Patches for many networking apps can be found at: 
 	ftp://ftp.psy.uq.oz.au/pub/Crypto/SSLapps/
 
@@ -85,14 +93,15 @@ Conflicts:	openssh < 3.5p1-4mdk
 
 %description -n %{libname}
 The libraries files are needed for various cryptographic algorithms
-and protocols, including DES, RC4, RSA and SSL.
-This product includes software developed by the OpenSSL Project for use in
-the OpenSSL Toolkit (http://www.openssl.org/).
-This product includes cryptographic software written by Eric Young
-(eay@cryptsoft.com).
-This product includes software written by Tim Hudson (tjh@cryptsoft.com).
+and protocols, including DES, RC4, RSA and SSL.  This product includes
+software developed by the OpenSSL Project for use in the OpenSSL Toolkit
+(http://www.openssl.org/).  This product includes cryptographic software
+ written by Eric Young (eay@cryptsoft.com).  This product includes software
+written by Tim Hudson (tjh@cryptsoft.com).
+
 Patches for many networking apps can be found at: 
 	ftp://ftp.psy.uq.oz.au/pub/Crypto/SSLapps/
+
 
 %prep
 %setup -q -n %{name}-%{version}
@@ -100,15 +109,16 @@ Patches for many networking apps can be found at:
 %patch2 -p0 -b .optflags
 %patch3 -p0 -b .lib64
 %patch4 -p1 -b .can-2004-0975
+%patch5 -p1 -b .can-2005-0109
 
 perl -pi -e "s,^(LIB=).+$,\1%{_lib}," Makefile.org
 
 %build 
 # Don't carry out asm optimization on Alpha for now
 %ifarch alpha amd64 x86_64 sparc sparc64
-# [gb] likewise on amd64: seems broken and no time to review
-# [stefan@eijk,nu] ditto for sparc/sparc64
-NO_ASM="no-asm"
+    # [gb] likewise on amd64: seems broken and no time to review
+    # [stefan@eijk,nu] ditto for sparc/sparc64
+    NO_ASM="no-asm"
 %endif
 sh config $NO_ASM --prefix=%{_prefix} --openssldir=%{_libdir}/ssl shared
 make
@@ -162,12 +172,14 @@ chmod 755 %{buildroot}%{_libdir}/pkgconfig
 
 rm -f %{buildroot}%{_mandir}/man7/Modes*
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-%post -n %{libname} -p /sbin/ldconfig
 
+%post -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
+
 
 %files 
 %defattr(-,root,root)
@@ -198,6 +210,10 @@ rm -f %{buildroot}%{_mandir}/man7/Modes*
 
 
 %changelog
+* Sat Jun 11 2005 Vincent Danen <vdanen@annvix.org> 0.9.7e-3avx
+- P5: security fix for CAN-2005-0109
+- spec cleanups
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.9.7e-2avx
 - bootstrap build
 
