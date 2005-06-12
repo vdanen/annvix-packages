@@ -1,0 +1,45 @@
+--- openssl-0.9.7c/apps/der_chop.in.can-2004-0975	2003-09-30 06:38:15.000000000 -0600
++++ openssl-0.9.7c/apps/der_chop.in	2004-12-02 12:55:30.000000000 -0700
+@@ -29,6 +29,7 @@
+ 
+ 
+ require 'getopts.pl';
++use File::Temp qw/ tempfile /;
+ 
+ $debug=0;
+ 
+@@ -65,7 +66,7 @@
+ 	}
+ else
+ 	{
+-	$file="/tmp/a$$.DER";
++	($fh,$file) = tempfile ('der_chop.XXXXXX');
+ 	open(OUT,">$file") || die "unable to open $file:$!\n";
+ 	for (;;)
+ 		{
+@@ -139,7 +140,7 @@
+ 	{
+ 	local($str)=@_;
+ 	local(*OUT,*IN,@a,$t,$d,$ret);
+-	local($file)="/tmp/b$$.DER";
++	local($fh,$file) = tempfile ('der_chop.XXXXXX');
+ 	local(@ret);
+ 
+ 	open(OUT,">$file");
+@@ -225,7 +226,7 @@
+ sub do_private_key
+ 	{
+ 	local($data,@struct)=@_;
+-	local($file)="/tmp/b$$.DER";
++	local($fh,$file) = tempfile ('der_chop.XXXXXX');
+ 	local($off,$d,$hl,$len,$_,$b,@p,$s);
+ 
+ 	($type)=($struct[4] =~ /OBJECT_IDENTIFIER :(.*)\s*$/);
+@@ -260,7 +261,6 @@
+ sub do_certificate
+ 	{
+ 	local($data,@struct)=@_;
+-	local($file)="/tmp/b$$.DER";
+ 	local($off,$d,$hl,$len,$_,$b,@p,$s);
+ 
+ 	($off,$d,$hl,$len)=&parse_line($struct[2]);
