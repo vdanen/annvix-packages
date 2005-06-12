@@ -1,6 +1,6 @@
 %define name	postgresql
 %define version	8.0.1
-%define release	4avx
+%define release	4.1avx
 
 %define _requires_exceptions devel(libtcl8.4)\\|devel(libtcl8.4(64bit))
 
@@ -47,9 +47,12 @@ Source23:	01_postgresql.afterboot
 Source24:	postgresql.finish
 Source51:	README.v7.3
 Source52:	upgrade_tips_7.3
+Source53:	CAN-2005-1409-1410-update-dbs.sh
 Patch0:		postgresql-7.4.1-mdk-pkglibdir.patch.bz2
 Patch1:		postgresql-7.4.5-CAN-2005-0227.patch
 Patch2:		postgresql-7.4.5-CAN-2005-0245_0247.patch
+Patch3:		postgresql-8.0.1-CAN-2005-1409.patch
+Patch4:		postgresql-8.0.1-CAN-2005-1410.patch
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires:	bison flex gettext termcap-devel ncurses-devel openssl-devel pam-devel
@@ -202,6 +205,8 @@ system, including regression tests and benchmarks.
 %patch0 -p0 -b .pkglibdir
 %patch1 -p1 -b .can-2005-0227
 %patch2 -p1 -b .can-2005-0245_0247
+%patch3 -p1 -b .can-2005-1409
+%patch4 -p1 -b .can-2005-1410
 
 %build
 
@@ -298,7 +303,7 @@ pushd  %{buildroot}%{_libdir}/pgsql/test/regress/
 strip *.so
 popd
 
-cp %{SOURCE51} %{SOURCE52} .
+cp %{SOURCE51} %{SOURCE52} %{SOURCE53} .
 
 bzip2 -cd %{SOURCE6} >  README.rpm-dist
 
@@ -374,7 +379,13 @@ if [ ! -f $PGDATA/PG_VERSION ] && [ ! -d $PGDATA/base ]; then
   [ ! -f $PGDATA/PG_VERSION ] && echo "Database was NOT successfully initalized!"
 fi
 
-
+if [ $1 -gt 1 ]; then
+    echo ""
+    echo "After install, you must run %{_docdir}/%{name}-server-%{version}/CAN-2005-1409-1410-update-dbs.sh"
+    echo "in order to upgrade your databases to protect against the vulnerabilities described in CAN-2005-1409"
+    echo "and CAN-2005-1410.  PostgreSQL must be running when you run this script."
+    echo ""
+fi
 %_post_srv postgresql
 
 %preun server
@@ -498,7 +509,7 @@ rm -f perlfiles.list
 
 %files server -f server.lst
 %defattr(-,root,root)
-%doc README.v7.3 upgrade_tips_7.3
+%doc README.v7.3 upgrade_tips_7.3 CAN-2005-1409-1410-update-dbs.sh
 %{_bindir}/initdb
 %{_bindir}/ipcclean
 %{_bindir}/pg_controldata 
@@ -569,6 +580,11 @@ rm -f perlfiles.list
 %attr(-,postgres,postgres) %dir %{_libdir}/pgsql/test
 
 %changelog
+* Sat Jun 11 2005 Vincent Danen <vdanen@annvix.org> 8.0.1-4.1avx
+- P3: fix CAN-2005-1409
+- P4: fix CAN-2005-1410
+- S53: upgrade script to update databases
+
 * Wed Mar 16 2005 Vincent Danen <vdanen@annvix.org> 8.0.1-4avx
 - fix plperl linkage over libperl.so for all archs (nanardon)
 - patches to fix CAN-2005-0227, CAN-2005-0245, CAN-2005-0247
