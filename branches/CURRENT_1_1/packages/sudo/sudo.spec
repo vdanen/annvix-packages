@@ -1,7 +1,15 @@
-%define name	sudo
-%define version	1.6.8p2
-%define release	2avx
-%define epoch	1
+#
+# spec file for package sudo
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+%define name		sudo
+%define version		1.6.8p9
+%define release		1avx
+%define epoch		1
 
 Summary:	Allows command execution as root for specified users
 Name:		%{name}
@@ -14,8 +22,11 @@ URL:		http://www.courtesan.com/sudo
 Source:		ftp://ftp.courtesan.com:/pub/sudo/%{name}-%{version}.tar.gz
 Source1:	ftp://ftp.courtesan.com:/pub/sudo/%{name}-%{version}.tar.gz.sig
 Source2:	sudoers.annvix
+Source3:	sudo.pam
+Source4:	sudo.logrotate
+Source4:	sudo.logrotate
 
-BuildRoot:	%_tmppath/%{name}-%{version}
+BuildRoot:	%_tmppath/%{name}-%{version}-buildroot
 BuildRequires:  pam-devel
 
 Requires:	pam
@@ -31,9 +42,15 @@ their work done.
 
 %build
 CFLAGS="%{optflags} -D_GNU_SOURCE" \
-%configure --prefix=%_prefix --with-logging=both --with-logpath=/var/log/sudo.log \
-	   --with-editor=/bin/vi --enable-log-host --disable-log-wrap --with-pam \
-	   --with-env-editor --with-noexec=no \
+%configure --prefix=%_prefix \
+	   --with-logging=both \
+	   --with-logpath=/var/log/sudo.log \
+	   --with-editor=/bin/vi \
+	   --enable-log-host \
+	   --disable-log-wrap \
+	   --with-pam \
+	   --with-env-editor \
+	   --with-noexec=no \
 	   --with-secure-path="/sbin:/usr/sbin:/bin:/usr/bin:/usr/local/sbin:/usr/local/bin"
 %make CFLAGS="%{optflags} -D_GNU_SOURCE"
 
@@ -49,25 +66,14 @@ chmod 700 %{buildroot}/var/run/sudo
 
 # Installing sample pam file
 mkdir -p %{buildroot}%{_sysconfdir}/pam.d
-cat > %{buildroot}%{_sysconfdir}/pam.d/sudo << EOF
-#%PAM-1.0
-auth       required	pam_stack.so service=system-auth
-account    required	pam_stack.so service=system-auth
-password   required	pam_stack.so service=system-auth
-session    required	pam_stack.so service=system-auth
-EOF
+install -m 0644 %{SOURCE3} %{buildroot}%{_sysconfdir}/pam.d/sudo
 
-# Installing logrotated file
+# Installing logrotate file
 mkdir -p %{buildroot}%{_sysconfdir}/logrotate.d
-cat <<END >%{buildroot}%{_sysconfdir}/logrotate.d/sudo
-/var/log/sudo.log {
-    missingok
-    monthly
-    compress
-}
-END
-chmod 755 %{buildroot}%{_bindir}/sudo
-chmod 755 %{buildroot}%{_sbindir}/visudo
+install -m 0644 %{SOURCE4} %{buildroot}%{_sysconfdir}/logrotate.d/sudo
+
+chmod 0755 %{buildroot}%{_bindir}/sudo
+chmod 0755 %{buildroot}%{_sbindir}/visudo
 
 # install our sudoers file
 install -m 0440 %{SOURCE2} %{buildroot}%{_sysconfdir}/sudoers
@@ -89,6 +95,10 @@ install -m 0440 %{SOURCE2} %{buildroot}%{_sysconfdir}/sudoers
 /var/run/sudo
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1:1.6.8p9-1avx
+- 1.6.8p9 (fixes CAN-2005-1993)
+- move embedded "source" files into real source files (S3, S4)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1:1.6.8p2-2avx
 - bootstrap build
 
