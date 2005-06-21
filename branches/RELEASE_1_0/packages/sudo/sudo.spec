@@ -1,6 +1,6 @@
 %define name	sudo
 %define version	1.6.8p2
-%define release	1avx
+%define release	1.1avx
 %define epoch	1
 
 Summary:	Allows command execution as root for specified users.
@@ -14,6 +14,7 @@ URL:		http://www.courtesan.com/sudo
 Source:		ftp://ftp.courtesan.com:/pub/sudo/%{name}-%{version}.tar.gz
 Source1:	ftp://ftp.courtesan.com:/pub/sudo/%{name}-%{version}.tar.gz.sig
 Source2:	sudoers.annvix
+Patch0:		sudo-1.6.8p2-CAN-2005-1993.patch
 
 BuildRoot:	%_tmppath/%{name}-%{version}
 BuildRequires:  pam-devel
@@ -28,6 +29,7 @@ their work done.
 
 %prep
 %setup -q -n %{name}-%{version}
+%patch0 -p1 -b .can-2005-1993
 
 %build
 CFLAGS="%{optflags} -D_GNU_SOURCE" \
@@ -89,6 +91,9 @@ install -m 0440 %{SOURCE2} %{buildroot}%{_sysconfdir}/sudoers
 /var/run/sudo
 
 %changelog
+* Tue Jun 21 2005 Vincent Danen <vdanen@annvix.org> 1:1.6.8p2-1.1avx
+- P0: fix for CAN-2005-1993
+
 * Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 1:1.6.8p2-1avx
 - 1.6.8p2; fixes a security flaw regarding bash scripts
 - fix naming convention
