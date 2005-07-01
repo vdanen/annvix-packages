@@ -1,6 +1,6 @@
 %define name	php-%{subname}
 %define version	%{phpversion}
-%define release	2avx
+%define release	3avx
 
 %define phpversion	4.3.11
 %define phpsource       %{_prefix}/src/php-devel
@@ -19,6 +19,7 @@ Group:		Development/Other
 URL:		http://www.php.net
 Source0:	php-pear-%{pear_date}.tar.bz2
 Source1:	fixregistry.php
+Patch0:		php-pear-CAN-2005-1921.patch
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
 BuildRequires:	php4-devel php-xml perl php-cli
@@ -95,6 +96,12 @@ rm -f %{buildroot}/%{_prefix}/php.ini-gopear
 # Create the directory that will contain .xml of additional packages
 mkdir %{buildroot}%{peardir}/packages
 
+# fix for CAN-2005-1921
+pushd %{buildroot}%{peardir}/XML
+    patch <%{PATCH0}
+popd
+
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
@@ -109,6 +116,9 @@ mkdir %{buildroot}%{peardir}/packages
 %{_bindir}/pear
 
 %changelog
+* Thu Jun 30 2005 Vincent Danen <vdanen@annvix.org> 4.3.11-3avx
+- P0: patch to fix CAN-2005-1921
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 4.3.11-2avx
 - rebuild
 
