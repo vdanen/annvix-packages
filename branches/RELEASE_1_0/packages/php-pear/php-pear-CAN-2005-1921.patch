@@ -1,0 +1,29 @@
+--- RPC.php.org	2005-06-29 17:10:12.117708172 -0600
++++ RPC.php	2005-06-29 17:12:59.212802614 -0600
+@@ -158,7 +158,7 @@
+         break;
+ 
+     case "NAME":
+-        $XML_RPC_xh[$parser]['st'] .= "'";
++        $XML_RPC_xh[$parser]['st'] .= '"';
+         $XML_RPC_xh[$parser]['ac'] = "";
+         break;
+ 
+@@ -238,7 +238,7 @@
+         break;
+ 
+     case "NAME":
+-        $XML_RPC_xh[$parser]['st'] .= $XML_RPC_xh[$parser]['ac'] . "' => ";
++        $XML_RPC_xh[$parser]['st'] .= $XML_RPC_xh[$parser]['ac'] . '" => ';
+         break;
+ 
+     case "BOOLEAN":
+@@ -263,7 +263,7 @@
+             // we use double quotes rather than single so backslashification works OK
+             $XML_RPC_xh[$parser]['st'] .= "\"" . $XML_RPC_xh[$parser]['ac'] . "\"";
+         } elseif ($XML_RPC_xh[$parser]['qt'] == 2) {
+-            $XML_RPC_xh[$parser]['st'] .= "base64_decode('" . $XML_RPC_xh[$parser]['ac'] . "')";
++            $XML_RPC_xh[$parser]['st'] .= 'base64_decode("' . $XML_RPC_xh[$parser]['ac'] . '")';
+         } elseif ($name=="BOOLEAN") {
+             $XML_RPC_xh[$parser]['st'] .= $XML_RPC_xh[$parser]['ac'];
+         } else {
