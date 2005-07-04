@@ -1,6 +1,15 @@
-%define name	wget
-%define version	1.9.1
-%define release	3avx
+#
+# spec file for package wget
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		wget
+%define version		1.10
+%define release		1avx
 
 Summary: 	A utility for retrieving files using the HTTP or FTP protocols
 Name: 		%{name}
@@ -9,23 +18,16 @@ Release: 	%{release}
 License: 	GPL
 Group: 		Networking/WWW
 URL: 		http://www.gnu.org/directory/GNU/wget.html
-Source0:	ftp://prep.ai.mit.edu/pub/gnu/%{name}-%{version}.tar.bz2
+Source0:	ftp://prep.ai.mit.edu/pub/gnu/%{name}-%{version}.tar.gz
 # alt: ftp://ftp.gnu.org/gnu/wget/
 Patch0: 	wget-1.6-passive_ftp.patch.bz2
-Patch1: 	wget-1.9.1-mdk-print_percentage.patch.bz2
-Patch2:		wget-1.7-remove-rpath-from-binary.patch.bz2
-Patch3:		wget-1.8-no-solaris-md5.h.patch.bz2
-Patch4:		wget-1.8.1-etc.patch.bz2
-Patch6:		wget-1.8.1-quote.patch.bz2
-Patch7:		wget-1.9.1-mdk-url_password.patch.bz2
-Patch9:		wget-1.8.2-logstdout.patch.bz2
-Patch10:	wget-1.8.2-referer-opt-typo.patch.bz2
-Patch11:	wget-1.9.1-mdk-fix-fr-translation.patch.bz2
-Patch12:	wget-1.9.1-mdk-fix-de-translation.patch.bz2
-Patch13:	wget-1.9.1-mdk-LFS.patch.bz2
-Patch14:	wget-1.9.1-suse-sanitize.patch.bz2
+Patch1:		wget-1.7-remove-rpath-from-binary.patch.bz2
+Patch2:		wget-1.8-no-solaris-md5.h.patch.bz2
+Patch3:		wget-1.8.1-etc.patch.bz2
+Patch4:		wget-1.10-logstdout.patch.bz2
+Patch5:		wget-1.9.1-suse-sanitize.patch.bz2
 
-BuildRoot: 	%_tmppath/%name-%version-%release-root
+BuildRoot: 	%{_tmppath}/%{name}-%{version}-build-root
 BuildRequires:	gettext, openssl-devel, texinfo, autoconf2.5
 
 Provides: 	webclient webfetch
@@ -46,17 +48,10 @@ configurability.
 %setup -q
 %patch0 -p1 -b .passive_ftp
 %patch1 -p1
-%patch2 -p1
-%patch3 -p1 -b .md5
-%patch4 -p1 -b .etc
-%patch6 -p1 -b .quotes
-%patch7 -p1 -b .url_password
-%patch9 -p1 -b .logstdout
-%patch10 -p0 -b .typo
-%patch11 -p0 -b .frtypo
-%patch12 -p0 -b .detypo
-%patch13 -p1 -b .lfs
-%patch14 -p1 -b .can-2004-1487_1488
+%patch2 -p1 -b .md5
+%patch3 -p1 -b .etc
+%patch4 -p1 -b .logstdout
+%patch5 -p1 -b .can-2004-1487_1488
 
 %build
 #aclocal
@@ -70,9 +65,9 @@ make check
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
-install -m755 util/rmold.pl %buildroot/%_bindir/rmold
+install -m 0755 util/rmold.pl %{buildroot}/%{_bindir}/rmold
 
-%find_lang %name
+%find_lang %{name}
 
 
 %clean
@@ -85,15 +80,21 @@ install -m755 util/rmold.pl %buildroot/%_bindir/rmold
 %_remove_install_info %{name}.info
 
 
-%files -f %name.lang
+%files -f %{name}.lang
 %defattr(-,root,root,-)
-%verify(not md5 size mtime) %config(noreplace) %_sysconfdir/wgetrc
-%doc AUTHORS COPYING ChangeLog MACHINES MAILING-LIST NEWS README TODO
-%_bindir/*
-%_infodir/*
-%_mandir/man1/wget.1*
+%verify(not md5 size mtime) %config(noreplace) %{_sysconfdir}/wgetrc
+%doc AUTHORS COPYING ChangeLog MAILING-LIST NEWS README TODO
+%{_bindir}/*
+%{_infodir}/*
+%{_mandir}/man1/wget.1*
 
 %changelog
+* Mon Jul 04 2005 Vincent Danen <vdanen@annvix.org> 1.10-1avx
+- 1.10
+- drop P1, P6, P7, P10, P11, P12, P13 (non-essential)
+- rediff P7, P9
+- renumber patches
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 1.9.1-3avx
 - P14: patch from SUSE to fix CAN-2004-1487 and CAN-2004-1488
 
