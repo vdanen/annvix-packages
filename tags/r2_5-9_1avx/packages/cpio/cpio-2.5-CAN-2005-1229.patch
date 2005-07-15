@@ -1,0 +1,253 @@
+--- cpio-2.5/main.c.can-2005-1229	2005-07-06 16:18:26.000000000 -0600
++++ cpio-2.5/main.c	2005-07-06 16:18:26.000000000 -0600
+@@ -50,6 +50,7 @@
+   {"make-directories", 0, &create_dir_flag, TRUE},
+   {"message", 1, 0, 'M'},
+   {"no-absolute-filenames", 0, 0, 136},
++  {"absolute-filenames", 0, 0, 133},
+   {"no-preserve-owner", 0, 0, 134},
+   {"nonmatching", 0, &copy_matching_files, FALSE},
+   {"numeric-uid-gid", 0, &numeric_uid, TRUE},
+@@ -101,7 +102,7 @@
+        [--unconditional] [--verbose] [--verbose-skip] [--block-size=blocks]\n\
+        [--swap-halfwords] [--io-size=bytes] [--pattern-file=file]\n\
+        [--format=format] [--owner=[user][:.][group]] [--no-preserve-owner]\n\
+-       [--message=message] [--force-local] [--no-absolute-filenames]\n\
++       [--message=message] [--force-local] [--absolute-filenames]\n\
+        [--sparse] [--only-verify-crc] [--quiet] [--rsh-command=command]\n\
+        [--help] [--version] [pattern...] [< archive]\n",
+ 	   program_name);
+@@ -266,7 +267,11 @@
+ 	  break;
+ 
+ 	case 136:		/* --no-absolute-filenames */
+-	  no_abs_paths_flag = TRUE;
++	  abs_paths_flag = FALSE;
++	  break;
++	
++	case 133:		/* --absolute-filenames */
++	  abs_paths_flag = TRUE;
+ 	  break;
+ 	
+ 	case 134:		/* --no-preserve-owner */
+@@ -424,7 +429,7 @@
+ 	  || retain_time_flag || no_chown_flag || set_owner_flag
+ 	  || set_group_flag || swap_bytes_flag || swap_halfwords_flag
+ 	  || (append_flag && !(archive_name || output_archive_name))
+-	  || rename_batch_file || no_abs_paths_flag
++	  || rename_batch_file || abs_paths_flag
+ 	  /* Debian hack: The sparse option is used with copy-in not
+              copy-out.  This bug has been reported to
+              "bug-gnu-utils@prep.ai.mit.edu".  (96/7/10) -BEM */
+@@ -443,7 +448,7 @@
+       if (argc - 1 != optind || archive_format != arf_unknown
+ 	  || swap_bytes_flag || swap_halfwords_flag
+ 	  || table_flag || rename_flag || append_flag
+-	  || rename_batch_file || no_abs_paths_flag)
++	  || rename_batch_file || abs_paths_flag)
+ 	usage (stderr, 2);
+       directory_name = argv[optind];
+     }
+--- cpio-2.5/global.c.can-2005-1229	2005-07-06 16:18:26.000000000 -0600
++++ cpio-2.5/global.c	2005-07-06 16:18:26.000000000 -0600
+@@ -102,7 +102,7 @@
+ int only_verify_crc_flag = FALSE;
+ 
+ /* If TRUE, don't use any absolute paths, prefix them by `./'.  */
+-int no_abs_paths_flag = FALSE;
++int abs_paths_flag = FALSE;
+ 
+ #ifdef DEBUG_CPIO
+ /* If TRUE, print debugging information.  */
+--- cpio-2.5/copyin.c.can-2005-1229	2005-07-06 16:18:26.000000000 -0600
++++ cpio-2.5/copyin.c	2005-07-06 16:18:26.000000000 -0600
+@@ -24,6 +24,7 @@
+ #include "dstring.h"
+ #include "extern.h"
+ #include "defer.h"
++#include "dirname.h"
+ #include "rmt.h"
+ #ifndef	FNM_PATHNAME
+ #include <fnmatch.h>
+@@ -376,6 +377,53 @@
+ /* Current time for verbose table.  */
+ static time_t current_time;
+ 
++/* Return a safer suffix of FILE_NAME, or "." if it has no safer
++   suffix.  Check for fully specified file names and other atrocities.  */
++
++static const char *
++safer_name_suffix (char const *file_name)
++{
++  char const *p;
++
++  /* Skip file system prefixes, leading file name components that contain
++     "..", and leading slashes.  */
++
++  size_t prefix_len = FILE_SYSTEM_PREFIX_LEN (file_name);
++
++  for (p = file_name + prefix_len; *p;)
++    {
++      if (p[0] == '.' && p[1] == '.' && (ISSLASH (p[2]) || !p[2]))
++	prefix_len = p + 2 - file_name;
++
++      do
++	{
++	  char c = *p++;
++	  if (ISSLASH (c))
++	    break;
++	}
++      while (*p);
++    }
++
++  for (p = file_name + prefix_len; ISSLASH (*p); p++)
++    continue;
++  prefix_len = p - file_name;
++
++  if (prefix_len)
++    {
++      char *prefix = alloca (prefix_len + 1);
++      memcpy (prefix, file_name, prefix_len);
++      prefix[prefix_len] = '\0';
++
++
++      error (0, 0, ("Removing leading `%s' from member names"), prefix);
++    }
++
++  if (!*p)
++    p = ".";
++
++  return p;
++}
++
+ /* Read the collection from standard input and create files
+    in the file system.  */
+ 
+@@ -489,18 +537,11 @@
+ 
+       /* Do we have to ignore absolute paths, and if so, does the filename
+          have an absolute path?  */
+-      if (no_abs_paths_flag && file_hdr.c_name && file_hdr.c_name [0] == '/')
++      if (!abs_paths_flag && file_hdr.c_name && file_hdr.c_name [0])
+ 	{
+-	  char *p;
++	  const char *p = safer_name_suffix (file_hdr.c_name);
+ 
+-	  p = file_hdr.c_name;
+-	  while (*p == '/')
+-	    ++p;
+-	  if (*p == '\0')
+-	    {
+-	      strcpy (file_hdr.c_name, ".");
+-	    }
+-	  else
++	  if (p != file_hdr.c_name)
+ 	    {
+               /* Debian hack: file_hrd.c_name is sometimes set to
+                  point to static memory by code in tar.c.  This
+--- cpio-2.5/cpio.texi.can-2005-1229	2005-07-06 16:24:41.000000000 -0600
++++ cpio-2.5/cpio.texi	2005-07-06 16:26:26.000000000 -0600
+@@ -288,7 +288,7 @@
+ [--block-size=blocks] [--swap-halfwords] [--io-size=bytes]
+ [--pattern-file=file] [--format=format] [--owner=[user][:.][group]]
+ [--no-preserve-owner] [--message=message] [--help] [--version]
+-[-no-absolute-filenames] [--sparse] [-only-verify-crc] [-quiet]
++[--absolute-filenames] [--sparse] [-only-verify-crc] [-quiet]
+ [--rsh-command=command] [pattern...] [< archive]
+ @end example
+ 
+@@ -451,9 +451,9 @@
+ Show numeric UID and GID instead of translating them into names when using the
+ @samp{--verbose option}.
+ 
+-@item --no-absolute-filenames
+-Create all files relative to the current directory in copy-in mode, even
+-if they have an absolute file name in the archive.
++@item --absolute-filenames
++Do not strip leading file name components that contain ".."
++and leading slashes from file names in copy-in mode
+ 
+ @item --no-preserve-owner
+ Do not change the ownership of the files; leave them owned by the user
+--- cpio-2.5/cpio.1.can-2005-1229	2005-07-06 16:18:26.000000000 -0600
++++ cpio-2.5/cpio.1	2005-07-06 16:18:26.000000000 -0600
+@@ -20,7 +20,7 @@
+ [\-\-unconditional] [\-\-verbose] [\-\-block-size=blocks] [\-\-swap-halfwords]
+ [\-\-io-size=bytes] [\-\-pattern-file=file] [\-\-format=format]
+ [\-\-owner=[user][:.][group]] [\-\-no-preserve-owner] [\-\-message=message]
+-[\-\-force\-local] [\-\-no\-absolute\-filenames] [\-\-sparse]
++[\-\-force\-local] [\-\-absolute\-filenames] [\-\-sparse]
+ [\-\-only\-verify\-crc] [\-\-quiet] [\-\-rsh-command=command] [\-\-help]
+ [\-\-version] [pattern...] [< archive]
+ 
+--- cpio-2.5/dirname.h.can-2005-1229	2005-07-06 16:18:26.000000000 -0600
++++ cpio-2.5/dirname.h	2005-07-06 16:18:26.000000000 -0600
+@@ -0,0 +1,47 @@
++/*  Take file names apart into directory and base names.
++
++    Copyright (C) 1998, 2001, 2003, 2004 Free Software Foundation, Inc.
++
++    This program is free software; you can redistribute it and/or modify
++    it under the terms of the GNU General Public License as published by
++    the Free Software Foundation; either version 2, or (at your option)
++    any later version.
++
++    This program is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++    GNU General Public License for more details.
++
++    You should have received a copy of the GNU General Public License
++    along with this program; if not, write to the Free Software Foundation,
++    Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.  */
++
++#ifndef DIRNAME_H_
++# define DIRNAME_H_ 1
++
++# include <stdbool.h>
++# include <stddef.h>
++
++# ifndef DIRECTORY_SEPARATOR
++#  define DIRECTORY_SEPARATOR '/'
++# endif
++
++# ifndef ISSLASH
++#  define ISSLASH(C) ((C) == DIRECTORY_SEPARATOR)
++# endif
++
++# ifndef FILE_SYSTEM_PREFIX_LEN
++#  define FILE_SYSTEM_PREFIX_LEN(Filename) 0
++# endif
++
++# define IS_ABSOLUTE_FILE_NAME(F) ISSLASH ((F)[FILE_SYSTEM_PREFIX_LEN (F)])
++# define IS_RELATIVE_FILE_NAME(F) (! IS_ABSOLUTE_FILE_NAME (F))
++
++char *base_name (char const *path);
++char *dir_name (char const *path);
++size_t base_len (char const *path);
++size_t dir_len (char const *path);
++
++bool strip_trailing_slashes (char *path);
++
++#endif /* not DIRNAME_H_ */
+--- cpio-2.5/extern.h.can-2005-1229	2005-07-06 16:18:26.000000000 -0600
++++ cpio-2.5/extern.h	2005-07-06 16:18:26.000000000 -0600
+@@ -47,7 +47,7 @@
+ extern int sparse_flag;
+ extern int quiet_flag;
+ extern int only_verify_crc_flag;
+-extern int no_abs_paths_flag;
++extern int abs_paths_flag;
+ 
+ extern int last_header_start;
+ extern int copy_matching_files;
+@@ -141,9 +141,6 @@
+ int make_path P_((char *argpath, int mode, int parent_mode,
+ 		  uid_t owner, gid_t group, char *verbose_fmt_string));
+ 
+-/* stripslash.c */
+-void strip_trailing_slashes P_((char *path));
+-
+ /* tar.c */
+ void write_out_tar_header P_((struct new_cpio_header *file_hdr, int out_des));
+ int null_block P_((long *block, int size));
