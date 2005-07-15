@@ -1,6 +1,6 @@
---- cpio-2.4.2/copyout.c.ewt	Wed Apr 23 12:52:01 1997
-+++ cpio-2.4.2/copyout.c	Wed Apr 23 12:52:19 1997
-@@ -54,7 +54,7 @@
+--- cpio-2.6/src/copyout.c.mtime	2004-10-14 17:14:03.000000000 +0800
++++ cpio-2.6/src/copyout.c	2004-12-22 23:00:36.095838840 +0800
+@@ -305,7 +305,7 @@
        else
  	magic_string = "070701";
        sprintf (ascii_header,

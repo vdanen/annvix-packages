@@ -1,6 +1,15 @@
-%define name	cpio
-%define version 2.5
-%define release 10avx
+#
+# spec file for package cpio
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		cpio
+%define version 	2.6
+%define release 	1avx
 
 Summary:	A GNU archiving program
 Name:		%{name}
@@ -10,19 +19,18 @@ License:	GPL
 Group:		Archiving/Backup
 URL:		http://www.fsf.org/software/cpio
 Source:		ftp://prep.ai.mit.edu/pub/gnu/%{name}-%{version}.tar.bz2
-Patch1:		cpio-2.5-glibc.patch.bz2
-Patch2:		cpio-2.4.2-mtime.patch.bz2
-Patch3:		cpio-2.4.2-svr4compat.patch.bz2
-Patch9:		cpio-2.4.2-errorcode.patch.bz2
-Patch10:	cpio-2.4.2-fhs.patch.bz2
-Patch11:	cpio-2.4.2-man.patch.bz2
-Patch12:	cpio-2.5-i18n-0.1.patch.bz2
-Patch13:	cpio-2.5-CAN-1999-1572.patch.bz2
+Patch0:		cpio-2.6-mtime.patch.bz2
+Patch1:		cpio-2.6-svr4compat.patch.bz2
+Patch2:		cpio-2.6-no-libnsl.patch.bz2
+Patch3:		cpio-2.6-i18n.patch.bz2
+Patch4:		cpio-2.6-CAN-1999-1572.patch.bz2
+Patch5:		cpio-2.6-chmodRaceC.patch
+Patch6:		cpio-2.6-dirTraversal.patch
 
-BuildRoot:	%{_tmppath}/%{name}-root-%{version}
+BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
 BuildRequires:	texinfo
 
-Prereq:		info-install, /sbin/rmt
+Prereq:		info-install, tar
 
 %description
 GNU cpio copies files into or out of a cpio or tar archive.  Archives
@@ -38,34 +46,43 @@ and can read archives created on machines with a different byte-order.
 
 Install cpio if you need a program to manage file archives.
 
+
 %prep
 %setup -q
-%patch1 -p1
-%patch2 -p1
-%patch3 -p1 -b .svr4compat
-%patch9 -p1 -b .errorcode
-%patch10 -p1 -b .fhs
-%patch11 -p1 -b .man
-%patch12 -p1 -b .i18n
-%patch13 -p0 -b .can-1999-1572
+%patch0 -p1 -b .mtime
+%patch1 -p1 -b .svr4compat
+%patch2 -p1 -b .no-libnsl
+%patch3 -p1 -b .i18n
+%patch4 -p0 -b .can-1999-1572
+%patch5 -p1 -b .can-2005-1111
+%patch6 -p1 -b .can-2005-1229
+
+# needed by P4
+autoconf
+
 
 %build
-%configure
+%configure2_5x \
+    --bindir=/bin \
+    --with-rmt=/sbin/rmt CPPFLAGS=-DHAVE_LSTAT=1
 
-%make LDFLAGS=-s
+%make
+make check
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-%makeinstall bindir=$RPM_BUILD_ROOT/bin mandir=$RPM_BUILD_ROOT/%{_mandir}
-chmod 644 README NEWS
+%makeinstall_std
 
-# (sb) Installed (but unpackaged) file(s)
-rm -f $RPM_BUILD_ROOT/bin/mt
-rm -f $RPM_BUILD_ROOT%{_libdir}/rmt
+%find_lang %{name}
+
+# remove unpackaged files
 rm -f $RPM_BUILD_ROOT%{_mandir}/man1/mt.1
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %post
 %_install_info %{name}.info
@@ -73,15 +90,31 @@ rm -f $RPM_BUILD_ROOT%{_mandir}/man1/mt.1
 %preun
 %_remove_install_info %{name}.info
 
-%files
+
+%files -f %{name}.lang
 %defattr(-,root,root)
-%doc README NEWS
+%doc README NEWS AUTHORS ChangeLog
 /bin/cpio
-#/bin/mt
 %{_infodir}/cpio.*
 %{_mandir}/man1/cpio.1*
 
 %changelog
+* Thu Jul 14 2005 Vincent Danen <vdanen@annvix.org> 2.6-1avx
+- 2.6
+- make it require tar rather than /sbin/rmt; tar is a pretty
+  safe bet to have installed no matter what
+- P2: no need to link with libnsl; from fedora (deaddog)
+- P3: LSB compliance (sbenedict)
+- do make check
+- spec cleanups
+- drop unrequired patches and renumber
+- P11: security fix for CAN-1999-1572
+- P12: security fix for CAN-2005-1111
+- P13: security fix for CAN-2005-1229
+- add -DHAVE_LSTAT=1 to the CPPFLAGS so that symbolic links are
+  not replaced with files or directories but remain symlinks
+  (re mdk bugzilla #12970)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.5-10avx
 - bootstrap build
 
