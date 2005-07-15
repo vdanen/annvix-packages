@@ -1,6 +1,6 @@
 %define name	openssh
-%define version	4.0p1
-%define release 2avx
+%define version	4.1p1
+%define release 1avx
 
 ## Do not apply any unauthorized patches to this package!
 ## - vdanen 05/18/01
@@ -8,10 +8,7 @@
 
 # overrides
 %global build_skey	 0
-%global build_krb5	 1
 %{?_with_skey: %{expand: %%global build_skey 1}}
-%{?_with_krb5: %{expand: %%global build_krb5 1}}
-%{?_without_krb5: %{expand: %%global build_krb5 0}}
 
 Summary:	OpenSSH free Secure Shell (SSH) implementation
 Name:		%{name}
@@ -21,7 +18,7 @@ License:	BSD
 Group:		Networking/Remote access
 URL:		http://www.openssh.com/
 Source: 	ftp://ftp.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-%{version}.tar.gz
-Source2: 	ftp://ftp.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-%{version}.tar.gz.sig
+Source2: 	ftp://ftp.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-%{version}.tar.gz.asc
 # ssh-copy-id taken from debian, with "usage" added
 Source3:	ssh-copy-id.bz2 
 Source4:	denyusers.pam
@@ -36,11 +33,9 @@ Patch2:		openssh-3.1p1-mdk-check-only-ssl-version.patch.bz2
 BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
 BuildRequires:	groff-for-man, openssl-devel >= 0.9.7, pam-devel, tcp_wrappers-devel, zlib-devel
 BuildRequires:	db1-devel
+BuildRequires:	krb5-devel
 %if %{build_skey}
 BuildRequires:	skey-devel, skey-static-devel
-%endif
-%if %{build_krb5}
-BuildRequires:	krb5-devel
 %endif
 
 Obsoletes:	ssh
@@ -112,9 +107,6 @@ part of the secure shell protocol and allows ssh clients to connect to
 your host.
 
 %prep
-%if %{build_krb5}
-echo "Building with Kerberos5 support..."
-%endif
 %if %{build_skey}
 echo "Building with S/KEY support..."
 %endif
@@ -139,9 +131,7 @@ CFLAGS="$RPM_OPT_FLAGS" ./configure \
   --with-default-path=/usr/local/bin:/bin:/usr/bin:/usr/X11R6/bin \
   --with-xauth=/usr/X11R6/bin/xauth \
   --with-privsep-path=/var/empty \
-%if %{build_krb5}
   --with-kerberos5 \
-%endif
 %if %{build_skey}
   --with-skey \
 %endif
@@ -316,6 +306,12 @@ do_dsa_keygen
 %{_datadir}/afterboot/04_openssh
 
 %changelog
+* Thu Jul 14 2005 Vincent Danen <vdanen@annvix.org> 4.1p1-1avx
+- 4.1p1
+- fix ssh-client.sh so it doesn't assume that all non-zsh or ksh
+  shells are bourne shells (re: Claudio)
+- always build with kerberos support
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 4.0p1-2avx
 - rebuild
 
