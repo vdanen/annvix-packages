@@ -1,0 +1,8 @@
+#!/bin/sh
+PATH="/sbin:/usr/sbin:/bin:/usr/bin"
+
+# this runs ftpd and limits the server to a maximum of 30 simultaneous
+# connections (-c) using the ipsvd-instruct(5) directory ./peers for instructions,
+# and listening to all IPs on port 21 (ftp)
+
+exec /sbin/tcpsvd -c30 -v -llocalhost -i./peers 0 21 /usr/sbin/ftpd -l 2>&1
