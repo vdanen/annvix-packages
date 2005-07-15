@@ -1,11 +1,20 @@
-%define name	krb5
-%define version	1.3.6
-%define release	5avx
+#
+# spec file for package krb5
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-%define srcver	1.3
-%define LIBMAJ	1
-%define libname	%mklibname %name %LIBMAJ
-%define libnamedev %{libname}-devel
+
+%define name		krb5
+%define version		1.3.6
+%define release		6avx
+
+%define srcver		1.3
+%define LIBMAJ		1
+%define libname		%mklibname %{name} %{LIBMAJ}
+%define libnamedev	%{libname}-devel
 
 Summary:	The Kerberos network authentication system
 Name:		%{name}
@@ -20,8 +29,6 @@ Source2:	krb524d.init.bz2
 Source3:	kadmind.init.bz2
 Source4:	krb5kdc.init.bz2
 Source5:	krb5.conf.bz2
-Source6:	krb5.sh.bz2
-Source7:	krb5.csh.bz2
 Source8:	kdcrotate.bz2
 Source9:	kdc.conf.bz2
 Source10:	kadm5.acl.bz2
@@ -66,8 +73,14 @@ Patch15:	krb5-1.3.1-fdr-null.patch.bz2
 Patch16:	krb5-1.3.2-fdr-efence.patch.bz2
 Patch17:	krb5-1.3.3-fdr-rcp-sendlarge.patch.bz2
 Patch18:	krb5-1.3.6-MITKRB5-SA-2005-001-telnet.patch.bz2
+Patch19:	2005-002-patch_1.4.1.txt.bz2
+Patch20:	2005-003-patch_1.4.1.txt.bz2
+Patch21:	krb5-1.3.3-rcp-markus.patch.bz2
+Patch22:	krb5-1.4.1-api.patch.bz2
+Patch23:	krb5-1.4.1-fclose.patch.bz2
+Patch24:	krb5-1.3.6-telnet-environ.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-root
+BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
 BuildRequires:	bison, flex, libtermcap-devel, texinfo, tcl
 BuildRequires:	libext2fs-devel, chrpath
 
@@ -77,6 +90,7 @@ PreReq:		grep, info, coreutils, /sbin/install-info
 Kerberos V5 is a trusted-third-party network authentication system,
 which can improve your network's security by eliminating the insecure
 practice of cleartext passwords.
+
 
 %package -n %{libnamedev}
 Summary:	Development files needed for compiling Kerberos 5 programs.
@@ -91,6 +105,7 @@ contains the header files and libraries needed for compiling Kerberos
 5 programs. If you want to develop Kerberos-aware programs, you'll
 need to install this package.
 
+
 %package -n %{libname}
 Summary:	The shared libraries used by Kerberos 5.
 Group:		System/Libraries
@@ -102,6 +117,7 @@ Obsoletes:	krb5-libs
 Kerberos is a network authentication system.  The krb5-libs package
 contains the shared libraries needed by Kerberos 5.  If you're using
 Kerberos, you'll need to install this package.
+
 
 %package server
 Group:		System/Servers
@@ -116,6 +132,7 @@ If you're installing a Kerberos 5 server, you need to install this
 package (in other words, most people should NOT install this
 package).
 
+
 %package workstation
 Summary:	Kerberos 5 programs for use on workstations.
 Group:		System/Base
@@ -128,6 +145,7 @@ package contains the basic Kerberos programs (kinit, klist, kdestroy,
 kpasswd) as well as kerberized versions of Telnet and FTP.  If your
 network uses Kerberos, this package should be installed on every
 workstation.
+
 
 %package -n telnet-server-krb5
 Summary:	A telnet-server with kerberos support
@@ -149,6 +167,7 @@ machine.
 
 This version supports kerberos authentication.
 
+
 %package -n telnet-client-krb5
 Summary:	A telnet-client with kerberos support
 Group:		System/Servers
@@ -163,6 +182,7 @@ The telnet package provides a command line telnet client.
 Install the telnet package if you want to telnet to remote machines.
 
 This version supports kerberos authentication.
+
 
 %package -n ftp-client-krb5
 Summary:	A ftp-client with kerberos support
@@ -181,6 +201,7 @@ file transfers.
 
 This version supports kerberos authentication.
 
+
 %package -n ftp-server-krb5
 Summary:	A ftp-server with kerberos support
 Requires:	%{libname} = %{version}
@@ -193,6 +214,7 @@ Provides:	ftpserver
 The ftp-server package provides an ftp server.
 
 This version supports kerberos authentication.
+
 
 %prep
 %setup -q -a 25
@@ -217,6 +239,14 @@ This version supports kerberos authentication.
 pushd src/appl/telnet/telnet
 %patch18 -p0 -b .mitkrb5-sa-2005-001
 popd
+pushd src
+%patch19 -p0 -b .MITKRB5-SA-2005-002
+%patch20 -p0 -b .MITKRB5-SA-2005-003
+popd
+%patch21 -p1 -b .can-2004-0175
+%patch22 -p1 -b .api_crash
+%patch23 -p1 -b .double_close
+%patch24 -p1 -b .can-2005-0488
 
 find . -type f -name "*.fixinfo" -exec rm -fv "{}" ";"
 gzip doc/*.ps
@@ -241,19 +271,19 @@ DEFINES="-D_FILE_OFFSET_BITS=64" ; export DEFINES
 # is #include'd prior to checking for that symbol
 # CFLAGS=="$RPM_OPT_FLAGS $ARCH_OPT_FLAGS $DEFINES -fPIC" \
 env ac_cv_lib_resolv_res_search=yes ./configure \
-	--prefix=%_prefix \
-	--infodir=%{_infodir} \
-	--mandir=%{buildroot}%{_mandir} \
-	--localstatedir=%{_sysconfdir}/kerberos \
-	--with-krb4 \
-	--enable-dns \
-	--with-tcl=%_prefix \
-	--with-system-et \
-	--with-system-ss \
-	--libexecdir=%{_libdir} \
-	--libdir=%{_libdir} \
-	--enable-shared   \
-	--enable-static  
+    --prefix=%_prefix \
+    --infodir=%{_infodir} \
+    --mandir=%{buildroot}%{_mandir} \
+    --localstatedir=%{_sysconfdir}/kerberos \
+    --with-krb4 \
+    --enable-dns \
+    --with-tcl=%{_prefix} \
+    --with-system-et \
+    --with-system-ss \
+    --libexecdir=%{_libdir} \
+    --libdir=%{_libdir} \
+    --enable-shared   \
+    --enable-static  
 
 # some rpath cleanups
 find . -name Makefile | xargs perl -p -i -e 's@-Wl,-rpath -Wl,\$\(PROG_RPATH\)+@@';
@@ -267,6 +297,7 @@ find . -name Makefile | xargs perl -p -i -e "s@ %{_libdir}@ %{buildroot}%{_libdi
 # Run the test suite.  Won't run in the build system because /dev/pts is
 # not available for telnet tests and so on.
 # make check TMPDIR=%{_tmppath}
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -285,7 +316,7 @@ perl -pi -e 's#k5-int#krb5/kdb#g' %{buildroot}%{_includedir}/kadm5/admin.h
 find %{buildroot}%{_includedir} -type d | xargs chmod 755
 find %{buildroot}%{_includedir} -type f | xargs chmod 644
 
-#logdir
+# logdir
 mkdir -p %{buildroot}/var/log/kerberos
 
 # Info docs.
@@ -298,10 +329,8 @@ bzcat %{SOURCE9} > %{buildroot}%{_sysconfdir}/kerberos/krb5kdc/kdc.conf
 bzcat %{SOURCE10} > %{buildroot}%{_sysconfdir}/kerberos/krb5kdc/kadm5.acl
 
 # Client config files and scripts.
-mkdir -p %{buildroot}%{_sysconfdir}/profile.d
+mkdir -p %{buildroot}%{_sysconfdir}
 bzcat %{SOURCE5} > %{buildroot}/%{_sysconfdir}/krb5.conf
-bzcat %{SOURCE6} > %{buildroot}%{_sysconfdir}/profile.d/krb5.sh
-bzcat %{SOURCE7} > %{buildroot}%{_sysconfdir}/profile.d/krb5.csh
 
 # KDC init script.
 mkdir -p %{buildroot}%{_sbindir}
@@ -311,9 +340,9 @@ bzcat %{SOURCE8} > %{buildroot}%{_sbindir}/kdcrotate
 pushd src
 find . -name Makefile | xargs perl -p -i -e "s@ %{_libdir}@ %{buildroot}%{_libdir}@";
 make prefix=%{buildroot}%{_prefix} \
-	localstatedir=%{buildroot}%{_sysconfdir}/kerberos \
-	infodir=%{buildroot}%{_infodir} \
- 	libdir=%{buildroot}%{_libdir} install
+    localstatedir=%{buildroot}%{_sysconfdir}/kerberos \
+    infodir=%{buildroot}%{_infodir} \
+    libdir=%{buildroot}%{_libdir} install
 popd
 
 # Fixup strange shared library permissions.
@@ -354,12 +383,25 @@ find %{_builddir}/%{name}-%{version} -name "*\.h" | xargs perl -p -i -e "s|\"com
 chrpath -d %{buildroot}%{_libdir}/*
 strip %{buildroot}%{_bindir}/{ksu,v4rcp}
 
+pushd %{buildroot}/var
+    ln -s ..%{_sysconfdir}/kerberos .
+popd
+
+# add empty keytab file
+pushd %{buildroot}%{_sysconfdir}
+    touch kerberos/krb5kdc/kadm5.keytab
+    ln -s kerberos/krb5kdc/kadm5.keytab krb5.keytab
+popd
+
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %post -n %{libname} -p /sbin/ldconfig
 
 %postun -n %{libname} -p /sbin/ldconfig
+
 
 %post server
 %_post_srv kadmind
@@ -381,11 +423,13 @@ strip %{buildroot}%{_bindir}/{ksu,v4rcp}
 %_remove_install_info krb5-admin.info
 %_remove_install_info krb5-install.info
 
+
 %post workstation
 %_install_info krb5-user.info
 
 %preun workstation
 %_remove_install_info krb5-user.info
+
 
 %post -n telnet-server-krb5
 %_post_srv ktelnet
@@ -397,6 +441,7 @@ strip %{buildroot}%{_bindir}/{ksu,v4rcp}
 %postun -n telnet-server-krb5
 %_mkafterboot
 
+
 %post -n ftp-server-krb5
 %_post_srv kftp
 %_mkafterboot
@@ -407,12 +452,11 @@ strip %{buildroot}%{_bindir}/{ksu,v4rcp}
 %postun -n ftp-server-krb5
 %_mkafterboot
 
+
 %files workstation
 %defattr(-,root,root)
 %doc doc/*.html doc/user*.ps.gz src/config-files/services.append
 %attr(0755,root,root) %doc src/config-files/convert-config-files
-%config(noreplace) %{_sysconfdir}/profile.d/krb5.sh
-%config(noreplace) %{_sysconfdir}/profile.d/krb5.csh
 %{_infodir}/krb5-user.info*
 %{_bindir}/gss-client
 %{_bindir}/kdestroy
@@ -464,8 +508,11 @@ strip %{buildroot}%{_bindir}/{ksu,v4rcp}
 
 %files server
 %defattr(-,root,root)
+/var/kerberos
 %config(noreplace) %{_sysconfdir}/kerberos/krb5kdc/kdc.conf
 %config(noreplace) %{_sysconfdir}/kerberos/krb5kdc/kadm5.acl
+%attr(0600,root,root) %config(noreplace) %{_sysconfdir}/kerberos/krb5kdc/kadm5.keytab
+%{_sysconfdir}/krb5.keytab
 %dir %{_srvdir}/kadmind
 %dir %{_srvdir}/kadmind/log
 %dir %attr(0750,logger,logger) %{_srvlogdir}/kadmind
@@ -584,7 +631,23 @@ strip %{buildroot}%{_bindir}/{ksu,v4rcp}
 %config(noreplace) %{_srvdir}/kftp/peers/0
 %{_datadir}/afterboot/08_kftp
 
+
 %changelog
+* Thu Jul 14 2005 Vincent Danen <vdanen@annvix.org> 1.3.6-6avx
+- P19, P20: security fix for CAN-2005-1174, CAN-2005-1175, CAN-2005-1689
+- P21: security fix for CAN-2004-0175 (port of fixes to krb5-aware rcp)
+- P22: keep apps which call krb5_principal_compare() or krb5_realm_compare() with
+  malformed or NULL principal structures from crashing outright (Thomas Biege)
+- P23: fix double-close in keytab handling (Nalin Dahyabhai)
+- P24: security fix for CAN-2005-0488 (telnet client environment variable disclosure)
+- add symlink of /var/kerberos to /etc/kerberos
+- add symlink of /etc/krb5.keytab to /etc/kerberos/krb5kdc/kadm5.keytab since krb5 actually
+  uses it by default rather than what we have tucked away
+- add empty kadm5.keytab file
+- drop S6 and S7; all they did was set the PATH to include /usr/bin and /usr/sbin (if
+  root) which doesn't make sense and seems stupid and redundant
+- update configs to s/MANDRAKESOFT.COM/ANNVIX.ORG/
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.3.6-5avx
 - bootstrap build
 
