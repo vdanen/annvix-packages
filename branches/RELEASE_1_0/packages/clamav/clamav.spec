@@ -1,9 +1,18 @@
-%define name	clamav
-%define version	0.83
-%define release	2avx
+#
+# spec file for package clamav
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-%define	major	1
-%define libname	%mklibname %{name} %{major}
+
+%define name		clamav
+%define version		0.86.1
+%define release		1avx
+
+%define	major		1
+%define libname		%mklibname %{name} %{major}
 
 Summary:	An anti-virus utility for Unix
 Name:		%{name}
@@ -20,9 +29,9 @@ Source4:	clamd.run
 Source5:	clamd-log.run
 Source6:	freshclam.run
 Source7:	freshclam-log.run
-Patch0:		clamav-0.83-avx-config.patch.bz2
+Patch0:		clamav-0.86.1-avx-config.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
+BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
 BuildRequires:	autoconf2.5, automake1.7
 BuildRequires:	zlib-devel, gmp-devel, curl-devel, bzip2-devel
 
@@ -79,8 +88,8 @@ Obsoletes:	%{name}-devel lib%{name}-devel
 This package contains the static %{libname} library and its header
 files.
 
-%prep
 
+%prep
 %setup -q -n %{name}-%{version}
 
 # clean up
@@ -105,14 +114,15 @@ libtoolize --copy --force && aclocal-1.7 && autoconf && automake-1.7
     --with-dbdir=%{_localstatedir}/%{name} \
     --enable-id-check \
     --enable-clamuko \
-    --enable-debug \
     --enable-bigstack \
     --with-libcurl \
     --with-zlib=%{_prefix} \
     --disable-zlib-vcheck \
     --disable-milter --without-tcpwrappers
+#   --enable-debug
 
 %make 
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -149,7 +159,7 @@ mkdir -p %{buildroot}%{_localstatedir}/%{name}/tmp
 
 %post
 %_post_srv freshclam
-%create_ghostfile /var/log/%{name}/freshclam.log %{name} %{name} 0644
+%create_ghostfile /var/log/%{name}/freshclam.log %{name} %{name} 0640
 
 %preun
 %_preun_srv freshclam
@@ -162,7 +172,7 @@ mkdir -p %{buildroot}%{_localstatedir}/%{name}/tmp
 
 %post -n clamd
 %_post_srv clamd
-%create_ghostfile /var/log/%{name}/clamd.log %{name} %{name} 0644
+%create_ghostfile /var/log/%{name}/clamd.log %{name} %{name} 0640
 
 %preun -n clamd
 %_preun_srv clamd
@@ -197,7 +207,7 @@ done
 %files
 %defattr(-,root,root)
 %doc AUTHORS BUGS ChangeLog FAQ NEWS README test UPGRADE
-%doc contrib/clamdwatch contrib/clamavmon
+%doc contrib/clamdwatch contrib/clamavmon contrib/clamdmon
 %doc COPYING
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/clamd.conf
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/freshclam.conf
@@ -216,7 +226,7 @@ done
 %dir %attr(0755,clamav,clamav) /var/run/%{name}
 %dir %attr(0755,clamav,clamav) %{_localstatedir}/%{name}
 %dir %attr(0755,clamav,clamav) /var/log/%{name}
-%ghost %attr(0644,clamav,clamav) /var/log/%{name}/freshclam.log
+%ghost %attr(0640,clamav,clamav) /var/log/%{name}/freshclam.log
 %dir %{_srvdir}/freshclam
 %dir %{_srvdir}/freshclam/log
 %{_srvdir}/freshclam/run
@@ -229,7 +239,7 @@ done
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/logrotate.d/clamd
 %{_sbindir}/clamd
 %{_mandir}/man8/clamd.8*
-%ghost %attr(0644,clamav,clamav) /var/log/%{name}/clamd.log
+%ghost %attr(0640,clamav,clamav) /var/log/%{name}/clamd.log
 %dir %{_srvdir}/clamd
 %dir %{_srvdir}/clamd/log
 %{_srvdir}/clamd/run
@@ -259,6 +269,13 @@ done
 %{_libdir}/pkgconfig/libclamav.pc
       
 %changelog
+* Tue Jul 19 2005 Vincent Danen <vdanen@annvix.org> 0.86.1-1avx
+- 0.86.1 (fixes a possible crash in libmspack's Quantum decompressor)
+- make the freshclam and clamd logfiles mode 0640 rather than 0644
+
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 0.83-3avx
+- rebuild
+
 * Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 0.83-2avx
 - use logger for logging
 
