@@ -1,8 +1,17 @@
-%define name	dhcpcd
-%define	version	1.3.22pl4
-%define release	7avx
+#
+# spec file for package dhcpcd
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-%define	rversion 1.3.22-pl4
+
+%define name		dhcpcd
+%define	version		1.3.22pl4
+%define release		8avx
+
+%define	rversion	1.3.22-pl4
 
 Summary:	DHCPC Daemon
 Name:		%{name}
@@ -13,26 +22,31 @@ Group:		System/Servers
 URL:		http://www.phystech.com/download/dhcpcd.html
 Source:		ftp://sunsite.unc.edu/pub/Linux/system/network/daemons/dhcpcd-%{rversion}.tar.bz2
 Patch0:		dhcpcd-1.3.22-pl4-resolvrdv.patch.bz2
+Patch1:		dhcpcd-1.3.22pl4-CAN-2005-1848.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-root
+BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
 
 %description
-dhcpcd is an implementation of the DHCP  client  specified in
-draft-ietf-dhc-dhcp-09  (when  -r option is not speci- fied) and RFC1541
+dhcpcd is an implementation of the DHCP client specified in
+draft-ietf-dhc-dhcp-09 (when -r option is not specified) and RFC1541
 (when -r option is specified).
 
-It gets the host information (IP address, netmask,  broad- cast  address,
+It gets the host information (IP address, netmask, broad- cast address,
 etc.) from a DHCP server and configures the network interface of the
-machine on which it  is  running.  It also tries to renew the lease time
+machine on which it is running.  It also tries to renew the lease time
 according to RFC1541 or draft-ietf-dhc-dhcp-09.
+
 
 %prep
 %setup -q -n %{name}-%{rversion}
 %patch0 -p1 -b .resolvrdv
+%patch1 -p1 -b .can-2005-1848
+
 
 %build
 %configure2_5x
 %make DEFS="%{optflags}"
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -46,6 +60,7 @@ install -s -m 0755 dhcpcd.exe %{buildroot}%{_sysconfdir}/dhcpc/
 install -m 0644 dhcpcd.8 %{buildroot}%{_mandir}/man8/dhcpcd.8
 touch %{buildroot}/var/log/%{name}.log
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
@@ -56,6 +71,7 @@ if [ $1 = 1 ]; then # first install
 	%create_ghostfile dhcpcd root root 644
 fi
 
+
 %files
 %defattr(-,root,root)
 %doc README ChangeLog COPYING INSTALL *.lsm
@@ -64,7 +80,11 @@ fi
 %{_mandir}/man8/dhcpcd.8*
 %ghost /var/log/%{name}.log
 
+
 %changelog
+* Tue Jul 19 2005 Vincent Danen <vdanen@annvix.org> 1.3.22pl4-8avx
+- P1: fix CAN-2005-1848 (low security; no official update issued)
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 1.3.22pl4-7avx
 - rebuild
 
