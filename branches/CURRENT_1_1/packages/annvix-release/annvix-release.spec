@@ -1,9 +1,18 @@
-%define name	annvix-release
-%define version	1.0
-%define release	2avx
+#
+# spec file for package annvix-release
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-%define distrib	Hades
-%define realversion 1.0-RELEASE
+
+%define name		annvix-release
+%define version		1.1
+%define release		1avx
+
+%define distrib		Icarus
+%define realversion 	1.1-CURRENT
 
 Summary:	Annvix release file
 Name:		%{name}
@@ -14,7 +23,7 @@ URL:		http://annvix.org/
 Group:		System/Configuration/Other
 Source:		%{name}.tar.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-root
+BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
 
 Obsoletes:	rawhide-release redhat-release mandrake-release opensls-release
 Provides:	redhat-release rawhide-release mandrake-release opensls-release
@@ -31,6 +40,7 @@ mkdir -p %{buildroot}%{_sysconfdir}
 echo "Annvix release %{realversion} (%{distrib}) for %{_target_cpu}" > %{buildroot}%{_sysconfdir}/annvix-release
 ln -sf annvix-release %{buildroot}%{_sysconfdir}/redhat-release
 ln -sf annvix-release %{buildroot}%{_sysconfdir}/mandrake-release
+ln -sf annvix-release %{buildroot}%{_sysconfdir}/release
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -41,8 +51,13 @@ ln -sf annvix-release %{buildroot}%{_sysconfdir}/mandrake-release
 %{_sysconfdir}/annvix-release
 %{_sysconfdir}/mandrake-release
 %{_sysconfdir}/redhat-release
+%{_sysconfdir}/release
 
 %changelog
+* Thu Jul 21 2005 Vincent Danen <vdanen@annvix.org> 1.1-1avx
+- long overdue tagging of 1.1-CURRENT (actually got lost somewhere)
+- make /etc/release a symlink too
+
 * Thu Mar 17 2005 Vincent Danen <vdanen@annvix.org> 1.0-2avx
 - 1.0-RELEASE
 
