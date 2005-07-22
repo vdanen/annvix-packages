@@ -1,7 +1,16 @@
-%define	module	Compress-Zlib
-%define	name	perl-%{module}
-%define	version	1.33
-%define	release	2avx
+#
+# spec file for package gcc
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define	module		Compress-Zlib
+%define	name		perl-%{module}
+%define	version		1.35
+%define	release		1avx
 
 Summary:	%{module} module for perl
 Name:		%{name}
@@ -12,13 +21,14 @@ Group:		Development/Perl
 URL:		http://search.cpan.org/dist/%{module}/
 Source0:	%{module}-%{version}.tar.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
+BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
 BuildRequires:	perl-devel zlib-devel
 
 Requires:	perl
 
 %description
-%{module} module for perl
+The Compress::Zlib module provides a Perl interface to the zlib compression
+library.
 
 %prep
 %setup -q -n %{module}-%{version}
@@ -43,6 +53,9 @@ make test
 %{perl_vendorarch}/auto/Compress
 
 %changelog
+* Thu Jul 21 2005 Vincent Danen <vdanen@annvix.org> 1.35-1avx
+- 1.35
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.33-2avx
 - bootstrap build
 
