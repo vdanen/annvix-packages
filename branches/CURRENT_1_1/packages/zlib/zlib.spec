@@ -8,8 +8,8 @@
 
 
 %define name		zlib
-%define version		1.2.2.2
-%define release 	2avx
+%define version		1.2.3
+%define release 	1avx
 
 %define lib_major	1
 %define lib_name	%{name}%{lib_major}
@@ -34,7 +34,6 @@ Patch0:		zlib-1.2.1-glibc.patch.bz2
 Patch1:		zlib-1.2.1-multibuild.patch.bz2
 Patch2:		zlib-1.2.2.2-build-fPIC.patch.bz2
 Patch3:		zlib-1.2.1.1-deb-alt-inflate.patch.bz2
-Patch4:		zlib-1.2.2.2-CAN-2005-2096.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
 
@@ -83,7 +82,6 @@ will use the zlib library.
 %patch0 -p1
 %patch1 -p1 -b .multibuild
 %patch2 -p1 -b .build-fPIC
-%patch4 -p1 -b .can-2005-2096
 
 %build
 mkdir objs
@@ -161,6 +159,10 @@ ln -s ../../%{_lib}/libz.so.%{version} %{buildroot}%{_libdir}/
 %{_mandir}/*/*
 
 %changelog
+* Tue Jul 21 2005 Vincent Danen <vdanen@annvix.org> 1.2.3-1avx
+- 1.2.3; also fixes CAN-2005-1849
+- remove P4; merged upstream
+
 * Tue Jul 19 2005 Vincent Danen <vdanen@annvix.org> 1.2.2.2-2avx
 - P4: patch to fix CAN-2005-2096
 
