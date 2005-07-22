@@ -1,6 +1,16 @@
-%define name	multiarch-utils
-%define version	1.0.7
-%define release 2avx
+#
+# spec file for package libtool
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		multiarch-utils
+%define version		1.0.7
+%define release 	3avx
+%define multiarch_distro 100
 
 Summary:	Tools to help creation of multiarch binaries and includes
 Name:		%{name}
@@ -8,10 +18,10 @@ Version:	%{version}
 Release:	%{release}
 License:	GPL
 Group:		Development/Other
-URL:		http://www.mandrakelinux.com/
+URL:		http://www.mandrivalinux.com/
 Source0:	%{name}-%{version}.tar.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
+BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
 BuildArch:	noarch
 
 %description
@@ -25,7 +35,7 @@ binaries and include files during RPM package build.
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-%makeinstall_std
+%makeinstall_std MULTIARCH_DIST=%{multiarch_distro}
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -42,6 +52,11 @@ binaries and include files during RPM package build.
 %{_prefix}/X11R6/lib/X11/config/multiarch-dispatch-host.def
 
 %changelog
+* Thu Jul 21 2005 Vincent Danen <vdanen@annvix.org> 1.0.7-3avx
+- set the multiarch_distro tag so multiarch macros work
+- change the fact that the Makefile is pulling the value of
+  multiarch_distro from the bloody tarball's specfile (huh?!?)
+
 * Thu Jun 02 2005 Vincent Danen <vdanen@annvix.org> 1.0.7-2avx
 - bootstrap build
 
