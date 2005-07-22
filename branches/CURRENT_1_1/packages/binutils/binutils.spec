@@ -1,16 +1,20 @@
-# RH 2.14.90.0.4-19, SuSE 2.13.90.0.18-6
-%define name		%{package_prefix}binutils
-%define version		2.14.90.0.7
-%define release		4avx
+#
+# spec file for package binutils
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+# mdk 2.16.91.0.1-1mdk
+%define name		binutils
+%define version		2.16.91.0.1
+%define release		1avx
 
 %define lib_major	2
-%define lib_name_orig	%{package_prefix}%mklibname binutils
+%define lib_name_orig	%mklibname binutils
 %define lib_name	%{lib_name_orig}%{lib_major}
-
-# Define if building a cross-binutils
-%define package_prefix	%{nil}
-%{expand: %{?cross:	%%define target_cpu %{cross}}}
-%{expand: %{?cross:	%%define package_prefix cross-%{target_cpu}-}}
 
 Summary:	GNU Binary Utility Development Utilities
 Name:		%{name}
@@ -20,14 +24,17 @@ License:	GPL
 Group:		Development/Other
 URL:		http://sources.redhat.com/binutils/
 Source0:	http://ftp.kernel.org/pub/linux/devel/binutils/binutils-%{version}.tar.bz2
-Patch0:		binutils-2.13.90.0.10-x86_64-testsuite.patch.bz2
-Patch1:		binutils-2.13.90.0.10-x86_64-gotpcrel.patch.bz2
-Patch2:		binutils-2.14.90.0.5-testsuite-Wall-fixes.patch.bz2
-Patch3:		binutils-2.14.90.0.7-eh-frame-ro.patch.bz2
-Patch4:		binutils-2.14.90.0.5-lt-relink.patch.bz2
+Patch0:		binutils-2.15.92.0.2-x86_64-testsuite.patch.bz2
+Patch1:		binutils-2.14.90.0.5-testsuite-Wall-fixes.patch.bz2
+Patch2:		binutils-2.14.90.0.5-lt-relink.patch.bz2
+Patch3:		binutils-2.15.92.0.2-linux32.patch.bz2
+Patch4:		binutils-2.15.94.0.2-place-orphan.patch.bz2
+Patch5:		binutils-2.15.92.0.2-ppc64-pie.patch.bz2
+Patch6:		binutils-2.16.90.0.2-skip-weak-defs-if-strong-defs-available.patch.bz2
+Patch7:		binutils-2.16.91.0.1-deps.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-root
-BuildRequires:	autoconf automake bison flex gcc gettext texinfo
+BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
+BuildRequires:	autoconf automake bison flex gcc gettext texinfo glibc-static-devel
 BuildRequires:	dejagnu
 
 Requires:	%{lib_name} = %{version}-%{release}
@@ -50,6 +57,7 @@ Binutils is a collection of binary utilities, including:
 Install binutils if you need to perform any of these types of actions on
 binary files.  Most programmers will want to install binutils.
 
+
 %package -n %{lib_name}
 Summary:	Main library for %{name}
 Group:		System/Libraries
@@ -58,6 +66,7 @@ Provides:	%{lib_name_orig}
 %description -n %{lib_name}
 This package contains the library needed to run programs dynamically
 linked with binutils.
+
 
 %package -n %{lib_name}-devel
 Summary:	Main library for %{name}
@@ -71,34 +80,33 @@ linked with binutils.
 
 This is the development headers for %{lib_name}
 
+
 %prep
-%setup -q -n binutils-%{version}
-%patch0 -p1 -b .x86_64-testsuite
-%patch1 -p1 -b .x86_64-gotpcrel
-%patch2 -p1 -b .testsuite-Wall-fixes
-%patch3 -p1 -b .eh-frame-ro
-%patch4 -p1 -b .lt-relink
+%setup -q
+%patch1 -p1 -b .testsuite-Wall-fixes
+%patch2 -p1 -b .lt-relink
+%patch3 -p1 -b .linux32
+%patch4 -p0 -b .place-orphan
+%patch5 -p0 -b .ppc64-pie
+%patch6 -p1 -b .fix-strong-defs
+%patch7 -p1 -b .deps
+
 
 %build
 # Additional targets
 ADDITIONAL_TARGETS=
 %ifarch ia64
-ADDITIONAL_TARGETS="--enable-targets=i586-opensls-linux"
+ADDITIONAL_TARGETS="--enable-targets=i586-annvix-linux"
 %endif
 %ifarch %{ix86}
-ADDITIONAL_TARGETS="--enable-targets=amd64-opensls-linux"
+ADDITIONAL_TARGETS="--enable-targets=x86_64-annvix-linux"
 %endif
-%if "%{name}" != "binutils"
-ADDITIONAL_TARGETS="--target=%{target_cpu}-linux"
-%endif
+
 # Binutils comes with its own custom libtool
 # [gb] FIXME: but system libtool also works and has relink fix
 %define __libtoolize /bin/true
 %configure --enable-shared $ADDITIONAL_TARGETS
 %make tooldir=%{_prefix} all info
-%if "%{name}" != "binutils"
-exit 0
-%endif
 
 # Disable gasp tests since the tool is deprecated henceforth neither
 # built nor already installed
@@ -106,7 +114,7 @@ exit 0
 
 # All Tests must pass on x86 and x86_64/amd64
 echo ====================TESTING=========================
-%ifarch %{ix86} x86_64 amd64 ppc
+%ifarch %{ix86} x86_64 ppc ppc64
 # because the S-records tests always fail for some reason (bi must be a
 # magic machine)
 rm -rf ld/testsuite/ld-srec
@@ -119,33 +127,28 @@ echo ====================TESTING END=====================
 logfile="%{name}-%{version}-%{release}.log"
 rm -f $logfile; find . -name "*.sum" | xargs cat >> $logfile
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p $RPM_BUILD_ROOT%{_prefix}
 %makeinstall_std
 
-%if "%{name}" == "binutils"
 make prefix=$RPM_BUILD_ROOT%{_prefix} infodir=$RPM_BUILD_ROOT%{_infodir} install-info
-install -m 644 include/libiberty.h $RPM_BUILD_ROOT%{_includedir}/
+install -m 0644 include/libiberty.h $RPM_BUILD_ROOT%{_includedir}/
 # Ship with the PIC libiberty
-install -m 644 libiberty/pic/libiberty.a $RPM_BUILD_ROOT%{_libdir}/
+install -m 0644 libiberty/pic/libiberty.a $RPM_BUILD_ROOT%{_libdir}/
 rm -rf $RPM_BUILD_ROOT%{_prefix}/%{_target_platform}/
-%else
-rm -f  $RPM_BUILD_ROOT%{_libdir}/libiberty.a
-rm -rf $RPM_BUILD_ROOT%{_infodir}
-rm -rf $RPM_BUILD_ROOT%{_prefix}/%{target_cpu}-linux/lib/ldscripts/
-rm -f  $RPM_BUILD_ROOT%{_prefix}/%{_target_platform}/%{target_cpu}-linux/%{_lib}/*.la
-%endif
 
 rm -f $RPM_BUILD_ROOT%{_mandir}/man1/{dlltool,nlmconv,windres}*
 rm -f $RPM_BUILD_ROOT%{_infodir}/dir
 rm -f $RPM_BUILD_ROOT%{_libdir}/*.la
 rm -rf $RPM_BUILD_ROOT%{_datadir}/locale/
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-%if "%{name}" == "binutils"
+
 %post
 %_install_info as.info
 %_install_info bfd.info
@@ -154,9 +157,8 @@ rm -rf $RPM_BUILD_ROOT%{_datadir}/locale/
 %_install_info gprof.info
 %_install_info ld.info
 %_install_info standards.info
-%endif
 
-%if "%{name}" == "binutils"
+
 %preun
 %_remove_install_info as.info
 %_remove_install_info bfd.info
@@ -165,52 +167,42 @@ rm -rf $RPM_BUILD_ROOT%{_datadir}/locale/
 %_remove_install_info gprof.info
 %_remove_install_info ld.info
 %_remove_install_info standards.info
-%endif
+
 
 %post -n %{lib_name} -p /sbin/ldconfig
 %postun -n %{lib_name} -p /sbin/ldconfig
+
 
 %files
 %defattr(-,root,root)
 %doc README
 %{_bindir}/*
 %{_mandir}/man1/*
-%if "%{name}" == "binutils"
 %{_infodir}/*info*
-%else
-%{_prefix}/%{target_cpu}-linux/bin/*
-%endif
 
 %files -n %{lib_name}
 %defattr(-,root,root)
 %doc README
-%if "%{name}" == "binutils"
 %{_libdir}/libbfd-%{version}.so
 %{_libdir}/libopcodes-%{version}.so
-%else
-%{_prefix}/%{_target_platform}/%{target_cpu}-linux/%{_lib}/libbfd-%{version}.so
-%{_prefix}/%{_target_platform}/%{target_cpu}-linux/%{_lib}/libopcodes-%{version}.so
-%endif
 
 %files -n %{lib_name}-devel
 %defattr(-,root,root)
 %doc README
-%if "%{name}" == "binutils"
 %{_includedir}/*
 %{_libdir}/libbfd.a
 %{_libdir}/libbfd.so
 %{_libdir}/libopcodes.a
 %{_libdir}/libopcodes.so
 %{_libdir}/libiberty.a
-%else
-%{_prefix}/%{_target_platform}/%{target_cpu}-linux/include/*
-%{_prefix}/%{_target_platform}/%{target_cpu}-linux/%{_lib}/libbfd.a
-%{_prefix}/%{_target_platform}/%{target_cpu}-linux/%{_lib}/libbfd.so
-%{_prefix}/%{_target_platform}/%{target_cpu}-linux/%{_lib}/libopcodes.a
-%{_prefix}/%{_target_platform}/%{target_cpu}-linux/%{_lib}/libopcodes.so
-%endif
+
 
 %changelog
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.16.91.0.1-1avx
+- 2.16.91.0.1
+- BuildRequires: glibc-static-devel
+- remove support for cross-compilation
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.14.90.0.7-4avx
 - bootstrap build
 - make tests without stack protection so we don't get failed tests
