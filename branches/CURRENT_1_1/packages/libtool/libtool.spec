@@ -1,11 +1,19 @@
-%define name	libtool
-%define version	1.5.12
-%define release	2avx
+#
+# spec file for package libtool
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		libtool
+%define version		1.5.12
+%define release		3avx
 
 %define lib_major	3
 %define libname_orig	libltdl
 %define libname		%mklibname ltdl %{lib_major}
-%define gcc_ver		%(%{__cc} -dumpversion)
 
 # do "make check" by default
 %define do_check 1
@@ -44,11 +52,11 @@ Patch5:		libtool-1.5-testfailure.patch.bz2
 Patch6:		libtool-1.5.6-old-libtool.patch.bz2
 Patch7:		libtool-1.5.12-really-pass-thread-flags.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root
+BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
 BuildRequires:	automake1.8, autoconf2.5
 
 PreReq:		info-install
-Requires:	file, gcc = %{gcc_ver}
+Requires:	file, gcc
 
 %description
 The libtool package contains the GNU libtool, a set of shell scripts
@@ -60,6 +68,7 @@ libraries.
 If you are developing programs which will use shared libraries, you
 should install libtool.
 
+
 %package -n %{libname}
 Group:		Development/C
 Summary:	Shared library files for libtool
@@ -67,6 +76,7 @@ Provides:	%{libname_orig} = %{version}-%{release}
 
 %description -n %{libname}
 Shared library files for libtool DLL library from the libtool package.
+
 
 %package -n %{libname}-devel
 Group:		Development/C
@@ -78,6 +88,7 @@ Provides:	%{name}-devel
 
 %description -n %{libname}-devel
 Development headers, and files for development from the libtool package.
+
 
 %prep
 %setup -q
@@ -99,74 +110,75 @@ ACLOCAL=aclocal-1.8 AUTOMAKE=automake-1.8 ./bootstrap
 # And don't overwrite config.{sub,guess} in this package as well -- Abel
 %define __cputoolize /bin/true
 
-### multiarch
-## build alt-arch libtool first
-## NOTE: don't bother to make libtool biarch capable within the same
-## "binary", use the multiarch facility to dispatch to the right script.
-#%ifarch %biarches
-#mkdir -p build-%{alt_arch}-%{_target_os}
-#pushd    build-%{alt_arch}-%{_target_os}
-#linux32 ../configure --prefix=%{_prefix} --build=%{alt_arch}-%{_real_vendor}-%{_target_os}%{?_gnu}
-#linux32 make
-#popd
-#%endif
-#
-#mkdir -p build-%{_target_cpu}-%{_target_os}
-#pushd    build-%{_target_cpu}-%{_target_os}
-#CONFIGURE_TOP=.. %configure2_5x
-###
-
-%make
-
-%if %{do_check}
-set +x
-echo ====================TESTING=========================
-set -x
-#%ifarch ia64
-# - ia64: SIGILL when running hellodl
-#make check || echo make check failed
-#%else
-# all tests must pass here
-make check
-#%endif
-set +x
-echo ====================TESTING END=====================
-set -x
-
-make -C demo clean
+# build alt-arch libtool first
+# NOTE: don't bother to make libtool biarch capable within the same
+# "binary", use the multiarch facility to dispatch to the right script.
+%ifarch %{biarches}
+mkdir -p build-%{alt_arch}-%{_target_os}
+pushd    build-%{alt_arch}-%{_target_os}
+    linux32 ../configure --prefix=%{_prefix} --build=%{alt_arch}-%{_real_vendor}-%{_target_os}%{?_gnu}
+    linux32 make
+popd
 %endif
-#popd
+
+mkdir -p build-%{_target_cpu}-%{_target_os}
+    pushd build-%{_target_cpu}-%{_target_os}
+    CONFIGURE_TOP=.. %configure2_5x
+    %make
+
+    %if %{do_check}
+    set +x
+    echo ====================TESTING=========================
+    set -x
+    #%ifarch ia64
+    # - ia64: SIGILL when running hellodl
+    #make check || echo make check failed
+    #%else
+    # all tests must pass here
+    make check
+    #%endif
+    set +x
+    echo ====================TESTING END=====================
+    set -x
+
+    make -C demo clean
+    %endif
+popd
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-%makeinstall_std
-# -C build-%{_target_cpu}-%{_target_os}
+
+%makeinstall_std -C build-%{_target_cpu}-%{_target_os}
 
 sed -e "s,@prefix@,%{_prefix}," -e "s,@datadir@,%{_datadir}," %{SOURCE2} \
   > %{buildroot}%{_bindir}/cputoolize
-chmod 755 %{buildroot}%{_bindir}/cputoolize
+chmod 0755 %{buildroot}%{_bindir}/cputoolize
 
-### multiarch
-## biarch support
-#%ifarch %biarches
-#%multiarch_binaries $RPM_BUILD_ROOT%{_bindir}/libtool
-#install -m 755 build-%{alt_arch}-%{_target_os}/libtool $RPM_BUILD_ROOT%{_bindir}/libtool
-#linux32 /bin/sh -c '%multiarch_binaries $RPM_BUILD_ROOT%{_bindir}/libtool'
-#%endif
-###
+# biarch support
+%ifarch %biarches
+%multiarch_binaries $RPM_BUILD_ROOT%{_bindir}/libtool
+install -m 755 build-%{alt_arch}-%{_target_os}/libtool $RPM_BUILD_ROOT%{_bindir}/libtool
+linux32 /bin/sh -c '%multiarch_binaries $RPM_BUILD_ROOT%{_bindir}/libtool'
+%endif
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
+
 %post
 %_install_info %{name}.info
 
+
 %post -n %{libname} -p /sbin/ldconfig
+
 
 %preun
 %_remove_install_info %{name}.info
 
+
 %postun -n %{libname} -p /sbin/ldconfig
+
 
 %files
 %defattr(-,root,root)
@@ -191,6 +203,11 @@ chmod 755 %{buildroot}%{_bindir}/cputoolize
 
 
 %changelog
+* Thu Jul 21 2005 Vincent Danen <vdanen@annvix.org> 1.5.12-3avx
+- multiarch
+- don't use the crappy hack to get the gcc version and just make it
+  require gcc
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.5.12-2avx
 - bootstrap build
 
