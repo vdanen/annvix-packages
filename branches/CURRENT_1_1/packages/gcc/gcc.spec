@@ -8,7 +8,7 @@
 
 %define name			gcc
 %define version			3.4.4
-%define release			1avx
+%define release			2avx
 
 %define _unpackaged_files_terminate_build 0
 
@@ -305,7 +305,7 @@ pushd colorgcc-%{color_gcc_version}
 perl -pi -e 's|GCC_VERSION|%{version}|' colorgcc*
 popd
 
-%patch1 -p1 -b .hardened_cflags
+#%patch1 -p1 -b .hardened_cflags
 #%patch2 -p1 -b .no_fixincludes
 %patch3 -p1 -b .ssp
 %patch4 -p1 -b .linkonce
@@ -400,6 +400,14 @@ pushd obj-%{_target_platform}
     ../contrib/test_summary > $logfile
 popd
 echo ====================TESTING END=====================
+
+
+pushd obj-%{_target_platform}/gcc
+    # update specs to force -fstack-protector-all on everything we build
+    # apply the patch here so we can still use -bi --short-circuit
+    patch -p0 < %{PATCH5}
+popd
+
  
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -427,13 +435,7 @@ pushd colorgcc-%{color_gcc_version}
     done
 popd
 
-pushd obj-%{_target_platform};
-
-    # update specs to force -fstack-protector-all on everything we build
-    pushd gcc
-        patch -p0 < %{PATCH5}
-    popd
-
+pushd obj-%{_target_platform}
     %makeinstall_std
 popd
 
@@ -578,9 +580,8 @@ pushd %{buildroot}%{_libdir}
 popd
 
 %ifarch %{biarches}
-pushd %{buildroot}%{_prefix}/lib
+pushd %{buildroot}/lib
     chmod 0755 libgcc_s.so.%{libgcc_major}
-    mkdir -p %{buildroot}/lib
     mv -f  libgcc_s.so.%{libgcc_major} %{buildroot}/lib/libgcc_s-%{version}.so.%{libgcc_major}
     ln -sf libgcc_s-%{version}.so.%{libgcc_major} %{buildroot}/lib/libgcc_s.so.%{libgcc_major}
     ln -sf ../../lib/libgcc_s.so.%{libgcc_major} %{buildroot}%{_prefix}/lib/libgcc_s.so
@@ -920,6 +921,13 @@ if [ "$1" = "0" ];then /sbin/install-info %{_infodir}/gcc.info.bz2 --dir=%{_info
 %{_infodir}/gcc.info*
 
 %changelog
+* Thu Jul 21 2005 Vincent Danen <vdanen@annvix.org> 3.4.3-2avx
+- don't apply P2 as it messes up the x86_64 build
+- relocate where we apply the hardened specs patch so we can still
+  use -bi --short-circuit
+- fix the x86_64 biarch stuff
+- fix the specs patch to not include PIE support for now
+
 * Wed Jul 20 2005 Vincent Danen <vdanen@annvix.org> 3.4.3-1avx
 - 3.4.3
 - merge with mandrake 3.4.3-7mdk (from 10.2)
