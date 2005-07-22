@@ -9,7 +9,7 @@
 
 %define name		libtool
 %define version		1.5.12
-%define release		3avx
+%define release		4avx
 
 %define lib_major	3
 %define libname_orig	libltdl
@@ -54,6 +54,9 @@ Patch7:		libtool-1.5.12-really-pass-thread-flags.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
 BuildRequires:	automake1.8, autoconf2.5
+%ifarch %{biarches}
+BuildRequires:	setarch
+%endif
 
 PreReq:		info-install
 Requires:	file, gcc
@@ -203,6 +206,10 @@ linux32 /bin/sh -c '%multiarch_binaries $RPM_BUILD_ROOT%{_bindir}/libtool'
 
 
 %changelog
+* Thu Jul 21 2005 Vincent Danen <vdanen@annvix.org> 1.5.12-4avx
+- rebuild against gcc 3.4.4
+- BuildRequires: setarch
+
 * Thu Jul 21 2005 Vincent Danen <vdanen@annvix.org> 1.5.12-3avx
 - multiarch
 - don't use the crappy hack to get the gcc version and just make it
