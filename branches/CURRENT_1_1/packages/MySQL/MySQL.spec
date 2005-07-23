@@ -1,6 +1,15 @@
-%define name	MySQL
-%define version	4.1.11
-%define release	2avx
+#
+# spec file for package MySQL
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		MySQL
+%define version		4.1.12
+%define release		1avx
 
 %define major		14
 %define libname		%mklibname mysql %{major}
@@ -31,7 +40,6 @@ Source7:	logrotate.mysqld
 Source8:	my.cnf
 Patch0:		mysql-4.1.10-install_script_mysqld_safe.diff.bz2
 Patch1:		mysql-4.1.3-lib64.diff.bz2
-Patch2:		mysql-4.1.7-manual_split.diff.bz2
 Patch3:		mysql-errno.patch.bz2
 Patch4:		mysql-libdir.patch.bz2
 Patch5:		mysql-4.1.10-libtool.diff.bz2
@@ -41,11 +49,12 @@ Patch7:		db-4.1.24-amd64-mutexes.diff.bz2
 # NPTL pthreads mutexes are evil
 Patch8:		db-4.1.24-disable-pthreadsmutexes.diff.bz2
 Patch9:		mysql-4.1.9-disable-pthreadsmutexes.diff.bz2
+Patch10:	mysql-4.1.12-mdk-noproc.patch.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
 BuildRequires:	bison, glibc-static-devel, libstdc++-static-devel, autoconf2.5, automake1.7
 BuildRequires:	termcap-devel, multiarch-utils 
-BuildRequires:	ncurses-devel, python, openssl-static-devel, tetex, texinfo, zlib-devel, readline-devel
+BuildRequires:	ncurses-devel, python, openssl-static-devel, zlib-devel, readline-devel
 
 Provides:       MySQL-server
 PreReq:		MySQL-common = %{version}-%{release} rpm-helper runit
@@ -148,7 +157,6 @@ to MySQL basic server.
 
 %patch0 -p1 -b .install_script_mysqld_safe
 %patch1 -p1 -b .lib64
-%patch2 -p0 -b .manual_split
 %patch3 -p1 -b .errno_as_defines
 %patch4 -p1 -b .libdir
 %patch5 -p0 -b .libtool
@@ -156,14 +164,7 @@ to MySQL basic server.
 %patch7 -p1 -b .amd64-mutexes
 %patch8 -p1 -b .pthreadsmutexes
 %patch9 -p0 -b .disable-pthreadsmutexes
-
-# hack to fix a bug in the make Docs files otherwise the make fails
-touch Docs/Images/myaccess-odbc.txt Docs/Images/myaccess.txt Docs/Images/myarchitecture.txt \
-  Docs/Images/mydll-properties.txt Docs/Images/mydsn-example.txt Docs/Images/mydsn-icon.txt \
-  Docs/Images/mydsn-options.txt Docs/Images/mydsn-setup.txt Docs/Images/mydsn-test-fail.txt \
-  Docs/Images/mydsn-test-success.txt Docs/Images/mydsn-trace.txt Docs/Images/mydsn.txt \
-  Docs/Images/myflowchart.txt Docs/Images/cluster-components-1.txt Docs/Images/multi-comp-1.txt \
-  Docs/errmsg-table.texi Docs/cl-errmsg-table.texi
+%patch10 -p1 -b .noproc
 
 # fix annoyances
 perl -pi -e "s|AC_PROG_RANLIB|AC_PROG_LIBTOOL|g" configure*
@@ -208,6 +209,10 @@ export MYSQL_BUILD_CXXFLAGS="$CXXFLAGS"
 # Use MYSQL_BUILD_PATH so that we can use a dedicated version of gcc
 #
 export PATH=${MYSQL_BUILD_PATH:-/bin:/usr/bin}	
+export PS="/bin/ps"
+export FIND_PROC="/bin/ps p $$PID"
+export KILL="/bin/kill"
+export CHECK_PID="/bin/kill -0 $$PID"
 
 # The --enable-assembler simply does nothing on systems that do not
 # support assembler speedups.
@@ -234,6 +239,7 @@ MYSQL_COMMON_CONFIGURE="--prefix=/ \
 	--with-openssl \
 	--with-berkeley-db \
 	--with-innodb \
+	--with-big-tables \
 	--without-debug \
 	--with-mysqld-user=%{mysqld_user} \
 	--with-unix-socket-path=%{_localstatedir}/mysql/mysql.sock"
@@ -519,7 +525,7 @@ fi
 
 %files common -f mysql.lang
 %defattr(-,root,root) 
-%doc README COPYING Docs/*.html Docs/*.txt support-files/*.cnf Docs/manual-split
+%doc README COPYING
 %config(noreplace) %{_sysconfdir}/logrotate.d/mysql
 %config(noreplace) %{_sysconfdir}/sysconfig/mysqld
 %config(noreplace) %{_sysconfdir}/my.cnf
@@ -600,7 +606,6 @@ fi
 %{_bindir}/mysql_config
 %{_includedir}/mysql
 %multiarch %{multiarch_includedir}/mysql/my_config.h
-%multiarch %{multiarch_includedir}/mysql/my_config-ndb.h
 %dir %{_libdir}/mysql
 %{_libdir}/*.la
 %{_libdir}/*.so
@@ -608,6 +613,13 @@ fi
 %{_libdir}/mysql/*.a
 
 %changelog
+* Fri Jul 22 2005 Vincent Danen <vdanen@annvix.org> 4.1.12-1avx
+- 4.1.12
+- drop P2
+- html docs are gone
+- P10: make it build in a chroot without /proc mounted (PLD)
+- don't require texinfo or tetex
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 4.1.11-2avx
 - bootstrap build
 
