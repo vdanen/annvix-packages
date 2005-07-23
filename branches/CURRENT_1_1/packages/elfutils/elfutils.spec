@@ -1,12 +1,21 @@
-%define name	elfutils
-%define version	0.89
-%define release	2avx
+#
+# spec file for package elfutils
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-%define major	1
-%define libname	%mklibname %{name} %{major}
 
-%define _gnu	%{nil}
-%define _programprefix eu-
+%define name		elfutils
+%define version		0.99
+%define release		1avx
+
+%define major		1
+%define libname		%mklibname %{name} %{major}
+
+%define _gnu		%{nil}
+%define _programprefix 	eu-
 
 %define build_check		1
 %{expand: %{?_without_CHECK:	%%define build_check 0}}
@@ -16,13 +25,12 @@ Summary:	A collection of utilities and DSOs to handle compiled objects
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
-License:	GPL
+License:	OSL
 Group:		Development/Other
 Source:		elfutils-%{version}.tar.bz2
-Patch0:		elfutils-0.89-mdk-fixlets.patch.bz2
 Patch1:		elfutils-0.89-gentoo-atime.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-root
+BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
 BuildRequires:	gcc >= 3.2, sharutils, libtool-devel
 
 Requires:	%{libname} = %{version}-%{release}
@@ -36,8 +44,9 @@ Elfutils is a collection of utilities, including:
    * %{_programprefix}readelf: the see the raw ELF file structures
    * %{_programprefix}elflint: to check for well-formed ELF files
 
+
 %package -n %{libname}-devel
-Summary:	Development libraries to handle compiled objects.
+Summary:	Development libraries to handle compiled objects
 Group:		Development/Other
 Requires:	%{libname} = %{version}-%{release}
 Provides:	%{name}-devel, lib%{name}-devel
@@ -51,11 +60,11 @@ applications for handling compiled objects.
    * libelf allows you to access the internals of the ELF object file
      format, so you can see the different sections of an ELF file.
    * libebl provides some higher-level ELF access functionality.
-   * libdwarf provides access to the DWARF debugging information.
    * libasm provides a programmable assembler interface.
 
+
 %package -n %{libname}-static-devel
-Summary:	Static libraries for development with libelfutils.
+Summary:	Static libraries for development with libelfutils
 Group:		Development/Other
 Requires:	%{libname}-devel = %{version}-%{release}
 Provides:	%{name}-static-devel, lib%{name}-static-devel
@@ -66,8 +75,9 @@ Provides:	libelf-static-devel, libelf0-static-devel
 This package contains the static libraries to create applications for
 handling compiled objects.
 
+
 %package -n %{libname}
-Summary:	Libraries to read and write ELF files.
+Summary:	Libraries to read and write ELF files
 Group:		System/Libraries
 Provides:	lib%{name}
 Obsoletes:	libelf, libelf0
@@ -82,32 +92,35 @@ also to generate new ELF files.
 Also included are numerous helper libraries which implement DWARF,
 ELF, and machine-specific ELF handling.
 
+
 %prep
 %setup -q
-%patch0 -p1 -b .fixlets
 %patch1 -p1 -b .atime
 
 %build
+%ifarch x86_64
+# cheap hack to yank -Werror out since it kills the build on x86_64
+perl -pi -e s'/-Werror//g' */Makefile.{in,am}
+%endif
+
 mkdir build-%{_target_platform}
 pushd build-%{_target_platform}
-../configure \
-  --prefix=%{_prefix} --exec-prefix=%{_exec_prefix} \
-  --bindir=%{_bindir} --sbindir=%{_sbindir} --sysconfdir=%{_sysconfdir} \
-  --datadir=%{_datadir} --includedir=%{_includedir} --libdir=%{_libdir} \
-  --libexecdir=%{_libexecdir} --localstatedir=%{_localstatedir} \
-  --sharedstatedir=%{_sharedstatedir} --mandir=%{_mandir} \
-  --infodir=%{_infodir} --program-prefix=%{_programprefix} --enable-shared
-%make
-%if %{build_check}
-%make check
-%endif
+    CONFIGURE_TOP=.. \
+    %configure2_5x \
+        --program-prefix=%{_programprefix} \
+        --enable-shared
+    %make
+    %if %{build_check}
+        %make check
+    %endif
 popd
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p $RPM_BUILD_ROOT%{_prefix}
 
-%makeinstall -C build-%{_target_platform}
+%makeinstall_std -C build-%{_target_platform}
 
 chmod +x $RPM_BUILD_ROOT%{_libdir}/lib*.so*
 chmod +x $RPM_BUILD_ROOT%{_libdir}/elfutils/lib*.so*
@@ -119,29 +132,30 @@ chmod +x $RPM_BUILD_ROOT%{_libdir}/elfutils/lib*.so*
   rm -f .%{_includedir}/elfutils/libdw.h
   rm -f .%{_includedir}/elfutils/libdwarf.h
   rm -f .%{_libdir}/libasm{-%{version},}.so
-  rm -f .%{_libdir}/libasm.a
-  rm -f .%{_libdir}/libasm.so
-  rm -f .%{_libdir}/libdw{-%{version},}.so
-  rm -f .%{_libdir}/libdw.a
-  rm -f .%{_libdir}/libdw.so
-  rm -f .%{_libdir}/libdwarf.{a,so}
+  rm -f .%{_libdir}/libasm.{a,so}
+  rm -f .%{_libdir}/libdw.{a,so}
 }
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
+
 %post -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
 
+
 %files
 %defattr(-,root,root)
-%doc README NEWS TODO libdwarf/AVAILABLE
+%doc README NEWS TODO NOTES
 %{_bindir}/eu-elflint
 #%{_bindir}/eu-ld
 %{_bindir}/eu-nm
 %{_bindir}/eu-readelf
 %{_bindir}/eu-size
 %{_bindir}/eu-strip
+%{_libdir}/libdw-%{version}.so
+%{_libdir}/libdw*.so.*
 %dir %{_libdir}/elfutils
 %{_libdir}/elfutils/lib*.so
 
@@ -175,12 +189,14 @@ chmod +x $RPM_BUILD_ROOT%{_libdir}/elfutils/lib*.so*
 #%{_libdir}/libasm*.so.*
 #%{_libdir}/libebl-%{version}.so
 #%{_libdir}/libebl*.so.*
-#%{_libdir}/libdw-%{version}.so
-#%{_libdir}/libdw*.so.*
-%{_libdir}/libdwarf-%{version}.so
-%{_libdir}/libdwarf*.so.*
+
 
 %changelog
+* Fri Jul 22 2005 Vincent Danen <vdanen@annvix.org> 0.99-1avx
+- 0.99
+- change License: s/GPL/OSL/
+- drop P0
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.89-2avx
 - bootstrap build
 
