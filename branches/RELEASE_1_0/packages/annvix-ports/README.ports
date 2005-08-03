@@ -5,13 +5,13 @@ FreeBSD, OpenBSD, and others.  It's even somewhat similar, in concept, to
 Gentoo's portage.
 
 The primary difference is that Annvix's ports system creates rpm packages. 
-It doesn't install these packages, it just creates them.
+It can install these packages, but it doesn't by default.
 
 To get started with the ports system, you will need to keep the ports tree
 up to date with the Annvix ports tree in CVS.  This can be done by:
 
 # cd /usr/local/ports
-# make checkout
+# ./builder -c
 
 This will connect to the Annvix CVS repository and download the entire
 ports tree.  The ports tree consists of patches, spec files, and scripts to
@@ -20,16 +20,16 @@ create the RPM files.
 To refresh the ports tree and download the latest ports packages, use:
 
 # cd /usr/local/ports
-# make update
+# ./builder -u
 
 To create an RPM file for joe, for example, use:
 
-# cd /usr/local/ports/ports/joe
-$ make
+# cd /usr/local/ports
+$ ./builder -p joe
 
 This will download any required source files (requires an active internet
 connection) and compile it to create both src.rpm and binary rpm files. This
-step should be done as an admin user and not as root. These files will then
+step must be done as an admin user and not as root. These files will then
 be copied into /usr/local/ports/{RPMS,SRPMS} and the appropriate hdlists will
 be generated.
 
@@ -37,7 +37,7 @@ Once you create your first ports package, you should create the urpmi source
 by using:
 
 # cd /usr/local/ports
-# make urpmi
+# ./builder -s
 
 This will add the ports tree as a urpmi media.  From this point forward, you
 can execute:
