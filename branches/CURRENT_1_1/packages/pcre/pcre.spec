@@ -1,6 +1,15 @@
-%define name	pcre
-%define version	4.5
-%define	release	3avx
+#
+# spec file for package pcre
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		pcre
+%define version		4.5
+%define	release		4avx
 
 %define major		0
 %define libname_orig	lib%{name}
@@ -13,9 +22,9 @@ Release:	%{release}
 License: 	BSD-Style
 Group: 		File tools
 URL: 		http://www.pcre.org/
-Source:		%name-%version.tar.bz2
+Source:		%{name}-%{version}.tar.bz2
 
-BuildRoot: 	%{_tmppath}/%{name}-%{version}-buildroot
+BuildRoot: 	%{_buildroot}/%{name}-%{version}
 BuildRequires:	autoconf2.5, automake1.7
 
 Requires: 	%{libname} = %{version}
@@ -26,6 +35,7 @@ the POSIX API are also supplied in the library libpcreposix. Note that this
 just provides a POSIX calling interface to PCRE: the regular expressions
 themselves still follow Perl syntax and semantics. 
 This package contains a grep variant based on the PCRE library.
+
 
 %package -n %{libname}
 Group:		System/Libraries
@@ -54,13 +64,14 @@ Provides:	%{name}-devel = %{version}-%{release}
 Install this package if you want do compile applications using the pcre
 library.
 
+
 %prep
 %setup -q
-
 # always regen, otherwise libtool will behave funny
 %__libtoolize -c -f
 aclocal-1.7
 autoconf
+
 
 %build
 %configure2_5x --enable-utf8
@@ -73,44 +84,52 @@ STUDY_SIZE=`./study_size`
 perl -pi -e "s,(Study size\s+=\s+)\d+,\${1}$STUDY_SIZE," testdata/testoutput*
 make check
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
-mkdir -p $RPM_BUILD_ROOT/%_lib
-mv $RPM_BUILD_ROOT/%_libdir/lib%{name}.so.%{major}.* $RPM_BUILD_ROOT/%_lib
-cd $RPM_BUILD_ROOT/%_libdir
-ln -s ../../%_lib/lib%{name}.so.%{major}.* .
+mkdir -p %{buildroot}/%{_lib}
+mv %{buildroot}/%{_libdir}/lib%{name}.so.%{major}.* %{buildroot}/%{_lib}
+cd %{buildroot}/%{_libdir}
+ln -s ../../%{_lib}/lib%{name}.so.%{major}.* .
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
+
 %post -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
  
+
 %files
 %defattr(-,root,root)
-%_mandir/man1/pcregrep.1*
-%_mandir/man1/pcretest.1*
-%_bindir/pcregrep  
-%_bindir/pcretest
+%{_mandir}/man1/pcregrep.1*
+%{_mandir}/man1/pcretest.1*
+%{_bindir}/pcregrep  
+%{_bindir}/pcretest
 
 %files -n %{libname}
 %defattr(-,root,root)
 %doc AUTHORS ChangeLog NEWS README NON-UNIX-USE 
-/%_lib/lib*.so.*
-%_libdir/lib*.so.*
+/%{_lib}/lib*.so.*
+%{_libdir}/lib*.so.*
 
 %files -n %{libname}-devel
 %defattr(-,root,root)
-%_libdir/lib*.a
-%_libdir/lib*.la
-%_libdir/lib*.so
-%_includedir/*.h
-%_bindir/pcre-config
-%_mandir/man3/*.3*
+%{_libdir}/lib*.a
+%{_libdir}/lib*.la
+%{_libdir}/lib*.so
+%{_includedir}/*.h
+%{_bindir}/pcre-config
+%{_mandir}/man3/*.3*
+
 
 %changelog
+* Wed Jul 27 2005 Vincent Danen <vdanen@annvix.org> 4.5-4avx
+- rebuild for new gcc
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 4.5-3avx
 - bootstrap build
 

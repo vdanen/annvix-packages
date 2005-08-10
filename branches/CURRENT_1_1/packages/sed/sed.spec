@@ -1,6 +1,15 @@
-%define name	sed
-%define version	4.1.4
-%define release	2avx
+#
+# spec file for package readline
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		sed
+%define version		4.1.4
+%define release		3avx
 
 Summary:	A GNU stream text editor
 Name:		%{name}
@@ -11,7 +20,7 @@ Group:		Editors
 URL:		http://www.gnu.org/software/sed/
 Source0:	ftp://ftp.gnu.org/pub/gnu/sed/sed-%{version}.tar.bz2
 
-Buildroot:	%{_tmppath}/%{name}-%{version}-root
+Buildroot:	%{_buildroot}/%{name}-%{version}
 
 Prereq:		info-install
 
@@ -22,13 +31,16 @@ operations on the text and outputs the modified text.  The operations
 that sed performs (substitutions, deletions, insertions, etc.) can be
 specified in a script file or from the command line.
 
+
 %prep
 %setup -q
+
 
 %build
 %configure2_5x --bindir=/bin
 %make LDFLAGS=-s
 make check
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -38,14 +50,17 @@ rm -rf %{buildroot}%{_datadir}/doc
 
 %find_lang %{name}
 
+
 %post
 %_install_info %{name}.info
 
 %preun
 %_remove_install_info %{name}.info
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files -f %{name}.lang
 %defattr(-,root,root)
@@ -55,6 +70,9 @@ rm -rf %{buildroot}%{_datadir}/doc
 %{_mandir}/man1/sed.1.bz2
 
 %changelog
+* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 4.1.4-3avx
+- rebuild for new gcc
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 4.1.4-2avx
 - bootstrap build
 

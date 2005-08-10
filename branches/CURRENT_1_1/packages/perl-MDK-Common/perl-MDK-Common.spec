@@ -1,6 +1,15 @@
-%define name	perl-MDK-Common
-%define version 1.1.22
-%define release 2avx
+#
+# spec file for package perl-MDK-Common
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+%define module		MDK-Common
+%define name		perl-%{module}
+%define version 	1.1.22
+%define release 	3avx
 
 %ifarch x86_64
 %define build_option	PERL_CHECKER_TARGET='debug-code BCSUFFIX=""'
@@ -10,19 +19,17 @@
 %define require_ocaml	%nil
 %endif
 
-Summary:	Various simple functions for Mandrakelinux tools
+Summary:	Various simple functions for Mandriva Linux tools
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	GPL
 Group:		Development/Perl
-URL:		http://cvs.mandrakesoft.com/cgi-bin/cvsweb.cgi/soft/perl-MDK-Common/
+URL:		http://cvs.mandriva.com/cgi-bin/cvsweb.cgi/soft/perl-MDK-Common/
 Source0:	%{name}.tar.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	ocaml >= 3.08
-
-Conflicts:	drakxtools-newt < 9.1-30mdk, drakconf < 9.1-14mdk
 
 %description
 Various simple functions created for DrakX
@@ -37,21 +44,26 @@ Requires:	perl-base >= 2:5.8.0 %{require_ocaml}
 %description devel
 Various verifying scripts created for DrakX
 
+
 %prep
 %setup -q -n %{name}
 
+
 %build
-make %build_option
+make %{build_option}
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-%makeinstall_std %build_option
+%makeinstall_std %{build_option}
 
 # remove unwanted files
 rm -rf %{buildroot}%{_sysconfdir}/emacs
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -68,6 +80,9 @@ rm -rf %{buildroot}%{_sysconfdir}/emacs
 
 
 %changelog
+* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 1.1.22-3avx
+- rebuild for new gcc
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.1.22-2avx
 - bootstrap build
 

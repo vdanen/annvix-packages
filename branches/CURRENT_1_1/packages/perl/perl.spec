@@ -1,17 +1,26 @@
-%define name	perl
-%define version	5.8.6
-%define release	4avx
-%define epoch	2
+#
+# spec file for package perl
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-%define rel	%nil
+
+%define name		perl
+%define version		5.8.6
+%define release		5avx
+%define epoch		2
+
+%define rel		%nil
+%define threading 	0
+%define debugging 	0
 %define _requires_exceptions Mac\\|VMS\\|perl >=\\|perl(Errno)\\|perl(Fcntl)\\|perl(IO)\\|perl(IO::File)\\|perl(IO::Socket::INET)\\|perl(IO::Socket::UNIX)\\|perl(Tk)\\|perl(Tk::Pod)
-%define threading 0
-%define debugging 0
 
-%if %threading
-%define thread_arch -thread-multi
+%if %{threading}
+%define thread_arch 	-thread-multi
 %else
-%define thread_arch %{nil}
+%define thread_arch 	%{nil}
 %endif
 
 %define arch		%(echo %{_arch} | sed -e "s/amd64/x86_64/")
@@ -52,7 +61,7 @@ Patch28:	perl-5.8.6-CAN-2005-0155_0156.patch.bz2
 Patch29:	perl-5.8.5-CAN-2005-0448.patch.bz2
 Patch30:	perl-5.8.6-CAN-2004-0976.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 # for NDBM
 BuildRequires:	db1-devel, db2-devel, gdbm-devel, man
 %ifarch x86_64
@@ -139,31 +148,31 @@ This is the documentation package for %{name}.  It also contains the
 
 %build
 %ifarch ppc
-  RPM_OPT_FLAGS=`echo "%{optflags}"|sed -e 's/-O2/-O1/g'`
+RPM_OPT_FLAGS=`echo "%{optflags}"|sed -e 's/-O2/-O1/g'`
 %endif
 
 sh Configure -des \
-  -Dinc_version_list="5.8.5 5.8.4 5.8.3 5.8.2 5.8.1 5.8.0 5.6.1 5.6.0" \
-  -Darchname=%{arch}-%{_os} \
-  -Dcc='%{__cc}' \
+    -Dinc_version_list="5.8.5 5.8.4 5.8.3 5.8.2 5.8.1 5.8.0 5.6.1 5.6.0" \
+    -Darchname=%{arch}-%{_os} \
+    -Dcc='%{__cc}' \
 %if %{debugging}
-  -Doptimize=-g -DDEBUGGING \
+    -Doptimize=-g -DDEBUGGING \
 %else
-  -Doptimize="%{optflags}" \
+    -Doptimize="%{optflags}" \
 %endif
-  -Dprefix=%{_prefix} -Dvendorprefix=%{_prefix} -Dsiteprefix=%{_prefix} \
-  -Dotherlibdirs=/usr/local/lib/perl5:/usr/local/lib/perl5/site_perl \
-  -Dman3ext=3pm \
-  -Dcf_by=Annvix -Dmyhostname=localhost -Dperladmin=root@localhost -Dcf_email=root@localhost \
-  -Dd_dosuid \
-  -Ud_csh \
-  -Duseshrplib \
-  -Accflags=-DPERL_DISABLE_PMC \
-%if %threading
-  -Duseithreads \
+    -Dprefix=%{_prefix} -Dvendorprefix=%{_prefix} -Dsiteprefix=%{_prefix} \
+    -Dotherlibdirs=/usr/local/lib/perl5:/usr/local/lib/perl5/site_perl \
+    -Dman3ext=3pm \
+    -Dcf_by=Annvix -Dmyhostname=localhost -Dperladmin=root@localhost -Dcf_email=root@localhost \
+    -Dd_dosuid \
+    -Ud_csh \
+    -Duseshrplib \
+    -Accflags=-DPERL_DISABLE_PMC \
+%if %{threading}
+    -Duseithreads \
 %endif
 %ifarch sparc
-  -Ud_longdbl \
+    -Ud_longdbl \
 %endif
   
 make
@@ -175,9 +184,9 @@ RPM_BUILD_ROOT="" make test_harness_notty CCDLFLAGS=
 rm -f perl
 make perl
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-
 %makeinstall_std
 
 install -d %{buildroot}%{perl_root}/vendor_perl/%{version}/%{full_arch}/auto
@@ -465,8 +474,10 @@ EOF
    perl -ni -e 'BEGIN { open F, "perl-doc.list"; !/perldiag/ and m|(/.*\n)| and $s{$1} = 1 foreach <F>; } print unless $s{$_}' perl.list
 )
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files -f perl.list
 %defattr(-,root,root)
@@ -482,6 +493,9 @@ EOF
 %defattr(-,root,root)
 
 %changelog
+* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 5.8.6-5avx
+- rebuild for new gcc
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 5.8.6-4avx
 - bootstrap build
 

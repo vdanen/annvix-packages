@@ -1,12 +1,21 @@
-%define name	slang
-%define version 1.4.9
-%define release 9avx
+#
+# spec file for package slang
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		slang
+%define version 	1.4.9
+%define release 	10avx
 
 %define docversion	1.4.8
 %define major		1
 %define	libname		%mklibname %{name} %{major}
 
-Summary:	The shared library for the S-Lang extension language.
+Summary:	The shared library for the S-Lang extension language
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -23,7 +32,7 @@ Patch3:		slang-utf8-fix.patch.bz2
 Patch4:		slang-utf8-revert_soname.patch.bz2
 Patch5:		slang-1.4.9-offbyone.patch.bz2
 
-BuildRoot:	%{_tmppath}/slang-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 
 %description
 S-Lang is an interpreted language and a programming library.  The
@@ -32,6 +41,7 @@ a program to provide the program with a powerful extension language.
 The S-Lang library, provided in this package, provides the S-Lang
 extension language.  S-Lang's syntax resembles C, which makes it easy
 to recode S-Lang procedures in C if you need to.
+
 
 %package -n %{libname}
 Summary:	The shared library for the S-Lang extension language.
@@ -61,9 +71,6 @@ and header files which you'll need if you want to develop S-Lang based
 applications.  Documentation which may help you write S-Lang based
 applications is also included.
 
-Install the slang-devel package if you want to develop applications
-based on the S-Lang extension language.
-
 
 %prep
 %setup -q
@@ -75,20 +82,22 @@ based on the S-Lang extension language.
 
 cp %{SOURCE2} .
 
+
 %build
 %configure2_5x	--includedir=%{_includedir}/slang
 
 #(peroyvind) passing this to configure does'nt work..
-%make ELF_CFLAGS="$RPM_OPT_FLAGS -fno-strength-reduce -fPIC" elf
+%make ELF_CFLAGS="%{optflags} -fno-strength-reduce -fPIC" elf
 %make all
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p %{buildroot}%{_includedir}/slang
-make	prefix=%{buildroot}%{_prefix} \
-	install_lib_dir=%{buildroot}%{_libdir} \
-	install_include_dir=%{buildroot}%{_includedir}/slang \
-	install-elf install
+make prefix=%{buildroot}%{_prefix} \
+    install_lib_dir=%{buildroot}%{_libdir} \
+    install_include_dir=%{buildroot}%{_includedir}/slang \
+    install-elf install
 
 ln -sf lib%{name}.so.%{version} %{buildroot}%{_libdir}/lib%{name}.so.%{major}
 
@@ -96,6 +105,7 @@ rm -f doc/doc/tm/tools/`arch`objs doc/doc/tm/tools/solarisobjs
 
 # Remove unpackages files
 rm -rf	%{buildroot}/usr/doc/slang
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -118,6 +128,9 @@ rm -rf	%{buildroot}/usr/doc/slang
 %{_includedir}/slang/*.h
 
 %changelog
+* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 1.4.9-10avx
+- rebuild for new gcc
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.4.9-9avx
 - bootstrap build
 

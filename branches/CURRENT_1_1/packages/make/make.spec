@@ -1,7 +1,16 @@
-%define name	make
-%define version	3.80
-%define release	10avx
-%define epoch	1
+#
+# spec file for package make
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		make
+%define version		3.80
+%define release		11avx
+%define epoch		1
 
 Summary:	A GNU tool which simplifies the build process for users
 Name:		%{name}
@@ -11,12 +20,12 @@ Epoch:		%{epoch}
 License:	GPL
 Group:		Development/Other
 URL:		http://www.gnu.org/directory/GNU/make.html
-Source:		ftp://ftp.gnu.org/pub/gnu/make/%name-%version.tar.bz2
+Source:		ftp://ftp.gnu.org/pub/gnu/make/%{name}-%{version}.tar.bz2
 # to remove once those po files are included in standard sources
 Source1:	%{name}-pofiles.tar.bz2
 Patch0:		make-3.80-no-hires-timestamp.patch.bz2
 
-BuildRoot:	%_tmppath/%name-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	gettext-devel
 
 Prereq:		info-install
@@ -29,13 +38,12 @@ knowledge about the details of the build process.  The details about how
 the program should be built are provided for make in the program's
 makefile.
 
-The GNU make tool should be installed on your system because it is
-commonly used to simplify the process of installing programs.
 
 %prep
 %setup -q -a1
 # WARNING: only configure script is patched
 %patch0 -p1 -b .no-hires-timestamp
+
 
 %build
 %configure2_5x
@@ -43,23 +51,25 @@ commonly used to simplify the process of installing programs.
 # all tests must pass
 make check
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-
 %makeinstall
 
-ln -sf make $RPM_BUILD_ROOT%_bindir/gmake
+ln -sf make %{buildroot}%{_bindir}/gmake
 
 # some hand dealing; to remove when the %{name}-pofiles.tar.bz2 is removed
 for i in i18n/*.po ; do
-  mkdir -p $RPM_BUILD_ROOT/%{_datadir}/locale/`basename $i .po`/LC_MESSAGES
-  msgfmt -v -o $RPM_BUILD_ROOT/%{_datadir}/locale/`basename $i .po`/LC_MESSAGES/%{name}.mo $i
+    mkdir -p %{buildroot}%{_datadir}/locale/`basename $i .po`/LC_MESSAGES
+    msgfmt -v -o %{buildroot}%{_datadir}/locale/`basename $i .po`/LC_MESSAGES/%{name}.mo $i
 done
 
-%find_lang %name
+%find_lang %{name}
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %post
 %_install_info make.info
@@ -67,16 +77,20 @@ done
 %preun
 %_remove_install_info make.info
 
-%files -f %name.lang
+
+%files -f %{name}.lang
 %defattr(-,root,root)
 %doc ABOUT-NLS AUTHORS COPYING ChangeLog README README.customs SCOPTIONS NEWS
 %doc glob/COPYING.LIB glob/ChangeLog
-%_bindir/make
-%_bindir/gmake
-%_mandir/man1/make.1*
-%_infodir/make.info*
+%{_bindir}/make
+%{_bindir}/gmake
+%{_mandir}/man1/make.1*
+%{_infodir}/make.info*
 
 %changelog
+* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 3.80-11avx
+- rebuild for new gcc
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 3.80-10avx
 - bootstrap build
 

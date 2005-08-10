@@ -1,9 +1,18 @@
-%define name	newt
-%define version 0.51.6
-%define release 2avx
+#
+# spec file for package newt
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-%define majver		0.51
-%define libname		%mklibname %{name} %{majver}
+
+%define name		newt
+%define version 	0.51.6
+%define release 	3avx
+
+%define major		0.51
+%define libname		%mklibname %{name} %{major}
 
 Summary:	A development library for text mode user interfaces
 Name:		%{name}
@@ -17,7 +26,7 @@ Patch1:		newt-mdkconf.patch.bz2
 Patch2:		newt-0.51.4-fix-wstrlen-for-non-utf8-strings.patch.bz2
 Patch3:		newt-0.51.6-avx-nostatic.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	glibc-static-devel, popt-devel, python-devel >= 2.2, slang-devel
 
 Requires:	slang
@@ -30,6 +39,7 @@ checkboxes, radio buttons, labels, plain text fields, scrollbars,
 etc., to text mode user interfaces.  This package contains a
 /usr/bin/dialog replacement called whiptail.  Newt is based on the
 slang library.
+
 
 %package -n %{libname}
 Summary:	Newt windowing toolkit development files library
@@ -44,6 +54,7 @@ etc., to text mode user interfaces.  This package contains the
 shared library needed by programs built with newt. Newt is based on the
 slang library.
 
+
 %package -n %{libname}-devel
 Summary:	Newt windowing toolkit development files
 Group:		Development/C
@@ -57,8 +68,6 @@ necessary for developing applications which use newt.  Newt is
 a development library for text mode user interfaces.  Newt is
 based on the slang library.
 
-Install newt-devel if you want to develop applications which will
-use newt.
 
 %prep
 %setup -q
@@ -68,10 +77,8 @@ use newt.
 %patch2 -p1
 #%patch3 -p0 -b .nostatic
 
+
 %build
-#export CFLAGS="%{optflags} -fno-stack-protector"
-#export CXXFLAGS="%{optflags} -fno-stack-protector"
-#export FFLAGS="%{optflags} -fno-stack-protector"
 export CFLAGS="%{optflags}"
 export CXXFLAGS="%{optflags}"
 export FFLAGS="%{optflags}"
@@ -80,20 +87,23 @@ export FFLAGS="%{optflags}"
 %make
 %make shared
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p %{buildroot}
 %makeinstall
-ln -sf lib%{name}.so.%{version} %{buildroot}%{_libdir}/lib%{name}.so.%{majver}
+ln -sf lib%{name}.so.%{version} %{buildroot}%{_libdir}/lib%{name}.so.%{major}
 
 rm -rf  %{buildroot}%{_libdir}/python{1.5,2.0,2.1,2.2,2.3}
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-%post -n %{libname} -p /sbin/ldconfig
 
+%post -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
+
 
 %files -n %{libname}
 %defattr (-,root,root)
@@ -114,6 +124,9 @@ rm -rf  %{buildroot}%{_libdir}/python{1.5,2.0,2.1,2.2,2.3}
 %{_libdir}/libnewt.so
 
 %changelog
+* Wed Jul 27 2005 Vincent Danen <vdanen@annvix.org> 0.51.6-3avx
+- rebuild for new gcc
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.51.6-2avx
 - bootstrap build
 - don't apply P3 and build with stack protection

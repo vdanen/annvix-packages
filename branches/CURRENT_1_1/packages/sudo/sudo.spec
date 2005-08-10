@@ -8,7 +8,7 @@
 
 %define name		sudo
 %define version		1.6.8p9
-%define release		1avx
+%define release		2avx
 %define epoch		1
 
 Summary:	Allows command execution as root for specified users
@@ -26,7 +26,7 @@ Source3:	sudo.pam
 Source4:	sudo.logrotate
 Source4:	sudo.logrotate
 
-BuildRoot:	%_tmppath/%{name}-%{version}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:  pam-devel
 
 Requires:	pam
@@ -37,22 +37,25 @@ privileges to users and log root activity. The basic philosophy is
 to give as few privileges as possible but still allow people to get
 their work done.
 
+
 %prep
-%setup -q -n %{name}-%{version}
+%setup -q
+
 
 %build
 CFLAGS="%{optflags} -D_GNU_SOURCE" \
-%configure --prefix=%_prefix \
-	   --with-logging=both \
-	   --with-logpath=/var/log/sudo.log \
-	   --with-editor=/bin/vi \
-	   --enable-log-host \
-	   --disable-log-wrap \
-	   --with-pam \
-	   --with-env-editor \
-	   --with-noexec=no \
-	   --with-secure-path="/sbin:/usr/sbin:/bin:/usr/bin:/usr/local/sbin:/usr/local/bin"
+%configure --prefix=%{_prefix} \
+    --with-logging=both \
+    --with-logpath=/var/log/sudo.log \
+    --with-editor=/bin/vi \
+    --enable-log-host \
+    --disable-log-wrap \
+    --with-pam \
+    --with-env-editor \
+    --with-noexec=no \
+    --with-secure-path="/sbin:/usr/sbin:/bin:/usr/bin:/usr/local/sbin:/usr/local/bin"
 %make CFLAGS="%{optflags} -D_GNU_SOURCE"
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -62,13 +65,13 @@ mkdir -p %{buildroot}%{_prefix}
 install_uid=$UID install_gid=$(id -g) sudoers=uid=$UID sudoers_gid=$(id -g)
 
 mkdir -p %{buildroot}/var/run/sudo
-chmod 700 %{buildroot}/var/run/sudo
+chmod 0700 %{buildroot}/var/run/sudo
 
-# Installing sample pam file
+# Install sample pam file
 mkdir -p %{buildroot}%{_sysconfdir}/pam.d
 install -m 0644 %{SOURCE3} %{buildroot}%{_sysconfdir}/pam.d/sudo
 
-# Installing logrotate file
+# Install logrotate file
 mkdir -p %{buildroot}%{_sysconfdir}/logrotate.d
 install -m 0644 %{SOURCE4} %{buildroot}%{_sysconfdir}/logrotate.d/sudo
 
@@ -78,8 +81,10 @@ chmod 0755 %{buildroot}%{_sbindir}/visudo
 # install our sudoers file
 install -m 0440 %{SOURCE2} %{buildroot}%{_sysconfdir}/sudoers
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -94,7 +99,11 @@ install -m 0440 %{SOURCE2} %{buildroot}%{_sysconfdir}/sudoers
 %{_mandir}/*/*
 /var/run/sudo
 
+
 %changelog
+* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 1:1.6.8p9-2avx
+- rebuild for new gcc
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1:1.6.8p9-1avx
 - 1.6.8p9 (fixes CAN-2005-1993)
 - move embedded "source" files into real source files (S3, S4)

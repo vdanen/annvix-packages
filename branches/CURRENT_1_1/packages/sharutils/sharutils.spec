@@ -1,8 +1,16 @@
-%define name	sharutils
-%define version	4.2.1
-%define release	20avx
+#
+# spec file for package sharutils
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-#rh-4.2.1-12
+
+%define name		sharutils
+%define version		4.2.1
+%define release		21avx
+
 Summary:	The GNU shar utilities for packaging and unpackaging shell archives
 Name:		%{name}
 Version:	%{version}
@@ -10,7 +18,7 @@ Release:	%{release}
 License:	GPL
 Group:		Archiving/Backup
 URL:		http://www.gnu.org/software/sharutils/
-Source:		ftp://prep.ai.mit.edu/pub/gnu/%name/%name-%version.tar.bz2
+Source:		ftp://prep.ai.mit.edu/pub/gnu/%{name}/%{name}-%{version}.tar.bz2
 Patch1:		sharutils-4.2-gmo.patch.bz2
 Patch2:		sharutils-4.2-man.patch.bz2
 Patch3:		sharutils-4.2-po.patch.bz2
@@ -24,7 +32,7 @@ Patch12:	sharutils-4.2.1-CAN-2004-1772.patch.bz2
 Patch13:	sharutils-4.2.1-CAN-2004-1773.patch.bz2
 Patch14:	sharutils-4.2.1-deb-302412.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	texinfo
 
 PreReq:		info-install
@@ -44,6 +52,7 @@ files.
 
 Install sharutils if you send binary files through email very often.
 
+
 %prep
 %setup -q
 %patch1 -p1
@@ -59,6 +68,7 @@ Install sharutils if you send binary files through email very often.
 %patch13 -p1 -b .can-2004-1773
 %patch14 -p1 -b .deb-302412
 
+
 %build
 %configure
 
@@ -66,6 +76,7 @@ Install sharutils if you send binary files through email very often.
 perl -pi -e 's/-lintl//g' src/Makefile
 
 %make
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -80,14 +91,17 @@ fi
 
 %find_lang %{name}
 
+
 %post
 %_install_info %{name}.info
 
 %preun
 %_remove_install_info %{name}.info
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files -f %{name}.lang
 %defattr(-,root,root,755)
@@ -97,6 +111,9 @@ fi
 %{_mandir}/man?/*
 
 %changelog
+* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 4.2.1-21avx
+- rebuild for new gcc
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 4.2.1-20avx
 - bootstrap build
 
@@ -123,7 +140,7 @@ fi
 
 * Mon Jul 21 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 4.2.1-14mdk
 - rebuild
-- rm -rf $RPM_BUILD_ROOT at the beginning of %%install
+- rm -rf %{buildroot} at the beginning of %%install
 
 * Wed Aug 14 2002 Thierry Vignaud <tvignaud@mandrakesoft.com> 4.2.1-13mdk
 - add Url (Yura Gusev)

@@ -1,6 +1,15 @@
-%define name	gawk
-%define version	3.1.2
-%define release	6avx
+#
+# spec file for package gawk
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		gawk
+%define version		3.1.2
+%define release		7avx
 
 Summary:	The GNU version of the awk text processing utility
 Name:		%{name}
@@ -16,7 +25,7 @@ Patch2:		gawk-3.1.2-pgawk.patch.bz2
 Patch3:		gawk-3.1.2-proc.patch.bz2
 Patch4:		gawk-3.1.2-regex.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 
 Provides:	awk
 PreReq:		info-install
@@ -29,8 +38,6 @@ be upwardly compatible with the Bell Labs research version of awk and
 is almost completely compliant with the 1993 POSIX 1003.2 standard for
 awk.
 
-Install the gawk package if you need a text processing utility. Gawk is
-considered to be a standard Linux tool for processing text.
 
 %prep
 %setup -q -b 1
@@ -39,6 +46,7 @@ considered to be a standard Linux tool for processing text.
 %patch3 -p1
 %patch4 -p1
 
+
 %build
 %configure
 %make
@@ -46,30 +54,39 @@ considered to be a standard Linux tool for processing text.
 # all tests must pass
 make check
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-%makeinstall  bindir=$RPM_BUILD_ROOT/bin
+%makeinstall bindir=%{buildroot}/bin
+
 %find_lang %{name}
 
-rm -f $RPM_BUILD_ROOT%{_infodir}/dir
-mkdir -p $RPM_BUILD_ROOT%{_bindir}
-cd $RPM_BUILD_ROOT%{_datadir}
-mkdir awk && 
-for  i in *.awk;do
-mv -f $i awk
-done
-cd $RPM_BUILD_ROOT%{_mandir}
-mkdir -p man1
-for i in *;do
-   mv -f $i man1 || true
-done
-cd man1
-ln -sf gawk.1.bz2 awk.1.bz2
-cd $RPM_BUILD_ROOT%{_bindir}
-ln -sf ../../bin/awk $RPM_BUILD_ROOT%{_bindir}/awk 
-ln -sf ../../bin/gawk $RPM_BUILD_ROOT%{_bindir}/gawk 
-mv $RPM_BUILD_ROOT/bin/pgawk $RPM_BUILD_ROOT%{_bindir}
-rm -f $RPM_BUILD_ROOT/bin/pgawk-%{version}
+rm -f %{buildroot}%{_infodir}/dir
+
+mkdir -p %{buildroot}{%{_bindir},%{_datadir}/awk,%{_mandir}/man1}
+
+pushd %{buildroot}%{_datadir}
+    for  i in *.awk;do
+        mv -f $i awk
+    done
+popd
+
+pushd %{buildroot}%{_mandir}
+    for i in *;do
+        mv -f $i man1 || true
+    done
+    pushd man1
+       ln -sf gawk.1.bz2 awk.1.bz2
+    popd
+popd
+
+pushd %{buildroot}%{_bindir}
+    ln -sf ../../bin/awk %{buildroot}%{_bindir}/awk 
+    ln -sf ../../bin/gawk %{buildroot}%{_bindir}/gawk 
+    mv %{buildroot}/bin/pgawk %{buildroot}%{_bindir}
+    rm -f %{buildroot}/bin/pgawk-%{version}
+popd
+
 
 %post
 %_install_info gawk.info
@@ -77,8 +94,10 @@ rm -f $RPM_BUILD_ROOT/bin/pgawk-%{version}
 %preun
 %_remove_install_info gawk.info
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files -f %{name}.lang
 %defattr(-,root,root)
@@ -91,6 +110,9 @@ rm -f $RPM_BUILD_ROOT/bin/pgawk-%{version}
 
 
 %changelog
+* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 3.1.2-7avx
+- rebuild for new gcc
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 3.1.2-6avx
 - bootstrap build
 

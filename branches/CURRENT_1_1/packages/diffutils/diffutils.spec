@@ -1,6 +1,15 @@
-%define name	diffutils
-%define version 2.8.4
-%define release 8avx
+#
+# spec file for package diffutils
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		diffutils
+%define version 	2.8.4
+%define release 	9avx
 
 Summary:	A GNU collection of diff utilities
 Name:		%{name}
@@ -9,11 +18,11 @@ Release:	%{release}
 License:	GPL
 Group:		Development/Other
 URL:		http://www.gnu.org/software/diffutils/
-Source:		ftp://ftp.gnu.org/pub/gnu/diffutils-%version.tar.bz2
+Source:		ftp://ftp.gnu.org/pub/gnu/diffutils-%{version}.tar.bz2
 Source1:	%{name}-manpages.tar.bz2
 Patch2:		diffutils-2.8.4-i18n.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	autoconf2.5
 
 Prereq:		info-install
@@ -30,11 +39,11 @@ Diffutils includes four utilities:  diff, cmp, diff3 and sdiff.
     warnings about conflicts.
   * The sdiff command can be used to merge two files interactively.
 
-Install diffutils if you need to compare text files.
 
 %prep
 %setup -q
 %patch2 -p1 -b .i18n
+
 
 %build
 autoconf
@@ -42,26 +51,29 @@ autoconf
 %make PR_PROGRAM=%{_prefix}/bin/pr
 make check
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-
 %makeinstall
 
-install -d -m755 %{buildroot}%{_mandir}/man1
-bzcat %SOURCE1|tar xf - -C %{buildroot}%{_mandir}/man1/
-#rm -f %{buildroot}%{_mandir}/man1/diff.1
-# (sb) Installed (but unpackaged) file(s) found:
-rm -fr $RPM_BUILD_ROOT/%{_infodir}/dir
+mkdir -p %{buildroot}%{_mandir}/man1
+bzcat %{SOURCE1}|tar xf - -C %{buildroot}%{_mandir}/man1/
+
+rm -fr %{buildroot}%{_infodir}/dir
    
 %find_lang %{name}
+
+
 %post 
 %_install_info diff.info
 
 %preun
 %_remove_install_info diff.info
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files -f %{name}.lang
 %defattr(-,root,root)
@@ -70,7 +82,11 @@ rm -fr $RPM_BUILD_ROOT/%{_infodir}/dir
 %{_mandir}/man*/*
 %{_infodir}/diff.info*
 
+
 %changelog
+* Wed Jul 27 2005 Vincent Danen <vdanen@annvix.org> 2.8.4-9avx
+- rebuild for new gcc
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.8.4-8avx
 - bootstrap build
 
@@ -182,7 +198,7 @@ rm -fr $RPM_BUILD_ROOT/%{_infodir}/dir
 - translations modified for de, fr, tr
 
 * Sun May 03 1998 Cristian Gafton <gafton@redhat.com>
-- fixed spec file to reference/use the $RPM_BUILD_ROOT always
+- fixed spec file to reference/use the %{buildroot} always
 
 * Wed Dec 31 1997 Otto Hammersmith <otto@redhat.com>
 - fixed where it looks for 'pr' (/usr/bin, rather than /bin)

@@ -1,6 +1,15 @@
-%define name	pkgconfig
-%define version	0.15.0
-%define release	7avx
+#
+# spec file for package pkgconfig
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		pkgconfig
+%define version		0.15.0
+%define release		8avx
 
 Summary:	Pkgconfig helps make building packages easier
 Name:		%{name}
@@ -9,19 +18,18 @@ Release:	%{release}
 License:	GPL
 Group:		Development/Other
 URL:		http://www.freedesktop.org/software/pkgconfig
-Source:		http://www.freedesktop.org/software/pkgconfig/releases/pkgconfig-%version.tar.bz2
+Source:		http://www.freedesktop.org/software/pkgconfig/releases/pkgconfig-%{version}.tar.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 
 %description
-pkgconfig is a program which helps you gather information to make
-life easier when you are compiling a program for those programs which support
-it.
+pkgconfig is a program that helps gather information to make things easier
+when compiling a program for those programs which support it.
 
-In fact, it's required to build certain packages.
 
 %prep
 %setup -q
+
 
 %build
 %{?__cputoolize: %{__cputoolize} -c glib-1.2.8}
@@ -30,15 +38,17 @@ In fact, it's required to build certain packages.
 # all tests must pass
 make check
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-
 %makeinstall_std
 
-mkdir -p $RPM_BUILD_ROOT%{_libdir}/pkgconfig
+mkdir -p %{buildroot}%{_libdir}/pkgconfig
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -49,6 +59,9 @@ mkdir -p $RPM_BUILD_ROOT%{_libdir}/pkgconfig
 %{_mandir}/man1/*
 
 %changelog
+* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 0.15.0-8avx
+- rebuild for new gcc
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.15.0-7avx
 - bootstrap build
 
@@ -67,7 +80,7 @@ mkdir -p $RPM_BUILD_ROOT%{_libdir}/pkgconfig
 
 * Wed Jul 23 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 0.15.0-2mdk
 - rebuild
-- don't rm -rf $RPM_BUILD_ROOT in %%prep
+- don't rm -rf %{buildroot} in %%prep
 
 * Tue Jan 21 2003 Frederic Crozat <fcrozat@mandrakesoft.com> 0.15.0-1mdk
 - Release 0.15.0

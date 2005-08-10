@@ -1,6 +1,15 @@
-%define name	tcltk
-%define version	%{tclvers}
-%define release	6avx
+#
+# spec file for package tcltk
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		tcltk
+%define version		%{tclvers}
+%define release		7avx
 
 %define tcl_major	8.4
 %define tk_major 	8.4
@@ -63,7 +72,7 @@ Patch43:	tclx-8.3-nobuildhelp.patch.bz2
 Patch50:	tk-8.3.3-makecfg.patch.bz2
 Patch60:	tcllib-1.0-no-tclsh-test.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	XFree86-devel,  groff
 
 %description
@@ -71,6 +80,7 @@ Tcl is a simple scripting language designed to be embedded into
 other applications.  Tcl is designed to be used with Tk, a widget
 set, which is provided in the tk package.  This package also includes
 tclsh, a simple example of a Tcl application.
+
 
 %package -n tcl
 #Version: 8.0.3
@@ -87,6 +97,7 @@ tclsh, a simple example of a Tcl application.
 If you're installing the tcl package and you want to use Tcl for
 development, you should also install the tk and tclx packages.
 
+
 %package -n tk
 #Version: 8.0.3
 Summary:	Tk GUI toolkit for Tcl, with shared libraries
@@ -99,6 +110,7 @@ scripting language. It allows you to write simple programs with full
 featured GUI's in only a little more time then it takes to write a
 text based interface. Tcl/Tk applications can also be run on Windows
 and Macintosh platforms.
+
 
 %package -n expect
 #Version: %{expvers}
@@ -114,6 +126,7 @@ to control another program and interact with it.
 Install the expect package if you'd like to develop scripts which interact
 with interactive applications.  You'll also need to install the tcl
 package.
+
 
 %package -n tclx
 #Version: %{tclXvers}
@@ -131,6 +144,7 @@ applications.
 Install TclX if you are developing applications with Tcl/Tk.  You'll
 also need to install the tcl and tk packages.
 
+
 %package -n tix
 #Version: %{Tixvers}.6
 Summary:	A set of capable widgets for Tk.
@@ -146,6 +160,7 @@ directory tree and a file manager.
 
 Install the tix package if you want to try out more complicated widgets
 for Tk.  You'll also need to have the tcl and tk packages installed.
+
 
 %package -n itcl
 #Version: %{itclvers}
@@ -169,6 +184,7 @@ another.  This object-oriented paradigm adds another level of
 organization on top of the basic variable/procedure elements, and
 the resulting code is easier to understand and maintain.
 
+
 %package -n tcllib
 #Version: %{tcllibvers}
 Summary:	Library of utility modules for tcl.
@@ -182,7 +198,6 @@ is to collect commoly used function into a single library, which users can
 rely on to be available  and stable.
 
 %prep
-
 %setup -q -c -a 1 -a 2 -a 3 -a 4 -a 5 -a 6
 
 cd tcl%{tclvers}
@@ -234,11 +249,12 @@ cd ..
 cd tix-%{tixvers}
 cd ..
 
+
 #==========================================
 %build
 for f in config.guess config.sub ; do
-        test -f /usr/share/libtool/$f || continue
-        find . -type f -name $f -exec cp /usr/share/libtool/$f \{\} \;
+    test -f /usr/share/libtool/$f || continue
+    find . -type f -name $f -exec cp /usr/share/libtool/$f \{\} \;
 done
 
 # Drill out rpath.
@@ -257,7 +273,9 @@ scriptpath=$(pwd)
 # Tcl
 #
 cd tcl%{tclvers}/unix
-%configure --enable-gcc --enable-64bit
+%configure \
+    --enable-gcc \
+    --enable-64bit
 %rmrpath
 make
 cd ../..
@@ -266,7 +284,11 @@ cd ../..
 # Tk
 #
 cd tk%{tkvers}/unix
-%configure --enable-gcc --with-tcl=../../tcl%{tclvers}/unix --enable-64bit --with-x
+%configure \
+    --enable-gcc \
+    --with-tcl=../../tcl%{tclvers}/unix \
+    --enable-64bit \
+    --with-x
 %rmrpath
 make
 cd ../..
@@ -275,7 +297,12 @@ cd ../..
 # tclX
 #
 cd tclx%{tclx_major}/unix
-%configure --enable-tk=YES --with-tcl=../../tcl%{tclvers}/unix --with-tk=../../tk%{tkvers}/unix --enable-gcc --enable-64bit
+%configure \
+    --enable-tk=YES \
+    --with-tcl=../../tcl%{tclvers}/unix \
+    --with-tk=../../tk%{tkvers}/unix \
+    --enable-gcc \
+    --enable-64bit
 %rmrpath
 find . -name 'Common.mk' -exec perl -pi -e 's|-Wl,-rpath,\$\{.*\}||g' {} \;
 make
@@ -286,7 +313,14 @@ cd ../..
 #
 cd expect-%{expect_major}
 chmod u+w testsuite/configure
-%configure --with-tclconfig=../tcl%{tclvers}/unix --with-tkconfig=../tk%{tclvers}/unix --with-tclinclude=../tcl%{tclvers}/generic --enable-shared --with-x=yes --with-tkinclude=../tk%{tclvers}/generic --enable-gcc
+%configure \
+    --with-tclconfig=../tcl%{tclvers}/unix \
+    --with-tkconfig=../tk%{tclvers}/unix \
+    --with-tclinclude=../tcl%{tclvers}/generic \
+    --enable-shared \
+    --with-x=yes \
+    --with-tkinclude=../tk%{tclvers}/generic \
+    --enable-gcc
 %rmrpath
 make
 cd ..
@@ -300,7 +334,11 @@ cd itcl%{itclvers}
 # For patch32 we have to run autoconf.
 (cd itk; rm -f configure; autoconf)
 # FIXME: probably need to run autoconfig for iwidgets* too
-%configure --enable-gcc --with-tcl=../../tcl%{tclvers}/unix --with-tk=../../tk%{tkvers}/unix --enable-shared
+%configure \
+    --enable-gcc \
+    --with-tcl=../../tcl%{tclvers}/unix \
+    --with-tk=../../tk%{tkvers}/unix \
+    --enable-shared
 %rmrpath
 make
 cd ..
@@ -309,10 +347,15 @@ cd ..
 # Tix
 #
 cd tix-%{tixvers}/unix
-%configure --enable-gcc --with-tcl=../../tcl%{tclvers}/unix --with-tk=../../tk%{tkvers}/unix
+%configure \
+    --enable-gcc \
+    --with-tcl=../../tcl%{tclvers}/unix \
+    --with-tk=../../tk%{tkvers}/unix
+
 tar xjf %{SOURCE41}
 cd tk%{tk_major}
-%configure --enable-shared
+%configure \
+    --enable-shared
 %rmrpath
 make
 cd ..
@@ -325,20 +368,21 @@ cd tcllib-%{tcllibvers}
 autoconf
 %configure
 %rmrpath
-make TCLSH_PROG=../tcl%{tclvers}/unix/tclsh LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$RPM_BUILD_DIR/%{name}-%{version}/tcl%{tclvers}/unix
+make TCLSH_PROG=../tcl%{tclvers}/unix/tclsh LD_LIBRARY_PATH=$LD_LIBRARY_PATH:%{_builddir}/%{name}-%{version}/tcl%{tclvers}/unix
 cd ../..
+
 
 #==========================================
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p ${RPM_BUILD_ROOT}
+mkdir -p %{buildroot}
 rm -f *.files
 
 # If %{_libdir} is not %{_prefix}/lib, then define EXTRA_TCLLIB_FILES
 # which contains actual non-architecture-dependent tcl code.
 if [ "%{_libdir}" != "%{_prefix}/lib" ]; then
-  EXTRA_TCLLIB_FILES="$RPM_BUILD_ROOT%{_prefix}/lib/*"
+    EXTRA_TCLLIB_FILES="%{buildroot}%{_prefix}/lib/*"
 fi
 
 #------------------------------------------
@@ -362,19 +406,19 @@ cd tcl%{tclvers}/unix
 %makeinstall
 cd ../..
 
-pushd $RPM_BUILD_ROOT%_bindir
-ln -fs tclsh* tclsh
+pushd %{buildroot}%{_bindir}
+    ln -fs tclsh* tclsh
 popd
 
-pushd $RPM_BUILD_ROOT%_libdir
-GenerateLinkerScript tcl %{tcl_major}
+pushd %{buildroot}%{_libdir}
+    GenerateLinkerScript tcl %{tcl_major}
 popd
 
 echo "%%defattr(-,root,root)" > tcl.files
-(find ${RPM_BUILD_ROOT}%{_bindir} ${RPM_BUILD_ROOT}%{_includedir} \
-	${RPM_BUILD_ROOT}%{_mandir} -type f -o -type l;
- find ${RPM_BUILD_ROOT}%{_libdir}/* $EXTRA_TCLLIB_FILES) | cat - *.files \
-	| sort | uniq -u >> tcl.files
+(find %{buildroot}%{_bindir} %{buildroot}%{_includedir} \
+    %{buildroot}%{_mandir} -type f -o -type l;
+ find %{buildroot}%{_libdir}/* $EXTRA_TCLLIB_FILES) | cat - *.files \
+    | sort | uniq -u >> tcl.files
 
 
 #------------------------------------------
@@ -384,19 +428,19 @@ cd tk%{tkvers}/unix
 %makeinstall
 cd ../..
 
-pushd $RPM_BUILD_ROOT%_bindir
-ln -sf wish* wish
+pushd %{buildroot}%{_bindir}
+    ln -sf wish* wish
 popd
 
-pushd $RPM_BUILD_ROOT%_libdir
-GenerateLinkerScript tk %{tk_major}
+pushd %{buildroot}%{_libdir}
+    GenerateLinkerScript tk %{tk_major}
 popd
 
 echo "%%defattr(-,root,root)" > tk.files
-(find ${RPM_BUILD_ROOT}%{_bindir} ${RPM_BUILD_ROOT}%{_includedir} \
-	${RPM_BUILD_ROOT}%{_mandir} -type f -o -type l;
- find ${RPM_BUILD_ROOT}%{_libdir}/* $EXTRA_TCLLIB_FILES) | cat - *.files \
-	| sort | uniq -u >> tk.files
+(find %{buildroot}%{_bindir} %{buildroot}%{_includedir} \
+    %{buildroot}%{_mandir} -type f -o -type l;
+ find %{buildroot}%{_libdir}/* $EXTRA_TCLLIB_FILES) | cat - *.files \
+    | sort | uniq -u >> tk.files
 
 #------------------------------------------
 # TclX
@@ -404,50 +448,50 @@ echo "%%defattr(-,root,root)" > tk.files
 
 cd tclx%{tclxvers}/unix
 %makeinstall \
-	TCLX_INST_LIB=$RPM_BUILD_ROOT%{_libdir} \
-	TKX_INST_LIB=$RPM_BUILD_ROOT%{_libdir}
+    TCLX_INST_LIB=%{buildroot}%{_libdir} \
+    TKX_INST_LIB=%{buildroot}%{_libdir}
 cd ../..
 
-bzip2 -dc %SOURCE40 | tar -C $RPM_BUILD_ROOT -xf -
+bzip2 -dc %SOURCE40 | tar -C %{buildroot} -xf -
 
-if [ "%_mandir" = "%{_prefix}/share/man" ]; then
-   ( cd ${RPM_BUILD_ROOT}%{_prefix}/man; tar cf - ./man[13n] ) | 
-   ( cd ${RPM_BUILD_ROOT}%{_mandir}; tar xf - )
-   ( cd ${RPM_BUILD_ROOT}%{_prefix}/man; rm -rf ./man[13n] )
+if [ "%{_mandir}" = "%{_prefix}/share/man" ]; then
+    ( cd %{buildroot}%{_prefix}/man; tar cf - ./man[13n] ) | 
+    ( cd %{buildroot}%{_mandir}; tar xf - )
+    ( cd %{buildroot}%{_prefix}/man; rm -rf ./man[13n] )
 fi
 
 echo "%%defattr(-,root,root)" > tclx.files
-(find ${RPM_BUILD_ROOT}%{_bindir} ${RPM_BUILD_ROOT}%{_includedir} \
-	${RPM_BUILD_ROOT}%{_mandir} -type f -o -type l;
- find ${RPM_BUILD_ROOT}%{_libdir}/* $EXTRA_TCLLIB_FILES) | cat - *.files \
-	| sort | uniq -u >> tclx.files
+(find %{buildroot}%{_bindir} %{buildroot}%{_includedir} \
+    %{buildroot}%{_mandir} -type f -o -type l;
+ find %{buildroot}%{_libdir}/* $EXTRA_TCLLIB_FILES) | cat - *.files \
+    | sort | uniq -u >> tclx.files
 
 #------------------------------------------
 # Expect
 #
 cd expect-%{expect_major}
-%makeinstall tcl_libdir=${RPM_BUILD_ROOT}%{_libdir} \
-	libdir=${RPM_BUILD_ROOT}%{_libdir}/expect%{expect_major} \
-	TKLIB_INSTALLED="-L$RPM_BUILD_ROOT%{_libdir} -ltk%{tk_major}" \
-	TCLLIB_INSTALLED="-L$RPM_BUILD_ROOT%{_libdir} -ltcl%{tcl_major}"
+%makeinstall tcl_libdir=%{buildroot}%{_libdir} \
+    libdir=%{buildroot}%{_libdir}/expect%{expect_major} \
+    TKLIB_INSTALLED="-L%{buildroot}%{_libdir} -ltk%{tk_major}" \
+    TCLLIB_INSTALLED="-L%{buildroot}%{_libdir} -ltcl%{tcl_major}"
 cd ..
 
 # remove cryptdir/decryptdir, as Linux has no crypt command (bug 6668).
-rm -f ${RPM_BUILD_ROOT}%{_bindir}/{cryptdir,decryptdir}
-rm -f ${RPM_BUILD_ROOT}%{_mandir}/man1/{cryptdir,decryptdir}.1*
+rm -f %{buildroot}%{_bindir}/{cryptdir,decryptdir}
+rm -f %{buildroot}%{_mandir}/man1/{cryptdir,decryptdir}.1*
 
 echo "%%defattr(-,root,root)" > expect.files
-(find ${RPM_BUILD_ROOT}%{_bindir} ${RPM_BUILD_ROOT}%{_includedir} \
-	${RPM_BUILD_ROOT}%{_mandir} -type f -o -type l;
- find ${RPM_BUILD_ROOT}%{_libdir}/* $EXTRA_TCLLIB_FILES) | cat - *.files \
-	| sort | uniq -u >> expect.files
+(find %{buildroot}%{_bindir} %{buildroot}%{_includedir} \
+    %{buildroot}%{_mandir} -type f -o -type l;
+ find %{buildroot}%{_libdir}/* $EXTRA_TCLLIB_FILES) | cat - *.files \
+    | sort | uniq -u >> expect.files
 
 set +x +H
 for n in `cat expect.files`; do
-	test -f $n || continue
-	head -1 $n | grep -q ^#! || continue
-	chmod u+w $n
-	perl -pi -e "s|${RPM_BUILD_ROOT}||" $n
+    test -f $n || continue
+    head -1 $n | grep -q ^#! || continue
+    chmod u+w $n
+    perl -pi -e "s|%{buildroot}||" $n
 done
 set -x -H
 
@@ -455,64 +499,64 @@ set -x -H
 # Tix
 #
 cd tix-%{tixvers}/unix
-%makeinstall datadir=${RPM_BUILD_ROOT}%{_prefix}/lib \
-	LIB_DIR=$RPM_BUILD_ROOT%{_libdir} \
-	LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$RPM_BUILD_DIR/%{name}-%{version}/tcl%{tclvers}/unix
+%makeinstall datadir=%{buildroot}%{_prefix}/lib \
+    LIB_DIR=%{buildroot}%{_libdir} \
+    LD_LIBRARY_PATH=$LD_LIBRARY_PATH:%{_builddir}/%{name}-%{version}/tcl%{tclvers}/unix
 cd ../..
 
 # Not needed anymore?
-rm -rf $RPM_BUILD_ROOT%_libdir/libtixsam*
+rm -rf %{buildroot}%{_libdir}/libtixsam*
 
 # aesthetic: make libtix*.so executable
-chmod +x $RPM_BUILD_ROOT%_libdir/libtix*.so
+chmod +x %{buildroot}%{_libdir}/libtix*.so
 
-pushd $RPM_BUILD_ROOT%_bindir
-ln -s tixwish%{libtix_major} tixwish
+pushd %{buildroot}%{_bindir}
+    ln -s tixwish%{libtix_major} tixwish
 popd
 
-if [ "%_mandir" = "%{_prefix}/share/man" ]; then
-   ( cd ${RPM_BUILD_ROOT}%{_prefix}/man; tar cf - ./man[13n] ) | 
-   ( cd ${RPM_BUILD_ROOT}%{_mandir}; tar xf - )
-   ( cd ${RPM_BUILD_ROOT}%{_prefix}/man; rm -rf ./man[13n] )
+if [ "%{_mandir}" = "%{_prefix}/share/man" ]; then
+    ( cd %{buildroot}%{_prefix}/man; tar cf - ./man[13n] ) | 
+    ( cd %{buildroot}%{_mandir}; tar xf - )
+    ( cd %{buildroot}%{_prefix}/man; rm -rf ./man[13n] )
 fi
 
 # tixwish.1 in /usr/share/man/man1.
-mv $RPM_BUILD_ROOT/usr/share/man/mann/tixwish.1 \
-	$RPM_BUILD_ROOT/usr/share/man/man1
+mv %{buildroot}/usr/share/man/mann/tixwish.1 \
+    %{buildroot}/usr/share/man/man1
 	
 echo "%%defattr(-,root,root)" > tix.files
-(find ${RPM_BUILD_ROOT}%{_bindir} ${RPM_BUILD_ROOT}%{_includedir} \
-	${RPM_BUILD_ROOT}%{_mandir} -type f -o -type l;
- find ${RPM_BUILD_ROOT}%{_libdir}/* $EXTRA_TCLLIB_FILES) | cat - *.files \
-	| sort | uniq -u >> tix.files
+(find %{buildroot}%{_bindir} %{buildroot}%{_includedir} \
+    %{buildroot}%{_mandir} -type f -o -type l;
+ find %{buildroot}%{_libdir}/* $EXTRA_TCLLIB_FILES) | cat - *.files \
+    | sort | uniq -u >> tix.files
 
 #------------------------------------------
 # Itcl
 #
 cd itcl%{itclvers}
 %makeinstall TCLSH_PROG=../../tcl%{tclvers}/unix/tclsh \
-	LD_LIBRARY_PATH=../../tcl%{tclvers}/unix \
-	SHLIB_LDFLAGS="-L../../tcl%{tclvers}/unix -ltclstub%{tcl_major}"
+    LD_LIBRARY_PATH=../../tcl%{tclvers}/unix \
+    SHLIB_LDFLAGS="-L../../tcl%{tclvers}/unix -ltclstub%{tcl_major}"
 cd ..
 
-if [ "%_mandir" = "%{_prefix}/share/man" ]; then
-   ( cd ${RPM_BUILD_ROOT}%{_prefix}/man; tar cf - ./man[13n] ) | 
-   ( cd ${RPM_BUILD_ROOT}%{_mandir}; tar xf - )
-   ( cd ${RPM_BUILD_ROOT}%{_prefix}/man; rm -rf ./man[13n] )
+if [ "%{_mandir}" = "%{_prefix}/share/man" ]; then
+    ( cd %{buildroot}%{_prefix}/man; tar cf - ./man[13n] ) | 
+    ( cd %{buildroot}%{_mandir}; tar xf - )
+    ( cd %{buildroot}%{_prefix}/man; rm -rf ./man[13n] )
 fi
 
 echo "%%defattr(-,root,root)" > itcl.files
-(find ${RPM_BUILD_ROOT}%{_bindir} ${RPM_BUILD_ROOT}%{_includedir} \
-	${RPM_BUILD_ROOT}%{_mandir} -type f -o -type l;
- find ${RPM_BUILD_ROOT}%{_libdir}/* $EXTRA_TCLLIB_FILES) | cat - *.files \
-	| sort | uniq -u >> itcl.files
+(find %{buildroot}%{_bindir} %{buildroot}%{_includedir} \
+    %{buildroot}%{_mandir} -type f -o -type l;
+ find %{buildroot}%{_libdir}/* $EXTRA_TCLLIB_FILES) | cat - *.files \
+    | sort | uniq -u >> itcl.files
 
 set +x +H
 for n in `cat itcl.files`; do
-	[ -f $n ] || continue
-	head -1 $n | grep -q ^#! || continue
-	chmod u+w $n
-	perl -pi -e "s|${RPM_BUILD_ROOT}||" $n
+    [ -f $n ] || continue
+    head -1 $n | grep -q ^#! || continue
+    chmod u+w $n
+    perl -pi -e "s|%{buildroot}||" $n
 done
 set -x -H
 
@@ -521,20 +565,20 @@ set -x -H
 #
 cd tcllib-%{tcllibvers}
 %makeinstall TCLSH_PROG=../tcl%{tclvers}/unix/tclsh \
-	 LD_LIBRARY_PATH="../tcl%{tclvers}/unix" 
+    LD_LIBRARY_PATH="../tcl%{tclvers}/unix" 
 cd ..
 
-if [ "%_mandir" = "%{_prefix}/share/man" ]; then
-   ( cd ${RPM_BUILD_ROOT}%{_prefix}/man; tar cf - ./man[13n] ) | 
-   ( cd ${RPM_BUILD_ROOT}%{_mandir}; tar xf - )
-   ( cd ${RPM_BUILD_ROOT}%{_prefix}/man; rm -rf ./man[13n] )
+if [ "%{_mandir}" = "%{_prefix}/share/man" ]; then
+    ( cd %{buildroot}%{_prefix}/man; tar cf - ./man[13n] ) | 
+    ( cd %{buildroot}%{_mandir}; tar xf - )
+    ( cd %{buildroot}%{_prefix}/man; rm -rf ./man[13n] )
 fi
 
 echo "%%defattr(-,root,root)" > tcllib.files
-(find ${RPM_BUILD_ROOT}%{_bindir} ${RPM_BUILD_ROOT}%{_includedir} \
-	${RPM_BUILD_ROOT}%{_mandir} -type f -o -type l;
- find ${RPM_BUILD_ROOT}%{_libdir}/* $EXTRA_TCLLIB_FILES) | cat - *.files \
-	| sort | uniq -u >> tcllib.files
+(find %{buildroot}%{_bindir} %{buildroot}%{_includedir} \
+    %{buildroot}%{_mandir} -type f -o -type l;
+ find %{buildroot}%{_libdir}/* $EXTRA_TCLLIB_FILES) | cat - *.files \
+    | sort | uniq -u >> tcllib.files
 
 #------------------------------------------
 # post process the *.files list, removing build sys references and mark
@@ -542,29 +586,30 @@ echo "%%defattr(-,root,root)" > tcllib.files
 
 set +x
 for n in *.files; do
-	mv $n $n.in
-	sed "s|.*%{_prefix}\\>|%{_prefix}|" < $n.in | while read file; do
-	    if [ -d ${RPM_BUILD_ROOT}/$file ]; then
-		echo -n '%dir '
-	    fi
-	    echo $file
-	done > $n
-	rm -f $n.in
+    mv $n $n.in
+    sed "s|.*%{_prefix}\\>|%{_prefix}|" < $n.in | while read file; do
+        if [ -d %{buildroot}/$file ]; then
+            echo -n '%dir '
+        fi
+        echo $file
+    done > $n
+    rm -f $n.in
 done
 set -x
 
 # Man pages can be compressed
 perl -pi -e 's|(^%{_mandir}/man.*$)|\1\*|' *.files
 
-perl -pi -e "s|$RPM_BUILD_DIR/tcltk-%{version}/tcl%{version}/unix|%{_includedir}|" $RPM_BUILD_ROOT/%{_libdir}/*.sh
-perl -pi -e "s|$RPM_BUILD_DIR/tcltk-%{version}/tk%{version}/unix|%{_includedir}|" $RPM_BUILD_ROOT/%{_libdir}/*.sh
-perl -pi -e "s|$RPM_BUILD_DIR/tcltk-%{version}/tclx%{tclXvers}/unix|%{_includedir}|" $RPM_BUILD_ROOT/%{_libdir}/*.sh
-perl -pi -e "s|$RPM_BUILD_DIR/tcltk-%{version}/tkx%{version}/unix|%{_includedir}|" $RPM_BUILD_ROOT/%{_libdir}/*.sh
-perl -pi -e "s|-L/usr/include|-L/usr/lib|g" $RPM_BUILD_ROOT/%{_libdir}/*.sh
+perl -pi -e "s|%{_builddir}/tcltk-%{version}/tcl%{version}/unix|%{_includedir}|" %{buildroot}/%{_libdir}/*.sh
+perl -pi -e "s|%{_builddir}/tcltk-%{version}/tk%{version}/unix|%{_includedir}|" %{buildroot}/%{_libdir}/*.sh
+perl -pi -e "s|%{_builddir}/tcltk-%{version}/tclx%{tclXvers}/unix|%{_includedir}|" %{buildroot}/%{_libdir}/*.sh
+perl -pi -e "s|%{_builddir}/tcltk-%{version}/tkx%{version}/unix|%{_includedir}|" %{buildroot}/%{_libdir}/*.sh
+perl -pi -e "s|-L/usr/include|-L/usr/lib|g" %{buildroot}/%{_libdir}/*.sh
 
 # (gb) FIXME: libdir patches are not good enough :-(
-perl -pi -e "s|-L/usr/lib\b|-L%{_libdir}|g" $RPM_BUILD_ROOT%{_libdir}/*.sh
-perl -pi -e "s|/usr/lib/lib|%{_libdir}/lib|g" $RPM_BUILD_ROOT%{_libdir}/*.sh
+perl -pi -e "s|-L/usr/lib\b|-L%{_libdir}|g" %{buildroot}%{_libdir}/*.sh
+perl -pi -e "s|/usr/lib/lib|%{_libdir}/lib|g" %{buildroot}%{_libdir}/*.sh
+
 
 #==========================================
 %post -p /sbin/ldconfig -n tcl
@@ -583,9 +628,11 @@ perl -pi -e "s|/usr/lib/lib|%{_libdir}/lib|g" $RPM_BUILD_ROOT%{_libdir}/*.sh
 %postun -p /sbin/ldconfig -n itcl
 %postun -p /sbin/ldconfig -n tcllib
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 rm -f *.files
+
 
 %files -f tcl.files -n tcl
 %files -f tk.files -n tk
@@ -595,7 +642,11 @@ rm -f *.files
 %files -f itcl.files -n itcl
 %files -f tcllib.files -n tcllib
 
+
 %changelog
+* Wed Jul 27 2005 Vincent Danen <vdanen@annvix.org> 8.4.2-7avx
+- rebuild for new gcc
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 8.4.2-6avx
 - bootstrap build
 
@@ -653,7 +704,7 @@ rm -f *.files
   previously installed (Gwenole).
   
 * Fri Mar 22 2002 David BAUDENS <baudens@mandrakesoft.com> 8.3.3-13mdk
-- Re-add %%_libdir/libtcl.so
+- Re-add %%{_libdir}/libtcl.so
 
 * Thu Feb 28 2002 Geoffrey Lee <snailtalk@mandrakesoft.com> 8.3.3-12mdk
 - Really remove the versionless soft links for good -- the linker does 

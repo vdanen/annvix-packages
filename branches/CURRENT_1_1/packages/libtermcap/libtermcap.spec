@@ -1,10 +1,19 @@
-%define name	libtermcap
-%define version	2.0.8
-%define release	39avx
+#
+# spec file for package libtermcap
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-%define lib_major	2
-%define lib_name_orig	libtermcap
-%define lib_name	%mklibname termcap %{lib_major}
+
+%define name		libtermcap
+%define version		2.0.8
+%define release		40avx
+
+%define major		2
+%define libname_orig	libtermcap
+%define libname		%mklibname termcap %{major}
 
 Summary:	A basic system library for accessing the termcap database
 Name:		%{name}
@@ -29,10 +38,10 @@ Patch10:	libtermcap-aaargh.patch.bz2
 # (gc) conflicting definition of `bcopy' against latest glibc 2.1.95
 Patch11:	termcap-fix-glibc-2.2.patch.bz2
 
-BuildRoot:	%_tmppath/%name-%version-%release-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	texinfo
 
-Requires:	%_sysconfdir/termcap
+Requires:	termcap
 
 %description
 The libtermcap package contains a basic system library needed to access
@@ -40,27 +49,29 @@ the termcap database.  The termcap library supports easy access to the
 termcap database, so that programs can output character-based displays in
 a terminal-independent manner.
 
-%package -n %{lib_name}
+
+%package -n %{libname}
 Summary:        Development tools for programs which will access the termcap database
 Group:          System/Libraries
-Obsoletes:	%{lib_name_orig}
-Provides:	%{lib_name_orig}
+Obsoletes:	%{libname_orig}
+Provides:	%{libname_orig}
 
-%description -n %{lib_name}
+%description -n %{libname}
 The libtermcap package contains a basic system library needed to access
 the termcap database.  The termcap library supports easy access to the
 termcap database, so that programs can output character-based displays in
 a terminal-independent manner.
 
-%package -n %{lib_name}-devel
+
+%package -n %{libname}-devel
 Summary:	Development tools for programs which will access the termcap database
 Group:		Development/C
-Requires:	%{lib_name} = %version-%release
-Obsoletes:	%{lib_name_orig}-devel
-Provides:	%{lib_name_orig}-devel = %{version}-%{release}
+Requires:	%{libname} = %{version}-%{release}
+Obsoletes:	%{libname_orig}-devel
+Provides:	%{libname_orig}-devel = %{version}-%{release}
 Provides:	termcap-devel = %{version}-%{release}
 
-%description -n %{lib_name}-devel
+%description -n %{libname}-devel
 This package includes the libraries and header files necessary for
 developing programs which will access the termcap database.
 
@@ -68,8 +79,9 @@ If you need to develop programs which will access the termcap database,
 you'll need to install this package.  You'll also need to install the
 libtermcap package.
 
+
 %prep
-%setup -q -n termcap-2.0.8
+%setup -q -n termcap-%{version}
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1 -b .nochown
@@ -83,66 +95,73 @@ libtermcap package.
 %patch10 -p1 -b .aaargh
 %patch11 -p0
 
+
 %build
-%make CFLAGS="$RPM_OPT_FLAGS -I."
+%make CFLAGS="%{optflags} -I."
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-# (gb) They should do proper Makefiles
 
-mkdir -p $RPM_BUILD_ROOT/%{_lib}
-install -m 755 libtermcap.so.* $RPM_BUILD_ROOT/%{_lib}/
-ln -s libtermcap.so.2.0.8 $RPM_BUILD_ROOT/%{_lib}/libtermcap.so
-ln -s libtermcap.so.2.0.8 $RPM_BUILD_ROOT/%{_lib}/libtermcap.so.2
+mkdir -p %{buildroot}/%{_lib}
+install -m 0755 libtermcap.so.* %{buildroot}/%{_lib}/
+ln -s libtermcap.so.2.0.8 %{buildroot}/%{_lib}/libtermcap.so
+ln -s libtermcap.so.2.0.8 %{buildroot}/%{_lib}/libtermcap.so.2
 
-mkdir -p $RPM_BUILD_ROOT%{_libdir}
-install -m 644 libtermcap.a $RPM_BUILD_ROOT%{_libdir}/
-ln -s ../../%{_lib}/libtermcap.so.2.0.8 $RPM_BUILD_ROOT%{_libdir}/libtermcap.so
+mkdir -p %{buildroot}%{_libdir}
+install -m 0644 libtermcap.a %{buildroot}%{_libdir}/
+ln -s ../../%{_lib}/libtermcap.so.2.0.8 %{buildroot}%{_libdir}/libtermcap.so
 
-mkdir -p $RPM_BUILD_ROOT%{_infodir}
-install -m 644 termcap.info* $RPM_BUILD_ROOT%{_infodir}/
+mkdir -p %{buildroot}%{_infodir}
+install -m 0644 termcap.info* %{buildroot}%{_infodir}/
 
-mkdir -p $RPM_BUILD_ROOT%{_includedir}
-install -m 644 termcap.h $RPM_BUILD_ROOT%{_includedir}
+mkdir -p %{buildroot}%{_includedir}
+install -m 0644 termcap.h %{buildroot}%{_includedir}
 
-mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}
-install -m 644 termcap.src $RPM_BUILD_ROOT%{_sysconfdir}/termcap
+mkdir -p %{buildroot}%{_sysconfdir}
+install -m 0644 termcap.src %{buildroot}%{_sysconfdir}/termcap
 
-rm -f $RPM_BUILD_ROOT%_sysconfdir/termcap
+rm -f %{buildroot}%{_sysconfdir}/termcap
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-# pixel: KEEP LDCONFIG WITH "-p" OR COME TALK TO ME 
-%post -n %{lib_name} -p /sbin/ldconfig
-%postun -n %{lib_name} -p /sbin/ldconfig
 
-%post -n %{lib_name}-devel
+%post -n %{libname} -p /sbin/ldconfig
+%postun -n %{libname} -p /sbin/ldconfig
+
+%post -n %{libname}-devel
 /sbin/install-info \
-	--section="Libraries" --entry="* Termcap: (termcap).               The GNU termcap library." \
-	--info-dir=%{_infodir} %{_infodir}/termcap.info.bz2
+    --section="Libraries" --entry="* Termcap: (termcap).               The GNU termcap library." \
+    --info-dir=%{_infodir} %{_infodir}/termcap.info.bz2
 
-%postun -n %{lib_name}-devel
+%postun -n %{libname}-devel
 if [ $1 = 0 ]; then
     /sbin/install-info --delete \
 	--section="Libraries" --entry="* Termcap: (termcap).               The GNU termcap library." \
 	--info-dir=%{_infodir} %{_infodir}/termcap.info.bz2
 fi
 
-%files -n %{lib_name}
+
+%files -n %{libname}
 %defattr(-,root,root)
 %doc ChangeLog README
 /%{_lib}/*.so.*
 
-%files -n %{lib_name}-devel
+%files -n %{libname}-devel
 %defattr(-,root,root)
 /%{_lib}/*.so
 %{_infodir}/termcap.info*
-%_libdir/libtermcap.a
-%_libdir/libtermcap.so
+%{_libdir}/libtermcap.a
+%{_libdir}/libtermcap.so
 %_includedir/termcap.h
 
+
 %changelog
+* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 2.0.8-40avx
+- rebuild for new gcc
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.0.8-39avx
 - bootstrap build
 

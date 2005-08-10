@@ -1,7 +1,16 @@
-%define module	Hdlist
-%define name	perl-%{module}
-%define version	0.07
-%define release 2avx
+#
+# spec file for package perl-Hdlist
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define module		Hdlist
+%define name		perl-%{module}
+%define version		0.07
+%define release 	3avx
 
 Summary:	Perl bindings to use rpmlib and manage hdlist files
 Name:		%{name}
@@ -12,7 +21,7 @@ Group:		Development/Perl
 URL:		http://cvs.mandrakesoft.com/cgi-bin/cvsweb.cgi/soft/perl-Hdlist/
 Source:		%{module}-%{version}.tar.bz2
 
-Buildroot:	%{_tmppath}/%{name}-root
+Buildroot:	%{_buildroot}/%{name}-%{version}
 BuildRequires: perl-devel >= 5.8.0, rpm-devel, perl-Digest-SHA1, librpmconstant-devel, rpmtools, gnupg
 
 Requires:	perl
@@ -34,8 +43,10 @@ It include:
 This module is still under development, and is provided for
 testing and development purposes only. API may change.
 
+
 %prep
 %setup -q -n %{module}-%{version}
+
 
 %build
 %{__perl} Makefile.PL INSTALLDIRS=vendor
@@ -43,22 +54,28 @@ testing and development purposes only. API may change.
 
 %make test
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
 %doc ChangeLog README
 %doc examples hrpmreb-macros
-%_bindir/*
+%{_bindir}/*
 %{perl_vendorarch}/*
 %{_mandir}/*/*
 
 %changelog
+* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 0.07-3avx
+- rebuild for new gcc
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.07-2avx
 - bootstrap build
 

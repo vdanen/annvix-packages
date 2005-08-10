@@ -9,7 +9,7 @@
 
 %define name		elfutils
 %define version		0.99
-%define release		1avx
+%define release		2avx
 
 %define major		1
 %define libname		%mklibname %{name} %{major}
@@ -30,7 +30,7 @@ Group:		Development/Other
 Source:		elfutils-%{version}.tar.bz2
 Patch1:		elfutils-0.89-gentoo-atime.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	gcc >= 3.2, sharutils, libtool-devel
 
 Requires:	%{libname} = %{version}-%{release}
@@ -97,6 +97,7 @@ ELF, and machine-specific ELF handling.
 %setup -q
 %patch1 -p1 -b .atime
 
+
 %build
 %ifarch x86_64
 # cheap hack to yank -Werror out since it kills the build on x86_64
@@ -118,22 +119,22 @@ popd
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p $RPM_BUILD_ROOT%{_prefix}
+mkdir -p %{buildroot}%{_prefix}
 
 %makeinstall_std -C build-%{_target_platform}
 
-chmod +x $RPM_BUILD_ROOT%{_libdir}/lib*.so*
-chmod +x $RPM_BUILD_ROOT%{_libdir}/elfutils/lib*.so*
+chmod +x %{buildroot}%{_libdir}/lib*.so*
+chmod +x %{buildroot}%{_libdir}/elfutils/lib*.so*
 
 # XXX Nuke unpackaged files
-{ cd $RPM_BUILD_ROOT
-  rm -f .%{_bindir}/eu-ld
-  rm -f .%{_includedir}/elfutils/libasm.h
-  rm -f .%{_includedir}/elfutils/libdw.h
-  rm -f .%{_includedir}/elfutils/libdwarf.h
-  rm -f .%{_libdir}/libasm{-%{version},}.so
-  rm -f .%{_libdir}/libasm.{a,so}
-  rm -f .%{_libdir}/libdw.{a,so}
+{ cd %{buildroot}
+    rm -f .%{_bindir}/eu-ld
+    rm -f .%{_includedir}/elfutils/libasm.h
+    rm -f .%{_includedir}/elfutils/libdw.h
+    rm -f .%{_includedir}/elfutils/libdwarf.h
+    rm -f .%{_libdir}/libasm{-%{version},}.so
+    rm -f .%{_libdir}/libasm.{a,so}
+    rm -f .%{_libdir}/libdw.{a,so}
 }
 
 
@@ -192,6 +193,9 @@ chmod +x $RPM_BUILD_ROOT%{_libdir}/elfutils/lib*.so*
 
 
 %changelog
+* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 0.99-2avx
+- rebuild for new gcc
+
 * Fri Jul 22 2005 Vincent Danen <vdanen@annvix.org> 0.99-1avx
 - 0.99
 - change License: s/GPL/OSL/

@@ -1,6 +1,15 @@
-%define	name	xfsdump
-%define	version	2.2.21
-%define	release	2avx
+#
+# spec file for package xfsdump
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define	name		xfsdump
+%define	version		2.2.21
+%define	release		3avx
 
 Summary:	Administrative utilities for the XFS filesystem
 Name:		%{name}
@@ -11,7 +20,7 @@ Group:		System/Kernel and hardware
 URL:		http://oss.sgi.com/projects/xfs/
 Source0:	%{name}-%{version}.src.tar.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	attr-devel, libext2fs-devel, xfs-devel >= 2.6.0, dm-devel
 BuildRequires:	ncurses-devel
 
@@ -32,15 +41,21 @@ full backup of a filesystem.  Subsequent incremental backups can then
 be layered on top of the full backup.  Single files and directory
 subtrees may be restored from full or partial backups.
 
+
 %prep
 %setup -q
 
 # make it lib64 aware, better make a patch?
 perl -pi -e "/(libuuid|pkg_s?lib_dir)=/ and s|/lib\b|/%{_lib}|;" configure
 
+
 %build
-%configure2_5x --libdir=/%{_lib}  --sbindir=/sbin --bindir=/usr/sbin
+%configure2_5x \
+    --libdir=/%{_lib} \
+    --sbindir=/sbin \
+    --bindir=%{_sbindir}
 %make
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -49,8 +64,10 @@ make install DIST_ROOT=%{buildroot}/
 # nuke files already packaged as %doc
 rm -rf %{buildroot}%{_datadir}/doc/xfsdump/
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -59,7 +76,11 @@ rm -rf %{buildroot}%{_datadir}/doc/xfsdump/
 %{_sbindir}/*
 %{_mandir}/*/*
 
+
 %changelog
+* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 2.2.21-3avx
+- rebuild for new gcc
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.2.21-2avx
 - bootstrap build
 

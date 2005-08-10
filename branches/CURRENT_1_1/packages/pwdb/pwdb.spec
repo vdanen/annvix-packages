@@ -1,10 +1,18 @@
-%define name	pwdb
-%define version	0.62
-%define release	2avx
+#
+# spec file for package pwdb
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+%define name		pwdb
+%define version		0.62
+%define release		3avx
 
 %define majver		0
-%define lib_name_orig	%mklibname pwdb
-%define lib_name	%{lib_name_orig}%{majver}
+%define libname_orig	%mklibname pwdb
+%define libname		%{libname_orig}%{majver}
 
 Summary:	The password database library
 Name:		%{name}
@@ -15,7 +23,7 @@ Group:		System/Libraries
 Source:		pwdb-%{version}.tar.bz2
 Patch0:		pwdb-0.62-includes.patch.bz2
 
-BuildRoot:	%_tmppath/%name-%version-%release-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	gcc
 
 %description
@@ -27,6 +35,7 @@ access to and management of security tools like /etc/passwd,
 /etc/shadow and network authentication systems including NIS and
 Radius.
 
+
 %package conf
 Summary:	The password database library config
 Group:		System/Libraries
@@ -34,14 +43,15 @@ Group:		System/Libraries
 %description conf
 Configuration package for the libpwdb, the password database library.
 
-%package -n %{lib_name}
+
+%package -n %{libname}
 Summary:	The password database library
 Group:		System/Libraries
 Requires:	%{name}-conf
 Provides:	pwdb = %{version}-%{release}
 Obsoletes:	pwdb
 
-%description -n %{lib_name}
+%description -n %{libname}
 The pwdb package contains libpwdb, the password database library.
 Libpwdb is a library which implements a generic user information
 database.  Libpwdb was specifically designed to work with Linux's PAM
@@ -50,24 +60,27 @@ access to and management of security tools like /etc/passwd,
 /etc/shadow and network authentication systems including NIS and
 Radius.
 
-%package -n %{lib_name}-devel
+
+%package -n %{libname}-devel
 Summary:	The pwdb include files and link library
 Group:		Development/C
-Requires:	%{lib_name} = %version-%release
-Provides:	pwdb-devel = %version-%release
+Requires:	%{libname} = %{version}-%{release}
+Provides:	pwdb-devel = %{version}-%{release}
 Conflicts:	pwdb-devel <= 0.61
 
-%description -n %{lib_name}-devel
+%description -n %{libname}-devel
 The development header / link library for pwdb.
 
-%package -n %{lib_name}-static-devel
+
+%package -n %{libname}-static-devel
 Summary:	The pwdb static library
 Group:		Development/C
-Requires:	%{lib_name}-devel = %version-%release
-Provides:	pwdb-static-devel = %version-%release
+Requires:	%{libname}-devel = %{version}-%{release}
+Provides:	pwdb-static-devel = %{version}-%{release}
 
-%description -n %{lib_name}-static-devel
+%description -n %{libname}-static-devel
 The static development library for pwdb.
+
 
 %prep
 %setup -q
@@ -79,48 +92,56 @@ ln -s defs/redhat.defs default.defs
 # directories...
 chmod -R g-s .
 
+
 %build
 RPM_OPT_FLAGS="%{optflags}" %make
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p $RPM_BUILD_ROOT/{%{_lib},%{_sysconfdir},%{_includedir}/pwdb}
+mkdir -p %{buildroot}{/%{_lib},%{_sysconfdir},%{_includedir}/pwdb}
 
-make	INCLUDED=$RPM_BUILD_ROOT%{_includedir}/pwdb \
-	LIBDIR=$RPM_BUILD_ROOT/%{_lib} \
-	LDCONFIG=":" \
-	install
+make INCLUDED=%{buildroot}%{_includedir}/pwdb \
+    LIBDIR=%{buildroot}/%{_lib} \
+    LDCONFIG=":" \
+    install
 
-install -m 644 conf/pwdb.conf $RPM_BUILD_ROOT%{_sysconfdir}/pwdb.conf
+install -m 0644 conf/pwdb.conf %{buildroot}%{_sysconfdir}/pwdb.conf
 
-ln -sf lib%{name}.so.%{version} $RPM_BUILD_ROOT/%{_lib}/lib%{name}.so.%{majver}
+ln -sf lib%{name}.so.%{version} %{buildroot}/%{_lib}/lib%{name}.so.%{majver}
 
-%post -n %{lib_name} -p /sbin/ldconfig
 
-%postun -n %{lib_name} -p /sbin/ldconfig
+%post -n %{libname} -p /sbin/ldconfig
+%postun -n %{libname} -p /sbin/ldconfig
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
+
 %files conf
 %defattr(-,root,root)
 %doc Copyright doc/pwdb.txt doc/html
-%config(noreplace) %_sysconfdir/pwdb.conf
+%config(noreplace) %{_sysconfdir}/pwdb.conf
 
-%files -n %{lib_name}
+%files -n %{libname}
 %defattr(-,root,root)
 /%{_lib}/libpwdb.so.*
 
-%files -n %{lib_name}-devel
+%files -n %{libname}-devel
 %defattr(-,root,root)
 /%{_lib}/libpwdb.so
-%_includedir/pwdb
+%{_includedir}/pwdb
 
-%files -n %{lib_name}-static-devel
+%files -n %{libname}-static-devel
 %defattr(-,root,root)
 /%{_lib}/libpwdb.a
 
+
 %changelog
+* Wed Jul 27 2005 Vincent Danen <vdanen@annvix.org> 0.62-3avx
+- rebuild for new gcc
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.62-2avx
 - bootstrap build
 - re-enable stack protection
@@ -163,8 +184,8 @@ ln -sf lib%{name}.so.%{version} $RPM_BUILD_ROOT/%{_lib}/lib%{name}.so.%{majver}
 - BuildRequires
 
 * Tue May 01 2001 David BAUDENS <baudens@mandrakesoft.com> 0.61-5mdk
-- Use %%_tmppath for BuildRoot
-- Requires: %%name = %%version-%%release and not only %%version
+- Use %%{_buildroot} for BuildRoot
+- Requires: %%{name} = %%{version}-%%{release} and not only %%{version}
 
 * Tue Aug 29 2000 Yoann Vandoorselaere <yoann@mandrakesoft.com> 0.61-4mdk
 - License is GPL

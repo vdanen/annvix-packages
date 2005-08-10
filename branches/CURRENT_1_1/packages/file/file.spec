@@ -1,9 +1,17 @@
-%define name	file
-%define version	4.10
-%define release	2avx
+#
+# spec file for package file
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-%define major	1
-%define libname %mklibname magic %{major}
+%define name		file
+%define version		4.10
+%define release		3avx
+
+%define major		1
+%define libname		%mklibname magic %{major}
 
 Summary:	A utility for determining file types
 Name:		%{name}
@@ -17,7 +25,7 @@ Source1:	magic.mime.bz2
 Patch0:		file-4.01-tex.patch.bz2
 Patch2:		file-4.01-perl.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl, libtool, autoconf, zlib-devel
 
 Requires:	%{libname} = %{version}-%{release}
@@ -28,8 +36,6 @@ type of data contained by the file.  File can identify many different
 file types, including ELF binaries, system libraries, RPM packages, and
 different graphics formats.
 
-You should install the file package, since the file command is such a
-useful utility.
 
 %package -n %{libname}
 Summary:	Shared library for handling magic files.
@@ -43,6 +49,7 @@ different graphics formats.
 
 Libmagic is a library for handlig the so called magic files the 'file'
 command is based on.
+
 
 %package -n %{libname}-devel
 Summary:	Development files to build applications that handle magic files.
@@ -60,6 +67,7 @@ different graphics formats.
 Libmagic is a library for handlig the so called magic files the 'file'
 command is based on. 
 
+
 %package -n %{libname}-static-devel
 Summary:	Static library to build applications that handle magic files.
 Group:		Development/C
@@ -74,11 +82,12 @@ different graphics formats.
 Libmagic is a library for handlig the so called magic files the 'file'
 command is based on. 
 
-%prep
 
+%prep
 %setup -q
 %patch0 -p1 -b .tex
 %patch2 -p1 -b .perl
+
 
 %build
 CFLAGS="%{optflags} -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE"
@@ -86,6 +95,7 @@ CFLAGS="%{optflags} -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE"
 %configure2_5x --datadir=%{_datadir}/misc
 perl -p -i -e 's/sparc/SPARC/g' Magdir/*
 %make
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -95,11 +105,14 @@ ln -sf %{name}/magic %{buildroot}%{_datadir}/misc/magic
 
 install -m 0644 src/file.h %{buildroot}%{_includedir}/ 
 
-%post -n %{libname} -p /sbin/ldconfig
-%postun -n %{libname} -p /sbin/ldconfig
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
+
+%post -n %{libname} -p /sbin/ldconfig
+%postun -n %{libname} -p /sbin/ldconfig
+
 
 %files
 %defattr(-,root,root)
@@ -126,6 +139,9 @@ install -m 0644 src/file.h %{buildroot}%{_includedir}/
 %{_libdir}/*.a
 
 %changelog
+* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 4.10-3avx
+- rebuild for new gcc
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 4.10-2avx
 - bootstrap build
 

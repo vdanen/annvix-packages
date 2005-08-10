@@ -1,6 +1,15 @@
-%define name	ed
-%define version	0.2
-%define release	34avx
+#
+# spec file for package ed
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		ed
+%define version		0.2
+%define release		35avx
 
 %define _exec_prefix /
 
@@ -16,7 +25,7 @@ Patch0:		ed-0.2-security-tempfile.patch.bz2
 Patch1:		ed-0.2-fixinfo.patch.bz2
 Patch2:		ed-0.2-li18nux-patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	autoconf2.1
 
 Prereq:		info-install
@@ -31,11 +40,13 @@ Ed was the original UNIX editor, and may be used by some programs.  In
 general, however, you probably don't need to install it and you probably
 won't use it much.
 
+
 %prep
 %setup -q
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
+
 
 %build
 rm -f ./configure
@@ -43,14 +54,16 @@ WANT_AUTOCONF_2_1=1 autoconf
 rm -f regex.*
 %configure
 
-%make CFLAGS="$RPM_OPT_FLAGS"
+%make CFLAGS="%{optflags}"
 
 # all tests must pass
 make check
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-%makeinstall mandir=%buildroot/%{_mandir}/man1/
+%makeinstall mandir=%{buildroot}%{_mandir}/man1/
+
 
 %post
 %_install_info %{name}.info
@@ -58,8 +71,10 @@ make check
 %preun
 %_remove_install_info %{name}.info
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root,0755)
@@ -70,6 +85,9 @@ make check
 %{_mandir}/*/*
 
 %changelog
+* Wed Jul 27 2005 Vincent Danen <vdanen@annvix.org> 0.2-35avx
+- rebuild for new gcc
+
 * Sat Jun 04 2005 Vincent Danen <vdanen@annvix.org> 0.2-34avx
 - bootstrap build
 - for the use of autoconf2.1 (peroyvind)

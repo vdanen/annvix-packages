@@ -1,11 +1,15 @@
-%define name	perl-URPM
-%define version 1.11
-%define release 2avx
+#
+# spec file for package perl-URPM
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-%define real_name URPM
-
-%define group		%(perl -e 'printf "%%s\\n", "%_vendor" =~ /mandrake/i ? "Development/Perl" : "Applications/CPAN"')
-%define rpm_version	%(rpm -q --queryformat '%{VERSION}-%{RELEASE}' rpm)
+%define module		URPM
+%define name		perl-%{module}
+%define version 	1.11
+%define release 	3avx
 
 %{expand:%%define compat_makeinstall_std %(perl -e 'printf "%%s\n", "%{?makeinstall_std:1}" ? "%%makeinstall_std" : "%%{__make} install PREFIX=%%{buildroot}%%{_prefix}"')}
 %{expand:%%define compat_perl_vendorarch %(perl -MConfig -e 'printf "%%s\n", "%{?perl_vendorarch:1}" ? "%%{perl_vendorarch}" : "$Config{installvendorarch}"')}
@@ -17,14 +21,14 @@ Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	GPL or Artistic
-Group:		%{group}
-URL:		http://cvs.mandrakesoft.com/cgi-bin/cvsweb.cgi/soft/perl-URPM
-Source:		%{real_name}-%{version}.tar.bz2
+Group:		Development/Perl
+URL:		http://cvs.mandriva.com/cgi-bin/cvsweb.cgi/soft/perl-URPM
+Source:		%{module}-%{version}.tar.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	%{buildreq_perl_devel} rpm-devel >= 4.0.3 bzip2-devel
 
-Requires:	rpm >= %{rpm_version}, bzip2 >= 1.0
+Requires:	rpm >= 4.2.3, bzip2 >= 1.0
 Requires:	rpmtools >= 5.0.0, perl-base >= 2:5.8.6
 Provides:	perl(URPM::Build) = %{version}-%{release}
 Provides:	perl(URPM::Resolve) = %{version}-%{release}
@@ -34,19 +38,24 @@ Provides:	perl(URPM::Signature) = %{version}-%{release}
 The URPM module allows you to manipulate rpm files, rpm header files and
 hdlist files and manage them in memory.
 
+
 %prep
-%setup -q -n %{real_name}-%{version}
+%setup -q -n %{module}-%{version}
+
 
 %build
 %{__perl} Makefile.PL INSTALLDIRS=vendor
-%{__make} OPTIMIZE="$RPM_OPT_FLAGS"
+%{__make} OPTIMIZE="%{optflags}"
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %{compat_makeinstall_std}
 
+
 %clean 
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -59,6 +68,9 @@ hdlist files and manage them in memory.
 
 
 %changelog
+* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 1.11-3avx
+- rebuild for new gcc
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.11-2avx
 - bootstrap build
 

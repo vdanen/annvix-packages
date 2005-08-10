@@ -1,6 +1,15 @@
-%define name	mktemp
-%define version	1.6
-%define release	2avx
+#
+# spec file for package mktemp
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		mktemp
+%define version		1.6
+%define release		3avx
 
 Summary:	A small utility for safely making /tmp files
 Name:		%{name}
@@ -13,45 +22,44 @@ Source:		mktemp-%{version}.tar.bz2
 Patch0:		mktemp-1.6-avx-makefile.patch.bz2
 Patch1:		mktemp-1.6-avx-linux.patch.bz2
 
-#Patch:		mktemp-1.5-linux.patch.bz2
-#Patch1:		mktemp-1.5-man.patch.bz2
-#Patch2:		mktemp-build-nonroot.patch.bz2
-#Patch3:		mktemp-1.5-mkdtemp.patch.bz2
-
-BuildRoot:	%{_tmppath}/%{name}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 
 %description
 The mktemp utility takes a given file name template and overwrites
 a portion of it to create a unique file name.  This allows shell
 scripts and other programs to safely create and use /tmp files.
 
-Install the mktemp package if you need to use shell scripts or other
-programs which will create and use unique /tmp files.
 
 %prep
 %setup -q
 %patch0 -p0 -b .makefile
 %patch1 -p0 -b .linux
-#%patch1 -p1
-#%patch2 -p1
+
 
 %build
-CFLAGS="$RPM_OPT_FLAGS" make
+CFLAGS="%{optflags}" make
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 perl -pi -e "s!/usr/man!%{_mandir}!g" Makefile
-%makeinstall ROOT="$RPM_BUILD_ROOT"
+%makeinstall ROOT="%{buildroot}"
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
 /bin/mktemp
 %{_mandir}/man1/mktemp.1*
 
+
 %changelog
+* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 1.6-3avx
+- rebuild for new gcc
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.6-2avx
 - bootstrap build
 

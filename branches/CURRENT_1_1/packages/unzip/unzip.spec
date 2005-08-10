@@ -1,7 +1,16 @@
-%define name	unzip
-%define version 5.50
-%define release 13avx
-%define src_ver 550
+#
+# spec file for package unzip
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		unzip
+%define version 	5.50
+%define release 	14avx
+%define src_ver 	550
 
 Summary:	Unpacks ZIP files such as those made by pkzip under DOS
 Name:		%{name}
@@ -15,7 +24,7 @@ Patch0:		unzip541-patent-and-copyright-clean.patch.bz2
 Patch1:		unzip542-size-64bit.patch.bz2
 Patch2:		unzip-5.50-dotdot.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 
 %description
 unzip will list, test, or extract files from a ZIP archive, commonly found
@@ -26,28 +35,31 @@ behaviors differ.
 
 This version also has encryption support.
 
+
 %prep
 %setup -q
 %patch0 -p0
 %patch1 -p0
 %patch2 -p1 -b .dotdot
 
+
 %build
 %ifarch %{ix86}
-%make -ef unix/Makefile linux CF="$RPM_OPT_FLAGS -Wall -I. -DASM_CRC" CC=gcc LD=gcc AS=gcc AF="-Di386" CRC32=crc_gcc
+%make -ef unix/Makefile linux CF="%{optflags} -Wall -I. -DASM_CRC" CC=gcc LD=gcc AS=gcc AF="-Di386" CRC32=crc_gcc
 %else
-%make -ef unix/Makefile linux_noasm CF="$RPM_OPT_FLAGS -Wall -I."
+%make -ef unix/Makefile linux_noasm CF="%{optflags} -Wall -I."
 %endif
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p $RPM_BUILD_ROOT{%{_bindir},%{_mandir}/man1}
+mkdir -p %{buildroot}{%{_bindir},%{_mandir}/man1}
 
 ln -sf unzip zipinfo
-for i in unzip funzip unzipsfx zipinfo;	do install $i $RPM_BUILD_ROOT%{_bindir}; done
-install unix/zipgrep $RPM_BUILD_ROOT%{_bindir}
+for i in unzip funzip unzipsfx zipinfo;	do install $i %{buildroot}%{_bindir}; done
+install unix/zipgrep %{buildroot}%{_bindir}
 
-for i in man/*.1; do install -m 644 $i $RPM_BUILD_ROOT%{_mandir}/man1/; done
+for i in man/*.1; do install -m 0644 $i %{buildroot}%{_mandir}/man1/; done
 
 cat > README.IMPORTANT.ANNVIX << EOF
 This version of unzip is a stripped-down version which doesn't include
@@ -65,9 +77,9 @@ distribution also excludes the unreduce and unshrink code.
 EOF
 
 
-
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -78,6 +90,9 @@ EOF
 
 
 %changelog
+* Wed Jul 27 2005 Vincent Danen <vdanen@annvix.org> 5.50-14avx
+- rebuild for new gcc
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 5.50-13avx
 - bootstrap build
 

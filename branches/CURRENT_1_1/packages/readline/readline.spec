@@ -1,11 +1,20 @@
-%define name	readline
-%define version	4.3
-%define	release	11avx
+#
+# spec file for package readline
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		readline
+%define version		4.3
+%define	release		12avx
 
 ## Do not apply library policy!!
-%define lib_major	4
-%define lib_name_orig	%mklibname readline
-%define lib_name	%{lib_name_orig}%{lib_major}
+%define major		4
+%define libname_orig	%mklibname readline
+%define libname		%{libname_orig}%{major}
 
 Summary:	Library for reading lines from a terminal
 Name:		%{name}
@@ -22,7 +31,7 @@ Patch5:		readline-4.1-resize.patch.bz2
 Patch100:	readline-4.3-vim-reapeat-fix.diff.bz2
 Patch101:	readline-4.3-segfault-fix.diff.bz2
 
-Buildroot:	%{_tmppath}/%{name}-root/
+Buildroot:	%{_buildroot}/%{name}-%{version}
 
 %description
 The "readline" library will read a line from the terminal and return it,
@@ -30,30 +39,33 @@ allowing the user to edit the line with the standard emacs editing keys.
 It allows the programmer to give the user an easier-to-use and more
 intuitive interface.
 
-%package -n %{lib_name}
+
+%package -n %{libname}
 Summary:	Shared libraries for readline
 Group:		System/Libraries
 Obsoletes:	readline
 Provides:	readline = %{version}-%{release}
 
-%description -n %{lib_name}
+%description -n %{libname}
 This package contains the library needed to run programs dynamically
 linked to readline.
 
-%package -n %{lib_name}-devel
+
+%package -n %{libname}-devel
 Summary:	Files for developing programs that use the readline library.
 Group:		Development/C
-Requires:	%{lib_name} = %{version}-%{release}
+Requires:	%{libname} = %{version}-%{release}
 Obsoletes:	readline-devel
 Provides:	lib%{name}-devel = %{version}-%{release}
 Provides:	readline-devel = %{version}-%{release}
 
-%description -n %{lib_name}-devel
+%description -n %{libname}-devel
 The "readline" library will read a line from the terminal and return it,
 using prompt as a prompt.  If prompt is null, no prompt is issued.  The
 line returned is allocated with malloc(3), so the caller must free it when
 finished.  The line returned has the final newline removed, so only the
 text of the line remains.
+
 
 %prep
 %setup -q
@@ -66,50 +78,55 @@ text of the line remains.
 %patch101 -p1 -b .sig11
 libtoolize --copy --force
 
+
 %build
-export CFLAGS="$RPM_OPT_FLAGS"
+export CFLAGS="%{optflags}"
 %configure --with-curses=ncurses
 perl -p -i -e 's|-Wl,-rpath.*||' shlib/Makefile
 make static shared
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall install-shared
-# put all libs in /lib because some package needs it
+
+# put all libs in /lib because some packages need it
 # before /usr is mounted
-install -d $RPM_BUILD_ROOT/%{_lib}
-mv $RPM_BUILD_ROOT%{_libdir}/*.so* $RPM_BUILD_ROOT/%{_lib}
-ln -s ../../%{_lib}/lib{history,readline}.so $RPM_BUILD_ROOT%{_libdir}
+mkdir -p %{buildroot}/%{_lib}
+mv %{buildroot}%{_libdir}/*.so* %{buildroot}/%{_lib}
+ln -s ../../%{_lib}/lib{history,readline}.so %{buildroot}%{_libdir}
 for i in history readline; do
-   ln -s ../%{_lib}/lib$i.so.4 $RPM_BUILD_ROOT/%{_lib}/lib$i.so.4.1
-   ln -s ../%{_lib}/lib$i.so.4 $RPM_BUILD_ROOT/%{_lib}/lib$i.so.4.2
+    ln -s ../%{_lib}/lib$i.so.4 %{buildroot}/%{_lib}/lib$i.so.4.1
+    ln -s ../%{_lib}/lib$i.so.4 %{buildroot}/%{_lib}/lib$i.so.4.2
 done
 
 
 # The make install moves the existing libs with a suffix of old. Urgh.
-rm -f $RPM_BUILD_ROOT/%{_lib}/*.old
+rm -f %{buildroot}/%{_lib}/*.old
 
 perl -p -i -e 's|/usr/local/bin/perl|/usr/bin/perl|' doc/texi2html
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-%post -n %{lib_name} -p /sbin/ldconfig
-%postun -n %{lib_name} -p /sbin/ldconfig
 
-%post -n %{lib_name}-devel
-%{_install_info history.info}
-%{_install_info readline.info}
+%post -n %{libname} -p /sbin/ldconfig
+%postun -n %{libname} -p /sbin/ldconfig
 
-%preun -n %{lib_name}-devel
-%{_remove_install_info history.info}
-%{_remove_install_info readline.info}
+%post -n %{libname}-devel
+%_install_info history.info
+%_install_info readline.info
 
-%files -n %{lib_name}
+%preun -n %{libname}-devel
+%_remove_install_info history.info
+%_remove_install_info readline.info
+
+%files -n %{libname}
 %defattr(-,root,root)
 /%{_lib}/lib*.so.*
 
-%files -n %{lib_name}-devel
+%files -n %{libname}-devel
 %defattr(-,root,root)
 %doc CHANGELOG CHANGES COPYING INSTALL MANIFEST README USAGE
 %doc doc examples support
@@ -121,6 +138,9 @@ perl -p -i -e 's|/usr/local/bin/perl|/usr/bin/perl|' doc/texi2html
 /%{_lib}/*so
 
 %changelog
+* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 4.3-12avx
+- rebuild for new gcc
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 4.3-11avx
 - bootstrap build
 

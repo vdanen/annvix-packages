@@ -1,6 +1,15 @@
-%define name	flex
-%define version	2.5.4a
-%define release	25avx
+#
+# spec file for package flex
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		flex
+%define version		2.5.4a
+%define release		26avx
 
 Summary:	A tool for creating scanners (text pattern recognizers)
 Name:		%{name}
@@ -14,7 +23,7 @@ Patch0:		flex-2.5.4a-skel.patch.bz2
 Patch1:         flex-2.5.4-glibc22.patch.bz2
 Patch2:		flex-2.5.4-c++fixes.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	byacc
 
 %description 
@@ -35,6 +44,7 @@ many programs as part of their build process.
 You should install flex if you are going to use your system for
 application development.
 
+
 %prep
 %setup -q -n flex-2.5.4
 %patch0 -p1
@@ -45,26 +55,30 @@ rm -f skel.c
 # Force regeneration of configure script with --libdir= support
 autoconf
 
+
 %build
 %configure
 %make
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
 
-cd $RPM_BUILD_ROOT%{_bindir}
+cd %{buildroot}%{_bindir}
 ln -sf flex lex
 
-cd $RPM_BUILD_ROOT%{_mandir}/
+cd %{buildroot}%{_mandir}/
 mkdir man1
 mv flex.1 man1
 cd man1
 ln -s flex.1 lex.1
 ln -s flex.1 flex++.1
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root,755)
@@ -74,7 +88,11 @@ ln -s flex.1 flex++.1
 %{_libdir}/libfl.a
 %{_includedir}/FlexLexer.h
 
+
 %changelog
+* Mon Jul 25 2005 Vincent Danen <vdanen@annvix.org> 2.5.4a-26avx
+- rebuild for new gcc
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.5.4a-25avx
 - bootstrap build
 

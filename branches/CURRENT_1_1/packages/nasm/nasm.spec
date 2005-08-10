@@ -1,6 +1,14 @@
-%define name	nasm
-%define version	0.98.39
-%define release	2avx
+#
+# spec file for package nasm
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+%define name		nasm
+%define version		0.98.39
+%define release		3avx
 
 Summary:	The Netwide Assembler, a portable x86 assembler with Intel-like syntax
 Name:		%{name}
@@ -12,13 +20,14 @@ URL:		http://nasm.sourceforge.net
 Source:		http://prdownloads.sourceforge.net/nasm/%{name}-%{version}.tar.bz2
 Patch0:		nasm-0.98.39-CAN-2005-1194.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	groff, texinfo
 
 %description
 NASM is the Netwide Assembler, a free portable assembler for the Intel
 80x86 microprocessor series, using primarily the traditional Intel
 instruction mnemonics and syntax.
+
 
 %package rdoff
 Summary:	Tools for the RDOFF binary format, sometimes used with NASM
@@ -29,10 +38,11 @@ Tools for the operating-system independent RDOFF binary format, which
 is sometimes used with the Netwide Assembler (NASM).  These tools
 include linker, library manager, loader, and information dump.
 
-%prep
 
+%prep
 %setup -q
 %patch0 -p1 -b .can-2005-1194
+
 
 %build
 rm -f config.cache config.status config.log
@@ -40,13 +50,16 @@ rm -f config.cache config.status config.log
 %make
 %make rdf
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p $RPM_BUILD_ROOT/{%{_bindir},%{_infodir},%{_mandir}/man1}
+mkdir -p %{buildroot}{%{_bindir},%{_infodir},%{_mandir}/man1}
 %makeinstall install_rdf
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -68,6 +81,9 @@ mkdir -p $RPM_BUILD_ROOT/{%{_bindir},%{_infodir},%{_mandir}/man1}
 %{_bindir}/rdf2com
 
 %changelog
+* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 0.98.39-3avx
+- rebuild for new gcc
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 0.98.39-2avx
 - rebuild
 

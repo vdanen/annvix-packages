@@ -1,6 +1,15 @@
-%define name	urpmi
-%define version	4.6.23
-%define release 3avx
+#
+# spec file for package urpmi
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		urpmi
+%define version		4.6.23
+%define release 	4avx
 
 %{expand:%%define compat_perl_vendorlib %(perl -MConfig -e 'printf "%%s\n", "%{?perl_vendorlib:1}" ? "%%{perl_vendorlib}" : "$Config{installvendorlib}"')}
 
@@ -14,10 +23,10 @@ Version:	%{version}
 Release:	%{release}
 License:	GPL
 Group:		System/Configuration/Packaging
-URL:		http://cvs.mandrakesoft.com/cgi-bin/cvsweb.cgi/soft/urpmi
+URL:		http://cvs.mandriva.com/cgi-bin/cvsweb.cgi/soft/urpmi
 Source0:	%{name}.tar.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildRoot:	%{_tmppath}/%{name}-%{version}
 BuildRequires:	%{buildreq_locale} bzip2-devel rpm-devel >= 4.0.3 gettext
 BuildArch:	noarch
 
@@ -29,7 +38,7 @@ Conflicts:	curl < 7.13.0
 urpmi takes care of dependencies between rpms, using a pool (or pools) of rpms.
 
 urpmi is Annvix's console-based software installation tool, developed by
-Mandrakesoft. urpmi will follow package dependencies -- in other words, it will
+Mandriva. urpmi will follow package dependencies -- in other words, it will
 install all the other software required by the software you ask it to install --
 and it's capable of obtaining packages from a variety of media, including 
 installation CD-ROMs, your local hard disk, and remote sources such as web or FTP
@@ -47,6 +56,7 @@ urpmi-parallel-ka-run is an extension module to urpmi for handling
 distributed installation using ka-run tools.
 %endif
 
+
 %package -n urpmi-parallel-ssh
 Summary:	Parallel extension to urpmi using ssh and scp
 Requires:	urpmi >= %{version}-%{release} openssh-clients perl
@@ -56,8 +66,10 @@ Group:		%{group}
 urpmi-parallel-ssh is an extension module to urpmi for handling
 distributed installation using ssh and scp tools.
 
+
 %prep
 %setup -q -n %{name}
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -70,7 +82,7 @@ rm -f %{buildroot}%{_bindir}/gurpmi*
 
 for dir in partial headers rpms
 do
-  install -d %{buildroot}/var/cache/urpmi/$dir
+    install -d %{buildroot}/var/cache/urpmi/$dir
 done
 
 cat <<EOF >%{buildroot}%{_sysconfdir}/urpmi/inst.list
@@ -79,7 +91,7 @@ cat <<EOF >%{buildroot}%{_sysconfdir}/urpmi/inst.list
 EOF
 
 mkdir -p %{buildroot}%{compat_perl_vendorlib}
-install -m 644 urpm.pm %{buildroot}%{compat_perl_vendorlib}/urpm.pm
+install -m 0644 urpm.pm %{buildroot}%{compat_perl_vendorlib}/urpm.pm
 mkdir -p %{buildroot}%{compat_perl_vendorlib}/urpm
 
 for p in args cfg download msg sys util parallel_ka_run parallel_ssh
@@ -93,8 +105,8 @@ pod2man urpm.pm >%{buildroot}%{_mandir}/man3/urpm.3
 mv -f %{buildroot}%{_bindir}/rpm-find-leaves %{buildroot}%{_bindir}/urpmi_rpm-find-leaves
 
 # logrotate
-install -d -m 755 %{buildroot}%{_sysconfdir}/logrotate.d
-install -m 644 %{name}.logrotate %{buildroot}%{_sysconfdir}/logrotate.d/%{name}
+install -d -m 0755 %{buildroot}%{_sysconfdir}/logrotate.d
+install -m 0644 %{name}.logrotate %{buildroot}%{_sysconfdir}/logrotate.d/%{name}
 
 %if ! %{allow_karun}
 rm -f %{buildroot}%{compat_perl_vendorlib}/urpm/parallel_ka_run.pm
@@ -103,15 +115,17 @@ rm -f %{buildroot}%{compat_perl_vendorlib}/urpm/parallel_ka_run.pm
 
 %find_lang %{name}
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
+
 %preun
 if [ "$1" = "0" ]; then
-  cd /var/lib/urpmi
-  rm -f compss provides depslist* descriptions.* *.cache hdlist.* synthesis.hdlist.* list.*
-  cd /var/cache/urpmi
-  rm -rf partial/* headers/* rpms/*
+    cd /var/lib/urpmi
+    rm -f compss provides depslist* descriptions.* *.cache hdlist.* synthesis.hdlist.* list.*
+    cd /var/cache/urpmi
+    rm -rf partial/* headers/* rpms/*
 fi
 exit 0
 
@@ -174,7 +188,11 @@ if (-e "/etc/urpmi/urpmi.cfg") {
 %doc urpm/README.ssh
 %{compat_perl_vendorlib}/urpm/parallel_ssh.pm
 
+
 %changelog
+* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 4.6.23-4avx
+- rebuild for new gcc
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 4.6.23-3avx
 - bootstrap build
 

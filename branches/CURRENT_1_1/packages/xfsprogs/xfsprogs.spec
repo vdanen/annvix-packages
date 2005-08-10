@@ -1,26 +1,33 @@
-%define name	xfsprogs
-%define version 2.6.13
-%define release 2avx
+#
+# spec file for package xfsprogs
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-%define url	ftp://oss.sgi.com/projects/xfs/download/cmd_tars
+
+%define name		xfsprogs
+%define version 	2.6.13
+%define release 	3avx
 
 %define lib_name_orig	libxfs
 %define lib_major	1
 %define lib_name	%mklibname xfs %{lib_major}
 
-Summary:	Utilities for managing the XFS filesystem.
+Summary:	Utilities for managing the XFS filesystem
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	GPL
 Group:		System/Kernel and hardware
 URL:		http://oss.sgi.com/projects/xfs/
-Source0:	%{url}/%{name}-%{version}.src.tar.bz2
+Source0:	ftp://oss.sgi.com/projects/xfs/download/cmd_tars/%{name}-%{version}.src.tar.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-buildroot
 BuildRequires:	libext2fs-devel
 
-Prereq:		/sbin/ldconfig
+Prereq:		ldconfig
 Requires:	common-licenses
 
 %description
@@ -37,6 +44,7 @@ Refer to the documentation at http://oss.sgi.com/projects/xfs/
 for complete details.  This implementation is on-disk compatible
 with the IRIX version of XFS.
 
+
 %package -n %{lib_name}
 Summary:	Main library for %{lib_name_orig}
 Group:		System/Libraries
@@ -46,8 +54,9 @@ Provides:	%{lib_name_orig} = %{version}-%{release}
 This package contains the library needed to run programs dynamically
 linked with %{lib_name_orig}.
 
+
 %package -n %{lib_name}-devel
-Summary:	XFS filesystem-specific static libraries and headers.
+Summary:	XFS filesystem-specific static libraries and headers
 Group:		Development/C
 Requires:	%{lib_name} = %{version}
 Provides:	%{lib_name_orig}-devel = %{version}-%{release}
@@ -63,28 +72,36 @@ You should install %{lib_name}-devel if you want to develop XFS
 filesystem-specific programs, If you install %{lib_name}-devel, you'll
 also want to install xfsprogs.
 
+
 %prep
 %setup -q
 # make it lib64 aware, better make a patch?
 perl -pi -e "/(libuuid|pkg_s?lib_dir)=/ and s|/lib\b|/%{_lib}|;" configure
 
+
 %build
-%configure2_5x --libdir=/%{_lib}  --sbindir=/sbin --bindir=/usr/sbin
-%make
+%configure2_5x \
+    --libdir=/%{_lib} \
+    --sbindir=/sbin \
+    --bindir=%{_sbindir}
+make
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 make install DIST_ROOT=%{buildroot}/
 make install-dev DIST_ROOT=%{buildroot}/
 
 # nuke files already packaged as %doc
 rm -rf %{buildroot}%{_datadir}/doc/xfsprogs/
 
+
 %clean
-rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %post -n %{lib_name} -p /sbin/ldconfig
 %postun -n %{lib_name} -p /sbin/ldconfig
+
 
 %files
 %defattr(-,root,root)
@@ -124,6 +141,9 @@ rm -rf %{buildroot}
 %{_mandir}/man3/*
 
 %changelog
+* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 2.6.13-3avx
+- rebuild for new gcc
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.6.13-2avx
 - bootstrap build
 

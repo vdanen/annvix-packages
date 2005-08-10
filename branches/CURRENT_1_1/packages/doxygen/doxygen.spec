@@ -1,6 +1,15 @@
-%define name	doxygen
-%define version 1.3.3
-%define release 6avx
+#
+# spec file for package doxygen
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		doxygen
+%define version 	1.3.3
+%define release 	7avx
 
 Summary:	Doxygen is THE documentation system for C/C++
 Name:		%{name}
@@ -15,7 +24,7 @@ Source1:	GPL-LICENSE.bz2
 Patch0:		doxygen-1.2.12-fix-latex.patch.bz2
 Patch1:		doxygen-1.2.16-fix-for-qt3.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	flex, gcc-c++
 
 %description
@@ -30,6 +39,7 @@ Doxygen can also be configured to extract the code-structure from
 undocumented source files. This can be very useful to quickly find
 your way in large source distributions.
 
+
 %prep
 %setup -q
 %patch0 -p1
@@ -41,19 +51,24 @@ perl -pi -e "s|/lib$|/%{_lib}|" tmake/lib/linux-g++/tmake.conf
 %endif
 find -type d -exec chmod 0755 {} \;
 
+
 %build
 ./configure
+
 
 %make
 bzcat %{SOURCE1} > LICENSE
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-install -d ${RPM_BUILD_ROOT}%{_bindir}
-install -s bin/doxy* ${RPM_BUILD_ROOT}%{_bindir}
+install -d %{buildroot}%{_bindir}
+install -s bin/doxy* %{buildroot}%{_bindir}
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-, root, root)
@@ -62,7 +77,11 @@ install -s bin/doxy* ${RPM_BUILD_ROOT}%{_bindir}
 %{_bindir}/doxytag
 %{_bindir}/doxysearch
 
+
 %changelog
+* Mon Jul 25 2005 Vincent Danen <vdanen@annvix.org> 1.3.3-7avx
+- rebuild for new gcc
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.3.3-6avx
 - bootstrap build
 

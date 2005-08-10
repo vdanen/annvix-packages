@@ -1,6 +1,15 @@
-%define name	which
-%define version	2.16
-%define release	3avx
+#
+# spec file for package which
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		which
+%define version		2.16
+%define release		4avx
 
 Summary:	Displays where a particular program in your path is located
 Name:		%{name}
@@ -14,7 +23,7 @@ Patch:		which-2.6.jbj.patch.bz2
 Patch1:		which-2.12-fixinfo.patch.bz2
 Patch2:		which-2.16-afs.patch.bz2
 
-BuildRoot:	%_tmppath/%name-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 
 Prereq:		info-install
 
@@ -22,24 +31,29 @@ Prereq:		info-install
 The which command shows the full pathname of a specified program, if
 the specified program is in your PATH.
 
+
 %prep
 %setup -q
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
 
+
 %build
 %configure2_5x
 %make
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
-rm -rf %buildroot/%_infodir/dir
+rm -rf %{buildroot}%{_infodir}/dir
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %post
 %_install_info %{name}.info
@@ -47,14 +61,19 @@ rm -rf %buildroot/%_infodir/dir
 %preun
 %_remove_install_info %{name}.info
 
+
 %files
 %defattr(-, root, root)
 %doc README* AUTHORS COPYING EXAMPLES INSTALL NEWS
-%_bindir/which
-%_mandir/man1/which.1.bz2
-%_infodir/*
+%{_bindir}/which
+%{_mandir}/man1/which.1.bz2
+%{_infodir}/*
+
 
 %changelog
+* Wed Jul 27 2005 Vincent Danen <vdanen@annvix.org> 2.16-4avx
+- rebuild for new gcc
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.16-3avx
 - bootstrap build
 

@@ -1,19 +1,29 @@
-%define name	dejagnu
-%define version 1.4.2
-%define release 9avx
+#
+# spec file for package dejagnu
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-Summary:	A front end for testing other programs.
+
+%define name		dejagnu
+%define version 	1.4.2
+%define release 	10avx
+%define epoch		20010912
+
+Summary:	A front end for testing other programs
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
-Epoch:		20010912
+Epoch:		%{epoch}
 Group:		Development/Other
 License:	GPL
 URL:		http://sourceware.cygnus.com
 Source:		%{name}-%{version}.tar.bz2 
 Patch2:		dejagnu-1.4.2-mkargs.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-build
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	autoconf automake libtool
 BuildArch:	noarch
 
@@ -27,9 +37,11 @@ host or target where a program must be tested; and to standardize the
 output format of all tests (making it easier to integrate the testing
 into software development).
 
+
 %prep
 %setup -q
 %patch2 -p1
+
 
 %build
 %configure
@@ -39,6 +51,7 @@ into software development).
 export PATH=$PWD:$PATH
 make check
 )
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -51,8 +64,10 @@ install -m 0644 contrib/bluegnu2.0.3/doc/dejagnu.1 %{buildroot}%{_mandir}/man1
 rm -f %{buildroot}%{_libdir}/config.guess
 rm -f %{buildroot}%{_includedir}/dejagnu.h
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -63,7 +78,11 @@ rm -f %{buildroot}%{_includedir}/dejagnu.h
 %{_mandir}/man1/dejagnu.1*
 %{_mandir}/man1/runtest.1*
 
+
 %changelog
+* Mon Jul 25 2005 Vincent Danen <vdanen@annvix.org> 1.4.2-10avx
+- rebuild for new gcc
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.4.2-9avx
 - bootstrap build
 

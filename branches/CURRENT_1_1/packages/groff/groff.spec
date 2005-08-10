@@ -1,6 +1,15 @@
-%define name	groff
-%define version	1.19
-%define release	7avx
+#
+# spec file for package groff
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		groff
+%define version		1.19
+%define release		8avx
 
 # rh-1.18-3
 # deb-1.18-4
@@ -32,7 +41,7 @@ Patch108:	groff-1.19-utf8.patch.bz2
 # -- pablo
 Patch109:	groff-1.19-dashes.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	autoconf2.5, byacc, texinfo >= 4.3, xpm-devel
 
 Requires:	mktemp groff-for-man = %{version}-%{release}
@@ -47,10 +56,6 @@ created documents can be shown on a display or printed on a printer.
 Groff's formatting commands allow you to specify font type and size, bold
 type, italic type, the number and size of columns on a page, and more.
 
-You should install groff if you want to use it as a document formatting
-system.  Groff can also be used to format man pages. If you are going
-to use groff with the X Window System, you'll also need to install the
-groff-gxditview package.
 
 %package for-man
 Summary:	Parts of the groff formatting system that is required for viewing manpages
@@ -61,8 +66,9 @@ The groff-for-man package contains the parts of the groff text processor
 package that are required for viewing manpages.
 For a full groff package, install package groff.
 
+
 %package perl
-Summary:	Parts of the groff formatting system that require Perl.
+Summary:	Parts of the groff formatting system that require Perl
 Group:		Text tools
 
 %description perl
@@ -72,8 +78,8 @@ for creating PostScript font files, the grog utility that can be used
 to automatically determine groff command-line options, and the
 troff-to-ps print filter.
 
-%prep
 
+%prep
 %setup -q
 #TV%patch3 -p1 -b .deb
 %patch4 -p1
@@ -91,6 +97,7 @@ cp -f %SOURCE2 ./
 
 WANT_AUTOCONF_2_5=1 autoconf
 
+
 %build
 PATH=$PATH:%{_prefix}/X11R6/bin
 export MAKEINFO=$HOME/cvs/texinfo/makeinfo/makeinfo
@@ -100,32 +107,34 @@ cd doc
 makeinfo groff.texinfo
 cd ../src/xditview
 xmkmf
-perl -p -i -e "s|CXXDEBUGFLAGS = .*|CXXDEBUGFLAGS = $RPM_OPT_FLAGS|" Makefile
-perl -p -i -e "s|CDEBUGFLAGS = .*|CDEBUGFLAGS = $RPM_OPT_FLAGS|" Makefile
+perl -p -i -e "s|CXXDEBUGFLAGS = .*|CXXDEBUGFLAGS = %{optflags}|" Makefile
+perl -p -i -e "s|CDEBUGFLAGS = .*|CDEBUGFLAGS = %{optflags}|" Makefile
 make depend
 %make 
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 PATH=$PATH:%{_prefix}/X11R6/bin
 mkdir -p %{buildroot}{%{_prefix},%{_infodir},%{_bindir},%{_docdir}/%{name}/%{version}/html/momdoc}
-%makeinstall manroot=%buildroot/%{_mandir} top_builddir=$PWD top_srcdir=$PWD common_words_file=%{buildroot}%{_datadir}/%{name}/%{version} mkinstalldirs=mkdir
-install -m 644 doc/groff.info* %{buildroot}/%{_infodir}
+%makeinstall manroot=%{buildroot}%{_mandir} top_builddir=$PWD top_srcdir=$PWD common_words_file=%{buildroot}%{_datadir}/%{name}/%{version} mkinstalldirs=mkdir
+install -m 0644 doc/groff.info* %{buildroot}%{_infodir}
 
 for i in s.tmac mse.tmac m.tmac; do
-	ln -s $i %{buildroot}%{_datadir}/groff/%{version}/tmac/g$i
+    ln -s $i %{buildroot}%{_datadir}/groff/%{version}/tmac/g$i
 done
 for i in troff tbl pic eqn neqn refer lookbib indxbib soelim nroff; do
-	ln -s $i %{buildroot}/%{_bindir}/g$i
+    ln -s $i %{buildroot}%{_bindir}/g$i
 done
 
 # Build system is compressing man-pages
 for i in eqn.1 indxbib.1 lookbib.1 nroff.1 pic.1 refer.1 soelim.1 tbl.1 troff.1; do
-		ln -s $i%{_extension} %{buildroot}/%{_mandir}/man1/g$i%{_extension}
+    ln -s $i%{_extension} %{buildroot}%{_mandir}/man1/g$i%{_extension}
 done
 
 mkdir -p %{buildroot}/%{_libdir}/rhs/rhs-printfilters
-install -m755 %{SOURCE1} %{buildroot}/%{_libdir}/rhs/rhs-printfilters
+install -m 0755 %{SOURCE1} %{buildroot}%{_libdir}/rhs/rhs-printfilters
 
 # call spec-helper before creating the file list
 s=/usr/share/spec-helper/spec-helper ; [ -x $s ] && $s
@@ -183,22 +192,25 @@ dirs=usr/share/man/*
 perl -ni -e 'BEGIN { open F, "%{name}-for-man.list"; $s{$_} = 1 foreach <F>; } print unless $s{$_}' %{name}.list
 perl -ni -e 'BEGIN { open F, "%{name}-perl.list"; $s{$_} = 1 foreach <F>; } print unless $s{$_}' %{name}.list
 # japanese environment is crazy; doc.tmac seems superior than docj.tmac
-ln -sf doc.tmac %{buildroot}/usr/share/groff/%{version}/tmac/docj.tmac
+ln -sf doc.tmac %{buildroot}%{_datadir}/groff/%{version}/tmac/docj.tmac
 
-#TV cp -a {,%{buildroot}/usr/share/groff/%{version}/}font/devkoi8-r
+#TV cp -a {,%{buildroot}%{_datadir}/groff/%{version}/}font/devkoi8-r
 
 for i in $(find %{buildroot} -empty -type f); do echo " ">> $i;done
 
 mv %{buildroot}%{_docdir}/{groff/%{version}/,%{name}-%{version}/}
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %post
 %_install_info %{name}
 
 %preun
 %_remove_install_info %{name}
+
 
 %files -f groff.list
 %defattr(-,root,root)
@@ -214,10 +226,13 @@ mv %{buildroot}%{_docdir}/{groff/%{version}/,%{name}-%{version}/}
 
 
 %changelog
+* Wed Jul 27 2005 Vincent Danen <vdanen@annvix.org> 1.19-8avx
+- rebuild for new gcc
+
 * Sat Jun 04 2005 Vincent Danen <vdanen@annvix.org> 1.19-7avx
 - bootstrap build
 - change buildrequires from texinfo < 4.7 to >= 4.3
-- make groff depends on groff-for-man %%version-%%release
+- make groff depends on groff-for-man %%{version}-%%{release}
 - spec cleanups
 
 * Thu Jun 24 2004 Vincent Danen <vdanen@annvix.org> 1.19-6avx
@@ -419,7 +434,7 @@ mv %{buildroot}%{_docdir}/{groff/%{version}/,%{name}-%{version}/}
 
 * Sun May 13 2000 David BAUDENS <baudens@mandrakesoft.com> 1.15-4mdk
 - Fix build for i486
-- Use %%{_tmppath} for BuildRoot
+- Use %%{_buildroot} for BuildRoot
 
 * Fri Mar 31 2000 Chmouel Boudjnah <chmouel@mandrakesoft.com> 1.15-3mdk
 - Fix rpmlint error/warning.

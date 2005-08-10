@@ -1,7 +1,16 @@
-%define name	strace
-%define version	4.4.98
-%define release	5avx
-#define cvsdate	20030410
+#
+# spec file for package strace
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		strace
+%define version		4.4.98
+%define release		6avx
+#define cvsdate		20030410
 
 Summary:	Tracks and displays system calls associated with a running process
 Name:		%{name}
@@ -12,7 +21,7 @@ Group:		Development/Kernel
 URL:		http://www.liacs.nl/~wichert/strace/
 Source0:	%{name}-%{version}%{?cvsdate:-%{cvsdate}}.tar.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 
 %description
 The strace program intercepts and records the system calls called
@@ -24,24 +33,29 @@ purposes.
 Install strace if you need a tool to track the system calls made and
 received by a process.
 
+
 %prep
 %setup -q
+
 
 %build
 %configure2_5x
 %make
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p $RPM_BUILD_ROOT/%{_bindir}
-mkdir -p $RPM_BUILD_ROOT/%{_mandir}/man1
-%makeinstall man1dir=%buildroot/%{_mandir}/man1
+mkdir -p %{buildroot}%{_bindir}
+mkdir -p %{buildroot}%{_mandir}/man1
+%makeinstall man1dir=%{buildroot}%{_mandir}/man1
 
 # remove unpackaged files
-rm -f $RPM_BUILD_ROOT%{_bindir}/strace-graph
+rm -f %{buildroot}%{_bindir}/strace-graph
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -49,7 +63,11 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/strace-graph
 %{_bindir}/strace
 %{_mandir}/man1/strace.1*
 
+
 %changelog
+* Wed Jul 27 2005 Vincent Danen <vdanen@annvix.org> 4.4.98-6avx
+- rebuild for new gcc
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 4.4.98-5avx
 - bootstrap build
 

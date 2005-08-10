@@ -1,8 +1,17 @@
-%define name	grep
-%define version 2.5.1
-%define release 10avx
+#
+# spec file for package grep
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-%define _bindir /bin
+
+%define name		grep
+%define version 	2.5.1
+%define release 	11avx
+
+%define _bindir 	/bin
 
 Summary:	The GNU versions of grep pattern matching utilities
 Name:		%{name}
@@ -14,7 +23,7 @@ URL:		http://www.gnu.org/software/grep/grep.html
 Source:		ftp://ftp.gnu.org/pub/gnu/grep/%{name}-%{version}.tar.bz2
 Patch1:		grep-2.5.1-i18n-0.1.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	gettext pcre-devel texinfo
 
 Requires:	libpcre
@@ -25,22 +34,23 @@ more input files for lines which contain a match to a specified pattern
 and then prints the matching lines.  GNU's grep utilities include grep,
 egrep and fgrep.  
 
-You should install grep on your system, because it is a very useful utility
-for searching through text files, for system administration tasks, etc.
-
 
 %prep
 %setup -q
 %patch1 -p1 -b .i18n
 
+
 %build
-%configure2_5x --exec-prefix=/ --without-included-regex
+%configure2_5x \
+    --exec-prefix=/ \
+    --without-included-regex
 %make
 
 # (gb) why does spencer bre test #16 fails?
 # (gw) Spencer test #55 has a syntax error: echo '-'| grep -E -e '(*)b'
 # (fpons) removed make check as glibc is bogus currently.
 #make -k check || echo "make check failed"
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -50,8 +60,10 @@ rm -rf %{buildroot}%{_infodir}
 
 %find_lang %{name}
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files -f %{name}.lang
 %defattr(-,root,root)
@@ -60,6 +72,9 @@ rm -rf %{buildroot}%{_infodir}
 %{_mandir}/*/*
 
 %changelog
+* Wed Jul 27 2005 Vincent Danen <vdanen@annvix.org> 2.5.1-11avx
+- rebuild for new gcc
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.5.1-10avx
 - bootstrap build
 

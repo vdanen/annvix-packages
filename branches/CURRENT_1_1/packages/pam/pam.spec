@@ -1,11 +1,21 @@
-%define name	pam
-%define version	0.77
-%define release	18avx
+#
+# spec file for package pam
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+# pam-0.77-26mdk
+
+
+%define name		pam
+%define version		0.77
+%define release		19avx
 
 %define rhrelease	5
-%define libname		%mklibname %name 0
+%define libname		%mklibname %{name} 0
 
-Summary:	A security tool which provides authentication for applications.
+Summary:	A security tool which provides authentication for applications
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -78,7 +88,7 @@ Patch514:	pam-0.77-environment.patch.bz2
 
 Patch600:	pam-0.77-annvix.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	bison cracklib-devel flex glib-devel pwdb-devel
 BuildRequires:	db4-devel
 
@@ -91,6 +101,7 @@ Provides:	pamconfig
 PAM (Pluggable Authentication Modules) is a system security tool
 which allows system administrators to set authentication policy
 without having to recompile programs which do authentication.
+
 
 %package -n %{libname}
 Summary:	Libraries for %{name}
@@ -106,9 +117,9 @@ without having to recompile programs which do authentication.
 %package -n %{libname}-devel
 Summary:	Development headers and libraries for %{name}
 Group:		Development/Other
-PreReq:		%{libname} = %version-%release
-Provides:	%{name}-devel = %version-%release
-Provides:	lib%{name}-devel = %version-%release
+PreReq:		%{libname} = %{version}-%{release}
+Provides:	%{name}-devel = %{version}-%{release}
+Provides:	lib%{name}-devel = %{version}-%{release}
 Obsoletes:	%{name}-devel <= 0.77-10sls
 
 %description -n %{libname}-devel
@@ -117,6 +128,7 @@ which allows system administrators to set authentication policy
 without having to recompile programs which do authentication.
 
 This is the devlopement librairies for %{name}
+
 
 %prep
 %setup -q -n Linux-PAM-%{version} -a 1
@@ -181,67 +193,72 @@ cp %{SOURCE4} .
 %patch600 -p0 -b .annvix
 
 for readme in modules/pam_*/README ; do
-	cp -fv ${readme} doc/txts/README.`dirname ${readme} | sed -e 's|^modules/||'`
+    cp -fv ${readme} doc/txts/README.`dirname ${readme} | sed -e 's|^modules/||'`
 done
 rm -f doc/txts/README
 autoconf
 
+
 %build
 CFLAGS="%{optflags} -fPIC" \
 ./configure \
-	--prefix=/ \
-	--libdir=/%{_lib} \
-	--infodir=%{_infodir} \
-	--mandir=%{_mandir} \
-	--enable-static-libpam \
-	--enable-securedir=/%{_lib}/security \
-	--enable-fakeroot=%{buildroot}
+    --prefix=/ \
+    --libdir=/%{_lib} \
+    --infodir=%{_infodir} \
+    --mandir=%{_mandir} \
+    --enable-static-libpam \
+    --enable-securedir=/%{_lib}/security \
+    --enable-fakeroot=%{buildroot}
 # really build pam_console_apply_devfs against glib-1.2
 echo "PREFER_GLIB1 = yes" >> Make.Rules
 
 # %%make doesn't work
 make
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p %{buildroot}%{_includedir}/security
 mkdir -p %{buildroot}/%{_lib}/security
 make install FAKEROOT=%{buildroot} LDCONFIG=:
-install -d -m 755 %{buildroot}/etc/pam.d
-install -m 644 %{SOURCE2} %{buildroot}/etc/pam.d/other
-install -m 644 %{SOURCE3} %{buildroot}/etc/pam.d/system-auth
-chmod 644 %{buildroot}/etc/pam.d/{other,system-auth}
+install -d -m 0755 %{buildroot}/etc/pam.d
+install -m 0644 %{SOURCE2} %{buildroot}/etc/pam.d/other
+install -m 0644 %{SOURCE3} %{buildroot}/etc/pam.d/system-auth
+chmod 0644 %{buildroot}/etc/pam.d/{other,system-auth}
 
 # Install man pages.
-install -d -m 755 %{buildroot}%{_mandir}/man3
-install -d -m 755 %{buildroot}%{_mandir}/man8
-install -m 644 doc/man/*.3 %{buildroot}%{_mandir}/man3/
-install -m 644 doc/man/*.8 %{buildroot}%{_mandir}/man8/
+install -d -m 0755 %{buildroot}%{_mandir}/man3
+install -d -m 0755 %{buildroot}%{_mandir}/man8
+install -m 0644 doc/man/*.3 %{buildroot}%{_mandir}/man3/
+install -m 0644 doc/man/*.8 %{buildroot}%{_mandir}/man8/
 
 # Make sure every module built.
 for dir in modules/pam_* ; do
 if [ -d ${dir} ] ; then
-	if ! ls -1 %{buildroot}/%{_lib}/security/`basename ${dir}`*.so ; then
-		echo ERROR `basename ${dir}` module did not build.
-		exit 1
-	fi
+    if ! ls -1 %{buildroot}/%{_lib}/security/`basename ${dir}`*.so ; then
+        echo ERROR `basename ${dir}` module did not build.
+        exit 1
+    fi
 fi
 done
 
 #remove unpackaged files
 rm -rf %{buildroot}/%{_lib}/libpam{.a,c.*} \
-  %{buildroot}/%{_lib}/security/pam_filter/upperLOWER \
-  %{buildroot}%{_sysconfdir}/security/chroot.conf \
-  %{buildroot}%{_prefix}/doc/Linux-PAM \
-  %{buildroot}%{_datadir}/doc/pam
+    %{buildroot}/%{_lib}/security/pam_filter/upperLOWER \
+    %{buildroot}%{_sysconfdir}/security/chroot.conf \
+    %{buildroot}%{_prefix}/doc/Linux-PAM \
+    %{buildroot}%{_datadir}/doc/pam
 
 touch %{buildroot}%{_sysconfdir}/environment
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
+
 %post -n %libname -p /sbin/ldconfig
 %postun -n %libname -p /sbin/ldconfig
+
 
 %files
 %defattr(-,root,root)
@@ -283,8 +300,10 @@ touch %{buildroot}%{_sysconfdir}/environment
 %{_includedir}/security/*.h
 %{_mandir}/man3/*
 
-# mdk pam-0.77-26mdk
 %changelog
+* Fri Jul 29 2005 Vincent Danen <vdanen@annvix.org> 0.77-19avx
+- rebuild for new gcc
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.77-18avx
 - bootstrap build
 

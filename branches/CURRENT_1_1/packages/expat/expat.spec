@@ -1,6 +1,15 @@
-%define name	expat
-%define version 1.95.6
-%define release 8avx
+#
+# spec file for package expat
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		expat
+%define version 	1.95.6
+%define release 	9avx
 
 %define libname_orig	libexpat
 %define major		0
@@ -16,7 +25,7 @@ URL:		http://www.jclark.com/xml/expat.html
 Source:		ftp://ftp.jclark.com/pub/xml/%{name}-%{version}.tar.bz2
 Patch:		expat-1.95.6-enum.patch.bz2
 
-BuildRoot:	%_tmppath/%name-%version-%release-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 
 Requires:	%{libname} = %{version}-%{release}
 
@@ -24,15 +33,17 @@ Requires:	%{libname} = %{version}-%{release}
 Expat is an XML 1.0 parser written in C by James Clark.  It aims to be
 fully conforming. It is currently not a validating XML parser.
 
+
 %package -n %{libname}
 Summary:	Main library for expat
 Group:		Development/C
 Obsoletes:	libexpat1_95
-Provides:	libexpat1_95 = %version-%release
+Provides:	libexpat1_95 = %{version}-%{release}
 
 %description -n %{libname}
 This package contains the library needed to run programs dynamically
 linked with expat.
+
 
 %package -n %{libname}-devel
 Summary:	Development environment for the expat XML parser
@@ -41,30 +52,34 @@ Requires:	%{libname} = %{version}
 Provides:       %{libname_orig}-devel = %{version}-%{release} %{name}-devel = %{version}-%{release}
 Obsoletes:      %{name}-devel
 Obsoletes:      libexpat1_95-devel
-Provides:       libexpat1_95-devel = %version-%release
+Provides:       libexpat1_95-devel = %{version}-%{release}
 
 %description -n %{libname}-devel
 Development environment for the expat XML parser
 
+
 %prep
-%setup -q -n %name-%{version}
+%setup -q
 %patch -p1
+
 
 %build
 %configure
-# fredl: parallel make is broken
 %make
+
  
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-%makeinstall mandir=$RPM_BUILD_ROOT/%{_mandir}/man1
+%makeinstall mandir=%{buildroot}%{_mandir}/man1
 
-install -D -m 0644 doc/reference.html %buildroot%_docdir/%name-%version/reference.html
+install -D -m 0644 doc/reference.html %{buildroot}%{_docdir}/%{name}-%{version}/reference.html
 
-rm -f $RPM_BUILD_ROOT/%{_mandir}/xmlwf.1*
+rm -f %{buildroot}%{_mandir}/xmlwf.1*
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %post -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
@@ -72,25 +87,29 @@ rm -f $RPM_BUILD_ROOT/%{_mandir}/xmlwf.1*
 %post -p /sbin/ldconfig
 %postun -p /sbin/ldconfig
 
+
 %files
 %defattr(-,root,root)
-%_bindir/xmlwf
-%_mandir/man*/*
+%{_bindir}/xmlwf
+%{_mandir}/man*/*
 
 %files -n %{libname}
 %defattr(-,root,root)
-%_libdir/libexpat.so.*
+%{_libdir}/libexpat.so.*
 
 %files -n %{libname}-devel
 %defattr(-,root,root)
-%defattr(-,root,root)
-%_libdir/libexpat.so
-%_includedir/expat.h
-%_libdir/libexpat.a
-%doc %_docdir/%{name}-%{version}
-%_libdir/libexpat.la
+%doc %{_docdir}/%{name}-%{version}
+%{_libdir}/libexpat.so
+%{_includedir}/expat.h
+%{_libdir}/libexpat.a
+%{_libdir}/libexpat.la
+
 
 %changelog
+* Wed Jul 27 2005 Vincent Danen <vdanen@annvix.org> 1.95.6-9avx
+- rebuild for new gcc
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.95.6-8avx
 - bootstrap build
 

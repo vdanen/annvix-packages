@@ -1,6 +1,15 @@
-%define name	bison
-%define version 1.875
-%define release 7avx
+#
+# spec file for package bison
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		bison
+%define version 	1.875
+%define release 	8avx
 
 Summary:	A GNU general-purpose parser generator
 Name:		%{name}
@@ -14,7 +23,7 @@ Patch0:		bison-1.32-extfix.patch.bz2
 # (fc) fixx gcc error 
 Patch1:		bison-1.875-gccerror.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 
 Prereq:		info-install
 
@@ -33,37 +42,45 @@ on systems that are used for development.
 If your system will be used for C development, you should install Bison
 since it is used to build many C programs.
 
+
 %prep
 %setup -q
-
 %patch0 -p1 -b .extfix
 %patch1 -p1 -b .gccerror
 
-%build
 
-CFLAGS=$RPM_OPT_FLAGS %configure2_5x datadir=%{_datadir} libdir=%{_datadir}
+%build
+CFLAGS="%{optflags}" %configure2_5x \
+    datadir=%{_datadir} \
+    libdir=%{_datadir}
 %make LDFLAGS=-s
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-#%makeinstall datadir=$RPM_BUILD_ROOT/%{_libdir}
-%makeinstall datadir=$RPM_BUILD_ROOT/%{_datadir} libdir=$RPM_BUILD_ROOT/%{_datadir}
+#%makeinstall datadir=%{buildroot}%{_libdir}
+%makeinstall \
+    datadir=%{buildroot}%{_datadir} \
+    libdir=%{buildroot}%{_datadir}
 
-mv $RPM_BUILD_ROOT/%{_bindir}/yacc $RPM_BUILD_ROOT/%{_bindir}/yacc.bison
+mv %{buildroot}%{_bindir}/yacc %{buildroot}%{_bindir}/yacc.bison
 
 # Remove unpackaged files
-rm -rf $RPM_BUILD_ROOT/%{_libdir} $RPM_BUILD_ROOT/%{_datadir}/liby.a
+rm -rf %{buildroot}%{_libdir} %{buildroot}%{_datadir}/liby.a
 
 %find_lang %{name}
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
+
 %post
-%{_install_info bison.info}
+%_install_info bison.info
 
 %preun
-%{_remove_install_info bison.info}
+%_remove_install_info bison.info
+
 
 %files -f %{name}.lang
 %defattr(-,root,root)
@@ -72,7 +89,11 @@ rm -rf $RPM_BUILD_ROOT/%{_libdir} $RPM_BUILD_ROOT/%{_datadir}/liby.a
 %{_infodir}/bison.info*
 %{_bindir}/*
 
+
 %changelog
+* Mon Jul 25 2005 Vincent Danen <vdanen@annvix.org> 1.875-8avx
+- rebuild for new gcc
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.875-7avx
 - bootstrap build
 

@@ -1,6 +1,15 @@
-%define name	gettext
-%define version 0.14.1
-%define release 3avx
+#
+# spec file for package gettext
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		gettext
+%define version 	0.14.1
+%define release 	4avx
 
 %define major		3
 %define libver		%{major}.4.1
@@ -14,14 +23,13 @@ License:	GPL
 Group:		System/Libraries
 URL:		http://www.gnu.org/software/gettext/
 Source:		%{name}-%{version}.tar.bz2
-Source1:	po-mode-init.el
 Patch0:		gettext-0.12.1-libtool-1.5.patch.bz2
 # patch to not issue error messages and warnings with some charset encodings
 # we support -- pablo
 Patch1:		gettext-0.12.1-charsets.patch.bz2
 Patch2:		gettext-0.14.1-amd64-libtool.patch
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	autoconf2.5, bison, texinfo, automake1.7, flex
 
 Requires:	%{name}-base = %{version}-%{release}
@@ -46,27 +54,29 @@ programs.
 If you would like to internationalize or incorporate multi-lingual messages
 into programs that you're developing, you should install gettext.
 
+
 %package -n %{lib_name}
-Summary:	The dynamic libintl library for the gettext package.
+Summary:	The dynamic libintl library for the gettext package
 Group:		System/Libraries
 Provides:	libintl
-# when everything is built against the new gettext:
-#Provides:	libintl2
-#Obsoletes:	libintl2
+Provides:	libintl2
+Obsoletes:	libintl2
 
 %description -n %{lib_name}
 This package contains the libintl library for the gettext package.
 
+
 %package devel
-Summary:	GNU libraries and utilities for producing multi-lingual messages.
+Summary:	GNU libraries and utilities for producing multi-lingual messages
 Group:		Development/Other
 Requires:	%{name} = %{version}-%{release}
 Provides:	devel(libintl)
-PreReq:		/sbin/install-info
+PreReq:		info-install
 
 %description devel
 Header files, used when the libc does not provide code of handling
 multi-lingual messages.
+
 
 %package base
 Summary:	GNU libraries and utilities for producing multi-lingual messages.
@@ -75,6 +85,7 @@ Requires:	%{lib_name} = %{version}-%{release}
 
 %description base
 The base package which includes the gettext binary.
+
 
 %prep
 %setup -q
@@ -87,21 +98,23 @@ The base package which includes the gettext binary.
 #find -type f | xargs perl -pi -e 's/HAVE_JAVAC_IN_PATH/HAVE_JAVA_C_IN_PATH/g'
 # needed by patch1
 pushd gettext-runtime
-aclocal-1.7 -I . -I ./m4 -I ../gettext-tools/m4 -I ../config/m4
-WANT_AUTOCONF_2_5=1 autoconf
-automake-1.7
+    aclocal-1.7 -I . -I ./m4 -I ../gettext-tools/m4 -I ../config/m4
+    WANT_AUTOCONF_2_5=1 autoconf
+    automake-1.7
 popd
 # needed by patch2
 pushd gettext-runtime/libasprintf
-aclocal-1.7 -I . -I ../m4 -I ../../gettext-tools/m4 -I ../../config/m4
-WANT_AUTOCONF_2_5=1 autoconf
-automake-1.7
+    aclocal-1.7 -I . -I ../m4 -I ../../gettext-tools/m4 -I ../../config/m4
+    WANT_AUTOCONF_2_5=1 autoconf
+    automake-1.7
 popd
 
 
 %build
 %define __libtoolize /bin/true
-%configure2_5x --enable-shared --with-included-gettext
+%configure2_5x \
+    --enable-shared \
+    --with-included-gettext
 
 # gettext now assumes automake 1.8 but we ship 1.7
 find -type f | xargs perl -pi -e 's/aclocal-1.8/aclocal-1.7/g'
@@ -111,6 +124,7 @@ find -type f | xargs perl -pi -e 's/automake-1.8/automake-1.7/g'
 
 # success/fail depends on locale?
 #make check
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -132,26 +146,28 @@ for i in en@boldquot en@quot ; do rm -rf %{buildroot}/%{_datadir}/locale/$i; don
 rm -rf htmldoc examples
 mkdir htmldoc
 for i in gettext-runtime/man/*.html; do
-  rm -f %{buildroot}%{_datadir}/doc/gettext/`basename $i`
+    rm -f %{buildroot}%{_datadir}/doc/gettext/`basename $i`
 done
 rm -rf %{buildroot}%{_datadir}/gettext/javadoc*
 mv %{buildroot}%{_datadir}/doc/gettext/* %{buildroot}%{_datadir}/doc/libasprintf/* htmldoc
 
 # move crucial stuff to /lib and /bin
 pushd %{buildroot}
-mkdir -p bin
-mkdir -p ./%{_lib}
-mv usr/bin/gettext bin/
-ln -s ../../bin/gettext usr/bin/gettext
-mv .%{_libdir}/libintl.so.* ./%{_lib}/
-rm -f .%{_libdir}/libintl.so
-ln -s ../../%{_lib}/libintl.so.%{major} .%{_libdir}/libintl.so
+    mkdir -p bin
+    mkdir -p ./%{_lib}
+    mv usr/bin/gettext bin/
+    ln -s ../../bin/gettext usr/bin/gettext
+    mv .%{_libdir}/libintl.so.* ./%{_lib}/
+    rm -f .%{_libdir}/libintl.so
+    ln -s ../../%{_lib}/libintl.so.%{major} .%{_libdir}/libintl.so
 popd
 
 %find_lang %{name} --all-name
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %post
 %_install_info gettext.info
@@ -163,6 +179,7 @@ popd
 
 %postun -n %{lib_name} -p /sbin/ldconfig
 
+
 %files
 %defattr(-,root,root)
 %doc README COPYING AUTHORS NEWS THANKS
@@ -171,7 +188,7 @@ popd
 %{_bindir}/autopoint
 %{_bindir}/envsubst
 %{_bindir}/gettext.sh
-%{_libdir}/%name/*
+%{_libdir}/%{name}/*
 %{_infodir}/gettext*
 %{_mandir}/man1/msg*
 %{_mandir}/man1/xgettext*
@@ -210,7 +227,11 @@ popd
 %{_includedir}/*
 %{_infodir}/autosprintf*
 
+
 %changelog
+* Mon Jul 25 2005 Vincent Danen <vdanen@annvix.org> 0.14.1-4avx
+- rebuild for new gcc
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.14.1-3avx
 - bootstrap build
 
@@ -225,7 +246,7 @@ popd
   - parallel make works now (abel)
   - bump major to 3 (peroyvind)
   - Provides: devel(libintl) on -devel pkg (charles)
-  - fix %%_libdir/libintl.so link (tvignaud)
+  - fix %%{_libdir}/libintl.so link (tvignaud)
 - fix amd64 compile (thanks gwenole)
 - Requires: lib64expat0 ifarch is amd64
 - hack to make it build with automake 1.7 (we don't ship 1.8)
@@ -289,7 +310,7 @@ popd
 
 * Mon Jun  3 2002 Guillaume Cottenceau <gc@mandrakesoft.com> 0.11.2-4mdk
 - use work from Götz Waschk <waschk@linux-mandrake.com>
-  - change requires to %%version-%%release
+  - change requires to %%{version}-%%{release}
   - update source 1 (emacs po-mode init)
   - fix libintl version number to 2.0.1
 - fix silly html doc in /usr/doc/gettext -> %%docdir/htmldoc
@@ -351,7 +372,7 @@ popd
 - Split out the dynamic libraries.
 - Remove msghack but put in ngettext.
 - Don't run aclocal before ./configure.
-- Use %%version in the Source tag instead of a hardcoded one.
+- Use %%{version} in the Source tag instead of a hardcoded one.
 - In the Source tag s/alpha/ftp/;
 
 * Tue Apr 17 2001 Guillaume Cottenceau <gc@mandrakesoft.com> 0.10.35-20mdk

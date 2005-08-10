@@ -1,6 +1,15 @@
-%define name	patch
-%define version 2.5.9
-%define release 5avx
+#
+# spec file for package patch
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		patch
+%define version 	2.5.9
+%define release 	6avx
 
 Summary:	The GNU patch command, for modifying/upgrading files
 Name:		%{name}
@@ -15,7 +24,7 @@ Patch2:		patch-2.5.4-unreadable_to_readable.patch.bz2
 Patch3:		patch-2.5.8-stderr.patch.bz2
 Patch5:		patch-2.5.4-destdir.patch.bz2
 
-Buildroot:	%{_tmppath}/%{name}-%{version}-root
+Buildroot:	%{_tmppath}/%{name}-%{version}
 
 %description
 The patch program applies diff files to originals.  The diff command
@@ -24,8 +33,6 @@ changes made to the file.  A person who has the original file can then
 use the patch command with the diff file to add the changes to their
 original file (patching the file).
 
-Patch should be installed because it is a common way of upgrading
-applications.
 
 %prep
 %setup -q
@@ -33,6 +40,7 @@ applications.
 %patch2 -p1
 %patch3 -p1
 %patch5 -p1
+
 
 %build
 # (fg) Large file support can be disabled from ./configure - it is necessary at
@@ -50,8 +58,10 @@ make "CFLAGS=%{optflags} -D_GNU_SOURCE -W -Wall" LDFLAGS=-s
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -60,6 +70,9 @@ make "CFLAGS=%{optflags} -D_GNU_SOURCE -W -Wall" LDFLAGS=-s
 %{_mandir}/*/*
 
 %changelog
+* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 2.5.9-6avx
+- rebuild for new gcc
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.5.9-5avx
 - bootstrap build
 
