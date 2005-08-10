@@ -10,7 +10,7 @@
 %define name		rpm
 %define version		4.2.3
 %define poptver		1.8.3
-%define release		7avx
+%define release		8avx
 
 %define libver		4.2
 %define libname		%mklibname rpm %{libver}
@@ -815,6 +815,9 @@ fi
 %{_libdir}/libpopt.so
 
 %changelog
+* Mon Aug 08 2005 Vincent Danen <vdanen@annvix.org> 4.2.3-8avx
+- rebuild against rebuilt beecrypt
+
 * Fri Jul 29 2005 Vincent Danen <vdanen@annvix.org> 4.2.3-7avx
 - split libs into separate package to make rpm update easier for URPM
   (nanardon)
