@@ -1,8 +1,17 @@
-%define name	termcap
-%define version 11.0.1
-%define release 12avx
+#
+# spec file for package termcap
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-Summary:	The terminal feature database used by certain applications.
+
+%define name		termcap
+%define version 	11.0.1
+%define release 	13avx
+
+Summary:	The terminal feature database used by certain applications
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -17,7 +26,7 @@ Patch3:		termcap-xtermX11R6.patch.bz2
 # (vdanen) 11.0.1-6mdk patch so Eterm is seen as a color-capable term
 Patch4:		termcap-Eterm.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 
 %ifarch sparc
 Obsoletes:	termfiles_sparc
@@ -31,30 +40,39 @@ terminal emulators.  Certain programs use the /etc/termcap file to
 access various features of terminals (the bell, colors, and graphics,
 etc.).
 
-%prep
 
-%install
-[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}
-bzcat %{SOURCE0} > $RPM_BUILD_ROOT%{_sysconfdir}/termcap
-pushd $RPM_BUILD_ROOT%{_sysconfdir} && {
+%prep
+mkdir -p %{_builddir}/%{name}-%{version}%{_sysconfdir}
+bzcat %{SOURCE0} >%{_builddir}/%{name}-%{version}%{_sysconfdir}/termcap
+pushd %{_builddir}/%{name}-%{version}%{_sysconfdir}
 %patch0 -p0
 %patch1 -p0
 %patch2 -p0
 %patch3 -p0
 %patch4 -p0
-} && popd
-# Remove unpackaged file(s)
-rm -rf	$RPM_BUILD_ROOT%{_sysconfdir}/termcap.orig
+popd
+
+
+%install
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+mkdir -p %{buildroot}%{_sysconfdir}
+
+install -m 0644 %{_builddir}/%{name}-%{version}%{_sysconfdir}/termcap %{buildroot}%{_sysconfdir}/
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+rm -rf %{_builddir}/%{name}-%{version}
+
 
 %files
 %defattr(-,root,root)
 %config(noreplace) %attr(644,root,root) %{_sysconfdir}/termcap
 
 %changelog
+* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 11.0.1-13avx
+- do the patching and "building" in %%_builddir like a good boy
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 11.0.1-12avx
 - bootstrap build
 
