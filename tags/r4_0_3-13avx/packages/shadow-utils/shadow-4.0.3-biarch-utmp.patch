@@ -1,0 +1,189 @@
+--- shadow-4.0.3/libmisc/utmp.c.biarch-utmp	2002-03-08 05:30:30.000000000 +0100
++++ shadow-4.0.3/libmisc/utmp.c	2003-04-14 12:03:43.000000000 +0200
+@@ -111,7 +111,7 @@ checkutmp(int picky)
+ 		/* XXX - assumes /dev/tty?? */
+ 		strncpy(utent.ut_id, utent.ut_line + 3, sizeof utent.ut_id);
+ 		strcpy(utent.ut_user, "LOGIN");
+-		time(&utent.ut_time);
++		utent.ut_time = time(NULL);
+ 	}
+ }
+ 
+@@ -195,7 +195,7 @@ checkutmp(int picky)
+ 		strcpy(utent.ut_user, "LOGIN");
+ 		utent.ut_pid = getpid();
+ 		utent.ut_type = LOGIN_PROCESS;
+-		time(&utent.ut_time);
++		utent.ut_time = time(NULL);
+ #if HAVE_UTMPX_H
+ 		strncpy(utxent.ut_line, line, sizeof utxent.ut_line);
+ 		if ((utx = getutxline(&utxent)))
+@@ -204,7 +204,15 @@ checkutmp(int picky)
+ 		strcpy(utxent.ut_user, "LOGIN");
+ 		utxent.ut_pid = utent.ut_pid;
+ 		utxent.ut_type = utent.ut_type;
++		if (sizeof (utxent.ut_tv) == sizeof (struct timeval))
+ 		gettimeofday((struct timeval *) &utxent.ut_tv, NULL);
++		else
++		  {
++			struct timeval tv;
++			gettimeofday(&tv, NULL);
++			utxent.ut_tv.tv_sec = tv.tv_sec;
++			utxent.ut_tv.tv_usec = tv.tv_usec;
++		  }
+ 		utent.ut_time = utxent.ut_tv.tv_sec;
+ #endif
+ 	}
+@@ -230,7 +238,7 @@ checkutmp(int picky)
+ 		line += 5;
+ 
+ 	(void) strncpy (utent.ut_line, line, sizeof utent.ut_line);
+-	(void) time (&utent.ut_time);
++	utent.ut_time = time (NULL);
+ }
+ 
+ #endif	/* !USG */
+@@ -286,7 +294,7 @@ setutmp(const char *name, const char *li
+ {
+ 	utent.ut_type = USER_PROCESS;
+ 	strncpy(utent.ut_user, name, sizeof utent.ut_user);
+-	time(&utent.ut_time);
++	utent.ut_time = time(NULL);
+ 	/* other fields already filled in by checkutmp above */
+ 	setutent();
+ 	pututline(&utent);
+@@ -375,7 +383,15 @@ setutmp(const char *name, const char *li
+ 
+ 	utline.ut_type = utxline.ut_type = USER_PROCESS;
+ 
+-	gettimeofday(&utxline.ut_tv, NULL);
++	if (sizeof (utxline.ut_tv) == sizeof (struct timeval))
++	  gettimeofday((struct timeval *) &utxline.ut_tv, NULL);
++	else
++	  {
++		struct timeval tv;
++		gettimeofday(&tv, NULL);
++		utxline.ut_tv.tv_sec = tv.tv_sec;
++		utxline.ut_tv.tv_usec = tv.tv_usec;
++	  }
+ 	utline.ut_time = utxline.ut_tv.tv_sec;
+ 
+ 	strncpy(utxline.ut_host, host ? host : "", sizeof utxline.ut_host);
+@@ -435,7 +451,7 @@ setutmp(const char *name, const char *li
+ 	 * Put in the current time (common to everyone)
+ 	 */
+ 
+-	(void) time (&utmp.ut_time);
++	utmp.ut_time = time (NULL);
+ 
+ #ifdef UT_HOST
+ 	/*
+--- shadow-4.0.3/libmisc/log.c.biarch-utmp	1998-04-16 21:57:44.000000000 +0200
++++ shadow-4.0.3/libmisc/log.c	2003-04-14 12:03:43.000000000 +0200
+@@ -57,6 +57,7 @@ dolastlog(struct lastlog *ll, const stru
+ 	int	fd;
+ 	off_t	offset;
+ 	struct	lastlog	newlog;
++	time_t	ll_time;
+ 
+ 	/*
+ 	 * If the file does not exist, don't create it.
+@@ -88,7 +89,8 @@ dolastlog(struct lastlog *ll, const stru
+ 	if (ll)
+ 		*ll = newlog;
+ 
+-	time(&newlog.ll_time);
++	ll_time = newlog.ll_time;
++	time(&ll_time);
+ 	strncpy(newlog.ll_line, line, sizeof newlog.ll_line);
+ #if HAVE_LL_HOST
+ 	strncpy(newlog.ll_host, host, sizeof newlog.ll_host);
+--- shadow-4.0.3/lib/lastlog_.h.biarch-utmp	1997-05-02 01:14:42.000000000 +0200
++++ shadow-4.0.3/lib/lastlog_.h	2003-04-14 12:03:43.000000000 +0200
+@@ -40,8 +40,23 @@
+ #ifndef __LASTLOG_H
+ #define __LASTLOG_H
+ 
++#if defined(__GLIBC__)
++#error "glibc shall have fixed <lastlog.h> already, which is <utmp.h>"
++#endif
++
++#if __WORDSIZE == 64 && defined __WORDSIZE_COMPAT32
++/* Recent dietlibc will support those conditionnals */
++#define LASTLOG_NEEDS_32BIT_LL_TIME 1
++#elif defined(__x86_64__) || defined(__powerpc64__) || defined(__sparc_v9__)
++#error "I don't know what to do here, what kind of C library are you using?"
++#endif
++
+ struct	lastlog	{
++#if LASTLOG_NEEDS_32BIT_LL_TIME
++    unsigned int ll_time;
++#else
+ 	time_t	ll_time;
++#endif
+ 	char	ll_line[12];
+ 	char	ll_host[16];
+ };
+--- shadow-4.0.3/src/login.c.biarch-utmp	2002-03-08 05:30:28.000000000 +0100
++++ shadow-4.0.3/src/login.c	2003-04-14 12:07:38.000000000 +0200
+@@ -1020,10 +1020,18 @@ int main (int argc, char **argv)
+ 
+ #if HAVE_UTMPX_H
+ 			failent = utxent;
+-			gettimeofday (&(failent.ut_tv), NULL);
++			if (sizeof (failent.ut_tv) == sizeof (struct timeval))
++			  gettimeofday ((struct timeval *) &failent.ut_tv, NULL);
++			else
++			  {
++				struct timeval tv;
++				gettimeofday (&tv, NULL);
++				failent.ut_tv.tv_sec = tv.tv_sec;
++				failent.ut_tv.tv_usec = tv.tv_usec;
++			  }
+ #else
+ 			failent = utent;
+-			time (&failent.ut_time);
++			failent.ut_time = time (NULL);
+ #endif
+ 			if (pwd) {
+ 				failent_user = pwent.pw_name;
+@@ -1271,15 +1279,16 @@ int main (int argc, char **argv)
+ 		}
+ 		if (getdef_bool ("LASTLOG_ENAB")
+ 		    && lastlog.ll_time != 0) {
++			time_t ll_time = lastlog.ll_time;
+ #ifdef HAVE_STRFTIME
+ 			strftime (ptime, sizeof (ptime),
+ 				  "%a %b %e %H:%M:%S %z %Y",
+-				  localtime (&lastlog.ll_time));
++				  localtime (&ll_time));
+ 			printf (_("Last login: %s on %s"),
+ 				ptime, lastlog.ll_line);
+ #else
+ 			printf (_("Last login: %.19s on %s"),
+-				ctime (&lastlog.ll_time),
++				ctime (&ll_time),
+ 				lastlog.ll_line);
+ #endif
+ #ifdef HAVE_LL_HOST		/* SVR4 || __linux__ || SUN4 */
+--- shadow-4.0.3/src/lastlog.c.biarch-utmp	2002-01-05 16:41:43.000000000 +0100
++++ shadow-4.0.3/src/lastlog.c	2003-04-14 12:09:06.000000000 +0200
+@@ -167,7 +167,7 @@ static void print_one (const struct pass
+ 	static int once;
+ 	char *cp;
+ 	struct tm *tm;
+-
++	time_t ll_time;
+ #ifdef HAVE_STRFTIME
+ 	char ptime[80];
+ #endif
+@@ -184,7 +184,8 @@ static void print_one (const struct pass
+ #endif
+ 		once++;
+ 	}
+-	tm = localtime (&lastlog.ll_time);
++	ll_time = lastlog.ll_time;
++	tm = localtime (&ll_time);
+ #ifdef HAVE_STRFTIME
+ 	strftime (ptime, sizeof (ptime), "%a %b %e %H:%M:%S %z %Y", tm);
+ 	cp = ptime;
