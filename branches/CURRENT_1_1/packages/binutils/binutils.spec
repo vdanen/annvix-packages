@@ -10,7 +10,7 @@
 # mdk 2.16.91.0.1-1mdk
 %define name		binutils
 %define version		2.16.91.0.1
-%define release		1avx
+%define release		2avx
 
 %define lib_major	2
 %define lib_name_orig	%mklibname binutils
@@ -33,7 +33,7 @@ Patch5:		binutils-2.15.92.0.2-ppc64-pie.patch.bz2
 Patch6:		binutils-2.16.90.0.2-skip-weak-defs-if-strong-defs-available.patch.bz2
 Patch7:		binutils-2.16.91.0.1-deps.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	autoconf automake bison flex gcc gettext texinfo glibc-static-devel
 BuildRequires:	dejagnu
 
@@ -105,7 +105,9 @@ ADDITIONAL_TARGETS="--enable-targets=x86_64-annvix-linux"
 # Binutils comes with its own custom libtool
 # [gb] FIXME: but system libtool also works and has relink fix
 %define __libtoolize /bin/true
-%configure --enable-shared $ADDITIONAL_TARGETS
+%configure \
+    --enable-shared \
+    $ADDITIONAL_TARGETS
 %make tooldir=%{_prefix} all info
 
 # Disable gasp tests since the tool is deprecated henceforth neither
@@ -118,9 +120,9 @@ echo ====================TESTING=========================
 # because the S-records tests always fail for some reason (bi must be a
 # magic machine)
 rm -rf ld/testsuite/ld-srec
-make CFLAGS="-fno-stack-protector" check
+make check
 %else
-make CFLAGS="-fno-stack-protector" -k check || echo make check failed
+make -k check || echo make check failed
 %endif
 echo ====================TESTING END=====================
 
@@ -130,19 +132,19 @@ rm -f $logfile; find . -name "*.sum" | xargs cat >> $logfile
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p $RPM_BUILD_ROOT%{_prefix}
+mkdir -p %{buildroot}%{_prefix}
 %makeinstall_std
 
-make prefix=$RPM_BUILD_ROOT%{_prefix} infodir=$RPM_BUILD_ROOT%{_infodir} install-info
-install -m 0644 include/libiberty.h $RPM_BUILD_ROOT%{_includedir}/
+make prefix=%{buildroot}%{_prefix} infodir=%{buildroot}%{_infodir} install-info
+install -m 0644 include/libiberty.h %{buildroot}%{_includedir}/
 # Ship with the PIC libiberty
-install -m 0644 libiberty/pic/libiberty.a $RPM_BUILD_ROOT%{_libdir}/
-rm -rf $RPM_BUILD_ROOT%{_prefix}/%{_target_platform}/
+install -m 0644 libiberty/pic/libiberty.a %{buildroot}%{_libdir}/
+rm -rf %{buildroot}%{_prefix}/%{_target_platform}/
 
-rm -f $RPM_BUILD_ROOT%{_mandir}/man1/{dlltool,nlmconv,windres}*
-rm -f $RPM_BUILD_ROOT%{_infodir}/dir
-rm -f $RPM_BUILD_ROOT%{_libdir}/*.la
-rm -rf $RPM_BUILD_ROOT%{_datadir}/locale/
+rm -f %{buildroot}%{_mandir}/man1/{dlltool,nlmconv,windres}*
+rm -f %{buildroot}%{_infodir}/dir
+rm -f %{buildroot}%{_libdir}/*.la
+rm -rf %{buildroot}%{_datadir}/locale/
 
 
 %clean
@@ -182,13 +184,11 @@ rm -rf $RPM_BUILD_ROOT%{_datadir}/locale/
 
 %files -n %{lib_name}
 %defattr(-,root,root)
-%doc README
 %{_libdir}/libbfd-%{version}.so
 %{_libdir}/libopcodes-%{version}.so
 
 %files -n %{lib_name}-devel
 %defattr(-,root,root)
-%doc README
 %{_includedir}/*
 %{_libdir}/libbfd.a
 %{_libdir}/libbfd.so
@@ -198,6 +198,12 @@ rm -rf $RPM_BUILD_ROOT%{_datadir}/locale/
 
 
 %changelog
+* Mon Jul 25 2005 Vincent Danen <vdanen@annvix.org> 2.16.91.0.1-2avx
+- rebuild for new gcc
+- spec cleanups
+- remove extraneous docs for all but the main package
+- remove -fno-stack-protector-all from CFLAGS for testing
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.16.91.0.1-1avx
 - 2.16.91.0.1
 - BuildRequires: glibc-static-devel
