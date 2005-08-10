@@ -1,6 +1,15 @@
-%define name	texinfo
-%define version	4.8
-%define release	3avx
+#
+# spec file for package texinfo
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		texinfo
+%define version		4.8
+%define release		4avx
 
 Summary:	Tools needed to create Texinfo format documentation files
 Name:		%{name}
@@ -15,7 +24,7 @@ Patch1:		texinfo-3.12h-fix.patch.bz2
 Patch2:		texinfo-4.7-vikeys-segfault-fix.patch.bz2
 Patch3:		texinfo-4.7.test.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	ncurses-devel, zlib-devel
 
 %description
@@ -31,6 +40,7 @@ Install texinfo if you want a documentation system for producing both
 online and print documentation from the same source file and/or if you are
 going to write documentation for the GNU Project.
 
+
 %package -n info
 Summary:	A stand-alone TTY-based reader for GNU texinfo documentation
 Group:		System/Base
@@ -45,6 +55,7 @@ program for viewing texinfo files.
 You should install info, because GNU's texinfo documentation is a valuable
 source of information about the software on your system.
 
+
 %package -n info-install
 Summary:	Program to update the GNU texinfo documentation main page
 Group:		System/Base
@@ -55,6 +66,7 @@ Conflicts:	info < 4.7
 The GNU project uses the texinfo file format for much of its
 documentation. The info package provides a standalone TTY-based browser
 program for viewing texinfo files.
+
 
 %prep
 %setup -q
@@ -70,22 +82,28 @@ make -C util LIBS=%{_libdir}/libz.a
 # all tests must pass
 make check
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p $RPM_BUILD_ROOT/{etc,sbin}
+mkdir -p %{buildroot}{%{_sysconfdir},/sbin}
 
 %makeinstall
-pushd $RPM_BUILD_ROOT
-  bzcat %SOURCE1 > .%{_sysconfdir}/info-dir
-  ln -sf ../../../etc/info-dir $RPM_BUILD_ROOT%{_infodir}/dir
-  mv -f .%{_bindir}/install-info ./sbin
-  mkdir -p .%{_sysconfdir}/X11/wmconfig
+pushd %{buildroot}
+    bzcat %SOURCE1 > .%{_sysconfdir}/info-dir
+    ln -sf ../../../etc/info-dir %{buildroot}%{_infodir}/dir
+    mv -f .%{_bindir}/install-info ./sbin
+    mkdir -p .%{_sysconfdir}/X11/wmconfig
 popd
 
-%{find_lang} %{name}
+# remove texi2pdf since it conflicts with tetex
+rm -f %{buildroot}%{_bindir}/texi2pdf
+
+%find_lang %{name}
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %post
 %_install_info %{name}
@@ -99,6 +117,7 @@ popd
 %preun -n info
 %_remove_install_info info.info
 
+
 %files -f %{name}.lang
 %defattr(-,root,root)
 %doc AUTHORS ChangeLog INSTALL INTRODUCTION NEWS README TODO
@@ -106,7 +125,6 @@ popd
 %{_bindir}/makeinfo
 %{_bindir}/texindex
 %{_bindir}/texi2dvi
-%{_bindir}/texi2pdf
 %{_infodir}/info-stnd.info*
 %{_infodir}/texinfo*
 %{_mandir}/man1/makeinfo.1*
@@ -131,7 +149,12 @@ popd
 /sbin/install-info
 %{_mandir}/man1/install-info.1*
 
+
 %changelog
+* Mon Jul 25 2005 Vincent Danen <vdanen@annvix.org> 4.8-4avx
+- rebuild for new gcc
+- don't package texi2pdf since tetex already has it
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 4.8-3avx
 - bootstrap build
 
