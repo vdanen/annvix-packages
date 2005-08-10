@@ -1,6 +1,15 @@
-%define	name	dmapi
-%define	version	2.1.0
-%define	release	3avx
+#
+# spec file for package dmapi
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define	name		dmapi
+%define	version		2.1.0
+%define	release		4avx
 
 %define lib_name_orig	libdm
 %define lib_major	0
@@ -15,8 +24,8 @@ Group:		System/Kernel and hardware
 URL:		http://oss.sgi.com/projects/xfs/
 Source0:	%{name}-%{version}.src.tar.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
-BuildRequires:	xfs-devel
+BuildRoot:	%{_buildroot}/%{name}-%{version}
+BuildRequires:	xfs-devel, libext2fs-devel
 
 %description
 Files required by system software using the Data Management API
@@ -24,6 +33,7 @@ Files required by system software using the Data Management API
 X/Open document:  Systems Management: Data Storage Managment
 (XDSM) API dated February 1997.  This interface is implemented
 by the libdm library.
+
 
 %package -n %{lib_name}
 Summary:	Main library for %{lib_name_orig}
@@ -33,6 +43,7 @@ Provides:	%{lib_name_orig} = %{version}-%{release}
 %description -n	%{lib_name}
 This package contains the library needed to run programs dynamically
 linked with %{lib_name_orig}.
+
 
 %package -n %{lib_name}-devel
 Summary:	Data Management API static libraries and headers.
@@ -48,12 +59,16 @@ develop programs which make use of the Data Management API
 (DMAPI).  If you install dmapi-devel, you'll also want to install
 the dmapi (runtime) package and the xfsprogs-devel package.
 
+
 %prep
 %setup -q
 
+
 %build
-%configure2_5x --libdir=/%{_lib}
+%configure2_5x \
+    --libdir=/%{_lib}
 %make
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -62,6 +77,7 @@ make install-dev DIST_ROOT=%{buildroot}/
 
 # (sb) installed but unpackaged files
 rm -rf %{buildroot}%{_datadir}/doc/dmapi
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -86,7 +102,12 @@ rm -rf %{buildroot}%{_datadir}/doc/dmapi
 %{_mandir}/man3/*
 %{_includedir}/*/*
 
+
 %changelog
+* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 2.1.0-4avx
+- rebuild for new gcc
+- BuildRequires: libext2fs-devel
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.1.0-3avx
 - bootstrap build
 
