@@ -1,9 +1,16 @@
-%define name	zsh
-%define version	4.2.4
-%define release	3avx
-%define epoch	1
+#
+# spec file for package zlib
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-%define doc_version 4.2.4
+
+%define name		zsh
+%define version		4.2.5
+%define release		1avx
+%define epoch		1
 
 Summary:	A shell with lots of features
 Name:		%{name}
@@ -21,7 +28,7 @@ Patch2:		zsh-4.0.1-pre-3-rpmnewopt.patch.bz2
 Patch101:	zsh-serial.patch.bz2
 Patch102:	zsh-4.1.0-dev-7-rebootin.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	libtermcap-devel >= 2.0, texinfo, pcre-devel, ncurses-devel
 
 Prereq:		coreutils grep rpm-helper >= 0.7
@@ -35,8 +42,9 @@ built-in spelling correction, programmable command completion,
 shell functions (with autoloading), a history mechanism, and a
 lots of other features
 
+
 %prep
-%setup -q -a 2 -n %{name}-%{version}
+%setup -q -a 2
 %patch1 -p1
 %patch2 -p1
 %patch101 -p1
@@ -53,31 +61,40 @@ perl -pi -e 's|/usr/local/bin/|%{_bindir}/|' Functions/Misc/{run-help,checkmail,
 EXTRA_CONFIGURE_ARGS="--disable-lfs"
 %endif
 
-%configure2_5x --enable-etcdir=%{_sysconfdir} --enable-function-subdirs --disable-debug $EXTRA_CONFIGURE_ARGS \
-    --disable-max-jobtable-size --enable-pcre #--with-curses-terminfo
+%configure2_5x \
+    --enable-etcdir=%{_sysconfdir} \
+    --enable-function-subdirs \
+    --disable-debug \
+    $EXTRA_CONFIGURE_ARGS \
+    --disable-max-jobtable-size \
+    --enable-pcre 
+    #--with-curses-terminfo
 
 make all
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-make install-strip DESTDIR=%buildroot
-make install.info DESTDIR=%buildroot
+make install-strip DESTDIR=%{buildroot}
+make install.info DESTDIR=%{buildroot}
 
 # copy Mandrake Configuration files.
 mkdir -p %{buildroot}/{bin,etc}
 cp -a zcfg/etc/z* %{buildroot}%{_sysconfdir}
-cp -a zcfg/share/zshrc_default %buildroot%{_datadir}/zsh/%{version}/zshrc_default
+cp -a zcfg/share/zshrc_default %{buildroot}%{_datadir}/zsh/%{version}/zshrc_default
 
 # Backward compatibility should be removed in the others times.
-pushd %{buildroot}/bin && {
+pushd %{buildroot}/bin
     mv ..%{_bindir}/zsh ./zsh
-} && popd
+popd
 
 rm -f %{buildroot}%{_bindir}/zsh-%{version}
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %post
 /usr/share/rpm-helper/add-shell %{name} $1 /bin/zsh
@@ -86,6 +103,7 @@ rm -f %{buildroot}%{_bindir}/zsh-%{version}
 %postun
 /usr/share/rpm-helper/del-shell %{name} $1 /bin/zsh
 %_remove_install_info %{name}.info
+
 
 %files
 %defattr(-,root,root,0755)
@@ -104,6 +122,11 @@ rm -f %{buildroot}%{_bindir}/zsh-%{version}
 
 
 %changelog
+* Mon Jul 25 2005 Vincent Danen <vdanen@annvix.org> 4.2.5-1avx
+- 4.2.5
+- spec cleanups
+- remove the %%doc_version define
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 4.2.4-3avx
 - bootstrap build
 
