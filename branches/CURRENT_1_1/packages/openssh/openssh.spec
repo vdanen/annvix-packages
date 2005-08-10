@@ -1,13 +1,20 @@
-%define name	openssh
-%define version	4.1p1
-%define release 1avx
-
+#
+# spec file for package openssh
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 ## Do not apply any unauthorized patches to this package!
 ## - vdanen 05/18/01
-##
+
+
+%define name		openssh
+%define version		4.1p1
+%define release 	2avx
 
 # overrides
-%global build_skey	 0
+%global build_skey	0
 %{?_with_skey: %{expand: %%global build_skey 1}}
 
 Summary:	OpenSSH free Secure Shell (SSH) implementation
@@ -30,7 +37,7 @@ Patch1:		openssh-4.0p1-avx-annvixconf.patch.bz2
 # authorized by Damien Miller <djm@openbsd.com>
 Patch2:		openssh-3.1p1-mdk-check-only-ssl-version.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	groff-for-man, openssl-devel >= 0.9.7, pam-devel, tcp_wrappers-devel, zlib-devel
 BuildRequires:	db1-devel
 BuildRequires:	krb5-devel
@@ -58,6 +65,7 @@ This package includes the core files necessary for both the OpenSSH
 client and server.  To make this package useful, you should also
 install openssh-clients, openssh-server, or both.
 
+
 %package clients
 Summary:	OpenSSH Secure Shell protocol clients
 Requires:	%{name} = %{version}-%{release}
@@ -78,6 +86,7 @@ patented algorithms to separate libraries (OpenSSL).
 
 This package includes the clients necessary to make encrypted connections
 to SSH servers.
+
 
 %package server
 Summary:	OpenSSH Secure Shell protocol server (sshd)
@@ -106,6 +115,7 @@ This package contains the secure shell daemon. The sshd is the server
 part of the secure shell protocol and allows ssh clients to connect to 
 your host.
 
+
 %prep
 %if %{build_skey}
 echo "Building with S/KEY support..."
@@ -115,41 +125,44 @@ echo "Building with S/KEY support..."
 %patch1 -p0 -b .avx
 %patch2 -p1 -b .ssl_ver
 
+
 %build
-
 %serverbuild
-
-CFLAGS="$RPM_OPT_FLAGS" ./configure \
-  --prefix=%{_prefix} \
-  --sysconfdir=%{_sysconfdir}/ssh \
-  --mandir=%{_mandir} \
-  --libdir=%{_libdir} \
-  --libexecdir=%{_libdir}/ssh \
-  --datadir=%{_datadir}/ssh \
-  --with-tcp-wrappers \
-  --with-pam \
-  --with-default-path=/usr/local/bin:/bin:/usr/bin:/usr/X11R6/bin \
-  --with-xauth=/usr/X11R6/bin/xauth \
-  --with-privsep-path=/var/empty \
-  --with-kerberos5 \
+CFLAGS="%{optflags}" ./configure \
+    --prefix=%{_prefix} \
+    --sysconfdir=%{_sysconfdir}/ssh \
+    --mandir=%{_mandir} \
+    --libdir=%{_libdir} \
+    --libexecdir=%{_libdir}/ssh \
+    --datadir=%{_datadir}/ssh \
+    --with-tcp-wrappers \
+    --with-pam \
+    --with-default-path=/usr/local/bin:/bin:/usr/bin:/usr/X11R6/bin \
+    --with-xauth=/usr/X11R6/bin/xauth \
+    --with-privsep-path=/var/empty \
+    --with-kerberos5 \
 %if %{build_skey}
-  --with-skey \
+    --with-skey \
 %endif
-  --with-superuser-path=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+    --with-superuser-path=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 make
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 make install DESTDIR=%{buildroot}/
 
-install -d %{buildroot}%{_sysconfdir}/ssh
-install -d %{buildroot}%{_sysconfdir}/pam.d/
+mkdir -p %{buildroot}%{_sysconfdir}/{ssh,pam.d,profile.d}
+mkdir -p %{buildroot}%{_libdir}/ssh
+
 install -m 0644 contrib/redhat/sshd.pam %{buildroot}%{_sysconfdir}/pam.d/sshd
+install -m 0640 %{SOURCE4} %{buildroot}%{_sysconfdir}/ssh/denyusers.pam
+install -m 0755 %{SOURCE6} %{buildroot}%{_sysconfdir}/profile.d/
 
 if [[ -f sshd_config.out ]]; then 
-	install -m 0600 sshd_config.out %{buildroot}%{_sysconfdir}/ssh/sshd_config
+    install -m 0600 sshd_config.out %{buildroot}%{_sysconfdir}/ssh/sshd_config
 else 
-	install -m 0600 sshd_config %{buildroot}%{_sysconfdir}/ssh/sshd_config
+    install -m 0600 sshd_config %{buildroot}%{_sysconfdir}/ssh/sshd_config
 fi
 
 if [[ -f ssh_config.out ]]; then
@@ -158,17 +171,9 @@ else
     install -m 0644 ssh_config %{buildroot}%{_sysconfdir}/ssh/ssh_config
 fi
 
-install -m 0640 %{SOURCE4} %{buildroot}%{_sysconfdir}/ssh/denyusers.pam
-
-mkdir -p %{buildroot}%{_libdir}/ssh
-
-install -d %{buildroot}%{_sysconfdir}/profile.d/
-
-install -m 755 %{SOURCE6} %{buildroot}%{_sysconfdir}/profile.d/
-
-bzcat %{SOURCE3} > %{buildroot}/%{_bindir}/ssh-copy-id
-chmod a+x %{buildroot}/%{_bindir}/ssh-copy-id
-install -m 644 contrib/ssh-copy-id.1 %{buildroot}/%{_mandir}/man1/
+bzcat %{SOURCE3} > %{buildroot}%{_bindir}/ssh-copy-id
+chmod a+x %{buildroot}%{_bindir}/ssh-copy-id
+install -m 0644 contrib/ssh-copy-id.1 %{buildroot}/%{_mandir}/man1/
 
 rm -f %{buildroot}%{_datadir}/ssh/Ssh.bin
 
@@ -180,8 +185,10 @@ install -m 0755 %{SOURCE9} %{buildroot}%{_srvdir}/sshd/log/run
 mkdir -p %{buildroot}%{_datadir}/afterboot
 install -m 0644 %{SOURCE5} %{buildroot}%{_datadir}/afterboot/04_openssh
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %pre server
 %_pre_useradd sshd /var/empty /bin/true 71
@@ -255,6 +262,7 @@ do_dsa_keygen
 %_mkafterboot
 %_postun_userdel sshd
 
+
 %files
 %defattr(-,root,root)
 %doc ChangeLog OVERVIEW README* INSTALL CREDITS LICENCE TODO
@@ -306,6 +314,9 @@ do_dsa_keygen
 %{_datadir}/afterboot/04_openssh
 
 %changelog
+* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 4.1p1-2avx
+- rebuild for new gcc and openssl
+
 * Thu Jul 14 2005 Vincent Danen <vdanen@annvix.org> 4.1p1-1avx
 - 4.1p1
 - fix ssh-client.sh so it doesn't assume that all non-zsh or ksh
