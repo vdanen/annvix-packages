@@ -1,6 +1,19 @@
-%define name 	db2
-%define version 2.4.14
-%define release 12avx
+#
+# spec file for package db2
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name 		db2
+%define version 	2.4.14
+%define release 	13avx
+
+%define major		2
+%define libname_orig	libdb%{major}
+%define libname		%mklibname db %{major}
 
 Summary:	The BSD database library for C (version 2)
 Name:		%{name}
@@ -16,10 +29,12 @@ Source:		%{name}-glibc-2.1.3.tar.bz2
 Patch0:		db2-glibc-2.1.3.patch.bz2
 Patch1:		db2-2.4.14-db2.patch.bz2
 Patch2:		db2-2.4.14-db_fileid-64bit-fix.patch.bz2
+Patch3:		db2-gcc34.patch.bz2
+Patch4:		db2-64bit-fixes.patch.bz2
+Patch5:		db2-sparc64-Makefile-fPIC.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 
-PreReq:		ldconfig
 %ifnarch ia64
 Conflicts:	glibc < 2.1.90
 %endif
@@ -29,15 +44,31 @@ The Berkeley Database (Berkeley DB) is a programmatic toolkit that provides
 embedded database support for both traditional and client/server applications.
 This library used to be part of the glibc package.
 
-%package devel
-Summary:	Development libs/header files for Berkeley DB (version 2) library.
+
+%package -n %{libname}
+Summary:	The BSD database library for C (version 2)
+Group:		System/Libraries
+PreReq:		ldconfig
+Obsoletes:	%{name}
+Provides:	%{name} = %{version}-%{release}
+
+%description -n %{libname}
+The Berkeley Database (Berkeley DB) is a programmatic toolkit that provides
+embedded database support for both traditional and client/server applications.
+This library used to be part of the glibc package.
+
+
+%package -n %{libname}-devel
+Summary:	Development libs/header files for Berkeley DB (version 2) library
 Group:		Development/C
-Requires:	%{name} = %{version}
+Requires:	%{libname} = %{version}
+Obsoletes:	%{name}-devel
+Provides:	%{name}-devel = %{version}-%{release}
 %ifnarch ia64
 Conflicts:	glibc-devel < 2.1.90
 %endif
 
-%description devel
+%description -n %{libname}-devel
 The Berkeley Database (Berkeley DB) is a programmatic toolkit that provides
 embedded database support for both traditional and client/server applications.
 Berkeley DB includes B tree, Hashing, Fixed and Variable-length
@@ -46,50 +77,61 @@ record access methods.
 This package contains the header files, libraries, and documentation for
 building programs which use Berkeley DB.
 
+
 %prep
 %setup -q -n db2
 %patch0 -p1
 %patch1 -p1 -b .db2
 %patch2 -p1 -b .db_fileid-64bit-fix
+%patch3 -p1 -b .gcc34
+%patch4 -p1 -b .64bit-fixes
+
+%ifarch sparc64
+%patch5 -p1 -b .sparc64
+%endif
+
 
 %build
-CFLAGS="$RPM_OPT_FLAGS" %make
+CFLAGS="%{optflags}" %make
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p $RPM_BUILD_ROOT%{_includedir}/db2
-mkdir -p $RPM_BUILD_ROOT%{_libdir}
-mkdir -p $RPM_BUILD_ROOT%{_bindir}
+mkdir -p %{buildroot}{%{_includedir}/db2,%{_libdir},%{_bindir}}
 
 # XXX this causes all symbols to be deleted from the shared library
 #strip -R .comment libdb2.so.3
-install -m644 libdb2.a			$RPM_BUILD_ROOT/%{_libdir}/libdb2.a
-install -m755 libdb2.so.3		$RPM_BUILD_ROOT/%{_libdir}/libdb2.so.3
-ln -sf libdb2.so.3 			$RPM_BUILD_ROOT/%{_libdir}/libdb2.so
-ln -sf libdb2.a				$RPM_BUILD_ROOT/%{_libdir}/libndbm.a
-ln -sf libdb2.so.3			$RPM_BUILD_ROOT/%{_libdir}/libndbm.so
+install -m 0644 libdb2.a %{buildroot}/%{_libdir}/libdb2.a
+install -m 0755 libdb2.so.3 %{buildroot}/%{_libdir}/libdb2.so.3
+ln -sf libdb2.so.3 %{buildroot}/%{_libdir}/libdb2.so
+ln -sf libdb2.a %{buildroot}/%{_libdir}/libndbm.a
+ln -sf libdb2.so.3 %{buildroot}/%{_libdir}/libndbm.so
 
-install -m644 db.h			$RPM_BUILD_ROOT/%{_includedir}/db2
-install -m644 db_185.h			$RPM_BUILD_ROOT/%{_includedir}/db2
+install -m 0644 db.h %{buildroot}/%{_includedir}/db2
+install -m 0644 db_185.h %{buildroot}/%{_includedir}/db2
 for p in db_archive db_checkpoint db_deadlock db_dump db_load \
-	 db_printlog db_recover db_stat; do
-	q="`echo $p | sed -e 's,^db_,db2_,'`"
-	install -s -m755 $p		$RPM_BUILD_ROOT/%{_bindir}/$q
+    db_printlog db_recover db_stat; do
+        q="`echo $p | sed -e 's,^db_,db2_,'`"
+        install -s -m 0755 $p %{buildroot}/%{_bindir}/$q
 done
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-%post -p /sbin/ldconfig
-%postun -p /sbin/ldconfig
 
-%files
+%post -n %{libname} -p /sbin/ldconfig
+%postun -n %{libname} -p /sbin/ldconfig
+
+
+%files -n %{libname}
 %defattr(-,root,root)
 %doc README LICENSE
 %{_libdir}/lib*.so.*
 
-%files devel
+%files -n %{libname}-devel
 %defattr(-,root,root)
+%dir %{_includedir}/db2
 %{_includedir}/db2/db.h
 %{_includedir}/db2/db_185.h
 %{_libdir}/libdb2.a
@@ -106,6 +148,15 @@ done
 %{_bindir}/db2_stat
 
 %changelog
+* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 2.4.14-13avx
+- rebuild for new gcc
+- libification (gbeauchesne)
+- P3: fix build with gcc 3.4 (gbeauchesne)
+- P4: 64bit fixes (gbeauchesne)
+- P5: use -fPIC instead of -fpic on sparc64 (stefan)
+- own %%_includedir/db2 (thauvin)
+
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.4.14-12avx
 - bootstrap build
 
