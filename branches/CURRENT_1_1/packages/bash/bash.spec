@@ -1,8 +1,17 @@
-%define name	bash
-%define version	3.0
-%define release	2avx
+#
+# spec file for package bash
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-%define i18ndate 20010626
+
+%define name		bash
+%define version		3.0
+%define release		3avx
+
+%define i18ndate 	20010626
 
 %define build_dietlibc	0
 
@@ -44,13 +53,11 @@ Patch63:	ftp://ftp.cwru.edu/pub/bash/bash-3.0-patches/bash30-014.bz2
 Patch64:	ftp://ftp.cwru.edu/pub/bash/bash-3.0-patches/bash30-015.bz2
 Patch65:	ftp://ftp.cwru.edu/pub/bash/bash-3.0-patches/bash30-016.bz2
 Patch80:	bash-2.05b-builtins.patch.bz2
-Patch81:	bash-2.05b-configure-destdir.patch.bz2
 Patch90:	bash-2.05b-disable-nontrivial-matches.patch.bz2
 Patch1000:	bash-strcoll-bug.diff.bz2
-Patch1002:	bash-2.05b-completion-fix.diff.bz2
 Patch1003:	bash-2.05b-checkwinsize.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	autoconf2.5, bison, libtermcap-devel
 
 Conflicts:	etcskel <= 1.63-11mdk, fileutils < 4.1-5mdk
@@ -70,16 +77,11 @@ Tools standard.
 
 
 %prep
-%setup -q -n bash-%{version} -a 1
-
+%setup -q -a 1
 %patch1 -p1 -b .security
 %patch3 -p1 -b .profile
 %patch4 -p1 -b .readline
-# 20020328 warly: integrated in mainstream
-#%patch5 -p1 -b .requires
 %patch6 -p1 -b .compat
-# 20020328 warly
-#%patch7 -p1 -b .shellfunc
 %patch8 -p1 -b .ia64
 %ifarch s390x
 %patch9 -p1 -b .s390x
@@ -106,12 +108,10 @@ Tools standard.
 %patch65 -p0 -b .pl16
 
 %patch80 -p0 -b .fix_so
-#%patch81 -p1 -b .destdir
 
 %patch90 -p0
 
 %patch1000 -p1 -b .strcoll_bugx
-#%patch1002 -p1 -b .cmplt
 %patch1003 -p1 -b .checkwinsize
 
 echo %{version} > _distribution
@@ -121,6 +121,7 @@ perl -p -i -e s/avx// _patchlevel
 # needed by P13
 autoconf
 
+
 %build
 libtoolize --copy --force
 
@@ -129,29 +130,30 @@ libtoolize --copy --force
 # TODO: --enable-minimal-config?
 mkdir bash-static
 pushd bash-static
-export CFLAGS="$RPM_OPT_FLAGS -Os"
-export CONFIGURE_TOP=".."
-%configure2_5x \
-    --disable-command-timing \
-    --enable-dietlibc
-#    --enable-separate-helpfiles \
-#    --disable-nls
-#    --enable-minimal-config \
-%make
+    export CFLAGS="%{optflags} -Os"
+    export CONFIGURE_TOP=".."
+    %configure2_5x \
+        --disable-command-timing \
+        --enable-dietlibc
+#       --enable-separate-helpfiles \
+#       --disable-nls
+#       --enable-minimal-config \
+    %make
 popd
 %endif
 
 # build dynamically linked bash
 mkdir bash-dynamic
 pushd bash-dynamic
-export CFLAGS="$RPM_OPT_FLAGS"
-export CONFIGURE_TOP=".."
-%configure2_5x \
-    --disable-command-timing
-%make CFLAGS="$RPM_OPT_FLAGS"
-# all tests must pass
-make check
+    export CFLAGS="%{optflags}"
+    export CONFIGURE_TOP=".."
+    %configure2_5x \
+        --disable-command-timing
+    %make CFLAGS="$RPM_OPT_FLAGS"
+    # all tests must pass
+    make check
 popd
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -161,9 +163,9 @@ rm -rf %{buildroot}%{_datadir}/locale/en@boldquot/ %{buildroot}%{_datadir}/local
 
 # Sucks
 chmod +w doc/texinfo.tex
-chmod 755 examples/misc/aliasconv.*
-chmod 755 examples/misc/cshtobash
-chmod 755 %{buildroot}%{_bindir}/bashbug
+chmod 0755 examples/misc/aliasconv.*
+chmod 0755 examples/misc/cshtobash
+chmod 0755 %{buildroot}%{_bindir}/bashbug
 
 mv doc/README .
 
@@ -171,12 +173,14 @@ mv doc/README .
 for i in `/bin/ls doc/` ; do perl -pi -e 's/.//g' doc/$i ; done
 
 mkdir -p %{buildroot}/bin
-pushd %{buildroot} && mv usr/bin/bash bin/bash && popd
-pushd %{buildroot}/bin && ln -s bash sh && popd
-pushd %{buildroot}/bin && ln -sf bash bash3 && popd
+pushd %{buildroot}/bin
+    mv ..%{_bindir}/bash .
+    ln -s bash sh
+    ln -sf bash bash3
+popd
 
 %if %{build_dietlibc}
-install -m0755 bash-static/bash %{buildroot}/bin/bash-diet
+install -m 0755 bash-static/bash %{buildroot}/bin/bash-diet
 %endif
 
 # make manpages for bash builtins as per suggestion in DOC/README
@@ -191,13 +195,13 @@ b
 }
 d
 ' builtins.1 > man.pages
-install -m 644 builtins.1 %{buildroot}%{_mandir}/man1/builtins.1
+install -m 0644 builtins.1 %{buildroot}%{_mandir}/man1/builtins.1
 
 for i in `cat man.pages` ; do
-  echo .so man1/builtins.1 > %{buildroot}%{_mandir}/man1/$i.1
+    echo .so man1/builtins.1 > %{buildroot}%{_mandir}/man1/$i.1
 done
 
-install -m 644 rbash.1 %{buildroot}%{_mandir}/man1/rbash.1
+install -m 0644 rbash.1 %{buildroot}%{_mandir}/man1/rbash.1
 
 # now turn man.pages into a filelist for the man subpackage
 
@@ -218,15 +222,17 @@ install -D -c -m 0755 %{SOURCE5} %{buildroot}/etc/profile.d/alias.sh
 
 ln -s bash %{buildroot}/bin/rbash
 
-# These're provided by other packages
-rm -f %{buildroot}{%_infodir/dir,%{_mandir}/man1/{echo,export,kill,printf,pwd,test}.1}
+# These are provided by other packages
+rm -f %{buildroot}{%{_infodir}/dir,%{_mandir}/man1/{echo,export,kill,printf,pwd,test}.1}
 
 cd ..
 
 install -c -m 0644 bash-dynamic/doc/bash.info %{buildroot}%{_infodir}/
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files -f man.pages
 %defattr(-,root,root)
@@ -249,6 +255,10 @@ install -c -m 0644 bash-dynamic/doc/bash.info %{buildroot}%{_infodir}/
 
 
 %changelog
+* Mon Jul 25 2005 Vincent Danen <vdanen@annvix.org> 3.0-3avx
+- rebuild for new gcc
+- drop unapplied patches
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 3.0-2avx
 - bootstrap build
 
