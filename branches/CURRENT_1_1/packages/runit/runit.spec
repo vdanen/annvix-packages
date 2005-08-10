@@ -1,6 +1,15 @@
-%define	name	runit
-%define	version	1.2.1
-%define	release	6avx
+#
+# spec file for package runit
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define	name		runit
+%define	version		1.2.1
+%define	release		7avx
 
 Summary:	A UN*X init scheme with service supervision
 Name:		%{name}
@@ -12,7 +21,7 @@ URL:		http://smarden.org/runit/
 Source0:	%{name}-%{version}.tar.bz2
 Source1:	annvix-runit.tar.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	dietlibc-devel >= 0.28
 
 Requires:	SysVinit >= 2.85-7avx, initscripts, srv, mingetty
@@ -27,9 +36,10 @@ system's one-time initialization tasks.  Stage 2 starts the
 system's uptime services (via the runsvdir program).  Stage 3
 handles the tasks necessary to shutdown and halt or reboot. 
 
-%prep
 
+%prep
 %setup -q -n admin -a 1
+
 
 %build
 pushd %{name}-%{version}/src
@@ -37,6 +47,7 @@ pushd %{name}-%{version}/src
     echo "diet gcc -Os -static -s" > conf-ld
     make
 popd
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -47,7 +58,7 @@ install -d %{buildroot}%{_mandir}/man8
 
 pushd %{name}-%{version}
     for i in `cat package/commands`; do
-	install -m0755 src/$i %{buildroot}/sbin/
+	install -m 0755 src/$i %{buildroot}/sbin/
     done
     mv %{buildroot}/sbin/runit-init %{buildroot}/sbin/init
 popd
@@ -63,11 +74,12 @@ pushd annvix-runit
     done
 popd
 
+install -m 0644 %{name}-%{version}/man/*.8 %{buildroot}%{_mandir}/man8/
 
-install -m0644 %{name}-%{version}/man/*.8 %{buildroot}%{_mandir}/man8/
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %post
 if [ $1 == "1" ]; then
@@ -141,27 +153,32 @@ fi
 %attr(0755,root,root) %{_srvdir}/mingetty-tty6/run
 %attr(0755,root,root) %{_srvdir}/mingetty-tty6/finish
 
+
 %changelog
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.0.5-6avx
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.2.1-7avx
+- note the time we're waiting for service shutdowns (re: Sean Thomas)
+- fix changelog entries
+
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.2.1-6avx
 - bootstrap build
 
-* Fri Mar 04 2005 Vincent Danen <vdanen@annvix.org> 1.0.5-5avx
+* Fri Mar 04 2005 Vincent Danen <vdanen@annvix.org> 1.2.1-5avx
 - instead of waiting 350secs for all services to stop, we wait
   180secs; this is because logged in ssh users will cause this
   timeout as sshd will not die with any children running.  3
   minutes is more than reasonable
 
-* Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> 1.0.5-4avx
+* Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> 1.2.1-4avx
 - build against new dietlibc
 
-* Tue Jan 25 2005 Vincent Danen <vdanen@annvix.org> 1.0.5-3avx
+* Tue Jan 25 2005 Vincent Danen <vdanen@annvix.org> 1.2.1-3avx
 - build without dietlibc
 - remove BuildRequires: dietlibc; add BuildRequires: glibc-static-devel
 
-* Thu Jan 20 2005 Vincent Danen <vdanen@annvix.org> 1.0.5-2avx
+* Thu Jan 20 2005 Vincent Danen <vdanen@annvix.org> 1.2.1-2avx
 - rebuild against fixed dietlibc
 
-* Thu Jan 20 2005 Vincent Danen <vdanen@annvix.org> 1.0.5-1avx
+* Thu Jan 20 2005 Vincent Danen <vdanen@annvix.org> 1.2.1-1avx
 - 1.2.1
 - don't set -march=pentium anymore
 
