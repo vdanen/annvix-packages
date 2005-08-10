@@ -1,0 +1,18 @@
+--- symlinks-1.2/Makefile.static	2004-10-04 16:49:21.534556000 -0400
++++ symlinks-1.2/Makefile	2004-10-04 16:59:21.485579515 -0400
+@@ -1,10 +1,12 @@
+ # Makefile for symlinks
+- 
++CC = gcc
++CFLAGS = -O2
++
+ all: symlinks
+ 
+ symlinks: symlinks.c
+-	gcc -Wall -Wstrict-prototypes -O2 -N -s -o symlinks symlinks.c
+- 
++	$(CC) $(CFLAGS) -Wall -Wstrict-prototypes -pipe  -Wall -N -s -static -o $@ $<
++
+ install: all symlinks.8
+ 	install -m 755   symlinks /usr/local/bin
+ 	install -m 644   symlinks.8 /usr/local/man/man8
