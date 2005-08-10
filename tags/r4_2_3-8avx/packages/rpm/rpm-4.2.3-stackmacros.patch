@@ -1,0 +1,42 @@
+--- rpm-4.2.3/rpmrc.in.ssp	2005-02-03 00:51:21.000000000 -0500
++++ rpm-4.2.3/rpmrc.in	2005-02-03 00:54:59.000000000 -0500
+@@ -11,16 +11,16 @@
+ #############################################################
+ # Values for RPM_OPT_FLAGS for various platforms
+ 
+-optflags: i386 -O2 -fomit-frame-pointer -pipe -march=i386 %{debugcflags}
+-optflags: i486 -O2 -fomit-frame-pointer -pipe -march=i486 %{debugcflags}
+-optflags: k6   -O2 -fomit-frame-pointer -pipe -march=k6 %{debugcflags}
+-optflags: i586 -O2 -fomit-frame-pointer -pipe -march=i586 -mcpu=pentiumpro %{debugcflags}
+-optflags: i686 -O2 -fomit-frame-pointer -pipe -march=i686 %{debugcflags}
+-optflags: athlon -O2 -fomit-frame-pointer -pipe -march=athlon %{debugcflags}
+-optflags: ia64 -O2 -pipe %{debugcflags}
+-optflags: x86_64 -O2 -pipe %{debugcflags}
+-optflags: amd64 -O2 -pipe %{debugcflags}
+-optflags: ia32e -O2 -pipe %{debugcflags}
++optflags: i386 -O2 -fomit-frame-pointer -pipe -march=i386 -fstack-protector-all %{debugcflags}
++optflags: i486 -O2 -fomit-frame-pointer -pipe -march=i486 -fstack-protector-all %{debugcflags}
++optflags: k6   -O2 -fomit-frame-pointer -pipe -march=k6 -fstack-protector-all %{debugcflags}
++optflags: i586 -O2 -fomit-frame-pointer -pipe -march=i586 -mcpu=pentiumpro -fstack-protector-all %{debugcflags}
++optflags: i686 -O2 -fomit-frame-pointer -pipe -march=i686 -fstack-protector-all %{debugcflags}
++optflags: athlon -O2 -fomit-frame-pointer -pipe -march=athlon -fstack-protector-all %{debugcflags}
++optflags: ia64 -O2 -pipe -fstack-protector-all %{debugcflags}
++optflags: x86_64 -O2 -pipe -fstack-protector-all %{debugcflags}
++optflags: amd64 -O2 -pipe -fstack-protector-all %{debugcflags}
++optflags: ia32e -O2 -pipe -fstack-protector-all %{debugcflags}
+   
+   # XXX Please note that -mieee has been added in rpm-3.0.5.
+ optflags: alpha -O2 -mieee -mcpu=ev5 -pipe %{debugcflags}
+@@ -36,10 +36,10 @@
+ 
+ optflags: m68k -O2 %{debugcflags} -fomit-frame-pointer
+ 
+-optflags: ppc -O2 -fsigned-char -frename-registers -mcpu=750 -mtune=7450 -pipe %{debugcflags}
++optflags: ppc -O2 -fsigned-char -frename-registers -mcpu=750 -mtune=7450 -pipe -fstack-protector-all  %{debugcflags}
+ optflags: ppciseries -O2 %{debugcflags} -fsigned-char
+ optflags: ppcpseries -O2 %{debugcflags} -fsigned-char
+-optflags: ppc64 -O2 %{debugcflags} -fsigned-char
++optflags: ppc64 -O2 -fstack-protector-all %{debugcflags} -fsigned-char
+ 
+ optflags: parisc -O2 %{debugcflags} -mpa-risc-1-0
+ optflags: hppa1.0 -O2 %{debugcflags} -mpa-risc-1-0

@@ -1,0 +1,11 @@
+--- autodeps/linux.req.old	2004-12-15 15:34:11.064569709 +0100
++++ autodeps/linux.req	2004-12-15 16:08:21.664157519 +0100
+@@ -152,7 +152,7 @@
+ #
+ # --- Perl modules.
+ [ -x /usr/lib/rpm/perl.req -a -n "$perllist" ] && \
+-    echo $perllist | tr '[:blank:]' \\n | /usr/lib/rpm/perl.req | grep 'perl([A-Z]' | sort -u
++    echo $perllist | tr '[:blank:]' \\n | /usr/lib/rpm/perl.req | grep 'perl([A-Z]' | egrep -v 'perl\((Be|FreeBSD|HPUX|Mac|MSDOS|MVS|OS2|Riscos|SGI|Solaris|VMS|Win32|WinNT)' | sort -u
+ 
+ #
+ # --- Python modules.

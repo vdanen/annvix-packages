@@ -1,0 +1,12 @@
+--- rpm-4.2/lib/psm.c.umask	2003-04-28 11:57:37.000000000 +0200
++++ rpm-4.2/lib/psm.c	2003-04-28 11:58:51.000000000 +0200
+@@ -926,6 +926,9 @@
+ 	xx = dup2(pipes[0], STDIN_FILENO);
+ 	xx = close(pipes[0]);
+ 
++	/* packages aren't prepared for umask != 022 */
++ 	(void) umask(022);
++ 	
+ 	if (scriptFd != NULL) {
+ 	    int sfdno = Fileno(scriptFd);
+ 	    int ofdno = Fileno(out);
