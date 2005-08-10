@@ -1,8 +1,17 @@
-%define name	net-tools
-%define version 1.60
-%define release 13avx
+#
+# spec file for package net-tools
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-%define url http://www.tazenda.demon.co.uk/phil/net-tools/
+
+%define name		net-tools
+%define version 	1.60
+%define release 	14avx
+
+%define npversion	1.2.9
 
 Summary:	The basic tools for setting up networking
 Name:		%{name}
@@ -10,72 +19,201 @@ Version:	%{version}
 Release:	%{release}
 License:	GPL
 Group:		System/Configuration/Networking
-URL:		%{url}
-Source0:	%{url}/net-tools-%{version}.tar.bz2
-Source1:	net-tools-1.54-config.h.bz2
-Source2:	net-tools-1.54-config.make.bz2
-Source3:	net-tools-1.54-config.status.bz2
-Source5:	ether-wake.c
-Patch1:		net-tools-1.54-ipvs.patch.bz2
-Patch2:		net-tools-1.57-bug22040.patch.bz2
+URL:		http://www.tazenda.demon.co.uk/phil/net-tools/
+Source0:	http://www.tazenda.demon.co.uk/phil/net-tools//net-tools-%{version}.tar.bz2
+Source1:	netplug-%{npversion}.tar.bz2
+Source2:	net-tools-1.60-config.h.bz2
+Source3:	net-tools-1.60-config.make.bz2
+Source4:	ether-wake.c.bz2
+Source5:	ether-wake.8.bz2
+Source6:	mii-diag.c.bz2
+Source7:	mii-diag.8.bz2
+Patch0:		net-tools-1.60-netplug_def_runlevel.diff.bz2
+Patch1:		net-tools-1.57-bug22040.patch.bz2
+Patch2:		net-tools-1.60-miiioctl.patch.bz2
 Patch3:		net-tools-1.60-manydevs.patch.bz2
 Patch4:		net-tools-1.60-virtualname.patch.bz2
-Patch5:		net-tools-1.60-gcc-3.3.patch.bz2
+Patch5:		net-tools-1.60-cycle.patch.bz2
+Patch6:		net-tools-1.60-nameif.patch.bz2
+Patch7:		net-tools-1.60-ipx.patch.bz2
+Patch8:		net-tools-1.60-inet6-lookup.patch.bz2
+Patch9:		net-tools-1.60-man.patch.bz2
+Patch10:	net-tools-1.60-gcc33.patch.bz2
+Patch11:	net-tools-1.60-trailingblank.patch.bz2
+Patch12:	net-tools-1.60-interface.patch.bz2
+Patch13:	net-tools-1.60-x25.patch.bz2
+Patch14:	net-tools-1.60-gcc34.patch.bz2
+Patch15:	net-tools-1.60-overflow.patch.bz2
+Patch19:	net-tools-1.60-siunits.patch.bz2
+Patch20:	net-tools-1.60-trunc.patch.bz2
+Patch21:	net-tools-1.60-return.patch.bz2
+Patch22:	net-tools-1.60-parse.patch.bz2
+Patch23:	net-tools-1.60-netmask.patch.bz2
+Patch24:	net-tools-1.60-ulong.patch.bz2
+Patch25:	net-tools-1.60-bcast.patch.bz2
+Patch26:	net-tools-1.60-mii-tool-obsolete.patch.bz2
+Patch27:	net-tools-1.60-netstat_ulong.patch.bz2
+Patch28:	net-tools-1.60-note.patch.bz2
+Patch29:	net-tools-1.60-num-ports.patch.bz2
+Patch30:	net-tools-1.60-duplicate-tcp.patch.bz2
+Patch31:	net-tools-1.60-statalias.patch.bz2
+Patch32:	net-tools-1.60-isofix.patch.bz2
+Patch33:	net-tools-1.60-bitkeeper.patch.bz2
+Patch34:	net-tools-1.60-ifconfig_ib.patch.bz2
+Patch35:	net-tools-1.60-de.patch.bz2
+Patch36:	netplug-1.2.9-execshield.patch.bz2
+Patch37:	net-tools-1.60-pie.patch.bz2
+Patch38:	net-tools-1.60-ifaceopt.patch.bz2
+Patch39:	net-tools-1.60-trim_iface.patch.bz2
+Patch40:	net-tools-1.60-stdo.patch.bz2
+Patch41:	net-tools-1.60-statistics.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	gettext
 
 %description
 The net-tools package contains the basic tools needed for setting up
 networking:  ifconfig, netstat, route and others.
 
+
 %prep
-%setup -q
-%patch1 -p1 -b .ipvs
-%patch2 -p1 -b .bug22040
+%setup -q -a 1
+%patch0 -p0 -b .netplug_def_runlevel
+%patch1 -p1 -b .bug22040
+%patch2 -p1 -b .miioctl
 %patch3 -p0 -b .manydevs
 %patch4 -p1 -b .virtualname
-%patch5 -p1 -b .gcc3.3
-bzcat %SOURCE1 > ./config.h
-bzcat %SOURCE2 > ./config.make
-bzcat %SOURCE3 > ./config.status
+%patch5 -p1 -b .cycle
+%patch6 -p1 -b .nameif
+%patch7 -p1 -b .ipx
+%patch8 -p1 -b .inet6-lookup
+%patch9 -p1 -b .man
+%patch10 -p1 -b .gcc33
+%patch11 -p1 -b .trailingblank
+%patch12 -p1 -b .interface
+%patch13 -p1 -b .x25
+%patch14 -p1 -b .gcc34
+%patch15 -p1 -b .overflow
+%patch19 -p1 -b .siunits
+%patch20 -p1 -b .trunc
+%patch21 -p1 -b .return
+%patch22 -p1 -b .parse
+%patch23 -p1 -b .netmask
+%patch24 -p1 -b .ulong
+%patch25 -p1 -b .bcast
+%patch26 -p1 -b .obsolete
+%patch27 -p1 -b .netstat_ulong
+%patch28 -p1 -b .note
+%patch29 -p1 -b .num-ports
+%patch30 -p1 -b .dup-tcp
+%patch31 -p1 -b .statalias
+%patch32 -p1 -b .isofix
+%patch33 -p1 -b .bitkeeper
+%patch34 -p1 -b .ifconfig_ib
+%patch35 -p1 
+%patch36 -p1 -b .execshield
+%patch37 -p1 -b .pie
+%patch38 -p1 -b .ifaceopt
+%patch39 -p1 -b .trim-iface
+%patch40 -p1 -b .stdo
+%patch41 -p1 -b .statistics
 
-cp %{SOURCE5} .
+bzcat %{SOURCE2} > ./config.h
+bzcat %{SOURCE3} > ./config.make
+bzcat %{SOURCE4} > ./ether-wake.c
+bzcat %{SOURCE5} > ./man/en_US/ether-wake.8
+bzcat %{SOURCE6} > ./mii-diag.c
+bzcat %{SOURCE7} > ./man/en_US/mii-diag.8
+
+%ifarch alpha
+perl -pi -e "s|-O2||" Makefile
+%endif
+
 
 %build
-%make "COPTS=$RPM_OPT_FLAGS"
-%make ether-wake CC=gcc CFLAGS="%optflags"
+export CFLAGS="%{optflags} $CFLAGS"
+
+%make
+gcc %{optflags} -o ether-wake ether-wake.c
+gcc %{optflags} -o mii-diag mii-diag.c
+pushd netplug-%{npversion}
+    %make
+popd
+
+#man pages conversion
+#french 
+iconv -f iso-8859-1 -t utf-8 -o arp.tmp man/fr_FR/arp.8 && mv arp.tmp man/fr_FR/arp.8
+iconv -f iso-8859-1 -t utf-8 -o ethers.tmp man/fr_FR/ethers.5 && mv ethers.tmp man/fr_FR/ethers.5
+iconv -f iso-8859-1 -t utf-8 -o hostname.tmp man/fr_FR/hostname.1 && mv hostname.tmp man/fr_FR/hostname.1
+iconv -f iso-8859-1 -t utf-8 -o ifconfig.tmp man/fr_FR/ifconfig.8 && mv ifconfig.tmp man/fr_FR/ifconfig.8
+iconv -f iso-8859-1 -t utf-8 -o netstat.tmp man/fr_FR/netstat.8 && mv netstat.tmp man/fr_FR/netstat.8
+iconv -f iso-8859-1 -t utf-8 -o plipconfig.tmp man/fr_FR/plipconfig.8 && mv plipconfig.tmp man/fr_FR/plipconfig.8
+iconv -f iso-8859-1 -t utf-8 -o route.tmp man/fr_FR/route.8 && mv route.tmp man/fr_FR/route.8
+iconv -f iso-8859-1 -t utf-8 -o slattach.tmp man/fr_FR/slattach.8 && mv slattach.tmp man/fr_FR/slattach.8
+#portugal
+iconv -f iso-8859-1 -t utf-8 -o arp.tmp man/pt_BR/arp.8 && mv arp.tmp man/pt_BR/arp.8
+iconv -f iso-8859-1 -t utf-8 -o hostname.tmp man/pt_BR/hostname.1 && mv hostname.tmp man/pt_BR/hostname.1
+iconv -f iso-8859-1 -t utf-8 -o ifconfig.tmp man/pt_BR/ifconfig.8 && mv ifconfig.tmp man/pt_BR/ifconfig.8
+iconv -f iso-8859-1 -t utf-8 -o netstat.tmp man/pt_BR/netstat.8 && mv netstat.tmp man/pt_BR/netstat.8
+iconv -f iso-8859-1 -t utf-8 -o route.tmp man/pt_BR/route.8 && mv route.tmp man/pt_BR/route.8
+#german
+iconv -f iso-8859-1 -t utf-8 -o arp.tmp man/de_DE/arp.8 && mv arp.tmp man/de_DE/arp.8
+iconv -f iso-8859-1 -t utf-8 -o ethers.tmp man/de_DE/ethers.5 && mv ethers.tmp man/de_DE/ethers.5
+iconv -f iso-8859-1 -t utf-8 -o hostname.tmp man/de_DE/hostname.1 && mv hostname.tmp man/de_DE/hostname.1
+iconv -f iso-8859-1 -t utf-8 -o ifconfig.tmp man/de_DE/ifconfig.8 && mv ifconfig.tmp man/de_DE/ifconfig.8
+iconv -f iso-8859-1 -t utf-8 -o netstat.tmp man/de_DE/netstat.8 && mv netstat.tmp man/de_DE/netstat.8
+iconv -f iso-8859-1 -t utf-8 -o plipconfig.tmp man/de_DE/plipconfig.8 && mv plipconfig.tmp man/de_DE/plipconfig.8
+iconv -f iso-8859-1 -t utf-8 -o route.tmp man/de_DE/route.8 && mv route.tmp man/de_DE/route.8
+iconv -f iso-8859-1 -t utf-8 -o slattach.tmp man/de_DE/slattach.8 && mv slattach.tmp man/de_DE/slattach.8
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p $RPM_BUILD_ROOT/{bin,sbin,%{_mandir}/man{1,5,8}}
 
-make BASEDIR=$RPM_BUILD_ROOT LANG="de_DE en_US fr_FR pt_BR" install
+make BASEDIR=%{buildroot} mandir=%{_mandir} install
 
-mv $RPM_BUILD_ROOT%{_mandir}/de{_DE,}
-mv $RPM_BUILD_ROOT%{_mandir}/fr{_FR,}
+install -m 0755 ether-wake %{buildroot}/sbin
+install -m 0755 mii-diag %{buildroot}/sbin
 
-install -m 755 ether-wake %{buildroot}/sbin
+pushd netplug-%{npversion}
+    make install prefix=%{buildroot} \
+        initdir=%{buildroot}%{_initrddir} \
+        mandir=%{buildroot}%{_mandir}
+    mv README README.netplugd
+    mv TODO TODO.netplugd
+popd
 
-mv  $RPM_BUILD_ROOT%{_datadir}/locale/et_EE \
-	$RPM_BUILD_ROOT%{_datadir}/locale/et
+rm %{buildroot}/sbin/rarp
+rm %{buildroot}%{_mandir}/man8/rarp.8*
+rm %{buildroot}%{_mandir}/*/man8/rarp.8*
 
-rm -rf %{buildroot}%{_mandir}/{de,pt_BR,fr}
+rm -rf %{buildroot}%{_mandir}/{de,fr,pt}*
 
 %find_lang %{name}
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
+
 %files -f %{name}.lang
 %defattr(-,root,root)
-%doc README README.ipv6 TODO INSTALLING COPYING ABOUT-NLS
-%defattr(-,root,root)
+%doc netplug-%{npversion}/TODO.netplugd netplug-%{npversion}/README.netplugd COPYING
+%doc README README.ipv6 TODO INSTALLING ABOUT-NLS
+%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/netplug/netplugd.conf
+%dir %{_sysconfdir}/netplug.d
+%attr(0755,root,root) %{_sysconfdir}/netplug.d/*
+%attr(0755,root,root) %{_initrddir}/netplugd
 /bin/*
 /sbin/*
 %{_mandir}/man[158]/*
 
+
 %changelog
+* Tue Aug 09 2005 Vincent Danen <vdanen@annvix.org> 1.60-14avx
+- rebuild against new gcc
+- sync with mdk 1.60-13mdk (which synced with fedora 1.60-54)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.60-13avx
 - bootstrap build
 

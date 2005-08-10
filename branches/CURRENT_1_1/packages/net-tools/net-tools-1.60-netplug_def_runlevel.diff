@@ -1,0 +1,11 @@
+--- netplug-1.2.9/scripts/rc.netplugd	2005-01-08 06:43:03.000000000 +0100
++++ netplug-1.2.9/scripts/rc.netplugd.oden	2005-06-22 22:13:34.298880625 +0200
+@@ -3,7 +3,7 @@
+ # netplugd     This shell script takes care of starting and stopping
+ #              the network plug management daemon.
+ #
+-# chkconfig: - 11 89
++# chkconfig: 2345 11 89
+ # description: netplugd is a daemon for managing non-static network \
+ #              interfaces.
+ # processname: netplugd

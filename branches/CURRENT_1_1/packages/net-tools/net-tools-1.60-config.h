@@ -63,6 +63,7 @@
 #define HAVE_HWHDLCLAPB 1
 #define HAVE_HWIRDA 1
 #define HAVE_HWEC 1
+#define HAVE_HWIB 1
 
 /* 
  * 
