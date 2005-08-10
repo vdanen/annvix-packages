@@ -1,8 +1,16 @@
-%define name	rpmtools
-%define version	5.0.18
-%define release 2avx
+#
+# spec file for package rpmtools
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-%{expand:%%define rpm_version %(rpm -q --queryformat '%{VERSION}-%{RELEASE}' rpm)}
+
+%define name		rpmtools
+%define version		5.0.18
+%define release 	3avx
+
 # perl-Compress-Zlib is only "suggested"
 %define _requires_exceptions perl(Compress::Zlib)
 
@@ -12,35 +20,38 @@ Version:	%{version}
 Release:	%{release}
 License:	GPL
 Group:		System/Configuration/Packaging
-URL:		http://cvs.mandrakesoft.com/cgi-bin/cvsweb.cgi/soft/rpmtools
-# get the source from our cvs repository (see
-# http://www.linuxmandrake.com/en/cvs.php3)
+URL:		http://cvs.mandriva.com/cgi-bin/cvsweb.cgi/soft/rpmtools
 Source0:	%{name}-%{version}.tar.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	bzip2-devel gcc perl-devel rpm-devel >= 4.0.3 perl-Compress-Zlib
 
-Requires:	rpm >= %{rpm_version} bzip2 >= 1.0 perl-URPM >= 0.50-2mdk
+Requires:	rpm >= 4.2.3 bzip2 >= 1.0 perl-URPM >= 0.50-2mdk
 Conflicts:	rpmtools-compat <= 2.0 rpmtools-devel <= 2.0
 Provides:	perl(packdrake)
 
 %description
 Various tools needed by urpmi and drakxtools for handling rpm files.
 
+
 %prep
 %setup -q
+
 
 %build
 %{__perl} Makefile.PL INSTALLDIRS=vendor
 %make OPTIMIZE="%{optflags}"
 %make test
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -57,7 +68,11 @@ Various tools needed by urpmi and drakxtools for handling rpm files.
 %{perl_vendorlib}/Packdrakeng/zlib.pm
 %{_mandir}/*/*
 
+
 %changelog
+* Wed Jul 27 2005 Vincent Danen <vdanen@annvix.org> 5.0.18-3avx
+- build for new gcc
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 5.0.18-2avx
 - bootstrap build
 
