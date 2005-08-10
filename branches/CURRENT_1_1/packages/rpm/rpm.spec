@@ -5,14 +5,15 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-
+# mdk 4.2.3-11mdk
 
 %define name		rpm
 %define version		4.2.3
 %define poptver		1.8.3
-%define release		6avx
+%define release		7avx
 
 %define libver		4.2
+%define libname		%mklibname rpm %{libver}
 %define url		ftp://ftp.rpm.org/pub/rpm/dist/rpm-4.0.x
 %define pyver		%(python -V 2>&1 | cut -f2 -d" " | cut -f1,2 -d".")
 %define lib64arches	x86_64 ppc64
@@ -155,6 +156,16 @@ RPM is a powerful command line driven package management system capable of
 installing, uninstalling, verifying, querying, and updating software packages.
 Each software package consists of an archive of files along with information
 about the package like its version, a description, etc.
+
+%package -n %{libname}
+Summary:	Libraries from rpm
+Group:		System/Libraries
+Provides:	lib%{name} = %{version}-%{release}
+
+%description -n %libname
+RPM is a powerful command line driven package management system capable of
+installing, uninstalling, verifying, querying, and updating software packages.
+This packages contains common libraries from rpm.
 
 
 %package devel
@@ -325,6 +336,14 @@ perl -ni -e '/^AC_TYPE_ST_RDEV_T/ or print' configure.ac
 # fix for python 2.4
 perl -pi -e 's/PyDictIter_Type/PyDictIterValue_Type/' python/*.c
 
+# Recode russian manpages from UTF-8 to KOI8-R
+for i in doc/ru/*.8; do
+    mv $i $i.bak
+    iconv -f utf8 -t koi8-r $i.bak -o $i
+    touch -r $i.bak $i
+    rm -f $i.bak
+done
+
 # Create configure scripts manually, skipping unused ones
 function AutoGen() {
     echo "--- $1"
@@ -367,9 +386,31 @@ popd
 # have to go to /usr/lib/rpm and we support only one rpm program per
 # architecture
 %ifarch x86_64 amd64
-CPPFLAGS="-I/usr/include/libelf" CFLAGS="$RPM_OPT_FLAGS" CXXFLAGS="$RPM_OPT_FLAGS" ./configure --prefix=%{_prefix} --sysconfdir=%{_sysconfdir} --localstatedir=/var --mandir=%{_datadir}/man --infodir=%{_datadir}/info --enable-nls --without-javaglue --disable-posixmutexes --with-python=%{pyver}
+CPPFLAGS="-I/usr/include/libelf" CFLAGS="%{optflags}" CXXFLAGS="%{optflags}" \
+    ./configure \
+    --prefix=%{_prefix} \
+    --sysconfdir=%{_sysconfdir} \
+    --localstatedir=/var \
+    --mandir=%{_datadir}/man \
+    --infodir=%{_datadir}/info \
+    --enable-nls \
+    --without-javaglue \
+    --disable-posixmutexes \
+    --with-python=%{pyver}
 %else
-CPPFLAGS="-I/usr/include/libelf" CFLAGS="$RPM_OPT_FLAGS" CXXFLAGS="$RPM_OPT_FLAGS" ./configure --prefix=%{_prefix} --sysconfdir=%{_sysconfdir} --localstatedir=/var --mandir=%{_datadir}/man --infodir=%{_datadir}/info --enable-nls --without-javaglue --disable-posixmutexes --with-python=%{pyver} --with-glob
+CPPFLAGS="-I/usr/include/libelf" CFLAGS="%{optflags}" CXXFLAGS="%{optflags}" \
+    ./configure \
+    --prefix=%{_prefix} \
+    --sysconfdir=%{_sysconfdir} \
+    --localstatedir=/var \
+    --mandir=%{_datadir}/man \
+    --infodir=%{_datadir}/info \
+    --enable-nls \
+    --without-javaglue \
+    --disable-posixmutexes \
+    --with-python=%{pyver} \
+    --with-glob \
+    --enable-static
 %endif
 # Allow parallel build
 perl -p -i -e 's/conftest\.s/conftest\$\$.s/' config.status
@@ -535,8 +576,6 @@ rm -rf /usr/lib/rpm/*-annvix-*
 
 
 %post
-/sbin/ldconfig
-
 if [ ! -e %{_sysconfdir}/rpm/macros -a -e %{_sysconfdir}/rpmrc -a -f %{rpmdir}/convertrpmrc.sh ] 
 then
     sh %{rpmdir}/convertrpmrc.sh 2>&1 > /dev/null
@@ -558,16 +597,17 @@ fi
 
 
 %postun
-/sbin/ldconfig
 /usr/share/rpm-helper/del-user rpm $1 rpm
 
 
 %post -n popt -p /sbin/ldconfig
 %postun -n popt -p /sbin/ldconfig
 
+%post -n %{libname} -p /sbin/ldconfig
+%postun -n %{libname} -p /sbin/ldconfig
+
+
 %define	rpmattr		%attr(0755, rpm, rpm)
-
-
 %files -f %{name}.lang
 %defattr(-,root,root)
 %doc RPM-PGP-KEY RPM-GPG-KEY GROUPS CHANGES doc/manual/[a-z]*
@@ -580,11 +620,6 @@ fi
 %attr(0755,rpm,rpm) %{_bindir}/rpmquery
 %attr(0755,rpm,rpm) %{_bindir}/rpmverify
 %{_sbindir}/update-alternatives
-
-%{_libdir}/librpm-%{libver}.so
-%{_libdir}/librpmdb-%{libver}.so
-%{_libdir}/librpmio-%{libver}.so
-%{_libdir}/librpmbuild-%{libver}.so
 
 %dir /var/spool/repackage
 %dir /var/lib/rpm/alternatives/
@@ -664,6 +699,13 @@ fi
 %rpmdbattr	/var/lib/rpm/Requirename
 %rpmdbattr	/var/lib/rpm/Requireversion
 %rpmdbattr	/var/lib/rpm/Triggername
+
+%files -n %{libname}
+%defattr(-,root,root)
+%{_libdir}/librpm-%{libver}.so
+%{_libdir}/librpmdb-%{libver}.so
+%{_libdir}/librpmio-%{libver}.so
+%{_libdir}/librpmbuild-%{libver}.so
 
 %files build
 %defattr(-,root,root)
@@ -773,6 +815,13 @@ fi
 %{_libdir}/libpopt.so
 
 %changelog
+* Fri Jul 29 2005 Vincent Danen <vdanen@annvix.org> 4.2.3-7avx
+- split libs into separate package to make rpm update easier for URPM
+  (nanardon)
+- bump multiarch-utils requires (gb)
+- encode ru man pages in KOI8-R (mdk bug #10219 and #12613) (flepied)
+- try building rpm static to work around some glibc issues
+
 * Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 4.2.3-6avx
 - get rid of silly %%poptrelease
 - rebuild for new gcc
