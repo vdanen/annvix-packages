@@ -1,6 +1,15 @@
-%define name	gzip
-%define version	1.2.4a
-%define release 19avx
+#
+# spec file for package gzip
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		gzip
+%define version		1.2.4a
+%define release 	20avx
 
 Summary:	The GNU data compression program
 Name:		%{name}
@@ -25,7 +34,7 @@ Patch11:	gzip-1.2.4a-CAN-2005-1228.patch.bz2
 Patch12:	gzip-1.2.4a-CAN-2005-0988.patch.bz2
 Patch13:	gzip-1.2.4a-CAN-2005-0758.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	texinfo
 
 Requires:	mktemp less
@@ -34,6 +43,7 @@ Prereq:		info-install
 %description
 The gzip package contains the popular GNU gzip data compression
 program.  Gzipped files have a .gz extension.  
+
 
 %prep
 %setup -q
@@ -52,19 +62,19 @@ program.  Gzipped files have a .gz extension.
 %patch12 -p1 -b .can-2005-0988
 %patch13 -p1 -b .can-2005-0758
 
+
 %build
 export DEFS="-DNO_ASM"
 %configure
 %make all gzip.info
 make test
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-install -d %{buildroot}%{_mandir}
+mkdir -p %{buildroot}{%{_mandir},/bin}
 
 %makeinstall mandir=%{buildroot}%{_mandir}/man1
-
-install -d %{buildroot}/bin
 
 mv -f %{buildroot}%{_bindir}/gzip %{buildroot}/bin/gzip
 
@@ -77,10 +87,10 @@ ln -sf ../../bin/gzip %{buildroot}%{_bindir}/gzip
 ln -sf ../../bin/gunzip %{buildroot}%{_bindir}/gunzip
 
 for i in zcmp zdiff zforce zgrep zmore znew ; do
-	sed -e "s|%{buildroot}||g" < %{buildroot}%{_bindir}/$i > %{buildroot}%{_bindir}/.$i
-	rm -f %{buildroot}%{_bindir}/$i
-	mv %{buildroot}%{_bindir}/.$i %{buildroot}%{_bindir}/$i
-	chmod 755 %{buildroot}%{_bindir}/$i
+    sed -e "s|%{buildroot}||g" < %{buildroot}%{_bindir}/$i > %{buildroot}%{_bindir}/.$i
+    rm -f %{buildroot}%{_bindir}/$i
+    mv %{buildroot}%{_bindir}/.$i %{buildroot}%{_bindir}/$i
+    chmod 0755 %{buildroot}%{_bindir}/$i
 done
 
 cat > %{buildroot}%{_bindir}/zless <<EOF
@@ -88,7 +98,8 @@ cat > %{buildroot}%{_bindir}/zless <<EOF
 export LESSOPEN="|lesspipe.sh %s"
 less "\$@"
 EOF
-chmod 755 %{buildroot}%{_bindir}/zless
+chmod 0755 %{buildroot}%{_bindir}/zless
+
 
 %post
 %_install_info %{name}.info
@@ -96,8 +107,10 @@ chmod 755 %{buildroot}%{_bindir}/zless
 %preun
 %_remove_install_info %{name}.info
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -107,7 +120,11 @@ chmod 755 %{buildroot}%{_bindir}/zless
 %{_mandir}/*/*
 %{_infodir}/*
 
+
 %changelog
+* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 1.2.4a-20avx
+- rebuild against new gcc
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.2.4a-19avx
 - bootstrap build
 

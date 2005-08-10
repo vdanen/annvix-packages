@@ -1,11 +1,20 @@
-%define name	modutils
-%define version 2.4.26
-%define release 4avx
+#
+# spec file for package modutils
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-%define url ftp://ftp.kernel.org:/pub/linux/utils/kernel/modutils/v2.4
-%define priority 10
 
-%define toalternate insmod lsmod modprobe rmmod depmod modinfo
+%define name		modutils
+%define version 	2.4.26
+%define release 	5avx
+
+%define url 		ftp://ftp.kernel.org:/pub/linux/utils/kernel/modutils/v2.4
+%define priority 	10
+
+%define toalternate	insmod lsmod modprobe rmmod depmod modinfo
 
 Summary:	The kernel daemon (kerneld) and kernel module utilities
 Name:		%{name}
@@ -26,7 +35,7 @@ Patch101:	modutils-2.4.13-no-scsi_hostadapter-off.patch.bz2
 Patch102:	modutils-2.4.22-pre_post_and_usbmouse.patch.bz2
 Patch103:	modutils-2.4.26-agpgart-26.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	bison flex zlib-devel gperf glibc-static-devel
 
 Prereq:		chkconfig, rpm
@@ -41,84 +50,94 @@ other module management programs.  Examples of loaded and unloaded
 modules are device drivers and filesystems, as well as some other
 things.
 
+
 %prep
 %setup -q
 %patch1 -p1 -b .systemmap
 %patch2 -p1 -b .prepost
 %patch3 -p1 -b .silence
 %patch4 -p1 -b .ppc3264
-
 %patch100 -p1 -b .various-aliases
 %patch101 -p1 -b .scsi-off
 %patch102 -p1 -b .ppost_and_usbmouse
 %patch103 -p1 -b .agpgart-26
 
+
 %build
 %serverbuild
-%configure2_5x --disable-compat-2-0 --disable-kerneld --enable-insmod-static \
-		--exec_prefix=/ --enable-zlib --disable-combined --enable-combined-insmod \
-		--enable-combined-rmmod
+%configure2_5x \
+    --disable-compat-2-0 \
+    --disable-kerneld \
+    --enable-insmod-static \
+    --exec_prefix=/ \
+    --enable-zlib \
+    --disable-combined \
+    --enable-combined-insmod \
+    --enable-combined-rmmod
 
 %make dep all
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p $RPM_BUILD_ROOT/lib/modutils
-mkdir -p $RPM_BUILD_ROOT/sbin
-%makeinstall sbindir=$RPM_BUILD_ROOT/sbin
+mkdir -p %{buildroot}/lib/modutils
+mkdir -p %{buildroot}/sbin
+%makeinstall sbindir=%{buildroot}/sbin
 
-pushd $RPM_BUILD_ROOT/sbin && {
-for i in %{toalternate};do
-	if [[ -L $i ]] && echo %{toalternate} | grep -q "$(readlink $i)"
-	then
-		ln -s "$(readlink $i)"-24 $i-24
-		rm -f $i
-	else
-		mv -v $i $i-24
-	fi
- 	ln -s $i-24 $i.old
-done
-} && popd
+pushd %{buildroot}/sbin
+    for i in %{toalternate};do
+        if [[ -L $i ]] && echo %{toalternate} | grep -q "$(readlink $i)"
+        then
+            ln -s "$(readlink $i)"-24 $i-24
+            rm -f $i
+        else
+            mv -v $i $i-24
+        fi
+        ln -s $i-24 $i.old
+    done
+popd
 
-pushd $RPM_BUILD_ROOT/%{_mandir}/man8 && {
-for i in %{toalternate};do
-	mv -v $i.8 $i-24.8
- 	ln -s $i-24.8 $i.old.8
- done
-} && popd
+pushd %{buildroot}/%{_mandir}/man8
+    for i in %{toalternate};do
+        mv -v $i.8 $i-24.8
+        ln -s $i-24.8 $i.old.8
+    done
+popd
 
 FakeAlternatives() {
-  for file in ${1+"$@"}; do
-    rm -f $file
-    touch $file
-    chmod 0755 $file
-  done
+    for file in ${1+"$@"}; do
+        rm -f $file
+        touch $file
+        chmod 0755 $file
+    done
 }
+
 for i in %{toalternate};do
-	FakeAlternatives $RPM_BUILD_ROOT/sbin/$i
+    FakeAlternatives %{buildroot}/sbin/$i
 done
 for i in %{toalternate};do
-	FakeAlternatives $RPM_BUILD_ROOT/%{_mandir}/man8/$i.8
+    FakeAlternatives %{buildroot}/%{_mandir}/man8/$i.8
 done
 
 # security hole, works poorly anyway
-rm -f $RPM_BUILD_ROOT/sbin/request-route
+rm -f %{buildroot}/sbin/request-route
 %ifarch %{ix86}
-rm -f $RPM_BUILD_ROOT/sbin/*.static
+rm -f %{buildroot}/sbin/*.static
 %endif
 
-install -D -m 644 %{SOURCE1} %buildroot/etc/modules.conf
-install -D -m 644 %{SOURCE2} %buildroot/lib/modutils/macros
+install -D -m 0644 %{SOURCE1} %{buildroot}/etc/modules.conf
+install -D -m 0644 %{SOURCE2} %{buildroot}/lib/modutils/macros
+
 
 %post 
 for i in %{toalternate};do
-	# needed for link to be created by alternatives
-	rm -f /sbin/$i
-	update-alternatives --install /sbin/$i $i /sbin/$i-24 %{priority}
-	update-alternatives --install \
-	%{_mandir}/man8/$i.8%{_extension} man-$i %{_mandir}/man8/$i-24.8%{_extension} %{priority}
-	[ -e /sbin/$i ] || update-alternatives --auto $i
-	[ -e %{_mandir}/$i.8%{_extension} ] || update-alternatives --auto man-$i
+    # needed for link to be created by alternatives
+    rm -f /sbin/$i
+    update-alternatives --install /sbin/$i $i /sbin/$i-24 %{priority}
+    update-alternatives --install \
+        %{_mandir}/man8/$i.8%{_extension} man-$i %{_mandir}/man8/$i-24.8%{_extension} %{priority}
+    [ -e /sbin/$i ] || update-alternatives --auto $i
+    [ -e %{_mandir}/$i.8%{_extension} ] || update-alternatives --auto man-$i
 done
 
 # get rid of the old installations on upgrade
@@ -126,21 +145,24 @@ if [ -x /etc/rc.d/init.d/kerneld ] ; then
     /sbin/chkconfig --del kerneld
 fi
 
+
 %postun
 for i in %{toalternate};do
-	if [ ! -f /sbin/$i-24 ]; then
-	  update-alternatives --remove $i /sbin/$i
-	fi
-	[ -e /sbin/$i ] || update-alternatives --auto $i
+    if [ ! -f /sbin/$i-24 ]; then
+        update-alternatives --remove $i /sbin/$i
+    fi
+    [ -e /sbin/$i ] || update-alternatives --auto $i
 
-	if [ ! -f %{_mandir}/man8/$i-24.8%{_extension} ]; then
-	  update-alternatives --remove man-$i %{_mandir}/man8/$i.8%{_extension}
-	fi
-	[ -e %{_mandir}/man8/$i.8%{_extension} ] || update-alternatives --auto man-$i
+    if [ ! -f %{_mandir}/man8/$i-24.8%{_extension} ]; then
+        update-alternatives --remove man-$i %{_mandir}/man8/$i.8%{_extension}
+    fi
+    [ -e %{_mandir}/man8/$i.8%{_extension} ] || update-alternatives --auto man-$i
 done
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -186,7 +208,11 @@ done
 %{_mandir}/man8/kallsyms.8*
 %{_mandir}/man8/ksyms.8*
 
+
 %changelog
+* Fri Jul 29 2005 Vincent Danen <vdanen@annvix.org> 2.4.26-5avx
+- rebuild against new gcc
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.4.26-4avx
 - bootstrap build
 

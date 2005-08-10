@@ -1,6 +1,15 @@
-%define name	db1
-%define version 1.85
-%define release 13avx
+#
+# spec file for package db1
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		db1
+%define version 	1.85
+%define release 	14avx
 
 Summary:	The BSD database library for C (version 1)
 Name:		%{name}
@@ -13,7 +22,7 @@ Source:		http://www.sleepycat.com/update/%{version}/db.%{version}.tar.bz2
 Patch:		db.%{version}.patch.bz2
 Patch1:		db.%{version}-include.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 
 PreReq:		ldconfig
 # this is a symlink not a real soname, so it has to be explicitely put
@@ -30,8 +39,9 @@ It should be installed if compatibility is needed with databases created
 with db1.
 This library used to be part of the glibc package.
 
+
 %package devel
-Summary:	Development libs/header files for Berkeley DB (version 1) library.
+Summary:	Development libs/header files for Berkeley DB (version 1) library
 Group:		Development/C
 Requires:	%{name} = %{version}
 %ifnarch ia64
@@ -47,43 +57,47 @@ record access methods.
 This package contains the header files, libraries, and documentation for
 building programs which use Berkeley DB.
 
+
 %package tools
-Summary:	Tools for Berkeley DB (version 1) library.
+Summary:	Tools for Berkeley DB (version 1) library
 Group:		Databases
 
 %description tools
 Tools to manipulate Berkeley Databases (Berkeley DB).
+
 
 %prep
 %setup -q -n db.%{version}
 %patch -p1
 %patch1 -p1 -b .old
 
+
 %build
 gzip -9 docs/*.ps
-cd PORT/linux
-# otherwise "db1/db.h" not found
-ln -s include db1
-%make OORG="%{optflags}" 
+pushd PORT/linux
+    # otherwise "db1/db.h" not found
+    ln -s include db1
+    %make OORG="%{optflags}" 
+popd
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p ${RPM_BUILD_ROOT}%{_includedir}/db1
-mkdir -p ${RPM_BUILD_ROOT}/%{_libdir}
-mkdir -p ${RPM_BUILD_ROOT}/%{_bindir}
+mkdir -p %{buildroot}{%{_includedir}/db1,%{_bindir},%{_libdir}}
 
 sed -n '/^\/\*-/,/^ \*\//s/^.\*.\?//p' include/db.h | grep -v '^@.*db\.h' > LICENSE
 
-cd PORT/linux
-sover=`echo libdb.so.* | sed 's/libdb.so.//'`
-install -m644 libdb.a			$RPM_BUILD_ROOT/%{_libdir}/libdb1.a
-install -m755 libdb.so.$sover		$RPM_BUILD_ROOT/%{_libdir}/libdb1.so.$sover
-ln -sf libdb1.so.$sover 		$RPM_BUILD_ROOT/%{_libdir}/libdb1.so
-ln -sf libdb1.so.$sover			$RPM_BUILD_ROOT/%{_libdir}/libdb.so.$sover
-install -m644 ../include/ndbm.h		$RPM_BUILD_ROOT/%{_includedir}/db1/
-install -m644 ../../include/db.h	$RPM_BUILD_ROOT/%{_includedir}/db1/
-install -m644 ../../include/mpool.h	$RPM_BUILD_ROOT/%{_includedir}/db1/
-install -s -m755 db_dump185		$RPM_BUILD_ROOT/%{_bindir}/db1_dump185
+pushd PORT/linux
+    sover=`echo libdb.so.* | sed 's/libdb.so.//'`
+    install -m 0644 libdb.a %{buildroot}%{_libdir}/libdb1.a
+    install -m 0755 libdb.so.$sover %{buildroot}%{_libdir}/libdb1.so.$sover
+    ln -sf libdb1.so.$sover %{buildroot}%{_libdir}/libdb1.so
+    ln -sf libdb1.so.$sover %{buildroot}%{_libdir}/libdb.so.$sover
+    install -m 0644 ../include/ndbm.h %{buildroot}%{_includedir}/db1/
+    install -m 0644 ../../include/db.h %{buildroot}%{_includedir}/db1/
+    install -m 0644 ../../include/mpool.h %{buildroot}%{_includedir}/db1/
+    install -s -m 0755 db_dump185 %{buildroot}%{_bindir}/db1_dump185
+popd
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -108,7 +122,11 @@ install -s -m755 db_dump185		$RPM_BUILD_ROOT/%{_bindir}/db1_dump185
 %defattr(-,root,root)
 %{_bindir}/db1_dump185
 
+
 %changelog
+* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 1.85-14avx
+- rebuild against new gcc
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.85-13avx
 - bootstrap build
 

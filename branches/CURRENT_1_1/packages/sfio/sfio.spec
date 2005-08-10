@@ -1,6 +1,15 @@
-%define name	sfio
-%define version	1999
-%define release	13avx
+#
+# spec file for package sfio
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		sfio
+%define version		1999
+%define release		14avx
 
 Summary:	A Safe/Fast I/O Library
 Name:		%{name}
@@ -17,13 +26,14 @@ Patch2:		sfio-1999-implicit.patch.bz2
 Patch3:		sfio-1999-rettype.patch.bz2
 Patch4:		sfio-1999-pic.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	ed
 
 %description
 Sfio is a library for managing I/O streams. It provides functionality
 similar to that of Stdio, the ANSI C Standard I/O library, but via a
 distinct interface that is more powerful, robust and efficient.
+
 
 %package devel
 Group:		Development/C
@@ -34,6 +44,7 @@ Requires:	sfio = 1999
 This packages contains the libraries, include and other files
 for Safe/Fast I/O Library
 
+
 %prep
 %setup -q 
 %patch1 -p0
@@ -42,32 +53,37 @@ for Safe/Fast I/O Library
 %patch4 -p1 -b .pic
 cp -p %{SOURCE1} .
 
+
 %build
 export PATH=$PATH:`pwd`/bin
 mkdir -p src/lib/sfio/FEATURE
 mkdir -p src/lib/sfio/Stdio_b/FEATURE
-make "CCFLAGS=$RPM_OPT_FLAGS -I. -I.. -Wall" -C src/lib/sfio
-make -C src/lib/sfio libsfio.so install SONAME="lib%{name}.so.%{version}" CCMODE="$RPM_OPT_FLAGS -Wall"
-# Since we install the headers in /usr/include/sfio we need to fix some paths
+make "CCFLAGS=%{optflags} -I. -I.. -Wall" -C src/lib/sfio
+make -C src/lib/sfio libsfio.so install SONAME="lib%{name}.so.%{version}" CCMODE="%{optflags} -Wall"
+# Since we install the headers in %{_includedir}/sfio we need to fix some paths
 bzcat %{PATCH0} | patch -p0
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p $RPM_BUILD_ROOT/usr/include/sfio
-mkdir -p $RPM_BUILD_ROOT%{_libdir}
-mkdir -p $RPM_BUILD_ROOT/%{_mandir}
-cp -a include/* $RPM_BUILD_ROOT/usr/include/sfio
-cp -a man/* $RPM_BUILD_ROOT/%{_mandir}
+mkdir -p %{buildroot}%{_includedir}/sfio
+mkdir -p %{buildroot}%{_libdir}
+mkdir -p %{buildroot}%{_mandir}
+cp -a include/* %{buildroot}%{_includedir}/sfio
+cp -a man/* %{buildroot}%{_mandir}
 
-install lib/libsfio.so $RPM_BUILD_ROOT%{_libdir}/libsfio.so.1999
-install lib/*.a $RPM_BUILD_ROOT%{_libdir}/
-( cd $RPM_BUILD_ROOT%{_libdir}/ ; ln -s libsfio.so.1999 libsfio.so )
+install lib/libsfio.so %{buildroot}%{_libdir}/libsfio.so.1999
+install lib/*.a %{buildroot}%{_libdir}/
+( cd %{buildroot}%{_libdir}/ ; ln -s libsfio.so.1999 libsfio.so )
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
+
 %post -p /sbin/ldconfig
 %postun -p /sbin/ldconfig
+
 
 %files
 %defattr(-,root,root)
@@ -82,6 +98,9 @@ install lib/*.a $RPM_BUILD_ROOT%{_libdir}/
 %{_libdir}/*.a
 
 %changelog
+* Wed Jul 27 2005 Vincent Danen <vdanen@annvix.org> 1999-14avx
+- rebuild against new gcc
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1999-13avx
 - bootstrap build
 

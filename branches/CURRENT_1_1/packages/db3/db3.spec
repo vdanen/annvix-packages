@@ -1,13 +1,22 @@
-%define name	db3
-%define version	3.3.11
-%define release	20avx
+#
+# spec file for package db3
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		db3
+%define version		3.3.11
+%define release		21avx
 
 %define	__soversion	3.3
 %define	_libdb_a	libdb-%{__soversion}.a
 %define	_libcxx_a	libdb_cxx-%{__soversion}.a
 
 %define libdb		%mklibname db %{__soversion}
-%define libdbdevel	%libdb-devel
+%define libdbdevel	%{libdb}-devel
 %define libdbcxx	%mklibname dbcxx %{__soversion}
 %define libdbtcl	%mklibname dbtcl %{__soversion}
 
@@ -21,10 +30,10 @@ URL:		http://www.sleepycat.com
 Source:		http://www.sleepycat.com/update/%{version}/db-%{version}.tar.bz2
 Patch1:		db3.3-3.3.11.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	db1-devel, glibc-static-devel, tcl
 
-PreReq:		/sbin/ldconfig
+PreReq:		ldconfig
 
 %description
 The Berkeley Database (Berkeley DB) is a programmatic toolkit that provides
@@ -32,8 +41,9 @@ embedded database support for both traditional and client/server applications.
 Berkeley DB is used by many applications, including Python and Perl, so this
 should be installed on all systems.
 
+
 %package -n %{libdb}
-Summary:	The Berkeley DB database library for C.
+Summary:	The Berkeley DB database library for C
 Group:		System/Libraries
 PreReq:		ldconfig
 
@@ -43,8 +53,9 @@ embedded database support for both traditional and client/server applications.
 Berkeley DB is used by many applications, including Python and Perl, so this
 should be installed on all systems.
 
+
 %package -n %{libdbcxx}
-Summary:	The Berkeley DB database library for C++.
+Summary:	The Berkeley DB database library for C++
 Group:		System/Libraries
 PreReq:		ldconfig
 
@@ -57,8 +68,9 @@ should be installed on all systems.
 This package contains the files needed to build C++ programs which use
 Berkeley DB.
 
+
 %package -n %{libdbtcl}
-Summary:	The Berkeley DB database library for TCL.
+Summary:	The Berkeley DB database library for TCL
 Group:		System/Libraries
 PreReq:		ldconfig
 
@@ -71,8 +83,9 @@ should be installed on all systems.
 This package contains the header files, libraries, and documentation for
 building tcl programs which use Berkeley DB.
 
+
 %package utils
-Summary:	Command line tools for managing Berkeley DB databases.
+Summary:	Command line tools for managing Berkeley DB databases
 Group:		Databases
 
 %description utils
@@ -84,8 +97,9 @@ and database recovery. DB supports C, C++, Java and Perl APIs.
 
 This package contains command line tools for managing Berkeley DB databases.
 
+
 %package -n %{libdbdevel}
-Summary:	Development libraries/header files for the Berkeley DB library.
+Summary:	Development libraries/header files for the Berkeley DB library
 Group:		Development/Databases
 Requires:	%{libdb} = %{version}-%{release}, %{libdbtcl} = %{version}-%{release}
 Provides:	db3-devel = %{version}-%{release} libdb-devel = %{version}-%{release}
@@ -100,6 +114,7 @@ and database recovery. DB supports C, C++, Java and Perl APIs.
 
 This package contains the header files, libraries, and documentation for
 building programs which use Berkeley DB.
+
 
 %prep
 %setup -q -n db-%{version}
@@ -144,6 +159,7 @@ set +x	# XXX painful to watch
 fixup_href `find . -name "*.html"`
 set -x	# XXX painful to watch
 
+
 %build
 CFLAGS="%{optflags}"; export CFLAGS
 %ifarch ppc
@@ -155,55 +171,55 @@ CFLAGS="-D_GNU_SOURCE -D_REENTRANT %{optflags}"; export CFLAGS
 # XXX --enable-debug_{r,w}op should be disabled for production.
 
 pushd build_unix
-CONFIGURE_TOP="../dist" %configure \
-	--enable-compat185 \
-	--enable-dump185 \
-	--enable-shared \
-	--enable-static \
-	--enable-rpc \
-	--enable-tcl \
-	--with-tcl=%{_libdir} \
-	--enable-cxx \
-	--enable-test \
-	# --enable-diagnostic \
-	# --enable-debug --enable-debug_rop --enable-debug_wop \
-	# --enable-posixmutexes
+    CONFIGURE_TOP="../dist" %configure \
+        --enable-compat185 \
+        --enable-dump185 \
+        --enable-shared \
+        --enable-static \
+        --enable-rpc \
+        --enable-tcl \
+        --with-tcl=%{_libdir} \
+        --enable-cxx \
+        --enable-test \
+        # --enable-diagnostic \
+        # --enable-debug --enable-debug_rop --enable-debug_wop \
+        # --enable-posixmutexes
 
-make libdb=%{_libdb_a} %{_libdb_a}
-make libcxx=%{_libcxx_a} %{_libcxx_a}
+    make libdb=%{_libdb_a} %{_libdb_a}
+    make libcxx=%{_libcxx_a} %{_libcxx_a}
 
-# Static link with old db-185 libraries.
-/bin/sh ./libtool --mode=compile cc -c -O2 -g -g -I/usr/include/db1 -I../dist/../include -D_REENTRANT  ../dist/../db_dump185/db_dump185.c
-cc -s -static -o db_dump185 db_dump185.o -L%{_libdir} -ldb1
+    # Static link with old db-185 libraries.
+    /bin/sh ./libtool --mode=compile cc -c -O2 -g -g -I/usr/include/db1 -I../dist/../include -D_REENTRANT  ../dist/../db_dump185/db_dump185.c
+    cc -s -static -o db_dump185 db_dump185.o -L%{_libdir} -ldb1
 
-# Compile rest normally.
-make libdb=%{_libdb_a} libcxx=%{_libcxx_a} TCFLAGS='-I$(builddir)'
+    # Compile rest normally.
+    make libdb=%{_libdb_a} libcxx=%{_libcxx_a} TCFLAGS='-I$(builddir)'
 popd
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p %{buildroot}%{_includedir}
-mkdir -p %{buildroot}%{_libdir}
+mkdir -p %{buildroot}{%{_includedir},%{_libdir}}
+
 %makeinstall -C build_unix libdb=%{_libdb_a} libcxx=%{_libcxx_a}
 chmod +x %{buildroot}%{_libdir}/*.so*
 
 # XXX annoying
 set -x
-cd %{buildroot}
+pushd %{buildroot}
+    mkdir -p ./%{_lib}
+    mv .%{_libdir}/libdb-%{__soversion}.so ./%{_lib}
+    # XXX Rather than hack *.la (see below), create /usr/lib/libdb-3.1.so symlink.
+    ln -sf ../../%{_lib}/libdb-%{__soversion}.so .%{_libdir}/libdb-%{__soversion}.so
 
-mkdir -p ./%{_lib}
-mv .%{_libdir}/libdb-%{__soversion}.so ./%{_lib}
-# XXX Rather than hack *.la (see below), create /usr/lib/libdb-3.1.so symlink.
-ln -sf ../../%{_lib}/libdb-%{__soversion}.so .%{_libdir}/libdb-%{__soversion}.so
-
-mkdir -p .%{_includedir}/db3
-mv .%{_prefix}/include/*.h .%{_includedir}/db3
-ln -sf db3/db.h .%{_includedir}/db.h
-# XXX This is needed for packaging db3 for Red Hat 6.x
-#  for F in .%{_prefix}/bin/db_* ; do
-#    mv $F `echo $F | sed -e 's,/db_,/db3_,'`
-#  done
-cd -
+    mkdir -p .%{_includedir}/db3
+    mv .%{_prefix}/include/*.h .%{_includedir}/db3
+    ln -sf db3/db.h .%{_includedir}/db.h
+    # XXX This is needed for packaging db3 for Red Hat 6.x
+    #  for F in .%{_prefix}/bin/db_* ; do
+    #    mv $F `echo $F | sed -e 's,/db_,/db3_,'`
+    #  done
+popd
 set +x
 
 # XXX libdb-3.1.so is in /lib teach libtool as well
@@ -211,13 +227,15 @@ set +x
 
 # Remove unpackaged files
 rm -rf	%{buildroot}/usr/docs \
-	%{buildroot}%{_libdir}/libdb_tcl-3.so	\
-	%{buildroot}%{_libdir}/libdb_cxx-3.so	\
-	%{buildroot}%{_libdir}/libdb-3.so \
-	%{buildroot}/%{_lib}/libdb-${__soversion}.so
+    %{buildroot}%{_libdir}/libdb_tcl-3.so	\
+    %{buildroot}%{_libdir}/libdb_cxx-3.so	\
+    %{buildroot}%{_libdir}/libdb-3.so \
+    %{buildroot}/%{_lib}/libdb-${__soversion}.so
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %post -n %{libdb} -p /sbin/ldconfig
 %postun -n %{libdb} -p /sbin/ldconfig
@@ -227,6 +245,7 @@ rm -rf	%{buildroot}/usr/docs \
 
 %post -n %{libdbtcl} -p /sbin/ldconfig
 %postun -n %{libdbtcl} -p /sbin/ldconfig
+
 
 %files -n %{libdb}
 %defattr(-,root,root)
@@ -244,7 +263,7 @@ rm -rf	%{buildroot}/usr/docs \
 
 %files utils
 %defattr(-,root,root)
-%doc	docs/utility
+%doc docs/utility
 %{_bindir}/berkeley_db_svc
 %{_bindir}/db*_archive
 %{_bindir}/db*_checkpoint
@@ -260,9 +279,9 @@ rm -rf	%{buildroot}/usr/docs \
 
 %files -n %{libdbdevel}
 %defattr(-,root,root)
-%doc	docs/api_c docs/api_cxx docs/api_tcl docs/index.html
-%doc	docs/ref docs/sleepycat docs/images
-%doc	examples_c examples_cxx
+%doc docs/api_c docs/api_cxx docs/api_tcl docs/index.html
+%doc docs/ref docs/sleepycat docs/images
+%doc examples_c examples_cxx
 %{_includedir}/*
 %{_libdir}/libdb.so
 %{_libdir}/libdb-%{__soversion}.la
@@ -274,7 +293,11 @@ rm -rf	%{buildroot}/usr/docs \
 %{_libdir}/libdb_tcl-%{__soversion}.a
 %{_libdir}/libdb_tcl-%{__soversion}.la
 
+
 %changelog
+* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 3.3.11-21avx
+- rebuild against new gcc
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 3.3.11-20avx
 - bootstrap build
 - drop buildreq on gcc-c++

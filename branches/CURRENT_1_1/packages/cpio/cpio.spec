@@ -24,10 +24,10 @@ Patch1:		cpio-2.6-svr4compat.patch.bz2
 Patch2:		cpio-2.6-no-libnsl.patch.bz2
 Patch3:		cpio-2.6-i18n.patch.bz2
 Patch4:		cpio-2.6-CAN-1999-1572.patch.bz2
-Patch5:		cpio-2.6-chmodRaceC.patch
-Patch6:		cpio-2.6-dirTraversal.patch
+Patch5:		cpio-2.6-chmodRaceC.patch.bz2
+Patch6:		cpio-2.6-dirTraversal.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	texinfo
 
 Prereq:		info-install, tar
@@ -64,7 +64,8 @@ autoconf
 %build
 %configure2_5x \
     --bindir=/bin \
-    --with-rmt=/sbin/rmt CPPFLAGS=-DHAVE_LSTAT=1
+    --with-rmt=/sbin/rmt \
+    CPPFLAGS=-DHAVE_LSTAT=1
 
 %make
 make check
@@ -77,7 +78,7 @@ make check
 %find_lang %{name}
 
 # remove unpackaged files
-rm -f $RPM_BUILD_ROOT%{_mandir}/man1/mt.1
+rm -f %{buildroot}%{_mandir}/man1/mt.1
 
 
 %clean
@@ -99,6 +100,9 @@ rm -f $RPM_BUILD_ROOT%{_mandir}/man1/mt.1
 %{_mandir}/man1/cpio.1*
 
 %changelog
+* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 2.6-2avx
+- rebuild against new gcc
+
 * Thu Jul 14 2005 Vincent Danen <vdanen@annvix.org> 2.6-1avx
 - 2.6
 - make it require tar rather than /sbin/rmt; tar is a pretty

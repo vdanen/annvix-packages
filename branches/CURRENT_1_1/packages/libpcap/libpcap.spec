@@ -1,11 +1,20 @@
-%define name	libpcap
-%define version	0.8.3
-%define release	3avx
-%define sname	pcap
+#
+# spec file for package libpcap
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-%define	major	0
-%define minor	8
-%define libname %mklibname %sname %major
+
+%define name		libpcap
+%define version		0.8.3
+%define release		4avx
+%define sname		pcap
+
+%define	major		0
+%define minor		8
+%define libname 	%mklibname %{sname} %{major}
 
 Summary:        A system-independent interface for user-level packet capture
 Name:		%{name}
@@ -16,7 +25,7 @@ Group:		System/Libraries
 URL:		http://www.tcpdump.org
 Source:		http://www.tcpdump.org/release/libpcap-%{version}.tar.gz
 
-BuildRoot:	%_tmppath/%name-%version-%release-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	byacc flex
 
 Obsoletes:	libpcap
@@ -30,6 +39,7 @@ and network debugging.  Since almost every system vendor provides a
 different interface for packet capture, the libpcap authors created this
 system-independent API to ease in porting and to alleviate the need for
 several system-dependent packet capture modules in each application.
+
 
 %package -n %{libname}
 Summary:	A system-independent interface for user-level packet capture
@@ -53,7 +63,7 @@ Group:		Development/C
 License: 	BSD
 Obsoletes:	libpcap-devel
 Provides:	libpcap-devel = %{version}
-Requires:	%{libname} = %version-%release
+Requires:	%{libname} = %{version}-%{release}
 BuildRequires:	autoconf >= 2.5, automake >= 1.7
 
 %description -n %{libname}-devel
@@ -67,8 +77,9 @@ several system-dependent packet capture modules in each application.
 This package contains the static pcap library and its header files needed to
 compile applications such as tcpdump, etc.
 
+
 %prep
-%setup -q  -n libpcap-%{version}
+%setup -q
 
 export WANT_AUTOCONF_2_5=1
 
@@ -76,10 +87,11 @@ autoheader-2.5x
 aclocal-1.7
 autoconf-2.5x
 
+
 %build
 %configure --enable-ipv6
 
-%make "CCOPT=$RPM_OPT_FLAGS -fPIC"
+%make "CCOPT=%{optflags} -fPIC"
 
 #
 # (fg) FIXME - UGLY - HACK - but libpcap's Makefile doesn't allow to build a
@@ -88,30 +100,32 @@ autoconf-2.5x
 
 gcc -Wl,-soname,libpcap.so.0 -shared -fpic -o libpcap.so.%{major}.%{minor} *.o
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-mkdir -p $RPM_BUILD_ROOT/{%{_includedir}/net,%{_libdir},%{_mandir}/man3}
+mkdir -p %{buildroot}{%{_includedir}/net,%{_libdir},%{_mandir}/man3}
 
-%__make DESTDIR=$RPM_BUILD_ROOT install
+make DESTDIR=%{buildroot} install
 
-install -m755 libpcap.so.%{major}.%{minor} $RPM_BUILD_ROOT/%{_libdir}
+install -m 0755 libpcap.so.%{major}.%{minor} %{buildroot}/%{_libdir}
 
-pushd $RPM_BUILD_ROOT/%{_libdir} && {
-	ln -s libpcap.so.%{major}.%{minor} libpcap.so.0
-	ln -s libpcap.so.%{major}.%{minor} libpcap.so
-} && popd
+pushd %{buildroot}%{_libdir}
+    ln -s libpcap.so.%{major}.%{minor} libpcap.so.0
+    ln -s libpcap.so.%{major}.%{minor} libpcap.so
+popd
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-%post -n %{libname} -p /sbin/ldconfig
 
+%post -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
 
 %post -n %{libname}-devel -p /sbin/ldconfig
-
 %postun -n %{libname}-devel -p /sbin/ldconfig
+
 
 %files -n %{libname}
 %defattr(-,root,root)
@@ -126,7 +140,11 @@ pushd $RPM_BUILD_ROOT/%{_libdir} && {
 %{_libdir}/libpcap.a
 %{_mandir}/man3/pcap.3*
 
+
 %changelog
+* Sat Jul 30 2005 Vincent Danen <vdanen@annvix.org> 0.8.3-4avx
+- rebuild against new gcc
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.8.3-3avx
 - bootstrap build
 

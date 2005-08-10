@@ -1,9 +1,18 @@
-%define name	bzip2
-%define version	1.0.3
-%define release	2avx
+#
+# spec file for package bzip2
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-%define libname_orig lib%{name}
-%define libname	%mklibname %{name}_ 1
+
+%define name		bzip2
+%define version		1.0.3
+%define release		3avx
+
+%define libname_orig	lib%{name}
+%define libname		%mklibname %{name}_ 1
 
 Summary:	Extremely powerful file compression utility
 Name:		%{name}
@@ -24,7 +33,7 @@ Patch1:		bzip2-1.0.3-mdv-makefile.patch.bz2
 Patch2:		bzip2-1.0.2.diff.bz2
 Patch3:		bzip2-1.0.2-CAN-2005-0953.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	texinfo
 
 Requires:	%{libname} = %{version}, mktemp
@@ -39,6 +48,7 @@ compressors.
 The command-line options are deliberately very similar to those of GNU Gzip,
 but they are not identical.
 
+
 %package -n %{libname}
 Summary:	Libraries for developing apps which will use bzip2
 Group:		System/Libraries
@@ -46,6 +56,7 @@ Group:		System/Libraries
 %description -n %libname
 Library of bzip2 functions, for developing apps which will use the
 bzip2 library (aka libz2).
+
 
 %package -n %{libname}-devel
 Summary:	Header files for developing apps which will use bzip2
@@ -59,6 +70,7 @@ Obsoletes:	%{name}-devel
 Header files and static library of bzip2 functions, for developing apps which
 will use the bzip2 library (aka libz2).
 
+
 %prep
 %setup -q
 cp %{SOURCE2} .
@@ -70,8 +82,10 @@ cp %{SOURCE2} .
 echo "lib = %{_lib}" >>config.in
 echo "CFLAGS = %{optflags}" >>config.in
 
+
 %build
 %make
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -87,11 +101,14 @@ install -m 0644 %{SOURCE3} %{buildroot}%{_mandir}/man1/
 
 install -m 0644 bzlib_private.h %{buildroot}%{_includedir}/
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
+
 %post -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
+
 
 %files
 %defattr(-,root,root,755)
@@ -99,12 +116,12 @@ install -m 0644 bzlib_private.h %{buildroot}%{_includedir}/
 %{_bindir}/*
 %{_mandir}/man1/*
 
-%files -n %libname
+%files -n %{libname}
 %defattr(-,root,root,755)
 %doc LICENSE
 %{_libdir}/libbz2.so.*
 
-%files -n %libname-devel
+%files -n %{libname}-devel
 %defattr(-,root,root,755)
 %doc *.html LICENSE
 %{_libdir}/libbz2.a
@@ -114,6 +131,9 @@ install -m 0644 bzlib_private.h %{buildroot}%{_includedir}/
 
 
 %changelog
+* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 1.0.3-3avx
+- rebuild against new gcc
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.0.3-2avx
 - bootstrap build
 

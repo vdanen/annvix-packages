@@ -1,6 +1,15 @@
-%define name	sash
-%define version	3.5
-%define release 10avx
+#
+# spec file for package sash
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		sash
+%define version		3.5
+%define release 	11avx
 
 Summary:	A statically linked shell, including some built-in basic commands
 Name:		%{name}
@@ -16,7 +25,7 @@ Patch2: 	sash-3.4-losetup.patch.bz2
 Patch3: 	sash-3.4-fix-loop__remove_it_when_kernel_headers_are_fixed.patch.bz2
 Patch4: 	sash-3.4-ignore-args.patch.bz2
 
-BuildRoot:	%_tmppath/%name-%version-%release-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	zlib-devel glibc-static-devel
 
 Prereq:		grep
@@ -29,6 +38,7 @@ it is particularly useful for recovering from certain types of system
 failures.  Sash can also be used to safely upgrade to new versions of
 shared libraries.
 
+
 %prep
 %setup -q
 %patch0 -p1 -b ".misc"
@@ -37,26 +47,34 @@ shared libraries.
 %patch3 -p1
 %patch4 -p1
 
+
 %build
-make RPM_OPT_FLAGS="$RPM_OPT_FLAGS"
+make RPM_OPT_FLAGS="%{optflags}"
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p $RPM_BUILD_ROOT/sbin
-mkdir -p $RPM_BUILD_ROOT%_mandir/man8
+mkdir -p %{buildroot}/sbin
+mkdir -p %{buildroot}%{_mandir}/man8
 
-install -s -m755 sash $RPM_BUILD_ROOT/sbin
-install -m644 sash.1 $RPM_BUILD_ROOT%_mandir/man8/sash.8
+install -s -m 0755 sash %{buildroot}/sbin
+install -m 0644 sash.1 %{buildroot}%{_mandir}/man8/sash.8
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
+
 %files
 %defattr(-,root,root)
 /sbin/sash
-%_mandir/*/*
+%{_mandir}/*/*
+
 
 %changelog
+* Fri Jul 29 2005 Vincent Danen <vdanen@annvix.org> 3.5-11avx
+- rebuild against new gcc
+
 * Thu Jun 02 2005 Vincent Danen <vdanen@annvix.org> 3.5-10avx
 - bootstrap build
 
@@ -99,7 +117,7 @@ install -m644 sash.1 $RPM_BUILD_ROOT%_mandir/man8/sash.8
 - BuildRequires:	zlib-devel
 
 * Tue May 01 2001 David BAUDENS <baudens@mandrakesoft.com> 3.4-7mdk
-- Use %%_tmppath for BuildRoot
+- Use %%{_buildroot} for BuildRoot
 
 * Thu Nov 16 2000 Frederic Lepied <flepied@mandrakesoft.com> 3.4-6mdk
 - ignore extra command line arguments.

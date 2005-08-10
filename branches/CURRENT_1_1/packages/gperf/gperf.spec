@@ -1,6 +1,15 @@
-%define name	gperf
-%define version	3.0.1
-%define release	5avx
+#
+# spec file for package gperf
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		gperf
+%define version		3.0.1
+%define release		6avx
 
 Summary:	A perfect hash function generator
 Name:		%{name}
@@ -11,7 +20,7 @@ Group:		Development/Other
 URL:		http://www.gnu.org/software/gperf/
 Source:		ftp://ftp.gnu.org/gnu/gperf/%{name}-%{version}.tar.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 
 PreReq:		info-install
 
@@ -21,29 +30,32 @@ stated, a perfect hash function is a hash function and a data
 structure that allows recognition of a key word in a set of words
 using exactly one probe into the data structure.
 
-Install gperf if you need a program that generates perfect hash
-functions.
 
 %prep
 %setup -q
+
 
 %build
 %configure2_5x
 %make
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
-rm -f $RPM_BUILD_ROOT%{_datadir}/doc/gperf/gperf.html
+rm -f %{buildroot}%{_datadir}/doc/gperf/gperf.html
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %post
 %_install_info %{name}.info
 
 %preun
 %_remove_install_info %{name}.info
+
 
 %files
 %defattr(-,root,root)
@@ -52,7 +64,11 @@ rm -f $RPM_BUILD_ROOT%{_datadir}/doc/gperf/gperf.html
 %{_mandir}/man1/gperf.1*
 %{_infodir}/gperf.info*
 
+
 %changelog
+* Fri Jul 29 2005 Vincent Danen <vdanen@annvix.org> 3.0.1-6avx
+- rebuild against new gcc
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 3.0.1-5avx
 - bootstrap build
 

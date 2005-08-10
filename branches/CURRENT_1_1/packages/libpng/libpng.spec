@@ -1,11 +1,19 @@
-%define name	libpng
-%define version	1.2.5
-%define release	15avx
-%define epoch	2
+#
+# spec file for package libpng
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-%define lib_name_orig	libpng
+
+%define name		libpng
+%define version		1.2.5
+%define release		16avx
+%define epoch		2
+
 %define lib_major	3
-%define lib_name	%mklibname png %{lib_major}
+%define libname		%mklibname png %{lib_major}
 
 Summary: 	A library of functions for manipulating PNG image format files
 Name: 		%{name}
@@ -19,7 +27,7 @@ Source: 	ftp://ftp.uu.net/graphics/png/src/%{name}-%{version}.tar.bz2
 Patch0:		libpng-1.2.5-mdkconf.patch.bz2
 Patch1:		libpng-1.2.5-all-patches.patch.bz2
 
-BuildRoot: 	%{_tmppath}/%{name}-%{version}-root
+BuildRoot: 	%{_buildroot}/%{name}-%{version}
 BuildRequires: 	zlib-devel
 
 %description
@@ -29,83 +37,85 @@ a bit-mapped graphics format similar to the GIF format.  PNG was created to
 replace the GIF format, since GIF uses a patented data compression
 algorithm.
 
-Libpng should be installed if you need to manipulate PNG format image
-files.
 
-%package -n %{lib_name}
-Summary:	A library of functions for manipulating PNG image format files.
+%package -n %{libname}
+Summary:	A library of functions for manipulating PNG image format files
 Group:		System/Libraries
 Obsoletes:	%{name}
 Provides:	%{name} = %{version}-%{release}
 Conflicts:	gdk-pixbuf < 0.11.0-6mdk
 
-%description -n %{lib_name}
+%description -n %{libname}
 This package contains the library needed to run programs dynamically
 linked with libpng.
 
-%package -n %{lib_name}-devel
+
+%package -n %{libname}-devel
 Summary:	Development tools for programs to manipulate PNG image format files
 Group:		Development/C
-Requires:	%{lib_name} = %epoch:%version-%release zlib-devel
+Requires:	%{libname} = %{epoch}:%{version}-%{release} zlib-devel
 Obsoletes:	%{name}-devel
 Provides:	%{name}-devel = %{version}-%{release}
 Provides:	png-devel = %{version}-%{release}
 
-%description -n %{lib_name}-devel
+%description -n %{libname}-devel
 The libpng-devel package contains the header files and libraries
 necessary for developing programs using the PNG (Portable Network
 Graphics) library.
 
-If you want to develop programs which will manipulate PNG image format
-files, you should install libpng-devel.  You'll also need to install the
-libpng package.
 
-%package -n %{lib_name}-static-devel
+%package -n %{libname}-static-devel
 Summary:	Development static libraries
 Group:		Development/C
-Requires:	%{lib_name}-devel = %epoch:%version-%release zlib-devel
+Requires:	%{libname}-devel = %{epoch}:%{version}-%{release} zlib-devel
 Provides:	%{name}-static-devel = %{version}-%{release}
 Provides:	png-static-devel = %{version}-%{release}
 
-%description -n %{lib_name}-static-devel
+%description -n %{libname}-static-devel
 Libpng development static libraries.
 
+
 %prep
-%setup -q -n %{name}-%{version}
+%setup -q
 %patch0 -p1 -b .mdkconf
 %patch1 -p1 -b .secfixes
 ln -s scripts/makefile.linux ./Makefile
 perl -pi -e 's|^prefix=.*|prefix=%{_prefix}|' Makefile
 
+
 %build
 %make
 make test
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p $RPM_BUILD_ROOT%{_prefix}
+mkdir -p %{buildroot}%{_prefix}
 %makeinstall LIBPATH="\$(prefix)/%{_lib}"
-mkdir -p $RPM_BUILD_ROOT%{_mandir}/man{3,5}
-install -m 644 {libpng,libpngpf}.3 $RPM_BUILD_ROOT%{_mandir}/man3
-install -m 644 png.5 $RPM_BUILD_ROOT%{_mandir}/man5/png3.5
+mkdir -p %{buildroot}%{_mandir}/man{3,5}
+install -m 0644 {libpng,libpngpf}.3 %{buildroot}%{_mandir}/man3
+install -m 0644 png.5 %{buildroot}%{_mandir}/man5/png3.5
 
 # remove unpackaged files
-rm -rf $RPM_BUILD_ROOT%{_prefix}/man
+rm -rf %{buildroot}%{_prefix}/man
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-%post -n %{lib_name} -p /sbin/ldconfig
-%postun -n %{lib_name} -p /sbin/ldconfig
 
-%files -n %{lib_name}
+%post -n %{libname} -p /sbin/ldconfig
+%postun -n %{libname} -p /sbin/ldconfig
+
+
+%files -n %{libname}
 %defattr(-,root,root)
 %doc *.txt example.c README TODO CHANGES
 %{_libdir}/libpng.so.*
 %{_libdir}/libpng12.so.*
 %{_mandir}/man5/*
 
-%files -n %{lib_name}-devel
+%files -n %{libname}-devel
 %defattr(-,root,root)
 %{_bindir}/libpng12-config
 %{_bindir}/libpng-config
@@ -115,11 +125,15 @@ rm -rf $RPM_BUILD_ROOT%{_prefix}/man
 %{_libdir}/pkgconfig/*
 %{_mandir}/man3/*
 
-%files -n %{lib_name}-static-devel
+%files -n %{libname}-static-devel
 %defattr(-,root,root)
 %{_libdir}/libpng*.a
 
+
 %changelog
+* Sat Jul 30 2005 Vincent Danen <vdanen@annvix.org> 1.2.5-16avx
+- rebuild against new gcc
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.2.5-15avx
 - bootstrap build
 
@@ -197,7 +211,7 @@ rm -rf $RPM_BUILD_ROOT%{_prefix}/man
 
 * Mon Mar 04 2002 David BAUDENS <baudens@mandrakesoft.com> 1.2.1-6mdk
 - Remove kups and libqtcups2 from list of Conflicts:
-- Requires: %%version-%%release and not only %%version
+- Requires: %%{version}-%%{release} and not only %%{version}
 
 * Wed Feb 20 2002 Frederic Crozat <fcrozat@mandrakesoft.com> 1.2.1-5mdk
 - added old sawfish version to Conflicts:

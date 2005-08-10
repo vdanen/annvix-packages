@@ -1,9 +1,18 @@
-%define name	libmcrypt
-%define version	2.5.7
-%define release	10avx
+#
+# spec file for package libmcrypt
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-%define major	4
-%define libname	%mklibname mcrypt %{major}
+
+%define name		libmcrypt
+%define version		2.5.7
+%define release		11avx
+
+%define major		4
+%define libname		%mklibname mcrypt %{major}
 
 Summary:	Thread-safe data encryption library
 Name:		%{name}
@@ -15,16 +24,17 @@ URL:		http://mcrypt.sourceforge.net/
 Source0:	%{name}-%{version}.tar.gz
 Source1:	%{name}-%{version}.tar.gz.sig.asc
 
-BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	libtool-devel, multiarch-utils
 
 %description
 Libmcrypt is a thread-safe library providing a uniform interface
 to access several block and stream encryption algorithms.
 
-     Some algorithms which are supported:
+Some algorithms which are supported:
 SERPENT, RIJNDAEL, 3DES, GOST, SAFER+, CAST-256, RC2, XTEA, 3WAY,
 TWOFISH, BLOWFISH, ARCFOUR, WAKE and more. 
+
 
 %package -n %{libname}
 Summary:	Thread-safe data encryption library
@@ -35,7 +45,7 @@ Requires:	%{name} >= %{version}
 Libmcrypt is a thread-safe library providing a uniform interface
 to access several block and stream encryption algorithms.
 
-     Some algorithms which are supported:
+Some algorithms which are supported:
 SERPENT, RIJNDAEL, 3DES, GOST, SAFER+, CAST-256, RC2, XTEA, 3WAY,
 TWOFISH, BLOWFISH, ARCFOUR, WAKE and more. 
 
@@ -51,6 +61,7 @@ This package contains the header files and libraries needed to
 develop programs that use the libmcrypt library.
 Install it if you want to develop such applications.
 
+
 %package -n %{libname}-static-devel
 Summary:	Static libraries for developing apps with libmcrypt
 Group:		Development/C
@@ -63,8 +74,8 @@ This package contains the static libraries needed to
 develop programs that use the libmcrypt library.
 Install it if you want to develop such applications.
 
-%prep
 
+%prep
 %setup -q
 
 %build
@@ -99,17 +110,21 @@ Install it if you want to develop such applications.
 
 make check
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
 
 %multiarch_binaries %{buildroot}%{_bindir}/libmcrypt-config
 
+
 %post -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files -n %{libname}
 %defattr(-,root,root)
@@ -136,7 +151,11 @@ make check
 %{_libdir}/%{name}/*.la
 %{_libdir}/%{name}/*.so
 
+
 %changelog
+* Fri Jul 29 2005 Vincent Danen <vdanen@annvix.org> 2.5.7-11avx
+- rebuild against new gcc
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.5.7-10avx
 - bootstrap build
 

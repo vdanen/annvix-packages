@@ -1,10 +1,19 @@
-%define name	libutempter
-%define version	1.1.1
-%define release	3avx
-%define sname	utempter
+#
+# spec file for package libutempter
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-%define major	0
-%define libname	%mklibname %sname %major
+
+%define name		libutempter
+%define version		1.1.1
+%define release		4avx
+%define sname		utempter
+
+%define major		0
+%define libname		%mklibname %{sname} %{major}
 
 
 Summary:	Priviledged helper for utmp/wtmp updates
@@ -16,7 +25,7 @@ Group:		System/Libraries
 Source:		ftp://ftp.altlinux.org/pub/people/ldv/utempter/%{name}-%{version}.tar.bz2
 Source1:	ftp://ftp.altlinux.org/pub/people/ldv/utempter/%{name}-%{version}.tar.bz2.asc
 
-BuildRoot:	%{_tmppath}/%{name}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 
 Prereq:		ldconfig, fileutils, grep
 Requires:	%{libname} = %{version}
@@ -26,6 +35,7 @@ Utempter is a utility which allows some non-privileged programs to
 have required root access without compromising system
 security. Utempter accomplishes this feat by acting as a buffer
 between root and the programs.
+
 
 %package -n %{libname}
 Summary:	Library used by %{name}
@@ -39,6 +49,7 @@ programs to have required root access without compromising system
 security. It accomplishes this feat by acting as a buffer
 between root and the programs.
 
+
 %package -n %{libname}-devel
 Summary:	Devel files for %{name}
 Group:		Development/C
@@ -48,18 +59,23 @@ Requires:	%{libname} = %{version}
 %description -n %{libname}-devel
 Header files for writing apps using libutempter
 
+
 %prep
 %setup -q
 
+
 %build
 make CC=gcc libexecdir="%{_libexecdir}"
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %pre -n %{libname}
 %_pre_groupadd utempter 26
@@ -83,6 +99,9 @@ make CC=gcc libexecdir="%{_libexecdir}"
 
 
 %changelog
+* Fri Jul 29 2005 Vincent Danen <vdanen@annvix.org> 1.1.1-4avx
+- rebuild against new gcc
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.1.1-3avx
 - bootstrap build
 

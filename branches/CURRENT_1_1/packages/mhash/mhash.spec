@@ -1,9 +1,18 @@
-%define name	mhash
-%define version	0.8.18
-%define release	7avx
+#
+# spec file for package mhash
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-%define major	2
-%define libname %mklibname %{name} %{major}
+
+%define name		mhash
+%define version		0.8.18
+%define release		8avx
+
+%define major		2
+%define libname 	%mklibname %{name} %{major}
 
 Summary:	Thread-safe hash library
 Name:		%{name}
@@ -14,7 +23,7 @@ Group:		System/Libraries
 URL:		http://mhash.sourceforge.net/
 Source:		%{name}-%{version}.tar.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 
 %description
 Mhash is a thread-safe hash library, implemented in C, and provides a
@@ -23,6 +32,7 @@ HAVAL, RIPEMD128, RIPEMD160, TIGER, GOST). These algorithms can be
 used to compute checksums, message digests, and other signatures.
 The HMAC support implements the basics for message authentication, 
 following RFC 2104.
+
 
 %package -n %{libname}
 Summary:	Thread-safe hash library
@@ -36,6 +46,7 @@ used to compute checksums, message digests, and other signatures.
 The HMAC support implements the basics for message authentication,
 following RFC 2104.
 
+
 %package -n %{libname}-devel
 Summary:	Header files and libraries for developing apps which will use mhash
 Group:		Development/C
@@ -46,31 +57,31 @@ Provides:	libmhash-devel
 The mhash-devel package contains the header files and libraries needed
 to develop programs that use the mhash library.
 
-Install the mhash-devel package if you want to develop applications that
-will use the mhash library.
 
 %prep
-
 %setup -q
 
-%build
 
+%build
 %configure2_5x \
     --enable-static \
     --enable-shared
 
 %make
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-
 %makeinstall
+
 
 %post -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files -n %{libname}
 %defattr(-,root,root)
@@ -85,7 +96,11 @@ will use the mhash library.
 %{_libdir}/*.so
 %{_includedir}/*.h
 
+
 %changelog
+* Fri Jul 29 2005 Vincent Danen <vdanen@annvix.org> 0.8.18-8avx
+- rebuild against new gcc
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 0.8.18-7avx
 - rebuild
 

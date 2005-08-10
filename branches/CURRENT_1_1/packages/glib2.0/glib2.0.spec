@@ -1,22 +1,24 @@
-%define name	glib%{api_version}
-%define version	%{major_version}.%{minor_version}.%{micro_version}
-%define release	2avx
+#
+# spec file for package glib2.0
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-# enable_gtkdoc: Toggle if gtkdoc stuff should be rebuilt
-#	0 = no
-#	1 = yes
-%define enable_gtkdoc	0
 
-%define req_pkgconfig_version	0.12
+%define name		glib%{api_version}
+%define version		%{major_version}.%{minor_version}.%{micro_version}
+%define release		3avx
 
-# Note that this is NOT a relocatable package
 %define api_version	2.0
 %define lib_major	0
-%define lib_name	%mklibname %{name}_ %{lib_major}
+%define libname		%mklibname %{name}_ %{lib_major}
+%define major_version	2
+%define minor_version	6
+%define micro_version	3
 
-%define major_version 2
-%define minor_version 6
-%define micro_version 3
+%define req_pkgconfig_version	0.12
 
 Summary:	GIMP Toolkit and GIMP Drawing Kit support library
 Name:		%{name}
@@ -29,13 +31,10 @@ Source0:	ftp://ftp.gnome.org/pub/GNOME/sources/glib/%{major_version}.%{minor_ver
 Source1:	glib20.sh.bz2
 Source2:	glib20.csh.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	gettext
 BuildRequires:	pkgconfig >= %{req_pkgconfig_version}
 BuildRequires:	libtool >= 1.4.2-2mdk
-%if %enable_gtkdoc
-BuildRequires:	gtk-doc >= 0.10
-%endif
 
 Requires:	common-licenses
 
@@ -46,10 +45,9 @@ and provide other useful functionality which most
 programs require.
 
 Glib is used by GDK, GTK+ and many applications.
-You should install Glib because many of your applications
-will depend on this library.
 
-%package -n %{lib_name}
+
+%package -n %{libname}
 Summary:	%{summary}
 Group:		%{group}
 Provides:	glib2 = %{version}-%{release}
@@ -57,31 +55,30 @@ Provides:	libglib2 = %{version}-%{release}
 Provides:	lib%{name} = %{version}-%{release}
 Conflicts:	libglib1.3_13
 
-%description -n %{lib_name}
+%description -n %{libname}
 Glib is a handy library of utility functions. This C
 library is designed to solve some portability problems
 and provide other useful functionality which most
 programs require.
 
 Glib is used by GDK, GTK+ and many applications.
-You should install Glib because many of your applications
-will depend on this library.
 
 This package contains the library needed to run programs dynamically
 linked with the glib.
 
-%package -n %{lib_name}-devel
+
+%package -n %{libname}-devel
 Summary:	Static libraries and header files of %{name}
 Group:		Development/C
 Provides:	glib2-devel = %{version}-%{release}
 Provides:	libglib2-devel = %{version}-%{release}
 Provides:	lib%{name}-devel = %{version}-%{release}
-Requires:	%{lib_name} = %{version}-%{release}
+Requires:	%{libname} = %{version}-%{release}
 Requires:	pkgconfig >= %{req_pkgconfig_version}
 Requires:	glib-gettextize >= %{version}
 Conflicts:	libglib1.3_13-devel
 
-%description -n %{lib_name}-devel
+%description -n %{libname}-devel
 Static libraries and header files for the support library for the GIMP's X
 libraries, which are available as public libraries.  GLIB includes generally
 useful data structures.
@@ -99,31 +96,31 @@ them with its own copy of files, thus nullifying the changes.
 If this replacement of gettextize is run instead, then all gnome
 packages can potentially benefict from the changes.
 
+
 %prep
 %setup -n glib-%{version} -q
 
-%build
 
+%build
 #we don't use libtool 1.5 yet
 %define __libtoolize /bin/true
 
 %configure2_5x \
-	--enable-static \
-%if !%enable_gtkdoc
-	--enable-gtk-doc=no
-%endif
+    --enable-static \
+    --enable-gtk-doc=no
 
 %make
 make check
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
-mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/profile.d
-bzcat %{SOURCE1} > $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/glib20.sh
-bzcat %{SOURCE2} > $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/glib20.csh
-chmod a+x  $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/*
+mkdir -p %{buildroot}%{_sysconfdir}/profile.d
+bzcat %{SOURCE1} > %{buildroot}%{_sysconfdir}/profile.d/glib20.sh
+bzcat %{SOURCE2} > %{buildroot}%{_sysconfdir}/profile.d/glib20.csh
+chmod a+x  %{buildroot}%{_sysconfdir}/profile.d/*
 
 %find_lang glib20
 
@@ -131,12 +128,12 @@ chmod a+x  $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/*
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-%post -n %{lib_name} -p /sbin/ldconfig
 
-%postun -n %{lib_name} -p /sbin/ldconfig
+%post -n %{libname} -p /sbin/ldconfig
+%postun -n %{libname} -p /sbin/ldconfig
 
 
-%files -n %{lib_name} -f glib20.lang
+%files -n %{libname} -f glib20.lang
 %defattr(-, root, root)
 %doc README
 %config(noreplace) %{_sysconfdir}/profile.d/*
@@ -145,7 +142,7 @@ chmod a+x  $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/*
 %{_libdir}/libgthread-%{api_version}.so.*
 %{_libdir}/libgobject-%{api_version}.so.*
 
-%files -n %{lib_name}-devel
+%files -n %{libname}-devel
 %defattr(-, root, root)
 %doc AUTHORS ChangeLog NEWS
 %doc %{_datadir}/gtk-doc/html/*
@@ -167,7 +164,11 @@ chmod a+x  $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/*
 %{_datadir}/aclocal/glib-gettext.m4
 %{_datadir}/glib-%{api_version}
 
+
 %changelog
+* Sat Jul 30 2005 Vincent Danen <vdanen@annvix.org> 2.6.3-3avx
+- rebuild against new gcc
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.6.3-2avx
 - bootstrap build
 

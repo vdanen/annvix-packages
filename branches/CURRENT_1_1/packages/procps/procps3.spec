@@ -1,6 +1,15 @@
-%define name	procps
-%define version	3.2.1
-%define release	3avx
+#
+# spec file for package procps
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		procps
+%define version		3.2.1
+%define release		4avx
 
 Summary:	Utilities for monitoring your system and processes on your system
 Name:		%{name}
@@ -9,10 +18,10 @@ Release:	%{release}
 License:	GPL
 Group:		Monitoring
 URL:		http://procps.sf.net/
-Source:		http://procps.sourceforge.net/%name-%version.tar.bz2
+Source:		http://procps.sourceforge.net/%{name}-%{version}.tar.bz2
 Patch0:		procps-3.1.15-sysctlshutup.patch.bz2
 
-BuildRoot:	%_tmppath/%name-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	ncurses-devel
 
 Provides:	libproc.so.3.1 procps3
@@ -46,37 +55,43 @@ and watch.
   * The vmstat command displays virtual memory statistics about processes,
     memory, paging, block I/O, traps and CPU activity.
 
+
 %package devel
 Group:		Development/C
-Summary:	An X based system message monitoring utility
-Requires:	%name = %version
+Summary:	Development and headers files for the proc library
+Requires:	%{name} = %{version}
 
 %description devel
 Developement headers and library for the proc library.
+
 
 %prep
 %setup -q
 %patch0 -p0 -b .sysctl
 
+
 %build
-make CC="gcc $RPM_OPT_FLAGS"
+make CC="gcc %{optflags}"
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 PATH=/sbin:$PATH
-mkdir -p $RPM_BUILD_ROOT{{/usr,}/bin,/sbin,%_mandir/man{1,5,8},%_lib}
+mkdir -p %{buildroot}{{/usr,}/bin,/sbin,%{_mandir}/man{1,5,8},%{_lib}}
 
-%makeinstall_std ldconfig=/bin/true install="install -D" lib="$RPM_BUILD_ROOT/%{_lib}"
+%makeinstall_std ldconfig=/bin/true install="install -D" lib="%{buildroot}/%{_lib}"
 
-rm -f $RPM_BUILD_ROOT/%{_mandir}/man1/kill.1*
+rm -f %{buildroot}%{_mandir}/man1/kill.1*
 
-mkdir -p $RPM_BUILD_ROOT%{_includedir}/procps
-install -m 644 proc/*.h $RPM_BUILD_ROOT%{_includedir}/procps
-# This woumd conflict with util-linux:
-mv $RPM_BUILD_ROOT/bin/{,procps3-}kill
+mkdir -p %{buildroot}%{_includedir}/procps
+install -m 0644 proc/*.h %{buildroot}%{_includedir}/procps
+# This would conflict with util-linux:
+mv %{buildroot}/bin/{,procps3-}kill
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %post 
 /sbin/ldconfig
@@ -85,6 +100,7 @@ rm -f /etc/psdevtab /etc/psdatabase
 
 %postun -p /sbin/ldconfig
 
+
 %files
 %defattr(-,root,root)
 %doc NEWS BUGS TODO
@@ -92,45 +108,46 @@ rm -f /etc/psdevtab /etc/psdatabase
 /bin/procps3-kill
 /bin/ps
 /sbin/sysctl
-%_bindir/free
-%_bindir/pgrep
-%_bindir/pmap
-%_bindir/pkill
-%_bindir/skill
-%_bindir/slabtop
-%_bindir/snice
-%_bindir/tload
-%_bindir/top
-%_bindir/uptime
-%_bindir/vmstat
-%_bindir/w
-%_bindir/watch
-
-%_mandir/man1/free.1*
-%_mandir/man1/pgrep.1*
-%_mandir/man1/pkill.1*
-%_mandir/man1/pmap.1*
-%_mandir/man1/ps.1*
-%_mandir/man1/skill.1*
-%_mandir/man1/slabtop.1*
-%_mandir/man1/snice.1*
-%_mandir/man1/tload.1*
-%_mandir/man1/top.1*
-%_mandir/man1/uptime.1*
-%_mandir/man1/w.1*
-%_mandir/man1/watch.1*
-
-%_mandir/man5/sysctl.conf.5*
-
-%_mandir/man8/sysctl.8*
-%_mandir/man8/vmstat.8*
+%{_bindir}/free
+%{_bindir}/pgrep
+%{_bindir}/pmap
+%{_bindir}/pkill
+%{_bindir}/skill
+%{_bindir}/slabtop
+%{_bindir}/snice
+%{_bindir}/tload
+%{_bindir}/top
+%{_bindir}/uptime
+%{_bindir}/vmstat
+%{_bindir}/w
+%{_bindir}/watch
+%{_mandir}/man1/free.1*
+%{_mandir}/man1/pgrep.1*
+%{_mandir}/man1/pkill.1*
+%{_mandir}/man1/pmap.1*
+%{_mandir}/man1/ps.1*
+%{_mandir}/man1/skill.1*
+%{_mandir}/man1/slabtop.1*
+%{_mandir}/man1/snice.1*
+%{_mandir}/man1/tload.1*
+%{_mandir}/man1/top.1*
+%{_mandir}/man1/uptime.1*
+%{_mandir}/man1/w.1*
+%{_mandir}/man1/watch.1*
+%{_mandir}/man5/sysctl.conf.5*
+%{_mandir}/man8/sysctl.8*
+%{_mandir}/man8/vmstat.8*
 
 %files devel
 %defattr(-,root,root)
 %{_includedir}/procps/*
-/%_lib/libproc.so
+/%{_lib}/libproc.so
+
 
 %changelog
+* Wed Jul 27 2005 Vincent Danen <vdanen@annvix.org> 3.2.1-4avx
+- rebuild against new gcc
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 3.2.1-3avx
 - bootstrap build
 
@@ -247,7 +264,7 @@ rm -f /etc/psdevtab /etc/psdatabase
 
 * Fri Jul 21 2000 David BAUDENS <baudens@mandrakesoft.com> 2.0.7-2mdk
 - Human readble description
-- Use %%{_tmppath} for BuildRoot
+- Use %%{_buildroot} for BuildRoot
 
 * Fri Jul 21 2000 Yoann Vandoorselaere <yoann@mandrakesoft.com> 2.0.7-1mdk
 - updated.
@@ -267,7 +284,7 @@ rm -f /etc/psdevtab /etc/psdatabase
 * Wed May 17 2000 Frederic Lepied <flepied@mandrakesoft.com> %{major_version}.%{minor_version}.%{revision}-13mdk
 - added 
 
-* Thu Apr 13 2000 Yoann Vandoorselaere <yoann@mandrakesoft.com> %version-12mdk
+* Thu Apr 13 2000 Yoann Vandoorselaere <yoann@mandrakesoft.com> %{version}-12mdk
 - fix postin / postun.
 - .so in devel package
 

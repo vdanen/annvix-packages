@@ -1,6 +1,15 @@
-%define name	mcrypt
-%define version 2.6.4
-%define release 6avx
+#
+# spec file for package mcrypt
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		mcrypt
+%define version 	2.6.4
+%define release 	7avx
 
 Summary:	Data encryption/decryption program
 Name:		%{name}
@@ -11,7 +20,7 @@ Group:		File tools
 URL:		http://mcrypt.sourceforge.net/
 Source0:	%{name}-%{version}.tar.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	libmhash-devel >= 0.8.15
 BuildRequires:	libmcrypt-devel >= 2.5.0, libltdl-devel
 
@@ -24,32 +33,38 @@ algorithm is also included, to allow compatibility with the
 crypt(1) command.
 CBC, ECB, OFB and CFB modes of encryption are supported.
 
-%prep
 
+%prep
 %setup -q
 
-%build
 
+%build
 %configure2_5x
 %make
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-
 %makeinstall
 
-%find_lang %name
+%find_lang %{name}
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-%files -f %name.lang
+
+%files -f %{name}.lang
 %defattr(-,root,root)
 %doc ABOUT-NLS AUTHORS ChangeLog COPYING INSTALL NEWS README THANKS TODO doc/FORMAT doc/magic doc/sample*
 %{_bindir}/*
 %{_mandir}/man1/*
 
+
 %changelog
+* Fri Jul 29 2005 Vincent Danen <vdanen@annvix.org> 2.6.4-7avx
+- rebuild against new gcc
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.6.4-6avx
 - rebuild
 - buildrequires: libltdl-devel

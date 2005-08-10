@@ -1,9 +1,18 @@
-%define name	libuser
-%define version	0.53.2
-%define release	2avx
+#
+# spec file for package libuser
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-%define major	1
-%define libname	%mklibname user %{major}
+
+%define name		libuser
+%define version		0.53.2
+%define release		3avx
+
+%define major		1
+%define libname		%mklibname user %{major}
 
 Summary:	A user and group account administration library
 Name:		%{name}
@@ -15,7 +24,7 @@ URL:		http://qa.mandrakesoft.com
 Source:		libuser-%{version}.tar.bz2
 Patch1:	libuser-0.53.2-nosgml.patch	
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	gettext, glib2-devel, libldap-devel
 BuildRequires:	pam-devel, popt-devel, python-devel
 
@@ -27,6 +36,7 @@ back-ends to interface to its data sources.
 Sample applications modeled after those included with the shadow password
 suite are included.
 
+
 %package -n %{name}-python
 Summary:	Library bindings for python
 Group:		Development/Python
@@ -35,12 +45,14 @@ Group:		Development/Python
 this package contains the python library for python applications that 
 use libuser
 
+
 %package -n %{libname}
 Summary:	The actual libraries for libuser
 Group:		System/Libraries
 
 %description -n %{libname}
 This is the actual library for the libuser library.
+
 
 %package -n %{libname}-devel
 Summary:	Files needed for developing applications which use libuser
@@ -52,18 +64,21 @@ Provides:	%{name}-devel = %{version}-%{release}
 The libuser-devel package contains header files, static libraries, and other
 files useful for developing applications with libuser.
 
+
 %prep
 %setup -q
 %patch1 -p0 -b .nosgml
 
+
 %build
-export CFLAGS="$RPM_OPT_FLAGS -DG_DISABLE_ASSERT -I/usr/include/sasl" 
+export CFLAGS="%{optflags} -DG_DISABLE_ASSERT -I/usr/include/sasl" 
 %configure2_5x \
-	--with-ldap \
-	--with-python-version=%{pyver} \
-	--with-python-path=%{_includedir}/python%{pyver} \
-	--enable-gtk-doc=no
+    --with-ldap \
+    --with-python-version=%{pyver} \
+    --with-python-path=%{_includedir}/python%{pyver} \
+    --enable-gtk-doc=no
 %make 
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -73,24 +88,25 @@ LD_LIBRARY_PATH=%{buildroot}%{_libdir}:${LD_LIBRARY_PATH}
 export LD_LIBRARY_PATH
 
 # Verify that all python modules load, just in case.
-pushd %{buildroot}/%{_libdir}/python%{pyver}/site-packages/
-python -c "import libuser"
+pushd %{buildroot}%{_libdir}/python%{pyver}/site-packages/
+    python -c "import libuser"
 popd
 
 # RH cruft.
 # too disgusting to watch.
 set -x
 pushd po
-rm -rf %{buildroot}%_datadir/locale
-for i in *.po; do
-    msgfmt $i -o $(basename $i .po).mo
-    p=%{buildroot}%_datadir/locale/$(basename $i .po)/LC_MESSAGES
-    mkdir -p $p
-    install -m644 $(basename $i .po).mo $p/libuser.mo
-done
+    rm -rf %{buildroot}%_datadir/locale
+    for i in *.po; do
+        msgfmt $i -o $(basename $i .po).mo
+        p=%{buildroot}%_datadir/locale/$(basename $i .po)/LC_MESSAGES
+        mkdir -p $p
+        install -m 0644 $(basename $i .po).mo $p/libuser.mo
+    done
 popd
 rm -rf %{buildroot}%_datadir/locale/zh_TW.Big5
 set +x
+
 %find_lang %{name}
 
 # Remove unpackaged files
@@ -101,8 +117,10 @@ rm -rf %{buildroot}%{_libdir}/python%{pyver}/site-packages/*a
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
+
 %post -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
+
 
 %files -f %{name}.lang
 %defattr(-,root,root)
@@ -114,7 +132,7 @@ rm -rf %{buildroot}%{_libdir}/python%{pyver}/site-packages/*a
 %{_mandir}/man1/*
 
 %files -n %{libname}
-%attr(0755,root,root) %_libdir/*.so.*
+%attr(0755,root,root) %{_libdir}/*.so.*
 
 %files -n %{name}-python
 %attr(0755,root,root) %{_libdir}/python%{pyver}/site-packages/*.so
@@ -129,7 +147,11 @@ rm -rf %{buildroot}%{_libdir}/python%{pyver}/site-packages/*a
 #%attr(0644,root,root) %{_mandir}/man3/*
 %attr(0644,root,root) %{_libdir}/pkgconfig/*
 
+
 %changelog
+* Fri Jul 29 2005 Vincent Danen <vdanen@annvix.org> 0.53.2-3avx
+- rebuild against new gcc
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.53.2-2avx
 - bootstrap build
 

@@ -1,11 +1,19 @@
-%define name	libtiff
-%define	version	3.5.7
-%define release 16avx
+#
+# spec file for package libtiff
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		libtiff
+%define	version		3.5.7
+%define release 	17avx
 
 %define lib_version	3.5
 %define lib_major	3
-%define lib_name_orig	%mklibname tiff
-%define lib_name	%{lib_name_orig}%{lib_major}
+%define libname		%mklibname tiff %{lib_major}
 
 Summary:	A library of functions for manipulating TIFF format image files
 Name:		%{name}
@@ -28,7 +36,7 @@ Patch9:		libtiff-3.5.7-bound-fix2.patch.bz2
 Patch10:	libtiff-3.5.x-CAN-2004-0804.patch.bz2
 
 
-BuildRoot:	%_tmppath/%{name}-%{version}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	libjpeg-devel, 	zlib-devel
 
 %description
@@ -37,52 +45,57 @@ The libtiff package contains a library of functions for manipulating TIFF
 format for bitmapped images. TIFF files usually end in the .tif extension
 and they are often quite large.
 
+
 %package progs
 Summary:	Binaries needed to manipulate TIFF format image files
 Group:		Graphics
-Requires:	%{lib_name} = %{version}-%{release}
+Requires:	%{libname} = %{version}-%{release}
 Obsoletes:	libtiff3-progs
 Provides:	libtiff3-progs = %{version}-%{release}
 
 %description progs
 This package provides binaries needed to manipulate TIFF format image files.
 
-%package -n %{lib_name}
+
+%package -n %{libname}
 Summary:	A library of functions for manipulating TIFF format image files
 Group:		System/Libraries
 Obsoletes:	%{name}
 Provides:	%{name} = %{version}-%{release}
 
-%description -n %{lib_name}
+%description -n %{libname}
 The libtiff package contains a library of functions for manipulating TIFF
 (Tagged Image File Format) image format files. TIFF is a widely used file
 format for bitmapped images. TIFF files usually end in the .tif extension
 and they are often quite large.
 
-%package -n %{lib_name}-devel
+
+%package -n %{libname}-devel
 Summary:	Development tools for programs which will use the libtiff library
 Group:		Development/C
-Requires:	%{lib_name} = %{version}-%{release}
+Requires:	%{libname} = %{version}-%{release}
 Obsoletes:	%{name}-devel
 Provides:	%{name}-devel = %{version}-%{release}
 Provides:	tiff-devel = %{version}-%{release}
 
-%description -n %{lib_name}-devel
+%description -n %{libname}-devel
 This package contains the header files and .so libraries for developing
 programs which will manipulate TIFF format image files using the libtiff
 library.
 
-%package -n %{lib_name}-static-devel
+
+%package -n %{libname}-static-devel
 Summary:	Static libraries for programs which will use the libtiff library
 Group:		Development/C
-Requires:	%{lib_name}-devel = %{version}-%{release}
+Requires:	%{libname}-devel = %{version}-%{release}
 Provides:	%{name}-static-devel = %{version}-%{release}
 Provides:	tiff-static-devel = %{version}-%{release}
 
-%description -n %{lib_name}-static-devel
+%description -n %{libname}-static-devel
 This package contains the static libraries for developing
 programs which will manipulate TIFF format image files using the libtiff
 library.
+
 
 %prep
 %setup -q -n tiff-v%{version}
@@ -103,8 +116,9 @@ library.
 find . -type 'd' -name 'CVS' | xargs rm -fr
 perl -pi -e 's|(DIR_.*)="?/usr/lib"?|\1="%{_libdir}"|' config.site
 %{?__cputoolize: %{__cputoolize}}
-./configure --target=%{_target_platform} \
-	--with-GCOPTS="$RPM_OPT_FLAGS" << EOF
+./configure \
+    --target=%{_target_platform} \
+    --with-GCOPTS="%{optflags}" << EOF
 no
 %{_bindir}
 %{_libdir}
@@ -114,48 +128,58 @@ no
 bsd-source-cat
 yes
 EOF
-cd libtiff
-ln -s libtiff.so.%{lib_version} libtiff.so
-cd ..
+
+pushd libtiff
+    ln -s libtiff.so.%{lib_version} libtiff.so
+popd
 COPTS="%{optflags}" make
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p %{buildroot}/{%{_bindir},%{_datadir}}
 make install
-install -m644 %{name}/%{name}.so.%{lib_version} %{buildroot}/%{_libdir}
+install -m 0644 %{name}/%{name}.so.%{lib_version} %{buildroot}/%{_libdir}
 
-cd %{buildroot}/%{_libdir}
-ln -sf %{name}.so.%{lib_version} %{name}.so
-ln -sf %{name}.so.%{lib_version} %{name}.so.%{lib_major}
+pushd %{buildroot}%{_libdir}
+    ln -sf %{name}.so.%{lib_version} %{name}.so
+    ln -sf %{name}.so.%{lib_version} %{name}.so.%{lib_major}
+popd
 
-%post   -n %{lib_name} -p /sbin/ldconfig
-%postun -n %{lib_name} -p /sbin/ldconfig
+
+%post -n %{libname} -p /sbin/ldconfig
+%postun -n %{libname} -p /sbin/ldconfig
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
+
 %files progs
 %defattr(-,root,root,-)
-%_bindir/*
-%_mandir/man1/*
+%{_bindir}/*
+%{_mandir}/man1/*
 
-%files -n %{lib_name}
+%files -n %{libname}
 %defattr(-,root,root,-)
-%_libdir/*.so.*
+%{_libdir}/*.so.*
 
-%files -n %{lib_name}-devel
+%files -n %{libname}-devel
 %defattr(-,root,root,-)
 %doc COPYRIGHT README TODO VERSION html
-%_includedir/*
-%_libdir/*.so
-%_mandir/man3/*
+%{_includedir}/*
+%{_libdir}/*.so
+%{_mandir}/man3/*
 
-%files -n %{lib_name}-static-devel
+%files -n %{libname}-static-devel
 %defattr(-,root,root,-)
-%_libdir/*.a
+%{_libdir}/*.a
+
 
 %changelog
+* Sat Jul 30 2005 Vincent Danen <vdanen@annvix.org> 3.5.7-17avx
+- rebuild against new gcc
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 3.5.7-16avx
 - bootstrap build
 
@@ -209,7 +233,7 @@ ln -sf %{name}.so.%{lib_version} %{name}.so.%{lib_major}
 - use %%libname everywhere, more macros
 - fix build
 - sync with connectiva
-- provides %%version-%%release
+- provides %%{version}-%%{release}
 
 * Mon Oct 22 2001 Yves Duret <yduret@mandrakesoft.com> 3.5.5-8mdk
 - rebuild for sir rpmlint : fix dir perm
@@ -236,7 +260,7 @@ ln -sf %{name}.so.%{lib_version} %{name}.so.%{lib_major}
 - changed Copyright: into BSD-like instead of distributable
 
 * Sun Dec 17 2000 David BAUDENS <baudens@mandrakesoft.com> 3.5.5-3mdk
-- Use %%_tmppath for BuildRoot
+- Use %%{_buildroot} for BuildRoot
 - Use %%make macro
 - Libdification
 - Remove CVS stuff

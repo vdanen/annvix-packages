@@ -1,6 +1,15 @@
-%define name	db4
-%define version	4.1.25
-%define release	7avx
+#
+# spec file for package db4
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		db4
+%define version		4.1.25
+%define release		8avx
 
 # compatibility with legacy rpm
 %{!?_lib:%define _lib	lib}
@@ -33,7 +42,7 @@ Patch2:		db-4.1.25-mdk-amd64-mutexes.patch.bz2
 Patch3:		db-4.2.52-mdk-disable-pthreadsmutexes.patch.bz2
 Patch4:		db-4.2.52-mdk-db185.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	tcl, db1-devel, glibc-static-devel	
 
 PreReq:		ldconfig
@@ -44,8 +53,9 @@ embedded database support for both traditional and client/server applications.
 Berkeley DB is used by many applications, including Python and Perl, so this
 should be installed on all systems.
 
+
 %package -n %{libname}
-Summary:	The Berkeley DB database library for C.
+Summary:	The Berkeley DB database library for C
 Group:		System/Libraries
 PreReq:		ldconfig
 
@@ -55,8 +65,9 @@ embedded database support for both traditional and client/server applications.
 Berkeley DB is used by many applications, including Python and Perl, so this
 should be installed on all systems.
 
+
 %package -n %{libdbcxx}
-Summary:	The Berkeley DB database library for C++.
+Summary:	The Berkeley DB database library for C++
 Group:		System/Libraries
 PreReq:		ldconfig
 Provides:	libdbcxx = %{version}-%{release}
@@ -72,7 +83,7 @@ Berkeley DB.
 
 
 %package -n %{libdbtcl}
-Summary:	The Berkeley DB database library for TCL.
+Summary:	The Berkeley DB database library for TCL
 Group:		System/Libraries
 PreReq:		ldconfig
 Provides:	libdbtcl = %{version}-%{release}
@@ -86,8 +97,9 @@ should be installed on all systems.
 This package contains the header files, libraries, and documentation for
 building tcl programs which use Berkeley DB.
 
+
 %package utils
-Summary:	Command line tools for managing Berkeley DB databases.
+Summary:	Command line tools for managing Berkeley DB databases
 Group:		Databases
 
 %description utils
@@ -99,8 +111,9 @@ and database recovery. DB supports C, C++, Java and Perl APIs.
 
 This package contains command line tools for managing Berkeley DB databases.
 
+
 %package -n %{libnamedev}
-Summary:	Development libraries/header files for the Berkeley DB library.
+Summary:	Development libraries/header files for the Berkeley DB library
 Group:		Development/Databases
 Requires:	%{libname} = %{version}-%{release}
 Requires:	%{libdbtcl} = %{version}-%{release}
@@ -120,8 +133,9 @@ and database recovery. DB supports C, C++, Java and Perl APIs.
 This package contains the header files, libraries, and documentation for
 building programs which use Berkeley DB.
 
+
 %package -n %{libnamestatic}
-Summary:	Development static libraries files for the Berkeley DB library.
+Summary:	Development static libraries files for the Berkeley DB library
 Group:		Development/Databases
 Requires:	db4-devel = %{version}-%{release}
 Provides:	db-static-devel = %{version}-%{release}
@@ -190,6 +204,7 @@ set -x	# XXX painful to watch
 chmod -R u+w dist
 (cd dist && ./s_config)
 
+
 %build
 CFLAGS="%{optflags}"
 %ifarch ppc
@@ -198,26 +213,33 @@ CFLAGS="$CFLAGS -D_GNU_SOURCE -D_REENTRANT"
 export CFLAGS
 
 pushd build_unix
-CONFIGURE_TOP="../dist" %configure2_5x \
-	--enable-compat185 --enable-dump185 \
-	--enable-shared --enable-static --enable-rpc \
-	--enable-tcl --with-tcl=%{_libdir} \
-	--enable-cxx $ENABLE_JAVA --enable-test  \
+    CONFIGURE_TOP="../dist" %configure2_5x \
+        --enable-compat185 \
+        --enable-dump185 \
+        --enable-shared \
+        --enable-static \
+        --enable-rpc \
+        --enable-tcl \
+        --with-tcl=%{_libdir} \
+        --enable-cxx \
+        --enable-test  \
         --disable-pthreadsmutexes \
-	# --enable-diagnostic \
-	# --enable-debug --enable-debug_rop --enable-debug_wop \
-	# --enable-posixmutexes
+        # --enable-diagnostic \
+        # --enable-debug \
+        # --enable-debug_rop \
+        # --enable-debug_wop \
+        # --enable-posixmutexes
 
-%make
+    %make
 popd
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 make -C build_unix install_setup install_include install_lib install_utilities \
-	includedir=%{buildroot}%{_includedir}/db4 \
-	libdir=%{buildroot}%{_libdir} \
-	bindir=%{buildroot}%{_bindir} \
-	emode=755
+    includedir=%{buildroot}%{_includedir}/db4 \
+    libdir=%{buildroot}%{_libdir} \
+    bindir=%{buildroot}%{_bindir} \
+    emode=755
 
 ln -sf db4/db.h %{buildroot}%{_includedir}/db.h
 
@@ -231,6 +253,7 @@ ln -sf db4/db.h %{buildroot}%{_includedir}/db.h
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
+
 %post -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
 
@@ -239,6 +262,7 @@ ln -sf db4/db.h %{buildroot}%{_includedir}/db.h
 
 %post -n %{libdbtcl} -p /sbin/ldconfig
 %postun -n %{libdbtcl} -p /sbin/ldconfig
+
 
 %files -n %{libname}
 %defattr(0644,root,root,0755)
@@ -297,6 +321,9 @@ ln -sf db4/db.h %{buildroot}%{_includedir}/db.h
 %{_libdir}/*.a
 
 %changelog
+* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 4.1.25-8avx
+- rebuild against new gcc
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 4.1.25-7avx
 - bootstrap build
 - remove java support entirely

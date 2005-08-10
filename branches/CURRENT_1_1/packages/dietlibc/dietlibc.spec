@@ -1,6 +1,15 @@
-%define name	dietlibc
-%define version 0.28
-%define release 2avx
+#
+# spec file for package dietlibc
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		dietlibc
+%define version 	0.28
+%define release 	3avx
 
 # This is eventually a biarch package, so no %_lib for diethome
 %define diethome	%{_prefix}/lib/dietlibc
@@ -45,7 +54,8 @@ Patch23:	dietlibc-0.27-biarch.patch.bz2
 Patch24:	dietlibc-0.27-quiet.patch.bz2
 Patch25:	dietlibc-0.27-ppc-select.patch.bz2
 Patch26:	dietlibc-0.28-avx-stackgap_off.patch.bz2
-BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
+
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 
 %description
 Small libc for building embedded applications.
@@ -53,11 +63,12 @@ Small libc for building embedded applications.
 %package devel
 Group:          Development/C
 Summary:        Development files for dietlibc
-Obsoletes:	%name
-Provides:	%name
+Obsoletes:	%{name}
+Provides:	%{name}
 
 %description devel
 Small libc for building embedded applications.
+
 
 %prep
 %setup -q 
@@ -93,8 +104,8 @@ Small libc for building embedded applications.
 # fix execute permissions on test scripts
 chmod a+x test/{dirent,inet,stdio,string,stdlib,time}/runtests.sh
 
-%build
 
+%build
 %make
 %make "CFLAGS=-pipe -nostdinc -fno-stack-protector"
 
@@ -117,13 +128,16 @@ sh ./runtests.sh
 cd ..
 %endif
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 make DESTDIR=%{buildroot} install
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files devel
 %defattr(-,root,root)
@@ -133,7 +147,11 @@ make DESTDIR=%{buildroot} install
 %{diethome}/*
 %{_mandir}/man*/*
 
+
 %changelog
+* Mon Jul 25 2005 Vincent Danen <vdanen@annvix.org> 0.28-3avx
+- rebuild against new gcc
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.28-2avx
 - bootstrap build
 
