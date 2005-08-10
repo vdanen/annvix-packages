@@ -1,0 +1,9 @@
+--- tetex-src-2.0/texmf/xdvi/XDvi.orig	1999-02-13 22:32:16.000000000 +0100
++++ tetex-src-2.0/texmf/xdvi/XDvi	2003-02-03 16:00:00.000000000 +0100
+@@ -2,5 +2,5 @@
+ XDvi*pixelsPerInch: 600
+ XDvi*shrinkFactor: 8
+ XDvi*paper: a4
+-XDvi*wwwBrowser: netscape
++XDvi*wwwBrowser: mozilla
+ XDvi*thorough: true
