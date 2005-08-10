@@ -1,6 +1,6 @@
---- util-linux-2.12a/mount/mount.c.pix	2005-01-05 09:52:44.862461511 +0100
-+++ util-linux-2.12a/mount/mount.c	2005-01-05 09:53:14.805255083 +0100
-@@ -473,6 +473,67 @@
+--- util-linux-2.12q/mount/mount.c.silly	2005-05-12 16:41:14.072682832 +0200
++++ util-linux-2.12q/mount/mount.c	2005-05-12 16:44:23.738310850 +0200
+@@ -467,6 +467,69 @@
  	return ret;
  }
  
@@ -11,6 +11,7 @@
 +   static char *fs_using_umask[] = { "iso9660", "udf", "vfat", "msdos", "ntfs", "hfs", "hfsplus", "hpfs", NULL };
 +   static char *fs_using_mode[] = { "iso9660", "ncpfs", "affs", NULL };
 +   static char *fs_using_nls[] = { "ntfs", NULL };
++   static char *fs_using_utf8[] = { "iso9660", "ntfs", "vfat", NULL };
 +
 +   static struct options_handled_for_some_fs {
 +     char *handled_option;
@@ -21,6 +22,7 @@
 +     { "umask=", fs_using_umask },
 +     { "mode=", fs_using_mode },
 +     { "nls=", fs_using_nls },
++     { "utf8=", fs_using_utf8 },
 +     { NULL, NULL }
 +   };
 +
@@ -68,7 +70,7 @@
  /*
   * guess_fstype_and_mount()
   *	Mount a single file system. Guess the type when unknown.
-@@ -500,6 +561,8 @@
+@@ -494,6 +557,8 @@
        }
     }
  

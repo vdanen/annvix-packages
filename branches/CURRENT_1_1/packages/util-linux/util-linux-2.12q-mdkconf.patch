@@ -1,6 +1,16 @@
---- util-linux-2.12a/MCONFIG.rhconfig	2004-03-04 21:14:17.000000000 +0100
-+++ util-linux-2.12a/MCONFIG	2004-07-19 18:18:29.321062317 +0200
-@@ -16,21 +16,21 @@
+Index: util-linux-2.12q/MCONFIG
+===================================================================
+--- util-linux-2.12q.orig/MCONFIG	2004-12-13 00:15:48.000000000 +0100
++++ util-linux-2.12q/MCONFIG	2005-04-29 13:49:04.000000000 +0200
+@@ -12,6 +12,7 @@
+ ## if you do not want to use the blkid library.
+ ## In mount/realpath.c turn #define resolve_symlinks into
+ ## #undef resolve_symlinks if you use devfs and hate long names.
++HAVE_BLKID=no
+ 
+ # Select for ARCH one of intel, alpha, sparc, arm, m68k, mips
+ # Select for CPU i386 if the binaries must be able to run on an intel 386
+@@ -22,20 +22,20 @@ ARCH=$(shell echo $(CPU) | sed 's/i.86/i
  # If HAVE_PAM is set to "yes", then login, chfn, chsh, and newgrp
  # will use PAM for authentication. Additionally, passwd will not be
  # installed as it is not PAM aware.
@@ -19,23 +29,22 @@
 +HAVE_SHADOW=no
  
  # If HAVE_PASSWD is set to "yes", then passwd will not be built or
- # installed from the login-utils subdirectory (but login, chfn, chsh,
- # newgrp, and vipw *will* be installed).
+ # installed from the login-utils subdirectory.
 -HAVE_PASSWD=no
 +HAVE_PASSWD=yes
  
  # If you use chfn and chsh from this package, REQUIRE_PASSWORD will require
  # non-root users to enter the account password before updating /etc/passwd.
-@@ -83,7 +83,7 @@
+@@ -88,7 +88,7 @@ HAVE_KILL=no
  # to the current user, allowing her to make a screendump and do other
  # nifty things on the console, but also allowing him to keep an open
  # file descriptor after logging out to trick the next user.
 -ALLOW_VCS_USE=yes
 +ALLOW_VCS_USE=no
  
- # If HAVE_RESET is set to "yes", then reset won't be installed.  The version
- # of reset that comes with the ncurses package is less aggressive.
-@@ -106,6 +106,9 @@
+ # If DO_STAT_MAIL is set to "yes", then login will stat() the mailbox
+ # and tell the user that she has new mail. This can hang the login if
+@@ -116,6 +116,9 @@ SILENT_PG=no
  # DISABLE_NLS to "yes".
  DISABLE_NLS=no
  
@@ -43,9 +52,9 @@
 +ADD_RAW=yes
 +
  # Different optimizations for different cpus.
- # gcc 3.0 likes options -mcpu=i486 instead of -m486
- ifeq "$(ARCH)" "intel"
-@@ -137,9 +140,9 @@
+ # Before gcc 2.8.0 only -m486
+ # gcc 3.0 only likes -mcpu=i486
+@@ -155,9 +158,9 @@ ERR_O=$(LIB)/err.o
  
  # Set HAVE_SLANG to yes if you have slang (and prefer to use that for cfdisk)
  # (If neither HAVE_NCURSES nor HAVE_SLANG is defined, cfdisk is not made.)
@@ -57,7 +66,7 @@
  # No such subdirectory - slcurses.h lives in /usr/include
  #   (no extra definition required).
  LIBSLANG=-lslang
-@@ -202,7 +205,7 @@
+@@ -220,7 +223,7 @@ INSTALLDIR=	$(INSTALL) -d -m $(DIRMODE)
  INSTALLBIN=	$(INSTALL) -m $(BINMODE)
  INSTALLMAN=	$(INSTALL) -m $(MANMODE)
  INSTALLDAT=	$(INSTALL) -m $(DATMODE)

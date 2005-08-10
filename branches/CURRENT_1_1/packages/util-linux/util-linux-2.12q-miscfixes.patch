@@ -1,14 +1,3 @@
---- util-linux-2.11j/fdisk/fdisk.h.chmou	Sat Sep 29 19:31:06 2001
-+++ util-linux-2.11j/fdisk/fdisk.h	Sat Sep 29 19:31:09 2001
-@@ -5,7 +5,7 @@
- #define DEFAULT_SECTOR_SIZE	512
- #define MAX_SECTOR_SIZE	2048
- #define SECTOR_SIZE	512	/* still used in BSD code */
--#define MAXIMUM_PARTS	60
-+#define MAXIMUM_PARTS	16
- 
- #define ACTIVE_FLAG     0x80
- 
 --- util-linux-2.11j/login-utils/login.1.chmou	Sat Sep 29 19:31:06 2001
 +++ util-linux-2.11j/login-utils/login.1	Sat Sep 29 19:31:09 2001
 @@ -118,7 +118,8 @@

@@ -1,8 +1,15 @@
-%define name	util-linux
-%define version	2.12a
-%define release	2avx
+#
+# spec file for package util-linux
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-# Maintainer util-linux@math.uio.no
+
+%define name		util-linux
+%define version		2.12q
+%define release		1avx
 
 Summary:	A collection of basic system utilities
 Name:		%{name}
@@ -22,7 +29,7 @@ Source8:	nologin.c
 Source9:	nologin.8
 Source10:	kbdrate.tar.bz2
 # Change default config to switch mandrake config
-Patch0:		util-linux-2.12a-mdkconf.patch.bz2
+Patch0:		util-linux-2.12q-mdkconf.patch.bz2
 # We don't want to compile chkdupexe
 Patch1:		util-linux-2.11o-nochkdupexe.patch.bz2
 # limit the length of gecos size (security problem)
@@ -36,7 +43,7 @@ Patch60:	util-linux-2.10s-s390x.patch.bz2
 Patch61:	util-linux-2.11b-s390x.patch.bz2
 # fdisk: use 16 partitions as maximun
 # misc documentation fixes for man pages
-Patch70:	util-linux-2.11r-miscfixes.patch.bz2
+Patch70:	util-linux-2.12q-miscfixes.patch.bz2
 # lot of cleanups for mkcramfs
 Patch100:	mkcramfs.patch.bz2
 # Make mkcramfs quieter, use --verbose for old behaviour
@@ -44,41 +51,41 @@ Patch101:	mkcramfs-quiet.patch.bz2
 #
 ########### START UNSUBMITTED
 #
-Patch106:	util-linux-2.12-swaponsymlink-57301.patch.bz2
+Patch106:	util-linux-2.12q-swaponsymlink-57301.patch.bz2
 Patch107:	util-linux-2.11x-procpartitions-37436.patch.bz2
 Patch109:	util-linux-2.11f-rawman.patch.bz2 
 Patch111:	util-linux-2.11t-mkfsman.patch.bz2
 Patch114:	util-linux-2.11t-dumboctal.patch.bz2
-Patch115:	util-linux-2.12-fix-ioctl.patch.bz2
-Patch116:	util-linux-2.12pre-autodav.patch.bz2
-Patch120:	util-linux-2.12a-compilation.patch.bz2
-Patch121:	util-linux-2.12-pamsec.patch.bz2
+Patch115:	util-linux-2.12q-fix-ioctl.patch.bz2
+Patch116:	util-linux-2.12q-autodav.patch.bz2
+Patch120:	util-linux-2.12q-compilation.patch.bz2
 ########### END UNSUBMITTED.
 ########
 # Allow raw(8) to bind raw devices whose device nodes do not yet exist
 Patch160:	raw-handle-nonpresent-devs.patch.bz2
 # Mount patches
 Patch201:	util-linux-2.11m-nolock-docs.patch.bz2
-Patch204:	util-linux-2.11m-2gb.patch.bz2
+Patch204:	util-linux-2.12q-2gb.patch.bz2
 Patch206:	util-linux-2.11m-kudzu.patch.bz2
-Patch207:	util-linux-2.11x-swapon.patch.bz2
-Patch209:	util-linux-2.11t-swapoff.patch.bz2
+Patch207:	util-linux-2.12q-swapon.patch.bz2
+Patch209:	util-linux-2.12q-swapoff.patch.bz2
 Patch210:	util-linux-2.12-largefile.patch.bz2
-Patch211:	util-linux-2.12-user_label_umount.patch.bz2
-Patch213:	util-linux-2.12-loop-AES-v2.0e.patch.bz2
-Patch214:	util-linux-2.11x-set-as-encrypted.patch.bz2
-Patch215:	util-linux-2.12-swapon-skip-encrypted.patch.bz2
-Patch216:	util-linux-2.11y-nfsmount.patch.bz2
-Patch217:	util-linux-2.11y-retryudp.patch.bz2
+Patch211:	util-linux-2.12q-user_label_umount.patch.bz2
+Patch213:	util-linux-2.12q-loop-AES-v3.0c.patch.bz2
+Patch214:	util-linux-2.12q-set-as-encrypted.patch.bz2
+Patch215:	util-linux-2.12q-swapon-skip-encrypted.patch.bz2
+Patch216:	util-linux-2.12q-nfsmount.patch.bz2
 # remove mode= from udf mounts (architecture done so that more may come)
-Patch218:	util-linux-2.12a-mount-remove-silly-options-in-auto.patch.bz2
+Patch218:	util-linux-2.12q-mount-remove-silly-options-in-auto.patch.bz2
 Patch219:	util-linux-2.12-lower-LOOP_PASSWORD_MIN_LENGTH-for-AES.patch.bz2
 # load cryptoloop and cypher modules when use cryptoapi
 Patch220:	util-linux-2.12a-cryptoapi-load-module.patch.bz2
 # (fc) 2.12a-11mdk add support for pamconsole mount option (fedora)
-patch221:	util-linux-2.12a-pamconsole.patch.bz2
+patch221:	util-linux-2.12q-pamconsole.patch.bz2
 # (fc) 2.12a-11mdk add support for pamconsole mount option (fedora)
 patch222:	util-linux-2.12a-managed.patch.bz2
+# nfs4 support (http://www.citi.umich.edu/projects/nfsv4/linux/util-linux-patches/2.12-3/)
+patch223:	util-linux-2.12q-nfs4.patch.bz2
 #
 # Mandrake Specific patches
 # fix compilation related with miscfixes
@@ -96,7 +103,9 @@ Patch1206:	util-linux-2.12a-biarch-utmp.patch.bz2
 # do not hide users option in mtab
 Patch1207:	util-linux-2.12a-users.patch.bz2
 # use glibc syscall() to use syscalls, ban use of <asm/unistd.h>
-Patch1208:	util-linux-2.12a-llseek-syscall.patch.bz2
+Patch1208:	util-linux-2.12q-llseek-syscall.patch.bz2
+# Try to detect if the cdrom we have is a cd-extra (track audio and later track data) not
+Patch1210:	util-linux-2.12q-mount_guess_fs_cdextra.patch.bz2
 
 # Annvix patches
 Patch1250:	util-linux-2.12a-avx-noselinux.patch.bz2
@@ -112,7 +121,7 @@ Obsoletes:	clock
 Conflicts:	initscripts <= 4.58, timeconfig <= 3.0.1
 #%endif
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	gcc, sed, pam-devel, ncurses-devel, termcap-devel, texinfo, slang-devel, zlib-devel
 
 Requires:	pam >= 0.66-4, shadow-utils >= 20000902-5
@@ -208,8 +217,8 @@ cp %{SOURCE8} %{SOURCE9} .
 %patch213 -p1 -b .loopAES
 %patch214 -p1 -b .encrypted
 %patch215 -p1 -b .swapon-encrypted
+%patch223 -p1 -b .nfs4
 %patch216 -p1 -b .nfsmount
-%patch217 -p1 -b .retryudp
 %patch218 -p1 -b .silly
 %patch219 -p1 -b .loopAES-password
 %patch220 -p1 -b .load-module
@@ -227,10 +236,10 @@ cp %{SOURCE8} %{SOURCE9} .
 %patch115 -p1 -b .fix-ioctl
 %patch116 -p1 -b .autodav
 %patch120 -p1 -b .comp
-%patch121 -p1 -b .pamsec
+%patch1210 -p1 -b .cdextra
 
 %patch1250 -p0 -b .noselinux
-%patch1251 -p0 -b .nostacksln
+#%patch1251 -p0 -b .nostacksln
 
 # USRLIB_DIR is %{_libdir}
 perl -pi -e "s|(USRLIB_DIR)\s*=\s*(.*)|\1=%{_libdir}|" ./MCONFIG
@@ -442,6 +451,7 @@ fi
 %endif
 %{_bindir}/ddate
 %{_bindir}/fdformat
+%{_bindir}/flock
 %{_bindir}/getopt
 %{_bindir}/hexdump
 %{_bindir}/ipcrm
@@ -505,6 +515,7 @@ fi
 %{_mandir}/man1/colrm.1*
 %{_mandir}/man1/column.1*
 %{_mandir}/man1/ddate.1*
+%{_mandir}/man1/flock.1*
 %{_mandir}/man1/getopt.1*
 %{_mandir}/man1/hexdump.1*
 #%{_mandir}/man1/hostid.1*
@@ -575,6 +586,20 @@ fi
 /sbin/losetup
 
 %changelog
+* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 2.12q-1avx
+- 2.12q (sync with cooker 2.12q-3mdk):
+  - updated P218: only keep utf8 option for iso9660, ntfs, and vfat (oblin)
+  - rediff patches P0, P106, P115, P116, P121, P204, P207, P209, P211, P214,
+    P215, P221, P1208 (apatard)
+  - drop the limitation on partition numbers which was preventing having
+    more than 16 partitions on an IDE device
+  - P1210: patch for guessing if a CD is a cd-extra or not (apatard)
+  - updated nfs mount version to the kernel version (apatard)
+  - dropped the retryupd patch as the mount program relies now on the
+    information provided by portmap (apatard)
+- drop P121; applied upstream
+- don't apply P1251 since we're not compiling with SSP
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.12a-2avx
 - bootstrap build
 

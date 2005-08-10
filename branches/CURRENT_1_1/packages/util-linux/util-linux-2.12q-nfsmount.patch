@@ -1,5 +1,7 @@
---- util-linux-2.11y/mount/nfsmount.c.xilinx	2003-04-25 12:16:14.000000000 -0500
-+++ util-linux-2.11y/mount/nfsmount.c	2003-04-25 12:16:28.000000000 -0500
+Index: util-linux-2.12q/mount/nfsmount.c
+===================================================================
+--- util-linux-2.12q.orig/mount/nfsmount.c	2005-05-03 12:01:19.000000000 +0200
++++ util-linux-2.12q/mount/nfsmount.c	2005-05-03 13:29:59.000000000 +0200
 @@ -26,6 +26,9 @@
   * 
   * Modified by Olaf Kirch and Trond Myklebust for new NFS code,
@@ -10,7 +12,7 @@
   */
  
  /*
-@@ -49,6 +52,7 @@
+@@ -50,6 +53,7 @@
  #include <sys/stat.h>
  #include <netinet/in.h>
  #include <arpa/inet.h>
@@ -18,11 +20,10 @@
  
  #include "sundries.h"
  #include "nfsmount.h"
-@@ -188,6 +192,233 @@
- 	return &p;
+@@ -768,6 +772,196 @@ nfsmnt_check_compat(const struct pmap *n
+ 	return 0;
  }
  
-+
 +/*
 + *
 + * Pick the 'best' host from a list of hosts supplied for a replicated NFS
@@ -132,42 +133,7 @@
 +		/* have the host info in servaddr - now set up for RPC ping */
 +		servaddr.sin_family = AF_INET;
 +
-+		pm_mnt = get_mountport(&servaddr,
-+		 			mountprog,
-+					mountvers,
-+					proto,
-+					mountport,
-+					find_kernel_nfs_mount_version());
-+		servaddr.sin_port = htons(pm_mnt->pm_port);
-+		msock = RPC_ANYSOCK;
-+		/* set timeout for RPC connect - if the NFS server is 
-+		   slower than this, it will be ignored! */
-+		timeout.tv_sec = 3;
-+		timeout.tv_usec = 0;
-+		switch(pm_mnt->pm_prot) {
-+		 case IPPROTO_UDP:
-+		  mc = clntudp_create(&servaddr,
-+		   			pm_mnt->pm_prog,
-+					pm_mnt->pm_vers,
-+					timeout,
-+					&msock);
-+			   
-+		  if (mc)
-+		  	/* connected with UDP */
-+		  	break;
-+		  /* fall through to attempt TCP */
-+		  servaddr.sin_port = htons(pm_mnt->pm_port);
-+		  msock = RPC_ANYSOCK;
-+		 case IPPROTO_TCP:
-+		  mc = clnttcp_create(&servaddr,
-+		   			pm_mnt->pm_prog,
-+					pm_mnt->pm_vers,
-+					&msock, 0, 0);
-+		  break;
-+		 default:
-+		  /* received bogus mount proto spec, ignore this host */
-+		  mc = 0;
-+		}
++		mc=clnt_ping(&servaddr, mountprog, mountvers, mountport);
 +
 +		if (mc) {
 +			/* RPC connected, now time MOUNTPROC_NULL */
@@ -248,11 +214,10 @@
 +
 +}
 +
-+
- int nfsmount(const char *spec, const char *node, int *flags,
- 	     char **extra_opts, char **mount_opts, int *nfs_mount_vers,
- 	     int running_bg)
-@@ -243,13 +474,9 @@
+ int
+ nfsmount(const char *spec, const char *node, int *flags,
+ 	 char **extra_opts, char **mount_opts, int *nfs_mount_vers,
+@@ -817,13 +1011,9 @@ nfsmount(const char *spec, const char *n
  		hostname = hostdir;
  		dirname = s + 1;
  		*s = '\0';

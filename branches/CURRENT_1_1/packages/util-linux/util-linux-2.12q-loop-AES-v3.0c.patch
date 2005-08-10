@@ -1,7 +1,75 @@
-diff -urN util-linux-2.12/mount/Makefile util-linux-2.12-AES/mount/Makefile
-diff -urN util-linux-2.12/mount/aes.c util-linux-2.12-AES/mount/aes.c
---- util-linux-2.12/mount/aes.c	Thu Jan  1 02:00:00 1970
-+++ util-linux-2.12-AES/mount/aes.c	Fri Nov 21 14:48:51 2003
+If this patch does not apply cleanly to newer version of util-linux, try
+replacing original lomount.c lomount.h loop.h losetup.8 files in mount
+subdirectory with versions from util-linux that the patch is for. And then
+apply this patch.
+
+Index: util-linux-2.12q/mount/Makefile
+===================================================================
+--- util-linux-2.12q.orig/mount/Makefile	2005-04-29 14:15:12.000000000 +0200
++++ util-linux-2.12q/mount/Makefile	2005-04-29 14:34:03.000000000 +0200
+@@ -29,7 +29,6 @@ PROGS = $(SUID_PROGS) $(NOSUID_PROGS)
+ 
+ MAYBE = pivot_root swapoff
+ 
+-LO_OBJS = lomount.o $(LIB)/xstrncpy.o
+ NFS_OBJS = nfsmount.o nfsmount_xdr.o nfsmount_clnt.o
+ GEN_FILES = nfsmount.h nfsmount_xdr.c nfsmount_clnt.c
+ 
+@@ -49,24 +48,34 @@ install: $(PROGS)
+ 
+ mount: mount.o fstab.o sundries.o xmalloc.o realpath.o mntent.o version.o \
+        get_label_uuid.o mount_by_label.o mount_blkid.o mount_guess_fstype.o \
+-       getusername.o $(LIB)/setproctitle.o $(LIB)/env.o $(NFS_OBJS) $(LO_OBJS)
++       getusername.o $(LIB)/setproctitle.o $(LIB)/env.o $(NFS_OBJS) lomount.o \
++       loumount.o loop.o sha512.o rmd160.o aes.o $(LIB)/xstrncpy.o
+ 	$(LINK) $^ -o $@ $(BLKID_LIB)
+ 
+ umount: umount.o fstab.o sundries.o xmalloc.o realpath.o mntent.o \
+ 	getusername.o get_label_uuid.o mount_by_label.o mount_blkid.o \
+-	mount_by_label.o version.o $(LIB)/env.o $(LO_OBJS)
++	mount_by_label.o version.o $(LIB)/env.o loumount.o
+ 	$(LINK) $^ -o $@ $(BLKID_LIB)
+ 
+ swapon:	swapon.o version.o xmalloc.o \
+-	get_label_uuid.o mount_by_label.o mount_blkid.o
++	get_label_uuid.o mount_by_label.o mount_blkid.o \
++	loop.o sha512.o $(LIB)/xstrncpy.o
+ 	$(LINK) $^ -o $@ $(BLKID_LIB)
+ 
+ main_losetup.o: lomount.c
+ 	$(COMPILE) -DMAIN lomount.c -o $@
+ 
+-losetup: main_losetup.o $(LIB)/xstrncpy.o
++losetup: main_losetup.o loumount.o loop.o sha512.o rmd160.o aes.o $(LIB)/xstrncpy.o
+ 	$(LINK) $^ -o $@
+ 
++loop.o lomount.o main_losetup.o swapon.o: loop.h
++
++sha512.o lomount.o main_losetup.o swapon.o: sha512.h
++
++rmd160.o lomount.o main_losetup.o: rmd160.h
++
++aes.o lomount.o main_losetup.o: aes.h
++
+ mount.o umount.o nfsmount.o losetup.o fstab.o realpath.o sundries.o: sundries.h
+ 
+ mount.o umount.o fstab.o sundries.o: fstab.h
+@@ -79,9 +88,9 @@ mount.o: $(LIB)/setproctitle.h
+ 
+ mount.o umount.o getusername.o: getusername.h
+ 
+-mount.o umount.o losetup.o lomount.o: lomount.h loop.h my_dev_t.h
++mount.o umount.o losetup.o lomount.o loumount.o: lomount.h loop.h
+ 
+-swapon.o: swap_constants.h swapargs.h
++swapon.o: swap_constants.h swapargs.h loop.h
+ 
+ sundries.o nfsmount.o nfsmount_xdr.o nfsmount_clnt.o: nfsmount.h
+ 
+Index: util-linux-2.12q/mount/aes.c
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ util-linux-2.12q/mount/aes.c	2005-04-29 14:22:28.000000000 +0200
 @@ -0,0 +1,299 @@
 +// I retain copyright in this code but I encourage its free use provided
 +// that I don't carry any responsibility for the results. I am especially 
@@ -302,9 +370,10 @@ diff -urN util-linux-2.12/mount/aes.c util-linux-2.12-AES/mount/aes.c
 +
 +    state_out(out_blk, b0);
 +}
-diff -urN util-linux-2.12/mount/aes.h util-linux-2.12-AES/mount/aes.h
---- util-linux-2.12/mount/aes.h	Thu Jan  1 02:00:00 1970
-+++ util-linux-2.12-AES/mount/aes.h	Fri Nov 21 14:48:51 2003
+Index: util-linux-2.12q/mount/aes.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ util-linux-2.12q/mount/aes.h	2005-04-29 14:22:28.000000000 +0200
 @@ -0,0 +1,97 @@
 +// I retain copyright in this code but I encourage its free use provided
 +// that I don't carry any responsibility for the results. I am especially 
@@ -403,23 +472,28 @@ diff -urN util-linux-2.12/mount/aes.h util-linux-2.12-AES/mount/aes.h
 +// if their parameters have not changed.
 +
 +#endif  // _AES_H
-diff -urN util-linux-2.12/mount/lomount.c util-linux-2.12-AES/mount/lomount.c
---- util-linux-2.12/mount/lomount.c	Thu Jul 17 02:56:53 2003
-+++ util-linux-2.12-AES/mount/lomount.c	Fri Nov 21 14:48:51 2003
-@@ -7,10 +7,8 @@
-  * - added Native Language Support
-  * 1999-03-21 Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-  * - fixed strerr(errno) in gettext calls
-- * 2000-09-24 Marc Mutz <Marc@Mutz.com>
-- * - added -p option to pass passphrases via fd's to losetup/mount.
-- *   Used for encryption in non-interactive environments.
-- *   The idea behind xgetpass() is stolen from GnuPG, v.1.0.3.
+Index: util-linux-2.12q/mount/lomount.c
+===================================================================
+--- util-linux-2.12q.orig/mount/lomount.c	2005-04-29 14:14:03.000000000 +0200
++++ util-linux-2.12q/mount/lomount.c	2005-04-29 14:22:28.000000000 +0200
+@@ -1,4 +1,15 @@
+-/* Originally from Ted's losetup.c */
++/* Taken from Ted's losetup.c - Mitch <m.dsouza@mrc-apu.cam.ac.uk> */
++/* Added vfs mount options - aeb - 960223 */
++/* Removed lomount - aeb - 960224 */
++
++/*
++ * 1999-02-22 Arkadiusz Mi¶kiewicz <misiek@pld.ORG.PL>
++ * - added Native Language Support
++ * 1999-03-21 Arnaldo Carvalho de Melo <acme@conectiva.com.br>
++ * - fixed strerr(errno) in gettext calls
 + * 2001-04-11 Jari Ruusu
 + * - added AES support
-  */
++ */
  
  #define LOOPMAJOR	7
-@@ -26,59 +24,73 @@
+ 
+@@ -13,60 +24,74 @@
  #include <errno.h>
  #include <stdlib.h>
  #include <unistd.h>
@@ -434,6 +508,7 @@ diff -urN util-linux-2.12/mount/lomount.c util-linux-2.12-AES/mount/lomount.c
 +#include <fcntl.h>
 +#include <mntent.h>
 +#include <locale.h>
++#include <sys/time.h>
 +#include <sys/utsname.h>
  
  #include "loop.h"
@@ -445,6 +520,7 @@ diff -urN util-linux-2.12/mount/lomount.c util-linux-2.12-AES/mount/lomount.c
 +#include "aes.h"
  
  extern int verbose;
+-extern char *progname;
  extern char *xstrdup (const char *s);	/* not: #include "sundries.h" */
  extern void error (const char *fmt, ...);	/* idem */
 +extern void show_all_loops(void);
@@ -496,8 +572,8 @@ diff -urN util-linux-2.12/mount/lomount.c util-linux-2.12-AES/mount/lomount.c
 +char    *loopSizeBytes = (char *)0;
 +char    *loopEncryptionType = (char *)0;
 +
-+static int  multiKeyMode = 0;
-+static char *multiKeyPass[64];
++static int  multiKeyMode = 0;   /* 0=single-key 64=multi-key-v2 65=multi-key-v3 1000=any */
++static char *multiKeyPass[66];
 +static char *loopFileName;
  
  #ifdef MAIN
@@ -526,7 +602,7 @@ diff -urN util-linux-2.12/mount/lomount.c util-linux-2.12-AES/mount/lomount.c
  
  	if ((fd = open(device, O_RDONLY)) < 0) {
  		int errsv = errno;
-@@ -86,70 +98,54 @@
+@@ -74,70 +99,60 @@ show_loop(char *device) {
  			device, strerror (errsv));
  		return 2;
  	}
@@ -613,8 +689,14 @@ diff -urN util-linux-2.12/mount/lomount.c util-linux-2.12-AES/mount/lomount.c
 +				printf("%u", (unsigned int)loopinfo.lo_encrypt_key_size << 3);
 +		}
 +	}
-+	if (loopinfo.lo_flags & 0x100000)
-+		printf(_(" multi-key"));
++	switch(loopinfo.lo_flags & 0x180000) {
++	case 0x180000:
++		printf(_(" multi-key-v3"));
++		break;
++	case 0x100000:
++		printf(_(" multi-key-v2"));
++		break;
++	}
 +	/* type 2 == LO_CRYPT_DES */
 +	if (loopinfo.lo_init[0] && (loopinfo.lo_encrypt_type != 2))
 +		printf(_(" loinit=%llu"), (unsigned long long)loopinfo.lo_init[0]);
@@ -639,15 +721,18 @@ diff -urN util-linux-2.12/mount/lomount.c util-linux-2.12-AES/mount/lomount.c
  
  #define SIZE(a) (sizeof(a)/sizeof(a[0]))
  
-@@ -162,7 +158,6 @@
+@@ -148,9 +163,8 @@ find_unused_loop_device (void) {
+ 	   So, we just try /dev/loop[0-7]. */
+ 	char dev[20];
  	char *loop_formats[] = { "/dev/loop%d", "/dev/loop/%d" };
- 	int i, j, fd, somedev = 0, someloop = 0;
+-	int i, j, fd, somedev = 0, someloop = 0, permission = 0;
++	int i, j, fd, somedev = 0, someloop = 0;
  	struct stat statbuf;
 -	struct loop_info loopinfo;
  
  	for (j = 0; j < SIZE(loop_formats); j++) {
  	    for(i = 0; i < 256; i++) {
-@@ -171,7 +166,7 @@
+@@ -159,16 +173,14 @@ find_unused_loop_device (void) {
  			somedev++;
  			fd = open (dev, O_RDONLY);
  			if (fd >= 0) {
@@ -656,22 +741,35 @@ diff -urN util-linux-2.12/mount/lomount.c util-linux-2.12-AES/mount/lomount.c
  					someloop++;		/* in use */
  				else if (errno == ENXIO) {
  					close (fd);
-@@ -187,71 +182,398 @@
+ 					return xstrdup(dev);/* probably free */
+ 				}
+ 				close (fd);
+-			} else if (errno == EACCES)
+-				permission++;
+-
++			}
+ 			continue;/* continue trying as long as devices exist */
+ 		}
+ 		break;
+@@ -176,75 +188,571 @@ find_unused_loop_device (void) {
+ 	}
  
  	if (!somedev)
- 		error(_("mount: could not find any device /dev/loop#"));
--	else if (!someloop) {
+-		error(_("%s: could not find any device /dev/loop#"), progname);
+-	else if (!someloop && permission)
+-		error(_("%s: no permission to look at /dev/loop#"), progname);
++		error(_("mount: could not find any device /dev/loop#"));
+ 	else if (!someloop)
 -		error(_(
--		    "mount: Could not find any loop device. Maybe this kernel "
+-		    "%s: Could not find any loop device. Maybe this kernel "
 -		    "does not know\n"
 -		    "       about the loop device? (If so, recompile or "
--		    "`modprobe loop'.)"));
--	} else
-+	else if (!someloop)
+-		    "`modprobe loop'.)"), progname);
 +                error(_("mount: Could not find any loop device. Maybe this kernel does not know\n"
 +			"       about the loop device? (If so, recompile or `modprobe loop'.)"));
-+	else
- 		error(_("mount: could not find any free loop device"));
+ 	else
+-		error(_("%s: could not find any free loop device"), progname);
++		error(_("mount: could not find any free loop device"));
  	return 0;
  }
  
@@ -701,6 +799,10 @@ diff -urN util-linux-2.12/mount/lomount.c util-linux-2.12-AES/mount/lomount.c
 -				error("Out of memory while reading passphrase");
 -				pass = tmppass; /* the old buffer hasn't changed */
 -				break;
+-			}
+-		}
+-		if (read(pfd, pass+i, 1) != 1 ||
+-		    pass[i] == '\n' || pass[i] == 0)
 +static int rd_wr_retry(int fd, char *buf, int cnt, int w)
 +{
 +	int x, y, z;
@@ -727,13 +829,24 @@ diff -urN util-linux-2.12/mount/lomount.c util-linux-2.12-AES/mount/lomount.c
 +
 +static char *get_FD_pass(int fd)
 +{
-+	char *p = NULL;
++	char *p = NULL, *n;
 +	int x = 0, y = 0;
 +
 +	do {
 +		if(y >= (x - 1)) {
 +			x += 128;
-+			if(!(p = realloc(p, x))) break;
++			/* Must enforce some max limit here -- this code   */
++			/* runs as part of mount, and mount is setuid root */
++			/* and has used mlockall(MCL_CURRENT | MCL_FUTURE) */
++			if(x > (4*1024)) return(NULL);
++			n = malloc(x);
++			if(!n) return(NULL);
++			if(p) {
++				memcpy(n, p, y);
++				memset(p, 0, y);
++				free(p);
++			}
++			p = n;
 +		}
 +		if(rd_wr_retry(fd, p + y, 1, 0) != 1) break;
 +		if((p[y] == '\n') || !p[y]) break;
@@ -768,6 +881,13 @@ diff -urN util-linux-2.12/mount/lomount.c util-linux-2.12-AES/mount/lomount.c
 +	return negative ? -v : v;
 +}
 +
++static void warnAboutBadKeyData(int x)
++{
++	if((x > 1) && (x != 64) && (x != 65)) {
++		fprintf(stderr, _("Warning: Unknown key data format - using it anyway\n"));
++	}
++}
++
 +static char *do_GPG_pipe(char *pass)
 +{
 +	int     x, pfdi[2], pfdo[2];
@@ -788,7 +908,7 @@ diff -urN util-linux-2.12/mount/lomount.c util-linux-2.12-AES/mount/lomount.c
 +		nomem1:
 +		fprintf(stderr, _("Error: Unable to allocate memory\n"));
 +		return NULL;
-+	} 
++	}
 +	sprintf(e[0], "HOME=%s", h);
 +	e[1] = 0;
 +
@@ -862,7 +982,7 @@ diff -urN util-linux-2.12/mount/lomount.c util-linux-2.12-AES/mount/lomount.c
 +				fclose(f);
 +				close(x);
 +				goto nomem3;
- 			}
++			}
 +			if(cnt2 != cnt3) break;
 +			cnt -= cnt3;
 +		}
@@ -884,16 +1004,14 @@ diff -urN util-linux-2.12/mount/lomount.c util-linux-2.12-AES/mount/lomount.c
 +		if((x = open("/dev/null", O_WRONLY)) >= 0) {
 +			dup2(x, 2);
 +			close(x);
- 		}
--		if (read(pfd, pass+i, 1) != 1 || pass[i] == '\n')
++		}
 +		x = 0;
 +		a[x++] = "gpg";
 +		if(gpgHomeDir && gpgHomeDir[0]) {
 +			a[x++] = "--homedir";
 +			a[x++] = gpgHomeDir;
 +		}
-+		a[x++] = "--options";
-+		a[x++] = "/dev/null";
++		a[x++] = "--no-options";
 +		a[x++] = "--quiet";
 +		a[x++] = "--batch";
 +		a[x++] = "--no-tty";
@@ -901,8 +1019,12 @@ diff -urN util-linux-2.12/mount/lomount.c util-linux-2.12-AES/mount/lomount.c
 +		a[x++] = str;
 +		a[x++] = "--decrypt";
 +		a[x] = 0;
-+		if(getuid() != geteuid())
-+			setuid(getuid());
++		setgid(getgid());
++		setuid(getuid());
++		for(x = 3; x < 1024; x++) {
++			if(x == pfdi[0]) continue;
++			close(x);
++		}
 +		execve("/bin/gpg", &a[0], &e[0]);
 +		execve("/usr/bin/gpg", &a[0], &e[0]);
 +		execve("/usr/local/bin/gpg", &a[0], &e[0]);
@@ -924,41 +1046,64 @@ diff -urN util-linux-2.12/mount/lomount.c util-linux-2.12-AES/mount/lomount.c
 +	close(pfdi[1]);
 +	memset(pass, 0, x);
 +	x = 0;
-+	while(x < 64) {
++	while(x < 66) {
 +		multiKeyPass[x] = get_FD_pass(pfdo[0]);
 +		if(!multiKeyPass[x]) {
-+			/* realloc() failed - abort */
++			/* mem alloc failed - abort */
 +			multiKeyPass[0] = 0;
  			break;
 +		}
 +		if(strlen(multiKeyPass[x]) < LOOP_PASSWORD_MIN_LENGTH) break;
 +		x++;
-+	}
+ 	}
++	warnAboutBadKeyData(x);
++	if(x >= 65)
++		multiKeyMode = 65;
 +	if(x == 64)
-+		multiKeyMode = 1;
++		multiKeyMode = 64;
 +	close(pfdo[0]);
 +	waitpid(gpid, &x, 0);
 +	if(!multiKeyPass[0]) goto nomem1;
 +	return multiKeyPass[0];
 +}
-+
+ 
+-	if (pass == NULL)
+-		return "";
 +static char *sGetPass(int minLen, int warnLen)
 +{
 +	char *p, *s, *seed;
 +	int i, ask2;
-+
+ 
+-	pass[i] = 0;
+-	return pass;
 +	if(!passFDnumber) {
 +		p = getpass(_("Password: "));
 +		ask2 = passAskTwice ? 1 : 0;
 +	} else {
-+		p = get_FD_pass(atoi(passFDnumber));
++		i = atoi(passFDnumber);
++		if(gpgKeyFile && gpgKeyFile[0]) {
++			p = get_FD_pass(i);
++		} else {
++			int x = 0;
++			while(x < 66) {
++				multiKeyPass[x] = get_FD_pass(i);
++				if(!multiKeyPass[x]) goto nomem;
++				if(strlen(multiKeyPass[x]) < LOOP_PASSWORD_MIN_LENGTH) break;
++				x++;
++			}
++			warnAboutBadKeyData(x);
++			if(x >= 65) {
++				multiKeyMode = 65;
++				return multiKeyPass[0];
++			}
++			if(x == 64) {
++				multiKeyMode = 64;
++				return multiKeyPass[0];
++			}
++			p = multiKeyPass[0];
++		}
 +		ask2 = 0;
- 	}
--	if (pass == NULL)
--		return "";
--	else {
--		pass[i] = 0;
--		return pass;
++	}
 +	if(!p) goto nomem;
 +	if(gpgKeyFile && gpgKeyFile[0]) {
 +		if(ask2) {
@@ -980,7 +1125,7 @@ diff -urN util-linux-2.12/mount/lomount.c util-linux-2.12-AES/mount/lomount.c
 +			return(NULL);
 +		}
 +		if(multiKeyMode) return(p);
- 	}
++	}
 +	i = strlen(p);
 +	if(i < minLen) {
 +		fprintf(stderr, _("Error: Password must be at least %d characters.\n"), minLen);
@@ -1007,19 +1152,7 @@ diff -urN util-linux-2.12/mount/lomount.c util-linux-2.12-AES/mount/lomount.c
 +		memset(p, 0, i);
 +	}
 +	if(i < warnLen) {
-+		fprintf(stderr, 
-+		      _("\n"
-+			"WARNING - WARNING - WARNING - WARNING - WARNING - WARNING - WARNING\n"
-+			"\n"
-+			"Passwords shorter than %d characters are considered too short and insecure.\n"
-+			"Use of rmd160 password hash permits use of such short passwords for\n"
-+			"compatibility with other systems that do not enforce minimum length.\n"
-+			"Hopefully this message is annoying enough that you discontinue using such\n"
-+			"short passwords.\n"
-+			"\n"
-+			"WARNING - WARNING - WARNING - WARNING - WARNING - WARNING - WARNING\n"
-+			"\n")
-+			, LOOP_PASSWORD_MIN_LENGTH);
++		fprintf(stderr, _("WARNING - Please use longer password (%d or more characters)\n"), LOOP_PASSWORD_MIN_LENGTH);
 +	}
 +	strcat(s, seed);
 +	return(s);
@@ -1085,27 +1218,170 @@ diff -urN util-linux-2.12/mount/lomount.c util-linux-2.12-AES/mount/lomount.c
 +	memcpy(ob, tmpBuf, ole);
 +	memset(tmpBuf, 0, sizeof(tmpBuf));
 +	memset(pwdCopy, 0, sizeof(pwdCopy));
++}
++
++static int loop_create_random_keys(char *partition, int loopro, unsigned char *k)
++{
++	int x, y;
++	sha512_context s;
++	unsigned char b[4096];
++	FILE *f;
++
++	if(loopro) {
++		fprintf(stderr, _("Error: read-only device %s\n"), partition);
++		return 1;
++	}
++
++	/*
++	 * Compute SHA-512 over first 40 KB of old fs data. SHA-512 hash
++	 * output is then used as entropy for new fs encryption key.
++	 */
++	if(!(f = fopen(partition, "r+"))) {
++		fprintf(stderr, _("Error: unable to open device %s\n"), partition);
++		return 1;
++	}
++	fseek(f, (long)0, SEEK_SET);
++	sha512_init(&s);
++	for(x = 0; x < 10; x++) {
++		if(fread(&b[0], sizeof(b), 1, f) != 1) break;
++		sha512_write(&s, &b[0], sizeof(b));
++	}
++	sha512_final(&s);
++
++	/*
++	 * Overwrite 40 KB of old fs data 20 times so that recovering
++	 * SHA-512 output beyond this point is difficult and expensive.
++	 */
++	for(y = 0; y < 20; y++) {
++		int z;
++		struct {
++			struct timeval tv;
++			unsigned char h[64];
++			int x,y,z;
++		} j;
++		if(fseek(f, (long)0, SEEK_SET)) break;
++		memcpy(&j.h[0], &s.sha_out[0], 64);
++		gettimeofday(&j.tv, NULL);
++		j.y = y;
++		for(x = 0; x < 10; x++) {
++			j.x = x;
++			for(z = 0; z < sizeof(b); z += 64) {
++				j.z = z;
++				sha512_hash_buffer((unsigned char *)&j, sizeof(j), &b[z], 64);
++			}
++			if(fwrite(&b[0], sizeof(b), 1, f) != 1) break;
++		}
++		memset(&j, 0, sizeof(j));
++		if(fflush(f)) break;
++		if(fsync(fileno(f))) break;
++	}
++	fclose(f);
++
++	/*
++	 * Use all 512 bits of hash output
++	 */
++	memcpy(&b[0], &s.sha_out[0], 64);
++	memset(&s, 0, sizeof(s));
++
++	/*
++	 * Read 32 bytes of random entropy from kernel's random
++	 * number generator. This code may be executed early on startup
++	 * scripts and amount of random entropy may be non-existent.
++	 * SHA-512 of old fs data is used as workaround for missing
++	 * entropy in kernel's random number generator.
++	 */
++	if(!(f = fopen("/dev/urandom", "r"))) {
++		fprintf(stderr, _("Error: unable to open /dev/urandom\n"));
++		return 1;
++	}
++	fread(&b[64], 32, 1, f);
++
++	/* generate multi-key hashes */
++	x = 0;
++	while(x < 65) {
++		fread(&b[64+32], 16, 1, f);
++		sha512_hash_buffer(&b[0], 64+32+16, k, 32);
++		k += 32;
++		x++;
++	}
++
++	fclose(f);
++	memset(&b[0], 0, sizeof(b));
++	return 0;
  }
  
++#if !defined(MAIN)
++static int loop_fork_mkfs_command(char *device, char *fstype)
++{
++	int x, y = 0;
++	char *a[10], *e[1];
++
++	sync();
++	if(!(x = fork())) {
++		if((x = open("/dev/null", O_WRONLY)) >= 0) {
++			dup2(x, 0);
++			dup2(x, 1);
++			dup2(x, 2);
++			close(x);
++		}
++		x = 0;
++		a[x++] = "mkfs";
++		a[x++] = "-t";
++		a[x++] = fstype;
++		/* mkfs.reiserfs and mkfs.xfs need -f option */
++		if(!strcmp(fstype, "reiserfs") || !strcmp(fstype, "xfs")) {
++			a[x++] = "-f";
++		}
++		a[x++] = device;
++		a[x] = 0;
++		e[0] = 0;
++		setgid(getgid());
++		setuid(getuid());
++		for(x = 3; x < 1024; x++) {
++			close(x);
++		}
++		execve("/sbin/mkfs", &a[0], &e[0]);
++		exit(1);
++	}
++	if(x == -1) {
++		fprintf(stderr, _("Error: fork failed\n"));
++		return 1;
++	}
++	waitpid(x, &y, 0);
++	sync();
++	if(!WIFEXITED(y) || (WEXITSTATUS(y) != 0)) {
++		fprintf(stderr, _("Error: encrypted file system mkfs failed\n"));
++		return 1;
++	}
++	return 0;
++}
++#endif
++
  int
--set_loop(const char *device, const char *file, int offset,
+-set_loop(const char *device, const char *file, unsigned long long offset,
 -	 const char *encryption, int pfd, int *loopro) {
 -	struct loop_info64 loopinfo64;
--	int fd, ffd, mode;
--	char *pass;
-+set_loop(const char *device, const char *file, int *loopro) {
++set_loop(const char *device, const char *file, int *loopro, const char **fstype, unsigned int *AutoChmodPtr) {
 +	struct loop_info64 loopinfo;
-+	int fd, ffd, mode, i;
+ 	int fd, ffd, mode, i;
+-	char *pass;
 +	char *pass, *apiName = NULL;
 +	void (*hashFunc)(unsigned char *, int, unsigned char *, int);
-+	unsigned char multiKeyBits[64][32];
++	unsigned char multiKeyBits[65][32];
++	int minPassLen = LOOP_PASSWORD_MIN_LENGTH;
++	int run_mkfs_command = 0;
  
 +	loopFileName = (char *)file;
 +	multiKeyMode = 0;
  	mode = (*loopro ? O_RDONLY : O_RDWR);
+ 	mode |= O_LARGEFILE;
  	if ((ffd = open(file, mode)) < 0) {
- 		if (!*loopro && errno == EROFS)
-@@ -267,21 +589,14 @@
+@@ -257,32 +765,25 @@ set_loop(const char *device, const char 
+ 	}
+ 	if ((fd = open(device, mode)) < 0) {
+ 		perror (device);
+-		return 1;
++		goto close_ffd_return1;
  	}
  	*loopro = (mode == O_RDONLY);
  
@@ -1133,9 +1409,18 @@ diff -urN util-linux-2.12/mount/lomount.c util-linux-2.12-AES/mount/lomount.c
 +	if (loopSizeBytes)
 +		loopinfo.lo_sizelimit = mystrtoull(loopSizeBytes, 0);
  
- #ifdef MCL_FUTURE  
+-#ifdef MCL_FUTURE  
++#ifdef MCL_FUTURE
  	/*
-@@ -296,110 +611,152 @@
+ 	 * Oh-oh, sensitive data coming up. Better lock into memory to prevent
+ 	 * passwd etc being swapped out and left somewhere on disk.
+ 	 */
+-                                                
++
+ 	if(mlockall(MCL_CURRENT | MCL_FUTURE)) {
+ 		perror("memlock");
+ 		fprintf(stderr, _("Couldn't lock into memory, exiting.\n"));
+@@ -290,126 +791,222 @@ set_loop(const char *device, const char 
  	}
  #endif
  
@@ -1147,11 +1432,9 @@ diff -urN util-linux-2.12/mount/lomount.c util-linux-2.12-AES/mount/lomount.c
  		break;
  	case LO_CRYPT_XOR:
 -		pass = getpass(_("Password: "));
--		xstrncpy(loopinfo64.lo_encrypt_key, pass, LO_KEY_SIZE);
--		loopinfo64.lo_encrypt_key_size =
--			strlen(loopinfo64.lo_encrypt_key);
+-		goto gotpass;
 +		pass = sGetPass (1, 0);
-+		if(!pass) return(1);
++		if(!pass) goto close_fd_ffd_return1;
 +		xstrncpy (loopinfo.lo_encrypt_key, pass, LO_KEY_SIZE);
 +		loopinfo.lo_encrypt_key_size = strlen(loopinfo.lo_encrypt_key);
 +		break;
@@ -1177,14 +1460,34 @@ diff -urN util-linux-2.12/mount/lomount.c util-linux-2.12-AES/mount/lomount.c
 +				hashFunc = sha512_hash_buffer;
 +			} else if(!strcasecmp(passHashFuncName, "rmd160")) {
 +				hashFunc = rmd160HashTwiceWithA;
++				minPassLen = 1;
 +			} else if(!strcasecmp(passHashFuncName, "unhashed1")) {
 +				hashFunc = unhashed1_key_setup;
 +			} else if(!strcasecmp(passHashFuncName, "unhashed2")) {
 +				hashFunc = unhashed2_key_setup;
++				minPassLen = 1;
++			} else if(!strcasecmp(passHashFuncName, "unhashed3") && passFDnumber && !gpgKeyFile) {
++				/* unhashed3 hash type reads binary key from file descriptor. */
++				/* This is not compatible with gpgkey= mount option */
++				if(rd_wr_retry(atoi(passFDnumber), (char *)&loopinfo.lo_encrypt_key[0], LO_KEY_SIZE, 0) < 1) {
++					fprintf(stderr, _("Error: couldn't read binary key\n"));
++					goto close_fd_ffd_return1;
++				}
++				break; /* out of switch(loopinfo.lo_encrypt_type) */
++			} else if(!strncasecmp(passHashFuncName, "random", 6) && ((passHashFuncName[6] == 0) || (passHashFuncName[6] == '/'))) {
++				/* random hash type sets up 65 random keys */
++				/* WARNING! DO NOT USE RANDOM HASH TYPE ON PARTITION WITH EXISTING */
++				/* IMPORTANT DATA ON IT. RANDOM HASH TYPE WILL DESTROY YOUR DATA.  */
++				if(loop_create_random_keys((char*)file, *loopro, &multiKeyBits[0][0])) {
++					goto close_fd_ffd_return1;
++				}
++				memcpy(&loopinfo.lo_encrypt_key[0], &multiKeyBits[0][0], sizeof(loopinfo.lo_encrypt_key));
++				run_mkfs_command = multiKeyMode = 1000;
++				break; /* out of switch(loopinfo.lo_encrypt_type) */
 +			}
 +		}
-+		pass = sGetPass ((hashFunc == rmd160HashTwiceWithA) ? 1 : LOOP_PASSWORD_MIN_LENGTH, LOOP_PASSWORD_MIN_LENGTH);
-+		if(!pass) return(1);
++		pass = sGetPass (minPassLen, LOOP_PASSWORD_MIN_LENGTH);
++		if(!pass) goto close_fd_ffd_return1;
 +		i = strlen(pass);
 +		if(hashFunc == unhashed1_key_setup) {
 +			/* this is for compatibility with historic loop-AES version */
@@ -1195,22 +1498,26 @@ diff -urN util-linux-2.12/mount/lomount.c util-linux-2.12-AES/mount/lomount.c
 +		(*hashFunc)(pass, i, &loopinfo.lo_encrypt_key[0], sizeof(loopinfo.lo_encrypt_key));
 +		if(multiKeyMode) {
 +			int r = 0, t;
-+			while(r < 64) {
++			while(r < multiKeyMode) {
 +				t = strlen(multiKeyPass[r]);
 +				(*hashFunc)(multiKeyPass[r], t, &multiKeyBits[r][0], 32);
 +				memset(multiKeyPass[r], 0, t);
 +				/*
 +				 * MultiKeyMode uses md5 IV. One key mode uses sector IV. Sector IV
-+				 * and md5 IV are computed differently. This first key byte XOR with
-+				 * 0x55 is needed to cause complete decrypt failure in cases where
-+				 * data is encrypted with sector IV and decrypted with md5 IV or
-+				 * vice versa. If identical key was used but only IV was computed
-+				 * differently, only first plaintext block of 512 byte CBC chain
-+				 * would decrypt incorrectly and rest would decrypt correctly.
++				 * and md5 IV v2 and v3 are all computed differently. This first key
++				 * byte XOR with 0x55/0xF4 is needed to cause complete decrypt failure
++				 * in cases where data is encrypted with one type of IV and decrypted
++				 * with another type IV. If identical key was used but only IV was
++				 * computed differently, only first plaintext block of 512 byte CBC
++				 * chain would decrypt incorrectly and rest would decrypt correctly.
 +				 * Partially correct decryption is dangerous. Decrypting all blocks
 +				 * incorrectly is safer because file system mount will simply fail.
 +				 */
-+				multiKeyBits[r][0] ^= 0x55;
++				if(multiKeyMode == 65) {
++					multiKeyBits[r][0] ^= 0xF4; /* version 3 */
++				} else {
++					multiKeyBits[r][0] ^= 0x55; /* version 2 */
++				}
 +				r++;
 +			}
 +		} else if(passIterThousands) {
@@ -1241,13 +1548,16 @@ diff -urN util-linux-2.12/mount/lomount.c util-linux-2.12-AES/mount/lomount.c
 +			memset(&tempkey[0], 0, sizeof(tempkey));
 +		}
 +		memset(pass, 0, i);   /* erase original password */
- 		break;
++		break;
  	default:
 -		pass = xgetpass(pfd, _("Password: "));
+-	gotpass:
+-		memset(loopinfo64.lo_encrypt_key, 0, LO_KEY_SIZE);
 -		xstrncpy(loopinfo64.lo_encrypt_key, pass, LO_KEY_SIZE);
+-		memset(pass, 0, strlen(pass));
 -		loopinfo64.lo_encrypt_key_size = LO_KEY_SIZE;
 +		fprintf (stderr, _("Error: don't know how to get key for encryption system %d\n"), loopinfo.lo_encrypt_type);
-+		return 1;
++		goto close_fd_ffd_return1;
 +	}
 +
 +	if(loInitValue) {
@@ -1259,51 +1569,68 @@ diff -urN util-linux-2.12/mount/lomount.c util-linux-2.12-AES/mount/lomount.c
  
  	if (ioctl(fd, LOOP_SET_FD, ffd) < 0) {
  		perror("ioctl: LOOP_SET_FD");
++keyclean_close_fd_ffd_return1:
 +		memset(loopinfo.lo_encrypt_key, 0, sizeof(loopinfo.lo_encrypt_key));
 +		memset(&multiKeyBits[0][0], 0, sizeof(multiKeyBits));
++close_fd_ffd_return1:
++		close (fd);
++close_ffd_return1:
++		close (ffd);
  		return 1;
  	}
- 	close (ffd);
- 
--	if (ioctl(fd, LOOP_SET_STATUS64, &loopinfo64) < 0) {
+-	close (ffd);
+-
+-	i = ioctl(fd, LOOP_SET_STATUS64, &loopinfo64);
+-	if (i) {
 -		struct loop_info loopinfo;
 -		int errsv = errno;
--
--		errno = loop_info64_to_old(&loopinfo64, &loopinfo);
--		if (errno) {
+ 
+-		i = loop_info64_to_old(&loopinfo64, &loopinfo);
+-		if (i) {
 -			errno = errsv;
 -			perror("ioctl: LOOP_SET_STATUS64");
--			goto fail;
--		}
--
--		if (ioctl(fd, LOOP_SET_STATUS, &loopinfo) < 0) {
--			perror("ioctl: LOOP_SET_STATUS");
--			goto fail;
+-		} else {
+-			i = ioctl(fd, LOOP_SET_STATUS, &loopinfo);
+-			if (i)
+-				perror("ioctl: LOOP_SET_STATUS");
 +	/* type 18 == LO_CRYPT_CRYPTOAPI */
 +	if ((loopinfo.lo_encrypt_type == 18) || (loop_set_status64_ioctl(fd, &loopinfo) < 0)) {
 +		/* direct cipher interface failed - try CryptoAPI interface now */
 +		if(!apiName || (try_cryptoapi_loop_interface(fd, &loopinfo, apiName) < 0)) {
 +			fprintf(stderr, _("ioctl: LOOP_SET_STATUS: %s, requested cipher or key length (%d bits) not supported by kernel\n"), strerror(errno), loopinfo.lo_encrypt_key_size << 3);
++			loop_clr_fd_out:
 +			(void) ioctl (fd, LOOP_CLR_FD, 0);
-+			memset(loopinfo.lo_encrypt_key, 0, sizeof(loopinfo.lo_encrypt_key));
-+			memset(&multiKeyBits[0][0], 0, sizeof(multiKeyBits));
-+			return 1;
++			goto keyclean_close_fd_ffd_return1;
  		}
+-		memset(&loopinfo, 0, sizeof(loopinfo));
  	}
-+	memset(loopinfo.lo_encrypt_key, 0, sizeof(loopinfo.lo_encrypt_key));
- 
+-	memset(&loopinfo64, 0, sizeof(loopinfo64));
+-
+-	if (i) {
+-		ioctl (fd, LOOP_CLR_FD, 0);
+-		close (fd);
+-		return 1;
++	if(multiKeyMode >= 65) {
++		if(ioctl(fd, LOOP_MULTI_KEY_SETUP_V3, &multiKeyBits[0][0]) < 0) {
++			if(multiKeyMode == 1000) goto try_v2_setup;
++			perror("ioctl: LOOP_MULTI_KEY_SETUP_V3");
++			goto loop_clr_fd_out;
++		}
++	} else if(multiKeyMode == 64) {
++		try_v2_setup:
++		if((ioctl(fd, LOOP_MULTI_KEY_SETUP, &multiKeyBits[0][0]) < 0) && (multiKeyMode != 1000)) {
++			perror("ioctl: LOOP_MULTI_KEY_SETUP");
++			goto loop_clr_fd_out;
++		}
+ 	}
 -	close (fd);
+-
 -	if (verbose > 1)
--		printf(_("set_loop(%s,%s,%d): success\n"),
+-		printf(_("set_loop(%s,%s,%llu): success\n"),
 -		       device, file, offset);
 -	return 0;
--
-- fail:
--	(void) ioctl (fd, LOOP_CLR_FD, 0);
--	close (fd);
--	return 1;
 -}
--
+ 
 -int 
 -del_loop (const char *device) {
 -	int fd;
@@ -1316,21 +1643,16 @@ diff -urN util-linux-2.12/mount/lomount.c util-linux-2.12-AES/mount/lomount.c
 -	}
 -	if (ioctl (fd, LOOP_CLR_FD, 0) < 0) {
 -		perror ("ioctl: LOOP_CLR_FD");
-+	if(multiKeyMode && (ioctl(fd, LOOP_MULTI_KEY_SETUP, &multiKeyBits[0][0]) < 0)) {
-+		perror("ioctl: LOOP_MULTI_KEY_SETUP");
-+		(void) ioctl (fd, LOOP_CLR_FD, 0);
-+		memset(&multiKeyBits[0][0], 0, sizeof(multiKeyBits));
- 		return 1;
- 	}
+-		return 1;
+-	}
++	memset(loopinfo.lo_encrypt_key, 0, sizeof(loopinfo.lo_encrypt_key));
 +	memset(&multiKeyBits[0][0], 0, sizeof(multiKeyBits));
-+
  	close (fd);
- 	if (verbose > 1)
+-	if (verbose > 1)
 -		printf(_("del_loop(%s): success\n"), device);
-+		printf(_("set_loop(%s,%s): success\n"), device, file);
- 	return 0;
- }
- 
+-	return 0;
+-}
+-
 -#else /* no LOOP_SET_FD defined */
 -static void
 -mutter(void) {
@@ -1340,24 +1662,44 @@ diff -urN util-linux-2.12/mount/lomount.c util-linux-2.12-AES/mount/lomount.c
 -}  
 -
 -int
--set_loop (const char *device, const char *file, int offset,
+-set_loop (const char *device, const char *file, unsigned long long offset,
 -	  const char *encryption, int *loopro) {
 -	mutter();
 -	return 1;
 -}
--
++	close (ffd);
+ 
 -int
 -del_loop (const char *device) {
 -	mutter();
 -	return 1;
 -}
--
++#if !defined(MAIN)
++	if(run_mkfs_command && fstype && *fstype && **fstype && (getuid() == 0)) {
++		if(!loop_fork_mkfs_command((char *)device, (char *)(*fstype))) {
++			/* !strncasecmp(passHashFuncName, "random", 6) test matched */
++			/* This reads octal mode for newly created file system root */
++			/* directory node from '-o phash=random/1777' mount option. */
++			/*                          octal mode--^^^^                */
++			sscanf(passHashFuncName + 6, "/%o", AutoChmodPtr);
++		} else {
++			if((fd = open(device, mode)) >= 0) {
++				ioctl(fd, LOOP_CLR_FD, 0);
++				close(fd);
++				return 1;
++			}
++		}
++	}
++#endif
+ 
 -char *
 -find_unused_loop_device (void) {
 -	mutter();
--	return 0;
--}
--
++	if (verbose > 1)
++		printf(_("set_loop(%s,%s): success\n"), device, file);
+ 	return 0;
+ }
+ 
 -#endif
 -
  #ifdef MAIN
@@ -1367,14 +1709,18 @@ diff -urN util-linux-2.12/mount/lomount.c util-linux-2.12-AES/mount/lomount.c
  #include <getopt.h>
  #include <stdarg.h>
  
-@@ -409,10 +766,14 @@
+ int verbose = 0;
+-char *progname;
++static char *progname;
+ 
  static void
  usage(void) {
  	fprintf(stderr, _("usage:\n\
--  %s loop_device                                      # give info\n\
--  %s -d loop_device                                   # delete\n\
--  %s [ -e encryption ] [ -o offset ] loop_device file # setup\n"),
--		progname, progname, progname);
+-  %s loop_device                                       # give info\n\
+-  %s -d loop_device                                    # delete\n\
+-  %s -f                                                # find unused\n\
+-  %s [-e encryption] [-o offset] {-f|loop_device} file # setup\n"),
+-		progname, progname, progname, progname);
 +  %s [-e encryption] [options] loop_device file  # setup\n\
 +  %s -F [options] loop_device [file]   # setup, read /etc/fstab\n\
 +  %s loop_device                       # give info\n\
@@ -1386,7 +1732,7 @@ diff -urN util-linux-2.12/mount/lomount.c util-linux-2.12-AES/mount/lomount.c
  	exit(1);
  }
  
-@@ -443,71 +804,187 @@
+@@ -440,107 +1037,191 @@ error (const char *fmt, ...) {
  	fprintf (stderr, "\n");
  }
  
@@ -1422,7 +1768,7 @@ diff -urN util-linux-2.12/mount/lomount.c util-linux-2.12-AES/mount/lomount.c
 +	FILE *f;
 +	struct mntent *m;
 +	int y, foundMatch = 0;
-+	char *opt;
++	char *opt, *fr1, *fr2;
 +	struct options {
 +		char *name;	/* name of /etc/fstab option */
 +		char **dest;	/* destination where it is written to */
@@ -1448,12 +1794,13 @@ diff -urN util-linux-2.12/mount/lomount.c util-linux-2.12-AES/mount/lomount.c
 +		return 0;
 +	}
 +	while ((m = getmntent(f)) != NULL) {
-+		tbl[0].line = xstrdup(m->mnt_fsname);
++		tbl[0].line = fr1 = xstrdup(m->mnt_fsname);
 +		p = &tbl[1];
 +		do {
 +			p->line = NULL;
 +		} while (++p < &tbl[sizeof(tbl) / sizeof(struct options)]);
-+		for (opt = strtok(xstrdup(m->mnt_opts), ","); opt != NULL; opt = strtok(NULL, ",")) {
++		opt = fr2 = xstrdup(m->mnt_opts);
++		for (opt = strtok(opt, ","); opt != NULL; opt = strtok(NULL, ",")) {
 +			p = &tbl[1];
 +			do {
 +				y = strlen(p->name);
@@ -1475,7 +1822,10 @@ diff -urN util-linux-2.12/mount/lomount.c util-linux-2.12-AES/mount/lomount.c
 +						printf(_("using %s%s from /etc/fstab\n"), p->name, p->line);
 +				}
 +			} while (++p < &tbl[sizeof(tbl) / sizeof(struct options)]);
++			fr1 = fr2 = NULL;
 +		}
++		if(fr1) free(fr1);
++		if(fr2) free(fr2);
 +	}
 +	endmntent(f);
 +	if (foundMatch == 0) {
@@ -1486,23 +1836,29 @@ diff -urN util-linux-2.12/mount/lomount.c util-linux-2.12-AES/mount/lomount.c
 +
  int
  main(int argc, char **argv) {
--	char *offset, *encryption, *passfd;
--	int delete, off, c;
+-	char *p, *offset, *encryption, *passfd, *device, *file;
+-	int delete, find, c;
 +	char *partitionName = NULL;
 +	int delete,c,option_a=0,option_F=0;
  	int res = 0;
  	int ro = 0;
 -	int pfd = -1;
+-	unsigned long long off;
  
  	setlocale(LC_ALL, "");
  	bindtextdomain(PACKAGE, LOCALEDIR);
  	textdomain(PACKAGE);
  
--	delete = off = 0;
+-	delete = find = 0;
+-	off = 0;
 -	offset = encryption = passfd = NULL;
+-
 +	delete = 0;
  	progname = argv[0];
--	while ((c = getopt(argc,argv,"de:E:o:p:v")) != -1) {
+-	if ((p = strrchr(progname, '/')) != NULL)
+-		progname = p+1;
+-
+-	while ((c = getopt(argc, argv, "de:E:fo:p:v")) != -1) {
 +	while ((c = getopt(argc,argv,"aC:de:FG:H:I:K:o:p:rs:S:Tv")) != -1) {
  		switch (c) {
 +		case 'a':		/* show status of all loops */
@@ -1518,7 +1874,9 @@ diff -urN util-linux-2.12/mount/lomount.c util-linux-2.12-AES/mount/lomount.c
  		case 'e':
 -			encryption = optarg;
 +			loopEncryptionType = optarg;
-+			break;
+ 			break;
+-		case 'f':
+-			find = 1;
 +		case 'F':		/* read loop related options from /etc/fstab */
 +			option_F = 1;
 +			break;
@@ -1540,12 +1898,12 @@ diff -urN util-linux-2.12/mount/lomount.c util-linux-2.12-AES/mount/lomount.c
 +			break;
 +		case 'p':               /* read passphrase from given fd */
 +			passFDnumber = optarg;
-+			break;
-+		case 'r':               /* read-only */
-+			ro = 1;
  			break;
 -		case 'p':
 -			passfd = optarg;
++		case 'r':               /* read-only */
++			ro = 1;
++			break;
 +		case 's':
 +			loopSizeBytes = optarg;
 +			break;
@@ -1563,21 +1921,39 @@ diff -urN util-linux-2.12/mount/lomount.c util-linux-2.12-AES/mount/lomount.c
  			usage();
  		}
  	}
- 	if (argc == 1) usage();
--	if ((delete && (argc != optind+1 || encryption || offset)) ||
+-
+-	if (argc == 1) {
+-		usage();
+-	} else if (delete) {
+-		if (argc != optind+1 || encryption || offset || find)
+-			usage();
+-	} else if (find) {
+-		if (argc < optind || argc > optind+1)
+-			usage();
+-	} else {
+-		if (argc < optind+1 || argc > optind+2)
+-			usage();
++	if (argc == 1) usage();
 +	if (option_a) {
 +		if (delete || (argc != optind)) usage();
 +		show_all_loops();
 +		exit(0);
-+	}
+ 	}
+-
+-	if (find) {
+-		device = find_unused_loop_device();
+-		if (device == NULL)
+-			return -1;
+-		if (verbose)
+-			printf("Loop device is %s\n", device);
+-		if (argc == optind) {
+-			printf("%s\n", device);
+-			return 0;
+-		}
+-		file = argv[optind];
 +	if ((delete && (argc != optind+1 || loopEncryptionType || loopOffsetBytes || loopSizeBytes || option_F)) ||
- 	    (!delete && (argc < optind+1 || argc > optind+2)))
- 		usage();
--	if (argc == optind+1) {
--		if (delete)
--			res = del_loop(argv[optind]);
--		else
--			res = show_loop(argv[optind]);
++	    (!delete && (argc < optind+1 || argc > optind+2)))
++		usage();
 +	if (argc > optind+1)
 +		partitionName = argv[optind+1];
 +	if (option_F && (read_options_from_fstab(argv[optind], &partitionName) != 1))
@@ -1587,13 +1963,24 @@ diff -urN util-linux-2.12/mount/lomount.c util-linux-2.12-AES/mount/lomount.c
 +	} else if ((argc == optind+1) && !option_F) {
 +		res = show_loop(argv[optind]);
  	} else {
--		if (offset && sscanf(offset,"%d",&off) != 1)
+-		device = argv[optind];
+-		if (argc == optind+1)
+-			file = NULL;
+-		else
+-			file = argv[optind+1];
+-	}
+-
+-	if (delete)
+-		res = del_loop(device);
+-	else if (file == NULL)
+-		res = show_loop(device);
+-	else {
+-		if (offset && sscanf(offset, "%llu", &off) != 1)
 -			usage();
--		if (passfd && sscanf(passfd,"%d",&pfd) != 1)
+-		if (passfd && sscanf(passfd, "%d", &pfd) != 1)
 -			usage();
--		res = set_loop(argv[optind], argv[optind+1], off,
--			       encryption, pfd, &ro);
-+		res = set_loop(argv[optind],partitionName,&ro);
+-		res = set_loop(device, file, off, encryption, pfd, &ro);
++		res = set_loop(argv[optind],partitionName,&ro,(const char**)0,(unsigned int *)0);
  	}
  	return res;
  }
@@ -1609,14 +1996,15 @@ diff -urN util-linux-2.12/mount/lomount.c util-linux-2.12-AES/mount/lomount.c
 -}
 -#endif
  #endif
-diff -urN util-linux-2.12/mount/lomount.h util-linux-2.12-AES/mount/lomount.h
---- util-linux-2.12/mount/lomount.h	Wed Jul 16 00:23:10 2003
-+++ util-linux-2.12-AES/mount/lomount.h	Fri Nov 21 14:48:51 2003
+Index: util-linux-2.12q/mount/lomount.h
+===================================================================
+--- util-linux-2.12q.orig/mount/lomount.h	2004-07-11 19:23:46.000000000 +0200
++++ util-linux-2.12q/mount/lomount.h	2005-04-29 14:22:28.000000000 +0200
 @@ -1,6 +1,17 @@
  extern int verbose;
--extern int set_loop(const char *, const char *, int, const char *,
--		    int, int *);
-+extern int set_loop(const char *, const char *, int *);
+-extern int set_loop(const char *, const char *, unsigned long long,
+-		    const char *, int, int *);
++extern int set_loop(const char *, const char *, int *, const char **, unsigned int *);
  extern int del_loop(const char *);
  extern int is_loop_device(const char *);
  extern char * find_unused_loop_device(void);
@@ -1632,9 +2020,10 @@ diff -urN util-linux-2.12/mount/lomount.h util-linux-2.12-AES/mount/lomount.h
 +extern char *loopOffsetBytes;
 +extern char *loopSizeBytes;
 +extern char *loopEncryptionType;
-diff -urN util-linux-2.12/mount/loop.c util-linux-2.12-AES/mount/loop.c
---- util-linux-2.12/mount/loop.c	Thu Jan  1 02:00:00 1970
-+++ util-linux-2.12-AES/mount/loop.c	Fri Nov 21 14:48:51 2003
+Index: util-linux-2.12q/mount/loop.c
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ util-linux-2.12q/mount/loop.c	2005-04-29 14:22:28.000000000 +0200
 @@ -0,0 +1,221 @@
 +/*
 + *  loop.c
@@ -1857,9 +2246,10 @@ diff -urN util-linux-2.12/mount/loop.c util-linux-2.12-AES/mount/loop.c
 +	loopinfo->lo_encrypt_type = 18; /* LO_CRYPT_CRYPTOAPI */
 +	return(loop_set_status64_ioctl(fd, loopinfo));
 +}
-diff -urN util-linux-2.12/mount/loop.h util-linux-2.12-AES/mount/loop.h
---- util-linux-2.12/mount/loop.h	Wed Jul 16 23:06:02 2003
-+++ util-linux-2.12-AES/mount/loop.h	Thu Dec  4 16:34:20 2003
+Index: util-linux-2.12q/mount/loop.h
+===================================================================
+--- util-linux-2.12q.orig/mount/loop.h	2003-07-16 22:06:02.000000000 +0200
++++ util-linux-2.12q/mount/loop.h	2005-04-29 14:22:28.000000000 +0200
 @@ -1,6 +1,20 @@
 -#define LO_CRYPT_NONE	0
 -#define LO_CRYPT_XOR	1
@@ -1884,11 +2274,12 @@ diff -urN util-linux-2.12/mount/loop.h util-linux-2.12-AES/mount/loop.h
  #define LO_CRYPT_CRYPTOAPI 18
  
  #define LOOP_SET_FD		0x4C00
-@@ -9,17 +23,24 @@
+@@ -9,17 +23,25 @@
  #define LOOP_GET_STATUS		0x4C03
  #define LOOP_SET_STATUS64	0x4C04
  #define LOOP_GET_STATUS64	0x4C05
 +#define LOOP_MULTI_KEY_SETUP 	0x4C4D
++#define LOOP_MULTI_KEY_SETUP_V3	0x4C4E
  
 -#define LO_NAME_SIZE	64
 -#define LO_KEY_SIZE	32
@@ -1915,7 +2306,7 @@ diff -urN util-linux-2.12/mount/loop.h util-linux-2.12-AES/mount/loop.h
  	int		lo_offset;
  	int		lo_encrypt_type;
  	int		lo_encrypt_key_size;
-@@ -30,22 +51,35 @@
+@@ -30,22 +52,35 @@ struct loop_info {
  	char		reserved[4];
  };
  
@@ -1968,49 +2359,72 @@ diff -urN util-linux-2.12/mount/loop.h util-linux-2.12-AES/mount/loop.h
 +extern int try_cryptoapi_loop_interface(int, struct loop_info64 *, char *);
 +
 +#endif
-diff -urN util-linux-2.12/mount/losetup.8 util-linux-2.12-AES/mount/losetup.8
---- util-linux-2.12/mount/losetup.8	Wed Jul 16 02:06:37 2003
-+++ util-linux-2.12-AES/mount/losetup.8	Fri Nov 21 14:48:51 2003
-@@ -1,26 +1,28 @@
+Index: util-linux-2.12q/mount/losetup.8
+===================================================================
+--- util-linux-2.12q.orig/mount/losetup.8	2004-12-05 02:35:54.000000000 +0100
++++ util-linux-2.12q/mount/losetup.8	2005-04-29 14:22:28.000000000 +0200
+@@ -1,42 +1,28 @@
 -.TH LOSETUP 8 "2003-07-01" "Linux" "MAINTENANCE COMMANDS"
-+.TH LOSETUP 8 "2003-11-21" "Linux" "MAINTENANCE COMMANDS"
++.TH LOSETUP 8 "2004-11-25" "Linux" "MAINTENANCE COMMANDS"
  .SH NAME
  losetup \- set up and control loop devices
  .SH SYNOPSIS
  .ad l
+-Get info:
+-.sp
+-.in +5
  .B losetup
- [
--.RB [ \-e | \-E ]
++[
 +.B \-e
- .I encryption
--] [
--.B \-o
--.I offset
--] [
--.B \-p
--.I pfd
--]
--.I loop_device file
++.I encryption
 +] [options]
 +.I loop_device
 +file
 +.br
 +.B losetup -F
 +[options]
-+.I loop_device
-+[file]
- .br
- .B losetup
- [
- .B \-d
- ]
  .I loop_device
+-.sp
+-.in -5
+-Delete loop:
+-.sp
+-.in +5
+-.B "losetup \-d"
++[file]
++.br
++.B losetup
++[
++.B \-d
++]
+ .I loop_device
+-.sp
+-.in -5
+-Print name of first unused loop device:
+-.sp
+-.in +5
+-.B "losetup \-f"
+-.sp
+-.in -5
+-Setup loop device:
+-.sp
+-.in +5
+-.B losetup
+-.RB [{\-e | \-E}
+-.IR encryption ]
+-.RB [ \-o
+-.IR offset ]
+-.RB [ \-p
+-.IR pfd ]
+-.in +8
+-.RB { \-f | \fIloop_device\fP }
+-.I file
+-.in -13
 +.br
 +.B losetup -a
  .ad b
  .SH DESCRIPTION
  .B losetup
-@@ -28,41 +30,93 @@
+@@ -44,45 +30,108 @@ is used to associate loop devices with r
  to detach loop devices and to query the status of a loop device. If only the
  \fIloop_device\fP argument is given, the status of the corresponding loop
  device is shown.
@@ -2050,6 +2464,10 @@ diff -urN util-linux-2.12/mount/losetup.8 util-linux-2.12-AES/mount/losetup.8
 -Enable data encryption with specified number.
 -.IP "\fB\-e \fIencryption_name\fP"
 -Enable data encryption with specified name.
+-.IP "\fB\-f\fP"
+-Find the first unused loop device. If a
+-.I file
+-argument is present, use this device. Otherwise, print its name.
 +.IP "\fB\-e \fIencryption\fP"
 +.RS
 +Enable data encryption. Following encryption types are recognized:
@@ -2087,8 +2505,17 @@ diff -urN util-linux-2.12/mount/losetup.8 util-linux-2.12-AES/mount/losetup.8
 +has no effect.
 +.IP "\fB\-H \fIphash\fP"
 +Uses \fIphash\fP function to hash password. Available hash functions are
-+sha256, sha384, sha512 and rmd160. unhashed1 and unhashed2 functions also
-+exist for compatibility with some ancient implementations.
++sha256, sha384, sha512 and rmd160. unhashed1, unhashed2 and unhashed3
++functions also exist for compatibility with some obsolete implementations.
++
++Hash function random does not ask for password but sets up random keys and
++attempts to put loop to multi-key mode. When random/1777 hash type is used
++as mount option for mount program, mount program will create new file system
++on the loop device and construct initial permissions of file system root
++directory from octal digits that follow the slash character.
++
++WARNING! DO NOT USE RANDOM HASH TYPE ON PARTITION WITH EXISTING IMPORTANT
++DATA ON IT. RANDOM HASH TYPE WILL DESTROY YOUR DATA.
 +.IP "\fB\-I \fIloinit\fP"
 +Passes a numeric value of \fIloinit\fP as a parameter to cipher transfer
 +function. Cipher transfer functions are free to interpret value as they
@@ -2098,10 +2525,11 @@ diff -urN util-linux-2.12/mount/losetup.8 util-linux-2.12-AES/mount/losetup.8
 +contains the real keys that are used to encrypt loop device. If decryption
 +requires public/private keys and gpghome is not specified, all users use
 +their own gpg public/private keys to decrypt \fIgpgkey\fP. Decrypted
-+\fIgpgkey\fP should contain either 1 or 64 keys, each key at least 20
++\fIgpgkey\fP should contain 1 or 64 or 65 keys, each key at least 20
 +characters and separated by newline. If decrypted \fIgpgkey\fP contains 64
-+keys, then loop device is put to multi-key mode. In multi-key mode first key
-+is used for first sector, second key for second sector, and so on.
++or 65 keys, then loop device is put to multi-key mode. In multi-key mode
++first key is used for first sector, second key for second sector, and so on.
++65th key, if present, is used as additional input to MD5 IV computation.
  .IP "\fB\-o \fIoffset\fP"
  The data start is moved \fIoffset\fP bytes into the specified file or
 -device.
@@ -2115,7 +2543,12 @@ diff -urN util-linux-2.12/mount/losetup.8 util-linux-2.12-AES/mount/losetup.8
 +some older kernels and/or loop drivers.
 +.IP "\fB\-p \fIpasswdfd\fP"
 +Read the passphrase from file descriptor \fIpasswdfd\fP instead of the
-+terminal.
++terminal. If -K option is not being used (no gpg key file), then losetup
++attempts to read 65 keys from \fIpasswdfd\fP, each key at least 20
++characters and separated by newline. If losetup successfully reads 64 or 65
++keys, then loop device is put to multi-key mode. If losetup encounters
++end-of-file before 64 keys are read, then only first key is used in
++single-key mode.
 +.IP "\fB\-r\fP"
 +Read-only mode.
 +.IP "\fB\-s \fIsizelimit\fP"
@@ -2135,7 +2568,7 @@ diff -urN util-linux-2.12/mount/losetup.8 util-linux-2.12-AES/mount/losetup.8
  .SH RETURN VALUE
  .B losetup
  returns 0 on success, nonzero on failure. When
-@@ -74,43 +128,25 @@
+@@ -94,43 +143,26 @@ from determining the status of the devic
  
  .SH FILES
  .nf
@@ -2155,16 +2588,19 @@ diff -urN util-linux-2.12/mount/losetup.8 util-linux-2.12-AES/mount/losetup.8
 -.LP
  The following commands can be used as an example of using the loop device.
  .nf
- .IP
+-.IP
 -# dd if=/dev/zero of=/file bs=1k count=100
 -# losetup -e des /dev/loop0 /file
-+dd if=/dev/zero of=/file bs=1k count=100
-+losetup -e AES128 /dev/loop0 /file
- Password:
+-Password:
 -Init (up to 16 hex digits):
 -# mkfs -t ext2 /dev/loop0 100
 -# mount -t ext2 /dev/loop0 /mnt
-+mkfs -t ext2 /dev/loop0 100
++
++dd if=/dev/zero of=/file bs=1k count=500
++head -c 2925 /dev/random | uuencode -m - | head -n 66 \\
++    | tail -n 65 | gpg --symmetric -a >/etc/fskey9.gpg
++losetup -e AES128 -K /etc/fskey9.gpg /dev/loop0 /file
++mkfs -t ext2 /dev/loop0
 +mount -t ext2 /dev/loop0 /mnt
   ...
 -# umount /dev/loop0
@@ -2192,9 +2628,10 @@ diff -urN util-linux-2.12/mount/losetup.8 util-linux-2.12-AES/mount/losetup.8
 +Original version: Theodore Ts'o <tytso@athena.mit.edu>
 +AES support: Jari Ruusu
 +.fi
-diff -urN util-linux-2.12/mount/loumount.c util-linux-2.12-AES/mount/loumount.c
---- util-linux-2.12/mount/loumount.c	Thu Jan  1 02:00:00 1970
-+++ util-linux-2.12-AES/mount/loumount.c	Fri Nov 21 14:48:51 2003
+Index: util-linux-2.12q/mount/loumount.c
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ util-linux-2.12q/mount/loumount.c	2005-04-29 14:22:28.000000000 +0200
 @@ -0,0 +1,60 @@
 +/*
 + *  loumount.c
@@ -2256,32 +2693,28 @@ diff -urN util-linux-2.12/mount/loumount.c util-linux-2.12-AES/mount/loumount.c
 +		printf(_("del_loop(%s): success\n"), device);
 +	return 0;
 +}
-diff -urN util-linux-2.12/mount/mount.8 util-linux-2.12-AES/mount/mount.8
---- util-linux-2.12/mount/mount.8	Mon Jul 14 03:59:11 2003
-+++ util-linux-2.12-AES/mount/mount.8	Fri Nov 21 14:48:51 2003
-@@ -39,7 +39,7 @@
- .\" 010725, Nikita Danilov <NikitaDanilov@Yahoo.COM>: reiserfs options
- .\" 011124, Karl Eichwalder <ke@gnu.franken.de>: tmpfs options
- .\"
--.TH MOUNT 8 "14 September 1997" "Linux 2.0" "Linux Programmer's Manual"
-+.TH MOUNT 8 "May 23 2001" "Linux 2.0" "Linux Programmer's Manual"
- .SH NAME
- mount \- mount a file system
- .SH SYNOPSIS
-@@ -270,6 +270,12 @@
+Index: util-linux-2.12q/mount/mount.8
+===================================================================
+--- util-linux-2.12q.orig/mount/mount.8	2004-12-19 23:30:14.000000000 +0100
++++ util-linux-2.12q/mount/mount.8	2005-04-29 14:22:28.000000000 +0200
+@@ -281,6 +281,16 @@ Print a help message.
  .B \-v
  Verbose mode.
  .TP
 +.B \-p "\fIpasswdfd\fP"
 +If the mount requires a passphrase to be entered, read it from file
-+descriptor
-+.IR passwdfd\fP
-+instead of from the terminal.
++descriptor \fIpasswdfd\fP instead of from the terminal. If mount uses
++encrypted loop device and gpgkey= mount option is not being used (no gpg key
++file), then mount attempts to read 65 keys from \fIpasswdfd\fP, each key at
++least 20 characters and separated by newline. If mount successfully reads 64
++or 65 keys, then loop device is put to multi-key mode. If mount encounters
++end-of-file before 64 keys are read, then only first key is used in
++single-key mode.
 +.TP
  .B \-a
  Mount all filesystems (of the given types) mentioned in
  .IR fstab .
-@@ -315,12 +321,6 @@
+@@ -328,12 +338,6 @@ This is necessary for example when
  .I /etc
  is on a read-only file system.
  .TP
@@ -2294,16 +2727,19 @@ diff -urN util-linux-2.12/mount/mount.8 util-linux-2.12-AES/mount/mount.8
  .B \-s
  Tolerate sloppy mount options rather than failing. This will ignore
  mount options not supported by a filesystem type. Not all filesystems
-@@ -1692,10 +1692,14 @@
- .IR /tmp/fdimage ,
+@@ -1841,13 +1845,17 @@ to correspond to the file
  and then mount this device on
  .IR /mnt .
+ 
 -This type of mount knows about three options, namely
 -.BR loop ", " offset " and " encryption ,
 +This type of mount knows about 10 options, namely
 +.BR loop ", " offset ", " sizelimit ", " encryption ", " pseed ", " phash ", " loinit ", " gpgkey ", " gpghome " and " itercountk
  that are really options to
- .BR losetup (8).
+ .BR \%losetup (8).
+ (These options can be used in addition to those specific
+ to the filesystem type.)
+ 
 +If the mount requires a passphrase, you will be prompted for one unless you
 +specify a file descriptor to read from instead with the
 +.BR \-p
@@ -2311,10 +2747,11 @@ diff -urN util-linux-2.12/mount/mount.8 util-linux-2.12-AES/mount/mount.8
  If no explicit loop device is mentioned
  (but just an option `\fB\-o loop\fP' is given), then
  .B mount
-diff -urN util-linux-2.12/mount/mount.c util-linux-2.12-AES/mount/mount.c
---- util-linux-2.12/mount/mount.c	Wed Jul 16 00:38:48 2003
-+++ util-linux-2.12-AES/mount/mount.c	Fri Nov 21 14:48:51 2003
-@@ -47,6 +47,7 @@
+Index: util-linux-2.12q/mount/mount.c
+===================================================================
+--- util-linux-2.12q.orig/mount/mount.c	2005-04-29 14:00:33.000000000 +0200
++++ util-linux-2.12q/mount/mount.c	2005-04-29 14:22:28.000000000 +0200
+@@ -11,6 +11,7 @@
  #include <string.h>
  #include <getopt.h>
  #include <stdio.h>
@@ -2322,7 +2759,7 @@ diff -urN util-linux-2.12/mount/mount.c util-linux-2.12-AES/mount/mount.c
  
  #include <pwd.h>
  #include <grp.h>
-@@ -113,9 +114,6 @@
+@@ -80,9 +81,6 @@ static int mounttype = 0;
  /* True if ruid != euid.  */
  static int suid = 0;
  
@@ -2332,43 +2769,45 @@ diff -urN util-linux-2.12/mount/mount.c util-linux-2.12-AES/mount/mount.c
  /* Map from -o and fstab option strings to the flag argument to mount(2).  */
  struct opt_map {
    const char *opt;		/* option name */
-@@ -194,7 +192,7 @@
+@@ -168,7 +166,7 @@ static const struct opt_map opt_map[] = 
    { NULL,	0, 0, 0		}
  };
  
--static char *opt_loopdev, *opt_vfstype, *opt_offset, *opt_encryption,
-+static char *opt_loopdev, *opt_vfstype,
-   *opt_speed;
+-static const char *opt_loopdev, *opt_vfstype, *opt_offset, *opt_encryption,
++static const char *opt_loopdev, *opt_vfstype,
+ 	*opt_speed, *opt_comment;
  
  static struct string_opt_map {
-@@ -204,8 +202,15 @@
+@@ -178,8 +176,15 @@ static struct string_opt_map {
  } string_opt_map[] = {
    { "loop=",	0, &opt_loopdev },
    { "vfs=",	1, &opt_vfstype },
 -  { "offset=",	0, &opt_offset },
 -  { "encryption=", 0, &opt_encryption },
-+  { "pseed=",	1, &passSeedString },
-+  { "phash=",	0, &passHashFuncName },
-+  { "loinit=",	0, &loInitValue },
-+  { "gpgkey=",	0, &gpgKeyFile },
-+  { "gpghome=",	0, &gpgHomeDir },
-+  { "itercountk=", 1, &passIterThousands },
-+  { "offset=",	0, &loopOffsetBytes },
-+  { "sizelimit=", 0, &loopSizeBytes },
-+  { "encryption=", 0, &loopEncryptionType },
++  { "pseed=",	1, (const char **)&passSeedString },
++  { "phash=",	0, (const char **)&passHashFuncName },
++  { "loinit=",	0, (const char **)&loInitValue },
++  { "gpgkey=",	0, (const char **)&gpgKeyFile },
++  { "gpghome=",	0, (const char **)&gpgHomeDir },
++  { "itercountk=", 1, (const char **)&passIterThousands },
++  { "offset=",	0, (const char **)&loopOffsetBytes },
++  { "sizelimit=", 0, (const char **)&loopSizeBytes },
++  { "encryption=", 0, (const char **)&loopEncryptionType },
    { "speed=", 0, &opt_speed },
+   { "comment=", 1, &opt_comment },
    { NULL, 0, NULL }
- };
-@@ -561,7 +566,7 @@
+@@ -581,9 +586,8 @@ suid_check(const char *spec, const char 
+ 
  static int
- loop_check(char **spec, char **type, int *flags,
- 	   int *loop, char **loopdev, char **loopfile) {
--  int looptype, offset;
-+  int looptype;
+ loop_check(const char **spec, const char **type, int *flags,
+-	   int *loop, const char **loopdev, const char **loopfile) {
++	   int *loop, const char **loopdev, const char **loopfile, unsigned int *AutoChmodPtr) {
+   int looptype;
+-  unsigned long long offset;
  
    /*
     * In the case of a loop mount, either type is of the form lo@/dev/loop5
-@@ -586,7 +591,7 @@
+@@ -608,7 +612,7 @@ loop_check(const char **spec, const char
        *type = opt_vfstype;
    }
  
@@ -2377,18 +2816,18 @@ diff -urN util-linux-2.12/mount/mount.c util-linux-2.12-AES/mount/mount.c
    *loopfile = *spec;
  
    if (*loop) {
-@@ -603,9 +608,7 @@
+@@ -625,9 +629,7 @@ loop_check(const char **spec, const char
  	return EX_SYSERR;	/* no more loop devices */
        if (verbose)
  	printf(_("mount: going to use the loop device %s\n"), *loopdev);
--      offset = opt_offset ? strtoul(opt_offset, NULL, 0) : 0;
+-      offset = opt_offset ? strtoull(opt_offset, NULL, 0) : 0;
 -      if (set_loop(*loopdev, *loopfile, offset,
 -		   opt_encryption, pfd, &loopro)) {
-+      if (set_loop (*loopdev, *loopfile, &loopro)) {
++      if (set_loop (*loopdev, *loopfile, &loopro, type, AutoChmodPtr)) {
  	if (verbose)
  	  printf(_("mount: failed setting up loop device\n"));
  	return EX_FAIL;
-@@ -664,14 +667,6 @@
+@@ -688,14 +690,6 @@ update_mtab_entry(const char *spec, cons
  }
  
  static void
@@ -2400,10 +2839,49 @@ diff -urN util-linux-2.12/mount/mount.c util-linux-2.12-AES/mount/mount.c
 -}
 -
 -static void
- cdrom_setspeed(char *spec) {
+ cdrom_setspeed(const char *spec) {
  #define CDROM_SELECT_SPEED      0x5322  /* Set the CD-ROM speed */
-     if (opt_speed) {
-@@ -1486,8 +1481,8 @@
+ 	if (opt_speed) {
+@@ -789,6 +783,7 @@ try_mount_one (const char *spec0, const 
+   const char *opts, *spec, *node, *types;
+   char *user = 0;
+   int loop = 0;
++  unsigned int LoopMountAutomaticChmod = 0;
+   const char *loopdev = 0, *loopfile = 0;
+   struct stat statbuf;
+   int nfs_mount_version = 0;	/* any version */
+@@ -821,7 +816,7 @@ try_mount_one (const char *spec0, const 
+        * stale assignments of files to loop devices. Nasty when used for
+        * encryption.
+        */
+-      res = loop_check(&spec, &types, &flags, &loop, &loopdev, &loopfile);
++      res = loop_check(&spec, &types, &flags, &loop, &loopdev, &loopfile, &LoopMountAutomaticChmod);
+       if (res)
+ 	  goto out;
+   }
+@@ -856,9 +851,20 @@ retry_nfs:
+ 
+   block_signals (SIG_BLOCK);
+ 
+-  if (!fake)
++  if (!fake) {
+     mnt5_res = guess_fstype_and_mount (spec, node, &types, flags & ~MS_NOSYS,
+ 				       mount_opts);
++    if(!mnt5_res && LoopMountAutomaticChmod && (getuid() == 0)) {
++      /*
++       * If loop was set up using random keys and new file system
++       * was created on the loop device, initial permissions for
++       * file system root directory need to be set here.
++       */
++      if(chmod(node, LoopMountAutomaticChmod)) {
++        error (_("Error: encrypted file system chmod() failed"));
++      }
++    }
++  }
+ 
+   if (fake || mnt5_res == 0) {
+       /* Mount succeeded, report this (if verbose) and write mtab entry.  */
+@@ -1531,8 +1537,8 @@ main(int argc, char *argv[]) {
  			else
  				test_opts = xstrdup(optarg);
  			break;
@@ -2414,9 +2892,23 @@ diff -urN util-linux-2.12/mount/mount.c util-linux-2.12-AES/mount/mount.c
  			break;
  		case 'r':		/* mount readonly */
  			readonly = 1;
-diff -urN util-linux-2.12/mount/rmd160.c util-linux-2.12-AES/mount/rmd160.c
---- util-linux-2.12/mount/rmd160.c	Thu Jan  1 02:00:00 1970
-+++ util-linux-2.12-AES/mount/rmd160.c	Fri Nov 21 14:48:51 2003
+Index: util-linux-2.12q/mount/mount_by_label.c
+===================================================================
+--- util-linux-2.12q.orig/mount/mount_by_label.c	2004-12-22 00:15:33.000000000 +0100
++++ util-linux-2.12q/mount/mount_by_label.c	2005-04-29 14:22:28.000000000 +0200
+@@ -189,7 +189,7 @@ uuidcache_init(void) {
+ 	if (!procpt) {
+ 		static int warn = 0;
+ 		if (!warn++)
+-		    error (_("%s: could not open %s, so UUID and LABEL "
++		    fprintf(stderr, _("%s: could not open %s, so UUID and LABEL "
+ 			     "conversion cannot be done.\n"),
+ 			   progname, PROC_PARTITIONS);
+ 		return;
+Index: util-linux-2.12q/mount/rmd160.c
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ util-linux-2.12q/mount/rmd160.c	2005-04-29 14:22:28.000000000 +0200
 @@ -0,0 +1,532 @@
 +/* rmd160.c  -	RIPE-MD160
 + *	Copyright (C) 1998 Free Software Foundation, Inc.
@@ -2950,9 +3442,10 @@ diff -urN util-linux-2.12/mount/rmd160.c util-linux-2.12-AES/mount/rmd160.c
 +    rmd160_final( &hd );
 +    memcpy( outbuf, hd.buf, 20 );
 +}
-diff -urN util-linux-2.12/mount/rmd160.h util-linux-2.12-AES/mount/rmd160.h
---- util-linux-2.12/mount/rmd160.h	Thu Jan  1 02:00:00 1970
-+++ util-linux-2.12-AES/mount/rmd160.h	Fri Nov 21 14:48:51 2003
+Index: util-linux-2.12q/mount/rmd160.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ util-linux-2.12q/mount/rmd160.h	2005-04-29 14:22:28.000000000 +0200
 @@ -0,0 +1,9 @@
 +#ifndef RMD160_H
 +#define RMD160_H
@@ -2963,9 +3456,10 @@ diff -urN util-linux-2.12/mount/rmd160.h util-linux-2.12-AES/mount/rmd160.h
 +#endif /*RMD160_H*/
 +
 +
-diff -urN util-linux-2.12/mount/sha512.c util-linux-2.12-AES/mount/sha512.c
---- util-linux-2.12/mount/sha512.c	Thu Jan  1 02:00:00 1970
-+++ util-linux-2.12-AES/mount/sha512.c	Fri Nov 21 14:48:51 2003
+Index: util-linux-2.12q/mount/sha512.c
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ util-linux-2.12q/mount/sha512.c	2005-04-29 14:22:28.000000000 +0200
 @@ -0,0 +1,432 @@
 +/*
 + *  sha512.c
@@ -3399,9 +3893,10 @@ diff -urN util-linux-2.12/mount/sha512.c util-linux-2.12-AES/mount/sha512.c
 +    memset(&ctx, 0, sizeof(ctx));
 +}
 +#endif
-diff -urN util-linux-2.12/mount/sha512.h util-linux-2.12-AES/mount/sha512.h
---- util-linux-2.12/mount/sha512.h	Thu Jan  1 02:00:00 1970
-+++ util-linux-2.12-AES/mount/sha512.h	Fri Nov 21 14:48:51 2003
+Index: util-linux-2.12q/mount/sha512.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ util-linux-2.12q/mount/sha512.h	2005-04-29 14:22:28.000000000 +0200
 @@ -0,0 +1,45 @@
 +/*
 + *  sha512.h
@@ -3448,10 +3943,11 @@ diff -urN util-linux-2.12/mount/sha512.h util-linux-2.12-AES/mount/sha512.h
 +/* no sha384_write(), use sha512_write() */
 +/* no sha384_final(), use sha512_final(), result in ctx->sha_out[0...47]  */
 +extern void sha384_hash_buffer(unsigned char *, int, unsigned char *, int);
-diff -urN util-linux-2.12/mount/swapon.8 util-linux-2.12-AES/mount/swapon.8
---- util-linux-2.12/mount/swapon.8	Thu Oct 31 20:00:03 2002
-+++ util-linux-2.12-AES/mount/swapon.8	Fri Nov 21 14:48:51 2003
-@@ -117,6 +117,22 @@
+Index: util-linux-2.12q/mount/swapon.8
+===================================================================
+--- util-linux-2.12q.orig/mount/swapon.8	2004-12-21 21:59:42.000000000 +0100
++++ util-linux-2.12q/mount/swapon.8	2005-04-29 14:22:28.000000000 +0200
+@@ -142,6 +142,22 @@ flag is given, swapping is disabled on a
  .I /proc/swaps
  or
  .IR /etc/fstab ).
@@ -3474,13 +3970,24 @@ diff -urN util-linux-2.12/mount/swapon.8 util-linux-2.12-AES/mount/swapon.8
  .SH NOTE
  You should not use
  .B swapon
-diff -urN util-linux-2.12/mount/swapon.c util-linux-2.12-AES/mount/swapon.c
---- util-linux-2.12/mount/swapon.c.orig	2004-01-30 11:53:54.631111976 +0100
-+++ util-linux-2.12/mount/swapon.c	2004-01-30 12:06:52.527046266 +0100
-@@ -11,19 +11,31 @@
-  * 2001-03-22 Erik Troan <ewt@redhat.com>
-  * - added -e option for -a
-  * - -a shouldn't try to add swaps that are already enabled
+Index: util-linux-2.12q/mount/swapon.c
+===================================================================
+--- util-linux-2.12q.orig/mount/swapon.c	2005-04-29 14:13:01.000000000 +0200
++++ util-linux-2.12q/mount/swapon.c	2005-04-29 14:29:32.000000000 +0200
+@@ -1,22 +1,45 @@
+ /*
+  * A swapon(8)/swapoff(8) for Linux 0.99.
+  * swapon.c,v 1.1.1.1 1993/11/18 08:40:51 jrs Exp
++ *
++ * 1997-02-xx <Vincent.Renardias@waw.com>
++ * - added '-s' (summary option)
++ * 1999-02-22 Arkadiusz Mi¶kiewicz <misiek@pld.ORG.PL>
++ * - added Native Language Support
++ * 1999-03-21 Arnaldo Carvalho de Melo <acme@conectiva.com.br>
++ * - fixed strerr(errno) in gettext calls
++ * 2001-03-22 Erik Troan <ewt@redhat.com>
++ * - added -e option for -a
++ * - -a shouldn't try to add swaps that are already enabled
 + * 2002-04-14 Jari Ruusu
 + * - added encrypted swap support
   */
@@ -3499,25 +4006,29 @@ diff -urN util-linux-2.12/mount/swapon.c util-linux-2.12-AES/mount/swapon.c
 +#include <fcntl.h>
 +#include <sys/ioctl.h>
 +#include <sys/utsname.h>
++#include <sys/time.h>
 +#include <asm/page.h>
+ #include "xmalloc.h"
  #include "swap_constants.h"
  #include "swapargs.h"
  #include "nls.h"
+ #include "mount_blkid.h"
+ #include "mount_by_label.h"
 +#include "loop.h"
 +#include "xstrncpy.h"
 +#include "sha512.h"
  
  #define streq(s, t)	(strcmp ((s), (t)) == 0)
  
-@@ -258,6 +270,244 @@
+@@ -297,6 +320,260 @@ swapoff_by_uuid(const char *uuid, int qu
  }
  
  static int
-+prepare_encrypted_swap(char *partition, char *loop, char *encryption)
++prepare_encrypted_swap(const char *partition, char *loop, char *encryption)
 +{
 +	int x, y, fd, ffd;
 +	sha512_context s;
-+	unsigned char b[4096], multiKeyBits[64][32];
++	unsigned char b[4096], multiKeyBits[65][32];
 +	char *a[10], *apiName;
 +	struct loop_info64 loopinfo;
 +	FILE *f;
@@ -3572,11 +4083,25 @@ diff -urN util-linux-2.12/mount/swapon.c util-linux-2.12-AES/mount/swapon.c
 +	 * SHA-512 output beyond this point is difficult and expensive.
 +	 */
 +	for(y = 0; y < 20; y++) {
-+		memset(&b[0], y, sizeof(b));
++		int z;
++		struct {
++			struct timeval tv;
++			unsigned char h[64];
++			int x,y,z;
++		} j;
 +		if(fseek(f, (long)PAGE_SIZE, SEEK_SET)) break;
++		memcpy(&j.h[0], &s.sha_out[0], 64);
++		gettimeofday(&j.tv, NULL);
++		j.y = y;
 +		for(x = 0; x < 10; x++) {
++			j.x = x;
++			for(z = 0; z < sizeof(b); z += 64) {
++				j.z = z;
++				sha512_hash_buffer((unsigned char *)&j, sizeof(j), &b[z], 64);
++			}
 +			if(fwrite(&b[0], sizeof(b), 1, f) != 1) break;
 +		}
++		memset(&j, 0, sizeof(j));
 +		if(fflush(f)) break;
 +		if(fsync(fileno(f))) break;
 +	}
@@ -3628,7 +4153,7 @@ diff -urN util-linux-2.12/mount/swapon.c util-linux-2.12-AES/mount/swapon.c
 +	sha512_hash_buffer(&b[0], 64+32, &loopinfo.lo_encrypt_key[0], sizeof(loopinfo.lo_encrypt_key));
 +	/* multi-key hash */
 +	x = 0;
-+	while(x < 64) {
++	while(x < 65) {
 +		fread(&b[64+32], 16, 1, f);
 +		sha512_hash_buffer(&b[0], 64+32+16, &multiKeyBits[x][0], 32);
 +		x++;
@@ -3650,10 +4175,12 @@ diff -urN util-linux-2.12/mount/swapon.c util-linux-2.12-AES/mount/swapon.c
 +	}
 +
 +	/*
-+	 * Try to put loop to multi-key mode.
++	 * Try to put loop to multi-key v3 or v2 mode.
 +	 * If this fails, then let it operate in single-key mode.
 +	 */
-+	ioctl(fd, LOOP_MULTI_KEY_SETUP, &multiKeyBits[0][0]);
++	if(ioctl(fd, LOOP_MULTI_KEY_SETUP_V3, &multiKeyBits[0][0]) < 0) {
++		ioctl(fd, LOOP_MULTI_KEY_SETUP, &multiKeyBits[0][0]);
++	}
 +
 +	/*
 +	 * Loop is now set up. Clean up the keys.
@@ -3751,143 +4278,131 @@ diff -urN util-linux-2.12/mount/swapon.c util-linux-2.12-AES/mount/swapon.c
 +}
 +
 +static int
- main_swapon(int argc, char *argv[]) {
+ swapon_all(void) {
  	FILE *fp;
  	struct mntent *fstab;
-@@ -345,23 +595,36 @@
- 		        int i;
- 			char *special = fstab->mnt_fsname;
+@@ -341,6 +618,8 @@ swapon_all(void) {
+ 		int skip = 0;
+ 		int pri = priority;
+ 	        int i;
++ 		char *opt, *opts;
++ 		char *loop = NULL, *encryption = NULL;
  
--			if (streq(fstab->mnt_type, MNTTYPE_SWAP) &&
--			    !is_in_proc_swaps(special)
--			    && (!ifexists || !access(special, R_OK))) {
-+			if (streq(fstab->mnt_type, MNTTYPE_SWAP)) {
- 				/* parse mount options; */
- 				char *opt, *opts = strdup(fstab->mnt_opts);
+ 		if (!streq(fstab->mnt_type, MNTTYPE_SWAP))
+ 			continue;
+@@ -349,27 +628,43 @@ swapon_all(void) {
+ 		if (!special)
+ 			continue;
+ 
+-		if (!is_in_proc_swaps(special) &&
+-		    (!ifexists || !access(special, R_OK))) {
+-			/* parse mount options; */
+-			char *opt, *opts = strdup(fstab->mnt_opts);
 -	   
--				for (opt = strtok(opts, ","); opt != NULL;
--				     opt = strtok(NULL, ","))
-+				char *loop = NULL, *encryption = NULL;
-+
-+				for (opt = strtok(opts, ","); opt != NULL; opt = strtok(NULL, ",")) {
- 					if (strncmp(opt, "pri=", 4) == 0)
- 						priority = atoi(opt+4);
--
-+					if (strncmp(opt, "loop=", 5) == 0)
-+						loop = opt + 5;
-+					if (strncmp(opt, "encryption=", 11) == 0)
-+						encryption = opt + 11;
-+				}
-+				if (loop && encryption) {
-+					if(!is_in_proc_swaps(loop) && (!ifexists || !access(special, R_OK))) {
-+						if (!prepare_encrypted_swap(special, loop, encryption)) {
-+							status |= -1;
-+							continue;
-+						}
-+						status |= do_swapon(loop, priority);
-+					}
-+					continue;
-+				}
- 				for (i = 0; i < numSwaps; i++)
- 				     if (!strcmp(swapList[i], fstab->mnt_fsname)) break;
--          
--				if ((i == numSwaps) && 
--				         (!ifexists || !access(fstab->mnt_fsname, R_OK)))
--				     status |= do_swapon(special, priority);
-+
-+				if ((i == numSwaps) && !is_in_proc_swaps(special) && 
-+				    (!ifexists || !access(special, R_OK))) {
-+					status |= do_swapon(special, priority);
-+				}
- 			}
+-			for (opt = strtok(opts, ","); opt != NULL;
+-			     opt = strtok(NULL, ",")) {
+-				if (strncmp(opt, "pri=", 4) == 0)
+-					pri = atoi(opt+4);
+-				if (strcmp(opt, "noauto") == 0)
+-					skip = 1;
+-			}
++ 		/* parse mount options; */
++ 		opts = strdup(fstab->mnt_opts);
++ 		if (!opts) {
++ 			fprintf(stderr, "not enough memory");
++ 			exit(1);
++ 		}
++ 		for (opt = strtok(opts, ","); opt != NULL; opt = strtok(NULL, ",")) {
++ 			if (strncmp(opt, "pri=", 4) == 0)
++ 				pri = atoi(opt+4);
++ 			if (strcmp(opt, "noauto") == 0)
++ 				skip = 1;
++ 			if (strncmp(opt, "loop=", 5) == 0)
++ 				loop = opt + 5;
++ 			if (strncmp(opt, "encryption=", 11) == 0)
++ 				encryption = opt + 11;
++ 		}
++ 		for (i = 0; i < numSwaps; i++)
++		     if (!strcmp(swapList[i], fstab->mnt_fsname)) break;
++        
++		if (!((!skip) && (i == numSwaps) && 
++		         (!ifexists || !access(fstab->mnt_fsname, R_OK))))
++			continue;
+ 
+-			for (i = 0; i < numSwaps; i++)
+-			     if (!strcmp(swapList[i], fstab->mnt_fsname)) break;
+-         
+-			if ((!skip) && (i == numSwaps) && 
+-			         (!ifexists || !access(fstab->mnt_fsname, R_OK)))
+-				status |= do_swapon(special, pri);
++ 		if (loop && encryption) {
++ 			if(!is_in_proc_swaps(loop) && (!ifexists || !access(special, R_OK))) {
++ 				if (!prepare_encrypted_swap(special, loop, encryption)) {
++ 					status |= -1;
++ 					continue;
++ 				}
++ 				status |= do_swapon(loop, pri);
++			}
++ 			continue;
++ 		}
++ 		if (!is_in_proc_swaps(special) && (!ifexists || !access(special, R_OK))) {
++ 			status |= do_swapon(special, pri);
  		}
- 		} else { /* swapoff -- we don't need to parse fstab */
-@@ -443,9 +706,27 @@
+ 	    }
+ 	} else { /* swapoff -- we don't need to parse fstab */
+ 		       int i;
+ 		       for(i=0; i<numSwaps; i++)
+@@ -538,11 +834,49 @@ main_swapoff(int argc, char *argv[]) {
  			exit(2);
  		}
  		while ((fstab = getmntent(fp)) != NULL) {
 -			if (streq(fstab->mnt_type, MNTTYPE_SWAP) &&
 -			    !is_in_proc_swaps(fstab->mnt_fsname))
 -				do_swapoff(fstab->mnt_fsname, QUIET);
-+			if (streq(fstab->mnt_type, MNTTYPE_SWAP)) {
-+				/* parse mount options; */
-+				char *opt, *opts = strdup(fstab->mnt_opts);
-+				char *loop = NULL, *encryption = NULL;
++			const char *orig_special = fstab->mnt_fsname;
++			const char *special;
++			int skip = 0;
++			char *opt, *opts;
++			char *loop = NULL, *encryption = NULL;
 +
-+				for (opt = strtok(opts, ","); opt != NULL; opt = strtok(NULL, ",")) {
-+					if (strncmp(opt, "loop=", 5) == 0)
-+						loop = opt + 5;
-+					if (strncmp(opt, "encryption=", 11) == 0)
-+						encryption = opt + 11;
++			if (!streq(fstab->mnt_type, MNTTYPE_SWAP))
++				continue;
++
++			special = mount_get_devname(orig_special);
++			if (!special)
++				continue;
++
++			/* parse mount options; */
++			opts = strdup(fstab->mnt_opts);
++			if (!opts) {
++				fprintf(stderr, "not enough memory");
++				exit(1);
++			}
++			for (opt = strtok(opts, ","); opt != NULL; opt = strtok(NULL, ",")) {
++				if (strcmp(opt, "noauto") == 0)
++					skip = 1;
++				if (strncmp(opt, "loop=", 5) == 0)
++					loop = opt + 5;
++				if (strncmp(opt, "encryption=", 11) == 0)
++					encryption = opt + 11;
++			}
++			if (loop && encryption) {
++				if (!is_in_proc_swaps(loop)) {
++					if(skip)
++						continue;
++					do_swapoff(loop, QUIET);
 +				}
-+				if (loop && encryption) {
-+					if (!is_in_proc_swaps(loop))
-+						do_swapoff(loop, QUIET);
-+					shutdown_encrypted_swap(loop);
-+					continue;
-+				}
-+				if (!is_in_proc_swaps(fstab->mnt_fsname)) {
-+					do_swapoff(fstab->mnt_fsname, QUIET);
-+				}
++				shutdown_encrypted_swap(loop);
++				continue;
++			}
++			if(skip)
++				continue;
++			if (!is_in_proc_swaps(special)) {
++				do_swapoff(special, QUIET);
 +			}
  		}
+-		fclose(fp);
++		endmntent(fp);
  	}
  
---- util-linux-2.12/mount/Makefile.orig	2004-01-30 11:53:54.651109288 +0100
-+++ util-linux-2.12/mount/Makefile	2004-01-30 11:57:00.455097120 +0100
-@@ -24,7 +24,6 @@
- 
- MAYBE = pivot_root swapoff
- 
--LO_OBJS = lomount.o $(LIB)/xstrncpy.o
- NFS_OBJS = nfsmount.o nfsmount_xdr.o nfsmount_clnt.o
- GEN_FILES = nfsmount.h nfsmount_xdr.c nfsmount_clnt.c
- 
-@@ -44,22 +43,31 @@
- 
- mount: mount.o fstab.o sundries.o realpath.o mntent.o version.o \
-        mount_guess_fstype.o get_label_uuid.o mount_by_label.o getusername.o \
--       $(LIB)/setproctitle.o $(LIB)/env.o $(NFS_OBJS) $(LO_OBJS)
-+       $(LIB)/setproctitle.o $(LIB)/env.o $(NFS_OBJS) lomount.o loumount.o \
-+       loop.o sha512.o rmd160.o aes.o $(LIB)/xstrncpy.o
- 	$(LINK) $^ -o $@
- 
- umount: umount.o fstab.o sundries.o realpath.o mntent.o getusername.o \
--	get_label_uuid.o version.o mount_by_label.o $(LIB)/env.o $(LO_OBJS)
-+	get_label_uuid.o version.o mount_by_label.o $(LIB)/env.o loumount.o
- 	$(LINK) $^ -o $@
- 
--swapon:	swapon.o version.o
-+swapon:	swapon.o version.o loop.o sha512.o $(LIB)/xstrncpy.o
- 	$(LINK) $^ -o $@
- 
- main_losetup.o: lomount.c
- 	$(COMPILE) -DMAIN lomount.c -o $@
- 
--losetup: main_losetup.o $(LIB)/xstrncpy.o
-+losetup: main_losetup.o loumount.o loop.o sha512.o rmd160.o aes.o $(LIB)/xstrncpy.o
- 	$(LINK) $^ -o $@
- 
-+loop.o lomount.o main_losetup.o swapon.o: loop.h
-+
-+sha512.o lomount.o main_losetup.o swapon.o: sha512.h
-+
-+rmd160.o lomount.o main_losetup.o: rmd160.h
-+
-+aes.o lomount.o main_losetup.o: aes.h
-+
- mount.o umount.o nfsmount.o losetup.o fstab.o realpath.o sundries.o: sundries.h
- 
- mount.o umount.o fstab.o sundries.o: fstab.h
-@@ -72,9 +80,9 @@
- 
- mount.o umount.o getusername.o: getusername.h
- 
--mount.o umount.o losetup.o lomount.o: lomount.h loop.h my_dev_t.h
-+mount.o umount.o losetup.o lomount.o loumount.o: lomount.h loop.h
- 
--swapon.o: swap_constants.h swapargs.h
-+swapon.o: swap_constants.h swapargs.h loop.h
- 
- sundries.o nfsmount.o nfsmount_xdr.o nfsmount_clnt.o: nfsmount.h
- 
+ 	return status;
