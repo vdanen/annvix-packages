@@ -8,7 +8,7 @@
 
 %define name			gcc
 %define version			3.4.4
-%define release			2avx
+%define release			3avx
 
 %define _unpackaged_files_terminate_build 0
 
@@ -307,8 +307,8 @@ popd
 
 #%patch1 -p1 -b .hardened_cflags
 #%patch2 -p1 -b .no_fixincludes
-%patch3 -p1 -b .ssp
-%patch4 -p1 -b .linkonce
+#%patch3 -p1 -b .ssp
+#%patch4 -p1 -b .linkonce
 %patch6 -p1 -b .pch-mdkflags
 
 # FIXME: use a configure flag
@@ -319,7 +319,7 @@ perl -pi -e "s,\@MDK_OPT_FLAGS\@,$optflags," \
 
 # Annvix information for bug reports
 perl -pi -e "/bug_report_url/ and s/\"[^\"]+\"/\"<URL:https:\/\/bugs.annvix.org\/>\"/;" \
-         -e '/version_string/ and s/([0-9]*(\.[0-9]*){1,3}).*(\";)$/\1 \((ssp) Annvix %{avx_version} %{version}-%{release}\)\3/;' \
+         -e '/version_string/ and s/([0-9]*(\.[0-9]*){1,3}).*(\";)$/\1 \(Annvix %{avx_version} %{version}-%{release}\)\3/;' \
          gcc/version.c
 
 
@@ -402,11 +402,11 @@ popd
 echo ====================TESTING END=====================
 
 
-pushd obj-%{_target_platform}/gcc
-    # update specs to force -fstack-protector-all on everything we build
-    # apply the patch here so we can still use -bi --short-circuit
-    patch -p0 < %{PATCH5}
-popd
+#pushd obj-%{_target_platform}/gcc
+#    # update specs to force -fstack-protector-all on everything we build
+#    # apply the patch here so we can still use -bi --short-circuit
+#    patch -p0 < %{PATCH5}
+#popd
 
  
 %install
@@ -921,6 +921,13 @@ if [ "$1" = "0" ];then /sbin/install-info %{_infodir}/gcc.info.bz2 --dir=%{_info
 %{_infodir}/gcc.info*
 
 %changelog
+* Sat Jul 23 2005 Vincent Danen <vdanen@annvix.org> 3.4.3-3avx
+- due to problems with compiling glibc, we are disabling SSP system-wide
+  for the time being which will result in a full rebuild of the system
+  but cannot be avoided... SSP support will hopefully be introduced at
+  a later date; the important thing right now is to have a fully working
+  and compilable system
+
 * Thu Jul 21 2005 Vincent Danen <vdanen@annvix.org> 3.4.3-2avx
 - don't apply P2 as it messes up the x86_64 build
 - relocate where we apply the hardened specs patch so we can still
