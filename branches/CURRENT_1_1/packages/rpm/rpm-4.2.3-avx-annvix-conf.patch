@@ -1,5 +1,29 @@
---- rpm-4.2.3/platform.in.annvix	2005-03-01 01:26:40.000000000 -0700
-+++ rpm-4.2.3/platform.in	2005-03-01 01:29:39.000000000 -0700
+--- rpm-4.2.2/scripts/brp-redhat.in.avx	2004-08-04 12:57:59.000000000 -0600
++++ rpm-4.2.2/scripts/brp-redhat.in	2004-08-04 12:58:42.000000000 -0600
+@@ -1,17 +1,17 @@
+ #!/bin/sh
+ 
+-# These are the build root policies that Mandrake Linux invokes at the end
++# These are the build root policies that Annvix invokes at the end
+ # of the %install scriptlet.
+ 
+ if [ -x /usr/share/spec-helper/spec-helper ];then
+     /usr/share/spec-helper/spec-helper
+ else
+-    # Compress man pages (Mandrake Linux uses GNU bzip2)
++    # Compress man pages (Annvix uses GNU bzip2)
+     @RPMCONFIGDIR@/brp-compress
+ 
+-    # Strip ELF binaries (Mandrake Linux uses GNU binutils).
++    # Strip ELF binaries (Annvix uses GNU binutils).
+     @RPMCONFIGDIR@/brp-strip
+ 
+-    # Strip even more sections (Mandrake Linux uses GNU binutils).
++    # Strip even more sections (Annvix uses GNU binutils).
+     @RPMCONFIGDIR@/brp-strip-comment-note
+ fi
+--- rpm-4.2.3/platform.in.annvix	2005-07-26 02:17:07.000000000 -0400
++++ rpm-4.2.3/platform.in	2005-07-26 02:20:30.000000000 -0400
 @@ -103,10 +103,10 @@
  @mandrake@%_localstatedir	%{_var}/lib
  @mandrake@%_sysconfdir		/etc
@@ -31,7 +55,7 @@
  @mandrake@%{nil}
  @mandrake@
  @mandrake@%_del_group_helper /usr/share/rpm-helper/del-group
-@@ -239,6 +239,32 @@
+@@ -239,6 +239,31 @@
  @mandrake@%_del_shell_helper /usr/share/rpm-helper/del-shell
  @mandrake@%_preun_shelldel() %_del_shell_helper %{name} $1 \
  @mandrake@%{nil}
@@ -48,13 +72,12 @@
 +@mandrake@%_vendor		Annvix
 +@mandrake@%_real_vendor		annvix
 +@mandrake@%_target_platform	%{_target_cpu}-%{_real_vendor}-%{_target_os}%{?_gnu}
-+@mandrake@
-+@mandrake@# RPM extension
++@mandrake@%_buildroot		/override
 +@mandrake@%_ext			avx
 +@mandrake@
-+@mandrake@# Default to building with ssp
-+@mandrake@%build_ssp %([ -n "$STACK_PROTECTOR" ] && echo 1 || echo 0)
-+@mandrake@
++#@mandrake@# Default to building with ssp
++#@mandrake@%build_ssp %([ -n "$STACK_PROTECTOR" ] && echo 1 || echo 0)
++#@mandrake@
 +@mandrake@%_add_srv_helper /usr/share/rpm-helper/add-srv
 +@mandrake@%_post_srv() %_add_srv_helper %{name} $1 %{1} \
 +@mandrake@%{nil}
@@ -66,27 +89,14 @@
 +@mandrake@%_mkafterboot	if [[ -f %{_datadir}/afterboot/mkafterboot ]]; then %{_datadir}/afterboot/mkafterboot; fi \
 +@mandrake@%{nil}
 +@mandrake@
---- rpm-4.2.2/scripts/brp-redhat.in.avx	2004-08-04 12:57:59.000000000 -0600
-+++ rpm-4.2.2/scripts/brp-redhat.in	2004-08-04 12:58:42.000000000 -0600
-@@ -1,17 +1,17 @@
- #!/bin/sh
- 
--# These are the build root policies that Mandrake Linux invokes at the end
-+# These are the build root policies that Annvix invokes at the end
- # of the %install scriptlet.
- 
- if [ -x /usr/share/spec-helper/spec-helper ];then
-     /usr/share/spec-helper/spec-helper
- else
--    # Compress man pages (Mandrake Linux uses GNU bzip2)
-+    # Compress man pages (Annvix uses GNU bzip2)
-     @RPMCONFIGDIR@/brp-compress
- 
--    # Strip ELF binaries (Mandrake Linux uses GNU binutils).
-+    # Strip ELF binaries (Annvix uses GNU binutils).
-     @RPMCONFIGDIR@/brp-strip
- 
--    # Strip even more sections (Mandrake Linux uses GNU binutils).
-+    # Strip even more sections (Annvix uses GNU binutils).
-     @RPMCONFIGDIR@/brp-strip-comment-note
- fi
+--- rpm-4.2.3/rpmrc.in.avx	2005-07-26 02:25:06.000000000 -0400
++++ rpm-4.2.3/rpmrc.in	2005-07-26 02:26:26.000000000 -0400
+@@ -14,7 +14,7 @@
+ optflags: i386 -O2 -fomit-frame-pointer -pipe -march=i386 %{debugcflags}
+ optflags: i486 -O2 -fomit-frame-pointer -pipe -march=i486 %{debugcflags}
+ optflags: k6   -O2 -fomit-frame-pointer -pipe -march=k6 %{debugcflags}
+-optflags: i586 -O2 -fomit-frame-pointer -pipe -march=i586 -mcpu=pentiumpro %{debugcflags}
++optflags: i586 -O2 -fomit-frame-pointer -pipe -march=i586 -mtune=pentiumpro %{debugcflags}
+ optflags: i686 -O2 -fomit-frame-pointer -pipe -march=i686 %{debugcflags}
+ optflags: athlon -O2 -fomit-frame-pointer -pipe -march=athlon %{debugcflags}
+ optflags: ia64 -O2 -pipe %{debugcflags}

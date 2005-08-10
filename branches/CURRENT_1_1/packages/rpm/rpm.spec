@@ -1,9 +1,16 @@
+#
+# spec file for package rpm
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
 %define name		rpm
-%define rpmversion      4.2.3
+%define version		4.2.3
 %define poptver		1.8.3
-# You need increase both release and poptrelease
-%define poptrelease	%{release}
-%define release		5avx
+%define release		6avx
 
 %define libver		4.2
 %define url		ftp://ftp.rpm.org/pub/rpm/dist/rpm-4.0.x
@@ -12,7 +19,7 @@
 
 # define biarch platforms
 # XXX merge with lib64arches when fully tested
-%define biarches x86_64
+%define biarches 	x86_64
 %ifarch x86_64
 %define alt_arch	i386
 %endif
@@ -46,7 +53,7 @@
 
 Summary:	The RPM package management system
 Name:		%{name}
-Version:	%{rpmversion}
+Version:	%{version}
 Release:	%{release}
 License:	GPL
 Group:		System/Configuration/Packaging
@@ -115,7 +122,7 @@ Patch63:	rpm-4.2.3-mdk-multiarch.patch.bz2
 Patch64:	rpm-4.2.3-mdk-coloring.patch.bz2
 Patch65:	rpm-4.2.3-mdk-dont-install-delta-rpms.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	autoconf2.5 >= 2.57
 BuildRequires:	doxygen
 BuildRequires:	python-devel
@@ -133,7 +140,7 @@ Requires:	gawk
 Requires:	glibc >= 2.1.92
 Requires:	make
 Requires:	mktemp
-Requires:	popt = %{poptver}-%{poptrelease}
+Requires:	popt = %{poptver}-%{release}
 Requires:	setup >= 2.2.0-8mdk
 Requires:	unzip
 Requires:	elfutils
@@ -149,12 +156,13 @@ installing, uninstalling, verifying, querying, and updating software packages.
 Each software package consists of an archive of files along with information
 about the package like its version, a description, etc.
 
+
 %package devel
 Summary:	Development files for applications which will manipulate RPM packages
 Group:		Development/C
 Requires:	bzip2-devel
 Requires:	rpm = %{version}-%{release}
-Requires:	popt-devel = %{poptver}-%{poptrelease}
+Requires:	popt-devel = %{poptver}-%{release}
 Requires:	zlib-devel
 
 %description devel
@@ -166,6 +174,7 @@ that need an intimate knowledge of RPM packages in order to function.
 
 This package should be installed if you want to develop programs that
 will manipulate RPM packages and databases.
+
 
 %package build
 Summary:	Scripts and executable programs used to build packages
@@ -191,6 +200,7 @@ Requires:	spec-helper
 This package contains scripts and executable programs that are used to
 build packages using RPM.
 
+
 %package python
 Summary:	Python bindings for apps which will manipulate RPM packages
 Group:		Development/Python
@@ -206,11 +216,12 @@ supplied by RPM (RPM Package Manager) libraries.
 This package should be installed if you want to develop Python
 programs that will manipulate RPM packages and databases.
 
+
 %package -n popt
 Summary:	A C library for parsing command line parameters
 Group:		System/Libraries
 Version:	%{poptver}
-Release:	%{poptrelease}
+Release:	%{release}
 
 %description -n popt
 Popt is a C library for parsing command line parameters.  Popt was
@@ -222,12 +233,13 @@ arguments to be aliased via configuration files and includes utility
 functions for parsing arbitrary strings into argv[] arrays using
 shell-like rules.
 
+
 %package -n popt-devel
 Summary:	A C library for parsing command line parameters
 Group:		Development/C
 Version:	%{poptver}
-Release:	%{poptrelease}
-Requires:	popt = %{poptver}-%{poptrelease}
+Release:	%{release}
+Requires:	popt = %{poptver}-%{release}
 
 %description -n popt-devel
 Popt is a C library for parsing command line parameters.  Popt was
@@ -241,6 +253,7 @@ shell-like rules.
 
 Install popt-devel if you're a C programmer and you'd like to use its
 capabilities.
+
 
 %prep
 %setup -q
@@ -291,7 +304,7 @@ bzcat %{SOURCE2} > rpm-spec-mode.el
 %patch49 -p1 -b .provides
 %patch50 -p1 -b .exclude-strip
 #%patch51 -p1 -b .rpmal-fix-crash
-%patch52 -p1 -b .stackmacro
+#%patch52 -p1 -b .stackmacro
 %patch53 -p1 -b .links
 %patch54 -p1 -b .annvix
 %patch55 -p1 -b .file
@@ -316,11 +329,11 @@ perl -pi -e 's/PyDictIter_Type/PyDictIterValue_Type/' python/*.c
 function AutoGen() {
     echo "--- $1"
     pushd $2
-    libtoolize --copy --force
-    aclocal-1.7
-    autoheader
-    automake-1.7 -a -c
-    autoconf
+        libtoolize --copy --force
+        aclocal-1.7
+        autoheader
+        automake-1.7 -a -c
+        autoconf
     popd
 }
 
@@ -335,6 +348,7 @@ for d in elfutils beecrypt zlib; do
     mv $d orig.$d
 done
 
+
 %build
 # First build 32-bit popt libraries
 # XXX we could libify and mklibname'ize popt but popt is small and
@@ -343,9 +357,9 @@ done
 %ifarch %{biarches}
 mkdir -p popt/build-%{alt_arch}-linux
 pushd popt/build-%{alt_arch}-linux
-CC="gcc -m32" ../configure %{alt_arch}-annvix-linux-gnu --build=%{_target_platform} --prefix=%{_prefix}
-%make
-ln -s ../mkinstalldirs .
+    CC="gcc -m32" ../configure %{alt_arch}-annvix-linux-gnu --build=%{_target_platform} --prefix=%{_prefix}
+    %make
+    ln -s ../mkinstalldirs .
 popd
 %endif
 
@@ -364,10 +378,11 @@ perl -p -i -e 's/conftest\.s/conftest\$\$.s/' config.status
 perl -pi -e 's/#define HAVE_O_DIRECT 1/#undef HAVE_O_DIRECT/' db3/db_config.h
 
 smp_flags=$([ -z "$RPM_BUILD_NCPUS" ] \
-	&& RPM_BUILD_NCPUS="`/usr/bin/getconf _NPROCESSORS_ONLN`"; \
-	[ "$RPM_BUILD_NCPUS" -gt 1 ] && echo "-j$RPM_BUILD_NCPUS") || :
+    && RPM_BUILD_NCPUS="`/usr/bin/getconf _NPROCESSORS_ONLN`"; \
+    [ "$RPM_BUILD_NCPUS" -gt 1 ] && echo "-j$RPM_BUILD_NCPUS") || :
 
 make $smp_flags
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -412,17 +427,15 @@ DESTDIR=%{buildroot} ./installplatform rpmrc macros.32 platform.32
 install %{SOURCE3} %{buildroot}%{_prefix}/lib/rpm/filter.sh
 
 # Save list of packages through cron
-mkdir -p ${RPM_BUILD_ROOT}%{_sysconfdir}/cron.daily
-install -m 755 scripts/rpm.daily ${RPM_BUILD_ROOT}%{_sysconfdir}/cron.daily/rpm
+mkdir -p %{buildroot}%{_sysconfdir}/cron.daily
+install -m 0755 scripts/rpm.daily %{buildroot}%{_sysconfdir}/cron.daily/rpm
 
-mkdir -p ${RPM_BUILD_ROOT}%{_sysconfdir}/logrotate.d
-install -m 755 scripts/rpm.log ${RPM_BUILD_ROOT}%{_sysconfdir}/logrotate.d/rpm
+mkdir -p %{buildroot}%{_sysconfdir}/logrotate.d
+install -m 0755 scripts/rpm.log %{buildroot}%{_sysconfdir}/logrotate.d/rpm
 
 mkdir -p %{buildroot}%{_prefix}/sbin %{buildroot}%{_datadir}/man/man8/
-install -m644 update-alternatives.8 %{buildroot}%{_datadir}/man/man8/
-install -m755 update-alternatives %{buildroot}%{_sbindir}/
-install -d %{buildroot}%{_sysconfdir}/alternatives
-install -d %{buildroot}/var/lib/rpm/alternatives
+install -m 0644 update-alternatives.8 %{buildroot}%{_datadir}/man/man8/
+install -m 0755 update-alternatives %{buildroot}%{_sbindir}/
 
 mkdir -p %{buildroot}%{_sysconfdir}/alternatives
 mkdir -p %{buildroot}/var/lib/rpm/alternatives/
@@ -441,13 +454,6 @@ mv -f %{buildroot}%{rpmdir}/brp-redhat %{buildroot}%{rpmdir}/brp-annvix
 mv -f %{buildroot}/%{rpmdir}/rpmdiff %{buildroot}/%{_bindir}
 
 
-# Save list of packages through cron
-mkdir -p ${RPM_BUILD_ROOT}%{_sysconfdir}/cron.daily
-install -m 755 scripts/rpm.daily ${RPM_BUILD_ROOT}%{_sysconfdir}/cron.daily/rpm
-
-mkdir -p ${RPM_BUILD_ROOT}%{_sysconfdir}/logrotate.d
-install -m 644 scripts/rpm.log ${RPM_BUILD_ROOT}%{_sysconfdir}/logrotate.d/rpm
-
 mkdir -p %{buildroot}%{_sysconfdir}/rpm
 cat << E_O_F > %{buildroot}%{_sysconfdir}/rpm/macros.cdb
 %%__dbi_cdb      %%{nil}
@@ -457,14 +463,14 @@ E_O_F
 
 mkdir -p %{buildroot}/var/lib/rpm
 for dbi in \
-	Basenames Conflictname Dirnames Group Installtid Name Providename \
-	Provideversion Removetid Requirename Requireversion Triggername \
-	Packages __db.001 __db.002 __db.003 __db.004
+    Basenames Conflictname Dirnames Group Installtid Name Providename \
+    Provideversion Removetid Requirename Requireversion Triggername \
+    Packages __db.001 __db.002 __db.003 __db.004
 do
     touch %{buildroot}/var/lib/rpm/$dbi
 done
 
-find apidocs -type f | xargs perl -p -i -e "s@$RPM_BUILD_DIR/%{name}-%{rpmversion}@@g"
+find apidocs -type f | xargs perl -p -i -e "s@$RPM_BUILD_DIR/%{name}-%{version}@@g"
 
 test -d doc-copy || mkdir doc-copy
 rm -rf doc-copy/*
@@ -478,19 +484,23 @@ mkdir -p %{buildroot}/var/spool/repackage
 
 # Fix links
 rm -f %{buildroot}%{_prefix}/lib/rpmpopt
-ln -s rpm/rpmpopt-%{rpmversion} %{buildroot}%{_prefix}/lib/rpmpopt
+ln -s rpm/rpmpopt-%{version} %{buildroot}%{_prefix}/lib/rpmpopt
+
+# make override
+mkdir -p %{buildroot}/override
+chmod 1777 %{buildroot}/override
 
 # Get rid of unpackaged files
-(cd %{buildroot};
-  rm -rf .%{_includedir}/beecrypt/
-  rm -f  .%{_libdir}/libbeecrypt.{a,la,so*}
-  rm -f  .%{_libdir}/python*/site-packages/poptmodule.{a,la}
-  rm -f  .%{_libdir}/python*/site-packages/rpmmodule.{a,la}
-  rm -f  .%{rpmdir}/{Specfile.pm,cpanflute2,cpanflute,sql.prov,sql.req,tcl.req}
-  rm -f  .%{rpmdir}/{config.site,cross-build,rpmdiff.cgi}
-  rm -f  .%{rpmdir}/trpm
-  rm -f  .%{_bindir}/rpmdiff
-)
+pushd %{buildroot}
+    rm -rf .%{_includedir}/beecrypt/
+    rm -f  .%{_libdir}/libbeecrypt.{a,la,so*}
+    rm -f  .%{_libdir}/python*/site-packages/poptmodule.{a,la}
+    rm -f  .%{_libdir}/python*/site-packages/rpmmodule.{a,la}
+    rm -f  .%{rpmdir}/{Specfile.pm,cpanflute2,cpanflute,sql.prov,sql.req,tcl.req}
+    rm -f  .%{rpmdir}/{config.site,cross-build,rpmdiff.cgi}
+    rm -f  .%{rpmdir}/trpm
+    rm -f  .%{_bindir}/rpmdiff
+popd
 
 %{buildroot}%{rpmdir}/find-lang.sh %{buildroot} %{name}
 %{buildroot}%{rpmdir}/find-lang.sh %{buildroot} popt
@@ -498,12 +508,15 @@ ln -s rpm/rpmpopt-%{rpmversion} %{buildroot}%{_prefix}/lib/rpmpopt
 %{buildroot}%{rpmdir}/brp-annvix
 exit 0
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 # nuke __db.00? when updating to this rpm
 %triggerun -- rpm < 4.2.2-1sls
 rm -f /var/lib/rpm/__db.00?
+
 
 %pre
 if [ -f /var/lib/rpm/Packages -a -f /var/lib/rpm/packages.rpm ]; then
@@ -520,16 +533,17 @@ fi
 
 rm -rf /usr/lib/rpm/*-annvix-*
 
+
 %post
 /sbin/ldconfig
 
 if [ ! -e %{_sysconfdir}/rpm/macros -a -e %{_sysconfdir}/rpmrc -a -f %{rpmdir}/convertrpmrc.sh ] 
 then
-	sh %{rpmdir}/convertrpmrc.sh 2>&1 > /dev/null
+    sh %{rpmdir}/convertrpmrc.sh 2>&1 > /dev/null
 fi
 
 if [ -f /proc/cpuinfo ] && grep -qi AMD-K6 /proc/cpuinfo; then
-	perl -p -i -e "s/#K6#//g" %{rpmdir}/rpmrc
+    perl -p -i -e "s/#K6#//g" %{rpmdir}/rpmrc
 fi
 
 if [ -f /var/lib/rpm/packages.rpm ]; then
@@ -542,28 +556,29 @@ if [ ! -f /var/lib/rpm/RPMLOCK ]; then
     touch /var/lib/rpm/RPMLOCK
 fi
 
+
 %postun
-
 /sbin/ldconfig
-
 /usr/share/rpm-helper/del-user rpm $1 rpm
+
 
 %post -n popt -p /sbin/ldconfig
 %postun -n popt -p /sbin/ldconfig
 
 %define	rpmattr		%attr(0755, rpm, rpm)
 
+
 %files -f %{name}.lang
 %defattr(-,root,root)
 %doc RPM-PGP-KEY RPM-GPG-KEY GROUPS CHANGES doc/manual/[a-z]*
-%attr(0755, rpm, rpm) /bin/rpm
-%attr(0755, rpm, rpm) %{_bindir}/rpm2cpio
-%attr(0755, rpm, rpm) %{_bindir}/gendiff
-%attr(0755, rpm, rpm) %{_bindir}/rpmdb
-%attr(0755, rpm, rpm) %{_bindir}/rpm[eiukqv]
-%attr(0755, rpm, rpm) %{_bindir}/rpmsign
-%attr(0755, rpm, rpm) %{_bindir}/rpmquery
-%attr(0755, rpm, rpm) %{_bindir}/rpmverify
+%attr(0755,rpm,rpm) /bin/rpm
+%attr(0755,rpm,rpm) %{_bindir}/rpm2cpio
+%attr(0755,rpm,rpm) %{_bindir}/gendiff
+%attr(0755,rpm,rpm) %{_bindir}/rpmdb
+%attr(0755,rpm,rpm) %{_bindir}/rpm[eiukqv]
+%attr(0755,rpm,rpm) %{_bindir}/rpmsign
+%attr(0755,rpm,rpm) %{_bindir}/rpmquery
+%attr(0755,rpm,rpm) %{_bindir}/rpmverify
 %{_sbindir}/update-alternatives
 
 %{_libdir}/librpm-%{libver}.so
@@ -576,48 +591,48 @@ fi
 %dir %{_sysconfdir}/alternatives
 %dir %{rpmdir}
 %{_sysconfdir}/rpm
-%attr(0755, rpm, rpm) %{rpmdir}/config.guess
-%attr(0755, rpm, rpm) %{rpmdir}/config.sub
-%attr(0755, rpm, rpm) %{rpmdir}/convertrpmrc.sh
-%attr(0644, rpm, rpm) %{rpmdir}/macros
-%attr(0755, rpm, rpm) %{rpmdir}/mkinstalldirs
-%attr(0755, rpm, rpm) %{rpmdir}/rpm.*
-%attr(0755, rpm, rpm) %{rpmdir}/rpm[deiukqv]
-%attr(0644, rpm, rpm) %{rpmdir}/rpmpopt*
-%attr(0644, rpm, rpm) %{rpmdir}/rpmrc
+%attr(0755,rpm,rpm) %{rpmdir}/config.guess
+%attr(0755,rpm,rpm) %{rpmdir}/config.sub
+%attr(0755,rpm,rpm) %{rpmdir}/convertrpmrc.sh
+%attr(0644,rpm,rpm) %{rpmdir}/macros
+%attr(0755,rpm,rpm) %{rpmdir}/mkinstalldirs
+%attr(0755,rpm,rpm) %{rpmdir}/rpm.*
+%attr(0755,rpm,rpm) %{rpmdir}/rpm[deiukqv]
+%attr(0644,rpm,rpm) %{rpmdir}/rpmpopt*
+%attr(0644,rpm,rpm) %{rpmdir}/rpmrc
 %{_prefix}/lib/rpmpopt
 %{_prefix}/lib/rpmrc
 %rpmattr	%{_prefix}/lib/rpm/rpm2cpio.sh
 %rpmattr	%{_prefix}/lib/rpm/tgpg
 
 %ifarch i386 i486 i586 i686 k6 athlon x86_64
-%attr(   -, rpm, rpm) %{rpmdir}/i*86-*
-%attr(   -, rpm, rpm) %{rpmdir}/k6*
-%attr(   -, rpm, rpm) %{rpmdir}/athlon*
+%attr(-,rpm,rpm) %{rpmdir}/i*86-*
+%attr(-,rpm,rpm) %{rpmdir}/k6*
+%attr(-,rpm,rpm) %{rpmdir}/athlon*
 %endif
 %ifarch alpha
-%attr(   -, rpm, rpm) %{rpmdir}/alpha*
+%attr(-,rpm,rpm) %{rpmdir}/alpha*
 %endif
 %ifarch sparc sparc64
-%attr(   -, rpm, rpm) %{rpmdir}/sparc*
+%attr(-,rpm,rpm) %{rpmdir}/sparc*
 %endif
 %ifarch ppc powerpc
-%attr(   -, rpm, rpm) %{rpmdir}/ppc-*
-%attr(   -, rpm, rpm) %{rpmdir}/ppc64-*
-%attr(   -, rpm, rpm) %{rpmdir}/powerpc-*
+%attr(-,rpm,rpm) %{rpmdir}/ppc-*
+%attr(-,rpm,rpm) %{rpmdir}/ppc64-*
+%attr(-,rpm,rpm) %{rpmdir}/powerpc-*
 %endif
 %ifarch ppc64
-%attr(   -, rpm, rpm) %{rpmdir}/ppc-*
-%attr(   -, rpm, rpm) %{rpmdir}/ppc64-*
+%attr(-,rpm,rpm) %{rpmdir}/ppc-*
+%attr(-,rpm,rpm) %{rpmdir}/ppc64-*
 %endif
 %ifarch ia64
-%attr(   -, rpm, rpm) %{rpmdir}/ia64-*
+%attr(-,rpm,rpm) %{rpmdir}/ia64-*
 %endif
 %ifarch x86_64
-%attr(   -, rpm, rpm) %{rpmdir}/amd64-*
-%attr(   -, rpm, rpm) %{rpmdir}/x86_64-*
+%attr(-,rpm,rpm) %{rpmdir}/amd64-*
+%attr(-,rpm,rpm) %{rpmdir}/x86_64-*
 %endif
-%attr(   -, rpm, rpm) %{rpmdir}/noarch*
+%attr(-,rpm,rpm) %{rpmdir}/noarch*
 
 %{_prefix}/src/RPM/RPMS/*
 %{_datadir}/man/man[18]/*.[18]*
@@ -631,7 +646,7 @@ fi
 %config(noreplace,missingok)	%{_sysconfdir}/cron.daily/rpm
 %config(noreplace,missingok)	%{_sysconfdir}/logrotate.d/rpm
 
-%attr(0755, rpm, rpm)	%dir /var/lib/rpm
+%attr(0755,rpm,rpm)	%dir /var/lib/rpm
 
 %define	rpmdbattr %attr(0644, rpm, rpm) %verify(not md5 size mtime) %ghost %config(missingok,noreplace)
 
@@ -660,6 +675,7 @@ fi
 %dir %{_prefix}/src/RPM/SOURCES
 %dir %{_prefix}/src/RPM/SRPMS
 %dir %{_prefix}/src/RPM/RPMS
+%attr(1777,root,root) %dir /override
 %rpmattr	%{_bindir}/rpmbuild
 %rpmattr	%{_prefix}/lib/rpm/brp-*
 %rpmattr	%{_prefix}/lib/rpm/check-files
@@ -757,6 +773,14 @@ fi
 %{_libdir}/libpopt.so
 
 %changelog
+* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 4.2.3-6avx
+- get rid of silly %%poptrelease
+- rebuild for new gcc
+- new macro: %%_buildroot
+- include /override
+- don't apply P52; we're not using SSP right now
+- s/-mcpu/-mtune/ for %%optflags
+
 * Thu Jun 02 2005 Vincent Danen <vdanen@annvix.org> 4.2.3-5avx
 - rebuild with stack protection enabled
 - update macros to use -fstack-protector-all instead of -fstack-protector
@@ -1057,7 +1081,7 @@ packages will have been rebuilt
 * Mon Nov 11 2002 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 4.0.4-20mdk
 - Patch49: Add %%_unpackaged_files_terminate_build from rpm-4.1 which
   is now set by default. Aka rpm build will now fail if files are
-  found in $RPM_BUILD_ROOT and not referenced in %files section.
+  found in %{buildroot} and not referenced in %files section.
 - Update Patch39 (x86_64) to really leave config files in /usr/lib/rpm
 - Update Patch5 (autoreq): Fix filelist filtering in find-provides
 
@@ -1171,7 +1195,7 @@ have always been the case.
 - add the use of CONFIGURE_TOP to allow the %%configure and
 %%configure2_5x macros to work in subdirs. (Jeff)
 - %%pyver calculated at compile time. (Alvaro Herrera)
-- pass %%buildroot to find-requires (patch34). This allow to calculate
+- pass %%{buildroot} to find-requires (patch34). This allow to calculate
 dependencies from compiled libraries instead of relying on installed ones.
 - bump the release to 1mdk
 
@@ -1308,7 +1332,7 @@ had corrected that before :-(
 - don't try to auto requires perl packages (pixel)
 
 * Wed Jun 13 2001 Frederic Lepied <flepied@mandrakesoft.com> 4.0.3-0.3mdk
-- corrected %%_sysconfdir macro.
+- corrected %%{_sysconfdir} macro.
 
 * Wed Jun 13 2001 Frederic Lepied <flepied@mandrakesoft.com> 4.0.3-0.2mdk
 - added librpmdb to devel package
@@ -1574,7 +1598,7 @@ The NPROCS env variable overrides the automatic detection.
 
 * Tue Jul 11 2000 Chmouel Boudjnah <chmouel@mandrakesoft.com> 3.0.5-0.20mdk
 - Define _sysconfdir to /etc.
-- Add PREFIX=$RPM_BUILD_ROOT/%%{prefix} to %%makeinstall.
+- Add PREFIX=%{buildroot}/%%{prefix} to %%makeinstall.
 - Add titi patches for optimisations (you have better to ash him wich
   one ;)).
 
