@@ -1,6 +1,15 @@
-%define name	tetex
-%define version	2.0.2
-%define release	16avx
+#
+# spec file for package tetex
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		tetex
+%define version		2.0.2
+%define release		17avx
 
 %define pkgname		%{name}
 %define docversion	2.0.2
@@ -33,7 +42,6 @@ URL:		http://www.tug.org/teTeX/
 Source0:	ftp://cam.ctan.org/tex-archive/systems/unix/teTeX/2.0/distrib/sources/%{name}-src-%{tetexversion}.tar.bz2
 Source1:	ftp://cam.ctan.org/tex-archive/systems/unix/teTeX/2.0/distrib/sources/%{name}-texmf-%{texmfversion}.tar.bz2
 Source3:	ftp://cam.ctan.org/tex-archive/systems/unix/teTeX/2.0/distrib/sources/%{name}-texmfsrc-%{texmfsrcversion}.tar.bz2
-Source4:	icons-xdvi.tar.bz2
 Source5:	http://peoples.mandrakesoft.com/~ghibo/%{name}-texmf-extras-gg-%{texmfggversion}.tar.bz2
 Source6:	http://peoples.mandrakesoft.com/~ghibo/%{name}-texmfsrc-extras-gg-%{texmfggversion}.tar.bz2
 Source7:	http://prdownloads.sourceforge.net/jadetex/%{jadename}-%{jadeversion}.tar.bz2
@@ -66,7 +74,7 @@ Patch27:	passivetex-1.25.patch.bz2
 Patch28:	%{name}-2.0.2-typefacename.patch.bz2
 Patch29:	tetex-2.0.2-badc.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	bison, ed, flex, gettext-devel
 BuildRequires:	libncurses-devel, libpng-devel, libxpm-devel, XFree86-devel
 
@@ -93,10 +101,11 @@ and tetex-xdvi (for previewing .dvi files in X).  Unless you're an
 expert at using TeX, you'll also want to install the tetex-doc
 package, which includes the documentation for TeX.
 
+
 %package latex
 Summary:	The LaTeX front end for the TeX text formatting system
 Group:		Publishing
-Requires:	tetex = %{PACKAGE_VERSION}
+Requires:	tetex = %{version}
 Requires:	tetex-context
 Provides:	prosper
 Obsoletes:	prosper
@@ -116,10 +125,11 @@ tetex-xdvi (for previewing .dvi files in X).  If you're not an expert
 at TeX, you'll probably also want to install the tetex-doc package,
 which contains documentation for TeX.
 
+
 %package dvips
 Summary:	A DVI to PostScript converter for the TeX text formatting system
 Group:		Publishing
-Requires:	tetex = %{PACKAGE_VERSION}
+Requires:	tetex = %{version}
 
 %description dvips
 Dvips converts .dvi files produced by the TeX text formatting system
@@ -136,10 +146,11 @@ tetex-xdvi (for previewing .dvi files in X).  If you're installing TeX
 and you're not an expert at it, you'll also want to install the tetex-doc
 package, which contains documentation for the TeX system.
 
+
 %package dvilj
 Summary:	A DVI to HP PCL (Printer Control Language) converter
 Group:		Publishing
-Requires:	tetex = %{PACKAGE_VERSION}
+Requires:	tetex = %{version}
 
 %description dvilj
 Dvilj and dvilj's siblings (included in this package) will convert TeX
@@ -159,10 +170,11 @@ package which provides an easier-to-use interface for TeX) and tetex-xdvi
 not a TeX expert, you'll also want to install the tetex-doc package,
 which contains documentation for TeX.
 
+
 %package afm
 Summary:	A converter for PostScript(TM) font metric files, for use with TeX
 Group:		Publishing
-Requires:	tetex = %{PACKAGE_VERSION}
+Requires:	tetex = %{version}
 
 %description afm
 tetex-afm provides afm2tfm, a converter for PostScript font metric files. 
@@ -181,22 +193,25 @@ for TeX) and tetex-xdvi (for previewing .dvi files in X).  Unless you're
 an expert at using TeX, you'll probably also want to install the tetex-doc
 package, which includes documentation for TeX.
 
+
 %package dvipdfm
 Summary:	A DVI to PDF converter
 Group:		Publishing
-Requires:	tetex = %{PACKAGE_VERSION}, tetex-dvips = %{PACKAGE_VERSION}
+Requires:	tetex = %{version}, tetex-dvips = %{version}
 
 %description dvipdfm
 dvidpfm is a DVI to PDF translator for use with TeX.
 
+
 %package devel
 Summary:	Development libraries (kpathsea) for teTeX
 Group:		Development/C
-Requires:	tetex = %{PACKAGE_VERSION}
+Requires:	tetex = %{version}
 
 %description devel
 This package contains C headers and libraries, for developing TeX
 applications using kpathsea library.
+
 
 %package -n %{xmltexname}
 Summary:	Namespace-aware XML parser written in TeX.
@@ -213,6 +228,7 @@ Namespace-aware XML parser written in TeX. This package
 also includes passivetex macros, which can be used to process an XML
 document which results from an XSL trasformation to formatting objects.
 
+
 %package context
 Summary:	Document engineering system based on TeX
 Group:		Publishing
@@ -223,6 +239,7 @@ CONTeXT is a document engineering system based on TeX. TeX is a
 typesetting system and a program to typeset and produce documents.
 CONTeXT is easy to use and enables you to make complex paper and
 electronic documents.
+
 
 %package texi2html
 Summary:	Convert texinfo (GNU docs) directly to HTML for easy reading
@@ -282,107 +299,107 @@ cp -p texmf/metafont/config/mf.ini texmf/metafont/config/mf-nowin.ini
 %{?__cputoolize: %{__cputoolize} -c texk}
 %{?__cputoolize: %{__cputoolize} -c utils/texinfo}
 
+
 %build
 perl -pi -e 's@^vartexfonts\s*=\s.*@vartexfonts = %vartexfonts@g' texk/make/paths.mk
 sh ./reautoconf
 %configure \
-	--with-system-ncurses \
-	--with-system-zlib \
-	--with-system-pnglib \
-	--disable-multiplatform \
-	--without-dialog \
-	--without-texinfo \
+    --with-system-ncurses \
+    --with-system-zlib \
+    --with-system-pnglib \
+    --disable-multiplatform \
+    --without-dialog \
+    --without-texinfo
 
 # Don't use the 'make' macro, it doesn't work, even on comments.
 %make
 
 # xmltex
-(CURRENTDIR=`pwd`
- mkdir -p $CURRENTDIR/texmf/tex/xmltex/{base,config,passivetex}
- mkdir -p $CURRENTDIR/texmf/doc/xmltex/{base,passivetex}
- (cd %{xmltexname}/base
-  cp -p xmltex.tex *.xmt $CURRENTDIR/texmf/tex/xmltex/base
-  cp -p *.ini xmltex.cfg $CURRENTDIR/texmf/tex/xmltex/config
-  cp -p *.xml manual.tex test*.tex test*.cfg $CURRENTDIR/texmf/doc/xmltex/base
- )
- (cd %{xmltexname}/contrib/passivetex
-  cp -p *.xmt *.sty $CURRENTDIR/texmf/tex/xmltex/passivetex
- )
-)
+CURRENTDIR=`pwd`
+mkdir -p $CURRENTDIR/texmf/tex/xmltex/{base,config,passivetex}
+mkdir -p $CURRENTDIR/texmf/doc/xmltex/{base,passivetex}
+pushd %{xmltexname}/base
+    cp -p xmltex.tex *.xmt $CURRENTDIR/texmf/tex/xmltex/base
+    cp -p *.ini xmltex.cfg $CURRENTDIR/texmf/tex/xmltex/config
+    cp -p *.xml manual.tex test*.tex test*.cfg $CURRENTDIR/texmf/doc/xmltex/base
+popd
+pushd %{xmltexname}/contrib/passivetex
+    cp -p *.xmt *.sty $CURRENTDIR/texmf/tex/xmltex/passivetex
+popd
 
 # texi2html 1.64
-(cd texi2html-1.64
-%configure
-perl -pi -e 's/\/usr\/local\/bin\/perl/\/usr\/bin\/perl/g' texi2html
-make
-)
+pushd texi2html-1.64
+    %configure
+    perl -pi -e 's/\/usr\/local\/bin\/perl/\/usr\/bin\/perl/g' texi2html
+    make
+popd
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p $RPM_BUILD_ROOT%{_datadir}/texmf \
-	$RPM_BUILD_ROOT/var/lib/texmf
-tar cf - texmf | tar xf - -C $RPM_BUILD_ROOT%{_datadir}
+mkdir -p %{buildroot}{%{_datadir}/texmf,/var/lib/texmf}
+tar cf - texmf | tar xf - -C %{buildroot}%{_datadir}
 
-%makeinstall texmf=$RPM_BUILD_ROOT%{_datadir}/texmf
+%makeinstall texmf=%{buildroot}%{_datadir}/texmf
 
 # texi2html
-(cd texi2html-1.64
- make install-binSCRIPTS install-info-am install-man DESTDIR=$RPM_BUILD_ROOT
-)
+pushd texi2html-1.64
+    make install-binSCRIPTS install-info-am install-man DESTDIR=%{buildroot}
+popd
 
-export PATH=$RPM_BUILD_ROOT/%{_bindir}:$PATH
+export PATH=%{buildroot}%{_bindir}:$PATH
 
-rm -f $RPM_BUILD_ROOT%{_infodir}/dir
-bzip2 -9f $RPM_BUILD_ROOT%{_infodir}/*info* || true
+rm -f %{buildroot}%{_infodir}/dir
+bzip2 -9f %{buildroot}%{_infodir}/*info* || true
 
 # these are links
 
-mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/cron.daily
-install -m 755 %{SOURCE10} $RPM_BUILD_ROOT%{_sysconfdir}/cron.daily
+mkdir -p %{buildroot}%{_sysconfdir}/cron.daily
+install -m 755 %{SOURCE10} %{buildroot}%{_sysconfdir}/cron.daily
 
 # update map files
-TEXMFMAIN=$RPM_BUILD_ROOT%{_datadir}/texmf \
-	$RPM_BUILD_ROOT%{_bindir}/updmap --cnffile \
-		$RPM_BUILD_ROOT%{_datadir}/texmf/web2c/updmap.cfg
+TEXMFMAIN=%{buildroot}%{_datadir}/texmf \
+    %{buildroot}%{_bindir}/updmap --cnffile \
+    %{buildroot}%{_datadir}/texmf/web2c/updmap.cfg
 
 # add mf-nowin.1 man page
-cp -p $RPM_BUILD_ROOT%{_mandir}/man1/mf.1 \
-	$RPM_BUILD_ROOT%{_mandir}/man1/mf-nowin.1
+cp -p %{buildroot}%{_mandir}/man1/mf.1 \
+    %{buildroot}%{_mandir}/man1/mf-nowin.1
 
 # Fix permission for directory "/usr/share/texmf/fonts/tfm/jknappen"
-find $RPM_BUILD_ROOT%{_datadir}/texmf -type d -print | xargs chmod 755
+find %{buildroot}%{_datadir}/texmf -type d -print | xargs chmod 755
 
 # We keep the .log files for format .fmt files (useful to know how
 # they are generated (included files, memory, etc.);
 # strip buildroot path from .log files.
-perl -pi -e "s@$RPM_BUILD_ROOT@@g" $RPM_BUILD_ROOT%{_datadir}/texmf/web2c/*.log
+perl -pi -e "s@%{buildroot}@@g" %{buildroot}%{_datadir}/texmf/web2c/*.log
 
 # call the spec-helper before creating the file list
 # (thanks to Pixel).
 s=/usr/share/spec-helper/spec-helper ; [ -x $s ] && $s
 
 # TEXMFLOCAL path
-mkdir -p $RPM_BUILD_ROOT/usr/local/share/texmf
+mkdir -p %{buildroot}/usr/local/share/texmf
 
 # remove unwanted files
 rm -f %{buildroot}%{_bindir}/readlink
 rm -f %{buildroot}%{_mandir}/man1/readlink.1*
 
 ### Files list
-find $RPM_BUILD_ROOT -type f -or -type l | \
-	sed -e "s|$RPM_BUILD_ROOT||g" | \
-	grep -v "^/etc" | grep -v ".orig$" | \
-	sed -e "s|.*\.cnf$|%config(noreplace) &|" \
-            -e "s|%{_datadir}/texmf/dvips/config/config\.ps$|%config(noreplace) &|" \
-	    -e "s|%{_datadir}/texmf/dvips/config/config\.\(generic\|pdf\|www\)$|%config &|" \
-	    -e "s|%{_datadir}/texmf/dvipdfm/config/config|%config(noreplace) &|" \
-	    -e "s|%{_datadir}/texmf/xdvi/XDvi|%config &|" \
-	    -e "s|%{_datadir}/texmf/tex/generic/config/.*|%config &|" \
-	    -e "s|%{_datadir}/texmf/tex/dvips/config/updmap$|%config(noreplace) &|" \
-	    -e "s|^%{_mandir}\(.*\)|%attr(644,root,root) \%{_mandir}\1|" > filelist.full
+find %{buildroot} -type f -or -type l | \
+    sed -e "s|%{buildroot}||g" | \
+    grep -v "^/etc" | grep -v ".orig$" | \
+    sed -e "s|.*\.cnf$|%config(noreplace) &|" \
+        -e "s|%{_datadir}/texmf/dvips/config/config\.ps$|%config(noreplace) &|" \
+        -e "s|%{_datadir}/texmf/dvips/config/config\.\(generic\|pdf\|www\)$|%config &|" \
+        -e "s|%{_datadir}/texmf/dvipdfm/config/config|%config(noreplace) &|" \
+        -e "s|%{_datadir}/texmf/xdvi/XDvi|%config &|" \
+        -e "s|%{_datadir}/texmf/tex/generic/config/.*|%config &|" \
+        -e "s|%{_datadir}/texmf/tex/dvips/config/updmap$|%config(noreplace) &|" \
+        -e "s|^%{_mandir}\(.*\)|%attr(644,root,root) \%{_mandir}\1|" > filelist.full
 
-find $RPM_BUILD_ROOT%{_datadir}/texmf -type d | \
-	sed "s|^$RPM_BUILD_ROOT|\%attr(-,root,root) \%dir |" >> filelist.full
+find %{buildroot}%{_datadir}/texmf -type d | \
+    sed "s|^%{buildroot}|\%attr(-,root,root) \%dir |" >> filelist.full
 
 # dir for TEXMFLOCAL
 echo "%attr(755,root,root) %dir /usr/local/share/texmf" >> filelist.full
@@ -393,7 +410,7 @@ grep -v "/doc/" filelist.full | grep latex 	> filelist.latex
 grep -v "/doc/" filelist.full | grep xmltex	> filelist.xmltex
 
 grep -v "/doc/" filelist.full | grep xdvi | \
-	grep -v "%{_datadir}/texmf/tex"		> filelist.xdvi
+    grep -v "%{_datadir}/texmf/tex"		> filelist.xdvi
 
 echo "%{_bindir}/inimf" > filelist.mfwin
 echo "%{_bindir}/mf" >> filelist.mfwin
@@ -406,25 +423,25 @@ echo "%{_bindir}/t1mapper" >> filelist.xdvi
 echo "%attr(644,root,root) %{_mandir}/man1/t1mapper.1.bz2" >> filelist.xdvi
 
 grep -v "/doc/" filelist.full | \
-	grep "%{_includedir}" > filelist.devel
+    grep "%{_includedir}" > filelist.devel
 echo "%dir %{_includedir}/kpathsea" >> filelist.devel
 echo "%{_libdir}/libkpathsea.a" >> filelist.devel
 
 grep -v "/doc/" filelist.full | grep dvips | \
-	grep -v "%{_datadir}/texmf/tex" | \
-	grep -v "%{_datadir}/texmf/dvips/config/config.ps" > filelist.dvips
+     grep -v "%{_datadir}/texmf/tex" | \
+    grep -v "%{_datadir}/texmf/dvips/config/config.ps" > filelist.dvips
 echo "%{_bindir}/dvired" >> filelist.dvips
 echo "%{_bindir}/dvi2fax" >> filelist.dvips
 
 grep -v "/doc/" filelist.full | grep dvipdfm | \
-	grep -v "%{_datadir}/texmf/tex"	|
-	grep -v "%{_datadir}/texmf/dvipdfm/config/config" |
-	grep -v "%{_datadir}/texmf/dvips" > filelist.dvipdfm
+    grep -v "%{_datadir}/texmf/tex"	|
+    grep -v "%{_datadir}/texmf/dvipdfm/config/config" |
+    grep -v "%{_datadir}/texmf/dvips" > filelist.dvipdfm
 echo "%{_bindir}/ebb" >> filelist.dvipdfm
 echo "%{_bindir}/dvipdft" >> filelist.dvipdfm
 
 grep -v "/doc/" filelist.full | grep dvilj | \
-	grep -v "%{_datadir}/texmf/tex/latex" 	> filelist.dvilj
+    grep -v "%{_datadir}/texmf/tex/latex" 	> filelist.dvilj
 
 grep -v "/doc/" filelist.full | grep afm 	> filelist.afm
 
@@ -433,9 +450,10 @@ echo "%{_bindir}/texdoc" >> filelist.doc
 echo "%{_bindir}/texdoctk" >> filelist.doc
 
 grep -v "/doc/" filelist.full | grep -v fonts | \
-	grep -v dvips | \
-	grep -v pdftex/config | \
-	grep context 	> filelist.context
+    grep -v dvips | \
+    grep -v pdftex/config | \
+    grep context 	> filelist.context
+
 cat >> filelist.context <<EOF
 %{_bindir}/mptopdf
 %{_datadir}/texmf/web2c/cont-en.efmt
@@ -469,28 +487,18 @@ cat filelist.full \
     filelist.texi2html $EXTRACAT | \
     sort | uniq -u > filelist.main
 
-# xdvi menu things
-mkdir -p $RPM_BUILD_ROOT%{_menudir}
-cat > $RPM_BUILD_ROOT%{_menudir}/tetex-xdvi <<EOF
-?package(tetex-xdvi): command="%{_bindir}/xdvi" needs="X11" \
-icon="dvi.png" section="Applications/Publishing" title="XDvi" \
-longtitle="DVI files viewer"
-EOF
-
-# mdk icons
-install -d $RPM_BUILD_ROOT%{_iconsdir}
-tar xjvf %{SOURCE4} -C $RPM_BUILD_ROOT%{_iconsdir}
-
 # %_docdir link.
-mkdir -p $RPM_BUILD_ROOT%{_datadir}/doc
-ln -sf ../../..%{_datadir}/texmf/doc $RPM_BUILD_ROOT%{_datadir}/doc/tetex-doc-%{docversion}
+mkdir -p %{buildroot}%{_datadir}/doc
+ln -sf ../../..%{_datadir}/texmf/doc %{buildroot}%{_datadir}/doc/tetex-doc-%{docversion}
 
 # add dvipdfpress
-bzip2 -cd %{SOURCE21} > $RPM_BUILD_ROOT%{_bindir}/dvipdfpress
+bzip2 -cd %{SOURCE21} > %{buildroot}%{_bindir}/dvipdfpress
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 rm -f filelist.*
+
 
 # make sure ls-R used by teTeX is updated after an install
 %post
@@ -567,24 +575,25 @@ exit 0
 
 %preun
 if [ "$1" = 0 ]; then
-	/sbin/install-info --delete %{_infodir}/kpathsea.info.bz2 %{_infodir}/dir
-	/sbin/install-info --delete %{_infodir}/web2c.info.bz2 %{_infodir}/dir
+    /sbin/install-info --delete %{_infodir}/kpathsea.info.bz2 %{_infodir}/dir
+    /sbin/install-info --delete %{_infodir}/web2c.info.bz2 %{_infodir}/dir
 fi
 
 %preun dvips
 if [ "$1" = 0 ]; then
-	/sbin/install-info --delete %{_infodir}/dvips.info.bz2 %{_infodir}/dir
+    /sbin/install-info --delete %{_infodir}/dvips.info.bz2 %{_infodir}/dir
 fi
 
 %preun latex
 if [ "$1" = 0 ]; then
-	/sbin/install-info --delete %{_infodir}/latex.info.bz2 %{_infodir}/dir
+    /sbin/install-info --delete %{_infodir}/latex.info.bz2 %{_infodir}/dir
 fi
 
 %preun texi2html
 if [ "$1" = 0 ]; then
-	/sbin/install-info --delete %{_infodir}/texi2html.info.bz2 %{_infodir}/dir
+    /sbin/install-info --delete %{_infodir}/texi2html.info.bz2 %{_infodir}/dir
 fi
+
 
 %files -f filelist.main
 %defattr(-,root,root)
@@ -624,6 +633,12 @@ fi
 
 
 %changelog
+* Mon Jul 25 2005 Vincent Danen <vdanen@annvix.org> 2.0.2-17avx
+- rebuild for new gcc
+- drop S4 (icons)
+- don't build a menu entry we're never going to use
+- spec cleanups
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.0.2-16avx
 - bootstrap build
 
