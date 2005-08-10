@@ -9,7 +9,7 @@
 
 %define name		beecrypt
 %define version		3.1.0
-%define release		4avx
+%define release		5avx
 
 %define libname		%mklibname %{name} 6
 %define libnamedev	%{libname}-devel
@@ -26,6 +26,7 @@ URL:		http://beecrypt.virtualunlimited.com/
 Source0:	http://prdownloads.sourceforge.net/beecrypt/%{name}-3.1.0.tar.bz2
 Patch0:		beecrypt-3.1.0-rh.patch.bz2
 Patch1:		beecrypt-3.1.0-automake1.7.patch.bz2
+Patch2:		beecrypt-3.1.0-configure.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildPreReq:	doxygen, python-devel >= %{with_python_version}
@@ -69,11 +70,12 @@ files needed for using python with beecrypt.
 %setup -q
 %patch0 -p1 -b .rh
 %patch1 -p1 -b .automake1.7
+%patch2 -p1 -b .configure
 
 ./autogen.sh
 
-%build
 
+%build
 %configure2_5x \
     --enable-shared \
     --enable-static \
@@ -83,6 +85,12 @@ files needed for using python with beecrypt.
 %make
 doxygen
 
+# delete next line to build with legacy, non-check aware rpmbuild
+##%check
+make check || :
+cat /proc/cpuinfo
+make bench || :
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -90,12 +98,6 @@ doxygen
 
 # XXX nuke unpackaged files, artifacts from using libtool to produce module
 rm -f %{buildroot}%{_libdir}/python%{with_python_version}/site-packages/_bc.*a
-
-# XXX delete next line to build with legacy, non-check aware, rpmbuild.
-%check
-make check || :
-cat /proc/cpuinfo
-make bench || :
 
 
 %clean
@@ -124,6 +126,10 @@ make bench || :
 %{_libdir}/python%{with_python_version}/site-packages/_bc.so
 
 %changelog
+* Mon Aug 08 2005 Vincent Danen <vdanen@annvix.org> 3.1.0-5avx
+- P2: alpha doesn't use lib64
+- minor spec cleanups
+
 * Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 3.1.0-4avx
 - rebuild for new gcc
 
