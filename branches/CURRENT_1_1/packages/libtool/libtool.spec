@@ -9,26 +9,26 @@
 
 %define name		libtool
 %define version		1.5.12
-%define release		4avx
+%define release		5avx
 
 %define lib_major	3
 %define libname_orig	libltdl
 %define libname		%mklibname ltdl %{lib_major}
 
 # do "make check" by default
-%define do_check 1
+%define do_check 	1
 %{?_without_check: %global do_check 0}
 
 # define biarch platforms
-%define biarches x86_64 ppc64 sparc64
+%define biarches 	x86_64 ppc64 sparc64
 %ifarch x86_64
-%define alt_arch i586
+%define alt_arch 	i586
 %endif
 %ifarch ppc64
-%define alt_arch ppc
+%define alt_arch 	ppc
 %endif
 %ifarch sparc64
-%define alt_arch sparc
+%define alt_arch 	sparc
 %endif
 
 Summary:	The GNU libtool, which simplifies the use of shared libraries
@@ -52,11 +52,8 @@ Patch5:		libtool-1.5-testfailure.patch.bz2
 Patch6:		libtool-1.5.6-old-libtool.patch.bz2
 Patch7:		libtool-1.5.12-really-pass-thread-flags.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	automake1.8, autoconf2.5
-%ifarch %{biarches}
-BuildRequires:	setarch
-%endif
 
 PreReq:		info-install
 Requires:	file, gcc
@@ -106,6 +103,7 @@ Development headers, and files for development from the libtool package.
 
 ACLOCAL=aclocal-1.8 AUTOMAKE=automake-1.8 ./bootstrap
 
+
 %build
 # don't use configure macro - it forces libtoolize, which is bad -jgarzik
 # Use configure macro but define __libtoolize to be /bin/true -Geoff
@@ -119,8 +117,8 @@ ACLOCAL=aclocal-1.8 AUTOMAKE=automake-1.8 ./bootstrap
 %ifarch %{biarches}
 mkdir -p build-%{alt_arch}-%{_target_os}
 pushd    build-%{alt_arch}-%{_target_os}
-    linux32 ../configure --prefix=%{_prefix} --build=%{alt_arch}-%{_real_vendor}-%{_target_os}%{?_gnu}
-    linux32 make
+    ../configure --prefix=%{_prefix} --build=%{alt_arch}-%{_real_vendor}-%{_target_os}%{?_gnu}
+    make
 popd
 %endif
 
@@ -148,20 +146,21 @@ mkdir -p build-%{_target_cpu}-%{_target_os}
     %endif
 popd
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %makeinstall_std -C build-%{_target_cpu}-%{_target_os}
 
 sed -e "s,@prefix@,%{_prefix}," -e "s,@datadir@,%{_datadir}," %{SOURCE2} \
-  > %{buildroot}%{_bindir}/cputoolize
+    > %{buildroot}%{_bindir}/cputoolize
 chmod 0755 %{buildroot}%{_bindir}/cputoolize
 
 # biarch support
 %ifarch %biarches
-%multiarch_binaries $RPM_BUILD_ROOT%{_bindir}/libtool
-install -m 755 build-%{alt_arch}-%{_target_os}/libtool $RPM_BUILD_ROOT%{_bindir}/libtool
-linux32 /bin/sh -c '%multiarch_binaries $RPM_BUILD_ROOT%{_bindir}/libtool'
+%multiarch_binaries %{buildroot}%{_bindir}/libtool
+install -m 0755 build-%{alt_arch}-%{_target_os}/libtool %{buildroot}%{_bindir}/libtool
+linux32 /bin/sh -c '%multiarch_binaries %{buildroot}%{_bindir}/libtool'
 %endif
 
 
@@ -173,13 +172,11 @@ linux32 /bin/sh -c '%multiarch_binaries $RPM_BUILD_ROOT%{_bindir}/libtool'
 %_install_info %{name}.info
 
 
-%post -n %{libname} -p /sbin/ldconfig
-
-
 %preun
 %_remove_install_info %{name}.info
 
 
+%post -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
 
 
@@ -206,6 +203,13 @@ linux32 /bin/sh -c '%multiarch_binaries $RPM_BUILD_ROOT%{_bindir}/libtool'
 
 
 %changelog
+* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 1.5.12-5avx
+- rebuild
+- drop BuildReq on setarch if we're a biarch
+- run the configure/make scripts without linux32 or else configure
+  and make think gcc doesn't work; at any rate, libtool is a shell script
+  and things are done properly with or without using linux32
+
 * Thu Jul 21 2005 Vincent Danen <vdanen@annvix.org> 1.5.12-4avx
 - rebuild against gcc 3.4.4
 - BuildRequires: setarch
