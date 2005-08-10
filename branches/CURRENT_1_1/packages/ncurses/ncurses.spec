@@ -1,10 +1,21 @@
-%define name	ncurses
-%define version	5.3
-%define release	1.20030215.8avx
+#
+# spec file for package ncurses
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-%define patchdate	20021028
-%define lib_major	5
-%define lib_name	%mklibname %{name} %{lib_major}
+
+%define name		ncurses
+%define version		5.4
+%define release		1.%{patchdate}.1avx
+
+%define patchdate	20050108
+%define major		5
+%define majorminor	5.4
+%define libname		%mklibname %{name} %{major}
+%define utf8libname	%mklibname %{name}w %{major}
 
 Summary:	A CRT screen handling and optimization package
 Name:		%{name}
@@ -12,24 +23,23 @@ Version:	%{version}
 Release:	%{release}
 License:	MIT
 Group:		System/Libraries
-URL:		http://ring.jah.ne.jp/pub/GNU/ncurses/
-Source0:	http://ring.jah.ne.jp/pub/GNU/ncurses/%{name}-%{version}.tar.bz2
+URL:		http://www.gnu.org/software/ncurses/ncurses.html
+Source0:	http://ftp.gnu.org/gnu/ncurses/%{name}-%{version}.tar.bz2
 Source4:	ncurses-resetall.sh
 Source5:	ncurses-usefull-terms
-Patch1:		ncurses-5.1-xterm-debian.patch.bz2
-Patch2:		ncurses-5.1-setuid2.patch.bz2
-Patch3:		ncurses-5.2-64bit.patch.bz2
+Patch1:		ncurses-5.3-xterm-debian.patch.bz2
 Patch4:		ncurses-5.3-parallel.patch.bz2
-Patch10:	ftp://dickey.his.com/ncurses/%{version}/patch-5.3-20021231.sh
-Patch11:	ftp://dickey.his.com/ncurses/%{version}/ncurses-5.3-20030105.patch.gz
-Patch12:	ftp://dickey.his.com/ncurses/%{version}/ncurses-5.3-20030111.patch.gz
-Patch13:	ftp://dickey.his.com/ncurses/%{version}/ncurses-5.3-20030118.patch.gz
-Patch14:	ftp://dickey.his.com/ncurses/%{version}/ncurses-5.3-20030125.patch.gz
-Patch15:	ftp://dickey.his.com/ncurses/%{version}/ncurses-5.3-20030201.patch.gz
-Patch16:	ftp://dickey.his.com/ncurses/%{version}/ncurses-5.3-20030208.patch.gz
-Patch17:	ftp://dickey.his.com/ncurses/%{version}/ncurses-5.3-20030215.patch.gz
+Patch5:		ncurses-5.3-utf8.patch.bz2
+Patch6:		ncurses-5.4-20041204-remove-extra-dep.patch.bz2 
+Patch8:		ncurses-5.4-deps.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-root
+Patch11:	ftp://dickey.his.com/ncurses/%{version}/%{name}-%{version}-20041211-patch.sh
+Patch12:	ncurses-5.4-20041218.patch.bz2
+Patch13:	ncurses-5.4-20041225.patch.bz2
+Patch14:	ncurses-5.4-20050101.patch.bz2
+Patch15:	ncurses-5.4-20050108.patch.bz2
+
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	sharutils
 
 PreReq:		ldconfig
@@ -40,17 +50,50 @@ character screens with reasonalble optimization. The ncurses (new curses)
 library is a freely distributable replacement for the discontinued 4.4BSD
 classic curses library.
 
-%package -n %{lib_name}
+
+%package -n %{libname}
 Summary:	The development files for applications which use ncurses
 Group:		System/Libraries
-Obsoletes:	ncurses3
 Requires:	ncurses
 
-%description -n %{lib_name}
+%description -n %{libname}
 The curses library routines are a terminal-independent method of updating
 character screens with reasonalble optimization. The ncurses (new curses)
 library is a freely distributable replacement for the discontinued 4.4BSD
 classic curses library.
+
+
+%package -n %{utf8libname}
+Summary:	Ncurses libraries which support UTF8
+Group:		System/Libraries
+Requires:	ncurses
+
+%description -n %{utf8libname}
+The curses library routines are a terminal-independent method of updating
+character screens with reasonalble optimization. The ncurses (new curses)
+library is a freely distributable replacement for the discontinued 4.4BSD
+classic curses library.
+
+This package contains ncurses libraries which support wide char (UTF8),
+and is not compatible with those without.
+
+
+%package -n %{utf8libname}-devel
+Summary:	The development files for applications which use ncurses
+Group:		Development/C
+Requires:	%{utf8libname} = %{version}-%{release}
+Provides:	lib%{name}w-devel = %{version}-%{release}
+
+%description -n %{utf8libname}-devel
+The libraries for developing applications that use ncurses CRT screen
+handling and optimization package. Install it if you want to develop
+applications which will use ncurses.
+
+Note that the libraries included here supports wide char (UTF-8),
+and is not compatible with those without. When linking programs with
+these libraries, you will have to append a "w" to the library names,
+i.e. -lformw, -lmenuw, -lncursesw, -lpanelw.
+
 
 %package extraterms
 Summary:	Some exotic terminal descriptions
@@ -60,117 +103,161 @@ Requires:	ncurses
 %description extraterms
 Install the ncurses-extraterms package if you use some exotic terminals.
 
-%package -n %{lib_name}-devel
+
+%package -n %{libname}-devel
 Summary:	The development files for applications which use ncurses
 Group:		Development/C
-Provides:	libncurses-devel ncurses-devel
-Obsoletes:	libncurses-devel ncurses-devel
-Requires:	%{lib_name} = %{version}
+Provides:	lib%{name}-devel %{name}-devel
+Obsoletes:	lib%{name}-devel %{name}-devel
+Requires:	%{libname} = %{version}-%{release}
 
-%description -n %{lib_name}-devel
+%description -n %{libname}-devel
 The header files and libraries for developing applications that use
 the ncurses CRT screen handling and optimization package.
 
 Install the ncurses-devel package if you want to develop applications
 which will use ncurses.
 
+
 %prep
-%setup -q -n ncurses-%{version}
-
-%patch1 -p1
-
-sh %{PATCH10}
-
-%patch11 -p1
+%setup -q
+sh %{PATCH11}
 %patch12 -p1
 %patch13 -p1
 %patch14 -p1
 %patch15 -p1
-%patch16 -p1
-%patch17 -p1
+%patch5 -p1 -b .utf8
+# regenerating configure needs patched autoconf, so modify configure
+# directly
+%patch6 -p1 -b .removedep
+#%patch7 -p1
+%patch8 -p1 -b .deps
+%patch1 -p1 -b .deb
 
-%patch4 -p1 -b .parallel
-
-# in patch5
-#%patch2 -p1
-# seems to be OK in patch5
-#%patch3 -p1
 find . -name "*.orig" | xargs rm -f
+# fix some permissions
+chmod 0755 c++/edit_cfg.sh test/listused.sh test/configure test/tracemunch
 
-# fed up of configure script appending ${host_alias}- to gcc commands
-perl -pi -e 's|(test -n "\$host_alias" && ac_tool_prefix)=(.*)|\1=""|' ./configure
 
 %build
-OPT_FLAGS=`echo "$RPM_OPT_FLAGS -DPURE_TERMINFO" | sed -e "s/-fomit-frame-pointer//g"`
-CFLAGS="$OPT_FLAGS" CXXFLAGS="$OPT_FLAGS" %configure \
-	--program-prefix= \
-	--with-normal --with-shared --without-debug --without-profile \
-	--without-gpm --enable-termcap --enable-getcap \
-	--enable-const --enable-hard-tabs --enable-hash-map \
-	--enable-no-padding --enable-sigwinch --without-ada
+OPT_FLAGS="%{optflags} -DPURE_TERMINFO -fno-omit-frame-pointer"
+CFLAGS="$OPT_FLAGS -DSVR4_CURSES"
+CXXFLAGS="$OPT_FLAGS"
 
-%make
+mkdir -p ncurses-normal
+pushd ncurses-normal
+    CONFIGURE_TOP=..
+    %configure2_5x \
+        --includedir=%{_includedir}/ncurses \
+        --with-normal \
+        --with-shared \
+        --without-debug \
+        --without-profile \
+        --without-gpm \
+        --enable-termcap \
+        --enable-getcap \
+        --enable-const \
+        --enable-hard-tabs \
+        --enable-hash-map \
+        --enable-no-padding \
+        --enable-sigwinch \
+        --without-ada \
+        --enable-xmc-glitch \
+        --enable-colorfgbg \
+        --with-ospeed=unsigned
+
+    %make
+popd
+
+mkdir -p ncurses-utf8
+pushd ncurses-utf8
+    CONFIGURE_TOP=..
+    %configure2_5x \
+        --includedir=%{_includedir}/ncursesw \
+        --with-normal \
+        --with-shared \
+        --without-debug \
+        --without-profile \
+        --without-gpm \
+        --enable-termcap \
+        --enable-getcap \
+        --enable-const \
+        --enable-hard-tabs \
+        --enable-hash-map \
+        --enable-no-padding \
+        --enable-sigwinch \
+        --without-ada \
+        --enable-widec \
+        --enable-xmc-glitch \
+        --enable-colorfgbg \
+        --with-ospeed=unsigned
+
+    %make
+popd
+
 
 %install
-[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-%makeinstall prefix=$RPM_BUILD_ROOT/usr \
-	includedir=$RPM_BUILD_ROOT/usr/include/ncurses \
-	ticdir=$RPM_BUILD_ROOT/%{_datadir}/terminfo
+pushd ncurses-utf8
+    %makeinstall_std
+popd
 
-ln -sf ../l/linux $RPM_BUILD_ROOT/%{_datadir}/terminfo/c/console
-ln -sf ncurses/curses.h $RPM_BUILD_ROOT/usr/include/ncurses.h
+pushd ncurses-normal
+    %makeinstall_std
+popd
+
+ln -sf ../l/linux %{buildroot}%{_datadir}/terminfo/c/console
+ln -sf ncurses/curses.h %{buildroot}%{_includedir}/ncurses.h
 for I in curses unctrl eti form menu panel term; do
-	ln -sf ncurses/$I.h $RPM_BUILD_ROOT/usr/include/$I.h
+    ln -sf ncurses/$I.h %{buildroot}%{_includedir}/$I.h
 done
 
-# strip $RPM_BUILD_ROOT%{_bindir}/* || :
-make clean -C test
-# find $RPM_BUILD_ROOT%{_mandir} -type f -exec bzip2 -9f {} \;
-
 # the resetall script
-install -m 755 %{SOURCE4} $RPM_BUILD_ROOT/%{_bindir}/resetall
+install -m 0755 %{SOURCE4} %{buildroot}%{_bindir}/resetall
 # we don't want this in doc
 rm -f c++/demo
 
-mkdir -p $RPM_BUILD_ROOT/%{_lib}
-mv $RPM_BUILD_ROOT/%{_libdir}/libncurses.so* $RPM_BUILD_ROOT/%{_lib}
-ln -s /%{_lib}/libncurses.so.%{version} $RPM_BUILD_ROOT/%{_libdir}/libncurses.so.%{version}
-ln -s /%{_lib}/libncurses.so.%{version} $RPM_BUILD_ROOT/%{_libdir}/libncurses.so.%{lib_major}
-ln -s /%{_lib}/libncurses.so.%{version} $RPM_BUILD_ROOT/%{_libdir}/libncurses.so
-
-ln -s $RPM_BUILD_ROOT/%{_libdir}/libncurses.so.%{version} $RPM_BUILD_ROOT/%{_lib}/libncurses.so.4
+mkdir -p %{buildroot}/%{_lib}
+mv %{buildroot}%{_libdir}/libncurses.so* %{buildroot}/%{_lib}
+ln -s /%{_lib}/libncurses.so.%{majorminor} %{buildroot}%{_libdir}/libncurses.so.%{majorminor}
+ln -s /%{_lib}/libncurses.so.%{majorminor} %{buildroot}%{_libdir}/libncurses.so.%{major}
+ln -s /%{_lib}/libncurses.so.%{majorminor} %{buildroot}%{_libdir}/libncurses.so
+ln -s %{buildroot}%{_libdir}/libncurses.so.%{majorminor} %{buildroot}/%{_lib}/libncurses.so.4
 
 #
 # FIXME
 # OK do not time to debbug it now
 #
-cp /$RPM_BUILD_ROOT/%{_datadir}/terminfo/x/xterm /$RPM_BUILD_ROOT/%{_datadir}/terminfo/x/xterm2
-cp /$RPM_BUILD_ROOT/%{_datadir}/terminfo/x/xterm-new /$RPM_BUILD_ROOT/%{_datadir}/terminfo/x/xterm
+cp %{buildroot}%{_datadir}/terminfo/x/xterm %{buildroot}%{_datadir}/terminfo/x/xterm2
+cp %{buildroot}%{_datadir}/terminfo/x/xterm-new %{buildroot}%{_datadir}/terminfo/x/xterm
+
+#
+# remove unneeded/unwanted files
+# have to be done before find commands below
+#
+rm -f %{buildroot}%{_libdir}/terminfo
+
 #
 # FIXME
 #
-
-(cd $RPM_BUILD_ROOT ; ls -d usr/share/terminfo/*   | perl -pe 's||%%dir /|') > %{name}.list
-(cd $RPM_BUILD_ROOT ; ls    usr/share/terminfo/*/* | perl -pe 's||/|')       > %{name}-extraterms.list
+(cd $RPM_BUILD_ROOT ; find usr/share/terminfo      -type d | perl -pe 's||%%dir /|') > %{name}.list
+(cd $RPM_BUILD_ROOT ; find usr/share/terminfo -not -type d | perl -pe 's||/|')       > %{name}-extraterms.list
 perl -pe 's||%{_datadir}/terminfo/|' %{SOURCE5} >> %{name}.list
 
 perl -ni -e 'BEGIN { open F, "%{name}.list"; /^%/ or $s{$_} = 1 foreach <F>; } print unless $s{$_}' %{name}-extraterms.list
 
-find $RPM_BUILD_ROOT/%{_libdir}/*.a -not -name "*_g.a" -not -name "*_p.a" -type f | sed -e "s#^$RPM_BUILD_ROOT##g" > %{lib_name}-devel.list
-
-mv $RPM_BUILD_ROOT/%{_mandir}/tack.1 $RPM_BUILD_ROOT/%{_mandir}/man1/tack.1
-
-# remove unpackaged files
-rm -rf %{buildroot}%{_libdir}/{libcurses.a,terminfo}
-rm -rf %{buildroot}%{_datadir}/terminfo/terminfo
+find %{buildroot}%{_libdir} -name 'lib*.a' -not -type d -not -name "*_g.a" -not -name "*_p.a" -not -name "*w.a" | sed -e "s#^%{buildroot}##" > %{libname}-devel.list
 
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-%post -n %{lib_name} -p /sbin/ldconfig
 
-%postun -n %{lib_name} -p /sbin/ldconfig
+%post -n %{libname} -p /sbin/ldconfig
+%postun -n %{libname} -p /sbin/ldconfig
+
+%post -n %{utf8libname} -p /sbin/ldconfig
+%postun -n %{utf8libname} -p /sbin/ldconfig
+
 
 %files -f %{name}.list
 %defattr(-,root,root)
@@ -182,25 +269,44 @@ rm -rf %{buildroot}%{_datadir}/terminfo/terminfo
 %{_mandir}/man5/*
 %{_mandir}/man7/*
 
-%files -n %{lib_name}
+%files -n %{libname}
 %defattr(-,root,root)
-%attr(755,root,root) /%{_lib}/lib*.so.*
-%attr(755,root,root) /%{_libdir}/lib*.so.*
+%attr(0755,root,root) /%{_lib}/lib*.so.*
+%attr(0755,root,root) %{_libdir}/lib*.so.*
+%exclude %{_libdir}/lib*w.so.*
+
+%files -n %{utf8libname}
+%defattr(-,root,root)
+%attr(0755,root,root) %{_libdir}/lib*w.so.*
 
 %files extraterms -f %{name}-extraterms.list
 %defattr(-,root,root)
 %doc README
 
-%files -n %{lib_name}-devel -f %lib_name-devel.list
+%files -n %{libname}-devel -f %{libname}-devel.list
 %defattr(-,root,root)
 %doc doc c++ test
 /%{_lib}/lib*.so
 %{_libdir}/lib*.so
-/usr/include/ncurses
-/usr/include/*.h
+%exclude %{_libdir}/lib*w.so
+%{_includedir}/ncurses
+%{_includedir}/*.h
 %{_mandir}/man3/*
 
+%files -n %{utf8libname}-devel
+%defattr(-,root,root)
+%{_libdir}/lib*w.so
+%{_libdir}/lib*w.a
+%{_includedir}/ncursesw
+
+
 %changelog
+* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 5.4-1.20050108.1avx
+- 5.4 with pathset 20050108
+- rebuild for new gcc
+- enable wide char support and split into different libraries (deaddog)
+- use %%configure2_5x and %%makeinstall_std to fix ugly build issues (deaddog)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 5.3-1.20030215.8avx
 - bootstrap build
 
