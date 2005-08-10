@@ -1,7 +1,18 @@
-%define name	ocaml
-%define version	3.08
-%define release	2avx
-%define mainver 3.08.0
+#
+# spec file for package ocaml
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		ocaml
+%define version		%{major}.%{minor}
+%define release		1avx
+
+%define major		3.08
+%define minor		3
 
 %define build_ocamlopt	1
 %define build_ocamltk	1
@@ -13,8 +24,8 @@ Release:	%{release}
 License:	QPL & LGPL
 Group:		Development/Other
 URL:		http://www.ocaml.org/
-Source0:	ftp://ftp.inria.fr/INRIA/cristal/caml-light/ocaml-3.07/ocaml-%{mainver}.tar.bz2
-Source1:	ftp://ftp.inria.fr/INRIA/cristal/caml-light/ocaml-3.07/ocaml-%{version}-refman.html.tar.bz2
+Source0:	ftp://ftp.inria.fr/INRIA/cristal/caml-light/%{name}-%{major}/%{name}-%{version}.tar.bz2
+Source1:	ftp://ftp.inria.fr/INRIA/cristal/caml-light/%{name}-%{major}/%{name}-%{major}-refman.html.tar.bz2
 Patch0:		ocaml-3.00-ocamltags--no-site-start.patch.bz2
 Patch1:		ocaml-3.04-do-not-add-rpath-X11R6_lib-when-using-option-L.patch.bz2
 Patch2:		ocaml-3.05-no-opt-for-debug-and-profile.patch.bz2
@@ -22,7 +33,7 @@ Patch3:		ocaml-3.04-larger-buffer-for-uncaught-exception-messages.patch.bz2
 Patch4:		ocaml-3.08.0-add-warning-for-unused-local-variables.patch.bz2
 Patch5:		ocaml-3.06-lib64.patch.bz2
 
-BuildRoot:	%{_tmppath}/ocaml-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	XFree86-devel ncurses-devel tcl tk
 
 %description
@@ -33,6 +44,7 @@ This package comprises two batch compilers (a fast bytecode compiler and an
 optimizing native-code compiler), an interactive toplevel system, Lex&Yacc
 tools, a replay debugger, and a comprehensive library.
 
+
 %package -n camlp4
 Summary:	Preprocessor for OCaml
 Group:		Development/Other
@@ -40,6 +52,7 @@ Requires:	%{name} = %{version}-%{release}
 
 %description -n camlp4
 Preprocessor for OCaml
+
 
 %package -n ocamltk
 Summary:	Tk toolkit binding for OCaml
@@ -49,9 +62,10 @@ Requires:	%{name} = %{version}-%{release}
 %description -n ocamltk
 Tk toolkit binding for OCaml
 
+
 %prep
-%setup -q -n %{name}-%{mainver} -T -b 0
-%setup -q -n %{name}-%{mainver} -T -D -a 1
+%setup -q -T -b 0
+%setup -q -T -D -a 1
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
@@ -63,16 +77,21 @@ Tk toolkit binding for OCaml
 perl -pi -e 's/-warn-error A/-w A -w e/' `find -name "Makefile*"`
 rm -rf `find -name .cvsignore`
 
+
 %build
 %ifarch alpha
 echo %{optflags} | grep -q mieee || { echo "on alpha you need -mieee to compile ocaml"; exit 1; }
 %endif
 
-./configure -bindir %{_bindir} -libdir %{_libdir}/ocaml -mandir %{_mandir}/man1
+./configure \
+    -bindir %{_bindir} \
+    -libdir %{_libdir}/ocaml \
+    -mandir %{_mandir}/man1
 make world
 %if %{build_ocamlopt}
 make opt opt.opt
 %endif
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -88,9 +107,9 @@ perl -pi -e "s|%{buildroot}||" %{buildroot}%{_libdir}/ocaml/ld.conf
 %if %{build_ocamlopt}
 # only keep the binary versions (which are much faster, and have no drawbacks (?))
 for i in %{buildroot}%{_bindir}/*.opt ; do
-  nonopt=`echo $i | sed "s/.opt$//"`
-  rm -f $nonopt
-  ln -s `basename $i` $nonopt
+    nonopt=`echo $i | sed "s/.opt$//"`
+    rm -f $nonopt
+    ln -s `basename $i` $nonopt
 done
 %endif
 
@@ -107,8 +126,10 @@ n="labltk|camlp4|ocamlbrowser|tkanim"
 (cd %{buildroot} ; find usr/%{_lib}/ocaml ! -type d -printf "/%%p\n" | egrep -v $n) >> %{name}.list
 (cd %{buildroot} ; find usr/%{_lib}/ocaml   -type d -printf "%%%%dir /%%p\n" | egrep -v $n) >> %{name}.list
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files -f %{name}.list
 %defattr(-,root,root)
@@ -133,7 +154,12 @@ n="labltk|camlp4|ocamlbrowser|tkanim"
 %{_bindir}/*camlp4*
 %{_libdir}/ocaml/camlp4
 
+
 %changelog
+* Wed Jul 27 2005 Vincent Danen <vdanen@annvix.org> 3.08.3-1avx
+- 3.08.3
+- rebuild for new gcc
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 3.08-2avx
 - bootstrap build
 
