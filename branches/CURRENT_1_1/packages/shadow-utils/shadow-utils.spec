@@ -1,17 +1,27 @@
-%define name	shadow-utils
-%define version	4.0.3
-%define release	12avx
+#
+# spec file for package shadow-utils
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		shadow-utils
+%define version		4.0.3
+%define release		13avx
+%define epoch		1
 
 #rh-20000902-10
-#%define url	ftp://ftp.ists.pwr.wroc.pl/pub/linux/shadow/beta
-%define url     ftp.pld.org.pl:/software/shadow
+#%define url		ftp://ftp.ists.pwr.wroc.pl/pub/linux/shadow/beta
+%define url     	ftp.pld.org.pl:/software/shadow
 %define _unpackaged_files_terminate_build 0
 
 Summary:	Utilities for managing shadow password files and user/group accounts
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
-Epoch:		1
+Epoch:		%{epoch}
 License:	BSD
 Group:		System/Base
 URL:		%{url}
@@ -35,6 +45,7 @@ Patch9:		shadow-20000902-useradd-LSB-compliance.patch.bz2
 Patch10:	shadow-4.0.3-useradd-umask.patch.bz2
 Patch11:	shadow-4.0.3-Makefile.po.patch.bz2
 Patch12:	shadow-4.0.0-owl-pam_chauthtok.diff.bz2
+Patch13:	shadow-4.0.3-gcc3.4-fix.patch.bz2
 # Debian fixes
 patch200:	shadow-014_libmisc_xmalloc.c.diff.bz2
 patch201:	shadow-016_subsystem_shell_fix.diff.bz2
@@ -42,14 +53,12 @@ patch202:	shadow-031_passwd_5_no_aging.diff.bz2
 patch203:	shadow-032_login.defs_maildir.diff.bz2
 Patch204:	shadow-4.0.3-biarch-utmp.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	gettext-devel
 BuildRequires:  automake1.7
 
 Obsoletes:	adduser, newgrp
 Provides: 	adduser, newgrp, shadow-utils > 20000902-5
-Prefix:		%{_prefix}
-Conflicts:	msec < 0.37
 
 %description
 The shadow-utils package includes the necessary programs for
@@ -62,6 +71,7 @@ password and shadow files.  The lastlog command prints out the last
 login times for all users.  The useradd, userdel and usermod commands
 are used for managing user accounts.  The groupadd, groupdel and
 groupmod commands are used for managing group accounts.
+
 
 %prep
 %setup -q -n shadow-%{version}
@@ -80,6 +90,7 @@ groupmod commands are used for managing group accounts.
 %patch10 -p1 -b .useradd-umask
 %patch11 -p1 -b .makefilepo
 %patch12 -p1 -b .chauthtok_fix
+%patch13 -p1 -b .gcc34
 
 # Debian fixes 
 %patch200 -p1
@@ -88,6 +99,7 @@ groupmod commands are used for managing group accounts.
 %patch203 -p1
 %patch204 -p1 -b .biarch-utmp
 
+
 %build
 unset LINGUAS || :
 libtoolize --copy --force
@@ -95,31 +107,37 @@ aclocal-1.7
 automake-1.7
 autoheader
 autoconf
-export CFLAGS="$RPM_OPT_FLAGS -D_BSD_SOURCE=1 -D_FILE_OFFSET_BITS=64"
-%configure2_5x --disable-desrpc --with-libcrypt --disable-shared
-make
+export CFLAGS="%{optflags} -D_BSD_SOURCE=1 -D_FILE_OFFSET_BITS=64"
+%configure2_5x \
+    --disable-desrpc \
+    --with-libcrypt \
+    --disable-shared
+%make
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-make install DESTDIR=$RPM_BUILD_ROOT gnulocaledir=$RPM_BUILD_ROOT/%{_datadir}/locale
+%makeinstall_std gnulocaledir=%{buildroot}%{_datadir}/locale MKINSTALLDIRS=`pwd`/mkinstalldirs
 
-install -d -m 750 $RPM_BUILD_ROOT%{_sysconfdir}/default
-install -m 0644 %{SOURCE1} $RPM_BUILD_ROOT%{_sysconfdir}/login.defs
-install -m 0600 %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/default/useradd
+install -d -m 0750 %{buildroot}%{_sysconfdir}/default
+install -m 0644 %{SOURCE1} %{buildroot}%{_sysconfdir}/login.defs
+install -m 0600 %{SOURCE2} %{buildroot}%{_sysconfdir}/default/useradd
 
 
-ln -s useradd $RPM_BUILD_ROOT%_sbindir/adduser
-install -m644 %SOURCE3 $RPM_BUILD_ROOT%_mandir/man8/
-install -m644 %SOURCE4 $RPM_BUILD_ROOT%_mandir/man8/
-install -m644 %SOURCE5 $RPM_BUILD_ROOT%_mandir/man8/
-install -m644 %SOURCE6 $RPM_BUILD_ROOT%_mandir/man8/
-perl -pi -e "s/encrpted/encrypted/g" $RPM_BUILD_ROOT%{_mandir}/man8/newusers.8
+ln -s useradd %{buildroot}%{_sbindir}/adduser
+install -m 0644 %SOURCE3 %{buildroot}%{_mandir}/man8/
+install -m 0644 %SOURCE4 %{buildroot}%{_mandir}/man8/
+install -m 0644 %SOURCE5 %{buildroot}%{_mandir}/man8/
+install -m 0644 %SOURCE6 %{buildroot}%{_mandir}/man8/
+perl -pi -e "s/encrpted/encrypted/g" %{buildroot}%{_mandir}/man8/newusers.8
 
 %find_lang shadow
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 rm -rf build-$RPM_ARCH
+
 
 %files -f shadow.lang
 %defattr(-,root,root)
@@ -165,7 +183,14 @@ rm -rf build-$RPM_ARCH
 %{_mandir}/man8/lastlog.8*
 %{_mandir}/man8/faillog.8*
 
+
 %changelog
+* Fri Jul 29 2005 Vincent Danen <vdanen@annvix.org> 4.0.3-13avx
+- rebuild for new gcc
+- P13: fix gcc-3.4 build (peroyvind)
+- use %%make and %%makeinstall_std
+- fix the nscd patch to refer to the right pid file (mdk bug #14840) (warly)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 4.0.3-12avx
 - bootstrap build
 

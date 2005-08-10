@@ -1,0 +1,22 @@
+--- shadow-4.0.3/lib/prototypes.h~	2004-06-14 09:56:46.781962067 +0200
++++ shadow-4.0.3/lib/prototypes.h	2004-06-14 09:58:41.583474203 +0200
+@@ -203,7 +203,7 @@ extern int check_su_auth(const char *, c
+ extern void sulog(const char *, int, const char *, const char *);
+ 
+ /* sub.c */
+-extern void subsystem(const struct passwd *);
++extern void subsystem(struct passwd *);
+ 
+ /* ttytype.c */
+ extern void ttytype(const char *);
+--- shadow-4.0.3/libmisc/sub.c~	2004-06-14 09:56:46.864963885 +0200
++++ shadow-4.0.3/libmisc/sub.c	2004-06-14 09:58:07.227723119 +0200
+@@ -51,7 +51,7 @@ RCSID("$Id: sub.c,v 1.6 1999/03/07 19:14
+  */
+ 
+ void
+-subsystem(const struct passwd *pw)
++subsystem(struct passwd *pw)
+ {
+ 	/*
+ 	 * The new root directory must begin with a "/" character.
