@@ -1,9 +1,16 @@
-%define name	coreutils
-%define version	5.0
-%define release	10avx
-
+#
+# spec file for package coreutils
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 # fileutils: rh-4.1-4
 # sh-utils:  rh-2.0.12-2
+
+%define name		coreutils
+%define version		5.0
+%define release		11avx
 
 # for sh-utils :
 %define optflags $RPM_OPT_FLAGS -D_GNU_SOURCE=1
@@ -16,7 +23,7 @@ License:	GPL
 Group:		System/Base
 URL:		ftp://alpha.gnu.org/gnu/coreutils/
 
-Source0:	ftp://prep.ai.mit.edu/pub/gnu/%name/%name-%version.tar.bz2
+Source0:	ftp://prep.ai.mit.edu/pub/gnu/%{name}/%{name}-%{version}.tar.bz2
 Source101:	DIR_COLORS
 Source102:	DIR_COLORS.xterm
 Source200:	su.pamd
@@ -61,11 +68,11 @@ Patch904:	coreutils-5.0-allow_old_options.patch.bz2
 Patch905:	coreutils-5.0-du-fd_leak.patch.bz2
 
 
-BuildRoot:	%_tmppath/%{name}-root
+BuildRoot:	%_buildroot/%{name}-%{version}
 BuildRequires:	gettext termcap-devel pam-devel texinfo >= 4.3
 
 Requires:  	pam >= 0.66-12
-Provides:	fileutils = %version, sh-utils = %version, stat, textutils = %version
+Provides:	fileutils = %{version}, sh-utils = %{version}, stat, textutils = %{version}
 Obsoletes:	fileutils sh-utils stat textutils
 Conflicts:	tetex < 1.0.7-49mdk
 
@@ -93,15 +100,17 @@ The following tools are included:
   split stat stty su sum sync tac tail tee test touch tr true tsort tty
   uname unexpand uniq unlink uptime users vdir wc who whoami yes
 
+
 %package doc
 Summary:	Coreutils documentation in info format
 Group:		Books/Computer books
 Requires:	coreutils >= 4.5.4-2mdk
-Prereq:		/sbin/install-info
+Prereq:		info-install
 
 %description doc
 Documentation for the coreutils package; includes manpages, an info file,
 and other miscellaneous documentation.
+
 
 %prep
 %setup -q
@@ -176,52 +185,54 @@ chmod +x man/help2man
 %makeinstall_std
 
 # man pages are not installed with make install
-make mandir=$RPM_BUILD_ROOT%{_mandir} install-man
+make mandir=%{buildroot}%{_mandir} install-man
 
 # fix japanese catalog file
-if [ -d $RPM_BUILD_ROOT/%{_datadir}/locale/ja_JP.EUC/LC_MESSAGES ]; then
-   mkdir -p $RPM_BUILD_ROOT/%{_datadir}/locale/ja/LC_MESSAGES
-   mv $RPM_BUILD_ROOT/%{_datadir}/locale/ja_JP.EUC/LC_MESSAGES/*mo \
-		$RPM_BUILD_ROOT/%{_datadir}/locale/ja/LC_MESSAGES
-   rm -rf $RPM_BUILD_ROOT/%{_datadir}/locale/ja_JP.EUC
+if [ -d %{buildroot}/%{_datadir}/locale/ja_JP.EUC/LC_MESSAGES ]; then
+   mkdir -p %{buildroot}/%{_datadir}/locale/ja/LC_MESSAGES
+   mv %{buildroot}/%{_datadir}/locale/ja_JP.EUC/LC_MESSAGES/*mo \
+		%{buildroot}/%{_datadir}/locale/ja/LC_MESSAGES
+   rm -rf %{buildroot}/%{_datadir}/locale/ja_JP.EUC
 fi
 
 # let be compatible with old fileutils, sh-utils and textutils packages :
-mkdir -p $RPM_BUILD_ROOT{/bin,%_bindir,%_sbindir,%_sysconfdir/pam.d}
+mkdir -p %{buildroot}{/bin,%{_bindir},%{_sbindir},%{_sysconfdir}/pam.d}
 for f in basename cat chgrp chmod chown cp cut date dd df echo env false id link ln ls mkdir mknod mv nice pwd rm rmdir sleep sort stat stty sync touch true uname unlink
 do
-	mv $RPM_BUILD_ROOT/{%_bindir,bin}/$f 
+	mv %{buildroot}/{%{_bindir},bin}/$f 
 done
 
 # chroot was in /usr/sbin :
-mv $RPM_BUILD_ROOT/{%_bindir,%_sbindir}/chroot
+mv %{buildroot}/{%{_bindir},%{_sbindir}}/chroot
 # {cat,sort,cut} were previously moved from bin to /usr/bin and linked into 
-for i in env cut; do ln -sf ../../bin/$i $RPM_BUILD_ROOT/usr/bin; done
+for i in env cut; do ln -sf ../../bin/$i %{buildroot}/usr/bin; done
 
-install -c -m644 %SOURCE101 $RPM_BUILD_ROOT/etc/
+install -c -m 0644 %SOURCE101 %{buildroot}/etc/
 
 # su
-install -m 0755 src/su $RPM_BUILD_ROOT/bin
+install -m 0755 src/su %{buildroot}/bin
 
 # These come from util-linux and/or procps.
 for i in hostname uptime ; do
-	rm -f $RPM_BUILD_ROOT{%_bindir/$i,%_mandir/man1/${i}.1}
+	rm -f %{buildroot}{%{_bindir}/$i,%{_mandir}/man1/${i}.1}
 done
 
-install -m 644 %SOURCE200 $RPM_BUILD_ROOT%_sysconfdir/pam.d/su
+install -m 644 %SOURCE200 %{buildroot}%{_sysconfdir}/pam.d/su
 
-ln -sf test $RPM_BUILD_ROOT%_bindir/[
+ln -sf test %{buildroot}%{_bindir}/[
 
 bzip2 -f9 old/*/C* || :
 
-%find_lang %name
+%find_lang %{name}
 
 # (sb) Deal with Installed (but unpackaged) file(s) found
 rm -f %{buildroot}%{_datadir}/info/dir
 rm -rf %{buildroot}%{_datadir}/locale/*/LC_TIME
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %pre doc
 # We must desinstall theses info files since they're merged in
@@ -234,10 +245,10 @@ for file in sh-utils.info textutils.info fileutils.info; do
 done
 
 %preun doc
-%_remove_install_info %name.info
+%_remove_install_info %{name}.info
 
 %post doc
-%_install_info %name.info
+%_install_info %{name}.info
 # The next true is needed: else, if there's a problem, the 
 # package'll be installed 2 times because of trigger faillure
 true
@@ -249,16 +260,21 @@ true
 %config(noreplace) /etc/pam.d/su
 %doc README
 /bin/*
-%_bindir/*
-%_sbindir/chroot
+%{_bindir}/*
+%{_sbindir}/chroot
 
 %files doc
 %defattr(-,root,root)
 %doc ABOUT-NLS ChangeLog.bz2 NEWS THANKS TODO old/*
-%_infodir/coreutils*
-%_mandir/man*/*
+%{_infodir}/coreutils*
+%{_mandir}/man*/*
 
 %changelog
+* Mon Jul 25 2005 Vincent Danen <vdanen@annvix.org> 5.0-11avx
+- use new %%_buildroot macro
+- spec cleanups
+- rebuild for new gcc
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 5.0-10avx
 - bootstrap build
 
