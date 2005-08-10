@@ -1,6 +1,14 @@
-%define name	tar
-%define version	1.14
-%define release	2avx
+#
+# spec file for package tar
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+%define name		tar
+%define version		1.15.1
+%define release		1avx
 
 %define rmtrealname	rmt-tar
 %define _bindir		/bin
@@ -13,16 +21,16 @@ License:	GPL
 Group:		Archiving/Backup
 URL:		http://www.gnu.org/software/tar/tar.html
 Source:		ftp://ftp.gnu.org/pub/gnu/tar/tar-%{version}.tar.bz2
-Source1:	%{SOURCE0}.sig
+Source1:	ftp://ftp.gnu.org/pub/gnu/tar/tar-%{version}.tar.bz2.sig
 Source2:	tar-help2man.bz2
 Patch0:		tar-1.14-mdk-sock.patch.bz2
-Patch1:		tar-1.14-mdk-scandir.patch.bz2
+Patch1:		tar-1.15-mdk-scandir.patch.bz2
 Patch2:		tar-1.14-mdk-doubleslash.patch.bz2
+Patch3:		tar-1.15.1-mdk-compile-gcc4.patch.bz2
 
-Buildroot:	%{_tmppath}/%{name}-root
+Buildroot:	%{_buildroot}/%{name}-%{version}
 
 Prereq:		info-install
-Provides:	/sbin/rmt
 Conflicts:	rmt < 0.4b37
 
 %description
@@ -39,20 +47,22 @@ You should install the tar package, because you'll find its
 compression and decompression utilities essential for working
 with files.
 
+
 %prep
 %setup -q
 %patch0 -p1 -b .sock
 %patch1 -p1 -b .scandir
 %patch2 -p1 -b .doubleslash
+%patch3 -p0 -b .compilgcc4
 
 bzcat %{SOURCE2} > ./help2man
 chmod +x ./help2man
 
 %build
 %configure2_5x \
-	--enable-backup-scripts \
-	--bindir=%{_bindir} \
-	DEFAULT_RMT_COMMAND="/sbin/rmt"
+    --enable-backup-scripts \
+    --bindir=%{_bindir} \
+    DEFAULT_RMT_COMMAND="/sbin/rmt"
 
 %make
 
@@ -61,37 +71,30 @@ chmod +x ./help2man
 
 make check
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-
 %makeinstall_std
 ln -sf tar %{buildroot}%{_bindir}/gtar
-install -D -m644 tar.1 %{buildroot}%_mandir/man1/tar.1
+install -D -m 0644 tar.1 %{buildroot}%{_mandir}/man1/tar.1
 
 # rmt is provided by rmt ...
 mkdir -p %{buildroot}/sbin
-mv %{buildroot}%{_libexecdir}/rmt %{buildroot}/sbin/%rmtrealname
+mv %{buildroot}%{_libexecdir}/rmt %{buildroot}/sbin/%{rmtrealname}
 
 %find_lang %{name}
 
-%triggerpostun -- rmt < 0.4b37
-if test ! -e /sbin/rmt; then
-    %{_sbindir}/update-alternatives --install /sbin/rmt /sbin/%rmtrealname 10
-fi
-
 
 %post
-%{_sbindir}/update-alternatives --install /sbin/rmt rmt /sbin/%rmtrealname 10
 %_install_info %{name}.info
 
 %preun
 %_remove_install_info %{name}.info
 
-%postun
-%{_sbindir}/update-alternatives --remove rmt /sbin/%rmtrealname
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files -f %{name}.lang
 %defattr(-,root,root)
@@ -108,6 +111,11 @@ fi
 
 
 %changelog
+* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 1.15.1-1avx
+- 1.15.1
+- remove alternatives install for rmt
+- P4: fix compilation with gcc4 (rgarciasuarez)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.14-2avx
 - bootstrap build
 
