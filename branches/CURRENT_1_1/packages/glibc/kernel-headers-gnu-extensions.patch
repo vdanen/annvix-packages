@@ -1,6 +1,139 @@
---- kernel-headers/linux/byteorder/swab.h.gnu-extensions	2002-11-29 00:53:15.000000000 +0100
-+++ kernel-headers/linux/byteorder/swab.h	2003-07-25 12:24:46.000000000 +0200
-@@ -19,34 +19,34 @@
+--- kernel-headers/asm-arm/types.h.kheaders-gnu-extensions	2003-12-17 21:58:04.000000000 -0500
++++ kernel-headers/asm-arm/types.h	2004-01-08 06:41:00.000000000 -0500
+@@ -19,9 +19,9 @@ typedef unsigned short __u16;
+ typedef __signed__ int __s32;
+ typedef unsigned int __u32;
+ 
+-#if defined(__GNUC__) && !defined(__STRICT_ANSI__)
+-typedef __signed__ long long __s64;
+-typedef unsigned long long __u64;
++#if defined(__GNUC__)
++__extension__ typedef __signed__ long long __s64;
++__extension__ typedef unsigned long long __u64;
+ #endif
+ 
+ #endif /* __ASSEMBLY__ */
+--- kernel-headers/asm-cris/types.h.kheaders-gnu-extensions	2003-12-17 21:58:57.000000000 -0500
++++ kernel-headers/asm-cris/types.h	2004-01-08 06:41:00.000000000 -0500
+@@ -19,9 +19,9 @@ typedef unsigned short __u16;
+ typedef __signed__ int __s32;
+ typedef unsigned int __u32;
+ 
+-#if defined(__GNUC__) && !defined(__STRICT_ANSI__)
+-typedef __signed__ long long __s64;
+-typedef unsigned long long __u64;
++#if defined(__GNUC__)
++__extension__ typedef __signed__ long long __s64;
++__extension__ typedef unsigned long long __u64;
+ #endif
+ 
+ #endif /* __ASSEMBLY__ */
+--- kernel-headers/asm-i386/types.h.kheaders-gnu-extensions	2003-12-17 21:58:57.000000000 -0500
++++ kernel-headers/asm-i386/types.h	2004-01-08 06:41:00.000000000 -0500
+@@ -19,9 +19,9 @@ typedef unsigned short __u16;
+ typedef __signed__ int __s32;
+ typedef unsigned int __u32;
+ 
+-#if defined(__GNUC__) && !defined(__STRICT_ANSI__)
+-typedef __signed__ long long __s64;
+-typedef unsigned long long __u64;
++#if defined(__GNUC__)
++__extension__ typedef __signed__ long long __s64;
++__extension__ typedef unsigned long long __u64;
+ #endif
+ 
+ #endif /* __ASSEMBLY__ */
+--- kernel-headers/asm-m68k/types.h.kheaders-gnu-extensions	2003-12-17 21:57:57.000000000 -0500
++++ kernel-headers/asm-m68k/types.h	2004-01-08 06:41:00.000000000 -0500
+@@ -27,9 +27,9 @@ typedef unsigned short __u16;
+ typedef __signed__ int __s32;
+ typedef unsigned int __u32;
+ 
+-#if defined(__GNUC__) && !defined(__STRICT_ANSI__)
+-typedef __signed__ long long __s64;
+-typedef unsigned long long __u64;
++#if defined(__GNUC__)
++__extension__ typedef __signed__ long long __s64;
++__extension__ typedef unsigned long long __u64;
+ #endif
+ 
+ #endif /* __ASSEMBLY__ */
+--- kernel-headers/asm-mips/types.h.kheaders-gnu-extensions	2003-12-17 21:58:07.000000000 -0500
++++ kernel-headers/asm-mips/types.h	2004-01-08 06:41:00.000000000 -0500
+@@ -41,9 +41,9 @@ typedef unsigned long __u64;
+ 
+ #else
+ 
+-#if defined(__GNUC__) && !defined(__STRICT_ANSI__)
+-typedef __signed__ long long __s64;
+-typedef unsigned long long __u64;
++#if defined(__GNUC__)
++__extension__ typedef __signed__ long long __s64;
++__extension__ typedef unsigned long long __u64;
+ #endif
+ 
+ #endif
+--- kernel-headers/asm-parisc/types.h.kheaders-gnu-extensions	2003-12-17 21:58:15.000000000 -0500
++++ kernel-headers/asm-parisc/types.h	2004-01-08 06:41:02.000000000 -0500
+@@ -19,9 +19,9 @@ typedef unsigned short __u16;
+ typedef __signed__ int __s32;
+ typedef unsigned int __u32;
+ 
+-#if defined(__GNUC__) && !defined(__STRICT_ANSI__)
+-typedef __signed__ long long __s64;
+-typedef unsigned long long __u64;
++#if defined(__GNUC__)
++__extension__ typedef __signed__ long long __s64;
++__extension__ typedef unsigned long long __u64;
+ #endif
+ 
+ #endif /* __ASSEMBLY__ */
+--- kernel-headers/asm-ppc/types.h.kheaders-gnu-extensions	2003-12-17 21:59:35.000000000 -0500
++++ kernel-headers/asm-ppc/types.h	2004-01-08 06:41:02.000000000 -0500
+@@ -12,9 +12,9 @@ typedef unsigned short __u16;
+ typedef __signed__ int __s32;
+ typedef unsigned int __u32;
+ 
+-#if defined(__GNUC__) && !defined(__STRICT_ANSI__)
+-typedef __signed__ long long __s64;
+-typedef unsigned long long __u64;
++#if defined(__GNUC__)
++__extension__ typedef __signed__ long long __s64;
++__extension__ typedef unsigned long long __u64;
+ #endif
+ 
+ typedef struct {
+--- kernel-headers/asm-s390/types.h.kheaders-gnu-extensions	2003-12-17 21:58:50.000000000 -0500
++++ kernel-headers/asm-s390/types.h	2004-01-08 06:42:54.000000000 -0500
+@@ -29,8 +29,8 @@ typedef unsigned int __u32;
+ 
+ #ifndef __s390x__
+ #if defined(__GNUC__) && !defined(__STRICT_ANSI__)
+-typedef __signed__ long long __s64;
+-typedef unsigned long long __u64;
++__extension__ typedef __signed__ long long __s64;
++__extension__ typedef unsigned long long __u64;
+ #endif
+ #else /* __s390x__ */
+ typedef __signed__ long __s64;
+--- kernel-headers/asm-sh/types.h.kheaders-gnu-extensions	2003-12-17 21:59:38.000000000 -0500
++++ kernel-headers/asm-sh/types.h	2004-01-08 06:41:02.000000000 -0500
+@@ -19,9 +19,9 @@ typedef unsigned short __u16;
+ typedef __signed__ int __s32;
+ typedef unsigned int __u32;
+ 
+-#if defined(__GNUC__) && !defined(__STRICT_ANSI__)
+-typedef __signed__ long long __s64;
+-typedef unsigned long long __u64;
++#if defined(__GNUC__)
++__extension__ typedef __signed__ long long __s64;
++__extension__ typedef unsigned long long __u64;
+ #endif
+ 
+ #endif /* __ASSEMBLY__ */
+--- kernel-headers/linux/byteorder/swab.h.kheaders-gnu-extensions	2003-12-17 21:59:57.000000000 -0500
++++ kernel-headers/linux/byteorder/swab.h	2004-01-08 06:42:11.000000000 -0500
+@@ -19,25 +19,25 @@
   * how U/UL/ULL map to __u16, __u32, __u64. At least not in a portable way.
   */
  #define ___swab16(x) \
@@ -10,17 +143,6 @@
  	((__u16)( \
  		(((__u16)(__x) & (__u16)0x00ffU) << 8) | \
  		(((__u16)(__x) & (__u16)0xff00U) >> 8) )); \
--})
-+}))
- 
- #define ___swab24(x) \
--({ \
-+(__extension__({ \
- 	__u32 __x = (x); \
- 	((__u32)( \
- 		((__x & (__u32)0x000000ffUL) << 16) | \
- 		 (__x & (__u32)0x0000ff00UL)        | \
- 		((__x & (__u32)0x00ff0000UL) >> 16) )); \
 -})
 +}))
  
@@ -42,7 +164,7 @@
  	__u64 __x = (x); \
  	((__u64)( \
  		(__u64)(((__u64)(__x) & (__u64)0x00000000000000ffULL) << 56) | \
-@@ -57,7 +57,7 @@
+@@ -48,7 +48,7 @@
  		(__u64)(((__u64)(__x) & (__u64)0x0000ff0000000000ULL) >> 24) | \
  		(__u64)(((__u64)(__x) & (__u64)0x00ff000000000000ULL) >> 40) | \
  		(__u64)(((__u64)(__x) & (__u64)0xff00000000000000ULL) >> 56) )); \
@@ -51,16 +173,12 @@
  
  #define ___constant_swab16(x) \
  	((__u16)( \
-@@ -89,16 +89,16 @@
+@@ -75,13 +75,13 @@
   * provide defaults when no architecture-specific optimization is detected
   */
  #ifndef __arch__swab16
 -#  define __arch__swab16(x) ({ __u16 __tmp = (x) ; ___swab16(__tmp); })
 +#  define __arch__swab16(x) (__extension__({ __u16 __tmp = (x) ; ___swab16(__tmp); }))
- #endif
- #ifndef __arch__swab24
--#  define __arch__swab24(x) ({ __u32 __tmp = (x) ; ___swab24(__tmp); })
-+#  define __arch__swab24(x) (__extension__({ __u32 __tmp = (x) ; ___swab24(__tmp); }))
  #endif
  #ifndef __arch__swab32
 -#  define __arch__swab32(x) ({ __u32 __tmp = (x) ; ___swab32(__tmp); })
@@ -72,8 +190,8 @@
  #endif
  
  #ifndef __arch__swab16p
---- kernel-headers/linux/byteorder/swabb.h.gnu-extensions	2001-07-26 22:47:44.000000000 +0200
-+++ kernel-headers/linux/byteorder/swabb.h	2003-07-25 12:25:11.000000000 +0200
+--- kernel-headers/linux/byteorder/swabb.h.kheaders-gnu-extensions	2003-12-17 21:58:38.000000000 -0500
++++ kernel-headers/linux/byteorder/swabb.h	2004-01-08 06:41:00.000000000 -0500
 @@ -26,19 +26,19 @@
   */
  
@@ -98,190 +216,9 @@
  
  #define ___constant_swahw32(x) \
  	((__u32)( \
---- kernel-headers/asm-arm/types.h.gnu-extensions	2003-08-12 06:28:44.000000000 +0200
-+++ kernel-headers/asm-arm/types.h	2003-08-22 18:04:44.000000000 +0200
-@@ -17,9 +17,9 @@ typedef unsigned short __u16;
- typedef __signed__ int __s32;
- typedef unsigned int __u32;
- 
--#if defined(__GNUC__) && !defined(__STRICT_ANSI__)
--typedef __signed__ long long __s64;
--typedef unsigned long long __u64;
-+#if defined(__GNUC__)
-+__extension__ typedef __signed__ long long __s64;
-+__extension__ typedef unsigned long long __u64;
- #endif
- 
- /*
---- kernel-headers/asm-cris/types.h.gnu-extensions	2001-02-09 01:32:44.000000000 +0100
-+++ kernel-headers/asm-cris/types.h	2003-08-22 18:04:44.000000000 +0200
-@@ -17,9 +17,9 @@ typedef unsigned short __u16;
- typedef __signed__ int __s32;
- typedef unsigned int __u32;
- 
--#if defined(__GNUC__) && !defined(__STRICT_ANSI__)
--typedef __signed__ long long __s64;
--typedef unsigned long long __u64;
-+#if defined(__GNUC__)
-+__extension__ typedef __signed__ long long __s64;
-+__extension__ typedef unsigned long long __u64;
- #endif
- 
- /*
---- kernel-headers/asm-i386/types.h.gnu-extensions	2002-08-03 02:39:45.000000000 +0200
-+++ kernel-headers/asm-i386/types.h	2003-08-22 18:04:44.000000000 +0200
-@@ -17,9 +17,9 @@ typedef unsigned short __u16;
- typedef __signed__ int __s32;
- typedef unsigned int __u32;
- 
--#if defined(__GNUC__) && !defined(__STRICT_ANSI__)
--typedef __signed__ long long __s64;
--typedef unsigned long long __u64;
-+#if defined(__GNUC__)
-+__extension__ typedef __signed__ long long __s64;
-+__extension__ typedef unsigned long long __u64;
- #endif
- 
- /*
---- kernel-headers/asm-m68k/types.h.gnu-extensions	2002-11-29 00:53:15.000000000 +0100
-+++ kernel-headers/asm-m68k/types.h	2003-08-22 18:04:44.000000000 +0200
-@@ -25,9 +25,9 @@ typedef unsigned short __u16;
- typedef __signed__ int __s32;
- typedef unsigned int __u32;
- 
--#if defined(__GNUC__) && !defined(__STRICT_ANSI__)
--typedef __signed__ long long __s64;
--typedef unsigned long long __u64;
-+#if defined(__GNUC__)
-+__extension__ typedef __signed__ long long __s64;
-+__extension__ typedef unsigned long long __u64;
- #endif
- 
- /*
---- kernel-headers/asm-mips/types.h.gnu-extensions	2002-11-29 00:53:15.000000000 +0100
-+++ kernel-headers/asm-mips/types.h	2003-08-22 18:07:09.000000000 +0200
-@@ -34,9 +34,9 @@ typedef unsigned long __u64;
- 
- #else
- 
--#if defined(__GNUC__) && !defined(__STRICT_ANSI__)
--typedef __signed__ long long __s64;
--typedef unsigned long long __u64;
-+#if defined(__GNUC__)
-+__extension__ typedef __signed__ long long __s64;
-+__extension__ typedef unsigned long long __u64;
- #endif
- 
- #endif
---- kernel-headers/asm-mips64/types.h.gnu-extensions	2002-11-29 00:53:15.000000000 +0100
-+++ kernel-headers/asm-mips64/types.h	2003-08-22 18:04:44.000000000 +0200
-@@ -27,14 +27,14 @@ typedef unsigned int __u32;
- 
- #if (_MIPS_SZLONG == 64)
- 
--typedef __signed__ long __s64;
--typedef unsigned long __u64;
-+__extension__ typedef __signed__ long __s64;
-+__extension__ typedef unsigned long __u64;
- 
- #else
- 
--#if defined(__GNUC__) && !defined(__STRICT_ANSI__)
--typedef __signed__ long long __s64;
--typedef unsigned long long __u64;
-+#if defined(__GNUC__)
-+__extension__ typedef __signed__ long long __s64;
-+__extension__ typedef unsigned long long __u64;
- #endif
- 
- #endif
-@@ -60,7 +60,7 @@ typedef unsigned long u64;
- 
- #else
- 
--#if defined(__GNUC__) && !defined(__STRICT_ANSI__)
-+#if defined(__GNUC__)
- typedef __signed__ long long s64;
- typedef unsigned long long u64;
- #endif
---- kernel-headers/asm-parisc/types.h.gnu-extensions	2002-11-29 00:53:15.000000000 +0100
-+++ kernel-headers/asm-parisc/types.h	2003-08-22 18:04:44.000000000 +0200
-@@ -17,9 +17,9 @@ typedef unsigned short __u16;
- typedef __signed__ int __s32;
- typedef unsigned int __u32;
- 
--#if defined(__GNUC__) && !defined(__STRICT_ANSI__)
--typedef __signed__ long long __s64;
--typedef unsigned long long __u64;
-+#if defined(__GNUC__)
-+__extension__ typedef __signed__ long long __s64;
-+__extension__ typedef unsigned long long __u64;
- #endif
- 
- /*
---- kernel-headers/asm-ppc/types.h.gnu-extensions	2003-06-13 16:51:38.000000000 +0200
-+++ kernel-headers/asm-ppc/types.h	2003-08-22 18:04:44.000000000 +0200
-@@ -12,9 +12,9 @@ typedef unsigned short __u16;
- typedef __signed__ int __s32;
- typedef unsigned int __u32;
- 
--#if defined(__GNUC__) && !defined(__STRICT_ANSI__)
--typedef __signed__ long long __s64;
--typedef unsigned long long __u64;
-+#if defined(__GNUC__)
-+__extension__ typedef __signed__ long long __s64;
-+__extension__ typedef unsigned long long __u64;
- #endif
- 
- typedef struct {
---- kernel-headers/asm-s390/types.h.gnu-extensions	2003-06-13 16:51:38.000000000 +0200
-+++ kernel-headers/asm-s390/types.h	2003-08-22 18:04:44.000000000 +0200
-@@ -25,9 +25,9 @@ typedef unsigned short __u16;
- typedef __signed__ int __s32;
- typedef unsigned int __u32;
- 
--#if defined(__GNUC__) && !defined(__STRICT_ANSI__)
--typedef __signed__ long long __s64;
--typedef unsigned long long __u64;
-+#if defined(__GNUC__)
-+__extension__ typedef __signed__ long long __s64;
-+__extension__ typedef unsigned long long __u64;
- #endif
- /* A address type so that arithmetic can be done on it & it can be upgraded to
-    64 bit when neccessary 
---- kernel-headers/asm-sh/types.h.gnu-extensions	2003-08-12 06:28:46.000000000 +0200
-+++ kernel-headers/asm-sh/types.h	2003-08-22 18:04:44.000000000 +0200
-@@ -17,9 +17,9 @@ typedef unsigned short __u16;
- typedef __signed__ int __s32;
- typedef unsigned int __u32;
- 
--#if defined(__GNUC__) && !defined(__STRICT_ANSI__)
--typedef __signed__ long long __s64;
--typedef unsigned long long __u64;
-+#if defined(__GNUC__)
-+__extension__ typedef __signed__ long long __s64;
-+__extension__ typedef unsigned long long __u64;
- #endif
- 
- /*
---- kernel-headers/asm-sh64/types.h.gnu-extensions	2003-08-12 06:28:46.000000000 +0200
-+++ kernel-headers/asm-sh64/types.h	2003-08-22 18:04:44.000000000 +0200
-@@ -28,9 +28,9 @@ typedef unsigned short __u16;
- typedef __signed__ int __s32;
- typedef unsigned int __u32;
- 
--#if defined(__GNUC__) && !defined(__STRICT_ANSI__)
--typedef __signed__ long long __s64;
--typedef unsigned long long __u64;
-+#if defined(__GNUC__)
-+__extension__ typedef __signed__ long long __s64;
-+__extension__ typedef unsigned long long __u64;
- #endif
- 
- /*
---- kernel-headers/linux/types.h.gnu-extensions	2003-08-22 17:53:53.000000000 +0200
-+++ kernel-headers/linux/types.h	2003-08-22 18:04:44.000000000 +0200
-@@ -86,10 +86,10 @@ typedef		__u8		uint8_t;
+--- kernel-headers/linux/types.h.kheaders-gnu-extensions	2004-01-08 06:36:18.000000000 -0500
++++ kernel-headers/linux/types.h	2004-01-08 06:41:03.000000000 -0500
+@@ -91,10 +91,10 @@ typedef		__u8		uint8_t;
  typedef		__u16		uint16_t;
  typedef		__u32		uint32_t;
  
@@ -295,4 +232,13 @@
 +__extension__ typedef		__s64		int64_t;
  #endif
  
- #endif /* __KERNEL_STRICT_NAMES */
+ /*
+@@ -132,7 +132,7 @@ typedef __u16 __bitwise __le16;
+ typedef __u16 __bitwise __be16;
+ typedef __u32 __bitwise __le32;
+ typedef __u32 __bitwise __be32;
+-#if defined(__GNUC__) && !defined(__STRICT_ANSI__)
++#if defined(__GNUC__)
+ typedef __u64 __bitwise __le64;
+ typedef __u64 __bitwise __be64;
+ #endif
