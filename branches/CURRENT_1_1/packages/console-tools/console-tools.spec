@@ -1,6 +1,15 @@
+#
+# spec file for package console-tools
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
 %define name		console-tools
 %define version		0.2.3
-%define release		52avx
+%define release		53avx
 
 %define	CTVER		%{version}
 %define	CDVER		1999.08.29
@@ -8,7 +17,7 @@
 
 %define major		0
 %define fname		console
-%define libname 	%mklibname %fname %major
+%define libname 	%mklibname %{fname} %{major}
 
 # /usr/lib/kbd/{conslefonts,consolemaps,keymaps} instead of
 # /usr/share/{conslefonts,consolemaps,keymaps}
@@ -63,12 +72,16 @@ Patch18: 	console-tools-0.2.3-compresscoredump.patch.bz2
 Patch19:	console-tools-0.2.3-gcc3.4-fix.patch.bz2
 # updated french mac keymap v3 from ftp://ftp.linux-france.org/pub/macintosh/kbd-mac-fr.tar.gz
 Patch20:	console-data-1999.08.29-mac.patch.bz2
+# taken from debian's 30_openvt-devfs.patch patch
+Patch21:	console-tools-0.2.3-fix-openvt-option--w.patch.bz2
+# fgconsole exit(0) missing
+Patch22:	console-tools-0.2.3-fix-fgconsole_exit_status.patch.bz2
 
-BuildRoot:	%_tmppath/%name-%version-%release-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	flex libtool >= 1.3.3 automake1.7 automake1.4 autoconf2.5 gettext-devel
 
 Prereq:		coreutils sed rpm-helper
-PreReq:		%libname = %version-%release
+PreReq:		%{libname} = %{version}-%{release}
 Obsoletes:	kbd
 Provides:	kbd
 Requires:	grep, gawk
@@ -78,21 +91,23 @@ This package contains utilities to load console fonts and
 keyboard maps.  It also includes a number of different fonts
 and keyboard maps.
 
+
 %package -n %{libname}
 Summary:	Libraries for console tools
 Group:		System/Libraries
-Provides:	lib%fname = %version-%release
+Provides:	lib%{fname} = %{version}-%{release}
 
 %description -n %{libname}
 This package contains libraries for console tools
 
+
 %package -n %{libname}-devel
 Summary:	Include and .so files for console tools
 Group:		Development/Other
-PreReq:		%libname = %version-%release
-Obsoletes:	%name-devel
-Provides:	%name-devel = %version-%release
-Provides:	lib%fname-devel = %version-%release
+PreReq:		%{libname} = %{version}-%{release}
+Obsoletes:	%{name}-devel
+Provides:	%{name}-devel = %{version}-%{release}
+Provides:	lib%{fname}-devel = %{version}-%{release}
 
 %description -n %{libname}-devel
 This package contains include and .so files for console tools
@@ -101,13 +116,14 @@ This package contains include and .so files for console tools
 %package -n %{libname}-static-devel
 Summary:	Static libraries for console tools
 Group:		Development/Other
-PreReq:		%name-devel = %version-%release
-Obsoletes:	%name-static-devel
-Provides:	%name-static-devel = %version-%release
-Provides:  	lib%fname-static-devel = %version-%release 
+PreReq:		%{name}-devel = %{version}-%{release}
+Obsoletes:	%{name}-static-devel
+Provides:	%{name}-static-devel = %{version}-%{release}
+Provides:  	lib%{fname}-static-devel = %{version}-%{release} 
 
 %description -n %{libname}-static-devel
 This package contains static libraries for console tools.
+
 
 %prep
 %setup -n %{name}-%{CTVER} -q -a 1 -a4 -a5
@@ -132,7 +148,10 @@ cd ..
 %patch16 -p0
 %patch17 -p1
 %patch18 -p1
-#%patch19 -p1 -b .gcc34
+%patch19 -p1 -b .gcc34
+%patch21 -p1
+%patch22 -p1
+
 
 %build
 %serverbuild
@@ -145,21 +164,22 @@ DISABLE_RESIZECONS=--disable-resizecons
 aclocal-1.4
 automake-1.4
 export FORCE_AUTOCONF_2_5=1
-CFLAGS="%optflags -D_GNU_SOURCE"
-%configure2_5x --enable-localdatadir=%_sysconfdir/sysconfig/console $DISABLE_RESIZECONS
+CFLAGS="%{optflags} -D_GNU_SOURCE"
+%configure2_5x --enable-localdatadir=%{_sysconfdir}/sysconfig/console $DISABLE_RESIZECONS
 %make
 
 cd console-data-%{CDVER}
 aclocal-1.7
 automake-1.7
-CFLAGS="%optflags -D_GNU_SOURCE"
-%configure2_5x --enable-localdatadir=%_sysconfdir/sysconfig/console $DISABLE_RESIZECONS
+CFLAGS="%{optflags} -D_GNU_SOURCE"
+%configure2_5x --enable-localdatadir=%{_sysconfdir}/sysconfig/console $DISABLE_RESIZECONS
 %make
 cd -
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-install -d -m 0755 %buildroot/%_prefix
+mkdir -p %{buildroot}%{_prefix}
 
 %makeinstall
 cd console-data-%{CDVER}
@@ -167,82 +187,84 @@ cd console-data-%{CDVER}
 cd ..
 
 # don't give loadkeys SUID perms
-chmod 755 %buildroot/%{_bindir}/loadkeys
+chmod 0755 %{buildroot}%{_bindir}/loadkeys
 
 # other keymaps
-tar jxf %SOURCE6 -C %buildroot/%{kbddir}/
-tar jxf %SOURCE8 -C %buildroot/%{kbddir}/
+tar jxf %{SOURCE6} -C %{buildroot}/%{kbddir}/
+tar jxf %{SOURCE8} -C %{buildroot}/%{kbddir}/
 	  
-install -d -m 0755 %buildroot/%_sysconfdir/rc.d/init.d
+install -d -m 0755 %{buildroot}%{_sysconfdir}/rc.d/init.d
 %ifarch ppc
-install -m 0755 %SOURCE9 %buildroot/%_sysconfdir/rc.d/init.d/keytable
+install -m 0755 %{SOURCE9} %{buildroot}%{_sysconfdir}/rc.d/init.d/keytable
 %else
-install -m 0755 %SOURCE2 %buildroot/%_sysconfdir/rc.d/init.d/keytable
+install -m 0755 %{SOURCE2} %{buildroot}%{_sysconfdir}/rc.d/init.d/keytable
 %endif
 
-install -d -m 0755 %buildroot/%_sysconfdir/profile.d
-install -m 0755 %SOURCE7 %buildroot/%_sysconfdir/profile.d/configure_keyboard.sh
+install -d -m 0755 %{buildroot}%{_sysconfdir}/profile.d
+install -m 0755 %{SOURCE7} %{buildroot}%{_sysconfdir}/profile.d/configure_keyboard.sh
 
-install -d -m 0755 %buildroot//bin
+install -d -m 0755 %{buildroot}/bin
 #for i in loadkeys consolechars unicode_start; do
 for i in unicode_start; do
-  mv %buildroot/%_bindir/$i %buildroot/bin
-  ln -s ../../bin/$i %buildroot/%_bindir/$i
+    mv %{buildroot}%{_bindir}/$i %{buildroot}/bin
+    ln -s ../../bin/$i %{buildroot}%{_bindir}/$i
 done
 
 %ifnarch %ix86
-rm -f %buildroot/%_mandir/man8/resizecons.8
+rm -f %{buildroot}%{_mandir}/man8/resizecons.8
 %endif
 
-chmod +x %buildroot/%_libdir/*.so*
+chmod +x %{buildroot}%{_libdir}/*.so*
 
 cp -aR console-data-%{CDVER}/doc/* doc
 
-install -m644 -D include/lct/*.h %buildroot/%{_includedir}/lct/
+install -m 0644 -D include/lct/*.h %{buildroot}%{_includedir}/lct/
 
 # more mac keymaps on ppc 
 %ifarch ppc 
-tar jxf %SOURCE10 -C %buildroot/%{kbddir}/keymaps 
+tar jxf %{SOURCE10} -C %{buildroot}/%{kbddir}/keymaps 
 %endif
 
 # remove unneeded files
-rm -rf %buildroot/%{kbddir}/keymaps/{amiga,atari,sun}
+rm -rf %{buildroot}/%{kbddir}/keymaps/{amiga,atari,sun}
 %ifnarch ppc
-rm -rf %buildroot/%{kbddir}/keymaps/mac
+rm -rf %{buildroot}/%{kbddir}/keymaps/mac
 %endif
 
-%find_lang %name
+%find_lang %{name}
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
+
 %post
 %_post_service keytable
-if [ -f %_sysconfdir/sysconfig/keyboard ] ; then
-    . %_sysconfdir/sysconfig/keyboard
+if [ -f %{_sysconfdir}/sysconfig/keyboard ] ; then
+    . %{_sysconfdir}/sysconfig/keyboard
     if [ -n "$KEYTABLE" ] ; then
         KT=`echo $KEYTABLE | sed -e "s/.*\///g" | sed -e "s/\..*//g"`
 		# perl-base is required by basesystem ...
-		perl -pi -e "s/KEYTABLE=.*$/KEYTABLE=$KT/g" %_sysconfdir/sysconfig/keyboard
+		perl -pi -e "s/KEYTABLE=.*$/KEYTABLE=$KT/g" %{_sysconfdir}/sysconfig/keyboard
     fi
 fi
-if [ -f %_sysconfdir/sysconfig/i18n ] ; then
-   . %_sysconfdir/sysconfig/i18n
-   if [ -d %_sysconfdir/sysconfig/console ] ; then
+if [ -f %{_sysconfdir}/sysconfig/i18n ] ; then
+   . %{_sysconfdir}/sysconfig/i18n
+   if [ -d %{_sysconfdir}/sysconfig/console ] ; then
       if [ -n "$SYSFONT" ]; then
-         mkdir -p %_sysconfdir/sysconfig/console/consolefonts
+         mkdir -p %{_sysconfdir}/sysconfig/console/consolefonts
          cp -f %{kbddir}/consolefonts/$SYSFONT* \
-			%_sysconfdir/sysconfig/console/consolefonts
+			%{_sysconfdir}/sysconfig/console/consolefonts
       fi
       if [ -n "$UNIMAP" ]; then
-         mkdir -p %_sysconfdir/sysconfig/console/consoletrans
+         mkdir -p %{_sysconfdir}/sysconfig/console/consoletrans
          cp -f %{kbddir}/consoletrans/$UNIMAP* \
-			%_sysconfdir/sysconfig/console/consoletrans
+			%{_sysconfdir}/sysconfig/console/consoletrans
       fi
       if [ -n "$SYSFONTACM" ]; then 
-         mkdir -p %_sysconfdir/sysconfig/console/consoletrans
+         mkdir -p %{_sysconfdir}/sysconfig/console/consoletrans
          cp -f %{kbddir}/consoletrans/$SYSFONTACM* \
-			%_sysconfdir/sysconfig/console/consoletrans
+			%{_sysconfdir}/sysconfig/console/consoletrans
       fi
    fi
 fi
@@ -253,11 +275,12 @@ fi
 %post -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
 
-%files -f %name.lang
+
+%files -f %{name}.lang
 %defattr(-,root,root)
 %doc README NEWS RELEASE
-%config(noreplace) %_sysconfdir/profile.d/configure_keyboard.sh
-%config(noreplace) %_sysconfdir/rc.d/init.d/keytable
+%config(noreplace) %{_sysconfdir}/profile.d/configure_keyboard.sh
+%config(noreplace) %{_sysconfdir}/rc.d/init.d/keytable
 %{_libdir}/*.la
 %dir %{kbddir}
 %{kbddir}/consolefonts
@@ -343,9 +366,16 @@ fi
 
 %files -n %{libname}-static-devel
 %defattr(-,root,root,-)
-%_libdir/*.a
+%{_libdir}/*.a
+
 
 %changelog
+* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 0.2.3-53avx
+- rebuild against new gcc
+- enable P19
+- P21: fix openvt -w; from debian (pixel)
+- P22: fix fgconsole exit(0) missing (nicolas.brouard)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.2.3-52avx
 - bootstrap build
 
