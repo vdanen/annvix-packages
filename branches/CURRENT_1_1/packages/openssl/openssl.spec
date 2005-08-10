@@ -8,11 +8,11 @@
 
 
 %define name		openssl
-%define version		0.9.7e
-%define release		3avx
+%define version		0.9.8
+%define release		1avx
 
-%define maj		0.9.7
-%define libname 	%mklibname %name %maj
+%define maj		0.9.8
+%define libname 	%mklibname %{name} %{maj}
 %define libnamedev	%{libname}-devel
 %define libnamestatic	%{libname}-static-devel
 
@@ -29,13 +29,12 @@ Source1:	ftp://ftp.openssl.org/source/%{name}-%{version}.tar.gz.asc
 # (fg) 20010202 Patch from RH: some funcs now implemented with ia64 asm
 Patch1:		openssl-0.9.7-mdk-ia64-asm.patch.bz2
 # (gb) 0.9.7b-4mdk: Handle RPM_OPT_FLAGS in Configure
-Patch2:		openssl-0.9.7e-mdk-optflags.patch.bz2
+Patch2:		openssl-0.9.7g-mdk-optflags.patch.bz2
 # (gb) 0.9.7b-4mdk: Make it lib64 aware. TODO: detect in Configure
-Patch3:		openssl-0.9.7e-mdk-lib64.patch.bz2
-Patch4:		openssl-0.9.7c-CAN-2004-0975.patch.bz2
-Patch5:		openssl-0.9.7e-can-2005-0109.patch
+Patch3:		openssl-0.9.8-avx-lib64.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
+BuildRequires:	multiarch-utils >= 1.0.3
 
 Requires:	%{libname} = %{version}-%{release}
 Requires:	perl
@@ -106,12 +105,12 @@ Patches for many networking apps can be found at:
 %prep
 %setup -q -n %{name}-%{version}
 %patch1 -p1 -b .ia64-asm
-%patch2 -p0 -b .optflags
+#%patch2 -p0 -b .optflags
 %patch3 -p0 -b .lib64
-%patch4 -p1 -b .can-2004-0975
-%patch5 -p1 -b .can-2005-0109
 
 perl -pi -e "s,^(LIB=).+$,\1%{_lib}," Makefile.org
+perl -pi -e "s,^(LIB=).+$,\1%{_lib}," engines/Makefile
+
 
 %build 
 # Don't carry out asm optimization on Alpha for now
@@ -125,6 +124,7 @@ make
 # All tests must pass
 export LD_LIBRARY_PATH=`pwd`${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
 make test
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -168,9 +168,16 @@ cd %{buildroot}%{_libdir}
 ln -sf libssl.so.0.* libssl.so
 ln -sf libcrypto.so.0.* libcrypto.so
 
-chmod 755 %{buildroot}%{_libdir}/pkgconfig
+chmod 0755 %{buildroot}%{_libdir}/pkgconfig
+
+%multiarch_includes %{buildroot}%{_includedir}/openssl/opensslconf.h
 
 rm -f %{buildroot}%{_mandir}/man7/Modes*
+
+# get rid of dangling symlinks in /usr/lib for 64bit arches
+%ifarch x86_64 amd64 ppc64
+rm -rf %{buildroot}%{_prefix}/lib
+%endif
 
 
 %clean
@@ -193,12 +200,15 @@ rm -f %{buildroot}%{_mandir}/man7/Modes*
 %files -n %{libname}
 %defattr(-,root,root)
 %{_libdir}/lib*.so.*
+%dir %{_libdir}/engines
+%{_libdir}/engines/*
 
 %files -n %{libnamedev}
 %defattr(-,root,root)
 %doc doc/*
 %doc devel-doc-info/README*
 %dir %{_includedir}/openssl/
+%multiarch %{multiarch_includedir}/openssl/opensslconf.h
 %{_includedir}/openssl/*
 %{_libdir}/lib*.so
 %{_mandir}/man3/*
@@ -210,6 +220,14 @@ rm -f %{buildroot}%{_mandir}/man7/Modes*
 
 
 %changelog
+* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 0.9.8-1avx
+- 0.9.8
+- drop P4; code is gone
+- multiarch support
+- disable P2; use openssl's default compiler options
+- rediff P3
+- drop P5; applied upstream
+
 * Sat Jun 11 2005 Vincent Danen <vdanen@annvix.org> 0.9.7e-3avx
 - P5: security fix for CAN-2005-0109
 - spec cleanups
@@ -318,7 +336,7 @@ rm -f %{buildroot}%{_mandir}/man7/Modes*
 - Patch7: Add 64-bit config support
 
 * Sun May 26 2002 Yves Duret <yduret@mandrakesoft.com> 0.9.6d-4mdk
-- openssl requires libopenssl = %version-%release.
+- openssl requires libopenssl = %{version}-%{release}.
 - more spec clean up.
 - rpmlint: license is BSD-like as say the LICENSE file instead of the unprecise OpenSource term.
 
