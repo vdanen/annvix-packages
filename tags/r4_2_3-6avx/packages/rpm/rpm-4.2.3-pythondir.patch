@@ -1,0 +1,55 @@
+--- rpm-4.2.3/python/rpmdb/Makefile.am.pythondir	2005-01-13 11:56:10.000000000 +0100
++++ rpm-4.2.3/python/rpmdb/Makefile.am	2005-01-13 14:46:09.215393774 +0100
+@@ -10,8 +10,8 @@ EXTRA_DIST = \
+ 	__init__.py dbobj.py db.py dbrecio.py dbshelve.py dbtables.py dbutils.py
+ 
+ # XXX grrr, sys.path[1] wrong value in python-2.3.2
+-pylibdir = $(shell python -c 'import sys; print sys.path[2]')
++pythondir = $(shell python -c "from distutils import sysconfig; print sysconfig.get_python_lib(0,0,prefix='$(prefix)')")
+ 
+-rpmdbdir = $(pylibdir)/site-packages/rpmdb
++rpmdbdir = $(pythondir)/rpmdb
+ rpmdb_SCRIPTS = \
+ 	__init__.py dbobj.py db.py dbrecio.py dbshelve.py dbtables.py dbutils.py
+--- rpm-4.2.3/python/Makefile.am.pythondir	2005-01-13 11:56:10.000000000 +0100
++++ rpm-4.2.3/python/Makefile.am	2005-01-13 14:46:09.216393816 +0100
+@@ -4,10 +4,9 @@ AUTOMAKE_OPTIONS = 1.4 foreign
+ 
+ LINT = splint
+ 
+-pylibdir = ${prefix}/lib@MARK64@/python@WITH_PYTHON_VERSION@
+ pyincdir = $(prefix)/include/python@WITH_PYTHON_VERSION@
+ 
+-SUBDIRS = # rpmdb test
++SUBDIRS = rpmdb test
+ 
+ EXTRA_DIST = rpmdebug-py.c
+ 
+@@ -34,11 +33,13 @@ mylibs= \
+ 
+ LDADD =
+ 
+-pythondir = $(pylibdir)/site-packages
++pythondir = $(shell python -c "from distutils import sysconfig; print sysconfig.get_python_lib(0,0,prefix='$(prefix)')")
+ python_PROGRAMS = rpmmodule.so
+ 
+-rpmdbdir = $(pylibdir)/site-packages/rpmdb
+-noinst_PROGRAMS = _rpmdb.so poptmodule.so
++rpmdbdir = $(pythondir)/rpmdb
++rpmdb_PROGRAMS = _rpmdb.so
++
++noinst_PROGRAMS = poptmodule.so
+ 
+ rpmmodule_so_SOURCES =
+ rpmmodule_so_LDFLAGS = $(mylibs) $(LIBS) -shared -Wl,-soname,rpmmodule.so
+--- rpm-4.2.3/configure.ac.pythondir	2005-01-13 14:46:09.546407000 +0100
++++ rpm-4.2.3/configure.ac	2005-01-13 16:11:21.980424733 +0100
+@@ -1301,6 +1301,8 @@ AC_OUTPUT([ Doxyfile Makefile rpmrc macr
+ 	doc/ru/Makefile
+ 	doc/sk/Makefile
+ 	python/Makefile
++	python/rpmdb/Makefile
++	python/test/Makefile
+   ], [	echo timestamp > popt/stamp-h.in
+ 	echo timestamp > stamp-h.in
+   ]
