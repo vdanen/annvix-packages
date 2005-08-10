@@ -1,13 +1,22 @@
-%define name	beecrypt
-%define version	3.1.0
-%define release	3avx
+#
+# spec file for package beecrypt
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		beecrypt
+%define version		3.1.0
+%define release		4avx
+
+%define libname		%mklibname %{name} 6
+%define libnamedev	%{libname}-devel
 
 %define	with_python_version	2.4%{nil}
 
-%define libname		%mklibname beecrypt 6
-%define libnamedev	%{libname}-devel
-
-Summary:	An open source cryptography library.
+Summary:	An open source cryptography library
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -18,22 +27,24 @@ Source0:	http://prdownloads.sourceforge.net/beecrypt/%{name}-3.1.0.tar.bz2
 Patch0:		beecrypt-3.1.0-rh.patch.bz2
 Patch1:		beecrypt-3.1.0-automake1.7.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildPreReq:	doxygen, python-devel >= %{with_python_version}
 BuildRequires:	automake1.7
 
 %description
 Beecrypt is a general-purpose cryptography library.
 
+
 %package -n %{libname}
-Summary:	An open source cryptography library.
+Summary:	An open source cryptography library
 Group:		System/Libraries
 
 %description -n %{libname}
 Beecrypt is a general-purpose cryptography library.
 
+
 %package -n %{libnamedev}
-Summary:	Files needed for developing applications with beecrypt.
+Summary:	Files needed for developing applications with beecrypt
 Group:		Development/C
 Requires:	%{libname} = %{version}-%{release}
 Provides:	libbeecrypt-devel = %{version}-%{release}
@@ -41,6 +52,7 @@ Provides:	libbeecrypt-devel = %{version}-%{release}
 %description -n %{libnamedev}
 Beecrypt is a general-purpose cryptography library.  This package contains
 files needed for developing applications with beecrypt.
+
 
 %package python
 Summary:	Files needed for python applications using beecrypt.
@@ -52,6 +64,7 @@ Requires:	%{libname} = %{version}-%{release}
 Beecrypt is a general-purpose cryptography library.  This package contains
 files needed for using python with beecrypt.
 
+
 %prep
 %setup -q
 %patch0 -p1 -b .rh
@@ -61,11 +74,15 @@ files needed for using python with beecrypt.
 
 %build
 
-%configure2_5x --enable-shared --enable-static --with-python \
+%configure2_5x \
+    --enable-shared \
+    --enable-static \
+    --with-python \
     CPPFLAGS="-I%{_includedir}/python%{with_python_version}"
 
 %make
 doxygen
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -80,18 +97,21 @@ make check || :
 cat /proc/cpuinfo
 make bench || :
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %post -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
 
-%files -n %libname
+
+%files -n %{libname}
 %defattr(-,root,root)
 %doc README BENCHMARKS
 %{_libdir}/*.so.*
 
-%files -n %libnamedev
+%files -n %{libnamedev}
 %defattr(-,root,root)
 %doc BUGS docs/html docs/latex
 %{_includedir}/%{name}
@@ -104,6 +124,9 @@ make bench || :
 %{_libdir}/python%{with_python_version}/site-packages/_bc.so
 
 %changelog
+* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 3.1.0-4avx
+- rebuild for new gcc
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 3.1.0-3avx
 - bootstrap build
 - always build with python support as we need python-devel to compile
