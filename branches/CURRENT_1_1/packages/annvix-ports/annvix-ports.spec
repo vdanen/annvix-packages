@@ -5,10 +5,11 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id
 
 %define name		annvix-ports
 %define version		1.1
-%define release		1avx
+%define release		2avx
 
 %define _portsprefix /usr/local
 
@@ -19,9 +20,7 @@ Release:	%{release}
 License:	GPL
 URL:		http://annvix.org/
 Group:		System/Configuration/Other
-Source0:	README.ports
-Source1:	builder.ports
-Source2:	build.sh.ports
+Source0:	%{name}-%{version}.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
@@ -34,13 +33,14 @@ The filesystem layout and builder scripts for Annvix ports.
 
 
 %prep
+%setup -q
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p %{buildroot}%{_portsprefix}/ports/{ports,packages/{RPMS,SRPMS}}
-install -m 0644 %{SOURCE0} %{buildroot}%{_portsprefix}/ports
-install -m 0754 %{SOURCE1} %{buildroot}%{_portsprefix}/ports/builder
-install -m 0754 %{SOURCE2} %{buildroot}%{_portsprefix}/ports/ports/build.sh
+mkdir -p %{buildroot}%{_portsprefix}/ports/{ports,packages/{RPMS,SRPMS},override}
+install -m 0644 README %{buildroot}%{_portsprefix}/ports/README
+install -m 0754 builder %{buildroot}%{_portsprefix}/ports/builder
+install -m 0754 build.sh %{buildroot}%{_portsprefix}/ports/ports/build.sh
 
 
 %clean
@@ -53,13 +53,23 @@ install -m 0754 %{SOURCE2} %{buildroot}%{_portsprefix}/ports/ports/build.sh
 %attr(0775,root,admin) %dir %{_portsprefix}/ports/packages
 %attr(0775,root,admin) %dir %{_portsprefix}/ports/packages/RPMS
 %attr(0775,root,admin) %dir %{_portsprefix}/ports/packages/SRPMS
-%attr(0775,root,admin) %dir %{_portsprefix}/ports/ports
-%{_portsprefix}/ports/README.ports
+%attr(2775,root,admin) %dir %{_portsprefix}/ports/ports
+%attr(1775,root,admin) %dir %{_portsprefix}/ports/override
+%{_portsprefix}/ports/README
 %attr(0754,root,admin) %{_portsprefix}/ports/builder
 %attr(0754,root,admin) %{_portsprefix}/ports/ports/build.sh
 
 
 %changelog
+* Fri Aug 05 2005 Vincent Danen <vdanen@annvix.org> 1.1-2avx
+- make builder chmod files after checkout from CVS so they're
+  writable by group admin
+- make /usr/local/ports/ports g+s so any new files are owned by
+  user:admin (but since we don't change the umask, we still need
+  to chmod)
+- make /usr/local/ports/override to mimic the system /override for
+  building rpm packages
+
 * Wed Aug 03 2005 Vincent Danen <vdanen@annvix.org> 1.1-1avx
 - 1.1 (aka ports should work now even if it's not 100%)
 
