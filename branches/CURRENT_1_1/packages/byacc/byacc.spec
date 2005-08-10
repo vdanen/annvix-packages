@@ -1,6 +1,17 @@
-%define name	byacc
-%define version	1.9
-%define release	18avx
+#
+# spec file for package byacc
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		byacc
+%define version		1.9
+%define release		19avx
+
+%define date		20040328
 
 Summary:	A public domain Yacc parser generator
 Name:		%{name}
@@ -8,67 +19,43 @@ Version:	%{version}
 Release:	%{release}
 License:	Public Domain
 Group:		Development/Other
-URL:		ftp://ftp.cs.berkeley.edu/ucb/4bsd/
-Source:		ftp://ftp.cs.berkeley.edu/ucb/4bsd/byacc.%{version}.tar.bz2
+URL:		http://dickey.his.com/byacc/byacc.html
+Source:		ftp://invisible-island.net/byacc/byacc.tar.bz2
 Patch0:		byacc-1.9-fixmanpage.patch.bz2
 Patch1:		byacc-1.9-automake.patch.bz2
 Patch2:		byacc-1.9-security.patch.bz2
-Patch3:		byacc-1.9-fix-includes.patch.bz2
+Patch3:		byacc-1.9-includes.patch.bz2
+Patch4:		byacc-20040328-no-recreate-unionfile.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
-BuildRequires:	autoconf automake
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 
 %description
 Byacc (Berkeley Yacc) is a public domain LALR parser generator which
 is used by many programs during their build process.
 
-If you are going to do development on your system, you will want to
-install this package.
 
 %prep
-%setup -q -c -n byacc-%{version}
+%setup -q -n %{name}-%{date}
+%patch4 -p1 -b .unionfile
 
-chmod -R +w .
-%patch0 -p1 
-%patch1 -p1 
-%patch2 -p1 
-%patch3 -p1 
-
-export FORCE_AUTOCONF_2_5=1
-autoheader
-automake-1.4 --add-missing --foreign
-aclocal-1.4
-autoconf
-touch config.h.in
 
 %build
 %configure
 %make
 
-# testing
-YACC=$PWD/yacc
-mkdir test/t
-pushd test/t
-for file in ../*.y; do
-  basefile=${file##*/}
-  cp $file .
-  $YACC -v -d -b ${basefile/.y/} $basefile || \
-  { echo "FAIL: yacc $basefile"; exit 1; }
-done
-for file in *; do
-  diff -q $file ../$file || \
-  { echo "FAIL: diff $file"; exit 1; }
-done
-popd
+make check
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-%makeinstall
-( cd %{buildroot}/usr/bin ; ln -s yacc byacc )
+%makeinstall_std
+( cd %{buildroot}%{_bindir} ; ln -s yacc byacc )
+ln -s yacc.1 %{buildroot}%{_mandir}/man1/byacc.1
+
 
 %clean
-chmod u+w $RPM_BUILD_DIR/%{name}-%{version} -R
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -78,7 +65,13 @@ chmod u+w $RPM_BUILD_DIR/%{name}-%{version} -R
 %{_bindir}/byacc
 %{_mandir}/man1/*
 
+
 %changelog
+* Wed Jul 27 2005 Vincent Danen <vdanen@annvix.org> 1.9-19avx
+- rebuild for new gcc
+- use the 2004-03-28 tarball from Thomas Dickey (of ncurses) which
+  contains a lot of fixes and enhancements
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.9-18avx
 - bootstrap build
 - force use of automake1.4 and autoconf2.5 (peroyvind)
