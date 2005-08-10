@@ -9,7 +9,7 @@
 
 %define name		zlib
 %define version		1.2.3
-%define release 	1avx
+%define release 	2avx
 
 %define lib_major	1
 %define lib_name	%{name}%{lib_major}
@@ -35,7 +35,7 @@ Patch1:		zlib-1.2.1-multibuild.patch.bz2
 Patch2:		zlib-1.2.2.2-build-fPIC.patch.bz2
 Patch3:		zlib-1.2.1.1-deb-alt-inflate.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 
 %description
 The zlib compression library provides in-memory compression and
@@ -87,7 +87,10 @@ will use the zlib library.
 mkdir objs
 pushd objs
     CFLAGS="%{optflags}" \
-        ../configure --shared --prefix=%{_prefix} --libdir=%{_libdir}
+        ../configure \
+            --shared \
+            --prefix=%{_prefix} \
+            --libdir=%{_libdir}
     %make
     make test
     ln -s ../zlib.3 .
@@ -101,7 +104,9 @@ popd
     mkdir objs32
     pushd objs32
         CFLAGS="$OPT_FLAGS" CC="%{__cc} -m32" \
-            ../configure --shared --prefix=%{_prefix}
+            ../configure \
+                --shared \
+                --prefix=%{_prefix}
         %make
         make test
     popd
@@ -110,7 +115,7 @@ popd
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-install -d %{buildroot}/%{_libdir}
+mkdir -p %{buildroot}/%{_libdir}
 
 make install -C objs prefix=%{buildroot}%{_prefix} libdir=%{buildroot}%{_libdir}
 %if %{build_biarch}
@@ -142,8 +147,8 @@ ln -s ../../%{_lib}/libz.so.%{version} %{buildroot}%{_libdir}/
 /%{_lib}/libz.so.*
 %{_libdir}/libz.so.*
 %if %{build_biarch}
-    /lib/libz.so.*
-    %{_prefix}/lib/libz.so.*
+/lib/libz.so.*
+%{_prefix}/lib/libz.so.*
 %endif
 
 %files -n %{lib_name}-devel
@@ -152,13 +157,18 @@ ln -s ../../%{_lib}/libz.so.%{version} %{buildroot}%{_libdir}/
 %{_libdir}/*.a
 %{_libdir}/*.so
 %if %{build_biarch}
-    %{_prefix}/lib/*.a
-    %{_prefix}/lib/*.so
+%{_prefix}/lib/*.a
+%{_prefix}/lib/*.so
 %endif
 %{_includedir}/*
 %{_mandir}/*/*
 
+
 %changelog
+* Mon Jul 25 2005 Vincent Danen <vdanen@annvix.org> 1.2.3-2avx
+- rebuild against new gcc
+- spec cleanups
+
 * Tue Jul 21 2005 Vincent Danen <vdanen@annvix.org> 1.2.3-1avx
 - 1.2.3; also fixes CAN-2005-1849
 - remove P4; merged upstream
