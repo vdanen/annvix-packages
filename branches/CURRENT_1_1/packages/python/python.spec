@@ -1,13 +1,22 @@
-%define name	python
-%define version	2.4
-%define release	3avx
+#
+# spec file for package python
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-%define docver  2.4
-%define dirver  2.4
+
+%define name		python
+%define version		2.4
+%define release		4avx
+
+%define docver  	2.4
+%define dirver  	2.4
 
 %define lib_major	%{dirver}
-%define lib_name_orig	libpython
-%define lib_name	%mklibname %{name} %{lib_major}
+%define libname_orig	libpython
+%define libname	%mklibname %{name} %{lib_major}
 
 Summary:	An interpreted, interactive object-oriented programming language
 Name:		%{name}
@@ -34,7 +43,7 @@ Patch4:		Python-2.4-lib64.patch.bz2
 Patch5:		Python-2.2.2-biarch-headers.patch.bz2
 Patch6:		python-2.4-psf-2005-001.patch.bz2
 
-BuildRoot:	%_tmppath/%name-%version-%release-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	XFree86-devel 
 BuildRequires:	blt
 BuildRequires:	db2-devel, db4-devel
@@ -49,7 +58,7 @@ BuildRequires:	tix, tk, tcl
 BuildRequires:	autoconf2.5
 
 Conflicts:	tkinter < %{version}
-Requires:	%{lib_name} = %{version}
+Requires:	%{libname} = %{version}
 Requires:	%{name}-base = %{version}
 
 %description
@@ -66,59 +75,53 @@ need a programmable interface. This package contains most of the
 standard Python modules, as well as modules for interfacing to the
 Tix widget set for Tk and RPM.
 
-Note that documentation for Python is provided in the python-docs
-package.
 
-%package -n %{lib_name}
+%package -n %{libname}
 Summary:	Shared libraries for Python %{version}
 Group:		System/Libraries
-PreReq:		/sbin/ldconfig
+PreReq:		ldconfig
 
-%description -n %{lib_name}
+%description -n %{libname}
 This packages contains Python shared object library.  Python is an
 interpreted, interactive, object-oriented programming language often
 compared to Tcl, Perl, Scheme or Java.
 
-%package -n %{lib_name}-devel
+
+%package -n %{libname}-devel
 Summary:	The libraries and header files needed for Python development
 Group:		Development/Python
-Requires:	%{name} = %version
-Requires:	%{lib_name} = %{version}
+Requires:	%{name} = %{version}
+Requires:	%{libname} = %{version}
 Obsoletes:	%{name}-devel
 Provides:	%{name}-devel = %{version}-%{release}
-Provides:	%{lib_name_orig}-devel = %{version}-%{release}
+Provides:	%{libname_orig}-devel = %{version}-%{release}
 
-%description -n %{lib_name}-devel
+%description -n %{libname}-devel
 The Python programming language's interpreter can be extended with
 dynamically loaded extensions and can be embedded in other programs.
 This package contains the header files and libraries needed to do
 these types of tasks.
 
-Install %{lib_name}-devel if you want to develop Python extensions.  The
-python package will also need to be installed.  You'll probably also
-want to install the python-docs package, which contains Python
-documentation.
 
 %package -n tkinter
 Summary:	A graphical user interface for the Python scripting language
 Group:		Development/Python
-Requires:	python = %version, tcl, tk
+Requires:	python = %{version}, tcl, tk
 
 %description -n tkinter
 The Tkinter (Tk interface) program is an graphical user interface for
 the Python scripting language.
 
-You should install the tkinter package if you'd like to use a graphical
-user interface for Python programming.
 
 %package base
 Summary:	Python base files
 Group:		Development/Python
-Requires:	%{lib_name} = %{version}
+Requires:	%{libname} = %{version}
 
 %description base
 This packages contains the Python part that is used by the base packages
 of a Annvix distribution.
+
 
 %prep
 %setup -q -n Python-%{version}
@@ -133,6 +136,7 @@ bzcat %{SOURCE1} | tar x  -C html
 
 find . -type f -print0 | xargs -0 perl -p -i -e 's@/usr/local/bin/python@/usr/bin/python@'
 
+
 %build
 rm -f Modules/Setup.local
 cat > Modules/Setup.local << EOF
@@ -141,11 +145,18 @@ EOF
 
 OPT="%{optflags} -g"
 export OPT
-%configure2_5x --with-threads --with-cycle-gc --with-cxx=g++ --without-libdb --enable-ipv6 --enable-shared
+%configure2_5x \
+    --with-threads \
+    --with-cycle-gc \
+    --with-cxx=g++ \
+    --without-libdb \
+    --enable-ipv6 \
+    --enable-shared
 
 %make
 # all tests must pass
 make test TESTOPTS="-l -x test_linuxaudiodev -x test_openpty"
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -189,18 +200,18 @@ EOF
 rm -f Tools/pynche/*.pyw
 cp -r Tools/pynche %{buildroot}%{_libdir}/python%{dirver}/site-packages/
 
-chmod 755 %{buildroot}%{_bindir}/{idle,modulator,pynche}
+chmod 0755 %{buildroot}%{_bindir}/{idle,modulator,pynche}
 
 ln -f Tools/modulator/README Tools/modulator/README.modulator
 ln -f Tools/pynche/README Tools/pynche/README.pynche
 
 rm -f modules-list.full
 for n in %{buildroot}%{_libdir}/python%{dirver}/*; do
-  [ -d $n ] || echo $n
+    [ -d $n ] || echo $n
 done >> modules-list.full
 
 for mod in %{buildroot}%{_libdir}/python%{dirver}/lib-dynload/* ; do
-  [ `basename $mod` = _tkinter.so ] || echo $mod
+    [ `basename $mod` = _tkinter.so ] || echo $mod
 done >> modules-list.full
 sed -e "s|%{buildroot}||g" < modules-list.full > modules-list
 
@@ -230,30 +241,36 @@ EOF
 LD_LIBRARY_PATH=%{buildroot}%{_libdir} %{buildroot}%{_bindir}/python %{SOURCE3} %{buildroot} include.list modules-list > main.list
 
 # fix non real scripts
-chmod 644 %{buildroot}%{_libdir}/python*/test/test_{binascii,grp,htmlparser}.py*
+chmod 0644 %{buildroot}%{_libdir}/python*/test/test_{binascii,grp,htmlparser}.py*
 # fix python library not stripped
 chmod u+w %{buildroot}%{_libdir}/libpython2.4.so.1.0
 
-#%#multiarch_includes %{buildroot}/usr/include/python*/pyconfig.h
+%multiarch_includes %{buildroot}/usr/include/python*/pyconfig.h
+
+
+%post -n %{libname} -p /sbin/ldconfig
+%postun -n %{libname} -p /sbin/ldconfig
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 rm -f modules-list main.list
+
 
 %files -f main.list
 %defattr(-, root, root, 755)
 %dir %{_libdir}/python*/lib-dynload
 %dir %{_libdir}/python*/site-packages
 
-%files -n %{lib_name}
+%files -n %{libname}
 %defattr(-,root,root)
 %{_libdir}/libpython*.so.1*
 
-%files -n %{lib_name}-devel
+%files -n %{libname}-devel
 %defattr(-, root, root, 755)
 %{_libdir}/libpython*.so
 %dir %{_includedir}/python*
-#%#multiarch %multiarch_includedir/python*/pyconfig.h
+%multiarch %multiarch_includedir/python*/pyconfig.h
 %{_includedir}/python*/*
 %{_libdir}/python*/config/
 %{_libdir}/python*/test/
@@ -275,10 +292,12 @@ rm -f modules-list main.list
 %defattr(-, root, root, 755)
 %dir %{_libdir}/python*
 
-%post -n %{lib_name} -p /sbin/ldconfig
-%postun -n %{lib_name} -p /sbin/ldconfig
 
 %changelog
+* Wed Jul 27 2005 Vincent Danen <vdanen@annvix.org> 2.4-4avx
+- rebuild for new gcc
+- multiarch support
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.4-3avx
 - bootstrap build
 
@@ -423,8 +442,8 @@ rm -f modules-list main.list
 - Update Patch4 to get correct "site-specific" directory
 
 * Sun Jun 30 2002 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 2.2.1-5mdk
-- Menu dir is %%_menudir, not %%_libdir/menu
-- Update Source2 (baselist) to be %%_libdir compliant
+- Menu dir is %%_menudir, not %%{_libdir}/menu
+- Update Source2 (baselist) to be %%{_libdir} compliant
 - Update Patch1 (shlib) to really build importdl with PIC code
 - Patch4: Look for and install libraries in the right directory
 - Rpmlint fixes: configure-without-libdir-spec, hardcoded-library-path
@@ -514,7 +533,7 @@ the byte compiled file.
 
 * Sat Mar 24 2001 David BAUDENS <baudens@mandrakesoft.com> 2.0-4mdk
 - BuildRequires: libxode1-devel
-- Requires: %%version-%%release and not only %%version
+- Requires: %%{version}-%%{release} and not only %%{version}
 
 * Mon Mar 19 2001 Pixel <pixel@mandrakesoft.com> 2.0-3mdk
 - fix the python.el (\\. -> \\\\.)
