@@ -1,9 +1,18 @@
-%define name	glib
-%define version	1.2.10
-%define release	16avx
+#
+# spec file for package glib
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-%define libname  %mklibname %{name} %{major}
-%define major    1.2
+
+%define name		glib
+%define version		1.2.10
+%define release		17avx
+
+%define major    	1.2
+%define libname  	%mklibname %{name} %{major}
 
 Summary:	A library of handy utility functions
 Name:		%{name}
@@ -21,7 +30,7 @@ Patch2:		glib-1.2.10-fdr-gcc34.patch.bz2
 Patch3:		glib-1.2.10-fdr-underquoted.patch.bz2
 Patch4:		glib-1.2.10-mdk-pic.patch.bz2
 
-BuildRoot:	%{_tmppath}/glib-%{version}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	automake1.4
 
 %description
@@ -31,8 +40,7 @@ and provide other useful functionality which most
 programs require.
 
 Glib is used by GDK, GTK+ and many applications.
-You should install Glib because many of your applications
-will depend on this library.
+
 
 %package -n %{libname}
 Summary:	Main library for glib
@@ -43,6 +51,7 @@ Obsoletes:	glib
 %description -n %{libname}
 This package contains the library needed to run programs dynamically
 linked with the glib.
+
 
 %package -n %{libname}-devel
 Summary:	GIMP Toolkit and GIMP Drawing Kit support library
@@ -58,6 +67,7 @@ Static libraries and header files for the support library for the GIMP's X
 libraries, which are available as public libraries.  GLIB includes generally
 useful data structures.
 
+
 %prep
 %setup -q
 %patch0 -p1 -b .isowarnings
@@ -67,23 +77,26 @@ useful data structures.
 %patch4 -p1 -b .pic
 automake-1.4
 
+
 %build
 %configure
 
 %make
 make check
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
 
-#%multiarch_binaries %{buildroot}%{_bindir}/glib-config
+%multiarch_binaries %{buildroot}%{_bindir}/glib-config
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-%post -n %{libname} -p /sbin/ldconfig
 
+%post -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
 
 %post -n %{libname}-devel
@@ -91,6 +104,7 @@ make check
 
 %preun -n %{libname}-devel
 %_remove_install_info %{name}.info
+
 
 %files -n %{libname}
 %defattr(-, root, root)
@@ -107,10 +121,15 @@ make check
 %{_mandir}/man1/*
 %{_datadir}/aclocal/*
 %{_bindir}/*
-#%multiarch %{multiarch_bindir}/*
+%multiarch %{multiarch_bindir}/*
 %{_infodir}/%{name}*
 
+
 %changelog
+* Sat Jul 30 2005 Vincent Danen <vdanen@annvix.org> 1.2.10-17avx
+- rebuild against new gcc
+- enable multiarch
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.2.10-16avx
 - bootstrap build
 
