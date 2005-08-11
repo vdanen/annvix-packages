@@ -1,6 +1,15 @@
-%define name	blt
-%define version	2.4z
-%define release	10avx
+#
+# spec file for package blt
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		blt
+%define version		2.4z
+%define release		11avx
 
 %define major		2
 %define	libname		%mklibname %{name} %{major}
@@ -20,8 +29,8 @@ Patch2:		blt2.4z-libdir.patch.bz2
 Patch3:		blt2.4z-mkdir_p.patch.bz2
 Patch4:		blt2.4z-64bit-fixes.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
-BuildRequires:  XFree86-devel tcl tk
+BuildRoot:	%{_buildroot}/%{name}-%{version}
+BuildRequires:  XFree86-devel tcl tk autoconf2.1
 
 Requires:	%{libname}
 
@@ -31,6 +40,7 @@ provision of more widgets for Tk, but it also provides more geometry managers
 and miscellaneous other commands. Note that you won't need to do any patching
 of the Tcl or Tk source files to use BLT, but you will need to have Tcl/Tk
 installed in order to use BLT.
+
 
 %package scripts
 Summary:	TCL Libraries for BLT
@@ -45,6 +55,7 @@ installed in order to use BLT.
 
 This package provides TCL libraries needed to use BLT.
 
+
 %package -n %{libname}
 Summary:	Shared libraries needed to use BLT
 Group:		System/Libraries
@@ -58,6 +69,7 @@ of the Tcl or Tk source files to use BLT, but you will need to have Tcl/Tk
 installed in order to use BLT.
 
 This package provides libraries needed to use BLT.
+
 
 %package -n %{libname_devel}
 Summary:	Headers of BLT
@@ -76,6 +88,7 @@ installed in order to use BLT.
 
 This package provides headers needed to build packages based on BLT.
 
+
 %prep
 %setup -q -n %{name}%{version}
 %patch0 -p1
@@ -85,9 +98,11 @@ This package provides headers needed to build packages based on BLT.
 %patch4 -p1 -b .64bit-fixes
 autoconf
 
+
 %build
 %configure
 %make 
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -98,27 +113,31 @@ ln -sf libBLTlite24.so %{buildroot}%{_libdir}/libBLTlite.so
 ln -sf bltwish24 %{buildroot}%{_bindir}/bltwish
 ln -sf bltsh24 %{buildroot}%{_bindir}/bltsh
 
-# Dadou - 2.4u-2mdk - Don't put in %%{_libdir} things which should be in %%_docdir
-rm -fr %{buildroot}/%_prefix/lib/blt2.4/demos
-rm -fr %{buildroot}/%_prefix/lib/blt2.4/NEWS
-rm -fr %{buildroot}/%_prefix/lib/blt2.4/PROBLEMS
-rm -fr %{buildroot}/%_prefix/lib/blt2.4/README
+# Dadou - 2.4u-2mdk - Don't put in %%{_libdir} things which should be in %%{_docdir}
+rm -fr %{buildroot}/%{_prefix}/lib/blt2.4/demos
+rm -fr %{buildroot}/%{_prefix}/lib/blt2.4/NEWS
+rm -fr %{buildroot}/%{_prefix}/lib/blt2.4/PROBLEMS
+rm -fr %{buildroot}/%{_prefix}/lib/blt2.4/README
 
-# Dadou - 2.4u-2mdk - Remove +x permissions in %%_docdir to be sure that RPM
+# Dadou - 2.4u-2mdk - Remove +x permissions in %%{_docdir} to be sure that RPM
 #                     will don't want some strange dependencies
-perl -pi -e "s|local/||" $RPM_BUILD_DIR/%{name}%{version}/demos/scripts/page.tcl
-perl -pi -e "s|local/||" $RPM_BUILD_DIR/%{name}%{version}/html/hiertable.html
+perl -pi -e "s|local/||" %{_builddir}/%{name}%{version}/demos/scripts/page.tcl
+perl -pi -e "s|local/||" %{_builddir}/%{name}%{version}/html/hiertable.html
 
 # Dadou - 2.4u-2mdk - Prevent conflicts with other packages
 for i in bitmap graph tabset tree watch; do
-	mv %{buildroot}/%{_mandir}/mann/$i{,-blt}.n
+    mv %{buildroot}/%{_mandir}/mann/$i{,-blt}.n
 done
+
+%multiarch_includes %{buildroot}%{_includedir}/bltHash.h
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
+
 %post -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
+
 
 %files
 %defattr(-,root,root,-)
@@ -142,10 +161,16 @@ done
 
 %files -n %{libname_devel}
 %defattr(-,root,root,-)
-%{_includedir}/*
+%{_includedir}/*.h
+%multiarch %{multiarch_includedir}/*.h
 %{_libdir}/*.a
 
+
 %changelog
+* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 2.4z-11avx
+- bootstrap build (new gcc, new glibc)
+- multiarch
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.4z-10avx
 - bootstrap build
 - spec cleanups
@@ -190,7 +215,7 @@ done
 * Sun Dec 17 2000 David BAUDENS <baudens@mandrakesoft.com> 2.4u-4mdk
 - Libdification
 - Disable rpath
-- Remove documentation which was put in %%_libdir
+- Remove documentation which was put in %%{_libdir}
 - Prevent request on strange dependencies
 - Prevent conflicts with other packages
 
