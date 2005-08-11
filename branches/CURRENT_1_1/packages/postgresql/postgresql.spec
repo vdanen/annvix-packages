@@ -8,8 +8,8 @@
 
 
 %define name		postgresql
-%define version		8.0.1
-%define release		6avx
+%define version		8.0.3
+%define release		1avx
 
 %define _requires_exceptions devel(libtcl8.4)\\|devel(libtcl8.4(64bit))
 
@@ -20,8 +20,8 @@
 %define pgdata		/var/lib/pgsql
 %define logrotatedir	%{_sysconfdir}/logrotate.d
 
-%define major		3
-%define major_ecpg	3
+%define major		4
+%define major_ecpg	5
 
 %define current_major_version 8.0
 
@@ -55,16 +55,17 @@ Source21:	postgresql-log.run
 Source22:	postgresql.sysconfig
 Source23:	01_postgresql.afterboot
 Source24:	postgresql.finish
+Source25:	pg_autovacuum.sysconfig
+Source26:	pg_autovacuum.run
+Source27:	pg_autovacuum-log.run
 Source51:	README.v7.3
 Source52:	upgrade_tips_7.3
 Source53:	CAN-2005-1409-1410-update-dbs.sh
 Patch0:		postgresql-7.4.1-mdk-pkglibdir.patch.bz2
 Patch1:		postgresql-7.4.5-CAN-2005-0227.patch
 Patch2:		postgresql-7.4.5-CAN-2005-0245_0247.patch
-Patch3:		postgresql-8.0.1-CAN-2005-1409.patch
-Patch4:		postgresql-8.0.1-CAN-2005-1410.patch
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-buildrootroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	bison flex gettext termcap-devel ncurses-devel openssl-devel pam-devel
 BuildRequires:	perl-devel python-devel readline-devel >= 4.3 zlib-devel
 
@@ -97,6 +98,7 @@ Summary:	The shared libraries required for any PostgreSQL clients
 Group:		System/Libraries
 Obsoletes:	postgresql-libs
 Provides:	postgresql-libs = %{version}-%{release} libpq = %{version}-%{release}
+Conflicts:	%{_lib}pq3 = 8.0.1
 
 %description -n %{libname}
 C and C++ libraries to enable user programs to communicate with the
@@ -109,6 +111,7 @@ Summary:	Development library for libpq2
 Group:		Development/C
 Requires:	%{libname} = %{version}-%{release}
 Provides:	postgresql-libs-devel = %{version}-%{release} libpq-devel = %{version}-%{release}
+Conflicts:	%{_lib}pg3-devel = 8.0.1
 
 %description -n %{libname}-devel
 Development libraries for libpq
@@ -226,8 +229,6 @@ system, including regression tests and benchmarks.
 %patch0 -p0 -b .pkglibdir
 %patch1 -p1 -b .can-2005-0227
 %patch2 -p1 -b .can-2005-0245_0247
-%patch3 -p1 -b .can-2005-1409
-%patch4 -p1 -b .can-2005-1410
 
 %build
 
@@ -239,14 +240,14 @@ pushd src
 
     # doesn't build on PPC with full optimization (sb)
     %ifnarch ppc
-        CFLAGS="${CFLAGS:-$RPM_OPT_FLAGS}" ; export CFLAGS
-        CXXFLAGS="${CXXFLAGS:-$RPM_OPT_FLAGS}" ; export CXXFLAGS
+        CFLAGS="${CFLAGS:-%{optflags}}" ; export CFLAGS
+        CXXFLAGS="${CXXFLAGS:-%{optflags}}" ; export CXXFLAGS
     %endif
 
     #fix -ffast-math problem (deush)
     %ifnarch ppc
         %serverbuild
-        CFLAGS=`echo $RPM_OPT_FLAGS|xargs -n 1|grep -v ffast-math|xargs -n 100`
+        CFLAGS=`echo %{optflags}|xargs -n 1|grep -v ffast-math|xargs -n 100`
     %endif
 popd
 
@@ -268,7 +269,7 @@ popd
 	    --with-docdir=%{_docdir} \
 	    --includedir=%{_includedir}/pgsql \
 	    --mandir=%{_mandir} \
-	    --prefix=%_prefix \
+	    --prefix=%{_prefix} \
 	    --sysconfdir=%{_sysconfdir}/pgsql \
             --enable-nls
 
@@ -282,6 +283,9 @@ pushd src/test
     make all
 popd
 
+
+#%check
+#make check
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -328,7 +332,7 @@ cp %{SOURCE51} %{SOURCE52} %{SOURCE53} .
 
 bzip2 -cd %{SOURCE6} >  README.rpm-dist
 
-pushd $RPM_BUILD_DIR
+pushd %{_builddir}
     tar xvjf %{SOURCE10}
     install -D -m 0755 mdk/mdk_update_dump.sh %{buildroot}%{_datadir}/pgsql/avx/avx_update_dump
     install -m 0755 mdk/mdk_update_restore.sh %{buildroot}%{_datadir}/pgsql/avx/avx_update_restore
@@ -336,14 +340,17 @@ popd
 
 mv %{buildroot}%{_docdir}/%{name}/html %{buildroot}%{_docdir}/%{name}-docs-%{version}
 
-mkdir -p %{buildroot}%{_srvdir}/postgresql/log
-mkdir -p %{buildroot}%{_srvlogdir}/postgresql
+mkdir -p %{buildroot}%{_srvdir}/{postgresql,pg_autovacuum}/log
+mkdir -p %{buildroot}%{_srvlogdir}/{postgresql,pg_autovacuum}
 install -m 0755 %{SOURCE20} %{buildroot}%{_srvdir}/postgresql/run
 install -m 0755 %{SOURCE21} %{buildroot}%{_srvdir}/postgresql/log/run
 install -m 0755 %{SOURCE24} %{buildroot}%{_srvdir}/postgresql/finish
+install -m 0755 %{SOURCE26} %{buildroot}%{_srvdir}/pg_autovacuum/run
+install -m 0755 %{SOURCE27} %{buildroot}%{_srvdir}/pg_autovacuum/log/run
 
 mkdir -p %{buildroot}%{_sysconfdir}/sysconfig
 install -m 0644 %{SOURCE22} %{buildroot}%{_sysconfdir}/sysconfig/postgresql
+install -m 0644 %{SOURCE25} %{buildroot}%{_sysconfdir}/sysconfig/pg_autovacuum
 
 mkdir -p %{buildroot}%{_datadir}/afterboot
 install -m 0644 %{SOURCE23} %{buildroot}%{_datadir}/afterboot/01_postgresql
@@ -367,8 +374,6 @@ cat libpq.lang libecpg.lang >> main.lst
 
 # taken directly in build dir.
 rm -fr %{buildroot}%{_datadir}/doc/postgresql/contrib/
-
-make check
 
 rm -rf %{buildroot}%{_docdir}/%{name}-docs-%{version}
 
@@ -467,6 +472,12 @@ rm -f perlfiles.list
 %{_mandir}/man7/*
 %{_datadir}/pgsql/avx/avx_update_dump
 %{_datadir}/pgsql/avx/avx_update_restore
+%config(noreplace) %{_sysconfdir}/sysconfig/pg_autovacuum
+%dir %{_srvdir}/pg_autovacuum
+%dir %{_srvdir}/pg_autovacuum/log
+%{_srvdir}/pg_autovacuum/run
+%{_srvdir}/pg_autovacuum/log/run
+%dir %attr(0750,logger,logger) %{_srvlogdir}/pg_autovacuum
 
 %files -n %{libname} 
 %defattr(-,root,root)
@@ -520,7 +531,6 @@ rm -f perlfiles.list
 %{_libdir}/pgsql/tsearch2.so
 %{_libdir}/pgsql/user_locks.so
 %{_libdir}/pgsql/pg_trgm.so
-%{_libdir}/pgsql/pgxs/
 %{_datadir}/pgsql/contrib/
 %{_bindir}/dbf2pg
 %{_bindir}/findoidjoins
@@ -585,6 +595,7 @@ rm -f perlfiles.list
 %{_bindir}/ecpg
 %{_libdir}/lib*.a
 %{_libdir}/lib*.so
+%{_libdir}/pgsql/pgxs/
 %{_mandir}/man1/ecpg.1*
 %{_bindir}/pg_config
 %{_mandir}/man1/pg_config.1*
@@ -609,6 +620,15 @@ rm -f perlfiles.list
 
 
 %changelog
+* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 8.0.3-1avx
+- 8.0.3
+- fix major lib number (nanardon)
+- move pgxs files from contrib to devel; postgresql external
+  contributions do not require -contrib to be built anymore (nanardon)
+- drop P3 and P4; merged upstream
+- rediff P2; partially merged upstream
+- conflict with older lib packages with bad major
+
 * Sat Jun 11 2005 Vincent Danen <vdanen@annvix.org> 8.0.1-6avx
 - P3: fix CAN-2005-1409
 - P4: fix CAN-2005-1410
@@ -926,7 +946,7 @@ required for those running 7.3.*.)
 
 * Mon Sep 10 2001 David BAUDENS <baudens@mandrakesoft.com> 7.1.2-14mdk
 - Fix menu entry for postgresql-tk
-- Fix Requires (requires %%version-%%release and not only %%version)
+- Fix Requires (requires %%{version}-%%{release} and not only %%{version})
 
 * Sun Sep 09 2001 Christian Belisle <cbelisle@mandrakesoft.com> 7.1.2-13mdk
 - Added documentation in each package.
@@ -1174,7 +1194,7 @@ required for those running 7.3.*.)
 
 * Mon May 01 2000 Lamar Owen <lamar.owen@wgcr.org>
 - 7.0RC2-0.5
-- Fixed /usr/src/redhat/BUILD path to $RPM_BUILD_DIR for portability
+- Fixed /usr/src/redhat/BUILD path to %{_builddir} for portability
 -- and so that RPM's can be built by non-root.
 - Minor update to README.rpm
 
