@@ -1,0 +1,13 @@
+--- chkconfig-1.3.11/chkconfig.c.pix	2004-07-14 01:37:03.000000000 +0200
++++ chkconfig-1.3.11/chkconfig.c	2004-07-14 01:38:34.000000000 +0200
+@@ -271,9 +271,7 @@ static int listService(char * item) {
+     }
+ 
+     if (err) {
+-	fprintf(stderr, _("error reading from directory %s/init.d: %s\n"), 
+-		RUNLEVELS, strerror(err));
+-        return 1;
++	fprintf(stderr, _("error reading from file %s: %s\n"), fn, strerror(err));
+     }
+ 
+     closedir(dir);
