@@ -15,7 +15,7 @@
 
 %define name		glibc
 %define version		%{basevers}%{?snapshot:.%snapshot}
-%define release		2avx
+%define release		3avx
 %define epoch		6
 
 # <version>-<release> tags from kernel package where headers were
@@ -1131,6 +1131,9 @@ fi
 
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 2.3.5-3avx
+- bootstrap build
+
 * Tue Aug 09 2005 Vincent Danen <vdanen@annvix.org> 2.3.5-2avx
 - include the /usr/X11R6/lib* directories in ld.so.conf
 - in the merge forgot to build the x86 libs for x86_64
