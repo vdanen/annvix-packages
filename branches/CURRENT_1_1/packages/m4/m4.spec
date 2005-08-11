@@ -1,6 +1,15 @@
-%define name	m4
-%define version 1.4ppre2
-%define release 8avx
+#
+# spec file for package m4
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		m4
+%define version 	1.4ppre2
+%define release 	9avx
 
 Summary:	The GNU macro processor
 Name:		%{name}
@@ -12,7 +21,7 @@ URL:		http://www.seindal.dk/rene/gnu/
 Source:		ftp://ftp.gnu.org/pub/gnu/m4-1.4.tar.bz2
 Patch:		m4-1.4-glibc.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 
 Prereq:		info-install
 
@@ -24,37 +33,43 @@ functions for including files, running shell commands, doing arithmetic,
 etc.  The autoconf program needs m4 for generating configure scripts, but
 not for running configure scripts.
 
-Install m4 if you need a macro processor.
 
 %prep
 %setup -q -n %name-1.4
-
 %patch -p1
 
-%build
 
+%build
 # m4 configure script doesn't support rpm's configure macro,
 # so we sanitize the command line as much as possible
-CFLAGS="$RPM_OPT_FLAGS" ./configure i586-mandrake-linux --prefix=%_prefix --exec-prefix=%_prefix 
+CFLAGS="%{optflags}" ./configure \
+    i586-annvix-linux \
+    --prefix=%_prefix \
+    --exec-prefix=%_prefix 
 
 %make
 
 make check
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
+
 %post
 /sbin/install-info %{_infodir}/m4.info.bz2 %{_infodir}/dir
+
 
 %preun
 if [ "$1" = 0 ]; then
     /sbin/install-info --delete %{_infodir}/m4.info.bz2 %{_infodir}/dir
 fi
+
 
 %files
 %defattr(-,root,root)
@@ -62,7 +77,12 @@ fi
 %{_bindir}/m4
 %{_infodir}/*
 
+
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1.4ppre2-9avx
+- bootstrap build (new gcc, new glibc)
+- s/mandrake/annvix/
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.4ppre2-8avx
 - bootstrap build
 
