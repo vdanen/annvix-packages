@@ -9,7 +9,7 @@
 
 %define name		tcltk
 %define version		%{tclvers}
-%define release		8avx
+%define release		9avx
 
 %define tcl_major	8.4
 %define tk_major 	8.4
@@ -644,6 +644,9 @@ rm -f *.files
 
 
 %changelog
+* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 8.4.2-9avx
+- rebuild against the xorg libs
+
 * Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 8.4.2-8avx
 - bootstrap build (new gcc, new glibc)
 
