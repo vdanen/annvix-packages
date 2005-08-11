@@ -8,7 +8,7 @@
 
 %define name			gcc
 %define version			3.4.4
-%define release			3avx
+%define release			5avx
 
 %define _unpackaged_files_terminate_build 0
 
@@ -921,6 +921,12 @@ if [ "$1" = "0" ];then /sbin/install-info %{_infodir}/gcc.info.bz2 --dir=%{_info
 %{_infodir}/gcc.info*
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 3.4.3-5avx
+- rebuild on Annvix against new glibc
+
+* Tue Aug 09 2005 Vincent Danen <vdanen@annvix.org> 3.4.3-4avx
+- rebuild on Mandrake 10.2 (aka a 100% non-SSP system)
+
 * Sat Jul 23 2005 Vincent Danen <vdanen@annvix.org> 3.4.3-3avx
 - due to problems with compiling glibc, we are disabling SSP system-wide
   for the time being which will result in a full rebuild of the system
