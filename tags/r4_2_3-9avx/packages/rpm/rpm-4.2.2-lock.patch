@@ -1,0 +1,98 @@
+--- rpm-4.2.2/rpmdb/rpmdb.c.lock	2003-12-18 04:37:13.000000000 +0100
++++ rpm-4.2.2/rpmdb/rpmdb.c	2004-04-15 15:28:04.000000000 +0200
+@@ -847,6 +847,15 @@
+     }
+ /*@=newreftrans@*/
+ 
++    /* unlock database */
++    {
++      struct flock l;
++      int ld = (db->db_perms >> 16) - 1;
++      memset(&l, 0, sizeof(l));
++      l.l_type = F_UNLCK;
++      fcntl(ld, F_SETLK, &l);
++      close(ld);
++    }
+     /*@-refcounttrans@*/ db = _free(db); /*@=refcounttrans@*/
+     /*@=usereleased@*/
+ 
+@@ -913,10 +922,7 @@
+     /*@=nullpass@*/
+     if (!(db->db_home && db->db_home[0] != '%')) {
+ 	rpmError(RPMERR_DBOPEN, _("no dbpath has been set\n"));
+-	db->db_root = _free(db->db_root);
+-	db->db_home = _free(db->db_home);
+-	db = _free(db);
+-	/*@-globstate@*/ return NULL; /*@=globstate@*/
++	goto fail;
+     }
+     db->db_errpfx = rpmExpand( (epfx && *epfx ? epfx : _DB_ERRPFX), NULL);
+     db->db_remove_env = 0;
+@@ -924,9 +930,44 @@
+     db->db_ndbi = dbiTagsMax;
+     db->_dbi = xcalloc(db->db_ndbi, sizeof(*db->_dbi));
+     db->nrefs = 0;
++    /* lock database using exclusive lock on write, and shared lock on read */
++    {
++      static const char rpmlock[] = "RPMLOCK";
++      char *lockfilename; 
++      int ld, lockfilemode;
++      /* compute lockfilename and open it according to mode used */
++      lockfilename = malloc(strlen(db->db_root) + strlen(db->db_home) + sizeof(rpmlock) + 2 /* slashes */);
++      sprintf(lockfilename, "%s/%s", db->db_root, db->db_home);
++      lockfilemode = (mode == O_RDONLY ? O_RDONLY : O_WRONLY);
++      if (access(lockfilename, W_OK) == 0)
++	lockfilemode |= O_CREAT;
++      sprintf(lockfilename, "%s/%s", lockfilename, rpmlock);
++      ld = open(lockfilename, lockfilemode, 0644);
++      if (ld >= 0) {
++	struct flock l;
++	do {
++	  memset(&l, 0, sizeof(l));
++	  l.l_type = mode == O_RDONLY ? F_RDLCK : F_WRLCK;
++	} while (fcntl(ld, F_SETLKW, &l) < 0);
++	/* HACK to keep ld without breaking compabilities (changing db size) */
++	db->db_perms |= (ld + 1) << 16;
++	free(lockfilename);
++      } else{
++	rpmError( RPMERR_DBOPEN,
++		  _("cannot open lock file %s in %s mode\n"), lockfilename, (mode == O_RDONLY ? "shared" : "exclusive"));
++	free(lockfilename);
++	goto fail;
++      }
++    }
+     /*@-globstate@*/
+     return rpmdbLink(db, "rpmdbCreate");
+     /*@=globstate@*/
++
++ fail:
++    db->db_root = _free(db->db_root);
++    db->db_home = _free(db->db_home);
++    db = _free(db);
++    /*@-globstate@*/ return NULL; /*@=globstate@*/    
+ }
+ /*@=mods@*/
+ 
+@@ -3461,6 +3502,10 @@
+ 	break;
+     }
+ 
++    sprintf(filename, "%s/%s/RPMLOCK", prefix, dbpath);
++    (void)rpmCleanPath(filename);
++    xx = unlink(filename);
++
+     sprintf(filename, "%s/%s", prefix, dbpath);
+     (void)rpmCleanPath(filename);
+     xx = rmdir(filename);
+@@ -3568,6 +3613,11 @@
+     case 0:
+ 	break;
+     }
++
++    sprintf(ofilename, "%s/%s/RPMLOCK", prefix, olddbpath);
++    (void)rpmCleanPath(ofilename);
++    xx = unlink(ofilename);
++
+     if (rc || _olddbapi == _newdbapi)
+ 	return rc;
+ 

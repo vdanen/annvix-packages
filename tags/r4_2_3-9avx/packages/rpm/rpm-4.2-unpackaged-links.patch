@@ -1,0 +1,31 @@
+--- rpm-4.2/build/files.c~	2003-03-01 20:15:04.000000000 +0100
++++ rpm-4.2/build/files.c	2003-11-16 14:01:15.000000000 +0100
+@@ -1593,7 +1593,7 @@
+ 	fileGname = getGname(getgid());
+     
+     /* S_XXX macro must be consistent with type in find call at check-files script */
+-    if (check_fileList && S_ISREG(fileMode)) {
++    if (check_fileList && (S_ISREG(fileMode) || S_ISLNK(fileMode))) {
+ 	appendStringBuf(check_fileList, diskURL);
+ 	appendStringBuf(check_fileList, "\n");
+     }
+--- rpm-4.2/scripts/check-files~	2002-07-31 19:51:50.000000000 +0200
++++ rpm-4.2/scripts/check-files	2003-11-16 14:11:29.000000000 +0100
+@@ -1,7 +1,7 @@
+ #!/bin/sh
+ #
+ # Gets file list on standard input and RPM_BUILD_ROOT as first parameter
+-# and searches for omitted files (not counting directories).
++# and searches for omitted files and symlinks (not counting directories).
+ # Returns it's output on standard output.
+ #
+ # filon@pld.org.pl
+@@ -14,7 +14,7 @@
+ FILES_DISK=`mktemp $TMPDIR/rpmXXXXXX`
+ FILES_RPM=`mktemp $TMPDIR/rpmXXXXXX`
+ 
+-find $RPM_BUILD_ROOT -type f | LC_ALL=C sort > $FILES_DISK
++find $RPM_BUILD_ROOT -type f -o -type l | LC_ALL=C sort > $FILES_DISK
+ LC_ALL=C sort > $FILES_RPM
+ 
+ for f in `diff "$FILES_DISK" "$FILES_RPM" | grep "^< " | cut -c3-`; do
