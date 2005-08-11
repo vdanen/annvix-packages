@@ -9,7 +9,7 @@
 
 %define name		byacc
 %define version		1.9
-%define release		19avx
+%define release		20avx
 
 %define date		20040328
 
@@ -67,6 +67,9 @@ ln -s yacc.1 %{buildroot}%{_mandir}/man1/byacc.1
 
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1.9-20avx
+- bootstrap build (new gcc, new glibc)
+
 * Wed Jul 27 2005 Vincent Danen <vdanen@annvix.org> 1.9-19avx
 - rebuild for new gcc
 - use the 2004-03-28 tarball from Thomas Dickey (of ncurses) which

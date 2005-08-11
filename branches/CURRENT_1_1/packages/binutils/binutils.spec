@@ -10,7 +10,7 @@
 # mdk 2.16.91.0.1-1mdk
 %define name		binutils
 %define version		2.16.91.0.1
-%define release		2avx
+%define release		3avx
 
 %define lib_major	2
 %define lib_name_orig	%mklibname binutils
@@ -198,6 +198,9 @@ rm -rf %{buildroot}%{_datadir}/locale/
 
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 2.16.91.0.1-3avx
+- bootstrap build (new gcc, new glibc)
+
 * Mon Jul 25 2005 Vincent Danen <vdanen@annvix.org> 2.16.91.0.1-2avx
 - rebuild for new gcc
 - spec cleanups

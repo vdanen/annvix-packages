@@ -8,7 +8,7 @@
 
 %define name		tar
 %define version		1.15.1
-%define release		1avx
+%define release		2avx
 
 %define rmtrealname	rmt-tar
 %define _bindir		/bin
@@ -111,6 +111,9 @@ mv %{buildroot}%{_libexecdir}/rmt %{buildroot}/sbin/%{rmtrealname}
 
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1.15.1-2avx
+- bootstrap build (new gcc, new glibc)
+
 * Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 1.15.1-1avx
 - 1.15.1
 - remove alternatives install for rmt

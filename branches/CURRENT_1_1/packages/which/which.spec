@@ -9,7 +9,7 @@
 
 %define name		which
 %define version		2.16
-%define release		4avx
+%define release		5avx
 
 Summary:	Displays where a particular program in your path is located
 Name:		%{name}
@@ -71,6 +71,9 @@ rm -rf %{buildroot}%{_infodir}/dir
 
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 2.16-5avx
+- bootstrap build (new gcc, new glibc)
+
 * Wed Jul 27 2005 Vincent Danen <vdanen@annvix.org> 2.16-4avx
 - rebuild for new gcc
 

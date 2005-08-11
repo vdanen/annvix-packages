@@ -9,7 +9,7 @@
 
 %define name		cpio
 %define version 	2.6
-%define release 	1avx
+%define release 	2avx
 
 Summary:	A GNU archiving program
 Name:		%{name}
@@ -100,8 +100,8 @@ rm -f %{buildroot}%{_mandir}/man1/mt.1
 %{_mandir}/man1/cpio.1*
 
 %changelog
-* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 2.6-2avx
-- rebuild against new gcc
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 2.6-2avx
+- bootstrap build (new gcc, new glibc)
 
 * Thu Jul 14 2005 Vincent Danen <vdanen@annvix.org> 2.6-1avx
 - 2.6

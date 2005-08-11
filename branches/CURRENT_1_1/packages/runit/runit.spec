@@ -9,7 +9,7 @@
 
 %define	name		runit
 %define	version		1.2.1
-%define	release		7avx
+%define	release		8avx
 
 Summary:	A UN*X init scheme with service supervision
 Name:		%{name}
@@ -155,6 +155,9 @@ fi
 
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1.2.1-8avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.2.1-7avx
 - note the time we're waiting for service shutdowns (re: Sean Thomas)
 - fix changelog entries

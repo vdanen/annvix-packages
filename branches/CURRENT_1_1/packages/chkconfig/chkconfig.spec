@@ -1,6 +1,15 @@
-%define name	chkconfig
-%define version	1.3.13
-%define release	2avx
+#
+# spec file for package chkconfig
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		chkconfig
+%define version		1.3.13
+%define release		3avx
 
 Summary:	A system tool for maintaining the /etc/rc*.d hierarchy
 Name:		%{name}
@@ -21,7 +30,7 @@ Patch9:		chkconfig-1.3.11-skip-bad-symlinks.patch.bz2
 Patch10:	chkconfig-1.3.11-fix-errno-xinetddotd.patch.bz2
 Patch11:	chkconfig-1.3.13-lsb.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	gettext, newt-devel, popt-devel, slang
 
 Conflicts:	rpm-helper < 0.6
@@ -32,6 +41,7 @@ information for system services.  Chkconfig manipulates the numerous
 symbolic links in /etc/rc*.d, to relieve system administrators of some 
 of the drudgery of manually editing the symbolic links.
 
+
 %package -n ntsysv
 Summary:	A system tool for maintaining the /etc/rc*.d hierarchy
 Group:		System/Configuration/Boot and Init
@@ -41,6 +51,7 @@ Requires:	chkconfig
 ntsysv updates and queries runlevel information for system services.
 ntsysv relieves system administrators of having to directly manipulate
 the numerous symbolic links in /etc/rc*.d.
+
 
 %prep
 %setup -q
@@ -55,13 +66,14 @@ the numerous symbolic links in /etc/rc*.d.
 %patch10 -p1 -b .fix-errno-xinetddotd
 %patch11 -p1 -b .lsb
 
-%build
 
+%build
 %ifarch sparc
 LIBMHACK=-lm
 %endif
 
-%make RPM_OPT_FLAGS="$RPM_OPT_FLAGS" LIBMHACK=$LIBMHACK
+%make RPM_OPT_FLAGS="%{optflags}" LIBMHACK=$LIBMHACK
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -72,14 +84,14 @@ for n in 0 1 2 3 4 5 6; do
     mkdir -p %{buildroot}%{_sysconfdir}/rc.d/rc${n}.d
 done
 
-cd %{buildroot}%{_sysconfdir}/
-ln -s rc.d/init.d init.d
-cd -
+pushd %{buildroot}%{_sysconfdir}/
+    ln -s rc.d/init.d init.d
+popd
 
 # corrected indonesian language code (it has changed from 'in' to 'id')
 mkdir -p %{buildroot}%{_datadir}/locale/id/LC_MESSAGES
 mv %{buildroot}%{_datadir}/locale/{in,in_ID}/LC_MESSAGES/* \
-	%{buildroot}%{_datadir}/locale/id/LC_MESSAGES || :
+    %{buildroot}%{_datadir}/locale/id/LC_MESSAGES || :
 rm -rf %{buildroot}%{_datadir}/locale/{in,in_ID} || :
 
 # we use our own alternative system
@@ -87,8 +99,10 @@ rm -f %{buildroot}%{_sbindir}/{alternatives,update-alternatives} %{buildroot}%{_
 
 %find_lang %{name}
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files -f %{name}.lang
 %defattr(-,root,root)
@@ -103,7 +117,11 @@ rm -f %{buildroot}%{_sbindir}/{alternatives,update-alternatives} %{buildroot}%{_
 %{_sbindir}/ntsysv
 %{_mandir}/man8/ntsysv.8*
 
+
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1.3.13-3avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.3.13-2avx
 - bootstrap build
 

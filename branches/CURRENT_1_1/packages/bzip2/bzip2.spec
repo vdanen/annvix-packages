@@ -9,7 +9,7 @@
 
 %define name		bzip2
 %define version		1.0.3
-%define release		3avx
+%define release		4avx
 
 %define libname_orig	lib%{name}
 %define libname		%mklibname %{name}_ 1
@@ -131,6 +131,9 @@ install -m 0644 bzlib_private.h %{buildroot}%{_includedir}/
 
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1.0.3-4avx
+- bootstrap build (new gcc, new glibc)
+
 * Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 1.0.3-3avx
 - rebuild against new gcc
 

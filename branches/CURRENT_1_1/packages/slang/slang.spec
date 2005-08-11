@@ -9,7 +9,7 @@
 
 %define name		slang
 %define version 	1.4.9
-%define release 	10avx
+%define release 	11avx
 
 %define docversion	1.4.8
 %define major		1
@@ -128,6 +128,9 @@ rm -rf	%{buildroot}/usr/doc/slang
 %{_includedir}/slang/*.h
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1.4.9-11avx
+- bootstrap build (new gcc, new glibc)
+
 * Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 1.4.9-10avx
 - rebuild for new gcc
 

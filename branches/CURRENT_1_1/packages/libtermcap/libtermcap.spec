@@ -9,7 +9,7 @@
 
 %define name		libtermcap
 %define version		2.0.8
-%define release		40avx
+%define release		41avx
 
 %define major		2
 %define libname_orig	libtermcap
@@ -159,6 +159,9 @@ fi
 
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 2.0.8-41avx
+- bootstrap build (new gcc, new glibc)
+
 * Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 2.0.8-40avx
 - rebuild for new gcc
 

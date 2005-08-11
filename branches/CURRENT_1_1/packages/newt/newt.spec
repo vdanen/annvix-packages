@@ -9,7 +9,7 @@
 
 %define name		newt
 %define version 	0.51.6
-%define release 	3avx
+%define release 	4avx
 
 %define major		0.51
 %define libname		%mklibname %{name} %{major}
@@ -124,6 +124,9 @@ rm -rf  %{buildroot}%{_libdir}/python{1.5,2.0,2.1,2.2,2.3}
 %{_libdir}/libnewt.so
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 0.51.6-4avx
+- bootstrap build (new gcc, new glibc)
+
 * Wed Jul 27 2005 Vincent Danen <vdanen@annvix.org> 0.51.6-3avx
 - rebuild for new gcc
 

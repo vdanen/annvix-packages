@@ -1,11 +1,20 @@
-%define name	fontconfig
-%define version	2.2.1
-%define release	10avx
+#
+# spec file for package fontconfig
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-%define fontconfig_major	1
-%define lib_name		%mklibname %{name} %{fontconfig_major}
 
-%define freetype_version	2.1.4
+%define name		fontconfig
+%define version		2.2.1
+%define release		11avx
+
+%define major		1
+%define libname		%mklibname %{name} %{major}
+
+%define freetype_ver	2.1.4
 
 Summary:	Font configuration library
 Name:		%{name}
@@ -27,47 +36,46 @@ Patch7:		fontconfig-2.2.1-defaultconfig.patch.bz2
 # (fc) 2.2.1-6mdk fix crash when HOME is not defined (bug #4518)
 Patch8:		fontconfig-2.2.1-home.patch.bz2
 
-BuildRoot:	%{_tmppath}/fontconfig-%{version}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	ed
-
-BuildRequires:	freetype2-devel >= %{freetype_version}
+BuildRequires:	freetype2-devel >= %{freetype_ver}
 BuildRequires:	expat-devel
 
-PreReq:		%{lib_name}  >= %{version}-%{release}
+PreReq:		%{libname}  >= %{version}-%{release}
 
 %description
 Fontconfig is designed to locate fonts within the
 system and select them according to requirements specified by 
 applications.
 
-%package -n %{lib_name}
+
+%package -n %{libname}
 Summary:	Font configuration and customization library
 Group:		System/Libraries
 Requires:	%{name} >= %{version}-%{release}
 Provides:	lib%{name} = %{version}-%{release}
 Provides:	%{name}-libs = %{version}-%{release}
 
-%description -n %{lib_name}
+%description -n %{libname}
 Fontconfig is designed to locate fonts within the
 system and select them according to requirements specified by 
 applications.
 
-%package -n %{lib_name}-devel
+
+%package -n %{libname}-devel
 Summary:	Font configuration and customization library
 Group:		Development/C
 Provides:	lib%{name}-devel = %{version}-%{release}
 Provides:	%{name}-devel = %{version}-%{release}
 Requires:	%{name} = %{version}-%{release}
-Requires:	%{lib_name} = %{version}-%{release}
-Requires:	freetype2-devel >= %{freetype_version}
+Requires:	%{libname} = %{version}-%{release}
+Requires:	freetype2-devel >= %{freetype_ver}
 Requires:	expat-devel
 
-%description -n %{lib_name}-devel
+%description -n %{libname}-devel
 The fontconfig-devel package includes the header files,
 and developer docs for the fontconfig package.
 
-Install fontconfig-devel if you want to develop programs which 
-will use fontconfig.
 
 %prep
 %setup -q
@@ -78,27 +86,31 @@ will use fontconfig.
 %patch8 -p1 -b .home
 
 %build
-
-%configure2_5x --with-add-fonts="/usr/X11R6/lib/X11/fonts,/opt/ttfonts,/usr/share/yudit/fonts" --disable-docs
+%configure2_5x \
+    --with-add-fonts="/usr/X11R6/lib/X11/fonts,/opt/ttfonts,/usr/share/yudit/fonts" \
+    --disable-docs
 make
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-
 %makeinstall_std
 
 # remove unpackaged files
-rm -rf $RPM_BUILD_ROOT%{_datadir}/doc/fontconfig
+rm -rf %{buildroot}%{_datadir}/doc/fontconfig
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
+
 %post
 %{_bindir}/fc-cache -f >/dev/null
 
-%post -n %{lib_name} -p /sbin/ldconfig
 
-%postun -n %{lib_name} -p /sbin/ldconfig
+%post -n %{libname} -p /sbin/ldconfig
+%postun -n %{libname} -p /sbin/ldconfig
+
 
 %files
 %defattr(-, root, root)
@@ -110,11 +122,11 @@ rm -rf $RPM_BUILD_ROOT%{_datadir}/doc/fontconfig
 %config(noreplace) %{_sysconfdir}/fonts/*.conf
 %{_mandir}/man5/*
 
-%files -n %{lib_name}
+%files -n %{libname}
 %defattr(-, root, root)
 %{_libdir}/*.so.*
 
-%files -n %{lib_name}-devel
+%files -n %{libname}-devel
 %defattr(-, root, root)
 %doc doc/fontconfig-devel doc/fontconfig-devel.txt 
 %{_libdir}/*.la
@@ -124,7 +136,11 @@ rm -rf $RPM_BUILD_ROOT%{_datadir}/doc/fontconfig
 %{_includedir}/*
 %{_mandir}/man3/*
 
+
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 2.2.1-11avx
+- bootstrap build (new gcc, new glibc)
+
 * Sat Jun 04 2005 Vincent Danen <vdanen@annvix.org> 2.2.1-10avx
 - bootstrap build
 - fix build, use %%configure2_5x

@@ -9,7 +9,7 @@
 
 %define name		mcrypt
 %define version 	2.6.4
-%define release 	7avx
+%define release 	8avx
 
 Summary:	Data encryption/decryption program
 Name:		%{name}
@@ -62,6 +62,9 @@ CBC, ECB, OFB and CFB modes of encryption are supported.
 
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 2.6.4-8avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jul 29 2005 Vincent Danen <vdanen@annvix.org> 2.6.4-7avx
 - rebuild against new gcc
 

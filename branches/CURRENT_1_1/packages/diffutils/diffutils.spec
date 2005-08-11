@@ -9,7 +9,7 @@
 
 %define name		diffutils
 %define version 	2.8.4
-%define release 	9avx
+%define release 	10avx
 
 Summary:	A GNU collection of diff utilities
 Name:		%{name}
@@ -84,6 +84,9 @@ rm -fr %{buildroot}%{_infodir}/dir
 
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 2.8.4-10avx
+- bootstrap build (new gcc, new glibc)
+
 * Wed Jul 27 2005 Vincent Danen <vdanen@annvix.org> 2.8.4-9avx
 - rebuild for new gcc
 

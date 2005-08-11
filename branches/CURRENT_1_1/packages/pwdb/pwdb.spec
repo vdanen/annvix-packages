@@ -8,7 +8,7 @@
 
 %define name		pwdb
 %define version		0.62
-%define release		3avx
+%define release		4avx
 
 %define majver		0
 %define libname_orig	%mklibname pwdb
@@ -139,6 +139,9 @@ ln -sf lib%{name}.so.%{version} %{buildroot}/%{_lib}/lib%{name}.so.%{majver}
 
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 0.62-4avx
+- bootstrap build (new gcc, new glibc)
+
 * Wed Jul 27 2005 Vincent Danen <vdanen@annvix.org> 0.62-3avx
 - rebuild for new gcc
 

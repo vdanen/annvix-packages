@@ -8,7 +8,7 @@
 
 %define name		nasm
 %define version		0.98.39
-%define release		3avx
+%define release		4avx
 
 Summary:	The Netwide Assembler, a portable x86 assembler with Intel-like syntax
 Name:		%{name}
@@ -81,6 +81,9 @@ mkdir -p %{buildroot}{%{_bindir},%{_infodir},%{_mandir}/man1}
 %{_bindir}/rdf2com
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 0.98.39-4avx
+- bootstrap build (new gcc, new glibc)
+
 * Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 0.98.39-3avx
 - rebuild for new gcc
 

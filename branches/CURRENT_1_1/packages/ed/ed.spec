@@ -9,9 +9,9 @@
 
 %define name		ed
 %define version		0.2
-%define release		35avx
+%define release		36avx
 
-%define _exec_prefix /
+%define _exec_prefix	/
 
 Summary:	The GNU line editor
 Name:		%{name}
@@ -84,7 +84,11 @@ make check
 %{_infodir}/ed.info*
 %{_mandir}/*/*
 
+
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 0.2-36avx
+- bootstrap build (new gcc, new glibc)
+
 * Wed Jul 27 2005 Vincent Danen <vdanen@annvix.org> 0.2-35avx
 - rebuild for new gcc
 

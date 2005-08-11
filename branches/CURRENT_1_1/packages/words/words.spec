@@ -1,8 +1,17 @@
-%define name	words
-%define version	2
-%define release	23avx
+#
+# spec file for package words
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-%define _dict_dir /usr/share/dict/
+
+%define name		words
+%define version		2
+%define release		24avx
+
+%define _dict_dir	/usr/share/dict/
 
 Summary:	A dictionary of English words for the /usr/dict directory
 Name:		%{name}
@@ -16,13 +25,14 @@ Patch0:		linux.words.2-jbj.patch.bz2
 Patch1:		linux.words.2-mmm.patch.bz2
 Patch2:		linux.words.2-meat.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-root
+BuildRoot:	%{_buildroot}/%{name}-root
 BuildArch:	noarch
 
 %description
 The words file is a dictionary of English words for the /usr/dict
 directory.  Programs like ispell use this database of words to check
 spelling.
+
 
 %prep
 %setup -q -c
@@ -32,6 +42,7 @@ spelling.
 
 %build
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p %{buildroot}%{_dict_dir}
@@ -39,8 +50,10 @@ mkdir -p %{buildroot}%{_dict_dir}
 cp usr/dict/linux.words %{buildroot}/%{_dict_dir}
 ln -sf linux.words %{buildroot}%{_dict_dir}words
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -49,7 +62,11 @@ ln -sf linux.words %{buildroot}%{_dict_dir}words
 %{_dict_dir}linux.words
 %{_dict_dir}words
 
+
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 2-24avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2-23avx
 - bootstrap build
 

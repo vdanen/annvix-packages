@@ -11,7 +11,7 @@
 
 %define name		openssh
 %define version		4.1p1
-%define release 	2avx
+%define release 	3avx
 
 # overrides
 %global build_skey	0
@@ -314,6 +314,9 @@ do_dsa_keygen
 %{_datadir}/afterboot/04_openssh
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 4.1p1-3avx
+- bootstrap build (new gcc, new glibc)
+
 * Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 4.1p1-2avx
 - rebuild for new gcc and openssl
 

@@ -9,7 +9,7 @@
 
 %define name		openssl
 %define version		0.9.8
-%define release		1avx
+%define release		2avx
 
 %define maj		0.9.8
 %define libname 	%mklibname %{name} %{maj}
@@ -220,6 +220,9 @@ rm -rf %{buildroot}%{_prefix}/lib
 
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 0.9.8-2avx
+- bootstrap build (new gcc, new glibc)
+
 * Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 0.9.8-1avx
 - 0.9.8
 - drop P4; code is gone

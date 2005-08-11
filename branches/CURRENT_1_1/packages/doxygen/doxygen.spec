@@ -9,7 +9,7 @@
 
 %define name		doxygen
 %define version 	1.3.3
-%define release 	7avx
+%define release 	8avx
 
 Summary:	Doxygen is THE documentation system for C/C++
 Name:		%{name}
@@ -79,6 +79,9 @@ install -s bin/doxy* %{buildroot}%{_bindir}
 
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1.3.3-8avx
+- bootstrap build (new gcc, new glibc)
+
 * Mon Jul 25 2005 Vincent Danen <vdanen@annvix.org> 1.3.3-7avx
 - rebuild for new gcc
 

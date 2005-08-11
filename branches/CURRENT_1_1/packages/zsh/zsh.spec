@@ -9,7 +9,7 @@
 
 %define name		zsh
 %define version		4.2.5
-%define release		1avx
+%define release		2avx
 %define epoch		1
 
 Summary:	A shell with lots of features
@@ -122,6 +122,9 @@ rm -f %{buildroot}%{_bindir}/zsh-%{version}
 
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 4.2.5-2avx
+- bootstrap build (new gcc, new glibc)
+
 * Mon Jul 25 2005 Vincent Danen <vdanen@annvix.org> 4.2.5-1avx
 - 4.2.5
 - spec cleanups

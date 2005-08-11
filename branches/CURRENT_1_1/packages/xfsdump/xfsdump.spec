@@ -9,7 +9,7 @@
 
 %define	name		xfsdump
 %define	version		2.2.21
-%define	release		3avx
+%define	release		4avx
 
 Summary:	Administrative utilities for the XFS filesystem
 Name:		%{name}
@@ -78,6 +78,9 @@ rm -rf %{buildroot}%{_datadir}/doc/xfsdump/
 
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 2.2.21-4avx
+- bootstrap build (new gcc, new glibc)
+
 * Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 2.2.21-3avx
 - rebuild for new gcc
 

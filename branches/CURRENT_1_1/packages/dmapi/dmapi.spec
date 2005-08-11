@@ -9,7 +9,7 @@
 
 %define	name		dmapi
 %define	version		2.1.0
-%define	release		4avx
+%define	release		5avx
 
 %define lib_name_orig	libdm
 %define lib_major	0
@@ -104,6 +104,9 @@ rm -rf %{buildroot}%{_datadir}/doc/dmapi
 
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 2.1.0-5avx
+- bootstrap build (new gcc, new glibc)
+
 * Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 2.1.0-4avx
 - rebuild for new gcc
 - BuildRequires: libext2fs-devel

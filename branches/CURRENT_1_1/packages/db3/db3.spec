@@ -9,7 +9,7 @@
 
 %define name		db3
 %define version		3.3.11
-%define release		21avx
+%define release		22avx
 
 %define	__soversion	3.3
 %define	_libdb_a	libdb-%{__soversion}.a
@@ -295,6 +295,9 @@ rm -rf	%{buildroot}/usr/docs \
 
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 3.3.11-22avx
+- bootstrap build (new gcc, new glibc)
+
 * Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 3.3.11-21avx
 - rebuild against new gcc
 

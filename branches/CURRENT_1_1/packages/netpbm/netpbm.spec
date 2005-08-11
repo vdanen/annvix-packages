@@ -1,21 +1,28 @@
-%define name	netpbm
-%define version 9.24
-%define release 12avx
+#
+# spec file for package netpbm
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-%define major			9
-%define libname	%mklibname	%{name} %{major}
-%define	libname_devel		%{libname}-devel
-%define libname_static_devel	%{libname}-static-devel
+
+%define name		netpbm
+%define version 	9.24
+%define release 	13avx
+
+%define major		9
+%define libname		%mklibname %{name} %{major}
 
 
 Summary:	Tools for manipulating graphics files in netpbm supported formats
-Name:		%name
-Version:	%version
-Release:	%release
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
 License:	GPL Artistic MIT
 Group:		Graphics
 URL:		http://netpbm.sourceforge.net/
-Source0:	netpbm-%version-nojbig.tar.bz2
+Source0:	netpbm-%{version}-nojbig.tar.bz2
 Source1:	mf50-netpbm_filters
 Source2:	test-images.tar.bz2
 Patch0:		netpbm-9.8-install.patch.bz2
@@ -25,10 +32,10 @@ Patch3:		netpbm-9.24-security-ac.patch
 Patch4:		netpbm-9.24-lib64.patch.bz2
 Patch5:		netpbm-9.24-debiansecurity.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	flex, png-devel, jpeg-devel, tiff-devel, perl
 
-Requires:	%{libname} = %version-%release
+Requires:	%{libname} = %{version}-%{release}
 Obsoletes:	libgr-progs, libgr1-progs
 Provides:	libgr-progs, libgr1-progs
 
@@ -38,10 +45,11 @@ programs for handling various graphics file formats, including .pbm
 (portable bitmaps), .pgm (portable graymaps), .pnm (portable anymaps),
 .ppm (portable pixmaps) and others.
 
+
 %package -n %{libname}
 Summary:        A library for handling different graphics file formats
 Group:          System/Libraries
-Provides:	lib%name
+Provides:	lib%{name}
 Provides:	libgr, libgr1, libnetpbm1
 Obsoletes:      libgr, libgr1, libnetpbm1
 
@@ -51,40 +59,33 @@ programs for handling various graphics file formats, including .pbm
 (portable bitmaps), .pgm (portable graymaps), .pnm (portable anymaps),
 .ppm (portable pixmaps) and others.
 
-%package -n %{libname_devel}
+
+%package -n %{libname}-devel
 Summary:	Development tools for programs which will use the netpbm libraries
 Group:		Development/C
-Requires:	%{libname} = %version-%release
+Requires:	%{libname} = %{version}-%{release}
 Provides:	lib%{name}-devel
 Obsoletes:	libgr-devel, libgr1-devel, libnetpbm1-devel
 Provides:	libgr-devel, libgr1-devel, libnetpbm1-devel, netpbm-devel
 
-%description -n %{libname_devel}
+%description -n %{libname}-devel
 The netpbm-devel package contains the header files and programmer's
 documentation for developing programs which can handle the various
 graphics file formats supported by the netpbm libraries.
 
-Install netpbm-devel if you want to develop programs for handling the
-graphics file formats supported by the netpbm libraries. You'll also
-need to have the netpbm package installed.
 
-
-%package -n %{libname_static_devel}
+%package -n %{libname}-static-devel
 Summary:	Static libraries for the netpbm libraries
 Group:		Development/C
-Requires:	%{libname}-devel = %version-%release
+Requires:	%{libname}-devel = %{version}-%{release}
 Provides:	lib%{name}-static-devel
 Obsoletes:	libgr-static-devel, libgr1-static-devel, libnetpbm1-static-devel
 Provides:	libgr-static-devel, libgr1-static-devel, libnetpbm1-static-devel, netpbm-static-devel
 
-%description -n %{libname_static_devel}
+%description -n %{libname}-static-devel
 The netpbm-devel package contains the staic libraries (.a)
 for developing programs which can handle the various
 graphics file formats supported by the netpbm libraries.
-
-Install netpbm-devel if you want to develop programs for handling the
-graphics file formats supported by the netpbm libraries. You'll also
-need to have the netpbm package installed.
 
 
 %prep
@@ -100,6 +101,7 @@ mv shhopt/shhopt.h shhopt/pbmshhopt.h
 perl -pi -e 's|shhopt.h|pbmshhopt.h|g' `find -name "*.c" -o -name "*.h"` ./GNUmakefile
 
 tar xjf %{SOURCE2}
+
 
 %build
 ./configure <<EOF
@@ -117,12 +119,12 @@ EOF
 
 TOP=`pwd`
 make \
-	CC=%{__cc} \
-	CFLAGS="$RPM_OPT_FLAGS -fPIC" \
-	LDFLAGS="-L$TOP/pbm -L$TOP/pgm -L$TOP/pnm -L$TOP/ppm" \
-	JPEGINC_DIR=%{_includedir} \
-	PNGINC_DIR=%{_includedir} \
-	TIFFINC_DIR=%{_includedir}
+    CC=%{__cc} \
+    CFLAGS="%{optflags} -fPIC" \
+    LDFLAGS="-L$TOP/pbm -L$TOP/pgm -L$TOP/pnm -L$TOP/ppm" \
+    JPEGINC_DIR=%{_includedir} \
+    PNGINC_DIR=%{_includedir} \
+    TIFFINC_DIR=%{_includedir}
 
 
 %install
@@ -140,31 +142,31 @@ mkdir -p %{buildroot}%{_datadir}/printconf/tests
 cp test-images/* %{buildroot}%{_datadir}/printconf/tests/
 
 PATH="`pwd`:${PATH}" make install \
-	JPEGINC_DIR=%{buildroot}%{_includedir} \
-	PNGINC_DIR=%{buildroot}%{_includedir} \
-	TIFFINC_DIR=%{buildroot}%{_includedir} \
-	INSTALL_PREFIX=%{buildroot}%{_prefix} \
-	INSTALLBINARIES=%{buildroot}%{_bindir} \
-	INSTALLHDRS=%{buildroot}%{_includedir} \
-	INSTALLLIBS=%{buildroot}%{_libdir} \
-	INSTALLSTATICLIBS=%{buildroot}%{_libdir} \
-	INSTALLDATA=%{buildroot}%{_datadir}/%{name}-%{version} \
-	INSTALLMANUALS1=%{buildroot}%{_mandir}/man1 \
-	INSTALLMANUALS3=%{buildroot}%{_mandir}/man3 \
-	INSTALLMANUALS5=%{buildroot}%{_mandir}/man5
+    JPEGINC_DIR=%{buildroot}%{_includedir} \
+    PNGINC_DIR=%{buildroot}%{_includedir} \
+    TIFFINC_DIR=%{buildroot}%{_includedir} \
+    INSTALL_PREFIX=%{buildroot}%{_prefix} \
+    INSTALLBINARIES=%{buildroot}%{_bindir} \
+    INSTALLHDRS=%{buildroot}%{_includedir} \
+    INSTALLLIBS=%{buildroot}%{_libdir} \
+    INSTALLSTATICLIBS=%{buildroot}%{_libdir} \
+    INSTALLDATA=%{buildroot}%{_datadir}/%{name}-%{version} \
+    INSTALLMANUALS1=%{buildroot}%{_mandir}/man1 \
+    INSTALLMANUALS3=%{buildroot}%{_mandir}/man3 \
+    INSTALLMANUALS5=%{buildroot}%{_mandir}/man5
 
 # Install header files.
 mkdir -p %{buildroot}%{_includedir}
-install -m644 pbm/pbm.h %{buildroot}%{_includedir}/
-#install -m644 pbmplus.h %{buildroot}%{_includedir}/
-install -m644 pgm/pgm.h %{buildroot}%{_includedir}/
-install -m644 pnm/pnm.h %{buildroot}%{_includedir}/
-install -m644 ppm/ppm.h %{buildroot}%{_includedir}/
-install -m644 shhopt/pbmshhopt.h %{buildroot}%{_includedir}/
+install -m 0644 pbm/pbm.h %{buildroot}%{_includedir}/
+#install -m 0644 pbmplus.h %{buildroot}%{_includedir}/
+install -m 0644 pgm/pgm.h %{buildroot}%{_includedir}/
+install -m 0644 pnm/pnm.h %{buildroot}%{_includedir}/
+install -m 0644 ppm/ppm.h %{buildroot}%{_includedir}/
+install -m 0644 shhopt/pbmshhopt.h %{buildroot}%{_includedir}/
 
 # Install the static-only librle.a
-install -m644 urt/{rle,rle_config}.h %{buildroot}%{_includedir}/
-install -m644 urt/librle.a %{buildroot}%{_libdir}/
+install -m 0644 urt/{rle,rle_config}.h %{buildroot}%{_includedir}/
+install -m 0644 urt/librle.a %{buildroot}%{_libdir}/
 
 # Fixup symlinks.
 ln -sf gemtopnm %{buildroot}%{_bindir}/gemtopbm
@@ -182,25 +184,28 @@ ln -sf libppm.so.9 %{buildroot}%{_libdir}/libppm.so
 # Fixup perl paths in the two scripts that require it.
 perl -pi -e 's^/bin/perl^%{__perl}^' %{buildroot}%{_bindir}/{ppmfade,ppmshadow}
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-%post   -n %{libname} -p /sbin/ldconfig
+
+%post -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
+
 
 %files 	-n %{libname}
 %defattr(-,root,root)
 %attr(755,root,root) %{_libdir}/lib*.so.*
 %doc COPYRIGHT.PATENT GPL_LICENSE.txt HISTORY README 
 
-%files 	-n %{libname_devel}
+%files 	-n %{libname}-devel
 %defattr(-,root,root)
 %doc Netpbm.programming
 %{_includedir}/*.h
 %attr(755,root,root) %{_libdir}/lib*.so
 %{_mandir}/man3/*
 
-%files 	-n %{libname_static_devel}
+%files 	-n %{libname}-static-devel
 %defattr(-,root,root)
 %{_libdir}/*.a
 
@@ -214,6 +219,9 @@ perl -pi -e 's^/bin/perl^%{__perl}^' %{buildroot}%{_bindir}/{ppmfade,ppmshadow}
 
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 9.24-13avx
+- bootstrap build (new gcc, new glibc)
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 9.24-12avx
 - rebuild
 
@@ -247,7 +255,7 @@ perl -pi -e 's^/bin/perl^%{__perl}^' %{buildroot}%{_bindir}/{ppmfade,ppmshadow}
 - security patches
 
 * Sun Jul  7 2002 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 9.24-4mdk
-- Move mapfiles to %_datadir/%name-%version/
+- Move mapfiles to %_datadir/%{name}-%{version}/
 
 * Mon Jul 01 2002 Yves Duret <yduret@mandrakesoft.com> 9.24-3mdk
 - fix obsolets/provides of static-devel package thanx Frederic Crozat.
@@ -278,7 +286,7 @@ perl -pi -e 's^/bin/perl^%{__perl}^' %{buildroot}%{_bindir}/{ppmfade,ppmshadow}
 
 * Sat Sep 09 2001 David BAUDENS <baudens@mandrakesoft.com> 9.10-6mdk
 - Fix %%major number
-- Requires %%version-%%release and not only %%version
+- Requires %%{version}-%%{release} and not only %%{version}
 - Fix %%doc
 
 * Mon Aug 27 2001 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 9.10-5mdk

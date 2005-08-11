@@ -9,7 +9,7 @@
 
 %define name		sfio
 %define version		1999
-%define release		14avx
+%define release		15avx
 
 Summary:	A Safe/Fast I/O Library
 Name:		%{name}
@@ -98,6 +98,9 @@ install lib/*.a %{buildroot}%{_libdir}/
 %{_libdir}/*.a
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1999-15avx
+- bootstrap build (new gcc, new glibc)
+
 * Wed Jul 27 2005 Vincent Danen <vdanen@annvix.org> 1999-14avx
 - rebuild against new gcc
 

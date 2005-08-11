@@ -9,7 +9,7 @@
 
 %define name		libuser
 %define version		0.53.2
-%define release		3avx
+%define release		4avx
 
 %define major		1
 %define libname		%mklibname user %{major}
@@ -149,6 +149,9 @@ rm -rf %{buildroot}%{_libdir}/python%{pyver}/site-packages/*a
 
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 0.53.2-4avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jul 29 2005 Vincent Danen <vdanen@annvix.org> 0.53.2-3avx
 - rebuild against new gcc
 

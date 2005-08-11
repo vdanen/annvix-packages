@@ -9,7 +9,7 @@
 
 %define name		sharutils
 %define version		4.2.1
-%define release		21avx
+%define release		22avx
 
 Summary:	The GNU shar utilities for packaging and unpackaging shell archives
 Name:		%{name}
@@ -111,6 +111,9 @@ fi
 %{_mandir}/man?/*
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 4.2.1-22avx
+- bootstrap build (new gcc, new glibc)
+
 * Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 4.2.1-21avx
 - rebuild for new gcc
 

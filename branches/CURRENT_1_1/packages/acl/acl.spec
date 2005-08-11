@@ -1,10 +1,19 @@
-%define name	acl
-%define version 2.2.23
-%define release 3avx
+#
+# spec file for package acl
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-%define lib_name_orig	lib%{name}
-%define lib_major	1
-%define lib_name	%mklibname %{name} %{lib_major}
+
+%define name		acl
+%define version 	2.2.23
+%define release 	4avx
+
+%define libname_orig	lib%{name}
+%define major		1
+%define libname		%mklibname %{name} %{major}
 
 Summary:	Command for manipulating access control lists
 Name:		%{name}
@@ -15,47 +24,49 @@ Group:		System/Kernel and hardware
 URL:		http://oss.sgi.com/projects/xfs/
 Source0:	ftp://oss.sgi.com/projects/xfs/download/cmd_tars/%{name}-%{version}.src.tar.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-buildroot
 BuildRequires:	attr-devel
 
-Requires:	%{lib_name} = %{version}-%{release}
+Requires:	%{libname} = %{version}-%{release}
 
 %description
 This package contains the getfacl and setfacl utilities needed for
 manipulating access control lists.
 
-%package -n %{lib_name}
-Summary:	Main library for %{lib_name_orig}
-Group:		System/Libraries
-Provides:	%{lib_name_orig} = %{version}-%{release}
 
-%description -n %{lib_name}
-This package contains the l%{lib_name_orig} dynamic library which contains
+%package -n %{libname}
+Summary:	Main library for %{libname_orig}
+Group:		System/Libraries
+Provides:	%{libname_orig} = %{version}-%{release}
+
+%description -n %{libname}
+This package contains the l%{libname_orig} dynamic library which contains
 the POSIX 1003.1e draft standard 17 functions for manipulating access
 control lists.
 
-%package -n %{lib_name}-devel
+
+%package -n %{libname}-devel
 Summary:	Access control list static libraries and headers.
 Group:		Development/C
-Requires:	%{lib_name} = %{version}-%{release}
-Provides:	%{lib_name_orig}-devel = %{version}-%{release}
+Requires:	%{libname} = %{version}-%{release}
+Provides:	%{libname_orig}-devel = %{version}-%{release}
 Provides:	acl-devel = %{version}-%{release}
 Obsoletes:	acl-devel
 
-%description -n %{lib_name}-devel
+%description -n %{libname}-devel
 This package contains static libraries and header files needed to develop
 programs which make use of the access control list programming interface
 defined in POSIX 1003.1e draft standard 17.
 
-You should install %{lib_name}-devel if you want to develop programs
-which make use of ACLs.  If you install %{lib_name}-devel, you will
-also want to install %{lib_name}.
 
 %prep
 %setup -q
 
+
 %build
-%configure2_5x --libdir=/%{_lib} --sbindir=/bin
+%configure2_5x \
+    --libdir=/%{_lib} \
+    --sbindir=/bin
 %make
 
 %install
@@ -69,11 +80,14 @@ perl -pi -e 's,\s(/%{_lib})(.*attr\.la),%{_libdir}/$2,g' %{buildroot}/%{_libdir}
 rm -rf %{buildroot}%{_docdir}/acl
 %find_lang %{name}
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-%post -n %{lib_name} -p /sbin/ldconfig
-%postun -n %{lib_name} -p /sbin/ldconfig
+
+%post -n %{libname} -p /sbin/ldconfig
+%postun -n %{libname} -p /sbin/ldconfig
+
 
 %files -f %{name}.lang
 %defattr(-,root,root)
@@ -81,12 +95,12 @@ rm -rf %{buildroot}%{_docdir}/acl
 %{_bindir}/*
 %{_mandir}/man1/*
 
-%files -n %{lib_name}
+%files -n %{libname}
 %defattr(-,root,root)
 %doc doc/LICENSE
 /%{_lib}/*.so.*
 
-%files -n %{lib_name}-devel
+%files -n %{libname}-devel
 %defattr(-,root,root)
 %doc doc/extensions.txt doc/LICENSE doc/libacl.txt
 /%{_lib}/*.so
@@ -99,6 +113,9 @@ rm -rf %{buildroot}%{_docdir}/acl
 %{_includedir}/sys/acl.h
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 2.2.23-4avx
+- bootstrap build (new gcc, new glibc)
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.2.23-3avx
 - rebuild
 
@@ -156,7 +173,7 @@ rm -rf %{buildroot}%{_docdir}/acl
 
 * Fri Mar 22 2002 David BAUDENS <baudens@mandrakesoft.com> 2.0.0-2mdk
 - BuildRequires: libattr1, libattr1-devel
-- Requires: %%version-%%release and not only %%version or %%name
+- Requires: %%{version}-%%{release} and not only %%{version} or %%{name}
 
 * Thu Mar  7 2002 Frederic Lepied <flepied@mandrakesoft.com> 2.0.0-1mdk
 - 2.0.0

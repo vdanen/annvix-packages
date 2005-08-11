@@ -1,6 +1,15 @@
-%define name	tcp_wrappers
-%define version	7.6
-%define release	27avx
+#
+# spec file for package tcp_wrappers
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		tcp_wrappers
+%define version		7.6
+%define release		28avx
 
 Summary: 	A security tool which acts as a wrapper for TCP daemons
 Name: 		%{name}
@@ -14,7 +23,7 @@ Patch0:         http://www.imasy.or.jp/~ume/ipv6/tcp_wrappers_7.6-ipv6-1.14.diff
 Patch1: 	tcp_wrappers_7.6-config.patch.2.bz2
 Patch2:		tcp_wrappers-7.16-ia64-compile-fix.patch.bz2
 
-BuildRoot: 	%{_tmppath}/%{name}-%{version}-buildroot
+BuildRoot: 	%{_buildroot}/%{name}-%{version}
 
 
 %description
@@ -25,49 +34,55 @@ rlogin, rsh, exec, tftp, talk and other network services.
 Install the tcp_wrappers program if you need a security tool for
 filtering incoming network services requests.
 
+
 %package devel
-Summary:	A security library which acts as a wrapper for TCP daemons.
+Summary:	A security library which acts as a wrapper for TCP daemons
 Group:		Development/C
 
 %description devel
 Library and header files for the tcp_wrappers program
 
+
 %prep
-%setup -q -n tcp_wrappers_7.6
+%setup -q -n %{name}_%{version}
 %patch0 -p2 
 %patch1 -p1 
 %patch2 -p1
 
+
 %build
 %make  REAL_DAEMON_DIR=%{_sbindir} linux
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p $RPM_BUILD_ROOT/{%{_includedir},%{_libdir},%{_sbindir},%{_mandir}/man3,%{_mandir}/man5,%{_mandir}/man8}
+mkdir -p %{buildroot}{%{_includedir},%{_libdir},%{_sbindir},%{_mandir}/{man3,man5,man8}}
 
-install -m 644 hosts_access.3 $RPM_BUILD_ROOT/%{_mandir}/man3
-install -m 644 hosts_access.5 hosts_options.5 $RPM_BUILD_ROOT/%{_mandir}/man5
-( cd $RPM_BUILD_ROOT/%{_mandir}/man5 && {
-	ln hosts_access.5 hosts.allow.5
-	ln hosts_access.5 hosts.deny.5
-  }
-)
-install -m 644 tcpd.8 tcpdchk.8 tcpdmatch.8 $RPM_BUILD_ROOT/%{_mandir}/man8
-install -m 644 libwrap.a $RPM_BUILD_ROOT/%{_libdir}
-install -m 644 tcpd.h $RPM_BUILD_ROOT/%{_includedir}
-install -m 755 safe_finger $RPM_BUILD_ROOT/%{_sbindir}
-install -m 755 tcpd $RPM_BUILD_ROOT/%{_sbindir}
-install -m 755 tcpdchk $RPM_BUILD_ROOT/%{_sbindir}
-install -m 755 tcpdmatch $RPM_BUILD_ROOT/%{_sbindir}
-install -m 755 try-from $RPM_BUILD_ROOT/%{_sbindir}
+install -m 0644 hosts_access.3 %{buildroot}/%{_mandir}/man3
+install -m 0644 hosts_access.5 hosts_options.5 %{buildroot}/%{_mandir}/man5
+pushd %{buildroot}/%{_mandir}/man5
+    ln hosts_access.5 hosts.allow.5
+    ln hosts_access.5 hosts.deny.5
+popd
+
+install -m 0644 tcpd.8 tcpdchk.8 tcpdmatch.8 %{buildroot}%{_mandir}/man8
+install -m 0644 libwrap.a %{buildroot}%{_libdir}
+install -m 0644 tcpd.h %{buildroot}%{_includedir}
+install -m 0755 safe_finger %{buildroot}%{_sbindir}
+install -m 0755 tcpd %{buildroot}%{_sbindir}
+install -m 0755 tcpdchk %{buildroot}%{_sbindir}
+install -m 0755 tcpdmatch %{buildroot}%{_sbindir}
+install -m 0755 try-from %{buildroot}%{_sbindir}
 
 # (fg) 20000905 FIXME FIXME FIXME: setenv in libwrap.a is rather strange for
 # one, so I remove it here - but will it break anything else?
 
-ar d $RPM_BUILD_ROOT/%{_libdir}/libwrap.a setenv.o
+ar d %{buildroot}/%{_libdir}/libwrap.a setenv.o
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root,755)
@@ -81,7 +96,11 @@ ar d $RPM_BUILD_ROOT/%{_libdir}/libwrap.a setenv.o
 %{_includedir}/tcpd.h
 %{_libdir}/libwrap.a
 
+
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 7.6-28avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 7.6-27avx
 - bootstrap build
 

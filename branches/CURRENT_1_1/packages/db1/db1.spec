@@ -9,7 +9,7 @@
 
 %define name		db1
 %define version 	1.85
-%define release 	14avx
+%define release 	15avx
 
 Summary:	The BSD database library for C (version 1)
 Name:		%{name}
@@ -124,6 +124,9 @@ popd
 
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1.85-15avx
+- bootstrap build (new gcc, new glibc)
+
 * Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 1.85-14avx
 - rebuild against new gcc
 

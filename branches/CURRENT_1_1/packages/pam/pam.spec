@@ -10,7 +10,7 @@
 
 %define name		pam
 %define version		0.77
-%define release		19avx
+%define release		20avx
 
 %define rhrelease	5
 %define libname		%mklibname %{name} 0
@@ -301,6 +301,9 @@ touch %{buildroot}%{_sysconfdir}/environment
 %{_mandir}/man3/*
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 0.77-20avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jul 29 2005 Vincent Danen <vdanen@annvix.org> 0.77-19avx
 - rebuild for new gcc
 

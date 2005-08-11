@@ -1,6 +1,15 @@
-%define name	setarch
-%define version	1.7
-%define	release	2avx
+#
+# spec file for package setarch
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		setarch
+%define version		1.7
+%define	release		3avx
 
 Summary:	Kernel personality setter
 Name:		%{name}
@@ -11,7 +20,7 @@ Group:		System/Kernel and hardware
 Source0:	%{name}-%{version}.tar.gz
 Patch0:		setarch-1.3-linux64.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 
 Provides:	linux32
 
@@ -19,17 +28,21 @@ Provides:	linux32
 This utility tells the kernel to report a different architecture than the 
 current one, then runs a program in that environment.
 
+
 %prep
 %setup -q
 %patch0 -p1 -b .linux64
 
+
 %build
 %{__cc} -o setarch setarch.c %{optflags}
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-install -m644 setarch.8 -D %{buildroot}%{_mandir}/man8/setarch.8
-install -s -m755 setarch -D %{buildroot}%{_bindir}/setarch
+install -m 0644 setarch.8 -D %{buildroot}%{_mandir}/man8/setarch.8
+install -s -m 0755 setarch -D %{buildroot}%{_bindir}/setarch
+
 
 LINKS="linux32"
 %ifarch s390 s390x
@@ -51,19 +64,25 @@ LINKS="$LINKS i386 ia64"
 LINKS="$LINKS linux64"
 %endif
 for I in $LINKS; do 
-	ln %{buildroot}%{_bindir}/setarch %{buildroot}%{_bindir}/$I
-	echo ".so setarch.8" > %{buildroot}%{_mandir}/man8/$I.8
+    ln %{buildroot}%{_bindir}/setarch %{buildroot}%{_bindir}/$I
+    echo ".so setarch.8" > %{buildroot}%{_mandir}/man8/$I.8
 done
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
 %{_bindir}/*
 %{_mandir}/man8/*.8*
 
+
 %changelog
+* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 1.7-3avx
+- bootstrap build (new gcc, new glibc)
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 1.7-2avx
 - rebuild
 

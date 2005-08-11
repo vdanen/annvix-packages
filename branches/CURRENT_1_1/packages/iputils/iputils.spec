@@ -1,7 +1,16 @@
-%define name	iputils
-%define version	20%{ver}
-%define release	9avx
-%define ver	020927
+#
+# spec file for package iputils
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		iputils
+%define version		20%{ver}
+%define release		10avx
+%define ver		020927
 
 Summary:	Network monitoring tools including ping
 Name:		%{name}
@@ -20,7 +29,7 @@ Patch4:		iputils-20020124-countermeasures.patch.bz2
 Patch5:		iputils-20001110-bonding-sockios.patch.bz2
 Patch6:		iputils-20020927-fix-traceroute.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 
 Conflicts:	xinetd < 2.1.8.9pre14-2mdk
 
@@ -29,6 +38,7 @@ The iputils package contains ping, a basic networking tool.  The ping
 command sends a series of ICMP protocol ECHO_REQUEST packets to a
 specified network host and can tell you if that machine is alive and
 receiving network traffic.
+
 
 %prep
 %setup -q -n %{name} -a 1
@@ -44,52 +54,55 @@ mv -f bonding-0.2/README bonding-0.2/README.ifenslave
 %patch5 -p1 -b .sockios
 %patch6 -p1 -b .fix
 
+
 %build
 perl -pi -e 's!\$\(MAKE\) -C doc html!!g' Makefile
-%make CCOPT="%optflags"
+%make CCOPT="%{optflags}"
 %make ifenslave -C bonding-0.2
 
 make ifenslave -C bonding-0.2
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 # (TV): this is broken and uneeded
-#make install DESTDIR=${RPM_BUILD_ROOT}
+#make install DESTDIR=%{buildroot}
 
-mkdir -p ${RPM_BUILD_ROOT}%{_sbindir}
-mkdir -p $RPM_BUILD_ROOT%_bindir
-mkdir -p ${RPM_BUILD_ROOT}/{bin,sbin}
-install -c clockdiff		${RPM_BUILD_ROOT}%{_sbindir}/
+mkdir -p %{buildroot}%{_sbindir}
+mkdir -p %{buildroot}%{_bindir}
+mkdir -p %{buildroot}/{bin,sbin}
+install -c clockdiff		%{buildroot}%{_sbindir}/
 %ifos linux
-install -c arping		${RPM_BUILD_ROOT}/sbin/
-ln -s ../../sbin/arping ${RPM_BUILD_ROOT}%{_sbindir}/arping
-install -c ping			${RPM_BUILD_ROOT}/bin/
-install -c bonding-0.2/ifenslave ${RPM_BUILD_ROOT}/sbin/
+install -c arping		%{buildroot}/sbin/
+ln -s ../../sbin/arping %{buildroot}%{_sbindir}/arping
+install -c ping			%{buildroot}/bin/
+install -c bonding-0.2/ifenslave %{buildroot}/sbin/
 %else
-install -c arping      ${RPM_BUILD_ROOT}%{_sbindir}/
-install -c ping            ${RPM_BUILD_ROOT}%{_sbindir}/
-install -c bonding-0.2/ifenslave ${RPM_BUILD_ROOT}%{_sbindir}/
+install -c arping      %{buildroot}%{_sbindir}/
+install -c ping            %{buildroot}%{_sbindir}/
+install -c bonding-0.2/ifenslave %{buildroot}%{_sbindir}/
 %endif
 #%ifnarch ppc
-install -c ping6		${RPM_BUILD_ROOT}%{_bindir}
+install -c ping6		%{buildroot}%{_bindir}
 #%endif
-install -c rdisc		${RPM_BUILD_ROOT}%{_sbindir}/
-install -c tracepath		${RPM_BUILD_ROOT}%{_sbindir}/
-install -c tracepath6		${RPM_BUILD_ROOT}%{_sbindir}/
-install -c traceroute6		${RPM_BUILD_ROOT}%{_sbindir}/
+install -c rdisc		%{buildroot}%{_sbindir}/
+install -c tracepath		%{buildroot}%{_sbindir}/
+install -c tracepath6		%{buildroot}%{_sbindir}/
+install -c traceroute6		%{buildroot}%{_sbindir}/
 
-mkdir -p ${RPM_BUILD_ROOT}%{_mandir}/man8
-#install -c in.rdisc.8c		${RPM_BUILD_ROOT}%{_mandir}/man8/rdisc.8
-install -c doc/arping.8        ${RPM_BUILD_ROOT}%{_mandir}/man8/
-install -c doc/clockdiff.8 ${RPM_BUILD_ROOT}%{_mandir}/man8/
-install -c doc/rdisc.8     ${RPM_BUILD_ROOT}%{_mandir}/man8/rdisc.8
-install -c doc/ping.8      ${RPM_BUILD_ROOT}%{_mandir}/man8/
-install -c doc/tracepath.8 ${RPM_BUILD_ROOT}%{_mandir}/man8/
+mkdir -p %{buildroot}%{_mandir}/man8
+#install -c in.rdisc.8c		%{buildroot}%{_mandir}/man8/rdisc.8
+install -c doc/arping.8        %{buildroot}%{_mandir}/man8/
+install -c doc/clockdiff.8 %{buildroot}%{_mandir}/man8/
+install -c doc/rdisc.8     %{buildroot}%{_mandir}/man8/rdisc.8
+install -c doc/ping.8      %{buildroot}%{_mandir}/man8/
+install -c doc/tracepath.8 %{buildroot}%{_mandir}/man8/
 
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -108,7 +121,11 @@ install -c doc/tracepath.8 ${RPM_BUILD_ROOT}%{_mandir}/man8/
 %{_sbindir}/rdisc
 %{_mandir}/man8/*
 
+
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 20020927-10avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 20020927-9avx
 - bootstrap build
 
@@ -146,7 +163,7 @@ install -c doc/tracepath.8 ${RPM_BUILD_ROOT}%{_mandir}/man8/
 - 20020927 snapshot (well, there's no differences with 20020124 one...)
 
 * Thu Jul 11 2002 Geoffrey Lee <snailtalk@mandrakesoft.com> 20020124-4mdk
-- Move ping6 from %%_sbindir to %%_bindir.
+- Move ping6 from %%{_sbindir} to %%{_bindir}.
 - Way to get help in ipv6calc is -h now, -? still works without a hitch of
   course.
 - Fix potential build problem: file not found README.

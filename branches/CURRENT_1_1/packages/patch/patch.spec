@@ -9,7 +9,7 @@
 
 %define name		patch
 %define version 	2.5.9
-%define release 	6avx
+%define release 	7avx
 
 Summary:	The GNU patch command, for modifying/upgrading files
 Name:		%{name}
@@ -70,6 +70,9 @@ make "CFLAGS=%{optflags} -D_GNU_SOURCE -W -Wall" LDFLAGS=-s
 %{_mandir}/*/*
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 2.5.9-7avx
+- bootstrap build (new gcc, new glibc)
+
 * Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 2.5.9-6avx
 - rebuild for new gcc
 

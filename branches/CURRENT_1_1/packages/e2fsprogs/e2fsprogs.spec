@@ -1,9 +1,18 @@
+#
+# spec file for package e2fsprogs
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
 %define name		e2fsprogs
 %define version		1.35
-%define release		2avx
+%define release		3avx
 
 %define	_root_sbindir	/sbin
-%define	_root_libdir	/%_lib
+%define	_root_libdir	/%{_lib}
 %define libname		%mklibname ext2fs 2
 
 Summary:	Utilities used for the second extended (ext2) filesystem
@@ -13,13 +22,13 @@ Release:	%{release}
 License:	GPL
 Group:		System/Kernel and hardware
 URL:		http://e2fsprogs.sourceforge.net/
-Source:		http://prdownloads.sourceforge.net/e2fsprogs/%name-%version.tar.bz2
+Source:		http://prdownloads.sourceforge.net/e2fsprogs/%{name}-%{version}.tar.bz2
 Patch4:		e2fsprogs-1.23-autoconf.patch.bz2
 
-BuildRoot:	%_tmppath/%name-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	texinfo, autoconf
 
-Requires:	%libname
+Requires:	%{libname}
 
 %description
 The e2fsprogs package contains a number of utilities for creating,
@@ -32,16 +41,13 @@ repair a corrupted filesystem or to create test cases for e2fsck), tune2fs
 (used to modify filesystem parameters) and most of the other core ext2fs
 filesystem utilities.
 
-You should install the e2fsprogs package if you need to manage the
-performance of an ext2 filesystem.
 
-
-%package -n %libname
+%package -n %{libname}
 Summary:	The libraries for Ext2fs
 Group:		System/Libraries
 Requires:	e2fsprogs
 
-%description -n %libname
+%description -n %{libname}
 The e2fsprogs package contains a number of utilities for creating,
 checking, modifying and correcting any inconsistencies in second
 extended (ext2) filesystems.  E2fsprogs contains e2fsck (used to repair
@@ -52,16 +58,15 @@ repair a corrupted filesystem or to create test cases for e2fsck), tune2fs
 (used to modify filesystem parameters) and most of the other core ext2fs
 filesystem utilities.
 
-You should install %libname to use tools who use ext2fs features.
 
-%package -n %libname-devel
+%package -n %{libname}-devel
 Summary:	The libraries for Ext2fs
 Group:		Development/C
-Requires:	%libname = %version
+Requires:	%{libname} = %{version}
 Obsoletes:	%{name}-devel
 Provides:	%{name}-devel, libext2fs-devel, libe2fsprogs-devel
 
-%description -n %libname-devel
+%description -n %{libname}-devel
 The e2fsprogs package contains a number of utilities for creating,
 checking, modifying and correcting any inconsistencies in second
 extended (ext2) filesystems.  E2fsprogs contains e2fsck (used to repair
@@ -72,8 +77,6 @@ repair a corrupted filesystem or to create test cases for e2fsck), tune2fs
 (used to modify filesystem parameters) and most of the other core ext2fs
 filesystem utilities.
 
-You should install %libname to use tools that compile with ext2fs
-features.
 
 %prep
 %setup -q
@@ -82,153 +85,164 @@ rm -f configure
 autoconf
 
 # Fix build:
-chmod 644 po/*.po
+chmod 0644 po/*.po
+
 
 %build
 autoconf
-OPT_FLAGS=`echo $RPM_OPT_FLAGS | sed -e "s/-fomit-frame-pointer//g"`
+OPT_FLAGS=`echo %{optflags} | sed -e "s/-fomit-frame-pointer//g"`
 # (gb) 1.23-3mdk: e2fsck may work will full optimizations but without strict-aliasing
-CFLAGS="$OPT_FLAGS -fno-omit-frame-pointer -O1 -fno-strict-aliasing"
-%configure2_5x --enable-elf-shlibs
+CFLAGS="%{optflags} -fno-omit-frame-pointer -O1 -fno-strict-aliasing"
+%configure2_5x \
+    --enable-elf-shlibs
 make libs progs docs
 # use e2fsck shared instead, avoid patch.
 cp -af e2fsck/e2fsck.shared e2fsck/e2fsck
 # all tests must pass
 make check
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 export PATH=/sbin:$PATH
 
-make install install-libs DESTDIR="%{buildroot}" \
-	root_sbindir=%{_root_sbindir} root_libdir=%{_root_libdir}
+make install install-libs \
+    DESTDIR="%{buildroot}" \
+    root_sbindir=%{_root_sbindir} \
+    root_libdir=%{_root_libdir}
 
 for i in libblkid.so.1 libcom_err.so.2 libe2p.so.2 libext2fs.so.2 libss.so.2 libuuid.so.1; do
-	ln -s $i %{buildroot}/%_root_libdir/${i%.[0-9]}
+    ln -s $i %{buildroot}/%{_root_libdir}/${i%.[0-9]}
 done
 
 # remove unwanted files
-rm -f %{buildroot}%_libdir/libss.a
-rm -f %{buildroot}%_root_libdir/{libblkid,libcom_err,libe2p,libext2fs,libss,libuuid}.so
+rm -f %{buildroot}%{_libdir}/libss.a
+rm -f %{buildroot}%{_root_libdir}/{libblkid,libcom_err,libe2p,libext2fs,libss,libuuid}.so
 
-%find_lang %name
+%find_lang %{name}
 
 chmod +x %{buildroot}%{_bindir}/{mk_cmds,compile_et}
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-%post -n %libname -p /sbin/ldconfig
-%postun -n %libname -p /sbin/ldconfig
 
-%post -n %libname-devel
+%post -n %{libname} -p /sbin/ldconfig
+%postun -n %{libname} -p /sbin/ldconfig
+
+
+%post -n %{libname}-devel
 %_install_info libext2fs.info
 
-%postun -n %libname-devel
+%postun -n %{libname}-devel
 %_remove_install_info libext2fs.info
 
 
-%files -f %name.lang
+%files -f %{name}.lang
 %defattr(-,root,root)
 %doc README RELEASE-NOTES
-%_root_sbindir/badblocks
-%_root_sbindir/debugfs
-%_root_sbindir/dumpe2fs
-%_root_sbindir/e2fsck
-%_root_sbindir/e2label
-%_root_sbindir/fsck
-%_root_sbindir/fsck.ext2
-%_root_sbindir/fsck.ext3
-%_root_sbindir/mke2fs
-%_root_sbindir/mkfs.ext2
-%_root_sbindir/resize2fs
-%_root_sbindir/tune2fs
-%_root_sbindir/e2image
-%_root_sbindir/findfs
-%_root_sbindir/mkfs.ext3
-%_sbindir/filefrag
-%_sbindir/mklost+found
+%{_root_sbindir}/badblocks
+%{_root_sbindir}/debugfs
+%{_root_sbindir}/dumpe2fs
+%{_root_sbindir}/e2fsck
+%{_root_sbindir}/e2label
+%{_root_sbindir}/fsck
+%{_root_sbindir}/fsck.ext2
+%{_root_sbindir}/fsck.ext3
+%{_root_sbindir}/mke2fs
+%{_root_sbindir}/mkfs.ext2
+%{_root_sbindir}/resize2fs
+%{_root_sbindir}/tune2fs
+%{_root_sbindir}/e2image
+%{_root_sbindir}/findfs
+%{_root_sbindir}/mkfs.ext3
+%{_sbindir}/filefrag
+%{_sbindir}/mklost+found
 
-%_bindir/chattr
-%_bindir/lsattr
-%_bindir/uuidgen
-%_mandir/man1/chattr.1*
-%_mandir/man1/lsattr.1*
-%_mandir/man1/uuidgen.1*
-%_mandir/man3/libuuid*
-%_mandir/man3/uuid_*
+%{_bindir}/chattr
+%{_bindir}/lsattr
+%{_bindir}/uuidgen
+%{_mandir}/man1/chattr.1*
+%{_mandir}/man1/lsattr.1*
+%{_mandir}/man1/uuidgen.1*
+%{_mandir}/man3/libuuid*
+%{_mandir}/man3/uuid_*
 
-%_mandir/man8/badblocks.8*
-%_mandir/man8/debugfs.8*
-%_mandir/man8/dumpe2fs.8*
-%_mandir/man8/e2fsck.8*
-%_mandir/man8/e2image.8.bz2
-%_mandir/man8/e2label.8*
-%_mandir/man8/filefrag.8*
-%_mandir/man8/findfs.8.bz2
-%_mandir/man8/fsck.8*
-%_mandir/man8/fsck.ext2.8.bz2
-%_mandir/man8/fsck.ext3.8.bz2
-%_mandir/man8/mke2fs.8*
-%_mandir/man8/mkfs.ext2.8.bz2
-%_mandir/man8/mkfs.ext3.8.bz2
-%_mandir/man8/mklost+found.8*
-%_mandir/man8/resize2fs.8*
-%_mandir/man8/tune2fs.8*
+%{_mandir}/man8/badblocks.8*
+%{_mandir}/man8/debugfs.8*
+%{_mandir}/man8/dumpe2fs.8*
+%{_mandir}/man8/e2fsck.8*
+%{_mandir}/man8/e2image.8.bz2
+%{_mandir}/man8/e2label.8*
+%{_mandir}/man8/filefrag.8*
+%{_mandir}/man8/findfs.8.bz2
+%{_mandir}/man8/fsck.8*
+%{_mandir}/man8/fsck.ext2.8.bz2
+%{_mandir}/man8/fsck.ext3.8.bz2
+%{_mandir}/man8/mke2fs.8*
+%{_mandir}/man8/mkfs.ext2.8.bz2
+%{_mandir}/man8/mkfs.ext3.8.bz2
+%{_mandir}/man8/mklost+found.8*
+%{_mandir}/man8/resize2fs.8*
+%{_mandir}/man8/tune2fs.8*
 
-%_root_sbindir/blkid
-%_mandir/man8/blkid.8.bz2
-%_root_sbindir/logsave
-%_mandir/man8/logsave.8.bz2
+%{_root_sbindir}/blkid
+%{_mandir}/man8/blkid.8.bz2
+%{_root_sbindir}/logsave
+%{_mandir}/man8/logsave.8.bz2
 
 
-%files -n %libname
+%files -n %{libname}
 %defattr(-,root,root)
 %doc README
-%_root_libdir/libcom_err.so.*
-%_root_libdir/libe2p.so.*
-%_root_libdir/libext2fs.so.*
-%_root_libdir/libss.so.*
-%_root_libdir/libuuid.so.*
-%_root_libdir/evms/libe2fsim.*.so
+%{_root_libdir}/libcom_err.so.*
+%{_root_libdir}/libe2p.so.*
+%{_root_libdir}/libext2fs.so.*
+%{_root_libdir}/libss.so.*
+%{_root_libdir}/libuuid.so.*
+%{_root_libdir}/evms/libe2fsim.*.so
 
-%_root_libdir/libblkid.so.*
-%_mandir/man3/libblkid.3.bz2
+%{_root_libdir}/libblkid.so.*
+%{_mandir}/man3/libblkid.3.bz2
 
-%files -n %libname-devel
+%files -n %{libname}-devel
 %defattr(-,root,root,755)
-%_infodir/libext2fs.info*
-%_bindir/compile_et
-%_mandir/man1/compile_et.1*
-%_bindir/mk_cmds
-%_mandir/man1/mk_cmds.1.bz2
+%{_infodir}/libext2fs.info*
+%{_bindir}/compile_et
+%{_mandir}/man1/compile_et.1*
+%{_bindir}/mk_cmds
+%{_mandir}/man1/mk_cmds.1.bz2
 
-%_libdir/libblkid.so
-%_libdir/libcom_err.so
-%_libdir/libe2p.a
-%_libdir/libe2p.so
-%_libdir/libext2fs.a
-%_libdir/libext2fs.so
-%_libdir/libuuid.a
-%_libdir/libuuid.so
-%_libdir/libcom_err.a
-%_libdir/libss.so
+%{_libdir}/libblkid.so
+%{_libdir}/libcom_err.so
+%{_libdir}/libe2p.a
+%{_libdir}/libe2p.so
+%{_libdir}/libext2fs.a
+%{_libdir}/libext2fs.so
+%{_libdir}/libuuid.a
+%{_libdir}/libuuid.so
+%{_libdir}/libcom_err.a
+%{_libdir}/libss.so
 
 %_datadir/et
 %_datadir/ss
-%_includedir/et
-%_includedir/ext2fs
-%_includedir/ss
-%_includedir/uuid
-%_includedir/e2p/e2p.h
-%_mandir/man3/com_err.3*
+%{_includedir}/et
+%{_includedir}/ext2fs
+%{_includedir}/ss
+%{_includedir}/uuid
+%{_includedir}/e2p/e2p.h
+%{_mandir}/man3/com_err.3*
 
-%_includedir/blkid/blkid.h
-%_includedir/blkid/blkid_types.h
-%_libdir/libblkid.a
+%{_includedir}/blkid/blkid.h
+%{_includedir}/blkid/blkid_types.h
+%{_libdir}/libblkid.a
 
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1.35-3avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.35-2avx
 - bootstrap build
 

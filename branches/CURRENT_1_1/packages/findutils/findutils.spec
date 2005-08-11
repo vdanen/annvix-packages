@@ -9,7 +9,7 @@
 
 %define name		findutils
 %define version		4.2.17
-%define release		3avx
+%define release		4avx
 
 Summary:	The GNU versions of find utilities (find, xargs, and locate)
 Name:		%{name}
@@ -83,7 +83,11 @@ ln -sf ../../bin/find %{buildroot}%{_bindir}/find
 %{_mandir}/man1/xargs.1*
 %{_infodir}/find.info*
 
+
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 4.2.17-4avx
+- bootstrap build (new gcc, new glibc)
+
 * Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 4.2.17-3avx
 - rebuild for new gcc
 

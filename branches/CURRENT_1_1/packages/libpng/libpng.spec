@@ -9,7 +9,7 @@
 
 %define name		libpng
 %define version		1.2.5
-%define release		16avx
+%define release		17avx
 %define epoch		2
 
 %define lib_major	3
@@ -131,6 +131,9 @@ rm -rf %{buildroot}%{_prefix}/man
 
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1.2.5-17avx
+- bootstrap build (new gcc, new glibc)
+
 * Sat Jul 30 2005 Vincent Danen <vdanen@annvix.org> 1.2.5-16avx
 - rebuild against new gcc
 

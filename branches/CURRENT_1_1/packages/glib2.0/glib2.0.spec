@@ -9,7 +9,7 @@
 
 %define name		glib%{api_version}
 %define version		%{major_version}.%{minor_version}.%{micro_version}
-%define release		3avx
+%define release		4avx
 
 %define api_version	2.0
 %define lib_major	0
@@ -166,6 +166,9 @@ chmod a+x  %{buildroot}%{_sysconfdir}/profile.d/*
 
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 2.6.3-4avx
+- bootstrap build (new gcc, new glibc)
+
 * Sat Jul 30 2005 Vincent Danen <vdanen@annvix.org> 2.6.3-3avx
 - rebuild against new gcc
 

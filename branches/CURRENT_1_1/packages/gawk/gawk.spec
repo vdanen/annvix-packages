@@ -9,7 +9,7 @@
 
 %define name		gawk
 %define version		3.1.2
-%define release		7avx
+%define release		8avx
 
 Summary:	The GNU version of the awk text processing utility
 Name:		%{name}
@@ -110,6 +110,9 @@ popd
 
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 3.1.2-8avx
+- bootstrap build (new gcc, new glibc)
+
 * Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 3.1.2-7avx
 - rebuild for new gcc
 

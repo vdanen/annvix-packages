@@ -9,7 +9,7 @@
 
 %define name		elfutils
 %define version		0.99
-%define release		2avx
+%define release		3avx
 
 %define major		1
 %define libname		%mklibname %{name} %{major}
@@ -193,6 +193,9 @@ chmod +x %{buildroot}%{_libdir}/elfutils/lib*.so*
 
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 0.99-3avx
+- bootstrap build (new gcc, new glibc)
+
 * Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 0.99-2avx
 - rebuild for new gcc
 

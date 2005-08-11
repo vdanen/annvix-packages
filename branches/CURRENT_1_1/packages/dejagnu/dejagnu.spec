@@ -9,7 +9,7 @@
 
 %define name		dejagnu
 %define version 	1.4.2
-%define release 	10avx
+%define release 	11avx
 %define epoch		20010912
 
 Summary:	A front end for testing other programs
@@ -80,6 +80,9 @@ rm -f %{buildroot}%{_includedir}/dejagnu.h
 
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1.4.2-11avx
+- bootstrap build (new gcc, new glibc)
+
 * Mon Jul 25 2005 Vincent Danen <vdanen@annvix.org> 1.4.2-10avx
 - rebuild for new gcc
 

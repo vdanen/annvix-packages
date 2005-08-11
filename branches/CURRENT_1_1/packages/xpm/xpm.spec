@@ -1,12 +1,21 @@
-%define name	xpm
-%define version	3.4k
-%define release	31avx
+#
+# spec file for package xpm
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-%define prefix	/usr/X11R6
-%define	major	4
-%define	LIBVER	4.11
-%define libname		%mklibname %name %major
-%define libnamedev	%mklibname %name %major -d
+
+%define name		xpm
+%define version		3.4k
+%define release		32avx
+
+%define prefix		/usr/X11R6
+%define	major		4
+%define	LIBVER		4.11
+%define libname		%mklibname %{name} %{major}
+%define libnamedev	%mklibname %{name} %{major} -d
 
 Summary:	A pixmap library for the X Window System
 Name:		%{name}
@@ -27,40 +36,40 @@ Patch2:		xpm-3.4k-alpha.patch.bz2
 Patch3:		xpm-3.4k-xfree43merge.patch.bz2
 Patch4:		xpm-3.4k-64bit-fixes.patch.bz2
 
-BuildRoot:	%_tmppath/%name-%version-root
-BuildRequires:	XFree86-devel
+BuildRoot:	%{_buildroot}/%{name}-%{version}
+BuildRequires:	XFree86-devel, xorg-x11
 
 %description
 The xpm package contains the XPM pixmap library for the X Window
 System.  The XPM library allows applications to display color,
 pixmapped images, and is used by many popular X programs.
 
-%package -n %libname
+
+%package -n %{libname}
 Summary:	A pixmap library for the X Window System
 Group:		System/Libraries
-Provides:	%name, xpm3.4k
-Obsoletes:	%name, xpm3.4k
+Provides:	%{name}, xpm3.4k
+Obsoletes:	%{name}, xpm3.4k
 
-%description -n %libname
+%description -n %{libname}
 The xpm package contains the XPM pixmap library for the X Window
 System.  The XPM library allows applications to display color,
 pixmapped images, and is used by many popular X programs.
 
-%package -n %libnamedev
+
+%package -n %{libnamedev}
 Summary:	Tools for developing apps which will use the XPM pixmap library
 Group:		Development/C
-Requires:	%libname = %version-%release
-Provides:	%name-devel, lib%name-devel, xpm3.4k-devel
-Obsoletes:	%name-devel, xpm3.4k-devel
+Requires:	%{libname} = %{version}-%{release}
+Provides:	%{name}-devel, lib%{name}-devel, xpm3.4k-devel
+Obsoletes:	%{name}-devel, xpm3.4k-devel
 
-%description -n %libnamedev
+%description -n %{libnamedev}
 The xpm-devel package contains the development libraries and header
 files  necessary for developing applications which will use the XPM
 library.  The XPM library is used by many programs for displaying
 pixmaps in the X Window System.
 
-Install the xpm-devel package if you want to develop applications using
-the XPM pixmap library.  You'll also need to install the xpm package.
 
 %prep
 %setup -q
@@ -69,7 +78,8 @@ the XPM pixmap library.  You'll also need to install the xpm package.
 %patch2 -p1 -b .alpha
 %patch3 -p1 -b .xf86-4.3-merge
 %patch4 -p1 -b .64bit-fixes
-cp %SOURCE1 %SOURCE2 %SOURCE3 %SOURCE4 %SOURCE5 .
+cp %{SOURCE1} %{SOURCE2} %{SOURCE3} %{SOURCE4} %{SOURCE5} .
+
 
 %build
 xmkmf
@@ -77,33 +87,41 @@ make Makefiles
 mkdir -p exports/include/X11
 cp lib/*.h exports/include/X11
 # %%make doesn't work on more than 2 cpu
-%make CDEBUGFLAGS="$RPM_OPT_FLAGS" CXXDEBUGFLAGS="$RPM_OPT_FLAGS"
+%make CDEBUGFLAGS="%{optflags}" CXXDEBUGFLAGS="%{optflags}"
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-make DESTDIR=$RPM_BUILD_ROOT install
-ln -sf libXpm.so.%{LIBVER} $RPM_BUILD_ROOT%prefix/%{_lib}/libXpm.so
+make DESTDIR=%{buildroot} install
+ln -sf libXpm.so.%{LIBVER} %{buildroot}%{prefix}/%{_lib}/libXpm.so
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-%post -n %libname -p /sbin/ldconfig
-%postun -n %libname -p /sbin/ldconfig
 
-%files -n %libname
+%post -n %{libname} -p /sbin/ldconfig
+%postun -n %{libname} -p /sbin/ldconfig
+
+
+%files -n %{libname}
 %defattr(-,root,root)
 %doc CHANGES COPYRIGHT FAQ.html FILES README.html
-%prefix/%{_lib}/libXpm.so.*
+%{prefix}/%{_lib}/libXpm.so.*
 
-%files -n %libnamedev
+%files -n %{libnamedev}
 %defattr(-,root,root)
 %doc xpm-FAQ.html xpm-README.html xpm_examples.tar.bz2
-%prefix/bin/*
-%prefix/include/X11/*
-%prefix/%{_lib}/libXpm.a
-%prefix/%{_lib}/libXpm.so
+%{prefix}/bin/*
+%{prefix}/include/X11/*
+%{prefix}/%{_lib}/libXpm.a
+%{prefix}/%{_lib}/libXpm.so
+
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 3.4k-32avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 3.4k-31avx
 - bootstrap build
 

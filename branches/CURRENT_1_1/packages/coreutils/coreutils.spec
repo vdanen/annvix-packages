@@ -10,7 +10,7 @@
 
 %define name		coreutils
 %define version		5.0
-%define release		11avx
+%define release		12avx
 
 # for sh-utils :
 %define optflags $RPM_OPT_FLAGS -D_GNU_SOURCE=1
@@ -270,6 +270,9 @@ true
 %{_mandir}/man*/*
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 5.0-12avx
+- bootstrap build (new gcc, new glibc)
+
 * Mon Jul 25 2005 Vincent Danen <vdanen@annvix.org> 5.0-11avx
 - use new %%_buildroot macro
 - spec cleanups

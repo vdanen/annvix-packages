@@ -9,7 +9,7 @@
 
 %define name		libpcap
 %define version		0.8.3
-%define release		4avx
+%define release		5avx
 %define sname		pcap
 
 %define	major		0
@@ -142,6 +142,9 @@ popd
 
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 0.8.3-5avx
+- bootstrap build (new gcc, new glibc)
+
 * Sat Jul 30 2005 Vincent Danen <vdanen@annvix.org> 0.8.3-4avx
 - rebuild against new gcc
 

@@ -9,7 +9,7 @@
 
 %define name 		db2
 %define version 	2.4.14
-%define release 	13avx
+%define release 	14avx
 
 %define major		2
 %define libname_orig	libdb%{major}
@@ -148,6 +148,9 @@ done
 %{_bindir}/db2_stat
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 2.4.14-14avx
+- bootstrap build (new gcc, new glibc)
+
 * Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 2.4.14-13avx
 - rebuild for new gcc
 - libification (gbeauchesne)

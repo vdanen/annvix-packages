@@ -9,7 +9,7 @@
 
 %define name		db4
 %define version		4.1.25
-%define release		8avx
+%define release		9avx
 
 # compatibility with legacy rpm
 %{!?_lib:%define _lib	lib}
@@ -321,6 +321,9 @@ ln -sf db4/db.h %{buildroot}%{_includedir}/db.h
 %{_libdir}/*.a
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 4.1.25-9avx
+- bootstrap build (new gcc, new glibc)
+
 * Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 4.1.25-8avx
 - rebuild against new gcc
 

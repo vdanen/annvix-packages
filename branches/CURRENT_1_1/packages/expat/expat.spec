@@ -9,7 +9,7 @@
 
 %define name		expat
 %define version 	1.95.6
-%define release 	9avx
+%define release 	10avx
 
 %define libname_orig	libexpat
 %define major		0
@@ -107,6 +107,9 @@ rm -f %{buildroot}%{_mandir}/xmlwf.1*
 
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1.95.6-10avx
+- bootstrap build (new gcc, new glibc)
+
 * Wed Jul 27 2005 Vincent Danen <vdanen@annvix.org> 1.95.6-9avx
 - rebuild for new gcc
 

@@ -9,7 +9,7 @@
 
 %define name		mktemp
 %define version		1.6
-%define release		3avx
+%define release		4avx
 
 Summary:	A small utility for safely making /tmp files
 Name:		%{name}
@@ -57,6 +57,9 @@ perl -pi -e "s!/usr/man!%{_mandir}!g" Makefile
 
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1.6-4avx
+- bootstrap build (new gcc, new glibc)
+
 * Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 1.6-3avx
 - rebuild for new gcc
 

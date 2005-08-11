@@ -9,7 +9,7 @@
 
 %define name		gzip
 %define version		1.2.4a
-%define release 	20avx
+%define release 	21avx
 
 Summary:	The GNU data compression program
 Name:		%{name}
@@ -122,6 +122,9 @@ chmod 0755 %{buildroot}%{_bindir}/zless
 
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1.2.4a-21avx
+- bootstrap build (new gcc, new glibc)
+
 * Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 1.2.4a-20avx
 - rebuild against new gcc
 

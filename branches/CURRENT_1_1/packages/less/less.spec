@@ -9,7 +9,7 @@
 
 %define name		less
 %define version		382
-%define release		3avx
+%define release		4avx
 
 Summary:	A text file browser similar to more, but better
 Name:		%{name}
@@ -78,6 +78,9 @@ install -m 0644 less{echo,pipe}.1 %{buildroot}%{_mandir}/man1
 %{_mandir}/man1/*
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 382-4avx
+- bootstrap build (new gcc, new glibc)
+
 * Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 382-3avx
 - rebuild for new gcc
 

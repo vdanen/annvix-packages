@@ -9,7 +9,7 @@
 
 %define name		gperf
 %define version		3.0.1
-%define release		6avx
+%define release		7avx
 
 Summary:	A perfect hash function generator
 Name:		%{name}
@@ -66,6 +66,9 @@ rm -f %{buildroot}%{_datadir}/doc/gperf/gperf.html
 
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 3.0.1-7avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jul 29 2005 Vincent Danen <vdanen@annvix.org> 3.0.1-6avx
 - rebuild against new gcc
 

@@ -9,7 +9,7 @@
 
 %define name		make
 %define version		3.80
-%define release		11avx
+%define release		12avx
 %define epoch		1
 
 Summary:	A GNU tool which simplifies the build process for users
@@ -88,6 +88,9 @@ done
 %{_infodir}/make.info*
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 3.80-12avx
+- bootstrap build (new gcc, new glibc)
+
 * Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 3.80-11avx
 - rebuild for new gcc
 

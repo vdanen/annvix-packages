@@ -9,7 +9,7 @@
 
 %define name		ash
 %define version		0.3.8
-%define release		1avx
+%define release		2avx
 
 Summary:	The Almquist shell
 Name:		%{name}
@@ -105,6 +105,9 @@ fi
 
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 0.3.8-2avx
+- bootstrap build (new gcc, new glibc)
+
 * Mon Jul 25 2005 Vincent Danen <vdanen@annvix.org> 0.3.8-1avx
 - first Annvix build
 - make it always build with dietlibc

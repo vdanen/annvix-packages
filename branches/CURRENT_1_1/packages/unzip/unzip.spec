@@ -9,7 +9,7 @@
 
 %define name		unzip
 %define version 	5.50
-%define release 	14avx
+%define release 	15avx
 %define src_ver 	550
 
 Summary:	Unpacks ZIP files such as those made by pkzip under DOS
@@ -90,6 +90,9 @@ EOF
 
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 5.50-15avx
+- bootstrap build (new gcc, new glibc)
+
 * Wed Jul 27 2005 Vincent Danen <vdanen@annvix.org> 5.50-14avx
 - rebuild for new gcc
 

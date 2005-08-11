@@ -10,7 +10,7 @@
 %define name		rpm
 %define version		4.2.3
 %define poptver		1.8.3
-%define release		8avx
+%define release		9avx
 
 %define libver		4.2
 %define libname		%mklibname rpm %{libver}
@@ -815,6 +815,9 @@ fi
 %{_libdir}/libpopt.so
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 4.2.3-9avx
+- bootstrap build (new gcc, new glibc)
+
 * Mon Aug 08 2005 Vincent Danen <vdanen@annvix.org> 4.2.3-8avx
 - rebuild against rebuilt beecrypt
 

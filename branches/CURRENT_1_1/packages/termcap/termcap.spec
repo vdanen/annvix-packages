@@ -9,7 +9,7 @@
 
 %define name		termcap
 %define version 	11.0.1
-%define release 	13avx
+%define release 	14avx
 
 Summary:	The terminal feature database used by certain applications
 Name:		%{name}
@@ -70,6 +70,9 @@ rm -rf %{_builddir}/%{name}-%{version}
 %config(noreplace) %attr(644,root,root) %{_sysconfdir}/termcap
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 11.0.1-14avx
+- bootstrap build (new gcc, new glibc)
+
 * Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 11.0.1-13avx
 - do the patching and "building" in %%_builddir like a good boy
 

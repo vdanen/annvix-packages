@@ -9,7 +9,7 @@
 
 %define name		glib
 %define version		1.2.10
-%define release		17avx
+%define release		18avx
 
 %define major    	1.2
 %define libname  	%mklibname %{name} %{major}
@@ -120,12 +120,15 @@ make check
 %{_includedir}/*
 %{_mandir}/man1/*
 %{_datadir}/aclocal/*
-%{_bindir}/*
+%{_bindir}/glib-config
 %multiarch %{multiarch_bindir}/*
 %{_infodir}/%{name}*
 
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1.2.10-18avx
+- bootstrap build (new gcc, new glibc)
+
 * Sat Jul 30 2005 Vincent Danen <vdanen@annvix.org> 1.2.10-17avx
 - rebuild against new gcc
 - enable multiarch

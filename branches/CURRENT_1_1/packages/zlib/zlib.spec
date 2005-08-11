@@ -9,7 +9,7 @@
 
 %define name		zlib
 %define version		1.2.3
-%define release 	2avx
+%define release 	3avx
 
 %define lib_major	1
 %define lib_name	%{name}%{lib_major}
@@ -165,6 +165,9 @@ ln -s ../../%{_lib}/libz.so.%{version} %{buildroot}%{_libdir}/
 
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1.2.3-3avx
+- bootstrap build (new gcc, new glibc)
+
 * Mon Jul 25 2005 Vincent Danen <vdanen@annvix.org> 1.2.3-2avx
 - rebuild against new gcc
 - spec cleanups

@@ -9,7 +9,7 @@
 
 %define name		procps
 %define version		3.2.1
-%define release		4avx
+%define release		5avx
 
 Summary:	Utilities for monitoring your system and processes on your system
 Name:		%{name}
@@ -145,6 +145,9 @@ rm -f /etc/psdevtab /etc/psdatabase
 
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 3.2.1-5avx
+- bootstrap build (new gcc, new glibc)
+
 * Wed Jul 27 2005 Vincent Danen <vdanen@annvix.org> 3.2.1-4avx
 - rebuild against new gcc
 

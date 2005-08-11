@@ -9,7 +9,7 @@
 
 %define name		sed
 %define version		4.1.4
-%define release		3avx
+%define release		4avx
 
 Summary:	A GNU stream text editor
 Name:		%{name}
@@ -70,6 +70,9 @@ rm -rf %{buildroot}%{_datadir}/doc
 %{_mandir}/man1/sed.1.bz2
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 4.1.4-4avx
+- bootstrap build (new gcc, new glibc)
+
 * Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 4.1.4-3avx
 - rebuild for new gcc
 

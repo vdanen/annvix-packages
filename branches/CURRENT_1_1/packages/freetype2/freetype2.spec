@@ -1,21 +1,30 @@
-%define name	freetype2
-%define	version	2.1.4
-%define release	10avx
+#
+# spec file for package freetype2
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-%define major	6
-%define libname	%mklibname freetype %{major}
+
+%define name		freetype2
+%define	version		2.1.4
+%define release		11avx
+
+%define major		6
+%define libname		%mklibname freetype %{major}
 
 Summary:	A free and portable TrueType font rendering engine
-Name:		%name
-Version:	%version
-Release:	%release
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
 License:	FreeType License/GPL
 Group:		System/Libraries
 URL:		http://www.freetype.org/
 Source0:	freetype-%{version}.tar.bz2
 Source1:	ftdocs-%{version}.tar.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}-%{release}-root
 BuildRequires:	zlib-devel
 
 %description
@@ -23,6 +32,7 @@ The FreeType2 engine is a free and portable TrueType font rendering engine.
 It has been developed to provide TT support to a great variety of
 platforms and environments. Note that FreeType2 is a library, not a
 stand-alone application, though some utility applications are included
+
 
 %package -n %{libname}
 Summary:	Shared libraries for a free and portable TrueType font rendering engine
@@ -37,6 +47,7 @@ variety of platforms and environments. Note that FreeType2 is a
 library, not a stand-alone application, though some utility
 applications are included
 
+
 %package -n %{libname}-devel
 Summary:	Header files and static library for development with FreeType2
 Group:		Development/C
@@ -50,6 +61,7 @@ This package is only needed if you intend to develop or compile applications
 which rely on the FreeType2 library. If you simply want to run existing
 applications, you won't need this package.
 
+
 %package -n %{libname}-static-devel
 Summary:	Static libraries for programs which will use the FreeType2 library
 Group:		Development/C
@@ -61,27 +73,29 @@ Provides:	%{name}-static-devel = %{version}-%{release}
 This package includes the static libraries necessary for 
 developing programs which will use the FreeType2 library.
 
-If you are going to develop programs which use the FreeType2 library
-you should install freetype2-devel.  You'll also need to have the 
-freetype2 package installed.
 
 %prep
-%setup -q -n freetype-%version -b 1
+%setup -q -n freetype-%{version} -b 1
+
 
 %build
 %{?__cputoolize: %{__cputoolize} -c builds/unix}
 %configure2_5x
 %make
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
+
 %post -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
+
 
 %files -n %{libname}
 %defattr(-, root, root)
@@ -100,7 +114,11 @@ freetype2 package installed.
 %defattr(-, root, root)
 %{_libdir}/*.a
 
+
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 2.1.4-11avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.1.4-10avx
 - bootstrap build
 
@@ -203,7 +221,7 @@ freetype2 package installed.
 
 * Wed Mar 20 2002 David BAUDENS <baudens@mandrakesoft.com> 2.0.9-1mdk
 - 2.0.9
-- devel: Requires: %%version-%%release and not only %%version
+- devel: Requires: %%{version}-%%{release} and not only %%{version}
 - Use ./configure
 - Don't build static libraries
 - Move documentation in devel package

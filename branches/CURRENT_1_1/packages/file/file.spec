@@ -8,7 +8,7 @@
 
 %define name		file
 %define version		4.10
-%define release		3avx
+%define release		4avx
 
 %define major		1
 %define libname		%mklibname magic %{major}
@@ -139,6 +139,9 @@ install -m 0644 src/file.h %{buildroot}%{_includedir}/
 %{_libdir}/*.a
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 4.10-4avx
+- bootstrap build (new gcc, new glibc)
+
 * Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 4.10-3avx
 - rebuild for new gcc
 

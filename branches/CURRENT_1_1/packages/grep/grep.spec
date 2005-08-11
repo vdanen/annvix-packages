@@ -9,7 +9,7 @@
 
 %define name		grep
 %define version 	2.5.1
-%define release 	11avx
+%define release 	12avx
 
 %define _bindir 	/bin
 
@@ -72,6 +72,9 @@ rm -rf %{buildroot}%{_infodir}
 %{_mandir}/*/*
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 2.5.1-12avx
+- bootstrap build (new gcc, new glibc)
+
 * Wed Jul 27 2005 Vincent Danen <vdanen@annvix.org> 2.5.1-11avx
 - rebuild for new gcc
 

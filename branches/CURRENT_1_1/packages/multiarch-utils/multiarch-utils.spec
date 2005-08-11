@@ -9,7 +9,7 @@
 
 %define name		multiarch-utils
 %define version		1.0.8
-%define release 	1avx
+%define release 	2avx
 %define multiarch_distro 100
 
 Summary:	Tools to help creation of multiarch binaries and includes
@@ -57,6 +57,9 @@ binaries and include files during RPM package build.
 %{_prefix}/X11R6/lib/X11/config/multiarch-dispatch-host.def
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1.0.8-2avx
+- bootstrap build (new gcc, new glibc)
+
 * Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 1.0.8-1avx
 - 1.0.8
 

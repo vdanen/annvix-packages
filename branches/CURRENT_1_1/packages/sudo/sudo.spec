@@ -8,7 +8,7 @@
 
 %define name		sudo
 %define version		1.6.8p9
-%define release		2avx
+%define release		3avx
 %define epoch		1
 
 Summary:	Allows command execution as root for specified users
@@ -101,6 +101,9 @@ install -m 0440 %{SOURCE2} %{buildroot}%{_sysconfdir}/sudoers
 
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1:1.6.8p9-3avx
+- bootstrap build (new gcc, new glibc)
+
 * Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 1:1.6.8p9-2avx
 - rebuild for new gcc
 

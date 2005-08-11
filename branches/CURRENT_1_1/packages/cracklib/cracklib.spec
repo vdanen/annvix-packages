@@ -1,11 +1,19 @@
-%define name	cracklib
-%define version	2.7
-%define release	21avx
+#
+# spec file for package cracklib 
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-%define root	crack
-%define maj	2
-%define libname	%mklibname %root %maj
-%define libnamedev %libname-devel
+
+%define name		cracklib
+%define version		2.7
+%define release		22avx
+
+%define root		crack
+%define maj		2
+%define libname		%mklibname %{root} %{maj}
 
 Summary:	A password-checking library
 Name:		%{name}
@@ -19,7 +27,7 @@ Patch0:		cracklib-2.7-redhat.patch.bz2
 Patch1:		cracklib-2.7-makevars.patch.bz2
 Patch2:		cracklib-2.7-includes.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-root
+BuildRoot:	%{_buildroot}/%{name}-root
 BuildRequires:	words
 
 %description
@@ -39,24 +47,21 @@ other C functions. CrackLib is not a replacement for a passwd
 program; it must be used in conjunction with an existing passwd
 program.
 
-Install the cracklib package if you need a program to check users'
-passwords to see if they are at least minimally secure. If you
-install CrackLib, you'll also want to install the cracklib-dicts
-package.
 
-%package -n %libname
-Summary:	A password-checking library.
+%package -n %{libname}
+Summary:	A password-checking library
 Group:		System/Libraries
 Provides:	lib%{root}-devel %{root}-devel = %{version}-%{release}
 Obsoletes:	cracklib
 
-%description -n %libname
+%description -n %{libname}
 CrackLib tests passwords to determine whether they match certain
 security-oriented characteristics. You can use CrackLib to stop
 users from choosing passwords which would be easy to guess.
 
+
 %package dicts
-Summary:	The standard CrackLib dictionaries.
+Summary:	The standard CrackLib dictionaries
 Group:		System/Libraries
 
 %description dicts
@@ -65,16 +70,15 @@ CrackLib will need to use the dictionary appropriate to your system,
 which is normally put in /usr/share/dict/words.  Cracklib-dicts also contains
 the utilities necessary for the creation of new dictionaries.
 
-If you are installing CrackLib, you should also install cracklib-dicts.
 
-%package -n %libnamedev
+%package -n %{libname}-devel
 Summary:	Cracklib link library & header file
 Group:		Development/C
 Provides:	lib%{root}-devel %{root}-devel = %{version}-%{release} %{root}lib-devel = %{version}-%{release}
-Requires:	%{libname} = %version-%release
+Requires:	%{libname} = %{version}-%{release}
 Obsoletes:	cracklib-devel
 
-%description -n %libnamedev
+%description -n %{libname}-devel
 The cracklib devel package include the needed library link and
 header files for development.
 
@@ -89,30 +93,34 @@ chmod -R og+rX .
 
 %build
 make all RPM_OPT_FLAGS="%{optflags}" \
-	libdir=%{_libdir} datadir=%{_datadir}
+    libdir=%{_libdir} datadir=%{_datadir}
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p %{buildroot}{%{_sbindir},%{_libdir},%{_includedir}}
 make install \
-	ROOT=%{buildroot} \
-	sbindir=%{_sbindir} \
-	libdir=%{_libdir} \
-	includedir=%{_includedir}
+    ROOT=%{buildroot} \
+    sbindir=%{_sbindir} \
+    libdir=%{_libdir} \
+    includedir=%{_includedir}
 ln -sf libcrack.so.%{version} %{buildroot}%{_libdir}/libcrack.so.%{maj}
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-%post -n %libname -p /sbin/ldconfig
-%postun -n %libname -p /sbin/ldconfig
+
+%post -n %{libname} -p /sbin/ldconfig
+%postun -n %{libname} -p /sbin/ldconfig
+
 
 %files -n %{libname}
 %defattr(-,root,root)
 %doc README MANIFEST LICENCE HISTORY POSTER
 %{_libdir}/libcrack.so.*
 
-%files -n %{libnamedev}
+%files -n %{libname}-devel
 %defattr(-,root,root)
 %{_includedir}/*
 %{_libdir}/libcrack.so
@@ -122,7 +130,11 @@ ln -sf libcrack.so.%{version} %{buildroot}%{_libdir}/libcrack.so.%{maj}
 %{_sbindir}/*
 %{_libdir}/cracklib_dict*
 
+
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 2.7-22avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.7-21avx
 - bootstrap build
 - re-enable stack protection

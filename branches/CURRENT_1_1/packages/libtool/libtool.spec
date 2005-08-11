@@ -9,7 +9,7 @@
 
 %define name		libtool
 %define version		1.5.12
-%define release		5avx
+%define release		6avx
 
 %define lib_major	3
 %define libname_orig	libltdl
@@ -203,6 +203,9 @@ linux32 /bin/sh -c '%multiarch_binaries %{buildroot}%{_bindir}/libtool'
 
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1.5.12-6avx
+- bootstrap build (new gcc, new glibc)
+
 * Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 1.5.12-5avx
 - rebuild
 - drop BuildReq on setarch if we're a biarch

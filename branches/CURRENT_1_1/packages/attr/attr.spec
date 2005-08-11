@@ -1,12 +1,21 @@
-%define name	attr
-%define version 2.4.16
-%define release 2avx
+#
+# spec file for package attr
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-%define lib_name_orig	lib%{name}
-%define lib_major	1
-%define lib_name	%mklibname %{name} %{lib_major}
 
-Summary:	Utility for managing filesystem extended attributes.
+%define name		attr
+%define version 	2.4.16
+%define release 	3avx
+
+%define libname_orig	lib%{name}
+%define major		1
+%define libname		%mklibname %{name} %{major}
+
+Summary:	Utility for managing filesystem extended attributes
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -15,7 +24,7 @@ Group:		System/Kernel and hardware
 URL:		http://oss.sgi.com/projects/xfs/
 Source0:	%{name}-%{version}.src.tar.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-buildroot
 
 %description
 A set of tools for manipulating extended attributes on filesystem
@@ -23,24 +32,26 @@ objects, in particular getfattr(1) and setfattr(1).
 An attr(1) command is also provided which is largely compatible
 with the SGI IRIX tool of the same name.
 
-%package -n %{lib_name}
-Summary:	Main library for %{lib_name_orig}
+
+%package -n %{libname}
+Summary:	Main library for %{libname_orig}
 Group:		System/Libraries
-Provides:	%{lib_name_orig} = %{version}-%{release}
+Provides:	%{libname_orig} = %{version}-%{release}
 
-%description -n %{lib_name}
+%description -n %{libname}
 This package contains the library needed to run programs dynamically
-linked with %{lib_name_orig}.
+linked with %{libname_orig}.
 
-%package -n %{lib_name}-devel
-Summary:	Extended attribute static libraries and headers.
+
+%package -n %{libname}-devel
+Summary:	Extended attribute static libraries and headers
 Group:		Development/C
-Requires:	%{lib_name} = %{version}
-Provides:	%{lib_name_orig}-devel = %{version}-%{release}
+Requires:	%{libname} = %{version}
+Provides:	%{libname_orig}-devel = %{version}-%{release}
 Provides:	attr-devel = %{version}-%{release}
 Obsoletes:	attr-devel
 
-%description -n %{lib_name}-devel
+%description -n %{libname}-devel
 This package contains the libraries and header files needed to
 develop programs which make use of extended attributes.
 For Linux programs, the documented system call API is the
@@ -51,16 +62,16 @@ Currently only ext2, ext3, JFS and XFS support extended attributes.
 The SGI IRIX compatibility API built above the Linux system calls is
 used by programs such as xfsdump(8), xfsrestore(8) and xfs_fsr(8).
 
-You should install libattr-devel if you want to develop programs
-which make use of extended attributes.  If you install libattr-devel
-then you'll also want to install attr.
 
 %prep
 %setup -q
 
+
 %build
-%configure2_5x --libdir=/%{_lib}
+%configure2_5x \
+    --libdir=/%{_lib}
 %make
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -69,18 +80,21 @@ make install-dev DIST_ROOT=%{buildroot}/
 make install-lib DIST_ROOT=%{buildroot}/
 
 # fix conflict with man-pages-1.56
-rm -rf %{buildroot}{%_mandir/man2,%_datadir/doc}
+rm -rf %{buildroot}{%{_mandir}/man2,%_datadir/doc}
 
 # Remove unpackaged symlinks
 rm -rf %{buildroot}/%{_lib}/libattr.{a,la}
 
 %find_lang %{name}
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-%post -n %{lib_name} -p /sbin/ldconfig
-%postun -n %{lib_name} -p /sbin/ldconfig
+
+%post -n %{libname} -p /sbin/ldconfig
+%postun -n %{libname} -p /sbin/ldconfig
+
 
 %files -f %{name}.lang
 %defattr(-,root,root)
@@ -88,12 +102,12 @@ rm -rf %{buildroot}/%{_lib}/libattr.{a,la}
 %{_bindir}/*
 %{_mandir}/man1/*
 
-%files -n %{lib_name}
+%files -n %{libname}
 %defattr(-,root,root)
 %doc doc/COPYING
 /%{_lib}/*.so.*
 
-%files -n %{lib_name}-devel
+%files -n %{libname}-devel
 %defattr(-,root,root)
 %doc doc/CHANGES.gz doc/COPYING README
 /%{_lib}/*.so
@@ -105,6 +119,9 @@ rm -rf %{buildroot}/%{_lib}/libattr.{a,la}
 %{_includedir}/%{name}/*
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 2.4.16-3avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.4.16-2avx
 - bootstrap build
 

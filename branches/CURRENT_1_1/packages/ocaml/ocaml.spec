@@ -9,7 +9,7 @@
 
 %define name		ocaml
 %define version		%{major}.%{minor}
-%define release		1avx
+%define release		2avx
 
 %define major		3.08
 %define minor		3
@@ -156,6 +156,9 @@ n="labltk|camlp4|ocamlbrowser|tkanim"
 
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 3.08.3-2avx
+- bootstrap build (new gcc, new glibc)
+
 * Wed Jul 27 2005 Vincent Danen <vdanen@annvix.org> 3.08.3-1avx
 - 3.08.3
 - rebuild for new gcc

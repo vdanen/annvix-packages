@@ -9,7 +9,7 @@
 
 %define name		dietlibc
 %define version 	0.28
-%define release 	3avx
+%define release 	4avx
 
 # This is eventually a biarch package, so no %_lib for diethome
 %define diethome	%{_prefix}/lib/dietlibc
@@ -149,6 +149,9 @@ make DESTDIR=%{buildroot} install
 
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 0.28-4avx
+- bootstrap build (new gcc, new glibc)
+
 * Mon Jul 25 2005 Vincent Danen <vdanen@annvix.org> 0.28-3avx
 - rebuild against new gcc
 

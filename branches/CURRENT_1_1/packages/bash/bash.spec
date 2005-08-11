@@ -9,7 +9,7 @@
 
 %define name		bash
 %define version		3.0
-%define release		3avx
+%define release		4avx
 
 %define i18ndate 	20010626
 
@@ -255,6 +255,9 @@ install -c -m 0644 bash-dynamic/doc/bash.info %{buildroot}%{_infodir}/
 
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 3.0-4avx
+- bootstrap build (new gcc, new glibc)
+
 * Mon Jul 25 2005 Vincent Danen <vdanen@annvix.org> 3.0-3avx
 - rebuild for new gcc
 - drop unapplied patches

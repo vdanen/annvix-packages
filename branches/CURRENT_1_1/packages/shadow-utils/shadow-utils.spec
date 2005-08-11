@@ -9,7 +9,7 @@
 
 %define name		shadow-utils
 %define version		4.0.3
-%define release		13avx
+%define release		14avx
 %define epoch		1
 
 #rh-20000902-10
@@ -185,6 +185,9 @@ rm -rf build-$RPM_ARCH
 
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 4.0.3-14avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jul 29 2005 Vincent Danen <vdanen@annvix.org> 4.0.3-13avx
 - rebuild for new gcc
 - P13: fix gcc-3.4 build (peroyvind)

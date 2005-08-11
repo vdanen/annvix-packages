@@ -9,7 +9,7 @@
 
 %define name		readline
 %define version		4.3
-%define	release		12avx
+%define	release		13avx
 
 ## Do not apply library policy!!
 %define major		4
@@ -138,6 +138,9 @@ perl -p -i -e 's|/usr/local/bin/perl|/usr/bin/perl|' doc/texi2html
 /%{_lib}/*so
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 4.3-13avx
+- bootstrap build (new gcc, new glibc)
+
 * Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 4.3-12avx
 - rebuild for new gcc
 

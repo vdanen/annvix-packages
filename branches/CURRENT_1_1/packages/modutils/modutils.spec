@@ -9,7 +9,7 @@
 
 %define name		modutils
 %define version 	2.4.26
-%define release 	5avx
+%define release 	6avx
 
 %define url 		ftp://ftp.kernel.org:/pub/linux/utils/kernel/modutils/v2.4
 %define priority 	10
@@ -210,6 +210,9 @@ done
 
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 2.4.26-6avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jul 29 2005 Vincent Danen <vdanen@annvix.org> 2.4.26-5avx
 - rebuild against new gcc
 

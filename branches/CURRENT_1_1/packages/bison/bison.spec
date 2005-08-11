@@ -9,7 +9,7 @@
 
 %define name		bison
 %define version 	1.875
-%define release 	8avx
+%define release 	9avx
 
 Summary:	A GNU general-purpose parser generator
 Name:		%{name}
@@ -91,6 +91,9 @@ rm -rf %{buildroot}%{_libdir} %{buildroot}%{_datadir}/liby.a
 
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1.875-9avx
+- bootstrap build (new gcc, new glibc)
+
 * Mon Jul 25 2005 Vincent Danen <vdanen@annvix.org> 1.875-8avx
 - rebuild for new gcc
 

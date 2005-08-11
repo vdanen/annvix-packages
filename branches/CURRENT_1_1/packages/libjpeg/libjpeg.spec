@@ -1,15 +1,24 @@
-%define name	libjpeg
-%define	version	6b
-%define release 36avx
+#
+# spec file for package libjpeg
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-%define lib_major	62
-%define lib_name_orig	libjpeg
-%define lib_name	%mklibname jpeg %{lib_major}
+
+%define name		libjpeg
+%define	version		6b
+%define release 	37avx
+
+%define major		62
+%define libname_orig	libjpeg
+%define libname		%mklibname jpeg %{major}
 
 Summary:	A library for manipulating JPEG image format files
-Name:		%name
-Version:	%version
-Release:	%release
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
 License:	GPL-like
 Group:		System/Libraries
 URL:		http://www.ijg.org/
@@ -25,66 +34,56 @@ Patch2:		jpegv6b-losslesscropndrop.patch.bz2
 # Use autoconf variables to know libdir et al.
 Patch3:		jpeg-6b-autoconf-vars.patch.bz2
 
-BuildRoot:	%_tmppath/%name-%version-%release-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 
 %description
 The libjpeg package contains a shared library of functions for loading,
 manipulating and saving JPEG format image files.
 
-Install the libjpeg package if you need to manipulate JPEG files. You
-should also install the libjpeg-progs package.
 
-%package -n %{lib_name}
-Summary:	A library for manipulating JPEG image format files.
+%package -n %{libname}
+Summary:	A library for manipulating JPEG image format files
 Group:		System/Libraries
-Obsoletes:	%name
+Obsoletes:	%{name}
 Provides:       %{name} = %{version}-%{release}
 
-%description -n %{lib_name}
+%description -n %{libname}
 This package contains the library needed to run programs dynamically
 linked with libjpeg.
 
 
-%package -n %{lib_name}-devel
+%package -n %{libname}-devel
 Summary:	Development tools for programs which will use the libjpeg library
 Group:		Development/C
-Requires:	%{lib_name} = %{version}
+Requires:	%{libname} = %{version}
 Provides:	jpeg-devel = %{version}-%{release}
-Provides:	%name-devel = %{version}-%{release}
-Obsoletes:	%name-devel
+Provides:	%{name}-devel = %{version}-%{release}
+Obsoletes:	%{name}-devel
 
-%description -n %{lib_name}-devel
+%description -n %{libname}-devel
 The libjpeg-devel package includes the header files necessary for 
 developing programs which will manipulate JPEG files using
 the libjpeg library.
 
-If you are going to develop programs which will manipulate JPEG images,
-you should install libjpeg-devel.  You'll also need to have the libjpeg
-package installed.
 
-
-%package -n %{lib_name}-static-devel
+%package -n %{libname}-static-devel
 Summary:	Static libraries for programs which will use the libjpeg library
 Group:		Development/C
-Requires:	%{lib_name}-devel = %{version}-%release
-Provides:	%name-static-devel = %{version}-%{release}
+Requires:	%{libname}-devel = %{version}-%{release}
+Provides:	%{name}-static-devel = %{version}-%{release}
 Provides:	jpeg-static-devel = %{version}-%{release}
 
-%description -n %{lib_name}-static-devel
+%description -n %{libname}-static-devel
 The libjpeg-devel package includes the static librariesnecessary for 
 developing programs which will manipulate JPEG files using
 the libjpeg library.
-
-If you are going to develop programs which will manipulate JPEG images,
-you should install libjpeg-devel.  You'll also need to have the libjpeg
-package installed.
 
 
 %package progs
 Summary:	Programs for manipulating JPEG format image files
 Group:		Graphics
-Requires:	%lib_name = %{version}-%{release}
-Provides:	%name-progs = %{version}-%{release}
+Requires:	%libname = %{version}-%{release}
+Provides:	%{name}-progs = %{version}-%{release}
 
 %description progs
 The libjpeg-progs package contains simple client programs for accessing 
@@ -95,6 +94,7 @@ can perform various useful transformations on JPEG files.  Rdjpgcom displays
 any text comments included in a JPEG file.  Wrjpgcom inserts text
 comments into a JPEG file.
 
+
 %prep
 %setup -q -n jpeg-6b
 %patch0 -p1 
@@ -104,10 +104,11 @@ comments into a JPEG file.
 cp `which libtool` .
 
 %build
-%configure --prefix=%{_prefix} \
-	   --enable-shared \
-	   --enable-static \
-	   --disable-rpath
+%configure \
+    --prefix=%{_prefix} \
+    --enable-shared \
+    --enable-static \
+    --disable-rpath
 
 #cat > have_stdlib.sed <<\EOF
 #s/#define HAVE_STDLIB_H/#ifndef HAVE_STDLIB_H\
@@ -118,37 +119,41 @@ cp `which libtool` .
 #rm -f have_stdlib.sed
 #perl -pi -e 's,hardcode_libdir_flag_spec=",#hardcode_libdir_flag_spec=",;' libtool
 
+
 %make
 %ifnarch armv4l
 #FIX MEEE: we know this will fail on arm
 LD_LIBRARY_PATH=$PWD make test
 %endif
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p %buildroot/{%{_bindir},%{_libdir},%{_includedir},%{_mandir}/man1}
-%makeinstall mandir=%buildroot/%{_mandir}/man1
+mkdir -p %{buildroot}{%{_bindir},%{_libdir},%{_includedir},%{_mandir}/man1}
+%makeinstall mandir=%{buildroot}/%{_mandir}/man1
 
-%post -n %{lib_name} -p /sbin/ldconfig
 
-%postun -n %{lib_name} -p /sbin/ldconfig
+%post -n %{libname} -p /sbin/ldconfig
+%postun -n %{libname} -p /sbin/ldconfig
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-%files -n %{lib_name}
+
+%files -n %{libname}
 %defattr(-,root,root)
 %doc README change.log
 %{_libdir}/lib*.so.*
 
-%files -n %{lib_name}-devel
+%files -n %{libname}-devel
 %defattr(-,root,root)
 %doc usage.doc wizard.doc coderules.doc libjpeg.doc structure.doc example.c
 %{_libdir}/*.so
 %{_includedir}/*.h
 %{_libdir}/*.la
 
-%files -n %{lib_name}-static-devel
+%files -n %{libname}-static-devel
 %defattr(-,root,root)
 %{_libdir}/*.a
 
@@ -157,7 +162,11 @@ mkdir -p %buildroot/{%{_bindir},%{_libdir},%{_includedir},%{_mandir}/man1}
 %{_bindir}/*
 %{_mandir}/man1/*
 
+
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 6b-37avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 6b-36avx
 - bootstrap build
 

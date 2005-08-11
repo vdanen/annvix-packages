@@ -9,7 +9,7 @@
 
 %define name		console-tools
 %define version		0.2.3
-%define release		53avx
+%define release		54avx
 
 %define	CTVER		%{version}
 %define	CDVER		1999.08.29
@@ -370,6 +370,9 @@ fi
 
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 0.2.3-54avx
+- bootstrap build (new gcc, new glibc)
+
 * Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 0.2.3-53avx
 - rebuild against new gcc
 - enable P19

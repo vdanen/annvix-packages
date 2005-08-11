@@ -9,7 +9,7 @@
 
 %define name		annvix-ports
 %define version		1.1
-%define release		2avx
+%define release		3avx
 
 %define _portsprefix /usr/local
 
@@ -61,6 +61,9 @@ install -m 0754 build.sh %{buildroot}%{_portsprefix}/ports/ports/build.sh
 
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1.1-3avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Aug 05 2005 Vincent Danen <vdanen@annvix.org> 1.1-2avx
 - make builder chmod files after checkout from CVS so they're
   writable by group admin

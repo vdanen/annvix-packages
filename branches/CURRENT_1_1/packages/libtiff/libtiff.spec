@@ -9,7 +9,7 @@
 
 %define name		libtiff
 %define	version		3.5.7
-%define release 	17avx
+%define release 	18avx
 
 %define lib_version	3.5
 %define lib_major	3
@@ -177,6 +177,9 @@ popd
 
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 3.5.7-18avx
+- bootstrap build (new gcc, new glibc)
+
 * Sat Jul 30 2005 Vincent Danen <vdanen@annvix.org> 3.5.7-17avx
 - rebuild against new gcc
 

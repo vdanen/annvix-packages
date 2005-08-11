@@ -9,7 +9,7 @@
 
 %define name		libmcrypt
 %define version		2.5.7
-%define release		11avx
+%define release		12avx
 
 %define major		4
 %define libname		%mklibname mcrypt %{major}
@@ -153,6 +153,9 @@ make check
 
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 2.5.7-12avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jul 29 2005 Vincent Danen <vdanen@annvix.org> 2.5.7-11avx
 - rebuild against new gcc
 

@@ -1,9 +1,18 @@
-%define module	Locale-gettext
-%define name	perl-%{module}
-%define version	1.01
-%define release	16avx
+#
+# spec file for package perl-Locale-gettext
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-Summary:	Internationalization for Perl.
+
+%define module		Locale-gettext
+%define name		perl-%{module}
+%define version		1.01
+%define release		17avx
+
+Summary:	Internationalization for Perl
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -15,7 +24,7 @@ Patch0:		gettext-1.01-fix-example-in-README.patch.bz2
 Patch1:		gettext-1.01-includes.patch.bz2
 Patch2:		gettext-1.01-add-iconv.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	gettext-devel perl-devel
 
 Obsoletes:	perl-gettext
@@ -29,23 +38,28 @@ internationalize software.
 It provides gettext(), dgettext(), dcgettext(), textdomain() and
 bindtextdomain().
 
+
 %prep
 %setup -q -n gettext-%{version}
 %patch0 -p1
 %patch1 -p1 -b .includes
 %patch2 -p0
 
+
 %build
 %{__perl} Makefile.PL INSTALLDIRS=vendor
 make
 make test
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -55,6 +69,9 @@ make test
 %{_mandir}/*/*
 
 %changelog
+* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 1.01-17avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.01-16avx
 - bootstrap build
 

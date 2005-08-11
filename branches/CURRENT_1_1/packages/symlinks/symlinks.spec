@@ -9,7 +9,7 @@
 
 %define	name		symlinks
 %define	version		1.2
-%define release		20avx
+%define release		21avx
 
 Summary:	A utility which maintains a system's symbolic links
 Name:		%{name}
@@ -60,6 +60,9 @@ install -m 0644 %{name}.8 -D %{buildroot}%{_mandir}/man8/%{name}.8
 
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1.2-21avx
+- bootstrap build (new gcc, new glibc)
+
 * Wed Jul 27 2005 Vincent Danen <vdanen@annvix.org> 1.2-20avx
 - rebuild for new gcc
 - P1: fix static build (gbeauchesne)

@@ -9,11 +9,11 @@
 
 %define name		xfsprogs
 %define version 	2.6.13
-%define release 	3avx
+%define release 	4avx
 
-%define lib_name_orig	libxfs
-%define lib_major	1
-%define lib_name	%mklibname xfs %{lib_major}
+%define libname_orig	libxfs
+%define major		1
+%define libname		%mklibname xfs %{major}
 
 Summary:	Utilities for managing the XFS filesystem
 Name:		%{name}
@@ -45,31 +45,31 @@ for complete details.  This implementation is on-disk compatible
 with the IRIX version of XFS.
 
 
-%package -n %{lib_name}
-Summary:	Main library for %{lib_name_orig}
+%package -n %{libname}
+Summary:	Main library for %{libname_orig}
 Group:		System/Libraries
-Provides:	%{lib_name_orig} = %{version}-%{release}
+Provides:	%{libname_orig} = %{version}-%{release}
 
-%description -n %{lib_name}
+%description -n %{libname}
 This package contains the library needed to run programs dynamically
-linked with %{lib_name_orig}.
+linked with %{libname_orig}.
 
 
-%package -n %{lib_name}-devel
+%package -n %{libname}-devel
 Summary:	XFS filesystem-specific static libraries and headers
 Group:		Development/C
-Requires:	%{lib_name} = %{version}
-Provides:	%{lib_name_orig}-devel = %{version}-%{release}
+Requires:	%{libname} = %{version}
+Provides:	%{libname_orig}-devel = %{version}-%{release}
 Provides:	xfs-devel = %{version}-%{release}
 Obsoletes:	xfs-devel
 
 
-%description -n %{lib_name}-devel
-%{lib_name}-devel contains the libraries and header files needed to
+%description -n %{libname}-devel
+%{libname}-devel contains the libraries and header files needed to
 develop XFS filesystem-specific programs.
 
-You should install %{lib_name}-devel if you want to develop XFS
-filesystem-specific programs, If you install %{lib_name}-devel, you'll
+You should install %{libname}-devel if you want to develop XFS
+filesystem-specific programs, If you install %{libname}-devel, you'll
 also want to install xfsprogs.
 
 
@@ -99,8 +99,8 @@ rm -rf %{buildroot}%{_datadir}/doc/xfsprogs/
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 
-%post -n %{lib_name} -p /sbin/ldconfig
-%postun -n %{lib_name} -p /sbin/ldconfig
+%post -n %{libname} -p /sbin/ldconfig
+%postun -n %{libname} -p /sbin/ldconfig
 
 
 %files
@@ -124,12 +124,12 @@ rm -rf %{buildroot}%{_datadir}/doc/xfsprogs/
 /sbin/xfs_repair
 %{_mandir}/man[85]/*
 
-%files -n %{lib_name}
+%files -n %{libname}
 %defattr(-,root,root)
 %doc README
 /%{_lib}/*.so.*
 
-%files -n %{lib_name}-devel
+%files -n %{libname}-devel
 %defattr(-,root,root)
 %doc doc/PORTING README
 /%{_lib}/*.so
@@ -141,6 +141,9 @@ rm -rf %{buildroot}%{_datadir}/doc/xfsprogs/
 %{_mandir}/man3/*
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 2.6.13-4avx
+- bootstrap build (new gcc, new glibc)
+
 * Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 2.6.13-3avx
 - rebuild for new gcc
 

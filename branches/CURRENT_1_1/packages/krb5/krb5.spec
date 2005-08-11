@@ -9,12 +9,11 @@
 
 %define name		krb5
 %define version		1.3.6
-%define release		6avx
+%define release		7avx
 
 %define srcver		1.3
-%define LIBMAJ		1
-%define libname		%mklibname %{name} %{LIBMAJ}
-%define libnamedev	%{libname}-devel
+%define major		1
+%define libname		%mklibname %{name} %{major}
 
 Summary:	The Kerberos network authentication system
 Name:		%{name}
@@ -80,11 +79,11 @@ Patch22:	krb5-1.4.1-api.patch.bz2
 Patch23:	krb5-1.4.1-fclose.patch.bz2
 Patch24:	krb5-1.3.6-telnet-environ.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	bison, flex, libtermcap-devel, texinfo, tcl
 BuildRequires:	libext2fs-devel, chrpath
 
-PreReq:		grep, info, coreutils, /sbin/install-info
+PreReq:		grep, info, coreutils, info-install
 
 %description
 Kerberos V5 is a trusted-third-party network authentication system,
@@ -92,14 +91,14 @@ which can improve your network's security by eliminating the insecure
 practice of cleartext passwords.
 
 
-%package -n %{libnamedev}
-Summary:	Development files needed for compiling Kerberos 5 programs.
+%package -n %{libname}-devel
+Summary:	Development files needed for compiling Kerberos 5 programs
 Group:		Development/Other
 Requires:	%{libname} = %{version}
 Provides:	krb-devel krb5-devel libkrb-devel libkrb5-devel
 Obsoletes:	krb-devel krb5-devel
 
-%description -n %{libnamedev}
+%description -n %{libname}-devel
 Kerberos is a network authentication system.  The krb5-devel package
 contains the header files and libraries needed for compiling Kerberos
 5 programs. If you want to develop Kerberos-aware programs, you'll
@@ -107,7 +106,7 @@ need to install this package.
 
 
 %package -n %{libname}
-Summary:	The shared libraries used by Kerberos 5.
+Summary:	The shared libraries used by Kerberos 5
 Group:		System/Libraries
 Prereq:		grep, /sbin/ldconfig, coreutils
 Provides:	krb5-libs
@@ -121,7 +120,7 @@ Kerberos, you'll need to install this package.
 
 %package server
 Group:		System/Servers
-Summary:	The server programs for Kerberos 5.
+Summary:	The server programs for Kerberos 5
 Requires:	%{libname} = %{version}, %{name}-workstation = %{version}, words
 Prereq:		grep, /sbin/install-info, /bin/sh, coreutils
 
@@ -134,7 +133,7 @@ package).
 
 
 %package workstation
-Summary:	Kerberos 5 programs for use on workstations.
+Summary:	Kerberos 5 programs for use on workstations
 Group:		System/Base
 Requires:	%{libname} = %{version}
 Prereq:		grep, /sbin/install-info, /bin/sh, coreutils
@@ -162,9 +161,6 @@ The telnet-server package provides a telnet daemon, which will support remote
 logins into the host machine. The telnet daemon is enabled by default. You may
 disable the telnet daemon by editing /etc/inetd.conf.
 
-Install the telnet-server package if you want to support remote logins to your
-machine.
-
 This version supports kerberos authentication.
 
 
@@ -178,8 +174,6 @@ Provides:	telnet
 %description -n telnet-client-krb5
 Telnet is a popular protocol for logging into remote systems over the Internet.
 The telnet package provides a command line telnet client.
-
-Install the telnet package if you want to telnet to remote machines.
 
 This version supports kerberos authentication.
 
@@ -195,9 +189,6 @@ Provides:	ftp
 The ftp package provides the standard UNIX command-line FTP client.
 FTP is the file transfer protocol, which is a widely used Internet
 protocol for transferring files and for archiving files.
-
-If your system is on a network, you should install ftp in order to do
-file transfers.
 
 This version supports kerberos authentication.
 
@@ -254,6 +245,7 @@ gzip doc/*.ps
 find -name "*\.h" | xargs perl -pi -e 's|\<com_err|\<et/com_err|';
 find -name "*\.h" | xargs perl -pi -e 's|\"com_err|\"et/com_err|';
 
+
 %build
 export CFLAGS=-I/usr/include/et 
 find . -name "*.[ch]"|xargs grep -r -l "^extern int errno;" * | xargs perl -p -i -e "s|^extern int errno;|#include <errno.h>|"
@@ -271,7 +263,7 @@ DEFINES="-D_FILE_OFFSET_BITS=64" ; export DEFINES
 # is #include'd prior to checking for that symbol
 # CFLAGS=="$RPM_OPT_FLAGS $ARCH_OPT_FLAGS $DEFINES -fPIC" \
 env ac_cv_lib_resolv_res_search=yes ./configure \
-    --prefix=%_prefix \
+    --prefix=%{_prefix} \
     --infodir=%{_infodir} \
     --mandir=%{buildroot}%{_mandir} \
     --localstatedir=%{_sysconfdir}/kerberos \
@@ -296,7 +288,7 @@ find . -name Makefile | xargs perl -p -i -e "s@ %{_libdir}@ %{buildroot}%{_libdi
 
 # Run the test suite.  Won't run in the build system because /dev/pts is
 # not available for telnet tests and so on.
-# make check TMPDIR=%{_tmppath}
+# make check TMPDIR=%{_buildroot}
 
 
 %install
@@ -310,11 +302,11 @@ bzcat %{SOURCE12} > %{buildroot}%{_bindir}/krlogin
 # Extra headers.
 mkdir -p %{buildroot}%{_includedir}
 pushd src/include
-  find kadm5 krb5 gssrpc gssapi -name "*.h" | cpio -pdm  %{buildroot}%{_includedir}
+    find kadm5 krb5 gssrpc gssapi -name "*.h" | cpio -pdm  %{buildroot}%{_includedir}
 popd
 perl -pi -e 's#k5-int#krb5/kdb#g' %{buildroot}%{_includedir}/kadm5/admin.h
-find %{buildroot}%{_includedir} -type d | xargs chmod 755
-find %{buildroot}%{_includedir} -type f | xargs chmod 644
+find %{buildroot}%{_includedir} -type d | xargs chmod 0755
+find %{buildroot}%{_includedir} -type f | xargs chmod 0644
 
 # logdir
 mkdir -p %{buildroot}/var/log/kerberos
@@ -346,7 +338,7 @@ make prefix=%{buildroot}%{_prefix} \
 popd
 
 # Fixup strange shared library permissions.
-chmod 755 %{buildroot}%{_libdir}/*.so*
+chmod 0755 %{buildroot}%{_libdir}/*.so*
 
 mkdir -p %{buildroot}%{_srvdir}/{ktelnet,kftp,kadmind,kpropd,krb5kdc,krb524d}/log
 mkdir -p %{buildroot}%{_srvlogdir}/{ktelnet,kftp,kadmind,kpropd,krb5kdc,krb524d}
@@ -371,7 +363,7 @@ mkdir -p %{buildroot}%{_datadir}/afterboot
 install -m 0644 %{SOURCE39} %{buildroot}%{_datadir}/afterboot/08_kftp
 install -m 0644 %{SOURCE40} %{buildroot}%{_datadir}/afterboot/08_ktelnet
 
-bzcat %{SOURCE23} > $RPM_BUILD_DIR/%{name}-%{version}/doc/Mandrake-Kerberos-HOWTO.html
+bzcat %{SOURCE23} > %{_builddir}/%{name}-%{version}/doc/Mandrake-Kerberos-HOWTO.html
 
 find %{buildroot} -name "*\.h" | xargs perl -p -i -e "s|\<com_err|\<et/com_err|";
 find %{buildroot} -name "*\.h" | xargs perl -p -i -e "s|\"com_err|\"et/com_err|";
@@ -399,7 +391,6 @@ popd
 
 
 %post -n %{libname} -p /sbin/ldconfig
-
 %postun -n %{libname} -p /sbin/ldconfig
 
 
@@ -574,7 +565,7 @@ popd
 %{_libdir}/lib*.so.*
 
 
-%files -n %{libnamedev}
+%files -n %{libname}-devel
 %defattr(-,root,root)
 %doc doc/api
 %doc doc/implement
@@ -633,6 +624,9 @@ popd
 
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1.3.6-7avx
+- bootstrap build (new gcc, new glibc)
+
 * Thu Jul 14 2005 Vincent Danen <vdanen@annvix.org> 1.3.6-6avx
 - P19, P20: security fix for CAN-2005-1174, CAN-2005-1175, CAN-2005-1689
 - P21: security fix for CAN-2004-0175 (port of fixes to krb5-aware rcp)

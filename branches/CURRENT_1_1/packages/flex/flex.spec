@@ -9,7 +9,7 @@
 
 %define name		flex
 %define version		2.5.4a
-%define release		26avx
+%define release		27avx
 
 Summary:	A tool for creating scanners (text pattern recognizers)
 Name:		%{name}
@@ -90,6 +90,9 @@ ln -s flex.1 flex++.1
 
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 2.5.4a-27avx
+- bootstrap build (new gcc, new glibc)
+
 * Mon Jul 25 2005 Vincent Danen <vdanen@annvix.org> 2.5.4a-26avx
 - rebuild for new gcc
 

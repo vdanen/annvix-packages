@@ -9,7 +9,7 @@
 
 %define name		pkgconfig
 %define version		0.15.0
-%define release		8avx
+%define release		9avx
 
 Summary:	Pkgconfig helps make building packages easier
 Name:		%{name}
@@ -59,6 +59,9 @@ mkdir -p %{buildroot}%{_libdir}/pkgconfig
 %{_mandir}/man1/*
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 0.15.0-9avx
+- bootstrap build (new gcc, new glibc)
+
 * Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 0.15.0-8avx
 - rebuild for new gcc
 

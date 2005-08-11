@@ -9,7 +9,7 @@
 
 %define name		mhash
 %define version		0.8.18
-%define release		8avx
+%define release		9avx
 
 %define major		2
 %define libname 	%mklibname %{name} %{major}
@@ -98,6 +98,9 @@ to develop programs that use the mhash library.
 
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 0.8.18-9avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jul 29 2005 Vincent Danen <vdanen@annvix.org> 0.8.18-8avx
 - rebuild against new gcc
 

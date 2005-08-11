@@ -1,14 +1,21 @@
-%define name	vim
-%define version	6.3
-%define release	4avx
-
+#
+# spec file for package vim
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 # Notes / Warning :
 # - this package is not prefixable
 # - to update official patches, aka SOURCE4, see README.mdk in SOURCE4
 
-%define url	ftp://ftp.vim.org/pub/vim/unix/
-%define official_ptchlvl 54
-%define localedir %{buildroot}%{_datadir}/locale/
+
+%define name		vim
+%define version		6.3
+%define release		5avx
+
+%define patch_level	54
+%define localedir	%{buildroot}%{_datadir}/locale/
 
 %{expand:%%define perl_version %(rpm -q perl|sed 's/perl-\([0-9].*\)-.*$/\1/')}
 
@@ -19,10 +26,10 @@ Release:	%{release}
 License:	Charityware
 Group:		Editors
 URL:		http://www.vim.org
-Source0:	%{url}/%{name}-%{version}.tar.bz2
-Source2:	%{url}/extra/%{name}-%{version}-lang.tar.bz2
+Source0:	ftp://ftp.vim.org/pub/vim/unix//%{name}-%{version}.tar.bz2
+Source2:	ftp://ftp.vim.org/pub/vim/unix//extra/%{name}-%{version}-lang.tar.bz2
 Source3:	gvim.menu.bz2
-Source4:	vim-%{version}.%{official_ptchlvl}-patches.tar.bz2
+Source4:	vim-%{version}.%{patch_level}-patches.tar.bz2
 # http://vim.sourceforge.net/scripts/script.php?script_id=98
 Source5:	vim-specs.tar.bz2
 # MDK patches
@@ -41,7 +48,7 @@ Patch27:	vim-6.1-rpm42.patch.bz2
 Patch28:	vim-6.1-po-mode.patch.bz2
 Patch31:	vim63-CAN-2005-0069.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl-devel termcap-devel
 
 %description
@@ -50,6 +57,7 @@ editor.  Vi was the first real screen-based editor for UNIX, and is still
 very popular.  VIM improves on vi by adding new features: multiple windows,
 multi-level undo, block highlighting and more.  The vim-common package
 contains files which every VIM binary will need in order to run.
+
 
 %package common
 Summary:	The common files needed by any version of the VIM editor
@@ -64,6 +72,7 @@ very popular.  VIM improves on vi by adding new features: multiple windows,
 multi-level undo, block highlighting and more.  The vim-common package
 contains files which every VIM binary will need in order to run.
 
+
 %package minimal
 Summary:	A minimal version of the VIM editor
 Group:		Editors
@@ -77,6 +86,7 @@ very popular.  VIM improves on vi by adding new features: multiple windows,
 multi-level undo, block highlighting and more.  The vim-minimal package
 includes a minimal version of VIM, which is installed into /bin/vi for use
 when only the root partition is present.
+
 
 %package enhanced
 Summary:	A version of the VIM editor which includes recent enhancements
@@ -94,18 +104,13 @@ multi-level undo, block highlighting and more.  The vim-enhanced package
 contains a version of VIM with extra, recently introduced features like
 Python and Perl interpreters.
 
-Install the vim-enhanced package if you'd like to use a version of the VIM
-editor which includes recently added enhancements like interpreters for the
-Python and Perl scripting languages.  You'll also need to install the
-vim-common package.
-
 
 %prep
 %setup -q -b 2 -n vim63 -a4
 tar tjf %{SOURCE5} -C runtime
 #official patches
-for i in vim-%{version}.%{official_ptchlvl}-patches/%{version}*; do
-	patch -p0 -s < $i
+for i in vim-%{version}.%{patch_level}-patches/%{version}*; do
+    patch -p0 -s < $i
 done
 
 #mdk patches
@@ -128,26 +133,48 @@ perl -pi -e 's|SYS_VIMRC_FILE "\$VIM/vimrc"|SYS_VIMRC_FILE "%{_sysconfdir}/vim/v
 # disable command echo
 perl -pi -e 's|^set showcmd|set noshowcmd|' runtime/vimrc_example.vim
 
+
 %build
+# First build: vim-enhanced
 
-# Second build: vim-enhanced
-
-CFLAGS="$RPM_OPT_FLAGS" CXXFLAGS="$RPM_OPT_FLAGS"  ./configure --prefix=%{_prefix} \
---disable-acl --enable-pythoninterp --enable-perlinterp --with-features=huge \
---libdir=%{_libdir} --with-compiledby="%{packager}" \
---with-x=no --enable-gui=no --disable-gpm --exec-prefix=%{_prefix}
+CFLAGS="%{optflags}" CXXFLAGS="%{optflags}"  ./configure \
+    --prefix=%{_prefix} \
+    --disable-acl \
+    --enable-pythoninterp \
+    --enable-perlinterp \
+    --with-features=huge \
+    --libdir=%{_libdir} \
+    --with-compiledby="%{packager}" \
+    --with-x=no \
+    --enable-gui=no \
+    --disable-gpm \
+    --exec-prefix=%{_prefix}
 
 make
 mv src/vim src/vim-enhanced
 make -C src/ clean
 
-# Third build: vim-minimal
-CFLAGS="$RPM_OPT_FLAGS" CXXFLAGS="$RPM_OPT_FLAGS" ./configure  --prefix=%{_prefix} \
---with-features=tiny --disable-tclinterp --disable-cscope --disable-multibyte \
---disable-hangulinput --disable-xim --disable-fontset --disable-gui \
---disable-acl --disable-pythoninterp --disable-perlinterp \
---libdir=%{_libdir} --with-compiledby="%packager" \
---with-x=no --enable-gui=no --exec-prefix=%{_prefix} --with-tlib=termcap --disable-gpm
+# Second build: vim-minimal
+CFLAGS="%{optflags}" CXXFLAGS="%{optflags}" ./configure  \
+    --prefix=%{_prefix} \
+    --with-features=tiny \
+    --disable-tclinterp \
+    --disable-cscope \
+    --disable-multibyte \
+    --disable-hangulinput \
+    --disable-xim \
+    --disable-fontset \
+    --disable-gui \
+    --disable-acl \
+    --disable-pythoninterp \
+    --disable-perlinterp \
+    --libdir=%{_libdir} \
+    --with-compiledby="%packager" \
+    --with-x=no \
+    --enable-gui=no \
+    --exec-prefix=%{_prefix} \
+    --with-tlib=termcap \
+    --disable-gpm
 
 make
 cp src/vim src/vim-minimal
@@ -156,20 +183,21 @@ make -C src
 cp -al runtime/doc doc
 # apply os_doc.diff
 pushd doc
-rm -f *.1
-rm -f os_{390,dos,msdos,risc,win32,amiga,mac,os2,beos,mint,qnx,vms}.txt
-rm -f gui_{w16,w32}.txt
-rm -f vim2html.pl Makefile *awk
+    rm -f *.1
+    rm -f os_{390,dos,msdos,risc,win32,amiga,mac,os2,beos,mint,qnx,vms}.txt
+    rm -f gui_{w16,w32}.txt
+    rm -f vim2html.pl Makefile *awk
 popd
 
 # britton support
 ln -s tutor.fr runtime/tutor/tutor.br
 ln -s menu_fr_fr.iso_8859-15.vim runtime/lang/menu_br
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-[ ! -e mandrake ] && mv vim-%{version}.%{official_ptchlvl}-patches mandrake
+[ ! -e annvix ] && mv vim-%{version}.%{patch_level}-patches annvix
 
 perl -pi -e 's!LOCALEDIR=\$\(DEST_LANG\)!LOCALEDIR=\$(DESTDIR)\$\(prefix\)/share/locale!g' src/Makefile
 
@@ -179,16 +207,16 @@ mkdir -p %{buildroot}{/bin,%{_bindir},%{_datadir}/{vim,locale},%{_prefix}/X11R6/
 
 make -C src installmacros prefix=%{buildroot}%{_prefix} VIMRTDIR=""
 
-install -s -m755 src/vim-enhanced %{buildroot}%{_bindir}
-install -s -m755 src/vim-minimal %{buildroot}/bin/vim-minimal
+install -s -m 0755 src/vim-enhanced %{buildroot}%{_bindir}
+install -s -m 0755 src/vim-minimal %{buildroot}/bin/vim-minimal
 
-cd %{buildroot}
-rm -f ./bin/rvim
-for i in ex vimdiff; do
-	ln -sf vim-enhanced ./usr/bin/$i
-done
-rm -f ./usr/man/man1/rvim.1.bz2
-cd -
+pushd %{buildroot}
+    rm -f ./bin/rvim
+    for i in ex vimdiff; do
+        ln -sf vim-enhanced ./usr/bin/$i
+    done
+    rm -f ./usr/man/man1/rvim.1.bz2
+popd
 
 # installing man pages
 for i in %{buildroot}%{_mandir}/man1/{vi,rvi,gvim}; do
@@ -197,13 +225,13 @@ done
 
 ln -sf vimrc_example.vim %{buildroot}/usr/share/vim/vimrc
 
-cd %{buildroot}/%{_prefix}/share/vim/tools
-# i need to make a choice :(.
-rm -f vim132
-perl -p -i -e 's|#!/usr/bin/nawk|#!/usr/bin/gawk|' mve.awk
-perl -p -i -e 's|#!/usr/local/bin/perl|#!/usr/bin/perl|' *.pl
-perl -p -i -e 's|#!/usr/gnu/bin/perl|#!/usr/bin/perl|' *
-cd -
+pushd %{buildroot}/%{_prefix}/share/vim/tools
+    # i need to make a choice :(.
+    rm -f vim132
+    perl -p -i -e 's|#!/usr/bin/nawk|#!/usr/bin/gawk|' mve.awk
+    perl -p -i -e 's|#!/usr/local/bin/perl|#!/usr/bin/perl|' *.pl
+    perl -p -i -e 's|#!/usr/gnu/bin/perl|#!/usr/bin/perl|' *
+popd
  
 # Be short-circuit aware :
 ln -f runtime/macros/README.txt README_macros.txt
@@ -215,7 +243,7 @@ rm -f %{buildroot}%{_mandir}/man1/gvim.1*
 		
 # fix the paths in the man pages
 for i in %{buildroot}/usr/share/man/man1/*.1; do
-	perl -p -i -e "s|%{buildroot}||" $i
+    perl -p -i -e "s|%{buildroot}||" $i
 done
 
 # prevent including twice the doc
@@ -225,7 +253,7 @@ ln -sf ../../../%{_defaultdocdir}/%{name}-common-%{version}/doc %{buildroot}/usr
 # symlink locales in right place so that %find_land put needed %lang:
 # see %pre common why this is needed
 pushd %{buildroot}/%{_datadir}/vim/lang
-	ln -s ../../locale/* .
+    ln -s ../../locale/* .
 popd
 
 rm -f %{buildroot}%{_bindir}/{rview,view,rvim}
@@ -233,19 +261,19 @@ rm -f %{buildroot}%{_bindir}/{rview,view,rvim}
 %{find_lang} %{name}
 
 find %{buildroot}%{_datadir}/vim/ -name "tutor.*" | egrep -v 'tutor(|\.vim)$' |
- sed -e "s^%{buildroot}^^" -e 's!^\(.*tutor.\)\(..\)!%lang(\2) \1\2!g' >> %{name}.lang
+     sed -e "s^%{buildroot}^^" -e 's!^\(.*tutor.\)\(..\)!%lang(\2) \1\2!g' >> %{name}.lang
 
 find %{buildroot}%{_datadir}/vim/ -name "menu*" |
- sed -e "s^%{buildroot}^^" -e 's!^\(.*menu_\)\(..\)\(_\)!%lang(\2) \1\2\3!g' \
-  -e 's!^\(.*menu\)\(_chinese\)!%lang(zh) \1\2!g' \
-  -e 's!^\(.*menu\)\(_czech_\)!%lang(cs) \1\2!g' \
-  -e 's!^\(.*menu\)\(_french\)!%lang(fr) \1\2!g' \
-  -e 's!^\(.*menu\)\(_german\)!%lang(de) \1\2!g' \
-  -e 's!^\(.*menu\)\(_japanes\)!%lang(ja) \1\2!g' \
-  -e 's!^\(.*menu\)\(_polish\)!%lang(pl) \1\2!g' \
-  -e 's!^\(.*menu\)\(_slovak\)!%lang(sk) \1\2!g' \
-  -e 's!^\(.*menu\)\(_spanis\)!%lang(es) \1\2!g' \
-  >> %{name}.lang
+    sed -e "s^%{buildroot}^^" -e 's!^\(.*menu_\)\(..\)\(_\)!%lang(\2) \1\2\3!g' \
+        -e 's!^\(.*menu\)\(_chinese\)!%lang(zh) \1\2!g' \
+        -e 's!^\(.*menu\)\(_czech_\)!%lang(cs) \1\2!g' \
+        -e 's!^\(.*menu\)\(_french\)!%lang(fr) \1\2!g' \
+        -e 's!^\(.*menu\)\(_german\)!%lang(de) \1\2!g' \
+        -e 's!^\(.*menu\)\(_japanes\)!%lang(ja) \1\2!g' \
+        -e 's!^\(.*menu\)\(_polish\)!%lang(pl) \1\2!g' \
+        -e 's!^\(.*menu\)\(_slovak\)!%lang(sk) \1\2!g' \
+        -e 's!^\(.*menu\)\(_spanis\)!%lang(es) \1\2!g' \
+    >> %{name}.lang
 rm -f %{buildroot}%{_bindir}/vim
 
 rm -f %{buildroot}%{_mandir}/man1/evim.1*
@@ -257,6 +285,7 @@ cat << EOF >> %{buildroot}%{_sysconfdir}/vim/vimrc
 
 source %{_datadir}/vim/vimrc
 EOF
+
 
 %pre common
 # This is needed since locales have been moved to /usr/share/locale
@@ -275,7 +304,7 @@ update-alternatives --install /usr/bin/vi uvi /bin/vim-minimal 10
 update-alternatives --install /bin/vi     vi  /bin/vim-minimal 10
 update-alternatives --install /bin/vim    vim /bin/vim-minimal 10
 for i in view ex rvi rview rvim; do
-	update-alternatives --install /bin/$i $i /bin/vi 10 || :
+    update-alternatives --install /bin/$i $i /bin/vi 10 || :
 done
 :
 
@@ -286,14 +315,14 @@ update-alternatives --remove vi  /bin/vim-minimal
 update-alternatives --remove vim /bin/vim-minimal
 
 for i in view ex rvi rview rvim; do
-	update-alternatives --remove $i /bin/$i || :
+    update-alternatives --remove $i /bin/$i || :
 done
 
 :
 
 %triggerpostun -n vim-minimal -- vim-minimal < 6.1-22mdk
 for i in view ex rvi rview rvim; do
-	update-alternatives --remove $i /bin/$i || :
+    update-alternatives --remove $i /bin/$i || :
 done
 
 :
@@ -312,13 +341,15 @@ update-alternatives --remove vi  /usr/bin/vim-enhanced
 update-alternatives --remove vim /usr/bin/vim-enhanced
 :
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files common -f vim.lang
 %defattr(-,root,root)
 %doc README*.txt runtime/termcap
-%doc --parents mandrake/README*
+%doc --parents annvix/README*
 %doc doc
 
 %dir %{_datadir}/vim/
@@ -354,6 +385,9 @@ update-alternatives --remove vim /usr/bin/vim-enhanced
 %{_bindir}/vimdiff
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 6.3-5avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 6.3-4avx
 - bootstrap build
 
@@ -730,7 +764,7 @@ update-alternatives --remove vim /usr/bin/vim-enhanced
 
 * Thu Nov 07 2002 Thierry Vignaud <tvignaud@mandrakesoft.com> 6.1-27mdk
 - update from 247 up to official patchlevel 248
-- automatize more thinks in vim-%%version.%%{official_ptchlvl}-patches/Makefile
+- automatize more thinks in vim-%%{version}.%%{official_ptchlvl}-patches/Makefile
 - automatically strip headers & footer of patches mail, leaving only
   patches and their description
 
@@ -745,7 +779,7 @@ update-alternatives --remove vim /usr/bin/vim-enhanced
 	* non unix os specific docs (saves 132kb)
 	* non x11 gui specific docs (saves 32kb)
   o %%lang-ify menus & tutorials (saves 260 kb on typical system)
-- move back the doc from %_defaultdocdir/%name-common-%version/ to
+- move back the doc from %_defaultdocdir/%{name}-common-%{version}/ to
   /usr/share/vim/doc
 - add briton support (menu, tutorial)
 - patch 23 : remove references for deleted docs in :help (see above)
@@ -784,7 +818,7 @@ update-alternatives --remove vim /usr/bin/vim-enhanced
 - fix dangling-relative-symlink by using alternatives & triggers
   btw, this reduce number of soft link indirections
 - this package is not prefixable, so get rid of %%prefix, thus making
-  everything homogenous with %%_prefix
+  everything homogenous with %%{_prefix}
 - update vim-6.1.???-patches/README.mdk so that other people can understand
   the vim rule of thumb
 - include README.mdk in vim-common

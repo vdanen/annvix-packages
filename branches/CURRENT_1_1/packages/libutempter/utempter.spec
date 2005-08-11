@@ -9,7 +9,7 @@
 
 %define name		libutempter
 %define version		1.1.1
-%define release		4avx
+%define release		5avx
 %define sname		utempter
 
 %define major		0
@@ -99,6 +99,9 @@ make CC=gcc libexecdir="%{_libexecdir}"
 
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1.1.1-5avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jul 29 2005 Vincent Danen <vdanen@annvix.org> 1.1.1-4avx
 - rebuild against new gcc
 

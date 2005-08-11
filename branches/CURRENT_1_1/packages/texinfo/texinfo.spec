@@ -9,7 +9,7 @@
 
 %define name		texinfo
 %define version		4.8
-%define release		4avx
+%define release		5avx
 
 Summary:	Tools needed to create Texinfo format documentation files
 Name:		%{name}
@@ -151,6 +151,9 @@ rm -f %{buildroot}%{_bindir}/texi2pdf
 
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 4.8-5avx
+- bootstrap build (new gcc, new glibc)
+
 * Mon Jul 25 2005 Vincent Danen <vdanen@annvix.org> 4.8-4avx
 - rebuild for new gcc
 - don't package texi2pdf since tetex already has it

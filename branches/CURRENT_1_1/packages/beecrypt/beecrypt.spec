@@ -9,7 +9,7 @@
 
 %define name		beecrypt
 %define version		3.1.0
-%define release		5avx
+%define release		6avx
 
 %define libname		%mklibname %{name} 6
 %define libnamedev	%{libname}-devel
@@ -126,6 +126,9 @@ rm -f %{buildroot}%{_libdir}/python%{with_python_version}/site-packages/_bc.*a
 %{_libdir}/python%{with_python_version}/site-packages/_bc.so
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 3.1.0-6avx
+- bootstrap build (new gcc, new glibc)
+
 * Mon Aug 08 2005 Vincent Danen <vdanen@annvix.org> 3.1.0-5avx
 - P2: alpha doesn't use lib64
 - minor spec cleanups

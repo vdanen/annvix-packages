@@ -9,7 +9,7 @@
 
 %define name		gettext
 %define version 	0.14.1
-%define release 	4avx
+%define release 	5avx
 
 %define major		3
 %define libver		%{major}.4.1
@@ -229,6 +229,9 @@ popd
 
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 0.14.1-5avx
+- bootstrap build (new gcc, new glibc)
+
 * Mon Jul 25 2005 Vincent Danen <vdanen@annvix.org> 0.14.1-4avx
 - rebuild for new gcc
 

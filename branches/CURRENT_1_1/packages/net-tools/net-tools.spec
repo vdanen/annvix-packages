@@ -9,7 +9,7 @@
 
 %define name		net-tools
 %define version 	1.60
-%define release 	14avx
+%define release 	15avx
 
 %define npversion	1.2.9
 
@@ -210,6 +210,9 @@ rm -rf %{buildroot}%{_mandir}/{de,fr,pt}*
 
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1.60-15avx
+- bootstrap build (new gcc, new glibc)
+
 * Tue Aug 09 2005 Vincent Danen <vdanen@annvix.org> 1.60-14avx
 - rebuild against new gcc
 - sync with mdk 1.60-13mdk (which synced with fedora 1.60-54)
