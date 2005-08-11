@@ -1,0 +1,12 @@
+--- xc/programs/Xserver/hw/vfb/InitOutput.c        27 Aug 2004 01:15:10 -0000
++++ xc/programs/Xserver/hw/vfb/InitOutput.c        7 Dec 2004 11:11:05 -0000
+@@ -910,7 +910,7 @@
+ 
+     if (!ret) return FALSE;
+ 
+-    /* miInitializeBackingStore(pScreen); */
++    miInitializeBackingStore(pScreen);
+ 
+     /*
+      * Circumvent the backing store that was just initialised.  This amounts
+

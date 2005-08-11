@@ -1,0 +1,149 @@
+#
+# $XConsortium: system.twmrc /main/9 1996/10/16 16:14:38 kaleb $
+# 
+# Default twm configuration file; needs to be kept small to conserve string
+# space in systems whose compilers don't handle medium-sized strings.
+#
+# Sites should tailor this file, providing any extra title buttons, menus, etc.
+# that may be appropriate for their environment.  For example, if most of the
+# users were accustomed to uwm, the defaults could be set up not to decorate
+# any windows and to use meta-keys.
+#
+# Modifications for Linux-Mandrake by Chmouel Boudjnah <chmouel@mandrakesoft.com>
+
+NoGrabServer
+RestartPreviousState
+DecorateTransients
+TitleFont "-adobe-helvetica-bold-r-normal--*-120-*-*-*-*-*-*"
+ResizeFont "-adobe-helvetica-bold-r-normal--*-120-*-*-*-*-*-*"
+MenuFont "-adobe-helvetica-bold-r-normal--*-120-*-*-*-*-*-*"
+IconFont "-adobe-helvetica-bold-r-normal--*-100-*-*-*-*-*-*"
+IconManagerFont "-adobe-helvetica-bold-r-normal--*-100-*-*-*"
+#ClientBorderWidth
+
+Color
+{
+    BorderColor "slategrey"
+    DefaultBackground "Blue"
+    DefaultForeground "white"
+    TitleBackground "Navy"
+    TitleForeground "white"
+    MenuBackground "Navy"
+    MenuForeground "white"
+    MenuTitleBackground "gray70"
+    MenuTitleForeground "Navy"
+    IconBackground "Navy"
+    IconForeground "white"
+    IconBorderColor "white"
+    IconManagerBackground "Navy"
+    IconManagerForeground "white"
+}
+
+#
+# Define some useful functions for motion-based actions.
+#
+MoveDelta 3
+Function "move-or-lower" { f.move f.deltastop f.lower }
+Function "move-or-raise" { f.move f.deltastop f.raise }
+Function "move-or-iconify" { f.move f.deltastop f.iconify }
+
+#
+# Set some useful bindings.  Sort of uwm-ish, sort of simple-button-ish
+#
+Button1 = : root : f.menu "defops"
+
+Button1 = m : window|icon : f.function "move-or-lower"
+Button2 = m : window|icon : f.iconify
+Button3 = m : window|icon : f.function "move-or-raise"
+
+Button1 = : title : f.function "move-or-raise"
+Button2 = : title : f.raiselower
+
+Button1 = : icon : f.function "move-or-iconify"
+Button2 = : icon : f.iconify
+
+Button1 = : iconmgr : f.iconify
+Button2 = : iconmgr : f.iconify
+
+"F1"     = control :  all : f.restart
+"F2"     = control :  all : f.move
+"F3"     = control :  all : f.iconify
+
+"Up"    = control meta : all           : f.function "up_iconmgr"
+"Down"  = control meta : all           : f.function "down_iconmgr"
+"Left"  = control meta : all           : f.function "left_iconmgr"
+"Right" = control meta : all           : f.function "right_iconmgr"
+
+# Functions
+Function "up_iconmgr"
+{
+  f.warptoiconmgr ""
+  f.deltastop
+  f.upiconmgr
+}
+
+Function "down_iconmgr"
+{
+  f.warptoiconmgr ""
+  f.deltastop
+  f.downiconmgr
+}
+
+Function "left_iconmgr"
+{
+  f.warptoiconmgr ""
+  f.deltastop
+  f.lefticonmgr
+}
+
+Function "right_iconmgr"
+{
+  f.warptoiconmgr ""
+  f.deltastop
+  f.righticonmgr
+}
+
+#
+# And a menus with the usual things
+#
+menu "defops"
+{
+"Mandrake-Twm"	f.title
+"Mandrake"	f.menu "/Mandrake"
+""              f.nop
+"Current Windows"             f.menu "TwmWindows"
+"Window Ops"                  f.menu "window_ops"
+"Resize"                      f.resize
+"Kill"		f.destroy
+"Delete"	f.delete
+""		f.nop
+"Restart"	f.restart
+"Exit"		f.quit
+}
+
+Menu                            "window_ops"
+{
+  "Window Menu"                 f.title
+
+  "Iconify"                     f.iconify
+
+  "Raise"                       f.raise
+  "Lower"                       f.lower
+  "Toggle AutoRaise"            f.autoraise
+  
+  "Move (onscreen)"             f.move
+  "Move (anywhere)"             f.forcemove
+
+  
+  "Wide screen"                 f.horizoom
+  "Tall screen"                 f.zoom
+  "Full screen"                 f.fullzoom
+  
+  "Identify"                    f.identify
+
+  "Focus keyboard"              f.focus
+  "Unfocus keyboard"            f.unfocus
+  "Save"                        f.saveyourself
+ }
+
+include-menu-defs

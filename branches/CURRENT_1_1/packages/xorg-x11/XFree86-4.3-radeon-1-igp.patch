@@ -1,0 +1,220 @@
+--- xc/programs/Xserver/hw/xfree86/common/xf86PciInfo.h.1_igp	Sun Mar  2 22:04:26 2003
++++ xc/programs/Xserver/hw/xfree86/common/xf86PciInfo.h	Mon Mar  3 09:05:42 2003
+@@ -186,6 +186,10 @@
+ #define PCI_CHIP_RV200_QX		0x5158
+ #define PCI_CHIP_RV100_QY		0x5159
+ #define PCI_CHIP_RV100_QZ		0x515A
++#define PCI_CHIP_RS100_4136             0x4136
++#define PCI_CHIP_RS100_4336             0x4336
++#define PCI_CHIP_RS200_4137             0x4137
++#define PCI_CHIP_RS200_4337             0x4337
+ #define PCI_CHIP_R200_Qh		0x5168
+ #define PCI_CHIP_R200_Qi		0x5169
+ #define PCI_CHIP_R200_Qj		0x516A
+--- xc/programs/Xserver/hw/xfree86/drivers/ati/radeon.h.1_igp	Sun Mar  2 22:01:23 2003
++++ xc/programs/Xserver/hw/xfree86/drivers/ati/radeon.h	Mon Mar  3 08:51:09 2003
+@@ -250,8 +250,10 @@
+     CHIP_FAMILY_RADEON,
+     CHIP_FAMILY_VE,
+     CHIP_FAMILY_M6,
++    CHIP_FAMILY_RS100,    /* U1 (IGP320M) or A3 (IGP320)*/
+     CHIP_FAMILY_RV200,
+     CHIP_FAMILY_M7,
++    CHIP_FAMILY_RS200,    /* U2 (IGP330M/340M/350M) or A4 (IGP330/340/345/350) */
+     CHIP_FAMILY_R200,
+     CHIP_FAMILY_RV250,
+     CHIP_FAMILY_M9,
+--- xc/programs/Xserver/hw/xfree86/drivers/ati/radeon_reg.h.1_igp	Sun Mar  2 21:58:22 2003
++++ xc/programs/Xserver/hw/xfree86/drivers/ati/radeon_reg.h	Mon Mar  3 08:51:47 2003
+@@ -232,6 +232,8 @@
+ #       define RADEON_CONSTANT_COLOR_ZERO   0x00000000
+ #define RADEON_CRC_CMDFIFO_ADDR             0x0740
+ #define RADEON_CRC_CMDFIFO_DOUT             0x0744
++#define RADEON_GRPH_BUFFER_CNTL             0x02f0
++#define RADEON_GRPH2_BUFFER_CNTL            0x03f0
+ #define RADEON_CRTC_CRNT_FRAME              0x0214
+ #define RADEON_CRTC_EXT_CNTL                0x0054
+ #       define RADEON_CRTC_VGA_XOVERSCAN    (1 <<  0)
+@@ -697,6 +699,10 @@
+ #define RADEON_MAX_LATENCY                  0x0f3f /* PCI */
+ #define RADEON_MC_AGP_LOCATION              0x014c
+ #define RADEON_MC_FB_LOCATION               0x0148
++#define RADEON_DISPLAY_BASE_ADDR            0x23c
++#define RADEON_DISPLAY2_BASE_ADDR           0x33c
++#define RADEON_OV0_BASE_ADDR                0x43c
++#define RADEON_NB_TOM                       0x15c
+ #define RADEON_MCLK_CNTL                    0x0012 /* PLL */
+ #       define RADEON_FORCEON_MCLKA         (1 << 16)
+ #       define RADEON_FORCEON_MCLKB         (1 << 17)
+--- xc/programs/Xserver/hw/xfree86/drivers/ati/radeon_driver.c.1_igp	Sun Mar  2 21:59:01 2003
++++ xc/programs/Xserver/hw/xfree86/drivers/ati/radeon_driver.c	Mon Mar  3 08:59:47 2003
+@@ -1371,6 +1371,16 @@
+ 	info->ChipFamily = CHIP_FAMILY_VE;
+ 	break;
+ 
++    case PCI_CHIP_RS100_4136:
++    case PCI_CHIP_RS100_4336:
++	info->ChipFamily = CHIP_FAMILY_RS100;
++	break;
++
++    case PCI_CHIP_RS200_4137:
++    case PCI_CHIP_RS200_4337:
++	info->ChipFamily = CHIP_FAMILY_RS200;
++	break;
++
+     case PCI_CHIP_R200_BB:
+     case PCI_CHIP_R200_QH:
+     case PCI_CHIP_R200_QI:
+@@ -1459,7 +1469,7 @@
+ 				/* Framebuffer */
+ 
+     from               = X_PROBED;
+-    info->LinearAddr   = info->PciInfo->memBase[0] & 0xfc000000;
++    info->LinearAddr   = info->PciInfo->memBase[0] & 0xfe000000;
+     pScrn->memPhysBase = info->LinearAddr;
+     if (dev->MemBase) {
+ 	xf86DrvMsg(pScrn->scrnIndex, X_INFO,
+@@ -1516,6 +1526,21 @@
+     from                     = X_PROBED;
+     if (info->FBDev)
+ 	pScrn->videoRam      = fbdevHWGetVidmem(pScrn) / 1024;
++    else if ((info->ChipFamily == CHIP_FAMILY_RS100) || 
++	     (info->ChipFamily == CHIP_FAMILY_RS200)) {
++        CARD32 tom = INREG(RADEON_NB_TOM);
++        pScrn->videoRam = (((tom >> 16) - 
++			    (tom & 0xffff) + 1) << 6);
++	OUTREG(RADEON_MC_FB_LOCATION, tom);
++	OUTREG(RADEON_DISPLAY_BASE_ADDR, (tom & 0xffff) << 16);
++	OUTREG(RADEON_DISPLAY2_BASE_ADDR, (tom & 0xffff) << 16);
++	OUTREG(RADEON_OV0_BASE_ADDR, (tom & 0xffff) << 16);
++
++	/* This is supposed to fix the crtc2 noise problem.
++	*/
++	OUTREG(RADEON_GRPH2_BUFFER_CNTL, 
++	       INREG(RADEON_GRPH2_BUFFER_CNTL) & ~0x7f0000);
++    }
+     else
+ 	pScrn->videoRam      = INREG(RADEON_CONFIG_MEMSIZE) / 1024;
+ 
+@@ -3615,6 +3640,12 @@
+ 		       (pScrn->displayWidth * pScrn->virtualY *
+ 			info->CurrentLayout.pixel_bytes * 3 + 1023) / 1024);
+ 	    info->directRenderingEnabled = FALSE;
++	} else if ((info->ChipFamily == CHIP_FAMILY_RS100) ||
++                   (info->ChipFamily == CHIP_FAMILY_RS200)) {
++	    info->directRenderingEnabled = FALSE;
++	    xf86DrvMsg(scrnIndex, X_WARNING,
++		       "Direct rendering not yet supported on "
++		       "IGP320/330/340/350 integrated chips\n");
+ 	} else if (info->ChipFamily >= CHIP_FAMILY_R300) {
+ 	    info->directRenderingEnabled = FALSE;
+ 	    xf86DrvMsg(scrnIndex, X_WARNING,
+@@ -4774,7 +4805,7 @@
+ 	 */
+ 	vgaHWSave(pScrn, &hwp->SavedReg, VGA_SR_MODE); /* Save mode only */
+ #else
+-	vgaHWSave(pScrn, &hwp->SavedReg, VGA_SR_ALL); /* Save mode
++	vgaHWSave(pScrn, &hwp->SavedReg, VGA_SR_MODE | VGA_SR_FONTS); /* Save mode
+ 						       * & fonts & cmap
+ 						       */
+ #endif
+--- xc/programs/Xserver/hw/xfree86/drivers/ati/radeon_probe.c.1_igp	Sun Mar  2 21:59:53 2003
++++ xc/programs/Xserver/hw/xfree86/drivers/ati/radeon_probe.c	Mon Mar  3 08:46:26 2003
+@@ -84,6 +84,10 @@
+     { PCI_CHIP_RADEON_LX, "ATI Mobility FireGL 7800 M7 LX (AGP)" },
+     { PCI_CHIP_RADEON_LY, "ATI Radeon Mobility M6 LY (AGP)" },
+     { PCI_CHIP_RADEON_LZ, "ATI Radeon Mobility M6 LZ (AGP)" },
++    { PCI_CHIP_RS100_4136, "ATI Radeon IGP320 (A3) 4136" },
++    { PCI_CHIP_RS100_4336, "ATI Radeon IGP320M (U1) 4336" },
++    { PCI_CHIP_RS200_4137, "ATI Radeon IGP330/340/350 (A4) 4137" },
++    { PCI_CHIP_RS200_4337, "ATI Radeon IGP330M/340M/350M (U2) 4337" },
+     { PCI_CHIP_R200_QH, "ATI FireGL 8700/8800 QH (AGP)" },
+     { PCI_CHIP_R200_QI, "ATI Radeon 8500 QI (AGP)" },
+     { PCI_CHIP_R200_QJ, "ATI Radeon 8500 QJ (AGP)" },
+@@ -130,6 +134,10 @@
+     { PCI_CHIP_RADEON_LX, PCI_CHIP_RADEON_LX, RES_SHARED_VGA },
+     { PCI_CHIP_RADEON_LY, PCI_CHIP_RADEON_LY, RES_SHARED_VGA },
+     { PCI_CHIP_RADEON_LZ, PCI_CHIP_RADEON_LZ, RES_SHARED_VGA },
++    { PCI_CHIP_RS100_4136, PCI_CHIP_RS100_4136, RES_SHARED_VGA },
++    { PCI_CHIP_RS100_4336, PCI_CHIP_RS100_4336, RES_SHARED_VGA },
++    { PCI_CHIP_RS200_4137, PCI_CHIP_RS200_4137, RES_SHARED_VGA },
++    { PCI_CHIP_RS200_4337, PCI_CHIP_RS200_4337, RES_SHARED_VGA },
+     { PCI_CHIP_R200_QH, PCI_CHIP_R200_QH, RES_SHARED_VGA },
+     { PCI_CHIP_R200_QI, PCI_CHIP_R200_QI, RES_SHARED_VGA },
+     { PCI_CHIP_R200_QJ, PCI_CHIP_R200_QJ, RES_SHARED_VGA },
+--- xc/programs/Xserver/hw/xfree86/drivers/ati/radeon_accel.c.1_igp	Sun Mar  2 22:00:07 2003
++++ xc/programs/Xserver/hw/xfree86/drivers/ati/radeon_accel.c	Mon Mar  3 08:47:20 2003
+@@ -277,7 +277,7 @@
+     pitch64 = ((pScrn->displayWidth * (pScrn->bitsPerPixel / 8) + 0x3f)) >> 6;
+ 
+     RADEONWaitForFifo(pScrn, 1);
+-    OUTREG(RADEON_DEFAULT_OFFSET, ((INREG(RADEON_DEFAULT_OFFSET) & 0xC0000000)
++    OUTREG(RADEON_DEFAULT_OFFSET, ((INREG(RADEON_DISPLAY_BASE_ADDR) >> 10)
+ 				   | (pitch64 << 22)));
+ 
+     RADEONWaitForFifo(pScrn, 1);
+--- xc/programs/Xserver/hw/xfree86/drivers/ati/radeon_video.c.1_igp	Sun Mar  2 22:01:51 2003
++++ xc/programs/Xserver/hw/xfree86/drivers/ati/radeon_video.c	Mon Mar  3 08:49:06 2003
+@@ -486,6 +486,12 @@
+     OUTPLL(RADEON_VCLK_ECP_CNTL, (INPLL(pScrn, RADEON_VCLK_ECP_CNTL) & 
+ 				  0xfffffCff) | (pPriv->ecp_div << 8));
+ 
++    if ((info->ChipFamily == CHIP_FAMILY_RS100) || (info->ChipFamily == CHIP_FAMILY_RS200)) {
++        /* Force the overlay clock on for integrated chips
++	 */ 
++        OUTPLL(RADEON_VCLK_ECP_CNTL, (INPLL(pScrn, RADEON_VCLK_ECP_CNTL) | (1<<18)));
++    }
++
+     info->adaptor = adapt;
+ 
+     return adapt;
+--- xc/programs/Xserver/hw/xfree86/drivers/ati/atiprobe.c.1_igp	Sun Mar  2 22:02:54 2003
++++ xc/programs/Xserver/hw/xfree86/drivers/ati/atiprobe.c	Mon Mar  3 08:53:19 2003
+@@ -1731,6 +1731,8 @@
+                     case ATI_CHIP_RADEON:
+                     case ATI_CHIP_RADEONVE:
+                     case ATI_CHIP_RADEONMOBILITY6:
++                    case ATI_CHIP_RS100:
++                    case ATI_CHIP_RS200:
+                     case ATI_CHIP_RADEONMOBILITY7:
+                     case ATI_CHIP_R200:
+                     case ATI_CHIP_RV200:
+--- xc/programs/Xserver/hw/xfree86/drivers/ati/atichip.c.1_igp	Sun Mar  2 22:03:41 2003
++++ xc/programs/Xserver/hw/xfree86/drivers/ati/atichip.c	Mon Mar  3 08:55:09 2003
+@@ -87,7 +87,9 @@
+     "ATI Radeon",
+     "ATI Radeon VE",
+     "ATI Radeon Mobility M6",
++    "ATI Radeon IGP320",
+     "ATI Radeon Mobility M7",
++    "ATI Radeon IGP330/340/350",
+     "ATI Radeon 8500",
+     "ATI Radeon 7500",
+     "ATI Radeon 9000",
+@@ -629,6 +631,14 @@
+         case NewChipID('L', 'Z'):
+             return ATI_CHIP_RADEONMOBILITY6;
+ 
++        case NewChipID('A', '6'):
++        case NewChipID('C', '6'):
++             return ATI_CHIP_RS100;
++
++        case NewChipID('A', '7'):
++        case NewChipID('C', '7'):
++             return ATI_CHIP_RS200;
++
+         case NewChipID('L', 'W'):
+         case NewChipID('L', 'X'):
+             return ATI_CHIP_RADEONMOBILITY7;
+--- xc/programs/Xserver/hw/xfree86/drivers/ati/atichip.h.1_igp	Sun Mar  2 22:03:48 2003
++++ xc/programs/Xserver/hw/xfree86/drivers/ati/atichip.h	Mon Mar  3 08:54:25 2003
+@@ -89,7 +89,9 @@
+     ATI_CHIP_RADEON,            /* Radeon */
+     ATI_CHIP_RADEONVE,          /* Radeon VE */
+     ATI_CHIP_RADEONMOBILITY6,   /* Radeon M6 */
++    ATI_CHIP_RS100,             /* IGP320 */
+     ATI_CHIP_RADEONMOBILITY7,   /* Radeon M7 */
++    ATI_CHIP_RS200,             /* IGP340 */
+     ATI_CHIP_R200,              /* R200 */
+     ATI_CHIP_RV200,             /* RV200 */
+     ATI_CHIP_RV250,             /* RV250 */

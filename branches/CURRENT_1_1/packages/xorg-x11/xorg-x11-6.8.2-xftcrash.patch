@@ -1,0 +1,102 @@
+--- xorg-x11-6.8.2/xc/lib/Xft/xftdpy.c.xftcrash	2004-04-23 20:43:42.000000000 +0200
++++ xorg-x11-6.8.2/xc/lib/Xft/xftdpy.c	2005-07-12 15:02:15.446726066 +0200
+@@ -109,22 +109,23 @@
+ 	XRenderQueryVersion (dpy, &major, &minor);
+ 	if (major < 0 || (major == 0 && minor <= 2))
+ 	    info->use_free_glyphs = FcFalse;
++
++	pf.type = PictTypeDirect;
++	pf.depth = 32;
++	pf.direct.redMask = 0xff;
++	pf.direct.greenMask = 0xff;
++	pf.direct.blueMask = 0xff;
++	pf.direct.alphaMask = 0xff;
++	info->solidFormat = XRenderFindFormat (dpy,
++					       (PictFormatType|
++						PictFormatDepth|
++						PictFormatRedMask|
++						PictFormatGreenMask|
++						PictFormatBlueMask|
++						PictFormatAlphaMask),
++					       &pf,
++					       0);
+     }
+-    pf.type = PictTypeDirect;
+-    pf.depth = 32;
+-    pf.direct.redMask = 0xff;
+-    pf.direct.greenMask = 0xff;
+-    pf.direct.blueMask = 0xff;
+-    pf.direct.alphaMask = 0xff;
+-    info->solidFormat = XRenderFindFormat (dpy,
+-					   (PictFormatType|
+-					    PictFormatDepth|
+-					    PictFormatRedMask|
+-					    PictFormatGreenMask|
+-					    PictFormatBlueMask|
+-					    PictFormatAlphaMask),
+-					   &pf,
+-					   0);
+     if (XftDebug () & XFT_DBG_RENDER)
+     {
+ 	Visual		    *visual = DefaultVisual (dpy, DefaultScreen (dpy));
+@@ -494,15 +495,18 @@
+     {
+ 	int	subpixel = FC_RGBA_UNKNOWN;
+ #if RENDER_MAJOR > 0 || RENDER_MINOR >= 6
+-	int render_order = XRenderQuerySubpixelOrder (dpy, screen);
+-	switch (render_order) {
+-	default:
+-	case SubPixelUnknown:		subpixel = FC_RGBA_UNKNOWN; break;
+-	case SubPixelHorizontalRGB:	subpixel = FC_RGBA_RGB; break;
+-	case SubPixelHorizontalBGR:	subpixel = FC_RGBA_BGR; break;
+-	case SubPixelVerticalRGB:	subpixel = FC_RGBA_VRGB; break;
+-	case SubPixelVerticalBGR:	subpixel = FC_RGBA_VBGR; break;
+-	case SubPixelNone:		subpixel = FC_RGBA_NONE; break;
++	if (XftDefaultHasRender (dpy))
++	{
++	    int render_order = XRenderQuerySubpixelOrder (dpy, screen);
++	    switch (render_order) {
++	    default:
++	    case SubPixelUnknown:	subpixel = FC_RGBA_UNKNOWN; break;
++	    case SubPixelHorizontalRGB:	subpixel = FC_RGBA_RGB; break;
++	    case SubPixelHorizontalBGR:	subpixel = FC_RGBA_BGR; break;
++	    case SubPixelVerticalRGB:	subpixel = FC_RGBA_VRGB; break;
++	    case SubPixelVerticalBGR:	subpixel = FC_RGBA_VBGR; break;
++	    case SubPixelNone:		subpixel = FC_RGBA_NONE; break;
++	    }
+ 	}
+ #endif
+ 	FcPatternAddInteger (pattern, FC_RGBA,
+--- xorg-x11-6.8.2/xc/lib/Xft/xftextent.c.xftcrash	2004-04-23 20:43:42.000000000 +0200
++++ xorg-x11-6.8.2/xc/lib/Xft/xftextent.c	2005-07-12 15:02:15.447726044 +0200
+@@ -66,14 +66,12 @@
+ 	    (xftg = font->glyphs[glyph]))
+ 	    break;
+     }
+-    if (n == 0 && !xftg)
++    if (n == 0)
+     {
+-	extents->width = 0;
+-	extents->height = 0;
+-	extents->x = 0;
+-	extents->y = 0;
+-	extents->yOff = 0;
+-	extents->xOff = 0;
++	if (xftg)
++	    *extents = xftg->metrics;
++	else
++	    memset (extents, '\0', sizeof (*extents));
+     }
+     else
+     {
+--- xorg-x11-6.8.2/xc/lib/Xft/xftfreetype.c.xftcrash	2004-08-12 01:37:34.000000000 +0200
++++ xorg-x11-6.8.2/xc/lib/Xft/xftfreetype.c	2005-07-12 15:04:03.214366466 +0200
+@@ -290,7 +290,7 @@
+ 	    FT_Done_Face (f->face);
+     }
+     XftMemFree (XFT_MEM_FILE,
+-		sizeof (XftFtFile) + f->file ? strlen (f->file) + 1 : 0);
++		sizeof (XftFtFile) + (f->file ? strlen (f->file) + 1 : 0));
+     free (f);
+ }
+ 
