@@ -1,7 +1,16 @@
-%define name	tcpdump
-%define version	3.8.3
-%define release	4avx
-%define epoch	2
+#
+# spec file for package tcpdump
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		tcpdump
+%define version		3.9.3
+%define release		1avx
+%define epoch		2
 
 Summary:	A network traffic monitoring tool
 Name:		%{name}
@@ -11,13 +20,10 @@ Epoch:		%{epoch}
 License:	BSD
 Group:	 	Monitoring
 URL:		http://www.tcpdump.org
-Source:		http://www.tcpdump.org/release/%{name}-%{version}.tar.bz2
-Patch0:		tcpdump-3.8.2-bgp-dos.patch.bz2
-Patch1:		tcpdump-3.8.2-isis-dos.patch.bz2
-Patch2:		tcpdump-3.8.2-ldp-dos.patch.bz2
-Patch3:		tcpdump-3.8.2-rsvp-dos.patch.bz2
+Source0:	http://www.tcpdump.org/release/%{name}-%{version}.tar.gz
+Source1:	http://www.tcpdump.org/release/%{name}-%{version}.tar.gz.sig
 
-BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	libpcap-devel
 
 %description
@@ -26,14 +32,10 @@ can capture and display the packet headers on a particular network
 interface or on all interfaces.  tcpdump can display all of the packet
 headers, or just the ones that match particular criteria.
 
-Install tcpdump if you need a program to monitor network traffic.
 
 %prep
 %setup -q
-%patch0 -p1 -b .bgp-dos
-%patch1 -p1 -b .isis-dos
-%patch2 -p1 -b .ldp-dos
-%patch3 -p1 -b .rsvp-dos
+
 
 %build
 libtoolize --copy --force
@@ -43,14 +45,15 @@ libtoolize --copy --force
 
 %make
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-#mkdir -p $RPM_BUILD_ROOT{%{_mandir}/man1,%{_sbindir}}
+%makeinstall_std
 
-make install DESTDIR=$RPM_BUILD_ROOT
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -58,7 +61,12 @@ make install DESTDIR=$RPM_BUILD_ROOT
 %{_sbindir}/tcpdump
 %{_mandir}/man1/tcpdump.1*
 
+
 %changelog
+* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 3.9.3-1avx
+- 3.9.3
+- drop P0-P3
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 3.8.3-4avx
 - rebuild
 
