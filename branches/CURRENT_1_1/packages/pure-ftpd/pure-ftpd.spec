@@ -1,6 +1,15 @@
-%define name	pure-ftpd
-%define	version 1.0.20
-%define release 2avx
+#
+# spec file for package pure-ftpd
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		pure-ftpd
+%define	version 	1.0.20
+%define release 	3avx
 
 Summary:	Lightweight, fast and secure FTP server
 Name:		%{name}
@@ -18,7 +27,7 @@ Source5:	pureftpd-log.run
 Patch0:		pure-ftpd-1.0.16b-slsconf.patch.bz2
 Patch1:		pure-ftpd-1.0.16b-pureconfig.patch
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	pam-devel, openldap-devel, MySQL-devel, postgresql-devel
 
 PreReq:		rpm-helper
@@ -35,6 +44,7 @@ domains, built-in LS, anti-warez system, bandwidth throttling, FXP, bounded
 ports for passive downloads, UL/DL ratios, native LDAP and SQL support,
 Apache log files and more.
 
+
 %package anonymous
 Summary:	Anonymous support for pure-ftpd
 Group:		System/Servers
@@ -42,6 +52,7 @@ Requires:	pure-ftpd
 
 %description anonymous
 This package provides anonymous support for pure-ftpd. 
+
 
 %package anon-upload
 Summary:	Anonymous upload support for pure-ftpd
@@ -51,8 +62,9 @@ Requires:	pure-ftpd
 %description anon-upload
 This package provides anonymous upload support for pure-ftpd. 
 
+
 %prep
-%setup -q -n %{name}-%{version}
+%setup -q
 %setup -q -D -T -a 2
 
 %patch0 -p1 -b .mdkconf
@@ -60,101 +72,95 @@ This package provides anonymous upload support for pure-ftpd.
 
 %build
 %configure2_5x \
-	--with-paranoidmsg \
-	--without-capabilities \
-	--with-pam \
-	--with-ldap \
-	--with-mysql \
-	--with-pgsql \
-	--with-puredb \
-	--without-sendfile \
-	--with-altlog \
-	--with-cookie \
-	--with-diraliases \
-	--with-throttling \
-	--with-ratios \
-	--with-quotas \
-	--with-ftpwho \
-	--with-welcomemsg \
-	--with-uploadscript \
-	--with-peruserlimits \
-	--with-virtualhosts \
-	--with-virtualchroot \
-	--with-extauth \
-	--with-largefile \
-	--sysconfdir=%{_sysconfdir}/%{name}
-		
+    --with-paranoidmsg \
+    --without-capabilities \
+    --with-pam \
+    --with-ldap \
+    --with-mysql \
+    --with-pgsql \
+    --with-puredb \
+    --without-sendfile \
+    --with-altlog \
+    --with-cookie \
+    --with-diraliases \
+    --with-throttling \
+    --with-ratios \
+    --with-quotas \
+    --with-ftpwho \
+    --with-welcomemsg \
+    --with-uploadscript \
+    --with-peruserlimits \
+    --with-virtualhosts \
+    --with-virtualchroot \
+    --with-extauth \
+    --with-largefile \
+    --sysconfdir=%{_sysconfdir}/%{name}
 
 %make
+
 
 %install 
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 make install-strip DESTDIR=%{buildroot}
 
-install -d -m 755 %{buildroot}%{_mandir}/man8/
-install -d -m 755 %{buildroot}%{_sbindir}
-install -d -m 755 %{buildroot}%{_sysconfdir}/%{name}
+mkdir -p %{buildroot}{%{_mandir}/man8,%{_sbindir},%{_sysconfdir}/{%{name},pam.d,logrotate.d}}
 
-# Conf 
+install -m 0755 configuration-file/pure-config.pl %{buildroot}%{_sbindir}
+install -m 0644 configuration-file/pure-ftpd.conf %{buildroot}%{_sysconfdir}/%{name}
+install -m 0755 configuration-file/pure-config.py %{buildroot}%{_sbindir}
+install -m 0644 pureftpd-ldap.conf %{buildroot}%{_sysconfdir}/%{name}
+install -m 0644 pureftpd-mysql.conf %{buildroot}%{_sysconfdir}/%{name}
+install -m 0644 pureftpd-pgsql.conf %{buildroot}%{_sysconfdir}/%{name}
 
-install -m 755 configuration-file/pure-config.pl %{buildroot}%{_sbindir}
-install -m 644 configuration-file/pure-ftpd.conf %{buildroot}%{_sysconfdir}/%{name}
-install -m 755 configuration-file/pure-config.py %{buildroot}%{_sbindir}
-install -m 644 pureftpd-ldap.conf %{buildroot}%{_sysconfdir}/%{name}
-install -m 644 pureftpd-mysql.conf %{buildroot}%{_sysconfdir}/%{name}
-install -m 644 pureftpd-pgsql.conf %{buildroot}%{_sysconfdir}/%{name}
+install -m 0644 man/pure-ftpd.8 %{buildroot}%{_mandir}/man8
+install -m 0644 man/pure-ftpwho.8 %{buildroot}%{_mandir}/man8
+install -m 0644 man/pure-mrtginfo.8 %{buildroot}%{_mandir}/man8
+install -m 0644 man/pure-uploadscript.8 %{buildroot}%{_mandir}/man8
+install -m 0644 man/pure-pw.8 %{buildroot}%{_mandir}/man8
+install -m 0644 man/pure-pwconvert.8 %{buildroot}%{_mandir}/man8
+install -m 0644 man/pure-statsdecode.8 %{buildroot}%{_mandir}/man8
+install -m 0644 man/pure-quotacheck.8 %{buildroot}%{_mandir}/man8
+install -m 0644 man/pure-authd.8 %{buildroot}%{_mandir}/man8
 
-# Man
+install -m 0644 pam/pure-ftpd %{buildroot}%{_sysconfdir}/pam.d/
 
-install -m 644 man/pure-ftpd.8 %{buildroot}%{_mandir}/man8
-install -m 644 man/pure-ftpwho.8 %{buildroot}%{_mandir}/man8
-install -m 644 man/pure-mrtginfo.8 %{buildroot}%{_mandir}/man8
-install -m 644 man/pure-uploadscript.8 %{buildroot}%{_mandir}/man8
-install -m 644 man/pure-pw.8 %{buildroot}%{_mandir}/man8
-install -m 644 man/pure-pwconvert.8 %{buildroot}%{_mandir}/man8
-install -m 644 man/pure-statsdecode.8 %{buildroot}%{_mandir}/man8
-install -m 644 man/pure-quotacheck.8 %{buildroot}%{_mandir}/man8
-install -m 644 man/pure-authd.8 %{buildroot}%{_mandir}/man8
+install -m 0644 %{SOURCE2} %{buildroot}%{_sysconfdir}/logrotate.d/%{name}
 
-# Pam 
-install -d -m 755 %{buildroot}%{_sysconfdir}/pam.d/
-install -m 644 pam/pure-ftpd %{buildroot}%{_sysconfdir}/pam.d/
+# anonymous ftp
+mkdir -p %{buildroot}/var/ftp/pub/
+mkdir -p %{buildroot}/var/ftp/incoming/
 
-# Logrotate
-install -d %{buildroot}%{_sysconfdir}/logrotate.d/
-install -m644 %{SOURCE2} %{buildroot}%{_sysconfdir}/logrotate.d/%{name}
-
-#anonymous ftp
-mkdir -p $RPM_BUILD_ROOT/var/ftp/pub/
-mkdir -p $RPM_BUILD_ROOT/var/ftp/incoming/
-
-# supervise scripts
 mkdir -p %{buildroot}%{_srvdir}/pureftpd/log
 mkdir -p %{buildroot}%{_srvlogdir}/pureftpd
 install -m 0755 %{SOURCE4} %{buildroot}%{_srvdir}/pureftpd/run
 install -m 0755 %{SOURCE5} %{buildroot}%{_srvdir}/pureftpd/log/run
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %post
 # ftpusers creation
 if [ ! -f %{_sysconfdir}/ftpusers ]; then
-	touch %{_sysconfdir}/ftpusers
+    touch %{_sysconfdir}/ftpusers
 fi
 
 USERS="root bin daemon adm lp sync shutdown halt mail news uucp operator games nobody"
 for i in $USERS ;do
-        cat %{_sysconfdir}/ftpusers | grep -q "^$i$" || echo $i >> %{_sysconfdir}/ftpusers
+    cat %{_sysconfdir}/ftpusers | grep -q "^$i$" || echo $i >> %{_sysconfdir}/ftpusers
 done
 
 %_post_srv pureftpd
 
+
 %pre
 %_pre_useradd ftp /var/ftp /bin/false 81
 
+
 %postun
 %_postun_userdel ftp
+
 
 %preun
 %_preun_srv pureftpd
@@ -197,6 +203,7 @@ done
 %files anon-upload
 %defattr(777, root, root)
 %dir /var/ftp/incoming/
+
 
 %changelog
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 1.0.19-2avx
