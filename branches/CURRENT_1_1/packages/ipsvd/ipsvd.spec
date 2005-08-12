@@ -1,6 +1,15 @@
-%define	name	ipsvd
-%define	version	0.10.1
-%define	release	3avx
+#
+# spec file for package ipsvd
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define	name		ipsvd
+%define	version		0.10.1
+%define	release		4avx
 
 Summary:	Internet protocol service daemons
 Name:		%{name}
@@ -13,7 +22,7 @@ Source0:	%{name}-%{version}.tar.bz2
 Patch0:		ipsvd-0.10.1-mdk-system_matrixssl.diff.bz2
 Patch1:		ipsvd-0.10.1-avx-matrixarch.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	dietlibc-devel >= 0.27-2avx
 BuildRequires:	matrixssl-devel >= 1.2.2-3avx
 
@@ -43,12 +52,13 @@ package.
 ipsvd can be used to run services normally run by inetd, xinetd, or 
 tcpserver. 
 
-%prep
 
+%prep
 %setup -q -n net
 %patch0 -p0
 %patch1 -p0
 perl -pi -e s"|{ARCH}|${MYARCH}|g" Makefile
+
 
 %build
 pushd %{name}-%{version}/src
@@ -59,6 +69,7 @@ pushd %{name}-%{version}/src
     make
 popd
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
@@ -67,16 +78,18 @@ install -d %{buildroot}%{_mandir}/man{5,7,8}
 
 pushd %{name}-%{version}
     for i in ipsvd-cdb sslio tcpsvd udpsvd; do
-	install -m0755 src/$i %{buildroot}/sbin/
+	install -m 0755 src/$i %{buildroot}/sbin/
     done
 popd
 
-install -m0644 %{name}-%{version}/man/*.5 %{buildroot}%{_mandir}/man5/
-install -m0644 %{name}-%{version}/man/*.7 %{buildroot}%{_mandir}/man7/
-install -m0644 %{name}-%{version}/man/*.8 %{buildroot}%{_mandir}/man8/
+install -m 0644 %{name}-%{version}/man/*.5 %{buildroot}%{_mandir}/man5/
+install -m 0644 %{name}-%{version}/man/*.7 %{buildroot}%{_mandir}/man7/
+install -m 0644 %{name}-%{version}/man/*.8 %{buildroot}%{_mandir}/man8/
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -94,7 +107,11 @@ install -m0644 %{name}-%{version}/man/*.8 %{buildroot}%{_mandir}/man8/
 %attr(0644,root,root) %{_mandir}/man8/ipsvd-cdb.8*
 %attr(0644,root,root) %{_mandir}/man8/tcpsvd.8*
 
+
 %changelog
+* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 0.10.1-4avx
+- bootstrap build (new gcc, new glibc)
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 0.10.1-3avx
 - rebuild
 

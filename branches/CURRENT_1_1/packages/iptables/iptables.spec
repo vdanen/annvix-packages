@@ -9,7 +9,7 @@
 
 %define name		iptables
 %define version		1.3.1
-%define release		1avx
+%define release		2avx
 
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 Name:		%{name}
@@ -31,7 +31,7 @@ Patch2:		iptables-1.2.8-imq.patch.bz2
 Patch3:		iptables-1.2.8-libiptc.h.patch.bz2 
 Patch4:		iptables-1.2.9-CAN-2004-0986.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildPrereq:	perl
 BuildRequires:  kernel-source >= 2.4.24-3avx
 
@@ -43,9 +43,6 @@ Conflicts:	ipchains
 %description
 iptables controls the Linux kernel network packet filtering code.
 It allows you to set up firewalls and IP masquerading, etc.
-
-Install iptables if you need to set up firewalling for your
-network.
 
 
 %package ipv6
@@ -61,9 +58,6 @@ iptables controls the Linux kernel network packet filtering code.
 It allows you to set up firewalls and IP masquerading, etc.
 
 IPv6 is the next version of the IP protocol.
-
-Install iptables-ipv6 if you need to set up firewalling for your
-network and you're using ipv6.
 
 
 %package devel
@@ -101,8 +95,20 @@ find . -type f | xargs perl -pi -e "s,/usr/local,%{_prefix},g"
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 # Dunno why this happens. -- Geoff
-%makeinstall_std BINDIR=/sbin MANDIR=%{_mandir} LIBDIR=/lib COPT_FLAGS="$RPM_OPT_FLAGS -DNETLINK_NFLOG=4" KERNEL_DIR=/usr install-experimental
-make install-devel DESTDIR=%{buildroot} KERNEL_DIR=/usr BINDIR=/sbin LIBDIR=%{_libdir} MANDIR=%{_mandir}
+%makeinstall_std \
+    BINDIR=/sbin \
+    MANDIR=%{_mandir} \
+    LIBDIR=/lib \
+    COPT_FLAGS="%{optflags} -DNETLINK_NFLOG=4" \
+    KERNEL_DIR=/usr \
+    install-experimental
+
+make install-devel \
+    DESTDIR=%{buildroot} \
+    KERNEL_DIR=/usr \
+    BINDIR=/sbin \
+    LIBDIR=%{_libdir} \
+    MANDIR=%{_mandir}
 
 install -c -D -m 0755 %{SOURCE1} %{buildroot}%{_initrddir}/iptables
 install -c -D -m 0755 %{SOURCE2} %{buildroot}%{_initrddir}/ip6tables
@@ -112,7 +118,7 @@ install -c -D -m 0644 %{SOURCE4} ip6tables.sample
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-rm -rf $RPM_BUILD_DIR/file.list.%{name}
+rm -rf %{_builddir}/file.list.%{name}
 
 
 %post
@@ -173,6 +179,9 @@ fi
 
 
 %changelog
+* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 1.3.1-2avx
+- bootstrap build (new gcc, new glibc)
+
 * Sat Jun 11 2005 Vincent Danen <vdanen@annvix.org> 1.3.1-1avx
 - 1.3.1
 - rediff P1
@@ -222,7 +231,7 @@ fi
 
 * Fri Jul 25 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 1.2.7a-3mdk
 - rebuild
-- rm -rf $RPM_BUILD_ROOT at the beginning of %%install, not in %%prep
+- rm -rf %{buildroot} at the beginning of %%install, not in %%prep
 - use %%make macro
 - use %%makeinstall_std macro
 
@@ -318,7 +327,7 @@ fi
 
 * Sat Mar 24 2001 David BAUDENS <baudens@mandrakesoft.com> 1.2.1-3mdk
 - PPC: build with gcc
-- Requires: %%version-%%release and not only %%version
+- Requires: %%{version}-%%{release} and not only %%{version}
 
 * Fri Mar 23 2001 Geoffrey Lee <snailtalk@mandrakesoft.com> 1.2.1-2mdk
 - Patches from Abel Cheung <maddog@linuxhall.org>

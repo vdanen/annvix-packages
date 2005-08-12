@@ -1,6 +1,15 @@
-%define name	shorewall
-%define version 2.0.6
-%define release 3avx
+#
+# spec file for package shorewall
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		shorewall
+%define version 	2.0.6
+%define release 	4avx
 
 %define samples_version	2.0.1
 
@@ -18,7 +27,7 @@ Source3:	ftp://ftp.shorewall.net/pub/shorewall/Samples/samples-%{samples_version
 Source4:	ftp://ftp.shorewall.net/pub/shorewall/Samples/samples-%{samples_version}/three-interfaces.tgz
 Source5:	init.sh.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
 
 Requires:	iptables, chkconfig
@@ -30,22 +39,24 @@ The Shoreline Firewall, more commonly known as "Shorewall", is a Netfilter
 (iptables) based firewall that can be used on a dedicated firewall system,
 a multi-function gateway/ router/server or on a standalone GNU/Linux system.
 
-%prep
 
+%prep
 %setup -q
 
-bzcat %SOURCE5 > $RPM_BUILD_DIR/%{name}-%{version}/init.sh
+bzcat %{SOURCE5} > %{_builddir}/%{name}-%{version}/init.sh
 mkdir samples
 pushd samples
-  tar xzf %SOURCE2
-  tar xzf %SOURCE3
-  tar xzf %SOURCE4
+    tar xzf %{SOURCE2}
+    tar xzf %{SOURCE3}
+    tar xzf %{SOURCE4}
 popd
+
 
 %build
 find -name CVS | xargs rm -fr
 find -name "*~" | xargs rm -fr
 find samples/ -type f | xargs chmod 0644 
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -62,13 +73,16 @@ rm -rf %{buildroot}/etc/init.d
 # startup script by RPM. This automatic replacement is broken.
 export DONT_GPRINTIFY=1
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %post
 if [ "$1" == "1" ]; then
     chkconfig --add shorewall
 fi
+
 
 %files
 %defattr(-,root,root)
@@ -108,6 +122,9 @@ fi
 
 
 %changelog
+* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 2.0.6-4avx
+- bootstrap build (new gcc, new glibc)
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.0.6-3avx
 - rebuild
 

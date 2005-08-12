@@ -1,6 +1,15 @@
-%define name	mtools
-%define version	3.9.9
-%define release	7avx
+#
+# spec file for package mtools
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		mtools
+%define version		3.9.9
+%define release		8avx
 
 Summary:	Programs for accessing MS-DOS disks without mounting the disks
 Name: 		%{name}
@@ -16,7 +25,7 @@ Patch2: 	mtools-3.9.6-atari.patch.bz2
 Patch4: 	mtools-3.9.8-fs.patch.bz2
 Patch5: 	mtools-3.9.9-supermount.patch.bz2
 
-BuildRoot: 	%{_tmppath}/%{name}-root
+BuildRoot: 	%{_tmppath}/%{name}-%{version}
 BuildRequires: 	texinfo
 
 PreReq: 	info-install
@@ -27,7 +36,6 @@ Mtools allow you to read, write and move around MS-DOS filesystem
 files (normally on MS-DOS floppy disks).  Mtools supports Windows95
 style long file names, OS/2 Xdf disks, and 2m disks.
 
-Mtools should be installed if you need to use MS-DOS disks.
 
 %prep
 %setup -q
@@ -37,9 +45,11 @@ Mtools should be installed if you need to use MS-DOS disks.
 %patch4 -p1 -b .compil
 %patch5 -p1 -b .supermount
 
+
 %build
 %configure --without-x
 make
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -50,14 +60,17 @@ mkdir -p %{buildroot}/%{_prefix} %{buildroot}%{_sysconfdir}
 rm -f %{buildroot}%{_bindir}/mformat
 cp -a %{buildroot}%{_bindir}/mtools %{buildroot}%{_bindir}/mformat
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %post
 %_install_info %{name}.info
 
 %preun
 %_remove_install_info %{name}.info
+
 
 %files
 %defattr(-,root,root)
@@ -84,7 +97,11 @@ cp -a %{buildroot}%{_bindir}/mtools %{buildroot}%{_bindir}/mformat
 %{_mandir}/*/*
 %{_infodir}/%{name}.*
 
+
 %changelog
+* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 3.9.9-8avx
+- bootstrap build (new gcc, new glibc)
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 3.9.9-7avx
 - rebuild
 

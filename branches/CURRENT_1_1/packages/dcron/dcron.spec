@@ -1,6 +1,15 @@
-%define	name	dcron
-%define	version	2.9
-%define	release	11avx
+#
+# spec file for package dcron
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define	name		dcron
+%define	version		2.9
+%define	release		12avx
 
 Summary:	Dillon's Cron Daemon
 Name:		%{name}
@@ -16,7 +25,7 @@ Source3:	etc-crontab
 Patch0:		http://www.ogris.de/diet/dcron29-dietlibc-patch.diff.bz2
 Patch1:		dcron29-avx-paths.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 
 PreReq:		rpm-helper, srv, runit, setup
 Conflicts:	vixie-cron
@@ -28,15 +37,17 @@ A multiuser cron written from scratch, dcron is follows concepts
 of vixie-cron but has significant differences. Less attention is
 paid to feature development in favor of usability and reliability.
 
-%prep
 
+%prep
 %setup -q -n dcron
 %patch0 -p1
 %patch1 -p1 -b .avx
 perl -pi -e "s|VISUAL|EDITOR|g" crontab.*
 
+
 %build
 make CC="gcc" CFLAGS="%{optflags}"
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -47,17 +58,22 @@ install -d %{buildroot}%{_mandir}/man{1,8}
 install -d %{buildroot}%{_sbindir}
 install -d %{buildroot}/var/spool/dcron/crontabs
 
-install -m0755 crontab %{buildroot}%{_bindir}/
-install -m0755 crond %{buildroot}%{_sbindir}/
-install -m0644 crontab.1 %{buildroot}%{_mandir}/man1/
-install -m0644 crond.8 %{buildroot}%{_mandir}/man8/
+install -m 0755 crontab %{buildroot}%{_bindir}/
+install -m 0755 crond %{buildroot}%{_sbindir}/
+install -m 0644 crontab.1 %{buildroot}%{_mandir}/man1/
+install -m 0644 crond.8 %{buildroot}%{_mandir}/man8/
 
-install -m0644 %{SOURCE3} %{buildroot}%{_sysconfdir}/crontab
+install -m 0644 %{SOURCE3} %{buildroot}%{_sysconfdir}/crontab
 
 install -d %{buildroot}%{_srvdir}/crond/log
 install -d %{buildroot}%{_srvlogdir}/crond
-install -m0755 %{SOURCE1} %{buildroot}%{_srvdir}/crond/run
-install -m0755 %{SOURCE2} %{buildroot}%{_srvdir}/crond/log/run
+install -m 0755 %{SOURCE1} %{buildroot}%{_srvdir}/crond/run
+install -m 0755 %{SOURCE2} %{buildroot}%{_srvdir}/crond/log/run
+
+
+%clean
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %post
 if [[ -z `crontab -l | grep run-parts` ]]; then
@@ -69,8 +85,6 @@ fi
 %preun
 %_preun_srv crond
 
-%clean
-[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -92,7 +106,11 @@ fi
 %{_srvdir}/crond/log/run
 %dir %attr(0750,logger,logger) %{_srvlogdir}/crond
 
+
 %changelog
+* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 2.9-12avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.9-11avx
 - bootstrap build
 

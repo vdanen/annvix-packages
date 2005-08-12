@@ -1,7 +1,15 @@
-%define name	SysVinit
-%define version 2.85
-%define release 10avx
-%define url	ftp://ftp.cistron.nl/pub/people/miquels/software
+#
+# spec file for package SysVinit
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		SysVinit
+%define version 	2.85
+%define release 	11avx
 
 Summary:	Programs which control basic system processes
 Name:		%{name}
@@ -9,8 +17,8 @@ Version:	%{version}
 Release:	%{release}
 License:	GPL
 Group:		System/Configuration/Boot and Init
-URL:		%{url}
-Source:		%{url}/sysvinit-%{version}.tar.bz2
+URL:		ftp://ftp.cistron.nl/pub/people/miquels/software
+Source:		ftp://ftp.cistron.nl/pub/people/miquels/software/sysvinit-%{version}.tar.bz2
 Source1:	reboot.avx
 Source2:	halt.avx
 Patch0:		sysvinit-2.77-md5-be.patch.bz2
@@ -27,7 +35,7 @@ Patch10:	sysvinit-2.83-biarch-utmp.patch.bz2
 Patch11:	sysvinit-disable-respawn-more-quickly.patch.bz2
 Patch12:	sysvinit-2.85-avx-silent_no_runlevel.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	glibc-static-devel
 
 Requires:	pam >= 0.66-5
@@ -41,6 +49,7 @@ of all other programs.
 
 NOTE: Annvix uses runit to handle init's duties, but this package still
 contains some useful utilities to manage the running of the system.
+
 
 %prep
 %setup -q -n sysvinit-%{version}
@@ -60,29 +69,31 @@ contains some useful utilities to manage the running of the system.
 %patch10 -p1 -b .biarch-utmp
 %patch12 -p1 -b .silent_no_runlevel
 
+
 %build
 # cpp hack workaround
-cd src
-perl -pi -e "s,\"paths.h\",\"pathsfoo.h\",g" *
-mv paths.h pathsfoo.h
-cd ..
+pushd src
+    perl -pi -e "s,\"paths.h\",\"pathsfoo.h\",g" *
+    mv paths.h pathsfoo.h
+popd
 
 make CFLAGS="%{optflags} -D_GNU_SOURCE" -C src
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 for I in sbin usr/bin %{_mandir}/man{1,3,5,8} etc var/run dev; do
-	mkdir -p %{buildroot}/$I
+    mkdir -p %{buildroot}/$I
 done
 
 make -C src ROOT=%{buildroot} MANDIR=%{_mandir} \
-	BIN_OWNER=`id -nu` BIN_GROUP=`id -ng` install
+    BIN_OWNER=`id -nu` BIN_GROUP=`id -ng` install
 
 # If this already exists, just do nothing (the ||: part)
 mknod --mode=0600 %{buildroot}/dev/initctl p ||:
 ln -snf killall5 %{buildroot}/sbin/pidof
 
-chmod 755 %{buildroot}/usr/bin/utmpdump
+chmod 0755 %{buildroot}/usr/bin/utmpdump
 
 # move around files for runit
 rm -rf	%{buildroot}/usr/include
@@ -94,13 +105,16 @@ rm -f %{buildroot}%{_mandir}/man8/telinit.8
 #install -m 0750 %{SOURCE1} %{buildroot}/sbin/reboot
 #install -m 0750 %{SOURCE2} %{buildroot}/sbin/halt
 
+
+%clean
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
+
 %post
 [ ! -p /dev/initctl ] && rm -f /dev/initctl && mknod --mode=0600 /dev/initctl p || :
 [ -e /var/run/initrunlvl ] && ln -s ../var/run/initrunlvl /etc/initrunlvl || :
 exit 0
 
-%clean
-[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -116,7 +130,6 @@ exit 0
 /sbin/shutdown
 /sbin/sulogin
 /sbin/telinit
-
 /usr/bin/last
 /usr/bin/lastb
 /usr/bin/mesg
@@ -125,7 +138,11 @@ exit 0
 %{_mandir}/*/*
 %ghost /dev/initctl
 
+
 %changelog
+* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 2.85-11avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.85-10avx
 - bootstrap build
 

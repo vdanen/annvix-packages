@@ -9,7 +9,7 @@
 
 %define name		clamav
 %define version		0.86.1
-%define release		1avx
+%define release		2avx
 
 %define	major		1
 %define libname		%mklibname %{name} %{major}
@@ -31,7 +31,7 @@ Source6:	freshclam.run
 Source7:	freshclam-log.run
 Patch0:		clamav-0.86.1-avx-config.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	autoconf2.5, automake1.7
 BuildRequires:	zlib-devel, gmp-devel, curl-devel, bzip2-devel
 
@@ -99,6 +99,7 @@ done
 	
 %patch0 -p1 -b .avx
 
+
 %build
 export WANT_AUTOCONF_2_5=1
 libtoolize --copy --force && aclocal-1.7 && autoconf && automake-1.7
@@ -118,7 +119,8 @@ libtoolize --copy --force && aclocal-1.7 && autoconf && automake-1.7
     --with-libcurl \
     --with-zlib=%{_prefix} \
     --disable-zlib-vcheck \
-    --disable-milter --without-tcpwrappers
+    --disable-milter \
+    --without-tcpwrappers
 #   --enable-debug
 
 %make 
@@ -152,6 +154,11 @@ mkdir -p %{buildroot}/var/run/%{name}
 
 # fix TMPDIR
 mkdir -p %{buildroot}%{_localstatedir}/%{name}/tmp
+
+
+%clean
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %pre
 %_pre_useradd clamav %{_localstatedir}/%{name} /bin/sh 89
@@ -201,8 +208,6 @@ done
 %post -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
 
-%clean
-[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -269,6 +274,9 @@ done
 %{_libdir}/pkgconfig/libclamav.pc
       
 %changelog
+* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 0.86.1-2avx
+- bootstrap build (new gcc, new glibc)
+
 * Tue Jul 19 2005 Vincent Danen <vdanen@annvix.org> 0.86.1-1avx
 - 0.86.1 (fixes a possible crash in libmspack's Quantum decompressor)
 - make the freshclam and clamd logfiles mode 0640 rather than 0644

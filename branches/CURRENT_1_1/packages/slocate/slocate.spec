@@ -1,6 +1,15 @@
-%define name	slocate
-%define version	2.7
-%define release	6avx
+#
+# spec file for package slocate
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		slocate
+%define version		2.7
+%define release		7avx
 
 Summary:	Finds files on a system via a central database
 Name:		%{name}
@@ -17,7 +26,7 @@ Patch:		slocate-2.5-info.patch.bz2
 Patch1:		slocate-2.5-glibc-2.2.patch.bz2
 Patch2:		slocate-2.5-segfault.patch.bz2
 
-Buildroot:	%{_tmppath}/%{name}-root
+Buildroot:	%{_tmppath}/%{name}-%{version}
 
 Prereq:		shadow-utils
 
@@ -27,54 +36,61 @@ slocate searches through a central database (updated regularly)
 for files which match a given pattern. Slocate allows you to quickly
 find files anywhere on your system.
 
+
 %prep
 %setup -q -n %{name}-%{version}
 %patch -p1
 %patch1 -p1
 %patch2 -p1
 
+
 %build
 %configure
 %make
 
-chmod 644 AUTHORS INSTALL LICENSE README ChangeLog
+chmod 0644 AUTHORS INSTALL LICENSE README ChangeLog
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p $RPM_BUILD_ROOT/%{_bindir}
+mkdir -p $RPM_BUILD_ROOT%{_bindir}
 mkdir -p $RPM_BUILD_ROOT%{_mandir}/man1
-mkdir -p $RPM_BUILD_ROOT/%{_sysconfdir}/cron.weekly
+mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/cron.weekly
 mkdir -p $RPM_BUILD_ROOT/var/lib/slocate
 
-install slocate $RPM_BUILD_ROOT/%{_bindir}
-(cd $RPM_BUILD_ROOT/%{_bindir} && rm -f locate && ln slocate locate )
+install slocate $RPM_BUILD_ROOT%{_bindir}
+(cd $RPM_BUILD_ROOT%{_bindir} && rm -f locate && ln slocate locate )
 gzip -dc doc/slocate.1.linux.gz > $RPM_BUILD_ROOT%{_mandir}/man1/slocate.1
 gzip -dc doc/updatedb.1.gz > $RPM_BUILD_ROOT%{_mandir}/man1/updatedb.1
 (cd $RPM_BUILD_ROOT%{_mandir}/man1 && ln slocate.1 locate.1)
-install -m 755 %{SOURCE1} $RPM_BUILD_ROOT/%{_sysconfdir}/cron.weekly/
+install -m 0755 %{SOURCE1} $RPM_BUILD_ROOT%{_sysconfdir}/cron.weekly/
 
-install -m 644 %{SOURCE3} $RPM_BUILD_ROOT/%{_sysconfdir}/
-install -m 755 %{SOURCE4} $RPM_BUILD_ROOT/%{_bindir}/updatedb
+install -m 0644 %{SOURCE3} $RPM_BUILD_ROOT%{_sysconfdir}/
+install -m 0755 %{SOURCE4} $RPM_BUILD_ROOT%{_bindir}/updatedb
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
+
 %pre
 %_pre_groupadd slocate 17
 
+
 %post
 if [ "$1" = "0" ]; then
-	[ -f /var/lib/slocate/slocate.db ] && rm -f /var/lib/slocate/slocate.db
-	touch /var/lib/slocate/slocate.db
+    [ -f /var/lib/slocate/slocate.db ] && rm -f /var/lib/slocate/slocate.db
+    touch /var/lib/slocate/slocate.db
 fi
 
 %preun
 if [ "$1" = "0" ]; then 
-  [ -f /var/lib/slocate/slocate.db ] && rm -f /var/lib/slocate/slocate.db || true
+    [ -f /var/lib/slocate/slocate.db ] && rm -f /var/lib/slocate/slocate.db || true
 fi
 
 %postun
 %_postun_groupdel slocate
+
 
 %files
 %defattr(-,root,root,755)
@@ -86,7 +102,11 @@ fi
 %config(noreplace) %{_sysconfdir}/cron.weekly/slocate.cron
 %config(noreplace) %{_sysconfdir}/updatedb.conf
 
+
 %changelog
+* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 2.7-7avx
+- bootstrap build (new gcc, new glibc)
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.7-6avx
 - rebuild
 

@@ -1,6 +1,15 @@
-%define name	screen
-%define version	4.0.2
-%define release	3avx
+#
+# spec file for package screen
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		screen
+%define version		4.0.2
+%define release		4avx
 
 Summary:	A screen manager that supports multiple logins on one terminal
 Name:		%{name}
@@ -19,7 +28,7 @@ Patch6:		screen-3.9.13-no-libelf.patch.bz2
 Patch7:		screen-3.9.11-biarch-utmp.patch.bz2
 Patch8:		screen-3.9.15-overflow.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	ncurses-devel
 BuildRequires:	utempter-devel
 BuildRequires:	texinfo
@@ -32,11 +41,8 @@ terminal.  Screen is useful for users who telnet into a machine or
 are connected via a dumb terminal, but want to use more than just
 one login.
 
-Install the screen package if you need a screen manager that can
-support multiple logins on one terminal.
 
 %prep
-
 %setup -q
 %patch0 -p1 
 %patch1 -p1 
@@ -47,6 +53,7 @@ support multiple logins on one terminal.
 %patch6 -p1 -b .no-libelf
 %patch7 -p1 -b .biarch-utmp
 %patch8 -p1 -b .overflow
+
 
 %build
 %configure
@@ -61,26 +68,26 @@ perl -pi -e 's|/usr/local/etc/screenrc|%{_sysconfdir}/screenrc|' etc/etcscreenrc
 perl -pi -e 's|/local/etc/screenrc|%{_sysconfdir}/screenrc|' doc/*
 rm doc/screen.info*
 
-%make CFLAGS="$RPM_OPT_FLAGS -DETCSCREENRC=\\\"%{_sysconfdir}/screenrc\\\""
+%make CFLAGS="%{optflags} -DETCSCREENRC=\\\"%{_sysconfdir}/screenrc\\\""
 # This option brake compilation with standard Mandrake options
 # -D_GNU_SOURCE"
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p $RPM_BUILD_ROOT/%{_sysconfdir}/skel
+mkdir -p %{buildroot}%{_sysconfdir}/skel
 
-%makeinstall SCREENENCODINGS=%buildroot/%{_datadir}/screen/utf8encodings/
+%makeinstall SCREENENCODINGS=%{buildroot}%{_datadir}/screen/utf8encodings/
 
-( cd $RPM_BUILD_ROOT/%{_bindir} && {
-	rm -f screen.old screen
-	mv screen-%{version} screen
-  }
-)
+pushd %{buildroot}%{_bindir}
+    rm -f screen.old screen
+    mv screen-%{version} screen
+popd
 
-install -c -m 0644 etc/etcscreenrc $RPM_BUILD_ROOT/%{_sysconfdir}/screenrc
-install -c -m 0644 etc/screenrc $RPM_BUILD_ROOT/%{_sysconfdir}/skel/.screenrc
+install -c -m 0644 etc/etcscreenrc %{buildroot}%{_sysconfdir}/screenrc
+install -c -m 0644 etc/screenrc %{buildroot}%{_sysconfdir}/skel/.screenrc
 
-mkdir -p $RPM_BUILD_ROOT/%{_sysconfdir}/profile.d
+mkdir -p %{buildroot}%{_sysconfdir}/profile.d
 
 echo '  screen ()
 	{
@@ -89,18 +96,20 @@ echo '  screen ()
 	fi
 	%{_bindir}/screen $@
 	}
-	' > $RPM_BUILD_ROOT/%{_sysconfdir}/profile.d/screen.sh 
+	' > %{buildroot}%{_sysconfdir}/profile.d/screen.sh 
 
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
+
 %post
-%_install_info %name.
+%_install_info %{name}
 
 
 %preun
-%_remove_install_info %name
+%_remove_install_info %{name}
+
 
 %files
 %defattr(-,root,root)
@@ -113,7 +122,11 @@ echo '  screen ()
 %attr(644,root,root) %config(noreplace) %{_sysconfdir}/skel/.screenrc
 %{_datadir}/screen/
 
+
 %changelog
+* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 4.0.2-4avx
+- bootstrap build (new gcc, new glibc)
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 4.0.2-3avx
 - rebuild
 

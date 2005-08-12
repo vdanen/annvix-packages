@@ -1,8 +1,15 @@
-# $Id: setup.spec,v 1.14 2005/03/20 07:43:55 vdanen Exp $
+#
+# spec file for package setup
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+# $Id: setup.spec,v 1.15 2005/08/12 21:19:31 vdanen Exp $
 
-%define name	setup
-%define version 2.5
-%define release 4avx
+%define name		setup
+%define version 	2.5
+%define release 	5avx
 
 Summary:	A set of system configuration and setup files
 Name:		%{name}
@@ -13,7 +20,7 @@ Group:		System/Configuration/Other
 URL:		http://annvix.org/cgi-bin/viewcvs.cgi/tools/setup
 Source:		setup-%{version}.tar.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 
 Requires:	shadow-utils
 
@@ -22,15 +29,14 @@ The setup package contains a set of very important system
 configuration and setup files, such as passwd, group,
 profile and more.
 
-You should install the setup package because you will
-find yourself using its many features for system
-administration.
 
 %prep
 %setup -q
 
+
 %build
 %make CFLAGS="%{optflags}"
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -40,16 +46,19 @@ rm -rf %{buildroot}%{_datadir}/base-passwd %{buildroot}%{_sbindir}
 rm -f  `find %{buildroot}%{_mandir} -name 'update-passwd*'`
 mkdir -p %{buildroot}/var/lib/rsbac
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %post 
 pwconv 2>/dev/null >/dev/null  || :
 grpconv 2>/dev/null >/dev/null  || :
 
 if [ -x /usr/sbin/nscd ]; then
-	nscd -i passwd -i group || :
+    nscd -i passwd -i group || :
 fi
+
 
 %files
 %defattr(-,root,root)
@@ -90,7 +99,11 @@ fi
 %verify(not md5 size mtime) /var/log/lastlog
 %dir /var/lib/rsbac
 
+
 %changelog
+* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 2.5-5avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.5-4avx
 - bootstrap build
 

@@ -1,12 +1,20 @@
-%define name	sablotron
-%define version 0.98
-%define release 6avx
+#
+# spec file for package sablotron
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		sablotron
+%define version 	0.98
+%define release 	7avx
 
 %define	altname		Sablot
-%define builddir	$RPM_BUILD_DIR/%{altname}-%{version}
-%define lib_name_orig	libsablotron
-%define lib_major	0
-%define lib_name	%mklibname %{name} %{lib_major}
+%define libname_orig	libsablotron
+%define major		0
+%define libname		%mklibname %{name} %{major}
 
 Summary: 	XSLT processor
 Name: 		%{name}
@@ -18,11 +26,11 @@ URL:		http://www.gingerall.cz
 Source: 	http://www.gingerall.com:/perl/rd?url=sablot/%{altname}-%{version}.tar.bz2
 Patch:		sablot-lib-0.71.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:  expat-devel >= 1.95.2
 
 Requires:	expat >= 1.95.2
-Requires:	%{lib_name}
+Requires:	%{libname}
 
 %description
 Sablotron is a fast, compact and portable XML toolkit
@@ -33,67 +41,79 @@ reliable and fast XML library processor conforming to the W3C
 specification, which is available for public and can be used as a base
 for multi-platform XML applications.
 
-%package -n %{lib_name}
+
+%package -n %{libname}
 Summary:	Main library for sablotron
 Group:		System/Libraries
-Provides:	%{lib_name_orig} = %{version}-%{release}
+Provides:	%{libname_orig} = %{version}-%{release}
 
-%description -n %{lib_name}
+%description -n %{libname}
 Contains the library for sablotron.
 
-%package -n %{lib_name}-devel
+
+%package -n %{libname}-devel
 Summary: 	The development libraries and header files for Sablotron
 Requires: 	sablotron = %{version}
 Group: 		System/Libraries
-Requires: 	%{lib_name} = %{version}
-Provides: 	%{lib_name_orig}-devel = %{version}-%{release}
+Requires: 	%{libname} = %{version}
+Provides: 	%{libname_orig}-devel = %{version}-%{release}
 
-%description -n %{lib_name}-devel
+%description -n %{libname}-devel
 These are the development libraries and header files for Sablotron
+
 
 %prep
 %setup -q -n %{altname}-%{version}
 %patch
 
+
 %build
-export CXXFLAGS="${RPM_OPT_FLAGS}"
+export CXXFLAGS="%{optflags}"
 %configure --prefix=%{_prefix}
 %make 
 #strip Sablot/engine/.libs/libsablot.a
 #strip Sablot/engine/.libs/libsablot.so*
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-%makeinstall prefix=$RPM_BUILD_ROOT/%{_prefix}
+%makeinstall prefix=%{buildroot}%{_prefix}
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
+
 %post -p /sbin/ldconfig
 %postun -p /sbin/ldconfig
 
-%post -n %{lib_name} -p /sbin/ldconfig
-%postun -n %{lib_name} -p /sbin/ldconfig
+%post -n %{libname} -p /sbin/ldconfig
+%postun -n %{libname} -p /sbin/ldconfig
+
 
 %files
 %defattr(755,root,root)
 %{_bindir}/sabcmd
 %{_bindir}/sablot-config
-%_mandir/man1/*
+%{_mandir}/man1/*
 
-%files -n %{lib_name}
+%files -n %{libname}
 %defattr(-,root,root)
 %doc README RELEASE
 %{_libdir}/libsablot.so.*
 
-%files -n %{lib_name}-devel
+%files -n %{libname}-devel
 %defattr(-,root,root)
 %{_libdir}/lib*.a
 %{_libdir}/lib*.la
 %{_libdir}/lib*.so
 %{_includedir}/*.h
 
+
 %changelog
+* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 0.98-7avx
+- bootstrap build (new gcc, new glibc)
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 0.98-6avx
 - rebuild
 
