@@ -1,7 +1,16 @@
-%define module	AppConfig
-%define name	perl-%{module}
-%define	version	1.56
-%define release	1avx
+#
+# spec file for package perl-AppConfig
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define module		AppConfig
+%define name		perl-%{module}
+%define	version		1.56
+%define release		2avx
 
 Summary:  	Perl5 modules for reading configuration
 Name:		%{name}
@@ -12,7 +21,7 @@ Group:		Development/Perl
 URL:		http://www.perl.com/CPAN/authors/id/ABW/
 Source:		http://www.perl.com/CPAN/authors/id/ABW/%{module}-%{version}.tar.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
 BuildRequires:	perl-devel
 
@@ -21,22 +30,25 @@ AppConfig has a powerful but easy to use module for parsing configuration
 files. It also has a simple and efficient module for parsing command line
 arguments.
 
+
 %prep
 %setup -q -n %{module}-%{version}
+
 
 %build
 CFLAGS="%{optflags}" %{__perl} Makefile.PL INSTALLDIRS=vendor
 %make
 %{__make} test
 
+
 %install
-%{__rm} -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
-%clean
-%{__rm} -fr %{buildroot}
 
-%postun -p /sbin/ldconfig
+%clean
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root) 
@@ -45,7 +57,12 @@ CFLAGS="%{optflags}" %{__perl} Makefile.PL INSTALLDIRS=vendor
 %{perl_vendorlib}/AppConfig.pm
 %{_mandir}/*/*
 
+
 %changelog
+* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 1.56-2avx
+- bootstrap build (new gcc, new glibc)
+- remove %%postun calling ldconfig (what?!?)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.56-1avx
 - first Annvix build
 
