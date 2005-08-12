@@ -9,7 +9,7 @@
 
 %define name		syslinux
 %define version 	1.76
-%define release 	15avx
+%define release 	16avx
 
 %define old_version	1.67
 %define pxelinux_ver	2.13
@@ -33,7 +33,7 @@ Patch5:		syslinux-1.76-mdk-kernel-length.patch.bz2
 Patch6:		syslinux-1.76-avx-nostack.patch
 Patch7:		syslinux-2.13-avx-nostack.patch
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
+BuildRoot:	%{_tmppath}/%{name}-%{version}
 BuildRequires:	nasm >= 0.97, netpbm
 
 ExclusiveArch:	%{ix86}
@@ -60,16 +60,16 @@ necessary to compile such modules.
 
 
 %prep
-%setup -q -n %{name}-%{version}
+%setup -q
 %setup -q -b 2 -n %{name}-%{pxelinux_ver}
-%patch7 -p1 -b .nostack
+#%patch7 -p1 -b .nostack
 %setup -q -a 1 -n %{name}-%{version}
 %patch0 -p0
 %patch1 -p1
 %patch2 -p1 -b .gcc3.3
 %patch3 -p1 -b .gcc3.3
 %patch5 -p1 -b .klen
-%patch6 -p1 -b .nostack
+#%patch6 -p1 -b .nostack
 
 
 %build
@@ -147,6 +147,10 @@ popd
 
 
 %changelog
+* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 1.76-16avx
+- bootstrap build (new gcc, new glibc)
+- disable P6 and P7 for now
+
 * Fri Jun 10 2005 Vincent Danen <vdanen@annvix.org> 1.76-15avx
 - rebuild
 - P6, P7: build without stack protection
