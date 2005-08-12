@@ -1,9 +1,17 @@
-%define name	rpmconstant
-%define version	0.0.4
-%define release 2avx
+#
+# spec file for package rpmconstant
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-%define major	0
-%define libname	%mklibname %{name} %{major}
+%define name		rpmconstant
+%define version		0.0.5
+%define release 	1avx
+
+%define major		0
+%define libname		%mklibname %{name} %{major}
 
 Summary:	A library to bind rpm constant
 Name:		%{name}
@@ -14,13 +22,14 @@ Group:		Development/C
 URL:		http://cvs.mandrakesoft.com/cgi-bin/cvsweb.cgi/soft/perl-Hdlist/rpmconstant/
 Source0:	%{name}-%{version}.tar.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	rpm-devel
 
 %description
 This library provides basics functions to map internal rpm constant value
 with their name. This is useful for perl/python or other language which has
 binding over rpmlib.
+
 
 %package -n %{libname}
 Summary:	A library to bind rpm constant
@@ -31,6 +40,7 @@ Provides:	lib%{name} = %{version}-%{release}
 This library provides basics functions to map internal rpm constant value
 with their name. This is useful for perl/python or other language which has
 binding over rpmlib.
+
 
 %package -n %{libname}-devel
 Summary:	Development files from librpmconstant
@@ -46,22 +56,35 @@ binding over rpmlib.
 
 You need this package to build applications using librpmconstant.
 
+
 %prep
 %setup -q
 
+
 %build
+aclocal
+automake -a
+autoconf
+
 %configure
 %make
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
+# move the header file (where does 1.8 come from?!?)
+mv %{buildroot}%{_includedir}/1.8 %{buildroot}%{_includedir}/rpmconstant
+
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
+
 %post -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
+
 
 %files
 %defattr(-,root,root)
@@ -81,7 +104,11 @@ You need this package to build applications using librpmconstant.
 %{_libdir}/lib%{name}.a
 %{_libdir}/lib%{name}.la
 
+
 %changelog
+* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 0.0.5-1avx
+- 0.0.5
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.0.4-2avx
 - bootstrap build
 
