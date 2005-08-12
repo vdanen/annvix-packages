@@ -1,6 +1,15 @@
-%define name	gnupg
-%define version 1.2.6
-%define release 3avx
+#
+# spec file for package gnupg
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		gnupg
+%define version 	1.2.6
+%define release		4avx
 
 Summary:	GNU privacy guard - a free PGP replacement
 Name:		%{name}
@@ -15,7 +24,8 @@ Source2:	annvix-keys.tar.bz2
 Source3:	annvix-keys.tar.bz2.asc
 Patch0:		gnupg-1.2.5-cfb.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
+BuildRequires:	exim
 
 %description
 GnuPG is GNU's tool for secure communication and data storage.
@@ -23,28 +33,32 @@ It can be used to encrypt data and to create digital signatures.
 It includes an advanced key management facility and is compliant
 with the proposed OpenPGP Internet standard as described in RFC2440.
 
-%prep
-[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
+%prep
 %setup -q
 %patch0 -p1 -b .can-2005-0366
 
+
 %build
 %ifnarch sparc sparc64
-	mguard="--enable-m-guard"
+    mguard="--enable-m-guard"
 %endif
-%configure2_5x --with-included-gettext --with-static-rnd=linux $mguard
+%configure2_5x \
+    --with-included-gettext \
+    --with-static-rnd=linux \
+    $mguard
 make
 # all tests must pass
 make check
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-make DESTDIR=$RPM_BUILD_ROOT install
+make DESTDIR=%{buildroot} install
 
 sed -e "s#../g10/gpg#gpg#" < tools/lspgpot > %{buildroot}%{_bindir}/lspgpot
 
-chmod 755 %{buildroot}%{_bindir}/lspgpot
+chmod 0755 %{buildroot}%{_bindir}/lspgpot
 # (fc) 1.0.4-5mdk gpg is setuid
 chmod 4755  %{buildroot}%{_bindir}/gpg
 
@@ -63,10 +77,12 @@ rm -f %{buildroot}%{_datadir}/locale/locale.alias
 mkdir -p %{buildroot}%{_sysconfdir}/RPM-GPG-KEYS
 tar xvjf %{SOURCE2} -C %{buildroot}%{_sysconfdir}/RPM-GPG-KEYS
 
-%{find_lang} %{name}
+%find_lang %{name}
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %post
 %_install_info gpg.info
@@ -95,7 +111,13 @@ tar xvjf %{SOURCE2} -C %{buildroot}%{_sysconfdir}/RPM-GPG-KEYS
 %dir %{_sysconfdir}/RPM-GPG-KEYS
 %attr(0644,root,root) %{_sysconfdir}/RPM-GPG-KEYS/*.asc
 
+
 %changelog
+* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 1.2.6-4avx
+- bootstrap build (new gcc, new glibc)
+- gnupg builds the gpgkeys_* files based on what's installed, so
+  although it seems wierd, we need to require exim
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.2.6-3avx
 - bootstrap build
 
