@@ -1,6 +1,15 @@
-%define name	statserial
-%define version	1.1
-%define release	20avx
+#
+# spec file for package statserial
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		statserial
+%define version		1.1
+%define release		21avx
 
 Summary:	A tool which displays the status of serial port modem lines
 Name:		%{name}
@@ -10,10 +19,10 @@ License:	BSD
 Group:		Communications
 URL:		ftp://sunsite.unc.edu/pub/Linux/system/serial/
 Source:		ftp://sunsite.unc.edu/pub/Linux/system/serial/%{name}-%{version}.tar.bz2
-Patch:		%{name}-1.1-config.patch.bz2
-Patch1: 	%name-1.1-dev.patch.bz2
+Patch:		statserial-1.1-config.patch.bz2
+Patch1: 	statserial-1.1-dev.patch.bz2
 
-BuildRoot:	%_tmppath/%name-%version-%release-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	ncurses-devel
 BuildRequires:	glibc-static-devel 
 
@@ -23,34 +32,40 @@ The statserial utility displays a table of the signals on a standard
 handshaking lines.  Statserial is useful for debugging serial port
 and/or modem problems.
 
-Install the statserial package if you need a tool to help debug serial
-port or modem problems.
 
 %prep
-
 %setup -q
 %patch -p1 -b .config
 %patch1 -p1 -b .dev
 
+
 %build
-%{make} CFLAGS="$RPM_OPT_FLAGS -O3"
+%{make} CFLAGS="%{optflags} -O3"
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p $RPM_BUILD_ROOT/{%{_bindir},%{_mandir}/man1}
+mkdir -p %{buildroot}{%{_bindir},%{_mandir}/man1}
 
-install -m 755 -s statserial $RPM_BUILD_ROOT%{_bindir}/statserial
-install -m 444 statserial.1 $RPM_BUILD_ROOT%{_mandir}/man1/statserial.1
+install -m 0755 -s statserial %{buildroot}%{_bindir}/statserial
+install -m 0444 statserial.1 %{buildroot}%{_mandir}/man1/statserial.1
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
 %{_bindir}/statserial
 %{_mandir}/man1/statserial.1.bz2
 
+
 %changelog
+* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 1.1-21avx
+- bootstrap build (new gcc, new glibc)
+- update P0 from mdk
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 1.1-20avx
 - rebuild
 
@@ -85,7 +100,7 @@ install -m 444 statserial.1 $RPM_BUILD_ROOT%{_mandir}/man1/statserial.1
 - BuildRequires:	ncurses-devel
 
 * Tue May 01 2001 David BAUDENS <baudens@mandrakesoft.com> 1.1-10mdk
-- Use %%_tmppath for BuildRoot
+- Use %%{_buildroot} for BuildRoot
 
 * Tue Mar 06 2001 Geoffrey Lee <snailtalk@mandrakesoft.com> 1.1-9mdk
 - Do nothing but rebuild.

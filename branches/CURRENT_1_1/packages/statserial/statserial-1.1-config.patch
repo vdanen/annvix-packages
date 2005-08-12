@@ -1,11 +1,15 @@
---- statserial-1.1/Makefile.orig	Tue Aug 29 17:33:48 1995
-+++ statserial-1.1/Makefile	Tue Aug 29 17:34:04 1995
-@@ -10,14 +10,14 @@
- LDFLAGS = -s -N
+--- statserial-1.1/Makefile.config	1994-12-17 21:16:09.000000000 -0500
++++ statserial-1.1/Makefile	2004-10-26 17:03:47.334908296 -0400
+@@ -7,17 +7,17 @@ LD	= gcc
+ 
+ # for production code
+ CFLAGS	= -Wall -O3 -fomit-frame-pointer
+-LDFLAGS = -s -N
++LDFLAGS = -static
  
  statserial:	statserial.o
 -	$(LD) $(LDFLAGS) -o statserial statserial.o -lcurses
-+	$(LD) $(LDFLAGS) -o statserial statserial.o -lncurses
++	$(CC) $(LDFLAGS) -o statserial statserial.o -lncurses
  
  statserial.o: statserial.c
 -	$(CC) $(CFLAGS) -c statserial.c
