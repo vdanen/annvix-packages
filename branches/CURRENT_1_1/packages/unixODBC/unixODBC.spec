@@ -1,9 +1,18 @@
-%define name	unixODBC
-%define version	2.2.10
-%define release	2avx
+#
+# spec file for package unixODBC
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		unixODBC
+%define version		2.2.10
+%define release		3avx
 
 %define LIBMAJ	1
-%define libname %mklibname %name %{LIBMAJ}
+%define libname %mklibname %{name} %{LIBMAJ}
 
 Summary: 	Unix ODBC driver manager and database drivers
 Name: 		%{name}
@@ -17,10 +26,8 @@ Source2:	odbcinst.ini
 Source3:	qt-attic.tar.bz2
 Source4:	qt-attic2.tar.bz2
 Patch0:		unixODBC-2.2.6-lib64.patch.bz2
-Patch1:		unixodbc-fix-compile-with-qt-3.1.1.patch.bz2
-Patch2:		unixodbc-fix-compile-with-qt-3.1.1.patch2.bz2
 
-BuildRoot: 	%{_tmppath}/%{name}-%{version}-%{release}-root
+BuildRoot: 	%{_buildroot}/%{name}-%{version}
 # don't take away readline, we do want to build unixODBC with readline.
 BuildRequires:	bison flex readline-devel libltdl-devel
 BuildRequires:	automake1.7
@@ -40,17 +47,6 @@ Obsoletes:	lib%{name}2
 %description -n %{libname}
 unixODBC  libraries.
 
-%package -n %{libname}-qt
-Group:		System/Libraries
-Summary:	unixODBC inst library, with Qt.
-Provides:	lib%{name}2-qt
-Obsoletes:	lib%{name}2-qt
-
-%description -n %{libname}-qt
-unixODBC inst library, Qt flavored.
-
-This has been split off from the main unixODBC libraries so you don't
-require X11 and qt if you wish to use unixODBC.
 
 %package -n %{libname}-devel
 Summary: 	Includes and static libraries for ODBC development
@@ -63,11 +59,10 @@ Obsoletes:	%{name}-devel lib%{name}2-devel
 unixODBC aims to provide a complete ODBC solution for the Linux platform.
 This package contains the include files and static libraries for development.
 
+
 %prep
 %setup -q -a3 -a4
 %patch0 -p1 -b .lib64
-%patch1 -p1
-%patch2 -p1
 
 aclocal-1.7 && autoconf
 
@@ -82,14 +77,15 @@ perl -pi -e "s@/lib(\"|\b[^/])@/%{_lib}\1@g if /(kde|qt)_(libdirs|libraries)=/" 
 %configure2_5x --enable-static
 make
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 # Short Circuit Compliant (tm).
 [ ! -f doc/Makefile ] && {
-	cd doc
-	echo -en "install:\n\n" > Makefile
-	cd ..
+    cd doc
+    echo -en "install:\n\n" > Makefile
+    cd ..
 }
 
 %makeinstall
@@ -102,10 +98,10 @@ perl -pi -e "s,/lib/,/%{_lib}/," %{buildroot}%{_sysconfdir}/odbcinst.ini
 # to override auto requires
 
 pushd %{buildroot}
-newlink=`find usr/%{_lib} -type l -name 'libodbcpsql.so.*' | tail -1`
-perl -pi -e "s,usr/%{_lib}/libodbcpsql.so,$newlink,g" %{buildroot}%{_sysconfdir}/odbcinst.ini
-newlink=`find usr/%{_lib} -type l -name 'libodbcpsqlS.so.*'`
-perl -pi -e "s,usr/%{_lib}/libodbcpsqlS.so,$newlink,g" %{buildroot}%{_sysconfdir}/odbcinst.ini
+    newlink=`find usr/%{_lib} -type l -name 'libodbcpsql.so.*' | tail -1`
+    perl -pi -e "s,usr/%{_lib}/libodbcpsql.so,$newlink,g" %{buildroot}%{_sysconfdir}/odbcinst.ini
+    newlink=`find usr/%{_lib} -type l -name 'libodbcpsqlS.so.*'`
+    perl -pi -e "s,usr/%{_lib}/libodbcpsqlS.so,$newlink,g" %{buildroot}%{_sysconfdir}/odbcinst.ini
 popd
 
 # drill out shared libraries for gODBCConfig *sigh*
@@ -134,6 +130,7 @@ rm -f %{buildroot}%{_libdir}/libodbcinstQ.so.1.0.0
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 rm -f libodbc-libs.filelist
 
+
 %post -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
 
@@ -160,6 +157,10 @@ rm -f libodbc-libs.filelist
 %{_libdir}/*.la
 
 %changelog
+* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 2.2.10-3avx
+- bootstrap build (new gcc, new glibc)
+- drop P1 and P2; we're not building against QT
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.2.10-2avx
 - bootstrap build
 
