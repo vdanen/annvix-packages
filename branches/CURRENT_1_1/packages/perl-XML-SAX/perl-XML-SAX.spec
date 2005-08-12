@@ -1,7 +1,16 @@
-%define module	XML-SAX
-%define name	perl-%{module}
-%define version 0.12
-%define release 9avx
+#
+# spec file for package perl-XML-SAX
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define module		XML-SAX
+%define name		perl-%{module}
+%define version 	0.12
+%define release 	10avx
 
 Summary:	%{module} module for perl
 Name:		%{name}
@@ -13,7 +22,7 @@ URL:		http://www.cpan.org
 Source0:	%{module}-%{version}.tar.bz2
 Patch:		%{name}-0.05-build.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-buildroot/
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
 BuildRequires:	perl-devel perl-XML-NamespaceSupport
 
@@ -32,23 +41,28 @@ without requiring programmer intervention. Those of you familiar with
 the DBI will be right at home. Some of the designs come from the Java
 JAXP specification (SAX part), only without the javaness.
 
+
 %prep
 %setup -q -n %{module}-%{version}
 %patch -p0
 
-chmod 644 Changes README
+chmod 0644 Changes README
+
 
 %build
 %{__perl} Makefile.PL INSTALLDIRS=vendor
 make
 make test
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -56,7 +70,11 @@ make test
 %{perl_vendorlib}/XML
 %{_mandir}/*/*
 
+
 %changelog
+* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 0.12-10avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.12-9avx
 - bootstrap build
 

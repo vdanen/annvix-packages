@@ -1,7 +1,16 @@
-%define	module	HTML-Tagset
-%define name	perl-%{module}
-%define	version	3.03
-%define	release	13avx
+#
+# spec file for package perl-HTML-Tagset
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define	module		HTML-Tagset
+%define name		perl-%{module}
+%define	version		3.03
+%define	release		14avx
 
 Summary: 	This module contains data tables useful in dealing with HTML
 Name: 		%{name}
@@ -12,31 +21,37 @@ Group: 		Development/Perl
 URL:		http://www.cpan.org
 Source:		http://www.cpan.org/authors/id/S/SB/SBURKE/%{module}-%{version}.tar.bz2
 
-BuildRoot: 	%{_tmppath}/%{name}-buildroot/
+BuildRoot: 	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
 BuildRequires:	perl-devel
 
 Requires: 	perl
+
 
 %description
 This module contains data tables useful in dealing with HTML.
 
 It provides no functions or methods.
 
+
 %prep
 %setup -q -n %{module}-%{version}
+
 
 %build
 %{__perl} Makefile.PL INSTALLDIRS=vendor
 make
 make test
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -44,7 +59,11 @@ make test
 %{_mandir}/*/*
 %{perl_vendorlib}/HTML
 
+
 %changelog
+* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 3.31-14avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 3.31-13avx
 - bootstrap build
 

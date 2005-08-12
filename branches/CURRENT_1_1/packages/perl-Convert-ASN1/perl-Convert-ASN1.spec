@@ -1,7 +1,16 @@
-%define module	Convert-ASN1
-%define name	perl-%{module}
-%define version 0.18
-%define release 4avx
+#
+# spec file for package perl-Convert-ASN1
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define module		Convert-ASN1
+%define name		perl-%{module}
+%define version 	0.18
+%define release 	5avx
 
 Summary: 	ASN.1 Encode/Decode library for perl
 Name: 		%{name}
@@ -12,33 +21,35 @@ Group: 		Development/Perl
 URL: 		http://www.cpan.org
 Source: 	http://www.cpan.org/authors/id/GBARR/%{module}-%{version}.tar.bz2
 
-BuildRoot: 	%{_tmppath}/%{name}-buildroot/
+BuildRoot: 	%{_buildroot}/%{name}-%{version}
 BuildArch: 	noarch
 BuildRequires:	perl-devel
 
-Prefix: 	%{_prefix}
 Requires:	perl >= 5.6
 
 %description
 Perl module used to encode and decode ASN.1 data structures using
 BER/DER rules.
 
-Needed by webmin to handle the OpenLDAP modules properly.
 
 %prep
 %setup -q -n %{module}-%{version}
+
 
 %build
 %{__perl} Makefile.PL INSTALLDIRS=vendor
 make
 make test
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
+
 %clean 
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -46,7 +57,11 @@ make test
 %{perl_vendorlib}/Convert/*
 %{_mandir}/*/*
 
+
 %changelog
+* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 0.18-5avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.18-4avx
 - bootstrap build
 
@@ -69,7 +84,7 @@ make test
 * Wed Aug 13 2003 Per Øyvind Karlsen <peroyvind@linux-mandrake.com> 0.16-4mdk
 - rebuild for new perl
 - don't use PREFIX
-- rm -rf $RPM_BUILD_ROOT in %%install, not %%build
+- rm -rf %{buildroot} in %%install, not %%build
 - use %%makeinstall_std macro
 
 * Tue May 27 2003 Thierry Vignaud <tvignaud@mandrakesoft.com> 0.16-3mdk

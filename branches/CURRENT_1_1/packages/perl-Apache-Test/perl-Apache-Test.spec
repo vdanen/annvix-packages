@@ -1,7 +1,16 @@
-%define module	Apache-Test
-%define name	perl-%{module}
-%define version	1.20
-%define release	2avx
+#
+# spec file for package perl-Apache-Test
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define module		Apache-Test
+%define name		perl-%{module}
+%define version		1.20
+%define release		3avx
 
 Summary:	Apache::Test - Test.pm wrapper with helpers for testing Apache
 Name: 		%{name}
@@ -12,7 +21,7 @@ Group: 		Development/Perl
 URL:		http://search.cpan.org/~gozer/Apache-Test/
 Source0:	Apache-Test-%{version}.tar.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
 BuildRequires:	perl-devel
 
@@ -26,21 +35,24 @@ any configuration. It works with Apache 1.3 and Apache 2.0 and any
 of its modules, including mod_perl 1.0 and 2.0. It was originally
 developed for testing mod_perl 2.0.
 
-%prep
 
+%prep
 %setup -q -n %{module}-%{version} 
+
 
 %build
 %{__perl} Makefile.PL INSTALLDIRS=vendor
-
 %make
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
+
 %clean 
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(644,root,root,755)
@@ -49,7 +61,11 @@ developed for testing mod_perl 2.0.
 %{perl_vendorlib}/Bundle/*.pm
 %{_mandir}/*/*
 
+
 %changelog
+* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 1.20-3avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.20-2avx
 - bootstrap build
 

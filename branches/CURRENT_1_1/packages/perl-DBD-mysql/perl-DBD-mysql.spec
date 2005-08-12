@@ -1,7 +1,16 @@
-%define	module	DBD-mysql
-%define	name	perl-%{module}
-%define version 2.9004
-%define release 2avx
+#
+# spec file for package perl-DBD-mysql
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define	module		DBD-mysql
+%define	name		perl-%{module}
+%define version 	2.9004
+%define release 	3avx
 
 Summary:	DBD MySQL Perl Emulation Layer
 Name:		%{name}
@@ -12,7 +21,7 @@ Group:		Development/Databases
 URL:		http://search.cpan.org/dist/%{module}
 Source:		http://www.cpan.org/modules/by-module/DBD/%{module}-%{version}.tar.bz2
 
-Buildroot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
+Buildroot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	MySQL-devel perl-DBI
 BuildRequires:	perl-devel
 
@@ -31,19 +40,23 @@ will easily be portable to other DBMS's.
 %prep
 %setup -q -n %{module}-%{version}
 
+
 %build
 %{__perl} Makefile.PL INSTALLDIRS=vendor
-%make OPTIMIZE="$RPM_OPT_FLAGS"
+%make OPTIMIZE="%{optflags}"
 
 # make test requires a running mysql server
 #make test
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-%{makeinstall_std}
+%makeinstall_std
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -51,7 +64,11 @@ will easily be portable to other DBMS's.
 %{perl_vendorarch}/*
 %{_mandir}/*/*
 
+
 %changelog
+* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 2.9004-3avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.9004-2avx
 - bootstrap build
 

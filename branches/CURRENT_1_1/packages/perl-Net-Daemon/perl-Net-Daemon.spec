@@ -1,7 +1,16 @@
-%define module 	Net-Daemon
-%define name	perl-%{module}
-%define version 0.37
-%define release 9avx
+#
+# spec file for package perl-Net-Daemon
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define module 		Net-Daemon
+%define name		perl-%{module}
+%define version 	0.37
+%define release 	10avx
 
 Summary:	%{module} perl module
 Name: 		%{name}
@@ -13,7 +22,7 @@ URL:		ftp://ftp.funet.fi/pub/languages/perl/CPAN/authors/id/JWIED
 Source0:	%{module}-%{version}.tar.bz2
 
 Buildrequires:  perl-devel >= 5.8.0
-BuildRoot: 	%{_tmppath}/%{name}-%{version}-buildroot
+BuildRoot: 	%{_buildroot}/%{name}-%{version}
 Buildarch:	noarch
 
 Requires: 	perl
@@ -21,19 +30,24 @@ Requires: 	perl
 %description
 %{module} - module for perl
 
+
 %prep
 %setup -q -n %{module}-%{version}
+
 
 %build
 %{__perl} Makefile.PL INSTALLDIRS=vendor
 make
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
+
 %clean 
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files 
 %defattr(-,root,root)
@@ -42,7 +56,11 @@ make
 %{perl_vendorlib}/Net/Daemon/
 %{_mandir}/*/*
 
+
 %changelog
+* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 0.37-10vx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.37-9avx
 - bootstrap build
 

@@ -1,7 +1,16 @@
-%define module 	Authen-PAM
-%define name	perl-%{module}
-%define version 0.14
-%define release 9avx
+#
+# spec file for package perl-Authen-PAM
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define module 		Authen-PAM
+%define name		perl-%{module}
+%define version 	0.14
+%define release 	10avx
 
 Summary:	Perl interface to the PAM library
 Name: 		%{name}
@@ -12,7 +21,7 @@ Group:		Development/Perl
 URL:		http://www.cs.kuleuven.ac.be/~pelov/pam/
 Source0:	%{module}-%{version}.tar.bz2
 
-BuildRoot: 	%{_tmppath}/%{name}-%{version}-buildroot
+BuildRoot: 	%{_buildroot}/%{name}-%{version}
 BuildRequires:	pam-devel perl-devel
 
 %description
@@ -20,8 +29,10 @@ The Authen::PAM module provides a Perl interface to the PAM library.
 The only difference with the standard PAM interface is that the perl
 one is simpler.
 
+
 %prep
 %setup -q -n %{module}-%{version}
+
 
 %build
 %{__perl} Makefile.PL INSTALLDIRS=vendor
@@ -32,8 +43,10 @@ one is simpler.
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
+
 %clean 
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -44,6 +57,9 @@ one is simpler.
 
 
 %changelog
+* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 0.14-10avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.14-9avx
 - bootstrap build
 

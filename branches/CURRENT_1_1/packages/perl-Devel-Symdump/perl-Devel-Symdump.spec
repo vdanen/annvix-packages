@@ -1,7 +1,16 @@
-%define name	perl-%{module}
-%define module	Devel-Symdump
-%define version 2.03
-%define release 10avx
+#
+# spec file for package perl-Devel-Symdump
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		perl-%{module}
+%define module		Devel-Symdump
+%define version 	2.03
+%define release 	11avx
 
 Summary:	%{module} module for perl
 Name:		perl-%{module}
@@ -12,27 +21,32 @@ Group:		Development/Perl
 URL:		http://www.cpan.org
 Source0:	%{module}-%{version}.tar.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-buildroot/
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl-devel >= 0:5.600
 BuildArch:	noarch
 
 %description
 %{module} module for perl
 
+
 %prep
 %setup -q -n %{module}-%{version}
+
 
 %build
 %{__perl} Makefile.PL INSTALLDIRS=vendor
 make
 make test
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -40,7 +54,11 @@ make test
 %{perl_vendorlib}/Devel
 %{_mandir}/*/*
 
+
 %changelog
+* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 2.03-11avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.03-10avx
 - bootstrap build
 

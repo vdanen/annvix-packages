@@ -1,7 +1,16 @@
-%define module	Pg
-%define name	perl-%{module}
-%define version	2.0.2
-%define release	10avx
+#
+# spec file for package perl-Pg
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define module		Pg
+%define name		perl-%{module}
+%define version		2.0.2
+%define release		11avx
 
 Summary:	A libpq-based PostgreSQL interface for Perl
 Name:		%{name}
@@ -12,7 +21,7 @@ Group:		Development/Perl
 URL:		http://gborg.postgresql.org/project/pgperl/projdisplay.php
 Source0:	pgperl-%{version}.tar.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl-devel
 BuildRequires:	postgresql-devel
 BuildRequires:	postgresql-libs-devel
@@ -29,10 +38,12 @@ old style has the benefit that existing libpq applications can
 easily be ported to perl. The new style uses class packages and
 might be more familiar to C++ programmers.
 
+
 %prep
 %setup -q -n Pg-%{version}
 # perl path hack
 find . -type f | xargs %{__perl} -p -i -e "s|^#\!/usr/local/bin/perl|#\!/usr/bin/perl|g"
+
 
 %build
 export POSTGRES_INCLUDE=`pg_config --includedir`
@@ -42,12 +53,15 @@ export POSTGRES_LIB=`pg_config --libdir`
 # make test needs a running PostgreSQL server
 #%{__make} test
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
+
 %clean 
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -57,7 +71,11 @@ export POSTGRES_LIB=`pg_config --libdir`
 %{perl_vendorlib}/*/Pg.pm
 %{_mandir}/man3*/*
 
+
 %changelog
+* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 2.0.2-11avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.0.2-10avx
 - bootstrap build
 

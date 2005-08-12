@@ -1,7 +1,16 @@
-%define module	BerkeleyDB
-%define name	perl-%{module}
-%define version	0.26
-%define release	2avx
+#
+# spec file for package perl-BerkeleyDB
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define module		BerkeleyDB
+%define name		perl-%{module}
+%define version		0.26
+%define release		3avx
 
 Summary:	Perl module for BerkeleyDB 2.x and greater
 Name:		%{name}
@@ -12,7 +21,7 @@ Group:		Development/Perl
 URL:		http://search.cpan.org/dist/%{module}/
 Source0:	http://search.cpan.org/CPAN/authors/id/P/PM/PMQS/%{module}-%{version}.tar.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot/
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	db4-devel perl-devel
 
 %description
@@ -28,8 +37,10 @@ supported by Berkeley DB.
 
 For further details see the documentation in the file BerkeleyDB.pod.
 
+
 %prep
 %setup -q -n %{module}-%{version}
+
 
 %build
 
@@ -37,12 +48,15 @@ CFLAGS="%{optflags}" %{__perl} Makefile.PL INSTALLDIRS=vendor
 %make
 make test
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -51,7 +65,11 @@ make test
 %{perl_vendorlib}/*/auto/Berkeley*
 %{_mandir}/*/*
 
+
 %changelog
+* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 0.26-3avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.26-2avx
 - bootstrap build
 

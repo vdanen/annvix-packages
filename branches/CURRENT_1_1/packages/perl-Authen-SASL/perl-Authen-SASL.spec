@@ -1,7 +1,16 @@
-%define module	Authen-SASL
-%define name	perl-%{module}
-%define version 2.04
-%define release 8avx
+#
+# spec file for package perl-Authen-SASL
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define module		Authen-SASL
+%define name		perl-%{module}
+%define version 	2.04
+%define release 	9avx
 
 Summary:	%{module} module for perl
 Name:		%{name}
@@ -12,7 +21,7 @@ Group:		Development/Perl
 URL:		http://www.cpan.org
 Source0:	%{module}-%{version}.tar.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-buildroot/
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl-devel
 BuildArch:	noarch
 
@@ -21,20 +30,25 @@ Requires:	perl
 %description
 %{module} module for perl
 
+
 %prep
 %setup -q -n %{module}-%{version}
+
 
 %build
 %{__perl} Makefile.PL INSTALLDIRS=vendor
 make
 make test
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -42,7 +56,11 @@ make test
 %{_mandir}/*/*
 %{perl_vendorlib}/Authen
 
+
 %changelog
+* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 2.04-9avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.04-8avx
 - bootstrap build
 

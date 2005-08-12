@@ -1,7 +1,16 @@
-%define module	Crypt-SmbHash
-%define name	perl-%{module}
-%define version	0.12
-%define release	2avx
+#
+# spec file for package perl-Crypt-SmbHash
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define module		Crypt-SmbHash
+%define name		perl-%{module}
+%define version		0.12
+%define release		3avx
 
 Summary:	Crypt::SmbHash Perl module - generate LM/NT hashes like smbpasswd
 Name:		%{name}
@@ -12,7 +21,7 @@ Group:		Development/Perl
 URL:		http://search.cpan.org/dist/%{module}/
 Source0:	http://www.cpan.org/modules/by-module/Crypt/%{module}-%{version}.tar.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl-devel
 BuildArch:	noarch
 
@@ -20,8 +29,10 @@ BuildArch:	noarch
 This module provides functions to generate LM/NT hashes used in
 Samba's 'password' files, like smbpasswd.
 
+
 %prep
 %setup -q -n %{module}-%{version}
+
 
 %build
 %{__perl} Makefile.PL INSTALLDIRS=vendor
@@ -29,12 +40,15 @@ Samba's 'password' files, like smbpasswd.
 
 %{!?_without_tests:%{__make} test}
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(644,root,root,755)
@@ -43,6 +57,9 @@ Samba's 'password' files, like smbpasswd.
 %{_mandir}/man3/*
 
 %changelog
+* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 0.12-3avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.12-2avx
 - bootstrap build
 

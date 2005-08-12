@@ -1,7 +1,16 @@
-%define module	Expect
-%define name	perl-%{module}
-%define version 1.15
-%define release 12avx
+#
+# spec file for package perl-Expect
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define module		Expect
+%define name		perl-%{module}
+%define version 	1.15
+%define release 	13avx
 
 Summary:	Expect perl module
 Name: 		%{name}
@@ -13,34 +22,36 @@ URL:		http://www.cpan.org
 Source:		ftp://ftp.perl.org/pub/CPAN/modules/by-module/Expect/Expect-%{version}.tar.bz2
 Patch0:		%{name}-paths.patch.bz2
 
-BuildRoot: 	%{_tmppath}/%{name}-buildroot
+BuildRoot: 	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
 BuildRequires:	perl-IO-Tty >= 1.02, perl-devel
 
-Prefix:		%{_prefix}
 Requires: 	perl, perl-IO-Tty
 
 
 %description
 Expect perl module.
 
+
 %prep
 %setup -q -n %{module}-%{version}
-
 %patch -p1
 
-%build
 
+%build
 %{__perl} Makefile.PL INSTALLDIRS=vendor
 make
 make test
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
+
 %clean 
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(644,root,root,755)
@@ -49,7 +60,11 @@ make test
 %{perl_vendorlib}/*.pod
 %{_mandir}/*/*
 
+
 %changelog
+* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 1.15-13avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.15-12avx
 - bootstrap build
 
@@ -72,7 +87,7 @@ make test
 
 * Wed Aug 13 2003 Per Øyvind Karlsen <peroyvind@linux-mandrake.com> 1.15-6mdk
 - rebuild for new perl
-- rm -rf $RPM_BUILD_ROOT in %%install, not %%prep
+- rm -rf %{buildroot} in %%install, not %%prep
 - drop $RPM_OPT_FLAGS, noarch..
 - use %%makeinstall_std macro
 

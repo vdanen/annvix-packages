@@ -1,7 +1,16 @@
-%define module	DBI
-%define name	perl-%{module}
-%define version 1.47
-%define release 2avx
+#
+# spec file for package perl-DBI
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define module		DBI
+%define name		perl-%{module}
+%define version 	1.47
+%define release 	3avx
 
 Summary:	The Perl Database Interface
 Name:		%{name}
@@ -12,7 +21,7 @@ Group:		Development/Perl
 URL:		http://dbi.perl.org
 Source:		%{module}-%{version}.tar.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl-devel
 
 Requires:	perl
@@ -22,6 +31,7 @@ The Perl Database Interface (DBI) is a database access Application Programming
 Interface (API) for the Perl Language. The Perl DBI API specification defines a
 set of functions, variables and conventions that provide a consistent database
 interface independent of the actual database being used.
+
 
 %package proxy
 Group:		Development/Perl
@@ -33,6 +43,7 @@ DBI::ProxyServer is a module for implementing a proxy for the DBI
 proxy driver, DBD::Proxy.
 DBD::Proxy is a Perl module for connecting to a database via a remote
 DBI driver.
+
 
 %package ProfileDumper-Apache
 Group:		Development/Perl
@@ -46,13 +57,16 @@ works by creating a DBI::ProfileDumper data file for each Apache
 process. These files are created in your Apache log directory. You can
 then use dbiprof to analyze the profile files.
 
+
 %prep
 %setup -q -n %{module}-%{version}
+
 
 %build
 %{__perl} Makefile.PL INSTALLDIRS=vendor
 %make OPTIMIZE="%{optflags}"
 make test
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -67,8 +81,10 @@ rm -f %{buildroot}%{_mandir}/man3pm/Win32::DBIODBC.3pm*
 rm -f %{buildroot}%{_mandir}/man3pm/DBI::W32ODBC.3pm*
 rm -f %{buildroot}%{_mandir}/man3pm/Roadmap.3pm*
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -102,7 +118,11 @@ rm -f %{buildroot}%{_mandir}/man3pm/Roadmap.3pm*
 %{perl_vendorarch}/DBI/ProfileDumper
 %{_mandir}/man3*/DBI::ProfileDumper::Apache.3pm.*
 
+
 %changelog
+* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 1.47-3avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.47-2avx
 - bootstrap build
 

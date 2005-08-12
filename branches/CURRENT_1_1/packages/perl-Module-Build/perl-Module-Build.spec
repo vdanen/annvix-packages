@@ -1,7 +1,16 @@
-%define	module	Module-Build
-%define	name	perl-%{module}
-%define version 0.2608
-%define release 2avx
+#
+# spec file for package perl-Module-Build
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define	module		Module-Build
+%define	name		perl-%{module}
+%define version 	0.2608
+%define release 	3avx
 
 Summary:	Build and install Perl modules
 Name:		%{name}
@@ -12,7 +21,7 @@ Group:		Development/Perl
 URL:		http://www.cpan.org/
 Source:		%{module}-%{version}.tar.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
 
 BuildRequires:	perl-devel
@@ -29,20 +38,25 @@ way. In fact, you don't even need a shell, so even platforms like MacOS
 are included with perl 5.6.0, and it works fine on perl 5.005 if you can
 install a few additional modules.
 
+
 %prep
 %setup -q -n %{module}-%{version}
+
 
 %build
 %{__perl} Makefile.PL INSTALLDIRS=vendor
 perl Build.PL installdirs=vendor
 ./Build
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 ./Build install destdir=%{buildroot}
 
+
 %clean 
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files 
 %defattr(-,root,root)
@@ -51,7 +65,11 @@ perl Build.PL installdirs=vendor
 %{perl_vendorlib}/*
 %{_mandir}/*/*
 
+
 %changelog
+* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 0.2608-3avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.2608-2avx
 - bootstrap build
 

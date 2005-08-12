@@ -1,10 +1,19 @@
-%define module	CGI
-%define name	perl-%{module}
-%define version	3.05
-%define release	4avx
-%define epoch	1
+#
+# spec file for package perl-CGI
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-Summary:        Simple Common Gateway Interface class for Perl.
+
+%define module		CGI
+%define name		perl-%{module}
+%define version		3.05
+%define release		5avx
+%define epoch		1
+
+Summary:        Simple Common Gateway Interface class for Perl
 Name:           %{name}
 Version:        %{version}
 Release:        %{release}
@@ -14,7 +23,7 @@ Group:          Development/Perl
 URL:            http://stein.cshl.org/WWW/software/CGI/
 Source:         CGI.pm-%{version}.tar.bz2
 
-BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-buildroot
+BuildRoot:      %{_buildroot}/%{name}-%{version}
 BuildArch:      noarch
 BuildRequires:  perl-devel
 
@@ -31,6 +40,7 @@ passed to your script, and create forms whose initial values
 are taken from the current query (thereby preserving state
 information).
 
+
 %package Fast
 Group:		Development/Perl
 Summary: 	CGI Interface for Fast CGI
@@ -44,8 +54,10 @@ server processes.  Scripts that perform time-consuming initialization
 processes, such as loading large modules or opening persistent database
 connections, will see large performance improvements.
 
+
 %prep
 %setup -q -n %{module}.pm-%{version}
+
 
 %build
 %{__perl} Makefile.PL INSTALLDIRS=vendor
@@ -56,8 +68,10 @@ connections, will see large performance improvements.
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
+
 %clean 
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -73,7 +87,11 @@ connections, will see large performance improvements.
 %{perl_vendorlib}/CGI/Fast.pm
 %{_mandir}/man3/CGI::Fast.3pm.*
 
+
 %changelog
+* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 3.05-5avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 3.05-4avx
 - bootstrap build
 

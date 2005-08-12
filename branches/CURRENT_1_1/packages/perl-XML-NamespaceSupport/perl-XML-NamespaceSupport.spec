@@ -1,7 +1,16 @@
-%define module	XML-NamespaceSupport
-%define name	perl-%{module}
-%define version 1.08
-%define release 9avx
+#
+# spec file for package perl-XML-NamespaceSupport
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define module		XML-NamespaceSupport
+%define name		perl-%{module}
+%define version 	1.08
+%define release 	10avx
 
 Summary:	%{module} module for perl
 Name:		%{name}
@@ -12,7 +21,7 @@ Group:		Development/Perl
 URL:		http://www.cpan.org
 Source0:	%{module}-%{version}.tar.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-buildroot/
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
 BuildRequires:	perl-devel 
 
@@ -25,22 +34,27 @@ This module offers a simple to process namespaced XML names
 also helps maintain a prefix to namespace URI map, and provides
 a number of basic checks.
 
+
 %prep
 %setup -q -n %{module}-%{version}
 
-chmod 644 Changes MANIFEST README
+chmod 0644 Changes MANIFEST README
+
 
 %build
 %{__perl} Makefile.PL INSTALLDIRS=vendor
 make
 make test
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -50,6 +64,9 @@ make test
 
 
 %changelog
+* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 1.08-10avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.08-9avx
 - bootstrap build
 

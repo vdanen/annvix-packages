@@ -1,7 +1,16 @@
-%define module	Digest-HMAC
-%define	name	perl-%{module}
-%define	version	1.01
-%define	release	17avx
+#
+# spec file for package perl-Digest-HMAC
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define module		Digest-HMAC
+%define	name		perl-%{module}
+%define	version		1.01
+%define	release		18avx
 
 Summary:	Keyed-Hashing for Message Authentication
 Name:		%{name}
@@ -12,7 +21,7 @@ Group:		Development/Perl
 URL:		http://www.cpan.org
 Source:		http://www.cpan.org/authors/id/GAAS/%{module}-%{version}.tar.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl-devel
 BuildArch:	noarch
 
@@ -22,20 +31,25 @@ Requires:	perl perl-Digest-SHA1
 %description
 Digest-HMAC module for perl.
 
+
 %prep
 %setup -q -n %{module}-%{version}
+
 
 %build
 %{__perl} Makefile.PL INSTALLDIRS=vendor
 make
 make test
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
+
 %clean 
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -43,7 +57,11 @@ make test
 %{_mandir}/*/*
 %{perl_vendorlib}/Digest
 
+
 %changelog
+* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 1.01-18avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.01-17avx
 - bootstrap build
 

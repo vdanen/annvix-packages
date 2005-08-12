@@ -1,7 +1,16 @@
-%define module	Authen-Smb
-%define name	perl-%{module}
-%define version	0.91
-%define release	9avx
+#
+# spec file for package perl-Authen-Smb
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define module		Authen-Smb
+%define name		perl-%{module}
+%define version		0.91
+%define release		10avx
 
 Summary:	Authen::Smb Perl module
 Name:		%{name}
@@ -13,27 +22,32 @@ URL: 		http://search.cpan.org/CPAN/authors/id/P/PM/PMKANE/%{module}-%{version}.t
 Source0:	http://www.cpan.org/modules/by-module/Authen/%{module}-%{version}.tar.gz
 Patch0:		Authen-Smb-0.91-64bit-fixes.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl-devel >= 5.6
 
 %description
 Authen::Smb is a module to authenticate against an SMB server.
 
+
 %prep
 %setup -q -n %{module}-%{version}
 %patch0 -p1 -b .64bit-fxies
 
+
 %build
-CFLAGS="$RPM_OPT_FLAGS" %{__perl} Makefile.PL INSTALLDIRS=vendor
+CFLAGS="%{optflags}" %{__perl} Makefile.PL INSTALLDIRS=vendor
 make
 make test
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-%{makeinstall_std}
+%makeinstall_std
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(644,root,root,755)
@@ -41,7 +55,11 @@ make test
 %{perl_vendorlib}
 %{_mandir}/man3/*
 
+
 %changelog
+* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 0.91-10avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.91-9avx
 - bootstrap build
 

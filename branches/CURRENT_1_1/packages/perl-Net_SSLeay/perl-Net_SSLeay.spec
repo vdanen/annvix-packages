@@ -1,7 +1,16 @@
-%define module	Net_SSLeay
-%define name 	perl-%{module}
-%define version	1.25
-%define release	9avx
+#
+# spec file for package perl-Net_SSLeay
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define module		Net_SSLeay
+%define name 		perl-%{module}
+%define version		1.25
+%define release		10avx
 
 Summary:        Net::SSLeay (module for perl)
 Name: 		%{name}
@@ -14,13 +23,14 @@ Source: 	%{module}.pm-%{version}.tar.bz2
 Patch:		%{module}.pm-1.25.large_tcp_read.patch.bz2
 Patch1:		Net_SSLeay-nobakus.patch.bz2
 
-BuildRoot: 	%{_tmppath}/%{name}-buildroot/
+BuildRoot: 	%{_buildroot}/%{name}-%{version}
 BuildRequires:	openssl-devel perl-devel
 
 Requires: 	openssl >= 0.9.3a
 
 %description
 Net::SSLeay module for perl.
+
 
 %prep
 %setup -q -n %{module}.pm-%{version}
@@ -31,22 +41,26 @@ Net::SSLeay module for perl.
 # especially don't (badly) hardcode standard library search path
 # /usr/lib
 if [[ "%{_prefix}" = "/usr" ]]; then
-  perl -pi -e "s@-[LI]\\\$openssl_path[^\s\"]*@@g" Makefile.PL
+    perl -pi -e "s@-[LI]\\\$openssl_path[^\s\"]*@@g" Makefile.PL
 fi
+
 
 %build
 # note the %{_prefix} which must passed to Makefile.PL, weird but necessary :-(
 %{__perl} Makefile.PL %{_prefix} INSTALLDIRS=vendor 
-%make OPTIMIZE="$RPM_OPT_FLAGS"
+%make OPTIMIZE="%{optflags}"
 perl -p -i -e 's|/usr/local/bin|/usr/bin|g;' *.pm examples/*
 make test
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -56,7 +70,11 @@ make test
 %{perl_vendorarch}/Net/*.pl
 %{_mandir}/*/*
 
+
 %changelog
+* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 1.25-10avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.25-9avx
 - bootstrap build
 

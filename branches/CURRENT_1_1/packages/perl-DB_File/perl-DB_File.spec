@@ -1,9 +1,18 @@
-%define name	perl-%{module}
-%define module	DB_File
-%define version	1.810
-%define release	2avx
+#
+# spec file for package perl-DB_File
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-%define perl_archlib %(eval "`perl -V:installarchlib`"; echo $installarchlib)
+
+%define name		perl-%{module}
+%define module		DB_File
+%define version		1.810
+%define release		3avx
+
+%define perl_archlib	%(eval "`perl -V:installarchlib`"; echo $installarchlib)
 
 Summary:	Perl module for use of the Berkeley DB version 1
 Name:		%{name}
@@ -15,7 +24,7 @@ URL:		http://search.cpan.org/dist/DB_File/
 Source0:	%{module}-%{version}.tar.bz2
 Patch:		%{module}-1.805-makefile.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-buildroot/
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	db-devel perl-devel
 
 %description
@@ -35,32 +44,41 @@ Berkeley DB.
 For further details see the documentation included at the end of the
 file DB_File.pm.
 
+
 %prep
 %setup -q -n %{module}-%{version}
 %patch -p1
 
+
 %build
-CFLAGS="$RPM_OPT_FLAGS" %{__perl} Makefile.PL INSTALLDIRS=vendor
+CFLAGS="%{optflags}" %{__perl} Makefile.PL INSTALLDIRS=vendor
 %make
 make test
 
-%clean 
-rm -rf $RPM_BUILD_ROOT
 
 %install
-rm -rf $RPM_BUILD_ROOT
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 eval `perl '-V:installarchlib'`
-mkdir -p $RPM_BUILD_ROOT/$installarchlib
+mkdir -p %{buildroot}/$installarchlib
 %makeinstall_std
+
+
+%clean 
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
 %doc README Changes
 %{perl_vendorarch}/*.pm
 %{perl_vendorarch}/auto/DB_File
-%_mandir/man3*/DB_File.*
+%{_mandir}/man3*/DB_File.*
+
 
 %changelog
+* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 1.810-3avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.810-2avx
 - bootstrap build
 

@@ -1,7 +1,16 @@
-%define modname	FCGI
-%define name	perl-%{modname}
-%define version	0.67
-%define release 9avx
+#
+# spec file for package perl-FCGI
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define modname		FCGI
+%define name		perl-%{modname}
+%define version		0.67
+%define release 	10avx
 
 Summary:	A Fast CGI module for Perl
 Name:		%{name}
@@ -12,7 +21,7 @@ Group:		Development/Perl
 URL:		http://cpan.valueclick.com/authors/id/SKIMO/
 Source0:	%{modname}-%{version}.tar.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl, perl-devel
 
 Requires:	perl
@@ -26,22 +35,27 @@ See <http://www.fastcgi.com/> for more information about fastcgi.
 Lincoln D. Stein's perl CGI module also contains some information
 about fastcgi programming.
 
+
 %prep
 %setup -q -n %{modname}-%{version}
 chmod 0644 LICENSE.TERMS
 
+
 %build
 # Choose not to build a pure Perl implementation
 # (default answer [n] -> return)
-echo | CFLAGS="$RPM_OPT_FLAGS" %{__perl} Makefile.PL INSTALLDIRS=vendor
+echo | CFLAGS="%{optflags}" %{__perl} Makefile.PL INSTALLDIRS=vendor
 %make
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
+
 %clean 
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -50,7 +64,11 @@ echo | CFLAGS="$RPM_OPT_FLAGS" %{__perl} Makefile.PL INSTALLDIRS=vendor
 %{perl_vendorarch}/FCGI*
 %{perl_vendorarch}/auto/FCGI
 
+
 %changelog
+* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 0.67-10avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.67-9avx
 - bootstrap build
 

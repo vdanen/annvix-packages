@@ -1,8 +1,17 @@
-%define name	perl-%{module}
-%define module	Apache-Session
-%define version	1.6
-%define release	2avx
-%define epoch	1
+#
+# spec file for package perl-Apache-Session
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		perl-%{module}
+%define module		Apache-Session
+%define version		1.6
+%define release		3avx
+%define epoch		1
 
 Summary:	%{module}: Apache persistent user sessions
 Name:		%{name}
@@ -14,7 +23,7 @@ Group:		Development/Perl
 URL:		http://search.cpan.org/dist/%{module}/
 Source0:	%{module}-%{version}.tar.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot/
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl-DB_File perl-DBI perl-devel perl-Digest-MD5
 BuildArch:	noarch
 
@@ -32,10 +41,12 @@ gether.
 %prep
 %setup -q -n %{module}-%{version}
 
+
 %build
 CFLAGS="%{optflags}" %{__perl} Makefile.PL INSTALLDIRS=vendor
 make
 make test
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -44,6 +55,7 @@ mkdir -p %{buildroot}/$installarchlib
 make PREFIX=%{buildroot}%{_prefix} install
 %__os_install_post
 find %{buildroot}%{_prefix} -type f -print | sed "s@^%{buildroot}@@g" | grep -v perllocal.pod > %{module}-%{version}-filelist
+
 
 %clean 
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -55,7 +67,11 @@ find %{buildroot}%{_prefix} -type f -print | sed "s@^%{buildroot}@@g" | grep -v 
 %{_mandir}/*/*
 %{perl_vendorlib}/Apache/*
 
+
 %changelog
+* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 1.6-3avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.6-2avx
 - bootstrap build
 

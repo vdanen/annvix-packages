@@ -1,7 +1,16 @@
-%define	module	IO-Tty
-%define	name	perl-%{module}
-%define	version	1.02
-%define	release	14avx
+#
+# spec file for package perl-IO-Tty
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define	module		IO-Tty
+%define	name		perl-%{module}
+%define	version		1.02
+%define	release		15avx
 
 Summary:	IO-Tty perl module: interface to pseudo tty's
 Name: 		%{name}
@@ -12,7 +21,7 @@ Group: 		Development/Perl
 URL:		http://www.cpan.org
 Source:		ftp://ftp.perl.org/pub/CPAN/modules/by-module/IO/%{module}-%{version}.tar.bz2
 
-BuildRoot: 	%{_tmppath}/%{name}-buildroot
+BuildRoot: 	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl-devel
 
 Requires: 	perl 
@@ -24,17 +33,21 @@ The IO::Tty and IO::Pty modules provide an interface to pseudo tty's.
 %prep
 %setup -q -n %{module}-%{version}
 
+
 %build
-CFLAGS="$RPM_OPT_FLAGS" %{__perl} Makefile.PL INSTALLDIRS=vendor
+CFLAGS="%{optflags}" %{__perl} Makefile.PL INSTALLDIRS=vendor
 %make
 make test
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
+
 %clean 
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(644,root,root,755)
@@ -46,7 +59,11 @@ make test
 %{perl_vendorarch}/IO/Tty/*
 %{_mandir}/*/*
 
+
 %changelog
+* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 1.02-15avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.02-14avx
 - bootstrap build
 

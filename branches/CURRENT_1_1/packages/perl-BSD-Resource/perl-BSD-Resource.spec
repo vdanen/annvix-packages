@@ -1,7 +1,16 @@
-%define	name	perl-%{module}
-%define	module	BSD-Resource
-%define	version	1.22
-%define	release	9avx
+#
+# spec file for package perl-BSD-Resource
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define	name		perl-%{module}
+%define	module		BSD-Resource
+%define	version		1.22
+%define	release		10avx
 
 Summary:	%{module} module for perl 
 Name:		%{name}
@@ -12,7 +21,7 @@ Group:		Development/Perl
 URL:		http://www.cpan.org
 Source0:	%{module}-%{version}.tar.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl-devel
 
 Requires:	perl
@@ -20,22 +29,27 @@ Requires:	perl
 %description
 %{module} module for perl
 
+
 %prep
 %setup -q -n %{module}-%{version} 
 # perl path hack
 find . -type f | xargs %{__perl} -p -i -e "s|^#\!/usr/local/bin/perl|#\!/usr/bin/perl|g"
+
 
 %build
 %{__perl} Makefile.PL INSTALLDIRS=vendor </dev/null
 %{__make}
 %{__make} test
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
+
 %clean 
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -43,7 +57,11 @@ find . -type f | xargs %{__perl} -p -i -e "s|^#\!/usr/local/bin/perl|#\!/usr/bin
 %{perl_vendorlib}
 %{_mandir}/man*/*
 
+
 %changelog
+* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 1.22-10avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.22-9avx
 - bootstrap build
 

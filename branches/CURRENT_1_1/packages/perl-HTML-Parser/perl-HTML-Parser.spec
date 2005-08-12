@@ -1,7 +1,16 @@
-%define module	HTML-Parser
-%define name	perl-%{module}
-%define version 3.45
-%define release 2avx
+#
+# spec file for package perl-HTML-Parser
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define module		HTML-Parser
+%define name		perl-%{module}
+%define version 	3.45
+%define release 	3avx
 
 Summary: 	Perl module to parse HTML documents
 Name: 		%{name}
@@ -12,7 +21,7 @@ Group: 		Development/Perl
 URL: 		http://search.cpan.org/dist/%{module}/
 Source:		ftp://ftp.cpan.org/pub/CPAN/modules/by-module/HTML/%{module}-%{version}.tar.bz2
 
-BuildRoot: 	%{_tmppath}/%{name}-%{version}-buildroot/
+BuildRoot: 	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl-devel perl-HTML-Tagset
 
 Requires: 	perl perl-HTML-Tagset >= 3.03
@@ -21,8 +30,10 @@ Requires: 	perl perl-HTML-Tagset >= 3.03
 HTML-Parser module for perl to parse and extract information
 from HTML documents.
 
+
 %prep
 %setup -q -n %{module}-%{version}
+
 
 %build
 # compile with default options (prompt() checks for STDIN being a terminal).
@@ -31,12 +42,15 @@ yes | %{__perl} Makefile.PL INSTALLDIRS=vendor
 %make OPTIMIZE="%{optflags}"
 make test
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -47,6 +61,9 @@ make test
 
 
 %changelog
+* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 3.45-3avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 3.45-2avx
 - bootstrap build
 
@@ -147,7 +164,7 @@ make test
 
 * Wed May 17 2000 David BAUDENS <baudens@mandrakesoft.com> 3.05-4mdk
 - Fix build for i486
-- Use %%{_tmppath} for BuildRoot
+- Use %%{_buildroot} for BuildRoot
 
 * Fri Mar 31 2000 Pixel <pixel@mandrakesoft.com> 3.05-3mdk
 - rebuild, new group, cleanup

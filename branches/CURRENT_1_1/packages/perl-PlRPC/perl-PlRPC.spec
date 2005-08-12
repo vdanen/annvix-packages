@@ -1,7 +1,16 @@
-%define module 	PlRPC
-%define name	perl-%{module}
-%define version 0.2017
-%define release 8avx
+#
+# spec file for package perl-PlRPC
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define module 		PlRPC
+%define name		perl-%{module}
+%define version 	0.2017
+%define release 	9avx
 
 Summary:	%{module} perl module
 Name: 		%{name}
@@ -12,36 +21,44 @@ Group:		Development/Perl
 URL:		ftp://ftp.funet.fi/pub/languages/perl/CPAN/authors/id/JWIED
 Source0:	%{module}-%{version}.tar.bz2
 
-BuildRoot: 	%{_tmppath}/%{name}-%{version}-buildroot
+BuildRoot: 	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl-Net-Daemon perl-devel
 Buildarch:	noarch
 
 %description
 %{module} - module for perl
 
+
 %prep
 %setup -q -n %{module}-%{version}
 
-%build
 
+%build
 %{__perl} Makefile.PL INSTALLDIRS=vendor --defaultdeps
 %{__make}
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
+
 %clean 
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files 
 %defattr(-,root,root)
 %doc README MANIFEST ChangeLog 
 %{perl_vendorlib}/Bundle/*
 %{perl_vendorlib}/RPC/*
-%_mandir/man3*/*
+%{_mandir}/man3*/*
+
 
 %changelog
+* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 0.2017-9avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.2017-8avx
 - bootstrap build
 

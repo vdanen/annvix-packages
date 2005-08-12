@@ -1,7 +1,16 @@
-%define	module	XML-Parser
-%define	name	perl-%{module}
-%define	version	2.34
-%define	release	7avx
+#
+# spec file for package perl-XML-Parser
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define	module		XML-Parser
+%define	name		perl-%{module}
+%define	version		2.34
+%define	release		8avx
 
 Summary: 	A perl module for parsing XML documents
 Name: 		%{name}
@@ -13,7 +22,7 @@ URL: 		http://www.cpan.org
 Source: 	http://www.cpan.org/authors/id/C/CO/COOPERCL/%{module}-%{version}.tar.bz2
 Source1:	http://uucode.com/xml/perl/enc.tar.bz2
 
-BuildRoot: 	%{_tmppath}/%{name}-buildroot/
+BuildRoot: 	%{_buildroot}/%{name}-%{version}
 BuildRequires: 	libexpat-devel perl-devel perl-libwww-perl perl-HTML-Parser
 
 Requires: 	perl, libexpat1_95
@@ -21,23 +30,26 @@ Requires: 	perl, libexpat1_95
 %description
 A perl module for parsing XML documents
 
-Needed by eGrail
 
 %prep
 %setup -q -n %{module}-%{version} -a 1
+
 
 %build
 %{__perl} Makefile.PL INSTALLDIRS=vendor
 %make OPTIMIZE="$RPM_OPT_FLAGS"
 make test
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
-install -m 644 enc/koi8-r.enc $RPM_BUILD_ROOT%{perl_vendorarch}/XML/Parser/Encodings
+install -m 0644 enc/koi8-r.enc %{buildroot}%{perl_vendorarch}/XML/Parser/Encodings
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -48,6 +60,9 @@ install -m 644 enc/koi8-r.enc $RPM_BUILD_ROOT%{perl_vendorarch}/XML/Parser/Encod
 
 
 %changelog
+* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 2.34-8avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.34-7avx
 - bootstrap build
 
