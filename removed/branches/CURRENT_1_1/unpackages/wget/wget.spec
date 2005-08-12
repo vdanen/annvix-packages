@@ -9,7 +9,7 @@
 
 %define name		wget
 %define version		1.10
-%define release		1avx
+%define release		2avx
 
 Summary: 	A utility for retrieving files using the HTTP or FTP protocols
 Name: 		%{name}
@@ -27,7 +27,7 @@ Patch3:		wget-1.8.1-etc.patch.bz2
 Patch4:		wget-1.10-logstdout.patch.bz2
 Patch5:		wget-1.9.1-suse-sanitize.patch.bz2
 
-BuildRoot: 	%{_tmppath}/%{name}-%{version}-build-root
+BuildRoot: 	%{_buildroot}/%{name}-%{version}
 BuildRequires:	gettext, openssl-devel, texinfo, autoconf2.5
 
 Provides: 	webclient webfetch
@@ -43,8 +43,8 @@ Rest with FTP servers and Range with HTTP servers to retrieve files over
 slow or unstable connections, support for Proxy servers, and
 configurability.
 
-%prep
 
+%prep
 %setup -q
 %patch0 -p1 -b .passive_ftp
 %patch1 -p1
@@ -53,6 +53,7 @@ configurability.
 %patch4 -p1 -b .logstdout
 %patch5 -p1 -b .can-2004-1487_1488
 
+
 %build
 #aclocal
 autoconf
@@ -60,6 +61,7 @@ autoconf
 %make
 # all tests must pass (but where are they?)
 make check
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -72,6 +74,7 @@ install -m 0755 util/rmold.pl %{buildroot}/%{_bindir}/rmold
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %post
 %_install_info %{name}.info
@@ -89,6 +92,9 @@ install -m 0755 util/rmold.pl %{buildroot}/%{_bindir}/rmold
 %{_mandir}/man1/wget.1*
 
 %changelog
+* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 1.10-2avx
+- bootstrap build (new gcc, new glibc)
+
 * Mon Jul 04 2005 Vincent Danen <vdanen@annvix.org> 1.10-1avx
 - 1.10
 - drop P1, P6, P7, P10, P11, P12, P13 (non-essential)
@@ -127,7 +133,7 @@ install -m 0755 util/rmold.pl %{buildroot}/%{_bindir}/rmold
 
 * Tue Jul 22 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 1.8.2-11mdk
 - rebuild
-- rm -rf $RPM_BUILD_ROOT at the beginning of %%install
+- rm -rf %{buildroot} at the beginning of %%install
 
 * Thu Jun 05 2003 Thierry Vignaud <tvignaud@mandrakesoft.com> 1.8.2-10mdk
 - patch 10: support correct spelling of '--referrer' in options (#3991)
@@ -153,7 +159,7 @@ install -m 0755 util/rmold.pl %{buildroot}/%{_bindir}/rmold
 
 * Tue Dec 10 2002 Vincent Danen <vdanen@mandrakesoft.com> 1.8.2-3mdk
 - P8: security fix for directory traversal problem
-- remove double %%_mandir entry in %%files
+- remove double %%{_mandir} entry in %%files
 
 * Wed Sep 04 2002 François Pons <fpons@mandrakesoft.com> 1.8.2-2mdk
 - created patch 7 to allow @ in url password.
