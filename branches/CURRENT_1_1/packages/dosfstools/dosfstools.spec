@@ -1,6 +1,15 @@
-%define name	dosfstools
-%define version 2.10
-%define release 3avx
+#
+# spec file for package dosfstools
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		dosfstools
+%define version 	2.10
+%define release 	4avx
 
 Summary:	Utilities to create and check MS-DOS FAT filesystems
 Name:		%{name}
@@ -12,8 +21,9 @@ URL:		ftp://ftp.uni-erlangen.de/pub/Linux/LOCAL/dosfstools
 Source:		ftp://ftp.uni-erlangen.de/pub/Linux/LOCAL/dosfstools/%{name}-%{version}.src.tar.bz2
 Source1:	msdos_fs.h.bz2
 Patch0:		dosfstools-2.10-compile-against-2.4-header.patch.bz2
+Patch1:		dosfstools-2.10-headers.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 
 Obsoletes:	mkdosfs-ygg
 Provides:	mkdosfs-ygg = %{version}
@@ -25,24 +35,30 @@ Linux.  This version uses the enhanced boot sector/superblock
 format of DOS 3.3+ as well as provides a default dummy boot sector
 code.
 
+
 %prep
 %setup -q
 %patch0 -p1 -b .kern24
+%patch1 -p1 -b .headers
 bzcat %{SOURCE1} >dosfsck/msdos_fs.h
 
+
 %build
-%make PREFIX=%{_prefix} CFLAGS="$RPM_OPT_FLAGS"
+%make PREFIX=%{_prefix} CFLAGS="%{optflags}"
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 cp dosfsck/README README.fsck
 cp mkdosfs/README README.mkdosfs
-%makeinstall PREFIX=$RPM_BUILD_ROOT MANDIR=$RPM_BUILD_ROOT%{_mandir}/man8
+%makeinstall PREFIX=%{buildroot} MANDIR=%{buildroot}%{_mandir}/man8
 
 rm -f %{buildroot}/sbin/fsck.*
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -53,7 +69,12 @@ rm -f %{buildroot}/sbin/fsck.*
 /sbin/dosfsck
 %{_mandir}/man8/*
 
+
 %changelog
+* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 2.10-4avx
+- bootstrap build (new gcc, new glibc)
+- P3: fix build
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.10-3avx
 - rebuild
 
