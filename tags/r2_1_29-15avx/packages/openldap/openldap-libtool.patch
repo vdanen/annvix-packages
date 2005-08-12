@@ -1,0 +1,19 @@
+--- openldap-2.0.7/libtool.old	Thu Apr 26 05:01:53 2001
++++ openldap-2.0.7/libtool	Thu Apr 26 05:03:50 2001
+@@ -439,6 +439,16 @@
+   --mode) prevopt="--mode" prev=mode ;;
+   --mode=*) mode="$optarg" ;;
+ 
++  --only-shared)
++    build_libtool_libs=yes
++    build_old_libs=no
++    ;;
++
++  --only-static)
++    build_libtool_libs=no
++    build_old_libs=yes
++    ;;
++
+   --quiet | --silent)
+     show=:
+     ;;
