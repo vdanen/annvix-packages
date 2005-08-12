@@ -5,14 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# mdk-1.19.1-1mdk
 
 
 %define name		groff
-%define version		1.19
-%define release		8avx
-
-# rh-1.18-3
-# deb-1.18-4
+%define version		1.19.1
+%define release		1avx
 
 Summary:	A document formatting system
 Name:		%{name}
@@ -24,27 +22,19 @@ URL:		http://www.gnu.org/directory/GNU/groff.html
 Source0:	ftp://prep.ai.mit.edu/pub/gnu/groff/%{name}-%{version}.tar.bz2
 Source1:	troff-to-ps.fpi
 Source2:	README.A4
-# nippon/multi-byte support from http://people.debian.org/~ukai/groff/
-Patch3:		groff_1.19-0.diff.bz2
 Patch4:		groff-1.18-info.patch.bz2
-Patch5:		groff-1.18-nohtml.patch.bz2
+Patch5:		groff-1.19.1-nohtml.patch.bz2
 Patch6:		groff-1.17.2-libsupc++.patch.bz2
-Patch7:		groff-1.19-mkstemp.patch.bz2
 Patch102:	groff-1.16.1-no-lbp-on-alpha.patch.bz2
-Patch107:	groff-1.19-koi8-r.patch.bz2
-# patch to improve working on utf-8 locales;
-# and also for Korean and simplified chinese to use -Tnippon
-# extended from japanese patch from from Mike Fabian <mfabian@suse.de>
-# -- pablo
-Patch108:	groff-1.19-utf8.patch.bz2
 # keeps apostrophes and dashes as ascii, but only for man pages
 # -- pablo
 Patch109:	groff-1.19-dashes.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	autoconf2.5, byacc, texinfo >= 4.3, xpm-devel
+BuildRequires:	autoconf2.5, byacc, texinfo >= 4.3, xpm-devel, xorg-x11
+# xorg-x11 is required for rman
 
-Requires:	mktemp groff-for-man = %{version}-%{release}
+Requires:	mktemp, groff-for-man = %{version}-%{release}
 Obsoletes:	groff-tools
 Provides:	groff-tools
 Prereq:		info-install
@@ -60,6 +50,7 @@ type, italic type, the number and size of columns on a page, and more.
 %package for-man
 Summary:	Parts of the groff formatting system that is required for viewing manpages
 Group:		Text tools
+Conflicts:	groff < 1.19-7avx
 
 %description for-man
 The groff-for-man package contains the parts of the groff text processor
@@ -81,11 +72,9 @@ troff-to-ps print filter.
 
 %prep
 %setup -q
-#TV%patch3 -p1 -b .deb
 %patch4 -p1
-%patch5 -p1
+%patch5 -p1 -b .nohtml
 %patch6 -p1 -b .libsupc++
-%patch7 -p1 -b .mkstemp
 %ifarch alpha
 %patch102 -p1 -b .alpha
 %endif
@@ -153,9 +142,11 @@ cat <<EOF > groff.list
 EOF
 
 cat <<EOF > groff-for-man.list
+%{_bindir}/eqn
 %{_bindir}/troff
 %{_bindir}/nroff
 %{_bindir}/tbl
+%{_bindir}/geqn
 %{_bindir}/gtbl
 %{_bindir}/gnroff
 %{_bindir}/grotty
@@ -226,6 +217,13 @@ mv %{buildroot}%{_docdir}/{groff/%{version}/,%{name}-%{version}/}
 
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1.19-9avx
+- 1.19.1
+- drop unapplied P3
+- drop P7
+- update P5 (waschk)
+- explicit groff-for-man conflict with older groff due to eqn (pixel)
+
 * Wed Jul 27 2005 Vincent Danen <vdanen@annvix.org> 1.19-8avx
 - rebuild for new gcc
 

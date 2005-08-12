@@ -1,6 +1,6 @@
---- groff-1.18/doc/Makefile.sub.nohtml	2002-06-14 17:18:34.000000000 +0200
-+++ groff-1.18/doc/Makefile.sub	2002-08-06 13:46:19.000000000 +0200
-@@ -54,11 +54,9 @@
+--- groff-1.19.1/doc/Makefile.sub.nohtml	2004-03-05 10:52:57.000000000 +0100
++++ groff-1.19.1/doc/Makefile.sub	2005-06-13 10:04:27.261110104 +0200
+@@ -59,11 +59,9 @@
    meintro.ps \
    pic.ps
  
@@ -8,14 +8,14 @@
 -  pic.html
 +HTMLDOCFILES=
  
--HTMLDOCIMAGEFILES=\
--  pic*
-+HTMLDOCIMAGEFILES=
+-HTMLDOCFILESALL=\
+-  pic*.html
++HTMLDOCFILESALL=
  
- EXAMPLEFILES=\
-   webpage.ms \
-@@ -71,11 +69,9 @@
-   gnu.png \
+ HTMLDOCIMAGEFILES=\
+   pic*
+@@ -77,11 +75,9 @@
+   webpage.ps \
    grnexmpl.ps
  
 -HTMLEXAMPLEFILES=\
@@ -28,7 +28,7 @@
  
  imagedir=img
  htmldocimagedir=$(htmldocdir)/$(imagedir)
-@@ -109,7 +105,7 @@
+@@ -120,7 +116,7 @@
  
  
  all: groff $(PROCESSEDDOCFILES) prepare_examples \
@@ -37,9 +37,9 @@
  
  html: $(HTMLDOCFILES) $(HTMLEXAMPLEFILES)
  
-@@ -131,7 +127,7 @@
+@@ -148,7 +144,7 @@
  
- distfiles: groff
+ distfiles: groff gnu.eps gnu.png
  
 -install_data: groff $(DOCFILES) $(PROCESSEDDOCFILES) $(make_install_html) \
 +install_data: groff $(DOCFILES) $(PROCESSEDDOCFILES)  \
