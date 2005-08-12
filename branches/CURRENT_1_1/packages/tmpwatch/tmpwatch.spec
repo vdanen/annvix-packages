@@ -1,6 +1,15 @@
-%define name 	tmpwatch
-%define version	2.9.0
-%define release	5avx
+#
+# spec file for package tmpwatch
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name 		tmpwatch
+%define version		2.9.0
+%define release		6avx
 
 # CVSROOT=':ext:user@devserv.devel.redhat.com:/home/devel/CVS'
 Summary:	A utility for removing files based on when they were last accessed
@@ -12,7 +21,7 @@ Group:		File tools
 URL:		ftp://ftp.redhat.com/pub/redhat/linux/rawhide/SRPMS/SRPMS/
 Source:		%{name}-%{version}.tar.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 
 Requires:	psmisc
 
@@ -24,17 +33,20 @@ directories which are used for temporarily holding files (for example,
 /tmp).  Tmpwatch ignores symlinks, won't switch filesystems and only
 removes empty directories and regular files.
 
+
 %prep
 %setup -q
 
+
 %build
-make RPM_OPT_FLAGS="$RPM_OPT_FLAGS"
+make RPM_OPT_FLAGS="%{optflags}"
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-%makeinstall ROOT=$RPM_BUILD_ROOT MANDIR=%{_mandir} SBINDIR=%{_sbindir}
+%makeinstall ROOT=%{buildroot} MANDIR=%{_mandir} SBINDIR=%{_sbindir}
 
-mkdir -p $RPM_BUILD_ROOT/%{_sysconfdir}/cron.daily
+mkdir -p %{buildroot}%{_sysconfdir}/cron.daily
 echo  '%{_sbindir}/tmpwatch 240 /tmp /var/tmp
 [ -f /etc/sysconfig/i18n ] && . /etc/sysconfig/i18n 
 if [ -d %{_mandir}/$LANG/ ] && [ -d /var/catman/$LANG/ ]; then 
@@ -42,11 +54,13 @@ if [ -d %{_mandir}/$LANG/ ] && [ -d /var/catman/$LANG/ ]; then
  else 
 %{_sbindir}/tmpwatch -f 240 /var/catman/{X11R6/cat?,cat?,local/cat?}
 fi' \
-	> $RPM_BUILD_ROOT/etc/cron.daily/tmpwatch
-chmod 0755 $RPM_BUILD_ROOT/etc/cron.daily/tmpwatch
+	> %{buildroot}%{_sysconfdir}/cron.daily/tmpwatch
+chmod 0755 %{buildroot}%{_sysconfdir}/cron.daily/tmpwatch
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -54,7 +68,11 @@ chmod 0755 $RPM_BUILD_ROOT/etc/cron.daily/tmpwatch
 %{_mandir}/man8/tmpwatch.8*
 %attr(755,root,root) %config(noreplace) %{_sysconfdir}/cron.daily/tmpwatch
 
+
 %changelog
+* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 2.9.0-6avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.9.0-5avx
 - bootstrap build
 

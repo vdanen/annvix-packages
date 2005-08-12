@@ -1,6 +1,15 @@
-%define name	time
-%define version	1.7
-%define release	29avx
+#
+# spec file for package time
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		time
+%define version		1.7
+%define release		30avx
 
 Summary:	A GNU utility for monitoring a program's use of system resources
 Name:		%{name}
@@ -16,7 +25,7 @@ Patch2:		time-1.7-quiet.1.patch.bz2
 Patch3:		time-1.7-fixinfo.patch.bz2 
 Patch4:		time-1.7-build.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	texinfo
 
 PreReq:		info-install
@@ -49,23 +58,27 @@ autoconf
 automake-1.4 -a
 autoheader
 
-%build
 
+%build
 %configure
 make LDFLAGS=-s
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %post
 %_install_info %{name}.info
 
 %preun
 %_remove_install_info %{name}.info
+
 
 %files
 %defattr(-,root,root)
@@ -74,6 +87,9 @@ make LDFLAGS=-s
 %{_infodir}/%{name}.info*
 
 %changelog
+* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 1.7-30avx
+- bootstrap build (new gcc, new glibc)
+
 * Sat Jun 04 2005 Vincent Danen <vdanen@annvix.org> 1.7-29avx
 - bootstrap build
 - force use of autoconf2.5 and automake-1.4 (peroyvind)

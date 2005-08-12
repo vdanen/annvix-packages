@@ -1,9 +1,18 @@
-%define name	lynx
-%define version 2.8.5
-%define release	3avx
-%define epoch	1
+#
+# spec file for package lynx
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-%define versio_	2-8-5
+
+%define name		lynx
+%define version 	2.8.5
+%define release		4avx
+%define epoch		1
+
+%define versio_		2-8-5
 
 Summary:	Text based browser for the world wide web
 Name:		%{name}
@@ -13,14 +22,14 @@ Epoch:		%{epoch}
 License:	GPL
 Group:		Networking/WWW
 URL:		http://lynx.isc.org
-Source0:	http://lynx.isc.org/current/%name%{version}.tar.bz2
+Source0:	http://lynx.isc.org/current/%{name}%{version}.tar.bz2
 Patch0:		lynx2-8-5-adapt-to-modern-file-localizations.patch.bz2
 Patch1:		lynx-2.8.5-avx-config.patch.bz2
 Patch2:		lynx2-8-4-fix-ugly-color.patch.bz2
 Patch10:	lynx2-8-5-tmp_dir.patch.bz2
 Patch11:	lynx2-8-5-don-t-accept-command-line-args-to-telnet.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	openssl-devel, zlib-devel, gettext, ncurses-devel
 
 Provides:	webclient lynx-ssl
@@ -44,68 +53,51 @@ This version includes support for SSL encryption.
 
 
 %build
+%configure \
+    --libdir=/usr/share/lynx \
+    --enable-warnings \
+    --with-screen=ncurses \
+    --enable-8bit-toupper \
+    --enable-externs \
+    --enable-cgi-links \
+    --enable-persistent-cookies \
+    --enable-nls \
+    --enable-prettysrc \
+    --enable-source-cache \
+    --enable-charset-choice \
+    --enable-default-colors \
+    --enable-ipv6 \
+    --enable-nested-tables \
+    --enable-read-eta \
+    --with-zlib \
+    --enable-internal-links \
+    --enable-libjs \
+    --enable-scrollbar \
+    --enable-file-upload \
+    --with-ssl \
+    --enable-addrlist-page \
+    --enable-justify-elts \
+    --enable-color-style \
+    --enable-nsl-fork
 
-debian_options=`cat << DEBIAN
-	--enable-warnings
-	--with-screen=ncurses --enable-8bit-toupper
-	--enable-externs
-	--enable-cgi-links
-	--enable-persistent-cookies --enable-nls
-	--enable-prettysrc --enable-source-cache
-	--enable-charset-choice
-	--enable-default-colors
-	--enable-ipv6
-	--enable-nested-tables --enable-read-eta
-	--with-zlib
-DEBIAN`
-# removed --enable-exec-links --enable-exec-scripts,
-# it goes together with LOCAL_EXECUTION_LINKS_* in lynx.cfg
-
-
-redhat_options=`cat << REDHAT
-	--enable-internal-links
-	--enable-libjs
-	--enable-scrollbar
-	--enable-file-upload
-	--with-ssl
-	--enable-addrlist-page
-	--enable-justify-elts
-REDHAT`
-
-other_options=`cat << OTHER
-	--enable-color-style
-	--enable-nsl-fork
-OTHER`
-
-# (cf INSTALLATION file for more about the options)
-# --with-included-gettext  is the default
-# --enable-kbd-layout not useful enough
-# --enable-cjk not needed for CJK and may go away in a future release
-
-%configure --libdir=/usr/share/lynx $debian_options $redhat_options $other_options
 %make
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std install-help
 
-install -d $RPM_BUILD_ROOT%{_sysconfdir}
-cat >$RPM_BUILD_ROOT%{_sysconfdir}/lynx-site.cfg <<EOF
+install -d %{buildroot}%{_sysconfdir}
+cat >%{buildroot}%{_sysconfdir}/lynx-site.cfg <<EOF
 # Place any local lynx configuration options (proxies etc.) here.
 EOF
 
 %find_lang lynx
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-%triggerpostun -- lynx < 2.8.5-0.13mdk.dev.12
-# handle lynx.cfg move from /etc to /usr/share/lynx
-if [ -e %{_sysconfdir}/lynx.cfg.rpmsave ]; then
-  echo "migrating saved %{_sysconfdir}/lynx.cfg.rpmsave to %{_datadir}/lynx/lynx.cfg"
-  mv -f %{_datadir}/lynx/lynx.cfg %{_datadir}/lynx/lynx.cfg.rpmnew
-  mv -f %{_sysconfdir}/lynx.cfg.rpmsave %{_datadir}/lynx/lynx.cfg
-fi
 
 %files -f lynx.lang
 %defattr(-,root,root)
@@ -115,7 +107,11 @@ fi
 %{_bindir}/*
 %{_datadir}/lynx
 
+
 %changelog
+* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 2.8.5-4avx
+- bootstrap build (new gcc, new glibc)
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.8.5-3avx
 - rebuild
 

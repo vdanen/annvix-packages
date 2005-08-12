@@ -1,6 +1,15 @@
-%define name	smartmontools
-%define version 5.33
-%define release 2avx
+#
+# spec file for package smartmontools
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		smartmontools
+%define version 	5.33
+%define release 	3avx
 
 Summary:	SMARTmontools - for monitoring S.M.A.R.T. disks and devices
 Name:           %{name}
@@ -14,7 +23,7 @@ Source1:	smartd.run
 Source2:	smartd-log.run
 Source3:	%{name}-%{version}.tar.gz.asc
 
-BuildRoot:      %{_tmppath}/%{name}-%{version}-root
+BuildRoot:      %{_buildroot}/%{name}-%{version}
 
 Obsoletes:	smartsuite
 Provides:	smartsuite
@@ -35,12 +44,15 @@ intended to incorporate as much "vendor specific" and "reserved"
 information as possible about disk drives.  man smartctl and man
 smartd will provide more information.
 
+
 %prep
 %setup -q
+
 
 %build
 %configure2_5x
 %make
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -55,8 +67,10 @@ rm -rf %{buildroot}%{_initrddir}
 mkdir -p %{buildroot}%{_sysconfdir}/sysconfig
 echo "INTERVAL=1800" > %{buildroot}%{_sysconfdir}/sysconfig/smartd
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %post
 %_post_srv smartd
@@ -83,6 +97,9 @@ echo "INTERVAL=1800" > %{buildroot}%{_sysconfdir}/sysconfig/smartd
 
 
 %changelog
+* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 5.33-3avx
+- bootstrap build (new gcc, new glibc)
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 5.33-2avx
 - rebuild
 

@@ -1,6 +1,15 @@
-%define name	usbutils
-%define version 0.11
-%define release	7avx
+#
+# spec file for package usbutils
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		usbutils
+%define version 	0.11
+%define release		8avx
 
 Summary:	Linux USB utilities
 Name:		%{name}
@@ -14,32 +23,37 @@ Source0:	http://usb.in.tum.de/download/usbutils/usbutils-%{version}.tar.bz2
 Source1:	http://www.linux-usb.org/usb.ids
 Patch0:		usbutils-0.11-fix-classes.patch.bz2 
 
-BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 
 %description
 usbutils contains a utility for inspecting devices connected to the USB bus.
 It requires a Linux kernel version 2.3.15 or newer (supporting the
 '/proc/bus/usb' interface).
 
+
 %prep
 %setup -q
 perl -pe 's/^PHY.*//' %SOURCE1 > usb.ids
 %patch0 -p0 -b .classes
 
+
 %build
 %configure
 %make
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
 # the latest usb.ids contain entries that usbutils doesn't handle
-rm -f $RPM_BUILD_ROOT{%_includedir/libusb.h,%_libdir/libusb*}
-#perl -pe 's/^PHY.*//' %{SOURCE1} > $RPM_BUILD_ROOT%{_datadir}/usb.ids
+rm -f %{buildroot}{%{_includedir}/libusb.h,%{_libdir}/libusb*}
+#perl -pe 's/^PHY.*//' %{SOURCE1} > %{buildroot}%{_datadir}/usb.ids
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -49,6 +63,9 @@ rm -f $RPM_BUILD_ROOT{%_includedir/libusb.h,%_libdir/libusb*}
 
 
 %changelog
+* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 0.11-8avx
+- bootstrap build (new gcc, new glibc)
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 0.11-7avx
 - rebuild
 

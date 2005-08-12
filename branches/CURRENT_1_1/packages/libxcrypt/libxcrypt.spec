@@ -1,6 +1,15 @@
-%define name	libxcrypt
-%define version	2.0
-%define release	4avx
+#
+# spec file for package libxcrypt
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		libxcrypt
+%define version		2.0
+%define release		5avx
 
 Summary:	Crypt library for DES, MD5, and blowfish
 Name:		%{name}
@@ -10,12 +19,13 @@ License:	LGPL
 Group:		System/Libraries
 Source:		libxcrypt-%{version}.tar.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-build
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 
 %description
 Libxcrypt is a replacement for libcrypt, which comes with the GNU C
 Library. It supports DES crypt, MD5, and passwords with blowfish
 encryption.
+
 
 %package devel
 Summary:	Development files for Crypt library
@@ -34,9 +44,11 @@ necessary to develop your own software using libxcrypt.
 %prep
 %setup -q
 
+
 %build
 %configure2_5x
 %make
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -46,8 +58,10 @@ necessary to develop your own software using libxcrypt.
 rm -f %{buildroot}%{_libdir}/libxcrypt
 rm -f %{buildroot}%{_libdir}/libxcrypt.1
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -61,11 +75,15 @@ rm -f %{buildroot}%{_libdir}/libxcrypt.1
 %{_libdir}/libxcrypt.la
 %{_libdir}/libxcrypt.so
 
+
 %changelog
+* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 2.0-5avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.0-4avx
 - bootstrap build
 - get rid of the ugly hacks we don't need anymore
-- put the lib files in %%_libdir rather than /lib
+- put the lib files in %%{_libdir} rather than /lib
 
 * Wed Jun 22 2004 Vincent Danen <vdanen@annvix.org> 2.0-3avx
 - Annvix build

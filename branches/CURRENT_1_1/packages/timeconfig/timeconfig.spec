@@ -1,6 +1,15 @@
-%define name	timeconfig
-%define version	3.2
-%define release	14avx
+#
+# spec file for package timeconfig
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		timeconfig
+%define version		3.2
+%define release		15avx
 
 Summary:	Text mode tools for setting system time parameters
 Name:		%{name}
@@ -18,7 +27,7 @@ Source6:	timeconfig.apps
 Patch0:		timeconfig-gmt.patch.bz2
 Patch1:		timeconfig-mdkconf.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	gettext libnewt-devel popt-devel slang-devel
 
 Requires:	initscripts >= 2.81
@@ -31,13 +40,16 @@ the time parameters in /etc/sysconfig/clock and /etc/localtime. The
 setclock tool sets the hardware clock on the system to the current
 time stored in the system clock.
 
+
 %prep
 %setup -q
 %patch0 -p0 -b .gmt
 %patch1 -p0 -b .mdkconf
 
+
 %build
-make RPM_OPT_FLAGS="$RPM_OPT_FLAGS"
+make RPM_OPT_FLAGS="%{optflags}"
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -50,10 +62,12 @@ mkdir -p %{buildroot}%{_datadir}/locale/id/LC_MESSAGES
 # remove unpackaged files
 rm -rf %{buildroot}%{_mandir}/pt_BR/
 
-%{find_lang} %{name}
+%find_lang %{name}
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %post
 if [ -L %{_sysconfdir}/localtime ]; then
@@ -68,12 +82,16 @@ if [ -L %{_sysconfdir}/localtime ]; then
     fi
 fi
 
+
 %files -f %{name}.lang
 %defattr(-,root,root)
 %{_sbindir}/*
 %{_mandir}/man*/*
 
 %changelog
+* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 3.2-15avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 3.2-14avx
 - bootstrap build
 

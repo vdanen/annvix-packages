@@ -1,6 +1,15 @@
-%define name	logrotate
-%define version	3.7.1
-%define release	2avx
+#
+# spec file for package logrotate
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		logrotate
+%define version		3.7.1
+%define release		3avx
 
 Summary:	Rotates, compresses, and mails system logs
 Name:		%{name}
@@ -12,7 +21,7 @@ URL:		http://download.fedora.redhat.com/pub/fedora/linux/core/1/i386/os/SRPMS
 Source0:	%{name}-%{version}.tar.bz2
 Source1:	logrotate.conf.annvix.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	popt-devel
 
 %description
@@ -21,11 +30,14 @@ large numbers of log files. It allows automatic rotation, compression,
 removal, and mailing of log files. Each log file may be handled daily,
 weekly, monthly, or when it grows too large.
 
+
 %prep
 %setup -q
 
+
 %build
 %make RPM_OPT_FLAGS="%{optflags}"
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -36,14 +48,16 @@ mkdir -p %{buildroot}%{_sysconfdir}/cron.daily
 mkdir -p %{buildroot}/var/lib
 
 bzcat %{SOURCE1} > %{buildroot}%{_sysconfdir}/%{name}.conf
-chmod 644 %{buildroot}%{_sysconfdir}/%{name}.conf
+chmod 0644 %{buildroot}%{_sysconfdir}/%{name}.conf
 
-install -m 755 examples/%{name}.cron %{buildroot}%{_sysconfdir}/cron.daily/%{name}
+install -m 0755 examples/%{name}.cron %{buildroot}%{_sysconfdir}/cron.daily/%{name}
 
 touch %{buildroot}/var/lib/logrotate.status
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -55,7 +69,11 @@ touch %{buildroot}/var/lib/logrotate.status
 %attr(0755, root, root) %dir %{_sysconfdir}/%{name}.d
 %attr(0644, root, root) %verify(not size md5 mtime) %config(noreplace) /var/lib/logrotate.status
 
+
 %changelog
+* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 3.7.1-3avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 3.7.1-2avx
 - bootstrap build
 

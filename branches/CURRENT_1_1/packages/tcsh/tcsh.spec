@@ -1,8 +1,16 @@
-%define name	tcsh
-%define version	6.12
-%define release	10avx
+#
+# spec file for package tcsh
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-%define rversion %{version}.00
+
+%define name		tcsh
+%define version		6.12
+%define release		11avx
+%define rversion	%{version}.00
 
 Summary:	An enhanced version of csh, the C shell
 Name:		%{name}
@@ -19,7 +27,7 @@ Patch5:		tcsh-6.09.00-locale.patch.bz2
 Patch6:		tcsh-6.10.00-glibc_compat.patch.bz2
 Patch7:		tcsh-6.12.00-dspmbyte.patch.bz2
 
-Buildroot:	%_tmppath/%name-%version-%release-root
+Buildroot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	libtermcap-devel groff-for-man
 
 Provides:	csh = %{version}
@@ -33,6 +41,7 @@ Tcsh includes a command line editor, programmable word completion,
 spelling correction, a history mechanism, job control and a C language
 like syntax.
 
+
 %prep
 %setup -q -n %{name}-%{rversion}
 %patch0 -p1 -b .utmp
@@ -41,32 +50,37 @@ like syntax.
 %patch6 -p1 -b .glibc_compat
 %patch7 -p1 -b .mbyte
 
+
 %build
 %configure --bindir=/bin
 %make
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p $RPM_BUILD_ROOT%{_mandir}/man1 $RPM_BUILD_ROOT/bin
-install -s tcsh $RPM_BUILD_ROOT/bin/tcsh
-install -m 644 tcsh.man $RPM_BUILD_ROOT%{_mandir}/man1/tcsh.1
-ln -s tcsh.1 $RPM_BUILD_ROOT%{_mandir}/man1/csh.1
-ln -sf tcsh $RPM_BUILD_ROOT/bin/csh
+mkdir -p %{buildroot}%{_mandir}/man1 %{buildroot}/bin
+install -s tcsh %{buildroot}/bin/tcsh
+install -m 0644 tcsh.man %{buildroot}%{_mandir}/man1/tcsh.1
+ln -s tcsh.1 %{buildroot}%{_mandir}/man1/csh.1
+ln -sf tcsh %{buildroot}/bin/csh
 nroff -me eight-bit.me > eight-bit.txt
 
-mkdir -p %buildroot%{_sysconfdir}/profile.d/
-install %{SOURCE1} %buildroot%{_sysconfdir}/profile.d/$(basename %{SOURCE1})
+mkdir -p %{buildroot}%{_sysconfdir}/profile.d/
+install %{SOURCE1} %{buildroot}%{_sysconfdir}/profile.d/$(basename %{SOURCE1})
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
+
 %post
-/usr/share/rpm-helper/add-shell %name $1 /bin/csh
-/usr/share/rpm-helper/add-shell %name $1 /bin/tcsh
+/usr/share/rpm-helper/add-shell %{name} $1 /bin/csh
+/usr/share/rpm-helper/add-shell %{name} $1 /bin/tcsh
 
 %postun
-/usr/share/rpm-helper/del-shell %name $1 /bin/csh
-/usr/share/rpm-helper/del-shell %name $1 /bin/tcsh
+/usr/share/rpm-helper/del-shell %{name} $1 /bin/csh
+/usr/share/rpm-helper/del-shell %{name} $1 /bin/tcsh
+
 
 %files
 %defattr(-,root,root)
@@ -74,9 +88,13 @@ install %{SOURCE1} %buildroot%{_sysconfdir}/profile.d/$(basename %{SOURCE1})
 %doc Ported README* WishList Y2K
 %config(noreplace) %{_sysconfdir}/profile.d/*
 /bin/*
-%_mandir/*/*
+%{_mandir}/*/*
+
 
 %changelog
+* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 6.12-11avx
+- bootstrap build (new gcc, new glibc)
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 6.12-10avx
 - rebuild
 
@@ -132,7 +150,7 @@ install %{SOURCE1} %buildroot%{_sysconfdir}/profile.d/$(basename %{SOURCE1})
 - rebuild
 
 * Tue May 01 2001 David BAUDENS <baudens@mandrakesoft.com> 6.10-3mdk
-- Use %%_tmppath for BuildRoot
+- Use %%{_buildroot} for BuildRoot
 
 * Mon Mar 12 2001 Jeff Garzik <jgarzik@mandrakesoft.com> 6.10-2mdk
 - fix build on glibc22 due to more strict glibc 2.2.2 headers

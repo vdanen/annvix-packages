@@ -1,9 +1,18 @@
-%define name	%{libnet}%{branch}
-%define version 1.0.2a
-%define release 7avx
+#
+# spec file for package libnet1.0
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-%define libnet	%mklibname net
-%define branch	1.0
+
+%define name		%{libnet}%{branch}
+%define version 	1.0.2a
+%define release 	8avx
+
+%define libnet		%mklibname net
+%define branch		1.0
 
 Summary:	A C library for portable packet creation
 Name:		%{name}-devel
@@ -15,7 +24,7 @@ URL:		http://www.packetfactory.net/libnet
 Source:		http://www.packetfactory.net/libnet/dist/libnet-%{version}.tar.bz2
 Patch0:		libnet-1.0.2a-strings.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildPreReq:	libpcap
 BuildRequires:	libtool
 
@@ -33,30 +42,33 @@ and complementary functionalty. Libnet is avery handy with which to
 write network tools and network test code.  See the manpage and sample
 test code for more detailed information
 
+
 %prep
 %setup -n Libnet-%{version} -q
 %patch0 -p1 -b .strings
 
-%build
 
+%build
 %configure --with-pf_packet=yes 
 
-%make CFLAGS="%optflags"
-%make test CFLAGS="%optflags"
+%make CFLAGS="%{optflags}"
+%make test CFLAGS="%{optflags}"
 
 # remove CVS files
 find . -type 'd' -name "CVS" -print | xargs /bin/rm -rf
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p %{buildroot}/%{_prefix}/{bin,%_lib,include}
-mkdir -p %{buildroot}/%{_mandir}/man3
+mkdir -p %{buildroot}{%{_bindir},%{_includedir},%{_libdir},%{_mandir}/man3}
 
 make install DESTDIR=%{buildroot} INSTALL="/usr/bin/install" MAN_PREFIX=%{_mandir}/man3
 rm -f %{buildroot}/%{_libdir}/libpwrite
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr (0644,root,root,0755)
@@ -68,7 +80,11 @@ rm -f %{buildroot}/%{_libdir}/libpwrite
 %dir %{_includedir}/libnet
 %{_includedir}/libnet/*
 
+
 %changelog
+* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 1.0.2a-8avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.0.2a-7avx
 - bootstrap build
 

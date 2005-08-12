@@ -1,6 +1,15 @@
-%define name	sysklogd
-%define version	1.4.1
-%define release	14avx
+#
+# spec file for package sysklogd
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		sysklogd
+%define version		1.4.1
+%define release		15avx
 
 Summary:	System logging and kernel message trapping daemons
 Name:		%{name}
@@ -24,7 +33,7 @@ Patch6:		sysklogd-1.4.1-caen-owl-syslogd-bind.patch.bz2
 Patch7:		sysklogd-1.4.1-caen-owl-syslogd-drop-root.patch.bz2
 Patch8:		sysklogd-1.4.1-owl-syslogd-crunch_list.diff.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 
 Requires:	logrotate >= 3.3-8mdk, bash >= 2.0
 PreReq:		fileutils, initscripts >= 5.60, rpm-helper
@@ -35,8 +44,8 @@ which provide support for system logging.  Syslogd and klogd run as
 daemons (background processes) and log system messages to different
 places, like sendmail logs, security logs, error logs, etc.
 
-%prep
 
+%prep
 %setup -q -n %{name}-%{version}rh
 %patch0 -p1 -b .slsconf
 %patch1 -p1 -b .initlog
@@ -53,37 +62,41 @@ places, like sendmail logs, security logs, error logs, etc.
 %serverbuild
 %make
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p %{buildroot}{%{_sysconfdir},%{_bindir},%{_mandir}/man{5,8},%{_sbindir},/sbin}
 
 make install TOPDIR=%{buildroot} MANDIR=%{buildroot}%{_mandir} \
-	MAN_OWNER=`id -nu`
+    MAN_OWNER=`id -nu`
 
-install -m644 %{SOURCE4} %{buildroot}%{_sysconfdir}/syslog.conf
+install -m 0644 %{SOURCE4} %{buildroot}%{_sysconfdir}/syslog.conf
 
 mkdir -p %{buildroot}%{_sysconfdir}/{logrotate.d,sysconfig}
-install -m644 %{SOURCE3} %{buildroot}%{_sysconfdir}/logrotate.d/syslog
-install -m644 %{SOURCE5} %{buildroot}%{_sysconfdir}/sysconfig/syslog
+install -m 0644 %{SOURCE3} %{buildroot}%{_sysconfdir}/logrotate.d/syslog
+install -m 0644 %{SOURCE5} %{buildroot}%{_sysconfdir}/sysconfig/syslog
 
-chmod 750 %{buildroot}/sbin/syslogd
-chmod 750 %{buildroot}/sbin/klogd
+chmod 0750 %{buildroot}/sbin/syslogd
+chmod 0750 %{buildroot}/sbin/klogd
 
 mkdir -p %{buildroot}%{_srvdir}/{syslogd,klogd}
 install -m 0700 %{SOURCE1} %{buildroot}%{_srvdir}/syslogd/run
 install -m 0700 %{SOURCE2} %{buildroot}%{_srvdir}/klogd/run
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %pre
 %_pre_useradd syslogd /var/empty /bin/false 85
 %_pre_useradd klogd /var/empty /bin/false 84
 
+
 %post
 # Create standard logfiles if they do not exist:
 for file in \
- /var/log/{auth.log,syslog,user.log,messages,secure,mail.log,cron,kernel,daemons,boot.log};
+    /var/log/{auth.log,syslog,user.log,messages,secure,mail.log,cron,kernel,daemons,boot.log};
 do
     [ -f $file ] || touch $file && chmod 620 $file && chown root:syslogd $file
 done
@@ -91,15 +104,18 @@ done
 %_post_srv syslogd
 %_post_srv klogd
 
+
 %preun
 %_preun_srv syslogd
 %_preun_srv klogd
 
+
 %postun
 if [ "$1" -ge "1" ]; then
-	/usr/sbin/srv restart syslogd > /dev/null 2>&1
-	/usr/sbin/srv restart klogd > /dev/null 2>&1
+    /usr/sbin/srv restart syslogd > /dev/null 2>&1
+    /usr/sbin/srv restart klogd > /dev/null 2>&1
 fi	
+
 
 %files
 %defattr(-,root,root)
@@ -117,6 +133,9 @@ fi
 
 
 %changelog
+* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 1.4.1-15avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.4.1-14avx
 - bootstrap build
 

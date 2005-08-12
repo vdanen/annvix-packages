@@ -1,7 +1,5 @@
 #!/bin/bash
-#
-# ldap-hot-db-backup
-#
+
 # This script is intended to do periodic hot backups and log file archiving 
 # for each LDAP database.
 #
@@ -15,118 +13,215 @@
 # Specifically, the steps implemented below are the 3 steps documented in
 # http://www.sleepycat.com/docs/ref/transapp/archival.html
 #
-# License: GPL v2
-# Copyright: Buchan Milne <bgmilne@obsidian.co.za> 2004
+# Buchan Milne <bgmilne@obsidian.co.za>
 #
 
-[ -e /etc/sysconfig/ldap ] && . /etc/sysconfig/ldap
-
-WRITELOCKDIR=${WRITELOCKDIR:=/var/lib/ldap/lock}
-BACKUPTOP=${BACKUPTOP:=/var/lib/ldap/backup}
-SLAPDCONF=${SLAPDCONF:=/etc/openldap/slapd.conf}
-DEBUG=${DEBUG:=0}
-VERBOSE=${VERBOSE:=2}
-USECOLOURS=${USECOLOURS:=1}
-SYSLOGVERBOSE=${SYSLOGVERBOSE:=3}
-SYSLOGPRIORITY=${SYSLOGPRIORITY:=local2.info}
-
-sourced=0
-if [ -f "${0%\/*}/ldap-common" ]
-then
-	source ${0%\/*}/ldap-common && sourced=1
-elif [ -f "/usr/share/openldap/scripts/ldap-common" ]
-then
-	source /usr/share/openldap/scripts/ldap-common && sourced=1
-fi
-if [ "$sourced" -ne "1" ]
-then
-	echo "Failed to source functions, exiting" >&2
-	exit 1
-fi
-
+DEBUG=0
+VERBOSE=0
+COLORS=1
 TOTALERRORS=0
 HELP=0
 
-umask 077
-
-while getopts h,t,v:,c,l:,s:,p: option
+while getopts h,t,v,c,l: option
 do
 	case "$option" in
-		h) HELP=1;DEBUG=1;VERBOSE=4;SYSLOGVERBOSE=0 ;;
+		h) HELP=1;DEBUG=1;VERBOSE=1 ;;
 		t) DEBUG=1;;
-		v) VERBOSE="$OPTARG";;
-		c) USECOLOURS=0;;
-		l) LOGFILE="$OPTARG"; USECOLOURS=0;VERBOSE=4 ;;
-		s) SYSLOGVERBOSE="$OPTARG";;
-		p) SYSLOGPRIORITY="$OPTARG";;
+		v) VERBOSE=1;;
+		c) COLORS=0;;
+		l) LOGFILE="$OPTARG"; COLORS=0;VERBOSE=1 ;;
 	esac
 done
 
-setcolors
+if [  "$COLORS" == 1 ]
+then
+        BLUE="\033[34;01m"
+        YELLOW="\033[33;01m"
+        GREEN="\033[32;01m"
+        RED="\033[31;01m"
+        OFF="\033[0m"
+        CYAN="\033[36;01m"
+fi
 
-# Find the preferred tools (slapd_db_* preferred over db_*)
-[ -x "$DB_ARCHIVE" -a -x "$DB_STAT" ] || fatal "No db_archive or db_stat found"
+function run() {
+if [ $DEBUG == 1 ]
+then
+	echo -e "${BLUE}Would run: ${OFF}$@"
+elif [ $VERBOSE == 1 ]
+then
+	if [ -z "$LOGFILE" ]
+	then
+		echo -e "${BLUE}Running: ${OFF}$@${RED}"
+		$@
+	else
+		echo -e "${BLUE}Running: ${OFF}$@${RED}" >> $LOGFILE
+		$@ >> $LOGFILE 2>&1
+	fi
+	ERROR=$?
+	ERRORS=$[ERRORS+ERROR]
+	echo -en "${OFF}"
+else
+	$@ 2>/dev/null >/dev/null
+	ERROR=$?
+	ERRORS=$[ERRORS+ERROR]
+fi
+}
+
+function debug() {
+# We have the following debug levels:
+# 1 - normal messages - green
+# 2 - warnings - yellow
+# 3 - errors - red
+# First variable passed is the error level, all others are printed
+# A normal run shows only 3, verbose shows 3 and 2, debug shows all
+print=0
+case $1 in
+	1) [ "$DEBUG" == 1 ] && TYPE="Info" && print=1 && colour=$GREEN ;;
+	2) [ "$DEBUG" == 1 -o "$VERBOSE" == 1 ] && TYPE="Warning" && print=1 && colour=$YELLOW ;;
+	3) print=1 && colour=$RED && TYPE="Error"
+esac
+shift
+if [ "$print" == 1 ]
+then
+	if [ -z "$LOGFILE" ]
+	then
+		echo -e "${colour}${TYPE}: $@${OFF}"
+	else
+		echo -e "${colour}${TYPE}: $@${OFF}" >> $LOGFILE
+	fi
+fi
+}
 
 if [ "$HELP" == 1 ]
 then
 cat << EOF
 $0 usage:
-This script is intended to do recovery of the hot backup of the LDAP
-database files on a slave, and roll forward any transactions since the 
-last hot backup
+This script is intended to do hot backups of all LDAP databases configured in
+/etc/openldap/slapd.conf.
 
 The following options are avaiable:
 -h		This help message
 -t		Test (don't really do anything, just show what would be done)
--v <level>	Run verbosely (warnings, errors and show what is being done)
+-v		Run verbosely (warnings, errors and show what is being done)
 -c		Don't use colours in output
--l <logfile>	Log (append) operations to log file
--s <level>	Set verbosity level for logging to syslog (=0 disables)
--p <priority>	Set syslog priority (ie local2.info) for syslog messages
+-l <logfile>	Log (apppend) operations to log file
 
 Without any options, only error messages are shown.
 
 When using coloured output, there are:
 EOF
-debug 1 "Informational messages (verbosity level 4)"
-debug 2 "Warnings (verbosity level 3 and up)"
-debug 3 "Errors (verbosity level 2 and up)"
-debug 4 "Fatal errors (verbosity level 1 and up)"
+debug 1 "Informational messages"
+debug 2 "Warnings"
+debug 3 "Errors"
 exit 0
 fi
 
-#install signal handler:
+# Find the preferred tools (slapd_db_* preferred over db_*)
 
-trap "debug 4 'Aborting backup';releaselock $WRITELOCKDIR;abort backup; fatal 'Backup aborted'" 2 3 4 6 9 11
-
-# main
-debug 2 "Starting backup"
-if backup
-then	
-	debug 2 "Successfully ran backup to temporary directory"
-	if try 5 10 getlock ${WRITELOCKDIR}
-	then
-		debug 1 "Starting switch"
-		if switch "backup"
-		then
-			debug 2 "Switched new backup to good backup successfully"
-			releaselock ${WRITELOCKDIR}
-			debug 2 "Backup run completed successfully"
-		else
-			releaselock ${WRITELOCKDIR}
-			fatal "Failed to switch backup by process $$ and good backups, manual intervention required"
-		fi
-	else
-		releaselock ${WRITELOCKDIR}
-		debug 4 "Could not get locks, cleaning up temporary backup"
-		abort backup 2>/dev/null
-		fatal "Could not get locks, backup abandoned"
-	fi
+unset DB_ARCHIVE
+if [ -x /usr/bin/slapd_db_archive ]
+then
+	DB_ARCHIVE=/usr/bin/slapd_db_archive
+elif [ -x /usr/bin/db_archive ]
+then
+	DB_ARCHIVE=/usr/bin/db_archive
 else
-	abort backup 2>/dev/null
-	fatal "Backup failed"
-fi	
+	DB_ARCHIVE=""
+fi
 
-[ 0 -lt "$TOTALERRORS" ] && debug 2 "Total errors encountered: $TOTALERRORS"
+[ -x /usr/bin/slapd_db_stat ] && DB_STAT=/usr/bin/slapd_db_stat || DB_STAT=/usr/bin/db_stat
+
+if [ -z "$DB_ARCHIVE" -o -z "$DB_STAT" ]
+then
+	echo -e "${RED}Error: no db_archive or db_stat found, exiting${OFF}" >&2
+	exit 1
+fi
+
+
+# We need to do this for each database, assuming they are all 
+# listed in /etc/openldap/slapd.conf
+
+for dbdir in `awk '/^[:space:]*directory[:space:]*\w*/ {print $2}' /etc/openldap/slapd.conf`
+do
+	if [ -n "`find ${dbdir}/*.bdb 2>&-`" ]
+	then
+		dbname="`basename $dbdir`"
+		dbbackupdir="`dirname ${dbdir}`/backup/${dbname}"
+		if [ -e ${dbdir}/db_tools.lock ]
+			then
+			debug 4 "Lock file exists, skipping ${dbdir}"
+			break
+		fi
+		echo $$ > ${dbdir}/db_tools.lock
+		if [ "`cat ${dbdir}/db_tools.lock`" != "$$" ]
+		then
+			debug 4 "Lock file does not belong to us, skippig ${dbdir}"
+			break
+		fi
+		echo $$ > ${dbbackupdir}/db_tools.lock
+		ERRORS=0
+		debug 1 "$0 entering ${dbdir}"
+
+		# Ensure backupdir exists
+		run mkdir -p ${dbbackupdir}
+
+		# Clean old db files from dbbackupdir
+		run rm -f ${dbbackupdir}/*.bdb
+		
+		# 1) Archive inactive log files - if this backup fails,
+		#    we will need them.
+		debug 1 "Archiving transaction log files for ${dbdir}"
+		logarchivedir="`dirname ${dbdir}`/archived-logs/${dbname}"
+		# ensure it exists
+		run mkdir -p ${logarchivedir}
+		# remove old archived log files
+		run rm -f ${logarchivedir}/log.*
+		for logfile in `$DB_ARCHIVE -h ${dbdir}`
+		do
+			run mv -f ${dbdir}/${logfile} ${logarchivedir}
+		done
+		
+		# 2) Run db_archive -s and copy listed active database files
+		#    (but we know all *.bdb files should be active)
+
+		# cp -a? ${dbdir} $BACKUP_PATH
+		# tar c -C `dirname ${dbdir}` | tar -C ${BACKUP_PATH}
+		# database files must be copied atomically, see
+		# http://www.sleepycat.com/docs/ref/transapp/reclimit.html
+		# we will use dd and determine the page size with db_stat
+
+		debug 1 "Archiving database files for ${dbdir}"
+
+		for dbfile in ${dbdir}/*.bdb
+		do
+			pagesize=`$DB_STAT -d ${dbfile}|awk '/page size/ {print $1}'`
+			run dd if=${dbfile} of=${dbfile/$dbdir/$dbbackupdir} bs=${pagesize} 2>/dev/null
+		done
+
+		# 3) Archive active log files with the database files
+
+		debug 1 "Removing old database log files for ${dbdir}"
+		run rm -f ${dbbackupdir}/log.*
+
+		debug 1 "Updating database log files for ${dbdir}"
+		for logfile in `${DB_ARCHIVE} -h ${dbdir} -l`
+		do
+			run cp -af ${dbdir}/${logfile} ${dbbackupdir}
+		done
+		if [ "$ERRORS" == 0 ]
+		then
+			debug 2 "No errors encountered for ${dbdir}" >&2
+		else
+			debug 3 "Error count for ${dbdir} was $ERRORS" >&2
+			TOTALERRORS=$[TOTALERRORS+ERRORS]
+		fi
+		rm -f ${dbdir}/db_tools.lock
+		rm -f ${dbbackupdir}/db_tools.lock
+	else
+		debug 2 "No Berkeley db database files for ${dbdir}"
+	fi
+done
+
+debug 2 "Total errors encountered: $TOTALERRORS"
 exit $TOTALERRORS
 

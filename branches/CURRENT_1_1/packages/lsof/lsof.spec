@@ -1,8 +1,17 @@
-%define name	lsof
-%define version	4.68
-%define release	5avx
+#
+# spec file for package lsof
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-%define dname	%{name}_%version
+
+%define name		lsof
+%define version		4.68
+%define release		6avx
+
+%define dname		%{name}_%{version}
 
 Summary:	Lists files open by processes
 Name:		%{name}
@@ -11,30 +20,32 @@ Release:	%{release}
 License:	Free
 Group:		Monitoring
 URL:		ftp://vic.cc.purdue.edu/pub/tools/unix/lsof/
-Source0:	ftp://vic.cc.purdue.edu/pub/tools/unix/%name/%dname.tar.bz2
+Source0:	ftp://vic.cc.purdue.edu/pub/tools/unix/%{name}/%{dname}.tar.bz2
 Patch0:		lsof_4.64-perl-example-fix.patch.bz2
 Patch1:		lsof_4.60-has-security.patch.bz2
 
-BuildRoot:	%_tmppath/%name-%version-build
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 
 %description
 Lsof's name stands for LiSt Open Files, and it does just that. It lists
 information about files that are open by the processes running on a UNIX
 system.
 
+
 %prep
-%setup -q -c -n %dname
+%setup -q -c -n %{dname}
 
 #
 # Sort out whether this is the wrapped or linux specific tar ball.
 #
-[ -d %dname ] && cd %dname
+[ -d %{dname} ] && cd %{dname}
 [ -f %{dname}_src.tar ] && tar xf %{dname}_src.tar
-[ -d %dname.linux -a ! -d %dname ] && \
-	mv %dname.linux %dname
+[ -d %{dname}.linux -a ! -d %{dname} ] && \
+	mv %{dname}.linux %{dname}
 [ -d %{dname}_src ] && cd %{dname}_src
 %patch0 -p1
 %patch1 -p1
+
 
 %build
 [ -d %{dname}/%{dname}_src ] && cd %{dname}/%{dname}_src
@@ -43,25 +54,32 @@ LINUX_BASE=/proc
 export LINUX_BASE
 ./Configure -n linux
 
-%make DEBUG="$RPM_OPT_FLAGS"
+%make DEBUG="%{optflags}"
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 [ -d %{dname}/%{dname}_src ] && cd %{dname}/%{dname}_src
-mkdir -p $RPM_BUILD_ROOT{%_sbindir,%_mandir/man8}
-install -s %name $RPM_BUILD_ROOT%_sbindir
-cp lsof.8 $RPM_BUILD_ROOT%_mandir/man8
+mkdir -p %{buildroot}{%{_sbindir},%{_mandir}/man8}
+install -s %{name} %{buildroot}%{_sbindir}
+cp lsof.8 %{buildroot}%{_mandir}/man8
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
+
 %files
 %defattr(644,root,root,755)
-%doc %dname/00*
-%attr(0755,root,kmem) %_sbindir/%name
-%_mandir/man8/lsof.8*
+%doc %{dname}/00*
+%attr(0755,root,kmem) %{_sbindir}/%{name}
+%{_mandir}/man8/lsof.8*
+
 
 %changelog
+* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 4.68-6avx
+- bootstrap build (new gcc, new glibc)
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 4.68-5avx
 - rebuild
 

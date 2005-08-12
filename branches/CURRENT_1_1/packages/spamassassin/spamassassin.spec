@@ -1,9 +1,18 @@
-%define name	spamassassin
-%define version	2.64
-%define release	5avx
+#
+# spec file for package pcre
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-%define fname	Mail-SpamAssassin
-%define instdir	vendor
+
+%define name		spamassassin
+%define version		2.64
+%define release		6avx
+
+%define fname		Mail-SpamAssassin
+%define instdir		vendor
 
 Summary:	A spam filter for email which can be invoked from mail delivery agents
 Name:		%{name}
@@ -18,7 +27,7 @@ Source2:	spamd-log.run
 # (fc) 2.60-5mdk don't use version dependent perl call in #!
 Patch1:		spamassassin-2.60-fixbang.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl-devel
 BuildRequires:	perl-Time-HiRes
 BuildRequires:	perl-HTML-Parser
@@ -44,6 +53,7 @@ Install perl-Razor-Agent package to get Vipul's Razor support.
 Install dcc package to get Distributed Checksum Clearinghouse (DCC) support.
 Install pyzor package to get Pyzor support.
 
+
 %package tools
 Summary:	Miscleanous tools for SpamAssassin
 Group:		Networking/Mail
@@ -52,6 +62,7 @@ Requires:	perl-Mail-SpamAssassin = %{version}-%{release}
 %description tools
 Miscleanous tools from various authors, distributed with SpamAssassin.
 See /usr/share/doc/spamassassin-tools-*/.
+
 
 %package -n perl-%{fname}
 Summary:	Mail::SpamAssassin -- SpamAssassin e-mail filter Perl modules
@@ -67,9 +78,9 @@ user's own mail user-agent application.
 
 
 %prep
-
 %setup -q -n %{fname}-%{version}
 %patch1 -p1 -b .fixbang
+
 
 %build
 
@@ -84,13 +95,13 @@ user's own mail user-agent application.
 # got root?
 # make test
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-
 %makeinstall_std
 
-install -d %{buildroot}/{%{_initrddir},var/spool/spamassassin}
-mkdir -p %{buildroot}/%{_sysconfdir}/mail/%{name}
+mkdir -p %{buildroot}/var/spool/spamassassin
+mkdir -p %{buildroot}%{_sysconfdir}/mail/%{name}
 
 cat << EOF >> %{buildroot}/%{_sysconfdir}/mail/%{name}/local.cf 
     auto_whitelist_path        /var/spool/spamassassin/auto-whitelist
@@ -102,15 +113,18 @@ mkdir -p %{buildroot}%{_srvlogdir}/spamd
 install -m 0750 %{SOURCE1} %{buildroot}%{_srvdir}/spamd/run
 install -m 0750 %{SOURCE2} %{buildroot}%{_srvdir}/spamd/log/run
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %post
 [ -f %{_sysconfdir}/spamassassin.cf ] && /bin/mv %{_sysconfdir}/spamassassin.cf %{_sysconfdir}/mail/spamassassin/migrated.cf || true
 [ -f %{_sysconfdir}/mail/spamassassin.cf ] && /bin/mv %{_sysconfdir}/mail/spamassassin.cf %{_sysconfdir}/mail/spamassassin/migrated.cf || true
 touch /var/spool/spamassassin/auto-whitelist.db
-chmod 666 /var/spool/spamassassin/auto-whitelist.db
+chmod 0666 /var/spool/spamassassin/auto-whitelist.db
 %_post_srv spamd
+
 
 %preun
 %_preun_srv spamd
@@ -141,7 +155,11 @@ chmod 666 /var/spool/spamassassin/auto-whitelist.db
 %{perl_vendorlib}/Mail/SpamAssassin*
 %{_mandir}/man3*/*
 
+
 %changelog
+* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 2.64-6avx
+- bootstrap build (new gcc, new glibc)
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.64-5avx
 - rebuild
 

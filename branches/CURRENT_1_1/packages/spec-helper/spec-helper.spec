@@ -1,8 +1,17 @@
-%define name	spec-helper
-%define version 0.11
-%define release 2avx
+#
+# spec file for package spec-helper
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-%define distrib	Annvix
+
+%define name		spec-helper
+%define version 	0.11
+%define release 	3avx
+
+%define distrib		Annvix
 
 Summary:	Tools to ease the creation of rpm packages
 Name:		%{name}
@@ -15,7 +24,7 @@ URL:		http://www.mandrakelinux.com
 # http://www.mandrakelinux.com/en/cvs.php3)
 Source0:	%{name}-%{version}.tar.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
+BuildRoot:	%{_tmppath}/%{name}-%{version}
 BuildArch:	noarch
 
 Requires:	perl ldconfig findutils python gettext
@@ -24,17 +33,22 @@ Requires:	perl ldconfig findutils python gettext
 Tools to ease the creation of rpm packages for the %{distrib} distribution.
 Compress man pages using bzip2, strip executables, convert links...
 
+
 %prep
 %setup -q
 
+
 %build
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 make install DESTDIR=%{buildroot} bindir=%{buildroot}/%{_bindir}
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -42,7 +56,11 @@ make install DESTDIR=%{buildroot} bindir=%{buildroot}/%{_bindir}
 %{_bindir}/macroszification
 %{_datadir}/spec-helper
 
+
 %changelog
+* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 0.11-3avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.11-2avx
 - bootstrap build
 

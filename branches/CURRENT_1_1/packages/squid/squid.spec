@@ -9,7 +9,7 @@
 
 %define name		squid
 %define version		2.5.STABLE10
-%define release		1avx
+%define release		2avx
 
 %define their_version	2.5.STABLE10
 %define p_url   	http://www.squid-cache.org/Versions/v2/2.5/bugs
@@ -58,7 +58,7 @@ Patch107:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE10-snm
 Patch108:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE10-ftp_title.patch
 Patch109:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE10-ftp_basehref.patch
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	openldap-devel libsasl-devel openssl-devel >= 0.9.7 pam-devel
 
 Prereq:		logrotate shadow-utils rpm-helper
@@ -372,6 +372,9 @@ fi
 %attr(0750,logger,logger) %dir %{_srvlogdir}/squid
 
 %changelog
+* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 2.5.STABLE10-2avx
+- bootstrap build (new gcc, new glibc)
+
 * Wed Jun 22 2005 Vincent Danen <vdanen@annvix.org> 2.5.STABLE10-1avx
 - 2.5.STABLE10
 - P100-P109 updated for all current bugfix patches
