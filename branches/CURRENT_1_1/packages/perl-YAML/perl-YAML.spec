@@ -1,7 +1,16 @@
-%define module	YAML
-%define name	perl-%{module}
-%define version 0.36
-%define release 2avx
+#
+# spec file for package perl-YAML
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define module		YAML
+%define name		perl-%{module}
+%define version 	0.36
+%define release 	3avx
 
 Summary:	YAML Ain't Markup Language (tm)
 Name:		%{name}
@@ -12,7 +21,7 @@ Group:		Development/Perl
 URL:		http://search.cpan.org/dist/%{module}/
 Source:		http://search.cpan.org/CPAN/authors/id/I/IN/INGY/%{module}-%{version}.tar.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-buildroot/
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
 BuildRequires:	perl-devel
 
@@ -26,8 +35,10 @@ programming languages. (Including Perl!!!)
 
 For information on the YAML syntax, please refer to the YAML specification.
 
+
 %prep
 %setup -n %{module}-%{version}
+
 
 %build
 %{__perl} Makefile.PL INSTALLDIRS=vendor <<EOF
@@ -35,12 +46,15 @@ EOF
 %make
 make test
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
+
 %clean 
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files 
 %defattr(-,root,root)
@@ -49,7 +63,11 @@ make test
 %{perl_vendorlib}/YAML*
 %{_mandir}/*/*
 
+
 %changelog
+* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 0.36-3avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.36-2avx
 - bootstrap build
 

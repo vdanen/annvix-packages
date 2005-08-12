@@ -1,6 +1,15 @@
-%define name    xinitrc
-%define version 2.4.4
-%define release 80avx
+#
+# spec file for package xinitrc
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name    	xinitrc
+%define version 	2.4.4
+%define release 	81avx
 
 Summary:	The default startup script for the X Window System
 Name:		%{name}
@@ -13,26 +22,29 @@ URL:		http://www.mandrakelinux.com/
 # http://www.linuxmandrake.com/en/cvs.php3)
 Source0:	%{name}-%{version}.tar.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
 
-Requires:	XFree86 >= 3.3.5-12mdk, /bin/sh, /bin/grep
+Requires:	XFree86 >= 3.3.5-12mdk, bash, grep
 Conflicts:	initscripts < 6.87-2mdk
 
 %description
 The xinitrc package contains the xinitrc file, a script which is used
 to configure your X Window System session or to start a window manager.
 
-%prep
 
+%prep
 %setup -q
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-make install R=$RPM_BUILD_ROOT/
+make install R=%{buildroot}/
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -49,7 +61,11 @@ make install R=$RPM_BUILD_ROOT/
 %dir /etc/X11/wmsession.d
 %config(noreplace) /etc/X11/xinit.d/Mod_Meta_L_Disable
 
+
 %changelog
+* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 2.4.4-81avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.4.4-80avx
 - bootstrap build
 

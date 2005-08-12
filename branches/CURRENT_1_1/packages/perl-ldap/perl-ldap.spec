@@ -1,6 +1,15 @@
-%define name	perl-ldap
-%define version 0.31
-%define release 4avx
+#
+# spec file for package perl-ldap
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		perl-ldap
+%define version 	0.31
+%define release 	4avx
 
 Summary:	Perl module for ldap
 Name:		%{name}
@@ -11,7 +20,7 @@ Group:		Development/Perl
 URL:		http://www.cpan.org
 Source:		http:///www.cpan.org/authors/id/G/GB/GBARR/%{name}-%{version}.tar.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
 BuildRequires:	perl-devel >= 5.8.0
 
@@ -29,19 +38,24 @@ searches of LDAP directories with only a small amount of code.
 -All the perl-ldap modules are written entirely in perl, which 
 means that the library is truly cross-platform compatible. 
 
+
 %prep
 %setup -q -n %{name}-%{version}
+
 
 %build
 %{__perl} Makefile.PL INSTALLDIRS=vendor
 make
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -51,7 +65,11 @@ make
 %{perl_vendorlib}/Bundle
 %{perl_vendorlib}/Net
 
+
 %changelog
+* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 0.31-5avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.31-4avx
 - bootstrap build
 

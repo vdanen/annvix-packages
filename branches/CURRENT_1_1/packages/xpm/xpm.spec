@@ -37,7 +37,7 @@ Patch3:		xpm-3.4k-xfree43merge.patch.bz2
 Patch4:		xpm-3.4k-64bit-fixes.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	XFree86-devel, xorg-x11
+BuildRequires:	XFree86-devel
 
 %description
 The xpm package contains the XPM pixmap library for the X Window
@@ -119,7 +119,7 @@ ln -sf libXpm.so.%{LIBVER} %{buildroot}%{prefix}/%{_lib}/libXpm.so
 
 
 %changelog
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 3.4k-32avx
+* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 3.4k-32avx
 - bootstrap build (new gcc, new glibc)
 
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 3.4k-31avx

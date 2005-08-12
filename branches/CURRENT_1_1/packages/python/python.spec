@@ -9,7 +9,7 @@
 
 %define name		python
 %define version		2.4
-%define release		4avx
+%define release		5avx
 
 %define docver  	2.4
 %define dirver  	2.4
@@ -294,6 +294,9 @@ rm -f modules-list main.list
 
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 2.4-5avx
+- bootstrap build (new gcc, new glibc)
+
 * Wed Jul 27 2005 Vincent Danen <vdanen@annvix.org> 2.4-4avx
 - rebuild for new gcc
 - multiarch support

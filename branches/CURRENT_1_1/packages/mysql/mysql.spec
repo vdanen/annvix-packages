@@ -9,7 +9,7 @@
 
 %define name		MySQL
 %define version		4.1.12
-%define release		1avx
+%define release		2avx
 
 %define major		14
 %define libname		%mklibname mysql %{major}
@@ -51,7 +51,7 @@ Patch8:		db-4.1.24-disable-pthreadsmutexes.diff.bz2
 Patch9:		mysql-4.1.9-disable-pthreadsmutexes.diff.bz2
 Patch10:	mysql-4.1.12-mdk-noproc.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	bison, glibc-static-devel, libstdc++-static-devel, autoconf2.5, automake1.7
 BuildRequires:	termcap-devel, multiarch-utils 
 BuildRequires:	ncurses-devel, python, openssl-static-devel, zlib-devel, readline-devel
@@ -613,6 +613,9 @@ fi
 %{_libdir}/mysql/*.a
 
 %changelog
+* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 4.1.12-2avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jul 22 2005 Vincent Danen <vdanen@annvix.org> 4.1.12-1avx
 - 4.1.12
 - drop P2

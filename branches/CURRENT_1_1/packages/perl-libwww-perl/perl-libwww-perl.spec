@@ -1,7 +1,16 @@
-%define module	libwww-perl
-%define name	perl-%{module}
-%define version 5.803
-%define release 2avx
+#
+# spec file for package perl-libwww-perl
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define module		libwww-perl
+%define name		perl-%{module}
+%define version 	5.803
+%define release 	3avx
 
 %define _requires_exceptions Authen::NTLM\\|HTTP::GHTTP\\|Win32
 
@@ -14,7 +23,7 @@ Group:		Development/Perl
 URL:		http://www.cpan.org
 Source0:	%{module}-%{version}.tar.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-buildroot/
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
 BuildRequires:	perl-devel, perl-HTML-Parser, perl-URI, rpm-build >= 4.2-7mdk
 
@@ -24,19 +33,24 @@ Requires:	perl, perl-HTML-Parser, perl-URI >= 1.10, perl-MIME-Base64, perl-libne
 %description
 libwww-perl module for perl
 
+
 %prep
 %setup -q -n %{module}-%{version}
+
 
 %build
 /usr/bin/yes | %{__perl} Makefile.PL INSTALLDIRS=vendor
 %make
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
+
 %clean 
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -55,6 +69,9 @@ libwww-perl module for perl
 
 
 %changelog
+* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 5.803-3avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 5.803-2avx
 - bootstrap build
 

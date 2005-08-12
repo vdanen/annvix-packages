@@ -9,7 +9,7 @@
 %define module		URPM
 %define name		perl-%{module}
 %define version 	1.11
-%define release 	3avx
+%define release 	4avx
 
 %{expand:%%define compat_makeinstall_std %(perl -e 'printf "%%s\n", "%{?makeinstall_std:1}" ? "%%makeinstall_std" : "%%{__make} install PREFIX=%%{buildroot}%%{_prefix}"')}
 %{expand:%%define compat_perl_vendorarch %(perl -MConfig -e 'printf "%%s\n", "%{?perl_vendorarch:1}" ? "%%{perl_vendorarch}" : "$Config{installvendorarch}"')}
@@ -68,6 +68,9 @@ hdlist files and manage them in memory.
 
 
 %changelog
+* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 1.11-4avx
+- bootstrap build (new gcc, new glibc)
+
 * Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 1.11-3avx
 - rebuild for new gcc
 

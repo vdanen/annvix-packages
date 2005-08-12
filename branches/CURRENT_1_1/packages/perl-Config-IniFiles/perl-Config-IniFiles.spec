@@ -1,7 +1,16 @@
-%define module	Config-IniFiles
-%define name	perl-%{module}
-%define version	2.38
-%define release	2avx
+#
+# spec file for package perl-Config-IniFiles
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define module		Config-IniFiles
+%define name		perl-%{module}
+%define version		2.38
+%define release		3avx
 
 Summary:	Config-IniFiles module for perl
 Name:		%{name}
@@ -12,7 +21,7 @@ Group: 		Development/Perl
 URL:           	http://www.cpan.org/
 Source: 	Config-IniFiles-%{version}.tar.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root/
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
 BuildRequires: 	perl-devel >= 5.8.0
 
@@ -20,22 +29,25 @@ BuildRequires: 	perl-devel >= 5.8.0
 This perl module allows you to access to config files written in the 
 .ini style. 
 
+
 %prep
 %setup -q -n %{module}-%{version}
+
 
 %build
 %{__perl} Makefile.PL INSTALLDIRS=vendor
 %make
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-
-chmod 644 README
-
+chmod 0644 README
 %makeinstall_std
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -43,7 +55,11 @@ chmod 644 README
 %{perl_vendorlib}/Config
 %{_mandir}/*/*
 
+
 %changelog
+* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 2.38-3avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.38-2avx
 - bootstrap build
 

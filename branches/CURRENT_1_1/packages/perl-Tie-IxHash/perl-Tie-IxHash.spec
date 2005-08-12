@@ -1,8 +1,17 @@
-%define module  Tie-IxHash
-%define name	perl-%{module}
-%define version 1.21
-%define release 2avx
-%define	pdir	Tie
+#
+# spec file for package perl-Tie-IxHash
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define module  	Tie-IxHash
+%define name		perl-%{module}
+%define version 	1.21
+%define release 	3avx
+%define	pdir		Tie
 
 
 Summary: 	%{module} module for perl
@@ -14,7 +23,7 @@ Group: 		Development/Perl
 URL:            http://search.cpan.org/search?dist=%{module}
 Source0: 	ftp://ftp.perl.org/pub/CPAN/modules/by-module/%{pdir}/%{module}-%{version}.tar.gz
 
-BuildRoot: 	%{_tmppath}/%{name}-buildroot
+BuildRoot: 	%{_buildroot}/%{name}-%{version}
 BuildArch: 	noarch
 BuildRequires:	perl-devel
 
@@ -24,20 +33,25 @@ Requires: 	perl
 %{module} module for perl.  This Perl module implements ordered
 in-memory associative arrays.
 
+
 %prep
 %setup -q -n %{module}-%{version}
+
 
 %build
 %{__perl} Makefile.PL INSTALLDIRS=vendor
 make
 make test
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
+
 %clean 
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(444,root,root,755)
@@ -45,7 +59,11 @@ make test
 %{_mandir}/*/*
 %{perl_vendorlib}/Tie/IxHash.pm
 
+
 %changelog
+* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 1.21-3avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.21-2avx
 - bootstrap build
 

@@ -1,7 +1,16 @@
-%define module	Term-ReadLine-Gnu
-%define name	perl-%{module}
-%define version 1.15
-%define release 2avx
+#
+# spec file for package perl-Term-ReadLine-Gnu
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define module		Term-ReadLine-Gnu
+%define name		perl-%{module}
+%define version 	1.15
+%define release 	3avx
 
 Summary:	GNU Readline for perl
 Name:		%{name}
@@ -12,7 +21,7 @@ Group:		Development/Perl
 URL:		http://www.cpan.org
 Source0:	%{module}-%{version}.tar.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	libtermcap-devel perl-devel readline-devel
 
 Obsoletes:	perl-Term-Readline-Gnu
@@ -27,29 +36,33 @@ Readline/History Library.  So you can program your custom editing
 function, your custom completion function, and so on with Perl.  This
 may be useful for prototyping before programming with C.
 
+
 %prep
 %setup -q -n %{module}-%{version}
 
+
 %build
 %{__perl} Makefile.PL INSTALLDIRS=vendor
-%make OPTIMIZE="$RPM_OPT_FLAGS"
+%make OPTIMIZE="%{optflags}"
 if [ -n "$DISPLAY" ]; then
-  TERM=linux make test
+    TERM=linux make test
 else
-  echo "make test not done because DISPLAY var is not set"
+    echo "make test not done because DISPLAY var is not set"
 fi
 
-chmod 644 README
+chmod 0644 README
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 # Fix bogus dependancy on /usr/local/bin/perl:
-perl -pi -e 's!/usr/local/bin/perl!/usr/bin/perl!g' $RPM_BUILD_ROOT%perl_vendorarch/Term/ReadLine/Gnu/{euc_jp,XS}.pm
+perl -pi -e 's!/usr/local/bin/perl!/usr/bin/perl!g' %{buildroot}%{perl_vendorarch}/Term/ReadLine/Gnu/{euc_jp,XS}.pm
 
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -60,7 +73,11 @@ perl -pi -e 's!/usr/local/bin/perl!/usr/bin/perl!g' $RPM_BUILD_ROOT%perl_vendora
 %dir %{perl_vendorarch}/auto/Term
 %{perl_vendorarch}/auto/Term
 
+
 %changelog
+* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 1.15-3avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.15-2avx
 - bootstrap build
 

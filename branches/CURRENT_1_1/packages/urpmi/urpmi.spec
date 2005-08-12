@@ -9,7 +9,7 @@
 
 %define name		urpmi
 %define version		4.6.23
-%define release 	4avx
+%define release 	5avx
 
 %{expand:%%define compat_perl_vendorlib %(perl -MConfig -e 'printf "%%s\n", "%{?perl_vendorlib:1}" ? "%%{perl_vendorlib}" : "$Config{installvendorlib}"')}
 
@@ -190,6 +190,9 @@ if (-e "/etc/urpmi/urpmi.cfg") {
 
 
 %changelog
+* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 4.6.23-5avx
+- bootstrap build (new gcc, new glibc)
+
 * Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 4.6.23-4avx
 - rebuild for new gcc
 

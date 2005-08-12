@@ -1,13 +1,22 @@
-%define name	curl
-%define version 7.13.0
-%define release	2avx
+#
+# spec file for package curl
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-%define major	3
-%define libname %mklibname %{name} %{major}
+
+%define name		curl
+%define version 	7.13.0
+%define release		3avx
+
+%define major		3
+%define libname 	%mklibname %{name} %{major}
 
 # Define to make check (default behavior)
-%define do_check 1
-%define __libtoolize /bin/true
+%define do_check	1
+%define __libtoolize	/bin/true
 
 # Enable --with[out] <feature> at rpm command line
 %{?_with_CHECK: %{expand: %%define do_check 1}}
@@ -25,7 +34,7 @@ Patch1:		curl-7.10.4-compat-location-trusted.patch.bz2
 Patch2:		curl-7.13.0-64bit-fixes.patch.bz2
 Patch3:		curl-7.13.0-CAN-2005-0490.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	bison groff-for-man openssl-devel zlib-devel
 
 Provides:	webfetch
@@ -51,9 +60,6 @@ Obsoletes:	curl-lib
 libcurl is a library of functions for sending and receiving files through 
 various protocols, including http and ftp.
 
-You should install this package if you plan to use any applications that 
-use libcurl.
-
 
 %package -n %{libname}-devel
 Summary:	Header files and static libraries for libcurl
@@ -66,12 +72,9 @@ Obsoletes:	%{name}-devel
 libcurl is a library of functions for sending and receiving files through
 various protocols, including http and ftp.
 
-You should install this package if you wish to develop applications that 
-utilize libcurl.
-
 
 %prep
-%setup -q -n %{name}-%{version}
+%setup -q
 %patch1 -p1
 %patch2 -p1 -b .64bit-fixes
 %patch3 -p0 -b .can-2005-0490
@@ -86,6 +89,7 @@ int main(void)
   return 0;
 }
 EOF
+
 %{__cc} -o ptrsize ptrsize.c
 case `./ptrsize` in
 4) ;;
@@ -93,31 +97,37 @@ case `./ptrsize` in
 *) exit 1 ;;
 esac
 
+
 %build
 %configure2_5x --with-ssl
 %make
 
 skip_tests="241"
 [ -n "$skip_tests" ] && {
-  mkdir ./tests/data/skip/
-  for t in $skip_tests; do
-    mv ./tests/data/test$t ./tests/data/skip/
-  done
+    mkdir ./tests/data/skip/
+    for t in $skip_tests; do
+        mv ./tests/data/test$t ./tests/data/skip/
+    done
 }
+
 %if %{do_check}
 # At this stage, all tests must pass
 make check
 %endif
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-%make install DESTDIR="$RPM_BUILD_ROOT"
+%make install DESTDIR="%{buildroot}"
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
+
 %post -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
+
 
 %files
 %defattr(-,root,root)
@@ -144,6 +154,9 @@ make check
 %{_mandir}/man3/*
 
 %changelog
+* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 7.13.0-3avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 7.13.0-2avx
 - bootstrap build
 
@@ -172,7 +185,7 @@ make check
 - drop P2; applied upstream
 - get rid of %%real_version macro, we'll never ship anything other than a
   release
-- own %%_includedir/curl
+- own %%{_includedir}/curl
 
 * Wed Mar 03 2004 Vincent Danen <vdanen@opensls.org> 7.10.7-4sls
 - minor spec cleanups

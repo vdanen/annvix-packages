@@ -1,6 +1,15 @@
-%define name	quota
-%define version 3.09
-%define release 4avx
+#
+# spec file for package quota
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		quota
+%define version 	3.09
+%define release 	5avx
 
 Summary:	System administration tools for monitoring users' disk usage
 Name:		%{name}
@@ -15,7 +24,7 @@ Patch2:		quota-tools-no-stripping.patch.bz2
 Patch3:		quota-tools-warnquota.patch.bz2
 Patch4:		quota-tools-default-conf.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	e2fsprogs-devel, gettext
 
 Requires:	kernel >= 2.4, initscripts >= 6.38
@@ -24,8 +33,6 @@ Requires:	kernel >= 2.4, initscripts >= 6.38
 The quota package contains system administration tools for monitoring
 and limiting users' and or groups' disk usage, per filesystem.
 
-Install quota if you want to monitor and/or limit user/group disk
-usage.
 
 %prep
 %setup -q -n quota-tools
@@ -34,10 +41,12 @@ usage.
 %patch3 -p1 -b .warnquota
 %patch4 -p1 -b .default-conf
 
+
 %build
 %configure \
-	--with-ext2direct=no
+    --with-ext2direct=no
 %make
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -46,15 +55,17 @@ mkdir -p %{buildroot}{/sbin,%{_sysconfdir},%{_sbindir},%{_bindir},%{_mandir}/{ma
 make install ROOTDIR=%{buildroot}
 
 for i in convertquota quotacheck quotaoff quotaon;do
-	mv %{buildroot}/%{_sbindir}/$i %{buildroot}/sbin/$i 
+    mv %{buildroot}/%{_sbindir}/$i %{buildroot}/sbin/$i 
 done
 
-install -m 644 warnquota.conf %{buildroot}%{_sysconfdir}
+install -m 0644 warnquota.conf %{buildroot}%{_sysconfdir}
 
 %find_lang %{name}
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files -f %{name}.lang
 %defattr(-,root,root)
@@ -70,7 +81,11 @@ install -m 644 warnquota.conf %{buildroot}%{_sysconfdir}
 %attr(0644,root,root) %{_mandir}/man3/*
 %attr(0644,root,root) %{_mandir}/man8/*
 
+
 %changelog
+* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 3.09-5avx
+- bootstrap build (new gcc, new glibc)
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 3.09-4avx
 - rebuild
 

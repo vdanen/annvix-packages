@@ -9,7 +9,7 @@
 
 %define name		tetex
 %define version		2.0.2
-%define release		17avx
+%define release		18avx
 
 %define pkgname		%{name}
 %define docversion	2.0.2
@@ -633,6 +633,9 @@ fi
 
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 2.0.2-18avx
+- bootstrap build (new gcc, new glibc)
+
 * Mon Jul 25 2005 Vincent Danen <vdanen@annvix.org> 2.0.2-17avx
 - rebuild for new gcc
 - drop S4 (icons)

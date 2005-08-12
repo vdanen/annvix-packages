@@ -9,7 +9,7 @@
 
 %define name		perl
 %define version		5.8.6
-%define release		5avx
+%define release		6avx
 %define epoch		2
 
 %define rel		%nil
@@ -493,6 +493,9 @@ EOF
 %defattr(-,root,root)
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 5.8.6-6avx
+- bootstrap build (new gcc, new glibc)
+
 * Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 5.8.6-5avx
 - rebuild for new gcc
 

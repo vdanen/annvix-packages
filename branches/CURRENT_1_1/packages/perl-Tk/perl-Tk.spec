@@ -1,7 +1,16 @@
-%define module	Tk
-%define name	perl-%{module}
-%define version 804.027
-%define release 2avx
+#
+# spec file for package perl-Tk
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define module		Tk
+%define name		perl-%{module}
+%define version 	804.027
+%define release 	3avx
 
 %define _requires_exceptions Watch
 
@@ -14,7 +23,7 @@ Group:		Development/Perl
 URL:		http://www.cpan.org
 Source:		ftp://sunsite.doc.ic.ac.uk/packages/CPAN/modules/by-module/%{module}/%{module}-%{version}.tar.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl-devel XFree86-devel
 
 Provides:	perl/tk ptk pTk
@@ -28,6 +37,7 @@ and Ioi Kim Lam(Tix).
 It gives you the ability to develop perl applications using the Tk GUI.
 It includes the source code for the Tk and Tix elements it uses.
 The licences for the various components differ, so check the copyright.
+
 
 %package devel
 Summary:	Tk modules for Perl (development package)
@@ -44,23 +54,26 @@ The licences for the various components differ, so check the copyright.
 
 This is the development package.
 
+
 %prep
 %setup -q -n %{module}-%{version}
 find . -type f | xargs perl -pi -e 's|^#!.*/bin/perl\S*|#!/usr/bin/perl|'
 # Make it lib64 aware, avoid patch
 perl -pi -e "s,(/usr/X11(R6|\\*)|\\\$X11|\(\?:)/lib,\1/%{_lib},g" \
-  myConfig pTk/mTk/{unix,tixUnix/{itcl2.0,tk4.0}}/configure
+    myConfig pTk/mTk/{unix,tixUnix/{itcl2.0,tk4.0}}/configure
 #(peroyvind) --center does no longer seem to be working, obsoleted by -c
 perl -pi -e "s#--center#-c#" ./Tk/MMutil.pm
+
 
 %build
 %{__perl} Makefile.PL INSTALLDIRS=vendor
 %make OPTIMIZE="%{optflags}" LD_RUN_PATH=""
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
-%{__chmod} 644 %{buildroot}%{_mandir}/man3*/*
+chmod 0644 %{buildroot}%{_mandir}/man3*/*
 
 # Remove unpackaged files, add them if you find a use
 rm -f %{buildroot}%{perl_vendorarch}/{Tie/Watch.pm,Tk/prolog.ps}
@@ -75,8 +88,10 @@ rm -f %{buildroot}%{perl_vendorarch}/Tk.pod
 rm -f %{buildroot}%{perl_vendorarch}/Tk/*.pod
 rm -f %{buildroot}%{perl_vendorarch}/Tk/README.Adjust
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -112,6 +127,9 @@ rm -f %{buildroot}%{perl_vendorarch}/Tk/README.Adjust
 
 
 %changelog
+* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 800.027-3avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 800.027-2avx
 - bootstrap build
 
