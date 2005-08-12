@@ -1,9 +1,19 @@
-%define name	cyrus-sasl
-%define version	2.1.20
-%define release	2avx
+#
+# spec file for package cyrus-sasl
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-%define major	2
-%define libname	%mklibname sasl %{major}
+
+%define name		cyrus-sasl
+%define version		2.1.22
+%define release		0avx
+
+%define major		2
+%define libname		%mklibname sasl %{major}
+%define sasl2_db_fname	/var/lib/sasl2/sasl.db
 
 Summary:	SASL is the Simple Authentication and Security Layer
 Name:		%{name}
@@ -23,13 +33,13 @@ Patch0:		cyrus-sasl-2.1.20-avx-doc.patch.bz2
 Patch1:		cyrus-sasl-2.1.19-mdk-no_rpath.patch.bz2
 Patch2:		cyrus-sasl-2.1.15-mdk-lib64.patch.bz2
 Patch3:		cyrus-sasl-2.1.20-fdr-gssapi-dynamic.patch.bz2
-Patch5:		cyrus-sasl-2.1.19-mdk-pic.patch.bz2
+Patch4:		cyrus-sasl-2.1.19-mdk-pic.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:  autoconf, automake1.8, db4-devel, pam-devel, krb5-devel
 BuildRequires:  openssl-devel >= 0.9.6a, libtool >= 1.4
 BuildRequires:	MySQL-devel, postgresql-devel
-%{?!bootstrap:BuildRequires: openldap-devel}
+#, openldap-devel
 
 Requires:	%{libname} = %{version}
 PreReq:		rpm-helper
@@ -42,6 +52,7 @@ a user to a server and for optionally negotiating protection of subsequent
 protocol interactions. If its use is negotiated, a security layer is inserted 
 between the protocol and the connection. 
 
+
 %package -n %{libname}
 Summary:	Libraries for SASL a the Simple Authentication and Security Layer
 Group:		System/Libraries
@@ -53,6 +64,7 @@ To use SASL, a protocol includes a command for identifying and authenticating
 a user to a server and for optionally negotiating protection of subsequent 
 protocol interactions. If its use is negotiated, a security layer is inserted 
 between the protocol and the connection. 
+
 
 %package -n %{libname}-devel
 Summary:	Librairies for SASL a the Simple Authentication and Security Layer
@@ -72,19 +84,23 @@ a user to a server and for optionally negotiating protection of subsequent
 protocol interactions. If its use is negotiated, a security layer is inserted 
 between the protocol and the connection. 
 
+
 %package -n %{libname}-plug-anonymous
 Summary:	SASL ANONYMOUS mechanism plugin
 Group:		System/Libraries
 Requires:	%{libname} = %{version}
+Provides:	sasl-plug-anonymous
 
 %description -n %{libname}-plug-anonymous
 This plugin implements the SASL ANONYMOUS mechanism,
 used for anonymous authentication.
 
+
 %package -n %{libname}-plug-crammd5
 Summary:	SASL CRAM-MD5 mechanism plugin
 Group:		System/Libraries
 Requires:	%{libname} = %{version}
+Provides:	sasl-plug-crammd5
 
 %description -n %{libname}-plug-crammd5
 This plugin implements the SASL CRAM-MD5 mechanism.
@@ -92,10 +108,12 @@ CRAM-MD5 is the mandatory-to-implement authentication mechanism for a
 number of protocols; it uses MD5 with a challenge/response system to
 authenticate the user.
 
+
 %package -n %{libname}-plug-digestmd5
 Summary:	SASL DIGEST-MD5 mechanism plugin
 Group:		System/Libraries
 Requires:	%{libname} = %{version}
+Provides:	sasl-plug-digestmd5
 
 %description -n %{libname}-plug-digestmd5
 This plugin implements the latest draft of the SASL DIGEST-MD5
@@ -103,10 +121,12 @@ mechanism.  Although not yet finalized, this is likely to become the
 new mandatory-to-implement authentication system in all new protocols.
 It's based on the digest md5 authentication system designed for HTTP.
 
+
 %package -n %{libname}-plug-plain
 Summary:	SASL PLAIN mechanism plugin
 Group:		System/Libraries
 Requires:	%{libname} = %{version}
+Provides:	sasl-plug-plain
 
 %description -n %{libname}-plug-plain
 This plugin implements the SASL PLAIN mechanism.  Although insecure,
@@ -114,20 +134,24 @@ PLAIN is useful for transitioning to new security mechanisms, as this
 is the only mechanism which gives the server a copy of the user's
 password.
 
+
 %package -n %{libname}-plug-scrammd5
 Summary:	SASL SCRAM-MD5 mechanism plugin
 Group:		System/Libraries
 Requires:	%{libname} = %{version}
+Provides:	sasl-plug-scrammd5
 
 %description -n %{libname}-plug-scrammd5
 This plugin implements the SASL SCRAM-MD5 mechanism.  Although
 deprecated (this will be replaced by DIGEST-MD5 at some point), it may
 be useful for the time being.
 
+
 %package -n %{libname}-plug-login
 Summary:	SASL LOGIN mechanism plugin
 Group:		System/Libraries
 Requires:	%{libname} = %{version}
+Provides:	sasl-plug-login
 
 %description -n %{libname}-plug-login
 This plugin implements the SASL LOGIN mechanism.
@@ -135,64 +159,88 @@ THIS PLUGIN IS DEPRECATED, is maintained only for compatibility reasons
 and will be dropped soon.
 Please use the plain plugin instead.
 
+
 %package -n %{libname}-plug-gssapi
 Summary:	SASL GSSAPI mechanism plugin
 Group:		System/Libraries
 Requires:	%{libname} = %{version}
 Requires:	krb5-libs
+Provides:	sasl-plug-gssapi
  
 %description -n %{libname}-plug-gssapi
 This plugin implements the SASL GSSAPI (kerberos 5)mechanism.
+
 
 %package -n %{libname}-plug-otp
 Summary:	SASL OTP mechanism plugin
 Group:		System/Libraries
 Requires:	%{libname} = %{version}
+Provides:	sasl-plug-otp
 
 %description -n %{libname}-plug-otp
 This plugin implements the SASL OTP mechanism.
 
+
 %package -n %{libname}-plug-sasldb
 Summary:	SASL sasldb mechanism plugin
 Group:		System/Libraries
-Requires:	%{libname} = %{version}
+# Requirement for %%{name} is due to dbconverter-2 being potentially called in %%post
+#Requires(post): %{name} = %{version}
+Requires:	%{libname} = %{version}, %{name} = %{version}
+Provides:	sasl-plug-sasldb
 
 %description -n %{libname}-plug-sasldb
 This plugin implements the SASL sasldb mechanism.
+
 
 %package -n %{libname}-plug-srp
 Summary:	SASL srp mechanism plugin
 Group:		System/Libraries
 Requires:	%{libname} = %{version}
+Provides:	sasl-plug-srp
 
 %description -n %{libname}-plug-srp
 This plugin implements the srp  mechanism.
+
 
 %package -n %{libname}-plug-ntlm
 Summary:	SASL ntlm authentication plugin
 Group:		System/Libraries
 Requires:	%{libname} = %{version}
+Provides:	sasl-plug-ntlm
 
 %description -n %{libname}-plug-ntlm
 This plugin implements the (unsupported) ntlm authentication.
+
 
 %package -n %{libname}-plug-sql
 Summary:	SASL sql auxprop plugin
 Group:		System/Libraries
 Requires:	%{libname} = %{version}
+Provides:	sasl-plug-sql
 
 %description -n %{libname}-plug-sql
 This plugin implements the SQL auxprop authentication method
 supporting MySQL and PostgreSQL.
 
 
+#%package -n %{libname}-plug-ldapdb
+#Summary:	SASL ldapdb auxprop plugin
+#Group:		System/Libraries
+#Requires:	%{libname} = %{version}
+#Provides:	sasl-plug-ldapdb
+#
+#%description -n %{libname}-plug-ldapdb
+#This plugin implements the LDAP auxprop authentication method.
+
+
 %prep
-%setup -q -n %{name}-%{version}
-%patch0 -p1
+%setup -q
+%patch0 -p1 -b .sasldoc
 %patch1 -p1 -b .rpath
 %patch2 -p1 -b .lib64
-%patch3 -p1 -b .gssapi
-%patch5 -p1 -b .pic
+#%patch3 -p1 -b .gssapi
+%patch4 -p1 -b .pic
 
 rm -f config/ltconfig config/libtool.m4
 libtoolize -f -c
@@ -222,40 +270,51 @@ export LDFLAGS="-L%{_libdir}"
 
 %{?__cputoolize: %{__cputoolize} -c saslauthd}
 %configure \
-	--enable-static --enable-shared \
-	--with-plugindir=%{_libdir}/sasl2 \
-	--disable-krb4 \
-	--enable-login \
-	--enable-srp \
-	--enable-srp-setpass \
-	--enable-ntlm \
-	--enable-db4 \
-	--enable-sql --with-mysql=%{_prefix} --with-pgsql=%{_prefix} \
-%{?!bootstrap:--with-ldap=/usr} \
-	--with-dbpath=/var/lib/sasl2/sasl.db \
-	--with-saslauthd=/var/lib/sasl2 \
-	--with-authdaemond=/var/run/authdaemon.courier-imap/socket
+    --enable-static \
+    --enable-shared \
+    --with-plugindir=%{_libdir}/sasl2 \
+    --disable-krb4 \
+    --enable-login \
+    --enable-srp \
+    --enable-srp-setpass \
+    --enable-ntlm \
+    --enable-db4 \
+    --enable-sql \
+    --with-mysql=%{_prefix} \
+    --with-pgsql=%{_prefix} \
+    --without-sqlite \
+    --with-dbpath=%{sasl2_db_fname} \
+    --with-saslauthd=/var/lib/sasl2 \
+    --with-authdaemond=/var/run/authdaemon.courier-imap/socket
+# when we move to krb4 add --with-gssapi and --disable-gss_mutexes to configure above
+# as krb5-1.4.x is threadsafe and 1.3.x is not
 
-%make
-pushd saslauthd
-    make testsaslauthd
-popd
+#    --with-ldap=%{_prefix} \
+#    --enable-ldapdb
+
+# ugly hack: there is an ordering problem introduced in 2.1.21 
+# when --enable-static is given to ./configure which calling 
+# make twice "solves"
+%make || :
+make -C saslauthd testsaslauthd
+make -C sample
 
 install saslauthd/LDAP_SASLAUTHD README.ldap
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p $RPM_BUILD_ROOT/var/lib/sasl2
-mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig
+mkdir -p %{buildroot}/var/lib/sasl2
+mkdir -p %{buildroot}%{_sysconfdir}/sysconfig
 
 
-%{__make} install DESTDIR=$RPM_BUILD_ROOT
+%{__make} install DESTDIR=%{buildroot}
 
-install %{SOURCE3} $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/saslauthd
+install %{SOURCE3} %{buildroot}%{_sysconfdir}/sysconfig/saslauthd
 # Install man pages in the expected location, even if they are
 # pre-formatted.
-install -m755 -d $RPM_BUILD_ROOT%{_mandir}/man8/
-install -m644 */*.8 $RPM_BUILD_ROOT%{_mandir}/man8/
+install -m 0755 -d %{buildroot}%{_mandir}/man8/
+install -m 0644 */*.8 %{buildroot}%{_mandir}/man8/
 
 %makeinstall_std
 
@@ -263,7 +322,7 @@ install -m644 */*.8 $RPM_BUILD_ROOT%{_mandir}/man8/
 
 pushd utils
     /bin/sh ../libtool --mode=install /usr/bin/install -c dbconverter-2 \
-      $RPM_BUILD_ROOT/%{_sbindir}/dbconverter-2
+        %{buildroot}/%{_sbindir}/dbconverter-2
 popd
 cp saslauthd/testsaslauthd %{buildroot}%{_sbindir}
 
@@ -277,34 +336,82 @@ bzcat %{SOURCE6} >%{buildroot}%{_mandir}/man8/saslauthd.8
 
 pushd sample
     /bin/sh ../libtool --mode=install /usr/bin/install -c client \
-      %{buildroot}%{_sbindir}/sasl-sample-client
+        %{buildroot}%{_sbindir}/sasl-sample-client
     /bin/sh ../libtool --mode=install /usr/bin/install -c server \
-      %{buildroot}%{_sbindir}/sasl-sample-server
+        %{buildroot}%{_sbindir}/sasl-sample-server
 popd
 
 # multiarch policy
 %multiarch_includes %{buildroot}%{_includedir}/sasl/md5global.h
 
++# quick README about the sasl.db file permissions
+cat > README.Annvix.sasldb <<EOF
+Starting with %{libname}-plug-sasldb-2.1.22-1avx, Annvix by default 
+creates a system group called "sasl" and installs an empty 
+%{sasl2_db_filename} file with the following permissions:
+mode 0640, ownership root:sasl.
+
+If the %{sasl2_db_filename} file already exists, it is not changed
+in any way.
+
+It is recommended that administrators keep these permissions and add
+application users to the "sasl" group if access to this database is needed.
+
+For example, to permit the Postfix SMTP to authenticate users via the sasldb
+auxprop plugin, add the "postfix" user to the "sasl" group and read the
+"SMTP Authentication" section of the README.AVX documentation file for 
+details regarding Postfix's chroot setup.
+
+For other applications in general, just add their user to the "sasl" group.
+EOF
+
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-%post
+
+%pre -n %{libname}-plug-sasldb
+%_pre_groupadd sasl 90
+
+
+%post -n %{libname}-plug-sasldb
 #convert old sasldb
-if [ -f /var/lib/sasl/sasl.db -a ! -f /var/lib/sasl2/sasl.db ]; then
-   echo "" | /usr/sbin/dbconverter-2 /var/lib/sasl/sasl.db /var/lib/sasl2/sasl.db
+# XXX - what about berkeley db versions? - andreas
+if [ -f /var/lib/sasl/sasl.db -a ! -f %{sasl2_db_fname} ]; then
+    echo "" | /usr/sbin/dbconverter-2 /var/lib/sasl/sasl.db %{sasl2_db_fname}
+    if [ -f %{sasl2_db_fname} ]; then
+        # conversion was successfull
+        chmod 0640 %{sasl2_db_fname}
+        chown root:sasl %{sasl2_db_fname}
+    fi
 fi
-if [ -f /var/lib/sasl/sasl.db.rpmsave -a ! -f /var/lib/sasl2/sasl.db ]; then
-   echo "" | /usr/sbin/dbconverter-2 /var/lib/sasl/sasl.db.rpmsave /var/lib/sasl2/sasl.db
+if [ -f /var/lib/sasl/sasl.db.rpmsave -a ! -f %{sasl2_db_fname} ]; then
+    echo "" | /usr/sbin/dbconverter-2 /var/lib/sasl/sasl.db.rpmsave %{sasl2_db_fname}
+    if [ -f %{sasl2_db_fname} ]; then
+        # conversion was successfull
+        chmod 0640 %{sasl2_db_fname}
+        chown root:sasl %{sasl2_db_fname}
+    fi
+fi
+if [ ! -f %{sasl2_db_fname} ]; then
+    # the file was never created before nor converted from sasl1
+    touch %{sasl2_db_fname}
+    chmod 0640 %{sasl2_db_fname}
+    chown root:sasl %{sasl2_db_fname}
 fi
 
+
+%post
 %_post_srv saslauthd
+
 
 %preun
 %_preun_srv saslauthd
 
-%post -n %{libname} -p /sbin/ldconfig
 
+%post -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
+
 
 %files
 %defattr(-,root,root)
@@ -319,12 +426,11 @@ fi
 %dir %attr(0750,nobody,nogroup) %{_srvlogdir}/saslauthd
 %{_sbindir}/*
 %{_mandir}/man8/*
-%{_mandir}/cat8/*
 
 %files -n %{libname}
 %defattr(-,root,root)
-%{_libdir}/libsasl*.so.*
 %dir %{_libdir}/sasl2
+%{_libdir}/libsasl*.so.*
 
 %files -n %{libname}-plug-anonymous
 %defattr(-,root,root)
@@ -361,10 +467,6 @@ fi
 %{_libdir}/sasl2/libplain*.so*
 %{_libdir}/sasl2/libplain*.la
 
-#%files -n %{libname}-plug-kerberos4
-#%defattr(-,root,root)
-#%{_libdir}/sasl2/libkerberos4*.so*
-
 %files -n %{libname}-plug-login
 %defattr(-,root,root)
 %{_libdir}/sasl2/liblogin*.so*
@@ -375,17 +477,20 @@ fi
 %{_libdir}/sasl2/libsrp*.so*
 %{_libdir}/sasl2/libsrp*.la
 
-
 %files -n %{libname}-plug-ntlm
 %defattr(-,root,root)
 %{_libdir}/sasl2/libntlm*.so*
 %{_libdir}/sasl2/libntlm*.la
 
-
 %files -n %{libname}-plug-sql
 %defattr(-,root,root)
 %{_libdir}/sasl2/libsql*.so*
 %{_libdir}/sasl2/libsql*.la
+
+#%files -n %{libname}-plug-ldapdb
+#%defattr(-,root,root)
+#%{_libdir}/sasl2/libldap*.so*
+#%{_libdir}/sasl2/libldap*.la
 
 %files -n %{libname}-devel
 %defattr(-,root,root)
@@ -394,8 +499,18 @@ fi
 %{_libdir}/*.*a
 %{_libdir}/sasl2/*.a
 %{_mandir}/man3/*
+
  
 %changelog
+* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 2.1.22-1avx
+- 2.1.22
+- add ldapdb plugin
+- BuildReq always on openldap-devel now
+- create sasl system group and empty sasl.db (mode 0640; root:sasl)
+  and a README.Annvix.sasldb explaining it (andreas)
+- moved sasldb conversion to the sasldb plugin package (andreas)
+- add provides for plugins (andreas)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.1.20-2avx
 - bootstrap build
 
@@ -421,7 +536,7 @@ fi
 
 * Mon Sep 20 2004 Vincent Danen <vdanen@annvix.org> 2.1.19-1avx
 - 2.1.19
-- drop %%_prefix
+- drop %%{_prefix}
 - patch policy
 - sync with Mandrake 2.1.19-3mdk:
   - add testsaslauthd (jmdault)
