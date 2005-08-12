@@ -11,8 +11,8 @@ escape_char  /
 % Fax: +45 - 33256543
 % Language: tr
 % Territory: TR
-% Revision: 4.4
-% Date: 1997-03-18
+% Revision: 4.5
+% Date: 2004-06-18
 % Application: general
 % Users: general
 % Repertoiremap: mnemonic.ds
@@ -24,6 +24,8 @@ escape_char  /
 %   1998-01-11T15:54:39
 %   Onur Tolga Sehitoglu <onur@ceng.metu.edu.tr>,
 %   Dept. of Comp. Eng. METU/Ankara   Turkey
+%   2004-06-18 <pablo@mandrakesoft.com>
+%   converted  LC_COLLATE to new format
 
 LC_IDENTIFICATION
 title      "Turkish locale for Turkey"
@@ -35,8 +37,8 @@ tel        ""
 fax        ""
 language   "Turkish"
 territory  "Turkey"
-revision   "1.0"
-date       "2000-06-29"
+revision   "4.5"
+date       "2004-06-18"
 audience   ""
 application ""
 abbreviation ""

@@ -216,6 +216,7 @@ LC_NAME
 % "%d%t%g%t%m%t%f"
 name_fmt    "<U0025><U0064><U0025><U0074><U0025><U0067><U0025><U0074>/
 <U0025><U006D><U0025><U0074><U0025><U0066>"
+name_miss   "<U0073><U002D><U0069><U006E><U006F>"       % "s-ino"
 name_mr     "<U0073><U002D><U0072><U006F>"              % "s-ro"
 name_mrs    "<U0073><U002D><U0069><U006E><U006F>"       % "s-ino"
 name_ms     "<U0073><U002D><U0069><U006E><U006F>"       % "s-ino"

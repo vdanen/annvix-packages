@@ -1,14 +1,14 @@
 comment_char %
 escape_char  /
 %
-% Pilipino Language Locale for Philipines
+% Filipino Language Locale for Philippines
 % Source: 
 % Contact: Rene Torres, Pablo Saratxaga 
 % Email: <rgtorre@rocketmail.com>, <pablo@mandrakesoft.com>
 % Language: ph
 % Territory: PH
-% Revision: 0.3
-% Date: 2001-01-28
+% Revision: 0.4
+% Date: 2004-03-12
 % Users: general
 % Repertoiremap: mnemonic,ds
 % Charset: ISO-8859-1
@@ -16,17 +16,17 @@ escape_char  /
 % for commercial purposes.
 
 LC_IDENTIFICATION
-title "Pilipino language locale for Philipines"
+title "Filipino language locale for Philippines"
 source "Rene Torres"
 address ""
 contact "Rene Torres, Pablo Saratxaga"
 email "rgtorre@rocketmail.com, pablo@mandrakesoft.com"
 tel ""
 fax ""
-language "Pilipino"
-territory "Philipines"
-revision "0.3"
-date "2001-01-28"
+language "Filipino"
+territory "Philippines"
+revision "0.4"
+date "2004-03-12"
 
 category ph_PH:2000;LC_IDENTIFICATION
 category ph_PH:2000;LC_CTYPE
@@ -56,6 +56,7 @@ collating-element <N-G> from "<U004E><U0047>"
 collating-element <n-g> from "<U006E><U0067>"
 collating-element <N-g> from "<U004E><U0067>"
 collating-element <n-G> from "<U006E><U0047>"
+collating-symbol  <ntilde>
 
 collating-symbol <CAP-MIN>
 collating-symbol <MIN-CAP>
@@ -66,12 +67,15 @@ reorder-after <CAP>
 <CAP-MIN>
 
 reorder-after <n>
+<ntilde>
 <n-g-ph>
 
 reorder-after <U006E>
+<U00F1> <ntilde>;<TIL>;<MIN>;IGNORE
 <n-g>	<n-g-ph>;<PCT>;<MIN>;IGNORE
 <n-G>	<n-g-ph>;<PCT>;<MIN-CAP>;IGNORE
 reorder-after <U004E> 
+<U00D1> <ntilde>;<TIL>;<CAP>;IGNORE
 <N-G>	<n-g-ph>;<PCT>;<CAP>;IGNORE
 <N-g>	<n-g-ph>;<PCT>;<CAP-MIN>;IGNORE
 

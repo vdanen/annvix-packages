@@ -31,19 +31,14 @@ category  "qo_ET:2000";LC_TELEPHONE
 
 END LC_IDENTIFICATION
 
-
-LC_CTYPE
-copy "i18n"
-space <U1361>
-translit_start
-include "translit_et";""
-translit_end
-END LC_CTYPE
-   
+% LC_COLLATE before LC_CTYPE otherwise it segfaults
 LC_COLLATE
 copy "am_ET"
 END LC_COLLATE
 
+LC_CTYPE
+copy "am_ET"
+END LC_CTYPE
 
 LC_MONETARY
 % This is the POSIX Locale definition the LC_MONETARY category.
