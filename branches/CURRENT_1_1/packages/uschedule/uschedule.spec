@@ -1,6 +1,15 @@
-%define name	uschedule
-%define version	0.7.0
-%define release	4avx
+#
+# spec file for package uschedule
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		uschedule
+%define version		0.7.1
+%define release		1avx
 
 Summary:	Scheduling service
 Name:		%{name}
@@ -11,7 +20,7 @@ Group:		System/Servers
 URL:		http://www.ohse.de/uwe/uschedule.html
 Source0:	%{name}-%{version}.tar.gz
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	dietlibc-devel >= 0.20
 
 Requires:	srv
@@ -21,9 +30,10 @@ uschedule is not cron and uschedule is not at - it does offer
 similar functionality, but is not intended to be a drop-in 
 replacement. It works differently. It's designed to be different.
 
-%prep
 
+%prep
 %setup -q -n admin
+
 
 %build
 pushd %{name}-%{version}/src
@@ -33,29 +43,27 @@ pushd %{name}-%{version}/src
     LDFLAGS=""
 popd
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-
-install -d %{buildroot}%{_bindir}
-install -d %{buildroot}%{_mandir}/man1
-install -d %{buildroot}%{_mandir}/man7
-install -d %{buildroot}%{_mandir}/man8
+mkdir -p %{buildroot}{%{_bindir},%{_mandir}/man{1,7,8}}
 
 
 pushd %{name}-%{version}/src
-for i in uscheduled uschedulerm uschedulelist uschedulecmd \
-    uschedulecp uscheduleedit uschedule uscheduleconf; do
-    install -m0755 $i %{buildroot}%{_bindir}/
-done
+    for i in uscheduled uschedulerm uschedulelist uschedulecmd \
+        uschedulecp uscheduleedit uschedule uscheduleconf; do
+        install -m 0755 $i %{buildroot}%{_bindir}/
+    done
 
-install -m0644 *.1 %{buildroot}%{_mandir}/man1/
-install -m0644 *.7 %{buildroot}%{_mandir}/man7/
-install -m0644 *.8 %{buildroot}%{_mandir}/man8/
-
+    install -m 0644 *.1 %{buildroot}%{_mandir}/man1/
+    install -m 0644 *.7 %{buildroot}%{_mandir}/man7/
+    install -m 0644 *.8 %{buildroot}%{_mandir}/man8/
 popd
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr (-,root,root)
@@ -75,7 +83,11 @@ popd
 %{_mandir}/man7/*
 %{_mandir}/man8/*
 
+
 %changelog
+* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 0.7.1-1avx
+- 0.7.1
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 0.7.0-4avx
 - rebuild
 - requires: s/daemontools/srv/
