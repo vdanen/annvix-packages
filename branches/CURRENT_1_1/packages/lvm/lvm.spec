@@ -1,6 +1,15 @@
-%define name	lvm
-%define version 1.0.8
-%define release 4avx
+#
+# spec file for package lvm
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		lvm
+%define version 	1.0.8
+%define release 	5avx
 
 Summary:	Logical Volume Manager administration tools
 Name:		%{name}
@@ -10,12 +19,17 @@ License:	GPL
 Group:		System/Kernel and hardware
 URL:		http://www.sistina.com/products_lvm.htm
 Source0:	ftp://ftp.sistina.com/pub/LVM/1.0/%{name}_%{version}.tar.bz2
+Source1:	lvm1-kheader.tar.bz2
 
 Patch1:		LVM-1.0.1-fix-kernel-headers-build.patch.bz2
-Patch2:		LVM-1.0.1-static.patch.bz2
-Patch3:		lvm10-CAN-2004-0972.patch.bz2
+Patch2:		lvm-1.0.8-wrapper.patch.bz2
+Patch3:		lvm-1.0.8-dietlibc.patch.bz2
+Patch4:		lvm-1.0.8-gcc34.patch.bz2
+Patch5:		lvm-1.0.8-perm.patch.bz2
+Patch6:		lvm10-CAN-2004-0972.patch
 
-BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
+BuildRequires:	dietlibc-devel
 
 %description
 LVM includes all of the support for handling read/write operations on
@@ -25,26 +39,101 @@ creating volume groups (kind of virtual disks) from one or more physical
 volumes and creating one or more logical volumes (kind of logical partitions)
 in volume groups.
 
+
 %prep
 %setup -q -n LVM
 cd %{version}
+bzip2 -dc %{SOURCE1} | tar xf -
+%ifarch %{ix86}
+ln -s asm-i386 asm
+%else
+ln -s asm-%{_arch} asm
+%endif
 %patch1 -p2 -b .fixkheaders
-%patch2 -p2 -b .static
-%patch3 -p2 -b .can-2004-0972
+%patch2 -p2 -b .wrapper
+%patch3 -p2 -b .diet
+%patch4 -p2 -b .gcc34
+%patch5 -p2 -b .perm
+%patch6 -p2 -b .can-2004-0972
+
 
 %build
 cd %{version}
-%configure --sbindir=/sbin --libdir=/%{_lib} --disable-static_link
+export CC="diet gcc"
+%configure \
+    --with-user=`id -un` \
+    --with-group=`id -gn` \
+    --sbindir=/sbin \
+    --libdir=/%{_lib} \
+    --enable-static_link
+%make -C tools/lib WRAPPER=-DWRAPPER liblvm-10.a
+%make -C tools vgwrapper WRAPPER=-DWRAPPER
+mv tools/vgwrapper tools/vgwrapper.static
+%make -C tools clean
+
+unset CC
+
+rm config.cache
+%configure \
+    --with-user=`id -un` \
+    --with-group=`id -gn` \
+    --sbindir=/sbin \
+    --libdir=/%{_lib}
 %make
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 cd %{version}
-%makeinstall_std OWNER=$UID GROUP=$GROUPS staticlibdir=%{_libdir}
-rm -rf $RPM_BUILD_ROOT/%{_lib} $RPM_BUILD_ROOT/%{_libdir}
+%makeinstall_std OWNER=$UID GROUP=$GROUPS sbindir=/sbin staticlibdir=%{_libdir}
+rm -f %{buildroot}/sbin/lvmcreate_initrd
+rm -f %{buildroot}%{_mandir}/man8/lvmcreate_initrd.8
+rm -rf %{buildroot}/%{_lib} %{buildroot}/%{_libdir}
+
+# install static versions
+install -m 0755 tools/vgwrapper.static %{buildroot}/sbin/vgwrapper
+
+echo "update-alternatives --install /sbin/lvm lvm /sbin/lvm1 10 \\" > lvm1-setup-alternatives.sh
+
+for i in %{buildroot}/sbin/*; do
+    n=${i##*/} # basename
+    mv $i %{buildroot}/sbin/lvm1-$n
+    echo "--slave /sbin/$n $n /sbin/lvm1-$n \\" >> lvm1-setup-alternatives.sh
+done
+for i in %{buildroot}%{_mandir}/man8/*; do
+    n=${i##*/} # basename
+    mv $i %{buildroot}%{_mandir}/man8/lvm1-$n
+    echo "--slave %{_mandir}/man8/$n.bz2 $n %{_mandir}/man8/lvm1-$n.bz2 \\" >> lvm1-setup-alternatives.sh
+done
+echo >> lvm1-setup-alternatives.sh
+
+cat > %{buildroot}/sbin/lvm1 << EOF
+#!/bin/sh
+command=\$1
+shift
+if [ -x /sbin/lvm1-\$command ];then
+    exec /sbin/lvm1-\$command "\$@"
+fi
+exit 1
+EOF
+
+chmod 0755 %{buildroot}/sbin/lvm1
+
+rm -f %{buildroot}%{_libdir}/liblvm-*.*
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
+
+%post -f %{version}/lvm1-setup-alternatives.sh
+
+
+%postun
+if [ $1 = 0 ]; then
+    update-alternatives --remove lvm /sbin/lvm1
+fi
+
 
 %files
 %defattr(-,root,root)
@@ -54,7 +143,15 @@ rm -rf $RPM_BUILD_ROOT/%{_lib} $RPM_BUILD_ROOT/%{_libdir}
 /sbin/*
 %{_mandir}/man8/*
 
+
 %changelog
+* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 1.0.8-5avx
+- bootstrap build (new gcc, new glibc)
+- merge with lvm1-1.0.8-5mdk:
+  - make it build with recent gcc and glibc (bluca)
+  - do not use getgrnam when statically built against glibc (bluca)
+  - use dietlibc
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 1.0.8-4avx
 - rebuild
 
@@ -71,7 +168,7 @@ rm -rf $RPM_BUILD_ROOT/%{_lib} $RPM_BUILD_ROOT/%{_libdir}
 * Fri Jan 23 2004 Vincent Danen <vdanen@opensls.org> 1.0.7-3sls
 - OpenSLS build
 - tidy spec
-- remove %%_prefix
+- remove %%{_prefix}
 
 * Fri Aug 15 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 1.0.7-2mdk
 - lib64 fixes
