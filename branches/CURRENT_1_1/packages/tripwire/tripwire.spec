@@ -1,6 +1,15 @@
-%define name	tripwire
-%define version	2.3.1.2
-%define release	18avx
+#
+# spec file for package tripwire
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		tripwire
+%define version		2.3.1.2
+%define release		19avx
 
 Summary:	A system integrity assessment tool
 Name:		%{name}
@@ -19,21 +28,19 @@ Source6:	twpol.txt.in
 Source7:	twupdate
 Source8:	98_tripwire.afterboot
 Patch0:		tripwire-2.3.0-50-rfc822.patch.bz2
-Patch1:		tripwire-2.3.1-2-fhs.patch.bz2
-Patch2:		tripwire-2.3.1-gcc3.patch.bz2
-Patch3:		tripwire-jbj.patch.bz2
 Patch4:		tripwire-mkstemp.patch.bz2
-Patch5:		tripwire-2.3.1-2-gcc-3.3.patch.bz2
 Patch6:		tripwire-2.3.1-format.patch.bz2
+# from http://www.frenchfries.net/paul/tripwire/
+Patch7:		tw-20030919.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 Buildrequires:	gcc-c++, libstdc++, libstdc++-static-devel, glibc-static-devel
 
 Requires:	sed, grep >= 2.3, gzip, tar, gawk, afterboot
 # Tripwire is NOT 64bit clean, nor endian clean, and only works properly
 # on x86 architecture. The open source code doesn't seem to be maintained,
 # so this is probably unlikely to change.  We exclude non x86 arches.
-ExclusiveArch:	%{ix86}
+#ExclusiveArch:	%{ix86}
 
 %description
 Tripwire is a very valuable security tool for Linux systems, if it is
@@ -59,47 +66,42 @@ immediately if certain files have been altered.
 cp %{SOURCE2} quickstart.txt
 cp %{SOURCE3} quickstart.gif
 
+%patch7 -p1 -b .portable
 %patch0 -p1 -b .rfc822
-%patch1 -p1 -b .fhs
-%patch2 -p1 -b .gcc3
-%patch3 -p1 -b .jbj
 %patch4 -p1 -b .mkstemp
-%patch5 -p0 -b .gcc3.3
 %patch6 -p0 -b .format
 
+chmod 0755 configure
+
+
 %build
-cd src
+%configure --enable-static
+%make
 
-#make distclean
-rm -rf STLport*
-touch STLport_r STLport_d
-
-# Do not parallelize this with _smp_flags or -j
-make release RPM_OPT_FLAGS="%{optflags}"
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 # Install the binaries.
 mkdir -p %{buildroot}%{_sbindir}
-install -m 0500 bin/*/siggen   %{buildroot}%{_sbindir}
-install -m 0500 bin/*/tripwire %{buildroot}%{_sbindir}
-install -m 0500 bin/*/twadmin  %{buildroot}%{_sbindir}
-install -m 0500 bin/*/twprint  %{buildroot}%{_sbindir}
+install -m 0500 bin/siggen   %{buildroot}%{_sbindir}
+install -m 0500 bin/tripwire %{buildroot}%{_sbindir}
+install -m 0500 bin/twadmin  %{buildroot}%{_sbindir}
+install -m 0500 bin/twprint  %{buildroot}%{_sbindir}
 
 # Install the man pages.
 mkdir -p %{buildroot}%{_mandir}/{man4,man5,man8}
-install -m644 man/man4/*.* %{buildroot}%{_mandir}/man4/
-install -m644 man/man5/*.* %{buildroot}%{_mandir}/man5/
-install -m644 man/man8/*.* %{buildroot}%{_mandir}/man8/
+install -m 0644 man/man4/*.* %{buildroot}%{_mandir}/man4/
+install -m 0644 man/man5/*.* %{buildroot}%{_mandir}/man5/
+install -m 0644 man/man8/*.* %{buildroot}%{_mandir}/man8/
 
 # Install configuration information.
 mkdir -p %{buildroot}%{_sysconfdir}/tripwire
 for infile in %{SOURCE4} %{SOURCE5} %{SOURCE6}; do
-	cat $infile |\
-	sed -e 's|@sbindir@|%{_sbindir}|g' |\
-	sed -e 's|@vardir@|%{_var}|g' >\
-	%{buildroot}%{_sysconfdir}/tripwire/`basename $infile .in`
+    cat $infile |\
+        sed -e 's|@sbindir@|%{_sbindir}|g' |\
+        sed -e 's|@vardir@|%{_var}|g' >\
+        %{buildroot}%{_sysconfdir}/tripwire/`basename $infile .in`
 done
 
 install -m 0750 %{SOURCE7} %{buildroot}%{_sbindir}
@@ -115,7 +117,8 @@ install -d -m 0755 %{buildroot}%{_sysconfdir}/cron.daily
 install -m 0750 %{SOURCE1} %{buildroot}%{_sysconfdir}/cron.daily/tripwire-check
 
 # Fix permissions on documentation files.
-chmod 644 README Release_Notes ChangeLog COPYING policy/policyguide.txt TRADEMARK quickstart.gif quickstart.txt
+chmod 0644 README Release_Notes ChangeLog COPYING policy/policyguide.txt TRADEMARK quickstart.gif quickstart.txt
+
 
 %post
 %_mkafterboot
@@ -123,8 +126,10 @@ chmod 644 README Release_Notes ChangeLog COPYING policy/policyguide.txt TRADEMAR
 %postun
 %_mkafterboot
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -140,7 +145,15 @@ chmod 644 README Release_Notes ChangeLog COPYING policy/policyguide.txt TRADEMAR
 %attr(0500,root,root) %{_sbindir}/*
 %{_datadir}/afterboot/98_tripwire
 
+
 %changelog
+* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 2.3.1.2-19avx
+- bootstrap build (new gcc, new glibc)
+- P7: make it compile on gcc3.4 and other portable fixes
+- drop P1, P2, P3, P5; no longer needed with P7
+- drop the x86 exclusive arch; it can compile on x86_64 so maybe it
+  will work as well
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.3.1.2-18avx
 - rebuild
 - re-enable stack protection
