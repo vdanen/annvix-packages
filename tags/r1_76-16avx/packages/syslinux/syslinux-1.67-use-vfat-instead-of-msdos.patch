@@ -1,0 +1,15 @@
+--- syslinux-1.67/syslinux.c.orig	Tue Feb  5 12:32:33 2002
++++ syslinux-1.67/syslinux.c	Tue Feb  5 12:33:16 2002
+@@ -331,10 +331,10 @@
+       if ( S_ISREG(st.st_mode) ) {
+ 	char loop_string[128];
+ 	sprintf(loop_string, "loop,offset=%ld", offset);
+-	execl(_PATH_MOUNT, _PATH_MOUNT, "-t", "msdos", "-o", loop_string,\
++	execl(_PATH_MOUNT, _PATH_MOUNT, "-t", "vfat", "-o", loop_string,\
+ 	      "-w", device, mntpath, NULL);
+       } else {
+-	execl(_PATH_MOUNT, _PATH_MOUNT, "-t", "msdos", "-w", device, mntpath,
++	execl(_PATH_MOUNT, _PATH_MOUNT, "-t", "vfat", "-w", device, mntpath,
+ 	      NULL);
+       }
+       _exit(255);		/* execl failed */
