@@ -1,0 +1,29 @@
+--- LVM/1.0.8/tools/lib/Makefile.in.bluca	2003-02-06 16:05:33.000000000 +0100
++++ LVM/1.0.8/tools/lib/Makefile.in	2004-11-28 12:03:03.426493047 +0100
+@@ -50,8 +50,6 @@
+ 	@INSTALL@ -d $(DESTDIR)$(staticlibdir)
+ 	@INSTALL@ -o $(OWNER) -g $(GROUP) $(SOV) $(DESTDIR)$(libdir)
+ 	@INSTALL@ -o $(OWNER) -g $(GROUP) $(ARCHIVE) $(DESTDIR)$(staticlibdir)
+-	chmod 444 $(DESTDIR)$(staticlibdir)/$(ARCHIVE)
+-	chmod 555 $(DESTDIR)$(libdir)/$(SOV)
+ 	ln -s $(SOV) $(DESTDIR)$(libdir)/${SO}
+ 	ln -s $(SOV) $(DESTDIR)$(libdir)/${SOM}
+ 
+--- LVM/1.0.8/tools/Makefile.in.bluca	2004-11-28 11:59:50.000000000 +0100
++++ LVM/1.0.8/tools/Makefile.in	2004-11-28 12:01:52.764171042 +0100
+@@ -81,13 +81,13 @@
+ 	do \
+   	   rm -f $(DESTDIR)$(sbindir)/$$f; \
+ 	   @INSTALL@ -d $(DESTDIR)$(sbindir); \
+-	   @INSTALL@ -o $(OWNER) -g $(GROUP) -m 555 -s $$f $(DESTDIR)$(sbindir)/$$f; \
++	   @INSTALL@ -o $(OWNER) -g $(GROUP) -s $$f $(DESTDIR)$(sbindir)/$$f; \
+ 	done
+ 	@for f in $(ALL_SCRIPTS); \
+ 	do \
+ 	   rm -f $(DESTDIR)$(sbindir)/$$f; \
+ 	   @INSTALL@ -d $(DESTDIR)$(sbindir); \
+-	   @INSTALL@ -o $(OWNER) -g $(GROUP) -m 555 $(srcdir)/$$f $(DESTDIR)$(sbindir)/$$f; \
++	   @INSTALL@ -o $(OWNER) -g $(GROUP) $(srcdir)/$$f $(DESTDIR)$(sbindir)/$$f; \
+ 	done
+ 
+ remove-bin:	$(ALL_TARGETS) $(ALL_SCRIPTS)
