@@ -1,8 +1,17 @@
-%define name	dump
-%define version 0.4b37
-%define release 3avx
+#
+# spec file for package dump
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-%define rmtrealname rmt-dump
+
+%define name		dump
+%define version 	0.4b40
+%define release 	1avx
+
+%define rmtrealname	rmt-dump
 
 Summary:	Programs for backing up and restoring filesystems
 Name:		%{name}
@@ -16,7 +25,7 @@ Patch:		dump-mdk-nonroot.patch.bz2
 Patch1:		dump-0.4b37-mdk-compile-fix.patch.bz2
 Patch2:		dump-0.4b34-mdk-check-systypes.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	e2fsprogs-devel >= 1.15, openssl-devel >= 0.9.7a
 BuildRequires:	termcap-devel, readline-devel, zlib-devel, bzip2-devel
 BuildPreReq:	autoconf2.5
@@ -32,6 +41,7 @@ full backup of a filesystem.  Subsequent incremental backups can then be
 layered on top of the full backup.  Single files and directory subtrees
 may also be restored from full or partial backups.
 
+
 %package -n rmt
 Summary:	Provides certain programs with access to remote tape devices.
 Group:		Archiving/Backup
@@ -42,48 +52,38 @@ The rmt utility provides remote access to tape devices for programs
 like dump (a filesystem backup program), restore (a program for
 restoring files from a backup) and tar (an archiving program).
 
+
 %prep
 %setup -q
 %patch0 -p0
 %patch2 -p1 -b .sys-types
 
+
 %build
 %configure2_5x \
-	--with-manowner=root \
-	--with-mangrp=root \
-	--with-manmode=644 \
-	--enable-ermt \
-	--disable-kerberos
+    --with-manowner=root \
+    --with-mangrp=root \
+    --with-manmode=644 \
+    --enable-ermt \
+    --disable-kerberos
 
-%make OPT="$RPM_OPT_FLAGS -Wall -Wpointer-arith -Wstrict-prototypes -Wmissing-prototypes -Wno-char-subscripts"
+%make OPT="%{optflags} -Wall -Wpointer-arith -Wstrict-prototypes -Wmissing-prototypes -Wno-char-subscripts"
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 make install SBINDIR=%{buildroot}/sbin BINDIR=%{buildroot}/sbin MANDIR=%{buildroot}%{_mandir}/man8
 
-# prevent conflict with rmt from tar
-mv %{buildroot}/sbin/rmt %{buildroot}/sbin/%rmtrealname
-
 pushd %{buildroot}
     mkdir .%{_sysconfdir}
     > .%{_sysconfdir}/dumpdates
-    ln -s ../sbin/%rmtrealname .%{_sysconfdir}/rmt
+    ln -s ../sbin/smt .%{_sysconfdir}/rmt
 popd
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-
-%triggerpostun -n rmt -- rmt < 0.4b36
-if test ! -e /sbin/rmt; then
-    %{_sbindir}/update-alternatives --install /sbin/rmt rmt /sbin/%rmtrealname 20
-fi
-
-%post -n rmt
-%{_sbindir}/update-alternatives --install /sbin/rmt rmt /sbin/%rmtrealname 20
-
-%postun -n rmt
-%{_sbindir}/update-alternatives --remove rmt /sbin/%rmtrealname
 
 
 %files
@@ -102,11 +102,16 @@ fi
 %files -n rmt
 %defattr(-,root,root)
 %doc COPYRIGHT
-/sbin/%rmtrealname
+/sbin/rmt
 %{_sysconfdir}/rmt
 %{_mandir}/man8/rmt.8*
 
+
 %changelog
+* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 0.4b40-1avx
+- 0.4b40
+- no more alternatives
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 0.4b37-3avx
 - rebuild
 
@@ -222,7 +227,7 @@ fi
 * Mon Mar 13 2000 David BAUDNS <baudens@mandrakesoft.com> - 0.4b10-2mdk
 - Fix %%{doc}
 - Use new Groups
-- Use %%{_tmppath} for BuildRoot  
+- Use %%{_buildroot} for BuildRoot  
 
 * Mon Nov 29 1999 Chmouel Boudjnah <chmouel@mandrakesoft.com>
 - 0.4b10.
