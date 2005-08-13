@@ -1,9 +1,18 @@
-%define name	reiserfsprogs
-%define version	3.6.19
-%define release	2avx
-%define epoch	1
+#
+# spec file for package reiserfsprogs
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-Summary:	The utilities to create Reiserfs volume
+
+%define name		reiserfsprogs
+%define version		3.6.19
+%define release		3avx
+%define epoch		1
+
+Summary:	The utilities to manage Reiserfs volumes
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -14,7 +23,7 @@ URL:		http://www.namesys.com/
 Source0:	ftp://ftp.namesys.com/pub/reiserfsprogs/%{name}-%{version}.tar.bz2
 Patch1:		reiserfsprogs-3.6.2-make-the-force-option-works-in-resize_reiserfs.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 
 Obsoletes:	reiserfs-utils
 Provides:	reiserfs-utils
@@ -38,13 +47,16 @@ establish that. Reiserfs has a commitment to opening up the FS design
 to contributions, and we are now now adding plug-ins so that you can
 create your own types of directories and files.
 
+
 %prep
 %setup -q
 %patch1 -p1
 
+
 %build
 %configure2_5x
 %make OPTFLAGS="%{optflags}"
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -57,8 +69,10 @@ ln -s reiserfsck %{buildroot}/sbin/fsck.reiserfs
 ln -s mkreiserfs.8 %{buildroot}%{_mandir}/man8/mkfs.reiserfs.8
 ln -s reiserfsck.8 %{buildroot}%{_mandir}/man8/fsck.reiserfs.8
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -66,7 +80,11 @@ ln -s reiserfsck.8 %{buildroot}%{_mandir}/man8/fsck.reiserfs.8
 /sbin/*
 %{_mandir}/*/*
 
+
 %changelog
+* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 3.6.19-3avx
+- bootstrap build (new gcc, new glibc)
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 3.6.19-2avx
 - rebuild
 

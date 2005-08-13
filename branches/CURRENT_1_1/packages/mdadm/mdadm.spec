@@ -1,14 +1,23 @@
-%define name	mdadm
-%define version	1.9.0
-%define release	3avx
+#
+# spec file for package mdadm
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-%define use_dietlibc 0
+
+%define name		mdadm
+%define version		1.9.0
+%define release		4avx
+
+%define use_dietlibc 	0
 %ifarch %{ix86}
-%define use_dietlibc 1
+%define use_dietlibc 	1
 %endif
 
 # we want to install in /sbin, not /usr/sbin...
-%define _exec_prefix %{nil}
+%define _exec_prefix	%{nil}
 
 Summary:	A tool for managing Soft RAID under Linux
 Name:		%{name}
@@ -22,7 +31,7 @@ Source1:	mdmonitor.init.bz2
 Source2:	mdadm.run
 Source3:	mdadm-log.run
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	man groff groff-for-man
 %if %{use_dietlibc}
 BuildRequires:	dietlibc-devel
@@ -42,7 +51,8 @@ some common tasks).
 
 %prep
 %setup -q
-chmod 644 ChangeLog
+chmod 0644 ChangeLog
+
 
 %build
 %if %{use_dietlibc}
@@ -50,11 +60,12 @@ make mdassemble CXFLAGS="%{optflags} -DMDASSEMBLE_AUTO" SYSCONFDIR="%{_sysconfdi
 %endif
 make CXFLAGS="%{optflags}" SYSCONFDIR="%{_sysconfdir}"
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 make DESTDIR=%{buildroot} MANDIR=%{_mandir} BINDIR=%{_sbindir} install
-install -D -m 644 mdadm.conf-example %{buildroot}%{_sysconfdir}/mdadm.conf
+install -D -m 0644 mdadm.conf-example %{buildroot}%{_sysconfdir}/mdadm.conf
 
 %if %{use_dietlibc}
 install mdassemble %{buildroot}%{_sbindir}/mdassemble
@@ -65,14 +76,17 @@ mkdir -p %{buildroot}%{_srvlogdir}/mdadm
 install -m 0755 %{SOURCE2} %{buildroot}%{_srvdir}/mdadm/run
 install -m 0755 %{SOURCE3} %{buildroot}%{_srvdir}/mdadm/log/run
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %preun
 %_preun_srv mdadm
 
 %post
 %_post_srv mdadm
+
 
 %files
 %defattr(-,root,root)
@@ -89,7 +103,11 @@ install -m 0755 %{SOURCE3} %{buildroot}%{_srvdir}/mdadm/log/run
 %{_srvdir}/mdadm/run
 %{_srvdir}/mdadm/log/run
 
+
 %changelog
+* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 1.9.0-4avx
+- bootstrap build (new gcc, new glibc)
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 1.9.0-3avx
 - rebuild
 

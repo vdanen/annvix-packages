@@ -1,6 +1,15 @@
-%define name	man
-%define version	1.5m2
-%define release	2avx
+#
+# spec file for package man
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		man
+%define version		1.5m2
+%define release		3avx
 
 Summary:	A set of documentation tools:  man, apropos and whatis
 Name:		%{name}
@@ -9,7 +18,7 @@ Release:	%{release}
 License:	GPL
 Group:		System/Base
 URL:		ftp://ftp.win.tue.nl:/pub/linux-local/utils/man
-Source0:	ftp://ftp.win.tue.nl/pub/linux-local/utils/man/man-%version.tar.bz2
+Source0:	ftp://ftp.win.tue.nl/pub/linux-local/utils/man/man-%{version}.tar.bz2
 Source1:	makewhatis.cronweekly
 Source2:	makewhatis.crondaily
 Source3:	man.config.5
@@ -45,7 +54,7 @@ Patch200:	man-1.5m2-colored_groff.patch.bz2
 Patch201:	man-1.5m2-l10ned-whatis.patch.bz2
 
 
-BuildRoot:	%_tmppath/%{name}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 
 Requires:	groff-for-man
 Prereq:		setup
@@ -88,14 +97,16 @@ searches its own database for a complete word.
 %patch200 -p0 -b .color
 %patch201 -p0 -b .l10n
 
-/bin/rm -f $RPM_BUILD_DIR/man-%{version}/man/en/man.conf.man
+/bin/rm -f %{_builddir}/man-%{version}/man/en/man.conf.man
+
 
 %build
 (cd man; for i in `find -name man.conf.man`; do mv $i `echo $i|sed -e 's/conf.man/config.man/g'`;done)
-install -m 644 %{SOURCE3} man/en/
+install -m 0644 %{SOURCE3} man/en/
 ./configure -default -confdir /etc +fsstnd +sgid +fhs +lang all \
-	-compatibility_mode_for_colored_groff
+    -compatibility_mode_for_colored_groff
 make CC="gcc -g %{optflags} -D_GNU_SOURCE"
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -107,27 +118,22 @@ perl -pi -e 's!/usr/man!/usr/share/man!g' conf_script
 perl -pi -e 's!mandir = .*$!mandir ='"%{_mandir}"'!g' man2html/Makefile
 make install PREFIX=%{buildroot}/  mandir=%{buildroot}/%{_mandir}
 
-install -m755 %{SOURCE1} %{buildroot}%{_sysconfdir}/cron.weekly/makewhatis.cron
-install -m755 %{SOURCE2} %{buildroot}%{_sysconfdir}/cron.daily/makewhatis.cron
+install -m 0755 %{SOURCE1} %{buildroot}%{_sysconfdir}/cron.weekly/makewhatis.cron
+install -m 0755 %{SOURCE2} %{buildroot}%{_sysconfdir}/cron.daily/makewhatis.cron
 
 mkdir -p %{buildroot}/var/catman{local,X11}
 for i in 1 2 3 4 5 6 7 8 9 n; do
-	mkdir -p %{buildroot}/var/catman/cat$i
-	mkdir -p %{buildroot}/var/catman/local/cat$i
-	mkdir -p %{buildroot}/var/catman/X11R6/cat$i
+    mkdir -p %{buildroot}/var/catman/cat$i
+    mkdir -p %{buildroot}/var/catman/local/cat$i
+    mkdir -p %{buildroot}/var/catman/X11R6/cat$i
 done
 
 
-## added man2html stuff
-#pushd man2html
-#make install PREFIX=%{buildroot}/
-#popd
-
 # symlinks for manpath
 pushd %{buildroot}
-  ln -s man .%{_bindir}/manpath
-  ln -s man.1.bz2 .%{_mandir}/man1/manpath.1.bz2
-#  perl -pi -e 's!nippon!latin1!g;s!-mandocj!-mandoc!g' etc/man.config
+    ln -s man .%{_bindir}/manpath
+    ln -s man.1.bz2 .%{_mandir}/man1/manpath.1.bz2
+    #perl -pi -e 's!nippon!latin1!g;s!-mandocj!-mandoc!g' etc/man.config
 popd
 
 /bin/rm -fr %{buildroot}/%{_mandir}/{de,fr,it,pl}
@@ -135,10 +141,12 @@ perl -pi -e 's!less -is!less -isr!g' %{buildroot}%{_sysconfdir}/man.config
 #perl -pi -e 's!/usr/man!/usr/share/man!g' %{buildroot}%{_sbindir}/makewhatis
 
 # Fix makewhatis perms
-chmod 755 %{buildroot}%{_sbindir}/makewhatis
+chmod 0755 %{buildroot}%{_sbindir}/makewhatis
+
 
 %clean
 #[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -189,6 +197,9 @@ chmod 755 %{buildroot}%{_sbindir}/makewhatis
 
 
 %changelog
+* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 1.5m2-3avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.5m2-2avx
 - bootstrap build
 

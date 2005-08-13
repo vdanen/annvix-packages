@@ -1,6 +1,15 @@
-%define name 	smbldap-tools
-%define version 0.8.7
-%define release 6avx
+#
+# spec file for package smbldap-tools
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name 		smbldap-tools
+%define version 	0.8.7
+%define release 	7avx
 
 Summary:	User & Group administration tools for Samba-OpenLDAP
 Name: 		%{name}
@@ -13,15 +22,16 @@ Source0: 	smbldap-tools-%{version}.tar.bz2
 Source1: 	mkntpwd.tar.bz2
 Patch0:		smbldap-tools-0.8.7-mdk_conf.diff.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 
 %description
 Smbldap-tools is a set of perl scripts written by Idealx. Those scripts are
 designed to help managing users and groups in a ldap directory server and
 can be used both by users and administrators of Linux systems:
-. users can change their password in a way similar to the standard
+
+- users can change their password in a way similar to the standard
   "passwd" command,
-. administrators can perform users and groups management
+- administrators can perform users and groups management
 
 Scripts are described in the Smbldap-tools User Manual
 (http://samba.idealx.org/smbldap-tools.en.html) which also give command
@@ -31,20 +41,20 @@ You can download the latest version on Idealx web site
 Comments and/or questions can be sent to the smbldap-tools mailing list
 (http://lists.idealx.org/lists/samba).
 
-%prep
 
+%prep
 %setup -q -a1
 %patch0 -p1
 
-%build
 
+%build
 pushd mkntpwd
     %make CFLAGS="%{optflags}"
 popd
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-
 mkdir -p %{buildroot}{%{_sysconfdir}/smbldap-tools,%{_sbindir},%{perl_vendorlib}}
 
 install -m 0644 smbldap.conf %{buildroot}%{_sysconfdir}/smbldap-tools/
@@ -54,8 +64,10 @@ install -m 0644 smbldap_tools.pm %{buildroot}%{perl_vendorlib}/
 install -m 0755 smbldap-* %{buildroot}%{_sbindir}/
 install -m 0755 mkntpwd/mkntpwd %{buildroot}%{_sbindir}/
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -77,7 +89,11 @@ install -m 0755 mkntpwd/mkntpwd %{buildroot}%{_sbindir}/
 %{_sbindir}/smbldap-usershow
 %{perl_vendorlib}/smbldap_tools.pm
 
+
 %changelog
+* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 0.8.7-7avx
+- bootstrap build (new gcc, new glibc)
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 0.8.7-6avx
 - rebuild
 

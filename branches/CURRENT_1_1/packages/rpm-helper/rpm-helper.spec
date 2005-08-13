@@ -1,6 +1,15 @@
-%define name	rpm-helper
-%define version	0.10
-%define release	11avx
+#
+# spec file for package rpm-helper
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		rpm-helper
+%define version		0.10
+%define release		12avx
 
 Summary:	Helper scripts for rpm scriptlets
 Name:		%{name}
@@ -8,12 +17,12 @@ Version:	%{version}
 Release:	%{release}
 License:	GPL
 Group:		System/Configuration/Packaging
-URL:		http://www.mandrakelinux.com/
-Source0:	%{name}-%version.tar.bz2
+URL:		http://www.mandrivalinux.com/
+Source0:	%{name}-%{version}.tar.bz2
 Patch0:		rpm-helper-0.9.1-avx-supervise.patch.bz2
 
 BuildArch:	noarch
-BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 
 Conflicts:	chkconfig < 1.3.4-10mdk
 Requires:	chkconfig, grep, shadow-utils, coreutils
@@ -25,19 +34,24 @@ Helper scripts for rpm scriptlets to help create/remove :
 - shells
 - users
 
+
 %prep
 %setup -q
 %patch0 -p0
 
+
 %build
-chmod 755 {add,del}-srv
+chmod 0755 {add,del}-srv
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std LIBDIR=%{_datadir}/%{name}
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -45,7 +59,11 @@ chmod 755 {add,del}-srv
 %dir %{_datadir}/%{name}
 %{_datadir}/%{name}/*
 
+
 %changelog
+* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 0.10-12avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.10-2avx
 - bootstrap build
 
@@ -80,7 +98,7 @@ chmod 755 {add,del}-srv
 * Tue Jan 27 2004 Vincent Danen <vdanen@opensls.org> 0.9.1-3sls
 - P0: adds add-srv and del-srv scripts to manage supervised services, also
   adds a sixth field to add-user so we can force a static uid
-- own %_datadir/%name
+- own %_datadir/%{name}
 
 * Tue Dec 09 2003 Vincent Danen <vdanen@opensls.org> 0.9.1-2sls
 - OpenSLS build

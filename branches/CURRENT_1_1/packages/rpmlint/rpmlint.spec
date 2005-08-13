@@ -1,6 +1,15 @@
-%define name	rpmlint
-%define version 0.67
-%define release 2avx
+#
+# spec file for package rpmlint
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		rpmlint
+%define version 	0.67
+%define release 	3avx
 
 Summary:	RPM correctness checker
 Name:		%{name}
@@ -12,30 +21,35 @@ URL:		http://people.mandrakesoft.com/~flepied/projects/rpmlint/
 Source0:	%{name}-%{version}.tar.bz2
 Source1:	rpmlint.annvix.config
 
-BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
 BuildRequires:	python >= 1.5.2, rpm-python >= 3.0.3-35mdk, make
 
 Requires:	python >= 1.5.2, rpm-python >= 3.0.3-35mdk, binutils, file
-Requires:	findutils, cpio, /lib/cpp, grep, /bin/bash
+Requires:	findutils, cpio, gcc, grep, bash
 
 %description
 Rpmlint is a tool to check common errors on rpm packages.
 Binary and source packages can be checked.
 
+
 %prep
 %setup -q
 
+
 %build
 make
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 make install DESTDIR=%{buildroot}
 install -m 0644 %{SOURCE1} %{buildroot}%{_sysconfdir}/rpmlint/config
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root,0755)
@@ -45,7 +59,11 @@ install -m 0644 %{SOURCE1} %{buildroot}%{_sysconfdir}/rpmlint/config
 %dir %{_sysconfdir}/rpmlint
 %config(noreplace) %{_sysconfdir}/rpmlint/config
 
+
 %changelog
+* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 0.67-3avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.67-2avx
 - bootstrap build
 

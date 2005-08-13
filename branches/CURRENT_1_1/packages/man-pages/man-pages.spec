@@ -1,8 +1,17 @@
-%define name	man-pages
-%define version	2.01
-%define release 2avx
+#
+# spec file for package man-pages
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-%define LANG	en
+
+%define name		man-pages
+%define version		2.01
+%define release 	3avx
+
+%define LANG		en
 
 Summary:	English man (manual) pages from the Linux Documentation Project
 Name:		%{name}
@@ -27,7 +36,7 @@ Patch4:		man-pages-1.38-quad-feature.patch.bz2
 Patch5:		man-pages-1.53-fix-time.patch.bz2
 Patch6:		man-pages-1.54-biarch-utmp.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
 BuildRequires:	man => 1.5j-8mdk
 
@@ -44,12 +53,12 @@ following sections:
         Section 2:  System calls
         Section 3:  Libc calls
         Section 4:  Devices (e.g., hd, sd)
-        Section 5:  File formats and protocols (e.g., wtmp, /etc/passwd,
-                nfs)
+        Section 5:  File formats and protocols (e.g., wtmp, /etc/passwd, nfs)
         Section 6:  Games (intro only)
         Section 7:  Conventions, macro packages, etc. (e.g., nroff, ascii)
         Section 8:  System administration (intro only)
         Section 9:  Kernel internal routines
+
 
 %prep
 %setup -q -a 9 -a 8 -a6
@@ -91,16 +100,17 @@ rm -f man1/rpcgen.1.bz2
 #mv man1/COPYING .
 mv man1/README README.GNU-INFOvsMAN
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 set +x
 mkdir -p %{buildroot}%{_mandir}
 for n in 1 2 3 4 5 6 7 8 9; do
-	mkdir %{buildroot}%{_mandir}/man$n
+    mkdir %{buildroot}%{_mandir}/man$n
 done
 for n in man?/*; do
-	cp -a $n %{buildroot}%{_mandir}/$n
+    cp -a $n %{buildroot}%{_mandir}/$n
 done
 
 set -x
@@ -121,6 +131,7 @@ tar xfj %{SOURCE11} -C %{buildroot}%{_mandir}
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
+
 %files
 %defattr(0644,root,man,755)
 %doc README* *.Announce POSIX-COPYRIGHT
@@ -128,7 +139,11 @@ tar xfj %{SOURCE11} -C %{buildroot}%{_mandir}
 %dir %{_mandir}/%{LANG}
 %{_mandir}/man?/*
 
+
 %changelog
+* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 2.01-3avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.01-2avx
 - bootstrap build
 

@@ -1,6 +1,15 @@
-%define name	rp-pppoe
-%define version	3.5
-%define release	9avx
+#
+# spec file for package rp-pppoe
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		rp-pppoe
+%define version		3.5
+%define release		10avx
 
 Summary:	ADSL/PPPoE userspace driver
 Name:		%{name}
@@ -13,7 +22,7 @@ Source:		http://www.roaringpenguin.com/%{name}-%{version}.tar.bz2
 Patch0:		rp-pppoe-3.5-avx-init.patch.bz2
 Patch1:		rp-pppoe-3.5-CAN-2004-0564.patch.bz2
 
-BuildRoot:	%_tmppath/%name-%version-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	ppp
 
 Requires:	ppp >= 2.4.1
@@ -30,28 +39,33 @@ specification.
 It has been tested with many ISPs, such as the Canadian Sympatico HSE (High
 Speed Edition) service.
 
+
 %prep
 %setup -q
 %patch0 -p1
 %patch1 -p1 -b .can-2004-0564
 
+
 %build
-cd src
-autoconf
-%configure
-%make
+pushd src
+    autoconf
+    %configure
+    %make
+popd
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-install -d -m 0755 %buildroot
+install -d -m 0755 %{buildroot}
 
-cd src
-make install RPM_INSTALL_ROOT=$RPM_BUILD_ROOT
-cd ..
+pushd src
+    make install RPM_INSTALL_ROOT=%{buildroot}
+popd
 
 perl -pi -e "s/restart/restart\|reload/g;" %{buildroot}%{_initrddir}/adsl
 
 rm -rf %{buildroot}/usr/doc
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -79,6 +93,9 @@ rm -rf %{buildroot}/usr/doc
 
 
 %changelog
+* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 3.5-10avx
+- bootstrap build (new gcc, new glibc)
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 3.5-9avx
 - rebuild
 

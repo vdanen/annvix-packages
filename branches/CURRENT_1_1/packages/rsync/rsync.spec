@@ -1,6 +1,15 @@
-%define name	rsync
-%define version	2.6.3
-%define release	2avx
+#
+# spec file for package rsync
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		rsync
+%define version		2.6.3
+%define release		3avx
 
 Summary:	A program for synchronizing files over a network
 Name:		%{name}
@@ -9,17 +18,17 @@ Release:	%{release}
 License:	GPL
 Group:		Networking/File transfer
 URL:		http://rsync.samba.org/
-Source:		ftp://rsync.samba.org/pub/rsync/%name-%version.tar.gz
+Source:		ftp://rsync.samba.org/pub/rsync/%{name}-%{version}.tar.gz
 Source1:	rsync.html
 Source2:	rsyncd.conf.html
-Source4:	ftp://rsync.samba.org/pub/rsync/%name-%version.tar.gz.asc
+Source4:	ftp://rsync.samba.org/pub/rsync/%{name}-%{version}.tar.gz.asc
 Source5:	rsync.run
 Source6:	rsync-log.run
 Source7:	07_rsync.afterboot
 Patch0:		rsync-2.6.3pre1-draksync.patch.bz2
 Patch1:		rsync-2.6.0-nogroup.patch.bz2
 
-BuildRoot:	%_tmppath/%name-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	popt-devel
 
 Requires:	ipsvd
@@ -34,12 +43,12 @@ mirroring process or just as a more capable replacement for the
 rcp command.  A technical report which describes the rsync algorithm
 is included in this package.
 
-Install rsync if you need a powerful mirroring program.
 
 %prep
 %setup -q
 %patch0 -p1 -b .draksync
 %patch1 -p1 -b .nogroup
+
 
 %build
 %serverbuild
@@ -54,12 +63,13 @@ echo '#define HAVE_INET_PTON 1' >> config.h
 
 make test
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p %{buildroot}{%_bindir,%_mandir/{man1,man5}}
+mkdir -p %{buildroot}{%{_bindir},%{_mandir}/{man1,man5}}
 
 %makeinstall
-install -m644 %SOURCE1 %SOURCE2 .
+install -m 0644 %{SOURCE1} %{SOURCE2} .
 mkdir -p %{buildroot}%{_srvdir}/rsync/{log,peers}
 install -m 0755 %{SOURCE5} %{buildroot}%{_srvdir}/rsync/run
 install -m 0755 %{SOURCE6} %{buildroot}%{_srvdir}/rsync/log/run
@@ -69,6 +79,11 @@ mkdir -p %{buildroot}%{_srvlogdir}/rsync
 
 mkdir -p %{buildroot}%{_datadir}/afterboot
 install -m 0644 %{SOURCE7} %{buildroot}%{_datadir}/afterboot/07_rsync
+
+
+%clean
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %post
 %_post_srv rsync
@@ -80,8 +95,6 @@ install -m 0644 %{SOURCE7} %{buildroot}%{_datadir}/afterboot/07_rsync
 %postun
 %_mkafterboot
 
-%clean
-[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -98,7 +111,11 @@ install -m 0644 %{SOURCE7} %{buildroot}%{_datadir}/afterboot/07_rsync
 %{_mandir}/man5/rsyncd.conf.5*
 %{_datadir}/afterboot/07_rsync
 
+
 %changelog
+* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 2.6.3-3avx
+- bootstrap build (new gcc, new glibc)
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.6.3-2avx
 - rebuild
 

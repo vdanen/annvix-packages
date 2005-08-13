@@ -1,6 +1,15 @@
-%define name	rcs
-%define version	5.7
-%define release	10avx
+#
+# spec file for package rcs
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		rcs
+%define version		5.7
+%define release		11avx
 
 Summary:	Revision Control System (RCS) file version management tools
 Name:		%{name}
@@ -12,7 +21,7 @@ Source:		ftp://ftp.gnu.org/pub/gnu/rcs-5.7.tar.bz2
 Patch:		rcs-5.7-stupidrcs.patch.bz2
 Patch1:		rcs-5.7-security.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 
 %description
 The Revision Control System (RCS) is a system for managing multiple
@@ -21,31 +30,31 @@ identification and merging of file revisions.  RCS is useful for text
 files that are revised frequently (for example, programs,
 documentation, graphics, papers and form letters).
 
-The rcs package should be installed if you need a system for managing
-different versions of files.
 
 %prep
 %setup -q
 %patch -p1 -b .stupidrcs
 %patch1 -p1 -b .security
 
+
 %build
-#CFLAGS="$RPM_OPT_FLAGS" LDFLAGS=-s ./configure --prefix=%{prefix} --with-diffutils
 autoconf
 %configure --with-diffutils
 
 touch src/conf.h
 %make
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-
 %makeinstall
-mkdir -p $RPM_BUILD_ROOT%{_mandir}
-mv $RPM_BUILD_ROOT/usr/man/* $RPM_BUILD_ROOT%{_mandir}
+mkdir -p %{buildroot}%{_mandir}
+mv %{buildroot}/usr/man/* %{buildroot}%{_mandir}
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -54,7 +63,11 @@ mv $RPM_BUILD_ROOT/usr/man/* $RPM_BUILD_ROOT%{_mandir}
 %{_mandir}/man1/*
 %{_mandir}/man5/*
 
+
 %changelog
+* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 5.7-11avx
+- bootstrap build (new gcc, new glibc)
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 5.7-10avx
 - rebuild
 

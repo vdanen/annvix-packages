@@ -1,6 +1,15 @@
-%define name	rootfiles
-%define version	9.1
-%define	release	5avx
+#
+# spec file for package rootfiles
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		rootfiles
+%define version		9.1
+%define	release		6avx
 
 Summary:	The basic required files for the root user's directory
 Name:		%{name}
@@ -8,10 +17,10 @@ Version:	%{version}
 Release:	%{release}
 License:	Public Domain
 Group:		System/Base
-Source:		%name-%version.tar.bz2
+Source:		%{name}-%{version}.tar.bz2
 Patch0:		rootfiles-9.1-avx-rootwarning.patch.bz2
 
-BuildRoot:	%_tmppath/%name-%version-%release-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
 
 %description
@@ -20,18 +29,23 @@ in the root user's account.  These files are basically the same
 as the files found in the etcskel package, which are placed in regular
 users' home directories.
 
+
 %prep
+
 
 %setup -q
 %patch0 -p0 -b .warn
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-install -d %buildroot/root
-make install RPM_BUILD_ROOT=%buildroot
+install -d %{buildroot}/root
+make install RPM_BUILD_ROOT=%{buildroot}
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -44,7 +58,11 @@ make install RPM_BUILD_ROOT=%buildroot
 %config(noreplace) /root/.vimrc
 %attr(0700,root,root) /root/tmp/
 
+
 %changelog
+* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 9.1-6avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 9.1-5avx
 - bootstrap build
 

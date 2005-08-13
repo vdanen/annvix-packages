@@ -1,6 +1,15 @@
-%define name	rpm-rebuilder
-%define version	0.21
-%define release	2avx
+#
+# spec file for package rpm-rebuilder
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		rpm-rebuilder
+%define version		0.21
+%define release		3avx
 
 Summary:	Tools to build/check distributions
 Name:		%{name}
@@ -8,10 +17,10 @@ Version:	%{version}
 Release:	%{release}
 License:	GPL
 Group:		System/Configuration/Packaging
-URL:		http://www.mandrakelinux.com/
+URL:		http://www.mandrivalinux.com/
 Source0:	%{name}-%{version}.tar.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
 
 Requires:	rpmlint strace rpm-build
@@ -32,10 +41,13 @@ in which the source rpms must be recompiled.
 
 rpmbuildupdate: download and rebuild the new version of a given srpm. 
 
+
 %prep
 %setup -q
 
+
 %build
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -43,17 +55,23 @@ make install
 
 rm -rf %{buildroot}%{_sysconfdir}/bash_completion.d
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
 %doc AUTHORS README README.CVS ChangeLog
-%_bindir/*
-%_sbindir/*
+%{_bindir}/*
+%{_sbindir}/*
 %_datadir/rpm-rebuilder
 
+
 %changelog
+* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 0.21-3avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.21-2avx
 - bootstrap build
 
