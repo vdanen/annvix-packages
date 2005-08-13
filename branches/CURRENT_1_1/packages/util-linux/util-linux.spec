@@ -9,7 +9,7 @@
 
 %define name		util-linux
 %define version		2.12q
-%define release		1avx
+%define release		2avx
 
 Summary:	A collection of basic system utilities
 Name:		%{name}
@@ -58,6 +58,7 @@ Patch111:	util-linux-2.11t-mkfsman.patch.bz2
 Patch114:	util-linux-2.11t-dumboctal.patch.bz2
 Patch115:	util-linux-2.12q-fix-ioctl.patch.bz2
 Patch116:	util-linux-2.12q-autodav.patch.bz2
+Patch117:	util-linux-2.12-kbdrate-period-fix.patch.bz2
 Patch120:	util-linux-2.12q-compilation.patch.bz2
 ########### END UNSUBMITTED.
 ########
@@ -235,6 +236,7 @@ cp %{SOURCE8} %{SOURCE9} .
 %patch114 -p1 -b .dumboctal
 %patch115 -p1 -b .fix-ioctl
 %patch116 -p1 -b .autodav
+%patch117 -p1 -b .kbdrate
 %patch120 -p1 -b .comp
 %patch1210 -p1 -b .cdextra
 
@@ -339,7 +341,7 @@ mv %{buildroot}{/sbin/,/usr/sbin}/cfdisk
 %endif
 
 %ifarch ppc
-cp -f $RPM_BUILD_DIR/%{name}-%{version}/clock-ppc %{buildroot}/sbin/clock-ppc
+cp -f %{_builddir}/%{name}-%{version}/clock-ppc %{buildroot}/sbin/clock-ppc
 mv %{buildroot}/sbin/hwclock %{buildroot}/sbin/clock-rs6k
 ln -sf clock-rs6k %{buildroot}/sbin/hwclock
 %endif
@@ -586,6 +588,10 @@ fi
 /sbin/losetup
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 2.12q-2avx
+- bootstrap build (new gcc, new glibc)
+- add missing P117 from mdk 2.12q-3mdk (without it kbdrate won't compile)
+
 * Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 2.12q-1avx
 - 2.12q (sync with cooker 2.12q-3mdk):
   - updated P218: only keep utf8 option for iso9660, ntfs, and vfat (oblin)
@@ -729,7 +735,7 @@ fi
 - rediff P114 (dumboctal)
 
 * Wed Jul 10 2002 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 2.11r-3mdk
-- USRLIB_DIR is %%_libdir
+- USRLIB_DIR is %%{_libdir}
 
 * Thu Jun 20 2002 Frederic Lepied <flepied@mandrakesoft.com> 2.11r-2mdk
 - patch213: allow -p as a legal option.
@@ -960,7 +966,7 @@ fi
 
 * Sun Jun 04 2000 David BAUDENS <baudens@mandrakesoft.com> 2.10h-4mdk
 - Really use RPM_OPT_FLAGS
-- Use %%{_tmppath} for BuildRoot
+- Use %%{_buildroot} for BuildRoot
 - Comment empty %%ifarch
 - Remove duplicate k6 
 
