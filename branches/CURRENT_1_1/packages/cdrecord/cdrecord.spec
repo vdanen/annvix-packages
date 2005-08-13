@@ -1,13 +1,22 @@
-%define name	cdrecord
-%define version 2.01
-%define release 0.a38.3avx
-%define epoch	4
+#
+# spec file for package cdrecord
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-%define archname cdrtools
-%define dversion 2.01a38
+
+%define name		cdrecord
+%define version 	2.01
+%define release 	0.a38.4avx
+%define epoch		4
+
+%define archname	cdrtools
+%define dversion	2.01a38
 
 %define mkisofs_ver	2.01
-%define mkisofs_rel	%release
+%define mkisofs_rel	%{release}
 %define mkisofs_epoch	1
 
 Summary:	A command line CD/DVD-Recorder
@@ -28,7 +37,7 @@ Patch4:		cdrtools-2.01a38-mdk-warnings.patch.bz2
 Patch5:		cdrecord-2.01-CAN-2004-0806.patch.bz2
 Patch6:		cdrtools-2.01-CAN-2005-0866.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{dversion}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{dversion}
 BuildRequires:	libpcap-devel
 
 Requires:	mkisofs
@@ -39,6 +48,7 @@ Provides:	cdrecord-dvdhack = %{epoch}:%{version}-%{release}
 %description
 Cdrecord allows you to create CDs on a CD-Recorder (SCSI/ATAPI).
 Supports data, audio, mixed, multi-session and CD+ discs etc.
+
 
 %package devel
 Summary:	The libschily SCSI user level transport library
@@ -52,6 +62,7 @@ without having a special driver for it.
 Cdrecord may be easily ported to any system that has a SCSI device
 driver similar to the scg driver.
 
+
 %package -n mkisofs
 Summary:	Creates an image of an ISO9660 filesystem.
 Version:	%{mkisofs_ver}
@@ -63,6 +74,7 @@ Group:		Archiving/Cd burning
 This is the mkisofs package.  It is used to create ISO 9660
 file system images for creating CD-ROMs. Now includes support
 for making bootable "El Torito" CD-ROMs.
+
 
 %package isotools
 Summary:	Collection of ISO file related tools
@@ -83,6 +95,7 @@ and isovfy.
 %patch5 -p1 -z .can-2004-0806
 %patch6 -p1 -z .can-2005-0866
 
+
 %build
 ln -sf i586-linux-cc.rul RULES/ia64-linux-cc.rul
 ln -sf i586-linux-cc.rul RULES/x86_64-linux-cc.rul
@@ -94,22 +107,24 @@ perl -pi -e 's|^KX_ARCH:=.*|XK_ARCH:=  %{_target_cpu}|' RULES/mk-gmake.id
 
 ./Gmake
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-./Gmake "INS_BASE=$RPM_BUILD_ROOT/%{_prefix}" install MANDIR=share/man
+./Gmake "INS_BASE=%{buildroot}/%{_prefix}" install MANDIR=share/man
 
 rm -f %{buildroot}%{_bindir}/cdda2wav
 rm -f %{buildroot}%{_mandir}/man1/cdda2wav.1*
 rm -f %{buildroot}%{_mandir}/man1/cdda2ogg.1*
 
 # Move libraries to the right directories
-[[ "%_lib" != "lib" ]] && \
-mv $RPM_BUILD_ROOT%{_prefix}/lib $RPM_BUILD_ROOT%{_libdir}/
+[[ "%{_lib}" != "lib" ]] && \
+mv %{buildroot}%{_prefix}/lib %{buildroot}%{_libdir}/
 
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %attr(-,root,root) %doc AN-%{dversion} Changelog README*
@@ -148,7 +163,11 @@ mv $RPM_BUILD_ROOT%{_prefix}/lib $RPM_BUILD_ROOT%{_libdir}/
 %attr(755,root,cdwriter) %{_bindir}/isoinfo
 %attr(755,root,cdwriter) %{_bindir}/isovfy
 
+
 %changelog
+* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 2.01-0.a38.4avx
+- bootstrap build (new gcc, new glibc)
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.01-0.a38.3avx
 - rebuild
 
@@ -537,7 +556,7 @@ Cdda2wav (By Heiko Eiﬂfeldt heiko@hexco.de):
 - 1.8a23
 
 * Wed Jul 07 1999 Axalon Bloodstone <axalon@linux-mandrake.com>
-- inc %release just to be safe
+- inc %{release} just to be safe
 
 * Wed Jul 07 1999 Axalon Bloodstone <axalon@linux-mandrake.com>
 - cdrecord should be sgid

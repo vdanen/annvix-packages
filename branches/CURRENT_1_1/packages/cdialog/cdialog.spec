@@ -1,8 +1,17 @@
-%define name	cdialog
-%define version	0.9b
-%define release	8avx
+#
+# spec file for package cdialog
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-%define datetag 20030308
+
+%define name		cdialog
+%define version		0.9b
+%define release		9avx
+
+%define datetag 	20030308
 
 Summary:	A utility for creating TTY dialog boxes
 Name:		%{name}
@@ -13,7 +22,7 @@ Group:		Development/Other
 URL:		http://invisible-island.net/dialog/
 Source:		dialog-%{version}-%{datetag}.tar.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	ncurses-devel
 
 Obsoletes:	dialog
@@ -26,26 +35,28 @@ from within a shell script.  The following dialog boxes are implemented:
 yes/no, menu, input, message, text, info, checklist, radiolist, and
 gauge.  
 
-Install dialog if you would like to create TTY dialog boxes.
 
 %prep
 %setup -q -n dialog-%{version}-%{datetag}
 
-%configure
 
 %build
-%make OPTIM="$RPM_OPT_FLAGS"
+%configure
+%make OPTIM="%{optflags}"
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p %{buildroot}%{_bindir}
 mkdir -p %{buildroot}%{_mandir}/man1
 %makeinstall \
-	BINDIR=%{buildroot}%{_bindir} \
-	MANDIR=%{buildroot}%{_mandir}/man1
+    BINDIR=%{buildroot}%{_bindir} \
+    MANDIR=%{buildroot}%{_mandir}/man1
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -53,7 +64,11 @@ mkdir -p %{buildroot}%{_mandir}/man1
 %{_bindir}/dialog
 %{_mandir}/man1/dialog.1.bz2
 
+
 %changelog
+* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 0.9b-9avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.9b-8avx
 - bootstrap build
 
