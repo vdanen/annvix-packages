@@ -8,8 +8,8 @@
 
 
 %define name		sash
-%define version		3.5
-%define release 	11avx
+%define version		3.7
+%define release 	1avx
 
 Summary:	A statically linked shell, including some built-in basic commands
 Name:		%{name}
@@ -18,17 +18,18 @@ Release:	%{release}
 License:	GPL
 Group:		Shells
 URL:		http://www.canb.auug.org.au/~dbell/
-Source0:	http://www.canb.auug.org.au/~dbell/programs/sash-%{version}.tar.bz2
+Source0:	http://www.canb.auug.org.au/~dbell/programs/%{name}-%{version}.tar.bz2
 Patch0:		sash-3.5-optflags.patch.bz2
-Patch1:		sash-3.4-scriptarg.patch.bz2
 Patch2: 	sash-3.4-losetup.patch.bz2
 Patch3: 	sash-3.4-fix-loop__remove_it_when_kernel_headers_are_fixed.patch.bz2
-Patch4: 	sash-3.4-ignore-args.patch.bz2
+Patch4:		sash-3.7-linux2.6-buildfix.patch.bz2
+Patch5:		sash-3.6-scriptarg.patch.bz2
+Patch6:		sash-pwdfunc.patch.bz2
+Patch7:		sash-3.7-segfault.patch.bz2
+Patch8:		sash-3.7-special-script-call-esp-for-glibc-post.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	zlib-devel glibc-static-devel
-
-Prereq:		grep
+BuildRequires:	zlib-devel glibc-static-devel e2fsprogs-devel
 
 %description
 Sash is a simple, standalone, statically linked shell which includes
@@ -41,11 +42,14 @@ shared libraries.
 
 %prep
 %setup -q
-%patch0 -p1 -b ".misc"
-%patch1 -p1 -b ".scriptarg"
-%patch2 -p1 -b ".losetup"
+%patch0 -p1 -b .misc
+%patch2 -p1 -b .losetup
 %patch3 -p1
-%patch4 -p1
+%patch4 -p1 -b .linux26
+%patch5 -p1 -b .scriptarg
+%patch6 -p1 -b .pwd
+%patch7 -p1 -b .segf
+%patch8 -p1 -b .scriptarg -z .pix
 
 
 %build
@@ -54,8 +58,7 @@ make RPM_OPT_FLAGS="%{optflags}"
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p %{buildroot}/sbin
-mkdir -p %{buildroot}%{_mandir}/man8
+mkdir -p %{buildroot}{/sbin,%{_mandir}/man8}
 
 install -s -m 0755 sash %{buildroot}/sbin
 install -m 0644 sash.1 %{buildroot}%{_mandir}/man8/sash.8
@@ -72,6 +75,13 @@ install -m 0644 sash.1 %{buildroot}%{_mandir}/man8/sash.8
 
 
 %changelog
+* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 3.7-1avx
+- 3.7
+- P4: fix build with linux 2.6 (peroyvind)
+- sync with Fedora (P5, P6, P7) (peroyvind)
+- P8: P5 broke --ignore-remaining args special option (pixel)
+- remove grep prereq
+
 * Fri Jul 29 2005 Vincent Danen <vdanen@annvix.org> 3.5-11avx
 - rebuild against new gcc
 
