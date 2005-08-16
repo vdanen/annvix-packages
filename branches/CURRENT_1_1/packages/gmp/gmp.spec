@@ -1,10 +1,22 @@
-%define name	gmp
-%define version	4.1.2
-%define release	7avx
+#
+# spec file for package gmp
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-%define lib_major	3
-%define lib_name_orig	%mklibname %{name}
-%define lib_name	%{lib_name_orig}%{lib_major}
+
+%define name		gmp
+%define version		4.1.4
+%define release		1avx
+
+%define major		3
+%define major_gmpxx	3
+%define major_mp	3
+%define libname		%mklibname %{name} %{major}
+%define libname_gmpxx	%mklibname %{name}xx %{major_gmpxx}
+%define libname_mp	%mklibname %{name}mp %{major_mp}
 
 Summary:	A GNU arbitrary precision library
 Name:		%{name}
@@ -14,11 +26,12 @@ License:	LGPL
 Group:		System/Libraries
 URL:		http://www.swox.com/gmp/
 Source:		ftp://ftp.gnu.org/pub/gnu/gmp/%{name}-%{version}.tar.bz2
-Patch0:		gmp-4.1-x86_64.patch.bz2
+Patch0:		gmp-4.1.3-x86_64.patch.bz2
 Patch1:		gmp-4.1-gcc-version.patch.bz2
-Patch2:		gmp-4.1.2-mpz_gcd_ui-retval.patch.bz2
+Patch3:		gmp-4.1.4-fpu.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
+BuildRequires:	autoconf2.5, automake1.7
 
 %description
 The gmp package contains GNU MP, a library for arbitrary precision
@@ -34,11 +47,13 @@ GNU MP is fast for several reasons:
    - it generally emphasizes speed over simplicity/elegance in its
      operations
 
-%package -n %{lib_name}
+
+%package -n %{libname}
 Summary:	A GNU arbitrary precision library
 Group:		System/Libraries
+Provides:	lib%{name} = %{version}-%{release}
 
-%description -n %{lib_name}
+%description -n %{libname}
 The gmp package contains GNU MP, a library for arbitrary precision
 arithmetic, signed integers operations, rational numbers and floating
 point numbers. GNU MP is designed for speed, for both small and very
@@ -52,21 +67,61 @@ GNU MP is fast for several reasons:
   - it generally emphasizes speed over simplicity/elegance in its
     operations
 
-%package -n %{lib_name}-devel
+
+%package -n %{libname}-devel
 Summary:	Development tools for the GNU MP arbitrary precision library
 Group:		Development/C
 PreReq:		/sbin/install-info
-Requires:	%{lib_name} = %version-%release
-Provides:	%{lib_name_orig}-devel = %{version}-%{release}
+Requires:	%{libname} = %{version}-%{release}
+Provides:	lib%{name}-devel = %{version}-%{release}
 Provides:	%{name}-devel = %{version}-%{release}
 
-%description -n %{lib_name}-devel
+%description -n %{libname}-devel
 The static libraries, header files and documentation for using the GNU MP
 arbitrary precision library in applications.
 
-If you want to develop applications which will use the GNU MP library,
-you'll need to install the gmp-devel package.  You'll also need to
-install the gmp package.
+
+%package -n %{libname_gmpxx}
+Summary:	C++ support for GMP
+Group:		System/Libraries
+Requires:	%{libname} = %{version}-%{release}
+Provides:	libgmpxx = %{version}-%{release}
+
+%description -n	%{libname_gmpxx}
+C++ support for GMP.
+
+
+%package -n %{libname_gmpxx}-devel
+Summary:	C++ Development tools for the GMP
+Group:		Development/C++
+Requires:	%{libname}-devel = %{version}-%{release}
+Requires:	%{libname_gmpxx} = %{version}-%{release}
+Provides:	lib%{name}xx-devel = %{version}-%{release}
+Provides:	gmpxx-devel = %{version}-%{release}
+
+%description -n %{libname_gmpxx}-devel
+C++ Development tools for the GMP.
+
+
+%package -n %{libname_mp}
+Summary:	Berkley MP compatibility library for GMP
+Group:		System/Libraries
+Provides:	libgmp_mp = %{version}-%{release}
+
+%description -n %{libname_mp}
+Berkley MP compatibility library for GMP.
+
+
+%package -n %{libname_mp}-devel
+Summary:	Development tools for Berkley MP compatibility library for GMP
+Group:		Development/C
+Requires:	%{libname_mp} = %{version}-%{release}
+Provides:	lib%{name}mp-devel = %{version}-%{release}
+Provides:	mp-devel = %{version}-%{release}
+
+%description -n %{libname_mp}-devel
+Development tools for Berkley MP compatibility library for GMP.
+
 
 %prep
 %setup -q
@@ -74,49 +129,106 @@ install the gmp package.
 # patches. Instead, patch out configure directly.
 %patch0 -p1 -b .x86_64
 %patch1 -p1 -b .gcc-version
-%patch2 -p1 -b .mpz_gcd_ui-retval
+%patch3 -p1
+
 
 %build
-%define __libtoolize /bin/true
-%configure
+libtoolize --copy --force
+aclocal-1.7 -I mpfr
+automake-1.7
+autoconf-2.5x
+%configure2_5x \
+    --enable-cxx \
+    --disable-fft \
+    --enable-mpbsd \
+    --enable-mpfr
+
 %make
 # All tests must pass
 %make check
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-install -d %buildroot/%_libdir %buildroot/%_infodir %buildroot/%_includedir
+install -d %{buildroot}/%{_libdir} %{buildroot}/%{_infodir} %{buildroot}/%{_includedir}
 %makeinstall
 rm -f %{buildroot}%{_infodir}/dir
 
-%post -n %{lib_name} -p /sbin/ldconfig
-%postun -n %{lib_name} -p /sbin/ldconfig
 
-%post -n %{lib_name}-devel
+%post -n %{libname} -p /sbin/ldconfig
+%postun -n %{libname} -p /sbin/ldconfig
+
+%post -n %{libname_gmpxx} -p /sbin/ldconfig
+%postun -n %{libname_gmpxx} -p /sbin/ldconfig
+
+%post -n %{libname_mp} -p /sbin/ldconfig
+%postun -n %{libname_mp} -p /sbin/ldconfig
+
+
+%post -n %{libname}-devel
 %_install_info %{name}.info
+%_install_info mpfr.info
 
-%preun -n %{lib_name}-devel
+%preun -n %{libname}-devel
 %_remove_install_info %{name}.info
+%_remove_install_info mpfr.info
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-%files -n %{lib_name}
+
+%files -n %{libname}
 %defattr(-,root,root)
 %doc COPYING.LIB NEWS README
 %{_libdir}/libgmp.so.*
 
-%files -n %{lib_name}-devel
+%files -n %{libname}-devel
 %defattr(-,root,root)
 %doc doc demos
 %{_libdir}/libgmp.so
 %{_libdir}/libgmp.a
 %{_libdir}/libgmp.la 
 %{_includedir}/gmp.h
-#%{_includedir}/gmp-mparam.h
 %{_infodir}/gmp.info*
+# mpfr
+%{_libdir}/libmpfr.a
+%{_includedir}/mpf2mpfr.h
+%{_includedir}/mpfr.h
+%{_includedir}/mpfrxx.h
+%{_infodir}/mpfr.info*
+
+%files -n %{libname_gmpxx}
+%defattr(-,root,root)
+%{_libdir}/libgmpxx.so.*
+
+%files -n %{libname_gmpxx}-devel
+%defattr(-,root,root)
+%{_libdir}/libgmpxx.so
+%{_libdir}/libgmpxx.a
+%{_libdir}/libgmpxx.la
+%{_includedir}/gmpxx.h
+
+%files -n %{libname_mp}
+%defattr(-,root,root)
+%{_libdir}/libmp.so.*
+
+%files -n %{libname_mp}-devel
+%defattr(-,root,root)
+%{_includedir}/mp.h
+%{_libdir}/libmp.a
+%{_libdir}/libmp.so
+%{_libdir}/libmp.la
+
+
 
 %changelog
+* Mon Aug 15 2005 Vincent Danen <vdanen@annvix.org> 4.1.4-1avx
+- 4.1.4
+- P3: fix build (neoclust)
+- drop P2; merged upstream
+- disable FFT code and enable CXX, MPBDS, and MPFR code (walluck)
+
 * Sat Jun 04 2005 Vincent Danen <vdanen@annvix.org> 4.1.2-7avx
 - bootstrap build
 
@@ -182,7 +294,7 @@ rm -f %{buildroot}%{_infodir}/dir
 
 * Sun Mar 18 2001 David BAUDENS <baudens@mandrakesoft.com> 3.1.1-3mdk
 - Fix build on PPC
-- Requires: %%version-%%release and not only %%version
+- Requires: %%{version}-%%{release} and not only %%{version}
 
 * Tue Mar 13 2001 Warly <warly@mandrakesoft.com> 3.1.1-2mdk
 - fix optimizations flag not used
