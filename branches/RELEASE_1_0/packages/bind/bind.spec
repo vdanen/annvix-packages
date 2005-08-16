@@ -1,11 +1,20 @@
-%define name	bind
-%define version	9.3.0
-%define release	5avx
+#
+# spec file for package bind
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		bind
+%define version		9.3.0
+%define release		6.1avx
 
 %define their_version	9.3.0
-%define build_daemon	0
+%define build_daemon	1
 
-Summary:	A DNS (Domain Name System) server.
+Summary:	A DNS (Domain Name System) server
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -70,8 +79,9 @@ New configuration options: "min-refresh-time", "max-refresh-time",
 "additional-from-cache", "notify explicit" 
 Faster lookups, particularly in large zones. 
 
+
 %package utils
-Summary:	Utilities for querying DNS name servers.
+Summary:	Utilities for querying DNS name servers
 Group:		Networking/Other
 
 %description utils
@@ -81,17 +91,16 @@ These tools will provide you with the IP addresses for given host names,
 as well as other information about registered domains and network 
 addresses.
 
-You should install bind-utils if you need to get information from DNS name
-servers.
 
 %package devel
-Summary:	Include files and libraries needed for bind DNS development.
+Summary:	Include files and libraries needed for bind DNS development
 Group:		Development/C
 
 %description devel
 The bind-devel package contains all the include files and the
 library required for DNS (Domain Name Service) development for
 BIND versions 9.x.x.
+
 
 %prep
 %setup -q  -n %{name}-%{their_version} -a1
@@ -104,8 +113,8 @@ BIND versions 9.x.x.
 #(cd contrib/queryperf && autoconf-2.13)
 tar -xjf %{SOURCE7}
 
-%build
 
+%build
 # (oe) make queryperf from the contrib before bind, makes it easier
 # to determine if it builds or not
 #cd contrib/queryperf
@@ -115,16 +124,15 @@ tar -xjf %{SOURCE7}
 #cd -
 
 %configure \
-	--localstatedir=/var \
-	--enable-threads \
-	--enable-ipv6 \
-	--with-openssl=%{_includedir}/openssl \
-	--disable-linux-caps
+    --localstatedir=/var \
+    --enable-ipv6 \
+    --with-openssl=%{_includedir}/openssl
 
 # override CFLAGS for better security.  Ask Jay...
-make "CFLAGS=-O2 -Wall -pipe -fstack-protector"
+make "CFLAGS=-O2 -Wall -pipe"
 
 gcc %{optflags} -o dns-keygen %{SOURCE5}
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -197,17 +205,17 @@ cp -f `find . -type f |grep html |sed -e 's#\/%{name}-%{their_version}##'|grep -
 echo "You can use the sample named.conf file from the %{_docdir}/%{name}-%{version} directory"
 
 if [ -e %{_sysconfdir}/rndc.conf.rpmnew ]; then
-	/usr/sbin/new_key.pl
+    /usr/sbin/new_key.pl
 fi
 
 if [ -e %{_sysconfdir}/named.conf ]; then
-	/usr/sbin/update_bind.pl
+    /usr/sbin/update_bind.pl
 fi
 
 if [ -f %{_sysconfdir}/named.boot -a ! -f %{_sysconfdir}/named.conf ]; then
-	if [ -x /usr/sbin/named-bootconf ]; then
-		cat %{_sysconfdir}/named.boot | /usr/sbin/named-bootconf > %{_sysconfdir}/named.conf
-	fi
+    if [ -x /usr/sbin/named-bootconf ]; then
+        cat %{_sysconfdir}/named.boot | /usr/sbin/named-bootconf > %{_sysconfdir}/named.conf
+    fi
 fi
 
 %preun
@@ -217,8 +225,10 @@ fi
 %_postun_userdel named
 %endif
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %if %{build_daemon}
 %files
@@ -269,7 +279,17 @@ fi
 %{_mandir}/man5/resolver.5*
 %{_mandir}/man5/resolv.5*
 
+
 %changelog
+* Mon Aug 15 2005 Vincent Danen <vdanen@annvix.org> 9.3.0-6.1avx
+- disable threads support to enable switching user with -u
+  (thanks Ying)
+- re-enable linux capabilities
+- build the daemon by default now that we can run unprivileged
+
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 9.3.0-6avx
+- rebuild
+
 * Sat Apr 09 2005 Vincent Danen <vdanen@annvix.org> 9.3.0-5avx
 - add %%build_daemon macro so we can build bind-{utils,devel} but not
   named itself (since we want things like dig, host, etc.); by default
@@ -323,7 +343,7 @@ fi
 - OpenSLS build
 - use %%build_opensls macro to turn off IDN support
 - explicitly provide -fstack-protector with %%build_opensls since we don't
-  use standard %%optflags
+  use standard %%{optflags}
 
 * Sun Nov 16 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 9.2.3-3mdk
 - rebuilt for reupload
