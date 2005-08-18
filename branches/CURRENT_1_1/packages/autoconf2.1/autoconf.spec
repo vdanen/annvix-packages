@@ -1,16 +1,27 @@
-%define pkgname	autoconf
-%define version	2.13
-%define release 24avx
-%define epoch	1
+#
+# spec file for package autoconf2.1
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		%{pkgname}2.1
+%define pkgname		autoconf
+%define version		2.13
+%define release 	25avx
+%define epoch		1
 
 # Factorize uses of autoconf libdir home and handle only one exception in rpmlint
-%define scriptdir %{_datadir}/autotools
+%define scriptdir	%{_datadir}/autotools
 
-%define docheck 1
+# we need to patch out the 3 F77 tests before we can re-enable this
+%define docheck 0
 %{?_without_check: %global docheck 0}
 
 Summary:	A GNU tool for automatically configuring source code
-Name:		%{pkgname}2.1
+Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 Epoch:		%{epoch}
@@ -26,7 +37,7 @@ Patch3:		autoconf-fix-for-gcc2.96-patch.bz2
 Patch4:		autoconf-2.13-versioned-info.patch.bz2
 Patch5:		autoconf-2.13-automake14.patch.bz2
 
-BuildRoot:	%_tmppath/%{name}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
 BuildRequires:	texinfo m4
 
@@ -37,8 +48,8 @@ Conflicts:	autoconf2.5 <= 1:2.59-2avx
 Obsoletes:	autoconf <= 1:2.13-22avx
 Provides:	autoconf = %{epoch}:%{version}-%{release}
 # for tests
-%if %docheck
-BuildRequires: bison, flex
+%if %{docheck}
+BuildRequires:	bison, flex
 %endif
 
 
@@ -70,33 +81,38 @@ their use.
 %patch5 -p1 -b .automake14
 install -m 0644 %{SOURCE3} IMPORTANT.README.Annvix
 
+
 %build
 %configure --program-suffix=-%{version}
 %make
 
-%if %docheck
+%if %{docheck}
 make check     # VERBOSE=1
 %endif
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
 
-mv $RPM_BUILD_ROOT%{_infodir}/autoconf.info $RPM_BUILD_ROOT%{_infodir}/autoconf-%{version}.info
+mv %{buildroot}%{_infodir}/autoconf.info %{buildroot}%{_infodir}/autoconf-%{version}.info
 
 # We don't want to include the standards.info stuff in the package,
 # because it comes from binutils...
-rm -f $RPM_BUILD_ROOT%{_infodir}/standards*
-cp install-sh $RPM_BUILD_ROOT%{_datadir}/autoconf
+rm -f %{buildroot}%{_infodir}/standards*
+cp install-sh %{buildroot}%{_datadir}/autoconf
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %post
 %_install_info autoconf-%{version}.info
 
 %preun
 %_remove_install_info autoconf-%{version}.info
+
 
 %files
 %defattr(-,root,root)
@@ -105,7 +121,13 @@ cp install-sh $RPM_BUILD_ROOT%{_datadir}/autoconf
 %{_datadir}/%{pkgname}
 %{_infodir}/*
 
+
 %changelog
+* Thu Aug 18 2005 Vincent Danen <vdanen@annvix.org> 2.13-25avx
+- bootstrap build (new gcc, new glibc)
+- disable the tests for now until we can patch out for F77/fortran
+  tests since they always fail since we don't ship a fortran compiler
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.13-24avx
 - bootstrap build
 
@@ -173,7 +195,7 @@ cp install-sh $RPM_BUILD_ROOT%{_datadir}/autoconf
 - rebuild to change distribution tag
 
 * Tue May 01 2001 David BAUDENS <baudens@mandrakesoft.com> 2.13-8mdk
-- Use %%_tmppath for BuildRoot
+- Use %%{_buildroot} for BuildRoot
 
 * Mon Oct 16 2000 Guillaume Cottenceau <gc@mandrakesoft.com> 2.13-7mdk
 - fix for compiling c++ code with gcc-2.96 in some cases
