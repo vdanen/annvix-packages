@@ -1,0 +1,20 @@
+--- Makefile.avx	2005-06-09 22:53:53.000000000 -0400
++++ Makefile	2005-06-09 22:54:12.000000000 -0400
+@@ -12,7 +12,7 @@
+ #
+ # gcc compiler options, these settings should suffice
+ #
+-CCFLAGS=-Wall -march=i486 -Os -fomit-frame-pointer -fno-builtin -ffreestanding
++CCFLAGS=-Wall -march=i486 -Os -fomit-frame-pointer -fno-builtin -ffreestanding -fno-stack-protector-all
+ 
+ AS=as
+ 
+@@ -21,7 +21,7 @@
+ all: memtest.bin memtest
+ 
+ reloc.o: reloc.c
+-	$(CC) -c -march=i486 -fPIC -Wall -g -O2 -fno-strict-aliasing reloc.c
++	$(CC) -c -march=i486 -fPIC -Wall -g -O2 -fno-strict-aliasing -fno-stack-protector-all reloc.c
+ 
+ test.o: test.c test.h defs.h config.h
+ 	$(CC) -c $(CCFLAGS) test.c
