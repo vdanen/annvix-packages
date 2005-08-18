@@ -1,0 +1,2982 @@
+--- mc-4.6.0/edit/editcmd.c.jj	2002-12-19 14:01:34.000000000 +0100
++++ mc-4.6.0/edit/editcmd.c	2004-04-05 14:27:24.000000000 +0200
+--- mc-4.6.0/edit/syntax.c.jj	2004-01-31 10:05:28.000000000 +0100
++++ mc-4.6.0/edit/syntax.c	2004-04-05 13:10:36.000000000 +0200
+@@ -99,7 +99,8 @@ static long compare_word_to_right (WEdit
+     for (p = (unsigned char *) text, q = p + strlen ((char *) p); p < q; p++, i++) {
+ 	switch (*p) {
+ 	case '\001':
+-	    p++;
++	    if (++p > q)
++		return -1;
+ 	    for (;;) {
+ 		c = edit_get_byte (edit, i);
+ 		if (!*p)
+@@ -114,7 +115,8 @@ static long compare_word_to_right (WEdit
+ 	    }
+ 	    break;
+ 	case '\002':
+-	    p++;
++	    if (++p > q)
++		return -1;
+ 	    j = 0;
+ 	    for (;;) {
+ 		c = edit_get_byte (edit, i);
+@@ -150,12 +152,13 @@ static long compare_word_to_right (WEdit
+ 	    }
+ 	    break;
+ 	case '\003':
+-	    p++;
++	    if (++p > q)
++		return -1;
+ 	    c = -1;
+ 	    for (;; i++) {
+ 		d = c;
+ 		c = edit_get_byte (edit, i);
+-		for (j = 0; p[j] != '\003'; j++)
++		for (j = 0; p[j] != '\003' && p[j]; j++)
+ 		    if (c == p[j])
+ 			goto found_char2;
+ 		break;
+@@ -163,20 +166,23 @@ static long compare_word_to_right (WEdit
+ 		j = c;		/* dummy command */
+ 	    }
+ 	    i--;
+-	    while (*p != '\003')
++	    while (*p != '\003' && p <= q)
+ 		p++;
++	    if (p > q)
++		return -1;
+ 	    if (p[1] == d)
+ 		i--;
+ 	    break;
+ 	case '\004':
+-	    p++;
++	    if (++p > q)
++		return -1;
+ 	    c = edit_get_byte (edit, i);
+-	    for (; *p != '\004'; p++)
++	    for (; *p != '\004' && *p; p++)
+ 		if (c == *p)
+ 		    goto found_char3;
+ 	    return -1;
+ 	  found_char3:
+-	    for (; *p != '\004'; p++);
++	    for (; *p != '\004' && *p; p++);
+ 	    break;
+ 	default:
+ 	    if (*p != edit_get_byte (edit, i))
+@@ -534,14 +540,14 @@ this_try_alloc_color_pair (char *fg, cha
+ 	if (!*fg)
+ 	    fg = 0;
+     if (fg) {
+-	strcpy (f, fg);
++	g_strlcpy (f, fg, sizeof (f));
+ 	p = strchr (f, '/');
+ 	if (p)
+ 	    *p = '\0';
+ 	fg = f;
+     }
+     if (bg) {
+-	strcpy (b, bg);
++	g_strlcpy (b, bg, sizeof (b));
+ 	p = strchr (b, '/');
+ 	if (p)
+ 	    *p = '\0';
+@@ -640,13 +646,13 @@ static int edit_read_syntax_rules (WEdit
+ 	    check_a;
+ 	    if (!strcmp (*a, "left")) {
+ 		a++;
+-		strcpy (whole_left, *a);
++		g_strlcpy (whole_left, *a, sizeof (whole_left));
+ 	    } else if (!strcmp (*a, "right")) {
+ 		a++;
+-		strcpy (whole_right, *a);
++		g_strlcpy (whole_right, *a, sizeof (whole_right));
+ 	    } else {
+-		strcpy (whole_left, *a);
+-		strcpy (whole_right, *a);
++		g_strlcpy (whole_left, *a, sizeof (whole_left));
++		g_strlcpy (whole_right, *a, sizeof (whole_right));
+ 	    }
+ 	    a++;
+ 	    check_not_a;
+@@ -707,8 +713,8 @@ static int edit_read_syntax_rules (WEdit
+ 	    bg = *a;
+ 	    if (*a)
+ 		a++;
+-	    strcpy (last_fg, fg ? fg : "");
+-	    strcpy (last_bg, bg ? bg : "");
++	    g_strlcpy (last_fg, fg ? fg : "", sizeof (last_fg));
++	    g_strlcpy (last_bg, bg ? bg : "", sizeof (last_bg));
+ 	    c->keyword[0]->color = this_try_alloc_color_pair (fg, bg);
+ 	    c->keyword[0]->keyword = g_strdup (" ");
+ 	    check_not_a;
+--- mc-4.6.0/src/complete.c.jj	2002-11-13 03:56:41.000000000 +0100
++++ mc-4.6.0/src/complete.c	2004-04-07 17:36:34.000000000 +0200
+@@ -270,7 +270,7 @@ variable_completion_function (char *text
+ 	*temp = '$';
+ 	if (isbrace)
+ 	    temp [1] = '{';
+-        strncpy (temp + 1 + isbrace, *env_p, p - *env_p);
++        memcpy (temp + 1 + isbrace, *env_p, p - *env_p);
+         if (isbrace)
+             strcpy (temp + 2 + (p - *env_p), "}");
+         else
+@@ -605,8 +605,7 @@ completion_matches (char *text, Completi
+ 	    matches = i;
+             match_list [matches + 1] = NULL;
+ 	    match_list[0] = g_malloc (low + 1);
+-	    strncpy (match_list[0], match_list[1], low);
+-	    match_list[0][low] = 0;
++	    g_strlcpy (match_list[0], match_list[1], low + 1);
+ 	}
+     } else {				/* There were no matches. */
+         g_free (match_list);
+@@ -806,7 +805,7 @@ static int insert_text (WInput *in, char
+ 	    	*(p++) = *(q++);
+ 	    *p = 0;
+ 	}
+-	strncpy (in->buffer + start, text, len - start + end);
++	memcpy (in->buffer + start, text, len - start + end);
+ 	in->point += len;
+ 	update_input (in, 1);
+ 	end += len;
+--- mc-4.6.0/src/utilunix.c.jj	2002-12-26 15:47:46.000000000 +0100
++++ mc-4.6.0/src/utilunix.c	2004-04-07 18:09:29.000000000 +0200
+@@ -280,9 +280,7 @@ char *tilde_expand (const char *director
+ 	if (!p){
+ 	    passwd = getpwnam (directory);
+ 	} else {
+-	    name = g_malloc (p - directory + 1);
+-	    strncpy (name, directory, p - directory);
+-	    name [p - directory] = 0;
++	    name = g_strndup (directory, p - directory);
+ 	    passwd = getpwnam (name);
+ 	    g_free (name);
+ 	}
+@@ -298,7 +296,7 @@ char *tilde_expand (const char *director
+ 
+ /*
+  * Return the directory where mc should keep its temporary files.
+- * This directory is (in Bourne shell terms) "${TMPDIR=/tmp}-$USER"
++ * This directory is (in Bourne shell terms) "${TMPDIR=/tmp}/mc-$USER"
+  * When called the first time, the directory is created if needed.
+  * The first call should be done early, since we are using fprintf()
+  * and not message() to report possible problems.
+@@ -372,6 +370,7 @@ mc_tmpdir (void)
+ 	if (fallback_ok) {
+ 	    fprintf (stderr, _("Temporary files will be created in %s\n"),
+ 		     sys_tmp);
++	    error = NULL;
+ 	} else {
+ 	    fprintf (stderr, _("Temporary files will not be created\n"));
+ 	    tmpdir = "/dev/null/";
+@@ -381,6 +380,9 @@ mc_tmpdir (void)
+ 	getc (stdin);
+     }
+ 
++    if (!error)
++	setenv ("MC_TMPDIR", tmpdir, 1);
++
+     return tmpdir;
+ }
+ 
+--- mc-4.6.0/src/profile.c.jj	2003-01-20 15:33:02.000000000 +0100
++++ mc-4.6.0/src/profile.c	2004-04-05 12:45:03.000000000 +0200
+@@ -325,8 +325,7 @@ static short GetSetProfile (int set, con
+     
+     s = GetSetProfileChar (set, AppName, KeyName, Default, FileName);
+     if (!set){
+-	ReturnedString [Size-1] = 0;
+-	strncpy (ReturnedString, s, Size-1);
++	g_strlcpy (ReturnedString, s, Size);
+    }
+     return 1;
+ }
+--- mc-4.6.0/src/wtools.c.jj	2004-01-30 19:02:39.000000000 +0100
++++ mc-4.6.0/src/wtools.c	2004-04-05 12:59:56.000000000 +0200
+@@ -412,8 +412,7 @@ real_input_dialog_help (char *header, ch
+ /* we need a unique name for tkname because widget.c:history_tool()
+    needs a unique name for each dialog - using the header is ideal */
+ 
+-    strncpy (tk_name + 3, header, 60);
+-    tk_name[63] = '\0';
++    g_strlcpy (tk_name + 3, header, 61);
+     quick_widgets[2].tkname = tk_name;
+ 
+     len = max (mbstrlen (header), msglen (text, &lines)) + 4;
+--- mc-4.6.0/src/file.c.jj	2002-12-26 20:04:10.000000000 +0100
++++ mc-4.6.0/src/file.c	2004-03-16 11:13:46.000000000 +0100
+@@ -366,7 +366,7 @@ make_symlink (FileOpContext *ctx, char *
+ 	dst_is_symlink = 0;
+ 
+   retry_src_readlink:
+-    len = mc_readlink (src_path, link_target, MC_MAXPATHLEN);
++    len = mc_readlink (src_path, link_target, MC_MAXPATHLEN - 1);
+     if (len < 0) {
+ 	return_status =
+ 	    file_error (_(" Cannot read source link \"%s\" \n %s "),
+@@ -715,6 +715,7 @@ copy_file_file (FileOpContext *ctx, char
+ 	    gettimeofday (&tv_current, NULL);
+ 
+ 	    if (n_read > 0) {
++		char *t = buf;
+ 		n_read_total += n_read;
+ 
+ 		/* Windows NT ftp servers report that files have no
+@@ -729,9 +730,10 @@ copy_file_file (FileOpContext *ctx, char
+ 
+ 		/* dst_write */
+ 		while ((n_written =
+-			mc_write (dest_desc, buf, n_read)) < n_read) {
++			mc_write (dest_desc, t, n_read)) < n_read) {
+ 		    if (n_written > 0) {
+ 			n_read -= n_written;
++			t += n_written;
+ 			continue;
+ 		    }
+ 		    return_status =
+--- mc-4.6.0/src/util.h.jj	2004-01-30 19:02:39.000000000 +0100
++++ mc-4.6.0/src/util.h	2004-03-16 11:58:18.000000000 +0100
+@@ -64,7 +64,7 @@ char *_icase_search (char *text, char *d
+ #define icase_search(T,D) _icase_search((T), (D), NULL)
+ 
+ /* Matching */
+-enum { match_file, match_normal };
++enum { match_file, match_normal, match_regex };
+ extern int easy_patterns;
+ char *convert_pattern (char *pattern, int match_type, int do_group);
+ int regexp_match (char *pattern, char *string, int match_type);
+--- mc-4.6.0/src/main.c.jj	2003-02-05 16:54:34.000000000 +0100
++++ mc-4.6.0/src/main.c	2004-03-16 10:50:28.000000000 +0100
+@@ -1300,7 +1300,7 @@ copy_readlink (WPanel *panel)
+ 	    concat_dir_and_file (panel->cwd, selection (panel)->fname);
+ 	int i;
+ 
+-	i = mc_readlink (p, buffer, MC_MAXPATHLEN);
++	i = mc_readlink (p, buffer, MC_MAXPATHLEN - 1);
+ 	g_free (p);
+ 	if (i > 0) {
+ 	    buffer[i] = 0;
+--- mc-4.6.0/src/screen.c.jj	2004-01-30 19:02:39.000000000 +0100
++++ mc-4.6.0/src/screen.c	2004-04-07 17:40:05.000000000 +0200
+@@ -746,7 +746,7 @@ display_mini_info (WPanel *panel)
+ 	int  len;
+ 
+ 	link = concat_dir_and_file (panel->cwd, panel->dir.list [panel->selected].fname);
+-	len = mc_readlink (link, link_target, MC_MAXPATHLEN);
++	len = mc_readlink (link, link_target, MC_MAXPATHLEN - 1);
+ 	g_free (link);
+ 	if (len > 0){
+ 	    link_target[len] = 0;
+@@ -1125,8 +1125,6 @@ paint_frame (WPanel *panel) 
+     mbstate_t s;
+ 
+     memset (&s, 0, sizeof (s));
+-#else
+-    char buffer[30]; /*Hope that this is enough ;-) */
+ #endif
+     if (!panel->split)
+ 	adjust_top_file (panel);
+@@ -1176,17 +1174,13 @@ paint_frame (WPanel *panel) 
+ 		}
+ #endif
+ 		header_len = strlen (txt);
+-		if (header_len > format->field_len){
+-		    strncpy (buffer, txt, format->field_len);
+-		    txt = buffer;
+-		    txt [format->field_len] = 0;
++		if (header_len > format->field_len)
+ 		    header_len = format->field_len;
+-		}
+ 
+                 spaces = (format->field_len - header_len) / 2;
+                 extra  = (format->field_len - header_len) % 2;
+-		printw ("%*s%-s%*s", spaces, "",
+-			 txt, spaces+extra, "");
++		printw ("%*s%.*s%*s", spaces, "",
++			header_len, txt, spaces+extra, "");
+ 	    } else {
+ 		attrset (NORMAL_COLOR);
+ 		one_vline ();
+@@ -2124,7 +2118,7 @@ chdir_to_readlink (WPanel *panel)
+ 	int i;
+ 	struct stat mybuf;
+ 
+-	i = readlink (selection (panel)->fname, buffer, MC_MAXPATHLEN);
++	i = readlink (selection (panel)->fname, buffer, MC_MAXPATHLEN - 1);
+ 	if (i < 0)
+ 	    return;
+ 	if (mc_stat (selection (panel)->fname, &mybuf) < 0)
+--- mc-4.6.0/src/info.c.jj	2004-04-05 15:52:18.000000000 +0200
++++ mc-4.6.0/src/info.c	2004-04-08 16:54:35.000000000 +0200
+@@ -123,7 +123,7 @@ info_show_info (WInfo *info)
+ 	    size_trunc_len (buffer1, 5, myfs_stats.avail, 1);
+ 	    size_trunc_len (buffer2, 5, myfs_stats.total, 1);
+ 	    printw (_("Free space: %s (%d%%) of %s"), buffer1, myfs_stats.total ?
+-		    100 * myfs_stats.avail / myfs_stats.total : 0, buffer2);
++		    (int) (100.0 * myfs_stats.avail / myfs_stats.total) : 0, buffer2);
+ 	} else
+ 	    addstr (_("No space information"));
+ 
+@@ -170,7 +170,7 @@ info_show_info (WInfo *info)
+ 	    printw (_("Size:      %s"), buffer);
+ #ifdef HAVE_ST_BLOCKS
+ 	    printw ((buf.st_blocks==1) ?
+-		_(" (%d block)") : _(" (%d blocks)"), buf.st_blocks);
++		_(" (%ld block)") : _(" (%ld blocks)"), (long) buf.st_blocks);
+ #endif
+ 	}
+ 	
+--- mc-4.6.0/src/view.c.jj	2004-01-30 19:02:39.000000000 +0100
++++ mc-4.6.0/src/view.c	2004-04-06 14:05:22.000000000 +0200
+@@ -74,6 +74,10 @@
+ #   define IFAIX(x)
+ #endif
+ 
++#if GLIB_MAJOR_VERSION < 2
++# define g_try_malloc g_malloc
++#endif
++
+ #define vwidth (view->widget.cols - (view->have_frame ? 2 : 0))
+ #define vheight (view->widget.lines - (view->have_frame ? 2 : 0))
+ 
+@@ -308,7 +312,7 @@ get_byte (WView *view, unsigned int byte
+ 	    view->block_ptr = g_realloc (view->block_ptr,
+ 					 sizeof (block_ptr_t) * page);
+ 	    for (i = view->blocks; i < page; i++) {
+-		char *p = g_malloc (VIEW_PAGE_SIZE);
++		char *p = g_try_malloc (VIEW_PAGE_SIZE);
+ 		view->block_ptr[i].data = p;
+ 		if (!p)
+ 		    return '\n';
+@@ -336,7 +340,7 @@ get_byte (WView *view, unsigned int byte
+ 	    }
+ 	    view->blocks = page;
+ 	}
+-	if (byte_index > view->bytes_read) {
++	if (byte_index >= view->bytes_read) {
+ 	    return -1;
+ 	} else
+ 	    return view->block_ptr[page - 1].data[offset];
+@@ -573,9 +577,11 @@ load_view_file (WView *view, int fd)
+ 	return init_growing_view (view, 0, view->filename);
+     }
+ #ifdef HAVE_MMAP
+-    view->data =
+-	mc_mmap (0, view->s.st_size, PROT_READ, MAP_FILE | MAP_SHARED,
+-		 view->file, 0);
++    if ((size_t) view->s.st_size == view->s.st_size)
++	view->data = mc_mmap (0, view->s.st_size, PROT_READ,
++			      MAP_FILE | MAP_SHARED, view->file, 0);
++    else
++	view->data = (caddr_t) -1;
+     if ((caddr_t) view->data != (caddr_t) - 1) {
+ 	/* mmap worked */
+ 	view->first = 0;
+@@ -589,7 +595,11 @@ load_view_file (WView *view, int fd)
+      * file into memory (alex@bcs.zaporizhzhe.ua). Also, mmap can fail
+      * for any reason, so we use this as fallback (pavel@ucw.cz) */
+ 
+-    view->data = (unsigned char *) g_malloc (view->s.st_size);
++    if ((gulong) view->s.st_size == view->s.st_size)
++      view->data = (unsigned char *) g_try_malloc (view->s.st_size);
++    else
++      view->data = NULL;
++
+     if (view->data == NULL
+ 	|| mc_lseek (view->file, 0, SEEK_SET) != 0
+ 	|| mc_read (view->file, view->data,
+@@ -821,7 +831,7 @@ view_status (WView *view, gboolean updat
+ 	if (w > 46) {
+ 	    widget_move (view, view->have_frame, 24 + view->have_frame);
+ 	    if (view->hex_mode)
+-		printw (_("Offset 0x%08x"), view->edit_cursor);
++		printw (_("Offset 0x%08lx"), view->edit_cursor);
+ 	    else
+ 		printw (_("Col %d"), -view->start_col);
+ 	}
+@@ -1513,33 +1523,41 @@ get_line_at (WView *view, unsigned long 
+     long i = 0;
+     int prev = 0;
+ 
++    if (!pos && direction == -1)
++	return 0;
++
+     /* skip over all the possible zeros in the file */
+     while ((ch = get_byte (view, pos)) == 0) {
++	if (!pos && direction == -1)
++	    return 0;
+ 	pos += direction;
+ 	i++;
+     }
+     *skipped = i;
+ 
+-    if (pos) {
+-	prev = get_byte (view, pos - 1);
++    if (!i && (pos || direction == -1)) {
++	prev = get_byte (view, pos - direction);
+ 	if ((prev == -1) || (prev == '\n'))
+ 	    prev = 0;
+     }
+ 
+-    for (i = 0; ch != -1; ch = get_byte (view, pos)) {
++    for (i = 1; ch != -1; ch = get_byte (view, pos)) {
+ 
+-	if (i == usable_size) {
++	if (i >= usable_size) {
+ 	    buffer = grow_string_buffer (buffer, &buffer_size);
+ 	    usable_size = buffer_size - 2;
+ 	}
+ 
++	buffer[i++] = ch;
++	if (!pos && direction == -1)
++	    break;
++
+ 	pos += direction;
+-	i++;
+ 
+ 	if (ch == '\n' || !ch) {
++	    i--;
+ 	    break;
+ 	}
+-	buffer[i] = ch;
+     }
+     if (buffer) {
+ 	buffer[0] = prev;
+--- mc-4.6.0/src/find.c.jj	2004-01-30 19:02:39.000000000 +0100
++++ mc-4.6.0/src/find.c	2004-03-16 11:54:29.000000000 +0100
+@@ -312,7 +312,7 @@ push_directory (char *dir)
+     dir_stack *new;
+ 
+     new = g_new (dir_stack, 1);
+-    new->name = g_strdup (dir);
++    new->name = concat_dir_and_file (dir, "");
+     new->prev = dir_stack_base;
+     dir_stack_base = new;
+ }
+@@ -338,17 +338,9 @@ insert_file (char *dir, char *file)
+ {
+     char *tmp_name;
+     static char *dirname;
+-    int i;
+ 
+-    if (dir [0] == PATH_SEP && dir [1] == PATH_SEP)
++    while (dir [0] == PATH_SEP && dir [1] == PATH_SEP)
+ 	dir++;
+-    i = strlen (dir);
+-    if (i){
+-	if (dir [i - 1] != PATH_SEP){
+-	    dir [i] = PATH_SEP;
+-	    dir [i + 1] = 0;
+-	}
+-    }
+ 
+     if (old_dir){
+ 	if (strcmp (old_dir, dir)){
+@@ -401,7 +393,7 @@ get_line_at (int file_fd, char *buf, int
+     char ch = 0;
+     int  i = 0;
+ 
+-    do {
++    for (;;) {
+ 	if (*pos >= *n_read){
+ 	    *pos = 0;
+ 	    if ((*n_read = mc_read (file_fd, buf, buf_size)) <= 0)
+@@ -420,10 +412,12 @@ get_line_at (int file_fd, char *buf, int
+ 	if (i >= buffer_size - 1){
+ 	    buffer = g_realloc (buffer, buffer_size += 80);
+ 	}
++	/* Strip newline to fix $ matching */
++	if (ch == '\n')
++	    break;
+ 
+ 	buffer [i++] = ch;
+-
+-    } while (ch != '\n');
++    }
+ 
+     *has_newline = ch ? 1 : 0;
+ 
+@@ -502,7 +496,7 @@ do_search (struct Dlg_head *h)
+ {
+     static struct dirent *dp   = 0;
+     static DIR  *dirp = 0;
+-    static char directory [MC_MAXPATHLEN+2];
++    static char *directory;
+     struct stat tmp_stat;
+     static int pos;
+     static int subdirs_left = 0;
+@@ -513,6 +507,10 @@ do_search (struct Dlg_head *h)
+ 	    mc_closedir (dirp);
+ 	    dirp = 0;
+ 	}
++	if (directory) {
++	    g_free (directory);
++	    directory = NULL;
++	}
+         dp = 0;
+ 	return 1;
+     }
+@@ -550,8 +548,9 @@ do_search (struct Dlg_head *h)
+ 		    break;
+ 	    } 
+ 	    
+-	    strcpy (directory, tmp);
+-	    g_free (tmp);
++	    if (directory)
++		g_free (directory);
++	    directory = tmp;
+ 
+ 	    if (verbose){
+ 		    char buffer [BUF_SMALL];
+@@ -582,8 +581,8 @@ do_search (struct Dlg_head *h)
+     tmp_name = concat_dir_and_file (directory, dp->d_name);
+ 
+     if (subdirs_left){
+-	mc_lstat (tmp_name, &tmp_stat);
+-	if (S_ISDIR (tmp_stat.st_mode)){
++	if (!mc_lstat (tmp_name, &tmp_stat)
++	    && S_ISDIR (tmp_stat.st_mode)){
+ 	    push_directory (tmp_name);
+ 	    subdirs_left--;
+ 	}
+--- mc-4.6.0/src/subshell.c.jj	2003-01-24 22:37:28.000000000 +0100
++++ mc-4.6.0/src/subshell.c	2004-03-30 18:24:08.000000000 +0200
+@@ -710,7 +710,9 @@ int exit_subshell (void)
+     }
+ 
+     g_free (subshell_prompt);
++    g_free (pty_buffer);
+     subshell_prompt = NULL;
++    pty_buffer = NULL;
+ 
+     return quit;
+ }
+--- mc-4.6.0/src/user.c.jj	2002-11-29 04:03:53.000000000 +0100
++++ mc-4.6.0/src/user.c	2004-04-06 15:11:56.000000000 +0200
+@@ -138,19 +138,14 @@ int check_format_var (const char *p, cha
+ 	}
+ 	
+ 	/* Copy the variable name */
+-	var_name = g_malloc (dots - p);
+-	strncpy (var_name, p+4, dots-2 - (p+3));
+-	var_name [dots-2 - (p+3)] = 0;
+-
++	var_name = g_strndup (p + 4, dots - p - 5);
+ 	value = getenv (var_name);
+ 	g_free (var_name);
+ 	if (value){
+ 	    *v = g_strdup (value);
+ 	    return q-p;
+ 	}
+-	var_name = g_malloc (q - dots + 1);
+-	strncpy (var_name, dots, q - dots + 1);
+-	var_name [q-dots] = 0;
++	var_name = g_strndup (dots, q - dots);
+ 	*v = var_name;
+ 	return q-p;
+     }
+@@ -300,13 +295,15 @@ check_patterns (char *p)
+ 
+ /* Copies a whitespace separated argument from p to arg. Returns the
+    point after argument. */
+-static char *extract_arg (char *p, char *arg)
++static char *extract_arg (char *p, char *arg, size_t size)
+ {
+     while (*p && (*p == ' ' || *p == '\t' || *p == '\n'))
+ 	p++;
+                 /* support quote space .mnu */
+-    while (*p && (*p != ' ' || *(p-1) == '\\') && *p != '\t' && *p != '\n')
++    while (size > 1 && *p && (*p != ' ' || *(p-1) == '\\') && *p != '\t' && *p != '\n') {
+ 	*arg++ = *p++;
++	size--;
++    }
+     *arg = 0;
+     if (!*p || *p == '\n')
+ 	p --;
+@@ -389,29 +386,29 @@ static char *test_condition (WEdit *edit
+ 	    p--;
+ 	    break;
+ 	case 'f': /* file name pattern */
+-	    p = extract_arg (p, arg);
++	    p = extract_arg (p, arg, sizeof (arg));
+ 	    *condition = panel && regexp_match (arg, panel->dir.list [panel->selected].fname, match_file);
+ 	    break;
+ 	case 'y': /* syntax pattern */
+             if (edit_widget && edit_widget->syntax_type) {
+-	        p = extract_arg (p, arg);
++	        p = extract_arg (p, arg, sizeof (arg));
+ 	        *condition = panel &&
+                     regexp_match (arg, edit_widget->syntax_type, match_normal);
+ 	    }
+                 break;
+ 	case 'd':
+-	    p = extract_arg (p, arg);
++	    p = extract_arg (p, arg, sizeof (arg));
+ 	    *condition = panel && regexp_match (arg, panel->cwd, match_file);
+ 	    break;
+ 	case 't':
+-	    p = extract_arg (p, arg);
++	    p = extract_arg (p, arg, sizeof (arg));
+ 	    *condition = panel && test_type (panel, arg);
+ 	    break;
+ 	case 'x': /* executable */
+ 	{
+ 	    struct stat status;
+ 	    
+-	    p = extract_arg (p, arg);
++	    p = extract_arg (p, arg, sizeof (arg));
+ 	    if (stat (arg, &status) == 0)
+ 		*condition = is_exe (status.st_mode);
+ 	    else
+@@ -431,50 +428,43 @@ static char *test_condition (WEdit *edit
+ static void
+ debug_out (char *start, char *end, int cond)
+ {
+-    static char msg [256];
++    static char *msg;
+     int len;
+ 
+     if (start == NULL && end == NULL){
+-	if (cond == 0){
+-	    /* Init */
+-	    msg [0] = 0;
+-	} else {
+-	    /* Show output */
+-	    if (!debug_flag)
+-		return;
++	/* Show output */
++	if (debug_flag && msg) {
+ 	    len = strlen (msg);
+ 	    if (len)
+ 		msg [len - 1] = 0;
+ 	    message (0, _(" Debug "), "%s", msg);
+-	    debug_flag = 0;
+ 	}
++	debug_flag = 0;
++	g_free (msg);
++	msg = NULL;
+     } else {
++	char *type, *p;
++
+ 	/* Save debug info for later output */
+ 	if (!debug_flag)
+ 	    return;
+ 	/* Save the result of the condition */
+ 	if (debug_error){
+-	    strcat (msg, _(" ERROR: "));
++	    type = _(" ERROR: ");
+ 	    debug_error = 0;
+ 	}
+ 	else if (cond)
+-	    strcat (msg, _(" True:  "));
++	    type = _(" True:  ");
+ 	else
+-	    strcat (msg, _(" False: "));
+-	/* Copy condition statement */
+-	len = strlen (msg);
+-	if (end == NULL){
+-	    /* Copy one character */
+-	    msg [len] = *start;
+-	    msg [len + 1] = 0;
+-	} else {
+-	    /* Copy many characters */
+-	    while (start < end){
+-		msg [len++] = *start++;
+-	    }
+-	    msg [len] = 0;
+-	}
+-	strcat (msg, " \n");
++	    type = _(" False: ");
++	/* This is for debugging, don't need to be super efficient.  */
++	if (end == NULL)
++	    p = g_strdup_printf ("%s%s%c \n", msg ? msg : "", type, *start);
++	else
++	    p = g_strdup_printf ("%s%s%.*s \n", msg ? msg : "", type,
++				 (int) (end - start), start);
++        g_free (msg);
++        msg = p;
+     }
+ }
+ 
+@@ -486,8 +476,6 @@ static char *test_line (WEdit *edit_widg
+     char operator;
+     char *debug_start, *debug_end;
+ 
+-    /* Init debugger */
+-    debug_out (NULL, NULL, 0);
+     /* Repeat till end of line */
+     while (*p && *p != '\n') {
+         /* support quote space .mnu */
+@@ -578,6 +566,8 @@ execute_menu_command (WEdit *edit_widget
+ 		break;
+ 	    while (*commands == ' ' || *commands == '\t')
+ 	        commands++;
++	  if (*commands == '0')
++		break;
+ 	}
+ 	col++;
+ 	if (*commands == '\n')
+@@ -734,7 +724,7 @@ user_menu_cmd (struct WEdit *edit_widget
+ 	    } else if (*p == '+'){
+ 		if (*(p+1) == '='){
+ 		    /* Combined adding and default */
+-		    p = test_line (edit_widget, p, &accept_entry);
++		    p = test_line (edit_widget, p + 1, &accept_entry);
+ 		    if (selected == 0 && accept_entry)
+ 			selected = menu_lines;
+ 		} else {
+@@ -744,7 +734,7 @@ user_menu_cmd (struct WEdit *edit_widget
+ 	    } else if (*p == '='){
+ 		if (*(p+1) == '+'){
+ 		    /* Combined adding and default */
+-		    p = test_line (edit_widget, p, &accept_entry);
++		    p = test_line (edit_widget, p + 1, &accept_entry);
+ 		    if (selected == 0 && accept_entry)
+ 			selected = menu_lines;
+ 		} else {
+--- mc-4.6.0/src/util.c.jj	2004-01-30 19:02:39.000000000 +0100
++++ mc-4.6.0/src/util.c	2004-04-05 12:55:40.000000000 +0200
+@@ -591,7 +591,7 @@ char *convert_pattern (char *pattern, in
+     char *new_pattern;
+     int was_wildcard = 0;
+ 
+-    if (easy_patterns){
++    if ((match_type != match_regex) && easy_patterns){
+ 	new_pattern = g_malloc (MC_MAXPATHLEN);
+ 	d = new_pattern;
+ 	if (match_type == match_file)
+@@ -940,7 +940,7 @@ char *get_current_wd (char *buffer, int 
+ 	return NULL;
+     }
+ 
+-    strncpy (buffer, p, len);
++    memcpy (buffer, p, len);
+     g_free (p);
+ 
+     return buffer;
+@@ -1155,7 +1155,7 @@ static char *resolve_symlinks (char *pat
+ 	if (!S_ISLNK (mybuf.st_mode))
+ 	    strcpy (r, p + 1);
+ 	else {
+-	    len = mc_readlink (path, buf2, MC_MAXPATHLEN);
++	    len = mc_readlink (path, buf2, MC_MAXPATHLEN - 1);
+ 	    if (len < 0) {
+ 		 g_free (buf);
+ 		 g_free (buf2);
+--- mc-4.6.0/src/widget.c.jj	2004-01-30 19:02:39.000000000 +0100
++++ mc-4.6.0/src/widget.c	2004-04-05 16:21:32.000000000 +0200
+@@ -343,7 +343,8 @@ radio_callback (WRadio *r, int Msg, int 
+ 		    wchar_t wc;
+ 		    int len;
+ #endif
+-		    printw ("%.*s", (char *) cp - r->texts[i], r->texts[i]);
++		    printw ("%.*s", (int) ((char *) cp - r->texts[i]),
++			    r->texts[i]);
+ 		    attrset ((i==r->pos && Msg==WIDGET_FOCUS) 
+ 			     ? HOT_FOCUSC : HOT_NORMALC);
+ #ifdef UTF8
+@@ -642,7 +643,7 @@ gauge_callback (WGauge *g, int Msg, int 
+ 	if (!g->shown)
+ 	    printw ("%*s", gauge_len, "");
+ 	else {
+-	    long percentage, columns;
++	    int percentage, columns;
+ 	    long total = g->max, done = g->current;
+ 	    
+ 	    if (total <= 0 || done < 0) {
+--- mc-4.6.0/src/command.c.jj	2002-11-14 08:25:19.000000000 +0100
++++ mc-4.6.0/src/command.c	2004-03-30 18:17:47.000000000 +0200
+@@ -258,7 +258,7 @@ command_callback (WInput *cmd, int msg, 
+ WInput *
+ command_new (int y, int x, int cols)
+ {
+-    WInput *cmd = g_new (WInput, 1);
++    WInput *cmd;
+ 
+     cmd = input_new (y, x, DEFAULT_COLOR, cols, "", "cmdline");
+ 
+--- mc-4.6.0/src/dir.c.jj	2003-01-21 01:41:45.000000000 +0100
++++ mc-4.6.0/src/dir.c	2004-04-05 15:50:19.000000000 +0200
+@@ -503,9 +503,11 @@ do_load_dir (dir_list *list, sortfn *sor
+     }
+ 
+     if (next_free) {
++	char *path = vfs_canon (".");
+ 	/* Add ".." except the root directory */
+-	if (strcmp (vfs_canon ("."), "/") != 0)
++	if (strcmp (path, "/") != 0)
+ 	    add_dotdot_to_list (list, next_free++);
++	g_free (path);
+ 	do_sort (list, sort, next_free - 1, reverse, case_sensitive);
+     } else {
+ 	tree_store_end_check ();
+@@ -576,7 +578,7 @@ do_reload_dir (dir_list * list, sortfn *
+     int i, status, link_to_dir, stale_link;
+     struct stat buf;
+     int marked_cnt;
+-    GHashTable *marked_files = g_hash_table_new (g_str_hash, g_str_equal);
++    GHashTable *marked_files;
+ 
+     tree_store_start_check_cwd ();
+     dirp = mc_opendir (".");
+@@ -587,6 +589,7 @@ do_reload_dir (dir_list * list, sortfn *
+ 	return set_zero_dir (list);
+     }
+ 
++    marked_files = g_hash_table_new (g_str_hash, g_str_equal);
+     alloc_dir_copy (list->size);
+     for (marked_cnt = i = 0; i < count; i++) {
+ 	dir_copy.list[i].fnamelen = list->list[i].fnamelen;
+@@ -622,6 +625,7 @@ do_reload_dir (dir_list * list, sortfn *
+ 	       clean_dir (&dir_copy, count);
+ 	     */
+ 	    tree_store_end_check ();
++	    g_hash_table_destroy (marked_files);
+ 	    return next_free;
+ 	}
+ 
+@@ -655,9 +659,11 @@ do_reload_dir (dir_list * list, sortfn *
+     tree_store_end_check ();
+     g_hash_table_destroy (marked_files);
+     if (next_free) {
++	char *path = vfs_canon (".");
+ 	/* Add ".." except the root directory */
+-	if (strcmp (vfs_canon ("."), "/") != 0)
++	if (strcmp (path, "/") != 0)
+ 	    add_dotdot_to_list (list, next_free++);
++	g_free (path);
+ 	do_sort (list, sort, next_free - 1, rev, case_sensitive);
+     } else
+ 	next_free = set_zero_dir (list);
+--- mc-4.6.0/src/man2hlp.c.jj	2003-01-21 00:23:42.000000000 +0100
++++ mc-4.6.0/src/man2hlp.c	2004-04-05 12:44:35.000000000 +0200
+@@ -611,8 +611,7 @@ handle_link (char *buffer)
+ 	/* Bold text or italics text */
+ 	if (buffer[0] == '.' && (buffer[1] == 'I' || buffer[1] == 'B'))
+ 	    for (buffer += 2; *buffer == ' ' || *buffer == '\t'; buffer++);
+-	strncpy (old, buffer, sizeof (old) - 1);
+-	old[sizeof (old) - 1] = 0;
++	g_strlcpy (old, buffer, sizeof (old));
+ 	link_flag = 3;
+ 	break;
+     case 3:
+--- mc-4.6.0/src/ext.c.jj	2002-11-14 08:25:19.000000000 +0100
++++ mc-4.6.0/src/ext.c	2004-03-16 11:59:25.000000000 +0100
+@@ -450,7 +450,7 @@ regex_check_type (char *filename, int fi
+ 
+     if (content_string && content_string[0]
+ 	&& regexp_match (ptr, content_string + content_shift,
+-			 match_normal)) {
++			 match_regex)) {
+ 	found = 1;
+     }
+ 
+@@ -477,7 +477,6 @@ regex_command (char *filename, char *act
+     int found = 0;
+     int error_flag = 0;
+     int ret = 0;
+-    int old_patterns;
+     struct stat mystat;
+     int view_at_line_number;
+     char *include_target;
+@@ -559,8 +558,6 @@ regex_command (char *filename, char *act
+     }
+     mc_stat (filename, &mystat);
+ 
+-    old_patterns = easy_patterns;
+-    easy_patterns = 0;		/* Real regular expressions are needed :) */
+     include_target = NULL;
+     include_target_len = 0;
+     for (p = data; *p; p++) {
+@@ -593,11 +590,11 @@ regex_command (char *filename, char *act
+ 		/* Do not transform shell patterns, you can use shell/ for
+ 		 * that
+ 		 */
+-		if (regexp_match (p, filename, match_normal))
++		if (regexp_match (p, filename, match_regex))
+ 		    found = 1;
+ 	    } else if (!strncmp (p, "directory/", 10)) {
+ 		if (S_ISDIR (mystat.st_mode)
+-		    && regexp_match (p + 10, filename, match_normal))
++		    && regexp_match (p + 10, filename, match_regex))
+ 		    found = 1;
+ 	    } else if (!strncmp (p, "shell/", 6)) {
+ 		p += 6;
+@@ -683,7 +680,6 @@ regex_command (char *filename, char *act
+ 		break;
+ 	}
+     }
+-    easy_patterns = old_patterns;
+     if (error_flag)
+ 	return -1;
+     return ret;
+--- mc-4.6.0/src/cmd.c.jj	2003-02-05 16:54:33.000000000 +0100
++++ mc-4.6.0/src/cmd.c	2004-03-16 10:49:41.000000000 +0100
+@@ -1132,7 +1132,7 @@ void edit_symlink_cmd (void)
+ 
+ 	q = g_strdup_printf (_(" Symlink `%s\' points to: "), name_trunc (p, 32));
+ 
+-	i = readlink (p, buffer, MC_MAXPATHLEN);
++	i = readlink (p, buffer, MC_MAXPATHLEN - 1);
+ 	if (i > 0) {
+ 	    buffer [i] = 0;
+ 	    dest = input_expand_dialog (_(" Edit symlink "), q, buffer);
+--- mc-4.6.0/vfs/cpio.c.jj	2002-12-08 02:12:28.000000000 +0100
++++ mc-4.6.0/vfs/cpio.c	2004-04-05 15:49:04.000000000 +0200
+@@ -103,9 +103,9 @@ static int cpio_read(void *fh, char *buf
+ 
+ static struct defer_inode * defer_find(struct defer_inode *l, struct defer_inode *i)
+ {
+-    if(!l) return NULL;
+-    return l->inumber == i->inumber && l->device == i->device ? l : 
+-	   defer_find(l->next, i);
++    while (l && (l->inumber != i->inumber || l->device != i->device))
++	l = l->next;
++    return l;
+ }
+ 
+ static int cpio_skip_padding(vfs_s_super *super)
+@@ -127,8 +127,14 @@ static int cpio_skip_padding(vfs_s_super
+ 
+ static void cpio_free_archive(vfs *me, vfs_s_super *super)
+ {
++    struct defer_inode *l, *lnext;
+     if(super->u.cpio.fd != -1)
+-	mc_close(super->u.cpio.fd);
++	mc_close(super->u.cpio.fd), super->u.cpio.fd = -1;
++    for (l = super->u.cpio.defered; l; l = lnext) {
++	lnext = l->next;
++	g_free (l);
++    }
++    super->u.cpio.defered = NULL;
+ }
+ 
+ static int cpio_open_cpio_file(vfs *me, vfs_s_super *super, char *name)
+@@ -246,26 +252,34 @@ static int cpio_find_head(vfs *me, vfs_s
+ #define HEAD_LENGTH (26)
+ static int cpio_read_bin_head(vfs *me, vfs_s_super *super)
+ {
+-    struct old_cpio_header buf;
++    union {
++	struct old_cpio_header buf;
++	short shorts[HEAD_LENGTH >> 1];
++    } u;
+     int len;
+     char *name;
+     struct stat stat;
+ 
+-    if((len = mc_read(super->u.cpio.fd, (char *)&buf, HEAD_LENGTH)) < HEAD_LENGTH)
++    if((len = mc_read(super->u.cpio.fd, (char *)&u.buf, HEAD_LENGTH)) < HEAD_LENGTH)
+ 	return STATUS_EOF;
+     CPIO_POS(super) += len;
+     if(super->u.cpio.type == CPIO_BINRE) {
+ 	int i;
+ 	for(i = 0; i < (HEAD_LENGTH >> 1); i++)
+-	    ((short *)&buf)[i] = GUINT16_SWAP_LE_BE(((short *)&buf)[i]);
++	    u.shorts[i] = GUINT16_SWAP_LE_BE(u.shorts[i]);
+     }
+-    g_assert(buf.c_magic == 070707);
++    g_assert(u.buf.c_magic == 070707);
+ 
+-    name = g_malloc(buf.c_namesize);
+-    if((len = mc_read(super->u.cpio.fd, name, buf.c_namesize)) < buf.c_namesize){
++    if (u.buf.c_namesize == 0 || u.buf.c_namesize > MC_MAXPATHLEN) {
++	message (1, MSG_ERROR, _("Corrupted cpio header encountered in\n%s"), super->name);
++	return STATUS_FAIL;
++    }
++    name = g_malloc(u.buf.c_namesize);
++    if((len = mc_read(super->u.cpio.fd, name, u.buf.c_namesize)) < u.buf.c_namesize){
+ 	g_free(name);
+ 	return STATUS_EOF;
+     }
++    name[u.buf.c_namesize - 1] = '\0';
+     CPIO_POS(super) += len;
+     cpio_skip_padding(super);
+ 
+@@ -274,15 +288,15 @@ static int cpio_read_bin_head(vfs *me, v
+ 	return STATUS_TRAIL;
+     }
+ 
+-    stat.st_dev = buf.c_dev;
+-    stat.st_ino = buf.c_ino;
+-    stat.st_mode = buf.c_mode;
+-    stat.st_nlink = buf.c_nlink;
+-    stat.st_uid = buf.c_uid;
+-    stat.st_gid = buf.c_gid;
+-    stat.st_rdev = buf.c_rdev;
+-    stat.st_size = (buf.c_filesizes[0] << 16) | buf.c_filesizes[1];
+-    stat.st_atime = stat.st_mtime = stat.st_ctime = (buf.c_mtimes[0] << 16) | buf.c_mtimes[1];
++    stat.st_dev = u.buf.c_dev;
++    stat.st_ino = u.buf.c_ino;
++    stat.st_mode = u.buf.c_mode;
++    stat.st_nlink = u.buf.c_nlink;
++    stat.st_uid = u.buf.c_uid;
++    stat.st_gid = u.buf.c_gid;
++    stat.st_rdev = u.buf.c_rdev;
++    stat.st_size = (u.buf.c_filesizes[0] << 16) | u.buf.c_filesizes[1];
++    stat.st_atime = stat.st_mtime = stat.st_ctime = (u.buf.c_mtimes[0] << 16) | u.buf.c_mtimes[1];
+ 
+     return cpio_create_entry(me, super, &stat, name);
+ }
+@@ -310,11 +324,16 @@ static int cpio_read_oldc_head(vfs *me, 
+ 	return STATUS_FAIL;
+     }
+ 
++    if (hd.c_namesize == 0 || hd.c_namesize > MC_MAXPATHLEN) {
++	message (1, MSG_ERROR, _("Corrupted cpio header encountered in\n%s"), super->name);
++	return STATUS_FAIL;
++    }
+     name = g_malloc(hd.c_namesize);
+     if((len = mc_read(super->u.cpio.fd, name, hd.c_namesize)) < hd.c_namesize) {
+ 	g_free (name);
+ 	return STATUS_EOF;
+     }
++    name[hd.c_namesize - 1] = '\0';
+     CPIO_POS(super) +=  len;
+     cpio_skip_padding(super);
+ 
+@@ -365,11 +384,16 @@ static int cpio_read_crc_head(vfs *me, v
+        (super->u.cpio.type == CPIO_CRC && hd.c_magic != 070702))
+ 	return STATUS_FAIL;
+ 
++    if (hd.c_namesize == 0 || hd.c_namesize > MC_MAXPATHLEN) {
++	message (1, MSG_ERROR, _("Corrupted cpio header encountered in\n%s"), super->name);
++	return STATUS_FAIL;
++    }
+     name = g_malloc(hd.c_namesize);
+     if((len = mc_read(super->u.cpio.fd, name, hd.c_namesize)) < hd.c_namesize){
+ 	g_free (name);
+ 	return STATUS_EOF;
+     }
++    name[hd.c_namesize - 1] = '\0';
+     CPIO_POS(super) += len;
+     cpio_skip_padding(super);
+ 
+@@ -430,7 +454,8 @@ static int cpio_create_entry(vfs *me, vf
+ 		message_3s(1, MSG_ERROR, _("Inconsistent hardlinks of\n%s\nin cpio archive\n%s"),
+ 			   name, super->name);
+ 		inode = NULL;
+-	    }
++	    } else if (!inode->st.st_size)
++		inode->st.st_size = stat->st_size;
+ 	}
+     }
+ 
+--- mc-4.6.0/vfs/extfs/uha.in.jj	2002-12-14 06:10:53.000000000 +0100
++++ mc-4.6.0/vfs/extfs/uha.in	2004-04-07 18:36:03.000000000 +0200
+@@ -31,8 +31,7 @@ mchafs_list ()
+ 
+ mchafs_copyout ()
+ {
+-    TMPDIR="/tmp/mctmpdir-uha.$$"
+-    mkdir $TMPDIR || exit 1
++    TMPDIR=`mktemp -d ${MC_TMPDIR:-/tmp}/mctmpdir-uha.XXXXXX` || exit 1
+     cd $TMPDIR
+ 
+     $HA xyq "$1" "$2" >/dev/null
+--- mc-4.6.0/vfs/extfs/mc-cvs-uzip.jj	2004-01-30 19:02:39.000000000 +0100
++++ mc-4.6.0/vfs/extfs/mc-cvs-uzip	2004-04-13 19:23:08.258270414 +0200
+@@ -344,10 +344,10 @@ sub cleandirs {
+ 
+ # Make a temporary directory with mode 0700.
+ sub mktmpdir {
+-	while (1) {
+-		my $dir = POSIX::tmpnam();
+-		return $dir if mkdir ($dir, 0700);
+-	}
++	use File::Temp qw(mkdtemp);
++	my $template = "/tmp/mccvsuzip.XXXXXX";
++	$template="$ENV{MC_TMPDIR}/mccvsuzip.XXXXXX" if ($ENV{MC_TMPDIR});
++	return mkdtemp($template);
+ }
+ 
+ # Make a filename absolute and return it.
+--- mc-4.6.0/vfs/extfs/uar.in.jj	2002-12-12 10:21:35.000000000 +0100
++++ mc-4.6.0/vfs/extfs/uar.in	2004-04-07 18:35:10.000000000 +0200
+@@ -22,8 +22,7 @@ mcarfs_copyout ()
+ 
+ mcarfs_copyin ()
+ {
+-    TMPDIR=/tmp/mctmpdir-uar.$$
+-    mkdir $TMPDIR || exit 1
++    TMPDIR=`mktemp -d ${MC_TMPDIR:-/tmp}/mctmpdir-uar.XXXXXX` || exit 1
+     name=`basename "$2"`
+     (cd $TMPDIR && cp -fp "$3" $name && $XAR r "$1" $name)
+     rm -rf $TMPDIR
+--- mc-4.6.0/vfs/extfs/ulha.in.jj	2002-12-14 05:39:10.000000000 +0100
++++ mc-4.6.0/vfs/extfs/ulha.in	2004-04-07 18:39:35.000000000 +0200
+@@ -35,12 +35,6 @@ LHA_LIST="lha lq"
+ LHA_GET="lha pq"
+ LHA_PUT="lha aq"
+ 
+-# Define a directory to create a temporary file for when
+-# running a command to be run from the archive
+-TMPDIR="/tmp/mctmpdir-uha.$$"
+-# Temporary file within the directory
+-TMPCMD=$TMPDIR/run
+-
+ # The 'list' command executive
+ 
+ mc_lha_fs_list()
+@@ -121,9 +115,9 @@ mc_lha_fs_copyin ()
+ 
+ mc_lha_fs_run()
+ {
++   TMPDIR=`mktemp -d ${MC_TMPDIR:-/tmp}/mctmpdir-ulha.XXXXXX` || exit 1
+    trap "rm -rf $TMPDIR; exit 0" 1 2 3 4 15
+-   # FIXME: Try harder to generate a unique directory if this fails
+-   mkdir -m 0700 $TMPDIR || exit 1
++   TMPCMD=$TMPDIR/run
+    $LHA_GET "$1" "$2" > $TMPCMD  
+    chmod a+x $TMPCMD
+    $TMPCMD
+--- mc-4.6.0/vfs/extfs/rpm.jj	2004-01-30 19:02:39.000000000 +0100
++++ mc-4.6.0/vfs/extfs/rpm	2004-04-05 18:23:04.000000000 +0200
+@@ -1,14 +1,17 @@
+ #! /bin/sh
+ #
+ # Written by Erik Troan (ewt@redhat.com) 1996
+-#            Jakub Jelinek (jj@sunsite.mff.cuni.cz) 1996
++#            Jakub Jelinek (jj@sunsite.mff.cuni.cz) 1996, 2004
+ #            Tomasz K³oczko (kloczek@rudy.mif.pg.gda.pl) 1997
+ # minor changes by Wojtek Pilorz (wpilorz@bdk.lublin.pl) 1997
+ # minor changes by Michele Marziani (marziani@fe.infn.it) 1997
+ # bug files by Marc Merlin (marcsoft@merlins.org) 1998
+ # locale bugfix by Michal Svec (rebel@penguin.cz) 2000
+-# (C) 1996 The Free Software Foundation.
++# Whitespace(s) & single quote(s) in filename workaround
++#   by Andrew V. Samoilov <sav@bcs.zp.ua> 2004
++# https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=64007
+ #
++# (C) 1996-2004 The Free Software Foundation.
+ #
+ 
+ # override any locale for dates
+@@ -22,6 +25,10 @@ else
+   RPM="rpm"
+ fi
+ RPM2CPIO="rpm2cpio"
++SED=sed
++# Surround the whole filename with single quotes and handle specially
++# \', ' and \ at the end of the string.
++SEDCMD="s/\\(\\\\\\?\\)'/'\\1\\1\\\\''/g;s/\\\\\$/'\\\\\\\\'/;s/^/'/;s/\$/'/"
+ 
+ mcrpmfs_list ()
+ {
+@@ -31,12 +38,13 @@ mcrpmfs_list ()
+     if test -z "$MCFASTRPM"; then
+       MCFASTRPM=$MCFASTRPM_DFLT
+     fi
++    f="`echo "$1" | $SED "$SEDCMD"`"
+     FILEPREF="-r--r--r--   1 root     root    "
+-    DESC=`$RPM -qip "$1" 2>/dev/null` || {
++    DESC=`$RPM -qip "$f" 2>/dev/null` || {
+ 	echo "$FILEPREF 0 "`date +"%b %d %H:%M"`" ERROR"
+ 	exit 1
+     }
+-    DATE=`$RPM -qp --qf "%{BUILDTIME:date}\n" "$1" | cut -c 5-11,21-24`
++    DATE=`$RPM -qp --qf "%{BUILDTIME:date}\n" "$f" | cut -c 5-11,21-24`
+     HEADERSIZE=`echo "$DESC" | wc -c`
+     echo "-r--r--r--   1 root     root  $HEADERSIZE $DATE HEADER"
+     echo "-r-xr-xr-x   1 root     root    39 $DATE INSTALL"
+@@ -47,25 +55,25 @@ mcrpmfs_list ()
+     echo "$FILEPREF 0 $DATE INFO/BUILDHOST"
+     echo "$FILEPREF 0 $DATE INFO/SOURCERPM"
+     if test "$MCFASTRPM" = 0 ; then
+-     test "`$RPM -qp --qf \"%{DISTRIBUTION}\" \"$1\"`" = "(none)" ||
++     test "`$RPM -qp --qf \"%{DISTRIBUTION}\" \"$f\"`" = "(none)" ||
+  	 echo "$FILEPREF 0 $DATE INFO/DISTRIBUTION"
+-     test "`$RPM -qp --qf \"%{VENDOR}\" \"$1\"`" = "(none)" ||
++     test "`$RPM -qp --qf \"%{VENDOR}\" \"$f\"`" = "(none)" ||
+ 	 echo "$FILEPREF 0 $DATE INFO/VENDOR"
+-     test "`$RPM -qp --qf \"%{DESCRIPTION}\" \"$1\"`" = "(none)" ||
++     test "`$RPM -qp --qf \"%{DESCRIPTION}\" \"$f\"`" = "(none)" ||
+          echo "$FILEPREF 0 $DATE INFO/DESCRIPTION"
+-     test "`$RPM -qp --qf \"%{SUMMARY}\" \"$1\"`" = "(none)" ||
++     test "`$RPM -qp --qf \"%{SUMMARY}\" \"$f\"`" = "(none)" ||
+          echo "$FILEPREF 0 $DATE INFO/SUMMARY"
+-     if test "`$RPM -qp --qf \"%{RPMTAG_PREIN}%{RPMTAG_POSTIN}%{RPMTAG_PREUN}%{RPMTAG_POSTUN}%{VERIFYSCRIPT}\" \"$1\"`" != "(none)(none)(none)(none)(none)"; then
++     if test "`$RPM -qp --qf \"%{RPMTAG_PREIN}%{RPMTAG_POSTIN}%{RPMTAG_PREUN}%{RPMTAG_POSTUN}%{VERIFYSCRIPT}\" \"$f\"`" != "(none)(none)(none)(none)(none)"; then
+ 	echo "dr-xr-xr-x   1 root     root     0 $DATE INFO/SCRIPTS"
+-	test "`$RPM -qp --qf \"%{RPMTAG_PREIN}\" \"$1\"`" = '(none)' ||
++	test "`$RPM -qp --qf \"%{RPMTAG_PREIN}\" \"$f\"`" = '(none)' ||
+ 	   echo "$FILEPREF 0 $DATE INFO/SCRIPTS/PREIN"
+-	test "`$RPM -qp --qf \"%{RPMTAG_POSTIN}\" \"$1\"`" = '(none)' ||
++	test "`$RPM -qp --qf \"%{RPMTAG_POSTIN}\" \"$f\"`" = '(none)' ||
+ 	   echo "$FILEPREF 0 $DATE INFO/SCRIPTS/POSTIN"
+-	test "`$RPM -qp --qf \"%{RPMTAG_PREUN}\" \"$1\"`" = '(none)' ||
++	test "`$RPM -qp --qf \"%{RPMTAG_PREUN}\" \"$f\"`" = '(none)' ||
+ 	   echo "$FILEPREF 0 $DATE INFO/SCRIPTS/PREUN"
+-	test "`$RPM -qp --qf \"%{RPMTAG_POSTUN}\" \"$1\"`" = '(none)' ||
++	test "`$RPM -qp --qf \"%{RPMTAG_POSTUN}\" \"$f\"`" = '(none)' ||
+ 	   echo "$FILEPREF 0 $DATE INFO/SCRIPTS/POSTUN"
+-	test "`$RPM -qp --qf \"%{VERIFYSCRIPT}\" \"$1\"`" = '(none)' ||
++	test "`$RPM -qp --qf \"%{VERIFYSCRIPT}\" \"$f\"`" = '(none)' ||
+ 	   echo "$FILEPREF 0 $DATE INFO/SCRIPTS/VERIFYSCRIPT"
+         echo "$FILEPREF 0 $DATE INFO/SCRIPTS/ALL"
+      fi
+@@ -83,15 +91,15 @@ mcrpmfs_list ()
+      echo "$FILEPREF 0 $DATE INFO/SCRIPTS/ALL"
+     fi
+     if test "$MCFASTRPM" = 0 ; then
+-     test "`$RPM -qp --qf \"%{PACKAGER}\" \"$1\"`" = "(none)" ||
++     test "`$RPM -qp --qf \"%{PACKAGER}\" \"$f\"`" = "(none)" ||
+ 	 echo "$FILEPREF 0 $DATE INFO/PACKAGER"
+-     test "`$RPM -qp --qf \"%{URL}\" \"$1\"`" = "(none)" ||
++     test "`$RPM -qp --qf \"%{URL}\" \"$f\"`" = "(none)" ||
+ 	 echo "$FILEPREF 0 $DATE INFO/URL"
+-     test "`$RPM -qp --qf \"%{SERIAL}\" \"$1\"`" = "(none)" ||
++     test "`$RPM -qp --qf \"%{SERIAL}\" \"$f\"`" = "(none)" ||
+ 	 echo "$FILEPREF 0 $DATE INFO/SERIAL"
+-     test "`$RPM -qp --qf \"%{COPYRIGHT}\" \"$1\"`" = "(none)" ||
++     test "`$RPM -qp --qf \"%{COPYRIGHT}\" \"$f\"`" = "(none)" ||
+ 	 echo "$FILEPREF 0 $DATE INFO/COPYRIGHT"
+-     test "`$RPM -qp --qf \"%{LICENSE}\" \"$1\"`" = "(none)" ||
++     test "`$RPM -qp --qf \"%{LICENSE}\" \"$f\"`" = "(none)" ||
+ 	 echo "$FILEPREF 0 $DATE INFO/LICENSE"
+     else
+ 	 echo "$FILEPREF 0 $DATE INFO/PACKAGER"
+@@ -105,13 +113,13 @@ mcrpmfs_list ()
+     echo "$FILEPREF 0 $DATE INFO/OS"
+     echo "$FILEPREF 0 $DATE INFO/SIZE"
+     if test "$MCFASTRPM" != 0 ; then
+-    $RPM -qp --qf "[%{REQUIRENAME}\n]" "$1" | grep "(none)" > /dev/null ||
++    $RPM -qp --qf "[%{REQUIRENAME}\n]" "$f" | grep "(none)" > /dev/null ||
+ 	echo "$FILEPREF 0 $DATE INFO/REQUIRENAME"
+-    $RPM -qp --qf "[%{OBSOLETES}\n]" "$1" | grep "(none)" > /dev/null ||
++    $RPM -qp --qf "[%{OBSOLETES}\n]" "$f" | grep "(none)" > /dev/null ||
+ 	echo "$FILEPREF 0 $DATE INFO/OBSOLETES"
+-    $RPM -qp --qf "[%{PROVIDES}\n]" "$1" | grep "(none)" > /dev/null ||
++    $RPM -qp --qf "[%{PROVIDES}\n]" "$f" | grep "(none)" > /dev/null ||
+ 	echo "$FILEPREF 0 $DATE INFO/PROVIDES"
+-    test "`$RPM -qp --qf \"%{CHANGELOGTEXT}\" \"$1\"`" = "(none)" ||
++    test "`$RPM -qp --qf \"%{CHANGELOGTEXT}\" \"$f\"`" = "(none)" ||
+        echo "$FILEPREF 0 $DATE INFO/CHANGELOG"
+     else 
+ 	echo "$FILEPREF 0 $DATE INFO/REQUIRENAME"
+@@ -125,48 +133,48 @@ mcrpmfs_list ()
+ 
+ mcrpmfs_copyout ()
+ {
++    f="`echo "$1" | $SED "$SEDCMD"`"
+     case "$2" in
+-	HEADER) $RPM -qip "$1" > "$3"; exit 0;;
++	HEADER) $RPM -qip "$f" > "$3"; exit 0;;
+ 	INSTALL) echo "# Run this to install this RPM package" > "$3"; exit 0;;
+ 	UPGRADE) echo "# Run this to upgrade this RPM package" > "$3"; exit 0;;
+-	ERROR) $RPM -qip "$1" > /dev/null 2> "$3"; exit 0;;
+-	INFO/NAME-VERSION-RELEASE)	$RPM -qp --qf "%{NAME}-%{VERSION}-%{RELEASE}\n" "$1" > "$3"; exit 0;;
+-	INFO/RELEASE)		$RPM -qp --qf "%{RELEASE}\n" "$1" > "$3"; exit 0;;
+-	INFO/GROUP)		$RPM -qp --qf "%{GROUP}\n" "$1" > "$3"; exit 0;;
+-	INFO/DISTRIBUTION) 	$RPM -qp --qf "%{DISTRIBUTION}\n" "$1" > "$3"; exit 0;;
+-	INFO/VENDOR)		$RPM -qp --qf "%{VENDOR}\n" "$1" > "$3"; exit 0;;
+-	INFO/BUILDHOST)		$RPM -qp --qf "%{BUILDHOST}\n" "$1" > "$3"; exit 0;;
+-	INFO/SOURCERPM)		$RPM -qp --qf "%{SOURCERPM}\n" "$1" > "$3"; exit 0;;
+-	INFO/DESCRIPTION)	$RPM -qp --qf "%{DESCRIPTION}\n" "$1" > "$3"; exit 0;;
+-	INFO/PACKAGER)		$RPM -qp --qf "%{PACKAGER}\n" "$1" > "$3"; exit 0;;
+-	INFO/URL)		$RPM -qp --qf "%{URL}\n" "$1" >"$3"; exit 0;;
+-	INFO/BUILDTIME)		$RPM -qp --qf "%{BUILDTIME:date}\n" "$1" >"$3"; exit 0;;
+-	INFO/SERIAL)		$RPM -qp --qf "%{SERIAL}\n" "$1" >"$3"; exit 0;;
+-	INFO/COPYRIGHT)		$RPM -qp --qf "%{COPYRIGHT}\n" "$1" >"$3"; exit 0;;
+-	INFO/RPMVERSION)	$RPM -qp --qf "%{RPMVERSION}\n" "$1" >"$3"; exit 0;;
+-	INFO/REQUIRENAME)	$RPM -qp --qf "[%{REQUIRENAME} %{REQUIREFLAGS:depflags} %{REQUIREVERSION}\n]" "$1" >"$3"; exit 0;;
+-	INFO/PROVIDES)		$RPM -qp --qf "[%{PROVIDES}\n]" "$1" >"$3"; exit 0;;
+-	INFO/SCRIPTS/PREIN)	$RPM -qp --qf "%{RPMTAG_PREIN}\n" "$1" >"$3"; exit 0;;
+-	INFO/SCRIPTS/POSTIN)	$RPM -qp --qf "%{RPMTAG_POSTIN}\n" "$1" >"$3"; exit 0;;
+-	INFO/SCRIPTS/PREUN)	$RPM -qp --qf "%{RPMTAG_PREUN}\n" "$1" >"$3"; exit 0;;
+-	INFO/SCRIPTS/POSTUN)	$RPM -qp --qf "%{RPMTAG_POSTUN}\n" "$1" >"$3"; exit 0;;
+-	INFO/SCRIPTS/VERIFYSCRIPT)	$RPM -qp --qf "%{VERIFYSCRIPT}\n" "$1" >"$3"; exit 0;;
+-	INFO/SCRIPTS/ALL)		$RPM -qp --scripts "$1" > "$3"; exit 0;;
+-	INFO/SUMMARY)		$RPM -qp --qf "%{SUMMARY}\n" "$1" > "$3"; exit 0;;
+-	INFO/OS)		$RPM -qp --qf "%{OS}\n" "$1" > "$3"; exit 0;;
+-	INFO/CHANGELOG)		$RPM -qp --qf "[* %{CHANGELOGTIME:date} %{CHANGELOGNAME}\n%{CHANGELOGTEXT}\n\n]\n" "$1" > "$3"; exit 0;;
+-	INFO/SIZE)		$RPM -qp --qf "%{SIZE} bytes\n" "$1" > "$3"; exit 0;;
++	ERROR) $RPM -qip "$f" > /dev/null 2> "$3"; exit 0;;
++	INFO/NAME-VERSION-RELEASE)	$RPM -qp --qf "%{NAME}-%{VERSION}-%{RELEASE}\n" "$f" > "$3"; exit 0;;
++	INFO/RELEASE)		$RPM -qp --qf "%{RELEASE}\n" "$f" > "$3"; exit 0;;
++	INFO/GROUP)		$RPM -qp --qf "%{GROUP}\n" "$f" > "$3"; exit 0;;
++	INFO/DISTRIBUTION) 	$RPM -qp --qf "%{DISTRIBUTION}\n" "$f" > "$3"; exit 0;;
++	INFO/VENDOR)		$RPM -qp --qf "%{VENDOR}\n" "$f" > "$3"; exit 0;;
++	INFO/BUILDHOST)		$RPM -qp --qf "%{BUILDHOST}\n" "$f" > "$3"; exit 0;;
++	INFO/SOURCERPM)		$RPM -qp --qf "%{SOURCERPM}\n" "$f" > "$3"; exit 0;;
++	INFO/DESCRIPTION)	$RPM -qp --qf "%{DESCRIPTION}\n" "$f" > "$3"; exit 0;;
++	INFO/PACKAGER)		$RPM -qp --qf "%{PACKAGER}\n" "$f" > "$3"; exit 0;;
++	INFO/URL)		$RPM -qp --qf "%{URL}\n" "$f" >"$3"; exit 0;;
++	INFO/BUILDTIME)		$RPM -qp --qf "%{BUILDTIME:date}\n" "$f" >"$3"; exit 0;;
++	INFO/SERIAL)		$RPM -qp --qf "%{SERIAL}\n" "$f" >"$3"; exit 0;;
++	INFO/COPYRIGHT)		$RPM -qp --qf "%{COPYRIGHT}\n" "$f" >"$3"; exit 0;;
++	INFO/RPMVERSION)	$RPM -qp --qf "%{RPMVERSION}\n" "$f" >"$3"; exit 0;;
++	INFO/REQUIRENAME)	$RPM -qp --qf "[%{REQUIRENAME} %{REQUIREFLAGS:depflags} %{REQUIREVERSION}\n]" "$f" >"$3"; exit 0;;
++	INFO/PROVIDES)		$RPM -qp --qf "[%{PROVIDES}\n]" "$f" >"$3"; exit 0;;
++	INFO/SCRIPTS/PREIN)	$RPM -qp --qf "%{RPMTAG_PREIN}\n" "$f" >"$3"; exit 0;;
++	INFO/SCRIPTS/POSTIN)	$RPM -qp --qf "%{RPMTAG_POSTIN}\n" "$f" >"$3"; exit 0;;
++	INFO/SCRIPTS/PREUN)	$RPM -qp --qf "%{RPMTAG_PREUN}\n" "$f" >"$3"; exit 0;;
++	INFO/SCRIPTS/POSTUN)	$RPM -qp --qf "%{RPMTAG_POSTUN}\n" "$f" >"$3"; exit 0;;
++	INFO/SCRIPTS/VERIFYSCRIPT)	$RPM -qp --qf "%{VERIFYSCRIPT}\n" "$f" >"$3"; exit 0;;
++	INFO/SCRIPTS/ALL)		$RPM -qp --scripts "$f" > "$3"; exit 0;;
++	INFO/SUMMARY)		$RPM -qp --qf "%{SUMMARY}\n" "$f" > "$3"; exit 0;;
++	INFO/OS)		$RPM -qp --qf "%{OS}\n" "$f" > "$3"; exit 0;;
++	INFO/CHANGELOG)		$RPM -qp --qf "[* %{CHANGELOGTIME:date} %{CHANGELOGNAME}\n%{CHANGELOGTEXT}\n\n]\n" "$f" > "$3"; exit 0;;
++	INFO/SIZE)		$RPM -qp --qf "%{SIZE} bytes\n" "$f" > "$3"; exit 0;;
+ 	CONTENTS.cpio)		$RPM2CPIO "$1" > "$3"; exit 0;;
+-	*)
+-            ;;
+     esac
+ }
+ 
+ mcrpmfs_run ()
+ {
++    f="`echo "$1" | $SED "$SEDCMD"`"
+     case "$2" in
+-	INSTALL) echo "Installing \"$1\""; $RPM -ivh "$1"; exit 0;;
+-	UPGRADE) echo "Upgrading \"$1\""; $RPM -iUvh "$1"; exit 0;;
++	INSTALL) echo "Installing \"$1\""; $RPM -ivh "$f"; exit 0;;
++	UPGRADE) echo "Upgrading \"$1\""; $RPM -Uvh "$f"; exit 0;;
+     esac
+ }
+ 
+--- mc-4.6.0/vfs/extfs/deb.in.jj	2002-12-11 21:57:00.000000000 +0100
++++ mc-4.6.0/vfs/extfs/deb.in	2004-04-13 19:21:34.022158752 +0200
+@@ -149,15 +149,10 @@ sub mcdebfs_run
+ 	}
+ 	else
+ 	{
+-	        $suffix = "aaa";
+-		while (1) {
+-		    $tmpdir = "/tmp/mcdebfs.run".$$.$suffix;
+-		    last if mkdir $tmpdir, 0700;
+-		    $suffix++;
+-		    # Somebody is being really nasty, give up
+-		    exit 1 if $suffix eq "zzz";
+-		}
+-		
++		use File::Temp qw(mkdtemp);
++		my $template = "/tmp/mcdebfs.run.XXXXXX";
++		$template="$ENV{MC_TMPDIR}/mcdebfs.XXXXXX" if ($ENV{MC_TMPDIR});
++		$tmpdir = mkdtemp($template);
+ 		$tmpcmd="$tmpdir/run";
+ 		&mcdebfs_copyout($archive, $filename, $tmpcmd);
+ 		system("chmod u+x $tmpcmd");
+--- mc-4.6.0/vfs/extfs/urar.in.jj	2003-01-24 16:56:25.000000000 +0100
++++ mc-4.6.0/vfs/extfs/urar.in	2004-04-07 18:44:29.000000000 +0200
+@@ -77,8 +77,7 @@ mcrarfs_mkdir ()
+ # preserve pwd. It is clean, but is it necessary?
+     pwd=`pwd`
+ # Create a directory and create in it a tmp directory with the good name     
+-    dir=tmpdir.${RANDOM}
+-    mkdir $dir
++    dir=`mktemp -d ${MC_TMPDIR:-/tmp}/mctmpdir-urar.XXXXXX` || exit 1
+     cd $dir
+     mkdir -p "$2"  
+ # rar cannot create an empty directory    
+--- mc-4.6.0/vfs/extfs/uzip.in.jj	2002-12-12 10:15:20.000000000 +0100
++++ mc-4.6.0/vfs/extfs/uzip.in	2004-04-13 19:21:52.297883504 +0200
+@@ -344,10 +344,10 @@ sub cleandirs {
+ 
+ # Make a temporary directory with mode 0700.
+ sub mktmpdir {
+-	while (1) {
+-		my $dir = POSIX::tmpnam();
+-		return $dir if mkdir ($dir, 0700);
+-	}
++	use File::Temp qw(mkdtemp);
++	my $template = "/tmp/mcuzipfs.XXXXXX";
++	$template="$ENV{MC_TMPDIR}/mcuzipfs.XXXXXX" if ($ENV{MC_TMPDIR});
++	return mkdtemp($template);
+ }
+ 
+ # Make a filename absolute and return it.
+--- mc-4.6.0/vfs/extfs/uzoo.in.jj	2002-12-14 05:29:13.000000000 +0100
++++ mc-4.6.0/vfs/extfs/uzoo.in	2004-04-07 18:47:50.000000000 +0200
+@@ -13,8 +13,7 @@ ZOO=zoo
+ # it to a temporary directory.
+ mklink ()
+ {
+-    TMPDIR="/tmp/mctmpdir-uzoo.$$"
+-    mkdir $TMPDIR || exit 1
++    TMPDIR=`mktemp -d ${MC_TMPDIR:-/tmp}/mctmpdir-uzoo.XXXXXX` || exit 1
+     trap 'cd /; rm -rf $TMPDIR' 0 1 2 3 5 13 15
+     ARCHIVE=$TMPDIR/tmp.zoo
+     ln -sf "$1" "$ARCHIVE"
+--- mc-4.6.0/vfs/samba/lib/util.c.jj	2002-11-15 18:02:44.000000000 +0100
++++ mc-4.6.0/vfs/samba/lib/util.c	2004-04-13 18:30:23.929359353 +0200
+@@ -114,7 +114,7 @@ static char *filename_dos(char *path,cha
+ char *tmpdir(void)
+ {
+   char *p;
+-  if ((p = getenv("TMPDIR"))) {
++  if ((p = getenv("MC_TMPDIR")) || (p = getenv("TMPDIR"))) {
+     return p;
+   }
+   return "/tmp";
+@@ -1885,20 +1885,17 @@ static char *automount_lookup(char *user
+  
+   char *nis_map = (char *)lp_nis_home_map_name();
+  
+-  char nis_domain[NIS_MAXNAMELEN + 1];
+   char buffer[NIS_MAXATTRVAL + 1];
+   nis_result *result;
+   nis_object *object;
+   entry_obj  *entry;
+  
+-  strncpy(nis_domain, (char *)nis_local_directory(), NIS_MAXNAMELEN);
+-  nis_domain[NIS_MAXNAMELEN] = '\0';
+- 
+-  DEBUG(5, ("NIS+ Domain: %s\n", nis_domain));
++  DEBUG(5, ("NIS+ Domain: %s\n", (char *)nis_local_directory()));
+  
+   if (strcmp(user_name, last_key))
+   {
+-    slprintf(buffer, sizeof(buffer)-1, "[%s=%s]%s.%s", "key", user_name, nis_map, nis_domain);
++    slprintf(buffer, sizeof(buffer)-1, "[%s=%s]%s.%s", "key", user_name, nis_map,
++	     (char *)nis_local_directory());
+     DEBUG(5, ("NIS+ querystring: %s\n", buffer));
+  
+     if (result = nis_list(buffer, RETURN_RESULT, NULL, NULL))
+--- mc-4.6.0/vfs/direntry.c.jj	2004-01-30 19:02:39.000000000 +0100
++++ mc-4.6.0/vfs/direntry.c	2004-04-05 12:20:09.000000000 +0200
+@@ -217,13 +217,11 @@ vfs_s_automake (vfs *me, vfs_s_inode *di
+ vfs_s_entry *
+ vfs_s_find_entry_tree (vfs *me, vfs_s_inode *root, char *path, int follow, int flags)
+ {
+-    unsigned int pseg;
++    size_t pseg;
+     vfs_s_entry *ent = NULL;
+-    char p[MC_MAXPATHLEN] = "";
++    char p[MC_MAXPATHLEN] = "", *t = p;
+ 
+     while (root){
+-	int t;
+-
+ 	while (*path == PATH_SEP)	/* Strip leading '/' */
+ 	    path++;
+ 
+@@ -233,9 +231,14 @@ vfs_s_find_entry_tree (vfs *me, vfs_s_in
+ 	for (pseg = 0; path[pseg] && path[pseg] != PATH_SEP; pseg++)
+ 		;
+ 
+-	strcat (p, PATH_SEP_STR);
+-	strncpy (p + (t = strlen (p)), path, pseg);
+-	p[t + pseg] = '\0';
++	if (t + pseg + sizeof (PATH_SEP_STR) > p + sizeof (p))
++	    ERRNOR (ENOMEM, NULL);
++
++	memcpy (t, PATH_SEP_STR, sizeof (PATH_SEP_STR) - 1);
++	t += sizeof (PATH_SEP_STR) - 1;
++	memcpy (t, path, pseg);
++	t += pseg;
++	*t = '\0';
+ 
+ 	for (ent = root->subdir; ent != NULL; ent = ent->next)
+ 	    if (strlen (ent->name) == pseg && (!strncmp (ent->name, path, pseg)))
+@@ -632,8 +635,7 @@ vfs_s_readdir(void *data)
+ 	return NULL;
+ 
+     if (info->cur->name) {
+-	strncpy(dir.dent.d_name, info->cur->name, MC_MAXPATHLEN);
+-	dir.dent.d_name[MC_MAXPATHLEN] = 0;
++	g_strlcpy(dir.dent.d_name, info->cur->name, MC_MAXPATHLEN);
+     } else {
+ 	vfs_die("Null in structure-cannot happen");
+     }
+@@ -739,8 +741,7 @@ vfs_s_readlink (vfs *me, char *path, cha
+     if (ino->linkname == NULL)
+ 	ERRNOR (EFAULT, -1);
+ 
+-    strncpy (buf, ino->linkname, size);
+-    *(buf+size-1) = 0;
++    g_strlcpy (buf, ino->linkname, size);
+     return strlen (buf);
+ }
+ 
+@@ -1047,7 +1048,7 @@ vfs_s_getlocalcopy (vfs *me, char *path)
+     struct vfs_s_inode *ino;
+     char buf[MC_MAXPATHLEN];
+ 
+-    strncpy (buf, path, MC_MAXPATHLEN);
++    g_strlcpy (buf, path, MC_MAXPATHLEN);
+     ino = vfs_s_inode_from_path (me, path, FL_FOLLOW | FL_NONE);
+ 
+     if (!ino->localname)
+--- mc-4.6.0/vfs/tar.c.jj	2002-12-08 02:12:30.000000000 +0100
++++ mc-4.6.0/vfs/tar.c	2004-03-16 13:24:47.000000000 +0100
+@@ -264,19 +264,26 @@ read_header (vfs *me, vfs_s_super *archi
+ 	char *bp, *data;
+ 	int size, written;
+ 
++	if (hstat.st_size > MC_MAXPATHLEN) {
++	    message_1s (1, MSG_ERROR, _("Inconsistent tar archive"));
++	    return STATUS_BADCHECKSUM;
++	}
++
+ 	longp = ((header->header.linkflag == LF_LONGNAME)
+ 		 ? &next_long_name
+ 		 : &next_long_link);
+ 
+ 	if (*longp)
+ 	    g_free (*longp);
+-	bp = *longp = g_malloc (hstat.st_size);
++	bp = *longp = g_malloc (hstat.st_size + 1);
+ 
+ 	for (size = hstat.st_size;
+ 	     size > 0;
+ 	     size -= written) {
+ 	    data = get_next_record (archive, tard)->charptr;
+ 	    if (data == NULL) {
++		g_free (*longp);
++		*longp = NULL;
+ 		message_1s (1, MSG_ERROR, _("Unexpected EOF on archive file"));
+ 		return STATUS_BADCHECKSUM;
+ 	    }
+@@ -287,10 +294,14 @@ read_header (vfs *me, vfs_s_super *archi
+ 	    memcpy (bp, data, written);
+ 	    bp += written;
+ 	}
+-#if 0
+-	if (hstat.st_size > 1)
+-	    bp [hstat.st_size - 1] = 0;	/* just to make sure */
+-#endif
++
++	if (bp - *longp == MC_MAXPATHLEN && bp[-1] != '\0') {
++	    g_free (*longp);
++	    *longp = NULL;
++	    message_1s (1, MSG_ERROR, _("Inconsistent tar archive"));
++	    return STATUS_BADCHECKSUM;
++	}	 
++	*bp = 0;
+ 	goto recurse;
+     } else {
+ 	struct stat st;
+--- mc-4.6.0/vfs/ftpfs.c.jj	2002-12-26 03:21:43.000000000 +0100
++++ mc-4.6.0/vfs/ftpfs.c	2004-04-05 12:27:51.000000000 +0200
+@@ -266,8 +266,7 @@ get_reply (vfs *me, int sock, char *stri
+ 	switch (sscanf(answer, "%d", &code)){
+ 	    case 0:
+ 	        if (string_buf) {
+-		    strncpy (string_buf, answer, string_len - 1);
+-		    *(string_buf + string_len - 1) = 0;
++		    g_strlcpy (string_buf, answer, string_len);
+ 		}
+ 	        code = 500;
+ 	        return 5;
+@@ -286,8 +285,7 @@ get_reply (vfs *me, int sock, char *stri
+ 		    }
+ 		}
+ 	        if (string_buf){
+-		    strncpy (string_buf, answer, string_len - 1);
+-		    *(string_buf + string_len - 1) = 0;
++		    g_strlcpy (string_buf, answer, string_len);
+ 		}
+ 		return code / 100;
+ 	}
+@@ -321,28 +319,28 @@ command (vfs *me, vfs_s_super *super, in
+     va_list ap;
+     char *str, *fmt_str;
+     int status;
+-    int sock = SUP.sock;
++    int cmdlen;
+     
+     va_start (ap, fmt);
+     fmt_str = g_strdup_vprintf (fmt, ap);
+     va_end (ap);
+ 
+-    status = strlen (fmt_str);
+-    str = g_realloc (fmt_str, status + 3);
+-    strcpy (str + status, "\r\n");
++    cmdlen = strlen (fmt_str);
++    str = g_realloc (fmt_str, cmdlen + 3);
++    strcpy (str + cmdlen, "\r\n");
+ 
+     if (logfile){
+         if (strncmp (str, "PASS ", 5) == 0){
+             fputs ("PASS <Password not logged>\r\n", logfile);
+         } else
+-	    fwrite (str, status + 2, 1, logfile);
++	    fwrite (str, cmdlen + 2, 1, logfile);
+ 
+ 	fflush (logfile);
+     }
+ 
+     got_sigpipe = 0;
+     enable_interrupt_key ();
+-    status = write (SUP.sock, str, status + 2);
++    status = write (SUP.sock, str, cmdlen + 2);
+     
+     if (status < 0){
+ 	code = 421;
+@@ -353,7 +351,7 @@ command (vfs *me, vfs_s_super *super, in
+ 		level = 1;
+ 		status = reconnect (me, super);
+ 		level = 0;
+-		if (status && write (SUP.sock, str, status + 2) > 0)
++		if (status && write (SUP.sock, str, cmdlen + 2) > 0)
+ 		    goto ok;
+ 	    }
+ 	    got_sigpipe = 1;
+@@ -367,7 +365,7 @@ command (vfs *me, vfs_s_super *super, in
+     disable_interrupt_key ();
+     
+     if (wait_reply)
+-	return get_reply (me, sock, (wait_reply & WANT_STRING) ? reply_str : NULL, sizeof (reply_str)-1);
++	return get_reply (me, SUP.sock, (wait_reply & WANT_STRING) ? reply_str : NULL, sizeof (reply_str)-1);
+     return COMPLETE;
+ }
+ 
+@@ -903,23 +901,29 @@ initconn (vfs *me, vfs_s_super *super)
+     int data, len = sizeof(data_addr);
+     struct protoent *pe;
+ 
+-    getsockname(SUP.sock, (struct sockaddr *) &data_addr, &len);
+-    data_addr.sin_port = 0;
+-    
+     pe = getprotobyname("tcp");
+     if (pe == NULL)
+ 	    ERRNOR (EIO, -1);
++again:
++    if (getsockname(SUP.sock, (struct sockaddr *) &data_addr, &len) == -1)
++	ERRNOR (EIO, -1);
++    data_addr.sin_port = 0;
++    
+     data = socket (AF_INET, SOCK_STREAM, pe->p_proto);
+     if (data < 0)
+ 	    ERRNOR (EIO, -1);
+ 
+     if (SUP.use_passive_connection){
+-	if ((SUP.use_passive_connection = setup_passive (me, super, data, &data_addr)))
++	if (setup_passive (me, super, data, &data_addr))
+ 	    return data;
+ 
+ 	SUP.use_source_route = 0;
+ 	SUP.use_passive_connection = 0;
+ 	print_vfs_message (_("ftpfs: could not setup passive mode"));
++
++	/* data or data_addr may be damaged by setup_passive */
++	close (data);
++	goto again;
+     }
+ 
+     /* If passive setup fails, fallback to active connections */
+@@ -971,11 +975,12 @@ open_data_connection (vfs *me, vfs_s_sup
+ 	data = s;
+     else {
+ 	data = accept (s, (struct sockaddr *)&from, &fromlen);
+-	close(s);
+ 	if (data < 0) {
+ 	    my_errno = errno;
++	    close(s);
+ 	    return -1;
+ 	}
++	close(s);
+     } 
+     disable_interrupt_key();
+     return data;
+@@ -1019,6 +1024,7 @@ linear_abort (vfs *me, vfs_s_fh *fh)
+ 		gettimeofday (&tim, NULL);
+ 		if (tim.tv_sec > start_tim.tv_sec + ABORT_TIMEOUT) {
+ 		    /* server keeps sending, drop the connection and reconnect */
++		    close (dsock);
+ 		    reconnect (me, super);
+ 		    return;
+ 		}
+--- mc-4.6.0/vfs/mcfs.c.jj	2002-11-15 08:49:39.000000000 +0100
++++ mc-4.6.0/vfs/mcfs.c	2004-04-05 12:28:08.000000000 +0200
+@@ -756,8 +756,7 @@ mcfs_readdir (void *info)
+ 	return NULL;
+     }
+     dirent_dest = mcfs_readdir_data.dent.d_name;
+-    strncpy (dirent_dest, mcfs_info->current->text, MC_MAXPATHLEN);
+-    dirent_dest[MC_MAXPATHLEN] = 0;
++    g_strlcpy (dirent_dest, mcfs_info->current->text, MC_MAXPATHLEN);
+     cached_lstat_info = &mcfs_info->current->my_stat;
+     mcfs_info->current = mcfs_info->current->next;
+ 
+@@ -985,9 +984,12 @@ mcfs_readlink (vfs *me, char *path, char
+     if (!rpc_get (mc->sock, RPC_STRING, &stat_str, RPC_END))
+ 	return the_error (-1, EIO);
+ 
+-    strncpy (buf, stat_str, size);
++    status = strlen (stat_str);
++    if (status < size)
++	size = status;
++    memcpy (buf, stat_str, size);
+     g_free (stat_str);
+-    return strlen (buf);
++    return size;
+ }
+ 
+ static int
+--- mc-4.6.0/vfs/smbfs.c.jj	2003-01-24 22:37:29.000000000 +0100
++++ mc-4.6.0/vfs/smbfs.c	2004-04-05 12:30:15.000000000 +0200
+@@ -785,8 +785,7 @@ smbfs_readdir(void *info)
+ #endif
+ 	return NULL;
+     }
+-    strncpy(dirent_dest, smbfs_info->current->text, MC_MAXPATHLEN);
+-    dirent_dest[MC_MAXPATHLEN] = 0;
++    g_strlcpy(dirent_dest, smbfs_info->current->text, MC_MAXPATHLEN);
+     smbfs_info->current = smbfs_info->current->next;
+ 
+     compute_namelen(&smbfs_readdir_data.dent);
+--- mc-4.6.0/vfs/mcserv.c.jj	2002-12-08 02:12:30.000000000 +0100
++++ mc-4.6.0/vfs/mcserv.c	2004-03-16 11:03:23.000000000 +0100
+@@ -582,7 +582,7 @@ do_readlink (void)
+     int n;
+ 
+     rpc_get (msock, RPC_STRING, &file, RPC_END);
+-    n = readlink (file, buffer, 2048);
++    n = readlink (file, buffer, 2048 - 1);
+     send_status (n, errno);
+     if (n >= 0) {
+ 	buffer[n] = 0;
+--- mc-4.6.0/vfs/vfs.c.jj	2002-12-26 03:21:43.000000000 +0100
++++ mc-4.6.0/vfs/vfs.c	2004-04-05 12:30:31.000000000 +0200
+@@ -637,8 +637,7 @@ mc_get_current_wd (char *buffer, int siz
+ {
+     const char *cwd = mc_return_cwd();
+ 
+-    strncpy (buffer, cwd, size - 1);
+-    buffer [size - 1] = 0;
++    g_strlcpy (buffer, cwd, size);
+     return buffer;
+ }
+ 
+--- mc-4.6.0/vfs/fish.c.jj	2002-12-26 03:21:43.000000000 +0100
++++ mc-4.6.0/vfs/fish.c	2004-04-05 12:27:23.000000000 +0200
+@@ -96,8 +96,7 @@ static int get_reply (vfs *me, int sock,
+ 	if (strncmp(answer, "### ", 4)) {
+ 	    was_garbage = 1;
+ 	    if (string_buf) {
+-	        strncpy(string_buf, answer, string_len - 1);
+-		*(string_buf + string_len - 1) = 0;
++	        g_strlcpy(string_buf, answer, string_len);
+ 	    }
+ 	} else return decode_reply(answer+4, was_garbage);
+     }
+@@ -668,7 +667,7 @@ send_fish_command(vfs *me, vfs_s_super *
+ {
+     int r;
+ 
+-    r = command (me, super, WAIT_REPLY, cmd);
++    r = command (me, super, WAIT_REPLY, "%s", cmd);
+     vfs_add_noncurrent_stamps (&vfs_fish_ops, (vfsid) super, NULL);
+     if (r != COMPLETE) ERRNOR (E_REMOTE, -1);
+     if (flags & OPT_FLUSH)
+--- mc-4.6.0/vfs/names.c.jj	2002-11-15 07:19:34.000000000 +0100
++++ mc-4.6.0/vfs/names.c	2004-04-05 15:51:09.000000000 +0200
+@@ -31,6 +31,7 @@ GNU Library General Public License for m
+ #include <stdio.h>
+ #include <pwd.h>
+ #include <grp.h>
++#include <glib.h>
+ 
+ #include "names.h"
+ 
+@@ -59,7 +60,7 @@ finduid (char *uname)
+ 
+     if (uname[0] != saveuname[0]	/* Quick test w/o proc call */
+ 	||0 != strncmp (uname, saveuname, TUNMLEN)) {
+-	strncpy (saveuname, uname, TUNMLEN);
++	g_strlcpy (saveuname, uname, TUNMLEN);
+ 	pw = getpwnam (uname);
+ 	if (pw) {
+ 	    saveuid = pw->pw_uid;
+@@ -77,7 +78,7 @@ findgid (char *gname)
+ 
+     if (gname[0] != savegname[0]	/* Quick test w/o proc call */
+ 	||0 != strncmp (gname, savegname, TUNMLEN)) {
+-	strncpy (savegname, gname, TUNMLEN);
++	g_strlcpy (savegname, gname, TUNMLEN);
+ 	gr = getgrnam (gname);
+ 	if (gr) {
+ 	    savegid = gr->gr_gid;
+--- mc-4.6.0/vfs/extfs.c.jj	2002-12-25 22:42:59.000000000 +0100
++++ mc-4.6.0/vfs/extfs.c	2004-04-05 12:20:38.000000000 +0200
+@@ -888,8 +888,7 @@ static void * s_readdir(void *data)
+     if (!*info)
+ 	return NULL;
+ 
+-    strncpy(dir.dent.d_name, (*info)->name, MC_MAXPATHLEN);
+-    dir.dent.d_name[MC_MAXPATHLEN] = 0;
++    g_strlcpy(dir.dent.d_name, (*info)->name, MC_MAXPATHLEN);
+ 
+     compute_namelen(&dir.dent);
+     *info = (*info)->next_in_dir;
+@@ -1002,10 +1001,10 @@ static int s_readlink (vfs *me, char *pa
+     if (entry == NULL)
+     	return -1;
+     if (!S_ISLNK (entry->inode->mode)) ERRNOR (EINVAL, -1);
+-    if (size > (i = strlen (entry->inode->linkname))) {
+-    	size = i;
++    if (size < (i = strlen (entry->inode->linkname))) {
++    	i = size;
+     }
+-    strncpy (buf, entry->inode->linkname, i);
++    memcpy (buf, entry->inode->linkname, i);
+     return i;
+ }
+ 
+--- mc-4.6.0/doc/ru/mc.1.in.jj	2003-02-03 22:59:14.000000000 +0100
++++ mc-4.6.0/doc/ru/mc.1.in	2004-04-13 18:24:11.114172689 +0200
+@@ -1557,8 +1557,10 @@ A	Dump the currently selected file
+ 	od -c %f
+ 
+ B	Edit a bug report and send it to root
+-	vi /tmp/mail.$$
+-	mail -s "Midnight Commander bug" root < /tmp/mail.$$
++	I=`mktemp ${MC_TMPDIR:-/tmp}/mail.XXXXXX` || exit 1
++	vi $I
++	mail -s "Midnight Commander bug" root < $I
++	rm -f $I
+ 
+ M	Read mail
+ 	emacs -f rmail
+--- mc-4.6.0/doc/mc.1.in.jj	2003-02-05 16:54:31.000000000 +0100
++++ mc-4.6.0/doc/mc.1.in	2004-04-13 18:21:17.634262547 +0200
+@@ -1385,8 +1385,10 @@ A	Dump the currently selected file
+ 	od -c %f
+ 
+ B	Edit a bug report and send it to root
+-	vi /tmp/mail.$$
+-	mail -s "Midnight Commander bug" root < /tmp/mail.$$
++	I=`mktemp ${MC_TMPDIR:-/tmp}/mail.XXXXXX` || exit 1
++	vi $I
++	mail -s "Midnight Commander bug" root < $I
++	rm -f $I
+ 
+ M	Read mail
+ 	emacs -f rmail
+--- mc-4.6.0/doc/es/mc.1.in.jj	2003-02-05 16:54:31.000000000 +0100
++++ mc-4.6.0/doc/es/mc.1.in	2004-04-13 18:21:39.714305516 +0200
+@@ -1361,8 +1361,10 @@ A	Vuelca el contenido del archivo selecc
+ 	od -c %f
+ 
+ B	Edita un informe de errores y lo envía al superusuario
+-	vi /tmp/mail.$$
+-	mail -s "Error Midnight Commander" root < /tmp/mail.$$
++	I=`mktemp ${MC_TMPDIR:-/tmp}/mail.XXXXXX` || exit 1
++	vi $I
++	mail -s "Error Midnight Commander" root < $I
++	rm -f $I
+ 
+ M	Lee al correo
+ 	emacs -f rmail
+--- mc-4.6.0/doc/it/mc.1.in.jj	2003-01-19 18:11:06.000000000 +0100
++++ mc-4.6.0/doc/it/mc.1.in	2004-04-13 18:23:26.018254464 +0200
+@@ -1379,8 +1379,10 @@ A	Mostra un dump del file correntemente 
+ 	od -c %f
+ 
+ B	Modifica un rapporto bachi e lo spedisce a root
+-	vi /tmp/mail.$$
+-	mail -s "Midnight Commander bug" root < /tmp/mail.$$
++	I=`mktemp ${MC_TMPDIR:-/tmp}/mail.XXXXXX` || exit 1
++	vi $I
++	mail -s "Midnight Commander bug" root < $I
++	rm -f $I
+ 
+ M	Legge la posta
+ 	emacs -f rmail
+--- mc-4.6.0/doc/hu/mc.1.in.jj	2003-01-16 11:30:55.000000000 +0100
++++ mc-4.6.0/doc/hu/mc.1.in	2004-04-13 18:22:50.634595677 +0200
+@@ -1381,8 +1381,10 @@ A       A kiválasztott fájlok listázása 
+         od -c %f
+ 
+ B       A hiba leírás szerkesztése és elküldése a root-nak
+-        vi /tmp/mail.$$
+-        mail -s "Midnight Commander bug" root < /tmp/mail.$$
++	I=`mktemp ${MC_TMPDIR:-/tmp}/mail.XXXXXX` || exit 1
++        vi $I
++        mail -s "Midnight Commander bug" root < $I
++	rm -f $I
+ 
+ M       Levél olvasás
+         emacs -f rmail
+--- mc-4.6.0/po/sl.po.jj	2003-02-05 19:09:50.000000000 +0100
++++ mc-4.6.0/po/sl.po	2004-04-05 16:04:25.000000000 +0200
+@@ -2405,13 +2405,13 @@ msgstr "Velikost:  %s"
+ 
+ #: src/info.c:173
+ #, c-format
+-msgid " (%d block)"
+-msgstr " (%d blokov)"
++msgid " (%ld block)"
++msgstr " (%ld blokov)"
+ 
+ #: src/info.c:173
+ #, c-format
+-msgid " (%d blocks)"
+-msgstr " (%d blokov)"
++msgid " (%ld blocks)"
++msgstr " (%ld blokov)"
+ 
+ #: src/info.c:179
+ #, c-format
+@@ -3640,8 +3640,8 @@ msgstr "Datoteka: %s"
+ 
+ #: src/view.c:824
+ #, c-format
+-msgid "Offset 0x%08x"
+-msgstr "Offset 0x%08x"
++msgid "Offset 0x%08lx"
++msgstr "Offset 0x%08lx"
+ 
+ #: src/view.c:826
+ #, c-format
+--- mc-4.6.0/po/be.po.jj	2003-02-05 19:09:44.000000000 +0100
++++ mc-4.6.0/po/be.po	2004-04-05 15:57:04.000000000 +0200
+@@ -2404,13 +2404,13 @@ msgstr "Ïàìåð:     %s"
+ 
+ #: src/info.c:173
+ #, c-format
+-msgid " (%d block)"
+-msgstr " (%d áë¸êà¢)"
++msgid " (%ld block)"
++msgstr " (%ld áë¸êà¢)"
+ 
+ #: src/info.c:173
+ #, c-format
+-msgid " (%d blocks)"
+-msgstr " (%d áë¸êà¢)"
++msgid " (%ld blocks)"
++msgstr " (%ld áë¸êà¢)"
+ 
+ #: src/info.c:179
+ #, c-format
+@@ -3630,8 +3630,8 @@ msgstr "Ôàéë: %s"
+ 
+ #: src/view.c:824
+ #, c-format
+-msgid "Offset 0x%08x"
+-msgstr "Çðóõ 0x%08x"
++msgid "Offset 0x%08lx"
++msgstr "Çðóõ 0x%08lx"
+ 
+ #: src/view.c:826
+ #, c-format
+--- mc-4.6.0/po/eu.po.jj	2003-02-05 19:09:46.000000000 +0100
++++ mc-4.6.0/po/eu.po	2004-04-05 15:59:43.000000000 +0200
+@@ -2415,13 +2415,13 @@ msgstr "Tamaina:  %s"
+ 
+ #: src/info.c:173
+ #, c-format
+-msgid " (%d block)"
+-msgstr " (%d bloke)"
++msgid " (%ld block)"
++msgstr " (%ld bloke)"
+ 
+ #: src/info.c:173
+ #, c-format
+-msgid " (%d blocks)"
+-msgstr "(%d bloke)"
++msgid " (%ld blocks)"
++msgstr "(%ld bloke)"
+ 
+ #: src/info.c:179
+ #, c-format
+@@ -3665,8 +3665,8 @@ msgstr "Fitxategia: %s"
+ 
+ #: src/view.c:824
+ #, c-format
+-msgid "Offset 0x%08x"
+-msgstr "Desplazamendua 0x%08x"
++msgid "Offset 0x%08lx"
++msgstr "Desplazamendua 0x%08lx"
+ 
+ #: src/view.c:826
+ #, c-format
+--- mc-4.6.0/po/zh_CN.po.jj	2003-02-05 19:09:52.000000000 +0100
++++ mc-4.6.0/po/zh_CN.po	2004-04-05 16:05:57.000000000 +0200
+@@ -2396,13 +2396,13 @@ msgstr "å¤§å°ï¼š     %s"
+ 
+ #: src/info.c:173
+ #, c-format
+-msgid " (%d block)"
+-msgstr " (%d ä¸ªå—)"
++msgid " (%ld block)"
++msgstr " (%ld ä¸ªå—)"
+ 
+ #: src/info.c:173
+ #, c-format
+-msgid " (%d blocks)"
+-msgstr " (%d ä¸ªå—)"
++msgid " (%ld blocks)"
++msgstr " (%ld ä¸ªå—)"
+ 
+ #: src/info.c:179
+ #, c-format
+@@ -3629,8 +3629,8 @@ msgstr "æ–‡ä»¶ï¼š%s"
+ 
+ #: src/view.c:824
+ #, c-format
+-msgid "Offset 0x%08x"
+-msgstr "åç§» 0x%08x"
++msgid "Offset 0x%08lx"
++msgstr "åç§» 0x%08lx"
+ 
+ #: src/view.c:826
+ #, c-format
+--- mc-4.6.0/po/ru.po.jj	2003-02-05 19:09:50.000000000 +0100
++++ mc-4.6.0/po/ru.po	2004-04-05 16:03:56.000000000 +0200
+@@ -2411,13 +2411,13 @@ msgstr "òÁÚÍÅÒ:    %s"
+ 
+ #: src/info.c:173
+ #, c-format
+-msgid " (%d block)"
+-msgstr " (%d ÂÌÏË)"
++msgid " (%ld block)"
++msgstr " (%ld ÂÌÏË)"
+ 
+ #: src/info.c:173
+ #, c-format
+-msgid " (%d blocks)"
+-msgstr " (%d ÂÌÏËÏ×)"
++msgid " (%ld blocks)"
++msgstr " (%ld ÂÌÏËÏ×)"
+ 
+ #: src/info.c:179
+ #, c-format
+@@ -3644,8 +3644,8 @@ msgstr "æÁÊÌ: %s"
+ 
+ #: src/view.c:824
+ #, c-format
+-msgid "Offset 0x%08x"
+-msgstr "óÍÅÝÅÎÉÅ 0x%08x"
++msgid "Offset 0x%08lx"
++msgstr "óÍÅÝÅÎÉÅ 0x%08lx"
+ 
+ #: src/view.c:826
+ #, c-format
+--- mc-4.6.0/po/de.po.jj	2003-02-05 19:09:46.000000000 +0100
++++ mc-4.6.0/po/de.po	2004-04-05 15:58:54.000000000 +0200
+@@ -2415,13 +2415,13 @@ msgstr "Größe:     %s"
+ 
+ #: src/info.c:173
+ #, c-format
+-msgid " (%d block)"
+-msgstr " (%d Block)"
++msgid " (%ld block)"
++msgstr " (%ld Block)"
+ 
+ #: src/info.c:173
+ #, c-format
+-msgid " (%d blocks)"
+-msgstr "(%d Blöcke)"
++msgid " (%ld blocks)"
++msgstr "(%ld Blöcke)"
+ 
+ #: src/info.c:179
+ #, c-format
+@@ -3664,8 +3664,8 @@ msgstr "Datei: %s"
+ 
+ #: src/view.c:824
+ #, c-format
+-msgid "Offset 0x%08x"
+-msgstr "Offset 0x%08x"
++msgid "Offset 0x%08lx"
++msgstr "Offset 0x%08lx"
+ 
+ #: src/view.c:826
+ #, c-format
+--- mc-4.6.0/po/wa.po.jj	2003-02-05 19:09:52.000000000 +0100
++++ mc-4.6.0/po/wa.po	2004-04-05 16:05:44.000000000 +0200
+@@ -2425,13 +2425,13 @@ msgstr "Grandeu: %s"
+ 
+ #: src/info.c:173
+ #, c-format
+-msgid " (%d block)"
+-msgstr " (%d blok)"
++msgid " (%ld block)"
++msgstr " (%ld blok)"
+ 
+ #: src/info.c:173
+ #, c-format
+-msgid " (%d blocks)"
+-msgstr " (%d bloks)"
++msgid " (%ld blocks)"
++msgstr " (%ld bloks)"
+ 
+ #: src/info.c:179
+ #, c-format
+@@ -3650,7 +3650,7 @@ msgstr "Fitchî: %s"
+ 
+ #: src/view.c:824
+ #, c-format
+-msgid "Offset 0x%08x"
++msgid "Offset 0x%08lx"
+ msgstr ""
+ 
+ #: src/view.c:826
+--- mc-4.6.0/po/nl.po.jj	2003-02-05 19:09:48.000000000 +0100
++++ mc-4.6.0/po/nl.po	2004-04-05 16:02:13.000000000 +0200
+@@ -2406,13 +2406,13 @@ msgstr "Grootte:     %s"
+ 
+ #: src/info.c:173
+ #, c-format
+-msgid " (%d block)"
+-msgstr " (%d blokken)"
++msgid " (%ld block)"
++msgstr " (%ld blokken)"
+ 
+ #: src/info.c:173
+ #, c-format
+-msgid " (%d blocks)"
+-msgstr "(%d blokken)"
++msgid " (%ld blocks)"
++msgstr "(%ld blokken)"
+ 
+ #: src/info.c:179
+ #, c-format
+@@ -3640,8 +3640,8 @@ msgstr "Bestand: %s"
+ 
+ #: src/view.c:824
+ #, c-format
+-msgid "Offset 0x%08x"
+-msgstr "Offset 0x%08x"
++msgid "Offset 0x%08lx"
++msgstr "Offset 0x%08lx"
+ 
+ #: src/view.c:826
+ #, c-format
+--- mc-4.6.0/po/sv.po.jj	2003-02-05 19:09:51.000000000 +0100
++++ mc-4.6.0/po/sv.po	2004-04-05 16:04:42.000000000 +0200
+@@ -2434,13 +2434,13 @@ msgstr "Storlek:   %s"
+ 
+ #: src/info.c:173
+ #, c-format
+-msgid " (%d block)"
+-msgstr " (%d block)"
++msgid " (%ld block)"
++msgstr " (%ld block)"
+ 
+ #: src/info.c:173
+ #, c-format
+-msgid " (%d blocks)"
+-msgstr " (%d block)"
++msgid " (%ld blocks)"
++msgstr " (%ld block)"
+ 
+ #: src/info.c:179
+ #, c-format
+@@ -3678,8 +3678,8 @@ msgstr "Fil: %s"
+ 
+ #: src/view.c:824
+ #, c-format
+-msgid "Offset 0x%08x"
+-msgstr "Offset 0x%08x"
++msgid "Offset 0x%08lx"
++msgstr "Offset 0x%08lx"
+ 
+ # svängelska?
+ #: src/view.c:826
+--- mc-4.6.0/po/fi.po.jj	2003-02-05 19:09:47.000000000 +0100
++++ mc-4.6.0/po/fi.po	2004-04-05 16:00:11.000000000 +0200
+@@ -2364,12 +2364,12 @@ msgstr ""
+ 
+ #: src/info.c:173
+ #, fuzzy, c-format
+-msgid " (%d block)"
++msgid " (%ld block)"
+ msgstr " Järjestä valinta "
+ 
+ #: src/info.c:173
+ #, c-format
+-msgid " (%d blocks)"
++msgid " (%ld blocks)"
+ msgstr ""
+ 
+ #: src/info.c:179
+@@ -3556,8 +3556,8 @@ msgstr ""
+ 
+ #: src/view.c:824
+ #, c-format
+-msgid "Offset 0x%08x"
+-msgstr "Siirros 0x%08x"
++msgid "Offset 0x%08lx"
++msgstr "Siirros 0x%08lx"
+ 
+ #: src/view.c:826
+ #, c-format
+--- mc-4.6.0/po/cs.po.jj	2003-02-05 19:09:45.000000000 +0100
++++ mc-4.6.0/po/cs.po	2004-04-05 15:58:11.000000000 +0200
+@@ -2407,13 +2407,13 @@ msgstr "Velikost:  %s"
+ 
+ #: src/info.c:173
+ #, c-format
+-msgid " (%d block)"
+-msgstr " (%d blok)"
++msgid " (%ld block)"
++msgstr " (%ld blok)"
+ 
+ #: src/info.c:173
+ #, c-format
+-msgid " (%d blocks)"
+-msgstr " (%d blokù)"
++msgid " (%ld blocks)"
++msgstr " (%ld blokù)"
+ 
+ #: src/info.c:179
+ #, c-format
+@@ -3643,8 +3643,8 @@ msgstr "Soubor: %s "
+ 
+ #: src/view.c:824
+ #, c-format
+-msgid "Offset 0x%08x"
+-msgstr "Posun 0x%08x"
++msgid "Offset 0x%08lx"
++msgstr "Posun 0x%08lx"
+ 
+ #: src/view.c:826
+ #, c-format
+--- mc-4.6.0/po/zh_TW.po.jj	2003-02-05 19:09:52.000000000 +0100
++++ mc-4.6.0/po/zh_TW.po	2004-04-05 16:06:13.000000000 +0200
+@@ -2407,13 +2407,13 @@ msgstr "¤j¤p¡G      "
+ 
+ #: src/info.c:173
+ #, fuzzy, c-format
+-msgid " (%d block)"
+-msgstr " (%d ­Ó°Ï¶ô)"
++msgid " (%ld block)"
++msgstr " (%ld ­Ó°Ï¶ô)"
+ 
+ #: src/info.c:173
+ #, c-format
+-msgid " (%d blocks)"
+-msgstr " (%d ­Ó°Ï¶ô)"
++msgid " (%ld blocks)"
++msgstr " (%ld ­Ó°Ï¶ô)"
+ 
+ #: src/info.c:179
+ #, c-format
+@@ -3655,8 +3655,8 @@ msgstr "ÀÉ®×¡G %s"
+ 
+ #: src/view.c:824
+ #, c-format
+-msgid "Offset 0x%08x"
+-msgstr "°¾²¾­È 0x%08x"
++msgid "Offset 0x%08lx"
++msgstr "°¾²¾­È 0x%08lx"
+ 
+ #: src/view.c:826
+ #, c-format
+--- mc-4.6.0/po/uk.po.jj	2003-02-05 19:09:51.000000000 +0100
++++ mc-4.6.0/po/uk.po	2004-04-05 16:05:32.000000000 +0200
+@@ -2399,13 +2399,13 @@ msgstr "òÏÚÍ¦Ò:    %s"
+ 
+ #: src/info.c:173
+ #, c-format
+-msgid " (%d block)"
+-msgstr " (%d ÂÌÏË)"
++msgid " (%ld block)"
++msgstr " (%ld ÂÌÏË)"
+ 
+ #: src/info.c:173
+ #, c-format
+-msgid " (%d blocks)"
+-msgstr " (%d ÂÌÏË¦×)"
++msgid " (%ld blocks)"
++msgstr " (%ld ÂÌÏË¦×)"
+ 
+ #: src/info.c:179
+ #, c-format
+@@ -3632,8 +3632,8 @@ msgstr "æÁÊÌ: %s"
+ 
+ #: src/view.c:824
+ #, c-format
+-msgid "Offset 0x%08x"
+-msgstr "úÍ¦ÝÅÎÎÑ 0x%08x"
++msgid "Offset 0x%08lx"
++msgstr "úÍ¦ÝÅÎÎÑ 0x%08lx"
+ 
+ #: src/view.c:826
+ #, c-format
+--- mc-4.6.0/po/pl.po.jj	2003-02-05 19:09:49.000000000 +0100
++++ mc-4.6.0/po/pl.po	2004-04-05 16:02:45.000000000 +0200
+@@ -2410,13 +2410,13 @@ msgstr "Rozmiar:   %s"
+ 
+ #: src/info.c:173
+ #, c-format
+-msgid " (%d block)"
+-msgstr " (%d blok)"
++msgid " (%ld block)"
++msgstr " (%ld blok)"
+ 
+ #: src/info.c:173
+ #, c-format
+-msgid " (%d blocks)"
+-msgstr " (%d bloków)"
++msgid " (%ld blocks)"
++msgstr " (%ld bloków)"
+ 
+ #: src/info.c:179
+ #, c-format
+@@ -3642,8 +3642,8 @@ msgstr "Plik: %s"
+ 
+ #: src/view.c:824
+ #, c-format
+-msgid "Offset 0x%08x"
+-msgstr "Przesuniêcie 0x%08x"
++msgid "Offset 0x%08lx"
++msgstr "Przesuniêcie 0x%08lx"
+ 
+ #: src/view.c:826
+ #, c-format
+--- mc-4.6.0/po/lv.po.jj	2003-02-05 19:09:48.000000000 +0100
++++ mc-4.6.0/po/lv.po	2004-04-05 16:01:56.000000000 +0200
+@@ -2411,13 +2411,13 @@ msgstr "Lielums:      %s"
+ 
+ #: src/info.c:173
+ #, c-format
+-msgid " (%d block)"
+-msgstr " (%d bloks)"
++msgid " (%ld block)"
++msgstr " (%ld bloks)"
+ 
+ #: src/info.c:173
+ #, c-format
+-msgid " (%d blocks)"
+-msgstr " (%d bloki)"
++msgid " (%ld blocks)"
++msgstr " (%ld bloki)"
+ 
+ #: src/info.c:179
+ #, c-format
+@@ -3661,8 +3661,8 @@ msgstr "Fails: %s"
+ 
+ #: src/view.c:824
+ #, c-format
+-msgid "Offset 0x%08x"
+-msgstr "Nobîde 0x%08x"
++msgid "Offset 0x%08lx"
++msgstr "Nobîde 0x%08lx"
+ 
+ #: src/view.c:826
+ #, c-format
+--- mc-4.6.0/po/el.po.jj	2003-02-05 19:09:46.000000000 +0100
++++ mc-4.6.0/po/el.po	2004-04-05 15:59:10.000000000 +0200
+@@ -2304,12 +2304,12 @@ msgstr ""
+ 
+ #: src/info.c:173
+ #, c-format
+-msgid " (%d block)"
++msgid " (%ld block)"
+ msgstr ""
+ 
+ #: src/info.c:173
+ #, c-format
+-msgid " (%d blocks)"
++msgid " (%ld blocks)"
+ msgstr ""
+ 
+ #: src/info.c:179
+@@ -3480,7 +3480,7 @@ msgstr ""
+ 
+ #: src/view.c:824
+ #, c-format
+-msgid "Offset 0x%08x"
++msgid "Offset 0x%08lx"
+ msgstr ""
+ 
+ #: src/view.c:826
+--- mc-4.6.0/po/no.po.jj	2003-02-05 19:09:49.000000000 +0100
++++ mc-4.6.0/po/no.po	2004-04-05 16:02:29.000000000 +0200
+@@ -2405,13 +2405,13 @@ msgstr "Størrelse: %s"
+ 
+ #: src/info.c:173
+ #, c-format
+-msgid " (%d block)"
+-msgstr " (%d blokk)"
++msgid " (%ld block)"
++msgstr " (%ld blokk)"
+ 
+ #: src/info.c:173
+ #, c-format
+-msgid " (%d blocks)"
+-msgstr " (%d blokker)"
++msgid " (%ld blocks)"
++msgstr " (%ld blokker)"
+ 
+ #: src/info.c:179
+ #, c-format
+@@ -3640,8 +3640,8 @@ msgstr "Fil: %s"
+ 
+ #: src/view.c:824
+ #, c-format
+-msgid "Offset 0x%08x"
+-msgstr "Offset 0x%08x"
++msgid "Offset 0x%08lx"
++msgstr "Offset 0x%08lx"
+ 
+ #: src/view.c:826
+ #, c-format
+--- mc-4.6.0/po/da.po.jj	2003-02-05 19:09:46.000000000 +0100
++++ mc-4.6.0/po/da.po	2004-04-05 15:58:35.000000000 +0200
+@@ -1,8 +1,7 @@
+-# Danish translation of Midnight Commander
+-# Copyright (C) 1998 Free Software Foundation, Inc.
+-# Kenneth Christiansen <kenneth@ripen.dk>, 1999-2000
+-# Birger Langkjer <birger.langkjer@image.dk>, 1999.
+-# Keld Simonsen <keld@dkuug.dk>, 2000.
++# Danish translation of Midnight Commander Copyright (C) 1998 Free Software
++# Foundation, Inc. Kenneth Christiansen <kenneth@ripen.dk>, 1999-2000 Birger
++# Langkjer <birger.langkjer@image.dk>, 1999. Keld Simonsen <keld@dkuug.dk>,
++# 2000.
+ #
+ # Note: MC består af konsol- (mc) og gtkdel (gmc)
+ # Genveje i konsolen er '&+stort bogstav', resten
+@@ -2416,13 +2415,13 @@ msgstr "Størrelse: %s"
+ 
+ #: src/info.c:173
+ #, c-format
+-msgid " (%d block)"
+-msgstr " (%d blok)"
++msgid " (%ld block)"
++msgstr " (%ld blok)"
+ 
+ #: src/info.c:173
+ #, c-format
+-msgid " (%d blocks)"
+-msgstr " (%d blokke)"
++msgid " (%ld blocks)"
++msgstr " (%ld blokke)"
+ 
+ #: src/info.c:179
+ #, c-format
+@@ -3661,8 +3660,8 @@ msgstr "Fil: %s"
+ 
+ #: src/view.c:824
+ #, c-format
+-msgid "Offset 0x%08x"
+-msgstr "Afstand 0x%08x"
++msgid "Offset 0x%08lx"
++msgstr "Afstand 0x%08lx"
+ 
+ #: src/view.c:826
+ #, c-format
+--- mc-4.6.0/po/it.po.jj	2003-02-05 19:09:47.000000000 +0100
++++ mc-4.6.0/po/it.po	2004-04-05 16:01:06.000000000 +0200
+@@ -2409,13 +2409,13 @@ msgstr "Dimensione: %s"
+ 
+ #: src/info.c:173
+ #, c-format
+-msgid " (%d block)"
+-msgstr " (%d blocchi)"
++msgid " (%ld block)"
++msgstr " (%ld blocchi)"
+ 
+ #: src/info.c:173
+ #, c-format
+-msgid " (%d blocks)"
+-msgstr " (%d blocchi)"
++msgid " (%ld blocks)"
++msgstr " (%ld blocchi)"
+ 
+ #: src/info.c:179
+ #, c-format
+@@ -3644,8 +3644,8 @@ msgstr "File: %s"
+ 
+ #: src/view.c:824
+ #, c-format
+-msgid "Offset 0x%08x"
+-msgstr "Offset: 0x%08x"
++msgid "Offset 0x%08lx"
++msgstr "Offset: 0x%08lx"
+ 
+ #: src/view.c:826
+ #, c-format
+--- mc-4.6.0/po/tr.po.jj	2003-02-05 19:09:51.000000000 +0100
++++ mc-4.6.0/po/tr.po	2004-04-05 16:05:17.000000000 +0200
+@@ -2409,13 +2409,13 @@ msgstr "Boyut:      %s"
+ 
+ #: src/info.c:173
+ #, c-format
+-msgid " (%d block)"
+-msgstr " (%d blok)"
++msgid " (%ld block)"
++msgstr " (%ld blok)"
+ 
+ #: src/info.c:173
+ #, c-format
+-msgid " (%d blocks)"
+-msgstr " (%d blok)"
++msgid " (%ld blocks)"
++msgstr " (%ld blok)"
+ 
+ #: src/info.c:179
+ #, c-format
+@@ -3655,8 +3655,8 @@ msgstr "Dosya: %s"
+ 
+ #: src/view.c:824
+ #, c-format
+-msgid "Offset 0x%08x"
+-msgstr "Offset 0x%08x"
++msgid "Offset 0x%08lx"
++msgstr "Offset 0x%08lx"
+ 
+ #: src/view.c:826
+ #, c-format
+--- mc-4.6.0/po/fr.po.jj	2003-02-05 19:09:47.000000000 +0100
++++ mc-4.6.0/po/fr.po	2004-04-05 16:00:29.000000000 +0200
+@@ -2411,13 +2411,13 @@ msgstr "Taille :   %s"
+ 
+ #: src/info.c:173
+ #, c-format
+-msgid " (%d block)"
+-msgstr " (%d bloc)"
++msgid " (%ld block)"
++msgstr " (%ld bloc)"
+ 
+ #: src/info.c:173
+ #, c-format
+-msgid " (%d blocks)"
+-msgstr " (%d blocs)"
++msgid " (%ld blocks)"
++msgstr " (%ld blocs)"
+ 
+ #: src/info.c:179
+ #, c-format
+@@ -3663,8 +3663,8 @@ msgstr "Fichier : %s "
+ 
+ #: src/view.c:824
+ #, c-format
+-msgid "Offset 0x%08x"
+-msgstr "Décalage 0x%08x"
++msgid "Offset 0x%08lx"
++msgstr "Décalage 0x%08lx"
+ 
+ #: src/view.c:826
+ #, c-format
+--- mc-4.6.0/po/hu.po.jj	2003-02-05 19:09:47.000000000 +0100
++++ mc-4.6.0/po/hu.po	2004-04-05 16:00:48.000000000 +0200
+@@ -2444,13 +2444,13 @@ msgstr "Méret:        %s"
+ 
+ #: src/info.c:173
+ #, c-format
+-msgid " (%d block)"
+-msgstr " (%d blokk)"
++msgid " (%ld block)"
++msgstr " (%ld blokk)"
+ 
+ #: src/info.c:173
+ #, c-format
+-msgid " (%d blocks)"
+-msgstr " (%d blokk)"
++msgid " (%ld blocks)"
++msgstr " (%ld blokk)"
+ 
+ #: src/info.c:179
+ #, c-format
+@@ -3685,8 +3685,8 @@ msgstr "Fájl: %s"
+ 
+ #: src/view.c:824
+ #, c-format
+-msgid "Offset 0x%08x"
+-msgstr "Pozíció: 0x%08x"
++msgid "Offset 0x%08lx"
++msgstr "Pozíció: 0x%08lx"
+ 
+ #: src/view.c:826
+ #, c-format
+--- mc-4.6.0/po/pt.po.jj	2003-02-05 19:09:49.000000000 +0100
++++ mc-4.6.0/po/pt.po	2004-04-05 16:03:20.000000000 +0200
+@@ -2410,13 +2410,13 @@ msgstr "Tamanho:   %s"
+ 
+ #: src/info.c:173
+ #, c-format
+-msgid " (%d block)"
+-msgstr " (%d bloco)"
++msgid " (%ld block)"
++msgstr " (%ld bloco)"
+ 
+ #: src/info.c:173
+ #, c-format
+-msgid " (%d blocks)"
+-msgstr " (%d blocos)"
++msgid " (%ld blocks)"
++msgstr " (%ld blocos)"
+ 
+ #: src/info.c:179
+ #, c-format
+@@ -3657,8 +3657,8 @@ msgstr "Ficheiro: %s"
+ 
+ #: src/view.c:824
+ #, c-format
+-msgid "Offset 0x%08x"
+-msgstr "Offset 0x%08x"
++msgid "Offset 0x%08lx"
++msgstr "Offset 0x%08lx"
+ 
+ #: src/view.c:826
+ #, c-format
+--- mc-4.6.0/po/az.po.jj	2003-02-05 19:09:44.000000000 +0100
++++ mc-4.6.0/po/az.po	2004-04-05 15:56:44.000000000 +0200
+@@ -2411,13 +2411,13 @@ msgstr "BÃ¶yÃ¼klÃ¼k:    %s"
+ 
+ #: src/info.c:173
+ #, c-format
+-msgid " (%d block)"
+-msgstr " ( %d blok )"
++msgid " (%ld block)"
++msgstr " ( %ld blok )"
+ 
+ #: src/info.c:173
+ #, c-format
+-msgid " (%d blocks)"
+-msgstr " ( %d blok )"
++msgid " (%ld blocks)"
++msgstr " ( %ld blok )"
+ 
+ #: src/info.c:179
+ #, c-format
+@@ -3656,8 +3656,8 @@ msgstr "Fayl : %s"
+ 
+ #: src/view.c:824
+ #, c-format
+-msgid "Offset 0x%08x"
+-msgstr "Offset 0x%08x"
++msgid "Offset 0x%08lx"
++msgstr "Offset 0x%08lx"
+ 
+ #: src/view.c:826
+ #, c-format
+--- mc-4.6.0/po/sk.po.jj	2003-02-05 19:09:50.000000000 +0100
++++ mc-4.6.0/po/sk.po	2004-04-05 16:04:09.000000000 +0200
+@@ -2402,13 +2402,13 @@ msgstr "VeÄ¾kosÅ¥:     %s"
+ 
+ #: src/info.c:173
+ #, c-format
+-msgid " (%d block)"
+-msgstr " (%d blok)"
++msgid " (%ld block)"
++msgstr " (%ld blok)"
+ 
+ #: src/info.c:173
+ #, c-format
+-msgid " (%d blocks)"
+-msgstr " (%d blokov)"
++msgid " (%ld blocks)"
++msgstr " (%ld blokov)"
+ 
+ #: src/info.c:179
+ #, c-format
+@@ -3634,8 +3634,8 @@ msgstr "SÃºbor: %s"
+ 
+ #: src/view.c:824
+ #, c-format
+-msgid "Offset 0x%08x"
+-msgstr "Offset 0x%08x"
++msgid "Offset 0x%08lx"
++msgstr "Offset 0x%08lx"
+ 
+ #: src/view.c:826
+ #, c-format
+--- mc-4.6.0/po/ko.po.jj	2003-02-05 19:09:48.000000000 +0100
++++ mc-4.6.0/po/ko.po	2004-04-05 16:01:41.000000000 +0200
+@@ -2399,13 +2399,13 @@ msgstr "Å©±â:      %s"
+ 
+ #: src/info.c:173
+ #, c-format
+-msgid " (%d block)"
+-msgstr " (%d ±¸¿ª)"
++msgid " (%ld block)"
++msgstr " (%ld ±¸¿ª)"
+ 
+ #: src/info.c:173
+ #, c-format
+-msgid " (%d blocks)"
+-msgstr " (%d ±¸¿ª)"
++msgid " (%ld blocks)"
++msgstr " (%ld ±¸¿ª)"
+ 
+ #: src/info.c:179
+ #, c-format
+@@ -3631,8 +3631,8 @@ msgstr "ÆÄÀÏ: %s"
+ 
+ #: src/view.c:824
+ #, c-format
+-msgid "Offset 0x%08x"
+-msgstr "¿É¼Â 0x%08x"
++msgid "Offset 0x%08lx"
++msgstr "¿É¼Â 0x%08lx"
+ 
+ #: src/view.c:826
+ #, c-format
+--- mc-4.6.0/po/ca.po.jj	2003-02-05 19:09:45.000000000 +0100
++++ mc-4.6.0/po/ca.po	2004-04-05 15:57:47.000000000 +0200
+@@ -2416,13 +2416,13 @@ msgstr "Mida:      %s"
+ 
+ #: src/info.c:173
+ #, c-format
+-msgid " (%d block)"
+-msgstr " (%d bloc)"
++msgid " (%ld block)"
++msgstr " (%ld bloc)"
+ 
+ #: src/info.c:173
+ #, c-format
+-msgid " (%d blocks)"
+-msgstr " (%d blocs)"
++msgid " (%ld blocks)"
++msgstr " (%ld blocs)"
+ 
+ #: src/info.c:179
+ #, c-format
+@@ -3670,8 +3670,8 @@ msgstr "Fitxer: %s"
+ 
+ #: src/view.c:824
+ #, c-format
+-msgid "Offset 0x%08x"
+-msgstr "Desplaçament 0x%08x"
++msgid "Offset 0x%08lx"
++msgstr "Desplaçament 0x%08lx"
+ 
+ #: src/view.c:826
+ #, c-format
+--- mc-4.6.0/po/es.po.jj	2003-02-05 19:09:46.000000000 +0100
++++ mc-4.6.0/po/es.po	2004-04-05 15:59:28.000000000 +0200
+@@ -2403,13 +2403,13 @@ msgstr "Tamaño:     %s"
+ 
+ #: src/info.c:173
+ #, c-format
+-msgid " (%d block)"
+-msgstr " (%d bloque)"
++msgid " (%ld block)"
++msgstr " (%ld bloque)"
+ 
+ #: src/info.c:173
+ #, c-format
+-msgid " (%d blocks)"
+-msgstr " (%d bloques)"
++msgid " (%ld blocks)"
++msgstr " (%ld bloques)"
+ 
+ #: src/info.c:179
+ #, c-format
+@@ -3638,8 +3638,8 @@ msgstr "Archivo: %s"
+ 
+ #: src/view.c:824
+ #, c-format
+-msgid "Offset 0x%08x"
+-msgstr "Offset 0x%08x"
++msgid "Offset 0x%08lx"
++msgstr "Offset 0x%08lx"
+ 
+ #: src/view.c:826
+ #, c-format
+--- mc-4.6.0/po/pt_BR.po.jj	2003-02-05 19:09:49.000000000 +0100
++++ mc-4.6.0/po/pt_BR.po	2004-04-05 16:03:05.000000000 +0200
+@@ -2429,13 +2429,13 @@ msgstr "Tamanho:   "
+ 
+ #: src/info.c:173
+ #, fuzzy, c-format
+-msgid " (%d block)"
+-msgstr " (%d blocos)"
++msgid " (%ld block)"
++msgstr " (%ld blocos)"
+ 
+ #: src/info.c:173
+ #, c-format
+-msgid " (%d blocks)"
+-msgstr " (%d blocos)"
++msgid " (%ld blocks)"
++msgstr " (%ld blocos)"
+ 
+ #: src/info.c:179
+ #, c-format
+@@ -3691,8 +3691,8 @@ msgstr "Arquivo: %s"
+ 
+ #: src/view.c:824
+ #, c-format
+-msgid "Offset 0x%08x"
+-msgstr "Deslocamento 0x%08x"
++msgid "Offset 0x%08lx"
++msgstr "Deslocamento 0x%08lx"
+ 
+ #: src/view.c:826
+ #, c-format
+--- mc-4.6.0/po/ja.po.jj	2003-02-05 19:09:48.000000000 +0100
++++ mc-4.6.0/po/ja.po	2004-04-05 16:01:23.000000000 +0200
+@@ -2410,13 +2410,13 @@ msgstr "¥µ¥¤¥º:    %s"
+ 
+ #: src/info.c:173
+ #, c-format
+-msgid " (%d block)"
+-msgstr " (%d¥Ö¥í¥Ã¥¯)"
++msgid " (%ld block)"
++msgstr " (%ld¥Ö¥í¥Ã¥¯)"
+ 
+ #: src/info.c:173
+ #, c-format
+-msgid " (%d blocks)"
+-msgstr " (%d¥Ö¥í¥Ã¥¯)"
++msgid " (%ld blocks)"
++msgstr " (%ld¥Ö¥í¥Ã¥¯)"
+ 
+ #: src/info.c:179
+ #, c-format
+@@ -3654,8 +3654,8 @@ msgstr "¥Õ¥¡¥¤¥ë: %s"
+ 
+ #: src/view.c:824
+ #, c-format
+-msgid "Offset 0x%08x"
+-msgstr "¥ª¥Õ¥»¥Ã¥È 0x%08x"
++msgid "Offset 0x%08lx"
++msgstr "¥ª¥Õ¥»¥Ã¥È 0x%08lx"
+ 
+ #: src/view.c:826
+ #, c-format
+--- mc-4.6.0/po/ta.po.jj	2003-02-05 19:09:51.000000000 +0100
++++ mc-4.6.0/po/ta.po	2004-04-05 16:05:02.000000000 +0200
+@@ -2307,12 +2307,12 @@ msgstr ""
+ 
+ #: src/info.c:173
+ #, fuzzy, c-format
+-msgid " (%d block)"
++msgid " (%ld block)"
+ msgstr " ¦¾¡Ì¾¢¨Â Å¡¢¨ºÂ¡ìÌ "
+ 
+ #: src/info.c:173
+ #, c-format
+-msgid " (%d blocks)"
++msgid " (%ld blocks)"
+ msgstr ""
+ 
+ #: src/info.c:179
+@@ -3483,7 +3483,7 @@ msgstr ""
+ 
+ #: src/view.c:824
+ #, c-format
+-msgid "Offset 0x%08x"
++msgid "Offset 0x%08lx"
+ msgstr ""
+ 
+ #: src/view.c:826
+--- mc-4.6.0/po/ro.po.jj	2003-02-05 19:09:50.000000000 +0100
++++ mc-4.6.0/po/ro.po	2004-04-05 16:03:34.000000000 +0200
+@@ -2403,13 +2403,13 @@ msgstr "Mãrime:    %s"
+ 
+ #: src/info.c:173
+ #, c-format
+-msgid " (%d block)"
+-msgstr " (%d blocuri)"
++msgid " (%ld block)"
++msgstr " (%ld blocuri)"
+ 
+ #: src/info.c:173
+ #, c-format
+-msgid " (%d blocks)"
+-msgstr " (%d blocuri)"
++msgid " (%ld blocks)"
++msgstr " (%ld blocuri)"
+ 
+ #: src/info.c:179
+ #, c-format
+@@ -3638,8 +3638,8 @@ msgstr "Fiºier: %s"
+ 
+ #: src/view.c:824
+ #, c-format
+-msgid "Offset 0x%08x"
+-msgstr "Offset 0x%08x"
++msgid "Offset 0x%08lx"
++msgstr "Offset 0x%08lx"
+ 
+ #: src/view.c:826
+ #, c-format
+--- mc-4.6.0/po/bg.po.jj	2003-02-05 19:09:45.000000000 +0100
++++ mc-4.6.0/po/bg.po	2004-04-05 15:57:23.000000000 +0200
+@@ -2406,13 +2406,13 @@ msgstr "Ð Ð°Ð·Ð¼ÐµÑ€:       %s"
+ 
+ #: src/info.c:173
+ #, c-format
+-msgid " (%d block)"
+-msgstr " (%d Ð±Ð»Ð¾Ðº)"
++msgid " (%ld block)"
++msgstr " (%ld Ð±Ð»Ð¾Ðº)"
+ 
+ #: src/info.c:173
+ #, c-format
+-msgid " (%d blocks)"
+-msgstr " (%d Ð±Ð»Ð¾ÐºÐ°)"
++msgid " (%ld blocks)"
++msgstr " (%ld Ð±Ð»Ð¾ÐºÐ°)"
+ 
+ #: src/info.c:179
+ #, c-format
+@@ -3649,8 +3649,8 @@ msgstr "Ð¤Ð°Ð¹Ð»: %s"
+ 
+ #: src/view.c:824
+ #, c-format
+-msgid "Offset 0x%08x"
+-msgstr "ÐžÑ‚Ð¼ÐµÑÑ‚Ð²Ð°Ð½Ðµ 0x%08x"
++msgid "Offset 0x%08lx"
++msgstr "ÐžÑ‚Ð¼ÐµÑÑ‚Ð²Ð°Ð½Ðµ 0x%08lx"
+ 
+ #: src/view.c:826
+ #, c-format
+--- mc-4.6.0/slang/sltermin.c.jj	2002-10-07 13:08:16.000000000 +0200
++++ mc-4.6.0/slang/sltermin.c	2004-04-05 13:06:14.000000000 +0200
+@@ -267,9 +267,12 @@ SLterminfo_Type *_SLtt_tigetent (char *t
+ 
+    if (NULL != (home = getenv ("HOME")))
+      {
+-	strncpy (home_ti, home, sizeof (home_ti) - 11);
+-	home_ti [sizeof(home_ti) - 11] = 0;
+-	strcat (home_ti, "/.terminfo");
++	size_t len = strlen (home);
++
++	if (len > sizeof (home_ti) - sizeof ("/.terminfo"))
++	  len = sizeof (home_ti) - sizeof ("/.terminfo");
++	memcpy (home_ti, home, len);
++	memcpy (home_ti + len, "/.terminfo", sizeof ("/.terminfo"));
+ 	Terminfo_Dirs [0] = home_ti;
+      }
+ 
+--- mc-4.6.0/lib/mc.menu.jj	2002-12-08 02:12:19.000000000 +0100
++++ mc-4.6.0/lib/mc.menu	2004-04-13 18:25:27.982396902 +0200
+@@ -14,9 +14,10 @@ shell_patterns=0
+ 	
+ 
+ 0       Edit a bug report and send it to root
+-        ${EDITOR-vi} /tmp/mail.$$
+-	test -r /tmp/mail.$$ && mail root < /tmp/mail.$$
+-	rm -f /tmp/mail.$$
++	I=`mktemp ${MC_TMPDIR:-/tmp}/mail.XXXXXX` || exit 1
++	${EDITOR-vi} $I
++	test -r $I && mail root < $I
++	rm -f $I
+ 
+ =+ f \.1$ | f \.3$ | f \.4$ | f \.5$ | f \.6$ | f \.7$ | f \.8$ | f \.man$ & t r
+ 1       Display the file with roff -man
+@@ -112,8 +113,9 @@ h       Strip headers from current newsa
+ 	CHECK=`awk '{print $1 ; exit}' %f` 2>/dev/null
+ 	case $CHECK in
+ 	  Newsgroups:|Path:)
+-	      cp %f /tmp/%f.$$ && sed '/^'"$CHECK"' /,/^$/d' /tmp/%f.$$ > %f
+-              [ "$?" = "0" ] && rm /tmp/%f.$$
++	      I=`mktemp ${MC_TMPDIR:-/tmp}/news.XXXXXX` || exit 1
++	      cp %f $I && sed '/^'"$CHECK"' /,/^$/d' $I > %f
++              [ "$?" = "0" ] && rm $I
+ 	      echo %f: header removed
+ 		;;
+ 	  *)
+@@ -126,7 +128,7 @@ H       Strip headers from the marked ne
+ 	set %t
+ 	while [ -n "$1" ]; do
+ 	  CHECK=`awk '{print $1 ; exit}' $1` 2>/dev/null
+-	  WFILE=/tmp/${1}.$$
++	  WFILE=`mktemp ${MC_TMPDIR:-/tmp}/news.XXXXXX` || exit 1
+ 	  case $CHECK in
+ 	    Newsgroups:|Path:)
+ 	      cp $1 $WFILE && sed '/^'"$CHECK"' /,/^$/d' $WFILE > $1
+--- mc-4.6.0/lib/cedit.menu.jj	2002-08-24 19:39:08.000000000 +0200
++++ mc-4.6.0/lib/cedit.menu	2004-04-13 18:18:40.771374419 +0200
+@@ -449,7 +449,7 @@ s       Invoke `shell'
+ 
+ m       view `man'
+         MAN=%{Enter name of man:}
+-        TMPFILE=/tmp/mcview.$MAN.$$
++        TMPFILE=`mktemp ${MC_TMPDIR:-/tmp}/mcview.$MAN.$$` || exit 1
+         man -Pcat $MAN >$TMPFILE
+         mcview $TMPFILE
+         rm -f $TMPFILE
