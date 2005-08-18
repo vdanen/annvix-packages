@@ -9,7 +9,7 @@
 
 %define name		man-pages
 %define version		2.01
-%define release 	3avx
+%define release 	4avx
 
 %define LANG		en
 
@@ -93,6 +93,7 @@ rm -f man8/ldconfig.8
 rm -f man1/{getent,iconv,ldd,locale,localedef,sprof}.1
 rm -f man8/{ld.so,rpcinfo}.8
 rm -f man1/rpcgen.1
+rm -f man3/crypt.3
 
 # this conflict with glibc
 rm -f man1/rpcgen.1.bz2
@@ -141,6 +142,9 @@ tar xfj %{SOURCE11} -C %{buildroot}%{_mandir}
 
 
 %changelog
+* Wed Aug 17 2005 Vincent Danen <vdanen@annvix.org> 2.01-4avx
+- remove crypt.3 manpage (in glibc)
+
 * Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 2.01-3avx
 - bootstrap build (new gcc, new glibc)
 
