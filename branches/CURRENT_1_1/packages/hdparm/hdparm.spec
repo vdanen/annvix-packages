@@ -1,6 +1,15 @@
-%define name	hdparm
-%define version 5.6
-%define release 2avx
+#
+# spec file for package hdparm
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		hdparm
+%define version 	5.6
+%define release 	3avx
 
 Summary:	A utility for displaying and/or setting hard disk parameters
 Name:		%{name}
@@ -9,43 +18,51 @@ Release:	%{release}
 License:	BSD
 Group:		System/Kernel and hardware
 URL:		http://www.ibiblio.org/pub/Linux/system/hardware
-Source:		ftp://sunsite.unc.edu/pub/Linux/system/hardware/%name-%version.tar.bz2
+Source:		ftp://sunsite.unc.edu/pub/Linux/system/hardware/%{name}-%{version}.tar.bz2
 Source1:	hdparm-sysconfig
 
-BuildRoot:	%_tmppath/%name-%version-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 
 %description
 Hdparm is a useful system utility for setting (E)IDE hard drive
 parameters.  For example, hdparm can be used to tweak hard drive
 performance and to spin down hard drives for power conservation.
 
+
 %prep
 %setup -q
 
+
 %build
-perl -pi -e "s/-O2/$RPM_OPT_FLAGS/" Makefile
+perl -pi -e "s/-O2/%{optflags}/" Makefile
 make clean
 make
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p ${RPM_BUILD_ROOT}/sbin
-install -D -m 0755 hdparm $RPM_BUILD_ROOT/sbin/hdparm
-install -D -m 0644 hdparm.8 $RPM_BUILD_ROOT%_mandir/man8/hdparm.8
-install -D -m 0644 %SOURCE1 $RPM_BUILD_ROOT/etc/sysconfig/harddisks
+mkdir -p %{buildroot}/sbin
+install -D -m 0755 hdparm %{buildroot}/sbin/hdparm
+install -D -m 0644 hdparm.8 %{buildroot}%{_mandir}/man8/hdparm.8
+install -D -m 0644 %{SOURCE1} %{buildroot}/etc/sysconfig/harddisks
 
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
+
 %files
 %defattr(-,root,root)
 %doc hdparm.lsm Changelog contrib/README README.acoustic
 /sbin/hdparm
-%_mandir/man8/hdparm.8*
+%{_mandir}/man8/hdparm.8*
 %config(noreplace) /etc/sysconfig/harddisks
 
+
 %changelog
+* Thu Aug 18 2005 Vincent Danen <vdanen@annvix.org> 5.6-3avx
+- bootstrap build (new gcc, new glibc)
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 5.6-2avx
 - rebuild
 

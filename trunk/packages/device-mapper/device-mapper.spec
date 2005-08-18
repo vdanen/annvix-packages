@@ -1,9 +1,18 @@
-%define	name	device-mapper
-%define	version	1.00.19
-%define	release	3avx
+#
+# spec file for package device-mapper
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define	name		device-mapper
+%define	version		1.00.19
+%define	release		4avx
 
 #%ifarch %{ix86} x86_64 ppc
-#%define	use_dietlibc	1
+#%define use_dietlibc	1
 #%else
 %define	use_dietlibc	0
 #%endif
@@ -11,8 +20,8 @@
 %define	_sbindir	/sbin
 %define	major		1.00
 # Macro: %%{mklibname <name> [<major> [<minor>]] [-s] [-d]}
-%define	libname		%{mklibname devmapper 1.00}
-%define	dlibname	%{mklibname devmapper 1.00 -d}
+%define	libname		%mklibname devmapper 1.00
+%define	dlibname	%mklibname devmapper 1.00 -d
 
 Summary:	Device mapper
 Name:		%{name}
@@ -24,7 +33,7 @@ URL:		http://sources.redhat.com/dm/
 Source0:	ftp://sources.redhat.com/pub/dm/%{name}.%{version}.tar.bz2
 Patch0:		device-mapper-1.00.19-diet.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	glibc-static-devel
 %if %{use_dietlibc}
 BuildRequires:	dietlibc-devel
@@ -36,6 +45,7 @@ The driver enables the definition of new block devices composed of
 ranges of sectors of existing devices.  This can be used to define
 disk partitions - or logical volumes.  This light-weight kernel
 component can support user-space tools for logical volume management.
+
 
 %package -n dmsetup
 Summary:	Device mapper setup tool
@@ -50,6 +60,7 @@ ranges of sectors of existing devices.  This can be used to define
 disk partitions - or logical volumes.  This light-weight kernel
 component can support user-space tools for logical volume management.
 
+
 %package -n %{libname}
 Summary:	Device mapper library
 Group:		System/Kernel and hardware
@@ -60,6 +71,7 @@ The driver enables the definition of new block devices composed of
 ranges of sectors of existing devices.  This can be used to define
 disk partitions - or logical volumes.  This light-weight kernel
 component can support user-space tools for logical volume management.
+
 
 %package -n %{dlibname}
 Summary:	Device mapper development library
@@ -75,6 +87,7 @@ ranges of sectors of existing devices.  This can be used to define
 disk partitions - or logical volumes.  This light-weight kernel
 component can support user-space tools for logical volume management.
 
+
 %prep
 %setup -q -n %{name}.%{version}
 %if %{use_dietlibc}
@@ -82,8 +95,13 @@ component can support user-space tools for logical volume management.
 %endif
 bzip2 patches/*.patch
 
+
 %build
-%configure --with-user=`id -un` --with-group=`id -gn` --enable-static_link --disable-selinux
+%configure \
+    --with-user=`id -un` \
+    --with-group=`id -gn` \
+    --enable-static_link \
+    --disable-selinux
 
 %if %{use_dietlibc}
 %make CC="diet gcc" PIC=
@@ -92,7 +110,9 @@ mv dmsetup/dmsetup-static dmsetup/dmsetup-diet
 %make clean
 %endif
 
-OPTFLAGS="%{optflags} -fno-stack-protector" %make
+#OPTFLAGS="%{optflags} -fno-stack-protector" %make
+OPTFLAGS="%{optflags}" %make
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -109,11 +129,14 @@ install dmsetup/dmsetup-diet %{buildroot}%{_sbindir}/dmsetup-static
 
 chmod -R u+w %{buildroot} #else brp_mandrake won't strip binaries
 
-%post -n %{libname} -p /sbin/ldconfig
-%postun -n %{libname} -p /sbin/ldconfig
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
+
+%post -n %{libname} -p /sbin/ldconfig
+%postun -n %{libname} -p /sbin/ldconfig
+
 
 %files -n dmsetup
 %defattr(644,root,root,755)
@@ -139,7 +162,11 @@ chmod -R u+w %{buildroot} #else brp_mandrake won't strip binaries
 %{_libdir}/libdevmapper-diet.*
 %endif
 
+
 %changelog
+* Thu Aug 18 2005 Vincent Danen <vdanen@annvix.org> 1.00.19-4avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Sep 24 2004 Vincent Danen <vdanen@annvix.org> 1.00.19-3avx
 - initial Annvix build (for lilo)
 - spec cleanups / make proper use of %%use_dietlibc

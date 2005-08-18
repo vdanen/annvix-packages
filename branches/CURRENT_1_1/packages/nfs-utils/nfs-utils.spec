@@ -1,18 +1,26 @@
-%define name	nfs-utils
-%define	version	1.0.6
-%define release	7avx
+#
+# spec file for package nfs-utils
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-%define	url	ftp://ftp.kernel.org:/pub/linux/utils/nfs
+
+%define name		nfs-utils
+%define	version		1.0.6
+%define release		8avx
+%define epoch		1
 
 Summary:	The utilities for Linux NFS server
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
-Epoch:		1
+Epoch:		%{epoch}
 License:	GPL
 Group:		Networking/Other
-URL:		%{url}
-Source0:	%{url}/%{name}-%{version}.tar.bz2
+URL:		ftp://ftp.kernel.org:/pub/linux/utils/nfs
+Source0:	ftp://ftp.kernel.org:/pub/linux/utils/nfs/%{name}-%{version}.tar.bz2
 Source1:	ftp://nfs.sourceforge.net/pub/nfs/nfs.doc.tar.bz2
 Source10:	nfs.init
 Source11:	nfslock.init
@@ -29,7 +37,7 @@ Patch5:		nfs-utils-1.0.4-no-chown.patch.bz2
 Patch6:		nfs-utils-1.0.6-CAN-2004-1014.patch.bz2
 Patch7:		nfs-utils-0.3.3-rquotad-overflow.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 
 ExcludeArch:	armv4l
 Obsoletes:	nfs-server knfsd nfs-server-clients
@@ -47,8 +55,9 @@ mount daemon on a remote host for information about the NFS (Network File
 System) server on the remote host.  For example, showmount can display the
 clients which are mounted on that host.
 
+
 %package clients
-Summary:	The utilities for Linux NFS client.
+Summary:	The utilities for Linux NFS client
 Group:		Networking/Other
 Obsoletes:	knfsd-clients knfsd-lock
 Provides:	knfsd-clients knfsd-lock
@@ -65,6 +74,7 @@ mount daemon on a remote host for information about the NFS (Network File
 System) server on the remote host.  For example, showmount can display the
 clients which are mounted on that host.
 
+
 %prep
 %setup -q -a 1
 %patch1 -p0
@@ -74,14 +84,18 @@ clients which are mounted on that host.
 %patch6 -p2 -b .can-2004-1014
 %patch7 -p1 -b .can-2004-0946
 
+
 %build
 #
 # Hack to enable netgroups.  If anybody knows the right way to do
 # this, please help yourself.
 #
 %serverbuild
-%configure --disable-rquotad --disable-nfsv4
+%configure \
+    --disable-rquotad \
+    --disable-nfsv4
 make all
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -92,8 +106,8 @@ mkdir -p %{buildroot}%{_sysconfdir}/sysconfig
 mkdir -p %{buildroot}/var/lib/nfs
 
 make install_prefix=%{buildroot} MANDIR=%{buildroot}%{_mandir} SBINDIR=%{buildroot}%{_sbindir} install
-install -s -m 755 tools/rpcdebug/rpcdebug %{buildroot}/sbin
-install -m 755 %{SOURCE12} %{buildroot}%{_sysconfdir}/sysconfig/nfs
+install -s -m 0755 tools/rpcdebug/rpcdebug %{buildroot}/sbin
+install -m 0755 %{SOURCE12} %{buildroot}%{_sysconfdir}/sysconfig/nfs
 
 touch %{buildroot}/var/lib/nfs/rmtab
 mv %{buildroot}%{_sbindir}/{rpc.lockd,rpc.statd} %{buildroot}/sbin
@@ -102,14 +116,16 @@ mkdir -p %{buildroot}/var/lib/nfs/statd
 
 mkdir -p %{buildroot}%{_srvdir}/nfs.{statd,mountd}/log
 mkdir -p %{buildroot}%{_srvlogdir}/nfs.{statd,mountd}
-install -m 0755 %{SOURCE13} %{buildroot}%{_srvdir}/nfs.statd/run
-install -m 0755 %{SOURCE14} %{buildroot}%{_srvdir}/nfs.statd/log/run
-install -m 0755 %{SOURCE15} %{buildroot}%{_srvdir}/nfs.mountd/run
-install -m 0755 %{SOURCE16} %{buildroot}%{_srvdir}/nfs.mountd/log/run
-install -m 0755 %{SOURCE17} %{buildroot}%{_srvdir}/nfs.mountd/finish
+install -m 0750 %{SOURCE13} %{buildroot}%{_srvdir}/nfs.statd/run
+install -m 0750 %{SOURCE14} %{buildroot}%{_srvdir}/nfs.statd/log/run
+install -m 0750 %{SOURCE15} %{buildroot}%{_srvdir}/nfs.mountd/run
+install -m 0750 %{SOURCE16} %{buildroot}%{_srvdir}/nfs.mountd/log/run
+install -m 0750 %{SOURCE17} %{buildroot}%{_srvdir}/nfs.mountd/finish
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %post
 %_post_srv nfs.statd
@@ -122,8 +138,8 @@ install -m 0755 %{SOURCE17} %{buildroot}%{_srvdir}/nfs.mountd/finish
 %preun
 # create a bare-bones /etc/exports
 if [ ! -s %{_sysconfdir}/exports ]; then
-  echo "#" >%{_sysconfdir}/exports
-  chmod 644 %{_sysconfdir}/exports
+    echo "#" >%{_sysconfdir}/exports
+    chmod 0644 %{_sysconfdir}/exports
 fi
 %_preun_srv nfs.statd
 %_preun_srv nfs.mountd
@@ -139,6 +155,7 @@ fi
 
 %postun clients
 %_postun_userdel rpcuser
+
 
 %files
 %defattr(-,root,root)
@@ -196,7 +213,11 @@ fi
 %{_srvdir}/nfs.statd/log/run
 %dir %attr(0750,logger,logger) %{_srvlogdir}/nfs.statd
 
+
 %changelog
+* Thu Aug 18 2005 Vincent Danen <vdanen@annvix.org> 1.0.6-8avx
+- bootstrap build (new gcc, new glibc)
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 1.0.6-7avx
 - rebuild
 

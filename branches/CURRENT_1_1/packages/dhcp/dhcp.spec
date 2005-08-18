@@ -1,7 +1,16 @@
-%define name	dhcp
-%define version	3.0.2
-%define release	2avx
-%define epoch	2
+#
+# spec file for package dhcp
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		dhcp
+%define version		3.0.2
+%define release		3avx
+%define epoch		2
 
 %define their_version	3.0.1
 %define _catdir		/var/cache/man
@@ -32,7 +41,7 @@ Patch0:		dhcp-3.0.1-ifup.patch.bz2
 Patch1:		dhcp-3.0.1-paranoia.diff.bz2
 Patch2:		dhcp-3.0.1-gcc343-fix.diff.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl groff-for-man
 
 PreReq:		rpm-helper, setup >= 2.4-16avx
@@ -51,6 +60,7 @@ or pump or dhcpxd, which provides the DHCP client daemon, on client machines.
 If you want the DHCP server and/or relay, you will also need to install the
 dhcp-server and/or dhcp-relay packages.
 
+
 %package common
 Summary:	The ISC DHCP (Dynamic Host Configuration Protocol) server
 Group:		System/Servers
@@ -68,10 +78,11 @@ dhcpxd, which provides the DHCP client daemon, on  client machines. If you
 want the DHCP server and/or relay, you will also need to install the
 dhcp-server and/or dhcp-relay packages.
 
+
 %package server
 Summary:	The ISC DHCP (Dynamic Host Configuration Protocol) server
 Group:		System/Servers
-Requires:	dhcp-common = %epoch:%version, bash
+Requires:	dhcp-common = %{epoch}:%{version}, bash
 Prereq:		rpm-helper
 Obsoletes:	dhcp
 Provides:	dhcp
@@ -81,29 +92,22 @@ DHCP server is the Internet Software Consortium (ISC) DHCP server for various
 UNIX operating systems. It allows a UNIX mac hine to serve DHCP requests from
 the network.
 
-You should install dhcp-server if you want to set up a DHCP server on your
-network. You will also need to install the base dhcp package.
-
 
 %package client
 Summary:	The ISC DHCP (Dynamic Host Configuration Protocol) client
 Group:		System/Servers
-Requires:	dhcp-common = %epoch:%version, bash
+Requires:	dhcp-common = %{epoch}:%{version}, bash
 
 %description client
 DHCP client is the Internet Software Consortium (ISC) DHCP client for various
 UNIX operating systems.  It allows a UNIX mac hine to obtain it's networking
 parameters from a DHCP server.
 
-You should install dhcp-client if you want to use the ISC DHCP client instead
-of the Red Hat DHCP client, pump, or dhcpcd, or dhcpxd. You will also need to
-install the base dhcp package.
-
 
 %package relay
 Summary:	The ISC DHCP (Dynamic Host Configuration Protocol) relay
 Group:		System/Servers
-Requires:	dhcp-common = %epoch:%version-%release /bin/sh
+Requires:	dhcp-common = %{epoch}:%{version}-%{release} /bin/sh
 Prereq:		rpm-helper
 
 %description relay
@@ -115,14 +119,16 @@ takes care of this for the client. You will need to set the environment
 variable SERVERS and optionally OPTIONS in /etc/sysconfig/dhcrelay before
 starting the server.
 
+
 %package devel
 Summary:	Development headers and libraries for the dhcpctl API
 Group:		Development/Other
-Requires:	dhcp-common = %epoch:%version
+Requires:	dhcp-common = %{epoch}:%{version}
 
 %description devel
 DHCP devel contains all of the libraries and headers for developing with th
 Internet Software Consortium (ISC) dhcpctl API.
+
 
 %prep
 %setup -q -a 3 -n %{name}-%{their_version}
@@ -155,6 +161,7 @@ echo 'int main() { return sizeof(void *) != 8; }' | gcc -xc - -o is_ptr64
 #-DEARLY_CHROOT
 
 %make
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -214,8 +221,10 @@ touch %{_localstatedir}/dhcp/dhclient.leases
 %postun client
 rm -rf %{_localstatedir}/dhcp/dhclient.leases
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files common
 %defattr(-,root,root)
@@ -273,7 +282,11 @@ rm -rf %{_localstatedir}/dhcp/dhclient.leases
 %{_libdir}/*
 %{_includedir}/*
 
+
 %changelog
+* Wed Aug 17 2005 Vincent Danen <vdanen@annvix.org> 3.0.2-3avx
+- bootstrap build (new gcc, new glibc)
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 3.0.2-2avx
 - rebuild
 
@@ -393,7 +406,7 @@ without a domainname.
 * Sat Jan 19 2002 Davud BAUDENS <bauudens@mandrakesoft.com> 3.0.1rc6.2mdk
 - Fix Group: for devel package
 - Use human readable descriptions
-- Requires: %%version-%%release and not only %%version
+- Requires: %%{version}-%%{release} and not only %%{version}
 
 * Fri Jan 18 2002 Florin <florin@mandrakesoft.com> 3.0.1rc6.1mdk
 - 3.0.1rc6

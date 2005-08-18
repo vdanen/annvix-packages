@@ -1,6 +1,15 @@
-%define name	distriblint
-%define version 0.1.2
-%define release 2avx
+#
+# spec file for package cyrus-sasl
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		distriblint
+%define version 	0.1.2
+%define release 	3avx
 
 Summary:	Tools to check integrity of rpms repository
 Name:		%{name}
@@ -11,7 +20,7 @@ Group:		Development/Perl
 URL:		http://youri.zarb.org/
 Source:		%{name}-%{version}.tar.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:      noarch
 BuildRequires:	perl-devel, perl-URPM, perl-BerkeleyDB
 
@@ -24,35 +33,43 @@ entire distribution.
 
 Currently only one script is included: distlint.
 
+
 %prep
 %setup -q
+
 
 %build
 %{__perl} Makefile.PL INSTALLDIRS=vendor PREFIX=%{_prefix}
 make PREFIX=%{_prefix}
 make test
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
+
 %clean 
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
 %doc batch_exemple index.html chkupload.main ChangeLog
 %doc conf_exemple
-%_bindir/distlint
-%_bindir/distlintbatch
-%_bindir/chkupload
-%_bindir/chk_inst_files
+%{_bindir}/distlint
+%{_bindir}/distlintbatch
+%{_bindir}/chkupload
+%{_bindir}/chk_inst_files
 %{perl_vendorlib}/*.pm
 %dir %{perl_vendorlib}/urpmchecker
 %{perl_vendorlib}/urpmchecker/*.pm
-%_mandir/*/*
+%{_mandir}/*/*
 
 %changelog
+* Thu Aug 18 2005 Vincent Danen <vdanen@annvix.org> 0.1.2-3avx
+- bootstrap build (new gcc, new glibc)
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 0.1.2-2avx
 - rebuild
 

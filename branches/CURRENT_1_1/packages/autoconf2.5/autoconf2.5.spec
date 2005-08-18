@@ -1,14 +1,23 @@
-%define name	autoconf2.5
-%define version	2.59
-%define release 4avx
-%define epoch	1
+#
+# spec file for package autoconf2.5
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-%define docheck 1
+
+%define name		autoconf2.5
+%define version		2.59
+%define release 	5avx
+%define epoch		1
+
+%define docheck		1
 %{?_without_check: %global docheck 0}
 
 # Factorize uses of autoconf libdir home and
 # handle only one exception in rpmlint
-%define scriptdir %{_datadir}/autotools
+%define scriptdir	%{_datadir}/autotools
 
 Summary:	A GNU tool for automatically configuring source code
 Name:		%{name}
@@ -23,7 +32,7 @@ Source2:	autoconf_special_readme2.5
 Source3:	autoconf-ac-wrapper.pl
 Patch0:		autoconf-2.58-fix-info.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot/
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
 BuildRequires:	texinfo, m4
 
@@ -35,7 +44,7 @@ Conflicts:	autoconf <= 1:2.13-22avx
 Provides:	autoconf = %{epoch}:%{version}-%{release}
 
 # for tests
-%if %docheck
+%if %{docheck}
 BuildRequires:	flex, bison
 %endif
 
@@ -57,47 +66,52 @@ their use.
 
 %{expand:%(cat %{SOURCE2})}
 
+
 %prep
 %setup -q -n autoconf-%{version}
 %patch0 -p1 -b .addinfo
-install -m644 %{SOURCE2} IMPORTANT.README.OpenSLS
+install -m 0644 %{SOURCE2} IMPORTANT.README.OpenSLS
+
 
 %build
 %configure2_5x
 %make
 
-%if %docheck
+%if %{docheck}
 make check	# VERBOSE=1
 %endif
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
 # automatic autoconf wrapper
-install -D -m 755 %{SOURCE3} $RPM_BUILD_ROOT%{scriptdir}/ac-wrapper.pl
+install -D -m 0755 %{SOURCE3} %{buildroot}%{scriptdir}/ac-wrapper.pl
 
 # We don't want to include the standards.info stuff in the package,
 # because it comes from binutils...
-rm -f $RPM_BUILD_ROOT%{_infodir}/standards*
+rm -f %{buildroot}%{_infodir}/standards*
 
 # links all scripts to wrapper
-for i in $RPM_BUILD_ROOT%{_bindir}/*; do
+for i in %{buildroot}%{_bindir}/*; do
     mv $i ${i}-2.5x
     ln -s %{scriptdir}/ac-wrapper.pl $i
 done
 
-mv $RPM_BUILD_ROOT%{_infodir}/autoconf.info $RPM_BUILD_ROOT%{_infodir}/autoconf-2.5x.info
+mv %{buildroot}%{_infodir}/autoconf.info %{buildroot}%{_infodir}/autoconf-2.5x.info
 
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %post
 %_install_info autoconf-2.5x.info
 
 %preun
 %_remove_install_info autoconf-2.5x.info
+
 
 %files
 %defattr(-,root,root)
@@ -108,8 +122,12 @@ mv $RPM_BUILD_ROOT%{_infodir}/autoconf.info $RPM_BUILD_ROOT%{_infodir}/autoconf-
 %{_mandir}/*/*
 %{scriptdir}
 
+
 %changelog
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.59-3avx
+* Thu Aug 18 2005 Vincent Danen <vdanen@annvix.org> 2.59-5avx
+- bootstrap build (new gcc, new glibc)
+
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.59-4avx
 - bootstrap build
 
 * Mon Feb 28 2005 Vincent Danen <vdanen@annvix.org> 2.59-3avx
@@ -177,7 +195,7 @@ mv $RPM_BUILD_ROOT%{_infodir}/autoconf.info $RPM_BUILD_ROOT%{_infodir}/autoconf-
 - rebuild to change distribution tag
 
 * Tue May 01 2001 David BAUDENS <baudens@mandrakesoft.com> 2.13-8mdk
-- Use %%_tmppath for BuildRoot
+- Use %%{_buildroot} for BuildRoot
 
 * Mon Oct 16 2000 Guillaume Cottenceau <gc@mandrakesoft.com> 2.13-7mdk
 - fix for compiling c++ code with gcc-2.96 in some cases

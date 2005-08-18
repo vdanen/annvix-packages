@@ -9,7 +9,7 @@
 
 %define name		dhcpcd
 %define	version		1.3.22pl4
-%define release		8avx
+%define release		9avx
 
 %define	rversion	1.3.22-pl4
 
@@ -24,7 +24,7 @@ Source:		ftp://sunsite.unc.edu/pub/Linux/system/network/daemons/dhcpcd-%{rversio
 Patch0:		dhcpcd-1.3.22-pl4-resolvrdv.patch.bz2
 Patch1:		dhcpcd-1.3.22pl4-CAN-2005-1848.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 
 %description
 dhcpcd is an implementation of the DHCP client specified in
@@ -82,6 +82,9 @@ fi
 
 
 %changelog
+* Thu Aug 18 2005 Vincent Danen <vdanen@annvix.org> 1.3.22pl4-9avx
+- bootstrap build (new gcc, new glibc)
+
 * Tue Jul 19 2005 Vincent Danen <vdanen@annvix.org> 1.3.22pl4-8avx
 - P1: fix CAN-2005-1848 (low security; no official update issued)
 

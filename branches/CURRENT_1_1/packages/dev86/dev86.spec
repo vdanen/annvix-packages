@@ -1,6 +1,15 @@
-%define name	dev86
-%define version	0.16.3
-%define release	6avx
+#
+# spec file for package dev86
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		dev86
+%define version		0.16.3
+%define release		7avx
 
 Summary:	A real mode 80x86 assembler and linker
 Name:		%{name}
@@ -9,7 +18,7 @@ Release:	%{release}
 License:	GPL
 Group:		Development/Other
 URL:		http://www.cix.co.uk/~mayday/
-Source:		http://www.cix.co.uk/~mayday/%name-%version.tar.bz2
+Source:		http://www.cix.co.uk/~mayday/%{name}-%{version}.tar.bz2
 Patch0:		Dev86src-0.15.5-noroot.patch.bz2
 Patch1:		Dev86src-0.14-nobcc.patch.bz2
 Patch2:		dev86-0.16.3-bccpath.patch.bz2
@@ -17,7 +26,7 @@ Patch3:		Dev86src-0.15-mandir.patch.bz2
 Patch4:		Dev86src-0.15.5-badlinks.patch.bz2
 Patch5:		dev86-0.16.3-missing-header.patch.bz2
 
-BuildRoot:	%_tmppath/dev86/
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 ExclusiveArch:	%ix86
 
 Obsoletes:	bin86
@@ -29,13 +38,11 @@ instructions. You'll need to have this package installed in order to
 build programs that run in real mode, including LILO and the kernel's
 bootstrapping code, from their sources.
 
-You should install dev86 if you intend to build programs that run in real
-mode from their source code.
 
 %package devel
 Summary:	A development files for dev86
 Group:		Development/Other
-Requires:	%name = %version
+Requires:	%{name} = %{version}
 
 %description devel
 The dev86 package provides an assembler and linker for real mode 80x86
@@ -45,9 +52,6 @@ bootstrapping code, from their sources.
 
 The dev86-devel package provides C headers need to use bcc, the C
 compiler for real mode x86.
-
-You should install dev86 if you intend to build programs that run in real
-mode from their source code.
 
 Note that you don't need dev86-devel package in order to build
 a kernel.
@@ -65,63 +69,71 @@ a kernel.
 mkdir -p lib/bcc
 ln -s ../../include lib/bcc/include
 
+
 %build
 make <<!FooBar!
 5
 quit
 !FooBar!
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-make DIST=$RPM_BUILD_ROOT MANDIR=$RPM_BUILD_ROOT/%_mandir install
+make DIST=%{buildroot} MANDIR=%{buildroot}/%{_mandir} install
 
-install -m 755 -s $RPM_BUILD_ROOT/lib/elksemu $RPM_BUILD_ROOT%_bindir
-rm -rf $RPM_BUILD_ROOT/lib/
+install -m 0755 -s %{buildroot}/lib/elksemu %{buildroot}%{_bindir}
+rm -rf %{buildroot}/lib/
 
-pushd $RPM_BUILD_ROOT%_bindir
-rm -f nm86 size86
-ln objdump86 nm86
-ln objdump86 size86
+pushd %{buildroot}%{_bindir}
+    rm -f nm86 size86
+    ln objdump86 nm86
+    ln objdump86 size86
 popd
 
 # %doc --parents would be overkill
 for i in elksemu unproto bin86 copt dis88 bootblocks; do
-	ln -f $i/README README.$i
+    ln -f $i/README README.$i
 done
 ln -f bin86/README-0.4 README.bin86-0.4
 
 # move header files out of %{_includedir} and into %{_libdir}/bcc/include
-mv $RPM_BUILD_ROOT%_includedir $RPM_BUILD_ROOT%_libdir/bcc
+mv %{buildroot}%{_includedir} %{buildroot}%{_libdir}/bcc
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
+
 %files
 %defattr(-,root,root)
 %doc Changes Contributors COPYING MAGIC README*  
-%dir %_libdir/bcc
-%dir %_libdir/bcc/i86
-%dir %_libdir/bcc/i386
-%_bindir/*
-%_libdir/bcc/bcc-cc1
-%_libdir/bcc/copt
-%_libdir/bcc/unproto
-%_libdir/bcc/i86/crt*
-%_libdir/bcc/i386/crt*
-%_libdir/bcc/i86/rules*
-%_libdir/liberror.txt
-%_mandir/man1/*
+%dir %{_libdir}/bcc
+%dir %{_libdir}/bcc/i86
+%dir %{_libdir}/bcc/i386
+%{_bindir}/*
+%{_libdir}/bcc/bcc-cc1
+%{_libdir}/bcc/copt
+%{_libdir}/bcc/unproto
+%{_libdir}/bcc/i86/crt*
+%{_libdir}/bcc/i386/crt*
+%{_libdir}/bcc/i86/rules*
+%{_libdir}/liberror.txt
+%{_mandir}/man1/*
 
 %files devel
 %defattr(-,root,root)
 %doc README
-%dir %_libdir/bcc/include
-%_libdir/bcc/include/*
-%_libdir/bcc/i86/lib*
-%_libdir/bcc/i386/lib*
+%dir %{_libdir}/bcc/include
+%{_libdir}/bcc/include/*
+%{_libdir}/bcc/i86/lib*
+%{_libdir}/bcc/i386/lib*
+
 
 %changelog
+* Wed Aug 17 2005 Vincent Danen <vdanen@annvix.org> 0.16.3-7avx
+- bootstrap build (new gcc, new glibc)
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 0.16.3-6avx
 - rebuild
 

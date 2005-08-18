@@ -1,7 +1,16 @@
-%define name	nmap
-%define version	3.55
-%define release	3avx
-%define epoch	1
+#
+# spec file for package nmap
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		nmap
+%define version		3.55
+%define release		4avx
+%define epoch		1
 
 Summary:	Network exploration tool and security scanner
 Name:		%{name}
@@ -11,9 +20,9 @@ Epoch:		%{epoch}
 License:	GPL
 Group:		Networking/Other
 URL:		http://www.insecure.org/nmap/
-Source0:	http://download.insecure.org/nmap/dist/%{name}-%version.tar.bz2
+Source0:	http://download.insecure.org/nmap/dist/%{name}-%{version}.tar.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	pcre-devel
 BuildRequires:	openssl-devel
 
@@ -26,8 +35,10 @@ and port specification, decoy scanning, determination of TCP sequence
 predictability characteristics, sunRPC scanning, reverse-identd scanning, and
 more.
 
+
 %prep
-%setup -q -n %{name}-%version
+%setup -q -n %{name}-%{version}
+
 
 %build
 # update config.* to recognize amd64-*
@@ -41,6 +52,7 @@ more.
 %configure2_5x
 #%#endif
 %make 
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -60,7 +72,11 @@ more.
 %{_datadir}/%{name}
 %{_mandir}/man1/nmap.*
 
+
 %changelog
+* Thu Aug 18 2005 Vincent Danen <vdanen@annvix.org> 3.55-4avx
+- bootstrap build (new gcc, new glibc)
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 3.55-3avx
 - rebuild
 
@@ -209,7 +225,7 @@ more.
 - changed group to Applications/System
 - quiet setup
 - no need to create dirs in the install section, "make
-	prefix=$RPM_BUILD_ROOT&{prefix} install" does this.
+	prefix=%{buildroot}&{prefix} install" does this.
 - using defined %{prefix}, %{version} etc. for easier/quicker maint.
 - added docs
 - gzip man pages

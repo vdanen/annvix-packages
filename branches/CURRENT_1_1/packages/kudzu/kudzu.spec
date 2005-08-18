@@ -1,6 +1,15 @@
-%define name	kudzu
-%define version	1.1.111
-%define release	2avx
+#
+# spec file for package kudzu
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		kudzu
+%define version		1.1.111
+%define release		3avx
 
 Summary:	The Red Hat Linux hardware probing tool
 Name:		%{name}
@@ -12,7 +21,7 @@ URL:		http://fedora.redhat.com/projects/additional-projects/kudzu/
 Source:		kudzu-%{version}.tar.gz
 Patch0:		kudzu-1.1.95-avx-python2.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildPrereq:	pciutils-devel >= 2.1.11-1, python-devel python newt-devel
 
 Prereq:		chkconfig, modutils >= 2.3.11-5, initscripts
@@ -27,14 +36,16 @@ Requires:	libnewt0.51
 Kudzu is a hardware probing tool run at system boot time to determine
 what hardware has been added or removed from the system.
 
+
 %package devel
-Summary:	Development files needed for hardware probing using kudzu.
+Summary:	Development files needed for hardware probing using kudzu
 Group:		Development/Libraries
 Requires:	pciutils-devel
 
 %description devel
 The kudzu-devel package contains the libkudzu library, which is used
 for hardware probing and configuration.
+
 
 %prep
 %setup -q
@@ -45,10 +56,12 @@ for hardware probing and configuration.
 perl -pi -e "s/345/-/g" kudzu.init
 %endif
 
+
 %build
 ln -s `pwd` kudzu
 
 make RPM_OPT_FLAGS="%{optflags} -I." all kudzu
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -57,14 +70,17 @@ install -m 0755 fix-mouse-psaux %{buildroot}%{_sbindir}
 
 %find_lang %{name}
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %post
 %_post_service kudzu
 
 %preun
 %_preun_service kudzu
+
 
 %files -f %{name}.lang
 %defattr(-,root,root)
@@ -83,7 +99,11 @@ install -m 0755 fix-mouse-psaux %{buildroot}%{_sbindir}
 %{_libdir}/libkudzu_loader.a
 %{_includedir}/kudzu
 
+
 %changelog
+* Thu Aug 18 2005 Vincent Danen <vdanen@annvix.org> 1.1.95-3avx
+- bootstrap build (new gcc, new glibc)
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 1.1.95-2avx
 - rebuild
 

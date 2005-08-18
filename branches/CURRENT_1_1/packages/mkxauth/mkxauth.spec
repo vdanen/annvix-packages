@@ -1,8 +1,17 @@
-%define name	mkxauth
-%define version	1.7
-%define release	12avx
+#
+# spec file for package mkxauth
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-%define _prefix	/usr/X11R6
+
+%define name		mkxauth
+%define version		1.7
+%define release		13avx
+
+%define _prefix		/usr/X11R6
 
 Summary:	A utility for managing .Xauthority files
 Name: 		%{name}
@@ -13,7 +22,7 @@ Group: 		File tools
 URL:		http://www.tummy.com/krud/packages/mkxauth.html
 Source: 	%{name}-%{version}.tar.bz2
 
-BuildRoot: 	%{_tmppath}/%{name}-%{version}-root
+BuildRoot: 	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
 
 Requires: 	XFree86 textutils fileutils sh-utils procps gzip
@@ -27,33 +36,37 @@ user-oriented access control program, which grants or denies
 access to X servers based on the contents of the .Xauthority
 file.
 
-The mkxauth package should be installed if you're going to use
-user-oriented access control to provide security for your X Window
-System (a good idea).
 
 %prep
-
 %setup -q
+
 
 %build
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p $RPM_BUILD_ROOT%{_prefix}/X11R6/bin
-mkdir -p $RPM_BUILD_ROOT%{_mandir}/man1
+mkdir -p %{buildroot}%{_prefix}/X11R6/bin
+mkdir -p %{buildroot}%{_mandir}/man1
 
-install -m 0755 mkxauth $RPM_BUILD_ROOT%{_prefix}/X11R6/bin/mkxauth
-install -m 0444 mkxauth.1x.bz2 $RPM_BUILD_ROOT%{_mandir}/man1/mkxauth.1x.bz2
+install -m 0755 mkxauth %{buildroot}%{_prefix}/X11R6/bin/mkxauth
+install -m 0444 mkxauth.1x.bz2 %{buildroot}%{_mandir}/man1/mkxauth.1x.bz2
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
 %{_prefix}/X11R6/bin/mkxauth
 %{_mandir}/man1/*
 
+
 %changelog
+* Thu Aug 18 2005 Vincent Danen <vdanen@annvix.org> 1.7-13avx
+- bootstrap build (new gcc, new glibc)
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 1.7-12avx
 - rebuild
 

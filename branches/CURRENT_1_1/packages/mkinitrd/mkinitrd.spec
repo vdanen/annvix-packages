@@ -1,11 +1,20 @@
-%define name	mkinitrd
-%define version 3.4.43
-%define release 21avx
-%define epoch	1
+#
+# spec file for package mkinitrd
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-%define use_dietlibc 0
+
+%define name		mkinitrd
+%define version 	3.4.43
+%define release 	22avx
+%define epoch		1
+
+%define use_dietlibc 	0
 %ifarch %{ix86} x86_64 amd64
-%define use_dietlibc 1
+%define use_dietlibc 	1
 %endif
 
 Summary:	Creates an initial ramdisk image for preloading modules
@@ -25,7 +34,7 @@ Patch2:		mkinitrd-3.4.43-mdk-kernel-2.5.patch.bz2
 Patch3:		mkinitrd-3.4.43-avx-mkdevices.patch.bz2
 Patch4:		mkinitrd-4.1.12-mdk-nash.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl
 %if %{use_dietlibc}
 BuildRequires:	dietlibc-devel
@@ -51,6 +60,7 @@ ramdisk image loads the proper SCSI adapter and allows the kernel to
 mount the root filesystem.  The mkinitrd program creates such a
 ramdisk using information found in the /etc/modules.conf file.
 
+
 %prep
 %setup -q -a 1
 rm -rf nash
@@ -62,11 +72,13 @@ tar xvjf %{SOURCE2}
 %patch4 -p1 -b .mdk-nash
 perl -pi -e 's/grubby//' Makefile
 
+
 %build
 %if %{use_dietlibc}
 make -C mkinitrd_helper-subdir
 %endif
 make
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -79,15 +91,21 @@ cp mkinitrd_helper-subdir/insmod-module-init-tools/insmod %{buildroot}/sbin/insm
 rm -f %{buildroot}/sbin/{grubby,installkernel,new-kernel-pkg}
 rm -f %{buildroot}%{_mandir}/*/grubby*
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-, root, root)
 /sbin/*
 %{_mandir}/*/*
 
+
 %changelog
+* Thu Aug 18 2005 Vincent Danen <vdanen@annvix.org> 3.4.43-22avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 3.4.43-21avx
 - bootstrap build
 

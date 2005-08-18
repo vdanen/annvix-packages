@@ -1,6 +1,15 @@
-%define name	mpage
-%define version	2.5.3
-%define release	9avx
+#
+# spec file for package mpage
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		mpage
+%define version		2.5.3
+%define release		10avx
 
 Summary:	A tool for printing multiple pages of text on each printed page
 Name:		%{name}
@@ -9,7 +18,7 @@ Release:	%{release}
 License:	BSD
 Group:		System/Configuration/Printing
 URL:		http://www.mesa.nl/pub/mpage
-Source:		http://www.mesa.nl/pub/mpage/%name-%version.tar.bz2
+Source:		http://www.mesa.nl/pub/mpage/%{name}-%{version}.tar.bz2
 Patch0:		mpage252-config.patch.bz2
 # Japanese patch.bz2
 Patch10:	mpage-2.5.3-j.patch.bz2
@@ -17,7 +26,7 @@ Patch20:	mpage-mfix.patch.bz2
 Patch21:	mpage-psprint.patch.bz2
 Patch22:	mpage-2.5.3-japanese-fix.patch.bz2
 
-BuildRoot: %{_tmppath}/%{name}-%{version}-root
+BuildRoot: %{_buildroot}/%{name}-%{version}
 
 %description
 The mpage utility takes plain text files or PostScript(TM) documents
@@ -27,8 +36,6 @@ is very useful for viewing large printouts without using up tons of
 paper.  Mpage supports many different layout options for the printed
 pages.
 
-Mpage should be installed if you need a useful utility for viewing
-long text documents without wasting paper.
 
 %prep
 %setup -q
@@ -38,29 +45,37 @@ long text documents without wasting paper.
 %patch21 -p1
 %patch22 -p0
 
+
 %build
 %make
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-make PREFIX=$RPM_BUILD_ROOT%_prefix MANDIR=$RPM_BUILD_ROOT%_mandir/man1 install
-mkdir -p $RPM_BUILD_ROOT%_libdir/%name
-cp -a Encodings/* $RPM_BUILD_ROOT%_libdir/%name
+make PREFIX=%{buildroot}%{_prefix} MANDIR=%{buildroot}%{_mandir}/man1 install
+mkdir -p %{buildroot}%{_libdir}/%{name}
+cp -a Encodings/* %{buildroot}%{_libdir}/%{name}
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
 %doc CHANGES Copyright README NEWS TODO
 
-%_bindir/mpage
-%_mandir/man1/mpage.1*
-%_libdir/mpage
+%{_bindir}/mpage
+%{_mandir}/man1/mpage.1*
+%{_libdir}/mpage
 %_datadir/mpage
 
+
 %changelog
+* Thu Aug 18 2005 Vincent Danen <vdanen@annvix.org> 2.5.3-10avx
+- bootstrap build (new gcc, new glibc)
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.5.3-9avx
 - rebuild
 

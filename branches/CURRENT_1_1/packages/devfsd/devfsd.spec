@@ -1,13 +1,22 @@
-%define name	devfsd
-%define version	1.3.25
-%define release	39avx
-%define rname	devfsd
+#
+# spec file for package devfsd
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		devfsd
+%define version		1.3.25
+%define release		40avx
+%define rname		devfsd
 
 %define state_dir	/lib/dev-state
 %define build_static	0
 
 %if %{build_static}
-%define name	devfsd-static
+%define name		devfsd-static
 %endif
 
 Summary:	Daemon for providing old entries in /dev with devfs
@@ -17,10 +26,10 @@ Release:	%{release}
 License:	GPL
 Group:		System/Kernel and hardware
 URL:		http://www.atnf.csiro.au/~rgooch/linux/docs/devfs.html
-Source:		ftp://ftp.atnf.csiro.au/pub/people/rgooch/linux/daemons/devfsd/%rname-v%version.tar.bz2
+Source:		ftp://ftp.atnf.csiro.au/pub/people/rgooch/linux/daemons/devfsd/%{rname}-v%{version}.tar.bz2
 Source1:	devfs_fs.h.bz2
 Source2:	devfs_fs_kernel.h.bz2
-Source3:	%rname
+Source3:	%{rname}
 Source4:	devfs-add-mouse-entry
 #
 # Compatibility names
@@ -81,7 +90,7 @@ Patch50:	devfsd-1.3.25-lsb_vs_ptsfs.patch.bz2
 Patch100:	devfsd-1.3.25-kernel-2.5.patch.bz2
 Patch101:	devfsd-1.3.25-pts.patch.bz2
 
-BuildRoot:	%_tmppath/%rname-%version-build
+BuildRoot:	%{_buildroot}/%{rname}-%{version}
 
 Exclusiveos:	Linux
 Requires:	initscripts >= 6.40.2-21mdk, pam
@@ -116,7 +125,7 @@ REGISTER events for each leaf node.
 
 
 %prep
-%setup -q -n %rname
+%setup -q -n %{rname}
 # Compatibility names
 %patch0 -p1 -b .cdrom
 %patch1 -p1 -b .tun
@@ -152,6 +161,7 @@ REGISTER events for each leaf node.
 # Make devfsd.conf lib64 aware, notably of pam modules location
 perl -pi -e "s|/lib(/security)|/%{_lib}\1|g" devfsd.conf
 
+
 %build
 %serverbuild
 %if %{build_static}
@@ -164,27 +174,28 @@ make all CEXTRAS="-pg -fpic -I."
 %install
 export DONT_STRIP=1
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p %buildroot/{sbin,%_sysconfdir,/%_mandir/man{5,8},etc,%state_dir}
-install -m 755 -s devfsd %buildroot/sbin/devfsd
-install -m 644 devfsd.8 %buildroot/%_mandir/man8
-install -m 644 devfsd.conf.5 %buildroot/%_mandir/man5
-install -m 644 devfsd.conf %buildroot%_sysconfdir
-install -m 644 modules.devfs %buildroot%_sysconfdir
+mkdir -p %{buildroot}/{sbin,%{_sysconfdir},/%{_mandir}/man{5,8},etc,%{state_dir}}
+install -m 0755 -s devfsd %{buildroot}/sbin/devfsd
+install -m 0644 devfsd.8 %{buildroot}/%{_mandir}/man8
+install -m 0644 devfsd.conf.5 %{buildroot}/%{_mandir}/man5
+install -m 0644 devfsd.conf %{buildroot}%{_sysconfdir}
+install -m 0644 modules.devfs %{buildroot}%{_sysconfdir}
 # service and mouse entry script
-mkdir -p  %buildroot{%_initrddir,/etc/devfs/conf.d} || :
-install -m 755 %SOURCE3 %buildroot%_initrddir/%rname
-install -m 755 %SOURCE4 %buildroot/sbin/devfs-add-mouse-entry
+mkdir -p  %{buildroot}{%_initrddir,/etc/devfs/conf.d} || :
+install -m 0755 %SOURCE3 %{buildroot}%_initrddir/%{rname}
+install -m 0755 %SOURCE4 %{buildroot}/sbin/devfs-add-mouse-entry
+
 
 %pre
-[ -d /var/dev-state/ -a ! -e %state_dir ] && /bin/mv /var/dev-state %state_dir
-[ -d /var/lib/dev-state/ -a ! -e %state_dir ] && /bin/mv /var/lib/dev-state %state_dir || :
+[ -d /var/dev-state/ -a ! -e %{state_dir} ] && /bin/mv /var/dev-state %{state_dir}
+[ -d /var/lib/dev-state/ -a ! -e %{state_dir} ] && /bin/mv /var/lib/dev-state %{state_dir} || :
 
 
 %post
-%_post_service %rname
+%_post_service %{rname}
 
 # prevent minilogd/initlog deadlock because of /dev/log:
-rm -f %state_dir/log
+rm -f %{state_dir}/log
 
 [[ "$1" -gt 1 ]] && exit 0
 [ -f /etc/sysconfig/mouse -a ! -e /etc/devfs/conf.d/mouse.conf ] || exit 0
@@ -193,40 +204,44 @@ rm -f %state_dir/log
 
 %preun
 if [ "$1" = 0 ]; then
-  for i in /etc/lilo.conf /boot/grub/menu.lst; do
-    [[ -e $i ]] && perl -pi -e 's/(\s*)devfs=mount(\s*)/$1 || $2/e' $i
-  done
+    for i in /etc/lilo.conf /boot/grub/menu.lst; do
+        [[ -e $i ]] && perl -pi -e 's/(\s*)devfs=mount(\s*)/$1 || $2/e' $i
+    done
   
-  [[ $(/usr/sbin/detectloader -q) = "LILO" ]] && /sbin/lilo > /dev/null
+    [[ $(/usr/sbin/detectloader -q) = "LILO" ]] && /sbin/lilo > /dev/null
 fi
-%_preun_service %rname
+%_preun_service %{rname}
 :
 
 
 %postun
 if [[ "$1" = 0 ]]; then
-	killall -TERM devfsd 2>/dev/null || :
+    killall -TERM devfsd 2>/dev/null || :
 fi
 
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
+
 %files
 %defattr(-,root,root)
-%_mandir/man8/devfsd.8*
-%_mandir/man5/devfsd.conf.5*
+%{_mandir}/man8/devfsd.8*
+%{_mandir}/man5/devfsd.conf.5*
 %dir /etc/devfs/
 %dir /etc/devfs/conf.d/
 /sbin/devfsd
 /sbin/devfs-add-mouse-entry
 %dir %{state_dir}
-%config(noreplace) %_sysconfdir/devfsd.conf
-%config(noreplace) %_sysconfdir/modules.devfs
-%config(noreplace) %_initrddir/%rname
+%config(noreplace) %{_sysconfdir}/devfsd.conf
+%config(noreplace) %{_sysconfdir}/modules.devfs
+%config(noreplace) %_initrddir/%{rname}
 
 
 %changelog
+* Thu Aug 18 2005 Vincent Danen <vdanen@annvix.org> 1.3.25-40avx
+- bootstrap build (new gcc, new glibc)
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 1.3.25-39avx
 - rebuild
 

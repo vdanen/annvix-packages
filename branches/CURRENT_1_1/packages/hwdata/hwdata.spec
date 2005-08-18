@@ -1,6 +1,15 @@
-%define name	hwdata
-%define version	0.152
-%define release	2avx
+#
+# spec file for package hwdata
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		hwdata
+%define version		0.152
+%define release		3avx
 
 Summary:	Hardware identification and configuration data
 Name:		%{name}
@@ -10,15 +19,17 @@ License:	GPL/MIT
 Group:		System Environment/Base
 Source: 	hwdata-%{version}.tar.gz
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
 
 %description
 hwdata contains various hardware identification and configuration data,
 such as the pci.ids database, the XFree86 Cards and MonitorsDb databases.
 
+
 %prep
 %setup -q
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -27,8 +38,10 @@ make install DESTDIR=%{buildroot}
 # remove hotplug file, we don't use hotplug or support pcmcia
 rm -rf %{buildroot}%{_sysconfdir}/{hotplug,pcmcia}
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -38,7 +51,11 @@ rm -rf %{buildroot}%{_sysconfdir}/{hotplug,pcmcia}
 # This file is screaming to be moved into /usr/share/hwdata sometime <g>
 /usr/X11R6/lib/X11/Cards
 
+
 %changelog
+* Thu Aug 18 2005 Vincent Danen <vdanen@annvix.org> 0.152-3avx
+- bootstrap build (new gcc, new glibc)
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 0.152-2avx
 - rebuild
 

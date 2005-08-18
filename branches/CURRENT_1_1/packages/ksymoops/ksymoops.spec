@@ -1,6 +1,15 @@
-%define name	ksymoops
-%define version 2.4.9
-%define release 4avx
+#
+# spec file for package ksymoops
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		ksymoops
+%define version 	2.4.9
+%define release 	5avx
 
 Summary:	Kernel oops and error message decoder
 Name:		%{name}
@@ -15,7 +24,7 @@ Source2:	ksymoops-script
 Source3:	README.annvix
 Patch1:		ksymoops-2.4.3-add_gz_modules_support.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	binutils-devel
 Requires:	binutils
 ExclusiveOS:	Linux
@@ -27,23 +36,28 @@ numbers which are meaningless for debugging.  ksymoops reads machine
 specific files and the error log and converts the addresses to
 meaningful symbols and offsets.
 
+
 %prep
 %setup -q
 %patch1 -p1
 
+
 %build
 CFLAGS="%{optflags}" make DEF_MAP=\\\"/boot/System.map-*r\\\" all
+
  
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 make INSTALL_PREFIX=%{buildroot}%{_prefix} INSTALL_MANDIR=%{buildroot}%{_mandir}/ install
 mv %{buildroot}%{_bindir}/ksymoops %{buildroot}%{_bindir}/ksymoops.real
-install -m 755 %{SOURCE1} %{buildroot}%{_bindir}
-install -m 755 %{SOURCE2} %{buildroot}%{_bindir}/ksymoops
-install -m 644 %{SOURCE3} .
+install -m 0755 %{SOURCE1} %{buildroot}%{_bindir}
+install -m 0755 %{SOURCE2} %{buildroot}%{_bindir}/ksymoops
+install -m 0644 %{SOURCE3} .
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -55,6 +69,9 @@ install -m 644 %{SOURCE3} .
 
 
 %changelog
+* Thu Aug 18 2005 Vincent Danen <vdanen@annvix.org> 2.4.9-5avx
+- bootstrap build (new gcc, new glibc)
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.4.9-4avx
 - rebuild
 
@@ -71,7 +88,7 @@ install -m 644 %{SOURCE3} .
 * Tue Jul 22 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 2.4.8-2mdk
 - rebuild
 - drop Prefix tag
-- rm -rf $RPM_BUILD_ROOT at the beginning of %%install
+- rm -rf %{buildroot} at the beginning of %%install
 - macroize
 
 * Mon Dec  9 2002 Juan Quintela <quintela@mandrakesoft.com> 2.4.8-1mdk
@@ -88,7 +105,7 @@ install -m 644 %{SOURCE3} .
 - Corrected permissions of README.mandrake (Duclos Andre).
 
 * Wed Feb  6 2002 Juan Quintela <quintela@mandrakesoft.com> 2.4.3-2mdk
-- s/$RPM_BUILD_ROOT/$buildroot/.
+- s/%{buildroot}/$buildroot/.
 - add ksymoops script to put the KSYMOOPS_NM to find the gznm instead of nm.
 - add gznm script to make nm <module> work indepently if it is gzipped or not.
 - add support for gzipped modules.
