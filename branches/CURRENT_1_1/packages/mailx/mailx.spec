@@ -1,6 +1,15 @@
-%define name	mailx
-%define version	8.1.1
-%define release	27avx
+#
+# spec file for package mailx
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		mailx
+%define version		8.1.1
+%define release		28avx
 
 Summary:	The /bin/mail program, which is used to send mail via shell scripts
 Name:		%{name}
@@ -22,19 +31,16 @@ Patch9:		mailx-8.1.1-makefile-create-dirs.patch.bz2
 Patch10:	mailx-8.1.1-includes.patch.bz2 
 Patch11:	mailx-8.1.1-fseek.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 
 %description
 The mailx package installs the /bin/mail program, which is used to send
 quick email messages (i.e., without opening up a full-featured mail user
 agent). Mail is often used in shell scripts.
 
-You should install mailx because of its quick email sending ability, which
-is especially useful if you're planning on writing any shell scripts.
 
 %prep
 %setup -q
-
 %patch0 -p1 -b .debian
 %patch1 -p1 -b .security
 %patch2 -p1 -b .nolock
@@ -48,22 +54,26 @@ is especially useful if you're planning on writing any shell scripts.
 %patch10 -p1 -b .includes
 %patch11 -p1 -b .fseek
 
+
 %build
 # We can't compile mailx with Optimisation
 
-CFLAGS=$(echo $RPM_OPT_FLAGS|sed 's/-O.//g')
+CFLAGS=$(echo %{optflags}|sed 's/-O.//g')
 make CFLAGS="$CFLAGS -D_GNU_SOURCE"
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
-mkdir -p $RPM_BUILD_ROOT%{_bindir}
-ln -sf ../../bin/mail $RPM_BUILD_ROOT%{_bindir}/Mail
-ln -sf mail.1 $RPM_BUILD_ROOT%{_mandir}/man1/Mail.1
+mkdir -p %{buildroot}%{_bindir}
+ln -sf ../../bin/mail %{buildroot}%{_bindir}/Mail
+ln -sf mail.1 %{buildroot}%{_mandir}/man1/Mail.1
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -75,7 +85,11 @@ ln -sf mail.1 $RPM_BUILD_ROOT%{_mandir}/man1/Mail.1
 %config(noreplace) %{_sysconfdir}/mail.rc
 %{_mandir}/man1/*
 
+
 %changelog
+* Wed Aug 17 2005 Vincent Danen <vdanen@annvix.org> 8.1.1-28avx
+- bootstrap build (new gcc, new glibc)
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 8.1.1-27avx
 - rebuild
 

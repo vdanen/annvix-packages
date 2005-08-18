@@ -1,9 +1,18 @@
-%define	name	matrixssl
-%define	version	1.2.2
-%define	release	5avx
+#
+# spec file for package matrixssl
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-%define	major	1
-%define libname	%mklibname %{name} %{major}
+
+%define	name		matrixssl
+%define	version		1.2.2
+%define	release		6avx
+
+%define	major		1
+%define libname		%mklibname %{name} %{major}
 %define diethome	%{_prefix}/lib/dietlibc
 
 Summary:	MatrixSSL is an embedded SSL implementation
@@ -17,7 +26,7 @@ Source0:	%{name}-1-2-2.tar.gz
 Patch0:		matrixssl-1.2-shared_and_static.diff.bz2
 Patch1:		matrixssl-1.2-debian.diff.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	dietlibc-devel >= 0.27-2avx
 
 %description
@@ -45,6 +54,7 @@ and implementations of RSA, 3DES, ARC4, SHA1, and MD5. The source is
 well documented and contains portability layers for additional 
 operating systems, cipher suites, and cryptography providers. 
 
+
 %package -n %{libname}-devel
 Summary:	Static library and header files for the %{name} library
 Group:		Development/C
@@ -66,8 +76,8 @@ operating systems, cipher suites, and cryptography providers.
 This package contains the static libraries and headers for both
 glibc and dietlibc.
 
-%prep
 
+%prep
 %setup -q -n %{name}
 %patch0 -p1 
 
@@ -75,12 +85,12 @@ glibc and dietlibc.
 mkdir -p dietlibc
 cp -rp src dietlibc/
 cp matrixSsl.h dietlibc/
-cd dietlibc
+pushd dietlibc
 %patch1 -p0
-cd -
+popd
+
 
 %build
-
 # first make the standard glibc stuff...
 make -C src DFLAGS="%{optflags} -fPIC"
 
@@ -88,6 +98,7 @@ make -C src DFLAGS="%{optflags} -fPIC"
 make -C dietlibc/src CC="diet -Os gcc" \
     LDFLAGS="-nostdlib" \
     static
+
 
 %install
 [ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
@@ -99,15 +110,15 @@ install -d %{buildroot}%{diethome}/{lib-${MYARCH},include}
 install -d %{buildroot}%{_libdir}
 
 # install the glibc version
-install -m0755 src/lib%{name}.so %{buildroot}%{_libdir}/lib%{name}.so.%{version}
+install -m 0755 src/lib%{name}.so %{buildroot}%{_libdir}/lib%{name}.so.%{version}
 ln -snf lib%{name}.so.%{version} %{buildroot}%{_libdir}/lib%{name}.so.%{major}
 ln -snf lib%{name}.so.%{version} %{buildroot}%{_libdir}/lib%{name}.so
-install -m0644 src/lib%{name}.a %{buildroot}%{_libdir}/
-install -m0644 matrixSsl.h %{buildroot}%{_includedir}/
+install -m 0644 src/lib%{name}.a %{buildroot}%{_libdir}/
+install -m 0644 matrixSsl.h %{buildroot}%{_includedir}/
 
 # install the dietlibc version
-install -m0644 dietlibc/src/lib%{name}.a %{buildroot}%{diethome}/lib-${MYARCH}/
-install -m0644 dietlibc/matrixSsl.h %{buildroot}%{diethome}/include/
+install -m 0644 dietlibc/src/lib%{name}.a %{buildroot}%{diethome}/lib-${MYARCH}/
+install -m 0644 dietlibc/matrixSsl.h %{buildroot}%{diethome}/include/
 
 # cleanup the examples directory
 rm -f examples/*.sln
@@ -115,12 +126,14 @@ rm -f examples/*.vcproj
 rm -f examples/*.pem
 rm -f examples/*.p12
 
-%post -n %{libname} -p /sbin/ldconfig
-
-%postun -n %{libname} -p /sbin/ldconfig
 
 %clean
 [ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
+
+
+%post -n %{libname} -p /sbin/ldconfig
+%postun -n %{libname} -p /sbin/ldconfig
+
 
 %files -n %{libname}
 %defattr(-,root,root)
@@ -141,7 +154,11 @@ rm -f examples/*.p12
 %{_libdir}/*.a
 %{diethome}/lib-*/*.a
 
+
 %changelog
+* Wed Aug 17 2005 Vincent Danen <vdanen@annvix.org> 1.2.2-6avx
+- bootstrap build (new gcc, new glibc)
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 1.2.2-5avx
 - rebuild
 

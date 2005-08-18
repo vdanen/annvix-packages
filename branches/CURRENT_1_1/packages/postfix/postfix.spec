@@ -1,7 +1,16 @@
-%define name	postfix
-%define version	2.1.5
-%define release 4avx
-%define epoch	1
+#
+# spec file for package postfix
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		postfix
+%define version		2.1.5
+%define release 	5avx
+%define epoch		1
 
 %define	openssl_ver	0.9.7d
 %define tlsno 		pfixtls-0.8.18-2.1.3-%{openssl_ver}
@@ -33,10 +42,10 @@
 %define maildrop_gid	79
 %define queue_directory	%{_var}/spool/postfix
 
-%if %alternatives
-%define post_install_parameters	daemon_directory=%{_libdir}/postfix command_directory=%{_sbindir} queue_directory=%{queue_directory} sendmail_path=%{_sbindir}/sendmail.postfix newaliases_path=%{_bindir}/newaliases.postfix mailq_path=%{_bindir}/mailq.postfix mail_owner=postfix setgid_group=%{maildrop_group} manpage_directory=%{_mandir} sample_directory=%{_docdir}/%name-%version/samples readme_directory=%{_docdir}/%name-%version/README_FILES html_directory=%{_docdir}/%name-%version/html 
+%if %{alternatives}
+%define post_install_parameters	daemon_directory=%{_libdir}/postfix command_directory=%{_sbindir} queue_directory=%{queue_directory} sendmail_path=%{_sbindir}/sendmail.postfix newaliases_path=%{_bindir}/newaliases.postfix mailq_path=%{_bindir}/mailq.postfix mail_owner=postfix setgid_group=%{maildrop_group} manpage_directory=%{_mandir} sample_directory=%{_docdir}/%{name}-%{version}/samples readme_directory=%{_docdir}/%{name}-%{version}/README_FILES html_directory=%{_docdir}/%{name}-%{version}/html 
 %else
-%define post_install_parameters	daemon_directory=%{_libdir}/postfix command_directory=%{_sbindir} queue_directory=%{queue_directory} sendmail_path=%{_sbindir}/sendmail newaliases_path=%{_bindir}/newaliases mailq_path=%{_bindir}/mailq mail_owner=postfix setgid_group=%{maildrop_group} manpage_directory=%{_mandir} sample_directory=%{_docdir}/%name-%version/samples readme_directory=%{_docdir}/%name-%version/README_FILES html_directory=%{_docdir}/%name-%version/html 
+%define post_install_parameters	daemon_directory=%{_libdir}/postfix command_directory=%{_sbindir} queue_directory=%{queue_directory} sendmail_path=%{_sbindir}/sendmail newaliases_path=%{_bindir}/newaliases mailq_path=%{_bindir}/mailq mail_owner=postfix setgid_group=%{maildrop_group} manpage_directory=%{_mandir} sample_directory=%{_docdir}/%{name}-%{version}/samples readme_directory=%{_docdir}/%{name}-%{version}/README_FILES html_directory=%{_docdir}/%{name}-%{version}/html 
 %endif
 
 Summary:	Postfix Mail Transport Agent
@@ -69,8 +78,8 @@ Patch6:		postfix-2.1.0-mdk-saslpath.patch.bz2
 Patch7:		postfix-2.1.1-tlsdoc.patch.bz2
 Patch8:		postfix-2.1.5-avx-warnsetsid.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root
-BuildRequires:	db4-devel, gawk, /usr/bin/perl, sed, ed
+BuildRoot:	%{_buildroot}/%{name}-%{version}
+BuildRequires:	db4-devel, gawk, perl, sed, ed
 BuildConflicts:	BerkeleyDB-devel
 
 %if %{with_LDAP}
@@ -116,6 +125,7 @@ of 1998 as the IBM Secure Mailer. From then on it has lived on as Postfix.
 
 This rpm supports LDAP, SMTP AUTH (trough cyrus-sasl) and TLS.
 If you also need MySQL support, rebuild the srpm --with mysql.
+
 
 %prep
 %setup -q -a 4
@@ -163,6 +173,7 @@ install -m 0644 %{SOURCE10} UCE
 install -m 0644 %{SOURCE11} UCE
 install -m 0644 %{SOURCE12} UCE
 
+
 %build
 %serverbuild
 %ifarch x86_64
@@ -207,9 +218,10 @@ make DEBUG="" OPT="%{optflags}"
 
 # add correct parameters to main.cf.dist
 LD_LIBRARY_PATH=$PWD/lib${LD_LIBRARY_PATH:+:}${LD_LIBRARY_PATH} \
-  ./src/postconf/postconf -c ./conf/dist -e \
-  %post_install_parameters
+    ./src/postconf/postconf -c ./conf/dist -e \
+    %post_install_parameters
 mv conf/dist/main.cf conf/main.cf.dist
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -234,13 +246,13 @@ bin/postconf -c %{buildroot}%{_sysconfdir}/postfix -e \
     "alias_database = hash:%{_sysconfdir}/postfix/aliases" \
     || exit 1
 
-install -c auxiliary/rmail/rmail %buildroot/%{_bindir}/rmail.postfix
+install -c auxiliary/rmail/rmail %{buildroot}%{_bindir}/rmail.postfix
 
 # copy new aliases files and generate a ghost aliases.db file
 cp -f %{SOURCE3} %{buildroot}%{_sysconfdir}/postfix/aliases
-chmod 644 %{buildroot}%{_sysconfdir}/postfix/aliases
+chmod 0644 %{buildroot}%{_sysconfdir}/postfix/aliases
 
-touch %buildroot/%{_sysconfdir}/postfix/aliases.db
+touch %{buildroot}%{_sysconfdir}/postfix/aliases.db
 
 for i in active bounce corrupt defer deferred flush incoming private saved maildrop public pid trace; do
     mkdir -p %{buildroot}%{queue_directory}/$i
@@ -283,6 +295,7 @@ install -m 0750 %{SOURCE6} %{buildroot}%{_srvdir}/postfix/run
 
 rm -f %{buildroot}%{_sysconfdir}/postfix/LICENSE
 
+
 %pre
 %_pre_useradd postfix %{queue_directory} /bin/false %{postfix_uid}
 %_pre_groupadd %{maildrop_group} %{maildrop_gid} postfix
@@ -324,7 +337,7 @@ fi
 %preun
 %_preun_srv postfix
 if [ $1 = 0 ]; then
-    %if %alternatives
+    %if %{alternatives}
 	update-alternatives --remove mta %{_sbindir}/sendmail.postfix
     %endif
     true
@@ -452,6 +465,9 @@ fi
 
 
 %changelog
+* Wed Aug 17 2005 Vincent Danen <vdanen@annvix.org> 2.1.5-5avx
+- bootstrap build (new gcc, new glibc)
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.1.5-4avx
 - rebuild
 
@@ -623,7 +639,7 @@ fi
 - chroot: fix ldap trigger (on libldap2 instead of generic openldap package).
 - chroot: renamed ROOT by CHROOT.
 - do not ship two times the TLS doc (in TLS). 
-- use %%_docdir instead of %%_datadir/doc.
+- use %%{_docdir} instead of %%_datadir/doc.
 - rpmlint: use %%SOURCE6 instead of %%sourcedir.
 - spec: replace official condif by reverse experimental condif (so my vim macro works again).
 - description: add a space before begining with a new sentence.
@@ -651,7 +667,7 @@ fi
 - fix alternative pb (symlink not created)
 
 * Wed Apr 17 2002 Yves Duret <yduret@mandrakesoft.com> 1.1.7-2mdk
-- added %_libdir/sendmail link for backward compatibility
+- added %{_libdir}/sendmail link for backward compatibility
 
 * Sun Apr 14 2002 Yves Duret <yduret@mandrakesoft.com> 1.1.7-1mdk
 - the long awaiting postfix update (added Epoch tag).

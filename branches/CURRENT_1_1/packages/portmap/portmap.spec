@@ -1,7 +1,16 @@
-%define name	portmap
-%define version	4.0
-%define release	29avx
-%define ver	4
+#
+# spec file for package portmap
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		portmap
+%define version		4.0
+%define release		30avx
+%define ver		4
 
 Summary:	A program which manages RPC connections
 Name:		portmap
@@ -26,7 +35,7 @@ Patch5:		portmap-4.0-errno.patch.bz2
 Patch6:		portmap-4.0-pie.diff.bz2
 Patch7:		portmap_4-bind_to_ip_or_host_address.diff.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	tcp_wrappers-devel
 
 Prereq:		rpm-helper
@@ -38,8 +47,6 @@ The portmapper program is a security tool which prevents theft of NIS
 portmapper manages RPC connections, which are used by protocols like
 NFS and NIS.
 
-The portmap package should be installed on any machine which acts as
-a server for protocols using RPC.
 
 %prep 
 %setup -q -n portmap_%{ver}
@@ -52,33 +59,37 @@ a server for protocols using RPC.
 %patch6 -p1
 %patch7 -p0
 
+
 %build
 %serverbuild
 make FACILITY=LOG_AUTH ZOMBIES='-DIGNORE_SIGCHLD -Dlint' LIBS="-lnsl" RPM_OPT_FLAGS="%{optflags}" \
-	WRAP_DIR=%{_libdir}
+    WRAP_DIR=%{_libdir}
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p $RPM_BUILD_ROOT/{sbin,%{_sbindir},%{_mandir}/man8,%{_sysconfdir}/sysconfig}
+mkdir -p %{buildroot}/{sbin,%{_sbindir},%{_mandir}/man8,%{_sysconfdir}/sysconfig}
 
-install -m 0755 -s portmap $RPM_BUILD_ROOT/sbin
-install -m 0755 -s pmap_set $RPM_BUILD_ROOT%{_sbindir}
-install -m 0755 -s pmap_dump $RPM_BUILD_ROOT%{_sbindir}
+install -m 0755 -s portmap %{buildroot}/sbin
+install -m 0755 -s pmap_set %{buildroot}%{_sbindir}
+install -m 0755 -s pmap_dump %{buildroot}%{_sbindir}
 
 install -m 0644 %{SOURCE1} %{buildroot}%{_sysconfdir}/sysconfig/portmap
-install -m 0644 %{SOURCE2} $RPM_BUILD_ROOT%{_mandir}/man8
-install -m 0644 %{SOURCE3} $RPM_BUILD_ROOT%{_mandir}/man8
-install -m 0644 %{SOURCE4} $RPM_BUILD_ROOT%{_mandir}/man8
+install -m 0644 %{SOURCE2} %{buildroot}%{_mandir}/man8
+install -m 0644 %{SOURCE3} %{buildroot}%{_mandir}/man8
+install -m 0644 %{SOURCE4} %{buildroot}%{_mandir}/man8
 
 mkdir -p %{buildroot}%{_srvdir}/portmap/log
 mkdir -p %{buildroot}%{_srvlogdir}/portmap
-install -m 0755 %{SOURCE5} %{buildroot}%{_srvdir}/portmap/run
-install -m 0755 %{SOURCE6} %{buildroot}%{_srvdir}/portmap/log/run
+install -m 0750 %{SOURCE5} %{buildroot}%{_srvdir}/portmap/run
+install -m 0750 %{SOURCE6} %{buildroot}%{_srvdir}/portmap/log/run
 
 strip %{buildroot}/sbin/portmap
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %pre
 %_pre_useradd rpc / /bin/false 72
@@ -94,6 +105,7 @@ strip %{buildroot}/sbin/portmap
 
 %postun
 %_postun_userdel rpc
+
 
 %files
 %defattr(-,root,root)
@@ -111,6 +123,9 @@ strip %{buildroot}/sbin/portmap
 
 
 %changelog
+* Wed Aug 17 2005 Vincent Danen <vdanen@annvix.org> 4.0-30avx
+- bootstrap build (new gcc, new glibc)
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 4.0-29avx
 - rebuild
 

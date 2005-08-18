@@ -1,6 +1,15 @@
-%define	name	procmail
-%define	version	3.22
-%define	release	8avx
+#
+# spec file for package procmail
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define	name		procmail
+%define	version		3.22
+%define	release		9avx
 
 Summary:	The procmail mail processing program
 Name:		%{name}
@@ -13,7 +22,7 @@ Source0:	ftp://ftp.procmail.org/pub/procmail/%{name}-%{version}.tar.bz2
 Patch1:		%{name}-3.22-lockf.patch.bz2
 Patch2:		%{name}-3.22-pixelpb.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 
 Provides:	MailTransportAgent
 
@@ -23,6 +32,7 @@ delivery.  In addition to just delivering mail, procmail can be used
 for automatic filtering, presorting and other mail handling jobs.
 Procmail is also the basis for the SmartList mailing list processor.
 
+
 %prep
 %setup -q
 %patch1 -p1 -b .lockf
@@ -30,25 +40,29 @@ Procmail is also the basis for the SmartList mailing list processor.
 
 find . -type d -exec chmod 755 {} \;
 
+
 %build
-echo -n -e "\n"|  %make CFLAGS="$RPM_OPT_FLAGS"
+echo -n -e "\n"|  %make CFLAGS="%{optflags}"
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p $RPM_BUILD_ROOT/%{_bindir}
-mkdir -p $RPM_BUILD_ROOT/%{_mandir}/{man1,man5}
+mkdir -p %{buildroot}/%{_bindir}
+mkdir -p %{buildroot}/%{_mandir}/{man1,man5}
 
-make BASENAME=$RPM_BUILD_ROOT/%{_prefix} install.bin install.man
+make BASENAME=%{buildroot}/%{_prefix} install.bin install.man
 
 #move the man pages
-mv $RPM_BUILD_ROOT/usr/man/man1/* $RPM_BUILD_ROOT%{_mandir}/man1/
-mv $RPM_BUILD_ROOT/usr/man/man5/* $RPM_BUILD_ROOT%{_mandir}/man5/
+mv %{buildroot}/usr/man/man1/* %{buildroot}%{_mandir}/man1/
+mv %{buildroot}/usr/man/man5/* %{buildroot}%{_mandir}/man5/
 
 ## duplicate in /usr/bin
 rm -f examples/mailstat
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -60,7 +74,11 @@ rm -f examples/mailstat
 %{_mandir}/man1/*1*
 %{_mandir}/man5/*5*
 
+
 %changelog
+* Wed Aug 17 2005 Vincent Danen <vdanen@annvix.org> 3.22-9avx
+- bootstrap build (new gcc, new glibc)
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 3.22-8avx
 - rebuild
 

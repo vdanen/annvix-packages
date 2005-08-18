@@ -1,7 +1,16 @@
-%define	name	openntpd
-%define	version	3.6.1p1
-%define	release	2avx
-%define epoch	1
+#
+# spec file for package openntpd
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define	name		openntpd
+%define	version		3.6.1p1
+%define	release		3avx
+%define epoch		1
 
 Summary:	OpenNTPD is a secure implementation of the Network Time Protocol
 Name:		%{name}
@@ -16,7 +25,7 @@ Source1:	openntpd.run
 Source2:	openntpd-log.run
 Patch0:		openntpd-20040824p-avx-ntpuser.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	openssl-static-devel, autoconf2.5
 
 Requires:	openssl
@@ -28,14 +37,17 @@ OpenNTPD is a FREE implementation of the Network Time Protocol. It
 provides the ability to sync the local clock to remote NTP servers
 and can act as NTP server itself, redistributing the local clock.
 
+
 %prep
 %setup -q
+
 
 %build
 %configure2_5x \
     --with-privsep-user=ntp \
     --with-privsep-path=/var/empty
 %make
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -44,6 +56,7 @@ and can act as NTP server itself, redistributing the local clock.
 mkdir -p %{buildroot}{%{_srvdir}/ntpd/log,%{_srvlogdir}/ntpd}
 install -m 0750 %{SOURCE1} %{buildroot}%{_srvdir}/ntpd/run
 install -m 0750 %{SOURCE2} %{buildroot}%{_srvdir}/ntpd/log/run
+
 
 %pre
 %_pre_useradd ntp /var/empty /sbin/nologin 87
@@ -57,8 +70,10 @@ install -m 0750 %{SOURCE2} %{buildroot}%{_srvdir}/ntpd/log/run
 %postun
 %_postun_userdel ntp
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -75,6 +90,9 @@ install -m 0750 %{SOURCE2} %{buildroot}%{_srvdir}/ntpd/log/run
 
 
 %changelog
+* Wed Aug 17 2005 Vincent Danen <vdanen@annvix.org> 3.6.1p1-3avx
+- bootstrap build (new gcc, new glibc)
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 3.6.1p1-2avx
 - rebuild
 

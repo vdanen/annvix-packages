@@ -1,6 +1,15 @@
-%define name	mingetty
-%define version	1.06
-%define release	6avx
+#
+# spec file for package mingetty
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		mingetty
+%define version		1.06
+%define release		7avx
 
 Summary: 	A compact getty program for virtual consoles only
 Name: 		%{name}
@@ -13,16 +22,18 @@ Source0: 	ftp://jurix.jura.uni-sb.de/pub/linux/source/system/daemons/%{name}-%{v
 BuildRequires:	dietlibc-devel >= 0.27
 Patch0:		mingetty-1.00-opt.patch.bz2
 
-BuildRoot: 	%{_tmppath}/%{name}-root
+BuildRoot: 	%{_buildroot}/%{name}-%{version}
 
 %description
 The mingetty program is a lightweight, minimalist getty program for
 use only on virtual consoles.  Mingetty is not suitable for serial
 lines (you should use the mgetty program instead for that purpose).
 
+
 %prep
 %setup -q
 %patch0 -p1 -b .opt
+
 
 %build
 make \
@@ -30,22 +41,29 @@ make \
     CFLAGS="-Os -Wall -pipe -D_GNU_SOURCE -D_BSD_SOURCE" \
     LDFLAGS="-Os -static -s"
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p %buildroot/{sbin,%{_mandir}/man8}
+mkdir -p %{buildroot}/{sbin,%{_mandir}/man8}
 
-install -m 0755 mingetty %buildroot/sbin/
-install -m 0644 mingetty.8 %buildroot/%{_mandir}/man8/
+install -m 0755 mingetty %{buildroot}/sbin/
+install -m 0644 mingetty.8 %{buildroot}/%{_mandir}/man8/
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
 /sbin/mingetty
 %{_mandir}/man8/*
 
+
 %changelog
+* Wed Aug 17 2005 Vincent Danen <vdanen@annvix.org> 1.06-7avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.06-6avx
 - bootstrap build
 

@@ -1,8 +1,17 @@
-%define name	pciutils
-%define version	2.1.99.test8
-%define release	3avx
+#
+# spec file for package pciutils
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-%define rver	2.1.99-test8
+
+%define name		pciutils
+%define version		2.1.99.test8
+%define release		4avx
+
+%define rver		2.1.99-test8
 
 Summary:	PCI bus related utilities
 Name:		%{name}
@@ -20,7 +29,7 @@ Patch4:		pciutils-2.1.99-test3-amd64.patch.bz2
 Patch5:		pciutils-typo.patch.bz2
 Patch6:		pciutils-devicetype.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 %ifarch %{ix86}
 BuildRequires:	dietlibc-devel
 %endif
@@ -33,6 +42,7 @@ devices connected to the PCI bus. The utilities provided require
 kernel version 2.1.82 or newer (supporting the /proc/bus/pci
 interface).
 
+
 %package devel
 Summary:	Linux PCI development library
 Group:		Development/C
@@ -41,6 +51,7 @@ Requires:	%{name} = %{version}
 %description devel
 This package contains a library for inspecting and setting
 devices connected to the PCI bus.
+
 
 %prep
 %setup -q -n %{name}-%{rver}
@@ -52,30 +63,35 @@ devices connected to the PCI bus.
 %patch5 -p1 -b .typo
 %patch6 -p1 -b .devicetype
 
+
 %build
 %ifarch %{ix86}
-make OPT="%{optflags} -fno-stack-protector -D_GNU_SOURCE=1" CC="diet gcc" PREFIX="/usr"
+#make OPT="%{optflags} -fno-stack-protector -D_GNU_SOURCE=1" CC="diet gcc" PREFIX="/usr"
+make OPT="%{optflags} -D_GNU_SOURCE=1" CC="diet gcc" PREFIX="/usr"
 mv lib/libpci.a lib/libpci_loader_a
 make clean
 %endif
 
 make OPT="%{optflags} -D_GNU_SOURCE=1" PREFIX="/usr"
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 install -d %{buildroot}{/sbin,%{_mandir}/man8,%{_libdir},%{_includedir}/pci}
 
 install -s lspci setpci %{buildroot}/sbin
-install -m 644 lspci.8 setpci.8 %{buildroot}%{_mandir}/man8
-install -m 644 lib/libpci.a %{buildroot}%{_libdir}
-install -m 644 lib/{pci.h,header.h,config.h,types.h} %{buildroot}%{_includedir}/pci
+install -m 0644 lspci.8 setpci.8 %{buildroot}%{_mandir}/man8
+install -m 0644 lib/libpci.a %{buildroot}%{_libdir}
+install -m 0644 lib/{pci.h,header.h,config.h,types.h} %{buildroot}%{_includedir}/pci
 
 %ifarch %{ix86}
 install lib/libpci_loader_a %{buildroot}%{_libdir}/libpci_loader.a
 %endif
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(0644, root, root, 0755)
@@ -91,7 +107,11 @@ install lib/libpci_loader_a %{buildroot}%{_libdir}/libpci_loader.a
 %endif
 %{_includedir}/pci
 
+
 %changelog
+* Wed Aug 17 2005 Vincent Danen <vdanen@annvix.org> 2.1.99.test8-4avx
+- bootstrap build (new gcc, new glibc)
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.1.99.test8-3avx
 - rebuild
 

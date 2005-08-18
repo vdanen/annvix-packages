@@ -1,6 +1,15 @@
-%define name	pax
-%define version	3.0
-%define release	8avx
+#
+# spec file for package pax
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		pax
+%define version		3.0
+%define release		9avx
 
 Summary:	POSIX File System Archiver
 Name:		%{name}
@@ -11,7 +20,7 @@ Group:		Archiving/Backup
 URL:		ftp://ftp.suse.com/pub/people/kukuk/pax/
 Source:		ftp://ftp.suse.com/pub/people/kukuk/pax/%{name}-%{version}.tar.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 
 Requires:	common-licenses
 
@@ -19,12 +28,15 @@ Requires:	common-licenses
 'pax' is the POSIX standard archive tool.  It supports the two most
 common forms of standard Unix archive (backup) files - CPIO and TAR.
 
+
 %prep
 %setup -q
+
 
 %build
 %configure2_5x
 %make
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -32,8 +44,10 @@ mkdir -p %{buildroot}%{_bindir}
 mkdir -p %{buildroot}%{_mandir}/man1
 %makeinstall_std
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -41,7 +55,11 @@ mkdir -p %{buildroot}%{_mandir}/man1
 %{_bindir}/pax
 %{_mandir}/man1/*
 
+
 %changelog
+* Wed Aug 17 2005 Vincent Danen <vdanen@annvix.org> 3.0-9avx
+- bootstrap build (new gcc, new glibc)
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 3.0-8avx
 - rebuild
 
@@ -57,7 +75,7 @@ mkdir -p %{buildroot}%{_mandir}/man1
 
 * Mon Jul 21 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 3.0-4mdk
 - rebuild
-- rm -rf $RPM_BUILD_ROOT in the beginning of %%install
+- rm -rf %{buildroot} in the beginning of %%install
 
 * Fri Dec 27 2002 Stew Benedict <sbenedict@mandrakesoft.com> 3.0-3mdk
 - rebuild for new glibc/rpm

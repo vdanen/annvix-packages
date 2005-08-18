@@ -1,6 +1,15 @@
-%define name	psmisc
-%define version	21.3
-%define release	6avx
+#
+# spec file for package psmisc
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		psmisc
+%define version		21.3
+%define release		7avx
 
 Summary:	Utilities for managing processes on your system
 Name:		%{name}
@@ -9,10 +18,10 @@ Release:	%{release}
 License:	GPL
 Group:		Monitoring
 URL:		http://psmisc.sourceforge.net
-Source:		http://download.sourceforge.net/psmisc/psmisc-%version.tar.bz2
+Source:		http://download.sourceforge.net/psmisc/psmisc-%{version}.tar.bz2
 Patch1:		psmisc-20.2-libsafe.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	libtermcap-devel
 
 %description
@@ -23,23 +32,28 @@ command sends a specified signal (SIGTERM if nothing is specified) to
 processes identified by name.  The fuser command identifies the PIDs
 of processes that are using specified files or filesystems.
 
+
 %prep
 %setup -q 
 %patch1 -p1
 
+
 %build
 %configure
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
-mkdir $RPM_BUILD_ROOT/sbin
-mv $RPM_BUILD_ROOT%{_bindir}/fuser $RPM_BUILD_ROOT/sbin/
+mkdir %{buildroot}/sbin
+mv %{buildroot}%{_bindir}/fuser %{buildroot}/sbin/
 
 %find_lang %{name}
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files -f %{name}.lang
 %defattr(-,root,root)
@@ -50,7 +64,11 @@ mv $RPM_BUILD_ROOT%{_bindir}/fuser $RPM_BUILD_ROOT/sbin/
 %{_mandir}/man1/killall.1*
 %{_mandir}/man1/pstree.1*
 
+
 %changelog
+* Wed Aug 17 2005 Vincent Danen <vdanen@annvix.org> 21.3-7avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 21.3-6avx
 - bootstrap build
 

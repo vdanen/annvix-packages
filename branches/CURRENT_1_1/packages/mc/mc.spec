@@ -1,6 +1,15 @@
-%define name	mc
-%define version	4.6.0
-%define release	11avx
+#
+# spec file for package mc
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		mc
+%define version		4.6.0
+%define release		12avx
 
 Summary:	A user-friendly file manager and visual shell
 Name:		%{name}
@@ -29,7 +38,7 @@ Patch14:	mc-4.6.0-mdk-extfs_rpm_info.patch.bz2
 Patch15:	mc-4.6.0-mdk-diff_syntax.patch.bz2
 Patch16:	mc-4.6.0-mdk-wrapper_fix.diff.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	libext2fs-devel pam-devel
 BuildRequires:	slang-devel glib2-devel
 
@@ -40,6 +49,7 @@ Midnight Commander is a visual shell much like a file manager, only with way
 more features.  It is text mode, but also includes mouse support if you are
 running GPM.  With mc you are able to ftp as well as view tar, zip, and rpm
 files.
+
 
 %prep
 %setup -q
@@ -63,6 +73,7 @@ cp -f %{SOURCE1} vfs/extfs
 %patch15 -p1 -b .diff_syntax
 %patch16 -p0 -b .wrapper_fix
 
+
 %build
 %serverbuild
 # libcom_err of e2fsprogs and krb5 conflict. Watch this hack. -- Geoff.
@@ -73,16 +84,16 @@ export LDFLAGS="-L`pwd`/%{_lib}"
 # </hack>
 
 
-%configure2_5x --with-debug \
-	--without-included-gettext \
-	--without-included-slang \
-	--with-screen=slang \
-	--enable-nls \
-	--enable-charset \
-	--enable-largefile \
-        --without-x \
-	--without-gpm-mouse
-
+%configure2_5x \
+    --with-debug \
+    --without-included-gettext \
+    --without-included-slang \
+    --with-screen=slang \
+    --enable-nls \
+    --enable-charset \
+    --enable-largefile \
+    --without-x \
+    --without-gpm-mouse
 
 #Fix bzip2 warning
 perl -p -i -e 's/--repetitive-best/-9/' lib/mc.menu
@@ -90,25 +101,28 @@ perl -p -i -e 's/--repetitive-best/-9/' lib/mc.menu
 # don't use make macro, mc doesn't support parallel compilation
 make
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-install -d $RPM_BUILD_ROOT%{_sysconfdir}/{pam.d,profile.d,X11/wmconfig}
+install -d %{buildroot}%{_sysconfdir}/{pam.d,profile.d,X11/wmconfig}
 
 #fix mc-wrapper.sh
 perl -p -i -e 's/rm -f \"/rm -rf \"/g' lib/mc-wrapper.sh
 
 %makeinstall
 
-install lib/{mc.sh,mc.csh} $RPM_BUILD_ROOT%{_sysconfdir}/profile.d
+install lib/{mc.sh,mc.csh} %{buildroot}%{_sysconfdir}/profile.d
 
 # clean up this setuid problem for now
-chmod 755 $RPM_BUILD_ROOT/%{_libdir}/mc/cons.saver
+chmod 0755 %{buildroot}%{_libdir}/mc/cons.saver
 
-%{find_lang} %{name}
+%find_lang %{name}
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files -f %{name}.lang
 %defattr(-, root, root)
@@ -139,7 +153,11 @@ chmod 755 $RPM_BUILD_ROOT/%{_libdir}/mc/cons.saver
 %{_datadir}/mc/syntax/
 %{_datadir}/mc/term/
 
+
 %changelog
+* Wed Aug 17 2005 Vincent Danen <vdanen@annvix.org> 4.6.0-12avx
+- bootstrap build (new gcc, new glibc)
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 4.6.0-11avx
 - rebuild
 
@@ -184,7 +202,7 @@ chmod 755 $RPM_BUILD_ROOT/%{_libdir}/mc/cons.saver
 - Patch0: remove xpdf error from stdout (bug #4094)
 
 * Fri Jun 06 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 4.6.0-3mdk
-- don't rm -rf $RPM_BUILD_ROOT in %%prep
+- don't rm -rf %{buildroot} in %%prep
 - use double %%'s in changelog
 
 * Wed Apr  2 2003 Frederic Crozat <fcrozat@mandrakesoft.com> - 4.6.0-2mdk
@@ -475,7 +493,7 @@ chmod 755 $RPM_BUILD_ROOT/%{_libdir}/mc/cons.saver
 
 * Sun Jun  6 1999 Axalon Bloodstone <axalon@linux-mandrake.com>
 - 4.5.33
-- use DESTDIR=$RPM_BUILD_ROOT solves bugs in help files
+- use DESTDIR=%{buildroot} solves bugs in help files
 - never use /tmp, always use ~/tmp. cause I don't like it 
 
 * Wed Jun 02 1999 Axalon Bloodstone <axalon@linux-mandrake.com>
@@ -583,7 +601,7 @@ chmod 755 $RPM_BUILD_ROOT/%{_libdir}/mc/cons.saver
 - modification in %%build and %%install and cosmetic modification in packages
   headers,
 - added %%{PACKAGE_VERSION} macro to Buildroot,
-- removed "rm -rf $RPM_BUILD_ROOT" from %%prep.
+- removed "rm -rf %{buildroot}" from %%prep.
 - removed Packager field.
 
 * Thu Dec 18 1997 Michele Marziani <marziani@fe.infn.it>

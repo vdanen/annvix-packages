@@ -1,6 +1,15 @@
-%define name	passwd
-%define version	0.68
-%define release	9avx
+#
+# spec file for package passwd
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		passwd
+%define version		0.68
+%define release		10avx
 
 Summary:	The passwd utility for setting/changing passwords using PAM
 Name:		%{name}
@@ -14,7 +23,7 @@ Source0:	passwd-%{version}.tar.bz2
 Patch:		passwd-0.67-manpath.patch.bz2
 Patch1:		passwd-0.68-sec.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	glib2-devel, libuser-devel, pam-devel, popt-devel
 
 Requires:	pam >= 0.59, pwdb >= 0.58, libuser
@@ -24,16 +33,18 @@ The passwd package contains a system utility (passwd) which sets
 and/or changes passwords, using PAM (Pluggable Authentication
 Modules).
 
-To use passwd, you should have PAM installed on your system.
 
 %prep
+
 
 %setup -q
 %patch -p1
 %patch1 -p0 -b .sec
 
+
 %build
 %make
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -42,21 +53,27 @@ install -d %{buildroot}%{_mandir}/man1
 
 %makeinstall_std
 
-install -D -m 644 passwd.pamd %{buildroot}%{_sysconfdir}/pam.d/passwd
+install -D -m 0644 passwd.pamd %{buildroot}%{_sysconfdir}/pam.d/passwd
 perl -p -i -e 's|use_authtok nullok|use_authtok nullok md5|' %{buildroot}%{_sysconfdir}/pam.d/passwd
 rm -f %{buildroot}%{_bindir}/{chfn,chsh}
 rm -f %{buildroot}%{_mandir}/man1/{chfn.1,chsh.1}
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
 %config(noreplace) %{_sysconfdir}/pam.d/passwd
 %attr(4511,root,root) %{_bindir}/passwd
 %{_mandir}/man1/passwd.1*
+
 		
 %changelog
+* Wed Aug 17 2005 Vincent Danen <vdanen@annvix.org> 0.68-10avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.68-9avx
 - bootstrap build
 
@@ -81,7 +98,7 @@ rm -f %{buildroot}%{_mandir}/man1/{chfn.1,chsh.1}
 
 * Mon Jul 21 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 0.68-2mdk
 - rebuild
-- rm -rf $RPM_BUILD_ROOT at the beginning of %%install
+- rm -rf %{buildroot} at the beginning of %%install
 - use %%makeinstall_std macro
 
 * Thu Dec 26 2002 Daouda LO <daouda@mandrakesoft.com> 0.68-1mdk

@@ -1,24 +1,31 @@
-%define name	makedev
-%define version	4.1
-%define release 6avx
-
+#
+# spec file for package makedev
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 # synced with rh-3.3.1-1
+
+%define name		makedev
+%define version		4.1
+%define release 	7avx
 
 %define devrootdir	/lib/root-mirror
 %define dev_lock	/var/lock/subsys/dev
 %define makedev_lock	/var/lock/subsys/makedev
 
-Summary:	A program used for creating the device files in /dev.
+Summary:	A program used for creating the device files in /dev
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	GPL
 Group:		System/Kernel and hardware
-URL:		http://cvs.mandrakesoft.com/cgi-bin/cvsweb.cgi/soft/makedev/
+URL:		http://cvs.mandriva.com/cgi-bin/cvsweb.cgi/soft/makedev/
 Source:		%name-%version.tar.bz2
 Patch:		makedev-4.1-avx-random.patch.bz2
 
-BuildRoot:	%_tmppath/%name-root
+BuildRoot:	%_tmppath/%name-%{version}
 BuildArch:	noarch
 
 Prereq:		shadow-utils, sed, coreutils, mktemp
@@ -37,59 +44,64 @@ etc.) and interface with the drivers in the kernel.
 The makedev package is a basic part of your Annvix system and it needs
 to be installed.
 
+
 %prep
 %setup -q
 %patch -p0
 
+
 %build
 # Generate the config scripts
 %make
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p %{buildroot}%devrootdir
 %makeinstall_std
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
+
 %post
 /usr/sbin/useradd -c "virtual console memory owner" -u 69 \
-  -s /sbin/nologin -r -d /dev vcsa 2> /dev/null || :
+    -s /sbin/nologin -r -d /dev vcsa 2> /dev/null || :
 
 #- when devfs is used, upgrade and install can be done easily :)
 if [[ -e /dev/.devfsd ]]; then
-	[[ -d %devrootdir ]] || mkdir %devrootdir
-	mount --bind / %devrootdir
-	DEV_DIR=%devrootdir/dev
+    [[ -d %devrootdir ]] || mkdir %devrootdir
+    mount --bind / %devrootdir
+    DEV_DIR=%devrootdir/dev
      
-     [[ -L $DEV_DIR/snd ]] && rm -f $DEV_DIR/snd
-	mkdir -p $DEV_DIR/{pts,shm}
-	/sbin/makedev $DEV_DIR
+    [[ -L $DEV_DIR/snd ]] && rm -f $DEV_DIR/snd
+    mkdir -p $DEV_DIR/{pts,shm}
+    /sbin/makedev $DEV_DIR
 
-	# race 
-	while [[ ! -c $DEV_DIR/null ]]; do
-		rm -f $DEV_DIR/null
-		mknod -m 0666 $DEV_DIR/null c 1 3
-		chown root.root $DEV_DIR/null
-	done
+    # race 
+    while [[ ! -c $DEV_DIR/null ]]; do
+        rm -f $DEV_DIR/null
+        mknod -m 0666 $DEV_DIR/null c 1 3
+        chown root:root $DEV_DIR/null
+    done
 
-	umount -f %devrootdir 2> /dev/null
+    umount -f %devrootdir 2> /dev/null
 #- case when makedev is being installed, not upgraded
 else
-	DEV_DIR=/dev
-	mkdir -p $DEV_DIR/{pts,shm}
-     [[ -L $DEV_DIR/snd ]] && rm -f $DEV_DIR/snd
-	/sbin/makedev $DEV_DIR
+    DEV_DIR=/dev
+    mkdir -p $DEV_DIR/{pts,shm}
+    [[ -L $DEV_DIR/snd ]] && rm -f $DEV_DIR/snd
+    /sbin/makedev $DEV_DIR
 
-	# race 
-	while [[ ! -c $DEV_DIR/null ]]; do
-		rm -f $DEV_DIR/null
-		mknod -m 0666 $DEV_DIR/null c 1 3
-		chown root.root $DEV_DIR/null
-	done
+    # race 
+    while [[ ! -c $DEV_DIR/null ]]; do
+        rm -f $DEV_DIR/null
+        mknod -m 0666 $DEV_DIR/null c 1 3
+        chown root.root $DEV_DIR/null
+    done
 
-	[[ -x /sbin/pam_console_apply ]] && /sbin/pam_console_apply
+    [[ -x /sbin/pam_console_apply ]] && /sbin/pam_console_apply
 fi
 :
 
@@ -97,21 +109,21 @@ fi
 %triggerpostun -- dev
 
 if [ ! -e /dev/.devfsd ]; then
-	#- when upgrading from old dev pkg to makedev pkg, this can't be done in %%post
-	#- doing the same when upgrading from new dev pkg
-	DEV_DIR=/dev
-	mkdir -p $DEV_DIR/{pts,shm}
-     [[ -L $DEV_DIR/snd ]] && rm -f $DEV_DIR/snd
-	/sbin/makedev $DEV_DIR
+    #- when upgrading from old dev pkg to makedev pkg, this can't be done in %%post
+    #- doing the same when upgrading from new dev pkg
+    DEV_DIR=/dev
+    mkdir -p $DEV_DIR/{pts,shm}
+    [[ -L $DEV_DIR/snd ]] && rm -f $DEV_DIR/snd
+    /sbin/makedev $DEV_DIR
 
-	# race 
-	while [[ ! -c $DEV_DIR/null ]]; do
-		rm -f $DEV_DIR/null
-		mknod -m 0666 $DEV_DIR/null c 1 3
-		chown root.root $DEV_DIR/null
-	done
+    # race 
+    while [[ ! -c $DEV_DIR/null ]]; do
+        rm -f $DEV_DIR/null
+        mknod -m 0666 $DEV_DIR/null c 1 3
+        chown root:root $DEV_DIR/null
+    done
 
-	[[ -x /sbin/pam_console_apply ]] && /sbin/pam_console_apply
+    [[ -x /sbin/pam_console_apply ]] && /sbin/pam_console_apply
 fi
 :
 
@@ -126,7 +138,11 @@ fi
 %dir /dev
 %dir %devrootdir
 
+
 %changelog
+* Wed Aug 17 2005 Vincent Danen <vdanen@annvix.org> 4.1-7avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 4.1-6avx
 - bootstrap build
 
