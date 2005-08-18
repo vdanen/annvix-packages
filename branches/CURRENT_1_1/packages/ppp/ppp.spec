@@ -1,6 +1,15 @@
-%define name	ppp
-%define version	2.4.2
-%define release	3avx
+#
+# spec file for package ppp
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		ppp
+%define version		2.4.2
+%define release		4avx
 
 Summary:	The Linux PPP daemon
 Name:		%{name}
@@ -28,7 +37,7 @@ Patch8:		http://linux-usb.sourceforge.net/SpeedTouch/download/pppoatm.diff
 Patch9:		ppp-2.4.2-pie.patch.bz2
 Patch10:	ppp-2.4.2-dontwriteetc.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	liblinux-atm-devel
 BuildRequires:	libpcap-devel 
 BuildRequires:	openssl-devel >= 0.9.7
@@ -41,8 +50,6 @@ The ppp package contains the PPP (Point-to-Point Protocol) daemon
 and documentation for PPP support.  The PPP protocol provides a
 method for transmitting datagrams over serial point-to-point links.
 
-The ppp package should be installed if your machine need to support
-the PPP protocol.
 
 %package devel
 Summary:	PPP development files
@@ -52,6 +59,7 @@ Requires:	%{name} = %{version}-%{release}
 %description devel
 The development files for PPP.
 
+
 %package pppoatm
 Summary:	PPP over ATM plugin for %{name}
 Group:		System/Servers
@@ -60,6 +68,7 @@ Requires:	%{name} = %{version}-%{release}
 %description pppoatm
 PPP over ATM plugin for %{name}.
 
+
 %package pppoe
 Summary:	PPP over ethernet plugin for %{name}
 Group:		System/Servers
@@ -67,6 +76,7 @@ Requires:	%{name} = %{version}-%{release}
 
 %description pppoe
 PPP over ethernet plugin for %{name}.
+
 
 %prep
 %setup  -q
@@ -89,11 +99,12 @@ tar -xjf %{SOURCE2}
 # patch 2 depends on the -lutil in patch 0
 find . -type f -name "*.sample" | xargs rm -f 
 
+
 %build
 # lib64 fixes
 perl -pi -e "s|^(LIBDIR.*)/usr/lib|\1%{_libdir}|g" pppd/Makefile.linux pppd/plugins/Makefile.linux
 # stpcpy() is a GNU extension
-OPT_FLAGS="$RPM_OPT_FLAGS -D_GNU_SOURCE"
+OPT_FLAGS="%{optflags} -D_GNU_SOURCE"
 
 perl -pi -e "s/openssl/openssl -DOPENSSL_NO_SHA1/;" openssl/crypto/sha/Makefile
 
@@ -107,42 +118,41 @@ make RPM_OPT_FLAGS="$OPT_FLAGS -DDO_BSD_COMPRESS=0"
 %endif
 make -C pppd/plugins -f Makefile.linux
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p %{buildroot}/{%{_sbindir},%{_mandir}/man8,%{_sysconfdir}/{ppp/peers,pam.d}}
 
 %makeinstall_std \
-	BINDIR=%{buildroot}/%{_sbindir} \
-	MANDIR=%{buildroot}/%{_mandir} \
-	ETCDIR=%{buildroot}/%{_sysconfdir}/ppp \
-	LIBDIR=%{buildroot}%{_libdir}/pppd/%{version} \
-	INSTALL="%{_bindir}/install"
+    BINDIR=%{buildroot}%{_sbindir} \
+    MANDIR=%{buildroot}%{_mandir} \
+    ETCDIR=%{buildroot}%{_sysconfdir}/ppp \
+    LIBDIR=%{buildroot}%{_libdir}/pppd/%{version} \
+    INSTALL="%{_bindir}/install"
 
 # (florin) strip the binary
-strip %{buildroot}/%{_sbindir}/pppd
+strip %{buildroot}%{_sbindir}/pppd
 
 # it shouldn't be SUID root be default
-chmod 755 %{buildroot}%{_sbindir}/pppd
+chmod 0755 %{buildroot}%{_sbindir}/pppd
 
 chmod go+r scripts/*
-install -m 644 %{SOURCE1} %{buildroot}/%{_sysconfdir}/pam.d/ppp
-install -m 644 %{SOURCE3} %{_builddir}/%{name}-%{version}
+install -m 0644 %{SOURCE1} %{buildroot}%{_sysconfdir}/pam.d/ppp
+install -m 0644 %{SOURCE3} %{_builddir}/%{name}-%{version}
 
 # (stew) fix permissions
 chmod 0644 README.MSCHAP80
 
 #mknod %{buildroot}/dev/ppp c 108 0
 
-# Provide pointers for people who expect stuff in old places
-ln -s ../../var/log/ppp/connect-errors %{buildroot}%{_sysconfdir}/ppp/connect-errors
-ln -s ../../var/log/ppp/resolv.conf %{buildroot}%{_sysconfdir}/ppp/resolv.conf
-
 # logrotate
 mkdir -p %{buildroot}%{_sysconfdir}/logrotate.d
 install -m 0644 %{SOURCE4} %{buildroot}%{_sysconfdir}/logrotate.d/ppp
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -151,15 +161,15 @@ install -m 0644 %{SOURCE4} %{buildroot}%{_sysconfdir}/logrotate.d/ppp
 %{_sbindir}/pppdump
 %attr(0755,root,root)	%{_sbindir}/pppd
 %attr(0755,root,daemon)	%{_sbindir}/pppstats
-%{_mandir}/man*/*
 %dir %{_libdir}/pppd
 %{_libdir}/pppd/%{version}
 %exclude %{_libdir}/pppd/%{version}/pppoatm.so
 %exclude %{_libdir}/pppd/%{version}/rp-pppoe.so
-%dir %{_sysconfdir}/ppp
-%dir %{_sysconfdir}/ppp/peers
 %dir /var/run/ppp
 %attr(0700,root,root) %dir /var/log/ppp
+%{_mandir}/man*/*
+%dir %{_sysconfdir}/ppp
+%dir %{_sysconfdir}/ppp/peers
 %attr(0600,root,daemon)	%config(noreplace) %{_sysconfdir}/ppp/*
 %config(noreplace) %{_sysconfdir}/pam.d/ppp
 %config(noreplace) %{_sysconfdir}/logrotate.d/ppp
@@ -176,7 +186,14 @@ install -m 0644 %{SOURCE4} %{buildroot}%{_sysconfdir}/logrotate.d/ppp
 %defattr(-,root,root)
 %{_libdir}/pppd/%{version}/rp-pppoe.so
 
+
 %changelog
+* Wed Aug 17 2005 Vincent Danen <vdanen@annvix.org> 2.4.2-4avx
+- bootstrap build (new gcc, new glibc)
+- get rid of the symlinks in /etc/ppp for connect-errors and resolv.conf;
+  they don't point to anything anyways and there's no point to dangling
+  symlinks
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.4.2-3avx
 - rebuild
 
