@@ -1,0 +1,6 @@
+#!/bin/sh
+PATH="/sbin:/usr/sbin:/bin:/usr/bin"
+
+# this runs openntpd supervised
+
+exec /usr/sbin/ntpd -d 2>&1
