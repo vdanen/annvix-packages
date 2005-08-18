@@ -1,0 +1,11 @@
+--- psmisc-20.2/src/pstree.c.56186	Tue Nov 20 17:19:50 2001
++++ psmisc-20.2/src/pstree.c	Tue Nov 20 17:20:23 2001
+@@ -523,7 +523,7 @@
+               /* We now have readbuf with pid and cmd, and tmpptr+2
+                * with the rest */
+               /*printf("readbuf: %s\n", readbuf);*/
+-              if (sscanf(readbuf, "%*d (%15c", comm) == 1)
++              if (sscanf(readbuf, "%*d (%[^)]", comm) == 1)
+               {
+                 /*printf("tmpptr: %s\n", tmpptr+2);*/
+                 if (sscanf(tmpptr+2, "%*c %d", &ppid) == 1)
