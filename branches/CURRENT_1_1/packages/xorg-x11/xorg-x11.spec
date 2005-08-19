@@ -1615,11 +1615,15 @@ chmod 755 %{buildroot}%{x11shlibdir}/modules/dri/*.so %{buildroot}%{x11shlibdir}
 find %{buildroot} -type d -a -name CVS | xargs rm -rf
 
 # remove files not packaged
+
+# this comes with hwdata
+rm -f %{buildroot}%{x11libdir}/X11/Cards
+
 %if %{with_new_fontconfig_Xft}
 rm -f %{buildroot}%{_sysconfdir}/X11/{XftConfig,XftConfig-OBSOLETE} \
- %{buildroot}%{x11bindir}/xftcache \
- %{buildroot}%{x11libdir}/X11/XftConfig-OBSOLETE \
- %{buildroot}%{x11prefix}/man/man1/xftcache.*
+    %{buildroot}%{x11bindir}/xftcache \
+    %{buildroot}%{x11libdir}/X11/XftConfig-OBSOLETE \
+    %{buildroot}%{x11prefix}/man/man1/xftcache.*
 %endif
 # enabled luit [%{x11bindir}/luit, %{x11prefix}/man/man1/luit.*] (pablo)
 rm -rf %{buildroot}%{_sysconfdir}/X11/twm/system.twmrc \
@@ -1848,8 +1852,10 @@ perl -pi -e 's/^(\s*Driver\s*)"Keyboard"/$1"kbd"/' /etc/X11/xorg.conf
 rm -f /etc/X11/X
 ln -s ../../usr/X11R6/bin/Xorg /etc/X11/X
 
+
 %clean
-rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files server -f modules.list
 %defattr(-,root,root,-)
@@ -1872,10 +1878,6 @@ rm -rf %{buildroot}
 %files
 %defattr(-,root,root,-)
 %docdir /usr/X11R6/lib/X11/doc
-
-%ifarch %{ix86} alpha sparc ppc x86_64
-%doc /usr/X11R6/lib/X11/Cards
-%endif
 
 %dir /usr/X11R6/lib/X11
 %dir /etc/X11
@@ -2473,7 +2475,11 @@ rm -rf %{buildroot}
 /usr/X11R6/man/man1/xmessage.1x*
 %{x11libdir}/X11/xedit
 
+
 %changelog
+* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 6.8.2-2avx
+- remove /usr/X11R6/lib/X11/Cards (hwdata provides this)
+
 * Thu Aug 10 2005 Vincent Danen <vdanen@annvix.org> 6.8.2-1avx
 - drop XFree86 and use xorg.org instead
 - don't build the Glide module
