@@ -1,6 +1,15 @@
-%define name	php-%{modname}
-%define version	%{phpversion}
-%define release	2avx
+#
+# spec file for package php-mcrypt
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		php-%{modname}
+%define version		%{phpversion}
+%define release		3avx
 
 %define phpversion	4.3.11
 %define phpsource       %{_prefix}/src/php-devel
@@ -21,7 +30,7 @@ License:	PHP License
 Group:		System/Servers
 URL:		http://www.php.net
 
-BuildRoot:	%{_tmppath}/%{name}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:  php4-devel
 BuildRequires:	libmcrypt-devel, libtool-devel
 
@@ -38,8 +47,8 @@ install this package in addition to the php package.
 %setup -c -T
 cp -dpR %{phpsource}/extensions/%{dirname}/* .
 
-%build
 
+%build
 # version hack :)
 if [[ -x %{_bindir}/libmcrypt-config ]]; then
     MCRYPT_VERSION=`%{_bindir}/libmcrypt-config --version`
@@ -55,13 +64,14 @@ phpize
 %make
 mv modules/*.so .
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 install -d %{buildroot}%{phpdir}/extensions
 install -d %{buildroot}%{_sysconfdir}/php.d
 
-install -m755 %{soname} %{buildroot}%{phpdir}/extensions/
+install -m 0755 %{soname} %{buildroot}%{phpdir}/extensions/
 
 cat > README.%{modname} <<EOF
 The %{name} package contains a dynamic shared object (DSO) for PHP. 
@@ -77,8 +87,10 @@ extension = %{soname}
 ;mcrypt.modes_dir = 
 EOF
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files 
 %defattr(-,root,root)
@@ -86,7 +98,11 @@ EOF
 %config(noreplace) %{_sysconfdir}/php.d/%{inifile}
 %{phpdir}/extensions/%{soname}
 
+
 %changelog
+* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 4.3.11-3avx
+- bootstrap build (new gcc, new glibc)
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 4.3.11-2avx
 - rebuild
 

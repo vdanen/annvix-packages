@@ -1,6 +1,15 @@
-%define name	php-%{modname}_bundle
-%define version	%{phpversion}
-%define release	2avx
+#
+# spec file for package php-dba_bundle
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		php-%{modname}_bundle
+%define version		%{phpversion}
+%define release		3avx
 
 %define phpversion	4.3.11
 %define phpsource       %{_prefix}/src/php-devel
@@ -21,7 +30,7 @@ License:	PHP License
 Group:		System/Servers
 URL:		http://www.php.net
 
-BuildRoot:	%{_tmppath}/%{name}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:  php4-devel
 BuildRequires:	gdbm-devel db4-devel
 
@@ -41,8 +50,8 @@ you will need to install this package in addition to the php package.
 %setup -c -T
 cp -dpR %{_usrsrc}/php-devel/extensions/%{dirname}/* .
 
-%build
 
+%build
 #Keep this just in case phpize breaks sometime
 #perl -pi -e 's|#include DB3_INCLUDE_FILE$|#include \"db.h"|g;' *db3.c
 #perl -pi -e 's|#if ([A-Z_])|#ifdef \1|' *.{c,h}
@@ -62,13 +71,14 @@ phpize
 %make
 mv modules/*.so .
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 install -d %{buildroot}%{phpdir}/extensions
 install -d %{buildroot}%{_sysconfdir}/php.d
 
-install -m755 %{soname} %{buildroot}%{phpdir}/extensions/
+install -m 0755 %{soname} %{buildroot}%{phpdir}/extensions/
 
 cat > README.%{modname} <<EOF
 The %{name} package contains a dynamic shared object (DSO) for PHP. 
@@ -80,6 +90,7 @@ cat > %{buildroot}%{_sysconfdir}/php.d/%{inifile} << EOF
 extension = %{soname}
 EOF
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
@@ -89,7 +100,11 @@ EOF
 %config(noreplace) %{_sysconfdir}/php.d/%{inifile}
 %{phpdir}/extensions/%{soname}
 
+
 %changelog
+* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 4.3.11-3avx
+- bootstrap build (new gcc, new glibc)
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 4.3.11-2avx
 - rebuild
 

@@ -1,6 +1,15 @@
-%define name	php-%{modname}
-%define version	%{phpversion}
-%define release	2avx
+#
+# spec file for package php-imap
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		php-%{modname}
+%define version		%{phpversion}
+%define release		3avx
 
 %define phpversion	4.3.11
 %define phpsource       %{_prefix}/src/php-devel
@@ -36,7 +45,7 @@ Patch12:	imap-2001a-overflow.patch.bz2
 Patch14:	imap-2002a-ansi.patch.bz2
 Patch15:	imap-2002a-noprompt-makefile.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:  php4-devel
 BuildRequires:	pam-devel >= 0.75
 BuildRequires:	openssl-devel
@@ -49,8 +58,8 @@ The %{name} package is a dynamic shared object (DSO) that adds
 If you need %{realname} support for PHP applications, you will need to 
 install this package in addition to the php package.
 
-%prep
 
+%prep
 %setup -q -n imap-2002d
 
 rm -rf RCS
@@ -68,8 +77,8 @@ cp %{SOURCE7} src/osdep/unix/
 %patch14 -p1 -b .ansi
 %patch15 -p1 -b .noprompt
 
-%build
 
+%build
 # first build the static imap lib
 
 EXTRACFLAGS="$EXTRACFLAGS -DDISABLE_POP_PROXY=1"
@@ -77,10 +86,10 @@ EXTRACFLAGS="$EXTRACFLAGS -I%{_includedir}/openssl"
 EXTRALDFLAGS="$EXTRALDFLAGS -L%{_libdir}"
 
 %make RPM_OPT_FLAGS="%{optflags} -fPIC -fno-omit-frame-pointer" \
-	EXTRACFLAGS="$EXTRACFLAGS" \
-	EXTRALDFLAGS="$EXTRALDFLAGS" \
-	SSLTYPE=unix.nopwd \
-	lnp
+    EXTRACFLAGS="$EXTRACFLAGS" \
+    EXTRALDFLAGS="$EXTRALDFLAGS" \
+    SSLTYPE=unix.nopwd \
+    lnp
 
 # then the php-imap stuff
 
@@ -90,13 +99,14 @@ cp -dpR %{phpsource}/extensions/%{dirname}/* .
     "./c-client/c-client.a -lpam -lcrypto -lssl" \
     "-DCOMPILE_DL_IMAP -DHAVE_IMAP2001 -DHAVE_IMAP_SSL -I%{_includedir}/openssl -I./src/c-client -I./c-client"
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 install -d %{buildroot}%{phpdir}/extensions
 install -d %{buildroot}%{_sysconfdir}/php.d
 
-install -m755 %{soname} %{buildroot}%{phpdir}/extensions/
+install -m 0755 %{soname} %{buildroot}%{phpdir}/extensions/
 
 cat > README.%{modname} <<EOF
 The %{name} package contains a dynamic shared object (DSO) for PHP. 
@@ -108,8 +118,10 @@ cat > %{buildroot}%{_sysconfdir}/php.d/%{inifile} << EOF
 extension = %{soname}
 EOF
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files 
 %defattr(-,root,root)
@@ -117,7 +129,11 @@ EOF
 %config(noreplace) %{_sysconfdir}/php.d/%{inifile}
 %{phpdir}/extensions/%{soname}
 
+
 %changelog
+* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 4.3.11-3avx
+- bootstrap build (new gcc, new glibc)
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 4.3.11-2avx
 - rebuild
 

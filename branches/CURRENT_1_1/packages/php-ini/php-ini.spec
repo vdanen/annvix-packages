@@ -1,6 +1,15 @@
-%define name	php-ini
-%define version	4.3.11
-%define release	2avx
+#
+# spec file for package php-ini
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		php-ini
+%define version		4.3.11
+%define release		3avx
 
 Summary:	INI files for PHP
 Name:		%{name}
@@ -11,15 +20,18 @@ Group:		Development/Other
 URL:		http://www.php.net
 Source0:	php.ini.annvix.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 
 %description
 The php-ini package contains the ini files required for PHP.
 
+
 %prep
 %setup -c -T
 
+
 %build
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -34,6 +46,7 @@ perl -pi -e 's|EXTENSIONDIR|%{_libdir}/php/extensions|g' %{buildroot}%{_sysconfd
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
+
 %files 
 %defattr(-,root,root)
 %config(noreplace) %{_sysconfdir}/php.ini
@@ -41,7 +54,11 @@ perl -pi -e 's|EXTENSIONDIR|%{_libdir}/php/extensions|g' %{buildroot}%{_sysconfd
 %dir %{_libdir}/php
 %dir %{_libdir}/php/extensions
 
+
 %changelog
+* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 4.3.11-3avx
+- bootstrap build (new gcc, new glibc)
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 4.3.11-2avx
 - rebuild
 

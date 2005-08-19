@@ -1,7 +1,16 @@
-%define name	php-%{modname}
-%define version	%{phpversion}_%{rver}
-%define rver	2.0.4
-%define release	2avx
+#
+# spec file for package php-apc
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		php-%{modname}
+%define version		%{phpversion}_%{rver}
+%define rver		2.0.4
+%define release		3avx
 
 %define phpversion	4.3.11
 %define phpsource       %{_prefix}/src/php-devel
@@ -12,21 +21,21 @@
 %define soname		%{modname}.so
 %define inifile		99_%{modname}.ini
 
-Summary:		The apc (Alternative PHP Cache) module for PHP
-Name:			%{name}
-Version:		%{version}
-Release:		%{release}
-License:		PHP License
-Group:			System/Servers
-URL:			http://pecl.php.net/package/APC
-Source0:		APC-%{rver}.tar.bz2
-Source1:		apc.ini.bz2
+Summary:	The apc (Alternative PHP Cache) module for PHP
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+License:	PHP License
+Group:		System/Servers
+URL:		http://pecl.php.net/package/APC
+Source0:	APC-%{rver}.tar.bz2
+Source1:	apc.ini.bz2
 
-BuildRoot:		%{_tmppath}/%{name}-root
-BuildRequires:  	php4-devel
+BuildRoot:	%{_buildroot}/%{name}-%{version}
+BuildRequires:  php4-devel
 
-Requires:		php4
-Conflicts:		php-afterburner php-mmcache
+Requires:	php4
+Conflicts:	php-afterburner php-mmcache
 
 %description
 APC was conceived of to provide a way of boosting the performance
@@ -56,11 +65,12 @@ other OSs/ PHP versions are welcome.
 
 NOTE!: %{name} has to be loaded last, very important!
 
+
 %prep
 %setup -q -n APC-%{rver}
 
-%build
 
+%build
 phpize
 %configure2_5x \
     --enable-%{modname}=shared,%{_prefix}
@@ -69,6 +79,7 @@ phpize
 
 %make
 mv modules/*.so .
+
 
 %install
 [ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
@@ -88,11 +99,13 @@ hack it to work: http://apc.neuropeans.com/
 EOF
 
 bzcat %{SOURCE1} > %{buildroot}%{_sysconfdir}/php.d/%{inifile}
-install -m755 %{soname} %{buildroot}%{phpdir}/extensions/
+install -m 0755 %{soname} %{buildroot}%{phpdir}/extensions/
+
 
 %clean
 [ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
 [ "../package.xml" != "/" ] && rm -f ../package.xml
+
 
 %files 
 %defattr(-,root,root)
@@ -100,7 +113,11 @@ install -m755 %{soname} %{buildroot}%{phpdir}/extensions/
 %{phpdir}/extensions/%{soname}
 %config(noreplace) %attr(0644,root,root) %{_sysconfdir}/php.d/%{inifile}
 
+
 %changelog
+* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 4.3.11_2.0.4-3avx
+- bootstrap build (new gcc, new glibc)
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 4.3.11_2.0.4-2avx
 - rebuild
 
