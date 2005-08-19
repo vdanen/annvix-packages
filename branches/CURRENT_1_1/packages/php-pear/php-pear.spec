@@ -1,6 +1,15 @@
-%define name	php-%{subname}
-%define version	%{phpversion}
-%define release	3avx
+#
+# spec file for package php-
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		php-%{subname}
+%define version		%{phpversion}
+%define release		4avx
 
 %define phpversion	4.3.11
 %define phpsource       %{_prefix}/src/php-devel
@@ -20,8 +29,9 @@ URL:		http://www.php.net
 Source0:	php-pear-%{pear_date}.tar.bz2
 Source1:	fixregistry.php
 Patch0:		php-pear-CAN-2005-1921.patch
+Patch1:		php-pear-CAN-2005-2498.patch
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	php4-devel php-xml perl php-cli
 BuildArch:	noarch
 
@@ -52,6 +62,7 @@ pronounced just like the fruit. The purpose of PEAR is to provide:
     * A web site, mailing lists and download mirrors to support the
       PHP/PEAR community 
 
+
 %prep
 %setup -q -n %{name}
 
@@ -61,6 +72,7 @@ pronounced just like the fruit. The purpose of PEAR is to provide:
 perl -pi -e "s|/dev/tty|php://stdin|;" go-pear
 perl -pi -e 's|detect_install_dirs\(\)|detect_install_dirs("%{buildroot}/usr")|;' go-pear
 perl -pi -e "s|'XML_Parser',|'XML_Parser',\n    'Log',\n    'Mail_Mime',\n    |;" go-pear
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -72,12 +84,12 @@ echo "Get all the info on http://pear.php.net" > README
 
 # Remove CVS files
 find %{buildroot}%{peardir} -name ".cvsignore" |\
-	xargs rm -f
+    xargs rm -f
 
 # Remove buildroot
 for f in %{buildroot}/%{peardir}/.registry/*.reg
 do
-  php %{SOURCE1} $f %{buildroot}
+    php %{SOURCE1} $f %{buildroot}
 done
 
 # Turn generated conf into a global setting
@@ -99,11 +111,13 @@ mkdir %{buildroot}%{peardir}/packages
 # fix for CAN-2005-1921
 pushd %{buildroot}%{peardir}/XML
     patch <%{PATCH0}
+    patch -p0 <%{PATCH1}
 popd
 
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files 
 %defattr(-,root,root)
@@ -115,7 +129,12 @@ popd
 %{peardir}/.registry
 %{_bindir}/pear
 
+
 %changelog
+* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 4.3.11-4avx
+- bootstrap build (new gcc, new glibc)
+- P1: patch to fix CAN-2005-2498
+
 * Thu Jun 30 2005 Vincent Danen <vdanen@annvix.org> 4.3.11-3avx
 - P0: patch to fix CAN-2005-1921
 
