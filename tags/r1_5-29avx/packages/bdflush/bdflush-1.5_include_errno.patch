@@ -1,0 +1,10 @@
+--- bdflush-1.5/bdflush.c.errno	2002-12-30 11:56:33.000000000 -0500
++++ bdflush-1.5/bdflush.c	2002-12-30 11:56:48.000000000 -0500
+@@ -19,6 +19,7 @@
+ #include <string.h>
+ #include <stdlib.h>
+ #include <linux/unistd.h>
++#include <errno.h>
+ 
+ /*
+  * bdupdate: an attempt to unify the update and bdflush programs; this
