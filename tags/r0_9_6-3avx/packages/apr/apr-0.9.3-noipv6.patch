@@ -1,0 +1,44 @@
+
+Don't care if IPv6 tests fail because IPv6 isn't loaded in the kernel.  
+
+--- apr-0.9.3/test/testsockets.c.noipv6	2003-04-29 14:19:08.000000000 +0100
++++ apr-0.9.3/test/testsockets.c	2003-04-29 14:22:51.000000000 +0100
+@@ -58,13 +58,8 @@
+ #include "apr_lib.h"
+ #include "test_apr.h"
+ 
+-#if APR_HAVE_IPV6
+-#define US "::1"
+-#define FAMILY APR_INET6
+-#else
+ #define US "127.0.0.1"
+ #define FAMILY APR_INET
+-#endif
+ 
+ #define STRLEN 21
+ 
+@@ -90,6 +85,8 @@
+     apr_socket_close(sock);
+ }
+ 
++#define SKIP_NO_IPV6(x) if (x == EAFNOSUPPORT) CuNotImpl(tc, "IPv6 not enabled")
++
+ static void tcp6_socket(CuTest *tc)
+ {
+ #if APR_HAVE_IPV6
+@@ -97,6 +94,7 @@
+     apr_socket_t *sock = NULL;
+ 
+     rv = apr_socket_create(&sock, APR_INET6, SOCK_STREAM, p);
++    SKIP_NO_IPV6(rv);
+     CuAssertIntEquals(tc, APR_SUCCESS, rv);
+     CuAssertPtrNotNull(tc, sock);
+     apr_socket_close(sock);
+@@ -112,6 +110,7 @@
+     apr_socket_t *sock = NULL;
+ 
+     rv = apr_socket_create(&sock, APR_INET6, SOCK_DGRAM, p);
++    SKIP_NO_IPV6(rv);
+     CuAssertIntEquals(tc, APR_SUCCESS, rv);
+     CuAssertPtrNotNull(tc, sock);
+     apr_socket_close(sock);
