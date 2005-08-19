@@ -1,6 +1,15 @@
-%define name	pdns
-%define version	2.9.17
-%define release	4avx
+#
+# spec file for package pdns
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		pdns
+%define version		2.9.17
+%define release		5avx
 
 Summary:	PowerDNS is a versatile database-driven nameserver
 Name:		%{name}
@@ -18,7 +27,7 @@ Patch1:		pdns-2.9.17-avoid-version.diff.bz2
 Patch2:		pdns-2.9.17-no_libpq++.diff.bz2
 Patch3:		pdns-2.9.17-cvs-x86_64.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	MySQL-devel, openldap-devel, postgresql-devel
 BuildRequires:	bison, flex, gdbm-devel, libstdc++-devel, openssl-devel, zlib-devel
 BuildRequires:	autoconf2.5, automake1.7
@@ -87,12 +96,13 @@ Requires:	%{name}-backend-ldap = %{version}
 %description devel
 Development headers and libraries for %{name}
 
-%prep
 
+%prep
 %setup -q -n %{name}-%{version}
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1 -b .x86_64
+
 
 %build
 #%%define __libtoolize /bin/true
@@ -150,8 +160,8 @@ daemon=no
 quiet=on
 EOF
 
-chmod 600 %{buildroot}%{_sysconfdir}/pdns/pdns.conf
-chmod 644 %{buildroot}%{_sysconfdir}/pdns/recursor.conf
+chmod 0600 %{buildroot}%{_sysconfdir}/pdns/pdns.conf
+chmod 0644 %{buildroot}%{_sysconfdir}/pdns/recursor.conf
 
 cat >> README.recursor << EOF
 NOTE: This is still experimental...
@@ -169,6 +179,7 @@ install -m 0755 %{SOURCE1} %{buildroot}%{_srvdir}/pdns/run
 install -m 0755 %{SOURCE2} %{buildroot}%{_srvdir}/pdns/log/run
 install -m 0755 %{SOURCE3} %{buildroot}%{_srvdir}/pdnsr/run
 install -m 0755 %{SOURCE4} %{buildroot}%{_srvdir}/pdnsr/log/run
+
 
 %pre
 %_pre_useradd pdns /var/lib/pdns /bin/false 88
@@ -188,8 +199,10 @@ install -m 0755 %{SOURCE4} %{buildroot}%{_srvdir}/pdnsr/log/run
 %preun recursor
 %_preun_srv pdnsr
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -241,7 +254,11 @@ install -m 0755 %{SOURCE4} %{buildroot}%{_srvdir}/pdnsr/log/run
 %{_libdir}/pdns/*.la
 %{_libdir}/pdns/*.a
 
+
 %changelog
+* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 2.9.17-5avx
+- bootstrap build (new gcc, new glibc)
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.9.17-4avx
 - rebuild
 
