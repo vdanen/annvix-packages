@@ -1,8 +1,17 @@
-%define name	chkrootkit
-%define version	0.43
-%define release	4avx
+#
+# spec file for package chkrootkit
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-%define build_diet 1
+
+%define name		chkrootkit
+%define version		0.43
+%define release		5avx
+
+%define build_diet 	1
 
 Summary:	Checks system for rootkits
 Name:		%{name}
@@ -14,7 +23,7 @@ URL:		http://www.chkrootkit.org/
 Source0:	ftp://ftp.pangeia.com.br/pub/seg/pac/%{name}-%{version}.tar.gz
 Patch0:		chkrootkit-0.43-lib-path.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:  glibc-static-devel
 
 Requires:	binutils, fileutils, findutils, gawk, grep, net-tools, procps, sed, sh-utils, textutils
@@ -25,13 +34,13 @@ BuildRequires:	dietlibc-devel >= 0.20-1mdk
 %description
 Chkrootkit is a tool to locally check for signs of a rootkit.
 
-%prep
 
+%prep
 %setup -q
 %patch -p0 -b .lib-path
 
-%build
 
+%build
 %if %{build_diet}
 # OE: use the power of dietlibc
 make CC="diet gcc" CFLAGS="-DHAVE_LASTLOG_H -DLASTLOG_FILENAME='\"/var/log/lastlog\"' -DWTEMP_FILENAME='\"/var/log/wtmp\"' -Os  -s -static" LDFLAGS=-static
@@ -39,18 +48,21 @@ make CC="diet gcc" CFLAGS="-DHAVE_LASTLOG_H -DLASTLOG_FILENAME='\"/var/log/lastl
 make CFLAGS="-DHAVE_LASTLOG_H -DLASTLOG_FILENAME='\"/var/log/lastlog\"' -DWTEMP_FILENAME='\"/var/log/wtmp\"'" LDFLAGS=-static
 %endif
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 install -d %{buildroot}%{_sbindir}
 install -d %{buildroot}%{_prefix}/lib/%{name}
 
-install chkrootkit %{buildroot}%{_sbindir}/
-install check_wtmpx chklastlog chkproc chkwtmp ifpromisc %{buildroot}%{_prefix}/lib/%{name}/
-install strings-static %{buildroot}%{_prefix}/lib/%{name}/strings
+install -m 0755 chkrootkit %{buildroot}%{_sbindir}/
+install -m 0755 check_wtmpx chklastlog chkproc chkwtmp ifpromisc %{buildroot}%{_prefix}/lib/%{name}/
+install -m 0755 strings-static %{buildroot}%{_prefix}/lib/%{name}/strings
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -58,7 +70,11 @@ install strings-static %{buildroot}%{_prefix}/lib/%{name}/strings
 %{_sbindir}/*
 %{_prefix}/lib/%{name}
 
+
 %changelog
+* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 0.43-5avx
+- bootstrap build (new gcc, new glibc)
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 0.43-4avx
 - rebuild
 

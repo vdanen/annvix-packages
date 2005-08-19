@@ -1,6 +1,15 @@
-%define name	chkfontpath
-%define version	1.9.10
-%define release	5avx
+#
+# spec file for package chkfontpath
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		chkfontpath
+%define version		1.9.10
+%define release		6avx
 
 Summary:	Simple interface for editing the font path for the X font server
 Name:		%{name}
@@ -11,7 +20,7 @@ Group:		System/XFree86
 Source:		%{name}-%{version}.tar.bz2
 Patch:		chkfontpath-1.7-unscaled.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	popt-devel
 
 Requires:	XFree86-xfs, SysVinit
@@ -22,26 +31,35 @@ in the X font server's path. It is mostly intended to be used
 `internally' by RPM when packages with fonts are added or removed, but
 it may be useful as a stand-alone utility in some instances.
 
+
 %prep
 %setup -q
 %patch0 -p1 -b .old
 
+
 %build
-make RPM_OPT_FLAGS="$RPM_OPT_FLAGS"
+make RPM_OPT_FLAGS="%{optflags}"
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 perl -pi -e "s!/usr/man!%{_mandir}!g" Makefile man/Makefile
-%makeinstall INSTROOT=$RPM_BUILD_ROOT BINDIR=%{_sbindir} MANDIR=%{_mandir}
+%makeinstall INSTROOT=%{buildroot} BINDIR=%{_sbindir} MANDIR=%{_mandir}
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %attr(-,root,root)/usr/sbin/chkfontpath
 %attr(-,root,root)%{_mandir}/man8/chkfontpath.8*
 
+
 %changelog
+* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 1.9.10-6avx
+- bootstrap build (new gcc, new glibc)
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 1.9.10-5avx
 - rebuild
 

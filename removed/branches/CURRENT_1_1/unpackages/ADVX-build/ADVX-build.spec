@@ -1,6 +1,15 @@
-%define name	ADVX-build
-%define version	10
-%define release	2avx
+#
+# spec file for package ADVX-build
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		ADVX-build
+%define version		10
+%define release		3avx
 
 Summary:	ADVX-build contains tools and macros to build ADVX
 Name:		%{name}
@@ -11,14 +20,16 @@ Group:		System/Servers
 URL:		http://www.advx.org/devel/policy.php
 Source0:	ADVX-build.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
 
 %description
 ADVX-build contains a set of tools and macros to build ADVX
 components, including Apache 2.
 
+
 %build
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -28,11 +39,13 @@ bzcat %{SOURCE0} > %{buildroot}%{_datadir}/ADVX/ADVX-build
 
 mkdir -p %{buildroot}%{_docdir}/%{name}-%{version}
 echo "See http://www.advx.org/devel.policy.php for more info" > \
-        %{buildroot}%{_docdir}/%{name}-%{version}/README
+    %{buildroot}%{_docdir}/%{name}-%{version}/README
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 [ "./%{name}" != "/" ] && rm -rf ./%{name}
+
 
 %files 
 %defattr(-,root,root)
@@ -41,7 +54,11 @@ echo "See http://www.advx.org/devel.policy.php for more info" > \
 %dir %{_datadir}/ADVX
 %attr(0644,root,root) %{_datadir}/ADVX/*
 
+
 %changelog
+* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 10-3avx
+- bootstrap build (new gcc, new glibc)
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 10-2avx
 - rebuild
 
