@@ -1,0 +1,11 @@
+--- php-4.2.1/ext/ldap/ldap.c.orig	Wed Jun 26 18:01:44 2002
++++ php-4.2.1/ext/ldap/ldap.c	Wed Jun 26 18:02:32 2002
+@@ -2027,6 +2027,8 @@
+ 	zval *cb_retval;
+ 	zval *cb_link = (zval *) params;
+ 
++	TSRMLS_FETCH();
++
+ 	ld = (ldap_linkdata *) zend_fetch_resource(&cb_link TSRMLS_CC, -1, "ldap link", NULL, 1, le_link);
+ 
+ 	/* link exists and callback set? */
