@@ -1,6 +1,15 @@
-%define name	apache2-%{mod_name}
-%define version	%{apache_version}_%{mod_version}
-%define release 2avx
+#
+# spec file for package apache2-mod_security
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		apache2-%{mod_name}
+%define version		%{apache_version}_%{mod_version}
+%define release 	3avx
 
 # Module-Specific definitions
 %define apache_version	2.0.53
@@ -22,7 +31,7 @@ Source1:	%{mod_conf}.bz2
 Source2:	snortrules-snapshot-CURRENT.tar.gz
 Source3:	%{sourcename}.tar.gz.asc
 
-BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	apache2-devel >= %{apache_version}
 
 Prereq:		apache2 >= %{apache_version}, apache2-conf
@@ -34,8 +43,8 @@ engine for web applications. It operates embedded into the web
 server, acting as a powerful umbrella - shielding applications
 from attacks.
 
-%prep
 
+%prep
 %setup -q -n %{mod_name}-%{mod_version}
 
 tar -zxf %{SOURCE2}
@@ -45,9 +54,11 @@ cat > mod_security-snortrules.conf << EOF
 EOF
 perl util/snort2modsec.pl rules/web*.rules >> mod_security-snortrules.conf
 
+
 %build
 cp apache2/%{mod_name}.c .
 %{_sbindir}/apxs2 -c %{mod_name}.c
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -57,16 +68,15 @@ mkdir -p %{buildroot}%{_sysconfdir}/httpd/conf.d
 install -m 0755 .libs/*.so %{buildroot}%{_libdir}/apache2-extramodules/
 bzcat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/conf.d/%{mod_conf}
 
-mkdir -p %{buildroot}/var/www/html/addon-modules
-ln -s ../../../../%{_docdir}/%{name}-%{version} %{buildroot}/var/www/html/addon-modules/%{name}-%{version}
-
 mkdir -p %{buildroot}{%{_sbindir},%{_sysconfdir}/httpd/2.0/conf}
 
 install -m 0755 util/snort2modsec.pl %{buildroot}%{_sbindir}/
 install -m 0644 mod_security-snortrules.conf %{buildroot}%{_sysconfdir}/httpd/2.0/conf
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -75,9 +85,13 @@ install -m 0644 mod_security-snortrules.conf %{buildroot}%{_sysconfdir}/httpd/2.
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/httpd/conf.d/%{mod_conf}
 %attr(0755,root,root) %{_libdir}/apache2-extramodules/%{mod_so}
 %attr(0755,root,root) %{_sbindir}/snort2modsec.pl
-/var/www/html/addon-modules/*
+
 
 %changelog
+* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 2.0.53_1.8.6-3avx
+- bootstrap build (new gcc, new glibc)
+- don't include the symlinks to docs in /var/www/html/addon-modules
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.0.53_1.8.6-2avx
 - rebuild
 

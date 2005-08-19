@@ -1,6 +1,15 @@
-%define name	apache2-%{mod_name}
-%define version %{apache_version}
-%define release 2avx
+#
+# spec file for package apache2-mod_suexec
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		apache2-%{mod_name}
+%define version 	%{apache_version}
+%define release 	3avx
 
 # Module-Specific definitions
 %define apache_version	2.0.53
@@ -18,7 +27,7 @@ Group:		System/Servers
 URL:		http://httpd.apache.org/docs/suexec.html
 Source1:	%{mod_conf}.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:  apache2-devel >= %{apache_version}, apache2-source >= %{apache_version}
 
 Prereq:		rpm-helper
@@ -30,6 +39,7 @@ allows CGI scripts to run as a specified user and Group.
 
 Normally, when a CGI or SSI program executes, it runs as the
 same user who is running the web server.
+
 
 %prep
 %setup -c -T -n %{name}
@@ -56,11 +66,12 @@ cp %{_prefix}/src/apache2-%{version}/modules/generators/mod_suexec.h .
 cp %{_prefix}/src/apache2-%{version}/support/suexec.c .
 cp %{_prefix}/src/apache2-%{version}/support/suexec.h .
 
-%build
 
+%build
 gcc `%{_sbindir}/apxs2 -q CFLAGS -Wall` -I. -o suexec suexec.c
 
 %{_sbindir}/apxs2 -I. -c %{mod_name}.c
+
 
 %install
 [ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
@@ -78,11 +89,10 @@ mkdir -p %{buildroot}%{_sysconfdir}/httpd/conf.d
 install -m 0755 .libs/*.so %{buildroot}%{_libdir}/apache2-extramodules/
 bzcat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/conf.d/%{mod_conf}
 
-mkdir -p %{buildroot}/var/www/html/addon-modules
-ln -s ../../../../%{_docdir}/%{name}-%{version} %{buildroot}/var/www/html/addon-modules/%{name}-%{version}
 
 %clean
 [ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -91,9 +101,13 @@ ln -s ../../../../%{_docdir}/%{name}-%{version} %{buildroot}/var/www/html/addon-
 %attr(0755,root,root) %{_libdir}/apache2-extramodules/%{mod_so}
 %attr(4710,root,apache) %{_sbindir}/apache2-suexec
 %{_mandir}/man8/*
-/var/www/html/addon-modules*
+
 
 %changelog
+* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 2.0.53-3avx
+- bootstrap build (new gcc, new glibc)
+- don't include the symlinks to docs in /var/www/html/addon-modules
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.0.53-2avx
 - rebuild
 

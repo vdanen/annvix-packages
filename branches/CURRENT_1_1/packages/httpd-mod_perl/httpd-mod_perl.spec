@@ -1,6 +1,15 @@
-%define name	apache2-%{mod_name}
-%define version %{apache_version}_%{mod_version}
-%define release 0.RC4.2avx
+#
+# spec file for package apache2-mod_perl
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		apache2-%{mod_name}
+%define version 	%{apache_version}_%{mod_version}
+%define release 	0.RC4.3avx
 
 # Module-Specific definitions
 %define apache_version	2.0.53
@@ -26,7 +35,7 @@ Source2:	%{mod_conf}.bz2
 Source3:	%{name}-startup.pl
 Source61:       apache2-mod_perl-testscript.pl
 
-BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl-devel >= 5.8.6, apache2-devel >= %{apache_version}, db4-devel
 BuildRequires:	perl-HTML-Parser, perl-Tie-IxHash, perl-URI, perl-libwww-perl, perl-CGI
 BuildRequires:	apache2-mod_cache, apache2-mod_dav, apache2-mod_deflate, apache2-mod_disk_cache
@@ -52,6 +61,7 @@ no external Perl interpreter has to be started.
 Install %{name} if you're installing the apache2 web server and you'd
 like for it to directly incorporate a Perl interpreter.
 
+
 %package devel
 Summary:	Files needed for building XS modules that use mod_perl
 Group:		Development/C
@@ -62,11 +72,12 @@ Requires:	apache2-devel >= %{apache_version}
 The mod_perl-devel package contains the files needed for building XS
 modules that use mod_perl.
 
+
 %prep
 %setup -q -n %{sourcename}
 
-%build
 
+%build
 # Compile the module.
 %{__perl} Makefile.PL \
     MP_CCOPTS="$(%{_sbindir}/apxs2 -q CFLAGS) -fPIC" \
@@ -160,28 +171,25 @@ mkdir -p %{buildroot}/var/www/perl
 
 %makeinstall \
     MODPERL_AP_LIBEXECDIR=%{buildroot}%{_libdir}/apache2-extramodules \
-    MODPERL_AP_INCLUDEDIR=$RPM_BUILD_ROOT%{_includedir}/apache2 \
+    MODPERL_AP_INCLUDEDIR=%{buildroot}%{_includedir}/apache2 \
     MP_INST_APACHE2=1 \
     INSTALLDIRS=vendor
 
 bzcat %{SOURCE2} > %{buildroot}%{_sysconfdir}/httpd/conf.d/%{mod_conf}
 
-mkdir -p %{buildroot}%{_var}/www/html/addon-modules
-ln -s ../../../..%{_docdir}/%{name}-%{version} %{buildroot}%{_var}/www/html/addon-modules/%{name}-%{version}
-
 # Remove empty file
 rm -f docs/api/mod_perl-2.0/pm_to_blib
 
 # Add startup file...
-install -m 755 %{SOURCE3} %{buildroot}%{_sysconfdir}/httpd/conf/addon-modules/
+install -m 0755 %{SOURCE3} %{buildroot}%{_sysconfdir}/httpd/conf/addon-modules/
 
 install -d %{buildroot}//var/www/perl
-install -m 755 %{SOURCE61} %{buildroot}/var/www/perl
+install -m 0755 %{SOURCE61} %{buildroot}/var/www/perl
 
 # install missing required files
-install -m644 xs/tables/current/Apache/StructureTable.pm \
+install -m 0644 xs/tables/current/Apache/StructureTable.pm \
     %{buildroot}%{perl_vendorarch}/Apache2/Apache/
-install -m644 xs/tables/current/Apache/FunctionTable.pm \
+install -m 0644 xs/tables/current/Apache/FunctionTable.pm \
     %{buildroot}%{perl_vendorarch}/Apache2/Apache/
 
 # cleanup
@@ -197,11 +205,13 @@ rm -f %{buildroot}%{_mandir}/man3/Bundle::ApacheTest.3pm
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
+
 %post
 %_post_srv httpd2
 
 %postun
 %_post_srv httpd2
+
 
 %files -n %{name}
 %defattr(-,root,root)
@@ -212,14 +222,18 @@ rm -f %{buildroot}%{_mandir}/man3/Bundle::ApacheTest.3pm
 %attr(0755,root,root) /var/www/perl/*.pl
 %{perl_vendorlib}
 %{_mandir}/*/*
-/var/www/html/addon-modules/*
 
 %files devel
 %defattr(-,root,root)
 %{_bindir}/*
 %{_includedir}/apache2/*
 
+
 %changelog
+* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 2.0.53_2.0.0-0.RC4.3avx
+- bootstrap build (new gcc, new glibc)
+- don't include the symlinks to docs in /var/www/html/addon-modules
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.0.53_2.0.0-0.RC4.2avx
 - rebuild
 

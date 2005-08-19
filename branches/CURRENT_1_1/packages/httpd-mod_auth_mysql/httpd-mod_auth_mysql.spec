@@ -1,6 +1,15 @@
-%define name	apache2-%{mod_name}
-%define version %{apache_version}_%{mod_version}
-%define release 2avx
+#
+# spec file for package apache2-mod_auth_mysql
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		apache2-%{mod_name}
+%define version 	%{apache_version}_%{mod_version}
+%define release 	3avx
 
 # Module-Specific definitions
 %define apache_version	2.0.53
@@ -20,7 +29,7 @@ URL:		http://sourceforge.net/projects/modauthmysql/
 Source0:	mod_auth_mysql-%{mod_version}.tar.bz2
 Source1:	%{mod_conf}.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:  apache2-devel >= %{apache_version}, MySQL-devel
 
 Prereq:		apache2 = %{apache_version}
@@ -30,13 +39,14 @@ Prereq:		apache2-conf
 mod_auth_mysql can be used to limit access to documents served by
 a web server by checking data in a MySQL database.
 
-%prep
 
+%prep
 %setup -q -n %{mod_name}-%{mod_version}
 
-%build
 
+%build
 %{_sbindir}/apxs2 -c -DAPACHE2 -L%{_libdir}/mysql -I%{_includedir}/mysql -Wl,-lmysqlclient mod_auth_mysql.c
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -46,20 +56,23 @@ mkdir -p %{buildroot}%{_sysconfdir}/httpd/conf.d
 install -m 0755 .libs/*.so %{buildroot}%{_libdir}/apache2-extramodules/
 bzcat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/conf.d/%{mod_conf}
 
-mkdir -p %{buildroot}/var/www/html/addon-modules
-ln -s ../../../../%{_docdir}/%{name}-%{version} %{buildroot}/var/www/html/addon-modules/%{name}-%{version}
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
 %doc README CHANGES BUILD
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/httpd/conf.d/%{mod_conf}
 %attr(0755,root,root) %{_libdir}/apache2-extramodules/%{mod_so}
-/var/www/html/addon-modules/*
+
 
 %changelog
+* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 2.0.53_2.8.1-3avx
+- bootstrap build (new gcc, new glibc)
+- don't include the symlinks to docs in /var/www/html/addon-modules
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.0.53_2.8.1-2avx
 - rebuild
 

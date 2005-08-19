@@ -1,6 +1,15 @@
-%define name	apache2-%{mod_name}
-%define version %{apache_version}_%{mod_version}
-%define release 2avx
+#
+# spec file for package apache2-mod_auth_shadow
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		apache2-%{mod_name}
+%define version 	%{apache_version}_%{mod_version}
+%define release 	3avx
 
 # Module-Specific definitions
 %define apache_version	2.0.53
@@ -22,7 +31,7 @@ Source1:	%{mod_conf}.bz2
 Patch0:		%{sourcename}-register.patch.bz2
 Patch1:		%{sourcename}-makefile.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:  apache2-devel >= %{apache_version}
 
 Prereq:		apache2 >= %{apache_version}, apache2-conf
@@ -33,16 +42,17 @@ the /etc/shadow file. You may use this module with a mode 400
 root:root /etc/shadow file, while your web daemons are running
 under a non-privileged user.
 
-%prep
 
+%prep
 %setup -q -n %{sourcename}
 %patch0 -p0
 %patch1 -p0
 
-%build
 
+%build
 export PATH="$PATH:/usr/sbin"
 %make CFLAGS="%{optflags}" -f makefile
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -52,24 +62,27 @@ mkdir -p %{buildroot}%{_sysconfdir}/httpd/conf.d
 install -m 0755 .libs/*.so %{buildroot}%{_libdir}/apache2-extramodules/
 bzcat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/conf.d/%{mod_conf}
 
-mkdir -p %{buildroot}/var/www/html/addon-modules
-ln -s ../../../../%{_docdir}/%{name}-%{version} %{buildroot}/var/www/html/addon-modules/%{name}-%{version}
-
 install -d %{buildroot}%{_sbindir}
-install -m4755 validate %{buildroot}%{_sbindir}/
+install -m 4755 validate %{buildroot}%{_sbindir}/
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
 %doc CHANGES INSTALL README
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/httpd/conf.d/%{mod_conf}
 %attr(0755,root,root) %{_libdir}/apache2-extramodules/%{mod_so}
-/var/www/html/addon-modules/*
 %attr(4755,root,root) %{_sbindir}/validate
 
+
 %changelog
+* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 2.0.53_2.0-3avx
+- bootstrap build (new gcc, new glibc)
+- don't include the symlinks to docs in /var/www/html/addon-modules
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.0.53_2.0-2avx
 - rebuild
 
