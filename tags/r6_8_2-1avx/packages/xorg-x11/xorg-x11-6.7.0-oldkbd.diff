@@ -1,0 +1,14 @@
+--- xorg-x11-6.7.0/xc/programs/xkbcomp/rules/xorg.oldkbd	2004-08-10 14:39:43.000000000 +0200
++++ xorg-x11-6.7.0/xc/programs/xkbcomp/rules/xorg	2004-08-16 14:20:57.322380585 +0200
+@@ -8,7 +8,10 @@
+ //
+ 
+ // Layouts that still need be composed by old rules
+-! $oldlayouts = az bs ca ca_enhanced de_CH fr_CH hu hu_qwerty lt_std mn vn hr_US
++! $oldlayouts = ca_enhanced czsk\
++	de_CH fr_CH hr_US hu hu_qwerty hu_US iso9995-3 \
++	lt lt_a lt_p lt_std \
++	vn jp
+ 
+ // If you want non-latin layouts implicitly include the en_US layout
+ // uncomment lines below

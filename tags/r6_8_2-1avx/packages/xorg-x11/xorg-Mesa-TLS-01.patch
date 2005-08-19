@@ -1,0 +1,171 @@
+--- xc/extras/Mesa/src/mesa/glapi/glapi.c.xorg_mesa_tls	2004-12-19 16:20:33.000000000 +0100
++++ xc/extras/Mesa/src/mesa/glapi/glapi.c	2004-12-19 19:16:26.621998142 +0100
+@@ -133,6 +133,20 @@
+ 
+ #if defined(THREADS)
+ 
++#if defined(GLX_USE_TLS)
++
++__thread struct _glapi_table * _glapi_tls_Dispatch
++    __attribute__((tls_model("initial-exec"))) 
++    = (struct _glapi_table *) __glapi_noop_table;
++
++__thread struct _glapi_table * _glapi_tls_RealDispatch
++    __attribute__((tls_model("initial-exec"))) 
++    = (struct _glapi_table *) __glapi_noop_table;
++
++__thread void * _glapi_tls_Context
++    __attribute__((tls_model("initial-exec")));
++
++#else
+ /**
+  * \name Multi-threaded control support variables
+  *
+@@ -165,6 +179,7 @@
+ static _glthread_TSD RealDispatchTSD;    /**< only when using override */
+ static _glthread_TSD ContextTSD;         /**< Per-thread context pointer */
+ /*@}*/
++#endif
+ 
+ 
+ #define DISPATCH_TABLE_NAME __glapi_threadsafe_table
+@@ -185,12 +200,21 @@
+ 
+ 
+ 
++#if defined(GLX_USE_TLS)
++
++struct _glapi_table *_glapi_Dispatch = (struct _glapi_table *) __glapi_threadsafe_table;
++struct _glapi_table *_glapi_DispatchTSD = NULL;
++struct _glapi_table *_glapi_RealDispatch = (struct _glapi_table *) __glapi_threadsafe_table;
++
++#else
++
+ struct _glapi_table *_glapi_Dispatch = (struct _glapi_table *) __glapi_noop_table;
+-#if defined( THREADS )
++# if defined( THREADS )
+ struct _glapi_table *_glapi_DispatchTSD = (struct _glapi_table *) __glapi_noop_table;
+-#endif
++# endif
+ struct _glapi_table *_glapi_RealDispatch = (struct _glapi_table *) __glapi_noop_table;
+ 
++#endif /* GLX_USE_TLS */
+ 
+ /* Used when thread safety disabled */
+ void *_glapi_Context = NULL;
+@@ -224,7 +248,7 @@
+ void
+ _glapi_check_multithread(void)
+ {
+-#if defined(THREADS)
++#if defined(THREADS) && !defined(GLX_USE_TLS)
+    if (!ThreadSafe) {
+       static unsigned long knownID;
+       static GLboolean firstCall = GL_TRUE;
+@@ -255,7 +279,10 @@
+ _glapi_set_context(void *context)
+ {
+    (void) __unused_noop_functions; /* silence a warning */
+-#if defined(THREADS)
++#if defined(GLX_USE_TLS)
++   _glapi_tls_Context = context;
++   _glapi_Context = NULL;
++#elif defined(THREADS)
+    (void) __unused_threadsafe_functions; /* silence a warning */
+    _glthread_SetTSD(&ContextTSD, context);
+    _glapi_Context = (ThreadSafe) ? NULL : context;
+@@ -274,7 +301,9 @@
+ void *
+ _glapi_get_context(void)
+ {
+-#if defined(THREADS)
++#if defined(GLX_USE_TLS)
++   return _glapi_tls_Context;
++#elif defined(THREADS)
+    if (ThreadSafe) {
+       return _glthread_GetTSD(&ContextTSD);
+    }
+@@ -304,7 +333,14 @@
+    }
+ #endif
+ 
+-#if defined(THREADS)
++#if defined(GLX_USE_TLS)
++   if (DispatchOverride) {
++      _glapi_tls_RealDispatch = dispatch;
++   }
++   else {
++      _glapi_tls_Dispatch = dispatch;
++   }
++#elif defined(THREADS)
+    if (DispatchOverride) {
+       _glthread_SetTSD(&RealDispatchTSD, (void *) dispatch);
+       if (ThreadSafe)
+@@ -342,7 +378,13 @@
+ struct _glapi_table *
+ _glapi_get_dispatch(void)
+ {
+-#if defined(THREADS)
++#if defined(GLX_USE_TLS)
++   struct _glapi_table * const api = (__builtin_expect(DispatchOverride, 0))
++     ? _glapi_tls_RealDispatch : _glapi_tls_Dispatch;
++
++   assert(api != NULL);
++   return api;
++#elif defined(THREADS)
+    if (ThreadSafe) {
+       if (DispatchOverride) {
+          return (struct _glapi_table *) _glthread_GetTSD(&RealDispatchTSD);
+@@ -399,7 +441,9 @@
+ 
+    _glapi_set_dispatch(real);
+ 
+-#if defined(THREADS)
++#if defined(GLX_USE_TLS)
++   _glapi_tls_Dispatch = override;
++#elif defined(THREADS)
+    _glthread_SetTSD(&_gl_DispatchTSD, (void *) override);
+    if ( ThreadSafe ) {
+       _glapi_Dispatch = (struct _glapi_table *) __glapi_threadsafe_table;
+@@ -424,7 +468,9 @@
+    DispatchOverride = GL_FALSE;
+    _glapi_set_dispatch(real);
+    /* the rest of this isn't needed, just play it safe */
+-#if defined(THREADS)
++#if defined(GLX_USE_TLS)
++   _glapi_tls_RealDispatch = NULL;
++#elif defined(THREADS) 
+    _glthread_SetTSD(&RealDispatchTSD, NULL);
+ #endif
+    _glapi_RealDispatch = NULL;
+@@ -439,7 +485,9 @@
+    }
+    else {
+       if (DispatchOverride) {
+-#if defined(THREADS)
++#if defined(GLX_USE_TLS)
++	 return _glapi_tls_Dispatch;
++#elif defined(THREADS)
+          return (struct _glapi_table *) _glthread_GetTSD(&_gl_DispatchTSD);
+ #else
+          return _glapi_Dispatch;
+@@ -500,7 +548,7 @@
+ #ifdef USE_X86_ASM
+ extern const GLubyte gl_dispatch_functions_start[];
+ 
+-# if defined(THREADS)
++# if defined(THREADS) && !defined(GLX_USE_TLS)
+ #  define X86_DISPATCH_FUNCTION_SIZE  32
+ # else
+ #  define X86_DISPATCH_FUNCTION_SIZE  16
+@@ -598,6 +646,10 @@
+  * Generate a dispatch function (entrypoint) which jumps through
+  * the given slot number (offset) in the current dispatch table.
+  * We need assembly language in order to accomplish this.
++ * 
++ * \todo
++ * A TLS version of this is needed.  The code right now will work on x86 in
++ * TLS mode, but it will be inefficient.
+  */
+ static _glapi_proc
+ generate_entrypoint(GLuint functionOffset)

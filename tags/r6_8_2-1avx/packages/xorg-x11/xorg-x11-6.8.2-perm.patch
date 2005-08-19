@@ -1,0 +1,15 @@
+--- xorg-x11-6.8.2/xc/programs/Xserver/hw/xfree86/os-support/linux/drm/xf86drm.c.fred	2005-03-08 11:23:22.000000000 +0100
++++ xorg-x11-6.8.2/xc/programs/Xserver/hw/xfree86/os-support/linux/drm/xf86drm.c	2005-03-08 12:00:43.568476137 +0100
+@@ -303,8 +303,10 @@
+ 	mknod(buf, S_IFCHR | devmode, dev);
+     }
+ #if defined(XFree86Server)
+-    chown(buf, user, group);
+-    chmod(buf, devmode);
++    if (xf86ConfigDRI.group >= 0)
++	chown(buf, user, group);
++    if (xf86ConfigDRI.mode)
++	chmod(buf, devmode);
+ #endif
+ 
+     fd = open(buf, O_RDWR, 0);

@@ -1,0 +1,3315 @@
+diff -burN xcrel/include/extensions/Imakefile uc/include/extensions/Imakefile
+--- xcrel/include/extensions/Imakefile	2003-04-21 20:56:47.000000000 +0200
++++ uc/include/extensions/Imakefile	2004-09-10 21:46:18.000000000 +0200
+@@ -27,7 +27,7 @@
+ #endif
+ #if BuildXvExt || BuildXvLibrary
+ XVHEADERS = Xv.h Xvlib.h Xvproto.h
+-XVMCHEADERS = XvMC.h XvMClib.h XvMCproto.h
++XVMCHEADERS = XvMC.h XvMClib.h XvMCproto.h vldXvMC.h
+ #endif
+ #if BuildXF86RushExt || BuildXF86RushLibrary
+ XF86RUSHHEADERS = xf86rush.h xf86rushstr.h
+@@ -102,6 +102,7 @@
+ InstallDriverSDKNonExecFile(renderproto.h,$(DRIVERSDKINCLUDEDIR))
+ InstallDriverSDKNonExecFile(Xv.h,$(DRIVERSDKINCLUDEDIR)/extensions)
+ InstallDriverSDKNonExecFile(XvMC.h,$(DRIVERSDKINCLUDEDIR))
++InstallDriverSDKNonExecFile(vldXvMC.h,$(DRIVERSDKINCLUDEDIR))
+ InstallDriverSDKNonExecFile(Xvlib.h,$(DRIVERSDKINCLUDEDIR)/extensions)
+ InstallDriverSDKNonExecFile(Xv.h,$(DRIVERSDKINCLUDEDIR)/X11/extensions)
+ InstallDriverSDKNonExecFile(Xvlib.h,$(DRIVERSDKINCLUDEDIR)/X11/extensions)
+diff -burN xcrel/include/extensions/vldXvMC.h uc/include/extensions/vldXvMC.h
+--- xcrel/include/extensions/vldXvMC.h	1970-01-01 01:00:00.000000000 +0100
++++ uc/include/extensions/vldXvMC.h	2004-11-22 11:28:07.000000000 +0100
+@@ -0,0 +1,181 @@
++/*****************************************************************************
++ * VLD Nonstandard XvMC extension.
++ *
++ * Copyright (c) 2004 The Unichrome Project. All rights reserved.
++ *
++ * Permission is hereby granted, free of charge, to any person obtaining a
++ * copy of this software and associated documentation files (the "Software"),
++ * to deal in the Software without restriction, including without limitation
++ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
++ * and/or sell copies of the Software, and to permit persons to whom the
++ * Software is furnished to do so, subject to the following conditions:
++ *
++ * The above copyright notice and this permission notice shall be included in
++ * all copies or substantial portions of the Software.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
++ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
++ * AUTHOR(S) OR COPYRIGHT HOLDER(S) BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
++ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
++ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
++ * DEALINGS IN THE SOFTWARE.
++ *
++ * Author: Thomas Hellström, 2004.
++ */
++
++#ifndef _VLDXVMC_H
++#define _VLDXVMC_H
++
++#include <X11/Xlib.h>
++#include <X11/extensions/XvMC.h>
++#include <X11/extensions/XvMClib.h>
++
++/* 
++ * New "Motion compensation type".
++ */
++
++#define XVMC_VLD 0x0020000
++
++/*
++ * Below Flags to be passed in the XvMCMpegControl structure 'flag' field.
++ */
++
++#define XVMC_PROGRESSIVE_SEQUENCE 0x00000010
++
++/*
++ * Zig-Zag Scan / Alternative Scan.
++ */
++
++#define XVMC_ZIG_ZAG_SCAN         0x00000000
++#define XVMC_ALTERNATE_SCAN       0x00000100
++
++/*
++ * Frame DCT and frame prediction are used. /
++ * Field prediction
++ */
++
++#define XVMC_PRED_DCT_FRAME       0x00000040
++#define XVMC_PRED_DCT_FIELD       0x00000000
++
++/*
++ * Top / Bottom field first
++ */
++
++#define XVMC_TOP_FIELD_FIRST      0x00000080
++#define XVMC_BOTTOM_FIELD_FIRST   0x00000000
++
++/*
++ * Motion vectors coded in intra macroblocks
++ */
++
++#define XVMC_CONCEALMENT_MOTION_VECTORS 0x00000200
++
++/*
++ * Which of two mappings between quantiser_scale_code
++ * and quantiser_scale shall apply.
++ */ 
++
++#define XVMC_Q_SCALE_TYPE         0x00000400
++
++/*
++ * Intra VLC Format: Bit = 0,  Bit = 1
++ * Intra blocks      B-14      B-15
++ * Non-intra blocks  B-14      B-14
++ */
++#define XVMC_INTRA_VLC_FORMAT     0x00000800
++
++/*
++ * Also XVMC_SECOND_FIELD should be set in flags if active. 
++ */ 
++
++#define XVMC_I_PICTURE 1
++#define XVMC_P_PICTURE 2
++#define XVMC_B_PICTURE 3
++
++typedef struct _XvMCMpegControl{
++    unsigned 
++        BVMV_range,        /* Backward vertical motion vector range */
++	BHMV_range,        /* Backward horizontal motion vector range */
++	FVMV_range,        /* Forward vertical motion vector range */
++	FHMV_range,        /* Forward horizontal motion vector range */
++	picture_structure, /* XVMC_TOP_FIELD, XVMC_BOTTOM_FIELD, 
++			    *  XVMC_FRAME_PICTURE
++			    */
++	intra_dc_precision, /* 0x00 - 0x03 corresponds to 8 to 11 bits prec. */
++	picture_coding_type,/* XVMC_X_PICTURE */
++	mpeg_coding,        /* XVMC_MPEG_2 */
++	flags;              /* See above */
++}XvMCMpegControl;
++
++
++/*
++ * The following function is called BEFORE starting sending slices to the
++ * lib. It grabs the decoder hardware and prepares it for coming slices.
++ * The function XvMCSyncSurface will release the hardware for other contexts
++ * in addition to it's current functionality.
++ */
++
++extern Status XvMCBeginSurface(Display *display,
++			       XvMCContext *context,
++			       XvMCSurface *target_surface,
++			       XvMCSurface *past_surface,
++			       XvMCSurface *future_surface,
++			       const XvMCMpegControl *control);
++
++
++/*
++ * The quantizer matrix structure. This should be filled in by the user and
++ * uploaded whenever a change is needed. The lib initializes with 
++ * default matrices and will automatically load the hardware with new matrices
++ * on decoder context switches. To load data, set the corresponding load flag
++ * to true and fill in the values. The VIA MPEG2 engine only uses the
++ * intra_quantiser_matrix and the non_intra_quantiser_matrix. RFC: Are
++ * the other fields needed for future compatibility?
++ */
++    
++typedef struct _XvMCQMatrix {
++    int load_intra_quantiser_matrix;
++    int load_non_intra_quantiser_matrix;
++    int load_chroma_intra_quantiser_matrix;
++    int load_chroma_non_intra_quantiser_matrix;
++    unsigned char intra_quantiser_matrix[64];
++    unsigned char non_intra_quantiser_matrix[64];
++    unsigned char chroma_intra_quantiser_matrix[64];
++    unsigned char chroma_non_intra_quantiser_matrix[64];
++} XvMCQMatrix;
++
++/*
++ * Upload a XvMCQMatrix structure to the clientlib. 
++ * The hardware will start using it the next XvMCBeginSurface.
++ */
++
++extern Status XvMCLoadQMatrix(Display *display, XvMCContext *context,
++			      const XvMCQMatrix *qmx);
++
++
++/*
++ * Put a slice to the decoder. The hardware will start processing it 
++ * immediately.
++ */
++
++extern Status XvMCPutSlice(Display *display,XvMCContext *context, 
++			   char *slice, int nBytes);
++/*
++ * Put a slice without the slice start code to the decoder. 
++ * The hardware will start processing it 
++ * immediately. This function is for client optimization. 
++ * XvMCPutSlice(display,context,slice,nBytes) is equivalent to
++ * XvMCPutSlice2(display,context,slice+4,nBytes-4,slice[3]);
++ */
++
++extern Status XvMCPutSlice2(Display *display,XvMCContext *context, 
++			   char *slice, int nBytes, int sliceCode);
++
++/*
++ * Debug the XvMCControl structure. For convenience only. 
++ */
++
++extern void debugControl(const XvMCMpegControl *control);
++
++#endif
+diff -burN xcrel/lib/XvMC/hw/via/Imakefile uc/lib/XvMC/hw/via/Imakefile
+--- xcrel/lib/XvMC/hw/via/Imakefile	1970-01-01 01:00:00.000000000 +0100
++++ uc/lib/XvMC/hw/via/Imakefile	2004-09-18 01:01:21.000000000 +0200
+@@ -0,0 +1,42 @@
++#define DoNormalLib NormalLibXvMC
++#define DoSharedLib SharedLibXvMC
++#define DoDebugLib DebugLibXvMC
++#define DoProfileLib ProfileLibXvMC
++#define LibName viaXvMC
++#define SoRev SOXVMCREV
++#define LibHeaders NO
++
++#include <Threads.tmpl>
++
++#ifdef SharedXvMCReqs
++REQUIREDLIBS = SharedXvMCReqs -lXv
++#endif
++
++#if Malloc0ReturnsNull
++ALLOC_DEFINES = -DMALLOC_0_RETURNS_NULL
++#endif
++
++      DEFINES = $(ALLOC_DEFINES) -DTRUE=1 -DFALSE=0
++     INCLUDES = -I$(XINCLUDESRC) -I$(INCLUDESRC) -I$(XLIBSRC) -I$(EXTINCSRC) \
++		-I$(XF86COMSRC) -I$(XF86OSSRC) -I$(DRMSRCDIR)/shared \
++		-I$(XF86OSSRC)/linux/drm/kernel -I$(XF86DRIVERSRC)/via
++         SRCS = viaXvMC.c viaLowLevel.c 
++         OBJS = viaXvMC.o viaLowLevel.o xf86drm.o xf86drmHash.o \
++	        xf86drmRandom.o xf86drmSL.o
++     LINTLIBS = $(LINTXLIB)
++
++
++#include <Library.tmpl>
++
++
++#if defined(LinuxArchitecture)
++OS_SUBDIR = linux
++
++LinkSourceFile(xf86drm.c,$(XF86OSSRC)/$(OS_SUBDIR)/drm)
++LinkSourceFile(xf86drmHash.c,$(XF86OSSRC)/$(OS_SUBDIR)/drm)
++LinkSourceFile(xf86drmRandom.c,$(XF86OSSRC)/$(OS_SUBDIR)/drm)
++LinkSourceFile(xf86drmSL.c,$(XF86OSSRC)/$(OS_SUBDIR)/drm)
++#endif
++
++DependTarget()
++
+diff -burN xcrel/lib/XvMC/hw/via/README uc/lib/XvMC/hw/via/README
+--- xcrel/lib/XvMC/hw/via/README	1970-01-01 01:00:00.000000000 +0100
++++ uc/lib/XvMC/hw/via/README	2004-03-08 00:31:20.000000000 +0100
+@@ -0,0 +1,31 @@
++To build:
++
++Call this directory "via" and put it in the following location:
++
++<Top builddir>xc/lib/XvMC/hw/via
++
++Edit the file
++
++<Top builddir>xc/lib/XvMC/Imakefile 
++
++so that the line
++
++SUBDIRS = hw/i810
++
++becomes
++
++SUBDIRS = hw/i810 hw/via
++
++Rebuild X.
++
++Verify that you have a library called libviaXvMC.so.1.0.
++
++Your decoder must link with this file to have access to the library.
++
++
++
++
++
++
++
++
+diff -burN xcrel/lib/XvMC/hw/via/viaLowLevel.c uc/lib/XvMC/hw/via/viaLowLevel.c
+--- xcrel/lib/XvMC/hw/via/viaLowLevel.c	1970-01-01 01:00:00.000000000 +0100
++++ uc/lib/XvMC/hw/via/viaLowLevel.c	2004-11-13 21:59:11.000000000 +0100
+@@ -0,0 +1,833 @@
++/*****************************************************************************
++ * VIA Unichrome XvMC extension client lib.
++ *
++ * Copyright (c) 2004 Thomas Hellström. All rights reserved.
++ * Copyright (c) 2003 Andreas Robinson. All rights reserved.
++ *
++ * Permission is hereby granted, free of charge, to any person obtaining a
++ * copy of this software and associated documentation files (the "Software"),
++ * to deal in the Software without restriction, including without limitation
++ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
++ * and/or sell copies of the Software, and to permit persons to whom the
++ * Software is furnished to do so, subject to the following conditions:
++ *
++ * The above copyright notice and this permission notice shall be included in
++ * all copies or substantial portions of the Software.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
++ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
++ * AUTHOR(S) OR COPYRIGHT HOLDER(S) BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
++ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
++ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
++ * DEALINGS IN THE SOFTWARE.
++ */
++
++
++/*
++ * Low-level functions that deal directly with the hardware. In the future,
++ * these functions might be implemented in a kernel module. Also, some of them
++ * would benefit from DMA.
++ *
++ * Authors: Andreas Robinson 2003. Thomas Hellström 2004.
++ */
++
++
++
++#include "viaXvMCPriv.h"
++#include "viaLowLevel.h"
++#include <time.h>
++#include <sys/time.h>
++#include <stdio.h>
++
++/*
++ * For Other architectures than i386 these might have to be modified for
++ * bigendian etc.
++ */
++
++#define MPEGIN(xl,reg)							\
++    *((volatile CARD32 *)(((CARD8 *)(xl)->mmioAddress) + 0xc00 + (reg)))
++
++#define VIDIN(ctx,reg)							\
++    *((volatile CARD32 *)(((CARD8 *)(ctx)->mmioAddress) + 0x200 + (reg)))
++
++#define REGIN(ctx,reg)							\
++    *((volatile CARD32 *)(((CARD8 *)(ctx)->mmioAddress) + 0x0000 + (reg)))
++
++#define HQV_CONTROL             0x1D0
++#define HQV_SRC_STARTADDR_Y     0x1D4
++#define HQV_SRC_STARTADDR_U     0x1D8
++#define HQV_SRC_STARTADDR_V     0x1DC
++#define HQV_MINIFY_DEBLOCK      0x1E8    
++
++#define HQV_SW_FLIP         0x00000010
++#define HQV_FLIP_STATUS     0x00000001
++#define HQV_SUBPIC_FLIP     0x00008000
++#define HQV_FLIP_ODD        0x00000020
++#define HQV_DEINTERLACE     0x00010000
++#define HQV_FIELD_2_FRAME   0x00020000
++#define HQV_FRAME_2_FIELD   0x00040000
++#define HQV_FIELD_UV        0x00100000
++#define HQV_DEBLOCK_HOR     0x00008000
++#define HQV_DEBLOCK_VER     0x80000000
++
++#define V_COMPOSE_MODE          0x98
++#define V1_COMMAND_FIRE         0x80000000  
++#define V3_COMMAND_FIRE         0x40000000  
++
++/* SUBPICTURE Registers */
++#define SUBP_CONTROL_STRIDE     0x1C0
++#define SUBP_STARTADDR          0x1C4
++#define RAM_TABLE_CONTROL       0x1C8
++#define RAM_TABLE_READ          0x1CC
++
++/* SUBP_CONTROL_STRIDE              0x3c0 */
++#define SUBP_HQV_ENABLE             0x00010000
++#define SUBP_IA44                   0x00020000
++#define SUBP_AI44                   0x00000000
++#define SUBP_STRIDE_MASK            0x00001fff
++#define SUBP_CONTROL_MASK           0x00070000
++
++/* RAM_TABLE_CONTROL                0x3c8 */
++#define RAM_TABLE_RGB_ENABLE        0x00000007
++
++
++#define VIA_REG_STATUS          0x400
++#define VIA_REG_GEMODE          0x004
++#define VIA_REG_SRCBASE         0x030
++#define VIA_REG_DSTBASE         0x034
++#define VIA_REG_PITCH           0x038      
++#define VIA_REG_SRCCOLORKEY     0x01C      
++#define VIA_REG_KEYCONTROL      0x02C       
++#define VIA_REG_SRCPOS          0x008
++#define VIA_REG_DSTPOS          0x00C
++#define VIA_REG_GECMD           0x000
++#define VIA_REG_DIMENSION       0x010       /* width and height */
++#define VIA_REG_FGCOLOR         0x018
++
++
++#define VIA_VR_QUEUE_BUSY       0x00020000 /* Virtual Queue is busy */
++#define VIA_CMD_RGTR_BUSY       0x00000080  /* Command Regulator is busy */
++#define VIA_2D_ENG_BUSY         0x00000001  /* 2D Engine is busy */
++#define VIA_3D_ENG_BUSY         0x00000002  /* 3D Engine is busy */
++#define VIA_GEM_8bpp            0x00000000
++#define VIA_GEM_16bpp           0x00000100
++#define VIA_GEM_32bpp           0x00000300
++#define VIA_GEC_BLT             0x00000001
++#define VIA_PITCH_ENABLE        0x80000000
++#define VIA_GEC_INCX            0x00000000
++#define VIA_GEC_DECY            0x00004000
++#define VIA_GEC_INCY            0x00000000
++#define VIA_GEC_DECX            0x00008000
++#define VIA_GEC_FIXCOLOR_PAT    0x00002000
++
++
++#define VIA_BLIT_CLEAR 0x00
++#define VIA_BLIT_COPY 0xCC
++#define VIA_BLIT_FILL 0xF0
++#define VIA_BLIT_SET 0xFF
++
++#define VIA_SYNCWAITTIMEOUT 50000 /* Might be a bit conservative */
++#define VIA_DMAWAITTIMEOUT 50000
++#define VIA_VIDWAITTIMEOUT 50000
++#define VIA_XVMC_DECODERTIMEOUT 40000 /*(microseconds)*/
++
++
++/*
++ * We want to have two concurrent types of thread taking the hardware
++ * lock simulataneously. One is the video out thread that needs immediate 
++ * access to flip an image. The other is everything else which may have
++ * the lock for quite some time. This is only so the video out thread can
++ * sneak in and display an image while other resources are busy.
++ */
++
++
++void hwlLock(XvMCLowLevel *xl, int videoLock) 
++{
++    LL_HW_LOCK(xl);
++}
++
++void hwlUnlock(XvMCLowLevel *xl, int videoLock) 
++{
++    LL_HW_UNLOCK(xl);
++}
++    
++
++
++
++
++static CARD32 viaMpegGetStatus(XvMCLowLevel *xl)
++{
++    return MPEGIN(xl,0x54);
++}
++
++static int viaMpegIsBusy(XvMCLowLevel *xl, CARD32 mask, CARD32 idle)
++{
++    CARD32 tmp = viaMpegGetStatus(xl);
++
++    /*
++     * Error detected. 
++     * FIXME: Are errors really shown when error concealment is on?
++     */
++
++    if (tmp & 0x70) return 0; 
++
++    return (tmp & mask) != idle;
++}
++
++static unsigned timeDiff(struct timeval *now,struct timeval *then) {
++    return (now->tv_usec >= then->tv_usec) ?
++	now->tv_usec - then->tv_usec : 
++	1000000 - (then->tv_usec - now->tv_usec);
++}
++
++
++static void syncDMA(XvMCLowLevel *xl, unsigned int doSleep)
++{
++
++    /*
++     * Ideally, we'd like to have an interrupt wait here, but, according to second hand
++     * information, the hardware does not support this, although earlier S3 chips do that.
++     * It is therefore not implemented into the DRM, and we'll do a user space wait here.
++     */
++
++    struct timeval now, then;
++    struct timezone here;
++    struct timespec sleep, rem;
++
++    sleep.tv_nsec = 1;
++    sleep.tv_sec = 0;
++    here.tz_minuteswest = 0;
++    here.tz_dsttime = 0;
++    gettimeofday(&then,&here);
++ 
++    while( !(REGIN(xl, VIA_REG_STATUS) & VIA_VR_QUEUE_BUSY)) {
++	gettimeofday(&now,&here); 
++	if (timeDiff(&now,&then) > VIA_SYNCWAITTIMEOUT) {
++	    if( !(REGIN(xl, VIA_REG_STATUS) & VIA_VR_QUEUE_BUSY)) {
++		xl->errors |= LL_DMA_TIMEDOUT;
++		break;
++	    }
++	}
++	if (doSleep) nanosleep(&sleep, &rem);
++    }
++    while( REGIN(xl, VIA_REG_STATUS) & VIA_CMD_RGTR_BUSY ) {
++	gettimeofday(&now,&here); 
++	if (timeDiff(&now,&then) > VIA_SYNCWAITTIMEOUT) {
++	    if( REGIN(xl, VIA_REG_STATUS) & VIA_CMD_RGTR_BUSY ) {
++		xl->errors |= LL_DMA_TIMEDOUT;
++		break;
++	    }
++	}
++	if (doSleep) nanosleep(&sleep, &rem);
++    }
++}
++
++static void syncVideo(XvMCLowLevel *xl, unsigned int doSleep)
++{
++    /*
++     * Wait for HQV completion. Nothing strange here. We assume that the HQV
++     * Handles syncing to the V1 / V3 engines by itself. It should be safe to
++     * always wait for SUBPIC_FLIP completion although subpictures are not always
++     * used. 
++     */
++    
++    struct timeval now, then;
++    struct timezone here;
++    struct timespec sleep, rem;
++
++    sleep.tv_nsec = 1;
++    sleep.tv_sec = 0;
++    here.tz_minuteswest = 0;
++    here.tz_dsttime = 0;
++    gettimeofday(&then,&here); 
++    while(VIDIN(xl, HQV_CONTROL) & (HQV_SW_FLIP | HQV_SUBPIC_FLIP)) {
++	gettimeofday(&now,&here); 
++	if (timeDiff(&now,&then) > VIA_SYNCWAITTIMEOUT) {
++	    if(VIDIN(xl, HQV_CONTROL) & (HQV_SW_FLIP | HQV_SUBPIC_FLIP)) {
++		xl->errors |= LL_VIDEO_TIMEDOUT;
++		break;
++	    }
++	}
++	if (doSleep) nanosleep(&sleep, &rem);
++    }
++}
++
++static void syncAccel(XvMCLowLevel *xl, unsigned int mode, unsigned int doSleep)
++{
++    struct timeval now, then;
++    struct timezone here;
++    struct timespec sleep, rem;
++    CARD32 mask = ((mode & LL_MODE_2D) ? VIA_2D_ENG_BUSY : 0) |
++	((mode & LL_MODE_3D) ? VIA_3D_ENG_BUSY : 0);
++
++    sleep.tv_nsec = 1;
++    sleep.tv_sec = 0;
++    here.tz_minuteswest = 0;
++    here.tz_dsttime = 0;
++    gettimeofday(&then,&here); 
++    while( REGIN(xl, VIA_REG_STATUS) & mask) {
++	gettimeofday(&now,&here); 
++	if (timeDiff(&now,&then) > VIA_SYNCWAITTIMEOUT) {
++	    if( REGIN(xl, VIA_REG_STATUS) & mask) {
++		xl->errors |= LL_ACCEL_TIMEDOUT;
++		break;
++	    }
++	}
++	if (doSleep) nanosleep(&sleep, &rem);
++    }
++}
++
++
++static void syncMpeg(XvMCLowLevel *xl, unsigned int mode, unsigned int doSleep)
++{
++    /*
++     * Ideally, we'd like to have an interrupt wait here, but from information from VIA
++     * at least the MPEG completion interrupt is broken on the CLE266, which was
++     * discovered during validation of the chip.
++     */
++
++    struct timeval now, then;
++    struct timezone here;
++    struct timespec sleep, rem;
++    CARD32 busyMask = 0;
++    CARD32 idleVal = 0;
++    CARD32 ret;
++
++    sleep.tv_nsec = 1;
++    sleep.tv_sec = 0;
++    here.tz_minuteswest = 0;
++    here.tz_dsttime = 0;
++    gettimeofday(&then,&here); 
++    if (mode & LL_MODE_DECODER_SLICE) {
++	busyMask = VIA_SLICEBUSYMASK;
++	idleVal = VIA_SLICEIDLEVAL;
++    }
++    if (mode & LL_MODE_DECODER_IDLE) {
++	busyMask |= VIA_BUSYMASK;
++	idleVal = VIA_IDLEVAL;
++    }
++    while(viaMpegIsBusy(xl, busyMask, idleVal)) {
++	gettimeofday(&now,&here); 
++	if (timeDiff(&now,&then) > VIA_XVMC_DECODERTIMEOUT) {
++	    if (viaMpegIsBusy(xl, busyMask, idleVal)) {
++		xl->errors |= LL_DECODER_TIMEDOUT;
++	    }
++	    break;
++	}
++	if (doSleep) nanosleep(&sleep, &rem);
++    }
++  
++    ret = viaMpegGetStatus(xl);
++    if (ret & 0x70) {
++	xl->errors |= ((ret & 0x70) >> 3);
++    }
++    return;
++}
++
++static void pciFlush(XvMCLowLevel *xl)
++{
++    int ret;
++    drmViaCmdBuffer b;
++    unsigned mode=xl->curWaitFlags;
++  
++    b.buf = (char *)xl->pci_buffer;
++    b.size = xl->pci_pos * sizeof(CARD32);
++    if (xl->performLocking) hwlLock(xl,0);
++    if ((mode != LL_MODE_VIDEO) && (mode != 0)) 
++        syncDMA(xl, 0);
++    if ((mode & LL_MODE_2D) || (mode & LL_MODE_3D)) 
++	syncAccel(xl, mode, 0);
++    if (mode & LL_MODE_VIDEO) 
++	syncVideo(xl, 0);
++    if (mode & (LL_MODE_DECODER_SLICE | LL_MODE_DECODER_IDLE))
++	syncMpeg(xl, mode, 0);
++    ret = drmCommandWrite(xl->fd, DRM_VIA_PCICMD, &b, sizeof(b));
++    if (xl->performLocking) hwlUnlock(xl,0);
++    if (ret) {
++	xl->errors |= LL_PCI_COMMAND_ERR;
++    }
++    xl->pci_pos = 0;
++    xl->curWaitFlags = 0;
++}
++  
++static void agpFlush(XvMCLowLevel *xl)
++{
++    drmViaCmdBuffer b;
++    int ret;
++
++    b.buf = (char *)xl->agp_buffer;
++    b.size = xl->agp_pos * sizeof(CARD32);
++    if (xl->performLocking) hwlLock(xl,0);
++    do {
++	ret = drmCommandWrite(xl->fd, DRM_VIA_CMDBUFFER, &b, sizeof(b));
++    } while (-EAGAIN == ret);
++    if (xl->performLocking) hwlUnlock(xl,0);
++
++    if (ret) {
++	unsigned int bufSize, pciSize;
++	CARD32 *bufPos;
++	unsigned mode=xl->curWaitFlags;
++
++	/*
++	 * AGP Failure. Let's try writing over PCI instead.
++	 * But we might need to slice things up.
++	 */
++
++	bufPos = xl->agp_buffer;
++	bufSize = xl->agp_pos;
++	pciSize = LL_PCI_CMDBUF_SIZE;
++
++	if (xl->performLocking) hwlLock(xl,0);
++	if ((mode != LL_MODE_VIDEO) && (mode != 0)) 
++	    syncDMA(xl, 0);
++	if ((mode & LL_MODE_2D) || (mode & LL_MODE_3D)) 
++	    syncAccel(xl, mode, 0);
++	if (mode & LL_MODE_VIDEO) 
++	    syncVideo(xl, 0);
++	if (mode & (LL_MODE_DECODER_SLICE | LL_MODE_DECODER_IDLE)) 
++	    syncMpeg(xl, mode, 0);
++    
++	while (bufSize) {
++	    b.buf = (char *)bufPos;
++	    b.size = (bufSize > pciSize) ? pciSize : bufSize;
++	    bufPos += b.size;
++	    bufSize -= b.size;
++	    b.size *= sizeof(CARD32);
++	    if ((ret = drmCommandWrite(xl->fd, DRM_VIA_PCICMD, &b, sizeof(b)))) break;
++	} 
++	if (xl->performLocking) hwlUnlock(xl,0);
++	if (ret) {
++	    xl->errors |= LL_PCI_COMMAND_ERR;
++	}  
++    }    
++    xl->agp_pos = 0;
++    xl->curWaitFlags = 0;
++}
++
++unsigned flushXvMCLowLevel(XvMCLowLevel *xl) 
++{
++    unsigned 
++	errors;
++
++    if(xl->pci_pos) pciFlush(xl);
++    if(xl->agp_pos) agpFlush(xl);
++    errors = xl->errors;
++    xl->errors = 0;
++    return errors;
++}
++
++
++__inline static void pciCommand(XvMCLowLevel *xl, unsigned offset, unsigned value, unsigned flags)
++{
++    if (xl->pci_pos > (LL_PCI_CMDBUF_SIZE-2)) pciFlush(xl); 
++    if (flags) xl->curWaitFlags |= flags;
++    xl->pci_buffer[xl->pci_pos++] = (offset >> 2) | 0xF0000000;
++    xl->pci_buffer[xl->pci_pos++] = value;
++}
++
++__inline static void agpCommand(XvMCLowLevel *xl, unsigned offset, unsigned value,  unsigned flags)
++{
++    if (xl->use_agp) {
++	if (xl->agp_pos > (LL_AGP_CMDBUF_SIZE-2)) agpFlush(xl);
++	if (flags) xl->curWaitFlags |= flags;
++	xl->agp_buffer[xl->agp_pos++] = (offset >> 2) | 0xF0000000;
++	xl->agp_buffer[xl->agp_pos++] = value;
++    } else {
++	pciCommand(xl,offset,value,flags);
++    }
++}
++    
++void viaMpegSetSurfaceStride(XvMCLowLevel * xl, ViaXvMCContext *ctx)
++{
++    CARD32 y_stride = ctx->yStride;
++    CARD32 uv_stride = y_stride >> 1;
++    agpCommand(xl,0x50 | 0xc00,(y_stride >> 3) | ((uv_stride >> 3) << 16), 
++	       LL_MODE_DECODER_IDLE);
++}
++
++
++static void viaVideoSetSWFLipLocked(XvMCLowLevel *xl,
++				    unsigned yOffs,
++				    unsigned uOffs,
++				    unsigned vOffs) {
++    pciCommand(xl,HQV_SRC_STARTADDR_Y | 0x200,yOffs,LL_MODE_VIDEO);
++    pciCommand(xl,HQV_SRC_STARTADDR_U | 0x200,uOffs,0);
++    pciCommand(xl,HQV_SRC_STARTADDR_V | 0x200,vOffs,0);
++}
++    
++void viaVideoSWFlipLocked(XvMCLowLevel *xl, unsigned flags,
++			  int progressiveSequence,
++			  unsigned yOffs,
++			  unsigned uOffs,
++			  unsigned vOffs) {
++
++    CARD32 andWd,orWd;
++    andWd = 0;
++    orWd = 0;
++
++    if ((flags & XVMC_FRAME_PICTURE) == XVMC_BOTTOM_FIELD) {
++	andWd = 0xFFFFFFFFU;
++	orWd = HQV_FIELD_UV   |
++	    HQV_DEINTERLACE   |
++	    HQV_FIELD_2_FRAME |
++	    HQV_FRAME_2_FIELD |
++	    HQV_SW_FLIP       |
++	    HQV_FLIP_ODD      |
++	    HQV_FLIP_STATUS   |
++	    HQV_SUBPIC_FLIP;
++    } else if ((flags & XVMC_FRAME_PICTURE) == XVMC_TOP_FIELD) {
++	andWd = ~HQV_FLIP_ODD;
++	orWd = HQV_FIELD_UV   |
++	    HQV_DEINTERLACE   |
++	    HQV_FIELD_2_FRAME |
++	    HQV_FRAME_2_FIELD |
++	    HQV_SW_FLIP       |
++	    HQV_FLIP_STATUS   |
++	    HQV_SUBPIC_FLIP;
++    } else if ((flags & XVMC_FRAME_PICTURE) == XVMC_FRAME_PICTURE) {
++	andWd = ~(HQV_DEINTERLACE   | 
++		  HQV_FRAME_2_FIELD |
++		  HQV_FIELD_2_FRAME |
++		  HQV_FIELD_UV);
++	orWd = HQV_SW_FLIP   |
++	    HQV_FLIP_STATUS  |
++	    HQV_SUBPIC_FLIP;
++    }	    
++    if (progressiveSequence) {
++        andWd &= ~HQV_FIELD_UV;
++        orWd &= ~HQV_FIELD_UV;
++    }
++    
++    viaVideoSetSWFLipLocked(xl, yOffs, uOffs, vOffs);
++
++    /*
++     * Temporarily removed since it destroys downscaling.
++     */
++
++    /*    pciCommand(xl,HQV_MINIFY_DEBLOCK | 0x200, HQV_DEBLOCK_VER | HQV_DEBLOCK_HOR, 
++	  LL_MODE_VIDEO); */
++    pciCommand(xl,HQV_CONTROL | 0x200,(VIDIN(xl,HQV_CONTROL) & andWd) | orWd, 0);
++}
++	
++void viaMpegSetFB(XvMCLowLevel *xl,unsigned i,
++		  unsigned yOffs,
++		  unsigned uOffs,
++		  unsigned vOffs) {
++    i *= 12;
++    agpCommand(xl, 0xc20 + i, yOffs >> 3, LL_MODE_DECODER_IDLE);
++    agpCommand(xl, 0xc24 + i, uOffs >> 3, 0);
++    agpCommand(xl, 0xc28 + i, vOffs >> 3, 0);
++}
++
++void viaMpegBeginPicture(XvMCLowLevel *xl,ViaXvMCContext *ctx,
++			 unsigned width,
++			 unsigned height,
++			 const XvMCMpegControl *control) {
++				  
++    unsigned j, mb_width, mb_height;
++    mb_width = (width + 15) >> 4;
++
++    mb_height =
++	((control->mpeg_coding == XVMC_MPEG_2) && 
++	 (control->flags & XVMC_PROGRESSIVE_SEQUENCE)) ?
++	2*((height+31) >> 5) : (((height+15) >> 4));
++
++    agpCommand(xl,0x00 | 0xc00,  
++	       ((control->picture_structure & XVMC_FRAME_PICTURE) << 2) |
++	       ((control->picture_coding_type & 3) << 4) |
++	       ((control->flags & XVMC_ALTERNATE_SCAN) ? (1 << 6) : 0), 
++	       LL_MODE_DECODER_IDLE);
++    
++    if (!(ctx->intraLoaded)) {
++	agpCommand(xl,0x5c | 0xc00, 0, 0);
++	for (j = 0; j < 64; j += 4) {
++            agpCommand(xl,0x60 | 0xc00,  
++		       ctx->intra_quantiser_matrix[j] |
++		       (ctx->intra_quantiser_matrix[j+1] << 8) |
++		       (ctx->intra_quantiser_matrix[j+2] << 16) |
++		       (ctx->intra_quantiser_matrix[j+3] << 24), 0);
++        }
++	ctx->intraLoaded = 1;
++    }
++
++    if (!(ctx->nonIntraLoaded)) {
++	agpCommand(xl,0x5c | 0xc00, 1, 0);
++	for (j = 0; j < 64; j += 4) {
++            agpCommand(xl,0x60 | 0xc00,  
++		       ctx->non_intra_quantiser_matrix[j] |
++		       (ctx->non_intra_quantiser_matrix[j+1] << 8) |
++		       (ctx->non_intra_quantiser_matrix[j+2] << 16) |
++		       (ctx->non_intra_quantiser_matrix[j+3] << 24), 0);
++        }
++	ctx->nonIntraLoaded = 1;
++    }
++
++    if (!(ctx->chromaIntraLoaded)) {
++	agpCommand(xl,0x5c | 0xc00, 2, 0);
++	for (j = 0; j < 64; j += 4) {
++            agpCommand(xl,0x60 | 0xc00,  
++		       ctx->chroma_intra_quantiser_matrix[j] |
++		       (ctx->chroma_intra_quantiser_matrix[j+1] << 8) |
++		       (ctx->chroma_intra_quantiser_matrix[j+2] << 16) |
++		       (ctx->chroma_intra_quantiser_matrix[j+3] << 24), 0);
++        }
++	ctx->chromaIntraLoaded = 1;
++    }
++
++    if (!(ctx->chromaNonIntraLoaded)) {
++	agpCommand(xl,0x5c | 0xc00, 3, 0);
++	for (j = 0; j < 64; j += 4) {
++            agpCommand(xl,0x60 | 0xc00,  
++		       ctx->chroma_non_intra_quantiser_matrix[j] |
++		       (ctx->chroma_non_intra_quantiser_matrix[j+1] << 8) |
++		       (ctx->chroma_non_intra_quantiser_matrix[j+2] << 16) |
++		       (ctx->chroma_non_intra_quantiser_matrix[j+3] << 24), 0);
++        }
++	ctx->chromaNonIntraLoaded = 1;
++    }
++    
++    agpCommand(xl,0x90 | 0xc00,  
++	       ((mb_width * mb_height) & 0x3fff) |
++	       ((control->flags & XVMC_PRED_DCT_FRAME) ? ( 1 << 14)  : 0) |
++	       ((control->flags & XVMC_TOP_FIELD_FIRST) ? (1 << 15) : 0 )  |
++	       ((control->mpeg_coding == XVMC_MPEG_2) ? (1 << 16) : 0) |
++	       ((mb_width & 0xff) << 18), 0);
++    	
++    agpCommand(xl,0x94 | 0xc00,
++	       ((control->flags & XVMC_CONCEALMENT_MOTION_VECTORS) ? 1 : 0) |
++	       ((control->flags & XVMC_Q_SCALE_TYPE) ? 2 : 0) |
++	       ((control->intra_dc_precision & 3) << 2) |
++	       (((1 + 0x100000 / mb_width) & 0xfffff) << 4) |
++	       ((control->flags & XVMC_INTRA_VLC_FORMAT) ? (1 << 24) : 0), 0);
++
++    agpCommand(xl,0x98 | 0xc00, 
++	       (((control->FHMV_range) & 0xf) << 0) |
++	       (((control->FVMV_range) & 0xf) << 4) |
++	       (((control->BHMV_range) & 0xf) << 8) |
++	       (((control->BVMV_range) & 0xf) << 12) |
++	       ((control->flags & XVMC_SECOND_FIELD) ?  (1 << 20) : 0) | 
++	       (0x0a6 << 16), 0);
++    
++}
++
++
++
++void viaMpegReset(XvMCLowLevel *xl)
++{
++    int i,j;
++
++    for (i = 0; i < 14; i++)
++	agpCommand(xl,0xc08,0,LL_MODE_DECODER_IDLE);
++
++    agpCommand(xl,0xc98,0x400000,0);
++
++    for (i = 0; i < 6; i++) {
++	agpCommand(xl,0xc0c,0x43 | 0x20,0);
++        for (j = 0xc10; j < 0xc20; j += 4)
++	    agpCommand(xl,j,0,0);
++    }
++
++    
++    agpCommand(xl,0xc0c, 0xc3 | 0x20,0);
++    for (j = 0xc10; j < 0xc20; j += 4)
++      agpCommand(xl,j,0,0);
++    
++}
++
++void viaMpegWriteSlice(XvMCLowLevel *xl, CARD8* slice, int nBytes, CARD32 sCode)
++{
++    int i, n, r;
++    CARD32* buf;
++
++
++    n = nBytes >> 2;
++    if (sCode) nBytes += 4;
++    r = nBytes & 3;
++    buf = (CARD32*) slice;
++
++    if (r) nBytes += 4 - r;
++
++    nBytes += 8;
++
++    agpCommand(xl, 0xc00 | 0x9c,nBytes, LL_MODE_DECODER_SLICE );
++    
++    if (sCode) agpCommand(xl, 0xc00 | 0xa0,sCode,0);
++    
++    for (i = 0; i < n; i++) {
++	agpCommand(xl, 0xc00 | 0xa0,*buf++,0);
++    }
++
++    if (r) {
++	agpCommand(xl, 0xc00 | 0xa0, *buf & ((1 << (r << 3)) - 1),0);
++    }
++
++    agpCommand(xl, 0xc00 | 0xa0,0,0);
++    agpCommand(xl, 0xc00 | 0xa0,0,0);
++}
++
++
++void viaVideoSubPictureOffLocked(XvMCLowLevel *xl) {
++
++    CARD32 stride;
++
++    stride = VIDIN(xl,SUBP_CONTROL_STRIDE);
++
++    pciCommand(xl, SUBP_CONTROL_STRIDE | 0x200, stride & ~SUBP_HQV_ENABLE,LL_MODE_VIDEO);
++}
++
++void viaVideoSubPictureLocked(XvMCLowLevel *xl,ViaXvMCSubPicture *pViaSubPic) {
++
++    unsigned i;
++    CARD32 cWord;
++
++
++    for (i=0; i<VIA_SUBPIC_PALETTE_SIZE; ++i) {
++	pciCommand(xl, RAM_TABLE_CONTROL | 0x200, pViaSubPic->palette[i],LL_MODE_VIDEO);
++    }
++
++    pciCommand(xl, SUBP_STARTADDR | 0x200, pViaSubPic->offset, 0);
++    cWord = (pViaSubPic->stride & SUBP_STRIDE_MASK) | SUBP_HQV_ENABLE;
++    cWord |= (pViaSubPic->ia44) ? SUBP_IA44 : SUBP_AI44;
++    pciCommand(xl, SUBP_CONTROL_STRIDE | 0x200, cWord, 0);
++}
++
++void viaBlit(XvMCLowLevel *xl,unsigned bpp,unsigned srcBase,
++	     unsigned srcPitch,unsigned dstBase,unsigned dstPitch,
++	     unsigned w,unsigned h,int xdir,int ydir, unsigned blitMode, 
++	     unsigned color) 
++{
++
++    CARD32 dwGEMode = 0, srcY=0, srcX, dstY=0, dstX;
++    CARD32 cmd;
++
++
++    if (!w || !h)
++        return;
++
++    switch (bpp) {
++    case 16:
++        dwGEMode |= VIA_GEM_16bpp;
++        break;
++    case 32:
++        dwGEMode |= VIA_GEM_32bpp;
++	break;
++    default:
++        dwGEMode |= VIA_GEM_8bpp;
++        break;
++    }
++
++    srcX = srcBase & 31;
++    dstX = dstBase & 31;
++    switch (bpp) {
++    case 16:
++        dwGEMode |= VIA_GEM_16bpp;
++	srcX >>= 2;
++	dstX >>= 2;
++        break;
++    case 32:
++        dwGEMode |= VIA_GEM_32bpp;
++	srcX >>= 4;
++	dstX >>= 4;
++	break;
++    default:
++        dwGEMode |= VIA_GEM_8bpp;
++        break;
++    }
++
++    agpCommand(xl, VIA_REG_GEMODE, dwGEMode, LL_MODE_2D);
++    cmd = 0; 
++
++    if (xdir < 0) {
++        cmd |= VIA_GEC_DECX;
++        srcX += (w - 1);
++        dstX += (w - 1);
++    }
++    if (ydir < 0) {
++        cmd |= VIA_GEC_DECY;
++        srcY += (h - 1);
++        dstY += (h - 1);
++    }
++
++    switch(blitMode) {
++    case VIABLIT_TRANSCOPY:
++	agpCommand(xl, VIA_REG_SRCCOLORKEY, color, 0);
++	agpCommand(xl, VIA_REG_KEYCONTROL, 0x4000, 0);
++	cmd |= VIA_GEC_BLT | (VIA_BLIT_COPY << 24);
++	break;
++    case VIABLIT_FILL:
++	agpCommand(xl, VIA_REG_FGCOLOR, color, 0);
++	cmd |= VIA_GEC_BLT | VIA_GEC_FIXCOLOR_PAT | (VIA_BLIT_FILL << 24);
++	break;
++    default:
++	agpCommand(xl, VIA_REG_KEYCONTROL, 0x0, 0);
++	cmd |= VIA_GEC_BLT | (VIA_BLIT_COPY << 24);
++    }	
++
++    agpCommand(xl, VIA_REG_SRCBASE, (srcBase & ~31) >> 3, 0);
++    agpCommand(xl, VIA_REG_DSTBASE, (dstBase & ~31) >> 3, 0);
++    agpCommand(xl, VIA_REG_PITCH, VIA_PITCH_ENABLE |
++	       (srcPitch >> 3) | (((dstPitch) >> 3) << 16), 0);
++    agpCommand(xl, VIA_REG_SRCPOS, ((srcY << 16) | srcX), 0);
++    agpCommand(xl, VIA_REG_DSTPOS, ((dstY << 16) | dstX), 0);
++    agpCommand(xl, VIA_REG_DIMENSION, (((h - 1) << 16) | (w - 1)), 0);
++    agpCommand(xl, VIA_REG_GECMD, cmd, 0);
++}
++
++unsigned syncXvMCLowLevel(XvMCLowLevel *xl, unsigned int mode, unsigned int doSleep)
++{
++    unsigned
++	errors;
++
++    if (xl->performLocking) hwlLock(xl,0);
++    
++    /*
++     * No need to wait for DMA for the video engine, since we
++     * cannot do DMA to that one.
++     */
++
++    if ((mode != LL_MODE_VIDEO) && (mode != 0))
++        syncDMA(xl, doSleep);
++    if ((mode & LL_MODE_2D) || (mode & LL_MODE_3D))
++	syncAccel(xl, mode, doSleep);
++    if (mode & LL_MODE_VIDEO)
++	syncVideo(xl, doSleep);
++    if (xl->performLocking) hwlUnlock(xl,0);
++
++    /*
++     * We don't need the HW Lock to wait for the decoder, since it
++     * is already protected by the decoder lock. 
++     */
++
++    if (mode & (LL_MODE_DECODER_SLICE | LL_MODE_DECODER_IDLE)) 
++	syncMpeg(xl, mode, doSleep);
++
++    errors = xl->errors;
++    xl->errors = 0;
++
++    return errors;
++}
++
++void initXvMCLowLevel(XvMCLowLevel *xl, int fd, drm_context_t *ctx,
++		      drmLockPtr hwLock, drmAddress mmioAddress, int useAgp) 
++{
++    xl->agp_pos = 0;
++    xl->pci_pos = 0;
++    xl->use_agp = useAgp;
++    xl->fd = fd;
++    xl->drmcontext = ctx;
++    xl->hwLock = hwLock;
++    xl->mmioAddress = mmioAddress;
++    xl->curWaitFlags = 0;
++    xl->performLocking = 1;
++    xl->errors = 0;
++}
++
++void setLowLevelLocking(XvMCLowLevel *xl, int performLocking)
++{
++    xl->performLocking = performLocking;
++}
++
++void closeXvMCLowLevel(XvMCLowLevel *xl) 
++{
++}
+diff -burN xcrel/lib/XvMC/hw/via/viaLowLevel.h uc/lib/XvMC/hw/via/viaLowLevel.h
+--- xcrel/lib/XvMC/hw/via/viaLowLevel.h	1970-01-01 01:00:00.000000000 +0100
++++ uc/lib/XvMC/hw/via/viaLowLevel.h	2004-10-18 23:02:30.000000000 +0200
+@@ -0,0 +1,106 @@
++/*****************************************************************************
++ * VIA Unichrome XvMC extension client lib.
++ *
++ * Copyright (c) 2004 The Unichrome Project. All rights reserved.
++ *
++ * Permission is hereby granted, free of charge, to any person obtaining a
++ * copy of this software and associated documentation files (the "Software"),
++ * to deal in the Software without restriction, including without limitation
++ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
++ * and/or sell copies of the Software, and to permit persons to whom the
++ * Software is furnished to do so, subject to the following conditions:
++ *
++ * The above copyright notice and this permission notice shall be included in
++ * all copies or substantial portions of the Software.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
++ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
++ * AUTHOR(S) OR COPYRIGHT HOLDER(S) BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
++ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
++ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
++ * DEALINGS IN THE SOFTWARE.
++ */
++
++
++/*
++ * Authors: Thomas Hellström 2004.
++ */
++
++
++#ifndef VIA_LOWLEVEL_H
++#define VIA_LOWLEVEL_H
++
++#define LL_AGP_CMDBUF_SIZE (4096*32)
++#define LL_PCI_CMDBUF_SIZE (4096)
++
++#define LL_MODE_DECODER_SLICE 0x01
++#define LL_MODE_DECODER_IDLE 0x02
++#define LL_MODE_VIDEO   0x04
++#define LL_MODE_2D      0x08
++#define LL_MODE_3D      0x10
++
++/*
++ * Errors
++ */
++
++#define LL_DECODER_TIMEDOUT 0x00000001
++#define LL_IDCT_FIFO_ERROR  0x00000002
++#define LL_SLICE_FIFO_ERROR 0x00000004
++#define LL_SLICE_FAULT      0x00000008
++#define LL_DMA_TIMEDOUT     0x00000010
++#define LL_VIDEO_TIMEDOUT   0x00000020
++#define LL_ACCEL_TIMEDOUT   0x00000040
++#define LL_PCI_COMMAND_ERR  0x00000080
++#define LL_AGP_COMMAND_ERR  0x00000100
++
++#define VIA_SLICEBUSYMASK        0x00000200
++#define VIA_BUSYMASK             0x00000207
++#define VIA_SLICEIDLEVAL         0x00000200
++#define VIA_IDLEVAL              0x00000204   
++
++typedef struct{
++    CARD32 agp_buffer[LL_AGP_CMDBUF_SIZE];
++    CARD32 pci_buffer[LL_PCI_CMDBUF_SIZE];
++    unsigned agp_pos;
++    unsigned pci_pos;
++    unsigned flip_pos;
++    int use_agp;
++    int fd;
++    drm_context_t *drmcontext;
++    drmLockPtr hwLock;
++    drmAddress mmioAddress;
++    unsigned curWaitFlags;
++    int performLocking;
++    unsigned errors;
++}XvMCLowLevel;
++
++
++extern void initXvMCLowLevel(XvMCLowLevel *xl, int fd, drm_context_t *ctx,
++			     drmLockPtr hwLock, drmAddress mmioAddress,
++			     int useAgp);
++
++void setLowLevelLocking(XvMCLowLevel *xl, int perFormLocking);
++extern void closeXvMCLowLevel(XvMCLowLevel *xl);
++
++/*
++ * These two functions also return and clear the current error status.
++ */
++
++extern unsigned flushXvMCLowLevel(XvMCLowLevel *xl);
++extern unsigned syncXvMCLowLevel(XvMCLowLevel *xl, unsigned int mode,
++			    unsigned int sleep);
++
++extern void hwlUnlock(XvMCLowLevel *xl, int videoLock); 
++extern void hwlLock(XvMCLowLevel *xl, int videoLock); 
++
++
++#define LL_HW_LOCK(xl)							\
++  do {									\
++	DRM_LOCK((xl)->fd,(xl)->hwLock,*(xl)->drmcontext,0); } while(0);
++#define LL_HW_UNLOCK(xl)					\
++    do {DRM_UNLOCK((xl)->fd,(xl)->hwLock,*(xl)->drmcontext);	\
++	} while(0);
++
++
++#endif
+diff -burN xcrel/lib/XvMC/hw/via/viaXvMC.c uc/lib/XvMC/hw/via/viaXvMC.c
+--- xcrel/lib/XvMC/hw/via/viaXvMC.c	1970-01-01 01:00:00.000000000 +0100
++++ uc/lib/XvMC/hw/via/viaXvMC.c	2004-11-22 11:28:06.000000000 +0100
+@@ -0,0 +1,1871 @@
++/*****************************************************************************
++ * VIA Unichrome XvMC extension client lib.
++ *
++ * Copyright (c) 2004 Thomas Hellström. All rights reserved.
++ *
++ * Permission is hereby granted, free of charge, to any person obtaining a
++ * copy of this software and associated documentation files (the "Software"),
++ * to deal in the Software without restriction, including without limitation
++ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
++ * and/or sell copies of the Software, and to permit persons to whom the
++ * Software is furnished to do so, subject to the following conditions:
++ *
++ * The above copyright notice and this permission notice shall be included in
++ * all copies or substantial portions of the Software.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
++ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
++ * AUTHOR(S) OR COPYRIGHT HOLDER(S) BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
++ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
++ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
++ * DEALINGS IN THE SOFTWARE.
++ */
++
++
++/*
++ *Author: Thomas Hellström, 2004.
++ *TODO: Picture copying support.
++ *Change: 0.9.3, Bugfix by Pascal Brisset.
++ *Change: 0.10.1, Support for interlaced streams Thanks to Pascal Brisset.
++ */
++
++#undef WAITPAUSE
++
++#include "viaXvMCPriv.h"
++#include "viaLowLevel.h"
++#include <stdio.h>
++#include <sys/ioctl.h>
++#include <sys/time.h>
++#include <time.h>
++#include <fourcc.h>
++#include <Xv.h>
++#include <xf86drm.h>
++#include <pthread.h>
++#include "vldXvMC.h"
++    
++#define SAREAPTR(ctx) ((ViaXvMCSAreaPriv *)			\
++		       (((CARD8 *)(ctx)->sAreaAddress) +	\
++			(ctx)->sAreaPrivOffset))
++
++
++
++static int error_base;
++static int event_base;
++
++
++#define FOURCC_VIA 0x4E4B4C57
++
++static unsigned yOffs (ViaXvMCSurface *srf) 
++{
++    return srf->offsets[0];
++}
++
++static unsigned vOffs (ViaXvMCSurface *srf) 
++{
++    return srf->offsets[0] + srf->yStride * srf->height;
++}
++
++static unsigned uOffs (ViaXvMCSurface *srf) 
++{
++    return srf->offsets[0] + ( srf->yStride * srf->height) + 
++	(srf->yStride >> 1) * (srf->height >> 1);
++}
++
++
++static void defaultQMatrices(ViaXvMCContext *ctx) 
++{
++    int i;
++
++    static const char intra[64] = {
++	8, 16, 19, 22, 26, 27, 29, 34, 16, 16, 22, 24, 27, 29, 34, 37,
++        19, 22, 26, 27, 29, 34, 34, 38, 22, 22, 26, 27, 29, 34, 37, 40,
++        22, 26, 27, 29, 32, 35, 40, 48, 26, 27, 29, 32, 35, 40, 48, 58,
++        26, 27, 29, 34, 38, 46, 56, 69, 27, 29, 35, 38, 46, 56, 69, 83
++    };
++    
++    for( i=0; i<64; ++i) {
++	ctx->intra_quantiser_matrix[i] = intra[i];
++	ctx->non_intra_quantiser_matrix[i] = 16;
++    }
++    ctx->intraLoaded = 0;
++    ctx->nonIntraLoaded = 0;
++}
++
++
++static void releaseDecoder(ViaXvMCContext *ctx,int clearCtx) 
++{
++    volatile ViaXvMCSAreaPriv *sAPriv;
++
++    sAPriv = SAREAPTR(ctx);
++
++    if ((XVMC_DECODER_FUTEX(sAPriv)->lock & ~DRM_LOCK_CONT) == 
++	(ctx->drmcontext | DRM_LOCK_HELD)) {
++	DRM_CAS_RESULT(__ret);
++
++	if (clearCtx)
++	    sAPriv->XvMCCtxNoGrabbed = ~0;
++	
++	DRM_CAS( XVMC_DECODER_FUTEX(sAPriv), ctx->drmcontext | DRM_LOCK_HELD,
++		 0, __ret);
++	if (__ret) {
++	    drm_via_futex_t fx;
++	    fx.func = VIA_FUTEX_WAKE;
++	    fx.lock = 0;
++	    XVMC_DECODER_FUTEX(sAPriv)->lock = 0;
++	    drmCommandWrite(ctx->fd, DRM_VIA_DEC_FUTEX, &fx, sizeof(fx));
++	}
++    }
++
++}
++
++
++static int grabDecoder(	ViaXvMCContext *ctx, int *hadLastLock) 
++{
++    volatile ViaXvMCSAreaPriv *sAPriv =  SAREAPTR(ctx);
++    int retFtx;
++
++    /*
++     * Try to grab the decoder. If it is not available we will sleep until
++     * it becomes available or for a maximum of 20 ms. 
++     * Then try to grab it again, unless a timeout occured. If the decoder is
++     * available, the lock should be reasonably fast.
++     */
++
++
++    if (ctx->haveDecoder) return 0;
++
++    while(1) {
++	DRM_CAS_RESULT(__ret);
++	DRM_CAS( XVMC_DECODER_FUTEX(sAPriv), 0, 
++		 ctx->drmcontext | DRM_LOCK_HELD,__ret);
++
++	if (__ret) {
++
++	    drm_via_futex_t fx;
++	    int lockVal;
++
++	    /*
++	     * The decoder is locked. Try to 
++	     * mark the lock as contended and go to 
++	     * sleep.
++	     */
++
++	    lockVal =  XVMC_DECODER_FUTEX(sAPriv)->lock;
++
++	    if (!(lockVal & DRM_LOCK_HELD)) continue;
++	    if ((lockVal & ~(DRM_LOCK_HELD | DRM_LOCK_CONT)) == 
++		ctx->drmcontext) {
++		*hadLastLock = 1;
++		return 0;
++	    }
++	    fx.val = lockVal | DRM_LOCK_CONT;
++	    DRM_CAS( XVMC_DECODER_FUTEX(sAPriv), lockVal, fx.val , __ret); 
++	    lockVal =  XVMC_DECODER_FUTEX(sAPriv)->lock;
++
++	    if (__ret) continue;
++
++	    fx.func = VIA_FUTEX_WAIT;
++	    fx.lock = 0;
++	    fx.ms = 10;
++	    pthread_mutex_unlock( &ctx->ctxMutex );
++	    if (0 != (retFtx = 
++		      drmCommandWrite(ctx->fd,DRM_VIA_DEC_FUTEX, &fx, 
++				      sizeof(fx)))) {
++		switch(retFtx) {
++		case -EBUSY:
++		    return 1;
++		case -EINVAL:
++		{
++		    /*
++		     * DRM does not support the futex IOCTL. Sleep.
++		     */
++
++		    struct timespec
++			sleep,rem;
++
++		    sleep.tv_nsec = 1;
++		    sleep.tv_sec = 0;
++		    nanosleep(&sleep,&rem);
++		    break;
++		}
++		default:
++		    break;
++		}
++	    } 
++	    pthread_mutex_lock( &ctx->ctxMutex );
++	} else {
++
++	    /*
++	     * The decoder is available. Mark it as used, check if we were
++	     * the one who had it locked last time and return. 
++	     */
++
++	    *hadLastLock = (sAPriv->XvMCCtxNoGrabbed == ctx->drmcontext);
++	    sAPriv->XvMCCtxNoGrabbed = ctx->drmcontext;
++	    return 0;
++	}
++    }
++
++    /*
++     * We should never get here.
++     */
++
++    return 0;
++}
++	    
++static void setupAttribDesc(Display *display, XvPortID port,
++			    const ViaXvMCAttrHolder *attrib,
++			    XvAttribute attribDesc[]) 
++{
++    XvAttribute *XvAttribs,*curAD;
++    int num;
++    unsigned i,j;
++
++    XLockDisplay(display);
++    XvAttribs = XvQueryPortAttributes(display, port, &num);
++    for(i=0; i<attrib->numAttr; ++i) {
++	curAD = attribDesc + i;
++	curAD->flags = 0;
++	curAD->min_value = 0;
++	curAD->max_value = 0;
++	curAD->name = NULL;
++	for(j=0; j<num; ++j) {
++	    if (attrib->attributes[i].attribute == 
++		XInternAtom(display,XvAttribs[j].name,TRUE)) {
++		*curAD = XvAttribs[j];
++		curAD->name = strdup(XvAttribs[j].name);
++		break;
++	    }
++	}
++    }
++    if (XvAttribs) XFree(XvAttribs);
++    XUnlockDisplay(display);
++
++}
++
++static void releaseAttribDesc(int numAttr, XvAttribute attribDesc[]) 
++{
++    int i;
++
++    for (i=0; i<numAttr; ++i) {
++	if (attribDesc[i].name)
++	    free(attribDesc[i].name);
++    }
++}
++    
++	    
++
++Status XvMCCreateContext(Display *display, XvPortID port,
++			 int surface_type_id, int width, int height, int flags,
++			 XvMCContext *context) 
++{  
++    ViaXvMCContext *pViaXvMC;
++    int priv_count;
++    uint *priv_data;
++    uint magic;
++    unsigned i;
++    Status ret;
++    int major, minor;
++    ViaXvMCCreateContextRec *tmpComm;
++    drmVersionPtr drmVer;
++    char curBusID[20];
++
++    /* 
++     * Verify Obvious things first 
++     */
++
++    if(context == NULL) {
++	return XvMCBadContext;
++    }
++
++    if(!(flags & XVMC_DIRECT)) {
++	fprintf(stderr,"Indirect Rendering not supported! Using Direct.\n");
++    }
++
++    /* 
++     *FIXME: Check $DISPLAY for legal values here 
++     */
++
++    context->surface_type_id = surface_type_id;
++    context->width = (unsigned short)((width + 15) & ~15);
++    context->height = (unsigned short)((height + 15) & ~15);
++    context->flags = flags;
++    context->port = port;
++
++    /* 
++     *  Width, Height, and flags are checked against surface_type_id
++     *  and port for validity inside the X server, no need to check
++     *  here.
++     */
++
++    /* Allocate private Context data */
++    context->privData = (void *)malloc(sizeof(ViaXvMCContext));
++    if(!context->privData) {
++	fprintf(stderr,"Unable to allocate resources for XvMC context.\n");
++	return BadAlloc;
++    }
++  
++    pViaXvMC = (ViaXvMCContext *)context->privData;
++
++    /* Verify the XvMC extension exists */
++
++    XLockDisplay(display);
++    if(! XvMCQueryExtension(display, &event_base,
++			    &error_base)) {
++	fprintf(stderr,"XvMC Extension is not available!\n");
++	free(pViaXvMC);
++	XUnlockDisplay(display);
++	return BadAlloc;
++    }
++
++    /* Verify XvMC version */
++    ret = XvMCQueryVersion(display, &major, &minor);
++    if(ret) {
++	fprintf(stderr,"XvMCQuery Version Failed, unable to determine "
++		"protocol version\n");
++    }
++    XUnlockDisplay(display);
++
++    /* FIXME: Check Major and Minor here */
++
++    /* Check for drm */
++
++    if(! drmAvailable()) {
++	fprintf(stderr,"Direct Rendering is not avilable on this system!\n");
++	free(pViaXvMC);
++	return BadAlloc;
++    }
++
++    /*
++     * We don't know the BUSID. Have the X server tell it to us by faking
++     * a working drm connection.
++     */ 
++
++    strncpy(curBusID,"NOBUSID",20);
++    pViaXvMC->fd = -1;
++
++    do {
++	if (strcmp(curBusID,"NOBUSID")) {
++	    if((pViaXvMC->fd = drmOpen("via",curBusID)) < 0) {
++		fprintf(stderr,"DRM Device for via could not be opened.\n");
++		goto err2;
++	    }
++
++	    if (NULL == (drmVer = drmGetVersion(pViaXvMC->fd))) {
++		fprintf(stderr, 
++			"viaXvMC: Could not get drm version.");
++		goto err2;
++	    }
++	    if (((drmVer->version_major != 2 ) || (drmVer->version_minor < 0))) {
++		fprintf(stderr, 
++			"viaXvMC: Kernel drm is not compatible with XvMC.\n"); 
++		fprintf(stderr, 
++			"viaXvMC: Kernel drm version: %d.%d.%d "
++			"and I need at least version 2.0.0.\n"
++			"Please update.\n",
++			drmVer->version_major,drmVer->version_minor,
++			drmVer->version_patchlevel); 
++		drmFreeVersion(drmVer);
++		goto err2;
++	    } 
++	    drmGetMagic(pViaXvMC->fd,&magic);
++	} else {
++	    magic = 0;
++	}
++	context->flags = (unsigned long)magic;
++
++	/*
++	 * Pass control to the X server to create a drmContext for us, and
++	 * validate the width / height and flags.
++	 */
++
++	XLockDisplay(display);
++	if((ret = _xvmc_create_context(display, context, &priv_count, 
++				       &priv_data))) {
++	    XUnlockDisplay(display);
++	    fprintf(stderr,"Unable to create XvMC Context.\n");
++	    goto err2;
++	}
++	XUnlockDisplay(display);
++
++	if(priv_count != (sizeof(ViaXvMCCreateContextRec) >> 2)) {
++	    fprintf(stderr,"_xvmc_create_context() returned incorrect "
++		    "data size!\n");
++	    fprintf(stderr,"\tExpected %d, got %d\n",
++		    (sizeof(ViaXvMCCreateContextRec) >> 2),
++		    priv_count);
++	    goto err1;
++	}
++
++	tmpComm = (  ViaXvMCCreateContextRec *) priv_data;
++
++	if ((tmpComm->major != VIAXVMC_MAJOR) ||
++	    (tmpComm->minor != VIAXVMC_MINOR)) {
++	    fprintf(stderr,"Version mismatch between the XFree86 via driver\n"
++		    "and the XvMC library. Cannot continue!\n");
++	    goto err1;
++	}
++      
++	if (strncmp(curBusID, tmpComm->busIdString, 20)) {
++	    XLockDisplay(display);
++	    _xvmc_destroy_context(display, context);
++	    XUnlockDisplay(display);
++	    if (pViaXvMC->fd >= 0) 
++		drmClose(pViaXvMC->fd);
++	    pViaXvMC->fd = -1;
++	    strncpy(curBusID, tmpComm->busIdString, 20);
++	    continue;
++	}
++      
++	if (!tmpComm->authenticated) goto err1;
++
++	continue;
++
++      err1:
++	XLockDisplay(display);
++	_xvmc_destroy_context(display, context);
++	XUnlockDisplay(display);
++      err2:
++	if (pViaXvMC->fd >= 0) 
++	  drmClose(pViaXvMC->fd);
++	free(pViaXvMC);
++	return BadAlloc;
++      
++    } while (pViaXvMC->fd < 0);
++
++    pViaXvMC->ctxNo = tmpComm->ctxNo;
++    pViaXvMC->drmcontext = tmpComm->drmcontext;
++    pViaXvMC->fb_base = tmpComm->fbBase;
++    pViaXvMC->fbOffset = tmpComm->fbOffset;
++    pViaXvMC->fbSize = tmpComm->fbSize;
++    pViaXvMC->mmioOffset = tmpComm->mmioOffset;
++    pViaXvMC->mmioSize = tmpComm->mmioSize;
++    pViaXvMC->sAreaOffset = tmpComm->sAreaOffset;
++    pViaXvMC->sAreaSize = tmpComm->sAreaSize;
++    pViaXvMC->sAreaPrivOffset = tmpComm->sAreaPrivOffset;
++    pViaXvMC->decoderOn = 0;
++    pViaXvMC->xvMCPort = tmpComm->xvmc_port;
++    pViaXvMC->useAGP = tmpComm->useAGP;
++    for (i=0; i<VIA_MAX_RENDSURF; ++i) {
++	pViaXvMC->rendSurf[i] = 0;
++    }
++    strncpy(pViaXvMC->busIdString,tmpComm->busIdString,9);
++    pViaXvMC->busIdString[9] = '\0';    
++    pViaXvMC->attrib = tmpComm->initAttrs;
++    pViaXvMC->lastSrfDisplaying = ~0;
++    setupAttribDesc(display, port, &pViaXvMC->attrib, pViaXvMC->attribDesc);
++
++    /* 
++     * Must free the private data we were passed from X 
++     */
++
++    XFree(priv_data);
++    
++    /* 
++     * Map the register memory 
++     */
++
++    if(drmMap(pViaXvMC->fd,pViaXvMC->mmioOffset,
++	      pViaXvMC->mmioSize,&(pViaXvMC->mmioAddress)) < 0) {
++	fprintf(stderr,"Unable to map the display chip mmio registers.\n");
++	XLockDisplay(display);
++	_xvmc_destroy_context(display, context);
++	XUnlockDisplay(display);
++	free(pViaXvMC);
++	return BadAlloc;
++    }   
++
++    /* 
++     * Map Framebuffer memory 
++     */
++
++    if(drmMap(pViaXvMC->fd,pViaXvMC->fbOffset,
++	      pViaXvMC->fbSize,&(pViaXvMC->fbAddress)) < 0) {
++	fprintf(stderr,"Unable to map XvMC Framebuffer.\n");
++	XLockDisplay(display);
++	_xvmc_destroy_context(display, context);
++	XUnlockDisplay(display);
++	free(pViaXvMC);
++	return BadAlloc;
++    } 
++
++    /*
++     * Map XvMC Sarea and get the address of the HW lock.
++     */
++
++    if(drmMap(pViaXvMC->fd,pViaXvMC->sAreaOffset,
++	      pViaXvMC->sAreaSize,&(pViaXvMC->sAreaAddress)) < 0) {
++	fprintf(stderr,"Unable to map DRI SAREA.\n");
++	XLockDisplay(display);
++	_xvmc_destroy_context(display, context);
++	XUnlockDisplay(display);
++	free(pViaXvMC);
++	return BadAlloc;
++    } 
++    pViaXvMC->hwLock = (drmLockPtr) pViaXvMC->sAreaAddress;
++
++    defaultQMatrices(pViaXvMC);
++    pViaXvMC->chromaIntraLoaded = 1;
++    pViaXvMC->chromaNonIntraLoaded = 1;
++    pViaXvMC->yStride = (width + 31) & ~31;
++    pViaXvMC->haveDecoder = 0;
++    pViaXvMC->decTimeOut = 0;
++    pViaXvMC->attribChanged = 1;
++    pViaXvMC->haveXv = 0;
++    pViaXvMC->port = context->port;
++    initXvMCLowLevel(&pViaXvMC->xl, pViaXvMC->fd, &pViaXvMC->drmcontext,
++		     pViaXvMC->hwLock, pViaXvMC->mmioAddress, pViaXvMC->useAGP);
++
++    hwlLock(&pViaXvMC->xl,1); 
++    setLowLevelLocking(&pViaXvMC->xl,0);
++    viaVideoSubPictureOffLocked(&pViaXvMC->xl); 
++    flushXvMCLowLevel(&pViaXvMC->xl);  /* Ignore errors here. */
++    setLowLevelLocking(&pViaXvMC->xl,1);
++    hwlUnlock(&pViaXvMC->xl,1); 
++    pthread_mutex_init(&pViaXvMC->ctxMutex,NULL);
++    return Success;
++}
++
++
++Status XvMCDestroyContext(Display *display, XvMCContext *context) 
++{
++    ViaXvMCContext *pViaXvMC;
++
++
++    if(context == NULL) {
++	return (error_base + XvMCBadContext);
++    }
++    if(NULL == (pViaXvMC = context->privData)) {
++	return (error_base + XvMCBadContext);
++    }
++
++
++    /*
++     * Release decoder if we have it. In case of crash or termination
++     * before XvMCDestroyContext, the X server will take care of this.
++     */
++
++    pthread_mutex_lock(&pViaXvMC->ctxMutex);
++    closeXvMCLowLevel(&pViaXvMC->xl);
++    releaseAttribDesc(pViaXvMC->attrib.numAttr,pViaXvMC->attribDesc);
++    releaseDecoder(pViaXvMC,1);
++
++    drmUnmap(pViaXvMC->sAreaAddress,pViaXvMC->sAreaSize);
++    drmUnmap(pViaXvMC->fbAddress,pViaXvMC->fbSize);
++    drmUnmap(pViaXvMC->mmioAddress,pViaXvMC->mmioSize);
++
++    XLockDisplay(display);
++    _xvmc_destroy_context(display, context);
++    XUnlockDisplay(display);
++
++
++    if (pViaXvMC->haveXv) {
++	XFree(pViaXvMC->xvImage);
++    }      
++    pthread_mutex_destroy(&pViaXvMC->ctxMutex);
++    drmClose(pViaXvMC->fd);
++    free(pViaXvMC);
++    context->privData = NULL;
++    return Success;
++}
++
++Status XvMCCreateSurface( Display *display, XvMCContext *context,
++			  XvMCSurface *surface) 
++{
++    ViaXvMCContext *pViaXvMC;
++    ViaXvMCSurface *pViaSurface;
++    int priv_count;
++    unsigned *priv_data;
++    unsigned i;
++    Status ret;
++
++    if((surface == NULL) || (context == NULL) || (display == NULL)){
++	return BadValue;
++    }
++  
++    pViaXvMC = (ViaXvMCContext *)context->privData;
++    pthread_mutex_lock( &pViaXvMC->ctxMutex );
++
++    if(pViaXvMC == NULL) {
++        pthread_mutex_unlock( &pViaXvMC->ctxMutex );
++	return (error_base + XvMCBadContext);
++    }
++
++    pViaSurface = surface->privData = (ViaXvMCSurface *)malloc(sizeof(ViaXvMCSurface));
++    if(!surface->privData) {
++        pthread_mutex_unlock( &pViaXvMC->ctxMutex );
++	return BadAlloc;
++    }
++    XLockDisplay(display);
++    if((ret = _xvmc_create_surface(display, context, surface,
++				   &priv_count, &priv_data))) {
++	XUnlockDisplay(display);
++	free(pViaSurface);
++	fprintf(stderr,"Unable to create XvMC Surface.\n");
++	pthread_mutex_unlock( &pViaXvMC->ctxMutex );
++	return ret;
++    }
++    XUnlockDisplay(display);
++
++    pViaSurface->srfNo = priv_data[0];
++
++    /*
++     * Store framebuffer offsets to the buffers allocated for this surface.
++     * For some chipset revisions, surfaces may be double-buffered.
++     */
++
++    pViaSurface->numBuffers = priv_data[1];
++    for (i=0; i < pViaSurface->numBuffers; ++i) {
++	pViaSurface->offsets[i] = priv_data[i+2];
++    }
++    pViaSurface->curBuf = 0;
++
++
++    /* Free data returned from xvmc_create_surface */
++
++    XFree(priv_data);
++
++    pViaSurface->width = context->width;
++    pViaSurface->height = context->height;
++    pViaSurface->yStride = pViaXvMC->yStride;
++    pViaSurface->privContext = pViaXvMC;
++    pViaSurface->privSubPic = NULL;
++    pthread_mutex_unlock( &pViaXvMC->ctxMutex );
++    return Success;
++}
++
++Status XvMCDestroySurface(Display *display, XvMCSurface *surface) 
++{
++    ViaXvMCSurface *pViaSurface;
++
++    if((display == NULL) || (surface == NULL)) {
++	return BadValue;
++    }
++    if(surface->privData == NULL) {
++	return (error_base + XvMCBadSurface);
++    }
++
++    pViaSurface = (ViaXvMCSurface *)surface->privData;
++
++    XLockDisplay(display);
++    _xvmc_destroy_surface(display,surface);
++    XUnlockDisplay(display);
++
++    free(pViaSurface);
++    surface->privData = NULL;
++    return Success;
++}
++
++Status XvMCPutSlice2(Display *display,XvMCContext *context, char *slice,
++		     int nBytes, int sliceCode) 
++{
++    ViaXvMCContext *pViaXvMC;
++    CARD32 sCode = 0x00010000 | (sliceCode & 0xFF) << 24;
++
++    if((display == NULL) || (context == NULL)) {
++	return BadValue;
++    }
++    if(NULL == (pViaXvMC = context->privData)) {
++	return (error_base + XvMCBadContext);
++    }
++    pthread_mutex_lock( &pViaXvMC->ctxMutex );
++    if (!pViaXvMC->haveDecoder) {
++	fprintf(stderr,"XvMCPutSlice: This context does not own decoder!\n");
++	pthread_mutex_unlock( &pViaXvMC->ctxMutex );
++	return BadAlloc;
++    }
++
++    if (pViaXvMC->decTimeOut) {
++        pthread_mutex_unlock( &pViaXvMC->ctxMutex );
++	return BadValue;
++    }
++
++    viaMpegWriteSlice(&pViaXvMC->xl, (CARD8 *)slice, nBytes, sCode);
++    if (flushXvMCLowLevel(&pViaXvMC->xl)) {
++        pthread_mutex_unlock( &pViaXvMC->ctxMutex );
++	return BadValue; 
++    }
++    pthread_mutex_unlock( &pViaXvMC->ctxMutex );
++    return Success;
++}
++
++Status XvMCPutSlice(Display *display,XvMCContext *context, char *slice,
++		    int nBytes) 
++{
++    ViaXvMCContext *pViaXvMC;
++
++    if((display == NULL) || (context == NULL)) {
++	return BadValue;
++    }
++    if(NULL == (pViaXvMC = context->privData)) {
++	return (error_base + XvMCBadContext);
++    }
++    pthread_mutex_lock( &pViaXvMC->ctxMutex );
++
++    if (!pViaXvMC->haveDecoder) {
++	fprintf(stderr,"XvMCPutSlice: This context does not own decoder!\n");
++	pthread_mutex_unlock( &pViaXvMC->ctxMutex );
++	return BadAlloc;
++    }
++
++    if (pViaXvMC->decTimeOut) {
++	pthread_mutex_unlock( &pViaXvMC->ctxMutex );
++	return BadValue;
++    }
++
++    viaMpegWriteSlice(&pViaXvMC->xl, (CARD8 *)slice, nBytes, 0);
++    if (flushXvMCLowLevel(&pViaXvMC->xl)) {
++	pthread_mutex_unlock( &pViaXvMC->ctxMutex );
++	return BadValue; 
++    }
++    pthread_mutex_unlock( &pViaXvMC->ctxMutex );
++    return Success;
++}
++
++
++static Status updateXVOverlay(Display *display,ViaXvMCContext *pViaXvMC, 
++			      ViaXvMCSurface *pViaSurface, Drawable draw,
++			      short srcx, short srcy, unsigned short srcw, 
++			      unsigned short srch,short destx,short desty,
++			      unsigned short destw,unsigned short desth) 
++{
++    ViaXvMCCommandBuffer buf;
++    ViaXvMCSubPicture *pViaSubPic;
++    Status ret;
++
++    if (!pViaXvMC->haveXv) {
++	pViaXvMC->xvImage = 
++	    XvCreateImage(display,pViaXvMC->port,FOURCC_VIA,
++			  (char *)&buf,pViaSurface->width,
++			  pViaSurface->height);
++	pViaXvMC->gc = XCreateGC(display,draw,0,0);
++	pViaXvMC->haveXv = 1;
++    }    
++    pViaXvMC->draw = draw;
++    pViaXvMC->xvImage->data = (char *)&buf;
++    
++    buf.command = (pViaXvMC->attribChanged) ? 
++	VIA_XVMC_COMMAND_FDISPLAY : VIA_XVMC_COMMAND_DISPLAY;
++    buf.ctxNo = pViaXvMC->ctxNo | VIA_XVMC_VALID;
++    buf.srfNo = pViaSurface->srfNo | VIA_XVMC_VALID;
++    pViaSubPic = pViaSurface->privSubPic;
++    buf.subPicNo = ((NULL == pViaSubPic) ? 0 : pViaSubPic->srfNo  ) 
++	| VIA_XVMC_VALID;
++    buf.attrib = pViaXvMC->attrib;
++    
++    XLockDisplay(display);
++
++    if ((ret = XvPutImage(display,pViaXvMC->port,draw,pViaXvMC->gc,
++			  pViaXvMC->xvImage,srcx,srcy,srcw,srch,
++			  destx,desty,destw,desth))) {
++	XUnlockDisplay(display);
++	return ret;
++    }
++    XSync(display, 0);
++    XUnlockDisplay(display);
++    pViaXvMC->attribChanged = 0;
++    return Success;
++}
++
++Status XvMCPutSurface(Display *display,XvMCSurface *surface,Drawable draw,
++		      short srcx, short srcy, unsigned short srcw, 
++		      unsigned short srch,short destx,short desty,
++		      unsigned short destw,unsigned short desth, int flags) 
++{
++    /*
++     * This function contains some hairy locking logic. What we really want to
++     * do is to flip the picture ASAP, to get a low latency and smooth playback.
++     * However, if somebody else used the overlay since we used it last or if it is
++     * our first time, we'll have to call X to update the overlay first. Otherwise 
++     * we'll do the overlay update once we've flipped. Since we release the hardware
++     * lock when we call X, X needs to verify using the SAREA that nobody else flipped
++     * in a picture between the lock release and the X server control. Similarly
++     * when the overlay update returns, we have to make sure that we still own the
++     * overlay.
++     */
++
++    ViaXvMCSurface *pViaSurface;
++    ViaXvMCContext *pViaXvMC;
++    ViaXvMCSubPicture *pViaSubPic;
++    volatile ViaXvMCSAreaPriv *sAPriv;
++    Status ret;
++    unsigned dispSurface, lastSurface;
++    int overlayUpdated;
++
++    if((display == NULL) || (surface == NULL)) {
++	return BadValue;
++    }
++    if(NULL == (pViaSurface = surface->privData )) {
++	return (error_base + XvMCBadSurface);
++    }
++    if (NULL == (pViaXvMC = pViaSurface->privContext)) {
++	return (error_base + XvMCBadContext);
++    }
++
++    pthread_mutex_lock( &pViaXvMC->ctxMutex );
++    pViaSubPic = pViaSurface->privSubPic;
++    sAPriv = SAREAPTR( pViaXvMC );
++    hwlLock(&pViaXvMC->xl,1); 
++    
++    /*
++     * Put a surface ID in the SAREA to "authenticate" to the 
++     * X server.
++     */
++
++    dispSurface = sAPriv->XvMCDisplaying[pViaXvMC->xvMCPort];
++    lastSurface = pViaXvMC->lastSrfDisplaying;
++    sAPriv->XvMCDisplaying[pViaXvMC->xvMCPort] = 
++	pViaXvMC->lastSrfDisplaying = pViaSurface->srfNo | VIA_XVMC_VALID;
++    overlayUpdated = 0;
++
++    if (lastSurface != dispSurface) {
++	hwlUnlock(&pViaXvMC->xl,1);
++
++	/*
++	 * We weren't the last to display. Update the overlay before flipping.
++	 */
++
++	ret = updateXVOverlay(display,pViaXvMC,pViaSurface,draw,srcx,srcy,srcw, 
++			      srch,destx,desty,destw,desth);
++	if (ret) {
++	    pthread_mutex_unlock( &pViaXvMC->ctxMutex );
++	    return ret;
++	}
++
++	hwlLock(&pViaXvMC->xl,1);
++	overlayUpdated = 1;
++	if (pViaXvMC->lastSrfDisplaying != sAPriv->XvMCDisplaying[pViaXvMC->xvMCPort]) {
++
++	    /*
++	     * Race. Somebody beat us to the port.
++	     */
++	  
++	    hwlUnlock(&pViaXvMC->xl,1);
++	    pthread_mutex_unlock( &pViaXvMC->ctxMutex );
++	    return BadAccess;
++	}
++    } 
++    setLowLevelLocking(&pViaXvMC->xl,0);
++
++    /*
++     * Subpictures
++     */
++
++    if (NULL != pViaSubPic) {
++	if (sAPriv->XvMCSubPicOn[pViaXvMC->xvMCPort] 
++	    != (pViaSubPic->srfNo | VIA_XVMC_VALID)) {
++	    sAPriv->XvMCSubPicOn[pViaXvMC->xvMCPort] = 
++		pViaSubPic->srfNo | VIA_XVMC_VALID; 
++	    viaVideoSubPictureLocked(&pViaXvMC->xl, pViaSubPic);
++	}  
++    } else {
++	if (sAPriv->XvMCSubPicOn[pViaXvMC->xvMCPort] & VIA_XVMC_VALID) {
++	    viaVideoSubPictureOffLocked(&pViaXvMC->xl);
++	    sAPriv->XvMCSubPicOn[pViaXvMC->xvMCPort] &= ~VIA_XVMC_VALID;
++	}  
++    }
++
++    /*
++     * Flip
++     */
++
++    viaVideoSWFlipLocked(&pViaXvMC->xl, flags, pViaSurface->progressiveSequence,
++			 yOffs(pViaSurface), uOffs(pViaSurface), 
++			 vOffs(pViaSurface));
++    ret = flushXvMCLowLevel(&pViaXvMC->xl);
++    setLowLevelLocking(&pViaXvMC->xl,1);
++    hwlUnlock(&pViaXvMC->xl,1);
++
++    if (overlayUpdated) {
++        pthread_mutex_unlock( &pViaXvMC->ctxMutex );
++	return Success;
++    }
++    
++    /*
++     * Update overlay
++     */
++
++    ret = updateXVOverlay(display,pViaXvMC,pViaSurface,draw,srcx,srcy,srcw, 
++			  srch,destx,desty,destw,desth);
++    pthread_mutex_unlock( &pViaXvMC->ctxMutex );
++    return ret;
++
++}
++
++void debugControl(const XvMCMpegControl *control) {
++    printf("BVMV_range: %u\n",control->BVMV_range);
++    printf("BHMV_range: %u\n",control->BHMV_range);
++    printf("FVMV_range: %u\n",control->FVMV_range);
++    printf("FHMV_range: %u\n",control->FHMV_range);
++    printf("picture_structure: %u\n", control->picture_structure);
++    printf("intra_dc_precision: %u\n", control->intra_dc_precision);
++    printf("picture_coding_type: %u\n", control->picture_coding_type);
++    printf("mpeg_coding: %u\n", control->mpeg_coding);
++    printf("flags: 0x%x\n", control->flags);
++}
++
++    
++
++
++Status XvMCBeginSurface(Display *display,
++			XvMCContext *context,
++			XvMCSurface *target_surface,
++			XvMCSurface *past_surface,
++			XvMCSurface *future_surface,
++			const XvMCMpegControl *control) 
++{
++    ViaXvMCSurface *targS,*futS,*pastS;
++    ViaXvMCContext *pViaXvMC;
++    int hadDecoderLast;
++
++
++    if((display == NULL) || (context == NULL) || (target_surface == NULL)) {
++	return BadValue;
++    }
++     
++    pViaXvMC = context->privData;     
++
++    pthread_mutex_lock( &pViaXvMC->ctxMutex );
++    if (grabDecoder(pViaXvMC, &hadDecoderLast)) {
++	pthread_mutex_unlock( &pViaXvMC->ctxMutex );
++	return BadAlloc;
++    }
++ 
++    if (!hadDecoderLast) {
++	pViaXvMC->intraLoaded = 0;
++	pViaXvMC->nonIntraLoaded = 0;
++    }
++
++    pViaXvMC->haveDecoder = 1;
++
++    targS = (ViaXvMCSurface *)target_surface->privData;
++    futS = NULL;
++    pastS = NULL;
++    pViaXvMC->rendSurf[0] = targS->srfNo | VIA_XVMC_VALID;
++    if (future_surface) {
++	futS = (ViaXvMCSurface *)future_surface->privData;
++    }
++    if (past_surface) {	
++	pastS = (ViaXvMCSurface *)past_surface->privData;
++    }
++
++    targS->progressiveSequence = (control->flags & XVMC_PROGRESSIVE_SEQUENCE); 
++    targS->privSubPic = NULL;
++    
++    syncXvMCLowLevel(&pViaXvMC->xl, LL_MODE_DECODER_IDLE, 0);
++ 
++    viaMpegReset(&pViaXvMC->xl);
++    viaMpegSetFB(&pViaXvMC->xl,0,yOffs(targS),uOffs(targS),vOffs(targS));
++    viaMpegSetSurfaceStride(&pViaXvMC->xl,pViaXvMC);
++    if (past_surface) {
++	viaMpegSetFB(&pViaXvMC->xl,1,yOffs(pastS),uOffs(pastS),vOffs(pastS));
++    } else {
++	viaMpegSetFB(&pViaXvMC->xl,1,0xffffffff,0xffffffff,0xffffffff);
++    }
++    
++    if (future_surface) {
++	viaMpegSetFB(&pViaXvMC->xl,2,yOffs(futS),uOffs(futS),vOffs(futS));
++    } else {
++	viaMpegSetFB(&pViaXvMC->xl,2,0xffffffff,0xffffffff,0xffffffff);
++    }
++    viaMpegBeginPicture(&pViaXvMC->xl,pViaXvMC,context->width,context->height,control);
++    if (flushXvMCLowLevel(&pViaXvMC->xl)) {
++        pthread_mutex_unlock( &pViaXvMC->ctxMutex );
++	return BadValue;
++    }
++    pViaXvMC->decTimeOut = 0;
++    pViaXvMC->decoderOn = 1;
++    pthread_mutex_unlock( &pViaXvMC->ctxMutex );
++    return Success;
++}
++    
++  
++Status XvMCSyncSurface(Display *display,XvMCSurface *surface)
++{
++    ViaXvMCSurface *pViaSurface;
++    ViaXvMCContext *pViaXvMC;
++    volatile ViaXvMCSAreaPriv *sPriv;
++    unsigned i;
++    int retVal;
++
++    if((display == NULL) || (surface == NULL)) {
++	return BadValue;
++    }
++    if(surface->privData == NULL) {
++	return (error_base + XvMCBadSurface);
++    }
++    
++    pViaSurface = (ViaXvMCSurface *)surface->privData;
++    pViaXvMC = pViaSurface->privContext;
++
++    if(pViaXvMC == NULL) {
++	return (error_base + XvMCBadSurface);
++    }
++
++    pthread_mutex_lock( &pViaXvMC->ctxMutex );
++    if (!pViaXvMC->haveDecoder) {
++	pthread_mutex_unlock( &pViaXvMC->ctxMutex );
++	return Success;
++    }
++
++
++    retVal = Success;
++    if (pViaXvMC->rendSurf[0] == (pViaSurface->srfNo | VIA_XVMC_VALID)) {
++
++	sPriv = SAREAPTR(pViaXvMC);
++	if (!pViaXvMC->decTimeOut) {
++	    if (syncXvMCLowLevel(&pViaXvMC->xl, LL_MODE_DECODER_IDLE, 
++				 1)) {
++		retVal = BadValue;
++	    }
++	} else {
++	    viaMpegReset(&pViaXvMC->xl);
++	    if (!flushXvMCLowLevel(&pViaXvMC->xl))
++		pViaXvMC->decTimeOut = 0;
++	    retVal = BadValue;
++	}
++	hwlLock(&pViaXvMC->xl,0);
++	pViaXvMC->haveDecoder = 0;
++	releaseDecoder(pViaXvMC, 0);
++	hwlUnlock(&pViaXvMC->xl,0);
++	for (i=0; i<VIA_MAX_RENDSURF; ++i) {
++	    pViaXvMC->rendSurf[i] = 0;
++	}
++    
++    }
++    pthread_mutex_unlock( &pViaXvMC->ctxMutex );
++    return retVal;
++}
++
++Status XvMCLoadQMatrix(Display *display, XvMCContext *context,
++		       const XvMCQMatrix *qmx) 
++{	
++    ViaXvMCContext
++	*pViaXvMC;
++
++    if((display == NULL) || (context == NULL)) {
++	return BadValue;
++    }
++    if(NULL == (pViaXvMC = context->privData)) {
++	return (error_base + XvMCBadContext);
++    }
++
++    pthread_mutex_lock( &pViaXvMC->ctxMutex );
++    if (qmx->load_intra_quantiser_matrix) {
++	memcpy(pViaXvMC->intra_quantiser_matrix,
++	       qmx->intra_quantiser_matrix,
++	       sizeof(qmx->intra_quantiser_matrix));
++	pViaXvMC->intraLoaded = 0;
++    }
++
++    if (qmx->load_non_intra_quantiser_matrix) {
++	memcpy(pViaXvMC->non_intra_quantiser_matrix,
++	       qmx->non_intra_quantiser_matrix,
++	       sizeof(qmx->non_intra_quantiser_matrix));
++	pViaXvMC->nonIntraLoaded = 0;
++    }
++
++    if (qmx->load_chroma_intra_quantiser_matrix) {
++	memcpy(pViaXvMC->chroma_intra_quantiser_matrix,
++	       qmx->chroma_intra_quantiser_matrix,
++	       sizeof(qmx->chroma_intra_quantiser_matrix));
++	pViaXvMC->chromaIntraLoaded = 0;
++    }
++
++    if (qmx->load_chroma_non_intra_quantiser_matrix) {
++	memcpy(pViaXvMC->chroma_non_intra_quantiser_matrix,
++	       qmx->chroma_non_intra_quantiser_matrix,
++	       sizeof(qmx->chroma_non_intra_quantiser_matrix));
++	pViaXvMC->chromaNonIntraLoaded = 0;
++    }
++    pthread_mutex_unlock( &pViaXvMC->ctxMutex );
++
++    return Success;
++}    
++
++/*
++ * Below, we provide functions unusable for this implementation, but for
++ * standard completeness.
++ */
++
++  
++Status XvMCRenderSurface
++(
++    Display *display,
++    XvMCContext *context,
++    unsigned int picture_structure,
++    XvMCSurface *target_surface,
++    XvMCSurface *past_surface,
++    XvMCSurface *future_surface,
++    unsigned int flags,
++    unsigned int num_macroblocks,
++    unsigned int first_macroblock,
++    XvMCMacroBlockArray *macroblock_array,
++    XvMCBlockArray *blocks
++    ) 
++{
++    return (error_base + XvMCBadContext);
++}
++
++Status XvMCCreateBlocks 
++(
++    Display *display, 
++    XvMCContext *context,
++    unsigned int num_blocks,
++    XvMCBlockArray * block
++    )
++{
++    return (error_base + XvMCBadContext);
++}
++
++Status XvMCDestroyBlocks (Display *display, XvMCBlockArray * block) 
++{
++    return Success;
++}
++
++Status XvMCCreateMacroBlocks 
++(
++    Display *display, 
++    XvMCContext *context,
++    unsigned int num_blocks,
++    XvMCMacroBlockArray * blocks
++    )
++{
++    return (error_base + XvMCBadContext);
++}
++
++Status XvMCDestroyMacroBlocks(Display *display, XvMCMacroBlockArray * block)
++{
++    return (error_base + XvMCBadContext);
++}
++
++Status XvMCCreateSubpicture( Display *display, 
++			     XvMCContext *context,
++			     XvMCSubpicture *subpicture,
++			     unsigned short width,
++			     unsigned short height,
++			     int xvimage_id) 
++{
++    ViaXvMCContext *pViaXvMC;
++    ViaXvMCSubPicture *pViaSubPic;
++    int priv_count;
++    unsigned *priv_data;
++    Status ret;
++
++    if((subpicture == NULL) || (context == NULL) || (display == NULL)){
++	return BadValue;
++    }
++  
++    pViaXvMC = (ViaXvMCContext *)context->privData;
++    if(pViaXvMC == NULL) {
++	return (error_base + XvMCBadContext);
++    }
++
++    subpicture->privData = (ViaXvMCSubPicture *)
++	malloc(sizeof(ViaXvMCSubPicture));
++    if(!subpicture->privData) {
++	return BadAlloc;
++    }
++
++    pthread_mutex_lock( &pViaXvMC->ctxMutex );
++    subpicture->width = context->width;
++    subpicture->height = context->height;
++    subpicture->xvimage_id = xvimage_id;
++    pViaSubPic = (ViaXvMCSubPicture *)subpicture->privData;
++
++    XLockDisplay(display);
++    if((ret = _xvmc_create_subpicture(display, context, subpicture,
++				      &priv_count, &priv_data))) {
++	XUnlockDisplay(display);
++	free(pViaSubPic);
++	fprintf(stderr,"Unable to create XvMC Subpicture.\n");
++	pthread_mutex_unlock( &pViaXvMC->ctxMutex );
++	return ret;
++    }
++    XUnlockDisplay(display);
++
++
++    subpicture->num_palette_entries = VIA_SUBPIC_PALETTE_SIZE;
++    subpicture->entry_bytes = 3;
++    strncpy(subpicture->component_order,"YUV",4); 
++    pViaSubPic->srfNo = priv_data[0];
++    pViaSubPic->offset = priv_data[1];
++    pViaSubPic->stride = (subpicture->width + 31) & ~31;
++    pViaSubPic->privContext = pViaXvMC;
++    pViaSubPic->ia44 = (xvimage_id == FOURCC_IA44);
++
++    /* Free data returned from _xvmc_create_subpicture */
++
++    XFree(priv_data);
++    pthread_mutex_unlock( &pViaXvMC->ctxMutex );
++    return Success;
++}
++
++Status
++XvMCSetSubpicturePalette (Display *display, XvMCSubpicture *subpicture, 
++			  unsigned char *palette) 
++{    
++    ViaXvMCSubPicture *pViaSubPic;
++    ViaXvMCContext *pViaXvMC;
++    volatile ViaXvMCSAreaPriv *sAPriv;
++    unsigned ret;
++    unsigned i;
++    CARD32 tmp;
++
++    if((subpicture == NULL) || (display == NULL)){
++	return BadValue;
++    }
++    if(subpicture->privData == NULL) {
++	return (error_base + XvMCBadSubpicture);
++    }
++    pViaSubPic = (ViaXvMCSubPicture *) subpicture->privData;
++    for (i=0; i < VIA_SUBPIC_PALETTE_SIZE; ++i) {
++	tmp = *palette++ << 8;
++	tmp |= *palette++ << 16;
++	tmp |= *palette++ << 24;
++	tmp |= ((i & 0x0f) << 4) | 0x07;
++	pViaSubPic->palette[i] = tmp;
++    }
++
++    pViaXvMC = pViaSubPic->privContext;
++    pthread_mutex_lock( &pViaXvMC->ctxMutex );
++    sAPriv = SAREAPTR( pViaXvMC );
++    hwlLock(&pViaXvMC->xl,1);
++    setLowLevelLocking(&pViaXvMC->xl,0);
++
++    /*
++     * If the subpicture is displaying, Immeadiately update it with the
++     * new palette.
++     */
++
++    if (sAPriv->XvMCSubPicOn[pViaXvMC->xvMCPort] == 
++	(pViaSubPic->srfNo | VIA_XVMC_VALID)) {
++        viaVideoSubPictureLocked(&pViaXvMC->xl,pViaSubPic);
++    }
++    ret = flushXvMCLowLevel(&pViaXvMC->xl);
++    setLowLevelLocking(&pViaXvMC->xl,1);
++    hwlUnlock(&pViaXvMC->xl,1);
++    pthread_mutex_unlock( &pViaXvMC->ctxMutex );
++    if (ret) return BadValue;
++    return Success;
++}
++
++
++static int findOverlap(unsigned width,unsigned height,
++		       short *dstX, short *dstY,
++		       short *srcX, short *srcY,
++		       unsigned short *areaW, unsigned short *areaH) 
++{
++    int
++	w,h;
++    unsigned
++	mWidth,mHeight;
++    
++    w = *areaW;
++    h = *areaH;
++
++    if ((*dstX >= width) || (*dstY >= height)) 
++	return 1;
++    if (*dstX < 0) {
++	w += *dstX;
++	*srcX -= *dstX;
++	*dstX = 0;
++    }
++    if (*dstY < 0) {
++	h += *dstY;
++	*srcY -= *dstY;
++	*dstY = 0;
++    }
++    if ((w <= 0) || ((h <= 0))) 
++	return 1;
++    mWidth = width - *dstX;
++    mHeight = height - *dstY;
++    *areaW = (w <= mWidth) ? w : mWidth;
++    *areaH = (h <= mHeight) ? h : mHeight; 
++    return 0;
++}
++    
++
++
++Status XvMCClearSubpicture (
++    Display *display,
++    XvMCSubpicture *subpicture,
++    short x,
++    short y,
++    unsigned short width,
++    unsigned short height,
++    unsigned int color
++    ) 
++{
++
++    ViaXvMCContext *pViaXvMC;
++    ViaXvMCSubPicture *pViaSubPic;
++    short dummyX,dummyY;
++    unsigned long bOffs;
++
++    if((subpicture == NULL) || (display == NULL)) {
++	return BadValue;
++    }
++    if(subpicture->privData == NULL) {
++	return (error_base + XvMCBadSubpicture);
++    }
++    pViaSubPic = (ViaXvMCSubPicture *) subpicture->privData;
++    pViaXvMC = pViaSubPic->privContext;
++    pthread_mutex_lock( &pViaXvMC->ctxMutex );
++
++    /* Clip clearing area so that it fits inside subpicture. */
++
++    if (findOverlap(subpicture->width, subpicture->height, &x, &y,
++		    &dummyX, &dummyY, &width, &height)) {
++	pthread_mutex_unlock( &pViaXvMC->ctxMutex );
++	return Success;
++    }
++		    
++    bOffs = pViaSubPic->offset + y*pViaSubPic->stride + x;
++    viaBlit(&pViaXvMC->xl, 8, 0, pViaSubPic->stride, bOffs, pViaSubPic->stride,
++	    width, height, 1, 1, VIABLIT_FILL, color);
++    if (flushXvMCLowLevel(&pViaXvMC->xl)) {
++	pthread_mutex_unlock( &pViaXvMC->ctxMutex );
++	return BadValue;
++    }
++    if (syncXvMCLowLevel(&pViaXvMC->xl, LL_MODE_2D, 0)) {
++	pthread_mutex_unlock( &pViaXvMC->ctxMutex );
++	return BadValue;
++    }
++    pthread_mutex_unlock( &pViaXvMC->ctxMutex );
++    return Success;
++}
++
++Status
++XvMCCompositeSubpicture (
++    Display *display,
++    XvMCSubpicture *subpicture,
++    XvImage *image,
++    short srcx,
++    short srcy,
++    unsigned short width,
++    unsigned short height,
++    short dstx,
++    short dsty
++    ) 
++{
++    
++    unsigned i;
++    ViaXvMCContext *pViaXvMC;
++    ViaXvMCSubPicture *pViaSubPic;
++    CARD8 *dAddr, *sAddr;
++
++    if((subpicture == NULL) || (display == NULL) || (image == NULL)){
++	return BadValue;
++    }
++    if(NULL == (pViaSubPic = (ViaXvMCSubPicture *)subpicture->privData)) {
++	return (error_base + XvMCBadSubpicture);
++    }
++
++    pViaXvMC = pViaSubPic->privContext;
++
++
++    if (image->id != subpicture->xvimage_id) 
++	return BadMatch;
++
++    pthread_mutex_lock( &pViaXvMC->ctxMutex );
++    
++
++    /*
++     * Clip copy area so that it fits inside subpicture and image.
++     */
++
++    if (findOverlap(subpicture->width, subpicture->height, 
++		    &dstx, &dsty, &srcx, &srcy, &width, &height)) {
++	pthread_mutex_unlock( &pViaXvMC->ctxMutex );
++	return Success;
++    }
++    if (findOverlap(image->width, image->height, 
++		    &srcx, &srcy, &dstx, &dsty, &width, &height)) {
++	pthread_mutex_unlock( &pViaXvMC->ctxMutex );
++	return Success;
++    }
++
++    for(i=0; i<height; ++i) {
++        dAddr = (((CARD8 *)pViaXvMC->fbAddress) + 
++	         (pViaSubPic->offset + (dsty+i)*pViaSubPic->stride + dstx));
++        sAddr = (((CARD8 *)image->data) + 
++		 (image->offsets[0] + (srcy+i)*image->pitches[0] + srcx));
++	memcpy(dAddr,sAddr,width);
++    }
++
++    pthread_mutex_unlock( &pViaXvMC->ctxMutex );
++    return Success;
++}
++
++
++
++Status
++XvMCBlendSubpicture (
++    Display *display,
++    XvMCSurface *target_surface,
++    XvMCSubpicture *subpicture,
++    short subx,
++    short suby,
++    unsigned short subw,
++    unsigned short subh,
++    short surfx,
++    short surfy,
++    unsigned short surfw,
++    unsigned short surfh
++    ) 
++{    
++    ViaXvMCSurface *pViaSurface;
++    ViaXvMCSubPicture *pViaSubPic;
++
++    if((display == NULL) || target_surface == NULL){
++	return BadValue;
++    }
++    
++    if (subx || suby || surfx || surfy ||
++	(subw != surfw) || (subh != surfh))  {
++	fprintf(stderr,"ViaXvMC: Only completely overlapping subpicture "
++		"supported.\n");
++	return BadValue;
++    }
++
++    if(NULL == (pViaSurface = target_surface->privData)) {
++	return (error_base + XvMCBadSurface);
++    }
++
++    if (subpicture) {
++
++	if(NULL == (pViaSubPic = subpicture->privData)) {
++	    return (error_base + XvMCBadSubpicture);
++	}
++	
++	pViaSurface->privSubPic = pViaSubPic;
++    } else {
++	pViaSurface->privSubPic = NULL;
++    }
++    return Success;
++}
++
++Status
++XvMCBlendSubpicture2 (
++    Display *display,
++    XvMCSurface *source_surface,
++    XvMCSurface *target_surface,
++    XvMCSubpicture *subpicture,
++    short subx,
++    short suby,
++    unsigned short subw,
++    unsigned short subh,
++    short surfx,
++    short surfy,
++    unsigned short surfw,
++    unsigned short surfh
++    ) 
++{    
++    ViaXvMCSurface *pViaSurface,*pViaSSurface;
++    ViaXvMCSubPicture *pViaSubPic;
++    ViaXvMCContext *pViaXvMC;
++
++    unsigned width,height;
++
++    if((display == NULL) || target_surface == NULL || source_surface == NULL){
++	return BadValue;
++    }
++    
++    if (subx || suby || surfx || surfy ||
++	(subw != surfw) || (subh != surfh))  {
++	fprintf(stderr,"ViaXvMC: Only completely overlapping subpicture "
++		"supported.\n");
++	return BadMatch;
++    }
++
++    if(NULL == (pViaSurface = target_surface->privData)) {
++	return (error_base + XvMCBadSurface);
++    }
++
++    if(NULL == (pViaSSurface = source_surface->privData)) {
++	return (error_base + XvMCBadSurface);
++    }
++    pViaXvMC = pViaSurface->privContext;
++    width = pViaSSurface->width;
++    height = pViaSSurface->height;
++    if (width != pViaSurface->width || height != pViaSSurface->height) {
++	return BadMatch;
++    }
++    pthread_mutex_lock( &pViaXvMC->ctxMutex );
++    viaBlit(&pViaXvMC->xl, 8, yOffs(pViaSSurface), pViaSSurface->yStride,
++	    yOffs(pViaSurface), pViaSurface->yStride,
++	    width, height, 1, 1, VIABLIT_COPY, 0);
++    viaBlit(&pViaXvMC->xl, 8, uOffs(pViaSSurface), pViaSSurface->yStride >> 1,
++	    uOffs(pViaSurface), pViaSurface->yStride >> 1,
++	    width >> 1, height >> 1, 1, 1, VIABLIT_COPY, 0);
++    viaBlit(&pViaXvMC->xl, 8, vOffs(pViaSSurface), pViaSSurface->yStride >> 1,
++	    vOffs(pViaSurface), pViaSurface->yStride >> 1,
++	    width >> 1, height >> 1, 1, 1, VIABLIT_COPY, 0);
++    if (flushXvMCLowLevel(&pViaXvMC->xl)) {
++	pthread_mutex_unlock( &pViaXvMC->ctxMutex );
++	return BadValue;
++    }
++    if (syncXvMCLowLevel(&pViaXvMC->xl, LL_MODE_2D, 0)) {
++	pthread_mutex_unlock( &pViaXvMC->ctxMutex );
++	return BadValue;
++    }
++
++    if (subpicture) {
++
++	if(NULL == (pViaSubPic = subpicture->privData)) {
++	    pthread_mutex_unlock( &pViaXvMC->ctxMutex );
++	    return (error_base + XvMCBadSubpicture);
++	}
++	
++	pViaSurface->privSubPic = pViaSubPic;
++    } else {
++	pViaSurface->privSubPic = NULL;
++    }
++    pthread_mutex_unlock( &pViaXvMC->ctxMutex );
++    return Success;
++}
++
++
++Status
++XvMCSyncSubpicture (Display *display, XvMCSubpicture *subpicture) 
++{
++    ViaXvMCSubPicture *pViaSubPic;
++
++    if((display == NULL) || subpicture == NULL){
++	return BadValue;
++    }
++    if(NULL == (pViaSubPic = subpicture->privData)) {
++	return (error_base + XvMCBadSubpicture);
++    }
++
++    return Success;
++}
++
++Status
++XvMCFlushSubpicture (Display *display, XvMCSubpicture *subpicture) 
++{
++    ViaXvMCSubPicture *pViaSubPic;
++
++    if((display == NULL) || subpicture == NULL){
++	return BadValue;
++    }
++    if(NULL == (pViaSubPic = subpicture->privData)) {
++	return (error_base + XvMCBadSubpicture);
++    }
++    
++    return Success;
++}
++
++Status
++XvMCDestroySubpicture (Display *display, XvMCSubpicture *subpicture) 
++{
++    ViaXvMCSubPicture *pViaSubPic;
++    ViaXvMCContext *pViaXvMC;
++    volatile ViaXvMCSAreaPriv *sAPriv;
++
++    if((display == NULL) || subpicture == NULL){
++	return BadValue;
++    }
++    if(NULL == (pViaSubPic = subpicture->privData)) {
++	return (error_base + XvMCBadSubpicture);
++    }
++    pViaXvMC = pViaSubPic->privContext;
++    pthread_mutex_lock( &pViaXvMC->ctxMutex );
++
++    
++    sAPriv = SAREAPTR(pViaXvMC);
++    hwlLock(&pViaXvMC->xl,1); 
++    setLowLevelLocking(&pViaXvMC->xl,0);
++    if (sAPriv->XvMCSubPicOn[pViaXvMC->xvMCPort] == 
++	( pViaSubPic->srfNo | VIA_XVMC_VALID )) {
++        viaVideoSubPictureOffLocked(&pViaXvMC->xl);
++	sAPriv->XvMCSubPicOn[pViaXvMC->xvMCPort] = 0;
++    }
++    flushXvMCLowLevel(&pViaXvMC->xl);
++    setLowLevelLocking(&pViaXvMC->xl,1);
++    hwlUnlock(&pViaXvMC->xl,1);
++
++    XLockDisplay(display);
++    _xvmc_destroy_subpicture(display,subpicture);
++    XUnlockDisplay(display);
++
++    free(pViaSubPic);
++    subpicture->privData = NULL;
++    pthread_mutex_unlock( &pViaXvMC->ctxMutex );
++
++    return Success;
++}
++
++Status
++XvMCGetSubpictureStatus (Display *display, XvMCSubpicture *subpic, int *stat) 
++{
++    ViaXvMCSubPicture *pViaSubPic;
++    ViaXvMCContext *pViaXvMC;
++    volatile ViaXvMCSAreaPriv *sAPriv;
++   
++
++    if((display == NULL) || subpic == NULL){
++	return BadValue;
++    }
++    if(NULL == (pViaSubPic = subpic->privData)) {
++	return (error_base + XvMCBadSubpicture);
++    }
++    if (stat) {
++	*stat = 0;
++	pViaXvMC = pViaSubPic->privContext;
++	sAPriv = SAREAPTR( pViaXvMC );
++	if (sAPriv->XvMCSubPicOn[pViaXvMC->xvMCPort] == 
++	    (pViaSubPic->srfNo | VIA_XVMC_VALID)) 
++	    *stat |= XVMC_DISPLAYING;	    
++    }
++    return Success;
++}
++
++Status
++XvMCFlushSurface (Display *display, XvMCSurface *surface)
++{
++    ViaXvMCSurface *pViaSurface;
++    ViaXvMCContext *pViaXvMC;
++    Status ret;
++
++    if((display == NULL) || surface == NULL){
++	return BadValue;
++    }
++    if(NULL == (pViaSurface = surface->privData)) {
++	return (error_base + XvMCBadSurface);
++    }
++
++    pViaXvMC = pViaSurface->privContext;
++    pthread_mutex_lock( &pViaXvMC->ctxMutex );
++
++    ret = (flushXvMCLowLevel(&pViaXvMC->xl)) ? BadValue : Success; 
++    pthread_mutex_unlock( &pViaXvMC->ctxMutex );
++
++    return ret;
++}
++
++Status
++XvMCGetSurfaceStatus (Display *display, XvMCSurface *surface, int *stat) 
++{
++    ViaXvMCSurface *pViaSurface;
++    ViaXvMCContext *pViaXvMC;
++    volatile ViaXvMCSAreaPriv *sAPriv;
++    unsigned i;
++    int ret = 0;
++
++    if((display == NULL) || surface == NULL){
++	return BadValue;
++    }
++    if(NULL == (pViaSurface = surface->privData)) {
++	return (error_base + XvMCBadSurface);
++    }
++    if (stat) {
++	*stat = 0;
++	pViaXvMC = pViaSurface->privContext;
++	pthread_mutex_lock( &pViaXvMC->ctxMutex ); 
++	sAPriv = SAREAPTR( pViaXvMC );
++	if (sAPriv->XvMCDisplaying[pViaXvMC->xvMCPort] 
++	    == (pViaSurface->srfNo | VIA_XVMC_VALID)) 
++	    *stat |= XVMC_DISPLAYING;
++	for (i=0; i<VIA_MAX_RENDSURF; ++i) {
++	    if(pViaXvMC->rendSurf[i] == 
++	       (pViaSurface->srfNo | VIA_XVMC_VALID)) {
++		*stat |= XVMC_RENDERING;
++		break;
++	    }
++	}
++	pthread_mutex_unlock( &pViaXvMC->ctxMutex ); 
++    }
++    return ret;
++}
++
++XvAttribute *
++XvMCQueryAttributes (
++    Display *display,
++    XvMCContext *context,
++    int *number
++    )
++{
++    ViaXvMCContext *pViaXvMC;
++    XvAttribute *ret;
++    unsigned long siz;
++
++    *number = 0;
++    if ((display == NULL) || (context == NULL)) {
++	return NULL;
++    }
++    
++    if (NULL == (pViaXvMC = context->privData)) {
++	return NULL;
++    }
++
++    pthread_mutex_lock( &pViaXvMC->ctxMutex );
++    if (NULL != (ret = (XvAttribute *)
++		 malloc(siz = VIA_NUM_XVMC_ATTRIBUTES*sizeof(XvAttribute)))) {
++	memcpy(ret,pViaXvMC->attribDesc,siz);
++	*number =  VIA_NUM_XVMC_ATTRIBUTES;
++    }
++    pthread_mutex_unlock( &pViaXvMC->ctxMutex );
++
++    return ret;    
++}
++
++Status
++XvMCSetAttribute (
++    Display *display,
++    XvMCContext *context, 
++    Atom attribute, 
++    int value
++    )
++{
++    int found;
++    unsigned i;
++    ViaXvMCContext *pViaXvMC;
++    ViaXvMCCommandBuffer buf;
++    
++    if ((display == NULL) || (context == NULL)) {
++	return (error_base + XvMCBadContext);
++    }
++    
++    if (NULL == (pViaXvMC = context->privData)) {
++	return (error_base + XvMCBadContext);
++    }
++
++    pthread_mutex_lock( &pViaXvMC->ctxMutex );
++
++    found = 0;
++    for (i=0; i < pViaXvMC->attrib.numAttr; ++i) {
++	if (attribute == pViaXvMC->attrib.attributes[i].attribute) {
++	    if ((!(pViaXvMC->attribDesc[i].flags & XvSettable)) ||
++		value < pViaXvMC->attribDesc[i].min_value ||
++		value > pViaXvMC->attribDesc[i].max_value) 
++		return BadValue;
++	    pViaXvMC->attrib.attributes[i].value = value;
++	    found = 1;
++	    pViaXvMC->attribChanged = 1;
++	    break;
++	}
++    }
++    if (!found) {
++	pthread_mutex_unlock( &pViaXvMC->ctxMutex );
++	return BadMatch;
++    }
++    if (pViaXvMC->haveXv) {
++	buf.command = VIA_XVMC_COMMAND_ATTRIBUTES;
++	pViaXvMC->xvImage->data = (char *)&buf;
++	buf.ctxNo = pViaXvMC->ctxNo | VIA_XVMC_VALID;
++	buf.attrib = pViaXvMC->attrib;
++	XLockDisplay(display);
++	pViaXvMC->attribChanged = 
++	    XvPutImage(display,pViaXvMC->port,pViaXvMC->draw,
++		       pViaXvMC->gc,
++		       pViaXvMC->xvImage,0,0,1,1,0,0,1,1);
++	XUnlockDisplay(display);
++    }
++    pthread_mutex_unlock( &pViaXvMC->ctxMutex ); 
++    return Success;
++}
++    
++
++Status
++XvMCGetAttribute (
++    Display *display,
++    XvMCContext *context, 
++    Atom attribute, 
++    int *value
++    )
++{
++    int found;
++    unsigned i;
++    ViaXvMCContext *pViaXvMC;
++    
++    if ((display == NULL) || (context == NULL)) {
++	return (error_base + XvMCBadContext);
++    }
++    
++    if (NULL == (pViaXvMC = context->privData)) {
++	return (error_base + XvMCBadContext);
++    }
++
++    pthread_mutex_lock( &pViaXvMC->ctxMutex ); 
++    found = 0;
++    for (i=0; i < pViaXvMC->attrib.numAttr; ++i) {
++	if (attribute == pViaXvMC->attrib.attributes[i].attribute) {
++	    if (pViaXvMC->attribDesc[i].flags & XvGettable) {
++		*value = pViaXvMC->attrib.attributes[i].value;
++		found = 1;
++		break;
++	    }
++	}
++    }
++    pthread_mutex_unlock( &pViaXvMC->ctxMutex ); 
++
++    if (!found) 
++	return BadMatch;
++    return Success;
++}
++    
++
++Status XvMCHideSurface(Display *display,XvMCSurface *surface)
++{
++
++    ViaXvMCSurface *pViaSurface;
++    ViaXvMCContext *pViaXvMC;
++    ViaXvMCSubPicture *pViaSubPic;
++    volatile ViaXvMCSAreaPriv *sAPriv;
++    ViaXvMCCommandBuffer buf;
++    Status ret;
++
++    if ((display == NULL) || (surface == NULL)) {
++	return BadValue;
++    }
++    if (NULL == (pViaSurface = surface->privData )) {
++	return (error_base + XvMCBadSurface);
++    }
++    if (NULL == (pViaXvMC = pViaSurface->privContext)) {
++	return (error_base + XvMCBadContext);
++    }
++
++    pthread_mutex_lock( &pViaXvMC->ctxMutex ); 
++    if (!pViaXvMC->haveXv) {
++	pthread_mutex_unlock( &pViaXvMC->ctxMutex ); 
++	return Success;
++    }
++    
++    sAPriv = SAREAPTR( pViaXvMC );
++    hwlLock(&pViaXvMC->xl,1); 
++
++    if (sAPriv->XvMCDisplaying[pViaXvMC->xvMCPort] != 
++	(pViaSurface->srfNo | VIA_XVMC_VALID)) {
++	hwlUnlock(&pViaXvMC->xl,1);
++	pthread_mutex_unlock( &pViaXvMC->ctxMutex ); 
++	return Success;
++    }
++    setLowLevelLocking(&pViaXvMC->xl,0);
++    if (NULL != (pViaSubPic = pViaSurface->privSubPic)) {
++	if (sAPriv->XvMCSubPicOn[pViaXvMC->xvMCPort] ==
++	    (pViaSubPic->srfNo | VIA_XVMC_VALID)) {
++	    sAPriv->XvMCSubPicOn[pViaXvMC->xvMCPort] &= ~VIA_XVMC_VALID;
++	    viaVideoSubPictureOffLocked(&pViaXvMC->xl); 
++	}
++    }
++    flushXvMCLowLevel(&pViaXvMC->xl);
++    setLowLevelLocking(&pViaXvMC->xl,1);
++    hwlUnlock(&pViaXvMC->xl,1);
++	    
++    buf.command = VIA_XVMC_COMMAND_UNDISPLAY;
++    buf.ctxNo = pViaXvMC->ctxNo | VIA_XVMC_VALID;
++    buf.srfNo = pViaSurface->srfNo | VIA_XVMC_VALID;
++    pViaXvMC->xvImage->data = (char *)&buf;
++    if ((ret = XvPutImage(display,pViaXvMC->port,pViaXvMC->draw,
++			  pViaXvMC->gc,
++			  pViaXvMC->xvImage,0,0,1,1,0,0,1,1))) {
++	fprintf(stderr,"XvMCPutSurface: Hiding overlay failed.\n");
++	pthread_mutex_unlock( &pViaXvMC->ctxMutex ); 
++	return ret;
++    }
++    pthread_mutex_unlock( &pViaXvMC->ctxMutex ); 
++    return Success;
++}
+diff -burN xcrel/lib/XvMC/hw/via/viaXvMCPriv.h uc/lib/XvMC/hw/via/viaXvMCPriv.h
+--- xcrel/lib/XvMC/hw/via/viaXvMCPriv.h	1970-01-01 01:00:00.000000000 +0100
++++ uc/lib/XvMC/hw/via/viaXvMCPriv.h	2004-10-18 23:02:30.000000000 +0200
+@@ -0,0 +1,191 @@
++/*****************************************************************************
++ * VIA Unichrome XvMC extension client lib.
++ *
++ * Copyright (c) 2004 Thomas Hellström. All rights reserved.
++ *
++ * Permission is hereby granted, free of charge, to any person obtaining a
++ * copy of this software and associated documentation files (the "Software"),
++ * to deal in the Software without restriction, including without limitation
++ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
++ * and/or sell copies of the Software, and to permit persons to whom the
++ * Software is furnished to do so, subject to the following conditions:
++ *
++ * The above copyright notice and this permission notice shall be included in
++ * all copies or substantial portions of the Software.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
++ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
++ * AUTHOR(S) OR COPYRIGHT HOLDER(S) BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
++ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
++ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
++ * DEALINGS IN THE SOFTWARE.
++ */
++
++#ifndef _VIAXVMCPRIV_H
++#define _VIAXVMCPRIV_H 1
++
++#include <X11/Xlibint.h>
++#include <XvMC.h>
++#include <XvMClib.h>
++#include <stdlib.h>
++#include "vldXvMC.h"
++#include "via_xvmc.h"
++#include "viaLowLevel.h"
++
++
++
++extern Status _xvmc_create_context(Display *dpy, XvMCContext *context,
++				   int *priv_count, uint **priv_data);
++extern Status _xvmc_destroy_context(Display *dpy, XvMCContext *context);
++extern Status _xvmc_create_surface(Display *dpy, XvMCContext *context,
++				   XvMCSurface *surface, int *priv_count,
++				   uint **priv_data);
++extern Status _xvmc_destroy_surface(Display *dpy, XvMCSurface *surface);
++extern Status _xvmc_create_subpicture(Display *dpy, XvMCContext *context,
++				      XvMCSubpicture *subpicture,
++				      int *priv_count, uint **priv_data);
++extern Status _xvmc_destroy_subpicture(Display *dpy,
++				       XvMCSubpicture *subpicture);
++
++#define VIA_SUBPIC_PALETTE_SIZE 16 /*Number of colors in subpicture palette*/
++#define VIA_CBUFFERSIZE 4096       /*Hardware command buffer size*/
++#define VIA_MAX_BUFS 2             /*Number of YUV buffers per surface*/
++#define VIA_MAX_RENDSURF 3         /*Maximum numbers of surfaces per context 
++				     that can answer RENDERING to a rendering 
++				     query*/
++
++
++typedef struct{
++    unsigned ctxNo;                 /* XvMC private context reference number */
++    pthread_mutex_t ctxMutex;       /* Mutex for multi-threading. Not used */
++    drm_context_t drmcontext;       /* The drm context */
++    CARD8 *fb_base;                 /* Absolute Base of frame-buffer */
++    drm_handle_t fbOffset;          /* Handle to drm frame-buffer area */
++    drm_handle_t mmioOffset;        /* Handle to drm mmio area */
++    drm_handle_t sAreaOffset;       /* Handle to drm shared memory area */
++    unsigned fbSize;                /* Size of drm frame-buffer area */
++    unsigned mmioSize;              /* Size of drm mmio area */
++    unsigned sAreaSize;             /* Size of drm shared memory area */
++    unsigned sAreaPrivOffset;       /* Offset in sarea to private part */
++    drmAddress fbAddress;           /* Virtual address of frame buffer area */
++    drmAddress mmioAddress;         /* Virtual address of mmio area */
++    drmAddress sAreaAddress;        /* Virtual address of shared memory area */
++    char busIdString[10];           /* Busid of video card */
++    unsigned yStride;               /* Y stride of surfaces in this context */
++    int fd;                         /* FD for connection to drm module */
++    unsigned char intra_quantiser_matrix[64]; 
++    unsigned char non_intra_quantiser_matrix[64];
++    unsigned char chroma_intra_quantiser_matrix[64];
++    unsigned char chroma_non_intra_quantiser_matrix[64];
++    unsigned rendSurf[VIA_MAX_RENDSURF]; /* Which surfaces answer rendering to
++					    a rendering query */
++    int decoderOn;                       /* Decoder switched on ? */
++    int intraLoaded;                     /* Intra quantiser matrix loaded in 
++					    decoder? */
++    int nonIntraLoaded;                  /* Non-Intra quantiser matrix loaded
++					    in decoder */
++    int chromaIntraLoaded;
++    int chromaNonIntraLoaded;
++    int haveDecoder;                     /* Does this context own decoder? */
++    int decTimeOut;                      /* Decoder has timed out and need a
++					    reset */
++    int attribChanged;                   /* Attributes have changed and need to
++					    be uploaded to Xv at next frame
++					    display */
++    drmLockPtr hwLock;                   /* Virtual address Pointer to the 
++					    heavyweight drm hardware lock */
++    unsigned xvMCPort;                   /* XvMC private port. Corresponds to
++					    an Xv port, but not by number */
++    ViaXvMCAttrHolder attrib;            /* This contexts attributes and their
++					    values */
++    XvAttribute attribDesc[VIA_NUM_XVMC_ATTRIBUTES]; /* Attribute decriptions */
++    int useAGP;                          /* Use the AGP ringbuffer to upload data to the chip */
++    XvMCLowLevel xl;                     /* Lowlevel context. Opaque to us. */
++    int haveXv;                         /* Have I initialized the Xv 
++					   connection for this surface? */
++    XvImage *xvImage;                   /* Fake Xv Image used for command 
++					   buffer transport to the X server */
++    GC gc;                              /* X GC needed for displaying */
++    Drawable draw;                      /* Drawable to undisplay from */
++    XvPortID port;                      /* Xv Port ID when displaying */
++    int lastSrfDisplaying;
++}ViaXvMCContext;
++
++typedef struct{
++    pthread_mutex_t subMutex;            /* Currently not used. */
++    unsigned srfNo;                      /* XvMC private surface number */
++    unsigned offset;                     /* Offset into frame-buffer area */
++    unsigned stride;                     /* Storage stride */
++    unsigned width;                      /* Width */
++    unsigned height;                     /* Height */
++    CARD32 palette[VIA_SUBPIC_PALETTE_SIZE]; /* YUV Palette */
++    ViaXvMCContext *privContext;         /* Pointer to context private data */
++    int ia44;                            /* IA44 or AI44 format */
++}ViaXvMCSubPicture;
++
++
++typedef struct{
++    pthread_mutex_t srfMutex;           /* For multithreading. Not used. */
++    pthread_cond_t bufferAvailable;     /* For multithreading. Not used. */
++    unsigned srfNo;                     /* XvMC private surface numbers */
++    unsigned numBuffers;                /* Number of picture buffers */
++    unsigned curBuf;                    /* Which is the current buffer? */
++    unsigned offsets[VIA_MAX_BUFS];     /* Offsets of picture buffers 
++					   into the frame-buffer area */
++    unsigned yStride;                   /* Stride of YUV420 Y component. */ 
++    unsigned width;                     /* Dimensions */
++    unsigned height;
++    int progressiveSequence;            /* Mpeg progressive picture? Hmm? */
++    ViaXvMCContext *privContext;        /* XvMC context private part. */
++    ViaXvMCSubPicture *privSubPic;      /* Subpicture to be blended when 
++					   displaying. NULL if none. */
++}ViaXvMCSurface;
++
++/*
++ * Take and release the global drm hardware lock.
++ */
++
++#define HW_LOCK(ctx)						\
++    DRM_LOCK((ctx)->fd,(ctx)->hwLock,(ctx)->drmcontext,0)     
++#define HW_UNLOCK(ctx)						\
++    DRM_UNLOCK((ctx)->fd,(ctx->hwLock),(ctx)->drmcontext) 
++
++/*
++ * Low-level Mpeg functions in viaLowLevel.c
++ */ 
++
++extern void viaMpegReset(XvMCLowLevel *xl);
++extern void viaMpegWriteSlice(XvMCLowLevel *xl, CARD8* slice, 
++				    int nBytes, CARD32 sCode);
++extern void viaMpegSetSurfaceStride(XvMCLowLevel *xl, ViaXvMCContext *ctx);
++extern void viaMpegSetFB(XvMCLowLevel *xl,unsigned i, unsigned yOffs,
++			       unsigned uOffs, unsigned vOffs);
++extern void viaMpegBeginPicture(XvMCLowLevel *xl, ViaXvMCContext *ctx,unsigned width,
++				unsigned height,const XvMCMpegControl *control);
++
++/*
++ * Low-level Video functions in viaLowLevel.c
++ */ 
++
++
++extern void viaBlit(XvMCLowLevel *xl,unsigned bpp,unsigned srcBase,
++		    unsigned srcPitch,unsigned dstBase,unsigned dstPitch,
++		    unsigned w,unsigned h,int xdir,int ydir, 
++		    unsigned blitMode, unsigned color); 
++
++extern void viaVideoSWFlipLocked(XvMCLowLevel *xl, unsigned flags,
++				 int progressiveSequence,
++				 unsigned yOffs,
++				 unsigned uOffs,
++				 unsigned vOffs);
++
++extern void viaVideoSubPictureLocked(XvMCLowLevel *xl,ViaXvMCSubPicture *pViaSubPic);
++extern void viaVideoSubPictureOffLocked(XvMCLowLevel *xl);
++
++
++#define VIABLIT_TRANSCOPY 0
++#define VIABLIT_COPY 1
++#define VIABLIT_FILL 2
++
++#endif
+diff -burN xcrel/lib/XvMC/Imakefile uc/lib/XvMC/Imakefile
+--- xcrel/lib/XvMC/Imakefile	2004-01-04 19:46:22.000000000 +0100
++++ uc/lib/XvMC/Imakefile	2004-10-18 23:01:08.000000000 +0200
+@@ -29,7 +29,7 @@
+ 
+ #if defined(LinuxArchitecture) && BuildXF86DRI
+ #define IHaveSubdirs
+-SUBDIRS = hw/i810
++SUBDIRS = hw/i810 hw/via
+ 
+ MakeSubdirs($(SUBDIRS))
+ DependSubdirs($(SUBDIRS))

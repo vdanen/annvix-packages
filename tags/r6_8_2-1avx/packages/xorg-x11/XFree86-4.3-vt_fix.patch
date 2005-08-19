@@ -1,0 +1,44 @@
+Subject: RE: pb with SpringDale-G system
+Date: Mardi 8 Avril 2003 18:53
+From: "Chang, John" <john.chang@intel.com>
+To: "Frederic Lepied" <flepied@mandrakesoft.com>, "Jayapal, Priyadevi" 
+<priyadevi.jayapal@intel.com>
+Cc: "Alziq, Hasan" <hasan.alziq@intel.com>, "Sylvestre Taburet" 
+<staburet@mandrakesoft.com>
+
+Hello Fredric,
+
+
+
+We have determined that the VT switch problem that you have reported is
+caused by the XAA module in the X server.  Attached is a driver source
+patch that works around this XAA defect.  Please let me know how this
+works for you.
+
+
+
+Thanks, John
+diff -ruN XFree86-4.3/xc/programs/Xserver/hw/xfree86/drivers/i810/i810_accel.c XFree86-4.3/xc/programs/Xserver/hw/xfree86/drivers/i810-vt_fix/i810_accel.c
+--- XFree86-4.3/xc/programs/Xserver/hw/xfree86/drivers/i810/i810_accel.c	2002-11-25 15:04:59.000000000 +0100
++++ XFree86-4.3/xc/programs/Xserver/hw/xfree86/drivers/i810-vt_fix/i810_accel.c	2003-04-10 19:44:16.000000000 +0200
+@@ -297,6 +297,8 @@
+    if (I810_DEBUG & (DEBUG_VERBOSE_ACCEL | DEBUG_VERBOSE_SYNC))
+       ErrorF("I810Sync\n");
+ 
++   if (!pScrn->vtSema) 
++     return; 
+ #ifdef XF86DRI
+    /* VT switching tries to do this.  
+     */
+diff -ruN XFree86-4.3/xc/programs/Xserver/hw/xfree86/drivers/i810/i830_accel.c XFree86-4.3/xc/programs/Xserver/hw/xfree86/drivers/i810-vt_fix/i830_accel.c
+--- XFree86-4.3/xc/programs/Xserver/hw/xfree86/drivers/i810/i830_accel.c	2002-12-10 02:27:05.000000000 +0100
++++ XFree86-4.3/xc/programs/Xserver/hw/xfree86/drivers/i810-vt_fix/i830_accel.c	2003-04-10 19:44:28.000000000 +0200
+@@ -171,6 +171,8 @@
+    if (I810_DEBUG & (DEBUG_VERBOSE_ACCEL | DEBUG_VERBOSE_SYNC))
+       ErrorF("I830Sync\n");
+ 
++   if (!pScrn->vtSema) 
++     return; 
+ #ifdef XF86DRI
+    /* VT switching tries to do this.
+     */
