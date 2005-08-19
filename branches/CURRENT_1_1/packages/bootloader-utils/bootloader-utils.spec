@@ -1,6 +1,15 @@
-%define name	bootloader-utils
-%define version	1.6
-%define release	10avx
+#
+# spec file for package bootlaoder-utils
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		bootloader-utils
+%define version		1.6
+%define release		11avx
 
 %define _mypost_service() if [ $1 = 1 ]; then /sbin/chkconfig --add %{1}; fi;
 
@@ -14,7 +23,7 @@ URL:		http://www.linux-mandrake.com/cgi-bin/cvsweb.cgi/soft/initscripts/mandrake
 Source0:	%{name}-%{version}.tar.bz2
 Patch0:		bootloader-utils-1.6-avx-grub.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 
 Requires:	perl-base
 Prereq:		chkconfig, initscripts >= 7.06-21mdk
@@ -22,16 +31,20 @@ Prereq:		chkconfig, initscripts >= 7.06-21mdk
 %description
 Utils needed to install/remove a kernel.  Also for updating bootloaders.
 
+
 %prep
 %setup -q
 %patch0 -p1 -b .avx
 
+
 %build
 make
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 make ROOT=%{buildroot} mandir=%{_mandir} install
+
 
 %post
 %_mypost_service kheader
@@ -39,8 +52,10 @@ make ROOT=%{buildroot} mandir=%{_mandir} install
 %preun
 %_preun_service kheader
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -65,6 +80,9 @@ make ROOT=%{buildroot} mandir=%{_mandir} install
 
 
 %changelog
+* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 1.6-11avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.6-10avx
 - bootstrap build
 

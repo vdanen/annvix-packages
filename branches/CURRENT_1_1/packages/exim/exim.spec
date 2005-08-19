@@ -1,13 +1,22 @@
-%define name	exim
-%define version 4.50
-%define release 2avx
+#
+# spec file for package exim
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-%define build_mysql 0
-%define build_pgsql 0
-%define saversion   4.1
 
-%define alternatives 1
-%define altpriority  40
+%define name		exim
+%define version 	4.50
+%define release 	3avx
+
+%define build_mysql 	0
+%define build_pgsql 	0
+%define saversion   	4.1
+
+%define alternatives 	1
+%define altpriority  	40
 %define alternatives_install_cmd update-alternatives --install %{_sbindir}/sendmail mta %{_sbindir}/sendmail.exim %{altpriority} --slave %{_libdir}/sendmail mta-in_libdir %{_sbindir}/sendmail.exim --slave %{_bindir}/mailq mta-mailq %{_bindir}/mailq.exim --slave %{_bindir}/newaliases mta-newaliases %{_bindir}/newaliases.exim --slave %{_bindir}/rmail mta-rmail %{_bindir}/rmail.exim --slave %{_sysconfdir}/aliases mta-etc_aliases %{_sysconfdir}/exim/aliases
 
 # commandline overrides:
@@ -15,8 +24,8 @@
 %{?_with_mysql: %{expand: %%define build_mysql 1}}
 %{?_with_pgsql: %{expand: %%define build_pgsql 1}}
 
-Name:		%{name}
 Summary:	The exim mail transfer agent
+Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	GPL
@@ -41,14 +50,14 @@ Patch2:		exim-4.22-install.patch.bz2
 Patch3:		exim-4.43-debian-system_pcre.diff.bz2
 Patch4:		exim-4.43-debian-dontoverridecflags.diff.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	tcp_wrappers-devel, pam-devel, openssl, openssl-devel, openldap-devel, lynx
 BuildRequires:	db4-devel >= 4.1, pcre-devel, perl-devel
 %if %{build_mysql}
 BuildRequires:	libmysql-devel
 %endif
 %if %{build_pgsql}
-BuildRequires: postgresql-devel
+BuildRequires:	postgresql-devel
 %endif
 
 PreReq:		rpm-helper
@@ -78,6 +87,7 @@ messages per day.
 
 A utility, eximconfig, is included to simplify exim configuration.
 
+
 %package saexim
 Summary:	Exim SpamAssassin at SMTP time plugin
 Group:		System/Servers
@@ -100,32 +110,37 @@ at SMTP time as well as other nasty things like teergrubbing.
 # apply the SA-exim dlopen patch
 cat sa-exim*/localscan_dlopen_exim_4.20_or_better.patch | patch -p1
 
+
 %build
 # pre-build setup
 cp src/EDITME Local/Makefile
 
 # modify Local/Makefile for our builds
 %if !%{build_mysql}
-  perl -pi -e 's|LOOKUP_MYSQL=yes|#LOOKUP_MYSQL=yes|g' Local/Makefile
-  perl -pi -e 's|-lmysqlclient||g' Local/Makefile
-  perl -pi -e 's|-I /usr/include/mysql||g' Local/Makefile
-%endif
-%if !%{build_pgsql}
-  perl -pi -e 's|LOOKUP_PGSQL=yes|#LOOKUP_PGSQL=yes|g' Local/Makefile
-  perl -pi -e 's|-lpq||g' Local/Makefile
-  perl -pi -e 's|-I /usr/include/pgsql||g' Local/Makefile
-%endif
-%ifarch amd64 x86_64
-  perl -pi -e 's|X11\)/lib|X11\)/lib64|g' OS/Makefile-Linux
+perl -pi -e 's|LOOKUP_MYSQL=yes|#LOOKUP_MYSQL=yes|g' Local/Makefile
+perl -pi -e 's|-lmysqlclient||g' Local/Makefile
+perl -pi -e 's|-I /usr/include/mysql||g' Local/Makefile
 %endif
 
-make RPM_OPT_FLAGS="$RPM_OPT_FLAGS"
+%if !%{build_pgsql}
+perl -pi -e 's|LOOKUP_PGSQL=yes|#LOOKUP_PGSQL=yes|g' Local/Makefile
+perl -pi -e 's|-lpq||g' Local/Makefile
+perl -pi -e 's|-I /usr/include/pgsql||g' Local/Makefile
+%endif
+
+%ifarch amd64 x86_64
+perl -pi -e 's|X11\)/lib|X11\)/lib64|g' OS/Makefile-Linux
+%endif
+
+make RPM_OPT_FLAGS="%{optflags}"
 
 # build SA-exim
-cd sa-exim*
-perl -pi -e 's|/usr/lib/exim4/local_scan|%{_libdir}/exim|g' INSTALL
-make clean
-make SACONF=/etc/exim/sa-exim.conf CFLAGS="$RPM_OPT_FLAGS" LDFLAGS="-shared -fPIC"
+pushd sa-exim*
+    perl -pi -e 's|/usr/lib/exim4/local_scan|%{_libdir}/exim|g' INSTALL
+    make clean
+    make SACONF=/etc/exim/sa-exim.conf CFLAGS="%{optflags}" LDFLAGS="-shared -fPIC"
+popd
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -134,7 +149,7 @@ mkdir -p %{buildroot}{%{_sbindir},%{_bindir},%{_libdir},%{_sysconfdir}/{pam.d,ex
 make DESTDIR=%{buildroot} install
 
 pushd %{buildroot}%{_bindir}
-mv exim-%{version}-1 exim
+    mv exim-%{version}-1 exim
 popd
 
 install -m 0775 build-`scripts/os-type`-`scripts/arch-type`/convert4r3 %{buildroot}%{_bindir}
@@ -144,16 +159,16 @@ install -m 0644 %{SOURCE1} %{buildroot}%{_sysconfdir}/exim/aliases
 install -m 0644 %{SOURCE9} %{buildroot}%{_sysconfdir}/pam.d/exim
 
 pushd %{buildroot}%{_sbindir}/
-ln -sf ../bin/exim sendmail.exim
-ln -sf ../bin/exim exim
+    ln -sf ../bin/exim sendmail.exim
+    ln -sf ../bin/exim exim
 popd
 
 pushd %{buildroot}%{_bindir}/
-ln -sf exim runq
-ln -sf exim rsmtp
-ln -sf exim mailq.exim
-ln -sf exim rmail.exim
-ln -sf exim newaliases.exim
+    ln -sf exim runq
+    ln -sf exim rsmtp
+    ln -sf exim mailq.exim
+    ln -sf exim rmail.exim
+    ln -sf exim newaliases.exim
 popd
 
 install -d -m 0750 %{buildroot}/var/spool/exim
@@ -173,17 +188,19 @@ install -m 0755 %{SOURCE13} %{buildroot}%{_srvdir}/exim/run
 install -m 0755 %{SOURCE14} %{buildroot}%{_srvdir}/exim/log/run
 
 # install SA-exim
-cd sa-exim*
-mkdir -p %{buildroot}%{_libdir}/exim
-install -m 0644 *.so %{buildroot}%{_libdir}/exim
-install -m 0644 *.conf %{buildroot}%{_sysconfdir}/exim
-pushd %{buildroot}%{_libdir}/exim
-ln -s sa-exim*.so sa-exim.so
+pushd sa-exim*
+    mkdir -p %{buildroot}%{_libdir}/exim
+    install -m 0644 *.so %{buildroot}%{_libdir}/exim
+    install -m 0644 *.conf %{buildroot}%{_sysconfdir}/exim
+    pushd %{buildroot}%{_libdir}/exim
+        ln -s sa-exim*.so sa-exim.so
+    popd
 popd
 
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %post
 %_post_srv exim
@@ -199,7 +216,7 @@ popd
 chmod 4755 %{_bindir}/exim
 
 if [ $1 = 1 ]; then
-  echo "Run %{_sbindir}/eximconfig to interactively configure exim"
+    echo "Run %{_sbindir}/eximconfig to interactively configure exim"
 fi
 
 
@@ -211,11 +228,11 @@ fi
 
 %preun
 %_preun_srv exim
+%if %{alternatives}
 if [ $1 = 0 ]; then
-  %if %{alternatives}
     update-alternatives --remove mta %{_sbindir}/sendmail.exim
-  %endif
 fi
+%endif
 
 
 %files
@@ -277,12 +294,16 @@ fi
 %files saexim
 %defattr(-,root,root)
 %doc sa-exim*/*.html sa-exim*/{ACKNOWLEDGEMENTS,INSTALL,LICENSE,TODO}
-%dir %{_libdir}/exim
-%{_libdir}/exim/*
 %config(noreplace) %{_sysconfdir}/exim/sa-exim.conf
 %config(noreplace) %{_sysconfdir}/exim/sa-exim_short.conf
+%dir %{_libdir}/exim
+%{_libdir}/exim/*
+
 
 %changelog
+* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 4.50-3avx
+- bootstrap build (new gcc, new glibc)
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 4.50-2avx
 - rebuild
 

@@ -1,6 +1,15 @@
-%define name	chkauth
-%define version 0.3
-%define release 7avx
+#
+# spec file for package chkauth
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		chkauth
+%define version 	0.3
+%define release 	8avx
 	
 Summary:	Script to change authentification method (local, NIS, LDAP)
 Name:		%{name}
@@ -11,7 +20,7 @@ Group:		System/Configuration/Boot and Init
 Source0:	%{name}-%{version}.tar.bz2
 Patch0:		chkauth-0.3-avx-misc_fixes.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
 
 Requires:	perl >= 5.0
@@ -21,31 +30,40 @@ Chkauth is a program to change the authentification method
 on a system. Chkauth always set the file method in first place, but 
 you can only select the second authentification method this way. 
 
-Three kind of authentification are accepted : local (file), NIS (yp) 
+Three kinds of authentification is accepted : local (file), NIS (yp) 
 and LDAP. 
+
 
 %prep
 %setup -q
 %patch0 -p0
 
+
 %build
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p %{buildroot}/%{_mandir}/man8/
 mkdir -p %{buildroot}/%{_sbindir}
-install chkauth %{buildroot}/%{_sbindir}
-install chkauth.8 %{buildroot}/%{_mandir}/man8/
+install -m 0750 chkauth %{buildroot}/%{_sbindir}
+install -m 0644 chkauth.8 %{buildroot}/%{_mandir}/man8/
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
 %{_sbindir}/*
 %{_mandir}/*/*
 
+
 %changelog
+* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 0.3-8avx
+- bootstrap build (new gcc, new glibc)
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 0.3-7avx
 - rebuild
 

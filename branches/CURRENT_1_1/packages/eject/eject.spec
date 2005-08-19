@@ -1,6 +1,15 @@
-%define name	eject
-%define version 2.0.13
-%define release	8avx
+#
+# spec file for package eject
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		eject
+%define version 	2.0.13
+%define release		9avx
 
 Summary:	A program that ejects removable media using software control
 Name:		%{name}
@@ -9,9 +18,9 @@ Release:	%{release}
 License:	GPL
 Group:		System/Kernel and hardware
 URL:		http://metalab.unc.edu/pub/Linux/utils/disk-management/
-Source:		http://metalab.unc.edu/pub/Linux/utils/disk-management/eject-%version.tar.bz2
+Source:		http://metalab.unc.edu/pub/Linux/utils/disk-management/eject-%{version}.tar.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	gettext
 
 %description
@@ -20,37 +29,43 @@ The eject program allows the user to eject removable media
 using software control. Eject can also control some multi-
 disk CD changers and even some devices' auto-eject features.
 
-Install eject if you'd like to eject removable media using
-software control.
 
 %prep
 %setup -q
+
 
 %build
 %configure
 %make DEFAULTDEVICE="/dev/cdrom"
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p $RPM_BUILD_ROOT%{_bindir}
-mkdir -p $RPM_BUILD_ROOT%{_mandir}/man1
+mkdir -p %{buildroot}%{_bindir}
+mkdir -p %{buildroot}%{_mandir}/man1
 
-%makeinstall ROOTDIR=$RPM_BUILD_ROOT PREFIX=$RPM_BUILD_ROOT/%{_prefix}
+%makeinstall ROOTDIR=%{buildroot} PREFIX=%{buildroot}/%{_prefix}
 
-%find_lang %name
+%find_lang %{name}
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-%files -f %name.lang
+
+%files -f %{name}.lang
 %defattr(-,root,root)
 %doc README TODO COPYING ChangeLog
 %{_bindir}/eject
-%_bindir/volname
+%{_bindir}/volname
 %{_mandir}/man1/eject.1*
-%_mandir/man1/volname.1*
+%{_mandir}/man1/volname.1*
+
 
 %changelog
+* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 2.0.13-9avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.0.13-8avx
 - bootstrap build
 

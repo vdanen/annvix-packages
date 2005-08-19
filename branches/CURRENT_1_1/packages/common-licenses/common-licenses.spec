@@ -1,6 +1,15 @@
-%define name	common-licenses
-%define version 1.0
-%define release 11avx
+#
+# spec file for package common-licenses
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		common-licenses
+%define version 	1.0
+%define release 	12avx
 
 Summary:	Contains the various common licenses uses by the distribution
 Name:		%{name}
@@ -10,25 +19,30 @@ License:	GPL
 Group:		System/Base
 Source0:	%{name}.tar.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
 
 %description
 Contains the various common licenses uses by the distribution. Instead of
 including the COPYING file in every package, just refer to this one.
 
+
 %prep
 %setup -q
 
+
 %build
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 install -d %{buildroot}%{_datadir}
 cp -a %{name} %{buildroot}%{_datadir}
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -36,6 +50,9 @@ cp -a %{name} %{buildroot}%{_datadir}
 
 
 %changelog
+* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 1.0-12avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.0-11avx
 - bootstrap build
 

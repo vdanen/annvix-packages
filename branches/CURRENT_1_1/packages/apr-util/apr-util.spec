@@ -1,9 +1,18 @@
-%define name	apr-util
-%define version	0.9.6
-%define release	2avx
+#
+# spec file for package apr-util
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-%define apuver	0
-%define libname	%mklibname %{name} %{apuver}
+
+%define name		apr-util
+%define version		0.9.6
+%define release		3avx
+
+%define apuver		0
+%define libname		%mklibname %{name} %{apuver}
 
 Summary:	Apache Portable Runtime Utility library
 Name:		%{name}
@@ -21,7 +30,7 @@ Patch1:		%{name}-0.9.3-deplibs.patch.bz2
 Patch2:		%{name}-0.9.5-config.diff.bz2
 Patch7:         %{name}-0.9.4-xlate.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 #BuildPrereq:	autoconf2.5
 #BuildPrereq:	automake1.7
 #BuildPrereq:	libtool
@@ -37,6 +46,7 @@ free library of C data structures and routines.  This library
 contains additional utility interfaces for APR; including support
 for XML, LDAP, database interfaces, URI parsing and more.
 
+
 %package -n %{libname}
 Summary:	Apache Portable Runtime Utility library
 Group: 		System/Libraries
@@ -49,6 +59,7 @@ The purpose of the Apache Portable Runtime (APR) is to provide a
 free library of C data structures and routines.  This library
 contains additional utility interfaces for APR; including support
 for XML, LDAP, database interfaces, URI parsing and more.
+
 
 %package -n %{libname}-devel
 Group:		Development/C
@@ -68,16 +79,16 @@ build applications using the APR utility library.  The mission
 of the Apache Portable Runtime (APR) is to provide a free 
 library of C data structures and routines.
 
-%prep
 
-%setup -q -n %{name}-%{version}
+%prep
+%setup -q
 %patch0 -p0 -b .lib64
 %patch1 -p1 -b .deplibs
 %patch2 -p0 -b .config
 %patch7 -p1 -b .xlate
 
-%build
 
+%build
 %{__cat} >> config.layout << EOF
 <Layout ADVX>
     prefix:        %{_prefix}
@@ -124,6 +135,7 @@ pushd test
     ./testdbm -tDB auto tbdb.db
 popd
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
@@ -135,12 +147,14 @@ rm -rf html; mv docs/dox/html html
 # Unpackaged files
 rm -f %{buildroot}%{_libdir}/aprutil.exp
 
-%post -n %{libname} -p /sbin/ldconfig
 
+%post -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files -n %{libname}
 %defattr(-,root,root,-)
@@ -155,7 +169,11 @@ rm -f %{buildroot}%{_libdir}/aprutil.exp
 %{_libdir}/libaprutil-%{apuver}.so
 %{_includedir}/apr-%{apuver}/*.h
 
+
 %changelog
+* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 0.9.6-3avx
+- bootstrap build (new gcc, new glibc)
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 0.9.6-2avx
 - rebuild
 

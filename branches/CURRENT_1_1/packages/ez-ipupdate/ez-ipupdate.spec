@@ -1,6 +1,15 @@
-%define name	ez-ipupdate
-%define version 3.0.11b8
-%define release 3avx
+#
+# spec file for package ez-ipupdate
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		ez-ipupdate
+%define version 	3.0.11b8
+%define release 	4avx
 
 Summary:	Client for Dynamic DNS Services
 Name:		%{name}
@@ -12,7 +21,7 @@ URL:		http://www.gusnet.cx:8080/proj/ez-ipupdate/
 Source:		%{name}-%{version}.tar.bz2
 Source1:	ez-ipupdate.init
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 
 PreReq:		rpm-helper
 
@@ -38,13 +47,16 @@ it is pure C and works on Linux, *BSD and Solaris.
 Don't forget to create your own config file ( in /etc/ez-ipupdate.conf )
 You can find some example in /usr/share/doc/%{name}-%{version}
 
+
 %prep
 %setup -q
+
 
 %build
 %configure
 
 %make 
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -53,18 +65,9 @@ You can find some example in /usr/share/doc/%{name}-%{version}
 
 perl -pi -e "s|\/usr\/local\/bin|\/usr\/bin|" *.conf
 perl -pi -e 's|/tmp/ez-ipupdate.cache|/var/cache/ez-ipupdate|g;' *.conf
-install -d -m 755 %{buildroot}%{_sysconfdir}/rc.d/init.d/
-install -m 755 %{SOURCE1} %{buildroot}%{_initrddir}/ez-ipupdate
+install -d -m 0755 %{buildroot}%{_sysconfdir}/rc.d/init.d/
+install -m 0755 %{SOURCE1} %{buildroot}%{_initrddir}/ez-ipupdate
 
-%clean
-[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-
-%files 
-%defattr(-,root,root)
-%doc COPYING INSTALL README
-%doc *.conf
-%{_bindir}/*
-%config(noreplace) %{_initrddir}/ez-ipupdate
 
 %post
 %_post_service ez-ipupdate
@@ -73,7 +76,21 @@ install -m 755 %{SOURCE1} %{buildroot}%{_initrddir}/ez-ipupdate
 %_preun_service ez-ipupdate
 
 
+%clean
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
+
+%files 
+%defattr(-,root,root)
+%doc COPYING INSTALL README *.conf
+%config(noreplace) %{_initrddir}/ez-ipupdate
+%{_bindir}/*
+
+
 %changelog
+* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 3.0.11b8-4avx
+- bootstrap build (new gcc, new glibc)
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 3.0.11b8-3avx
 - rebuild
 

@@ -1,15 +1,26 @@
-%define amname	automake
-%define version 1.4
-%define release 0.%patchlevel.28avx
+#
+# spec file for package automake1.4
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
+
+%define name		%{amname}%{amversion}
+%define version 	1.4
+%define release 	0.%{patchlevel}.29avx
+
+%define amname		automake
 %define amversion	1.4
 %define patchlevel	p6
 
-%define docheck	1
+%define alternatives_install_cmd update-alternatives --install %{_bindir}/automake automake %{_bindir}/automake-%{amversion} 30 --slave %{_bindir}/aclocal aclocal %{_bindir}/aclocal-%{amversion}
+%define docheck		1
 %{?_without_check: %global docheck 0}
 
 Summary:	A GNU tool for automatically creating Makefiles
-Name:		%{amname}%{amversion}
+Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	GPL
@@ -19,7 +30,7 @@ Source:		ftp://ftp.gnu.org/gnu/automake/%{amname}-%{version}-%{patchlevel}.tar.b
 Patch0:		automake-1.4p6-infofiles.patch.bz2
 Patch1:		automake-1.4-p6-stdc-headers.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
 Buildrequires:	perl
 
@@ -29,20 +40,16 @@ Conflicts:	automake1.5
 Obsoletes:	automake <= 1.4-0.p6.26avx
 Provides:	automake = %{version}-%{release}
 
-%define alternatives_install_cmd update-alternatives --install %{_bindir}/automake automake %{_bindir}/automake-%{amversion} 30 --slave %{_bindir}/aclocal aclocal %{_bindir}/aclocal-%{amversion}
-
 %description
 Automake is a tool for automatically generating Makefiles compliant with the
 GNU Coding Standards.
 
-You should install Automake if you are developing software and would like to
-use its capabilities of automatically generating GNU standard Makefiles. If you
-install Automake, you will also need to install GNU's Autoconf package.
 
 %prep
-%setup -q -n %{amname}-%{version}-%patchlevel
+%setup -q -n %{amname}-%{version}-%{patchlevel}
 %patch0 -p1 -b .parallel
 %patch1 -p1 -b .gcc3.4
+
 
 %build
 %configure
@@ -53,6 +60,7 @@ perl -pi -e 's/\berror\.test\b//' tests/Makefile
 make check  # VERBOSE=1
 %endif
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
@@ -62,8 +70,10 @@ install -D -m 0644 %{name}.info %{buildroot}%{_infodir}/%{name}.info
 rm -f %{buildroot}%{_bindir}/{automake,aclocal}
 mkdir -p %{buildroot}%{_datadir}/aclocal
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %post
 %_install_info automake.info
@@ -76,8 +86,9 @@ mkdir -p %{buildroot}%{_datadir}/aclocal
 %preun
 %_remove_install_info automake.info
 if [ $1 = 0 ]; then
-	update-alternatives --remove automake %{_bindir}/automake-%{amversion}
+    update-alternatives --remove automake %{_bindir}/automake-%{amversion}
 fi
+
 
 %files
 %defattr(-,root,root)
@@ -87,7 +98,11 @@ fi
 %{_infodir}/%{name}*
 %dir %{_datadir}/aclocal
 
+
 %changelog
+* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 1.4-0.p6.29avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.4-0.p6.28avx
 - bootstrap build
 

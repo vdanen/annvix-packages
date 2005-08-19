@@ -1,6 +1,15 @@
-%define name	grub
-%define version 0.95
-%define release 2avx
+#
+# spec file for package grub
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		grub
+%define version 	0.95
+%define release 	3avx
 
 Summary:	GRand Unified Bootloader
 Name:		%{name}
@@ -65,10 +74,10 @@ Patch1102:	grub-0.95-xpmjunk.patch
 # "graphics".
 Patch1103:	grub-0.95-splash-error-term.patch
 
-BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	ncurses-devel, texinfo, binutils, automake1.7, autoconf2.5
 
-Exclusivearch:	%ix86 x86_64
+Exclusivearch:	%{ix86} x86_64
 Requires:	diffutils, mktemp
 Conflicts:	initscripts <= 6.40.2-15mdk
 Provides:	bootloader
@@ -80,8 +89,9 @@ it implements the Multiboot standard, which allows for flexible loading
 of multiple boot images (needed for modular kernels such as the GNU
 Hurd).
 
+
 %prep
-%setup -q -n %{name}-%{version}
+%setup -q
 %patch0 -p1 -b .config
 %patch1 -p1 -b .menulst
 %patch20 -p1 -b .install
@@ -107,17 +117,23 @@ Hurd).
 %patch1102 -p1 -b .xpmjunk
 %patch1103 -p1 -b .splash-error-term
 
+
 %build
 #WANT_AUTOCONF_2_5=1 autoreconf --install --force
 aclocal-1.7
 WANT_AUTOCONF_2_5=1 autoconf
 automake-1.7 --force-missing
-CFLAGS="-Os -g -fno-stack-protector-all" ; export CFLAGS
+#CFLAGS="-Os -g -fno-stack-protector-all" ; export CFLAGS
+CFLAGS="-Os -g" ; export CFLAGS
 %ifarch x86_64
 CFLAGS="$CFLAGS -static" ; export CFLAGS
 %endif
-%configure --sbindir=/sbin --disable-auto-linux-mem-opt
+
+%configure \
+    --sbindir=/sbin \
+    --disable-auto-linux-mem-opt
 %make
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -129,8 +145,10 @@ rm -f %{buildroot}%{_infodir}/dir
 install -m 0644 %{SOURCE1} %{buildroot}/boot/grub/
 ln -s ../boot/grub/grub.conf %{buildroot}%{_sysconfdir}/grub.conf
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %post
 %_install_info %{name}.info
@@ -139,6 +157,7 @@ ln -s ../boot/grub/grub.conf %{buildroot}%{_sysconfdir}/grub.conf
 %preun
 %_remove_install_info %{name}.info
 %_remove_install_info multiboot.info
+
 
 %files
 %defattr(-,root,root)
@@ -156,7 +175,11 @@ ln -s ../boot/grub/grub.conf %{buildroot}%{_sysconfdir}/grub.conf
 %{_datadir}/grub/*
 %config(noreplace) %{_sysconfdir}/grub.conf
 
+
 %changelog
+* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 0.95-3avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.95-2avx
 - bootstrap build
 - build without stack protection

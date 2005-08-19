@@ -1,25 +1,32 @@
-%define name	initscripts
-%define version	7.61.1
-%define release	2avx
+#
+# spec file for package initscripts
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-# 	$Id: initscripts.spec,v 1.329 2003/09/22 17:03:40 warly Exp $	
+
+%define name		initscripts
+%define version		7.61.1
+%define release		3avx
 
 # The restart part in the real _post_service doesn't work with netfs and isn't needed
 # for other scripts
 %define _mypost_service() if [ $1 = 1 ]; then /sbin/chkconfig --add %{1}; fi;
 
-Summary:	The inittab file and the /etc/init.d scripts.
+Summary:	The inittab file and the /etc/init.d scripts
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	GPL
 Group:		System/Base
-Url:		http://www.linux-mandrake.com/cgi-bin/cvsweb.cgi/soft/initscripts/
+Url:		http://www.mandriva.com/cgi-bin/cvsweb.cgi/soft/initscripts/
 Source0:	initscripts-%{version}.tar.bz2
 Patch:		initscripts-7.61.1-mdk-mdkconf.patch.bz2
 Patch2:		initscripts-7.61.1-avx-annvix.patch.bz2
 
-BuildRoot: 	%{_tmppath}/%{name}-root
+BuildRoot: 	%{_buildroot}/%{name}-%{version}
 BuildRequires:	glib2-devel, pkgconfig, popt-devel, python
 
 Requires:	mingetty, sed, mktemp, e2fsprogs, gettext-base
@@ -34,33 +41,36 @@ your Annvix system, change run levels, and shut the system down cleanly.
 Initscripts also contains the scripts that activate and deactivate most
 network interfaces.
 
+
 %prep
 %setup -q
 %patch0 -p2
 %patch2 -p0
 
+
 %build
 make
-make -C mandrake/ CFLAGS="$RPM_OPT_FLAGS"
+make -C mandrake/ CFLAGS="%{optflags}"
 pushd po/ && \
-for i in *.po;do file $i|grep -q empty && rm -f $i;done && \
+    for i in *.po;do file $i|grep -q empty && rm -f $i;done && \
 popd
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}
-make ROOT=$RPM_BUILD_ROOT SUPERUSER=`id -un` SUPERGROUP=`id -gn` mandir=%{_mandir} install 
-mkdir -p $RPM_BUILD_ROOT/var/run/netreport
-chmod u=rwx,g=rwx,o=rx $RPM_BUILD_ROOT/var/run/netreport
+mkdir -p %{buildroot}%{_sysconfdir}
+make ROOT=%{buildroot} SUPERUSER=`id -un` SUPERGROUP=`id -gn` mandir=%{_mandir} install 
+mkdir -p %{buildroot}/var/run/netreport
+chmod u=rwx,g=rwx,o=rx %{buildroot}/var/run/netreport
 
 #MDK
-make -C mandrake/ install ROOT=$RPM_BUILD_ROOT mandir=%{_mandir}
+make -C mandrake/ install ROOT=%{buildroot} mandir=%{_mandir}
 
 # Annvix
 pushd %{buildroot}%{_sysconfdir}/rc.d/init.d
-mv mandrake_firstime annvix_firstime
-mv mandrake_everytime annvix_everytme
-mv mandrake_consmap annvix_consmap
+    mv mandrake_firstime annvix_firstime
+    mv mandrake_everytime annvix_everytme
+    mv mandrake_consmap annvix_consmap
 popd
 
 python mandrake/gprintify.py `find %{buildroot}%{_sysconfdir}/rc.d -type f` `find %{buildroot}/sysconfig/network-scripts -type f`
@@ -69,10 +79,10 @@ python mandrake/gprintify.py `find %{buildroot}%{_sysconfdir}/rc.d -type f` `fin
 # put locale in /usr, gettext need /usr/share
 #
 # extracted from /usr/lib/rpm/find-lang.sh and adapted to find locales in /etc
-#find $RPM_BUILD_ROOT -type f|sed '
+#find %{buildroot} -type f|sed '
 #1i\
 #%defattr (644, root, root, 755)
-#s:'"$RPM_BUILD_ROOT"'::
+#s:'"%{buildroot}"'::
 #s:\(.*/etc/locale/\)\([^/_]\+\)\(.*'"$NAME"'\.mo$\):%lang(\2) \1\2\3:
 #s:^\([^%].*\)::
 #s:%lang(C) ::
@@ -83,16 +93,17 @@ touch %{buildroot}/var/log/btmp
 %find_lang %{name}
 
 # remove S390 and isdn stuff
-rm -f $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/init.s390 $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/network-scripts/{ifdown-ippp,ifup-ctc,ifup-escon,ifup-ippp,ifup-iucv,ifup-ipsec,ifdown-ipsec}
+rm -f %{buildroot}%{_sysconfdir}/sysconfig/init.s390 %{buildroot}%{_sysconfdir}/sysconfig/network-scripts/{ifdown-ippp,ifup-ctc,ifup-escon,ifup-ippp,ifup-iucv,ifup-ipsec,ifdown-ipsec}
 
 # remove unpackaged files
-rm -f $RPM_BUILD_ROOT/usr/bin/partmon
-rm -f $RPM_BUILD_ROOT/usr/sbin/supermount
-rm -f $RPM_BUILD_ROOT/usr/share/man/man8/supermount*
-rm -f $RPM_BUILD_ROOT%{_sysconfdir}/rc.d/init.d/{dm,partmon,sound}
+rm -f %{buildroot}/usr/bin/partmon
+rm -f %{buildroot}/usr/sbin/supermount
+rm -f %{buildroot}/usr/share/man/man8/supermount*
+rm -f %{buildroot}%{_sysconfdir}/rc.d/init.d/{dm,partmon,sound}
 
 # we have our own copy of gprintify
 export DONT_GPRINTIFY=1
+
 
 %post
 ##Fixme
@@ -102,7 +113,7 @@ touch /var/log/wtmp
 touch /var/log/btmp
 touch /var/run/utmp
 chown root:utmp /var/log/wtmp /var/run/utmp /var/log/btmp
-chmod 664 /var/log/wtmp /var/run/utmp /var/log/btmp
+chmod 0664 /var/log/wtmp /var/run/utmp /var/log/btmp
 
 %_mypost_service random
 
@@ -114,11 +125,11 @@ chmod 664 /var/log/wtmp /var/run/utmp /var/log/btmp
 
 # handle serial installs semi gracefully
 if [ $1 = 0 ]; then
-  if [ "$TERM" = "vt100" ]; then
-      tmpfile=`mktemp %{_sysconfdir}/sysconfig/tmp.XXXXXX`
-      sed -e '/BOOTUP=color/BOOTUP=serial/' %{_sysconfdir}/sysconfig/init > $tmpfile
-      mv -f $tmpfile %{_sysconfdir}/sysconfig/init
-  fi
+    if [ "$TERM" = "vt100" ]; then
+        tmpfile=`mktemp %{_sysconfdir}/sysconfig/tmp.XXXXXX`
+        sed -e '/BOOTUP=color/BOOTUP=serial/' %{_sysconfdir}/sysconfig/init > $tmpfile
+        mv -f $tmpfile %{_sysconfdir}/sysconfig/init
+    fi
 fi
 
 # dup of timeconfig %post - here to avoid a dependency
@@ -127,7 +138,7 @@ if [ -L %{_sysconfdir}/localtime ]; then
     rm %{_sysconfdir}/localtime
     cp -f $_FNAME %{_sysconfdir}/localtime
     if ! grep -q "^ZONE=" %{_sysconfdir}/sysconfig/clock ; then
-      echo "ZONE=\"$_FNAME"\" | sed -e "s|[^\"]*/usr/share/zoneinfo/||" >> %{_sysconfdir}/sysconfig/clock
+        echo "ZONE=\"$_FNAME"\" | sed -e "s|[^\"]*/usr/share/zoneinfo/||" >> %{_sysconfdir}/sysconfig/clock
     fi
 fi
 
@@ -141,11 +152,11 @@ fi
 
 # handle serial installs semi gracefully
 if [ $1 = 0 ]; then
-  if [ "$TERM" = "vt100" ]; then
-      tmpfile=%{_sysconfdir}/sysconfig/tmp.$$
-      sed -e '/BOOTUP=color/BOOTUP=serial/' %{_sysconfdir}/sysconfig/init > $tmpfile
-      mv -f $tmpfile %{_sysconfdir}/sysconfig/init
-  fi
+    if [ "$TERM" = "vt100" ]; then
+        tmpfile=%{_sysconfdir}/sysconfig/tmp.$$
+        sed -e '/BOOTUP=color/BOOTUP=serial/' %{_sysconfdir}/sysconfig/init > $tmpfile
+        mv -f $tmpfile %{_sysconfdir}/sysconfig/init
+    fi
 fi
 
 # dup of timeconfig %post - here to avoid a dependency
@@ -161,27 +172,27 @@ fi
 # Add right translation file
 for i in `echo $LANGUAGE:$LC_ALL:$LC_COLLATE:$LANG:C | tr ':' ' '`
 do
-	if [ -r %{_datadir}/locale/$i/LC_MESSAGES/initscripts.mo ]; then
-		mkdir -p %{_sysconfdir}/locale/$i/LC_MESSAGES/
-		cp %{_datadir}/locale/$i/LC_MESSAGES/initscripts.mo \
-			%{_sysconfdir}/locale/$i/LC_MESSAGES/
-                #
-		# warly
-		# FIXME: this should be done by each locale when installed or upgraded
-		#
-		pushd %{_datadir}/locale/$i/ > /dev/null && for j in LC_*
-		do
-			if [ -r $j -a ! -d $j ]; then
-			    cp $j %{_sysconfdir}/locale/$i/
-			fi
-		done && popd > /dev/null
-		if [ -r %{_datadir}/locale/$i/LC_MESSAGES/SYS_LC_MESSAGES ]; then
-			cp %{_datadir}/locale/$LANG/LC_MESSAGES/SYS_LC_MESSAGES %{_sysconfdir}/locale/$i/LC_MESSAGES/
-		fi
-		#
-		#
-		break
-	fi
+    if [ -r %{_datadir}/locale/$i/LC_MESSAGES/initscripts.mo ]; then
+        mkdir -p %{_sysconfdir}/locale/$i/LC_MESSAGES/
+        cp %{_datadir}/locale/$i/LC_MESSAGES/initscripts.mo \
+            %{_sysconfdir}/locale/$i/LC_MESSAGES/
+        #
+        # warly
+        # FIXME: this should be done by each locale when installed or upgraded
+        #
+        pushd %{_datadir}/locale/$i/ > /dev/null && for j in LC_*
+        do
+            if [ -r $j -a ! -d $j ]; then
+                cp $j %{_sysconfdir}/locale/$i/
+            fi
+        done && popd > /dev/null
+        if [ -r %{_datadir}/locale/$i/LC_MESSAGES/SYS_LC_MESSAGES ]; then
+            cp %{_datadir}/locale/$LANG/LC_MESSAGES/SYS_LC_MESSAGES %{_sysconfdir}/locale/$i/LC_MESSAGES/
+        fi
+        #
+        #
+        break
+    fi
 done
 
 %define initlvl_chg() if [[ -f %{_sysconfdir}/rc3.d/S%{2}%{1} ]] && [[ -f %{_sysconfdir}/rc5.d/S%{2}%{1} ]] && egrep -q 'chkconfig: [0-9]+ %{3}' %{_sysconfdir}/init.d/%{1}; then chkconfig --add %{1} || : ; fi; \
@@ -189,21 +200,20 @@ done
 
 # only needed on upgrade
 if [ $1 != 0 ]; then
-	# handle the switch to an independant prefdm initscript
-	if grep -q '^x:5' %{_sysconfdir}/inittab; then
-		rm -f %{_sysconfdir}/inittab.new
-		sed 's/x:5/#x:5/' < %{_sysconfdir}/inittab > %{_sysconfdir}/inittab.new
-		mv -f %{_sysconfdir}/inittab.new %{_sysconfdir}/inittab
-		chkconfig --add dm || :
-	fi
-
+    # handle the switch to an independant prefdm initscript
+    if grep -q '^x:5' %{_sysconfdir}/inittab; then
+        rm -f %{_sysconfdir}/inittab.new
+        sed 's/x:5/#x:5/' < %{_sysconfdir}/inittab > %{_sysconfdir}/inittab.new
+        mv -f %{_sysconfdir}/inittab.new %{_sysconfdir}/inittab
+        chkconfig --add dm || :
+    fi
 fi
 
-%pre
 
+%pre
 # usb is called from rc.sysinit now
 if [ "$1" -gt 0 ]; then
-	/bin/grep -q 'chkconfig:' %{_sysconfdir}/init.d/usb 2> /dev/null && /sbin/chkconfig --del usb > /dev/null 2>&1 || :
+    /bin/grep -q 'chkconfig:' %{_sysconfdir}/init.d/usb 2> /dev/null && /sbin/chkconfig --del usb > /dev/null 2>&1 || :
 fi
 
 %preun
@@ -225,45 +235,48 @@ fi
 # settings earlier in the file.
 
 if [ -n "$FORWARD_IPV4" -a "$FORWARD_IPV4" != "no" -a "$FORWARD_IPV4" != "false" ]; then
-	echo "# added by initscripts install on `date`" >> %{_sysconfdir}/sysctl.conf
-	echo "net.ipv4.ip_forward = 1" >> %{_sysconfdir}/sysctl.conf
+    echo "# added by initscripts install on `date`" >> %{_sysconfdir}/sysctl.conf
+    echo "net.ipv4.ip_forward = 1" >> %{_sysconfdir}/sysctl.conf
 fi
 
 newnet=`mktemp %{_sysconfdir}/sysconfig/network.XXXXXX`
 if [ -n "$newnet" ]; then
-  sed "s|FORWARD_IPV4.*|# FORWARD_IPV4 removed; see %{_sysconfdir}/sysctl.conf|g" \
-   %{_sysconfdir}/sysconfig/network > $newnet
-  sed "s|DEFRAG_IPV4.*|# DEFRAG_IPV4 removed; obsolete in 2.4. kernel|g" \
-   $newnet > %{_sysconfdir}/sysconfig/network
-  rm -f $newnet
+    sed "s|FORWARD_IPV4.*|# FORWARD_IPV4 removed; see %{_sysconfdir}/sysctl.conf|g" \
+        %{_sysconfdir}/sysconfig/network > $newnet
+    sed "s|DEFRAG_IPV4.*|# DEFRAG_IPV4 removed; obsolete in 2.4. kernel|g" \
+        $newnet > %{_sysconfdir}/sysconfig/network
+    rm -f $newnet
 fi
 
 if [ -n "$MAGIC_SYSRQ" -a "$MAGIC_SYSRQ" != "no" ]; then
-	echo "# added by initscripts install on `date`" >> %{_sysconfdir}/sysctl.conf
-	echo "kernel.sysrq = 1" >> %{_sysconfdir}/sysctl.conf
+    echo "# added by initscripts install on `date`" >> %{_sysconfdir}/sysctl.conf
+    echo "kernel.sysrq = 1" >> %{_sysconfdir}/sysctl.conf
 fi
 if uname -m | grep -q sparc ; then
-   if [ -n "$STOP_A" -a "$STOP_A" != "no" ]; then
-	echo "# added by initscripts install on `date`" >> %{_sysconfdir}/sysctl.conf
-	echo "kernel.stop-a = 1" >> %{_sysconfdir}/sysctl.conf
-   fi
+    if [ -n "$STOP_A" -a "$STOP_A" != "no" ]; then
+        echo "# added by initscripts install on `date`" >> %{_sysconfdir}/sysctl.conf
+        echo "kernel.stop-a = 1" >> %{_sysconfdir}/sysctl.conf
+    fi
 fi
+
 
 %postun
 if [ -f /var/lock/TMP_1ST ];then 
-		rm -f /var/lock/TMP_1ST
+    rm -f /var/lock/TMP_1ST
 fi
 if [ "$1" = "0" ]; then
-	for i in %{_sysconfdir}/locale/*/LC_MESSAGES/initscripts.mo
-	do
-		rm -f $i
-		rmdir `dirname $i` >/dev/null 2> /dev/null
-	done
-	rmdir %{_sysconfdir}/locale/* >/dev/null 2> /dev/null
+    for i in %{_sysconfdir}/locale/*/LC_MESSAGES/initscripts.mo
+    do
+        rm -f $i
+        rmdir `dirname $i` >/dev/null 2> /dev/null
+    done
+    rmdir %{_sysconfdir}/locale/* >/dev/null 2> /dev/null
 fi
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files -f %{name}.lang
 %defattr(-,root,root)
@@ -384,6 +397,9 @@ fi
 
 
 %changelog
+* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 7.61.1-3avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 7.61.1-2avx
 - bootstrap build
 

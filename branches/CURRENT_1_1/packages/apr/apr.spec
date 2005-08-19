@@ -1,10 +1,19 @@
-%define name	apr
-%define version	0.9.6
-%define release	2avx
-%define epoch	1
+#
+# spec file for package apr
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-%define aprver	0
-%define libname	%mklibname %{name} %{aprver}
+
+%define name		apr
+%define version		0.9.6
+%define release		3avx
+%define epoch		1
+
+%define aprver		0
+%define libname		%mklibname %{name} %{aprver}
 
 Summary:	Apache Portable Runtime library
 Name:		%{name}
@@ -27,7 +36,7 @@ Patch20:	apr-0.9.4-cleanups.patch.bz2
 # OE: add the metux mpm hooks
 Patch30:	apr-0.9.5-metuxmpm-r8.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildPrereq:	autoconf2.5
 BuildPrereq:	automake1.7
 BuildPrereq:	libtool
@@ -38,6 +47,7 @@ The purpose of the Apache Portable Runtime (APR) is to provide a
 free library of C data structures and routines, forming a system
 portability layer to as many operating systems as possible,
 including Unices, MS Win32, BeOS and OS/2.
+
 
 %package -n %{libname}
 Summary:	Apache Portable Runtime library
@@ -52,6 +62,7 @@ The purpose of the Apache Portable Runtime (APR) is to provide a
 free library of C data structures and routines, forming a system
 portability layer to as many operating systems as possible,
 including Unices, MS Win32, BeOS and OS/2.
+
 
 %package -n %{libname}-devel
 Summary:	APR library development kit
@@ -68,9 +79,9 @@ build applications using the APR library.  The mission of the
 Apache Portable Runtime (APR) is to provide a free library of 
 C data structures and routines.
 
-%prep
 
-%setup -q -n %{name}-%{version}
+%prep
+%setup -q
 %patch1 -p1 -b .deplibs
 %patch2 -p0 -b .config
 %patch4 -p1 -b .noipv6
@@ -83,8 +94,8 @@ C data structures and routines.
 # OE: add the metux mpm hooks
 %patch30 -p0 -b .metux
 
-%build
 
+%build
 %{__cat} >> config.layout << EOF
 <Layout ADVX>
     prefix:        %{_prefix}
@@ -129,9 +140,10 @@ make dox
 excludes=testlock
 %endif
 pushd test
-%make testall CFLAGS="-fno-strict-aliasing"
-TZ=PST8PDT ./testall -v ${excludes+-x $excludes} || exit 1
+    %make testall CFLAGS="-fno-strict-aliasing"
+    TZ=PST8PDT ./testall -v ${excludes+-x $excludes} || exit 1
 popd
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -140,10 +152,10 @@ popd
 
 # These are referenced by apr_rules.mk
 for f in make_exports.awk make_var_export.awk; do
-    install -m0644 build/${f} %{buildroot}%{_libdir}/apr/build/${f}
+    install -m 0644 build/${f} %{buildroot}%{_libdir}/apr/build/${f}
 done
 
-install -m0755 build/mkdir.sh %{buildroot}%{_libdir}/apr/build/mkdir.sh
+install -m 0755 build/mkdir.sh %{buildroot}%{_libdir}/apr/build/mkdir.sh
 
 # Sanitize apr_rules.mk
 sed -e "/^apr_build/d" \
@@ -157,12 +169,14 @@ rm -rf html; mv docs/dox/html html
 # Unpackaged files:
 rm -f %{buildroot}%{_libdir}/apr.exp
 
-%post -n %{libname} -p /sbin/ldconfig
 
+%post -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files -n %{libname}
 %defattr(-,root,root,-)
@@ -183,7 +197,11 @@ rm -f %{buildroot}%{_libdir}/apr.exp
 %dir %{_includedir}/apr-%{aprver}
 %{_includedir}/apr-%{aprver}/*.h
 
+
 %changelog
+* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 0.9.6-3avx
+- bootstrap build (new gcc, new glibc)
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 0.9.6-2avx
 - rebuild
 

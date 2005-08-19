@@ -1,14 +1,24 @@
-%define version 1.9.4
-%define release 2avx
+#
+# spec file for package automake1.8
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-%define amversion 1.9
-%define pkgamversion 1.8
+
+%define name		automake%{pkgamversion}
+%define version 	1.9.4
+%define release 	3avx
+
+%define amversion	1.9
+%define pkgamversion	1.8
 
 %define docheck 1
 %{?_without_check: %global docheck 0}
 
 Summary:	A GNU tool for automatically creating Makefiles
-Name:		automake%{pkgamversion}
+Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	GPL
@@ -18,7 +28,7 @@ Source0:	ftp://ftp.gnu.org/gnu/automake/automake-%{version}.tar.bz2
 Patch0:		automake-1.9.4-infofiles.patch.bz2
 Patch1:		automake-1.9.4-avx-skiptests.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
 
 Requires:	autoconf2.5 >= 1:2.59-3avx
@@ -33,25 +43,20 @@ Obsoletes:	automake1.9
 PreReq:		info-install /usr/sbin/update-alternatives
 
 # tests need these
-%if %docheck
-BuildRequires:	bison
-BuildRequires:	flex
-BuildRequires:	python
+%if %{docheck}
+BuildRequires:	bison, flex, python
 %endif
 
 %description
 Automake is a tool for automatically generating Makefiles compliant with
 the GNU Coding Standards.
 
-You should install Automake if you are developing software and would like
-to use its capabilities of automatically generating GNU standard
-Makefiles. If you install Automake, you will also need to install GNU's
-Autoconf package.
 
 %prep
 %setup -q -n automake-%{version}
 %patch0 -p1 -b .parallel
 %patch1 -p1 -b .skiptests
+
 
 %build
 # (Abel) config* don't understand noarch-annvix-linux-gnu arch
@@ -60,7 +65,7 @@ Autoconf package.
 %configure2_5x
 %make
 
-%if %docheck
+%if %{docheck}
 # (Abel) reqd2.test tries to make sure automake won't work if ltmain.sh
 # is not present. But automake behavior changed, now it can handle missing
 # libtool file as well, so this test is bogus.
@@ -71,8 +76,9 @@ make check	# VERBOSE=1
 # (Abel) forcefully modify info filename, otherwise info page will refer to
 # old automake
 pushd doc
-makeinfo -I . -o %{name}.info automake.texi
+    makeinfo -I . -o %{name}.info automake.texi
 popd
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -85,27 +91,30 @@ ln -s automake-%{amversion} %{buildroot}%{_bindir}/automake-%{pkgamversion}
 ln -s aclocal-%{amversion} %{buildroot}%{_bindir}/aclocal-%{pkgamversion}
 
 rm -f %{buildroot}/%{_infodir}/*
-install -m 644 doc/%{name}.info* %{buildroot}/%{_infodir}/
+install -m 0644 doc/%{name}.info* %{buildroot}/%{_infodir}/
 
 perl -p -i -e 's|\(automake\)Extending aclocal|(%{name})Extending aclocal|' \
-  %{buildroot}/%{_bindir}/aclocal-%{amversion}
+    %{buildroot}/%{_bindir}/aclocal-%{amversion}
 
 mkdir -p %{buildroot}%{_datadir}/aclocal
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
+
 %post
-%_install_info %name.info
+%_install_info %{name}.info
 update-alternatives \
-	--install %{_bindir}/automake automake %{_bindir}/automake-%{amversion} 30 \
-	--slave   %{_bindir}/aclocal  aclocal  %{_bindir}/aclocal-%{amversion}
+    --install %{_bindir}/automake automake %{_bindir}/automake-%{amversion} 30 \
+    --slave   %{_bindir}/aclocal  aclocal  %{_bindir}/aclocal-%{amversion}
 
 %preun
-%_remove_install_info %name.info
+%_remove_install_info %{name}.info
 if [ $1 = 0 ]; then
-	update-alternatives --remove automake %{_bindir}/automake-%{amversion}
+    update-alternatives --remove automake %{_bindir}/automake-%{amversion}
 fi
+
 
 %files
 %defattr(-,root,root)
@@ -115,7 +124,11 @@ fi
 %{_infodir}/automake*
 %{_datadir}/aclocal*
 
+
 %changelog
+* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 1.9.4-3avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.9.4-2avx
 - bootstrap build
 

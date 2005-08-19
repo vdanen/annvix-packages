@@ -1,7 +1,15 @@
-# Defined in CVS makefile.
-%define name	etcskel
-%define version 1.63
-%define release 19avx
+#
+# spec file for package etcskel
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		etcskel
+%define version 	1.63
+%define release 	20avx
 
 Summary:	Annvix default files for new users' home directories
 Name:		%{name}
@@ -9,14 +17,12 @@ Version:	%{version}
 Release:	%{release}
 License:	Public Domain
 Group:		System/Base
-
-# get the source from our cvs repository (see
-# http://www.linuxmandrake.com/en/cvs.php3)
 Source:		%{name}-%{version}.tar.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
+BuildArch:	noarch
+
 Requires:	bash
-BuildArchitectures: noarch
 
 %description
 The etcskel package is part of the basic Annvix system.
@@ -24,18 +30,22 @@ The etcskel package is part of the basic Annvix system.
 Etcskel provides the /etc/skel directory's files. These files are then placed
 in every new user's home directory when new accounts are created.
 
-%prep
 
+%prep
 %setup -q
+
 
 %build
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-make install RPM_BUILD_ROOT=$RPM_BUILD_ROOT
+make install RPM_BUILD_ROOT=%{buildroot}
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -44,7 +54,11 @@ make install RPM_BUILD_ROOT=$RPM_BUILD_ROOT
 %config(noreplace) /etc/skel/.??*
 %config(noreplace) /etc/skel/tmp
 
+
 %changelog
+* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 1.63-20avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.63-19avx
 - bootstrap build
 

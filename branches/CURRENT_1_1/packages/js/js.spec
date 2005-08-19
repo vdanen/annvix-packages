@@ -1,6 +1,15 @@
-%define name	js
-%define version	1.5
-%define release	0.%{lib_release}.9avx
+#
+# spec file for package js
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		js
+%define version		1.5
+%define release		0.%{lib_release}.10avx
 
 %define lib_release	rc5
 %define major		1
@@ -16,10 +25,9 @@ URL:		http://www.gingerall.com/charlie/ga/xml/d_related.xml
 Source0:	%{name}-%{version}-%{lib_release}.tar.bz2
 Patch0:		lib%{name}-%{version}.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 
 Requires:	%{libname} = %{version}-%{release}
-Provides:	ADVXpackage
 
 %description
 JavaScript is the Netscape-developed object scripting languages. This
@@ -27,10 +35,10 @@ package has been created for purposes of Sablotron and is suitable for
 embedding in applications. See http://www.mozilla.org/js for details 
 and sources.
 
+
 %package -n %{libname}
 Summary:	JavaScript engine library
 Group:		System/Libraries
-Provides:	ADVXpackage
 
 %description -n	%{libname}
 JavaScript is the Netscape-developed object scripting languages. This
@@ -38,60 +46,66 @@ package has been created for purposes of Sablotron and is suitable for
 embedding in applications. See http://www.mozilla.org/js for details 
 and sources.
 
+
 %package -n %{libname}-devel
 Summary:	The header files for %{libname}
 Group:		Development/Other
 Requires:	%{libname} = %{version}-%{release}
 Provides:	lib%{name}-devel = %{version}-%{release}
 Provides:	%{name}-devel = %{version}-%{release}
-Provides:       ADVXpackage
 
 %description -n	%{libname}-devel
 These are the header files for %{libname}
 
-%prep
 
+%prep
 %setup -q -n %{name}
-cd src
+pushd src
 %patch0 -p0 
+popd
+
 
 %build
-cd src
-perl -pi -e "s/-shared/-shared -lc -soname libjs.so.1/;" config/Linux_All.mk
+pushd src
+    perl -pi -e "s/-shared/-shared -lc -soname libjs.so.1/;" config/Linux_All.mk
 
-# undefined symbol errors, so for the moment don't enable stack protection
-OPTFLAGS="%{optflags} -fno-stack-protector -fPIC"
+    # undefined symbol errors, so for the moment don't enable stack protection
+    #OPTFLAGS="%{optflags} -fno-stack-protector -fPIC"
+    OPTFLAGS="%{optflags} -fPIC"
 
-#JMD: %make does *not* work!
-BUILD_OPT=1 CFLAGS=$OPTFLAGS make -f Makefile.ref 
+    #JMD: %make does *not* work!
+    BUILD_OPT=1 CFLAGS=$OPTFLAGS make -f Makefile.ref 
+popd
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-install -d %{buildroot}%{_bindir}
-install -d %{buildroot}%{_libdir}
-install -d %{buildroot}%{_includedir}/js
+mkdir -p %{buildroot}{%{_bindir},%{_libdir},%{_includedir}/js}
 
 # install headers
-install -m644 src/*.h %{buildroot}%{_includedir}/js/
-install -m644 src/Linux_All_OPT.OBJ/jsautocfg.h %{buildroot}%{_includedir}/js/
+install -m 0644 src/*.h %{buildroot}%{_includedir}/js/
+install -m 0644 src/Linux_All_OPT.OBJ/jsautocfg.h %{buildroot}%{_includedir}/js/
 
 # install shared library
-install -m755 src/Linux_All_OPT.OBJ/lib%{name}.so \
+install -m 0755 src/Linux_All_OPT.OBJ/lib%{name}.so \
     %{buildroot}%{_libdir}/lib%{name}.so.%{major}
 ln -snf lib%{name}.so.%{major} %{buildroot}%{_libdir}/lib%{name}.so
 
 # install static library
-install -m755 src/Linux_All_OPT.OBJ/lib%{name}.a %{buildroot}%{_libdir}/
+install -m 0755 src/Linux_All_OPT.OBJ/lib%{name}.a %{buildroot}%{_libdir}/
 
 # install binary
-install -m755 src/Linux_All_OPT.OBJ/%{name} %{buildroot}%{_bindir}/
+install -m 0755 src/Linux_All_OPT.OBJ/%{name} %{buildroot}%{_bindir}/
+
 
 %post -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -109,7 +123,11 @@ install -m755 src/Linux_All_OPT.OBJ/%{name} %{buildroot}%{_bindir}/
 %{_libdir}/*.so
 %{_libdir}/*.a
 
+
 %changelog
+* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 1.5.0.rc5.10avx
+- bootstrap build (new gcc, new glibc)
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 1.5-0.rc5.9avx
 - rebuild
 

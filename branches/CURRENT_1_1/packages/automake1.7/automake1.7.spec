@@ -1,15 +1,24 @@
-%define name	automake%{amversion}
-%define version 1.7.9
-%define release 2avx
+#
+# spec file for package automake1.7
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-%define amversion 1.7
 
-%define docheck	0
+%define name		automake%{amversion}
+%define version 	1.7.9
+%define release 	4avx
+
+%define amversion 	1.7
+
+%define docheck		0
 %{?_with_check: %global docheck 1}
 
 %define alternatives_install_cmd update-alternatives --install %{_bindir}/automake automake %{_bindir}/automake-%{amversion} 10 --slave %{_bindir}/aclocal aclocal %{_bindir}/aclocal-%{amversion}
 
-Summary:	A GNU tool for automatically creating Makefiles.
+Summary:	A GNU tool for automatically creating Makefiles
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -19,9 +28,9 @@ URL:		http://sources.redhat.com/automake/
 Source:		ftp://ftp.gnu.org/gnu/automake/automake-%{version}.tar.bz2
 Patch:		automake-1.7.9-infofiles.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
-BuildRequires:	autoconf2.5 byacc flex gawk /usr/bin/perl tetex texinfo
+BuildRequires:	autoconf2.5 byacc flex gawk perl tetex texinfo
 
 PreReq:		info-install, rpm
 Requires:	perl, autoconf2.5
@@ -32,14 +41,11 @@ Obsoletes:	automake1.5
 Automake is a tool for automatically generating Makefiles compliant with
 the GNU Coding Standards.
 
-You should install Automake if you are developing software and would like
-to use its capabilities of automatically generating GNU standard
-Makefiles. If you install Automake, you will also need to install GNU's
-Autoconf package.
 
 %prep
 %setup -q -n automake-%{version}
 %patch0 -p0 -b .parallel
+
 
 %build
 export WANT_AUTOCONF_2_5=1
@@ -53,6 +59,7 @@ export WANT_AUTOCONF_2_5=1
 perl -pi -e 's/reqd2.test//g' tests/Makefile
 make check  # VERBOSE=1
 %endif
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -70,20 +77,23 @@ popd
 
 mkdir -p %{buildroot}%{_datadir}/aclocal
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
+
 %post
-%_install_info %name.info
+%_install_info %{name}.info
 update-alternatives \
-  --install %{_bindir}/automake automake %{_bindir}/automake-%{amversion} 20 \
-  --slave   %{_bindir}/aclocal  aclocal  %{_bindir}/aclocal=%{amversion}
+    --install %{_bindir}/automake automake %{_bindir}/automake-%{amversion} 20 \
+    --slave   %{_bindir}/aclocal  aclocal  %{_bindir}/aclocal=%{amversion}
 
 %preun
-%_remove_install_info %name.info
+%_remove_install_info %{name}.info
 if [ $1 = 0 ]; then
-	update-alternatives --remove automake %{_bindir}/automake-%{amversion}
+    update-alternatives --remove automake %{_bindir}/automake-%{amversion}
 fi
+
 
 %files
 %defattr(-,root,root)
@@ -93,7 +103,11 @@ fi
 %{_infodir}/automake*
 %{_datadir}/aclocal*
 
+
 %changelog
+* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 1.7.9-3avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.7.9-2avx
 - bootstrap build
 

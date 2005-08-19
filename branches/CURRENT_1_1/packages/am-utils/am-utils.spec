@@ -1,10 +1,19 @@
-%define name	am-utils
-%define version	6.0.9
-%define release	10avx
-%define epoch	2
-%define major	2
+#
+# spec file for package am-utils
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-%define libname	%mklibname amu %major
+
+%define name		am-utils
+%define version		6.0.9
+%define release		11avx
+%define epoch		2
+
+%define major		2
+%define libname		%mklibname amu %{major}
 
 Summary:	Automount utilities including an updated version of Amd
 Name:		%{name}
@@ -22,7 +31,7 @@ Source4:	amd.run
 Source5:	amd-log.run
 Patch:		am-utils-6.0.4-nfs3.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	bison, byacc, flex, gdbm-devel
 
 Prereq:		info-install, grep, rpm-helper, setup >= 2.4-16avx
@@ -38,13 +47,10 @@ referenced by the user and unmounted after a certain period of inactivity.
 Amd supports a variety of filesystems, including NFS, UFS, CD-ROMS and
 local drives.  
 
-You should install am-utils if you need a program for automatically
-mounting and unmounting filesystems.
-
 
 %package -n %{libname}
-Group:          System/Servers
 Summary:        Shared library files for am-utils
+Group:          System/Servers
 Provides:	lib%{name} = %{version}-%{release}
 
 %description -n %{libname}
@@ -52,17 +58,19 @@ Shared library files from the am-utils package.
 
 
 %package -n %{libname}-devel
-Group:          Development/C
 Summary:        Development files for am-utils
+Group:          Development/C
 Requires:       %{libname} = %{epoch}:%{version}-%{release}
 Provides:       libamu-devel
 
 %description -n %{libname}-devel
 Development headers, and files for development from the am-utils package.
 
+
 %prep
 %setup -q
 %patch -p1
+
 
 %build
 %serverbuild
@@ -74,6 +82,7 @@ Development headers, and files for development from the am-utils package.
     --without-ldap
 
 %make
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -99,8 +108,10 @@ rm -f %{buildroot}/amd.conf
 rm -f %{buildroot}/%{_sysconfdir}/*-sample
 rm -f %{buildroot}/amd
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %post
 %_post_srv amd
@@ -114,6 +125,7 @@ rm -f %{buildroot}/amd
 
 %post -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
+
 
 %files
 %defattr(-,root,root)
@@ -146,7 +158,11 @@ rm -f %{buildroot}/amd
 %{_libdir}/*.so
 %{_libdir}/*.la
 
+
 %changelog
+* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 6.0.9-11avx
+- bootstrap build (new gcc, new glibc)
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 6.0.9-10avx
 - rebuild
 

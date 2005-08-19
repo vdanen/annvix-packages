@@ -1,7 +1,16 @@
-%define name	basesystem
-%define version 1.0
-%define release 8avx
-%define epoch	1
+#
+# spec file for package basesystem
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		basesystem
+%define version 	1.0
+%define release 	9avx
+%define epoch		1
 
 Summary:	The skeleton package which defines a simple Annvix system
 Name:		%{name}
@@ -11,7 +20,7 @@ Epoch:		%{epoch}
 License:	GPL
 Group:		System/Base
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 
 Requires:	setup filesystem sed initscripts console-tools utempter
 Requires:	chkconfig coreutils SysVinit bdflush crontabs dev
@@ -40,9 +49,14 @@ example, the package installation order to use during bootstrapping).
 Basesystem should be the first package installed on a system, and it
 should never be removed.
 
+
 %files
 
+
 %changelog
+* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 1.0-9avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.0-8avx
 - bootstrap build
 

@@ -1,6 +1,15 @@
-%define name	gif2png
-%define version 2.4.7
-%define release 5avx
+#
+# spec file for package gif2png
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		gif2png
+%define version 	2.4.7
+%define release 	6avx
 
 Summary:	Tools for converting websites from using GIFs to using PNGs
 Name:		%{name}
@@ -11,7 +20,7 @@ Group:		Graphics
 URL:		http://www.catb.org/~esr/gif2png/
 Source:		http://www.catb.org/~esr/gif2png/%{name}-%{version}.tar.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	libpng-devel zlib-devel
 
 Requires:	python
@@ -25,10 +34,12 @@ also patching HTML pages to keep IMG SRC references correct.
 %prep
 %setup -q
 
+
 %build
 %configure
 %make
  
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
@@ -37,13 +48,18 @@ also patching HTML pages to keep IMG SRC references correct.
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
+
 %files
 %defattr(-,root,root,0755)
 %doc README NEWS COPYING AUTHORS
 %{_mandir}/*/*
 %{_bindir}/*
 			 
+
 %changelog
+* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 2.4.7-6avx
+- bootstrap build (new gcc, new glibc)
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.4.7-5avx
 - rebuild
 
@@ -65,7 +81,7 @@ also patching HTML pages to keep IMG SRC references correct.
 * Tue Jul 22 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 2.4.6-2mdk
 - rebuild
 - use %%make macro
-- rm -rf $RPM_BUILD_ROOT in %%install, not %%prep
+- rm -rf %{buildroot} in %%install, not %%prep
 - drop Prefix tag
 
 * Fri Dec 27 2002 Daouda LO <daouda@mandrakesoft.com> 2.4.6-1mdk

@@ -1,6 +1,15 @@
-%define name	courier-imap
-%define version	2.1.2
-%define release	19avx
+#
+# spec file for package courier-imap
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		courier-imap
+%define version		2.1.2
+%define release		20avx
 
 %define _localstatedir	/var/run
 %define	authdaemondir	%{_localstatedir}/authdaemon.courier-imap
@@ -42,7 +51,7 @@ Patch1:		courier-imap-2.1.2-auto_maildir_creator.patch.bz2
 Patch2:		courier-imap-2.1.1-configure.patch.bz2
 Patch3:		courier-imap-2.1.2-authnodaemon.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildPreReq:	autoconf2.5, coreutils, libtool, perl, sed
 BuildRequires:	openssl-devel, pam-devel, gdbm-devel
 # ldap subpackage:
@@ -65,6 +74,7 @@ mail server package.  This package is a standalone version for use with
 other mail servers.  Do not install this package if you intend to install
 the full Courier mail server.  Install the Courier package instead.
 
+
 %package pop
 Summary:	Courier-IMAP POP servers
 Group:		System/Servers
@@ -76,8 +86,9 @@ Conflicts:	uw-imap-pop
 This package contains the POP servers of the Courier-IMAP
 server suite.
 
+
 %package ldap
-Summary:	Courier-IMAP LDAP authentication driver.
+Summary:	Courier-IMAP LDAP authentication driver
 Group:		System/Servers
 Requires:	%{name} = %{version}-%{release}
 #Requires:	libldap2
@@ -88,8 +99,9 @@ This package contains the necessary files to allow Courier-IMAP to
 authenticate from an LDAP directory.  Install this package if you need the
 ability to use an LDAP directory for authentication.
 
+
 %package mysql
-Summary:	Courier-IMAP MySQL authentication driver.
+Summary:	Courier-IMAP MySQL authentication driver
 Group:		System/Servers
 Requires:	%{name} = %{version}-%{release}, MySQL-shared
 Conflicts:	%{name}-ldap %{name}-pgsql
@@ -99,8 +111,9 @@ This package contains the necessary files to allow Courier-IMAP to
 authenticate using a MySQL database table.  Install this package if you need
 the ability to use a MySQL database table for authentication.
 
+
 %package pgsql
-Summary:	Courier-IMAP PostgreSQL authentication driver.
+Summary:	Courier-IMAP PostgreSQL authentication driver
 Group:		System/Servers
 Requires:	%{name} = %{version}-%{release}, postgresql-libs
 Conflicts:	%{name}-ldap %{name}-mysql
@@ -110,8 +123,9 @@ This package contains the necessary files to allow Courier-IMAP to
 authenticate using a PostgreSQL database table.  Install this package if you
 need the ability to use a PostgreSQL database table for authentication.
 
+
 %package utils
-Summary:	Courier-IMAP debugging utils.
+Summary:	Courier-IMAP debugging utils
 Group:		System/Servers
 Requires:	%{name} = %{version}-%{release}
 
@@ -120,6 +134,7 @@ This package contains the necessary files to debug the authentication
 modules for Courier-IMAP.
 
 You may also as of v1.6.0 use DEBUG_LOGIN.
+
 
 %package -n maildirmake++
 Summary:	The maildirmake application by Mr. Sam
@@ -133,6 +148,7 @@ This package contains the maildirmake command.
 You can create either standard Maildir or Maildir++ with the
 maildirmake command.
 
+
 %prep
 %setup -q -a2
 %patch0 -p0 -b .initrd
@@ -141,6 +157,7 @@ maildirmake command.
 %patch2 -p0 -b .config
 %endif
 %patch3 -p1 -b .nodaemon
+
 
 %build
 #(cd authlib; autoreconf)
@@ -161,6 +178,7 @@ maildirmake command.
 
 # don't run that if using --enable-workarounds-for-imap-client-bugs
 #make check
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -212,14 +230,14 @@ touch authdaemon.files
 . authlib/authdaemonrc
 
 if [ "x$authdaemonvar" != "x" ]; then
-	echo "%{couriersysconfdir}/authdaemonrc.dist" >> %{buildroot}%{courierdatadir}/configlist
-	echo '%dir %attr(700, root, root) ' $authdaemonvar		>  authdaemon.files
-	touch %{buildroot}/${authdaemonvar}/lock		|| exit 1
-	touch %{buildroot}/${authdaemonvar}/pid			|| exit 1
-	authlib/authmksock %{buildroot}/${authdaemonvar}/socket	|| exit 1
-	echo '%ghost %attr(600, root, root) ' ${authdaemonvar}/lock	>> authdaemon.files
-	echo '%ghost %attr(644, root, root) ' ${authdaemonvar}/pid	>> authdaemon.files
-	echo '%ghost %attr(777, root, root) ' ${authdaemonvar}/socket	>> authdaemon.files
+    echo "%{couriersysconfdir}/authdaemonrc.dist" >> %{buildroot}%{courierdatadir}/configlist
+    echo '%dir %attr(700, root, root) ' $authdaemonvar >  authdaemon.files
+    touch %{buildroot}/${authdaemonvar}/lock || exit 1
+    touch %{buildroot}/${authdaemonvar}/pid || exit 1
+    authlib/authmksock %{buildroot}/${authdaemonvar}/socket || exit 1
+    echo '%ghost %attr(600, root, root) ' ${authdaemonvar}/lock >> authdaemon.files
+    echo '%ghost %attr(644, root, root) ' ${authdaemonvar}/pid >> authdaemon.files
+    echo '%ghost %attr(777, root, root) ' ${authdaemonvar}/socket >> authdaemon.files
 fi
 
 (cd %{buildroot} ; find .%{courierlibdir} -type f ! -name authdaemond.ldap ! -name authdaemond.mysql ! -name authdaemond.pgsql -print ) | cut -c2- >> authdaemon.files
@@ -229,37 +247,37 @@ touch authdaemon.files.mysql
 touch authdaemon.files.pgsql
 
 test ! -f %{buildroot}%{courierlibdir}/authlib/authdaemond.mysql ||
-        echo %{courierlibdir}/authlib/authdaemond.mysql >>authdaemon.files.mysql
+    echo %{courierlibdir}/authlib/authdaemond.mysql >>authdaemon.files.mysql
 
 test ! -f %{buildroot}%{courierlibdir}/authlib/authdaemond.pgsql ||
-        echo %{courierlibdir}/authlib/authdaemond.pgsql >>authdaemon.files.pgsql
+    echo %{courierlibdir}/authlib/authdaemond.pgsql >>authdaemon.files.pgsql
 
 test ! -f %{buildroot}%{courierlibdir}/authlib/authdaemond.ldap || \
-        echo %{courierlibdir}/authlib/authdaemond.ldap >>authdaemon.files.ldap
+    echo %{courierlibdir}/authlib/authdaemond.ldap >>authdaemon.files.ldap
 
 if test -f %{buildroot}%{courierlibdir}/authlib/authdaemond.mysql
 then
-        echo '%{couriersysconfdir}/authmysqlrc.dist' >>%{buildroot}%{courierdatadir}/configlist.mysql
-        echo '%attr(-, root, root) %config(noreplace) %{couriersysconfdir}/authmysqlrc.dist' >>authdaemon.files.mysql
+    echo '%{couriersysconfdir}/authmysqlrc.dist' >>%{buildroot}%{courierdatadir}/configlist.mysql
+    echo '%attr(-, root, root) %config(noreplace) %{couriersysconfdir}/authmysqlrc.dist' >>authdaemon.files.mysql
 fi
 
 if test -f %{buildroot}%{courierlibdir}/authlib/authdaemond.pgsql
 then
-        echo '%{couriersysconfdir}/authpgsqlrc.dist' >>%{buildroot}%{courierdatadir}/configlist.pgsql
-        echo '%attr(-, root, root) %config(noreplace) %{couriersysconfdir}/authpgsqlrc.dist' >>authdaemon.files.pgsql
+    echo '%{couriersysconfdir}/authpgsqlrc.dist' >>%{buildroot}%{courierdatadir}/configlist.pgsql
+    echo '%attr(-, root, root) %config(noreplace) %{couriersysconfdir}/authpgsqlrc.dist' >>authdaemon.files.pgsql
 fi
 
 if test -f %{buildroot}%{courierlibdir}/authlib/authdaemond.ldap
 then
-        echo %{couriersysconfdir}/authldaprc.dist >> %{buildroot}%{courierdatadir}/configlist.ldap
-        echo '%attr(-, root, root) %config(noreplace) %{couriersysconfdir}/authldaprc.dist' >> authdaemon.files.ldap
+    echo %{couriersysconfdir}/authldaprc.dist >> %{buildroot}%{courierdatadir}/configlist.ldap
+    echo '%attr(-, root, root) %config(noreplace) %{couriersysconfdir}/authldaprc.dist' >> authdaemon.files.ldap
 
-        if test -d /etc/openldap/schema
-        then
-                mkdir -p %{buildroot}/etc/openldap/schema
-                cp authlib/authldap.schema %{buildroot}/etc/openldap/schema/courier.schema
-                echo '%config(noreplace) %attr(444, root, root) /etc/openldap/schema/courier.schema' >>authdaemon.files.ldap
-        fi
+    if test -d /etc/openldap/schema
+    then
+        mkdir -p %{buildroot}/etc/openldap/schema
+        cp authlib/authldap.schema %{buildroot}/etc/openldap/schema/courier.schema
+        echo '%config(noreplace) %attr(444, root, root) /etc/openldap/schema/courier.schema' >>authdaemon.files.ldap
+    fi
 fi
 
 mkdir -p %{buildroot}%{_localstatedir}
@@ -273,12 +291,12 @@ touch %{buildroot}%{_localstatedir}/pop3d-ssl.pid
 touch %{buildroot}%{_localstatedir}/pop3d.pid.lock
 touch %{buildroot}%{_localstatedir}/pop3d-ssl.pid.lock
 
-find %{buildroot} -type f -print | sed "s@^%{buildroot}@@g" | grep -v perllocal.pod > $RPM_BUILD_DIR/tmp-filelist
+find %{buildroot} -type f -print | sed "s@^%{buildroot}@@g" | grep -v perllocal.pod > %{_builddir}/tmp-filelist
 
 # some utils...
-install -m755 authlib/authinfo %{buildroot}%{_bindir}/courier-imap-authinfo
-install -m755 authlib/authtest %{buildroot}%{_bindir}/courier-imap-authtest
-install -m755 authlib/authdaemontest %{buildroot}%{_bindir}/courier-imap-authdaemontest
+install -m 0755 authlib/authinfo %{buildroot}%{_bindir}/courier-imap-authinfo
+install -m 0755 authlib/authtest %{buildroot}%{_bindir}/courier-imap-authtest
+install -m 0755 authlib/authdaemontest %{buildroot}%{_bindir}/courier-imap-authdaemontest
 
 # fix the maildirmake command so it won't conflict with vdanens qmail package?
 mv %{buildroot}%{_bindir}/maildirmake %{buildroot}%{_bindir}/maildirmake++
@@ -286,7 +304,7 @@ mv %{buildroot}%{_mandir}/man1/maildirmake.1 %{buildroot}%{_mandir}/man1/maildir
 
 # fix the auto maildir creation stuff
 bzip2 -cd %{SOURCE4} > %{buildroot}%{courierdatadir}/auto_maildir_creator
-chmod 755 %{buildroot}%{courierdatadir}/auto_maildir_creator
+chmod 0755 %{buildroot}%{courierdatadir}/auto_maildir_creator
 mkdir automatic_maildir_creation_patch
 cp -f courier_patch/html/*.html automatic_maildir_creation_patch/
 cp -f courier_patch/README.txt automatic_maildir_creation_patch/
@@ -333,6 +351,7 @@ install -m 0644 %{SOURCE13} %{buildroot}%{_sysconfdir}/sysconfig/pop3d-ssl
 find %{buildroot}%{_srvdir} -name run -exec perl -pi -e 's|/usr/lib/courier|/usr/lib64/courier|g' {} \;
 %endif
 
+
 %post
 %{courierdatadir}/sysconftool `cat %{courierdatadir}/configlist` >/dev/null
 %_post_srv courier-imapd
@@ -348,6 +367,7 @@ find %{buildroot}%{_srvdir} -name run -exec perl -pi -e 's|/usr/lib/courier|/usr
 %create_ghostfile %{_localstatedir}/authdaemon.courier-imap/pid	root root 0644
 %create_ghostfile %{_localstatedir}/authdaemon.courier-imap/socket root root 0777
 
+
 %post pop
 %{courierdatadir}/sysconftool `cat %{courierdatadir}/configlist.pop` >/dev/null
 %_post_srv courier-pop3d
@@ -358,17 +378,22 @@ find %{buildroot}%{_srvdir} -name run -exec perl -pi -e 's|/usr/lib/courier|/usr
 %create_ghostfile %{_localstatedir}/pop3d-ssl.pid root root 0600
 %create_ghostfile %{_localstatedir}/pop3d-ssl.pid.lock root root 0600
 
+
 %post ldap
 %{courierdatadir}/sysconftool `cat %{courierdatadir}/configlist.ldap` >/dev/null
+
 
 %post mysql
 %{courierdatadir}/sysconftool `cat %{courierdatadir}/configlist.mysql` >/dev/null
 
+
 %post pgsql
 %{courierdatadir}/sysconftool `cat %{courierdatadir}/configlist.pgsql` >/dev/null
 
+
 %postun
 %_mkafterboot
+
 
 %postun ldap
 %_preun_srv courier-imapd
@@ -377,12 +402,14 @@ find %{buildroot}%{_srvdir} -name run -exec perl -pi -e 's|/usr/lib/courier|/usr
 %_preun_srv courier-pop3ds
 %_preun_srv authdaemond
 
+
 %postun mysql
 %_preun_srv courier-imapd
 %_preun_srv courier-imapds
 %_preun_srv courier-pop3d
 %_preun_srv courier-pop3ds
 %_preun_srv authdaemond
+
 
 %postun pgsql
 %_preun_srv courier-imapd
@@ -391,29 +418,37 @@ find %{buildroot}%{_srvdir} -name run -exec perl -pi -e 's|/usr/lib/courier|/usr
 %_preun_srv courier-pop3ds
 %_preun_srv authdaemond
 
+
 %preun 
 %_preun_srv courier-imapd
 %_preun_srv courier-imapds
 %_preun_srv authdaemond
 
+
 %preun pop
 %_preun_srv courier-pop3d
 %_preun_srv courier-pop3ds
 
+
 %triggerpostun -- courier-imap
 test ! -f %{courierdatadir}/configlist || %{courierdatadir}/sysconftool-rpmupgrade `cat %{courierdatadir}/configlist` >/dev/null
+
 
 %triggerpostun pop -- courier-imap
 test ! -f %{courierdatadir}/configlist.pop || %{courierdatadir}/sysconftool-rpmupgrade `cat %{courierdatadir}/configlist.pop` >/dev/null
 
+
 %triggerpostun ldap -- courier-imap
 test ! -f %{courierdatadir}/configlist.ldap || %{courierdatadir}/sysconftool-rpmupgrade `cat %{courierdatadir}/configlist.ldap` >/dev/null
+
 
 %triggerpostun mysql -- courier-imap
 test ! -f %{courierdatadir}/configlist.mysql || %{courierdatadir}/sysconftool-rpmupgrade `cat %{courierdatadir}/configlist.mysql` >/dev/null
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files -f authdaemon.files
 %defattr(-, root, root)
@@ -502,6 +537,7 @@ test ! -f %{courierdatadir}/configlist.mysql || %{courierdatadir}/sysconftool-rp
 %dir %attr(0750,logger,logger) %{_srvlogdir}/authdaemond
 %{_datadir}/afterboot/09_courier-imap
 
+
 %files pop
 %defattr(-, root, root)
 %config(noreplace) %{_sysconfdir}/pam.d/pop3
@@ -536,11 +572,13 @@ test ! -f %{courierdatadir}/configlist.mysql || %{courierdatadir}/sysconftool-rp
 %config(noreplace) %{_sysconfdir}/sysconfig/pop3d
 %config(noreplace) %{_sysconfdir}/sysconfig/pop3d-ssl
 
+
 %files ldap -f authdaemon.files.ldap
 %defattr(-, root, root)
 %doc authlib/README.ldap
 %doc authlib/authldap.schema
 %attr(644, root, root) %{courierdatadir}/configlist.ldap
+
 
 %files mysql -f authdaemon.files.mysql
 %defattr(-, root, root)
@@ -548,10 +586,12 @@ test ! -f %{courierdatadir}/configlist.mysql || %{courierdatadir}/sysconftool-rp
 %doc authlib/README.authmysql.myownquery
 %attr(644, root, root) %{courierdatadir}/configlist.mysql
 
+
 %files pgsql -f authdaemon.files.pgsql
 %defattr(-, root, root)
 %doc authlib/README.authpostgres.html
 %attr(644, root, root) %{courierdatadir}/configlist.pgsql
+
 
 %files utils
 %defattr(-, root, root)
@@ -559,13 +599,18 @@ test ! -f %{courierdatadir}/configlist.mysql || %{courierdatadir}/sysconftool-rp
 %attr(755, root, root) %{_bindir}/courier-imap-authtest
 %attr(755, root, root) %{_bindir}/courier-imap-authdaemontest
 
+
 %files -n maildirmake++
 %defattr(-, root, root)
 %doc maildir/maildirmake.html
 %{_bindir}/maildirmake++
 %{_mandir}/man1/maildirmake++.1*
 
+
 %changelog
+* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 2.1.2-20avx
+- bootstrap build (new gcc, new glibc)
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.1.2-19avx
 - rebuild
 
