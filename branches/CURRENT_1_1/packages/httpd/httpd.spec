@@ -1,6 +1,15 @@
-%define name	apache2
-%define version	2.0.53
-%define release	2avx
+#
+# spec file for package apache2
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		apache2
+%define version		2.0.53
+%define release		3avx
 
 #
 #(ie. use with rpm --rebuild):
@@ -11,10 +20,10 @@
 #  will _add_ -g3 to CFLAGS, will _add_ --enable-maintainer-mode to 
 #  configure.
 
-%define mmn	20020903
+%define mmn		20020903
 
-%define dbver	db4
-%define dbmver	db4
+%define dbver		db4
+%define dbmver		db4
 
 # not everyone uses this, so define it here
 %define distribution	Annvix
@@ -128,7 +137,7 @@ Patch103:		httpd-2.0.49-mod_ldap_cache_file_location.diff.bz2
 # http://www.sannes.org/metuxmpm/
 Patch104:		httpd-2.0.48-metuxmpm-r8.patch.bz2
 
-BuildRoot:		%{_tmppath}/apache2-%{version}-buildroot
+BuildRoot:		%{_buildroot}/%{name}-%{version}
 BuildRequires:		apr-devel >= 0.9.5
 BuildRequires:		apr-util-devel >= 0.9.5
 BuildRequires:		pcre-devel
@@ -483,8 +492,8 @@ Requires:	glibc-devel
 The apache2 Source, including %{distribution} patches. Use this package to
 build apache2-mod_perl, or your own custom version.
 
-%prep
 
+%prep
 %setup -q -n %{sourcename}
 # "install" the 2 extra modules
 bzcat %{SOURCE6} > modules/experimental/mod_backtrace.c
@@ -572,11 +581,11 @@ rm -f include/pcreposix.h
 
 #Correct perl paths
 find -type f|xargs perl -pi -e " s|/usr/local/bin/perl|%{__perl}|g; \
-        s|/usr/local/bin/perl5|%{__perl}|g; \
-        s|/path/to/bin/perl|%{__perl}|g; \
-        "
+    s|/usr/local/bin/perl5|%{__perl}|g; \
+    s|/path/to/bin/perl|%{__perl}|g; \
+    "
 %{__perl} -pi -e 's|" PLATFORM "|%{distribution}/%{release}|;' \
-        server/core.c
+    server/core.c
 
 # use my nice converted transparent png icons
 tar -jxf %{SOURCE4}
@@ -613,7 +622,7 @@ EOF
 
 #Fix DYNAMIC_MODULE_LIMIT
 perl -pi -e "s/DYNAMIC_MODULE_LIMIT 64/DYNAMIC_MODULE_LIMIT 96/;" \
-	include/httpd.h
+    include/httpd.h
 
 # don't touch srclib
 perl -pi -e "s|^SUBDIRS = .*|SUBDIRS = os server modules support|g" Makefile.in
@@ -652,9 +661,9 @@ sh ./buildconf
 CFLAGS="%{optflags}"
 CPPFLAGS="-DSSL_EXPERIMENTAL_ENGINE"
 if pkg-config openssl; then
-	# configure -C barfs with trailing spaces in CFLAGS
-	CPPFLAGS="$CPPFLAGS `pkg-config --cflags openssl | sed 's/ *$//'`"
-	SSL_LIBS="`pkg-config --libs openssl`"
+    # configure -C barfs with trailing spaces in CFLAGS
+    CPPFLAGS="$CPPFLAGS `pkg-config --cflags openssl | sed 's/ *$//'`"
+    SSL_LIBS="`pkg-config --libs openssl`"
 fi
 export CFLAGS CPPFLAGS SSL_LIBS
 
@@ -663,7 +672,7 @@ export CFLAGS CPPFLAGS SSL_LIBS
 #use it to build mod_perl
 rm -rf ../tmp-%{sourcename}
 install -d ../tmp-%{sourcename}/usr/src
-cp -dpR $RPM_BUILD_DIR/%{sourcename} ../tmp-%{sourcename}%{srcdir}
+cp -dpR %{_builddir}/%{sourcename} ../tmp-%{sourcename}%{srcdir}
 
 APVARS="--enable-layout=ADVX \
     --cache-file=../config.cache \
@@ -885,13 +894,8 @@ pushd build-prefork
 	proxycachedir=%{buildroot}/var/cache/httpd
 popd
 
-pushd %{buildroot}%{_sbindir}
-    rm -f suexec
-popd
-
-pushd %{buildroot}%{_mandir}/man8
-    rm -f suexec.8 
-popd
+rm -f %{buildroot}%{_sbindir}/suexec
+rm -f %{buildroot}%{_mandir}/man8/suexec.8 
 
 #Fix config_vars.mk, and add some MDK flags so all other modules 
 #can simply do "apxs -q VARIABLE" and know, for example, the exact
@@ -993,8 +997,8 @@ cat << EOF > %{buildroot}/%{_sysconfdir}/httpd/conf.d/ZZ91_mod_whatkilledus.conf
 EOF
 
 # install the dso's
-install -m0755 modules/experimental/.libs/mod_backtrace.so %{buildroot}%{_libdir}/apache2-extramodules/
-install -m0755 modules/experimental/.libs/mod_whatkilledus.so %{buildroot}%{_libdir}/apache2-extramodules/
+install -m 0755 modules/experimental/.libs/mod_backtrace.so %{buildroot}%{_libdir}/apache2-extramodules/
+install -m 0755 modules/experimental/.libs/mod_whatkilledus.so %{buildroot}%{_libdir}/apache2-extramodules/
 
 # provide log files too
 touch %{buildroot}/var/log/httpd/backtrace_log
@@ -1020,8 +1024,8 @@ install -m 0755 build-prefork/support/logresolve.pl %{buildroot}%{_sbindir}/logr
 install -m 0755 build-prefork/support/log_server_status %{buildroot}%{_sbindir}/log_server_status
 install -m 0755 ab-ssl %{buildroot}%{_sbindir}/ab-ssl
 
-cp %{SOURCE2} $RPM_BUILD_DIR/%{sourcename}/README.ADVX
-cp %{SOURCE3} $RPM_BUILD_DIR/%{sourcename}/
+cp %{SOURCE2} %{_builddir}/%{sourcename}/README.ADVX
+cp %{SOURCE3} %{_builddir}/%{sourcename}/
 
 # Put README.ADVX into apache2-devel so other packages can use it
 cp %{SOURCE2} %{buildroot}/%{_includedir}/apache2/README.ADVX
@@ -1043,7 +1047,7 @@ popd
 touch %{buildroot}/var/cache/httpd/mod_ldap_cache
 
 # install the worker stuff
-install -m0755 build-worker/httpd2 %{buildroot}%{_sbindir}/httpd2-worker
+install -m 0755 build-worker/httpd2 %{buildroot}%{_sbindir}/httpd2-worker
 
 # these won't get stripped for some reason...
 strip %{buildroot}%{_sbindir}/ab
@@ -1054,7 +1058,7 @@ strip %{buildroot}%{_sbindir}/htpasswd
 strip %{buildroot}%{_sbindir}/logresolve
 strip %{buildroot}%{_sbindir}/rotatelogs
 
-##%multiarch_includes %{buildroot}%{_includedir}/apache2/ap_config_layout.h
+%multiarch_includes %{buildroot}%{_includedir}/apache2/ap_config_layout.h
 
 #########################################################################################
 # install phase done
@@ -1063,6 +1067,7 @@ strip %{buildroot}%{_sbindir}/rotatelogs
 # remove manual
 rm -rf %{buildroot}/var/www/html/manual
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
@@ -1070,6 +1075,7 @@ rm -rf %{buildroot}/var/www/html/manual
 [ "../tmp-%{sourcename}%{srcdir}" != "/" ] && rm -rf ../tmp-%{sourcename}%{srcdir}
 [ "../usr/src" != "/" ] && rm -rf ../usr/src
 [ "../tmp-%{sourcename}" != "/" ] && rm -rf ../tmp-%{sourcename}
+
 
 %post mod_proxy
 %_post_srv httpd2
@@ -1146,6 +1152,7 @@ rm -rf %{buildroot}/var/www/html/manual
 
 %postun worker
 %_post_srv httpd2
+
 
 %files
 %defattr(-,root,root)
@@ -1334,7 +1341,11 @@ rm -rf %{buildroot}/var/www/html/manual
 %defattr(-,root,root)
 %{srcdir}
 
+
 %changelog
+* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 2.0.53-3avx
+- bootstrap build (new gcc, new glibc)
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.0.53-2avx
 - rebuild
 

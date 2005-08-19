@@ -1,7 +1,16 @@
-%define name	php
-%define version	4.3.11
-%define release	2avx
-%define epoch	2
+#
+# spec file for package php
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		php
+%define version		4.3.11
+%define release		3avx
+%define epoch		2
 
 %define libversion	4
 %define libname		%mklibname php_common %{libversion}
@@ -22,7 +31,7 @@
 #  will _add_ -g3 to CFLAGS, will _add_ --enable-maintainer-mode to 
 #  configure.
 
-%define build_debug 0
+%define build_debug 	0
 
 # commandline overrides:
 # rpm -ba|--rebuild --with 'xxx'
@@ -90,9 +99,9 @@ Patch70:	php-4.3.3-mdk-make_those_darn_tests_work.patch.bz2
 # Bug fixes:
 Patch71:	php-4.3.4-mdk-bug-22414.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 # this is to prevent that it will build against old libs
-BuildConflicts:	%libname
+BuildConflicts:	%{libname}
 BuildConflicts:	php_common
 BuildConflicts:	php-devel
 # Those two modules have tests that fail
@@ -119,13 +128,14 @@ You can build %{name} with some conditional build swithes;
 (ie. use with rpm --rebuild):
 --with debug   Compile with debugging code
 
+
 %package cli
 Summary:	Command-line interface to PHP
 Epoch:		%{epoch}
 Group:		Development/Other
 URL:		http://php.net
 PreReq:		php-ini
-Requires:	%libname = %{epoch}:%{version}-%{release}
+Requires:	%{libname} = %{epoch}:%{version}-%{release}
 Provides:	php
 Provides:	php3
 Provides:	php4
@@ -145,13 +155,14 @@ install libphp_common.
 If you need apache module support, you also need to install the mod_php
 package.
 
+
 %package cgi
 Summary:	CGI interface to PHP
 Epoch:		%{epoch}
 Group:		Development/Other
 URL:		http://php.net
 PreReq:		php-ini
-Requires:	%libname = %{epoch}:%{version}-%{release}
+Requires:	%{libname} = %{epoch}:%{version}-%{release}
 Provides:	php
 Provides:	php3
 Provides:	php4
@@ -171,16 +182,17 @@ install libphp_common.
 If you need apache module support, you also need to install the mod_php
 package.
 
-%package -n %libname
+
+%package -n %{libname}
 Summary:	Shared library for php
 Epoch:		%{epoch}
 Group:		Development/Other
 URL:		http://www.php.net
-Provides:	%libname = %{epoch}:%{version}-%{release}
+Provides:	%{libname} = %{epoch}:%{version}-%{release}
 Provides:	libphp_common = %{version}-%{release}
 Provides:	php-common
 
-%description -n	%libname
+%description -n	%{libname}
 This package provides the common files to run with different
 implementations of PHP. You need this package if you install the php
 standalone package or a webserver with php support (ie: mod_php).
@@ -191,7 +203,7 @@ Epoch:		%{epoch}
 Group:		Development/C
 URL:		http://www.php.net
 Provides:	libphp_common-devel = %{version}-%{release}
-Requires:	%libname = %{epoch}:%{version}-%{release}
+Requires:	%{libname} = %{epoch}:%{version}-%{release}
 Requires:	autoconf2.5
 Requires:	automake1.7
 Requires:	bison
@@ -214,8 +226,8 @@ php binary to add support for, say, oracle, install this package and use the
 new self-contained extensions support. For more information, read the file
 SELF-CONTAINED-EXTENSIONS.
 
-%prep
 
+%prep
 %setup -q -n php-%{version}
 %patch0 -p1 -b .init
 %patch1 -p1 -b .shared
@@ -257,8 +269,8 @@ perl -pi -e "s|_PHP_SONAME_|%{libversion}|g" Makefile.global
 %patch71 -p1 -b .22414
 
 # Change perms otherwise rpm would get fooled while finding requires
-chmod 644 tests/lang/*.inc
-chmod 644 ext/interbase/tests/*.inc
+chmod 0644 tests/lang/*.inc
+chmod 0644 ext/interbase/tests/*.inc
 
 cp Zend/LICENSE Zend/ZEND_LICENSE
 mv README.SELF-CONTAINED-EXTENSIONS SELF-CONTAINED-EXTENSIONS
@@ -316,7 +328,8 @@ gcc -Wall -fPIC -shared %{optflags} \\
     \$4 \$2 -o \$1.so \$3 -lc
 EOF
 
-chmod 755 php-devel/buildext
+chmod 0755 php-devel/buildext
+
 
 %build
 # this _has_ to be executed!
@@ -413,13 +426,23 @@ EOF
     --enable-yp \
     --with-openssl=%{_prefix} \
     --without-kerberos \
-    --with-ttf --with-freetype-dir=%{_prefix} --with-zlib=%{_prefix} \
-    --with-zlib=%{_prefix} --with-zlib-dir=%{_prefix} \
+    --with-ttf \
+    --with-freetype-dir=%{_prefix} \
+    --with-zlib=%{_prefix} \
+    --with-zlib=%{_prefix} \
+    --with-zlib-dir=%{_prefix} \
     --without-dba \
     `for i in %{external_modules}; do echo --without-${i} --disable-${i}; done` \
-    --without-ndbm --without-db2 --without-db3 --without-db4 \
-    --without-dbm --without-cdb --without-flatfile --without-inifile \
-    --without-gdbm --without-pear
+    --without-ndbm \
+    --without-db2 \
+    --without-db3 \
+    --without-db4 \
+    --without-dbm \
+    --without-cdb \
+    --without-flatfile \
+    --without-inifile \
+    --without-gdbm \
+    --without-pear
 
 ###	This configuration makes a dependency on those libs:
 #	-ldl -lpam -lcrypt -lresolv -lm -lz
@@ -433,6 +456,7 @@ cp config.nice configure_command; chmod 644 configure_command
 chrpath -d sapi/cli/php
 chrpath -d sapi/cgi/php
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
@@ -443,7 +467,7 @@ if ! [ -f libphp_common.so.%{libversion} ]; then
 fi
 
 export LD_LIBRARY_PATH="."
-export INSTALL_ROOT="$RPM_BUILD_ROOT"
+export INSTALL_ROOT="%{buildroot}"
 export PHP_PEAR_INSTALL_DIR="%{peardir}"
 
 #Do a make test
@@ -492,15 +516,16 @@ cp php.ini php-devel/
 # FIXME: The following tests (except 021) are known to fail on 64-bit
 # architectures
 %ifarch x86_64
-disable_tests="	ext/session/tests/019.phpt \
-		ext/session/tests/021.phpt \
-		ext/standard/tests/math/pow.phpt \
-		ext/standard/tests/math/round.phpt \
-		ext/standard/tests/math/abs.phpt "
+disable_tests="ext/session/tests/019.phpt \
+    ext/session/tests/021.phpt \
+    ext/standard/tests/math/pow.phpt \
+    ext/standard/tests/math/round.phpt \
+    ext/standard/tests/math/abs.phpt "
 %endif
+
 [[ -n "$disable_tests" ]] && \
 for f in $disable_tests; do
-  [[ -f "$f" ]] && mv $f $f.disabled
+    [[ -f "$f" ]] && mv $f $f.disabled
 done
 
 make test
@@ -512,16 +537,16 @@ install -d %{buildroot}%{phpdir}/extensions
 install -d %{buildroot}%{phpsrcdir}
 install -d %{buildroot}%{_mandir}/man1
 
-install -m755 libphp_common.so.%{libversion} %{buildroot}%{_libdir}/
+install -m 0755 libphp_common.so.%{libversion} %{buildroot}%{_libdir}/
 ln -snf libphp_common.so.%{libversion} %{buildroot}%{_libdir}/libphp_common.so
 
-install -m755 sapi/cli/php %{buildroot}%{_bindir}/php
-install -m755 sapi/cgi/php %{buildroot}%{_bindir}/php-cgi
+install -m 0755 sapi/cli/php %{buildroot}%{_bindir}/php
+install -m 0755 sapi/cgi/php %{buildroot}%{_bindir}/php-cgi
 
 bzcat %{SOURCE4} > %{buildroot}%{_bindir}/php-test
 cp -dpR php-devel/* %{buildroot}%{phpsrcdir}/
-install -m644 run-tests*.php %{buildroot}%{phpsrcdir}/
-install -m644 main/internal_functions.c %{buildroot}%{phpsrcdir}/
+install -m 0644 run-tests*.php %{buildroot}%{phpsrcdir}/
+install -m 0644 main/internal_functions.c %{buildroot}%{phpsrcdir}/
 
 ln -snf extensions %{buildroot}%{phpsrcdir}/ext
 
@@ -533,17 +558,18 @@ rm -f %{buildroot}%{_bindir}/pear
 ln -snf ../../../bin/libtool %{buildroot}%{phpdir}/build/libtool
 
 # install the man page
-install -m0644 sapi/cli/php.1 %{buildroot}%{_mandir}/man1/
+install -m 0644 sapi/cli/php.1 %{buildroot}%{_mandir}/man1/
 
 %multiarch_includes %{buildroot}%{_includedir}/php/main/build-defs.h
 %multiarch_includes %{buildroot}%{_includedir}/php/main/php_config.h
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-%post -n %libname -p /sbin/ldconfig
 
-%postun -n %libname -p /sbin/ldconfig
+%post -n %{libname} -p /sbin/ldconfig
+%postun -n %{libname} -p /sbin/ldconfig
 
 %pre cgi
 update-alternatives --remove php %{_bindir}/php-cgi
@@ -552,6 +578,7 @@ update-alternatives --remove php %{_bindir}/php-cli
 %pre cli
 update-alternatives --remove php %{_bindir}/php-cgi
 update-alternatives --remove php %{_bindir}/php-cli
+
 
 %files cgi
 %defattr(-,root,root)
@@ -564,7 +591,7 @@ update-alternatives --remove php %{_bindir}/php-cli
 %attr(0755,root,root) %{_bindir}/php
 %attr(0644,root,root) %{_mandir}/man1/php.1*
 
-%files -n %libname
+%files -n %{libname}
 %defattr(-,root,root)
 %doc CREDITS INSTALL LICENSE NEWS Zend/ZEND_LICENSE php.ini-dist php.ini-recommended configure_command
 %attr(0755,root,root) %{_libdir}/libphp_common.so.%{libversion}
@@ -585,7 +612,11 @@ update-alternatives --remove php %{_bindir}/php-cli
 %multiarch %{multiarch_includedir}/php/main/php_config.h
 %{_includedir}/php
 
+
 %changelog
+* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 4.3.11-3avx
+- bootstrap build (new gcc, new glibc)
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 4.3.11-2avx
 - rebuild
 
@@ -802,7 +833,7 @@ update-alternatives --remove php %{_bindir}/php-cli
 
 * Thu Feb 13 2003 Jean-Michel Dault <jmdault@mandrakesoft.com> 4.3.0-8mdk
 - use %%mklibname
-- add BuildConflicts %libname since it tries to link with a previous version
+- add BuildConflicts %{libname} since it tries to link with a previous version
   of itself.
 
 * Fri Jan 17 2003 Jean-Michel Dault <jmdault@mandrakesoft.com> 4.3.0-7mdk
