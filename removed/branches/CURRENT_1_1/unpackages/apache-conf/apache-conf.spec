@@ -1,6 +1,15 @@
-%define name	apache-conf
-%define version	2.0.53
-%define release	5avx
+#
+# spec file for package apache-conf
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		apache-conf
+%define version		2.0.53
+%define release		6avx
 
 %define compat_dir	/etc/httpd
 %define compat_conf	/etc/httpd/conf
@@ -54,7 +63,7 @@ Source101:	httpd2-log.run
 Source102:	03_apache2.afterboot
 Source103:	fileprotector.conf
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	dietlibc-devel >= 0.20-1mdk
 
 Requires:	lynx >= 2.8.5
@@ -64,8 +73,7 @@ Obsoletes:	apache-common
 PreReq:		rpm-helper, afterboot
 
 %description
-This package contains configuration files for apache and 
-apache-mod_perl. 
+This package contains configuration files for apache and apache-mod_perl.
 It is necessary for operation of the apache webserver.
 
 Having those files into a separate modules provides better customization for
@@ -73,13 +81,16 @@ OEMs and ISPs, who can modify the look and feel of the %{name} webserver
 without having to re-compile the whole suite to change a logo or config
 file.
 
+
 %prep
 %setup -q -c -T -n %{name}-%{version}
 cp %{SOURCE35} .
 
+
 %build
 diet gcc -Os -s -static -nostdinc -o advxsplitlogfile-DIET advxsplitlogfile.c
 gcc %{optflags} -o advxsplitlogfile advxsplitlogfile.c
+
 
 %install
 [ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
@@ -157,7 +168,7 @@ popd
 
 install -d -m 0755 %{buildroot}/var/www/html/addon-modules/
 echo "Get all the latest modules at <a href=http://www.advx.org>www.advx.org</a>" \
-	>> %{buildroot}/var/www/html/addon-modules/HOWTO_get_modules.html
+    >> %{buildroot}/var/www/html/addon-modules/HOWTO_get_modules.html
 cat << EOF > %{buildroot}/var/www/html/addon-modules/.htaccess
 Order deny,allow
 Deny from all
@@ -221,8 +232,10 @@ fi
 %_postun_userdel apache
 %_mkafterboot
 
+
 %clean
 [ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
+
 
 %files 
 %defattr(-,root,root)
@@ -271,7 +284,11 @@ fi
 %dir %attr(0750,logger,logger) %{_srvlogdir}/httpd2
 %{_datadir}/afterboot/03_apache2
 
+
 %changelog
+* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 2.0.53-6avx
+- bootstrap build (new gcc, new glibc)
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.0.53-5avx
 - rebuild
 
