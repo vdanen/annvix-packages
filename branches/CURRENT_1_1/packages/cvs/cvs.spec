@@ -1,8 +1,16 @@
-%define name	cvs
-%define version	1.11.19
-%define release	4avx
+#
+# spec file for package cvs
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-%define url	ftp://ftp.cvshome.org/pub
+
+%define name		cvs
+%define version		1.11.19
+%define release		5avx
+
 %define _requires_exceptions tcsh
 
 Summary:	A version control system
@@ -26,7 +34,7 @@ Patch11:	cvs-1.11.1-newline.patch.bz2
 Patch12:	cvs-1.11.4-first-login.patch.bz2
 Patch13:	cvs-1.11.19-CAN-2005-0753.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	autoconf2.5, texinfo, zlib-devel, krb5-devel
 
 Requires:	ipsvd
@@ -50,8 +58,6 @@ directories consisting of revision controlled files.
 These directories and files can then be combined together
 to form a software release.
 
-Install the cvs package if you need to use a version
-control system.
 
 %prep
 %setup -q
@@ -62,6 +68,7 @@ control system.
 %patch12 -p1 -b .first-login
 %patch13 -p1 -b .can-2005-0753
 
+
 %build
 export SENDMAIL="%{_sbindir}/sendmail"
 
@@ -71,6 +78,7 @@ export SENDMAIL="%{_sbindir}/sendmail"
 %make
 
 make -C doc info
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -97,8 +105,10 @@ mkdir -p %{buildroot}%{_srvlogdir}/cvspserver
 mkdir -p %{buildroot}%{_datadir}/afterboot
 install -m 0644 %{SOURCE6} %{buildroot}%{_datadir}/afterboot/06_cvspserver
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %post
 %_post_srv cvspserver
@@ -114,10 +124,10 @@ install -m 0644 %{SOURCE6} %{buildroot}%{_datadir}/afterboot/06_cvspserver
 %postun
 %_mkafterboot
 
+
 %files
 %defattr(-,root,root)
 %doc BUGS FAQ MINOR-BUGS NEWS PROJECTS TODO README
-%doc doc/*.ps.bz2
 %dir %{_sysconfdir}/cvs
 %config(noreplace) %{_sysconfdir}/cvs/cvs.conf
 %{_bindir}/cvs
@@ -138,7 +148,12 @@ install -m 0644 %{SOURCE6} %{buildroot}%{_datadir}/afterboot/06_cvspserver
 %dir %attr(0750,logger,logger) %{_srvlogdir}/cvspserver
 %{_datadir}/afterboot/06_cvspserver
 
+
 %changelog
+* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 1.11.19-5avx
+- bootstrap build (new gcc, new glibc)
+- remove postscript docs
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 1.11.19-4avx
 - rebuild
 
