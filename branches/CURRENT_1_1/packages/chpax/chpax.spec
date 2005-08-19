@@ -1,6 +1,15 @@
-%define name	chpax
-%define version	0.5
-%define release	5avx
+#
+# spec file for package chpax
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		chpax
+%define version		0.7
+%define release		1avx
 
 Summary:	Tool that allows PaX flags to be modified on a per-binary basis
 Name:		%{name}
@@ -8,11 +17,11 @@ Version:	%{version}
 Release:	%{release}
 License:	Public Domain
 Group:		System/Configuration/Other
-URL:		http://pageexec.virtualave.net/
+URL:		http://pax.grsecurity.net/
 Source0:	%{name}-%{version}.tar.bz2
-Patch0:		%{name}-%{version}-autotools.patch.bz2
+Patch0:		chpax-0.7-autotools.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	autoconf2.5 automake1.7
 
 %description
@@ -21,9 +30,11 @@ of common security-enhancing kernel patches, like GrSecurity. Your system needs
 to be running an appropriately patched kernel, like the one provided by the
 kernel-secure package, for this program to have any effect.
 
+
 %prep
 %setup -q
-%patch0 -p1
+%patch0 -p1 -b .autotools
+
 
 %build 
 aclocal-1.7
@@ -33,12 +44,15 @@ automake-1.7 --foreign -a
 %configure 
 %make
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
 
+
 %clean 
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files 
 %defattr(-,root,root) 
@@ -46,7 +60,11 @@ automake-1.7 --foreign -a
 %{_mandir}/man1/chpax.1*
 %{_sbindir}/chpax
 
+
 %changelog 
+* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 0.7-1avx
+- 0.7
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 0.5-5avx
 - rebuild
 

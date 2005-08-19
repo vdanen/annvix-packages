@@ -1,8 +1,7 @@
-diff -BrauN chpax-0.5/Changelog chpax-0.5-omer/Changelog
---- chpax-0.5/Changelog	2003-10-04 18:42:23.000000000 -0500
-+++ chpax-0.5-omer/Changelog	1969-12-31 18:00:00.000000000 -0600
-@@ -1,15 +0,0 @@
-- *
+--- chpax-0.7/Changelog.autotools	2004-06-22 21:48:31.000000000 +0200
++++ chpax-0.7/Changelog	2004-07-28 18:57:25.609981071 +0200
+@@ -1,21 +1,4 @@
+  *
 - * Nov 2002 : Added multi{options,files} cmdline, zeroflag, nicer output 
 - * (+ double output if flags are changed and -v is specified), more error 
 - * handling, more explicit error messages and return values
@@ -17,10 +16,15 @@ diff -BrauN chpax-0.5/Changelog chpax-0.5-omer/Changelog
 - * Apr 2003: Added ppc support.
 - *
 - * Oct 2003: Added amd64, ia64 and make install support, short format flags printout.
-diff -BrauN chpax-0.5/ChangeLog chpax-0.5-omer/ChangeLog
---- chpax-0.5/ChangeLog	1969-12-31 18:00:00.000000000 -0600
-+++ chpax-0.5-omer/ChangeLog	2003-10-04 18:42:23.000000000 -0500
-@@ -0,0 +1,15 @@
+- *
+- * Dec 2003: Added mips and mips64 support.
+- *
+  * Feb 2004: Added PT_PAX_FLAGS support.
+  *
+  * Jun 2004: Fixed elf.h include, uses glibc's version now, added ppc64 support.
+--- chpax-0.7/ChangeLog.autotools	2004-07-28 18:57:25.639981768 +0200
++++ chpax-0.7/ChangeLog	2004-07-28 18:57:25.631981582 +0200
+@@ -0,0 +1,17 @@
 + *
 + * Nov 2002 : Added multi{options,files} cmdline, zeroflag, nicer output 
 + * (+ double output if flags are changed and -v is specified), more error 
@@ -36,11 +40,12 @@ diff -BrauN chpax-0.5/ChangeLog chpax-0.5-omer/ChangeLog
 + * Apr 2003: Added ppc support.
 + *
 + * Oct 2003: Added amd64, ia64 and make install support, short format flags printout.
-diff -BrauN chpax-0.5/chpax.h chpax-0.5-omer/chpax.h
---- chpax-0.5/chpax.h	2003-10-04 18:42:23.000000000 -0500
-+++ chpax-0.5-omer/chpax.h	2003-12-24 16:00:16.000000000 -0600
++ *
++ * Dec 2003: Added mips and mips64 support.
+--- chpax-0.7/chpax.h.autotools	2004-06-22 11:57:14.000000000 +0200
++++ chpax-0.7/chpax.h	2004-07-28 18:57:55.189668294 +0200
 @@ -4,6 +4,24 @@
-  * The PaX project : http://pageexec.virtualave.net/
+  * The PaX project : http://pax.grsecurity.net/
   * 
   */
 +#ifdef HAVE_CONFIG_H
@@ -64,24 +69,23 @@ diff -BrauN chpax-0.5/chpax.h chpax-0.5-omer/chpax.h
  #include <stdio.h>
  #include <stdlib.h>
  #include <string.h>
-@@ -13,7 +32,7 @@
- #include <linux/elf.h>
- #include <linux/a.out.h>
+@@ -13,7 +31,7 @@
+ #include <elf.h>
+ #include <a.out.h>
  
--#define	CHPAX_VERSION		"0.5"
+-#define	CHPAX_VERSION		"0.7"
 +#define	CHPAX_VERSION		PACKAGE_VERSION
  
  #define HF_PAX_PAGEEXEC         1    /* 0: Paging based non-exec pages */
  #define HF_PAX_EMUTRAMP         2    /* 0: Emulate trampolines */
-diff -BrauN chpax-0.5/configure.in chpax-0.5-omer/configure.in
---- chpax-0.5/configure.in	1969-12-31 18:00:00.000000000 -0600
-+++ chpax-0.5-omer/configure.in	2003-12-24 16:41:20.000000000 -0600
+--- chpax-0.7/configure.in.autotools	2004-07-28 18:57:25.695983069 +0200
++++ chpax-0.7/configure.in	2004-07-28 18:57:25.689982930 +0200
 @@ -0,0 +1,27 @@
 +#                                               -*- Autoconf -*-
 +# Process this file with autoconf to produce a configure script.
 +
 +AC_PREREQ(2.57)
-+AC_INIT(chpax, 0.5, chpax-autotools@omershenker.net)
++AC_INIT(chpax, 0.6, chpax-autotools@omershenker.net)
 +AC_CONFIG_SRCDIR([aout.c])
 +AM_CONFIG_HEADER([config.h])
 +AC_CANONICAL_SYSTEM
@@ -104,46 +108,8 @@ diff -BrauN chpax-0.5/configure.in chpax-0.5-omer/configure.in
 +
 +AC_CONFIG_FILES([Makefile])
 +AC_OUTPUT
-diff -BrauN chpax-0.5/Makefile chpax-0.5-omer/Makefile
---- chpax-0.5/Makefile	2003-10-04 18:41:51.000000000 -0500
-+++ chpax-0.5-omer/Makefile	1969-12-31 18:00:00.000000000 -0600
-@@ -1,33 +0,0 @@
--##
--## Makefile for chpax.c
--##
--## The PaX project : http://pageexec.virtualave.net/
--##
--
--SRC	= chpax.c io.c elf32.c elf64.c aout.c flags.c
--OBJ	= $(SRC:.c=.o)
--RM	= rm -f 
--TARGET	= chpax
--CC	= gcc
--CFLAGS	= -Wall -W -g3
--STRIP	= strip
--#STRIP	= touch
--CP	= cp
--DESTDIR =
--MANDIR	= /usr/share/man/man1/
--MKDIR	= mkdir -p
--
--all	: $(OBJ)
--	$(CC) $(CFLAGS) $(OBJ) -o $(TARGET)
--
--install	: all
--	$(STRIP) $(TARGET)
--	$(MKDIR) $(DESTDIR)/sbin/ $(DESTDIR)$(MANDIR)
--	$(CP) $(TARGET) $(DESTDIR)/sbin/
--	$(CP) $(TARGET).1 $(DESTDIR)$(MANDIR)
--
--clean	:
--	$(RM) *.o *~ \#* *\#
--
--fclean	: clean
--	$(RM) $(TARGET)
-diff -BrauN chpax-0.5/Makefile.am chpax-0.5-omer/Makefile.am
---- chpax-0.5/Makefile.am	1969-12-31 18:00:00.000000000 -0600
-+++ chpax-0.5-omer/Makefile.am	2003-12-24 16:09:22.000000000 -0600
+--- chpax-0.7/Makefile.am.autotools	2004-07-28 18:57:25.724983743 +0200
++++ chpax-0.7/Makefile.am	2004-07-28 18:57:25.719983627 +0200
 @@ -0,0 +1,24 @@
 +## Process this file with automake to create Makefile.in.
 +
