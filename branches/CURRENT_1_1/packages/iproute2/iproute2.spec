@@ -1,19 +1,27 @@
-%define name	iproute2
-%define version	2.4.7
-%define release	16avx
-
+#
+# spec file for package iproute2
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 # sync: rh-2.4.7-7
 
-%define snap	010824
 
-Summary: 	Advanced IP routing and network device configuration tools.
+%define name		iproute2
+%define version		2.4.7
+%define release		17avx
+
+%define snap		010824
+
+Summary: 	Advanced IP routing and network device configuration tools
 Name:		%{name}
 Version: 	%{version}
 Release: 	%{release}
 License: 	GPL
 Group:  	Networking/Other
 URL:		ftp://ftp.inr.ac.ru/ip-routing/
-Source: 	%{name}-%version-now-ss%snap.tar.bz2
+Source: 	%{name}-%{version}-now-ss%snap.tar.bz2
 Source2:	iproute2-man8.tar.bz2
 # RH patches
 Patch0:		iproute2-2.2.4-docmake.patch.bz2
@@ -30,8 +38,9 @@ Patch103:	iproute2-htb3.6_tc.patch.bz2
 Patch104:	iproute2-2.4.7-now-ss010824-make.patch.bz2
 Patch105:	iproute2-mult-deflt-gateways.patch.bz2
 Patch106:	iproute2-2.4.7-netlink.patch.bz2
+Patch107:	iproute2-2.4.7-avx-includes.patch.bz2
 
-BuildRoot:	%_tmppath/%name-%version-%release-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 
 Requires:	iputils
 
@@ -40,6 +49,7 @@ The iproute package contains networking utilities (ip, tc and rtmon,
 for example) which are designed to use the advanced networking
 capabilities of the Linux 2.2.x kernels and later,  such as policy 
 routing, fast NAT and packet scheduling.
+
 
 %prep
 %setup -q -n %{name} 
@@ -57,32 +67,37 @@ routing, fast NAT and packet scheduling.
 %patch104 -p0 -b .make
 %patch105 -p1 -b .make
 %patch106 -p1 -b .can-2003-0856
+%patch107 -p1 -b .includes
+
 
 %build
 %define optflags -ggdb
 %make KERNEL_INCLUDE=/usr/include
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-install -d $RPM_BUILD_ROOT/{sbin,%{_sysconfdir}/iproute2}
+install -d %{buildroot}/{sbin,%{_sysconfdir}/iproute2}
 
-install -m 755 ip/ifcfg $RPM_BUILD_ROOT/sbin
-install -m 755 ip/routef $RPM_BUILD_ROOT/sbin
-install -m 755 ip/routel $RPM_BUILD_ROOT/sbin
-install -m 755 ip/ip $RPM_BUILD_ROOT/sbin
-install -m 755 ip/rtmon $RPM_BUILD_ROOT/sbin
-install -m 755 ip/rtacct $RPM_BUILD_ROOT/sbin
-install -m 755 tc/tc $RPM_BUILD_ROOT/sbin
-install -m 644 etc/iproute2/rt_dsfield $RPM_BUILD_ROOT%{_sysconfdir}/iproute2
-install -m 644 etc/iproute2/rt_protos $RPM_BUILD_ROOT%{_sysconfdir}/iproute2
-install -m 644 etc/iproute2/rt_realms $RPM_BUILD_ROOT%{_sysconfdir}/iproute2
-install -m 644 etc/iproute2/rt_scopes $RPM_BUILD_ROOT%{_sysconfdir}/iproute2
-install -m 644 etc/iproute2/rt_tables $RPM_BUILD_ROOT%{_sysconfdir}/iproute2
-mkdir -p $RPM_BUILD_ROOT/%_mandir
-tar xfj %SOURCE2 -C $RPM_BUILD_ROOT/%_mandir/
+install -m 0755 ip/ifcfg %{buildroot}/sbin
+install -m 0755 ip/routef %{buildroot}/sbin
+install -m 0755 ip/routel %{buildroot}/sbin
+install -m 0755 ip/ip %{buildroot}/sbin
+install -m 0755 ip/rtmon %{buildroot}/sbin
+install -m 0755 ip/rtacct %{buildroot}/sbin
+install -m 0755 tc/tc %{buildroot}/sbin
+install -m 0644 etc/iproute2/rt_dsfield %{buildroot}%{_sysconfdir}/iproute2
+install -m 0644 etc/iproute2/rt_protos %{buildroot}%{_sysconfdir}/iproute2
+install -m 0644 etc/iproute2/rt_realms %{buildroot}%{_sysconfdir}/iproute2
+install -m 0644 etc/iproute2/rt_scopes %{buildroot}%{_sysconfdir}/iproute2
+install -m 0644 etc/iproute2/rt_tables %{buildroot}%{_sysconfdir}/iproute2
+mkdir -p %{buildroot}/%{_mandir}
+tar xfj %SOURCE2 -C %{buildroot}/%{_mandir}/
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr (-,root,root)
@@ -90,10 +105,15 @@ tar xfj %SOURCE2 -C $RPM_BUILD_ROOT/%_mandir/
 %doc doc/Plan examples/
 %dir %{_sysconfdir}/iproute2
 /sbin/*
-%_mandir/man8/*
+%{_mandir}/man8/*
 %attr(644,root,root) %config(noreplace) %{_sysconfdir}/iproute2/*
 
+
 %changelog
+* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 2.4.7-17avx
+- bootstrap build (new gcc, new glibc)
+- P107: fix ip/iptunnel.c so it compiles properly
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.4.7-16avx
 - bootstrap build
 
