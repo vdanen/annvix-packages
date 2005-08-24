@@ -11,7 +11,7 @@
 
 %define name		openssh
 %define version		4.1p1
-%define release 	3avx
+%define release 	4avx
 
 # overrides
 %global build_skey	0
@@ -33,7 +33,8 @@ Source5:	04_openssh.afterboot
 Source6:	ssh-client.sh
 Source8:	sshd.run
 Source9:	sshd-log.run
-Patch1:		openssh-4.0p1-avx-annvixconf.patch.bz2
+Source10:	convert_known_hosts-4.0.pl
+Patch1:		openssh-4.1p1-avx-annvixconf.patch.bz2
 # authorized by Damien Miller <djm@openbsd.com>
 Patch2:		openssh-3.1p1-mdk-check-only-ssl-version.patch.bz2
 
@@ -185,6 +186,8 @@ install -m 0755 %{SOURCE9} %{buildroot}%{_srvdir}/sshd/log/run
 mkdir -p %{buildroot}%{_datadir}/afterboot
 install -m 0644 %{SOURCE5} %{buildroot}%{_datadir}/afterboot/04_openssh
 
+install -m 0644 %{SOURCE10} .
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -262,6 +265,14 @@ do_dsa_keygen
 %_mkafterboot
 %_postun_userdel sshd
 
+%post clients
+echo "PLEASE NOTE:"
+echo "This OpenSSH package enables known_hosts hashing by default.  It will only be"
+echo "effective if you convert pre-existing known_hosts files to the hashed format."
+echo "This can be done using the convert_known_hosts-4.0.pl script found in"
+echo "%{_docdir}/%{name}-clients-%{version}/.  The script can convert all"
+echo "known_hosts files on an entire system if run as root."
+
 
 %files
 %defattr(-,root,root)
@@ -278,6 +289,7 @@ do_dsa_keygen
 
 %files clients
 %defattr(-,root,root)
+%doc convert_known_hosts-4.0.pl
 %config(noreplace) %{_sysconfdir}/ssh/ssh_config
 %attr(0755,root,root) %config(noreplace) %{_sysconfdir}/profile.d/ssh-client.sh
 %{_bindir}/ssh
@@ -314,6 +326,12 @@ do_dsa_keygen
 %{_datadir}/afterboot/04_openssh
 
 %changelog
+* Tue Aug 23 2005 Vincent Danen <vdanen@annvix.org> 4.1p1-4avx
+- enable HashKnownHosts by default [ssh_config]
+- include convert_known_hosts-4.0pl script from nms.lcs.mit.edu
+  to convert existing known_hosts files to the hashed format
+- update afterboot snippet to note the HashKnownHosts change
+
 * Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 4.1p1-3avx
 - bootstrap build (new gcc, new glibc)
 
