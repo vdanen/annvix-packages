@@ -8,9 +8,10 @@
 
 
 %define name		strace
-%define version		4.4.98
-%define release		6avx
-#define cvsdate		20030410
+%define version		4.5.13
+%define release		1avx
+
+%{expand:%%define optflags %{optflags} -Wall}
 
 Summary:	Tracks and displays system calls associated with a running process
 Name:		%{name}
@@ -18,10 +19,17 @@ Version:	%{version}
 Release:	%{release}
 License:	BSD
 Group:		Development/Kernel
-URL:		http://www.liacs.nl/~wichert/strace/
-Source0:	%{name}-%{version}%{?cvsdate:-%{cvsdate}}.tar.bz2
+URL:		http://sourceforge.net/projects/strace/
+Source0:	%{name}-%{version}.tar.bz2
+Patch0:		strace-4.5.13-alt-quotactl.diff
+Patch1:		strace-4.5.13-alt-mount.diff
+Patch2:		strace-4.5.13-owl-man.diff
+Patch3:		strace-4.5.13-alt-keep_status.diff
+Patch4:		strace-4.5.13-drepper-x86_64-ipc.diff
+Patch5:		strace-4.5.13-drepper-msgrcv.diff
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
+BuildRequires:	autoconf2.5, automake1.7
 
 %description
 The strace program intercepts and records the system calls called
@@ -30,24 +38,31 @@ each system call, its arguments and its return value.  Strace is useful
 for diagnosing problems and debugging, as well as for instructional
 purposes.
 
-Install strace if you need a tool to track the system calls made and
-received by a process.
-
 
 %prep
 %setup -q
+#%patch0 -p1 -b .quotactl
+%patch1 -p1 -b .mount
+%patch2 -p1 -b .man
+%patch3 -p1 -b .keep_status
+%patch4 -p1 -b .x86_64-ipc
+%patch5 -p1 -b .msgrcv
 
 
 %build
+#autoreconf -fisv
+
+export WANT_AUTOCONF_2_5=1
+rm -f configure
+libtoolize --copy --force && aclocal-1.7 && autoheader && automake-1.7 --add-missing && autoconf --force
+
 %configure2_5x
 %make
 
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p %{buildroot}%{_bindir}
-mkdir -p %{buildroot}%{_mandir}/man1
-%makeinstall man1dir=%{buildroot}%{_mandir}/man1
+%makeinstall
 
 # remove unpackaged files
 rm -f %{buildroot}%{_bindir}/strace-graph
@@ -65,6 +80,11 @@ rm -f %{buildroot}%{_bindir}/strace-graph
 
 
 %changelog
+* Wed Aug 24 2005 Vincent Danen <vdanen@annvix.org> 4.5.13-1avx
+- 4.5.13
+- sync with ALT/Openwall patches
+- redefine %%optflags to add -Wall
+
 * Wed Jul 27 2005 Vincent Danen <vdanen@annvix.org> 4.4.98-6avx
 - rebuild for new gcc
 
