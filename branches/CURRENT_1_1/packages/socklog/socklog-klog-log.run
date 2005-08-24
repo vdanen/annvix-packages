@@ -1,0 +1,4 @@
+#!/bin/execlineb
+
+chpst -u logger
+svlogd -tt /var/log/supervise/socklog-klog/
