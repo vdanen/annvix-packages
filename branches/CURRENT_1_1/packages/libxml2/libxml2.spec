@@ -1,10 +1,19 @@
-%define name	libxml2
-%define version	2.6.17
-%define release	2avx
+#
+# spec file for package libxml2
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-%define major	2
-%define libname	%mklibname xml %{major}
-%define py_ver	2.3
+
+%define name		libxml2
+%define version		2.6.20
+%define release		1avx
+
+%define major		2
+%define libname		%mklibname xml %{major}
+%define py_ver		2.3
 
 Summary:	Library providing XML and HTML support
 Name:		%{name}
@@ -17,8 +26,8 @@ Source0:	ftp://xmlsoft.org/%{name}-%{version}.tar.bz2
 # (fc) 2.4.23-3mdk remove references to -L/usr/lib
 Patch1:		libxml2-2.4.23-libdir.patch.bz2
 
-BuildRoot:	%_tmppath/%name-%version-%release-root
-BuildRequires:	python-devel >= %{pyver}, readline-devel, zlib-devel, autoconf2.5, automake1.8
+BuildRoot:	%{_buildroot}/%{name}-%{version}
+BuildRequires:	python-devel >= %{pyver}, readline-devel, zlib-devel, autoconf2.5, automake1.9
 
 %description
 This library allows to manipulate XML files. It includes support 
@@ -30,6 +39,7 @@ In this case one can use the built-in XPath and XPointer implementation
 to select subnodes or ranges. A flexible Input/Output mechanism is
 available, with existing HTTP and FTP modules and combined to an
 URI library.
+
 
 %if "%{libname}" != "%{name}"
 %package -n %{libname}
@@ -44,6 +54,7 @@ this includes parsing and validation even with complex DtDs, either
 at parse time or later once the document has been modified.
 %endif
 
+
 %package utils
 Summary: Utilities to manipulate XML files
 Group: System/Libraries
@@ -51,6 +62,7 @@ Requires: %{libname} >= %{version}
 
 %description utils
 This packages contains utils to manipulate XML files.
+
 
 %package -n %{libname}-python
 Summary:	Python bindings for the libxml2 library
@@ -68,6 +80,7 @@ This library allows to manipulate XML files. It includes support
 to read, modify and write XML and HTML files. There is DTDs support
 this includes parsing and validation even with complex DTDs, either
 at parse time or later once the document has been modified.
+
 
 %package -n %{libname}-devel
 Summary:	Libraries, includes, etc. to develop XML and HTML applications
@@ -94,44 +107,20 @@ URI library.
 %patch1 -p1 -b .libdir
 
 # needed by patch 1
-aclocal-1.8
-automake-1.8
+aclocal-1.9
+automake-1.9
 autoconf
 
+
 %build
-#
-# try to use compiler profiling, based on Arjan van de Ven <arjanv@redhat.com>
-# initial test spec. This really doesn't work okay for most tests done.
-#
-GCC_VERSION=`gcc --version | grep "^gcc" | awk '{ print $3 }' | sed 's+\([0-9]\)\.\([0-9]\)\..*+\1\2+'`
-if [ $GCC_VERSION -ge 34 ]
-then
-    PROF_GEN='-fprofile-generate'
-    PROF_USE='-fprofile-use'
-fi
-
-if [ "$PROF_GEN" != "" ]
-then
-    # First generate a profiling version
-    CFLAGS="%{optflags} ${PROF_GEN}" CC="" %configure2_5x
-    %make
-    # Run a few sampling
-    make dba100000.xml
-    ./xmllint --noout  dba100000.xml
-    ./xmllint --stream  dba100000.xml
-    ./xmllint --noout --valid test/valid/REC-xml-19980210.xml
-    ./xmllint --stream --valid test/valid/REC-xml-19980210.xml
-    # Then generate code based on profile
-    export CFLAGS="%{optflags} ${PROF_USE}"
-fi
-
 %configure2_5x
 
 %make
 
 # all tests must pass
-# use TESTDIRS="" to disable xstc test which are using a remote tarball
-make TESTDIRS="" check
+# use TARBALLURL_2="" TARBALLURL="" TESTDIRS="" to disable xstc test which are using remote tarball
+make TARBALLURL_2="" TARBALLURL="" TESTDIRS="" check
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -143,14 +132,17 @@ make TESTDIRS="" check
 
 # remove unpackaged files
 rm -rf	%{buildroot}%{_prefix}/doc \
- 	%{buildroot}%{_datadir}/doc \
-	%{buildroot}%{_libdir}/python%{pyver}/site-packages/*.{la,a} \
+    %{buildroot}%{_datadir}/doc \
+    %{buildroot}%{_libdir}/python%{pyver}/site-packages/*.{la,a}
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
+
 %post -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
+
 
 %files -n %{libname}
 %defattr(-, root, root)
@@ -187,7 +179,13 @@ rm -rf	%{buildroot}%{_prefix}/doc \
 %{_includedir}/*
 %{_datadir}/aclocal/*
 
+
 %changelog
+* Tue Aug 23 2005 Vincent Danen <vdanen@annvix.org> 2.6.20-1avx
+- 2.6.20
+- remove the compiler profiling as it ends up complaining about
+  hidden symbols in libgcov.a
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.6.17-2avx
 - bootstrap build
 
