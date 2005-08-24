@@ -1,13 +1,22 @@
-%define name	libxslt
-%define version	1.1.12
-%define release	2avx
+#
+# spec file for package libxslt
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-%define xml_version_required	2.6.15
-%define major			1
-%define libname			%mklibname xslt %{major}
 
-%define py_ver      2.3
-%define pylibxml2   python-libxml2
+%define name		libxslt
+%define version		1.1.12
+%define release		3avx
+
+%define xml_ver_req	2.6.15
+%define major		1
+%define libname		%mklibname xslt %{major}
+
+%define py_ver      	2.3
+%define pylibxml2   	python-libxml2
 
 Summary:	Library providing XSLT support
 Name:		%{name}
@@ -18,17 +27,18 @@ Group:		System/Libraries
 URL:		http://xmlsoft.org/XSLT/
 Source:		ftp://xmlsoft.org/libxslt-%{version}.tar.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-root
-BuildRequires:	libxml2-devel >= %{xml_version_required}
+BuildRoot:	%{_buildroot}/%{name}-%{version}
+BuildRequires:	libxml2-devel >= %{xml_ver_req}
 BuildRequires:	python-devel >= %{pyver}
-BuildRequires:	%{pylibxml2} >= %{xml_version_required}
+BuildRequires:	%{pylibxml2} >= %{xml_ver_req}
 
-Requires:	libxml2 >= %{xml_version_required}
+Requires:	libxml2 >= %{xml_ver_req}
 
 %description
 This C library allows to transform XML files into other XML files
 (or HTML, text, ...) using the standard XSLT stylesheet transformation
 mechanism.
+
 
 %package proc
 Summary:	XSLT processor using libxslt
@@ -45,7 +55,7 @@ mechanism.
 %package -n %{libname}
 Summary:	Library providing XSLT support
 Group:		System/Libraries
-Requires:	libxml2 >= %{xml_version_required}
+Requires:	libxml2 >= %{xml_ver_req}
 
 %description  -n %{libname}
 This C library allows to transform XML files into other XML files
@@ -54,12 +64,13 @@ mechanism.
 A xslt processor based on this library, named xsltproc, is provided by 
 the libxslt-proc package.
 
+
 %package python
 Summary:	Python bindings for the libxslt library
 Group:		Development/Python
 Requires:	%{libname} = %{version}
 Requires:	python >= %{pyver}
-Requires:	%{pylibxml2} >= %{xml_version_required}
+Requires:	%{pylibxml2} >= %{xml_ver_req}
 
 %description python
 The libxslt-python package contains a module that permits applications
@@ -77,15 +88,17 @@ Summary:	Libraries, includes, etc. to develop XML and HTML applications
 Group:		Development/C
 Provides:	%{name}-devel = %{version}-%{release}
 Requires:	%{libname} = %{version}
-Requires:	libxml2-devel >= %{xml_version_required}
+Requires:	libxml2-devel >= %{xml_ver_req}
 
 %description -n %{libname}-devel
 This C library allows to transform XML files into other XML files
 (or HTML, text, ...) using the standard XSLT stylesheet transformation
 mechanism. 
 
+
 %prep
 %setup -q
+
 
 %build
 %configure2_5x
@@ -93,6 +106,7 @@ mechanism.
 %make 
 
 make check
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -103,11 +117,12 @@ make check
 rm -rf %{buildroot}%{_docdir}/%{name}-%{version} \
   %{buildroot}%{_libdir}/python%{pyver}/site-packages/*.{la,a}
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-%post -n %{libname} -p /sbin/ldconfig 
 
+%post -n %{libname} -p /sbin/ldconfig 
 %postun -n %{libname} -p /sbin/ldconfig
 
 %files proc
@@ -141,7 +156,11 @@ rm -rf %{buildroot}%{_docdir}/%{name}-%{version} \
 %{_libdir}/pkgconfig/*
 %{_datadir}/aclocal/*
 
+
 %changelog
+* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 1.1.12-3avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.1.12-2avx
 - bootstrap build
 

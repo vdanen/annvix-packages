@@ -1,6 +1,15 @@
-%define name	samba
-%define version	3.0.11
-%define release	4avx
+#
+# spec file for package samba
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		samba
+%define version		3.0.11
+%define release		5avx
 
 %define smbldapver	0.8.6
 %define vscanver	0.3.5
@@ -40,7 +49,7 @@ Patch6:         samba-3.0.6-mdk-smbmount-unixext.patch.bz2
 Patch7:         samba-3.0.6-mdk-revert-libsmbclient-move.patch.bz2
 Patch8:         samba-3.0.11-avx-annvix-config.patch.bz2
 
-BuildRoot:      %{_tmppath}/%{name}-%{version}-root
+BuildRoot:      %{_buildroot}/%{name}-%{version}
 BuildRequires:  pam-devel readline-devel libncurses-devel popt-devel
 BuildRequires:  libxml2-devel postgresql-devel
 BuildRequires:  MySQL-devel
@@ -48,8 +57,8 @@ BuildRequires:  libacl-devel
 BuildRequires:  libldap-devel krb5-devel
 
 Requires:       pam >= 0.64, samba-common = %{version}, srv >= 0.7
-Prereq:         /bin/mktemp /usr/bin/killall
-Prereq:         fileutils sed /bin/grep
+Prereq:         mktemp psmisc
+Prereq:         fileutils sed grep
 
 %description
 Samba provides an SMB server which can be used to provide
@@ -243,9 +252,9 @@ cp -a %{vscandir} %{vfsdir}/
 #mv %{vfsdir}/%{vscandir}/openantivirus %{vfsdir}/%{vscandir}/oav
 # Inline replacement of config dir
 for av in clamav icap; do
-	[ -e %{vfsdir}/%{vscandir}/*/vscan-$av.h ] && perl -pi -e \
-	's,^#define PARAMCONF "/etc/samba,#define PARAMCONF "/etc/%{name},' \
-	%{vfsdir}/%{vscandir}/*/vscan-$av.h
+    [ -e %{vfsdir}/%{vscandir}/*/vscan-$av.h ] && perl -pi -e \
+        's,^#define PARAMCONF "/etc/samba,#define PARAMCONF "/etc/%{name},' \
+        %{vfsdir}/%{vscandir}/*/vscan-$av.h
 done
 #Inline edit vscan header:
 perl -pi -e 's/^# define SAMBA_VERSION_MAJOR 2/# define SAMBA_VERSION_MAJOR 3/g;s/# define SAMBA_VERSION_MINOR_2/# define SAMBA_VERSION_MINOR 0/g' %{vfsdir}/%{vscandir}/include/vscan-global.h
@@ -253,53 +262,54 @@ perl -pi -e 's/^# define SAMBA_VERSION_MAJOR 2/# define SAMBA_VERSION_MAJOR 3/g;
 find docs examples -name '.cvsignore' -exec rm -f {} \;
 
 %build
-(cd source
-CFLAGS=`echo "%{optflags}"|sed -e 's/-g//g'`
+pushd source
+    CFLAGS=`echo "%{optflags}"|sed -e 's/-g//g'`
 
-# fix optimization with gcc 3.3.1 (can remove when we move to 3.4)
-CFLAGS=`echo "$CFLAGS"|sed -e 's/-O2/-Os/g'`
+    ## fix optimization with gcc 3.3.1 (can remove when we move to 3.4)
+    #CFLAGS=`echo "$CFLAGS"|sed -e 's/-O2/-Os/g'`
 
-./autogen.sh
-# Don't use --with-fhs now, since it overrides libdir, it sets configdir, 
-# lockdir,piddir logfilebase,privatedir and swatdir
-%configure      --prefix=%{_prefix} \
-                --sysconfdir=%{_sysconfdir}/%{name} \
-                --localstatedir=/var \
-                --with-libdir=%{_libdir}/%{name} \
-                --with-privatedir=%{_sysconfdir}/%{name} \
-		--with-lockdir=/var/cache/%{name} \
-		--with-piddir=/var/run \
-                --with-swatdir=%{_datadir}/swat \
-                --with-configdir=%{_sysconfdir}/%{name} \
-		--with-logfilebase=/var/log/%{name} \
-                --with-automount \
-                --with-smbmount \
-                --with-pam \
-                --with-pam_smbpass \
-		--with-ldapsam \
-		--with-tdbsam \
-                --without-syslog \
-                --with-quotas \
-                --with-utmp \
-		--with-manpages-langs=en \
-		--with-acl-support      \
-		--disable-mysqltest \
-		--with-expsam=mysql,xml,pgsql
+    ./autogen.sh
+    # Don't use --with-fhs now, since it overrides libdir, it sets configdir, 
+    # lockdir,piddir logfilebase,privatedir and swatdir
+    %configure \
+        --prefix=%{_prefix} \
+        --sysconfdir=%{_sysconfdir}/%{name} \
+        --localstatedir=/var \
+        --with-libdir=%{_libdir}/%{name} \
+        --with-privatedir=%{_sysconfdir}/%{name} \
+	--with-lockdir=/var/cache/%{name} \
+	--with-piddir=/var/run \
+        --with-swatdir=%{_datadir}/swat \
+        --with-configdir=%{_sysconfdir}/%{name} \
+	--with-logfilebase=/var/log/%{name} \
+        --with-automount \
+        --with-smbmount \
+        --with-pam \
+        --with-pam_smbpass \
+	--with-ldapsam \
+	--with-tdbsam \
+        --without-syslog \
+        --with-quotas \
+        --with-utmp \
+	--with-manpages-langs=en \
+	--with-acl-support      \
+	--disable-mysqltest \
+	--with-expsam=mysql,xml,pgsql
 
-#Fix the make file so we don't create debug information
-perl -pi -e 's/-g //g' Makefile
+    #Fix the make file so we don't create debug information
+    perl -pi -e 's/-g //g' Makefile
 
-perl -pi -e 's|-Wl,-rpath,%{_libdir}||g;s|-Wl,-rpath -Wl,%{_libdir}||g' Makefile
+    perl -pi -e 's|-Wl,-rpath,%{_libdir}||g;s|-Wl,-rpath -Wl,%{_libdir}||g' Makefile
 
-make proto_exists
-%make all libsmbclient smbfilter wins modules bin/smbget client/mount.cifs bin/idmap_rid.so
-)
+    make proto_exists
+    %make all libsmbclient smbfilter wins modules bin/smbget client/mount.cifs bin/idmap_rid.so
+popd
 
 pushd %{vfsdir}/%{vscandir}  
-%configure
-#sed -i -e 's,openantivirus,oav,g' Makefile
-sed -i -e 's,^\(.*clamd socket name.*=\).*,\1 /var/lib/clamav/clamd.socket,g' clamav/vscan-clamav.conf
-make clamav icap
+    %configure
+    #sed -i -e 's,openantivirus,oav,g' Makefile
+    sed -i -e 's,^\(.*clamd socket name.*=\).*,\1 /var/lib/clamav/clamd.socket,g' clamav/vscan-clamav.conf
+    make clamav icap
 popd
 
 
@@ -315,10 +325,14 @@ mkdir -p %{buildroot}%{_sysconfdir}/%{name}
 mkdir -p %{buildroot}%{_datadir}
 mkdir -p %{buildroot}%{_libdir}/%{name}/vfs
 
-(cd source
-make DESTDIR=%{buildroot} LIBDIR=%{_libdir}/%{name} MANDIR=%{_mandir} install installclientlib installmodules)
+pushd source
+    make DESTDIR=%{buildroot} \
+        LIBDIR=%{_libdir}/%{name} \
+        MANDIR=%{_mandir} \
+        install installclientlib installmodules
+popd
 
-install -m755 source/bin/smbget %{buildroot}%{_bindir}
+install -m 0755 source/bin/smbget %{buildroot}%{_bindir}
 
 #need to stay 
 mkdir -p %{buildroot}/{sbin,bin}
@@ -336,18 +350,18 @@ mkdir -p %{buildroot}%{_libdir}/%{name}/vfs
 mkdir -p %{buildroot}%{_datadir}/%{name}/scripts
 
 #smbwrapper and pam_winbind not handled by make, pam_smbpass.so doesn't build
-#install -m 755 source/bin/smbwrapper.so %{buildroot}%{_libdir}/smbwrapper.so
-install -m 755 source/bin/pam_smbpass.so %{buildroot}/%{_lib}/security/pam_smbpass.so
-install -m 755 source/nsswitch/pam_winbind.so %{buildroot}/%{_lib}/security/pam_winbind.so
+#install -m 0755 source/bin/smbwrapper.so %{buildroot}%{_libdir}/smbwrapper.so
+install -m 0755 source/bin/pam_smbpass.so %{buildroot}/%{_lib}/security/pam_smbpass.so
+install -m 0755 source/nsswitch/pam_winbind.so %{buildroot}/%{_lib}/security/pam_winbind.so
 
-install -m755 source/bin/libsmbclient.a %{buildroot}%{_libdir}/libsmbclient.a
+install -m 0755 source/bin/libsmbclient.a %{buildroot}%{_libdir}/libsmbclient.a
 
 # winbind idmap_rid:
 install -d %{buildroot}%{_libdir}/%{name}/idmap
 install source/bin/idmap_rid.so %{buildroot}%{_libdir}/%{name}/idmap
 
 # smbsh forgotten
-#install -m 755 source/bin/smbsh %{buildroot}%{_bindir}/
+#install -m 0755 source/bin/smbsh %{buildroot}%{_bindir}/
 
 %makeinstall_std -C %{vfsdir}/%{vscandir}
 install -m 0644 %{vfsdir}/%{vscandir}/*/vscan-*.conf %{buildroot}%{_sysconfdir}/%{name}
@@ -355,41 +369,41 @@ install -m 0644 %{vfsdir}/%{vscandir}/*/vscan-*.conf %{buildroot}%{_sysconfdir}/
 #libnss_* not handled by make:
 # Install the nsswitch library extension file
 for i in wins winbind; do
-  install -m755 source/nsswitch/libnss_${i}.so %{buildroot}/%{_lib}/libnss_${i}.so
+    install -m 0755 source/nsswitch/libnss_${i}.so %{buildroot}/%{_lib}/libnss_${i}.so
 done
 # Make link for wins and winbind resolvers
 ( cd %{buildroot}/%{_lib}; ln -s libnss_wins.so libnss_wins.so.2; ln -s libnss_winbind.so libnss_winbind.so.2)
 
 # Install other stuff
 
-install -m644 packaging/Mandrake/smbusers %{buildroot}%{_sysconfdir}/%{name}/smbusers
-install -m755 packaging/Mandrake/smbprint %{buildroot}%{_bindir}
-install -m755 packaging/Mandrake/findsmb %{buildroot}%{_bindir}
-install -m755 packaging/Mandrake/smb.init %{buildroot}%{_sbindir}/%{name}
-install -m755 packaging/Mandrake/winbind.init %{buildroot}%{_sbindir}/winbind
-install -m644 packaging/Mandrake/samba.pamd %{buildroot}%{_sysconfdir}/pam.d/%{name}
-install -m644 packaging/Mandrake/system-auth-winbind.pamd %{buildroot}%{_sysconfdir}/pam.d/system-auth-winbind
-install -m644 %{SOURCE1} %{buildroot}%{_sysconfdir}/logrotate.d/%{name}
+install -m 0644 packaging/Mandrake/smbusers %{buildroot}%{_sysconfdir}/%{name}/smbusers
+install -m 0755 packaging/Mandrake/smbprint %{buildroot}%{_bindir}
+install -m 0755 packaging/Mandrake/findsmb %{buildroot}%{_bindir}
+install -m 0755 packaging/Mandrake/smb.init %{buildroot}%{_sbindir}/%{name}
+install -m 0755 packaging/Mandrake/winbind.init %{buildroot}%{_sbindir}/winbind
+install -m 0644 packaging/Mandrake/samba.pamd %{buildroot}%{_sysconfdir}/pam.d/%{name}
+install -m 0644 packaging/Mandrake/system-auth-winbind.pamd %{buildroot}%{_sysconfdir}/pam.d/system-auth-winbind
+install -m 0644 %{SOURCE1} %{buildroot}%{_sysconfdir}/logrotate.d/%{name}
 
 # make a conf file for winbind from the default one:
-	cat packaging/Mandrake/smb.conf|sed -e  's/^;  winbind/  winbind/g;s/^;  obey pam/  obey pam/g; s/^;   printer admin = @"D/   printer admin = @"D/g;s/^;   password server = \*/   password server = \*/g;s/^;  template/  template/g; s/^   security = user/   security = domain/g' > packaging/Mandrake/smb-winbind.conf
-        install -m644 packaging/Mandrake/smb-winbind.conf %{buildroot}%{_sysconfdir}/%{name}/smb-winbind.conf
+cat packaging/Mandrake/smb.conf|sed -e  's/^;  winbind/  winbind/g;s/^;  obey pam/  obey pam/g; s/^;   printer admin = @"D/   printer admin = @"D/g;s/^;   password server = \*/   password server = \*/g;s/^;  template/  template/g; s/^   security = user/   security = domain/g' > packaging/Mandrake/smb-winbind.conf
+install -m 0644 packaging/Mandrake/smb-winbind.conf %{buildroot}%{_sysconfdir}/%{name}/smb-winbind.conf
 
 # Some inline fixes for smb.conf for non-winbind use
-install -m644 packaging/Mandrake/smb.conf %{buildroot}%{_sysconfdir}/%{name}/smb.conf
+install -m 0644 packaging/Mandrake/smb.conf %{buildroot}%{_sysconfdir}/%{name}/smb.conf
 cat packaging/Mandrake/smb.conf | \
-sed -e 's/^;   printer admin = @adm/   printer admin = @adm/g' >%{buildroot}%{_sysconfdir}/%{name}/smb.conf
+    sed -e 's/^;   printer admin = @adm/   printer admin = @adm/g' >%{buildroot}%{_sysconfdir}/%{name}/smb.conf
 
 #install mount.cifs
-install -m755 source/client/mount.cifs %{buildroot}/bin/mount.cifs
+install -m 0755 source/client/mount.cifs %{buildroot}/bin/mount.cifs
 ln -s ../bin/mount.cifs %{buildroot}/sbin/mount.cifs
 
-        echo 127.0.0.1 localhost > %{buildroot}%{_sysconfdir}/%{name}/lmhosts
+echo 127.0.0.1 localhost > %{buildroot}%{_sysconfdir}/%{name}/lmhosts
 
 # Link smbspool to CUPS (does not require installed CUPS)
 
-        mkdir -p %{buildroot}%{_libdir}/cups/backend
-        ln -s %{_bindir}/smbspool %{buildroot}%{_libdir}/cups/backend/smb
+mkdir -p %{buildroot}%{_libdir}/cups/backend
+ln -s %{_bindir}/smbspool %{buildroot}%{_libdir}/cups/backend/smb
 
 # ipsvd support
 mkdir -p %{buildroot}%{_srvdir}/swat/log
@@ -403,10 +417,10 @@ bzcat %{SOURCE20}> %{buildroot}%{_datadir}/%{name}/scripts/smb-migrate
 rm -f %{buildroot}/sbin/mount.smbfs
 # Link smbmount to /sbin/mount.smb and /sbin/mount.smbfs
 #I don't think it's possible for make to do this ...
-(cd %{buildroot}/sbin
-        ln -s ..%{_bindir}/smbmount mount.smb
-        ln -s ..%{_bindir}/smbmount mount.smbfs
-)
+pushd %{buildroot}/sbin
+    ln -s ..%{_bindir}/smbmount mount.smb
+    ln -s ..%{_bindir}/smbmount mount.smbfs
+popd
 
 mkdir -p %{buildroot}%{_srvdir}/{smbd,nmbd,winbindd}/log
 install -m 0755 %{SOURCE14} %{buildroot}%{_srvdir}/smbd/run
@@ -420,9 +434,9 @@ mkdir -p %{buildroot}%{_srvlogdir}/{smbd,nmbd,winbindd}
 mv %{buildroot}%{_sysconfdir}/samba/smb.conf %{buildroot}%{_sysconfdir}/samba/smb.conf_full
 install -m 0640 packaging/Mandrake/smb.conf.secure %{buildroot}%{_sysconfdir}/samba/smb.conf
 
-#Clean up unpackaged files:
+# Clean up unpackaged files:
 for i in %{_bindir}/pam_smbpass.so %{_bindir}/smbwrapper.so %{_mandir}/man1/editreg*;do
-rm -f %{buildroot}/$i
+    rm -f %{buildroot}/$i
 done
 rm -rf %{buildroot}%{_datadir}/swat/using_samba
 rm -f %{buildroot}%{_sysconfdir}/%{name}/vscan-{symantec,fprotd,fsav,kavp,mcdaemon,mks32,oav,sophos,trend}.conf
@@ -449,11 +463,11 @@ groupadd -frg 101 machines
 # Migrate tdb's from /var/lock/samba (taken from official samba spec file):
 for i in /var/lock/samba/*.tdb
 do
-if [ -f $i ]; then
+    if [ -f $i ]; then
         newname=`echo $i | sed -e's|var\/lock\/samba|var\/cache\/samba|'`
         echo "Moving $i to $newname"
         mv $i $newname
-fi
+    fi
 done
 
 %post common
@@ -462,13 +476,13 @@ done
 
 # Let's create a proper %{_sysconfdir}/samba/smbpasswd file
 [ -f %{_sysconfdir}/%{name}/smbpasswd ] || {
-	echo "Creating password file for samba..."
-	touch %{_sysconfdir}/%{name}/smbpasswd
+    echo "Creating password file for samba..."
+    touch %{_sysconfdir}/%{name}/smbpasswd
 }
 
 # And this too, in case we don't have smbd to create it for us
 [ -f /var/cache/%{name}/unexpected.tdb ] || {
-	touch /var/cache/%{name}/unexpected.tdb
+    touch /var/cache/%{name}/unexpected.tdb
 }
 
 # Let's define the proper paths for config files
@@ -476,8 +490,8 @@ perl -pi -e 's/(\/etc\/)(smb)/\1%{name}\/\2/' %{_sysconfdir}/%{name}/smb.conf
 
 # Fix the logrotate.d file from smb and nmb to smbd and nmbd
 if [ -f %{_sysconfdir}/logrotate.d/samba ]; then
-        perl -pi -e 's/smb /smbd /' %{_sysconfdir}/logrotate.d/samba
-        perl -pi -e 's/nmb /nmbd /' %{_sysconfdir}/logrotate.d/samba
+    perl -pi -e 's/smb /smbd /' %{_sysconfdir}/logrotate.d/samba
+    perl -pi -e 's/nmb /nmbd /' %{_sysconfdir}/logrotate.d/samba
 fi
 
 # And not loose our machine account SID
@@ -521,8 +535,8 @@ fi
 
 %preun winbind
 if [ $1 = 0 ]; then
-	echo "Removing winbind entries from %{_sysconfdir}/nsswitch.conf"
-	perl -pi -e 's/ winbind//' %{_sysconfdir}/nsswitch.conf
+    echo "Removing winbind entries from %{_sysconfdir}/nsswitch.conf"
+    perl -pi -e 's/ winbind//' %{_sysconfdir}/nsswitch.conf
 fi
 %_preun_srv winbindd
 
@@ -540,8 +554,8 @@ fi
 
 %preun -n nss_wins
 if [ $1 = 0 ]; then
-	echo "Removing wins entry from %{_sysconfdir}/nsswitch.conf"
-	perl -pi -e 's/ wins//' %{_sysconfdir}/nsswitch.conf
+    echo "Removing wins entry from %{_sysconfdir}/nsswitch.conf"
+    perl -pi -e 's/ wins//' %{_sysconfdir}/nsswitch.conf
 fi
 
 %preun server
@@ -551,6 +565,7 @@ fi
 
 %post -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
+
 
 %files server
 %defattr(-,root,root)
@@ -753,7 +768,11 @@ fi
 
 %exclude %{_mandir}/man1/smbsh*.1*
 
+
 %changelog
+* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 3.0.11-5avx
+- bootstrap build (new gcc, new glibc)
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 3.0.11-4avx
 - rebuild
 

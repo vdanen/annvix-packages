@@ -1,6 +1,15 @@
-%define name	apache2-%{mod_name}
-%define version	%{apache_version}
-%define release	5avx
+#
+# spec file for package apache2-mod_ssl
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		apache2-%{mod_name}
+%define version		%{apache_version}
+%define release		6avx
 
 # Module-Specific definitions
 %define apache_version	2.0.53
@@ -22,7 +31,7 @@ Source4: 	41_mod_ssl.default-vhost.conf.bz2
 Source5:	certwatch.tar.bz2
 Patch0:		certwatch-avx-annvix.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	openssl-devel
 BuildRequires:	apache2-devel >= %{apache_version}, apache2-source >= %{apache_version}
 
@@ -37,6 +46,7 @@ Laurie.
 
 This module relies on OpenSSL to provide the cryptography engine.
 
+
 %prep
 %setup -c -T
 
@@ -50,12 +60,13 @@ tar xjf %{SOURCE5}
 
 %patch0 -p0 -b .avx
 
-%build
 
+%build
 %{_sbindir}/apxs2 -I%{_includedir}/openssl -lssl -lcrypto -lpthread -DHAVE_OPENSSL -DSSL_EXPERIMENTAL_ENGINE \
     -c `cat mod_ssl.txt`
 
 gcc %{optflags} -o certwatch/certwatch -Wall -Werror certwatch/certwatch.c -lcrypto
+
 
 %install
 [ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
@@ -136,6 +147,7 @@ fi
 %postun
 %_post_srv httpd2
 
+
 %files
 %defattr(-,root,root)
 %doc README
@@ -154,7 +166,11 @@ fi
 %attr(0600,apache,root) %ghost /var/cache/httpd/mod_ssl/scache.sem
 %{_mandir}/man8/certwatch.8*
 
+
 %changelog
+* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 2.0.53-6avx
+- bootstrap build (new gcc, new glibc)
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.0.53-5avx
 - rebuild
 

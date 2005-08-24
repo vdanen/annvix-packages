@@ -1,6 +1,15 @@
-%define name	%{libnamemajor}
-%define version	0.51
-%define release	9avx
+#
+# spec file for package libxmlrpc0
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		%{libnamemajor}
+%define version		0.51
+%define release		10avx
 
 %define realname	xmlrpc
 %define libname		lib%{realname}
@@ -17,7 +26,7 @@ URL:		http://xmlrpc-epi.sourceforge.net/
 Source0:	xmlrpc-epi-%{version}.tar.bz2
 Patch0:		xmlrpc-epi-0.51-64bit-fixes.patch.bz2
 
-BuildRoot:	%_tmppath/%name-%version-%release-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 
 Provides:	%{libname} = %{version}
 
@@ -28,6 +37,7 @@ It does *not* include a transport layer, such as HTTP. The API is primarily
 based upon proprietary code written for internal usage at Epinions.com, and
 was later modified to incorporate concepts from the xmlrpc protocol.
  
+
 %package devel
 Summary:	Libraries, includes, etc. to develop XML and HTML applications
 Group:		Development/C
@@ -41,6 +51,7 @@ It does *not* include a transport layer, such as HTTP. The API is primarily
 based upon proprietary code written for internal usage at Epinions.com, and
 was later modified to incorporate concepts from the xmlrpc protocol.
 
+
 %prep
 %setup -q -n xmlrpc-epi-%{version}
 %patch0 -p1 -b .64bit-fixes
@@ -48,6 +59,7 @@ was later modified to incorporate concepts from the xmlrpc protocol.
 # Make it lib64 aware
 find . -name Makefile.in | xargs perl -pi -e "s,-L\@prefix\@/lib,,g"
 perl -pi -e "s,-L/usr/local/lib\b,," configure
+
 
 %build
 %configure2_5x
@@ -57,21 +69,23 @@ perl -pi -e "s,-L/usr/local/lib\b,," configure
 #don't use parallel compilation, it is broken 
 make
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %makeinstall_std
 
 # remove unpackaged files
-rm -f $RPM_BUILD_ROOT%{_bindir}/{client,hello_{client,server},memtest,sample,server{,_compliance_test}}
+rm -f %{buildroot}%{_bindir}/{client,hello_{client,server},memtest,sample,server{,_compliance_test}}
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 
 %post -p /sbin/ldconfig
-
 %postun -p /sbin/ldconfig
+
 
 %files
 %defattr(-, root, root)
@@ -86,7 +100,11 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/{client,hello_{client,server},memtest,sample,ser
 %{_libdir}/lib*.la
 %{_libdir}/lib*.a
 
+
 %changelog
+* Tue Aug 23 2005 Vincent Danen <vdanen@annvix.org> 0.51-10avx
+- bootstrap build (new gcc, new glibc)
+
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.51-9avx
 - bootstrap build
 

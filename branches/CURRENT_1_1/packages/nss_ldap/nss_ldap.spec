@@ -1,6 +1,15 @@
-%define name 	nss_ldap
-%define version 220
-%define release 4avx
+#
+# spec file for package nss_ldap
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name 		nss_ldap
+%define version 	220
+%define release 	5avx
 %define pam_ldap_version 170
 
 Summary:	NSS library and PAM module for LDAP
@@ -19,7 +28,7 @@ Patch2:		pam_ldap-156-makefile.patch.bz2
 Patch3: 	pam_ldap-107-dnsconfig.patch.bz2
 Patch4:		pam_ldap-164-fix-duplicate-definition.patch.bz2
 
-BuildRoot: 	%{_tmppath}/%{name}-%{version}-buildroot
+BuildRoot: 	%{_buildroot}/%{name}-%{version}
 BuildRequires:	db4-devel >= 4.1.25
 BuildRequires:	libldap-devel >= 2.0.7-7.1mdk
 BuildRequires:	openssl-devel >= 0.9.6
@@ -33,7 +42,7 @@ groups, hosts, networks, protocol, users, RPCs, services and shadow
 passwords (instead of or in addition to using flat files or NIS).
 
 %package -n pam_ldap
-Summary:	NSS library and PAM module for LDAP.
+Summary:	NSS library and PAM module for LDAP
 Version: 	%{pam_ldap_version}
 Release: 	%{release}
 License:	LGPL
@@ -48,6 +57,7 @@ policies, access authorization, crypted hashes, etc.
 
 Install nss_ldap if you need LDAP access clients.
 
+
 %prep
 %setup -q -a 1
 %patch0 -p1 -b .makefile
@@ -58,52 +68,62 @@ pushd pam_ldap-%{pam_ldap_version}
 %patch4 -p1 -b .duplicate-definition
 cp ../resolve.c .
 cp ../resolve.h .
-
 popd
+
 
 %build
 %serverbuild
 # Build nss_ldap.
 #aclocal && automake && autoheader && autoconf
 autoreconf
-%configure --enable-schema-mapping --with-ldap-lib=openldap --enable-debug \
---enable-rfc2307bis --enable-ids-uid --libdir=/%_lib
+%configure \
+    --enable-schema-mapping \
+    --with-ldap-lib=openldap \
+    --enable-debug \
+    --enable-rfc2307bis \
+    --enable-ids-uid \
+    --libdir=/%{_lib}
 %__make INST_UID=`id -u` INST_GID=`id -g`
 
 # Build pam_ldap.
 pushd pam_ldap-%{pam_ldap_version}
-touch NEWS
-aclocal && automake && autoheader && autoconf
-export CFLAGS="$CFLAGS -fno-strict-aliasing"
-%configure --with-ldap-lib=openldap --libdir=/%_lib
-%__make
+    touch NEWS
+    aclocal && automake && autoheader && autoconf
+    export CFLAGS="$CFLAGS -fno-strict-aliasing"
+    %configure \
+        --with-ldap-lib=openldap \
+        --libdir=/%{_lib}
+    %__make
 popd
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-install -d $RPM_BUILD_ROOT%{_sysconfdir}
-install -d $RPM_BUILD_ROOT/%_lib/security
+install -d %{buildroot}%{_sysconfdir}
+install -d %{buildroot}/%{_lib}/security
 
 # Install the nsswitch module.
-%make install DESTDIR="${RPM_BUILD_ROOT}" INST_UID=`id -u` INST_GID=`id -g` \
-	libdir=/%_lib
+%make install DESTDIR="%{buildroot}" INST_UID=`id -u` INST_GID=`id -g` \
+    libdir=/%{_lib}
 
 
 # Install the module for PAM.
 pushd pam_ldap-%{pam_ldap_version}
-%make install DESTDIR="$RPM_BUILD_ROOT" libdir=/%_lib
+    %make install DESTDIR="%{buildroot}" libdir=/%{_lib}
 popd
-echo "secret" > $RPM_BUILD_ROOT/%{_sysconfdir}/ldap.secret
+echo "secret" > %{buildroot}%{_sysconfdir}/ldap.secret
 
-install %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/ldap.conf
+install %{SOURCE2} %{buildroot}%{_sysconfdir}/ldap.conf
 
 # Remove unpackaged file
-rm -rf $RPM_BUILD_ROOT%{_sysconfdir}/nsswitch.ldap
+rm -rf %{buildroot}%{_sysconfdir}/nsswitch.ldap
 rm -rf %{buildroot}%{_libdir}/libnss_ldap.so.2
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %post
 /sbin/ldconfig
@@ -113,20 +133,25 @@ rm -rf %{buildroot}%{_libdir}/libnss_ldap.so.2
 /sbin/ldconfig
 %_preun_srv nscd
 
+
 %files
 %defattr(-,root,root)
 %doc ANNOUNCE AUTHORS ChangeLog COPYING NEWS README doc INSTALL
 %doc nsswitch.ldap certutil ldap.conf
 %attr (600,root,root) %config(noreplace) %{_sysconfdir}/ldap.secret
 %attr (644,root,root) %config(noreplace) %{_sysconfdir}/ldap.conf
-/%_lib/*so*
+/%{_lib}/*so*
 
 %files -n pam_ldap 
 %defattr(-,root,root)
 %doc pam_ldap-%{pam_ldap_version}/{AUTHORS,NEWS,COPYING,COPYING.LIB,README,ChangeLog,pam.d,chsh,chfn,ldap.conf}
-/%_lib/security/*so*
+/%{_lib}/security/*so*
+
 
 %changelog
+* Tue Aug 23 2005 Vincent Danen <vdanen@annvix.org> 220-5avx
+- bootstrap build (new gcc, new glibc)
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 220-4avx
 - rebuild
 
@@ -161,7 +186,7 @@ rm -rf %{buildroot}%{_libdir}/libnss_ldap.so.2
   - buildrequires: ldap-devel
 
 * Fri Oct 17 2003 Vincent Danen <vdanen@mandrakesoft.com> 207-4mdk
-- use /%%_lib not /lib so libs are installed in the right place for amd64
+- use /%%{_lib} not /lib so libs are installed in the right place for amd64
 
 * Fri Sep 26 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 207-3mdk
 - fix deps
@@ -195,7 +220,7 @@ rm -rf %{buildroot}%{_libdir}/libnss_ldap.so.2
   (/etc/ssl/openldap)
 
 * Mon Jul 22 2002 Vincent Danen <vdanen@mandrakesoft.com> 194-2mdk
-- remove re-define of %%_libdir (was mapping it to /lib which caused
+- remove re-define of %%{_libdir} (was mapping it to /lib which caused
   problems with brp-mandrake); re: David Walser
 - don't call nscd initscript with condrestart; re: David Walser
 
