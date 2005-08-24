@@ -9,7 +9,7 @@
 
 %define name		apache2
 %define version		2.0.53
-%define release		3avx
+%define release		4avx
 
 #
 #(ie. use with rpm --rebuild):
@@ -104,6 +104,7 @@ Patch45:		httpd-2.0.48-davmisc.patch.bz2
 Patch47:		httpd-2.0.48-vhost.patch.bz2
 Patch48:		httpd-2.0.48-bsd-ipv6-fix.diff.bz2
 Patch53:		httpd-2.0.50-fdr-reclaim.patch.bz2
+Patch54:		httpd-2.0.55-cvs-pemcallback.patch.bz2
 # Features/functional changes
 Patch71:		httpd-2.0.40-xfsz.patch.bz2
 Patch72:		httpd-2.0.40-pod.patch.bz2
@@ -521,6 +522,7 @@ bzcat %{SOURCE8} > modules/experimental/test_char.h
 %patch47 -p1 -b .vhost.droplet
 %patch48 -p1 -b .bsd-ipv6.droplet
 %patch53 -p1 -b .reclaim.droplet
+%patch54 -p0 -b .pemcallback.droplet
 #
 %patch71 -p1 -b .xfsz.droplet
 %patch72 -p1 -b .pod.droplet
@@ -1343,6 +1345,9 @@ rm -rf %{buildroot}/var/www/html/manual
 
 
 %changelog
+* Tue Aug 23 2005 Vincent Danen <vdanen@annvix.org> 2.0.53-4avx
+- P54: from SVN, to fix compilation of mod_ssl with openssl 0.9.8
+
 * Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 2.0.53-3avx
 - bootstrap build (new gcc, new glibc)
 
