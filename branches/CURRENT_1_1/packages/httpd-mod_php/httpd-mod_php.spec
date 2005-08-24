@@ -1,6 +1,15 @@
-%define name	apache2-%{mod_name}
-%define version %{apache_version}_%{phpversion}
-%define release	1avx
+#
+# spec file for package apache2-mod_php
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+
+
+%define name		apache2-%{mod_name}
+%define version 	%{apache_version}_%{phpversion}
+%define release		2avx
 
 # Module-Specific definitions
 %define apache_version	2.0.53
@@ -20,7 +29,7 @@ Group:		System/Servers
 URL:		http://www.php.net/ 
 Source1:	%{mod_conf}.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	php-devel >= %{phpversion}, apache2-devel >= %{apache_version}
 
 Requires:	openssl, php-ini
@@ -41,16 +50,16 @@ understand and process the embedded PHP language in web pages.
 This package contains PHP version 4. You'll also need to install the
 apache2 web server.
 
-%prep
 
+%prep
 %setup -c -T
 cp -dpR %{phpsource}/sapi/%{extname}/* .
 cp %{phpsource}/PHP_FAQ.php .
 cp %{phpsource}/internal_functions.c .
 cp sapi_apache2.c mod_php4.c
 
-%build
 
+%build
 %{_sbindir}/apxs2 \
     `php-config --includes` \
     `apr-config --link-ld --libs` \
@@ -58,6 +67,7 @@ cp sapi_apache2.c mod_php4.c
     -I. -lphp_common \
     -c mod_php4.c apache_config.c php_functions.c \
     internal_functions.c
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -67,11 +77,10 @@ mkdir -p %{buildroot}%{_sysconfdir}/httpd/conf.d
 install -m 0755 .libs/*.so %{buildroot}%{_libdir}/apache2-extramodules/
 bzcat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/conf.d/%{mod_conf}
 
-mkdir -p %{buildroot}/var/www/html/addon-modules
-ln -s ../../../../%{_docdir}/%{name}-%{version} %{buildroot}/var/www/html/addon-modules/%{name}-%{version}
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %post
 %_post_srv httpd2
@@ -79,14 +88,19 @@ ln -s ../../../../%{_docdir}/%{name}-%{version} %{buildroot}/var/www/html/addon-
 %postun
 %_post_srv httpd2
 
+
 %files
 %defattr(-,root,root)
 %doc PHP_FAQ.php 
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/httpd/conf.d/%{mod_conf}
 %attr(0755,root,root) %{_libdir}/apache2-extramodules/%{mod_so}
-/var/www/html/addon-modules/*
+
 
 %changelog
+* Tue Aug 23 2005 Vincent Danen <vdanen@annvix.org> 2.0.53_4.3.11-2avx
+- bootstrap build (new gcc, new glibc)
+- remove the addon-modules symlink
+
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.0.53_4.3.11-1avx
 - rebuild
 - php 4.3.11
