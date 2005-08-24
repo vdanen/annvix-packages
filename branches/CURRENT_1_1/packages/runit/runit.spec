@@ -8,8 +8,10 @@
 
 
 %define	name		runit
-%define	version		1.2.1
-%define	release		8avx
+%define	version		1.3.0
+%define	release		1avx
+
+%define aver		0.1
 
 Summary:	A UN*X init scheme with service supervision
 Name:		%{name}
@@ -18,13 +20,14 @@ Release:	%{release}
 License:	BSD
 Group:		System/Base
 URL:		http://smarden.org/runit/
-Source0:	%{name}-%{version}.tar.bz2
-Source1:	annvix-runit.tar.bz2
+Source0:	%{name}-%{version}.tar.gz
+# available from http://annvix.org/cg-bin/viewcvs.cgi/tools/runit/
+Source1:	annvix-runit-%{aver}.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	dietlibc-devel >= 0.28
 
-Requires:	SysVinit >= 2.85-7avx, initscripts, srv, mingetty
+Requires:	SysVinit >= 2.85-7avx, initscripts, srv, mingetty, execline
 Conflicts:	SysVinit <= 2.85-6avx
 
 %description
@@ -63,14 +66,14 @@ pushd %{name}-%{version}
     mv %{buildroot}/sbin/runit-init %{buildroot}/sbin/init
 popd
 
-pushd annvix-runit
+pushd annvix-runit-%{aver}
     for i in 1 2 3 ctrlaltdel
     do 
         install -m 0700 $i %{buildroot}%{_sysconfdir}/runit/$i
     done
     for i in 1 2 3 4 5 6
     do 
-        install -m 0755 mingetty-tty$i/* %{buildroot}%{_srvdir}/mingetty-tty$i/
+        install -m 0740 mingetty-tty$i/* %{buildroot}%{_srvdir}/mingetty-tty$i/
     done
 popd
 
@@ -105,12 +108,13 @@ fi
 %doc %{name}-%{version}/etc/2
 %doc %{name}-%{version}/etc/debian
 %dir /service
-%attr(0755,root,root) /sbin/runit
-%attr(0755,root,root) /sbin/init
+%attr(0700,root,root) /sbin/runit
+%attr(0700,root,root) /sbin/init
 %attr(0755,root,root) /sbin/runsv
 %attr(0755,root,root) /sbin/runsvdir
 %attr(0755,root,root) /sbin/runsvchdir
 %attr(0755,root,root) /sbin/svwaitdown
+%attr(0755,root,root) /sbin/sv
 %attr(0755,root,root) /sbin/runsvctrl
 %attr(0755,root,root) /sbin/runsvstat
 %attr(0755,root,root) /sbin/svwaitup
@@ -128,6 +132,7 @@ fi
 %attr(0644,root,root) %{_mandir}/man8/svlogd.8*
 %attr(0644,root,root) %{_mandir}/man8/svwaitdown.8*
 %attr(0644,root,root) %{_mandir}/man8/svwaitup.8*
+%attr(0644,root,root) %{_mandir}/man8/sv.8*
 %attr(0644,root,root) %{_mandir}/man8/utmpset.8*
 %attr(0700,root,root) %dir %{_sysconfdir}/runit
 %attr(0700,root,root) %{_sysconfdir}/runit/1
@@ -135,26 +140,33 @@ fi
 %attr(0700,root,root) %{_sysconfdir}/runit/3
 %attr(0700,root,root) %{_sysconfdir}/runit/ctrlaltdel
 %dir %{_srvdir}/mingetty-tty1
-%attr(0755,root,root) %{_srvdir}/mingetty-tty1/run
-%attr(0755,root,root) %{_srvdir}/mingetty-tty1/finish
+%attr(0740,root,admin) %{_srvdir}/mingetty-tty1/run
+%attr(0740,root,admin) %{_srvdir}/mingetty-tty1/finish
 %dir %{_srvdir}/mingetty-tty2
-%attr(0755,root,root) %{_srvdir}/mingetty-tty2/run
-%attr(0755,root,root) %{_srvdir}/mingetty-tty2/finish
+%attr(0740,root,admin) %{_srvdir}/mingetty-tty2/run
+%attr(0740,root,admin) %{_srvdir}/mingetty-tty2/finish
 %dir %{_srvdir}/mingetty-tty3
-%attr(0755,root,root) %{_srvdir}/mingetty-tty3/run
-%attr(0755,root,root) %{_srvdir}/mingetty-tty3/finish
+%attr(0740,root,admin) %{_srvdir}/mingetty-tty3/run
+%attr(0740,root,admin) %{_srvdir}/mingetty-tty3/finish
 %dir %{_srvdir}/mingetty-tty4
-%attr(0755,root,root) %{_srvdir}/mingetty-tty4/run
-%attr(0755,root,root) %{_srvdir}/mingetty-tty4/finish
+%attr(0740,root,admin) %{_srvdir}/mingetty-tty4/run
+%attr(0740,root,admin) %{_srvdir}/mingetty-tty4/finish
 %dir %{_srvdir}/mingetty-tty5
-%attr(0755,root,root) %{_srvdir}/mingetty-tty5/run
-%attr(0755,root,root) %{_srvdir}/mingetty-tty5/finish
+%attr(0740,root,admin) %{_srvdir}/mingetty-tty5/run
+%attr(0740,root,admin) %{_srvdir}/mingetty-tty5/finish
 %dir %{_srvdir}/mingetty-tty6
-%attr(0755,root,root) %{_srvdir}/mingetty-tty6/run
-%attr(0755,root,root) %{_srvdir}/mingetty-tty6/finish
+%attr(0740,root,admin) %{_srvdir}/mingetty-tty6/run
+%attr(0740,root,admin) %{_srvdir}/mingetty-tty6/finish
 
 
 %changelog
+* Wed Aug 24 2005 Vincent Danen <vdanen@annvix.org> 1.3.0-1avx
+- 1.3.0
+- Requires: execline
+- new tarball from cvs (tools/runit) for runit scripts
+- change run script ownership to root:admin and mode 0740
+- make runit and init mode 0700
+
 * Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1.2.1-8avx
 - bootstrap build (new gcc, new glibc)
 
