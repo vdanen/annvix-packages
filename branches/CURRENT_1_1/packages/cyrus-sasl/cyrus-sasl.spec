@@ -9,7 +9,7 @@
 
 %define name		cyrus-sasl
 %define version		2.1.22
-%define release		0avx
+%define release		1avx
 
 %define major		2
 %define libname		%mklibname sasl %{major}
@@ -200,7 +200,7 @@ Requires:	%{libname} = %{version}
 Provides:	sasl-plug-srp
 
 %description -n %{libname}-plug-srp
-This plugin implements the srp  mechanism.
+This plugin implements the srp mechanism.
 
 
 %package -n %{libname}-plug-ntlm
@@ -224,14 +224,14 @@ This plugin implements the SQL auxprop authentication method
 supporting MySQL and PostgreSQL.
 
 
-#%package -n %{libname}-plug-ldapdb
-#Summary:	SASL ldapdb auxprop plugin
-#Group:		System/Libraries
-#Requires:	%{libname} = %{version}
-#Provides:	sasl-plug-ldapdb
-#
-#%description -n %{libname}-plug-ldapdb
-#This plugin implements the LDAP auxprop authentication method.
+%package -n %{libname}-plug-ldapdb
+Summary:	SASL ldapdb auxprop plugin
+Group:		System/Libraries
+Requires:	%{libname} = %{version}
+Provides:	sasl-plug-ldapdb
+
+%description -n %{libname}-plug-ldapdb
+This plugin implements the LDAP auxprop authentication method.
 
 
 %prep
@@ -275,22 +275,23 @@ export LDFLAGS="-L%{_libdir}"
     --with-plugindir=%{_libdir}/sasl2 \
     --disable-krb4 \
     --enable-login \
-    --enable-srp \
-    --enable-srp-setpass \
-    --enable-ntlm \
     --enable-db4 \
     --enable-sql \
     --with-mysql=%{_prefix} \
     --with-pgsql=%{_prefix} \
     --without-sqlite \
+    --with-ldap=%{_prefix} \
+    --enable-ldapdb \
     --with-dbpath=%{sasl2_db_fname} \
     --with-saslauthd=/var/lib/sasl2 \
     --with-authdaemond=/var/run/authdaemon.courier-imap/socket
 # when we move to krb4 add --with-gssapi and --disable-gss_mutexes to configure above
 # as krb5-1.4.x is threadsafe and 1.3.x is not
 
-#    --with-ldap=%{_prefix} \
-#    --enable-ldapdb
+# these don't seem to play too well with openssl 0.9.8
+#    --enable-srp \
+#    --enable-srp-setpass \
+#    --enable-ntlm \
 
 # ugly hack: there is an ordering problem introduced in 2.1.21 
 # when --enable-static is given to ./configure which calling 
@@ -344,7 +345,7 @@ popd
 # multiarch policy
 %multiarch_includes %{buildroot}%{_includedir}/sasl/md5global.h
 
-+# quick README about the sasl.db file permissions
+# quick README about the sasl.db file permissions
 cat > README.Annvix.sasldb <<EOF
 Starting with %{libname}-plug-sasldb-2.1.22-1avx, Annvix by default 
 creates a system group called "sasl" and installs an empty 
@@ -365,6 +366,7 @@ details regarding Postfix's chroot setup.
 For other applications in general, just add their user to the "sasl" group.
 EOF
 
+rm -rf %{buildroot}%{_mandir}/cat8
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -472,25 +474,25 @@ fi
 %{_libdir}/sasl2/liblogin*.so*
 %{_libdir}/sasl2/liblogin*.la
 
-%files -n %{libname}-plug-srp
-%defattr(-,root,root)
-%{_libdir}/sasl2/libsrp*.so*
-%{_libdir}/sasl2/libsrp*.la
+#%files -n %{libname}-plug-srp
+#%defattr(-,root,root)
+#%{_libdir}/sasl2/libsrp*.so*
+#%{_libdir}/sasl2/libsrp*.la
 
-%files -n %{libname}-plug-ntlm
-%defattr(-,root,root)
-%{_libdir}/sasl2/libntlm*.so*
-%{_libdir}/sasl2/libntlm*.la
+#%files -n %{libname}-plug-ntlm
+#%defattr(-,root,root)
+#%{_libdir}/sasl2/libntlm*.so*
+#%{_libdir}/sasl2/libntlm*.la
 
 %files -n %{libname}-plug-sql
 %defattr(-,root,root)
 %{_libdir}/sasl2/libsql*.so*
 %{_libdir}/sasl2/libsql*.la
 
-#%files -n %{libname}-plug-ldapdb
-#%defattr(-,root,root)
-#%{_libdir}/sasl2/libldap*.so*
-#%{_libdir}/sasl2/libldap*.la
+%files -n %{libname}-plug-ldapdb
+%defattr(-,root,root)
+%{_libdir}/sasl2/libldap*.so*
+%{_libdir}/sasl2/libldap*.la
 
 %files -n %{libname}-devel
 %defattr(-,root,root)
@@ -510,6 +512,8 @@ fi
   and a README.Annvix.sasldb explaining it (andreas)
 - moved sasldb conversion to the sasldb plugin package (andreas)
 - add provides for plugins (andreas)
+- disable the srp plugin; for some reason it doesn't play too nice
+  with openssl 0.9.8
 
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.1.20-2avx
 - bootstrap build
