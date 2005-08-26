@@ -1,9 +1,18 @@
-%define name	openswan
-%define version	1.0.9
-%define release	3avx
-%define epoch	1
+#
+# spec file for package openswan
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
 
-%define their_version	1.0.9
+
+%define name		openswan
+%define version		2.3.1
+%define release		1avx
+%define epoch		1
+
+%define their_version	2.3.1
 %define debug_package	%{nil}
 
 Summary:	An implementation of IPSEC & IKE for Linux
@@ -16,9 +25,10 @@ License:	GPL
 Group:		System/Servers
 Source0:	http://www.openswan.org/code/openswan-%{their_version}.tar.gz
 Source1:	http://www.openswan.org/code/openswan-%{their_version}.tar.gz.asc
+Patch0:		openswan-2.3.1.gcc4.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-buildroot
-BuildRequires:	gmp-devel, pam-devel, man
+BuildRoot:	%{_buildroot}/%{name}-%{version}
+BuildRequires:	gmp-devel, pam-devel, bison
 
 Provides:	ipsec-userland
 Requires:	iproute2
@@ -39,90 +49,53 @@ This package contains the daemons and userland tools for setting up
 Openswan on a kernel with either the 2.6 native IPsec code, or 
 FreeS/WAN's KLIPS.
 
+
 %prep
 %setup -q -n openswan-%{their_version}
+%patch0 -p1 -b .gcc4
+
 
 %build
 %serverbuild
 
-find . -name "Makefile*" | xargs perl -pi -e "s|libexec|lib|g"
+find . -name "Makefile*" | xargs perl -pi -e "s|libexec|%{_lib}|g"
 
-pushd libdes
-perl -pi -e "s|/usr/local|/usr|g" Makefile
-perl -pi -e "s|/usr/man|/usr/share/man|g" Makefile
-popd
+make \
+    USERCOMPILE="-g %{optflags}" \
+    INC_USRLOCAL=%{_prefix} \
+    MANTREE=%{_mandir} \
+    INC_RCDEFAULT=%{_initrddir} \
+    CONFDIR=%{_sysconfdir}/%{name} \
+    FINALCONFDIR=%{_sysconfdir}/%{name} \
+    FINALCONFFILE=%{_sysconfdir}/%{name}/ipsec.conf \
+    FINALLIBEXECDIR=%{_libdir}/ipsec \
+    FINALLIBDIR=%{_libdir}/ipsec \
+    programs
 
-%make \
-  USERCOMPILE="-g %{optflags}" \
-  INC_USRLOCAL=%{_prefix} \
-  MANTREE=%{_mandir} \
-  INC_RCDEFAULT=%{_initrddir} \
-	CONFDIR=%{_sysconfdir}/%name \
-	FINALCONFDIR=%{_sysconfdir}/%name \
-	FINALCONFFILE=%{_sysconfdir}/%name/ipsec.conf \
-	FINALLIBEXECDIR=%{_libdir}/ipsec \
-	FINALLIBDIR=%{_libdir}/ipsec \
-  programs
-
-
-FS=$(pwd)
-mkdir -p BUILD.%{_target_cpu}
-mkdir -p BUILD.%{_target_cpu}-smp
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-%{make} \
-  DESTDIR=%{buildroot} \
-  INC_USRLOCAL=%{_prefix} \
-  MANTREE=%{buildroot}%{_mandir} \
-  INC_RCDEFAULT=%{_initrddir} \
-	INC_USRLOCAL=%{_prefix} \
-  INC_RCDEFAULT=%{_initrddir} \
-  FINALCONFDIR=%{_sysconfdir}/%name \
-	FINALLIBEXECDIR=%{_libdir}/ipsec \
-  FINALLIBDIR=%{_libdir}/ipsec \
-  install
+%make \
+    DESTDIR=%{buildroot} \
+    INC_USRLOCAL=%{_prefix} \
+    MANTREE=%{buildroot}%{_mandir} \
+    INC_RCDEFAULT=%{_initrddir} \
+    INC_USRLOCAL=%{_prefix} \
+    INC_RCDEFAULT=%{_initrddir} \
+    FINALCONFDIR=%{_sysconfdir}/%{name} \
+    FINALLIBEXECDIR=%{_libdir}/ipsec \
+    FINALLIBDIR=%{_libdir}/ipsec \
+    install
 
-install -d -m700 %{buildroot}%{_localstatedir}/run/pluto
+install -d -m 0700 %{buildroot}%{_localstatedir}/run/pluto
 install -d %{buildroot}%{_sbindir}
-# Remove old documentation for the time being.
+
+# Remove unpackaged files
 rm -rf %{buildroot}%{_defaultdocdir}/freeswan
-
-# remove libdes stuff we don't want:
-rm -f %{buildroot}/usr/include/des.h
-rm -f %{buildroot}/usr/lib/libdes.a
-rm -f %{buildroot}%{_mandir}/man3/des_crypt.3*
-
-# openswan insists on installings libs into /usr/lib regardless of platform, so let's fix it
-%ifarch x86_64 amd64
-pushd %{buildroot}/usr
-mv lib lib64
-popd
-%endif
-
-
-%clean
-[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-
-%files
-%defattr(-,root,root)
-%doc BUGS CHANGES COPYING CREDITS README
-%attr(0600,root,root) %config(noreplace) %{_sysconfdir}/%{name}/ipsec.conf
-%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/%{name}/ipsec.secrets
-%attr(0700,root,root) %dir %{_sysconfdir}/%{name}/ipsec.d
-%attr(0700,root,root) %dir %{_sysconfdir}/%{name}/ipsec.d/cacerts
-%attr(0700,root,root) %dir %{_sysconfdir}/%{name}/ipsec.d/crls
-%attr(0700,root,root) %dir %{_sysconfdir}/%{name}/ipsec.d/private
-# needed for 2.x
-#%attr(0700,root,root) %dir %{_sysconfdir}/%{name}/ipsec.d/policies
-#%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/%{name}/ipsec.d/policies/*
-%config(noreplace) %{_initrddir}/ipsec
-%{_libdir}/ipsec
-%{_sbindir}/ipsec
-%doc %{_mandir}/*/*
-%{_localstatedir}/run/pluto
-
+rm -rf %{buildroot}%{_docdir}/%{name}
+rm -rf %{buildroot}%{_sysconfdir}/rc.d/rc*
+rm -rf %{buildroot}%{_sysconfdir}/%{name}/ipsec.d/examples
 
 %preun
 %_preun_service ipsec
@@ -130,9 +103,35 @@ popd
 %post
 %_post_service ipsec
 
+
+%clean
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
+
+%files
+%defattr(-,root,root)
+%doc BUGS CHANGES COPYING CREDITS README programs/examples
+%attr(0600,root,root) %config(noreplace) %{_sysconfdir}/%{name}/ipsec.conf
+%attr(0700,root,root) %dir %{_sysconfdir}/%{name}/ipsec.d
+%attr(0700,root,root) %dir %{_sysconfdir}/%{name}/ipsec.d/cacerts
+%attr(0700,root,root) %dir %{_sysconfdir}/%{name}/ipsec.d/crls
+%attr(0700,root,root) %dir %{_sysconfdir}/%{name}/ipsec.d/private
+%attr(0700,root,root) %dir %{_sysconfdir}/%{name}/ipsec.d/policies
+%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/%{name}/ipsec.d/policies/*
+%config(noreplace) %{_initrddir}/ipsec
+%{_libdir}/ipsec
+%{_sbindir}/ipsec
+%{_mandir}/*/*
+%{_localstatedir}/run/pluto
+
+
 %changelog
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 1.0.9-3avx
-- rebuild
+* Wed Aug 24 2005 Ying-Hung Chen <ying@annvix.org> 2.3.1-1avx
+- 2.3.1
+
+* Fri Aug 12 2005 Ying-Hung Chen <ying@annvix.org> 1.0.9-3avx
+- P0: for x86_64 platform so it will utilize /usr/lib64
+- spec cleanups (vdanen)
 
 * Wed Feb 02 2005 Vincent Danen <vdanen@annvix.org> 1.0.9-2avx
 - remove des_crypt.3 as it conflicts with man-pages
