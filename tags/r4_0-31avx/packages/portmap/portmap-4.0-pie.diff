@@ -1,0 +1,45 @@
+diff -Naur portmap_4/Makefile portmap_4.oden/Makefile
+--- portmap_4/Makefile	2004-11-16 06:44:23.200124992 +0100
++++ portmap_4.oden/Makefile	2004-11-16 06:43:27.764552480 +0100
+@@ -74,8 +74,11 @@
+ 
+ all:	portmap pmap_dump pmap_set
+ 
++$(OBJECTS): %.o: %.c
++	$(CC) $(CFLAGS) -fpie -c $<
++
+ portmap: $(OBJECTS) $(WRAP_DIR)/libwrap.a
+-	$(CC) $(CFLAGS) -o $@ $(OBJECTS) $(WRAP_DIR)/libwrap.a $(LIBS)
++	$(CC) $(CFLAGS) -o $@ -pie  $(OBJECTS) $(WRAP_DIR)/libwrap.a $(LIBS)
+ 
+ pmap_dump: pmap_dump.c
+ 	$(CC) $(CFLAGS) -o $@ $? $(LIBS)
+diff -Naur portmap_4/pmap_check.c portmap_4.oden/pmap_check.c
+--- portmap_4/pmap_check.c	2004-11-16 06:44:23.215122712 +0100
++++ portmap_4.oden/pmap_check.c	2004-11-16 06:44:01.618405912 +0100
+@@ -63,9 +63,9 @@
+ 
+ static void logit();
+ static void toggle_verboselog();
+-int     verboselog = 0;
+-int     allow_severity = LOG_INFO;
+-int     deny_severity = LOG_WARNING;
++int     verboselog __attribute ((visibility ("hidden"))) = 0;
++int     allow_severity __attribute ((visibility ("hidden"))) = LOG_INFO;
++int     deny_severity __attribute ((visibility ("hidden"))) = LOG_WARNING;
+ 
+ /* A handful of macros for "readability". */
+ 
+diff -Naur portmap_4/pmap_check.h portmap_4.oden/pmap_check.h
+--- portmap_4/pmap_check.h	1993-11-21 16:18:55.000000000 +0100
++++ portmap_4.oden/pmap_check.h	2004-11-16 06:44:07.502511392 +0100
+@@ -6,6 +6,6 @@
+ extern int check_setunset();
+ extern int check_privileged_port();
+ extern int check_callit();
+-extern int verboselog;
+-extern int allow_severity;
+-extern int deny_severity;
++extern int verboselog __attribute__ ((visibility ("hidden")));
++extern int allow_severity __attribute__ ((visibility ("hidden")));
++extern int deny_severity __attribute__ ((visibility ("hidden")));
