@@ -1,0 +1,19 @@
+--- Mail-SpamAssassin-2.60/Makefile.PL.orig	2003-11-17 16:21:51.000000000 +0100
++++ Mail-SpamAssassin-2.60/Makefile.PL	2003-11-17 16:22:16.000000000 +0100
+@@ -934,13 +934,13 @@
+   $code .= <<'  EOD';
+ 
+ spamassassin: spamassassin.raw
+-	$(PREPROCESS) $(FIXBYTES) $(FIXVARS) $(FIXBANG) -m$(PERM_RWX) -i$? -o$@
++	$(PREPROCESS) $(FIXBYTES) $(FIXVARS) -m$(PERM_RWX) -i$? -o$@
+ 
+ sa-learn: sa-learn.raw
+-	$(PREPROCESS) $(FIXBYTES) $(FIXVARS) $(FIXBANG) -m$(PERM_RWX) -i$? -o$@
++	$(PREPROCESS) $(FIXBYTES) $(FIXVARS) -m$(PERM_RWX) -i$? -o$@
+ 
+ spamd/spamd: spamd/spamd.raw
+-	$(PREPROCESS) $(FIXBYTES) $(FIXVARS) $(FIXBANG) -m$(PERM_RWX) -i$? -o$@
++	$(PREPROCESS) $(FIXBYTES) $(FIXVARS) -m$(PERM_RWX) -i$? -o$@
+ 
+ spamd/libspamc.so: spamd/binaries.mk $(SPAMC_SOURCES)
+ 	$(MAKE) -f spamd/binaries.mk $@
