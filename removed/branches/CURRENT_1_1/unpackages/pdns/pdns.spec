@@ -9,7 +9,7 @@
 
 %define name		pdns
 %define version		2.9.17
-%define release		5avx
+%define release		6avx
 
 Summary:	PowerDNS is a versatile database-driven nameserver
 Name:		%{name}
@@ -175,10 +175,10 @@ EOF
 
 mkdir -p %{buildroot}%{_srvdir}/{pdns,pdnsr}/log
 mkdir -p %{buildroot}%{_srvlogdir}/{pdns,pdnsr}
-install -m 0755 %{SOURCE1} %{buildroot}%{_srvdir}/pdns/run
-install -m 0755 %{SOURCE2} %{buildroot}%{_srvdir}/pdns/log/run
-install -m 0755 %{SOURCE3} %{buildroot}%{_srvdir}/pdnsr/run
-install -m 0755 %{SOURCE4} %{buildroot}%{_srvdir}/pdnsr/log/run
+install -m 0740 %{SOURCE1} %{buildroot}%{_srvdir}/pdns/run
+install -m 0740 %{SOURCE2} %{buildroot}%{_srvdir}/pdns/log/run
+install -m 0740 %{SOURCE3} %{buildroot}%{_srvdir}/pdnsr/run
+install -m 0740 %{SOURCE4} %{buildroot}%{_srvdir}/pdnsr/log/run
 
 
 %pre
@@ -219,10 +219,10 @@ install -m 0755 %{SOURCE4} %{buildroot}%{_srvdir}/pdnsr/log/run
 %{_mandir}/man8/pdns_control.8*
 %{_mandir}/man8/pdns_server.8*
 %{_mandir}/man8/zone2sql.8*
-%dir %{_srvdir}/pdns
-%dir %{_srvdir}/pdns/log
-%{_srvdir}/pdns/run
-%{_srvdir}/pdns/log/run
+%dir %attr(0750,root,admin) %{_srvdir}/pdns
+%dir %attr(0750,root,admin) %{_srvdir}/pdns/log
+%attr(0740,root,admin) %{_srvdir}/pdns/run
+%attr(0740,root,admin) %{_srvdir}/pdns/log/run
 %dir %attr(0750,logger,logger) %{_srvlogdir}/pdns
 
 %files recursor
@@ -230,10 +230,10 @@ install -m 0755 %{SOURCE4} %{buildroot}%{_srvdir}/pdnsr/log/run
 %doc README.recursor
 %config(noreplace) %attr(0644,root,root) %{_sysconfdir}/pdns/recursor.conf
 %{_sbindir}/pdns_recursor
-%dir %{_srvdir}/pdnsr
-%dir %{_srvdir}/pdnsr/log
-%{_srvdir}/pdnsr/run
-%{_srvdir}/pdnsr/log/run
+%dir %attr(0750,root,admin) %{_srvdir}/pdnsr
+%dir %attr(0750,root,admin) %{_srvdir}/pdnsr/log
+%attr(0740,root,admin) %{_srvdir}/pdnsr/run
+%attr(0740,root,admin) %{_srvdir}/pdnsr/log/run
 %dir %attr(0750,logger,logger) %{_srvlogdir}/pdnsr
 
 %files backend-mysql
@@ -256,6 +256,9 @@ install -m 0755 %{SOURCE4} %{buildroot}%{_srvdir}/pdnsr/log/run
 
 
 %changelog
+* Sat Aug 27 2005 Vincent Danen <vdanen@annvix.org> 2.9.17-6avx
+- fix perms on run scripts
+
 * Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 2.9.17-5avx
 - bootstrap build (new gcc, new glibc)
 
