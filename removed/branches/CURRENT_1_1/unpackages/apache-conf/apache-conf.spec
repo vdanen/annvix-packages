@@ -9,7 +9,7 @@
 
 %define name		apache-conf
 %define version		2.0.53
-%define release		6avx
+%define release		7avx
 
 %define compat_dir	/etc/httpd
 %define compat_conf	/etc/httpd/conf
@@ -206,8 +206,8 @@ install -m 0644 %{SOURCE99} %{buildroot}%{_docdir}/apache2-conf-%{version}
 
 mkdir -p %{buildroot}%{_srvdir}/httpd2/log
 mkdir -p %{buildroot}%{_srvlogdir}/httpd2
-install -m 0755 %{SOURCE100} %{buildroot}%{_srvdir}/httpd2/run
-install -m 0755 %{SOURCE101} %{buildroot}%{_srvdir}/httpd2/log/run
+install -m 0740 %{SOURCE100} %{buildroot}%{_srvdir}/httpd2/run
+install -m 0740 %{SOURCE101} %{buildroot}%{_srvdir}/httpd2/log/run
 
 mkdir -p %{buildroot}%{_datadir}/afterboot
 install -m 0644 %{SOURCE102} %{buildroot}%{_datadir}/afterboot/03_apache2
@@ -277,15 +277,18 @@ fi
 %config(noreplace) %{_sysconfdir}/logrotate.d/%{name}
 %{_docdir}/apache2-conf-%{version}/README.apache-conf
 %{_libdir}/ADVX/*
-%dir %{_srvdir}/httpd2
-%dir %{_srvdir}/httpd2/log
-%{_srvdir}/httpd2/run
-%{_srvdir}/httpd2/log/run
+%dir %attr(0750,root,admin) %{_srvdir}/httpd2
+%dir %attr(0750,root,admin) %{_srvdir}/httpd2/log
+%attr(0740,root,admin) %{_srvdir}/httpd2/run
+%attr(0740,root,admin) %{_srvdir}/httpd2/log/run
 %dir %attr(0750,logger,logger) %{_srvlogdir}/httpd2
 %{_datadir}/afterboot/03_apache2
 
 
 %changelog
+* Fri Aug 26 2005 Vincent Danen <vdanen@annvix.org> 2.0.53-7avx
+- fix perms on run scripts
+
 * Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 2.0.53-6avx
 - bootstrap build (new gcc, new glibc)
 
