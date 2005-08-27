@@ -1,10 +1,18 @@
-# $Id: srv.spec,v 1.15 2004/10/06 17:46:19 vdanen Exp $
+#
+# spec file for package srv
+#
+# Package for the Annvix Linux distribution: http://annvix.org/
+#
+# Please submit bugfixes or comments via http://bugs.annvix.org/
+#
+# $Id: srv.spec,v 1.18 2005/08/27 00:16:01 spt Exp $
 
-%define name	srv
-%define version 0.9
-%define release 3avx
 
-Summary:	Tool to manage runsv-controlled services.
+%define name		srv
+%define version 	0.10
+%define release 	1avx
+
+Summary:	Tool to manage runsv-controlled services
 Name: 		%{name}
 Version:	%{version}
 Release: 	%{release}
@@ -13,7 +21,8 @@ Group:		System/Servers
 URL:		http://annvix.org/cgi-bin/viewcvs.cgi/tools/srv/
 Source:		%{name}-%{version}.tar.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-root
+BuildRoot:	%{_tmppath}/%{name}-%{version}
+BuildRequires:	dietlibc-devel
 
 Requires:	runit >= 1.0.4, initscripts >= 7.06-41avx
 Obsoletes:	supervise-scripts
@@ -28,36 +37,45 @@ A tool to manage runsv-controlled services.
 %setup -q
 %setup -q -n %{name}-%{version}
 
+
 %build
-[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p %{buildroot}%{_prefix}
-gcc nothing.c -o nothing
+diet gcc -Os -pipe nothing.c -o nothing
+
 
 %install
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 mkdir -p %{buildroot}{/sbin,%{_bindir},%{_sbindir},%{_mandir}/man8,%{_datadir}/srv}
-install -m 0755 srv %{buildroot}%{_sbindir}
-install -m 0755 srv-start %{buildroot}/sbin
-install -m 0755 srv-stop %{buildroot}/sbin
+install -m 0700 srv %{buildroot}%{_sbindir}
 install -m 0644 srv.8 %{buildroot}%{_mandir}/man8
 install -m 0755 nothing %{buildroot}%{_bindir}
 install -m 0644 functions %{buildroot}%{_datadir}/srv
-install -m 0644 exceptions %{buildroot}%{_datadir}/srv
 
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
+
 %files
 %defattr(-,root,root)
-/sbin/srv-start
-/sbin/srv-stop
 %{_sbindir}/srv
 %{_bindir}/nothing
 %{_datadir}/srv/functions
-%config(noreplace) %{_datadir}/srv/exceptions
 %{_mandir}/man8/srv.8*
 
+
 %changelog
+* Fri Aug 26 2005 Sean P. Thomas <spt@annvix.org> 0.10-1avx
+- 0.10
+
+* Mon Aug 15 2005 Vincent Danen <vdanen@annvix.org> 0.9-5avx
+- remove the srv-start and srv-stop scripts; they should never be used
+- srv should be mode 0700 not 0755
+- use dietlibc to compile nothing
+
+* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.9-4avx
+- bootstrap build
+
 * Wed Oct 06 2004 Vincent Danen <vdanen@annvix.org> 0.9-3avx
 - add %{_datadir}/srv/exceptions so we can have more services for
   process killing exceptions than just sshd; so far we have both
