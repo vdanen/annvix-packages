@@ -1,0 +1,5 @@
+#!/bin/sh
+
+# logging for the nmbd service
+
+exec /sbin/chpst -u logger /sbin/svlogd t /var/log/supervise/nmbd
