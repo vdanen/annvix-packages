@@ -9,7 +9,7 @@
 
 %define name		portmap
 %define version		4.0
-%define release		30avx
+%define release		31avx
 %define ver		4
 
 Summary:	A program which manages RPC connections
@@ -34,6 +34,7 @@ Patch4:		portmap-4.0-sigpipe.patch.bz2
 Patch5:		portmap-4.0-errno.patch.bz2
 Patch6:		portmap-4.0-pie.diff.bz2
 Patch7:		portmap_4-bind_to_ip_or_host_address.diff.bz2
+Patch8:		portmap-4.0-mdk-typo.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	tcp_wrappers-devel
@@ -58,6 +59,7 @@ NFS and NIS.
 %patch5 -p1
 %patch6 -p1
 %patch7 -p0
+%patch8 -p1 -b .typo
 
 
 %build
@@ -81,8 +83,8 @@ install -m 0644 %{SOURCE4} %{buildroot}%{_mandir}/man8
 
 mkdir -p %{buildroot}%{_srvdir}/portmap/log
 mkdir -p %{buildroot}%{_srvlogdir}/portmap
-install -m 0750 %{SOURCE5} %{buildroot}%{_srvdir}/portmap/run
-install -m 0750 %{SOURCE6} %{buildroot}%{_srvdir}/portmap/log/run
+install -m 0740 %{SOURCE5} %{buildroot}%{_srvdir}/portmap/run
+install -m 0740 %{SOURCE6} %{buildroot}%{_srvdir}/portmap/log/run
 
 strip %{buildroot}/sbin/portmap
 
@@ -111,11 +113,11 @@ strip %{buildroot}/sbin/portmap
 %defattr(-,root,root)
 %doc README CHANGES BLURB
 %config(noreplace) %{_sysconfdir}/sysconfig/portmap
-%dir %{_srvdir}/portmap
-%dir %{_srvdir}/portmap/log
+%dir %attr(0750,root,admin) %{_srvdir}/portmap
+%dir %attr(0750,root,admin) %{_srvdir}/portmap/log
+%attr(0740,root,admin) %{_srvdir}/portmap/run
+%attr(0740,root,admin) %{_srvdir}/portmap/log/run
 %dir %attr(0750,logger,logger) %{_srvlogdir}/portmap
-%{_srvdir}/portmap/run
-%{_srvdir}/portmap/log/run
 /sbin/portmap
 %{_sbindir}/pmap_dump
 %{_sbindir}/pmap_set
@@ -123,6 +125,10 @@ strip %{buildroot}/sbin/portmap
 
 
 %changelog
+* Fri Aug 26 2005 Vincent Danen <vdanen@annvix.org> 4.0-31avx
+- fix perms on run scripts
+- P8: fix typo in tcp bind error message (oblin)
+
 * Wed Aug 17 2005 Vincent Danen <vdanen@annvix.org> 4.0-30avx
 - bootstrap build (new gcc, new glibc)
 
