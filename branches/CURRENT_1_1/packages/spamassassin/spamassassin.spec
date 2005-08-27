@@ -9,7 +9,7 @@
 
 %define name		spamassassin
 %define version		2.64
-%define release		6avx
+%define release		7avx
 
 %define fname		Mail-SpamAssassin
 %define instdir		vendor
@@ -110,8 +110,8 @@ EOF
 
 mkdir -p %{buildroot}%{_srvdir}/spamd/log
 mkdir -p %{buildroot}%{_srvlogdir}/spamd
-install -m 0750 %{SOURCE1} %{buildroot}%{_srvdir}/spamd/run
-install -m 0750 %{SOURCE2} %{buildroot}%{_srvdir}/spamd/log/run
+install -m 0740 %{SOURCE1} %{buildroot}%{_srvdir}/spamd/run
+install -m 0740 %{SOURCE2} %{buildroot}%{_srvdir}/spamd/log/run
 
 
 %clean
@@ -139,10 +139,10 @@ chmod 0666 /var/spool/spamassassin/auto-whitelist.db
 %{_bindir}/*
 %{_mandir}/man1/*
 %{_datadir}/spamassassin
-%dir %{_srvdir}/spamd
-%dir %{_srvdir}/spamd/log
-%{_srvdir}/spamd/run
-%{_srvdir}/spamd/log/run
+%dir %attr(0750,root,admin) %{_srvdir}/spamd
+%dir %attr(0750,root,admin) %{_srvdir}/spamd/log
+%attr(0740,root,admin) %{_srvdir}/spamd/run
+%attr(0740,root,admin) %{_srvdir}/spamd/log/run
 %dir %attr(0750,logger,logger) %{_srvlogdir}/spamd
 
 %files tools
@@ -157,6 +157,9 @@ chmod 0666 /var/spool/spamassassin/auto-whitelist.db
 
 
 %changelog
+* Fri Aug 26 2005 Vincent Danen <vdanen@annvix.org> 2.64-7avx
+- fix perms on run scripts
+
 * Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 2.64-6avx
 - bootstrap build (new gcc, new glibc)
 

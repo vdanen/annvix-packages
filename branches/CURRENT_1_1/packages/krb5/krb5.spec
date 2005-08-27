@@ -9,7 +9,7 @@
 
 %define name		krb5
 %define version		1.3.6
-%define release		7avx
+%define release		8avx
 
 %define srcver		1.3
 %define major		1
@@ -342,18 +342,18 @@ chmod 0755 %{buildroot}%{_libdir}/*.so*
 
 mkdir -p %{buildroot}%{_srvdir}/{ktelnet,kftp,kadmind,kpropd,krb5kdc,krb524d}/log
 mkdir -p %{buildroot}%{_srvlogdir}/{ktelnet,kftp,kadmind,kpropd,krb5kdc,krb524d}
-install -m 0755 %{SOURCE27} %{buildroot}%{_srvdir}/ktelnet/run
-install -m 0755 %{SOURCE28} %{buildroot}%{_srvdir}/ktelnet/log/run
-install -m 0755 %{SOURCE29} %{buildroot}%{_srvdir}/kftp/run
-install -m 0755 %{SOURCE30} %{buildroot}%{_srvdir}/kftp/log/run
-install -m 0755 %{SOURCE31} %{buildroot}%{_srvdir}/kadmind/run
-install -m 0755 %{SOURCE32} %{buildroot}%{_srvdir}/kadmind/log/run
-install -m 0755 %{SOURCE33} %{buildroot}%{_srvdir}/kpropd/run
-install -m 0755 %{SOURCE34} %{buildroot}%{_srvdir}/kpropd/log/run
-install -m 0755 %{SOURCE35} %{buildroot}%{_srvdir}/krb5kdc/run
-install -m 0755 %{SOURCE36} %{buildroot}%{_srvdir}/krb5kdc/log/run
-install -m 0755 %{SOURCE37} %{buildroot}%{_srvdir}/krb524d/run
-install -m 0755 %{SOURCE38} %{buildroot}%{_srvdir}/krb524d/log/run
+install -m 0740 %{SOURCE27} %{buildroot}%{_srvdir}/ktelnet/run
+install -m 0740 %{SOURCE28} %{buildroot}%{_srvdir}/ktelnet/log/run
+install -m 0740 %{SOURCE29} %{buildroot}%{_srvdir}/kftp/run
+install -m 0740 %{SOURCE30} %{buildroot}%{_srvdir}/kftp/log/run
+install -m 0740 %{SOURCE31} %{buildroot}%{_srvdir}/kadmind/run
+install -m 0740 %{SOURCE32} %{buildroot}%{_srvdir}/kadmind/log/run
+install -m 0740 %{SOURCE33} %{buildroot}%{_srvdir}/kpropd/run
+install -m 0740 %{SOURCE34} %{buildroot}%{_srvdir}/kpropd/log/run
+install -m 0740 %{SOURCE35} %{buildroot}%{_srvdir}/krb5kdc/run
+install -m 0740 %{SOURCE36} %{buildroot}%{_srvdir}/krb5kdc/log/run
+install -m 0740 %{SOURCE37} %{buildroot}%{_srvdir}/krb524d/run
+install -m 0740 %{SOURCE38} %{buildroot}%{_srvdir}/krb524d/log/run
 
 mkdir -p %{buildroot}%{_srvdir}/{ktelnet,kftp}/peers
 touch %{buildroot}%{_srvdir}/{ktelnet,kftp}/peers/0
@@ -504,26 +504,26 @@ popd
 %config(noreplace) %{_sysconfdir}/kerberos/krb5kdc/kadm5.acl
 %attr(0600,root,root) %config(noreplace) %{_sysconfdir}/kerberos/krb5kdc/kadm5.keytab
 %{_sysconfdir}/krb5.keytab
-%dir %{_srvdir}/kadmind
-%dir %{_srvdir}/kadmind/log
+%dir %attr(0750,root,admin) %{_srvdir}/kadmind
+%dir %attr(0750,root,admin) %{_srvdir}/kadmind/log
 %dir %attr(0750,logger,logger) %{_srvlogdir}/kadmind
-%{_srvdir}/kadmind/run
-%{_srvdir}/kadmind/log/run
-%dir %{_srvdir}/kpropd
-%dir %{_srvdir}/kpropd/log
+%attr(0740,root,admin) %{_srvdir}/kadmind/run
+%attr(0740,root,admin) %{_srvdir}/kadmind/log/run
+%dir %attr(0750,root,admin) %{_srvdir}/kpropd
+%dir %attr(0750,root,admin) %{_srvdir}/kpropd/log
 %dir %attr(0750,logger,logger) %{_srvlogdir}/kpropd
-%{_srvdir}/kpropd/run
-%{_srvdir}/kpropd/log/run
-%dir %{_srvdir}/krb5kdc
-%dir %{_srvdir}/krb5kdc/log
+%attr(0740,root,admin) %{_srvdir}/kpropd/run
+%attr(0740,root,admin) %{_srvdir}/kpropd/log/run
+%dir %attr(0750,root,admin) %{_srvdir}/krb5kdc
+%dir %attr(0750,root,admin) %{_srvdir}/krb5kdc/log
 %dir %attr(0750,logger,logger) %{_srvlogdir}/krb5kdc
-%{_srvdir}/krb5kdc/run
-%{_srvdir}/krb5kdc/log/run
-%dir %{_srvdir}/krb524d
-%dir %{_srvdir}/krb524d/log
+%attr(0740,root,admin) %{_srvdir}/krb5kdc/run
+%attr(0740,root,admin) %{_srvdir}/krb5kdc/log/run
+%dir %attr(0750,root,admin) %{_srvdir}/krb524d
+%dir %attr(0750,root,admin) %{_srvdir}/krb524d/log
 %dir %attr(0750,logger,logger) %{_srvlogdir}/krb524d
-%{_srvdir}/krb524d/run
-%{_srvdir}/krb524d/log/run
+%attr(0740,root,admin) %{_srvdir}/krb524d/run
+%attr(0740,root,admin) %{_srvdir}/krb524d/log/run
 %{_infodir}/krb5-admin.info*
 %{_infodir}/krb5-install.info*
 %{_infodir}/krb425.info*
@@ -587,12 +587,12 @@ popd
 %defattr(-,root,root)
 %{_sbindir}/telnetd
 %{_mandir}/man8/telnetd.8*
-%dir %{_srvdir}/ktelnet
-%dir %{_srvdir}/ktelnet/log
-%dir %{_srvdir}/ktelnet/peers
+%dir %attr(0750,root,admin) %{_srvdir}/ktelnet
+%dir %attr(0750,root,admin) %{_srvdir}/ktelnet/log
+%dir %attr(0750,root,admin) %{_srvdir}/ktelnet/peers
 %dir %attr(0750,logger,logger) %{_srvlogdir}/ktelnet
-%{_srvdir}/ktelnet/run
-%{_srvdir}/ktelnet/log/run
+%attr(0740,root,admin) %{_srvdir}/ktelnet/run
+%attr(0740,root,admin) %{_srvdir}/ktelnet/log/run
 %config(noreplace) %{_srvdir}/ktelnet/peers/0
 %{_datadir}/afterboot/08_ktelnet
 
@@ -613,17 +613,20 @@ popd
 %defattr(-,root,root)
 %{_sbindir}/ftpd
 %{_mandir}/man8/ftpd.8*
-%dir %{_srvdir}/kftp
-%dir %{_srvdir}/kftp/log
-%dir %{_srvdir}/kftp/peers
+%dir %attr(0750,root,admin) %{_srvdir}/kftp
+%dir %attr(0750,root,admin) %{_srvdir}/kftp/log
+%dir %attr(0750,root,admin) %{_srvdir}/kftp/peers
 %dir %attr(0750,logger,logger) %{_srvlogdir}/kftp
-%{_srvdir}/kftp/run
-%{_srvdir}/kftp/log/run
+%attr(0740,root,admin) %{_srvdir}/kftp/run
+%attr(0740,root,admin) %{_srvdir}/kftp/log/run
 %config(noreplace) %{_srvdir}/kftp/peers/0
 %{_datadir}/afterboot/08_kftp
 
 
 %changelog
+* Fri Aug 26 2005 Vincent Danen <vdanen@annvix.org> 1.3.6-8avx
+- fix perms on run scripts
+
 * Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1.3.6-7avx
 - bootstrap build (new gcc, new glibc)
 

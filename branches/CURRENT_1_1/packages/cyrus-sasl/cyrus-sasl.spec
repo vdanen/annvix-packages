@@ -9,7 +9,7 @@
 
 %define name		cyrus-sasl
 %define version		2.1.22
-%define release		1avx
+%define release		2avx
 
 %define major		2
 %define libname		%mklibname sasl %{major}
@@ -329,8 +329,8 @@ cp saslauthd/testsaslauthd %{buildroot}%{_sbindir}
 
 mkdir -p %{buildroot}%{_srvdir}/saslauthd/log
 mkdir -p %{buildroot}%{_srvlogdir}/saslauthd
-install -m 0750 %{SOURCE4} %{buildroot}%{_srvdir}/saslauthd/run
-install -m 0750 %{SOURCE5} %{buildroot}%{_srvdir}/saslauthd/log/run
+install -m 0740 %{SOURCE4} %{buildroot}%{_srvdir}/saslauthd/run
+install -m 0740 %{SOURCE5} %{buildroot}%{_srvdir}/saslauthd/log/run
 
 # fix the horribly broken manpage
 bzcat %{SOURCE6} >%{buildroot}%{_mandir}/man8/saslauthd.8
@@ -421,10 +421,10 @@ fi
 %doc doc/{TODO,ONEWS,*.txt,*.html}
 %dir /var/lib/sasl2
 %attr (644,root,root) %config(noreplace) /etc/sysconfig/saslauthd
-%dir %{_srvdir}/saslauthd
-%dir %{_srvdir}/saslauthd/log
-%{_srvdir}/saslauthd/run
-%{_srvdir}/saslauthd/log/run
+%dir %attr(0750,root,admin) %{_srvdir}/saslauthd
+%dir %attr(0750,root,admin) %{_srvdir}/saslauthd/log
+%attr(0740,root,admin) %{_srvdir}/saslauthd/run
+%attr(0740,root,admin) %{_srvdir}/saslauthd/log/run
 %dir %attr(0750,nobody,nogroup) %{_srvlogdir}/saslauthd
 %{_sbindir}/*
 %{_mandir}/man8/*
@@ -504,6 +504,9 @@ fi
 
  
 %changelog
+* Fri Aug 26 2005 Vincent Danen <vdanen@annvix.org> 2.1.22-2avx
+- fix perms on run scripts
+
 * Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 2.1.22-1avx
 - 2.1.22
 - add ldapdb plugin

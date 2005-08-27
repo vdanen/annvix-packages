@@ -9,7 +9,7 @@
 
 %define name		rsync
 %define version		2.6.3
-%define release		3avx
+%define release		4avx
 
 Summary:	A program for synchronizing files over a network
 Name:		%{name}
@@ -71,10 +71,10 @@ mkdir -p %{buildroot}{%{_bindir},%{_mandir}/{man1,man5}}
 %makeinstall
 install -m 0644 %{SOURCE1} %{SOURCE2} .
 mkdir -p %{buildroot}%{_srvdir}/rsync/{log,peers}
-install -m 0755 %{SOURCE5} %{buildroot}%{_srvdir}/rsync/run
-install -m 0755 %{SOURCE6} %{buildroot}%{_srvdir}/rsync/log/run
+install -m 0740 %{SOURCE5} %{buildroot}%{_srvdir}/rsync/run
+install -m 0740 %{SOURCE6} %{buildroot}%{_srvdir}/rsync/log/run
 touch %{buildroot}%{_srvdir}/rsync/peers/0
-chmod 0644 %{buildroot}%{_srvdir}/rsync/peers/0
+chmod 0640 %{buildroot}%{_srvdir}/rsync/peers/0
 mkdir -p %{buildroot}%{_srvlogdir}/rsync
 
 mkdir -p %{buildroot}%{_datadir}/afterboot
@@ -100,19 +100,22 @@ install -m 0644 %{SOURCE7} %{buildroot}%{_datadir}/afterboot/07_rsync
 %defattr(-,root,root)
 %doc tech_report.tex README COPYING *html
 %{_bindir}/rsync
-%dir %{_srvdir}/rsync
-%dir %{_srvdir}/rsync/log
-%dir %{_srvdir}/rsync/peers
+%dir %attr(0750,root,admin) %{_srvdir}/rsync
+%dir %attr(0750,root,admin) %{_srvdir}/rsync/log
+%dir %attr(0750,root,admin) %{_srvdir}/rsync/peers
 %dir %attr(0750,logger,logger) %{_srvlogdir}/rsync
-%{_srvdir}/rsync/run
-%{_srvdir}/rsync/log/run
-%config(noreplace) %{_srvdir}/rsync/peers/0
+%attr(0740,root,admin) %{_srvdir}/rsync/run
+%attr(0740,root,admin) %{_srvdir}/rsync/log/run
+%config(noreplace) %attr(0640,root,admin)%{_srvdir}/rsync/peers/0
 %{_mandir}/man1/rsync.1*
 %{_mandir}/man5/rsyncd.conf.5*
 %{_datadir}/afterboot/07_rsync
 
 
 %changelog
+* Fri Aug 26 2005 Vincent Danen <vdanen@annvix.org> 2.6.3-4avx
+- fix perms on run scripts
+
 * Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 2.6.3-3avx
 - bootstrap build (new gcc, new glibc)
 

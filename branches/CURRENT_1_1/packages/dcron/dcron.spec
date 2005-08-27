@@ -9,7 +9,7 @@
 
 %define	name		dcron
 %define	version		2.9
-%define	release		12avx
+%define	release		13avx
 
 Summary:	Dillon's Cron Daemon
 Name:		%{name}
@@ -67,8 +67,8 @@ install -m 0644 %{SOURCE3} %{buildroot}%{_sysconfdir}/crontab
 
 install -d %{buildroot}%{_srvdir}/crond/log
 install -d %{buildroot}%{_srvlogdir}/crond
-install -m 0755 %{SOURCE1} %{buildroot}%{_srvdir}/crond/run
-install -m 0755 %{SOURCE2} %{buildroot}%{_srvdir}/crond/log/run
+install -m 0740 %{SOURCE1} %{buildroot}%{_srvdir}/crond/run
+install -m 0740 %{SOURCE2} %{buildroot}%{_srvdir}/crond/log/run
 
 
 %clean
@@ -100,14 +100,17 @@ fi
 %{_mandir}/man1/crontab.1*
 %{_mandir}/man8/crond.8*
 %dir %attr(0755,root,root) /var/spool/dcron/crontabs
-%dir %{_srvdir}/crond
-%dir %{_srvdir}/crond/log
-%{_srvdir}/crond/run
-%{_srvdir}/crond/log/run
+%dir %attr(0750,root,admin) %{_srvdir}/crond
+%dir %attr(0750,root,admin) %{_srvdir}/crond/log
+%attr(0740,root,admin) %{_srvdir}/crond/run
+%attr(0740,root,admin) %{_srvdir}/crond/log/run
 %dir %attr(0750,logger,logger) %{_srvlogdir}/crond
 
 
 %changelog
+* Fri Aug 26 2005 Vincent Danen <vdanen@annvix.org> 2.9-13avx
+- fix perms on run scripts
+
 * Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 2.9-12avx
 - bootstrap build (new gcc, new glibc)
 

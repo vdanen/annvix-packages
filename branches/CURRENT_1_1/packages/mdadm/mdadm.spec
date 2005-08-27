@@ -9,7 +9,7 @@
 
 %define name		mdadm
 %define version		1.9.0
-%define release		4avx
+%define release		5avx
 
 %define use_dietlibc 	0
 %ifarch %{ix86}
@@ -73,8 +73,8 @@ install mdassemble %{buildroot}%{_sbindir}/mdassemble
 
 mkdir -p %{buildroot}%{_srvdir}/mdadm/log
 mkdir -p %{buildroot}%{_srvlogdir}/mdadm
-install -m 0755 %{SOURCE2} %{buildroot}%{_srvdir}/mdadm/run
-install -m 0755 %{SOURCE3} %{buildroot}%{_srvdir}/mdadm/log/run
+install -m 0740 %{SOURCE2} %{buildroot}%{_srvdir}/mdadm/run
+install -m 0740 %{SOURCE3} %{buildroot}%{_srvdir}/mdadm/log/run
 
 
 %clean
@@ -97,14 +97,17 @@ install -m 0755 %{SOURCE3} %{buildroot}%{_srvdir}/mdadm/log/run
 %endif
 %config(noreplace,missingok)/%{_sysconfdir}/mdadm.conf
 %{_mandir}/man*/md*
-%dir %{_srvdir}/mdadm
-%dir %{_srvdir}/mdadm/log
+%dir %attr(0750,root,admin) %{_srvdir}/mdadm
+%dir %attr(0750,root,admin) %{_srvdir}/mdadm/log
 %dir %attr(0750,logger,logger) %{_srvlogdir}/mdadm
-%{_srvdir}/mdadm/run
-%{_srvdir}/mdadm/log/run
+%attr(0740,root,admin) %{_srvdir}/mdadm/run
+%attr(0740,root,admin) %{_srvdir}/mdadm/log/run
 
 
 %changelog
+* Fri Aug 26 2005 Vincent Danen <vdanen@annvix.org> 1.9.0-5avx
+- fix perms on run scripts
+
 * Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 1.9.0-4avx
 - bootstrap build (new gcc, new glibc)
 

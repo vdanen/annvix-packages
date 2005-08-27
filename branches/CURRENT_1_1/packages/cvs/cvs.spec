@@ -9,7 +9,7 @@
 
 %define name		cvs
 %define version		1.11.19
-%define release		5avx
+%define release		6avx
 
 %define _requires_exceptions tcsh
 
@@ -96,10 +96,10 @@ install -m 0644 %{SOURCE2} %{buildroot}%{_sysconfdir}/cvs
 perl -pi -e 's/no -f/\/bin\/sh/g' %{buildroot}%{_datadir}/cvs/contrib/sccs2rcs
 
 mkdir -p %{buildroot}%{_srvdir}/cvspserver/{log,peers}
-install -m 0755 %{SOURCE4} %{buildroot}%{_srvdir}/cvspserver/run
-install -m 0755 %{SOURCE5} %{buildroot}%{_srvdir}/cvspserver/log/run
+install -m 0740 %{SOURCE4} %{buildroot}%{_srvdir}/cvspserver/run
+install -m 0740 %{SOURCE5} %{buildroot}%{_srvdir}/cvspserver/log/run
 touch %{buildroot}%{_srvdir}/cvspserver/peers/0
-chmod 0644 %{buildroot}%{_srvdir}/cvspserver/peers/0
+chmod 0640 %{buildroot}%{_srvdir}/cvspserver/peers/0
 mkdir -p %{buildroot}%{_srvlogdir}/cvspserver
 
 mkdir -p %{buildroot}%{_datadir}/afterboot
@@ -139,17 +139,20 @@ install -m 0644 %{SOURCE6} %{buildroot}%{_datadir}/afterboot/06_cvspserver
 %{_mandir}/man8/cvsbug.8*
 %{_infodir}/cvs*
 %{_datadir}/cvs
-%dir %{_srvdir}/cvspserver
-%dir %{_srvdir}/cvspserver/log
-%dir %{_srvdir}/cvspserver/peers
-%{_srvdir}/cvspserver/run
-%{_srvdir}/cvspserver/log/run
-%{_srvdir}/cvspserver/peers/0
+%dir %attr(0750,root,admin) %{_srvdir}/cvspserver
+%dir %attr(0750,root,admin) %{_srvdir}/cvspserver/log
+%dir %attr(0750,root,admin) %{_srvdir}/cvspserver/peers
+%attr(0740,root,admin) %{_srvdir}/cvspserver/run
+%attr(0740,root,admin) %{_srvdir}/cvspserver/log/run
+%attr(0640,root,admin) %{_srvdir}/cvspserver/peers/0
 %dir %attr(0750,logger,logger) %{_srvlogdir}/cvspserver
 %{_datadir}/afterboot/06_cvspserver
 
 
 %changelog
+* Fri Aug 26 2005 Vincent Danen <vdanen@annvix.org> 1.11.19-6avx
+- fix perms on run scripts
+
 * Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 1.11.19-5avx
 - bootstrap build (new gcc, new glibc)
 - remove postscript docs

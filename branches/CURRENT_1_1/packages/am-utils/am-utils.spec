@@ -9,7 +9,7 @@
 
 %define name		am-utils
 %define version		6.0.9
-%define release		11avx
+%define release		12avx
 %define epoch		2
 
 %define major		2
@@ -96,8 +96,8 @@ install -m 0640 %{SOURCE3} %{buildroot}%{_sysconfdir}/amd.net
 
 mkdir -p %{buildroot}%{_srvdir}/amd/log
 mkdir -p %{buildroot}%{_srvlogdir}/amd
-install -m 0755 %{SOURCE4} %{buildroot}%{_srvdir}/amd/run
-install -m 0755 %{SOURCE5} %{buildroot}%{_srvdir}/amd/log/run
+install -m 0740 %{SOURCE4} %{buildroot}%{_srvdir}/amd/run
+install -m 0740 %{SOURCE5} %{buildroot}%{_srvdir}/amd/log/run
 
 
 mkdir -p %{buildroot}/.automount
@@ -141,11 +141,11 @@ rm -f %{buildroot}/amd
 %{_mandir}/man1/pawd.1*
 %{_mandir}/man1/expn.1*
 %{_infodir}/*.info*
-%dir %{_srvdir}/amd
-%dir %{_srvdir}/amd/log
+%dir %attr(0750,root,admin) %{_srvdir}/amd
+%dir %attr(0750,root,admin) %{_srvdir}/amd/log
 %dir %attr(0750,logger,logger) %{_srvlogdir}/amd
-%{_srvdir}/amd/run
-%{_srvdir}/amd/log/run
+%attr(0740,root,admin) %{_srvdir}/amd/run
+%attr(0740,root,admin) %{_srvdir}/amd/log/run
 
 
 %files -n %{libname}
@@ -160,6 +160,9 @@ rm -f %{buildroot}/amd
 
 
 %changelog
+* Fri Aug 26 2005 Vincent Danen <vdanen@annvix.org> 6.0.9-12avx
+- fix perms on run scripts
+
 * Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 6.0.9-11avx
 - bootstrap build (new gcc, new glibc)
 

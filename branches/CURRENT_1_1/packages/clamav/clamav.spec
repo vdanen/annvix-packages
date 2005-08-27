@@ -9,7 +9,7 @@
 
 %define name		clamav
 %define version		0.86.1
-%define release		2avx
+%define release		3avx
 
 %define	major		1
 %define libname		%mklibname %{name} %{major}
@@ -144,10 +144,10 @@ install -m 0644 etc/freshclam.conf %{buildroot}%{_sysconfdir}/freshclam.conf
 
 mkdir -p %{buildroot}%{_srvdir}/{clamd,freshclam}/log
 mkdir -p %{buildroot}%{_srvlogdir}/{clamd,freshclam}
-install -m 0755 %{SOURCE4} %{buildroot}%{_srvdir}/clamd/run
-install -m 0755 %{SOURCE5} %{buildroot}%{_srvdir}/clamd/log/run
-install -m 0755 %{SOURCE6} %{buildroot}%{_srvdir}/freshclam/run
-install -m 0755 %{SOURCE7} %{buildroot}%{_srvdir}/freshclam/log/run
+install -m 0740 %{SOURCE4} %{buildroot}%{_srvdir}/clamd/run
+install -m 0740 %{SOURCE5} %{buildroot}%{_srvdir}/clamd/log/run
+install -m 0740 %{SOURCE6} %{buildroot}%{_srvdir}/freshclam/run
+install -m 0740 %{SOURCE7} %{buildroot}%{_srvdir}/freshclam/log/run
 
 # pid file dir
 mkdir -p %{buildroot}/var/run/%{name}
@@ -232,10 +232,10 @@ done
 %dir %attr(0755,clamav,clamav) %{_localstatedir}/%{name}
 %dir %attr(0755,clamav,clamav) /var/log/%{name}
 %ghost %attr(0640,clamav,clamav) /var/log/%{name}/freshclam.log
-%dir %{_srvdir}/freshclam
-%dir %{_srvdir}/freshclam/log
-%{_srvdir}/freshclam/run
-%{_srvdir}/freshclam/log/run
+%dir %attr(0750,root,admin) %{_srvdir}/freshclam
+%dir %attr(0750,root,admin) %{_srvdir}/freshclam/log
+%attr(0740,root,admin) %{_srvdir}/freshclam/run
+%attr(0740,root,admin) %{_srvdir}/freshclam/log/run
 %dir %attr(0750,logger,logger) %{_srvlogdir}/freshclam
 
 %files -n clamd
@@ -245,10 +245,10 @@ done
 %{_sbindir}/clamd
 %{_mandir}/man8/clamd.8*
 %ghost %attr(0640,clamav,clamav) /var/log/%{name}/clamd.log
-%dir %{_srvdir}/clamd
-%dir %{_srvdir}/clamd/log
-%{_srvdir}/clamd/run
-%{_srvdir}/clamd/log/run
+%dir %attr(0750,root,admin) %{_srvdir}/clamd
+%dir %attr(0750,root,admin) %{_srvdir}/clamd/log
+%attr(0740,root,admin) %{_srvdir}/clamd/run
+%attr(0740,root,admin) %{_srvdir}/clamd/log/run
 %dir %attr(0750,logger,logger) %{_srvlogdir}/clamd
 
 %files -n %{name}-db
@@ -274,6 +274,9 @@ done
 %{_libdir}/pkgconfig/libclamav.pc
       
 %changelog
+* Fri Aug 26 2005 Vincent Danen <vdanen@annvix.org> 0.86.1-3avx
+- fix perms on run scripts
+
 * Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 0.86.1-2avx
 - bootstrap build (new gcc, new glibc)
 

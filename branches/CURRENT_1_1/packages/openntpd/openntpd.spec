@@ -9,7 +9,7 @@
 
 %define	name		openntpd
 %define	version		3.6.1p1
-%define	release		3avx
+%define	release		4avx
 %define epoch		1
 
 Summary:	OpenNTPD is a secure implementation of the Network Time Protocol
@@ -54,8 +54,8 @@ and can act as NTP server itself, redistributing the local clock.
 %makeinstall
 
 mkdir -p %{buildroot}{%{_srvdir}/ntpd/log,%{_srvlogdir}/ntpd}
-install -m 0750 %{SOURCE1} %{buildroot}%{_srvdir}/ntpd/run
-install -m 0750 %{SOURCE2} %{buildroot}%{_srvdir}/ntpd/log/run
+install -m 0740 %{SOURCE1} %{buildroot}%{_srvdir}/ntpd/run
+install -m 0740 %{SOURCE2} %{buildroot}%{_srvdir}/ntpd/log/run
 
 
 %pre
@@ -83,13 +83,16 @@ install -m 0750 %{SOURCE2} %{buildroot}%{_srvdir}/ntpd/log/run
 %{_mandir}/man5/ntpd.conf.5*
 %{_mandir}/man8/ntpd.8*
 %dir %attr(0750,logger,logger) %dir %{_srvlogdir}/ntpd
-%dir %{_srvdir}/ntpd
-%{_srvdir}/ntpd/run
-%dir %{_srvdir}/ntpd/log
-%{_srvdir}/ntpd/log/run
+%dir %attr(0750,root,admin) %{_srvdir}/ntpd
+%dir %attr(0750,root,admin) %{_srvdir}/ntpd/log
+%attr(0740,root,admin) %{_srvdir}/ntpd/run
+%attr(0740,root,admin) %{_srvdir}/ntpd/log/run
 
 
 %changelog
+* Fri Aug 26 2005 Vincent Danen <vdanen@annvix.org> 3.6.1p1-4avx
+- fix perms on run scripts
+
 * Wed Aug 17 2005 Vincent Danen <vdanen@annvix.org> 3.6.1p1-3avx
 - bootstrap build (new gcc, new glibc)
 

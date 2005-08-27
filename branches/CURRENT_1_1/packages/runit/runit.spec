@@ -9,7 +9,7 @@
 
 %define	name		runit
 %define	version		1.3.0
-%define	release		1avx
+%define	release		2avx
 
 %define aver		0.1
 
@@ -139,27 +139,30 @@ fi
 %attr(0700,root,root) %{_sysconfdir}/runit/2
 %attr(0700,root,root) %{_sysconfdir}/runit/3
 %attr(0700,root,root) %{_sysconfdir}/runit/ctrlaltdel
-%dir %{_srvdir}/mingetty-tty1
+%dir %attr(0750,root,admin) %{_srvdir}/mingetty-tty1
 %attr(0740,root,admin) %{_srvdir}/mingetty-tty1/run
 %attr(0740,root,admin) %{_srvdir}/mingetty-tty1/finish
-%dir %{_srvdir}/mingetty-tty2
+%dir %attr(0750,root,admin) %{_srvdir}/mingetty-tty2
 %attr(0740,root,admin) %{_srvdir}/mingetty-tty2/run
 %attr(0740,root,admin) %{_srvdir}/mingetty-tty2/finish
-%dir %{_srvdir}/mingetty-tty3
+%dir %attr(0750,root,admin) %{_srvdir}/mingetty-tty3
 %attr(0740,root,admin) %{_srvdir}/mingetty-tty3/run
 %attr(0740,root,admin) %{_srvdir}/mingetty-tty3/finish
-%dir %{_srvdir}/mingetty-tty4
+%dir %attr(0750,root,admin) %{_srvdir}/mingetty-tty4
 %attr(0740,root,admin) %{_srvdir}/mingetty-tty4/run
 %attr(0740,root,admin) %{_srvdir}/mingetty-tty4/finish
-%dir %{_srvdir}/mingetty-tty5
+%dir %attr(0750,root,admin) %{_srvdir}/mingetty-tty5
 %attr(0740,root,admin) %{_srvdir}/mingetty-tty5/run
 %attr(0740,root,admin) %{_srvdir}/mingetty-tty5/finish
-%dir %{_srvdir}/mingetty-tty6
+%dir %attr(0750,root,admin) %{_srvdir}/mingetty-tty6
 %attr(0740,root,admin) %{_srvdir}/mingetty-tty6/run
 %attr(0740,root,admin) %{_srvdir}/mingetty-tty6/finish
 
 
 %changelog
+* Fri Aug 26 2005 Vincent Danen <vdanen@annvix.org> 1.3.0-2avx
+- fix perms on run scripts
+
 * Wed Aug 24 2005 Vincent Danen <vdanen@annvix.org> 1.3.0-1avx
 - 1.3.0
 - Requires: execline

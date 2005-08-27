@@ -9,7 +9,7 @@
 
 %define name		squid
 %define version		2.5.STABLE10
-%define release		2avx
+%define release		3avx
 
 %define their_version	2.5.STABLE10
 %define p_url   	http://www.squid-cache.org/Versions/v2/2.5/bugs
@@ -178,9 +178,8 @@ mkdir -p %{buildroot}%{_srvlogdir}/squid
 mkdir -p %{buildroot}%{_sysconfdir}/
 mkdir -p %{buildroot}/etc/{logrotate.d,pam.d,sysconfig}
 
-install -m 0755 %{SOURCE11} %{buildroot}%{_srvdir}/squid/run
-install -m 0755 %{SOURCE12} %{buildroot}%{_srvdir}/squid/log/run
-#install -m 0755 %{SOURCE13} %{buildroot}%{_srvdir}/squid/stop
+install -m 0740 %{SOURCE11} %{buildroot}%{_srvdir}/squid/run
+install -m 0740 %{SOURCE12} %{buildroot}%{_srvdir}/squid/log/run
 bzcat %{SOURCE3} > %{buildroot}/etc/logrotate.d/squid
 bzcat %{SOURCE14} > %{buildroot}/etc/sysconfig/squid
 
@@ -364,14 +363,16 @@ fi
 %{_mandir}/man8/*
 %attr(755,squid,squid) %dir /var/log/squid
 %attr(755,squid,squid) %dir /var/spool/squid
-%dir %{_srvdir}/squid
-%dir %{_srvdir}/squid/log
-%{_srvdir}/squid/run
-%{_srvdir}/squid/log/run
-#%{_srvdir}/squid/stop
+%dir %attr(0750,root,admin) %{_srvdir}/squid
+%dir %attr(0750,root,admin) %{_srvdir}/squid/log
+%attr(0740,root,admin) %{_srvdir}/squid/run
+%attr(0740,root,admin) %{_srvdir}/squid/log/run
 %attr(0750,logger,logger) %dir %{_srvlogdir}/squid
 
 %changelog
+* Fri Aug 26 2005 Vincent Danen <vdanen@annvix.org> 2.5.STABLE10-3avx
+- fix perms on run scripts
+
 * Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 2.5.STABLE10-2avx
 - bootstrap build (new gcc, new glibc)
 

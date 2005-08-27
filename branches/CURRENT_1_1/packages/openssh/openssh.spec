@@ -11,7 +11,7 @@
 
 %define name		openssh
 %define version		4.1p1
-%define release 	4avx
+%define release 	5avx
 
 # overrides
 %global build_skey	0
@@ -180,8 +180,8 @@ rm -f %{buildroot}%{_datadir}/ssh/Ssh.bin
 
 mkdir -p %{buildroot}%{_srvdir}/sshd/log
 mkdir -p %{buildroot}%{_srvlogdir}/sshd
-install -m 0755 %{SOURCE8} %{buildroot}%{_srvdir}/sshd/run
-install -m 0755 %{SOURCE9} %{buildroot}%{_srvdir}/sshd/log/run
+install -m 0740 %{SOURCE8} %{buildroot}%{_srvdir}/sshd/run
+install -m 0740 %{SOURCE9} %{buildroot}%{_srvdir}/sshd/log/run
 
 mkdir -p %{buildroot}%{_datadir}/afterboot
 install -m 0644 %{SOURCE5} %{buildroot}%{_datadir}/afterboot/04_openssh
@@ -318,14 +318,17 @@ echo "known_hosts files on an entire system if run as root."
 %{_mandir}/man5/sshd_config.5*
 %{_mandir}/man8/sshd.8*
 %{_mandir}/man8/sftp-server.8*
-%dir %{_srvdir}/sshd
-%dir %{_srvdir}/sshd/log
-%{_srvdir}/sshd/run
-%{_srvdir}/sshd/log/run
+%dir %attr(0750,root,admin) %{_srvdir}/sshd
+%dir %attr(0750,root,admin) %{_srvdir}/sshd/log
+%attr(0740,root,admin) %{_srvdir}/sshd/run
+%attr(0740,root,admin) %{_srvdir}/sshd/log/run
 %dir %attr(0750,logger,logger) %{_srvlogdir}/sshd
 %{_datadir}/afterboot/04_openssh
 
 %changelog
+* Fri Aug 26 2005 Vincent Danen <vdanen@annvix.org> 4.1p1-5avx
+- fix perms on run scripts
+
 * Tue Aug 23 2005 Vincent Danen <vdanen@annvix.org> 4.1p1-4avx
 - enable HashKnownHosts by default [ssh_config]
 - include convert_known_hosts-4.0pl script from nms.lcs.mit.edu

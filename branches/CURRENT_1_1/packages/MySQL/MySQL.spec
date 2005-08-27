@@ -9,7 +9,7 @@
 
 %define name		MySQL
 %define version		4.1.12
-%define release		2avx
+%define release		3avx
 
 %define major		14
 %define libname		%mklibname mysql %{major}
@@ -305,9 +305,9 @@ install -m 0644 %{SOURCE8} %{buildroot}%{_sysconfdir}/my.cnf
 
 mkdir -p %{buildroot}%{_srvdir}/mysqld/log
 mkdir -p %{buildroot}%{_srvlogdir}/mysqld
-install -m 0750 %{SOURCE2} %{buildroot}%{_srvdir}/mysqld/run
-install -m 0750 %{SOURCE5} %{buildroot}%{_srvdir}/mysqld/finish
-install -m 0750 %{SOURCE3} %{buildroot}%{_srvdir}/mysqld/log/run
+install -m 0740 %{SOURCE2} %{buildroot}%{_srvdir}/mysqld/run
+install -m 0740 %{SOURCE5} %{buildroot}%{_srvdir}/mysqld/finish
+install -m 0740 %{SOURCE3} %{buildroot}%{_srvdir}/mysqld/log/run
 
 # Install docs
 install -m 0644 Docs/mysql.info %{buildroot}%{_infodir}/mysql.info
@@ -587,11 +587,11 @@ fi
 %{_datadir}/mysql/*.ini
 %{_datadir}/afterboot/05_mysql
 %dir %{_libdir}/mysql
-%dir %{_srvdir}/mysqld
-%dir %{_srvdir}/mysqld/log
-%{_srvdir}/mysqld/finish
-%{_srvdir}/mysqld/run
-%{_srvdir}/mysqld/log/run
+%dir %attr(0750,root,admin) %{_srvdir}/mysqld
+%dir %attr(0750,root,admin) %{_srvdir}/mysqld/log
+%attr(0740,root,admin) %{_srvdir}/mysqld/finish
+%attr(0740,root,admin)%{_srvdir}/mysqld/run
+%attr(0740,root,admin)%{_srvdir}/mysqld/log/run
 %dir %attr(0750,logger,logger) %{_srvlogdir}/mysqld
 
 %files -n %{libname}
@@ -613,6 +613,9 @@ fi
 %{_libdir}/mysql/*.a
 
 %changelog
+* Fri Aug 26 2005 Vincent Danen <vdanen@annvix.org> 4.1.12-3avx
+- fix perms on run scripts
+
 * Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 4.1.12-2avx
 - bootstrap build (new gcc, new glibc)
 

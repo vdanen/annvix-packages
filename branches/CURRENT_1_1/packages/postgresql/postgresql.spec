@@ -9,7 +9,7 @@
 
 %define name		postgresql
 %define version		8.0.3
-%define release		1avx
+%define release		2avx
 
 %define _requires_exceptions devel(libtcl8.4)\\|devel(libtcl8.4(64bit))
 
@@ -342,11 +342,11 @@ mv %{buildroot}%{_docdir}/%{name}/html %{buildroot}%{_docdir}/%{name}-docs-%{ver
 
 mkdir -p %{buildroot}%{_srvdir}/{postgresql,pg_autovacuum}/log
 mkdir -p %{buildroot}%{_srvlogdir}/{postgresql,pg_autovacuum}
-install -m 0755 %{SOURCE20} %{buildroot}%{_srvdir}/postgresql/run
-install -m 0755 %{SOURCE21} %{buildroot}%{_srvdir}/postgresql/log/run
-install -m 0755 %{SOURCE24} %{buildroot}%{_srvdir}/postgresql/finish
-install -m 0755 %{SOURCE26} %{buildroot}%{_srvdir}/pg_autovacuum/run
-install -m 0755 %{SOURCE27} %{buildroot}%{_srvdir}/pg_autovacuum/log/run
+install -m 0740 %{SOURCE20} %{buildroot}%{_srvdir}/postgresql/run
+install -m 0740 %{SOURCE21} %{buildroot}%{_srvdir}/postgresql/log/run
+install -m 0740 %{SOURCE24} %{buildroot}%{_srvdir}/postgresql/finish
+install -m 0740 %{SOURCE26} %{buildroot}%{_srvdir}/pg_autovacuum/run
+install -m 0740 %{SOURCE27} %{buildroot}%{_srvdir}/pg_autovacuum/log/run
 
 mkdir -p %{buildroot}%{_sysconfdir}/sysconfig
 install -m 0644 %{SOURCE22} %{buildroot}%{_sysconfdir}/sysconfig/postgresql
@@ -473,10 +473,10 @@ rm -f perlfiles.list
 %{_datadir}/pgsql/avx/avx_update_dump
 %{_datadir}/pgsql/avx/avx_update_restore
 %config(noreplace) %{_sysconfdir}/sysconfig/pg_autovacuum
-%dir %{_srvdir}/pg_autovacuum
-%dir %{_srvdir}/pg_autovacuum/log
-%{_srvdir}/pg_autovacuum/run
-%{_srvdir}/pg_autovacuum/log/run
+%dir %attr(0750,root,admin) %{_srvdir}/pg_autovacuum
+%dir %attr(0750,root,admin) %{_srvdir}/pg_autovacuum/log
+%attr(0740,root,admin) %{_srvdir}/pg_autovacuum/run
+%attr(0740,root,admin) %{_srvdir}/pg_autovacuum/log/run
 %dir %attr(0750,logger,logger) %{_srvlogdir}/pg_autovacuum
 
 %files -n %{libname} 
@@ -579,11 +579,11 @@ rm -f perlfiles.list
 %{_datadir}/pgsql/upgrade.pl
 %{_datadir}/pgsql/information_schema.sql
 %{_datadir}/pgsql/sql_features.txt
-%dir %{_srvdir}/postgresql
-%dir %{_srvdir}/postgresql/log
-%{_srvdir}/postgresql/run
-%{_srvdir}/postgresql/finish
-%{_srvdir}/postgresql/log/run
+%dir %attr(0750,root,admin) %{_srvdir}/postgresql
+%dir %attr(0750,root,admin) %{_srvdir}/postgresql/log
+%attr(0740,root,admin) %{_srvdir}/postgresql/run
+%attr(0740,root,admin) %{_srvdir}/postgresql/finish
+%attr(0740,root,admin) %{_srvdir}/postgresql/log/run
 %dir %attr(0750,logger,logger) %{_srvlogdir}/postgresql
 %config(noreplace) %{_sysconfdir}/sysconfig/postgresql
 %{_datadir}/afterboot/01_postgresql
@@ -620,6 +620,9 @@ rm -f perlfiles.list
 
 
 %changelog
+* Fri Aug 26 2005 Vincent Danen <vdanen@annvix.org> 8.0.3-2avx
+- fix perms on run scripts
+
 * Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 8.0.3-1avx
 - 8.0.3
 - fix major lib number (nanardon)

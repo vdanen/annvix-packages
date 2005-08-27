@@ -9,7 +9,7 @@
 
 %define name		dhcp
 %define version		3.0.2
-%define release		3avx
+%define release		4avx
 %define epoch		2
 
 %define their_version	3.0.1
@@ -187,10 +187,10 @@ rm -rf doc/ja_JP.eucJP
 
 mkdir -p %{buildroot}%{_srvdir}/{dhcpd,dhcrelay}/log
 mkdir -p %{buildroot}%{_srvlogdir}/{dhcpd,dhcrelay}
-install -m 0750 %{SOURCE8} %{buildroot}%{_srvdir}/dhcpd/run
-install -m 0750 %{SOURCE9} %{buildroot}%{_srvdir}/dhcpd/log/run
-install -m 0750 %{SOURCE10} %{buildroot}%{_srvdir}/dhcrelay/run
-install -m 0750 %{SOURCE11} %{buildroot}%{_srvdir}/dhcrelay/log/run
+install -m 0740 %{SOURCE8} %{buildroot}%{_srvdir}/dhcpd/run
+install -m 0740 %{SOURCE9} %{buildroot}%{_srvdir}/dhcpd/log/run
+install -m 0740 %{SOURCE10} %{buildroot}%{_srvdir}/dhcrelay/run
+install -m 0740 %{SOURCE11} %{buildroot}%{_srvdir}/dhcrelay/log/run
 
 
 %pre common
@@ -248,10 +248,10 @@ rm -rf %{_localstatedir}/dhcp/dhclient.leases
 %{_mandir}/man5/dhcpd.leases.5*
 %{_mandir}/man5/dhcp-eval.5*
 %{_mandir}/man8/dhcpd.8*
-%dir %{_srvdir}/dhcpd
-%dir %{_srvdir}/dhcpd/log
-%{_srvdir}/dhcpd/run
-%{_srvdir}/dhcpd/log/run
+%dir %attr(0750,root,admin) %{_srvdir}/dhcpd
+%dir %attr(0750,root,admin) %{_srvdir}/dhcpd/log
+%attr(0740,root,admin) %{_srvdir}/dhcpd/run
+%attr(0740,root,admin) %{_srvdir}/dhcpd/log/run
 %dir %attr(0750,logger,logger) %{_srvlogdir}/dhcpd
 
 %files relay
@@ -259,10 +259,10 @@ rm -rf %{_localstatedir}/dhcp/dhclient.leases
 %config(noreplace) %{_sysconfdir}/sysconfig/dhcrelay
 %{_sbindir}/dhcrelay
 %{_mandir}/man8/dhcrelay.8*
-%dir %{_srvdir}/dhcrelay
-%dir %{_srvdir}/dhcrelay/log
-%{_srvdir}/dhcrelay/run
-%{_srvdir}/dhcrelay/log/run
+%dir %attr(0750,root,admin) %{_srvdir}/dhcrelay
+%dir %attr(0750,root,admin) %{_srvdir}/dhcrelay/log
+%attr(0740,root,admin) %{_srvdir}/dhcrelay/run
+%attr(0740,root,admin) %{_srvdir}/dhcrelay/log/run
 %dir %attr(0750,logger,logger) %{_srvlogdir}/dhcrelay
 
 %files client
@@ -284,6 +284,9 @@ rm -rf %{_localstatedir}/dhcp/dhclient.leases
 
 
 %changelog
+* Fri Aug 26 2005 Vincent Danen <vdanen@annvix.org> 3.0.2-4avx
+- fix perms on run scripts
+
 * Wed Aug 17 2005 Vincent Danen <vdanen@annvix.org> 3.0.2-3avx
 - bootstrap build (new gcc, new glibc)
 

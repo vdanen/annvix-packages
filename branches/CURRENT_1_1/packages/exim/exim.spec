@@ -9,7 +9,7 @@
 
 %define name		exim
 %define version 	4.50
-%define release 	3avx
+%define release 	4avx
 
 %define build_mysql 	0
 %define build_pgsql 	0
@@ -184,8 +184,8 @@ install -m 0644 %{SOURCE5} %{buildroot}%{_mandir}/man8/exim.8
 install -m 0755 %{SOURCE8} %{buildroot}%{_sbindir}
 
 mkdir -p %{buildroot}{%{_srvdir}/exim/log,%{_srvlogdir}/exim}
-install -m 0755 %{SOURCE13} %{buildroot}%{_srvdir}/exim/run
-install -m 0755 %{SOURCE14} %{buildroot}%{_srvdir}/exim/log/run
+install -m 0740 %{SOURCE13} %{buildroot}%{_srvdir}/exim/run
+install -m 0740 %{SOURCE14} %{buildroot}%{_srvdir}/exim/log/run
 
 # install SA-exim
 pushd sa-exim*
@@ -285,10 +285,10 @@ fi
 %config(noreplace) %{_sysconfdir}/sysconfig/exim
 %attr(0755,root,root) %config(noreplace) %{_sysconfdir}/cron.weekly/exim.logrotate
 %config(noreplace) %{_sysconfdir}/pam.d/exim
-%dir %{_srvdir}/exim
-%dir %{_srvdir}/exim/log
-%{_srvdir}/exim/run
-%{_srvdir}/exim/log/run
+%dir %attr(0750,root,admin) %{_srvdir}/exim
+%dir %attr(0750,root,admin) %{_srvdir}/exim/log
+%attr(0740,root,admin) %{_srvdir}/exim/run
+%attr(0740,root,admin) %{_srvdir}/exim/log/run
 %dir %attr(0750,logger,logger) %{_srvlogdir}/exim
 
 %files saexim
@@ -301,6 +301,9 @@ fi
 
 
 %changelog
+* Fri Aug 26 2005 Vincent Danen <vdanen@annvix.org> 4.50-4avx
+- fix perms on run scripts
+
 * Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 4.50-3avx
 - bootstrap build (new gcc, new glibc)
 
