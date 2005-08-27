@@ -9,7 +9,7 @@
 
 %define name		openldap
 %define version		2.1.29
-%define release		15avx
+%define release		16avx
 
 %define major 		2
 %define migtools_ver	45
@@ -471,10 +471,10 @@ sed -i -e "s|-L$RPM_BUILD_DIR/%{name}-%{version}/db-instroot/%{_libdir}||g" %{bu
 
 mkdir -p %{buildroot}%{_srvdir}/{slapd,slurpd}/log
 mkdir -p %{buildroot}%{_srvlogdir}/{slapd,slurpd}
-install -m 0755 %{SOURCE22} %{buildroot}%{_srvdir}/slapd/run
-install -m 0755 %{SOURCE23} %{buildroot}%{_srvdir}/slapd/log/run
-install -m 0755 %{SOURCE24} %{buildroot}%{_srvdir}/slurpd/run
-install -m 0755 %{SOURCE25} %{buildroot}%{_srvdir}/slurpd/log/run
+install -m 0740 %{SOURCE22} %{buildroot}%{_srvdir}/slapd/run
+install -m 0740 %{SOURCE23} %{buildroot}%{_srvdir}/slapd/log/run
+install -m 0740 %{SOURCE24} %{buildroot}%{_srvdir}/slurpd/run
+install -m 0740 %{SOURCE25} %{buildroot}%{_srvdir}/slurpd/log/run
 
 install -d %{buildroot}%{_sysconfdir}/sysconfig
 install -m 644 %{SOURCE2} %{buildroot}%{_sysconfdir}/sysconfig/ldap
@@ -801,15 +801,15 @@ fi
 %{_mandir}/man5/slapd.*.5*
 %{_mandir}/man5/slapd-*.5*
 %{_mandir}/man8/*
-%dir %{_srvdir}/slapd
-%dir %{_srvdir}/slapd/log
-%{_srvdir}/slapd/run
-%{_srvdir}/slapd/log/run
+%dir %attr(0750,root,admin) %{_srvdir}/slapd
+%dir %attr(0750,root,admin) %{_srvdir}/slapd/log
+%attr(0740,root,admin) %{_srvdir}/slapd/run
+%attr(0740,root,admin) %{_srvdir}/slapd/log/run
 %dir %attr(0750,logger,logger) %{_srvlogdir}/slapd
-%dir %{_srvdir}/slurpd
-%dir %{_srvdir}/slurpd/log
-%{_srvdir}/slurpd/run
-%{_srvdir}/slurpd/log/run
+%dir %attr(0750,root,admin) %{_srvdir}/slurpd
+%dir %attr(0750,root,admin) %{_srvdir}/slurpd/log
+%attr(0740,root,admin) %{_srvdir}/slurpd/run
+%attr(0740,root,admin) %{_srvdir}/slurpd/log/run
 %dir %attr(0750,logger,logger) %{_srvlogdir}/slurpd
 
 
@@ -883,6 +883,9 @@ fi
 # - add cron-job to remove transaction logs (bdb)
 
 %changelog
+* Sat Aug 27 2005 Vincent Danen <vdanen@annvix.org> 2.1.29-16avx
+- fix perms on run scripts
+
 * Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 2.1.29-15avx
 - bootstrap build (new gcc, new glibc)
 

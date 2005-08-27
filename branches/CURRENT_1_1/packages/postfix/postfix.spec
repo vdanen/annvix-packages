@@ -9,7 +9,7 @@
 
 %define name		postfix
 %define version		2.1.5
-%define release 	5avx
+%define release 	6avx
 %define epoch		1
 
 %define	openssl_ver	0.9.7d
@@ -290,7 +290,7 @@ install -c -m 0755 auxiliary/qshape/qshape.pl %{buildroot}%{_sbindir}/qshape
 cp man/man1/qshape.1 %{buildroot}%{_mandir}/man1/qshape.1
 
 mkdir -p %{buildroot}%{_srvdir}/postfix
-install -m 0750 %{SOURCE6} %{buildroot}%{_srvdir}/postfix/run
+install -m 0740 %{SOURCE6} %{buildroot}%{_srvdir}/postfix/run
 
 
 rm -f %{buildroot}%{_sysconfdir}/postfix/LICENSE
@@ -386,8 +386,8 @@ fi
 %config(noreplace) %{_sysconfdir}/postfix/virtual
 %config(noreplace) %{_sysconfdir}/postfix/makedefs.out
 
-%dir %{_srvdir}/postfix
-%{_srvdir}/postfix/run
+%dir %attr(0750,root,admin) %{_srvdir}/postfix
+%attr(0740,root,admin) %{_srvdir}/postfix/run
 
 # For correct directory permissions check postfix-install script
 %dir %{queue_directory}
@@ -465,6 +465,9 @@ fi
 
 
 %changelog
+* Sat Aug 27 2005 Vincent Danen <vdanen@annvix.org> 2.1.5-6avx
+- fix perms on run scripts
+
 * Wed Aug 17 2005 Vincent Danen <vdanen@annvix.org> 2.1.5-5avx
 - bootstrap build (new gcc, new glibc)
 

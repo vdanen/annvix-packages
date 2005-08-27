@@ -9,7 +9,7 @@
 
 %define name		snort
 %define version		2.3.0
-%define release		3avx
+%define release		4avx
 
 Summary:	An intrusion detection system
 Name:		%{name}
@@ -459,8 +459,8 @@ install -m 0644 %{SOURCE5} %{buildroot}%{_sysconfdir}/sysconfig/%{name}
 
 mkdir -p %{buildroot}%{_srvdir}/snortd/log
 mkdir -p %{buildroot}%{_srvlogdir}/snortd
-install -m 0750 %{SOURCE1} %{buildroot}%{_srvdir}/snortd/run
-install -m 0750 %{SOURCE2} %{buildroot}%{_srvdir}/snortd/log/run
+install -m 0740 %{SOURCE1} %{buildroot}%{_srvdir}/snortd/run
+install -m 0740 %{SOURCE2} %{buildroot}%{_srvdir}/snortd/log/run
 
 #remove the contrib archive files
 # remove some of the contrib archive files
@@ -573,10 +573,10 @@ update-alternatives --remove %{name} %{_sbindir}/%{name}-inline+flexresp
 %attr(640,root,root) %config(noreplace) %{_sysconfdir}/%{name}/%{name}.conf
 %attr(755,root,root) %config(noreplace) %{_sysconfdir}/logrotate.d/%{name}
 %attr(644,root,root) %config /etc/sysconfig/%{name}
-%dir %{_srvdir}/snortd
-%dir %{_srvdir}/snortd/log
-%{_srvdir}/snortd/run
-%{_srvdir}/snortd/log/run
+%dir %attr(0750,root,admin) %{_srvdir}/snortd
+%dir %attr(0750,root,admin) %{_srvdir}/snortd/log
+%attr(0740,root,admin) %{_srvdir}/snortd/run
+%attr(0740,root,admin) %{_srvdir}/snortd/log/run
 %dir %attr(0750,logger,logger) %{_srvlogdir}/snortd
 
 %files plain+flexresp
@@ -618,6 +618,9 @@ update-alternatives --remove %{name} %{_sbindir}/%{name}-inline+flexresp
 %attr(755,root,root) %{_sbindir}/%{name}-bloat
 
 %changelog
+* Sat Aug 27 2005 Vincent Danen <vdanen@annvix.org> 2.3.0-4avx
+- fix perms on run scripts
+
 * Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 2.3.0-3avx
 - bootstrap build (new gcc, new glibc)
 

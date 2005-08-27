@@ -9,7 +9,7 @@
 
 %define name		samba
 %define version		3.0.11
-%define release		5avx
+%define release		6avx
 
 %define smbldapver	0.8.6
 %define vscanver	0.3.5
@@ -408,8 +408,8 @@ ln -s %{_bindir}/smbspool %{buildroot}%{_libdir}/cups/backend/smb
 # ipsvd support
 mkdir -p %{buildroot}%{_srvdir}/swat/log
 mkdir -p %{buildroot}%{_srvlogdir}/swat
-install -m 0755 %{SOURCE11} %{buildroot}%{_srvdir}/swat/run
-install -m 0755 %{SOURCE12} %{buildroot}%{_srvdir}/swat/log/run
+install -m 0740 %{SOURCE11} %{buildroot}%{_srvdir}/swat/run
+install -m 0740 %{SOURCE12} %{buildroot}%{_srvdir}/swat/log/run
 
 bzcat %{SOURCE10}> %{buildroot}%{_datadir}/%{name}/scripts/print-pdf
 bzcat %{SOURCE20}> %{buildroot}%{_datadir}/%{name}/scripts/smb-migrate
@@ -423,12 +423,12 @@ pushd %{buildroot}/sbin
 popd
 
 mkdir -p %{buildroot}%{_srvdir}/{smbd,nmbd,winbindd}/log
-install -m 0755 %{SOURCE14} %{buildroot}%{_srvdir}/smbd/run
-install -m 0755 %{SOURCE15} %{buildroot}%{_srvdir}/smbd/log/run
-install -m 0755 %{SOURCE16} %{buildroot}%{_srvdir}/nmbd/run
-install -m 0755 %{SOURCE17} %{buildroot}%{_srvdir}/nmbd/log/run
-install -m 0755 %{SOURCE18} %{buildroot}%{_srvdir}/winbindd/run
-install -m 0755 %{SOURCE19} %{buildroot}%{_srvdir}/winbindd/log/run
+install -m 0740 %{SOURCE14} %{buildroot}%{_srvdir}/smbd/run
+install -m 0740 %{SOURCE15} %{buildroot}%{_srvdir}/smbd/log/run
+install -m 0740 %{SOURCE16} %{buildroot}%{_srvdir}/nmbd/run
+install -m 0740 %{SOURCE17} %{buildroot}%{_srvdir}/nmbd/log/run
+install -m 0740 %{SOURCE18} %{buildroot}%{_srvdir}/winbindd/run
+install -m 0740 %{SOURCE19} %{buildroot}%{_srvdir}/winbindd/log/run
 mkdir -p %{buildroot}%{_srvlogdir}/{smbd,nmbd,winbindd}
 
 mv %{buildroot}%{_sysconfdir}/samba/smb.conf %{buildroot}%{_sysconfdir}/samba/smb.conf_full
@@ -608,24 +608,24 @@ fi
 %{_libdir}/%{name}/pdb/*pgsql.so
 %{_libdir}/%{name}/pdb/*xml.so
 
-%dir %{_srvdir}/smbd
-%dir %{_srvdir}/smbd/log
-%dir %{_srvdir}/nmbd
-%dir %{_srvdir}/nmbd/log
-%{_srvdir}/smbd/run
-%{_srvdir}/smbd/log/run
-%{_srvdir}/nmbd/run
-%{_srvdir}/nmbd/log/run
+%dir %attr(0750,root,admin) %{_srvdir}/smbd
+%dir %attr(0750,root,admin) %{_srvdir}/smbd/log
+%dir %attr(0750,root,admin) %{_srvdir}/nmbd
+%dir %attr(0750,root,admin) %{_srvdir}/nmbd/log
+%attr(0740,root,admin) %{_srvdir}/smbd/run
+%attr(0740,root,admin) %{_srvdir}/smbd/log/run
+%attr(0740,root,admin) %{_srvdir}/nmbd/run
+%attr(0740,root,admin) %{_srvdir}/nmbd/log/run
 %dir %attr(0750,logger,logger) %{_srvlogdir}/smbd
 %dir %attr(0750,logger,logger) %{_srvlogdir}/nmbd
 
 %files swat
 %defattr(-,root,root)
-%dir %{_srvdir}/swat
-%dir %{_srvdir}/swat/log
+%dir %attr(0750,root,admin) %{_srvdir}/swat
+%dir %attr(0750,root,admin) %{_srvdir}/swat/log
 %dir %attr(0750,logger,logger) %{_srvlogdir}/swat
-%{_srvdir}/swat/run
-%{_srvdir}/swat/log/run
+%attr(0740,root,admin) %{_srvdir}/swat/run
+%attr(0740,root,admin) %{_srvdir}/swat/log/run
 %{_sbindir}/swat
 %attr(-,root,root) %{_datadir}/swat/help/
 %attr(-,root,root) %{_datadir}/swat/images/
@@ -728,11 +728,11 @@ fi
 %{_mandir}/man8/pam_winbind*.8*
 %{_mandir}/man8/winbindd*.8*
 %{_mandir}/man1/wbinfo*.1*
-%dir %{_srvdir}/winbindd
-%dir %{_srvdir}/winbindd/log
+%dir %attr(0750,root,admin) %{_srvdir}/winbindd
+%dir %attr(0750,root,admin) %{_srvdir}/winbindd/log
 %dir %attr(0750,logger,logger) %{_srvlogdir}/winbindd
-%{_srvdir}/winbindd/run
-%{_srvdir}/winbindd/log/run
+%attr(0740,root,admin) %{_srvdir}/winbindd/run
+%attr(0740,root,admin) %{_srvdir}/winbindd/log/run
 
 %files -n nss_wins
 %defattr(-,root,root)
@@ -770,6 +770,9 @@ fi
 
 
 %changelog
+* Sat Aug 27 2005 Vincent Danen <vdanen@annvix.org> 3.0.11-6avx
+- fix perms on run scripts
+
 * Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 3.0.11-5avx
 - bootstrap build (new gcc, new glibc)
 

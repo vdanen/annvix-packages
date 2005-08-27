@@ -9,7 +9,7 @@
 
 %define name		pure-ftpd
 %define	version 	1.0.20
-%define release 	3avx
+%define release 	4avx
 
 Summary:	Lightweight, fast and secure FTP server
 Name:		%{name}
@@ -132,8 +132,8 @@ mkdir -p %{buildroot}/var/ftp/incoming/
 
 mkdir -p %{buildroot}%{_srvdir}/pureftpd/log
 mkdir -p %{buildroot}%{_srvlogdir}/pureftpd
-install -m 0755 %{SOURCE4} %{buildroot}%{_srvdir}/pureftpd/run
-install -m 0755 %{SOURCE5} %{buildroot}%{_srvdir}/pureftpd/log/run
+install -m 0740 %{SOURCE4} %{buildroot}%{_srvdir}/pureftpd/run
+install -m 0740 %{SOURCE5} %{buildroot}%{_srvdir}/pureftpd/log/run
 
 
 %clean
@@ -191,10 +191,10 @@ done
 %{_sbindir}/pure-authd
 %attr(644,root,root)%{_mandir}/man8/*
 %dir %attr(0750,logger,logger) %{_srvlogdir}/pureftpd
-%dir %{_srvdir}/pureftpd
-%dir %{_srvdir}/pureftpd/log
-%{_srvdir}/pureftpd/run
-%{_srvdir}/pureftpd/log/run
+%dir %attr(0750,root,admin) %{_srvdir}/pureftpd
+%dir %attr(0750,root,admin) %{_srvdir}/pureftpd/log
+%attr(0740,root,admin) %{_srvdir}/pureftpd/run
+%attr(0740,root,admin) %{_srvdir}/pureftpd/log/run
 
 %files anonymous
 %defattr(-, root, root)
@@ -206,7 +206,10 @@ done
 
 
 %changelog
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 1.0.19-2avx
+* Sat Aug 27 2005 Vincent Danen <vdanen@annvix.org> 1.0.20-4avx
+- fix perms on run scripts
+
+* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 1.0.20-3avx
 - rebuild
 
 * Mon Sep 20 2004 Vincent Danen <vdanen@annvix.org> 1.0.20-1avx

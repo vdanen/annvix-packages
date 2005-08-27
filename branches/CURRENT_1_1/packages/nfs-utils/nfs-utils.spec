@@ -9,7 +9,7 @@
 
 %define name		nfs-utils
 %define	version		1.0.6
-%define release		8avx
+%define release		9avx
 %define epoch		1
 
 Summary:	The utilities for Linux NFS server
@@ -116,11 +116,11 @@ mkdir -p %{buildroot}/var/lib/nfs/statd
 
 mkdir -p %{buildroot}%{_srvdir}/nfs.{statd,mountd}/log
 mkdir -p %{buildroot}%{_srvlogdir}/nfs.{statd,mountd}
-install -m 0750 %{SOURCE13} %{buildroot}%{_srvdir}/nfs.statd/run
-install -m 0750 %{SOURCE14} %{buildroot}%{_srvdir}/nfs.statd/log/run
-install -m 0750 %{SOURCE15} %{buildroot}%{_srvdir}/nfs.mountd/run
-install -m 0750 %{SOURCE16} %{buildroot}%{_srvdir}/nfs.mountd/log/run
-install -m 0750 %{SOURCE17} %{buildroot}%{_srvdir}/nfs.mountd/finish
+install -m 0740 %{SOURCE13} %{buildroot}%{_srvdir}/nfs.statd/run
+install -m 0740 %{SOURCE14} %{buildroot}%{_srvdir}/nfs.statd/log/run
+install -m 0740 %{SOURCE15} %{buildroot}%{_srvdir}/nfs.mountd/run
+install -m 0740 %{SOURCE16} %{buildroot}%{_srvdir}/nfs.mountd/log/run
+install -m 0740 %{SOURCE17} %{buildroot}%{_srvdir}/nfs.mountd/finish
 
 
 %clean
@@ -186,11 +186,11 @@ fi
 %{_mandir}/man8/nhfsstone.8*
 %{_mandir}/man8/rpc.mountd.8*
 %{_mandir}/man8/rpc.nfsd.8*
-%dir %{_srvdir}/nfs.mountd
-%dir %{_srvdir}/nfs.mountd/log
-%{_srvdir}/nfs.mountd/run
-%{_srvdir}/nfs.mountd/finish
-%{_srvdir}/nfs.mountd/log/run
+%dir %attr(0750,root,admin) %{_srvdir}/nfs.mountd
+%dir %attr(0750,root,admin) %{_srvdir}/nfs.mountd/log
+%attr(0740,root,admin) %{_srvdir}/nfs.mountd/run
+%attr(0740,root,admin) %{_srvdir}/nfs.mountd/finish
+%attr(0740,root,admin) %{_srvdir}/nfs.mountd/log/run
 %dir %attr(0750,logger,logger) %{_srvlogdir}/nfs.mountd
 
 %files clients
@@ -207,14 +207,17 @@ fi
 %dir %{_localstatedir}/nfs
 %dir %{_localstatedir}/nfs/state
 %dir %attr(700,rpcuser,rpcuser) /var/lib/nfs/statd
-%dir %{_srvdir}/nfs.statd
-%dir %{_srvdir}/nfs.statd/log
-%{_srvdir}/nfs.statd/run
-%{_srvdir}/nfs.statd/log/run
+%dir %attr(0750,root,admin) %{_srvdir}/nfs.statd
+%dir %attr(0750,root,admin) %{_srvdir}/nfs.statd/log
+%attr(0740,root,admin) %{_srvdir}/nfs.statd/run
+%attr(0740,root,admin) %{_srvdir}/nfs.statd/log/run
 %dir %attr(0750,logger,logger) %{_srvlogdir}/nfs.statd
 
 
 %changelog
+* Sat Aug 27 2005 Vincent Danen <vdanen@annvix.org> 1.0.6-9avx
+- fix perms on run scripts
+
 * Thu Aug 18 2005 Vincent Danen <vdanen@annvix.org> 1.0.6-8avx
 - bootstrap build (new gcc, new glibc)
 
