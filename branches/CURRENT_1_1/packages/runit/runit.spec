@@ -8,8 +8,8 @@
 
 
 %define	name		runit
-%define	version		1.3.0
-%define	release		2avx
+%define	version		1.3.1
+%define	release		1avx
 
 %define aver		0.1
 
@@ -160,6 +160,9 @@ fi
 
 
 %changelog
+* Mon Aug 29 2005 Vincent Danen <vdanen@annvix.org> 1.3.1-1avx
+- 1.3.1
+
 * Fri Aug 26 2005 Vincent Danen <vdanen@annvix.org> 1.3.0-2avx
 - fix perms on run scripts
 
