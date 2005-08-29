@@ -8,19 +8,13 @@
 
 %define name		xorg-x11
 %define version		6.8.2
-%define release		1avx
+%define release		3avx
 
-%define sis_version	160604-1
-%define unichromever	r30
-%define unichromexvmc	0.13.3
+%global _unpackaged_files_terminate_build	0
 
 %define renderver	0.8
 %define xrenderver	0.8.4
 %define xftver		2.1.6
-
-# New drop-in Xrender and Xft libraries
-%define with_new_xft_and_xrender	0
-%define with_xft_and_xrender		0
 
 # looks like parallel build is broken
 %define single_build	1
@@ -55,11 +49,6 @@
 %define build_speedo_fonts	1
 %define build_type1_fonts	1
 
-%define havematroxhal		0
-%define usematroxhal		0
-
-%define build_xprt		1
-
 %define build_composite		1
 
 %if %{usefreetype2}
@@ -73,53 +62,9 @@
 %define with_new_fontconfig_Xft 0
 %define with_new_fontconfig_Xft 1
 
-%{?_with_matroxhal: %{expand: %%define havematroxhal 1}}
-%{?_without_matroxhal: %{expand: %%define havematroxhal 0}}
-
-%define build_dev_dri_drivers	1
-%define build_new_sis_driver	0
-%define build_new_savage_driver	0
-%define build_gatos_ati_driver	0
-%define build_new_via_driver	0
-
-%define build_prefbusid		1
-%{?_with_prefbusid: %global build_prefbusid 1}
-%{?_without_prefbusid: %global build_prefbusid 0}
-
 %define build_nosrc		0
 %{?_with_nosrc: %global build_nosrc 1}
 %{?_without_src: %global build_nosrc 1}
-
-%ifarch %{ix86} x86_64
-%define build_voodoo_driver	1
-%define with_voodoo_driver	0
-%else
-%define build_voodoo_driver	0
-%define with_voodoo_driver	0
-%endif
-
-%if %{build_voodoo_driver}
-%define voodoo_driver_name	voodoo
-%else
-%define voodoo_driver_name	/* */
-%endif
-
-%ifarch %{ix86}
-%define build_via_driver	1
-%define build_new_via_driver	1
-%else
-%define build_via_driver	0
-%endif
-
-%if %{build_new_via_driver}
-%define via_driver_name		via
-%define build_viaxvmc		1
-%define build_via_dri_driver	0
-%else
-%define via_driver_name		/* */
-%define build_viaxvmc		0
-%define build_via_dri_driver	0
-%endif
 
 %define build_multiarch 1
 
@@ -200,33 +145,6 @@ Source157: X_Compose-en_US.UTF-8.bz2
 # Devanagari OpenType font, to install for the indic opentype patch -- pablo
 Source160: XFree86-extrascalablefonts-font.tar.bz2
 
-%if %{havematroxhal}
-Source201: ftp://ftp.matrox.com/pub/mga/archive/linux/2003/mgadrivers-3.0-src.tgz
-Source2010: ftp://ftp.matrox.com/pub/mga/archive/linux/2003/lnx30notes.txt
-NoSource: 201
-NoSource: 2010
-%endif
-# Savage driver dropin
-Source202: ftp://ftp.probo.com/pub/savage-1.1.27t.tar.bz2
-# S3 driver dropin 0.3.21
-#Source203: ftp://devel.linuxppc.org/users/ajoshi/s3/s3-0.3.21.tar.bz2
-
-# trident driver from 4.1.0 sources
-Source206: trident-4.1.0.tar.bz2
-
-# sis dropin from http://www.webit.at/~twinny/linuxsis630.shtml
-Source207: http://www.winischhofer.net/sis/sis_drv_src_%{sis_version}.tar.bz2
-
-# driver for VIA CLE266 RH
-#Source208: ftp://people.redhat.com/alan/XFree86/VIA/via-20040102.tar.bz2
-Source209: ftp://people.redhat.com/alan/XFree86/VIA/via-dri-20040102.tar.bz2
-
-# http://sourceforge.net/projects/unichrome/
-Source208: http://aleron.dl.sourceforge.net/sourceforge/unichrome/unichrome-X-%{unichromever}.tar.bz2
-
-# driver for vodooo RH
-Source210: ftp://people.redhat.com/alan/XFree86/Voodoo/voodoo-1.0-beta3.tar.bz2
-
 # Wonderland mouse cursor (Fedora)
 Source212: wonderland-cursors.tar.bz2
 
@@ -236,115 +154,21 @@ Patch5:	Xorg-6.7.0-isolate_device.patch.bz2
 
 # Libs patches #################################################################
 
-# Progs patches ################################################################
-
-# Fix xman to work with bzipped pages
-Patch102: Xorg-6.7.1-xman-bzip2.patch.bz2
-# modifications for  startx (argument parsing and font rendering)
-# catch sigterm in xinit and startx
-Patch104: XFree86-4.3.99.902-startx.patch.bz2
-# Fix matrices text-look in man pages (Thierry Vignaud)
-Patch106: XFree86-4.2.1-gl-matrix-man-fixes.patch.bz2
-
-# Allow the reserve keywork in Xservers
-Patch110: XFree86-4.3-xdm-reserve.patch.bz2
-
-
 # X server patches #############################################################
 
 Patch200: XFree86-4.2.99.3-parallel-make.patch.bz2
 Patch201: XFree86-4.2.99.3-mandrakelinux-blue.patch.bz2
 Patch202: XFree86-4.3.99.901-xwrapper.patch.bz2
 
-# Pablo i18n patchs -- please if the patches don't apply anymore
-# after an upgrade of XFree86 sources write me (pablo) instead
-# of just discarding the patch, as discarding it may lead to
-# loss of support for some locales. Thanks.
-#
-Patch203: xorg-x11-6.8.2-i18n.diff.bz2
-# Keyboard fixes patches -- pablo
-Patch204: xorg-x11-6.8.2-fixkbd.diff.bz2
-
-# patch to use the old (xfree86 4.2) keyboard layouts, as the new
-# ones give too much trouble (problems with emacs, missing, keys)
-# the new ones should be tested again in the future to see if the
-# problems have gone -- pablo
-Patch207: xorg-x11-6.7.0-oldkbd.diff.bz2
-
-# fix brazilian keyboard (bug #14721)
-Patch208: xorg-x11-6.8.2-compose-pt_br-utf8.patch.bz2
-
-# HP keyboard support (Nicolas Planel)
-Patch209: XFree86-4.2.0-xkb-hp_symbols.patch.bz2
-
 # Build the following libraries with PIC: libxf86config, libXau, libxkbfile
 Patch210: XFree86-4.3-build-libs-with-pic.patch.bz2
-
-# open mouse twice to workaround a bug in the kernel when dealing
-# with a PS/2 mouse and an USB keuboard
-Patch212: XFree86-4.3-mouse-twice.patch.bz2
 
 Patch213: XFree86-4.3.0-gb18030.patch.bz2
 Patch214: XFree86-4.3.0-gb18030-enc.patch.bz2
 
 Patch216: XFree86-4.3-_LP64-fix.patch.bz2
 
-# add the evdev input driver from HEAD
-Patch217: xorg-x11-6.8.2-evdev.patch.bz2
-
 # Drivers patches ##############################################################
-
-Patch514: XFree86-4.1.0-agpgart-load.patch.bz2
-
-# try to open vt starting at vt 7
-Patch528: XFree86-4.2.0-vt7.patch.bz2
-
-# report keyboard read errors
-Patch531: XFree86-4.2.1-kbd-error.patch.bz2
-
-# Chips CT69000: disable hardware accelaration for now (RH #74841)
-Patch532: XFree86-4.2.1-chips-CT69000-noaccel.patch.bz2
-
-# Chips CT65550: force software cursor for now (RH #82438)
-Patch533: XFree86-4.2.1-chips-CT65550-swcursor.patch.bz2
-
-# savage
-Patch536: XFree86-4.2.99.3-savage-pci-id-fixes.patch.bz2
-Patch537: XFree86-4.2.99.902-savage-Imakefile-vbe-fixup.patch.bz2
-Patch538: XFree86-4.2.99.902-savage-1.1.26cvs-1.1.27t-fixups.patch.bz2
-Patch539: XFree86-4.2.99.902-savage-1.1.26cvs-1.1.27t-accel-fixup.patch.bz2
-
-# ati
-Patch540: XFree86-4.3-ati-r300.patch.bz2
-Patch541: XFree86-4.3-radeon-1-igp.patch.bz2
-Patch542: XFree86-4.3-radeon-2-rv280.patch.bz2
-Patch543: XFree86-4.3-radeon-3-lcd.patch.bz2
-# Patch from Keith Whitwell/Michel D�zer to avoid Radeon dri Xserver recycle lockup
-Patch544: XFree86-4.3-radeon-4-recycle-lockup.patch.bz2
-
-# nv
-Patch550: XFree86-4.3-nv-init.patch.bz2
-
-# intel i8x0
-Patch560: XFree86-4.3-vt_fix.patch.bz2
-# i945 from HEAD
-Patch561: xorg-x11-6.8.2-i945.patch.bz2
-
-# (sb) mk712
-Patch562: xorg-x11-6.8.2-mk712.patch.bz2 
-Patch563: xorg-x11-6.8.2-calibration.patch.bz2
-
-# (sb) nvxbox
-Patch564: xorg-x11-6.8.2-nvxbox.patch.bz2
-
-# do not change permission if not requested
-Patch565: xorg-x11-6.8.2-perm.patch.bz2
-
-# (fc) fix crash in Xft (Mdk bug #16614), remove warnings when Render is missing and
-# optimize one critical case for glyph extents (CVS)
-Patch567: xorg-x11-6.8.2-xftcrash.patch.bz2
-# (fc) add support for freetype embolding, fix mono clipping (CVS)
-Patch568: xorg-x11-6.8.2-xftembold.patch.bz2
 
 # Patch for building in Debug mode
 Patch700: XFree86-4.2.99.3-acecad-debug.patch.bz2
@@ -376,20 +200,10 @@ Patch10015: XFree86-4.3.0-redhat-nv-riva-videomem-autodetection-debugging.patch.
 Patch10101: XFree86-4.3.0-makefile-fastbuild.patch.bz2
 
 
-#via unichrome again, add XvMC lib
-Patch20000: XFree86-4.4-libviaXvMC-%{unichromexvmc}-patch.bz2
-
 # my addons (svetljo)
 
 # build freetype2 with fPIC on x86_64
 Patch40002: lib_freetype_module.patch.bz2  
-
-Patch40014: xorg-DRI-TLS-01.patch.bz2
-Patch40015: xorg-Mesa-TLS-01.patch.bz2
-Patch40018: xorg-x11-6.8.2-radeon-ppc-fixes.patch.bz2
-Patch40019: xorg-x11-6.8.2-radeon-ppc-fixes2.patch.bz2
-Patch40020: xorg-x11-6.8.1-xvfb-backingstore.patch.bz2
-Patch40021: xorg-x11-6.8.2-ppc-segfault-fix.patch.bz2
 
 # p5000 https://bugs.freedesktop.org/show_bug.cgi?id=2073
 Patch50000: xorg-x11-6.8.2-sunffb.patch.bz2
@@ -420,88 +234,6 @@ need to install one of the X11 fonts packages.
 And finally, if you are going to develop applications that run as 
 X clients, you will also need to install %{xfdev}.
 
-%if %{havematroxhal}
-This version was built with Matrox HALlib enabled.
-%endif
-
-%package 75dpi-fonts
-Summary: A set of 75 dpi resolution fonts for the X Window System
-Group: System/Fonts/X11 bitmap
-Prereq: chkfontpath, psmisc, /usr/X11R6/bin/xset, %{name} = %{version}
-%ifarch sparc
-Obsoletes: X11R6.1-75dpi-fonts
-%endif
-Obsoletes: XFree86-ISO8859-2-75dpi-fonts, XFree86-ISO8859-9-75dpi-fonts
-Provides: XFree86-ISO8859-2-75dpi-fonts, XFree86-ISO8859-9-75dpi-fonts
-Obsoletes: XFree86-75dpi-fonts
-Provides: XFree86-75dpi-fonts = %{version}-%{release}
-Provides: X11-75dpi-fonts
-Requires: %{xflib} = %{version}
-
-%description 75dpi-fonts
-X11-75dpi-fonts contains the 75 dpi fonts used
-on most X Window Systems. If you're going to use the 
-X Window System, you should install this package, unless 
-you have a monitor which can support 100 dpi resolution. 
-In that case, you may prefer the 100dpi fonts available in 
-the X11-100dpi-fonts package.
-
-You may also need to install other X11 font packages.
-
-To install the X Window System, you will need to install
-the X11 package, the X11 package corresponding to
-your video card, the X11R6-contrib package, the Xconfigurator
-package and the X11-libs package.
-
-Finally, if you are going to develop applications that run
-as X clients, you will also need to install the
-%{xfdev} package.
-
-%package 100dpi-fonts
-Summary: X Window System 100dpi fonts
-Group: System/Fonts/X11 bitmap
-Prereq: chkfontpath, psmisc, /usr/X11R6/bin/xset, %{name} = %{version}
-%ifarch sparc
-Obsoletes: X11R6.1-100dpi-fonts
-%endif
-Obsoletes: XFree86-ISO8859-2-100dpi-fonts, XFree86-ISO8859-9-100dpi-fonts
-Provides: XFree86-ISO8859-2-100dpi-fonts, XFree86-ISO8859-9-100dpi-fonts
-Obsoletes: XFree86-100dpi-fonts
-Provides: XFree86-100dpi-fonts = %{version}-%{release}
-Provides: X11-100dpi-fonts
-Requires: %{xflib} = %{version}
-
-%description 100dpi-fonts
-If you're going to use the X Window System and you have a
-high resolution monitor capable of 100 dpi, you should install
-X11-100dpi-fonts. This package contains a set of
-100 dpi fonts used on most Linux systems.
-
-If you are installing the X Window System, you will also
-need to install the X11 package, the X11
-package corresponding to your video card, the X11R6-
-contrib package, the Xconfigurator package and the
-X11-libs package. If you need to display certain
-fonts, you may also need to install other X11 fonts
-packages.
-
-And finally, if you are going to develop applications that
-run as X clients, you will also need to install the
-%{xfdev} package.
-
-%package cyrillic-fonts
-Summary: Cyrillic fonts - only needed on the server side
-Group: System/Fonts/X11 bitmap
-Prereq: chkfontpath, psmisc, /usr/X11R6/bin/xset, %{name} = %{version}
-Obsoletes: XFree86-cyrillic-fonts
-Provides: XFree86-cyrillic-fonts = %{version}-%{release}
-Provides: X11-cyrillic-fonts
-Requires: %{xflib} = %{version}
-
-%description cyrillic-fonts
-The Cyrillic fonts included with XFree86 3.3.2 and higher. Those who
-use a language requiring the Cyrillic character set should install
-this package.
 
 %package -n %{xflib}
 Summary: Shared libraries needed by the X Window System version 11 release 6
@@ -587,286 +319,11 @@ Obsoletes: %{old_xfsta}
 %{xfsta} includes the X11R6 static libraries needed to
 build statically linked programs.
 
-%package doc
-Summary: Documentation on various X11 programming interfaces
-Group: System/X11
-Obsoletes: XFree86-doc
-Provides: XFree86-doc = %{version}-%{release}
-Provides: X11-doc 
-
-%description doc
-X11-doc provides a great deal of extensive PostScript documentation
-on the various X APIs, libraries, and other interfaces.  If you need
-low level X documentation, you will find it here.  Topics include the
-X protocol, the ICCCM window manager standard, ICE session management,
-the font server API, etc.
-
-%package Xvfb
-Summary: A virtual framebuffer X Windows System server for X11
-Group: System/X11
-Requires: %{name} = %{version}
-Requires: %{xflib} = %{version}
-Obsoletes: XFree86-Xvfb
-Provides: XFree86-Xvfb = %{version}-%{release}
-Provides: X11-Xvfb 
-
-%description Xvfb
-Xvfb (X Virtual Frame Buffer) is an X Windows System server
-that is capable of running on machines with no display hardware and no
-physical input devices.  Xvfb emulates a dumb framebuffer using virtual
-memory.  Xvfb doesn't open any devices, but behaves otherwise as an X
-display.  Xvfb is normally used for testing servers.  Using Xvfb, the mfb
-or cfb code for any depth can be exercised without using real hardware
-that supports the desired depths.  Xvfb has also been used to test X
-clients against unusual depths and screen configurations, to do batch
-processing with Xvfb as a background rendering engine, to do load testing,
-to help with porting an X server to a new platform, and to provide an
-unobtrusive way of running applications which really don't need an X
-server but insist on having one. 
-
-If you need to test your X server or your X clients, you may want to
-install Xvfb for that purpose.
-
-%package xauth
-Summary: Authentication information tool for X
-Group: System/X11
-Obsoletes: xauth
-Provides: xauth = %{version}-%{release}
-
-%description xauth
-The xauth program is used to edit and display the authorization information
-used in connecting to the X server.
-
-%package Xnest
-Summary: A nested X11 server
-Group: System/X11
-Requires: %{name}-xfs
-Requires: %{name} = %{version}
-Requires: %{xflib} = %{version}
-Obsoletes: XFree86-Xnest
-Provides: XFree86-Xnest = %{version}-%{release}
-Provides: X11-Xnest 
-
-%description Xnest
-Xnest is an X Window System server which runs in an X window.
-Xnest is a 'nested' window server, actually a client of the 
-real X server, which manages windows and graphics requests 
-for Xnest, while Xnest manages the windows and graphics 
-requests for its own clients.
-
-You will need to install Xnest if you require an X server which
-will run as a client of your real X server (perhaps for
-testing purposes).
-
-%package Xdmx
-Summary: Distributed Multi-head X server
-Group: System/X11
-Requires: %{name}-xfs
-Requires: %{name} = %{version}
-Requires: %{xflib} = %{version}
-Provides: XFree86-Xdmx = %{version}-%{release}
-Provides: X11-Xdmx 
-%description Xdmx
-Xdmx is a proxy X server that uses one or more other X servers
-as its display devices. It provides multi-head X functionality 
-for displays that might be located on different machines. 
- Xdmx functions as a front-end X server that acts as a proxy 
-to a set of back-end X servers. All of the visible rendering is
-passed to the back-end X servers. Clients connect to the Xdmx 
-front-end, and everything appears as it would in a regular 
-multi-head configuration. If Xinerama is enabled (e.g., 
-with +xinerama on the command line), the clients see a single large screen.
-
-Xdmx communicates to the back-end X servers using the standard X11 protocol,
-and standard and/or commonly available X server extensions.
-
-
-%package Xprt
-Summary: A X11 Print server
-Group: System/X11
-Requires: %{name}-xfs
-Requires: %{name} = %{version}
-Requires: %{xflib} = %{version}
-Provides: XFree86-Xprint = %{version}-%{release}
-Provides: X11-Xprint 
-%description Xprt
-A X11 Print server.
-
-%package server
-Summary: The X server and associated modules
-Group: System/X11
-Requires: %{name}-xfs
-Requires: %{name} = %{version}
-Requires: %{xflib} = %{version}
-Obsoletes: xserver-wrapper
-Obsoletes: XFree86-server
-Provides: XFree86-server  = %{version}-%{release}
-Provides: X11-server
-
-%description server
-X11-xorg-server is the new generation of X server from X.Org.
-
-
-%package xfs
-Group: System/Servers
-Summary: Font server for X11
-Prereq: shadow-utils setup
-Requires: initscripts >= 5.27-28mdk
-Requires: %{xflib} = %{version}
-Prereq: rpm-helper chkfontpath 
-Obsoletes: xtt
-Obsoletes: XFree86-xfs
-Provides: XFree86-xfs = %{version}-%{release}
-
-%description xfs
-This is a font server for X11.  You can serve fonts to other X servers
-remotely with this package, and the remote system will be able to use all
-fonts installed on the font server, even if they are not installed on the
-remote computer.
-
-%package -n X11R6-contrib
-Summary:	A collection of user-contributed X Window System programs
-Group:		System/X11
-Requires: 	%{xflib} = %{version}
-Requires:	%{name} = %{version}
-
-
-%description -n X11R6-contrib
-If you want to use the X Window System, you should install X11R6-contrib. This
-package holds many useful programs from the X Window System, version 11,
-release 6 contrib tape. The programs, contributed by various users, include
-listres, xbiff, xedit, xeyes, xcalc, xload and xman, among others.
-
-you will also need to install the X11 package, the X11 package which
-corresponds to your video card, one or more of the X11 fonts packages, the
-Xconfigurator package and the X11-libs package.
-
-Finally, if you are going to develop applications that run as X clients, you
-will also need to install %{xfdev}.
 
 %define now 0
 
 %prep
 %setup -q -c
-
-
-# Replace XFree86 Xft2 and Xrender with updated versions from fontconfig.org
-%if %{with_new_xft_and_xrender}
-{
-    pushd xc/lib
-    bzcat %{SOURCE50} | tar xv
-    mv render-%{renderver}/render*.h ../include/extensions/
-    mkdir -p ../doc/hardcopy/render
-    cp render-%{renderver}/{protocol,library} ../doc/hardcopy/render
-
-    mv Xrender Xrender.old
-    bzcat %{SOURCE51} | tar xv
-    mv libXrender-%{xrenderver} Xrender
-    cp Xrender.old/Imakefile Xrender/Imakefile
-
-    rm {Xrender,Xft}/Makefile*
-    touch {Xrender,Xft}/config.h
-#    pushd Xrender
-       # Generate config.h because it's needed
-#       touch config.h
-#    popd
-
-    mv Xft Xft.old
-    bzcat %{SOURCE52} | tar xv
-    mv libXft-%{xftver} Xft
-    cp Xft.old/Imakefile Xft/Imakefile
-    ln -sf ../Xft.old/config Xft/config
-
-    pushd Xft
-    #patch -p1 < %{PATCH30101}
-    # Generate config.h because it's needed
-#       touch config.h
-       mv Xft.3 Xft.man
-       perl -p -i -e 's/\@VERSION\@/%{xftver}/' xft.pc.in
-    popd
-
-    popd
-}
-%endif
-
-
-pushd xc
-
-%if %{usefreetype218}
-%patch4 -p1 -b .xtt2-1.2a
-%endif
-
-%if %{build_prefbusid}
-%patch5 -p1 -b .isolatedev
-%endif
-
-popd
-
-%if %{with_voodoo_driver}
-{
-   pushd xc/programs/Xserver/hw/xfree86/drivers
-   bzcat %{SOURCE210} | tar x
-   popd
-}
-%endif
-
-%if %{build_gatos_ati_driver}
-{
-   pushd xc/programs/Xserver/hw/xfree86/drivers
-   bzcat %{SOURCE205} | tar x
-   mv ati ati.old
-   mv ati.2 ati
-   bzcat %{SOURCE206} | tar x
-   popd
-}
-%endif
-
-%if %{build_new_savage_driver}
-{
-   echo "Updating SAVAGE driver with %{SOURCE202}"
-   pushd xc/programs/Xserver/hw/xfree86/drivers
-   mv savage savage-4.3.0
-   bzcat %{SOURCE202} | tar x
-   popd
-}
-%endif
-
-%if %{build_new_sis_driver}
-{
-   echo "Updating SIS driver with %{SOURCE207}"
-   mkdir -p xc/programs/Xserver/hw/xfree86/drivers/sis.new
-   pushd xc/programs/Xserver/hw/xfree86/drivers/sis.new
-   bzcat %{SOURCE207} | tar x
-   rm Imakefile*
-   rm Makefile*
-   cp -df *.{c,h} ../sis/
-   popd
-}
-%endif
-
-
-%if %{build_new_via_driver}
-{
-   echo "Updating VIA driver with %{SOURCE208}"
-   pushd xc/programs/Xserver/hw/xfree86/drivers
-   echo "Updating via driver to Unichrome %{unichromever}"
-   bzcat %{SOURCE208} | tar xv
-   mv unichrome-X-%{unichromever}/* via/ \
-   && touch via/unichrome-X-%{unichromever}
-   popd
-}
-%endif
-
-# libs patches
-%patch567 -p1 -b .xftcrash
-%patch568 -p1 -b .xftembold
-
-# progs patches
-
-%patch102 -p1 -b .xman-bzip2
-%patch104 -p1 -b .startx
-%patch106 -p1 -b .gl-matrix-man-fixes
-%patch110 -p1 -b .xdm-reserve
 
 # X server patches
 
@@ -874,63 +331,16 @@ popd
 %patch201 -p1 -b .mandrakelinux-blue
 %patch202 -p1 -b .xwrapper
 
-%patch208 -p1 -b .compose-pt_br-utf8
-
-# (Pablo) i18n patches
-# please if there is any problem here tell me (pablo@mandriva.com) instead
-# of just silently discarding the patch. -- pablo
-%patch203 -p1 -b .i18n
-%patch204 -p1 -b .fixxkb
-#===================
-%patch207 -p1 -b .old_kbd
 %if %now
 %patch213 -p0 -b .gb18030
 %patch214 -p0 -b .gb18030-enc
 %endif
 
-%patch209 -p0 -b .xkb-hp
-
 %patch210 -p1 -b .build-libs-with-pic
-
-%patch212 -p1 -b .mouse-twice
 
 %if %now
 %patch216 -p1 -b ._LP64-fix
 %endif
-
-%patch217 -p1 -b .evdev
-
-%patch514 -p1 -b .agpload
-
-%patch528 -p1 -b .vt7
-
-%patch531 -p1 -b .kbd-error
-
-%patch532 -p1 -b .chips-CT69000-noaccel
-%patch533 -p1 -b .chips-CT65550-swcursor
-
-%patch536 -p0 -b .savage-pci-id-fixes
-
-%if %now
-%patch537 -p0 -b .savage-Imakefile-vbe-fixup
-%patch538 -p0 -b .savage-1.1.26cvs-1.1.27t-fixups
-%patch539 -p0 -b .savage-1.1.26cvs-1.1.27t-accel-fixup
-
-%patch540 -p1 -b .ati-r300
-%patch541 -p0 -b .radeon-1-igp
-%patch542 -p0 -b .radeon-2-rv280
-%patch543 -p0 -b .radeon-3-lcd
-%patch544 -p1 -b .radeonlockup
-
-%patch550 -p1 -b .nv-init
-%endif
-
-%patch560 -p1 -b .vt-fix
-%patch561 -p1 -b .i945
-%patch562 -p1 -b .mk712
-%patch563 -p1 -b .calib
-%patch564 -p1 -b .xbox
-%patch565 -p1 -b .perm
 
 %patch5000 -p1 -b .radeon-render
 %patch5001 -p1 -b .nv-ids
@@ -949,12 +359,6 @@ popd
 
 %patch10101 -p0 -b .redhat_makefile-fastbuild
 
-%if %build_viaxvmc
-pushd xc
-%patch20000 -p1 -b .viaXvMC
-popd
-%endif
-
 #disable for now
 
 pushd xc
@@ -964,10 +368,6 @@ pushd xc
 %endif
 
 popd
-%patch40018 -p0 -b .radeon_ppc_fixes
-%patch40019 -p0 -b .radeon_ppc_fixes2
-%patch40020 -p0 -b .xvfb_backingstore
-%patch40021 -p0 -b .ppc_missing_ddc_segfault_fix
 
 # https://bugs.freedesktop.org/show_bug.cgi?id=2073
 %patch50000 -p0 -b .sunffb
@@ -995,7 +395,7 @@ NO_MERGE_CONSTANTS=$(if %{__cc} -fno-merge-constants -S -o /dev/null -xc /dev/nu
 NO_STRICT_ALIASING=$(%{__cc} -dumpversion | awk -F "." '{ if (int($1)*100+int($2) >= 301) print "-fno-strict-aliasing" }')
 
 # compiling with -g is too huge
-RPM_OPT_FLAGS=`echo $RPM_OPT_FLAGS | sed 's/-g//'`
+RPM_OPT_FLAGS=`echo %{optflags} | sed 's/-g//'`
 
 echo "configuring with $RPM_OPT_FLAGS"
 %if %{build_multiarch}
@@ -1071,11 +471,7 @@ cat >xc/config/cf/$HostDef <<END
 #define BuildComposite		NO
 %endif
 
-%if %{build_xprt}
-#define XprtServer		YES
-%else
 #define XprtServer		NO
-%endif
 
 #define UseDeprecatedKeyboardDriver Yes
 
@@ -1120,16 +516,8 @@ cat >xc/config/cf/$HostDef <<END
 
 #define DefaultCursorTheme	wonderland
 
-%if %{havematroxhal}
-#define HaveMatroxHal		YES
-%else
 #define HaveMatroxHal		NO
-%endif
-%if %{usematroxhal}
-#define UseMatroxHal		YES
-%else
 #define UseMatroxHal		NO
-%endif
 
 /* Let's build libraries which only come in static form with PIC so
    that KDE can be prelink'able. */
@@ -1138,16 +526,8 @@ cat >xc/config/cf/$HostDef <<END
 %endif
 
 
-/* Only include these drivers if they've been enabled via RPM macros above */
-#define XF86ExtraCardDrivers %{via_driver_name} %{voodoo_driver_name}
-
 %ifarch %{ix86}
-%if %{build_dev_dri_drivers}
-#define BuildDevelDRIDrivers	YES
-#define DevelDRIDrivers      ffb mach64 unichrome savage
-%else
 #define DevelDRIDrivers
-%endif
 
 #define DriDrivers            gamma i810 i915 mga r128 radeon r200 \
                                 sis tdfx DevelDRIDrivers
@@ -1169,12 +549,7 @@ cat >xc/config/cf/$HostDef <<END
 			tdfx v4l fbdev glint ati vga 
 %endif
 %ifarch ppc
-%if %{build_dev_dri_drivers}
-#define BuildDevelDRIDrivers    YES
-#define DevelDRIDrivers      mach64
-%else             
 #define DevelDRIDrivers
-%endif
                   
 #define DriDrivers            gamma mga r128 radeon r200 \
                                 tdfx DevelDRIDrivers
@@ -1185,7 +560,7 @@ cat >xc/config/cf/$HostDef <<END
 			XF86OSCardDrivers XF86ExtraCardDrivers
 %endif
 
-#define ExtraXInputDrivers acecad evdev
+#define ExtraXInputDrivers acecad
 
 /* Make the chapter 4 and 7 manpages FHS compliant.  The \ escape is */
 /* necessary to avoid command subsitution in the here document.        */
@@ -1205,19 +580,6 @@ cp xc/config/cf/$HostDef xc/config/cf/$HostDef.tls
 echo '#define GlxUseThreadLocalStorage YES' >> xc/config/cf/$HostDef.tls
 
 
-
-%if %{havematroxhal}
-(cd xc/programs/Xserver/hw/xfree86/drivers/mga/HALlib
-gzip -cd %{SOURCE201} | tar xf - \
-        mgadrivers-3.0-src/4.3.0/drivers/src/HALlib/mgaHALlib.a \
-        mgadrivers-3.0-src/4.3.0/drivers/src/HALlib/binding.h
-mv mgadrivers-3.0-src/4.3.0/drivers/src/HALlib/mgaHALlib.a .
-mv mgadrivers-3.0-src/4.3.0/drivers/src/HALlib/binding.h .
-rm -rf mgadrivers-3.0-src
-)
-cp -p xc/programs/Xserver/hw/xfree86/drivers/mga/HALlib/binding.h \
-        xc/programs/Xserver/hw/xfree86/drivers/mga
-%endif
 
 %build
 
@@ -1366,9 +728,6 @@ mkdir -p %{buildroot}/etc/X11
 mkdir -p %{buildroot}/etc/X11/fs
 install -m 644 %{SOURCE16} %{buildroot}/etc/X11/fs/config
 mkdir -p %{buildroot}/etc/rc.d/init.d
-%if %{build_xprt}
-install -m 755  %{buildroot}/etc/init.d/xprint %{buildroot}/etc/rc.d/init.d/xprint
-%endif
 rm -rf %{buildroot}/etc/init.d
 rm -rf %{buildroot}/etc/rc.d/rc*
 rm -rf %{buildroot}/etc/rc{0,1,2,3,4,5,6}.d
@@ -1639,7 +998,6 @@ rm -rf %{buildroot}%{_sysconfdir}/X11/twm/system.twmrc \
  %{buildroot}%{_prefix}/lib/X11 \
  %{buildroot}/usr/man/X11
 
-%if ! %{build_xprt}
 rm -f  %{buildroot}/usr/X11R6/bin/xphelloworld \
  %{buildroot}/usr/X11R6/bin/xplsprinters \
  %{buildroot}/usr/X11R6/bin/xprehashprinterlist \
@@ -1650,7 +1008,6 @@ rm -f  %{buildroot}/usr/X11R6/bin/xphelloworld \
  %{buildroot}/usr/X11R6/man/man1/xprehashprinterlist.* \
  %{buildroot}/usr/X11R6/man/man1/xpsimplehelloworld.* \
  %{buildroot}/usr/X11R6/man/man1/xpxthelloworld.* 
-%endif
 # %{buildroot}%{_sysconfdir}/X11/rstart \
 # %{buildroot}%{_sysconfdir}/X11/xkb \
 
@@ -1734,541 +1091,10 @@ grep -q "^%{x11shlibdir}$" /etc/ld.so.conf || echo "%{x11shlibdir}" >> /etc/ld.s
 grep -q "^%{x11shlibdir}$" /etc/ld.so.conf || echo "%{x11shlibdir}" >> /etc/ld.so.conf
 /sbin/ldconfig
 
-%post 75dpi-fonts
-umask 133
-cd /usr/X11R6/lib/X11/fonts/75dpi
-mkfontdir || :
-%if %{with_new_fontconfig_Xft}
-/usr/bin/fc-cache . || :
-%endif
-/usr/sbin/chkfontpath -q -a /usr/X11R6/lib/X11/fonts/75dpi:unscaled
-
-%postun 75dpi-fonts
-umask 133
-if [ "$1" = "0" ]; then
-	/usr/sbin/chkfontpath -q -r /usr/X11R6/lib/X11/fonts/75dpi:unscaled
-fi
-
-%triggerpostun 75dpi-fonts -- XFree86-75dpi-fonts
-/usr/sbin/chkfontpath -q -a /usr/X11R6/lib/X11/fonts/75dpi:unscaled
-
-%post 100dpi-fonts
-umask 133
-cd /usr/X11R6/lib/X11/fonts/100dpi
-mkfontdir || :
-%if %{with_new_fontconfig_Xft}
-/usr/bin/fc-cache . || :
-%endif
-/usr/sbin/chkfontpath -q -a /usr/X11R6/lib/X11/fonts/100dpi:unscaled
-
-%postun 100dpi-fonts
-if [ "$1" = "0" ]; then
-	/usr/sbin/chkfontpath -q -r /usr/X11R6/lib/X11/fonts/100dpi:unscaled
-fi
-
-%triggerpostun 100dpi-fonts -- XFree86-100dpi-fonts
-/usr/sbin/chkfontpath -q -a /usr/X11R6/lib/X11/fonts/100dpi:unscaled
-
-%post cyrillic-fonts
-umask 133
-cd /usr/X11R6/lib/X11/fonts/cyrillic
-mkfontdir || :
-%if %{with_new_fontconfig_Xft}
-/usr/bin/fc-cache . || :
-%endif
-/usr/sbin/chkfontpath -q -a /usr/X11R6/lib/X11/fonts/cyrillic:unscaled
-cd /usr/X11R6/lib/X11/fonts/ukr
-mkfontdir || :
-/usr/sbin/chkfontpath -q -a /usr/X11R6/lib/X11/fonts/ukr:unscaled
-
-%postun cyrillic-fonts
-umask 133
-if [ "$1" = "0" ]; then
-	/usr/sbin/chkfontpath -q -r /usr/X11R6/lib/X11/fonts/cyrillic:unscaled
-        /usr/sbin/chkfontpath -q -r /usr/X11R6/lib/X11/fonts/ukr:unscaled
-fi
-
-%pre xfs
-%_pre_useradd xfs /etc/X11/fs /bin/false
-
-# for msec high security levels
-%_pre_groupadd xgrp xfs
-
-
-%post xfs
-# as we don't overwrite the config file, we may need to add those paths
-# (2=update)
-if [ "$1" -gt 1 ]; then
-	for i in /usr/X11R6/lib/X11/fonts/drakfont \
-			/usr/X11R6/lib/X11/fonts/pcf_drakfont:unscaled \
-			/usr/X11R6/lib/X11/fonts/TTF
-	do
-		if ls `dirname $i`/`basename $i :unscaled`/*.* >/dev/null 2>/dev/null
-		then
-			if ! grep "$i" /etc/X11/fs/config >/dev/null 2>/dev/null ; then
-				/usr/sbin/chkfontpath -q -a "$i"
-			fi
-		else
-			if grep "$i" /etc/X11/fs/config >/dev/null 2>/dev/null ; then
-				/usr/sbin/chkfontpath -q -r "$i"
-			fi
-		fi
-	done
-fi
-%_post_service xfs
-
-# handle init sequence change
-if [ -f /etc/rc5.d/S90xfs ] && grep -q 'chkconfig: 2345 20 10' /etc/init.d/xfs; then
-	/sbin/chkconfig --add xfs
-fi
-
-%preun xfs
-%_preun_service xfs
-
-%postun xfs
-%_postun_userdel xfs
-
-%triggerpostun xfs -- XFree86-xfs
-%_post_service xfs
-if [ ! -f /var/lock/subsys/xfs ]
-then
-  /sbin/service xfs start
-fi
-
-%post server
-
-if [ $1 -gt 1 ]; then
-  if [ -r /etc/X11/XF86Config-4 ] && grep -q 'Option.*"XkbOptions".*grp:' /etc/X11/XF86Config-4; then
-    perl -pi -e 's/^(\s*Option\s*"XkbLayout"\s*)"([^,]*)"/$1"us,$2"/' /etc/X11/XF86Config-4
-  fi
-fi
-if [ -r /etc/X11/XF86Config-4 ] && [ ! -e /etc/X11/xorg.conf ]; then
-  ln -s XF86Config-4 /etc/X11/xorg.conf
-fi
-
-perl -pi -e 's/^(\s*Driver\s*)"Keyboard"/$1"kbd"/' /etc/X11/xorg.conf
-
-%triggerpostun server -- XFree86-server
-rm -f /etc/X11/X
-ln -s ../../usr/X11R6/bin/Xorg /etc/X11/X
-
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-
-%files server -f modules.list
-%defattr(-,root,root,-)
-#doc /usr/X11R6/lib/X11/xorg.conf.eg
-#doc /usr/X11R6/lib/X11/XF86Config.indy
-/usr/X11R6/bin/Xorg
-%if %build_compat
-/usr/X11R6/bin/XFree86
-%endif
-%dir %{x11shlibdir}/modules
-#dir #{x11shlibdir}/modules/codeconv
-%dir %{x11shlibdir}/modules/dri
-%dir %{x11shlibdir}/modules/drivers
-%dir %{x11shlibdir}/modules/extensions
-%dir %{x11shlibdir}/modules/fonts
-%dir %{x11shlibdir}/modules/input
-%dir %{x11shlibdir}/modules/linux
-
-
-%files
-%defattr(-,root,root,-)
-%docdir /usr/X11R6/lib/X11/doc
-
-%dir /usr/X11R6/lib/X11
-%dir /etc/X11
-%dir /etc/X11/rstart
-/etc/X11/rstart/commands
-#%dir /etc/X11/rstart/commands/x11r6
-/etc/X11/rstart/contexts
-/etc/X11/rstart/rstartd.real
-%dir /usr/X11R6/lib/X11/etc
-%dir /usr/X11R6/lib/X11/fonts
-%dir /usr/X11R6/lib/X11/xserver
-%dir /usr/X11R6/man
-%dir /usr/X11R6/man/man*
-
-%config(noreplace) /etc/X11/xkb
-%dir /etc/X11/twm
-%dir /etc/X11/xdm
-%dir %attr(0700,root,root) /etc/X11/xdm/authdir
-%dir /etc/X11/xsm
-/etc/X11/xdm/chooser
-%dir /var/lib/xdm
-
-#%config /etc/rc.d/init.d/xdm
-%config(noreplace) /etc/pam.d/xserver
-%config(noreplace) /etc/pam.d/xdm
-%config(missingok noreplace) /etc/security/console.apps/xserver
-%config(noreplace) /etc/X11/xsm/system.xsm
-%config(noreplace) /etc/logrotate.d/xdm
-
-%if %{with_new_fontconfig_Xft}
-# XftConfig is no longer present or used
-/etc/X11/XftConfig.README-OBSOLETE
-%else
-%if %{usefreetype2}
-%config(noreplace) /etc/X11/XftConfig
-/usr/X11R6/lib/X11/XftConfig
-%endif
-%endif
-/usr/X11R6/lib/X11/XErrorDB
-/usr/X11R6/lib/X11/XKeysymDB
-/usr/X11R6/lib/X11/locale/*
-%exclude %dir /usr/X11R6/lib/X11/locale/%{_lib}
-%exclude %dir /usr/X11R6/lib/X11/locale/%{_lib}/common
-%exclude /usr/X11R6/lib/X11/locale/%{_lib}/common/*
-%config(noreplace) /etc/X11/lbxproxy/*
-%config(noreplace) /etc/X11/proxymngr/*
-%dir /etc/X11/app-defaults
-%config(noreplace) /etc/X11/app-defaults/*
-
-/usr/X11R6/lib/X11/xkb
-/usr/X11R6/lib/X11/xkb/*
-/var/lib/xkb
-/usr/X11R6/lib/X11/xinit
-/usr/X11R6/lib/X11/xdm
-/usr/X11R6/lib/X11/twm
-/usr/X11R6/lib/X11/xsm
-
-/etc/X11/xserver/SecurityPolicy
-/usr/X11R6/lib/X11/xserver/SecurityPolicy
-#/usr/X11R6/lib/X11/xorg.conf
-/usr/X11R6/lib/X11/rstart/rstartd.real
-%config(noreplace) /etc/X11/rstart/config
-
-/usr/X11R6/lib/X11/rstart
-#/usr/X11R6/lib/X11/rstart/commands/x11r6/@List
-#/usr/X11R6/lib/X11/rstart/commands/x11r6/LoadMonitor
-#/usr/X11R6/lib/X11/rstart/commands/x11r6/Terminal
-#/usr/X11R6/lib/X11/rstart/commands/@List
-#/usr/X11R6/lib/X11/rstart/commands/ListContexts
-#/usr/X11R6/lib/X11/rstart/commands/ListGenericCommands
-#/usr/X11R6/lib/X11/rstart/contexts/@List
-#/usr/X11R6/lib/X11/rstart/contexts/default
-#/usr/X11R6/lib/X11/rstart/contexts/x11r6
-/usr/X11R6/lib/X11/x11perfcomp
-/usr/X11R6/lib/X11/doc
-/usr/X11R6/lib/X11/etc/sun.termcap
-/usr/X11R6/lib/X11/etc/sun.terminfo
-/usr/X11R6/lib/X11/etc/xterm.termcap
-/usr/X11R6/lib/X11/etc/xterm.terminfo
-/usr/X11R6/lib/X11/etc/xmodmap.std
-/usr/X11R6/lib/X11/etc/Xinstall.sh
-/usr/X11R6/lib/X11/getconfig
-/usr/X11R6/lib/X11/lbxproxy
-/usr/X11R6/lib/X11/proxymngr
-/usr/X11R6/lib/X11/Xcms.txt
-/usr/X11R6/lib/X11/app-defaults
-
-%attr(4711,root,root)		/usr/X11R6/bin/Xwrapper
-/usr/X11R6/bin/X
-#/usr/X11R6/bin/Xprt
-/usr/X11R6/bin/lbxproxy
-/usr/X11R6/bin/proxymngr
-/usr/X11R6/bin/rstartd
-/usr/X11R6/bin/xfindproxy
-/usr/X11R6/bin/xfwp
-/usr/X11R6/bin/xrx
-/usr/X11R6/bin/lndir
-/usr/X11R6/bin/mkdirhier
-/usr/X11R6/bin/mergelib
-/usr/X11R6/bin/makeg
-/usr/X11R6/bin/appres
-/usr/X11R6/bin/bdftopcf
-/usr/X11R6/bin/beforelight
-/usr/X11R6/bin/bitmap
-/usr/X11R6/bin/bmtoa
-/usr/X11R6/bin/atobm
-/usr/X11R6/bin/editres
-/usr/X11R6/bin/iceauth
-/usr/X11R6/bin/luit
-/usr/X11R6/bin/mkfontdir
-/usr/X11R6/bin/showrgb
-/usr/X11R6/bin/rstart
-/usr/X11R6/bin/smproxy
-/usr/X11R6/bin/twm
-/usr/X11R6/bin/x11perf
-/usr/X11R6/bin/x11perfcomp
-/usr/X11R6/bin/Xmark
-/usr/X11R6/bin/xclipboard
-/usr/X11R6/bin/xcutsel
-/usr/X11R6/bin/xclock
-/usr/X11R6/bin/xcmsdb
-/usr/X11R6/bin/xconsole
-/usr/X11R6/bin/xdm
-/usr/X11R6/bin/sessreg
-/usr/X11R6/bin/xdpyinfo
-/usr/X11R6/bin/glxinfo
-/usr/X11R6/bin/xgamma
-/usr/X11R6/bin/revpath
-%attr(0755,root,root)		/usr/X11R6/bin/dga
-/usr/X11R6/bin/xfd
-/usr/X11R6/bin/xhost
-/usr/X11R6/bin/xinit
-/usr/X11R6/bin/startx
-/usr/X11R6/bin/setxkbmap
-/usr/X11R6/bin/xkbcomp
-/usr/X11R6/bin/xkbevd
-/usr/X11R6/bin/xkbprint
-/usr/X11R6/bin/xkbvleds
-/usr/X11R6/bin/xkbwatch
-/usr/X11R6/bin/xkbbell
-/usr/X11R6/bin/xkill
-/usr/X11R6/bin/xlogo
-/usr/X11R6/bin/xlsatoms
-/usr/X11R6/bin/xlsclients
-/usr/X11R6/bin/xlsfonts
-/usr/X11R6/bin/xmag
-#/usr/X11R6/bin/xmh
-/usr/X11R6/bin/xmodmap
-/usr/X11R6/bin/xmore
-/usr/X11R6/bin/xprop
-/usr/X11R6/bin/xrdb
-/usr/X11R6/bin/xset
-/usr/X11R6/bin/xrefresh
-/usr/X11R6/bin/xsetmode
-/usr/X11R6/bin/xsetpointer
-/usr/X11R6/bin/xsetroot
-/usr/X11R6/bin/xsm
-/usr/X11R6/bin/xstdcmap
-#/usr/X11R6/bin/xterm
-#/usr/X11R6/bin/nxterm
-#/usr/X11R6/bin/resize
-/usr/X11R6/bin/xvidtune
-/usr/X11R6/bin/xvinfo
-/usr/X11R6/bin/xwd
-/usr/X11R6/bin/xwininfo
-/usr/X11R6/bin/xwud
-/usr/X11R6/bin/xon
-/usr/X11R6/bin/xorgcfg
-%if %build_compat
-/usr/X11R6/bin/xf86cfg
-%endif
-/usr/X11R6/bin/xdriinfo
-#/usr/X11R6/bin/fonttosfnt
-/usr/X11R6/bin/getconfig
-/usr/X11R6/bin/getconfig.pl
-%ifnarch ppc sparc
-/usr/X11R6/bin/inb
-/usr/X11R6/bin/inl
-/usr/X11R6/bin/inw
-/usr/X11R6/bin/outb
-/usr/X11R6/bin/outl
-/usr/X11R6/bin/outw
-%endif
-
-/usr/X11R6/bin/bdftruncate
-/usr/X11R6/bin/ccmakedep
-/usr/X11R6/bin/cleanlinks
-/usr/X11R6/bin/dpsexec
-/usr/X11R6/bin/dpsinfo
-/usr/X11R6/bin/glxgears
-/usr/X11R6/bin/gtf
-%ifnarch ppc sparc sparc64
-/usr/X11R6/bin/ioport
-%endif
-/usr/X11R6/bin/makepsres
-/usr/X11R6/bin/makestrs
-/usr/X11R6/bin/mkcfm
-/usr/X11R6/bin/mkfontscale
-/usr/X11R6/bin/mkhtmlindex
-/usr/X11R6/bin/mmapr
-/usr/X11R6/bin/mmapw
-/usr/X11R6/bin/oclock
-/usr/X11R6/bin/pswrap
-/usr/X11R6/bin/rman
-/usr/X11R6/bin/texteroids
-/usr/X11R6/bin/ucs2any
-/usr/X11R6/bin/xcursor-config
-%multiarch %{multiarch_x11bindir}/xcursor-config
-/usr/X11R6/bin/xcursorgen
-/usr/X11R6/bin/xfsinfo
-/usr/X11R6/bin/xmh
-/usr/X11R6/bin/xrandr
-%if ! %{with_new_fontconfig_Xft}
-/usr/X11R6/bin/xftcache
-%endif
-#%{_iconsdir}/*.*
-#%{_iconsdir}/*/*
-
-%ifarch %{ix86} alpha sparc ppc x86_64
-#/usr/X11R6/bin/reconfig
-%if %build_compat
-/usr/X11R6/bin/xf86config
-%endif
-/usr/X11R6/bin/xorgconfig
-/usr/X11R6/bin/scanpci
-/usr/X11R6/bin/pcitweak
-/usr/X11R6/man/man1/scanpci.1x*
-/usr/X11R6/man/man1/pcitweak.1x*
-%endif
-
-/usr/X11R6/include/X11/bitmaps
-/usr/X11R6/include/X11/pixmaps
-
-%x11icondir
-
-/usr/X11R6/man/man1/lbxproxy.1x*
-/usr/X11R6/man/man1/proxymngr.1x*
-/usr/X11R6/man/man1/xfindproxy.1x*
-/usr/X11R6/man/man1/xfwp.1x*
-/usr/X11R6/man/man1/xrx.1x*
-/usr/X11R6/man/man1/lndir.1x*
-/usr/X11R6/man/man1/makestrs.1x*
-/usr/X11R6/man/man1/makeg.1x*
-/usr/X11R6/man/man1/mkdirhier.1x*
-/usr/X11R6/man/man1/appres.1x*
-/usr/X11R6/man/man1/bdftopcf.1x*
-/usr/X11R6/man/man1/beforelight.1x*
-/usr/X11R6/man/man1/bitmap.1x*
-/usr/X11R6/man/man1/bmtoa.1x*
-/usr/X11R6/man/man1/atobm.1x*
-/usr/X11R6/man/man1/editres.1x*
-/usr/X11R6/man/man1/iceauth.1x*
-/usr/X11R6/man/man1/luit.1x*
-/usr/X11R6/man/man1/mkfontdir.1x*
-/usr/X11R6/man/man1/showrgb.1x*
-/usr/X11R6/man/man1/rstart.1x*
-/usr/X11R6/man/man1/rstartd.1x*
-/usr/X11R6/man/man1/smproxy.1x*
-/usr/X11R6/man/man1/twm.1x*
-/usr/X11R6/man/man1/x11perf.1x*
-/usr/X11R6/man/man1/x11perfcomp.1x*
-/usr/X11R6/man/man1/xclipboard.1x*
-/usr/X11R6/man/man1/xcutsel.1x*
-/usr/X11R6/man/man1/xclock.1x*
-/usr/X11R6/man/man1/xcmsdb.1x*
-/usr/X11R6/man/man1/xconsole.1x*
-/usr/X11R6/man/man1/xdm.1x*
-/usr/X11R6/man/man1/sessreg.1x*
-/usr/X11R6/man/man1/xdpyinfo.1x*
-/usr/X11R6/man/man1/glxinfo.1x*
-/usr/X11R6/man/man1/xgamma.1x*
-/usr/X11R6/man/man1/revpath.1x*
-/usr/X11R6/man/man1/dga.1x*
-/usr/X11R6/man/man1/xfd.1x*
-/usr/X11R6/man/man1/xhost.1x*
-/usr/X11R6/man/man1/xinit.1x*
-/usr/X11R6/man/man1/startx.1x*
-/usr/X11R6/man/man1/setxkbmap.1x*
-/usr/X11R6/man/man1/xkbcomp.1x*
-/usr/X11R6/man/man1/xkbevd.1x*
-/usr/X11R6/man/man1/xkbprint.1x*
-/usr/X11R6/man/man1/xkill.1x*
-/usr/X11R6/man/man1/xlogo.1x*
-/usr/X11R6/man/man1/xlsatoms.1x*
-/usr/X11R6/man/man1/xlsclients.1x*
-/usr/X11R6/man/man1/xlsfonts.1x*
-/usr/X11R6/man/man1/xmag.1x*
-#/usr/X11R6/man/man1/xmh.1x*
-/usr/X11R6/man/man1/xmodmap.1x*
-/usr/X11R6/man/man1/xprop.1x*
-/usr/X11R6/man/man1/xrdb.1x*
-/usr/X11R6/man/man1/xrefresh.1x*
-/usr/X11R6/man/man1/xset.1x*
-/usr/X11R6/man/man1/xsetmode.1x*
-/usr/X11R6/man/man1/xsetpointer.1x*
-/usr/X11R6/man/man1/xsetroot.1x*
-/usr/X11R6/man/man1/xsm.1x*
-/usr/X11R6/man/man1/xstdcmap.1x*
-#/usr/X11R6/man/man1/xterm.1x*
-#/usr/X11R6/man/man1/resize.1x*
-/usr/X11R6/man/man1/xvidtune.1x*
-/usr/X11R6/man/man1/xvinfo.1x*
-/usr/X11R6/man/man1/xwd.1x*
-/usr/X11R6/man/man1/xwininfo.1x*
-/usr/X11R6/man/man1/xwud.1x*
-/usr/X11R6/man/man1/xon.1x*
-/usr/X11R6/man/man1/Xserver.1x*
-%exclude /usr/X11R6/man/man1/XDarwin.1x*
-/usr/X11R6/man/man1/Xorg.1x*
-/usr/X11R6/man/man1/xorgcfg.1x*
-/usr/X11R6/man/man1/xdriinfo.1x.*
-/usr/X11R6/man/man1/dpsexec.1x*
-/usr/X11R6/man/man1/dpsinfo.1x*
-/usr/X11R6/man/man1/glxgears.1x*                                             
-/usr/X11R6/man/man1/libxrx.1x*
-/usr/X11R6/man/man1/makepsres.1x*
-/usr/X11R6/man/man1/mkcfm.1x*
-/usr/X11R6/man/man1/oclock.1x*
-/usr/X11R6/man/man1/rman.1x*
-/usr/X11R6/man/man1/texteroids.1x*
-/usr/X11R6/man/man1/xfsinfo.1x*
-/usr/X11R6/man/man1/Xmark.1x*
-/usr/X11R6/man/man1/xmh.1x*
-/usr/X11R6/man/man1/xmore.1x.*
-/usr/X11R6/man/man1/bdftruncate.1x*
-/usr/X11R6/man/man1/ccmakedep.1x*
-/usr/X11R6/man/man1/cleanlinks.1x*
-%exclude /usr/X11R6/man/man1/dumpkeymap.1x*
-/usr/X11R6/man/man1/gccmakedep.1x*
-/usr/X11R6/man/man1/gtf.1x*
-/usr/X11R6/man/man1/mergelib.1x*
-/usr/X11R6/man/man1/mkfontscale.1x*
-/usr/X11R6/man/man1/mkhtmlindex.1x*
-/usr/X11R6/man/man1/ucs2any.1x*
-/usr/X11R6/man/man1/xcursorgen.1x*
-/usr/X11R6/man/man1/xrandr.1x*
-
-#/usr/X11R6/man/man1/fonttosfnt.1x*
-/usr/X11R6/man/man1/getconfig.1x*
-/usr/X11R6/man/man5/getconfig.5x*
-
-/usr/X11R6/man/man5/xorg.conf.5x*
-/usr/X11R6/man/man4/*
-/usr/X11R6/man/man7/*
-
-%ifarch %{ix86} alpha sparc ppc x86_64
-#/usr/X11R6/man/man1/reconfig.1x*
-/usr/X11R6/man/man1/xorgconfig.1x*
-%endif
-
-%if %{build_speedo_fonts}
-%dir /usr/X11R6/lib/X11/fonts/Speedo
-/usr/X11R6/lib/X11/fonts/Speedo/*.spd
-%ghost /usr/X11R6/lib/X11/fonts/Speedo/fonts.dir
-/usr/X11R6/lib/X11/fonts/Speedo/fonts.scale
-/usr/X11R6/lib/X11/fonts/Speedo/encodings.dir
-%endif
-
-%dir /usr/X11R6/lib/X11/fonts/Type1
-/usr/X11R6/lib/X11/fonts/Type1/*.pfa
-/usr/X11R6/lib/X11/fonts/Type1/*.pfb
-/usr/X11R6/lib/X11/fonts/Type1/*.afm
-%if ! %{with_new_fontconfig_Xft}
-/usr/X11R6/lib/X11/fonts/Type1/XftCache
-%endif
-%ghost /usr/X11R6/lib/X11/fonts/Type1/fonts.dir
-/usr/X11R6/lib/X11/fonts/Type1/fonts.scale
-/usr/X11R6/lib/X11/fonts/Type1/fonts.cache-1
-/usr/X11R6/lib/X11/fonts/Type1/encodings.dir
-
-%dir /usr/X11R6/lib/X11/fonts/TTF
-/usr/X11R6/lib/X11/fonts/TTF/*.ttf
-/usr/X11R6/lib/X11/fonts/TTF/fonts.cache-1
-%if ! %{with_new_fontconfig_Xft}
-/usr/X11R6/lib/X11/fonts/TTF/XftCache
-%endif
-%ghost /usr/X11R6/lib/X11/fonts/TTF/fonts.dir
-/usr/X11R6/lib/X11/fonts/TTF/fonts.scale
-/usr/X11R6/lib/X11/fonts/TTF/encodings.dir
-
-%dir /usr/X11R6/lib/X11/fonts/misc
-/usr/X11R6/lib/X11/fonts/misc/*.gz
-%ghost /usr/X11R6/lib/X11/fonts/misc/fonts.dir
-/usr/X11R6/lib/X11/fonts/misc/fonts.alias
-/usr/X11R6/lib/X11/fonts/misc/fonts.scale
-
-# default scalable fonts
-%dir /usr/share/fonts/otf/mdk
-/usr/share/fonts/otf/mdk/*
-
-/usr/X11R6/lib/X11/rgb.txt
 
 %files -n %{xflib}
 %defattr(-,root,root,-)
@@ -2328,155 +1154,25 @@ ln -s ../../usr/X11R6/bin/Xorg /etc/X11/X
 %files -n %{xfsta} -f static.list
 %defattr(-,root,root,-)
 
-%files xauth
-%defattr(-,root,root,-)
-/usr/X11R6/bin/xauth
-#/usr/X11R6/bin/xauth_switch_to_sun-des-1
-/usr/X11R6/man/man1/xauth.1x*
-
-%files Xvfb
-%defattr(-,root,root,-)
-/usr/X11R6/bin/Xvfb
-/usr/X11R6/man/man1/Xvfb.1x*
-
-%files Xnest
-%defattr(-,root,root,-)
-/usr/X11R6/bin/Xnest
-/usr/X11R6/man/man1/Xnest.1x*
-
-%files Xdmx
-%defattr(-,root,root,-)
-/usr/X11R6/bin/Xdmx
-/usr/X11R6/man/man1/Xdmx.1x.*
-/usr/X11R6/man/man1/dmxtodmx.1x.*
-/usr/X11R6/man/man1/vdltodmx.1x.*
-/usr/X11R6/man/man1/xdmxconfig.1x.*
-
-%if %{build_xprt}
-%files Xprt
-%defattr(-,root,root,-)
-/usr/X11R6/bin/Xprt
-/etc/X11/xserver/*
-#/etc/X11/xserver/C
-#/etc/X11/xserver/POSIX
-#/etc/X11/xserver/README
-%exclude /etc/X11/xserver/SecurityPolicy
-
-/etc/X11/Xsession.d/92xprint-xpserverlist.sh
-/etc/X11/xinit/xinitrc.d/92xprint-xpserverlist.sh
-
-/etc/rc.d/init.d/xprint
-/etc/profile.d/xprint.csh
-/etc/profile.d/xprint.sh
-
-#/usr/X11R6/bin/xpawhelloworld
-/usr/X11R6/bin/xphelloworld
-/usr/X11R6/bin/xplsprinters
-/usr/X11R6/bin/xprehashprinterlist
-/usr/X11R6/bin/xpsimplehelloworld
-#/usr/X11R6/bin/xpxmhelloworld
-/usr/X11R6/bin/xpxthelloworld
-
-/usr/X11R6/man/man1/Xprt.1x.*
-#/usr/X11R6/man/man1/xpawhelloworld.1x.*
-/usr/X11R6/man/man1/xphelloworld.1x.*
-/usr/X11R6/man/man1/xplsprinters.1x.*
-/usr/X11R6/man/man1/xprehashprinterlist.1x.*
-/usr/X11R6/man/man1/xpsimplehelloworld.1x.*
-#/usr/X11R6/man/man1/xpxmhelloworld.1x.*
-/usr/X11R6/man/man1/xpxthelloworld.1x.*
-%endif
-
-%files doc
-%defattr(-,root,root,-)
-%doc xc/doc/hardcopy/*
-
-%files 75dpi-fonts
-%defattr(-,root,root,-)
-%dir /usr/X11R6/lib/X11/fonts/75dpi
-/usr/X11R6/lib/X11/fonts/75dpi/*.gz
-/usr/X11R6/lib/X11/fonts/75dpi/fonts.scale
-/usr/X11R6/lib/X11/fonts/75dpi/fonts.alias
-%ghost /usr/X11R6/lib/X11/fonts/75dpi/fonts.dir
-/usr/X11R6/lib/X11/fonts/75dpi/encodings.dir
-
-%files 100dpi-fonts
-%defattr(-,root,root,-)
-%dir /usr/X11R6/lib/X11/fonts/100dpi
-/usr/X11R6/lib/X11/fonts/100dpi/*.gz
-/usr/X11R6/lib/X11/fonts/100dpi/fonts.scale
-/usr/X11R6/lib/X11/fonts/100dpi/fonts.alias
-%ghost /usr/X11R6/lib/X11/fonts/100dpi/fonts.dir
-/usr/X11R6/lib/X11/fonts/100dpi/encodings.dir
-
-%files cyrillic-fonts
-%defattr(-,root,root,-)
-%dir /usr/X11R6/lib/X11/fonts/cyrillic
-/usr/X11R6/lib/X11/fonts/cyrillic/*.gz
-/usr/X11R6/lib/X11/fonts/cyrillic/fonts.scale
-/usr/X11R6/lib/X11/fonts/cyrillic/fonts.alias
-%ghost /usr/X11R6/lib/X11/fonts/cyrillic/fonts.dir
-%doc README-ukr-fonts
-%dir /usr/X11R6/lib/X11/fonts/ukr
-/usr/X11R6/lib/X11/fonts/ukr/*.gz
-%ghost /usr/X11R6/lib/X11/fonts/ukr/fonts.dir
-/usr/X11R6/lib/X11/fonts/cyrillic/encodings.dir
-
-%files xfs
-%defattr(-,root,root,-)
-#%doc xtt-%{xtt_ver}/doc/*
-%attr(-,xfs,xfs) %dir /etc/X11/fs
-%attr(-,xfs,xfs) %config(noreplace) /etc/X11/fs/config
-%config(noreplace) /etc/rc.d/init.d/xfs
-%config(noreplace) /etc/X11/encodings.dir
-/usr/X11R6/lib/X11/fs
-#/usr/X11R6/bin/fsinfo
-/usr/X11R6/bin/fslsfonts
-/usr/X11R6/bin/fstobdf
-/usr/X11R6/bin/xfs
-/usr/X11R6/bin/showfont
-/usr/X11R6/man/man1/xfs.1x*
-#/usr/X11R6/man/man1/fsinfo.1x*
-/usr/X11R6/man/man1/fslsfonts.1x*
-/usr/X11R6/man/man1/fstobdf.1x*
-#/usr/X11R6/man/man1/showfont.1x*
-/usr/X11R6/lib/X11/fonts/encodings
-
-%files -n X11R6-contrib
-%defattr(-,root,root,-)
-/usr/X11R6/bin/ico
-/usr/X11R6/bin/listres
-/usr/X11R6/bin/viewres
-/usr/X11R6/bin/xbiff
-/usr/X11R6/bin/xcalc
-/usr/X11R6/bin/xditview
-/usr/X11R6/bin/xedit
-/usr/X11R6/bin/xev
-/usr/X11R6/bin/xeyes
-/usr/X11R6/bin/xfontsel
-/usr/X11R6/bin/xgc
-/usr/X11R6/bin/xload
-/usr/X11R6/bin/xman
-/usr/X11R6/bin/xmessage
-/usr/X11R6/lib/X11/xman.help
-/usr/X11R6/man/man1/ico.1x*
-/usr/X11R6/man/man1/listres.1x*
-/usr/X11R6/man/man1/viewres.1x*
-/usr/X11R6/man/man1/xbiff.1x*
-/usr/X11R6/man/man1/xcalc.1x*
-/usr/X11R6/man/man1/xditview.1x*
-/usr/X11R6/man/man1/xedit.1x*
-/usr/X11R6/man/man1/xev.1x*
-/usr/X11R6/man/man1/xeyes.1x*
-/usr/X11R6/man/man1/xfontsel.1x*
-/usr/X11R6/man/man1/xgc.1x*
-/usr/X11R6/man/man1/xload.1x*
-/usr/X11R6/man/man1/xman.1x*
-/usr/X11R6/man/man1/xmessage.1x*
-%{x11libdir}/X11/xedit
-
 
 %changelog
+* Mon Aug 29 2005 Vincent Danen <vdanen@annvix.org> 6.8.2-3avx
+- remove xorg-x11-{100dpi,75dpi,cyrillic}-fonts
+- remove xorg-x11-Xdmx
+- remove xorg-x11-Xnest
+- remove xorg-x11-Xprt
+- remove xorg-x11-Xvfb
+- remove xorg-x11-doc
+- remove xorg-x11-server
+- remove xorg-x11-xauth
+- remove xorg-x11-xfs
+- remove X11R6-contrib
+- remove xorg-x11 (the only thing that needed it was groff for rman
+  but I fixed that puppy)
+- drop a whole bunch of useless drivers, patches, sourcefiles, etc.
+  that we don't need since we're not using xorg as a server, but rather
+  only shipping the libs and devel files for other packages to build from
+
 * Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 6.8.2-2avx
 - remove /usr/X11R6/lib/X11/Cards (hwdata provides this)
 
