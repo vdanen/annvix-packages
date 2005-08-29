@@ -9,7 +9,7 @@
 
 %define name		bind
 %define version		9.3.0
-%define release		7avx
+%define release		8avx
 
 %define their_version	9.3.0
 %define build_daemon	1
@@ -177,9 +177,9 @@ ln -s resolver.5.bz2 %{buildroot}%{_mandir}/man5/resolv.5.bz2
 
     mkdir -p %{buildroot}%{_srvdir}/named/log
     mkdir -p %{buildroot}%{_srvlogdir}/named
-    install -m 0750 %{SOURCE12} %{buildroot}%{_srvdir}/named/run
-    install -m 0750 %{SOURCE13} %{buildroot}%{_srvdir}/named/stop
-    install -m 0750 %{SOURCE14} %{buildroot}%{_srvdir}/named/log/run
+    install -m 0740 %{SOURCE12} %{buildroot}%{_srvdir}/named/run
+    install -m 0640 %{SOURCE13} %{buildroot}%{_srvdir}/named/finish
+    install -m 0740 %{SOURCE14} %{buildroot}%{_srvdir}/named/log/run
 %else
     rm -rf %{buildroot}%{_sbindir}
     rm -rf %{buildroot}%{_mandir}/man3
@@ -241,11 +241,11 @@ fi
 %config(noreplace) %{_sysconfdir}/logrotate.d/named
 %config(noreplace) %attr(0600,named,named) %{_sysconfdir}/rndc.conf
 %config(noreplace) %attr(0600,named,named) %{_sysconfdir}/rndc.key
-%dir %{_srvdir}/named
-%dir %{_srvdir}/named/log
-%{_srvdir}/named/run
-%{_srvdir}/named/stop
-%{_srvdir}/named/log/run
+%dir %attr(0750,root,admin) %{_srvdir}/named
+%dir %attr(0750,root,admin) %{_srvdir}/named/log
+%attr(0740,root,admin) %{_srvdir}/named/run
+%attr(0640,root,admin) %{_srvdir}/named/finish
+%attr(0740,root,admin) %{_srvdir}/named/log/run
 %dir %attr(0750,logger,logger) %{_srvlogdir}/named
 %attr(0755,root,root) %{_sbindir}/*
 %{_mandir}/man3/lwres*.3*
@@ -281,6 +281,11 @@ fi
 
 
 %changelog
+* Mon Aug 29 2005 Vincent Danen <vdanen@annvix.org> 9.3.0-8avx
+- fix perms on run scripts
+- make the finish script mode 640 so it's not executed; need to evaluate
+  whether it's still needed
+
 * Mon Aug 15 2005 Vincent Danen <vdanen@annvix.org> 9.3.0-7avx
 - disable threads support to enable switching user with -u
   (thanks Ying)
