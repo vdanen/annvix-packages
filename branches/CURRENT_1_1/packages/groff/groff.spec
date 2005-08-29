@@ -10,7 +10,7 @@
 
 %define name		groff
 %define version		1.19.1
-%define release		1avx
+%define release		2avx
 
 Summary:	A document formatting system
 Name:		%{name}
@@ -31,8 +31,7 @@ Patch102:	groff-1.16.1-no-lbp-on-alpha.patch.bz2
 Patch109:	groff-1.19-dashes.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	autoconf2.5, byacc, texinfo >= 4.3, xpm-devel, xorg-x11
-# xorg-x11 is required for rman
+BuildRequires:	autoconf2.5, byacc, texinfo >= 4.3, xpm-devel
 
 Requires:	mktemp, groff-for-man = %{version}-%{release}
 Obsoletes:	groff-tools
@@ -78,8 +77,6 @@ troff-to-ps print filter.
 %ifarch alpha
 %patch102 -p1 -b .alpha
 %endif
-#TV%patch107 -p1 -b .koi8
-#TV%patch108 -p1 -b ._utf8
 %patch109 -p1 -b ._dashes
 
 cp -f %SOURCE2 ./
@@ -94,12 +91,6 @@ export MAKEINFO=$HOME/cvs/texinfo/makeinfo/makeinfo
 make top_builddir=$PWD top_srcdir=$PWD
 cd doc
 makeinfo groff.texinfo
-cd ../src/xditview
-xmkmf
-perl -p -i -e "s|CXXDEBUGFLAGS = .*|CXXDEBUGFLAGS = %{optflags}|" Makefile
-perl -p -i -e "s|CDEBUGFLAGS = .*|CDEBUGFLAGS = %{optflags}|" Makefile
-make depend
-%make 
 
 
 %install
@@ -217,7 +208,10 @@ mv %{buildroot}%{_docdir}/{groff/%{version}/,%{name}-%{version}/}
 
 
 %changelog
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1.19-9avx
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1.19.1-2avx
+- remove BuildReq on xorg-x11 (aka rman) and don't build xditview
+
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1.19.1-1avx
 - 1.19.1
 - drop unapplied P3
 - drop P7
