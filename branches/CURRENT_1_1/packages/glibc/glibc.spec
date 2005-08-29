@@ -15,7 +15,7 @@
 
 %define name		glibc
 %define version		%{basevers}%{?snapshot:.%snapshot}
-%define release		3avx
+%define release		4avx
 %define epoch		6
 
 # <version>-<release> tags from kernel package where headers were
@@ -641,9 +641,9 @@ build-%{_target_cpu}-linux/hardlink -vc %{buildroot}%{_datadir}/locale
 install -m 0644 nscd/nscd.conf %{buildroot}%{_sysconfdir}
 mkdir -p %{buildroot}%{_srvdir}/nscd/log
 mkdir -p %{buildroot}%{_srvlogdir}/nscd
-install -m 0750 %{SOURCE14} %{buildroot}%{_srvdir}/nscd/run
-install -m 0750 %{SOURCE15} %{buildroot}%{_srvdir}/nscd/log/run
-install -m 0750 %{SOURCE16} %{buildroot}%{_srvdir}/nscd/finish
+install -m 0740 %{SOURCE14} %{buildroot}%{_srvdir}/nscd/run
+install -m 0740 %{SOURCE15} %{buildroot}%{_srvdir}/nscd/log/run
+install -m 0740 %{SOURCE16} %{buildroot}%{_srvdir}/nscd/finish
 
 rm -rf %{buildroot}%{_datadir}/zoneinfo/{posix,right}
 rm -rf %{buildroot}%{_includedir}/netatalk/
@@ -1121,16 +1121,18 @@ fi
 %config(noreplace) %{_sysconfdir}/nscd.conf
 %{_sbindir}/nscd
 %{_sbindir}/nscd_nischeck
-%dir %{_srvdir}/nscd
-%dir %{_srvdir}/nscd/log 
-%{_srvdir}/nscd/run
-%{_srvdir}/nscd/finish
-%{_srvdir}/nscd/log/run  
+%dir %attr(0750,root,admin) %{_srvdir}/nscd
+%dir %attr(0750,root,admin) %{_srvdir}/nscd/log 
+%attr(0740,root,admin) %{_srvdir}/nscd/run
+%attr(0740,root,admin) %{_srvdir}/nscd/finish
+%attr(0740,root,admin) %{_srvdir}/nscd/log/run  
 %dir %attr(0750,logger,logger) %{_srvlogdir}/nscd
 
 
-
 %changelog
+* Sat Aug 27 2005 Vincent Danen <vdanen@annvix.org> 2.3.5-4avx
+- fix perms on run scripts
+
 * Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 2.3.5-3avx
 - bootstrap build
 
