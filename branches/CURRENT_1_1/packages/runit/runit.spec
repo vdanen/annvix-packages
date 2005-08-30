@@ -9,7 +9,7 @@
 
 %define	name		runit
 %define	version		1.3.1
-%define	release		1avx
+%define	release		2avx
 
 %define aver		0.1
 
@@ -23,6 +23,7 @@ URL:		http://smarden.org/runit/
 Source0:	%{name}-%{version}.tar.gz
 # available from http://annvix.org/cg-bin/viewcvs.cgi/tools/runit/
 Source1:	annvix-runit-%{aver}.tar.bz2
+Patch0:		runit-1.3.1-avx-localtime.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	dietlibc-devel >= 0.28
@@ -42,6 +43,7 @@ handles the tasks necessary to shutdown and halt or reboot.
 
 %prep
 %setup -q -n admin -a 1
+%patch0 -p0 -b .localtime
 
 
 %build
@@ -55,9 +57,7 @@ popd
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-mkdir -p %{buildroot}{/service,/sbin,%{_mandir}/man8,%{_sysconfdir}/runit,%{_srvdir}/mingetty-tty{1,2,3,4,5,6}}
-install -d %{buildroot}/sbin/
-install -d %{buildroot}%{_mandir}/man8
+mkdir -p %{buildroot}{/service,/sbin,%{_mandir}/man8,%{_sysconfdir}/{runit,sysconfig/env/runit},%{_srvdir}/mingetty-tty{1,2,3,4,5,6}}
 
 pushd %{name}-%{version}
     for i in `cat package/commands`; do
@@ -75,6 +75,7 @@ pushd annvix-runit-%{aver}
     do 
         install -m 0740 mingetty-tty$i/* %{buildroot}%{_srvdir}/mingetty-tty$i/
     done
+    install -m 0640 env/TIMEOUT %{buildroot}%{_sysconfdir}/sysconfig/env/runit/TIMEOUT
 popd
 
 install -m 0644 %{name}-%{version}/man/*.8 %{buildroot}%{_mandir}/man8/
@@ -157,9 +158,16 @@ fi
 %dir %attr(0750,root,admin) %{_srvdir}/mingetty-tty6
 %attr(0740,root,admin) %{_srvdir}/mingetty-tty6/run
 %attr(0740,root,admin) %{_srvdir}/mingetty-tty6/finish
+%dir %attr(0750,root,admin) %{_sysconfdir}/sysconfig/env/runit
+%attr(0640,root,admin) %{_sysconfdir}/sysconfig/env/runit/TIMEOUT
 
 
 %changelog
+* Mon Aug 29 2005 Vincent Danen <vdanen@annvix.org> 1.3.1-2avx
+- added /etc/sysconfig/env/runit/TIMEOUT to control the delay for
+  shutdowns (default is 180 seconds)
+- P0: log in local time rather than UTC
+
 * Mon Aug 29 2005 Vincent Danen <vdanen@annvix.org> 1.3.1-1avx
 - 1.3.1
 
