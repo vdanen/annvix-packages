@@ -9,7 +9,7 @@
 
 %define name		filesystem
 %define version		2.1.5
-%define release		4avx
+%define release		5avx
 
 Summary:	The basic directory layout for an Annvix system
 Name:		%{name}
@@ -40,10 +40,10 @@ mkdir %{buildroot}
 # add /sys when we move to kernel 2.6
 pushd %{buildroot}
     mkdir -p media bin boot \
-        etc/{profile.d,skel,security,ssl,sysconfig} \
+        etc/{profile.d,skel,security,ssl,sysconfig/env} \
         home initrd lib/modules %{_lib} mnt media opt proc root sbin srv tmp \
         usr/{bin,etc,include,%{_lib}/gcc-lib,lib/gcc-lib,local/{bin,doc,etc,lib,%{_lib},sbin,src,share/{man/man{1,2,3,4,5,6,7,8,9,n},info},libexec,include,},sbin,share/{doc,info,man/man{1,2,3,4,5,6,7,8,9,n},misc,empty,pixmaps},src,X11R6/{bin,include,lib,%{_lib},man}} \
-        var/{empty,lib/misc,local,lock/subsys,log/supervise,mail,nis,preserve,run,service,spool/lpd,tmp,cache/man,opt,yp}
+        var/{empty,lib/misc,local,lock/subsys,log/{supervise,service},mail,nis,preserve,run,service,spool/lpd,tmp,cache/man,opt,yp}
 
     ln -snf ../X11R6/bin usr/bin/X11
     ln -snf ../X11R6/lib/X11 usr/lib/X11
@@ -66,6 +66,7 @@ popd
 /etc/profile.d
 /etc/security
 /etc/sysconfig
+%attr(0750,root,admin) /etc/sysconfig/env
 /etc/ssl
 /home
 /initrd
@@ -93,6 +94,7 @@ popd
 /var/cache
 /var/log
 %attr(0700,logger,logger) /var/log/supervise
+%attr(0700,logger,logger) /var/log/service
 /var/nis
 /var/opt
 /var/preserve
@@ -108,6 +110,11 @@ popd
 
 
 %changelog
+* Mon Aug 29 2005 Vincent Danen <vdanen@annvix.org> 2.1.5-5avx
+- add /etc/sysconfig/env
+- add /var/log/service (NOTE: remove /var/log/supervise when everything
+  is switched over)
+
 * Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 2.1.5-4avx
 - bootstrap build (new gcc, new glibc)
 
