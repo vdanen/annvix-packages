@@ -1,6 +1,6 @@
-#!/bin/sh
-PATH="/sbin:/usr/sbin:/bin:/usr/bin"
-
+#!/bin/execlineb
+#
 # this runs openntpd supervised
 
-exec /usr/sbin/ntpd -d 2>&1
+fdmove -c 2 1
+/usr/sbin/ntpd -d

@@ -8,8 +8,8 @@
 
 
 %define	name		openntpd
-%define	version		3.6.1p1
-%define	release		4avx
+%define	version		3.7p1
+%define	release		1avx
 %define epoch		1
 
 Summary:	OpenNTPD is a secure implementation of the Network Time Protocol
@@ -28,7 +28,7 @@ Patch0:		openntpd-20040824p-avx-ntpuser.patch.bz2
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	openssl-static-devel, autoconf2.5
 
-Requires:	openssl
+Requires:	openssl, execline
 Provides:	ntp
 Obsoletes:	ntp
 
@@ -62,6 +62,9 @@ install -m 0740 %{SOURCE2} %{buildroot}%{_srvdir}/ntpd/log/run
 %_pre_useradd ntp /var/empty /sbin/nologin 87
 
 %post
+if [ -d /var/log/supervise/ntpd -a ! -d /var/log/service/ntpd ]; then
+    mv /var/log/supervise/ntpd /var/log/service/
+fi
 %_post_srv ntpd
 
 %preun
@@ -85,11 +88,17 @@ install -m 0740 %{SOURCE2} %{buildroot}%{_srvdir}/ntpd/log/run
 %dir %attr(0750,logger,logger) %dir %{_srvlogdir}/ntpd
 %dir %attr(0750,root,admin) %{_srvdir}/ntpd
 %dir %attr(0750,root,admin) %{_srvdir}/ntpd/log
-%attr(0740,root,admin) %{_srvdir}/ntpd/run
-%attr(0740,root,admin) %{_srvdir}/ntpd/log/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/ntpd/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/ntpd/log/run
 
 
 %changelog
+* Tue Aug 30 2005 Vincent Danen <vdanen@annvix.org> 3.7p1-1avx
+- 3.7p1
+- use execlineb for run scripts
+- move logdir to /var/log/service/ntpd
+- run scripts are now considered config files and are not replaceable
+
 * Fri Aug 26 2005 Vincent Danen <vdanen@annvix.org> 3.6.1p1-4avx
 - fix perms on run scripts
 
