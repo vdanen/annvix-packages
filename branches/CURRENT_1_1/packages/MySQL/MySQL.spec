@@ -8,15 +8,15 @@
 
 
 %define name		MySQL
-%define version		4.1.12
-%define release		3avx
+%define version		4.1.14
+%define release		1avx
 
 %define major		14
 %define libname		%mklibname mysql %{major}
 %define oldlibname	%mklibname mysql 12
 %define mysqld_user	mysql
 
-%global mk_test		1
+%global mk_test		0
 %{?_with_test: %global mk_test 1}
 %{?_without_test: %global mk_test 0}
 
@@ -240,6 +240,10 @@ MYSQL_COMMON_CONFIGURE="--prefix=/ \
 	--with-berkeley-db \
 	--with-innodb \
 	--with-big-tables \
+	--with-archive-storage-engine \
+	--with-blackhole-storage-engine \
+	--without-example-storage-engine \
+	--with-csv-storage-engine \
 	--without-debug \
 	--with-mysqld-user=%{mysqld_user} \
 	--with-unix-socket-path=%{_localstatedir}/mysql/mysql.sock"
@@ -304,7 +308,6 @@ install -m 0644 %{SOURCE7} %{buildroot}%{_sysconfdir}/logrotate.d/mysql
 install -m 0644 %{SOURCE8} %{buildroot}%{_sysconfdir}/my.cnf
 
 mkdir -p %{buildroot}%{_srvdir}/mysqld/log
-mkdir -p %{buildroot}%{_srvlogdir}/mysqld
 install -m 0740 %{SOURCE2} %{buildroot}%{_srvdir}/mysqld/run
 install -m 0740 %{SOURCE5} %{buildroot}%{_srvdir}/mysqld/finish
 install -m 0740 %{SOURCE3} %{buildroot}%{_srvdir}/mysqld/log/run
@@ -382,6 +385,9 @@ export TMPDIR="%{_localstatedir}/mysql/.tmp"
 export TMP="${TMPDIR}"
 /sbin/chpst -u %{mysqld_user} %{_bindir}/mysql_install_db --rpm --user=%{mysqld_user}
 
+if [ -d /var/log/supervise/mysqld -a ! -d /var/log/service/mysqld ]; then
+    mv /var/log/supervise/mysqld /var/log/service/
+fi
 %_post_srv mysqld
 
 # Allow mysqld_safe to start mysqld and print a message before we exit
@@ -431,6 +437,9 @@ export TMPDIR="%{_localstatedir}/mysql/.tmp"
 export TMP="${TMPDIR}"
 /sbin/chpst -u %{mysqld_user} %{_bindir}/mysql_install_db --rpm --user=%{mysqld_user}
 
+if [ -d /var/log/supervise/mysqld -a ! -d /var/log/service/mysqld ]; then
+    mv /var/log/supervise/mysqld /var/log/service/
+fi
 %_post_srv mysqld
 # Allow mysqld_safe to start mysqld and print a message before we exit
 sleep 2
@@ -569,6 +578,7 @@ fi
 %dir %attr(0755,mysql,mysql) %{_var}/run/mysqld
 %dir %attr(0755,mysql,mysql) %{_var}/log/mysqld
 %dir %{_datadir}/mysql
+%{_datadir}/mysql/binary-configure
 %{_datadir}/mysql/mi_test_all
 %{_datadir}/mysql/mi_test_all.res
 %{_datadir}/mysql/my-huge.cnf
@@ -578,9 +588,6 @@ fi
 %{_datadir}/mysql/my-innodb-heavy-4G.cnf
 %{_datadir}/mysql/charsets
 %{_datadir}/mysql/english
-%{_datadir}/mysql/Description.plist
-%{_datadir}/mysql/Info.plist
-%{_datadir}/mysql/StartupParameters.plist
 %{_datadir}/mysql/fill_help_tables.sql
 %{_datadir}/mysql/mysql_fix_privilege_tables.sql
 %{_datadir}/mysql/japanese-sjis
@@ -589,10 +596,9 @@ fi
 %dir %{_libdir}/mysql
 %dir %attr(0750,root,admin) %{_srvdir}/mysqld
 %dir %attr(0750,root,admin) %{_srvdir}/mysqld/log
-%attr(0740,root,admin) %{_srvdir}/mysqld/finish
-%attr(0740,root,admin)%{_srvdir}/mysqld/run
-%attr(0740,root,admin)%{_srvdir}/mysqld/log/run
-%dir %attr(0750,logger,logger) %{_srvlogdir}/mysqld
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/mysqld/finish
+%config(noreplace) %attr(0740,root,admin)%{_srvdir}/mysqld/run
+%config(noreplace) %attr(0740,root,admin)%{_srvdir}/mysqld/log/run
 
 %files -n %{libname}
 %defattr(-,root,root)
@@ -612,7 +618,22 @@ fi
 %{_libdir}/*.a
 %{_libdir}/mysql/*.a
 
+
 %changelog
+* Tue Aug 30 2005 Vincent Danen <vdanen@annvix.org> 4.1.14-1avx
+- 4.1.14
+- added support for the archive, blackhole, and csv storage engines
+- disable make test until we can make it avoid tests for items we
+  haven't included in the build (ie. the example storage engine); also
+  mysql's test script got dumb recently because it fails on things that
+  aren't even compiled in and bombs out rather than skip the test
+- use execlineb for logging run script
+- move logs to /var/log/service/mysqld
+- run scripts are now considered config files and are not replaceable
+- make the run script refuse to run without a /root/.my.cnf file present
+- use chpst to run mysqld as user mysql rather than mysqld starting as
+  root than switching itself to mysqld
+
 * Fri Aug 26 2005 Vincent Danen <vdanen@annvix.org> 4.1.12-3avx
 - fix perms on run scripts
 
