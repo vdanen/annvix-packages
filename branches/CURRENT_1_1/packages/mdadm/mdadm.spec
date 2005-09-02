@@ -8,11 +8,11 @@
 
 
 %define name		mdadm
-%define version		1.9.0
-%define release		5avx
+%define version		1.12.0
+%define release		1avx
 
 %define use_dietlibc 	0
-%ifarch %{ix86}
+%ifarch %{ix86} x86_64 ppc
 %define use_dietlibc 	1
 %endif
 
@@ -69,6 +69,7 @@ install -D -m 0644 mdadm.conf-example %{buildroot}%{_sysconfdir}/mdadm.conf
 
 %if %{use_dietlibc}
 install mdassemble %{buildroot}%{_sbindir}/mdassemble
+install -D -m 0644 mdassemble.8 %{buildroot}%{_mandir}/man8/mdassemble.8
 %endif
 
 mkdir -p %{buildroot}%{_srvdir}/mdadm/log
@@ -85,6 +86,9 @@ install -m 0740 %{SOURCE3} %{buildroot}%{_srvdir}/mdadm/log/run
 %_preun_srv mdadm
 
 %post
+if [ -d /var/log/supervise/mdadm -a ! -d /var/log/service/mdadm ]; then
+    mv /var/log/supervise/mdadm /var/log/service/
+fi
 %_post_srv mdadm
 
 
@@ -99,12 +103,17 @@ install -m 0740 %{SOURCE3} %{buildroot}%{_srvdir}/mdadm/log/run
 %{_mandir}/man*/md*
 %dir %attr(0750,root,admin) %{_srvdir}/mdadm
 %dir %attr(0750,root,admin) %{_srvdir}/mdadm/log
-%dir %attr(0750,logger,logger) %{_srvlogdir}/mdadm
-%attr(0740,root,admin) %{_srvdir}/mdadm/run
-%attr(0740,root,admin) %{_srvdir}/mdadm/log/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/mdadm/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/mdadm/log/run
 
 
 %changelog
+* Fri Aug 26 2005 Vincent Danen <vdanen@annvix.org> 1.12.0-1avx
+- 1.12.0
+- use execlineb for run scripts
+- move logdir to /var/log/service/mdadm
+- run scripts are now considered config files and are not replaceable
+
 * Fri Aug 26 2005 Vincent Danen <vdanen@annvix.org> 1.9.0-5avx
 - fix perms on run scripts
 
