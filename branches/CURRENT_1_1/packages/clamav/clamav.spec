@@ -8,8 +8,8 @@
 
 
 %define name		clamav
-%define version		0.86.1
-%define release		3avx
+%define version		0.86.2
+%define release		1avx
 
 %define	major		1
 %define libname		%mklibname %{name} %{major}
@@ -165,6 +165,9 @@ mkdir -p %{buildroot}%{_localstatedir}/%{name}/tmp
 #%_pre_groupadd amavis %{name}
 
 %post
+if [ -d /var/log/supervise/freshclam -a ! -d /var/log/service/freshclam ]; then
+    mv /var/log/supervise/freshclam /var/log/service/
+fi
 %_post_srv freshclam
 %create_ghostfile /var/log/%{name}/freshclam.log %{name} %{name} 0640
 
@@ -178,6 +181,9 @@ mkdir -p %{buildroot}%{_localstatedir}/%{name}/tmp
 %_pre_useradd clamav %{_localstatedir}/%{name} /bin/sh 89
 
 %post -n clamd
+if [ -d /var/log/supervise/clamd -a ! -d /var/log/service/clamd ]; then
+    mv /var/log/supervise/clamd /var/log/service/
+fi
 %_post_srv clamd
 %create_ghostfile /var/log/%{name}/clamd.log %{name} %{name} 0640
 
@@ -234,9 +240,8 @@ done
 %ghost %attr(0640,clamav,clamav) /var/log/%{name}/freshclam.log
 %dir %attr(0750,root,admin) %{_srvdir}/freshclam
 %dir %attr(0750,root,admin) %{_srvdir}/freshclam/log
-%attr(0740,root,admin) %{_srvdir}/freshclam/run
-%attr(0740,root,admin) %{_srvdir}/freshclam/log/run
-%dir %attr(0750,logger,logger) %{_srvlogdir}/freshclam
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/freshclam/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/freshclam/log/run
 
 %files -n clamd
 %defattr(-,root,root)
@@ -247,9 +252,8 @@ done
 %ghost %attr(0640,clamav,clamav) /var/log/%{name}/clamd.log
 %dir %attr(0750,root,admin) %{_srvdir}/clamd
 %dir %attr(0750,root,admin) %{_srvdir}/clamd/log
-%attr(0740,root,admin) %{_srvdir}/clamd/run
-%attr(0740,root,admin) %{_srvdir}/clamd/log/run
-%dir %attr(0750,logger,logger) %{_srvlogdir}/clamd
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/clamd/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/clamd/log/run
 
 %files -n %{name}-db
 %defattr(-,root,root)
@@ -274,6 +278,12 @@ done
 %{_libdir}/pkgconfig/libclamav.pc
       
 %changelog
+* Fri Sep 02 2005 Vincent Danen <vdanen@annvix.org> 0.86.2-1avx
+- 0.86.2
+- use execlineb for run scripts
+- move logdir to /var/log/service/{freshclam,clamd}
+- run scripts are now considered config files and are not replaceable
+
 * Fri Aug 26 2005 Vincent Danen <vdanen@annvix.org> 0.86.1-3avx
 - fix perms on run scripts
 
