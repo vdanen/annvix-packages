@@ -8,8 +8,8 @@
 
 
 %define name		am-utils
-%define version		6.0.9
-%define release		12avx
+%define version		6.1.1
+%define release		1avx
 %define epoch		2
 
 %define major		2
@@ -23,7 +23,7 @@ Epoch:		%{epoch}
 License:	BSD
 Group:		System/Servers
 URL:		http://www.am-utils.org/
-Source:		ftp://ftp.am-utils.org/pub/am-utils/%{name}/%{name}-%{version}.tar.bz2
+Source:		ftp://ftp.am-utils.org/pub/am-utils/%{name}/%{name}-%{version}.tar.gz
 Source1:	am-utils.conf
 Source2:	am-utils.sysconf
 Source3:	am-utils.net.map
@@ -114,6 +114,9 @@ rm -f %{buildroot}/amd
 
 
 %post
+if [ -d /var/log/supervise/amd -a ! -d /var/log/service/amd ]; then
+    mv /var/log/supervise/amd /var/log/service/
+fi
 %_post_srv amd
 %_install_info %{name}.info
 
@@ -143,9 +146,8 @@ rm -f %{buildroot}/amd
 %{_infodir}/*.info*
 %dir %attr(0750,root,admin) %{_srvdir}/amd
 %dir %attr(0750,root,admin) %{_srvdir}/amd/log
-%dir %attr(0750,logger,logger) %{_srvlogdir}/amd
-%attr(0740,root,admin) %{_srvdir}/amd/run
-%attr(0740,root,admin) %{_srvdir}/amd/log/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/amd/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/amd/log/run
 
 
 %files -n %{libname}
@@ -160,6 +162,13 @@ rm -f %{buildroot}/amd
 
 
 %changelog
+* Fri Sep 02 2005 Vincent Danen <vdanen@annvix.org> 6.1.1-1avx
+- 6.1.1
+- use execlineb for run scripts
+- move logdir to /var/log/service/amd
+- run scripts are now considered config giles and are not replaceable
+
+
 * Fri Aug 26 2005 Vincent Danen <vdanen@annvix.org> 6.0.9-12avx
 - fix perms on run scripts
 
