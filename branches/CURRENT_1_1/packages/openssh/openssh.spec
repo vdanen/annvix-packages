@@ -10,8 +10,8 @@
 
 
 %define name		openssh
-%define version		4.1p1
-%define release 	5avx
+%define version		4.2p1
+%define release 	1avx
 
 # overrides
 %global build_skey	0
@@ -255,6 +255,9 @@ do_dsa_keygen() {
 do_rsa1_keygen
 do_rsa_keygen
 do_dsa_keygen
+if [ -d /var/log/supervise/sshd -a ! -d /var/log/service/sshd ]; then
+    mv /var/log/supervise/sshd /var/log/service/
+fi
 %_post_srv sshd
 %_mkafterboot
 
@@ -320,12 +323,17 @@ echo "known_hosts files on an entire system if run as root."
 %{_mandir}/man8/sftp-server.8*
 %dir %attr(0750,root,admin) %{_srvdir}/sshd
 %dir %attr(0750,root,admin) %{_srvdir}/sshd/log
-%attr(0740,root,admin) %{_srvdir}/sshd/run
-%attr(0740,root,admin) %{_srvdir}/sshd/log/run
-%dir %attr(0750,logger,logger) %{_srvlogdir}/sshd
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/sshd/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/sshd/log/run
 %{_datadir}/afterboot/04_openssh
 
 %changelog
+* Fri Sep 02 2005 Vincent Danen <vdanen@annvix.org> 4.2p1-1avx
+- 4.2p1
+- use execlineb for run scripts
+- move logdir to /var/log/service/sshd
+- run scripts are now considered config files and are not replaceable
+
 * Fri Aug 26 2005 Vincent Danen <vdanen@annvix.org> 4.1p1-5avx
 - fix perms on run scripts
 
