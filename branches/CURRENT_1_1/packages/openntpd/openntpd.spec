@@ -9,7 +9,7 @@
 
 %define	name		openntpd
 %define	version		3.7p1
-%define	release		1avx
+%define	release		2avx
 %define epoch		1
 
 Summary:	OpenNTPD is a secure implementation of the Network Time Protocol
@@ -53,7 +53,7 @@ and can act as NTP server itself, redistributing the local clock.
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
 
-mkdir -p %{buildroot}{%{_srvdir}/ntpd/log,%{_srvlogdir}/ntpd}
+mkdir -p %{buildroot}%{_srvdir}/ntpd/log
 install -m 0740 %{SOURCE1} %{buildroot}%{_srvdir}/ntpd/run
 install -m 0740 %{SOURCE2} %{buildroot}%{_srvdir}/ntpd/log/run
 
@@ -85,7 +85,6 @@ fi
 %{_sbindir}/ntpd
 %{_mandir}/man5/ntpd.conf.5*
 %{_mandir}/man8/ntpd.8*
-%dir %attr(0750,logger,logger) %dir %{_srvlogdir}/ntpd
 %dir %attr(0750,root,admin) %{_srvdir}/ntpd
 %dir %attr(0750,root,admin) %{_srvdir}/ntpd/log
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/ntpd/run
@@ -93,6 +92,9 @@ fi
 
 
 %changelog
+* Tue Aug 30 2005 Vincent Danen <vdanen@annvix.org> 3.7p1-2avx
+- don't include the logdir
+
 * Tue Aug 30 2005 Vincent Danen <vdanen@annvix.org> 3.7p1-1avx
 - 3.7p1
 - use execlineb for run scripts
