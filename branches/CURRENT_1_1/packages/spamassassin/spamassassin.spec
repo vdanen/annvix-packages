@@ -9,7 +9,7 @@
 
 %define name		spamassassin
 %define version		2.64
-%define release		7avx
+%define release		8avx
 
 %define fname		Mail-SpamAssassin
 %define instdir		vendor
@@ -109,7 +109,6 @@ cat << EOF >> %{buildroot}/%{_sysconfdir}/mail/%{name}/local.cf
 EOF
 
 mkdir -p %{buildroot}%{_srvdir}/spamd/log
-mkdir -p %{buildroot}%{_srvlogdir}/spamd
 install -m 0740 %{SOURCE1} %{buildroot}%{_srvdir}/spamd/run
 install -m 0740 %{SOURCE2} %{buildroot}%{_srvdir}/spamd/log/run
 
@@ -123,6 +122,10 @@ install -m 0740 %{SOURCE2} %{buildroot}%{_srvdir}/spamd/log/run
 [ -f %{_sysconfdir}/mail/spamassassin.cf ] && /bin/mv %{_sysconfdir}/mail/spamassassin.cf %{_sysconfdir}/mail/spamassassin/migrated.cf || true
 touch /var/spool/spamassassin/auto-whitelist.db
 chmod 0666 /var/spool/spamassassin/auto-whitelist.db
+
+if [ -d /var/log/supervise/spamd -a ! -d /var/log/service/spamd ]; then
+    mv /var/log/supervise/spamd /var/log/service/
+fi
 %_post_srv spamd
 
 
@@ -141,9 +144,8 @@ chmod 0666 /var/spool/spamassassin/auto-whitelist.db
 %{_datadir}/spamassassin
 %dir %attr(0750,root,admin) %{_srvdir}/spamd
 %dir %attr(0750,root,admin) %{_srvdir}/spamd/log
-%attr(0740,root,admin) %{_srvdir}/spamd/run
-%attr(0740,root,admin) %{_srvdir}/spamd/log/run
-%dir %attr(0750,logger,logger) %{_srvlogdir}/spamd
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/spamd/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/spamd/log/run
 
 %files tools
 %defattr(-,root,root)
@@ -157,6 +159,11 @@ chmod 0666 /var/spool/spamassassin/auto-whitelist.db
 
 
 %changelog
+* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 2.64-8avx
+- use execlineb for run scripts
+- move logdir to /var/log/service/spamd
+- run scripts are now considered config files and are not replaceable
+
 * Fri Aug 26 2005 Vincent Danen <vdanen@annvix.org> 2.64-7avx
 - fix perms on run scripts
 
