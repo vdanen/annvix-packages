@@ -9,7 +9,7 @@
 
 %define name		smartmontools
 %define version 	5.33
-%define release 	4avx
+%define release 	5avx
 
 Summary:	SMARTmontools - for monitoring S.M.A.R.T. disks and devices
 Name:           %{name}
@@ -59,7 +59,6 @@ smartd will provide more information.
 %makeinstall_std
 
 mkdir -p %{buildroot}%{_srvdir}/smartd/log
-mkdir -p %{buildroot}%{_srvlogdir}/smartd
 install -m 0740 %{SOURCE1} %{buildroot}%{_srvdir}/smartd/run
 install -m 0740 %{SOURCE2} %{buildroot}%{_srvdir}/smartd/log/run
 rm -rf %{buildroot}%{_initrddir}
@@ -73,6 +72,9 @@ echo "INTERVAL=1800" > %{buildroot}%{_sysconfdir}/sysconfig/smartd
 
 
 %post
+if [ -d /var/log/supervise/smartd -a ! -d /var/log/service/smartd ]; then
+    mv /var/log/supervise/smartd /var/log/service/
+fi
 %_post_srv smartd
 
 %preun
@@ -91,12 +93,16 @@ echo "INTERVAL=1800" > %{buildroot}%{_sysconfdir}/sysconfig/smartd
 %{_mandir}/man8/smartctl.8*
 %dir %attr(0750,root,admin) %{_srvdir}/smartd
 %dir %attr(0750,root,admin) %{_srvdir}/smartd/log
-%attr(0740,root,admin) %{_srvdir}/smartd/run
-%attr(0740,root,admin) %{_srvdir}/smartd/log/run
-%dir %attr(0750,logger,logger) %{_srvlogdir}/smartd
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/smartd/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/smartd/log/run
 
 
 %changelog
+* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 5.33-5avx
+- use execlineb for run scripts
+- move logdir to /var/log/service/smartd
+- run scripts are now considered config files and are not replaceable
+
 * Fri Aug 26 2005 Vincent Danen <vdanen@annvix.org> 5.33-4avx
 - fix perms on run scripts
 
