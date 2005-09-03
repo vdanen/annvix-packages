@@ -8,8 +8,8 @@
 
 
 %define name		snort
-%define version		2.3.0
-%define release		4avx
+%define version		2.3.3
+%define release		1avx
 
 Summary:	An intrusion detection system
 Name:		%{name}
@@ -28,6 +28,10 @@ Source6:	snortdb-extra.bz2
 
 Patch1:		snort-2.3.0RC2-lib64.patch.bz2
 Patch2:		snort-2.3.0RC2-clamav.diff.bz2
+# (oe): make -L work as stated in the man page.
+Patch3:		snort-2.3.0-no_timestamp.diff.bz2
+# (oe) disable some code to make it build
+Patch4:		snort-2.3.0-net-snmp_fix.diff.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	autoconf2.5, automake1.7
@@ -41,6 +45,7 @@ BuildRequires:	pcre-devel
 BuildRequires:	net1.0-devel
 BuildRequires:	chrpath
 BuildRequires:	iptables-devel, clamav-devel
+#BuildRequires:	net-snmp-devel
 
 PreReq:		rpm-helper
 Requires:	pcre
@@ -160,11 +165,14 @@ Snort compiled with inline+flexresp support.
 %setup -q
 %patch1 -p0 -b .lib64
 %patch2 -p1 -b .clamav
+%patch3 -p0 -b .no_timestamp
+#%patch4 -p0 -b .net-snmp_fix
 
 # fix pid file path
 echo "#define _PATH_VARRUN \"/var/run/%{name}\"" >> acconfig.h
 
 cp %{SOURCE6} .
+
 
 %build
 export WANT_AUTOCONF_2_5=1
@@ -426,7 +434,7 @@ cd ..
 install -d %{buildroot}%{_sysconfdir}/%{name}/rules
 install -d %{buildroot}%{_sysconfdir}/sysconfig
 install -d %{buildroot}%{_sysconfdir}/logrotate.d
-install -d %{buildroot}/var/log/%{name}
+install -d %{buildroot}/var/log/%{name}/empty
 install -d %{buildroot}/var/run/%{name}
 install -d %{buildroot}%{_sbindir}
 install -d %{buildroot}%{_mandir}/man8
@@ -458,7 +466,6 @@ install -m 0644 %{SOURCE4} %{buildroot}%{_sysconfdir}/logrotate.d/%{name}
 install -m 0644 %{SOURCE5} %{buildroot}%{_sysconfdir}/sysconfig/%{name}
 
 mkdir -p %{buildroot}%{_srvdir}/snortd/log
-mkdir -p %{buildroot}%{_srvlogdir}/snortd
 install -m 0740 %{SOURCE1} %{buildroot}%{_srvdir}/snortd/run
 install -m 0740 %{SOURCE2} %{buildroot}%{_srvdir}/snortd/log/run
 
@@ -496,6 +503,9 @@ rm -f doc/README.{SNMP.SNMP,clamav.clamav}
 
 %post
 update-alternatives --install %{_sbindir}/%{name} %{name} %{_sbindir}/%{name}-plain 10
+if [ -d /var/log/supervise/snortd -a ! -d /var/log/service/snortd ]; then
+    mv /var/log/supervise/snortd /var/log/service/
+fi
 %_post_srv snortd
 
 %preun
@@ -561,23 +571,24 @@ update-alternatives --remove %{name} %{_sbindir}/%{name}-inline+flexresp
 %defattr(-,root,root)
 %doc doc/snort_manual.pdf
 %doc doc/AUTHORS doc/BUGS doc/CREDITS doc/NEWS doc/USAGE doc/README*
-%doc COPYING ChangeLog contrib/* snortdb-extra.bz2
-%attr(755,root,root) %{_sbindir}/%{name}-plain
-%attr(755,root,root) %{_mandir}/man8/%{name}.8*
-%attr(755,snort,snort) %dir /var/log/%{name}
-%attr(755,snort,snort) %dir /var/run/%{name}
-%attr(644,root,root) %config(noreplace) %{_sysconfdir}/%{name}/*.config
-%attr(644,root,root) %config(noreplace) %{_sysconfdir}/%{name}/threshold.conf
-%attr(644,root,root) %config(noreplace) %{_sysconfdir}/%{name}/*.map
-%attr(644,root,root) %config(noreplace) %{_sysconfdir}/%{name}/rules/*.rules
-%attr(640,root,root) %config(noreplace) %{_sysconfdir}/%{name}/%{name}.conf
-%attr(755,root,root) %config(noreplace) %{_sysconfdir}/logrotate.d/%{name}
-%attr(644,root,root) %config /etc/sysconfig/%{name}
+%doc COPYING ChangeLog contrib/* snortdb-extra.bz2 RELEASE.NOTES
+%attr(0755,root,root) %{_sbindir}/%{name}-plain
+%attr(0755,root,root) %{_mandir}/man8/%{name}.8*
+%attr(0755,snort,snort) %dir /var/log/%{name}
+%attr(0755,snort,snort) %dir /var/log/%{name}/empty
+%attr(0755,snort,snort) %dir /var/run/%{name}
+%attr(0755,snort,snort) %dir %{_sysconfdir}/%{name}
+%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/%{name}/*.config
+%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/%{name}/threshold.conf
+%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/%{name}/*.map
+%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/%{name}/rules/*.rules
+%attr(0640,root,root) %config(noreplace) %{_sysconfdir}/%{name}/%{name}.conf
+%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/logrotate.d/%{name}
+%attr(0644,root,root) %config(noreplace) /etc/sysconfig/%{name}
 %dir %attr(0750,root,admin) %{_srvdir}/snortd
 %dir %attr(0750,root,admin) %{_srvdir}/snortd/log
-%attr(0740,root,admin) %{_srvdir}/snortd/run
-%attr(0740,root,admin) %{_srvdir}/snortd/log/run
-%dir %attr(0750,logger,logger) %{_srvlogdir}/snortd
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/snortd/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/snortd/log/run
 
 %files plain+flexresp
 %defattr(-,root,root)
@@ -618,6 +629,16 @@ update-alternatives --remove %{name} %{_sbindir}/%{name}-inline+flexresp
 %attr(755,root,root) %{_sbindir}/%{name}-bloat
 
 %changelog
+* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 2.3.3-1avx
+- 2.3.3
+- use execlineb for run scripts
+- move logdir to /var/log/service/snortd
+- run scripts are now considered config files and are not replaceable
+- P3: make -L work as stated in the manpage (oden)
+- own %%{_sysconfdir}/%%{name}
+- P4: make the snmp-enabled snort binary build (currently unapplied due
+  to the fact we don't ship net-snmp)
+
 * Sat Aug 27 2005 Vincent Danen <vdanen@annvix.org> 2.3.0-4avx
 - fix perms on run scripts
 
