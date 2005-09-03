@@ -1,0 +1,42 @@
+An error result from gethostbyname_r is signalled by either a non-zero return
+value, or the result pointer not being set to point to the result buffer.
+--- krb5-1.3.5/src/include/fake-addrinfo.h	2004-09-02 18:59:42.000000000 -0400
++++ krb5-1.3.5/src/include/fake-addrinfo.h	2004-11-01 19:17:30.127252336 -0500
+@@ -187,24 +187,27 @@ extern /*@dependent@*/ char *gai_strerro
+ #ifdef GETHOSTBYNAME_R_RETURNS_INT
+ #define GET_HOST_BY_NAME(NAME, HP, ERR) \
+     {									\
+-	struct hostent my_h_ent, *my_hp;				\
+-	int my_h_err;							\
++	struct hostent my_h_ent, *my_hp = NULL;				\
++	int my_h_err, my_ret;						\
+ 	char my_h_buf[8192];						\
+-	(HP) = (gethostbyname_r((NAME), &my_h_ent,			\
+-				my_h_buf, sizeof (my_h_buf), &my_hp,	\
+-				&my_h_err)				\
++	my_ret = (gethostbyname_r((NAME), &my_h_ent,			\
++				  my_h_buf, sizeof (my_h_buf), &my_hp,	\
++				  &my_h_err));				\
++	(HP) = (((my_ret != 0) || (my_hp != &my_h_ent))			\
+ 		? 0							\
+ 		: &my_h_ent);						\
+ 	(ERR) = my_h_err;						\
+     }
+ #define GET_HOST_BY_ADDR(ADDR, ADDRLEN, FAMILY, HP, ERR) \
+     {									\
+-	struct hostent my_h_ent, *my_hp;				\
+-	int my_h_err;							\
++	struct hostent my_h_ent, *my_hp = NULL;				\
++	int my_h_err, my_ret;						\
+ 	char my_h_buf[8192];						\
+-	(HP) = (gethostbyaddr_r((ADDR), (ADDRLEN), (FAMILY), &my_h_ent,	\
+-				my_h_buf, sizeof (my_h_buf), &my_hp,	\
+-				&my_h_err)				\
++	my_ret = (gethostbyaddr_r((ADDR), (ADDRLEN), (FAMILY),		\
++				  &my_h_ent,				\
++				  my_h_buf, sizeof (my_h_buf), &my_hp,	\
++				  &my_h_err));				\
++	(HP) = (((my_ret != 0) || (my_hp != &my_h_ent))			\
+ 		? 0							\
+ 		: &my_h_ent);						\
+ 	(ERR) = my_h_err;						\

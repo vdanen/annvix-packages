@@ -8,10 +8,9 @@
 
 
 %define name		krb5
-%define version		1.3.6
-%define release		8avx
+%define version		1.4.2
+%define release		1avx
 
-%define srcver		1.3
 %define major		1
 %define libname		%mklibname %{name} %{major}
 
@@ -22,18 +21,14 @@ Release:	%{release}
 License:	MIT
 Group:		System/Libraries
 URL:		http://web.mit.edu/kerberos/www/
+# from http://web.mit.edu/kerberos/dist/krb5/1.4/krb5-%{version}-signed.tar
 Source0:	%{name}-%{version}.tar.gz
-Source1:	kpropd.init.bz2
-Source2:	krb524d.init.bz2
-Source3:	kadmind.init.bz2
-Source4:	krb5kdc.init.bz2
 Source5:	krb5.conf.bz2
 Source8:	kdcrotate.bz2
 Source9:	kdc.conf.bz2
 Source10:	kadm5.acl.bz2
 Source11:	krsh.bz2
 Source12:	krlogin.bz2
-Source18:	krb5server.init.bz2
 Source19:	statglue.c.bz2
 Source23:	Mandrake-Kerberos-HOWTO.html.bz2
 Source24:	%{name}-%{version}.tar.gz.asc
@@ -49,13 +44,10 @@ Source33:	kpropd.run
 Source34:	kpropd-log.run
 Source35:	krb5kdc.run
 Source36:	krb5kdc-log.run
-Source37:	krb524d.run
-Source38:	krb524d-log.run
 Source39:	08_kftp.afterboot
 Source40:	08_ktelnet.afterboot
 Patch0:		krb5-1.2.2-telnetbanner.patch.bz2
 Patch1:		krb5-1.2.5-biarch-utmp.patch.bz2
-Patch2:		krb5-1.3-newline.patch.bz2
 Patch3:		krb5-1.3-telnet.patch.bz2
 Patch4:		krb5-1.3-mdk-no-rpath.patch.bz2
 Patch5:		krb5-1.3-fdr-info-dir.patch.bz2
@@ -63,25 +55,22 @@ Patch6:		krb5-1.3-fdr-large-file.patch.bz2
 Patch7:		krb5-1.3-fdr-ksu-path.patch.bz2
 Patch8:		krb5-1.3-fdr-ksu-access.patch.bz2
 Patch9:		krb5-1.3-fdr-pass-by-address.patch.bz2
-Patch10:	krb5-1.3-fdr-rlogind-environ.patch.bz2
-Patch11:	krb5-1.3-fdr-ktany.patch.bz2
 Patch12:	krb5-1.3-fdr-ftp-glob.patch.bz2
-Patch13:	krb5-1.3.1-fdr-varargs.patch.bz2
-Patch14:	krb5-1.3.1-fdr-server-sort.patch.bz2
-Patch15:	krb5-1.3.1-fdr-null.patch.bz2
 Patch16:	krb5-1.3.2-fdr-efence.patch.bz2
 Patch17:	krb5-1.3.3-fdr-rcp-sendlarge.patch.bz2
-Patch18:	krb5-1.3.6-MITKRB5-SA-2005-001-telnet.patch.bz2
-Patch19:	2005-002-patch_1.4.1.txt.bz2
-Patch20:	2005-003-patch_1.4.1.txt.bz2
 Patch21:	krb5-1.3.3-rcp-markus.patch.bz2
 Patch22:	krb5-1.4.1-api.patch.bz2
 Patch23:	krb5-1.4.1-fclose.patch.bz2
 Patch24:	krb5-1.3.6-telnet-environ.patch.bz2
+Patch25:	krb5-1.3.5-gethostbyname_r.patch.bz2
+# (gb) preserve file names when generating files from *.et (multiarch fixes)
+Patch26:	krb5-1.3.6-et-preserve-file-names.patch.bz2
+# http://qa.mandriva.com/show_bug.cgi?id=9410
+Patch27:	krb5-1.4.1-ftplfs.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	bison, flex, libtermcap-devel, texinfo, tcl
-BuildRequires:	libext2fs-devel, chrpath
+BuildRequires:	libext2fs-devel, chrpath, multiarch-utils >= 1.0.3
 
 PreReq:		grep, info, coreutils, info-install
 
@@ -211,7 +200,7 @@ This version supports kerberos authentication.
 %setup -q -a 25
 %patch0 -p1 -b .banner
 %patch1 -p1 -b .biarch-utmp
-%patch2 -p1 -b .newline
+#%patch2 -p1 -b .newline
 %patch3 -p1 -b .telnet
 %patch4 -p1 -b .no-rpath
 %patch5 -p1 -b .info-dir
@@ -219,25 +208,21 @@ This version supports kerberos authentication.
 %patch7 -p1 -b .ksu-path
 %patch8 -p1 -b .ksu-access
 %patch9 -p1 -b .pass-by-address
-%patch10 -p1 -b .rlogind-environ
-%patch11 -p1 -b .ktany
+#%patch10 -p1 -b .rlogind-environ
+#%patch11 -p1 -b .ktany
 %patch12 -p1 -b .ftp-glob
-%patch13 -p1 -b .varargs
-%patch14 -p1 -b .server-sort
-%patch15 -p1 -b .null
+#%patch13 -p1 -b .varargs
+#%patch14 -p1 -b .server-sort
+#%patch15 -p1 -b .null
 %patch16 -p1 -b .efence
 %patch17 -p1 -b .rcp-sendlarge
-pushd src/appl/telnet/telnet
-%patch18 -p0 -b .mitkrb5-sa-2005-001
-popd
-pushd src
-%patch19 -p0 -b .MITKRB5-SA-2005-002
-%patch20 -p0 -b .MITKRB5-SA-2005-003
-popd
 %patch21 -p1 -b .can-2004-0175
 %patch22 -p1 -b .api_crash
 %patch23 -p1 -b .double_close
 %patch24 -p1 -b .can-2005-0488
+%patch25 -p1 -b .gethostbyname_r
+%patch26 -p1 -b .et-preserve-file-names
+%patch27 -p1 -b .lfs
 
 find . -type f -name "*.fixinfo" -exec rm -fv "{}" ";"
 gzip doc/*.ps
@@ -267,8 +252,8 @@ env ac_cv_lib_resolv_res_search=yes ./configure \
     --infodir=%{_infodir} \
     --mandir=%{buildroot}%{_mandir} \
     --localstatedir=%{_sysconfdir}/kerberos \
-    --with-krb4 \
-    --enable-dns \
+    --without-krb4 \
+    --enable-dns-for-realm \
     --with-tcl=%{_prefix} \
     --with-system-et \
     --with-system-ss \
@@ -314,6 +299,7 @@ mkdir -p %{buildroot}/var/log/kerberos
 # Info docs.
 mkdir -p %{buildroot}%{_infodir}
 install -m 644 doc/*.info* %{buildroot}%{_infodir}/
+rm -f %{buildroot}%{_infodir}/krb425.info*
 
 # KDC config files.
 mkdir -p %{buildroot}%{_sysconfdir}/kerberos/krb5kdc
@@ -340,8 +326,7 @@ popd
 # Fixup strange shared library permissions.
 chmod 0755 %{buildroot}%{_libdir}/*.so*
 
-mkdir -p %{buildroot}%{_srvdir}/{ktelnet,kftp,kadmind,kpropd,krb5kdc,krb524d}/log
-mkdir -p %{buildroot}%{_srvlogdir}/{ktelnet,kftp,kadmind,kpropd,krb5kdc,krb524d}
+mkdir -p %{buildroot}%{_srvdir}/{ktelnet,kftp,kadmind,kpropd,krb5kdc}/log
 install -m 0740 %{SOURCE27} %{buildroot}%{_srvdir}/ktelnet/run
 install -m 0740 %{SOURCE28} %{buildroot}%{_srvdir}/ktelnet/log/run
 install -m 0740 %{SOURCE29} %{buildroot}%{_srvdir}/kftp/run
@@ -352,8 +337,6 @@ install -m 0740 %{SOURCE33} %{buildroot}%{_srvdir}/kpropd/run
 install -m 0740 %{SOURCE34} %{buildroot}%{_srvdir}/kpropd/log/run
 install -m 0740 %{SOURCE35} %{buildroot}%{_srvdir}/krb5kdc/run
 install -m 0740 %{SOURCE36} %{buildroot}%{_srvdir}/krb5kdc/log/run
-install -m 0740 %{SOURCE37} %{buildroot}%{_srvdir}/krb524d/run
-install -m 0740 %{SOURCE38} %{buildroot}%{_srvdir}/krb524d/log/run
 
 mkdir -p %{buildroot}%{_srvdir}/{ktelnet,kftp}/peers
 touch %{buildroot}%{_srvdir}/{ktelnet,kftp}/peers/0
@@ -375,14 +358,23 @@ find %{_builddir}/%{name}-%{version} -name "*\.h" | xargs perl -p -i -e "s|\"com
 chrpath -d %{buildroot}%{_libdir}/*
 strip %{buildroot}%{_bindir}/{ksu,v4rcp}
 
+# dump un-FHS examples location (files included in doc list now)
+rm -Rf %{buildroot}/%{_datadir}/examples
+
+# multiarch policy
+%multiarch_binaries %{buildroot}%{_bindir}/krb5-config
+%multiarch_includes %{buildroot}%{_includedir}/gssapi/gssapi.h
+# (gb) this one could be fixed differently and properly using <stdint.h>
+%multiarch_includes %{buildroot}%{_includedir}/gssrpc/types.h
+# multiarch_includes %{buildroot}%{_includedir}/krb5/k5-config.h
+%multiarch_includes %{buildroot}%{_includedir}/krb5/autoconf.h
+%multiarch_includes %{buildroot}%{_includedir}/krb5/osconf.h
+%multiarch_includes %{buildroot}%{_includedir}/krb5.h
+
+rm -rf %{buildroot}%{_includedir}/kerberosIV
+
 pushd %{buildroot}/var
     ln -s ..%{_sysconfdir}/kerberos .
-popd
-
-# add empty keytab file
-pushd %{buildroot}%{_sysconfdir}
-    touch kerberos/krb5kdc/kadm5.keytab
-    ln -s kerberos/krb5kdc/kadm5.keytab krb5.keytab
 popd
 
 
@@ -395,13 +387,17 @@ popd
 
 
 %post server
+for i in kadmind kpropd krb5kdc
+do
+    if [ -d /var/log/supervise/$i -a ! -d /var/log/service/$i ]; then
+        mv /var/log/supervise/$i /var/log/service/
+    fi
+done
 %_post_srv kadmind
 %_post_srv kpropd
 %_post_srv krb5kdc
-%_post_srv krb524d
 
 # Install info pages.
-%_install_info krb425.info
 %_install_info krb5-admin.info
 %_install_info krb5-install.info
 
@@ -409,8 +405,6 @@ popd
 %_preun_srv kadmind
 %_preun_srv kpropd
 %_preun_srv krb5kdc
-%_preun_srv krb524d
-%_remove_install_info krb425.info
 %_remove_install_info krb5-admin.info
 %_remove_install_info krb5-install.info
 
@@ -423,6 +417,9 @@ popd
 
 
 %post -n telnet-server-krb5
+if [ -d /var/log/supervise/ktelnet -a ! -d /var/log/service/ktelnet ]; then
+    mv /var/log/supervise/ktelnet /var/log/service/
+fi
 %_post_srv ktelnet
 %_mkafterboot
 
@@ -434,6 +431,9 @@ popd
 
 
 %post -n ftp-server-krb5
+if [ -d /var/log/supervise/kftp -a ! -d /var/log/service/kftp ]; then
+    mv /var/log/supervise/kftp /var/log/service/
+fi
 %_post_srv kftp
 %_mkafterboot
 
@@ -446,7 +446,7 @@ popd
 
 %files workstation
 %defattr(-,root,root)
-%doc doc/*.html doc/user*.ps.gz src/config-files/services.append
+%doc doc/*.html doc/user*.ps.gz src/config-files/services.append src/config-files/krb5.conf
 %attr(0755,root,root) %doc src/config-files/convert-config-files
 %{_infodir}/krb5-user.info*
 %{_bindir}/gss-client
@@ -459,7 +459,6 @@ popd
 %{_mandir}/man1/klist.1*
 %{_bindir}/kpasswd
 %{_mandir}/man1/kpasswd.1*
-%{_bindir}/krb524init
 %{_sbindir}/kadmin
 %{_mandir}/man8/kadmin.8*
 %{_sbindir}/ktutil
@@ -477,10 +476,8 @@ popd
 %{_bindir}/rsh
 %{_mandir}/man1/rsh.1*
 %{_mandir}/man1/tmac.doc*
-%attr(0755,root,root) %{_bindir}/v4rcp
-%{_mandir}/man1/v4rcp.1*
-%{_bindir}/v5passwd
-%{_mandir}/man1/v5passwd.1*
+#%{_bindir}/v5passwd
+#%{_mandir}/man1/v5passwd.1*
 %{_bindir}/sim_client
 %{_bindir}/uuclient
 %{_sbindir}/login.krb5
@@ -499,34 +496,24 @@ popd
 
 %files server
 %defattr(-,root,root)
+%doc src/config-files/kdc.conf
 /var/kerberos
 %config(noreplace) %{_sysconfdir}/kerberos/krb5kdc/kdc.conf
 %config(noreplace) %{_sysconfdir}/kerberos/krb5kdc/kadm5.acl
-%attr(0600,root,root) %config(noreplace) %{_sysconfdir}/kerberos/krb5kdc/kadm5.keytab
-%{_sysconfdir}/krb5.keytab
 %dir %attr(0750,root,admin) %{_srvdir}/kadmind
 %dir %attr(0750,root,admin) %{_srvdir}/kadmind/log
-%dir %attr(0750,logger,logger) %{_srvlogdir}/kadmind
-%attr(0740,root,admin) %{_srvdir}/kadmind/run
-%attr(0740,root,admin) %{_srvdir}/kadmind/log/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/kadmind/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/kadmind/log/run
 %dir %attr(0750,root,admin) %{_srvdir}/kpropd
 %dir %attr(0750,root,admin) %{_srvdir}/kpropd/log
-%dir %attr(0750,logger,logger) %{_srvlogdir}/kpropd
-%attr(0740,root,admin) %{_srvdir}/kpropd/run
-%attr(0740,root,admin) %{_srvdir}/kpropd/log/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/kpropd/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/kpropd/log/run
 %dir %attr(0750,root,admin) %{_srvdir}/krb5kdc
 %dir %attr(0750,root,admin) %{_srvdir}/krb5kdc/log
-%dir %attr(0750,logger,logger) %{_srvlogdir}/krb5kdc
-%attr(0740,root,admin) %{_srvdir}/krb5kdc/run
-%attr(0740,root,admin) %{_srvdir}/krb5kdc/log/run
-%dir %attr(0750,root,admin) %{_srvdir}/krb524d
-%dir %attr(0750,root,admin) %{_srvdir}/krb524d/log
-%dir %attr(0750,logger,logger) %{_srvlogdir}/krb524d
-%attr(0740,root,admin) %{_srvdir}/krb524d/run
-%attr(0740,root,admin) %{_srvdir}/krb524d/log/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/krb5kdc/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/krb5kdc/log/run
 %{_infodir}/krb5-admin.info*
 %{_infodir}/krb5-install.info*
-%{_infodir}/krb425.info*
 %dir /var/log/kerberos
 %dir %{_sysconfdir}/kerberos/krb5kdc 
 %{_mandir}/man5/kdc.conf.5*
@@ -534,20 +521,18 @@ popd
 %{_mandir}/man8/kadmin.local.8*
 %{_sbindir}/kadmind
 %{_mandir}/man8/kadmind.8*
-%{_sbindir}/kadmind4
 %{_sbindir}/kdb5_util
 %{_mandir}/man8/kdb5_util.8*
 %{_sbindir}/kprop
 %{_mandir}/man8/kprop.8*
 %{_sbindir}/kpropd
 %{_mandir}/man8/kpropd.8*
-%{_sbindir}/krb524d
 %{_sbindir}/krb5kdc
 %{_mandir}/man8/k5srvutil.8*
 %{_sbindir}/k5srvutil
 %{_mandir}/man8/krb5kdc.8*
 %{_sbindir}/sim_server
-%{_sbindir}/v5passwdd
+#%{_sbindir}/v5passwdd
 # This is here for people who want to test their server, and also 
 # included in devel package for similar reasons.
 %{_bindir}/sclient
@@ -576,9 +561,17 @@ popd
 %{_bindir}/krb5-config
 %{_bindir}/sclient
 %{_sbindir}/sserver
+%multiarch %{multiarch_bindir}/krb5-config
+%multiarch %{multiarch_includedir}/gssapi/gssapi.h
+%multiarch %{multiarch_includedir}/gssrpc/types.h
+# multiarch %{multiarch_includedir}/krb5/k5-config.h
+%multiarch %{multiarch_includedir}/krb5/autoconf.h
+%multiarch %{multiarch_includedir}/krb5/osconf.h
+%multiarch %{multiarch_includedir}/krb5.h
 %{_includedir}/*
 %{_libdir}/lib*.so
 %{_libdir}/*.a
+%{_mandir}/man1/krb5-config.1*
 %{_mandir}/man1/sclient.1*
 %{_mandir}/man8/sserver.8*
 
@@ -590,9 +583,8 @@ popd
 %dir %attr(0750,root,admin) %{_srvdir}/ktelnet
 %dir %attr(0750,root,admin) %{_srvdir}/ktelnet/log
 %dir %attr(0750,root,admin) %{_srvdir}/ktelnet/peers
-%dir %attr(0750,logger,logger) %{_srvlogdir}/ktelnet
-%attr(0740,root,admin) %{_srvdir}/ktelnet/run
-%attr(0740,root,admin) %{_srvdir}/ktelnet/log/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/ktelnet/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/ktelnet/log/run
 %config(noreplace) %{_srvdir}/ktelnet/peers/0
 %{_datadir}/afterboot/08_ktelnet
 
@@ -616,14 +608,31 @@ popd
 %dir %attr(0750,root,admin) %{_srvdir}/kftp
 %dir %attr(0750,root,admin) %{_srvdir}/kftp/log
 %dir %attr(0750,root,admin) %{_srvdir}/kftp/peers
-%dir %attr(0750,logger,logger) %{_srvlogdir}/kftp
-%attr(0740,root,admin) %{_srvdir}/kftp/run
-%attr(0740,root,admin) %{_srvdir}/kftp/log/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/kftp/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/kftp/log/run
 %config(noreplace) %{_srvdir}/kftp/peers/0
 %{_datadir}/afterboot/08_kftp
 
 
 %changelog
+* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 1.4.2-1avx
+- 1.4.2
+- drop support for krb4 compatibility; including krb524 run scripts
+- P25: from fedora
+- P26: preserve filenames when generating files from *.et (multiarch
+  fixes) (gbeauchesne)
+- P27: large file support for FTP
+- use correct ./configure option to enable dns realm lookup (andreas)
+- drop P13, P18, P19, P20: merged upstream
+- drop P2, P10, P11: conflicts
+- drop P14: some conflicts, some upstream
+- drop P15: original source gone
+- drop S1, S2, S3, S4, S18: we don't use initscripts
+- multiarch support
+- use execlineb for run scripts
+- move logdir to /var/log/service/k*
+- run scripts are now considered config files and are not replaceable
+
 * Fri Aug 26 2005 Vincent Danen <vdanen@annvix.org> 1.3.6-8avx
 - fix perms on run scripts
 
