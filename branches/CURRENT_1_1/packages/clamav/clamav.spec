@@ -9,7 +9,7 @@
 
 %define name		clamav
 %define version		0.86.2
-%define release		1avx
+%define release		2avx
 
 %define	major		1
 %define libname		%mklibname %{name} %{major}
@@ -143,7 +143,6 @@ install -m 0644 etc/clamd.conf %{buildroot}%{_sysconfdir}/clamd.conf
 install -m 0644 etc/freshclam.conf %{buildroot}%{_sysconfdir}/freshclam.conf
 
 mkdir -p %{buildroot}%{_srvdir}/{clamd,freshclam}/log
-mkdir -p %{buildroot}%{_srvlogdir}/{clamd,freshclam}
 install -m 0740 %{SOURCE4} %{buildroot}%{_srvdir}/clamd/run
 install -m 0740 %{SOURCE5} %{buildroot}%{_srvdir}/clamd/log/run
 install -m 0740 %{SOURCE6} %{buildroot}%{_srvdir}/freshclam/run
@@ -199,13 +198,13 @@ fi
 %post -n %{name}-db
 # try to keep most uptodate database
 for i in main daily; do
-	if [ -f /var/lib/clamav/$i.cvd.rpmnew ]; then
-		if [ /var/lib/clamav/$i.cvd.rpmnew -nt /var/lib/clamav/$i.cvd ]; then
-			mv -f /var/lib/clamav/$i.cvd.rpmnew /var/lib/clamav/$i.cvd
-		else
-			rm -f /var/lib/clamav/$i.cvd.rpmnew
-		fi
-	fi
+    if [ -f /var/lib/clamav/$i.cvd.rpmnew ]; then
+        if [ /var/lib/clamav/$i.cvd.rpmnew -nt /var/lib/clamav/$i.cvd ]; then
+            mv -f /var/lib/clamav/$i.cvd.rpmnew /var/lib/clamav/$i.cvd
+        else
+            rm -f /var/lib/clamav/$i.cvd.rpmnew
+        fi
+    fi
 done
 
 %postun -n %{name}-db
@@ -278,6 +277,9 @@ done
 %{_libdir}/pkgconfig/libclamav.pc
       
 %changelog
+* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 0.86.2-2avx
+- spec tidys
+
 * Fri Sep 02 2005 Vincent Danen <vdanen@annvix.org> 0.86.2-1avx
 - 0.86.2
 - use execlineb for run scripts
