@@ -1,0 +1,14 @@
+# To further fine-tune options to postmaster, edit /var/service/postgresql/run
+
+# The postgresql base directory
+PGDATA="/var/lib/pgsql"
+
+# Use TCP sockets (default is no, set to 1 to enable listening to TCP)
+USETCP=0
+
+# The postgresql TCP port to listen to
+PGPORT=5432
+
+# Use SSL (only valid if listening to TCP, set to 1 to enable)
+# note you must create /var/lib/pgsql/data/server.crt certificate first
+USESSL=0
