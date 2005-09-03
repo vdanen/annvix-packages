@@ -9,7 +9,7 @@
 
 %define name		apache-conf
 %define version		2.0.53
-%define release		7avx
+%define release		8avx
 
 %define compat_dir	/etc/httpd
 %define compat_conf	/etc/httpd/conf
@@ -205,7 +205,6 @@ mkdir -p %{buildroot}%{_docdir}/apache2-conf-%{version}
 install -m 0644 %{SOURCE99} %{buildroot}%{_docdir}/apache2-conf-%{version}
 
 mkdir -p %{buildroot}%{_srvdir}/httpd2/log
-mkdir -p %{buildroot}%{_srvlogdir}/httpd2
 install -m 0740 %{SOURCE100} %{buildroot}%{_srvdir}/httpd2/run
 install -m 0740 %{SOURCE101} %{buildroot}%{_srvdir}/httpd2/log/run
 
@@ -221,7 +220,10 @@ install -m 0644 %{SOURCE98} %{buildroot}/var/www/html/robots.txt
 
 %post
 if [ $1 = "1" ]; then
-  %{_datadir}/ADVX/advx-checkifmigrate
+    %{_datadir}/ADVX/advx-checkifmigrate
+fi
+if [ -d /var/log/supervise/httpd2 -a ! -d /var/log/service/httpd2 ]; then
+    mv /var/log/supervise/httpd2 /var/log/service/
 fi
 %_post_srv httpd2
 
@@ -279,13 +281,17 @@ fi
 %{_libdir}/ADVX/*
 %dir %attr(0750,root,admin) %{_srvdir}/httpd2
 %dir %attr(0750,root,admin) %{_srvdir}/httpd2/log
-%attr(0740,root,admin) %{_srvdir}/httpd2/run
-%attr(0740,root,admin) %{_srvdir}/httpd2/log/run
-%dir %attr(0750,logger,logger) %{_srvlogdir}/httpd2
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/httpd2/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/httpd2/log/run
 %{_datadir}/afterboot/03_apache2
 
 
 %changelog
+* Sat Sep 02 2005 Vincent Danen <vdanen@annvix.org> 2.0.53-8avx
+- use execlineb for run scripts
+- move logdir to /var/log/service/httpd2
+- run scripts are now considered config files and are not replaceable
+
 * Fri Aug 26 2005 Vincent Danen <vdanen@annvix.org> 2.0.53-7avx
 - fix perms on run scripts
 
