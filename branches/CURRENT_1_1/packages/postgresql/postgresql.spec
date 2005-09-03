@@ -9,7 +9,7 @@
 
 %define name		postgresql
 %define version		8.0.3
-%define release		2avx
+%define release		3avx
 
 %define _requires_exceptions devel(libtcl8.4)\\|devel(libtcl8.4(64bit))
 
@@ -341,7 +341,6 @@ popd
 mv %{buildroot}%{_docdir}/%{name}/html %{buildroot}%{_docdir}/%{name}-docs-%{version}
 
 mkdir -p %{buildroot}%{_srvdir}/{postgresql,pg_autovacuum}/log
-mkdir -p %{buildroot}%{_srvlogdir}/{postgresql,pg_autovacuum}
 install -m 0740 %{SOURCE20} %{buildroot}%{_srvdir}/postgresql/run
 install -m 0740 %{SOURCE21} %{buildroot}%{_srvdir}/postgresql/log/run
 install -m 0740 %{SOURCE24} %{buildroot}%{_srvdir}/postgresql/finish
@@ -413,6 +412,9 @@ if [ $1 -gt 1 ]; then
     echo "and CAN-2005-1410.  PostgreSQL must be running when you run this script."
     echo "" 
 fi
+if [ -d /var/log/supervise/postgresql -a ! -d /var/log/service/postgresql ]; then
+    mv /var/log/supervise/postgresql /var/log/service/
+fi
 %_post_srv postgresql
 
 
@@ -424,6 +426,16 @@ fi
 /sbin/ldconfig
 %_mkafterboot
 %_postun_userdel postgres
+
+
+%post
+if [ -d /var/log/supervise/pg_autovacuum -a ! -d /var/log/service/pg_autovacuum ]; then
+    mv /var/log/supervise/pg_autovacuum /var/log/service/
+fi
+%_post_srv pg_autovacuum
+
+%preun
+%_preun_srv pg_autovacuum
 
 
 %post -n %{libname} -p /sbin/ldconfig
@@ -475,9 +487,8 @@ rm -f perlfiles.list
 %config(noreplace) %{_sysconfdir}/sysconfig/pg_autovacuum
 %dir %attr(0750,root,admin) %{_srvdir}/pg_autovacuum
 %dir %attr(0750,root,admin) %{_srvdir}/pg_autovacuum/log
-%attr(0740,root,admin) %{_srvdir}/pg_autovacuum/run
-%attr(0740,root,admin) %{_srvdir}/pg_autovacuum/log/run
-%dir %attr(0750,logger,logger) %{_srvlogdir}/pg_autovacuum
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/pg_autovacuum/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/pg_autovacuum/log/run
 
 %files -n %{libname} 
 %defattr(-,root,root)
@@ -581,10 +592,9 @@ rm -f perlfiles.list
 %{_datadir}/pgsql/sql_features.txt
 %dir %attr(0750,root,admin) %{_srvdir}/postgresql
 %dir %attr(0750,root,admin) %{_srvdir}/postgresql/log
-%attr(0740,root,admin) %{_srvdir}/postgresql/run
-%attr(0740,root,admin) %{_srvdir}/postgresql/finish
-%attr(0740,root,admin) %{_srvdir}/postgresql/log/run
-%dir %attr(0750,logger,logger) %{_srvlogdir}/postgresql
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/postgresql/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/postgresql/finish
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/postgresql/log/run
 %config(noreplace) %{_sysconfdir}/sysconfig/postgresql
 %{_datadir}/afterboot/01_postgresql
 
@@ -620,6 +630,12 @@ rm -f perlfiles.list
 
 
 %changelog
+* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 8.0.3-3avx
+- use execlineb for run scripts
+- move logdir to /var/log/service/postgresql
+- run scripts are now considered config files and are not replaceable
+- add %%post/%%preun scripts for pg_autovacuum service
+
 * Fri Aug 26 2005 Vincent Danen <vdanen@annvix.org> 8.0.3-2avx
 - fix perms on run scripts
 
