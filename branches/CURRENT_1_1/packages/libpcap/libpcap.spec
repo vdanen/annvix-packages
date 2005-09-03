@@ -8,13 +8,12 @@
 
 
 %define name		libpcap
-%define version		0.8.3
-%define release		5avx
-%define sname		pcap
+%define version		0.9.1
+%define release		1avx
 
 %define	major		0
-%define minor		8
-%define libname 	%mklibname %{sname} %{major}
+%define minor		9
+%define libname 	%mklibname pcap %{major}
 
 Summary:        A system-independent interface for user-level packet capture
 Name:		%{name}
@@ -23,10 +22,11 @@ Release:	%{release}
 License:	BSD
 Group:		System/Libraries
 URL:		http://www.tcpdump.org
-Source:		http://www.tcpdump.org/release/libpcap-%{version}.tar.gz
+Source0:	http://www.tcpdump.org/release/libpcap-%{version}.tar.gz
+Source1:	http://www.tcpdump.org/release/libpcap-%{version}.tar.gz.sig
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	byacc flex
+BuildRequires:	bison, flex
 
 Obsoletes:	libpcap
 Provides:	libpcap
@@ -44,9 +44,8 @@ several system-dependent packet capture modules in each application.
 %package -n %{libname}
 Summary:	A system-independent interface for user-level packet capture
 Group:          System/Libraries
-Obsoletes:      libpcap
-Provides:       libpcap
-Provides:	libpcap = %{version}
+Obsoletes:      %{name}
+Provides:	%{name} = %{version}-%{release}
 
 %description -n %{libname}
 Libpcap provides a portable framework for low-level network monitoring.
@@ -61,10 +60,9 @@ several system-dependent packet capture modules in each application.
 Summary:	Static library and header files for the pcap library
 Group:		Development/C
 License: 	BSD
-Obsoletes:	libpcap-devel
-Provides:	libpcap-devel = %{version}
+Obsoletes:	%{name}-devel
+Provides:	%{name}-devel = %{version}-%{release}
 Requires:	%{libname} = %{version}-%{release}
-BuildRequires:	autoconf >= 2.5, automake >= 1.7
 
 %description -n %{libname}-devel
 Libpcap provides a portable framework for low-level network monitoring.
@@ -81,15 +79,9 @@ compile applications such as tcpdump, etc.
 %prep
 %setup -q
 
-export WANT_AUTOCONF_2_5=1
-
-autoheader-2.5x
-aclocal-1.7
-autoconf-2.5x
-
 
 %build
-%configure --enable-ipv6
+%configure2_5x --enable-ipv6
 
 %make "CCOPT=%{optflags} -fPIC"
 
@@ -98,15 +90,13 @@ autoconf-2.5x
 # shared lib...
 #
 
-gcc -Wl,-soname,libpcap.so.0 -shared -fpic -o libpcap.so.%{major}.%{minor} *.o
+gcc -Wl,-soname,libpcap.so.%{major} -shared -fPIC -o libpcap.so.%{major}.%{minor} *.o
 
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-mkdir -p %{buildroot}{%{_includedir}/net,%{_libdir},%{_mandir}/man3}
-
-make DESTDIR=%{buildroot} install
+%makeinstall_std
 
 install -m 0755 libpcap.so.%{major}.%{minor} %{buildroot}/%{_libdir}
 
@@ -114,6 +104,9 @@ pushd %{buildroot}%{_libdir}
     ln -s libpcap.so.%{major}.%{minor} libpcap.so.0
     ln -s libpcap.so.%{major}.%{minor} libpcap.so
 popd
+
+# install additional headers
+install -m 0644 pcap-int.h %{buildroot}%{_includedir}/
 
 
 %clean
@@ -123,14 +116,10 @@ popd
 %post -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
 
-%post -n %{libname}-devel -p /sbin/ldconfig
-%postun -n %{libname}-devel -p /sbin/ldconfig
-
 
 %files -n %{libname}
 %defattr(-,root,root)
-%doc README* CHANGES CREDITS FILES INSTALL.txt
-%doc LICENSE VERSION TODO
+%doc README* CHANGES CREDITS FILES INSTALL.txt LICENSE VERSION doc TODO
 %{_libdir}/libpcap.so.*
 
 %files -n %{libname}-devel
@@ -142,6 +131,13 @@ popd
 
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 0.8.3-5avx
+- 0.9.1
+- bump minor to 9
+- install additional headers
+- add signature
+- fix redundant provides
+
 * Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 0.8.3-5avx
 - bootstrap build (new gcc, new glibc)
 
