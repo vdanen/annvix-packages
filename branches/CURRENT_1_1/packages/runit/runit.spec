@@ -9,9 +9,9 @@
 
 %define	name		runit
 %define	version		1.3.1
-%define	release		2avx
+%define	release		3avx
 
-%define aver		0.1
+%define aver		0.2
 
 Summary:	A UN*X init scheme with service supervision
 Name:		%{name}
@@ -23,7 +23,7 @@ URL:		http://smarden.org/runit/
 Source0:	%{name}-%{version}.tar.gz
 # available from http://annvix.org/cg-bin/viewcvs.cgi/tools/runit/
 Source1:	annvix-runit-%{aver}.tar.bz2
-Patch0:		runit-1.3.1-avx-localtime.patch
+Patch0:		runit-1.3.1-avx-localtime.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	dietlibc-devel >= 0.28
@@ -75,7 +75,10 @@ pushd annvix-runit-%{aver}
     do 
         install -m 0740 mingetty-tty$i/* %{buildroot}%{_srvdir}/mingetty-tty$i/
     done
-    install -m 0640 env/TIMEOUT %{buildroot}%{_sysconfdir}/sysconfig/env/runit/TIMEOUT
+    for i in STAGE_3_TIMEOUT GETTY_TIMEOUT CTRLALTDEL_TIMEOUT
+    do
+        install -m 0640 env/$i %{buildroot}%{_sysconfdir}/sysconfig/env/runit/$i
+    done
 popd
 
 install -m 0644 %{name}-%{version}/man/*.8 %{buildroot}%{_mandir}/man8/
@@ -141,28 +144,39 @@ fi
 %attr(0700,root,root) %{_sysconfdir}/runit/3
 %attr(0700,root,root) %{_sysconfdir}/runit/ctrlaltdel
 %dir %attr(0750,root,admin) %{_srvdir}/mingetty-tty1
-%attr(0740,root,admin) %{_srvdir}/mingetty-tty1/run
-%attr(0740,root,admin) %{_srvdir}/mingetty-tty1/finish
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/mingetty-tty1/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/mingetty-tty1/finish
 %dir %attr(0750,root,admin) %{_srvdir}/mingetty-tty2
-%attr(0740,root,admin) %{_srvdir}/mingetty-tty2/run
-%attr(0740,root,admin) %{_srvdir}/mingetty-tty2/finish
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/mingetty-tty2/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/mingetty-tty2/finish
 %dir %attr(0750,root,admin) %{_srvdir}/mingetty-tty3
-%attr(0740,root,admin) %{_srvdir}/mingetty-tty3/run
-%attr(0740,root,admin) %{_srvdir}/mingetty-tty3/finish
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/mingetty-tty3/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/mingetty-tty3/finish
 %dir %attr(0750,root,admin) %{_srvdir}/mingetty-tty4
-%attr(0740,root,admin) %{_srvdir}/mingetty-tty4/run
-%attr(0740,root,admin) %{_srvdir}/mingetty-tty4/finish
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/mingetty-tty4/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/mingetty-tty4/finish
 %dir %attr(0750,root,admin) %{_srvdir}/mingetty-tty5
-%attr(0740,root,admin) %{_srvdir}/mingetty-tty5/run
-%attr(0740,root,admin) %{_srvdir}/mingetty-tty5/finish
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/mingetty-tty5/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/mingetty-tty5/finish
 %dir %attr(0750,root,admin) %{_srvdir}/mingetty-tty6
-%attr(0740,root,admin) %{_srvdir}/mingetty-tty6/run
-%attr(0740,root,admin) %{_srvdir}/mingetty-tty6/finish
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/mingetty-tty6/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/mingetty-tty6/finish
 %dir %attr(0750,root,admin) %{_sysconfdir}/sysconfig/env/runit
-%attr(0640,root,admin) %{_sysconfdir}/sysconfig/env/runit/TIMEOUT
+%attr(0640,root,admin) %config(noreplace) %{_sysconfdir}/sysconfig/env/runit/STAGE_3_TIMEOUT
+%attr(0640,root,admin) %config(noreplace) %{_sysconfdir}/sysconfig/env/runit/GETTY_TIMEOUT
+%attr(0640,root,admin) %config(noreplace) %{_sysconfdir}/sysconfig/env/runit/CTRLALTDEL_TIMEOUT
 
 
 %changelog
+* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 1.3.1-3avx
+- stage 1, 2, 3, and ctrlaltdel scripts are in execlineb format (re: spt)
+- run scripts are now considered config files and are not replaceable
+- env/runit/TIMEOUT is a config file too
+- update P0 to note in svlogd.8 that we are logging in local time and
+  not UTC
+- add CTRLALTDEL_TIMEOUT to control timeout for ctrlaltdel (duh) and
+  GETTY_TIMEOUT to control the timeout for getties
+
 * Mon Aug 29 2005 Vincent Danen <vdanen@annvix.org> 1.3.1-2avx
 - added /etc/sysconfig/env/runit/TIMEOUT to control the delay for
   shutdowns (default is 180 seconds)
