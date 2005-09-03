@@ -20,7 +20,7 @@ authorized_keys file, the request is denied.  With "UsePAM yes", this is no
 longer the case; OpenSSH will hand off authentication to PAM who will gladly
 take root's password, authenticate it, and grant them access.
 .LP
-Because of this, OpenSLS ships with the pam_listfile.so module first in the
+Because of this, Annvix ships with the pam_listfile.so module first in the
 sshd authentication stack for PAM.  The module uses the
 \fI/etc/ssh/denyusers.pam\fR file to determine which users should be denied
 via PAM; by default this file contains the root user.
@@ -40,5 +40,10 @@ option enabled by default (in \fI/etc/ssh/ssh_config\fR).  For this to be
 fully effective, you should convert all pre-existing known_hosts files to the
 hashed format by running the \fIconvert_known_hosts-4.0.pl\fR script which
 can be found in /usr/share/doc/openssh-clients-[version]/.
+.LP
+Please note that sshd is not run as a daemon on it's own but is rather ran
+via tcpsvd(8) (similar to xinetd or inetd) which allows you to make use of
+the ipsvd-instruct(5) directory (./peers) for instructions which allows you
+to fine-tune access to the sshd service.
 .LP
 See the sshd_config(5) manpage for more details.

@@ -11,7 +11,7 @@
 
 %define name		openssh
 %define version		4.2p1
-%define release 	1avx
+%define release 	2avx
 
 # overrides
 %global build_skey	0
@@ -178,10 +178,11 @@ install -m 0644 contrib/ssh-copy-id.1 %{buildroot}/%{_mandir}/man1/
 
 rm -f %{buildroot}%{_datadir}/ssh/Ssh.bin
 
-mkdir -p %{buildroot}%{_srvdir}/sshd/log
-mkdir -p %{buildroot}%{_srvlogdir}/sshd
+mkdir -p %{buildroot}%{_srvdir}/sshd/{log,peers}
 install -m 0740 %{SOURCE8} %{buildroot}%{_srvdir}/sshd/run
 install -m 0740 %{SOURCE9} %{buildroot}%{_srvdir}/sshd/log/run
+touch %{buildroot}%{_srvdir}/sshd/peers/0
+chmod 0640 %{buildroot}%{_srvdir}/sshd/peers/0
 
 mkdir -p %{buildroot}%{_datadir}/afterboot
 install -m 0644 %{SOURCE5} %{buildroot}%{_datadir}/afterboot/04_openssh
@@ -325,9 +326,16 @@ echo "known_hosts files on an entire system if run as root."
 %dir %attr(0750,root,admin) %{_srvdir}/sshd/log
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/sshd/run
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/sshd/log/run
+%dir %attr(0750,root,admin) %{_srvdir}/sshd/peers
+%config(noreplace) %attr(0640,root,admin) %{_srvdir}/sshd/peers/0
 %{_datadir}/afterboot/04_openssh
 
 %changelog
+* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 4.2p1-2avx
+- really update the log/run script
+- run sshd from ipsvd so we can use it's ACLs and peers support
+- update the afterboot manpage to reflect this change
+
 * Fri Sep 02 2005 Vincent Danen <vdanen@annvix.org> 4.2p1-1avx
 - 4.2p1
 - use execlineb for run scripts
