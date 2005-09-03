@@ -8,8 +8,8 @@
 
 
 %define name		rsync
-%define version		2.6.3
-%define release		4avx
+%define version		2.6.6
+%define release		1avx
 
 Summary:	A program for synchronizing files over a network
 Name:		%{name}
@@ -18,15 +18,13 @@ Release:	%{release}
 License:	GPL
 Group:		Networking/File transfer
 URL:		http://rsync.samba.org/
-Source:		ftp://rsync.samba.org/pub/rsync/%{name}-%{version}.tar.gz
+Source:		http://rsync.samba.org/ftp/rsync/%{name}-%{version}.tar.gz
 Source1:	rsync.html
 Source2:	rsyncd.conf.html
-Source4:	ftp://rsync.samba.org/pub/rsync/%{name}-%{version}.tar.gz.asc
+Source4:	http://rsync.samba.org/ftp/rsync/%{name}-%{version}.tar.gz.asc
 Source5:	rsync.run
 Source6:	rsync-log.run
 Source7:	07_rsync.afterboot
-Patch0:		rsync-2.6.3pre1-draksync.patch.bz2
-Patch1:		rsync-2.6.0-nogroup.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	popt-devel
@@ -46,8 +44,6 @@ is included in this package.
 
 %prep
 %setup -q
-%patch0 -p1 -b .draksync
-%patch1 -p1 -b .nogroup
 
 
 %build
@@ -56,8 +52,8 @@ rm -f config.h
 %configure2_5x
 
 # hack around bug in rsync configure.in
-echo '#define HAVE_INET_NTOP 1' >> config.h
-echo '#define HAVE_INET_PTON 1' >> config.h
+#echo '#define HAVE_INET_NTOP 1' >> config.h
+#echo '#define HAVE_INET_PTON 1' >> config.h
 
 %make
 
@@ -75,7 +71,6 @@ install -m 0740 %{SOURCE5} %{buildroot}%{_srvdir}/rsync/run
 install -m 0740 %{SOURCE6} %{buildroot}%{_srvdir}/rsync/log/run
 touch %{buildroot}%{_srvdir}/rsync/peers/0
 chmod 0640 %{buildroot}%{_srvdir}/rsync/peers/0
-mkdir -p %{buildroot}%{_srvlogdir}/rsync
 
 mkdir -p %{buildroot}%{_datadir}/afterboot
 install -m 0644 %{SOURCE7} %{buildroot}%{_datadir}/afterboot/07_rsync
@@ -86,6 +81,9 @@ install -m 0644 %{SOURCE7} %{buildroot}%{_datadir}/afterboot/07_rsync
 
 
 %post
+if [ -d /var/log/supervise/rsync -a ! -d /var/log/service/rsync ]; then
+    mv /var/log/supervise/rsync /var/log/service/
+fi
 %_post_srv rsync
 %_mkafterboot
 
@@ -103,9 +101,8 @@ install -m 0644 %{SOURCE7} %{buildroot}%{_datadir}/afterboot/07_rsync
 %dir %attr(0750,root,admin) %{_srvdir}/rsync
 %dir %attr(0750,root,admin) %{_srvdir}/rsync/log
 %dir %attr(0750,root,admin) %{_srvdir}/rsync/peers
-%dir %attr(0750,logger,logger) %{_srvlogdir}/rsync
-%attr(0740,root,admin) %{_srvdir}/rsync/run
-%attr(0740,root,admin) %{_srvdir}/rsync/log/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/rsync/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/rsync/log/run
 %config(noreplace) %attr(0640,root,admin)%{_srvdir}/rsync/peers/0
 %{_mandir}/man1/rsync.1*
 %{_mandir}/man5/rsyncd.conf.5*
@@ -113,6 +110,14 @@ install -m 0644 %{SOURCE7} %{buildroot}%{_datadir}/afterboot/07_rsync
 
 
 %changelog
+* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 2.6.6-1avx
+- 2.6.6
+- drop all patches; P1 not needed anymore, P0 was for draksync which
+  we obviously don't ship
+- use execlineb for run scripts
+- move logdir to /var/log/service/rsync
+- run scripts are now considered config files and are not replaceable
+
 * Fri Aug 26 2005 Vincent Danen <vdanen@annvix.org> 2.6.3-4avx
 - fix perms on run scripts
 
