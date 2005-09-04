@@ -9,7 +9,7 @@
 
 %define name		pure-ftpd
 %define	version 	1.0.20
-%define release 	4avx
+%define release 	5avx
 
 Summary:	Lightweight, fast and secure FTP server
 Name:		%{name}
@@ -131,7 +131,6 @@ mkdir -p %{buildroot}/var/ftp/pub/
 mkdir -p %{buildroot}/var/ftp/incoming/
 
 mkdir -p %{buildroot}%{_srvdir}/pureftpd/log
-mkdir -p %{buildroot}%{_srvlogdir}/pureftpd
 install -m 0740 %{SOURCE4} %{buildroot}%{_srvdir}/pureftpd/run
 install -m 0740 %{SOURCE5} %{buildroot}%{_srvdir}/pureftpd/log/run
 
@@ -151,6 +150,9 @@ for i in $USERS ;do
     cat %{_sysconfdir}/ftpusers | grep -q "^$i$" || echo $i >> %{_sysconfdir}/ftpusers
 done
 
+if [ -d /var/log/supervise/pureftpd -a ! -d /var/log/service/pureftpd ]; then
+    mv /var/log/supervise/pureftpd /var/log/service/
+fi
 %_post_srv pureftpd
 
 
@@ -190,11 +192,10 @@ done
 %{_sbindir}/pure-quotacheck
 %{_sbindir}/pure-authd
 %attr(644,root,root)%{_mandir}/man8/*
-%dir %attr(0750,logger,logger) %{_srvlogdir}/pureftpd
 %dir %attr(0750,root,admin) %{_srvdir}/pureftpd
 %dir %attr(0750,root,admin) %{_srvdir}/pureftpd/log
-%attr(0740,root,admin) %{_srvdir}/pureftpd/run
-%attr(0740,root,admin) %{_srvdir}/pureftpd/log/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/pureftpd/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/pureftpd/log/run
 
 %files anonymous
 %defattr(-, root, root)
@@ -206,6 +207,11 @@ done
 
 
 %changelog
+* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 1.0.20-5avx
+- use execlineb for run scripts
+- move logdir to /var/log/service/pureftpd
+- run scripts are now considered config files and are not replaceable
+
 * Sat Aug 27 2005 Vincent Danen <vdanen@annvix.org> 1.0.20-4avx
 - fix perms on run scripts
 
