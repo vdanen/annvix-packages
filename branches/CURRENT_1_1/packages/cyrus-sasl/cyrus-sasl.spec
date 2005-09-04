@@ -9,7 +9,7 @@
 
 %define name		cyrus-sasl
 %define version		2.1.22
-%define release		2avx
+%define release		3avx
 
 %define major		2
 %define libname		%mklibname sasl %{major}
@@ -34,12 +34,13 @@ Patch1:		cyrus-sasl-2.1.19-mdk-no_rpath.patch.bz2
 Patch2:		cyrus-sasl-2.1.15-mdk-lib64.patch.bz2
 Patch3:		cyrus-sasl-2.1.20-fdr-gssapi-dynamic.patch.bz2
 Patch4:		cyrus-sasl-2.1.19-mdk-pic.patch.bz2
+Patch5:		cyrus-sasl-2.1.22-mdk-openldap-2.3.0.diff.bz2
+Patch6:		cyrus-sasl-2.1.22-mdk-sed_syntax.diff.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:  autoconf, automake1.8, db4-devel, pam-devel, krb5-devel
 BuildRequires:  openssl-devel >= 0.9.6a, libtool >= 1.4
-BuildRequires:	MySQL-devel, postgresql-devel
-#, openldap-devel
+BuildRequires:	MySQL-devel, postgresql-devel, openldap-devel
 
 Requires:	%{libname} = %{version}
 PreReq:		rpm-helper
@@ -241,6 +242,11 @@ This plugin implements the LDAP auxprop authentication method.
 %patch2 -p1 -b .lib64
 #%patch3 -p1 -b .gssapi
 %patch4 -p1 -b .pic
+%patch5 -p0 -b .openldap-2.3.0
+%patch6 -p0 -b .sed_syntax
+
+# lib64 fix
+perl -pi -e "s|/lib\b|/%{_lib}|g" configure.in
 
 rm -f config/ltconfig config/libtool.m4
 libtoolize -f -c
@@ -328,7 +334,6 @@ popd
 cp saslauthd/testsaslauthd %{buildroot}%{_sbindir}
 
 mkdir -p %{buildroot}%{_srvdir}/saslauthd/log
-mkdir -p %{buildroot}%{_srvlogdir}/saslauthd
 install -m 0740 %{SOURCE4} %{buildroot}%{_srvdir}/saslauthd/run
 install -m 0740 %{SOURCE5} %{buildroot}%{_srvdir}/saslauthd/log/run
 
@@ -404,6 +409,9 @@ fi
 
 
 %post
+if [ -d /var/log/supervise/saslauthd -a ! -d /var/log/service/saslauthd ]; then
+    mv /var/log/supervise/saslauthd /var/log/service/
+fi
 %_post_srv saslauthd
 
 
@@ -423,9 +431,8 @@ fi
 %attr (644,root,root) %config(noreplace) /etc/sysconfig/saslauthd
 %dir %attr(0750,root,admin) %{_srvdir}/saslauthd
 %dir %attr(0750,root,admin) %{_srvdir}/saslauthd/log
-%attr(0740,root,admin) %{_srvdir}/saslauthd/run
-%attr(0740,root,admin) %{_srvdir}/saslauthd/log/run
-%dir %attr(0750,nobody,nogroup) %{_srvlogdir}/saslauthd
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/saslauthd/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/saslauthd/log/run
 %{_sbindir}/*
 %{_mandir}/man8/*
 
@@ -504,6 +511,13 @@ fi
 
  
 %changelog
+* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 2.1.22-3avx
+- use execlineb for run scripts
+- move logdir to /var/log/service/saslauthd
+- run scripts are now considered config files and are not replaceable
+- P5: make it acknowledge openldap 2.3.6 (oden)
+- P6: fix the sed syntax (andreas)
+
 * Fri Aug 26 2005 Vincent Danen <vdanen@annvix.org> 2.1.22-2avx
 - fix perms on run scripts
 
