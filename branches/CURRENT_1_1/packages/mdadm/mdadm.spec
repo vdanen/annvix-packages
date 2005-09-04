@@ -9,7 +9,7 @@
 
 %define name		mdadm
 %define version		1.12.0
-%define release		1avx
+%define release		2avx
 
 %define use_dietlibc 	0
 %ifarch %{ix86} x86_64 ppc
@@ -73,7 +73,6 @@ install -D -m 0644 mdassemble.8 %{buildroot}%{_mandir}/man8/mdassemble.8
 %endif
 
 mkdir -p %{buildroot}%{_srvdir}/mdadm/log
-mkdir -p %{buildroot}%{_srvlogdir}/mdadm
 install -m 0740 %{SOURCE2} %{buildroot}%{_srvdir}/mdadm/run
 install -m 0740 %{SOURCE3} %{buildroot}%{_srvdir}/mdadm/log/run
 
@@ -108,7 +107,10 @@ fi
 
 
 %changelog
-* Fri Aug 26 2005 Vincent Danen <vdanen@annvix.org> 1.12.0-1avx
+* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 1.12.0-2avx
+- s/supervise/service/ in log/run
+
+* Fri Sep 02 2005 Vincent Danen <vdanen@annvix.org> 1.12.0-1avx
 - 1.12.0
 - use execlineb for run scripts
 - move logdir to /var/log/service/mdadm

@@ -9,7 +9,7 @@
 
 %define name		spamassassin
 %define version		2.64
-%define release		8avx
+%define release		9avx
 
 %define fname		Mail-SpamAssassin
 %define instdir		vendor
@@ -159,6 +159,9 @@ fi
 
 
 %changelog
+* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 2.64-9avx
+- s/supervise/service/ in log/run
+
 * Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 2.64-8avx
 - use execlineb for run scripts
 - move logdir to /var/log/service/spamd

@@ -4,4 +4,4 @@
 
 /bin/foreground { /usr/bin/install -m 0700 -d -o logger -g logger /var/log/service/sshd }
 /bin/cd /var/log/service
-/sbin/chpst -u logger /sbin/svlogd -tt /var/log/supervise/sshd
+/sbin/chpst -u logger /sbin/svlogd -tt /var/log/service/sshd

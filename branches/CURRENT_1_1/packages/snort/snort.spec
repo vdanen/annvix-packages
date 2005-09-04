@@ -9,7 +9,7 @@
 
 %define name		snort
 %define version		2.3.3
-%define release		1avx
+%define release		2avx
 
 Summary:	An intrusion detection system
 Name:		%{name}
@@ -629,6 +629,9 @@ update-alternatives --remove %{name} %{_sbindir}/%{name}-inline+flexresp
 %attr(755,root,root) %{_sbindir}/%{name}-bloat
 
 %changelog
+* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 2.3.3-2avx
+- s/supervise/service/ in log/run
+
 * Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 2.3.3-1avx
 - 2.3.3
 - use execlineb for run scripts

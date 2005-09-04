@@ -11,7 +11,7 @@
 
 %define name		openssh
 %define version		4.2p1
-%define release 	2avx
+%define release 	3avx
 
 # overrides
 %global build_skey	0
@@ -331,6 +331,9 @@ echo "known_hosts files on an entire system if run as root."
 %{_datadir}/afterboot/04_openssh
 
 %changelog
+* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 4.2p1-3avx
+- s/supervise/service/ in log/run
+
 * Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 4.2p1-2avx
 - really update the log/run script
 - run sshd from ipsvd so we can use it's ACLs and peers support

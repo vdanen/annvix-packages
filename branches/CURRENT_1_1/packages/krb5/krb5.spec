@@ -9,7 +9,7 @@
 
 %define name		krb5
 %define version		1.4.2
-%define release		1avx
+%define release		2avx
 
 %define major		1
 %define libname		%mklibname %{name} %{major}
@@ -615,6 +615,9 @@ fi
 
 
 %changelog
+* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 1.4.2-2avx
+- s/supervise/service/ in log/run
+
 * Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 1.4.2-1avx
 - 1.4.2
 - drop support for krb4 compatibility; including krb524 run scripts

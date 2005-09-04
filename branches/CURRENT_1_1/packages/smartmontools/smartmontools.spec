@@ -9,7 +9,7 @@
 
 %define name		smartmontools
 %define version 	5.33
-%define release 	5avx
+%define release 	6avx
 
 Summary:	SMARTmontools - for monitoring S.M.A.R.T. disks and devices
 Name:           %{name}
@@ -98,6 +98,9 @@ fi
 
 
 %changelog
+* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 5.33-6avx
+- s/supervise/service/ in log/run
+
 * Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 5.33-5avx
 - use execlineb for run scripts
 - move logdir to /var/log/service/smartd

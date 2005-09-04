@@ -9,7 +9,7 @@
 
 %define name		clamav
 %define version		0.86.2
-%define release		2avx
+%define release		3avx
 
 %define	major		1
 %define libname		%mklibname %{name} %{major}
@@ -277,6 +277,9 @@ done
 %{_libdir}/pkgconfig/libclamav.pc
       
 %changelog
+* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 0.86.2-3avx
+- s/supervise/service/ in log/run
+
 * Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 0.86.2-2avx
 - spec tidys
 

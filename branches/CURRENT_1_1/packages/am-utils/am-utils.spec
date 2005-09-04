@@ -9,7 +9,7 @@
 
 %define name		am-utils
 %define version		6.1.1
-%define release		1avx
+%define release		2avx
 %define epoch		2
 
 %define major		2
@@ -95,7 +95,6 @@ install -m 0755 %{SOURCE2} %{buildroot}%{_sysconfdir}/sysconfig/amd
 install -m 0640 %{SOURCE3} %{buildroot}%{_sysconfdir}/amd.net
 
 mkdir -p %{buildroot}%{_srvdir}/amd/log
-mkdir -p %{buildroot}%{_srvlogdir}/amd
 install -m 0740 %{SOURCE4} %{buildroot}%{_srvdir}/amd/run
 install -m 0740 %{SOURCE5} %{buildroot}%{_srvdir}/amd/log/run
 
@@ -162,6 +161,9 @@ fi
 
 
 %changelog
+* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 6.1.1-2avx
+- s/supervise/service/ in log/run
+
 * Fri Sep 02 2005 Vincent Danen <vdanen@annvix.org> 6.1.1-1avx
 - 6.1.1
 - use execlineb for run scripts

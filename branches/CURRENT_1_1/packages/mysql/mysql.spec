@@ -9,7 +9,7 @@
 
 %define name		MySQL
 %define version		4.1.14
-%define release		1avx
+%define release		2avx
 
 %define major		14
 %define libname		%mklibname mysql %{major}
@@ -620,6 +620,9 @@ fi
 
 
 %changelog
+* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 4.1.14-2avx
+- s/supervise/service/ in log/run
+
 * Tue Aug 30 2005 Vincent Danen <vdanen@annvix.org> 4.1.14-1avx
 - 4.1.14
 - added support for the archive, blackhole, and csv storage engines

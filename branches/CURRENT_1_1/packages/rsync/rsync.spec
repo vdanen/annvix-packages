@@ -9,7 +9,7 @@
 
 %define name		rsync
 %define version		2.6.6
-%define release		1avx
+%define release		2avx
 
 Summary:	A program for synchronizing files over a network
 Name:		%{name}
@@ -110,6 +110,9 @@ fi
 
 
 %changelog
+* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 2.6.6-2avx
+- s/supervise/service/ in log/run
+
 * Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 2.6.6-1avx
 - 2.6.6
 - drop all patches; P1 not needed anymore, P0 was for draksync which
