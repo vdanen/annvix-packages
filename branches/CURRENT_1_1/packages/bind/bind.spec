@@ -8,10 +8,10 @@
 
 
 %define name		bind
-%define version		9.3.0
-%define release		8avx
+%define version		9.3.1
+%define release		1avx
 
-%define their_version	9.3.0
+%define their_version	9.3.1
 %define build_daemon	1
 
 Summary:	A DNS (Domain Name System) server
@@ -21,7 +21,7 @@ Release:	%{release}
 License:	Distributable
 Group:		System/Servers
 URL:		http://www.isc.org/products/BIND/
-Source0:	ftp://ftp.isc.org/isc/%{name}9/%{version}/%{name}-%{their_version}.tar.gz
+Source0:	ftp://ftp.isc.org/isc/%{name}9/%{version}/%{name}-%{version}.tar.gz
 Source1:	%{name}-manpages.tar.bz2
 Source2:	named.init
 Source3:	named.logrotate
@@ -30,7 +30,7 @@ Source5:	keygen.c
 Source6:	new_key.pl
 Source7:	dhcp-dynamic-dns-examples.tar.bz2
 Source8:	update_bind.pl
-Source9:	ftp://ftp.isc.org/isc/%{name}9/%{version}/%{name}-%{their_version}.tar.gz.asc
+Source9:	ftp://ftp.isc.org/isc/%{name}9/%{version}/%{name}-%{version}.tar.gz.asc
 Source10:	bind-chroot.sh
 Source11:	ftp://FTP.RS.INTERNIC.NET/domain/named.root
 Source12:	named.run
@@ -40,10 +40,12 @@ Patch1:		bind-9.3.0rc2-fallback-to-second-server.patch.bz2
 Patch2:		bind-9.3.0-mdk-libresolv.patch.bz2
 Patch4:		bind-9.2.3-bsdcompat.patch.bz2
 Patch5:		bind-9.3.0beta2-libtool.diff.bz2
+Patch6:		libbind-9.3.1rc1-fix_h_errno.patch.bz2
+Patch7:		bind-9.3.1-reject_resolv_conf_errors.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-root
 BuildRequires:	openssl-devel
-BuildRequires:	autoconf, autoconf2.5, automake1.7
+BuildRequires:	autoconf, autoconf2.5, automake1.7, multiarch-utils >= 1.0.3
 
 PreReq:		rpm-helper
 Requires:	bind-utils >= %{version}-%{release}
@@ -103,12 +105,14 @@ BIND versions 9.x.x.
 
 
 %prep
-%setup -q  -n %{name}-%{their_version} -a1
+%setup -q  -n %{name}-%{version} -a1
 %patch1 -p1 -b .fallback-to-second-server
 #%patch -p1 -b .overflow
 %patch2 -p1 -b .libresolv
 %patch4 -p1 -b .bsdcompat
 %patch5 -p1 -b .libtool
+%patch6 -p1 -b .fix_h_errno
+%patch7 -p1 -b .reject_resolv_conf_errors
 
 #(cd contrib/queryperf && autoconf-2.13)
 tar -xjf %{SOURCE7}
@@ -153,7 +157,6 @@ mkdir -p %{buildroot}%{_docdir}/
 %makeinstall_std
 #tar -xjf %{SOURCE1} -C %{buildroot}%{_mandir}
 # fix man pages
-mv %{buildroot}%{_mandir}/man8/named.conf.5 %{buildroot}%{_mandir}/man5/
 install -m 0644 man5/resolver.5 %{buildroot}%{_mandir}/man5/
 ln -s resolver.5.bz2 %{buildroot}%{_mandir}/man5/resolv.5.bz2
 
@@ -161,7 +164,6 @@ ln -s resolver.5.bz2 %{buildroot}%{_mandir}/man5/resolv.5.bz2
     install -m0600 bin/rndc/rndc.conf %{buildroot}%{_sysconfdir}
     touch %{buildroot}%{_sysconfdir}/rndc.key
     install -m0755 contrib/named-bootconf/named-bootconf.sh %{buildroot}%{_sbindir}/named-bootconf
-    install -m0755 contrib/nanny/nanny.pl %{buildroot}%{_sbindir}/
     #install -m0755 contrib/queryperf/queryperf %{buildroot}%{_sbindir}/
     install -m644 %{SOURCE3} %{buildroot}%{_sysconfdir}/logrotate.d/named
 
@@ -176,7 +178,6 @@ ln -s resolver.5.bz2 %{buildroot}%{_mandir}/man5/resolv.5.bz2
     install -m0644 %{SOURCE4} %{buildroot}%{_sysconfdir}/sysconfig/named
 
     mkdir -p %{buildroot}%{_srvdir}/named/log
-    mkdir -p %{buildroot}%{_srvlogdir}/named
     install -m 0740 %{SOURCE12} %{buildroot}%{_srvdir}/named/run
     install -m 0640 %{SOURCE13} %{buildroot}%{_srvdir}/named/finish
     install -m 0740 %{SOURCE14} %{buildroot}%{_srvdir}/named/log/run
@@ -193,13 +194,18 @@ pushd doc
 popd
 
 mkdir -p doc/html
-cp -f `find . -type f |grep html |sed -e 's#\/%{name}-%{their_version}##'|grep -v contrib` ${RPM_BUILD_DIR}/%{name}-%{their_version}/doc/html 
+cp -f `find . -type f |grep html |sed -e 's#\/%{name}-%{version}##'|grep -v contrib` %{_builddir}/%{name}-%{version}/doc/html 
+
+%multiarch_binaries %{buildroot}%{_bindir}/isc-config.sh
 
 %if %{build_daemon}
 %pre
 %_pre_useradd named /var/named /bin/false 80
 
 %post
+if [ -d /var/log/supervise/named -a ! -d /var/log/service/named ]; then
+    mv /var/log/supervise/named /var/log/service/
+fi
 %_post_srv named
 
 echo "You can use the sample named.conf file from the %{_docdir}/%{name}-%{version} directory"
@@ -208,15 +214,6 @@ if [ -e %{_sysconfdir}/rndc.conf.rpmnew ]; then
     /usr/sbin/new_key.pl
 fi
 
-if [ -e %{_sysconfdir}/named.conf ]; then
-    /usr/sbin/update_bind.pl
-fi
-
-if [ -f %{_sysconfdir}/named.boot -a ! -f %{_sysconfdir}/named.conf ]; then
-    if [ -x /usr/sbin/named-bootconf ]; then
-        cat %{_sysconfdir}/named.boot | /usr/sbin/named-bootconf > %{_sysconfdir}/named.conf
-    fi
-fi
 
 %preun
 %_preun_srv named
@@ -243,10 +240,9 @@ fi
 %config(noreplace) %attr(0600,named,named) %{_sysconfdir}/rndc.key
 %dir %attr(0750,root,admin) %{_srvdir}/named
 %dir %attr(0750,root,admin) %{_srvdir}/named/log
-%attr(0740,root,admin) %{_srvdir}/named/run
-%attr(0640,root,admin) %{_srvdir}/named/finish
-%attr(0740,root,admin) %{_srvdir}/named/log/run
-%dir %attr(0750,logger,logger) %{_srvlogdir}/named
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/named/run
+%config(noreplace) %attr(0640,root,admin) %{_srvdir}/named/finish
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/named/log/run
 %attr(0755,root,root) %{_sbindir}/*
 %{_mandir}/man3/lwres*.3*
 %{_mandir}/man5/named.conf.5*
@@ -258,13 +254,15 @@ fi
 %{_mandir}/man8/lwresd.8*
 %{_mandir}/man8/named-*.8*
 %attr(-,named,named) %dir /var/named
-%attr(-,named,named) %config %{_var}/named/named.ca
+%attr(-,named,named) %config(noreplace) %{_var}/named/named.ca
 %attr(-,named,named) %dir /var/run/named
 %endif
 
 %files devel
 %defattr(-,root,root)
 %doc CHANGES README
+%multiarch %{multiarch_bindir}/isc-config.sh
+%attr(0755,root,root) %{_bindir}/isc-config.sh
 %{_includedir}/*
 %{_libdir}/*.a
 
@@ -281,6 +279,13 @@ fi
 
 
 %changelog
+* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 9.3.1-1avx
+- 9.3.1
+- use execlineb for run scripts
+- move logdir to /var/log/service/sshd
+- run scripts are now considered config files and are not replaceable
+- P6, P7: from fedora
+
 * Mon Aug 29 2005 Vincent Danen <vdanen@annvix.org> 9.3.0-8avx
 - fix perms on run scripts
 - make the finish script mode 640 so it's not executed; need to evaluate
