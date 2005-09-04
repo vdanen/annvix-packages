@@ -1,20 +1,20 @@
---- ppp-2.4.2/chat/chat.8.dontwriteetc	2002-09-07 12:37:49.000000000 +0200
-+++ ppp-2.4.2/chat/chat.8	2004-05-07 10:45:30.000000000 +0200
+--- ppp-2.4.3/chat/chat.8.dontwriteetc	2004-11-13 13:22:49.000000000 +0100
++++ ppp-2.4.3/chat/chat.8	2005-04-22 17:43:07.797577279 +0200
 @@ -200,7 +200,7 @@
  at the terminal via standard error.  If \fBchat\fR is being run by
  pppd, and pppd is running as a daemon (detached from its controlling
  terminal), standard error will normally be redirected to the file
--/etc/ppp/connect-errors.
-+/var/log/ppp/connect-errors.
+-/etc/ppp/connect\-errors.
++/var/log/ppp/connect\-errors.
  .LP
  \fBSAY\fR strings must be enclosed in single or double quotes. If
  carriage return and line feed are needed in the string to be output,
---- ppp-2.4.2/linux/Makefile.top.dontwriteetc	2002-09-07 12:37:49.000000000 +0200
-+++ ppp-2.4.2/linux/Makefile.top	2004-05-07 10:44:40.000000000 +0200
+--- ppp-2.4.3/linux/Makefile.top.dontwriteetc	2004-10-31 23:25:16.000000000 +0100
++++ ppp-2.4.3/linux/Makefile.top	2005-04-22 17:44:35.637109389 +0200
 @@ -5,6 +5,8 @@
- INCDIR = $(DESTDIR)/usr/include
- MANDIR = $(DESTDIR)/usr/man
- ETCDIR = $(DESTDIR)/etc/ppp
+ INCDIR = $(DESTDIR)/include
+ MANDIR = $(DESTDIR)/share/man
+ ETCDIR = @SYSCONF@/ppp
 +RUNDIR = $(DESTDIR)/var/run/ppp
 +LOGDIR = $(DESTDIR)/var/log/ppp
  
@@ -24,11 +24,11 @@
  	cd pppstats; $(MAKE) $(MFLAGS) all
  	cd pppdump; $(MAKE) $(MFLAGS) all
  
--install: $(BINDIR) $(MANDIR)/man8 install-progs install-etcppp install-devel
-+install: $(BINDIR) $(RUNDIR) $(LOGDIR) $(MANDIR)/man8 install-progs install-etcppp install-devel
+-install: $(BINDIR) $(MANDIR)/man8 install-progs install-devel
++install: $(BINDIR) $(RUNDIR) $(LOGDIR) $(MANDIR)/man8 install-progs install-devel
  
  install-progs:
- 	cd chat; $(MAKE) BINDIR=$(BINDIR) MANDIR=$(MANDIR) $(MFLAGS) install
+ 	cd chat; $(MAKE) $(MFLAGS) install
 @@ -44,6 +46,10 @@
  	$(INSTALL) -d -m 755 $@
  $(ETCDIR):
@@ -40,8 +40,8 @@
  
  clean:
  	rm -f `find . -name '*.[oas]' -print`
---- ppp-2.4.2/pppd/pathnames.h.dontwriteetc	2004-05-07 10:29:29.000000000 +0200
-+++ ppp-2.4.2/pppd/pathnames.h	2004-05-07 11:40:08.000000000 +0200
+--- ppp-2.4.3/pppd/pathnames.h.dontwriteetc	2004-11-13 13:02:22.000000000 +0100
++++ ppp-2.4.3/pppd/pathnames.h	2005-04-22 17:42:08.480543486 +0200
 @@ -27,9 +27,9 @@
  #define _PATH_AUTHUP	 _ROOT_PATH "/etc/ppp/auth-up"
  #define _PATH_AUTHDOWN	 _ROOT_PATH "/etc/ppp/auth-down"

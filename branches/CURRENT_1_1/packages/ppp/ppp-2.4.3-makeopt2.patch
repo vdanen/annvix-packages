@@ -1,0 +1,21 @@
+--- ppp-2.4.3/pppd/plugins/dhcp/Makefile.linux.opt2	2005-08-27 22:59:13.000000000 +0200
++++ ppp-2.4.3/pppd/plugins/dhcp/Makefile.linux	2005-08-27 22:59:13.000000000 +0200
+@@ -1,6 +1,6 @@
+ 
+ PLUGIN=dhcpc.so
+-CFLAGS=-I../.. -I../../../include -O2
++CFLAGS=-I../.. -I../../../include -Wall $(RPM_OPT_FLAGS)
+ 
+ SRCS = dhcpc.c clientpacket.c packet.c socket.c options.c
+ OBJS = $(SRCS:%.c=%.lo)
+--- ppp-2.4.3/pppd/plugins/radius/Makefile.linux.opt2	2005-08-27 23:00:14.000000000 +0200
++++ ppp-2.4.3/pppd/plugins/radius/Makefile.linux	2005-08-27 23:00:14.000000000 +0200
+@@ -12,7 +12,7 @@
+ INSTALL	= install
+ 
+ PLUGIN=radius.so radattr.so radrealms.so
+-CFLAGS=-I. -I../.. -I../../../include -O2 -fPIC -DRC_LOG_FACILITY=LOG_DAEMON
++CFLAGS=-I. -I../.. -I../../../include -Wall $(RPM_OPT_FLAGS) -fPIC -DRC_LOG_FACILITY=LOG_DAEMON
+ 
+ # Uncomment the next line to include support for Microsoft's
+ # MS-CHAP authentication protocol.

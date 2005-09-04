@@ -1,30 +1,28 @@
-diff -uNr ppp-2.4.1-old/pppd/Makefile.linux ppp-2.4.1/pppd/Makefile.linux
---- ppp-2.4.1-old/pppd/Makefile.linux	Sat Nov  2 15:01:51 2002
-+++ ppp-2.4.1/pppd/Makefile.linux	Sat Nov  2 10:44:30 2002
-@@ -71,6 +71,8 @@
- # doesn't yet.
- FILTER=y
+--- ppp-2.4.3/pppd/Makefile.linux.noext	2005-04-22 17:20:18.690280797 +0200
++++ ppp-2.4.3/pppd/Makefile.linux	2005-04-22 17:20:18.705281060 +0200
+@@ -60,6 +60,8 @@
+ # Linux distributions: Please leave TDB ENABLED in your builds.
+ USE_TDB=y
  
 +NOEXT_TRAFFIC=y
 +
  HAS_SHADOW=y
  USE_PAM=y
  #HAVE_INET6=y
-@@ -101,6 +103,10 @@
- ifdef MPPE
- CFLAGS   += -DMPPE=1
+@@ -94,6 +96,10 @@
  endif
-+endif
-+
-+ifdef NOEXT_TRAFFIC
-+CFLAGS += -DNOEXT_TRAFFIC
  endif
  
- ifdef HAS_SHADOW
-diff -uNr ppp-2.4.1-old/pppd/auth.c ppp-2.4.1/pppd/auth.c
---- ppp-2.4.1-old/pppd/auth.c	Sat Nov  2 15:01:51 2002
-+++ ppp-2.4.1/pppd/auth.c	Sat Nov  2 14:58:38 2002
-@@ -183,6 +183,11 @@
++ifdef NOEXT_TRAFFIC
++CFLAGS += -DNOEXT_TRAFFIC
++endif
++
+ # EAP SRP-SHA1
+ ifdef USE_SRP
+ CFLAGS	+= -DUSE_SRP -DOPENSSL -I/usr/local/ssl/include
+--- ppp-2.4.3/pppd/auth.c.noext	2004-11-12 11:30:51.000000000 +0100
++++ ppp-2.4.3/pppd/auth.c	2005-04-22 17:20:18.707281095 +0200
+@@ -242,6 +242,11 @@
  
  extern char *crypt __P((const char *, const char *));
  
@@ -35,8 +33,8 @@ diff -uNr ppp-2.4.1-old/pppd/auth.c ppp-2.4.1/pppd/auth.c
 +
  /* Prototypes for procedures local to this file. */
  
- void network_phase __P((int));
-@@ -798,6 +803,14 @@
+ static void network_phase __P((int));
+@@ -1158,6 +1163,14 @@
  	tlim = idle_time_hook(&idle);
      } else {
  	itime = MIN(idle.xmit_idle, idle.recv_idle);
@@ -51,33 +49,32 @@ diff -uNr ppp-2.4.1-old/pppd/auth.c ppp-2.4.1/pppd/auth.c
  	tlim = idle_time_limit - itime;
      }
      if (tlim <= 0) {
-diff -uNr ppp-2.4.1-old/pppd/options.c ppp-2.4.1/pppd/options.c
---- ppp-2.4.1-old/pppd/options.c	Tue Mar 13 06:56:19 2001
-+++ ppp-2.4.1/pppd/options.c	Sat Nov  2 15:00:10 2002
-@@ -85,6 +85,9 @@
- bool	dump_options;		/* print out option values */
- bool	dryrun;			/* print out option values and exit */
- char	*domain;		/* domain name set by domain option */
+--- ppp-2.4.3/pppd/options.c.noext	2004-11-09 23:33:35.000000000 +0100
++++ ppp-2.4.3/pppd/options.c	2005-04-22 17:22:16.197351975 +0200
+@@ -122,6 +122,10 @@
+ #endif
+ 
+ 
 +#ifdef NOEXT_TRAFFIC
 +int noexttraffic = 0; /* decide whether or not we want to care for traffic from extern */
 +#endif
- 
++
  extern option_t auth_options[];
  extern struct stat devstat;
-@@ -260,6 +263,9 @@
  
+@@ -302,6 +306,9 @@
      { "active-filter", 1, setactivefilter,
        "set filter for active pkts", OPT_PRIO },
-+#endif
+ #endif
 +#ifdef NOEXT_TRAFFIC
 +    { "noext-traffic", o_bool, (void *)&noexttraffic, "ignore external pkts for timeout", 1 },
- #endif
++#endif
  
-     { NULL }
-diff -uNr ppp-2.4.1-old/pppd/pppd.8 ppp-2.4.1/pppd/pppd.8
---- ppp-2.4.1-old/pppd/pppd.8	Sat Nov  2 15:01:51 2002
-+++ ppp-2.4.1/pppd/pppd.8	Sat Nov  2 14:51:00 2002
-@@ -263,6 +263,20 @@
+ #ifdef MAXOCTETS
+     { "maxoctets", o_int, &maxoctets,
+--- ppp-2.4.3/pppd/pppd.8.noext	2004-11-13 13:22:49.000000000 +0100
++++ ppp-2.4.3/pppd/pppd.8	2005-04-22 17:26:08.705494299 +0200
+@@ -290,6 +290,20 @@
  \fIdebug\fR.  This information can be directed to a file by setting up
  /etc/syslog.conf appropriately (see syslog.conf(5)).
  .TP
@@ -95,6 +92,6 @@ diff -uNr ppp-2.4.1-old/pppd/pppd.8 ppp-2.4.1/pppd/pppd.8
 +web browser, then denying ingress with the "reject" parameter probably
 +won't be a viable option.
 +.
- .B default-asyncmap
+ .B default\-asyncmap
  Disable asyncmap negotiation, forcing all control characters to be
  escaped for both the transmit and the receive direction.

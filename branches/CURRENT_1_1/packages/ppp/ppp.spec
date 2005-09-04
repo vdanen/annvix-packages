@@ -8,8 +8,8 @@
 
 
 %define name		ppp
-%define version		2.4.2
-%define release		4avx
+%define version		2.4.3
+%define release		1avx
 
 Summary:	The Linux PPP daemon
 Name:		%{name}
@@ -23,19 +23,29 @@ Source1:	ppp-2.3.5-pamd.conf
 Source2:	ppp-2.4.1-mppe-crypto.tar.bz2
 Source3:	README.pppoatm
 Source4:	ppp.logrotate
-Patch0:		ppp-2.4.2-make.patch.bz2
+Source5:	ppp-dhcpc.tar.bz2
+Patch0:		ppp-2.4.3-make.patch.bz2
 Patch1:		ppp-2.3.6-sample.patch.bz2
 Patch2:		ppp-2.4.2-wtmp.patch.bz2
-Patch3:		ppp-2.4.2-makeopt.patch.bz2
+Patch3:		ppp-2.4.3-makeopt.patch.bz2
 Patch4:		ppp-options.patch.bz2
-Patch5:		ppp-2.4.2-pppdump-Makefile.patch.bz2
-Patch6:		ppp-2.4.1-noexttraffic.patch.bz2
-Patch7:		ppp-2.4.1-pcap.patch.bz2
-#PPPoATM support
-#Patch8:		http://www.sfgoth.com/~mitch/linux/atm/pppoatm/ppp-2.4.1-pppoatm.patch.bz2
-Patch8:		http://linux-usb.sourceforge.net/SpeedTouch/download/pppoatm.diff
-Patch9:		ppp-2.4.2-pie.patch.bz2
-Patch10:	ppp-2.4.2-dontwriteetc.patch.bz2
+Patch5:		ppp-2.4.3-pppdump-Makefile.patch.bz2
+Patch6:		ppp-2.4.3-noexttraffic.patch.bz2
+# (blino) use external libatm for pppoatm plugin
+Patch7:		ppp-2.4.3-libatm.patch.bz2
+Patch8: 	ppp-2.4.2-pie.patch.bz2
+# (blino) from CVS, should fix persist option with pppoe
+Patch9: 	ppp-2.4.3-lcp_close.patch.bz2
+Patch10:	ppp-2.4.3-dontwriteetc.patch.bz2
+Patch11:	http://www.polbox.com/h/hs001/ppp-2.4.3-mppe-mppc-1.1.patch.bz2
+Patch13:	ppp-2.4.2-signal.patch.bz2
+Patch15:	ppp-2.4.3-pic.patch.bz2
+Patch16:	ppp-2.4.3-etcppp.patch.bz2
+Patch17:	ppp-2.4.3-passargv.patch.bz2
+Patch18:	ppp-2.4.3-includes-sha1.patch.bz2
+Patch19:	ppp-2.4.3-makeopt2.patch.bz2
+Patch21:	ppp-2.4.3-fixprotoinc.patch.bz2
+Patch22:	ppp-2.4.3-hspeed.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	liblinux-atm-devel
@@ -54,7 +64,7 @@ method for transmitting datagrams over serial point-to-point links.
 %package devel
 Summary:	PPP development files
 Group:		Development/C
-Requires:	%{name} = %{version}-%{release}
+Requires:	%{name} = %{version}
 
 %description devel
 The development files for PPP.
@@ -63,7 +73,7 @@ The development files for PPP.
 %package pppoatm
 Summary:	PPP over ATM plugin for %{name}
 Group:		System/Servers
-Requires:	%{name} = %{version}-%{release}
+Requires:	%{name} = %{version}
 
 %description pppoatm
 PPP over ATM plugin for %{name}.
@@ -72,15 +82,34 @@ PPP over ATM plugin for %{name}.
 %package pppoe
 Summary:	PPP over ethernet plugin for %{name}
 Group:		System/Servers
-Requires:	%{name} = %{version}-%{release}
+Requires:	%{name} = %{version}
 
 %description pppoe
 PPP over ethernet plugin for %{name}.
 
 
+%package	radius
+Summary:	Radius plugin for %{name}
+Group:		System/Servers
+Requires:	%{name} = %{version}
+Requires:	radiusclient-utils
+
+%description	radius
+Radius plugin for %{name}.
+
+
+%package	dhcp
+Summary:	DHCP plugin for %{name}
+Group:		System/Servers
+Requires:	%{name} = %{version}
+
+%description	dhcp
+DHCP plugin for %{name}.
+
+
 %prep
 %setup  -q
-%patch10 -p1 -b .dontwriteetc
+find -type d -name CVS|xargs rm -rf
 %patch0 -p1 -b .make
 %patch1 -p1 -b .sample
 %patch2 -p1 -b .wtmp
@@ -89,20 +118,43 @@ PPP over ethernet plugin for %{name}.
 %patch5 -p1 -b .pppdump-Makefile
 # (gg) add noext-traffic option
 %patch6 -p1 -b .noext
-# use pcap-bpf.h instead of net/bpf.h
-%patch7 -p1 -b .pcap
-%patch8 -p1 -b .pppoatm
-%patch9 -p1 -b .pie
+%patch7 -p1 -b .libatm
+%patch8 -p1 -b .pie
+%patch9 -p1 -b .lcp_close
 
 tar -xjf %{SOURCE2}
+pushd pppd/plugins
+    tar -xjf %{SOURCE5}
+popd
 
-# patch 2 depends on the -lutil in patch 0
-find . -type f -name "*.sample" | xargs rm -f 
+%patch10 -p1 -b .dontwriteetc
+%patch11 -p1 -b .mppe_mppc
+#%patch13 -p1 -b .signal
+%patch15 -p1 -b .pic
+%patch16 -p1 -b .etcppp
+%patch17 -p1 -b .passargv
+%patch18 -p1 -b .incsha1
+%patch19 -p1 -b .makeopt2
+%patch21 -p1 -b .protoinc
+%patch22 -p1 -b .hspeed
+
+# lib64 fixes
+perl -pi -e "s|^(LIBDIR.*)/usr/lib|\1%{_libdir}|g" pppd/Makefile.linux pppd/plugins/Makefile.linux
+perl -pi -e "s|(--prefix=/usr)|\1 --libdir=%{_libdir}|g" pppd/plugins/radius/Makefile.linux
+perl -pi -e "/_PATH_PLUGIN/ and s|/usr/lib|%{_libdir}|"  pppd/pathnames.h
+# enable the radius and the dhcp plugins
+perl -p -i -e "s|# SUBDIRS \+= radius|SUBDIRS += radius dhcp|g" pppd/plugins/Makefile.linux
+
+# fix /usr/local in scripts path
+perl -pi -e "s|/usr/local/bin/pppd|%{_sbindir}/pppd|g;
+	     s|/usr/local/bin/ssh|%{_bindir}/ssh|g;
+	     s|/usr/local/bin/expect|%{_bindir}/expect|g" \
+    scripts/ppp-on-rsh \
+    scripts/ppp-on-ssh \
+    scripts/secure-card
 
 
 %build
-# lib64 fixes
-perl -pi -e "s|^(LIBDIR.*)/usr/lib|\1%{_libdir}|g" pppd/Makefile.linux pppd/plugins/Makefile.linux
 # stpcpy() is a GNU extension
 OPT_FLAGS="%{optflags} -D_GNU_SOURCE"
 
@@ -111,11 +163,7 @@ perl -pi -e "s/openssl/openssl -DOPENSSL_NO_SHA1/;" openssl/crypto/sha/Makefile
 CFLAGS="$OPT_FLAGS" CXXFLAGS="$OPT_FLAGS" %configure
 # remove the following line when rebuilding against kernel 2.4 for multilink
 #perl -pi -e "s|-DHAVE_MULTILINK||" pppd/Makefile
-%ifarch amd64 x86_64
-make RPM_OPT_FLAGS="$OPT_FLAGS -DDO_BSD_COMPRESS=0 -fPIC"
-%else
-make RPM_OPT_FLAGS="$OPT_FLAGS -DDO_BSD_COMPRESS=0"
-%endif
+make RPM_OPT_FLAGS="$OPT_FLAGS -DDO_BSD_COMPRESS=0" LIBDIR=%{_libdir}
 make -C pppd/plugins -f Makefile.linux
 
 
@@ -125,12 +173,18 @@ mkdir -p %{buildroot}/{%{_sbindir},%{_mandir}/man8,%{_sysconfdir}/{ppp/peers,pam
 
 %makeinstall_std \
     BINDIR=%{buildroot}%{_sbindir} \
-    MANDIR=%{buildroot}%{_mandir} \
+    MANDIR=%{buildroot}%{_mandir}/man8 \
     ETCDIR=%{buildroot}%{_sysconfdir}/ppp \
     LIBDIR=%{buildroot}%{_libdir}/pppd/%{version} \
+    INCDIR=%{buildroot}%{_includedir} \
+    RUNDIR=%{buildroot}/var/run/ppp \
+    LOGDIR=%{buildroot}/var/log/ppp \
     INSTALL="%{_bindir}/install"
 
-# (florin) strip the binary
+%multiarch_includes %{buildroot}%{_includedir}/pppd/pathnames.h
+
+chmod u+w %{buildroot}%{_sbindir}/*
+
 strip %{buildroot}%{_sbindir}/pppd
 
 # it shouldn't be SUID root be default
@@ -140,14 +194,23 @@ chmod go+r scripts/*
 install -m 0644 %{SOURCE1} %{buildroot}%{_sysconfdir}/pam.d/ppp
 install -m 0644 %{SOURCE3} %{_builddir}/%{name}-%{version}
 
-# (stew) fix permissions
-chmod 0644 README.MSCHAP80
+mkdir -p %{buildroot}/var/log/ppp
+mkdir -p %{buildroot}/var/run/ppp
+touch %{buildroot}/var/log/ppp/connect-errors
+touch %{buildroot}/var/run/ppp/resolv.conf
 
-#mknod %{buildroot}/dev/ppp c 108 0
+ln -s ../../var/log/ppp/connect-errors %{buildroot}/etc/ppp/connect-errors
+ln -s ../../var/run/ppp/resolv.conf %{buildroot}/etc/ppp/resolv.conf
+
 
 # logrotate
 mkdir -p %{buildroot}%{_sysconfdir}/logrotate.d
 install -m 0644 %{SOURCE4} %{buildroot}%{_sysconfdir}/logrotate.d/ppp
+
+rm -rf %{buildroot}%{_sbindir}/*rad*
+rm -rf %{buildroot}%{_sysconfdir}/*rad*
+rm -rf %{buildroot}%{_includedir}/*rad*
+rm -rf %{buildroot}%{_libdir}/*rad*
 
 
 %clean
@@ -165,18 +228,27 @@ install -m 0644 %{SOURCE4} %{buildroot}%{_sysconfdir}/logrotate.d/ppp
 %{_libdir}/pppd/%{version}
 %exclude %{_libdir}/pppd/%{version}/pppoatm.so
 %exclude %{_libdir}/pppd/%{version}/rp-pppoe.so
+%exclude %{_libdir}/pppd/%{version}/rad*
+%exclude %{_libdir}/pppd/%{version}/dhcpc.so
 %dir /var/run/ppp
+/var/run/ppp/*
 %attr(0700,root,root) %dir /var/log/ppp
-%{_mandir}/man*/*
+/var/log/ppp/*
 %dir %{_sysconfdir}/ppp
-%dir %{_sysconfdir}/ppp/peers
-%attr(0600,root,daemon)	%config(noreplace) %{_sysconfdir}/ppp/*
+%attr(0600,root,daemon) %config(noreplace) %{_sysconfdir}/ppp/chap-secrets
+%attr(0600,root,daemon) %config(noreplace) %{_sysconfdir}/ppp/options
+%attr(0600,root,daemon) %config(noreplace) %{_sysconfdir}/ppp/pap-secrets
+%attr(0600,root,daemon) %{_sysconfdir}/ppp/connect-errors
+%attr(0600,root,daemon) %{_sysconfdir}/ppp/resolv.conf
+%attr(755,root,daemon) %dir %{_sysconfdir}/ppp/peers
+%{_mandir}/man*/*
 %config(noreplace) %{_sysconfdir}/pam.d/ppp
 %config(noreplace) %{_sysconfdir}/logrotate.d/ppp
 
 %files devel
 %defattr(-,root,root)
 %{_includedir}/pppd/*
+%multiarch %{multiarch_includedir}/pppd/pathnames.h
 
 %files pppoatm
 %defattr(-,root,root)
@@ -185,9 +257,28 @@ install -m 0644 %{SOURCE4} %{buildroot}%{_sysconfdir}/logrotate.d/ppp
 %files pppoe
 %defattr(-,root,root)
 %{_libdir}/pppd/%{version}/rp-pppoe.so
+%attr(755,root,root) %{_sbindir}/pppoe-discovery
+
+%files radius
+%defattr(-,root,root)
+%doc README
+%{_libdir}/pppd/%{version}/rad*.so
+%{_mandir}/man8/*rad*
+
+%files dhcp
+%defattr(-,root,root)
+%doc pppd/plugins/dhcp/README 
+%doc pppd/plugins/dhcp/AUTHORS
+%doc pppd/plugins/dhcp/COPYING
+%{_libdir}/pppd/%{version}/dhcpc.so
+
 
 
 %changelog
+* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 2.4.3-1avx
+- 2.4.3
+- sync with cooker 2.4.3-9mdk: (way too much crap to note)
+
 * Wed Aug 17 2005 Vincent Danen <vdanen@annvix.org> 2.4.2-4avx
 - bootstrap build (new gcc, new glibc)
 - get rid of the symlinks in /etc/ppp for connect-errors and resolv.conf;
@@ -206,7 +297,7 @@ install -m 0644 %{SOURCE4} %{buildroot}%{_sysconfdir}/logrotate.d/ppp
 - strip suid bit from pppd; we don't need it since users shouldn't
   be connecting to the internet on a server system
 - pass -fPIC if compiling on x86_64
-- merge with cooker 2.4.2-2mdk (florin):
+- merge with cooker 2.4Ã.2-2mdk (florin):
   - update the make, makeopt, wtmp patches
   - remove the pam_sessions, zfree, mppe, includes, libdir, filter
     pppoe, disconnect, gcc, pcap, varargs obsolete patches
@@ -226,7 +317,7 @@ install -m 0644 %{SOURCE4} %{buildroot}%{_sysconfdir}/logrotate.d/ppp
 * Fri Jan 23 2004 Vincent Danen <vdanen@opensls.org> 2.4.1-13sls
 - OpenSLS build
 - tidy spec
-
+ƒ
 * Wed Aug 13 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 2.4.1-12mdk
 - Patch15: Fix varargs on amd64
 
@@ -246,7 +337,7 @@ install -m 0644 %{SOURCE4} %{buildroot}%{_sysconfdir}/logrotate.d/ppp
   BuildRequires liblinux-atm-devel
 
 * Sat Nov 02 2002 Giuseppe Ghibò <ghibo@mandrakesoft.com> 2.4.1-8mdk
-- added Dieter Jurzitza's patch to add noext-traffic feature.
+-Â added Dieter Jurzitza's patch to add noext-traffic feature.
 
 * Thu Oct 31 2002 Giuseppe Ghibò <ghibo@mandrakesoft.com> 2.4.1-7mdk
 - Activate filter capabilities.
@@ -266,7 +357,10 @@ install -m 0644 %{SOURCE4} %{buildroot}%{_sysconfdir}/logrotate.d/ppp
 - rebuild
 
 * Thu Jul 19 2001 Stefan van der Eijk <stefan@eijk.nu> 2.4.1-2mdk
-- BuildRequires:	pam-devel
+- ˜yvind Karlsen <peroyvind@linux-mandrake.com> 2.4.3-2mdk
++- fix patchlevel (P16), pppd reported versions as 2.4.2 and not 2.4.3
++
++* Mon Jan 17 2005 Per BuildRequires:	pam-devel
 
 * Sun Apr 07 2001 Geoffrey Lee <snailtalk@mandrakesoft.com> 2.4.1-1mdk
 - Version 2.4.1.
@@ -286,7 +380,7 @@ install -m 0644 %{SOURCE4} %{buildroot}%{_sysconfdir}/logrotate.d/ppp
 - new and shiny version
 - rebuild for new url
 
-* Wed Jul 26 2000 Francis Galiegue <fg@mandrakesoft.com> 2.3.11-9mdk
+* Wed Jul 26 2000 FrancÃis Galiegue <fg@mandrakesoft.com> 2.3.11-9mdk
 
 - /dev/ppp is now in dev package
 - some %files list cleanup
@@ -306,7 +400,7 @@ install -m 0644 %{SOURCE4} %{buildroot}%{_sysconfdir}/logrotate.d/ppp
 * Sat Apr 08 2000 John Buswell <johnb@mandrakesoft.com> 2.3.11-5mdk
 - Fixed perms on /etc/ppp/peers
 
-* Thu Mar 30 2000 John Buswell <johnb@mandrakesoft.com> 2.3.11-4mdk
+* Thu Mar 30 2000 John Bƒuswell <johnb@mandrakesoft.com> 2.3.11-4mdk
 - Fixed groups
 - spec-helper
 
@@ -326,7 +420,7 @@ install -m 0644 %{SOURCE4} %{buildroot}%{_sysconfdir}/logrotate.d/ppp
 - fix for double-dial problem(r).
 - fix for requiring a controlling terminal problem(r).
 
-* Wed Nov 10 1999 Chmouel Boudjnah <chmouel@mandrakesoft.com>
+* Wed Nov 10 1999 ChmouelÂ Boudjnah <chmouel@mandrakesoft.com>
 - Create /etc/ppp/peers.
 
 * Thu Nov 04 1999 John Buswell <johnb@mandrakesoft.com>
