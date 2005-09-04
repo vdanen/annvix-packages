@@ -8,16 +8,12 @@
 
 
 %define name		exim
-%define version 	4.50
-%define release 	4avx
+%define version 	4.52
+%define release 	1avx
 
 %define build_mysql 	0
 %define build_pgsql 	0
-%define saversion   	4.1
-
-%define alternatives 	1
-%define altpriority  	40
-%define alternatives_install_cmd update-alternatives --install %{_sbindir}/sendmail mta %{_sbindir}/sendmail.exim %{altpriority} --slave %{_libdir}/sendmail mta-in_libdir %{_sbindir}/sendmail.exim --slave %{_bindir}/mailq mta-mailq %{_bindir}/mailq.exim --slave %{_bindir}/newaliases mta-newaliases %{_bindir}/newaliases.exim --slave %{_bindir}/rmail mta-rmail %{_bindir}/rmail.exim --slave %{_sysconfdir}/aliases mta-etc_aliases %{_sysconfdir}/exim/aliases
+%define saversion   	4.2
 
 # commandline overrides:
 # rpm -ba|--rebuild --define 'with_xxx'
@@ -47,7 +43,7 @@ Source13:	exim.run
 Source14:	exim-log.run
 Patch0:		exim-4.50-avx-config.patch.bz2
 Patch2:		exim-4.22-install.patch.bz2
-Patch3:		exim-4.43-debian-system_pcre.diff.bz2
+Patch3:		exim-4.52-avx-system_pcre.patch.bz2
 Patch4:		exim-4.43-debian-dontoverridecflags.diff.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -61,11 +57,7 @@ BuildRequires:	postgresql-devel
 %endif
 
 PreReq:		rpm-helper
-%if %{alternatives}
-PreReq:		rpm
-%else
 Obsoletes:	sendmail postfix qmail smail
-%endif
 Requires:	chkconfig, initscripts, sh-utils, openssl, pam
 Requires:	openldap >= 2.0.11
 %ifarch amd64 x86_64
@@ -159,16 +151,21 @@ install -m 0644 %{SOURCE1} %{buildroot}%{_sysconfdir}/exim/aliases
 install -m 0644 %{SOURCE9} %{buildroot}%{_sysconfdir}/pam.d/exim
 
 pushd %{buildroot}%{_sbindir}/
-    ln -sf ../bin/exim sendmail.exim
+    ln -sf ../bin/exim sendmail
     ln -sf ../bin/exim exim
+popd
+
+mkdir -p %{buildroot}/usr/lib
+pushd %{buildroot}/usr/lib
+    ln -sf ../bin/exim sendmail
 popd
 
 pushd %{buildroot}%{_bindir}/
     ln -sf exim runq
     ln -sf exim rsmtp
-    ln -sf exim mailq.exim
-    ln -sf exim rmail.exim
-    ln -sf exim newaliases.exim
+    ln -sf exim mailq
+    ln -sf exim rmail
+    ln -sf exim newaliases
 popd
 
 install -d -m 0750 %{buildroot}/var/spool/exim
@@ -183,7 +180,7 @@ install -m 0755 %{SOURCE4} %{buildroot}%{_sysconfdir}/cron.weekly/exim.logrotate
 install -m 0644 %{SOURCE5} %{buildroot}%{_mandir}/man8/exim.8
 install -m 0755 %{SOURCE8} %{buildroot}%{_sbindir}
 
-mkdir -p %{buildroot}{%{_srvdir}/exim/log,%{_srvlogdir}/exim}
+mkdir -p %{buildroot}%{_srvdir}/exim/log
 install -m 0740 %{SOURCE13} %{buildroot}%{_srvdir}/exim/run
 install -m 0740 %{SOURCE14} %{buildroot}%{_srvdir}/exim/log/run
 
@@ -203,41 +200,27 @@ popd
 
 
 %post
+if [ -d /var/log/supervise/exim -a ! -d /var/log/service/exim ]; then
+    mv /var/log/supervise/exim /var/log/service/
+fi
 %_post_srv exim
-%if %{alternatives}
-%{alternatives_install_cmd}
-%endif
 
 # scrub hints files - db files change format between builds so
 # killing the hints can save an MTA crash later
 [ -d /var/spool/exim/db ] && rm -f /var/spool/exim/db/*
-
-# alternatives changes the mode of /usr/bin/exim so we have to chmod
-chmod 4755 %{_bindir}/exim
 
 if [ $1 = 1 ]; then
     echo "Run %{_sbindir}/eximconfig to interactively configure exim"
 fi
 
 
-# necessary when we upgrade from a non-alternatives package
-%triggerpostun -- exim
-%if %{alternatives}
-[ -e %{_sbindir}/sendmail.exim ] && %{alternatives_install_cmd} || :
-%endif
-
 %preun
 %_preun_srv exim
-%if %{alternatives}
-if [ $1 = 0 ]; then
-    update-alternatives --remove mta %{_sbindir}/sendmail.exim
-fi
-%endif
 
 
 %files
 %defattr(755,root,root)
-%doc doc/ChangeLog LICENCE NOTICE README.UPDATING README
+%doc doc/ChangeLog doc/NewStuff LICENCE NOTICE README.UPDATING README
 %doc doc util/unknownuser.sh build-Linux-*/transport-filter.pl
 %doc util/cramtest.pl util/logargs.sh
 %doc doc/NewStuff doc/Exim4.upgrade doc/*.txt doc/README.SIEVE
@@ -262,11 +245,11 @@ fi
 %{_sbindir}/eximconfig
 %{_bindir}/runq
 %{_bindir}/rsmtp
-# alternatives
-%{_sbindir}/sendmail.exim
-%{_bindir}/mailq.exim
-%{_bindir}/rmail.exim
-%{_bindir}/newaliases.exim
+%{_sbindir}/sendmail
+/usr/lib/sendmail
+%{_bindir}/mailq
+%{_bindir}/rmail
+%{_bindir}/newaliases
 %{_mandir}/man8/exim.8*
 
 %defattr(-,mail,mail)
@@ -287,9 +270,8 @@ fi
 %config(noreplace) %{_sysconfdir}/pam.d/exim
 %dir %attr(0750,root,admin) %{_srvdir}/exim
 %dir %attr(0750,root,admin) %{_srvdir}/exim/log
-%attr(0740,root,admin) %{_srvdir}/exim/run
-%attr(0740,root,admin) %{_srvdir}/exim/log/run
-%dir %attr(0750,logger,logger) %{_srvlogdir}/exim
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/exim/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/exim/log/run
 
 %files saexim
 %defattr(-,root,root)
@@ -301,6 +283,16 @@ fi
 
 
 %changelog
+* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 4.52-1avx
+- 4.52
+- sa-exim 4.2
+- add doc/NewStuff
+- rediff P3
+- get rid of alternatives
+- use execlineb for run scripts
+- move logdir to /var/log/service/sshd
+- run scripts are now considered config files and are not replaceable
+
 * Fri Aug 26 2005 Vincent Danen <vdanen@annvix.org> 4.50-4avx
 - fix perms on run scripts
 
