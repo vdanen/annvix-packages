@@ -9,7 +9,7 @@
 
 %define name		tcpdump
 %define version		3.9.3
-%define release		1avx
+%define release		2avx
 %define epoch		2
 
 Summary:	A network traffic monitoring tool
@@ -63,6 +63,9 @@ libtoolize --copy --force
 
 
 %changelog
+* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 3.9.3-2avx
+- rebuild against new libpcap
+
 * Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 3.9.3-1avx
 - 3.9.3
 - drop P0-P3

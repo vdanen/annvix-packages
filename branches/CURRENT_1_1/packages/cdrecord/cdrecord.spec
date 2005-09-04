@@ -9,7 +9,7 @@
 
 %define name		cdrecord
 %define version 	2.01
-%define release 	0.a38.4avx
+%define release 	0.a38.5avx
 %define epoch		4
 
 %define archname	cdrtools
@@ -165,6 +165,9 @@ mv %{buildroot}%{_prefix}/lib %{buildroot}%{_libdir}/
 
 
 %changelog
+* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 2.01-0.a38.5avx
+- rebuild against new libpcap
+
 * Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 2.01-0.a38.4avx
 - bootstrap build (new gcc, new glibc)
 
