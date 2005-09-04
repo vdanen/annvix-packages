@@ -70,9 +70,9 @@
 +# There are a lot of options you can use with samba (compare file sizes of this
 +# smb.conf to smb.conf_full for an idea).  This is a sane, basic, and secure
 +# default configuration; review smb.conf_full for more ideas and uses.
---- samba-3.0.11/packaging/Mandrake/smb.conf.avx	2004-12-15 07:12:16.000000000 -0700
-+++ samba-3.0.11/packaging/Mandrake/smb.conf	2005-02-15 15:21:29.000000000 -0700
-@@ -17,31 +17,35 @@
+--- samba-3.0.20/packaging/Mandrake/smb.conf.avx	2005-09-03 23:24:51.000000000 -0400
++++ samba-3.0.20/packaging/Mandrake/smb.conf	2005-09-03 23:27:58.000000000 -0400
+@@ -17,34 +17,38 @@
  
  # 1. Server Naming Options:
  # workgroup = NT-Domain-Name or Workgroup-Name
@@ -106,6 +106,10 @@
 +;   printcap name = lpstat
 +;   load printers = yes
  
+ # printcap cache time, so samba will automatically load new cups printers
+-   printcap cache time = 60
++;   printcap cache time = 60
+ 
  # It should not be necessary to spell out the print system type unless
  # yours is non-standard. Currently supported print systems include:
  # bsd, sysv, plp, lprng, aix, hpux, qnx, cups
@@ -114,7 +118,7 @@
  
  # Samba 2.2 supports the Windows NT-style point-and-print feature. To
  # use this, you need to be able to upload print drivers to the samba
-@@ -49,14 +53,14 @@
+@@ -52,14 +56,14 @@
  # Note that this feature uses the print$ share, so you will need to 
  # enable it below.
  # printer admin = @<group> <user>
@@ -131,7 +135,7 @@
  
  # Put a capping on the size of the log files (in Kb).
     max log size = 50
-@@ -71,7 +75,11 @@
+@@ -74,7 +78,11 @@
  # the "loopback" interface. For more examples of the syntax see
  # the smb.conf man page. Do not enable this if (tcp/ip) name resolution does
  # not work for all the hosts in your network.
@@ -144,7 +148,7 @@
  
  # Uncomment this if you want a guest account, you must add this to /etc/passwd
  # otherwise the user "nobody" is used
-@@ -254,7 +262,7 @@
+@@ -261,7 +269,7 @@
  # Samba now has runtime-configurable password database backends. Multiple
  # passdb backends may be used, but users will only be added to the first one
  # Default:
@@ -153,7 +157,7 @@
  # TDB backen with fallback to smbpasswd and guest
  # passdb backend = tdbsam smbpasswd guest
  # LDAP with fallback to smbpasswd guest
-@@ -399,23 +407,23 @@
+@@ -406,23 +414,23 @@
  # to use 'printcap name = cups' or swap the 'print command' line below 
  # with the commented one. Note that print commands only work if not using 
  # 'printing=cups'
@@ -187,7 +191,7 @@
  
  # This share is used for Windows NT-style point-and-print support.
  # To be able to install drivers, you need to be either root, or listed
-@@ -429,12 +437,12 @@
+@@ -436,12 +444,12 @@
  # and the cups driver by using the 'cupsaddsmb' tool. This requires the
  # installation of the CUPS driver (http://www.cups.org/windows.php) 
  # on the server, but doesn't require you to use Windows at all :-).
@@ -206,7 +210,7 @@
     # Settings suitable for Winbind:
     # write list = @"Domain Admins" root
     # force group = +@"Domain Admins"
-@@ -444,15 +452,15 @@
+@@ -451,15 +459,15 @@
  # on the samba server, so that clients can automatically install them.
  # Note that this only works if 'printing' is *not* set to 'cups'
  

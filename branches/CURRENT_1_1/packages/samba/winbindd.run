@@ -3,13 +3,7 @@ PATH="/sbin:/usr/sbin:/bin:/usr/bin:$PATH"
 
 # this runs winbindd supervised
 
-godown() {
-  touch down
-  runsvctrl d /service/winbindd
-  touch log/down
-  runsvctrl d /service/winbindd/log
-  exit 0
-}
+. /usr/share/srv/functions
 
 if [ "`grep -i -E '(idmap|winbind) uid' /etc/samba/smb.conf | egrep -v [\#\;]`" -a "`grep -i -E '(idmap|winbind) gid' /etc/samba/smb.conf | egrep -v [\#\;]`" ]; then
 	RUNME=1

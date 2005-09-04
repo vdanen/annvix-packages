@@ -8,11 +8,11 @@
 
 
 %define name		samba
-%define version		3.0.11
-%define release		6avx
+%define version		3.0.20
+%define release		1avx
 
-%define smbldapver	0.8.6
-%define vscanver	0.3.5
+%define smbldapver	0.8.8
+%define vscanver	0.3.6b
 %global vscandir	samba-vscan-%{vscanver}
 %global vfsdir		examples.bin/VFS
 
@@ -47,7 +47,14 @@ Patch4:         samba-3.0-smbmount-sbin.patch.bz2
 Patch5:         samba-3.0.5-mdk-lib64.patch.bz2
 Patch6:         samba-3.0.6-mdk-smbmount-unixext.patch.bz2
 Patch7:         samba-3.0.6-mdk-revert-libsmbclient-move.patch.bz2
-Patch8:         samba-3.0.11-avx-annvix-config.patch.bz2
+Patch8:         samba-3.0.20-avx-annvix-config.patch.bz2
+Patch11:	samba-3.0.20-mandrake-packaging.patch.bz2
+Patch12:	samba-3.0.14a-gcc4.diff.bz2
+Patch14:	samba-3.0.20-fix-doc-paths.patch.bz2
+# http://www.samba.org/samba/patches/groupname_enumeration_v3.patch
+Patch15:	samba-3.0.20-groupname_enumeration_v3.patch.bz2
+# http://www.samba.org/samba/patches/winbindd_v1.patch
+Patch16:	samba-3.0.20-winbindd_v1.patch.bz2
 
 BuildRoot:      %{_buildroot}/%{name}-%{version}
 BuildRequires:  pam-devel readline-devel libncurses-devel popt-devel
@@ -225,7 +232,7 @@ Clam antivirus scanner daemon.
 
 
 %package vscan-icap
-Summary:        On-access virus scanning for samba using Clam Antivirus
+Summary:        On-access virus scanning for samba using ICAP
 Group:          System/Servers
 Requires:       %{name}-server = %{version}
 Provides:       %{name}-icap
@@ -238,11 +245,17 @@ ICAP-capable antivirus software.
 %prep
 %setup -q -a 8
 %patch1 -p1 -b .smbw
-%patch2 -p1
+pushd examples/LDAP/smbldap-tools-%{smbldapver}
+%patch2 -p4
+popd
 %patch4 -p1 -b .sbin
 %patch6 -p1 -b .unixext
 %patch7 -p1 -b .libsmbdir
+%patch11 -p1 -b .mdk
 %patch8 -p1 -b .avx
+%patch14 -p1 -b .fixdocs
+%patch15 -p1
+
 
 # Make a copy of examples so that we have a clean one for doc:
 cp -a examples examples.bin
@@ -258,6 +271,9 @@ for av in clamav icap; do
 done
 #Inline edit vscan header:
 perl -pi -e 's/^# define SAMBA_VERSION_MAJOR 2/# define SAMBA_VERSION_MAJOR 3/g;s/# define SAMBA_VERSION_MINOR_2/# define SAMBA_VERSION_MINOR 0/g' %{vfsdir}/%{vscandir}/include/vscan-global.h
+# dunno why samba-vscan keeps copmatability with ancient versions
+# of samba but breaks  on samba versions with alpha chars in the name ...
+perl -pi -e 's/SAMBA_VERSION_MAJOR==2 && SAMBA_VERSION_RELEASE>=4/SAMBA_VERSION_MAJOR==2/g' %{vfsdir}/%{vscandir}/*/vscan-*.c
 
 find docs examples -name '.cvsignore' -exec rm -f {} \;
 
@@ -294,7 +310,8 @@ pushd source
 	--with-manpages-langs=en \
 	--with-acl-support      \
 	--disable-mysqltest \
-	--with-expsam=mysql,xml,pgsql
+	--with-expsam=mysql,xml,pgsql \
+        --with-shared-modules=idmap_rid,idmap_ad
 
     #Fix the make file so we don't create debug information
     perl -pi -e 's/-g //g' Makefile
@@ -302,7 +319,7 @@ pushd source
     perl -pi -e 's|-Wl,-rpath,%{_libdir}||g;s|-Wl,-rpath -Wl,%{_libdir}||g' Makefile
 
     make proto_exists
-    %make all libsmbclient smbfilter wins modules bin/smbget client/mount.cifs bin/idmap_rid.so
+    %make all libsmbclient smbfilter wins modules bin/smbget client/mount.cifs client/umount.cifs
 popd
 
 pushd %{vfsdir}/%{vscandir}  
@@ -357,8 +374,8 @@ install -m 0755 source/nsswitch/pam_winbind.so %{buildroot}/%{_lib}/security/pam
 install -m 0755 source/bin/libsmbclient.a %{buildroot}%{_libdir}/libsmbclient.a
 
 # winbind idmap_rid:
-install -d %{buildroot}%{_libdir}/%{name}/idmap
-install source/bin/idmap_rid.so %{buildroot}%{_libdir}/%{name}/idmap
+#install -d %{buildroot}%{_libdir}/%{name}/idmap
+#install source/bin/idmap_rid.so %{buildroot}%{_libdir}/%{name}/idmap
 
 # smbsh forgotten
 #install -m 0755 source/bin/smbsh %{buildroot}%{_bindir}/
@@ -386,7 +403,7 @@ install -m 0644 packaging/Mandrake/system-auth-winbind.pamd %{buildroot}%{_sysco
 install -m 0644 %{SOURCE1} %{buildroot}%{_sysconfdir}/logrotate.d/%{name}
 
 # make a conf file for winbind from the default one:
-cat packaging/Mandrake/smb.conf|sed -e  's/^;  winbind/  winbind/g;s/^;  obey pam/  obey pam/g; s/^;   printer admin = @"D/   printer admin = @"D/g;s/^;   password server = \*/   password server = \*/g;s/^;  template/  template/g; s/^   security = user/   security = domain/g' > packaging/Mandrake/smb-winbind.conf
+cat packaging/Mandrake/smb.conf|sed -e  's/^;  winbind/  winbind/g;s/^;  obey pam/  obey pam/g;s/   printer admin = @adm/#  printer admin = @adm/g; s/^#   printer admin = @"D/   printer admin = @"D/g;s/^;   password server = \*/   password server = \*/g;s/^;  template/  template/g; s/^   security = user/   security = domain/g' > packaging/Mandrake/smb-winbind.conf
 install -m 0644 packaging/Mandrake/smb-winbind.conf %{buildroot}%{_sysconfdir}/%{name}/smb-winbind.conf
 
 # Some inline fixes for smb.conf for non-winbind use
@@ -394,9 +411,12 @@ install -m 0644 packaging/Mandrake/smb.conf %{buildroot}%{_sysconfdir}/%{name}/s
 cat packaging/Mandrake/smb.conf | \
     sed -e 's/^;   printer admin = @adm/   printer admin = @adm/g' >%{buildroot}%{_sysconfdir}/%{name}/smb.conf
 
-#install mount.cifs
-install -m 0755 source/client/mount.cifs %{buildroot}/bin/mount.cifs
-ln -s ../bin/mount.cifs %{buildroot}/sbin/mount.cifs
+# install mount.cifs
+for i in mount.cifs umount.cifs
+do
+    install -m 0755 source/client/$i %{buildroot}/bin/$i
+    ln -s ../bin/$i %{buildroot}/sbin/$i
+done
 
 echo 127.0.0.1 localhost > %{buildroot}%{_sysconfdir}/%{name}/lmhosts
 
@@ -407,7 +427,6 @@ ln -s %{_bindir}/smbspool %{buildroot}%{_libdir}/cups/backend/smb
 
 # ipsvd support
 mkdir -p %{buildroot}%{_srvdir}/swat/log
-mkdir -p %{buildroot}%{_srvlogdir}/swat
 install -m 0740 %{SOURCE11} %{buildroot}%{_srvdir}/swat/run
 install -m 0740 %{SOURCE12} %{buildroot}%{_srvdir}/swat/log/run
 
@@ -416,7 +435,7 @@ bzcat %{SOURCE20}> %{buildroot}%{_datadir}/%{name}/scripts/smb-migrate
 
 rm -f %{buildroot}/sbin/mount.smbfs
 # Link smbmount to /sbin/mount.smb and /sbin/mount.smbfs
-#I don't think it's possible for make to do this ...
+# I don't think it's possible for make to do this ...
 pushd %{buildroot}/sbin
     ln -s ..%{_bindir}/smbmount mount.smb
     ln -s ..%{_bindir}/smbmount mount.smbfs
@@ -429,7 +448,6 @@ install -m 0740 %{SOURCE16} %{buildroot}%{_srvdir}/nmbd/run
 install -m 0740 %{SOURCE17} %{buildroot}%{_srvdir}/nmbd/log/run
 install -m 0740 %{SOURCE18} %{buildroot}%{_srvdir}/winbindd/run
 install -m 0740 %{SOURCE19} %{buildroot}%{_srvdir}/winbindd/log/run
-mkdir -p %{buildroot}%{_srvlogdir}/{smbd,nmbd,winbindd}
 
 mv %{buildroot}%{_sysconfdir}/samba/smb.conf %{buildroot}%{_sysconfdir}/samba/smb.conf_full
 install -m 0640 packaging/Mandrake/smb.conf.secure %{buildroot}%{_sysconfdir}/samba/smb.conf
@@ -438,8 +456,15 @@ install -m 0640 packaging/Mandrake/smb.conf.secure %{buildroot}%{_sysconfdir}/sa
 for i in %{_bindir}/pam_smbpass.so %{_bindir}/smbwrapper.so %{_mandir}/man1/editreg*;do
     rm -f %{buildroot}/$i
 done
-rm -rf %{buildroot}%{_datadir}/swat/using_samba
-rm -f %{buildroot}%{_sysconfdir}/%{name}/vscan-{symantec,fprotd,fsav,kavp,mcdaemon,mks32,oav,sophos,trend}.conf
+rm -f %{buildroot}%{_sysconfdir}/%{name}/vscan-{symantec,fprotd,fsav,kavp,mcdaemon,mks32,oav,sophos,trend,antivir}.conf
+
+# install html man pages for swat
+mkdir -p %{buildroot}/%{_datadir}/swat/help/manpages
+install -m 0644 docs/htmldocs/manpages-3/* %{buildroot}/%{_datadir}/swat/help/manpages
+
+# the binary gets removed ... but not the man page ...
+rm -f %{buildroot}%{_mandir}/man1/testprns*
+
 
 # (sb) make a smb.conf.clean we can use for the merge, since an existing
 # smb.conf won't get overwritten
@@ -454,6 +479,12 @@ bzcat %{SOURCE21} >%{buildroot}%{_datadir}/%{name}/README.avx.conf
 
 
 %post server
+for i in smbd nmbd
+do
+    if [ -d /var/log/supervise/$i -a ! -d /var/log/service/$i ]; then
+        mv /var/log/supervise/$i /var/log/service/
+    fi
+done
 %_post_srv smbd
 %_post_srv nmbd
 
@@ -469,6 +500,7 @@ do
         mv $i $newname
     fi
 done
+
 
 %post common
 # Basic migration script for pre-2.2.1 users,
@@ -530,6 +562,9 @@ if [ $1 = 1 ]; then
         fi
     done
     if [ -f %{_sysconfdir}/nsswitch.conf.rpmtemp ];then rm -f %{_sysconfdir}/nsswitch.conf.rpmtemp;fi
+fi
+if [ -d /var/log/supervise/winbindd -a ! -d /var/log/service/winbindd ]; then
+    mv /var/log/supervise/winbindd /var/log/service/
 fi
 %_post_srv winbindd
 
@@ -612,24 +647,22 @@ fi
 %dir %attr(0750,root,admin) %{_srvdir}/smbd/log
 %dir %attr(0750,root,admin) %{_srvdir}/nmbd
 %dir %attr(0750,root,admin) %{_srvdir}/nmbd/log
-%attr(0740,root,admin) %{_srvdir}/smbd/run
-%attr(0740,root,admin) %{_srvdir}/smbd/log/run
-%attr(0740,root,admin) %{_srvdir}/nmbd/run
-%attr(0740,root,admin) %{_srvdir}/nmbd/log/run
-%dir %attr(0750,logger,logger) %{_srvlogdir}/smbd
-%dir %attr(0750,logger,logger) %{_srvlogdir}/nmbd
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/smbd/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/smbd/log/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/nmbd/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/nmbd/log/run
 
 %files swat
 %defattr(-,root,root)
 %dir %attr(0750,root,admin) %{_srvdir}/swat
 %dir %attr(0750,root,admin) %{_srvdir}/swat/log
-%dir %attr(0750,logger,logger) %{_srvlogdir}/swat
-%attr(0740,root,admin) %{_srvdir}/swat/run
-%attr(0740,root,admin) %{_srvdir}/swat/log/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/swat/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/swat/log/run
 %{_sbindir}/swat
 %attr(-,root,root) %{_datadir}/swat/help/
 %attr(-,root,root) %{_datadir}/swat/images/
 %attr(-,root,root) %{_datadir}/swat/include/
+%attr(-,root,root) %{_datadir}/swat/help/
 %lang(ja) %{_datadir}/swat/lang/ja
 %lang(tr) %{_datadir}/swat/lang/tr
 %{_mandir}/man8/swat*.8*
@@ -657,7 +690,9 @@ fi
 /sbin/mount.smb
 /sbin/mount.smbfs
 /sbin/mount.cifs
+/sbin/umount.cifs
 %attr(4755,root,root) /bin/mount.cifs
+%attr(4755,root,root) /bin/umount.cifs
 %{_mandir}/man1/findsmb.1*
 %{_mandir}/man1/nmblookup.1*
 %{_mandir}/man1/smbclient.1*
@@ -665,6 +700,7 @@ fi
 %{_mandir}/man1/smbget.1*
 %{_mandir}/man5/smbgetrc.5*
 %{_mandir}/man8/mount.cifs*.8*
+%{_mandir}/man8/umount.cifs*.8*
 %{_mandir}/man8/smbmnt.8*
 %{_mandir}/man8/smbmount.8*
 %{_mandir}/man8/smbspool.8*
@@ -689,7 +725,6 @@ fi
 %{_bindir}/smbpasswd
 %{_bindir}/smbtree
 %{_bindir}/testparm
-%{_bindir}/testprns
 %{_bindir}/tdbdump
 %{_bindir}/tdbtool
 %{_mandir}/man1/ntlm_auth.1*
@@ -698,7 +733,6 @@ fi
 %{_mandir}/man1/smbcquotas.1*
 %{_mandir}/man1/smbtree.1*
 %{_mandir}/man1/testparm.1*
-%{_mandir}/man1/testprns.1*
 %{_mandir}/man5/smb.conf*.5*
 %{_mandir}/man5/smbpasswd*.5*
 %{_mandir}/man5/lmhosts*.5*
@@ -724,15 +758,14 @@ fi
 %{_bindir}/wbinfo
 %attr(755,root,root) /%{_lib}/security/pam_winbind*
 %attr(755,root,root) /%{_lib}/libnss_winbind*
-%attr(755,root,root) %{_libdir}/%{name}/idmap/idmap_rid.so
+%{_libdir}/%{name}/idmap
 %{_mandir}/man8/pam_winbind*.8*
 %{_mandir}/man8/winbindd*.8*
 %{_mandir}/man1/wbinfo*.1*
 %dir %attr(0750,root,admin) %{_srvdir}/winbindd
 %dir %attr(0750,root,admin) %{_srvdir}/winbindd/log
-%dir %attr(0750,logger,logger) %{_srvlogdir}/winbindd
-%attr(0740,root,admin) %{_srvdir}/winbindd/run
-%attr(0740,root,admin) %{_srvdir}/winbindd/log/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/winbindd/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/winbindd/log/run
 
 %files -n nss_wins
 %defattr(-,root,root)
@@ -749,6 +782,7 @@ fi
 %defattr(-,root,root)
 %{_includedir}/*
 %{_libdir}/libsmbclient.so
+%{_mandir}/man8/libsmbclient.8*
 
 %files -n %{libname}-static-devel
 %defattr(-,root,root)
@@ -770,6 +804,18 @@ fi
 
 
 %changelog
+* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 3.0.20-1avx
+- 3.0.20
+- use execlineb for run scripts
+- move logdir to /var/log/service/{smbd,nmbd,swat,winbindd}
+- run scripts are now considered config files and are not replaceable
+- update group enumeration patch, add winbind patch from
+  http://www.samba.org/samba/patches/
+- add new idmap_ad plugin
+- rediff P8
+- update the run scripts to use -F instead of both -D and -F
+- source /usr/share/srv/functions in windbindd's run script
+
 * Sat Aug 27 2005 Vincent Danen <vdanen@annvix.org> 3.0.11-6avx
 - fix perms on run scripts
 

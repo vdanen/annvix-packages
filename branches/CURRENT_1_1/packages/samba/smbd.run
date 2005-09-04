@@ -7,4 +7,4 @@ PATH="/sbin:/usr/sbin:/bin:/usr/bin:$PATH"
 
 checkdepends nmbd
 
-exec /usr/sbin/smbd -F -D 2>&1
+exec /usr/sbin/smbd -F 2>&1
