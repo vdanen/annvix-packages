@@ -9,7 +9,7 @@
 
 %define name		courier-imap
 %define version		2.1.2
-%define release		21avx
+%define release		22avx
 
 %define _localstatedir	/var/run
 %define	authdaemondir	%{_localstatedir}/authdaemon.courier-imap
@@ -322,7 +322,6 @@ echo "MOD_MAILDIR_CREATOR=\"/bin/false\"" >> %{buildroot}%{couriersysconfdir}/po
 
 mkdir -p %{buildroot}%{_srvdir}/{courier-imapd,courier-imapds,courier-pop3d,courier-pop3ds,authdaemond}/log
 mkdir -p %{buildroot}%{_srvdir}/{courier-imapd,courier-imapds,courier-pop3d,courier-pop3ds}/peers
-mkdir -p %{buildroot}%{_srvlogdir}/{courier-imapd,courier-imapds,courier-pop3d,courier-pop3ds,authdaemond}
 install -m 0740 %{SOURCE5} %{buildroot}%{_srvdir}/courier-imapd/run
 install -m 0740 %{SOURCE6} %{buildroot}%{_srvdir}/courier-imapd/log/run
 install -m 0740 %{SOURCE7} %{buildroot}%{_srvdir}/courier-imapds/run
@@ -354,6 +353,12 @@ find %{buildroot}%{_srvdir} -name run -exec perl -pi -e 's|/usr/lib/courier|/usr
 
 %post
 %{courierdatadir}/sysconftool `cat %{courierdatadir}/configlist` >/dev/null
+for i in courier-imapd courier-imapds authdaemond
+do
+    if [ -d /var/log/supervise/$i -a ! -d /var/log/service/$i ]; then
+        mv /var/log/supervise/$i /var/log/service/
+    fi
+done
 %_post_srv courier-imapd
 %_post_srv courier-imapds
 %_post_srv authdaemond
@@ -370,6 +375,12 @@ find %{buildroot}%{_srvdir} -name run -exec perl -pi -e 's|/usr/lib/courier|/usr
 
 %post pop
 %{courierdatadir}/sysconftool `cat %{courierdatadir}/configlist.pop` >/dev/null
+for i in courier-pop3d courier-pop3ds
+do
+    if [ -d /var/log/supervise/$i -a ! -d /var/log/service/$i ]; then
+        mv /var/log/supervise/$i /var/log/service/
+    fi
+done
 %_post_srv courier-pop3d
 %_post_srv courier-pop3ds
 
@@ -517,24 +528,21 @@ test ! -f %{courierdatadir}/configlist.mysql || %{courierdatadir}/sysconftool-rp
 %dir %attr(0750,root,admin) %{_srvdir}/courier-imapd
 %dir %attr(0750,root,admin) %{_srvdir}/courier-imapd/log
 %dir %attr(0750,root,admin) %{_srvdir}/courier-imapd/peers
-%attr(0740,root,admin) %{_srvdir}/courier-imapd/run
-%attr(0740,root,admin) %{_srvdir}/courier-imapd/log/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/courier-imapd/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/courier-imapd/log/run
 %config(noreplace) %attr(0640,root,admin) %{_srvdir}/courier-imapd/peers/0
-%dir %attr(0750,logger,logger) %{_srvlogdir}/courier-imapd
 %dir %attr(0750,root,admin) %{_srvdir}/courier-imapds
 %dir %attr(0750,root,admin) %{_srvdir}/courier-imapds/log
 %dir %attr(0750,root,admin) %{_srvdir}/courier-imapds/peers
-%attr(0740,root,admin) %{_srvdir}/courier-imapds/run
-%attr(0740,root,admin) %{_srvdir}/courier-imapds/log/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/courier-imapds/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/courier-imapds/log/run
 %config(noreplace) %attr(0640,root,admin) %{_srvdir}/courier-imapds/peers/0
-%dir %attr(0750,logger,logger) %{_srvlogdir}/courier-imapds
 %config(noreplace) %{_sysconfdir}/sysconfig/imapd
 %config(noreplace) %{_sysconfdir}/sysconfig/imapd-ssl
 %dir %attr(0750,root,admin) %{_srvdir}/authdaemond
 %dir %attr(0750,root,admin) %{_srvdir}/authdaemond/log
-%attr(0740,root,admin) %{_srvdir}/authdaemond/run
-%attr(0740,root,admin) %{_srvdir}/authdaemond/log/run
-%dir %attr(0750,logger,logger) %{_srvlogdir}/authdaemond
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/authdaemond/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/authdaemond/log/run
 %{_datadir}/afterboot/09_courier-imap
 
 
@@ -558,17 +566,15 @@ test ! -f %{courierdatadir}/configlist.mysql || %{courierdatadir}/sysconftool-rp
 %dir %attr(0750,root,admin) %{_srvdir}/courier-pop3d
 %dir %attr(0750,root,admin) %{_srvdir}/courier-pop3d/log
 %dir %attr(0750,root,admin) %{_srvdir}/courier-pop3d/peers
-%attr(0740,root,admin) %{_srvdir}/courier-pop3d/run
-%attr(0740,root,admin) %{_srvdir}/courier-pop3d/log/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/courier-pop3d/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/courier-pop3d/log/run
 %config(noreplace) %attr(0640,root,admin) %{_srvdir}/courier-pop3d/peers/0
-%dir %attr(0750,logger,logger) %{_srvlogdir}/courier-pop3d
 %dir %attr(0750,root,admin) %{_srvdir}/courier-pop3ds
 %dir %attr(0750,root,admin) %{_srvdir}/courier-pop3ds/log
 %dir %attr(0750,root,admin) %{_srvdir}/courier-pop3ds/peers
-%attr(0740,root,admin) %{_srvdir}/courier-pop3ds/run
-%attr(0740,root,admin) %{_srvdir}/courier-pop3ds/log/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/courier-pop3ds/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/courier-pop3ds/log/run
 %config(noreplace) %attr(0640,root,admin) %{_srvdir}/courier-pop3ds/peers/0
-%dir %attr(0750,logger,logger) %{_srvlogdir}/courier-pop3ds
 %config(noreplace) %{_sysconfdir}/sysconfig/pop3d
 %config(noreplace) %{_sysconfdir}/sysconfig/pop3d-ssl
 
@@ -608,6 +614,11 @@ test ! -f %{courierdatadir}/configlist.mysql || %{courierdatadir}/sysconftool-rp
 
 
 %changelog
+* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 2.1.2-22avx
+- use execlineb for run scripts
+- move logdir to /var/log/service/courier*
+- run scripts are now considered config files and are not replaceable
+
 * Sat Aug 27 2005 Vincent Danen <vdanen@annvix.org> 2.1.2-21avx
 - fix perms on run scripts
 
