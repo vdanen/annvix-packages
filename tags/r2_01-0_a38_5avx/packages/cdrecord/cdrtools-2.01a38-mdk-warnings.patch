@@ -1,0 +1,22 @@
+--- cdrtools-2.01/RULES/mk-gmake.id.warnings	2004-08-30 16:37:08.341961729 +0200
++++ cdrtools-2.01/RULES/mk-gmake.id	2004-08-30 16:37:14.501366906 +0200
+@@ -37,7 +37,7 @@
+ 
+ ifndef		ARCH_DONE
+ 
+-__gmake_warn:=	$(shell cat $(SRCROOT)/$(RULESDIR)/gmake.wrn 1>&2; sleep 15)
++#__gmake_warn:=	$(shell cat $(SRCROOT)/$(RULESDIR)/gmake.wrn 1>&2; sleep 15)
+ 
+ _MACHCMD=	(mach || uname -p || true)	2> /dev/null
+ _ARCHCMD=	(arch || /usr/ucb/arch || true)	2> /dev/null
+--- cdrtools-2.01/cdrecord/cdrecord.c.warnings	2004-08-30 16:36:41.067023891 +0200
++++ cdrtools-2.01/cdrecord/cdrecord.c	2004-08-30 16:36:59.203327950 +0200
+@@ -413,7 +413,7 @@
+ 	 * companies prefer a model with many proprietary differing programs
+ 	 * instead of cooperating with the program authors.
+ 	 */
+-	linuxcheck();	/* For version 1.295 of cdrecord.c */
++	/* linuxcheck(); */	/* For version 1.295 of cdrecord.c */
+ 
+ 	if (flags & F_VERSION)
+ 		exit(0);
