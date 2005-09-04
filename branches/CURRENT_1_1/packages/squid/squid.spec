@@ -174,7 +174,6 @@ popd
 ln -fs %{_libexecdir}/errors/English %{buildroot}%{_sysconfdir}/errors
 
 mkdir -p %{buildroot}%{_srvdir}/squid/log
-mkdir -p %{buildroot}%{_srvlogdir}/squid
 mkdir -p %{buildroot}%{_sysconfdir}/
 mkdir -p %{buildroot}/etc/{logrotate.d,pam.d,sysconfig}
 
@@ -242,6 +241,9 @@ done
 
 
 %post
+if [ -d /var/log/supervise/squid -a ! -d /var/log/service/squid ]; then
+    mv /var/log/supervise/squid /var/log/service/
+fi
 %_post_srv squid
 case "$LANG" in
     bg*)
@@ -365,11 +367,16 @@ fi
 %attr(755,squid,squid) %dir /var/spool/squid
 %dir %attr(0750,root,admin) %{_srvdir}/squid
 %dir %attr(0750,root,admin) %{_srvdir}/squid/log
-%attr(0740,root,admin) %{_srvdir}/squid/run
-%attr(0740,root,admin) %{_srvdir}/squid/log/run
-%attr(0750,logger,logger) %dir %{_srvlogdir}/squid
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/squid/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/squid/log/run
+
 
 %changelog
+* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 2.5.STABLE10-4avx
+- use execlineb for run scripts
+- move logdir to /var/log/service/sshd
+- run scripts are now considered config files and are not replaceable
+
 * Fri Aug 26 2005 Vincent Danen <vdanen@annvix.org> 2.5.STABLE10-3avx
 - fix perms on run scripts
 
