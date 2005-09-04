@@ -1,0 +1,12 @@
+#!/bin/sh
+PATH="/sbin:/usr/sbin:/bin:/usr/bin"
+
+# this runs kpropd supervised
+
+. /usr/share/srv/functions
+
+if [ ! -f /etc/kerberos/krb5kdc/kpropd.acl ]; then
+  godown
+fi
+
+exec /usr/sbin/kpropd -S -d 2>&1
