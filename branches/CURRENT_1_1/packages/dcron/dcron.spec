@@ -9,7 +9,7 @@
 
 %define	name		dcron
 %define	version		2.9
-%define	release		13avx
+%define	release		14avx
 
 Summary:	Dillon's Cron Daemon
 Name:		%{name}
@@ -66,7 +66,6 @@ install -m 0644 crond.8 %{buildroot}%{_mandir}/man8/
 install -m 0644 %{SOURCE3} %{buildroot}%{_sysconfdir}/crontab
 
 install -d %{buildroot}%{_srvdir}/crond/log
-install -d %{buildroot}%{_srvlogdir}/crond
 install -m 0740 %{SOURCE1} %{buildroot}%{_srvdir}/crond/run
 install -m 0740 %{SOURCE2} %{buildroot}%{_srvdir}/crond/log/run
 
@@ -79,6 +78,9 @@ install -m 0740 %{SOURCE2} %{buildroot}%{_srvdir}/crond/log/run
 if [[ -z `crontab -l | grep run-parts` ]]; then
     echo "Adding the \"system crontab\" to emulate vixie-cron"
     /bin/grep "^[0-9]" %{_sysconfdir}/crontab | %{_bindir}/crontab -
+fi
+if [ -d /var/log/supervise/crond -a ! -d /var/log/service/crond ]; then
+    mv /var/log/supervise/crond /var/log/service/
 fi
 %_post_srv crond
 
@@ -102,12 +104,16 @@ fi
 %dir %attr(0755,root,root) /var/spool/dcron/crontabs
 %dir %attr(0750,root,admin) %{_srvdir}/crond
 %dir %attr(0750,root,admin) %{_srvdir}/crond/log
-%attr(0740,root,admin) %{_srvdir}/crond/run
-%attr(0740,root,admin) %{_srvdir}/crond/log/run
-%dir %attr(0750,logger,logger) %{_srvlogdir}/crond
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/crond/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/crond/log/run
 
 
 %changelog
+* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 2.9-14avx
+- use execlineb for run scripts
+- move logdir to /var/log/service/crond
+- run scripts are now considered config files and are not replaceable
+
 * Fri Aug 26 2005 Vincent Danen <vdanen@annvix.org> 2.9-13avx
 - fix perms on run scripts
 
