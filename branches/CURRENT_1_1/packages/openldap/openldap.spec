@@ -9,7 +9,7 @@
 
 %define name		openldap
 %define version		2.3.6
-%define release		1avx
+%define release		2avx
 
 %define major 		2.3_0
 %define migtools_ver	45
@@ -46,7 +46,6 @@ URL: 		http://www.openldap.org
 # Openldap source
 Source0: 	ftp://ftp.openldap.org/pub/OpenLDAP/openldap-release/%{name}-%{version}.tar.bz2
 # Specific source
-Source1: 	ldap.init
 Source2: 	%{name}.sysconfig
 Source5:	DB_CONFIG
 Source6:	ldap.conf
@@ -839,6 +838,10 @@ fi
 # - add cron-job to remove transaction logs (bdb)
 
 %changelog
+* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 2.3.6-2avx
+- drop S1
+- put back out ldap.logrotate
+
 * Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 2.3.6-1avx
 - 2.3.6
 - use execlineb for run scripts
