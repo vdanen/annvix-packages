@@ -9,7 +9,7 @@
 
 %define name		apache-conf
 %define version		2.0.53
-%define release		8avx
+%define release		9avx
 
 %define compat_dir	/etc/httpd
 %define compat_conf	/etc/httpd/conf
@@ -287,6 +287,9 @@ fi
 
 
 %changelog
+* Sat Sep 02 2005 Vincent Danen <vdanen@annvix.org> 2.0.53-9avx
+- s/supervise/service/ in log/run
+
 * Sat Sep 02 2005 Vincent Danen <vdanen@annvix.org> 2.0.53-8avx
 - use execlineb for run scripts
 - move logdir to /var/log/service/httpd2
