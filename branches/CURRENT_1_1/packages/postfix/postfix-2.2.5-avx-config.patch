@@ -1,96 +1,35 @@
---- postfix-2.1.5/conf/master.cf.avx	2004-10-15 12:31:25.000000000 -0600
-+++ postfix-2.1.5/conf/master.cf	2004-10-15 12:40:25.000000000 -0600
-@@ -90,7 +90,7 @@
- cleanup   unix  n       -       n       -       0       cleanup
- qmgr      fifo  n       -       n       300     1       qmgr
- #qmgr     fifo  n       -       n       300     1       oqmgr
--#tlsmgr   fifo  -       -       n       300     1       tlsmgr
-+tlsmgr    fifo  -       -       n       300     1       tlsmgr
- rewrite   unix  -       -       n       -       -       trivial-rewrite
- bounce    unix  -       -       n       -       0       bounce
- defer     unix  -       -       n       -       0       bounce
-@@ -110,23 +110,69 @@
+--- postfix-2.2.5/conf/master.cf.avx	2005-01-24 14:12:46.000000000 -0500
++++ postfix-2.2.5/conf/master.cf	2005-09-03 22:25:48.000000000 -0400
+@@ -51,29 +51,6 @@
+ # and other message envelope options.
+ # ====================================================================
  #
- # Interfaces to non-Postfix software. Be sure to examine the manual
- # pages of the non-Postfix software to find out what options it wants.
-+
-+#
-+# NOTE: None of this ships with Annvix so we comment it all out
-+#
-+
- #
- # maildrop. See the Postfix MAILDROP_README file for details.
- #
+-# maildrop. See the Postfix MAILDROP_README file for details.
+-# Also specify in main.cf: maildrop_destination_recipient_limit=1
+-#
 -maildrop  unix  -       n       n       -       -       pipe
 -  flags=DRhu user=vmail argv=/usr/local/bin/maildrop -d ${recipient}
-+#maildrop  unix  -       n       n       -       -       pipe
-+#  flags=DRhu user=vmail argv=/usr/local/bin/maildrop -d ${recipient}
- #
- # The Cyrus deliver program has changed incompatibly, multiple times.
- #
+-#
+-# The Cyrus deliver program has changed incompatibly, multiple times.
+-#
 -old-cyrus unix  -       n       n       -       -       pipe
 -  flags=R user=cyrus argv=/cyrus/bin/deliver -e -m ${extension} ${user}
-+#old-cyrus unix  -       n       n       -       -       pipe
-+#  flags=R user=cyrus argv=/cyrus/bin/deliver -e -m ${extension} ${user}
- # Cyrus 2.1.5 (Amos Gouaux)
- # Also specify in main.cf: cyrus_destination_recipient_limit=1
+-# Cyrus 2.1.5 (Amos Gouaux)
+-# Also specify in main.cf: cyrus_destination_recipient_limit=1
 -cyrus     unix  -       n       n       -       -       pipe
 -  user=cyrus argv=/cyrus/bin/deliver -e -r ${sender} -m ${extension} ${user}
+-#
+-# See the Postfix UUCP_README file for configuration details.
+-#
 -uucp      unix  -       n       n       -       -       pipe
 -  flags=Fqhu user=uucp argv=uux -r -n -z -a$sender - $nexthop!rmail ($recipient)
+ #
+ # Other external delivery methods.
+ #
 -ifmail    unix  -       n       n       -       -       pipe
 -  flags=F user=ftn argv=/usr/lib/ifmail/ifmail -r $nexthop ($recipient)
 -bsmtp     unix  -       n       n       -       -       pipe
 -  flags=Fq. user=foo argv=/usr/local/sbin/bsmtp -f $sender $nexthop $recipient
-+#cyrus     unix  -       n       n       -       -       pipe
-+#  user=cyrus argv=/usr/lib/cyrus-imapd/deliver -e -r ${sender} -m ${extension} ${user}
-+#uucp      unix  -       n       n       -       -       pipe
-+#  flags=Fqhu user=uucp argv=uux -r -n -z -a$sender - $nexthop!rmail ($recipient)
-+#ifmail    unix  -       n       n       -       -       pipe
-+#  flags=F user=ftn argv=/usr/lib/ifmail/ifmail -r $nexthop ($recipient)
-+#bsmtp     unix  -       n       n       -       -       pipe
-+#  flags=Fq. user=foo argv=/usr/local/sbin/bsmtp -f $sender $nexthop $recipient
-+
-+# The following comes compliments of Mandrakelinux:
-+
-+##### START OF CONTENT FILTER CUSTOMIZATIONS #####
-+# Please see the Postfix FILTER_README for details.
-+# These sample entries expect your content filter to
-+# listen on port 10025 and to inject mail back into
-+# postfix on port 10026.
-+# 
-+# to enable such content filter run the command
-+#    postconf -e content_filter=smtp-filter:127.0.0.1:10025
-+#    postconf -e smtp-filter_destination_concurrency_limit=2
-+# or
-+#    postconf -e content_filter=lmtp-filter:127.0.0.1:10025
-+#    postconf -e lmtp-filter_destination_concurrency_limit=2
-+# and the command
-+#    postconf -e receive_override_options=no_address_mappings
-+#
-+
-+127.0.0.1:10026	inet	n	-	n	-	-	smtpd
-+  -o content_filter=
-+  -o smtpd_restriction_classes=
-+  -o smtpd_client_restrictions=
-+  -o smtpd_helo_restrictions=
-+  -o smtpd_sender_restrictions=
-+  -o smtpd_recipient_restrictions=permit_mynetworks,reject
-+  -o mynetworks=127.0.0.0/8
-+  -o mynetworks_style=host
-+  -o strict_rfc821_envelopes=yes
-+  -o receive_override_options=no_unknown_recipient_checks,no_header_body_checks
-+  -o smtpd_client_connection_limit_exceptions=127.0.0.0/8
-+
-+lmtp-filter	unix	-      -	n	-	-	lmtp
-+  -o lmtp_data_done_timeout=1200
-+  -o disable_dns_lookups=yes
-+
-+smtp-filter	unix	-      -	n	-	-	smtp
-+  -o smtp_data_done_timeout=1200
-+  -o disable_dns_lookups=yes
-+
-+##### END OF CONTENT FILTER CUSTOMIZATIONS #####
 --- postfix-2.1.5/conf/main.cf.avx	2004-06-06 15:53:58.000000000 -0600
 +++ postfix-2.1.5/conf/main.cf	2004-10-15 12:45:15.000000000 -0600
 @@ -38,7 +38,7 @@
@@ -146,17 +85,18 @@
  
  # The mailbox_command parameter specifies the optional external
  # command to use instead of mailbox delivery. The command is run as
---- postfix-2.1.5/conf/postfix-files.avx	2004-10-15 12:47:06.000000000 -0600
-+++ postfix-2.1.5/conf/postfix-files	2004-10-15 12:48:48.000000000 -0600
-@@ -97,7 +97,6 @@
+--- postfix-2.2.5/conf/postfix-files.avx	2005-03-14 08:13:16.000000000 -0500
++++ postfix-2.2.5/conf/postfix-files	2005-09-03 22:22:55.000000000 -0400
+@@ -100,8 +100,6 @@
  $sendmail_path:f:root:-:755
  $newaliases_path:l:$sendmail_path
  $mailq_path:l:$sendmail_path
 -$config_directory/LICENSE:f:root:-:644
+-$config_directory/TLS_LICENSE:f:root:-:644
  $config_directory/access:f:root:-:644:p
  $config_directory/aliases:f:root:-:644:p
  $config_directory/canonical:f:root:-:644:p
-@@ -105,6 +104,7 @@
+@@ -111,6 +109,7 @@
  $config_directory/header_checks:f:root:-:644:p
  $config_directory/install.cf:f:root:-:644:o
  $config_directory/main.cf:f:root:-:644:p
@@ -164,7 +104,7 @@
  $config_directory/main.cf.default:f:root:-:644
  $config_directory/makedefs.out:f:root:-:644
  $config_directory/master.cf:f:root:-:644:p
-@@ -186,6 +186,7 @@
+@@ -202,6 +201,7 @@
  $sample_directory/sample-pcre-access.cf:f:root:-:644:o:o
  $sample_directory/sample-pcre-body.cf:f:root:-:644:o:o
  $sample_directory/sample-pcre-header.cf:f:root:-:644:o:o
@@ -172,7 +112,7 @@
  $sample_directory/sample-pgsql-aliases.cf:f:root:-:644:o
  $sample_directory/sample-qmqpd.cf:f:root:-:644:o
  $sample_directory/sample-rate.cf:f:root:-:644:o
-@@ -231,7 +232,6 @@
+@@ -250,7 +250,6 @@
  $readme_directory/PGSQL_README:f:root:-:644
  $readme_directory/QMQP_README:f:root:-:644
  $readme_directory/QSHAPE_README:f:root:-:644

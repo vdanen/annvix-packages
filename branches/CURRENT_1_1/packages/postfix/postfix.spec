@@ -8,15 +8,13 @@
 
 
 %define name		postfix
-%define version		2.1.5
-%define release 	6avx
+%define version		2.2.5
+%define release 	1avx
 %define epoch		1
 
 %define	openssl_ver	0.9.7d
 %define tlsno 		pfixtls-0.8.18-2.1.3-%{openssl_ver}
 
-%define alternatives 	1
-%define alternatives_install_cmd update-alternatives --install %{_sbindir}/sendmail mta %{_sbindir}/sendmail.postfix 30 --slave %{_usr}/lib/sendmail mta-in_libdir %{_sbindir}/sendmail.postfix --slave %{_bindir}/mailq mta-mailq %{_bindir}/mailq.postfix --slave %{_bindir}/newaliases mta-newaliases %{_bindir}/newaliases.postfix --slave %{_bindir}/rmail mta-rmail %{_bindir}/rmail.postfix --slave %{_mandir}/man1/mailq.1.bz2 mta-mailqman %{_mandir}/man1/mailq.postfix.1.bz2 --slave %{_mandir}/man1/newaliases.1.bz2 mta-newaliasesman %{_mandir}/man1/newaliases.postfix.1.bz2 --slave %{_mandir}/man5/aliases.5.bz2 mta-aliasesman %{_mandir}/man5/aliases.postfix.5.bz2 --slave %{_sysconfdir}/aliases mta-etc_aliases %{_sysconfdir}/postfix/aliases
 %define with_LDAP	1  
 %define with_MYSQL	0
 %define with_PCRE	1
@@ -42,11 +40,7 @@
 %define maildrop_gid	79
 %define queue_directory	%{_var}/spool/postfix
 
-%if %{alternatives}
-%define post_install_parameters	daemon_directory=%{_libdir}/postfix command_directory=%{_sbindir} queue_directory=%{queue_directory} sendmail_path=%{_sbindir}/sendmail.postfix newaliases_path=%{_bindir}/newaliases.postfix mailq_path=%{_bindir}/mailq.postfix mail_owner=postfix setgid_group=%{maildrop_group} manpage_directory=%{_mandir} sample_directory=%{_docdir}/%{name}-%{version}/samples readme_directory=%{_docdir}/%{name}-%{version}/README_FILES html_directory=%{_docdir}/%{name}-%{version}/html 
-%else
-%define post_install_parameters	daemon_directory=%{_libdir}/postfix command_directory=%{_sbindir} queue_directory=%{queue_directory} sendmail_path=%{_sbindir}/sendmail newaliases_path=%{_bindir}/newaliases mailq_path=%{_bindir}/mailq mail_owner=postfix setgid_group=%{maildrop_group} manpage_directory=%{_mandir} sample_directory=%{_docdir}/%{name}-%{version}/samples readme_directory=%{_docdir}/%{name}-%{version}/README_FILES html_directory=%{_docdir}/%{name}-%{version}/html 
-%endif
+%define post_install_parameters	daemon_directory=%{_libdir}/postfix command_directory=%{_sbindir} queue_directory=%{queue_directory} sendmail_path=%{_sbindir}/sendmail newaliases_path=%{_bindir}/newaliases mailq_path=%{_bindir}/mailq mail_owner=postfix setgid_group=%{maildrop_group} manpage_directory=%{_mandir} readme_directory=%{_docdir}/%name-%version/README_FILES html_directory=%{_docdir}/%name-%version/html
 
 Summary:	Postfix Mail Transport Agent
 Name:		%{name}
@@ -67,16 +61,15 @@ Source7:	postfix-etc-pam.d-smtp
 Source10:	http://jimsun.LinxNet.com/misc/postfix-anti-UCE.txt
 Source11:	http://jimsun.LinxNet.com/misc/header_checks.txt
 Source12:	http://jimsun.LinxNet.com/misc/body_checks.txt
+Source15:	postfix-smtpd.conf
 
-Patch0:		postfix-2.1.5-avx-config.patch.bz2
+Patch0:		postfix-2.2.5-avx-config.patch.bz2
 Patch1:		postfix-alternatives-mdk.patch.bz2
-Patch2:		postfix-smtp_sasl_proto.c.patch.bz2
 Patch3: 	postfix-2.0.18-fdr-hostname-fqdn.patch.bz2
 Patch4:		postfix-2.1.1-fdr-pie.patch.bz2
 Patch5:		postfix-2.1.1-fdr-obsolete.patch.bz2
-Patch6:		postfix-2.1.0-mdk-saslpath.patch.bz2
-Patch7:		postfix-2.1.1-tlsdoc.patch.bz2
-Patch8:		postfix-2.1.5-avx-warnsetsid.patch.bz2
+Patch6:		postfix-2.2.4-mdk-saslpath.patch.bz2
+Patch8:		postfix-2.2.5-avx-warnsetsid.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	db4-devel, gawk, perl, sed, ed
@@ -103,11 +96,7 @@ Provides:	smtpdaemon, MailTransportAgent
 Requires:	setup >= 2.2.0-26mdk
 PreReq: 	coreutils, sysklogd, fileutils
 PreReq: 	rpm-helper >= 0.3
-%if %{alternatives}
-PreReq:		/usr/sbin/update-alternatives
-%else
 Obsoletes:	sendmail exim qmail
-%endif
 
 
 %description
@@ -129,10 +118,6 @@ If you also need MySQL support, rebuild the srpm --with mysql.
 
 %prep
 %setup -q -a 4
-# Apply the TLS patch, must be at first, because the changes of master.cf
-%if %{with_TLS}
-patch -p1 -F 1 -s -b -z .tls.orig < %{tlsno}/pfixtls.diff
-%endif
 
 %patch0 -p1 -b .avx
 mkdir -p conf/dist
@@ -147,26 +132,11 @@ if [ "%{_lib}" != "lib" ]; then
 EOF
 fi
 
-%if %{alternatives}
-%patch1 -p1 -b .alternatives
-%endif
-
-%patch2 -p1 -b .auth
 %patch3 -p1 -b .postfix-hostname-fqdn
 %patch4 -p1 -b .pie
 %patch5 -p1 -b .obsolete
 %patch6 -p1 -b .saslpath
-%patch7 -p1 -b .tlsdoc
 %patch8 -p1 -b .warnsetsid
-
-# Move around the TLS docs
-%if %{with_TLS}
-mkdir TLS
-mv %{tlsno}/doc/* TLS
-for i in ACKNOWLEDGEMENTS CHANGES INSTALL README TODO; do
-  mv %{tlsno}/$i TLS/$i
-done
-%endif
 
 mkdir UCE
 install -m 0644 %{SOURCE10} UCE
@@ -205,7 +175,7 @@ CCARGS="${CCARGS} -fsigned-char"
 %endif
 %if %{with_TLS}
     LIBS=
-    CCARGS="${CCARGS} -DHAS_SSL -I/usr/include/openssl"
+    CCARGS="${CCARGS} -DUSE_TLS -I/usr/include/openssl"
     AUXLIBS="${AUXLIBS} -lssl -lcrypto"
 %endif
 
@@ -236,6 +206,7 @@ sh postfix-install -non-interactive \
 
 # for sasl configuration
 mkdir -p %{buildroot}%{_sysconfdir}/postfix/sasl
+cp %{SOURCE15} %{buildroot}%{_sysconfdir}/postfix/sasl/smtpd.conf
 
 mkdir -p %{buildroot}%{_sysconfdir}/pam.d/
 install -c %{SOURCE6} %{buildroot}%{_sysconfdir}/pam.d/smtp
@@ -246,7 +217,7 @@ bin/postconf -c %{buildroot}%{_sysconfdir}/postfix -e \
     "alias_database = hash:%{_sysconfdir}/postfix/aliases" \
     || exit 1
 
-install -c auxiliary/rmail/rmail %{buildroot}%{_bindir}/rmail.postfix
+install -c auxiliary/rmail/rmail %{buildroot}%{_bindir}/rmail
 
 # copy new aliases files and generate a ghost aliases.db file
 cp -f %{SOURCE3} %{buildroot}%{_sysconfdir}/postfix/aliases
@@ -273,13 +244,6 @@ ed %{buildroot}%{_sysconfdir}/postfix/postfix-files <<EOF || exit 1
     q
 EOF
 
-# Move stuff around so we don't conflict with sendmail
-pushd %{buildroot}%{_mandir}
-    mv man1/mailq.1 man1/mailq.postfix.1
-    mv man1/newaliases.1 man1/newaliases.postfix.1
-    mv man1/sendmail.1 man1/sendmail.postfix.1
-    mv man5/aliases.5 man5/aliases.postfix.5
-popd
 perl -pi -e 's|mailq.1.bz2|mailq.postfix.1.bz2|g' %{buildroot}%{_sysconfdir}/postfix/postfix-files
 perl -pi -e 's|newaliases.1.bz2|newaliases.postfix.1.bz2|g' %{buildroot}%{_sysconfdir}/postfix/postfix-files
 perl -pi -e 's|sendmail.1.bz2|sendmail.postfix.1.bz2|g' %{buildroot}%{_sysconfdir}/postfix/postfix-files
@@ -288,6 +252,15 @@ perl -pi -e 's|aliases.5.bz2|aliases.postfix.5.bz2|g' %{buildroot}%{_sysconfdir}
 # install qshape
 install -c -m 0755 auxiliary/qshape/qshape.pl %{buildroot}%{_sbindir}/qshape
 cp man/man1/qshape.1 %{buildroot}%{_mandir}/man1/qshape.1
+
+# remove sample_directory from main.cf (#15297)
+# the default is /etc/postfix
+sed -i "/^sample_directory/d" %{buildroot}%{_sysconfdir}/postfix/main.cf
+
+mkdir -p %{buildroot}/usr/lib
+pushd %{buildroot}/usr/lib
+    ln -sf ../sbin/sendmail sendmail
+popd
 
 mkdir -p %{buildroot}%{_srvdir}/postfix
 install -m 0740 %{SOURCE6} %{buildroot}%{_srvdir}/postfix/run
@@ -316,33 +289,23 @@ sh %{_sysconfdir}/postfix/post-install \
     upgrade-package
 
 %_post_srv postfix
-%if %{alternatives}
-    %{alternatives_install_cmd}
-%endif
 
 # move previous sasl configuration files to new location if applicable
+# have to go through many loops to prevent damaging user configuration
 saslpath="`postconf -h smtpd_sasl_path | cut -d: -f 1`"
-if [ -n "${saslpath}" -a "${saslpath%/}" != "%{_libdir}/sasl2}" -a -e %{_libdir}/sasl2/smtpd.conf -a ! -e ${saslpath}/smtpd.conf ]; then
-    echo "Moving %{_libdir}/sasl2/smtpd.conf to %{_sysconfdir}/postfix/sasl/smtpd.conf"
-    mv %{_libdir}/sasl2/smtpd.conf %{saslpath}/smtpd.conf
+if [ -n "${saslpath}" -a "${saslpath%/}" != "%{_libdir}/sasl2" -a -e %{_libdir}/sasl2/smtpd.conf ]; then
+    if ! grep -qsve '^\(#.*\|[[:space:]]*\)$' ${saslpath}/smtpd.conf; then
+        # ${saslpath}/smtpd.conf missing or just comments
+        if [ -s ${saslpath}/smtpd.conf ] && [ ! -e ${saslpath}/smtpd.conf.rpmnew -o ${saslpath}/smtpd.conf -nt ${saslpath}/smtpd.conf.rpmnew ];then
+            mv ${saslpath}/smtpd.conf ${saslpath}/smtpd.conf.rpmnew
+        fi
+        mv %{_libdir}/sasl2/smtpd.conf ${saslpath}/smtpd.conf
+    fi
 fi
-
-%if %{alternatives}
-%triggerpostun -- postfix
-# (gc) necessary when we upgrade from a non alternativized package, because it's executed after the old files are removed
-[ -e %{_sbindir}/sendmail.postfix ] && %{alternatives_install_cmd} || :
-%endif
 
 
 %preun
 %_preun_srv postfix
-if [ $1 = 0 ]; then
-    %if %{alternatives}
-	update-alternatives --remove mta %{_sbindir}/sendmail.postfix
-    %endif
-    true
-fi
-
 
 %postun
 %_postun_userdel postfix
@@ -360,34 +323,34 @@ fi
 %defattr(-, root, root)
 %doc AAAREADME US_PATENT_6321267 COMPATIBILITY COPYRIGHT HISTORY LICENSE PORTING RELEASE_NOTES*
 %doc examples/smtpd-policy
-%if %{with_TLS}
-%doc TLS
-%endif
 %doc html UCE
 %doc README_FILES
 
 %dir %{_sysconfdir}/postfix
 %dir %{_sysconfdir}/postfix/sasl
-%attr(0755,root,root) %config(noreplace) %{_sysconfdir}/postfix/postfix-script
-%attr(0755,root,root) %config(noreplace) %{_sysconfdir}/postfix/post-install
+%config(noreplace) %{_sysconfdir}/postfix/sasl/smtpd.conf
+%attr(0755,root,root) %{_sysconfdir}/postfix/postfix-script
+%attr(0755,root,root) %{_sysconfdir}/postfix/post-install
+%attr(0755,root,root) %{_sysconfdir}/postfix/postfix-files
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/pam.d/smtp
 %config(noreplace) %{_sysconfdir}/postfix/postfix-files
 %config(noreplace) %{_sysconfdir}/postfix/main.cf
-%config(noreplace) %{_sysconfdir}/postfix/main.cf.dist
-%config(noreplace) %{_sysconfdir}/postfix/main.cf.default
+%{_sysconfdir}/postfix/main.cf.dist
+%{_sysconfdir}/postfix/main.cf.default
 %config(noreplace) %{_sysconfdir}/postfix/master.cf
 %config(noreplace) %{_sysconfdir}/postfix/access
 %config(noreplace) %{_sysconfdir}/postfix/aliases
 %ghost %{_sysconfdir}/postfix/aliases.db
 %config(noreplace) %{_sysconfdir}/postfix/canonical
+%config(noreplace) %{_sysconfdir}/postfix/generic
 %config(noreplace) %{_sysconfdir}/postfix/header_checks
 %config(noreplace) %{_sysconfdir}/postfix/relocated
 %config(noreplace) %{_sysconfdir}/postfix/transport
 %config(noreplace) %{_sysconfdir}/postfix/virtual
-%config(noreplace) %{_sysconfdir}/postfix/makedefs.out
+%{_sysconfdir}/postfix/makedefs.out
 
 %dir %attr(0750,root,admin) %{_srvdir}/postfix
-%attr(0740,root,admin) %{_srvdir}/postfix/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/postfix/run
 
 # For correct directory permissions check postfix-install script
 %dir %{queue_directory}
@@ -409,6 +372,7 @@ fi
 %dir %attr(0755,root,root) %{_libdir}/postfix
 %attr(0755,root,root) %{_libdir}/postfix/bounce
 %attr(0755,root,root) %{_libdir}/postfix/cleanup
+%attr(0755,root,root) %{_libdir}/postfix/discard
 %attr(0755,root,root) %{_libdir}/postfix/error
 %attr(0755,root,root) %{_libdir}/postfix/flush
 %attr(0755,root,root) %{_libdir}/postfix/lmtp
@@ -421,6 +385,7 @@ fi
 %attr(0755,root,root) %{_libdir}/postfix/proxymap
 %attr(0755,root,root) %{_libdir}/postfix/qmgr
 %attr(0755,root,root) %{_libdir}/postfix/qmqpd
+%attr(0755,root,root) %{_libdir}/postfix/scache
 %attr(0755,root,root) %{_libdir}/postfix/showq
 %attr(0755,root,root) %{_libdir}/postfix/smtp
 %attr(0755,root,root) %{_libdir}/postfix/smtpd
@@ -428,10 +393,9 @@ fi
 %attr(0755,root,root) %{_libdir}/postfix/trivial-rewrite
 %attr(0755,root,root) %{_libdir}/postfix/virtual
 %attr(0755,root,root) %{_libdir}/postfix/verify
+%attr(0755,root,root) %{_libdir}/postfix/anvil
 
-%if %{with_TLS}
 %attr(0755,root,root) %{_libdir}/postfix/tlsmgr
-%endif
 
 %attr(0755,root,root) %{_sbindir}/postalias
 %attr(0755,root,root) %{_sbindir}/postcat
@@ -449,22 +413,28 @@ fi
 %attr(0755,root,root) %{_sbindir}/smtp-source
 %attr(0755,root,root) %{_sbindir}/qshape
 
-%if %{alternatives}
-%attr(0755,root,root) %{_sbindir}/sendmail.postfix
-%attr(0755,root,root) %{_bindir}/mailq.postfix
-%attr(0755,root,root) %{_bindir}/newaliases.postfix
-%attr(0755,root,root) %{_bindir}/rmail.postfix
-%else
 %attr(0755,root,root) %{_sbindir}/sendmail
+/usr/lib/sendmail
 %attr(0755,root,root) %{_bindir}/mailq
 %attr(0755,root,root) %{_bindir}/newaliases
 %attr(0755,root,root) %{_bindir}/rmail
-%endif
 
 %{_mandir}/*/*
 
 
 %changelog
+* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 2.2.5-1avx
+- 2.2.5
+- run scripts are now considered config files and are not replaceable
+- shorten some alternatives; we'll use alternatives to provide the sendmail symlink
+  but that's about it; make exim and postfix conflict
+- updated saslpath patch (andreas)
+- reduce the number of %%config files that aren't really config files
+- get rid of alternatives
+- drop P2; merged upstream
+- rediff P8
+- don't apply the TLS patch
+
 * Sat Aug 27 2005 Vincent Danen <vdanen@annvix.org> 2.1.5-6avx
 - fix perms on run scripts
 
