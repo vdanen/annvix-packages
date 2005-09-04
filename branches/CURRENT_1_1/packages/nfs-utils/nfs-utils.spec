@@ -8,8 +8,8 @@
 
 
 %define name		nfs-utils
-%define	version		1.0.6
-%define release		9avx
+%define	version		1.0.7
+%define release		1avx
 %define epoch		1
 
 Summary:	The utilities for Linux NFS server
@@ -19,9 +19,9 @@ Release:	%{release}
 Epoch:		%{epoch}
 License:	GPL
 Group:		Networking/Other
-URL:		ftp://ftp.kernel.org:/pub/linux/utils/nfs
-Source0:	ftp://ftp.kernel.org:/pub/linux/utils/nfs/%{name}-%{version}.tar.bz2
-Source1:	ftp://nfs.sourceforge.net/pub/nfs/nfs.doc.tar.bz2
+URL:		http://sourceforge.net/projects/nfs/
+Source0:	http://prdownloads.sourceforge.net/nfs/%{name}-%{version}.tar.bz2
+Source1:	nfs.doc.tar.bz2
 Source10:	nfs.init
 Source11:	nfslock.init
 Source12:	nfs.sysconfig
@@ -30,19 +30,43 @@ Source14:	nfs.statd-log.run
 Source15:	nfs.mountd.run
 Source16:	nfs.mountd-log.run
 Source17:	nfs.mountd.finish
-Patch1:		nfs-utils-0.2beta-nowrap.patch.bz2
-Patch3:		nfs-utils-0.3.3-statd-manpage.patch.bz2
-Patch4:		eepro-support.patch.bz2
-Patch5:		nfs-utils-1.0.4-no-chown.patch.bz2
-Patch6:		nfs-utils-1.0.6-CAN-2004-1014.patch.bz2
-Patch7:		nfs-utils-0.3.3-rquotad-overflow.patch.bz2
+Source18:	nfsv4.schema.bz2
+Source19:	rpcgssd.init.bz2
+Source20:	rpcidmapd.init.bz2
+Source21:	rpcsvcgssd.init.bz2
+Source22:	gssapi_mech.conf.bz2
+Source23:	idmapd.conf.bz2
+
+Patch0:		nfs-utils-0.3.3-statd-manpage.patch.bz2
+Patch1:		eepro-support.patch.bz2
+Patch2:		nfs-utils-1.0.4-no-chown.patch.bz2
+Patch3:		nfs-utils-1.0.7-binary-or-shlib-defines-rpath.diff.bz2
+# (oe) stolen from fedora
+Patch20:	nfs-utils-1.0.6-citi-mountd_flavors.patch.bz2
+Patch21:	nfs-utils-1.0.6-zerostats.patch.bz2
+Patch22:	nfs-utils-1.0.6-mountd.patch.bz2
+Patch23:	nfs-utils-1.0.6-expwarn.patch.bz2
+Patch24:	nfs-utils-1.0.6-fd-sig-cleanup.patch.bz2
+Patch25:	nfs-utils-1.0.6-statd-notify-hostname.patch.bz2
+Patch26:	nfs-utils-1.0.7-rpcsecgss-debug.patch.bz2
+Patch27:	nfs-utils-1.0.7-xlog-loginfo.patch.bz2
+Patch28:	nfs-utils-1.0.7-svcgssd-bufover.patch.bz2
+# (oe) stolen from gentoo
+Patch50:	nfs-utils-1.0.7-gcc4.patch.bz2
+# security fixes
+Patch200:	nfs-utils-1.0.7-CAN-2004-1014.diff.bz2
+Patch201:	nfs-utils-1.0.7-CAN-2004-0946.diff.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
+BuildRequires:	tcp_wrappers-devel
+# 2.6:
+#BuildRequires:	nfsidmap-devel, krb5-devel >= 1.3, libevent-devel
 
 ExcludeArch:	armv4l
 Obsoletes:	nfs-server knfsd nfs-server-clients
 Provides:	nfs-server knfsd nfs-server-clients
-Requires:	nfs-utils-clients, kernel >= 2.2.5, portmap >= 4.0, setup >= 2.1.9-35mdk
+Requires:	nfs-utils-clients, kernel >= 2.2.5, portmap >= 4.0, setup >= 2.1.9-35mdk, tcp_wrappers
+#Requires:	kernel >= 2.6.0, module-init-tools >=3.0-5mdk
 PreReq:		rpm-helper
 
 %description
@@ -77,23 +101,54 @@ clients which are mounted on that host.
 
 %prep
 %setup -q -a 1
-%patch1 -p0
-%patch3 -p1 -b .statd-manpage
-%patch4 -p1 -b .eepro-support
-%patch5 -p1 -b .no-chown
-%patch6 -p2 -b .can-2004-1014
-%patch7 -p1 -b .can-2004-0946
+
+mkdir -p Annvix
+cat %{SOURCE10} > Annvix/nfs.init
+cat %{SOURCE12} > Annvix/nfs.sysconfig
+cat %{SOURCE11} > Annvix/nfslock.init
+bzcat %{SOURCE18} > Annvix/nfsv4.schema
+bzcat %{SOURCE19} > Annvix/rpcgssd.init
+bzcat %{SOURCE20} > Annvix/rpcidmapd.init
+bzcat %{SOURCE21} > Annvix/rpcsvcgssd.init
+bzcat %{SOURCE22} > Annvix/gssapi_mech.conf
+bzcat %{SOURCE23} > Annvix/idmapd.conf
+
+# fix strange perms
+find . -type d -perm 0700 -exec chmod 755 {} \;
+find . -type f -perm 0555 -exec chmod 755 {} \;
+find . -type f -perm 0444 -exec chmod 644 {} \;
+
+%patch0 -p1 -b .statd-manpage
+%patch1 -p1 -b .eepro-support
+%patch2 -p1 -b .no-chown
+%patch3 -p1 -b .binary-or-shlib-defines-rpath
+%patch20 -p1 -b .mountd_flavors
+%patch21 -p1 -b .zerostats
+%patch22 -p1 -b .mountd
+%patch23 -p1 -b .expwarn
+%patch24 -p1 -b .cleanup
+%patch25 -p1 -b .notify
+%patch26 -p1 -b .rpcsecgss
+%patch27 -p1 -b .xlog
+%patch28 -p1 -b .svcgssd-bufover
+%patch50 -p1 -b .gcc4
+%patch200 -p1 -b .CAN-2004-1014
+%patch201 -p0 -b .CAN-2004-0946
+
+# lib64 fixes
+perl -pi -e "s|/usr/lib|%{_libdir}|g" Annvix/*
+perl -pi -e "s|\\$dir/lib/|\\$dir/%{_lib}/|g" configure
 
 
 %build
-#
-# Hack to enable netgroups.  If anybody knows the right way to do
-# this, please help yourself.
-#
 %serverbuild
 %configure \
+    --with-statedir=%{_localstatedir}/nfs \
+    --with-statduser=rpcuser \
+    --enable-nfsv3 \
     --disable-rquotad \
-    --disable-nfsv4
+    --disable-nfsv4 --disable-gss --disable-secure-statd --without-krb5
+# once we have a 2.6 kernel, we can enable all of the above
 make all
 
 
@@ -103,31 +158,53 @@ make all
 mkdir -p %{buildroot}{/sbin,%{_sbindir}}
 mkdir -p %{buildroot}%{_mandir}/{man5,man8}
 mkdir -p %{buildroot}%{_sysconfdir}/sysconfig
-mkdir -p %{buildroot}/var/lib/nfs
+mkdir -p %{buildroot}%{_localstatedir}/nfs/statd
 
-make install_prefix=%{buildroot} MANDIR=%{buildroot}%{_mandir} SBINDIR=%{buildroot}%{_sbindir} install
-install -s -m 0755 tools/rpcdebug/rpcdebug %{buildroot}/sbin
-install -m 0755 %{SOURCE12} %{buildroot}%{_sysconfdir}/sysconfig/nfs
+make \
+    install_prefix=%{buildroot} \
+    MANDIR=%{buildroot}%{_mandir} \
+    SBINDIR=%{buildroot}%{_sbindir} \
+    install
+install -m 0755 tools/rpcdebug/rpcdebug %{buildroot}/sbin/
+ln -snf rpcdebug %{buildroot}/sbin/nfsdebug
+ln -snf rpcdebug %{buildroot}/sbin/nfsddebug
 
-touch %{buildroot}/var/lib/nfs/rmtab
+install -m 0755 Annvix/nfs.sysconfig %{buildroot}%{_sysconfdir}/sysconfig/nfs
+
+touch %{buildroot}%{_localstatedir}/nfs/rmtab
 mv %{buildroot}%{_sbindir}/{rpc.lockd,rpc.statd} %{buildroot}/sbin
 
-mkdir -p %{buildroot}/var/lib/nfs/statd
+## when we're ready for 2.6 and nfsv4:
+#install -m 0755 Annvix/rpcidmapd.init %{buildroot}%{_initrddir}/rpcidmapd
+#install -m 0755 Annvix/rpcgssd.init %{buildroot}%{_initrddir}/rpcgssd
+#install -m 0755 Annvix/rpcsvcgssd.init %{buildroot}%{_initrddir}/rpcsvcgssd
+#install -m 0644 Annvix/idmapd.conf %{buildroot}%{_sysconfdir}/idmapd.conf
+#install -m 0644 Annvix/gssapi_mech.conf %{buildroot}%{_sysconfdir}/gssapi_mech.conf
+#mkdir -p %{buildroot}%{_localstatedir}/nfs/rpc_pipefs
+
 
 mkdir -p %{buildroot}%{_srvdir}/nfs.{statd,mountd}/log
-mkdir -p %{buildroot}%{_srvlogdir}/nfs.{statd,mountd}
 install -m 0740 %{SOURCE13} %{buildroot}%{_srvdir}/nfs.statd/run
 install -m 0740 %{SOURCE14} %{buildroot}%{_srvdir}/nfs.statd/log/run
 install -m 0740 %{SOURCE15} %{buildroot}%{_srvdir}/nfs.mountd/run
 install -m 0740 %{SOURCE16} %{buildroot}%{_srvdir}/nfs.mountd/log/run
 install -m 0740 %{SOURCE17} %{buildroot}%{_srvdir}/nfs.mountd/finish
 
+# with 2.6/nfsv4 we'll need additional services: rpcdimap, rpcgssd, rpcsvcgssd
+# refer to mdk nfs-utils.spec: 
+# http://cvs.mandriva.com/cgi-bin/cvsweb.cgi/SPECS/nfs-utils/nfs-utils.spec.diff?r1=1.34&r2=1.43
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 
 %post
+for i in nfs.statd nfs.mountd
+do
+    if [ -d /var/log/supervise/$i -a ! -d /var/log/service/$i ]; then
+        mv /var/log/supervise/$i /var/log/service/
+    fi
+done
 %_post_srv nfs.statd
 %_post_srv nfs.mountd
 
@@ -145,7 +222,7 @@ fi
 %_preun_srv nfs.mountd
 
 %pre clients
-%_pre_useradd rpcuser /var/lib/nfs /bin/false 73
+%_pre_useradd rpcuser %{_localstatedir}/nfs /bin/false 73
 
 %post clients
 %_post_srv rpc.statd
@@ -160,12 +237,18 @@ fi
 %files
 %defattr(-,root,root)
 %doc README ChangeLog COPYING
-%doc nfs/*.html nfs/*.ps linux-nfs/*
+%doc nfs/*.html linux-nfs/*
+#%doc Annvix/nfsv4.schema
 %config(noreplace) %{_sysconfdir}/sysconfig/nfs
 %config(noreplace) %ghost  %{_localstatedir}/nfs/xtab
 %config(noreplace) %ghost  %{_localstatedir}/nfs/etab
 %config(noreplace) %ghost  %{_localstatedir}/nfs/rmtab
+# 2.6:
+#%config(noreplace) %{_sysconfdir}/idmapd.conf
+#%config(noreplace) %{_sysconfdir}/gssapi_mech.conf
 /sbin/rpcdebug
+/sbin/nfsdebug
+/sbin/nfsddebug
 %{_sbindir}/exportfs
 %{_sbindir}/nfsstat
 %{_sbindir}/nhfsgraph
@@ -174,6 +257,12 @@ fi
 %{_sbindir}/nhfsstone
 %{_sbindir}/rpc.mountd
 %{_sbindir}/rpc.nfsd
+# 2.6:
+#%{_sbindir}/rpc.idmapd
+#%{_sbindir}/rpc.gssd
+#%{_sbindir}/rpc.svcgssd
+#%{_mandir}/man5/idmapd.conf.5*
+#%{_mandir}/man5/rpc.idmapd.conf.5*
 %{_mandir}/man5/exports.5*
 %{_mandir}/man7/nfsd.7*
 %{_mandir}/man8/exportfs.8*
@@ -186,12 +275,18 @@ fi
 %{_mandir}/man8/nhfsstone.8*
 %{_mandir}/man8/rpc.mountd.8*
 %{_mandir}/man8/rpc.nfsd.8*
+#%{_mandir}/man8/gssd.8*
+#%{_mandir}/man8/idmapd.8*
+#%{_mandir}/man8/rpc.gssd.8*
+#%{_mandir}/man8/rpc.idmapd.8*
+#%{_mandir}/man8/rpc.svcgssd.8*
+#%{_mandir}/man8/svcgssd.8*
+#%dir %{_localstatedir}/nfs/rpc_pipefs
 %dir %attr(0750,root,admin) %{_srvdir}/nfs.mountd
 %dir %attr(0750,root,admin) %{_srvdir}/nfs.mountd/log
-%attr(0740,root,admin) %{_srvdir}/nfs.mountd/run
-%attr(0740,root,admin) %{_srvdir}/nfs.mountd/finish
-%attr(0740,root,admin) %{_srvdir}/nfs.mountd/log/run
-%dir %attr(0750,logger,logger) %{_srvlogdir}/nfs.mountd
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/nfs.mountd/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/nfs.mountd/finish
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/nfs.mountd/log/run
 
 %files clients
 %defattr(-,root,root)
@@ -206,15 +301,28 @@ fi
 %{_mandir}/man8/showmount.8*
 %dir %{_localstatedir}/nfs
 %dir %{_localstatedir}/nfs/state
-%dir %attr(700,rpcuser,rpcuser) /var/lib/nfs/statd
+%dir %attr(0700,rpcuser,rpcuser) %{_localstatedir}/nfs/statd
 %dir %attr(0750,root,admin) %{_srvdir}/nfs.statd
 %dir %attr(0750,root,admin) %{_srvdir}/nfs.statd/log
-%attr(0740,root,admin) %{_srvdir}/nfs.statd/run
-%attr(0740,root,admin) %{_srvdir}/nfs.statd/log/run
-%dir %attr(0750,logger,logger) %{_srvlogdir}/nfs.statd
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/nfs.statd/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/nfs.statd/log/run
 
 
 %changelog
+* Sat Aug 27 2005 Vincent Danen <vdanen@annvix.org> 1.0.7-1avx
+- 1.0.7
+- don't package postscript docs
+- prepare spec for nfsv4/kernel 2.6
+- Requires: tcp_wrappers
+- BuildRequires: tcp_wrappers-devel
+- sync with mandrake 1.0.7-6mdk:
+  - P20, P21, P22, P23, P24, P25, P26, P27, P28: from fedora
+  - P50: gcc4 patch from gentoo
+  - rediffed P200; parts were applied (CAN-2004-1014)
+- use execlineb for run scripts
+- move logdir to /var/log/service/nfs.{statd,mountd}
+- run scripts are now considered config files and are not replaceable
+
 * Sat Aug 27 2005 Vincent Danen <vdanen@annvix.org> 1.0.6-9avx
 - fix perms on run scripts
 

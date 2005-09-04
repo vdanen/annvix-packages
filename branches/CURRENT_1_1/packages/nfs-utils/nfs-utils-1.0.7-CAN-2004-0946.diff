@@ -1,6 +1,14 @@
---- nfs-utils-0.3.3/utils/rquotad/rquota_server.c.orig	Wed Jun 27 12:45:56 2001
-+++ nfs-utils-0.3.3/utils/rquotad/rquota_server.c	Thu Nov 11 14:36:39 2004
-@@ -76,6 +76,7 @@ getquota_rslt *getquotainfo(int flags, c
+  * utils/rquotad/rquota_server.c (Arjan van de Ven):
+    - getquotainfo(): do not use memcpy() to copy
+      values from struct dqblk to struct rquota; on 64 bit architectures time_t
+      is 64 bits wide, but the target fields are only 32 bit, thus causing a
+      buffer overflow
+    - CAN-2004-0946
+
+
+--- utils/rquotad/rquota_server.c	2001-06-27 18:45:56.000000000 +0200
++++ utils/rquotad/rquota_server.c.oden	2005-01-09 13:32:38.667823925 +0100
+@@ -76,6 +76,7 @@
     char *pathname, *qfpathname;
     int fd, err, id, type;
     struct stat stm, stn;
@@ -8,7 +16,7 @@
  
     /*
      * First check authentication.
-@@ -168,8 +169,16 @@ getquota_rslt *getquotainfo(int flags, c
+@@ -168,8 +169,16 @@
            * Make a copy of the info into the last part of the remote quota
            * struct which is exactly the same.
            */
