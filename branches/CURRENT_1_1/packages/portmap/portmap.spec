@@ -9,7 +9,7 @@
 
 %define name		portmap
 %define version		4.0
-%define release		31avx
+%define release		32avx
 %define ver		4
 
 Summary:	A program which manages RPC connections
@@ -82,7 +82,6 @@ install -m 0644 %{SOURCE3} %{buildroot}%{_mandir}/man8
 install -m 0644 %{SOURCE4} %{buildroot}%{_mandir}/man8
 
 mkdir -p %{buildroot}%{_srvdir}/portmap/log
-mkdir -p %{buildroot}%{_srvlogdir}/portmap
 install -m 0740 %{SOURCE5} %{buildroot}%{_srvdir}/portmap/run
 install -m 0740 %{SOURCE6} %{buildroot}%{_srvdir}/portmap/log/run
 
@@ -97,6 +96,9 @@ strip %{buildroot}/sbin/portmap
 %_pre_useradd rpc / /bin/false 72
 
 %post
+if [ -d /var/log/supervise/portmap -a ! -d /var/log/service/portmap ]; then
+    mv /var/log/supervise/portmap /var/log/service/
+fi
 %_post_srv portmap
 
 %triggerpostun -- portmap <= portmap-4.0-9
@@ -115,9 +117,8 @@ strip %{buildroot}/sbin/portmap
 %config(noreplace) %{_sysconfdir}/sysconfig/portmap
 %dir %attr(0750,root,admin) %{_srvdir}/portmap
 %dir %attr(0750,root,admin) %{_srvdir}/portmap/log
-%attr(0740,root,admin) %{_srvdir}/portmap/run
-%attr(0740,root,admin) %{_srvdir}/portmap/log/run
-%dir %attr(0750,logger,logger) %{_srvlogdir}/portmap
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/portmap/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/portmap/log/run
 /sbin/portmap
 %{_sbindir}/pmap_dump
 %{_sbindir}/pmap_set
@@ -125,6 +126,11 @@ strip %{buildroot}/sbin/portmap
 
 
 %changelog
+* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 4.0-32avx
+- use execlineb for run scripts
+- move logdir to /var/log/service/portmap
+- run scripts are now considered config files and are not replaceable
+
 * Fri Aug 26 2005 Vincent Danen <vdanen@annvix.org> 4.0-31avx
 - fix perms on run scripts
 - P8: fix typo in tcp bind error message (oblin)
