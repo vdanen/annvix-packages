@@ -8,11 +8,10 @@
 
 
 %define name		dhcp
-%define version		3.0.2
-%define release		4avx
+%define version		3.0.3
+%define release		1avx
 %define epoch		2
 
-%define their_version	3.0.1
 %define _catdir		/var/cache/man
 
 %define _requires_exceptions perl(Win32API::Registry)
@@ -25,12 +24,12 @@ Epoch:		%{epoch}
 License:	Distributable
 Group:		System/Servers
 URL:		http://www.isc.org/dhcp.html
-Source0:	ftp://ftp.isc.org/isc/%{name}/%{name}-%{their_version}.tar.gz
+Source0:	ftp://ftp.isc.org/isc/%{name}/%{name}-%{version}.tar.gz
 Source1:	dhcpd.conf.sample
 Source3:	dhcp-dynamic-dns-examples.tar.bz2
 Source5:	update_dhcp.pl
 Source6:	dhcpreport.pl
-Source7:	ftp://ftp.isc.org/isc/%{name}/%{name}-%{their_version}.tar.gz.asc
+Source7:	ftp://ftp.isc.org/isc/%{name}/%{name}-%{version}.tar.gz.asc
 Source8:	dhcpd.run
 Source9:	dhcpd-log.run
 Source10:	dhcrelay.run
@@ -39,7 +38,6 @@ Source12:	dhcpd.sysconfig
 Patch0:		dhcp-3.0.1-ifup.patch.bz2
 # http://www.episec.com/people/edelkind/patches/
 Patch1:		dhcp-3.0.1-paranoia.diff.bz2
-Patch2:		dhcp-3.0.1-gcc343-fix.diff.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl groff-for-man
@@ -126,15 +124,14 @@ Group:		Development/Other
 Requires:	dhcp-common = %{epoch}:%{version}
 
 %description devel
-DHCP devel contains all of the libraries and headers for developing with th
+DHCP devel contains all of the libraries and headers for developing with the
 Internet Software Consortium (ISC) dhcpctl API.
 
 
 %prep
-%setup -q -a 3 -n %{name}-%{their_version}
+%setup -q -a 3 -n %{name}-%{version}
 %patch0 -p1 -b .ifup
 %patch1 -p1 -b .paranoia
-%patch2 -p0 -b .gcc343
 
 cat << EOF >site.conf
 VARDB=%{_localstatedir}/dhcp
@@ -174,7 +171,19 @@ mkdir -p %{buildroot}/var/run/dhcpd
 
 touch %{buildroot}%{_localstatedir}/dhcp/dhcpd.leases
 touch %{buildroot}%{_localstatedir}/dhcp/dhclient.leases
-touch %{buildroot}%{_sysconfdir}/sysconfig/dhcrelay
+
+cat > %{buildroot}%{_sysconfdir}/sysconfig/dhcrelay <<EOF
+# Define SERVERS with a list of one or more DHCP servers where
+# DHCP packets are to be relayed to and from.  This is mandatory.
+#SERVERS="10.11.12.13 10.9.8.7"
+SERVERS=""
+
+# Define OPTIONS with any other options to pass to the dhcrelay server.
+# See dhcrelay(8) for available options and syntax.
+#OPTIONS="-q -i eth0 -i eth1"
+OPTIONS="-q"
+EOF
+
 install -m 0644 %{SOURCE1} %{buildroot}%{_sysconfdir}
 install -m 0755 %{SOURCE5} %{buildroot}%{_sbindir}/
 install -m 0755 %{SOURCE6} %{buildroot}%{_sbindir}/
@@ -186,7 +195,6 @@ find . -type f -exec chmod 0644 {} \;
 rm -rf doc/ja_JP.eucJP
 
 mkdir -p %{buildroot}%{_srvdir}/{dhcpd,dhcrelay}/log
-mkdir -p %{buildroot}%{_srvlogdir}/{dhcpd,dhcrelay}
 install -m 0740 %{SOURCE8} %{buildroot}%{_srvdir}/dhcpd/run
 install -m 0740 %{SOURCE9} %{buildroot}%{_srvdir}/dhcpd/log/run
 install -m 0740 %{SOURCE10} %{buildroot}%{_srvdir}/dhcrelay/run
@@ -197,6 +205,9 @@ install -m 0740 %{SOURCE11} %{buildroot}%{_srvdir}/dhcrelay/log/run
 %_pre_useradd dhcp %{_localstatedir}/dhcp /bin/false 89
 
 %post server
+if [ -d /var/log/supervise/dhcpd -a ! -d /var/log/service/dhcpd ]; then
+    mv /var/log/supervise/dhcpd /var/log/service/
+fi
 %_post_srv dhcpd
 # New dhcpd lease file
 if [ ! -f %{_localstatedir}/dhcp/dhcpd.leases ]; then
@@ -210,6 +221,9 @@ fi
 %_postun_userdel dhcp
 
 %post relay
+if [ -d /var/log/supervise/dhcrelay -a ! -d /var/log/service/dhcrelay ]; then
+    mv /var/log/supervise/dhcrelay /var/log/service/
+fi
 %_post_srv dhcrelay
 
 %preun relay
@@ -250,9 +264,8 @@ rm -rf %{_localstatedir}/dhcp/dhclient.leases
 %{_mandir}/man8/dhcpd.8*
 %dir %attr(0750,root,admin) %{_srvdir}/dhcpd
 %dir %attr(0750,root,admin) %{_srvdir}/dhcpd/log
-%attr(0740,root,admin) %{_srvdir}/dhcpd/run
-%attr(0740,root,admin) %{_srvdir}/dhcpd/log/run
-%dir %attr(0750,logger,logger) %{_srvlogdir}/dhcpd
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/dhcpd/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/dhcpd/log/run
 
 %files relay
 %defattr(-,root,root)
@@ -261,9 +274,8 @@ rm -rf %{_localstatedir}/dhcp/dhclient.leases
 %{_mandir}/man8/dhcrelay.8*
 %dir %attr(0750,root,admin) %{_srvdir}/dhcrelay
 %dir %attr(0750,root,admin) %{_srvdir}/dhcrelay/log
-%attr(0740,root,admin) %{_srvdir}/dhcrelay/run
-%attr(0740,root,admin) %{_srvdir}/dhcrelay/log/run
-%dir %attr(0750,logger,logger) %{_srvlogdir}/dhcrelay
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/dhcrelay/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/dhcrelay/log/run
 
 %files client
 %defattr(-,root,root)
@@ -284,6 +296,14 @@ rm -rf %{_localstatedir}/dhcp/dhclient.leases
 
 
 %changelog
+* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 3.0.3-1avx
+- 3.0.3
+- drop P2; fixed upstream
+- create a default dhcrelay config file instead of an empty one
+- use execlineb for run scripts
+- move logdir to /var/log/service/sshd
+- run scripts are now considered config files and are not replaceable
+
 * Fri Aug 26 2005 Vincent Danen <vdanen@annvix.org> 3.0.2-4avx
 - fix perms on run scripts
 
