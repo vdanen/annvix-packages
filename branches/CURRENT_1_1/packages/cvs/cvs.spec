@@ -8,8 +8,8 @@
 
 
 %define name		cvs
-%define version		1.11.19
-%define release		6avx
+%define version		1.11.20
+%define release		1avx
 
 %define _requires_exceptions tcsh
 
@@ -27,12 +27,12 @@ Source3: 	ftp://ftp.cvshome.org/pub/cvs-%{version}/cvs-%{version}.tar.bz2.sig
 Source4:	cvs.run
 Source5:	cvs-log.run
 Source6:	06_cvspserver.afterboot
+Patch0:		cvs-1.11.19-mdk-varargs.patch.bz2
 Patch4: 	cvs-1.11.19-zlib.patch.bz2
 Patch6: 	cvs-1.11.15-errno.patch.bz2
 Patch8:		cvs-1.11-ssh.patch.bz2
 Patch11:	cvs-1.11.1-newline.patch.bz2
 Patch12:	cvs-1.11.4-first-login.patch.bz2
-Patch13:	cvs-1.11.19-CAN-2005-0753.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	autoconf2.5, texinfo, zlib-devel, krb5-devel
@@ -61,12 +61,12 @@ to form a software release.
 
 %prep
 %setup -q
+%patch0 -p1 -b .varargs
 %patch4 -p1 -b .zlib
 %patch6 -p1 -b .errno
 %patch8 -p1 -b .ssh
 %patch11 -p1 -b .newline
 %patch12 -p1 -b .first-login
-%patch13 -p1 -b .can-2005-0753
 
 
 %build
@@ -100,7 +100,6 @@ install -m 0740 %{SOURCE4} %{buildroot}%{_srvdir}/cvspserver/run
 install -m 0740 %{SOURCE5} %{buildroot}%{_srvdir}/cvspserver/log/run
 touch %{buildroot}%{_srvdir}/cvspserver/peers/0
 chmod 0640 %{buildroot}%{_srvdir}/cvspserver/peers/0
-mkdir -p %{buildroot}%{_srvlogdir}/cvspserver
 
 mkdir -p %{buildroot}%{_datadir}/afterboot
 install -m 0644 %{SOURCE6} %{buildroot}%{_datadir}/afterboot/06_cvspserver
@@ -111,6 +110,9 @@ install -m 0644 %{SOURCE6} %{buildroot}%{_datadir}/afterboot/06_cvspserver
 
 
 %post
+if [ -d /var/log/supervise/cvspserver -a ! -d /var/log/service/cvspserver ]; then
+    mv /var/log/supervise/cvspserver /var/log/service/
+fi
 %_post_srv cvspserver
 %_install_info %{name}.info
 %_install_info cvsclient.info
@@ -145,11 +147,18 @@ install -m 0644 %{SOURCE6} %{buildroot}%{_datadir}/afterboot/06_cvspserver
 %attr(0740,root,admin) %{_srvdir}/cvspserver/run
 %attr(0740,root,admin) %{_srvdir}/cvspserver/log/run
 %attr(0640,root,admin) %{_srvdir}/cvspserver/peers/0
-%dir %attr(0750,logger,logger) %{_srvlogdir}/cvspserver
 %{_datadir}/afterboot/06_cvspserver
 
 
 %changelog
+* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 1.11.20-1avx
+- 1.11.20
+- use execlineb for run scripts
+- move logdir to /var/log/service/cvspserver
+- run scripts are now considered config files and are not replaceable
+- P0: varags fixes for x86_64 (potential, but harmless here) (gbeauchesne)
+- drop P13; merged upstream
+
 * Fri Aug 26 2005 Vincent Danen <vdanen@annvix.org> 1.11.19-6avx
 - fix perms on run scripts
 
