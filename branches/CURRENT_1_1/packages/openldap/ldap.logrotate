@@ -4,8 +4,8 @@
     compress
     postrotate
 	# only restart if slapd is really running
-	if test -n "`runsvstat /service/slapd|grep -q run; echo $?`"; then
-		/usr/sbin/srv restart slapd
+	if test -n "`ps acx|grep slapd`"; then
+		/sbin/service ldap restart
 	fi
     endscript
 }

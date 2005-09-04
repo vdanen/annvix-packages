@@ -8,16 +8,17 @@
 
 
 %define name		openldap
-%define version		2.1.29
-%define release		16avx
+%define version		2.3.6
+%define release		1avx
 
-%define major 		2
+%define major 		2.3_0
 %define migtools_ver	45
 %define fname		ldap
 %define libname		%mklibname %{fname} %{major}
 
 %global db4_internal	1
 %define dbver		4.2.52
+%define dbname		%(a=%dbver;echo ${a%.*})
 
 #localstatedir is passed directly to configure, and we want it to be /var/lib
 #define _localstatedir	%{_var}/run
@@ -43,7 +44,7 @@ License: 	Artistic
 Group: 		System/Servers
 URL: 		http://www.openldap.org
 # Openldap source
-Source0: 	%{name}-%{version}.tar.bz2
+Source0: 	ftp://ftp.openldap.org/pub/OpenLDAP/openldap-release/%{name}-%{version}.tar.bz2
 # Specific source
 Source1: 	ldap.init
 Source2: 	%{name}.sysconfig
@@ -52,6 +53,7 @@ Source6:	ldap.conf
 Source7:	slapd.access.conf
 Source8:	ldap-hot-db-backup
 Source9:	ldap-reinitialise-slave
+Source10:	ldap-common
 Source19:	gencert.sh
 Source20:	ldap.logrotate
 Source21:	slapd.conf
@@ -93,16 +95,20 @@ Source66:	dnszone.schema
 # from http://cvs.pld.org.pl/SOURCES/openldap-dhcp.schema
 Source67:	dhcp.schema
 # Chris Patches
-Patch0: 	%{name}-2.1.25-config.patch.bz2
+Patch0: 	%{name}-2.3.4-config.patch.bz2
 Patch1:		%{name}-2.0.7-module.patch.bz2
-# replica uri support from 2.1.26 and later
-Patch22:	%{name}-libtool.patch.bz2
+#
+# For now only build support for SMB (no krb5) changing support in smbk5passwd overlay:
+Patch2:		openldap-2.3.4-smbk5passwd-only-smb.patch.bz2
 # RH + PLD Patches
 Patch6: 	%{name}-2.0.3-krb5-1.1.patch.bz2
 Patch8:		%{name}-conffile.patch.bz2
 Patch10:	%{name}-sql.patch.bz2
 Patch12:	%{name}-syslog.patch.bz2
 Patch15:	%{name}-cldap.patch.bz2
+# additional modules
+Patch20:	openldap-2.2.23-smbk5passwd-cvs-20050314.patch.bz2
+Patch21:	openldap-2.2.23-smbk5passwd-cvs-20050314-upcasehash.patch.bz2
 # Migration tools Patch
 Patch40: 	MigrationTools-34-instdir.patch.bz2
 Patch41: 	MigrationTools-36-mktemp.patch.bz2
@@ -113,18 +119,28 @@ Patch45:	MigrationTools-45-i18n.patch.bz2
 Patch46: 	openldap-2.0.21-schema.patch.bz2
 # maildrop schema
 Patch47:	openldap-2.0.27-maildrop.schema.patch.bz2
+# http://qa.mandriva.com/show_bug.cgi?id=15499
+Patch48:	MigrationTools-45-structural.patch.bz2
 Patch49:	openldap-2.1.22-libtool.patch.bz2
-%if db4_internal
 Patch50:	http://www.sleepycat.com/update/4.2.52/patch.4.2.52.1
 Patch51:	http://www.sleepycat.com/update/4.2.52/patch.4.2.52.2
+Patch55:	http://www.sleepycat.com/update/4.2.52/patch.4.2.52.3
+Patch56:	http://www.sleepycat.com/update/4.2.52/patch.4.2.52.4
 Patch52:	db-4.2.52-amd64-mutexes.patch.bz2
-Patch53:	openldap-ntlm.patch.bz2
-%endif
+Patch53:	openldap-2.2.19-ntlm.patch.bz2
+# preserves the temp file used to import data if an error occured
+Patch54:	MigrationTools-40-preserveldif.patch.bz2
+# (cjw) fix configure.in for autoconf 2.5x and libtool 1.5
+Patch58:	openldap-2.3.4-autoconf2.5.patch.bz2
+Patch59:	openldap-2.3.5-libtool1.5.patch.bz2
+# avoid requiring various autotools versions:
+#Patch60:	openldap-2.3.4-update-autotools.patch.bz2
 
-BuildRoot: 	%{_tmppath}/%{name}-%{version}-root
+
+BuildRoot: 	%{_buildroot}/%{name}-%{version}-root
 %{?_with_cyrussasl:BuildRequires: 	libsasl-devel}
 %{?_with_kerberos:BuildRequires:	krb5-devel}
-BuildRequires:	openssl-devel, perl, autoconf2.5, ed
+BuildRequires:	openssl-devel, perl, autoconf2.5, ed, automake1.9
 #BuildRequires: libgdbm1-devel
 %if %sql
 BuildRequires: 	unixODBC-devel
@@ -133,24 +149,26 @@ BuildRequires: 	unixODBC-devel
 BuildRequires:	perl-devel
 %endif
 %if !%db4_internal
-BuildRequires: 	db4-devel >= 4.1.25
+BuildRequires: 	db%{dbname}-devel >= %{dbver}
 %endif
 BuildRequires:  ncurses-devel >= 5.0, tcp_wrappers-devel, libtool-devel
 
-Requires: 	%libname = %{version}-%{release}
+Requires: 	%{libname} = %{version}-%{release}
 Requires:	shadow-utils, setup >= 2.2.0-6mdk
 
 
 %description
 OpenLDAP is an open source suite of LDAP (Lightweight Directory Access
 Protocol) applications and development tools.  The suite includes a
-stand-alone LDAP server (slapd), a stand-alone LDAP replication server
-(slurpd), libraries for implementing the LDAP protocol, and utilities,
-tools, and sample clients.
-Install openldap if you need LDAP applications and tools.
+stand-alone LDAP server (slapd) and stand-alone LDAP replication server
+(slurpd) which are in the -servers package, libraries for implementing the 
+LDAP protocol (in the lib packages), and utilities, tools, and sample clients 
+(in the -clients package). The openldap binary package includes configuration
+files used by the libraries.
+
 
 %package servers
-Summary: 	OpenLDAP servers and related files.
+Summary: 	OpenLDAP servers and related files
 Group: 		System/Servers
 Prereq: 	fileutils,  /usr/sbin/useradd
 PreReq:		rpm-helper
@@ -159,122 +177,107 @@ Requires(pre):	db4-utils
 Requires(post):	db4-utils
 Requires:	db4-utils
 %endif
-Requires: 	%libname = %{version}-%{release}
+Provides:	%{name}-back_dnssrv = %{version}-%{release}
+Provides:	%{name}-back_ldap = %{version}-%{release}
+Provides:	%{name}-back_passwd = %{version}-%{release}
+Provides:	%{name}-back_sql = %{version}-%{release}
+Obsoletes:	%{name}-back_dnssrv < %{version}-%{release}
+Obsoletes:	%{name}-back_ldap < %{version}-%{release}
+Obsoletes:	%{name}-back_passwd < %{version}-%{release}
+Obsoletes:	%{name}-back_sql < %{version}-%{release}
+
+Requires: 	%{libname} = %{version}-%{release}
 
 %description servers
-OpenLDAP Servers
+This package contains the OpenLDAP servers, slapd (LDAP server) and slurpd
+(replication daemon), additional backends, configuration files, schema 
+definitions required for operation, and database maintenance tools.
 
 This server package was compiled with support for the %{?_with_gdbm:gdbm}%{!?_with_gdbm:berkeley}
-database backend.
+database library.
+
 
 %package clients
-Summary: 	OpenLDAP clients and related files.
+Summary: 	OpenLDAP clients and related files
 Group: 		System/Servers
-Requires: 	%libname = %{version}-%{release}
+Requires: 	%{libname} = %{version}-%{release}
 
 %description clients
-OpenLDAP clients
+This package contains command-line ldap clients (ldapsearch, ldapadd etc).
+
 
 %package migration
-Summary: 	Set of scripts for migration of a nis domain to a ldap annuary.
+Summary: 	Set of scripts for migration of a nis domain to a ldap directory
 Group: 		System/Configuration/Other
-Requires: 	openldap-servers = %{version}-%{release}
-Requires: 	openldap-clients = %{version}-%{release}
+Requires: 	%{name}-servers = %{version}-%{release}
+Requires: 	%{name}-clients = %{version}-%{release}
 Requires: 	perl-MIME-Base64
 
 %description migration
-Set of scripts for migration of a nis domain to a ldap annuary.
+This package contains a set of scripts for migrating data from local files
+(ie /etc/passwd) or a nis domain to an ldap directory.
 
-%package -n %libname
-Summary: 	OpenLDAP libraries.
+
+%package -n %{libname}
+Summary: 	OpenLDAP libraries
 Group: 		System/Libraries
-Provides:       lib%{fname} = %version-%release
+Provides:       lib%{fname} = %{version}-%{release}
 # This is needed so all libldap2 applications get /etc/openldap/ldap.conf
 # which was moved from openldap-clients to openldap in 2.1.29-1avx
 Requires:	openldap >= 2.1.29-1avx
 
-%description -n %libname
+%description -n %{libname}
 This package includes the libraries needed by ldap applications.
 
 
-%package -n %libname-devel
-Summary: 	OpenLDAP development libraries and header files.
+%package -n %{libname}-devel
+Summary: 	OpenLDAP development libraries and header files
 Group: 		Development/C
-Provides: 	lib%{fname}-devel = %version-%release
+Provides: 	lib%{fname}-devel = %{version}-%{release}
 Provides:       openldap-devel = %{version}-%{release}
 Provides:	openldap2-devel = %{version}-%{release}
-Requires: 	%libname = %{version}-%release
+Requires: 	%{libname} = %{version}-%{release}
 Obsoletes: 	openldap-devel
 Conflicts:	libldap1-devel
+Conflicts:	%mklibname -d ldap 2
+Conflicts:	%mklibname -d ldap 2.2_7
 
-%description -n %libname-devel
+%description -n %{libname}-devel
 This package includes the development libraries and header files
 needed for compiling applications that use LDAP internals.  Install
 this package only if you plan to develop or will need to compile
 LDAP clients.
 
 
-%package -n %libname-devel-static
+%package -n %{libname}-static-devel
 Summary: 	OpenLDAP development static libraries
 Group: 		Development/C
-Provides: 	lib%{fname}-devel-static = %version-%release
-provides:	openldap-devel-static
-Requires: 	%libname-devel = %{version}-%release
+Provides: 	lib%{fname}-devel-static = %{version}-%{release}
+Provides: 	lib%{fname}-static-devel = %{version}-%{release}
+Provides:	openldap-devel-static = %{version}-%{release}
+Provides:	openldap-static-devel = %{version}-%{release}
+Requires: 	%{libname}-devel = %{version}-%{release}
 Obsoletes: 	openldap-devel-static
 Conflicts:	libldap1-devel
 
 
-%description -n %libname-devel-static
-OpenLDAP development static libraries
-
-
-%package back_dnssrv
-Summary: 	Module dnssrv for OpenLDAP 
-Group: 		System/Libraries
-Requires: 	%libname = %{version}-%{release}
-Requires: 	openldap-servers = %{version}-%{release}
-
-%description back_dnssrv
-The dnssrv database backend module for the OpenLDAP daemon.
-
-
-%package back_ldap
-Summary: 	Module ldap for OpenLDAP 
-Group: 		System/Libraries
-Requires: 	%libname = %{version}-%{release}
-Requires: 	openldap-servers = %{version}-%{release}
-
-%description back_ldap
-The ldap database backend module for the OpenLDAP daemon.
-
-
-%package back_passwd
-Summary: 	Module passwd for OpenLDAP 
-Group: 		System/Libraries
-Requires: 	%libname = %{version}-%release
-Requires: 	openldap-servers = %{version}-%release
-
-%description back_passwd
-The passwd database backend module for the OpenLDAP daemon.
-
-%if %sql
-%package back_sql
-Summary: 	Module sql for OpenLDAP 
-Group: 		System/Libraries
-Requires: 	%libname = %{version}-%{release}
-Requires: 	openldap-servers = %{version}-%{release}
-
-%description back_sql
-The sql database backend module for the OpenLDAP daemon.
-%endif
+%description -n %{libname}-static-devel
+OpenLDAP development static libraries.
 
 
 %prep
 %if %db4_internal
 %setup -q -a 11 -a 30
 pushd db-%{dbver} >/dev/null
+# upstream patches
 %patch50
 %patch51
+%patch55
+%patch56
+
+#%patch57 -b .txn_nolog
+patch -p0 -b -z .txn_nolog < ../build/BerkeleyDB42.patch
+
 %patch52 -p1 -b .amd64-mutexes
 (cd dist && ./s_config)
 popd >/dev/null
@@ -285,12 +288,8 @@ popd >/dev/null
 # Chris patches
 %patch0 -p1 -b .config
 %patch1 -p1 -b .module
+%patch2 -p1 -b .only-smb
 
-# RH patches
-#%patch6 -p1 
-#%patch8 -p1 -b .conffile
-#bgmilne %patch10 -p1 -b .sql
-#bgmilne %patch12 -p1 -b .syslog
 %patch15 -p1 -b .cldap 
 
 pushd MigrationTools-%{migtools_ver}
@@ -299,15 +298,27 @@ pushd MigrationTools-%{migtools_ver}
 %patch42 -p1 -b .simple
 %patch43 -p1 -b .suffix
 %patch45 -p2 -b .i18n
+%patch48 -p2 -b .account
+%patch54 -p1 -b .preserve
 popd
 
 %patch46 -p1 -b .mdk
 #bgmilne %patch47 -p1 -b .maildropschema
 %patch49 -p1 -b .libtool
 %patch53 -p1 -b .ntlm
+%patch58 -p1 -b .autoconf2.5
+%patch59 -p1 -b .libtool1.5
+
+#replaced the below with this patch:
+#%patch60 -p1 -b .autotools
+## old configure is generated by old autoconf, remove it so wrapper chooses 2.5x
+rm -f configure
+libtoolize --copy --force
+aclocal-1.9
+# automake is not used but this installs files like missing and install-sh
+automake-1.9 -a -c -f || :
 autoconf
-# FIXME: copy from automake dir
-cp -p contrib/ldapc++/install-sh build/
+
 
 %build
 %serverbuild
@@ -315,24 +326,31 @@ cp -p contrib/ldapc++/install-sh build/
 %if %db4_internal
 dbdir=`pwd`/db-instroot
 pushd db-%{dbver}/build_unix >/dev/null
-CONFIGURE_TOP="../dist" %configure2_5x \
-	--enable-shared --disable-static \
-	--with-uniquename=_openldap_slapd_avx \
-	--program-prefix=slapd_ \
+CONFIGURE_TOP="../dist" \
+    %configure2_5x \
+    --enable-shared \
+    --disable-static \
+    --with-uniquename=_openldap_slapd_avx \
+    --program-prefix=slapd_ \
 %ifarch %{ix86}
-	--disable-posixmutexes --with-mutex=x86/gcc-assembly
+    --disable-posixmutexes \
+    --with-mutex=x86/gcc-assembly
 %endif
 %ifarch alpha
-	--disable-posixmutexes --with-mutex=ALPHA/gcc-assembly
+    --disable-posixmutexes \
+    --with-mutex=ALPHA/gcc-assembly
 %endif
 %ifarch ia64
-	--disable-posixmutexes --with-mutex=ia64/gcc-assembly
+    --disable-posixmutexes \
+    --with-mutex=ia64/gcc-assembly
 %endif
 %ifarch ppc
-	--disable-posixmutexes --with-mutex=PPC/gcc-assembly
+    --disable-posixmutexes \
+    --with-mutex=PPC/gcc-assembly
 %endif
 %ifarch sparc
-	--disable-posixmutexes --with-mutex=Sparc/gcc-assembly
+    --disable-posixmutexes \
+    --with-mutex=Sparc/gcc-assembly
 %endif
 
 #--with-mutex=POSIX/pthreads/library
@@ -346,7 +364,7 @@ make
 rm -Rf $dbdir
 mkdir -p $dbdir
 make DESTDIR=$dbdir install
-ln -sf ${dbdir}/%{_libdir}/libslapd_db-4.2.so ${dbdir}/%{_libdir}/libdb-4.2.so
+ln -sf ${dbdir}/%{_libdir}/libslapd_db-%{dbname}.so ${dbdir}/%{_libdir}/libdb-%{dbname}.so
 popd >/dev/null
 export CPPFLAGS="-I${dbdir}/%{_includedir} $CPPFLAGS"
 export LDFLAGS="-L${dbdir}/%{_libdir} $LDFLAGS"
@@ -355,96 +373,77 @@ export LD_LIBRARY_PATH="${dbdir}/%{_libdir}"
 
 unset CONFIGURE_TOP
 
-#
-# dont't run libtoolize because openldap use custom libtool 1.3
-%define __libtoolize  /bin/true
-
-#if %{build_sasl}
-#WITH_CYRUS_SASL="--with-cyrus-sasl --enable-spasswd"
-#else
-#WITH_CYRUS_SASL="--without-cyrus-sasl"
-#endif
-
 #FIXME: Some script backends should not be used with threads, mostly shell/perl
 
+# don't choose db4.3 even if it is available
+export ol_cv_db_db_4_dot_3=no
+#rh only:
+export CPPFLAGS="-I%{_prefix}/kerberos/include $CPPFLAGS"
+export LDFLAGS="-L%{_prefix}/kerberos/%{_lib} $LDFLAGS"
+
+
 %configure2_5x \
-	--localstatedir=/var/run/ldap \
-	--enable-syslog \
-	--enable-proctitle \
-	--enable-cache \
-	--enable-referrals \
-	--enable-ipv6 \
-	--enable-local \
-	%{?_with_cyrussasl} %{?_without_cyrussasl} \
-	%{?_with_kerberos} %{?_without_kerberos} \
-	--with-readline \
-	--with-threads \
-	--with-tls \
-	--with-yielding-select \
-	--enable-slapd \
-	--enable-cleartext \
-	--enable-crypt \
-	%{?_with_kerberos:--enable-kpasswd} \
-	%{?_with_cyrussasl:--enable-spasswd} \
-	--enable-modules \
-	--enable-phonetic \
-	--enable-rlookups \
-	--enable-aci \
-	--enable-wrappers \
-	--enable-bdb \
-	--enable-dynamic \
-	--enable-dnssrv \
-	--with-dnssrv-module=dynamic \
-	--enable-ldap \
-	--with-ldap-module=dynamic \
-	--enable-ldbm \
-	--with-ldbm-api=%{?_with_gdbm:gdbm}%{!?_with_gdbm:berkeley}  \
-	--with-ldbm-module=static \
-	--enable-rewrite \
-	--enable-meta \
-	--with-meta-module=dynamic \
-	--enable-monitor \
-	--with-monitor-module-dynamic \
-	--enable-passwd \
-	--with-passwd-module=dynamic \
-%if %back_perl
-	--enable-perl \
-	--with-perl-module=dynamic \
+    --with-subdir=%{name} \
+    --localstatedir=/var/run/ldap \
+    --enable-dynamic \
+    --enable-syslog \
+    --enable-proctitle \
+    --enable-ipv6 \
+    --enable-local \
+    %{?_with_cyrussasl} %{?_without_cyrussasl} \
+    %{?_with_kerberos} %{?_without_kerberos} \
+    --with-threads \
+    --with-tls \
+    --enable-slapd \
+    --enable-aci \
+    --enable-cleartext \
+    --enable-crypt \
+    --enable-lmpasswd \
+    %{?_with_kerberos:--enable-kpasswd} \
+    %{?_with_cyrussasl:--enable-spasswd} \
+    --enable-modules \
+    --enable-rewrite \
+    --enable-rlookups \
+    --enable-wrappers \
+    --enable-bdb=yes \
+    --enable-dnssrv=mod \
+    --enable-hdb=yes \
+    --enable-ldap=mod \
+    --enable-ldbm=yes \
+    --enable-meta=mod \
+    --enable-monitor=mod \
+    --enable-passwd=mod \
+%if %{back_perl}
+    --enable-perl=mod \
 %endif
+    --enable-relay=mod \
 %if %sql
-	--enable-sql \
-	--with-sql-module=dynamic \
+    --enable-sql=mod \
 %endif
-	--enable-slurpd \
-	--enable-static \
-	--enable-shared
-#	--enable-shell \
-#	--with-shell-module=static \
-#libslapd_db.so
+    --enable-overlays=mod \
+    --enable-shared
 
 # These options are no longer available
 #	--enable-cldap \
 #	--enable-multimaster \
-# We most likely don't want to have to load modules for backend with real data
-# --with-bdb-module=dynamic \
 
-#configure --prefix=/usr --exec-prefix=/usr --bindir=/usr/bin \
-#	--sbindir=/usr/sbin --sysconfdir=/etc --datadir=/usr/share \
-#	--includedir=/usr/include --libdir=/usr/lib --libexecdir=/usr/sbin \
-#	--localstatedir=/var/run --sharedstatedir=/usr/com \
-#	--mandir=/usr/share/man --infodir=/usr/share/info \
-#   --with-ldbm-api=gdbm \
-#	--with-ldbm-api=berkeley \
-#	--with-ldbm-type=%{?ldbm_type:%{ldbm_type}}%{?!ldbm_type:btree} \
+# (oe) amd64 fix
+perl -pi -e "s|^AC_CFLAGS.*|AC_CFLAGS = $CFLAGS -fPIC|g" libraries/librewrite/Makefile
 
-#patch -p1 < %{PATCH22}
+make depend 
 
-%make depend 
+make 
+make -C contrib/slapd-modules/smbk5pwd
 
-%make 
+#%check
+%if %{!?_without_test:1}%{?_without_test:0}
+make test
+%endif
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+cp -af contrib/slapd-modules/smbk5pwd/README{,.smbk5passwd}
 
 %if %db4_internal
 pushd db-%{dbver}/build_unix >/dev/null
@@ -454,23 +453,15 @@ popd >/dev/null
 %endif
 %makeinstall_std
 
-
-#	sysconfdir=%{_sysconfdir}/openldap \
-#	datadir=%{buildroot}/%{_datadir}/openldap 
-#
-### install slapcat-gdbm
-#install -m 755 slapcat-gdbm %{buildroot}%{_sbindir}
-
+cp contrib/slapd-modules/smbk5pwd/.libs/smbk5pwd.so* %{buildroot}/%{_libdir}/%{name}
 
 ### some hack
-#perl -pi -e "s|%{buildroot}||g" %{buildroot}%{_sysconfdir}/openldap/slapd.conf
-#perl -pi -e "s|^#! /bin/sh|#!/bin/sh|g" %{buildroot}%{_bindir}/xrpcomp 
 perl -pi -e "s| -L../liblber/.libs||g" %{buildroot}%{_libdir}/libldap.la
 
-sed -i -e "s|-L$RPM_BUILD_DIR/%{name}-%{version}/db-instroot/%{_libdir}||g" %{buildroot}/%{_libdir}/%{name}/*.la %{buildroot}/%{_libdir}/*la
+#sed -i -e "s|-L%{_builddir}/%{name}-%{version}/db-instroot/%{_libdir}||g" %{buildroot}/%{_libdir}/%{name}/*.la %{buildroot}/%{_libdir}/*la
+perl -pi -e  "s,-L%{_builddir}\S+%{_libdir},,g" %{buildroot}/%{_libdir}/lib*.la
 
 mkdir -p %{buildroot}%{_srvdir}/{slapd,slurpd}/log
-mkdir -p %{buildroot}%{_srvlogdir}/{slapd,slurpd}
 install -m 0740 %{SOURCE22} %{buildroot}%{_srvdir}/slapd/run
 install -m 0740 %{SOURCE23} %{buildroot}%{_srvdir}/slapd/log/run
 install -m 0740 %{SOURCE24} %{buildroot}%{_srvdir}/slurpd/run
@@ -539,12 +530,9 @@ install -m 644 %{SOURCE20} %{buildroot}%{_sysconfdir}/logrotate.d/ldap
 # get the buildroot out of the man pages
 perl -pi -e "s|%{buildroot}||g" %{buildroot}%{_mandir}/*/*.*
 
-# if ldapadd and ldapmodify are the same, make them a hard link
-if cmp %{buildroot}%{_bindir}/ldapadd %{buildroot}%{_bindir}/ldapmodify ; then
-	ln -f %{buildroot}%{_bindir}/ldapadd %{buildroot}%{_bindir}/ldapmodify
-fi
-
 mkdir -p %{buildroot}%{_sysconfdir}/ssl/openldap
+
+mv %{buildroot}/var/run/ldap/openldap-data/DB_CONFIG.example %{buildroot}/%{_localstatedir}/ldap/
 
 %clean 
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -555,47 +543,35 @@ mkdir -p %{buildroot}%{_sysconfdir}/ssl/openldap
 # allowing slapd to read hosts.allow and hosts.deny
 %{_bindir}/gpasswd -a ldap adm 1>&2 > /dev/null || :
 
-# bgmilne: Fix dbb->gdbm stuffup:
-#echo "Checking for incompatible db types"
-if [ -f "/etc/openldap/slapd.conf" ]
-then
-for dbdir in `awk '/^[:space:]*directory[:space:]*\w*/ {print $2}' /etc/openldap/slapd.conf`
-do
-	if [ -n "`find ${dbdir}/*.%{db_conv} 2>&-`" ]
-	then
-		echo "Found incompatible db type %{db_conv}"
-		echo "Making a backup to ldif file ${dbdir}/rpm-db-backup-%{db_conv}.ldif"
-		# For some reason, slapcat works in the shell when slapd is
-		# running but not via rpm ...
-		SLAPD_STATUS=`runsvstat /service/slapd 2>/dev/null|grep -q down;echo $?`
-		[ $SLAPD_STATUS -eq 1 ] && srv stop slapd
-		slapcat > ${dbdir}/rpm-db-backup-%{db_conv}.ldif ||:
-		[ $SLAPD_STATUS -eq 1 ] && srv start sldapd
-	#else
-	#	echo "Found no incompatible db-type"
-	fi
-	DBRECOVER=""
-	if [ -x /usr/bin/slapd_db_recover ]
-	then
-		# private db_recover is the best choice
-		DBRECOVER=/usr/bin/slapd_db_recover
-	elif [ -x /usr/bin/db_recover ]
-	then
-		DBRECOVER=/usr/bin/db_recover
-	else
-		DBRECOVER=""
-	fi
-	if [ -n "`find ${dbdir}/*.bdb 2>&-`" ]
-	then
-		if [ -n "$DBRECOVER" ]
-		then
-			echo "Running $DBRECOVER on ${dbdir}"
-			$DBRECOVER -h ${dbdir} 2>&1 >/dev/null
-		else
-			echo "Warning: no db_recover available for ${dbdir}"
-		fi
-	fi
-done
+LDAPUSER=ldap
+LDAPGROUP=ldap
+[ -e "/etc/sysconfig/%{name}" ] && . "/etc/sysconfig/%{name}"
+SLAPDCONF=${SLAPDCONF:-/etc/%{name}/slapd.conf}
+
+if [ -e "$SLAPDCONF" ]; then
+    # *** convert to runsv
+    SLAPD_STATUS=`runsvstat /service/slapd 2>/dev/null|grep -q down;echo $?`
+    [ $SLAPD_STATUS -eq 1 ] && srv slapd stop
+    #`awk '/^[:space:]*directory[:space:]*\w*/ {print $2}' /etc/%{name}/slapd.conf`
+    dbs=`awk 'BEGIN {OFS=":"} /[:space:]*^database[:space:]*\w*/ {db=$2;suf="";dir=""}; /^[:space:]*suffix[:space:]*\w*/ {suf=$2;if((db=="bdb"||db=="ldbm"||db=="hdb")&&(suf!=""&&dir!="")) print dir,suf};/^[:space:]*directory[:space:]*\w*/ {dir=$2; if((db=="bdb"||db=="ldbm"||db="hdb")&&(suf!=""&&dir!="")) print dir,suf};' "$SLAPDCONF" $(awk  '/^[[:blank:]]*include[[:blank:]]*/ {print $2}' "$SLAPDCONF")|sed -e 's/"//g'`
+    for db in $dbs
+    do
+        dbdir=${db/:*/}
+        dbsuffix=${db/*:/}
+        [ -e /etc/sysconfig/ldap ] && . /etc/sysconfig/ldap
+        # data migration between incompatible versions
+        # openldap >= 2.2.x have slapcat as a link to slapd, older releases do not
+        if [ "${AUTOMIGRATE:-yes}" == "yes" -a -f %{_sbindir}/slapcat ]; then
+            ldiffile="rpm-migrate-to-%{ol_ver_major}.ldif"
+            # dont do backups more than once
+            if [ ! -e "${dbdir}/${ldiffile}-imported" -a ! -e "${dbdir}/${ldiffile}-import-failed" ];then
+                echo "Migrating pre-OpenLDAP-%{ol_ver_major} data"
+                echo "Making a backup of $dbsuffix to ldif file ${dbdir}/$ldiffile"
+                # For some reason, slapcat works in the shell when slapd is running but not via rpm ...
+                slapcat -b "$dbsuffix" -l ${dbdir}/${ldiffile} ||:
+            fi
+        fi
+    done
 fi
 
 
@@ -606,114 +582,119 @@ SLAPD_STATUS=`srv status slapd|grep -q -v up;echo $?`
 # bgmilne: part 2 of gdbm->dbb conversion for data created with 
 # original package for 9.1:
 dbnum=1
-if [ -f "/etc/openldap/slapd.conf" ]
-then
-for dbdir in `awk '/^[:space:]*directory[:space:]*\w*/ {print $2}' /etc/openldap/slapd.conf`
-do	
-	if [ -n "`find ${dbdir}/*.%{db_conv} 2>&-`" ]
-	then
-		if [ -e ${dbdir}/ldap-rpm-backup -a -e ${dbdir}/rpm-db-backup-%{db_conv}.ldif ]
-		then 
-			echo "Warning: Old ldap backup data in ${dbdir}/ldap-rpm-backup"
-			echo "If importing ${dbdir}/rpm-db-backup-%{db_conv}.ldif fails,"
-			echo "please do it manually by running (as root):"
-			echo "# srv stop slapd"
-			echo "# slapadd -c -l ${dbdir}/rpm-db-backup-%{db_conv}.ldif"
-			echo "# slapindex"
-			echo "# chown ldap:ldap ${dbdir}/*"
-			echo "# srv start slapd"
-		fi
+LDAPUSER=ldap
+LDAPGROUP=ldap
+[ -e "/etc/sysconfig/%{name}" ] && . "/etc/sysconfig/%{name}"
+SLAPDCONF=${SLAPDCONF:-/etc/%{name}/slapd.conf}
+if [ -e "$SLAPDCONF" ]; then
+    dbs=`awk 'BEGIN {OFS=":"} /[:space:]*^database[:space:]*\w*/ {db=$2;suf="";dir=""}; /^[:space:]*suffix[:space:]*\w*/ {suf=$2;if((db=="bdb"||db=="ldbm")&&(suf!=""&&dir!="")) print dir,suf};/^[:space:]*directory[:space:]*\w*/ {dir=$2; if((db=="bdb"||db=="ldbm")&&(suf!=""&&dir!="")) print dir,suf};' "$SLAPDCONF" $(awk  '/^[[:blank:]]*include[[:blank:]]*/ {print $2}' "$SLAPDCONF")|sed -e 's/"//g'`
+    for db in $dbs
+    do	
+        dbdir=${db/:*/}
+        dbsuffix=${db/*:/}
+        ldiffile="rpm-migrate-to-%{ol_ver_major}.ldif"
+        if [ -e "${dbdir}/${ldiffile}" ]; then
+            if [ -e ${dbdir}/ldap-rpm-backup ]; then 
+                echo "Warning: Old ldap backup data in ${dbdir}/ldap-rpm-backup"
+                echo "If importing ${dbdir}/${ldiffile} fails,"
+                echo "please do it manually by running (as root):"
+                echo "# srv stop slapd"
+                echo "# slapadd -c -l ${dbdir}/${ldiffile}-import-failed"
+                echo "# chown $LDAPUSER:$LDAPGROUP ${dbdir}/*"
+                echo "# srv start slapd"
+            fi
 
-		if [ -e ${dbdir}/rpm-db-backup-%{db_conv}.ldif ]
-		then
-			mkdir -p ${dbdir}/ldap-rpm-backup
-			mv -f ${dbdir}/*.%{db_conv} ${dbdir}/ldap-rpm-backup
-			echo "Importing ${dbdir}/rpm-db-backup-%{db_conv}.ldif"
-			slapadd -cv -l ${dbdir}/rpm-db-backup-%{db_conv}.ldif > \
-			${dbdir}rpm-ldif-import.log 2>&1
-			echo "Import complete, see log ${dbdir}/rpm-ldif-import.log"
-		fi
+            echo "Moving the database files fom ${dbdir} to ${dbdir}/ldap-rpm-backup"
+            mkdir -p ${dbdir}/ldap-rpm-backup
+            mv -f ${dbdir}/{*.bdb,*.gdbm,*.dbb,log.*,__db*} ${dbdir}/ldap-rpm-backup 2>/dev/null
+            echo "Importing $dbsuffix from ${dbdir}/${ldiffile}"
+            if slapadd -cv -b "$dbsuffix" -l ${dbdir}/${ldiffile} > \
+                ${dbdir}/rpm-ldif-import.log 2>&1
+                then
+                echo "Import complete, see log ${dbdir}/rpm-ldif-import.log"
+                echo "If any entries were not migrated, see ${dbdir}/${ldiffile}-imported"
+                mv -f ${dbdir}/${ldiffile} ${dbdir}/${ldiffile}-imported
+            else
+                echo "Import failed on ${dbdir}/${ldifffile}, see ${dbdir}/rpm-ldif-import.log"
+                echo "An ldif dump of $dbsuffix has been saved as ${dbdir}/${ldiffile}-import-failed"
+                mv -f ${dbdir}/${ldiffile} ${dbdir}/${ldiffile}-import-failed
+            fi
 	fi
-	chown ldap:ldap -R ${dbdir}
+	chown ${LDAPUSER}:${LDAPGROUP} -R ${dbdir}
 	# openldap-2.0.x->2.1.x on ldbm/dbb backend seems to need reindex regardless:
 	#slapindex -n $dbnum
 	#dbnum=$[dbnum+1]
-done
+    done
 fi
 [ $SLAPD_STATUS -eq 1 ] && srv start slapd
 
 # Setup log facility for OpenLDAP
 if [ -f %{_sysconfdir}/syslog.conf ] ;then
+    # clean syslog
+    perl -pi -e "s|^.*ldap.*\n||g" %{_sysconfdir}/syslog.conf 
 
-	# clean syslog
-	perl -pi -e "s|^.*ldap.*\n||g" %{_sysconfdir}/syslog.conf 
+    typeset -i cntlog
+    cntlog=0
 
-	typeset -i cntlog
-	cntlog=0
+    # probe free local-users
+    while [ `grep -c local${cntlog} %{_sysconfdir}/syslog.conf` -gt 0 ]
+    do 
+        cntlog=${cntlog}+1
+    done
 
-	# probe free local-users
-	while [ `grep -c local${cntlog} %{_sysconfdir}/syslog.conf` -gt 0 ]
-	do 
-		cntlog=${cntlog}+1
-	done
-
-	if [ ${cntlog} -le 9 ];then
-		echo "# added by %{name}-%{version} r""pm $(date)" >> %{_sysconfdir}/syslog.conf
+    if [ ${cntlog} -le 9 ]; then
+        echo "# added by %{name}-%{version} r""pm $(date)" >> %{_sysconfdir}/syslog.conf
 #   modified by Oden Eriksson
 #		echo "local${cntlog}.*       /var/log/ldap/ldap.log" >> %{_sysconfdir}/syslog.conf
-		echo -e "local${cntlog}.*\t\t\t\t\t\t\t-/var/log/ldap/ldap.log" >> %{_sysconfdir}/syslog.conf
+        echo -e "local${cntlog}.*\t\t\t\t\t\t\t-/var/log/ldap/ldap.log" >> %{_sysconfdir}/syslog.conf
 
-		# reset syslog daemon
-		if [ "`runsvstat /service/syslogd 2>/dev/null|grep -q run; echo $?`" == "0" ]; then
-        		runsvctrl h /service/syslogd  > /dev/null 2>/dev/null || : 
-		fi
-	else
-		echo "I can't set syslog local-user!"
-	fi
+        # reset syslog daemon
+        if [ "`runsvstat /service/syslogd 2>/dev/null|grep -q run; echo $?`" == "0" ]; then
+            runsvctrl h /service/syslogd  > /dev/null 2>/dev/null || : 
+        fi
+    else
+        echo "I can't set syslog local-user!"
+    fi
 		
-	# set syslog local-user in /etc/sysconfig/ldap
-	perl -pi -e "s|^.*SLAPDSYSLOGLOCALUSER.*|SLAPDSYSLOGLOCALUSER=\"LOCAL${cntlog}\"|g" %{_sysconfdir}/sysconfig/ldap 
-
+    # set syslog local-user in /etc/sysconfig/ldap
+    perl -pi -e "s|^.*SLAPDSYSLOGLOCALUSER.*|SLAPDSYSLOGLOCALUSER=\"LOCAL${cntlog}\"|g" %{_sysconfdir}/sysconfig/ldap 
 fi
-
-# Reset right permissions 
-for i in %{_localstatedir}/ldap/* ; do
-	if [ -f $i ]; then
-		chmod 0600 $i
-		chown ldap:ldap $i
-	fi
-done
 
 # generate the ldap.pem cert here instead of the initscript
 if [ ! -e %{_sysconfdir}/ssl/openldap/ldap.pem ] ; then
-  if [ -x %{_datadir}/openldap/gencert.sh ] ; then
-    echo "Generating self-signed certificate..."
-    pushd %{_sysconfdir}/ssl/openldap/ > /dev/null
-    yes ""|%{_datadir}/openldap/gencert.sh >/dev/null 2>&1
-    chmod 640 ldap.pem
-    chown root:ldap ldap.pem
-    popd > /dev/null
-  fi
-  echo "To generate a self-signed certificate, you can use the utility"
-  echo "%{_datadir}/openldap/gencert.sh..."
+    if [ -x %{_datadir}/openldap/gencert.sh ] ; then
+        echo "Generating self-signed certificate..."
+        pushd %{_sysconfdir}/ssl/openldap/ > /dev/null
+            yes ""|%{_datadir}/openldap/gencert.sh >/dev/null 2>&1
+            chmod 0640 ldap.pem
+            chown root:${LDAPGROUP} ldap.pem
+        popd > /dev/null
+    fi
+    echo "To generate a self-signed certificate, you can use the utility"
+    echo "%{_datadir}/openldap/gencert.sh..."
 fi
 
 pushd %{_sysconfdir}/openldap/ > /dev/null
-for i in slapd.conf slapd.access.conf ; do
-	if [ -f $i ]; then
-		chmod 0640 $i
-		chown root:ldap $i
+    for i in slapd.conf slapd.access.conf ; do
+        if [ -f $i ]; then
+            chmod 0640 $i
+            chown root:${LDAPGROUP} $i
 	fi
-done
+    done
 popd > /dev/null
 
-
+for i in slapd slurpd
+do
+    if [ -d /var/log/supervise/$i -a ! -d /var/log/service/$i ]; then
+        mv /var/log/supervise/$i /var/log/service/
+    fi
+done
 %_post_srv slapd
 %_post_srv slurpd
 
 # nscd reset
 if [ "`runsvstat /service/nscd 2>/dev/null|grep -q run; echo $?`" == "0" ]; then
-	runsvctrl h /service/nscd  > /dev/null 2>/dev/null || : 
+    runsvctrl h /service/nscd  > /dev/null 2>/dev/null || : 
 fi
 
 
@@ -724,13 +705,13 @@ fi
 %postun servers
 /sbin/ldconfig
 if [ $1 = 0 ]; then 
-	# remove ldap entry 
-	perl -pi -e "s|^.*ldap.*\n||g" %{_sysconfdir}/syslog.conf 
+    # remove ldap entry 
+    perl -pi -e "s|^.*ldap.*\n||g" %{_sysconfdir}/syslog.conf 
 
-	# reset syslog daemon
-	if [ "`runsvstat /service/syslogd 2>/dev/null|grep -q run; echo $?`" == "0" ]; then
-        	runsvctrl h /service/syslogd  > /dev/null 2>/dev/null || : 
-	fi
+    # reset syslog daemon
+    if [ "`runsvstat /service/syslogd 2>/dev/null|grep -q run; echo $?`" == "0" ]; then
+        runsvctrl h /service/syslogd  > /dev/null 2>/dev/null || : 
+    fi
 fi
 %_postun_userdel ldap
 
@@ -738,19 +719,19 @@ fi
 %post -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
 
+
 %triggerpostun -- openldap-clients < 2.1.29-1avx
 # We may have openldap client configuration in /etc/ldap.conf
 # which now needs to be in /etc/openldap/ldap.conf
-if [ -f /etc/ldap.conf ] 
-then
-	mv -f /etc/openldap/ldap.conf /etc/openldap/ldap.conf.rpmfix
-	cp -af /etc/ldap.conf /etc/openldap/ldap.conf
+if [ -f /etc/ldap.conf ]; then
+    mv -f /etc/openldap/ldap.conf /etc/openldap/ldap.conf.rpmfix
+    cp -af /etc/ldap.conf /etc/openldap/ldap.conf
 fi
+
 
 %files
 %defattr(-,root,root)
 %doc ANNOUNCEMENT CHANGES COPYRIGHT LICENSE README 
-%doc README.migration TOOLS.migration
 %doc doc/rfc doc/drafts
 %dir %{_sysconfdir}/openldap
 %dir %{_sysconfdir}/openldap/schema
@@ -769,15 +750,18 @@ fi
 
 %files migration
 %defattr(-,root,root)
+%doc README.migration TOOLS.migration
 %{_datadir}/openldap/migration
 
 
 %files servers
 %defattr(-,root,root)
+%doc contrib/slapd-modules/smbk5pwd/README.smbk5passwd
 %dir %{_sysconfdir}/openldap
 %dir %{_sysconfdir}/openldap/schema
 #%attr(640,root,ldap) %config(noreplace) %{_sysconfdir}/ssl/openldap/ldap.pem
 %attr(640,root,ldap) %config(noreplace) %{_sysconfdir}/openldap/slapd.conf
+%attr(0640,root,ldap) %{_sysconfdir}/openldap/DB_CONFIG.example
 %attr(640,root,ldap) %config(noreplace) %{_sysconfdir}/openldap/slapd.access.conf
 
 %dir %{_sysconfdir}/ssl/openldap
@@ -785,32 +769,33 @@ fi
 %dir %{_datadir}/openldap
 %dir %{_datadir}/openldap/schema
 %{_datadir}/openldap/schema/*.schema
+%{_datadir}/openldap/schema/*.ldif
 %{_datadir}/openldap/schema/README
-%dir %{_datadir}/openldap/ucdata
-%{_datadir}/openldap/ucdata/*.dat
+#%dir %{_datadir}/openldap/ucdata
+#%{_datadir}/openldap/ucdata/*.dat
 %{_datadir}/openldap/scripts
 
 %config(noreplace) %{_sysconfdir}/sysconfig/ldap
 %attr(750,ldap,ldap) %dir %{_localstatedir}/ldap
 %config(noreplace) %{_localstatedir}/ldap/DB_CONFIG
+%{_localstatedir}/ldap/DB_CONFIG.example
 %attr(755,ldap,ldap) %dir /var/run/ldap
 #%{_datadir}/openldap/*.help
 %{_datadir}/openldap/gencert.sh
 %{_sbindir}/*
-%{_libdir}/%{name}
-%{_mandir}/man5/slapd.*.5*
-%{_mandir}/man5/slapd-*.5*
+%dir %{_libdir}/%{name}
+%{_libdir}/%{name}/*.la
+%{_libdir}/%{name}/*.so*
+%{_mandir}/man5/slap*.5*
 %{_mandir}/man8/*
 %dir %attr(0750,root,admin) %{_srvdir}/slapd
 %dir %attr(0750,root,admin) %{_srvdir}/slapd/log
-%attr(0740,root,admin) %{_srvdir}/slapd/run
-%attr(0740,root,admin) %{_srvdir}/slapd/log/run
-%dir %attr(0750,logger,logger) %{_srvlogdir}/slapd
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/slapd/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/slapd/log/run
 %dir %attr(0750,root,admin) %{_srvdir}/slurpd
 %dir %attr(0750,root,admin) %{_srvdir}/slurpd/log
-%attr(0740,root,admin) %{_srvdir}/slurpd/run
-%attr(0740,root,admin) %{_srvdir}/slurpd/log/run
-%dir %attr(0750,logger,logger) %{_srvlogdir}/slurpd
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/slurpd/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/slurpd/log/run
 
 
 %attr(750,ldap,ldap) %dir /var/log/ldap
@@ -831,58 +816,36 @@ fi
 %{_mandir}/man1/*
 #%{_mandir}/man5/ud.conf.5*
 
-%files -n %libname
+
+%files -n %{libname}
 %defattr(-,root,root)
 %{_libdir}/lib*.so.*
 
 
-%files -n %libname-devel
+%files -n %{libname}-devel
 %defattr(-,root,root)
 %{_libdir}/libl*.so
 %{_libdir}/libl*.la
 %{_includedir}/l*.h
+%{_includedir}/s*.h
 %{_mandir}/man3/*
 
-%files -n %libname-devel-static
+%files -n %{libname}-static-devel
 %defattr(-,root,root)
 %{_libdir}/lib*.a
-
-%files back_dnssrv
-%defattr(-,root,root)
-%{_libdir}/openldap/back_dnssrv.la
-%{_libdir}/openldap/back_dnssrv.a
-%{_libdir}/openldap/back_dnssrv*.so.*
-%{_libdir}/openldap/back_dnssrv*.so
-
-%files back_ldap
-%defattr(-,root,root)
-%{_libdir}/openldap/back_ldap.la
-%{_libdir}/openldap/back_ldap.a
-%{_libdir}/openldap/back_ldap*.so.*
-%{_libdir}/openldap/back_ldap*.so
-
-%if %sql
-%files back_sql
-%defattr(-,root,root)
-%dir %{_libdir}/openldap
-%{_libdir}/openldap/back_sql.la
-%{_libdir}/openldap/back_sql.a
-%{_libdir}/openldap/back_sql*.so.*
-%{_libdir}/openldap/back_sql*.so
-%endif
-
-%files back_passwd
-%defattr(-,root,root)
-%{_libdir}/openldap/back_passwd.la
-%{_libdir}/openldap/back_passwd.a
-%{_libdir}/openldap/back_passwd*.so.*
-%{_libdir}/openldap/back_passwd*.so
 
 
 # TODO:
 # - add cron-job to remove transaction logs (bdb)
 
 %changelog
+* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 2.3.6-1avx
+- 2.3.6
+- use execlineb for run scripts
+- move logdir to /var/log/service/{slapd,slurpd}
+- run scripts are now considered config files and are not replaceable
+- update migration/upgrade stuff from mandriva spec (2.3.6-1mdk)
+
 * Sat Aug 27 2005 Vincent Danen <vdanen@annvix.org> 2.1.29-16avx
 - fix perms on run scripts
 

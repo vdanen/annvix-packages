@@ -29,6 +29,10 @@ else
   exit 0
 fi
 
+SLAPDCONF=/etc/openldap/slapd.conf
+LDAPUSER=ldap
+LDAPGROUP=ldap
+
 # Source an auxiliary options file if we have one, and pick up OPTIONS,
 # SLAPD_OPTIONS, and SLURPD_OPTIONS.
 if [ -r /etc/sysconfig/ldap ] ; then
@@ -43,8 +47,11 @@ slurpd=/usr/sbin/slurpd
 export TMPDIR=/var/tmp
 
 check_slurpd() {
-	if grep -Eq "^[[:space:]]*replica[[:space:]]+(host|uri)" /etc/openldap/slapd.conf; then
-		return 0
+	if grep -Eq "^[[:space:]]*replica[[:space:]]+(host|uri)" $SLAPDCONF
+		then STARTSLURPD="${STARTSLURPD:-yes}"
+	fi
+	if [ "${STARTSLURPD:-no}" == "yes" ]
+	then return 0
 	fi
 
 	return 1
@@ -57,7 +64,7 @@ start() {
 	local ARGS=""
 
     # Start daemons.
-	ARGS="-u ldap -g ldap"
+	ARGS="-u $LDAPUSER -g $LDAPGROUP"
 
 	# Syslog 
 	if [ -n "$SLAPDSYSLOGLOCALUSER" ] ; then
@@ -66,20 +73,26 @@ start() {
 			ARGS="$ARGS -s $SLAPDSYSLOGLEVEL"
 		fi
 	fi
+
+	if [ "$SLAPDCONF" != "/etc/openldap/ldap.conf" ]
+	then ARGS="$ARGS -f $SLAPDCONF"
+	fi
 	
 	OUT="ldap"
 	if [ -n "$SLAPDURLLIST" ] ; then
-		if grep -q "^[[:space:]]*TLS" /etc/openldap/slapd.conf  ; then
-			OUT="ldap + ldaps"
-		else
-			SLAPDURLLIST=$( echo $SLAPDURLLIST | sed 's#ldaps:[^ ]*##g')
+		if grep -q "^[[:space:]]*TLS" $SLAPDCONF
+	       	then OUT="ldap + ldaps"
+		else SLAPDURLLIST=$( echo $SLAPDURLLIST | sed 's#ldaps:[^ ]*##g')
 		fi
 		ARGS="$ARGS -h \"$SLAPDURLLIST \""
 	else
-		ARGS="$ARGS -h \"ldap:/// \""
+		if grep -q "^[[:space:]]*TLS" $SLAPDCONF
+		then ARGS="$ARGS -h ldap:/// ldaps:///" && OUT="ldap + ldaps"
+		else ARGS="$ARGS -h ldap:/// "
+		fi
 	fi
 
-        gprintf "Starting slapd (%s): " "$OUT"
+        gprintf "Starting %s: " "slapd ($OUT)"
 	daemon ${slapd} $ARGS
 	RETVAL=$?
 	echo
@@ -87,8 +100,8 @@ start() {
 
 	if [ $RETVAL -eq 0 ]; then
             if check_slurpd ; then
-		gprintf "Starting slurpd: "
-		daemon su ldap -c \"${slurpd}\" -s /bin/sh
+		gprintf "Starting %s: " slurpd
+		daemon su "$LDAPUSER" -c \"${slurpd}\" -s /bin/sh
 		RETVAL2=$?
 		echo
 		[ $RETVAL2 -eq 0 ] && touch /var/lock/subsys/ldapr
@@ -103,27 +116,29 @@ stop() {
 	local RETVAL2=0
 
         # Stop daemons.
-	gprintf "Stopping slapd: "
+	gprintf "Stopping %s: " slapd
 	killproc ${slapd} 2>/dev/null
 	RETVAL=$?
 	echo
 
-	if [ $RETVAL -eq 0 ]; then
 	    if [ -e /var/lock/subsys/ldapr ]; then
-		gprintf "Stopping slurpd: "
+		gprintf "Stopping %s: " slurpd
 		killproc ${slurpd} 2>/dev/null
 		RETVAL2=$?
 		echo
 		[ $RETVAL2 -eq 0 ] && rm -f /var/lock/subsys/ldapr
 	    fi
-	fi
         [ $RETVAL -eq 0 ] && rm -f /var/lock/subsys/ldap /var/run/ldap/slapd.args
+	[ $RETVAL -eq 0 -a $RETVAL2 -eq 0 ] || RETVAL=1
 	return $RETVAL
 }
 
 recover () {
 
 	# For bdb backends we want to recover the transaction logs:
+dbdirs=`awk 'BEGIN {OFS=":"} /[:space:]*^database[:space:]*\w*/ {db=$2;suf="";dir=""}; /^[:space:]*suffix[:space:]*\w*/ {suf=$2;if((db=="bdb"||db=="ldbm"||db=="hdb")&&(suf!=""&&dir!="")) print dir};/^[:space:]*directory[:space:]*\w*/ {dir=$2; if((db=="bdb"||db=="ldbm"||db="hdb")&&(suf!=""&&dir!="")) print dir};' "$SLAPDCONF" $(awk  '/^[[:blank:]]*include[[:blank:]]*/ {print $2}' "$SLAPDCONF")|sed -e 's/"//g'`
+
+
 	# Find a db_recover
 	local DBRECOVER
 	if [ -x /usr/bin/slapd_db_recover ]
@@ -137,16 +152,20 @@ recover () {
 		DBRECOVER=""
 	fi
 
-	for dbdir in `awk '/^[:space:]*directory[:space:]*\w*/ {print $2}' /etc/openldap/slapd.conf`
+	for dbdir in $dbdirs
 	do
-		if [ -n "`find ${dbdir}/*.bdb 2>&-`" ]
+		# Ensure the ldap user owns all database directories
+		if [ "$FIXPERMS" != "no" ]
+		then chown -R $LDAPUSER:$LDAPGROUP $dbdir
+		fi
+		if [ -n "`find ${dbdir}/*.bdb 2>&-`" -a "$AUTORECOVER" != "no" ]
 		then
 			if [ -n "$DBRECOVER" ]
 			then
 				gprintf "Running %s on %s\n" "$DBRECOVER" "${dbdir}"
-				$DBRECOVER -h ${dbdir} 2>&1 >/dev/null 
+				su $LDAPUSER -s /bin/bash -c "$DBRECOVER -h ${dbdir} 2>&1 >/dev/null"
 			else
-				gprintf "Warning: no db_recover available for %s\n" ${dbdir}
+				gprintf "Warning: no %s available for %s\n" db_recover ${dbdir}
 			fi
 		fi
 	done
@@ -160,7 +179,6 @@ case "$1" in
         ;;
     stop)
         stop
-	recover
         ;;
     status)
         status ${slapd}
@@ -170,7 +188,6 @@ case "$1" in
 	;;
     restart)
 	stop
-	recover
 	start
 	;;
     reload)
@@ -191,7 +208,7 @@ case "$1" in
         fi
 	;;
     *)
-	gprintf "Usage: %s {start|stop|restart|status|condrestart}\n" "$0"
+	gprintf "Usage: %s\n" "$0 {start|stop|restart|status|condrestart}"
 	RETVAL=1
 esac
 
