@@ -1,0 +1,33 @@
+--- cyrus-sasl-2.1.19/cmulocal/cyrus.m4.rpath	2003-10-20 17:39:43.000000000 +0200
++++ cyrus-sasl-2.1.19/cmulocal/cyrus.m4	2005-01-30 10:54:06.865399446 +0100
+@@ -32,14 +32,5 @@
+ dnl runpath initialization
+ AC_DEFUN([CMU_GUESS_RUNPATH_SWITCH], [
+    # CMU GUESS RUNPATH SWITCH
+-  AC_CACHE_CHECK(for runpath switch, andrew_runpath_switch, [
+-    # first, try -R
+-    SAVE_LDFLAGS="${LDFLAGS}"
+-    LDFLAGS="-R /usr/lib"
+-    AC_TRY_LINK([],[],[andrew_runpath_switch="-R"], [
+-  	LDFLAGS="-Wl,-rpath,/usr/lib"
+-    AC_TRY_LINK([],[],[andrew_runpath_switch="-Wl,-rpath,"],
+-    [andrew_runpath_switch="none"])
+-    ])
+-  LDFLAGS="${SAVE_LDFLAGS}"
+-  ])])
++    andrew_runpath_switch="none"
++  ])
+--- cyrus-sasl-2.1.19/configure.in.rpath	2005-01-30 10:54:06.000000000 +0100
++++ cyrus-sasl-2.1.19/configure.in	2005-01-30 11:12:51.291534062 +0100
+@@ -742,9 +742,9 @@
+     notfound) AC_WARN([SQLite Library not found]); true;;
+     *)
+      if test -d ${with_sqlite}/lib; then
+-         LIB_SQLITE="-L${with_sqlite}/lib -R${with_sqlite}/lib"
++         LIB_SQLITE="-L${with_sqlite}/lib"
+      else
+-         LIB_SQLITE="-L${with_sqlite} -R${with_sqlite}"
++         LIB_SQLITE="-L${with_sqlite}"
+      fi
+ 
+      LIB_SQLITE_DIR=$LIB_SQLITE
