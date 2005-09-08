@@ -15,13 +15,13 @@
 
 %define name		glibc
 %define version		%{basevers}%{?snapshot:.%snapshot}
-%define release		4avx
+%define release		5avx
 %define epoch		6
 
 # <version>-<release> tags from kernel package where headers were
 # actually extracted from
-%define kheaders_ver    2.6.11
-%define kheaders_rel    2mdk
+%define kheaders_ver    2.4.31
+%define kheaders_rel    2avx
 
 %define build_check	0
 %define build_profile	1
@@ -120,7 +120,7 @@ Patch500:	glibc-2.3.5-arc4random-1.patch
 Patch501:	glibc-2.3.5-fstack_protector-1.patch
 Patch502:	glibc-2.3.5-ssp-1.patch
 Patch503:       kernel-headers-include-%{kheaders_ver}.%{kheaders_rel}.patch.bz2
-Patch504:       kernel-headers-gnu-extensions.patch.bz2
+Patch504:       kernel-headers-%{kheaders_ver}.%{kheaders_rel}-gnu-extensions.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	patch, gettext, perl, autoconf2.5
@@ -640,7 +640,6 @@ build-%{_target_cpu}-linux/hardlink -vc %{buildroot}%{_datadir}/locale
 
 install -m 0644 nscd/nscd.conf %{buildroot}%{_sysconfdir}
 mkdir -p %{buildroot}%{_srvdir}/nscd/log
-mkdir -p %{buildroot}%{_srvlogdir}/nscd
 install -m 0740 %{SOURCE14} %{buildroot}%{_srvdir}/nscd/run
 install -m 0740 %{SOURCE15} %{buildroot}%{_srvdir}/nscd/log/run
 install -m 0740 %{SOURCE16} %{buildroot}%{_srvdir}/nscd/finish
@@ -755,6 +754,9 @@ fi
 %_pre_useradd nscd / /bin/false 83
 
 %post -n nscd
+if [ -d /var/log/supervise/nscd -a ! -d /var/log/service/nscd ]; then
+    mv /var/log/supervise/nscd /var/log/service/
+fi
 %_post_srv nscd
 
 %preun -n nscd
@@ -893,20 +895,20 @@ fi
 %dir %{_includedir}/gnu
 %dir %{_includedir}/linux
 %dir %{_includedir}/linux/byteorder
-%dir %{_includedir}/linux/dvb
+#%dir %{_includedir}/linux/dvb
 %dir %{_includedir}/linux/hdlc
 %dir %{_includedir}/linux/isdn
 %dir %{_includedir}/linux/lockd
-%dir %{_includedir}/linux/mmc
+#%dir %{_includedir}/linux/mmc
 %dir %{_includedir}/linux/mtd
 %dir %{_includedir}/linux/netfilter_arp
-%dir %{_includedir}/linux/netfilter_bridge
+#%dir %{_includedir}/linux/netfilter_bridge
 %dir %{_includedir}/linux/netfilter_ipv4
 %dir %{_includedir}/linux/netfilter_ipv6
 %dir %{_includedir}/linux/nfsd
 %dir %{_includedir}/linux/raid
 %dir %{_includedir}/linux/sunrpc
-%dir %{_includedir}/linux/tc_act
+#%dir %{_includedir}/linux/tc_act
 %dir %{_includedir}/net
 %dir %{_includedir}/netinet
 %dir %{_includedir}/netipx
@@ -931,21 +933,22 @@ fi
 %{_includedir}/bits/*.def
 %{_includedir}/gnu/*.h
 %{_includedir}/linux/*.h
+%{_includedir}/linux/*.p
 %{_includedir}/linux/byteorder/*.h
-%{_includedir}/linux/dvb/*.h
+#%{_includedir}/linux/dvb/*.h
 %{_includedir}/linux/hdlc/*.h
 %{_includedir}/linux/isdn/*.h
 %{_includedir}/linux/lockd/*.h
-%{_includedir}/linux/mmc/*.h
+#%{_includedir}/linux/mmc/*.h
 %{_includedir}/linux/mtd/*.h
 %{_includedir}/linux/netfilter_arp/*.h
-%{_includedir}/linux/netfilter_bridge/*.h
+#%{_includedir}/linux/netfilter_bridge/*.h
 %{_includedir}/linux/netfilter_ipv4/*.h
 %{_includedir}/linux/netfilter_ipv6/*.h
 %{_includedir}/linux/nfsd/*.h
 %{_includedir}/linux/raid/*.h
 %{_includedir}/linux/sunrpc/*.h
-%{_includedir}/linux/tc_act/*.h
+#%{_includedir}/linux/tc_act/*.h
 %{_includedir}/net/*.h
 %{_includedir}/netinet/*.h
 %{_includedir}/netipx/*.h
@@ -964,48 +967,49 @@ fi
 %{_includedir}/sound/*.h
 %{_includedir}/sys/*.h
 %if "%{arch}" == "i386"
-%dir %{_includedir}/asm/mach-bigsmp
-%{_includedir}/asm/mach-bigsmp/*.h
-%dir %{_includedir}/asm/mach-default
-%{_includedir}/asm/mach-default/*.h
-%dir %{_includedir}/asm/mach-es7000
-%{_includedir}/asm/mach-es7000/*.h
-%dir %{_includedir}/asm/mach-generic
-%{_includedir}/asm/mach-generic/*.h
-%dir %{_includedir}/asm/mach-numaq
-%{_includedir}/asm/mach-numaq/*.h
-%dir %{_includedir}/asm/mach-summit
-%{_includedir}/asm/mach-summit/*.h
-%dir %{_includedir}/asm/mach-visws
-%{_includedir}/asm/mach-visws/*.h
-%dir %{_includedir}/asm/mach-voyager
-%{_includedir}/asm/mach-voyager/*.h
-%dir %{_includedir}/asm/mach-xbox
-%{_includedir}/asm/mach-xbox/*.h
+#%dir %{_includedir}/asm/mach-bigsmp
+#%{_includedir}/asm/mach-bigsmp/*.h
+#%dir %{_includedir}/asm/mach-default
+#%{_includedir}/asm/mach-default/*.h
+#%dir %{_includedir}/asm/mach-es7000
+#%{_includedir}/asm/mach-es7000/*.h
+#%dir %{_includedir}/asm/mach-generic
+#%{_includedir}/asm/mach-generic/*.h
+#%dir %{_includedir}/asm/mach-numaq
+#%{_includedir}/asm/mach-numaq/*.h
+#%dir %{_includedir}/asm/mach-summit
+#%{_includedir}/asm/mach-summit/*.h
+#%dir %{_includedir}/asm/mach-visws
+#%{_includedir}/asm/mach-visws/*.h
+#%dir %{_includedir}/asm/mach-voyager
+#%{_includedir}/asm/mach-voyager/*.h
+#%dir %{_includedir}/asm/mach-xbox
+#%{_includedir}/asm/mach-xbox/*.h
 %endif
 %if "%{arch}" == "x86_64"
 %dir %{_includedir}/asm-i386
 %{_includedir}/asm-i386/*.h
-%dir %{_includedir}/asm-i386/mach-bigsmp
-%{_includedir}/asm-i386/mach-bigsmp/*.h
-%dir %{_includedir}/asm-i386/mach-default
-%{_includedir}/asm-i386/mach-default/*.h
-%dir %{_includedir}/asm-i386/mach-es7000
-%{_includedir}/asm-i386/mach-es7000/*.h
-%dir %{_includedir}/asm-i386/mach-generic
-%{_includedir}/asm-i386/mach-generic/*.h
-%dir %{_includedir}/asm-i386/mach-numaq
-%{_includedir}/asm-i386/mach-numaq/*.h
-%dir %{_includedir}/asm-i386/mach-summit
-%{_includedir}/asm-i386/mach-summit/*.h
-%dir %{_includedir}/asm-i386/mach-visws
-%{_includedir}/asm-i386/mach-visws/*.h
-%dir %{_includedir}/asm-i386/mach-voyager
-%{_includedir}/asm-i386/mach-voyager/*.h
-%dir %{_includedir}/asm-i386/mach-xbox
-%{_includedir}/asm-i386/mach-xbox/*.h
+#%dir %{_includedir}/asm-i386/mach-bigsmp
+#%{_includedir}/asm-i386/mach-bigsmp/*.h
+#%dir %{_includedir}/asm-i386/mach-default
+#%{_includedir}/asm-i386/mach-default/*.h
+#%dir %{_includedir}/asm-i386/mach-es7000
+#%{_includedir}/asm-i386/mach-es7000/*.h
+#%dir %{_includedir}/asm-i386/mach-generic
+#%{_includedir}/asm-i386/mach-generic/*.h
+#%dir %{_includedir}/asm-i386/mach-numaq
+#%{_includedir}/asm-i386/mach-numaq/*.h
+#%dir %{_includedir}/asm-i386/mach-summit
+#%{_includedir}/asm-i386/mach-summit/*.h
+#%dir %{_includedir}/asm-i386/mach-visws
+#%{_includedir}/asm-i386/mach-visws/*.h
+#%dir %{_includedir}/asm-i386/mach-voyager
+#%{_includedir}/asm-i386/mach-voyager/*.h
+#%dir %{_includedir}/asm-i386/mach-xbox
+#%{_includedir}/asm-i386/mach-xbox/*.h
 %dir %{_includedir}/asm-x86_64
 %{_includedir}/asm-x86_64/*.h
+%{_includedir}/asm-x86_64/*.i
 %endif
 %if "%{arch}" == "ppc64"
 %dir %{_includedir}/asm-ppc
@@ -1123,13 +1127,18 @@ fi
 %{_sbindir}/nscd_nischeck
 %dir %attr(0750,root,admin) %{_srvdir}/nscd
 %dir %attr(0750,root,admin) %{_srvdir}/nscd/log 
-%attr(0740,root,admin) %{_srvdir}/nscd/run
-%attr(0740,root,admin) %{_srvdir}/nscd/finish
-%attr(0740,root,admin) %{_srvdir}/nscd/log/run  
-%dir %attr(0750,logger,logger) %{_srvlogdir}/nscd
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/nscd/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/nscd/finish
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/nscd/log/run  
 
 
 %changelog
+* Mon Sep 05 2005 Vincent Danen <vdanen@annvix.org> 2.3.5-5avx
+- use execlineb for run scripts
+- move logdir to /var/log/service/nscd
+- run scripts are now considered config files and are not replaceable
+- use kernel 2.4.31-2avx headers
+
 * Sat Aug 27 2005 Vincent Danen <vdanen@annvix.org> 2.3.5-4avx
 - fix perms on run scripts
 

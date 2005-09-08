@@ -131,9 +131,9 @@
  #endif
  
  #endif /* __ASSEMBLY__ */
---- kernel-headers/linux/byteorder/swab.h.kheaders-gnu-extensions	2003-12-17 21:59:57.000000000 -0500
-+++ kernel-headers/linux/byteorder/swab.h	2004-01-08 06:42:11.000000000 -0500
-@@ -19,25 +19,25 @@
+--- kernel-headers/linux/byteorder/swab.h.kheaders-gnu-extensions	2002-11-28 18:53:15.000000000 -0500
++++ kernel-headers/linux/byteorder/swab.h	2005-09-05 12:22:56.000000000 -0400
+@@ -19,34 +19,34 @@
   * how U/UL/ULL map to __u16, __u32, __u64. At least not in a portable way.
   */
  #define ___swab16(x) \
@@ -146,9 +146,20 @@
 -})
 +}))
  
+ #define ___swab24(x) \
+-({ \
++(__extension__({ \ 
+ 	__u32 __x = (x); \
+ 	((__u32)( \
+ 		((__x & (__u32)0x000000ffUL) << 16) | \
+ 		 (__x & (__u32)0x0000ff00UL)        | \
+ 		((__x & (__u32)0x00ff0000UL) >> 16) )); \
+-})
++}))
+ 
  #define ___swab32(x) \
 -({ \
-+(__extension__({ \
++(__extension__({ \ 
  	__u32 __x = (x); \
  	((__u32)( \
  		(((__u32)(__x) & (__u32)0x000000ffUL) << 24) | \
@@ -160,11 +171,11 @@
  
  #define ___swab64(x) \
 -({ \
-+(__extension__({ \
++(__extension__({ \ 
  	__u64 __x = (x); \
  	((__u64)( \
  		(__u64)(((__u64)(__x) & (__u64)0x00000000000000ffULL) << 56) | \
-@@ -48,7 +48,7 @@
+@@ -57,7 +57,7 @@
  		(__u64)(((__u64)(__x) & (__u64)0x0000ff0000000000ULL) >> 24) | \
  		(__u64)(((__u64)(__x) & (__u64)0x00ff000000000000ULL) >> 40) | \
  		(__u64)(((__u64)(__x) & (__u64)0xff00000000000000ULL) >> 56) )); \
@@ -173,12 +184,16 @@
  
  #define ___constant_swab16(x) \
  	((__u16)( \
-@@ -75,13 +75,13 @@
+@@ -89,16 +89,16 @@
   * provide defaults when no architecture-specific optimization is detected
   */
  #ifndef __arch__swab16
 -#  define __arch__swab16(x) ({ __u16 __tmp = (x) ; ___swab16(__tmp); })
 +#  define __arch__swab16(x) (__extension__({ __u16 __tmp = (x) ; ___swab16(__tmp); }))
+ #endif
+ #ifndef __arch__swab24
+-#  define __arch__swab24(x) ({ __u32 __tmp = (x) ; ___swab24(__tmp); })
++#  define __arch__swab24(x) (__extension__({ __u32 __tmp = (x) ; ___swab24(__tmp); }))
  #endif
  #ifndef __arch__swab32
 -#  define __arch__swab32(x) ({ __u32 __tmp = (x) ; ___swab32(__tmp); })
@@ -216,9 +231,9 @@
  
  #define ___constant_swahw32(x) \
  	((__u32)( \
---- kernel-headers/linux/types.h.kheaders-gnu-extensions	2004-01-08 06:36:18.000000000 -0500
-+++ kernel-headers/linux/types.h	2004-01-08 06:41:03.000000000 -0500
-@@ -91,10 +91,10 @@ typedef		__u8		uint8_t;
+--- kernel-headers/linux/types.h.kheaders-gnu-extensions	2005-09-05 12:11:31.000000000 -0400
++++ kernel-headers/linux/types.h	2005-09-05 12:11:31.000000000 -0400
+@@ -86,10 +86,10 @@
  typedef		__u16		uint16_t;
  typedef		__u32		uint32_t;
  
@@ -232,13 +247,4 @@
 +__extension__ typedef		__s64		int64_t;
  #endif
  
- /*
-@@ -132,7 +132,7 @@ typedef __u16 __bitwise __le16;
- typedef __u16 __bitwise __be16;
- typedef __u32 __bitwise __le32;
- typedef __u32 __bitwise __be32;
--#if defined(__GNUC__) && !defined(__STRICT_ANSI__)
-+#if defined(__GNUC__)
- typedef __u64 __bitwise __le64;
- typedef __u64 __bitwise __be64;
- #endif
+ #endif /* __KERNEL_STRICT_NAMES */
