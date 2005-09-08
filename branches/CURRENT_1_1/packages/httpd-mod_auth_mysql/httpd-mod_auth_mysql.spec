@@ -1,5 +1,5 @@
 #
-# spec file for package apache2-mod_auth_mysql
+# spec file for package httpd-mod_auth_mysql
 #
 # Package for the Annvix Linux distribution: http://annvix.org/
 #
@@ -7,19 +7,19 @@
 #
 
 
-%define name		apache2-%{mod_name}
+%define name		httpd-%{mod_name}
 %define version 	%{apache_version}_%{mod_version}
-%define release 	3avx
+%define release 	1avx
 
 # Module-Specific definitions
-%define apache_version	2.0.53
-%define mod_version	2.8.1
+%define apache_version	2.0.54
+%define mod_version	2.9.0
 %define mod_name	mod_auth_mysql
 %define mod_conf	12_%{mod_name}.conf
 %define mod_so		%{mod_name}.so
 %define sourcename	%{mod_name}-%{mod_version}
 
-Summary:	Basic authentication for the apache2 web server using a MySQL database
+Summary:	Basic authentication for the Apache web server using a MySQL database
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -30,14 +30,17 @@ Source0:	mod_auth_mysql-%{mod_version}.tar.bz2
 Source1:	%{mod_conf}.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:  apache2-devel >= %{apache_version}, MySQL-devel
+BuildRequires:  httpd-devel >= %{apache_version}, MySQL-devel
 
-Prereq:		apache2 = %{apache_version}
-Prereq:		apache2-conf
+Prereq:		httpd = %{apache_version}
+Prereq:		httpd-conf
+Provides:	apache2-mod_auth_mysql
+Obsoletes:	apache2-mod_auth_mysql
 
 %description
-mod_auth_mysql can be used to limit access to documents served by
-a web server by checking data in a MySQL database.
+mod_auth_mysql is an Apache module to authenticate users and
+authorize access through a MySQL database.  It is flexible and
+support several encryption methods.
 
 
 %prep
@@ -45,16 +48,16 @@ a web server by checking data in a MySQL database.
 
 
 %build
-%{_sbindir}/apxs2 -c -DAPACHE2 -L%{_libdir}/mysql -I%{_includedir}/mysql -Wl,-lmysqlclient mod_auth_mysql.c
+%{_sbindir}/apxs -L%{_libdir}/mysql -I%{_includedir}/mysql -Wl,-lmysqlclient -c mod_auth_mysql.c
 
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-mkdir -p %{buildroot}%{_libdir}/apache2-extramodules
-mkdir -p %{buildroot}%{_sysconfdir}/httpd/conf.d
-install -m 0755 .libs/*.so %{buildroot}%{_libdir}/apache2-extramodules/
-bzcat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/conf.d/%{mod_conf}
+mkdir -p %{buildroot}%{_libdir}/httpd-extramodules
+mkdir -p %{buildroot}%{_sysconfdir}/httpd/modules.d
+install -m 0755 .libs/*.so %{buildroot}%{_libdir}/httpd-extramodules/
+bzcat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
 
 
 %clean
@@ -63,12 +66,19 @@ bzcat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/conf.d/%{mod_conf}
 
 %files
 %defattr(-,root,root)
-%doc README CHANGES BUILD
-%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/httpd/conf.d/%{mod_conf}
-%attr(0755,root,root) %{_libdir}/apache2-extramodules/%{mod_so}
+%doc README CHANGES BUILD CONFIGURE
+%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/httpd/modules.d/%{mod_conf}
+%attr(0755,root,root) %{_libdir}/httpd-extramodules/%{mod_so}
 
 
 %changelog
+* Wed Sep 07 2005 Vincent Danen <vdanen@annvix.org> 2.0.54_2.9.0-1avx
+- apache 2.0.54
+- mod_auth_mysql 2.9.0
+- s/conf.d/modules.d/
+- s/apache2/httpd/
+- P0: fixes from 2.9.0 to make it work with MySQL-4.1.x password hashing
+
 * Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 2.0.53_2.8.1-3avx
 - bootstrap build (new gcc, new glibc)
 - don't include the symlinks to docs in /var/www/html/addon-modules
