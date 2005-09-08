@@ -1,5 +1,5 @@
 #
-# spec file for package apache2-mod_php
+# spec file for package httpd-mod_php
 #
 # Package for the Annvix Linux distribution: http://annvix.org/
 #
@@ -7,12 +7,12 @@
 #
 
 
-%define name		apache2-%{mod_name}
+%define name		httpd-%{mod_name}
 %define version 	%{apache_version}_%{phpversion}
-%define release		2avx
+%define release		1avx
 
 # Module-Specific definitions
-%define apache_version	2.0.53
+%define apache_version	2.0.54
 %define phpversion	4.3.11
 %define mod_name	mod_php
 %define mod_conf	70_%{mod_name}.conf
@@ -20,7 +20,7 @@
 %define phpsource	%{_prefix}/src/php-devel
 %define extname		apache2handler
 
-Summary:	The PHP4 HTML-embedded scripting language for use with apache2
+Summary:	The PHP4 HTML-embedded scripting language for use with Apache
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -30,12 +30,12 @@ URL:		http://www.php.net/
 Source1:	%{mod_conf}.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	php-devel >= %{phpversion}, apache2-devel >= %{apache_version}
+BuildRequires:	php-devel >= %{phpversion}, httpd-devel >= %{apache_version}
 
 Requires:	openssl, php-ini
-Provides:	php, php3, php4, php430, php432, mod_php, mod_php3, phpapache, phpfi
-Obsoletes:	mod_php3, php430
-Prereq:		apache2 >= %{apache_version}, apache2-conf
+Provides:	php, php3, php4, php430, php432, mod_php, mod_php3, phpapache, phpfi apache2-mod_php
+Obsoletes:	mod_php3, php430 apache2-mod_php
+Prereq:		httpd >= %{apache_version}, httpd-conf
 
 %description
 PHP is an HTML-embedded scripting language.  PHP attempts to make it
@@ -44,11 +44,8 @@ also offers built-in database integration for several commercial
 and non-commercial database management systems, so writing a
 database-enabled web page with PHP is fairly simple.  The most
 common use of PHP coding is probably as a replacement for CGI
-scripts.  The %{name} module enables the apache2 web server to
+scripts.  The %{name} module enables the Apache web server to
 understand and process the embedded PHP language in web pages.
-
-This package contains PHP version 4. You'll also need to install the
-apache2 web server.
 
 
 %prep
@@ -60,7 +57,7 @@ cp sapi_apache2.c mod_php4.c
 
 
 %build
-%{_sbindir}/apxs2 \
+%{_sbindir}/apxs \
     `php-config --includes` \
     `apr-config --link-ld --libs` \
     -I%{phpsource} \
@@ -72,10 +69,10 @@ cp sapi_apache2.c mod_php4.c
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-mkdir -p %{buildroot}%{_libdir}/apache2-extramodules
-mkdir -p %{buildroot}%{_sysconfdir}/httpd/conf.d
-install -m 0755 .libs/*.so %{buildroot}%{_libdir}/apache2-extramodules/
-bzcat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/conf.d/%{mod_conf}
+mkdir -p %{buildroot}%{_libdir}/httpd-extramodules
+mkdir -p %{buildroot}%{_sysconfdir}/httpd/modules.d
+install -m 0755 .libs/*.so %{buildroot}%{_libdir}/httpd-extramodules/
+bzcat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
 
 
 %clean
@@ -83,20 +80,25 @@ bzcat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/conf.d/%{mod_conf}
 
 
 %post
-%_post_srv httpd2
+%_post_srv httpd
 
 %postun
-%_post_srv httpd2
+%_post_srv httpd
 
 
 %files
 %defattr(-,root,root)
 %doc PHP_FAQ.php 
-%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/httpd/conf.d/%{mod_conf}
-%attr(0755,root,root) %{_libdir}/apache2-extramodules/%{mod_so}
+%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/httpd/modules.d/%{mod_conf}
+%attr(0755,root,root) %{_libdir}/httpd-extramodules/%{mod_so}
 
 
 %changelog
+* Wed Sep 07 2005 Vincent Danen <vdanen@annvix.org> 2.0.54_4.3.11-1avx
+- apache 2.0.54
+- s/apache2/httpd/
+- move config to modules.d/
+
 * Tue Aug 23 2005 Vincent Danen <vdanen@annvix.org> 2.0.53_4.3.11-2avx
 - bootstrap build (new gcc, new glibc)
 - remove the addon-modules symlink
