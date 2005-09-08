@@ -13,3 +13,4 @@ to Annvix 1.1-RELEASE httpd packages:
 - the commonhttpd.conf and httpd2.conf configuration files have been merged into
   a single httpd.conf file.  Review it and your old configuration and make the
   appropriate changes for your configuration
+

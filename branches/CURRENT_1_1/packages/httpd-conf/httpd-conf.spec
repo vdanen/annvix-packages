@@ -9,7 +9,7 @@
 
 %define name		httpd-conf
 %define version		2.0.54
-%define release		1avx
+%define release		2avx
 
 %define compat_dir	/etc/httpd
 %define compat_conf	/etc/httpd/conf
@@ -225,6 +225,10 @@ install -m 0644 %{SOURCE102} %{buildroot}%{_datadir}/afterboot/03_apache
 
 
 %changelog
+* Wed Sep 07 2005 Vincent Danen <vdanen@annvix.org> 2.0.54-2avx
+- i had fixed the config of the wrong httpd.conf file; fixed to
+  minimize the exposed info
+
 * Wed Sep 07 2005 Vincent Danen <vdanen@annvix.org> 2.0.54-1avx
 - 2.0.54; merge with mandrake apache-conf-2.0.54-12mdk:
 - s/httpd2/httpd/
