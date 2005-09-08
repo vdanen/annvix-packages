@@ -8,7 +8,7 @@
 
 %define kname		kernel
 %define sublevel	31
-%define avxrelease	2
+%define avxrelease	3
 
 %define tar_version	2.4.%{sublevel}
 %define patchversion	avx%{avxrelease}
@@ -692,7 +692,7 @@ exit 0
 
 ### kernel source
 %post -n %{kname}-source
-pushd /usr/src
+pushd /usr/src >/dev/null 2>&1
     rm -f linux
     ln -snf linux-%{KVERREL} linux
     /sbin/service kheader start 2>/dev/null >/dev/null || :
@@ -703,7 +703,7 @@ pushd /usr/src
             ln -sf /usr/src/linux-%{KVERREL} $i/build
         fi
     done
-popd
+popd >/dev/null 2>&1
 
 %postun -n %{kname}-source
 if [ -L /usr/src/linux ]; then 
@@ -806,6 +806,10 @@ exit 0
 
 
 %changelog
+* Mon Sep 05 2005 Vincent Danen <vdanen@annvix.org> 2.4.31-3avx
+- silence pushd/popd in kernel-source %%post
+- clean out the patches tarball and remove all unapplied patches from it
+
 * Thu Sep 01 2005 Vincent Danen <vdanen@annvix.org> 2.4.31-2avx
 - bootstrap build (new gcc, new glibc)
 - drop every single patch except for the openwall patch, frandom
