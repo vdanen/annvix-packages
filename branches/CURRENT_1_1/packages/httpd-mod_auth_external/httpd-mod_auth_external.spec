@@ -1,5 +1,5 @@
 #
-# spec file for package apache2-mod_auth_external
+# spec file for package httpd-mod_auth_external
 #
 # Package for the Annvix Linux distribution: http://annvix.org/
 #
@@ -7,19 +7,19 @@
 #
 
 
-%define name		apache2-%{mod_name}
+%define name		httpd-%{mod_name}
 %define version		%{apache_version}_%{mod_version}
-%define release		3avx
+%define release		1avx
 
 # Module-Specific definitions
-%define apache_version	2.0.53
+%define apache_version	2.0.54
 %define mod_version	2.2.9
 %define mod_name	mod_auth_external
 %define mod_conf	10_%{mod_name}.conf
 %define mod_so		%{mod_name}.so
 %define sourcename	%{mod_name}-%{mod_version}
 
-Summary:	An apache2 authentication DSO using external programs
+Summary:	An Apache authentication DSO using external programs
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -31,13 +31,15 @@ Source1:	%{mod_conf}.bz2
 Patch0:		%{mod_name}-2.2.9-register.diff.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:  apache2-devel >= %{apache_version}
+BuildRequires:  httpd-devel >= %{apache_version}
 
-Prereq:		rpm-helper, apache2 >= %{apache_version}, apache2-conf
+Prereq:		rpm-helper, httpd >= %{apache_version}, httpd-conf
 Requires:	pwauth
+Provides:	apache2-mod_auth_external
+Obsoletes:	apache2-mod_auth_external
 
 %description
-An apache2 external authentication module - uses PAM.
+An Apache external authentication module - uses PAM.
 
 
 %prep
@@ -46,16 +48,16 @@ An apache2 external authentication module - uses PAM.
 
 
 %build
-%{_sbindir}/apxs2 -c %{mod_name}.c
+%{_sbindir}/apxs -c %{mod_name}.c
 
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-mkdir -p %{buildroot}%{_libdir}/apache2-extramodules
-mkdir -p %{buildroot}%{_sysconfdir}/httpd/conf.d
-install -m 0755 .libs/*.so %{buildroot}%{_libdir}/apache2-extramodules/
-bzcat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/conf.d/%{mod_conf}
+mkdir -p %{buildroot}%{_libdir}/httpd-extramodules
+mkdir -p %{buildroot}%{_sysconfdir}/httpd/modules.d
+install -m 0755 .libs/*.so %{buildroot}%{_libdir}/httpd-extramodules/
+bzcat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
 
 chmod 0644 AUTHENTICATORS CHANGES INSTALL* README* TODO
 
@@ -67,11 +69,16 @@ chmod 0644 AUTHENTICATORS CHANGES INSTALL* README* TODO
 %files
 %defattr(-,root,root)
 %doc AUTHENTICATORS CHANGES INSTALL* README* TODO
-%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/httpd/conf.d/%{mod_conf}
-%attr(0755,root,root) %{_libdir}/apache2-extramodules/%{mod_so}
+%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/httpd/modules.d/%{mod_conf}
+%attr(0755,root,root) %{_libdir}/httpd-extramodules/%{mod_so}
 
 
 %changelog
+* Wed Sep 07 2005 Vincent Danen <vdanen@annvix.org> 2.0.54_2.2.9-1avx
+- apache 2.0.54
+- s/conf.d/modules.d/
+- s/apache2/httpd/
+
 * Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 2.0.53_2.2.9-3avx
 - bootstrap build (new gcc, new glibc)
 - don't include the symlinks to docs in /var/www/html/addon-modules

@@ -5,7 +5,7 @@
  #
  
 -APXS = /usr/sbin/apxs2
-+APXS = apxs2
++APXS = apxs
  CC = gcc
 -INSTBINDIR = /usr/local/sbin
 -DEFINES = -D INSTBINDIR=\\\"$(INSTBINDIR)\\\"

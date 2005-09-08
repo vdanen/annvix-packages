@@ -1,5 +1,5 @@
 #
-# spec file for package apache2-mod_auth_remote
+# spec file for package httpd-mod_auth_remote
 #
 # Package for the Annvix Linux distribution: http://annvix.org/
 #
@@ -7,20 +7,20 @@
 #
 
 
-%define name		apache2-%{mod_name}
+%define name		httpd-%{mod_name}
 %define version 	%{apache_version}_%{mod_version}
-%define release 	3avx
+%define release 	1avx
 %define epoch		1
 
 # Module-Specific definitions
-%define apache_version	2.0.53
+%define apache_version	2.0.54
 %define mod_version	0.1
 %define mod_name	mod_auth_remote
 %define mod_conf	82_%{mod_name}.conf
 %define mod_so		%{mod_name}.so
 %define sourcename	%{mod_name}-%{mod_version}
 
-Summary:	Mod_auth_remote is a DSO module for the apache2 Web server
+Summary:	Mod_auth_remote is a DSO module for the Apache Web server
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -33,9 +33,11 @@ Source1:	%{mod_conf}.bz2
 Patch0:		%{sourcename}-register.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:  apache2-devel >= %{apache_version}
+BuildRequires:  httpd-devel >= %{apache_version}
 
-Prereq:		apache2 >= %{apache_version}, apache2-conf
+Prereq:		httpd >= %{apache_version}, httpd-conf
+Provides:	apache2-mod_auth_remote
+Obsoletes:	apache2-mod_auth_remote
 
 
 %description
@@ -62,16 +64,16 @@ client is not validated.
 
 
 %build
-%{_sbindir}/apxs2 -c %{mod_name}.c
+%{_sbindir}/apxs -c %{mod_name}.c
 
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-mkdir -p %{buildroot}%{_libdir}/apache2-extramodules
-mkdir -p %{buildroot}%{_sysconfdir}/httpd/conf.d
-install -m 0755 .libs/*.so %{buildroot}%{_libdir}/apache2-extramodules/
-bzcat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/conf.d/%{mod_conf}
+mkdir -p %{buildroot}%{_libdir}/httpd-extramodules
+mkdir -p %{buildroot}%{_sysconfdir}/httpd/modules.d
+install -m 0755 .libs/*.so %{buildroot}%{_libdir}/httpd-extramodules/
+bzcat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
 
 
 %clean
@@ -81,11 +83,16 @@ bzcat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/conf.d/%{mod_conf}
 %files
 %defattr(-,root,root)
 %doc readme.txt
-%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/httpd/conf.d/%{mod_conf}
-%attr(0755,root,root) %{_libdir}/apache2-extramodules/%{mod_so}
+%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/httpd/modules.d/%{mod_conf}
+%attr(0755,root,root) %{_libdir}/httpd-extramodules/%{mod_so}
 
 
 %changelog
+* Wed Sep 07 2005 Vincent Danen <vdanen@annvix.org> 2.0.54_0.1-1avx
+- apache 2.0.54
+- s/conf.d/modules.d/
+- s/apache2/httpd/
+
 * Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 2.0.53_0.1-3avx
 - bootstrap build (new gcc, new glibc)
 - don't include the symlinks to docs in /var/www/html/addon-modules

@@ -1,5 +1,5 @@
 #
-# spec file for package apache2-mod_auth_pgsql
+# spec file for package httpd-mod_auth_pgsql
 #
 # Package for the Annvix Linux distribution: http://annvix.org/
 #
@@ -7,19 +7,19 @@
 #
 
 
-%define name		apache2-%{mod_name}
+%define name		httpd-%{mod_name}
 %define version 	%{apache_version}_%{mod_version}
-%define release 	3avx
+%define release 	1avx
 
 # Module-Specific definitions
-%define apache_version	2.0.53
+%define apache_version	2.0.54
 %define mod_version	2.0.2b1
 %define mod_name	mod_auth_pgsql
 %define mod_conf	13_%{mod_name}.conf
 %define mod_so		%{mod_name}.so
 %define sourcename	%{mod_name}-%{mod_version}
 
-Summary:	Basic authentication for the apache2 web server using a PostgreSQL database
+Summary:	Basic authentication for the Apache web server using a PostgreSQL database
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -32,9 +32,11 @@ Patch0:		mod_auth_pgsql-2.0.1-fdr-nonpgsql.patch.bz2
 Patch1:		mod_auth_pgsql-2.0.1-fdr-static.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:  apache2-devel >= %{apache_version}, postgresql-devel, postgresql-libs-devel, openssl-devel
+BuildRequires:  httpd-devel >= %{apache_version}, postgresql-devel, postgresql-libs-devel, openssl-devel
 
-Prereq:		apache2 = %{apache_version}, apache2-conf
+Prereq:		httpd = %{apache_version}, httpd-conf
+Provides:	apache2-mod_auth_pgsql
+Obsoletes:	apache2-mod_auth_pgsql
 
 %description
 mod_auth_pgsql can be used to limit access to documents served by
@@ -49,17 +51,17 @@ database.
 
 
 %build
-%{_sbindir}/apxs2 -I%{_includedir}/pgsql -L%{_libdir} \
+%{_sbindir}/apxs -I%{_includedir}/pgsql -L%{_libdir} \
     "-lpq -lcrypto -lssl" -c mod_auth_pgsql.c -n mod_auth_pgsql.so
 
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-mkdir -p %{buildroot}%{_libdir}/apache2-extramodules
-mkdir -p %{buildroot}%{_sysconfdir}/httpd/conf.d
-install -m 0755 .libs/*.so %{buildroot}%{_libdir}/apache2-extramodules/
-bzcat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/conf.d/%{mod_conf}
+mkdir -p %{buildroot}%{_libdir}/httpd-extramodules
+mkdir -p %{buildroot}%{_sysconfdir}/httpd/modules.d
+install -m 0755 .libs/*.so %{buildroot}%{_libdir}/httpd-extramodules/
+bzcat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
 
 
 %clean
@@ -69,11 +71,16 @@ bzcat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/conf.d/%{mod_conf}
 %files
 %defattr(-,root,root)
 %doc README INSTALL *.html
-%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/httpd/conf.d/%{mod_conf}
-%attr(0755,root,root) %{_libdir}/apache2-extramodules/%{mod_so}
+%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/httpd/modules.d/%{mod_conf}
+%attr(0755,root,root) %{_libdir}/httpd-extramodules/%{mod_so}
 
 
 %changelog
+* Wed Sep 07 2005 Vincent Danen <vdanen@annvix.org> 2.0.54_2.0.2b1-1avx
+- apache 2.0.54
+- s/conf.d/modules.d/
+- s/apache2/httpd/
+
 * Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 2.0.53_2.0.2b1-3avx
 - bootstrap build (new gcc, new glibc)
 - don't include the symlinks to docs in /var/www/html/addon-modules

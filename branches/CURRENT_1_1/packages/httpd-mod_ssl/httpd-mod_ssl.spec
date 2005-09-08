@@ -1,5 +1,5 @@
 #
-# spec file for package apache2-mod_ssl
+# spec file for package httpd-mod_ssl
 #
 # Package for the Annvix Linux distribution: http://annvix.org/
 #
@@ -7,12 +7,12 @@
 #
 
 
-%define name		apache2-%{mod_name}
+%define name		httpd-%{mod_name}
 %define version		%{apache_version}
-%define release		6avx
+%define release		1avx
 
 # Module-Specific definitions
-%define apache_version	2.0.53
+%define apache_version	2.0.54
 %define mod_name	mod_ssl
 %define mod_conf	40_%{mod_name}.conf
 %define mod_so		%{mod_name}.so
@@ -33,10 +33,12 @@ Patch0:		certwatch-avx-annvix.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	openssl-devel
-BuildRequires:	apache2-devel >= %{apache_version}, apache2-source >= %{apache_version}
+BuildRequires:	httpd-devel >= %{apache_version}, httpd-source >= %{apache_version}
 
 Prereq:		rpm-helper
-Prereq:		apache2 = %{apache_version}, apache2-conf
+Prereq:		httpd = %{apache_version}, httpd-conf
+Provides:	apache2-mod_ssl
+Obsoletes:	apache2-mod_ssl
 
 %description
 This module provides SSL v2/v3 and TLS v1 support for the Apache
@@ -50,8 +52,8 @@ This module relies on OpenSSL to provide the cryptography engine.
 %prep
 %setup -c -T
 
-cp -p %{_prefix}/src/apache2-%{version}/modules/ssl/* .
-cp -p %{_prefix}/src/apache2-%{version}/modules/loggers/* .
+cp -p %{_prefix}/src/httpd-%{version}/modules/ssl/* .
+cp -p %{_prefix}/src/httpd-%{version}/modules/loggers/* .
 
 # fix one obstacle
 perl -pi -e "s|../../modules/loggers/||g" ssl_engine_vars.c
@@ -62,7 +64,7 @@ tar xjf %{SOURCE5}
 
 
 %build
-%{_sbindir}/apxs2 -I%{_includedir}/openssl -lssl -lcrypto -lpthread -DHAVE_OPENSSL -DSSL_EXPERIMENTAL_ENGINE \
+%{_sbindir}/apxs -I%{_includedir}/openssl -lssl -lcrypto -lpthread -DHAVE_OPENSSL -DSSL_EXPERIMENTAL_ENGINE \
     -c `cat mod_ssl.txt`
 
 gcc %{optflags} -o certwatch/certwatch -Wall -Werror certwatch/certwatch.c -lcrypto
@@ -71,21 +73,21 @@ gcc %{optflags} -o certwatch/certwatch -Wall -Werror certwatch/certwatch.c -lcry
 %install
 [ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
 
-mkdir -p %{buildroot}%{_libdir}/apache2-extramodules
-mkdir -p %{buildroot}%{_sysconfdir}/httpd/conf.d
-install -m 0755 .libs/mod_ssl.so %{buildroot}%{_libdir}/apache2-extramodules/
+mkdir -p %{buildroot}%{_libdir}/httpd-extramodules
+mkdir -p %{buildroot}%{_sysconfdir}/httpd/modules.d
+install -m 0755 .libs/mod_ssl.so %{buildroot}%{_libdir}/httpd-extramodules/
 
-install -d %{buildroot}%{_libdir}/ssl/apache2-mod_ssl
-bzcat %{SOURCE2} > %{buildroot}%{_libdir}/ssl/apache2-mod_ssl/gentestcrt.sh
+install -d %{buildroot}%{_libdir}/ssl/httpd-mod_ssl
+bzcat %{SOURCE2} > %{buildroot}%{_libdir}/ssl/httpd-mod_ssl/gentestcrt.sh
 
-# install module conf files for the "conf.d" dir loading structure
-install -d %{buildroot}/%{_sysconfdir}/httpd/conf.d
-bzcat %{SOURCE3} > %{buildroot}/%{_sysconfdir}/httpd/conf.d/%{mod_conf}
-bzcat %{SOURCE4} > %{buildroot}/%{_sysconfdir}/httpd/conf.d/41_mod_ssl.default-vhost.conf
+# install module conf files for the "modules.d" dir loading structure
+install -d %{buildroot}/%{_sysconfdir}/httpd/modules.d
+bzcat %{SOURCE3} > %{buildroot}/%{_sysconfdir}/httpd/modules.d/%{mod_conf}
+bzcat %{SOURCE4} > %{buildroot}/%{_sysconfdir}/httpd/modules.d/41_mod_ssl.default-vhost.conf
 
-install -d %{buildroot}%{_sysconfdir}/ssl/apache2
-cat > %{buildroot}%{_sysconfdir}/ssl/apache2/README.test-certificates <<EOF
-Use the %{_libdir}/ssl/apache2-mod_ssl/gentestcrt.sh script to generate your own,
+install -d %{buildroot}%{_sysconfdir}/ssl/httpd
+cat > %{buildroot}%{_sysconfdir}/ssl/httpd/README.test-certificates <<EOF
+Use the %{_libdir}/ssl/httpd-mod_ssl/gentestcrt.sh script to generate your own,
 self-signed certificates to replace the localhost server name.
 EOF
 
@@ -115,28 +117,12 @@ if [ $1 = "1" ]; then
     # Create a self-signed server key and certificate 
     # The script checks first if they exists, if yes, it exits, 
     # otherwise, it creates them.
-    if [ -d %{_sysconfdir}/ssl/apache2 ];then
-        pushd %{_sysconfdir}/ssl/apache2 > /dev/null
-            yes ""|%{_libdir}/ssl/apache2-mod_ssl/gentestcrt.sh >/dev/null 
+    if [ -d %{_sysconfdir}/ssl/httpd ];then
+        pushd %{_sysconfdir}/ssl/httpd > /dev/null
+            yes ""|%{_libdir}/ssl/httpd-mod_ssl/gentestcrt.sh >/dev/null 
         popd > /dev/null
     fi
     %{_datadir}/ADVX/mod_ssl-migrate-20
-fi
-
-if [ $1 = "2" ]; then
-    # we need this to move keys; this can be removed at a later date, but is required
-    # due to keys moving from apache/ to apache2/
-    if [ -f %{_sysconfdir}/ssl/apache/server.crt ]; then
-	echo "Moving %{_sysconfdir}/ssl/apache/server.crt to %{_sysconfdir}/ssl/apache2..."
-        mv %{_sysconfdir}/ssl/apache/server.crt %{_sysconfdir}/ssl/apache2/
-    fi
-    if [ -f %{_sysconfdir}/ssl/apache/server.key ]; then
-	echo "Moving %{_sysconfdir}/ssl/apache/server.key to %{_sysconfdir}/ssl/apache2..."
-        mv %{_sysconfdir}/ssl/apache/server.key %{_sysconfdir}/ssl/apache2/
-    fi
-    # if the directory only contained our files, it should be removed; if someone has put
-    # something in there, it should be retained
-    rmdir %{_sysconfdir}/ssl/apache >/dev/null 2>&1
 fi
 
 %create_ghostfile /var/cache/httpd/mod_ssl/scache.dir  apache root 0600
@@ -151,15 +137,15 @@ fi
 %files
 %defattr(-,root,root)
 %doc README
-%attr(0640,root,root) %config(noreplace) %{_sysconfdir}/httpd/conf.d/*_mod_ssl.conf
-%attr(0640,root,root) %config(noreplace) %{_sysconfdir}/httpd/conf.d/*_mod_ssl.default-vhost.conf
-%dir %{_sysconfdir}/ssl/apache2
-%config(noreplace) %{_sysconfdir}/ssl/apache2/README*
+%attr(0640,root,root) %config(noreplace) %{_sysconfdir}/httpd/modules.d/*_mod_ssl.conf
+%attr(0640,root,root) %config(noreplace) %{_sysconfdir}/httpd/modules.d/*_mod_ssl.default-vhost.conf
+%dir %{_sysconfdir}/ssl/httpd
+%config(noreplace) %{_sysconfdir}/ssl/httpd/README*
 %config(noreplace) %{_sysconfdir}/cron.daily/certwatch
-%dir %{_libdir}/ssl/apache2-mod_ssl
-%attr(0755,root,root) %{_libdir}/ssl/apache2-mod_ssl/gentestcrt.sh
+%dir %{_libdir}/ssl/httpd-mod_ssl
+%attr(0755,root,root) %{_libdir}/ssl/httpd-mod_ssl/gentestcrt.sh
 %attr(0755,root,root) %{_sbindir}/certwatch
-%attr(0755,root,root) %{_libdir}/apache2-extramodules/%{mod_name}.so
+%attr(0755,root,root) %{_libdir}/httpd-extramodules/%{mod_name}.so
 %attr(0700,root,root) %dir /var/cache/httpd/mod_ssl
 %attr(0600,apache,root) %ghost /var/cache/httpd/mod_ssl/scache.dir
 %attr(0600,apache,root) %ghost /var/cache/httpd/mod_ssl/scache.pag
@@ -168,6 +154,11 @@ fi
 
 
 %changelog
+* Wed Sep 07 2005 Vincent Danen <vdanen@annvix.org> 2.0.54-1avx
+- apache 2.0.54
+- s/conf.d/modules.d/
+- s/apache2/httpd/
+
 * Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 2.0.53-6avx
 - bootstrap build (new gcc, new glibc)
 

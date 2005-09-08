@@ -1,5 +1,5 @@
 #
-# spec file for package apache2-mod_auth_shadow
+# spec file for package httpd-mod_auth_shadow
 #
 # Package for the Annvix Linux distribution: http://annvix.org/
 #
@@ -7,19 +7,19 @@
 #
 
 
-%define name		apache2-%{mod_name}
+%define name		httpd-%{mod_name}
 %define version 	%{apache_version}_%{mod_version}
-%define release 	3avx
+%define release 	1avx
 
 # Module-Specific definitions
-%define apache_version	2.0.53
+%define apache_version	2.0.54
 %define mod_version	2.0
 %define mod_name	mod_auth_shadow
 %define mod_conf	83_%{mod_name}.conf
 %define mod_so		%{mod_name}.so
 %define sourcename	%{mod_name}-%{mod_version}
 
-Summary:	Shadow password authentication for the apache2 web server
+Summary:	Shadow password authentication for the Apache web server
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -32,12 +32,14 @@ Patch0:		%{sourcename}-register.patch.bz2
 Patch1:		%{sourcename}-makefile.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:  apache2-devel >= %{apache_version}
+BuildRequires:  httpd-devel >= %{apache_version}
 
-Prereq:		apache2 >= %{apache_version}, apache2-conf
+Prereq:		httpd >= %{apache_version}, httpd-conf
+Provides:	apache2-mod_auth_shadow
+Obsoletes:	apache2-mod_auth_shadow
 
 %description
-%{mod_name} is an apache2 module which authenticates against
+%{mod_name} is an Apache module which authenticates against
 the /etc/shadow file. You may use this module with a mode 400 
 root:root /etc/shadow file, while your web daemons are running
 under a non-privileged user.
@@ -57,10 +59,10 @@ export PATH="$PATH:/usr/sbin"
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-mkdir -p %{buildroot}%{_libdir}/apache2-extramodules
-mkdir -p %{buildroot}%{_sysconfdir}/httpd/conf.d
-install -m 0755 .libs/*.so %{buildroot}%{_libdir}/apache2-extramodules/
-bzcat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/conf.d/%{mod_conf}
+mkdir -p %{buildroot}%{_libdir}/httpd-extramodules
+mkdir -p %{buildroot}%{_sysconfdir}/httpd/modules.d
+install -m 0755 .libs/*.so %{buildroot}%{_libdir}/httpd-extramodules/
+bzcat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
 
 install -d %{buildroot}%{_sbindir}
 install -m 4755 validate %{buildroot}%{_sbindir}/
@@ -73,12 +75,17 @@ install -m 4755 validate %{buildroot}%{_sbindir}/
 %files
 %defattr(-,root,root)
 %doc CHANGES INSTALL README
-%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/httpd/conf.d/%{mod_conf}
-%attr(0755,root,root) %{_libdir}/apache2-extramodules/%{mod_so}
+%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/httpd/modules.d/%{mod_conf}
+%attr(0755,root,root) %{_libdir}/httpd-extramodules/%{mod_so}
 %attr(4755,root,root) %{_sbindir}/validate
 
 
 %changelog
+* Wed Sep 07 2005 Vincent Danen <vdanen@annvix.org> 2.0.54_2.0-1avx
+- apache 2.0.54
+- s/conf.d/modules.d/
+- s/apache2/httpd/
+
 * Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 2.0.53_2.0-3avx
 - bootstrap build (new gcc, new glibc)
 - don't include the symlinks to docs in /var/www/html/addon-modules

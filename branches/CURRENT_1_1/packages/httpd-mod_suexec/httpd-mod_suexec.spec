@@ -1,5 +1,5 @@
 #
-# spec file for package apache2-mod_suexec
+# spec file for package httpd-mod_suexec
 #
 # Package for the Annvix Linux distribution: http://annvix.org/
 #
@@ -7,12 +7,12 @@
 #
 
 
-%define name		apache2-%{mod_name}
+%define name		httpd-%{mod_name}
 %define version 	%{apache_version}
-%define release 	3avx
+%define release 	1avx
 
 # Module-Specific definitions
-%define apache_version	2.0.53
+%define apache_version	2.0.54
 %define mod_name	mod_suexec
 %define mod_conf	69_%{mod_name}.conf
 %define mod_so		%{mod_name}.so
@@ -28,10 +28,12 @@ URL:		http://httpd.apache.org/docs/suexec.html
 Source1:	%{mod_conf}.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:  apache2-devel >= %{apache_version}, apache2-source >= %{apache_version}
+BuildRequires:  httpd-devel >= %{apache_version}, httpd-source >= %{apache_version}
 
 Prereq:		rpm-helper
-Prereq:		apache2 >= %{apache_version}, apache2-conf
+Prereq:		httpd >= %{apache_version}, httpd-conf
+Provides:	apache2-mod_suexec
+Obsoletes:	apache2-mod_suexec
 
 %description
 This module, in combination with the suexec support program
@@ -44,7 +46,7 @@ same user who is running the web server.
 %prep
 %setup -c -T -n %{name}
 
-cp %{_includedir}/apache2/* .
+cp %{_includedir}/httpd/*.h .
 cp `apr-config --includedir`/* .
 cp `apu-config --includedir`/* .
 
@@ -57,20 +59,20 @@ echo "#define AP_SAFE_PATH \"/usr/local/bin:/usr/bin:/bin\""  >> ap_config_auto.
 echo "#define AP_SUEXEC_UMASK 0077"  >> ap_config_auto.h
 echo "#define AP_USERDIR_SUFFIX \"public_html\""  >> ap_config_auto.h
 
-cp %{_prefix}/src/apache2-%{version}/docs/man/suexec.8 .
-cp %{_prefix}/src/apache2-%{version}/docs/manual/mod/mod_suexec.html.en mod_suexec.html
-cp %{_prefix}/src/apache2-%{version}/docs/manual/programs/suexec.html.en programs-suexec.html
-cp %{_prefix}/src/apache2-%{version}/docs/manual/suexec.html.en suexec.html
-cp %{_prefix}/src/apache2-%{version}/modules/generators/mod_suexec.c .
-cp %{_prefix}/src/apache2-%{version}/modules/generators/mod_suexec.h .
-cp %{_prefix}/src/apache2-%{version}/support/suexec.c .
-cp %{_prefix}/src/apache2-%{version}/support/suexec.h .
+cp %{_prefix}/src/httpd-%{version}/docs/man/suexec.8 .
+cp %{_prefix}/src/httpd-%{version}/docs/manual/mod/mod_suexec.html.en mod_suexec.html
+cp %{_prefix}/src/httpd-%{version}/docs/manual/programs/suexec.html.en programs-suexec.html
+cp %{_prefix}/src/httpd-%{version}/docs/manual/suexec.html.en suexec.html
+cp %{_prefix}/src/httpd-%{version}/modules/generators/mod_suexec.c .
+cp %{_prefix}/src/httpd-%{version}/modules/generators/mod_suexec.h .
+cp %{_prefix}/src/httpd-%{version}/support/suexec.c .
+cp %{_prefix}/src/httpd-%{version}/support/suexec.h .
 
 
 %build
-gcc `%{_sbindir}/apxs2 -q CFLAGS -Wall` -I. -o suexec suexec.c
+gcc `%{_sbindir}/apxs -q CFLAGS -Wall` -I. -o suexec suexec.c
 
-%{_sbindir}/apxs2 -I. -c %{mod_name}.c
+%{_sbindir}/apxs -I. -c %{mod_name}.c
 
 
 %install
@@ -78,16 +80,16 @@ gcc `%{_sbindir}/apxs2 -q CFLAGS -Wall` -I. -o suexec suexec.c
 
 mkdir -p %{buildroot}%{_sbindir}
 mkdir -p %{buildroot}%{_mandir}/man8
-mkdir -p %{buildroot}%{_libdir}/apache2-extramodules
-mkdir -p %{buildroot}%{_sysconfdir}/httpd/conf.d
+mkdir -p %{buildroot}%{_libdir}/httpd-extramodules
+mkdir -p %{buildroot}%{_sysconfdir}/httpd/modules.d
 
-install -m 0755 suexec %{buildroot}%{_sbindir}/apache2-suexec
-install suexec.8 %{buildroot}%{_mandir}/man8/apache2-suexec.8
+install -m 0755 suexec %{buildroot}%{_sbindir}/httpd-suexec
+install suexec.8 %{buildroot}%{_mandir}/man8/httpd-suexec.8
 
-mkdir -p %{buildroot}%{_libdir}/apache2-extramodules
-mkdir -p %{buildroot}%{_sysconfdir}/httpd/conf.d
-install -m 0755 .libs/*.so %{buildroot}%{_libdir}/apache2-extramodules/
-bzcat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/conf.d/%{mod_conf}
+mkdir -p %{buildroot}%{_libdir}/httpd-extramodules
+mkdir -p %{buildroot}%{_sysconfdir}/httpd/modules.d
+install -m 0755 .libs/*.so %{buildroot}%{_libdir}/httpd-extramodules/
+bzcat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
 
 
 %clean
@@ -97,13 +99,18 @@ bzcat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/conf.d/%{mod_conf}
 %files
 %defattr(-,root,root)
 %doc mod_suexec.html suexec.html
-%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/httpd/conf.d/%{mod_conf}
-%attr(0755,root,root) %{_libdir}/apache2-extramodules/%{mod_so}
-%attr(4710,root,apache) %{_sbindir}/apache2-suexec
+%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/httpd/modules.d/%{mod_conf}
+%attr(0755,root,root) %{_libdir}/httpd-extramodules/%{mod_so}
+%attr(4710,root,apache) %{_sbindir}/httpd-suexec
 %{_mandir}/man8/*
 
 
 %changelog
+* Wed Sep 07 2005 Vincent Danen <vdanen@annvix.org> 2.0.54-1avx
+- apache 2.0.54
+- s/conf.d/modules.d/
+- s/apache2/httpd/
+
 * Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 2.0.53-3avx
 - bootstrap build (new gcc, new glibc)
 - don't include the symlinks to docs in /var/www/html/addon-modules
