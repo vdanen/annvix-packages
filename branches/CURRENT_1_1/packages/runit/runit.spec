@@ -9,7 +9,7 @@
 
 %define	name		runit
 %define	version		1.3.1
-%define	release		3avx
+%define	release		4avx
 
 %define aver		0.2
 
@@ -28,7 +28,7 @@ Patch0:		runit-1.3.1-avx-localtime.patch.bz2
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	dietlibc-devel >= 0.28
 
-Requires:	SysVinit >= 2.85-7avx, initscripts, srv, mingetty, execline
+Requires:	SysVinit >= 2.85-7avx, initscripts, srv, mingetty, execline, ipsvd
 Conflicts:	SysVinit <= 2.85-6avx
 
 %description
@@ -168,6 +168,9 @@ fi
 
 
 %changelog
+* Mon Sep 05 2005 Sean P. Thomas <spt@annvix.org> 1.3.1-4avx
+- added ipsvd as a dependency now we are utilizing it more for services.
+
 * Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 1.3.1-3avx
 - stage 1, 2, 3, and ctrlaltdel scripts are in execlineb format (re: spt)
 - run scripts are now considered config files and are not replaceable
