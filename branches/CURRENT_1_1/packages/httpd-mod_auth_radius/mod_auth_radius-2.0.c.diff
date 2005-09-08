@@ -1,0 +1,74 @@
+--- mod_auth_radius-2.0.c	2003-03-24 20:16:15.000000000 +0100
++++ mod_auth_radius-2.0.c.oden	2005-06-06 17:41:42.384912752 +0200
+@@ -49,7 +49,7 @@
+  * project, please see <http://www.apache.org/>.
+  *
+  *
+- *  CVS $Id: mod_auth_radius-2.0.c,v 1.5 2003/03/24 19:16:15 aland Exp $
++ *  CVS $Id: mod_auth_radius-2.0.c,v 1.6 2005/04/06 00:08:27 aland Exp $
+  */
+ 
+ /*
+@@ -1057,35 +1057,40 @@
+ 	attribute_t *a_state, *a_reply;
+ 	time_t expires = time(NULL) + 120; /* state expires in two minutes */
+ 	char server_state[256];
++	char *p;
+ 
+ 	if (((a_state = find_attribute(packet, RADIUS_STATE)) == NULL) ||
+ 	    ((a_reply = find_attribute(packet, RADIUS_REPLY_MESSAGE)) == NULL)) {
+ 	  ap_log_error(APLOG_MARK, APLOG_NOERRNO | APLOG_DEBUG, 0, r->server, "RADIUS access-challenge received with State or Reply-Message missing");
+-	} else {
+-	  char *p;
+-
+-	  /* Copy magic state message to the state */
+-	  strcpy(server_state, APACHE_RADIUS_MAGIC_STATE);
+-	  radcpy(server_state + sizeof(APACHE_RADIUS_MAGIC_STATE) - 1,
+-		 a_state);
+-
+-	  /* Copy the Reply-Message back to the caller : do CR/LF smashing */
+-	  radcpy(message, a_reply);
+-
+-	  p = message;		/* strip any control characters */
+-	  while (*p) {
+-	    if (*p < ' ')
+-	      *p = ' ';
+-	    p++;
+-	  }
+-	  
+-	  /* set the magic cookie */
+-	  add_cookie(r, r->err_headers_out,make_cookie(r, expires, "", server_state), expires);
++	  break;
++	}
+ 
+-	  /* log the challenge, as it IS an error returned to the user */
+-	  ap_log_error(APLOG_MARK, APLOG_NOERRNO | APLOG_DEBUG, 0, r->server, "RADIUS server requested challenge for user %s", user);
++	if ((a_state->length <= 2) || (a_reply->length <= 2)) {
++	  ap_snprintf(errstr, MAX_STRING_LEN, "RADIUS access-challenge received with invalid State or Reply-Message");
++	  break;
++	}
+ 
++	/* Copy magic state message to the state */
++	strcpy(server_state, APACHE_RADIUS_MAGIC_STATE);
++	radcpy(server_state + sizeof(APACHE_RADIUS_MAGIC_STATE) - 1,
++	       a_state);
++	
++	/* Copy the Reply-Message back to the caller : do CR/LF smashing */
++	radcpy(message, a_reply);
++	
++	p = message;		/* strip any control characters */
++	while (*p) {
++	  if (*p < ' ')
++	    *p = ' ';
++	  p++;
+ 	}
++	
++	/* set the magic cookie */
++	add_cookie(r, r->err_headers_out,make_cookie(r, expires, "", server_state), expires);
++	
++	/* log the challenge, as it IS an error returned to the user */
++	ap_log_error(APLOG_MARK, APLOG_NOERRNO | APLOG_DEBUG, 0, r->server, "RADIUS server requested challenge for user %s", user);
++	
+       }
+       break;
+       

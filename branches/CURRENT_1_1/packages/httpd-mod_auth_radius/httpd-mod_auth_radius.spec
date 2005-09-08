@@ -1,5 +1,5 @@
 #
-# spec file for package apache2-mod_auth_radius
+# spec file for package httpd-mod_auth_radius
 #
 # Package for the Annvix Linux distribution: http://annvix.org/
 #
@@ -7,60 +7,63 @@
 #
 
 
-%define name		apache2-%{mod_name}
+%define name		httpd-%{mod_name}
 %define version 	%{apache_version}_%{mod_version}
-%define release 	3avx
+%define release 	1avx
+%define epoch		1
 
 # Module-Specific definitions
-%define apache_version	2.0.53
-%define mod_version	1.7PR1
+%define apache_version	2.0.54
+%define mod_version	1.5.7
 %define mod_name	mod_auth_radius
 %define mod_conf	14_%{mod_name}.conf
 %define mod_so		%{mod_name}.so
 %define sourcename	%{mod_name}
 
-Summary:	Mod_radius is a DSO module for the apache2 Web server
+Summary:	Mod_radius is a DSO module for the Apache Web server
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
+Epoch:		%{epoch}
 License:	Apache License
 Group:		System/Servers
 URL:		https://www.gnarst.net/authradius/
 Source0:	%{mod_name}.tar.bz2
 Source1:	%{mod_conf}.bz2
-Patch0:		%{mod_name}-register.patch.bz2
-Patch1:		%{mod_name}-invalid-hostname.patch.bz2
-Patch2:		%{mod_name}-wierd_fix.patch.bz2
+Patch0:		mod_auth_radius-1.5.7-CAN2005-0108.diff.bz2
+Patch1:		mod_auth_radius-2.0.c.diff.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:  apache2-devel >= %{apache_version}
+BuildRequires:  httpd-devel >= %{apache_version}
 
-Prereq:		apache2 >= %{apache_version}, apache2-conf
+Prereq:		httpd >= %{apache_version}, httpd-conf
+Provides:	apache2-mod_auth_radius
+Obsoletes:	apache2-mod_auth_radius
 
 %description
-Make apache2 a RADIUS client for authentication and
+Make Apache a RADIUS client for authentication and
 accounting requests.
 
 
 %prep
-%setup -q -c -n mod_auth_radius
-mv mod_auth_radius_apache2.c mod_auth_radius.c
-%patch0
-%patch1
-%patch2
+%setup -q -n mod_auth_radius-%{mod_version}
+%patch0 -p0
+%patch1 -p0
+
+mv mod_auth_radius-2.0.c mod_auth_radius.c
 
 
 %build
-%{_sbindir}/apxs2 -c mod_auth_radius.c -Wl,-lresolv
+%{_sbindir}/apxs -c mod_auth_radius.c -Wl,-lresolv
 
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-mkdir -p %{buildroot}%{_libdir}/apache2-extramodules
-mkdir -p %{buildroot}%{_sysconfdir}/httpd/conf.d
-install -m 0755 .libs/*.so %{buildroot}%{_libdir}/apache2-extramodules/
-bzcat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/conf.d/%{mod_conf}
+mkdir -p %{buildroot}%{_libdir}/httpd-extramodules
+mkdir -p %{buildroot}%{_sysconfdir}/httpd/modules.d
+install -m 0755 .libs/*.so %{buildroot}%{_libdir}/httpd-extramodules/
+bzcat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
 
 
 %clean
@@ -69,12 +72,21 @@ bzcat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/conf.d/%{mod_conf}
 
 %files
 %defattr(-,root,root)
-%doc mod_auth_radius.html
-%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/httpd/conf.d/%{mod_conf}
-%attr(0755,root,root) %{_libdir}/apache2-extramodules/%{mod_so}
+%doc README htaccess httpd.conf index.html
+%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/httpd/modules.d/%{mod_conf}
+%attr(0755,root,root) %{_libdir}/httpd-extramodules/%{mod_so}
 
 
 %changelog
+* Wed Sep 07 2005 Vincent Danen <vdanen@annvix.org> 2.0.54_1.5.7-1avx
+- apache 2.0.54
+- mod_auth_radius 1.5.7
+- s/conf.d/modules.d/
+- s/apache2/httpd/
+- epoch: 1
+- update patches, including a fix for CAN-2005-0108
+
+
 * Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 2.0.53_1.7PR1-3avx
 - bootstrap build (new gcc, new glibc)
 - don't include the symlinks to docs in /var/www/html/addon-modules
