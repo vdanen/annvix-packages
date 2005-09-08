@@ -9,7 +9,7 @@
 
 %define name		apr
 %define version		0.9.6
-%define release		3avx
+%define release		4avx
 %define epoch		1
 
 %define aprver		0
@@ -24,17 +24,17 @@ Group:		System/Libraries
 URL:		http://apr.apache.org/
 Source0:	%{name}-%{version}.tar.gz
 Source1:	%{name}-%{version}.tar.gz.asc
-# OE: P0 is taken from the httpd-2.0.51.tar.gz source
-Patch1:		apr-0.9.3-deplibs.patch.bz2
-Patch2:		apr-0.9.5-config.diff.bz2
-Patch4:		apr-0.9.3-noipv6.patch.bz2
-Patch5:		apr-0.9.4-trimlibs.patch.bz2
-Patch7:		apr-0.9.4-tests.patch.bz2
-Patch17:	apr-0.9.5-mutextype_reorder.diff.bz2
-Patch19:	apr-0.9.6-guardsize.diff.bz2
-Patch20:	apr-0.9.4-cleanups.patch.bz2
-# OE: add the metux mpm hooks
-Patch30:	apr-0.9.5-metuxmpm-r8.patch.bz2
+Patch0:		apr-0.9.3-deplibs.patch.bz2
+Patch1:		apr-0.9.5-config.diff.bz2
+Patch2:		apr-0.9.3-noipv6.patch.bz2
+Patch3:		apr-0.9.4-trimlibs.patch.bz2
+Patch4:		apr-0.9.4-tests.patch.bz2
+Patch5:		apr-0.9.5-mutextype_reorder.diff.bz2
+Patch6:		apr-0.9.6-guardsize.diff.bz2
+Patch7:		apr-0.9.4-cleanups.patch.bz2
+Patch8:		apr-0.9.4-cflags.patch.bz2
+Patch9:		apr-0.9.4-lp64psem.patch.bz2
+Patch10:	apr-0.9.4-attrerror.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildPrereq:	autoconf2.5
@@ -68,7 +68,7 @@ including Unices, MS Win32, BeOS and OS/2.
 Summary:	APR library development kit
 Group:		Development/C
 #Requires:	%{name} = %{version}
-Requires:	%{libname} = 1:%{version}-%{release}
+Requires:	%{libname} = 1:%{version}
 Provides:	lib%{name}-devel %{name}-devel
 Obsoletes:	lib%{name}-devel %{name}-devel
 Epoch:		%{epoch}
@@ -82,22 +82,22 @@ C data structures and routines.
 
 %prep
 %setup -q
-%patch1 -p1 -b .deplibs
-%patch2 -p0 -b .config
-%patch4 -p1 -b .noipv6
-%patch5 -p1 -b .trimlibs
-%patch7 -p1 -b .tests
-%patch17 -p0 -b .mutextype_reorder
-%patch19 -p1 -b .guardsize
-%patch20 -p1 -b .cleanups
-
-# OE: add the metux mpm hooks
-%patch30 -p0 -b .metux
+%patch0 -p1 -b .deplibs
+%patch1 -p0 -b .config
+%patch2 -p1 -b .noipv6
+%patch3 -p1 -b .trimlibs
+%patch4 -p1 -b .tests
+%patch5 -p0 -b .mutextype_reorder
+%patch6 -p1 -b .guardsize
+%patch7 -p1 -b .cleanups
+%patch8 -p1 -b .cflags
+%patch9 -p1 -b .lp64psem
+%patch10 -p1 -b .attrerror
 
 
 %build
 %{__cat} >> config.layout << EOF
-<Layout ADVX>
+<Layout AVX>
     prefix:        %{_prefix}
     exec_prefix:   %{_prefix}
     bindir:        %{_bindir}
@@ -123,7 +123,7 @@ EOF
     --cache-file=config.cache \
     --includedir=%{_includedir}/apr-%{aprver} \
     --with-installbuilddir=%{_libdir}/apr/build \
-    --enable-layout=ADVX \
+    --enable-layout=AVX \
 %ifarch %ix86
 %ifnarch i386 i486
     --enable-nonportable-atomics=yes \
@@ -199,6 +199,12 @@ rm -f %{buildroot}%{_libdir}/apr.exp
 
 
 %changelog
+* Wed Sep 07 2005 Vincent Danen <vdanen@annvix.org> 0.9.6-4avx
+- sync with mandrake 0.9.6-4mdk:
+  - sync with fedora (oden)
+  - fix requires-on-release (oden)
+  - drop the metux patch (P30)
+
 * Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 0.9.6-3avx
 - bootstrap build (new gcc, new glibc)
 
