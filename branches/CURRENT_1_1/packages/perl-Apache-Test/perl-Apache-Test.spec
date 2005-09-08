@@ -9,8 +9,10 @@
 
 %define module		Apache-Test
 %define name		perl-%{module}
-%define version		1.20
-%define release		3avx
+%define version		1.25
+%define release		1avx
+
+%define _requires_exceptions perl(Apache2::Const)\\|perl(ModPerl::Config)
 
 Summary:	Apache::Test - Test.pm wrapper with helpers for testing Apache
 Name: 		%{name}
@@ -19,7 +21,7 @@ Release:	%{release}
 License:	GPL or Artistic
 Group: 		Development/Perl
 URL:		http://search.cpan.org/~gozer/Apache-Test/
-Source0:	Apache-Test-%{version}.tar.bz2
+Source0:	http://search.cpan.org/CPAN/authors/id/G/GO/GOZER/Apache-Test-%{version}.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
@@ -63,6 +65,10 @@ developed for testing mod_perl 2.0.
 
 
 %changelog
+* Wed Sep 07 2005 Vincent Danen <vdanen@annvix.org> 1.25-1avx
+- 1.25
+- rule out some perl auto-requires
+
 * Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 1.20-3avx
 - bootstrap build (new gcc, new glibc)
 
