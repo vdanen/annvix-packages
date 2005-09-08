@@ -6,9 +6,8 @@ Upstream-HEAD: needed
 Upstream-2.0: omit
 Upstream-Status: EXPORT_DIRS change is conditional on using shared apr
 
-diff -Naur httpd-2.0.53/server/main.c httpd-2.0.53.oden/server/main.c
---- httpd-2.0.53/server/main.c	2005-02-04 21:21:18.000000000 +0100
-+++ httpd-2.0.53.oden/server/main.c	2005-02-10 12:09:15.507352752 +0100
+--- httpd-2.0.53/server/main.c.export
++++ httpd-2.0.53/server/main.c
 @@ -627,28 +627,6 @@
      return 0; /* Termination 'ok' */
  }
@@ -38,9 +37,8 @@ diff -Naur httpd-2.0.53/server/main.c httpd-2.0.53.oden/server/main.c
  #ifdef AP_USING_AUTOCONF
  /* This ugly little hack pulls any function referenced in exports.c into
   * the web server.  exports.c is generated during the build, and it
-diff -Naur httpd-2.0.53/server/Makefile.in httpd-2.0.53.oden/server/Makefile.in
---- httpd-2.0.53/server/Makefile.in	2005-02-04 18:40:14.000000000 +0100
-+++ httpd-2.0.53.oden/server/Makefile.in	2005-02-10 12:09:15.507352752 +0100
+--- httpd-2.0.53/server/Makefile.in.export
++++ httpd-2.0.53/server/Makefile.in
 @@ -59,10 +59,6 @@
  	for dir in $(EXPORT_DIRS); do \
  	    ls $$dir/*.h >> $$tmp; \

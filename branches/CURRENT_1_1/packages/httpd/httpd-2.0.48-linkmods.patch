@@ -5,6 +5,9 @@
 - may no longer be necessary to link httpd against SSL_LIBS; check
 - only link mod_deflate.so against -lz
 
+Upstream-HEAD: committed
+Upstream-Status: Medium risk build system cleanup for 2.0.
+
 --- httpd-2.0.51-rc2/support/Makefile.in.linkmods
 +++ httpd-2.0.51-rc2/support/Makefile.in
 @@ -50,8 +50,9 @@

@@ -2,9 +2,9 @@
 Set SIGXFSZ to be ignored, so a write() beyond 2gb will fail with
 E2BIG rather than killing the process
 
-Upstream-HEAD: omit
+Upstream-HEAD: needed
 Upstream-2.0: omit
-Upstream-Status: Obsoleted by proper LFS support in APR
+Upstream-Status: Obsoleted by proper LFS support in APR, do it anyway
 Upstream-PR: 13511
 
 --- ./server/mpm/prefork/prefork.c.xfsz	Wed Jul 17 22:39:55 2002

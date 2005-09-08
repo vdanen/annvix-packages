@@ -2,6 +2,10 @@
 Update to HEAD's ab which seems to be slightly less utterly borked
 than 2.0's.
 
+Upstream-HEAD: committed
+Upstream-2.0: needed
+Upstream-Status: Simple backport of changes from HEAD
+
 --- httpd-2.0.50/support/ab.c.abench
 +++ httpd-2.0.50/support/ab.c
 @@ -60,9 +60,9 @@

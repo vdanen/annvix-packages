@@ -7,8 +7,8 @@ Add PIE support:
 - define AP_FNAME for the debuglog patch
   *note the -debuglog patch depends on this patch*
 
-Upstream-HEAD: needed
-Upstream-Status: Should go upstream as an --enable-pie flag or similar
+Upstream-HEAD: committed
+Upstream-Status: committed for 2.1.3
 
 --- httpd-2.0.47/build/rules.mk.in.pie
 +++ httpd-2.0.47/build/rules.mk.in

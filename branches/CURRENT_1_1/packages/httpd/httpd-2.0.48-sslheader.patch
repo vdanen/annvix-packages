@@ -4,6 +4,10 @@ optional hook declarations in mod_ssl.h.
 
 Also adds declaration for the ssl_is_https hook.
 
+Upstream-HEAD: committed
+Upstream-2.0: omit
+Upstream-Status: Resistance to similar changes upstream for 2.0
+
 --- httpd-2.0.51/modules/ssl/config.m4.sslheader	2004-09-15 16:30:50.000000000 +0100
 +++ httpd-2.0.51/modules/ssl/config.m4	2004-09-15 16:30:50.000000000 +0100
 @@ -120,6 +120,8 @@
@@ -281,7 +285,7 @@ Also adds declaration for the ssl_is_https hook.
  **
 --- /dev/null	2003-09-15 14:40:47.000000000 +0100
 +++ httpd-2.0.51/modules/ssl/ssl_private.h	2004-09-15 16:30:50.000000000 +0100
-@@ -0,0 +1,731 @@
+@@ -0,0 +1,730 @@
 +/*                      _             _
 +**  _ __ ___   ___   __| |    ___ ___| |  mod_ssl
 +** | '_ ` _ \ / _ \ / _` |   / __/ __| |  Apache Interface to OpenSSL
@@ -886,7 +890,6 @@ Also adds declaration for the ssl_is_https hook.
 +apr_status_t ssl_init_ModuleKill(void *data);
 +
 +/*  Apache API hooks  */
-+int          ssl_hook_Translate(request_rec *);
 +int          ssl_hook_Auth(request_rec *);
 +int          ssl_hook_UserCheck(request_rec *);
 +int          ssl_hook_Access(request_rec *);

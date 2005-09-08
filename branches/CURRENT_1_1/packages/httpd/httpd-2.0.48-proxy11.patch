@@ -1,6 +1,10 @@
 
 HTTP/1.1 compliance fixes for mod_proxy, from HEAD.
 
+Upstream-HEAD: committed
+Upstream-2.0: needed
+Upstream-Status: should be on 2.0
+
 --- httpd-2.0.48/server/protocol.c.proxy11
 +++ httpd-2.0.48/server/protocol.c
 @@ -463,6 +463,7 @@

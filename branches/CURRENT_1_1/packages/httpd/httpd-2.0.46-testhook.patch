@@ -1,6 +1,9 @@
 
 Adds test_config hook from HEAD, allows hooking into the httpd -t process.
 
+Upstream-HEAD: committed
+Upstream-Status: used by the -dumpcerts patch, may be OK for 2.0
+
 --- httpd-2.0.46/include/http_config.h.testhook
 +++ httpd-2.0.46/include/http_config.h
 @@ -996,6 +996,13 @@

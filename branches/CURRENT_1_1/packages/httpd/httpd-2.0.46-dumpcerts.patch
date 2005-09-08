@@ -6,6 +6,10 @@ add the feature that:
 
 dumps the list of configured certificate files to stdout.
 
+Upstream-HEAD: committed
+Upstream-2.0: omit
+Upstream-Status: 2.0 backport would depend on the test_config hook backport
+
 --- httpd-2.0.46/modules/ssl/mod_ssl.c.dumpcerts
 +++ httpd-2.0.46/modules/ssl/mod_ssl.c
 @@ -425,6 +425,7 @@

@@ -2,6 +2,9 @@
 Remove shmht (unstable and unreliable) and make 'shmht:' be equivalent
 to 'shmcb:' in SSLSessionCache.
 
+Upstream-HEAD: committed
+Upstream-2.0: needed
+
 --- httpd-2.0.45/modules/ssl/mod_ssl.h.noshmht	2003-03-31 00:17:22.000000000 +0100
 +++ httpd-2.0.45/modules/ssl/mod_ssl.h	2003-04-28 11:21:07.000000000 +0100
 @@ -128,7 +128,6 @@

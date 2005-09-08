@@ -2,6 +2,10 @@
 Use new mod_status hook to put SSL session cache stats into
 server-status output. (UPSTREAM, HEAD)
 
+Upstream-HEAD: committed
+Upstream-2.0: omit
+Upstream-Status: May suffer resistance upstream because of API change
+
 diff -u httpd-2.0/modules/ssl/mod_ssl.c:1.89 httpd-2.0/modules/ssl/mod_ssl.c:1.90
 --- httpd-2.0/modules/ssl/mod_ssl.c:1.89	Sun Nov 16 02:22:25 2003
 +++ httpd-2.0/modules/ssl/mod_ssl.c	Tue Nov 25 16:59:10 2003

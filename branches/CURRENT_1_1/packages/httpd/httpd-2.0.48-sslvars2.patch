@@ -2,6 +2,10 @@
 - ssl_var_lookup optimisations
 - indexed DN lookup feature
 
+Upstream-HEAD: committed
+Upstream-2.0: needed
+Upstream-Status: Low/Medium risk optimisation/feature addition for 2.0
+
 --- httpd-2.0.48/modules/ssl/ssl_engine_vars.c.sslvars2
 +++ httpd-2.0.48/modules/ssl/ssl_engine_vars.c
 @@ -68,7 +68,6 @@
