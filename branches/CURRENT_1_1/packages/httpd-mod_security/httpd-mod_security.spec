@@ -1,5 +1,5 @@
 #
-# spec file for package apache2-mod_security
+# spec file for package httpd-mod_security
 #
 # Package for the Annvix Linux distribution: http://annvix.org/
 #
@@ -7,19 +7,19 @@
 #
 
 
-%define name		apache2-%{mod_name}
+%define name		httpd-%{mod_name}
 %define version		%{apache_version}_%{mod_version}
-%define release 	3avx
+%define release 	1avx
 
 # Module-Specific definitions
-%define apache_version	2.0.53
-%define mod_version	1.7.5
+%define apache_version	2.0.54
+%define mod_version	1.8.7
 %define mod_name	mod_security
 %define mod_conf	82_%{mod_name}.conf
 %define mod_so		%{mod_name}.so
-%define sourcename	%{mod_name}-%{mod_version}
+%define sourcename	modsecurity-%{mod_version}
 
-Summary:	Mod_security is a DSO module for the apache2 Web server
+Summary:	Mod_security is a DSO module for the Apache Web server
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -28,14 +28,17 @@ Group:		System/Servers
 URL:		http://www.modsecurity.org/
 Source0:	%{sourcename}.tar.gz
 Source1:	%{mod_conf}.bz2
-Source2:	snortrules-snapshot-CURRENT.tar.gz
+Source2:	snortrules-snapshot-CURRENT.tar.bz2
 Source3:	%{sourcename}.tar.gz.asc
+Patch0:		mod_security-1.8.7-fixsnortrules.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	apache2-devel >= %{apache_version}
+BuildRequires:	httpd-devel >= %{apache_version}
 
-Prereq:		apache2 >= %{apache_version}, apache2-conf
+Prereq:		httpd >= %{apache_version}, httpd-conf
 Prereq:		rpm-helper
+Provides:	apache2-mod_security
+Obsoletes:	apache2-mod_security
 
 %description
 ModSecurity is an open source intrustion detection and prevention
@@ -45,9 +48,12 @@ from attacks.
 
 
 %prep
-%setup -q -n %{mod_name}-%{mod_version}
+%setup -q -n modsecurity-%{mod_version}
 
-tar -zxf %{SOURCE2}
+tar -jxf %{SOURCE2}
+
+%patch0 -p1 -b .fixsnortrules
+
 cat > mod_security-snortrules.conf << EOF
 # This file was generated using the %{_sbindir}/snort2modsec.pl perl script.
 
@@ -57,16 +63,16 @@ perl util/snort2modsec.pl rules/web*.rules >> mod_security-snortrules.conf
 
 %build
 cp apache2/%{mod_name}.c .
-%{_sbindir}/apxs2 -c %{mod_name}.c
+%{_sbindir}/apxs -c %{mod_name}.c
 
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-mkdir -p %{buildroot}%{_libdir}/apache2-extramodules
-mkdir -p %{buildroot}%{_sysconfdir}/httpd/conf.d
-install -m 0755 .libs/*.so %{buildroot}%{_libdir}/apache2-extramodules/
-bzcat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/conf.d/%{mod_conf}
+mkdir -p %{buildroot}%{_libdir}/httpd-extramodules
+mkdir -p %{buildroot}%{_sysconfdir}/httpd/modules.d
+install -m 0755 .libs/*.so %{buildroot}%{_libdir}/httpd-extramodules/
+bzcat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
 
 mkdir -p %{buildroot}{%{_sbindir},%{_sysconfdir}/httpd/2.0/conf}
 
@@ -82,12 +88,18 @@ install -m 0644 mod_security-snortrules.conf %{buildroot}%{_sysconfdir}/httpd/2.
 %defattr(-,root,root)
 %doc tests CHANGES README httpd.conf*
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/httpd/2.0/conf/mod_security-snortrules.conf
-%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/httpd/conf.d/%{mod_conf}
-%attr(0755,root,root) %{_libdir}/apache2-extramodules/%{mod_so}
+%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/httpd/modules.d/%{mod_conf}
+%attr(0755,root,root) %{_libdir}/httpd-extramodules/%{mod_so}
 %attr(0755,root,root) %{_sbindir}/snort2modsec.pl
 
 
 %changelog
+* Wed Sep 07 2005 Vincent Danen <vdanen@annvix.org> 2.0.54_1.8.7-1avx
+- apache 2.0.54
+- mod_security 1.8.7
+- s/conf.d/modules.d/
+- s/apache2/httpd/
+
 * Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 2.0.53_1.8.6-3avx
 - bootstrap build (new gcc, new glibc)
 - don't include the symlinks to docs in /var/www/html/addon-modules
