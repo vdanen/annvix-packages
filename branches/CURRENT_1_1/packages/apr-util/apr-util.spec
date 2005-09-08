@@ -9,7 +9,7 @@
 
 %define name		apr-util
 %define version		0.9.6
-%define release		3avx
+%define release		4avx
 
 %define apuver		0
 %define libname		%mklibname %{name} %{apuver}
@@ -29,16 +29,13 @@ Patch0:		apr-util-0.9.5-lib64.diff.bz2
 Patch1:		%{name}-0.9.3-deplibs.patch.bz2
 Patch2:		%{name}-0.9.5-config.diff.bz2
 Patch7:         %{name}-0.9.4-xlate.patch.bz2
+# http://www.outoforder.cc/projects/libs/apr_memcache/apr_reslist_invalidate.patch
+Patch8:		apr_reslist_invalidate.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-#BuildPrereq:	autoconf2.5
-#BuildPrereq:	automake1.7
-#BuildPrereq:	libtool
 BuildPrereq:	doxygen
 BuildPrereq:	apr-devel >= 0.9.5
-BuildPrereq:	openldap-devel
-BuildPrereq:	db4-devel
-BuildPrereq:	expat-devel
+BuildPrereq:	openldap-devel db4-devel expat-devel gdbm-devel
 
 %description
 The purpose of the Apache Portable Runtime (APR) is to provide a
@@ -86,11 +83,12 @@ library of C data structures and routines.
 %patch1 -p1 -b .deplibs
 %patch2 -p0 -b .config
 %patch7 -p1 -b .xlate
+%patch8 -p0 -b .apr_reslist_invalidate
 
 
 %build
 %{__cat} >> config.layout << EOF
-<Layout ADVX>
+<Layout AVX>
     prefix:        %{_prefix}
     exec_prefix:   %{_prefix}
     bindir:        %{_bindir}
@@ -119,9 +117,9 @@ libtoolize --copy --force && aclocal-1.7 && autoconf --force
     --with-apr=%{_prefix} \
     --includedir=%{_includedir}/apr-%{apuver} \
     --with-installbuilddir=%{_libdir}/apr/build \
-    --enable-layout=ADVX \
+    --enable-layout=AVX \
     --with-ldap \
-    --without-gdbm
+    --with-gdbm
 
 %make
 make dox
@@ -171,6 +169,11 @@ rm -f %{buildroot}%{_libdir}/aprutil.exp
 
 
 %changelog
+* Wed Sep 07 2005 Vincent Danen <vdanen@annvix.org> 0.9.6-4avx
+- sync with mandriva 0.9.6-8mdk:
+  - enable gdbm linkage (oden)
+  - P8: apr_memcache (oden)
+
 * Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 0.9.6-3avx
 - bootstrap build (new gcc, new glibc)
 
