@@ -9,7 +9,7 @@
 
 %define name		httpd
 %define version		2.0.54
-%define release		1avx
+%define release		2avx
 
 #
 #(ie. use with rpm --rebuild):
@@ -144,6 +144,8 @@ Patch105:	httpd-2.0.55-cvs-pemcallback.patch.bz2
 # security fixes
 Patch122:	httpd-2.0.52-CAN-2005-1268.patch.bz2
 Patch123:	httpd-2.0.52-CAN-2005-2088.patch.bz2
+Patch124:	httpd-2.0.52-CAN-2005-2700.patch.bz2
+Patch125:	httpd-2.0.52-CAN-2005-2728.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	apr-devel >= 0.9.6-4avx, apr-util-devel >= 0.9.6-4avx, pcre-devel >= 5.0, byacc
@@ -267,6 +269,13 @@ Obsoletes:	apache2-mod_expires apache2-mod_ext_filter apache2-mod_headers apache
 Obsoletes:	apache2-mod_log_config apache2-mod_logio apache2-mod_log_forensic apache2-mod_mime apache2-mod_mime_magic
 Obsoletes:	apache2-mod_negotiation apache2-mod_rewrite apache2-mod_setenvif apache2-mod_speling apache2-mod_status
 Obsoletes:	apache2-mod_unique_id apache2-mod_userdir apache2-mod_usertrack apache2-mod_vhost_alias apache2-mod_dumpio apache2-modules
+Provides:	apache2-mod_access apache2-mod_actions apache2-mod_alias apache2-mod_asis apache2-mod_auth apache2-mod_auth_anon
+Provides:	apache2-mod_auth_dbm apache2-mod_auth_digest apache2-mod_autoindex apache2-mod_case_filter apache2-mod_case_filter_in
+Provides:	apache2-mod_cern_meta apache2-mod_cgi apache2-mod_cgid apache2-mod_charset_lite apache2-mod_dir apache2-mod_env
+Provides:	apache2-mod_expires apache2-mod_ext_filter apache2-mod_headers apache2-mod_imap apache2-mod_include apache2-mod_info
+Provides:	apache2-mod_log_config apache2-mod_logio apache2-mod_log_forensic apache2-mod_mime apache2-mod_mime_magic
+Provides:	apache2-mod_negotiation apache2-mod_rewrite apache2-mod_setenvif apache2-mod_speling apache2-mod_status
+Provides:	apache2-mod_unique_id apache2-mod_userdir apache2-mod_usertrack apache2-mod_vhost_alias apache2-mod_dumpio apache2-modules
 
 
 %description modules
@@ -551,6 +560,8 @@ build httpd-mod_perl, or your own custom version.
 #
 %patch122 -p1 -b .can-2005-1268
 %patch123 -p1 -b .can-2005-2088
+%patch124 -p1 -b .can-2005-2700
+%patch125 -p1 -b .can-2005-2728
 
 # Touch mod_ssl expression parser sources to prevent regenerating it
 touch modules/ssl/ssl_expr_*.[chyl]
@@ -1333,6 +1344,11 @@ strip %{buildroot}%{_sbindir}/httpd-worker
 
 
 %changelog
+* Fri Sep 09 2005 Vincent Danen <vdanen@annvix.org> 2.0.54-2avx
+- P124: patch to fix CAN-2005-2700
+- P125: patch to fix CAN-2005-2728
+- provide all the modules we obsoleted in httpd-modules
+
 * Wed Sep 07 2005 Vincent Danen <vdanen@annvix.org> 2.0.54-1avx
 - 2.0.54
 - the great apache2->httpd/httpd2->http migration
