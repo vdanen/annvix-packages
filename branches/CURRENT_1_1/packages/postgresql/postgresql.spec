@@ -9,7 +9,7 @@
 
 %define name		postgresql
 %define version		8.0.3
-%define release		4avx
+%define release		5avx
 
 %define _requires_exceptions devel(libtcl8.4)\\|devel(libtcl8.4(64bit))
 
@@ -630,6 +630,9 @@ rm -f perlfiles.list
 
 
 %changelog
+* Fri Sep 09 2005 Vincent Danen <vdanen@annvix.org> 8.0.3-5avx
+- rebuild against new readline and new python
+
 * Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 8.0.3-4avx
 - s/supervise/service/ in log/run
 
