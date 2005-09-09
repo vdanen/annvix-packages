@@ -8,7 +8,7 @@
 
 
 %define name		libxml2
-%define version		2.6.20
+%define version		2.6.21
 %define release		1avx
 
 %define major		2
@@ -146,7 +146,7 @@ rm -rf	%{buildroot}%{_prefix}/doc \
 
 %files -n %{libname}
 %defattr(-, root, root)
-%doc AUTHORS ChangeLog README Copyright TODO 
+%doc AUTHORS NEWS README Copyright TODO 
 %doc doc/*.html doc/*.gif
 %{_libdir}/lib*.so.*
 
@@ -181,6 +181,10 @@ rm -rf	%{buildroot}%{_prefix}/doc \
 
 
 %changelog
+* Fri Sep 09 2005 Vincent Danen <vdanen@annvix.org> 2.6.21-1avx
+- 2.6.21
+- rebuild against new readline and python
+
 * Tue Aug 23 2005 Vincent Danen <vdanen@annvix.org> 2.6.20-1avx
 - 2.6.20
 - remove the compiler profiling as it ends up complaining about
