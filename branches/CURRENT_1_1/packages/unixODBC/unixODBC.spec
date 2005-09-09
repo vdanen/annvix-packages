@@ -8,11 +8,11 @@
 
 
 %define name		unixODBC
-%define version		2.2.10
-%define release		3avx
+%define version		2.2.11
+%define release		1avx
 
-%define LIBMAJ	1
-%define libname %mklibname %{name} %{LIBMAJ}
+%define major		1
+%define libname 	%mklibname %{name} %{major}
 
 Summary: 	Unix ODBC driver manager and database drivers
 Name: 		%{name}
@@ -26,11 +26,12 @@ Source2:	odbcinst.ini
 Source3:	qt-attic.tar.bz2
 Source4:	qt-attic2.tar.bz2
 Patch0:		unixODBC-2.2.6-lib64.patch.bz2
+Patch1:		unixODBC-2.2.11-libtool.patch.bz2
 
 BuildRoot: 	%{_buildroot}/%{name}-%{version}
 # don't take away readline, we do want to build unixODBC with readline.
 BuildRequires:	bison flex readline-devel libltdl-devel
-BuildRequires:	automake1.7
+BuildRequires:	automake1.7 autoconf2.5 >= 2.52
 
 %description
 UnixODBC is a free/open specification for providing application developers 
@@ -51,7 +52,7 @@ unixODBC  libraries.
 %package -n %{libname}-devel
 Summary: 	Includes and static libraries for ODBC development
 Group: 		Development/Other
-Requires: 	%{libname} = %{version}-%{release}
+Requires: 	%{libname} = %{version}
 Provides:	%{name}-devel lib%{name}-devel libodbc.so libodbcinst.so lib%{name}2-devel
 Obsoletes:	%{name}-devel lib%{name}2-devel
 
@@ -63,18 +64,18 @@ This package contains the include files and static libraries for development.
 %prep
 %setup -q -a3 -a4
 %patch0 -p1 -b .lib64
+%patch1 -p1 -b .libtool
 
-aclocal-1.7 && autoconf
+autoconf
+
 
 %build
-# QTDIR is always /usr/lib/qt3 because it has /lib{,64} in it too
-export QTDIR=%{_prefix}/lib/qt3
+unset QTDIR
 
-# Search for qt/kde libraries in the right directories (avoid patch)
-# NOTE: please don't regenerate configure scripts below
-perl -pi -e "s@/lib(\"|\b[^/])@/%{_lib}\1@g if /(kde|qt)_(libdirs|libraries)=/" configure
-
-%configure2_5x --enable-static
+export EGREP='grep -E'
+libtoolize --copy --force
+%configure2_5x \
+    --enable-static
 make
 
 
@@ -87,6 +88,8 @@ make
     echo -en "install:\n\n" > Makefile
     cd ..
 }
+
+export EGREP='grep -E'
 
 %makeinstall
 
@@ -156,7 +159,14 @@ rm -f libodbc-libs.filelist
 %{_libdir}/*.a
 %{_libdir}/*.la
 
+
 %changelog
+* Fri Sep 09 2005 Vincent Danen <vdanen@annvix.org> 2.2.11-1avx
+- 2.2.11
+- built-in libtool fixes (gbeauchesne)
+- define EGREP to fix 64bit builds (sbenedict)
+- rebuild against new readline
+
 * Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 2.2.10-3avx
 - bootstrap build (new gcc, new glibc)
 - drop P1 and P2; we're not building against QT
