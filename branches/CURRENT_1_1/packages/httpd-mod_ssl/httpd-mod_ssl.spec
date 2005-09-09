@@ -9,7 +9,7 @@
 
 %define name		httpd-%{mod_name}
 %define version		%{apache_version}
-%define release		1avx
+%define release		2avx
 
 # Module-Specific definitions
 %define apache_version	2.0.54
@@ -154,6 +154,9 @@ fi
 
 
 %changelog
+* Fri Sep 09 2005 Vincent Danen <vdanen@annvix.org> 2.0.54-2avx
+- rebuild to get the fixes for CAN-2005-2700 and CAN-2005-2728
+
 * Wed Sep 07 2005 Vincent Danen <vdanen@annvix.org> 2.0.54-1avx
 - apache 2.0.54
 - s/conf.d/modules.d/
