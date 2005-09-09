@@ -8,8 +8,8 @@
 
 
 %define name		gnupg
-%define version 	1.2.6
-%define release		4avx
+%define version 	1.4.2
+%define release		1avx
 
 Summary:	GNU privacy guard - a free PGP replacement
 Name:		%{name}
@@ -22,7 +22,6 @@ Source:		ftp://ftp.gnupg.org/pub/gcrypt/gnupg/%{name}-%{version}.tar.bz2
 Source1:	ftp://ftp.gnupg.org/pub/gcrypt/gnupg/%{name}-%{version}.tar.bz2.sig
 Source2:	annvix-keys.tar.bz2
 Source3:	annvix-keys.tar.bz2.asc
-Patch0:		gnupg-1.2.5-cfb.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	exim
@@ -36,7 +35,6 @@ with the proposed OpenPGP Internet standard as described in RFC2440.
 
 %prep
 %setup -q
-%patch0 -p1 -b .can-2005-0366
 
 
 %build
@@ -46,6 +44,8 @@ with the proposed OpenPGP Internet standard as described in RFC2440.
 %configure2_5x \
     --with-included-gettext \
     --with-static-rnd=linux \
+    --disable-ldap \
+    --without-ldap \
     $mguard
 make
 # all tests must pass
@@ -54,7 +54,8 @@ make check
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-make DESTDIR=%{buildroot} install
+
+%makeinstall_std
 
 sed -e "s#../g10/gpg#gpg#" < tools/lspgpot > %{buildroot}%{_bindir}/lspgpot
 
@@ -104,7 +105,7 @@ tar xvjf %{SOURCE2} -C %{buildroot}%{_sysconfdir}/RPM-GPG-KEYS
 %dir %{_libdir}/gnupg
 %{_libdir}/gnupg/gpgkeys*
 %dir %{_datadir}/gnupg
-%{_datadir}/gnupg/*
+%{_datadir}/gnupg/options.skel
 %{_mandir}/man1/*
 %{_mandir}/man7/*
 %{_infodir}/gpg*.info.bz2
@@ -113,6 +114,11 @@ tar xvjf %{SOURCE2} -C %{buildroot}%{_sysconfdir}/RPM-GPG-KEYS
 
 
 %changelog
+* Fri Sep 09 2005 Vincent Danen <vdanen@annvix.org> 1.4.2-1avx
+- 1.4.2
+- P0 dropped; merged upstream
+- don't build against ldap libs
+
 * Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 1.2.6-4avx
 - bootstrap build (new gcc, new glibc)
 - gnupg builds the gpgkeys_* files based on what's installed, so
