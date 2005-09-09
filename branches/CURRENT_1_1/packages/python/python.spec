@@ -8,8 +8,8 @@
 
 
 %define name		python
-%define version		2.4
-%define release		5avx
+%define version		2.4.1
+%define release		1avx
 
 %define docver  	2.4
 %define dirver  	2.4
@@ -28,20 +28,21 @@ URL:		http://www.python.org/
 
 Source:		http://www.python.org/ftp/python/%{version}/Python-%{version}.tar.bz2
 Source1:	http://www.python.org/ftp/python/doc/%{docver}/html-%{docver}.tar.bz2
-Source2:	python-2.3-base.list.bz2
+Source2:	python-2.4-base.list.bz2
 Source3:	exclude.py
 
 # Don't include /usr/local/* in search path
 Patch3:		Python-2.3-no-local-incpath.patch.bz2
 
 # Support */lib64 convention on x86_64, sparc64, etc.
-Patch4:		Python-2.4-lib64.patch.bz2
+Patch4:		Python-2.4.1-lib64.patch.bz2
 
 # Do handle <asm-XXX/*.h> headers in h2py.py
 # FIXME: incomplete for proper bi-arch support as #if/#else/#endif
 # clauses generally should have been handled
 Patch5:		Python-2.2.2-biarch-headers.patch.bz2
-Patch6:		python-2.4-psf-2005-001.patch.bz2
+# detect and link with gdbm_compat for dbm module
+Patch6:		Python-2.4.1-gdbm.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	XFree86-devel 
@@ -128,7 +129,7 @@ of a Annvix distribution.
 %patch3 -p1 -b .no-local-incpath
 %patch4 -p1 -b .lib64
 %patch5 -p1 -b .biarch-headers
-%patch6 -p0 -b .can-2005-0089
+%patch6 -p1 -b .gdbm
 autoconf
 
 mkdir html
@@ -153,9 +154,12 @@ export OPT
     --enable-ipv6 \
     --enable-shared
 
+# fix build
+perl -pi -e 's/^(LDFLAGS=.*)/$1 -lstdc++/' Makefile
+
 %make
 # all tests must pass
-make test TESTOPTS="-l -x test_linuxaudiodev -x test_openpty"
+make test TESTOPTS="-l -x test_linuxaudiodev -x test_openpty -x test_nis"
 
 
 %install
@@ -294,6 +298,11 @@ rm -f modules-list main.list
 
 
 %changelog
+* Fri Sep 09 2005 Vincent Danen <vdanen@annvix.org> 2.4.1-1avx
+- 2.4.1
+- dropped P6; merged upstream
+- new P6 from mandriva to link gdbm support
+
 * Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 2.4-5avx
 - bootstrap build (new gcc, new glibc)
 

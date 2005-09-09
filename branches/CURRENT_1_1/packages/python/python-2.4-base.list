@@ -3,6 +3,7 @@
 %{_libdir}/python2.4/commands.py*
 %{_libdir}/python2.4/copy.py*
 %{_libdir}/python2.4/copy_reg.py*
+%{_libdir}/python2.4/dis.py*
 %dir %{_libdir}/python2.4/encodings/
 %{_libdir}/python2.4/encodings/aliases.py*
 %{_libdir}/python2.4/encodings/__init__.py*
@@ -11,6 +12,7 @@
 %{_libdir}/python2.4/getopt.py*
 %{_libdir}/python2.4/gettext.py*
 %{_libdir}/python2.4/glob.py*
+%{_libdir}/python2.4/inspect.py*
 %dir %{_libdir}/python2.4/lib-dynload/
 %{_libdir}/python2.4/lib-dynload/grp.so
 %{_libdir}/python2.4/lib-dynload/_locale.so
@@ -21,6 +23,7 @@
 %{_libdir}/python2.4/lib-dynload/time.so
 %{_libdir}/python2.4/linecache.py*
 %{_libdir}/python2.4/locale.py*
+%{_libdir}/python2.4/opcode.py*
 %{_libdir}/python2.4/os.py*
 %{_libdir}/python2.4/posixpath.py*
 %{_libdir}/python2.4/re.py*
@@ -31,6 +34,8 @@
 %{_libdir}/python2.4/sre.py*
 %{_libdir}/python2.4/stat.py*
 %{_libdir}/python2.4/string.py*
+%{_libdir}/python2.4/token.py*
+%{_libdir}/python2.4/tokenize.py*
 %{_libdir}/python2.4/types.py*
 %{_libdir}/python2.4/traceback.py*
 %{_libdir}/python2.4/UserDict.py*
