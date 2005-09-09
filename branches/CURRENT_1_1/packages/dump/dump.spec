@@ -9,7 +9,7 @@
 
 %define name		dump
 %define version 	0.4b40
-%define release 	1avx
+%define release 	2avx
 
 %define rmtrealname	rmt-dump
 
@@ -108,6 +108,9 @@ popd
 
 
 %changelog
+* Fri Sep 09 2005 Vincent Danen <vdanen@annvix.org> 0.4b40-2avx
+- rebuild for new readline
+
 * Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 0.4b40-1avx
 - 0.4b40
 - no more alternatives
