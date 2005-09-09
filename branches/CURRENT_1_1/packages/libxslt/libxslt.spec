@@ -8,14 +8,13 @@
 
 
 %define name		libxslt
-%define version		1.1.12
-%define release		3avx
+%define version		1.1.15
+%define release		1avx
 
-%define xml_ver_req	2.6.15
+%define xml_ver_req	2.6.17
 %define major		1
 %define libname		%mklibname xslt %{major}
 
-%define py_ver      	2.3
 %define pylibxml2   	python-libxml2
 
 Summary:	Library providing XSLT support
@@ -31,6 +30,7 @@ BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	libxml2-devel >= %{xml_ver_req}
 BuildRequires:	python-devel >= %{pyver}
 BuildRequires:	%{pylibxml2} >= %{xml_ver_req}
+BuildRequires:	multiarch-utils >= 1.0.3
 
 Requires:	libxml2 >= %{xml_ver_req}
 
@@ -117,6 +117,8 @@ make check
 rm -rf %{buildroot}%{_docdir}/%{name}-%{version} \
   %{buildroot}%{_libdir}/python%{pyver}/site-packages/*.{la,a}
 
+%multiarch_binaries %{buildroot}%{_bindir}/xslt-config
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -152,12 +154,18 @@ rm -rf %{buildroot}%{_docdir}/%{name}-%{version} \
 %{_libdir}/*a
 %{_libdir}/*.sh
 %{_includedir}/*
+%multiarch %{multiarch_bindir}/xslt-config
 %{_bindir}/xslt-config
 %{_libdir}/pkgconfig/*
 %{_datadir}/aclocal/*
 
 
 %changelog
+* Fri Sep 09 2005 Vincent Danen <vdanen@annvix.org> 1.1.15-1avx
+- 1.1.15
+- requires libxml2 2.6.17
+- multiarch
+
 * Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 1.1.12-3avx
 - bootstrap build (new gcc, new glibc)
 
