@@ -9,7 +9,7 @@
 
 %define name		%{libnamemajor}
 %define version		0.51
-%define release		10avx
+%define release		11avx
 
 %define realname	xmlrpc
 %define libname		lib%{realname}
@@ -102,6 +102,9 @@ rm -f %{buildroot}%{_bindir}/{client,hello_{client,server},memtest,sample,server
 
 
 %changelog
+* Fri Sep 09 2005 Vincent Danen <vdanen@annvix.org> 0.51-11avx
+- rebuild (I don't see libxml2 in the buildreq, but better to be safe than sorry)
+
 * Tue Aug 23 2005 Vincent Danen <vdanen@annvix.org> 0.51-10avx
 - bootstrap build (new gcc, new glibc)
 
