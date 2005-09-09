@@ -1,3 +1,4 @@
+#!/bin/sh
 # Linux-Mandrake configuration: Chmouel Boudjnah <chmouel@mandrakesoft.com>
 #
 # Common Aliases for a system.
@@ -10,8 +11,6 @@
 
 [[ -f ~/.alias ]] && [[ -z $LOAD_SYSTEM_ALIASES ]] && return 0
 [[ -n $IGNORE_SYSTEM_ALIASES ]] && return 0
-
-[ -e /etc/sysconfig/system ] && . /etc/sysconfig/system
 
 if [ -f ~/.dir_colors ]; then
 	eval `dircolors --sh ~/.dir_colors`
@@ -53,16 +52,9 @@ alias cp="cp -i"
 alias mv="mv -i"
 alias rm="rm -i"
 
-# Make a filter for less
-if [ -x /usr/bin/lesspipe.sh ];then
-     export LESSOPEN="|/usr/bin/lesspipe.sh %s"
-fi
-
-if [ -n "$CLASS" -a "$CLASS" = "beginner" ];then
 # Size of a directory (by default Human Readable).
-    alias du='du -h'                              
+alias du='du -h'                              
                                               
 # Size of a disk (by default Human Readable). 
 # and don't probe supermount
-    alias df='df -h -x supermount'
-fi
+alias df='df -h -x supermount'

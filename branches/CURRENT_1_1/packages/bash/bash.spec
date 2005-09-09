@@ -9,7 +9,7 @@
 
 %define name		bash
 %define version		3.0
-%define release		4avx
+%define release		5avx
 
 %define i18ndate 	20010626
 
@@ -78,6 +78,8 @@ Tools standard.
 
 %prep
 %setup -q -a 1
+mv doc/README .
+
 %patch1 -p1 -b .security
 %patch3 -p1 -b .profile
 %patch4 -p1 -b .readline
@@ -167,8 +169,6 @@ chmod 0755 examples/misc/aliasconv.*
 chmod 0755 examples/misc/cshtobash
 chmod 0755 %{buildroot}%{_bindir}/bashbug
 
-mv doc/README .
-
 # Take out irritating ^H's from the documentation
 for i in `/bin/ls doc/` ; do perl -pi -e 's/.//g' doc/$i ; done
 
@@ -214,11 +214,11 @@ s/$/.1.bz2/
 
 perl -p -i -e 's!.*/(printf|export|echo|pwd|test|kill).1.bz2!!' ../man.pages
 
-mkdir -p %{buildroot}/etc/skel
-install -c -m 0644 %{SOURCE2} %{buildroot}/etc/skel/.bashrc
-install -c -m 0644 %{SOURCE3}	%{buildroot}/etc/skel/.bash_profile
-install -c -m 0644 %{SOURCE4}	%{buildroot}/etc/skel/.bash_logout
-install -D -c -m 0755 %{SOURCE5} %{buildroot}/etc/profile.d/alias.sh
+mkdir -p %{buildroot}%{_sysconfdir}/{skel,profile.d}
+install -m 0644 %{SOURCE2} %{buildroot}%{_sysconfdir}/skel/.bashrc
+install -m 0644 %{SOURCE3} %{buildroot}%{_sysconfdir}/skel/.bash_profile
+install -m 0644 %{SOURCE4} %{buildroot}%{_sysconfdir}/skel/.bash_logout
+install -m 0755 %{SOURCE5} %{buildroot}%{_sysconfdir}/profile.d/alias.sh
 
 ln -s bash %{buildroot}/bin/rbash
 
@@ -227,7 +227,7 @@ rm -f %{buildroot}{%{_infodir}/dir,%{_mandir}/man1/{echo,export,kill,printf,pwd,
 
 cd ..
 
-install -c -m 0644 bash-dynamic/doc/bash.info %{buildroot}%{_infodir}/
+install -m 0644 bash-dynamic/doc/bash.info %{buildroot}%{_infodir}/
 
 
 %clean
@@ -237,8 +237,8 @@ install -c -m 0644 bash-dynamic/doc/bash.info %{buildroot}%{_infodir}/
 %files -f man.pages
 %defattr(-,root,root)
 %doc README CHANGES
-%config(noreplace) /etc/skel/.b*
-%config(noreplace) /etc/profile.d/alias.sh
+%config(noreplace) %{_sysconfdir}/skel/.b*
+%{_sysconfdir}/profile.d/alias.sh
 /bin/rbash
 /bin/bash
 /bin/bash3
@@ -255,6 +255,10 @@ install -c -m 0644 bash-dynamic/doc/bash.info %{buildroot}%{_infodir}/
 
 
 %changelog
+* Fri Sep 09 2005 Vincent Danen <vdanen@annvix.org> 3.0-5avx
+- minor spec cleanups
+- alias.sh is not a config file
+
 * Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 3.0-4avx
 - bootstrap build (new gcc, new glibc)
 
