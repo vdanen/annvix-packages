@@ -9,7 +9,7 @@
 
 %define name		MySQL
 %define version		4.1.14
-%define release		2avx
+%define release		3avx
 
 %define major		14
 %define libname		%mklibname mysql %{major}
@@ -620,6 +620,9 @@ fi
 
 
 %changelog
+* Fri Sep 09 2005 Vincent Danen <vdanen@annvix.org> 4.1.14-3avx
+- rebuild against new readline
+
 * Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 4.1.14-2avx
 - s/supervise/service/ in log/run
 
