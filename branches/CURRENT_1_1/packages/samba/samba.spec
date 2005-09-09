@@ -9,7 +9,7 @@
 
 %define name		samba
 %define version		3.0.20
-%define release		1avx
+%define release		2avx
 
 %define smbldapver	0.8.8
 %define vscanver	0.3.6b
@@ -804,6 +804,9 @@ fi
 
 
 %changelog
+* Fri Sep 09 2005 Vincent Danen <vdanen@annvix.org> 3.0.20-2avx
+- rebuild against new readline and libxml2
+
 * Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 3.0.20-1avx
 - 3.0.20
 - use execlineb for run scripts
