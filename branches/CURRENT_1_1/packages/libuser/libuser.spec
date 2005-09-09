@@ -9,7 +9,7 @@
 
 %define name		libuser
 %define version		0.53.2
-%define release		4avx
+%define release		5avx
 
 %define major		1
 %define libname		%mklibname user %{major}
@@ -20,12 +20,12 @@ Version:	%{version}
 Release:	%{release}
 License:	LGPL
 Group:		System/Configuration/Other
-URL:		http://qa.mandrakesoft.com
+URL:		http://qa.mandriva.com
 Source:		libuser-%{version}.tar.bz2
 Patch1:	libuser-0.53.2-nosgml.patch	
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	gettext, glib2-devel, libldap-devel
+BuildRequires:	gettext, glib2-devel, openldap-devel
 BuildRequires:	pam-devel, popt-devel, python-devel
 
 %description
@@ -44,6 +44,14 @@ Group:		Development/Python
 %description -n %{name}-python
 this package contains the python library for python applications that 
 use libuser
+
+
+%package -n %{name}-ldap
+Summary:	Libuser ldap library 
+Group:		System/Libraries
+
+%description -n %{name}-ldap
+this package contains the libuser ldap library
 
 
 %package -n %{libname}
@@ -71,7 +79,7 @@ files useful for developing applications with libuser.
 
 
 %build
-export CFLAGS="%{optflags} -DG_DISABLE_ASSERT -I/usr/include/sasl" 
+export CFLAGS="%{optflags} -DG_DISABLE_ASSERT -I/usr/include/sasl -DLDAP_DEPRECATED"
 %configure2_5x \
     --with-ldap \
     --with-python-version=%{pyver} \
@@ -128,7 +136,8 @@ rm -rf %{buildroot}%{_libdir}/python%{pyver}/site-packages/*a
 %config(noreplace) %{_sysconfdir}/libuser.conf
 %attr(0755,root,root) %{_bindir}/*
 %attr(0755,root,root) %{_sbindir}/*
-%attr(0755,root,root) %{_libdir}/%{name}/*.so
+%attr(0755,root,root) %{_libdir}/%{name}/libuser_files.so
+%attr(0755,root,root) %{_libdir}/%{name}/libuser_shadow.so
 %{_mandir}/man1/*
 
 %files -n %{libname}
@@ -136,6 +145,9 @@ rm -rf %{buildroot}%{_libdir}/python%{pyver}/site-packages/*a
 
 %files -n %{name}-python
 %attr(0755,root,root) %{_libdir}/python%{pyver}/site-packages/*.so
+
+%files -n %{name}-ldap
+%attr(0755,root,root) %{_libdir}/%{name}/libuser_ldap.so
 
 %files -n %{libname}-devel
 %defattr(-,root,root)
@@ -149,6 +161,11 @@ rm -rf %{buildroot}%{_libdir}/python%{pyver}/site-packages/*a
 
 
 %changelog
+* Fri Sep 09 2005 Vincent Danen <vdanen@annvix.org> 0.53.2-5avx
+- pass -DLDAP_DEPRECATED to CFLAGS (oden)
+- BuildRequires: openldap-devel, not libldap-devel
+- libuser_ldap module is in it's own package now
+
 * Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 0.53.2-4avx
 - bootstrap build (new gcc, new glibc)
 
