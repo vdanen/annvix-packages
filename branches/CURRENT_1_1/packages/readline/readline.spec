@@ -8,13 +8,11 @@
 
 
 %define name		readline
-%define version		4.3
-%define	release		13avx
+%define version		5.0
+%define	release		1avx
 
-## Do not apply library policy!!
-%define major		4
-%define libname_orig	%mklibname readline
-%define libname		%{libname_orig}%{major}
+%define major		5
+%define libname		%mklibname %{name} %{major}
 
 Summary:	Library for reading lines from a terminal
 Name:		%{name}
@@ -22,14 +20,20 @@ Version:	%{version}
 Release:	%{release}
 License:	GPL
 Group:		System/Libraries
+URL:		http://cnswww.cns.cwru.edu/php/chet/readline/rltop.html
 Source:		ftp://ftp.gnu.org/pub/gnu/readline/readline-%{version}.tar.bz2
-Patch1:		http://kldp.org/~mindgame/unix/hangul/readline/readline-4.1-i18n.patch.bz2
 Patch2:		readline-4.3-guard.patch.bz2
 Patch3:		readline-4.1-outdated.patch.bz2
 Patch4:		readline-4.3-fixendkey.patch.bz2
 Patch5:		readline-4.1-resize.patch.bz2
-Patch100:	readline-4.3-vim-reapeat-fix.diff.bz2
-Patch101:	readline-4.3-segfault-fix.diff.bz2
+Patch11:	ftp://ftp.cwru.edu/pub/bash/readline-5.0-patches/readline50-001
+Patch12:	ftp://ftp.cwru.edu/pub/bash/readline-5.0-patches/readline50-002
+Patch13:	ftp://ftp.cwru.edu/pub/bash/readline-5.0-patches/readline50-003
+Patch14:	ftp://ftp.cwru.edu/pub/bash/readline-5.0-patches/readline50-004
+Patch15:	ftp://ftp.cwru.edu/pub/bash/readline-5.0-patches/readline50-005
+Patch16:	readline-4.3-no_rpath.patch.bz2
+Patch17:	readline-read-e-segfault.patch.bz2
+Patch18:	readline-wrap.patch.bz2
 
 Buildroot:	%{_buildroot}/%{name}-%{version}
 
@@ -43,8 +47,8 @@ intuitive interface.
 %package -n %{libname}
 Summary:	Shared libraries for readline
 Group:		System/Libraries
-Obsoletes:	readline
-Provides:	readline = %{version}-%{release}
+Obsoletes:	%{name}
+Provides:	%{name} = %{version}-%{release}
 
 %description -n %{libname}
 This package contains the library needed to run programs dynamically
@@ -52,12 +56,13 @@ linked to readline.
 
 
 %package -n %{libname}-devel
-Summary:	Files for developing programs that use the readline library.
+Summary:	Files for developing programs that use the readline library
 Group:		Development/C
 Requires:	%{libname} = %{version}-%{release}
-Obsoletes:	readline-devel
+Obsoletes:	%{name}-devel
 Provides:	lib%{name}-devel = %{version}-%{release}
-Provides:	readline-devel = %{version}-%{release}
+Provides:	%{name}-devel = %{version}-%{release}
+Conflicts:	%{_lib}readline4-devel
 
 %description -n %{libname}-devel
 The "readline" library will read a line from the terminal and return it,
@@ -69,21 +74,29 @@ text of the line remains.
 
 %prep
 %setup -q
-#%patch1 -p1 -b .i18n
 %patch2 -p1 -b .guard
 %patch3 -p1 -b .outdated
 %patch4 -p1 -b .fixendkey
 %patch5 -p1 -b .resize
-%patch100 -p1 -b .vim
-%patch101 -p1 -b .sig11
+%patch11 -p0 -b .001
+%patch12 -p0 -b .002
+%patch13 -p0 -b .003
+%patch14 -p0 -b .004
+%patch15 -p0 -b .005
+%patch16 -p1 -b .no_rpath
+%patch17 -p1 -b .read-e-segfault
+%patch18 -p1 -b .wrap
+
+
 libtoolize --copy --force
 
 
 %build
 export CFLAGS="%{optflags}"
-%configure --with-curses=ncurses
+%configure2_5x \
+    --with-curses=ncurses
 perl -p -i -e 's|-Wl,-rpath.*||' shlib/Makefile
-make static shared
+%make static shared
 
 
 %install
@@ -128,7 +141,7 @@ perl -p -i -e 's|/usr/local/bin/perl|/usr/bin/perl|' doc/texi2html
 
 %files -n %{libname}-devel
 %defattr(-,root,root)
-%doc CHANGELOG CHANGES COPYING INSTALL MANIFEST README USAGE
+%doc CHANGELOG CHANGES INSTALL MANIFEST README USAGE
 %doc doc examples support
 %{_mandir}/man*/*
 %{_infodir}/*info*
@@ -137,7 +150,15 @@ perl -p -i -e 's|/usr/local/bin/perl|/usr/bin/perl|' doc/texi2html
 %{_libdir}/lib*.so
 /%{_lib}/*so
 
+
 %changelog
+* Fri Sep 09 2005 Vincent Danen <vdanen@annvix.org> 5.0-1avx
+- 5.0
+- sync with mdk 5.0-2mdk:
+  - sync with fedora patches
+  - drop P1 (unapplied), P100/P101 (merged upstream)
+- throw in a conflicts on libreadline4-devel
+
 * Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 4.3-13avx
 - bootstrap build (new gcc, new glibc)
 
