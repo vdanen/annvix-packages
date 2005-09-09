@@ -9,7 +9,7 @@
 
 %define name		newt
 %define version 	0.51.6
-%define release 	4avx
+%define release 	5avx
 
 %define major		0.51
 %define libname		%mklibname %{name} %{major}
@@ -114,7 +114,7 @@ rm -rf  %{buildroot}%{_libdir}/python{1.5,2.0,2.1,2.2,2.3}
 %defattr (-,root,root)
 %doc CHANGES COPYING
 %{_bindir}/whiptail
-%{_libdir}/python%{pyver}/site-packages/
+%{_libdir}/python%{pyver}/site-packages/*
 
 %files -n %{libname}-devel
 %defattr (-,root,root)
@@ -123,7 +123,11 @@ rm -rf  %{buildroot}%{_libdir}/python{1.5,2.0,2.1,2.2,2.3}
 %{_libdir}/libnewt.a
 %{_libdir}/libnewt.so
 
+
 %changelog
+* Fri Sep 09 2005 Vincent Danen <vdanen@annvix.org> 0.51.6-5avx
+- rebuild against new python
+
 * Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 0.51.6-4avx
 - bootstrap build (new gcc, new glibc)
 
