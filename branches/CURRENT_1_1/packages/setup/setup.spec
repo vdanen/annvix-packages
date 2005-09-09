@@ -5,11 +5,11 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-# $Id: setup.spec,v 1.15 2005/08/12 21:19:31 vdanen Exp $
+# $Id: setup.spec,v 1.16 2005/09/09 22:43:38 vdanen Exp $
 
 %define name		setup
 %define version 	2.5
-%define release 	5avx
+%define release 	6avx
 
 Summary:	A set of system configuration and setup files
 Name:		%{name}
@@ -101,6 +101,9 @@ fi
 
 
 %changelog
+* Fri Sep 09 2005 Vincent Danen <vdanen@annvix.org> 2.5-6avx
+- varargs fixes to run-parts (gbeauchesne)
+
 * Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 2.5-5avx
 - bootstrap build (new gcc, new glibc)
 
