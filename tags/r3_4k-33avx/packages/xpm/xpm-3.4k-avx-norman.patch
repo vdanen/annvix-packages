@@ -1,0 +1,22 @@
+--- xpm-3.4k/sxpm/Makefile.avx	2005-09-10 02:18:22.000000000 -0400
++++ xpm-3.4k/sxpm/Makefile	2005-09-10 02:18:22.000000000 -0400
+@@ -1096,8 +1096,6 @@
+ 
+ sxpm.$(MANSUFFIX).html: sxpm.$(MANNEWSUFFIX)
+ 	$(RM) sxpm.$(MANSUFFIX).html sxpm.$(MANSUFFIX)-html
+-	$(RMAN) $(RMANOPTIONS) < sxpm.$(MANNEWSUFFIX) \
+-	  > sxpm.$(MANSUFFIX)-html && $(MV) sxpm.$(MANSUFFIX)-html $@
+ 
+ install.man:: sxpm.$(MANSUFFIX).html
+ 	@if [ -d $(DESTDIR)$(DOCHTMLDIR) ]; then \
+--- xpm-3.4k/cxpm/Makefile.avx	2005-09-10 02:23:32.000000000 -0400
++++ xpm-3.4k/cxpm/Makefile	2005-09-10 02:23:32.000000000 -0400
+@@ -1087,8 +1087,6 @@
+ 
+ cxpm.$(MANSUFFIX).html: cxpm.$(MANNEWSUFFIX)
+ 	$(RM) cxpm.$(MANSUFFIX).html cxpm.$(MANSUFFIX)-html
+-	$(RMAN) $(RMANOPTIONS) < cxpm.$(MANNEWSUFFIX) \
+-	  > cxpm.$(MANSUFFIX)-html && $(MV) cxpm.$(MANSUFFIX)-html $@
+ 
+ install.man:: cxpm.$(MANSUFFIX).html
+ 	@if [ -d $(DESTDIR)$(DOCHTMLDIR) ]; then \
