@@ -9,7 +9,7 @@
 
 %define name		console-tools
 %define version		0.2.3
-%define release		54avx
+%define release		55avx
 
 %define	CTVER		%{version}
 %define	CDVER		1999.08.29
@@ -44,6 +44,9 @@ Source8:	ctools-cyr.tar.bz2
 # on PPC we need to see whether mac or Linux keycodes are being used - stew
 Source9:	keytable.init.ppc
 Source10:	mac-keymaps.tar.bz2
+# taken from ftp://ftp.kernel.org/pub/linux/utils/kbd/kbd-1.12.tar.bz2, where
+# it's called "us-acentos.map"
+Source11:	us-intl.kmap.gz
 # docbook is unable to convert the sgml files to html
 # disabling them in the makefiles -- pablo
 Patch5:		console-tools-0.2.3-docbook.patch.bz2
@@ -152,6 +155,10 @@ cd ..
 %patch21 -p1
 %patch22 -p1
 
+# adapt for gettext >= 0.14.2 (avoid patch)
+grep -q gt_LC_MESSAGES /usr/share/aclocal/lcmessage.m4 &&
+perl -pi -e 's/^(\s+)AM_(LC_MESSAGES)/${1}gt_${2}/' acinclude.m4 console-data-%{CDVER}/acinclude.m4
+
 
 %build
 %serverbuild
@@ -181,10 +188,10 @@ cd -
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p %{buildroot}%{_prefix}
 
-%makeinstall
-cd console-data-%{CDVER}
-%makeinstall
-cd ..
+make DESTDIR=%{buildroot} install
+pushd console-data-%{CDVER}
+    make DESTDIR=%{buildroot} install
+popd
 
 # don't give loadkeys SUID perms
 chmod 0755 %{buildroot}%{_bindir}/loadkeys
@@ -230,6 +237,9 @@ rm -rf %{buildroot}/%{kbddir}/keymaps/{amiga,atari,sun}
 %ifnarch ppc
 rm -rf %{buildroot}/%{kbddir}/keymaps/mac
 %endif
+
+# us-international keymap
+install -m 0644 %{SOURCE11} %buildroot/%{kbddir}/keymaps/i386/qwerty/
 
 %find_lang %{name}
 
@@ -370,6 +380,14 @@ fi
 
 
 %changelog
+* Fri Sep 09 2005 Vincent Danen <vdanen@annvix.org> 0.2.3-55avx
+- adapt for gettext >= 0.14.2 (gt_LC_MESSAGES) (gbeauchesne)
+- added us-intl console keyboard map for people with US keyboards but
+  who need better cedilla support (andreas)
+- fix manpage location (andreas)
+- use make with DESTDIR instead of %%makeinstall (andreas)
+- rebuild for new gettext
+
 * Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 0.2.3-54avx
 - bootstrap build (new gcc, new glibc)
 
