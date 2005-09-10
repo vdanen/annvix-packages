@@ -9,7 +9,7 @@
 
 %define name		xpm
 %define version		3.4k
-%define release		32avx
+%define release		33avx
 
 %define prefix		/usr/X11R6
 %define	major		4
@@ -35,6 +35,10 @@ Patch1:		xpm-3.4k-fixes.patch.bz2
 Patch2:		xpm-3.4k-alpha.patch.bz2
 Patch3:		xpm-3.4k-xfree43merge.patch.bz2
 Patch4:		xpm-3.4k-64bit-fixes.patch.bz2
+Patch5:		xpm-3.4-CAN-2004-0687-0688.patch.bz2
+Patch6:		xpm-3.4k-CAN-2004-0914.patch.bz2
+Patch7:		xpm-3.4k-s_popen-xpm_write.patch.bz2
+Patch8:		xpm-3.4k-avx-norman.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	XFree86-devel
@@ -60,7 +64,7 @@ pixmapped images, and is used by many popular X programs.
 %package -n %{libnamedev}
 Summary:	Tools for developing apps which will use the XPM pixmap library
 Group:		Development/C
-Requires:	%{libname} = %{version}-%{release}
+Requires:	%{libname} = %{version}
 Provides:	%{name}-devel, lib%{name}-devel, xpm3.4k-devel
 Obsoletes:	%{name}-devel, xpm3.4k-devel
 
@@ -78,12 +82,20 @@ pixmaps in the X Window System.
 %patch2 -p1 -b .alpha
 %patch3 -p1 -b .xf86-4.3-merge
 %patch4 -p1 -b .64bit-fixes
+%patch5 -p1 -b .CAN-2004-0687-0688
+%patch6 -p1 -b .CAN-2004-0914
+%patch7 -p1 -b .s_popen-xpm_write
+
 cp %{SOURCE1} %{SOURCE2} %{SOURCE3} %{SOURCE4} %{SOURCE5} .
 
 
 %build
 xmkmf
 make Makefiles
+
+# we have to patch the Makefiles after they're made
+bzcat %{PATCH8} | patch -p1
+
 mkdir -p exports/include/X11
 cp lib/*.h exports/include/X11
 # %%make doesn't work on more than 2 cpu
@@ -119,6 +131,11 @@ ln -sf libXpm.so.%{LIBVER} %{buildroot}%{prefix}/%{_lib}/libXpm.so
 
 
 %changelog
+* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 3.4k-33avx
+- P5: fix for CAN-2004-0687 and CAN-2004-0688
+- P6: fix for CAN-2004-0914
+- P8: don't use rman so we don't have to add xorg as a BuildReq
+
 * Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 3.4k-32avx
 - bootstrap build (new gcc, new glibc)
 
