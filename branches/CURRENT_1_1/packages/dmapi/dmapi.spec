@@ -8,8 +8,8 @@
 
 
 %define	name		dmapi
-%define	version		2.1.0
-%define	release		5avx
+%define	version		2.2.1
+%define	release		1avx
 
 %define lib_name_orig	libdm
 %define lib_major	0
@@ -22,7 +22,7 @@ Release:	%{release}
 License:	GPL
 Group:		System/Kernel and hardware
 URL:		http://oss.sgi.com/projects/xfs/
-Source0:	%{name}-%{version}.src.tar.bz2
+Source0:	ftp://oss.sgi.com/projects/xfs/download/cmd_tars/%{name}-%{version}.src.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	xfs-devel, libext2fs-devel
@@ -104,6 +104,9 @@ rm -rf %{buildroot}%{_datadir}/doc/dmapi
 
 
 %changelog
+* Fri Sep 09 2005 Vincent Danen <vdanen@annvix.org> 2.2.1-1avx
+- 2.2.1
+
 * Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 2.1.0-5avx
 - bootstrap build (new gcc, new glibc)
 
