@@ -8,8 +8,8 @@
 
 
 %define name		acl
-%define version 	2.2.23
-%define release 	4avx
+%define version 	2.2.31
+%define release 	1avx
 
 %define libname_orig	lib%{name}
 %define major		1
@@ -91,18 +91,18 @@ rm -rf %{buildroot}%{_docdir}/acl
 
 %files -f %{name}.lang
 %defattr(-,root,root)
-%doc doc/CHANGES.gz doc/LICENSE README
+%doc doc/CHANGES.gz doc/COPYING README
 %{_bindir}/*
 %{_mandir}/man1/*
 
 %files -n %{libname}
 %defattr(-,root,root)
-%doc doc/LICENSE
+%doc doc/COPYING
 /%{_lib}/*.so.*
 
 %files -n %{libname}-devel
 %defattr(-,root,root)
-%doc doc/extensions.txt doc/LICENSE doc/libacl.txt
+%doc doc/extensions.txt doc/COPYING doc/libacl.txt
 /%{_lib}/*.so
 /%{_lib}/*a
 %{_libdir}/*.so
@@ -113,6 +113,9 @@ rm -rf %{buildroot}%{_docdir}/acl
 %{_includedir}/sys/acl.h
 
 %changelog
+* Fri Sep 09 2005 Vincent Danen <vdanen@annvix.org> 2.2.31-1avx
+- 2.2.31
+
 * Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 2.2.23-4avx
 - bootstrap build (new gcc, new glibc)
 
