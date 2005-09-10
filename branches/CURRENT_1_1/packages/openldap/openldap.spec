@@ -9,7 +9,7 @@
 
 %define name		openldap
 %define version		2.3.6
-%define release		2avx
+%define release		3avx
 
 %define major 		2.3_0
 %define migtools_ver	45
@@ -20,21 +20,22 @@
 %define dbver		4.2.52
 %define dbname		%(a=%dbver;echo ${a%.*})
 
+%global sql		1
+%global back_perl	0
+
 #localstatedir is passed directly to configure, and we want it to be /var/lib
 #define _localstatedir	%{_var}/run
 %define	_libexecdir	%{_sbindir}
 
 # Allow --with[out] SASL at rpm command line build
-%{?_without_SASL: %{expand: %%define _without_cyrussasl --without-cyrus-sasl}}
-%{?_with_SASL: %{expand: %%define _with_cyrussasl --with-cyrus-sasl}}
-%{!?_with_cyrussasl: %{!?_without_cyrussasl: %define _with_cyrussasl --with-cyrus-sasl}}
-%{?_with_cyrussasl: %define _with_cyrussasl --with-cyrus-sasl}
-%{?_without_cyrussasl: %define _without_cyrussasl --without-cyrus-sasl}
-%{?_with_gdbm: %global db_conv dbb}
-%{!?_with_gdbm: %global db_conv gdbm}
-%global sql 1
-%{?_without_sql: %global sql 0}
-%global back_perl 0
+%{?_without_SASL:	%{expand: %%define _without_cyrussasl --without-cyrus-sasl}}
+%{?_with_SASL:		%{expand: %%define _with_cyrussasl --with-cyrus-sasl}}
+%{!?_with_cyrussasl:	%{!?_without_cyrussasl: %define _with_cyrussasl --with-cyrus-sasl}}
+%{?_with_cyrussasl:	%define _with_cyrussasl --with-cyrus-sasl}
+%{?_without_cyrussasl:	%define _without_cyrussasl --without-cyrus-sasl}
+%{?_with_gdbm:		%global db_conv dbb}
+%{!?_with_gdbm:		%global db_conv gdbm}
+%{?_without_sql:	%global sql 0}
 
 Summary: 	LDAP servers and sample clients
 Name: 		%{name}
@@ -838,6 +839,9 @@ fi
 # - add cron-job to remove transaction logs (bdb)
 
 %changelog
+* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 2.3.6-3avx
+- rebuild against new unixODBC
+
 * Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 2.3.6-2avx
 - drop S1
 - put back out ldap.logrotate
