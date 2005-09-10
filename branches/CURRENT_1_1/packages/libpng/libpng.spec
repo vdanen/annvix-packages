@@ -8,8 +8,8 @@
 
 
 %define name		libpng
-%define version		1.2.5
-%define release		17avx
+%define version		1.2.8
+%define release		1avx
 %define epoch		2
 
 %define lib_major	3
@@ -23,9 +23,9 @@ Epoch: 		%{epoch}
 License: 	GPL-like
 Group: 		System/Libraries
 URL: 		http://www.libpng.org/pub/png/libpng.html
-Source: 	ftp://ftp.uu.net/graphics/png/src/%{name}-%{version}.tar.bz2
+Source: 	http://prdownloads.sourceforge.net/libpng/%{name}-%{version}.tar.bz2
 Patch0:		libpng-1.2.5-mdkconf.patch.bz2
-Patch1:		libpng-1.2.5-all-patches.patch.bz2
+Patch1:		libpng-1.2.6-lib64.patch.bz2
 
 BuildRoot: 	%{_buildroot}/%{name}-%{version}
 BuildRequires: 	zlib-devel
@@ -42,8 +42,7 @@ algorithm.
 Summary:	A library of functions for manipulating PNG image format files
 Group:		System/Libraries
 Obsoletes:	%{name}
-Provides:	%{name} = %{version}-%{release}
-Conflicts:	gdk-pixbuf < 0.11.0-6mdk
+Provides:	%{name} = %{epoch}:%{version}-%{release}
 
 %description -n %{libname}
 This package contains the library needed to run programs dynamically
@@ -55,8 +54,8 @@ Summary:	Development tools for programs to manipulate PNG image format files
 Group:		Development/C
 Requires:	%{libname} = %{epoch}:%{version}-%{release} zlib-devel
 Obsoletes:	%{name}-devel
-Provides:	%{name}-devel = %{version}-%{release}
-Provides:	png-devel = %{version}-%{release}
+Provides:	%{name}-devel = %{epoch}:%{version}-%{release}
+Provides:	png-devel = %{epoch}:%{version}-%{release}
 
 %description -n %{libname}-devel
 The libpng-devel package contains the header files and libraries
@@ -68,8 +67,8 @@ Graphics) library.
 Summary:	Development static libraries
 Group:		Development/C
 Requires:	%{libname}-devel = %{epoch}:%{version}-%{release} zlib-devel
-Provides:	%{name}-static-devel = %{version}-%{release}
-Provides:	png-static-devel = %{version}-%{release}
+Provides:	%{name}-static-devel = %{epoch}:%{version}-%{release}
+Provides:	png-static-devel = %{epoch}:%{version}-%{release}
 
 %description -n %{libname}-static-devel
 Libpng development static libraries.
@@ -78,9 +77,12 @@ Libpng development static libraries.
 %prep
 %setup -q
 %patch0 -p1 -b .mdkconf
-%patch1 -p1 -b .secfixes
+%patch1 -p1 -b .lib64
+
+perl -pi -e 's|^prefix=.*|prefix=%{_prefix}|' scripts/makefile.linux
+perl -pi -e 's|^(LIBPATH=.*)/lib\b|\1/%{_lib}|' scripts/makefile.linux
+
 ln -s scripts/makefile.linux ./Makefile
-perl -pi -e 's|^prefix=.*|prefix=%{_prefix}|' Makefile
 
 
 %build
@@ -91,7 +93,8 @@ make test
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p %{buildroot}%{_prefix}
-%makeinstall LIBPATH="\$(prefix)/%{_lib}"
+%makeinstall
+
 mkdir -p %{buildroot}%{_mandir}/man{3,5}
 install -m 0644 {libpng,libpngpf}.3 %{buildroot}%{_mandir}/man3
 install -m 0644 png.5 %{buildroot}%{_mandir}/man5/png3.5
@@ -131,6 +134,11 @@ rm -rf %{buildroot}%{_prefix}/man
 
 
 %changelog
+* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 1.2.8-1avx
+- 1.2.8
+- dropped P1; security fixes merged upstream
+- new P1: lib64 fixes to pkconfig files (gbeauchesne)
+
 * Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1.2.5-17avx
 - bootstrap build (new gcc, new glibc)
 
