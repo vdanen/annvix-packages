@@ -9,7 +9,7 @@
 
 %define name		make
 %define version		3.80
-%define release		12avx
+%define release		13avx
 %define epoch		1
 
 Summary:	A GNU tool which simplifies the build process for users
@@ -24,6 +24,8 @@ Source:		ftp://ftp.gnu.org/pub/gnu/make/%{name}-%{version}.tar.bz2
 # to remove once those po files are included in standard sources
 Source1:	%{name}-pofiles.tar.bz2
 Patch0:		make-3.80-no-hires-timestamp.patch.bz2
+Patch1:		make-3.80-lib64.patch.bz2
+Patch2:		make-3.80-fix-mem-exhausting.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	gettext-devel
@@ -43,6 +45,8 @@ makefile.
 %setup -q -a1
 # WARNING: only configure script is patched
 %patch0 -p1 -b .no-hires-timestamp
+%patch1 -p1 -b .lib64
+%patch2 -p0 -b .mem
 
 
 %build
@@ -88,6 +92,12 @@ done
 %{_infodir}/make.info*
 
 %changelog
+* Fri Sep 09 2005 Vincent Danen <vdanen@annvix.org> 3.80-13avx
+- P2: fix memory exhausting (mdk bug #14626) (tvignaud)
+- P1: linux32 fixes, aka resolve -llib only in */lib when running under
+  a 32bit personality and some lib64 fixes (gbeauchesne)
+- rebuild against new gettext
+
 * Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 3.80-12avx
 - bootstrap build (new gcc, new glibc)
 
