@@ -8,12 +8,11 @@
 
 
 %define name		gettext
-%define version 	0.14.1
-%define release 	5avx
+%define version 	0.14.5
+%define release 	1avx
 
 %define major		3
-%define libver		%{major}.4.1
-%define lib_name	%mklibname intl %{major}
+%define libname		%mklibname intl %{major}
 
 Summary:	GNU libraries and utilities for producing multi-lingual messages
 Name:		%{name}
@@ -22,23 +21,19 @@ Release:	%{release}
 License:	GPL
 Group:		System/Libraries
 URL:		http://www.gnu.org/software/gettext/
-Source:		%{name}-%{version}.tar.bz2
-Patch0:		gettext-0.12.1-libtool-1.5.patch.bz2
-# patch to not issue error messages and warnings with some charset encodings
-# we support -- pablo
-Patch1:		gettext-0.12.1-charsets.patch.bz2
-Patch2:		gettext-0.14.1-amd64-libtool.patch
+Source:		ftp://ftp.gnu.org/pub/gnu/%{name}/%{name}-%{version}.tar.gz
+Source1:	ftp://ftp.gnu.org/pub/gnu/%{name}/%{name}-%{version}.tar.gz.sig
+# (gb) some tests try to link non-pic static libs into a dso (XXX patch as XFAIL?)
+Patch0:		gettext-0.14.5-pic.patch.bz2
+Patch1:		gettext-0.14.2-charsets.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	autoconf2.5, bison, texinfo, automake1.7, flex
+BuildRequires:	autoconf2.5, bison, texinfo, automake1.8, flex
 
 Requires:	%{name}-base = %{version}-%{release}
-Requires:	%{lib_name} = %{version}-%{release}
-%ifarch x86_64 amd64
-Requires:	lib64expat0
-%else
-Requires:	libexpat0
-%endif
+Requires:	%{libname} = %{version}-%{release}
+Requires:	%mklibname expat 0
+PreReq:		info-install
 
 %description
 The GNU gettext package provides a set of tools and documentation for producing
@@ -55,22 +50,21 @@ If you would like to internationalize or incorporate multi-lingual messages
 into programs that you're developing, you should install gettext.
 
 
-%package -n %{lib_name}
+%package -n %{libname}
 Summary:	The dynamic libintl library for the gettext package
 Group:		System/Libraries
 Provides:	libintl
 Provides:	libintl2
 Obsoletes:	libintl2
 
-%description -n %{lib_name}
+%description -n %{libname}
 This package contains the libintl library for the gettext package.
 
 
 %package devel
 Summary:	GNU libraries and utilities for producing multi-lingual messages
 Group:		Development/Other
-Requires:	%{name} = %{version}-%{release}
-Provides:	devel(libintl)
+Requires:	%{name} = %{version}
 PreReq:		info-install
 
 %description devel
@@ -81,7 +75,7 @@ multi-lingual messages.
 %package base
 Summary:	GNU libraries and utilities for producing multi-lingual messages.
 Group:		Development/Other
-Requires:	%{lib_name} = %{version}-%{release}
+Requires:	%{libname} = %{version}
 
 %description base
 The base package which includes the gettext binary.
@@ -89,54 +83,32 @@ The base package which includes the gettext binary.
 
 %prep
 %setup -q
-%patch0 -p0 -b .libtool15
+%patch0 -p1 -b .pic
 %patch1 -p1 -b .more_charsets
-%patch2 -p1 -b .amd64
 
-# autoconf doesn't like "AC_IN_PATH" to happen in a variable name
-# (Abel) don't seen any problem for now
-#find -type f | xargs perl -pi -e 's/HAVE_JAVAC_IN_PATH/HAVE_JAVA_C_IN_PATH/g'
-# needed by patch1
-pushd gettext-runtime
-    aclocal-1.7 -I . -I ./m4 -I ../gettext-tools/m4 -I ../config/m4
-    WANT_AUTOCONF_2_5=1 autoconf
-    automake-1.7
-popd
-# needed by patch2
-pushd gettext-runtime/libasprintf
-    aclocal-1.7 -I . -I ../m4 -I ../../gettext-tools/m4 -I ../../config/m4
-    WANT_AUTOCONF_2_5=1 autoconf
-    automake-1.7
-popd
+# (Abel) disable lang-java test, java bytecode failed to run
+sed -i -e 's/lang-java//' gettext-tools/tests/Makefile.in
 
 
 %build
-%define __libtoolize /bin/true
 %configure2_5x \
     --enable-shared \
-    --with-included-gettext
+    --with-included-gettext \
+    --disable-csharp
 
-# gettext now assumes automake 1.8 but we ship 1.7
-find -type f | xargs perl -pi -e 's/aclocal-1.8/aclocal-1.7/g'
-find -type f | xargs perl -pi -e 's/automake-1.8/automake-1.7/g'
-
-%make
-
-# success/fail depends on locale?
-#make check
+make
 
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
-# fix file permissions
-chmod +x %{buildroot}%{_bindir}/gettext.sh
-
 # remove unwanted files
 rm -f %{buildroot}%{_includedir}/libintl.h \
       %{buildroot}%{_datadir}/locale/locale.alias \
-      %{buildroot}%{_libdir}/GNU.Gettext.dll
+      %{buildroot}%{_libdir}/GNU.Gettext.dll \
+      %{buildroot}%{_libdir}/%{name}/gnu.gettext.* \
+      %{buildroot}%{_datadir}/%{name}/*.jar
 rm -f gettext-runtime/intl-java/javadoc2/package-list
 
 # remove non-standard lc directories
@@ -172,12 +144,12 @@ popd
 %post
 %_install_info gettext.info
 
-%post -n %{lib_name} -p /sbin/ldconfig
+%post -n %{libname} -p /sbin/ldconfig
 
 %preun
 %_remove_install_info gettext.info
 
-%postun -n %{lib_name} -p /sbin/ldconfig
+%postun -n %{libname} -p /sbin/ldconfig
 
 
 %files
@@ -188,7 +160,11 @@ popd
 %{_bindir}/autopoint
 %{_bindir}/envsubst
 %{_bindir}/gettext.sh
-%{_libdir}/%{name}/*
+%dir %{_libdir}/%{name}
+%{_libdir}/%{name}/hostname
+%{_libdir}/%{name}/project-id
+%{_libdir}/%{name}/urlget
+%{_libdir}/%{name}/user-email
 %{_infodir}/gettext*
 %{_mandir}/man1/msg*
 %{_mandir}/man1/xgettext*
@@ -204,7 +180,7 @@ popd
 %{_mandir}/man1/gettext*
 %{_mandir}/man1/ngettext*
 
-%files -n %{lib_name}
+%files -n %{libname}
 %defattr(-,root,root)
 /%{_lib}/lib*.so.*
 %{_libdir}/lib*-*.*.so
@@ -229,6 +205,12 @@ popd
 
 
 %changelog
+* Fri Sep 09 2005 Vincent Danen <vdanen@annvix.org> 0.14.5-1avx
+- 1.14.5
+- build --disabled-shared autoconf-lib-link tests --with-pic (gbeauchesne)
+- BuildRequires: automake1.8 not automake1.7
+- don't use parallel make
+
 * Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 0.14.1-5avx
 - bootstrap build (new gcc, new glibc)
 
