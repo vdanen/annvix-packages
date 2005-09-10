@@ -8,8 +8,8 @@
 
 
 %define name		attr
-%define version 	2.4.16
-%define release 	3avx
+%define version 	2.4.23
+%define release 	1avx
 
 %define libname_orig	lib%{name}
 %define major		1
@@ -83,7 +83,7 @@ make install-lib DIST_ROOT=%{buildroot}/
 rm -rf %{buildroot}{%{_mandir}/man2,%_datadir/doc}
 
 # Remove unpackaged symlinks
-rm -rf %{buildroot}/%{_lib}/libattr.{a,la}
+rm -rf %{buildroot}/%{_lib}/libattr.{a,la} %{buildroot}%{_libdir}/libattr.la
 
 %find_lang %{name}
 
@@ -119,6 +119,9 @@ rm -rf %{buildroot}/%{_lib}/libattr.{a,la}
 %{_includedir}/%{name}/*
 
 %changelog
+* Fri Sep 09 2005 Vincent Danen <vdanen@annvix.org> 2.4.23-1avx
+- 2.4.23
+
 * Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 2.4.16-3avx
 - bootstrap build (new gcc, new glibc)
 
