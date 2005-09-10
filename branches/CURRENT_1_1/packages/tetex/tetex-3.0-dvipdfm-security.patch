@@ -1,5 +1,5 @@
---- tetex-src-2.0.2/texk/dvipdfm/psimage.c.dvipdfm-security	2001-06-28 20:55:26.000000000 +0100
-+++ tetex-src-2.0.2/texk/dvipdfm/psimage.c	2003-03-12 18:12:56.000000000 +0000
+--- tetex-src-3.0/texk/dvipdfm/psimage.c.dvipdfmsec	2001-06-28 21:55:26.000000000 +0200
++++ tetex-src-3.0/texk/dvipdfm/psimage.c	2005-02-07 14:08:18.055138172 +0100
 @@ -113,10 +113,15 @@
  {
  #ifdef HAVE_SYSTEM

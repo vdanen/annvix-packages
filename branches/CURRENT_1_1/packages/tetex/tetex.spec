@@ -8,27 +8,25 @@
 
 
 %define name		tetex
-%define version		2.0.2
-%define release		18avx
+%define version		3.0
+%define release		1avx
 
 %define pkgname		%{name}
-%define docversion	2.0.2
-%define pkgversion	2.0.2
-%define tetexversion	2.0.2
-%define texmfversion	2.0.2
-%define texmfsrcversion	2.0.2
-%define texmfggversion	2.0.2d
-%define jadename	jadetex
-%define jadeversion	3.12
-%define jaderelease_delta 79
-%define jaderelease	%(R=%{release}; echo $((${R/avx/} + %{jaderelease_delta}))avx)
+%define docversion	3.0
+%define pkgversion	3.0
+%define tetexversion	3.0
+%define texmfversion	3.0
+%define texmfsrcversion	3.0
+%define texmfggversion	3.0d
 %define xmltexname	xmltex
 %define xmltexversion	1.9
 # reset the delta if changing the xmltexversion.
-%define xmltexrelease_delta 27
+%define xmltexrelease_delta 28
 %define xmltexrelease	%(R=%{release}; echo $((${R/avx/} + %{xmltexrelease_delta}))avx)
+%define csidxversion	19990820
 
 %define vartexfonts	/var/lib/texmf
+%define texmfsysvar	%{_datadir}/texmf-var
 
 %define _unpackaged_files_terminate_build 0
 
@@ -44,39 +42,34 @@ Source1:	ftp://cam.ctan.org/tex-archive/systems/unix/teTeX/2.0/distrib/sources/%
 Source3:	ftp://cam.ctan.org/tex-archive/systems/unix/teTeX/2.0/distrib/sources/%{name}-texmfsrc-%{texmfsrcversion}.tar.bz2
 Source5:	http://peoples.mandrakesoft.com/~ghibo/%{name}-texmf-extras-gg-%{texmfggversion}.tar.bz2
 Source6:	http://peoples.mandrakesoft.com/~ghibo/%{name}-texmfsrc-extras-gg-%{texmfggversion}.tar.bz2
-Source7:	http://prdownloads.sourceforge.net/jadetex/%{jadename}-%{jadeversion}.tar.bz2
 Source8:	ftp://ftp.dante.de/pub/tex/macros/xmltex.tar.bz2
-Source9:	http://www.mathematik.uni-kl.de/~obachman/Texi2html/Distrib/texi2html-1.64.tar.bz2
 Source10:	tetex.cron
+Source11:	ftp://math.feld.cvut.cz/pub/cstex/tetex-rpm/mandrake/csindex-%{csidxversion}.tar.bz2
 Source20:	ttf2pk.tar.bz2
 Source21:	dvipdfpress.bz2
 
-Patch0:		%{name}-2.0-texmfcnf.patch.bz2
-Patch1:		%{name}-2.0.1-fmtutil.patch.bz2
-Patch3:		%{name}-2.0-mf-mainmemory.patch.bz2
-Patch4:		%{name}-2.0-mpost-mainmemory.patch.bz2
-Patch5:		%{name}-2.0-xdvik-dot.patch.bz2
-Patch6:		%{name}-2.0-epstopdf-dct.patch.bz2
-Patch7:		%{name}-2.0.2-texconfig-mf.patch.bz2
-Patch8:		%{name}-2.0.2-xdvik-22.40y.patch.bz2
-Patch10:	%{name}-1.0-ttf2pk.patch.bz2
-Patch11:	%{name}-2.0.2-badscript.patch.bz2
-Patch12:	%{name}-2.0.2-dvipdfm-security.patch.bz2
-Patch13:	%{name}-2.0.2-xpdf.patch.bz2
-Patch20:	%{name}-1.0-texmf-dvipsgeneric.patch.bz2
-Patch21:	%{name}-2.0-xdvi-mozilla.patch.bz2
-Patch22:	%{name}-2.0.2-langs.patch.bz2
-Patch23:	%{name}-%{jadename}-%{jadeversion}-basque.patch.bz2
-Patch24:	%{name}-%{jadename}-%{jadeversion}-theta.patch.bz2
+Patch0:		tetex-3.0-texmfcnf.patch.bz2
+Patch1:		tetex-3.0-fmtutil.patch.bz2
+Patch3:		tetex-3.0-mf-mainmemory.patch.bz2
+Patch4:		tetex-3.0-mp-mainmemory.patch.bz2
+Patch5:		tetex-3.0-xdvik-dot.patch.bz2
+Patch6:		tetex-3.0-epstopdf-dct.patch.bz2
+Patch11:	tetex-3.0-badscript.patch.bz2
+Patch12:	tetex-3.0-dvipdfm-security.patch.bz2
+Patch14:	tetex-3.0-mfw.patch.bz2
+Patch15:	tetex-3.0-CAN-2004-0888.patch.bz2
+Patch16:	tetex-3.0-CAN-2005-0064.patch.bz2
+Patch17:	tetex-3.0-xpdf-CAN-2005-0206.patch.bz2
+Patch18:	tetex-src-3.0-pic.patch.bz2
+Patch20:	tetex-1.0-texmf-dvipsgeneric.patch.bz2
+Patch21:	tetex-3.0-xdvi-www.patch.bz2
 Patch25:	passivetex-1.23.patch.bz2
 Patch26:	passivetex-1.24.patch.bz2
 Patch27:	passivetex-1.25.patch.bz2
-Patch28:	%{name}-2.0.2-typefacename.patch.bz2
-Patch29:	tetex-2.0.2-badc.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	bison, ed, flex, gettext-devel
-BuildRequires:	libncurses-devel, libpng-devel, libxpm-devel, XFree86-devel
+BuildRequires:	bison, ed, flex, gettext-devel, autoconf2.1
+BuildRequires:	ncurses-devel, png-devel, xpm-devel, XFree86-devel
 
 Requires:	tmpwatch, dialog, ed, info-install
 Obsoletes:	cweb
@@ -109,6 +102,10 @@ Requires:	tetex = %{version}
 Requires:	tetex-context
 Provides:	prosper
 Obsoletes:	prosper
+Provides:	latex-xcolor
+Obsoletes:	latex-xcolor
+Provides:	latex-pgf
+Obsoletes:	latex-pgf
 
 %description latex
 LaTeX is a front end for the TeX text formatting system.  Easier to use
@@ -254,19 +251,21 @@ HTML files which can be read with any WWW browser.
 
 
 %prep
-%setup -q -n %{name}-src-%{tetexversion} -a 8 -a 9
-
+%setup -q -n %{name}-src-%{tetexversion} -a 8 -a 11
+chmod 755 csindex-%{csidxversion}
 %patch0 -p1 -b .texmfcnf
 %patch1 -p1 -b .fmtutil
-%patch3 -p1 -b .max
-%patch4 -p1 -b .max
+%patch3 -p1 -b .mf-mainmem
+%patch4 -p1 -b .mp-mainmem
 %patch5 -p1 -b .xdvikdot
 %patch6 -p1 -b .epstopdf
-%patch7 -p1 -b .fmtutil1
-%patch8 -p1 -b .22.40y
 %patch11 -p1 -b .badscript
 %patch12 -p1 -b .dvipdfm
-%patch13 -p1 -b .xpdf
+%patch14 -p1 -b .mfw
+%patch15 -p1 -b .CAN-2004-0888
+%patch16 -p1 -b .CAN-2005-0064
+%patch17 -p1 -b .xpdf-CAN-2005-0206
+%patch18 -p1 -b .pic
 
 mkdir -p texmf
 bzip2 -cd %{SOURCE1} | tar xf - -C texmf
@@ -276,28 +275,19 @@ cp -p texmf/metafont/config/mf.ini texmf/metafont/config/mf-nowin.ini
 # dvips config.generic
 %patch20 -p1
 
-# mozilla instead of netscape
+# www-browser instead of netscape
 %patch21 -p1 
-
-# languages
-%patch22 -p1
 
 # passivetex 1.25
 %patch25 -p1
 %patch26 -p1
 %patch27 -p1
 
-# typeface.map
-%patch28 -p1
-
-# badc
-%patch29 -p1 -b .badc
-
-# cputoolize to get updated config.{sub,guess}
-%{?__cputoolize: %{__cputoolize} -c libs/ncurses}
-%{?__cputoolize: %{__cputoolize} -c libs/libwww}
-%{?__cputoolize: %{__cputoolize} -c texk}
-%{?__cputoolize: %{__cputoolize} -c utils/texinfo}
+## cputoolize to get updated config.{sub,guess}
+#%{?__cputoolize: %{__cputoolize} -c libs/ncurses}
+#%{?__cputoolize: %{__cputoolize} -c libs/libwww}
+#%{?__cputoolize: %{__cputoolize} -c texk}
+#%{?__cputoolize: %{__cputoolize} -c utils/texinfo}
 
 
 %build
@@ -311,8 +301,7 @@ sh ./reautoconf
     --without-dialog \
     --without-texinfo
 
-# Don't use the 'make' macro, it doesn't work, even on comments.
-%make
+make all
 
 # xmltex
 CURRENTDIR=`pwd`
@@ -327,27 +316,34 @@ pushd %{xmltexname}/contrib/passivetex
     cp -p *.xmt *.sty $CURRENTDIR/texmf/tex/xmltex/passivetex
 popd
 
-# texi2html 1.64
-pushd texi2html-1.64
-    %configure
-    perl -pi -e 's/\/usr\/local\/bin\/perl/\/usr\/bin\/perl/g' texi2html
-    make
+# csindex
+pushd csindex-%{csidxversion}
+    make CC="gcc %{optflags}"
 popd
 
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p %{buildroot}{%{_datadir}/texmf,/var/lib/texmf}
+mkdir -p %{buildroot}%{_datadir}/texmf \
+    %{buildroot}%{texmfsysvar} \
+    %{buildroot}%{vartexfonts} \
+    %{buildroot}/usr/local/share/texmf
+
 tar cf - texmf | tar xf - -C %{buildroot}%{_datadir}
 
+export TEXMFLOCAL=%{buildroot}/usr/local/share/texmf
+export TEXMFSYSVAR=%{buildroot}%{texmfsysvar}
+export VARTEXFONTS=%{buildroot}%{vartexfonts}
+export PATH=%{buildroot}/%{_bindir}:$PATH
+export TEXMF=%{buildroot}%{_datadir}/texmf
 %makeinstall texmf=%{buildroot}%{_datadir}/texmf
 
-# texi2html
-pushd texi2html-1.64
-    make install-binSCRIPTS install-info-am install-man DESTDIR=%{buildroot}
-popd
+# clean initial %{vartexfonts}
+rm -rf %{buildroot}%{vartexfonts}/*
 
-export PATH=%{buildroot}%{_bindir}:$PATH
+pushd csindex-%{csidxversion}
+    install -c -s -m 0755 csindex %{buildroot}%{_bindir}/
+popd
 
 rm -f %{buildroot}%{_infodir}/dir
 bzip2 -9f %{buildroot}%{_infodir}/*info* || true
@@ -357,14 +353,10 @@ bzip2 -9f %{buildroot}%{_infodir}/*info* || true
 mkdir -p %{buildroot}%{_sysconfdir}/cron.daily
 install -m 755 %{SOURCE10} %{buildroot}%{_sysconfdir}/cron.daily
 
-# update map files
-TEXMFMAIN=%{buildroot}%{_datadir}/texmf \
-    %{buildroot}%{_bindir}/updmap --cnffile \
-    %{buildroot}%{_datadir}/texmf/web2c/updmap.cfg
-
-# add mf-nowin.1 man page
-cp -p %{buildroot}%{_mandir}/man1/mf.1 \
-    %{buildroot}%{_mandir}/man1/mf-nowin.1
+## update map files
+#TEXMFMAIN=%{buildroot}%{_datadir}/texmf \
+#    %{buildroot}%{_bindir}/updmap --cnffile \
+#    %{buildroot}%{_datadir}/texmf/web2c/updmap.cfg
 
 # Fix permission for directory "/usr/share/texmf/fonts/tfm/jknappen"
 find %{buildroot}%{_datadir}/texmf -type d -print | xargs chmod 755
@@ -372,17 +364,14 @@ find %{buildroot}%{_datadir}/texmf -type d -print | xargs chmod 755
 # We keep the .log files for format .fmt files (useful to know how
 # they are generated (included files, memory, etc.);
 # strip buildroot path from .log files.
-perl -pi -e "s@%{buildroot}@@g" %{buildroot}%{_datadir}/texmf/web2c/*.log
+perl -pi -e "s@%{buildroot}@@g" %{buildroot}%{texmfsysvar}/web2c/*.log
 
 # call the spec-helper before creating the file list
 # (thanks to Pixel).
 s=/usr/share/spec-helper/spec-helper ; [ -x $s ] && $s
 
-# TEXMFLOCAL path
-mkdir -p %{buildroot}/usr/local/share/texmf
-
 # remove unwanted files
-rm -f %{buildroot}%{_bindir}/readlink
+rm -f %{buildroot}%{_bindir}/{readlink,a2ping}
 rm -f %{buildroot}%{_mandir}/man1/readlink.1*
 
 ### Files list
@@ -398,33 +387,25 @@ find %{buildroot} -type f -or -type l | \
         -e "s|%{_datadir}/texmf/tex/dvips/config/updmap$|%config(noreplace) &|" \
         -e "s|^%{_mandir}\(.*\)|%attr(644,root,root) \%{_mandir}\1|" > filelist.full
 
-find %{buildroot}%{_datadir}/texmf -type d | \
+find %{buildroot}%{_datadir}/texmf* \
+    %{buildroot}%{_includedir}/kpathsea -type d | \
     sed "s|^%{buildroot}|\%attr(-,root,root) \%dir |" >> filelist.full
 
 # dir for TEXMFLOCAL
 echo "%attr(755,root,root) %dir /usr/local/share/texmf" >> filelist.full
 
 # subpackages
-grep -v "/doc/" filelist.full | grep latex 	> filelist.latex
+grep -v "/doc/" filelist.full | grep latex | \
+    grep -v "%{_datadir}/texmf/tex/latex/context" | \
+    grep -v "%{_datadir}/context/data/latex-scite.properties" \
+    > filelist.latex
 
-grep -v "/doc/" filelist.full | grep xmltex	> filelist.xmltex
-
-grep -v "/doc/" filelist.full | grep xdvi | \
-    grep -v "%{_datadir}/texmf/tex"		> filelist.xdvi
-
-echo "%{_bindir}/inimf" > filelist.mfwin
-echo "%{_bindir}/mf" >> filelist.mfwin
-echo "%{_bindir}/mfw" >> filelist.mfwin
-echo "%{_bindir}/virmf" >> filelist.mfwin
-echo "%{_datadir}/texmf/web2c/mfw.base" >> filelist.mfwin
-echo "%{_datadir}/texmf/metafont/config/mf.ini" >> filelist.mfwin
-
-echo "%{_bindir}/t1mapper" >> filelist.xdvi
-echo "%attr(644,root,root) %{_mandir}/man1/t1mapper.1.bz2" >> filelist.xdvi
+grep -v "/doc/" filelist.full | grep xmltex > filelist.xmltex
 
 grep -v "/doc/" filelist.full | \
     grep "%{_includedir}" > filelist.devel
-echo "%dir %{_includedir}/kpathsea" >> filelist.devel
+echo "%attr(-,root,root) %dir %{_includedir}/kpathsea" >> filelist.devel
+echo "%{_libdir}/libkpathsea.la" >> filelist.devel
 echo "%{_libdir}/libkpathsea.a" >> filelist.devel
 
 grep -v "/doc/" filelist.full | grep dvips | \
@@ -441,32 +422,33 @@ echo "%{_bindir}/ebb" >> filelist.dvipdfm
 echo "%{_bindir}/dvipdft" >> filelist.dvipdfm
 
 grep -v "/doc/" filelist.full | grep dvilj | \
-    grep -v "%{_datadir}/texmf/tex/latex" 	> filelist.dvilj
+    grep -v "%{_datadir}/texmf/tex/latex" > filelist.dvilj
 
-grep -v "/doc/" filelist.full | grep afm 	> filelist.afm
+grep -v "/doc/" filelist.full | grep afm > filelist.afm
 
-grep "/doc/" filelist.full 			> filelist.doc
+grep "/doc/" filelist.full > filelist.doc
 echo "%{_bindir}/texdoc" >> filelist.doc
 echo "%{_bindir}/texdoctk" >> filelist.doc
 
 grep -v "/doc/" filelist.full | grep -v fonts | \
     grep -v dvips | \
     grep -v pdftex/config | \
-    grep context 	> filelist.context
+    grep context > filelist.context
 
 cat >> filelist.context <<EOF
 %{_bindir}/mptopdf
-%{_datadir}/texmf/web2c/cont-en.efmt
-%{_datadir}/texmf/web2c/cont-en.log
-%{_datadir}/texmf/web2c/metafun.log
-%{_datadir}/texmf/web2c/metafun.mem
-%{_datadir}/texmf/web2c/mptopdf.efmt
-%{_datadir}/texmf/web2c/mptopdf.log
+%{texmfsysvar}/web2c/cont-en.fmt
+%{texmfsysvar}/web2c/cont-en.log
+%{texmfsysvar}/web2c/metafun.log
+%{texmfsysvar}/web2c/metafun.mem
+%{texmfsysvar}/web2c/mptopdf.fmt
+%{texmfsysvar}/web2c/mptopdf.log
 EOF
 
 cat > filelist.texi2html <<EOF
 %{_bindir}/texi2html
-%attr(644,root,root) /usr/share/man/man1/texi2html.1.bz2
+%attr(644,root,root) %{_mandir}/man1/texi2html.1.bz2
+%{_datadir}/texinfo/html/texi2html.html
 %{_infodir}/texi2html.info.bz2
 EOF
 
@@ -474,14 +456,12 @@ EOF
 # go in the main package
 cat filelist.full \
     filelist.latex \
-    filelist.xdvi \
     filelist.devel \
     filelist.dvips \
     filelist.dvilj \
     filelist.afm \
     filelist.doc \
     filelist.dvipdfm \
-    filelist.mfwin \
     filelist.xmltex \
     filelist.context \
     filelist.texi2html $EXTRACAT | \
@@ -597,7 +577,7 @@ fi
 
 %files -f filelist.main
 %defattr(-,root,root)
-%attr(1777,root,root) %dir /var/lib/texmf
+%attr(1777,root,root) %dir %{vartexfonts}
 %config %{_sysconfdir}/cron.daily/tetex.cron
 
 %files -f filelist.latex latex
@@ -627,12 +607,20 @@ fi
 
 %files -f filelist.texi2html texi2html
 %defattr(-,root,root)
-%doc texi2html-1.64/texi2html.html texi2html-1.64/AUTHORS
-%doc texi2html-1.64/ChangeLog texi2html-1.64/INTRODUCTION
-%doc texi2html-1.64/NEWS texi2html-1.64/README
 
 
 %changelog
+* Fri Sep 09 2005 Vincent Danen <vdanen@annvix.org> 3.0-1avx
+- 3.0
+- merge with cooker 3.0-12mdk:
+  - lots of little changes
+  - remove texi2html 1.64 source as mainstream contains 1.76
+  - fixes for CAN-2004-0888, CAN-2005-0064, CAN-2005-0206 (none of
+    which should impact a typical Annvix install)
+- NOTE: we could/should probably trim this sucker done some more
+- drop P10 (ttf2pk, which we don't have)
+- build against new libpng and libxpm
+
 * Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 2.0.2-18avx
 - bootstrap build (new gcc, new glibc)
 
