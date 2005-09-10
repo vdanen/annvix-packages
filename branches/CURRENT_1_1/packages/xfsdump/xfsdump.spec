@@ -8,8 +8,8 @@
 
 
 %define	name		xfsdump
-%define	version		2.2.21
-%define	release		4avx
+%define	version		2.2.30
+%define	release		1avx
 
 Summary:	Administrative utilities for the XFS filesystem
 Name:		%{name}
@@ -54,7 +54,8 @@ perl -pi -e "/(libuuid|pkg_s?lib_dir)=/ and s|/lib\b|/%{_lib}|;" configure
     --libdir=/%{_lib} \
     --sbindir=/sbin \
     --bindir=%{_sbindir}
-%make
+
+%make DEBUG=-DNDEBUG OPTIMIZER="%{optflags}"
 
 
 %install
@@ -78,6 +79,9 @@ rm -rf %{buildroot}%{_datadir}/doc/xfsdump/
 
 
 %changelog
+* Fri Sep 09 2005 Vincent Danen <vdanen@annvix.org> 2.2.30-1avx
+- 2.2.30
+
 * Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 2.2.21-4avx
 - bootstrap build (new gcc, new glibc)
 
