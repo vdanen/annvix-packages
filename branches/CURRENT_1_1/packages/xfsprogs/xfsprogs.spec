@@ -8,8 +8,8 @@
 
 
 %define name		xfsprogs
-%define version 	2.6.13
-%define release 	4avx
+%define version 	2.6.36
+%define release 	1avx
 
 %define libname_orig	libxfs
 %define major		1
@@ -25,7 +25,7 @@ URL:		http://oss.sgi.com/projects/xfs/
 Source0:	ftp://oss.sgi.com/projects/xfs/download/cmd_tars/%{name}-%{version}.src.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-buildroot
-BuildRequires:	libext2fs-devel
+BuildRequires:	libext2fs-devel, libreadline-devel, libtermcap-devel
 
 Prereq:		ldconfig
 Requires:	common-licenses
@@ -82,9 +82,18 @@ perl -pi -e "/(libuuid|pkg_s?lib_dir)=/ and s|/lib\b|/%{_lib}|;" configure
 %build
 %configure2_5x \
     --libdir=/%{_lib} \
+    --libexecdir=%{_libdir} \
     --sbindir=/sbin \
-    --bindir=%{_sbindir}
-make
+    --bindir=%{_sbindir} \
+    --enable-gettext=yes \
+    --enable-readline=yes \
+    --enable-editline=no \
+    --enable-termcap=yes \
+    --enable-shared=yes \
+    --enable-shared-uuid=yes
+
+%make DEBUG=-DNDEBUG OPTIMIZER="%{optflags}"
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -105,7 +114,7 @@ rm -rf %{buildroot}%{_datadir}/doc/xfsprogs/
 
 %files
 %defattr(-,root,root)
-%doc doc/CHANGES.gz doc/CREDITS README doc/README.LVM doc/README.quota
+%doc doc/CHANGES.gz doc/COPYING doc/CREDITS README
 %{_sbindir}/xfs_admin
 %{_sbindir}/xfs_bmap
 %{_sbindir}/xfs_check
@@ -118,6 +127,7 @@ rm -rf %{buildroot}%{_datadir}/doc/xfsprogs/
 %{_sbindir}/xfs_logprint
 %{_sbindir}/xfs_mkfile
 %{_sbindir}/xfs_ncheck
+%{_sbindir}/xfs_quota
 %{_sbindir}/xfs_rtcp
 /sbin/fsck.xfs
 /sbin/mkfs.xfs
@@ -141,6 +151,10 @@ rm -rf %{buildroot}%{_datadir}/doc/xfsprogs/
 %{_mandir}/man3/*
 
 %changelog
+* Fri Sep 09 2005 Vincent Danen <vdanen@annvix.org> 2.6.36-1avx
+- 2.6.36
+- BuildRequires: libreadline-devel, libtermcap-devel
+
 * Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 2.6.13-4avx
 - bootstrap build (new gcc, new glibc)
 
