@@ -8,10 +8,10 @@
 
 
 %define name		netpbm
-%define version 	9.24
-%define release 	13avx
+%define version 	10.29
+%define release 	1avx
 
-%define major		9
+%define major		10
 %define libname		%mklibname %{name} %{major}
 
 
@@ -22,18 +22,27 @@ Release:	%{release}
 License:	GPL Artistic MIT
 Group:		Graphics
 URL:		http://netpbm.sourceforge.net/
-Source0:	netpbm-%{version}-nojbig.tar.bz2
+Source0:	%{name}-%{version}.tar.bz2
 Source1:	mf50-netpbm_filters
 Source2:	test-images.tar.bz2
-Patch0:		netpbm-9.8-install.patch.bz2
-Patch1:		netpbm-9.9-time.patch.bz2
-Patch2: 	netpbm-9.24-struct.patch.bz2
-Patch3:		netpbm-9.24-security-ac.patch
-Patch4:		netpbm-9.24-lib64.patch.bz2
-Patch5:		netpbm-9.24-debiansecurity.patch.bz2
+Source3:	%{name}doc-%{version}.tar.bz2
+Patch0:		netpbm-10.17-time.patch.bz2
+Patch1:		netpbm-9.24-strip.patch.bz2
+Patch2:		netpbm-10.18-manpath.patch.bz2
+Patch3:		netpbm-10.19-message.patch.bz2
+Patch4:		netpbm-10.22-security2.patch.bz2
+Patch5:		netpbm-10.22-cmapsize.patch.bz2
+Patch6:		netpbm-10.28-gcc4.patch.bz2
+Patch7:		netpbm-10.23-security.patch.bz2
+#Patch8:	netpbm-10.23-pngtopnm.patch.bz2
+Patch9:		netpbm-10.26-libm.patch.bz2
+Patch11:	netpbm-10.24-nodoc.patch.bz2
+#Patch12:	pstopnm_dsafer.diff.bz2
+Patch13:	netpbm-10.27-bmptopnm.patch.bz2
+Patch14:	netpbm-10.28-CAN-2005-2471.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	flex, png-devel, jpeg-devel, tiff-devel, perl
+BuildRequires:	flex, png-devel, jpeg-devel, tiff-devel
 
 Requires:	%{libname} = %{version}-%{release}
 Obsoletes:	libgr-progs, libgr1-progs
@@ -83,22 +92,30 @@ Obsoletes:	libgr-static-devel, libgr1-static-devel, libnetpbm1-static-devel
 Provides:	libgr-static-devel, libgr1-static-devel, libnetpbm1-static-devel, netpbm-static-devel
 
 %description -n %{libname}-static-devel
-The netpbm-devel package contains the staic libraries (.a)
+The netpbm-devel package contains the static libraries (.a)
 for developing programs which can handle the various
 graphics file formats supported by the netpbm libraries.
 
 
 %prep
 %setup -q -a 2
-%patch0 -p1 -b .install
-%patch1 -p1 -b .time
-%patch2 -p1 -b .struct
-%patch3 -p1 -b .security
-%patch4 -p1 -b .lib64
-%patch5 -p1 -b .can-2003-0924
+%patch0 -p1 -b .time
+%patch1 -p1 -b .strip
+%patch2 -p1 -b .manpath
+%patch3 -p1 -b .message
+%patch4 -p1 -b .security2
+%patch5 -p1 -b .cmapsize
+%patch7 -p1 -b .security
+%patch6 -p1 -b .gcc4
+#%patch8 -p1 -b .pngtopnm
+%patch9 -p1 -b .libm
+%patch11 -p1 -b .nodoc
+#%patch12 -p0 -b .dsafer
+%patch13 -p1 -b .bmptopnm
+%patch14 -p1 -b .CAN-2005-2471
 
-mv shhopt/shhopt.h shhopt/pbmshhopt.h
-perl -pi -e 's|shhopt.h|pbmshhopt.h|g' `find -name "*.c" -o -name "*.h"` ./GNUmakefile
+#mv shhopt/shhopt.h shhopt/pbmshhopt.h
+#perl -pi -e 's|shhopt.h|pbmshhopt.h|g' `find -name "*.c" -o -name "*.h"` ./GNUmakefile
 
 tar xjf %{SOURCE2}
 
@@ -109,7 +126,13 @@ tar xjf %{SOURCE2}
 
 
 
-/usr
+
+
+
+
+
+
+
 
 
 
@@ -124,16 +147,39 @@ make \
     LDFLAGS="-L$TOP/pbm -L$TOP/pgm -L$TOP/pnm -L$TOP/ppm" \
     JPEGINC_DIR=%{_includedir} \
     PNGINC_DIR=%{_includedir} \
-    TIFFINC_DIR=%{_includedir}
+    TIFFINC_DIR=%{_includedir} \
+    JPEGLIB_DIR=%{_libdir} \
+    PNGLIB_DIR=%{_libdir} \
+    TIFFLIB_DIR=%{_libdir}
 
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-# thanx redhat
-# Nasty hack to work around a useless ldconfig script
-rm -f buildtools/try_ldconfig
-ln -sf /bin/true buildtools/try_ldconfig
+mkdir -p %{buildroot}
+make package pkgdir=%{buildroot}%{_prefix}
+
+# Ugly hack to have libs in correct dir on 64bit archs.
+mkdir -p %{buildroot}%{_libdir}
+if [ "%{_libdir}" != "/usr/lib" ]; then
+    mv %{buildroot}/usr/lib/lib* %{buildroot}%{_libdir}
+fi
+
+cp -af lib/libnetpbm.a %{buildroot}%{_libdir}/libnetpbm.a
+ln -sf libnetpbm.so.%{major} %{buildroot}%{_libdir}/libnetpbm.so
+
+mkdir -p %{buildroot}%{_mandir}
+tar jxf %{SOURCE3} -C %{buildroot}%{_mandir}
+
+mkdir -p %{buildroot}%{_datadir}/%{name}-%{version}
+mv %{buildroot}/usr/misc/*.map %{buildroot}%{_datadir}/%{name}-%{version}
+rm -rf %{buildroot}/usr/README
+rm -rf %{buildroot}/usr/VERSION
+rm -rf %{buildroot}/usr/link
+rm -rf %{buildroot}/usr/misc
+rm -rf %{buildroot}/usr/man
+rm -rf %{buildroot}/usr/pkginfo
+rm -rf %{buildroot}/usr/config_template
 
 mkdir -p %{buildroot}%{_datadir}/printconf/mf_rules
 cp %{SOURCE1} %{buildroot}%{_datadir}/printconf/mf_rules/
@@ -141,48 +187,8 @@ cp %{SOURCE1} %{buildroot}%{_datadir}/printconf/mf_rules/
 mkdir -p %{buildroot}%{_datadir}/printconf/tests
 cp test-images/* %{buildroot}%{_datadir}/printconf/tests/
 
-PATH="`pwd`:${PATH}" make install \
-    JPEGINC_DIR=%{buildroot}%{_includedir} \
-    PNGINC_DIR=%{buildroot}%{_includedir} \
-    TIFFINC_DIR=%{buildroot}%{_includedir} \
-    INSTALL_PREFIX=%{buildroot}%{_prefix} \
-    INSTALLBINARIES=%{buildroot}%{_bindir} \
-    INSTALLHDRS=%{buildroot}%{_includedir} \
-    INSTALLLIBS=%{buildroot}%{_libdir} \
-    INSTALLSTATICLIBS=%{buildroot}%{_libdir} \
-    INSTALLDATA=%{buildroot}%{_datadir}/%{name}-%{version} \
-    INSTALLMANUALS1=%{buildroot}%{_mandir}/man1 \
-    INSTALLMANUALS3=%{buildroot}%{_mandir}/man3 \
-    INSTALLMANUALS5=%{buildroot}%{_mandir}/man5
-
-# Install header files.
-mkdir -p %{buildroot}%{_includedir}
-install -m 0644 pbm/pbm.h %{buildroot}%{_includedir}/
-#install -m 0644 pbmplus.h %{buildroot}%{_includedir}/
-install -m 0644 pgm/pgm.h %{buildroot}%{_includedir}/
-install -m 0644 pnm/pnm.h %{buildroot}%{_includedir}/
-install -m 0644 ppm/ppm.h %{buildroot}%{_includedir}/
-install -m 0644 shhopt/pbmshhopt.h %{buildroot}%{_includedir}/
-
-# Install the static-only librle.a
-install -m 0644 urt/{rle,rle_config}.h %{buildroot}%{_includedir}/
-install -m 0644 urt/librle.a %{buildroot}%{_libdir}/
-
-# Fixup symlinks.
-ln -sf gemtopnm %{buildroot}%{_bindir}/gemtopbm
-ln -sf pnmtoplainpnm %{buildroot}%{_bindir}/pnmnoraw
-rm -f %{buildroot}%{_libdir}/libpbm.so
-rm -f %{buildroot}%{_libdir}/libpgm.so
-rm -f %{buildroot}%{_libdir}/libpnm.so
-rm -f %{buildroot}%{_libdir}/libppm.so
-ln -sf libpbm.so.9 %{buildroot}%{_libdir}/libpbm.so
-ln -sf libpgm.so.9 %{buildroot}%{_libdir}/libpgm.so
-ln -sf libpnm.so.9 %{buildroot}%{_libdir}/libpnm.so
-ln -sf libppm.so.9 %{buildroot}%{_libdir}/libppm.so
-
-
-# Fixup perl paths in the two scripts that require it.
-perl -pi -e 's^/bin/perl^%{__perl}^' %{buildroot}%{_bindir}/{ppmfade,ppmshadow}
+# multiarch
+%multiarch_includes %{buildroot}%{_includedir}/pm_config.h
 
 
 %clean
@@ -195,13 +201,14 @@ perl -pi -e 's^/bin/perl^%{__perl}^' %{buildroot}%{_bindir}/{ppmfade,ppmshadow}
 
 %files 	-n %{libname}
 %defattr(-,root,root)
+%doc doc/*
 %attr(755,root,root) %{_libdir}/lib*.so.*
-%doc COPYRIGHT.PATENT GPL_LICENSE.txt HISTORY README 
 
 %files 	-n %{libname}-devel
 %defattr(-,root,root)
-%doc Netpbm.programming
+%doc doc/COPYRIGHT.PATENT doc/Netpbm.programming
 %{_includedir}/*.h
+%multiarch %{multiarch_includedir}/pm_config.h
 %attr(755,root,root) %{_libdir}/lib*.so
 %{_mandir}/man3/*
 
@@ -219,6 +226,10 @@ perl -pi -e 's^/bin/perl^%{__perl}^' %{buildroot}%{_bindir}/{ppmfade,ppmshadow}
 
 
 %changelog
+* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 10.29-1avx
+- 10.29
+- sync with cooker 10.29-1mdk
+
 * Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 9.24-13avx
 - bootstrap build (new gcc, new glibc)
 
