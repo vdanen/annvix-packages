@@ -8,13 +8,11 @@
 
 
 %define name		shadow-utils
-%define version		4.0.3
-%define release		14avx
+%define version		4.0.11.1
+%define release		1avx
 %define epoch		1
 
 #rh-20000902-10
-#%define url		ftp://ftp.ists.pwr.wroc.pl/pub/linux/shadow/beta
-%define url     	ftp.pld.org.pl:/software/shadow
 %define _unpackaged_files_terminate_build 0
 
 Summary:	Utilities for managing shadow password files and user/group accounts
@@ -24,34 +22,18 @@ Release:	%{release}
 Epoch:		%{epoch}
 License:	BSD
 Group:		System/Base
-URL:		%{url}
-Source0:	%{url}/shadow-%{version}.tar.bz2
+URL:		http://shadow.pld.org.pl/
+Source0:	ftp://ftp.pld.org.pl/software/shadow/shadow-%{version}.tar.bz2
 Source1:	shadow-970616.login.defs
 Source2:	shadow-970616.useradd
 Source3:	adduser.8
 Source4:	pwunconv.8
 Source5:	grpconv.8
 Source6:	grpunconv.8
-Patch0:		shadow-4.0.3-mdk.patch.bz2
-Patch1:		shadow-4.0.3-nscd.patch.bz2
-Patch2:		shadow-19990827-group.patch.bz2
-Patch3:		shadow-4.0.3-vipw.patch.bz2
-Patch4:		shadow-4.0.3-preserve.patch.bz2
-Patch5:		shadow-4.0.3-mailspool.patch.bz2
-Patch6:		shadow-20000902-usg.patch.bz2
-Patch7:		shadow-4.0.3-rpmsave.patch.bz2
-Patch8:		shadow-20000826-no-syslog-setlocale.patch.bz2
-Patch9:		shadow-20000902-useradd-LSB-compliance.patch.bz2
-Patch10:	shadow-4.0.3-useradd-umask.patch.bz2
-Patch11:	shadow-4.0.3-Makefile.po.patch.bz2
-Patch12:	shadow-4.0.0-owl-pam_chauthtok.diff.bz2
-Patch13:	shadow-4.0.3-gcc3.4-fix.patch.bz2
-# Debian fixes
-patch200:	shadow-014_libmisc_xmalloc.c.diff.bz2
-patch201:	shadow-016_subsystem_shell_fix.diff.bz2
-patch202:	shadow-031_passwd_5_no_aging.diff.bz2
-patch203:	shadow-032_login.defs_maildir.diff.bz2
-Patch204:	shadow-4.0.3-biarch-utmp.patch.bz2
+Patch0:		shadow-4.0.11.1-mdk.patch.bz2
+Patch1:		shadow-4.0.11.1-nscd.patch.bz2
+Patch2:		shadow-4.0.3-rpmsave.patch.bz2
+Patch100:	shadow-4.0.11.1-no-syslog-setlocale.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	gettext-devel
@@ -77,40 +59,14 @@ groupmod commands are used for managing group accounts.
 %setup -q -n shadow-%{version}
 %patch0 -p1 -b .mdk
 %patch1 -p1 -b .nscd
-%patch2 -p1 -b .group
-%patch3 -p1 -b .vipw
-%patch4 -p1 -b .preserve
-%patch5 -p1 -b .mailspool
-%patch6 -p1 -b .usg
-%patch7 -p1 -b .rpmsave
+%patch2 -p1 -b .rpmsave
 
 # MDK patches
-%patch8 -p1 -b .chmou
-%patch9 -p1 -b .lsb
-%patch10 -p1 -b .useradd-umask
-%patch11 -p1 -b .makefilepo
-%patch12 -p1 -b .chauthtok_fix
-%patch13 -p1 -b .gcc34
-
-# Debian fixes 
-%patch200 -p1
-%patch201 -p1
-%patch202 -p1
-%patch203 -p1
-%patch204 -p1 -b .biarch-utmp
+%patch100 -p1 -b .chmou
 
 
 %build
-unset LINGUAS || :
-libtoolize --copy --force
-aclocal-1.7
-automake-1.7
-autoheader
-autoconf
-export CFLAGS="%{optflags} -D_BSD_SOURCE=1 -D_FILE_OFFSET_BITS=64"
-%configure2_5x \
-    --disable-desrpc \
-    --with-libcrypt \
+%configure \
     --disable-shared
 %make
 
@@ -141,8 +97,7 @@ rm -rf build-$RPM_ARCH
 
 %files -f shadow.lang
 %defattr(-,root,root)
-%doc ChangeLog doc/ANNOUNCE doc/HOWTO
-%doc doc/LICENSE doc/README doc/README.linux
+%doc doc/HOWTO NEWS doc/LICENSE doc/README doc/README.linux
 %dir %{_sysconfdir}/default
 %attr(0644,root,root)	%config(noreplace) %{_sysconfdir}/login.defs
 %attr(0600,root,root)	%config(noreplace) %{_sysconfdir}/default/useradd
@@ -154,7 +109,6 @@ rm -rf build-$RPM_ARCH
 %{_bindir}/login
 %attr(4711,root,root)   %{_bindir}/newgrp
 %{_bindir}/lastlog
-%{_sbindir}/dpasswd
 %{_sbindir}/logoutd
 %{_sbindir}/adduser
 %{_sbindir}/user*
@@ -185,6 +139,10 @@ rm -rf build-$RPM_ARCH
 
 
 %changelog
+* Fri Sep 09 2005 Vincent Danen <vdanen@annvix.org> 4.0.11.1-1avx
+- 4.0.11.1
+- drop all unrequired patches
+
 * Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 4.0.3-14avx
 - bootstrap build (new gcc, new glibc)
 

@@ -1,5 +1,5 @@
---- shadow-4.0.3/libmisc/nscd.c.nscd	2001-11-06 17:13:20.000000000 +0100
-+++ shadow-4.0.3/libmisc/nscd.c	2005-03-22 10:51:41.163753483 +0100
+--- shadow-4.0.3/lib/nscd.c.nscd	2001-11-06 17:13:20.000000000 +0100
++++ shadow-4.0.3/lib/nscd.c	2005-03-22 10:51:41.163753483 +0100
 @@ -1,3 +1,30 @@
 +/* club nscd so it invalidates its cache */
 +/* notting@redhat.com 19990408           */
@@ -56,23 +56,24 @@
 --- shadow-4.0.3/src/userdel.c.nscd	2005-03-22 10:51:09.931189701 +0100
 +++ shadow-4.0.3/src/userdel.c	2005-03-22 10:51:09.942187083 +0100
 @@ -943,6 +943,8 @@
- 			 */
  
- 			user_cancel (user_name); close_files ();
+ 	user_cancel (user_name);
+	close_files ();
 +
-+			hup_nscd ();
++	hup_nscd ();
  #ifdef USE_PAM
- 			if (retval == PAM_SUCCESS) {
- 			retval = pam_chauthtok (pamh, 0);
+ 	if (retval == PAM_SUCCESS) {
+		retval = pam_chauthtok (pamh, 0);
 --- shadow-4.0.3/src/gpasswd.c.nscd	2002-01-05 16:41:43.000000000 +0100
 +++ shadow-4.0.3/src/gpasswd.c	2005-03-22 10:51:09.943186845 +0100
 @@ -648,5 +648,6 @@
- 	endsgent ();
- #endif
- #endif
+ 		fprintf (stderr, _("%s: can't unlock file\n"), Prog);
+ 		exit (1);
+ 	}
 +        hup_nscd ();
  	exit (0);
-  /*NOTREACHED*/}
+  	/* NOT REACHED */
+  }
 --- shadow-4.0.3/src/newusers.c.nscd	2002-01-05 16:41:43.000000000 +0100
 +++ shadow-4.0.3/src/newusers.c	2005-03-22 10:51:09.945186369 +0100
 @@ -615,6 +615,7 @@

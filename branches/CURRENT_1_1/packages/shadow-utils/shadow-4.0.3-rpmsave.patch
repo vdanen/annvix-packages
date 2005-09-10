@@ -1,10 +1,10 @@
 --- shadow-4.0.3/libmisc/copydir.c.rpmsave	2003-12-31 20:22:13.546310493 +0100
 +++ shadow-4.0.3/libmisc/copydir.c	2003-12-31 20:26:05.521486050 +0100
 @@ -141,6 +141,7 @@
- 	struct	stat	sb;
- 	struct	link_name *lp;
- 	DIR	*dir;
-+	int 	len = 0;
+ 	struct stat sb;
+ 	struct link_name *lp;
+ 	DIR *dir;
++	int len = 0;
  
  	/*
  	 * Make certain both directories exist.  This routine is called

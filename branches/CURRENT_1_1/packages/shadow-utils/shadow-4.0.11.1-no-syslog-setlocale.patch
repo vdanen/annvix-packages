@@ -4,7 +4,7 @@
  
  /* cleaner than lots of #ifdefs everywhere - use this as follows:
     SYSLOG((LOG_CRIT, "user %s cracked root", user)); */
--#if HAVE_SETLOCALE
+-#if ENABLE_NLS
 +#if 0
  /* Temporarily set LC_TIME to "C" to avoid strange dates in syslog.
     This is a workaround for a more general syslog(d) design problem -
