@@ -8,9 +8,8 @@
 
 
 %define name		multiarch-utils
-%define version		1.0.8
-%define release 	2avx
-%define multiarch_distro 100
+%define version		1.0.9
+%define release 	1avx
 
 Summary:	Tools to help creation of multiarch binaries and includes
 Name:		%{name}
@@ -20,9 +19,12 @@ License:	GPL
 Group:		Development/Other
 URL:		http://www.mandrivalinux.com/
 Source0:	%{name}-%{version}.tar.bz2
+Patch0:		multiarch-utils-1.0.9-avx-annvix_config.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
+
+Conflicts:	rpm < 4.4
 
 %description
 multiarch-utils is a collection of helper utilities to dispatch
@@ -31,14 +33,14 @@ binaries and include files during RPM package build.
 
 %prep
 %setup -q
-
+%patch0 -p0 -b .avx
 
 %build
 
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-%makeinstall_std MULTIARCH_DIST=%{multiarch_distro}
+%makeinstall_std
 
 
 %clean
@@ -51,12 +53,18 @@ binaries and include files during RPM package build.
 %{_bindir}/multiarch-platform
 %{_bindir}/multiarch-dispatch
 %{_includedir}/multiarch-dispatch.h
-%{_sysconfdir}/rpm/macros.multiarch
+%{_sysconfdir}/rpm/macros.d/multiarch.macros
 %{_prefix}/lib/rpm/mkmultiarch
 %{_prefix}/lib/rpm/check-multiarch-files
-%{_prefix}/X11R6/lib/X11/config/multiarch-dispatch-host.def
+
 
 %changelog
+* Sun Sep 11 2005 Vincent Danen <vdanen@annvix.org> 1.0.9-1avx
+- 1.0.9:
+  - handle symlinks to multiarch binaries
+  - handle cases where multiarch binary name contains spaces
+- P0: config for annvix
+
 * Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1.0.8-2avx
 - bootstrap build (new gcc, new glibc)
 
