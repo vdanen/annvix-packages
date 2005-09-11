@@ -8,8 +8,8 @@
 
 
 %define name		rpmlint
-%define version 	0.67
-%define release 	3avx
+%define version 	0.71
+%define release 	1avx
 
 Summary:	RPM correctness checker
 Name:		%{name}
@@ -17,7 +17,7 @@ Version:	%{version}
 Release:	%{release}
 License:	GPL
 Group:		Development/Other
-URL:		http://people.mandrakesoft.com/~flepied/projects/rpmlint/
+URL:		http://people.mandriva.com/~flepied/projects/rpmlint/
 Source0:	%{name}-%{version}.tar.bz2
 Source1:	rpmlint.annvix.config
 
@@ -61,6 +61,9 @@ install -m 0644 %{SOURCE1} %{buildroot}%{_sysconfdir}/rpmlint/config
 
 
 %changelog
+* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 0.71-1avx
+- 0.71
+
 * Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 0.67-3avx
 - bootstrap build (new gcc, new glibc)
 
