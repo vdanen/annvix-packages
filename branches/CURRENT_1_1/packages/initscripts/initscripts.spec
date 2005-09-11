@@ -9,7 +9,7 @@
 
 %define name		initscripts
 %define version		7.61.1
-%define release		3avx
+%define release		4avx
 
 # The restart part in the real _post_service doesn't work with netfs and isn't needed
 # for other scripts
@@ -47,6 +47,7 @@ network interfaces.
 %patch0 -p2
 %patch2 -p0
 
+gzip -9 ChangeLog
 
 %build
 make
@@ -100,6 +101,8 @@ rm -f %{buildroot}/usr/bin/partmon
 rm -f %{buildroot}/usr/sbin/supermount
 rm -f %{buildroot}/usr/share/man/man8/supermount*
 rm -f %{buildroot}%{_sysconfdir}/rc.d/init.d/{dm,partmon,sound}
+rm -rf %{buildroot}%{_sysconfdir}/X11
+rm -f %{buildroot}%{_sysconfdir}/sysconfig/network-scripts/ifup-wireless
 
 # we have our own copy of gprintify
 export DONT_GPRINTIFY=1
@@ -114,8 +117,6 @@ touch /var/log/btmp
 touch /var/run/utmp
 chown root:utmp /var/log/wtmp /var/run/utmp /var/log/btmp
 chmod 0664 /var/log/wtmp /var/run/utmp /var/log/btmp
-
-%_mypost_service random
 
 %_mypost_service netfs
 
@@ -217,8 +218,6 @@ if [ "$1" -gt 0 ]; then
 fi
 
 %preun
-%_preun_service random
-
 %_preun_service netfs
 
 %_preun_service network
@@ -280,6 +279,7 @@ fi
 
 %files -f %{name}.lang
 %defattr(-,root,root)
+%doc sysconfig.txt sysvinitfiles ChangeLog.gz static-routes-ipv6 ipv6-tunnel.howto ipv6-6to4.howto
 %dir %{_sysconfdir}/sysconfig/network-scripts
 %dir %{_sysconfdir}/sysconfig/network-scripts/ifup.d
 %dir %{_sysconfdir}/sysconfig/network-scripts/ifdown.d
@@ -324,19 +324,17 @@ fi
 %{_sysconfdir}/sysconfig/network-scripts/ifdown-aliases
 #%{_sysconfdir}/sysconfig/network-scripts/ifup-ippp
 #%{_sysconfdir}/sysconfig/network-scripts/ifdown-ippp
-%{_sysconfdir}/sysconfig/network-scripts/ifup-wireless
-%{_sysconfdir}/X11/prefdm
 %config(noreplace) %{_sysconfdir}/inittab
 %config(noreplace missingok) %{_sysconfdir}/rc.d/rc[0-9].d/*
 %{_sysconfdir}/init.d
 %{_sysconfdir}/rc[0-9].d
 %{_sysconfdir}/rc
 %dir %{_sysconfdir}/rc.d/init.d
-%{_sysconfdir}/rc.local
+%config(noreplace) %{_sysconfdir}/rc.local
 %{_sysconfdir}/rc.sysinit
 %{_sysconfdir}/rc.d/init.d/*
 %{_sysconfdir}/rc.d/rc
-%{_sysconfdir}/rc.d/rc.local
+%config(noreplace) %{_sysconfdir}/rc.d/rc.local
 %{_sysconfdir}/rc.d/rc.sysinit
 %config(noreplace) %{_sysconfdir}/sysctl.conf
 %{_sysconfdir}/profile.d/10lang.sh
@@ -356,11 +354,11 @@ fi
 /bin/doexec
 /bin/ipcalc
 /bin/usleep
-%attr(4755,root,root) /usr/sbin/usernetctl
+%attr(0700,root,root) /usr/sbin/usernetctl
 /sbin/consoletype
 /sbin/getkey
 /sbin/genhostid
-%attr(2755,root,root) /sbin/netreport
+%attr(0700,root,root) /sbin/netreport
 /sbin/initlog
 /sbin/minilogd
 /sbin/service
@@ -387,7 +385,6 @@ fi
 %{_sysconfdir}/ppp/ipv6-up
 %{_sysconfdir}/ppp/ipv6-down
 %config(noreplace) %{_sysconfdir}/initlog.conf
-%doc sysconfig.txt sysvinitfiles ChangeLog static-routes-ipv6 ipv6-tunnel.howto ipv6-6to4.howto
 %ghost %attr(0664,root,utmp) /var/log/wtmp
 %ghost %attr(0664,root,utmp) /var/log/btmp
 %ghost %attr(0664,root,utmp) /var/run/utmp
@@ -397,6 +394,59 @@ fi
 
 
 %changelog
+* Sun Sep 11 2005 Vincent Danen <vdanen@annvix.org> 7.61.1-4avx
+- mark /etc/rc.d/rc.local and /etc/rc.local as %%config(noreplace)
+- compress the ChangeLog
+- remove the X11 config files
+- /sbin/netreport and /usr/sbin/usernetctl are not s*id anymore
+- make tmpdir.sh not require an msec SECURE_* setting to use ~/tmp for
+  TMP and TMPDIR
+- rc.d/rc.sysinit: don't deal with anything sound-related
+- rc.d/rc.sysinit: get rid of raidtools support; we've never shipped it
+- rc.d/rc.sysinit: get rid of /.unconfigured support; this must come from
+  DrakX
+- rc.d/rc.sysinit: clean up some GUI stuff we don't need
+- rc.d/rc.sysinit: clean up some GUI/ICE-related stuff in /tmp
+- rc.d/rc.sysinit: remove more SELINUX bits
+- remove /etc/sysconfig/network-scripts/ifup-wireless
+- sysconfig/network-scripts/{ifup,network-functions}: remove wireless bits
+- sync with mandriva 7.61.1-47mdk
+  - ifup: don't try to rename device according to HWADDR if no device
+    exists, or else ifup will loop endlessly and block boot
+  - tmpdir.sh (Frederic Lepied): bourne shell compatible fix
+  - adapt inputrc.csh to new tcsh (bugzilla #17999)
+  - do not keep initrd's /dev (thus fixing cciss support)
+  - rc.sysinit, netfs: added suport for shfs (bug #15964)
+  - halt: fixed random-seed file name (bug #15889).
+  - don't delete route for interfaces related to an alias interface
+    being shut down
+  - skip metric setting for alias interface
+  - translation updates
+  - netfs: fixed NFS shares are not mounted at boot (bug #16531).
+  - rc.d/init.d/network: fix net-pf-10 alias being rewritten at each
+    boot (#16045) (Olivier Blin)
+  - network-functions, ifup: fixed ethtool path
+  - sysconfig/network-scripts/ifup: DVB support (Olivier Blin).
+  - rc.d/rc.sysinit: fix syntax error when nousb is used on the
+    command line (David Faure).
+  - do not write empty net-pf-10 aliases
+  - rc.sysinit: check that /usr/bin/consolechars is available before 
+    calling setsysfonts (bug #11054)
+  - rc.d/init.d/network: fix duplicate addition of aliases in modprobe.conf
+    and correct a potential bug when NETWORKING_IPV6 is not set (blino)
+  - netfs, network: fixed nfs unmounting (Oden, bug #13677)
+  - rc.sysinit: o don't enable process accounting here (bug #13672).
+                o removed duplicated code for setting hdparm options (bug #13677).
+  - setsysfont, rc.d/rc.sysinit, rc.d/init.d/functions: added a
+    get_locale_encoding function to rc.d/init.d/functions so that
+    detection of locale encoding from init scripts is easier;
+    simplified the font loading. rewrite setsysfont script to better
+    detect the locale, and to look first at /etc/sysconfig/console in
+    all cases. (Pablo)
+  - rc.d/init.d/network: handle net-pf-10 alias for respecting
+    NETWORKING_IPV6 (Warly, bug #11896).
+  - do not try to restart the no more existing random service (Thierry, #13426)
+
 * Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 7.61.1-3avx
 - bootstrap build (new gcc, new glibc)
 
