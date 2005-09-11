@@ -8,12 +8,9 @@
 
 %define module		URPM
 %define name		perl-%{module}
-%define version 	1.11
-%define release 	4avx
+%define version 	1.27
+%define release 	1avx
 
-%{expand:%%define compat_makeinstall_std %(perl -e 'printf "%%s\n", "%{?makeinstall_std:1}" ? "%%makeinstall_std" : "%%{__make} install PREFIX=%%{buildroot}%%{_prefix}"')}
-%{expand:%%define compat_perl_vendorarch %(perl -MConfig -e 'printf "%%s\n", "%{?perl_vendorarch:1}" ? "%%{perl_vendorarch}" : "$Config{installvendorarch}"')}
-%{expand:%%define buildreq_perl_devel %%(perl -e 'printf "%%s\\n", "%_vendor" =~ /mandrake/i ? "perl-devel" : "perl"')}
 %define _require_exceptions perl(URPM::DB)\\|perl(URPM::Package)\\|perl(URPM::Transaction)
 
 Summary:	URPM module for perl
@@ -26,10 +23,10 @@ URL:		http://cvs.mandriva.com/cgi-bin/cvsweb.cgi/soft/perl-URPM
 Source:		%{module}-%{version}.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	%{buildreq_perl_devel} rpm-devel >= 4.0.3 bzip2-devel
+BuildRequires:	perl-devel rpm-devel >= 4.0.3 bzip2-devel
 
 Requires:	rpm >= 4.2.3, bzip2 >= 1.0
-Requires:	rpmtools >= 5.0.0, perl-base >= 2:5.8.6
+Requires:	rpmtools >= 5.0.0, perl-base >= 2:5.8.7
 Provides:	perl(URPM::Build) = %{version}-%{release}
 Provides:	perl(URPM::Resolve) = %{version}-%{release}
 Provides:	perl(URPM::Signature) = %{version}-%{release}
@@ -50,7 +47,7 @@ hdlist files and manage them in memory.
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-%{compat_makeinstall_std}
+%makeinstall_std
 
 
 %clean 
@@ -60,14 +57,19 @@ hdlist files and manage them in memory.
 %files
 %defattr(-,root,root)
 %doc README ChangeLog
-%{compat_perl_vendorarch}/URPM.pm
-%{compat_perl_vendorarch}/URPM
-%dir %{compat_perl_vendorarch}/auto/URPM
-%{compat_perl_vendorarch}/auto/URPM/URPM.so
+%{perl_vendorarch}/URPM.pm
+%{perl_vendorarch}/URPM
+%dir %{perl_vendorarch}/auto/URPM
+%{perl_vendorarch}/auto/URPM/URPM.so
 %{_mandir}/man3/*
 
 
 %changelog
+* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 1.27-1avx
+- 1.27
+- rebuild against perl 5.8.7
+- spec cleanups
+
 * Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 1.11-4avx
 - bootstrap build (new gcc, new glibc)
 
