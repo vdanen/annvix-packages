@@ -8,8 +8,8 @@
 
 
 %define name		rpm-rebuilder
-%define version		0.21
-%define release		3avx
+%define version		0.22
+%define release		1avx
 
 Summary:	Tools to build/check distributions
 Name:		%{name}
@@ -69,6 +69,9 @@ rm -rf %{buildroot}%{_sysconfdir}/bash_completion.d
 
 
 %changelog
+* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 0.22-1avx
+- 0.22
+
 * Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 0.21-3avx
 - bootstrap build (new gcc, new glibc)
 
