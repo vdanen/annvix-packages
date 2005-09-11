@@ -9,8 +9,8 @@
 
 %define	module		Module-Build
 %define	name		perl-%{module}
-%define version 	0.2608
-%define release 	3avx
+%define version 	0.2611
+%define release 	1avx
 
 Summary:	Build and install Perl modules
 Name:		%{name}
@@ -18,8 +18,8 @@ Version:	%{version}
 Release:	%{release}
 License:	GPL or Artistic
 Group:		Development/Perl
-URL:		http://www.cpan.org/
-Source:		%{module}-%{version}.tar.bz2
+URL:		http://search.cpan.org/dist/%{module}
+Source:		http://search.cpan.org/CPAN/authors/id/K/KW/KWILLIAMS/%{module}-%{version}.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
@@ -54,6 +54,10 @@ perl Build.PL installdirs=vendor
 ./Build install destdir=%{buildroot}
 
 
+#%check
+./Build test
+
+
 %clean 
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
@@ -62,11 +66,15 @@ perl Build.PL installdirs=vendor
 %defattr(-,root,root)
 %doc Changes INSTALL README
 %{_bindir}/config_data
-%{perl_vendorlib}/*
+%{perl_vendorlib}/Module
 %{_mandir}/*/*
 
 
 %changelog
+* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 0.2611-1avx
+- 0.2611
+- rebuild against perl 5.8.7
+
 * Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 0.2608-3avx
 - bootstrap build (new gcc, new glibc)
 
