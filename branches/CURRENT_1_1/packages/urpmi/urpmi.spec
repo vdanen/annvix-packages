@@ -8,8 +8,8 @@
 
 
 %define name		urpmi
-%define version		4.6.23
-%define release 	5avx
+%define version		4.7.14
+%define release 	1avx
 
 %{expand:%%define compat_perl_vendorlib %(perl -MConfig -e 'printf "%%s\n", "%{?perl_vendorlib:1}" ? "%%{perl_vendorlib}" : "$Config{installvendorlib}"')}
 
@@ -27,11 +27,13 @@ URL:		http://cvs.mandriva.com/cgi-bin/cvsweb.cgi/soft/urpmi
 Source0:	%{name}.tar.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}
-BuildRequires:	%{buildreq_locale} bzip2-devel rpm-devel >= 4.0.3 gettext
+BuildRequires:	%{buildreq_locale} bzip2-devel gettext
 BuildArch:	noarch
 
-Requires:	webfetch eject gnupg
-PreReq:		perl-Locale-gettext >= 1.01-15avx rpmtools >= 5.0.2 perl-URPM >= 1.08
+Requires:	webfetch eject gnupg perl-URPM >= 1.22
+Requires(pre):	perl-Locale-gettext >= 1.01-15avx
+Requires(pre):	rpmtools >= 5.0.2
+Requires(pre):	perl-URPM >= 1.22
 Conflicts:	curl < 7.13.0
 
 %description
@@ -67,6 +69,17 @@ urpmi-parallel-ssh is an extension module to urpmi for handling
 distributed installation using ssh and scp tools.
 
 
+%package -n urpmi-ldap
+Summary:	Extension to urpmi to specify media configuration via LDAP
+Requires:	urpmi >= %{version}-%{release}
+Requires:	openldap-clients
+Group:		%{group}
+
+%description -n urpmi-ldap
+urpmi-ldap is an extension module to urpmi to allow to specify
+urpmi configuration (notably media) in an LDAP directory.
+
+
 %prep
 %setup -q -n %{name}
 
@@ -94,7 +107,7 @@ mkdir -p %{buildroot}%{compat_perl_vendorlib}
 install -m 0644 urpm.pm %{buildroot}%{compat_perl_vendorlib}/urpm.pm
 mkdir -p %{buildroot}%{compat_perl_vendorlib}/urpm
 
-for p in args cfg download msg sys util parallel_ka_run parallel_ssh
+for p in args cfg download msg sys util parallel_ka_run parallel_ssh prompt ldap
 do
     install -m 0644 urpm/$p.pm %{buildroot}%{compat_perl_vendorlib}/urpm/$p.pm
 done
@@ -154,9 +167,11 @@ if (-e "/etc/urpmi/urpmi.cfg") {
 %{_bindir}/urpmf
 %{_bindir}/urpmq
 %{_sbindir}/urpmi
+%{_sbindir}/rurpmi
 %{_sbindir}/urpme
 %{_sbindir}/urpmi.*
 %{_mandir}/man?/urpm*
+%{_mandir}/man?/rurpmi*
 %{_mandir}/man?/proxy*
 # find_lang isn't able to find man pages yet...
 %lang(cs) %{_mandir}/cs/man?/urpm* 
@@ -175,6 +190,7 @@ if (-e "/etc/urpmi/urpmi.cfg") {
 %{compat_perl_vendorlib}/urpm/msg.pm
 %{compat_perl_vendorlib}/urpm/sys.pm
 %{compat_perl_vendorlib}/urpm/util.pm
+%{compat_perl_vendorlib}/urpm/prompt.pm
 
 %if %{allow_karun}
 %files -n urpmi-parallel-ka-run
@@ -188,8 +204,19 @@ if (-e "/etc/urpmi/urpmi.cfg") {
 %doc urpm/README.ssh
 %{compat_perl_vendorlib}/urpm/parallel_ssh.pm
 
+%files -n urpmi-ldap
+%doc urpmi.schema
+%{compat_perl_vendorlib}/urpm/ldap.pm
+
 
 %changelog
+* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 4.7.14-1avx
+- 4.7.14
+- new: rurpmi, an experimental restricted version of urpmi (intended to
+  be used via sudoers)
+- new: ability to use ldap to configure repositories
+- new: support for rpm 4.4.1
+
 * Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 4.6.23-5avx
 - bootstrap build (new gcc, new glibc)
 
