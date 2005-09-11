@@ -8,8 +8,8 @@
 
 %define module		MDK-Common
 %define name		perl-%{module}
-%define version 	1.1.22
-%define release 	4avx
+%define version 	1.1.24
+%define release 	1avx
 
 %ifarch x86_64
 %define build_option	PERL_CHECKER_TARGET='debug-code BCSUFFIX=""'
@@ -80,6 +80,10 @@ rm -rf %{buildroot}%{_sysconfdir}/emacs
 
 
 %changelog
+* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 1.1.24-1avx
+- 1.1.24
+- rebuild against perl 5.8.7
+
 * Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 1.1.22-4avx
 - bootstrap build (new gcc, new glibc)
 
