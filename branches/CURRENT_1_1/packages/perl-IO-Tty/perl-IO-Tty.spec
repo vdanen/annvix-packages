@@ -10,7 +10,7 @@
 %define	module		IO-Tty
 %define	name		perl-%{module}
 %define	version		1.02
-%define	release		15avx
+%define	release		16avx
 
 Summary:	IO-Tty perl module: interface to pseudo tty's
 Name: 		%{name}
@@ -61,6 +61,9 @@ make test
 
 
 %changelog
+* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 1.02-16avx
+- rebuild against perl 5.8.7
+
 * Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 1.02-15avx
 - bootstrap build (new gcc, new glibc)
 

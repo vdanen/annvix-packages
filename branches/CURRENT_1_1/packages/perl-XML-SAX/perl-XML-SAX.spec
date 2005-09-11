@@ -10,7 +10,7 @@
 %define module		XML-SAX
 %define name		perl-%{module}
 %define version 	0.12
-%define release 	10avx
+%define release 	11avx
 
 Summary:	%{module} module for perl
 Name:		%{name}
@@ -66,12 +66,15 @@ make test
 
 %files
 %defattr(-,root,root)
-%doc Changes MANIFEST README
+%doc Changes README
 %{perl_vendorlib}/XML
 %{_mandir}/*/*
 
 
 %changelog
+* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 0.12-11avx
+- rebuild against perl 5.8.7
+
 * Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 0.12-10avx
 - bootstrap build (new gcc, new glibc)
 

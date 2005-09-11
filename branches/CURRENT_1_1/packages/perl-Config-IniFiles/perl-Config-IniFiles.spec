@@ -10,7 +10,7 @@
 %define module		Config-IniFiles
 %define name		perl-%{module}
 %define version		2.38
-%define release		3avx
+%define release		4avx
 
 Summary:	Config-IniFiles module for perl
 Name:		%{name}
@@ -57,6 +57,9 @@ chmod 0644 README
 
 
 %changelog
+* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 2.38-4avx
+- rebuild against perl 5.8.7
+
 * Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 2.38-3avx
 - bootstrap build (new gcc, new glibc)
 

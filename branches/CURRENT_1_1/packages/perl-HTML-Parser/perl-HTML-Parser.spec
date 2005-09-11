@@ -10,7 +10,7 @@
 %define module		HTML-Parser
 %define name		perl-%{module}
 %define version 	3.45
-%define release 	3avx
+%define release 	4avx
 
 Summary: 	Perl module to parse HTML documents
 Name: 		%{name}
@@ -61,6 +61,9 @@ make test
 
 
 %changelog
+* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 3.45-4avx
+- rebuild against perl 5.8.7
+
 * Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 3.45-3avx
 - bootstrap build (new gcc, new glibc)
 

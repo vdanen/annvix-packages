@@ -10,17 +10,17 @@
 %define module		URI
 %define name		perl-%{module}
 %define version 	1.35
-%define release 	3avx
+%define release 	4avx
 
 %define _requires_exceptions perl(Business::ISBN)
 
-Summary: 	URI module for perl (World_Wide_Web_HTML_HTTP_CGI/URI)
+Summary: 	URI module for perl
 Name: 		%{name}
 Version: 	%{version}
 Release: 	%{release}
 License: 	GPL or Artistic
 Group: 		Development/Perl
-URL: 		http://www.cpan.org/dist/%{module}/
+URL: 		http://search.cpan.org/dist/%{module}/
 Source: 	http://www.cpan.org/authors/id/GAAS/%{module}-%{version}.tar.bz2
 
 BuildRoot: 	%{_buildroot}/%{name}-%{version}
@@ -56,13 +56,16 @@ make test
 
 %files
 %defattr(-,root,root)
-%doc Changes MANIFEST README rfc2396.txt
+%doc Changes README rfc2396.txt
 %{perl_vendorlib}/URI.pm
 %{perl_vendorlib}/URI
 %{_mandir}/*/*
 
 
 %changelog
+* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 1.35-4avx
+- rebuild against perl 5.8.7
+
 * Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 1.35-3avx
 - bootstrap build (new gcc, new glibc)
 

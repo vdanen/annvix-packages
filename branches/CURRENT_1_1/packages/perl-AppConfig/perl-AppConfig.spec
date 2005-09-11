@@ -10,7 +10,7 @@
 %define module		AppConfig
 %define name		perl-%{module}
 %define	version		1.56
-%define release		2avx
+%define release		3avx
 
 Summary:  	Perl5 modules for reading configuration
 Name:		%{name}
@@ -59,6 +59,9 @@ CFLAGS="%{optflags}" %{__perl} Makefile.PL INSTALLDIRS=vendor
 
 
 %changelog
+* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 1.56-3avx
+- rebuild against perl 5.8.7
+
 * Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 1.56-2avx
 - bootstrap build (new gcc, new glibc)
 - remove %%postun calling ldconfig (what?!?)

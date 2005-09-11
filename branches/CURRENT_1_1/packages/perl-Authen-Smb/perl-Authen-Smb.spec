@@ -10,15 +10,15 @@
 %define module		Authen-Smb
 %define name		perl-%{module}
 %define version		0.91
-%define release		10avx
+%define release		11avx
 
-Summary:	Authen::Smb Perl module
+Summary:	Perl extension to authenticate against an SMB server
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	GPL
 Group:		Development/Perl
-URL: 		http://search.cpan.org/CPAN/authors/id/P/PM/PMKANE/%{module}-%{version}.tar.gz
+URL: 		http://search.cpan.org/dist/%{module}/
 Source0:	http://www.cpan.org/modules/by-module/Authen/%{module}-%{version}.tar.gz
 Patch0:		Authen-Smb-0.91-64bit-fixes.patch.bz2
 
@@ -26,7 +26,7 @@ BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl-devel >= 5.6
 
 %description
-Authen::Smb is a module to authenticate against an SMB server.
+Authen::Smb is a Perl module to authenticate against an SMB server.
 
 
 %prep
@@ -52,11 +52,15 @@ make test
 %files
 %defattr(644,root,root,755)
 %doc Changes README
-%{perl_vendorlib}
+%{perl_vendorarch}/Authen/*
+%{perl_vendorarch}/auto/Authen/*
 %{_mandir}/man3/*
 
 
 %changelog
+* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 0.91-11avx
+- rebuild against perl 5.8.7
+
 * Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 0.91-10avx
 - bootstrap build (new gcc, new glibc)
 

@@ -10,7 +10,7 @@
 %define name		perl-%{module}
 %define module		Apache-Session
 %define version		1.6
-%define release		3avx
+%define release		4avx
 %define epoch		1
 
 Summary:	%{module}: Apache persistent user sessions
@@ -69,6 +69,9 @@ find %{buildroot}%{_prefix} -type f -print | sed "s@^%{buildroot}@@g" | grep -v 
 
 
 %changelog
+* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 1.6-4avx
+- rebuild against perl 5.8.7
+
 * Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 1.6-3avx
 - bootstrap build (new gcc, new glibc)
 

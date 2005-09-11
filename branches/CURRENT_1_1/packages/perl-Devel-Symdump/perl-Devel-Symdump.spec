@@ -10,7 +10,7 @@
 %define name		perl-%{module}
 %define module		Devel-Symdump
 %define version 	2.03
-%define release 	11avx
+%define release 	12avx
 
 Summary:	%{module} module for perl
 Name:		perl-%{module}
@@ -56,6 +56,9 @@ make test
 
 
 %changelog
+* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 2.03-12avx
+- rebuild against perl 5.8.7
+
 * Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 2.03-11avx
 - bootstrap build (new gcc, new glibc)
 

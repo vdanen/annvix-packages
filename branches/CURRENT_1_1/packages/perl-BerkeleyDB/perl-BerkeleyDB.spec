@@ -10,7 +10,7 @@
 %define module		BerkeleyDB
 %define name		perl-%{module}
 %define version		0.26
-%define release		3avx
+%define release		4avx
 
 Summary:	Perl module for BerkeleyDB 2.x and greater
 Name:		%{name}
@@ -67,6 +67,9 @@ make test
 
 
 %changelog
+* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 0.26-4avx
+- rebuild against perl 5.8.7
+
 * Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 0.26-3avx
 - bootstrap build (new gcc, new glibc)
 

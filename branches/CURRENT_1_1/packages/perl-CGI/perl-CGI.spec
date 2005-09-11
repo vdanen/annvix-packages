@@ -10,7 +10,7 @@
 %define module		CGI
 %define name		perl-%{module}
 %define version		3.05
-%define release		5avx
+%define release		6avx
 %define epoch		1
 
 Summary:        Simple Common Gateway Interface class for Perl
@@ -89,6 +89,9 @@ connections, will see large performance improvements.
 
 
 %changelog
+* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 3.05-6avx
+- rebuild against perl 5.8.7
+
 * Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 3.05-5avx
 - bootstrap build (new gcc, new glibc)
 

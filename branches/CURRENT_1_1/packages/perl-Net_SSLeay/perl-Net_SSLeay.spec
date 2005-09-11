@@ -10,7 +10,7 @@
 %define module		Net_SSLeay
 %define name 		perl-%{module}
 %define version		1.25
-%define release		10avx
+%define release		11avx
 
 Summary:        Net::SSLeay (module for perl)
 Name: 		%{name}
@@ -72,6 +72,9 @@ make test
 
 
 %changelog
+* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 1.25-11avx
+- rebuild against perl 5.8.7
+
 * Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 1.25-10avx
 - bootstrap build (new gcc, new glibc)
 

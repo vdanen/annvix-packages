@@ -10,7 +10,7 @@
 %define module		Crypt-SmbHash
 %define name		perl-%{module}
 %define version		0.12
-%define release		3avx
+%define release		4avx
 
 Summary:	Crypt::SmbHash Perl module - generate LM/NT hashes like smbpasswd
 Name:		%{name}
@@ -57,6 +57,9 @@ Samba's 'password' files, like smbpasswd.
 %{_mandir}/man3/*
 
 %changelog
+* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 0.12-4avx
+- rebuild against perl 5.8.7
+
 * Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 0.12-3avx
 - bootstrap build (new gcc, new glibc)
 

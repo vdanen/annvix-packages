@@ -10,7 +10,7 @@
 %define module		libwww-perl
 %define name		perl-%{module}
 %define version 	5.803
-%define release 	3avx
+%define release 	4avx
 
 %define _requires_exceptions Authen::NTLM\\|HTTP::GHTTP\\|Win32
 
@@ -69,6 +69,9 @@ libwww-perl module for perl
 
 
 %changelog
+* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 5.803-4avx
+- rebuild against perl 5.8.7
+
 * Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 5.803-3avx
 - bootstrap build (new gcc, new glibc)
 

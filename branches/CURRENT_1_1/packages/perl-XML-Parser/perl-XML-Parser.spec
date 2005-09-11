@@ -10,7 +10,7 @@
 %define	module		XML-Parser
 %define	name		perl-%{module}
 %define	version		2.34
-%define	release		8avx
+%define	release		9avx
 
 Summary: 	A perl module for parsing XML documents
 Name: 		%{name}
@@ -60,6 +60,9 @@ install -m 0644 enc/koi8-r.enc %{buildroot}%{perl_vendorarch}/XML/Parser/Encodin
 
 
 %changelog
+* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 2.34-9avx
+- rebuild against perl 5.8.7
+
 * Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 2.34-8avx
 - bootstrap build (new gcc, new glibc)
 

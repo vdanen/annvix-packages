@@ -9,7 +9,7 @@
 
 %define name		perl-ldap
 %define version 	0.31
-%define release 	4avx
+%define release 	6avx
 
 Summary:	Perl module for ldap
 Name:		%{name}
@@ -67,6 +67,9 @@ make
 
 
 %changelog
+* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 0.31-6avx
+- rebuild against perl 5.8.7
+
 * Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 0.31-5avx
 - bootstrap build (new gcc, new glibc)
 

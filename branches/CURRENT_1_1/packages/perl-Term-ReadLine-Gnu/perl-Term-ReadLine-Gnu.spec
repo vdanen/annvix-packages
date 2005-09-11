@@ -10,7 +10,7 @@
 %define module		Term-ReadLine-Gnu
 %define name		perl-%{module}
 %define version 	1.15
-%define release 	4avx
+%define release 	5avx
 
 Summary:	GNU Readline for perl
 Name:		%{name}
@@ -75,6 +75,9 @@ perl -pi -e 's!/usr/local/bin/perl!/usr/bin/perl!g' %{buildroot}%{perl_vendorarc
 
 
 %changelog
+* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 1.15-5avx
+- rebuild against perl 5.8.7
+
 * Fri Sep 09 2005 Vincent Danen <vdanen@annvix.org> 1.15-4avx
 - rebuild against new readline
 

@@ -10,7 +10,7 @@
 %define module  	Tie-IxHash
 %define name		perl-%{module}
 %define version 	1.21
-%define release 	3avx
+%define release 	4avx
 %define	pdir		Tie
 
 
@@ -61,6 +61,9 @@ make test
 
 
 %changelog
+* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 1.21-4avx
+- rebuild against perl 5.8.7
+
 * Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 1.21-3avx
 - bootstrap build (new gcc, new glibc)
 
