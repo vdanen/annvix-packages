@@ -8,8 +8,8 @@
 
 %define module		Digest-SHA1
 %define	name		perl-%{module}
-%define	version		2.04
-%define	release		8avx
+%define	version		2.10
+%define	release		1avx
 
 Summary:	Perl interface to the SHA1 Algorithm	
 Name:		%{name}
@@ -17,7 +17,7 @@ Version:	%{version}
 Release:	%{release}
 License:	GPL or Artistic
 Group:		Development/Perl
-URL:		http://www.cpan.org
+URL:		http://search.cpan.org/dist/%{module}/
 Source:		http://www.cpan.org/authors/id/GAAS/%{module}-%{version}.tar.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}
@@ -58,6 +58,10 @@ make test
 
 
 %changelog
+* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 2.10-1avx
+- 2.10
+- rebuild against perl 5.8.7
+
 * Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 2.04-8avx
 - bootstrap build (new gcc, new glibc)
 
