@@ -8,7 +8,7 @@
 
 %define name		rpmconstant
 %define version		0.0.5
-%define release 	1avx
+%define release 	2avx
 
 %define major		0
 %define libname		%mklibname %{name} %{major}
@@ -74,9 +74,6 @@ autoconf
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
-# move the header file (where does 1.8 come from?!?)
-mv %{buildroot}%{_includedir}/1.8 %{buildroot}%{_includedir}/rpmconstant
-
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -106,6 +103,9 @@ mv %{buildroot}%{_includedir}/1.8 %{buildroot}%{_includedir}/rpmconstant
 
 
 %changelog
+* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 0.0.5-2avx
+- rebuild against new rpm
+
 * Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 0.0.5-1avx
 - 0.0.5
 
