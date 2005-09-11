@@ -1,5 +1,5 @@
 --- ./runtime/syntax/spec.vim.spec	2003-05-11 20:20:37.000000000 +0200
-+++ ./runtime/syntax/spec.vim	2003-06-24 13:01:44.000000000 +0200
++++ ./runtime/syntax/spec.vim	2005-05-20 22:11:02.512743930 +0200
 @@ -1,9 +1,10 @@
  " Filename:    spec.vim
  " Purpose:     Vim syntax file
@@ -42,12 +42,14 @@
  
  
  "------------------------------------------------------------------------------
-@@ -84,7 +87,10 @@
+@@ -83,8 +86,11 @@
+ 
  "One line macros - valid in all ScriptAreas
  "tip: remember do include new itens on specScriptArea's skip section
- syn region specSectionMacroArea oneline matchgroup=specSectionMacro start='^%\(define\|patch\d*\|setup\|configure\|GNUconfigure\|find_lang\|makeinstall\)\>' end='$' contains=specCommandOpts,specMacroIdentifier
+-syn region specSectionMacroArea oneline matchgroup=specSectionMacro start='^%\(define\|patch\d*\|setup\|configure\|GNUconfigure\|find_lang\|makeinstall\)\>' end='$' contains=specCommandOpts,specMacroIdentifier
++syn region specSectionMacroArea oneline matchgroup=specSectionMacro start='^%\(define\|patch\d*\|setup\|configure\|GNUconfigure\|find_lang\|makeinstall\|\)\>' end='$' contains=specCommandOpts,specMacroIdentifier
 +"tip: remember do include new itens on specScriptAreaMDK's skip section
-+syn region specSectionMacroAreaMDK oneline matchgroup=specSectionMacro start='%{\|%\(_install_info\|configure\|configure2_5x\|clean_menus\|make\|)makeinstall_std\|old_makeinstall\|_post_service\|_postun_groupdel\|_pre_groupadd\|_preun_service\|_remove_install_info\|update_menus\)\>' end='$' contains=specCommandOpts,specMacroIdentifier
++syn region specSectionMacroAreaMDK oneline matchgroup=specSectionMacro start='%{\|%\(_install_info\|configure\|configure2_5x\|clean_menus\|make\|makeinstall_std\|old_makeinstall\|_post_service\|_postun_groupdel\|_pre_groupadd\|_preun_service\|_remove_install_info\|update_menus\|mklibname\|mkrel\)\>' end='$' contains=specCommandOpts,specMacroIdentifier
  syn region specSectionMacroBracketArea oneline matchgroup=specSectionMacro start='^%{\(configure\|GNUconfigure\|find_lang\|makeinstall\)}' end='$' contains=specCommandOpts,specMacroIdentifier
 +syn region specSectionMacroBracketArea oneline matchgroup=specSectionMacro start='^%{\(make\|makeinstall\|makeinstall_std\)}' end='$' contains=specCommandOpts,specMacroIdentifier
  
@@ -61,11 +63,13 @@
  
  "%% Description Section %%
  syn region specDescriptionArea matchgroup=specSection start='^%description' end='^%'me=e-1 contains=specDescriptionOpts,specEmail,specURL,specNumber,specMacroIdentifier,specComment
-@@ -115,6 +122,7 @@
+@@ -114,7 +121,8 @@
+ syn region specPackageArea matchgroup=specSection start='^%package' end='^%'me=e-1 contains=specPackageOpts,specPreAmble,specComment
  
  "%% Scripts Section %%
- syn region specScriptArea matchgroup=specSection start='^%\(prep\|build\|install\|clean\|pre\|postun\|preun\|post\)\>' skip='^%{\|^%\(define\|patch\d*\|configure\|GNUconfigure\|setup\|find_lang\|makeinstall\)\>' end='^%'me=e-1 contains=specSpecialVariables,specVariables,@specCommands,specVariables,shDo,shFor,shCaseEsac,specNoNumberHilite,specCommandOpts,shComment,shIf,specSpecialChar,specMacroIdentifier,specSectionMacroArea,specSectionMacroBracketArea,shOperator,shQuote1,shQuote2
-+syn region specScriptAreaMDK matchgroup=specSection start='^%\(prep\|build\|install\|clean\|pre\|postun\|preun\|post\|trigger\(in\|postun\(\|_\(pre\|post\)\)\)\)\>' skip='^%{\|^%\(_install_info\|configure\|configure2_5x\|clean_menus\|make\|)makeinstall_std\|old_makeinstall\|_post_service\|_postun_groupdel\|_pre_groupadd\|_preun_service\|_remove_install_info\|update_menus\)\>' end='^%'me=e-1 contains=specSpecialVariables,specVariables,@specCommands,specVariables,shDo,shFor,shCaseEsac,specNoNumberHilite,specCommandOpts,shComment,shIf,specSpecialChar,specMacroIdentifier,specSectionMacroAreaMDK,specSectionMacroBracketArea,shOperator,shQuote1,shQuote2
+-syn region specScriptArea matchgroup=specSection start='^%\(prep\|build\|install\|clean\|pre\|postun\|preun\|post\)\>' skip='^%{\|^%\(define\|patch\d*\|configure\|GNUconfigure\|setup\|find_lang\|makeinstall\)\>' end='^%'me=e-1 contains=specSpecialVariables,specVariables,@specCommands,specVariables,shDo,shFor,shCaseEsac,specNoNumberHilite,specCommandOpts,shComment,shIf,specSpecialChar,specMacroIdentifier,specSectionMacroArea,specSectionMacroBracketArea,shOperator,shQuote1,shQuote2
++syn region specScriptArea matchgroup=specSection start='^%\(prep\|build\|install\|check\|clean\|pre\|postun\|preun\|post\)\>' skip='^%{\|^%\(define\|patch\d*\|configure\|GNUconfigure\|setup\|find_lang\|makeinstall\)\>' end='^%'me=e-1 contains=specSpecialVariables,specVariables,@specCommands,specVariables,shDo,shFor,shCaseEsac,specNoNumberHilite,specCommandOpts,shComment,shIf,specSpecialChar,specMacroIdentifier,specSectionMacroArea,specSectionMacroBracketArea,shOperator,shQuote1,shQuote2
++syn region specScriptAreaMDK matchgroup=specSection start='^%\(prep\|build\|install\|check\|clean\|pre\|postun\|preun\|post\|trigger\(in\|postun\(\|_\(pre\|post\)\)\)\)\>' skip='^%{\|^%\(_install_info\|configure\|configure2_5x\|clean_menus\|make\|)makeinstall_std\|old_makeinstall\|_post_service\|_postun_groupdel\|_pre_groupadd\|_preun_service\|_remove_install_info\|update_menus\)\>' end='^%'me=e-1 contains=specSpecialVariables,specVariables,@specCommands,specVariables,shDo,shFor,shCaseEsac,specNoNumberHilite,specCommandOpts,shComment,shIf,specSpecialChar,specMacroIdentifier,specSectionMacroAreaMDK,specSectionMacroBracketArea,shOperator,shQuote1,shQuote2
  
  "%% Changelog Section %%
  syn region specChangelogArea matchgroup=specSection start='^%changelog' end='^%'me=e-1 contains=specEmail,specURL,specWeekday,specMonth,specNumber,specComment,specLicense

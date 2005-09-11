@@ -12,12 +12,12 @@
 
 %define name		vim
 %define version		6.3
-%define release		5avx
+%define release		6avx
 
-%define patch_level	54
+%define patch_level	86
 %define localedir	%{buildroot}%{_datadir}/locale/
 
-%{expand:%%define perl_version %(rpm -q perl|sed 's/perl-\([0-9].*\)-.*$/\1/')}
+%define perl_version	%(rpm -q --qf '%%{epoch}:%%{version}' perl)
 
 Summary:	VIsual editor iMproved 
 Name:		%{name}
@@ -28,13 +28,12 @@ Group:		Editors
 URL:		http://www.vim.org
 Source0:	ftp://ftp.vim.org/pub/vim/unix//%{name}-%{version}.tar.bz2
 Source2:	ftp://ftp.vim.org/pub/vim/unix//extra/%{name}-%{version}-lang.tar.bz2
-Source3:	gvim.menu.bz2
 Source4:	vim-%{version}.%{patch_level}-patches.tar.bz2
 # http://vim.sourceforge.net/scripts/script.php?script_id=98
-Source5:	vim-specs.tar.bz2
+Source5:	vim-spec-3.0.bz2
 # MDK patches
 Patch2:		vim-5.6a-paths.patch.bz2
-Patch3:		vim-6.2-rpm-spec-syntax.patch.bz2
+Patch3:		vim-6.3-rpm-spec-syntax.patch.bz2
 Patch8:		vim-6.0af-man-path.patch.bz2
 Patch10:	xxd-locale.patch.bz2
 Patch11:	vim-6.2-gcc31.patch.bz2
@@ -49,7 +48,7 @@ Patch28:	vim-6.1-po-mode.patch.bz2
 Patch31:	vim63-CAN-2005-0069.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	perl-devel termcap-devel
+BuildRequires:	perl-devel python-devel termcap-devel
 
 %description
 VIM (VIsual editor iMproved) is an updated and improved version of the vi
@@ -62,7 +61,7 @@ contains files which every VIM binary will need in order to run.
 %package common
 Summary:	The common files needed by any version of the VIM editor
 Group:		Editors
-Requires:	perl
+Requires:	perl = %{perl_version}
 PreReq:		coreutils 
 
 %description common
@@ -107,6 +106,9 @@ Python and Perl interpreters.
 
 %prep
 %setup -q -b 2 -n vim63 -a4
+# spec plugin
+rm -f runtime/doc/pi_spec.txt
+rm -f runtime/ftpplugin/spec.vim
 tar tjf %{SOURCE5} -C runtime
 #official patches
 for i in vim-%{version}.%{patch_level}-patches/%{version}*; do
@@ -132,6 +134,7 @@ done
 perl -pi -e 's|SYS_VIMRC_FILE "\$VIM/vimrc"|SYS_VIMRC_FILE "%{_sysconfdir}/vim/vimrc"|' src/os_unix.h
 # disable command echo
 perl -pi -e 's|^set showcmd|set noshowcmd|' runtime/vimrc_example.vim
+perl -pi -e 's|\Qsvn-commit.*.tmp\E|svn-commit*.tmp|' ./runtime/filetype.vim
 
 
 %build
@@ -201,7 +204,7 @@ ln -s menu_fr_fr.iso_8859-15.vim runtime/lang/menu_br
 
 perl -pi -e 's!LOCALEDIR=\$\(DEST_LANG\)!LOCALEDIR=\$(DESTDIR)\$\(prefix\)/share/locale!g' src/Makefile
 
-mkdir -p %{buildroot}{/bin,%{_bindir},%{_datadir}/{vim,locale},%{_prefix}/X11R6/bin,%{_mandir}/man1,%localedir}
+mkdir -p %{buildroot}{/bin,%{_bindir},%{_datadir}/{vim,locale},%{_mandir}/man1,%localedir}
 %makeinstall_std VIMRTDIR=""
 
 
@@ -219,7 +222,7 @@ pushd %{buildroot}
 popd
 
 # installing man pages
-for i in %{buildroot}%{_mandir}/man1/{vi,rvi,gvim}; do
+for i in %{buildroot}%{_mandir}/man1/{vi,rvi}; do
     cp %{buildroot}%{_mandir}/man1/vim.1 $i.1
 done
 
@@ -238,9 +241,6 @@ ln -f runtime/macros/README.txt README_macros.txt
 ln -f runtime/tools/README.txt README_tools.txt
 perl -p -i -e "s|#!/usr/local/bin/perl|#!/usr/bin/perl|" runtime/doc/*.pl
 
-# remove gvim manpage
-rm -f %{buildroot}%{_mandir}/man1/gvim.1*
-		
 # fix the paths in the man pages
 for i in %{buildroot}/usr/share/man/man1/*.1; do
     perl -p -i -e "s|%{buildroot}||" $i
@@ -258,7 +258,7 @@ popd
 
 rm -f %{buildroot}%{_bindir}/{rview,view,rvim}
 
-%{find_lang} %{name}
+%find_lang %{name}
 
 find %{buildroot}%{_datadir}/vim/ -name "tutor.*" | egrep -v 'tutor(|\.vim)$' |
      sed -e "s^%{buildroot}^^" -e 's!^\(.*tutor.\)\(..\)!%lang(\2) \1\2!g' >> %{name}.lang
@@ -354,6 +354,7 @@ update-alternatives --remove vim /usr/bin/vim-enhanced
 
 %dir %{_datadir}/vim/
 %{_datadir}/vim/*
+%{_datadir}/vim/doc
 %{_mandir}/man1/vim.1*
 %{_mandir}/man1/ex.1*
 %{_mandir}/man1/vi.1*
@@ -384,7 +385,17 @@ update-alternatives --remove vim /usr/bin/vim-enhanced
 %{_bindir}/ex
 %{_bindir}/vimdiff
 
+
 %changelog
+* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 6.3-6avx
+- update to patchlevel 86
+- update spec mode to 3.0
+- fix perl version eval (nanardon)
+- fix svn commit file detection (misc)
+- BuildRequires: python-devel
+- rebuild against new python and new perl
+- drop S3; unused menu entry
+
 * Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 6.3-5avx
 - bootstrap build (new gcc, new glibc)
 
