@@ -9,8 +9,8 @@
 
 %define module		XML-NamespaceSupport
 %define name		perl-%{module}
-%define version 	1.08
-%define release 	10avx
+%define version 	1.09
+%define release 	1avx
 
 Summary:	%{module} module for perl
 Name:		%{name}
@@ -18,7 +18,7 @@ Version:	%{version}
 Release:	%{release}
 License:	MPL
 Group:		Development/Perl
-URL:		http://www.cpan.org
+URL:		http://search.cpan.org/dist/%{module}/
 Source0:	%{module}-%{version}.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -29,16 +29,15 @@ Requires:	perl
 
 %description
 %{module} module for perl
-This module offers a simple to process namespaced XML names
-(unames) from within any application that may need them. It
-also helps maintain a prefix to namespace URI map, and provides
-a number of basic checks.
+This module offers a simple to process namespaced XML names (unames) from
+within any application that may need them. It also helps maintain a prefix
+to namespace URI map, and provides a number of basic checks.
 
 
 %prep
 %setup -q -n %{module}-%{version}
 
-chmod 0644 Changes MANIFEST README
+chmod 0644 Changes README
 
 
 %build
@@ -64,6 +63,10 @@ make test
 
 
 %changelog
+* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 1.09-1avx
+- 1.09
+- rebuild against perl 5.8.7
+
 * Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 1.08-10avx
 - bootstrap build (new gcc, new glibc)
 
