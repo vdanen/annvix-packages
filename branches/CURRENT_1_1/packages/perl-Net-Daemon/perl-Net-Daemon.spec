@@ -9,8 +9,8 @@
 
 %define module 		Net-Daemon
 %define name		perl-%{module}
-%define version 	0.37
-%define release 	10avx
+%define version 	0.38
+%define release 	1avx
 
 Summary:	%{module} perl module
 Name: 		%{name}
@@ -58,7 +58,11 @@ make
 
 
 %changelog
-* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 0.37-10vx
+* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 0.38-1avx
+- 0.38
+- rebuild against perl 5.8.7
+
+* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 0.37-10avx
 - bootstrap build (new gcc, new glibc)
 
 * Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.37-9avx
