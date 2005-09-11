@@ -9,8 +9,8 @@
 
 %define module		Pg
 %define name		perl-%{module}
-%define version		2.0.2
-%define release		11avx
+%define version		2.1.1
+%define release		1avx
 
 Summary:	A libpq-based PostgreSQL interface for Perl
 Name:		%{name}
@@ -19,7 +19,7 @@ Release:	%{release}
 License:	GPL
 Group:		Development/Perl
 URL:		http://gborg.postgresql.org/project/pgperl/projdisplay.php
-Source0:	pgperl-%{version}.tar.bz2
+Source0:	%{module}-%{version}.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl-devel
@@ -40,7 +40,7 @@ might be more familiar to C++ programmers.
 
 
 %prep
-%setup -q -n Pg-%{version}
+%setup -q -n %{module}-%{version}
 # perl path hack
 find . -type f | xargs %{__perl} -p -i -e "s|^#\!/usr/local/bin/perl|#\!/usr/bin/perl|g"
 
@@ -73,6 +73,10 @@ export POSTGRES_LIB=`pg_config --libdir`
 
 
 %changelog
+* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 2.1.1-1avx
+- 2.1.1
+- rebuild against perl 5.8.7
+
 * Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 2.0.2-11avx
 - bootstrap build (new gcc, new glibc)
 
