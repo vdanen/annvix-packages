@@ -9,8 +9,8 @@
 
 %define module 		Authen-PAM
 %define name		perl-%{module}
-%define version 	0.14
-%define release 	10avx
+%define version 	0.15
+%define release 	1avx
 
 Summary:	Perl interface to the PAM library
 Name: 		%{name}
@@ -50,13 +50,17 @@ one is simpler.
 
 %files
 %defattr(-,root,root)
-%doc README MANIFEST Changes
+%doc README Changes
 %{_mandir}/*/*
 %{perl_vendorarch}/auto/Authen/*
 %{perl_vendorarch}/Authen/*
 
 
 %changelog
+* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 0.15-1avx
+- 0.15
+- rebuild against perl 5.8.7
+
 * Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 0.14-10avx
 - bootstrap build (new gcc, new glibc)
 
