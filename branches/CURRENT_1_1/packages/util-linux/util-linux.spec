@@ -9,7 +9,7 @@
 
 %define name		util-linux
 %define version		2.12q
-%define release		2avx
+%define release		3avx
 
 Summary:	A collection of basic system utilities
 Name:		%{name}
@@ -51,6 +51,7 @@ Patch101:	mkcramfs-quiet.patch.bz2
 #
 ########### START UNSUBMITTED
 #
+Patch105:	util-linux-2.12q-varargs.patch.bz2
 Patch106:	util-linux-2.12q-swaponsymlink-57301.patch.bz2
 Patch107:	util-linux-2.11x-procpartitions-37436.patch.bz2
 Patch109:	util-linux-2.11f-rawman.patch.bz2 
@@ -87,6 +88,10 @@ patch221:	util-linux-2.12q-pamconsole.patch.bz2
 patch222:	util-linux-2.12a-managed.patch.bz2
 # nfs4 support (http://www.citi.umich.edu/projects/nfsv4/linux/util-linux-patches/2.12-3/)
 patch223:	util-linux-2.12q-nfs4.patch.bz2
+# fortify fixes
+Patch224:	util-linux-2.12q-fortify.patch.bz2
+# honor "mode=" for devpts filesystem
+Patch225:	util-linux-2.12q-devpts-mode.patch.bz2
 #
 # Mandrake Specific patches
 # fix compilation related with miscfixes
@@ -226,7 +231,10 @@ cp %{SOURCE8} %{SOURCE9} .
 
 %patch221 -p1 -b .pamconsole
 %patch222 -p1 -b .managed
+%patch224 -p1 -b .fortify
+%patch225 -p1 -b .devfs-mode
 
+%patch105 -p1 -b .varargs
 %patch106 -p1 -b .swaponsymlink
 %patch107 -p1 -b .procpartitions
 %patch109 -p1 -b .rawman
@@ -258,11 +266,11 @@ pushd rescuept
     cc %{optflags} -o rescuept rescuept.c
 popd
 
-%ifnarch s390 s390x
-pushd kbdrate
-    cc %{optflags} -o kbdrate kbdrate.c
-popd
-%endif
+#%ifnarch s390 s390x
+#pushd kbdrate
+#    cc %{optflags} -o kbdrate kbdrate.c
+#popd
+#%endif
 
 gcc %{optflags} -o mkcramfs mkcramfs.c -I. -lz
 
@@ -294,10 +302,10 @@ ln -f rescuept/README rescuept/README.rescuept
 install -m 0755 mkcramfs %{buildroot}/usr/bin
 install -m 0755 nologin %{buildroot}/sbin
 install -m 0644 nologin.8 %{buildroot}%{_mandir}/man8
-%ifnarch s390 s390x
-install -m 0755 kbdrate/kbdrate %{buildroot}/sbin
-install -m 0644 kbdrate/kbdrate.8 nologin.8 %{buildroot}%{_mandir}/man8
-%endif
+#%ifnarch s390 s390x
+#install -m 0755 kbdrate/kbdrate %{buildroot}/sbin
+#install -m 0644 kbdrate/kbdrate.8 nologin.8 %{buildroot}%{_mandir}/man8
+#%endif
 echo '.so man8/raw.8' > %{buildroot}%{_mandir}/man8/rawdevices.8
 
 install -m 0755 partx/{addpart,delpart,partx} %{buildroot}/sbin
@@ -322,10 +330,10 @@ E-O-F
 chmod 0755 %{buildroot}%{_bindir}/sunhostid
 %endif
 
-%ifnarch s390 s390x
-install -m 0644 kbdrate/kbdrate.apps %{buildroot}%{_sysconfdir}/security/console.apps/kbdrate
-install -m 0644 kbdrate/kbdrate.pam %{buildroot}%{_sysconfdir}/pam.d/kbdrate
-%endif
+#%ifnarch s390 s390x
+#install -m 0644 kbdrate/kbdrate.apps %{buildroot}%{_sysconfdir}/security/console.apps/kbdrate
+#install -m 0644 kbdrate/kbdrate.pam %{buildroot}%{_sysconfdir}/pam.d/kbdrate
+#%endif
 pushd %{buildroot}%{_sysconfdir}/pam.d
     install -m 0644 %{SOURCE1} login
     install -m 0644 %{SOURCE2} chfn
@@ -378,10 +386,10 @@ fi
 %config(noreplace) %{_sysconfdir}/pam.d/chfn
 %config(noreplace) %{_sysconfdir}/pam.d/chsh
 %config(noreplace) %{_sysconfdir}/pam.d/login
-%ifnarch s390 s390x
-%config(noreplace) %{_sysconfdir}/pam.d/kbdrate
-%config(noreplace) %{_sysconfdir}/security/console.apps/kbdrate
-%endif
+#%ifnarch s390 s390x
+#%config(noreplace) %{_sysconfdir}/pam.d/kbdrate
+#%config(noreplace) %{_sysconfdir}/security/console.apps/kbdrate
+#%endif
 
 /bin/arch
 /bin/dmesg
@@ -434,15 +442,15 @@ fi
 /sbin/nologin
 %{_mandir}/man8/nologin.8*
 # Begin kbdrate stuff
-%ifnarch s390 s390x
-/sbin/kbdrate
-#/usr/bin/kbdrate
-%{_mandir}/man8/kbdrate.8*
-%endif
+#%ifnarch s390 s390x
+#/sbin/kbdrate
+##/usr/bin/kbdrate
+#%{_mandir}/man8/kbdrate.8*
+#%endif
 
 %{_bindir}/cal
-%attr(4711,root,root)	%{_bindir}/chfn
-%attr(4711,root,root)	%{_bindir}/chsh
+%attr(0700,root,root)	%{_bindir}/chfn
+%attr(0700,root,root)	%{_bindir}/chsh
 %{_bindir}/col
 %{_bindir}/colcrt
 %{_bindir}/colrm
@@ -480,7 +488,7 @@ fi
 %{_bindir}/tailf
 %{_bindir}/ul
 %{_bindir}/whereis
-%attr(2755,root,tty)	%{_bindir}/write
+%attr(0755,root,tty)	%{_bindir}/write
 
 %ifarch sparc sparc64 sparcv9
 /sbin/cfdisk
@@ -571,8 +579,8 @@ fi
 %files -n mount
 %defattr(-,root,root)
 %doc mount/README.mount
-%attr(4755,root,root)	/bin/mount
-%attr(4755,root,root)	/bin/umount
+%attr(0700,root,root)	/bin/mount
+%attr(0700,root,root)	/bin/umount
 /sbin/swapon
 /sbin/swapoff
 %{_mandir}/man5/fstab.5*
@@ -588,6 +596,16 @@ fi
 /sbin/losetup
 
 %changelog
+* Sun Sep 11 2005 Vincent Danen <vdanen@annvix.org> 2.12q-3avx
+- strip suid bit from mount, umount, chfn, and chsh
+- strip sgid bit from write (not required)
+- don't build kdbrate at all; who needs it anyways
+- sync with cooker 2.12q-5mdk:
+  - P105: varargs fixes (gbeauchesne)
+  - P224: fortify fixes (gbeauchesne)
+  - P225: honor "mode=" for devpts filesystems (LSB, re: sbenedict)
+    (gbeauchesne)
+
 * Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 2.12q-2avx
 - bootstrap build (new gcc, new glibc)
 - add missing P117 from mdk 2.12q-3mdk (without it kbdrate won't compile)
