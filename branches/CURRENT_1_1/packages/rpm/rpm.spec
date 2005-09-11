@@ -5,52 +5,60 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-# mdk 4.2.3-11mdk
+# mdk 4.4.2-3mdk
 
 %define name		rpm
-%define version		4.2.3
-%define poptver		1.8.3
-%define release		9avx
+%define version		4.4.2
+%define poptver		1.10.2
+%define release		1avx
 
-%define libver		4.2
+%define srcver		4.4.2
+%define libver		4.4
+%define libpoptver	0
 %define libname		%mklibname rpm %{libver}
+%define libpoptname	%mklibname popt %{libpoptver}
 %define url		ftp://ftp.rpm.org/pub/rpm/dist/rpm-4.0.x
+
 %define pyver		%(python -V 2>&1 | cut -f2 -d" " | cut -f1,2 -d".")
+%if %{?mklibname:0}%{?!mklibname:1}
+%define mklibname(ds)	%{_lib}%{1}%{?2:%{2}}%{?3:_%{3}}%{-s:-static}%{-d:-devel}
+%endif
+
 %define lib64arches	x86_64 ppc64
 
-# define biarch platforms
-# XXX merge with lib64arches when fully tested
-%define biarches 	x86_64
-%ifarch x86_64
-%define alt_arch	i386
-%endif
-%ifarch ppc64
-%define alt_arch	ppc
-%endif
-%ifarch sparc64
-%define alt_arch	sparc
+%ifarch ppc x86_64 amd64 ppc64 athlon pentium3 pentium4
+%define buildnptl	1
+%else
+%define buildnptl	0
 %endif
 
-# %define __find_requires %{buildroot}%{rpmdir}/find-requires %{?buildroot:%{buildroot}} %{?_target_cpu:%{_target_cpu}}
-%define __find_provides %{buildroot}%{rpmdir}/find-provides
-
-%define _prefix		/usr
 %ifarch %{lib64arches}
 %define _lib		lib64
-%define _libdir		/usr/lib64
 %else
 %define _lib		lib
-%define _libdir		/usr/lib
 %endif
-%define _bindir		/usr/bin
+
+%define _prefix		/usr
+%define _libdir		%{_prefix}/%{_lib}
+%define _bindir		%{_prefix}/bin
 %define _sysconfdir	/etc
 %define _datadir	/usr/share
-%define _defaultdocdir	/usr/share/doc
+%define _defaultdocdir	%{_datadir}/doc
+%define _mandir		%{_datadir}/man
+%define _infodir	%{_datadir}/info
+%define _localstatedir	/var
+
+%define _host_vendor	annvix
 
 # Define directory which holds rpm config files, and some binaries actually
 # NOTE: it remains */lib even on lib64 platforms as only one version
 #       of rpm is supported anyway, per architecture
 %define rpmdir %{_prefix}/lib/rpm
+
+%define __os_install_post	%{_datadir}/spec-helper/spec-helper
+%define __find_requires		%{rpmdir}/%{_host_vendor}/find-requires %{?buildroot:%{buildroot}} %{?_target_cpu:%{_target_cpu}}
+%define __find_provides		%{rpmdir}/%{_host_vendor}/find-provides
+
 
 Summary:	The RPM package management system
 Name:		%{name}
@@ -59,96 +67,90 @@ Release:	%{release}
 License:	GPL
 Group:		System/Configuration/Packaging
 URL:            http://www.rpm.org/
-Source:		%{url}/rpm-%{version}.tar.bz2
-Source2:	rpm-spec-mode.el.bz2
-Source3:	filter.sh
-Patch0:		rpm-4.2.3-mdkconf.patch.bz2
-Patch3:		rpm-4.0-bashort.patch.bz2
-Patch5:		rpm-4.2.2-autoreq.patch.bz2
-Patch8:		rpm-4.2-skipmntpoints.patch.bz2
-Patch10:	rpm-4.0-updates-alternatives.patch.bz2
-Patch13:	rpm-4.2.2-lock.patch.bz2
+Source:		ftp://ftp.jbj.org/pub/rpm-%{libver}.x/rpm-%{srcver}.tar.bz2
+# Add some undocumented feature to gendiff
 Patch17:	rpm-4.2-gendiff-improved.patch.bz2
-# this patches adds support for RPM_INSTALL_LANG shell variable, with priority
-# over the macro defined in /etc/rpm/macros
-Patch18:	rpm-4.2-langvar.patch.bz2
-# (fredl) script failures don't break install/upgrade/removal
-Patch22:	rpm-4.0.3-script-dont-fail.patch.bz2
-Patch23:	rpm-4.2-spec-mode-mdkconf.patch.bz2
-Patch24:	rpm-4.0.3-patch-exit.patch.bz2
-# (pablo) in turk I isn't the upper case of i
-# test: LC_ALL=tr rpm -q glibc
-Patch26:	rpm-4.0.3-turk.patch.bz2
-# (chmou)
-Patch27:	rpm-4.2-libtool-old-version.patch.bz2
 # (fredl) add loging facilities through syslog
-Patch31:	rpm-4.2-syslog.patch.bz2
-Patch32:	rpm-4.2-rpmvercmp.patch.bz2
-Patch33:	rpm-4.2-execvp-error-report.patch.bz2
-Patch36:	rpm-4.2-umask.patch.bz2
-# (pablo) improved version of find.lang.sh, from rpm mailing-list.
-# it adds a --all-name switch that allows finding all localized files,
-# whatever the name (useful in addition of --with-gnome/--with-kde to find
-# the different html help directories
-Patch35:	rpm-4.2-find-lang_all-name.patch.bz2
-# Workaround nested %%if handling bug (SuSE patch)
-Patch40:	rpm-4.0.4-if.patch.bz2
+Patch31:	rpm-4.4.1-syslog.patch.bz2
+# Still need :(
 # Correctly check for PPC 74xx systems
 Patch41:	rpm-4.2-ppc-74xx.patch.bz2
-# Don't link against system libs when relinking in %%install
-Patch42:	rpm-4.2-mad-relink.patch.bz2
-# Correctly setup X11 paths on lib64 systems
-Patch43:	rpm-4.2-configure-xpath.patch.bz2
-# Build .amd64 packages by default on x86-64
-Patch44:	rpm-4.2.3-amd64.patch.bz2
-Patch45:	rpm-4.2-python-macros.patch.bz2
-Patch46:	rpm-4.2.3-pythondir.patch.bz2
+# Check amd64 vs x86_64, these arch are the same
+Patch44:	rpm-4.4.1-amd64.patch.bz2
 # Backport from 4.2.1 provides becoming obsoletes bug (fpons)
-Patch49:	rpm-4.2-provides-obsoleted.patch.bz2
-Patch50:	rpm-4.2-exclude-strip.patch.bz2
-Patch51:	rpm-4.2-rpmal-fix-crash.patch.bz2
-# (vdanen) use stack protection by default
-Patch52:	rpm-4.2.3-stackmacros.patch.bz2
-Patch53:	rpm-4.2-unpackaged-links.patch.bz2
-Patch54:	rpm-4.2.3-avx-annvix-conf.patch.bz2
-Patch55:	rpm-4.2.2-file.patch.bz2
-Patch56:	rpm-4.2.2-enable-typo.patch.bz2
-Patch57:	rpm-4.2.2-db_private.patch.bz2
-Patch58:	rpm-4.2.2-ppc64.patch.bz2
-Patch59:	rpm-4.2.2-mdk-x86-cpuid.patch.bz2
-Patch60:	rpm-4.2.2-mdk-mono.patch.bz2
-Patch61:	rpm-4.2.2-mdk-python-singleheaderfromfd.patch.bz2
-Patch62:	rpm-4.2.2-mdk-no-nonlinux-perl-deps.patch.bz2
-Patch63:	rpm-4.2.3-mdk-multiarch.patch.bz2
-Patch64:	rpm-4.2.3-mdk-coloring.patch.bz2
-Patch65:	rpm-4.2.3-mdk-dont-install-delta-rpms.patch.bz2
+Patch49:	rpm-4.4.1-provides-obsoleted.patch.bz2
+# Still need
+Patch56:	rpm-4.2.2-ppc64.patch.bz2
+Patch62:	rpm-4.4.1-coloring.patch.bz2
+# ok for this
+Patch63:	rpm-4.2.3-dont-install-delta-rpms.patch.bz2
+# This patch ask to read /usr/lib/rpm/vendor/rpmpopt too
+Patch64:    rpm-4.4.1-morepopt.patch.bz2
+# https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=114385
+# This patch fix set %_topdir to /usr/src/RPM
+# modified files: macros.in Makefile.am
+Patch66:    rpm-4.4.1-topdirinrpm.patch.bz2
+# Being able to read old rpm (build with rpm v3)
+# See https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=127113#c12
+Patch68:    rpm-4.4.1-region_trailer.patch.bz2
+# Fix some French translations
+Patch69:	rpm-4.4.1-fr.patch.bz2
+# In original rpm, -bb --short-circuit does not work and run all stage
+# From popular request, we allow to do this
+# http://qa.mandriva.com/show_bug.cgi?id=15896
+Patch70:	rpm-4.4.1-bb-shortcircuit.patch.bz2
+# http://www.redhat.com/archives/rpm-list/2005-April/msg00131.html
+# http://www.redhat.com/archives/rpm-list/2005-April/msg00132.html
+Patch71:    rpm-4.4.1-ordererase.patch.bz2
+# File conflicts when rpm -i
+# https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=151609
+Patch72:    rpm-4.4.1-fileconflicts.patch.bz2
+# Fix pre/post when erasing
+# https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=155700
+Patch74:    rpm-4.4.1-prepostun.patch.bz2
+# Allow to rebuild db with --root option
+Patch76:    rpm-4.4.1-rebuildchroot.patch.bz2
+# Allow to set %_srcdefattr for src.rpm
+Patch77:    rpm-source-defattr.patch.bz2
+# Do not use futex, but fcntl
+Patch78:    rpm-fcntl.patch.bz2
+# from https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=146549
+Patch79:    rpm-4.4.2-deadlock.patch.bz2
+# Fix: http://qa.mandriva.com/show_bug.cgi?id=17774
+# Patch from cvs HEAD (4.4.3)
+Patch80:    rpm-4.4.2-buildsubdir-for-scriptlet.patch.bz2
+Patch81:    rpm-4.4.2-legacyprereq.patch.bz2
+Patch82:    rpm-4.4.2-ordering.patch.bz2
+
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	autoconf2.5 >= 2.57
 BuildRequires:	doxygen
 BuildRequires:	python-devel
 BuildRequires:	zlib-devel
-BuildRequires:	automake, automake1.7
+BuildRequires:	automake1.8
 BuildRequires:	glibc-static-devel
 BuildRequires:	elfutils-static-devel
 BuildRequires:	sed >= 4.0.3
 BuildRequires:	libbeecrypt-devel
 BuildRequires:	ed, gettext-devel
+BuildRequires:	rpm-annvix-setup
+BuildRequires:	readline-devel, ncurses-devel
+BuildRequires:	neon-devel < 0.25
+BuildRequires:	libsqlite3-devel
 
 Requires:	bzip2 >= 0.9.0c-2
 Requires:	cpio
 Requires:	gawk
 Requires:	glibc >= 2.1.92
-Requires:	make
 Requires:	mktemp
 Requires:	popt = %{poptver}-%{release}
 Requires:	setup >= 2.2.0-8mdk
-Requires:	unzip
-Requires:	elfutils
 Requires:	multiarch-utils >= 1.0.7
-Conflicts:	patch < 2.5
-Conflicts:	menu < 2.1.5-29mdk
-Conflicts:	locales < 2.3.1.1
+Requires:	update-alternatives
+Requires:	rpm-annvix-setup
+Requires:	%{libname} = %{version}-%{release}
+Conflicts:	locales < 2.3.1.1, patch < 2.5
 PreReq:		rpm-helper >= 0.8
 
 %description
@@ -158,25 +160,26 @@ Each software package consists of an archive of files along with information
 about the package like its version, a description, etc.
 
 %package -n %{libname}
-Summary:	Libraries from rpm
+Summary:	Libraries used by rpm
 Group:		System/Libraries
-Provides:	lib%{name} = %{version}-%{release}
+Provides:	librpm = %{version}-%{release}
 
-%description -n %libname
+%description -n %{libname}
 RPM is a powerful command line driven package management system capable of
 installing, uninstalling, verifying, querying, and updating software packages.
-This packages contains common libraries from rpm.
+This packages contains common files to all applications based on rpm.
 
 
-%package devel
+%package -n %{libname}-devel
 Summary:	Development files for applications which will manipulate RPM packages
 Group:		Development/C
-Requires:	bzip2-devel
 Requires:	rpm = %{version}-%{release}
 Requires:	popt-devel = %{poptver}-%{release}
-Requires:	zlib-devel
+Provides:	librpm-devel = %{version}-%{release}
+Provides:	rpm-devel = %{version}-%{release}
+Obsoletes:	rpm-devel < 4.4.1
 
-%description devel
+%description -n %{libname}-devel
 This package contains the RPM C library and header files.  These
 development files will simplify the process of writing programs
 which manipulate RPM packages and databases and are intended to make
@@ -196,30 +199,25 @@ Requires:	file
 Requires:	gcc-c++
 # We need cputoolize & amd64-* alias to x86_64-* in config.sub
 Requires:	libtool >= 1.4.3-5mdk
-Requires:	patch
+Requires:	patch, make, unzip, elfutils
 Requires:	rpm = %{version}-%{release}
-#Requires:	multiarch-utils >= 1.0.3
-%if "%{_lib}" != "lib"
-# Need spec-helper recent enough to automatically fix up references to
-# /lib/security on lib64 platforms
-Requires:	spec-helper >= 0.6-5mdk
-%else
 Requires:	spec-helper
-%endif
+Requires:	rpm-annvix-setup-build
 
 %description build
 This package contains scripts and executable programs that are used to
 build packages using RPM.
 
 
-%package python
+%package -n python-rpm
 Summary:	Python bindings for apps which will manipulate RPM packages
 Group:		Development/Python
-Requires:	popt >= %{poptver}
 Requires:	python >= %{pyver}
 Requires:	rpm = %{version}-%{release}
+Obsoletes:	rpm-python
+Provides:	rpm-python = %{version}-%{release}
 
-%description python
+%description -n python-rpm
 The rpm-python package contains a module which permits applications
 written in the Python programming language to use the interface
 supplied by RPM (RPM Package Manager) libraries.
@@ -228,13 +226,27 @@ This package should be installed if you want to develop Python
 programs that will manipulate RPM packages and databases.
 
 
-%package -n popt
-Summary:	A C library for parsing command line parameters
+%package -n popt-data
+Summary:	popt static data
 Group:		System/Libraries
 Version:	%{poptver}
 Release:	%{release}
 
-%description -n popt
+%description -n popt-data
+This package contains popt data files like locales.
+
+
+%package -n %{libpoptname}
+Summary:	A C library for parsing command line parameters
+Group:		System/Libraries
+Version:	%{poptver}
+Release:	%{release}
+Requires:	popt-data >= %{poptver}
+Provides:	lib%{popt} = %{poptver}-%{release}
+Provides:	popt = %{poptver}-%{release}
+Obsoletes:	popt <= 1.8.3
+
+%description -n %{libpoptname}
 Popt is a C library for parsing command line parameters.  Popt was
 heavily influenced by the getopt() and getopt_long() functions, but it
 improves on them by allowing more powerful argument expansion.  Popt
@@ -245,14 +257,17 @@ functions for parsing arbitrary strings into argv[] arrays using
 shell-like rules.
 
 
-%package -n popt-devel
+%package -n %{libpoptname}-devel
 Summary:	A C library for parsing command line parameters
 Group:		Development/C
 Version:	%{poptver}
 Release:	%{release}
 Requires:	popt = %{poptver}-%{release}
+Provides:	popt-devel = %{poptver}-%{release}
+Provides:	libpopt-devel = %{poptver}-%{release}
+Obsoletes:	popt-devel <= 1.8.3
 
-%description -n popt-devel
+%description -n %{libpoptname}-devel
 Popt is a C library for parsing command line parameters.  Popt was
 heavily influenced by the getopt() and getopt_long() functions, but it
 improves on them by allowing more powerful argument expansion.  Popt
@@ -262,225 +277,107 @@ arguments to be aliased via configuration files and includes utility
 functions for parsing arbitrary strings into argv[] arrays using
 shell-like rules.
 
-Install popt-devel if you're a C programmer and you'd like to use its
-capabilities.
-
 
 %prep
-%setup -q
-%patch0 -p1 -b .mdk
-#%patch1 -p0
-#%patch2 -p1
-%patch3 -p0 -b .short
-#%patch4 -p0
-%patch5 -p1 -b .autoreq
-#%patch6 -p1
-%patch8 -p1 -b .skip
-#%patch9 -p0
-%patch10 -p1 -z .pix
-#%patch11 -p1
-%patch13 -p1 -b .lock
-#%patch14 -p1
-#%patch16 -p1 -b .python2.1
-
+%setup -q -n %{name}-%{srcver}
 %patch17 -p1 -b .improved
-#%patch18 -p1 -b .langvar
-#%patch20 -p1
-%patch22 -p1 -b .dontfail
-
-bzcat %{SOURCE2} > rpm-spec-mode.el
-
-%patch23 -p0 -b .mdkel
-%patch24 -p1 -b .patchexit
-##%patch26 -p1 -b .turk
-%patch27 -p1 -b .oldlibtool
-#%patch30 -p1 -b .hashes
 %patch31 -p1 -b .syslog
-%patch32 -p1 -b .rpmvercmp
-%patch33 -p1 -b .execvp-error-report
-#%patch34 -p1 -b .expand-buildmacro
-%patch35 -p1 -b .find-lang_all-name
-%patch36 -p1 -b .umask
-#%patch37 -p1 -b .chroot_prefix
-#%patch38 -p1 -b .resign
-#%patch40 -p1 -b .if
 %patch41 -p1 -b .ppc-74xx
-#%patch42 -p1 -b .mad-relink
-%if "%{_lib}" != "lib"
-%patch43 -p1 -b .configure-xpath
-%endif
 %patch44 -p1 -b .amd64
-%patch45 -p1 -b .python-macros
-%patch46 -p1 -b .pythondir
 %patch49 -p1 -b .provides
-%patch50 -p1 -b .exclude-strip
-#%patch51 -p1 -b .rpmal-fix-crash
-#%patch52 -p1 -b .stackmacro
-%patch53 -p1 -b .links
-%patch54 -p1 -b .annvix
-%patch55 -p1 -b .file
-%patch56 -p1 -b .typo
-%patch57 -p1 -b .db_private
-%patch58 -p1 -b .ppc64
-%patch59 -p1 -b .x86-cpuid
-%patch60 -p1 -b .mono
-%patch61 -p1 -b .smart
-%patch62 -p0 -b .perldeps
-%patch63 -p1 -b .multiarch
-%patch64 -p1 -b .coloring
-%patch65 -p1 -b .dont-install-delta-rpms
+%patch56 -p1 -b .ppc64
+%patch62 -p1 -b .coloring
+%patch63 -p1 -b .dont-install-delta-rpms
+%patch64 -p0 -b .morepopt
+%patch66 -p0 -b .topdirinrpm
+%patch68 -p0 -b .region_trailer
+%patch69 -p0 -b .trans
+%patch70 -p0 -b .shortcircuit
+%patch71 -p1  -b .ordererase
+%patch72 -p1  -b .fileconflicts
+%patch74 -p1  -b .prepostun
+%patch76 -p0  -b .rebuildchroot
+%patch77 -p0  -b .srcdefattr
 
-# Nuke nonexistant/unused type checks
-perl -ni -e '/^AC_TYPE_ST_RDEV_T/ or print' configure.ac
+%if %{buildnptl}
+%else
+%patch78 -p0  -b .fcntl
+%endif
 
-# fix for python 2.4
-perl -pi -e 's/PyDictIter_Type/PyDictIterValue_Type/' python/*.c
+%patch79 -p1 -b .deadlock
+%patch80 -p0 -b .subdir-scriplet
+%patch81 -p0 -b .legacyprereq
+%patch82 -p0 -b .ordering
 
-# Recode russian manpages from UTF-8 to KOI8-R
-for i in doc/ru/*.8; do
-    mv $i $i.bak
-    iconv -f utf8 -t koi8-r $i.bak -o $i
-    touch -r $i.bak $i
-    rm -f $i.bak
-done
-
-# Create configure scripts manually, skipping unused ones
-function AutoGen() {
-    echo "--- $1"
-    pushd $2
-        libtoolize --copy --force
-        aclocal-1.7
-        autoheader
-        automake-1.7 -a -c
-        autoconf
-    popd
-}
-
-(echo "--- db"; cd db/dist; libtoolize --copy --force; cp /usr/share/aclocal/libtool.m4 aclocal/libtool.ac; ./s_config)
-(echo "--- popt"; cd popt; ./autogen.sh --noconfigure "$@")
-AutoGen "zlib" zlib
-AutoGen "file" file
-AutoGen "rpm" .
-
-# Use system elfutils, beecrypt, zlib
-for d in elfutils beecrypt zlib; do
-    mv $d orig.$d
-done
+# The sqlite from rpm tar ball is the same than the system one
+# rpm author just add LINT comment for his checking purpose
+mv sqlite sqlite.orig
 
 
 %build
-# First build 32-bit popt libraries
-# XXX we could libify and mklibname'ize popt but popt is small and
-# since we already made rpm-build biarch capable, making popt biarch
-# too doesn't seem unreasonable. You decide Fred. ;-)
-%ifarch %{biarches}
-mkdir -p popt/build-%{alt_arch}-linux
-pushd popt/build-%{alt_arch}-linux
-    CC="gcc -m32" ../configure %{alt_arch}-annvix-linux-gnu --build=%{_target_platform} --prefix=%{_prefix}
-    %make
-    ln -s ../mkinstalldirs .
-popd
+for dir in . popt file zlib db/dist; do
+    (
+    cd $dir
+    libtoolize --force
+    aclocal
+    automake-1.8 -a
+    autoconf
+    )
+done
+
+# rpm take care of --libdir but explicitelly setting --libdir on
+# configure breaks make install, but this does not matter.
+# --build, we explicetly set 'annvix' as our config subdir and 
+# _host_vendor are 'annvix'
+%ifarch x86_64
+fpic="-fPIC"
 %endif
 
-# NOTE: Don't add libdir specification here as rpm data files really
-# have to go to /usr/lib/rpm and we support only one rpm program per
-# architecture
-%ifarch x86_64 amd64
-CPPFLAGS="-I/usr/include/libelf" CFLAGS="%{optflags}" CXXFLAGS="%{optflags}" \
+CFLAGS="%{optflags} $fpic" CXXFLAGS="%{optflags} $fpic" \
     ./configure \
-    --prefix=%{_prefix} \
-    --sysconfdir=%{_sysconfdir} \
-    --localstatedir=/var \
-    --mandir=%{_datadir}/man \
-    --infodir=%{_datadir}/info \
-    --enable-nls \
-    --without-javaglue \
-    --disable-posixmutexes \
-    --with-python=%{pyver}
+        --build=%{_target_cpu}-%{_host_vendor}-%{_target_os}%{?_gnu} \
+        --prefix=%{_prefix} \
+        --sysconfdir=%{_sysconfdir} \
+        --localstatedir=%{_localstatedir} \
+        --mandir=%{_mandir} \
+        --infodir=%{_infodir} \
+        --enable-nls \
+        --without-javaglue \
+%if %{buildnptl}
+        --enable-posixmutexes \
 %else
-CPPFLAGS="-I/usr/include/libelf" CFLAGS="%{optflags}" CXXFLAGS="%{optflags}" \
-    ./configure \
-    --prefix=%{_prefix} \
-    --sysconfdir=%{_sysconfdir} \
-    --localstatedir=/var \
-    --mandir=%{_datadir}/man \
-    --infodir=%{_datadir}/info \
-    --enable-nls \
-    --without-javaglue \
-    --disable-posixmutexes \
-    --with-python=%{pyver} \
-    --with-glob \
-    --enable-static
+        --with-mutex=UNIX/fcntl \
 %endif
-# Allow parallel build
-perl -p -i -e 's/conftest\.s/conftest\$\$.s/' config.status
+        --with-python=%{pyver} \
+        --with-glob \
+        --with-apidocs \
+        --without-selinux
 
-# XXX hack out O_DIRECT support in db4 for now.
-perl -pi -e 's/#define HAVE_O_DIRECT 1/#undef HAVE_O_DIRECT/' db3/db_config.h
+# We should use the zlib provided whit rpm:
+# 21:17 < Nanar> why using ../../zlib in file/ instead system library ?
+# 21:38 < jbj> Nanar: zlib modified to make *.rpm packages rsync friendly.
+#              See https://svn.uhulinux.hu/packages/dev/zlib/patches/02-rsync.patch
+# 21:38 < jbj> rip if you don't want to be rsync friendly. <shrug>
 
-smp_flags=$([ -z "$RPM_BUILD_NCPUS" ] \
-    && RPM_BUILD_NCPUS="`/usr/bin/getconf _NPROCESSORS_ONLN`"; \
-    [ "$RPM_BUILD_NCPUS" -gt 1 ] && echo "-j$RPM_BUILD_NCPUS") || :
+# Zlib tree don't support make -j
+# building in first
 
-make $smp_flags
+(
+    cd zlib
+    make
+)
+
+%make
 
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p %{buildroot}/%{_lib}
-mkdir -p %{buildroot}%{_libdir}
-mkdir -p %{buildroot}%{rpmdir}
-mkdir -p %{buildroot}%{_prefix}/src/RPM/{SOURCES,SPECS,SRPMS,BUILD}
-%ifarch i386 i486 i586 i686 k6 athlon x86_64
-mkdir -p %{buildroot}%{_prefix}/src/RPM/RPMS/{i386,i486,i586,i686,k6,athlon}
-%endif
-%ifarch ppc
-mkdir -p %{buildroot}%{_prefix}/src/RPM/RPMS/{ppc,powerpc}
-%endif
-%ifarch ia64
-mkdir -p %{buildroot}%{_prefix}/src/RPM/RPMS/ia64
-%endif
-%ifarch x86_64 amd64
-mkdir -p %{buildroot}%{_prefix}/src/RPM/RPMS/{amd64,x86_64}
-%endif
-mkdir -p %{buildroot}%{_prefix}/src/RPM/RPMS/noarch
 
-%ifarch %{biarches}
-make DESTDIR="%{buildroot}" install-usrlibLTLIBRARIES -C popt/build-%{alt_arch}-linux
+make DESTDIR=%{buildroot} install
 
-mkdir -p %{buildroot}/lib
-mv %{buildroot}%{_prefix}/lib/libpopt.so.* %{buildroot}/lib/
-ln -s ../../lib/libpopt.so.0 %{buildroot}%{_prefix}/lib/libpopt.so.0
-ln -sf libpopt.so.0 %{buildroot}%{_prefix}/lib/libpopt.so
-%endif
-
-make DESTDIR="%{buildroot}" install
-
-make DESTDIR="%{buildroot}" PYVER=%{pyver} -C python install
-
-%ifarch %{biarches}
-for f in platform macros; do
-    perl -pe "/^%%\w*_arch\s+/ and s/%{_arch}/%{alt_arch}/" $f > $f.32
-done
-DESTDIR=%{buildroot} ./installplatform rpmrc macros.32 platform.32
-%endif
-
-install %{SOURCE3} %{buildroot}%{_prefix}/lib/rpm/filter.sh
-
-# Save list of packages through cron
-mkdir -p %{buildroot}%{_sysconfdir}/cron.daily
-install -m 0755 scripts/rpm.daily %{buildroot}%{_sysconfdir}/cron.daily/rpm
-
-mkdir -p %{buildroot}%{_sysconfdir}/logrotate.d
-install -m 0755 scripts/rpm.log %{buildroot}%{_sysconfdir}/logrotate.d/rpm
-
-mkdir -p %{buildroot}%{_prefix}/sbin %{buildroot}%{_datadir}/man/man8/
-install -m 0644 update-alternatives.8 %{buildroot}%{_datadir}/man/man8/
-install -m 0755 update-alternatives %{buildroot}%{_sbindir}/
-
-mkdir -p %{buildroot}%{_sysconfdir}/alternatives
-mkdir -p %{buildroot}/var/lib/rpm/alternatives/
-
+# We put a popt copy in /%_lib for application in /bin
+# This is not for rpm itself as it requires all rpmlib
+# from /usr/%_lib
 mkdir -p %{buildroot}/%{_lib}
 mv %{buildroot}%{_libdir}/libpopt.so.* %{buildroot}/%{_lib}
 ln -s ../../%{_lib}/libpopt.so.0 %{buildroot}%{_libdir}
@@ -490,13 +387,17 @@ ln -sf libpopt.so.0 %{buildroot}%{_libdir}/libpopt.so
 ln -sf ppc-annvix-linux %{buildroot}%{rpmdir}/powerpc-annvix-linux
 %endif
 
-mv -f %{buildroot}%{rpmdir}/brp-redhat %{buildroot}%{rpmdir}/brp-annvix
-
 mv -f %{buildroot}/%{rpmdir}/rpmdiff %{buildroot}/%{_bindir}
 
+# Save list of packages through cron
+mkdir -p %{buildroot}/etc/cron.daily
+install -m 755 scripts/rpm.daily %{buildroot}/etc/cron.daily/rpm
 
-mkdir -p %{buildroot}%{_sysconfdir}/rpm
-cat << E_O_F > %{buildroot}%{_sysconfdir}/rpm/macros.cdb
+mkdir -p %{buildroot}/etc/logrotate.d
+install -m 644 scripts/rpm.log %{buildroot}/etc/logrotate.d/rpm
+
+mkdir -p %{buildroot}/etc/rpm/
+cat << E_O_F > %{buildroot}/etc/rpm/macros.cdb
 %%__dbi_cdb      %%{nil}
 %%__dbi_other    %%{?_tmppath:tmpdir=%%{_tmppath}} usedbenv create \
                  joinenv mpool mp_mmapsize=8Mb mp_size=512kb verify
@@ -518,14 +419,7 @@ rm -rf doc-copy/*
 ln -f doc/manual/* doc-copy/
 rm -f doc-copy/Makefile*
 
-#install -d %{buildroot}/%{_datadir}/man/man3
-#install -m 644 apidocs/man/man3/* %{buildroot}/%{_datadir}/man/man3/
-
 mkdir -p %{buildroot}/var/spool/repackage
-
-# Fix links
-rm -f %{buildroot}%{_prefix}/lib/rpmpopt
-ln -s rpm/rpmpopt-%{version} %{buildroot}%{_prefix}/lib/rpmpopt
 
 # make override
 mkdir -p %{buildroot}/override
@@ -534,20 +428,21 @@ chmod 1777 %{buildroot}/override
 # Get rid of unpackaged files
 pushd %{buildroot}
     rm -rf .%{_includedir}/beecrypt/
-    rm -f  .%{_libdir}/libbeecrypt.{a,la,so*}
-    rm -f  .%{_libdir}/python*/site-packages/poptmodule.{a,la}
-    rm -f  .%{_libdir}/python*/site-packages/rpmmodule.{a,la}
-    rm -f  .%{rpmdir}/{Specfile.pm,cpanflute2,cpanflute,sql.prov,sql.req,tcl.req}
-    rm -f  .%{rpmdir}/{config.site,cross-build,rpmdiff.cgi}
-    rm -f  .%{rpmdir}/trpm
-    rm -f  .%{_bindir}/rpmdiff
+    rm -f .%{_libdir}/libbeecrypt.{a,la,so*}
+    rm -f .%{_libdir}/python*/site-packages/poptmodule.{a,la}
+    rm -f .%{_libdir}/python*/site-packages/rpmmodule.{a,la}
+    rm -f .%{rpmdir}/{Specfile.pm,cpanflute2,cpanflute,sql.prov,sql.req,tcl.req}
+    rm -f .%{rpmdir}/{config.site,cross-build,rpmdiff.cgi}
+    rm -f .%{rpmdir}/trpm
+    rm -f .%{_bindir}/rpmdiff
 popd
 
-%{buildroot}%{rpmdir}/find-lang.sh %{buildroot} %{name}
-%{buildroot}%{rpmdir}/find-lang.sh %{buildroot} popt
+%{rpmdir}/%{_host_vendor}/find-lang.sh %{buildroot} %{name}
+%{rpmdir}/%{_host_vendor}/find-lang.sh %{buildroot} popt
 
-%{buildroot}%{rpmdir}/brp-annvix
-exit 0
+
+%check
+make -C popt check-TESTS
 
 
 %clean
@@ -555,7 +450,7 @@ exit 0
 
 
 # nuke __db.00? when updating to this rpm
-%triggerun -- rpm < 4.2.2-1sls
+%triggerun -- rpm < 4.4.2-1avx
 rm -f /var/lib/rpm/__db.00?
 
 
@@ -581,18 +476,10 @@ then
     sh %{rpmdir}/convertrpmrc.sh 2>&1 > /dev/null
 fi
 
-if [ -f /proc/cpuinfo ] && grep -qi AMD-K6 /proc/cpuinfo; then
-    perl -p -i -e "s/#K6#//g" %{rpmdir}/rpmrc
-fi
-
 if [ -f /var/lib/rpm/packages.rpm ]; then
-    /bin/chown rpm.rpm /var/lib/rpm/*.rpm
+    /bin/chown rpm:rpm /var/lib/rpm/*.rpm
 elif [ ! -f /var/lib/rpm/Packages ]; then
     /bin/rpm --initdb
-fi
-
-if [ ! -f /var/lib/rpm/RPMLOCK ]; then
-    touch /var/lib/rpm/RPMLOCK
 fi
 
 
@@ -600,11 +487,13 @@ fi
 /usr/share/rpm-helper/del-user rpm $1 rpm
 
 
-%post -n popt -p /sbin/ldconfig
-%postun -n popt -p /sbin/ldconfig
-
 %post -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
+
+***
+%post -n %{libpoptname} -p /sbin/ldconfig
+%postun -n %{libpoptname} -p /sbin/ldconfig
+
 
 
 %define	rpmattr		%attr(0755, rpm, rpm)
@@ -619,31 +508,31 @@ fi
 %attr(0755,rpm,rpm) %{_bindir}/rpmsign
 %attr(0755,rpm,rpm) %{_bindir}/rpmquery
 %attr(0755,rpm,rpm) %{_bindir}/rpmverify
-%{_sbindir}/update-alternatives
 
-%dir /var/spool/repackage
-%dir /var/lib/rpm/alternatives/
-%dir %{_sysconfdir}/alternatives
+%dir %{_localstatedir}/spool/repackage
 %dir %{rpmdir}
 %{_sysconfdir}/rpm
 %attr(0755,rpm,rpm) %{rpmdir}/config.guess
 %attr(0755,rpm,rpm) %{rpmdir}/config.sub
 %attr(0755,rpm,rpm) %{rpmdir}/convertrpmrc.sh
+%attr(0755,rpm,rpm) %{rpmdir}/rpmdb_*
 %attr(0644,rpm,rpm) %{rpmdir}/macros
 %attr(0755,rpm,rpm) %{rpmdir}/mkinstalldirs
 %attr(0755,rpm,rpm) %{rpmdir}/rpm.*
 %attr(0755,rpm,rpm) %{rpmdir}/rpm[deiukqv]
 %attr(0644,rpm,rpm) %{rpmdir}/rpmpopt*
 %attr(0644,rpm,rpm) %{rpmdir}/rpmrc
+
 %{_prefix}/lib/rpmpopt
 %{_prefix}/lib/rpmrc
-%rpmattr	%{_prefix}/lib/rpm/rpm2cpio.sh
-%rpmattr	%{_prefix}/lib/rpm/tgpg
+%rpmattr %{rpmdir}/rpm2cpio.sh
+%rpmattr %{rpmdir}/tgpg
 
-%ifarch i386 i486 i586 i686 k6 athlon x86_64
+%ifarch i386 i486 i586 i686 k6 athlon
 %attr(-,rpm,rpm) %{rpmdir}/i*86-*
-%attr(-,rpm,rpm) %{rpmdir}/k6*
+#%attr(-,rpm,rpm) %{rpmdir}/k6*
 %attr(-,rpm,rpm) %{rpmdir}/athlon*
+%attr(-,rpm,rpm) %{rpmdir}/pentium*
 %endif
 %ifarch alpha
 %attr(-,rpm,rpm) %{rpmdir}/alpha*
@@ -656,6 +545,9 @@ fi
 %attr(-,rpm,rpm) %{rpmdir}/ppc64-*
 %attr(-,rpm,rpm) %{rpmdir}/powerpc-*
 %endif
+%ifarch ppc powerpc ppc64
+%attr(-,rpm,rpm) %{rpmdir}/ppc*series-*
+%endif
 %ifarch ppc64
 %attr(-,rpm,rpm) %{rpmdir}/ppc-*
 %attr(-,rpm,rpm) %{rpmdir}/ppc64-*
@@ -664,7 +556,7 @@ fi
 %attr(-,rpm,rpm) %{rpmdir}/ia64-*
 %endif
 %ifarch x86_64
-%attr(-,rpm,rpm) %{rpmdir}/amd64-*
+#%attr(-,rpm,rpm) %{rpmdir}/amd64-*
 %attr(-,rpm,rpm) %{rpmdir}/x86_64-*
 %endif
 %attr(-,rpm,rpm) %{rpmdir}/noarch*
@@ -681,7 +573,7 @@ fi
 %config(noreplace,missingok)	%{_sysconfdir}/cron.daily/rpm
 %config(noreplace,missingok)	%{_sysconfdir}/logrotate.d/rpm
 
-%attr(0755,rpm,rpm)	%dir /var/lib/rpm
+%attr(0755,rpm,rpm)	%dir %{_localstatedir}/lib/rpm
 
 %define	rpmdbattr %attr(0644, rpm, rpm) %verify(not md5 size mtime) %ghost %config(missingok,noreplace)
 
@@ -700,13 +592,6 @@ fi
 %rpmdbattr	/var/lib/rpm/Requireversion
 %rpmdbattr	/var/lib/rpm/Triggername
 
-%files -n %{libname}
-%defattr(-,root,root)
-%{_libdir}/librpm-%{libver}.so
-%{_libdir}/librpmdb-%{libver}.so
-%{_libdir}/librpmio-%{libver}.so
-%{_libdir}/librpmbuild-%{libver}.so
-
 %files build
 %defattr(-,root,root)
 %doc CHANGES
@@ -724,7 +609,7 @@ fi
 %rpmattr	%{_prefix}/lib/rpm/check-prereqs
 #%rpmattr	%{_prefix}/lib/rpm/config.site
 #%rpmattr	%{_prefix}/lib/rpm/cross-build
-%rpmattr	%{_prefix}/lib/rpm/filter.sh
+#%rpmattr	%{_prefix}/lib/rpm/filter.sh
 %rpmattr	%{_prefix}/lib/rpm/freshen.sh
 %rpmattr	%{_prefix}/lib/rpm/debugedit
 %rpmattr	%{_prefix}/lib/rpm/find-debuginfo.sh
@@ -755,17 +640,26 @@ fi
 %rpmattr	%{_prefix}/lib/rpm/u_pkg.sh
 %rpmattr	%{_prefix}/lib/rpm/vpkg-provides.sh
 %rpmattr	%{_prefix}/lib/rpm/vpkg-provides2.sh
+%rpmattr	%{_prefix}/lib/rpm/pythondeps.sh
 
 %{_mandir}/man8/rpmbuild.8*
 %{_mandir}/man8/rpmdeps.8*
 
 
-%files python
+%files -n python-rpm
 %defattr(-,root,root)
-%{_libdir}/python*/site-packages/rpmdb
-%{_libdir}/python*/site-packages/rpmmodule.so
+%{_libdir}/python*/site-packages/rpm
 
-%files devel
+
+%files -n %{libname}
+%defattr(-,root,root)
+%{_libdir}/librpm-%{libver}.so
+%{_libdir}/librpmdb-%{libver}.so
+%{_libdir}/librpmio-%{libver}.so
+%{_libdir}/librpmbuild-%{libver}.so
+
+
+%files -n %{libname}-devel
 %defattr(-,root,root)
 #%doc apidocs/html
 %{_includedir}/rpm
@@ -782,39 +676,73 @@ fi
 %{_libdir}/librpmbuild.la
 %{_libdir}/librpmbuild.so
 %{_datadir}/man/man3/*
-%rpmattr	%{_prefix}/lib/rpm/rpmcache
-%rpmattr	%{_prefix}/lib/rpm/rpmdb_deadlock
-%rpmattr	%{_prefix}/lib/rpm/rpmdb_dump
-%rpmattr	%{_prefix}/lib/rpm/rpmdb_load
-%rpmattr	%{_prefix}/lib/rpm/rpmdb_loadcvt
-%rpmattr	%{_prefix}/lib/rpm/rpmdb_svc
-%rpmattr	%{_prefix}/lib/rpm/rpmdb_stat
-%rpmattr	%{_prefix}/lib/rpm/rpmdb_verify
-%rpmattr	%{_prefix}/lib/rpm/rpmfile
+%rpmattr	%{rpmdir}/rpmcache
+%rpmattr	%{rpmdir}/rpmdb_deadlock
+%rpmattr	%{rpmdir}/rpmdb_dump
+%rpmattr	%{rpmdir}/rpmdb_load
+%rpmattr	%{rpmdir}/rpmdb_loadcvt
+%rpmattr	%{rpmdir}/rpmdb_svc
+%rpmattr	%{rpmdir}/rpmdb_stat
+%rpmattr	%{rpmdir}/rpmdb_verify
+%rpmattr	%{rpmdir}/rpmfile
 %rpmattr	%{_bindir}/rpmgraph
 
-%files -n popt -f popt.lang
+
+%files -n popt-data -f popt.lang
 %defattr(-,root,root)
-%ifarch %{biarches}
-/lib/libpopt.so.*
-%{_prefix}/lib/libpopt.so.*
-%endif
+
+
+%files -n %{libpoptname}
+%defattr(-,root,root)
 /%{_lib}/libpopt.so.*
 %{_libdir}/libpopt.so.*
 
-%files -n popt-devel
+
+%files -n %{libpoptname}-devel
 %defattr(-,root,root)
 %{_includedir}/popt.h
-%ifarch %{biarches}
-%{_prefix}/lib/libpopt.a
-%{_prefix}/lib/libpopt.la
-%{_prefix}/lib/libpopt.so
-%endif
 %{_libdir}/libpopt.a
 %{_libdir}/libpopt.la
 %{_libdir}/libpopt.so
 
+
 %changelog
+* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 4.4.2-1avx
+- 4.4.2
+- Requires: rpm-annvix-setup
+- merge with mandrake cooker 4.4.2-3mdk:
+  - remove biarch; use mklibname (nanardon)
+  - don't patch the config anymore, use /usr/lib/rpm/VENDOR/rpmrc instead
+    (nanardon)
+  - remove many obsolete patches (nanardon)
+  - no longer provide update-alternatives
+  - more defined macros in the spec, less hardcoded patch (nanardon)
+  - force -fPIC on x86_64 for popt (nanardon)
+  - perform test for popt (nanardon)
+  - P67: fix build with gcc4
+  - BuildRequires: readline-devel (P. O. Karlsen)
+  - P68: allow the readinf of old rpms (nanardon)
+  - P62: adapt part of the coloring patch (rgarciasuarez)
+  - P69: fix a few french translations (rgarciasuarez)
+  - P70: allow rpm -bb --short-circuit (nanardon)
+  - remove locales files from libpopt (nanardon)
+  - P71: ordering transaction on erasure (nanardon)
+  - P72: rpm -[Ui] check files conflicts
+  - P73, P74: from Fedora, fixing bugs (nanardon)
+  - P76: allow rebuild db with --root option (rgarciasuarez)
+  - P77: allow to set root/root as owner of files in src.rpm
+  - move deps on unzip, make, and elfutils from rpm to rpm-build (rgarciasuarez)
+  - reworked P77 to allow %_srcdefattr as a macro for src.rpm (nanardon)
+  - removed P52, P67, P73, P78, P79: merged/fixed upstream (nanardon)
+  - removed P32, P33, P36: no more need to hack (nanardon)
+  - rename rpm-python to python-rpm (nanardon)
+  - use fnctl when not using futex (nanardon)
+  - use nptl only on a few arches (ppc*, x86_64, pentium3,4/athlon) (nanardon)
+  - P79: fix deadlock from RH bug #146549 (flepied)
+  - P80: fix #17774 (nanardon)
+  - P81, P82: should fix ordering issue (nanardon)
+  - BuildRequires: bzip2-devel (nanardon)
+
 * Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 4.2.3-9avx
 - bootstrap build (new gcc, new glibc)
 

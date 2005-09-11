@@ -1,0 +1,85 @@
+2005-05-10  Rafael Garcia-Suarez <rgarciasuarez@mandriva.com>
+
+	* only keep rpmfc.c part, since the internal file(1)
+	implementation was upgraded and repatched upstream, and doesn't
+	use the same libmagic, rendering the other part irrelevant.
+
+2005-01-27  Gwenole Beauchesne  <gbeauchesne@mandrakesoft.com>
+
+	MDK BZ/#13268
+	* build/rpmfc.c (rpmfcSCRIPT): Generate package requires only if
+	requested
+
+2005-01-20  Gwenole Beauchesne  <gbeauchesne@mandrakesoft.com>
+
+	* Enable files coloring even if the external dependencies
+	generator is used.
+	* Assign a color to *.so symlinks that are found in the usual
+	development libdirs.
+	* Likewise for static *.a archives if it includes ELF objects.
+
+--- rpm-4.4.1/build/rpmfc.c.coloring	2005-01-13 11:55:04.000000000 +0100
++++ rpm-4.4.1/build/rpmfc.c	2005-01-27 22:50:43.208284487 +0100
+@@ -437,6 +437,10 @@ static struct rpmfcTokens_s rpmfcTokens[
+   { " not stripped",		RPMFC_NOTSTRIPPED },
+   { " archive",			RPMFC_ARCHIVE },
+ 
++  { "ar archive with 32-bit ELF",	RPMFC_ELF32|RPMFC_STATIC|RPMFC_LIBRARY|RPMFC_ARCHIVE|RPMFC_INCLUDE },
++  { "ar archive with 64-bit ELF",	RPMFC_ELF64|RPMFC_STATIC|RPMFC_LIBRARY|RPMFC_ARCHIVE|RPMFC_INCLUDE },
++  { "symbolic link to ELF 32-bit",	RPMFC_ELF32|RPMFC_SYMLINK|RPMFC_INCLUDE },
++  { "symbolic link to ELF 64-bit",	RPMFC_ELF64|RPMFC_SYMLINK|RPMFC_INCLUDE },
+   { "ELF 32-bit",		RPMFC_ELF32|RPMFC_INCLUDE },
+   { "ELF 64-bit",		RPMFC_ELF64|RPMFC_INCLUDE },
+ 
+@@ -688,7 +692,7 @@ static int rpmfcSCRIPT(rpmfc fc)
+ 	*se = '\0';
+ 	se++;
+ 
+-	if (is_executable) {
++	if (is_executable && !fc->skipReq) {
+ 	    /* Add to package requires. */
+ 	    ds = rpmdsSingle(RPMTAG_REQUIRENAME, s, "", RPMSENSE_FIND_REQUIRES);
+ 	    xx = rpmdsMerge(&fc->requires, ds);
+@@ -765,6 +769,10 @@ static int rpmfcELF(rpmfc fc)
+     static int filter_GLIBC_PRIVATE = 0;
+     static int oneshot = 0;
+ 
++    /* Skip static archives and symlinks to DSOs.  */
++    if (fc->fcolor->vals[fc->ix] & (RPMFC_SYMLINK|RPMFC_STATIC|RPMFC_LIBRARY))
++	return 0;
++
+     if (oneshot == 0) {
+ 	oneshot = 1;
+ 	filter_GLIBC_PRIVATE = rpmExpandNumeric("%{?_filter_GLIBC_PRIVATE}");
+@@ -1429,6 +1437,7 @@ int rpmfcGenerateDepends(const Spec spec
+     char buf[BUFSIZ];
+     const char * N;
+     const char * EVR;
++    int externalDepsGenerator = 0;
+     int genConfigDeps;
+     int c;
+     int rc = 0;
+@@ -1445,9 +1454,10 @@ int rpmfcGenerateDepends(const Spec spec
+     /* If new-fangled dependency generation is disabled ... */
+     if (!rpmExpandNumeric("%{?_use_internal_dependency_generator}")) {
+ 	/* ... then generate dependencies using %{__find_requires} et al. */
++	externalDepsGenerator = 1;
+ 	rc = rpmfcGenerateDependsHelper(spec, pkg, fi);
+-	printDeps(pkg->header);
+-	return rc;
++	if (rc)
++	    return rc;
+     }
+ 
+     /* Extract absolute file paths in argv format. */
+@@ -1470,8 +1480,8 @@ int rpmfcGenerateDepends(const Spec spec
+ /*@=boundswrite@*/
+ 
+     fc = rpmfcNew();
+-    fc->skipProv = !pkg->autoProv;
+-    fc->skipReq = !pkg->autoReq;
++    fc->skipProv = externalDepsGenerator || !pkg->autoProv;
++    fc->skipReq = externalDepsGenerator || !pkg->autoReq;
+     fc->tracked = 0;
+ 
+     /* Copy (and delete) manually generated dependencies to dictionary. */
