@@ -9,7 +9,7 @@
 
 %define name		iputils
 %define version		20%{ver}
-%define release		10avx
+%define release		11avx
 %define ver		020927
 
 Summary:	Network monitoring tools including ping
@@ -108,21 +108,24 @@ install -c doc/tracepath.8 %{buildroot}%{_mandir}/man8/
 %defattr(-,root,root)
 %doc RELNOTES bonding*/README.ifenslave
 %{_sbindir}/clockdiff
-%attr(4755,root,root)	/bin/ping
+%attr(0700,root,root)	/bin/ping
 /sbin/arping
 %{_sbindir}/arping
 /sbin/ifenslave
 #%ifnarch ppc
-%attr(4755,root,root) %{_bindir}/ping6
+%attr(0700,root,root) %{_bindir}/ping6
 %{_sbindir}/tracepath6
 #%endif
 %{_sbindir}/tracepath
-%attr(4755,root,root) %{_sbindir}/traceroute6
+%attr(0700,root,root) %{_sbindir}/traceroute6
 %{_sbindir}/rdisc
 %{_mandir}/man8/*
 
 
 %changelog
+* Sun Sep 11 2005 Vincent Danen <vdanen@annvix.org> 20020927-11avx
+- strip suid bits from ping, ping6, and traceroute6
+
 * Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 20020927-10avx
 - bootstrap build (new gcc, new glibc)
 
