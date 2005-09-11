@@ -9,7 +9,7 @@
 
 %define name		sash
 %define version		3.7
-%define release 	1avx
+%define release 	2avx
 
 Summary:	A statically linked shell, including some built-in basic commands
 Name:		%{name}
@@ -75,6 +75,9 @@ install -m 0644 sash.1 %{buildroot}%{_mandir}/man8/sash.8
 
 
 %changelog
+* Sun Sep 11 2005 Vincent Danen <vdanen@annvix.org> 3.7-2avx
+- rebuild against new e2fsprogs-devel
+
 * Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 3.7-1avx
 - 3.7
 - P4: fix build with linux 2.6 (peroyvind)
