@@ -9,7 +9,7 @@
 
 %define name		gif2png
 %define version 	2.4.7
-%define release 	6avx
+%define release 	7avx
 
 Summary:	Tools for converting websites from using GIFs to using PNGs
 Name:		%{name}
@@ -57,6 +57,9 @@ also patching HTML pages to keep IMG SRC references correct.
 			 
 
 %changelog
+* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 2.4.7-7avx
+- rebuild against new libpng
+
 * Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 2.4.7-6avx
 - bootstrap build (new gcc, new glibc)
 
