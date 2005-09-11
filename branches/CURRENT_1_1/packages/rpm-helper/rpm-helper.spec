@@ -8,8 +8,8 @@
 
 
 %define name		rpm-helper
-%define version		0.10
-%define release		12avx
+%define version		0.13
+%define release		1avx
 
 Summary:	Helper scripts for rpm scriptlets
 Name:		%{name}
@@ -19,7 +19,7 @@ License:	GPL
 Group:		System/Configuration/Packaging
 URL:		http://www.mandrivalinux.com/
 Source0:	%{name}-%{version}.tar.bz2
-Patch0:		rpm-helper-0.9.1-avx-supervise.patch.bz2
+Patch0:		rpm-helper-0.13-avx-srv.patch.bz2
 
 BuildArch:	noarch
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -37,7 +37,7 @@ Helper scripts for rpm scriptlets to help create/remove :
 
 %prep
 %setup -q
-%patch0 -p0
+%patch0 -p0 -b .avx
 
 
 %build
@@ -58,9 +58,15 @@ chmod 0755 {add,del}-srv
 %doc README* ChangeLog AUTHORS
 %dir %{_datadir}/%{name}
 %{_datadir}/%{name}/*
+%{_sys_macros_dir}/%{name}.macros
 
 
 %changelog
+* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 0.13-1avx
+- 0.13
+- provide it's own macro
+- regen P0
+
 * Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 0.10-12avx
 - bootstrap build (new gcc, new glibc)
 
