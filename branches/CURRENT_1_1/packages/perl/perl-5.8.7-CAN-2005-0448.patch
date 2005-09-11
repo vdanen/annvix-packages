@@ -1,6 +1,24 @@
---- perl-5.8.5/lib/File/Path.pm.can-2005-0448	2003-08-14 00:00:52.000000000 -0600
-+++ perl-5.8.5/lib/File/Path.pm	2005-04-26 09:53:34.653188570 -0600
-@@ -72,27 +72,17 @@
+Patch by Gisle Aas for CAN-2005-0448
+Better version of the debian patch for the same advisory
+See :
+    Subject: File::Path's rmtree - CAN-2005-0448
+    From: Gisle Aas <gisle@ActiveState.com>
+    Date: 25 Jul 2005 08:07:11 -0700
+    Message-ID: <lrk6je53hc.fsf@caliper.activestate.com>
+    To: perl5-porters@perl.org
+
+--- lib/File/Path.pm	2005-05-05 09:16:20.000000000 -0700
++++ lib/File/Path.pm	2005-07-15 13:33:15.000000000 -0700
+@@ -33,7 +33,7 @@
+ =item *
+ 
+ the numeric mode to use when creating the directories
+-(defaults to 0777), to be modified by the current umask.
++(defaults to 0777)
+ 
+ =back
+ 
+@@ -72,33 +72,17 @@
  
  =item *
  
@@ -21,27 +39,36 @@
  It returns the number of files successfully deleted.  Symlinks are
  simply deleted and not followed.
  
--B<NOTE:> If the third parameter is not TRUE, C<rmtree> is B<unsecure>
--in the face of failure or interruption.  Files and directories which
--were not deleted may be left with permissions reset to allow world
--read and write access.  Note also that the occurrence of errors in
--rmtree can be determined I<only> by trapping diagnostic messages
--using C<$SIG{__WARN__}>; it is not apparent from the return value.
--Therefore, you must be extremely careful about using C<rmtree($foo,$bar,0)>
--in situations where security is an issue.
+-B<NOTE:> There are race conditions internal to the implementation of
+-C<rmtree> making it unsafe to use on directory trees which may be
+-altered or moved while C<rmtree> is running, and in particular on any
+-directory trees with any path components or subdirectories potentially
+-writable by untrusted users.
+-
+-Additionally, if the third parameter is not TRUE and C<rmtree> is
+-interrupted, it may leave files and directories with permissions altered
+-to allow deletion (and older versions of this module would even set
+-files and directories to world-read/writable!)
+-
+-Note also that the occurrence of errors in C<rmtree> can be determined I<only>
+-by trapping diagnostic messages using C<$SIG{__WARN__}>; it is not apparent
+-from the return value.
 -
  =head1 DIAGNOSTICS
  
  =over 4
-@@ -118,6 +108,7 @@
+@@ -124,8 +108,9 @@
  use Exporter ();
  use strict;
  use warnings;
 +use Cwd 'getcwd';
  
- our $VERSION = "1.06";
+-our $VERSION = "1.07";
++our $VERSION = "1.06";
  our @ISA = qw( Exporter );
-@@ -166,111 +157,129 @@
+ our @EXPORT = qw( mkpath rmtree );
+ 
+@@ -172,111 +157,150 @@
      @created;
  }
  
@@ -67,28 +94,15 @@
 -	    $root =~ s#([^:])\z#$1:#;
 -	} else {
 -	    $root =~ s#/\z##;
-+sub _rmtree;
-+sub _rmtree
-+{
-+    my ($path, $prefix, $up, $up_dev, $up_ino, $verbose, $safe) = @_;
-+
-+    my ($dev, $ino) = lstat $path or return 0;
-+    unless (-d _)
-+    {
-+	print "unlink $prefix$path\n" if $verbose;
-+	unless (unlink $path)
-+	{
-+	    carp "Can't remove file $prefix$path ($!)";
-+	    return 0;
- 	}
+-	}
 -	(undef, undef, my $rp) = lstat $root or next;
 -	$rp &= 07777;	# don't forget setuid, setgid, sticky bits
 -	if ( -d _ ) {
--	    # notabene: 0777 is for making readable in the first place,
+-	    # notabene: 0700 is for making readable in the first place,
 -	    # it's also intended to change it to writable in case we have
 -	    # to recurse in which case we are better than rm -rf for 
 -	    # subtrees with strange permissions
--	    chmod(0777, ($Is_VMS ? VMS::Filespec::fileify($root) : $root))
+-	    chmod($rp | 0700, ($Is_VMS ? VMS::Filespec::fileify($root) : $root))
 -	      or carp "Can't make directory $root read+writeable: $!"
 -		unless $safe;
 -
@@ -106,7 +120,7 @@
 -	        carp "Can't read $root: $!";
 -		@files = ();
 -	    }
- 
+-
 -	    # Deleting large numbers of files from VMS Files-11 filesystems
 -	    # is faster if done in reverse ASCIIbetical order 
 -	    @files = reverse @files if $Is_VMS;
@@ -122,7 +136,7 @@
 -		print "skipped $root\n" if $verbose;
 -		next;
 -	    }
--	    chmod 0777, $root
+-	    chmod $rp | 0700, $root
 -	      or carp "Can't make directory $root writeable: $!"
 -		if $force_writeable;
 -	    print "rmdir $root\n" if $verbose;
@@ -134,8 +148,25 @@
 -		chmod($rp, ($Is_VMS ? VMS::Filespec::fileify($root) : $root))
 -		    or carp("and can't restore permissions to "
 -		            . sprintf("0%o",$rp) . "\n");
--	    }
--	}
++sub _rmtree
++{
++    my ($path, $prefix, $up, $up_dev, $up_ino, $verbose, $safe) = @_;
++
++    my ($dev, $ino, $perm) = lstat $path or do {
++	return 0;
++    };
++    $perm &= 07777;
++
++    unless (-d _)
++    {
++	my $nperm;
++	if ($force_writeable) {
++	    # make the file writable
++	    $nperm = $perm | 0600;
++	    unless ($safe or $nperm == $perm or chmod $nperm, $path) {
++		carp "Can't make file $prefix$path writeable: $!";
+ 	    }
+ 	}
 -	else { 
 -	    if ($safe &&
 -		($Is_VMS ? !&VMS::Filespec::candelete($root)
@@ -144,7 +175,7 @@
 -		print "skipped $root\n" if $verbose;
 -		next;
 -	    }
--	    chmod 0666, $root
+-	    chmod $rp | 0600, $root
 -	      or carp "Can't make file $root writeable: $!"
 -		if $force_writeable;
 -	    print "unlink $root\n" if $verbose;
@@ -158,28 +189,43 @@
 -			            . sprintf("0%o",$rp) . "\n");
 -		    }
 -		    last;
--		}
++	print "unlink $prefix$path\n" if $verbose;
++	unless (unlink $path)
++	{
++	    carp "Can't remove file $prefix$path ($!)";
++	    if ($force_writeable) {
++		unless ($safe or $nperm == $perm or chmod $perm, $path) {
++		    carp("and can't restore permissions to "
++			 . sprintf("0%o",$perm) . "\n");
+ 		}
 -		++$count;
 -		last unless $Is_VMS && lstat $root;
--	    }
+ 	    }
++	    return 0;
++	}
 +	return 1;
 +    }
 +
-+    unless (chdir $path)
-+    {
-+	carp "Can't chdir to $prefix$path ($!)";
++    CHDIR: {
++	last CHDIR if chdir $path;
++	my $err = $!;
++	unless ($safe || ($perm & 0100)) { 
++	    # might be able to succeed by tweaking the permission
++	    # before we chdir
++	    last CHDIR if chmod(0700, $path) && chdir($path);
++	}
++	carp "Can't chdir to $prefix$path ($err)";
 +	return 0;
 +    }
 +
 +    # avoid a race condition where a directory may be replaced by a
-+    # symlink between the lstat and the chdir
-+    my ($new_dev, $new_ino, $perm) = stat '.';
++    # symlink between the initial lstat and the chdir
++    my ($new_dev, $new_ino) = stat '.';
 +    unless ("$new_dev:$new_ino" eq "$dev:$ino")
 +    {
 +	croak "Directory $prefix$path changed before chdir, aborting";
 +    }
 +
-+    $perm &= 07777;
 +    my $nperm = $perm | 0700;
 +    unless ($safe or $nperm == $perm or chmod $nperm, '.')
 +    {
@@ -195,17 +241,17 @@
 +	{
 +	    next if $entry =~ /^\.\.?$/;
 +	    $entry =~ /^(.*)$/s; $entry = $1; # untaint
-+	    $count += _rmtree $entry, "$prefix$path/", '..', $dev, $ino,
-+		$verbose, $safe;
++	    $count += _rmtree($entry, "$prefix$path/", '..', $dev, $ino,
++		$verbose, $safe);
  	}
 +
 +	closedir $dir;
 +    }
 +
-+    # restore directory permissions if required (in case the rmdir
++    # restore directory permissions is required (in case the rmdir
 +    # below fails) now, while we're still in the directory and may do
 +    # so without a race via '.'
-+    unless ($nperm == $perm or chmod $perm, '.')
++    unless ($force_writeable or $safe or $nperm == $perm or chmod $perm, '.')
 +    {
 +	carp "Can't restore permissions on directory $prefix$path ($!)";
 +    }
@@ -245,22 +291,22 @@
 +    my @paths = grep defined && length, @$p;
 +
 +    # default to "unsafe" for non-root (will chmod dirs)
-+    $safe = $> ? 0 : 1 unless defined $safe;
++    $safe = ($> || $force_writeable) ? 0 : 1 unless defined $safe;
 +
 +    unless (@paths)
 +    {
 +	carp "No root path(s) specified";
-+	return;
++	return 0;
 +    }
 +
 +    my $oldpwd = getcwd or do {
 +	carp "Can't fetch initial working directory";
-+	return;
++	return 0;
 +    };
 +
 +    my ($dev, $ino) = stat '.' or do {
 +	carp "Can't stat initial working directory";
-+	return;
++	return 0;
 +    };
 +
 +    # untaint
@@ -269,7 +315,7 @@
 +    my $count = 0;
 +    for my $path (@paths)
 +    {
-+	$count += _rmtree $path, '', $oldpwd, $dev, $ino, $verbose, $safe;
++	$count += _rmtree($path, '', $oldpwd, $dev, $ino, $verbose, $safe);
      }
  
      $count;

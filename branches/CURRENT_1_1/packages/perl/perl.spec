@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# cooker: perl-5.8.7-3mdk
 
 
 %define name		perl
-%define version		5.8.6
-%define release		6avx
+%define version		5.8.7
+%define release		1avx
 %define epoch		2
 
 %define rel		%nil
@@ -52,14 +53,11 @@ Patch20:	perl-5.8.4-use_gzip_layer.patch.bz2
 #(peroyvind) use -fPIC in stead of -fpic or else compile will fail on sparc (taken from redhat)
 Patch21:	perl-5.8.1-RC4-fpic-fPIC.patch.bz2
 Patch22:	perl-5.8.0-amd64.patch.bz2
-Patch23:	perl-5.8.6-patchlevel.patch.bz2
+Patch23:	perl-5.8.7-patchlevel.patch.bz2
 Patch24:	perl-5.8.4-no-test-fcgi.patch.bz2
 Patch25:	perl-5.8.5-RC1-cpan-signature-test.patch.bz2
 Patch26:	perl-5.8.5-removeemptyrpath.patch.bz2
-Patch27:	perl-5.8.6-23565.bz2
-Patch28:	perl-5.8.6-CAN-2005-0155_0156.patch.bz2
-Patch29:	perl-5.8.5-CAN-2005-0448.patch.bz2
-Patch30:	perl-5.8.6-CAN-2004-0976.patch.bz2
+Patch29:	perl-5.8.7-CAN-2005-0448.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 # for NDBM
@@ -71,7 +69,6 @@ BuildRequires:	devel(libgdbm_compat)
 %endif
 
 Requires:	perl-base = %{epoch}:%{version}-%{release}
-Requires:	%{name}-base
 Provides:	libperl.so
 Provides:	perl(getopts.pl)
 Provides:	perl(ctime.pl)
@@ -105,6 +102,16 @@ Provides:	perl(v5.6.0) perl(base) perl(bytes) perl(constant) perl(integer) perl(
 
 %description base
 This is the base package for %{name}.
+
+
+%package suid
+Summary:	The Perl programming language (suidperl)
+Group:		Development/Perl
+Requires:	%{name}-base = %{epoch}:%{version}-%{release}
+
+%description suid
+This is the package that provides suidperl, a secure way to
+write suid perl scripts.
 
 
 %package devel
@@ -141,10 +148,7 @@ This is the documentation package for %{name}.  It also contains the
 %patch24 -p0
 %patch25 -p0
 %patch26 -p0
-%patch27 -p1
-%patch28 -p0
-%patch29 -p1 
-%patch30 -p0
+%patch29 -p0
 
 %build
 %ifarch ppc
@@ -152,7 +156,7 @@ RPM_OPT_FLAGS=`echo "%{optflags}"|sed -e 's/-O2/-O1/g'`
 %endif
 
 sh Configure -des \
-    -Dinc_version_list="5.8.5 5.8.4 5.8.3 5.8.2 5.8.1 5.8.0 5.6.1 5.6.0" \
+    -Dinc_version_list="5.8.6 5.8.6/%{full_arch} 5.8.5 5.8.4 5.8.3 5.8.2 5.8.1 5.8.0 5.6.1 5.6.0" \
     -Darchname=%{arch}-%{_os} \
     -Dcc='%{__cc}' \
 %if %{debugging}
@@ -160,7 +164,10 @@ sh Configure -des \
 %else
     -Doptimize="%{optflags}" \
 %endif
-    -Dprefix=%{_prefix} -Dvendorprefix=%{_prefix} -Dsiteprefix=%{_prefix} \
+    -Dprefix=%{_prefix} -Dvendorprefix=%{_prefix} \
+    -Dsiteprefix=%{_prefix} -Dsitebin=%{_prefix}/local/bin \
+    -Dsiteman1dir=%{_prefix}/local/share/man/man1 \
+    -Dsiteman3dir=%{_prefix}/local/share/man/man3 \
     -Dotherlibdirs=/usr/local/lib/perl5:/usr/local/lib/perl5/site_perl \
     -Dman3ext=3pm \
     -Dcf_by=Annvix -Dmyhostname=localhost -Dperladmin=root@localhost -Dcf_email=root@localhost \
@@ -177,6 +184,7 @@ sh Configure -des \
   
 make
 
+#%check
 # for test, building a perl with no rpath
 # for test, unset RPM_BUILD_ROOT so that the MakeMaker trick is not triggered
 rm -f perl
@@ -200,12 +208,12 @@ find %{buildroot} -name "CGI*" | xargs rm -rf
 cp -f utils/h2ph utils/h2ph_patched
 bzcat %{SOURCE2} | patch -p1
 
-#%#ifarch x86_64
+%if 1
 # TODO figure out why the cleaner version with LD_PRELOAD doesn't work here.
 LD_LIBRARY_PATH=. ./perl -Ilib utils/h2ph_patched -a -d %{buildroot}%{perl_root}/%{version}/%{full_arch} `cat %{SOURCE1}` > /dev/null ||:
-#%#else
+%else
 #LD_PRELOAD=`pwd`/libperl.so ./perl -Ilib utils/h2ph_patched -a -d %{buildroot}%{perl_root}/%{version}/%{full_arch} `cat %{SOURCE1}` > /dev/null ||:
-#%#endif
+%endif
 
 (
     # i don't like hardlinks, having symlinks instead:
@@ -230,8 +238,6 @@ s=/usr/share/spec-helper/spec-helper ; [ -x $s ] && $s
 %{_bindir}/perl
 %{_bindir}/perl5
 %{_bindir}/perl%{version}
-%attr(4711,root,root) %{_bindir}/sperl%{version}
-%{_bindir}/suidperl
 %dir %{perl_root}
 %dir %{perl_root}/%{version}
 %dir %{perl_root}/%{version}/File
@@ -339,6 +345,7 @@ s=/usr/share/spec-helper/spec-helper ; [ -x $s ] && $s
 %ifarch x86_64
 %{perl_root}/%{version}/%{full_arch}/asm-i386/unistd.ph
 %{perl_root}/%{version}/%{full_arch}/asm-x86_64/unistd.ph
+%{perl_root}/%{version}/%{full_arch}/bits/wordsize.ph
 %endif
 %{perl_root}/%{version}/%{full_arch}/bits/syscall.ph
 %{perl_root}/%{version}/%{full_arch}/sys/syscall.ph
@@ -367,6 +374,18 @@ EOF
 %exclude %{_mandir}/man3/Pod::Perldoc::ToText.3pm.bz2
 %exclude %{_mandir}/man3/Pod::Perldoc::ToTk.3pm.bz2
 %exclude %{_mandir}/man3/Pod::Perldoc::ToXml.3pm.bz2
+%exclude %{perl_root}/%{version}/Pod/Perldoc.pm
+%exclude %{perl_root}/%{version}/Pod/Perldoc
+%exclude %{perl_root}/%{version}/Pod/Perldoc/BaseTo.pm
+%exclude %{perl_root}/%{version}/Pod/Perldoc/GetOptsOO.pm
+%exclude %{perl_root}/%{version}/Pod/Perldoc/ToChecker.pm
+%exclude %{perl_root}/%{version}/Pod/Perldoc/ToMan.pm
+%exclude %{perl_root}/%{version}/Pod/Perldoc/ToNroff.pm
+%exclude %{perl_root}/%{version}/Pod/Perldoc/ToPod.pm
+%exclude %{perl_root}/%{version}/Pod/Perldoc/ToRtf.pm
+%exclude %{perl_root}/%{version}/Pod/Perldoc/ToText.pm
+%exclude %{perl_root}/%{version}/Pod/Perldoc/ToTk.pm
+%exclude %{perl_root}/%{version}/Pod/Perldoc/ToXml.pm
 EOF
 
    cat > perl-doc.list <<EOF
@@ -492,7 +511,20 @@ EOF
 %files doc -f perl-doc.list
 %defattr(-,root,root)
 
+%files suid
+%{_bindir}/suidperl
+%attr(4711,0,0) %{_bindir}/sperl%{version}
+
+
 %changelog
+* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 5.8.7-1avx
+- 5.8.7
+- on x86_64, bits/syscall.ph requires bits/wordsize.ph (pixel)
+- dropped P27, P28, P30; merged upstream
+- updated P29 for new version
+- define sitebin to /usr/local/bin and siteman* to /use/local/share/man
+- put sperl and suidperl in their own perl-suid package
+
 * Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 5.8.6-6avx
 - bootstrap build (new gcc, new glibc)
 
