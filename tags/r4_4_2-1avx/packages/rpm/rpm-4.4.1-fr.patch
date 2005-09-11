@@ -1,0 +1,743 @@
+--- ./po/fr.po.trans	2005-07-21 03:48:42.000000000 +0200
++++ ./po/fr.po	2005-07-21 19:13:45.000000000 +0200
+@@ -52,7 +52,7 @@
+ #: build.c:242
+ #, c-format
+ msgid "File %s is not a regular file.\n"
+-msgstr "Fichier %s non régulier.\n"
++msgstr "Le fichier %s n'est pas un fichier régulier.\n"
+ 
+ #: build.c:251
+ #, c-format
+@@ -100,15 +100,15 @@
+ 
+ #: rpmqv.c:84
+ msgid "File tree walk options (with --ftswalk):"
+-msgstr ""
++msgstr "Options du parcours de l'arbre des fichiers (avec --ftswalk):"
+ 
+ #: rpmqv.c:90
+ msgid "Signature options:"
+-msgstr "Otions de signatures"
++msgstr "Options de signatures:"
+ 
+ #: rpmqv.c:96
+ msgid "Database options:"
+-msgstr "Options de la base de données"
++msgstr "Options de la base de données:"
+ 
+ #: rpmqv.c:102
+ msgid "Build options with [ <specfile> | <tarball> | <source package> ]:"
+@@ -118,7 +118,7 @@
+ 
+ #: rpmqv.c:108
+ msgid "Install/Upgrade/Erase options:"
+-msgstr "Options d'installation/désinstallation/mise à jour:"
++msgstr "Options d'installation/mise à jours/désinstallation:"
+ 
+ #: rpmqv.c:113 tools/rpmcache.c:525 tools/rpmdeps.c:35 tools/rpmgraph.c:275
+ msgid "Common options for all rpm modes and executables:"
+@@ -294,7 +294,7 @@
+ 
+ #: rpmqv.c:522
+ msgid "arguments to --root (-r) must begin with a /"
+-msgstr "les arguments ed --root (-r) doivent commencer par un /"
++msgstr "les arguments de --root (-r) doivent commencer par un /"
+ 
+ #: rpmqv.c:546
+ #, c-format
+@@ -843,7 +843,7 @@
+ #: build/parseDescription.c:47
+ #, c-format
+ msgid "line %d: Error parsing %%description: %s\n"
+-msgstr "ligne %d: erreur dans l'analyxe syntaxique de la %%description: %s\n"
++msgstr "ligne %d: erreur dans l'analyse syntaxique de la %%description: %s\n"
+ 
+ #: build/parseDescription.c:60 build/parseFiles.c:56 build/parseScript.c:222
+ #, c-format
+@@ -1115,7 +1115,7 @@
+ #: build/parseScript.c:296
+ #, fuzzy, c-format
+ msgid "line %d: unsupported internal script: %s\n"
+-msgstr "ligne %d: erreur dans l'analyxe syntaxique de la %%description: %s\n"
++msgstr "ligne %d: erreur dans l'analyse syntaxique de la %%description: %s\n"
+ 
+ #: build/parseSpec.c:201
+ #, c-format
+@@ -1365,7 +1365,7 @@
+ #, c-format
+ msgid "query of specfile %s failed, can't parse\n"
+ msgstr ""
+-"échec de la requête sur le fichier spec %s, impossible de faire l'analyser "
++"échec de la requête sur le fichier spec %s, impossible de faire l'analyse "
+ "syntaxique\n"
+ 
+ #: lib/cpio.c:207
+@@ -1375,7 +1375,7 @@
+ 
+ #: lib/cpio.c:210
+ msgid "Bad magic"
+-msgstr "Mauvaise magie, blah"
++msgstr "Mauvais caractères magiques"
+ 
+ #: lib/cpio.c:211
+ msgid "Bad/unreadable  header"
+@@ -1412,18 +1412,18 @@
+ #: lib/depends.c:205
+ #, fuzzy, c-format
+ msgid "package %s was already added, skipping %s\n"
+-msgstr "le paquetage %s a déjà été rajouté, replacé par %s\n"
++msgstr "le paquetage %s a déjà été ajouté, %s ignoré\n"
+ 
+ #: lib/depends.c:219
+ #, c-format
+ msgid "package %s was already added, replacing with %s\n"
+-msgstr "le paquetage %s a déjà été rajouté, replacé par %s\n"
++msgstr "le paquetage %s a déjà été ajouté, %s ignoré\n"
+ 
+ #. @-nullptrarith@
+ #: lib/depends.c:364
+ #, c-format
+ msgid "  Obsoletes: %s\t\terases %s\n"
+-msgstr ""
++msgstr "  Obsolètes: %s\t\tdésinstalle %s\n"
+ 
+ #: lib/depends.c:456
+ msgid "(cached)"
+@@ -1453,12 +1453,12 @@
+ #, c-format
+ msgid "ignore package name relation(s) [%d]\t%s -> %s\n"
+ msgstr ""
+-"ignorer la(les) relation(s) entre les noms de paquetages [%d]\t%s -> %s\n"
++"ignore la(les) relation(s) entre les noms de paquetages [%d]\t%s -> %s\n"
+ 
+ #: lib/depends.c:1036
+ #, c-format
+ msgid "removing %s \"%s\" from tsort relations.\n"
+-msgstr "on enlève %s \"%s\" des relations de Ttri.\n"
++msgstr "on enlève %s \"%s\" des relations de tri.\n"
+ 
+ #. Record all relations.
+ #: lib/depends.c:1273
+@@ -1486,13 +1486,13 @@
+ 
+ #: lib/depends.c:1564
+ msgid "========== continuing tsort ...\n"
+-msgstr "========== continuation du Ttri ...\n"
++msgstr "========== continuation du tri ...\n"
+ 
+ #. Return no. of packages that could not be ordered.
+ #: lib/depends.c:1569
+ #, c-format
+ msgid "rpmtsOrder failed, %d elements remain\n"
+-msgstr "échec de rpmtsOrder, %d éléments toujours présents\n"
++msgstr "rpmtsOrder a echoué, %d éléments toujours présents\n"
+ 
+ #: lib/formats.c:39 lib/formats.c:71 lib/formats.c:106 lib/formats.c:520
+ #: rpmdb/header.c:3546 rpmdb/header.c:3575 rpmdb/header.c:3599
+@@ -1509,7 +1509,7 @@
+ 
+ #: lib/formats.c:206 lib/formats.c:406
+ msgid "(not a blob)"
+-msgstr "(spa un blob ça)"
++msgstr "(pas un blob)"
+ 
+ #: lib/formats.c:338
+ msgid "(invalid xml type)"
+@@ -1527,7 +1527,7 @@
+ #: lib/fs.c:92
+ #, c-format
+ msgid "mntctl() failed to return mount points: %s\n"
+-msgstr "mntctl() n'a pu renvoyer les points de montage: %s\n"
++msgstr "mntctl() n'a pas pu renvoyer les points de montage: %s\n"
+ 
+ #: lib/fs.c:112 lib/fs.c:213 lib/fs.c:332
+ #, c-format
+@@ -1542,7 +1542,7 @@
+ #: lib/fs.c:230
+ #, c-format
+ msgid "%5d 0x%04x %s %s\n"
+-msgstr ""
++msgstr "%5d 0x%04x %s %s\n"
+ 
+ #: lib/fs.c:355
+ #, c-format
+@@ -1557,7 +1557,7 @@
+ #: lib/fsm.c:354
+ #, c-format
+ msgid "%10d %s\n"
+-msgstr ""
++msgstr "%10d %s\n"
+ 
+ #: lib/fsm.c:773
+ #, c-format
+@@ -1572,12 +1572,12 @@
+ #: lib/fsm.c:1350
+ #, fuzzy, c-format
+ msgid "%s directory created with perms %04o, no context.\n"
+-msgstr "le répertoire %s a été créé avec les permissions %04o.\n"
++msgstr "le répertoire %s a été créé avec les permissions %04o, (aucun contexte).\n"
+ 
+ #: lib/fsm.c:1354
+ #, fuzzy, c-format
+ msgid "%s directory created with perms %04o, context %s.\n"
+-msgstr "le répertoire %s a été créé avec les permissions %04o.\n"
++msgstr "le répertoire %s a été créé avec les permissions %04o, contexte %s.\n"
+ 
+ #: lib/fsm.c:1657
+ #, c-format
+@@ -1602,7 +1602,7 @@
+ #: lib/fsm.c:1968
+ #, c-format
+ msgid "%s unlink of %s failed: %s\n"
+-msgstr "%s n'a pu délier %s: %s\n"
++msgstr "%s n'a pas pu délier %s: %s\n"
+ 
+ #: lib/fsm.c:1990
+ #, c-format
+@@ -1612,7 +1612,7 @@
+ #: lib/manifest.c:133
+ #, fuzzy, c-format
+ msgid "adding %d args from manifest.\n"
+-msgstr "rajout de %d entrées à l'index %s.\n"
++msgstr "rajout de %d arguments du manifeste.\n"
+ 
+ #: lib/misc.c:41
+ #, c-format
+@@ -1632,27 +1632,27 @@
+ #: lib/package.c:363
+ #, c-format
+ msgid "blob size(%d): BAD, 8 + 16 * il(%d) + dl(%d)\n"
+-msgstr ""
++msgstr "taille du blob(%d): MAUVAIS, 8 + 16 * il(%d) + dl(%d)\n"
+ 
+ #: lib/package.c:372 lib/package.c:436 lib/package.c:513 lib/signature.c:233
+ #, c-format
+ msgid "tag[%d]: BAD, tag %d type %d offset %d count %d\n"
+-msgstr ""
++msgstr "tag[%d]: MAUVAIS, tag %d type %d décalage %d nombre %d\n"
+ 
+ #: lib/package.c:392 lib/signature.c:249
+ #, c-format
+ msgid "region offset: BAD, tag %d type %d offset %d count %d\n"
+-msgstr ""
++msgstr "décalage de region: MAUVAIS, tag %d type %d décalage %d nombre %d\n"
+ 
+ #: lib/package.c:413 lib/signature.c:276
+ #, c-format
+ msgid "region trailer: BAD, tag %d type %d offset %d count %d\n"
+-msgstr ""
++msgstr "fin de région: MAUVAIS, tag %d type %d décalage %d nombre %d\n"
+ 
+ #: lib/package.c:427 lib/signature.c:290
+ #, c-format
+ msgid "region size: BAD, ril(%d) > il(%d)\n"
+-msgstr ""
++msgstr "taille de la région: MAUVAISE, ril(%d) > il(%d)\n"
+ 
+ #: lib/package.c:455
+ #, c-format
+@@ -1678,32 +1678,32 @@
+ #: lib/package.c:673
+ #, c-format
+ msgid "hdr size(%d): BAD, read returned %d\n"
+-msgstr "hdr taille(%d): PASBON, la lecture renvoie %d\n"
++msgstr "hdr taille(%d): MAUVAIS, la lecture renvoie %d\n"
+ 
+ #: lib/package.c:677
+ #, c-format
+ msgid "hdr magic: BAD\n"
+-msgstr ""
++msgstr "caractère magiques du hdr: MAUVAIS\n"
+ 
+ #: lib/package.c:685
+ #, c-format
+ msgid "hdr tags: BAD, no. of tags(%d) out of range\n"
+-msgstr ""
++msgstr "hdr tags: MAUVAIS, no. d'octets(%d) en dehors des limites\n"
+ 
+ #: lib/package.c:694
+ #, c-format
+ msgid "hdr data: BAD, no. of bytes(%d) out of range\n"
+-msgstr ""
++msgstr "hdr données: MAUVAIS, no. d'octets(%d) en dehors des limites\n"
+ 
+ #: lib/package.c:708
+ #, c-format
+ msgid "hdr blob(%d): BAD, read returned %d\n"
+-msgstr "hdr blob(%d): PASBON, la lecture renvoie %d\n"
++msgstr "hdr blob(%d): MAUVAIS, la lecture renvoie %d\n"
+ 
+ #: lib/package.c:721
+ #, c-format
+ msgid "hdr load: BAD\n"
+-msgstr ""
++msgstr "chargement du header: Mauvais\n"
+ 
+ #: lib/package.c:790
+ msgid "packaging version 1 is not supported by this version of RPM\n"
+@@ -1714,7 +1714,7 @@
+ msgid ""
+ "only packaging with major numbers <= 4 is supported by this version of RPM\n"
+ msgstr ""
+-"seuls les emaballages avec un numéro de version majeur <= 4 sont supportés "
++"seuls les paquets avec un numéro de version majeur <= 4 sont supportés "
+ "par cette version de rpm\n"
+ 
+ #: lib/package.c:811 lib/rpmchecksig.c:229 lib/rpmchecksig.c:765
+@@ -1745,37 +1745,37 @@
+ #: lib/poptALL.c:232
+ #, fuzzy
+ msgid "FTS_LOGICAL: logical walk"
+-msgstr "marche logique"
++msgstr "FTS_LOGICAL: marche logique"
+ 
+ #: lib/poptALL.c:234
+ #, fuzzy
+ msgid "FTS_NOCHDIR: don't change directories"
+-msgstr "ne pas modifier les répertoires"
++msgstr "FTS_NOCHDIR: ne pas modifier les répertoires"
+ 
+ #: lib/poptALL.c:236
+ #, fuzzy
+ msgid "FTS_NOSTAT: don't get stat info"
+-msgstr "ne pas prendre les info stat"
++msgstr "FTS_NOSTAT: ne pas prendre les info stat"
+ 
+ #: lib/poptALL.c:238
+ #, fuzzy
+ msgid "FTS_PHYSICAL: physical walk"
+-msgstr "marche physique"
++msgstr "FTS_PHYSICAL: marche physique"
+ 
+ #: lib/poptALL.c:240
+ #, fuzzy
+ msgid "FTS_SEEDOT: return dot and dot-dot"
+-msgstr "renvoyer point et point-point"
++msgstr "FTS_SEEDOT: renvoyer point et point-point"
+ 
+ #: lib/poptALL.c:242
+ #, fuzzy
+ msgid "FTS_XDEV: don't cross devices"
+-msgstr "ne mélanger pas les périphériques"
++msgstr "FTS_XDEV: ne pas mélanger les périphériques"
+ 
+ #: lib/poptALL.c:244
+ #, fuzzy
+ msgid "FTS_WHITEOUT: return whiteout information"
+-msgstr "ne pas renvoyer d'information"
++msgstr "FTS_WHITEOUT: ne pas renvoyer d'information"
+ 
+ #: lib/poptALL.c:260
+ msgid "predefine MACRO with value EXPR"
+@@ -1791,7 +1791,7 @@
+ 
+ #: lib/poptALL.c:266
+ msgid "print macro expansion of EXPR"
+-msgstr "affiche la macro-expansion d'EXPR"
++msgstr "affiche l'extension de la macro EXPR"
+ 
+ #: lib/poptALL.c:267
+ msgid "'EXPR'"
+@@ -1799,7 +1799,7 @@
+ 
+ #: lib/poptALL.c:269 lib/poptALL.c:288 lib/poptALL.c:292
+ msgid "read <FILE:...> instead of default file(s)"
+-msgstr "Lire <FICHIER:...> au lieu du(des) fichier(s) par défaut"
++msgstr "lire <FICHIER:...> au lieu du(des) fichier(s) par défaut"
+ 
+ #: lib/poptALL.c:270 lib/poptALL.c:289 lib/poptALL.c:293
+ msgid "<FILE:...>"
+@@ -1861,12 +1861,12 @@
+ 
+ #: lib/poptALL.c:327
+ msgid "debug argv collections"
+-msgstr ""
++msgstr "débogue l'ensemble des argv"
+ 
+ #: lib/poptALL.c:329
+ #, fuzzy
+ msgid "debug WebDAV data stream"
+-msgstr "déboguer le flux de données du protocole"
++msgstr "déboguer le flux de données WebDAV"
+ 
+ #: lib/poptALL.c:334
+ msgid "debug option/argument processing"
+@@ -1905,7 +1905,7 @@
+ 
+ #: lib/poptI.c:88
+ msgid "relocations must contain a ="
+-msgstr "les relogement doivent contenir un ="
++msgstr "les relogements doivent contenir un ="
+ 
+ #: lib/poptI.c:91
+ msgid "relocations must have a / following the ="
+@@ -1913,20 +1913,20 @@
+ 
+ #: lib/poptI.c:106
+ msgid "rollback takes a time/date stamp argument"
+-msgstr "le roulement arrière prend comme argument une date"
++msgstr "le retourd en arrière prend comme argument une date"
+ 
+ #: lib/poptI.c:113
+ msgid "malformed rollback time/date stamp argument"
+-msgstr "argument date du roulement arrière malformé"
++msgstr "argument date/heure du retourd en arrière malformé"
+ 
+ #: lib/poptI.c:169
+ msgid "add suggested packages to transaction"
+-msgstr "rajouter à la transaction les paquetages suggérés"
++msgstr "ajouter à la transaction les paquetages suggérés"
+ 
+ #: lib/poptI.c:173
+ msgid "install all files, even configurations which might otherwise be skipped"
+ msgstr ""
+-"installer tous les fichiers, meme si les configurations disent le contraire"
++"installer tous les fichiers, même si les configurations disent le contraire"
+ 
+ #: lib/poptI.c:177
+ msgid ""
+@@ -1951,7 +1951,7 @@
+ 
+ #: lib/poptI.c:195
+ msgid "print dependency loops as warning"
+-msgstr ""
++msgstr "afficher les boucles de dépendances comme des notices"
+ 
+ #: lib/poptI.c:199
+ msgid "save erased package files by renaming into sub-directory"
+@@ -1961,7 +1961,7 @@
+ 
+ #: lib/poptI.c:202
+ msgid "erase (uninstall) package"
+-msgstr "désinstaller un paquetage"
++msgstr "effacer (désinstaller) un paquetage"
+ 
+ #: lib/poptI.c:202
+ msgid "<package>+"
+@@ -1977,7 +1977,7 @@
+ 
+ #: lib/poptI.c:210
+ msgid "skip files with leading component <path> "
+-msgstr "sauter les fichiers commence par le <chemin> indiqué"
++msgstr "sauter les fichiers commençant par le <chemin> indiqué"
+ 
+ #: lib/poptI.c:211
+ msgid "<path>"
+@@ -2133,7 +2133,7 @@
+ 
+ #: lib/poptI.c:322
+ msgid "ignore file conflicts between packages"
+-msgstr ""
++msgstr "ignorer les conflits de fichiers entre paquetages"
+ 
+ #: lib/poptI.c:325
+ msgid "reinstall if the package is already present"
+@@ -2167,44 +2167,44 @@
+ 
+ #: lib/poptQV.c:107
+ msgid "query/verify package(s) owning file"
+-msgstr "vérifier/demander un package possèdant un fichier"
++msgstr "demander/vérifier un package possédant un fichier"
+ 
+ #: lib/poptQV.c:109
+ msgid "query/verify package(s) in group"
+-msgstr "vérifier/questionner le(s) paquetage(s) d'un même groupe"
++msgstr "demander/vérifier le(s) paquetage(s) d'un même groupe"
+ 
+ #: lib/poptQV.c:111
+ msgid "query/verify a package file"
+-msgstr "vérifier/questionner un fichier paquetage"
++msgstr "demander/vérifier un fichier paquetage"
+ 
+ #: lib/poptQV.c:114
+ #, fuzzy
+ msgid "query/verify package(s) from TOP file tree walk"
+ msgstr ""
+-"questionner/vérifier le(s) paquetage(s) à partir de la transaction "
++"demander/vérifier le(s) paquetage(s) à partir de la transaction "
+ "d'installation"
+ 
+ #: lib/poptQV.c:116
+ #, fuzzy
+ msgid "query/verify package(s) from system HDLIST"
+ msgstr ""
+-"questionner/vérifier le(s) paquetage(s) à partir de la transaction "
++"demander/vérifier le(s) paquetage(s) à partir de la transaction "
+ "d'installation"
+ 
+ #: lib/poptQV.c:119
+ msgid "query/verify package(s) with package identifier"
+ msgstr ""
+-"questionner/vérifier le(s) paquetage(s) grâce à un identifieur de paquetage"
++"demander/vérifier le(s) paquetage(s) grâce à un identifieur de paquetage"
+ 
+ #: lib/poptQV.c:121
+ msgid "query/verify package(s) with header identifier"
+ msgstr ""
+-"questionner/vérifier le(s) paquetage(s) grâce à un identifieur d'entête"
++"demander/vérifier le(s) paquetage(s) grâce à un identifieur d'entête"
+ 
+ #: lib/poptQV.c:123
+ msgid "query/verify package(s) with file identifier"
+ msgstr ""
+-"questionner/vérifier le(s) paquetage(s) grâce à un identifieur de fichier"
++"demander/vérifier le(s) paquetage(s) grâce à un identifieur de fichier"
+ 
+ #: lib/poptQV.c:126
+ msgid "rpm query mode"
+@@ -2212,11 +2212,11 @@
+ 
+ #: lib/poptQV.c:128
+ msgid "query/verify a header instance"
+-msgstr "questionner/vérifier une instance d'entête"
++msgstr "demander/vérifier une instance d'entête"
+ 
+ #: lib/poptQV.c:130
+ msgid "query a spec file"
+-msgstr "questionner un fichier spec"
++msgstr "demander un fichier spec"
+ 
+ #: lib/poptQV.c:130
+ msgid "<spec>"
+@@ -2225,12 +2225,12 @@
+ #: lib/poptQV.c:132
+ msgid "query/verify package(s) from install transaction"
+ msgstr ""
+-"questionner/vérifier le(s) paquetage(s) à partir de la transaction "
++"demander/vérifier le(s) paquetage(s) à partir de la transaction "
+ "d'installation"
+ 
+ #: lib/poptQV.c:134
+ msgid "query the package(s) triggered by the package"
+-msgstr "questionner le(s) paquetage(s) surveillé(s) par le paquetage"
++msgstr "demander le(s) paquetage(s) surveillé(s) par le paquetage"
+ 
+ #: lib/poptQV.c:136
+ msgid "rpm verify mode"
+@@ -2246,11 +2246,11 @@
+ 
+ #: lib/poptQV.c:143
+ msgid "create transaction set"
+-msgstr ""
++msgstr "créer une transaction"
+ 
+ #: lib/poptQV.c:145
+ msgid "do not order transaction set"
+-msgstr ""
++msgstr "ne pas trier la transation"
+ 
+ #: lib/poptQV.c:147
+ #, fuzzy
+@@ -2259,12 +2259,12 @@
+ 
+ #: lib/poptQV.c:149
+ msgid "do not process non-package files as manifests"
+-msgstr ""
++msgstr "ne pas traiter fichiers qui ne sont pas des paquetages comme des manifestes"
+ 
+ #: lib/poptQV.c:151
+ #, fuzzy
+ msgid "do not read headers"
+-msgstr "%s: impossible de lire l'entête à 0x%x\n"
++msgstr "ne pas lire les entêtes"
+ 
+ #: lib/poptQV.c:258
+ msgid "list all configuration files"
+@@ -2272,7 +2272,7 @@
+ 
+ #: lib/poptQV.c:260
+ msgid "list all documentation files"
+-msgstr "lister les fichiers documents"
++msgstr "lister les fichiers de documentation"
+ 
+ #: lib/poptQV.c:262
+ msgid "dump basic file information"
+@@ -2285,17 +2285,17 @@
+ #: lib/poptQV.c:271
+ #, c-format
+ msgid "skip %%ghost files"
+-msgstr "éviter les fichiers fantômes %%ghost"
++msgstr "sauter les fichiers fantômes %%ghost"
+ 
+ #: lib/poptQV.c:275
+ #, c-format
+ msgid "skip %%license files"
+-msgstr "éviter les fichiers %%license"
++msgstr "sauter les fichiers %%license"
+ 
+ #: lib/poptQV.c:278
+ #, c-format
+ msgid "skip %%readme files"
+-msgstr "éviter les fichier %%readme"
++msgstr "sauter les fichier %%readme"
+ 
+ #: lib/poptQV.c:284
+ msgid "use the following query format"
+@@ -2381,7 +2381,7 @@
+ 
+ #: lib/poptQV.c:410
+ msgid "generate signature"
+-msgstr "génération de signature"
++msgstr "générer une signature"
+ 
+ #: lib/psm.c:281
+ msgid "source package expected, binary found\n"
+@@ -2394,22 +2394,22 @@
+ #: lib/psm.c:485
+ #, c-format
+ msgid "%s: waitpid(%d) rc %d status %x secs %u.%03u\n"
+-msgstr ""
++msgstr "%s: waitpid(%d) rc %d status %x secs %u.%03u\n"
+ 
+ #: lib/psm.c:641
+ #, fuzzy, c-format
+ msgid "%s: %s(%s-%s-%s.%s) running <lua> scriptlet.\n"
+-msgstr "%s: %s(%s-%s-%s) début du scriplet %ssynchrone\n"
++msgstr "%s: %s(%s-%s-%s,%s) exécution du scriptler <lua>\n"
+ 
+ #: lib/psm.c:659
+ #, fuzzy, c-format
+ msgid "%s: %s(%s-%s-%s.%s) skipping redundant \"%s\".\n"
+-msgstr "%s: %s(%s-%s-%s) redondance ignorée \"%s\".\n"
++msgstr "%s: %s(%s-%s-%s.%s) redondance ignorée \"%s\".\n"
+ 
+ #: lib/psm.c:667
+ #, fuzzy, c-format
+ msgid "%s: %s(%s-%s-%s.%s) %ssynchronous scriptlet start\n"
+-msgstr "%s: %s(%s-%s-%s) début du scriplet %ssynchrone\n"
++msgstr "%s: %s(%s-%s-%s.%s) début du scriplet %ssynchrone\n"
+ 
+ #: lib/psm.c:879
+ #, c-format
+@@ -2419,17 +2419,17 @@
+ #: lib/psm.c:919
+ #, fuzzy, c-format
+ msgid "%s(%s-%s-%s.%s) scriptlet failed, waitpid(%d) rc %d: %s\n"
+-msgstr "%s(%s-%s-%s) échec du scriptlet, waitpid(%d) rc %d: %s\n"
++msgstr "%s(%s-%s-%s.%s) échec du scriptlet, waitpid(%d) rc %d: %s\n"
+ 
+ #: lib/psm.c:926
+ #, fuzzy, c-format
+ msgid "%s(%s-%s-%s.%s) scriptlet failed, signal %d\n"
+-msgstr "%s(%s-%s-%s) échec du scriplet, code de sortie %d\n"
++msgstr "%s(%s-%s-%s.%s) échec du scriplet, code de sortie %d\n"
+ 
+ #: lib/psm.c:930
+ #, fuzzy, c-format
+ msgid "%s(%s-%s-%s.%s) scriptlet failed, exit status %d\n"
+-msgstr "%s(%s-%s-%s) échec du scriplet, code de sortie %d\n"
++msgstr "%s(%s-%s-%s.%s) échec du scriplet, code de sortie %d\n"
+ 
+ #: lib/psm.c:1364
+ #, c-format
+@@ -2452,7 +2452,7 @@
+ 
+ #: lib/psm.c:1729
+ msgid " on file "
+-msgstr " dans fichier "
++msgstr " dans le fichier "
+ 
+ #: lib/psm.c:1915
+ #, c-format
+@@ -2467,12 +2467,12 @@
+ #: lib/psm.c:2106
+ #, c-format
+ msgid "Attempting to mark %s as installed in score board(%u).\n"
+-msgstr ""
++msgstr "Essaye de marquer %s comme installé dans la table de score (%u).\n"
+ 
+ #: lib/psm.c:2139
+ #, c-format
+ msgid "Attempting to mark %s as erased in score board(0x%x).\n"
+-msgstr ""
++msgstr "Essaye de marquer %s comme désinstaller dans la table des scores(0x%x).\n"
+ 
+ #: lib/query.c:123 lib/rpmts.c:632
+ #, c-format
+@@ -2837,7 +2837,7 @@
+ #: lib/rpminstall.c:586
+ #, fuzzy, c-format
+ msgid "\tadded binary package [%d]\n"
+-msgstr "installation des paquetages binaires\n"
++msgstr "\tajout des paquetages binaires [%d]\n"
+ 
+ #: lib/rpminstall.c:591
+ #, c-format
+@@ -2891,14 +2891,14 @@
+ 
+ #: lib/rpminstall.c:1290 lib/transaction.c:1065
+ msgid "Cleaning up repackaged packages:\n"
+-msgstr ""
++msgstr "Nettoyage des paquetages réempaquetés\n"
+ 
+ #. @innercontinue@
+ #. XXX can't happen
+ #: lib/rpminstall.c:1297 lib/transaction.c:1071
+ #, fuzzy, c-format
+ msgid "\tRemoving %s:\n"
+-msgstr "Récupération de %s\n"
++msgstr "\tEnlèvement de %s\n"
+ 
+ #: lib/rpmlead.c:56
+ #, c-format
+@@ -2938,7 +2938,7 @@
+ #: lib/rpmlibprov.c:47
+ msgid "the scriptlet interpreter can use arguments from header."
+ msgstr ""
+-"l'interprète du scriptlet peut utiliser des arguments à partir des entêtes."
++"l'interprèteur du scriptlet peut utiliser des arguments à partir des entêtes."
+ 
+ #: lib/rpmlibprov.c:50
+ msgid "a hardlink file set may be installed without being complete."
+@@ -2953,7 +2953,7 @@
+ #: lib/rpmlibprov.c:56
+ #, fuzzy
+ msgid "internal support for lua scripts."
+-msgstr "- non supporté sur des chaînes de caractères\n"
++msgstr "support interne des scripts lua\n"
+ 
+ #. @observer@
+ #: lib/rpmps.c:200
+@@ -3125,7 +3125,7 @@
+ #: lib/rpmrc.c:1818
+ #, c-format
+ msgid "Cannot read %s, HOME is too large.\n"
+-msgstr "Impossible de lire %s, HOME trop gros.\n"
++msgstr "Impossible de lire %s, HOME est trop gros.\n"
+ 
+ #: lib/rpmrc.c:1835
+ #, c-format
+@@ -3135,12 +3135,12 @@
+ #: lib/rpmsx.c:374
+ #, c-format
+ msgid "%s:  no newline on line number %d (only read %s)\n"
+-msgstr ""
++msgstr "%s:  pas de retour chariot à la ligne %d (lu seulement %s)\n"
+ 
+ #: lib/rpmsx.c:391
+ #, c-format
+ msgid "%s:  line number %d is missing fields (only read %s)\n"
+-msgstr ""
++msgstr "%s: champ manquant à la ligne %d (lu seulement %s)\n"
+ 
+ #: lib/rpmsx.c:424
+ #, c-format
+@@ -4066,7 +4066,7 @@
+ #: rpmio/macro.c:1355
+ #, c-format
+ msgid "A %% is followed by an unparseable macro\n"
+-msgstr "Un %% est suivi d'une macro in-analysable\n"
++msgstr "Un %% est suivi d'une macro malformée\n"
+ 
+ #: rpmio/macro.c:1512
+ #, c-format
+@@ -4207,7 +4207,7 @@
+ 
+ #: tools/rpmcache.c:515 tools/rpmgraph.c:268
+ msgid "don't verify header+payload signature"
+-msgstr "ne pas vérifier la signature de l'entete+charge_utile"
++msgstr "ne pas vérifier la signature de l'entête+charge_utile"
+ 
+ #: tools/rpmcache.c:518
+ msgid "don't update cache database, only print package paths"
