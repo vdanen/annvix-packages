@@ -9,7 +9,7 @@
 
 %define name		common-licenses
 %define version 	1.0
-%define release 	12avx
+%define release 	13avx
 
 Summary:	Contains the various common licenses uses by the distribution
 Name:		%{name}
@@ -50,6 +50,12 @@ cp -a %{name} %{buildroot}%{_datadir}
 
 
 %changelog
+* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 1.0-13avx
+- FSF has changed it's address
+- updated GPL from http://www.gnu.org/licenses/gpl.txt
+- added GNU Free Documentation License (GFDL)
+- added the Apache v2 license
+
 * Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 1.0-12avx
 - bootstrap build (new gcc, new glibc)
 
