@@ -9,7 +9,7 @@
 
 %define name		nfs-utils
 %define	version		1.0.7
-%define release		1avx
+%define release		2avx
 %define epoch		1
 
 Summary:	The utilities for Linux NFS server
@@ -309,6 +309,9 @@ fi
 
 
 %changelog
+* Sun Sep 11 2005 Vincent Danen <vdanen@annvix.org> 1.0.7-2avx
+- rebuild
+
 * Sat Aug 27 2005 Vincent Danen <vdanen@annvix.org> 1.0.7-1avx
 - 1.0.7
 - don't package postscript docs
