@@ -9,14 +9,14 @@
 
 %define name		automake%{amversion}
 %define version 	1.7.9
-%define release 	4avx
+%define release 	5avx
 
 %define amversion 	1.7
 
 %define docheck		0
 %{?_with_check: %global docheck 1}
 
-%define alternatives_install_cmd update-alternatives --install %{_bindir}/automake automake %{_bindir}/automake-%{amversion} 10 --slave %{_bindir}/aclocal aclocal %{_bindir}/aclocal-%{amversion}
+%define alternatives_install_cmd update-alternatives --install %{_bindir}/automake automake %{_bindir}/automake-%{amversion} 20 --slave %{_bindir}/aclocal aclocal %{_bindir}/aclocal-%{amversion}
 
 Summary:	A GNU tool for automatically creating Makefiles
 Name:		%{name}
@@ -32,7 +32,7 @@ BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
 BuildRequires:	autoconf2.5 byacc flex gawk perl tetex texinfo
 
-PreReq:		info-install, rpm
+PreReq:		info-install, update-alternatives
 Requires:	perl, autoconf2.5
 Provides:	automake = %{version}-%{release}
 Obsoletes:	automake1.5
@@ -105,6 +105,9 @@ fi
 
 
 %changelog
+* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 1.7.9-5avx
+- set alternatives priority to 20
+
 * Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 1.7.9-3avx
 - bootstrap build (new gcc, new glibc)
 
