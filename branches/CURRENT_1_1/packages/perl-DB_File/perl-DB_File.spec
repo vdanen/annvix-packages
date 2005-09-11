@@ -9,8 +9,8 @@
 
 %define name		perl-%{module}
 %define module		DB_File
-%define version		1.810
-%define release		3avx
+%define version		1.811
+%define release		1avx
 
 %define perl_archlib	%(eval "`perl -V:installarchlib`"; echo $installarchlib)
 
@@ -76,6 +76,10 @@ mkdir -p %{buildroot}/$installarchlib
 
 
 %changelog
+* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 1.811-1avx
+- 1.811
+- rebuild against perl 5.8.7
+
 * Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 1.810-3avx
 - bootstrap build (new gcc, new glibc)
 
