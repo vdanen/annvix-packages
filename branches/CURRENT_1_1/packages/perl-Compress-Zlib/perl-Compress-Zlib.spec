@@ -9,8 +9,8 @@
 
 %define	module		Compress-Zlib
 %define	name		perl-%{module}
-%define	version		1.35
-%define	release		2avx
+%define	version		1.37
+%define	release		1avx
 
 Summary:	%{module} module for perl
 Name:		%{name}
@@ -59,6 +59,10 @@ make test
 
 
 %changelog
+* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 1.37-1avx
+- 1.37
+- rebuild against perl 5.8.7
+
 * Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 1.35-2avx
 - bootstrap build (new gcc, new glibc)
 
