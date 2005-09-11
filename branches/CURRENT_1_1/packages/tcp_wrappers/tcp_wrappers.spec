@@ -9,7 +9,7 @@
 
 %define name		tcp_wrappers
 %define version		7.6
-%define release		28avx
+%define release		29avx
 
 Summary: 	A security tool which acts as a wrapper for TCP daemons
 Name: 		%{name}
@@ -18,10 +18,21 @@ Release: 	%{release}
 Group: 		System/Servers	
 License: 	BSD
 URL:		http://ftp.porcupine.org/pub/security/
-Source:	        http://ftp.porcupine.org/pub/security/tcp_wrappers_7.6.tar.bz2
-Patch0:         http://www.imasy.or.jp/~ume/ipv6/tcp_wrappers_7.6-ipv6-1.14.diff.bz2
-Patch1: 	tcp_wrappers_7.6-config.patch.2.bz2
-Patch2:		tcp_wrappers-7.16-ia64-compile-fix.patch.bz2
+Source:	        http://ftp.porcupine.org/pub/security/%{name}_%{version}.tar.bz2
+Patch0:		tcpw7.2-config.patch.bz2
+Patch1:		tcpw7.2-setenv.patch.bz2
+Patch2:		tcpw7.6-netgroup.patch.bz2
+Patch3:		tcp_wrappers-7.6-bug11881.patch.bz2
+Patch4:		tcp_wrappers-7.6-bug17795.patch.bz2
+Patch5:		tcp_wrappers-7.6-bug17847.patch.bz2
+Patch6:		tcp_wrappers-7.6-fixgethostbyname.patch.bz2
+Patch7:		tcp_wrappers-7.6-docu.patch.bz2
+Patch9:		tcp_wrappers.usagi-ipv6.patch.bz2
+Patch10:	tcp_wrappers.ume-ipv6.patch.bz2
+Patch11:	tcp_wrappers-7.6-shared.patch.bz2
+Patch12:	tcp_wrappers-7.6-sig.patch.bz2
+Patch13:	tcp_wrappers-7.6-strerror.patch.bz2
+Patch14:	tcp_wrappers-7.6-ldflags.patch.bz2
 
 BuildRoot: 	%{_buildroot}/%{name}-%{version}
 
@@ -45,22 +56,33 @@ Library and header files for the tcp_wrappers program
 
 %prep
 %setup -q -n %{name}_%{version}
-%patch0 -p2 
-%patch1 -p1 
-%patch2 -p1
+%patch0 -p1 -b .config
+%patch1 -p1 -b .setenv
+%patch2 -p1 -b .netgroup
+%patch3 -p1 -b .bug11881
+%patch4 -p1 -b .bug17795
+%patch5 -p1 -b .bug17847
+%patch6 -p1 -b .fixgethostbyname
+%patch7 -p1 -b .docu
+%patch9 -p0 -b .usagi-ipv6
+%patch10 -p1 -b .ume-ipv6
+%patch11 -p1 -b .shared
+%patch12 -p1 -b .sig
+%patch13 -p1 -b .strerror
+%patch14 -p1 -b .cflags
 
 
 %build
-%make  REAL_DAEMON_DIR=%{_sbindir} linux
+%make OPTFLAGS="%{optflags} -fPIC -DPIC -D_REENTRANT -DHAVE_STRERROR" LDFLAGS="-pie" REAL_DAEMON_DIR=%{_sbindir} linux
 
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p %{buildroot}{%{_includedir},%{_libdir},%{_sbindir},%{_mandir}/{man3,man5,man8}}
 
-install -m 0644 hosts_access.3 %{buildroot}/%{_mandir}/man3
-install -m 0644 hosts_access.5 hosts_options.5 %{buildroot}/%{_mandir}/man5
-pushd %{buildroot}/%{_mandir}/man5
+install -m 0644 hosts_access.3 %{buildroot}%{_mandir}/man3
+install -m 0644 hosts_access.5 hosts_options.5 %{buildroot}%{_mandir}/man5
+pushd %{buildroot}%{_mandir}/man5
     ln hosts_access.5 hosts.allow.5
     ln hosts_access.5 hosts.deny.5
 popd
@@ -73,11 +95,6 @@ install -m 0755 tcpd %{buildroot}%{_sbindir}
 install -m 0755 tcpdchk %{buildroot}%{_sbindir}
 install -m 0755 tcpdmatch %{buildroot}%{_sbindir}
 install -m 0755 try-from %{buildroot}%{_sbindir}
-
-# (fg) 20000905 FIXME FIXME FIXME: setenv in libwrap.a is rather strange for
-# one, so I remove it here - but will it break anything else?
-
-ar d %{buildroot}/%{_libdir}/libwrap.a setenv.o
 
 
 %clean
@@ -98,6 +115,9 @@ ar d %{buildroot}/%{_libdir}/libwrap.a setenv.o
 
 
 %changelog
+* Sun Sep 11 2005 Vincent Danen <vdanen@annvix.org> 7.6-29avx
+- sync patches with Mandriva (who synced with Fedora)
+
 * Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 7.6-28avx
 - bootstrap build (new gcc, new glibc)
 
