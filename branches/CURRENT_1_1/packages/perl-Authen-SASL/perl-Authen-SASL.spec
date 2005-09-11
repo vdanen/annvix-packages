@@ -9,8 +9,8 @@
 
 %define module		Authen-SASL
 %define name		perl-%{module}
-%define version 	2.04
-%define release 	9avx
+%define version 	2.09
+%define release 	1avx
 
 Summary:	%{module} module for perl
 Name:		%{name}
@@ -18,7 +18,7 @@ Version:	%{version}
 Release:	%{release}
 License:	GPL or Artistic
 Group:		Development/Perl
-URL:		http://www.cpan.org
+URL:		http://search.cpan.org/dist/%{module}/
 Source0:	%{module}-%{version}.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -28,7 +28,7 @@ BuildArch:	noarch
 Requires:	perl
 
 %description
-%{module} module for perl
+SASL authentication module for perl
 
 
 %prep
@@ -52,12 +52,16 @@ make test
 
 %files
 %defattr(-,root,root)
-%doc ChangeLog api.txt
+%doc Changes api.txt
 %{_mandir}/*/*
 %{perl_vendorlib}/Authen
 
 
 %changelog
+* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 2.09-1avx
+- 2.09
+- rebuild against perl 5.8.7
+
 * Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 2.04-9avx
 - bootstrap build (new gcc, new glibc)
 
