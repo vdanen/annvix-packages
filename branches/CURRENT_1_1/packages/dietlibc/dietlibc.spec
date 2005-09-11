@@ -8,8 +8,8 @@
 
 
 %define name		dietlibc
-%define version 	0.28
-%define release 	4avx
+%define version 	0.29
+%define release 	1avx
 
 # This is eventually a biarch package, so no %_lib for diethome
 %define diethome	%{_prefix}/lib/dietlibc
@@ -27,33 +27,24 @@ License:	GPL
 Group:		Development/Other
 URL:		http://www.fefe.de/dietlibc/
 Source0:	http://www.fefe.de/dietlibc/%{name}-%{version}.tar.bz2
+Source1:	http://www.fefe.de/dietlibc/%{name}-%{version}.tar.bz2.sig
 Patch0:		dietlibc-0.21-features.patch.bz2
 Patch1:		dietlibc-0.27-mdkconfig.patch.bz2
 Patch3:		dietlibc-0.22-tests.patch.bz2
 Patch4:		dietlibc-0.27-fix-getpriority.patch.bz2
 Patch5:		dietlibc-0.22-net-ethernet.patch.bz2
 Patch6:		dietlibc-0.24-rpc-types.patch.bz2
-Patch7:		dietlibc-0.22-amd64-ioport.patch.bz2
-Patch8:		dietlibc-0.24-strtol-64bit-fixes.patch.bz2
 Patch9:		dietlibc-0.27-glibc-nice.patch.bz2
-Patch10:	dietlibc-0.26-LC_-defines.patch.bz2
-Patch11:	dietlibc-0.26-amd64-rdtsc.patch.bz2
-Patch12:	dietlibc-0.26-64bit-fixes.patch.bz2
 Patch13:	dietlibc-0.27-x86_64-lseek64.patch.bz2
 # (oe) http://synflood.at/patches/contrapolice/contrapolice-0.3.patch
 Patch14:	dietlibc-0.28-contrapolice.diff.bz2
-Patch15:	dietlibc-0.27-ppc-rdtsc.patch.bz2
 Patch16:	dietlibc-0.27-test-makefile-fix.patch.bz2
 Patch17:	dietlibc-0.27-x86_64-stat64.patch.bz2
-Patch18:	dietlibc-0.24-ppc64-umount.patch.bz2
-Patch19:	dietlibc-0.24-ppc64-setjmp.patch.bz2
-Patch20:	dietlibc-0.24-ppc64-endian.patch.bz2
-Patch21:	dietlibc-0.24-ppc64-select.patch.bz2
-Patch22:	dietlibc-0.27-ppc64-stat64.patch.bz2
-Patch23:	dietlibc-0.27-biarch.patch.bz2
+Patch23:	dietlibc-0.29-biarch.patch.bz2
 Patch24:	dietlibc-0.27-quiet.patch.bz2
-Patch25:	dietlibc-0.27-ppc-select.patch.bz2
-Patch26:	dietlibc-0.28-avx-stackgap_off.patch.bz2
+Patch26:	dietlibc-0.29-avx-stackgap_off.patch.bz2
+Patch27:	dietlibc-0.28-64bit-size_t.patch.bz2
+Patch28:	dietlibc-0.29-avx-fix_no_ipv6.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
@@ -78,28 +69,18 @@ Small libc for building embedded applications.
 %patch4 -p1 -b .fix-getpriority
 %patch5 -p1 -b .net-ethernet
 %patch6 -p1 -b .rpc-types
-#%patch7 -p1 -b .amd64-ioport
-#%patch8 -p1 -b .strtol-64bit-fixes
 %patch9 -p1 -b .glibc-nice -E
-#%patch10 -p1 -b .locale-macros
-#%patch11 -p1 -b .amd64-rdtsc
-#%patch12 -p1 -b .tzfile-64bit-fixes
 %patch13 -p1 -b .x86_64-lseek64
 # (oe) http://synflood.at/patches/contrapolice/contrapolice-0.3.patch
 # reject
 %patch14 -p1 -b .contrapolice
-%patch15 -p1 -b .ppc-rdtsc
 %patch16 -p1 -b .inettest
 %patch17 -p1 -b .x86_64-stat64
-%patch18 -p1 -b .ppc64-umount
-#%patch19 -p1 -b .ppc64-setjmp
-#%patch20 -p1 -b .ppc64-endian
-%patch21 -p1 -b .ppc64-select
-%patch22 -p1 -b .ppc64-stat64
-%patch23 -p1 -b .biarch
+#%patch23 -p1 -b .biarch
 %patch24 -p1 -b .quiet
-%patch25 -p1 -b .ppc-select
 %patch26 -p1 -b .stackgap_off
+%patch27 -p1 -b .64bit-size_t
+%patch28 -p1 -b .fix_no_ipv6
 
 # fix execute permissions on test scripts
 chmod a+x test/{dirent,inet,stdio,string,stdlib,time}/runtests.sh
@@ -107,7 +88,11 @@ chmod a+x test/{dirent,inet,stdio,string,stdlib,time}/runtests.sh
 
 %build
 %make
-%make "CFLAGS=-pipe -nostdinc -fno-stack-protector"
+%make "CFLAGS=-pipe -nostdinc"
+%ifarch x86_64
+%make
+%make MYARCH=i386 CFLAGS="-pipe -nostdinc -m32"
+%endif
 
 # make and run the tests
 %if %{build_check}
@@ -125,6 +110,21 @@ perl -pi -e "s|^TESTPROGRAMS.*|TESTPROGRAMS=\"${STANDARD_TESTPROGRAMS} ${CP_TEST
 # getpass requires user input
 perl -pi -e "s|^PASS.*|PASS=\"\"|g" runtests.sh
 sh ./runtests.sh
+
+%ifarch x86_64
+MYARCH="i386"
+find -name "Makefile" | xargs perl -pi -e "s|^DIET.*|DIET=\"${DIETHOME}/bin-${MYARCH}/diet\"|g"
+%make
+
+STANDARD_TESTPROGRAMS=`grep "^TESTPROGRAMS" runtests.sh | cut -d\" -f2`
+# these fail: cp-test3 cp-test4 cp-test6 cp-test7 cp-test11 cp-test12 cp-test15
+CP_TEST_PROGRAMS="cp-test1 cp-test2 cp-test5 cp-test8 cp-test9 cp-test10 cp-test13 cp-test14"
+perl -pi -e "s|^TESTPROGRAMS.*|TESTPROGRAMS=\"${STANDARD_TESTPROGRAMS} ${CP_TEST_PROGRAMS}\"|g" runtests.sh
+# getpass requires user input
+perl -pi -e "s|^PASS.*|PASS=\"\"|g" runtests.sh
+sh ./runtests.sh
+%endif
+
 cd ..
 %endif
 
@@ -133,7 +133,9 @@ cd ..
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 make DESTDIR=%{buildroot} install
-
+%ifarch x86_64
+make MYARCH=i386 DESTDIR=%{buildroot} install
+%endif
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -143,12 +145,25 @@ make DESTDIR=%{buildroot} install
 %defattr(-,root,root)
 %doc AUTHOR BUGS CAVEAT CHANGES README THANKS TODO FAQ
 %{_bindir}/diet
+%{_bindir}/elftrunc
+%{_bindir}/dnsd
 %dir %{diethome}
 %{diethome}/*
 %{_mandir}/man*/*
 
 
 %changelog
+* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 0.29-1avx
+- 0.29
+- P27: fix <asm/types.h> size_t definition for 64bit platforms
+  (gbeauchesne)
+- drop P15, P18, P21, P22, P25 - all are ppc/ppc64-related and
+  we don't build for ppc/ppc64
+- rediff P26
+- adjust P23 so we're not patching the Makefile; we'll do all of our biarch
+  install stuff in the spec instead
+- P28: fix build when WANT_IPV6_DNS is not set
+
 * Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 0.28-4avx
 - bootstrap build (new gcc, new glibc)
 
