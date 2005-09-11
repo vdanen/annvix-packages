@@ -9,7 +9,7 @@
 
 %define name		spamassassin
 %define version		2.64
-%define release		9avx
+%define release		10avx
 
 %define fname		Mail-SpamAssassin
 %define instdir		vendor
@@ -159,6 +159,9 @@ fi
 
 
 %changelog
+* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 2.64-10avx
+- rebuild against new perl
+
 * Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 2.64-9avx
 - s/supervise/service/ in log/run
 
