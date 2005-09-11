@@ -9,8 +9,8 @@
 
 %define module 		PlRPC
 %define name		perl-%{module}
-%define version 	0.2017
-%define release 	9avx
+%define version 	0.2018
+%define release 	1avx
 
 Summary:	%{module} perl module
 Name: 		%{name}
@@ -49,13 +49,16 @@ Buildarch:	noarch
 
 %files 
 %defattr(-,root,root)
-%doc README MANIFEST ChangeLog 
+%doc README ChangeLog 
 %{perl_vendorlib}/Bundle/*
 %{perl_vendorlib}/RPC/*
 %{_mandir}/man3*/*
 
 
 %changelog
+* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 0.2018-1avx
+- 0.2018
+
 * Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 0.2017-9avx
 - bootstrap build (new gcc, new glibc)
 
