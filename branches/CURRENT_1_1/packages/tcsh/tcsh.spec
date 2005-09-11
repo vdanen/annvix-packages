@@ -8,8 +8,8 @@
 
 
 %define name		tcsh
-%define version		6.12
-%define release		11avx
+%define version		6.14
+%define release		1avx
 %define rversion	%{version}.00
 
 Summary:	An enhanced version of csh, the C shell
@@ -18,14 +18,15 @@ Version:	%{version}
 Release:	%{release}
 License:	BSD
 Group:		Shells
-URL:		http://www.primate.wisc.edu/software/csh-tcsh-book/
+URL:		http://www.tcsh.org/
 Source:		ftp://ftp.funet.fi/pub/unix/shells/tcsh/tcsh-%{version}.00.tar.bz2
 Source1:	alias.csh
-Patch0:		tcsh-6.12.00-utmp.patch.bz2
 Patch1:		tcsh-6.09.00-termios.patch.bz2
-Patch5:		tcsh-6.09.00-locale.patch.bz2
+Patch3:		tcsh-6.14.00-lsF.patch.bz2
+Patch4:		tcsh-6.14.00-dashn.patch.bz2
+Patch5:		tcsh-6.14.00-read.patch.bz2
 Patch6:		tcsh-6.10.00-glibc_compat.patch.bz2
-Patch7:		tcsh-6.12.00-dspmbyte.patch.bz2
+Patch7:		tcsh-6.14.00-getauthuid-is-not-in-auth_h.patch.bz2
 
 Buildroot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	libtermcap-devel groff-for-man
@@ -44,16 +45,20 @@ like syntax.
 
 %prep
 %setup -q -n %{name}-%{rversion}
-%patch0 -p1 -b .utmp
 %patch1 -p1 -b .termios
-%patch5 -p1 -b .locale
+%patch3 -p1 -b .lsF
+%patch4 -p1 -b .dashn
+%patch5 -p1 -b .read
 %patch6 -p1 -b .glibc_compat
-%patch7 -p1 -b .mbyte
+%patch7 -p1
 
 
 %build
-%configure --bindir=/bin
+%configure \
+    --bindir=/bin \
+    --without-hesiod
 %make
+nroff -me eight-bit.me > eight-bit.txt
 
 
 %install
@@ -63,7 +68,6 @@ install -s tcsh %{buildroot}/bin/tcsh
 install -m 0644 tcsh.man %{buildroot}%{_mandir}/man1/tcsh.1
 ln -s tcsh.1 %{buildroot}%{_mandir}/man1/csh.1
 ln -sf tcsh %{buildroot}/bin/csh
-nroff -me eight-bit.me > eight-bit.txt
 
 mkdir -p %{buildroot}%{_sysconfdir}/profile.d/
 install %{SOURCE1} %{buildroot}%{_sysconfdir}/profile.d/$(basename %{SOURCE1})
@@ -92,6 +96,12 @@ install %{SOURCE1} %{buildroot}%{_sysconfdir}/profile.d/$(basename %{SOURCE1})
 
 
 %changelog
+* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 6.14-1avx
+- 6.14
+- drop P0, P5, P7
+- P3, P4, new P5: from fedora
+- build eight-bit.txt in build stage (pixel)
+
 * Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 6.12-11avx
 - bootstrap build (new gcc, new glibc)
 
