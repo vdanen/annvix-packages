@@ -10,7 +10,7 @@
 %define module		Apache-Test
 %define name		perl-%{module}
 %define version		1.25
-%define release		1avx
+%define release		2avx
 
 %define _requires_exceptions perl(Apache2::Const)\\|perl(ModPerl::Config)
 
@@ -27,7 +27,7 @@ BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
 BuildRequires:	perl-devel
 
-Requires:	perl-Compress-Zlib, apache2-mod_perl, perl-Module-Build
+Requires:	perl-Compress-Zlib, httpd-mod_perl, perl-Module-Build
 Provides:	perl(Apache::TestConfigParse)
 Provides:	perl(Apache::TestConfigPerl)
 
@@ -65,6 +65,10 @@ developed for testing mod_perl 2.0.
 
 
 %changelog
+* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 1.25-2avx
+- rebuild against perl 5.8.7
+- requires httpd-mod_perl, not apache2-mod_perl
+
 * Wed Sep 07 2005 Vincent Danen <vdanen@annvix.org> 1.25-1avx
 - 1.25
 - rule out some perl auto-requires
