@@ -9,8 +9,8 @@
 
 %define	name		perl-%{module}
 %define	module		BSD-Resource
-%define	version		1.22
-%define	release		10avx
+%define	version		1.24
+%define	release		1avx
 
 Summary:	%{module} module for perl 
 Name:		%{name}
@@ -18,7 +18,7 @@ Version:	%{version}
 Release:	%{release}
 License:	GPL or Artistic
 Group:		Development/Perl
-URL:		http://www.cpan.org
+URL:		http://search.cpan.org/dist/%{module}/
 Source0:	%{module}-%{version}.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -59,6 +59,10 @@ find . -type f | xargs %{__perl} -p -i -e "s|^#\!/usr/local/bin/perl|#\!/usr/bin
 
 
 %changelog
+* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 1.24-1avx
+- 1.24
+- rebuild against perl 5.8.7
+
 * Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 1.22-10avx
 - bootstrap build (new gcc, new glibc)
 
