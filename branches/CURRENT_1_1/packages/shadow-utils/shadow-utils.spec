@@ -9,7 +9,7 @@
 
 %define name		shadow-utils
 %define version		4.0.11.1
-%define release		1avx
+%define release		2avx
 %define epoch		1
 
 #rh-20000902-10
@@ -107,7 +107,7 @@ rm -rf build-$RPM_ARCH
 %{_bindir}/gpasswd
 %{_bindir}/expiry
 %{_bindir}/login
-%attr(4711,root,root)   %{_bindir}/newgrp
+%attr(0700,root,root)   %{_bindir}/newgrp
 %{_bindir}/lastlog
 %{_sbindir}/logoutd
 %{_sbindir}/adduser
@@ -139,6 +139,9 @@ rm -rf build-$RPM_ARCH
 
 
 %changelog
+* Sun Sep 11 2005 Vincent Danen <vdanen@annvix.org> 4.0.11.1-2avx
+- strip the suid bit from newgrp
+
 * Fri Sep 09 2005 Vincent Danen <vdanen@annvix.org> 4.0.11.1-1avx
 - 4.0.11.1
 - drop all unrequired patches
