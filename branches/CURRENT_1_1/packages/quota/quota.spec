@@ -8,8 +8,8 @@
 
 
 %define name		quota
-%define version 	3.09
-%define release 	5avx
+%define version 	3.13
+%define release 	1avx
 
 Summary:	System administration tools for monitoring users' disk usage
 Name:		%{name}
@@ -19,13 +19,14 @@ License:	BSD
 Group:		System/Configuration/Other
 URL:		http://sourceforge.net/projects/linuxquota
 Source:		http://prdownloads.sourceforge.net/linuxquota/%{name}-%{version}.tar.bz2
-Patch1:		quota-tools-man-pages-path.patch.bz2
-Patch2:		quota-tools-no-stripping.patch.bz2
-Patch3:		quota-tools-warnquota.patch.bz2
-Patch4:		quota-tools-default-conf.patch.bz2
+Patch0:		quota-tools-man-pages-path.patch.bz2
+Patch1:		quota-tools-no-stripping.patch.bz2
+Patch2:		quota-3.06-warnquota.patch.bz2
+Patch3:		quota-tools-default-conf.patch.bz2
+Patch4:		quota-3.06-pie.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	e2fsprogs-devel, gettext
+BuildRequires:	e2fsprogs-devel, gettext, tcp_wrappers-devel >= 7.6-29avx
 
 Requires:	kernel >= 2.4, initscripts >= 6.38
 
@@ -36,15 +37,19 @@ and limiting users' and or groups' disk usage, per filesystem.
 
 %prep
 %setup -q -n quota-tools
-%patch1 -p1 -b .man-pages
-%patch2 -p1 -b .no-stripping
-%patch3 -p1 -b .warnquota
-%patch4 -p1 -b .default-conf
+%patch0 -p1 -b .man-pages
+%patch1 -p1 -b .no-stripping
+%patch2 -p1 -b .warnquota
+%patch3 -p1 -b .default-conf
+%ifnarch ppc ppc64 x86_64
+%patch4 -p1 -b .pie
+%endif
 
 
 %build
 %configure \
-    --with-ext2direct=no
+    --with-ext2direct=no \
+    --enable-rootsbin
 %make
 
 
@@ -54,13 +59,14 @@ mkdir -p %{buildroot}{/sbin,%{_sysconfdir},%{_sbindir},%{_bindir},%{_mandir}/{ma
 
 make install ROOTDIR=%{buildroot}
 
-for i in convertquota quotacheck quotaoff quotaon;do
-    mv %{buildroot}/%{_sbindir}/$i %{buildroot}/sbin/$i 
-done
-
 install -m 0644 warnquota.conf %{buildroot}%{_sysconfdir}
 
 %find_lang %{name}
+
+# can't strip suid files
+chmod 0755 %{buildroot}/sbin/*
+chmod 0755 %{buildroot}%{_sbindir}/*
+chmod 0755 %{buildroot}%{_bindir}/*
 
 
 %clean
@@ -83,6 +89,13 @@ install -m 0644 warnquota.conf %{buildroot}%{_sysconfdir}
 
 
 %changelog
+* Sun Sep 11 2005 Vincent Danen <vdanen@annvix.org> 3.13-1avx
+- 3.13
+- sync patch with Mandriva (who synced with Fedora)
+- rebuild against new libext2fs-devel
+- BuildRequires: tcp_wrappers-devel >= 7.6-29avx
+- don't apply the pie patch on x86_64 as we get a text relocation error
+
 * Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 3.09-5avx
 - bootstrap build (new gcc, new glibc)
 

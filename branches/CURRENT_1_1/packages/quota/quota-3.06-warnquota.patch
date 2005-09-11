@@ -1,19 +1,23 @@
---- quota-tools/warnquota.conf.chmou	2002-07-22 21:00:51.000000000 +0200
-+++ quota-tools/warnquota.conf	2003-02-08 22:06:16.000000000 +0100
-@@ -4,21 +4,21 @@
+--- quota-tools/warnquota.conf.orig	2004-03-12 13:15:40.000000000 -0500
++++ quota-tools/warnquota.conf	2004-09-13 15:03:30.000000000 -0400
+@@ -4,25 +4,25 @@
  # and even blank lines
  
  # values can be quoted:
 -MAIL_CMD 	= "/usr/my/sendmail/instead/sendmail -t"
 -FROM 		= "bas@localhost"
 +MAIL_CMD 	= "/usr/sbin/sendmail -t"
-+FROM 		= "root@localhost"
++FROM 		= 
  # but they don't have to be:
 -SUBJECT 	= Hey, user, clean up your account!
 -CC_TO 		= "sysadm@localhost"
--SUPPORT 	= "support@myhost.com"
-+SUBJECT 	= NOTE: You are exceeding your allocatted disk space limits
++SUBJECT 	= NOTE: You are exceeding your allocated disk space limits
 +CC_TO 		= "root@localhost"
+ # If you set this variable CC will be used only when user has less than
+ # specified grace time left (examples of possible times: 5 seconds, 1 minute,
+ # 12 hours, 5 days)
+ # CC_BEFORE = 2 days
+-SUPPORT 	= "support@myhost.com"
 +SUPPORT 	= "root@myhost.com"
  PHONE 		= "(123) 456-1111 or (222) 333-4444"
  # Text in the beginning of the mail (if not specified, default text is used)
@@ -21,10 +25,9 @@
  # Line breaks are done by '|' character
 -MESSAGE         = Hello, I've noticed you use too much space\
 - on my disk|Delete your files on following filesystems:|
--# Text in the end of the mail (if not specified, default text using SUPPORT and PHONE
-+MESSAGE         = Your disk usage has exceeded the agreeded limits\
-+  on this server|Please delete any unnecessary files on following filesystems:|
-+ Text in the end of the mail (if not specified, default text using SUPPORT and PHONE
++MESSAGE         = Your disk usage has exceeded the agreed limits\
++ on this server|Please delete any unnecessary files on following filesystems:|
+ # Text in the end of the mail (if not specified, default text using SUPPORT and PHONE
  # is created)
 -SIGNATURE	= See you!|			Your admin|
 +SIGNATURE	= root@localhost
