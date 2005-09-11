@@ -1,0 +1,11 @@
+--- util-linux-2.12q/mount/nfsmount.c.fortify	2005-08-26 11:45:39.000000000 -0400
++++ util-linux-2.12q/mount/nfsmount.c	2005-08-26 11:47:35.000000000 -0400
+@@ -970,7 +970,7 @@ nfsmount(const char *spec, const char *n
+ 	static char *prev_bg_host;
+ 	char hostdir[1024];
+ 	char *hostname, *dirname, *old_opts, *mounthost = NULL;
+-	char new_opts[1024], cbuf[20];
++	char new_opts[1024], cbuf[21]; /* "addr=" + 4*3 + 3*'.' + '\0' */
+ 	static struct nfs_mount_data data;
+ 	int val;
+ 
