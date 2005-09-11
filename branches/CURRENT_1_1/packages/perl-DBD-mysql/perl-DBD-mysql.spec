@@ -9,10 +9,10 @@
 
 %define	module		DBD-mysql
 %define	name		perl-%{module}
-%define version 	2.9004
-%define release 	3avx
+%define version 	3.0002
+%define release 	1avx
 
-Summary:	DBD MySQL Perl Emulation Layer
+Summary:	MySQL Perl bindings
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -66,6 +66,10 @@ will easily be portable to other DBMS's.
 
 
 %changelog
+* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 3.0002-1avx
+- 3.0002
+- rebuild against perl 5.8.7
+
 * Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 2.9004-3avx
 - bootstrap build (new gcc, new glibc)
 
