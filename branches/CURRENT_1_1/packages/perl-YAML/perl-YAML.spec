@@ -9,8 +9,8 @@
 
 %define module		YAML
 %define name		perl-%{module}
-%define version 	0.36
-%define release 	3avx
+%define version 	0.39
+%define release 	1avx
 
 Summary:	YAML Ain't Markup Language (tm)
 Name:		%{name}
@@ -37,7 +37,7 @@ For information on the YAML syntax, please refer to the YAML specification.
 
 
 %prep
-%setup -n %{module}-%{version}
+%setup -q -n %{module}-%{version}
 
 
 %build
@@ -65,6 +65,10 @@ make test
 
 
 %changelog
+* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 0.39-1avx
+- 0.39
+- rebuild against perl 5.8.7
+
 * Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 0.36-3avx
 - bootstrap build (new gcc, new glibc)
 
