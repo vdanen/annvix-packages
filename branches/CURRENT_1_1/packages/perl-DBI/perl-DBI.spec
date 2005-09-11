@@ -9,8 +9,8 @@
 
 %define module		DBI
 %define name		perl-%{module}
-%define version 	1.47
-%define release 	3avx
+%define version 	1.48
+%define release 	1avx
 
 Summary:	The Perl Database Interface
 Name:		%{name}
@@ -36,7 +36,7 @@ interface independent of the actual database being used.
 %package proxy
 Group:		Development/Perl
 Summary: 	DBI proxy server and client
-Requires:	%{name} = %{version}-%{release}
+Requires:	%{name} = %{version}
 
 %description proxy
 DBI::ProxyServer is a module for implementing a proxy for the DBI
@@ -48,7 +48,7 @@ DBI driver.
 %package ProfileDumper-Apache
 Group:		Development/Perl
 Summary: 	DBI profiling data for mod_perl
-Requires:	%{name} = %{version}-%{release}
+Requires:	%{name} = %{version}
 
 %description ProfileDumper-Apache
 This module interfaces DBI::ProfileDumper to Apache/mod_perl. Using this
@@ -120,6 +120,11 @@ rm -f %{buildroot}%{_mandir}/man3pm/Roadmap.3pm*
 
 
 %changelog
+* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 1.48-1avx
+- 1.48
+- remove requires on release for sub-packages
+- rebuild against perl 2.8.7
+
 * Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 1.47-3avx
 - bootstrap build (new gcc, new glibc)
 
