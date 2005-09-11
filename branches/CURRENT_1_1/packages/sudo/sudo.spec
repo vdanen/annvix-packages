@@ -8,7 +8,7 @@
 
 %define name		sudo
 %define version		1.6.8p9
-%define release		3avx
+%define release		4avx
 %define epoch		1
 
 Summary:	Allows command execution as root for specified users
@@ -101,6 +101,12 @@ install -m 0440 %{SOURCE2} %{buildroot}%{_sysconfdir}/sudoers
 
 
 %changelog
+* Sun Sep 11 2005 Vincent Danen <vdanen@annvix.org> 1:1.6.8p9-4avx
+- update default /etc/sudoers to provide access to restricted urpmi,
+  network tools (ping, traceroute), and user management tools (ie.
+  chage, chsh, newgrp, etc.) as we are stripping the suid bit from
+  these tools
+
 * Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1:1.6.8p9-3avx
 - bootstrap build (new gcc, new glibc)
 
