@@ -9,8 +9,8 @@
 
 %define module		Convert-ASN1
 %define name		perl-%{module}
-%define version 	0.18
-%define release 	5avx
+%define version 	0.19
+%define release 	1avx
 
 Summary: 	ASN.1 Encode/Decode library for perl
 Name: 		%{name}
@@ -18,14 +18,14 @@ Version: 	%{version}
 Release: 	%{release}
 License: 	GPL or Artistic
 Group: 		Development/Perl
-URL: 		http://www.cpan.org
+URL: 		http://search.cpan.org/dist/%{real_name}/
 Source: 	http://www.cpan.org/authors/id/GBARR/%{module}-%{version}.tar.bz2
 
 BuildRoot: 	%{_buildroot}/%{name}-%{version}
 BuildArch: 	noarch
 BuildRequires:	perl-devel
 
-Requires:	perl >= 5.6
+Requires:	perl
 
 %description
 Perl module used to encode and decode ASN.1 data structures using
@@ -53,12 +53,16 @@ make test
 
 %files
 %defattr(-,root,root)
-%doc ChangeLog MANIFEST README examples/*
+%doc ChangeLog README examples/*
 %{perl_vendorlib}/Convert/*
 %{_mandir}/*/*
 
 
 %changelog
+* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 0.19-1avx
+- 0.19
+- rebuild against perl 5.8.7
+
 * Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 0.18-5avx
 - bootstrap build (new gcc, new glibc)
 
