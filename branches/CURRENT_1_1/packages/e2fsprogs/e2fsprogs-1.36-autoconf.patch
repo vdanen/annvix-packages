@@ -1,0 +1,9 @@
+--- configure.in.orig	2005-02-05 21:53:55.000000000 +0100
++++ configure.in	2005-02-11 14:06:01.492723654 +0100
+@@ -1,5 +1,6 @@
+ AC_INIT(version.h)
+ AC_PREREQ(2.50)
++AC_ISC_POSIX
+ AC_CONFIG_AUX_DIR(config)
+ MCONFIG=./MCONFIG
+ AC_SUBST_FILE(MCONFIG)

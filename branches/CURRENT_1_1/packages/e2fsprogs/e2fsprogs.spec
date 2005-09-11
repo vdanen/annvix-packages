@@ -8,8 +8,8 @@
 
 
 %define name		e2fsprogs
-%define version		1.35
-%define release		3avx
+%define version		1.38
+%define release		1avx
 
 %define	_root_sbindir	/sbin
 %define	_root_libdir	/%{_lib}
@@ -23,12 +23,13 @@ License:	GPL
 Group:		System/Kernel and hardware
 URL:		http://e2fsprogs.sourceforge.net/
 Source:		http://prdownloads.sourceforge.net/e2fsprogs/%{name}-%{version}.tar.bz2
-Patch4:		e2fsprogs-1.23-autoconf.patch.bz2
+Patch0:		e2fsprogs-1.36-autoconf.patch.bz2
+# (gb) strip references to home build dir
+Patch1:		e2fsprogs-1.36-strip-me.patch.bz2
+Patch2:		e2fsprogs-1.38-tst_ostype-buildfix.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	texinfo, autoconf
-
-Requires:	%{libname}
+BuildRequires:	texinfo, autoconf, multiarch-utils
 
 %description
 The e2fsprogs package contains a number of utilities for creating,
@@ -80,7 +81,9 @@ filesystem utilities.
 
 %prep
 %setup -q
-%patch4 -p1
+%patch0 -p0
+%patch1 -p1 -b .strip-me
+%patch2 -p1 -b .tst_ostype
 rm -f configure
 autoconf
 
@@ -118,6 +121,10 @@ done
 # remove unwanted files
 rm -f %{buildroot}%{_libdir}/libss.a
 rm -f %{buildroot}%{_root_libdir}/{libblkid,libcom_err,libe2p,libext2fs,libss,libuuid}.so
+
+# multiarch policy, alternative is to use <stdint.h>
+%multiarch_includes %{buildroot}%{_includedir}/ext2fs/ext2_types.h
+%multiarch_includes %{buildroot}%{_includedir}/blkid/blkid_types.h
 
 %find_lang %{name}
 
@@ -166,8 +173,7 @@ chmod +x %{buildroot}%{_bindir}/{mk_cmds,compile_et}
 %{_mandir}/man1/chattr.1*
 %{_mandir}/man1/lsattr.1*
 %{_mandir}/man1/uuidgen.1*
-%{_mandir}/man3/libuuid*
-%{_mandir}/man3/uuid_*
+%{_mandir}/man3/uuid*
 
 %{_mandir}/man8/badblocks.8*
 %{_mandir}/man8/debugfs.8*
@@ -201,10 +207,10 @@ chmod +x %{buildroot}%{_bindir}/{mk_cmds,compile_et}
 %{_root_libdir}/libext2fs.so.*
 %{_root_libdir}/libss.so.*
 %{_root_libdir}/libuuid.so.*
-%{_root_libdir}/evms/libe2fsim.*.so
 
 %{_root_libdir}/libblkid.so.*
 %{_mandir}/man3/libblkid.3.bz2
+%{_libdir}/e2initrd_helper
 
 %files -n %{libname}-devel
 %defattr(-,root,root,755)
@@ -213,6 +219,7 @@ chmod +x %{buildroot}%{_bindir}/{mk_cmds,compile_et}
 %{_mandir}/man1/compile_et.1*
 %{_bindir}/mk_cmds
 %{_mandir}/man1/mk_cmds.1.bz2
+%{_libdir}/pkgconfig/*
 
 %{_libdir}/libblkid.so
 %{_libdir}/libcom_err.so
@@ -229,6 +236,8 @@ chmod +x %{buildroot}%{_bindir}/{mk_cmds,compile_et}
 %_datadir/ss
 %{_includedir}/et
 %{_includedir}/ext2fs
+%multiarch %dir %{multiarch_includedir}/ext2fs
+%multiarch %{multiarch_includedir}/ext2fs/ext2_types.h
 %{_includedir}/ss
 %{_includedir}/uuid
 %{_includedir}/e2p/e2p.h
@@ -236,10 +245,19 @@ chmod +x %{buildroot}%{_bindir}/{mk_cmds,compile_et}
 
 %{_includedir}/blkid/blkid.h
 %{_includedir}/blkid/blkid_types.h
+%multiarch %dir %multiarch_includedir/blkid
+%multiarch %multiarch_includedir/blkid/blkid_types.h
 %{_libdir}/libblkid.a
 
 
 %changelog
+* Sun Sep 11 2005 Vincent Danen <vdanen@annvix.org> 1.38-1avx
+- 1.38
+- renumber patches
+- P1: strip references to home build dir (gbeauchesne)
+- P2: fix compilation of libs/e2p/os_type (cjw)
+- multiarch support
+
 * Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1.35-3avx
 - bootstrap build (new gcc, new glibc)
 
