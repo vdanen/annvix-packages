@@ -9,13 +9,12 @@
 
 %define name		%{amname}%{amversion}
 %define version 	1.4
-%define release 	0.%{patchlevel}.29avx
+%define release 	0.%{patchlevel}.30avx
 
 %define amname		automake
 %define amversion	1.4
 %define patchlevel	p6
 
-%define alternatives_install_cmd update-alternatives --install %{_bindir}/automake automake %{_bindir}/automake-%{amversion} 30 --slave %{_bindir}/aclocal aclocal %{_bindir}/aclocal-%{amversion}
 %define docheck		1
 %{?_without_check: %global docheck 0}
 
@@ -34,11 +33,10 @@ BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
 Buildrequires:	perl
 
-PreReq:		rpm, info-install
+PreReq:		info-install
 Requires:	perl
 Conflicts:	automake1.5
 Obsoletes:	automake <= 1.4-0.p6.26avx
-Provides:	automake = %{version}-%{release}
 
 %description
 Automake is a tool for automatically generating Makefiles compliant with the
@@ -46,7 +44,7 @@ GNU Coding Standards.
 
 
 %prep
-%setup -q -n %{amname}-%{version}-%{patchlevel}
+%setup -q -n %{amname}-%{amversion}-%{patchlevel}
 %patch0 -p1 -b .parallel
 %patch1 -p1 -b .gcc3.4
 
@@ -77,17 +75,10 @@ mkdir -p %{buildroot}%{_datadir}/aclocal
 
 %post
 %_install_info automake.info
-%{alternatives_install_cmd}
-
-# (gc) necessary when we upgrade from a non alternativized package, because it's executed after the old files are removed
-%triggerpostun -- automake <= 1.4-0.p6.26avx
-[ -e %{_bindir}/automake-%{amversion} ] && %{alternatives_install_cmd} || :
+update-alternatives --remove automake %{_bindir}/automake-%{amversion}
 
 %preun
 %_remove_install_info automake.info
-if [ $1 = 0 ]; then
-    update-alternatives --remove automake %{_bindir}/automake-%{amversion}
-fi
 
 
 %files
@@ -100,6 +91,9 @@ fi
 
 
 %changelog
+* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 1.4-0.p6.30avx
+- this package is no longer an alternative for current "automake" (cjw)
+
 * Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 1.4-0.p6.29avx
 - bootstrap build (new gcc, new glibc)
 
