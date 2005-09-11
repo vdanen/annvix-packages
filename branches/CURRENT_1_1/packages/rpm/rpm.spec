@@ -10,7 +10,7 @@
 %define name		rpm
 %define version		4.4.2
 %define poptver		1.10.2
-%define release		1avx
+%define release		2avx
 
 %define srcver		4.4.2
 %define libver		4.4
@@ -26,11 +26,11 @@
 
 %define lib64arches	x86_64 ppc64
 
-%ifarch ppc x86_64 amd64 ppc64 athlon pentium3 pentium4
-%define buildnptl	1
-%else
+#%ifarch ppc x86_64 amd64 ppc64 athlon pentium3 pentium4
+#%define buildnptl	1
+#%else
 %define buildnptl	0
-%endif
+#%endif
 
 %ifarch %{lib64arches}
 %define _lib		lib64
@@ -707,6 +707,10 @@ fi
 
 
 %changelog
+* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 4.4.2-2avx
+- always build without nptl support as it craps out on our systems in
+  x86_64
+
 * Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 4.4.2-1avx
 - 4.4.2
 - Requires: rpm-annvix-setup
