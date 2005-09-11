@@ -9,20 +9,18 @@
 
 %define module		Locale-gettext
 %define name		perl-%{module}
-%define version		1.01
-%define release		17avx
+%define version		1.05
+%define release		1avx
 
-Summary:	Internationalization for Perl
+Summary:	Message handling functions for Perl
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	GPL or Artistic
 Group:		Development/Perl
 URL:		http://www.cpan.org/modules/by-module/Locale
-Source:		http://www.cpan.org/modules/by-module/Locale/gettext-%{version}.tar.gz
-Patch0:		gettext-1.01-fix-example-in-README.patch.bz2
-Patch1:		gettext-1.01-includes.patch.bz2
-Patch2:		gettext-1.01-add-iconv.patch.bz2
+Source:		http://www.cpan.org/modules/by-module/Locale/gettext-%{version}.tar.bz2
+Patch2:		gettext-1.04-add-iconv.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	gettext-devel perl-devel
@@ -33,7 +31,7 @@ Conflicts:	nlpr <= 0.0.1-2mdk, drakfloppy <= 0.43-10mdk, urpmi <= 3.6-4mdk
 %description
 The gettext module permits access from perl to the gettext() family of
 functions for retrieving message strings from databases constructed to
-internationalize software. 
+internationalize software.
 
 It provides gettext(), dgettext(), dcgettext(), textdomain() and
 bindtextdomain().
@@ -41,8 +39,6 @@ bindtextdomain().
 
 %prep
 %setup -q -n gettext-%{version}
-%patch0 -p1
-%patch1 -p1 -b .includes
 %patch2 -p0
 
 
@@ -68,7 +64,12 @@ make test
 %{perl_vendorarch}/auto/Locale/*
 %{_mandir}/*/*
 
+
 %changelog
+* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 1.05-1avx
+- 1.05
+- rebuild against new perl 5.8.7 and new gettext
+
 * Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 1.01-17avx
 - bootstrap build (new gcc, new glibc)
 
