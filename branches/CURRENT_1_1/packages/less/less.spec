@@ -9,7 +9,9 @@
 
 %define name		less
 %define version		382
-%define release		4avx
+%define release		5avx
+
+%define lessp_ver	1.52
 
 Summary:	A text file browser similar to more, but better
 Name:		%{name}
@@ -20,8 +22,10 @@ Group:		File tools
 URL:		http://www.greenwoodsoftware.com/less
 Source:		ftp://ftp.gnu.org/pub/gnu/less/%{name}-%{version}.tar.bz2
 Source1:	faq_less.html
-Source2:	lesspipe.sh
+Source2:	http://www-zeuthen.desy.de/~friebel/unix/less/lesspipe-%{lessp_ver}.tar.bz2
 Patch0:		less-374-manpages.patch.bz2
+Patch1:		lesspipe.lynx_for_html.patch.bz2
+Patch2:		lesspipe-1.50-posix.patch.bz2
 
 Buildroot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	ncurses-devel
@@ -38,14 +42,24 @@ example, vi).
 
 
 %prep
-%setup -q
+%setup -q -a 2
 %patch0 -p1
+pushd lesspipe-%{lessp_ver}
+%patch1 -p1
+%patch2 -p1
+chmod a+r *
+popd
+
 
 
 %build
 CFLAGS=$(echo "%{optflags} -DHAVE_LOCALE" | sed -e s/-fomit-frame-pointer//)
-%configure
+%configure2_5x
 %make 
+
+pushd lesspipe-%{lessp_ver}
+    yes | ./configure
+popd
 
 
 %install
@@ -53,18 +67,58 @@ CFLAGS=$(echo "%{optflags} -DHAVE_LOCALE" | sed -e s/-fomit-frame-pointer//)
 %makeinstall
 # faq
 install -m 0644 %SOURCE1 .
-install -m 0755 %SOURCE2 %{buildroot}%{_bindir}/
 
-mv %{buildroot}%{_bindir}/{less,less.bin}
-cat << EOF > %{buildroot}%{_bindir}/less
+pushd lesspipe-%{lessp_ver}
+    %makeinstall PREFIX=%{buildroot}%{_prefix}
+popd
+
+mkdir -p %{buildroot}%{_sysconfdir}/profile.d/
+cat << EOF > %{buildroot}%{_sysconfdir}/profile.d/less.sh
 #!/bin/sh
-
-#export LESSCHARSET="\${LESSCHARSET:-utf-8}"
-export LESSCHARSET="\${LESSCHARSET:-koi8-r}"
-exec less.bin "\$@"
+CHARSET=\$(locale charmap 2> /dev/null) 
+case "\$CHARSET" in 
+       UTF-8) 
+               export LESSCHARSET="\${LESSCHARSET:-utf-8}" 
+       ;; 
+       * ) 
+               export LESSCHARSET="\${LESSCHARSET:-koi8-r}" 
+       ;; 
+esac
+# Make a filter for less
+export LESSOPEN="|/usr/bin/lesspipe.sh %s"
 EOF
 
-install -m 0644 less{echo,pipe}.1 %{buildroot}%{_mandir}/man1
+cat << EOF > %{buildroot}%{_sysconfdir}/profile.d/less.csh
+#!/bin/csh
+if ! ( \$?LESSCHARSET ) then
+	set CHARSET=\ocale charmap\
++	if ( "\$CHARSET" == "UTF-8" ) then
+		setenv LESSCHARSET utf-8
+	else
+		setenv LESSCHARSET koi8-r
+	endif
+endif
+# Make a filter for less
+setenv LESSOPEN "|/usr/bin/lesspipe.sh %s"
+EOF
+
+cat << EOF > README.avx
+This version of less includes lesspipe.sh from Wolfgang Friebel
+( http://www-zeuthen.desy.de/~friebel//unix/less/ ).
+
+This enables you to view gz, zip, rpm and html files
+among others with less. It works by setting the LESSOPEN 
+environment variable, see the man pages for details.
+
+If you want to disable this behavior, either use 'unset LESSOPEN' or
+use an alias ( alias less='less -l' ).
+
+less will open html files with lynx, then html2text, then cat if
+none of the previous were found.
+EOF
+
+
+install -m 0644 lessecho.1 %{buildroot}%{_mandir}/man1
 
 
 %clean
@@ -73,11 +127,20 @@ install -m 0644 less{echo,pipe}.1 %{buildroot}%{_mandir}/man1
 
 %files
 %defattr(-,root,root)
-%doc faq_less.html
+%doc faq_less.html lesspipe-%{lessp_ver}/{BUGS,COPYING,ChangeLog,README,english.txt}
+%doc README.avx
 %attr(755,root,root) %{_bindir}/*
 %{_mandir}/man1/*
+%attr(755,root,root)%_sysconfdir/profile.d/*
+
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 382-4avx
+- lesspipe 1.52
+- use lesspipe's included manpage
+- move LESSOPEN variable to the profile.d scripts and remove less wrapper
+  (waschk)
+
 * Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 382-4avx
 - bootstrap build (new gcc, new glibc)
 
