@@ -1,0 +1,16 @@
+Index: src/autofit/aflatin.c
+===================================================================
+RCS file: /cvsroot/freetype/freetype2/src/autofit/aflatin.c,v
+retrieving revision 1.21
+diff -u -p -r1.21 aflatin.c
+--- freetype/src/autofit/aflatin.c	24 Aug 2005 08:04:56 -0000	1.21
++++ freetype/src/autofit/aflatin.c	30 Aug 2005 19:08:01 -0000
+@@ -1407,7 +1407,7 @@
+     AF_LatinAxis     axis     = & metrics->axis[dim];
+     FT_Pos           dist     = width;
+     FT_Int           sign     = 0;
+-    FT_Int           vertical = AF_HINTS_DO_VERTICAL( hints );
++    FT_Int           vertical = dim == AF_DIMENSION_VERT;
+ 
+ 
+     if ( !AF_LATIN_HINTS_DO_STEM_ADJUST( hints ) )
