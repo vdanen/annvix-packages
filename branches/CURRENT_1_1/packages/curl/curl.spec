@@ -8,8 +8,8 @@
 
 
 %define name		curl
-%define version 	7.13.0
-%define release		3avx
+%define version 	7.14.1
+%define release		1avx
 
 %define major		3
 %define libname 	%mklibname %{name} %{major}
@@ -32,12 +32,12 @@ URL:		http://curl.haxx.se/
 Source:		http://curl.haxx.se/download/%{name}-%{version}.tar.bz2
 Patch1:		curl-7.10.4-compat-location-trusted.patch.bz2
 Patch2:		curl-7.13.0-64bit-fixes.patch.bz2
-Patch3:		curl-7.13.0-CAN-2005-0490.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	bison groff-for-man openssl-devel zlib-devel
 
 Provides:	webfetch
+Requires:	%{libname} = %{version}
 
 %description 
 curl is a client to get documents/files from servers, using any of the
@@ -76,30 +76,36 @@ various protocols, including http and ftp.
 %prep
 %setup -q
 %patch1 -p1
-%patch2 -p1 -b .64bit-fixes
-%patch3 -p0 -b .can-2005-0490
+#%patch2 -p1 -b .64bit-fixes
 
-# fix test517 with correct results according to curl_getdate() specs
-cat > ptrsize.c << EOF
-#include <time.h>
-#include <stdio.h>
-int main(void)
-{
-  printf("%d\n", sizeof(time_t));
-  return 0;
-}
-EOF
-
-%{__cc} -o ptrsize ptrsize.c
-case `./ptrsize` in
-4) ;;
-8) mv -f ./tests/data/test517{.64,} ;;
-*) exit 1 ;;
-esac
+## fix test517 with correct results according to curl_getdate() specs
+#cat > ptrsize.c << EOF
+##include <time.h>
+##include <stdio.h>
+#int main(void)
+#{
+#  printf("%d\n", sizeof(time_t));
+#  return 0;
+#}
+#EOF
+#
+#%{__cc} -o ptrsize ptrsize.c
+#case `./ptrsize` in
+#4) ;;
+#8) mv -f ./tests/data/test517{.64,} ;;
+#*) exit 1 ;;
+#esac
 
 
 %build
-%configure2_5x --with-ssl
+CFLAGS="%{optflags} -O0" \
+    ./configure \
+    --prefix=%{_prefix} \
+    --mandir=%{_mandir} \
+    --datadir=%{_datadir} \
+    --libdir=%{_libdir} \
+    --includedir=%{_includedir} \
+    --with-ssl
 %make
 
 skip_tests="241"
@@ -153,7 +159,14 @@ make check
 %{_libdir}/libcurl*a
 %{_mandir}/man3/*
 
+
 %changelog
+* Sun Sep 11 2005 Vincent Danen <vdanen@annvix.org> 7.14.1-1avx
+- 7.14.1
+- drop P2 and remove the special test case for test 517 on x86_64; works ok now
+- force -O0 on CFLAGS otherwise the executables segfault (rgarciasuarez)
+- drop P3; fixed upstream
+
 * Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 7.13.0-3avx
 - bootstrap build (new gcc, new glibc)
 
