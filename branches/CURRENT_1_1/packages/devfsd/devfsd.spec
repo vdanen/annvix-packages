@@ -9,7 +9,7 @@
 
 %define name		devfsd
 %define version		1.3.25
-%define release		40avx
+%define release		41avx
 %define rname		devfsd
 
 %define state_dir	/lib/dev-state
@@ -73,6 +73,8 @@ Patch23:	devfsd-1.3.25-usbmouse.patch.bz2
 Patch24:	devfsd-1.3.25-dvb.patch.bz2
 # prevent minilogd/initlog deadlock because of /dev/log
 Patch25:	devfsd-1.3.25-log-fix.patch.bz2
+# IPMI support
+Patch26:	devfsd-1.3.25-ipmi.patch.bz2
 #
 # Add support for /etc/devfs/conf.d/
 #
@@ -147,6 +149,7 @@ REGISTER events for each leaf node.
 %patch23 -p1 -b .usb
 %patch24 -p1 -b .dvb
 %patch25 -p1 -b .log
+%patch26 -p0 -b .log
 
 # Add support for /etc/devfs/conf.d/
 %patch31 -p1 -b .conf_d
@@ -239,6 +242,10 @@ fi
 
 
 %changelog
+* Sun Sep 11 2005 Vincent Danen <vdanen@annvix.org> 1.3.25-41avx
+- P7: fix missing srX links
+- P26: IPMI support
+
 * Thu Aug 18 2005 Vincent Danen <vdanen@annvix.org> 1.3.25-40avx
 - bootstrap build (new gcc, new glibc)
 
