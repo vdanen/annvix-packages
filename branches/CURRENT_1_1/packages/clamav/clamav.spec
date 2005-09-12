@@ -9,7 +9,7 @@
 
 %define name		clamav
 %define version		0.86.2
-%define release		3avx
+%define release		4avx
 
 %define	major		1
 %define libname		%mklibname %{name} %{major}
@@ -33,7 +33,7 @@ Patch0:		clamav-0.86.1-avx-config.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	autoconf2.5, automake1.7
-BuildRequires:	zlib-devel, gmp-devel, curl-devel, bzip2-devel
+BuildRequires:	zlib-devel, gmp-devel, bzip2-devel
 
 PreReq:		clamav-db, rpm-helper, %{libname} = %{version}
 
@@ -116,7 +116,7 @@ libtoolize --copy --force && aclocal-1.7 && autoconf && automake-1.7
     --enable-id-check \
     --enable-clamuko \
     --enable-bigstack \
-    --with-libcurl \
+    --without-libcurl \
     --with-zlib=%{_prefix} \
     --disable-zlib-vcheck \
     --disable-milter \
@@ -277,6 +277,11 @@ done
 %{_libdir}/pkgconfig/libclamav.pc
       
 %changelog
+* Sat Sep 11 2005 Vincent Danen <vdanen@annvix.org> 0.86.2-4avx
+- don't build against libcurl as apparently that would be in violation
+  of the GPL since we build it against OpenSSL; see:
+    http://curl.haxx.se/legal/distro-dilemma.html
+
 * Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 0.86.2-3avx
 - s/supervise/service/ in log/run
 
