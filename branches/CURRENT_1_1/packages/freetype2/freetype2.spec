@@ -8,8 +8,8 @@
 
 
 %define name		freetype2
-%define	version		2.1.4
-%define release		11avx
+%define	version		2.1.10
+%define release		1avx
 
 %define major		6
 %define libname		%mklibname freetype %{major}
@@ -21,11 +21,20 @@ Release:	%{release}
 License:	FreeType License/GPL
 Group:		System/Libraries
 URL:		http://www.freetype.org/
-Source0:	freetype-%{version}.tar.bz2
-Source1:	ftdocs-%{version}.tar.bz2
+Source0:	ftp://ftp.freetype.org/pub/freetype/freetype2/freetype-%{version}.tar.bz2
+# (fc) 2.1.10-2mdk CVS bug fixes, mostly for embolding
+Patch0:		freetype-2.1.10-cvsfixes.patch.bz2
+# (fc) 2.1.10-3mdk put back internal API, used by xorg (Mdk bug #14636) (David Turner)
+Patch1:		freetype-2.1.10-xorgfix.patch.bz2
+# (fc) 2.1.10-5mdk fix autofit render setup (CVS)
+Patch2:		freetype-2.1.10-fixautofit.patch.bz2
+# (fc) 2.1.10-5mdk fix memleak (CVS)
+Patch3:		freetype-2.1.10-memleak.patch.bz2
+# (fc) 2.1.10-6mdk fix font rendering in Cairo (Owen Taylor)
+Patch4:		freetype-2.1.10-vertical_dimension.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}-%{release}-root
-BuildRequires:	zlib-devel
+BuildRequires:	zlib-devel, multiarch-utils
 
 %description
 The FreeType2 engine is a free and portable TrueType font rendering engine.
@@ -51,7 +60,7 @@ applications are included
 %package -n %{libname}-devel
 Summary:	Header files and static library for development with FreeType2
 Group:		Development/C
-Requires:	%{libname} = %{version}-%{release}
+Requires:	%{libname} = %{version}
 Requires:	zlib-devel
 Obsoletes:	%{name}-devel
 Provides:	%{name}-devel = %{version}-%{release}
@@ -65,7 +74,7 @@ applications, you won't need this package.
 %package -n %{libname}-static-devel
 Summary:	Static libraries for programs which will use the FreeType2 library
 Group:		Development/C
-Requires:	%{libname}-devel = %{version}-%{release}
+Requires:	%{libname}-devel = %{version}
 Obsoletes:	%{name}-static-devel
 Provides:	%{name}-static-devel = %{version}-%{release}
 
@@ -75,7 +84,12 @@ developing programs which will use the FreeType2 library.
 
 
 %prep
-%setup -q -n freetype-%{version} -b 1
+%setup -q -n freetype-%{version}
+%patch0 -p1 -b .cvsfixes
+%patch1 -p1 -b .xorgfix
+%patch2 -p1 -b .fixautofit
+%patch3 -p1 -b .memleak
+%patch4 -p1 -b .vertical
 
 
 %build
@@ -88,6 +102,8 @@ developing programs which will use the FreeType2 library.
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
 
+%multiarch_binaries %{buildroot}%{_bindir}/freetype-config
+%multiarch_includes %{buildroot}%{_includedir}/freetype2/freetype/config/ftconfig.h
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -103,12 +119,18 @@ developing programs which will use the FreeType2 library.
 
 %files -n %{libname}-devel
 %defattr(-, root, root)
-%doc docs/*
 %{_bindir}/freetype-config
 %{_libdir}/*.so
 %{_libdir}/*.la
-%{_includedir}/*
+%dir %{_includedir}/freetype2
+%{_includedir}/freetype2/*
+%{_includedir}/ft2build.h
 %{_datadir}/aclocal/*
+%{_libdir}/pkgconfig/*
+%multiarch %{multiarch_bindir}/freetype-config
+%multiarch %dir %{multiarch_includedir}/freetype2
+%multiarch %{multiarch_includedir}/freetype2/*
+
 
 %files -n %{libname}-static-devel
 %defattr(-, root, root)
@@ -116,6 +138,13 @@ developing programs which will use the FreeType2 library.
 
 
 %changelog
+* Sun Sep 11 2005 Vincent Danen <vdanen@annvix.org> 2.1.10-1avx
+- 2.1.10
+- sync patches with mandriva 2.1.10-6mdk (not that we really care about
+  having a 100% freetype, but it's no real skin off our back)
+- drop the docs
+- multiarch support
+
 * Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 2.1.4-11avx
 - bootstrap build (new gcc, new glibc)
 
