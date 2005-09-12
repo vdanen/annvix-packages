@@ -1,7 +1,7 @@
---- fontconfig/src/fcdir.c.blacklist	Mon Aug 26 15:57:40 2002
-+++ fontconfig/src/fcdir.c	Fri Aug 30 14:59:05 2002
-@@ -150,6 +150,40 @@
-     return ret;
+--- fontconfig-2.2.98/src/fcdir.c.blacklist	2004-12-06 20:25:19.000000000 +0100
++++ fontconfig-2.2.98/src/fcdir.c	2005-01-11 14:00:50.040293236 +0100
+@@ -166,6 +166,41 @@
+     return FcFileScanConfig (set, dirs, cache, blanks, file, force, 0);
  }
  
 +static FcBool
@@ -38,10 +38,11 @@
 +    return FcFalse;
 +}
 +
- #define FC_MAX_FILE_LEN	    4096
- 
- FcBool
-@@ -201,7 +235,8 @@
++
+ /*
+  * Scan 'dir', adding font files to 'set' and
+  * subdirectories to 'dirs'
+@@ -232,7 +267,8 @@
      }
      while (ret && (e = readdir (d)))
      {
@@ -50,4 +51,4 @@
 +	    !FcBlackListed (e->d_name))
  	{
  	    strcpy ((char *) base, (char *) e->d_name);
- 	    ret = FcFileScan (set, dirs, cache, blanks, file, force);
+ 	    ret = FcFileScanConfig (set, dirs, cache, blanks, file, force, config);

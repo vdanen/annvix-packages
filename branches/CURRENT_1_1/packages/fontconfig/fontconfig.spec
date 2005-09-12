@@ -8,40 +8,33 @@
 
 
 %define name		fontconfig
-%define version		2.2.1
-%define release		11avx
+%define version		2.3.2
+%define release		1avx
 
 %define major		1
 %define libname		%mklibname %{name} %{major}
 
-%define freetype_ver	2.1.4
+%define freetype_ver	2.1.7
 
 Summary:	Font configuration library
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	MIT
-Group:		System/XFree86
+Group:		System/X11
 URL:		http://fontconfig.org/
 Source:		http://fontconfig.org/release/fontconfig-%{version}.tar.bz2
-
-# (fc) 2.0-5mdk don't add build date in configuration file 
-Patch3:		fontconfig-2.1.94-builddate.patch.bz2
-# (fc) 2.1-4mdk Blacklist certain fonts that freetype can't handle (rawhide)
-Patch5:		fontconfig-2.1-blacklist.patch.bz2
-# (fc) 2.1-4mdk support for slighthint is back (rawhide)
-Patch6:		fontconfig-2.1-slighthint.patch.bz2
-# (fc) 2.1-4mdk default configuration (rawhide) + (pablo) 2.2-3mdk adds font aliases for various languages
-Patch7:		fontconfig-2.2.1-defaultconfig.patch.bz2
-# (fc) 2.2.1-6mdk fix crash when HOME is not defined (bug #4518)
-Patch8:		fontconfig-2.2.1-home.patch.bz2
+Patch0:		fontconfig-2.3.2-libtool.patch.bz2
+Patch1:		fontconfig-2.2.98-blacklist.patch.bz2
+Patch2:		fontconfig-2.3.2-defaultconfig.patch.bz2
+Patch3:		fontconfig-2.3.2-includeconf.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	ed
 BuildRequires:	freetype2-devel >= %{freetype_ver}
-BuildRequires:	expat-devel
+BuildRequires:	expat-devel, autoconf2.5 >= 2.54
 
-PreReq:		%{libname}  >= %{version}-%{release}
+Requires(post):	%{libname} >= %{version}-%{release}
 
 %description
 Fontconfig is designed to locate fonts within the
@@ -79,11 +72,12 @@ and developer docs for the fontconfig package.
 
 %prep
 %setup -q
-%patch3 -p1 -b .builddate
-%patch5 -p1 -b .blacklist
-%patch6 -p1 -b .slighthint
-%patch7 -p1 -b .defaultconfig
-%patch8 -p1 -b .home
+%patch0 -p1 -b .libtool
+%patch1 -p1 -b .blacklist
+%patch2 -p1 -b .defaultconfig
+%patch3 -p1 -b .includeconf
+autoconf
+
 
 %build
 %configure2_5x \
@@ -98,7 +92,7 @@ make
 
 # remove unpackaged files
 rm -rf %{buildroot}%{_datadir}/doc/fontconfig
-
+rm -rf %{buildroot}%{_sysconfdir}/fonts/conf.d
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -116,11 +110,12 @@ rm -rf %{buildroot}%{_datadir}/doc/fontconfig
 %defattr(-, root, root)
 %doc README AUTHORS COPYING doc/fontconfig-user.html doc/fontconfig-user.txt
 %{_bindir}/fc-cache
+%{_bindir}/fc-match
 %{_bindir}/fc-list
 %dir %{_sysconfdir}/fonts
 %{_sysconfdir}/fonts/fonts.dtd
 %config(noreplace) %{_sysconfdir}/fonts/*.conf
-%{_mandir}/man5/*
+%{_mandir}/man1/*
 
 %files -n %{libname}
 %defattr(-, root, root)
@@ -134,10 +129,14 @@ rm -rf %{buildroot}%{_datadir}/doc/fontconfig
 %{_libdir}/*.so
 %{_libdir}/pkgconfig/*
 %{_includedir}/*
-%{_mandir}/man3/*
 
 
 %changelog
+* Sun Sep 11 2005 Vincent Danen <vdanen@annvix.org> 2.3.2-1avx
+- 2.3.2
+- built-in libtool fixes (gbeauchesne)
+- sync patches with mandriva 2.3.2-5mdk
+
 * Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 2.2.1-11avx
 - bootstrap build (new gcc, new glibc)
 
