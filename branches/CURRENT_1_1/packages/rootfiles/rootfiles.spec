@@ -8,8 +8,8 @@
 
 
 %define name		rootfiles
-%define version		9.1
-%define	release		6avx
+%define version		10.2
+%define	release		1avx
 
 Summary:	The basic required files for the root user's directory
 Name:		%{name}
@@ -25,9 +25,7 @@ BuildArch:	noarch
 
 %description
 The rootfiles package contains basic required files that are placed
-in the root user's account.  These files are basically the same
-as the files found in the etcskel package, which are placed in regular
-users' home directories.
+in the root user's account.
 
 
 %prep
@@ -41,6 +39,8 @@ users' home directories.
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 install -d %{buildroot}/root
 make install RPM_BUILD_ROOT=%{buildroot}
+
+rm -f %{buildroot}/root/.bash_completion
 
 
 %clean
@@ -60,6 +60,12 @@ make install RPM_BUILD_ROOT=%{buildroot}
 
 
 %changelog
+* Sun Sep 11 2005 Vincent Danen <vdanen@annvix.org> 10.2-1avx
+- mandriva 10.2-2mdk:
+  - modernize root's .vimrc
+  - clean description
+- get rid of bash completion junk
+
 * Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 9.1-6avx
 - bootstrap build (new gcc, new glibc)
 
