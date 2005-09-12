@@ -8,8 +8,8 @@
 
 
 %define name		pkgconfig
-%define version		0.15.0
-%define release		9avx
+%define version		0.19
+%define release		1avx
 
 Summary:	Pkgconfig helps make building packages easier
 Name:		%{name}
@@ -18,7 +18,14 @@ Release:	%{release}
 License:	GPL
 Group:		Development/Other
 URL:		http://www.freedesktop.org/software/pkgconfig
-Source:		http://www.freedesktop.org/software/pkgconfig/releases/pkgconfig-%{version}.tar.bz2
+Source:		http://www.freedesktop.org/software/pkgconfig/releases/pkg-config-%{version}.tar.bz2
+Patch1:		pkg-config-0.19-biarch.patch.bz2
+# (fc) 0.19-1mdk add --print-provides/--print-requires (Fedora)
+Patch2:		pkgconfig-0.15.0-reqprov.patch.bz2
+# (fc) 0.19-1mdk fix overflow with gcc4 (Fedora)
+Patch3:		pkgconfig-0.15.0-overflow.patch.bz2
+# (gb) 0.19-2mdk 64-bit fixes, though that code is not used, AFAICS
+Patch4:		pkg-config-0.19-64bit-fixes.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
@@ -28,15 +35,22 @@ when compiling a program for those programs which support it.
 
 
 %prep
-%setup -q
+%setup -q -n pkg-config-%{version}
+%patch1 -p1 -b .biarch
+%patch2 -p1 -b .reqprov
+%patch3 -p1 -b .overflow
+%patch4 -p1 -b .64bit-fixes
+
+#needed by patch1
+autoheader
+autoconf
 
 
 %build
 %{?__cputoolize: %{__cputoolize} -c glib-1.2.8}
-%configure
+%configure2_5x \
+    --enable-indirect-deps=yes
 %make
-# all tests must pass
-make check
 
 
 %install
@@ -44,6 +58,12 @@ make check
 %makeinstall_std
 
 mkdir -p %{buildroot}%{_libdir}/pkgconfig
+%if "%{_lib}" != "lib"
+mkdir -p %{buildroot}%{_prefix}/lib/pkgconfig
+ln -s ../../lib/pkgconfig %{buildroot}%{_libdir}/pkgconfig/32
+%endif
+
+mkdir -p %{buildroot}%{_datadir}/pkgconfig
 
 
 %clean
@@ -55,10 +75,26 @@ mkdir -p %{buildroot}%{_libdir}/pkgconfig
 %doc AUTHORS COPYING INSTALL README ChangeLog
 %{_bindir}/pkg-config
 %{_libdir}/pkgconfig
+%{_datadir}/pkgconfig
+%if "%{_lib}" != "lib"
+%{_prefix}/lib/pkgconfig
+%{_libdir}/pkgconfig/32
+%endif
 %{_datadir}/aclocal/*
 %{_mandir}/man1/*
 
+
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 0.15.0-9avx
+- 0.19
+- include some 64bit fixes (gbeauchesne)
+- remove make check since it doesn't pass upstream (fcrozat)
+- P1: biarch pkgconfig support (gbeauchesne)
+- P2: add --print-provides/--print-requires (from Fedora)
+- P3: fix overflow when using gcc4 (from Fedora)
+- create %%{_datadir}/pkgconfig for arch independant .pc files (fcrozat)
+
+
 * Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 0.15.0-9avx
 - bootstrap build (new gcc, new glibc)
 
