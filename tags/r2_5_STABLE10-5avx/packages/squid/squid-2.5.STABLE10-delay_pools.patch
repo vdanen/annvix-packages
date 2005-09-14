@@ -1,0 +1,255 @@
+Index: squid/src/delay_pools.c
+diff -c squid/src/delay_pools.c:1.19.2.8 squid/src/delay_pools.c:1.19.2.9
+*** squid/src/delay_pools.c:1.19.2.8	Wed Jun 18 17:53:35 2003
+--- squid/src/delay_pools.c	Sat Sep 10 19:49:53 2005
+***************
+*** 652,659 ****
+  	sc = (store_client *) node->data;
+  	if (sc->callback_data == NULL)	/* open slot */
+  	    continue;
+- 	if (sc->type != STORE_MEM_CLIENT)
+- 	    continue;
+  	i = delayBytesWanted(sc->delay_id, i, max);
+  	found = 1;
+      }
+--- 652,657 ----
+***************
+*** 661,667 ****
+  }
+  
+  delay_id
+! delayMostBytesAllowed(const MemObject * mem)
+  {
+      int j;
+      int jmax = -1;
+--- 659,665 ----
+  }
+  
+  delay_id
+! delayMostBytesAllowed(const MemObject * mem, size_t * read_sz)
+  {
+      int j;
+      int jmax = -1;
+***************
+*** 672,685 ****
+  	sc = (store_client *) node->data;
+  	if (sc->callback_data == NULL)	/* open slot */
+  	    continue;
+! 	if (sc->type != STORE_MEM_CLIENT)
+! 	    continue;
+! 	j = delayBytesWanted(sc->delay_id, 0, SQUID_TCP_SO_RCVBUF);
+  	if (j > jmax) {
+  	    jmax = j;
+  	    d = sc->delay_id;
+  	}
+      }
+      return d;
+  }
+  
+--- 670,683 ----
+  	sc = (store_client *) node->data;
+  	if (sc->callback_data == NULL)	/* open slot */
+  	    continue;
+! 	j = delayBytesWanted(sc->delay_id, 0, INT_MAX);
+  	if (j > jmax) {
+  	    jmax = j;
+  	    d = sc->delay_id;
+  	}
+      }
++     if (jmax >= 0 && jmax < (int) *read_sz)
++ 	*read_sz = (size_t) jmax;
+      return d;
+  }
+  
+Index: squid/src/ftp.c
+diff -c squid/src/ftp.c:1.316.2.31 squid/src/ftp.c:1.316.2.32
+*** squid/src/ftp.c:1.316.2.31	Thu Sep  1 16:42:03 2005
+--- squid/src/ftp.c	Sat Sep 10 19:49:53 2005
+***************
+*** 924,931 ****
+      StoreEntry *entry = ftpState->entry;
+      size_t read_sz;
+  #if DELAY_POOLS
+!     MemObject *mem = entry->mem_obj;
+!     delay_id delay_id = delayMostBytesAllowed(mem);
+  #endif
+      assert(fd == ftpState->data.fd);
+      if (EBIT_TEST(entry->flags, ENTRY_ABORTED)) {
+--- 924,930 ----
+      StoreEntry *entry = ftpState->entry;
+      size_t read_sz;
+  #if DELAY_POOLS
+!     delay_id delay_id;
+  #endif
+      assert(fd == ftpState->data.fd);
+      if (EBIT_TEST(entry->flags, ENTRY_ABORTED)) {
+***************
+*** 935,941 ****
+      errno = 0;
+      read_sz = ftpState->data.size - ftpState->data.offset;
+  #if DELAY_POOLS
+!     read_sz = delayBytesWanted(delay_id, 1, read_sz);
+  #endif
+      memset(ftpState->data.buf + ftpState->data.offset, '\0', read_sz);
+      statCounter.syscalls.sock.reads++;
+--- 934,940 ----
+      errno = 0;
+      read_sz = ftpState->data.size - ftpState->data.offset;
+  #if DELAY_POOLS
+!     delay_id = delayMostBytesAllowed(entry->mem_obj, &read_sz);
+  #endif
+      memset(ftpState->data.buf + ftpState->data.offset, '\0', read_sz);
+      statCounter.syscalls.sock.reads++;
+Index: squid/src/gopher.c
+diff -c squid/src/gopher.c:1.162.2.10 squid/src/gopher.c:1.162.2.11
+*** squid/src/gopher.c:1.162.2.10	Thu Sep  1 16:42:03 2005
+--- squid/src/gopher.c	Sat Sep 10 19:49:53 2005
+***************
+*** 621,627 ****
+      int bin;
+      size_t read_sz;
+  #if DELAY_POOLS
+!     delay_id delay_id = delayMostBytesAllowed(entry->mem_obj);
+  #endif
+      if (EBIT_TEST(entry->flags, ENTRY_ABORTED)) {
+  	comm_close(fd);
+--- 621,627 ----
+      int bin;
+      size_t read_sz;
+  #if DELAY_POOLS
+!     delay_id delay_id;
+  #endif
+      if (EBIT_TEST(entry->flags, ENTRY_ABORTED)) {
+  	comm_close(fd);
+***************
+*** 631,637 ****
+      buf = memAllocate(MEM_4K_BUF);
+      read_sz = 4096 - 1;		/* leave room for termination */
+  #if DELAY_POOLS
+!     read_sz = delayBytesWanted(delay_id, 1, read_sz);
+  #endif
+      /* leave one space for \0 in gopherToHTML */
+      statCounter.syscalls.sock.reads++;
+--- 631,637 ----
+      buf = memAllocate(MEM_4K_BUF);
+      read_sz = 4096 - 1;		/* leave room for termination */
+  #if DELAY_POOLS
+!     delay_id = delayMostBytesAllowed(entry->mem_obj, &read_sz);
+  #endif
+      /* leave one space for \0 in gopherToHTML */
+      statCounter.syscalls.sock.reads++;
+Index: squid/src/http.c
+diff -c squid/src/http.c:1.384.2.31 squid/src/http.c:1.384.2.32
+*** squid/src/http.c:1.384.2.31	Thu Sep  1 16:14:45 2005
+--- squid/src/http.c	Sat Sep 10 19:49:54 2005
+***************
+*** 563,588 ****
+      int len;
+      int bin;
+      int clen;
+!     size_t read_sz;
+  #if DELAY_POOLS
+      delay_id delay_id;
+- 
+-     /* special "if" only for http (for nodelay proxy conns) */
+-     if (delayIsNoDelay(fd))
+- 	delay_id = 0;
+-     else
+- 	delay_id = delayMostBytesAllowed(entry->mem_obj);
+  #endif
+      if (EBIT_TEST(entry->flags, ENTRY_ABORTED)) {
+  	comm_close(fd);
+  	return;
+      }
+-     /* check if we want to defer reading */
+-     errno = 0;
+-     read_sz = SQUID_TCP_SO_RCVBUF;
+  #if DELAY_POOLS
+!     read_sz = delayBytesWanted(delay_id, 1, read_sz);
+  #endif
+      statCounter.syscalls.sock.reads++;
+      len = FD_READ_METHOD(fd, buf, read_sz);
+      debug(11, 5) ("httpReadReply: FD %d: len %d.\n", fd, len);
+--- 563,585 ----
+      int len;
+      int bin;
+      int clen;
+!     size_t read_sz = SQUID_TCP_SO_RCVBUF;
+  #if DELAY_POOLS
+      delay_id delay_id;
+  #endif
++ 
+      if (EBIT_TEST(entry->flags, ENTRY_ABORTED)) {
+  	comm_close(fd);
+  	return;
+      }
+  #if DELAY_POOLS
+!     /* special "if" only for http (for nodelay proxy conns) */
+!     if (delayIsNoDelay(fd))
+! 	delay_id = 0;
+!     else
+! 	delay_id = delayMostBytesAllowed(entry->mem_obj, &read_sz);
+  #endif
++     errno = 0;
+      statCounter.syscalls.sock.reads++;
+      len = FD_READ_METHOD(fd, buf, read_sz);
+      debug(11, 5) ("httpReadReply: FD %d: len %d.\n", fd, len);
+Index: squid/src/protos.h
+diff -c squid/src/protos.h:1.420.2.36 squid/src/protos.h:1.420.2.37
+*** squid/src/protos.h:1.420.2.36	Thu Jun  9 01:51:47 2005
+--- squid/src/protos.h	Sat Sep 10 19:49:54 2005
+***************
+*** 1246,1252 ****
+  extern int delayBytesWanted(delay_id d, int min, int max);
+  extern void delayBytesIn(delay_id, int qty);
+  extern int delayMostBytesWanted(const MemObject * mem, int max);
+! extern delay_id delayMostBytesAllowed(const MemObject * mem);
+  extern void delaySetStoreClient(store_client * sc, delay_id delay_id);
+  extern void delayRegisterDelayIdPtr(delay_id * loc);
+  extern void delayUnregisterDelayIdPtr(delay_id * loc);
+--- 1246,1252 ----
+  extern int delayBytesWanted(delay_id d, int min, int max);
+  extern void delayBytesIn(delay_id, int qty);
+  extern int delayMostBytesWanted(const MemObject * mem, int max);
+! extern delay_id delayMostBytesAllowed(const MemObject * mem, size_t * bytes);
+  extern void delaySetStoreClient(store_client * sc, delay_id delay_id);
+  extern void delayRegisterDelayIdPtr(delay_id * loc);
+  extern void delayUnregisterDelayIdPtr(delay_id * loc);
+Index: squid/src/wais.c
+diff -c squid/src/wais.c:1.138.2.1 squid/src/wais.c:1.138.2.2
+*** squid/src/wais.c:1.138.2.1	Thu Sep  1 16:14:45 2005
+--- squid/src/wais.c	Sat Sep 10 19:49:54 2005
+***************
+*** 89,95 ****
+      int bin;
+      size_t read_sz;
+  #if DELAY_POOLS
+!     delay_id delay_id = delayMostBytesAllowed(entry->mem_obj);
+  #endif
+      if (EBIT_TEST(entry->flags, ENTRY_ABORTED)) {
+  	comm_close(fd);
+--- 89,95 ----
+      int bin;
+      size_t read_sz;
+  #if DELAY_POOLS
+!     delay_id delay_id;
+  #endif
+      if (EBIT_TEST(entry->flags, ENTRY_ABORTED)) {
+  	comm_close(fd);
+***************
+*** 98,104 ****
+      errno = 0;
+      read_sz = 4096;
+  #if DELAY_POOLS
+!     read_sz = delayBytesWanted(delay_id, 1, read_sz);
+  #endif
+      statCounter.syscalls.sock.reads++;
+      len = FD_READ_METHOD(fd, buf, read_sz);
+--- 98,104 ----
+      errno = 0;
+      read_sz = 4096;
+  #if DELAY_POOLS
+!     delay_id = delayMostBytesAllowed(entry->mem_obj, &read_sz);
+  #endif
+      statCounter.syscalls.sock.reads++;
+      len = FD_READ_METHOD(fd, buf, read_sz);

@@ -1,0 +1,38 @@
+Index: squid/src/store_io.c
+diff -c squid/src/store_io.c:1.10.2.1 squid/src/store_io.c:1.10.2.3
+*** squid/src/store_io.c:1.10.2.1	Fri Mar 25 19:50:54 2005
+--- squid/src/store_io.c	Sat Sep 10 19:11:57 2005
+***************
+*** 20,26 ****
+  storeIOState *
+  storeCreate(StoreEntry * e, STIOCB * file_callback, STIOCB * close_callback, void *callback_data)
+  {
+!     size_t objsize;
+      sdirno dirn;
+      SwapDir *SD;
+      storeIOState *sio;
+--- 20,26 ----
+  storeIOState *
+  storeCreate(StoreEntry * e, STIOCB * file_callback, STIOCB * close_callback, void *callback_data)
+  {
+!     squid_off_t objsize;
+      sdirno dirn;
+      SwapDir *SD;
+      storeIOState *sio;
+***************
+*** 41,47 ****
+  	store_io_stats.create.select_fail++;
+  	return NULL;
+      }
+!     debug(20, 2) ("storeCreate: Selected dir '%d' for obj size '%ld'\n", dirn, (long int) objsize);
+      SD = &Config.cacheSwap.swapDirs[dirn];
+  
+      /* Now that we have a fs to use, call its storeCreate function */
+--- 41,47 ----
+  	store_io_stats.create.select_fail++;
+  	return NULL;
+      }
+!     debug(20, 2) ("storeCreate: Selected dir '%d' for obj size '%" PRINTF_OFF_T "'\n", dirn, objsize);
+      SD = &Config.cacheSwap.swapDirs[dirn];
+  
+      /* Now that we have a fs to use, call its storeCreate function */
