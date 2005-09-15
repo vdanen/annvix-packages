@@ -9,7 +9,7 @@
 
 %define name		httpd-conf
 %define version		2.0.54
-%define release		2avx
+%define release		3avx
 
 %define compat_dir	/etc/httpd
 %define compat_conf	/etc/httpd/conf
@@ -39,12 +39,15 @@ Source102:	03_apache2.afterboot
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	dietlibc-devel >= 0.20-1mdk
 
-Requires:	lynx >= 2.8.5
+Requires:	lynx >= 2.8.5, httpd >= %{version}
+Requires(post):	rpm-helper
+Requires(postun): rpm-helper, afterboot
+Requires(pre):	rpm-helper, afterboot
+Requires(preun): rpm-helper
 Provides:	apache2-conf apache-conf
 Obsoletes:	apache2-conf apache-conf
 #JMD: We have to do this here, since files have moved
 Obsoletes:	apache-common
-PreReq:		rpm-helper, afterboot
 
 %description
 This package contains configuration files for apache. It is
@@ -225,6 +228,13 @@ install -m 0644 %{SOURCE102} %{buildroot}%{_datadir}/afterboot/03_apache
 
 
 %changelog
+* Thu Sep 15 2005 Vincent Danen <vdanen@annvix.org> 2.0.54-3avx
+- remove the conf/webapps.d/*.conf stuff from httpd.conf; this is a
+  Mandriva-ism that we do not want (is used by rpm packaged web-apps
+  which I strongly disagree with)
+- new style PreReqs
+- make this package also require httpd
+
 * Wed Sep 07 2005 Vincent Danen <vdanen@annvix.org> 2.0.54-2avx
 - i had fixed the config of the wrong httpd.conf file; fixed to
   minimize the exposed info
