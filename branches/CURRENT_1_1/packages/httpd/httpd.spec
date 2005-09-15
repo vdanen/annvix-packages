@@ -9,7 +9,7 @@
 
 %define name		httpd
 %define version		2.0.54
-%define release		2avx
+%define release		3avx
 
 #
 #(ie. use with rpm --rebuild):
@@ -52,7 +52,7 @@
 # the name for libapr will be different on 64bit
 %define libapr		%mklibname apr 0
 
-Summary:	The Apache web server
+Summary:	Apache web server (prefork mpm)
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -153,11 +153,14 @@ BuildRequires:	%{dbver}-devel, expat-devel, gdbm-devel, openldap-devel, libsasl-
 BuildRequires:	libtool >= 1.4.2, openssl-devel, autoconf2.5, automake1.7, pkgconfig, zlib-devel
 BuildRequires:	multiarch-utils >= 1.0.3
 
-Prereq:		httpd-conf >= 2.0.54-1avx
-Prereq:		httpd-common = %{version}
-Prereq:		httpd-modules = %{version}
-PreReq:		rpm-helper
-Provides:	webserver apache apache2 apache-mpm apache2-prefork httpd-mpm httpd-prefork
+Requires:	libapr-util >= 0.9.6-4avx, %{libapr} >= 1:0.9.6-4avx
+Requires:	httpd-conf >= 2.0.54-1avx, httpd-common = %{version}-%{release}, httpd-modules = %{version}-%{release}
+Requires(pre):	rpm-helper, httpd-conf >= 2.0.54-1avx, httpd-common = %{version}-%{release}, httpd-modules = %{version}-%{release}
+Requires(preun): libapr-util >= 0.9.6-4avx, %{libapr} >= 1:0.9.6-4avx
+Requires(post):	libapr-util >= 0.9.6-4avx, %{libapr} >= 1:0.9.6-4avx
+Requires(postun): rpm-helper
+Provides:	webserver apache apache2 apache-mpm apache2-prefork httpd-mpm
+Provides:	httpd-prefork = %{version}-%{release}
 Obsoletes:	apache2
 
 %description
@@ -178,11 +181,14 @@ You can build Apache with some conditional build switches;
 %package worker
 Summary:	Apache web server (worker mpm)
 Group:		System/Servers
-Prereq:		httpd-conf >= 2.0.54-1avx
-Prereq:		httpd-common = %{version}
-Prereq:		httpd-modules = %{version}
-PreReq:		rpm-helper
+Requires:	libapr-util >= 0.9.6-4avx, %{libapr} >= 1:0.9.6-4avx
+Requires:	httpd-conf >= 2.0.54-1avx, httpd-common = %{version}-%{release}, httpd-modules = %{version}-%{release}
+Requires(pre):	rpm-helper, httpd-conf >= 2.0.54-1avx, httpd-common = %{version}-%{release}, httpd-modules = %{version}-%{release}
+Requires(preun): libapr-util >= 0.9.6-4avx, %{libapr} >= 1:0.9.6-4avx
+Requires(post):	libapr-util >= 0.9.6-4avx, %{libapr} >= 1:0.9.6-4avx
+Requires(postun): rpm-helper
 Provides:	webserver apache apache2 apache-mpm apache2-worker httpd-mpm
+Provides:	%{name} = %{version}-%{release}
 Obsoletes:	apache2-worker
 
 %description worker
@@ -205,6 +211,11 @@ usage. Be warned.
 %package common
 Summary:	Files common for httpd and httpd-mod_perl installations
 Group:		System/Servers
+Requires:	libapr-util >= 0.9.6-4avx, %{libapr} >= 1:0.9.6-4avx
+Requires(pre):	rpm-helper
+Requires(preun): libapr-util >= 0.9.6-4avx, %{libapr} >= 1:0.9.6-4avx
+Requires(post):	libapr-util >= 0.9.6-4avx, %{libapr} >= 1:0.9.6-4avx
+Requires(postun): rpm-helper
 Prereq:		rpm-helper
 Prereq:		libapr-util >= 0.9.6-4avx
 Prereq:		%{libapr} >= 1:0.9.6-4avx
@@ -220,6 +231,8 @@ or Apache with mod_perl.
 %package modules
 Summary:	Standard modules for Apache
 Group:		System/Servers
+Requires(pre):	rpm-helper
+Requires(postun): rpm-helper
 Provides:	httpd-mod_access = %{version}
 Provides:	httpd-mod_actions = %{version}
 Provides:	httpd-mod_alias = %{version}
@@ -286,6 +299,8 @@ for normal operation of the web server.
 %package mod_dav
 Summary:	Distributed Authoring and Versioning (WebDAV)
 Group:		System/Servers
+Requires(pre):	rpm-helper, httpd-conf >= %{version}, httpd-common = %{version}-%{release}, httpd-modules = %{version}-%{release}
+Requires(postun): rpm-helper
 Prereq:		httpd-conf
 Prereq:		httpd-common = %{version}
 Prereq:		httpd-modules = %{version}
@@ -305,9 +320,8 @@ server.
 %package mod_ldap
 Summary:	LDAP connection pooling and result caching DSO:s
 Group:		System/Servers
-Prereq:		httpd-conf
-Prereq:		httpd-common = %{version}
-Prereq:		httpd-modules = %{version}
+Requires(pre):	rpm-helper, httpd-conf >= %{version}, httpd-common = %{version}-%{release}, httpd-modules = %{version}-%{release}
+Requires(postun): rpm-helper
 Provides:	httpd-mod_auth_ldap = %{version}
 Obsoletes:	apache2-mod_ldap apache2-mod_auth_ldap
 Provides:	apache2-mod_ldap = %{version}, apache2-mod_auth_ldap = %{version}
@@ -322,9 +336,8 @@ an LDAP connection pool and an LDAP shared memory cache.
 %package mod_cache
 Summary:	Content cache keyed to URIs
 Group:		System/Servers
-Prereq:		httpd-conf
-Prereq:		httpd-common = %{version}
-Prereq:		httpd-modules = %{version}
+Requires(pre):	rpm-helper, httpd-conf >= %{version}, httpd-common = %{version}-%{release}, httpd-modules = %{version}-%{release}
+Requires(postun): rpm-helper
 Obsoletes:	apache2-mod_cache
 Provides:	apache2-mod_cache = %{version}
 
@@ -351,10 +364,9 @@ configured for ProxyPass (aka reverse proxy)
 %package mod_disk_cache
 Summary:	Implements a disk based storage manager
 Group:		System/Servers
-Prereq:		httpd-conf
-Prereq:		httpd-common = %{version}
-Prereq:		httpd-modules = %{version}
-Prereq:		httpd-mod_cache = %{version}
+Requires(pre):	rpm-helper, httpd-conf >= %{version}, httpd-common = %{version}-%{release}, httpd-modules = %{version}-%{release}
+Requires(pre):	httpd-mod_cache = %{version}-%{release}
+Requires(postun): rpm-helper
 Obsoletes:	apache2-mod_cache
 Provides:	apache2-mod_cache = %{version}
 
@@ -369,10 +381,9 @@ keys. Content with access protection is not cached.
 %package mod_mem_cache
 Summary:	Implements a memory based storage manager
 Group:		System/Servers
-Prereq:		httpd-conf
-Prereq:		httpd-common = %{version}
-Prereq:		httpd-modules = %{version}
-Prereq:		httpd-mod_cache = %{version}
+Requires(pre):	rpm-helper, httpd-conf >= %{version}, httpd-common = %{version}-%{release}, httpd-modules = %{version}-%{release}
+Requires(pre):	httpd-mod_cache = %{version}-%{release}
+Requires(postun): rpm-helper
 Obsoletes:	apache2-mod_mem_cache
 Provides:	apache2-mod_mem_cache = %{version}
 
@@ -392,9 +403,8 @@ keys. Content with access protection is not cached.
 %package mod_file_cache
 Summary:	Caches a static list of files in memory
 Group:		System/Servers
-Prereq:		httpd-conf
-Prereq:		httpd-common = %{version}
-Prereq:		httpd-modules = %{version}
+Requires(pre):	rpm-helper, httpd-conf >= %{version}, httpd-common = %{version}-%{release}, httpd-modules = %{version}-%{release}
+Requires(postun): rpm-helper
 Obsoletes:	apache2-mod_file_cache
 Provides:	apache2-mod_file_cache = %{version}
 
@@ -422,9 +432,8 @@ mod_mmap_static module in Apache 1.3.
 %package mod_deflate
 Summary:	Compress content before it is delivered to the client
 Group:		System/Servers
-Prereq:		httpd-conf
-Prereq:		httpd-common = %{version}
-Prereq:		httpd-modules = %{version}
+Requires(pre):	rpm-helper, httpd-conf >= %{version}, httpd-common = %{version}-%{release}, httpd-modules = %{version}-%{release}
+Requires(postun): rpm-helper
 Provides:	mod_gzip
 Obsoletes:	mod_gzip
 Obsoletes:	apache2-mod_deflate
@@ -439,11 +448,9 @@ to the client over the network.
 %package mod_proxy
 Summary:	HTTP/1.1 proxy/gateway server
 Group:		System/Servers
-Prereq:		httpd-conf
-Prereq:		httpd-common = %{version}
-Prereq:		httpd-modules = %{version}
-Prereq:		httpd-mod_cache = %{version}
-Prereq:		httpd-mod_disk_cache = %{version}
+Requires(pre):	rpm-helper, httpd-conf >= %{version}, httpd-common = %{version}-%{release}, httpd-modules = %{version}-%{release}
+Requires(pre):	httpd-mod_cache = %{version}-%{release}, httpd-mod_disk_cache = %{version}-%{release}
+Requires(postun): rpm-helper
 Provides:	httpd-mod_proxy_connect = %{version}
 Provides:	httpd-mod_proxy_ftp = %{version}
 Provides:	httpd-mod_proxy_http = %{version}
@@ -470,9 +477,8 @@ incorporated into a new module, mod_cache.
 %package mod_userdir
 Summary:	User-specific directories
 Group:		System/Servers
-Prereq:		httpd-conf
-Prereq:		httpd-common = %{version}
-Prereq:		httpd-modules = %{version}
+Requires(pre):	rpm-helper, httpd-conf >= %{version}, httpd-common = %{version}-%{release}, httpd-modules = %{version}-%{release}
+Requires(postun): rpm-helper
 Provides:	apache2-mod_userdir = %{version}
 Obsoletes:	apache2-mod_userdir
 
@@ -1344,6 +1350,10 @@ strip %{buildroot}%{_sbindir}/httpd-worker
 
 
 %changelog
+* Thu Sep 15 2005 Vincent Danen <vdanen@annvix.org> 2.0.54-3avx
+- make httpd-worker provide httpd
+- new style PreReq
+
 * Fri Sep 09 2005 Vincent Danen <vdanen@annvix.org> 2.0.54-2avx
 - P124: patch to fix CAN-2005-2700
 - P125: patch to fix CAN-2005-2728
