@@ -10,9 +10,9 @@
 %define name		php-%{modname}
 %define version		%{phpversion}_%{rver}
 %define rver		2.0.4
-%define release		3avx
+%define release		1avx
 
-%define phpversion	4.3.11
+%define phpversion	4.4.0
 %define phpsource       %{_prefix}/src/php-devel
 %define phpdir		%{_libdir}/php
 
@@ -115,6 +115,9 @@ install -m 0755 %{soname} %{buildroot}%{phpdir}/extensions/
 
 
 %changelog
+* Wed Sep 14 2005 Vincent Danen <vdanen@annvix.org> 4.4.0_2.0.4-1avx
+- php 4.4.0
+
 * Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 4.3.11_2.0.4-3avx
 - bootstrap build (new gcc, new glibc)
 
