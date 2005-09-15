@@ -9,7 +9,7 @@
 
 %define name		syslinux
 %define version 	1.76
-%define release 	16avx
+%define release 	17avx
 
 %define old_version	1.67
 %define pxelinux_ver	2.13
@@ -33,7 +33,7 @@ Patch5:		syslinux-1.76-mdk-kernel-length.patch.bz2
 Patch6:		syslinux-1.76-avx-nostack.patch
 Patch7:		syslinux-2.13-avx-nostack.patch
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	nasm >= 0.97, netpbm
 
 ExclusiveArch:	%{ix86}
@@ -147,6 +147,9 @@ popd
 
 
 %changelog
+* Thu Sep 15 2005 Vincent Danen <vdanen@annvix.org> 1.76-17avx
+- correct the buildroot
+
 * Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 1.76-16avx
 - bootstrap build (new gcc, new glibc)
 - disable P6 and P7 for now

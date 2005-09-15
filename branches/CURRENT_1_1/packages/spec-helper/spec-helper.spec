@@ -9,7 +9,7 @@
 
 %define name		spec-helper
 %define version 	0.11
-%define release 	3avx
+%define release 	4avx
 
 %define distrib		Annvix
 
@@ -24,7 +24,7 @@ URL:		http://www.mandrakelinux.com
 # http://www.mandrakelinux.com/en/cvs.php3)
 Source0:	%{name}-%{version}.tar.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
 
 Requires:	perl ldconfig findutils python gettext
@@ -58,6 +58,9 @@ make install DESTDIR=%{buildroot} bindir=%{buildroot}/%{_bindir}
 
 
 %changelog
+* Thu Sep 15 2005 Vincent Danen <vdanen@annvix.org> 0.11-4avx
+- correct the buildroot
+
 * Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 0.11-3avx
 - bootstrap build (new gcc, new glibc)
 

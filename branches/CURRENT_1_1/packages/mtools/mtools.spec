@@ -9,7 +9,7 @@
 
 %define name		mtools
 %define version		3.9.9
-%define release		8avx
+%define release		9avx
 
 Summary:	Programs for accessing MS-DOS disks without mounting the disks
 Name: 		%{name}
@@ -25,7 +25,7 @@ Patch2: 	mtools-3.9.6-atari.patch.bz2
 Patch4: 	mtools-3.9.8-fs.patch.bz2
 Patch5: 	mtools-3.9.9-supermount.patch.bz2
 
-BuildRoot: 	%{_tmppath}/%{name}-%{version}
+BuildRoot: 	%{_buildroot}/%{name}-%{version}
 BuildRequires: 	texinfo
 
 PreReq: 	info-install
@@ -99,6 +99,9 @@ cp -a %{buildroot}%{_bindir}/mtools %{buildroot}%{_bindir}/mformat
 
 
 %changelog
+* Thu Sep 15 2005 Vincent Danen <vdanen@annvix.org> 3.9.9-9avx
+- correct the buildroot
+
 * Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 3.9.9-8avx
 - bootstrap build (new gcc, new glibc)
 

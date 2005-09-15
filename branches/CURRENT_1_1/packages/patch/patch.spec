@@ -9,7 +9,7 @@
 
 %define name		patch
 %define version 	2.5.9
-%define release 	7avx
+%define release 	8avx
 
 Summary:	The GNU patch command, for modifying/upgrading files
 Name:		%{name}
@@ -24,7 +24,7 @@ Patch2:		patch-2.5.4-unreadable_to_readable.patch.bz2
 Patch3:		patch-2.5.8-stderr.patch.bz2
 Patch5:		patch-2.5.4-destdir.patch.bz2
 
-Buildroot:	%{_tmppath}/%{name}-%{version}
+Buildroot:	%{_buildroot}/%{name}-%{version}
 
 %description
 The patch program applies diff files to originals.  The diff command
@@ -70,6 +70,9 @@ make "CFLAGS=%{optflags} -D_GNU_SOURCE -W -Wall" LDFLAGS=-s
 %{_mandir}/*/*
 
 %changelog
+* Thu Sep 15 2005 Vincent Danen <vdanen@annvix.org> 2.5.9-8avx
+- correct the buildroot
+
 * Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 2.5.9-7avx
 - bootstrap build (new gcc, new glibc)
 

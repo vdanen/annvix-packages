@@ -9,7 +9,7 @@
 
 %define name		makedev
 %define version		4.1
-%define release 	7avx
+%define release 	8avx
 
 %define devrootdir	/lib/root-mirror
 %define dev_lock	/var/lock/subsys/dev
@@ -22,10 +22,10 @@ Release:	%{release}
 License:	GPL
 Group:		System/Kernel and hardware
 URL:		http://cvs.mandriva.com/cgi-bin/cvsweb.cgi/soft/makedev/
-Source:		%name-%version.tar.bz2
+Source:		%{name}-%{version}.tar.bz2
 Patch:		makedev-4.1-avx-random.patch.bz2
 
-BuildRoot:	%_tmppath/%name-%{version}
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
 
 Prereq:		shadow-utils, sed, coreutils, mktemp
@@ -131,15 +131,18 @@ fi
 %files
 %defattr(-,root,root)
 %doc COPYING devices.txt README
-%_mandir/*/*
+%{_mandir}/*/*
 /sbin/makedev
-%dir %_sysconfdir/makedev.d/
-%config(noreplace) %_sysconfdir/makedev.d/*
+%dir %{_sysconfdir}/makedev.d/
+%config(noreplace) %{_sysconfdir}/makedev.d/*
 %dir /dev
 %dir %devrootdir
 
 
 %changelog
+* Thu Sep 15 2005 Vincent Danen <vdanen@annvix.org> 4.1-8avx
+- correct the buildroot
+
 * Wed Aug 17 2005 Vincent Danen <vdanen@annvix.org> 4.1-7avx
 - bootstrap build (new gcc, new glibc)
 
@@ -232,7 +235,7 @@ fi
 - clean scripts:
 	o merge %%pre and %%post
 	o dev %%post: /dev/{pts,shm}'re managed by drakx
-	o MAKEDEV is in %_sbindir, link in dev and not the reverse
+	o MAKEDEV is in %{_sbindir}, link in dev and not the reverse
 - add back kernel-2.2.x support (aka devfs isn't mounted)
 - enforce pts,shm location
 

@@ -9,7 +9,7 @@
 
 %define name		slocate
 %define version		2.7
-%define release		7avx
+%define release		8avx
 
 Summary:	Finds files on a system via a central database
 Name:		%{name}
@@ -26,7 +26,7 @@ Patch:		slocate-2.5-info.patch.bz2
 Patch1:		slocate-2.5-glibc-2.2.patch.bz2
 Patch2:		slocate-2.5-segfault.patch.bz2
 
-Buildroot:	%{_tmppath}/%{name}-%{version}
+Buildroot:	%{_buildroot}/%{name}-%{version}
 
 Prereq:		shadow-utils
 
@@ -53,20 +53,20 @@ chmod 0644 AUTHORS INSTALL LICENSE README ChangeLog
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p $RPM_BUILD_ROOT%{_bindir}
-mkdir -p $RPM_BUILD_ROOT%{_mandir}/man1
-mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/cron.weekly
-mkdir -p $RPM_BUILD_ROOT/var/lib/slocate
+mkdir -p %{buildroot}%{_bindir}
+mkdir -p %{buildroot}%{_mandir}/man1
+mkdir -p %{buildroot}%{_sysconfdir}/cron.weekly
+mkdir -p %{buildroot}/var/lib/slocate
 
-install slocate $RPM_BUILD_ROOT%{_bindir}
-(cd $RPM_BUILD_ROOT%{_bindir} && rm -f locate && ln slocate locate )
-gzip -dc doc/slocate.1.linux.gz > $RPM_BUILD_ROOT%{_mandir}/man1/slocate.1
-gzip -dc doc/updatedb.1.gz > $RPM_BUILD_ROOT%{_mandir}/man1/updatedb.1
-(cd $RPM_BUILD_ROOT%{_mandir}/man1 && ln slocate.1 locate.1)
-install -m 0755 %{SOURCE1} $RPM_BUILD_ROOT%{_sysconfdir}/cron.weekly/
+install slocate %{buildroot}%{_bindir}
+(cd %{buildroot}%{_bindir} && rm -f locate && ln slocate locate )
+gzip -dc doc/slocate.1.linux.gz > %{buildroot}%{_mandir}/man1/slocate.1
+gzip -dc doc/updatedb.1.gz > %{buildroot}%{_mandir}/man1/updatedb.1
+(cd %{buildroot}%{_mandir}/man1 && ln slocate.1 locate.1)
+install -m 0755 %{SOURCE1} %{buildroot}%{_sysconfdir}/cron.weekly/
 
-install -m 0644 %{SOURCE3} $RPM_BUILD_ROOT%{_sysconfdir}/
-install -m 0755 %{SOURCE4} $RPM_BUILD_ROOT%{_bindir}/updatedb
+install -m 0644 %{SOURCE3} %{buildroot}%{_sysconfdir}/
+install -m 0755 %{SOURCE4} %{buildroot}%{_bindir}/updatedb
 
 
 %clean
@@ -104,6 +104,9 @@ fi
 
 
 %changelog
+* Thu Sep 15 2005 Vincent Danen <vdanen@annvix.org> 2.7-8avx
+- correct the buildroot
+
 * Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 2.7-7avx
 - bootstrap build (new gcc, new glibc)
 

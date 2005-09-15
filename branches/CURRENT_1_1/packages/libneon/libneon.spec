@@ -8,7 +8,7 @@
 
 %define name		libneon
 %define version		0.24.7
-%define release		1avx
+%define release		2avx
 
 %define	major		0.24
 %define libname		%mklibname neon %{major}
@@ -27,7 +27,7 @@ Patch1:		neon-0.24.7-gssapi.patch.bz2
 Patch2:		neon-0.24.7-min.patch.bz2
 Patch3:		neon-0.24.7-avx-no_wildcard_match.patch.bz2
 
-Buildroot: 	%{_tmppath}/%{name}-%{version}
+Buildroot: 	%{_buildroot}/%{name}-%{version}
 BuildRequires:	openssl-devel >= 0.9.7
 BuildRequires:	libxml2-devel
 BuildRequires:	libxmlrpc-devel
@@ -159,6 +159,9 @@ rm -rf %{buildroot}%{_datadir}/doc
 
 
 %changelog
+* Thu Sep 15 2005 Vincent Danen <vdanen@annvix.org> 0.24.7-2avx
+- correct the buildroot
+
 * Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 0.24.7-1avx
 - first Annvix build (required by new rpm)
 - P3: disable the ssl wildcard_match test (just sits there doing nothing)
