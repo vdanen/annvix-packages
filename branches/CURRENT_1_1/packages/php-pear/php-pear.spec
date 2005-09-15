@@ -9,15 +9,15 @@
 
 %define name		php-%{subname}
 %define version		%{phpversion}
-%define release		4avx
+%define release		1avx
 
-%define phpversion	4.3.11
+%define phpversion	4.4.0
 %define phpsource       %{_prefix}/src/php-devel
 %define phpdir		%{_libdir}/php
 %define peardir		%{_datadir}/pear
 
 %define subname		pear
-%define pear_date	20040506
+%define pear_date	20050914
 
 Summary:	The PHP PEAR files
 Name:		%{name}
@@ -28,8 +28,6 @@ Group:		Development/Other
 URL:		http://www.php.net
 Source0:	php-pear-%{pear_date}.tar.bz2
 Source1:	fixregistry.php
-Patch0:		php-pear-CAN-2005-1921.patch
-Patch1:		php-pear-CAN-2005-2498.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	php4-devel php-xml perl php-cli
@@ -71,7 +69,7 @@ pronounced just like the fruit. The purpose of PEAR is to provide:
 # Make sure that there are no < /dev/tty statements in go-pear
 perl -pi -e "s|/dev/tty|php://stdin|;" go-pear
 perl -pi -e 's|detect_install_dirs\(\)|detect_install_dirs("%{buildroot}/usr")|;' go-pear
-perl -pi -e "s|'XML_Parser',|'XML_Parser',\n    'Log',\n    'Mail_Mime',\n    |;" go-pear
+perl -pi -e "s|'XML_Parser',|'XML_Parser',\n    'PHP_Compat',\n|;" go-pear
 
 
 %install
@@ -108,12 +106,6 @@ rm -f %{buildroot}/%{_prefix}/php.ini-gopear
 # Create the directory that will contain .xml of additional packages
 mkdir %{buildroot}%{peardir}/packages
 
-# fix for CAN-2005-1921
-pushd %{buildroot}%{peardir}/XML
-    patch <%{PATCH0}
-    patch -p0 <%{PATCH1}
-popd
-
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -131,6 +123,24 @@ popd
 
 
 %changelog
+* Wed Sep 14 2005 Vincent Danen <vdanen@annvix.org> 4.4.0-1avx
+- php 4.4.0
+- refreshed the pear tarball so we now have:
+  - Archive_Tar 1.3.1
+  - Console_Getopt 1.2
+  - DB 1.7.6
+  - Mail 1.1.9
+  - Net_SMTP 1.2.7
+  - Net_Socket 1.0.6
+  - PEAR 1.3.6
+  - PHPUnit 1.3.1
+  - XML_Parser 1.2.6
+  - XML_RPC 1.4.1
+  - Mail_Mime 1.3.1
+  - Log 1.8.7
+- add PHP_Compat 1.4.1; PHPUnit needs it
+- drop P0 and P1; no longer required
+
 * Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 4.3.11-4avx
 - bootstrap build (new gcc, new glibc)
 - P1: patch to fix CAN-2005-2498
