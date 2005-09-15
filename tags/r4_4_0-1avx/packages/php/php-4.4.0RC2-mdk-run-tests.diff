@@ -1,0 +1,11 @@
+--- run-tests.php	2005-06-19 00:54:07.000000000 +0200
++++ run-tests.php.oden	2005-07-05 12:24:10.201810820 +0200
+@@ -412,7 +412,7 @@
+ 			$autoconf = shell_exec('autoconf --version');
+ 
+ 			/* Always use the generated libtool - Mac OSX uses 'glibtool' */
+-			$libtool = shell_exec($CUR_DIR . '/libtool --version');
++ 			$libtool = shell_exec('libtool --version');
+ 
+ 			/* Try the most common flags for 'version' */
+ 			$flags = array('-v', '-V', '--version');
