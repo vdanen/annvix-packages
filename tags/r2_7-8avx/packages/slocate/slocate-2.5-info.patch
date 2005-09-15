@@ -1,0 +1,47 @@
+--- slocate-2.5/main.c.chmou	Tue Jan 22 20:05:17 2002
++++ slocate-2.5/main.c	Tue Jan 22 20:05:23 2002
+@@ -158,6 +158,9 @@
+ 
+ int decode_db(char *database, char *str);
+ 
++int SPECDIR=0;
++int ROOTDIR=0;   
++
+ /* Usage */
+ 
+ void
+@@ -361,8 +364,14 @@
+ 		else {
+ 			if (res_errno == -1)
+ 			    report_error(WARNING,QUIET,"%s: this is not a valid slocate database: %s\n",progname,part);
+-			else
+-			    report_error(WARNING,QUIET,"%s: could not open database: %s: %s\n",progname,part,strerror(res_errno));
++			else {
++				if (!ROOTDIR) {
++					report_error(WARNING,QUIET,"%s: could not open database: %s: %s\n",progname,part,strerror(res_errno));
++					if (!ROOTDIR && !SPECDIR)
++					  report_error(WARNING,QUIET,"You need to run the 'updatedb' command (as root) to create the database.\n");
++				}
++				
++			}
+ 		}
+ 		/* Get next path */
+ 		part = strtok(NULL, ":");
+@@ -1104,6 +1113,8 @@
+ 	
+ 	if ((fd = open(database,O_RDONLY)) == -1) {
+ 		report_error(WARNING,QUIET,"%s: decode_db(): %s: %s\n",progname,database,strerror(errno));
++		if (!ROOTDIR && !SPECDIR)
++		  report_error(WARNING,QUIET,"You need to run the 'updatedb' command (as root) to create the database.\n");
+ 		return(0);
+ 	}
+ 	
+@@ -1305,8 +1316,6 @@
+ 	extern char *optarg;
+ 	extern int optind, opterr, optopt;
+ 	char *p;
+-	int SPECDIR=0;
+-	int ROOTDIR=0;   
+ 	char *spec_dir=NULL;
+ 	char *database;
+ 	int i=0;
