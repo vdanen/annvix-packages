@@ -8,8 +8,8 @@
 
 
 %define name		php
-%define version		4.3.11
-%define release		3avx
+%define version		4.4.0
+%define release		1avx
 %define epoch		2
 
 %define libversion	4
@@ -21,20 +21,8 @@
 
 %define _requires_exceptions BEGIN\\|mkinstalldirs
 
-# OE: conditional switches
-#
-#(ie. use with rpm --rebuild):
-#
-#	--with debug	Compile with debugging code
-# 
-#  enable build with debugging code: will _not_ strip away any debugging code,
-#  will _add_ -g3 to CFLAGS, will _add_ --enable-maintainer-mode to 
-#  configure.
-
 %define build_debug 	0
 
-# commandline overrides:
-# rpm -ba|--rebuild --with 'xxx'
 %{?_with_debug: %{expand: %%define build_debug 1}}
 
 %if %{build_debug}
@@ -48,9 +36,6 @@
 # symbols from stack protection cause the build to fail so until we figure
 # it out, don't build with -fstack-protector
 #%#{expand:%%define optflags %{optflags} %(echo '-fno-stack-protector')}
-
-#The external_modules definition has been put in the %%build section
-#to clean things a bit
 
 Summary:	The PHP4 scripting language
 Name:		%{name}
@@ -67,13 +52,12 @@ Patch0:		php-4.3.0-mdk-init.patch.bz2
 Patch1:		php-4.3.6-mdk-shared.patch.bz2
 Patch2:		php-4.3.0-mdk-imap.patch.bz2
 Patch4:		php-4.3.4RC3-mdk-64bit.patch.bz2
-Patch5:		php-4.3.11-mdk-lib64.patch.bz2
+Patch5:		php-4.4.0RC2-mdk-lib64.patch.bz2
 Patch6:		php-4.3.0-mdk-fix-pear.patch.bz2
 Patch7:		php-4.3.11-mdk-libtool.patch.bz2
 Patch9:		php-4.3.11-mdk-no_egg.patch.bz2
-Patch10:	php-4.3.10-mdk-phpize.patch.bz2
-Patch11:	php-4.3.7-mdk-run-tests.diff.bz2
-
+Patch10:	php-4.4.0RC1-mdk-phpize.diff.bz2
+Patch11:	php-4.4.0RC2-mdk-run-tests.diff.bz2
 # from PLD (20-40)
 Patch20:	php-4.3.0-pld-mail.patch.bz2
 Patch21:	php-4.3.10-pld-mcal-shared-lib.patch.bz2
@@ -84,7 +68,6 @@ Patch25:	php-4.3.0-pld-hyperwave-fix.patch.bz2
 Patch27:	php-4.3.3RC3-pld-sybase-fix.patch.bz2
 Patch28:	php-4.3.0-pld-wddx-fix.patch.bz2
 Patch29:	php-4.3.0-pld-xmlrpc-fix.patch.bz2
-
 # from Fedora (50-60)
 Patch50:	php-4.3.6-rh-dlopen.patch.bz2
 Patch51:	php-4.2.1-fdr-ldap-TSRM.patch.bz2
@@ -92,12 +75,13 @@ Patch52:	php-4.2.2-fdr-cxx.patch.bz2
 Patch53:	php-4.3.2-fdr-libtool15.patch.bz2
 Patch54:	php-4.3.1-fdr-odbc.patch.bz2
 Patch56:	php-4.3.10-fdr-umask.patch.bz2
-
 # General fixes (70+)
 # make the tests work better
 Patch70:	php-4.3.3-mdk-make_those_darn_tests_work.patch.bz2
 # Bug fixes:
 Patch71:	php-4.3.4-mdk-bug-22414.patch.bz2
+# http://www.hardened-php.net/
+Patch100:	http://www.hardened-php.net/hardening-patch-4.4.0-0.4.1.patch.gz
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 # this is to prevent that it will build against old libs
@@ -243,7 +227,6 @@ perl -pi -e "s|_PHP_SONAME_|%{libversion}|g" Makefile.global
 %patch9 -p1
 %patch10 -p1 -b .phpize
 %patch11 -p0
-
 # from PLD
 %patch20 -p1
 %patch21 -p1
@@ -254,7 +237,6 @@ perl -pi -e "s|_PHP_SONAME_|%{libversion}|g" Makefile.global
 %patch27 -p1
 %patch28 -p1
 %patch29 -p1
-
 # from Fedora
 %patch50 -p0 -b .dlopen
 %patch51 -p1
@@ -262,11 +244,10 @@ perl -pi -e "s|_PHP_SONAME_|%{libversion}|g" Makefile.global
 %patch53 -p1
 %patch54 -p1
 %patch56 -p1
-
-# make the tests work better
+#
 %patch70 -p0 -b .make_those_darn_tests_work
-# upstream fix bugs
 %patch71 -p1 -b .22414
+%patch100 -p1 -b .hardened
 
 # Change perms otherwise rpm would get fooled while finding requires
 chmod 0644 tests/lang/*.inc
@@ -601,7 +582,6 @@ update-alternatives --remove php %{_bindir}/php-cli
 %doc SELF-CONTAINED-EXTENSIONS CODING_STANDARDS README.* TODO EXTENSIONS configure_command
 %doc Zend/ZEND_*
 %attr(0755,root,root) %{_bindir}/php-config
-%attr(0755,root,root) %{_bindir}/phpextdist
 %attr(0755,root,root) %{_bindir}/phpize
 %attr(0755,root,root) %{_bindir}/php-test
 %attr(0755,root,root) %{_libdir}/libphp_common.so
@@ -611,9 +591,16 @@ update-alternatives --remove php %{_bindir}/php-cli
 %multiarch %{multiarch_includedir}/php/main/build-defs.h
 %multiarch %{multiarch_includedir}/php/main/php_config.h
 %{_includedir}/php
+%{_mandir}/man1/php-config.1*
+%{_mandir}/man1/phpize.1*
 
 
 %changelog
+* Wed Sep 14 2005 Vincent Danen <vdanen@annvix.org> 4.4.40-1avx
+- 4.4.0
+- P100: re-introduce the hardened php stuff (4.4.0-0.4.1)
+- rediffed P5, P10, P11 from Mandriva
+
 * Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 4.3.11-3avx
 - bootstrap build (new gcc, new glibc)
 
