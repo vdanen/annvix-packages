@@ -8,8 +8,8 @@
 
 
 %define name		php-ini
-%define version		4.3.11
-%define release		3avx
+%define version		4.4.0
+%define release		1avx
 
 Summary:	INI files for PHP
 Name:		%{name}
@@ -56,6 +56,10 @@ perl -pi -e 's|EXTENSIONDIR|%{_libdir}/php/extensions|g' %{buildroot}%{_sysconfd
 
 
 %changelog
+* Wed Sep 14 2005 Vincent Danen <vdanen@annvix.org> 4.4.0-1avx
+- php 4.4.0
+- put back hardened php settings
+
 * Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 4.3.11-3avx
 - bootstrap build (new gcc, new glibc)
 
