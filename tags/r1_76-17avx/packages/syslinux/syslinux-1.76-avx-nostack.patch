@@ -1,0 +1,44 @@
+--- syslinux-1.76/Makefile.avx	2005-06-10 12:51:42.000000000 -0400
++++ syslinux-1.76/Makefile	2005-06-10 12:51:51.000000000 -0400
+@@ -17,7 +17,7 @@
+ 
+ CC	 = gcc
+ INCLUDE  =
+-CFLAGS	 = -Wall -O2 -fomit-frame-pointer
++CFLAGS	 = -Wall -O2 -fomit-frame-pointer -fno-stack-protector-all
+ LDFLAGS	 = -O2 -s
+ 
+ NASM	 = nasm -O99
+--- syslinux-1.76/memdisk/Makefile.nostack	2002-08-27 14:44:46.000000000 -0400
++++ syslinux-1.76/memdisk/Makefile	2005-06-10 12:35:04.000000000 -0400
+@@ -14,7 +14,7 @@
+ VERSION := $(shell cat ../version)
+ 
+ CC       = gcc
+-CFLAGS   = -Wall -O2 -fomit-frame-pointer -march=i386 \
++CFLAGS   = -Wall -O2 -fomit-frame-pointer -march=i386 -fno-stack-protector-all \
+ 	   -malign-functions=0 -malign-jumps=0 -malign-loops=0 \
+ 	   -DVERSION='"$(VERSION)"' -DDATE='"$(DATE)"'
+ LDFLAGS  = 
+--- syslinux-1.76/syslinux-1.67/Makefile.avx	2005-06-10 12:53:01.000000000 -0400
++++ syslinux-1.76/syslinux-1.67/Makefile	2005-06-10 12:53:12.000000000 -0400
+@@ -17,7 +17,7 @@
+ 
+ NASM	= nasm
+ CC	= gcc
+-CFLAGS	= -Wall -O2 -fomit-frame-pointer
++CFLAGS	= -Wall -O2 -fomit-frame-pointer -fno-stack-protector-all
+ LDFLAGS	= -O2 -s
+ 
+ BINDIR  = /usr/bin
+--- syslinux-1.76/syslinux-1.67/memdisk/Makefile.avx	2005-06-10 12:53:20.000000000 -0400
++++ syslinux-1.76/syslinux-1.67/memdisk/Makefile	2005-06-10 12:53:31.000000000 -0400
+@@ -14,7 +14,7 @@
+ VERSION := $(shell cat ../version)
+ 
+ CC      = gcc
+-CFLAGS  = -Wall -O2 -fomit-frame-pointer -march=i386 \
++CFLAGS  = -Wall -O2 -fomit-frame-pointer -march=i386 -fno-stack-protector-all \
+ 	  -malign-functions=0 -malign-jumps=0 -malign-loops=0 \
+ 	  -DVERSION='"$(VERSION)"' -DDATE='"$(DATE)"'
+ LDFLAGS = 
