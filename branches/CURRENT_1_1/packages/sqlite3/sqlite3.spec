@@ -8,7 +8,7 @@
 
 %define name		sqlite3
 %define version 	3.2.2
-%define release		1avx
+%define release		2avx
 
 %define rname		sqlite
 %define	major		0
@@ -25,7 +25,7 @@ Source0:	http://www.sqlite.org/%{rname}-%{version}.tar.bz2
 Patch0:		sqlite-3.2.2-aliasing-fixes.patch.bz2
 Patch1:		sqlite-3.2.2-avx-x86_64-skip_printf_tests.patch.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}
+BuildRoot:	%{_buildroot}/%{name}-%{version}-%{release}
 BuildRequires:	chrpath
 BuildRequires:	ncurses-devel
 BuildRequires:	readline-devel
@@ -133,9 +133,9 @@ This package contains tcl binding for %{name}.
 %build
 %serverbuild
 
-export CFLAGS="${CFLAGS:-%optflags} -DNDEBUG=1"
-export CXXFLAGS="${CXXFLAGS:-%optflags} -DNDEBUG=1"
-export FFLAGS="${FFLAGS:-%optflags} -DNDEBUG=1"
+export CFLAGS="${CFLAGS:-%{optflags}} -DNDEBUG=1"
+export CXXFLAGS="${CXXFLAGS:-%{optflags}} -DNDEBUG=1"
+export FFLAGS="${FFLAGS:-%{optflags}} -DNDEBUG=1"
 
 %configure2_5x \
     --enable-utf8
@@ -155,7 +155,7 @@ mkdir -p %{buildroot}%{_mandir}/man1
 
 %makeinstall_std
 
-install -m 0644 sqlite3.1 %{buildroot}%{_mandir}/man1/%name.1
+install -m 0644 sqlite3.1 %{buildroot}%{_mandir}/man1/%{name}.1
 
 chrpath -d %{buildroot}%{_bindir}/*
 
@@ -196,6 +196,9 @@ chrpath -d %{buildroot}%{_bindir}/*
 
 
 %changelog
+* Thu Sep 15 2005 Vincent Danen <vdanen@annvix.org> 3.2.2-2avx
+- correct buildroot
+
 * Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 3.2.2-1avx
 - first Annvix build because rpm needs it
 - P1: skip two printf tests on x86_64 that fail
