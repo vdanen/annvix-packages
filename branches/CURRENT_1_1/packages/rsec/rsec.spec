@@ -8,8 +8,8 @@
 
 
 %define name		rsec
-%define version		0.51
-%define release		3avx
+%define version		0.60
+%define release		1avx
 
 Summary:	Security Reporting tool for Annvix
 Name:		%{name}
@@ -93,6 +93,9 @@ touch /var/log/security.log && chmod 0640 /var/log/security.log
 
 
 %changelog
+* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 0.60-1avx
+- 0.60: uses rkhunter rather than chkrootkit
+
 * Wed Aug 17 2005 Vincent Danen <vdanen@annvix.org> 0.51-3avx
 - bootstrap build (new gcc, new glibc)
 
