@@ -9,7 +9,7 @@
 
 %define name		annvix-release
 %define version		1.1
-%define release		1avx
+%define release		2avx
 
 %define distrib		Icarus
 %define realversion 	1.1-CURRENT
@@ -31,29 +31,36 @@ Provides:	redhat-release rawhide-release mandrake-release opensls-release
 %description
 Annvix release file.
 
+
 %prep
 %setup -n annvix-release
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p %{buildroot}%{_sysconfdir}
 echo "Annvix release %{realversion} (%{distrib}) for %{_target_cpu}" > %{buildroot}%{_sysconfdir}/annvix-release
-ln -sf annvix-release %{buildroot}%{_sysconfdir}/redhat-release
-ln -sf annvix-release %{buildroot}%{_sysconfdir}/mandrake-release
 ln -sf annvix-release %{buildroot}%{_sysconfdir}/release
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
 %doc CREDITS
 %{_sysconfdir}/annvix-release
-%{_sysconfdir}/mandrake-release
-%{_sysconfdir}/redhat-release
 %{_sysconfdir}/release
 
+
 %changelog
+* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 1.1-2avx
+- drop the redhat-release and mandrake-release files; we're pretty much
+  incompatible with them now
+- s/Mandrake/Mandriva/ in the CREDITS file
+- updates to CREDITS file
+
 * Thu Jul 21 2005 Vincent Danen <vdanen@annvix.org> 1.1-1avx
 - long overdue tagging of 1.1-CURRENT (actually got lost somewhere)
 - make /etc/release a symlink too
