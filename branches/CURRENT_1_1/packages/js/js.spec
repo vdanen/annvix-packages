@@ -9,7 +9,7 @@
 
 %define name		js
 %define version		1.5.rc5a
-%define release		1avx
+%define release		2avx
 %define epoch		1
 
 %define srcver		1.5-rc5a
@@ -86,11 +86,11 @@ popd
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-mkdir -p %{buildroot}{%{_bindir},%{_libdir},%{_includedir}/js-%{version}}
+mkdir -p %{buildroot}{%{_bindir},%{_libdir},%{_includedir}/js}
 
 # install headers
-install -m 0644 src/*.h %{buildroot}%{_includedir}/js-%{version}/
-install -m 0644 src/Linux_All_OPT.OBJ/jsautocfg.h %{buildroot}%{_includedir}/js-%{version}/
+install -m 0644 src/*.h %{buildroot}%{_includedir}/js/
+install -m 0644 src/Linux_All_OPT.OBJ/jsautocfg.h %{buildroot}%{_includedir}/js/
 
 # install shared library
 install -m 0755 src/Linux_All_OPT.OBJ/lib%{name}.so \
@@ -103,7 +103,7 @@ install -m 0755 src/Linux_All_OPT.OBJ/lib%{name}.a %{buildroot}%{_libdir}/
 # install binary
 install -m 0755 src/Linux_All_OPT.OBJ/%{name} %{buildroot}%{_bindir}/
 
-%multiarch_includes %{buildroot}%{_includedir}/js-%{version}/jsautocfg.h
+%multiarch_includes %{buildroot}%{_includedir}/js/jsautocfg.h
 
 
 %post -n %{libname} -p /sbin/ldconfig
@@ -126,13 +126,17 @@ install -m 0755 src/Linux_All_OPT.OBJ/%{name} %{buildroot}%{_bindir}/
 
 %files -n %{libname}-devel
 %defattr(-,root,root)
-%multiarch %{multiarch_includedir}/js-%{version}/jsautocfg.h
-%{_includedir}/js-%{version}
+%multiarch %{multiarch_includedir}/js/jsautocfg.h
+%{_includedir}/js
 %{_libdir}/*.so
 %{_libdir}/*.a
 
 
 %changelog
+* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 1.5.rc5a-2avx
+- put the innclude directory back to what it used to be (Mandriva moved
+  this due to some conflicts with some mozilla stuff)
+
 * Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 1.5.rc5a-1avx
 - 1.5rc5a
 - multiarch support
