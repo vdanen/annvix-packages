@@ -8,7 +8,7 @@
 
 
 %define name		rpmtools
-%define version		5.0.23
+%define version		5.0.24
 %define release 	1avx
 
 # perl-Compress-Zlib is only "suggested"
@@ -70,6 +70,9 @@ Various tools needed by urpmi and drakxtools for handling rpm files.
 
 
 %changelog
+* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 5.0.24-1avx
+- 5.0.24
+
 * Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 5.0.23-1avx
 - 5.0.23
 
