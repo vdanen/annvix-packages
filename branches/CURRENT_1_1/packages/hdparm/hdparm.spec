@@ -8,8 +8,8 @@
 
 
 %define name		hdparm
-%define version 	5.6
-%define release 	3avx
+%define version 	6.1
+%define release 	1avx
 
 Summary:	A utility for displaying and/or setting hard disk parameters
 Name:		%{name}
@@ -17,7 +17,7 @@ Version:	%{version}
 Release:	%{release}
 License:	BSD
 Group:		System/Kernel and hardware
-URL:		http://www.ibiblio.org/pub/Linux/system/hardware
+URL:		http://sourceforge.net/projects/hdparm/
 Source:		ftp://sunsite.unc.edu/pub/Linux/system/hardware/%{name}-%{version}.tar.bz2
 Source1:	hdparm-sysconfig
 
@@ -36,7 +36,7 @@ performance and to spin down hard drives for power conservation.
 %build
 perl -pi -e "s/-O2/%{optflags}/" Makefile
 make clean
-make
+%make
 
 
 %install
@@ -60,6 +60,10 @@ install -D -m 0644 %{SOURCE1} %{buildroot}/etc/sysconfig/harddisks
 
 
 %changelog
+* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 6.1-1avx
+- 6.1
+- update url
+
 * Thu Aug 18 2005 Vincent Danen <vdanen@annvix.org> 5.6-3avx
 - bootstrap build (new gcc, new glibc)
 
