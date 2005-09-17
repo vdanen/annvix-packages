@@ -8,8 +8,8 @@
 
 
 %define name		mingetty
-%define version		1.06
-%define release		7avx
+%define version		1.07
+%define release		1avx
 
 Summary: 	A compact getty program for virtual consoles only
 Name: 		%{name}
@@ -61,6 +61,9 @@ install -m 0644 mingetty.8 %{buildroot}/%{_mandir}/man8/
 
 
 %changelog
+* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 1.07-1avx
+- 1.0.7
+
 * Wed Aug 17 2005 Vincent Danen <vdanen@annvix.org> 1.06-7avx
 - bootstrap build (new gcc, new glibc)
 
