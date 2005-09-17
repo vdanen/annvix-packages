@@ -9,7 +9,7 @@
 
 %define name		fontconfig
 %define version		2.3.2
-%define release		1avx
+%define release		2avx
 
 %define major		1
 %define libname		%mklibname %{name} %{major}
@@ -132,6 +132,9 @@ rm -rf %{buildroot}%{_sysconfdir}/fonts/conf.d
 
 
 %changelog
+* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 2.3.2-2avx
+- rebuild against new expat
+
 * Sun Sep 11 2005 Vincent Danen <vdanen@annvix.org> 2.3.2-1avx
 - 2.3.2
 - built-in libtool fixes (gbeauchesne)

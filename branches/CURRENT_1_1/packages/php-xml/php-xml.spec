@@ -9,7 +9,7 @@
 
 %define name		php-%{modname}
 %define version		%{phpversion}
-%define release		1avx
+%define release		2avx
 
 %define phpversion	4.4.0
 %define phpsource       %{_prefix}/src/php-devel
@@ -90,6 +90,9 @@ EOF
 
 
 %changelog
+* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 4.4.0-2avx
+- rebuild against new expat
+
 * Wed Sep 14 2005 Vincent Danen <vdanen@annvix.org> 4.4.0-1avx
 - php 4.4.0
 

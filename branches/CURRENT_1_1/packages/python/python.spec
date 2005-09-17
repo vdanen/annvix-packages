@@ -9,7 +9,7 @@
 
 %define name		python
 %define version		2.4.1
-%define release		1avx
+%define release		2avx
 
 %define docver  	2.4
 %define dirver  	2.4
@@ -298,6 +298,9 @@ rm -f modules-list main.list
 
 
 %changelog
+* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 2.4.1-2avx
+- rebuild against new expat
+
 * Fri Sep 09 2005 Vincent Danen <vdanen@annvix.org> 2.4.1-1avx
 - 2.4.1
 - dropped P6; merged upstream
