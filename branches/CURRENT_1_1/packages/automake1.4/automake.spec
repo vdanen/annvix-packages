@@ -8,8 +8,8 @@
 
 
 %define name		%{amname}%{amversion}
-%define version 	1.4
-%define release 	0.%{patchlevel}.30avx
+%define version 	1.4p6
+%define release 	31avx
 
 %define amname		automake
 %define amversion	1.4
@@ -25,7 +25,7 @@ Release:	%{release}
 License:	GPL
 Group:		Development/Other
 URL:		http://sourceware.cygnus.com/automake
-Source:		ftp://ftp.gnu.org/gnu/automake/%{amname}-%{version}-%{patchlevel}.tar.bz2
+Source:		ftp://ftp.gnu.org/gnu/automake/%{amname}-%{amversion}-%{patchlevel}.tar.bz2
 Patch0:		automake-1.4p6-infofiles.patch.bz2
 Patch1:		automake-1.4-p6-stdc-headers.patch.bz2
 
@@ -91,6 +91,9 @@ update-alternatives --remove automake %{_bindir}/automake-%{amversion}
 
 
 %changelog
+* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 1.4p6-31avx
+- normalize the release tag
+
 * Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 1.4-0.p6.30avx
 - this package is no longer an alternative for current "automake" (cjw)
 
