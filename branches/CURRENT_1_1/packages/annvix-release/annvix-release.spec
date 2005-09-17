@@ -9,10 +9,11 @@
 
 %define name		annvix-release
 %define version		1.1
-%define release		2avx
+%define release		3avx
 
 %define distrib		Icarus
 %define realversion 	1.1-CURRENT
+%define macrofile	%build_sysmacrospath
 
 Summary:	Annvix release file
 Name:		%{name}
@@ -29,11 +30,11 @@ Obsoletes:	rawhide-release redhat-release mandrake-release opensls-release
 Provides:	redhat-release rawhide-release mandrake-release opensls-release
 
 %description
-Annvix release file.
+Annvix release and rpm macros files.
 
 
 %prep
-%setup -n annvix-release
+%setup -q -n annvix-release
 
 
 %install
@@ -41,6 +42,16 @@ Annvix release file.
 mkdir -p %{buildroot}%{_sysconfdir}
 echo "Annvix release %{realversion} (%{distrib}) for %{_target_cpu}" > %{buildroot}%{_sysconfdir}/annvix-release
 ln -sf annvix-release %{buildroot}%{_sysconfdir}/release
+
+# create a rpm macros file
+mkdir -p %{buildroot}%{_sys_macros_dir}
+cat > %{buildroot}%{macrofile} <<EOF
+%%annvix_release		%{realversion}
+%%annvix_version		%{realversion}
+%%annvix_codename	%{distrib}
+%%annvix_arch		%{_target_cpu}
+%%annvix_os		%{_target_os}
+EOF
 
 
 %clean
@@ -52,9 +63,13 @@ ln -sf annvix-release %{buildroot}%{_sysconfdir}/release
 %doc CREDITS
 %{_sysconfdir}/annvix-release
 %{_sysconfdir}/release
+%{macrofile}
 
 
 %changelog
+* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 1.1-3avx
+- add a rpm macro file
+
 * Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 1.1-2avx
 - drop the redhat-release and mandrake-release files; we're pretty much
   incompatible with them now
