@@ -9,7 +9,7 @@
 
 %define name		ncurses
 %define version		5.4
-%define release		1.%{patchdate}.2avx
+%define release		3avx
 
 %define patchdate	20050108
 %define major		5
@@ -301,6 +301,9 @@ find %{buildroot}%{_libdir} -name 'lib*.a' -not -type d -not -name "*_g.a" -not 
 
 
 %changelog
+* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 5.4-3avx
+- don't embed the patch date in the release string anymore
+
 * Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 5.4-1.20050108.2avx
 - bootstrap build (new gcc, new glibc)
 
