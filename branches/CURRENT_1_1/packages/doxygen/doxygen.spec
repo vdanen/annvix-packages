@@ -8,8 +8,8 @@
 
 
 %define name		doxygen
-%define version 	1.3.3
-%define release 	8avx
+%define version 	1.4.4
+%define release 	1avx
 
 Summary:	Doxygen is THE documentation system for C/C++
 Name:		%{name}
@@ -20,9 +20,7 @@ License:	GPL
 Group:		Development/Other
 URL:		http://www.stack.nl/~dimitri/doxygen/
 Source:		ftp://ftp.stack.nl/pub/users/dimitri/%{name}-%{version}.src.tar.bz2
-Source1:	GPL-LICENSE.bz2
 Patch0:		doxygen-1.2.12-fix-latex.patch.bz2
-Patch1:		doxygen-1.2.16-fix-for-qt3.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	flex, gcc-c++
@@ -43,7 +41,7 @@ your way in large source distributions.
 %prep
 %setup -q
 %patch0 -p1
-%patch1 -p1
+
 perl -pi -e "s|^TMAKE_CFLAGS_RELEASE.*|TMAKE_CFLAGS_RELEASE = $RPM_OPT_FLAGS|" tmake/lib/linux-g++/tmake.conf
 %ifarch x86_64 sparc64 ppc64 s390x
 perl -pi -e "s|(QTDIR/)lib|\1%{_lib}|" configure
@@ -57,7 +55,7 @@ find -type d -exec chmod 0755 {} \;
 
 
 %make
-bzcat %{SOURCE1} > LICENSE
+perl -pi -e 's|^#!perl|#!%{__perl}|' examples/tag/html/installdox
 
 
 %install
@@ -72,13 +70,18 @@ install -s bin/doxy* %{buildroot}%{_bindir}
 
 %files
 %defattr(-, root, root)
-%doc README LICENSE
+%doc README
 %{_bindir}/doxygen
 %{_bindir}/doxytag
-%{_bindir}/doxysearch
 
 
 %changelog
+* Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 1.4.4-1avx
+- 1.4.4
+- fix perl path in installdox
+- drop P1; fixed upstream
+- drop the LICENSE file
+
 * Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1.3.3-8avx
 - bootstrap build (new gcc, new glibc)
 
