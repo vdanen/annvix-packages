@@ -9,7 +9,7 @@
 
 %define name		bootloader-utils
 %define version		1.6
-%define release		11avx
+%define release		12avx
 
 %define _mypost_service() if [ $1 = 1 ]; then /sbin/chkconfig --add %{1}; fi;
 
@@ -19,14 +19,15 @@ Version:	%{version}
 Release:	%{release}
 License:	GPL
 Group:		System/Kernel and hardware
-URL:		http://www.linux-mandrake.com/cgi-bin/cvsweb.cgi/soft/initscripts/mandrake/loader/
+URL:		http://cvs.mandriva.com/cgi-bin/cvsweb.cgi/soft/initscripts/mandrake/loader/
 Source0:	%{name}-%{version}.tar.bz2
+Source1:	memtest86.pm
 Patch0:		bootloader-utils-1.6-avx-grub.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
 Requires:	perl-base
-Prereq:		chkconfig, initscripts >= 7.06-21mdk
+Requires(pre):	chkconfig, initscripts >= 7.06-21mdk, rpm-helper
 
 %description
 Utils needed to install/remove a kernel.  Also for updating bootloaders.
@@ -34,6 +35,7 @@ Utils needed to install/remove a kernel.  Also for updating bootloaders.
 
 %prep
 %setup -q
+cp %{SOURCE1} memtest86
 %patch0 -p1 -b .avx
 
 
@@ -73,6 +75,7 @@ make ROOT=%{buildroot} mandir=%{_mandir} install
 # x86 & hammer, default.
 /usr/share/loader/grub
 /usr/share/loader/lilo
+/usr/share/loader/memtest86
 %endif
 /usr/share/loader/make-initrd
 %{_mandir}/man8/detectloader.8.bz2
@@ -80,6 +83,11 @@ make ROOT=%{buildroot} mandir=%{_mandir} install
 
 
 %changelog
+* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 1.6-12avx
+- new-style requires
+- NOTE: we need to find something to replace this; newer bootloader-utils
+  rely too heavily on DrakX modules
+
 * Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 1.6-11avx
 - bootstrap build (new gcc, new glibc)
 

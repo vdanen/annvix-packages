@@ -77,3 +77,25 @@
      my $loader;
      my $from_lilo_devfs = "/dev/" . readlink($from_lilo);
  
+--- bootloader-utils-1.6/memtest86.avx	2005-09-17 11:54:30.000000000 -0400
++++ bootloader-utils-1.6/memtest86	2005-09-17 11:56:39.000000000 -0400
+@@ -19,7 +19,7 @@
+ my $debug = 0;
+ my $boot = "/boot/";
+ 
+-my $grub_conf = $ENV{GRUB_CONF} ? $ENV{GRUB_CONF} : "/boot/grub/menu.lst";
++my $grub_conf = $ENV{GRUB_CONF} ? $ENV{GRUB_CONF} : "/boot/grub/grub.conf";
+ my $lilo_conf = $ENV{LILO_CONF} ? $ENV{LILO_CONF} : "/etc/lilo.conf";
+ 
+ my ($lilo, $grub);
+--- bootloader-utils-1.6/Makefile.avx	2005-09-17 11:59:42.000000000 -0400
++++ bootloader-utils-1.6/Makefile	2005-09-17 11:59:42.000000000 -0400
+@@ -35,7 +35,7 @@
+ 	install -m755 yaboot $(ROOT)/usr/share/loader
+ else
+ 	# hammer and x86 use lilo
+-	install -D -m755 lilo grub $(ROOT)/usr/share/loader
++	install -D -m755 lilo grub memtest86 $(ROOT)/usr/share/loader
+ endif
+ 
+ version:
