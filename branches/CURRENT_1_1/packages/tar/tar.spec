@@ -30,7 +30,8 @@ Patch3:		tar-1.15.1-mdk-compile-gcc4.patch.bz2
 
 Buildroot:	%{_buildroot}/%{name}-%{version}
 
-Prereq:		info-install
+Requires(post):	info-install
+Requires(preun): info-install
 Conflicts:	rmt < 0.4b37
 
 %description
@@ -43,10 +44,6 @@ Tar includes multivolume support, automatic archive compression/
 decompression, the ability to perform remote archives and the
 ability to perform incremental and full backups.
 
-You should install the tar package, because you'll find its
-compression and decompression utilities essential for working
-with files.
-
 
 %prep
 %setup -q
@@ -57,6 +54,8 @@ with files.
 
 bzcat %{SOURCE2} > ./help2man
 chmod +x ./help2man
+
+gzip ChangeLog
 
 %build
 %configure2_5x \
@@ -98,7 +97,7 @@ mv %{buildroot}%{_libexecdir}/rmt %{buildroot}/sbin/%{rmtrealname}
 
 %files -f %{name}.lang
 %defattr(-,root,root)
-%doc NEWS THANKS AUTHORS README ChangeLog* COPYING TODO
+%doc NEWS THANKS AUTHORS README ChangeLog.gz COPYING TODO
 %{_bindir}/tar
 %{_bindir}/gtar
 %{_sbindir}/backup
@@ -111,6 +110,10 @@ mv %{buildroot}%{_libexecdir}/rmt %{buildroot}/sbin/%{rmtrealname}
 
 
 %changelog
+* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 1.15.1-3avx
+- new-style prereq
+- compress the ChangeLog
+
 * Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1.15.1-2avx
 - bootstrap build (new gcc, new glibc)
 
