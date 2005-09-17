@@ -8,8 +8,8 @@
 
 
 %define name		SysVinit
-%define version 	2.85
-%define release 	11avx
+%define version 	2.86
+%define release 	1avx
 
 Summary:	Programs which control basic system processes
 Name:		%{name}
@@ -23,17 +23,14 @@ Source1:	reboot.avx
 Source2:	halt.avx
 Patch0:		sysvinit-2.77-md5-be.patch.bz2
 Patch1:		sysvinit-2.78-halt.patch.bz2
-Patch2:		sysvinit-2.78-autofsck.patch.bz2
-Patch3:		sysvinit-2.84-shutdownlog.patch.bz2
+Patch2:		sysvinit-2.86-mdk-autofsck.patch.bz2
 Patch4:		sysvinit-2.85-walltty.patch.bz2
-Patch5:		sysvinit-2.84-halthelp.patch.bz2
-Patch6:		sysvinit-2.84-lasttime.patch.bz2
-Patch7:		sysvinit-2.84-pidof.patch.bz2
-Patch8:		sysvinit-2.77-shutdown.patch.bz2
-Patch9:		sysvinit-2.83-libcrypt.patch.bz2
+Patch8:		sysvinit-2.86-mdk-shutdown.patch.bz2
+Patch9:		sysvinit-2.86-mdk-libcrypt.patch.bz2
 Patch10:	sysvinit-2.83-biarch-utmp.patch.bz2
 Patch11:	sysvinit-disable-respawn-more-quickly.patch.bz2
 Patch12:	sysvinit-2.85-avx-silent_no_runlevel.patch.bz2
+Patch13:	sysvinit-2.86-mdk-varargs.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	glibc-static-devel
@@ -56,18 +53,13 @@ contains some useful utilities to manage the running of the system.
 %patch0 -p1 -b .be
 %patch1 -p1 -b .halt
 %patch2 -p1 -b .autofsck
-%patch3 -p1 -b .shutdownlog
 %patch4 -p1 -b .wall
-%patch5 -p1 -b .halthelp
-%patch6 -p1 -b .lasttime
-%patch7 -p1 -b .pidof 
-
-%patch11 -p0
-
-%patch8 -p0 -b .shutdown
+%patch11 -p0 -b .disable-respawn-more-quickly
+%patch8 -p1 -b .shutdown
 %patch9 -p1 -b .libcrypt
 %patch10 -p1 -b .biarch-utmp
 %patch12 -p1 -b .silent_no_runlevel
+%patch13 -p1 -b .varargs
 
 
 %build
@@ -82,8 +74,8 @@ make CFLAGS="%{optflags} -D_GNU_SOURCE" -C src
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-for I in sbin usr/bin %{_mandir}/man{1,3,5,8} etc var/run dev; do
-    mkdir -p %{buildroot}/$I
+for i in bin sbin usr/bin usr/include %{_mandir}/man{1,3,5,8} etc var/run dev; do
+    mkdir -p %{buildroot}/$i
 done
 
 make -C src ROOT=%{buildroot} MANDIR=%{_mandir} \
@@ -120,6 +112,7 @@ exit 0
 %defattr(-,root,root)
 %doc doc/Propaganda doc/Changelog doc/Install
 %doc doc/sysvinit-%{version}.lsm contrib/start-stop-daemon.* 
+/sbin/bootlogd
 /sbin/halt
 /sbin/init.sysv
 /sbin/killall5
@@ -130,6 +123,8 @@ exit 0
 /sbin/shutdown
 /sbin/sulogin
 /sbin/telinit
+/bin/pidof
+/bin/mountpoint
 /usr/bin/last
 /usr/bin/lastb
 /usr/bin/mesg
@@ -140,6 +135,12 @@ exit 0
 
 
 %changelog
+* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 2.86-1avx
+- 2.86
+- sync P2, P8, and P9 with mdk 2.86-3mdk
+- new P13 from mdk; varargs fixes (gbeauchesne)
+- dropped P3, P5, P6, and P7
+
 * Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 2.85-11avx
 - bootstrap build (new gcc, new glibc)
 
