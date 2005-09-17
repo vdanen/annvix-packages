@@ -9,7 +9,7 @@
 
 %define name		termcap
 %define version 	11.0.1
-%define release 	14avx
+%define release 	15avx
 
 Summary:	The terminal feature database used by certain applications
 Name:		%{name}
@@ -27,6 +27,7 @@ Patch3:		termcap-xtermX11R6.patch.bz2
 Patch4:		termcap-Eterm.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
+BuildArch:	noarch
 
 %ifarch sparc
 Obsoletes:	termfiles_sparc
@@ -42,34 +43,39 @@ etc.).
 
 
 %prep
-mkdir -p %{_builddir}/%{name}-%{version}%{_sysconfdir}
-bzcat %{SOURCE0} >%{_builddir}/%{name}-%{version}%{_sysconfdir}/termcap
-pushd %{_builddir}/%{name}-%{version}%{_sysconfdir}
+%setup -q -T -c %{name}-%{version}
+bzcat %{SOURCE0} >termcap
 %patch0 -p0
 %patch1 -p0
 %patch2 -p0
 %patch3 -p0
 %patch4 -p0
-popd
+
+
+%build
 
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p %{buildroot}%{_sysconfdir}
 
-install -m 0644 %{_builddir}/%{name}-%{version}%{_sysconfdir}/termcap %{buildroot}%{_sysconfdir}/
+install -m 0644 termcap %{buildroot}%{_sysconfdir}/
 
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-rm -rf %{_builddir}/%{name}-%{version}
 
 
 %files
 %defattr(-,root,root)
-%config(noreplace) %attr(644,root,root) %{_sysconfdir}/termcap
+%config(noreplace) %{_sysconfdir}/termcap
+
 
 %changelog
+* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 11.0.1-15avx
+- buildarch is noarch
+- spec cleanups (peroyvind)
+
 * Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 11.0.1-14avx
 - bootstrap build (new gcc, new glibc)
 
