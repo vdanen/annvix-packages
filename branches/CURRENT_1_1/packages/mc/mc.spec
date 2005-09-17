@@ -8,8 +8,8 @@
 
 
 %define name		mc
-%define version		4.6.0
-%define release		12avx
+%define version		4.6.1
+%define release		1avx
 
 Summary:	A user-friendly file manager and visual shell
 Name:		%{name}
@@ -19,24 +19,7 @@ License:	GPL
 Group:		File tools
 URL:		http://www.ibiblio.org/mc/
 Source0:	ftp://ftp.gnome.org:/pub/GNOME/stable/sources/mc/%{name}-%{version}.tar.bz2
-Source1:	mc-cvs-uzip
-Patch0:		mc-4.6.0-mdk-xpdf.patch.bz2
-Patch1:		mc-4.6.0-mdk-CVE-CAN-2003-1023.patch.bz2
-Patch2:		mc-4.6.0-mdk-nota.patch.bz2
-Patch3:		mc-4.6.0-mdk-image.patch.bz2
-Patch4:		mc-4.6.0-pre3-rh-nocpio.patch.bz2
-Patch5:		mc-4.6.0-mdk-ptsname.patch.bz2
-Patch6:		mc-4.6.0-mdk-slang.patch.bz2
-Patch7:		mc-4.6.0-mdk-utf8.patch.bz2
-Patch8:		mc-4.6.0-mdk-jumbo2.patch.bz2
-Patch9:		mc-4.6.0-mdk-utf8-input.patch.bz2
-Patch10:	mc-4.6.0-mdk-utf8-fix.patch.bz2
-Patch11:	mc-4.6.0-mdk-utf8-hints.patch.bz2
-Patch12:	mc-4.6.0-mdk-toolbar-po-mdk.path.bz2
-Patch13:	mc-4.6.0-mdk-CAN-2004-0494.patch.bz2
-Patch14:	mc-4.6.0-mdk-extfs_rpm_info.patch.bz2
-Patch15:	mc-4.6.0-mdk-diff_syntax.patch.bz2
-Patch16:	mc-4.6.0-mdk-wrapper_fix.diff.bz2
+Patch0:		mc-4.6.1-fdr-utf8.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	libext2fs-devel pam-devel
@@ -53,25 +36,7 @@ files.
 
 %prep
 %setup -q
-cp -f %{SOURCE1} vfs/extfs
-
-%patch0 -p1 -b .xpdf
-%patch12 -p1 -b .toolbarpo
-%patch1 -p1 -b .buff
-%patch2 -p1 -b .nota
-%patch3 -p1 -b .image
-%patch4 -p1 -b .nocpio
-%patch5 -p1 -b .ptsname
-%patch6 -p1 -b .slang-utf8
-%patch7 -p1 -b .utf8
-%patch8 -p1 -b .jumbo
-%patch9 -p0 -b .utf8-input
-%patch10 -p0 -b .utf8-fix
-%patch11 -p0 -b .utf8-hints
-%patch13 -p1 -b .can-2004-0494
-%patch14 -p1 -b .large_syntax
-%patch15 -p1 -b .diff_syntax
-%patch16 -p0 -b .wrapper_fix
+%patch0 -p1 -b .utf8
 
 
 %build
@@ -95,9 +60,6 @@ export LDFLAGS="-L`pwd`/%{_lib}"
     --without-x \
     --without-gpm-mouse
 
-#Fix bzip2 warning
-perl -p -i -e 's/--repetitive-best/-9/' lib/mc.menu
-
 # don't use make macro, mc doesn't support parallel compilation
 make
 
@@ -113,9 +75,6 @@ perl -p -i -e 's/rm -f \"/rm -rf \"/g' lib/mc-wrapper.sh
 %makeinstall
 
 install lib/{mc.sh,mc.csh} %{buildroot}%{_sysconfdir}/profile.d
-
-# clean up this setuid problem for now
-chmod 0755 %{buildroot}%{_libdir}/mc/cons.saver
 
 %find_lang %{name}
 
@@ -143,6 +102,7 @@ chmod 0755 %{buildroot}%{_libdir}/mc/cons.saver
 %_datadir/mc/mc.hlp.*
 %{_datadir}/mc/mc.lib
 %{_datadir}/mc/mc.menu
+%{_datadir}/mc/mc.menu.*
 %{_datadir}/mc/mc.charsets
 %{_datadir}/mc/extfs/*
 %{_mandir}/man1/*
@@ -151,10 +111,14 @@ chmod 0755 %{buildroot}%{_libdir}/mc/cons.saver
 %_datadir/mc/bin/*
 %config(noreplace) %{_sysconfdir}/profile.d/*
 %{_datadir}/mc/syntax/
-%{_datadir}/mc/term/
+#%{_datadir}/mc/term/
 
 
 %changelog
+* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 4.6.1-1avx
+- 4.6.1
+- drop all unrequired patches
+
 * Wed Aug 17 2005 Vincent Danen <vdanen@annvix.org> 4.6.0-12avx
 - bootstrap build (new gcc, new glibc)
 
