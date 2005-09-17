@@ -5,11 +5,11 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-# synced with rh-3.3.1-1
+# synced with mdk 4.4-1mdk
 
 %define name		makedev
-%define version		4.1
-%define release 	8avx
+%define version		4.4
+%define release 	1avx
 
 %define devrootdir	/lib/root-mirror
 %define dev_lock	/var/lock/subsys/dev
@@ -41,9 +41,6 @@ correspond to a particular device supported by Linux (serial or printer
 ports, scanners, sound cards, tape drives, CD-ROM drives, hard drives,
 etc.) and interface with the drivers in the kernel.
 
-The makedev package is a basic part of your Annvix system and it needs
-to be installed.
-
 
 %prep
 %setup -q
@@ -69,8 +66,8 @@ mkdir -p %{buildroot}%devrootdir
 /usr/sbin/useradd -c "virtual console memory owner" -u 69 \
     -s /sbin/nologin -r -d /dev vcsa 2> /dev/null || :
 
-#- when devfs is used, upgrade and install can be done easily :)
-if [[ -e /dev/.devfsd ]]; then
+#- when devfs or udev is used, upgrade and install can be done easily :)
+if [[ -e /dev/.devfsd ]] || [[ -e /dev/.udev.tdb ]] || [[ -d /dev/.udevdb/ ]]; then
     [[ -d %devrootdir ]] || mkdir %devrootdir
     mount --bind / %devrootdir
     DEV_DIR=%devrootdir/dev
@@ -108,7 +105,7 @@ fi
 
 %triggerpostun -- dev
 
-if [ ! -e /dev/.devfsd ]; then
+if [ ! -e /dev/.devfsd -a ! -e /dev/.udev.tdb -a ! -d /dev/.udevdb/ ]; then
     #- when upgrading from old dev pkg to makedev pkg, this can't be done in %%post
     #- doing the same when upgrading from new dev pkg
     DEV_DIR=/dev
@@ -140,6 +137,14 @@ fi
 
 
 %changelog
+* Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 4.4-1avx
+- 4.4
+- sync with mandrake 4.4-1mdk (tvignaud):
+  - add cloop, DVB nodes
+  - enable extra makedev parameter to be regexp
+  - udev support
+  - enable to create onle one device rather than all devices
+
 * Thu Sep 15 2005 Vincent Danen <vdanen@annvix.org> 4.1-8avx
 - correct the buildroot
 
