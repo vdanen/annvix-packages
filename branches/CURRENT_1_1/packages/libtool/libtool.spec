@@ -8,12 +8,14 @@
 
 
 %define name		libtool
-%define version		1.5.12
-%define release		6avx
+%define version		1.5.18
+%define release		1avx
 
 %define lib_major	3
 %define libname_orig	libltdl
 %define libname		%mklibname ltdl %{lib_major}
+
+%define gcc_ver		%(gcc -dumpversion)
 
 # do "make check" by default
 %define do_check 	1
@@ -44,19 +46,20 @@ Source2:	libtool-cputoolize.sh
 # (Abel) Patches please only modify ltmain.in and don't touch ltmain.sh
 # otherwise ltmain.sh will not be regenerated, and patches will be lost
 Patch0:		libtool-1.5.6-relink.patch.bz2
-Patch1:		libtool-1.5.12-lib64.patch.bz2
+Patch1:		libtool-1.5.18-lib64.patch.bz2
 Patch2:		libtool-1.5.6-ltmain-SED.patch.bz2
 Patch3:		libtool-1.5.6-libtoolize--config-only.patch.bz2
 Patch4:		libtool-1.5.6-test-dependency.patch.bz2
 Patch5:		libtool-1.5-testfailure.patch.bz2
 Patch6:		libtool-1.5.6-old-libtool.patch.bz2
-Patch7:		libtool-1.5.12-really-pass-thread-flags.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	automake1.8, autoconf2.5
 
-PreReq:		info-install
-Requires:	file, gcc
+Requires:	file, gcc = %{gcc_ver}
+Requires(post):	info-install
+Requires(preun): info-install
+
 
 %description
 The libtool package contains the GNU libtool, a set of shell scripts
@@ -64,9 +67,6 @@ which automatically configure UNIX and UNIX-like architectures to
 generically build shared libraries.  Libtool provides a consistent,
 portable interface which simplifies the process of using shared
 libraries.
-
-If you are developing programs which will use shared libraries, you
-should install libtool.
 
 
 %package -n %{libname}
@@ -99,7 +99,6 @@ Development headers, and files for development from the libtool package.
 %patch4 -p1 -b .test-dependency
 %patch5 -p1
 %patch6 -p1 -b .old-libtool
-%patch7 -p1 -b .really-pass-thread-flags
 
 ACLOCAL=aclocal-1.8 AUTOMAKE=automake-1.8 ./bootstrap
 
@@ -203,6 +202,13 @@ linux32 /bin/sh -c '%multiarch_binaries %{buildroot}%{_bindir}/libtool'
 
 
 %changelog
+* Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 1.5.18-1avx
+- 1.5.18
+- re-add the strict gcc requirement
+- drop P7
+- rediff P1
+- fix requires
+
 * Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1.5.12-6avx
 - bootstrap build (new gcc, new glibc)
 
