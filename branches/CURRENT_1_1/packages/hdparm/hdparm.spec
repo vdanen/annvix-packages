@@ -9,7 +9,7 @@
 
 %define name		hdparm
 %define version 	6.1
-%define release 	1avx
+%define release 	2avx
 
 Summary:	A utility for displaying and/or setting hard disk parameters
 Name:		%{name}
@@ -60,6 +60,10 @@ install -D -m 0644 %{SOURCE1} %{buildroot}/etc/sysconfig/harddisks
 
 
 %changelog
+* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 6.1-2avx
+- put back our hdparm-sysconfig file; accidentally replaced it
+  with the less-complete Mandriva one
+
 * Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 6.1-1avx
 - 6.1
 - update url

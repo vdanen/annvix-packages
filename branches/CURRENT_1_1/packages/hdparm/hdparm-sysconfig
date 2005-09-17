@@ -1,9 +1,15 @@
 # These options are used to tune the hard drives -
-# read the hdparm man page for more information
+# read the hdparm man page for more information.
+
+# For each drive that you wish to apply optimization to, copy
+# this file to /etc/sysconfig/harddisk[device]; ie.
+# /etc/sysconfig/harddiskhda for /dev/hda, and so forth.  If
+# a configuration file for a device is not found, the device
+# will receive no help from hdparm.
 
 # Set this to 1 to enable DMA. This might cause some 
 # data corruption on certain chipset / hard drive
-# combinations. This is used with the "-d" option
+# combinations. This is used with the "-d" option.
 
 # USE_DMA=1
 
@@ -16,15 +22,15 @@
 # notably the WD Caviar series), seem to run slower with multiple mode
 # enabled. Under rare circumstances, such failures can result in
 # massive filesystem corruption. USE WITH CAUTION AND BACKUP.
-# This is the sector count for multiple sector I/O - the "-m" option
+# This is the sector count for multiple sector I/O - the "-m" option.
 #
 # MULTIPLE_IO=16
 
-# (E)IDE 32-bit I/O support (to interface card)
+# (E)IDE 32-bit I/O support (to interface card) - the "-c" option.
 #
 # EIDE_32BIT=3
 
-# Enable drive read-lookahead
+# Enable drive read-lookahead - the "-A" option.
 #
 # LOOKAHEAD=1
 
