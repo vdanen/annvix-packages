@@ -9,7 +9,7 @@
 
 %define name		php-ini
 %define version		4.4.0
-%define release		1avx
+%define release		2avx
 
 Summary:	INI files for PHP
 Name:		%{name}
@@ -41,6 +41,7 @@ mkdir -p %{buildroot}%{_libdir}/php/extensions
 bzcat %{SOURCE0} > %{buildroot}%{_sysconfdir}/php.ini
 
 perl -pi -e 's|EXTENSIONDIR|%{_libdir}/php/extensions|g' %{buildroot}%{_sysconfdir}/php.ini
+perl -pi -e 's|/usr/lib|%{_libdir}|' %{buildroot}%{_sysconfdir}/php.ini
 
 
 %clean
@@ -56,6 +57,9 @@ perl -pi -e 's|EXTENSIONDIR|%{_libdir}/php/extensions|g' %{buildroot}%{_sysconfd
 
 
 %changelog
+* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 4.4.0-2avx
+- lib64 fix in php.ini
+
 * Wed Sep 14 2005 Vincent Danen <vdanen@annvix.org> 4.4.0-1avx
 - php 4.4.0
 - put back hardened php settings
