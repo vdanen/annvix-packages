@@ -9,7 +9,7 @@
 
 %define name		libxml2
 %define version		2.6.21
-%define release		1avx
+%define release		2avx
 
 %define major		2
 %define libname		%mklibname xml %{major}
@@ -25,6 +25,7 @@ URL:		http://www.xmlsoft.org/
 Source0:	ftp://xmlsoft.org/%{name}-%{version}.tar.bz2
 # (fc) 2.4.23-3mdk remove references to -L/usr/lib
 Patch1:		libxml2-2.4.23-libdir.patch.bz2
+Patch2:		libxml2-2.6.21-cvsfixes.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	python-devel >= %{pyver}, readline-devel, zlib-devel, autoconf2.5, automake1.9
@@ -105,6 +106,7 @@ URI library.
 %prep
 %setup -q
 %patch1 -p1 -b .libdir
+%patch2 -p1 -b .cvsfixes
 
 # needed by patch 1
 aclocal-1.9
@@ -181,6 +183,9 @@ rm -rf	%{buildroot}%{_prefix}/doc \
 
 
 %changelog
+* Fri Sep 09 2005 Vincent Danen <vdanen@annvix.org> 2.6.21-2avx
+- P2: various fixes from cvs (fcrozat)
+
 * Fri Sep 09 2005 Vincent Danen <vdanen@annvix.org> 2.6.21-1avx
 - 2.6.21
 - rebuild against new readline and python
