@@ -8,8 +8,8 @@
 
 
 %define name		chkconfig
-%define version		1.3.13
-%define release		3avx
+%define version		1.3.20
+%define release		1avx
 
 Summary:	A system tool for maintaining the /etc/rc*.d hierarchy
 Name:		%{name}
@@ -23,12 +23,11 @@ Patch1:		ntsysv-mdkconf.patch.bz2
 Patch3:		chkconfig-runleveldir.patch.bz2
 Patch4:		ntsysv-tvman.patch.bz2
 Patch5:		chkconfig-fix.patch.bz2
-Patch6:		chkconfig-1.3.11-adddelxinetd.patch.bz2
+Patch6:		chkconfig-1.3.20-adddelxinetd.patch.bz2
 Patch7:		chkconfig-1.3.4-list.patch.bz2
 Patch8:		chkconfig-1.3.4-skip-files-with-dot.patch.bz2
-Patch9:		chkconfig-1.3.11-skip-bad-symlinks.patch.bz2
 Patch10:	chkconfig-1.3.11-fix-errno-xinetddotd.patch.bz2
-Patch11:	chkconfig-1.3.13-lsb.patch.bz2
+Patch11:	chkconfig-1.3.20-lsb.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	gettext, newt-devel, popt-devel, slang
@@ -62,7 +61,6 @@ the numerous symbolic links in /etc/rc*.d.
 %patch6 -p1 -b .adddelxinetd
 %patch7 -p1 -b .list
 %patch8 -p1 -b .skip-files-with-dot
-%patch9 -p1 -b .pix
 %patch10 -p1 -b .fix-errno-xinetddotd
 %patch11 -p1 -b .lsb
 
@@ -119,6 +117,11 @@ rm -f %{buildroot}%{_sbindir}/{alternatives,update-alternatives} %{buildroot}%{_
 
 
 %changelog
+* Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 1.3.20-1avx
+- 1.3.20
+- drop P9; fixed upstream
+- rediff P12; now handles hybrid scripts like shorewall (sbenedict)
+
 * Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1.3.13-3avx
 - bootstrap build (new gcc, new glibc)
 
