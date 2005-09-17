@@ -9,7 +9,7 @@
 
 %define name		slang
 %define version 	1.4.9
-%define release 	11avx
+%define release 	12avx
 
 %define docversion	1.4.8
 %define major		1
@@ -31,6 +31,8 @@ Patch2:		slang-utf8-acs.patch.bz2
 Patch3:		slang-utf8-fix.patch.bz2
 Patch4:		slang-utf8-revert_soname.patch.bz2
 Patch5:		slang-1.4.9-offbyone.patch.bz2
+Patch6:		slang-1.4.5-utf8-segv.patch.bz2
+Patch7:		slang-1.4.9-gcc4.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
@@ -79,6 +81,8 @@ applications is also included.
 %patch3 -p1
 %patch4 -p1 -b .revert_soname
 %patch5 -p1 -b .offbyone
+%patch6 -p1 -b .segv
+%patch7 -p1 -b .gcc4
 
 cp %{SOURCE2} .
 
@@ -127,7 +131,12 @@ rm -rf	%{buildroot}/usr/doc/slang
 %dir %{_includedir}/slang/
 %{_includedir}/slang/*.h
 
+
 %changelog
+* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 1.4.9-12avx
+- P6: fix a segv (warly)
+- P7: gcc4 build support (warly)
+
 * Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1.4.9-11avx
 - bootstrap build (new gcc, new glibc)
 
