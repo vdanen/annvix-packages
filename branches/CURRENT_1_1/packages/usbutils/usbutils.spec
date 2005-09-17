@@ -8,8 +8,8 @@
 
 
 %define name		usbutils
-%define version 	0.11
-%define release		8avx
+%define version 	0.70
+%define release		1avx
 
 Summary:	Linux USB utilities
 Name:		%{name}
@@ -17,13 +17,14 @@ Version:	%{version}
 Release:	%{release}
 License:	GPL
 Group:		System/Kernel and hardware
-URL:		http://usb.in.tum.de/download/usbutils
-Source0:	http://usb.in.tum.de/download/usbutils/usbutils-%{version}.tar.bz2
+URL:		http://sourceforge.net/project/showfiles.php?group_id=3581&package_id=142529
+Source0:	http://prownloads.sourceforge.net/linux-usb/usbutils-%{version}.tar.bz2
 # 1.95 2002/01/13 (with 2 fixes + PHY below)
 Source1:	http://www.linux-usb.org/usb.ids
-Patch0:		usbutils-0.11-fix-classes.patch.bz2 
+Patch0:		usbutils-0.70-fix-usage.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
+BuildRequires:	libusb-devel
 
 %description
 usbutils contains a utility for inspecting devices connected to the USB bus.
@@ -33,12 +34,13 @@ It requires a Linux kernel version 2.3.15 or newer (supporting the
 
 %prep
 %setup -q
-perl -pe 's/^PHY.*//' %SOURCE1 > usb.ids
-%patch0 -p0 -b .classes
+%patch0 -p1
+cp -a %{SOURCE1} usb.ids
 
 
 %build
-%configure
+%configure \
+    --enable-usbmodules
 %make
 
 
@@ -46,9 +48,7 @@ perl -pe 's/^PHY.*//' %SOURCE1 > usb.ids
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
-# the latest usb.ids contain entries that usbutils doesn't handle
 rm -f %{buildroot}{%{_includedir}/libusb.h,%{_libdir}/libusb*}
-#perl -pe 's/^PHY.*//' %{SOURCE1} > %{buildroot}%{_datadir}/usb.ids
 
 
 %clean
@@ -63,6 +63,10 @@ rm -f %{buildroot}{%{_includedir}/libusb.h,%{_libdir}/libusb*}
 
 
 %changelog
+* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 0.70-1avx
+- 0.70
+- BuildRequires: libusb-devel
+
 * Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 0.11-8avx
 - bootstrap build (new gcc, new glibc)
 
