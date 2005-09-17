@@ -9,7 +9,7 @@
 
 %define name		samba
 %define version		3.0.20
-%define release		2avx
+%define release		3avx
 
 %define smbldapver	0.8.8
 %define vscanver	0.3.6b
@@ -55,6 +55,10 @@ Patch14:	samba-3.0.20-fix-doc-paths.patch.bz2
 Patch15:	samba-3.0.20-groupname_enumeration_v3.patch.bz2
 # http://www.samba.org/samba/patches/winbindd_v1.patch
 Patch16:	samba-3.0.20-winbindd_v1.patch.bz2
+# http://www.samba.org/samba/patches/regcreatekey_winxp_v1.patch
+Patch17:	samba-3.0.20-regcreatekey_winxp_v1.patch.bz2
+# http://www.samba.org/samba/patches/usrmgr_groups_v1.patch
+Patch18:	samba-3.0.20-usrmgr_groups_v1.patch.bz2
 
 BuildRoot:      %{_buildroot}/%{name}-%{version}
 BuildRequires:  pam-devel readline-devel libncurses-devel popt-devel
@@ -254,7 +258,12 @@ popd
 %patch11 -p1 -b .mdk
 %patch8 -p1 -b .avx
 %patch14 -p1 -b .fixdocs
+# patches from cvs/samba team
 %patch15 -p1
+%patch16 -p1
+%patch17 -p1
+%patch18 -p1	
+
 
 
 # Make a copy of examples so that we have a clean one for doc:
@@ -804,6 +813,11 @@ fi
 
 
 %changelog
+* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 3.0.20-3avx
+- really apply P16
+- P17 and P18: more post-3.0.20 fixes
+- rediff P8 against the updated mandrake smb.conf
+
 * Fri Sep 09 2005 Vincent Danen <vdanen@annvix.org> 3.0.20-2avx
 - rebuild against new readline and libxml2
 
