@@ -9,7 +9,7 @@
 
 %define name 		socklog
 %define version		2.0.2
-%define release		2avx
+%define release		3avx
 
 Summary:	Small and secure replacement for syslogd
 Name:		%{name}
@@ -61,7 +61,6 @@ install -d %{buildroot}/bin
 install -d %{buildroot}%{_mandir}/{man1,man8}
 
 mkdir -p %{buildroot}%{_srvdir}/{socklog-unix,socklog-klog}/log
-mkdir -p %{buildroot}%{_srvlogdir}/{socklog-unix,socklog-klog}
 
 pushd %{name}-%{version}
     for i in `cat package/commands` ;  do
@@ -83,6 +82,15 @@ install -m 0740 %{SOURCE4} %{buildroot}%{_srvdir}/socklog-klog/log/run
 
 
 %post
+if [ -d /var/log/supervise/socklog-unix -a ! -d /var/log/service/socklog-unix ]; then
+    mv /var/log/supervise/socklog-unix /var/log/service/
+fi
+
+if [ -d /var/log/supervise/socklog-klog -a ! -d /var/log/service/socklog-klog ]; then
+    mv /var/log/supervise/socklog-klog /var/log/service/
+fi
+
+
 %_post_srv socklog-unix
 %_post_srv socklog-klog
 
@@ -99,19 +107,20 @@ install -m 0740 %{SOURCE4} %{buildroot}%{_srvdir}/socklog-klog/log/run
 /bin/*
 %{_mandir}/man1/*
 %{_mandir}/man8/*
-%dir %attr(0750,logger,logger) %{_srvlogdir}/socklog-unix
 %dir %attr(0750,root,admin) %{_srvdir}/socklog-unix
 %dir %attr(0750,root,admin) %{_srvdir}/socklog-unix/log
-%attr(0740,root,admin) %{_srvdir}/socklog-unix/run
-%attr(0740,root,admin) %{_srvdir}/socklog-unix/log/run
-%dir %attr(0750,logger,logger) %{_srvlogdir}/socklog-klog
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/socklog-unix/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/socklog-unix/log/run
 %dir %attr(0750,root,admin) %{_srvdir}/socklog-klog
 %dir %attr(0750,root,admin) %{_srvdir}/socklog-klog/log
-%attr(0740,root,admin) %{_srvdir}/socklog-klog/run
-%attr(0740,root,admin) %{_srvdir}/socklog-klog/log/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/socklog-klog/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/socklog-klog/log/run
 
 
 %changelog
+* Thu Sep 08 2005 Sean P. Thomas <spt@annvix.org> 2.0.2-3avx
+- fix up log run script, moved logs, and some perms.
+
 * Fri Aug 26 2005 Vincent Danen <vdanen@annvix.org> 2.0.2-2avx
 - fix perms on run scripts
 - add %%post and %%preun scriptlets
