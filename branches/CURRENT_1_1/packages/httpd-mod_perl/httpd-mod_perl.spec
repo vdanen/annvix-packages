@@ -9,7 +9,7 @@
 
 %define name		httpd-%{mod_name}
 %define version 	%{apache_version}_%{mod_version}
-%define release 	1avx
+%define release 	2avx
 
 # Module-Specific definitions
 %define apache_version	2.0.54
@@ -156,7 +156,11 @@ rm -f %{buildroot}%{_mandir}/man3/Bundle::ApacheTest.3pm
 
 
 %changelog
-* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 2.0.53_2.0.0-0.RC4.3avx
+* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 2.0.54_2.0.1-1avx
+- rebuild against new perl
+- fix changelog
+
+* Wed Sep 07 2005 Vincent Danen <vdanen@annvix.org> 2.0.54_2.0.1-1avx
 - apache 2.0.54
 - mod_perl 2.0.1
 - s/conf.d/modules.d/
