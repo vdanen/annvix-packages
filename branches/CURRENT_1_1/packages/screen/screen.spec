@@ -9,7 +9,7 @@
 
 %define name		screen
 %define version		4.0.2
-%define release		4avx
+%define release		5avx
 
 Summary:	A screen manager that supports multiple logins on one terminal
 Name:		%{name}
@@ -27,6 +27,8 @@ Patch5:		screen-3.9.11-max-window-size.diff.bz2
 Patch6:		screen-3.9.13-no-libelf.patch.bz2
 Patch7:		screen-3.9.11-biarch-utmp.patch.bz2
 Patch8:		screen-3.9.15-overflow.patch.bz2
+Patch9:		screen-4.0.2-screenrc-utf8-switch.patch.bz2
+Patch10:	screen-4.0.2-varargs.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	ncurses-devel
@@ -44,15 +46,17 @@ one login.
 
 %prep
 %setup -q
-%patch0 -p1 
-%patch1 -p1 
+%patch0 -p1
+%patch1 -p1
 # (sb) seems to be needed on x86 now too 
 %patch3 -p1
-%patch4 -p1 
-%patch5 -p1 
+%patch4 -p1
+%patch5 -p1
 %patch6 -p1 -b .no-libelf
 %patch7 -p1 -b .biarch-utmp
 %patch8 -p1 -b .overflow
+%patch9 -p0 -b .utf8
+%patch10 -p1 -b .varargs
 
 
 %build
@@ -69,8 +73,6 @@ perl -pi -e 's|/local/etc/screenrc|%{_sysconfdir}/screenrc|' doc/*
 rm doc/screen.info*
 
 %make CFLAGS="%{optflags} -DETCSCREENRC=\\\"%{_sysconfdir}/screenrc\\\""
-# This option brake compilation with standard Mandrake options
-# -D_GNU_SOURCE"
 
 
 %install
@@ -89,14 +91,14 @@ install -c -m 0644 etc/screenrc %{buildroot}%{_sysconfdir}/skel/.screenrc
 
 mkdir -p %{buildroot}%{_sysconfdir}/profile.d
 
-echo '  screen ()
-	{
-	if [ -z "$SCREENDIR" ]; then
-		export SCREENDIR='\$'HOME/tmp
-	fi
-	%{_bindir}/screen $@
-	}
-	' > %{buildroot}%{_sysconfdir}/profile.d/screen.sh 
+cat > %{buildroot}%{_sysconfdir}/profile.d/screen.sh <<EOF
+#!/bin/sh
+# %{_sysconfdir}/profile.d/screen.sh
+
+if [ -z "\$SCREENDIR" ]; then
+    export SCREENDIR=\$HOME/tmp
+fi
+EOF
 
 
 %clean
@@ -124,6 +126,11 @@ echo '  screen ()
 
 
 %changelog
+* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 4.0.2-5avx
+- P9: add 'C-a U' binding to /etc/skel/.screenrc (rgarciasuarez)
+- P10: varargs fixes (gbeauchesne)
+- fix the screen profile.d script (rgarciasuarez)
+
 * Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 4.0.2-4avx
 - bootstrap build (new gcc, new glibc)
 
