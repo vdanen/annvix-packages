@@ -8,8 +8,8 @@
 
 
 %define name		m4
-%define version 	1.4ppre2
-%define release 	9avx
+%define version 	1.4.3
+%define release 	1avx
 
 Summary:	The GNU macro processor
 Name:		%{name}
@@ -18,12 +18,13 @@ Release:	%{release}
 License:	GPL
 Group:		Development/Other
 URL:		http://www.seindal.dk/rene/gnu/
-Source:		ftp://ftp.gnu.org/pub/gnu/m4-1.4.tar.bz2
-Patch:		m4-1.4-glibc.patch.bz2
+Source0:	ftp://ftp.gnu.org/pub/gnu/m4-%{version}.tar.bz2
+Source1:	ftp://ftp.gnu.org/pub/gnu/m4-%{version}.tar.bz2.sig
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
-Prereq:		info-install
+Requires(post):	info-install
+Requires(preun): info-install
 
 %description
 A GNU implementation of the traditional UNIX macro processor.  M4 is
@@ -35,18 +36,11 @@ not for running configure scripts.
 
 
 %prep
-%setup -q -n %name-1.4
-%patch -p1
+%setup -q
 
 
 %build
-# m4 configure script doesn't support rpm's configure macro,
-# so we sanitize the command line as much as possible
-CFLAGS="%{optflags}" ./configure \
-    i586-annvix-linux \
-    --prefix=%_prefix \
-    --exec-prefix=%_prefix 
-
+%configure2_5x
 %make
 
 make check
@@ -54,7 +48,7 @@ make check
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-%makeinstall
+%makeinstall_std infodir=%{_datadir}/info
 
 
 %clean
@@ -62,23 +56,24 @@ make check
 
 
 %post
-/sbin/install-info %{_infodir}/m4.info.bz2 %{_infodir}/dir
+%_install_info %{name}.info
 
 
 %preun
-if [ "$1" = 0 ]; then
-    /sbin/install-info --delete %{_infodir}/m4.info.bz2 %{_infodir}/dir
-fi
-
+%_remove_install_info %{name}.info
 
 %files
 %defattr(-,root,root)
-%doc NEWS README COPYING BACKLOG INSTALL THANKS ChangeLog
+%doc NEWS README COPYING BACKLOG THANKS ChangeLog
 %{_bindir}/m4
 %{_infodir}/*
 
 
 %changelog
+* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 1.4.3-1avx
+- 1.4.3
+- dropped P0; not required
+
 * Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1.4ppre2-9avx
 - bootstrap build (new gcc, new glibc)
 - s/mandrake/annvix/
