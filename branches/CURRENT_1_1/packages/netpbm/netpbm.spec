@@ -9,7 +9,7 @@
 
 %define name		netpbm
 %define version 	10.29
-%define release 	1avx
+%define release 	2avx
 
 %define major		10
 %define libname		%mklibname %{name} %{major}
@@ -226,6 +226,9 @@ cp test-images/* %{buildroot}%{_datadir}/printconf/tests/
 
 
 %changelog
+* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 10.29-2avx
+- rebuild against new libtiff
+
 * Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 10.29-1avx
 - 10.29
 - sync with cooker 10.29-1mdk
