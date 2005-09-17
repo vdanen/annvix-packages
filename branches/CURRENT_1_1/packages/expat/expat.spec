@@ -8,8 +8,8 @@
 
 
 %define name		expat
-%define version 	1.95.6
-%define release 	10avx
+%define version 	1.95.8
+%define release 	1avx
 
 %define libname_orig	libexpat
 %define major		0
@@ -22,8 +22,7 @@ Release:	%{release}
 License:	MPL or GPL
 Group:		Development/Other
 URL:		http://www.jclark.com/xml/expat.html
-Source:		ftp://ftp.jclark.com/pub/xml/%{name}-%{version}.tar.bz2
-Patch:		expat-1.95.6-enum.patch.bz2
+Source:		http://prdownloads.sourceforge.net/expat/%{name}-%{version}.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
@@ -60,7 +59,6 @@ Development environment for the expat XML parser
 
 %prep
 %setup -q
-%patch -p1
 
 
 %build
@@ -70,11 +68,7 @@ Development environment for the expat XML parser
  
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-%makeinstall mandir=%{buildroot}%{_mandir}/man1
-
-install -D -m 0644 doc/reference.html %{buildroot}%{_docdir}/%{name}-%{version}/reference.html
-
-rm -f %{buildroot}%{_mandir}/xmlwf.1*
+%makeinstall man1dir=%{buildroot}%{_mandir}/man1
 
 
 %clean
@@ -99,14 +93,18 @@ rm -f %{buildroot}%{_mandir}/xmlwf.1*
 
 %files -n %{libname}-devel
 %defattr(-,root,root)
-%doc %{_docdir}/%{name}-%{version}
 %{_libdir}/libexpat.so
 %{_includedir}/expat.h
+%{_includedir}/expat_external.h
 %{_libdir}/libexpat.a
 %{_libdir}/libexpat.la
 
 
 %changelog
+* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 1.95.8-1avx
+- 1.95.8
+- drop unneeded patch
+
 * Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1.95.6-10avx
 - bootstrap build (new gcc, new glibc)
 
