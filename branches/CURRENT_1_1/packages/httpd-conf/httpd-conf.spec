@@ -9,7 +9,7 @@
 
 %define name		httpd-conf
 %define version		2.0.54
-%define release		3avx
+%define release		4avx
 
 %define compat_dir	/etc/httpd
 %define compat_conf	/etc/httpd/conf
@@ -164,6 +164,13 @@ install -m 0644 %{SOURCE102} %{buildroot}%{_datadir}/afterboot/03_apache
 %_mkafterboot
 
 %post
+if [ -d /var/log/supervise/httpd -a ! -d /var/log/service/httpd ]; then
+    mv /var/log/supervise/httpd /var/log/service/
+fi
+if [ -d /var/log/supervise/httpd2 -a ! -d /var/log/service/httpd ]; then
+    mv /var/log/supervise/httpd2 /var/log/service/httpd
+fi
+
 %_post_srv httpd
 
 %preun
@@ -228,6 +235,9 @@ install -m 0644 %{SOURCE102} %{buildroot}%{_datadir}/afterboot/03_apache
 
 
 %changelog
+* Fri Sep 16 2005 Sean P. Thomas <spt@annvix.org> 2.0.54-4avx
+- add relocation of log directories
+
 * Thu Sep 15 2005 Vincent Danen <vdanen@annvix.org> 2.0.54-3avx
 - remove the conf/webapps.d/*.conf stuff from httpd.conf; this is a
   Mandriva-ism that we do not want (is used by rpm packaged web-apps
