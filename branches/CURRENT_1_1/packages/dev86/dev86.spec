@@ -8,8 +8,8 @@
 
 
 %define name		dev86
-%define version		0.16.3
-%define release		7avx
+%define version		0.16.16
+%define release		1avx
 
 Summary:	A real mode 80x86 assembler and linker
 Name:		%{name}
@@ -18,16 +18,12 @@ Release:	%{release}
 License:	GPL
 Group:		Development/Other
 URL:		http://www.cix.co.uk/~mayday/
-Source:		http://www.cix.co.uk/~mayday/%{name}-%{version}.tar.bz2
-Patch0:		Dev86src-0.15.5-noroot.patch.bz2
-Patch1:		Dev86src-0.14-nobcc.patch.bz2
-Patch2:		dev86-0.16.3-bccpath.patch.bz2
-Patch3:		Dev86src-0.15-mandir.patch.bz2
-Patch4:		Dev86src-0.15.5-badlinks.patch.bz2
+Source:		http://www.cix.co.uk/~mayday/Dev86src-%{version}.tar.bz2
 Patch5:		dev86-0.16.3-missing-header.patch.bz2
+Patch6:		dev86-0.16.16-overflow.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-ExclusiveArch:	%ix86
+ExclusiveArch:	%{ix86} ppc
 
 Obsoletes:	bin86
 Provides:	bin86
@@ -40,7 +36,7 @@ bootstrapping code, from their sources.
 
 
 %package devel
-Summary:	A development files for dev86
+Summary:	Development files for dev86
 Group:		Development/Other
 Requires:	%{name} = %{version}
 
@@ -53,18 +49,11 @@ bootstrapping code, from their sources.
 The dev86-devel package provides C headers need to use bcc, the C
 compiler for real mode x86.
 
-Note that you don't need dev86-devel package in order to build
-a kernel.
-
 
 %prep
 %setup -q
-%patch0 -b .oot -p1
-%patch1 -b .djb -p1
-%patch2 -b .bccpaths -p1
-%patch3 -b .mandir -p1
-%patch4 -b .fix -p1
 %patch5 -p1 -b .errno
+%patch6 -p1 -b .overflow
 
 mkdir -p lib/bcc
 ln -s ../../include lib/bcc/include
@@ -80,10 +69,7 @@ quit
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-make DIST=%{buildroot} MANDIR=%{buildroot}/%{_mandir} install
-
-install -m 0755 -s %{buildroot}/lib/elksemu %{buildroot}%{_bindir}
-rm -rf %{buildroot}/lib/
+make DIST=%{buildroot} MANDIR=%{_mandir} install install-man
 
 pushd %{buildroot}%{_bindir}
     rm -f nm86 size86
@@ -95,10 +81,8 @@ popd
 for i in elksemu unproto bin86 copt dis88 bootblocks; do
     ln -f $i/README README.$i
 done
-ln -f bin86/README-0.4 README.bin86-0.4
-
-# move header files out of %{_includedir} and into %{_libdir}/bcc/include
-mv %{buildroot}%{_includedir} %{buildroot}%{_libdir}/bcc
+ln -f bin86/README-0.4 README-0.4.bin86
+ln -f bin86/ChangeLog ChangeLog.bin86
 
 
 %clean
@@ -109,28 +93,25 @@ mv %{buildroot}%{_includedir} %{buildroot}%{_libdir}/bcc
 %defattr(-,root,root)
 %doc Changes Contributors COPYING MAGIC README*  
 %dir %{_libdir}/bcc
-%dir %{_libdir}/bcc/i86
-%dir %{_libdir}/bcc/i386
 %{_bindir}/*
-%{_libdir}/bcc/bcc-cc1
-%{_libdir}/bcc/copt
-%{_libdir}/bcc/unproto
-%{_libdir}/bcc/i86/crt*
-%{_libdir}/bcc/i386/crt*
-%{_libdir}/bcc/i86/rules*
-%{_libdir}/liberror.txt
+%{_libdir}/bcc/*
 %{_mandir}/man1/*
+%exclude %{_libdir}/bcc/i386/lib*
 
 %files devel
 %defattr(-,root,root)
 %doc README
 %dir %{_libdir}/bcc/include
 %{_libdir}/bcc/include/*
-%{_libdir}/bcc/i86/lib*
 %{_libdir}/bcc/i386/lib*
 
 
 %changelog
+* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 0.16.16-1avx
+- 0.16.16
+- P6: fix invalid memory allocation in bcc.c:build_prefix () (from fedora)
+- drop P0-P4
+
 * Wed Aug 17 2005 Vincent Danen <vdanen@annvix.org> 0.16.3-7avx
 - bootstrap build (new gcc, new glibc)
 
