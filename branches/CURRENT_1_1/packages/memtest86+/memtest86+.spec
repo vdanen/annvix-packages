@@ -8,8 +8,8 @@
 
 
 %define name		memtest86+
-%define version		1.15
-%define release		3avx
+%define version		1.60
+%define release		1avx
 
 Summary: 	A stand alone memory test for i386 architecture systems
 Name: 		%{name}
@@ -18,14 +18,15 @@ Release: 	%{release}
 License: 	GPL
 Group: 		System/Kernel and hardware
 URL: 		http://www.memtest.org
-Source0: 	http://www.memtest.org/download/memtest_source_v%{version}.tar.bz2
-Source1: 	memtest86.pm
+Source0: 	http://www.memtest.org/download/%{version}/%{name}-%{version}.tar.bz2
 Patch0:		memtest86-1.15-avx-nostack.patch.bz2
 
 BuildRoot: 	%{_buildroot}/%{name}-%{version}
 BuildRequires: 	dev86
 
 Requires: 	initscripts
+Requires(post):	bootloader-utils >= 1.6-12avx
+Requires(preun): bootloader-utils >= 1.6-12avx
 ExclusiveArch: 	%{ix86} x86_64
 Obsoletes: 	memtest86
 Provides: 	memtest86
@@ -37,7 +38,7 @@ missfailures that are detected by Memtest86.
 
 
 %prep
-%setup -q -n %{name}_v%{version} 
+%setup -q
 # don't apply the patch to disable SSP when we're not using it
 #%patch0 -p0
 
@@ -50,30 +51,31 @@ missfailures that are detected by Memtest86.
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p %{buildroot}/boot
 install -m 0644 memtest.bin %{buildroot}/boot/memtest-%{version}.bin
-mkdir -p %{buildroot}%{_datadir}/loader/
-install -m 0755 %{SOURCE1} %{buildroot}%{_datadir}/loader/memtest86
 
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 
-%post 
-%{_datadir}/loader/memtest86 %{version}
+%post
+/usr/share/loader/memtest86 %{version}
 
 %preun
-%{_datadir}/loader/memtest86 -r %{version}
+/usr/share/loader/memtest86 -r %{version}
 
 
 %files
 %defattr(-,root,root)
 %doc README
-%dir %{_datadir}/loader
 /boot/memtest-%{version}.bin
-%{_datadir}/loader/memtest86
 
 
 %changelog
+* Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 1.60-1avx
+- 1.60
+- the memtest86 bootloader stuff is now in bootloader-utils so
+  we need to require it
+
 * Wed Aug 17 2005 Vincent Danen <vdanen@annvix.org> 1.15-3avx
 - bootstrap build (new gcc, new glibc)
 
