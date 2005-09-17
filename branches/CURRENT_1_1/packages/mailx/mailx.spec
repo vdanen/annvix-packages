@@ -9,7 +9,7 @@
 
 %define name		mailx
 %define version		8.1.1
-%define release		28avx
+%define release		29avx
 
 Summary:	The /bin/mail program, which is used to send mail via shell scripts
 Name:		%{name}
@@ -32,6 +32,8 @@ Patch10:	mailx-8.1.1-includes.patch.bz2
 Patch11:	mailx-8.1.1-fseek.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
+
+Requires:	smtpdaemon
 
 %description
 The mailx package installs the /bin/mail program, which is used to send
@@ -87,6 +89,9 @@ ln -sf mail.1 %{buildroot}%{_mandir}/man1/Mail.1
 
 
 %changelog
+* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 8.1.1-29avx
+- requires smtpdaemon
+
 * Wed Aug 17 2005 Vincent Danen <vdanen@annvix.org> 8.1.1-28avx
 - bootstrap build (new gcc, new glibc)
 
