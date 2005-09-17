@@ -8,26 +8,29 @@
 
 
 %define name		sablotron
-%define version 	0.98
-%define release 	7avx
+%define version 	1.0.2
+%define release 	1avx
 
 %define	altname		Sablot
 %define libname_orig	libsablotron
 %define major		0
 %define libname		%mklibname %{name} %{major}
 
-Summary: 	XSLT processor
+Summary: 	XSLT, XPath and DOM processor
 Name: 		%{name}
 Version: 	%{version}
 Release: 	%{release}
 License: 	MPL/GPL
 Group: 		Development/Other
 URL:		http://www.gingerall.cz
-Source: 	http://www.gingerall.com:/perl/rd?url=sablot/%{altname}-%{version}.tar.bz2
-Patch:		sablot-lib-0.71.patch.bz2
+Source0:	http://download-1.gingerall.cz/download/sablot/%{altname}-%{version}.tar.bz2
+Patch0:		Sablot-1.0.2-libs.diff.bz2
+Patch1:		sablot-lib-1.0.1-gcc3.4.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:  expat-devel >= 1.95.2
+BuildRequires:  expat-devel >= 1.95.2, perl-XML-Parser, ncurses-devel, libstdc++-devel
+BuildRequires:	autoconf2.5, automake1.9 >= 1.9.2, js-devel >= 1.5
+BuildRequires:	multiarch-utils >= 1.0.3
 
 Requires:	expat >= 1.95.2
 Requires:	%{libname}
@@ -57,6 +60,7 @@ Requires: 	sablotron = %{version}
 Group: 		System/Libraries
 Requires: 	%{libname} = %{version}
 Provides: 	%{libname_orig}-devel = %{version}-%{release}
+Provides:	sablotron-devel
 
 %description -n %{libname}-devel
 These are the development libraries and header files for Sablotron
@@ -64,28 +68,32 @@ These are the development libraries and header files for Sablotron
 
 %prep
 %setup -q -n %{altname}-%{version}
-%patch
+%patch0 -p1
+%patch1 -p1
 
 
 %build
+export CPLUS_INCLUDE_PATH=%{_includedir}/js
 export CXXFLAGS="%{optflags}"
-%configure --prefix=%{_prefix}
+%configure2_5x \
+    --enable-javascript
+
 %make 
-#strip Sablot/engine/.libs/libsablot.a
-#strip Sablot/engine/.libs/libsablot.so*
 
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-%makeinstall prefix=%{buildroot}%{_prefix}
+%makeinstall_std
+
+%multiarch_binaries %{buildroot}%{_bindir}/sablot-config
+
+# nuke installed docs
+rm -rf %{buildroot}%{_datadir}/doc
 
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-
-%post -p /sbin/ldconfig
-%postun -p /sbin/ldconfig
 
 %post -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
@@ -94,7 +102,6 @@ export CXXFLAGS="%{optflags}"
 %files
 %defattr(755,root,root)
 %{_bindir}/sabcmd
-%{_bindir}/sablot-config
 %{_mandir}/man1/*
 
 %files -n %{libname}
@@ -104,6 +111,8 @@ export CXXFLAGS="%{optflags}"
 
 %files -n %{libname}-devel
 %defattr(-,root,root)
+%multiarch %{multiarch_bindir}/sablot-config
+%{_bindir}/sablot-config
 %{_libdir}/lib*.a
 %{_libdir}/lib*.la
 %{_libdir}/lib*.so
@@ -111,6 +120,13 @@ export CXXFLAGS="%{optflags}"
 
 
 %changelog
+* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 1.0.2-1avx
+- 1.0.2
+- no need to run ldconfig on the main package
+- add a bunch of BuildRequires
+- multiarch support
+- disable readline support
+
 * Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 0.98-7avx
 - bootstrap build (new gcc, new glibc)
 
