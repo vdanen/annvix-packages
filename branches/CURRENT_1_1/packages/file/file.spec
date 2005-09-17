@@ -7,8 +7,8 @@
 #
 
 %define name		file
-%define version		4.10
-%define release		4avx
+%define version		4.14
+%define release		1avx
 
 %define major		1
 %define libname		%mklibname magic %{major}
@@ -22,13 +22,13 @@ Group:		File tools
 URL:		ftp://ftp.astron.com/pub/file/
 Source0:	ftp://ftp.astron.com/pub/file/%{name}-%{version}.tar.bz2
 Source1:	magic.mime.bz2
-Patch0:		file-4.01-tex.patch.bz2
+Patch0:		ftp://ftp.astron.com/pub/file/file-4.14.patch1.bz2
 Patch2:		file-4.01-perl.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl, libtool, autoconf, zlib-devel
 
-Requires:	%{libname} = %{version}-%{release}
+Requires:	%{libname} = %{version}
 
 %description
 The file command is used to identify a particular file according to the
@@ -38,7 +38,7 @@ different graphics formats.
 
 
 %package -n %{libname}
-Summary:	Shared library for handling magic files.
+Summary:	Shared library for handling magic files
 Group:		System/Libraries
 
 %description -n %{libname}
@@ -52,9 +52,9 @@ command is based on.
 
 
 %package -n %{libname}-devel
-Summary:	Development files to build applications that handle magic files.
+Summary:	Development files to build applications that handle magic files
 Group:		Development/C
-Requires:	%{libname} = %{version}-%{release}
+Requires:	%{libname} = %{version}
 Provides:	libmagic-devel = %{version}-%{release}
 Provides:	%{name}-devel = %{version}-%{release}
 
@@ -69,9 +69,9 @@ command is based on.
 
 
 %package -n %{libname}-static-devel
-Summary:	Static library to build applications that handle magic files.
+Summary:	Static library to build applications that handle magic files
 Group:		Development/C
-Requires:	%{libname}-devel = %{version}-%{release}
+Requires:	%{libname}-devel = %{version}
 
 %description -n %{libname}-static-devel
 The file command is used to identify a particular file according to the
@@ -85,21 +85,22 @@ command is based on.
 
 %prep
 %setup -q
-%patch0 -p1 -b .tex
+%patch0
 %patch2 -p1 -b .perl
 
 
 %build
 CFLAGS="%{optflags} -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE"
 
-%configure2_5x --datadir=%{_datadir}/misc
-perl -p -i -e 's/sparc/SPARC/g' Magdir/*
+%configure2_5x \
+    --datadir=%{_datadir}/misc
 %make
 
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
+
 bzcat %{SOURCE1} > %{buildroot}%{_datadir}/misc/magic.mime
 ln -sf %{name}/magic %{buildroot}%{_datadir}/misc/magic
 
@@ -138,7 +139,11 @@ install -m 0644 src/file.h %{buildroot}%{_includedir}/
 %defattr(-,root,root)
 %{_libdir}/*.a
 
+
 %changelog
+* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 4.14-1avx
+- 4.14
+
 * Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 4.10-4avx
 - bootstrap build (new gcc, new glibc)
 
