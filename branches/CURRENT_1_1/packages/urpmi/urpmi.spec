@@ -8,7 +8,7 @@
 
 
 %define name		urpmi
-%define version		4.7.14
+%define version		4.7.15
 %define release 	1avx
 
 %{expand:%%define compat_perl_vendorlib %(perl -MConfig -e 'printf "%%s\n", "%{?perl_vendorlib:1}" ? "%%{perl_vendorlib}" : "$Config{installvendorlib}"')}
@@ -210,6 +210,9 @@ if (-e "/etc/urpmi/urpmi.cfg") {
 
 
 %changelog
+* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 4.7.15-1avx
+- 4.7.15
+
 * Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 4.7.14-1avx
 - 4.7.14
 - new: rurpmi, an experimental restricted version of urpmi (intended to
