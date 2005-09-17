@@ -8,10 +8,11 @@
 
 
 %define name		js
-%define version		1.5
-%define release		0.%{lib_release}.10avx
+%define version		1.5.rc5a
+%define release		1avx
+%define epoch		1
 
-%define lib_release	rc5
+%define srcver		1.5-rc5a
 %define major		1
 %define libname		%mklibname %{name} %{major}
 
@@ -19,15 +20,18 @@ Summary:	JavaScript engine
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
+Epoch:		%{epoch}
 License:	MPL
 Group:		Development/Other
 URL:		http://www.gingerall.com/charlie/ga/xml/d_related.xml
-Source0:	%{name}-%{version}-%{lib_release}.tar.bz2
-Patch0:		lib%{name}-%{version}.patch.bz2
+Source0:	%{name}-%{srcver}.tar.bz2
+Patch0:		libjs-1.5.patch.bz2
+Patch1:		js-va_copy.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
+BuildRequires:	multiarch-utils >= 1.0.3
 
-Requires:	%{libname} = %{version}-%{release}
+Requires:	%{libname} = %{epoch}:%{version}-%{release}
 
 %description
 JavaScript is the Netscape-developed object scripting languages. This
@@ -50,7 +54,7 @@ and sources.
 %package -n %{libname}-devel
 Summary:	The header files for %{libname}
 Group:		Development/Other
-Requires:	%{libname} = %{version}-%{release}
+Requires:	%{libname} = %{epoch}:%{version}-%{release}
 Provides:	lib%{name}-devel = %{version}-%{release}
 Provides:	%{name}-devel = %{version}-%{release}
 
@@ -63,7 +67,7 @@ These are the header files for %{libname}
 pushd src
 %patch0 -p0 
 popd
-
+%patch1 -p1 -b .va_copy
 
 %build
 pushd src
@@ -74,18 +78,19 @@ pushd src
     OPTFLAGS="%{optflags} -fPIC"
 
     #JMD: %make does *not* work!
-    BUILD_OPT=1 CFLAGS=$OPTFLAGS make -f Makefile.ref 
+    export CFLAGS="%{optflags} -DPIC -fPIC -D_REENTRANT"
+    BUILD_OPT=1 make -f Makefile.ref 
 popd
 
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-mkdir -p %{buildroot}{%{_bindir},%{_libdir},%{_includedir}/js}
+mkdir -p %{buildroot}{%{_bindir},%{_libdir},%{_includedir}/js-%{version}}
 
 # install headers
-install -m 0644 src/*.h %{buildroot}%{_includedir}/js/
-install -m 0644 src/Linux_All_OPT.OBJ/jsautocfg.h %{buildroot}%{_includedir}/js/
+install -m 0644 src/*.h %{buildroot}%{_includedir}/js-%{version}/
+install -m 0644 src/Linux_All_OPT.OBJ/jsautocfg.h %{buildroot}%{_includedir}/js-%{version}/
 
 # install shared library
 install -m 0755 src/Linux_All_OPT.OBJ/lib%{name}.so \
@@ -97,6 +102,8 @@ install -m 0755 src/Linux_All_OPT.OBJ/lib%{name}.a %{buildroot}%{_libdir}/
 
 # install binary
 install -m 0755 src/Linux_All_OPT.OBJ/%{name} %{buildroot}%{_bindir}/
+
+%multiarch_includes %{buildroot}%{_includedir}/js-%{version}/jsautocfg.h
 
 
 %post -n %{libname} -p /sbin/ldconfig
@@ -119,13 +126,20 @@ install -m 0755 src/Linux_All_OPT.OBJ/%{name} %{buildroot}%{_bindir}/
 
 %files -n %{libname}-devel
 %defattr(-,root,root)
-%{_includedir}/*
+%multiarch %{multiarch_includedir}/js-%{version}/jsautocfg.h
+%{_includedir}/js-%{version}
 %{_libdir}/*.so
 %{_libdir}/*.a
 
 
 %changelog
-* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 1.5.0.rc5.10avx
+* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 1.5.rc5a-1avx
+- 1.5rc5a
+- multiarch support
+- we need to use an epoch here anyways, so tag the version as
+  1.5.rc5a-1avx rather than 1.5-0.rc5a.1avx
+
+* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 1.5-0.rc5.10avx
 - bootstrap build (new gcc, new glibc)
 
 * Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 1.5-0.rc5.9avx
