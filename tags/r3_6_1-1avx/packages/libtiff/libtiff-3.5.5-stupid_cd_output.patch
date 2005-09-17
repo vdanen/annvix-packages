@@ -1,0 +1,20 @@
+--- tiff-v3.5.5/man/Makefile.in	Mon Nov 29 14:42:44 1999
++++ tiff-v3.5.5.acme/man/Makefile.in	Sun Dec 31 18:09:14 2000
+@@ -332,7 +332,7 @@
+ 	test -d apps || mkdir apps
+ 	${MAKE} ${MANTOOLS}
+ 	${RM} apps/Makefile
+-	(cd apps;							\
++	(cd apps > /dev/null;						\
+ 	 ${ECHO} 'install:';						\
+ 	 for i in *.1; do						\
+ 	    f=${MANAPPNAME};						\
+@@ -344,7 +344,7 @@
+ 	test -d lib || mkdir lib
+ 	${MAKE} ${MANDEV} ${MANDEVLINKS}
+ 	${RM} lib/Makefile
+-	(cd lib;							\
++	(cd lib > /dev/null;						\
+ 	 ${ECHO} 'install:';						\
+ 	 for i in *.3t; do						\
+ 	    f=${MANLIBNAME};						\
