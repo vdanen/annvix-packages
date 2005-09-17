@@ -9,8 +9,8 @@
 # sh-utils:  rh-2.0.12-2
 
 %define name		coreutils
-%define version		5.0
-%define release		12avx
+%define version		5.2.1
+%define release		1avx
 
 # for sh-utils :
 %define optflags $RPM_OPT_FLAGS -D_GNU_SOURCE=1
@@ -31,45 +31,50 @@ Source201:	help2man
 Patch0:		coreutils-4.5.4-lug.patch.bz2
 # fileutils
 Patch101:	fileutils-4.0-spacedir.patch.bz2
-Patch102:	fileutils-4.0s-sparc.patch.bz2
-Patch103:	coreutils-4.5.2-trunc.patch.bz2
+Patch102:	coreutils-5.1.1-sparc.patch.bz2
 Patch105:	coreutils-4.5.2-C.patch.bz2
 Patch107:	fileutils-4.1.10-timestyle.patch.bz2
 Patch108:	fileutils-4.1.5-afs.patch.bz2
-Patch111:	coreutils-4.5.2-dumbterm.patch.bz2
+Patch111:	coreutils-5.2.1-dumbterm.patch.bz2
 Patch112:	fileutils-4.0u-glibc22.patch.bz2
-Patch113:	coreutils-4.5.2-nolibrt.patch.bz2
 Patch114:	fileutils-4.1-restorecolor.patch.bz2
-Patch115:	fileutils-4.1.1-FBoptions.patch.bz2
+Patch115:	fileutils-5.0.91-FBoptions.patch.bz2
 Patch1155:	fileutils-4.1-force-option--override--interactive-option.patch.bz2
 Patch116:	fileutils-4.1-dircolors_c.patch.bz2
 Patch117:	fileutils-4.1-ls_c.patch.bz2
 Patch118:	fileutils-4.1-ls_h.patch.bz2
 Patch152:	coreutils-4.5.7-touch_errno.patch.bz2
 Patch153:	fileutils-4.1.10-utmp.patch.bz2
-Patch180:	coreutils-4.5.12-fr-fix.patch.bz2
 Patch500:	textutils-2.0.17-mem.patch.bz2
-Patch502:	textutils-2.0.21-man.patch.bz2
 # sh-utils
-Patch702:	coreutils-4.5.7-utmp.patch.bz2
 Patch703:	sh-utils-2.0.11-dateman.patch.bz2
 Patch704:	sh-utils-1.16-paths.patch.bz2
 # RMS will never accept the PAM patch because it removes his historical
 # rant about Twenex and the wheel group, so we'll continue to maintain
 # it here indefinitely.
-Patch706:	coreutils-4.5.2-pam.patch.bz2
+Patch706:	coreutils-5.1.2-pam.patch.bz2
 Patch710:	sh-utils-2.0-rfc822.patch.bz2
 Patch711:	sh-utils-2.0.12-hname.patch.bz2
-# (sb) lin18nux/lsb compliance
-Patch800:	http://www.li18nux.org/subgroups/utildev/patch/coreutils-4.5.9-i18n-0.2.patch.bz2
+# (sb) lin18nux/lsb compliance - normally from here:
+# http://www.openi18n.org/subgroups/utildev/patch/
+# this one is actually a merger of 5.2 and 5.3, as join segfaults
+# compiled with gcc4 and the 5.1/5.2 patch
+Patch800:	coreutils-5.2.1-new-i18n.patch.bz2
+# small pt_BR fix
+Patch801:	coreutils-5.2.1-ptbrfix.patch.bz2
 Patch901:	coreutils-4.5.3-signal.patch.bz2
-Patch903:	coreutils-4.5.3-manpage.patch.bz2
-Patch904:	coreutils-5.0-allow_old_options.patch.bz2
-Patch905:	coreutils-5.0-du-fd_leak.patch.bz2
-
+Patch904:	coreutils-5.0.91-allow_old_options.patch.bz2
+Patch908: coreutils-5.1.2-build-fix.patch.bz2
+Patch909: coreutils-5.1.0-64bit-fixes.patch.bz2
+Patch910: coreutils-5.2.1-uname.patch.bz2
+# posix acls and extended attributes
+Patch1001: coreutils-5.2.1-acl.diff.bz2
+Patch1002: coreutils-5.2.1-acl+posix.diff.bz2
+Patch1003: coreutils-5.2.1-xattr.diff.bz2
 
 BuildRoot:	%_buildroot/%{name}-%{version}
-BuildRequires:	gettext termcap-devel pam-devel texinfo >= 4.3
+BuildRequires:	gettext termcap-devel pam-devel texinfo >= 4.3 libacl-devel libattr-devel
+BuildRequires:	automake1.8
 
 Requires:  	pam >= 0.66-12
 Provides:	fileutils = %{version}, sh-utils = %{version}, stat, textutils = %{version}
@@ -121,13 +126,11 @@ mv po/{lg,lug}.po
 # fileutils
 %patch101 -p1 -b .space
 %patch102 -p1 -b .sparc
-%patch103 -p0 -b .trunc
 %patch105 -p0 -b .Coption
 %patch107 -p1 -b .timestyle
 %patch108 -p1 -b .afs
 %patch111 -p0 -b .dumbterm
 %patch112 -p1 -b .glibc22
-%patch113 -p1 -b .nolibrt
 %patch114 -p1 -b .restore
 %patch115 -p1 -b .FBopts
 %patch1155 -p1
@@ -136,15 +139,11 @@ mv po/{lg,lug}.po
 %patch118 -p1
 %patch152 -p1
 %patch153 -p1
-%patch180 -p1 -b .frfix
 
 # textutils
 %patch500 -p1
-# patch in new ALL_LINGUAS
-%patch502 -p1
 
 # sh-utils
-%patch702 -p1 -b .utmp
 %patch703 -p1 -b .dateman
 %patch704 -p1 -b .paths
 %patch706 -p1 -b .pam
@@ -152,23 +151,32 @@ mv po/{lg,lug}.po
 
 # li18nux/lsb
 %patch800 -p1 -b .i18n
+%patch801 -p0 -b .ptbr
 
 %patch901 -p1 -b .su-hang
-%patch903 -p1 -b .rm-manpage
 %patch904 -p1 -b .old-options
-%patch905 -p0 -b .du-fd_leak
+%patch908 -p0 -b .build
+%patch909 -p1 -b .64bit
+%patch910 -p0 -b .cpu
+
+# posix acls and extended attributes
+%patch1001 -p1 -b .acl
+%patch1002 -p1 -b .acl+posix
+%patch1003 -p1 -b .xattr
+
+cp %{SOURCE201} man/help2man
+chmod +x man/help2man
+
 
 %build
-touch aclocal.m4 configure config.hin Makefile.in */Makefile.in */*/Makefile.in
-%configure --enable-largefile --enable-pam || :
-make all CPPFLAGS="-DUSE_PAM" su_LDFLAGS="-lpam -lpam_misc"
+export DEFAULT_POSIX2_VERSION=199209
+aclocal-1.8 -I m4
+automake-1.8 -a -c
+%configure2_5x \
+    --enable-largefile \
+    --enable-pam
 
-unset LINGUAS || :
-for i in AUTOMAKE ACLOCAL;do perl -pi -e "s%^$i = .*$%$i = /bin/true%g" Makefile.in;done
-%configure2_5x
-[[ -f ChangeLog && -f ChangeLog.bz2  ]] || bzip2 -9f ChangeLog
-
-%make
+%make HELP2MAN=$PWD/man/help2man
 
 # Run the test suite.
 #make check
@@ -176,12 +184,13 @@ for i in AUTOMAKE ACLOCAL;do perl -pi -e "s%^$i = .*$%$i = /bin/true%g" Makefile
 # XXX docs should say /var/run/[uw]tmp not /etc/[uw]tmp
 perl -pi -e 's,/etc/utmp,/var/run/utmp,g;s,/etc/wtmp,/var/run/wtmp,g' doc/coreutils.texi
 
-cp %SOURCE201 man/help2man
-chmod +x man/help2man
-
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+[[ -f ChangeLog ]] && bzip2 -9f ChangeLog
+# for help2man:
+export PATH=$PATH:RPM_BUILD_ROOT/man
+
 %makeinstall_std
 
 # man pages are not installed with make install
@@ -197,10 +206,12 @@ fi
 
 # let be compatible with old fileutils, sh-utils and textutils packages :
 mkdir -p %{buildroot}{/bin,%{_bindir},%{_sbindir},%{_sysconfdir}/pam.d}
-for f in basename cat chgrp chmod chown cp cut date dd df echo env false id link ln ls mkdir mknod mv nice pwd rm rmdir sleep sort stat stty sync touch true uname unlink
+for f in basename cat chgrp chmod chown cp cut date dd df echo env expr false id link ln ls mkdir mknod mv nice pwd rm rmdir sleep sort stat stty sync touch true uname unlink
 do
 	mv %{buildroot}/{%{_bindir},bin}/$f 
 done
+
+ln -sf ../../bin/expr %{buildroot}%{_bindir}/
 
 # chroot was in /usr/sbin :
 mv %{buildroot}/{%{_bindir},%{_sbindir}}/chroot
@@ -219,11 +230,16 @@ done
 
 install -m 644 %SOURCE200 %{buildroot}%{_sysconfdir}/pam.d/su
 
-ln -sf test %{buildroot}%{_bindir}/[
-
 bzip2 -f9 old/*/C* || :
 
+# fix conflicts with util-linux
+rm -f %{buildroot}%{_mandir}/man1/kill.1
+
 %find_lang %{name}
+#TV# find_lang look for LC_MESSAGES, not LC_TIME:
+#TV(cd %{buildroot}; find .%_datadir/locale/ -name coreutils.mo | fgrep LC_TIME | \
+#TV	sed -e "s!^.*/share/locale/\([^/]*\)/!%lang(\1) %_datadir/locale/\1/!") >> %{name}.lang
+find %{buildroot}%_datadir/locale/ -name coreutils.mo | fgrep LC_TIME | xargs rm -f
 
 # (sb) Deal with Installed (but unpackaged) file(s) found
 rm -f %{buildroot}%{_datadir}/info/dir
@@ -269,7 +285,19 @@ true
 %{_infodir}/coreutils*
 %{_mandir}/man*/*
 
+
 %changelog
+* Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 5.2.1-1avx
+- 5.2.1
+- sync with mandrake 5.2.1-8mdk:
+  - P801: fix some types in pt_BR.po file (chiquitto)
+  - P908: fix build, make it --short-circuit aware (tvignaud)
+  - P909: 64bit fixes (gbeauchesne)
+  - P910: show correct CPU name (Marcin Gondek, mdk bug #7865) (tvignaud)
+  - P1001, P1002, P1003: add support for posix ACLs and extended
+    attributes (chiquitto)
+- drop patches P103, P113, P180, P502, P903, P905
+
 * Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 5.0-12avx
 - bootstrap build (new gcc, new glibc)
 

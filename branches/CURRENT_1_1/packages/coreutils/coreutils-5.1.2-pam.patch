@@ -1,16 +1,16 @@
---- ./src/Makefile.am.pam	2002-10-11 16:21:07.000000000 +0200
-+++ ./src/Makefile.am	2002-10-11 16:21:07.000000000 +0200
-@@ -66,7 +66,7 @@
+--- ./src/Makefile.am.pam	2004-01-13 01:00:22.000000000 +0100
++++ ./src/Makefile.am	2004-01-25 22:33:35.000000000 +0100
+@@ -63,7 +63,7 @@
  
- uptime_LDADD = $(LDADD) @GETLOADAVG_LIBS@
+ uptime_LDADD = $(LDADD) $(GETLOADAVG_LIBS)
  
--su_LDADD = $(LDADD) @LIB_CRYPT@
-+su_LDADD = $(LDADD) @LIB_CRYPT@ @LIB_PAM@
+-su_LDADD = $(LDADD) $(LIB_CRYPT)
++su_LDADD = $(LDADD) $(LIB_CRYPT) $(LIB_PAM)
  
  $(PROGRAMS): ../lib/libfetish.a
  
---- ./src/su.c.pam	2002-10-11 16:21:07.000000000 +0200
-+++ ./src/su.c	2002-10-11 16:26:05.000000000 +0200
+--- ./src/su.c.pam	2004-01-25 22:33:35.000000000 +0100
++++ ./src/su.c	2004-01-25 22:43:16.000000000 +0100
 @@ -38,6 +38,16 @@
     restricts who can su to UID 0 accounts.  RMS considers that to
     be fascist.
@@ -41,9 +41,9 @@
 +#endif /* USE_PAM */
 +
  #include "system.h"
- #include "closeout.h"
  #include "dirname.h"
-@@ -151,7 +169,9 @@
+ 
+@@ -150,7 +168,9 @@
  /* The user to become if none is specified.  */
  #define DEFAULT_USER "root"
  
@@ -53,7 +53,7 @@
  char *getpass ();
  char *getusershell ();
  void endusershell ();
-@@ -159,8 +179,12 @@
+@@ -158,8 +178,12 @@
  
  extern char **environ;
  
@@ -67,7 +67,7 @@
  
  /* The name this program was run with.  */
  char *program_name;
-@@ -272,7 +296,22 @@
+@@ -271,7 +295,22 @@
  }
  #endif
  
@@ -90,7 +90,7 @@
     Return 1 if the user gives the correct password for entry PW,
     0 if not.  Return 1 without asking for a password if run by UID 0
     or if PW has an empty password.  */
-@@ -280,6 +319,34 @@
+@@ -279,6 +318,34 @@
  static int
  correct_password (const struct passwd *pw)
  {
@@ -125,7 +125,7 @@
    char *unencrypted, *encrypted, *correct;
  #if HAVE_GETSPNAM && HAVE_STRUCT_SPWD_SP_PWDP
    /* Shadow passwd stuff for SVR3 and maybe other systems.  */
-@@ -304,6 +371,7 @@
+@@ -303,6 +370,7 @@
    encrypted = crypt (unencrypted, correct);
    memset (unencrypted, 0, strlen (unencrypted));
    return strcmp (encrypted, correct) == 0;
@@ -133,7 +133,7 @@
  }
  
  /* Update `environ' for the new shell based on PW, with SHELL being
-@@ -313,16 +381,24 @@
+@@ -312,16 +380,25 @@
  modify_environment (const struct passwd *pw, const char *shell)
  {
    char *term;
@@ -148,7 +148,7 @@
        term = getenv ("TERM");
 +      display = getenv ("DISPLAY");
 +      xauthority = getenv ("XAUTHORITY");
-       environ = (char **) xmalloc (2 * sizeof (char *));
+       environ = xmalloc (2 * sizeof (char *));
        environ[0] = 0;
        if (term)
  	xputenv (concat ("TERM", "=", term));
@@ -156,11 +156,12 @@
 +	xputenv (concat ("DISPLAY", "=", display));
 +      if (xauthority)
 +	xputenv (concat ("XAUTHORITY", "=", xauthority));
++        xputenv (concat ("HOME", "=", pw->pw_dir));
        xputenv (concat ("HOME", "=", pw->pw_dir));
        xputenv (concat ("SHELL", "=", shell));
        xputenv (concat ("USER", "=", pw->pw_name));
-@@ -359,22 +435,73 @@
-     error (EXIT_FAILURE, errno, _("cannot set groups"));
+@@ -358,22 +435,73 @@
+     error (EXIT_FAIL, errno, _("cannot set groups"));
    endgrent ();
  #endif
 +#ifdef USE_PAM
@@ -169,9 +170,9 @@
 +    error (1, 0, pam_strerror(pamh, retval));
 +#endif /* USE_PAM */
    if (setgid (pw->pw_gid))
-     error (EXIT_FAILURE, errno, _("cannot set group id"));
+     error (EXIT_FAIL, errno, _("cannot set group id"));
    if (setuid (pw->pw_uid))
-     error (EXIT_FAILURE, errno, _("cannot set user id"));
+     error (EXIT_FAIL, errno, _("cannot set user id"));
  }
  
 +#ifdef USE_PAM
@@ -233,8 +234,8 @@
 +#endif
  
    if (additional_args)
-     args = (const char **) xmalloc (sizeof (char *)
-@@ -412,6 +538,61 @@
+     args = xmalloc (sizeof (char *)
+@@ -411,6 +539,61 @@
      error (0, errno, "%s", shell);
      exit (exit_status);
    }
@@ -296,7 +297,7 @@
  }
  
  /* Return 1 if SHELL is a restricted shell (one not returned by
-@@ -584,9 +765,15 @@
+@@ -586,9 +769,15 @@
      }
    modify_environment (pw, shell);
  
@@ -313,12 +314,12 @@
 -  run_shell (shell, command, additional_args);
 +  run_shell (shell, command, additional_args, pw);
  }
---- ./configure.ac.pam	2002-10-02 08:50:57.000000000 +0200
-+++ ./configure.ac	2002-10-11 16:27:18.000000000 +0200
+--- ./configure.ac.pam	2004-01-18 21:48:23.000000000 +0100
++++ ./configure.ac	2004-01-25 22:33:35.000000000 +0100
 @@ -9,6 +9,14 @@
- AM_INIT_AUTOMAKE([1.6b gnits dist-bzip2])
  
- AC_GNU_SOURCE
+ gl_DEFAULT_POSIX2_VERSION
+ gl_USE_SYSTEM_EXTENSIONS
 +
 +dnl Give the chance to enable PAM
 +AC_ARG_ENABLE(pam, dnl
