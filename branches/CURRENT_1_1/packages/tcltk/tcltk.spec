@@ -14,19 +14,21 @@
 %define tcl_major	8.4
 %define tk_major 	8.4
 %define tclx_major 	8.3
-%define expect_major	5.38
+%define expect_major	5.43
 %define tix_major 	8.1
 # Looks really broken
 %define libtix_major	%{tix_major}.%{tcl_major}
 
-%define tclvers 	%{tcl_major}.2
-%define tkvers 		%{tk_major}.2
-%define tclxvers	%{tclx_major}
+%define tclvers 	%{tcl_major}.11
+%define tkvers 		%{tk_major}.11
+%define tclxvers	%{tclx_major}.5
 %define expvers		%{expect_major}.0
 %define tixvers		%{tix_major}.4
-%define itclvers 	3.2
-%define tcllibvers	1.3	
+%define itclvers 	3.2.1
+%define tcllibvers	1.7	
 
+%define tcl_libname	%mklibname tcl %{tcl_major}
+%define tk_libname	%mklibname tk %{tk_major}
 
 Summary:	A Tcl/Tk development environment: tcl, tk, tix, tclX, expect, and itcl
 Name:		%{name}
@@ -34,12 +36,12 @@ Version:	%{version}
 Release:	%{release}
 License:	BSD
 Group:		System/Libraries
-Source0:	ftp://tcl.activestate.com/pub/tcl/tcl8_4/tcl%{tclvers}-src.tar.bz2
-Source1:	ftp://tcl.activestate.com/pub/tcl/tcl8_4/tk%{tclvers}-src.tar.bz2
-Source2:	ftp://tcl.activestate.com/pub/tcl/expect/expect-%{expvers}.tar.bz2
-Source3:	ftp://tcl.activestate.com/pub/tcl/tclx/tclx%{tclxvers}.tar.bz2
+Source0:	http://prdownloads.sourceforge.net/tcl/tcl%{tclvers}-src.tar.bz2
+Source1:	http://prdownloads.sourceforge.net/tcl/tk%{tclvers}-src.tar.bz2
+Source2:	http://expect.nist.gov/src/expect-%{expvers}.tar.bz2
+Source3:	http://prdownloads.sourceforge.net/tclx/tclx%{tclxvers}-src.tar.bz2
 Source4:	http://prdownloads.sourceforge.net/tixlibrary/tix-%{tixvers}.tar.bz2
-Source5:	ftp://tcl.activestate.com/pub/tcl/itcl/itcl%{itclvers}.tar.bz2
+Source5:	http://prdownloads.sourceforge.net/incrtcl/itcl%{itclvers}_src.tar.bz2
 Source6:	http://prdownloads.sourceforge.net/tcllib/tcllib-%{tcllibvers}.tar.bz2
 Source40:	tclx-help.tar.bz2
 Source41:	tix-8.1.3-tk8.4.tar.bz2
@@ -48,8 +50,9 @@ Patch1:		tcl-8.3.3-heiierarchy.patch.bz2
 Patch2:		tcl-8.3.3-makecfg.patch.bz2
 Patch3:		tcl-8.3.3-refcount.patch.bz2
 Patch4:		tcl-8.4.2-dlopen.patch.bz2
+Patch5:		tcl8.4.5-64bit-fixes.patch.bz2
 Patch10:	expect-5.32.2-random.patch.bz2
-Patch11:	expect-5.32.2-alpha.patch.bz2
+Patch11:	expect-5.42-alpha.patch.bz2
 Patch12:	expect-5.32.2-kibitz.patch.bz2
 Patch13:	expect-5.32.2-fixcat.patch.bz2
 Patch14:	expect-5.32.2-weather.patch.bz2
@@ -61,16 +64,17 @@ Patch19:	expect-5.32-libdir.patch.bz2
 Patch20:	tix-8.2.0b1-perf.patch.bz2
 Patch21:	tix-8.2.0b1-makecfg.patch.bz2
 Patch22:	tix-8.2.0b1-dirtree.patch.bz2
-Patch30:	itcl-3.2-symlink.patch.bz2
 Patch31:	itcl-3.2-makecfg.patch.bz2
 Patch32:	itcl-3.2-no-wish-test.patch.bz2
-Patch33:	itcl-3.2-libdir.patch.bz2
+Patch33:	itcl-3.2.1-destdir.patch.bz2
 Patch40:	tclx-8.3-makecfg.patch.bz2
 Patch41:	tclx-8.3-argv.patch.bz2
 Patch42:	tclx-8.3-varinit.patch.bz2
-Patch43:	tclx-8.3-nobuildhelp.patch.bz2
+Patch43:	tclx-8.3.5-nobuildhelp.patch.bz2
 Patch50:	tk-8.3.3-makecfg.patch.bz2
 Patch60:	tcllib-1.0-no-tclsh-test.patch.bz2
+Patch61:	tcllib-1.4-mpexpard-buildin-tclsh.patch.bz2
+Patch62:	tcllib-1.7-no-apps.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	XFree86-devel,  groff
@@ -84,7 +88,7 @@ tclsh, a simple example of a Tcl application.
 
 %package -n tcl
 #Version: 8.0.3
-Summary:	An embeddable scripting language.
+Summary:	An embeddable scripting language
 Group:		System/Libraries
 URL:		http://www.scriptics.com
 
@@ -94,13 +98,25 @@ other applications.  Tcl is designed to be used with Tk, a widget
 set, which is provided in the tk package.  This package also includes
 tclsh, a simple example of a Tcl application.
 
-If you're installing the tcl package and you want to use Tcl for
-development, you should also install the tk and tclx packages.
+
+%package -n %{tcl_libname}
+#Version: 8.0.3
+Summary:	An embeddable scripting language, shared libraries
+Group:		System/Libraries
+URL:		http://www.scriptics.com
+Conflicts:	tcl < 8.4.2-9avx
+
+%description -n %{tcl_libname}
+Tcl is a simple scripting language designed to be embedded into
+other applications.  Tcl is designed to be used with Tk, a widget
+set, which is provided in the tk package.  This package also includes
+tclsh, a simple example of a Tcl application.
+
 
 
 %package -n tk
 #Version: 8.0.3
-Summary:	Tk GUI toolkit for Tcl, with shared libraries
+Summary:	Tk GUI toolkit for Tcl
 Group:		System/Libraries
 URL:		http://www.scriptics.com
 
@@ -112,10 +128,26 @@ text based interface. Tcl/Tk applications can also be run on Windows
 and Macintosh platforms.
 
 
+%package -n %{tk_libname}
+#Version: 8.0.3
+Summary:	Tk GUI toolkit for Tcl, shared libraries
+Group:		System/Libraries
+URL:		http://www.scriptics.com
+Conflicts:	tk < 8.4.2-9avx
+
+%description -n %{tk_libname}
+Tk is a X Windows widget set designed to work closely with the tcl
+scripting language. It allows you to write simple programs with full
+featured GUI's in only a little more time then it takes to write a
+text based interface. Tcl/Tk applications can also be run on Windows
+and Macintosh platforms.
+
+
 %package -n expect
 #Version: %{expvers}
-Summary:	A tcl extension for simplifying program-script interaction.
+Summary:	A tcl extension for simplifying program-script interaction
 Group:		System/Libraries
+Requires:	tcl
 
 %description -n expect
 Expect is a tcl extension for automating interactive applications such
@@ -123,14 +155,11 @@ as telnet, ftp, passwd, fsck, rlogin, tip, etc.  Expect is also useful
 for testing the named applications.  Expect makes it easy for a script
 to control another program and interact with it.
 
-Install the expect package if you'd like to develop scripts which interact
-with interactive applications.  You'll also need to install the tcl
-package.
 
 
 %package -n tclx
 #Version: %{tclXvers}
-Summary:	Tcl/Tk extensions for POSIX systems.
+Summary:	Tcl/Tk extensions for POSIX systems
 Group:		System/Libraries
 URL:		http://www.neosoft.com/
 
@@ -141,13 +170,10 @@ enhances Tcl support for files, network access, debugging, math, lists,
 and message catalogs.  TclX can be used with both Tcl and Tcl/Tk
 applications.
 
-Install TclX if you are developing applications with Tcl/Tk.  You'll
-also need to install the tcl and tk packages.
-
 
 %package -n tix
 #Version: %{Tixvers}.6
-Summary:	A set of capable widgets for Tk.
+Summary:	A set of capable widgets for Tk
 Group:		System/Libraries
 
 %description -n tix
@@ -158,13 +184,10 @@ include a ComboBox, a Motif-style FileSelectBox, an MS Windows-style
 FileSelectBox, a PanedWindow, a NoteBook, a hierarchical list, a
 directory tree and a file manager.
 
-Install the tix package if you want to try out more complicated widgets
-for Tk.  You'll also need to have the tcl and tk packages installed.
-
 
 %package -n itcl
 #Version: %{itclvers}
-Summary:	object oriented mega widgets for tcl
+Summary:	object-oriented extension of the Tcl language
 Group:		System/Libraries
 
 %description -n itcl
@@ -187,7 +210,7 @@ the resulting code is easier to understand and maintain.
 
 %package -n tcllib
 #Version: %{tcllibvers}
-Summary:	Library of utility modules for tcl.
+Summary:	Library of utility modules for tcl
 Group:		Development/Other
 
 %description -n tcllib
@@ -206,6 +229,7 @@ cd tcl%{tclvers}
 #%patch2 -p1 -b .makecfg
 #%patch3 -p1 -b .refcount
 %patch4 -p1 -b .dlopen
+#%patch5 -p1 -b .64bit-fixes
 cd ..
 
 # cruft. ugh
@@ -213,27 +237,26 @@ ln -s tcl%{tclvers} tcl%{tcl_major}
 
 cd expect-%{expect_major}
 %patch10 -p1 -b .random
-%patch11 -p1 -b .alpha
-%patch12 -p1 -b .kibitz
+#%patch11 -p1 -b .alpha
+#%patch12 -p1 -b .kibitz
 %patch13 -p1 -b .fixcat
-%patch14 -p1 -b .weather
+#%patch14 -p1 -b .weather
 #%patch15 -p1 -b .makecfg
 %patch16 -p1 -b .spawn
-%patch17 -p1 -b .expectk
+#%patch17 -p1 -b .expectk
 %patch18 -p2
 %patch19 -p1 -b .libdir
 cd ..
 
 cd itcl%{itclvers}
-%patch30 -p1 -b .symlink
 #%patch31 -p1 -b .makecfg
 %patch32 -p1 -b .nowish
 %patch33 -p1 -b .libdir
 cd ..
 
-cd tclx%{tclx_major}
+cd tclx%{tclxvers}
 #%patch40 -p1 -b .makecfg
-%patch41 -p1 -b .argv
+#%patch41 -p1 -b .argv
 %patch42 -p1 -b .varinit
 %patch43 -p1 -b .buildhelp
 cd ..
@@ -244,6 +267,8 @@ cd ..
 
 cd tcllib-%{tcllibvers}
 %patch60 -p1 -b .tclsh
+%patch61 -p1 -b .buildin_tclsh
+%patch62 -p1 -b .no-apps
 cd ..
 
 cd tix-%{tixvers}
@@ -296,7 +321,10 @@ cd ../..
 #------------------------------------------
 # tclX
 #
-cd tclx%{tclx_major}/unix
+cd tclx%{tclxvers}/unix
+# (couriousous) Force detection of clock_t type.
+# configure script check in the wrong header ( sys/types.h instead of sys/times.h )
+perl -pi -e "s|ac_cv_type_clock_t=no|ac_cv_type_clock_t=yes|" configure
 %configure \
     --enable-tk=YES \
     --with-tcl=../../tcl%{tclvers}/unix \
@@ -384,6 +412,15 @@ rm -f *.files
 if [ "%{_libdir}" != "%{_prefix}/lib" ]; then
     EXTRA_TCLLIB_FILES="%{buildroot}%{_prefix}/lib/*"
 fi
+
+# JMD: some .h files are missing, include them
+for dirs in tcl%{tclvers}/unix tcl%{tclvers}/generic tcl%{tclvers}/compat tk%{tkvers}/unix \
+  tk%{tkvers}/generic tk%{tkvers}/compat tclx%{tclxvers}/tcl/generic tclx%{tclxvers}/tcl/unix \
+  tix-%{tixvers}/generic tix-%{tixvers}/unix itcl%{itclvers}/itcl/generic \
+  itcl%{itclvers}/itk/generic; do
+    mkdir -p $RPM_BUILD_ROOT/%{_includedir}/$dirs
+    cp $dirs/*.h $RPM_BUILD_ROOT/%{_includedir}/$dirs
+done
 
 #------------------------------------------
 # Helper functions to generate ld scripts
@@ -610,18 +647,41 @@ perl -pi -e "s|-L/usr/include|-L/usr/lib|g" %{buildroot}/%{_libdir}/*.sh
 perl -pi -e "s|-L/usr/lib\b|-L%{_libdir}|g" %{buildroot}%{_libdir}/*.sh
 perl -pi -e "s|/usr/lib/lib|%{_libdir}/lib|g" %{buildroot}%{_libdir}/*.sh
 
+# JMD: nuke buildroot from config scripts
+perl -pi -e "s|$RPM_BUILD_DIR/tcltk-%{version}|%{_includedir}|g" \
+    $RPM_BUILD_ROOT%{_libdir}/tclConfig.sh \
+    $RPM_BUILD_ROOT%{_libdir}/tkConfig.sh
+perl -pi -e "s|$RPM_BUILD_DIR/tcltk-%{version}|%{_libdir}|g" \
+    $RPM_BUILD_ROOT%{_libdir}/*.sh
+
+# All file lists are processed, cleanup for libified files
+cp -p tcl.files tcl.files.orig
+cp -p tk.files tk.files.orig
+perl -ni -e "m,^%{_libdir}/lib.+\d\.so, or print" tcl.files tk.files
+
+# Arrangements for lib64 platforms
+if [[ "%{_lib}" != "lib" ]]; then
+    ln -s %{_libdir}/tclConfig.sh $RPM_BUILD_ROOT%{_prefix}/lib/tclConfig.sh
+    echo "%{_prefix}/lib/tclConfig.sh" >> tcl.files
+    ln -s %{_libdir}/tkConfig.sh  $RPM_BUILD_ROOT%{_prefix}/lib/tkConfig.sh
+    echo "%{_prefix}/lib/tkConfig.sh"  >> tk.files
+fi
+
+# (fc) make sure .so files are writable by root
+chmod 0755 $RPM_BUILD_ROOT%{_libdir}/*.so
+
 
 #==========================================
-%post -p /sbin/ldconfig -n tcl
-%post -p /sbin/ldconfig -n tk
+%post -p /sbin/ldconfig -n %{tcl_libname}
+%post -p /sbin/ldconfig -n %{tk_libname}
 %post -p /sbin/ldconfig -n expect
 %post -p /sbin/ldconfig -n tclx
 %post -p /sbin/ldconfig -n tix
 %post -p /sbin/ldconfig -n itcl
 %post -p /sbin/ldconfig -n tcllib
 
-%postun -p /sbin/ldconfig -n tcl
-%postun -p /sbin/ldconfig -n tk
+%postun -p /sbin/ldconfig -n %{tcl_libname}
+%postun -p /sbin/ldconfig -n %{tk_libname}
 %postun -p /sbin/ldconfig -n expect
 %postun -p /sbin/ldconfig -n tclx
 %postun -p /sbin/ldconfig -n tix
@@ -642,8 +702,29 @@ rm -f *.files
 %files -f itcl.files -n itcl
 %files -f tcllib.files -n tcllib
 
+%files -n %{tcl_libname}
+%defattr(-,root,root)
+%{_libdir}/libtcl*[0-9].so
+
+%files -n %{tk_libname}
+%defattr(-,root,root)
+%{_libdir}/libtk*[0-9].so
+
 
 %changelog
+* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 8.4.11-1avx
+- 8.4.11 (synced with mandrake 8.4.11-1mdk)
+  - tcl/tk-8.4.11
+  - expect-5.43.0
+  - tclx-8.3.5
+  - tix-8.1.4
+  - itcl-3.2.1
+  - tcllib-1.7
+- expect requires tcl
+- conflicts to ease upgrade
+- add missing .h files (jmd)
+- nuke buildroot from config files (jmd)
+
 * Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 8.4.2-9avx
 - rebuild against the xorg libs
 

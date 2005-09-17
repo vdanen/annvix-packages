@@ -1,27 +1,29 @@
---- expect5.32/exp_command.c.alpha	Mon Aug 28 23:58:00 2000
-+++ expect5.32/exp_command.c	Thu Jul 12 13:52:00 2001
-@@ -794,14 +794,18 @@
+--- expect-5.42/exp_command.c.alpha	2004-07-02 03:03:04.000000000 +0200
++++ expect-5.42/exp_command.c	2004-12-03 12:04:51.548504544 +0100
+@@ -799,16 +799,18 @@
  	    return TCL_ERROR;
  	}
  	if (mode & TCL_READABLE) {
--	    if (TCL_ERROR == Tcl_GetChannelHandle(channel, TCL_READABLE, (ClientData) &rfd)) {
+-	    if (TCL_ERROR == Tcl_GetChannelHandle(channel, TCL_READABLE, (ClientData *) &rfdc)) {
 +	    ClientData rfd_data;
 +	    if (TCL_ERROR == Tcl_GetChannelHandle(channel, TCL_READABLE, &rfd_data)) {
  		return TCL_ERROR;
  	    }
+-	    rfd = (int) rfdc;
 +	    rfd = (int)rfd_data;
  	}
  	if (mode & TCL_WRITABLE) {
--	    if (TCL_ERROR == Tcl_GetChannelHandle(channel, TCL_WRITABLE, (ClientData) &wfd)) {
+-	    if (TCL_ERROR == Tcl_GetChannelHandle(channel, TCL_WRITABLE, (ClientData) &wfdc)) {
 +	    ClientData wfd_data;
 +	    if (TCL_ERROR == Tcl_GetChannelHandle(channel, TCL_WRITABLE, &wfd_data)) {
  		return TCL_ERROR;
- 	    }    
+ 	    }
+-	    wfd = (int) wfdc;
 +	    wfd = (int)wfd_data;
  	}
  	master = ((mode & TCL_READABLE)?rfd:wfd);
  
-@@ -1215,7 +1219,7 @@
+@@ -1225,7 +1227,7 @@
      Tcl_DStringFree(&dstring);
      if (esPtr) {
          exp_close(interp,esPtr);
@@ -30,7 +32,7 @@
  	if (esPtr->registered) {
  	    Tcl_UnregisterChannel(interp,esPtr->channel);
  	}
-@@ -2555,7 +2559,7 @@
+@@ -2576,7 +2578,7 @@
  			if (rc != TCL_OK) return(rc);
  		    }
  
@@ -39,7 +41,7 @@
  		    if (result == esPtr->pid) break;
  		    if (result == -1) {
  			if (errno == EINTR) continue;
-@@ -2589,7 +2593,7 @@
+@@ -2610,7 +2612,7 @@
  	    for (fp=forked_proc_base;fp;fp=fp->next) {
  		if (fp->link_status == not_in_use) continue;
  	restart:

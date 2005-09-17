@@ -1,7 +1,6 @@
-diff -urNp tclx8.3.orig/tcl/unix/Makefile.in tclx8.3/tcl/unix/Makefile.in
---- tclx8.3.orig/tcl/unix/Makefile.in	Tue Aug 29 05:58:00 2000
-+++ tclx8.3/tcl/unix/Makefile.in	Wed Feb 27 06:51:33 2002
-@@ -121,7 +121,7 @@ STANDALONE_OBJS = \
+--- tclx8.3.5/tcl/unix/Makefile.in.buildhelp	2000-08-10 04:21:48.000000000 +0200
++++ tclx8.3.5/tcl/unix/Makefile.in	2004-12-03 13:04:17.875340456 +0100
+@@ -121,7 +121,7 @@
      stringfile.o     tcllib.o         fmath.o          buildhelp.o \
      buildidx.o       autoload.o       tclx.o
  
@@ -10,19 +9,18 @@ diff -urNp tclx8.3.orig/tcl/unix/Makefile.in tclx8.3/tcl/unix/Makefile.in
  
  TEST_OBJS = tclTest.o tclTestObj.o tclUnixTest.o tclXtest.o \
  	tclThreadTest.o tclXunixTest.o
-@@ -311,14 +311,14 @@ testx.verbose: all
+@@ -311,14 +311,14 @@
  BUILDHELP=@BUILDHELP@
  buildhelp: tcl tcl.tndx
  	rm -rf ${HELP_DIR} help help.tmp
 -	if test ! -d @HELP_DIR@ ; then \
--	    mkdir @HELP_DIR@ ; \
+-	    mkdir -p @HELP_DIR@ ; \
 -	fi
--	mkdir ${HELP_DIR}
--	${BLDMANHELP} ${TCL_SRC_DIR}/doc ${TCLX_TOOLS_SRC_DIR}/tclmanpages \
 +	#if test ! -d @HELP_DIR@ ; then \
-+	#    mkdir @HELP_DIR@ ; \
++	#    mkdir -p @HELP_DIR@ ; \
 +	#fi
-+	mkdir -p ${HELP_DIR}
+ 	mkdir -p ${HELP_DIR}
+-	${BLDMANHELP} ${TCL_SRC_DIR}/doc ${TCLX_TOOLS_SRC_DIR}/tclmanpages \
 +	#${BLDMANHELP} ${TCL_SRC_DIR}/doc ${TCLX_TOOLS_SRC_DIR}/tclmanpages \
  	    ${HELP_DIR} Tcl.brf
 -	${RUNTCL} -c "buildhelp ${HELP_DIR} TclX.brf ${TCLX_DOC_DIR}/TclX.n"
@@ -32,10 +30,9 @@ diff -urNp tclx8.3.orig/tcl/unix/Makefile.in tclx8.3/tcl/unix/Makefile.in
  
  #------------------------------------------------------------------------------
  
-diff -urNp tclx8.3.orig/tk/unix/Makefile.in tclx8.3/tk/unix/Makefile.in
---- tclx8.3.orig/tk/unix/Makefile.in	Tue Aug 29 05:58:00 2000
-+++ tclx8.3/tk/unix/Makefile.in	Wed Feb 27 06:51:50 2002
-@@ -72,7 +72,7 @@ STANDALONE_OBJS = tkx.o
+--- tclx8.3.5/tk/unix/Makefile.in.buildhelp	2000-08-10 04:21:48.000000000 +0200
++++ tclx8.3.5/tk/unix/Makefile.in	2004-12-03 13:04:37.270391960 +0100
+@@ -72,7 +72,7 @@
  LIBTCLX = ../../tcl/unix/${TCLX_STLIB_NAME}
  TCL = ../../tcl/unix/tcl
  
@@ -44,18 +41,18 @@ diff -urNp tclx8.3.orig/tk/unix/Makefile.in tclx8.3/tk/unix/Makefile.in
  
  TEST_OBJS = tkTest.o tkSquare.o tclThreadTest.o tkXunixTest.o
  
-@@ -203,13 +203,13 @@ test.static: all
+@@ -203,13 +203,13 @@
  BUILDHELP=@BUILDHELP@
  buildhelp:
  	rm -rf ${HELP_DIR} help help.tmp
 -	if test ! -d @HELP_DIR@ ; then \
--	    mkdir @HELP_DIR@ ;\
+-	    mkdir -p @HELP_DIR@ ;\
+-	fi
 +	#if test ! -d @HELP_DIR@ ; then \
-+	#    mkdir @HELP_DIR@ ;\
- 	fi
--	mkdir ${HELP_DIR}
++	#    mkdir -p @HELP_DIR@ ;\
++	#fi
+ 	mkdir -p ${HELP_DIR}
 -	${BLDMANHELP} ${TK_SRC_DIR}/doc ${TCLX_TOOLS_SRC_DIR}/tkmanpages \
-+	mkdir -p ${HELP_DIR}
 +	#${BLDMANHELP} ${TK_SRC_DIR}/doc ${TCLX_TOOLS_SRC_DIR}/tkmanpages \
  	    ${HELP_DIR} Tk.brf
 -	${INSTCOPY} ${HELP_DIR} ${INSTALL_ROOT}${TKX_INST_RUNTIME}/help
