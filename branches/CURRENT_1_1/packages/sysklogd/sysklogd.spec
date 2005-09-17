@@ -9,7 +9,7 @@
 
 %define name		sysklogd
 %define version		1.4.1
-%define release		15avx
+%define release		16avx
 
 Summary:	System logging and kernel message trapping daemons
 Name:		%{name}
@@ -126,13 +126,16 @@ fi
 %attr(0700,root,root) /sbin/klogd
 %attr(0700,root,root) /sbin/syslogd
 %{_mandir}/*/*
-%dir %{_srvdir}/syslogd
-%{_srvdir}/syslogd/run
-%dir %{_srvdir}/klogd
-%{_srvdir}/klogd/run
+%attr(0750,root,admin) %dir %{_srvdir}/syslogd
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/syslogd/run
+%attr(0750,root,admin) %dir %{_srvdir}/klogd
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/klogd/run
 
 
 %changelog
+* Thu Sep 08 2005 Sean P. Thomas <spt@annvix.org> 1.4.1-16avx
+- fix perms on run scripts
+
 * Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 1.4.1-15avx
 - bootstrap build (new gcc, new glibc)
 
