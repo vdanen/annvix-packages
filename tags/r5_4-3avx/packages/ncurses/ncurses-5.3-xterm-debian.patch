@@ -1,0 +1,11 @@
+--- ncurses-5.3/misc/terminfo.src.deb	2004-01-27 15:24:42.171068645 +0100
++++ ncurses-5.3/misc/terminfo.src	2004-01-27 15:24:52.943588469 +0100
+@@ -3107,7 +3107,7 @@
+ # colors; note that this is not compatible with the 5.2 version.
+ # csw (2002-05-15): make xterm-color primary instead of nxterm, to 
+ #   match XFree86's xterm.terminfo usage and prevent circular links
+-xterm-color|nxterm|generic color xterm, 
++xterm-color|xterm-debian|nxterm|generic color xterm, 
+ 	ncv@, 
+ 	op=\E[m, use=xterm-r6, use=klone+color, 
+ 
