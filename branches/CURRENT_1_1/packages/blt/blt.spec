@@ -9,7 +9,7 @@
 
 %define name		blt
 %define version		2.4z
-%define release		11avx
+%define release		12avx
 
 %define major		2
 %define	libname		%mklibname %{name} %{major}
@@ -167,6 +167,9 @@ done
 
 
 %changelog
+* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 2.4z-12avx
+- rebuild against new tcltk
+
 * Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 2.4z-11avx
 - bootstrap build (new gcc, new glibc)
 - multiarch
