@@ -8,8 +8,8 @@
 
 
 %define name		bison
-%define version 	1.875
-%define release 	9avx
+%define version 	2.0
+%define release 	1avx
 
 Summary:	A GNU general-purpose parser generator
 Name:		%{name}
@@ -18,14 +18,15 @@ Release:	%{release}
 License:	GPL
 Group:		Development/Other
 URL:		http://www.gnu.org/software/bison/bison.html
-Source:		http://ftp.gnu.org/gnu/bison/bison-%{version}.tar.bz2
+Source:		http://alpha.gnu.org/gnu/bison/%{name}-%{version}.tar.bz2
 Patch0:		bison-1.32-extfix.patch.bz2
-# (fc) fixx gcc error 
-Patch1:		bison-1.875-gccerror.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
-Prereq:		info-install
+Requires:	m4
+Requires(post):	info-install
+Requires(preun): info-install
+
 
 %description
 Bison is a general purpose parser generator which converts a grammar
@@ -46,27 +47,22 @@ since it is used to build many C programs.
 %prep
 %setup -q
 %patch0 -p1 -b .extfix
-%patch1 -p1 -b .gccerror
 
 
 %build
-CFLAGS="%{optflags}" %configure2_5x \
-    datadir=%{_datadir} \
-    libdir=%{_datadir}
-%make LDFLAGS=-s
+%configure2_5x
+%make
+make check
 
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-#%makeinstall datadir=%{buildroot}%{_libdir}
-%makeinstall \
-    datadir=%{buildroot}%{_datadir} \
-    libdir=%{buildroot}%{_datadir}
+%makeinstall_std
 
 mv %{buildroot}%{_bindir}/yacc %{buildroot}%{_bindir}/yacc.bison
 
 # Remove unpackaged files
-rm -rf %{buildroot}%{_libdir} %{buildroot}%{_datadir}/liby.a
+rm -f %{buildroot}%{_libdir}/liby.a
 
 %find_lang %{name}
 
@@ -84,13 +80,22 @@ rm -rf %{buildroot}%{_libdir} %{buildroot}%{_datadir}/liby.a
 
 %files -f %{name}.lang
 %defattr(-,root,root)
+%doc COPYING ChangeLog NEWS README
 %{_mandir}/man1/*
+%dir %{_datadir}/bison
 %{_datadir}/bison/*
 %{_infodir}/bison.info*
 %{_bindir}/*
 
 
 %changelog
+* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 2.0-1avx
+- 2.0
+- new-style requires
+- fix url
+- drop P1; fixed upstream
+- own %%{_datadir}/bison
+
 * Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1.875-9avx
 - bootstrap build (new gcc, new glibc)
 
