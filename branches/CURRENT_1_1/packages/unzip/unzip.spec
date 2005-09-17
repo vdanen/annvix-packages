@@ -8,9 +8,9 @@
 
 
 %define name		unzip
-%define version 	5.50
-%define release 	15avx
-%define src_ver 	550
+%define version 	5.52
+%define release 	1avx
+%define src_ver 	552
 
 Summary:	Unpacks ZIP files such as those made by pkzip under DOS
 Name:		%{name}
@@ -20,9 +20,7 @@ License:	BSD-like
 Group:		Archiving/Compression
 URL:		http://www.info-zip.org/pub/infozip/UnZip.html
 Source0:	ftp://ftp.icce.rug.nl/infozip/src/%{name}%{src_ver}.tar.bz2
-Patch0:		unzip541-patent-and-copyright-clean.patch.bz2
 Patch1:		unzip542-size-64bit.patch.bz2
-Patch2:		unzip-5.50-dotdot.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
@@ -38,16 +36,14 @@ This version also has encryption support.
 
 %prep
 %setup -q
-%patch0 -p0
 %patch1 -p0
-%patch2 -p1 -b .dotdot
 
 
 %build
 %ifarch %{ix86}
-%make -ef unix/Makefile linux CF="%{optflags} -Wall -I. -DASM_CRC" CC=gcc LD=gcc AS=gcc AF="-Di386" CRC32=crc_gcc
+%make -ef unix/Makefile linux CF="-DLZW_CLEAN %{optflags} -Wall -I. -DASM_CRC" CC=gcc LD=gcc AS=gcc AF="-Di386" CRC32=crc_gcc
 %else
-%make -ef unix/Makefile linux_noasm CF="%{optflags} -Wall -I."
+%make -ef unix/Makefile linux_noasm CF="-DLZW_CLEAN %{optflags} -Wall -I."
 %endif
 
 
@@ -90,6 +86,11 @@ EOF
 
 
 %changelog
+* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 5.52-1avx
+- 5.52
+- drop P0 and define LZW_CLEAN instead (waschk)
+- drop P2; fixed upstream
+
 * Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 5.50-15avx
 - bootstrap build (new gcc, new glibc)
 
