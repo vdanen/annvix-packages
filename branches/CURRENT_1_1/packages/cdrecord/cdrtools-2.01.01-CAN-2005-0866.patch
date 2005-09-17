@@ -1,0 +1,42 @@
+--- cdrtools-2.01.01/rscsi/rscsi.c.can-2005-0866	2005-05-16 08:59:33.000000000 -0400
++++ cdrtools-2.01.01/rscsi/rscsi.c	2005-09-16 15:43:44.000000000 -0400
+@@ -168,9 +168,22 @@
+ 	 * XXX security risk. But /etc/default/rscsi is only writable by root
+ 	 * XXX and for this reason a possible security risk would have been
+ 	 * XXX introduced by the administrator.
++	 *
++	 * this is the dumbest argument I've ever heard (vdanen)
++	 *
+ 	 */
+-	if (debug_name != NULL)
+-		debug_file = fopen(debug_name, "w");
++        if (debug_name != NULL) {
++                /* Try to be careful when opening debug files, might be
++                 * created in an unsafe location 
++                 * */
++                int fd = open(debug_name, O_CREAT | O_EXCL | O_TRUNC | O_RDWR, 0600);
++                if (fd > -1) 
++                        debug_file = fdopen(fd, "w");
++                else {
++                        rscsirespond(-1, geterrno());
++                        exit(EX_BAD);
++                }
++        }
+ 		
+ 	if (argc > 0) {
+ 		if (debug_file == 0) {
+--- cdrtools-2.01.01/rscsi/rscsi.dfl.can-2005-0866	2005-05-16 08:53:05.000000000 -0400
++++ cdrtools-2.01.01/rscsi/rscsi.dfl	2005-09-16 15:46:02.000000000 -0400
+@@ -19,7 +19,11 @@
+ # but a different directory that is safe against modifications by non root
+ # users.
+ #
+-#DEBUG=/tmp/RSCSI
++# If you enable it make sure you substitute SAFE_DIR to a safe directory
++# to debug to.
++#
++#
++#DEBUG=SAFE_DIR/rscsi.dbg
+ 
+ #
+ # Each USER= entry adds the listed user to the users who may run rscsi

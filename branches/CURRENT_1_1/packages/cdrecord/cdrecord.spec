@@ -8,14 +8,13 @@
 
 
 %define name		cdrecord
-%define version 	2.01
-%define release 	0.a38.5avx
+%define version 	2.01.01a03
+%define release 	1avx
 %define epoch		4
 
 %define archname	cdrtools
-%define dversion	2.01a38
 
-%define mkisofs_ver	2.01
+%define mkisofs_ver	2.01.01
 %define mkisofs_rel	%{release}
 %define mkisofs_epoch	1
 
@@ -26,18 +25,20 @@ Release:	%{release}
 Epoch:		%{epoch}
 License:	GPL
 Group:		Archiving/Cd burning
-URL:		http://www.fokus.gmd.de/research/cc/glone/employees/joerg.schilling/private/cdrecord.html
-Source:		ftp://ftp.berlios.de/pub/cdrecord/%{archname}-%{dversion}.tar.bz2
-Patch0:		cdrtools-2.01a28-mdk-o_excl.patch.bz2
-Patch1:		cdrtools-2.01a27-mdk-writemode.patch.bz2
-# http://www.abcpages.com/~mache/cdrecord-dvd.html
-Patch2:		cdrtools-2.01a32-dvd.patch.bz2
-Patch3:		cdrtools-2.01a38-mdk-rawio.patch.bz2
-Patch4:		cdrtools-2.01a38-mdk-warnings.patch.bz2
-Patch5:		cdrecord-2.01-CAN-2004-0806.patch.bz2
-Patch6:		cdrtools-2.01-CAN-2005-0866.patch.bz2
+URL:		http://cdrecord.berlios.de/old/private/cdrecord.html
+Source:		ftp://ftp.berlios.de/pub/cdrecord/%{archname}-%{version}.tar.bz2
+Patch0:		cdrecord-2.01-CAN-2004-0806.patch.bz2
+Patch6:		cdrtools-2.01.01-CAN-2005-0866.patch.bz2
+Patch10:	cdrtools-2.01.01a03-dvd.patch.bz2
+Patch11:	cdrtools-2.01a28-o_excl.patch.bz2
+Patch12:	cdrtools-2.01a27-writemode.patch.bz2
+Patch13:	cdrtools-2.01.01a03-rawio.patch.bz2
+Patch14:	cdrtools-2.01.01a03-warnings.patch.bz2
+Patch15:	cdrtools-2.01.01a01-scanbus.patch.bz2
+Patch16:	cdrtools-2.01.01a03-rezero.patch.bz2
+Patch17:	cdrtools-2.01.01-scsibuf.patch.bz2
 
-BuildRoot:	%{_buildroot}/%{name}-%{dversion}
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	libpcap-devel
 
 Requires:	mkisofs
@@ -87,13 +88,14 @@ and isovfy.
 
 %prep
 %setup -q -n %{archname}-%{version}
-%patch0 -p1 -z .o_excl
-%patch1 -p1 -z .writemode
-%patch2 -p1 -z .dvd
-#%patch3 -p1 -z .rawio
-%patch4 -p1 -z .warnings
-%patch5 -p1 -z .can-2004-0806
+%patch0 -p1 -z .can-2004-0806
 %patch6 -p1 -z .can-2005-0866
+%patch10 -p1 -z .dvd
+#%patch13 -p1 -z .rawio
+%patch14 -p1 -z .warnings
+%patch15 -p1 -z .scanbus
+%patch16 -p1 -z .rezero
+%patch17 -p1 -z .scsibuf
 
 
 %build
@@ -127,11 +129,11 @@ mv %{buildroot}%{_prefix}/lib %{buildroot}%{_libdir}/
 
 
 %files
-%attr(-,root,root) %doc AN-%{dversion} Changelog README*
-%attr(6755,root,cdwriter) %{_bindir}/cdrecord
+%attr(-,root,root) %doc Changelog README*
+%attr(0755,root,cdwriter) %{_bindir}/cdrecord
 %attr(755,root,cdwriter) %{_bindir}/devdump
 %attr(755,root,cdwriter) %{_bindir}/scgcheck
-%attr(6750,root,cdwriter) %{_bindir}/readcd
+%attr(0750,root,cdwriter) %{_bindir}/readcd
 %attr(755,root,cdwriter) %{_bindir}/skel
 %attr(755,root,cdwriter) %{_sbindir}/rscsi
 %attr(644,root,root) %{_mandir}/man1/cdrecord.1*
@@ -165,6 +167,14 @@ mv %{buildroot}%{_prefix}/lib %{buildroot}%{_libdir}/
 
 
 %changelog
+* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 2.01.01a03-1avx
+- 2.01.01a03
+- rediff P6
+- fix url
+- normalize version and release
+- sync most mandrake patches
+- cdrecord and readcd are no longer suid
+
 * Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 2.01-0.a38.5avx
 - rebuild against new libpcap
 
