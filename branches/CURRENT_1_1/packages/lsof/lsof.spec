@@ -8,8 +8,8 @@
 
 
 %define name		lsof
-%define version		4.68
-%define release		6avx
+%define version		4.74
+%define release		1avx
 
 %define dname		%{name}_%{version}
 
@@ -62,7 +62,7 @@ export LINUX_BASE
 [ -d %{dname}/%{dname}_src ] && cd %{dname}/%{dname}_src
 mkdir -p %{buildroot}{%{_sbindir},%{_mandir}/man8}
 install -s %{name} %{buildroot}%{_sbindir}
-cp lsof.8 %{buildroot}%{_mandir}/man8
+install -m 0644 lsof.8 %{buildroot}%{_mandir}/man8/
 
 
 %clean
@@ -77,6 +77,9 @@ cp lsof.8 %{buildroot}%{_mandir}/man8
 
 
 %changelog
+* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 4.74-1avx
+- 4.74
+
 * Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 4.68-6avx
 - bootstrap build (new gcc, new glibc)
 
