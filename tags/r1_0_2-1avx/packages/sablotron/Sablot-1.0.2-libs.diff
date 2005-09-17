@@ -1,0 +1,24 @@
+diff -Naur Sablot-1.0.2/src/engine/Makefile.am Sablot-1.0.2.oden/src/engine/Makefile.am
+--- Sablot-1.0.2/src/engine/Makefile.am	2004-12-29 14:36:45.000000000 +0100
++++ Sablot-1.0.2.oden/src/engine/Makefile.am	2005-05-21 18:42:57.054344624 +0200
+@@ -2,6 +2,8 @@
+ 
+ CXXFLAGS = @CXXFLAGS@ @CXXWARNING_FLAGS@
+ 
++LIBS = @LIBS@ $(EXPATH) -lstdc++
++
+ lib_LTLIBRARIES = libsablot.la
+ 
+ libsablot_la_SOURCES = \
+diff -Naur Sablot-1.0.2/src/engine/Makefile.in Sablot-1.0.2.oden/src/engine/Makefile.in
+--- Sablot-1.0.2/src/engine/Makefile.in	2004-12-29 15:21:11.000000000 +0100
++++ Sablot-1.0.2.oden/src/engine/Makefile.in	2005-05-21 18:43:28.537558448 +0200
+@@ -131,7 +131,7 @@
+ INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
+ LDFLAGS = @LDFLAGS@
+ LIBOBJS = @LIBOBJS@
+-LIBS = @LIBS@
++LIBS = @LIBS@ $(EXPATH) -lstdc++
+ LIBTOOL = @LIBTOOL@
+ LN_S = @LN_S@
+ LTLIBOBJS = @LTLIBOBJS@

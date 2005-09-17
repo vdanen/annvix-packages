@@ -1,0 +1,11 @@
+--- Sablot-1.0.1/src/engine/jsext.cpp~	2003-11-21 09:45:11.000000000 +0100
++++ Sablot-1.0.1/src/engine/jsext.cpp	2004-06-08 14:17:43.948038254 +0200
+@@ -481,7 +481,7 @@
+     case EX_EXTERNAL:
+       {
+ 	External e;
+-	e.assign(atoms[i]->toexternal(S));
++	e.assign((const External&) atoms[i]->toexternal(S));
+ 	JSObject *o = (JSObject*)e.getValue();
+ 	if ( o )
+ 	  {
