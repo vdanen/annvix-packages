@@ -1,0 +1,11 @@
+--- sysklogd-1.4.1/syslogd.c.createmode	2004-04-22 10:15:30.000000000 -0600
++++ sysklogd-1.4.1/syslogd.c	2004-04-22 10:17:21.000000000 -0600
+@@ -2650,7 +2650,7 @@
+ 			f->f_type = F_PIPE;
+ 	        } else {
+ 			f->f_file = open(p, O_WRONLY|O_APPEND|O_CREAT|O_NOCTTY|O_LARGEFILE,
+-					 0644);
++					 0600);
+ 			f->f_type = F_FILE;
+ 		}
+ 		        
