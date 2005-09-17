@@ -8,8 +8,8 @@
 
 
 %define name		gawk
-%define version		3.1.2
-%define release		8avx
+%define version		3.1.4
+%define release		1avx
 
 Summary:	The GNU version of the awk text processing utility
 Name:		%{name}
@@ -20,15 +20,18 @@ Group:		Text tools
 URL:		http://www.gnu.org/software/gawk/gawk.html
 Source0:	http://ftp.gnu.org/gnu/gawk/%{name}-%{version}.tar.bz2
 Source1:	http://ftp.gnu.org/gnu/gawk/%{name}-%{version}-ps.tar.bz2
-Patch1:		gawk-3.1.2-replace-hardlinks-with-softlinks.patch.bz2
-Patch2:		gawk-3.1.2-pgawk.patch.bz2
-Patch3:		gawk-3.1.2-proc.patch.bz2
-Patch4:		gawk-3.1.2-regex.patch.bz2
+Patch0:		gawk-3.1.3-getpgrp_void.patch.bz2
+Patch1:		gawk-3.1.4-dfacache.patch.bz2
+Patch2:		gawk-3.1.4-flonum.patch.bz2
+Patch3:		gawk-3.1.4-nextc.patch.bz2
+Patch4:		gawk-3.1.4-uplow.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
+BuildRequires:	byacc
 
 Provides:	awk
-PreReq:		info-install
+Requires(post):	info-install
+Requires(preun): info-install
 
 %description
 The gawk packages contains the GNU version of awk, a text processing
@@ -41,10 +44,11 @@ awk.
 
 %prep
 %setup -q -b 1
-%patch1 -p1
-%patch2 -p1
-%patch3 -p1
-%patch4 -p1
+%patch0 -p1 -b .getpgrp_void
+%patch1 -p1 -b .dfacache
+%patch2 -p1 -b .flonum
+%patch3 -p1 -b .nextc
+%patch4 -p1 -b .uplow
 
 
 %build
@@ -101,6 +105,7 @@ popd
 
 %files -f %{name}.lang
 %defattr(-,root,root)
+%doc README COPYING FUTURES LIMITATIONS NEWS
 /bin/*
 %{_bindir}/*
 %{_mandir}/*/*
@@ -110,6 +115,10 @@ popd
 
 
 %changelog
+* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 3.1.2-8avx
+- 3.1.4
+- sync patches with mandrake 3.1.4-1mdk (which in turn synced with Fedora)
+
 * Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 3.1.2-8avx
 - bootstrap build (new gcc, new glibc)
 
