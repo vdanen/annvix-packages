@@ -9,7 +9,7 @@
 
 %define name		libjpeg
 %define	version		6b
-%define release 	37avx
+%define release 	38avx
 
 %define major		62
 %define libname_orig	libjpeg
@@ -79,14 +79,15 @@ developing programs which will manipulate JPEG files using
 the libjpeg library.
 
 
-%package progs
+%package -n jpeg-progs
 Summary:	Programs for manipulating JPEG format image files
 Group:		Graphics
 Requires:	%libname = %{version}-%{release}
-Provides:	%{name}-progs = %{version}-%{release}
+Provides:	libjpeg-progs = %{version}-%{release}
+Obsoletes:	libjpeg-progs
 
-%description progs
-The libjpeg-progs package contains simple client programs for accessing 
+%description -n jpeg-progs
+The jpeg-progs package contains simple client programs for accessing 
 the libjpeg functions.  Libjpeg client programs include cjpeg, djpeg, 
 jpegtran, rdjpgcom and wrjpgcom.  Cjpeg compresses an image file into JPEG
 format. Djpeg decompresses a JPEG file into a regular image file.  Jpegtran
@@ -157,13 +158,16 @@ mkdir -p %{buildroot}{%{_bindir},%{_libdir},%{_includedir},%{_mandir}/man1}
 %defattr(-,root,root)
 %{_libdir}/*.a
 
-%files progs
+%files -n jpeg-progs
 %defattr(-,root,root)
 %{_bindir}/*
 %{_mandir}/man1/*
 
 
 %changelog
+* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 6b-38avx
+- rename libjpeg-progs to jpeg-progs
+
 * Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 6b-37avx
 - bootstrap build (new gcc, new glibc)
 
