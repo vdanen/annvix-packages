@@ -1,27 +1,28 @@
---- shadow-4.0.11.1/man/groupadd.8.orig	2005-07-10 21:05:34.000000000 +0100
-+++ shadow-4.0.11.1/man/groupadd.8	2005-08-06 14:58:35.000000000 +0100
-@@ -24,7 +24,7 @@
- .ad l
- .hy 0
+--- shadow-4.0.12/man/groupadd.8.mdk	2005-08-03 18:18:37.000000000 +0200
++++ shadow-4.0.12/man/groupadd.8	2005-09-13 16:11:22.000000000 +0200
+@@ -11,7 +11,7 @@
+ groupadd \- Create a new group
+ .SH "SYNOPSIS"
  .HP 9
--\fBgroupadd\fR [\-g\ \fIgid\fR\ [\-o]] [\-f] [\-K\ \fIKEY\fR=\fIVALUE\fR] \fIgroup\fR
-+\fBgroupadd\fR [\-g\ \fIgid\fR\ [\-o]] [\-r] [\-f] [\-K\ \fIKEY\fR=\fIVALUE\fR] \fIgroup\fR
- .ad
- .hy
- 
-@@ -44,7 +44,7 @@
- 
- .TP
+-\fBgroupadd\fR [\-g\ \fIgid\fR\ [\-o\ ]] [\-f] [\-K\ \fIKEY\fR=\fIVALUE\fR] \fIgroup\fR
++\fBgroupadd\fR [\-g\ \fIgid\fR\ [\-o\ ]] [\-f] [\-f] [\-K\ \fIKEY\fR=\fIVALUE\fR] \fIgroup\fR
+ .SH "DESCRIPTION"
+ .PP
+ The 
+@@ -32,7 +32,7 @@
  \fB\-g\fR \fIgid\fR
--The numerical value of the group's ID\&. This value must be unique, unless the \fB\-o\fR option is used\&. The value must be non\-negative\&. The default is to use the smallest ID value greater than 999 and greater than every other group\&. Values between 0 and 999 are typically reserved for system accounts\&.
-+The numerical value of the group's ID\&. This value must be unique, unless the \fB\-o\fR option is used\&. The value must be non\-negative\&. The default is to use the smallest ID value greater than 500 and greater than every other group\&. Values between 0 and 499 are typically reserved for system accounts\&.
- 
+ The numerical value of the group's ID. This value must be unique, unless the 
+ \fB\-o\fR 
+-option is used. The value must be non\-negative. The default is to use the smallest ID value greater than 999 and greater than every other group. Values between 0 and 999 are typically reserved for system accounts.
++option is used. The value must be non\-negative. The default is to use the smallest ID value greater than 499 and greater than every other group. Values between 0 and 499 are typically reserved for system accounts.
  .TP
- \fB\-K \fIKEY\fR=\fIVALUE\fR\fR
-@@ -56,6 +56,14 @@
+ \fB\-K \fR\fB\fIKEY\fR\fR\fB=\fR\fB\fIVALUE\fR\fR
+ Overrides /etc/login.defs defaults (GID_MIN, GID_MAX and others). Multiple 
+@@ -46,6 +46,15 @@
+ .TP
  \fB\-o\fR
- Allow add group wit non\-unique GID\&.
- 
+ Allow add group wit non\-unique GID.
++
 +.TP
 +\fB\-r\fR
 +This flag instructs \fBgroupadd\fR to add a system
@@ -31,22 +32,22 @@
 +This is an option added by Red Hat.
 +
  .SH "FILES"
- 
  .TP
---- shadow-4.0.11.1/man/useradd.8.orig	2005-07-10 21:05:34.000000000 +0100
-+++ shadow-4.0.11.1/man/useradd.8	2005-08-06 15:15:47.000000000 +0100
-@@ -45,7 +45,7 @@
- .SS "Creating New Users"
- 
- .PP
--When invoked without the \fB\-D\fR option, the \fBuseradd\fR command creates a new user account using the values specified on the command line and the default values from the system\&. Depending on command line options, the useradd command will update system files and may also create the new user's home directory and copy initial files\&.
-+When invoked without the \fB\-D\fR option, the \fBuseradd\fR command creates a new user account using the values specified on the command line and the default values from the system\&. Depending on command line options, the useradd command will update system files and may also create the new user's home directory and copy initial files. The version provided with Mandriva Linux will create a group for each user added to the system, unless the \fB-n\fR option is given.
- 
+ \fI/etc/group\fR
+--- shadow-4.0.12/man/useradd.8.mdk	2005-08-10 10:58:05.000000000 +0200
++++ shadow-4.0.12/man/useradd.8	2005-09-13 16:11:22.000000000 +0200
+@@ -23,7 +23,7 @@
+ \fB\-D\fR 
+ option, the 
+ \fBuseradd\fR 
+-command creates a new user account using the values specified on the command line and the default values from the system. Depending on command line options, the useradd command will update system files and may also create the new user's home directory and copy initial files.
++command creates a new user account using the values specified on the command line and the default values from the system. Depending on command line options, the useradd command will update system files and may also create the new user's home directory and copy initial files. The version provided with Mandriva Linux will create a group for each user added to the system, unless the \fB-n\fR option is given.
  .SH "OPTIONS"
- 
-@@ -89,6 +89,17 @@
- The user's home directory will be created if it does not exist\&. The files contained in \fIskeleton_dir\fR will be copied to the home directory if the \fB\-k\fR option is used, otherwise the files contained in \fI/etc/skel\fR will be used instead\&. Any directories contained in \fI skeleton_dir\fR or \fI/etc/skel\fR will be created in the user's home directory as well\&. The \fB\-k\fR option is only valid in conjunction with the \fB\-m\fR option\&. The default is to not create the directory and to not copy any files\&.
- 
+ .PP
+ The options which apply to the 
+@@ -87,6 +87,17 @@
+ \fB\-m\fR 
+ option. The default is to not create the directory and to not copy any files.
  .TP
 +\fB\-M\fR
 +The user's home directory will not be created, even if the system
@@ -60,11 +61,11 @@
 +
 +.TP
  \fB\-K\fR, \fB\-\-key\fR \fIKEY\fR=\fIVALUE\fR
- Overrides /etc/login\&.defs defaults (UID_MIN, UID_MAX, UMASK, PASS_MAX_DAYS and others)\&. For example: \fB\-K\fR  \fIPASS_MAX_DAYS\fR=\fI\-1\fR can be used when creating system account to turn off password ageing, even though system account has no password at all\&. Multiple \fB\-K\fR options can be specified, e\&.g\&.: \fB\-K\fR  \fIUID_MIN\fR=\fI100\fR  \fB\-K\fR  \fIUID_MAX\fR=\fI499\fR 
- 
-@@ -103,6 +114,16 @@
- The encrypted password, as returned by \fBcrypt\fR(3)\&. The default is to disable the account\&.
- 
+ Overrides /etc/login.defs defaults (UID_MIN, UID_MAX, UMASK, PASS_MAX_DAYS and others). For example: 
+ \fB\-K\fR \fIPASS_MAX_DAYS\fR=\fI\-1\fR 
+@@ -106,6 +117,16 @@
+ The encrypted password, as returned by 
+ \fBcrypt\fR(3). The default is to disable the account.
  .TP
 +\fB\-r\fR
 +This flag is used to create a system account. That is, a user with a UID lower
@@ -77,9 +78,9 @@
 +This is an option added by Mandriva.
 +.TP
  \fB\-s\fR, \fB\-\-shell\fR \fISHELL\fR
- The name of the user's login shell\&. The default is to leave this field blank, which causes the system to select the default login shell\&.
- 
-@@ -160,9 +181,15 @@
+ The name of the user's login shell. The default is to leave this field blank, which causes the system to select the default login shell.
+ .TP
+@@ -162,9 +183,15 @@
  \fI/etc/group\fR
  group account information
  .TP
@@ -95,9 +96,9 @@
  \fI/etc/skel/\fR
  directory containing default files
  .SH "EXIT VALUES"
---- shadow-4.0.7/src/useradd.c.redhat	2005-01-18 00:02:41.000000000 +0100
-+++ shadow-4.0.7/src/useradd.c	2005-03-02 10:56:37.379986857 +0100
-@@ -75,7 +75,7 @@
+--- shadow-4.0.12/src/useradd.c.mdk	2005-08-11 18:23:34.000000000 +0200
++++ shadow-4.0.12/src/useradd.c	2005-09-13 16:11:45.000000000 +0200
+@@ -71,7 +71,7 @@
  static gid_t def_group = 100;
  static const char *def_gname = "other";
  static const char *def_home = "/home";
@@ -106,7 +107,7 @@
  static const char *def_template = SKEL_DIR;
  static const char *def_create_mail_spool = "no";
  
-@@ -89,7 +89,7 @@
+@@ -83,7 +83,7 @@
  #define	VALID(s)	(strcspn (s, ":\n") == strlen (s))
  
  static const char *user_name = "";
@@ -115,7 +116,7 @@
  static uid_t user_id;
  static gid_t user_gid;
  static const char *user_comment = "";
-@@ -115,8 +115,10 @@
+@@ -114,8 +114,10 @@
      Gflg = 0,			/* secondary group set for new account */
      kflg = 0,			/* specify a directory to fill new user directory */
      mflg = 0,			/* create user's home directory if it doesn't exist */
@@ -127,7 +128,7 @@
      sflg = 0,			/* shell program for new account */
      uflg = 0;			/* specify user ID for new account */
  
-@@ -651,10 +653,14 @@
+@@ -650,10 +652,14 @@
  			   "  -K, --key KEY=VALUE		overrides /etc/login.defs defaults\n"
  			   "  -m, --create-home		create home directory for the new user\n"
  			   "				account\n"
@@ -138,11 +139,11 @@
  			   "				(non-unique) UID\n"
  			   "  -p, --password PASSWORD	use encrypted password for the new user\n"
  			   "				account\n"
-+			   "  -r 			create a system account"
++			   "  -r 			create a system account\n"
  			   "  -s, --shell SHELL		the login shell for the new user account\n"
  			   "  -u, --uid UID			force use the UID for the new user account\n"));
  	exit (E_USAGE);
-@@ -782,11 +784,19 @@
+@@ -703,11 +709,19 @@
  	spent->sp_namp = (char *) user_name;
  	spent->sp_pwdp = (char *) user_pass;
  	spent->sp_lstchg = time ((time_t *) 0) / SCALE;
@@ -166,8 +167,8 @@
 +        }
  	spent->sp_flag = -1;
  }
- #endif
-@@ -729,31 +735,7 @@
+ 
+@@ -728,31 +742,7 @@
  	struct sgrp *nsgrp;
  #endif
  
@@ -200,7 +201,7 @@
  
  	/*
  	 * Scan through the entire group file looking for the groups that
-@@ -973,8 +957,13 @@
+@@ -857,8 +847,13 @@
  	const struct passwd *pwd;
  	uid_t uid_min, uid_max;
  
@@ -216,7 +217,7 @@
  
  	/*
  	 * Start with some UID value if the user didn't provide us with
-@@ -887,7 +869,7 @@
+@@ -886,7 +881,7 @@
  				 Prog, user_name);
  			exit (E_NAME_IN_USE);
  		}
@@ -225,7 +226,7 @@
  			fprintf (stderr, _("%s: UID %u is not unique\n"),
  				 Prog, (unsigned int) user_id);
  			exit (E_UID_IN_USE);
-@@ -1041,6 +1030,86 @@
+@@ -924,6 +919,86 @@
  }
  
  /*
@@ -312,7 +313,7 @@
   * process_flags - perform command line argument setting
   *
   *	process_flags() interprets the command line arguments and sets
-@@ -963,7 +945,7 @@
+@@ -962,7 +1037,7 @@
  			{NULL, 0, NULL, '\0'}
  		};
  		while ((c =
@@ -321,7 +322,7 @@
  				     long_options, NULL)) != -1) {
  			switch (c) {
  			case 'b':
-@@ -1135,11 +1117,23 @@
+@@ -1134,11 +1209,23 @@
  				user_id = get_uid (optarg);
  				uflg++;
  				break;
@@ -345,15 +346,15 @@
  	}
  	/*
  	 * Certain options are only valid in combination with others.
-@@ -1313,7 +1388,6 @@
- 				 Prog);
+@@ -1213,7 +1300,6 @@
+ 				 _("%s: cannot rewrite group file\n"), Prog);
  			fail_exit (E_GRP_UPDATE);
  		}
 -		gr_unlock ();
  #ifdef	SHADOWGRP
  		if (is_shadow_grp && !sgr_close ()) {
  			fprintf (stderr,
-@@ -1227,9 +1221,6 @@
+@@ -1226,9 +1312,6 @@
  			sgr_unlock ();
  #endif
  	}
@@ -363,7 +364,7 @@
  }
  
  /*
-@@ -1262,6 +1253,31 @@
+@@ -1261,6 +1344,31 @@
  		pw_unlock ();
  		exit (E_PW_UPDATE);
  	}
@@ -395,7 +396,7 @@
  }
  
  
-@@ -1520,6 +1612,118 @@
+@@ -1367,6 +1475,118 @@
  		grp_update ();
  }
  
@@ -514,9 +515,9 @@
  /*
   * create_home - create the user's home directory
   *
-@@ -1693,6 +1897,14 @@
- #endif
- #endif
+@@ -1541,13 +1761,21 @@
+ 		exit (E_NAME_IN_USE);
+ 	}
  
 +	if (!rflg) /* for system accounts defaults are ignored and we
 +                    * do not create a home dir -- gafton */
@@ -527,9 +528,8 @@
 +	    mflg = 0;
 +
  	/*
- 	 * See if we are messing with the defaults file, or creating
- 	 * a new user.
-@@ -1722,7 +1934,7 @@
+ 	 * Don't blindly overwrite a group when a user is added...
+ 	 * If you already have a group username, and want to add the user
  	 * to that group, use useradd -g username username.
  	 * --bero
  	 */
@@ -538,27 +538,29 @@
  		if (getgrnam (user_name)) {
  			fprintf (stderr,
  				 _
-@@ -1744,29 +1956,36 @@
+@@ -1569,6 +1797,18 @@
  
  	open_files ();
  
-+	/* first, seek for a valid uid to use for this user.
-+	 * We do this because later we can use the uid we found as
-+	 * gid too ... --gafton */
-+	find_new_uid ();
-+
-+	/* do we have to add a group for that user? This is why we need to
-+	 * open the group files in the open_files() function  --gafton */
-+	if (! (nflg || gflg)) {
-+		find_new_gid();
-+		grp_add();
-+	}
++ 	/* first, seek for a valid uid to use for this user.
++ 	 * We do this because later we can use the uid we found as
++ 	 * gid too ... --gafton */
++ 	find_new_uid ();
++ 
++ 	/* do we have to add a group for that user? This is why we need to
++ 	 * open the group files in the open_files() function  --gafton */
++ 	if (! (nflg || gflg)) {
++ 		find_new_gid();
++ 		grp_add();
++ 	}
 +
  	usr_update ();
  
  	if (mflg) {
- 		create_home ();
- 		copy_tree (def_template, user_home, user_id, user_gid);
+@@ -1581,25 +1821,20 @@
+ 				 ("%s: warning: the home directory already exists.\n"
+ 				  "Not copying any file from skel directory into it.\n"), Prog);
+ 
 -	} else if (getdef_str ("CREATE_HOME")) {
 -		/*
 -		 * RedHat added the CREATE_HOME option in login.defs in their
@@ -577,24 +579,26 @@
 -			 ("%s: warning: CREATE_HOME not supported, please use -m instead.\n"),
 -			 Prog);
  	}
-+	/* Warning removed to protect the innocent. */
-+	/*
-+	 * The whole idea about breaking some stupid scripts by creating a new
-+	 * variable is crap - I could care less about the scripts. Historically
-+	 * adduser type programs have always created the home directories and
-+	 * I don't like the idea of providing a script when we can fix the
-+	 * binary itself. And if the scripts are using the right options to the
-+	 * useradd then they will not break. If not, they depend on unspecified
-+	 * behavior and they will break, but they were broken anyway to begin
-+         * with --gafton
-+         */
-+
- 
+-
++ 	/* Warning removed to protect the innocent. */
++ 	/*
++ 	 * The whole idea about breaking some stupid scripts by creating a new
++ 	 * variable is crap - I could care less about the scripts. Historically
++ 	 * adduser type programs have always created the home directories and
++ 	 * I don't like the idea of providing a script when we can fix the
++ 	 * binary itself. And if the scripts are using the right options to the
++ 	 * useradd then they will not break. If not, they depend on unspecified
++ 	 * behavior and they will break, but they were broken anyway to begin
++          * with --gafton
++          */
++ 
++ 
  	create_mail ();
  
---- shadow-4.0.7/src/userdel.c.redhat	2005-01-18 00:12:05.000000000 +0100
-+++ shadow-4.0.7/src/userdel.c	2005-03-01 17:06:16.000000000 +0100
-@@ -60,7 +60,9 @@
+ 	nscd_flush_cache ("passwd");
+--- shadow-4.0.12/src/userdel.c.mdk	2005-08-11 18:23:34.000000000 +0200
++++ shadow-4.0.12/src/userdel.c	2005-09-13 16:11:22.000000000 +0200
+@@ -59,7 +59,9 @@
  #define E_HOMEDIR	12	/* can't remove home directory */
  static char *user_name;
  static uid_t user_id;
@@ -604,7 +608,7 @@
  
  static char *Prog;
  static int fflg = 0, rflg = 0;
-@@ -280,6 +282,100 @@
+@@ -228,6 +230,100 @@
  #endif				/* SHADOWGRP */
  }
  
@@ -705,7 +709,7 @@
  /*
   * close_files - close all of the files that were opened
   *
-@@ -483,7 +579,8 @@
+@@ -379,7 +475,8 @@
  			continue;
  		fprintf (stderr,
  			 _("%s: user %s is currently logged in\n"), Prog, name);
@@ -715,7 +719,7 @@
  	}
  }
  
-@@ -614,6 +711,7 @@
+@@ -508,6 +605,7 @@
  int main (int argc, char **argv)
  {
  	struct passwd *pwd;
@@ -723,7 +727,7 @@
  	int arg;
  	int errors = 0;
  
-@@ -732,6 +830,10 @@
+@@ -607,6 +705,10 @@
  #endif
  	user_id = pwd->pw_uid;
  	user_home = xstrdup (pwd->pw_dir);
@@ -734,7 +738,7 @@
  	/*
  	 * Check to make certain the user isn't logged in.
  	 */
-@@ -789,6 +891,9 @@
+@@ -659,6 +761,9 @@
  	}
  #endif
  
@@ -744,27 +748,28 @@
  	if (rflg) {
  		if (remove_tree (user_home)
  		    || rmdir (user_home)) {
---- shadow-4.0.7/src/groupadd.c.redhat	2005-01-18 00:02:41.000000000 +0100
-+++ shadow-4.0.7/src/groupadd.c	2005-03-01 17:06:16.000000000 +0100
-@@ -72,6 +72,8 @@
+--- shadow-4.0.12/src/groupadd.c.mdk	2005-08-11 15:45:41.000000000 +0200
++++ shadow-4.0.12/src/groupadd.c	2005-09-13 16:12:08.000000000 +0200
+@@ -73,6 +73,8 @@
  static int oflg = 0;		/* permit non-unique group ID to be specified with -g */
  static int gflg = 0;		/* ID value for the new group */
  static int fflg = 0;		/* if group already exists, do nothing and exit(0) */
 +static int rflg = 0;            /* for adding system accounts (Red Hat) */
 +
  
- #ifdef	NDBM
- extern int gr_dbm_mode;
-@@ -99,7 +101,7 @@
- 
- static void usage (void)
- {
--	fprintf (stderr, _("Usage: groupadd [-g gid [-o]] [-f] group\n"));
-+	fprintf (stderr, _("usage: groupadd [-g gid [-o]] [-r] [-f] group\n"));
+ /* local function prototypes */
+ static void usage (void);
+@@ -104,7 +106,8 @@
+ 			   "  -h, --help			display this help message and exit\n"
+ 			   "  -K, --key KEY=VALUE		overrides /etc/login.defs defaults\n"
+ 			   "  -o, --non-unique		allow create group with duplicate\n"
+-			   "				(non-unique) GID\n"));
++			   "				(non-unique) GID\n"
++			   "  -r 			create a system group\n"));
  	exit (E_USAGE);
  }
  
-@@ -225,8 +227,13 @@
+@@ -197,8 +200,13 @@
  	const struct group *grp;
  	gid_t gid_min, gid_max;
  
@@ -780,33 +785,27 @@
  
  	/*
  	 * Start with some GID value if the user didn't provide us with
-@@ -295,14 +295,14 @@
- 	char *cp;
- 	int arg;
+@@ -409,7 +417,7 @@
+ 		};
  
--	while ((arg = getopt (argc, argv, "fg:K:o")) != EOF) {
-+	while ((arg = getopt (argc, argv, "fg:K:or")) != EOF) {
- 		switch (arg) {
- 		case 'f':
- 			/*
- 			 * "force" - do nothing, just exit(0), if the
- 			 * specified group already exists. With -g, if
- 			 * specified gid already exists, choose another
--			 * (unique) gid (turn off -g). Based on the RedHat's
-+			 * (unique) gid (turn off -g). Based on the Red Hat's
- 			 * patch from shadow-utils-970616-9.
- 			 */
- 			fflg++;
-@@ -341,6 +341,12 @@
- 		case 'o':
- 			oflg++;
- 			break;
-+		case 'r':
-+		       /*
-+			* create a system group
-+			*/
-+			rflg++;
-+			break;
- 		default:
- 			usage ();
+ 		while ((c =
+-			getopt_long (argc, argv, "fg:hK:o", long_options,
++			getopt_long (argc, argv, "fg:hK:or", long_options,
+ 				     &option_index)) != -1) {
+ 			switch (c) {
+ 			case 'f':
+@@ -460,7 +468,13 @@
+ 			case 'o':
+ 				oflg++;
+ 				break;
+-			default:
++ 			case 'r':
++ 		       		/*
++ 				* create a system group
++ 				*/
++ 				rflg++;
++ 				break;
++			 default:
+ 				usage ();
+ 			}
  		}

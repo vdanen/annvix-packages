@@ -8,8 +8,8 @@
 
 
 %define name		shadow-utils
-%define version		4.0.11.1
-%define release		2avx
+%define version		4.0.12
+%define release		1avx
 %define epoch		1
 
 #rh-20000902-10
@@ -30,8 +30,8 @@ Source3:	adduser.8
 Source4:	pwunconv.8
 Source5:	grpconv.8
 Source6:	grpunconv.8
-Patch0:		shadow-4.0.11.1-mdk.patch.bz2
-Patch1:		shadow-4.0.11.1-nscd.patch.bz2
+Patch0:		shadow-4.0.12-mdk.patch.bz2
+Patch1:		shadow-4.0.12-nscd.patch.bz2
 Patch2:		shadow-4.0.3-rpmsave.patch.bz2
 Patch100:	shadow-4.0.11.1-no-syslog-setlocale.patch.bz2
 
@@ -139,6 +139,9 @@ rm -rf build-$RPM_ARCH
 
 
 %changelog
+* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 4.0.12-1avx
+- 4.0.12
+
 * Sun Sep 11 2005 Vincent Danen <vdanen@annvix.org> 4.0.11.1-2avx
 - strip the suid bit from newgrp
 
