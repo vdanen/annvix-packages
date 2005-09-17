@@ -8,8 +8,8 @@
 
 
 %define name		nmap
-%define version		3.55
-%define release		4avx
+%define version		3.81
+%define release		1avx
 %define epoch		1
 
 Summary:	Network exploration tool and security scanner
@@ -74,6 +74,9 @@ more.
 
 
 %changelog
+* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 3.81-1avx
+- 3.81
+
 * Thu Aug 18 2005 Vincent Danen <vdanen@annvix.org> 3.55-4avx
 - bootstrap build (new gcc, new glibc)
 
