@@ -8,10 +8,10 @@
 
 
 %define name		libtiff
-%define	version		3.5.7
-%define release 	18avx
+%define	version		3.6.1
+%define release 	1avx
 
-%define lib_version	3.5
+%define lib_version	3.6.1
 %define lib_major	3
 %define libname		%mklibname tiff %{lib_major}
 
@@ -23,17 +23,21 @@ License:	BSD-like
 Group:		System/Libraries
 URL:		http://www.libtiff.org/
 Source0:	ftp://ftp.remotesensing.org/pub/libtiff/tiff-v%{version}.tar.bz2
-Patch0:		tiff-v3.5-shlib.patch.bz2
-Patch1:		%{name}-3.5.5-codecs.patch.bz2
+Source1:	ftp://ftp.remotesensing.org/pub/libtiff/pics-%{version}.tar.bz2
+Patch0:		tiff-v3.6-shlib.patch.bz2
+Patch1:		%{name}-3.6.1-codecs.patch.bz2
 Patch2:		%{name}-3.5.5-stupid_cd_output.patch.bz2
 Patch3:		%{name}-3.5.5-buildroot.patch.bz2
-Patch4:		tiff-v3.5.7-64bit.patch.bz2
+Patch4:		tiff-v3.6.1-64bit.patch.bz2
 Patch5:		tiff-v3.5.7-x86_64.patch.bz2
 Patch6:		tiff-v3.5.7-deps.patch.bz2
-Patch7:		libtiff-3.5.7-alt-bound.patch.bz2
-Patch8:		libtiff-3.5.7-chris-bound.patch.bz2
-Patch9:		libtiff-3.5.7-bound-fix2.patch.bz2
-Patch10:	libtiff-3.5.x-CAN-2004-0804.patch.bz2
+Patch8:		libtiff-3.6.1-tiffsplit_range.patch.bz2
+# security fixes
+Patch10:	libtiff-3.6.1-alt-bound.patch.bz2
+Patch11:	libtiff-3.6.1-chris-bound.patch.bz2
+Patch12:	libtiff-3.5.7-bound-fix2.patch.bz2
+Patch13:	libtiff-3.6.x-iDefense.patch.bz2
+Patch14:	libtiff-3.6.x-CAN-2005-2452.patch.bz2
 
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -49,7 +53,7 @@ and they are often quite large.
 %package progs
 Summary:	Binaries needed to manipulate TIFF format image files
 Group:		Graphics
-Requires:	%{libname} = %{version}-%{release}
+Requires:	%{libname} = %{version}
 Obsoletes:	libtiff3-progs
 Provides:	libtiff3-progs = %{version}-%{release}
 
@@ -73,7 +77,7 @@ and they are often quite large.
 %package -n %{libname}-devel
 Summary:	Development tools for programs which will use the libtiff library
 Group:		Development/C
-Requires:	%{libname} = %{version}-%{release}
+Requires:	%{libname} = %{version}
 Obsoletes:	%{name}-devel
 Provides:	%{name}-devel = %{version}-%{release}
 Provides:	tiff-devel = %{version}-%{release}
@@ -87,7 +91,7 @@ library.
 %package -n %{libname}-static-devel
 Summary:	Static libraries for programs which will use the libtiff library
 Group:		Development/C
-Requires:	%{libname}-devel = %{version}-%{release}
+Requires:	%{libname}-devel = %{version}
 Provides:	%{name}-static-devel = %{version}-%{release}
 Provides:	tiff-static-devel = %{version}-%{release}
 
@@ -98,7 +102,7 @@ library.
 
 
 %prep
-%setup -q -n tiff-v%{version}
+%setup -q -n tiff-v%{version} -a 1
 %patch0 -p1 -b .shlib
 %patch1 -p1 -b .codecs
 %patch2 -p1 -b .cd
@@ -106,10 +110,15 @@ library.
 %patch4 -p1 -b .64bit
 %patch5 -p1 -b .x86_64
 %patch6 -p1 -b .deps
-%patch7 -p1 -b .alt-sec
-%patch8 -p1 -b .chris-sec
-%patch9 -p1 -b .bound-fix2
-%patch10 -p1 -b .CAN-2004-0804
+%patch8 -p1 -b .range
+# security fixes
+%patch10 -p1 -b .alt-bound
+%patch11 -p1 -b .chris-bound
+%patch12 -p1 -b .bound-fix2
+%patch13 -p1 -b .idefense
+%patch14 -p1 -b .can-2004-2452
+
+ln -s pics-* pics
 
 
 %build
@@ -132,19 +141,29 @@ EOF
 pushd libtiff
     ln -s libtiff.so.%{lib_version} libtiff.so
 popd
-COPTS="%{optflags}" make
+%make
+
+make test
 
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p %{buildroot}/{%{_bindir},%{_datadir}}
-make install
+
+%makeinstall
+
 install -m 0644 %{name}/%{name}.so.%{lib_version} %{buildroot}/%{_libdir}
 
 pushd %{buildroot}%{_libdir}
     ln -sf %{name}.so.%{lib_version} %{name}.so
     ln -sf %{name}.so.%{lib_version} %{name}.so.%{lib_major}
 popd
+
+install -m 0644 libtiff/tiffiop.h %{buildroot}%{_includedir}/
+install -m 0644 libtiff/port.h %{buildroot}%{_includedir}/
+install -m 0644 libtiff/tif_dir.h %{buildroot}%{_includedir}/
+
+%multiarch_includes %{buildroot}%{_includedir}/port.h
 
 
 %post -n %{libname} -p /sbin/ldconfig
@@ -177,6 +196,11 @@ popd
 
 
 %changelog
+* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 3.6.1-1avx
+- 3.6.1
+- sync patches with mandrake 3.6.1-12mdk
+- includes patch to fix CAN-2005-2452
+
 * Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 3.5.7-18avx
 - bootstrap build (new gcc, new glibc)
 
