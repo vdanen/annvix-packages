@@ -9,7 +9,7 @@
 
 %define name		exim
 %define version 	4.52
-%define release 	1avx
+%define release 	2avx
 
 %define build_mysql 	0
 %define build_pgsql 	0
@@ -283,6 +283,9 @@ fi
 
 
 %changelog
+* Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 4.52-2avx
+- rebuild against new pcre
+
 * Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 4.52-1avx
 - 4.52
 - sa-exim 4.2

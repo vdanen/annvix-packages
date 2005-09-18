@@ -9,7 +9,7 @@
 
 %define name		nmap
 %define version		3.81
-%define release		1avx
+%define release		2avx
 %define epoch		1
 
 Summary:	Network exploration tool and security scanner
@@ -74,6 +74,9 @@ more.
 
 
 %changelog
+* Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 3.81-2avx
+- rebuild against new pcre
+
 * Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 3.81-1avx
 - 3.81
 

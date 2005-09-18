@@ -9,7 +9,7 @@
 
 %define name		postfix
 %define version		2.2.5
-%define release 	1avx
+%define release 	2avx
 %define epoch		1
 
 %define	openssl_ver	0.9.7d
@@ -423,6 +423,9 @@ fi
 
 
 %changelog
+* Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 2.2.5-2avx
+- rebuild against new pcre
+
 * Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 2.2.5-1avx
 - 2.2.5
 - run scripts are now considered config files and are not replaceable

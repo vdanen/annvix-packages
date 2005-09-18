@@ -9,7 +9,7 @@
 
 %define name		httpd
 %define version		2.0.54
-%define release		3avx
+%define release		4avx
 
 #
 #(ie. use with rpm --rebuild):
@@ -1350,6 +1350,9 @@ strip %{buildroot}%{_sbindir}/httpd-worker
 
 
 %changelog
+* Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 2.0.54-4avx
+- rebuild against new pcre
+
 * Thu Sep 15 2005 Vincent Danen <vdanen@annvix.org> 2.0.54-3avx
 - make httpd-worker provide httpd
 - new style PreReq
