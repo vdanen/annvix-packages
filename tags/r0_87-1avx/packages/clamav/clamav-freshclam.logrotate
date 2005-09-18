@@ -1,0 +1,5 @@
+/var/log/clamav/freshclam.log {
+    create 644 clamav clamav
+	monthly
+	compress
+}
