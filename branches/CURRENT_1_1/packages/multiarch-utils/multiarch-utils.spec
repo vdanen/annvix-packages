@@ -9,7 +9,7 @@
 
 %define name		multiarch-utils
 %define version		1.0.9
-%define release 	1avx
+%define release 	2avx
 
 Summary:	Tools to help creation of multiarch binaries and includes
 Name:		%{name}
@@ -59,6 +59,9 @@ binaries and include files during RPM package build.
 
 
 %changelog
+* Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 1.0.9-2avx
+- fix perms on the spec file
+
 * Sun Sep 11 2005 Vincent Danen <vdanen@annvix.org> 1.0.9-1avx
 - 1.0.9:
   - handle symlinks to multiarch binaries
