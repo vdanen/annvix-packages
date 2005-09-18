@@ -1,0 +1,15 @@
+--- Python-2.4.1/setup.py.fred	2005-08-25 14:19:07.000000000 +0200
++++ Python-2.4.1/setup.py	2005-08-25 16:16:23.000000000 +0200
+@@ -633,6 +633,12 @@
+                 exts.append( Extension('dbm', ['dbmmodule.c'],
+                                        define_macros=[('HAVE_NDBM_H',None)],
+                                        libraries = ndbm_libs ) )
++            elif (self.compiler.find_library_file(lib_dirs, 'gdbm_compat')
++                  and self.compiler.find_library_file(lib_dirs, 'gdbm')
++                  and find_file("gdbm/ndbm.h", inc_dirs, []) is not None):
++                exts.append( Extension('dbm', ['dbmmodule.c'],
++                                       define_macros=[('HAVE_GDBM_NDBM_H',None)],
++                                       libraries = ['gdbm_compat', 'gdbm'] ) )
+             elif (self.compiler.find_library_file(lib_dirs, 'gdbm')
+                   and find_file("gdbm/ndbm.h", inc_dirs, []) is not None):
+                 exts.append( Extension('dbm', ['dbmmodule.c'],
