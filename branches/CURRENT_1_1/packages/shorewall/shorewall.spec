@@ -8,8 +8,8 @@
 
 
 %define name		shorewall
-%define version 	2.0.6
-%define release 	4avx
+%define version 	2.4.1
+%define release 	1avx
 
 %define samples_version	2.0.1
 
@@ -20,19 +20,22 @@ Release:	%{release}
 License:	GPL
 Group:		System/Servers
 URL:		http://www.shorewall.net/
-Source0:	ftp://ftp.shorewall.net/pub/shorewall/2.0/shorewall-%{version}/%{name}-%{version}.tgz
-Source1:	ftp://ftp.shorewall.net/pub/shorewall/2.0/shorewall-%{version}/%{version}.md5sums
+Source0:	ftp://ftp.shorewall.net/pub/shorewall/2.4/shorewall-%{version}/%{name}-%{version}.tgz
+Source1:	ftp://ftp.shorewall.net/pub/shorewall/2.4/shorewall-%{version}/%{version}.md5sums
 Source2:	ftp://ftp.shorewall.net/pub/shorewall/Samples/samples-%{samples_version}/one-interface.tgz
 Source3:	ftp://ftp.shorewall.net/pub/shorewall/Samples/samples-%{samples_version}/two-interfaces.tgz
 Source4:	ftp://ftp.shorewall.net/pub/shorewall/Samples/samples-%{samples_version}/three-interfaces.tgz
-Source5:	init.sh.bz2
+Source5:	shorewall.init
+Source10:	http://shorewall.net/pub/shorewall/errata/2.0.10/bogons
+Source11:	http://shorewall.net/pub/shorewall/2.4/shorewall-%{version}/errata/firewall
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
 
 Requires:	iptables, chkconfig
+Requires(post):	rpm-helper
+Requires(preun): rpm-helper
 Conflicts:	kernel <= 2.2
-PreReq:		rpm-helper
 
 %description
 The Shoreline Firewall, more commonly known as "Shorewall", is a Netfilter
@@ -43,7 +46,7 @@ a multi-function gateway/ router/server or on a standalone GNU/Linux system.
 %prep
 %setup -q
 
-bzcat %{SOURCE5} > %{_builddir}/%{name}-%{version}/init.sh
+cp %{SOURCE5} init.sh
 mkdir samples
 pushd samples
     tar xzf %{SOURCE2}
@@ -60,10 +63,16 @@ find samples/ -type f | xargs chmod 0644
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
+# enable startup (new as of 2.1.3)
+perl -pi -e 's/STARTUP_ENABLED=.*/STARTUP_ENABLED=yes/' %{name}.conf
 export PREFIX=%{buildroot} ; \
 export OWNER=`id -n -u` ; \
 export GROUP=`id -n -g` ;\
 ./install.sh
+
+install -m 0600 %{SOURCE10} %{buildroot}%{_datadir}/%{name}/bogons
+install -m 0544 %{SOURCE11} %{buildroot}%{_datadir}/%{name}/firewall
 
 mkdir -p %{buildroot}%{_initrddir}
 mv %{buildroot}/etc/init.d/shorewall %{buildroot}%{_initrddir}/
@@ -79,9 +88,11 @@ export DONT_GPRINTIFY=1
 
 
 %post
-if [ "$1" == "1" ]; then
-    chkconfig --add shorewall
-fi
+%_post_service shorewall
+
+
+%preun
+%_preun_service shorewall
 
 
 %files
@@ -91,37 +102,47 @@ fi
 %attr(750,root,root) %{_initrddir}/shorewall
 
 %config(noreplace) %{_sysconfdir}/%{name}/accounting
+%config(noreplace) %{_sysconfdir}/%{name}/actions
 %config(noreplace) %{_sysconfdir}/%{name}/blacklist
-%config(noreplace) %{_sysconfdir}/%{name}/hosts
-%config(noreplace) %{_sysconfdir}/%{name}/interfaces
+%config(noreplace) %{_sysconfdir}/%{name}/continue
 %config(noreplace) %{_sysconfdir}/%{name}/ecn
+%config(noreplace) %{_sysconfdir}/%{name}/hosts
+%config(noreplace) %{_sysconfdir}/%{name}/init
+%config(noreplace) %{_sysconfdir}/%{name}/initdone
+%config(noreplace) %{_sysconfdir}/%{name}/interfaces
+%config(noreplace) %{_sysconfdir}/%{name}/ipsec
+%config(noreplace) %{_sysconfdir}/%{name}/maclist
 %config(noreplace) %{_sysconfdir}/%{name}/masq
 %config(noreplace) %{_sysconfdir}/%{name}/modules
 %config(noreplace) %{_sysconfdir}/%{name}/netmap
 %config(noreplace) %{_sysconfdir}/%{name}/nat
 %config(noreplace) %{_sysconfdir}/%{name}/params
 %config(noreplace) %{_sysconfdir}/%{name}/policy
+%config(noreplace) %{_sysconfdir}/%{name}/providers
 %config(noreplace) %{_sysconfdir}/%{name}/proxyarp
+%config(noreplace) %{_sysconfdir}/%{name}/routes
 %config(noreplace) %{_sysconfdir}/%{name}/routestopped
 %config(noreplace) %{_sysconfdir}/%{name}/rules
 %config(noreplace) %{_sysconfdir}/%{name}/shorewall.conf
+%config(noreplace) %{_sysconfdir}/%{name}/start
+%config(noreplace) %{_sysconfdir}/%{name}/started
+%config(noreplace) %{_sysconfdir}/%{name}/stop
+%config(noreplace) %{_sysconfdir}/%{name}/stopped
 %config(noreplace) %{_sysconfdir}/%{name}/tcrules
 %config(noreplace) %{_sysconfdir}/%{name}/tos
 %config(noreplace) %{_sysconfdir}/%{name}/tunnels
 %config(noreplace) %{_sysconfdir}/%{name}/zones
-%config(noreplace) %{_sysconfdir}/%{name}/maclist
-%config(noreplace) %{_sysconfdir}/%{name}/start
-%config(noreplace) %{_sysconfdir}/%{name}/stop
-%config(noreplace) %{_sysconfdir}/%{name}/stopped
-%config(noreplace) %{_sysconfdir}/%{name}/init
-%config(noreplace) %{_sysconfdir}/%{name}/actions
-%config(noreplace) %{_sysconfdir}/%{name}/initdone
 %attr(544,root,root) /sbin/shorewall
 %attr(700,root,root) %dir %{_datadir}/%{name}
 %{_datadir}/%{name}/*
 
 
 %changelog
+* Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 2.4.1-1avx
+- 2.4.1
+- add %%_post_service and %%_preun_service macros
+- rename initscript
+
 * Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 2.0.6-4avx
 - bootstrap build (new gcc, new glibc)
 
