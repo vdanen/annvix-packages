@@ -5,12 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-# mdk 4.4.2-3mdk
+# mdk 4.4.2-4mdk
 
 %define name		rpm
 %define version		4.4.2
 %define poptver		1.10.2
-%define release		2avx
+%define release		3avx
 
 %define srcver		4.4.2
 %define libver		4.4
@@ -81,7 +81,8 @@ Patch44:	rpm-4.4.1-amd64.patch.bz2
 Patch49:	rpm-4.4.1-provides-obsoleted.patch.bz2
 # Still need
 Patch56:	rpm-4.2.2-ppc64.patch.bz2
-Patch62:	rpm-4.4.1-coloring.patch.bz2
+# Colorize static archives and .so symlinks
+Patch62:	rpm-4.4.2-coloring.patch.bz2
 # ok for this
 Patch63:	rpm-4.2.3-dont-install-delta-rpms.patch.bz2
 # This patch ask to read /usr/lib/rpm/vendor/rpmpopt too
@@ -101,26 +102,28 @@ Patch69:	rpm-4.4.1-fr.patch.bz2
 Patch70:	rpm-4.4.1-bb-shortcircuit.patch.bz2
 # http://www.redhat.com/archives/rpm-list/2005-April/msg00131.html
 # http://www.redhat.com/archives/rpm-list/2005-April/msg00132.html
-Patch71:    rpm-4.4.1-ordererase.patch.bz2
+Patch71:	rpm-4.4.1-ordererase.patch.bz2
 # File conflicts when rpm -i
 # https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=151609
-Patch72:    rpm-4.4.1-fileconflicts.patch.bz2
+Patch72:	rpm-4.4.1-fileconflicts.patch.bz2
 # Fix pre/post when erasing
 # https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=155700
-Patch74:    rpm-4.4.1-prepostun.patch.bz2
+Patch74:	rpm-4.4.1-prepostun.patch.bz2
 # Allow to rebuild db with --root option
-Patch76:    rpm-4.4.1-rebuildchroot.patch.bz2
+Patch76:	rpm-4.4.1-rebuildchroot.patch.bz2
 # Allow to set %_srcdefattr for src.rpm
-Patch77:    rpm-source-defattr.patch.bz2
+Patch77:	rpm-source-defattr.patch.bz2
 # Do not use futex, but fcntl
-Patch78:    rpm-fcntl.patch.bz2
+Patch78:	rpm-fcntl.patch.bz2
 # from https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=146549
-Patch79:    rpm-4.4.2-deadlock.patch.bz2
+Patch79:	rpm-4.4.2-deadlock.patch.bz2
 # Fix: http://qa.mandriva.com/show_bug.cgi?id=17774
 # Patch from cvs HEAD (4.4.3)
-Patch80:    rpm-4.4.2-buildsubdir-for-scriptlet.patch.bz2
-Patch81:    rpm-4.4.2-legacyprereq.patch.bz2
-Patch82:    rpm-4.4.2-ordering.patch.bz2
+Patch80:	rpm-4.4.2-buildsubdir-for-scriptlet.patch.bz2
+Patch81:	rpm-4.4.2-legacyprereq.patch.bz2
+Patch82:	rpm-4.4.2-ordering.patch.bz2
+# don't conflict for doc files from colored packages
+Patch83:	rpm-4.2.3-no-doc-conflicts.patch.bz2
 
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -134,7 +137,7 @@ BuildRequires:	elfutils-static-devel
 BuildRequires:	sed >= 4.0.3
 BuildRequires:	libbeecrypt-devel
 BuildRequires:	ed, gettext-devel
-BuildRequires:	rpm-annvix-setup
+BuildRequires:	rpm-annvix-setup-build
 BuildRequires:	readline-devel, ncurses-devel
 BuildRequires:	neon-devel < 0.25
 BuildRequires:	libsqlite3-devel
@@ -308,6 +311,7 @@ shell-like rules.
 %patch80 -p0 -b .subdir-scriplet
 %patch81 -p0 -b .legacyprereq
 %patch82 -p0 -b .ordering
+%patch83 -p1 -b .no-doc-conflicts
 
 # The sqlite from rpm tar ball is the same than the system one
 # rpm author just add LINT comment for his checking purpose
@@ -707,6 +711,11 @@ fi
 
 
 %changelog
+* Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 4.4.2-3avx
+- BuildRequires: rpm-annvix-setup-build
+- P83: no-doc-conflicts for colored packages (gbeauchesne)
+- update P62 (merge it correctly) (gbeauchesne)
+
 * Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 4.4.2-2avx
 - always build without nptl support as it craps out on our systems in
   x86_64
