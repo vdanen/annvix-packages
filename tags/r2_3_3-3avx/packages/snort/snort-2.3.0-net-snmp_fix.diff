@@ -1,0 +1,17 @@
+--- src/output-plugins/spo_SnmpTrap.c	2005-03-12 00:33:13.753984579 +0100
++++ src/output-plugins/spo_SnmpTrap.c.oden	2005-03-12 00:29:56.887430463 +0100
+@@ -2688,12 +2688,12 @@
+             } else if (!strcasecmp(optarg, "AES128")) {
+                 session->securityPrivProto = usmAES128PrivProtocol;
+                 session->securityPrivProtoLen = USM_PRIV_PROTO_AES128_LEN;
+-            } else if (!strcasecmp(optarg, "AES192")) {
++/*            } else if (!strcasecmp(optarg, "AES192")) {
+                 session->securityPrivProto = usmAES192PrivProtocol;
+                 session->securityPrivProtoLen = USM_PRIV_PROTO_AES192_LEN;
+             } else if (!strcasecmp(optarg, "AES256")) {
+                 session->securityPrivProto = usmAES256PrivProtocol;
+-                session->securityPrivProtoLen = USM_PRIV_PROTO_AES256_LEN;
++                session->securityPrivProtoLen = USM_PRIV_PROTO_AES256_LEN; */
+ #endif
+             } else {
+                 fprintf(stderr,
