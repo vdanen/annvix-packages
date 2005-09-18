@@ -8,8 +8,8 @@
 
 
 %define name		elfutils
-%define version		0.99
-%define release		3avx
+%define version		0.109
+%define release		1avx
 
 %define major		1
 %define libname		%mklibname %{name} %{major}
@@ -28,7 +28,8 @@ Release:	%{release}
 License:	OSL
 Group:		Development/Other
 Source:		elfutils-%{version}.tar.bz2
-Patch1:		elfutils-0.89-gentoo-atime.patch.bz2
+Patch0:		elfutils-portability.patch.bz2
+Patch1:		elfutils-0.109-warnings.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	gcc >= 3.2, sharutils, libtool-devel
@@ -95,7 +96,8 @@ ELF, and machine-specific ELF handling.
 
 %prep
 %setup -q
-%patch1 -p1 -b .atime
+%patch0 -p1 -b .portability
+%patch1 -p1 -b .warnings
 
 
 %build
@@ -130,11 +132,8 @@ chmod +x %{buildroot}%{_libdir}/elfutils/lib*.so*
 { cd %{buildroot}
     rm -f .%{_bindir}/eu-ld
     rm -f .%{_includedir}/elfutils/libasm.h
-    rm -f .%{_includedir}/elfutils/libdw.h
-    rm -f .%{_includedir}/elfutils/libdwarf.h
     rm -f .%{_libdir}/libasm{-%{version},}.so
     rm -f .%{_libdir}/libasm.{a,so}
-    rm -f .%{_libdir}/libdw.{a,so}
 }
 
 
@@ -149,6 +148,9 @@ chmod +x %{buildroot}%{_libdir}/elfutils/lib*.so*
 %files
 %defattr(-,root,root)
 %doc README NEWS TODO NOTES
+%{_bindir}/eu-addr2line
+%{_bindir}/eu-elfcmp
+%{_bindir}/eu-findtextrel
 %{_bindir}/eu-elflint
 #%{_bindir}/eu-ld
 %{_bindir}/eu-nm
@@ -157,6 +159,8 @@ chmod +x %{buildroot}%{_libdir}/elfutils/lib*.so*
 %{_bindir}/eu-strip
 %{_libdir}/libdw-%{version}.so
 %{_libdir}/libdw*.so.*
+%{_libdir}/libdwfl-%{version}.so
+%{_libdir}/libdwfl*.so.*
 %dir %{_libdir}/elfutils
 %{_libdir}/elfutils/lib*.so
 
@@ -169,18 +173,22 @@ chmod +x %{buildroot}%{_libdir}/elfutils/lib*.so*
 %dir %{_includedir}/elfutils
 %{_includedir}/elfutils/elf-knowledge.h
 %{_includedir}/elfutils/libebl.h
+%{_includedir}/elfutils/libdw.h
+%{_includedir}/elfutils/libdwfl.h
 #%{_libdir}/libasm.so
 #%{_libdir}/libdwarf.so
 #%{_libdir}/libebl.so
 %{_libdir}/libelf.so
-#%{_libdir}/libdw.so
+%{_libdir}/libdw.so
+%{_libdir}/libdwfl.so
 
 %files -n %{libname}-static-devel
 %defattr(-,root,root)
 #%{_libdir}/libasm.a
 %{_libdir}/libebl.a
 %{_libdir}/libelf.a
-#%{_libdir}/libdw.a
+%{_libdir}/libdw.a
+%{_libdir}/libdwfl.a
 
 %files -n %{libname}
 %defattr(-,root,root)
@@ -193,6 +201,9 @@ chmod +x %{buildroot}%{_libdir}/elfutils/lib*.so*
 
 
 %changelog
+* Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 0.109-1avx
+- 0.109
+
 * Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 0.99-3avx
 - bootstrap build (new gcc, new glibc)
 
