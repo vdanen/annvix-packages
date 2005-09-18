@@ -9,7 +9,7 @@
 
 %define name		cyrus-sasl
 %define version		2.1.22
-%define release		3avx
+%define release		4avx
 
 %define major		2
 %define libname		%mklibname sasl %{major}
@@ -68,7 +68,7 @@ between the protocol and the connection.
 
 
 %package -n %{libname}-devel
-Summary:	Librairies for SASL a the Simple Authentication and Security Layer
+Summary:	Libraries for SASL a the Simple Authentication and Security Layer
 Group:		Development/C
 %if %{_lib} != lib
 Provides:	libsasl-devel = %{version}
@@ -511,6 +511,9 @@ fi
 
  
 %changelog
+* Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 2.1.22-4avx
+- fix typeo in summary
+
 * Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 2.1.22-3avx
 - use execlineb for run scripts
 - move logdir to /var/log/service/saslauthd
