@@ -1,0 +1,140 @@
+2005-01-19  Gwenole Beauchesne  <gbeauchesne@mandrakesoft.com>
+
+	* gas/config/tc-i386.c (is_linux32): New.
+	(get_default_arch): Handle detection of 32-bit personality on
+	Linux for x86-64 so that 32-bit code can be generated.
+	(set_default_arch): New.
+	(md_parse_option): Use it.
+	(i386_mach): Use new default_arch accessors.
+	(i386_target_format): Likewise.
+
+--- binutils-2.15.92.0.2/gas/config/tc-i386.c.linux32	2004-07-28 00:36:09.000000000 -0400
++++ binutils-2.15.92.0.2/gas/config/tc-i386.c	2005-01-18 19:14:56.053130832 -0500
+@@ -34,6 +34,13 @@
+ #include "dw2gencfi.h"
+ #include "opcode/i386.h"
+ 
++#if defined(__linux__) && defined(__x86_64__)
++#include <sys/syscall.h>
++#include <sys/personality.h>
++
++#define is_linux32() ((syscall(SYS_personality, 0xffffffff) & PER_MASK) == PER_LINUX32)
++#endif
++
+ #ifndef REGISTER_WARNINGS
+ #define REGISTER_WARNINGS 1
+ #endif
+@@ -111,7 +118,16 @@ static void output_disp PARAMS ((fragS *
+ static void s_bss PARAMS ((int));
+ #endif
+ 
+-static const char *default_arch = DEFAULT_ARCH;
++enum x86_arch
++  {
++    ARCH_default,
++    ARCH_i386,
++    ARCH_x86_64
++  };
++
++static enum x86_arch g_default_arch = ARCH_default;
++static enum x86_arch get_default_arch PARAMS ((void));
++static INLINE void set_default_arch PARAMS ((enum x86_arch arch));
+ 
+ /* 'md_assemble ()' gathers together information and puts it into a
+    i386_insn.  */
+@@ -866,15 +882,46 @@ set_cpu_arch (dummy)
+   demand_empty_rest_of_line ();
+ }
+ 
++static enum x86_arch
++get_default_arch ()
++{
++  const char *default_arch_str = DEFAULT_ARCH;
++
++  if (g_default_arch != ARCH_default)
++    return g_default_arch;
++
++#ifdef is_linux32
++  if (is_linux32 ())
++    default_arch_str = "i386";
++#endif
++
++  if (!strcmp (default_arch_str, "x86_64"))
++    g_default_arch = ARCH_x86_64;
++  else if (!strcmp (default_arch_str, "i386"))
++    g_default_arch = ARCH_i386;
++
++  return g_default_arch;
++}
++
++static INLINE void
++set_default_arch (arch)
++     enum x86_arch arch;
++{
++  g_default_arch = arch;
++}
++
+ unsigned long
+ i386_mach ()
+ {
+-  if (!strcmp (default_arch, "x86_64"))
+-    return bfd_mach_x86_64;
+-  else if (!strcmp (default_arch, "i386"))
+-    return bfd_mach_i386_i386;
+-  else
+-    as_fatal (_("Unknown architecture"));
++  switch (get_default_arch ())
++    {
++    case ARCH_x86_64:
++      return bfd_mach_x86_64;
++    case ARCH_i386:
++      return bfd_mach_i386_i386;
++    default:
++      as_fatal (_("Unknown architecture"));
++    }
+ }
+ 
+ void
+@@ -4960,7 +5007,7 @@ md_parse_option (c, arg)
+ 	for (l = list; *l != NULL; l++)
+ 	  if (strcmp (*l, "elf64-x86-64") == 0)
+ 	    {
+-	      default_arch = "x86_64";
++	      set_default_arch (ARCH_x86_64);
+ 	      break;
+ 	    }
+ 	if (*l == NULL)
+@@ -4971,7 +5018,7 @@ md_parse_option (c, arg)
+ #endif
+ 
+     case OPTION_32:
+-      default_arch = "i386";
++      set_default_arch (ARCH_i386);
+       break;
+ 
+     default:
+@@ -5007,12 +5054,18 @@ md_show_usage (stream)
+ const char *
+ i386_target_format ()
+ {
+-  if (!strcmp (default_arch, "x86_64"))
+-    set_code_flag (CODE_64BIT);
+-  else if (!strcmp (default_arch, "i386"))
+-    set_code_flag (CODE_32BIT);
+-  else
+-    as_fatal (_("Unknown architecture"));
++  switch (get_default_arch ())
++    {
++    case ARCH_x86_64:
++      set_code_flag (CODE_64BIT);
++      break;
++    case ARCH_i386:
++      set_code_flag (CODE_32BIT);
++      break;
++    default:
++      as_fatal (_("Unknown architecture"));
++      break;
++    }
+   switch (OUTPUT_FLAVOR)
+     {
+ #ifdef OBJ_MAYBE_AOUT
