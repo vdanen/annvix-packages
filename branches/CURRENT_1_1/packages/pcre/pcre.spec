@@ -8,7 +8,7 @@
 
 
 %define name		pcre
-%define version		6.2
+%define version		6.3
 %define	release		1avx
 
 %define major		0
@@ -133,6 +133,9 @@ ln -s ../../%{_lib}/lib%{name}.so.%{major}.* .
 
 
 %changelog
+* Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 6.3-1avx
+- 6.3
+
 * Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 6.2-1avx
 - 6.2
 - multiarch
