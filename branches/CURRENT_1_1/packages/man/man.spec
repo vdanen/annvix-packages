@@ -9,7 +9,7 @@
 
 %define name		man
 %define version		1.5m2
-%define release		3avx
+%define release		4avx
 
 Summary:	A set of documentation tools:  man, apropos and whatis
 Name:		%{name}
@@ -53,6 +53,7 @@ Patch107:	man-1.5j-whatis2.patch.bz2
 Patch200:	man-1.5m2-colored_groff.patch.bz2
 Patch201:	man-1.5m2-l10ned-whatis.patch.bz2
 
+Patch300:	man-1.5m2-new-sections.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
@@ -96,6 +97,7 @@ searches its own database for a complete word.
 %patch107 -p0
 %patch200 -p0 -b .color
 %patch201 -p0 -b .l10n
+%patch300 -p1 -b .sec
 
 /bin/rm -f %{_builddir}/man-%{version}/man/en/man.conf.man
 
@@ -197,6 +199,9 @@ chmod 0755 %{buildroot}%{_sbindir}/makewhatis
 
 
 %changelog
+* Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 1.5m2-4avx
+- P300: add new POSIX sections (tvignaud)
+
 * Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 1.5m2-3avx
 - bootstrap build (new gcc, new glibc)
 
