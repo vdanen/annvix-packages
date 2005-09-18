@@ -8,8 +8,8 @@
 
 
 %define	name		ipsvd
-%define	version		0.10.1
-%define	release		4avx
+%define	version		0.11.0
+%define	release		1avx
 
 Summary:	Internet protocol service daemons
 Name:		%{name}
@@ -18,9 +18,8 @@ Release:	%{release}
 License:	BSD
 Group:		System/Servers
 URL:		http://smarden.org/ipsvd/
-Source0:	%{name}-%{version}.tar.bz2
-Patch0:		ipsvd-0.10.1-mdk-system_matrixssl.diff.bz2
-Patch1:		ipsvd-0.10.1-avx-matrixarch.patch.bz2
+Source0:	%{name}-%{version}.tar.gz
+Patch0:		ipsvd-0.11.0-avx-system_matrixssl.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	dietlibc-devel >= 0.27-2avx
@@ -55,9 +54,7 @@ tcpserver.
 
 %prep
 %setup -q -n net
-%patch0 -p0
-%patch1 -p0
-perl -pi -e s"|{ARCH}|${MYARCH}|g" Makefile
+%patch0 -p1
 
 
 %build
@@ -109,6 +106,11 @@ install -m 0644 %{name}-%{version}/man/*.8 %{buildroot}%{_mandir}/man8/
 
 
 %changelog
+* Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 0.11.0-1avx
+- 0.11.0
+- rebuild against new matrixssl
+- merge P0 and P1 and update it to work with the new matrixssl
+
 * Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 0.10.1-4avx
 - bootstrap build (new gcc, new glibc)
 
