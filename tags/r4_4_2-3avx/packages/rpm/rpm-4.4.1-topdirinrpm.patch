@@ -1,0 +1,22 @@
+--- ./macros.in.topdirinrpm	2005-05-02 20:06:34.952709434 +0200
++++ ./macros.in	2005-05-02 20:06:52.499111346 +0200
+@@ -218,7 +218,7 @@
+ %_tmppath		%{_var}/tmp
+ 
+ #	Path to top of build area.
+-%_topdir		%{_usrsrc}/redhat
++%_topdir		%{_usrsrc}/RPM
+ 
+ #	The path to the unzip executable (legacy, use %{__unzip} instead).
+ %_unzipbin		%{__unzip}
+--- ./Makefile.am.topdirinrpm	2005-05-02 20:04:31.869950859 +0200
++++ ./Makefile.am	2005-05-02 20:05:41.964575662 +0200
+@@ -124,7 +124,7 @@
+ 
+ CVSTAG = r$(subst .,-,$(VERSION))
+ 
+-pkgsrcdir = $(prefix)/src/$(RPMCANONVENDOR)
++pkgsrcdir = $(prefix)/src/RPM
+ 
+ install-data-local:
+ 	@$(mkinstalldirs) $(DESTDIR)$(varprefix)/lib/rpm

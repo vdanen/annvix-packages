@@ -1,0 +1,18 @@
+--- lib/rpmlock.c.rebuildchroot	2005-06-01 13:56:11.369476368 +0200
++++ lib/rpmlock.c	2005-06-01 14:43:19.708503480 +0200
+@@ -40,7 +40,14 @@ static rpmlock rpmlock_new(/*@unused@*/ 
+ 	    char * t = rpmExpand(rpmlock_path_default, NULL);
+ 	    if (t == NULL || *t == '\0' || *t == '%')
+ 		t = RPMLOCK_PATH;
+-	    rpmlock_path = xstrdup(t);
++	    if (rootdir && *rootdir && !(*rootdir == '/' && !rootdir[1])) {
++		char * t2 = alloca(strlen(rootdir) + strlen(t) + 1);
++		strcpy(t2, rootdir);
++		strcat(t2, t);
++		rpmlock_path = xstrdup(t2);
++	    }
++	    else
++		rpmlock_path = xstrdup(t);
+ 	    t = _free(t);
+ 	}
+ 	if (lock != NULL) {
