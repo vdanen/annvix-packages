@@ -5,16 +5,16 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# mdk 2.16.91.0.2-3mdk
 
 
-# mdk 2.16.91.0.1-1mdk
 %define name		binutils
-%define version		2.16.91.0.1
-%define release		3avx
+%define version		2.16.91.0.2
+%define release		1avx
 
 %define lib_major	2
-%define lib_name_orig	%mklibname binutils
-%define lib_name	%{lib_name_orig}%{lib_major}
+%define libname_orig	%mklibname binutils
+%define libname		%{libname_orig}%{lib_major}
 
 Summary:	GNU Binary Utility Development Utilities
 Name:		%{name}
@@ -30,14 +30,16 @@ Patch2:		binutils-2.14.90.0.5-lt-relink.patch.bz2
 Patch3:		binutils-2.15.92.0.2-linux32.patch.bz2
 Patch4:		binutils-2.15.94.0.2-place-orphan.patch.bz2
 Patch5:		binutils-2.15.92.0.2-ppc64-pie.patch.bz2
-Patch6:		binutils-2.16.90.0.2-skip-weak-defs-if-strong-defs-available.patch.bz2
+Patch6:		binutils-2.16.91.0.2-ppc32-got2.patch.bz2
 Patch7:		binutils-2.16.91.0.1-deps.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	autoconf automake bison flex gcc gettext texinfo glibc-static-devel
 BuildRequires:	dejagnu
 
-Requires:	%{lib_name} = %{version}-%{release}
+Requires:	%{libname} = %{version}-%{release}
+Requires(post):	install-info
+Requires(preun): install-info
 Conflicts:	gcc-c++ < 3.2.3-1mdk
 
 %description
@@ -58,27 +60,27 @@ Install binutils if you need to perform any of these types of actions on
 binary files.  Most programmers will want to install binutils.
 
 
-%package -n %{lib_name}
+%package -n %{libname}
 Summary:	Main library for %{name}
 Group:		System/Libraries
-Provides:	%{lib_name_orig}
+Provides:	%{libname_orig}
 
-%description -n %{lib_name}
+%description -n %{libname}
 This package contains the library needed to run programs dynamically
 linked with binutils.
 
 
-%package -n %{lib_name}-devel
+%package -n %{libname}-devel
 Summary:	Main library for %{name}
 Group:		System/Libraries
-Requires:	%{lib_name} = %{version}-%{release}
-Provides:	%{lib_name_orig}-devel, %{name}-devel
+Requires:	%{libname} = %{version}-%{release}
+Provides:	%{libname_orig}-devel, %{name}-devel
 
-%description -n %{lib_name}-devel
+%description -n %{libname}-devel
 This package contains the library needed to run programs dynamically
 linked with binutils.
 
-This is the development headers for %{lib_name}
+This is the development headers for %{libname}
 
 
 %prep
@@ -88,7 +90,7 @@ This is the development headers for %{lib_name}
 %patch3 -p1 -b .linux32
 %patch4 -p0 -b .place-orphan
 %patch5 -p0 -b .ppc64-pie
-%patch6 -p1 -b .fix-strong-defs
+%patch6 -p0 -b .ppc32-got2
 %patch7 -p1 -b .deps
 
 
@@ -171,8 +173,8 @@ rm -rf %{buildroot}%{_datadir}/locale/
 %_remove_install_info standards.info
 
 
-%post -n %{lib_name} -p /sbin/ldconfig
-%postun -n %{lib_name} -p /sbin/ldconfig
+%post -n %{libname} -p /sbin/ldconfig
+%postun -n %{libname} -p /sbin/ldconfig
 
 
 %files
@@ -182,12 +184,12 @@ rm -rf %{buildroot}%{_datadir}/locale/
 %{_mandir}/man1/*
 %{_infodir}/*info*
 
-%files -n %{lib_name}
+%files -n %{libname}
 %defattr(-,root,root)
 %{_libdir}/libbfd-%{version}.so
 %{_libdir}/libopcodes-%{version}.so
 
-%files -n %{lib_name}-devel
+%files -n %{libname}-devel
 %defattr(-,root,root)
 %{_includedir}/*
 %{_libdir}/libbfd.a
@@ -198,6 +200,21 @@ rm -rf %{buildroot}%{_datadir}/locale/
 
 
 %changelog
+* Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 2.16.91.0.2-1avx
+- 2.16.91.0.2:
+  - update from binutils 2005 0720
+  - add AMD SVME & Intel VMX support
+  - add x86_64 new relocations for medium model
+  - fix a PIE regression (PR 975)
+  - fix an x86_64 signed 32bit displacement regression
+  - fix PPC PLT (PR 2004)
+  - improve empty section removal
+- removed P6; fixed upstream
+- new P6: make the linker ignore .got2 relocs against symbols from discarded
+  sections (Alan Modra, PR target/17828) (gbeauchesne)
+- new-style requires on info-install
+- use %%libname instead of %%lib_name (for consistency)
+
 * Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 2.16.91.0.1-3avx
 - bootstrap build (new gcc, new glibc)
 
