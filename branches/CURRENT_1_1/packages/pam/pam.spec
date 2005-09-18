@@ -5,12 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-# pam-0.77-26mdk
+# pam-0.77-30mdk
 
 
 %define name		pam
 %define version		0.77
-%define release		20avx
+%define release		21avx
 
 %define rhrelease	5
 %define libname		%mklibname %{name} 0
@@ -65,7 +65,6 @@ Patch34:	pam-0.77-dbpam.patch.bz2
 Patch35:	pam-0.77-sigchld.patch.bz2
 Patch36:	pam-0.77-skip-aconf-install.patch.bz2
 Patch37:	pam-0.77-log-changes.patch.bz2
-Patch38:	pam-0.77-64bit.patch.bz2
 Patch39:	pam-0.77-fencepost.patch.bz2
 Patch40:	pam-0.77-grubb_leak.patch.bz2
 
@@ -92,8 +91,8 @@ BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	bison cracklib-devel flex glib-devel pwdb-devel
 BuildRequires:	db4-devel
 
-Requires:	cracklib-dicts, pwdb >= 0.54-2, initscripts >= 3.94
-PreReq:		rpm-helper
+Requires:	cracklib-dicts, pwdb >= 0.54-2
+Requires(pre):	rpm-helper
 Obsoletes:	pamconfig
 Provides:	pamconfig
 
@@ -117,7 +116,7 @@ without having to recompile programs which do authentication.
 %package -n %{libname}-devel
 Summary:	Development headers and libraries for %{name}
 Group:		Development/Other
-PreReq:		%{libname} = %{version}-%{release}
+Requires:	%{libname} = %{version}
 Provides:	%{name}-devel = %{version}-%{release}
 Provides:	lib%{name}-devel = %{version}-%{release}
 Obsoletes:	%{name}-devel <= 0.77-10sls
@@ -172,7 +171,6 @@ cp %{SOURCE4} .
 %patch35 -p1 -b .sigchld
 %patch36 -p1 -b .skip-aconf-install
 %patch37 -p1 -b .log-changes
-%patch38 -p1 -b .64bit
 %patch39 -p1 -b .fencepost
 %patch40 -p1 -b .grubb_leak
 
@@ -300,7 +298,14 @@ touch %{buildroot}%{_sysconfdir}/environment
 %{_includedir}/security/*.h
 %{_mandir}/man3/*
 
+
 %changelog
+* Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 0.77-21avx
+- sync with mandrake 0.77-30mdk:
+  - don't apply the P38 (fix mdk bug #16961, su segfault on x86_64)
+    (couriousous)
+  - fix requires (flepied)
+
 * Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 0.77-20avx
 - bootstrap build (new gcc, new glibc)
 
