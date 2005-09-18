@@ -1,0 +1,120 @@
+#!/bin/sh
+#
+# $Id: build.sh,v 1.1.1.1 2004/05/28 19:21:56 vdanen Exp $
+
+if [ "$1" == "-v" ]; then
+    verbose=1
+    shift
+fi
+
+RPMB="$1"
+SPEC="$1.spec"
+ARCH=`rpm --eval %_target_cpu`
+PTREE="/usr/local/ports/packages"
+OVERRIDE="/override/ubuild"
+
+if [ "`whoami`" == "root" ]; then
+    echo "Do not build ports as root!  Aborting."
+    exit 1
+fi
+
+# start the build
+pushd $RPMB >/dev/null
+
+if [ ! -f $SPEC ]; then
+    echo "spec file $SPEC is missing.. please update your ports directory.  Aborting."
+    exit 1
+fi
+
+NAME="`egrep '^%define name' $SPEC|cut -f 3`"
+VERSION="`egrep '^%define version' $SPEC|cut -f 3`"
+RELEASE="`egrep '^%define release' $SPEC|cut -f 3`"
+SOURCEFILES=`egrep '^Source[0-9].*:' $SPEC|cut -f 2|sed -e "s/%{name}/$NAME/" -e "s/%{version}/$VERSION/"`
+for i in $SOURCEFILES; do
+    if [ `echo $i|egrep '^(ftp|http)'` ]; then
+        SOURCE=`basename $i`
+        if [ ! -f $SOURCE ]; then
+            curl -L -O $i
+            if [ $? != 0 ]; then
+                echo "There was an error downloading $i... aborting."
+                exit 1
+            fi
+        fi
+        if [ ! -f $SOURCE ]; then
+            echo "The source file $SOURCE doesn't exist and is required... aborting."
+            exit 1
+        fi
+        # only do a md5sum check if we have something to compare it to
+        if [ -f archive.md5sum ]; then
+            echo "Comparing md5sum of the downloaded file ($SOURCE)"
+            omd5="`grep $SOURCE archive.md5sum|cut -f 1 -d ' '`"
+            nmd5="`md5sum $SOURCE|cut -f 1 -d ' '`"
+            if [ "$omd5" != "$nmd5" ]; then
+                echo "md5sums on source $SOURCE do not match!  Possible trojan?  Aborting."
+                exit 1
+            fi
+        fi
+    fi
+done
+
+pwd=`pwd`
+builddir="$OVERRIDE-$NAME-$VERSION-$$"
+mkdir -p $builddir/{tmp,BUILD,SRPMS,RPMS/{$ARCH,noarch}}
+
+for i in `egrep '^Patch' $SPEC|cut -f 3`
+do
+    if [ ! -f $i ]; then
+	echo "FATAL: patch file $i is missing... please update your ports directory.  Aborting."
+	exit 1
+    fi
+done
+
+# build the src.rpm first so we can use urpmi to install build requirements
+echo "Creating the source rpm file..."
+rpm -bs $SPEC --nodeps --define="_topdir $builddir" --define="_tmppath $builddir/tmp" --define="_sourcedir $pwd" \
+    --define="_specdir $pwd"
+if [ "$?" != "0" ]; then
+    echo "FATAL: An error occurred creating the src.rpm file; cannot continue.  Aborting." && exit 1
+fi
+if [ -f "$builddir/SRPMS/$NAME-$VERSION-$RELEASE.src.rpm" ]; then
+    echo "Checking to ensure we have all build dependencies installed..."
+    sudo /usr/sbin/urpmi $builddir/SRPMS/$NAME-$VERSION-$RELEASE.src.rpm
+else
+    echo "FATAL: src.rpm was not created.  Aborting."
+    exit 1
+fi
+
+# now we can build the rpm
+echo "Creating the rpm package from $SPEC..."
+if [ "$verbose" == "1" ]; then
+    rpm -ba $SPEC --clean --define="_topdir $builddir" --define="_tmppath $builddir/tmp" --define="_sourcedir $pwd" \
+    --define="_specdir $pwd"
+else
+    rpm -ba $SPEC --clean --define="_topdir $builddir" --define="_tmppath $builddir/tmp" --define="_sourcedir $pwd" \
+    --define="_specdir $pwd" >./$NAME-build.log 2>&1
+fi
+if [ "$?" != "0" ]; then
+    echo ""
+    echo -n "There was an error building $RPMB... please check the build output"
+    if [ "$verbose" != "1" ]; then
+        echo " in ./$NAME-build.log"
+    else
+        echo ""
+    fi
+    exit 1
+fi
+
+echo "Moving the built RPMS and SRPMS into the local ports tree..."
+mv -f $builddir/RPMS/*/*.rpm $PTREE/RPMS
+mv -f $builddir/SRPMS/*.rpm $PTREE/SRPMS
+
+echo "Updating the hdlist..."
+pushd $PTREE >/dev/null
+    genhdlist RPMS >/dev/null
+popd >/dev/null
+
+rm -rf $builddir
+
+popd >/dev/null
+
+exit 0
