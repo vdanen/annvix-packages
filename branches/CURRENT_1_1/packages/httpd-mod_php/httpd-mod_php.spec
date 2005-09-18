@@ -13,7 +13,7 @@
 
 # Module-Specific definitions
 %define apache_version	2.0.54
-%define phpversion	4.3.11
+%define phpversion	4.4.0
 %define mod_name	mod_php
 %define mod_conf	70_%{mod_name}.conf
 %define mod_so		%{mod_name}4.so
@@ -94,6 +94,9 @@ bzcat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
 
 
 %changelog
+* Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 2.0.54_4.4.0-1avx
+- php 4.4.0
+
 * Wed Sep 07 2005 Vincent Danen <vdanen@annvix.org> 2.0.54_4.3.11-1avx
 - apache 2.0.54
 - s/apache2/httpd/
