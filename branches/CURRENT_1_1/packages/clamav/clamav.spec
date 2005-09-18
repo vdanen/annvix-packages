@@ -8,8 +8,8 @@
 
 
 %define name		clamav
-%define version		0.86.2
-%define release		4avx
+%define version		0.87
+%define release		1avx
 
 %define	major		1
 %define libname		%mklibname %{name} %{major}
@@ -35,7 +35,14 @@ BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	autoconf2.5, automake1.7
 BuildRequires:	zlib-devel, gmp-devel, bzip2-devel
 
-PreReq:		clamav-db, rpm-helper, %{libname} = %{version}
+Requires(post):	clamav-db
+Requires(preun): clamav-db
+Requires(post):	%{libname} = %{version}
+Requires(preun): %{libname} = %{version}
+Requires(post):	rpm-helper
+Requires(preun): rpm-helper
+Requires(pre):	rpm-helper
+Requires(postun): rpm-helper
 
 %description 
 Clam AntiVirus is an anti-virus toolkit for Unix. The main purpose
@@ -51,9 +58,14 @@ you can use in your own software.
 Summary:	The Clam AntiVirus Daemon
 Group:		System/Servers
 Requires:	%{name} = %{version}
-PreReq:		rpm-helper
-PreReq:		%{libname} = %{version}
-PreReq:		clamav-db
+Requires(post):	clamav-db
+Requires(preun): clamav-db
+Requires(post):	%{libname} = %{version}
+Requires(preun): %{libname} = %{version}
+Requires(post):	rpm-helper
+Requires(preun): rpm-helper
+Requires(pre):	rpm-helper
+Requires(postun): rpm-helper
 
 %description -n	clamd
 The Clam AntiVirus Daemon
@@ -63,7 +75,11 @@ The Clam AntiVirus Daemon
 Summary:	Virus database for %{name}
 Group:		Databases
 Requires:	%{name} = %{version}
-PreReq:		rpm-helper
+Requires(post):	rpm-helper
+Requires(preun): rpm-helper
+Requires(pre):	rpm-helper
+Requires(postun): rpm-helper
+
 
 %description -n	%{name}-db
 The actual virus database for %{name}
@@ -277,6 +293,9 @@ done
 %{_libdir}/pkgconfig/libclamav.pc
       
 %changelog
+* Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 0.87-1avx
+- 0.87
+
 * Sat Sep 11 2005 Vincent Danen <vdanen@annvix.org> 0.86.2-4avx
 - don't build against libcurl as apparently that would be in violation
   of the GPL since we build it against OpenSSL; see:
