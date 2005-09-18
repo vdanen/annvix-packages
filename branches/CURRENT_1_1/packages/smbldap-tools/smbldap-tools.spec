@@ -8,8 +8,8 @@
 
 
 %define name 		smbldap-tools
-%define version 	0.8.7
-%define release 	7avx
+%define version 	0.9.1
+%define release 	1avx
 
 Summary:	User & Group administration tools for Samba-OpenLDAP
 Name: 		%{name}
@@ -18,9 +18,8 @@ Release: 	%{release}
 Group: 		System/Servers
 License: 	GPL
 URL:		http://samba.IDEALX.org/
-Source0: 	smbldap-tools-%{version}.tar.bz2
+Source0: 	http://samba.idealx.org/dist/smbldap-tools-%{version}.tar.bz2
 Source1: 	mkntpwd.tar.bz2
-Patch0:		smbldap-tools-0.8.7-mdk_conf.diff.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
@@ -44,7 +43,6 @@ Comments and/or questions can be sent to the smbldap-tools mailing list
 
 %prep
 %setup -q -a1
-%patch0 -p1
 
 
 %build
@@ -61,7 +59,18 @@ install -m 0644 smbldap.conf %{buildroot}%{_sysconfdir}/smbldap-tools/
 install -m 0644 smbldap_bind.conf %{buildroot}%{_sysconfdir}/smbldap-tools/
 install -m 0644 smbldap_tools.pm %{buildroot}%{perl_vendorlib}/
 
-install -m 0755 smbldap-* %{buildroot}%{_sbindir}/
+install -m 0755 smbldap-groupadd %{buildroot}%{_sbindir}/
+install -m 0755 smbldap-groupdel %{buildroot}%{_sbindir}/
+install -m 0755 smbldap-groupmod %{buildroot}%{_sbindir}/
+install -m 0755 smbldap-groupshow %{buildroot}%{_sbindir}/
+install -m 0755 smbldap-passwd %{buildroot}%{_sbindir}/
+install -m 0755 smbldap-populate %{buildroot}%{_sbindir}/
+install -m 0755 smbldap-useradd %{buildroot}%{_sbindir}/
+install -m 0755 smbldap-userdel %{buildroot}%{_sbindir}/
+install -m 0755 smbldap-userinfo %{buildroot}%{_sbindir}/
+install -m 0755 smbldap-usermod %{buildroot}%{_sbindir}/
+install -m 0755 smbldap-usershow %{buildroot}%{_sbindir}/
+install -m 0755 mkntpwd/mkntpwd %{buildroot}%{_sbindir}/
 install -m 0755 mkntpwd/mkntpwd %{buildroot}%{_sbindir}/
 
 
@@ -91,6 +100,10 @@ install -m 0755 mkntpwd/mkntpwd %{buildroot}%{_sbindir}/
 
 
 %changelog
+* Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 0.9.1-1avx
+- 0.9.1
+- drop redundant P0
+
 * Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 0.8.7-7avx
 - bootstrap build (new gcc, new glibc)
 
