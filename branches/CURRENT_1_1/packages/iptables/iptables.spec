@@ -8,8 +8,8 @@
 
 
 %define name		iptables
-%define version		1.3.1
-%define release		2avx
+%define version		1.3.3
+%define release		1avx
 
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 Name:		%{name}
@@ -26,10 +26,12 @@ Source2:	ip6tables.init
 Source3:	iptables.config
 Source4:	ip6tables.config
 Source5:	iptables-kernel-headers.tar.bz2
-Patch1:		iptables-1.3.1-stealth_grsecurity.patch.bz2 
+Patch1:		iptables-1.3.2-stealth_grsecurity.patch.bz2 
 Patch2:		iptables-1.2.8-imq.patch.bz2 
 Patch3:		iptables-1.2.8-libiptc.h.patch.bz2 
-Patch4:		iptables-1.2.9-CAN-2004-0986.patch.bz2
+Patch4:		iptables-1.3.2-fix_extension_test.patch.bz2
+Patch5:		iptables-1.3.2-ipp2p_extension.patch.bz2
+Patch6:		iptables-1.3.3-IFWLOG_extension.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildPrereq:	perl
@@ -71,12 +73,16 @@ The development files for iptables.
 
 %prep
 %setup -q -a 5
-#%patch1 -p1 -b .stealth
-#%patch2 -p1 -b .imq
-#%patch3 -p1 -b .libiptc
-#%patch4 -p1 -b .can-2004-0986
+%patch1 -p1 -b .stealth
+%patch2 -p1 -b .imq
+%patch3 -p1 -b .libiptc
+%patch4 -p1 -b .fix_extension_test
+%patch5 -p1 -b .ipp2p
+%patch6 -p1 -b .IFWLOG
 
-#chmod +x extensions/.IMQ-test
+chmod +x extensions/.IMQ-test
+chmod +x extensions/.ipp2p-test
+chmod +x extensions/.IFWLOG-test
 
 find . -type f | xargs perl -pi -e "s,/usr/local,%{_prefix},g"
 
@@ -89,7 +95,8 @@ find . -type f | xargs perl -pi -e "s,/usr/local,%{_prefix},g"
     OPT="%{optflags} -DNDEBUG"
 %endif
 
-%make COPT_FLAGS="$OPT -I linux-2.4/include" LIBDIR=/lib all experimental
+#make COPT_FLAGS="$OPT -I linux-2.4/include" LIBDIR=/lib all experimental
+make COPT_FLAGS="$OPT" KERNEL_DIR=$PWD/linux-2.4 LIBDIR=/lib all
 
 
 %install
@@ -179,6 +186,17 @@ fi
 
 
 %changelog
+* Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 1.3.3-1avx
+- 1.3.3
+- drop P4; fixed upstream
+- sync with mandrake 1.3.3-3mdk:
+  - updated kernel headers (2.6.12 and 2.4.31)
+  - fix a lot of extensions tests: Makefile check for $KERNEL_DIR/net/*/*/*.c
+    but we provide only headers files ($KERNEL_DIR/include/linux/*/*.h) so the
+    tests fail every time and we don't get the extension (sbellabes)
+  - add ipp2p extension (sbellabes)
+  - rediff P1 (herton)
+
 * Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 1.3.1-2avx
 - bootstrap build (new gcc, new glibc)
 

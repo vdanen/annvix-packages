@@ -47,8 +47,26 @@ iftable() {
 }
 
 check() {
-	/sbin/modprobe ipt_MASQUERADE >/dev/null 2>&1
-	/sbin/modprobe -r ipt_MASQUERADE >/dev/null 2>&1
+	if [ -n "$1" ]; then
+		rm -f /lib/iptables
+		ln -s /lib/iptables.d/${1} /lib/iptables
+		iftable nat -N __T__${1##*-}__ >/dev/null 2>&1
+		iftable nat -A __T__${1##*-}__ -j MASQUERADE >/dev/null 2>&1
+		res=$?
+		iftable nat -F __T__${1##*-}__ >/dev/null 2>&1
+		iftable nat -X __T__${1##*-}__ >/dev/null 2>&1
+		return $res
+	else
+		/sbin/modprobe ipt_MASQUERADE >/dev/null 2>&1
+		kmajor=`uname -r`
+		kminor=${kmajor#*.}
+		kminor=${kminor%%.*}
+		kmajor=${kmajor%%.*}
+		for i in /lib/iptables.d/linux-$kmajor.$kminor-*; do
+			check ${i##*/} && break
+		done
+		/sbin/modprobe -r ipt_MASQUERADE >/dev/null 2>&1
+	fi
 }
 
 start() {
