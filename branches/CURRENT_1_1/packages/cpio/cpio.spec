@@ -9,7 +9,7 @@
 
 %define name		cpio
 %define version 	2.6
-%define release 	2avx
+%define release 	3avx
 
 Summary:	A GNU archiving program
 Name:		%{name}
@@ -26,11 +26,14 @@ Patch3:		cpio-2.6-i18n.patch.bz2
 Patch4:		cpio-2.6-CAN-1999-1572.patch.bz2
 Patch5:		cpio-2.6-chmodRaceC.patch.bz2
 Patch6:		cpio-2.6-dirTraversal.patch.bz2
+Patch7:		cpio-2.6-compil-gcc4.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	texinfo
 
-Prereq:		info-install, tar
+Requires(post):	info-install
+Requires(preun): info-install
+Requires:	rmt
 
 %description
 GNU cpio copies files into or out of a cpio or tar archive.  Archives
@@ -56,6 +59,7 @@ Install cpio if you need a program to manage file archives.
 %patch4 -p0 -b .can-1999-1572
 %patch5 -p1 -b .can-2005-1111
 %patch6 -p1 -b .can-2005-1229
+%patch7 -p0 -b .gcc4
 
 # needed by P4
 autoconf
@@ -100,6 +104,11 @@ rm -f %{buildroot}%{_mandir}/man1/mt.1
 %{_mandir}/man1/cpio.1*
 
 %changelog
+* Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 2.6-3avx
+- require rmt rather than tar (tar provides rmt-tar rather than rmt
+  since we don't use alternatives anymore)
+- P7: fix build with gcc4 (we don't use it yet, but it doesn't hurt to have)
+
 * Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 2.6-2avx
 - bootstrap build (new gcc, new glibc)
 
