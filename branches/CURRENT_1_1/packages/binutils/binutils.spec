@@ -10,7 +10,7 @@
 
 %define name		binutils
 %define version		2.16.91.0.2
-%define release		1avx
+%define release		2avx
 
 %define lib_major	2
 %define libname_orig	%mklibname binutils
@@ -38,8 +38,8 @@ BuildRequires:	autoconf automake bison flex gcc gettext texinfo glibc-static-dev
 BuildRequires:	dejagnu
 
 Requires:	%{libname} = %{version}-%{release}
-Requires(post):	install-info
-Requires(preun): install-info
+Requires(post):	info-install
+Requires(preun): info-install
 Conflicts:	gcc-c++ < 3.2.3-1mdk
 
 %description
@@ -200,6 +200,9 @@ rm -rf %{buildroot}%{_datadir}/locale/
 
 
 %changelog
+* Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 2.16.91.0.2-2avx
+- fix requires
+
 * Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 2.16.91.0.2-1avx
 - 2.16.91.0.2:
   - update from binutils 2005 0720
