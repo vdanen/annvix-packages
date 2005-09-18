@@ -8,8 +8,8 @@
 
 
 %define name		basesystem
-%define version 	1.0
-%define release 	9avx
+%define version 	1.1
+%define release 	1avx
 %define epoch		1
 
 Summary:	The skeleton package which defines a simple Annvix system
@@ -23,7 +23,7 @@ Group:		System/Base
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
 Requires:	setup filesystem sed initscripts console-tools utempter
-Requires:	chkconfig coreutils SysVinit bdflush crontabs dev
+Requires:	chkconfig coreutils SysVinit crontabs dev
 Requires:	e2fsprogs etcskel findutils grep gzip kernel less 
 Requires:	logrotate losetup mingetty modutils mount net-tools passwd procps
 Requires:	psmisc annvix-release rootfiles rpm sash shadow-utils 
@@ -54,6 +54,10 @@ should never be removed.
 
 
 %changelog
+* Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 1.1-1avx
+- 1.1
+- drop bdflush from requires
+
 * Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 1.0-9avx
 - bootstrap build (new gcc, new glibc)
 
