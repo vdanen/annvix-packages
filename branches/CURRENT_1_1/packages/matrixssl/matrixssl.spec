@@ -8,8 +8,8 @@
 
 
 %define	name		matrixssl
-%define	version		1.2.2
-%define	release		6avx
+%define	version		1.7.1
+%define	release		1avx
 
 %define	major		1
 %define libname		%mklibname %{name} %{major}
@@ -22,9 +22,9 @@ Release:	%{release}
 License:	GPL
 Group:		System/Libraries
 URL:		http://www.matrixssl.org/
-Source0:	%{name}-1-2-2.tar.gz
-Patch0:		matrixssl-1.2-shared_and_static.diff.bz2
-Patch1:		matrixssl-1.2-debian.diff.bz2
+Source0:	%{name}-1-7-1-open.tar.bz2
+Patch0:		matrixssl-1.7.1-shared_and_static.diff.bz2
+Patch1:		matrixssl-1.2.5-debian.diff.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	dietlibc-devel >= 0.27-2avx
@@ -60,7 +60,7 @@ Summary:	Static library and header files for the %{name} library
 Group:		Development/C
 Obsoletes:	%{name}-devel lib%{name}-devel
 Provides:	%{name}-devel lib%{name}-devel
-Requires:	%{libname} = %{version}-%{release}
+Requires:	%{libname} = %{version}
 Requires:	dietlibc-devel >= 0.20
 
 %description -n	%{libname}-devel
@@ -79,16 +79,13 @@ glibc and dietlibc.
 
 %prep
 %setup -q -n %{name}
-%patch0 -p1 
+%patch0 -p0
+%patch1 -p1
 
 # prepare for dietlibc
 mkdir -p dietlibc
 cp -rp src dietlibc/
-cp matrixSsl.h dietlibc/
-pushd dietlibc
-%patch1 -p0
-popd
-
+cp matrixSsl.h matrixCommon.h dietlibc/
 
 %build
 # first make the standard glibc stuff...
@@ -115,10 +112,16 @@ ln -snf lib%{name}.so.%{version} %{buildroot}%{_libdir}/lib%{name}.so.%{major}
 ln -snf lib%{name}.so.%{version} %{buildroot}%{_libdir}/lib%{name}.so
 install -m 0644 src/lib%{name}.a %{buildroot}%{_libdir}/
 install -m 0644 matrixSsl.h %{buildroot}%{_includedir}/
+install -m 0644 matrixCommon.h %{buildroot}%{_includedir}/
+install -m 0644 src/matrixConfig.h %{buildroot}%{_includedir}/
+perl -pi -e 's|src/matrixConfig.h|matrixConfig.h|g' %{buildroot}%{_includedir}/matrixCommon.h
 
 # install the dietlibc version
 install -m 0644 dietlibc/src/lib%{name}.a %{buildroot}%{diethome}/lib-${MYARCH}/
 install -m 0644 dietlibc/matrixSsl.h %{buildroot}%{diethome}/include/
+install -m 0644 dietlibc/matrixCommon.h %{buildroot}%{diethome}/include/
+install -m 0644 dietlibc/src/matrixConfig.h %{buildroot}%{diethome}/include/
+perl -pi -e 's|src/matrixConfig.h|matrixConfig.h|g' %{buildroot}%{diethome}/include/matrixCommon.h
 
 # cleanup the examples directory
 rm -f examples/*.sln
@@ -141,12 +144,6 @@ rm -f examples/*.p12
 
 %files -n %{libname}-devel
 %defattr(-,root,root)
-%doc doc/MatrixSSLApi.pdf
-%doc doc/MatrixSSLDeveloperGuide.pdf
-%doc doc/MatrixSSLKeyGeneration.pdf
-%doc doc/MatrixSSLPortingGuide.pdf
-%doc doc/MatrixSSLReadme.pdf
-%doc doc/MatrixSSLSocketApi.pdf
 %doc examples
 %{_includedir}/*
 %{diethome}/include/*
@@ -156,6 +153,13 @@ rm -f examples/*.p12
 
 
 %changelog
+* Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 1.7.1-1avx
+- 1.7.1
+- drop all pdf docs
+- rediff P0 (oden)
+- rediff P1 (fixes x86_64 build) (oden)
+- include matrixConfig.h and fix the #include location in matrixCommon.h
+
 * Wed Aug 17 2005 Vincent Danen <vdanen@annvix.org> 1.2.2-6avx
 - bootstrap build (new gcc, new glibc)
 
