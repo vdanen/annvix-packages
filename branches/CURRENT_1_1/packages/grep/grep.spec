@@ -8,8 +8,8 @@
 
 
 %define name		grep
-%define version 	2.5.1
-%define release 	12avx
+%define version 	2.5.1a
+%define release 	1avx
 
 %define _bindir 	/bin
 
@@ -46,10 +46,7 @@ egrep and fgrep.
     --without-included-regex
 %make
 
-# (gb) why does spencer bre test #16 fails?
-# (gw) Spencer test #55 has a syntax error: echo '-'| grep -E -e '(*)b'
-# (fpons) removed make check as glibc is bogus currently.
-#make -k check || echo "make check failed"
+make check
 
 
 %install
@@ -71,7 +68,12 @@ rm -rf %{buildroot}%{_infodir}
 /bin/*
 %{_mandir}/*/*
 
+
 %changelog
+* Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 2.5.1a-1avx
+- 2.5.1a
+- rebuild against new pcre
+
 * Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 2.5.1-12avx
 - bootstrap build (new gcc, new glibc)
 
