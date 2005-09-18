@@ -8,8 +8,8 @@
 
 
 %define name		man-pages
-%define version		2.01
-%define release 	4avx
+%define version		2.07
+%define release 	1avx
 
 %define LANG		en
 
@@ -107,10 +107,10 @@ mv man1/README README.GNU-INFOvsMAN
 
 set +x
 mkdir -p %{buildroot}%{_mandir}
-for n in 1 2 3 4 5 6 7 8 9; do
+for n in 0p 1 1p 2 3 3p 4 5 6 7 8 9; do
     mkdir %{buildroot}%{_mandir}/man$n
 done
-for n in man?/*; do
+for n in man*/*; do
     cp -a $n %{buildroot}%{_mandir}/$n
 done
 
@@ -135,13 +135,17 @@ tar xfj %{SOURCE11} -C %{buildroot}%{_mandir}
 
 %files
 %defattr(0644,root,man,755)
-%doc README* *.Announce POSIX-COPYRIGHT
+%doc README* *.Announce POSIX-COPYRIGHT Changes
 %config(noreplace) %attr(755,root,root)%{_sysconfdir}/cron.weekly/makewhatis-%{LANG}.cron
 %dir %{_mandir}/%{LANG}
-%{_mandir}/man?/*
+%{_mandir}/man*/*
 
 
 %changelog
+* Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 2.07-1avx
+- 2.07
+- include POSIX man pages
+
 * Wed Aug 17 2005 Vincent Danen <vdanen@annvix.org> 2.01-4avx
 - remove crypt.3 manpage (in glibc)
 
