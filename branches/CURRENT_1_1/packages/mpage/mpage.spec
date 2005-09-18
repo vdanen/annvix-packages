@@ -8,8 +8,8 @@
 
 
 %define name		mpage
-%define version		2.5.3
-%define release		10avx
+%define version		2.5.4
+%define release		1avx
 
 Summary:	A tool for printing multiple pages of text on each printed page
 Name:		%{name}
@@ -19,14 +19,15 @@ License:	BSD
 Group:		System/Configuration/Printing
 URL:		http://www.mesa.nl/pub/mpage
 Source:		http://www.mesa.nl/pub/mpage/%{name}-%{version}.tar.bz2
-Patch0:		mpage252-config.patch.bz2
+Patch0:		mpage-2.5.4-config.patch.bz2
+Patch1:		mpage-2.5.4-gcc4.patch.bz2
 # Japanese patch.bz2
 Patch10:	mpage-2.5.3-j.patch.bz2
 Patch20:	mpage-mfix.patch.bz2
 Patch21:	mpage-psprint.patch.bz2
 Patch22:	mpage-2.5.3-japanese-fix.patch.bz2
 
-BuildRoot: %{_buildroot}/%{name}-%{version}
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 
 %description
 The mpage utility takes plain text files or PostScript(TM) documents
@@ -40,6 +41,7 @@ pages.
 %prep
 %setup -q
 %patch0 -p1 -b .config
+%patch1 -p1 -b .gcc4
 %patch10 -p1 -b .jp
 %patch20 -p1 -b .fix
 %patch21 -p1
@@ -53,10 +55,7 @@ pages.
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-make PREFIX=%{buildroot}%{_prefix} MANDIR=%{buildroot}%{_mandir}/man1 install
-mkdir -p %{buildroot}%{_libdir}/%{name}
-cp -a Encodings/* %{buildroot}%{_libdir}/%{name}
-
+%makeinstall_std
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -65,14 +64,18 @@ cp -a Encodings/* %{buildroot}%{_libdir}/%{name}
 %files
 %defattr(-,root,root)
 %doc CHANGES Copyright README NEWS TODO
-
 %{_bindir}/mpage
 %{_mandir}/man1/mpage.1*
-%{_libdir}/mpage
-%_datadir/mpage
+%dir %{_datadir}/mpage
+%{_datadir}/mpage/*
 
 
 %changelog
+* Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 2.5.4-1avx
+- 2.5.4
+- P1: gcc4 & makefilery fixes (gbeauchesne)
+- move encodings where that are expected to be: %%_datadir/mpage (gbeauchesne)
+
 * Thu Aug 18 2005 Vincent Danen <vdanen@annvix.org> 2.5.3-10avx
 - bootstrap build (new gcc, new glibc)
 
