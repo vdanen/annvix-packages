@@ -8,7 +8,7 @@
 
 
 %define name		rpm-rebuilder
-%define version		0.22
+%define version		0.25
 %define release		1avx
 
 Summary:	Tools to build/check distributions
@@ -23,7 +23,7 @@ Source0:	%{name}-%{version}.tar.bz2
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
 
-Requires:	rpmlint strace rpm-build
+Requires:	rpmlint strace rpm-build diffutils
 
 %description
 The rpm-rebuilder package contains a set of tools written in bourne
@@ -69,6 +69,11 @@ rm -rf %{buildroot}%{_sysconfdir}/bash_completion.d
 
 
 %changelog
+* Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 0.25-1avx
+- 0.25
+- fix perms on spec file
+- Requires: diffutils
+
 * Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 0.22-1avx
 - 0.22
 
