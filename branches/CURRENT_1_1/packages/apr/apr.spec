@@ -9,7 +9,7 @@
 
 %define name		apr
 %define version		0.9.6
-%define release		4avx
+%define release		5avx
 %define epoch		1
 
 %define aprver		0
@@ -35,6 +35,9 @@ Patch7:		apr-0.9.4-cleanups.patch.bz2
 Patch8:		apr-0.9.4-cflags.patch.bz2
 Patch9:		apr-0.9.4-lp64psem.patch.bz2
 Patch10:	apr-0.9.4-attrerror.patch.bz2
+Patch11:	apr-0.9.6-readdir64.patch.bz2
+Patch12:	apr-0.9.6-uidgid.patch.bz2
+Patch13:	apr-0.9.6-flushbufs.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildPrereq:	autoconf2.5
@@ -93,6 +96,9 @@ C data structures and routines.
 %patch8 -p1 -b .cflags
 %patch9 -p1 -b .lp64psem
 %patch10 -p1 -b .attrerror
+%patch11 -p1 -b .readdir64
+%patch12 -p1 -b .uidgid
+%patch13 -p1 -b .flushbufs
 
 
 %build
@@ -199,6 +205,9 @@ rm -f %{buildroot}%{_libdir}/apr.exp
 
 
 %changelog
+* Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 0.9.6-5avx
+- sync more patches with fedora
+
 * Wed Sep 07 2005 Vincent Danen <vdanen@annvix.org> 0.9.6-4avx
 - sync with mandrake 0.9.6-4mdk:
   - sync with fedora (oden)
