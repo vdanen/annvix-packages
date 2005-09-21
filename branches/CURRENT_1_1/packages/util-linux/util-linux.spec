@@ -9,7 +9,7 @@
 
 %define name		util-linux
 %define version		2.12q
-%define release		3avx
+%define release		4avx
 
 Summary:	A collection of basic system utilities
 Name:		%{name}
@@ -116,6 +116,7 @@ Patch1210:	util-linux-2.12q-mount_guess_fs_cdextra.patch.bz2
 # Annvix patches
 Patch1250:	util-linux-2.12a-avx-noselinux.patch.bz2
 Patch1251:	util-linux-2.12a-avx-nostacksln.patch.bz2
+Patch1252:	util-linux-2.12a-can-2005-2876.patch.bz2
 
 Obsoletes:	fdisk tunelp
 provides:	fdisk, tunelp
@@ -250,6 +251,7 @@ cp %{SOURCE8} %{SOURCE9} .
 
 %patch1250 -p0 -b .noselinux
 #%patch1251 -p0 -b .nostacksln
+%patch1252 -p1 -b .can-2005-2876
 
 # USRLIB_DIR is %{_libdir}
 perl -pi -e "s|(USRLIB_DIR)\s*=\s*(.*)|\1=%{_libdir}|" ./MCONFIG
@@ -595,7 +597,14 @@ fi
 %{_mandir}/man8/losetup.8*
 /sbin/losetup
 
+
 %changelog
+* Tue Sep 20 2005 Vincent Danen <vdanen@annvix.org> 2.12q-4avx
+- P1252: patch to remove the -r flag from umount (CAN-2005-2876);
+  NOTE: this doesn't affect Annvix by default since umount is not
+  suid, but this is a precaution in case someone stupidly adds back
+  the suid bit
+
 * Sun Sep 11 2005 Vincent Danen <vdanen@annvix.org> 2.12q-3avx
 - strip suid bit from mount, umount, chfn, and chsh
 - strip sgid bit from write (not required)
