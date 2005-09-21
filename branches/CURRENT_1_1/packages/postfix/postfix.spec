@@ -9,7 +9,7 @@
 
 %define name		postfix
 %define version		2.2.5
-%define release 	2avx
+%define release 	3avx
 %define epoch		1
 
 %define	openssl_ver	0.9.7d
@@ -423,6 +423,9 @@ fi
 
 
 %changelog
+* Wed Sep 21 2005 Vincent Danen <vdanen@annvix.org> 2.2.5-3avx
+- rebuild against fixed rpm-helper
+
 * Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 2.2.5-2avx
 - rebuild against new pcre
 
