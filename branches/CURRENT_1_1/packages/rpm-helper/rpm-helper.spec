@@ -9,7 +9,7 @@
 
 %define name		rpm-helper
 %define version		0.13
-%define release		1avx
+%define release		2avx
 
 Summary:	Helper scripts for rpm scriptlets
 Name:		%{name}
@@ -62,6 +62,10 @@ chmod 0755 {add,del}-srv
 
 
 %changelog
+* Wed Sep 21 2005 Vincent Danen <vdanen@annvix.org> 0.13-2avx
+- update P0 to patch the macros as well to update _pre_useradd and
+  _pre_groupadd for our static uid/gid's
+
 * Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 0.13-1avx
 - 0.13
 - provide it's own macro

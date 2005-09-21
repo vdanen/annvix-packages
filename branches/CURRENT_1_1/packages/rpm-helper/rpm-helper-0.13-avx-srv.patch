@@ -116,3 +116,23 @@
 +fi
 +
 +# del-srv ends here
+--- rpm-helper.macros.in.avx	2005-09-21 11:20:09.000000000 -0400
++++ rpm-helper.macros.in	2005-09-21 11:21:49.000000000 -0400
+@@ -14,7 +14,7 @@
+ %{nil}
+ 
+ %_add_user_helper @LIBDIR@/add-user
+-%_pre_useradd() %_add_user_helper %{name} $1 %{1} %{2} %{3} \
++%_pre_useradd() %_add_user_helper %{name} $1 %{1} %{2} %{3} %{4} \
+ %{nil}
+ 
+ %_del_user_helper @LIBDIR@/del-user
+@@ -22,7 +22,7 @@
+ %{nil}
+ 
+ %_add_group_helper @LIBDIR@/add-group
+-%_pre_groupadd() %_add_group_helper %{name} $1 %{1} %{?2:%2} \
++%_pre_groupadd() %_add_group_helper %{name} $1 %{1} %{2} %{?3:%3} \
+ %{nil}
+ 
+ %_del_group_helper @LIBDIR@/del-group
