@@ -1,0 +1,49 @@
+Index: util-linux-2.12q/mount/fstab.c
+===================================================================
+--- util-linux-2.12q.orig/mount/fstab.c	2005-04-29 13:50:56.000000000 +0200
++++ util-linux-2.12q/mount/fstab.c	2005-04-29 14:14:38.000000000 +0200
+@@ -16,6 +16,7 @@
+ #include "mount_blkid.h"
+ #include "paths.h"
+ #include "nls.h"
++#include "mount_by_label.h"
+ 
+ #define streq(s, t)	(strcmp ((s), (t)) == 0)
+ 
+@@ -312,10 +313,20 @@ getfsspecfile (const char *spec, const c
+ 	mc0 = fstab_head();
+ 
+ 	/* first attempt: names occur precisely as given */
+-	for (mc = mc0->nxt; mc && mc != mc0; mc = mc->nxt)
+-		if (streq(mc->m.mnt_dir, file) &&
+-		    streq(mc->m.mnt_fsname, spec))
++	for (mc = mc0->nxt; mc && mc != mc0; mc = mc->nxt) {
++		if (!streq(mc->m.mnt_dir, file))
++			continue;
++		if (streq(mc->m.mnt_fsname, spec))
+ 			return mc;
++		/* convert any "LABEL=xxx" entries from fstab to /dev/xxx prior comparism */
++		if (!strncmp(mc->m.mnt_fsname, "LABEL=", 6)) {
++			char *spec_from_label;
++			spec_from_label  = get_spec_by_volume_label(&mc->m.mnt_fsname[6]);
++			if (spec_from_label && streq(spec_from_label, spec)) {
++				return mc;
++			}
++		}
++	}
+ 
+ 	/* second attempt: names found after symlink resolution */
+ 	for (mc = mc0->nxt; mc && mc != mc0; mc = mc->nxt)
+Index: util-linux-2.12q/mount/Makefile
+===================================================================
+--- util-linux-2.12q.orig/mount/Makefile	2005-04-29 14:00:30.000000000 +0200
++++ util-linux-2.12q/mount/Makefile	2005-04-29 14:15:12.000000000 +0200
+@@ -54,7 +54,7 @@ mount: mount.o fstab.o sundries.o xmallo
+ 
+ umount: umount.o fstab.o sundries.o xmalloc.o realpath.o mntent.o \
+ 	getusername.o get_label_uuid.o mount_by_label.o mount_blkid.o \
+-	version.o $(LIB)/env.o $(LO_OBJS)
++	mount_by_label.o version.o $(LIB)/env.o $(LO_OBJS)
+ 	$(LINK) $^ -o $@ $(BLKID_LIB)
+ 
+ swapon:	swapon.o version.o xmalloc.o \

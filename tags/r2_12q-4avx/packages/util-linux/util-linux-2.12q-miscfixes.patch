@@ -1,0 +1,12 @@
+--- util-linux-2.11j/login-utils/login.1.chmou	Sat Sep 29 19:31:06 2001
++++ util-linux-2.11j/login-utils/login.1	Sat Sep 29 19:31:09 2001
+@@ -118,7 +118,8 @@
+ On most modern Linux systems PAM (Pluggable Authentication Modules)
+ is used. On systems that do not use PAM, the file
+ .I /etc/usertty
+-specifies additional access restrictions for specific users.
++specifies additional access restrictions for specific users. 
++.B Note that this file is not applicable to login implementations that use PAM (Pluggable Authentication Modules), such as most modern Linux systems.
+ If this file does not exist, no additional access restrictions are
+ imposed. The file consists of a sequence of sections. There are three
+ possible section types: CLASSES, GROUPS and USERS. A CLASSES section
