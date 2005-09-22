@@ -9,7 +9,7 @@
 
 %define name		postfix
 %define version		2.2.5
-%define release 	3avx
+%define release 	4avx
 %define epoch		1
 
 %define	openssl_ver	0.9.7d
@@ -244,11 +244,6 @@ ed %{buildroot}%{_sysconfdir}/postfix/postfix-files <<EOF || exit 1
     q
 EOF
 
-perl -pi -e 's|mailq.1.bz2|mailq.postfix.1.bz2|g' %{buildroot}%{_sysconfdir}/postfix/postfix-files
-perl -pi -e 's|newaliases.1.bz2|newaliases.postfix.1.bz2|g' %{buildroot}%{_sysconfdir}/postfix/postfix-files
-perl -pi -e 's|sendmail.1.bz2|sendmail.postfix.1.bz2|g' %{buildroot}%{_sysconfdir}/postfix/postfix-files
-perl -pi -e 's|aliases.5.bz2|aliases.postfix.5.bz2|g' %{buildroot}%{_sysconfdir}/postfix/postfix-files
-
 # install qshape
 install -c -m 0755 auxiliary/qshape/qshape.pl %{buildroot}%{_sbindir}/qshape
 cp man/man1/qshape.1 %{buildroot}%{_mandir}/man1/qshape.1
@@ -423,6 +418,11 @@ fi
 
 
 %changelog
+* Wed Sep 21 2005 Vincent Danen <vdanen@annvix.org> 2.2.5-4avx
+- don't change the manpage names in /etc/postfix/postfix-files since
+  they're not being alternativized (ha!) anymore (ie. mailq.1 rather
+  than mailq.postfix.1)
+
 * Wed Sep 21 2005 Vincent Danen <vdanen@annvix.org> 2.2.5-3avx
 - rebuild against fixed rpm-helper
 
