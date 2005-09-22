@@ -8,8 +8,8 @@
 
 
 %define name		spamassassin
-%define version		2.64
-%define release		10avx
+%define version		3.1.0
+%define release		1avx
 
 %define fname		Mail-SpamAssassin
 %define instdir		vendor
@@ -20,21 +20,25 @@ Version:	%{version}
 Release:	%{release}
 License:	Artistic
 Group:		Networking/Mail
-URL:		http://spamassassin.org/
-Source:		http://spamassassin.org/devel/%{fname}-%{version}.tar.bz2
-Source1:	spamd.run
-Source2:	spamd-log.run
+URL:		http://spamassassin.apache.org/
+Source0:	http://www.eu.apache.org/dist/spamassassin/source/%{fname}-%{version}.tar.bz2
+Source1:	http://www.eu.apache.org/dist/spamassassin/source/%{fname}-%{version}.tar.bz2.asc
+Source2:	spamd.run
+Source3:	spamd-log.run
+Source3:	spamd.sysconfig.bz2
+Source4:	spamassassin-default.rc
+Source5:	spamassassin-spamc.rc
 # (fc) 2.60-5mdk don't use version dependent perl call in #!
-Patch1:		spamassassin-2.60-fixbang.patch.bz2
+Patch1:		spamassassin-3.1.0-avx-fixbang.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	perl-devel
-BuildRequires:	perl-Time-HiRes
-BuildRequires:	perl-HTML-Parser
+BuildRequires:	perl-devel, perl-Time-HiRes, perl-HTML-Parser, perl-Digest-SHA1, openssl-devel, perl-IO-Socket-SSL
 
 Prereq:		rpm-helper
 Requires:	perl-Mail-SpamAssassin = %{version}-%{release}
 Requires:  	perl-DB_File
+Requires(post):	rpm-helper
+Requires(preun): rpm-helper
 
 %description
 SpamAssassin provides you with a way to reduce if not completely eliminate
@@ -57,11 +61,26 @@ Install pyzor package to get Pyzor support.
 %package tools
 Summary:	Miscleanous tools for SpamAssassin
 Group:		Networking/Mail
-Requires:	perl-Mail-SpamAssassin = %{version}-%{release}
+Requires:	perl-Mail-SpamAssassin = %{version}
 
 %description tools
 Miscleanous tools from various authors, distributed with SpamAssassin.
 See /usr/share/doc/spamassassin-tools-*/.
+
+
+%package	spamd
+Summary:	Daemonized version of SpamAssassin
+Group:		System/Servers
+Requires(post):	rpm-helper
+Requires(preun): rpm-helper
+Requires:	spamassassin = %{version}
+
+%description spamd
+The purpose of this program is to provide a daemonized version of the
+spamassassin executable. The goal is improving throughput performance
+for automated mail checking.
+
+This package includes "spamc", a fast, low-overhead C client program.
 
 
 %package -n perl-%{fname}
@@ -83,17 +102,17 @@ user's own mail user-agent application.
 
 
 %build
-
 %{__perl} \
     Makefile.PL \
-    INSTALLDIRS=%{instdir} \
-    DESTDIR="%{buildroot}/%{_prefix}" \
-    SYSCONFDIR=%{_sysconfdir} < /dev/null
+    INSTALLDIRS=vendor \
+    SYSCONFDIR=%{_sysconfdir} \
+    DATADIR=%{_datadir}/spamassassin \
+    ENABLE_SSL=yes \
+    RUN_NET_TESTS=no< /dev/null
 
-%make OPTIMIZE="%{optflags}" CFLAGS="%{optflags}"
+%make OPTIMIZE="%{optflags}"
 
-# got root?
-# make test
+make test
 
 
 %install
@@ -101,16 +120,24 @@ user's own mail user-agent application.
 %makeinstall_std
 
 mkdir -p %{buildroot}/var/spool/spamassassin
-mkdir -p %{buildroot}%{_sysconfdir}/mail/%{name}
+mkdir -p %{buildroot}%{_sysconfdir}/{mail/%{name},sysconfig}
 
 cat << EOF >> %{buildroot}/%{_sysconfdir}/mail/%{name}/local.cf 
-    auto_whitelist_path        /var/spool/spamassassin/auto-whitelist
-    auto_whitelist_file_mode   0666
+required_hits			5
+rewrite_header			Subject [**SPAM**]
+report_safe			0
+auto_whitelist_path		/var/spool/spamassassin/auto-whitelist
+auto_whitelist_file_mode	0666
+dcc_home			/var/lib/dcc
 EOF
 
+bzcat %{SOURCE3} >%{buildroot}%{_sysconfdir}/sysconfig/spamd
+install -m 0644 %{SOURCE4} %{buildroot}%{_sysconfdir}/mail/spamassassin/
+install -m 0644 %{SOURCE5} %{buildroot}%{_sysconfdir}/mail/spamassassin/
+
 mkdir -p %{buildroot}%{_srvdir}/spamd/log
-install -m 0740 %{SOURCE1} %{buildroot}%{_srvdir}/spamd/run
-install -m 0740 %{SOURCE2} %{buildroot}%{_srvdir}/spamd/log/run
+install -m 0740 %{SOURCE2} %{buildroot}%{_srvdir}/spamd/run
+install -m 0740 %{SOURCE3} %{buildroot}%{_srvdir}/spamd/log/run
 
 
 %clean
@@ -123,25 +150,48 @@ install -m 0740 %{SOURCE2} %{buildroot}%{_srvdir}/spamd/log/run
 touch /var/spool/spamassassin/auto-whitelist.db
 chmod 0666 /var/spool/spamassassin/auto-whitelist.db
 
+
+%post spamd
 if [ -d /var/log/supervise/spamd -a ! -d /var/log/service/spamd ]; then
     mv /var/log/supervise/spamd /var/log/service/
 fi
+
+# -a and --auto-whitelist options were removed from 3.0.0
+# prevent service startup failure
+perl -p -i -e 's/(["\s]-\w+)a/$1/ ; s/(["\s]-)a(\w+)/$1$2/ ; s/(["\s])-a\b/$1/' /etc/sysconfig/spamd
+perl -p -i -e 's/ --auto-whitelist//' /etc/sysconfig/spamd
 %_post_srv spamd
 
 
-%preun
+%preun spamd
 %_preun_srv spamd
 
 
 %files
 %defattr(-,root,root)
-%doc README Changes sample-*.txt spamd/README.spamd procmailrc.example INSTALL COPYRIGHT CONTRIB_CERT TRADEMARK USAGE 
+%doc README Changes sample-*.txt procmailrc.example INSTALL TRADEMARK USAGE 
 %dir %{_sysconfdir}/mail/%{name}
-%config(noreplace) %{_sysconfdir}/mail/%{name}/*
+%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/mail/%{name}/*.cf
+%config(noreplace) %{_sysconfdir}/mail/%{name}/*.pre
+%config(noreplace) %{_sysconfdir}/mail/%{name}/spamassassin-default.rc
 %dir %attr(0777,root,root) /var/spool/spamassassin
-%{_bindir}/*
-%{_mandir}/man1/*
+%attr(0755,root,root) %{_bindir}/sa-learn
+%attr(0755,root,root) %{_bindir}/sa-update
+%attr(0755,root,root) %{_bindir}/spamassassin
+%{_mandir}/man1/sa-learn.1*
+%{_mandir}/man1/sa-update.1*
+%{_mandir}/man1/spamassassin.1*
 %{_datadir}/spamassassin
+
+%files spamd
+%defattr(-,root,root)
+%doc spamd/README* spamd/PROTOCOL
+%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/sysconfig/spamd
+%config(noreplace) %{_sysconfdir}/mail/%{name}/spamassassin-spamc.rc
+%attr(0755,root,root) %{_bindir}/spamc
+%attr(0755,root,root) %{_bindir}/spamd
+%{_mandir}/man1/spamc.1*
+%{_mandir}/man1/spamd.1*
 %dir %attr(0750,root,admin) %{_srvdir}/spamd
 %dir %attr(0750,root,admin) %{_srvdir}/spamd/log
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/spamd/run
@@ -149,16 +199,24 @@ fi
 
 %files tools
 %defattr(-,root,root)
-%doc sql tools masses contrib qmail
+%doc sql tools masses contrib
 
 %files -n perl-%{fname}
 %defattr(644,root,root,755)
 %dir %{perl_vendorlib}/Mail
 %{perl_vendorlib}/Mail/SpamAssassin*
+%{perl_vendorlib}/spamassassin-run.pod
+%{_mandir}/man1/spamassassin-run.1*
 %{_mandir}/man3*/*
 
 
 %changelog
+* Thu Sep 22 2005 Vincent Danen <vdanen@annvix.org> 3.1.0-1avx
+- 3.1.0
+- put spamd and spamc into -spamc package
+- fix URL
+- rediff P1
+
 * Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 2.64-10avx
 - rebuild against new perl
 
