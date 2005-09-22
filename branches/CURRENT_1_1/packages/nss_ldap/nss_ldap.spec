@@ -8,7 +8,7 @@
 
 
 %define name 		nss_ldap
-%define version 	239
+%define version 	242
 %define release 	1avx
 
 Summary:	NSS library for LDAP
@@ -18,7 +18,7 @@ Release: 	%{release}
 License:	LGPL
 Group:		System/Libraries
 URL: 		http://www.padl.com/
-Source0:	http://www.padl.com/download/%{name}-%{version}.tar.bz2
+Source0:	http://www.padl.com/download/%{name}-%{version}.tar.gz
 Patch0:		nss_ldap-makefile.patch.bz2
 
 BuildRoot: 	%{_buildroot}/%{name}-%{version}
@@ -94,6 +94,9 @@ rm -rf %{buildroot}%{_libdir}/libnss_ldap.so.2
 
 
 %changelog
+* Wed Sep 21 2005 Vincent Danen <vdanen@annvix.org> 242-1avx
+- 242
+
 * Fri Sep 09 2005 Vincent Danen <vdanen@annvix.org> 239-1avx
 - 239
 - break out the pam_ldap package into it's own package
