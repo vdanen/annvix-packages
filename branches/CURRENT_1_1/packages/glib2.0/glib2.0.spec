@@ -8,15 +8,12 @@
 
 
 %define name		glib%{api_version}
-%define version		%{major_version}.%{minor_version}.%{micro_version}
-%define release		4avx
+%define version		2.8.1
+%define release		1avx
 
 %define api_version	2.0
 %define lib_major	0
 %define libname		%mklibname %{name}_ %{lib_major}
-%define major_version	2
-%define minor_version	6
-%define micro_version	3
 
 %define req_pkgconfig_version	0.12
 
@@ -27,7 +24,7 @@ Release:	%{release}
 License:	LGPL
 Group:		System/Libraries
 URL:		http://www.gtk.org
-Source0:	ftp://ftp.gnome.org/pub/GNOME/sources/glib/%{major_version}.%{minor_version}/glib-%{version}.tar.bz2
+Source0:	ftp://ftp.gnome.org/pub/GNOME/sources/glib/glib-%{version}.tar.bz2
 Source1:	glib20.sh.bz2
 Source2:	glib20.csh.bz2
 
@@ -73,7 +70,7 @@ Group:		Development/C
 Provides:	glib2-devel = %{version}-%{release}
 Provides:	libglib2-devel = %{version}-%{release}
 Provides:	lib%{name}-devel = %{version}-%{release}
-Requires:	%{libname} = %{version}-%{release}
+Requires:	%{libname} = %{version}
 Requires:	pkgconfig >= %{req_pkgconfig_version}
 Requires:	glib-gettextize >= %{version}
 Conflicts:	libglib1.3_13-devel
@@ -166,6 +163,9 @@ chmod a+x  %{buildroot}%{_sysconfdir}/profile.d/*
 
 
 %changelog
+* Thu Sep 22 2005 Vincent Danen <vdanen@annvix.org> 2.8.1-1avx
+- 2.8.1
+
 * Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 2.6.3-4avx
 - bootstrap build (new gcc, new glibc)
 
