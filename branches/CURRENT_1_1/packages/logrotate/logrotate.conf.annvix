@@ -22,8 +22,9 @@ include /etc/logrotate.d
 }
 
 /var/log/btmp {
+    missingok
     monthly
-    create 0664 root utmp
+    create 0600 root utmp
     rotate 1
 }
 

@@ -9,7 +9,7 @@
 
 %define name		logrotate
 %define version		3.7.1
-%define release		3avx
+%define release		4avx
 
 Summary:	Rotates, compresses, and mails system logs
 Name:		%{name}
@@ -20,6 +20,9 @@ Group:		File tools
 URL:		http://download.fedora.redhat.com/pub/fedora/linux/core/1/i386/os/SRPMS
 Source0:	%{name}-%{version}.tar.bz2
 Source1:	logrotate.conf.annvix.bz2
+Patch1: 	logrotate-3.7.1-man.patch.bz2
+Patch2: 	logrotate-3.7.1-noTMPDIR.patch.bz2
+Patch3:		logrotate-3.7.1-glob.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	popt-devel
@@ -33,6 +36,9 @@ weekly, monthly, or when it grows too large.
 
 %prep
 %setup -q
+%patch1 -p1 -b .man
+%patch2 -p1 -b .noTMPDIR
+%patch3 -p1 -b .glob
 
 
 %build
@@ -62,15 +68,19 @@ touch %{buildroot}/var/lib/logrotate.status
 %files
 %defattr(-,root,root)
 %doc CHANGES
-%attr(0755, root, root) %{_sbindir}/logrotate
-%attr(0644, root, root) %{_mandir}/man8/logrotate.8*
-%config(noreplace) %attr(0755, root, root) %{_sysconfdir}/cron.daily/%{name}
-%attr(0644, root, root) %config(noreplace) %{_sysconfdir}/%{name}.conf
-%attr(0755, root, root) %dir %{_sysconfdir}/%{name}.d
-%attr(0644, root, root) %verify(not size md5 mtime) %config(noreplace) /var/lib/logrotate.status
+%attr(0755,root,root) %{_sbindir}/logrotate
+%attr(0644,root,root) %{_mandir}/man8/logrotate.8*
+%attr(0755,root,root) %{_sysconfdir}/cron.daily/%{name}
+%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/%{name}.conf
+%attr(0755,root,root) %dir %{_sysconfdir}/%{name}.d
+%attr(0644,root,root) %verify(not size md5 mtime) %config(noreplace) /var/lib/logrotate.status
 
 
 %changelog
+* Fri Sep 23 2005 Vincent Danen <vdanen@annvix.org> 3.7.1-4avx
+- sync with mdk 3.7.1-2mdk (sync with 3.7.1-7)
+- fix S1 to set better perms for btmp
+
 * Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 3.7.1-3avx
 - bootstrap build (new gcc, new glibc)
 
