@@ -9,7 +9,7 @@
 
 %define name		rcs
 %define version		5.7
-%define release		11avx
+%define release		12avx
 
 Summary:	Revision Control System (RCS) file version management tools
 Name:		%{name}
@@ -17,11 +17,13 @@ Version:	%{version}
 Release:	%{release}
 License:	GPL
 Group:		Development/Other
-Source:		ftp://ftp.gnu.org/pub/gnu/rcs-5.7.tar.bz2
-Patch:		rcs-5.7-stupidrcs.patch.bz2
+URL:		http://www.cs.purdue.edu/homes/trinkle/RCS/
+Source:		ftp://ftp.gnu.org/pub/gnu/%{name}-%{version}.tar.bz2
+Patch0:		rcs-5.7-stupidrcs.patch.bz2
 Patch1:		rcs-5.7-security.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
+BuildRequires:	autoconf2.1
 
 %description
 The Revision Control System (RCS) is a system for managing multiple
@@ -47,9 +49,7 @@ touch src/conf.h
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-%makeinstall
-mkdir -p %{buildroot}%{_mandir}
-mv %{buildroot}/usr/man/* %{buildroot}%{_mandir}
+%makeinstall man1dir=%{buildroot}%{_mandir}/man1 man5dir=%{buildroot}%{_mandir}/man5
 
 
 %clean
@@ -65,6 +65,10 @@ mv %{buildroot}/usr/man/* %{buildroot}%{_mandir}
 
 
 %changelog
+* Thu Sep 22 2005 Vincent Danen <vdanen@annvix.org> 5.7-12avx
+- BuildRequires: autoconf2.1
+- added URL
+
 * Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 5.7-11avx
 - bootstrap build (new gcc, new glibc)
 
