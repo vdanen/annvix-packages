@@ -8,8 +8,8 @@
 
 
 %define name		procps
-%define version		3.2.1
-%define release		5avx
+%define version		3.2.5
+%define release		1avx
 
 Summary:	Utilities for monitoring your system and processes on your system
 Name:		%{name}
@@ -19,7 +19,9 @@ License:	GPL
 Group:		Monitoring
 URL:		http://procps.sf.net/
 Source:		http://procps.sourceforge.net/%{name}-%{version}.tar.bz2
-Patch0:		procps-3.1.15-sysctlshutup.patch.bz2
+Patch0:		procps-3.2.3-sysctlshutup.patch.bz2
+Patch1:		procps-3.2.3-perm-top.patch.bz2
+Patch2:		procps-3.2.3-perror.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	ncurses-devel
@@ -62,12 +64,14 @@ Summary:	Development and headers files for the proc library
 Requires:	%{name} = %{version}
 
 %description devel
-Developement headers and library for the proc library.
+Development headers and library for the proc library.
 
 
 %prep
 %setup -q
 %patch0 -p0 -b .sysctl
+%patch1 -p1 -b .perm-top
+%patch2 -p1 -b .perror
 
 
 %build
@@ -79,14 +83,20 @@ make CC="gcc %{optflags}"
 PATH=/sbin:$PATH
 mkdir -p %{buildroot}{{/usr,}/bin,/sbin,%{_mandir}/man{1,5,8},%{_lib}}
 
-%makeinstall_std ldconfig=/bin/true install="install -D" lib="%{buildroot}/%{_lib}"
+%makeinstall_std ldconfig=/bin/true install="install -D" lib="%{buildroot}/%{_lib}/"
 
 rm -f %{buildroot}%{_mandir}/man1/kill.1*
 
 mkdir -p %{buildroot}%{_includedir}/procps
 install -m 0644 proc/*.h %{buildroot}%{_includedir}/procps
+
 # This would conflict with util-linux:
 mv %{buildroot}/bin/{,procps3-}kill
+
+ln -s libproc-%version.so $RPM_BUILD_ROOT/%_lib/libproc.so
+
+# quiet spec-helper:
+chmod +w $RPM_BUILD_ROOT/{bin,sbin,usr/bin,%_lib}/*
 
 
 %clean
@@ -104,13 +114,14 @@ rm -f /etc/psdevtab /etc/psdatabase
 %files
 %defattr(-,root,root)
 %doc NEWS BUGS TODO
-/%{_lib}/libproc.so.*
+/%{_lib}/libproc-*.so
 /bin/procps3-kill
 /bin/ps
 /sbin/sysctl
 %{_bindir}/free
 %{_bindir}/pgrep
 %{_bindir}/pmap
+%{_bindir}/pwdx
 %{_bindir}/pkill
 %{_bindir}/skill
 %{_bindir}/slabtop
@@ -125,6 +136,7 @@ rm -f /etc/psdevtab /etc/psdatabase
 %{_mandir}/man1/pgrep.1*
 %{_mandir}/man1/pkill.1*
 %{_mandir}/man1/pmap.1*
+%{_mandir}/man1/pwdx.1*
 %{_mandir}/man1/ps.1*
 %{_mandir}/man1/skill.1*
 %{_mandir}/man1/slabtop.1*
@@ -145,6 +157,14 @@ rm -f /etc/psdevtab /etc/psdatabase
 
 
 %changelog
+* Thu Sep 22 2005 Vincent Danen <vdanen@annvix.org> 3.2.5-1avx
+- 3.2.5
+- update patches from mandriva:
+  - P0: fix -f option; manpage merge back bits lost for 2 years
+  - P1: pgrep, pmap, w, top: fix segfault in msec 5
+  - P2: display a better message for other apps when proc isn't accessible
+- rename spec file
+
 * Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 3.2.1-5avx
 - bootstrap build (new gcc, new glibc)
 
