@@ -9,7 +9,7 @@
 
 %define name		which
 %define version		2.16
-%define release		5avx
+%define release		6avx
 
 Summary:	Displays where a particular program in your path is located
 Name:		%{name}
@@ -19,13 +19,14 @@ License:	GPL
 Group:		System/Base
 URL:		ftp://ftp.gnu.org/gnu/which/
 Source:		ftp://ftp.gnu.org/gnu/which/%{name}-%{version}.tar.bz2
-Patch:		which-2.6.jbj.patch.bz2
+Patch0:		which-2.6.jbj.patch.bz2
 Patch1:		which-2.12-fixinfo.patch.bz2
 Patch2:		which-2.16-afs.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
-Prereq:		info-install
+Requires(post):	info-install
+Requires(preun): info-install
 
 %description
 The which command shows the full pathname of a specified program, if
@@ -64,13 +65,16 @@ rm -rf %{buildroot}%{_infodir}/dir
 
 %files
 %defattr(-, root, root)
-%doc README* AUTHORS COPYING EXAMPLES INSTALL NEWS
+%doc README* AUTHORS EXAMPLES INSTALL NEWS
 %{_bindir}/which
-%{_mandir}/man1/which.1.bz2
+%{_mandir}/man1/which.1*
 %{_infodir}/*
 
 
 %changelog
+* Fri Sep 23 2005 Vincent Danen <vdanen@annvix.org> 2.16-6avx
+- minor spec cleanups
+
 * Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 2.16-5avx
 - bootstrap build (new gcc, new glibc)
 
