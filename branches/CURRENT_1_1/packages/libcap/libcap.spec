@@ -9,11 +9,10 @@
 
 %define name 		libcap
 %define version		1.10
-%define release		3avx
+%define release		4avx
 %define sname		cap
 
 %define major		1
-%define minor		10
 %define libname		%mklibname %{sname} %{major}
 
 Summary:	Library for getting and setting POSIX.1e capabilities
@@ -51,7 +50,7 @@ Summary:	Development files for libcap
 Group:		Development/Libraries
 Obsoletes:	libcap-devel
 Provides:	libcap-devel = %{version}-%{release}
-Requires:	%{libname} = %{version}-%{release}
+Requires:	%{libname} = %{version}
 
 %description -n %{libname}-devel
 Development files (Headers, libraries for static linking, etc) for libcap.
@@ -106,6 +105,9 @@ chmod +x %{buildroot}%{_libdir}/*.so.*
 
 
 %changelog
+* Thu Sep 22 2005 Vincent Danen <vdanen@annvix.org> 1.10-4avx
+- minor spec cleanups
+
 * Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 1.10-3avx
 - bootstrap build (new gcc, new glibc)
 
