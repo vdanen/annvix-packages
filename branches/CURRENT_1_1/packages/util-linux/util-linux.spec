@@ -9,7 +9,7 @@
 
 %define name		util-linux
 %define version		2.12q
-%define release		4avx
+%define release		5avx
 
 Summary:	A collection of basic system utilities
 Name:		%{name}
@@ -599,6 +599,13 @@ fi
 
 
 %changelog
+* Thu Sep 22 2005 Vincent Danen <vdanen@annvix.org> 2.12q-5avx
+- updated P218 (oblin):
+  - really ignore utf8 if fs doesn't handle it
+  - udf does support utf8
+  - allow to remove conflicting options (for example utf8 if fs is
+    udf and iocharset is specified)
+
 * Tue Sep 20 2005 Vincent Danen <vdanen@annvix.org> 2.12q-4avx
 - P1252: patch to remove the -r flag from umount (CAN-2005-2876);
   NOTE: this doesn't affect Annvix by default since umount is not
