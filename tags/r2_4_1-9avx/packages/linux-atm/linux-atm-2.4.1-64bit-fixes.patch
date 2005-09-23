@@ -1,0 +1,64 @@
+--- linux-atm-2.4.1/src/test/ttcp.c.64bit-fixes	2001-09-03 14:41:06.000000000 -0400
++++ linux-atm-2.4.1/src/test/ttcp.c	2004-10-06 11:37:09.087295448 -0400
+@@ -55,7 +55,11 @@ static char RCSid[] = "ttcp.c $Revision:
+ /* #define SYSV */	/* required on SGI IRIX releases before 3.3 */
+ 
+ #include <stdio.h>
++#include <stdlib.h>
+ #include <signal.h>
++#include <string.h>
++#include <unistd.h>
++#include <fcntl.h>
+ #include <ctype.h>
+ #include <errno.h>
+ #include <sys/types.h>
+@@ -85,7 +89,8 @@ struct sockaddr_in frominet;
+ struct sockaddr_atmsvc satm;
+ struct atm_qos qos;
+ 
+-int domain, fromlen;
++int domain;
++socklen_t fromlen;
+ int fd;				/* fd of network socket */
+ 
+ int buflen = 8 * 1024;		/* length of buffer */
+--- linux-atm-2.4.1/src/sigd/cfg_y.y.64bit-fixes	2001-09-03 14:41:06.000000000 -0400
++++ linux-atm-2.4.1/src/sigd/cfg_y.y	2004-10-06 11:37:09.087295448 -0400
+@@ -8,6 +8,7 @@
+ #endif
+ 
+ #include <string.h>
++#include <stdlib.h>
+ #include <ctype.h>
+ #include <limits.h>
+ 
+--- linux-atm-2.4.1/src/ilmid/asn1/asn_config.h.64bit-fixes	2001-09-03 14:41:06.000000000 -0400
++++ linux-atm-2.4.1/src/ilmid/asn1/asn_config.h	2004-10-06 11:37:09.088295650 -0400
+@@ -21,6 +21,8 @@
+ #define _asn_config_h_
+ 
+ #include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
+ #include <ctype.h> /*  for isprint() in asn_octs.c */
+ #include <setjmp.h> /* for jmp_buf type, setjmp and longjmp */
+ 
+--- linux-atm-2.4.1/src/led/conn.c.64bit-fixes	2001-09-03 14:41:05.000000000 -0400
++++ linux-atm-2.4.1/src/led/conn.c	2004-10-06 11:38:16.769948495 -0400
+@@ -36,6 +36,7 @@
+ #include <unistd.h>
+ #include <fcntl.h>
+ #include <errno.h>
++#include <time.h>
+ #include <sys/ioctl.h>
+ 
+ #include <atm.h>
+@@ -429,7 +430,7 @@ Conn_t *accept_conn(Conn_t *conn)
+ {
+         Conn_t *new;
+         struct sockaddr_atmsvc addr;
+-        size_t len;
++        socklen_t len;
+         int fd;
+         char buff[MAX_ATM_ADDR_LEN+1];
+ 
