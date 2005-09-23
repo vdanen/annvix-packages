@@ -9,7 +9,7 @@
 
 %define name 		smbldap-tools
 %define version 	0.9.1
-%define release 	1avx
+%define release 	2avx
 
 Summary:	User & Group administration tools for Samba-OpenLDAP
 Name: 		%{name}
@@ -20,6 +20,7 @@ License: 	GPL
 URL:		http://samba.IDEALX.org/
 Source0: 	http://samba.idealx.org/dist/smbldap-tools-%{version}.tar.bz2
 Source1: 	mkntpwd.tar.bz2
+Patch0:		smbldap-tools-0.9.1-mdkconfig.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
@@ -43,6 +44,7 @@ Comments and/or questions can be sent to the smbldap-tools mailing list
 
 %prep
 %setup -q -a1
+%patch0 -p1 -b .mdkconf
 
 
 %build
@@ -100,6 +102,11 @@ install -m 0755 mkntpwd/mkntpwd %{buildroot}%{_sbindir}/
 
 
 %changelog
+* Thu Sep 22 2005 Vincent Danen <vdanen@annvix.org> 0.9.1-2avx
+- P0: reapply changes as when shipped with samba to match the default
+  smb.conf, LDAP layout, OpenLDAP ACLs, and default nss_ldap behaviour
+  (bgmilne)
+
 * Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 0.9.1-1avx
 - 0.9.1
 - drop redundant P0
