@@ -9,7 +9,7 @@
 
 %define name		freetype2
 %define	version		2.1.10
-%define release		1avx
+%define release		2avx
 
 %define major		6
 %define libname		%mklibname freetype %{major}
@@ -30,8 +30,6 @@ Patch1:		freetype-2.1.10-xorgfix.patch.bz2
 Patch2:		freetype-2.1.10-fixautofit.patch.bz2
 # (fc) 2.1.10-5mdk fix memleak (CVS)
 Patch3:		freetype-2.1.10-memleak.patch.bz2
-# (fc) 2.1.10-6mdk fix font rendering in Cairo (Owen Taylor)
-Patch4:		freetype-2.1.10-vertical_dimension.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}-%{release}-root
 BuildRequires:	zlib-devel, multiarch-utils
@@ -89,7 +87,6 @@ developing programs which will use the FreeType2 library.
 %patch1 -p1 -b .xorgfix
 %patch2 -p1 -b .fixautofit
 %patch3 -p1 -b .memleak
-%patch4 -p1 -b .vertical
 
 
 %build
@@ -138,6 +135,9 @@ developing programs which will use the FreeType2 library.
 
 
 %changelog
+* Thu Sep 22 2005 Vincent Danen <vdanen@annvix.org> 2.1.10-2avx
+- drop P4; not needed
+
 * Sun Sep 11 2005 Vincent Danen <vdanen@annvix.org> 2.1.10-1avx
 - 2.1.10
 - sync patches with mandriva 2.1.10-6mdk (not that we really care about
