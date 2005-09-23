@@ -8,8 +8,8 @@
 
 
 %define name		chrpath
-%define version		0.12
-%define release		5avx
+%define version		0.13
+%define release		1avx
 
 Summary: 	Dynamic library load path (rpath) alterer
 Name: 		%{name}
@@ -53,7 +53,11 @@ rm -fr %{buildroot}%{_prefix}/doc
 %{_bindir}/chrpath
 %{_mandir}/man1/chrpath.1*
 
+
 %changelog
+* Fri Sep 22 2005 Vincent Danen <vdanen@annvix.org> 0.13-1avx
+- 0.13
+
 * Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 0.12-5avx
 - bootstrap build (new gcc, new glibc)
 
