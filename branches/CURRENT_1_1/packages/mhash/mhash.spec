@@ -8,8 +8,8 @@
 
 
 %define name		mhash
-%define version		0.8.18
-%define release		9avx
+%define version		0.9.2
+%define release		1avx
 
 %define major		2
 %define libname 	%mklibname %{name} %{major}
@@ -24,6 +24,8 @@ URL:		http://mhash.sourceforge.net/
 Source:		%{name}-%{version}.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
+BuildRequires:	autoconf2.5
+BuildRequires:	automake1.7
 
 %description
 Mhash is a thread-safe hash library, implemented in C, and provides a
@@ -63,11 +65,17 @@ to develop programs that use the mhash library.
 
 
 %build
+export WANT_AUTOCONF_2_5="1"
+rm -f configure
+libtoolize --copy --force && aclocal-1.7 && autoheader && automake-1.7 -a -c && autoconf
+
 %configure2_5x \
     --enable-static \
     --enable-shared
 
 %make
+
+make check
 
 
 %install
@@ -89,7 +97,7 @@ to develop programs that use the mhash library.
 
 %files -n %{libname}-devel
 %defattr(-, root, root)
-%doc AUTHORS COPYING INSTALL ChangeLog NEWS README TODO doc/*.txt doc/*.html doc/*.c doc/skid2* 
+%doc AUTHORS COPYING INSTALL ChangeLog NEWS README TODO doc/*.txt doc/*.c doc/skid2* 
 %{_mandir}/man3/*
 %{_libdir}/*.a
 %{_libdir}/*.la
@@ -98,6 +106,12 @@ to develop programs that use the mhash library.
 
 
 %changelog
+* Thu Sep 22 2005 Vincent Danen <vdanen@annvix.org> 0.9.2-1avx
+- 0.9.2
+- run the test suite
+- drop html docs
+- BuildRequires: automake1.7, autoconf2.5
+
 * Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 0.8.18-9avx
 - bootstrap build (new gcc, new glibc)
 
