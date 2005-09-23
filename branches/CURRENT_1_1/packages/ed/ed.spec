@@ -9,7 +9,7 @@
 
 %define name		ed
 %define version		0.2
-%define release		36avx
+%define release		37avx
 
 %define _exec_prefix	/
 
@@ -28,7 +28,8 @@ Patch2:		ed-0.2-li18nux-patch.bz2
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	autoconf2.1
 
-Prereq:		info-install
+Requires(post):	info-install
+Requires(preun): info-install
 
 %description
 Ed is a line-oriented text editor, used to create, display, and modify
@@ -86,6 +87,9 @@ make check
 
 
 %changelog
+* Thu Sep 22 2005 Vincent Danen <vdanen@annvix.org> 0.2-37avx
+- fix requires
+
 * Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 0.2-36avx
 - bootstrap build (new gcc, new glibc)
 
