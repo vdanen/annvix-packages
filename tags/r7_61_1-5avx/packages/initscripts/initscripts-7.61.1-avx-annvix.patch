@@ -1,0 +1,809 @@
+--- /dev/null	2005-02-23 21:55:20.000000000 -0700
++++ sysconfig/system	2005-02-28 15:42:51.000000000 -0700
+@@ -0,0 +1,2 @@
++REWRITEISSUE=rewrite
++REWRITEISSUENET=rewrite
+--- Makefile.avx	2005-09-11 17:27:42.000000000 -0400
++++ Makefile	2005-09-11 17:28:42.000000000 -0400
+@@ -27,14 +27,13 @@
+ 	  install -m644 sysctl.conf.sparc $(ROOT)/etc/sysctl.conf ; fi
+ 	if uname -m | grep -q s390 ; then \
+ 	  install -m644 sysctl.conf.s390 $(ROOT)/etc/sysctl.conf ; fi
+-	mkdir -p $(ROOT)/etc/X11
+-	install -m755 prefdm $(ROOT)/etc/X11/prefdm
+ 	mkdir -p $(ROOT)/etc/sysconfig
+ 	mkdir -p $(ROOT)/etc/sysconfig/console
+ 	mkdir -p $(ROOT)/etc/sysconfig/console/consolefonts
+ 	mkdir -p $(ROOT)/etc/sysconfig/console/consoletrans
+ 	install -m644 sysconfig/init $(ROOT)/etc/sysconfig/init
+ 	install -m644 sysconfig/rawdevices $(ROOT)/etc/sysconfig/rawdevices
++	install -m644 sysconfig/system $(ROOT)/etc/sysconfig/system
+ 	cp -af rc.d sysconfig ppp $(ROOT)/etc
+ 	chmod 755 $(ROOT)/etc/rc.d/init.d/rawdevices
+ 	mkdir -p $(ROOT)/etc/ppp/peers
+--- sysconfig.txt.annvix	2005-02-28 15:42:51.000000000 -0700
++++ sysconfig.txt	2005-02-28 15:42:51.000000000 -0700
+@@ -595,7 +595,7 @@
+       /sbin/pump
+       /sbin/dhcpxd
+   if you have a preferred client define the DHCP_CLIENT variable. 
+-  When you use dhclient (which it is the default on a Mandrake-Linux
++  When you use dhclient (which is the default on an Annvix
+   system) you can specify a timeout of waiting the answer from server,
+   the option is called DHCP_TIMEOUT the default is 60 sec.
+ 
+--- sysctl.conf.annvix	2005-02-28 15:42:51.000000000 -0700
++++ sysctl.conf	2005-02-28 15:42:51.000000000 -0700
+@@ -1,4 +1,4 @@
+-# Kernel sysctl configuration file for Mandrakelinux
++# Kernel sysctl configuration file for Annvix
+ #
+ # For binary values, 0 is disabled, 1 is enabled.  See sysctl(8) and
+ # sysctl.conf(5) for more details.
+@@ -23,8 +23,3 @@
+ # cd drive is being accessed. Setting this to 1 is not advised as it has been 
+ # known to cause problems when supermount is enabled.
+ dev.cdrom.autoclose=0
+-# removed to fix some digital extraction problems 
+-# dev.cdrom.check_media=1
+-
+-# to be able to eject via the device eject button (magicdev)
+-dev.cdrom.lock=0
+--- inittab.annvix	2005-02-28 15:42:51.000000000 -0700
++++ inittab	2005-02-28 15:42:51.000000000 -0700
+@@ -6,7 +6,7 @@
+ #               Modified for RHS Linux by Marc Ewing and Donnie Barnes
+ #
+ 
+-# Default runlevel. The runlevels used by Mandrakelinux are:
++# Default runlevel. The runlevels used by Annvix are:
+ #   0 - halt (Do NOT set initdefault to this)
+ #   1 - Single user mode
+ #   2 - Multiuser, without NFS (The same as 3, if you do not have networking)
+@@ -26,6 +26,8 @@
+ l3:3:wait:/etc/rc.d/rc 3
+ l4:4:wait:/etc/rc.d/rc 4
+ l5:5:wait:/etc/rc.d/rc 5
++SV:2345:respawn:/sbin/srv-start /service
++SX:S016:wait:/sbin/srv-stop /service
+ l6:6:wait:/etc/rc.d/rc 6
+ 
+ # Trap CTRL-ALT-DELETE
+@@ -42,7 +44,7 @@
+ 
+ 
+ # Run gettys in standard runlevels
+-1:2345:respawn:/sbin/mingetty tty1
++1:2345:respawn:/sbin/mingetty --noclear tty1
+ 2:2345:respawn:/sbin/mingetty tty2
+ 3:2345:respawn:/sbin/mingetty tty3
+ 4:2345:respawn:/sbin/mingetty tty4
+--- mandrake/mandrake_firstime.annvix	2005-02-28 15:42:51.000000000 -0700
++++ mandrake/mandrake_firstime	2005-02-28 15:42:51.000000000 -0700
+@@ -1,5 +1,5 @@
+ #!/bin/sh
+-# Description: Launch Mandrake Configuration for the first time.
++# Description: Launch Annvix Configuration for the first time.
+ # (c) MandrakeSoft, Chmouel Boudjnah <chmouel@mandrakesoft.com>
+ # 	$Id: mandrake_firstime,v 1.18 2003/09/04 14:10:01 tvignaud Exp $	
+ 
+@@ -11,16 +11,6 @@
+ # If fail erase the temporary file
+ trap 'rm -f /var/lock/TMP_1ST' 1 2 3 15
+ 
+-#Rebuild Mozilla registry
+-# be sure that mozilla registry is ok
+-for MOZ_REBUILD_DATABASE in /usr/lib*/mozilla-*/mozilla-rebuild-databases.pl; do
+-[ -x $MOZ_REBUILD_DATABASE ] &&
+-{
+- action "Building Mozilla registry" $MOZ_REBUILD_DATABASE 2>> $FLO
+-}
+-done
+-
+-
+ [ -s $FLO ] || rm -f $FLO
+ 
+ # Finish
+--- mandrake/mandrake_everytime.annvix	2005-02-28 15:42:51.000000000 -0700
++++ mandrake/mandrake_everytime	2005-02-28 16:03:39.000000000 -0700
+@@ -1,5 +1,5 @@
+ #!/bin/bash
+-# Description: Launch diverses Mandrake Scripts on boot.
++# Description: Launch diverses Annvix Scripts on boot.
+ # (c) MandrakeSoft, Chmouel Boudjnah <chmouel@mandrakesoft.com>
+ # 	$Id: mandrake_everytime,v 1.22 2004/07/29 12:40:05 flepied Exp $	
+ 
+@@ -7,15 +7,6 @@
+ 
+ [ -e /etc/sysconfig/system ] && . /etc/sysconfig/system
+ 
+-# Disabling supermount if not here
+-if [[ $(uname -m) != sparc*  ]];then
+-    if grep -q '^\/.*supermount.*' /etc/fstab && \
+-	! grep -q '[[:space:]]supermount$' /proc/filesystems  && \
+-	! modprobe -n supermount >/dev/null 2>/dev/null && [ -x /usr/bin/perl ];then
+-	action "Disabling Supermount" /usr/sbin/supermount -i disable
+-    fi
+-fi
+-
+ # setup eth* (without configuring it) interfaces before the
+ # hotplug/pcmcia started so we are sure that what we have configured
+ # in /etc/modules.conf get the device we have affected.
+@@ -44,18 +35,7 @@
+ fi
+ 
+ 
+-# MandrakeGlobetrotter support:
+-if [ -x /usr/share/harddrake/hwprofile ]; then
+-    action "Starting %s: " Globetrotter /usr/share/harddrake/hwprofile
+-fi
+-
+-# Call netprofile as it must be called before /etc/rc.d/rc to be able to change
+-# the active services.
+-if [ -x /sbin/set-netprofile ]; then
+-    action "Starting %s: " netprofile /sbin/set-netprofile
+-fi
+-
+-# check if /etc/resolv.conf exist - if not creates it
++# check if /etc/resolv.conf exist - if not create it
+ [ -f /etc/resolv.conf ] || {
+                touch /etc/resolv.conf
+ }
+--- sysconfig/init.annvix	2005-02-28 15:42:51.000000000 -0700
++++ sysconfig/init	2005-02-28 15:44:42.000000000 -0700
+@@ -4,13 +4,13 @@
+ BOOTUP=color
+ # Turn on graphical boot
+ GRAPHICAL=yes
+-# column to start "[  OK  ]" label in 
++# column to start "[  ok  ]" label in 
+ RES_COL=65
+ # terminal sequence to move to that column. You could change this
+ # to something like "tput hpa ${RES_COL}" if your terminal supports it
+ MOVE_TO_COL="echo -en \\033[${RES_COL}G"
+ # terminal sequence to set color to a 'success' color (currently: green)
+-SETCOLOR_SUCCESS="echo -en \\033[1;32m"
++SETCOLOR_SUCCESS="echo -en \\033[1;36m"
+ # terminal sequence to set color to a 'failure' color (currently: red)
+ SETCOLOR_FAILURE="echo -en \\033[1;31m"
+ # terminal sequence to set color to a 'warning' color (currently: yellow)
+--- rc.d/init.d/functions.annvix	2005-02-28 15:42:51.000000000 -0700
++++ rc.d/init.d/functions	2005-02-28 15:42:51.000000000 -0700
+@@ -385,7 +385,7 @@
+   [ "$BOOTUP" = "color" ] && $MOVE_TO_COL
+   echo -n "["
+   [ "$BOOTUP" = "color" ] && $SETCOLOR_SUCCESS
+-  gprintf "  OK  "
++  gprintf "  ok  "
+   [ "$BOOTUP" = "color" ] && $SETCOLOR_NORMAL
+   echo -n "]"
+   echo -ne "\r"
+@@ -396,7 +396,7 @@
+   [ "$BOOTUP" = "color" ] && $MOVE_TO_COL
+   echo -n "["
+   [ "$BOOTUP" = "color" ] && $SETCOLOR_FAILURE
+-  gprintf "FAILED"
++  gprintf "failed"
+   [ "$BOOTUP" = "color" ] && $SETCOLOR_NORMAL
+   echo -n "]"
+   echo -ne "\r"
+@@ -407,7 +407,7 @@
+   [ "$BOOTUP" = "color" ] && $MOVE_TO_COL
+   echo -n "["
+   [ "$BOOTUP" = "color" ] && $SETCOLOR_WARNING
+-  gprintf "PASSED"
++  gprintf "passed"
+   [ "$BOOTUP" = "color" ] && $SETCOLOR_NORMAL
+   echo -n "]"
+   echo -ne "\r"
+@@ -418,7 +418,7 @@
+   [ "$BOOTUP" = "color" ] && $MOVE_TO_COL
+   echo -n "["
+   [ "$BOOTUP" = "color" ] && $SETCOLOR_WARNING
+-  gprintf "WARNING"
++  gprintf "warning"
+   [ "$BOOTUP" = "color" ] && $SETCOLOR_NORMAL
+   echo -n "]"
+   echo -ne "\r"
+--- rc.d/rc.local.annvix	2005-02-28 15:42:51.000000000 -0700
++++ rc.d/rc.local	2005-02-28 15:48:06.000000000 -0700
+@@ -5,23 +5,15 @@
+ # want to do the full Sys V style init stuff.
+ 
+ [ -f /etc/sysconfig/system ] && source /etc/sysconfig/system
+-[ -f /etc/sysconfig/msec ] && source /etc/sysconfig/msec
+-[ -z "$SECURE_LEVEL" ] && SECURE_LEVEL=3
+ [ -f /etc/sysconfig/init ] && source /etc/sysconfig/init
+-if [ $SECURE_LEVEL -lt 4 ]; then
+-    [ -z "$REWRITEISSUE" ] && REWRITEISSUE=rewrite
+-    if [ $SECURE_LEVEL -lt 3 ]; then
+-	[ -z "$REWRITEISSUENET" ] && REWRITEISSUENET=rewrite
+-    fi
+-fi
+ 
+-SYSTEM=${SYSTEM=Mandrakelinux}
++SYSTEM=${SYSTEM=Annvix}
+ 
+ # Source functions
+ . /etc/init.d/functions
+ 
+-if [ "$REWRITEISSUE" = "rewrite" -a -f /etc/mandrake-release ]; then
+-    R=$(cat /etc/mandrake-release)
++if [ "$REWRITEISSUE" = "rewrite" -a -f /etc/annvix-release ]; then
++    R=$(cat /etc/annvix-release)
+ 
+     arch=$(uname -m)
+     a="a"
+@@ -45,12 +37,7 @@
+     # This will overwrite /etc/issue at every boot.  So, make any changes you
+     # want to make to /etc/issue here or you will lose them when you reboot.
+ 
+-    if [ -x /usr/bin/linux_logo ]; then
+-	/usr/bin/linux_logo -n -f | sed -e 's|\\|\\\\|g' > /etc/issue
+-	echo "" >> /etc/issue
+-    else
+-	> /etc/issue
+-    fi
++    > /etc/issue
+     echo "$R" >> /etc/issue
+     echo "Kernel $(uname -r) on $a $SMP$(uname -m) / \l" >> /etc/issue
+     
+@@ -63,21 +50,6 @@
+ 	gprintf "Welcome to %s\n" "$NAME" > /etc/issue.net
+ 	echo "-------------------------" >> /etc/issue.net
+     fi
+-else
+-    if [ -f /etc/security/msec/issue.$SECURE_LEVEL ]; then
+-	cat /etc/security/msec/issue.$SECURE_LEVEL > /etc/issue
+-    elif [ -f /etc/security/msec/issue ]; then
+-	cat /etc/security/msec/issue > /etc/issue
+-    else
+-	rm -f /etc/issue
+-    fi
+-    if [ -f /etc/security/msec/issue.net.$SECURE_LEVEL ]; then
+-	cat /etc/security/msec/issue.net.$SECURE_LEVEL > /etc/issue.net
+-    elif [ -f /etc/security/msec/issue.net ]; then
+-	cat /etc/security/msec/issue.net > /etc/issue.net
+-    else
+-	rm -f /etc/issue.net
+-    fi
+ fi
+ 
+ touch /var/lock/subsys/local
+--- rc.d/rc.sysinit.avx	2005-09-11 17:27:43.000000000 -0400
++++ rc.d/rc.sysinit	2005-09-11 17:50:06.000000000 -0400
+@@ -136,25 +136,6 @@
+    /sbin/blockdev --flushbufs /dev/ram0 >/dev/null 2>&1
+ fi
+ 
+-# Check SELinux status
+-selinuxfs=`awk '/ selinuxfs / { print $2 }' /proc/mounts`
+-SELINUX=
+-if [ -n "$selinuxfs" ] && [ "`cat /proc/self/attr/current`" != "kernel" ]; then
+-	if [ -r $selinuxfs/enforce ] ; then
+-		SELINUX=`cat $selinuxfs/enforce`
+-	else
+-		# assume enforcing if you can't read it
+-		SELINUX=1
+-	fi
+-fi
+-
+-disable_selinux() {
+-	echo "*** Warning -- SELinux is active"
+-	echo "*** Disabling security enforcement for system recovery."
+-	echo "*** Run 'setenforce 1' to reenable."
+-	echo "0" > $selinuxfs/enforce
+-}
+-
+ if [ "$HOSTTYPE" != "s390" -a "$HOSTTYPE" != "s390x" -a -c /dev/tty0 ]; then
+   last=0
+   for i in `LC_ALL=C grep '^[0-9].*respawn:/sbin/mingetty' /etc/inittab | sed 's/^.* tty\([0-9][0-9]*\).*/\1/g'`; do
+@@ -174,12 +155,12 @@
+ # Print a banner. ;)
+ # C-like escape sequences don't work as 2nd and up parameters of gprintf,
+ # so real escap chars were written
+-PRODUCT=`sed "s/.*release \([0-9.]*\).*/\1/g" /etc/mandrakelinux-release 2> /dev/null`
+-SYSTEM=${SYSTEM=Mandrakelinux}
++PRODUCT=`sed "s/.*release \([0-9.]*-[A-Z.]*\).*/\1/g" /etc/annvix-release 2> /dev/null`
++SYSTEM=${SYSTEM=Annvix}
+ if [ "$BOOTUP" != "serial" ]; then
+- gprintf "\t\t\tWelcome to %s" "`echo -en '\\033[1;36m'`$SYSTEM`echo -en '\\033[0;39m'` $PRODUCT"
++ gprintf "\t\t    Welcome to %s" "`echo -en '\\033[0;35m'`$SYSTEM`echo -en '\\033[0;39m'` $PRODUCT"
+ else
+- gprintf "\t\t\tWelcome to  %s" "$SYSTEM $PRODUCT"
++ gprintf "\t\t    Welcome to  %s" "$SYSTEM $PRODUCT"
+ fi
+ echo -en "\r"
+ echo
+@@ -190,24 +171,6 @@
+  echo
+ fi
+ 
+-# Try to get devfsd
+-if [ -c /dev/.devfsd ]; then
+-  if [ -x /sbin/devfsd ]; then
+-    action "Running DevFs daemon" devfsd /dev
+-  else
+-      if strstr "$cmdline" nodevfsd || strstr "$cmdline" devfs=nomount ; then
+-          : no devfs is wanted - do nothing
+-      else
+-	  # devfs is used but devfsd isn't installed
+-	  gprintf " #### your system is currently using devfs but devfsd isn't available"; echo
+-	  gprintf " #### you should disable devfs (add 'devfs=nomount' to the parameters"; echo
+-	  gprintf " #### that your bootloader gives to the kernel"; echo
+-	  # Let devfs being tested, but disable it on /dev
+-	  action " Disabling devfs (was mounted on /dev)" umount /dev
+-    fi
+-  fi
+-fi
+-
+ if ! grep -q /dev/pts /proc/mounts; then
+     mount -n -t devpts -o mode=620 none /dev/pts
+ fi
+@@ -345,18 +308,6 @@
+     . /etc/sysconfig/init
+ fi
+ 
+-needusbstorage=
+-if [ $usb = "1" ]; then
+-    needusbstorage=`LC_ALL=C grep -e "^I.*Cls=08" /proc/bus/usb/devices 2>/dev/null`
+-    # If you are running 2.6, and you built your own modular mouse/keyboard drivers
+-    # get them via hotplug. (and if it's your boot keyboard, build them in! :)
+-    if [ "${version[0]}" -lt "3" -a "${version[1]}" -lt "6" ]; then 
+-      LC_ALL=C fgrep 'hid' /proc/bus/usb/drivers || action $"Initializing USB HID interface: " modprobe hid 2> /dev/null
+-      action $"Initializing USB keyboard: " modprobe keybdev 2> /dev/null
+-      action $"Initializing USB mouse: " modprobe mousedev 2> /dev/null 
+-    fi
+-fi
+-
+ if [ -f /fastboot ] || strstr "$cmdline" fastboot ; then
+ 	fastboot=yes
+ fi
+@@ -456,7 +407,6 @@
+ 
+ 		str=$"(Repair filesystem)"
+ 		PS1="$str \# # "; export PS1
+-		[ "$SELINUX" = "1" ] && disable_selinux
+ 		sulogin
+ 	    else
+ 	        echo_passed
+@@ -525,7 +475,8 @@
+ # we better have udev create all block device nodes before going
+ # any further (not limited to /sys/block/sd*, since scsi_hostadapter
+ # might contain non-scsi drivers)
+-service udev start
++# XXX we don't ship udev yet
++#service udev start
+ 
+ # MiB: Device-Mapper initialization
+ if [ -f /etc/evms.conf -a -x /sbin/evms_activate ] || [ -f /etc/lvm/lvm.conf -a -x /sbin/lvm2 ]; then
+@@ -542,7 +493,6 @@
+ 	    _vgcmd_2="/sbin/lvm2 vgmknodes"
+ 	fi
+ 	_vgcmd_1="/sbin/lvm2 vgchange -a y"
+-	[ -n "$SELINUX" ] && restorecon /dev/mapper/control >/dev/null 2>&1
+     fi
+ fi
+ 
+@@ -570,13 +520,6 @@
+     action $"Setting up Logical Volume Management:" ${_vgcmd_1} && ${_vgcmd_2}
+ fi
+ 
+-# Clean up SELinux labels
+-if [ -n "$SELINUX" ]; then
+-   for file in /etc/mtab /etc/ld.so.cache ; do
+-   	[ -r $file ] && restorecon $file  >/dev/null 2>&1
+-   done
+-fi
+-
+ # Start up swapping. #we don't do encryted swap now since
+ # (pixel) it was done between setting keytable and setting hostname
+ #         but it can't be done before "vgchange -a y", 
+@@ -635,34 +578,16 @@
+ # the preferred link.
+ rm -f /lib/modules/preferred /lib/modules/default
+ 
+-# tweak isapnp settings if needed.
+-if [ -n "$PNP" -a  -f /proc/isapnp -a -x /sbin/sndconfig ]; then
+-    /sbin/sndconfig --mungepnp >/dev/null 2>&1
+-fi
+-
+-# Load sound modules if and only if they need persistent DMA buffers
+-if LC_ALL=C /sbin/modprobe -c | grep -q "^[^#]*options[[:space:]]\+sound[[:space:]].*dmabuf=1" 2>/dev/null ; then
+-  RETURN=0
+-  alias=`/sbin/modprobe -c | awk '/^alias sound / { print $3 }'`
+-  if [ -n "$alias" -a "$alias" != "off" ]; then
+-      action $"Loading sound module ($alias): " modprobe sound
+-  fi
+-  alias=`/sbin/modprobe -c | awk '/^alias[[:space:]]+sound-slot-0[[:space:]]/ { print $3 }'`
+-  if [ -n "$alias" -a "$alias" != "off" ]; then
+-      action $"Loading sound module ($alias): " modprobe sound-slot-0
+-  fi
+-fi
+-
+ if [ -f /proc/sys/kernel/modprobe ]; then
+    if [ -n "$USEMODULES" ]; then
+        sysctl -n -w kernel.modprobe="/sbin/modprobe" >/dev/null 2>&1
+-       if [[ ! -e /dev/.udevdb ]]; then
+-	       sysctl -n -w kernel.hotplug="/sbin/hotplug" >/dev/null 2>&1
+-       fi
++#       if [[ ! -e /dev/.udevdb ]]; then
++#	       sysctl -n -w kernel.hotplug="/sbin/hotplug" >/dev/null 2>&1
++#       fi
+    else
+        # We used to set this to NULL, but that causes 'failed to exec' messages"
+        sysctl -n -w kernel.modprobe="/bin/true" >/dev/null 2>&1
+-       sysctl -n -w kernel.hotplug="/bin/true" >/dev/null 2>&1
++#       sysctl -n -w kernel.hotplug="/bin/true" >/dev/null 2>&1
+    fi
+ fi
+ 
+@@ -674,8 +599,6 @@
+ # Add raid devices
+ if grep -q -s '^[[:space:]]*ARRAY[[:space:]]' /etc/mdadm.conf && [ -x /sbin/mdadm ]; then
+ 	raid=mdadm
+-elif grep -q -s '^[[:space:]]*raiddev[[:space:]]' /etc/raidtab; then
+-	raid=raidtools
+ fi
+ # Add raid devices
+ [ -n "${raid}" -a ! -f /proc/mdstat ] && modprobe md >/dev/null 2>&1
+@@ -691,77 +614,6 @@
+ 	else
+ 		echo OK
+ 	fi
+-		
+-elif [ "${raid}" = "raidtools" -a -f /proc/mdstat ]; then
+-	echo -n $"Starting up RAID devices: " 
+-
+-	rc=0
+-	
+-	for i in `awk '{if ($1=="raiddev") print $2}' /etc/raidtab`
+-	do
+-		RAIDDEV=`basename $i`
+-                RAIDSTAT=`LC_ALL=C grep "^$RAIDDEV : active" /proc/mdstat`
+-		if [ -z "$RAIDSTAT" ]; then
+-			# First scan the /etc/fstab for the "noauto"-flag
+-			# for this device. If found, skip the initialization
+-			# for it to avoid dropping to a shell on errors.
+-			# If not, try raidstart...if that fails then
+-			# fall back to raidadd, raidrun.  If that
+-			# also fails, then we drop to a shell
+-			RESULT=1
+-			INFSTAB=`LC_ALL=C grep -c "^$i" /etc/fstab`
+-			if [ $INFSTAB -eq 0 ] ; then
+-			    RESULT=0
+-			    RAIDDEV="$RAIDDEV(skipped)"
+-			fi
+-			NOAUTO=`LC_ALL=C grep "^$i" /etc/fstab | LC_ALL=C fgrep -c "noauto"`
+-			if [ $NOAUTO -gt 0 ]; then
+-			    RESULT=0
+-			    RAIDDEV="$RAIDDEV(skipped)"
+-			fi
+-			if [ $RESULT -gt 0 -a -x /sbin/raidstart ]; then
+-				/sbin/raidstart $i
+-				RESULT=$?
+-			fi
+-			if [ $RESULT -gt 0 -a -x /sbin/raid0run ]; then
+-				/sbin/raid0run $i
+-				RESULT=$?
+-			fi
+-			if [ $RESULT -gt 0 -a -x /sbin/raidadd -a -x /sbin/raidrun ]; then
+-				/sbin/raidadd $i
+-				/sbin/raidrun $i
+-				RESULT=$?
+-			fi
+-			if [ $RESULT -gt 0 ]; then
+-				rc=1
+-			fi
+-			echo -n "$RAIDDEV "
+-		else
+-			echo -n "$RAIDDEV "
+-		fi
+-	done
+-	echo
+-
+-	# A non-zero return means there were problems.
+-	if [ $rc -gt 0 ]; then
+-		local str=
+-		echo
+-		echo
+-		gprintf "*** An error occurred during the RAID startup\n"
+-		gprintf "*** Dropping you to a shell; the system will reboot\n"
+-		gprintf "*** when you leave the shell.\n"
+-
+- 		str=$"(RAID Repair)"
+-		PS1="$str \# # "; export PS1
+-		[ "$SELINUX" = "1" ] && disable_selinux
+-		sulogin
+-
+-            gprintf "Unmounting file systems\n"
+-	    umount -a
+-	    mount -n -o remount,ro /
+-            gprintf "Automatic reboot in progress.\n"
+-	    reboot -f
+-	fi
+ fi
+ 
+ # LVM initialization, take 2 (it could be on top of RAID)
+@@ -926,51 +778,6 @@
+ dd if=/dev/urandom of=/var/lib/random-seed count=1 bs=512 2>/dev/null
+ 
+ 
+-# Configure machine if necessary.
+-if [ -f /.unconfigured ]; then
+-    if [ -x /usr/bin/rhgb-client ] && /usr/bin/rhgb-client --ping ; then
+-	chvt 1
+-    fi
+-
+-    if [ -x /usr/sbin/kbdconfig ]; then
+-	/usr/sbin/kbdconfig
+-    fi
+-    if [ -x /usr/bin/passwd ]; then 
+-        /usr/bin/passwd root
+-    fi
+-    if [ -x /usr/sbin/netconfig ]; then
+-	/usr/sbin/netconfig
+-    fi
+-    if [ -x /usr/sbin/timeconfig ]; then
+-	/usr/sbin/timeconfig
+-    fi
+-    if [ -x /usr/sbin/authconfig ]; then
+-	/usr/sbin/authconfig --nostart
+-    fi
+-    if [ -x /usr/sbin/ntsysv ]; then
+-	/usr/sbin/ntsysv --level 35
+-    fi
+-
+-    # Reread in network configuration data.
+-    if [ -f /etc/sysconfig/network ]; then
+-	. /etc/sysconfig/network
+-
+-	# Reset the hostname.
+-	action "Resetting hostname %s: " ${HOSTNAME} hostname ${HOSTNAME}
+-
+-	# Reset the NIS domain name.
+-	if [ -n "$NISDOMAIN" ]; then
+-	    action "Resetting NIS domain name %s: " $NISDOMAIN nisdomainname $NISDOMAIN
+-	fi
+-    fi
+-
+-    rm -f /.unconfigured
+-
+-    if [ -x /usr/bin/rhgb-client ] && /usr/bin/rhgb-client --ping ; then
+-	chvt 8
+-    fi
+-fi
+-
+ if [ -x /sbin/quotaon ]; then
+     action "Turning on user and group quotas for local filesystems: " /sbin/quotaon -aug
+ fi
+@@ -1018,40 +825,11 @@
+ fi
+ 
+ # Clean up various /tmp bits
+-rm -f /tmp/.X*-lock /tmp/.lock.* /tmp/.gdm_socket /tmp/.s.PGSQL.*
+-rm -rf /tmp/.X*-unix /tmp/.ICE-unix /tmp/.font-unix /tmp/hsperfdata_* \
+-       /tmp/kde-* /tmp/ksocket-* /tmp/mc-* /tmp/mcop-* /tmp/orbit-*  \
+-       /tmp/scrollkeeper-*  /tmp/ssh-*
+-# Make ICE directory
+-mkdir -m 1777 -p /tmp/.ICE-unix >/dev/null 2>&1
+-chown root:root /tmp/.ICE-unix
+-[ -n "$SELINUX" ] && restorecon /tmp/.ICE-unix >/dev/null 2>&1
+-
+-# Delete VNC & X locks
+-rm -rf /tmp/.X*-unix /tmp/.font-unix
+-
+-# Clean ICE locks
+-mkdir -p /tmp/.ICE-unix
+-chown root:root /tmp/.ICE-unix
+-rm -rf /tmp/.ICE-unix/*
+-chmod a+rwx,+t /tmp/.ICE-unix
++rm -rf /tmp/hsperfdata_* /tmp/mc-*
+ 
+ # Delete Postgres sockets
+ rm -f /tmp/.s.PGSQL.*
+ 
+-# GNOME and KDE related cleanup
+-rm -rf /tmp/.fam_socket /tmp/kde-* /tmp/ksocket-* /tmp/mcop-* /tmp/orbit-* /tmp/.esd /tmp/.sawfish-* /tmp/esrv* /tmp/kio* /tmp/scrollkeeper-tempfile.*
+-
+-# clean dynamic stuff
+-for f in /var/lib/gnome/desktop/dynamic_*.desktop /usr/share/apps/kdesktop/Desktop/dynamic_*.desktop; do
+-    if [ -r $f ]; then
+-	device=`sed -n 's/# dynamic_device=//p' $f`
+-	if [ -n "$device" -a ! -e "$device" ]; then
+-	    rm -f $f
+-	fi
+-    fi
+-done
+-
+ # openssh related cleanup
+ rm -rf /tmp/ssh-*
+ 
+@@ -1261,21 +1039,11 @@
+ fi
+ 
+ if [ -f /var/lock/TMP_1ST ];then
+- if [ -f /etc/init.d/mandrake_firstime ];then
+-	/bin/sh /etc/init.d/mandrake_firstime
++ if [ -f /etc/init.d/annvix_firstime ];then
++	/bin/sh /etc/init.d/annvix_firstime
+  fi
+ fi
+ 
+-if [ -f /etc/init.d/mandrake_everytime ]; then 
+-	/bin/sh /etc/init.d/mandrake_everytime
++if [ -f /etc/init.d/annvix_everytime ]; then 
++	/bin/sh /etc/init.d/annvix_everytime
+ fi
+-
+-# (pixel) a kind of profile for XF86Config
+-# if no XFree=XXX given on kernel command-line, restore XF86Config.standard
+-for i in XF86Config XF86Config-4; do 
+-    if [ -L "/etc/X11/$i" ]; then
+-        XFree=`sed -n 's/.*XFree=\(\w*\).*/\1/p' /proc/cmdline`
+-        [ -n "$XFree" ] || XFree=standard
+-        [ -r "/etc/X11/$i.$XFree" ] && ln -sf "$i.$XFree" "/etc/X11/$i"
+-    fi
+-done
+--- mandrake/usb.annvix	2005-03-01 13:16:48.000000000 -0700
++++ mandrake/usb	2005-03-01 13:16:48.000000000 -0700
+@@ -103,47 +103,44 @@
+ 
+ case $1 in 
+     start)
+-	# If usb is already loaded for example from an initrd
+-	# we need to cold boot after the normal init phase.
+-	fgrep -q usbcore /proc/modules && COLD_USB=1
+-
+- 	get_usb_interface;
+-	sysctl -n -w kernel.printk=0
+-
+-	load_module "Loading USB interface" usb-interface || retval=1	
+-	/sbin/modprobe -c | awk '/^((alias)|(probe)) +usb-interface[0-9]/ {print $2, " ", $3}' | ( \
+-	    while read line mod; do
+-		nmb=${line##usb-interface}
+-		[[ $loaded != *$mod* ]] && { 
+-		    load_module "Loading USB interface$nmb" $line || retval=1
+-		}
+-		loaded="$loaded $mod"
+-	    done
+-	)
++        # ANNVIX: all interface controllers and keyboard/mouse support are in the
++        # kernel by default so comment all of this out; it's redundant
++        
++	## If usb is already loaded for example from an initrd
++	## we need to cold boot after the normal init phase.
++	#fgrep -q usbcore /proc/modules && COLD_USB=1
++	#
++ 	#get_usb_interface;
++	#sysctl -n -w kernel.printk=0
++	#
++	#load_module "Loading USB interface" usb-interface || retval=1	
++	#/sbin/modprobe -c | awk '/^((alias)|(probe)) +usb-interface[0-9]/ {print $2, " ", $3}' | ( \
++	#    while read line mod; do
++	#	nmb=${line##usb-interface}
++	#	[[ $loaded != *$mod* ]] && { 
++	#	    load_module "Loading USB interface$nmb" $line || retval=1
++	#	}
++	#	loaded="$loaded $mod"
++	#    done
++	#)
+ 	mount_proc_usb
+ 	
+ 	# Static modules that we want to insert and not detected by usbd.
+ 	if [ "$MOUSE" = "yes" ];then
+ 	    action "Loading USB mouse" /sbin/modprobe mousedev
+ 	fi
+-	if [ "$KEYBOARD" = "yes" ];then
+-	    action "Loading USB keyboard" /sbin/modprobe keybdev
+-	fi
++	#if [ "$KEYBOARD" = "yes" ];then
++	#    action "Loading USB keyboard" /sbin/modprobe keybdev
++	#fi
+ 	if [ "$STORAGE" = "yes" ];then
+ 	    action "Loading USB storage"  /sbin/modprobe usb-storage
+ 	fi
+ 	if [ "$PRINTER" = "yes" ];then
+ 	    action "Loading USB printer"  /sbin/modprobe printer
+ 	fi
+-	if [ "$VISOR" = "yes" ];then
+-	    action "Loading USB visor"  /sbin/modprobe visor
+-	fi
+ 	
+ 	sysctl -n -w kernel.printk=$PKLVL
+ 
+-	if [ "$COLD_USB" = 1 -a -x /etc/hotplug/usb.rc ]; then
+-	    /etc/hotplug/usb.rc start &
+-	fi
+ 	;;
+     stop)
+ #	usb_stop;
+--- mandrake/usb.conf.annvix	2005-03-01 13:12:44.000000000 -0700
++++ mandrake/usb.conf	2005-03-01 13:14:13.000000000 -0700
+@@ -1,15 +1,12 @@
+-# -*- Mode: sh -*-
++# USB initialization configuration
++#
++# NOTE: Annvix kernels enable USB by default for keyboard support.  This
++# file is largely useless unless you want to use a USB HDD or something
++
+ # Set this to no if you don't want USB.
+ USB=yes
+ 
+-# This will force to load the usb system and keyboard at the early
+-# process of the boot proces
+-KEYBOARD_AT_BOOT=no
+-
+ # Some driver you may want to force the load, normally all of this is
+ # done by the hotplug package.
+ MOUSE=no
+-KEYBOARD=no
+ STORAGE=no
+-VISOR=no
+-PRINTER=no
+\ No newline at end of file
+--- mandrake/tmpdir.sh.avx	2005-09-11 17:32:24.000000000 -0400
++++ mandrake/tmpdir.sh	2005-09-11 17:32:24.000000000 -0400
+@@ -6,20 +6,14 @@
+     . /etc/sysconfig/system
+ fi
+ 
+-if [ -f /etc/sysconfig/msec ];then
+-    eval `grep ^SECURE_LEVEL= /etc/sysconfig/msec | head -1`
+-fi
+-
+-if [[ "$SECURE_TMP" = "yes" || "$SECURE_TMP" = "1" || "$SECURE_TMP" = "YES" || "$SECURE_LEVEL" -ge 2 ]];then
+-    if [ -d ${HOME}/tmp -a -w ${HOME}/tmp ];then
+-	export TMPDIR=${HOME}/tmp
+-	export TMP=${HOME}/tmp
+-    elif mkdir -p ${HOME}/tmp >/dev/null 2>&1;then
+-	chmod 700 ${HOME}/tmp
+-	export TMPDIR=${HOME}/tmp
+-	export TMP=${HOME}/tmp
+-    else
+-	export TMPDIR=/tmp/
+-	export TMP=/tmp/
+-    fi
++if [ -d ${HOME}/tmp -a -w ${HOME}/tmp ];then
++    export TMPDIR=${HOME}/tmp
++    export TMP=${HOME}/tmp
++elif mkdir -p ${HOME}/tmp >/dev/null 2>&1;then
++    chmod 700 ${HOME}/tmp
++    export TMPDIR=${HOME}/tmp
++    export TMP=${HOME}/tmp
++else
++    export TMPDIR=/tmp/
++    export TMP=/tmp/
+ fi
+--- sysconfig/network-scripts/ifup.avx	2005-09-11 17:54:33.000000000 -0400
++++ sysconfig/network-scripts/ifup	2005-09-11 17:55:35.000000000 -0400
+@@ -202,13 +202,6 @@
+     fi
+ fi
+ 
+-# is the device wireless? If so, configure wireless device specifics
+-IS_WIRELESS=
+-if is_wireless_device ${DEVICE}; then
+-    . ./ifup-wireless
+-    IS_WIRELESS=1
+-fi
+-
+ # slave device?
+ if [ "${SLAVE}" = yes -a "${ISALIAS}" = no -a "${MASTER}" != "" -a \
+      -x /sbin/ifenslave ]; then
+--- sysconfig/network-scripts/network-functions.avx	2005-09-11 17:55:54.000000000 -0400
++++ sysconfig/network-scripts/network-functions	2005-09-11 17:56:06.000000000 -0400
+@@ -337,13 +337,6 @@
+     fi
+ }
+ 
+-is_wireless_device ()
+-{
+-    [ -x /sbin/iwconfig ] || return 1
+-    LC_ALL=C iwconfig $1 2>&1 | grep -q "no wireless extensions" || return 0
+-    return 1
+-}
+-
+ # Mainframe devices:
+ configure_ccwgroup_device ()
+ {
