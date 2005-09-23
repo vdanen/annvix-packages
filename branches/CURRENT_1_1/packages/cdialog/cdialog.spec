@@ -9,9 +9,9 @@
 
 %define name		cdialog
 %define version		0.9b
-%define release		9avx
+%define release		10avx
 
-%define datetag 	20030308
+%define datetag 	20040421
 
 Summary:	A utility for creating TTY dialog boxes
 Name:		%{name}
@@ -66,6 +66,9 @@ mkdir -p %{buildroot}%{_mandir}/man1
 
 
 %changelog
+* Thu Sep 22 2005 Vincent Danen <vdanen@annvix.org> 0.9b-10avx
+- version 0.9b-20040421
+
 * Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 0.9b-9avx
 - bootstrap build (new gcc, new glibc)
 
