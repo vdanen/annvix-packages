@@ -8,8 +8,8 @@
 
 
 %define name		rpm-helper
-%define version		0.13
-%define release		2avx
+%define version		0.14
+%define release		1avx
 
 Summary:	Helper scripts for rpm scriptlets
 Name:		%{name}
@@ -19,7 +19,7 @@ License:	GPL
 Group:		System/Configuration/Packaging
 URL:		http://www.mandrivalinux.com/
 Source0:	%{name}-%{version}.tar.bz2
-Patch0:		rpm-helper-0.13-avx-srv.patch.bz2
+Patch0:		rpm-helper-0.14-avx-srv.patch.bz2
 
 BuildArch:	noarch
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -62,6 +62,10 @@ chmod 0755 {add,del}-srv
 
 
 %changelog
+* Thu Sep 22 2005 Vincent Danen <vdanen@annvix.org> 0.14-1avx
+- 0.14
+- update P0 to rip out all references to msec
+
 * Wed Sep 21 2005 Vincent Danen <vdanen@annvix.org> 0.13-2avx
 - update P0 to patch the macros as well to update _pre_useradd and
   _pre_groupadd for our static uid/gid's

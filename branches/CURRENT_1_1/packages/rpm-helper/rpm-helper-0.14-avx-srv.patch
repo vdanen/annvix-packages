@@ -136,3 +136,47 @@
  %{nil}
  
  %_del_group_helper @LIBDIR@/del-group
+--- add-service.avx	2005-09-22 23:53:43.000000000 -0400
++++ add-service	2005-09-22 23:53:43.000000000 -0400
+@@ -27,40 +27,12 @@
+     if [ -r /etc/sysconfig/system ]; then
+ 	. /etc/sysconfig/system
+     fi
+-
+-    if [ -z "$ADD_SERVICES_TO_CURRENT_PROFILE_ONLY" ]; then
+-	# add the service to all the profiles at once
+-	if [ -d /etc/netprofile/profiles/default/services ]; then
+-	    for dir in /etc/netprofile/profiles/*/services; do
+-		touch $dir/$srv
+-	    done
+-	fi
+-    fi
+ }
+ 
+ add_service() {
+     # Add the service
+-    if [ -r /etc/sysconfig/msec ]; then
+-	. /etc/sysconfig/msec
+-    fi
+     
+-    # High security: add only authorized services
+-    LIST=/etc/security/msec/server
+-
+-    # during the install the symlink isn't done so find the right file
+-    # by ourselves
+-    if [ -n "$DURING_INSTALL" -a ! -f $LIST ]; then
+-	LIST=/etc/security/msec/server.$SECURE_LEVEL
+-    fi
+-
+-    if [ -f $LIST ]; then
+-	if grep -q "^${srv}$" $LIST ; then
+-	    add_chkconfig_service $srv
+-	fi
+-    else
+-	# Low security: install all the services
+-	add_chkconfig_service $srv
+-    fi
++    add_chkconfig_service $srv
+ }
+ 
+ if [ $num = 1 ]; then
