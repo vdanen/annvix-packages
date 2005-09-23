@@ -9,7 +9,7 @@
 
 %define name		ez-ipupdate
 %define version 	3.0.11b8
-%define release 	4avx
+%define release 	5avx
 
 Summary:	Client for Dynamic DNS Services
 Name:		%{name}
@@ -19,11 +19,13 @@ Group:		Networking/Other
 License:	GPL
 URL:		http://www.gusnet.cx:8080/proj/ez-ipupdate/
 Source:		%{name}-%{version}.tar.bz2
-Source1:	ez-ipupdate.init
+Source1:	ez-ipupdate.run
+Source2:	ez-ipupdate-log.run
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
-PreReq:		rpm-helper
+Requires(post):	rpm-helper
+Requires(preun): rpm-helper
 
 %description
 ez-ipupdate is a small utility for updating your host name for any of the
@@ -65,15 +67,17 @@ You can find some example in /usr/share/doc/%{name}-%{version}
 
 perl -pi -e "s|\/usr\/local\/bin|\/usr\/bin|" *.conf
 perl -pi -e 's|/tmp/ez-ipupdate.cache|/var/cache/ez-ipupdate|g;' *.conf
-install -d -m 0755 %{buildroot}%{_sysconfdir}/rc.d/init.d/
-install -m 0755 %{SOURCE1} %{buildroot}%{_initrddir}/ez-ipupdate
+
+mkdir -p %{buildroot}%{_srvdir}/ez-ipupdate/log
+install -m 0740 %{SOURCE1} %{buildroot}%{_srvdir}/ez-ipupdate/run
+install -m 0740 %{SOURCE2} %{buildroot}%{_srvdir}/ez-ipupdate/log/run
 
 
 %post
-%_post_service ez-ipupdate
+%_post_srv ez-ipupdate
 
 %preun
-%_preun_service ez-ipupdate
+%_preun_srv ez-ipupdate
 
 
 %clean
@@ -83,11 +87,17 @@ install -m 0755 %{SOURCE1} %{buildroot}%{_initrddir}/ez-ipupdate
 %files 
 %defattr(-,root,root)
 %doc COPYING INSTALL README *.conf
-%config(noreplace) %{_initrddir}/ez-ipupdate
 %{_bindir}/*
+%dir %attr(0750,root,admin) %{_srvdir}/ez-ipupdate
+%dir %attr(0750,root,admin) %{_srvdir}/ez-ipupdate/log
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/ez-ipupdate/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/ez-ipupdate/log/run
 
 
 %changelog
+* Thu Sep 22 2005 Vincent Danen <vdanen@annvix.org> 3.0.11b8-5avx
+- run scripts
+
 * Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 3.0.11b8-4avx
 - bootstrap build (new gcc, new glibc)
 
