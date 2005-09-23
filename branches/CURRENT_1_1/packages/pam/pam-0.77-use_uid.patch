@@ -1,0 +1,11 @@
+--- Linux-PAM-0.77/modules/pam_succeed_if/pam_succeed_if.c.fred	2005-09-19 14:06:58.000000000 +0200
++++ Linux-PAM-0.77/modules/pam_succeed_if/pam_succeed_if.c	2005-09-19 14:49:48.000000000 +0200
+@@ -359,6 +362,8 @@
+ 				  "error retrieving information about user %ld",
+ 				  (long)getuid());
+ 			return PAM_SERVICE_ERR;
++		} else {
++			user = pwd->pw_name;
+ 		}
+ 	} else {
+ 		/* Get the user's name. */

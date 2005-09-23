@@ -5,12 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-# pam-0.77-30mdk
+# pam-0.77-31mdk
 
 
 %define name		pam
 %define version		0.77
-%define release		21avx
+%define release		22avx
 
 %define rhrelease	5
 %define libname		%mklibname %{name} 0
@@ -84,6 +84,7 @@ Patch512:	pam-0.77-xauth-groups.patch.bz2
 Patch513:	pam-0.77-console-setowner.patch.bz2
 # (fl) for /etc/environment
 Patch514:	pam-0.77-environment.patch.bz2
+Patch515:	pam-0.77-use_uid.patch.bz2
 
 Patch600:	pam-0.77-annvix.patch.bz2
 
@@ -187,6 +188,7 @@ cp %{SOURCE4} .
 %patch512 -p1 -b .xauth-groups
 %patch513 -p1 -b .console-setowner
 %patch514 -p1 -b .environment
+%patch515 -p1 -b .use_uid
 
 %patch600 -p0 -b .annvix
 
@@ -300,6 +302,9 @@ touch %{buildroot}%{_sysconfdir}/environment
 
 
 %changelog
+* Fri Sep 23 2005 Vincent Danen <vdanen@annvix.org> 0.77-22avx
+- P515 (flepied)
+
 * Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 0.77-21avx
 - sync with mandrake 0.77-30mdk:
   - don't apply the P38 (fix mdk bug #16961, su segfault on x86_64)
