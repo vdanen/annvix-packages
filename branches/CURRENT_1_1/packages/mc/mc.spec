@@ -9,7 +9,7 @@
 
 %define name		mc
 %define version		4.6.1
-%define release		1avx
+%define release		2avx
 
 Summary:	A user-friendly file manager and visual shell
 Name:		%{name}
@@ -115,6 +115,9 @@ install lib/{mc.sh,mc.csh} %{buildroot}%{_sysconfdir}/profile.d
 
 
 %changelog
+* Thu Sep 22 2005 Vincent Danen <vdanen@annvix.org> 4.6.1-2avx
+- rebuild against new glib2.0
+
 * Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 4.6.1-1avx
 - 4.6.1
 - drop all unrequired patches

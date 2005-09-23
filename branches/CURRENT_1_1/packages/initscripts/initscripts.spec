@@ -9,7 +9,7 @@
 
 %define name		initscripts
 %define version		7.61.1
-%define release		4avx
+%define release		5avx
 
 # The restart part in the real _post_service doesn't work with netfs and isn't needed
 # for other scripts
@@ -394,6 +394,9 @@ fi
 
 
 %changelog
+* Thu Sep 22 2005 Vincent Danen <vdanen@annvix.org> 7.61.1-5avx
+- rebuild against new glib2.0
+
 * Sun Sep 11 2005 Vincent Danen <vdanen@annvix.org> 7.61.1-4avx
 - mark /etc/rc.d/rc.local and /etc/rc.local as %%config(noreplace)
 - compress the ChangeLog

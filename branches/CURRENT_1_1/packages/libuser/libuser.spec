@@ -9,7 +9,7 @@
 
 %define name		libuser
 %define version		0.53.2
-%define release		5avx
+%define release		6avx
 
 %define major		1
 %define libname		%mklibname user %{major}
@@ -161,6 +161,9 @@ rm -rf %{buildroot}%{_libdir}/python%{pyver}/site-packages/*a
 
 
 %changelog
+* Thu Sep 22 2005 Vincent Danen <vdanen@annvix.org> 0.53.2-6avx
+- rebuild against new glib2.0
+
 * Fri Sep 09 2005 Vincent Danen <vdanen@annvix.org> 0.53.2-5avx
 - pass -DLDAP_DEPRECATED to CFLAGS (oden)
 - BuildRequires: openldap-devel, not libldap-devel

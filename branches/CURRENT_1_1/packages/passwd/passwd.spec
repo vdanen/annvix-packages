@@ -9,7 +9,7 @@
 
 %define name		passwd
 %define version		0.68
-%define release		10avx
+%define release		11avx
 
 Summary:	The passwd utility for setting/changing passwords using PAM
 Name:		%{name}
@@ -71,6 +71,9 @@ rm -f %{buildroot}%{_mandir}/man1/{chfn.1,chsh.1}
 
 		
 %changelog
+* Thu Sep 22 2005 Vincent Danen <vdanen@annvix.org> 0.68-11avx
+- rebuild against new glib2.0
+
 * Wed Aug 17 2005 Vincent Danen <vdanen@annvix.org> 0.68-10avx
 - bootstrap build (new gcc, new glibc)
 
