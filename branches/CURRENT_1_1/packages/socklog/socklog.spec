@@ -9,7 +9,7 @@
 
 %define name 		socklog
 %define version		2.0.2
-%define release		3avx
+%define release		4avx
 
 Summary:	Small and secure replacement for syslogd
 Name:		%{name}
@@ -23,6 +23,7 @@ Source1:	socklog-unix.run
 Source2:	socklog-unix-log.run
 Source3:	socklog-klog.run
 Source4:	socklog-klog-log.run
+Source5:	socklog-config.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:  dietlibc-devel >= 0.28
@@ -42,7 +43,7 @@ jobs to rotate the logs. socklog is small, secure, and reliable.
 
 
 %prep
-%setup -q -n admin
+%setup -q -n admin -a 5
 
 
 %build
@@ -76,6 +77,14 @@ install -m 0740 %{SOURCE2} %{buildroot}%{_srvdir}/socklog-unix/log/run
 install -m 0740 %{SOURCE3} %{buildroot}%{_srvdir}/socklog-klog/run 
 install -m 0740 %{SOURCE4} %{buildroot}%{_srvdir}/socklog-klog/log/run 
 
+# install our default config files
+mkdir -p %{buildroot}/var/log/socklog
+pushd socklog-config
+    cp -av * %{buildroot}/var/log/socklog/
+    find %{buildroot}/var/log/socklog -name config -exec chmod 0640 {} \;
+    chmod 0750 %{buildroot}/var/log/socklog/*
+popd
+
 
 %clean 
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -107,17 +116,49 @@ fi
 /bin/*
 %{_mandir}/man1/*
 %{_mandir}/man8/*
-%dir %attr(0750,root,admin) %{_srvdir}/socklog-unix
-%dir %attr(0750,root,admin) %{_srvdir}/socklog-unix/log
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/socklog-unix/run
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/socklog-unix/log/run
 %dir %attr(0750,root,admin) %{_srvdir}/socklog-klog
 %dir %attr(0750,root,admin) %{_srvdir}/socklog-klog/log
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/socklog-klog/run
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/socklog-klog/log/run
+# config files
+%attr(0750,root,syslogd) %dir /var/log/socklog
+%attr(0770,root,syslogd) %dir /var/log/socklog/all
+%attr(0640,root,syslogd) %config(noreplace) /var/log/socklog/all/config
+%attr(0770,root,syslogd) %dir /var/log/socklog/auth
+%attr(0640,root,syslogd) %config(noreplace) /var/log/socklog/auth/config
+%attr(0770,root,syslogd) %dir /var/log/socklog/boot
+%attr(0640,root,syslogd) %config(noreplace) /var/log/socklog/boot/config
+%attr(0770,root,syslogd) %dir /var/log/socklog/cron
+%attr(0640,root,syslogd) %config(noreplace) /var/log/socklog/cron/config
+%attr(0770,root,syslogd) %dir /var/log/socklog/daemon
+%attr(0640,root,syslogd) %config(noreplace) /var/log/socklog/daemon/config
+%attr(0770,root,syslogd) %dir /var/log/socklog/debug
+%attr(0640,root,syslogd) %config(noreplace) /var/log/socklog/debug/config
+%attr(0770,root,syslogd) %dir /var/log/socklog/ftp
+%attr(0640,root,syslogd) %config(noreplace) /var/log/socklog/ftp/config
+%attr(0770,root,syslogd) %dir /var/log/socklog/kern
+%attr(0640,root,syslogd) %config(noreplace) /var/log/socklog/kern/config
+%attr(0770,root,syslogd) %dir /var/log/socklog/local
+%attr(0640,root,syslogd) %config(noreplace) /var/log/socklog/local/config
+%attr(0770,root,syslogd) %dir /var/log/socklog/mail
+%attr(0640,root,syslogd) %config(noreplace) /var/log/socklog/mail/config
+%attr(0770,root,syslogd) %dir /var/log/socklog/messages
+%attr(0640,root,syslogd) %config(noreplace) /var/log/socklog/messages/config
+%attr(0770,root,syslogd) %dir /var/log/socklog/news
+%attr(0640,root,syslogd) %config(noreplace) /var/log/socklog/news/config
+%attr(0770,root,syslogd) %dir /var/log/socklog/syslog
+%attr(0640,root,syslogd) %config(noreplace) /var/log/socklog/syslog/config
+%attr(0770,root,syslogd) %dir /var/log/socklog/user
+%attr(0640,root,syslogd) %config(noreplace) /var/log/socklog/user/config
 
 
 %changelog
+* Sun Sep 18 2005 Vincent Danen <vdanen@annvix.org> 2.0.2-4avx
+- added config files to mirror the setup in /etc/syslog.conf
+- modified the logging daemon to accomodate the configs
+
 * Thu Sep 08 2005 Sean P. Thomas <spt@annvix.org> 2.0.2-3avx
 - fix up log run script, moved logs, and some perms.
 
