@@ -9,7 +9,7 @@
 
 %define name		linux-atm
 %define version		2.4.1
-%define release		8avx
+%define release		9avx
 
 %define major		1
 %define libname		lib%{name}
@@ -26,6 +26,7 @@ Source:		%{name}-%{version}.tar.bz2
 Patch0:		linux-atm-2.4.1-gcc3.4-fix.patch.bz2
 Patch1:		linux-atm-2.4.1-libtool-fixes.patch.bz2
 Patch2:		linux-atm-2.4.1-64bit-fixes.patch.bz2
+Patch3:		linux-atm-2.4.1-gcc4.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	flex, bison, automake1.4
@@ -61,6 +62,8 @@ use %{name}.
 %patch0 -p1 -b .gcc3.4
 %patch1 -p1 -b .libtool-fixes
 %patch2 -p1 -b .64bit-fixes
+%patch3 -p1 -b .gcc4
+
 # stick to builtin libtool 1.4
 %define __libtoolize /bin/true
 autoconf
@@ -109,6 +112,9 @@ automake-1.4 --foreign
 
 
 %changelog
+* Fri Sep 23 2005 Vincent Danen <vdanen@annvix.org> 2.4.1-9avx
+- P3: gcc4 fixes mostly from fedora (gbeauchesne)
+
 * Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 2.4.1-8avx
 - bootstrap build (new gcc, new glibc)
 - patches from mdk for gcc, libtool, and 64bit fixes
