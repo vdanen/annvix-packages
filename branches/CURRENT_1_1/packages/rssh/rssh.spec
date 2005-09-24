@@ -9,7 +9,7 @@
 
 %define name		rssh
 %define version		2.2.3
-%define release		1avx
+%define release		2avx
 
 Summary:	Restricted shell for scp or sftp
 Name:		%{name}
@@ -20,7 +20,7 @@ Group:		Networking/Remote access
 URL:		http://www.pizzashack.org/rssh/
 Source:		http://prdownloads.sourceforge.net/rssh/%{name}-%{version}.tar.gz
 
-BuildRoot:	%_tmppath/%{name}-%{version}
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	openssh-clients openssh-server
 
 Requires:	openssh
@@ -37,14 +37,14 @@ both.
 
 %build
 %configure2_5x \
-    --with-sftp-server=%_libdir/ssh/sftp-server
+    --with-sftp-server=%{_libdir}/ssh/sftp-server
 %make 
 
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
-install -m 0755 -D conf_convert.sh %buildroot%_datadir/%name/conf_convert.sh
+install -m 0755 -D conf_convert.sh %{buildroot}%_datadir/%{name}/conf_convert.sh
 
 
 %clean
@@ -57,12 +57,15 @@ install -m 0755 -D conf_convert.sh %buildroot%_datadir/%name/conf_convert.sh
 %config(noreplace) %{_sysconfdir}/rssh.conf
 %attr(755,root,root) %{_bindir}/rssh
 %attr(4755,root,root) %{_libexecdir}/rssh_chroot_helper
-%dir %_datadir/%name
-%_datadir/%name/conf_convert.sh
+%dir %_datadir/%{name}
+%_datadir/%{name}/conf_convert.sh
 %{_mandir}/man*/*
 
 
 %changelog
+* Sat Sep 24 2005 Vincent Danen <vdanen@annvix.org> 2.2.3-2avx
+- forgot to clean the spec
+
 * Sat Sep 24 2005 Vincent Danen <vdanen@annvix.org> 2.2.3-1avx
 - first Annvix package
 
@@ -79,7 +82,7 @@ install -m 0755 -D conf_convert.sh %buildroot%_datadir/%name/conf_convert.sh
 - New release 2.2.1
 
 * Tue May 11 2004 Götz Waschk <waschk@linux-mandrake.com> 2.2.0-1mdk
-- add %_datadir/%name/conf_convert.sh to migrate from 2.1.1
+- add %_datadir/%{name}/conf_convert.sh to migrate from 2.1.1
 - New release 2.2.0
 
 * Tue May 11 2004 Götz Waschk <waschk@linux-mandrake.com> 2.1.1-1mdk
