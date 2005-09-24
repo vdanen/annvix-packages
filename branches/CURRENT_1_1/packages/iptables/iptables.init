@@ -29,16 +29,6 @@ iftable() {
 	fi
 }
 
-check() {
-	/sbin/modprobe ipt_MASQUERADE >/dev/null 2>&1
-	iftable nat -N __T__${1##*-}__ >/dev/null 2>&1
-	iftable nat -A __T__${1##*-}__ -j MASQUERADE >/dev/null 2>&1
-	res=$?
-	iftable nat -F __T__${1##*-}__ >/dev/null 2>&1
-	iftable nat -X __T__${1##*-}__ >/dev/null 2>&1
-	/sbin/modprobe -r ipt_MASQUERADE >/dev/null 2>&1
-}
-
 start() {
 	# don't do squat if we don't have the config file
 	if [ -f $IPTABLES_CONFIG ]; then
@@ -77,7 +67,6 @@ stop() {
 
 case "$1" in
   start)
-	check
 	start
 	;;
 
@@ -149,12 +138,8 @@ case "$1" in
 	echo
 	;;
 
-  check)
-    check
-	;;
-
   *)
-	echo $"Usage: $0 {start|stop|restart|condrestart|status|panic|save|check}"
+	echo $"Usage: $0 {start|stop|restart|condrestart|status|panic|save}"
 	exit 1
 esac
 

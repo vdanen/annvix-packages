@@ -9,7 +9,7 @@
 
 %define name		iptables
 %define version		1.3.3
-%define release		2avx
+%define release		3avx
 
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 Name:		%{name}
@@ -186,6 +186,10 @@ fi
 
 
 %changelog
+* Sat Sep 24 2005 Vincent Danen <vdanen@annvix.org> 1.3.3-3avx
+- get rid of the check command in the initscripts altogether; it's only
+  required if there are multiple iptables libraries; we only ship one
+
 * Fri Sep 23 2005 Vincent Danen <vdanen@annvix.org> 1.3.3-2avx
 - fix the initscripts:
   - no longer check if we're running kernel 2.3 or higher; we've
