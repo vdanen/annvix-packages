@@ -9,7 +9,7 @@
 
 %define name		openldap
 %define version		2.3.6
-%define release		4avx
+%define release		5avx
 
 %define major 		2.3_0
 %define migtools_ver	45
@@ -557,8 +557,7 @@ SLAPDCONF=${SLAPDCONF:-/etc/%{name}/slapd.conf}
 #decide whether we need to migrate at all:
 MIGRATE=`/usr/sbin/slapd -V 2>&1|while read a b c d e;do case $d in (2.3.*) echo nomigrate;;(2.*) echo migrate;;esac;done`
 
-if [ "$1" -ne 1 -a -e "$SLAPDCONF" -a "$MIGRATE" != "nomigrate" ]
-    # *** convert to runsv
+if [ "$1" -ne 1 -a -e "$SLAPDCONF" -a "$MIGRATE" != "nomigrate" ]; then
     SLAPD_STATUS=`runsvstat /service/slapd 2>/dev/null|grep -q down;echo $?`
     [ $SLAPD_STATUS -eq 1 ] && srv slapd stop
     #`awk '/^[:space:]*directory[:space:]*\w*/ {print $2}' /etc/%{name}/slapd.conf`
@@ -852,6 +851,9 @@ fi
 
 
 %changelog
+* Fri Sep 23 2005 Vincent Danen <vdanen@annvix.org> 2.3.6-5avx
+- fix dumb typeo in %%pre script
+
 * Fri Sep 23 2005 Vincent Danen <vdanen@annvix.org> 2.3.6-4avx
 - fix the slapd run script; -d by itself is no longer sufficient, a
   loglevel needs to be passed so it if isn't defined in slapd.conf, use
