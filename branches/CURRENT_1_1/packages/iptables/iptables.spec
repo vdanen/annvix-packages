@@ -9,7 +9,7 @@
 
 %define name		iptables
 %define version		1.3.3
-%define release		1avx
+%define release		2avx
 
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 Name:		%{name}
@@ -186,6 +186,13 @@ fi
 
 
 %changelog
+* Fri Sep 23 2005 Vincent Danen <vdanen@annvix.org> 1.3.3-2avx
+- fix the initscripts:
+  - no longer check if we're running kernel 2.3 or higher; we've
+    never shipped a 2.2 kernel
+  - get rid of that braindead symlinking crap; we have one iptables
+    directory, leave it alone!
+
 * Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 1.3.3-1avx
 - 1.3.3
 - drop P4; fixed upstream
