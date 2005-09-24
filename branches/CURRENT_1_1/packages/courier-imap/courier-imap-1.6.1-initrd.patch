@@ -1,11 +1,5 @@
 --- courier-imap.sysvinit.in	2002-11-06 20:28:55.000000000 -0500
 +++ courier-imap.sysvinit.in.oden	2002-12-31 00:09:48.000000000 -0500
-@@ -1,4 +1,4 @@
--# @SHELL@
-+#! @SHELL@
- #
- # This is a sample /etc/init.d file for Courier-IMAP
- #
 @@ -8,11 +8,13 @@
  #
  #

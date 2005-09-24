@@ -8,8 +8,8 @@
 
 
 %define name		courier-imap
-%define version		2.1.2
-%define release		22avx
+%define version		3.0.8
+%define release		1avx
 
 %define _localstatedir	/var/run
 %define	authdaemondir	%{_localstatedir}/authdaemon.courier-imap
@@ -17,7 +17,7 @@
 %define	courierlibdir	%{_libdir}/courier
 %define	couriersysconfdir %{_sysconfdir}/courier
 
-%define	courier_patch_version 0.42.0
+%define	courier_patch_version 0.42.2
 
 Summary:	Courier-IMAP is an IMAP server that uses Maildirs
 Name:		%{name}
@@ -47,12 +47,13 @@ Source15:	authdaemond-log.run
 Source16:	09_courier-imap.afterboot
 # (fc) 1.4.2-2mdk fix missing command in initrd
 Patch0: 	courier-imap-1.6.1-initrd.patch.bz2
-Patch1:		courier-imap-2.1.2-auto_maildir_creator.patch.bz2
+Patch1:		courier-imap-3.0.8-auto_maildir_creator.diff.bz2
 Patch2:		courier-imap-2.1.1-configure.patch.bz2
 Patch3:		courier-imap-2.1.2-authnodaemon.patch.bz2
+Patch4:		courier-imap-3.0.8-overflow.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildPreReq:	autoconf2.5, coreutils, libtool, perl, sed
+BuildPreReq:	autoconf2.5
 BuildRequires:	openssl-devel, pam-devel, gdbm-devel
 # ldap subpackage:
 BuildRequires:	openldap-devel
@@ -61,9 +62,10 @@ BuildRequires:	MySQL-devel
 # postgresql subpackage:
 BuildRequires:	postgresql-devel
 
-Requires:	chkconfig, coreutils, gdbm, sed, ipsvd
-#Requires:	libopenssl0.9.7
-PreReq:		maildirmake++, rpm-helper, afterboot
+Requires:	gdbm, ipsvd
+Requires(post):	afterboot, rpm-helper
+Requires(postun): afterboot
+Requires(preun): rpm-helper
 Conflicts:	uw-imap, bincimap
 Provides:	imap, imap-server
 
@@ -79,6 +81,8 @@ the full Courier mail server.  Install the Courier package instead.
 Summary:	Courier-IMAP POP servers
 Group:		System/Servers
 Requires:	%{name} = %{version}-%{release}, ipsvd
+Requires(post):	rpm-helper
+Requires(preun): rpm-helper
 Provides:	pop, pop-server
 Conflicts:	uw-imap-pop
 
@@ -92,6 +96,8 @@ Summary:	Courier-IMAP LDAP authentication driver
 Group:		System/Servers
 Requires:	%{name} = %{version}-%{release}
 #Requires:	libldap2
+Requires(post):	rpm-helper
+Requires(postun): rpm-helper
 Conflicts:	%{name}-mysql %{name}-pgsql
 
 %description ldap
@@ -104,6 +110,8 @@ ability to use an LDAP directory for authentication.
 Summary:	Courier-IMAP MySQL authentication driver
 Group:		System/Servers
 Requires:	%{name} = %{version}-%{release}, MySQL-shared
+Requires(post):	rpm-helper
+Requires(postun): rpm-helper
 Conflicts:	%{name}-ldap %{name}-pgsql
 
 %description mysql
@@ -116,6 +124,8 @@ the ability to use a MySQL database table for authentication.
 Summary:	Courier-IMAP PostgreSQL authentication driver
 Group:		System/Servers
 Requires:	%{name} = %{version}-%{release}, postgresql-libs
+Requires(post):	rpm-helper
+Requires(postun): rpm-helper
 Conflicts:	%{name}-ldap %{name}-mysql
 
 %description pgsql
@@ -156,7 +166,8 @@ maildirmake command.
 %ifarch amd64 x86_64
 %patch2 -p0 -b .config
 %endif
-%patch3 -p1 -b .nodaemon
+#%patch3 -p1 -b .nodaemon
+%patch4 -p1 -b .overflow
 
 
 %build
@@ -234,7 +245,11 @@ if [ "x$authdaemonvar" != "x" ]; then
     echo '%dir %attr(700, root, root) ' $authdaemonvar >  authdaemon.files
     touch %{buildroot}/${authdaemonvar}/lock || exit 1
     touch %{buildroot}/${authdaemonvar}/pid || exit 1
-    authlib/authmksock %{buildroot}/${authdaemonvar}/socket || exit 1
+    # authmksock can't deal with paths longer than 108 chars
+    foo=$(pwd)
+    pushd %{buildroot}/${authdaemonvar}
+        $foo/authlib/authmksock socket || exit 1
+    popd
     echo '%ghost %attr(600, root, root) ' ${authdaemonvar}/lock >> authdaemon.files
     echo '%ghost %attr(644, root, root) ' ${authdaemonvar}/pid >> authdaemon.files
     echo '%ghost %attr(777, root, root) ' ${authdaemonvar}/socket >> authdaemon.files
@@ -310,6 +325,7 @@ cp -f courier_patch/html/*.html automatic_maildir_creation_patch/
 cp -f courier_patch/README.txt automatic_maildir_creation_patch/
 cp -f courier_patch/THANKS automatic_maildir_creation_patch/
 cp -f courier_patch/README_%{courier_patch_version} automatic_maildir_creation_patch/
+chmod -R 0644 %{buildroot}%{courierdatadir}/auto_maildir_creator
 
 echo "IMAP_MAILDIR_CREATOR=\"%{courierdatadir}/auto_maildir_creator\"" >> %{buildroot}%{couriersysconfdir}/imapd.dist
 echo "IMAP_MAILDIR_CREATOR=\"%{courierdatadir}/auto_maildir_creator\"" >> %{buildroot}%{couriersysconfdir}/imapd-ssl.dist
@@ -462,10 +478,10 @@ test ! -f %{courierdatadir}/configlist.mysql || %{courierdatadir}/sysconftool-rp
 
 
 %files -f authdaemon.files
-%defattr(-, root, root)
-%doc 00README.NOW.OR.SUFFER INSTALL INSTALL.html NEWS README index.html
-%doc imap/FAQ.html imap/README.html imap/courierpop3d.html imap/imapd.html imap/mkimapdcert.html imap/mkpop3dcert.html
-%doc imap/BUGS imap/ChangeLog imap/FAQ imap/README.imap
+%defattr(-,root,root)
+%doc 00README.NOW.OR.SUFFER INSTALL INSTALL.html NEWS README
+%doc imap/README.html imap/courierpop3d.html imap/imapd.html imap/mkimapdcert.html imap/mkpop3dcert.html
+%doc imap/BUGS imap/ChangeLog imap/README.imap
 %doc liblock/lockmail.html
 %doc maildir/README.maildirfilter.html maildir/README.maildirquota.html maildir/README.sharedfolders.html maildir/deliverquota.html
 %doc maildir/maildirquota.html maildir/README.maildirquota.txt maildir/README.sharedfolders.txt
@@ -476,11 +492,11 @@ test ! -f %{courierdatadir}/configlist.mysql || %{courierdatadir}/sysconftool-rp
 
 %config(noreplace) %{_sysconfdir}/pam.d/imap
 %dir %{couriersysconfdir}
-%attr(600, root, root) %config(noreplace) %{couriersysconfdir}/imapd.dist
-%attr(600, root, root) %config(noreplace) %{couriersysconfdir}/imapd-ssl.dist
+%attr(0600,root,root) %config(noreplace) %{couriersysconfdir}/imapd.dist
+%attr(0600,root,root) %config(noreplace) %{couriersysconfdir}/imapd-ssl.dist
 %config(noreplace) %{couriersysconfdir}/imapd.cnf
 %config(noreplace) %{couriersysconfdir}/quotawarnmsg.example
-%attr(644, root, root) %config(noreplace) %{couriersysconfdir}/authdaemonrc.dist
+%attr(0644,root,root) %config(noreplace) %{couriersysconfdir}/authdaemonrc.dist
 %dir %{courierlibdir}
 %dir %{courierlibdir}/authlib
 
@@ -488,6 +504,7 @@ test ! -f %{courierdatadir}/configlist.mysql || %{courierdatadir}/sysconftool-rp
 %{_bindir}/imapd
 %{_bindir}/couriertls
 %{_bindir}/maildirkw
+%{_bindir}/maildiracl
 
 %{_sbindir}/imaplogin
 %{_sbindir}/userdbpw
@@ -496,8 +513,14 @@ test ! -f %{courierdatadir}/configlist.mysql || %{courierdatadir}/sysconftool-rp
 %{_sbindir}/pw2userdb
 %{_sbindir}/userdb
 %{_sbindir}/vchkpw2userdb
+%{_sbindir}/authenumerate
+%{_sbindir}/courierlogger
+%{_sbindir}/sharedindexinstall
+%{_sbindir}/sharedindexsplit
 
 %{_mandir}/man1/couriertcpd.1*
+%{_mandir}/man1/courierlogger.1*
+%{_mandir}/man1/maildiracl.1*
 %{_mandir}/man1/maildirkw.1*
 %{_mandir}/man7/auth*.7*
 %{_mandir}/man8/deliverquota.8*
@@ -514,16 +537,16 @@ test ! -f %{courierdatadir}/configlist.mysql || %{courierdatadir}/sysconftool-rp
 %{courierdatadir}/mkimapdcert
 %{courierdatadir}/vchkpw2userdb
 %{courierdatadir}/userdb
-%attr(755, root, root) %{courierdatadir}/auto_maildir_creator
+%attr(0755,root,root) %{courierdatadir}/auto_maildir_creator
 
-%attr(755, root, root) %{courierdatadir}/sysconftool
-%attr(755, root, root) %{courierdatadir}/sysconftool-rpmupgrade
-%attr(644, root, root) %{courierdatadir}/configlist
+%attr(0755,root,root) %{courierdatadir}/sysconftool
+%attr(0755,root,root) %{courierdatadir}/sysconftool-rpmupgrade
+%attr(0644,root,root) %{courierdatadir}/configlist
 
-%ghost %attr(600, root, root) %{_localstatedir}/imapd.pid
-%ghost %attr(600, root, root) %{_localstatedir}/imapd-ssl.pid
-%ghost %attr(600, root, root) %{_localstatedir}/imapd.pid.lock
-%ghost %attr(600, root, root) %{_localstatedir}/imapd-ssl.pid.lock
+%ghost %attr(0600,root,root) %{_localstatedir}/imapd.pid
+%ghost %attr(0600,root,root) %{_localstatedir}/imapd-ssl.pid
+%ghost %attr(0600,root,root) %{_localstatedir}/imapd.pid.lock
+%ghost %attr(0600,root,root) %{_localstatedir}/imapd-ssl.pid.lock
 
 %dir %attr(0750,root,admin) %{_srvdir}/courier-imapd
 %dir %attr(0750,root,admin) %{_srvdir}/courier-imapd/log
@@ -549,19 +572,19 @@ test ! -f %{courierdatadir}/configlist.mysql || %{courierdatadir}/sysconftool-rp
 %files pop
 %defattr(-, root, root)
 %config(noreplace) %{_sysconfdir}/pam.d/pop3
-%attr(600, root, root) %config(noreplace) %{couriersysconfdir}/pop3d.dist
-%attr(600, root, root) %config(noreplace) %{couriersysconfdir}/pop3d-ssl.dist
+%attr(0600,root,root) %config(noreplace) %{couriersysconfdir}/pop3d.dist
+%attr(0600,root,root) %config(noreplace) %{couriersysconfdir}/pop3d-ssl.dist
 %config(noreplace) %{couriersysconfdir}/pop3d.cnf
 %{_bindir}/pop3d
 %{_sbindir}/pop3login
 %{_sbindir}/mkpop3dcert
 %{courierdatadir}/mkpop3dcert
-%attr(644, root, root) %{courierdatadir}/configlist.pop
+%attr(0644,root,root) %{courierdatadir}/configlist.pop
 
-%ghost %attr(600, root, root) %{_localstatedir}/pop3d.pid
-%ghost %attr(600, root, root) %{_localstatedir}/pop3d-ssl.pid
-%ghost %attr(600, root, root) %{_localstatedir}/pop3d.pid.lock
-%ghost %attr(600, root, root) %{_localstatedir}/pop3d-ssl.pid.lock
+%ghost %attr(0600,root,root) %{_localstatedir}/pop3d.pid
+%ghost %attr(0600,root,root) %{_localstatedir}/pop3d-ssl.pid
+%ghost %attr(0600,root,root) %{_localstatedir}/pop3d.pid.lock
+%ghost %attr(0600,root,root) %{_localstatedir}/pop3d-ssl.pid.lock
 
 %dir %attr(0750,root,admin) %{_srvdir}/courier-pop3d
 %dir %attr(0750,root,admin) %{_srvdir}/courier-pop3d/log
@@ -580,30 +603,30 @@ test ! -f %{courierdatadir}/configlist.mysql || %{courierdatadir}/sysconftool-rp
 
 
 %files ldap -f authdaemon.files.ldap
-%defattr(-, root, root)
+%defattr(-,root,root)
 %doc authlib/README.ldap
 %doc authlib/authldap.schema
-%attr(644, root, root) %{courierdatadir}/configlist.ldap
+%attr(0644,root,root) %{courierdatadir}/configlist.ldap
 
 
 %files mysql -f authdaemon.files.mysql
-%defattr(-, root, root)
+%defattr(-,root,root)
 %doc authlib/README.authmysql.html
 %doc authlib/README.authmysql.myownquery
-%attr(644, root, root) %{courierdatadir}/configlist.mysql
+%attr(0644,root,root) %{courierdatadir}/configlist.mysql
 
 
 %files pgsql -f authdaemon.files.pgsql
-%defattr(-, root, root)
+%defattr(-,root,root)
 %doc authlib/README.authpostgres.html
-%attr(644, root, root) %{courierdatadir}/configlist.pgsql
+%attr(0644,root,root) %{courierdatadir}/configlist.pgsql
 
 
 %files utils
-%defattr(-, root, root)
-%attr(755, root, root) %{_bindir}/courier-imap-authinfo
-%attr(755, root, root) %{_bindir}/courier-imap-authtest
-%attr(755, root, root) %{_bindir}/courier-imap-authdaemontest
+%defattr(0755,root,root)
+%{_bindir}/courier-imap-authinfo
+%{_bindir}/courier-imap-authtest
+%{_bindir}/courier-imap-authdaemontest
 
 
 %files -n maildirmake++
@@ -614,6 +637,13 @@ test ! -f %{courierdatadir}/configlist.mysql || %{courierdatadir}/sysconftool-rp
 
 
 %changelog
+* Sat Sep 24 2005 Vincent Danen <vdanen@annvix.org> 3.0.8-1avx
+- 3.0.8
+- P4: overflow patch (andreas)
+- work around authmksock bug during %%install with long paths (andreas)
+- minor spec cleanups
+- drop P3; merged upstream
+
 * Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 2.1.2-22avx
 - use execlineb for run scripts
 - move logdir to /var/log/service/courier*
