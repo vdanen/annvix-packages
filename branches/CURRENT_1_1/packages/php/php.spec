@@ -9,7 +9,7 @@
 
 %define name		php
 %define version		4.4.0
-%define release		1avx
+%define release		2avx
 %define epoch		2
 
 %define libversion	4
@@ -81,7 +81,7 @@ Patch70:	php-4.3.3-mdk-make_those_darn_tests_work.patch.bz2
 # Bug fixes:
 Patch71:	php-4.3.4-mdk-bug-22414.patch.bz2
 # http://www.hardened-php.net/
-Patch100:	http://www.hardened-php.net/hardening-patch-4.4.0-0.4.1.patch.gz
+Patch100:	http://www.hardened-php.net/hardening-patch-4.4.0-0.4.3.patch.gz
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 # this is to prevent that it will build against old libs
@@ -596,6 +596,9 @@ update-alternatives --remove php %{_bindir}/php-cli
 
 
 %changelog
+* Fri Sep 23 2005 Vincent Danen <vdanen@annvix.org> 4.4.40-2avx
+- hardening patch 4.4.0-0.4.3
+
 * Wed Sep 14 2005 Vincent Danen <vdanen@annvix.org> 4.4.40-1avx
 - 4.4.0
 - P100: re-introduce the hardened php stuff (4.4.0-0.4.1)
