@@ -1,0 +1,18 @@
+In order to facilitate upgrading an existing samba install, and merging
+previous configuration data with any new syntax used by samba3, a merge
+script has attempted to combine your local configuration data with the
+new conf file format.  The merged data is in smb.conf, with comments like
+
+   # *** merged from original smb.conf: ***
+
+near the additional entries.  Any local shares should have been appended to
+smb.conf.  A log of what took place should be in:
+
+   /var/log/samba/smb-migrate.log
+
+A clean samba3 smb.conf is in /usr/share/samba, named smb.conf.clean.
+Your original conf should be /etc/samba/smb.conf.tomerge.
+
+The actual merge script is /usr/share/samba/scripts/smb-migrate.
+
+Questions/issues: sbenedict@mandrakesoft.com
