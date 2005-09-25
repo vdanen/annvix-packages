@@ -8,9 +8,9 @@
 
 
 %define name		am-utils
-%define version		6.1.1
-%define release		2avx
-%define epoch		2
+%define version		6.0.9
+%define release		10avx
+%define epoch		3
 
 %define major		2
 %define libname		%mklibname amu %{major}
@@ -23,12 +23,13 @@ Epoch:		%{epoch}
 License:	BSD
 Group:		System/Servers
 URL:		http://www.am-utils.org/
-Source:		ftp://ftp.am-utils.org/pub/am-utils/%{name}/%{name}-%{version}.tar.gz
+Source:		ftp://ftp.am-utils.org/pub/am-utils/%{name}/%{name}-%{version}.tar.bz2
 Source1:	am-utils.conf
-Source2:	am-utils.sysconf
-Source3:	am-utils.net.map
-Source4:	amd.run
-Source5:	amd-log.run
+Source2:	am-utils.net.map
+Source3:	amd.run
+Source4:	amd-log.run
+Source5:	AMDOPTS.env
+Source6: 	MOUNTPTS.env
 Patch:		am-utils-6.0.4-nfs3.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -88,16 +89,20 @@ Development headers, and files for development from the am-utils package.
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 make DESTDIR=%{buildroot} install
 
-mkdir -p %{buildroot}%{_sysconfdir}/sysconfig
+mkdir -p %{buildroot}%{_sysconfdir}/
 
 install -m 0600 %{SOURCE1} %{buildroot}%{_sysconfdir}/amd.conf
-install -m 0755 %{SOURCE2} %{buildroot}%{_sysconfdir}/sysconfig/amd 
-install -m 0640 %{SOURCE3} %{buildroot}%{_sysconfdir}/amd.net
+install -m 0640 %{SOURCE2} %{buildroot}%{_sysconfdir}/amd.net
 
-mkdir -p %{buildroot}%{_srvdir}/amd/log
-install -m 0740 %{SOURCE4} %{buildroot}%{_srvdir}/amd/run
-install -m 0740 %{SOURCE5} %{buildroot}%{_srvdir}/amd/log/run
+mkdir -p %{buildroot}%{_srvdir}/amd/{log,env,depends} 
 
+install -m 0740 %{SOURCE3} %{buildroot}%{_srvdir}/amd/run
+install -m 0740 %{SOURCE4} %{buildroot}%{_srvdir}/amd/log/run
+
+install -m 0640 %{SOURCE5} %{buildroot}%{_srvdir}/amd/env/AMDOPTS
+install -m 0640 %{SOURCE6} %{buildroot}%{_srvdir}/amd/env/MOUNTPTS
+
+%_mkdepends amd portmap
 
 mkdir -p %{buildroot}/.automount
 
@@ -134,7 +139,6 @@ fi
 %doc doc/*.ps AUTHORS BUGS ChangeLog NEWS README* scripts/*-sample INSTALL COPYING
 %config(noreplace) %{_sysconfdir}/amd.conf
 %config(noreplace) %{_sysconfdir}/amd.net
-%config(noreplace) %{_sysconfdir}/sysconfig/amd
 %dir /.automount
 %{_bindir}/pawd
 %{_bindir}/expn
@@ -145,9 +149,13 @@ fi
 %{_infodir}/*.info*
 %dir %attr(0750,root,admin) %{_srvdir}/amd
 %dir %attr(0750,root,admin) %{_srvdir}/amd/log
+%dir %attr(0750,root,admin) %{_srvdir}/amd/env
+%dir %attr(0750,root,admin) %{_srvdir}/amd/depends
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/amd/run
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/amd/log/run
-
+%attr(0640,root,admin) %config(noreplace) %{_srvdir}/amd/env/AMDOPTS
+%attr(0640,root,admin) %config(noreplace) %{_srvdir}/amd/env/MOUNTPTS
+%attr(0640,root,admin) %{_srvdir}/amd/depends/portmap
 
 %files -n %{libname}
 %defattr(-,root,root)
@@ -161,6 +169,16 @@ fi
 
 
 %changelog
+* Sun Sep 25 2005 Vincent Danen <vdanen@annvix.org> 6.0.9-10avx
+- back down to 6.0.9 due to some very wierd amd behaviour with
+  6.1.x
+- bump the epoch
+- change the logfile from syslog to /dev/stderr in amd.conf
+
+* Sun Sep 25 2005 Sean P. Thomas <vdanen@annvix.org> 6.1.2.1-1avx
+- Converted to env dirs, run script to execlineb, converted 
+- dependencies, and upgraded to newest version. 
+
 * Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 6.1.1-2avx
 - s/supervise/service/ in log/run
 
