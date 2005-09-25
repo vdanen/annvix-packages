@@ -5,7 +5,7 @@
  SCRIPTS = add-user del-user add-service del-service create-file \
  	add-group del-group add-shell del-shell verify-shell \
 -	add-syslog del-syslog
-+	add-syslog del-syslog add-srv del-srv
++	add-syslog del-syslog add-srv del-srv mkdepends
  
  LIBDIR=/usr/share/$(PACKAGE)
  RPMACROSDIR=/etc/rpm/macros.d
@@ -116,26 +116,6 @@
 +fi
 +
 +# del-srv ends here
---- rpm-helper.macros.in.avx	2005-09-21 11:20:09.000000000 -0400
-+++ rpm-helper.macros.in	2005-09-21 11:21:49.000000000 -0400
-@@ -14,7 +14,7 @@
- %{nil}
- 
- %_add_user_helper @LIBDIR@/add-user
--%_pre_useradd() %_add_user_helper %{name} $1 %{1} %{2} %{3} \
-+%_pre_useradd() %_add_user_helper %{name} $1 %{1} %{2} %{3} %{4} \
- %{nil}
- 
- %_del_user_helper @LIBDIR@/del-user
-@@ -22,7 +22,7 @@
- %{nil}
- 
- %_add_group_helper @LIBDIR@/add-group
--%_pre_groupadd() %_add_group_helper %{name} $1 %{1} %{?2:%2} \
-+%_pre_groupadd() %_add_group_helper %{name} $1 %{1} %{2} %{?3:%3} \
- %{nil}
- 
- %_del_group_helper @LIBDIR@/del-group
 --- add-service.avx	2005-09-22 23:53:43.000000000 -0400
 +++ add-service	2005-09-22 23:53:43.000000000 -0400
 @@ -27,40 +27,12 @@
@@ -180,3 +160,69 @@
  }
  
  if [ $num = 1 ]; then
+--- mkdepends.avx	2005-09-25 12:46:27.000000000 -0400
++++ mkdepends	2005-09-25 12:47:05.000000000 -0400
+@@ -0,0 +1,24 @@
++#!/bin/sh
++#
++# This is a rpm helper script that creates dependencies for runit-based services
++# given two parameters; the name of the service and the name of the service it
++# depends on.  For instance:
++#
++# mkdepends.sh %{buildroot} amd portmap
++#
++# this creates a dependency on the portmap service for the amd service and does so
++# by creating a symlink in the dependency directory for the amd service.
++#
++# Copyright (c) 2005 Vincent Danen <vdanen@annvix.org>
++
++SERVICE=$1
++DEPENDS=$2
++
++if [ -d ${RPM_BUILD_ROOT}/var/service/${SERVICE}/depends ]; then
++    pushd ${RPM_BUILD_ROOT}/var/service/${SERVICE}/depends >/dev/null 2>&1
++        ln -s ../../${DEPENDS} .
++    popd >/dev/null 2>&1
++else
++    echo "Dependency directory does not exist!"
++    exit 1
++fi
+--- rpm-helper.macros.in.avx	2005-08-03 07:50:35.000000000 -0400
++++ rpm-helper.macros.in	2005-09-25 12:51:24.000000000 -0400
+@@ -14,7 +14,7 @@
+ %{nil}
+ 
+ %_add_user_helper @LIBDIR@/add-user
+-%_pre_useradd() %_add_user_helper %{name} $1 %{1} %{2} %{3} \
++%_pre_useradd() %_add_user_helper %{name} $1 %{1} %{2} %{3} %{4} \
+ %{nil}
+ 
+ %_del_user_helper @LIBDIR@/del-user
+@@ -22,7 +22,7 @@
+ %{nil}
+ 
+ %_add_group_helper @LIBDIR@/add-group
+-%_pre_groupadd() %_add_group_helper %{name} $1 %{1} %{?2:%2} \
++%_pre_groupadd() %_add_group_helper %{name} $1 %{1} %{2} %{?3:%3} \
+ %{nil}
+ 
+ %_del_group_helper @LIBDIR@/del-group
+@@ -45,3 +45,18 @@
+ %_preun_syslogdel() %_del_syslog_helper %{name} $1 %{1} %{?2:%2} %{?3:%3} %{?4:%4} %{?5:%5} \
+ %{nil}
+ 
++
++# service macros
++%_add_srv_helper @LIBDIR@/add-srv
++%_post_srv() %_add_srv_helper %{name} $1 %{1} \
++%{nil}
++
++%_del_srv_helper @LIBDIR@/del-srv
++%_preun_srv() %_del_srv_helper %{name} $1 %{1} \
++%{nil}
++
++%_mkdepends @LIBDIR@/mkdepends
++
++# afterboot macros
++%_mkafterboot        if [[ -f %{_datadir}/afterboot/mkafterboot ]]; then %{_datadir}/afterboot/mkafterboot; fi \
++%{nil}

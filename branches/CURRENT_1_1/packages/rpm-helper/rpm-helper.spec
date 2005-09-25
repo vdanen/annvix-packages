@@ -9,7 +9,7 @@
 
 %define name		rpm-helper
 %define version		0.14
-%define release		1avx
+%define release		2avx
 
 Summary:	Helper scripts for rpm scriptlets
 Name:		%{name}
@@ -41,7 +41,7 @@ Helper scripts for rpm scriptlets to help create/remove :
 
 
 %build
-chmod 0755 {add,del}-srv
+chmod 0755 {add,del}-srv mkdepends
 
 
 %install
@@ -62,6 +62,9 @@ chmod 0755 {add,del}-srv
 
 
 %changelog
+* Sun Sep 25 2005 Vincent Danen <vdanen@annvix.org> 0.14-2avx
+- update P0 to add mkdepends script
+
 * Thu Sep 22 2005 Vincent Danen <vdanen@annvix.org> 0.14-1avx
 - 0.14
 - update P0 to rip out all references to msec
