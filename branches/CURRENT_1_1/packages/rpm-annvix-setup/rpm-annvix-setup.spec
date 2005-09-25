@@ -10,7 +10,7 @@
 
 %define name		rpm-annvix-setup
 %define version		1.5
-%define release		2avx
+%define release		3avx
 
 Summary:	The Annvix rpm configuration and scripts
 Name:		%{name}
@@ -79,6 +79,9 @@ mkdir -p %{buildroot}%{_sysconfdir}/rpm/macros.d
 
 
 %changelog
+* Sun Sep 25 2005 Vincent Danen <vdanen@annvix.org> 1.5-3avx
+- add the %%_mkdepends macro
+
 * Thu Sep 15 2005 Vincent Danen <vdanen@annvix.org> 1.5-2avx
 - dropt -Wp,-D_FORTIFY_SOURCE=2 from the optflags because I don't
   know what this does and if it's specific to gcc4 or not (we didn't
