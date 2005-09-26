@@ -9,7 +9,7 @@
 
 %define	name		dcron
 %define	version		2.9
-%define	release		14avx
+%define	release		15avx
 
 Summary:	Dillon's Cron Daemon
 Name:		%{name}
@@ -59,7 +59,7 @@ install -d %{buildroot}%{_sbindir}
 install -d %{buildroot}/var/spool/dcron/crontabs
 
 install -m 0755 crontab %{buildroot}%{_bindir}/
-install -m 0755 crond %{buildroot}%{_sbindir}/
+install -m 0750 crond %{buildroot}%{_sbindir}/
 install -m 0644 crontab.1 %{buildroot}%{_mandir}/man1/
 install -m 0644 crond.8 %{buildroot}%{_mandir}/man8/
 
@@ -98,7 +98,7 @@ fi
 %dir %attr(0750,root,root) %{_sysconfdir}/cron.monthly
 # OE: only root should be allowed to add cronjobs!
 %attr(4750,root,cron) %{_bindir}/crontab
-%attr(0755,root,wheel)%{_sbindir}/crond
+%attr(0750,root,root)%{_sbindir}/crond
 %{_mandir}/man1/crontab.1*
 %{_mandir}/man8/crond.8*
 %dir %attr(0755,root,root) /var/spool/dcron/crontabs
@@ -109,6 +109,10 @@ fi
 
 
 %changelog
+* Sun Sep 25 2005 Vincent Danen <vdanen@annvix.org> 2.9-15avx
+- adjust some permissions on crond
+- execlineb for run script (spt)
+
 * Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 2.9-14avx
 - use execlineb for run scripts
 - move logdir to /var/log/service/crond

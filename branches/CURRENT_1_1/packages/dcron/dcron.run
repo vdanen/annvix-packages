@@ -1,5 +1,6 @@
-#!/bin/sh
+#!/bin/execlineb
 
 # this runs crond supervised
 
-exec /usr/sbin/crond -f 2>&1
+/bin/fdmove -c 2 1
+/usr/sbin/crond -f
