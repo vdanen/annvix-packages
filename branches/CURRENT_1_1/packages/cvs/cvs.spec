@@ -9,7 +9,7 @@
 
 %define name		cvs
 %define version		1.11.20
-%define release		1avx
+%define release		2avx
 
 %define _requires_exceptions tcsh
 
@@ -38,7 +38,9 @@ BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	autoconf2.5, texinfo, zlib-devel, krb5-devel
 
 Requires:	ipsvd
-Prereq:		info-install afterboot
+Requires(post):	info-install, afterboot, rpm-helper, ipsvd
+Requires(preun): info-install, rpm-helper
+Requires(postun): afterboot
 
 %description
 CVS means Concurrent Version System; it is a version control
@@ -95,11 +97,18 @@ install -m 0644 %{SOURCE2} %{buildroot}%{_sysconfdir}/cvs
 # get rid of "no -f" so we don't have a Dep on this nonexistant interpretter
 perl -pi -e 's/no -f/\/bin\/sh/g' %{buildroot}%{_datadir}/cvs/contrib/sccs2rcs
 
-mkdir -p %{buildroot}%{_srvdir}/cvspserver/{log,peers}
+mkdir -p %{buildroot}%{_srvdir}/cvspserver/{log,peers,env}
 install -m 0740 %{SOURCE4} %{buildroot}%{_srvdir}/cvspserver/run
 install -m 0740 %{SOURCE5} %{buildroot}%{_srvdir}/cvspserver/log/run
 touch %{buildroot}%{_srvdir}/cvspserver/peers/0
 chmod 0640 %{buildroot}%{_srvdir}/cvspserver/peers/0
+
+echo "localhost" >%{buildroot}%{_srvdir}/cvspserver/env/HOSTNAME
+echo "0" >%{buildroot}%{_srvdir}/cvspserver/env/IP
+echo "2401" >%{buildroot}%{_srvdir}/cvspserver/env/PORT
+echo "20" >%{buildroot}%{_srvdir}/cvspserver/env/MAX_CONN
+echo "5" >%{buildroot}%{_srvdir}/cvspserver/env/MAX_PER_HOST
+echo "20" >%{buildroot}%{_srvdir}/cvspserver/env/MAX_BACKLOG
 
 mkdir -p %{buildroot}%{_datadir}/afterboot
 install -m 0644 %{SOURCE6} %{buildroot}%{_datadir}/afterboot/06_cvspserver
@@ -117,6 +126,10 @@ fi
 %_install_info %{name}.info
 %_install_info cvsclient.info
 %_mkafterboot
+pushd %{_srvdir}/cvspserver >/dev/null 2>&1
+    ipsvd-cdb peers.cdb peers.cdb.tmp peers/
+popd >/dev/null 2>&1
+
 
 %preun
 %_preun_srv cvspserver
@@ -144,13 +157,26 @@ fi
 %dir %attr(0750,root,admin) %{_srvdir}/cvspserver
 %dir %attr(0750,root,admin) %{_srvdir}/cvspserver/log
 %dir %attr(0750,root,admin) %{_srvdir}/cvspserver/peers
+%dir %attr(0750,root,admin) %{_srvdir}/cvspserver/env
 %attr(0740,root,admin) %{_srvdir}/cvspserver/run
 %attr(0740,root,admin) %{_srvdir}/cvspserver/log/run
 %attr(0640,root,admin) %{_srvdir}/cvspserver/peers/0
+%attr(0640,root,admin) %{_srvdir}/cvspserver/env/HOSTNAME
+%attr(0640,root,admin) %{_srvdir}/cvspserver/env/IP
+%attr(0640,root,admin) %{_srvdir}/cvspserver/env/PORT
+%attr(0640,root,admin) %{_srvdir}/cvspserver/env/MAX_CONN
+%attr(0640,root,admin) %{_srvdir}/cvspserver/env/MAX_PER_HOST
+%attr(0640,root,admin) %{_srvdir}/cvspserver/env/MAX_BACKLOG
 %{_datadir}/afterboot/06_cvspserver
 
 
 %changelog
+* Sun Sep 25 2005 Sean P. Thomas <spt@annvix.org> 1.11.20-2avx
+- use execlineb for run script, and created an envdir.
+- fix requires (vdanen)
+- supplied default env files (vdanen)
+- pre-compile a peers.cdb in %%post (vdanen)
+
 * Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 1.11.20-1avx
 - 1.11.20
 - use execlineb for run scripts
