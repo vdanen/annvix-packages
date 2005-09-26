@@ -9,7 +9,7 @@
 
 %define name		exim
 %define version 	4.52
-%define release 	2avx
+%define release 	3avx
 
 %define build_mysql 	0
 %define build_pgsql 	0
@@ -29,8 +29,7 @@ Group:		System/Servers
 URL:		http://www.exim.org
 Source:		ftp://ftp.exim.org/pub/exim/exim4/%{name}-%{version}.tar.bz2
 Source1:	exim.aliases
-Source2:	exim.init
-Source3:	exim.sysconfig
+Source3:	QUEUE.env
 Source4:	exim.logrotate
 Source5:	exim.8
 Source8:	eximconfig
@@ -174,15 +173,15 @@ install -d -m 0750 %{buildroot}/var/spool/exim/input
 install -d -m 0750 %{buildroot}/var/spool/exim/msglog
 install -d -m 0750 %{buildroot}/var/log/exim
 
-mkdir -p %{buildroot}{%{_mandir}/man8,%{_sysconfdir}/{sysconfig,cron.weekly}}
-install -m 0644 %{SOURCE3} %{buildroot}%{_sysconfdir}/sysconfig/exim
+mkdir -p %{buildroot}{%{_mandir}/man8,%{_sysconfdir}/cron.weekly}
 install -m 0755 %{SOURCE4} %{buildroot}%{_sysconfdir}/cron.weekly/exim.logrotate
 install -m 0644 %{SOURCE5} %{buildroot}%{_mandir}/man8/exim.8
 install -m 0755 %{SOURCE8} %{buildroot}%{_sbindir}
 
-mkdir -p %{buildroot}%{_srvdir}/exim/log
+mkdir -p %{buildroot}%{_srvdir}/exim/{log,env}
 install -m 0740 %{SOURCE13} %{buildroot}%{_srvdir}/exim/run
 install -m 0740 %{SOURCE14} %{buildroot}%{_srvdir}/exim/log/run
+install -m 0640 %{SOURCE3} %{buildroot}%{_srvdir}/exim/env/QUEUE
 
 # install SA-exim
 pushd sa-exim*
@@ -265,13 +264,14 @@ fi
 %config(noreplace) %{_sysconfdir}/exim/aliases
 
 %defattr(-,root,root)
-%config(noreplace) %{_sysconfdir}/sysconfig/exim
 %attr(0755,root,root) %config(noreplace) %{_sysconfdir}/cron.weekly/exim.logrotate
 %config(noreplace) %{_sysconfdir}/pam.d/exim
 %dir %attr(0750,root,admin) %{_srvdir}/exim
 %dir %attr(0750,root,admin) %{_srvdir}/exim/log
+%dir %attr(0750,root,admin) %{_srvdir}/exim/env
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/exim/run
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/exim/log/run
+%config(noreplace) %attr(0640,root,admin) %{_srvdir}/exim/env/QUEUE
 
 %files saexim
 %defattr(-,root,root)
@@ -283,6 +283,10 @@ fi
 
 
 %changelog
+* Sun Sep 25 2005 Sean P. Thomas <spt@annvix.org> 4.52-3avx
+- execlineb for run script, removed sysinit file, added envdir, 
+- removed DAEMON variable (not used).
+
 * Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 4.52-2avx
 - rebuild against new pcre
 

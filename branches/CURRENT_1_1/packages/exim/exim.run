@@ -1,13 +1,14 @@
-#!/bin/sh
-PATH="/sbin:/usr/sbin:/bin:/usr/bin"
-
+#!/bin/execlineb
 # this runs exim supervised
 
-# source sysconfig settings
-if [ -f /etc/sysconfig/exim ]; then
-	. /etc/sysconfig/exim
-else
-	QUEUE=1h
-fi
+/bin/fdmove -c 2 1
 
-exec /usr/bin/exim -bd -d $([ -n "$QUEUE" ] && echo -q$QUEUE) 2>&1
+/bin/export PATH "/sbin:/bin:/usr/sbin:/usr/bin"
+
+/sbin/chpst -e ./env/
+
+multisubstitute {
+    import -d "1h" QUEUE
+}
+
+/usr/bin/exim -bd -d -q$QUEUE
