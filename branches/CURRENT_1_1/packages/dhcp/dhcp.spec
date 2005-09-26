@@ -9,7 +9,7 @@
 
 %define name		dhcp
 %define version		3.0.3
-%define release		1avx
+%define release		2avx
 %define epoch		2
 
 %define _catdir		/var/cache/man
@@ -34,7 +34,12 @@ Source8:	dhcpd.run
 Source9:	dhcpd-log.run
 Source10:	dhcrelay.run
 Source11:	dhcrelay-log.run
-Source12:	dhcpd.sysconfig
+Source12:	CONFIGFILE.env
+Source13:	INTERFACES.env
+Source14:	LEASEFILE.env
+Source15:	OPTIONS.env
+Source16:	OPTIONS-dhcrelay.env
+Source17:	SERVERS-dhcrelay.env
 Patch0:		dhcp-3.0.1-ifup.patch.bz2
 # http://www.episec.com/people/edelkind/patches/
 Patch1:		dhcp-3.0.1-paranoia.diff.bz2
@@ -163,7 +168,6 @@ echo 'int main() { return sizeof(void *) != 8; }' | gcc -xc - -o is_ptr64
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p %{buildroot}%{_bindir}
-mkdir -p %{buildroot}%{_sysconfdir}/sysconfig
 mkdir -p %{buildroot}%{_localstatedir}/dhcp
 mkdir -p %{buildroot}/var/run/dhcpd
 
@@ -172,33 +176,29 @@ mkdir -p %{buildroot}/var/run/dhcpd
 touch %{buildroot}%{_localstatedir}/dhcp/dhcpd.leases
 touch %{buildroot}%{_localstatedir}/dhcp/dhclient.leases
 
-cat > %{buildroot}%{_sysconfdir}/sysconfig/dhcrelay <<EOF
-# Define SERVERS with a list of one or more DHCP servers where
-# DHCP packets are to be relayed to and from.  This is mandatory.
-#SERVERS="10.11.12.13 10.9.8.7"
-SERVERS=""
-
-# Define OPTIONS with any other options to pass to the dhcrelay server.
-# See dhcrelay(8) for available options and syntax.
-#OPTIONS="-q -i eth0 -i eth1"
-OPTIONS="-q"
-EOF
-
 install -m 0644 %{SOURCE1} %{buildroot}%{_sysconfdir}
 install -m 0755 %{SOURCE5} %{buildroot}%{_sbindir}/
 install -m 0755 %{SOURCE6} %{buildroot}%{_sbindir}/
-install -m 0755 %{SOURCE12} %{buildroot}%{_sysconfdir}/sysconfig/dhcpd
 
 find . -type d -exec chmod 0755 {} \;
 find . -type f -exec chmod 0644 {} \;
 
 rm -rf doc/ja_JP.eucJP
 
-mkdir -p %{buildroot}%{_srvdir}/{dhcpd,dhcrelay}/log
+mkdir -p %{buildroot}%{_srvdir}/{dhcpd,dhcrelay}/{log,env}
+
 install -m 0740 %{SOURCE8} %{buildroot}%{_srvdir}/dhcpd/run
 install -m 0740 %{SOURCE9} %{buildroot}%{_srvdir}/dhcpd/log/run
+
+install -m 0640 %{SOURCE12} %{buildroot}%{_srvdir}/dhcpd/env/CONFIGFILE
+install -m 0640 %{SOURCE13} %{buildroot}%{_srvdir}/dhcpd/env/INTERFACES
+install -m 0640 %{SOURCE14} %{buildroot}%{_srvdir}/dhcpd/env/LEASEFILE
+install -m 0640 %{SOURCE15} %{buildroot}%{_srvdir}/dhcpd/env/OPTIONS
+
 install -m 0740 %{SOURCE10} %{buildroot}%{_srvdir}/dhcrelay/run
 install -m 0740 %{SOURCE11} %{buildroot}%{_srvdir}/dhcrelay/log/run
+install -m 0640 %{SOURCE16} %{buildroot}%{_srvdir}/dhcrelay/env/OPTIONS
+install -m 0640 %{SOURCE17} %{buildroot}%{_srvdir}/dhcrelay/env/SERVERS
 
 
 %pre common
@@ -249,7 +249,6 @@ rm -rf %{_localstatedir}/dhcp/dhclient.leases
 %files server
 %defattr(-,root,root)
 %doc server/dhcpd.conf tests/failover
-%config(noreplace) %{_sysconfdir}/sysconfig/dhcpd
 %config(noreplace) %ghost %{_localstatedir}/dhcp/dhcpd.leases
 %{_sysconfdir}/dhcpd.conf.sample
 %{_sbindir}/dhcpd
@@ -264,18 +263,25 @@ rm -rf %{_localstatedir}/dhcp/dhclient.leases
 %{_mandir}/man8/dhcpd.8*
 %dir %attr(0750,root,admin) %{_srvdir}/dhcpd
 %dir %attr(0750,root,admin) %{_srvdir}/dhcpd/log
+%dir %attr(0750,root,admin) %{_srvdir}/dhcpd/env
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/dhcpd/run
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/dhcpd/log/run
+%config(noreplace) %attr(0640,root,admin) %{_srvdir}/dhcpd/env/CONFIGFILE
+%config(noreplace) %attr(0640,root,admin) %{_srvdir}/dhcpd/env/INTERFACES
+%config(noreplace) %attr(0640,root,admin) %{_srvdir}/dhcpd/env/LEASEFILE
+%config(noreplace) %attr(0640,root,admin) %{_srvdir}/dhcpd/env/OPTIONS
 
 %files relay
 %defattr(-,root,root)
-%config(noreplace) %{_sysconfdir}/sysconfig/dhcrelay
 %{_sbindir}/dhcrelay
 %{_mandir}/man8/dhcrelay.8*
 %dir %attr(0750,root,admin) %{_srvdir}/dhcrelay
 %dir %attr(0750,root,admin) %{_srvdir}/dhcrelay/log
+%dir %attr(0750,root,admin) %{_srvdir}/dhcrelay/env
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/dhcrelay/run
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/dhcrelay/log/run
+%config(noreplace) %attr(0640,root,admin) %{_srvdir}/dhcrelay/env/OPTIONS
+%config(noreplace) %attr(0640,root,admin) %{_srvdir}/dhcrelay/env/SERVERS
 
 %files client
 %defattr(-,root,root)
@@ -296,6 +302,10 @@ rm -rf %{_localstatedir}/dhcp/dhclient.leases
 
 
 %changelog
+* Sun Sep 25 2005 Sean P. Thomas <spt@annvix.org> 3.0.3-2avx
+- use execlineb for run scripts and used envdirs.
+- pass -d to dhcpd in run script to log to stderr (vdanen)
+
 * Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 3.0.3-1avx
 - 3.0.3
 - drop P2; fixed upstream

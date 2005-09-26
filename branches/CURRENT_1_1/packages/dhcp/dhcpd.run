@@ -1,29 +1,26 @@
-#!/bin/sh
-PATH="/sbin:/usr/sbin:/bin:/usr/bin"
+#!/bin/execlineb
 
-# this runs dhcpd supervised
+/bin/fdmove -c 2 1
 
-. /usr/share/srv/functions
+/sbin/chpst -e ./env/
 
-CONFIGFILE="/etc/dhcpd.conf"
-LEASEFILE="/var/lib/dhcp/dhcpd.leases"
-INTERFACES=""
-OPTIONS="-q"
+/bin/multisubstitute {
+    import -D "/etc/dhcpd.conf" CONFIGFILE
+    import -D "/var/lib/dhcp/dhcpd.leases" LEASEFILE
+    import -D "-q" OPTIONS
+    import INTERFACES
+}
 
-# override the defaults
-[ -f /etc/sysconfig/dhcpd ] && . /etc/sysconfig/dhcpd
-
-[ "${CONFIGFILE}" = "" ] && CONFIGFILE="/etc/dhcpd.conf"
-[ "${LEASEFILE}" = "" ] && LEASEFILE="/var/lib/dhcp/dhcpd.leases"
-
-if [ ! -f $CONFIGFILE ]; then
-  echo "The configuration file does not exist, unable to start!"
-  godown
-fi
-
-if [ ! -f $LEASEFILE ]; then
-  echo "The lease file does not exist, unable to start!"
-  godown
-fi
-
-exec /usr/sbin/dhcpd -f -user dhcp -group dhcp -cf $CONFIGFILE -lf $LEASEFILE $OPTIONS $INTERFACES 2>&1
+/bin/ifthenelse { /usr/bin/test ! -f $CONFIGFILE }
+{
+    /bin/echo "The configuration file does not exist, unable to start!"
+}
+{
+    /bin/ifthenelse { /usr/bin/test ! -f $LEASEFILE }
+    {
+        /bin/echo "The lease file does not exist, unable to start!"
+    }
+    {
+        /usr/sbin/dhcpd -d -f -user dhcp -group dhcp -cf $CONFIGFILE -lf $LEASEFILE $OPTIONS $INTERFACES
+    }
+}
