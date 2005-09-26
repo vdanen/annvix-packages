@@ -1,13 +1,20 @@
-#!/bin/sh
-PATH="/sbin:/usr/sbin:/bin:/usr/bin"
+#!/bin/execlineb
 
-# this runs sshd under supervise
+/bin/fdmove -c 2 1
 
-# source sysconfig settings
-[ -f /etc/sysconfig/sshd ] && . /etc/sysconfig/sshd
+/bin/export PATH "/sbin:/bin:/usr/sbin:/usr/bin"
 
-# this runs sshd and limits the server to a maximum of 30 simultaneous
-# connections (-c) using the ipsvd-instruct(5) directory ./peers for instructions
-# and listening to all IPs on port 22 (ssh)
+/sbin/chpst -e ./env/
 
-exec /sbin/tcpsvd -c30 -v -llocalhost -i./peers 0 22 /usr/sbin/sshd -i $OPTIONS 2>&1
+/bin/multisubstitute {
+    import -D "localhost" HOSTNAME
+    import -D 0 IP
+    import -D 22 PORT
+    import -D 20 MAX_CONN
+    import -D 5 MAX_PER_HOST
+    import -D 20 MAX_BACKLOG
+    import OPTIONS
+}
+
+/sbin/tcpsvd -v -l $HOSTNAME -x peers.cdb -c $MAX_CONN -C "$MAX_PER_HOST" -b $MAX_BACKLOG $IP $PORT
+     /usr/sbin/sshd -i $OPTIONS

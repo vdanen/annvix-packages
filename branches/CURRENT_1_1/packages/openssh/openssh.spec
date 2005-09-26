@@ -11,7 +11,7 @@
 
 %define name		openssh
 %define version		4.2p1
-%define release 	3avx
+%define release 	4avx
 
 # overrides
 %global build_skey	0
@@ -34,7 +34,7 @@ Source6:	ssh-client.sh
 Source8:	sshd.run
 Source9:	sshd-log.run
 Source10:	convert_known_hosts-4.0.pl
-Patch1:		openssh-4.1p1-avx-annvixconf.patch.bz2
+Patch1:		openssh-4.2p1-avx-annvixconf.patch.bz2
 # authorized by Damien Miller <djm@openbsd.com>
 Patch2:		openssh-3.1p1-mdk-check-only-ssl-version.patch.bz2
 
@@ -48,8 +48,11 @@ BuildRequires:	skey-devel, skey-static-devel
 
 Obsoletes:	ssh
 Provides:	ssh
-PreReq:		openssl >= 0.9.7, afterboot
 Requires:	filesystem >= 2.1.5
+Requires(pre):	rpm-helper
+Requires(post):	rpm-helper, afterboot, ipsvd, openssl
+Requires(preun): rpm-helper
+Requires(postun): rpm-helper, afterboot
 
 %description
 Ssh (Secure Shell) a program for logging into a remote machine and for
@@ -178,11 +181,20 @@ install -m 0644 contrib/ssh-copy-id.1 %{buildroot}/%{_mandir}/man1/
 
 rm -f %{buildroot}%{_datadir}/ssh/Ssh.bin
 
-mkdir -p %{buildroot}%{_srvdir}/sshd/{log,peers}
+mkdir -p %{buildroot}%{_srvdir}/sshd/{log,peers,env}
 install -m 0740 %{SOURCE8} %{buildroot}%{_srvdir}/sshd/run
 install -m 0740 %{SOURCE9} %{buildroot}%{_srvdir}/sshd/log/run
 touch %{buildroot}%{_srvdir}/sshd/peers/0
 chmod 0640 %{buildroot}%{_srvdir}/sshd/peers/0
+
+echo "localhost" >%{buildroot}%{_srvdir}/sshd/env/HOSTNAME
+echo "0" >%{buildroot}%{_srvdir}/sshd/env/IP
+echo "22" >%{buildroot}%{_srvdir}/sshd/env/PORT
+echo "20" >%{buildroot}%{_srvdir}/sshd/env/MAX_CONN
+echo "5" >%{buildroot}%{_srvdir}/sshd/env/MAX_PER_HOST
+echo "20" >%{buildroot}%{_srvdir}/sshd/env/MAX_BACKLOG
+>%{buildroot}%{_srvdir}/sshd/env/OPTIONS
+
 
 mkdir -p %{buildroot}%{_datadir}/afterboot
 install -m 0644 %{SOURCE5} %{buildroot}%{_datadir}/afterboot/04_openssh
@@ -261,6 +273,10 @@ if [ -d /var/log/supervise/sshd -a ! -d /var/log/service/sshd ]; then
 fi
 %_post_srv sshd
 %_mkafterboot
+pushd %{_srvdir}/sshd >/dev/null 2>&1
+    ipsvd-cdb peers.cdb peers.cdb.tmp peers/
+popd >/dev/null 2>&1
+
 
 %preun server
 %_preun_srv sshd
@@ -328,9 +344,24 @@ echo "known_hosts files on an entire system if run as root."
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/sshd/log/run
 %dir %attr(0750,root,admin) %{_srvdir}/sshd/peers
 %config(noreplace) %attr(0640,root,admin) %{_srvdir}/sshd/peers/0
+%attr(0640,root,admin) %{_srvdir}/sshd/env/HOSTNAME
+%attr(0640,root,admin) %{_srvdir}/sshd/env/IP
+%attr(0640,root,admin) %{_srvdir}/sshd/env/PORT
+%attr(0640,root,admin) %{_srvdir}/sshd/env/MAX_CONN
+%attr(0640,root,admin) %{_srvdir}/sshd/env/MAX_PER_HOST
+%attr(0640,root,admin) %{_srvdir}/sshd/env/MAX_BACKLOG
+%attr(0640,root,admin) %{_srvdir}/sshd/env/OPTIONS
 %{_datadir}/afterboot/04_openssh
 
+
 %changelog
+* Sun Sep 25 2005 Sean P. Thomas <spt@annvix.org> 4.2p1-4avx
+- Converted run script to execlineb.
+- fix requires (vdanen)
+- add default env file (vdanen)
+- precompile peers.cdb in %%post (vdanen)
+- change sshd_config/ssh_config to not permit X11 fwding by default (vdanen)
+
 * Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 4.2p1-3avx
 - s/supervise/service/ in log/run
 
