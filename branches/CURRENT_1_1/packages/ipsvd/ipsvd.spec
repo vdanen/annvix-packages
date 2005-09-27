@@ -9,7 +9,7 @@
 
 %define	name		ipsvd
 %define	version		0.11.0
-%define	release		1avx
+%define	release		2avx
 
 Summary:	Internet protocol service daemons
 Name:		%{name}
@@ -83,6 +83,14 @@ install -m 0644 %{name}-%{version}/man/*.5 %{buildroot}%{_mandir}/man5/
 install -m 0644 %{name}-%{version}/man/*.7 %{buildroot}%{_mandir}/man7/
 install -m 0644 %{name}-%{version}/man/*.8 %{buildroot}%{_mandir}/man8/
 
+# make the default tcpsvd environment
+mkdir -p %{buildroot}%{_sysconfdir}/sysconfig/env/tcpsvd
+echo "localhost" >%{buildroot}%{_sysconfdir}/sysconfig/env/tcpsvd/HOSTNAME
+echo "0" >%{buildroot}%{_sysconfdir}/sysconfig/env/tcpsvd/IP
+echo "20" >%{buildroot}%{_sysconfdir}/sysconfig/env/tcpsvd/MAX_CONN
+echo "5" >%{buildroot}%{_sysconfdir}/sysconfig/env/tcpsvd/MAX_PER_HOST
+echo "20" >%{buildroot}%{_sysconfdir}/sysconfig/env/tcpsvd/MAX_BACKLOG
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -93,6 +101,12 @@ install -m 0644 %{name}-%{version}/man/*.8 %{buildroot}%{_mandir}/man8/
 %doc %{name}-%{version}/package/CHANGES
 %doc %{name}-%{version}/package/README
 %doc %{name}-%{version}/doc/*.html
+%dir %{_sysconfdir}/sysconfig/env/tcpsvd
+%attr(0640,root,admin) %config(noreplace) %{_sysconfdir}/sysconfig/env/tcpsvd/HOSTNAME
+%attr(0640,root,admin) %config(noreplace) %{_sysconfdir}/sysconfig/env/tcpsvd/IP
+%attr(0640,root,admin) %config(noreplace) %{_sysconfdir}/sysconfig/env/tcpsvd/MAX_CONN
+%attr(0640,root,admin) %config(noreplace) %{_sysconfdir}/sysconfig/env/tcpsvd/MAX_PER_HOST
+%attr(0640,root,admin) %config(noreplace) %{_sysconfdir}/sysconfig/env/tcpsvd/MAX_BACKLOG
 %attr(0755,root,root) /sbin/ipsvd-cdb
 %attr(0755,root,root) /sbin/sslio
 %attr(0755,root,root) /sbin/tcpsvd
@@ -106,6 +120,9 @@ install -m 0644 %{name}-%{version}/man/*.8 %{buildroot}%{_mandir}/man8/
 
 
 %changelog
+* Tue Sep 27 2005 Vincent Danen <vdanen@annvix.org> 0.11.0-2avx
+- add /etc/sysconfig/env/tcpsvd with defaults for tcpsvd services
+
 * Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 0.11.0-1avx
 - 0.11.0
 - rebuild against new matrixssl
