@@ -187,12 +187,7 @@ install -m 0740 %{SOURCE9} %{buildroot}%{_srvdir}/sshd/log/run
 touch %{buildroot}%{_srvdir}/sshd/peers/0
 chmod 0640 %{buildroot}%{_srvdir}/sshd/peers/0
 
-echo "localhost" >%{buildroot}%{_srvdir}/sshd/env/HOSTNAME
-echo "0" >%{buildroot}%{_srvdir}/sshd/env/IP
 echo "22" >%{buildroot}%{_srvdir}/sshd/env/PORT
-echo "20" >%{buildroot}%{_srvdir}/sshd/env/MAX_CONN
-echo "5" >%{buildroot}%{_srvdir}/sshd/env/MAX_PER_HOST
-echo "20" >%{buildroot}%{_srvdir}/sshd/env/MAX_BACKLOG
 >%{buildroot}%{_srvdir}/sshd/env/OPTIONS
 
 
@@ -344,17 +339,16 @@ echo "known_hosts files on an entire system if run as root."
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/sshd/log/run
 %dir %attr(0750,root,admin) %{_srvdir}/sshd/peers
 %config(noreplace) %attr(0640,root,admin) %{_srvdir}/sshd/peers/0
-%attr(0640,root,admin) %{_srvdir}/sshd/env/HOSTNAME
-%attr(0640,root,admin) %{_srvdir}/sshd/env/IP
 %attr(0640,root,admin) %{_srvdir}/sshd/env/PORT
-%attr(0640,root,admin) %{_srvdir}/sshd/env/MAX_CONN
-%attr(0640,root,admin) %{_srvdir}/sshd/env/MAX_PER_HOST
-%attr(0640,root,admin) %{_srvdir}/sshd/env/MAX_BACKLOG
 %attr(0640,root,admin) %{_srvdir}/sshd/env/OPTIONS
 %{_datadir}/afterboot/04_openssh
 
 
 %changelog
+* Tue Sep 27 2005 Vincent Danen <vdanen@annvix.org> 4.2p1-5avx
+- only include PORT and OPTIONS env files; defaults will come from
+  the tcpsvd env dir (update run script too)
+
 * Sun Sep 25 2005 Sean P. Thomas <spt@annvix.org> 4.2p1-4avx
 - Converted run script to execlineb.
 - fix requires (vdanen)
