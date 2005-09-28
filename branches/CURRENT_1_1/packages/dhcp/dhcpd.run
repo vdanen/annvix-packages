@@ -11,16 +11,16 @@
     import INTERFACES
 }
 
-/bin/ifthenelse { /usr/bin/test ! -f $CONFIGFILE }
+/bin/ifthenelse { /usr/bin/test ! -f ${CONFIGFILE} }
 {
     /bin/echo "The configuration file does not exist, unable to start!"
 }
 {
-    /bin/ifthenelse { /usr/bin/test ! -f $LEASEFILE }
+    /bin/ifthenelse { /usr/bin/test ! -f ${LEASEFILE} }
     {
         /bin/echo "The lease file does not exist, unable to start!"
     }
     {
-        /usr/sbin/dhcpd -d -f -user dhcp -group dhcp -cf $CONFIGFILE -lf $LEASEFILE $OPTIONS $INTERFACES
+        /usr/sbin/dhcpd "-d -f -user dhcp -group dhcp -cf ${CONFIGFILE} -lf ${LEASEFILE} ${OPTIONS} ${INTERFACES}"
     }
 }

@@ -9,7 +9,7 @@
 
 %define name		dhcp
 %define version		3.0.3
-%define release		2avx
+%define release		3avx
 %define epoch		2
 
 %define _catdir		/var/cache/man
@@ -302,6 +302,9 @@ rm -rf %{_localstatedir}/dhcp/dhclient.leases
 
 
 %changelog
+* Tue Sep 27 2005 Vincent Danen <vdanen@annvix.org> 3.0.3-3avx
+- quote the args in the runscripts
+
 * Sun Sep 25 2005 Sean P. Thomas <spt@annvix.org> 3.0.3-2avx
 - use execlineb for run scripts and used envdirs.
 - pass -d to dhcpd in run script to log to stderr (vdanen)
