@@ -1,6 +1,11 @@
-#!/bin/sh
-PATH="/sbin:/usr/sbin:/bin:/usr/bin"
+#!/bin/execlineb
+
+/bin/fdmove -c 2 1
+
+/bin/export PATH "/sbin:/bin:/usr/sbin:/usr/bin"
 
 # this uses mysqladmin to shutdown mysqld, but we have to tell it where to find .my.cnf
 
-HOME=/root /usr/bin/mysqladmin shutdown
+/bin/export HOME "/root"
+
+/usr/bin/mysqladmin shutdown
