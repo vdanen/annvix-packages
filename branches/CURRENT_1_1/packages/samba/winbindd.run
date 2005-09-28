@@ -1,15 +1,7 @@
-#!/bin/sh
-PATH="/sbin:/usr/sbin:/bin:/usr/bin:$PATH"
+#!/bin/execlineb
 
-# this runs winbindd supervised
+/bin/fdmove -c 2 1
 
-. /usr/share/srv/functions
+/bin/export PATH "/sbin:/bin:/usr/sbin:/usr/bin"
 
-if [ "`grep -i -E '(idmap|winbind) uid' /etc/samba/smb.conf | egrep -v [\#\;]`" -a "`grep -i -E '(idmap|winbind) gid' /etc/samba/smb.conf | egrep -v [\#\;]`" ]; then
-	RUNME=1
-else
-	echo "Winbind is not configured in /etc/samba/smb.conf, not starting!"
-	godown
-fi
-
-exec /usr/sbin/winbindd -F 2>&1
+/usr/sbin/winbindd -F

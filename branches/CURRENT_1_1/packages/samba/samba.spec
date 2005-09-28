@@ -9,7 +9,7 @@
 
 %define name		samba
 %define version		3.0.20
-%define release		3avx
+%define release		4avx
 
 %define smbldapver	0.8.8
 %define vscanver	0.3.6b
@@ -435,9 +435,14 @@ mkdir -p %{buildroot}%{_libdir}/cups/backend
 ln -s %{_bindir}/smbspool %{buildroot}%{_libdir}/cups/backend/smb
 
 # ipsvd support
-mkdir -p %{buildroot}%{_srvdir}/swat/log
+mkdir -p %{buildroot}%{_srvdir}/swat/{log,env,peers}
 install -m 0740 %{SOURCE11} %{buildroot}%{_srvdir}/swat/run
 install -m 0740 %{SOURCE12} %{buildroot}%{_srvdir}/swat/log/run
+touch %{buildroot}%{_srvdir}/swat/peers/0
+chmod 0640 %{buildroot}%{_srvdir}/swat/peers/0
+
+
+echo "901" >%{buildroot}%{_srvdir}/swat/env/PORT
 
 bzcat %{SOURCE10}> %{buildroot}%{_datadir}/%{name}/scripts/print-pdf
 bzcat %{SOURCE20}> %{buildroot}%{_datadir}/%{name}/scripts/smb-migrate
@@ -481,6 +486,9 @@ cp %{buildroot}%{_sysconfdir}/%{name}/smb.conf %{buildroot}%{_datadir}/%{name}/s
 
 # (sb) leave a README.avx.conf to explain what has been done
 bzcat %{SOURCE21} >%{buildroot}%{_datadir}/%{name}/README.avx.conf
+
+mkdir -p %{buildroot}%{_srvdir}/smbd/depends
+%_mkdepends smbd nmbd
 
 
 %clean
@@ -603,9 +611,20 @@ if [ $1 = 0 ]; then
 fi
 
 %preun server
-
 %_preun_srv smbd
 %_preun_srv nmbd
+
+
+%post swat
+%_post_srv swat
+pushd %{_srvdir}/swat >/dev/null 2>&1
+    ipsvd-cdb peers.cdb peers.cdb.tmp peers/
+popd >/dev/null 2>&1
+
+
+%preun swat
+%_preun_srv swat
+
 
 %post -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
@@ -654,10 +673,12 @@ fi
 
 %dir %attr(0750,root,admin) %{_srvdir}/smbd
 %dir %attr(0750,root,admin) %{_srvdir}/smbd/log
+%dir %attr(0750,root,admin) %{_srvdir}/smbd/depends
 %dir %attr(0750,root,admin) %{_srvdir}/nmbd
 %dir %attr(0750,root,admin) %{_srvdir}/nmbd/log
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/smbd/run
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/smbd/log/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/smbd/depends/nmbd
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/nmbd/run
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/nmbd/log/run
 
@@ -665,8 +686,12 @@ fi
 %defattr(-,root,root)
 %dir %attr(0750,root,admin) %{_srvdir}/swat
 %dir %attr(0750,root,admin) %{_srvdir}/swat/log
+%dir %attr(0750,root,admin) %{_srvdir}/swat/env
+%dir %attr(0750,root,admin) %{_srvdir}/swat/peers
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/swat/run
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/swat/log/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/swat/peers/0
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/swat/env/PORT
 %{_sbindir}/swat
 %attr(-,root,root) %{_datadir}/swat/help/
 %attr(-,root,root) %{_datadir}/swat/images/
@@ -813,6 +838,17 @@ fi
 
 
 %changelog
+* Tue Sep 27 2005 Vincent Danen <vdanen@annvix.org> 3.0.20-4avx
+- add %%post and %%preun for swat
+- execline run scripts
+- simplify the winbindd script; admins need to know their stuff before
+  they go adding daemons so don't baby them (aka get rid of the uid/gid
+  checks)
+- build peers.cdb in swat %%post
+- env dirs
+- make smbd require nmbd; for now don't add a reverse require because it
+  makes the new srv have fits
+
 * Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 3.0.20-3avx
 - really apply P16
 - P17 and P18: more post-3.0.20 fixes

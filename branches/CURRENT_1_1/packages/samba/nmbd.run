@@ -1,10 +1,11 @@
-#!/bin/sh
-PATH="/sbin:/usr/sbin:/bin:/usr/bin:$PATH"
+#!/bin/execlineb
 
-# this runs nmbd supervised
+/bin/fdmove -c 2 1
 
-. /usr/share/srv/functions
+/bin/export PATH "/sbin:/bin:/usr/sbin:/usr/bin"
 
-checkdepends smbd
+elglob -0 DEPENDS ./depends/*
 
-exec /usr/sbin/nmbd -F 2>&1
+/bin/if { /sbin/svwaitup -s 5 $DEPENDS }
+
+/usr/sbin/nmbd -F
