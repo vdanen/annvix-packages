@@ -11,4 +11,4 @@ multisubstitute {
     import -d "1h" QUEUE
 }
 
-/usr/bin/exim -bd -d -q$QUEUE
+/usr/bin/exim -bd -d -q${QUEUE}

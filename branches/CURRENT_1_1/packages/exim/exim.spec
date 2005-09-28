@@ -9,7 +9,7 @@
 
 %define name		exim
 %define version 	4.52
-%define release 	3avx
+%define release 	4avx
 
 %define build_mysql 	0
 %define build_pgsql 	0
@@ -283,6 +283,9 @@ fi
 
 
 %changelog
+* Tue Sep 27 2005 Vincent Danen <vdanen@annvix.org> 4.52-4avx
+- tidy runscript
+
 * Sun Sep 25 2005 Sean P. Thomas <spt@annvix.org> 4.52-3avx
 - execlineb for run script, removed sysinit file, added envdir, 
 - removed DAEMON variable (not used).
