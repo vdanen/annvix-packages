@@ -11,7 +11,7 @@
 
 %define name		openssh
 %define version		4.2p1
-%define release 	4avx
+%define release 	6avx
 
 # overrides
 %global build_skey	0
@@ -345,6 +345,9 @@ echo "known_hosts files on an entire system if run as root."
 
 
 %changelog
+* Tue Sep 27 2005 Vincent Danen <vdanen@annvix.org> 4.2p1-6avx
+- quotes and braces in runscript
+
 * Tue Sep 27 2005 Vincent Danen <vdanen@annvix.org> 4.2p1-5avx
 - only include PORT and OPTIONS env files; defaults will come from
   the tcpsvd env dir (update run script too)

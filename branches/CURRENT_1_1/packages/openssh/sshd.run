@@ -17,5 +17,5 @@
     import OPTIONS
 }
 
-/sbin/tcpsvd -v -l $HOSTNAME -x peers.cdb -c $MAX_CONN -C "$MAX_PER_HOST" -b $MAX_BACKLOG $IP $PORT
-     /usr/sbin/sshd -i $OPTIONS
+/sbin/tcpsvd -v -l ${HOSTNAME} -x peers.cdb -c ${MAX_CONN} -C ${MAX_PER_HOST} -b ${MAX_BACKLOG} ${IP} ${PORT}
+     /usr/sbin/sshd "-i ${OPTIONS}"
