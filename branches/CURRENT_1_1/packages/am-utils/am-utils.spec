@@ -9,7 +9,7 @@
 
 %define name		am-utils
 %define version		6.0.9
-%define release		10avx
+%define release		11avx
 %define epoch		3
 
 %define major		2
@@ -169,6 +169,9 @@ fi
 
 
 %changelog
+* Tue Sep 27 2005 Vincent Danen <vdanen@annvix.org> 6.0.9-11avx
+- quotes in runscript
+
 * Sun Sep 25 2005 Vincent Danen <vdanen@annvix.org> 6.0.9-10avx
 - back down to 6.0.9 due to some very wierd amd behaviour with
   6.1.x

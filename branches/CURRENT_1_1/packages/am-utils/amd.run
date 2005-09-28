@@ -12,12 +12,12 @@
     elglob -0 DEPENDS ./depends/*
 }
 
-/bin/if { /sbin/svwaitup -s 5 $DEPENDS }
+/bin/if { /sbin/svwaitup -s 5 ${DEPENDS} }
 
 /bin/ifthenelse { /usr/bin/test ! -f /etc/amd.conf }
 {
     /bin/echo "/etc/amd.conf doesn't exist and is required to run amd!"
 }
 {
-    /usr/sbin/amd -D nodaemon -F /etc/amd.conf $AMDOPTS $MOUNTPTS 
+    /usr/sbin/amd "-D nodaemon -F /etc/amd.conf ${AMDOPTS} ${MOUNTPTS}" 
 }
