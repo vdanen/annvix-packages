@@ -9,7 +9,7 @@
 
 %define name		rsync
 %define version		2.6.6
-%define release		2avx
+%define release		3avx
 
 Summary:	A program for synchronizing files over a network
 Name:		%{name}
@@ -66,7 +66,7 @@ mkdir -p %{buildroot}{%{_bindir},%{_mandir}/{man1,man5}}
 
 %makeinstall
 install -m 0644 %{SOURCE1} %{SOURCE2} .
-mkdir -p %{buildroot}%{_srvdir}/rsync/{log,peers}
+mkdir -p %{buildroot}%{_srvdir}/rsync/{log,peers,env}
 install -m 0740 %{SOURCE5} %{buildroot}%{_srvdir}/rsync/run
 install -m 0740 %{SOURCE6} %{buildroot}%{_srvdir}/rsync/log/run
 touch %{buildroot}%{_srvdir}/rsync/peers/0
@@ -74,6 +74,8 @@ chmod 0640 %{buildroot}%{_srvdir}/rsync/peers/0
 
 mkdir -p %{buildroot}%{_datadir}/afterboot
 install -m 0644 %{SOURCE7} %{buildroot}%{_datadir}/afterboot/07_rsync
+
+echo "873" >%{buildroot}%{_srvdir}/rsync/env/PORT
 
 
 %clean
@@ -86,6 +88,10 @@ if [ -d /var/log/supervise/rsync -a ! -d /var/log/service/rsync ]; then
 fi
 %_post_srv rsync
 %_mkafterboot
+pushd %{_srvdir}/rsync >/dev/null 2>&1
+    ipsvd-cdb peers.cdb peers.cdb.tmp peers/
+popd
+
 
 %preun
 %_preun_srv rsync
@@ -101,15 +107,22 @@ fi
 %dir %attr(0750,root,admin) %{_srvdir}/rsync
 %dir %attr(0750,root,admin) %{_srvdir}/rsync/log
 %dir %attr(0750,root,admin) %{_srvdir}/rsync/peers
+%dir %attr(0750,root,admin) %{_srvdir}/rsync/env
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/rsync/run
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/rsync/log/run
 %config(noreplace) %attr(0640,root,admin)%{_srvdir}/rsync/peers/0
+%config(noreplace) %attr(0640,root,admin)%{_srvdir}/rsync/env/PORT
 %{_mandir}/man1/rsync.1*
 %{_mandir}/man5/rsyncd.conf.5*
 %{_datadir}/afterboot/07_rsync
 
 
 %changelog
+* Tue Sep 27 2005 Vincent Danen <vdanen@annvix.org> 2.6.6-3avx
+- execline for runscript
+- env dirs
+- compile peers.cdb in %%post
+
 * Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 2.6.6-2avx
 - s/supervise/service/ in log/run
 
