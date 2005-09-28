@@ -1,0 +1,15 @@
+--- configure.in	2005-01-30 21:33:08.743603232 +0100
++++ configure.in.oden	2005-01-30 21:35:35.581280512 +0100
+@@ -2919,10 +2919,10 @@
+       AC_CONFIG_FILES(bdb/Makefile)
+ 
+       echo "CONFIGURING FOR BERKELEY DB" 
+-      bdb_conf_flags="--disable-shared"
++      bdb_conf_flags="--disable-shared --disable-pthreadsmutexes"
+       if test $with_debug = "yes"
+       then
+-        bdb_conf_flags="$bdb_conf_flags --enable-debug --enable-diagnostic"
++        bdb_conf_flags="$bdb_conf_flags --enable-debug --enable-diagnostic --disable-pthreadsmutexes"
+       fi
+       # NOTICE: if you're compiling BDB, it needs to be a SUBDIR
+       # of $srcdir (i.e., you can 'cd $srcdir/$bdb').  It won't

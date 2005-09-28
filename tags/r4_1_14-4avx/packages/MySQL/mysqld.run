@@ -1,0 +1,31 @@
+#!/bin/execlineb
+
+/bin/fdmove -c 2 1
+
+/bin/umask 077
+
+/bin/export PATH "/sbin:/bin:/usr/sbin:/usr/bin"
+/bin/export TMPDIR "/var/tmp"
+/sbin/chpst -e ./env/
+
+multisubstitute {
+    backtick -n HOSTNAME { /bin/hostname }
+    import -D "/var/lib/mysql" DATADIR
+    import MYSQLD_OPTS
+    import LOG
+}
+
+import -D "${DATADIR}/${HOSTNAME}.pid" PID_FILE
+
+/bin/if { /usr/bin/test ! -z ${LOG} } /bin/define LOGFILE "--log=$LOG"
+
+/bin/ifthenelse { /usr/bin/test ! -f /root/.my.cnf }
+{
+    foreground { /bin/echo "FATAL: You do not have a /root/.my.cnf file; this file needs to exist to run mysqld properly." }
+    foreground { /bin/echo "FATAL: Please read man afterboot for more information in the MySQL section or refer to the" }
+    foreground { /bin/echo "FATAL: Annvix FAQ online.  Refusing to start mysqld without this file." }
+}
+{
+    background { /sbin/chpst -u mysql /usr/sbin/mysqld "--basedir=/ --datadir=${DATADIR} --pid-file=${PID_FILE} --skip-locking ${LOGFILE} ${MYSQLD_OPTS}" }
+    /usr/bin/nothing
+}
