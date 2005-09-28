@@ -9,7 +9,7 @@
 
 %define name		cvs
 %define version		1.11.20
-%define release		2avx
+%define release		3avx
 
 %define _requires_exceptions tcsh
 
@@ -103,12 +103,7 @@ install -m 0740 %{SOURCE5} %{buildroot}%{_srvdir}/cvspserver/log/run
 touch %{buildroot}%{_srvdir}/cvspserver/peers/0
 chmod 0640 %{buildroot}%{_srvdir}/cvspserver/peers/0
 
-echo "localhost" >%{buildroot}%{_srvdir}/cvspserver/env/HOSTNAME
-echo "0" >%{buildroot}%{_srvdir}/cvspserver/env/IP
 echo "2401" >%{buildroot}%{_srvdir}/cvspserver/env/PORT
-echo "20" >%{buildroot}%{_srvdir}/cvspserver/env/MAX_CONN
-echo "5" >%{buildroot}%{_srvdir}/cvspserver/env/MAX_PER_HOST
-echo "20" >%{buildroot}%{_srvdir}/cvspserver/env/MAX_BACKLOG
 
 mkdir -p %{buildroot}%{_datadir}/afterboot
 install -m 0644 %{SOURCE6} %{buildroot}%{_datadir}/afterboot/06_cvspserver
@@ -161,16 +156,14 @@ popd >/dev/null 2>&1
 %attr(0740,root,admin) %{_srvdir}/cvspserver/run
 %attr(0740,root,admin) %{_srvdir}/cvspserver/log/run
 %attr(0640,root,admin) %{_srvdir}/cvspserver/peers/0
-%attr(0640,root,admin) %{_srvdir}/cvspserver/env/HOSTNAME
-%attr(0640,root,admin) %{_srvdir}/cvspserver/env/IP
 %attr(0640,root,admin) %{_srvdir}/cvspserver/env/PORT
-%attr(0640,root,admin) %{_srvdir}/cvspserver/env/MAX_CONN
-%attr(0640,root,admin) %{_srvdir}/cvspserver/env/MAX_PER_HOST
-%attr(0640,root,admin) %{_srvdir}/cvspserver/env/MAX_BACKLOG
 %{_datadir}/afterboot/06_cvspserver
 
 
 %changelog
+* Tue Sep 27 2005 Vincent Danen <vdanen@annvix.org> 1.11.20-3avx
+- grab defaults from the tcpsvd environment
+
 * Sun Sep 25 2005 Sean P. Thomas <spt@annvix.org> 1.11.20-2avx
 - use execlineb for run script, and created an envdir.
 - fix requires (vdanen)
