@@ -9,7 +9,7 @@
 
 %define name		clamav
 %define version		0.87
-%define release		1avx
+%define release		2avx
 
 %define	major		1
 %define libname		%mklibname %{name} %{major}
@@ -23,13 +23,12 @@ Group:		File tools
 URL:		http://clamav.sourceforge.net/
 Source0:	http://www.clamav.net/%{name}-%{version}.tar.gz
 Source1:	http://www.clamav.net/%{name}-%{version}.tar.gz.sig
-Source2:	clamav-clamd.logrotate
-Source3:	clamav-freshclam.logrotate
 Source4:	clamd.run
 Source5:	clamd-log.run
 Source6:	freshclam.run
 Source7:	freshclam-log.run
-Patch0:		clamav-0.86.1-avx-config.patch.bz2
+Patch0:		clamav-0.87-avx-config.patch.bz2
+Patch1:		clamav-0.87-avx-stderr.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	autoconf2.5, automake1.7
@@ -114,6 +113,7 @@ for i in `find . -type d -name CVS` `find . -type f -name .cvs\*` `find . -type 
 done
 	
 %patch0 -p1 -b .avx
+%patch1 -p1 -b .stderr
 
 
 %build
@@ -147,14 +147,6 @@ libtoolize --copy --force && aclocal-1.7 && autoconf && automake-1.7
 
 %makeinstall_std
 
-mkdir -p %{buildroot}%{_sysconfdir}/logrotate.d
-install -m 0644 %{SOURCE2} %{buildroot}%{_sysconfdir}/logrotate.d/clamd
-install -m 0644 %{SOURCE3} %{buildroot}%{_sysconfdir}/logrotate.d/freshclam
-
-mkdir -p %{buildroot}/var/log/%{name}
-touch %{buildroot}/var/log/%{name}/freshclam.log
-touch %{buildroot}/var/log/%{name}/clamd.log
-
 install -m 0644 etc/clamd.conf %{buildroot}%{_sysconfdir}/clamd.conf
 install -m 0644 etc/freshclam.conf %{buildroot}%{_sysconfdir}/freshclam.conf
 
@@ -175,41 +167,31 @@ mkdir -p %{buildroot}%{_localstatedir}/%{name}/tmp
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 
-%pre
-%_pre_useradd clamav %{_localstatedir}/%{name} /bin/sh 89
-#%_pre_groupadd amavis %{name}
-
 %post
 if [ -d /var/log/supervise/freshclam -a ! -d /var/log/service/freshclam ]; then
     mv /var/log/supervise/freshclam /var/log/service/
 fi
 %_post_srv freshclam
-%create_ghostfile /var/log/%{name}/freshclam.log %{name} %{name} 0640
+
 
 %preun
 %_preun_srv freshclam
 
-%postun
-%_postun_userdel clamav
-
-%pre -n clamd
-%_pre_useradd clamav %{_localstatedir}/%{name} /bin/sh 89
 
 %post -n clamd
 if [ -d /var/log/supervise/clamd -a ! -d /var/log/service/clamd ]; then
     mv /var/log/supervise/clamd /var/log/service/
 fi
 %_post_srv clamd
-%create_ghostfile /var/log/%{name}/clamd.log %{name} %{name} 0640
+
 
 %preun -n clamd
 %_preun_srv clamd
 
-%postun -n clamd
-%_postun_userdel clamav
 
 %pre -n %{name}-db
-%_pre_useradd clamav %{_localstatedir}/%{name} /bin/sh 89
+%_pre_useradd clamav %{_localstatedir}/%{name} /bin/sh 91
+
 
 %post -n %{name}-db
 # try to keep most uptodate database
@@ -223,8 +205,10 @@ for i in main daily; do
     fi
 done
 
+
 %postun -n %{name}-db
 %_postun_userdel clamav
+
 
 %post -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
@@ -237,7 +221,6 @@ done
 %doc COPYING
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/clamd.conf
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/freshclam.conf
-%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/logrotate.d/freshclam
 %{_bindir}/clamscan
 %{_bindir}/clamdscan
 %{_bindir}/freshclam
@@ -251,8 +234,6 @@ done
 %exclude %{_mandir}/man8/%{name}-milter.8*
 %dir %attr(0755,clamav,clamav) /var/run/%{name}
 %dir %attr(0755,clamav,clamav) %{_localstatedir}/%{name}
-%dir %attr(0755,clamav,clamav) /var/log/%{name}
-%ghost %attr(0640,clamav,clamav) /var/log/%{name}/freshclam.log
 %dir %attr(0750,root,admin) %{_srvdir}/freshclam
 %dir %attr(0750,root,admin) %{_srvdir}/freshclam/log
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/freshclam/run
@@ -261,10 +242,8 @@ done
 %files -n clamd
 %defattr(-,root,root)
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/clamd.conf
-%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/logrotate.d/clamd
 %{_sbindir}/clamd
 %{_mandir}/man8/clamd.8*
-%ghost %attr(0640,clamav,clamav) /var/log/%{name}/clamd.log
 %dir %attr(0750,root,admin) %{_srvdir}/clamd
 %dir %attr(0750,root,admin) %{_srvdir}/clamd/log
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/clamd/run
@@ -291,8 +270,18 @@ done
 %{_libdir}/*.a
 %{_libdir}/*.la
 %{_libdir}/pkgconfig/libclamav.pc
+
       
 %changelog
+* Tue Sep 27 2005 Vincent Danen <vdanen@annvix.org> 0.87-2avx
+- clamav is static uid/gid 91, not 89 (clashes with dhcpd)
+- useradd only in clamav-db, not in clamav or clamd
+- execline the runscripts and make both freshclam and clamd run
+  as user clamav rather than root
+- P1: allow clamav/freshclam to log to stderr (from http://www.gluelogic.com/code/)
+- P0: adjust the configs to log to stderr by default
+- drop the logrotate files and logfiles
+
 * Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 0.87-1avx
 - 0.87
 
