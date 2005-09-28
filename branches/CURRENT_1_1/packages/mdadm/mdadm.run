@@ -1,19 +1,13 @@
-#!/bin/sh
-PATH="/sbin:/usr/sbin:/bin:/usr/bin"
+#!/bin/execlineb
 
-# this runs mdadm supervised
+/bin/fdmove -c 2 1
 
-. /usr/share/srv/functions
+/bin/export PATH "/sbin:/bin:/usr/sbin:/usr/bin"
 
-if [ ! -f /etc/mdadm.conf ]; then
-  echo "/etc/mdadm.conf doesn't exist and is required to run mdadm!"
-  godown
-fi
-
-if [ "`grep '^\(MAILADDR\|PROGRAM\) .' /etc/mdadm.conf >/dev/null 2>&1; echo $?`" = "1" ]; then
-  echo "MAILADDR or PROGRAM must be set in /etc/mdadm.conf to run mdadm!"
-  godown
-fi
-
-exec /sbin/mdadm --monitor --scan 2>&1
-
+/bin/ifthenelse { /usr/bin/test ! -f /etc/amd.conf }
+{
+    /bin/echo "/etc/mdadm.conf doesn't exist and is required to run mdadm!"
+}
+{
+    /sbin/mdadm --monitor --scan
+}

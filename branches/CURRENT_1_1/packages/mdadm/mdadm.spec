@@ -9,7 +9,7 @@
 
 %define name		mdadm
 %define version		1.12.0
-%define release		2avx
+%define release		3avx
 
 %define use_dietlibc 	0
 %ifarch %{ix86} x86_64 ppc
@@ -107,6 +107,9 @@ fi
 
 
 %changelog
+* Tue Sep 27 2005 Vincent Danen <vdanen@annvix.org> 1.12.0-3avx
+- execline the runscript
+
 * Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 1.12.0-2avx
 - s/supervise/service/ in log/run
 
