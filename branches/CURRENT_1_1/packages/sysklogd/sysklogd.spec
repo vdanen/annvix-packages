@@ -9,7 +9,7 @@
 
 %define name		sysklogd
 %define version		1.4.1
-%define release		16avx
+%define release		17avx
 
 Summary:	System logging and kernel message trapping daemons
 Name:		%{name}
@@ -79,9 +79,12 @@ install -m 0644 %{SOURCE5} %{buildroot}%{_sysconfdir}/sysconfig/syslog
 chmod 0750 %{buildroot}/sbin/syslogd
 chmod 0750 %{buildroot}/sbin/klogd
 
-mkdir -p %{buildroot}%{_srvdir}/{syslogd,klogd}
+mkdir -p %{buildroot}%{_srvdir}/{syslogd,klogd}/env
 install -m 0700 %{SOURCE1} %{buildroot}%{_srvdir}/syslogd/run
 install -m 0700 %{SOURCE2} %{buildroot}%{_srvdir}/klogd/run
+
+echo "-m 0" >%{buildroot}%{_srvdir}/syslogd/env/OPTIONS
+echo "-2" >%{buildroot}%{_srvdir}/klogd/env/OPTIONS
 
 
 %clean
@@ -127,12 +130,20 @@ fi
 %attr(0700,root,root) /sbin/syslogd
 %{_mandir}/*/*
 %attr(0750,root,admin) %dir %{_srvdir}/syslogd
+%attr(0750,root,admin) %dir %{_srvdir}/syslogd/env
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/syslogd/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/syslogd/env/OPTIONS
 %attr(0750,root,admin) %dir %{_srvdir}/klogd
+%attr(0750,root,admin) %dir %{_srvdir}/klogd/env
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/klogd/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/klogd/env/OPTIONS
 
 
 %changelog
+* Wed Sep 28 2005 Vincent Danen <vdanen@annvix.org> 1.4.1-17avx
+- execline run scripts
+- add env directory
+
 * Thu Sep 08 2005 Sean P. Thomas <spt@annvix.org> 1.4.1-16avx
 - fix perms on run scripts
 

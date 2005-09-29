@@ -1,13 +1,11 @@
-#!/bin/sh
-PATH="/sbin:/usr/sbin:/bin:/usr/bin"
+#!/bin/execlineb
 
-# this runs klogd supervised
+/bin/redirfd -c 1 /dev/null
 
-if [ -f /etc/sysconfig/syslog ]; then
-  . /etc/sysconfig/syslog
-else
-  KLOGD_OPTIONS="-2"
-fi
+/bin/export PATH "/sbin:/usr/sbin:/bin:/usr/bin"
 
-#exec /sbin/klogd -u klogd -j /var/empty -n $KLOGD_OPTIONS >/dev/null 2>&1
-exec /sbin/klogd -n $KLOGD_OPTIONS >/dev/null 2>&1
+/sbin/chpst -e ./env/
+
+import -D "-2" OPTIONS
+
+/sbin/klogd -n ${OPTIONS}

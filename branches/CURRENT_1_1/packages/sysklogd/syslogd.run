@@ -1,12 +1,11 @@
-#!/bin/sh
-PATH="/sbin:/usr/sbin:/bin:/usr/bin"
+#!/bin/execlineb
 
-# this runs syslogd supervised
+/bin/redirfd -c 1 /dev/null
 
-if [ -f /etc/sysconfig/syslog ]; then
-  . /etc/sysconfig/syslog
-else
-  SYSLOGD_OPTIONS="-m 0"
-fi
+/bin/export PATH "/sbin:/usr/sbin:/bin:/usr/bin"
 
-exec /sbin/syslogd -u syslogd -n $SYSLOGD_OPTIONS >/dev/null 2>&1
+/sbin/chpst -e ./env/
+
+import -D "-m 0" OPTIONS
+
+/sbin/syslogd -u syslogd -n ${OPTIONS}
