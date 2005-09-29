@@ -9,7 +9,7 @@
 
 %define name		smartmontools
 %define version 	5.33
-%define release 	6avx
+%define release 	7avx
 
 Summary:	SMARTmontools - for monitoring S.M.A.R.T. disks and devices
 Name:           %{name}
@@ -63,8 +63,8 @@ install -m 0740 %{SOURCE1} %{buildroot}%{_srvdir}/smartd/run
 install -m 0740 %{SOURCE2} %{buildroot}%{_srvdir}/smartd/log/run
 rm -rf %{buildroot}%{_initrddir}
 
-mkdir -p %{buildroot}%{_sysconfdir}/sysconfig
-echo "INTERVAL=1800" > %{buildroot}%{_sysconfdir}/sysconfig/smartd
+mkdir -p %{buildroot}%{_srvdir}/smartd/env
+echo "1800" > %{buildroot}%{_srvdir}/smartd/env/INTERVAL
 
 
 %clean
@@ -85,7 +85,6 @@ fi
 %defattr(-,root,root)
 %doc %{_docdir}/%{name}-%{version}
 %config(noreplace) %{_sysconfdir}/smartd.conf
-%config(noreplace) %{_sysconfdir}/sysconfig/smartd
 %{_sbindir}/smartd
 %{_sbindir}/smartctl
 %{_mandir}/man5/smartd.conf.5*
@@ -93,11 +92,18 @@ fi
 %{_mandir}/man8/smartctl.8*
 %dir %attr(0750,root,admin) %{_srvdir}/smartd
 %dir %attr(0750,root,admin) %{_srvdir}/smartd/log
+%dir %attr(0750,root,admin) %{_srvdir}/smartd/env
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/smartd/run
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/smartd/log/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/smartd/env/INTERVAL
 
 
 %changelog
+* Tue Sep 27 2005 Vincent Danen <vdanen@annvix.org> 5.33-7avx
+- execline runscript
+- created env directory
+- drop the sysconfig file
+
 * Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 5.33-6avx
 - s/supervise/service/ in log/run
 

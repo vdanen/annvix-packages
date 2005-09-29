@@ -1,12 +1,11 @@
-#!/bin/sh
-PATH="/sbin:/usr/sbin:/bin:/usr/bin"
+#!/bin/execlineb
 
-# this runs smartd supervised
+/bin/fdmove -c 2 1
 
-if [ -f /etc/sysconfig/smartd ]; then
-  . /etc/sysconfig/smartd
-else
-  INTERVAL="1800"
-fi
+/bin/export PATH "/sbin:/usr/sbin:/bin:/usr/bin"
 
-exec /usr/sbin/smartd -d -i $INTERVAL 2>&1
+/sbin/chpst -e ./env/
+
+import -D "1800" INTERVAL
+
+/usr/sbin/smartd -d -i ${INTERVAL}
