@@ -21,6 +21,6 @@
         /bin/echo "The lease file does not exist, unable to start!"
     }
     {
-        /usr/sbin/dhcpd "-d -f -user dhcp -group dhcp -cf ${CONFIGFILE} -lf ${LEASEFILE} ${OPTIONS} ${INTERFACES}"
+        /usr/sbin/dhcpd -d -f -user dhcp -group dhcp -cf ${CONFIGFILE} -lf ${LEASEFILE} ${OPTIONS} ${INTERFACES}
     }
 }

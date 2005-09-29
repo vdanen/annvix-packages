@@ -9,7 +9,7 @@
 
 %define name		dhcp
 %define version		3.0.3
-%define release		3avx
+%define release		4avx
 %define epoch		2
 
 %define _catdir		/var/cache/man
@@ -302,6 +302,9 @@ rm -rf %{_localstatedir}/dhcp/dhclient.leases
 
 
 %changelog
+* Wed Sep 28 2005 Vincent Danen <vdanen@annvix.org> 3.0.3-4avx
+- revert the quoting in the runscript; doesn't work
+
 * Tue Sep 27 2005 Vincent Danen <vdanen@annvix.org> 3.0.3-3avx
 - quote the args in the runscripts
 

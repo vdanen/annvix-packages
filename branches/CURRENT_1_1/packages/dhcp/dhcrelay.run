@@ -14,5 +14,5 @@
     /bin/echo "I need at least one dhcp server to relay from... please set SERVERS in the ./env!"
 }
 {
-    /usr/sbin/dhcrelay "-d ${OPTIONS} ${SERVERS}"
+    /usr/sbin/dhcrelay -d ${OPTIONS} ${SERVERS}
 }
