@@ -11,7 +11,7 @@
 
 %define name		openssh
 %define version		4.2p1
-%define release 	6avx
+%define release 	7avx
 
 # overrides
 %global build_skey	0
@@ -345,6 +345,10 @@ echo "known_hosts files on an entire system if run as root."
 
 
 %changelog
+* Wed Sep 28 2005 Vincent Danen <vdanen@annvix.org> 4.2p1-7avx
+- revert the quotes change in the runscript as it then runs sshd without
+  any args (bad)
+
 * Tue Sep 27 2005 Vincent Danen <vdanen@annvix.org> 4.2p1-6avx
 - quotes and braces in runscript
 
