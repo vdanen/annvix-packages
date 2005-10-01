@@ -9,7 +9,7 @@
 
 %define name		samba
 %define version		3.0.20
-%define release		5avx
+%define release		6avx
 
 %define smbldapver	0.8.8
 %define vscanver	0.3.6b
@@ -838,6 +838,9 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Fri Sep 30 2005 Vincent Danen <vdanen@annvix.org> 3.0.20-6avx
+- cleanups to swat runfile
+
 * Thu Sep 29 2005 Vincent Danen <vdanen@annvix.org> 3.0.20-5avx
 - fix the nmbd runscript to remove svwaitup since it doesn't have
   any dependencies
