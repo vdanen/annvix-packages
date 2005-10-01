@@ -9,7 +9,7 @@
 
 %define name		krb5
 %define version		1.4.2
-%define release		2avx
+%define release		3avx
 
 %define major		1
 %define libname		%mklibname %{name} %{major}
@@ -140,6 +140,7 @@ Summary:	A telnet-server with kerberos support
 Group:		System/Servers
 Requires:	%{libname} = %{version}
 Requires:	ipsvd
+Requires:	krb5-workstation
 PreReq:		afterboot
 Obsoletes:	telnet-server
 Provides:	telnet-server
@@ -338,9 +339,11 @@ install -m 0740 %{SOURCE34} %{buildroot}%{_srvdir}/kpropd/log/run
 install -m 0740 %{SOURCE35} %{buildroot}%{_srvdir}/krb5kdc/run
 install -m 0740 %{SOURCE36} %{buildroot}%{_srvdir}/krb5kdc/log/run
 
-mkdir -p %{buildroot}%{_srvdir}/{ktelnet,kftp}/peers
+mkdir -p %{buildroot}%{_srvdir}/{ktelnet,kftp}/{peers,env}
 touch %{buildroot}%{_srvdir}/{ktelnet,kftp}/peers/0
 chmod 0644 %{buildroot}%{_srvdir}/{ktelnet,kftp}/peers/0
+echo "21" >%{buildroot}%{_srvdir}/kftp/env/PORT
+echo "23" >%{buildroot}%{_srvdir}/ktelnet/env/PORT
 
 mkdir -p %{buildroot}%{_datadir}/afterboot
 install -m 0644 %{SOURCE39} %{buildroot}%{_datadir}/afterboot/08_kftp
@@ -355,7 +358,7 @@ find %{_builddir}/%{name}-%{version} -name "*\.h" | xargs perl -p -i -e "s|\<com
 find %{_builddir}/%{name}-%{version} -name "*\.h" | xargs perl -p -i -e "s|\"com_err|\"et/com_err|";
 
 # strip rpath
-chrpath -d %{buildroot}%{_libdir}/*
+chrpath -d %{buildroot}%{_libdir}/*so*
 strip %{buildroot}%{_bindir}/{ksu,v4rcp}
 
 # dump un-FHS examples location (files included in doc list now)
@@ -422,6 +425,10 @@ if [ -d /var/log/supervise/ktelnet -a ! -d /var/log/service/ktelnet ]; then
 fi
 %_post_srv ktelnet
 %_mkafterboot
+pushd %{_srvdir}/ktelnet >/dev/null 2>&1
+    ipsvd-cdb peers.cdb peers.cdb.tmp peers/
+popd >/dev/null 2>&1
+
 
 %preun -n telnet-server-krb5
 %_preun_srv ktelnet
@@ -436,6 +443,9 @@ if [ -d /var/log/supervise/kftp -a ! -d /var/log/service/kftp ]; then
 fi
 %_post_srv kftp
 %_mkafterboot
+pushd %{_srvdir}/kftp >/dev/null 2>&1
+    ipsvd-cdb peers.cdb peers.cdb.tmp peers/
+popd >/dev/null 2>&1
 
 %preun -n ftp-server-krb5
 %_preun_srv kftp
@@ -583,8 +593,10 @@ fi
 %dir %attr(0750,root,admin) %{_srvdir}/ktelnet
 %dir %attr(0750,root,admin) %{_srvdir}/ktelnet/log
 %dir %attr(0750,root,admin) %{_srvdir}/ktelnet/peers
+%dir %attr(0750,root,admin) %{_srvdir}/ktelnet/env
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/ktelnet/run
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/ktelnet/log/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/ktelnet/env/PORT
 %config(noreplace) %{_srvdir}/ktelnet/peers/0
 %{_datadir}/afterboot/08_ktelnet
 
@@ -608,13 +620,21 @@ fi
 %dir %attr(0750,root,admin) %{_srvdir}/kftp
 %dir %attr(0750,root,admin) %{_srvdir}/kftp/log
 %dir %attr(0750,root,admin) %{_srvdir}/kftp/peers
+%dir %attr(0750,root,admin) %{_srvdir}/kftp/env
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/kftp/run
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/kftp/log/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/kftp/env/PORT
 %config(noreplace) %{_srvdir}/kftp/peers/0
 %{_datadir}/afterboot/08_kftp
 
 
 %changelog
+* Fri Sep 30 2005 Vincent Danen <vdanen@annvix.org> 1.4.2-3avx
+- env dirs and execline runscripts for ktelnet, kftp
+- execline runscripts for kpropd and krb5kdc
+- fix the chrpath call
+- telnet-server-krb5 requires krb5-workstation (for login.krb5)
+
 * Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 1.4.2-2avx
 - s/supervise/service/ in log/run
 

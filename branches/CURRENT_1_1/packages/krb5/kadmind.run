@@ -3,16 +3,14 @@ PATH="/sbin:/usr/sbin:/bin:/usr/bin"
 
 # this runs kadmind supervised
 
-. /usr/share/srv/functions
-
 if [ ! -f /etc/kerberos/krb5kdc/principal ]; then
   echo "ERROR: Principal database does not exist!"
-  godown
+  exit 1
 fi
 
 if [ -f /etc/kerberos/krb5kdc/kpropd.acl ]; then
   echo "ERROR: This appears to be a slave server; found kpropd.acl!"
-  godown
+  exit 1
 fi
 
 if [ ! -f /etc/kerberos/krb5kdc/kadm5.keytab ]; then

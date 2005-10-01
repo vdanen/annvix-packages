@@ -1,12 +1,13 @@
-#!/bin/sh
-PATH="/sbin:/usr/sbin:/bin:/usr/bin"
+#!/bin/execlineb
 
-# this runs kpropd supervised
+/bin/fdmove -c 2 1
 
-. /usr/share/srv/functions
+/bin/export PATH "/sbin:/usr/sbin:/bin:/usr/bin"
 
-if [ ! -f /etc/kerberos/krb5kdc/kpropd.acl ]; then
-  godown
-fi
-
-exec /usr/sbin/kpropd -S -d 2>&1
+/bin/ifthenelse { /usr/bin/test ! -f /etc/kerberos/krb5kdc/kpropd.acl }
+{
+    foreground { /bin/echo "FATAL: Missing /etc/kerberos/krb5kdc/kpropd.acl; this file is required" }
+}
+{
+    /usr/sbin/kpropd -S -d
+}

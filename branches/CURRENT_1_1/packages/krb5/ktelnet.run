@@ -1,8 +1,18 @@
-#!/bin/sh
-PATH="/sbin:/usr/sbin:/bin:/usr/bin"
+#!/bin/execlineb
 
-# this runs telnetd and limits the server to a maximum of 30 simultaneous
-# connections (-c) using the ipsvd-instruct(5) directory ./peers for instructions,
-# and listening to all IPs on port 23 (telnet)
+/bin/fdmove -c 2 1
 
-exec /sbin/tcpsvd -c30 -v -llocalhost -i./peers 0 23 /usr/sbin/telnetd -a none 2>&1
+/sbin/chpst -e /etc/sysconfig/env/tcpsvd/
+/sbin/chpst -e ./env/
+
+/bin/multisubstitute {
+    import -D "localhost" HOSTNAME
+    import -D 0 IP
+    import -D 23 PORT
+    import -D 20 MAX_CONN
+    import -D 5 MAX_PER_HOST
+    import -D 20 MAX_BACKLOG
+}
+                        
+/sbin/tcpsvd -v -l ${HOSTNAME} -x peers.cdb -c ${MAX_CONN} -C ${MAX_PER_HOST} -b ${MAX_BACKLOG} ${IP} ${PORT}
+    /usr/sbin/telnetd -a none
