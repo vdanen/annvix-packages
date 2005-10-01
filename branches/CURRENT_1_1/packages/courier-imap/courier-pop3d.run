@@ -33,6 +33,6 @@ done
 TLS_PROTOCOL=$TLS_STARTTLS_PROTOCOL; export TLS_PROTOCOL
 
 exec /sbin/chpst -m "$MAX_MEMORY" \
-  /sbin/tcpsvd -c"$CONCURRENCY" -v -l"$HOSTNAME" -i./peers \
+  /sbin/tcpsvd -c"$CONCURRENCY" -v -l"$HOSTNAME" -x peers.cdb \
   $ADDRESS $PORT /usr/sbin/pop3login $LIBAUTHMODULES \
   /usr/bin/pop3d Maildir 2>&1

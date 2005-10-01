@@ -9,7 +9,7 @@
 
 %define name		courier-imap
 %define version		3.0.8
-%define release		1avx
+%define release		2avx
 
 %define _localstatedir	/var/run
 %define	authdaemondir	%{_localstatedir}/authdaemon.courier-imap
@@ -81,7 +81,7 @@ the full Courier mail server.  Install the Courier package instead.
 Summary:	Courier-IMAP POP servers
 Group:		System/Servers
 Requires:	%{name} = %{version}-%{release}, ipsvd
-Requires(post):	rpm-helper
+Requires(post):	rpm-helper, %{name}
 Requires(preun): rpm-helper
 Provides:	pop, pop-server
 Conflicts:	uw-imap-pop
@@ -96,7 +96,7 @@ Summary:	Courier-IMAP LDAP authentication driver
 Group:		System/Servers
 Requires:	%{name} = %{version}-%{release}
 #Requires:	libldap2
-Requires(post):	rpm-helper
+Requires(post):	rpm-helper, %{name}
 Requires(postun): rpm-helper
 Conflicts:	%{name}-mysql %{name}-pgsql
 
@@ -110,7 +110,7 @@ ability to use an LDAP directory for authentication.
 Summary:	Courier-IMAP MySQL authentication driver
 Group:		System/Servers
 Requires:	%{name} = %{version}-%{release}, MySQL-shared
-Requires(post):	rpm-helper
+Requires(post):	rpm-helper, %{name}
 Requires(postun): rpm-helper
 Conflicts:	%{name}-ldap %{name}-pgsql
 
@@ -124,7 +124,7 @@ the ability to use a MySQL database table for authentication.
 Summary:	Courier-IMAP PostgreSQL authentication driver
 Group:		System/Servers
 Requires:	%{name} = %{version}-%{release}, postgresql-libs
-Requires(post):	rpm-helper
+Requires(post):	rpm-helper, %{name}
 Requires(postun): rpm-helper
 Conflicts:	%{name}-ldap %{name}-mysql
 
@@ -379,6 +379,12 @@ done
 %_post_srv courier-imapds
 %_post_srv authdaemond
 %_mkafterboot
+for i in courier-imapd courier-imapds
+do
+    pushd %{_srvdir}/$i >/dev/null 2>&1
+        ipsvd-cdb peers.cdb peers.cdb.tmp peers/
+    popd >/dev/null 2>&1
+done
 
 %create_ghostfile %{_localstatedir}/imapd.pid root root 0600
 %create_ghostfile %{_localstatedir}/imapd.pid.lock root root 0600
@@ -399,6 +405,12 @@ do
 done
 %_post_srv courier-pop3d
 %_post_srv courier-pop3ds
+for i in courier-pop3d courier-pop3ds
+do
+    pushd %{_srvdir}/$i >/dev/null 2>&1
+        ipsvd-cdb peers.cdb peers.cdb.tmp peers/
+    popd >/dev/null 2>&1
+done
 
 %create_ghostfile %{_localstatedir}/pop3d.pid root root 0600
 %create_ghostfile %{_localstatedir}/pop3d.pid.lock root root 0600
@@ -637,6 +649,12 @@ test ! -f %{courierdatadir}/configlist.mysql || %{courierdatadir}/sysconftool-rp
 
 
 %changelog
+* Fri Sep 30 2005 Vincent Danen <vdanen@annvix.org> 3.0.8-2avx
+- make the imapd/pop3d daemons use peers.cdb rather than ./peers; no
+  execline yet as these scripts are way too complex
+- make all sub-packages require courier-imap (Requires(post)) due to
+  the sysconftool-rpmupgrade script
+
 * Sat Sep 24 2005 Vincent Danen <vdanen@annvix.org> 3.0.8-1avx
 - 3.0.8
 - P4: overflow patch (andreas)
