@@ -8,7 +8,7 @@
 
 %define kname		kernel
 %define sublevel	31
-%define avxrelease	3
+%define avxrelease	4
 
 %define tar_version	2.4.%{sublevel}
 %define patchversion	avx%{avxrelease}
@@ -497,7 +497,7 @@ chmod -R a+rX %{target_source}
 # we remove all the source files that we don't ship
 
 # first architecture files
-for i in alpha arm cris ia64 m68k mips mips64 parisc ppc ppc64 s390 s390x sh sh64 sparc sparc64; do
+for i in alpha arm cris m68k mips mips64 parisc ppc ppc64 s390 s390x sh sh64 sparc sparc64; do
     rm -rf %{target_source}/arch/$i
     rm -rf %{target_source}/include/asm-$i
 done
@@ -757,6 +757,7 @@ exit 0
 %{_kerneldir}/REPORTING-BUGS
 %{_kerneldir}/Rules.make
 %{_kerneldir}/arch/i386
+%{_kerneldir}/arch/ia64
 %{_kerneldir}/arch/x86_64
 %{_kerneldir}/crypto
 %{_kerneldir}/drivers
@@ -774,6 +775,7 @@ exit 0
 %{_kerneldir}/include/acpi
 %{_kerneldir}/include/asm-generic
 %{_kerneldir}/include/asm-i386
+%{_kerneldir}/include/asm-ia64
 %{_kerneldir}/include/asm-x86_64
 %{_kerneldir}/include/asm
 %{_kerneldir}/include/linux
@@ -806,6 +808,9 @@ exit 0
 
 
 %changelog
+* Fri Sep 30 2005 Vincent Danen <vdanen@annvix.org> 2.4.31-4avx
+- include the ia64 files; needed for an x86_64 build
+
 * Mon Sep 05 2005 Vincent Danen <vdanen@annvix.org> 2.4.31-3avx
 - silence pushd/popd in kernel-source %%post
 - clean out the patches tarball and remove all unapplied patches from it
