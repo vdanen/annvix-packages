@@ -1,0 +1,57 @@
+diff -Naur samba-3.0.14a/source/include/popt_common.h samba-3.0.14a.oden/source/include/popt_common.h
+--- samba-3.0.14a/source/include/popt_common.h	2005-03-18 15:56:41.000000000 +0100
++++ samba-3.0.14a.oden/source/include/popt_common.h	2005-05-06 12:19:34.899784284 +0200
+@@ -24,10 +24,10 @@
+ #include <popt.h>
+ 
+ /* Common popt structures */
+-extern struct poptOption popt_common_samba[];
+-extern struct poptOption popt_common_connection[];
+-extern struct poptOption popt_common_version[];
+-extern struct poptOption popt_common_credentials[];
++extern struct poptOption *popt_common_samba;
++extern struct poptOption *popt_common_connection;
++extern struct poptOption *popt_common_version;
++extern struct poptOption *popt_common_credentials;
+ 
+ #ifndef POPT_TABLEEND
+ #define POPT_TABLEEND { NULL, '\0', 0, 0, 0, NULL, NULL }
+diff -Naur samba-3.0.14a/source/lib/popt_common.c samba-3.0.14a.oden/source/lib/popt_common.c
+--- samba-3.0.14a/source/lib/popt_common.c	2005-02-25 18:59:31.000000000 +0100
++++ samba-3.0.14a.oden/source/lib/popt_common.c	2005-05-06 12:19:34.901784331 +0200
+@@ -114,7 +114,7 @@
+ 	}
+ }
+ 
+-struct poptOption popt_common_connection[] = {
++struct poptOption *popt_common_connection = {
+ 	{ NULL, 0, POPT_ARG_CALLBACK, popt_common_callback },
+ 	{ "socket-options", 'O', POPT_ARG_STRING, NULL, 'O', "socket options to use",
+ 	  "SOCKETOPTIONS" },
+@@ -125,7 +125,7 @@
+ 	POPT_TABLEEND
+ };
+ 
+-struct poptOption popt_common_samba[] = {
++struct poptOption *popt_common_samba = {
+ 	{ NULL, 0, POPT_ARG_CALLBACK|POPT_CBFLAG_PRE, popt_common_callback },
+ 	{ "debuglevel", 'd', POPT_ARG_STRING, NULL, 'd', "Set debug level", "DEBUGLEVEL" },
+ 	{ "configfile", 's', POPT_ARG_STRING, NULL, 's', "Use alternative configuration file", "CONFIGFILE" },
+@@ -134,7 +134,7 @@
+ 	POPT_TABLEEND
+ };
+ 
+-struct poptOption popt_common_version[] = {
++struct poptOption *popt_common_version = {
+ 	{ NULL, 0, POPT_ARG_CALLBACK, popt_common_callback },
+ 	{ "version", 'V', POPT_ARG_NONE, NULL, 'V', "Print version" },
+ 	POPT_TABLEEND
+@@ -382,7 +382,7 @@
+ 
+ 
+ 
+-struct poptOption popt_common_credentials[] = {
++struct poptOption *popt_common_credentials = {
+ 	{ NULL, 0, POPT_ARG_CALLBACK|POPT_CBFLAG_PRE, popt_common_credentials_callback },
+ 	{ "user", 'U', POPT_ARG_STRING, NULL, 'U', "Set the network username", "USERNAME" },
+ 	{ "no-pass", 'N', POPT_ARG_NONE, &cmdline_auth_info.got_pass, 0, "Don't ask for a password" },
