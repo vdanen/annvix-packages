@@ -9,7 +9,7 @@
 
 %define name		annvix-ports
 %define version		1.1
-%define release		4avx
+%define release		5avx
 
 %define _portsprefix /usr/local
 
@@ -38,7 +38,7 @@ The filesystem layout and builder scripts for Annvix ports.
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p %{buildroot}%{_portsprefix}/ports/{ports,packages/{RPMS,SRPMS},override}
-install -m 0644 README %{buildroot}%{_portsprefix}/ports/README.ports
+install -m 0644 README %{buildroot}%{_portsprefix}/ports/README
 install -m 0754 builder %{buildroot}%{_portsprefix}/ports/builder
 install -m 0754 build.sh %{buildroot}%{_portsprefix}/ports/ports/build.sh
 
@@ -59,12 +59,15 @@ install -m 0754 build.sh %{buildroot}%{_portsprefix}/ports/ports/build.sh
 %attr(0775,root,admin) %dir %{_portsprefix}/ports/packages/SRPMS
 %attr(2775,root,admin) %dir %{_portsprefix}/ports/ports
 %attr(1775,root,admin) %dir %{_portsprefix}/ports/override
-%{_portsprefix}/ports/README.ports
+%{_portsprefix}/ports/README
 %attr(0754,root,admin) %{_portsprefix}/ports/builder
 %attr(0754,root,admin) %{_portsprefix}/ports/ports/build.sh
 
 
 %changelog
+* Mon Oct 03 2005 Vincent Danen <vdanen@annvix.org> 1.1-5avx
+- fix some wierdness with the spec that turned README into README.ports
+
 * Sun Oct 02 2005 Vincent Danen <vdanen@annvix.org> 1.1-4avx
 - add uid/gid 403 for user builder (in prep of a single-uid
   controlled ports build system)
