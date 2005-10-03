@@ -5,11 +5,11 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-# $Id: srv.spec,v 1.18 2005/08/27 00:16:01 spt Exp $
+# $Id: srv.spec,v 1.19 2005/10/03 19:29:33 vdanen Exp $
 
 
 %define name		srv
-%define version 	0.10
+%define version 	0.20
 %define release 	1avx
 
 Summary:	Tool to manage runsv-controlled services
@@ -65,6 +65,9 @@ install -m 0644 functions %{buildroot}%{_datadir}/srv
 
 
 %changelog
+* Mon Oct 03 2005 Vincent Danen <vdanen@annvix.org> 0.20-1avx
+- 0.20
+
 * Fri Aug 26 2005 Sean P. Thomas <spt@annvix.org> 0.10-1avx
 - 0.10
 
