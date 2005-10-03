@@ -5,11 +5,11 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-# $Id
+# $Id: annvix-ports.spec,v 1.2 2005/10/03 02:59:26 vdanen Exp $
 
 %define name		annvix-ports
 %define version		1.1
-%define release		3avx
+%define release		4avx
 
 %define _portsprefix /usr/local
 
@@ -38,9 +38,13 @@ The filesystem layout and builder scripts for Annvix ports.
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p %{buildroot}%{_portsprefix}/ports/{ports,packages/{RPMS,SRPMS},override}
-install -m 0644 README %{buildroot}%{_portsprefix}/ports/README
+install -m 0644 README %{buildroot}%{_portsprefix}/ports/README.ports
 install -m 0754 builder %{buildroot}%{_portsprefix}/ports/builder
 install -m 0754 build.sh %{buildroot}%{_portsprefix}/ports/ports/build.sh
+
+
+%pre
+%_pre_useradd builder %{_portsprefix}/ports /bin/sh 403
 
 
 %clean
@@ -55,12 +59,16 @@ install -m 0754 build.sh %{buildroot}%{_portsprefix}/ports/ports/build.sh
 %attr(0775,root,admin) %dir %{_portsprefix}/ports/packages/SRPMS
 %attr(2775,root,admin) %dir %{_portsprefix}/ports/ports
 %attr(1775,root,admin) %dir %{_portsprefix}/ports/override
-%{_portsprefix}/ports/README
+%{_portsprefix}/ports/README.ports
 %attr(0754,root,admin) %{_portsprefix}/ports/builder
 %attr(0754,root,admin) %{_portsprefix}/ports/ports/build.sh
 
 
 %changelog
+* Sun Oct 02 2005 Vincent Danen <vdanen@annvix.org> 1.1-4avx
+- add uid/gid 403 for user builder (in prep of a single-uid
+  controlled ports build system)
+
 * Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1.1-3avx
 - bootstrap build (new gcc, new glibc)
 
