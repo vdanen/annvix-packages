@@ -8,7 +8,7 @@
 
 %define kname		kernel
 %define sublevel	31
-%define avxrelease	4
+%define avxrelease	5
 
 %define tar_version	2.4.%{sublevel}
 %define patchversion	avx%{avxrelease}
@@ -496,11 +496,11 @@ chmod -R a+rX %{target_source}
 
 # we remove all the source files that we don't ship
 
-# first architecture files
-for i in alpha arm cris m68k mips mips64 parisc ppc ppc64 s390 s390x sh sh64 sparc sparc64; do
-    rm -rf %{target_source}/arch/$i
-    rm -rf %{target_source}/include/asm-$i
-done
+## first architecture files
+#for i in alpha arm cris m68k mips mips64 parisc ppc ppc64 s390 s390x sh sh64 sparc sparc64; do
+#    rm -rf %{target_source}/arch/$i
+#    rm -rf %{target_source}/include/asm-$i
+#done
 
 # my patches dir, this should go in other dir
 rm -rf %{target_source}/%{patches_ver}
@@ -808,6 +808,10 @@ exit 0
 
 
 %changelog
+* Sun Oct 02 2005 Vincent Danen <vdanen@annvix.org> 2.4.31-5avx
+- enable CONFIG_FILTER and CONFIG_NETFILTER for the BOOT kernel
+  (should fix the problem with dhcpcd not working properly)
+
 * Fri Sep 30 2005 Vincent Danen <vdanen@annvix.org> 2.4.31-4avx
 - include the ia64 files; needed for an x86_64 build
 
