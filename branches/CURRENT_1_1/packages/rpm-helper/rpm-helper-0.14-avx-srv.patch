@@ -75,14 +75,14 @@
 +    if [ -d /service/$srv ]; then
 +        SRVSTAT=`/sbin/runsvstat /service/$srv 2>/dev/null|grep -q run; echo $?`
 +        if [ "$SRVSTAT" = "0" ]; then
-+	    /usr/sbin/srv restart $srv || :
++	    /usr/sbin/srv --restart $srv || :
 +	    # restart services that depend of portmap
 +	    if [ "$srv" = "portmap" ]; then
 +	        for s in amd autofs bootparamd clusternfs mcserv nfs nfslock ypserv ypbind yppasswdd ypxfrd; do
 +		    if [ -d /service/$s ]; then
 +		        PSRVSTAT=`/sbin/runsvstat /service/$s 2>/dev/null|grep -q run; echo $?`
 +		        if [ "$PSRVSTAT" = "0" ]; then
-+			    /usr/sbin/srv restart $srv || :
++			    /usr/sbin/srv --restart $srv || :
 +		        fi
 +		    fi
 +	        done
@@ -110,8 +110,8 @@
 +
 +if [ $num = 0 ]; then
 +    if [ -d /service/$srv ]; then
-+	/usr/sbin/srv stop $srv >/dev/null 2>&1 || :
-+	/usr/sbin/srv del $srv
++	/usr/sbin/srv --down $srv >/dev/null 2>&1 || :
++	/usr/sbin/srv --del $srv
 +    fi
 +fi
 +

@@ -9,7 +9,7 @@
 
 %define name		rpm-helper
 %define version		0.14
-%define release		2avx
+%define release		3avx
 
 Summary:	Helper scripts for rpm scriptlets
 Name:		%{name}
@@ -25,7 +25,7 @@ BuildArch:	noarch
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
 Conflicts:	chkconfig < 1.3.4-10mdk
-Requires:	chkconfig, grep, shadow-utils, coreutils
+Requires:	chkconfig, grep, shadow-utils, coreutils, srv >= 0.20
 
 %description
 Helper scripts for rpm scriptlets to help create/remove :
@@ -62,6 +62,9 @@ chmod 0755 {add,del}-srv mkdepends
 
 
 %changelog
+* Wed Oct 05 2005 Vincent Danen <vdanen@annvix.org> 0.14-3avx
+- update P0 to accomodate new srv commands
+
 * Sun Sep 25 2005 Vincent Danen <vdanen@annvix.org> 0.14-2avx
 - update P0 to add mkdepends script
 
