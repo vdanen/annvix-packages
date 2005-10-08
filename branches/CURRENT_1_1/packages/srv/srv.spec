@@ -5,12 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-# $Id: srv.spec,v 1.19 2005/10/03 19:29:33 vdanen Exp $
+# $Id: srv.spec,v 1.20 2005/10/08 17:45:21 vdanen Exp $
 
 
 %define name		srv
 %define version 	0.20
-%define release 	1avx
+%define release 	2avx
 
 Summary:	Tool to manage runsv-controlled services
 Name: 		%{name}
@@ -65,6 +65,9 @@ install -m 0644 functions %{buildroot}%{_datadir}/srv
 
 
 %changelog
+* Sat Oct 08 2005 Vincent Danen <vdanen@annvix.org> 0.20-2avx
+- cosmetics and change the timeouts from 15s to 10s
+
 * Mon Oct 03 2005 Vincent Danen <vdanen@annvix.org> 0.20-1avx
 - 0.20
 
