@@ -8,8 +8,8 @@
 
 
 %define name		postgresql
-%define version		8.0.3
-%define release		5avx
+%define version		8.0.4
+%define release		1avx
 
 %define _requires_exceptions devel(libtcl8.4)\\|devel(libtcl8.4(64bit))
 
@@ -22,6 +22,7 @@
 
 %define major		4
 %define major_ecpg	5
+%define jdbc		312
 
 %define current_major_version 8.0
 
@@ -37,15 +38,14 @@ Group:		Databases
 URL:		http://www.postgresql.org/ 
 
 Source0:	ftp://ftp.postgresql.org/pub/source/v%{version}/postgresql-%{version}.tar.bz2
-Source1:	http://jdbc.postgresql.org/download/pg74.214.jdbc1.jar 
-Source2:	http://jdbc.postgresql.org/download/pg74.214.jdbc2.jar 
-Source3:	http://jdbc.postgresql.org/download/pg74.214.jdbc3.jar
+Source1:	http://jdbc.postgresql.org/download/postgresql-8.0-%{jdbc}.jdbc2.jar
+Source2:	http://jdbc.postgresql.org/download/postgresql-8.0-%{jdbc}.jdbc2ee.jar
+Source3:	http://jdbc.postgresql.org/download/postgresql-8.0-%{jdbc}.jdbc3.jar
 Source4:	http://www.rbt.ca/postgresql/upgrade/upgrade.pl
 Source5:	ftp://ftp.postgresql.org/pub/source/v%{version}/postgresql-%{version}.tar.bz2.md5
 Source6:	ftp.postgresql.org:/pub/binary/v7.2/RPMS/README.rpm-dist.bz2
 Source7:	migration-scripts.tar.gz
 Source8:	logrotate.postgresql
-Source9:	http://jdbc.postgresql.org/download/pg74.214.jdbc2ee.jar
 Source10:	postgresql-mdk_update.tar.bz2
 # Daouda : script for dumping database (from RedHat)
 Source14:	mdk-pgdump.sh
@@ -284,8 +284,9 @@ pushd src/test
 popd
 
 
-#%check
-#make check
+%check
+make check
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -296,7 +297,6 @@ make -C contrib DESTDIR=%{buildroot} pkglibdir=%{_libdir}/pgsql install
 install -m 0755 %{SOURCE1} %{buildroot}%{_datadir}/pgsql
 install -m 0755 %{SOURCE2} %{buildroot}%{_datadir}/pgsql
 install -m 0755 %{SOURCE3} %{buildroot}%{_datadir}/pgsql
-install -m 0755 %{SOURCE9} %{buildroot}%{_datadir}/pgsql
 
 install -m 0755 %{SOURCE4} %{buildroot}%{_datadir}/pgsql/upgrade.pl
 
@@ -448,7 +448,6 @@ fi
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-rm -f perlfiles.list
 
 
 %files -f main.lst 
@@ -618,10 +617,7 @@ rm -f perlfiles.list
 
 %files jdbc
 %defattr(-,root,root)
-%{_datadir}/pgsql/pg74.214.jdbc1.jar
-%{_datadir}/pgsql/pg74.214.jdbc2.jar
-%{_datadir}/pgsql/pg74.214.jdbc3.jar
-%{_datadir}/pgsql/pg74.214.jdbc2ee.jar
+%{_datadir}/pgsql/*.jar
 
 %files test
 %defattr(-,postgres,postgres)
@@ -630,6 +626,10 @@ rm -f perlfiles.list
 
 
 %changelog
+* Sat Oct 08 2005 Vincent Danen <vdanen@annvix.org> 8.0.4-1avx
+- 8.0.4 (contains some pretty important bugfixes)
+- updated jar files
+
 * Fri Sep 09 2005 Vincent Danen <vdanen@annvix.org> 8.0.3-5avx
 - rebuild against new readline and new python
 
