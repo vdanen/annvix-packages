@@ -9,7 +9,7 @@
 
 %define name		mdadm
 %define version		1.12.0
-%define release		3avx
+%define release		4avx
 
 %define use_dietlibc 	0
 %ifarch %{ix86} x86_64 ppc
@@ -107,6 +107,9 @@ fi
 
 
 %changelog
+* Sat Oct 08 2005 Vincent Danen <vdanen@annvix.org> 1.12.0-4avx
+- the run script needs to look for mdadm.conf rather than amd.conf
+
 * Tue Sep 27 2005 Vincent Danen <vdanen@annvix.org> 1.12.0-3avx
 - execline the runscript
 
