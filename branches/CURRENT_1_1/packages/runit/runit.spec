@@ -9,9 +9,9 @@
 
 %define	name		runit
 %define	version		1.3.1
-%define	release		4avx
+%define	release		5avx
 
-%define aver		0.2
+%define aver		0.3
 
 Summary:	A UN*X init scheme with service supervision
 Name:		%{name}
@@ -168,6 +168,9 @@ fi
 
 
 %changelog
+* Sat Oct 08 2005 Vincent Danen <vdanen@annvix.org> 1.3.1-5avx
+- fix the ctrl-alt-del scripts so it reboots rather than halts
+
 * Mon Sep 05 2005 Sean P. Thomas <spt@annvix.org> 1.3.1-4avx
 - added ipsvd as a dependency now we are utilizing it more for services.
 
