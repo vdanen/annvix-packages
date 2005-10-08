@@ -9,7 +9,7 @@
 
 %define	name		runit
 %define	version		1.3.1
-%define	release		5avx
+%define	release		6avx
 
 %define aver		0.3
 
@@ -94,7 +94,7 @@ if [ $1 == "1" ]; then
     for i in 2 3 4 5 6
     do
 	echo "Setting up the mingetty service for tty$i..."
-        srv add mingetty-tty$i
+        ln -s /var/service/mingetty-tty${i} /service/mingetty-tty${i}
         # even though this may cause some grief for existing non-runit systems, we need
         # to remove the down file because on a new install, the user would reboot into a
         # system with no gettys
@@ -168,6 +168,9 @@ fi
 
 
 %changelog
+* Sat Oct 08 2005 Vincent Danen <vdanen@annvix.org> 1.3.1-6avx
+- don't use srv to bring up the mingetty services (in case we're in install mode)
+
 * Sat Oct 08 2005 Vincent Danen <vdanen@annvix.org> 1.3.1-5avx
 - fix the ctrl-alt-del scripts so it reboots rather than halts
 
