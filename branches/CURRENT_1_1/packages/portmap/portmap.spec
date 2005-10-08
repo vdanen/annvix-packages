@@ -9,7 +9,7 @@
 
 %define name		portmap
 %define version		4.0
-%define release		32avx
+%define release		33avx
 %define ver		4
 
 Summary:	A program which manages RPC connections
@@ -81,7 +81,7 @@ install -m 0644 %{SOURCE2} %{buildroot}%{_mandir}/man8
 install -m 0644 %{SOURCE3} %{buildroot}%{_mandir}/man8
 install -m 0644 %{SOURCE4} %{buildroot}%{_mandir}/man8
 
-mkdir -p %{buildroot}%{_srvdir}/portmap/log
+mkdir -p %{buildroot}%{_srvdir}/portmap/{log,env}
 install -m 0740 %{SOURCE5} %{buildroot}%{_srvdir}/portmap/run
 install -m 0740 %{SOURCE6} %{buildroot}%{_srvdir}/portmap/log/run
 
@@ -117,6 +117,7 @@ fi
 %config(noreplace) %{_sysconfdir}/sysconfig/portmap
 %dir %attr(0750,root,admin) %{_srvdir}/portmap
 %dir %attr(0750,root,admin) %{_srvdir}/portmap/log
+%dir %attr(0750,root,admin) %{_srvdir}/portmap/env
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/portmap/run
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/portmap/log/run
 /sbin/portmap
@@ -126,6 +127,10 @@ fi
 
 
 %changelog
+* Sat Oct 08 2005 Vincent Danen <vdanen@annvix.org> 4.0-33avx
+- execline the main runscript (spt)
+- include env dir but make it empty by default
+
 * Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 4.0-32avx
 - use execlineb for run scripts
 - move logdir to /var/log/service/portmap

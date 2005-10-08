@@ -1,14 +1,16 @@
-#!/bin/sh
-PATH="/sbin:/usr/sbin:/bin:/usr/bin"
+#!/bin/execlineb
+/bin/fdmove -c 2 1
 
-# this runs portmap supervised
+/bin/export PATH "/sbin:/usr/sbin:/bin:/usr/bin"
 
-[ -f /etc/sysconfig/portmap ] && . /etc/sysconfig/portmap
+/sbin/chpst -e ./env/
 
-if [ -n "${BIND_HOST}" ]; then
-    PARGS="-i ${BIND_HOST}"
-else
-    PARGS=""
-fi
+/bin/import BIND_HOST
 
-exec /sbin/portmap -d $PARGS 2>&1
+/bin/ifthenelse { /usr/bin/test ! -z ${BIND_HOST} }
+{
+    /sbin/portmap -d -i ${BIND_HOST}
+}
+{
+    /sbin/portmap -d
+}
