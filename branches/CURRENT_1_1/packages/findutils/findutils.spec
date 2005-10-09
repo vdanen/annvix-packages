@@ -8,7 +8,7 @@
 
 
 %define name		findutils
-%define version		4.2.24
+%define version		4.2.25
 %define release		1avx
 
 Summary:	The GNU versions of find utilities (find, xargs, and locate)
@@ -18,14 +18,17 @@ Release:	%{release}
 License:	GPL
 Group:		File tools
 URL:		http://www.gnu.org/software/findutils/findutils.html
-Source0:	ftp://alpha.gnu.org/gnu/findutils-%{version}.tar.gz
-Source1:	ftp://alpha.gnu.org/gnu/findutils-%{version}.tar.gz.sig
+Source0:	ftp://ftp.gnu.org/gnu/findutils-%{version}.tar.gz
+Source1:	ftp://ftp.gnu.org/gnu/findutils-%{version}.tar.gz.sig
 Patch0:		findutils-4.2.15-no-locate.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	automake1.8
+# for autoreconf -> autopoint
+BuildRequires:	cvs, gettext-devel
 
-Prereq:		info-install
+Requires(post):	info-install
+Requires(preun): info-install
 
 %description
 The findutils package contains programs which will help you locate
@@ -83,6 +86,12 @@ ln -sf ../../bin/find %{buildroot}%{_bindir}/find
 
 
 %changelog
+* Sun Oct 09 2005 Vincent Danen <vdanen@annvix.org> 4.2.25-1avx
+- 4.2.25
+- fix requires(post|preun)
+- add buildreq on cvs and gettext-devel for autoreconf's call to
+  autopoint (cjw)
+
 * Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 4.2.24-1avx
 - 4.2.24
 - drop old S1 (updatedb for cron)
