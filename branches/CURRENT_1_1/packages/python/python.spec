@@ -9,7 +9,7 @@
 
 %define name		python
 %define version		2.4.1
-%define release		2avx
+%define release		3avx
 
 %define docver  	2.4
 %define dirver  	2.4
@@ -298,6 +298,10 @@ rm -f modules-list main.list
 
 
 %changelog
+* Sun Oct 09 2005 Vincent Danen <vdanen@annvix.org> 2.4.1-3avx
+- updated P4: fixed get_config_h_fileiname in distutils for
+  multiarch   headers (flepied)
+
 * Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 2.4.1-2avx
 - rebuild against new expat
 

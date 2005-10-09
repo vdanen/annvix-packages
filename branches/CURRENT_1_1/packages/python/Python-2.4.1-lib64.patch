@@ -1,5 +1,5 @@
---- Python-2.4.1/Include/pythonrun.h.lib64	2005-08-25 14:19:42.000000000 +0200
-+++ Python-2.4.1/Include/pythonrun.h	2005-08-25 14:19:39.000000000 +0200
+--- Python-2.4.1/Include/pythonrun.h.lib64	2004-10-07 05:58:06.000000000 +0200
++++ Python-2.4.1/Include/pythonrun.h	2005-10-08 00:18:33.000000000 +0200
 @@ -93,6 +93,8 @@
  /* In their own files */
  PyAPI_FUNC(const char *) Py_GetVersion(void);
@@ -9,8 +9,8 @@
  PyAPI_FUNC(const char *) Py_GetCopyright(void);
  PyAPI_FUNC(const char *) Py_GetCompiler(void);
  PyAPI_FUNC(const char *) Py_GetBuildInfo(void);
---- Python-2.4.1/Lib/distutils/command/install.py.lib64	2005-08-25 14:20:10.000000000 +0200
-+++ Python-2.4.1/Lib/distutils/command/install.py	2005-08-25 14:20:09.000000000 +0200
+--- Python-2.4.1/Lib/distutils/command/install.py.lib64	2005-01-20 20:15:39.000000000 +0100
++++ Python-2.4.1/Lib/distutils/command/install.py	2005-10-08 00:18:33.000000000 +0200
 @@ -19,6 +19,8 @@
  from distutils.errors import DistutilsOptionError
  from glob import glob
@@ -40,8 +40,8 @@
          'headers': '$base/include/python/$dist_name',
          'scripts': '$base/bin',
          'data'   : '$base',
---- Python-2.4.1/Lib/distutils/tests/test_install.py.lib64	2005-08-25 14:20:13.000000000 +0200
-+++ Python-2.4.1/Lib/distutils/tests/test_install.py	2005-08-25 14:20:13.000000000 +0200
+--- Python-2.4.1/Lib/distutils/tests/test_install.py.lib64	2004-06-26 01:02:59.000000000 +0200
++++ Python-2.4.1/Lib/distutils/tests/test_install.py	2005-10-08 00:18:33.000000000 +0200
 @@ -1,6 +1,7 @@
  """Tests for distutils.command.install."""
  
@@ -59,8 +59,8 @@
          check_path(cmd.install_lib, libdir)
          check_path(cmd.install_platlib, libdir)
          check_path(cmd.install_purelib, libdir)
---- Python-2.4.1/Lib/distutils/sysconfig.py.lib64	2005-08-25 14:20:13.000000000 +0200
-+++ Python-2.4.1/Lib/distutils/sysconfig.py	2005-08-25 14:20:12.000000000 +0200
+--- Python-2.4.1/Lib/distutils/sysconfig.py.lib64	2005-01-07 00:16:03.000000000 +0100
++++ Python-2.4.1/Lib/distutils/sysconfig.py	2005-10-08 00:18:51.000000000 +0200
 @@ -100,7 +100,7 @@
  
      if os.name == "posix":
@@ -70,8 +70,18 @@
          if standard_lib:
              return libpython
          else:
---- Python-2.4.1/Lib/site.py.lib64	2005-08-25 14:21:50.000000000 +0200
-+++ Python-2.4.1/Lib/site.py	2005-08-25 14:55:33.000000000 +0200
+@@ -188,7 +188,8 @@
+     if python_build:
+         inc_dir = os.curdir
+     else:
+-        inc_dir = get_python_inc(plat_specific=1)
++        prefix = EXEC_PREFIX or PREFIX
++        inc_dir = os.path.join(prefix, "include", "multiarch-" + sys.arch + "-linux", "python" + sys.version[:3])
+     if sys.version < '2.2':
+         config_h = 'config.h'
+     else:
+--- Python-2.4.1/Lib/site.py.lib64	2004-07-20 04:28:28.000000000 +0200
++++ Python-2.4.1/Lib/site.py	2005-10-08 00:18:33.000000000 +0200
 @@ -179,12 +179,18 @@
                  sitedirs = [os.path.join(prefix, "Lib", "site-packages")]
              elif os.sep == '/':
@@ -94,8 +104,8 @@
              if sys.platform == 'darwin':
                  # for framework builds *only* we add the standard Apple
                  # locations. Currently only per-user, but /Library and
---- Python-2.4.1/Modules/getpath.c.lib64	2005-08-25 14:23:20.000000000 +0200
-+++ Python-2.4.1/Modules/getpath.c	2005-08-25 14:23:06.000000000 +0200
+--- Python-2.4.1/Modules/getpath.c.lib64	2004-08-08 03:00:47.000000000 +0200
++++ Python-2.4.1/Modules/getpath.c	2005-10-08 00:18:33.000000000 +0200
 @@ -111,9 +111,17 @@
  #define EXEC_PREFIX PREFIX
  #endif
@@ -125,8 +135,8 @@
  
  static void
  reduce(char *dir)
---- Python-2.4.1/Python/getplatform.c.lib64	2005-08-25 14:23:53.000000000 +0200
-+++ Python-2.4.1/Python/getplatform.c	2005-08-25 14:23:47.000000000 +0200
+--- Python-2.4.1/Python/getplatform.c.lib64	2000-09-02 01:29:28.000000000 +0200
++++ Python-2.4.1/Python/getplatform.c	2005-10-08 00:18:33.000000000 +0200
 @@ -10,3 +10,23 @@
  {
  	return PLATFORM;
@@ -151,8 +161,8 @@
 +{
 +	return LIB;
 +}
---- Python-2.4.1/Python/sysmodule.c.lib64	2005-08-25 14:23:53.000000000 +0200
-+++ Python-2.4.1/Python/sysmodule.c	2005-08-25 14:23:52.000000000 +0200
+--- Python-2.4.1/Python/sysmodule.c.lib64	2005-01-27 19:58:30.000000000 +0100
++++ Python-2.4.1/Python/sysmodule.c	2005-10-08 00:18:33.000000000 +0200
 @@ -1022,6 +1022,12 @@
  	PyDict_SetItemString(sysdict, "platform",
  			     v = PyString_FromString(Py_GetPlatform()));
@@ -166,8 +176,8 @@
  	PyDict_SetItemString(sysdict, "executable",
  			     v = PyString_FromString(Py_GetProgramFullPath()));
  	Py_XDECREF(v);
---- Python-2.4.1/configure.in.lib64	2005-08-25 14:24:33.000000000 +0200
-+++ Python-2.4.1/configure.in	2005-08-25 14:19:07.000000000 +0200
+--- Python-2.4.1/configure.in.lib64	2005-03-29 01:23:34.000000000 +0200
++++ Python-2.4.1/configure.in	2005-10-08 00:18:33.000000000 +0200
 @@ -423,6 +423,41 @@
      ;;
  esac
@@ -210,8 +220,8 @@
  
  AC_SUBST(LIBRARY)
  AC_MSG_CHECKING(LIBRARY)
---- Python-2.4.1/Makefile.pre.in.lib64	2005-08-25 14:24:35.000000000 +0200
-+++ Python-2.4.1/Makefile.pre.in	2005-08-25 14:19:06.000000000 +0200
+--- Python-2.4.1/Makefile.pre.in.lib64	2005-03-29 01:23:01.000000000 +0200
++++ Python-2.4.1/Makefile.pre.in	2005-10-08 00:18:33.000000000 +0200
 @@ -70,6 +70,8 @@
  
  # Machine-dependent subdirectories
@@ -244,8 +254,8 @@
  
  Python/importdl.o: $(srcdir)/Python/importdl.c
  		$(CC) -c $(PY_CFLAGS) -I$(DLINCLDIR) -o $@ $(srcdir)/Python/importdl.c
---- Python-2.4.1/setup.py.lib64	2005-08-25 14:24:35.000000000 +0200
-+++ Python-2.4.1/setup.py	2005-08-25 14:19:07.000000000 +0200
+--- Python-2.4.1/setup.py.lib64	2005-10-08 00:18:33.000000000 +0200
++++ Python-2.4.1/setup.py	2005-10-08 00:18:33.000000000 +0200
 @@ -259,12 +259,12 @@
          except NameError:
              have_unicode = 0
