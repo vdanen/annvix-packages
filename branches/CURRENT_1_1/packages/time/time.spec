@@ -9,7 +9,7 @@
 
 %define name		time
 %define version		1.7
-%define release		30avx
+%define release		31avx
 
 Summary:	A GNU utility for monitoring a program's use of system resources
 Name:		%{name}
@@ -28,7 +28,8 @@ Patch4:		time-1.7-build.patch.bz2
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	texinfo
 
-PreReq:		info-install
+Requires(post):	info-install
+Requires(preun): info-install
 
 %description
 The GNU time utility runs another program, collects information about
@@ -86,7 +87,11 @@ make LDFLAGS=-s
 %{_bindir}/time
 %{_infodir}/%{name}.info*
 
+
 %changelog
+* Sun Oct 09 2005 Vincent Danen <vdanen@annvix.org> 1.7-31avx
+- fix requires
+
 * Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 1.7-30avx
 - bootstrap build (new gcc, new glibc)
 
