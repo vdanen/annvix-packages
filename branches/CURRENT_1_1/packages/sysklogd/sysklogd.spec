@@ -9,7 +9,7 @@
 
 %define name		sysklogd
 %define version		1.4.1
-%define release		17avx
+%define release		18avx
 
 Summary:	System logging and kernel message trapping daemons
 Name:		%{name}
@@ -115,8 +115,8 @@ done
 
 %postun
 if [ "$1" -ge "1" ]; then
-    /usr/sbin/srv restart syslogd > /dev/null 2>&1
-    /usr/sbin/srv restart klogd > /dev/null 2>&1
+    /usr/sbin/srv --restart syslogd > /dev/null 2>&1
+    /usr/sbin/srv --restart klogd > /dev/null 2>&1
 fi	
 
 
@@ -140,6 +140,9 @@ fi
 
 
 %changelog
+* Sun Oct 09 2005 Vincent Danen <vdanen@annvix.org> 1.4.1-18avx
+- fix calls to srv
+
 * Wed Sep 28 2005 Vincent Danen <vdanen@annvix.org> 1.4.1-17avx
 - execline run scripts
 - add env directory

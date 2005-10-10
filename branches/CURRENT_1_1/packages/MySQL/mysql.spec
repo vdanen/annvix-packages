@@ -9,7 +9,7 @@
 
 %define name		mysql
 %define version		4.1.14
-%define release		4avx
+%define release		5avx
 
 %define major		14
 %define libname		%mklibname mysql %{major}
@@ -385,9 +385,9 @@ fix_privileges()
 if [ "x`runsvstat /service/mysqld 2>&1|grep -q ": run"; echo $?`" == "x1" ]; then
     fix_privileges
 else
-    /usr/sbin/srv stop mysqld >/dev/null 2>&1
+    /usr/sbin/srv --down mysqld >/dev/null 2>&1
     fix_privileges
-    /usr/sbin/srv start mysqld >/dev/null 2>&1
+    /usr/sbin/srv --up mysqld >/dev/null 2>&1
 fi
 
 
@@ -527,6 +527,9 @@ fi
 
 
 %changelog
+* Sun Oct 09 2005 Vincent Danen <vdanen@annvix.org> 4.1.14-5avx
+- fix calls to srv
+
 * Sun Sep 25 2005 Vincent Danen <vdanen@annvix.org> 4.1.14-4avx
 - drop the MySQL-Max package (only difference was the embedded server
   support)
