@@ -9,7 +9,7 @@
 
 %define name		postfix
 %define version		2.2.5
-%define release 	4avx
+%define release 	5avx
 %define epoch		1
 
 %define	openssl_ver	0.9.7d
@@ -307,7 +307,7 @@ fi
 %_postun_groupdel %{maildrop_group}
 
 [ $1 = 0 ] && exit 0
-/usr/sbin/srv restart postfix 2>&1 > /dev/null || :
+/usr/sbin/srv --restart postfix 2>&1 > /dev/null || :
 
 
 %clean
@@ -418,6 +418,9 @@ fi
 
 
 %changelog
+* Sun Oct 09 2005 Vincent Danen <vdanen@annvix.org> 2.2.5-5avx
+- fix call to srv
+
 * Wed Sep 21 2005 Vincent Danen <vdanen@annvix.org> 2.2.5-4avx
 - don't change the manpage names in /etc/postfix/postfix-files since
   they're not being alternativized (ha!) anymore (ie. mailq.1 rather
