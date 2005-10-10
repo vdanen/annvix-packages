@@ -7,7 +7,7 @@
 #
 
 %define name		file
-%define version		4.14
+%define version		4.15
 %define release		1avx
 
 %define major		1
@@ -22,7 +22,6 @@ Group:		File tools
 URL:		ftp://ftp.astron.com/pub/file/
 Source0:	ftp://ftp.astron.com/pub/file/%{name}-%{version}.tar.bz2
 Source1:	magic.mime.bz2
-Patch0:		ftp://ftp.astron.com/pub/file/file-4.14.patch1.bz2
 Patch2:		file-4.01-perl.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -85,7 +84,6 @@ command is based on.
 
 %prep
 %setup -q
-%patch0
 %patch2 -p1 -b .perl
 
 
@@ -141,6 +139,10 @@ install -m 0644 src/file.h %{buildroot}%{_includedir}/
 
 
 %changelog
+* Sun Oct 09 2005 Vincent Danen <vdanen@annvix.org> 4.15-1avx
+- 4.15
+- drop upstream P0
+
 * Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 4.14-1avx
 - 4.14
 
