@@ -15,7 +15,7 @@
 
 %define name		glibc
 %define version		%{basevers}%{?snapshot:.%snapshot}
-%define release		5avx
+%define release		6avx
 %define epoch		6
 
 # <version>-<release> tags from kernel package where headers were
@@ -374,7 +374,7 @@ find . -type f -size 0 -o -name '*.orig' -exec rm -f {} \;
 
 cat > find_provides.sh << EOF
 #!/bin/sh
-/usr/lib/rpm/find-provides | grep -v GLIBC_PRIVATE
+/usr/lib/rpm/annvix/find-provides | grep -v GLIBC_PRIVATE
 exit 0
 EOF
 chmod +x find_provides.sh
@@ -765,7 +765,7 @@ fi
 %postun -n nscd
 %_postun_userdel nscd
 if [ "$1" -ge "1" ]; then
-    /usr/sbin/srv restart nscd > /dev/null 2>&1 || :
+    /usr/sbin/srv --restart nscd > /dev/null 2>&1 || :
 fi
 
 
@@ -1133,6 +1133,11 @@ fi
 
 
 %changelog
+* Sun Oct 09 2005 Vincent Danen <vdanen@annvix.org> 2.3.5-6avx
+- fix call to srv
+- fix path to find-provides (/usr/lib/rpm/annvix/find-provides) so
+  that the devel(foo) provides get generated properly
+
 * Mon Sep 05 2005 Vincent Danen <vdanen@annvix.org> 2.3.5-5avx
 - use execlineb for run scripts
 - move logdir to /var/log/service/nscd
