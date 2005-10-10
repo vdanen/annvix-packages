@@ -8,8 +8,8 @@
 
 
 %define name		exim
-%define version 	4.52
-%define release 	4avx
+%define version 	4.54
+%define release 	1avx
 
 %define build_mysql 	0
 %define build_pgsql 	0
@@ -40,7 +40,7 @@ Source11:	http://www.exim.org/ftp/exim4/config.samples.tar.bz2
 Source12:	sa-exim-%{saversion}.tar.gz
 Source13:	exim.run
 Source14:	exim-log.run
-Patch0:		exim-4.50-avx-config.patch.bz2
+Patch0:		exim-4.54-avx-config.patch.bz2
 Patch2:		exim-4.22-install.patch.bz2
 Patch3:		exim-4.52-avx-system_pcre.patch.bz2
 Patch4:		exim-4.43-debian-dontoverridecflags.diff.bz2
@@ -283,6 +283,9 @@ fi
 
 
 %changelog
+* Sun Oct 09 2005 Vincent Danen <vdanen@annvix.org> 4.54-1avx
+- 4.54
+
 * Tue Sep 27 2005 Vincent Danen <vdanen@annvix.org> 4.52-4avx
 - tidy runscript
 
