@@ -8,7 +8,7 @@
 
 
 %define name		openldap
-%define version		2.3.8
+%define version		2.3.9
 %define release		1avx
 
 %define major 		2.3_0
@@ -54,6 +54,7 @@ Source7:	slapd.access.conf
 Source8:	ldap-hot-db-backup
 Source9:	ldap-reinitialise-slave
 Source10:	ldap-common
+Source12:	10_openldap.afterboot
 Source19:	gencert.sh
 Source20:	ldap.logrotate
 Source21:	slapd.conf
@@ -121,7 +122,6 @@ Patch46: 	openldap-2.0.21-schema.patch.bz2
 Patch47:	openldap-2.0.27-maildrop.schema.patch.bz2
 # http://qa.mandriva.com/show_bug.cgi?id=15499
 Patch48:	MigrationTools-45-structural.patch.bz2
-Patch49:	openldap-2.1.22-libtool.patch.bz2
 Patch50:	http://www.sleepycat.com/update/4.2.52/patch.4.2.52.1
 Patch51:	http://www.sleepycat.com/update/4.2.52/patch.4.2.52.2
 Patch55:	http://www.sleepycat.com/update/4.2.52/patch.4.2.52.3
@@ -130,11 +130,9 @@ Patch52:	db-4.2.52-amd64-mutexes.patch.bz2
 Patch53:	openldap-2.2.19-ntlm.patch.bz2
 # preserves the temp file used to import data if an error occured
 Patch54:	MigrationTools-40-preserveldif.patch.bz2
-# (cjw) fix configure.in for autoconf 2.5x and libtool 1.5
-Patch58:	openldap-2.3.4-autoconf2.5.patch.bz2
-Patch59:	openldap-2.3.5-libtool1.5.patch.bz2
 
 #patches in CVS
+Patch100:	openldap-2.3.9-its4035.patch.bz2
 
 
 BuildRoot: 	%{_buildroot}/%{name}-%{version}-root
@@ -176,7 +174,8 @@ Prereq: 	fileutils,  /usr/sbin/useradd
 PreReq:		rpm-helper
 %if !%db4_internal
 Requires(pre):	db4-utils
-Requires(post):	db4-utils
+Requires(post):	db4-utils, afterboot
+Requires(postun): mkafterboot
 Requires:	db4-utils
 %endif
 Provides:	%{name}-back_dnssrv = %{version}-%{release}
@@ -306,18 +305,18 @@ popd
 
 %patch46 -p1 -b .mdk
 #bgmilne %patch47 -p1 -b .maildropschema
-#%patch49 -p1 -b .libtool
 %patch53 -p1 -b .ntlm
-#%patch58 -p1 -b .autoconf2.5
-#%patch59 -p1 -b .libtool1.5
 
-# test 036, 041 seems broken
+# patches from CVS
+%patch100 -p0 -b .its4035
+
+# test 036, 041 seems broken (036 is an experimental test)
 rm -f tests/scripts/test036*
 rm -f tests/scripts/test041*
 # test 018 fails on x86_64 for some reason
-%ifarch x86_64
-rm -f tests/scripts/test018*
-%endif
+#%ifarch x86_64
+#rm -f tests/scripts/test018*
+#%endif
 
 
 %build
@@ -435,7 +434,8 @@ make depend
 make 
 make -C contrib/slapd-modules/smbk5pwd
 
-#%check
+
+%check
 %if %{!?_without_test:1}%{?_without_test:0}
 dbdir=`pwd`/db-instroot
 export LD_LIBRARY_PATH="${dbdir}/%{_libdir}"
@@ -535,6 +535,11 @@ perl -pi -e "s|%{buildroot}||g" %{buildroot}%{_mandir}/*/*.*
 mkdir -p %{buildroot}%{_sysconfdir}/ssl/openldap
 
 mv %{buildroot}/var/run/ldap/openldap-data/DB_CONFIG.example %{buildroot}/%{_var}/lib/ldap/
+
+# afterboot snippet
+mkdir -p %{buildroot}%{_datadir}/afterboot
+install -m 0644 %{SOURCE12} %{buildroot}%{_datadir}/afterboot/10_openldap
+
 
 %clean 
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -698,6 +703,7 @@ do
 done
 %_post_srv slapd
 %_post_srv slurpd
+%_mkafterboot
 
 # nscd reset
 if [ "`runsvstat /service/nscd 2>/dev/null|grep -q run; echo $?`" == "0" ]; then
@@ -721,7 +727,7 @@ if [ $1 = 0 ]; then
     fi
 fi
 %_postun_userdel ldap
-
+%_mkafterboot
 
 %post -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
@@ -803,7 +809,7 @@ fi
 %dir %attr(0750,root,admin) %{_srvdir}/slurpd/log
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/slurpd/run
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/slurpd/log/run
-
+%{_datadir}/afterboot/10_openldap
 
 %attr(750,ldap,ldap) %dir /var/log/ldap
 %config(noreplace) %{_sysconfdir}/logrotate.d/ldap
@@ -847,6 +853,14 @@ fi
 
 
 %changelog
+* Mon Oct 10 2005 Vincent Danen <vdanen@annvix.org> 2.3.9-1avx
+- 2.3.9
+- test041 is disabled upstream too
+- P100: fix ITS 4035 - rootdn incorrect in cn=config backend/database
+  (andreas)
+- disable (experimental) test036
+- add afterboot snippet
+
 * Sat Oct 08 2005 Vincent Danen <vdanen@annvix.org> 2.3.8-1avx
 - 2.3.8
 - drop P100, P101 (fixed upstream)
