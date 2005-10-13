@@ -1,0 +1,45 @@
+--- openssl-0.9.7g/doc/ssl/SSL_CTX_set_options.pod.can-2005-2969	2005-03-22 10:54:13.000000000 -0700
++++ openssl-0.9.7g/doc/ssl/SSL_CTX_set_options.pod	2005-10-10 11:16:16.374390646 -0600
+@@ -86,7 +86,7 @@
+ 
+ =item SSL_OP_MSIE_SSLV2_RSA_PADDING
+ 
+-...
++As of patches for CAN-2005-2969, this option has no effect.
+ 
+ =item SSL_OP_SSLEAY_080_CLIENT_DH_BUG
+ 
+--- openssl-0.9.7g/ssl/s23_srvr.c.can-2005-2969	2005-01-30 18:33:35.000000000 -0700
++++ openssl-0.9.7g/ssl/s23_srvr.c	2005-10-10 11:11:43.419786952 -0600
+@@ -268,9 +268,6 @@
+ 	int n=0,j;
+ 	int type=0;
+ 	int v[2];
+-#ifndef OPENSSL_NO_RSA
+-	int use_sslv2_strong=0;
+-#endif
+ 
+ 	if (s->state ==	SSL23_ST_SR_CLNT_HELLO_A)
+ 		{
+@@ -528,9 +525,7 @@
+ 			}
+ 
+ 		s->state=SSL2_ST_GET_CLIENT_HELLO_A;
+-		if ((s->options & SSL_OP_MSIE_SSLV2_RSA_PADDING) ||
+-			use_sslv2_strong ||
+-			(s->options & SSL_OP_NO_TLSv1 && s->options & SSL_OP_NO_SSLv3))
++		if (s->options & SSL_OP_NO_TLSv1 && s->options & SSL_OP_NO_SSLv3)
+ 			s->s2->ssl2_rollback=0;
+ 		else
+ 			/* reject SSL 2.0 session if client supports SSL 3.0 or TLS 1.0
+--- openssl-0.9.7g/ssl/ssl.h.can-2005-2969	2005-03-23 01:21:30.000000000 -0700
++++ openssl-0.9.7g/ssl/ssl.h	2005-10-10 11:12:57.176439234 -0600
+@@ -467,7 +467,7 @@
+ #define SSL_OP_NETSCAPE_REUSE_CIPHER_CHANGE_BUG		0x00000008L
+ #define SSL_OP_SSLREF2_REUSE_CERT_TYPE_BUG		0x00000010L
+ #define SSL_OP_MICROSOFT_BIG_SSLV3_BUFFER		0x00000020L
+-#define SSL_OP_MSIE_SSLV2_RSA_PADDING			0x00000040L
++#define SSL_OP_MSIE_SSLV2_RSA_PADDING			0x00000040L  /* no effect with patches for CAN-2005-2969 */
+ #define SSL_OP_SSLEAY_080_CLIENT_DH_BUG			0x00000080L
+ #define SSL_OP_TLS_D5_BUG				0x00000100L
+ #define SSL_OP_TLS_BLOCK_PADDING_BUG			0x00000200L
