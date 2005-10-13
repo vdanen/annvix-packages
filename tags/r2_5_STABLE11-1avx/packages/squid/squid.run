@@ -1,0 +1,29 @@
+#!/bin/sh
+PATH="/sbin:/usr/sbin:/bin:/usr/bin"
+
+# this runs squid supervised
+
+if [ -f /etc/sysconfig/squid ]; then
+  . /etc/sysconfig/squid
+else
+  SQUID_OPTS="-D"
+  SQUID_SHUTDOWN_TIMEOUT=100
+fi
+
+# determine which one is the cache_swap directory
+CACHE_SWAP=`sed -e 's/#.*//g' /etc/squid/squid.conf | \
+	grep cache_dir |  awk '{ print $2":"$3 }'`
+[ -z "$CACHE_SWAP" ] && CACHE_SWAP=/var/spool/squid
+
+for adir in $CACHE_SWAP; do
+    if [ ${adir%:*} != null -a ! -d ${adir#*:}/00 ]; then
+	echo -n "init_cache_dir $adir... "
+	/usr/sbin/squid -z -F 2>&1
+    fi
+done
+
+trap '/usr/sbin/squid -k >/dev/null; /usr/sbin/squid -k shutdown >/dev/null' 0
+trap 'exit 2' 1 2 3 15
+
+exec 2>&1
+exec /usr/sbin/squid $SQUID_OPTS -N
