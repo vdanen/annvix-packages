@@ -8,10 +8,10 @@
 
 
 %define name		squid
-%define version		2.5.STABLE10
-%define release		5avx
+%define version		2.5.STABLE11
+%define release		1avx
 
-%define their_version	2.5.STABLE10
+%define their_version	2.5.STABLE11
 %define p_url   	http://www.squid-cache.org/Versions/v2/2.5/bugs
 %define p_name  	squid-2.5.stable5
 
@@ -47,39 +47,13 @@ Patch2:		squid-2.5.STABLE7-avx-user_group.patch.bz2
 Patch3:		squid-2.5.STABLE2-ssl.patch.bz2
 Patch4:		squid-2.5.STABLE5-pipe.patch.bz2
 # Upstream bugfix patches
-Patch100:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE10-content_length.patch.bz2
-Patch101:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE10-spanish.patch.bz2
-Patch102:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE10-internal_date.patch.bz2
-Patch103:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE10-chroot.patch.bz2
-Patch104:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE10-transparent.patch.bz2
-Patch105:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE10-redirect_flags.patch.bz2
-Patch106:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE10-cache_dir_change.patch.bz2
-Patch107:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE10-snmp_getnext.patch.bz2
-Patch108:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE10-ftp_title.patch.bz2
-Patch109:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE10-ftp_basehref.patch.bz2
-Patch110:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE10-wbinfo_groups.patch.bz2
-Patch111:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE10-64bit_cleanup.patch.bz2
-Patch112:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE10-wb_ntlm_auth_silent.patch.bz2
-Patch113:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE10-buildenv.patch.bz2
-Patch114:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE10-mail_program.patch.bz2
-Patch115:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE10-arp_ipfilter-2.patch.bz2
-Patch116:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE10-sslConnectTimeout.patch.bz2
-Patch117:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE10-statHistAssert.patch.bz2
-Patch118:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE10-chroot_dir.patch.bz2
-Patch119:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE10-errmsg.patch.bz2
-Patch120:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE10-FORTIFY_SOURCE.patch.bz2
-Patch121:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE10-ftp_250.patch.bz2
-Patch122:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE10-Greek.patch.bz2
-Patch123:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE10-STORE_PENDING.patch.bz2
-Patch124:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE10-ldap_auth-U.patch.bz2
-Patch125:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE10-cacheClientTable.patch.bz2
-Patch126:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE10-Solaris_IPFilter.patch.bz2
-Patch127:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE10-mail_from.patch.bz2
-Patch128:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE10-LDAP_TLS.patch.bz2
-Patch129:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE10-storedir_objsize_debug.patch.bz2
-Patch130:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE10-header_id_enum.patch.bz2
-Patch131:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE10-allow_coredump.patch.bz2
-Patch132:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE10-delay_pools.patch.bz2
+Patch100:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE11-CNAME.patch.bz2
+Patch101:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE11-CACHE_HTTP_PORT.patch.bz2
+Patch102:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE11.accel_single_host_pconn.patch.bz2
+Patch103:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE11-ldap_auth.patch.bz2
+Patch104:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE11-tcp_outgoing_xxx.patch.bz2
+Patch105:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE11-delaypools_truncated.patch.bz2
+
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	openldap-devel libsasl-devel openssl-devel >= 0.9.7 pam-devel
@@ -113,34 +87,6 @@ lookup program (dnsserver), a program for retrieving FTP data
 %patch103 -p1
 %patch104 -p1
 %patch105 -p1
-%patch106 -p1
-%patch107 -p1
-%patch108 -p1
-%patch109 -p1
-%patch110 -p1
-%patch111 -p1
-%patch112 -p1
-%patch113 -p1
-%patch114 -p1
-%patch115 -p1
-%patch116 -p1
-%patch117 -p1
-%patch118 -p1
-%patch119 -p1
-%patch120 -p1
-%patch121 -p1
-%patch122 -p1
-%patch123 -p1
-%patch124 -p1
-%patch125 -p1
-%patch126 -p1
-%patch127 -p1
-%patch128 -p1
-%patch129 -p1
-%patch130 -p1
-%patch131 -p1
-%patch132 -p1
-
 
 bzcat %{SOURCE10} > helpers/basic_auth/winbind/winbindd_nss.h
 bzcat %{SOURCE10} > helpers/ntlm_auth/winbind/winbindd_nss.h
@@ -419,6 +365,10 @@ fi
 
 
 %changelog
+* Thu Oct 13 2005 Vincent Danen <vdanen@annvix.org> 2.5.STABLE11-1avx
+- 2.5.STABLE11 - includes fix for CAN-2005-2917
+- resync upstream patches
+
 * Wed Sep 14 2005 Vincent Danen <vdanen@annvix.org> 2.5.STABLE10-5avx
 - P110-P132: more upstream bugfixes including fixes for CAN-2005-2794
   and CAN-2005-2796
