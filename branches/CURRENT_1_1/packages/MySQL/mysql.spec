@@ -9,7 +9,7 @@
 
 %define name		mysql
 %define version		4.1.14
-%define release		5avx
+%define release		6avx
 
 %define major		14
 %define libname		%mklibname mysql %{major}
@@ -527,6 +527,10 @@ fi
 
 
 %changelog
+* Wed Oct 12 2005 Vincent Danen <vdanen@annvix.org> 4.1.14-6avx
+- revert the mysqld run and finish scripts; execline doesn't help us to
+  debug and I have no time to figure out why they broke all of a sudden
+
 * Sun Oct 09 2005 Vincent Danen <vdanen@annvix.org> 4.1.14-5avx
 - fix calls to srv
 
