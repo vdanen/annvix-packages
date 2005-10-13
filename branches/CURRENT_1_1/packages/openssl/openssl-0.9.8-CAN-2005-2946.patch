@@ -1,0 +1,10 @@
+--- openssl-0.9.8/apps/openssl.cnf.can-2005-2946	2005-04-02 04:29:15.000000000 -0500
++++ openssl-0.9.8/apps/openssl.cnf	2005-10-12 23:54:49.000000000 -0400
+@@ -100,6 +100,7 @@
+ [ req ]
+ default_bits		= 1024
+ default_keyfile 	= privkey.pem
++default_md 		= sha1
+ distinguished_name	= req_distinguished_name
+ attributes		= req_attributes
+ x509_extensions	= v3_ca	# The extentions to add to the self signed cert

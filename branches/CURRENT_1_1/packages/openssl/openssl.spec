@@ -9,7 +9,7 @@
 
 %define name		openssl
 %define version		0.9.8
-%define release		2avx
+%define release		3avx
 
 %define maj		0.9.8
 %define libname 	%mklibname %{name} %{maj}
@@ -32,6 +32,8 @@ Patch1:		openssl-0.9.7-mdk-ia64-asm.patch.bz2
 Patch2:		openssl-0.9.7g-mdk-optflags.patch.bz2
 # (gb) 0.9.7b-4mdk: Make it lib64 aware. TODO: detect in Configure
 Patch3:		openssl-0.9.8-avx-lib64.patch.bz2
+Patch4:		openssl-0.9.8-CAN-2005-2946.patch.bz2
+Patch5:		openssl-0.9.7-CAN-2005-2969.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	multiarch-utils >= 1.0.3
@@ -107,6 +109,8 @@ Patches for many networking apps can be found at:
 %patch1 -p1 -b .ia64-asm
 #%patch2 -p0 -b .optflags
 %patch3 -p0 -b .lib64
+%patch4 -p1 -b .can-2005-2946
+%patch5 -p1 -b .can-2005-2969
 
 perl -pi -e "s,^(LIB=).+$,\1%{_lib}," Makefile.org
 perl -pi -e "s,^(LIB=).+$,\1%{_lib}," engines/Makefile
@@ -220,6 +224,11 @@ rm -rf %{buildroot}%{_prefix}/lib
 
 
 %changelog
+* Wed Oct 12 2005 Vincent Danen <vdanen@annvix.org> 0.9.8-3avx
+- P4: enhanced fix for CAN-2005-2946 (0.9.8 already defaults to a
+  default_md of sha1, but we also add it to the [req] section as well)
+- P5: fix for CAN-2005-2969
+
 * Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 0.9.8-2avx
 - bootstrap build (new gcc, new glibc)
 
