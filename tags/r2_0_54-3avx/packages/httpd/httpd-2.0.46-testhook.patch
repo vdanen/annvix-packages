@@ -1,0 +1,53 @@
+
+Adds test_config hook from HEAD, allows hooking into the httpd -t process.
+
+Upstream-HEAD: committed
+Upstream-Status: used by the -dumpcerts patch, may be OK for 2.0
+
+--- httpd-2.0.46/include/http_config.h.testhook
++++ httpd-2.0.46/include/http_config.h
+@@ -996,6 +996,13 @@
+ AP_DECLARE_HOOK(int,pre_config,(apr_pool_t *pconf,apr_pool_t *plog,
+                                 apr_pool_t *ptemp))
+ 
++/**
++ * Run the test_config function for each module; this hook is run
++ * only if the server was invoked to test the configuration syntax.
++ * @param pconf The config pool
++ * @param s The list of server_recs
++ */
++AP_DECLARE_HOOK(void,test_config,(apr_pool_t *pconf, server_rec *s))
+ 
+ /**
+  * Run the post_config function for each module
+--- httpd-2.0.46/server/main.c.testhook
++++ httpd-2.0.46/server/main.c
+@@ -583,6 +583,7 @@
+     ap_fini_vhost_config(pconf, server_conf);
+     apr_hook_sort_all();
+     if (configtestonly) {
++        ap_run_test_config(pconf, server_conf);
+         ap_log_error(APLOG_MARK, APLOG_STARTUP, 0, NULL, "Syntax OK");
+         destroy_and_exit_process(process, 0);
+     }
+--- httpd-2.0.46/server/config.c.testhook
++++ httpd-2.0.46/server/config.c
+@@ -115,6 +115,7 @@
+            APR_HOOK_LINK(handler)
+            APR_HOOK_LINK(quick_handler)
+            APR_HOOK_LINK(optional_fn_retrieve)
++           APR_HOOK_LINK(test_config)
+ )
+ 
+ AP_IMPLEMENT_HOOK_RUN_ALL(int, header_parser,
+@@ -130,6 +131,10 @@
+                            apr_pool_t *ptemp, server_rec *s),
+                           (pconf, plog, ptemp, s), OK, DECLINED)
+ 
++AP_IMPLEMENT_HOOK_VOID(test_config,
++                       (apr_pool_t *pconf, server_rec *s),
++                       (pconf, s))
++
+ /* During the course of debugging I expanded this macro out, so
+  * rather than remove all the useful information there is in the
+  * following lines, I'm going to leave it here in case anyone
