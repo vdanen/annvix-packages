@@ -9,7 +9,7 @@
 
 %define name		httpd-%{mod_name}
 %define version		%{apache_version}
-%define release		2avx
+%define release		3avx
 
 # Module-Specific definitions
 %define apache_version	2.0.54
@@ -154,6 +154,10 @@ fi
 
 
 %changelog
+* Thu Oct 13 2005 Vincent Danen <vdanen@annvix.org> 2.0.54-3avx
+- updated P0: fix the certwatch cron script to look in the right file
+  (we no longer use commonhttpd.conf)
+
 * Fri Sep 09 2005 Vincent Danen <vdanen@annvix.org> 2.0.54-2avx
 - rebuild to get the fixes for CAN-2005-2700 and CAN-2005-2728
 
