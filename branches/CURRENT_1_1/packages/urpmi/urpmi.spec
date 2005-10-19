@@ -8,7 +8,7 @@
 
 
 %define name		urpmi
-%define version		4.7.15
+%define version		4.7.16
 %define release 	1avx
 
 %{expand:%%define compat_perl_vendorlib %(perl -MConfig -e 'printf "%%s\n", "%{?perl_vendorlib:1}" ? "%%{perl_vendorlib}" : "$Config{installvendorlib}"')}
@@ -210,6 +210,9 @@ if (-e "/etc/urpmi/urpmi.cfg") {
 
 
 %changelog
+* Wed Oct 19 2005 Vincent Danen <vdanen@annvix.org> 4.7.16-1avx
+- 4.7.16
+
 * Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 4.7.15-1avx
 - 4.7.15
 
