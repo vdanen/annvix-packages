@@ -8,8 +8,8 @@
 
 %define module		URPM
 %define name		perl-%{module}
-%define version 	1.27
-%define release 	2avx
+%define version 	1.28
+%define release 	1avx
 
 %define _require_exceptions perl(URPM::DB)\\|perl(URPM::Package)\\|perl(URPM::Transaction)
 
@@ -65,6 +65,9 @@ hdlist files and manage them in memory.
 
 
 %changelog
+* Wed Oct 19 2005 Vincent Danen <vdanen@annvix.org> 1.28-1avx
+- 1.28
+
 * Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 1.27-2avx
 - rebuild against new rpm
 
