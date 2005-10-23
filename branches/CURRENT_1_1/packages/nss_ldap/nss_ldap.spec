@@ -8,7 +8,7 @@
 
 
 %define name 		nss_ldap
-%define version 	242
+%define version 	243
 %define release 	1avx
 
 Summary:	NSS library for LDAP
@@ -94,6 +94,9 @@ rm -rf %{buildroot}%{_libdir}/libnss_ldap.so.2
 
 
 %changelog
+* Sat Oct 22 2005 Vincent Danen <vdanen@annvix.org> 243-1avx
+- 243
+
 * Wed Sep 21 2005 Vincent Danen <vdanen@annvix.org> 242-1avx
 - 242
 
