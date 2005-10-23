@@ -9,7 +9,7 @@
 
 %define name		mysql
 %define version		4.1.14
-%define release		6avx
+%define release		7avx
 
 %define major		14
 %define libname		%mklibname mysql %{major}
@@ -527,6 +527,10 @@ fi
 
 
 %changelog
+* Sun Oct 23 2005 Vincent Danen <vdanen@annvix.org> 4.1.14-7avx
+- fix the logrotate script to make runsvstat quieter if /service/mysqld doesn't exist
+- fix the srv call in the logrotate script
+
 * Wed Oct 12 2005 Vincent Danen <vdanen@annvix.org> 4.1.14-6avx
 - revert the mysqld run and finish scripts; execline doesn't help us to
   debug and I have no time to figure out why they broke all of a sudden

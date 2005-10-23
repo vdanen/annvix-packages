@@ -38,8 +38,8 @@
     create 0640 mysql mysql
     postrotate
         # only restart if mysqld is really running
-	if [ "`runsvstat /service/mysqld|grep -q run; echo $?`" == "0" ]; then
-                /usr/sbin/srv restart mysqld
+	if [ "`runsvstat /service/mysqld 2>/dev/null|grep -q run; echo $?`" == "0" ]; then
+                /usr/sbin/srv --restart mysqld
         fi
     endscript
 }
