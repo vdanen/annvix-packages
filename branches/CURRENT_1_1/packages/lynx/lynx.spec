@@ -9,7 +9,7 @@
 
 %define name		lynx
 %define version 	2.8.5
-%define release		4avx
+%define release		5avx
 %define epoch		1
 
 %define versio_		2-8-5
@@ -28,6 +28,7 @@ Patch1:		lynx-2.8.5-avx-config.patch.bz2
 Patch2:		lynx2-8-4-fix-ugly-color.patch.bz2
 Patch10:	lynx2-8-5-tmp_dir.patch.bz2
 Patch11:	lynx2-8-5-don-t-accept-command-line-args-to-telnet.patch.bz2
+Patch12:	lynx-2.8.5-CAN-2005-3120.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	openssl-devel, zlib-devel, gettext, ncurses-devel
@@ -50,6 +51,7 @@ This version includes support for SSL encryption.
 %patch2 -p1 
 %patch10 -p1
 %patch11 -p1
+%patch12 -p1 -b .can-2005-3120
 
 
 %build
@@ -109,6 +111,9 @@ EOF
 
 
 %changelog
+* Sat Oct 22 2005 Vincent Danen <vdanen@annvix.org> 2.8.5-5avx
+- P12: fix for CAN-2005-3120
+
 * Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 2.8.5-4avx
 - bootstrap build (new gcc, new glibc)
 
