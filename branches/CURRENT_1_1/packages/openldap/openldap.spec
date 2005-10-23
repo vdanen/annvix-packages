@@ -9,7 +9,7 @@
 
 %define name		openldap
 %define version		2.3.9
-%define release		1avx
+%define release		2avx
 
 %define major 		2.3_0
 %define migtools_ver	45
@@ -853,6 +853,9 @@ fi
 
 
 %changelog
+* Sun Oct 23 2005 Vincent Danen <vdanen@annvix.org> 2.3.9-2avx
+- make runsvstat quieter if /service/slapd doesn't exist
+
 * Mon Oct 10 2005 Vincent Danen <vdanen@annvix.org> 2.3.9-1avx
 - 2.3.9
 - test041 is disabled upstream too
