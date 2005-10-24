@@ -9,7 +9,7 @@
 
 %define name		spamassassin
 %define version		3.1.0
-%define release		1avx
+%define release		2avx
 
 %define fname		Mail-SpamAssassin
 %define instdir		vendor
@@ -25,7 +25,7 @@ Source0:	http://www.eu.apache.org/dist/spamassassin/source/%{fname}-%{version}.t
 Source1:	http://www.eu.apache.org/dist/spamassassin/source/%{fname}-%{version}.tar.bz2.asc
 Source2:	spamd.run
 Source3:	spamd-log.run
-Source3:	spamd.sysconfig.bz2
+Source6:	spamd.sysconfig.bz2
 Source4:	spamassassin-default.rc
 Source5:	spamassassin-spamc.rc
 # (fc) 2.60-5mdk don't use version dependent perl call in #!
@@ -36,7 +36,7 @@ BuildRequires:	perl-devel, perl-Time-HiRes, perl-HTML-Parser, perl-Digest-SHA1, 
 
 Prereq:		rpm-helper
 Requires:	perl-Mail-SpamAssassin = %{version}-%{release}
-Requires:  	perl-DB_File
+Requires:  	perl-DB_File, perl-Net-DNS
 Requires(post):	rpm-helper
 Requires(preun): rpm-helper
 
@@ -131,7 +131,7 @@ auto_whitelist_file_mode	0666
 dcc_home			/var/lib/dcc
 EOF
 
-bzcat %{SOURCE3} >%{buildroot}%{_sysconfdir}/sysconfig/spamd
+bzcat %{SOURCE6} >%{buildroot}%{_sysconfdir}/sysconfig/spamd
 install -m 0644 %{SOURCE4} %{buildroot}%{_sysconfdir}/mail/spamassassin/
 install -m 0644 %{SOURCE5} %{buildroot}%{_sysconfdir}/mail/spamassassin/
 
@@ -211,6 +211,14 @@ perl -p -i -e 's/ --auto-whitelist//' /etc/sysconfig/spamd
 
 
 %changelog
+* Sun Oct 23 2005 Vincent Danen <vdanen@annvix.org> 3.1.0-2avx
+- both spamd/log/run and /etc/sysconfig/spamd were marked as SOURCE3 so the
+  run script was actually the bzipped sysconfig file
+- fix spamd runscript; read sysconfig/spamd rather than sysconfig/spamassassin
+  and remove obsolete option -a
+- fix sysconfig/spamd to remove the -d (daemonize) option
+- Requires: perl-Net-DNS
+
 * Thu Sep 22 2005 Vincent Danen <vdanen@annvix.org> 3.1.0-1avx
 - 3.1.0
 - put spamd and spamc into -spamc package
