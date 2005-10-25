@@ -1,6 +1,3 @@
-This is a rewrite of the README.Mandrake that you can find in every
-Mandrake kernel src.rpm.
-
          Annvix Kernel Compile Special Instructions
 
 
@@ -17,7 +14,7 @@ Mailing List by Andrej Borsenkow:
 
     PLEASE do not forget - you must not need to configure your kernel 
     before you compile EXTERNAL module (as example, nVidia). PLEASE 
-    remember that OpenSLS has 4 (four!) kernel flavours and you can 
+    remember that Annvix has 2 (two) kernel flavours and you can 
     compile external modules for any of them WITHOUT RECONFIGURATION 
     IN BETWEEN. PLEASE look into this "regenrated files" in clean 
     kernel-source and after you have reconfigured your kernel.
@@ -28,5 +25,12 @@ kernel without having to do anything special.  One of the side effects
 of this is that if you want to start a compile from scratch, you must
 remove various configuration files (as well as object files and 
 binaries).  To do this, you *MUST* do the "make mrproper" first.
+
+In other words, to compile your kernel you should use:
+
+  # make (menu|old)config
+  # make mrproper && make clean && make dep
+  # make && make modules
+  # make modules_install && make install
 
 Regards, the Annvix Team
