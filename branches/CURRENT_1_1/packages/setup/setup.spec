@@ -5,11 +5,11 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-# $Id: setup.spec,v 1.16 2005/09/09 22:43:38 vdanen Exp $
+# $Id: setup.spec,v 1.17 2005/10/25 03:33:25 vdanen Exp $
 
 %define name		setup
 %define version 	2.5
-%define release 	6avx
+%define release 	7avx
 
 Summary:	A set of system configuration and setup files
 Name:		%{name}
@@ -101,6 +101,9 @@ fi
 
 
 %changelog
+* Fri Sep 09 2005 Vincent Danen <vdanen@annvix.org> 2.5-7avx
+- bump the dataseg size ulimit from 6144 to 12288
+
 * Fri Sep 09 2005 Vincent Danen <vdanen@annvix.org> 2.5-6avx
 - varargs fixes to run-parts (gbeauchesne)
 

@@ -9,7 +9,7 @@
 
 %define name		php-%{modname}
 %define version		%{phpversion}
-%define release		1avx
+%define release		2avx
 
 %define phpversion	4.4.0
 %define phpsource       %{_prefix}/src/php-devel
@@ -44,6 +44,7 @@ Patch11:	imap-2002-krbpath.patch.bz2
 Patch12:	imap-2001a-overflow.patch.bz2
 Patch14:	imap-2002a-ansi.patch.bz2
 Patch15:	imap-2002a-noprompt-makefile.patch.bz2
+Patch16:	imap-2002d-CAN-2005-2933.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:  php4-devel
@@ -76,6 +77,7 @@ cp %{SOURCE7} src/osdep/unix/
 %patch12 -p1 -b .overflow
 %patch14 -p1 -b .ansi
 %patch15 -p1 -b .noprompt
+%patch16 -p1 -b .can-2005-2933
 
 
 %build
@@ -131,6 +133,9 @@ EOF
 
 
 %changelog
+* Mon Oct 24 2005 Vincent Danen <vdanen@annvix.org> 4.4.0-2avx
+- P16: patch the c-client libs to fix CAN-2005-2933
+
 * Wed Sep 14 2005 Vincent Danen <vdanen@annvix.org> 4.4.0-1avx
 - php 4.4.0
 

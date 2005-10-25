@@ -9,7 +9,7 @@
 
 %define name		httpd-%{mod_name}
 %define version 	%{apache_version}_%{phpversion}
-%define release		1avx
+%define release		2avx
 
 # Module-Specific definitions
 %define apache_version	2.0.54
@@ -94,6 +94,9 @@ bzcat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
 
 
 %changelog
+* Mon Oct 24 2005 Vincent Danen <vdanen@annvix.org> 2.0.54_4.4.0-2avx
+- fix the configuration file to add support for php files as DirectoryIndex
+
 * Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 2.0.54_4.4.0-1avx
 - php 4.4.0
 
