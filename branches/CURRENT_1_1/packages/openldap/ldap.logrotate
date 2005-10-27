@@ -4,7 +4,7 @@
     compress
     postrotate
 	# only restart if slapd is really running
-        if test -n "`runsvstat /service/slapd 2>/dev/null|grep -q run; echo $?`"; then
+        if [ "`runsvstat /service/slapd 2>/dev/null|grep -q run; echo $?`" == "0" ]; then
                 /usr/sbin/srv --restart slapd
 	fi
     endscript

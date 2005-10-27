@@ -9,7 +9,7 @@
 
 %define name		openldap
 %define version		2.3.9
-%define release		2avx
+%define release		3avx
 
 %define major 		2.3_0
 %define migtools_ver	45
@@ -853,6 +853,9 @@ fi
 
 
 %changelog
+* Thu Oct 27 2005 Vincent Danen <vdanen@annvix.org> 2.3.9-3avx
+- fix the test for slapd running in the logrotate script
+
 * Sun Oct 23 2005 Vincent Danen <vdanen@annvix.org> 2.3.9-2avx
 - make runsvstat quieter if /service/slapd doesn't exist
 
