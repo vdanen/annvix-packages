@@ -9,7 +9,7 @@
 
 %define name		lynx
 %define version 	2.8.5
-%define release		5avx
+%define release		6avx
 %define epoch		1
 
 %define versio_		2-8-5
@@ -111,6 +111,9 @@ EOF
 
 
 %changelog
+* Wed Oct 26 2005 Vincent Danen <vdanen@annvix.org> 2.8.5-6avx
+- updated P12 to fully fix the issue
+
 * Sat Oct 22 2005 Vincent Danen <vdanen@annvix.org> 2.8.5-5avx
 - P12: fix for CAN-2005-3120
 

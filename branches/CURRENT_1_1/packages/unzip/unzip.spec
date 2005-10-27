@@ -9,7 +9,7 @@
 
 %define name		unzip
 %define version 	5.52
-%define release 	1avx
+%define release 	2avx
 %define src_ver 	552
 
 Summary:	Unpacks ZIP files such as those made by pkzip under DOS
@@ -21,6 +21,7 @@ Group:		Archiving/Compression
 URL:		http://www.info-zip.org/pub/infozip/UnZip.html
 Source0:	ftp://ftp.icce.rug.nl/infozip/src/%{name}%{src_ver}.tar.bz2
 Patch1:		unzip542-size-64bit.patch.bz2
+Patch2:		unzip-5.52-CAN-2005-2475.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
@@ -37,7 +38,7 @@ This version also has encryption support.
 %prep
 %setup -q
 %patch1 -p0
-
+%patch2 -p1 -b .can-2005-2475
 
 %build
 %ifarch %{ix86}
@@ -86,6 +87,9 @@ EOF
 
 
 %changelog
+* Wed Oct 26 2005 Vincent Danen <vdanen@annvix.org> 5.52-2avx
+- P2: fix for CAN-2005-2475
+
 * Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 5.52-1avx
 - 5.52
 - drop P0 and define LZW_CLEAN instead (waschk)

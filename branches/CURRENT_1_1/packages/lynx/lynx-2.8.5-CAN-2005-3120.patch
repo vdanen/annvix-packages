@@ -129,7 +129,7 @@
      *u = '\0';
  end:
 -    strcpy(trg, buf);
-+    StrAllocCopy(*t, buf);
++    StrAllocCopy(*trg, buf);
 +    FREE(m2buf);
 +    FREE(mmbuf);
 +    FREE(buf);

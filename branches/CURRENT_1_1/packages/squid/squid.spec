@@ -8,10 +8,10 @@
 
 
 %define name		squid
-%define version		2.5.STABLE11
+%define version		2.5.STABLE12
 %define release		1avx
 
-%define their_version	2.5.STABLE11
+%define their_version	2.5.STABLE12
 %define p_url   	http://www.squid-cache.org/Versions/v2/2.5/bugs
 %define p_name  	squid-2.5.stable5
 
@@ -47,12 +47,7 @@ Patch2:		squid-2.5.STABLE7-avx-user_group.patch.bz2
 Patch3:		squid-2.5.STABLE2-ssl.patch.bz2
 Patch4:		squid-2.5.STABLE5-pipe.patch.bz2
 # Upstream bugfix patches
-Patch100:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE11-CNAME.patch.bz2
-Patch101:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE11-CACHE_HTTP_PORT.patch.bz2
-Patch102:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE11.accel_single_host_pconn.patch.bz2
-Patch103:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE11-ldap_auth.patch.bz2
-Patch104:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE11-tcp_outgoing_xxx.patch.bz2
-Patch105:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE11-delaypools_truncated.patch.bz2
+Patch100:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE12-setenv.patch.bz2
 
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -82,11 +77,6 @@ lookup program (dnsserver), a program for retrieving FTP data
 %patch3 -p1 -b .ssl
 %patch4 -p1 -b .pipe
 %patch100 -p1
-%patch101 -p1
-%patch102 -p1
-%patch103 -p1
-%patch104 -p1
-%patch105 -p1
 
 bzcat %{SOURCE10} > helpers/basic_auth/winbind/winbindd_nss.h
 bzcat %{SOURCE10} > helpers/ntlm_auth/winbind/winbindd_nss.h
@@ -365,6 +355,9 @@ fi
 
 
 %changelog
+* Wed Oct 26 2005 Vincent Danen <vdanen@annvix.org> 2.5.STABLE12-1avx
+- 2.5.STABLE12 - includes fix for CAN-2005-3258
+
 * Thu Oct 13 2005 Vincent Danen <vdanen@annvix.org> 2.5.STABLE11-1avx
 - 2.5.STABLE11 - includes fix for CAN-2005-2917
 - resync upstream patches

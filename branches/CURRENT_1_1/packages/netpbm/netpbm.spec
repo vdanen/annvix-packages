@@ -9,7 +9,7 @@
 
 %define name		netpbm
 %define version 	10.29
-%define release 	2avx
+%define release 	3avx
 
 %define major		10
 %define libname		%mklibname %{name} %{major}
@@ -40,6 +40,7 @@ Patch11:	netpbm-10.24-nodoc.patch.bz2
 #Patch12:	pstopnm_dsafer.diff.bz2
 Patch13:	netpbm-10.27-bmptopnm.patch.bz2
 Patch14:	netpbm-10.28-CAN-2005-2471.patch.bz2
+Patch15:	netpbm-10.29-CAN-2005-2978.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	flex, png-devel, jpeg-devel, tiff-devel
@@ -113,6 +114,7 @@ graphics file formats supported by the netpbm libraries.
 #%patch12 -p0 -b .dsafer
 %patch13 -p1 -b .bmptopnm
 %patch14 -p1 -b .CAN-2005-2471
+%patch15 -p1 -b .can-2005-2978
 
 #mv shhopt/shhopt.h shhopt/pbmshhopt.h
 #perl -pi -e 's|shhopt.h|pbmshhopt.h|g' `find -name "*.c" -o -name "*.h"` ./GNUmakefile
@@ -226,6 +228,9 @@ cp test-images/* %{buildroot}%{_datadir}/printconf/tests/
 
 
 %changelog
+* Wed Oct 26 2005 Vincent Danen <vdanen@annvix.org> 10.29-3avx
+- P15: fix for CAN-2005-2978
+
 * Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 10.29-2avx
 - rebuild against new libtiff
 

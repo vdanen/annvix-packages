@@ -8,7 +8,7 @@
 
 %define name		sudo
 %define version		1.6.8p9
-%define release		4avx
+%define release		5avx
 %define epoch		1
 
 Summary:	Allows command execution as root for specified users
@@ -25,6 +25,7 @@ Source2:	sudoers.annvix
 Source3:	sudo.pam
 Source4:	sudo.logrotate
 Source4:	sudo.logrotate
+Patch0:		sudo-1.6.8p8-CAN-2005-2959.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:  pam-devel
@@ -40,7 +41,7 @@ their work done.
 
 %prep
 %setup -q
-
+%patch0 -p1 -b .can-2005-2959
 
 %build
 CFLAGS="%{optflags} -D_GNU_SOURCE" \
@@ -101,6 +102,9 @@ install -m 0440 %{SOURCE2} %{buildroot}%{_sysconfdir}/sudoers
 
 
 %changelog
+* Wed Oct 26 2005 Vincent Danen <vdanen@annvix.org> 1:1.6.8p9-5avx
+- P0: to fix CAN-2005-2959
+
 * Sun Sep 11 2005 Vincent Danen <vdanen@annvix.org> 1:1.6.8p9-4avx
 - update default /etc/sudoers to provide access to restricted urpmi,
   network tools (ping, traceroute), and user management tools (ie.
