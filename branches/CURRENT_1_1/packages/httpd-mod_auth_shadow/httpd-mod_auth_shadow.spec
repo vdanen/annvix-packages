@@ -9,7 +9,7 @@
 
 %define name		httpd-%{mod_name}
 %define version 	%{apache_version}_%{mod_version}
-%define release 	1avx
+%define release 	2avx
 
 # Module-Specific definitions
 %define apache_version	2.0.54
@@ -30,6 +30,7 @@ Source0:	%{sourcename}.tar.bz2
 Source1:	%{mod_conf}.bz2
 Patch0:		%{sourcename}-register.patch.bz2
 Patch1:		%{sourcename}-makefile.patch.bz2
+Patch2:		mod_auth_shadow-2.0-CAN-2005-2963.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:  httpd-devel >= %{apache_version}
@@ -49,7 +50,7 @@ under a non-privileged user.
 %setup -q -n %{sourcename}
 %patch0 -p0
 %patch1 -p0
-
+%patch2 -p1 -b .can-2005-2963
 
 %build
 export PATH="$PATH:/usr/sbin"
@@ -81,6 +82,9 @@ install -m 4755 validate %{buildroot}%{_sbindir}/
 
 
 %changelog
+* Fri Oct 28 2005 Vincent Danen <vdanen@annvix.org> 2.0.54_2.0-2avx
+- P2: fix for CAN-2005-2963
+
 * Wed Sep 07 2005 Vincent Danen <vdanen@annvix.org> 2.0.54_2.0-1avx
 - apache 2.0.54
 - s/conf.d/modules.d/
