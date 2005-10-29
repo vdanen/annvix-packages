@@ -9,7 +9,7 @@
 
 %define name		annvix-release
 %define version		1.1
-%define release		4avx
+%define release		5avx
 
 %define distrib		Bachus
 %define realversion 	1.1-RELEASE
@@ -67,6 +67,9 @@ EOF
 
 
 %changelog
+* Fri Oct 28 2005 Vincent Danen <vdanen@annvix.org> 1.1-5avx
+- 1.1-RELEASE rather
+
 * Fri Oct 28 2005 Vincent Danen <vdanen@annvix.org> 1.1-4avx
 - 1.0-RELEASE: Bachus
 
