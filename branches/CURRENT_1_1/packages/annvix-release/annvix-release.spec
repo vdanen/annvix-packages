@@ -9,10 +9,10 @@
 
 %define name		annvix-release
 %define version		1.1
-%define release		3avx
+%define release		4avx
 
-%define distrib		Icarus
-%define realversion 	1.1-CURRENT
+%define distrib		Bachus
+%define realversion 	1.1-RELEASE
 %define macrofile	%build_sysmacrospath
 
 Summary:	Annvix release file
@@ -67,6 +67,9 @@ EOF
 
 
 %changelog
+* Fri Oct 28 2005 Vincent Danen <vdanen@annvix.org> 1.1-4avx
+- 1.0-RELEASE: Bachus
+
 * Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 1.1-3avx
 - add a rpm macro file
 
