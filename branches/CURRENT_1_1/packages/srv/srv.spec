@@ -10,7 +10,7 @@
 
 %define name		srv
 %define version 	0.20
-%define release 	2avx
+%define release 	3avx
 
 Summary:	Tool to manage runsv-controlled services
 Name: 		%{name}
@@ -65,6 +65,10 @@ install -m 0644 functions %{buildroot}%{_datadir}/srv
 
 
 %changelog
+* Fri Oct 28 2005 Vincent Danen <vdanen@annvix.org> 0.20-3avx
+- don't display rpm package info if the run file doesn't belong to an rpm
+- some --info tidying
+
 * Sat Oct 08 2005 Vincent Danen <vdanen@annvix.org> 0.20-2avx
 - cosmetics and change the timeouts from 15s to 10s
 
