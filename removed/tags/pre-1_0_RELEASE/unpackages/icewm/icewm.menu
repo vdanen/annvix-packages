@@ -1,5 +1,0 @@
-# Sections menus
-?package(icewm-light): needs=icewm section="/" title="IceWM" icon="icewm.png"
-?package(icewm-light): needs=icewm section="IceWM" title="Settings" icon="hardware_section.png"
-?package(icewm-light):command="icewm-session" icon="icewm.png" needs="wm" \
-               section="Session/Windowmanagers" title="IceWM"

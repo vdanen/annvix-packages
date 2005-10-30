@@ -1,6 +1,0 @@
-#!/bin/sh
-PATH="/sbin:/usr/sbin:/bin:/usr/bin:$PATH"
-
-# this runs taiclockd under supervise as nobody
-
-exec /usr/bin/setuidgid nobody /usr/bin/taiclockd

@@ -1,6 +1,0 @@
-#!/bin/sh
-PATH="/sbin:/usr/sbin:/bin:/usr/bin:$PATH"
-
-# this runs sshd under supervise
-
-exec /sbin/tmdns -F 2>&1

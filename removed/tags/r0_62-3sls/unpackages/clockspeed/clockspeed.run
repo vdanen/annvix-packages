@@ -1,6 +1,0 @@
-#!/bin/sh
-PATH="/sbin:/usr/sbin:/bin:/usr/bin:$PATH"
-
-# this runs clockspeed under supervise
-
-exec /usr/bin/clockspeed

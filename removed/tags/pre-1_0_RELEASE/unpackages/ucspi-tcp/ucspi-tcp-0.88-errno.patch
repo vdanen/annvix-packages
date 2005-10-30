@@ -1,9 +1,0 @@
---- ucspi-tcp-0.88/error.h.org	2003-02-01 14:00:50.000000000 -0700
-+++ ucspi-tcp-0.88/error.h	2003-02-01 14:00:50.000000000 -0700
-@@ -1,5 +1,6 @@
- #ifndef ERROR_H
- #define ERROR_H
-+#include "errno.h"
- 
- extern int errno;
- 

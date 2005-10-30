@@ -1,8 +1,0 @@
---- autofs-4.0.0pre10/samples/Makefile.autofslibdir	2001-03-28 07:08:23.000000000 +0200
-+++ autofs-4.0.0pre10/samples/Makefile	2003-10-31 10:52:15.000000000 +0100
-@@ -18,4 +18,5 @@ install: all
- 
- rc.autofs: rc.autofs.in
- 	sed -e "s|@@sbindir@@|$(sbindir)|g" \
-+	    -e "s|@@autofslibdir@@|$(autofslibdir)|g" \
- 	    -e "s|@@initdir@@|$(initdir)|g" < rc.autofs.in > rc.autofs

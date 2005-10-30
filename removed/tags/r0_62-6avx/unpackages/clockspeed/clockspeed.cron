@@ -1,8 +1,0 @@
-#!/bin/sh
-
-[ -f /etc/sysconfig/clockspeed ] && . /etc/sysconfig/clockspeed
-
-if [ "$NTPSERVER" != "" ]; then
-    sntpclock $NTPSERVER > /var/lib/clockspeed/adjust 2>/dev/null
-fi
-

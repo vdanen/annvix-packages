@@ -1,9 +1,0 @@
-#!/bin/bash
-if [ -L /etc/httpd/conf/httpd.conf ];then
-  echo "Removing /etc/httpd/conf/httpd.conf symlink"
-  rm -f /etc/httpd/conf/httpd.conf
-fi
-if [ -L /etc/httpd/conf/httpd-perl.conf ];then
-  echo "Removing /etc/httpd/conf/httpd-perl.conf symlink"
-  rm -f /etc/httpd/conf/httpd-perl.conf
-fi

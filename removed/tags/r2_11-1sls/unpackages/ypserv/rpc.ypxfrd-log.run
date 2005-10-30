@@ -1,6 +1,0 @@
-#!/bin/sh
-
-# this writes logs as user nobody into /var/log/supervise/rpc.ypxfrd; make 
-# sure this directory exists and is writable by nobody!
-
-exec /usr/bin/setuidgid nobody /usr/bin/multilog t /var/log/supervise/rpc.ypxfrd
