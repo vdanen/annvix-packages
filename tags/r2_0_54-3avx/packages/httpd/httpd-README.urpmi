@@ -1,9 +1,0 @@
-The following details the changes from Annvix 1.0-RELEASE apache2 packages
-to Annvix 1.1-RELEASE httpd packages:
-
-- all packages are named httpd-* rather than apache2-*
-- the apache root has moved from /etc/httpd/2.0 to /etc/httpd
-- the mod_userdir module is no longer part of the base apache modules installation
-  for security reasons (this module provides http://foo/~user style access).  It
-  can be installed by executing "urpmi httpd-mod_userdir".
-

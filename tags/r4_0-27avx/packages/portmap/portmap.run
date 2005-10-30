@@ -1,6 +1,0 @@
-#!/bin/sh
-PATH="/sbin:/usr/sbin:/bin:/usr/bin"
-
-# this runs portmap supervised
-
-exec /sbin/portmap -d 2>&1

@@ -1,4 +1,0 @@
-After installing this package, you should run "/etc/tripwire/twinstall.sh"
-to generate cryptographic keys, and "tripwire --init" to initialize the
-database Tripwire uses.  This must be done manually because the key used to
-sign the database should be different for each system.

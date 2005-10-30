@@ -1,8 +1,0 @@
-#!/bin/sh
-PATH="/sbin:/usr/sbin:/bin:/usr/bin"
-
-# this runs rsync limiting the server to a maximum of 30 simultaneous 
-# connections. rsync.cdb is not required for the service to run
-
-exec /usr/bin/tcpserver -c30 -HRXv -llocalhost -x /etc/tcprules.d/rsync.cdb \
-0 rsync /usr/bin/rsync --daemon 2>&1

@@ -1,9 +1,0 @@
-diff -uNp nfs-utils-1.0.4/Makefile.orig nfs-utils-1.0.4/Makefile
---- nfs-utils-1.0.4/Makefile.orig	2003-07-16 10:34:25.000000000 +0200
-+++ nfs-utils-1.0.4/Makefile	2003-07-16 10:33:40.000000000 +0200
-@@ -23,4 +23,4 @@ install:: installman
- 	mkdir -p $(STATEDIR)/sm $(STATEDIR)/sm.bak
- 	touch $(STATEDIR)/state
- 	chmod go-rwx $(STATEDIR)/sm $(STATEDIR)/sm.bak $(STATEDIR)/state
--	chown $(STATDUSER) $(STATEDIR)/sm $(STATEDIR)/sm.bak $(STATEDIR)/state
-+#	chown $(STATDUSER) $(STATEDIR)/sm $(STATEDIR)/sm.bak $(STATEDIR)/state

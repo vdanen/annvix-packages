@@ -1,8 +1,0 @@
-# NOTE: This file is not used, the contents within was
-# added to root's cronjob when dcron was installed.
-
-# run-parts
-01 * * * * nice -n 19 run-parts /etc/cron.hourly
-02 4 * * * nice -n 19 run-parts /etc/cron.daily
-22 4 * * 0 nice -n 19 run-parts /etc/cron.weekly
-42 4 1 * * nice -n 19 run-parts /etc/cron.monthly

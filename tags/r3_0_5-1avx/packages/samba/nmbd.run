@@ -1,8 +1,0 @@
-#!/bin/sh
-PATH="/sbin:/usr/sbin:/bin:/usr/bin:$PATH"
-
-# this runs nmbd under supervise
-
-. /usr/share/srv/functions
-
-exec /usr/sbin/nmbd -F 2>&1

@@ -1,7 +1,0 @@
-#!/bin/execlineb
-
-/bin/fdmove -c 2 1
-
-/bin/export PATH "/sbin:/usr/sbin:/bin:/usr/bin"
-
-/sbin/chpst -u clamav /usr/bin/freshclam -d --config-file /etc/freshclam.conf

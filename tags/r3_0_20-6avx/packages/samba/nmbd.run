@@ -1,7 +1,0 @@
-#!/bin/execlineb
-
-/bin/fdmove -c 2 1
-
-/bin/export PATH "/sbin:/bin:/usr/sbin:/usr/bin"
-
-/usr/sbin/nmbd -F

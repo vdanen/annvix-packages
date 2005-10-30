@@ -1,4 +1,0 @@
-#!/bin/sh
-PATH="/sbin:/usr/sbin:/bin:/usr/bin"
-
-/usr/sbin/exportfs -au

@@ -1,5 +1,0 @@
-#!/bin/sh
-PATH="/sbin:/usr/sbin:/bin:/usr/bin"
-
-# when we receive the signal to shutdown, use nscd to shutdown the server
-/usr/sbin/nscd -K

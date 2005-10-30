@@ -1,5 +1,0 @@
-#!/bin/sh
-PATH="/sbin:/usr/sbin:/bin:/usr/bin"
-
-/usr/bin/killall -9 nfsd
-/usr/sbin/exportfs -au

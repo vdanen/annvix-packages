@@ -1,5 +1,0 @@
-#!/bin/execlineb
-
-/bin/fdmove -c 2 1
-/bin/foreground { /bin/if { ! /usr/bin/test -f /etc/ez-ipupdate.conf } /bin/echo "configuration file /etc/ez-ipupdate.conf is missing" } exit }
-/usr/bin/ez-ipupdate -d -f -c /etc/ez-ipupdate.conf

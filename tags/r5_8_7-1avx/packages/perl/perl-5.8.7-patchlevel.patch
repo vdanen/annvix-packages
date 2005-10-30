@@ -1,9 +1,0 @@
---- patchlevel.h.orig	2004-11-27 18:18:15.000000000 +0100
-+++ patchlevel.h	2004-11-29 10:51:43.842797541 +0100
-@@ -120,5 +120,6 @@
- static	char	*local_patches[] = {
- 	NULL
-+	,"Mandriva Linux patches (cf the source RPM)"
- 	,NULL
- };
- 

@@ -1,9 +1,0 @@
---- pure-ftpd-1.0.16b/configuration-file/pure-config.pl.in.noexec	2004-03-03 15:26:04.000000000 -0700
-+++ pure-ftpd-1.0.16b/configuration-file/pure-config.pl.in	2004-03-03 15:26:04.000000000 -0700
-@@ -115,5 +115,4 @@
- 
- close CONF;
- 
--print "Running: $PUREFTPD ", join(" ", @flg), "\n";
--exec { $PUREFTPD } ($PUREFTPD, @flg) or die "cannot exec $PUREFTPD: $!";
-+print "$PUREFTPD ", join(" ", @flg), "\n";

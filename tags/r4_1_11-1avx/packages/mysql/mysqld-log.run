@@ -1,5 +1,0 @@
-#!/bin/sh
-
-# logging for the mysqld service
-
-exec /sbin/chpst -u logger /sbin/svlogd -tt /var/log/supervise/mysqld

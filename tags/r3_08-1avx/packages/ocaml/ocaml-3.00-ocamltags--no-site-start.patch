@@ -1,8 +1,0 @@
---- ocaml-3.00/emacs/ocamltags.in.pix	Mon Nov 29 14:03:30 1999
-+++ ocaml-3.00/emacs/ocamltags.in	Tue Dec 12 06:06:28 2000
-@@ -1,4 +1,4 @@
--":" ; @EMACS@ -batch -l $0 "$@" ; status=$? ; : '--*-Emacs-Lisp-*--' <<';'
-+":" ; @EMACS@ --batch --no-init-file --no-site-file -l $0 "$@" ; status=$? ; : '--*-Emacs-Lisp-*--' <<';'
- 
- ;; Copyright (C) 1998 Ian Zimmerman <itz@transbay.net>
- ;;  This program is free software; you can redistribute it and/or

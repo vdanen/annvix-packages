@@ -1,5 +1,0 @@
-/var/log/clamav/clamd.log {
-    create 644 clamav clamav
-	monthly
-	compress
-}

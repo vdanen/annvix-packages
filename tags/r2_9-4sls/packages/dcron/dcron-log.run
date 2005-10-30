@@ -1,3 +1,0 @@
-#!/bin/sh
-exec 2>&1
-exec /usr/bin/setuidgid nobody /usr/bin/multilog t /var/log/supervise/crond

@@ -1,4 +1,0 @@
-#!/bin/execlineb
-
-chpst -u logger
-svlogd 		/var/log/supervise/socklog-unix/

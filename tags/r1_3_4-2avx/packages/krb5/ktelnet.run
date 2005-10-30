@@ -1,8 +1,0 @@
-#!/bin/sh
-PATH="/sbin:/usr/sbin:/bin:/usr/bin"
-
-# this runs telnet limiting the server to a maximum of 30 simultaneous 
-# connections. telnet.cdb is not required for the service to run
-
-exec /usr/bin/tcpserver -c30 -HRXv -llocalhost -x /etc/tcprules.d/telnet.cdb \
-0 23 /usr/sbin/telnetd -a none 2>&1

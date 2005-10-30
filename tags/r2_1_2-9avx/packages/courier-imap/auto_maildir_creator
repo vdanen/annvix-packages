@@ -1,9 +1,0 @@
-#!/bin/sh
-
-maildir=$1
-/usr/bin/maildirmake++ /home/$UID/$maildir
-chown -R $UID.$UID /home/$UID/$maildir
-
-logger -p auth.notice -t courier Automagically created homedir "$1" \
-         for uid "$UID" aka "$AUTHADDR".
-

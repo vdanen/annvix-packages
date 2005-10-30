@@ -1,3 +1,0 @@
-#!/bin/sh
-
-nice --adjustment=+19 /usr/bin/slocate -c -u 

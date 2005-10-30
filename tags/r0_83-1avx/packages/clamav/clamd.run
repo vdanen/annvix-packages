@@ -1,8 +1,0 @@
-#!/bin/sh
-PATH="/sbin:/usr/sbin:/bin:/usr/bin:$PATH"
-
-# this runs clamd supervised
-
-. /usr/share/srv/functions
-
-exec /usr/sbin/clamd -c /etc/clamd.conf 2>&1
