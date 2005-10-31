@@ -9,7 +9,7 @@
 
 %define name		php-%{modname}
 %define version		%{phpversion}
-%define release		2avx
+%define release		3avx
 
 %define phpversion	4.4.0
 %define phpsource       %{_prefix}/src/php-devel
@@ -52,6 +52,8 @@ cp -dpR %{phpsource}/extensions/%{dirname}/* .
 
 %build
 phpize
+export XML_SHARED_LIBADD="$XML_SHARED_LIBADD -lexpat"
+export CPPFLAGS="$CPPFLAGS -DHAVE_LIBXML -DHAVE_XML -DHAVE_LIBEXPAT"
 %configure2_5x \
   --with-expat-dir=%{_prefix}
 
@@ -90,6 +92,9 @@ EOF
 
 
 %changelog
+* Sat Oct 29 2005 Vincent Danen <vdanen@annvix.org> 4.4.0-3avx
+- fix linking to libxml and libexpat
+
 * Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 4.4.0-2avx
 - rebuild against new expat
 

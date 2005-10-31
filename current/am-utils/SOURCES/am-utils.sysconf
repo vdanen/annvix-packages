@@ -1,3 +1,0 @@
-ADIR=/.automount
-MOUNTPTS='-a /net'
-AMDOPTS=
