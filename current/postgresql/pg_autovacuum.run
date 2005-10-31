@@ -1,0 +1,13 @@
+#!/bin/sh
+PATH="/sbin:/usr/sbin:/bin:/usr/bin"
+
+# this runs pg_autovacuum supervised
+
+if [ -f /etc/sysconfig/pg_autovacuum ]; then
+    . /etc/sysconfig/pg_autovacuum
+else
+    PGAV_OPTION=""
+    PGAV_USER="postgres"
+fi
+
+exec /sbin/chpst -u $PGAV_USER /usr/bin/pg_autovacuum $PGAV_OPTION 2>&1

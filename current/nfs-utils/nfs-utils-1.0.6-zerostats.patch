@@ -1,0 +1,205 @@
+--- ./utils/nfsstat/nfsstat.man.orig	2003-12-30 05:54:35.000000000 -0500
++++ ./utils/nfsstat/nfsstat.man	2003-12-30 10:28:46.000000000 -0500
+@@ -13,6 +13,9 @@ The
+ displays statistics kept about NFS client and server activity.
+ .SH OPTIONS
+ .TP
++.B -a
++Print all statistics.
++.TP
+ .B -s
+ Print only server-side statistics. The default is to print both server and
+ client statistics.
+@@ -49,6 +52,20 @@ total number of lookups, and the number 
+ Usage information on the server's request reply cache, including the
+ total number of lookups, and the number of hits and misses.
+ .RE
++.TP
++.B -z
++Zeros out all or some of the statistics. Typical uses would be:
++.RS 10
++nfsstat -z  - zeros all statistics
++.br
++nfsstat -zc - zeros only client statistics
++.br
++nfsstat -zs - zeros only server statistics
++.br
++nfsstat -zr - zeros only RPC statistics
++.br
++nfsstat -zn - zeros only NFS call statistics
++.RE
+ .SH EXAMPLES
+ .\" --------------------- FILES ----------------------------------
+ .SH FILES
+--- ./utils/nfsstat/nfsstat.c.orig	2003-12-30 05:54:35.000000000 -0500
++++ ./utils/nfsstat/nfsstat.c	2003-12-30 10:25:44.000000000 -0500
+@@ -107,6 +107,7 @@ static void		print_numbers(const char *,
+ static void		print_callstats(const char *, const char **,
+ 					unsigned int *, unsigned int);
+ static int		parse_statfile(const char *, struct statinfo *);
++static int      zero_statfile(int, int , int);
+ 
+ static statinfo		*get_stat_info(const char *, struct statinfo *);
+ 
+@@ -118,6 +119,8 @@ static statinfo		*get_stat_info(const ch
+ #define PRNT_RC		0x0010
+ #define PRNT_ALL	0xffff
+ 
++static int	opt_prt = 0;
++
+ int
+ main(int argc, char **argv)
+ {
+@@ -126,7 +129,7 @@ main(int argc, char **argv)
+ 			opt_clt = 0,
+ 			srv_info = 0,
+ 			clt_info = 0,
+-			opt_prt = 0;
++			opt_zero = 0;
+ 	int		c;
+ 
+ 	while ((c = getopt(argc, argv, "acno:rsz")) != -1) {
+@@ -164,9 +167,8 @@ main(int argc, char **argv)
+ 			opt_srv = 1;
+ 			break;
+ 		case 'z':
+-			fprintf(stderr, "nfsstat: zeroing of nfs statistics "
+-					"not yet supported\n");
+-			return 2;
++			opt_zero = 1;
++			break;
+ 		}
+ 	}
+ 
+@@ -186,6 +188,12 @@ main(int argc, char **argv)
+ 			"server.\n");
+ 	}
+ 
++	if (opt_zero) {
++		if (opt_srv || opt_clt) {
++			if (zero_statfile(opt_srv, opt_clt, opt_prt))
++				return 1;
++		}
++	}
+ 	if (opt_srv) {
+ 		srv_info = parse_statfile(NFSSVCSTAT, svcinfo);
+ 		if (srv_info == 0 && opt_clt == 0) {
+@@ -206,6 +214,7 @@ main(int argc, char **argv)
+ 			opt_clt = 0;
+ 	}
+ 
++
+ 	if (opt_srv) {
+ 		if (opt_prt & PRNT_NET) {
+ 			print_numbers(
+@@ -329,11 +338,15 @@ print_callstats(const char *hdr, const c
+ 	unsigned long long	pct;
+ 	int		i, j;
+ 
+-	fputs(hdr, stdout);
+ 	for (i = 0, total = 0; i < nr; i++)
+ 		total += info[i];
++	if ((opt_prt & PRNT_ALL) != PRNT_ALL) {
++		if (!total)
++			return;
++	}
+ 	if (!total)
+ 		total = 1;
++	fputs(hdr, stdout);
+ 	for (i = 0; i < nr; i += 6) {
+ 		for (j = 0; j < 6 && i + j < nr; j++)
+ 			printf("%-11s", names[i+j]);
+@@ -346,6 +359,93 @@ print_callstats(const char *hdr, const c
+ 	}
+ 	printf("\n");
+ }
++static int
++zero_statfile(int opt_srv, int opt_clt, int what)
++{
++	FILE	*fp=NULL;
++	struct  stat sb;
++
++	if (getuid() != 0) {
++		fprintf(stderr, "nfsstat: Only root can zero nfs statistics\n");
++		return 1;
++	}
++	if (opt_srv) {
++		/*
++		 * See if NFSSVCSTAT exists. If so, get the mode bits and open it
++		 */
++		if (stat(NFSSVCSTAT, &sb) < 0) {
++			if (!opt_clt) {
++				switch(errno) {
++				case ENOENT: 
++					fprintf(stderr, "nfsstat: Server not started\n");
++					break;
++				default:
++					fprintf(stderr, "nfsstat: Unable to stat statistics file: %s: %m\n",
++						NFSSVCSTAT);
++					break;
++				}
++				return 1;
++			}
++			goto next;
++		}
++		/* 
++		 * Check the to see if it's writeable. If not 
++		 * this means the RPC module does not support zeroing.
++		 */
++		if (!(sb.st_mode & S_IWUSR)) {
++				fprintf(stderr, "nfsstat: zeroing of nfs server statistics is not supported\n");
++			if (!opt_clt)
++				return 1;
++			goto next;
++		}
++		if ((fp = fopen(NFSSVCSTAT, "w")) != NULL) {
++			fprintf(fp,"%x", what);
++			fclose(fp);
++		} else {
++			fprintf(stderr, "nfsstat: Unable open server statistics file: %s: %m\n", NFSSVCSTAT);
++			if (!opt_clt)
++				return 1;
++		}
++	}
++next:
++
++	if (opt_clt) {
++		/*
++		 * See if NFSCLTSTAT exists. If so, get the mode bits and open it
++		 */
++		if (stat(NFSCLTSTAT, &sb) < 0) {
++			if (!opt_srv) {
++				switch(errno) {
++				case ENOENT: 
++					fprintf(stderr, "nfsstat: No NFS filesystems mounted\n");
++					break;
++				default:
++					fprintf(stderr, "nfsstat: Unable open statistics file: %s: %m\n",
++						NFSSVCSTAT);
++					break;
++				}
++			}
++			return 1;
++		} 
++		/* 
++		 * Check the to see if it's writeable. If not 
++		 * this means the RPC module does not support zeroing.
++		 */
++		if (!(sb.st_mode & S_IWUSR)) {
++			fprintf(stderr, "nfsstat: zeroing of nfs client statistics is not supported\n");
++			return 1;
++		}
++		if ((fp = fopen(NFSCLTSTAT, "w")) != NULL) {
++			fprintf(fp,"%x", what);
++			fclose(fp);
++		} else {
++			fprintf(stderr, "nfsstat: Unable open client statistics file: %s: %m\n", NFSSVCSTAT);
++			return 1;
++		}
++	}
++
++	return 0;
++}
+ 
+ 
+ static int

@@ -1,0 +1,246 @@
+--- ocaml-3.08.0/driver/warn_unused_variables.ml.pix	2004-07-15 15:44:06.400977780 +0200
++++ ocaml-3.08.0/driver/warn_unused_variables.ml	2004-07-15 15:44:06.399977774 +0200
+@@ -0,0 +1,215 @@
++open Parsetree
++
++(* initial version by Pascal Brisset <brisset@recherche.enac.fr> *)
++(* adaptation by Pascal Rigaux <pixel@mandrakesoft.com> *)
++
++let r_ppf = ref None
++let ppf() =
++  match !r_ppf with
++  | Some ppf -> ppf
++  | None -> failwith "ppf"
++
++let check_and_warn l =
++  List.iter
++    (fun ((v,loc), r) ->
++      if not !r && not (v.[0] = '_') && v <> "parser_env" then begin (* don't warn about "parser_env" since a lot of those appear in the output of ocamlyacc *)
++ 	Location.print_warning loc (ppf()) (Warnings.Other ("unused variable " ^ v))
++      end)
++    l;;
++
++let add_var vloc r l = (vloc, r)::l;;
++
++let rec vars_of_pattern rest pat =
++  match pat.ppat_desc with
++  | Ppat_var v -> (v, pat.ppat_loc)::rest
++  | Ppat_alias (pattern, v) -> vars_of_pattern ((v, pat.ppat_loc)::rest) pattern
++  | Ppat_tuple pl -> List.fold_left vars_of_pattern rest pl
++  | Ppat_construct (_,po, _)
++  | Ppat_variant(_,po) -> 
++      begin match po with
++	Some p -> vars_of_pattern rest p
++      |	None -> rest end
++  | Ppat_record pl -> List.fold_left (fun r (_, p) -> vars_of_pattern r p) rest pl
++  | Ppat_array pl -> List.fold_left vars_of_pattern rest pl
++  | Ppat_constraint (pat, _) -> vars_of_pattern rest pat
++  | _ -> rest;;
++
++let add_pat prefix pat defined news =
++  let vs = vars_of_pattern [] pat in
++  List.fold_right
++    (fun (v, loc) (def, news) ->
++      let prefixvloc = (prefix v, loc) in
++      let r = ref false in
++      let new_def = add_var prefixvloc r def in
++      (new_def , (prefixvloc, r)::news))
++    vs (defined, news);;
++
++let add_pel prefix pel defined =
++  List.fold_right (fun (p, _e) (def, news) -> add_pat prefix p def news) pel (defined, [])
++
++let rec defined_assoc s = function
++    [] -> raise Not_found
++  | ((s',_), r)::l -> if s = s' then r else defined_assoc s l
++
++let mark_used defined = function
++    Longident.Lident string ->
++      begin try defined_assoc string defined := true with Not_found -> () end
++  | _ -> ();; (* from other modules, not yet *)
++
++let rec ws_expression defined e =
++  match e.pexp_desc with
++    Pexp_ident i -> mark_used defined i
++  | Pexp_constant _ -> ()
++  | Pexp_let (rec_flag, pel, e) ->
++      let new_defined, news = add_pel (fun s->s) pel defined in
++      ws_pel (if rec_flag = Asttypes.Recursive then new_defined else defined) pel false;
++      ws_expression new_defined e;
++      check_and_warn news
++  | Pexp_function (_label, _eo, pel) ->
++      ws_pel defined pel true;
++  | Pexp_apply (expression, lel) ->
++      ws_expression defined expression;
++      List.iter (fun (_l, e) -> ws_expression defined e) lel
++  | Pexp_match (expression, pel) ->
++      ws_expression defined expression;
++      ws_pel defined pel true
++  | Pexp_try (expression, pel) ->
++      ws_expression defined expression;
++      ws_pel defined pel true
++  | Pexp_tuple el ->
++      ws_expression_list defined el
++  | Pexp_construct (_, eo, _) ->
++      ws_expression_option defined eo
++  | Pexp_variant (_,eo) ->
++      ws_expression_option defined eo
++  | Pexp_record (iel, eo) ->
++      List.iter (fun (_l, e) -> ws_expression defined e) iel;
++      ws_expression_option defined eo
++  | Pexp_field (e, _) ->
++      ws_expression defined e
++  | Pexp_setfield (e1, _, e2) ->
++      ws_expression defined e1;
++      ws_expression defined e2
++  | Pexp_array el -> ws_expression_list defined el
++  | Pexp_ifthenelse (e1, e2, eo) ->
++      ws_expression defined e1;
++      ws_expression defined e2;
++      ws_expression_option defined eo
++  | Pexp_sequence (e1, e2) ->
++      ws_expression defined e1;
++      ws_expression defined e2
++  | Pexp_while(e1, e2) ->
++      ws_expression defined e1;
++      ws_expression defined e2
++  | Pexp_for (string, e1, e2, _, e) ->
++      ws_expression defined e1;
++      ws_expression defined e2;
++      let r = ref false in
++      let new_def = add_var (string, e.pexp_loc) r defined in
++      ws_expression new_def e;
++      if not !r then Printf.fprintf stderr "%s loop index unused ?\n" string
++  | Pexp_constraint (e, _, _) -> ws_expression defined e
++
++  | Pexp_assert e
++  | Pexp_lazy e
++  | Pexp_poly (e, _) ->
++      ws_expression defined e
++
++  | Pexp_when (e1, e2) ->
++      ws_expression defined e1;
++      ws_expression defined e2
++  | Pexp_send (e, _) ->
++      ws_expression defined e
++  | Pexp_assertfalse
++  | Pexp_new _ -> ()
++  | Pexp_setinstvar (_s, e) ->
++      ws_expression defined e
++  | Pexp_override sel ->
++      List.iter (fun (_l, e) -> ws_expression defined e) sel;
++  | Pexp_letmodule (m,me,e) ->
++      let new_defined = ws_module (fun s -> m^"."^s) defined me in
++      ws_expression defined e
++
++and ws_pel defined pel take_pat =
++  List.iter
++    (fun (p, e) ->
++      if take_pat then
++	let new_defined, news = add_pat (fun s-> s) p defined [] in
++	ws_expression new_defined e;
++	check_and_warn news
++      else
++      	ws_expression defined e) pel
++and ws_expression_option defined = function
++    Some e -> ws_expression defined e
++  | None -> ()
++and ws_expression_list defined el =
++  List.iter (ws_expression defined) el
++  
++  
++
++and ws_structure prefix defined = function
++    [] -> defined
++  | s::ss ->
++      let new_defined = 
++      	match s.pstr_desc with
++      	| Pstr_eval e ->
++	    ws_expression defined e;
++	    defined
++      	| Pstr_value (rec_flag, pel) ->
++	    let new_defined, _news = add_pel prefix pel defined in
++	    ws_pel (if rec_flag = Asttypes.Recursive then new_defined else defined) pel false;
++	    new_defined
++      	| Pstr_primitive _ -> defined
++      	| Pstr_type _ -> defined
++      	| Pstr_exception _ -> defined
++      	| Pstr_exn_rebind _ -> defined
++      	| Pstr_module (m, me) -> ws_module (fun s -> prefix (m^"."^s)) defined me
++      	| Pstr_modtype _ -> defined
++      	| Pstr_open _ -> defined
++	| Pstr_include _ -> defined
++      	| Pstr_class cdl ->
++	    List.iter (fun cd -> ws_class_expr defined cd.pci_expr) cdl;
++	    defined
++      	| Pstr_class_type _ -> defined
++      in
++      ws_structure prefix new_defined ss
++and ws_module prefix defined me = 
++  match me.pmod_desc with
++    Pmod_structure s ->
++      ws_structure prefix defined s
++  | Pmod_apply (m1, m2) -> defined
++  | Pmod_ident _ -> defined
++  | _ -> defined
++and ws_class_expr defined ce =
++  match ce.pcl_desc with
++    Pcl_structure cs ->
++      ws_class_structure defined cs
++  | Pcl_fun (_, e, p, ce) ->
++      ws_class_expr defined ce
++  | Pcl_let (rec_flag, pel, ce) ->
++      let new_defined, news = add_pel (fun s->s) pel defined in
++      ws_pel (if rec_flag = Asttypes.Recursive then new_defined else defined) pel false;
++      ws_class_expr new_defined ce;
++      check_and_warn news
++  | Pcl_constr _ -> ()
++  | _ -> ()
++and ws_class_structure defined (pat, cfl) =
++  let new_defined, news = add_pat (fun s-> s) pat defined [] in
++  List.iter (ws_class_field new_defined) cfl;
++  check_and_warn news
++and ws_class_field defined = function
++    Pcf_inher _ -> ()
++  | Pcf_val _ -> ()
++  | Pcf_virt _ -> ()
++  | Pcf_meth (_string, _private_flag , expression, _loc) ->
++      ws_expression defined expression
++  | Pcf_cstr _ -> ()
++  | Pcf_let _ -> ()
++  | Pcf_init expression ->
++      ws_expression defined expression
++
++let doit ppf ast =
++  r_ppf := Some ppf ;
++  if Warnings.is_active (Warnings.Other "unused variable") then
++    ignore (ws_structure (fun s->s) [] ast);
++  ast
+--- ocaml-3.08.0/driver/compile.ml.pix	2004-06-13 14:46:41.000000000 +0200
++++ ocaml-3.08.0/driver/compile.ml	2004-07-15 15:44:58.633283544 +0200
+@@ -99,6 +99,7 @@
+     try
+       Pparse.file ppf inputfile Parse.implementation ast_impl_magic_number
+       ++ print_if ppf Clflags.dump_parsetree Printast.implementation
++      ++ Warn_unused_variables.doit ppf
+       ++ Typemod.type_implementation sourcefile outputprefix modulename env
+       ++ Translmod.transl_implementation modulename
+       ++ print_if ppf Clflags.dump_rawlambda Printlambda.lambda
+--- ocaml-3.08.0/Makefile.pix	2004-07-02 14:19:18.000000000 +0200
++++ ocaml-3.08.0/Makefile	2004-07-15 15:44:06.401977786 +0200
+@@ -82,13 +82,13 @@
+   asmcomp/emitaux.cmo asmcomp/emit.cmo asmcomp/asmgen.cmo \
+   asmcomp/asmlink.cmo asmcomp/asmlibrarian.cmo asmcomp/asmpackager.cmo
+ 
+-DRIVER=driver/pparse.cmo driver/errors.cmo driver/compile.cmo \
++DRIVER=driver/pparse.cmo driver/warn_unused_variables.cmo driver/errors.cmo driver/compile.cmo \
+   driver/main_args.cmo driver/main.cmo
+ 
+ OPTDRIVER= driver/pparse.cmo driver/opterrors.cmo driver/optcompile.cmo \
+   driver/optmain.cmo
+ 
+-TOPLEVEL=driver/pparse.cmo driver/errors.cmo driver/compile.cmo \
++TOPLEVEL=driver/pparse.cmo driver/warn_unused_variables.cmo driver/errors.cmo driver/compile.cmo \
+   toplevel/genprintval.cmo toplevel/toploop.cmo \
+   toplevel/trace.cmo toplevel/topdirs.cmo toplevel/topmain.cmo
+ 

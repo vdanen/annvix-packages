@@ -1,0 +1,21 @@
+--- logrotate-3.7.1/config.c.fred	2003-08-07 13:13:14.000000000 +0200
++++ logrotate-3.7.1/config.c	2005-03-14 09:26:50.316671661 +0100
+@@ -937,15 +937,11 @@
+ 	    newlog->numFiles = 0;
+ 	    for (argNum = 0; argNum < argc; argNum++) {
+ 		rc = glob(argv[argNum], GLOB_NOCHECK, globerr, &globResult);
+-		if (rc == GLOB_ABORTED) {
+-		    if(newlog->flags & LOG_FLAG_MISSINGOK)
+-		        continue;
+ 
+-		    message(MESS_ERROR, "%s:%d glob failed for %s\n",
+-			    configFile, lineNum, argv[argNum]);
+-		    return 1;
++		if (rc == GLOB_ABORTED) {
++		    continue;
+ 		}
+-
++		
+ 		newlog->files = realloc(newlog->files, sizeof(*newlog->files) * 
+ 				   (newlog->numFiles + globResult.gl_pathc));
+ 

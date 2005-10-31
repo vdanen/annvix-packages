@@ -1,0 +1,15 @@
+--- clamav-0.87/shared/output.c.avx	2005-09-27 23:38:22.000000000 -0400
++++ clamav-0.87/shared/output.c	2005-09-27 23:38:22.000000000 -0400
+@@ -117,7 +117,11 @@
+ #endif
+ 	if(!logg_fd) {
+ 	    old_umask = umask(0037);
+-	    if((logg_fd = fopen(logg_file, "a")) == NULL) {
++	    if (strcmp(logg_file,"/dev/stderr") == 0) {
++	        logg_fd = stderr;
++	        umask(old_umask);
++	    }
++	    else if((logg_fd = fopen(logg_file, "a")) == NULL) {
+ 		umask(old_umask);
+ #ifdef CL_THREAD_SAFE
+ 		pthread_mutex_unlock(&logg_mutex);

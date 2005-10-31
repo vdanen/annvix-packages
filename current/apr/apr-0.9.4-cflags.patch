@@ -1,0 +1,62 @@
+
+Stop messing around with _FOO_SOURCE things mid-configure: enable
+_GNU_SOURCE for glibc-based systems in the platform hints.  (and avoid
+jumping through hoops to define _{XOPEN,BSD,SVID}_SOURCE which are all
+implied by _GNU_SOURCE anyway)
+
+* build/apr_hints.m4: Define _GNU_SOURCE in CPPFLAGS for GNU/HURD and
+GNU/Linux.
+
+* build/apr_common.m4: Remove tricks to get glibc to expose crypt_r.
+
+(merged upstream for 1.0.0)
+
+--- apr-0.9.4/build/apr_common.m4.cflags
++++ apr-0.9.4/build/apr_common.m4
+@@ -543,30 +543,15 @@
+ ], ac_cv_crypt_r_style=struct_crypt_data)
+ fi
+ dnl
+-if test "$ac_cv_crypt_r_style" = "none"; then
+-dnl same as previous test, but see if defining _GNU_SOURCE helps
+-AC_TRY_COMPILE([
+-#define _GNU_SOURCE
+-#include <crypt.h>
+-],[
+-struct crypt_data buffer;
+-crypt_r("passwd", "hash", &buffer);
+-], ac_cv_crypt_r_style=struct_crypt_data_gnu_source)
+-fi
+-dnl
+ ])
+ if test "$ac_cv_crypt_r_style" = "cryptd"; then
+     AC_DEFINE(CRYPT_R_CRYPTD, 1, [Define if crypt_r has uses CRYPTD])
+ fi
+ # if we don't combine these conditions, CRYPT_R_STRUCT_CRYPT_DATA
+ # will end up defined twice
+-if test "$ac_cv_crypt_r_style" = "struct_crypt_data" -o \
+-   "$ac_cv_crypt_r_style" = "struct_crypt_data_gnu_source"; then
++if test "$ac_cv_crypt_r_style" = "struct_crypt_data"; then
+     AC_DEFINE(CRYPT_R_STRUCT_CRYPT_DATA, 1, [Define if crypt_r uses struct crypt_data])
+ fi
+-if test "$ac_cv_crypt_r_style" = "struct_crypt_data_gnu_source"; then
+-    APR_ADDTO(CPPFLAGS, [-D_GNU_SOURCE])
+-fi
+ ])
+ 
+ dnl
+--- apr-0.9.4/build/apr_hints.m4.cflags
++++ apr-0.9.4/build/apr_hints.m4
+@@ -104,10 +104,10 @@
+ 	    * )
+ 	           ;;
+         esac
+-	APR_ADDTO(CPPFLAGS, [-D_REENTRANT])
++	APR_ADDTO(CPPFLAGS, [-D_REENTRANT -D_GNU_SOURCE])
+ 	;;
+     *-GNU*)
+-	APR_ADDTO(CPPFLAGS, [-DHURD])
++	APR_ADDTO(CPPFLAGS, [-DHURD -D_GNU_SOURCE])
+ 	;;
+     *-lynx-lynxos)
+ 	APR_ADDTO(CPPFLAGS, [-D__NO_INCLUDE_WARN__ -DLYNXOS])

@@ -1,0 +1,27 @@
+Index: fcxml.c
+===================================================================
+RCS file: /cvs/fontconfig/fontconfig/src/fcxml.c,v
+retrieving revision 1.38
+retrieving revision 1.39
+diff -u -p -r1.38 -r1.39
+--- fontconfig/src/fcxml.c	15 Jul 2005 17:43:44 -0000	1.38
++++ fontconfig/src/fcxml.c	25 Jul 2005 20:39:19 -0000	1.39
+@@ -2264,11 +2264,16 @@ FcConfigParseAndLoadDir (FcConfig	*confi
+ 	
+     while (ret && (e = readdir (d)))
+     {
++	int d_len;
++#define TAIL	    ".conf"
++#define TAIL_LEN    5
+ 	/*
+-	 * Add all files of the form [0-9]*
++	 * Add all files of the form [0-9]*.conf
+ 	 */
+ 	if ('0' <= e->d_name[0] && e->d_name[0] <= '9' &&
+-	    strlen (e->d_name) < FC_MAX_FILE_LEN)
++	    (d_len = strlen (e->d_name)) < FC_MAX_FILE_LEN &&
++	    d_len > TAIL_LEN &&
++	    strcmp (e->d_name + d_len - TAIL_LEN, TAIL) == 0)
+ 	{
+ 	    strcpy ((char *) base, (char *) e->d_name);
+ 	    if (!FcStrSetAdd (files, file))

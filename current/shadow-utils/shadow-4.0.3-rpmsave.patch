@@ -1,0 +1,27 @@
+--- shadow-4.0.3/libmisc/copydir.c.rpmsave	2003-12-31 20:22:13.546310493 +0100
++++ shadow-4.0.3/libmisc/copydir.c	2003-12-31 20:26:05.521486050 +0100
+@@ -141,6 +141,7 @@
+ 	struct stat sb;
+ 	struct link_name *lp;
+ 	DIR *dir;
++	int len = 0;
+ 
+ 	/*
+ 	 * Make certain both directories exist.  This routine is called
+@@ -176,6 +177,16 @@
+ 		if (strcmp (ent->d_name, ".") == 0 ||
+ 				strcmp (ent->d_name, "..") == 0)
+ 			continue;
++		/*
++		 * Skip the ".rpmsave", ".rpmnew" and ".rpmorig" entries
++		 */
++
++		len = strlen (ent->d_name);
++		if (len > 8 && (strcmp ((ent->d_name+len-8) , ".rpmsave") == 0 ||
++			strcmp ((ent->d_name+len-8), ".rpmorig") == 0))
++			continue;
++		if (len > 7 && strcmp ((ent->d_name+len-7), ".rpmnew") == 0)
++		    continue;
+ 
+ 		/*
+ 		 * Make the filename for both the source and the

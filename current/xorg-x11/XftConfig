@@ -1,0 +1,396 @@
+#
+# XftConfig
+#
+# Use with Type1 and TrueType fonts
+# 
+
+# Note that each application scans all these directories
+# during startup, so you may want to disable some to
+# get better speed.
+
+# Standard XFree86 Type 1 fonts
+dir "/usr/X11R6/lib/X11/fonts/Type1"
+# TTF fonts
+dir "/usr/X11R6/lib/X11/fonts/TrueType"
+dir "/usr/X11R6/lib/X11/fonts/TTF"
+# User installed fonts
+dir "/usr/X11R6/lib/X11/fonts/drakfont"
+dir "/usr/X11R6/lib/X11/fonts/drakfont/ttf"
+dir "/usr/X11R6/lib/X11/fonts/drakfont/Type1"
+dir "/opt/ttfonts"
+# URW fonts
+dir "/usr/share/fonts/default/Type1"
+# ghostscript fonts
+dir "/usr/share/fonts/default/ghostscript"
+# default OpenType fonts from mdk, they may be low quality (hey, I'm not
+# an artist, but you are welcome to improve them); but they should provide
+# a good default to cover a maximum of unicode character positions
+# so that text is always readable -- pablo
+dir "/usr/share/fonts/otf/mdk"
+# yudit font directory
+dir "/usr/share/yudit/fonts"
+# Localized Truetype fonts
+dir "/usr/share/fonts/ttf/western"
+dir "/usr/share/fonts/ttf/big5"
+dir "/usr/share/fonts/ttf/gb2312"
+dir "/usr/share/fonts/ttf/japanese"
+dir "/usr/share/fonts/ttf/korean"
+dir "/usr/share/fonts/ttf/armenian"
+dir "/usr/share/fonts/ttf/decoratives"
+dir "/usr/share/fonts/ttf/thai"
+dir "/usr/share/fonts/ttf/tamil"
+dir "/usr/share/fonts/ttf/tscii"
+# don't yet exist, but i hope to include some day a package for them (Pablo)
+dir "/usr/share/fonts/ttf/cyrillic"
+dir "/usr/share/fonts/ttf/viet"
+dir "/usr/share/fonts/ttf/ethiopic"
+dir "/usr/share/fonts/ttf/georgian"
+dir "/usr/share/fonts/ttf/arabic"
+dir "/usr/share/fonts/ttf/hebrew"
+dir "/usr/share/fonts/ttf/unicode"
+# localized type1
+dir "/usr/share/fonts/elmar_scalable"
+dir "/usr/share/fonts/type1/baltic/"
+dir "/usr/share/fonts/type1/cyrillic/"
+dir "/usr/share/fonts/type1/greek"
+# Sun JDK fonts
+dir "/usr/java/jdk1.3/jre/lib/fonts"
+dir "/usr/java/j2re1.4.0/lib/fonts"
+# Sun OpenOffice, location depends on install
+dir "/usr/openoffice60/share/fonts/type1"
+dir "/usr/local/openoffice60/share/fonts/type1"
+dir "~/openoffice60/share/fonts/type1"
+# OpenOffice fonts from ttfonts*rpm
+dir "/usr/share/fonts/default/TrueType"
+# AbiSuite comes with URW fonts as well
+dir "/usr/share/abisuite/AbiSuite/fonts"
+
+#########################
+# the aliases must come before the definitions of the right part,
+# eg, a line ... edit family =+ "foo"; must come before the
+# definition of "foo"
+#########################
+
+#
+# alias 'fixed' for 'mono'
+#
+match any family == "fixed"		edit family =+ "mono";
+
+#
+# alias 'Monospaced' for 'mono'
+#
+match any family == "Monospaced"	edit family =+ "mono";
+
+#
+# Check users config file
+#
+includeif	"~/.xftconfig"
+
+#
+# Substitute TrueType fonts for Type1 versions
+#
+match any family == "Times"		edit family =+ "Times New Roman";
+match any family == "Helvetica"		edit family =+ "Verdana";
+match any family == "Courier"		edit family =+ "Courier New";
+
+# last ressort defaults
+match any family == "Courier"		edit family =+ "mono";
+match any family == "Helvetica"  	edit family =+ "sans";
+match any family == "Arial"  	edit family =+ "sans";
+match any family == "Times"  	edit family =+ "serif";
+
+#
+# Use TrueType fonts for defaults
+#
+match any family == "serif" 		edit family += "Times New Roman";
+match any family == "sans" 		edit family += "Arial";
+match any family == "sans" 		edit family += "Verdana";
+
+#
+# Use monotype.com (andale) face where possible
+#
+match 
+	any family == "mono" 
+	all slant == roman 
+	all weight < bold
+edit
+	family += "monotype.com";
+# a nice monospaced one
+match any family == "mono"		edit family =+ "Lucida Console";
+#
+# otherwise, use courier
+#
+match any family == "mono"		edit family =+ "Courier New";
+match any family == "mono"		edit family =+ "Lucidux Mono";
+match any family == "mono"		edit family =+ "Luxi Mono";
+match any family == "mono"		edit family =+ "Courier";
+
+#
+# Alias between XLFD families and font file family name, prefer local fonts
+#
+match any family == "Charter"		edit family += "Bitstream Charter";
+match any family == "Bitstream Charter" edit family =+ "Charter";
+
+match any family == "Lucidux Serif"	edit family += "LuciduxSerif";
+match any family == "LuciduxSerif"	edit family =+ "Lucidux Serif";
+match any family == "LuciduxSerif"	edit family =+ "Luxi Serif";
+
+match any family == "Lucidux Sans"	edit family += "LuciduxSans";
+match any family == "LuciduxSans"	edit family =+ "Lucidux Sans";
+match any family == "LuciduxSans"	edit family =+ "Luxi Sans";
+
+match any family == "Lucidux Mono"	edit family += "LuciduxMono";
+match any family == "LuciduxMono"	edit family =+ "Lucidux Mono";
+match any family == "LuciduxMono"	edit family =+ "Luxi Mono";
+    
+#
+# TrueType font aliases
+#
+match any family == "Comic Sans"	edit family += "Comic Sans MS";
+match any family == "Comic Sans MS"	edit family =+ "Comic Sans";
+match any family == "Trebuchet" 	edit family += "Trebuchet MS";
+match any family == "Trebuchet MS" 	edit family =+ "Trebuchet";
+match any family == "Monotype" 		edit family =+ "Monotype.com";
+match any family == "Andale Mono"	edit family += "Monotype.com";
+match any family == "Monotype.com"	edit family =+ "Andale Mono";
+
+# modifications from Laurent Culioli
+match
+        any family == "webdings"
+        edit antialias = false;
+        encoding += "glyphs-fontspecific";
+match
+        any family == "wingdings"
+        edit antialias = false;
+        encoding += "glyphs-fontspecific";
+
+# extra aliases -- pablo
+
+# a nice default for sans serif (same as used in yudit)
+match any family == "sans"  	edit family =+ "Arial";
+match any family == "sans"	edit family =+ "Helvetica";
+match any family == "sans"	edit family =+ "Lucidux Sans";
+match any family == "sans"	edit family =+ "Luxi Sans";
+match any family == "sans"	edit family =+ "Arija";
+# those fonts we don't provide; but it is nice to use them if present
+match any family == "sans"  	edit family =+ "Lucida Sans Unicode";
+match any family == "sans"  	edit family =+ "Tahoma";
+#from yudit
+match any family == "sans"		edit family =+ "Yudit Unicode";
+# serif
+match any family == "serif"	edit family =+ "Times";
+match any family == "serif"	edit family =+ "Lucidux Serif";
+match any family == "serif"	edit family =+ "Luxi Serif";
+match any family == "serif"	edit family =+ "Tomas";
+# mono
+match any family == "mono"	edit family =+ "Courier";
+match any family == "mono"	edit family =+ "Lucidux Mono";
+match any family == "mono"	edit family =+ "Luxi Mono";
+match any family == "mono"	edit family =+ "Kurjeris";
+
+##########
+# Cyrillic
+##########
+match any family == "sans"      edit family =+ "Teams";
+##########
+# Greek
+##########
+match any family == "sans"      edit family =+ "Kerkis";
+##########
+# armenian
+##########
+match any family == "Helvetica" edit family =+ "ArmNet Helvetica";
+match any family == "sans"  	edit family =+ "ArmNet Helvetica";
+match any family == "sans"	edit family =+ "Artsounk";
+match any family == "serif"  	edit family =+ "ArmNet Helvetica";
+match any family == "serif"	edit family =+ "Artsounk";
+##########
+# georgian
+##########
+match any family == "sans"  	edit family =+ "BPG UTF8 M";
+match any family == "serif"  	edit family =+ "BPG UTF8 M";
+######
+# thai
+######
+match any family == "sans"  	edit family =+ "Norasi";
+match any family == "serif"  	edit family =+ "Phaisarn";
+match any family == "serif"  	edit family =+ "Phaisarn98";
+match any family == "serif"  	edit family =+ "Norasi";
+match any family == "mono"  	edit family =+ "Courier MonoThai";
+########
+# Hebrew
+########
+# not sans
+match any family == "sans"	edit family =+ "Nachlieli";
+match any family == "serif"	edit family =+ "Times-Hebrew";
+match any family == "serif"	edit family =+ "Dror";
+match any family == "mono"	edit family =+ "Courier-Hebrew";
+match any family == "mono"	edit family =+ "Hasida";
+######
+# lao
+######
+match any family == "sans"  	edit family =+ "Saysettha Unicode";
+match any family == "sans"  	edit family =+ "JG Lao Old Arial";
+match any family == "serif"  	edit family =+ "JG LaoTimes";
+match any family == "serif"  	edit family =+ "Saysettha Unicode";
+##########
+# ethiopic
+##########
+match any family == "sans"  	edit family =+ "GF Zemen Unicode";
+match any family == "serif"  	edit family =+ "GF Zemen Unicode";
+match any family == "mono"  	edit family =+ "GF Zemen Unicode";
+#######
+# inuit
+#######
+match any family == "sans"  	edit family =+ "Pigiarniq";
+match any family == "serif"  	edit family =+ "Pigiarniq";
+########
+# arabic (extra letters)
+########
+match any family == "sans"  	edit family =+ "Urdu Naqsh Nastalique";
+match any family == "serif"  	edit family =+ "Urdu Naqsh Nastalique";
+#######
+# indic - devanagari
+#######
+match any family == "Raghindi" 	edit family =+ "Raghu";
+match any family == "sans"  	edit family =+ "Raghindi";
+match any family == "serif"  	edit family =+ "Raghindi";
+#######
+# indic - malayalam
+#######
+match any family == "sans"  	edit family =+ "malayalam";
+match any family == "serif"  	edit family =+ "malayalam";
+########
+# korean
+########
+match any family == "Gulim"  	edit family =+ "Baekmuk unigulir";
+match any family == "Gulim"  	edit family =+ "Baekmuk Gulim";
+match any family == "Batang"  	edit family =+ "Ubatang";
+match any family == "Batang"  	edit family =+ "Baekmuk Batang";
+match any family == "Dotum"  	edit family =+ "Baekmuk Dotum";
+match any family == "sans"  	edit family =+ "Baekmuk Gulim";
+match any family == "serif"  	edit family =+ "Baekmuk Batang";
+match any family == "mono"  	edit family =+ "Baekmuk Gulim";
+##########
+# japanese
+##########
+match any family == "Mincho"	edit family =+ "MS Mincho";
+match any family == "Gothic"  	edit family =+ "MS Gothic";
+match any family == "sans"  	edit family =+ "MS Mincho";
+match any family == "serif"  	edit family =+ "MS Mincho";
+match any family == "mono"  	edit family =+ "MS Gothic";
+################
+# chinese gb2312
+################
+match any family == "Kaiti"  	edit family =+ "AR PL KaitiM GB";
+match any family == "Sungti"  	edit family =+ "AR PL SungtiL GB";
+match any family == "sans"  	edit family =+ "AR PL SungtiL GB";
+match any family == "serif"  	edit family =+ "MS Song";
+match any family == "serif"  	edit family =+ "AR PL SungtiL GB";
+match any family == "mono"  	edit family =+ "AR PL SungtiL GB";
+##############
+# chinese big5
+##############
+match any family == "Kaiti"  	edit family =+ "AR PL KaitiM Big5";
+match any family == "Mingti"  	edit family =+ "AR PL Mingti2L Big5";
+match any family == "sans"  	edit family =+ "AR PL Mingti2L Big5";
+match any family == "serif"  	edit family =+ "AR PL Mingti2L Big5";
+match any family == "mono"  	edit family =+ "AR PL Mingti2L Big5";
+#######
+# indic - tamil
+#######
+match any family == "sans"  	edit family =+ "TSC_Avarangal";
+match any family == "serif"  	edit family =+ "TSC_Avarangal";
+match any family == "mono"  	edit family =+ "TSC_AvarangalFxd";
+# ???
+match any family == "sans"  	edit family =+ "Ballymun RO";
+##########
+# japanese again (keep it last as the font wrongly claims to cover all unicode)
+##########
+match any family == "Mincho"	edit family =+ "Kochi Mincho";
+match any family == "Gothic"  	edit family =+ "Kochi Gothic";
+match any family == "sans"  	edit family =+ "Kochi Mincho";
+match any family == "serif"  	edit family =+ "Kochi Mincho";
+match any family == "mono"  	edit family =+ "Kochi Gothic";
+
+#
+# If the Microsoft Web Fonts are not installed, we have to find a 
+# replacement
+#
+
+# these come with Sun JDK 1.3
+match any family == "Verdana"		edit family =+ "Lucida Sans";
+match any family == "Times New Roman"	edit family =+ "Lucida Bright";
+match any family == "Courier New"	edit family =+ "Lucida Sans Typewriter";
+
+# OpenOffice 6
+match any family == "Verdana"		edit family =+ "Lucida Sans Tur";
+match any family == "Times New Roman"	edit family =+ "Lucida Bright Tur";
+match any family == "Courier New"	edit family =+ "Lucida Sans Typewriter Tur";
+
+# ttfonts from RH7
+match any family == "Verdana"		edit family =+ "Helmet";
+
+# URW fonts 
+match any family == "Verdana"		edit family =+ "Nimbus Sans L";
+match any family == "Times New Roman"	edit family =+ "Nimbus Roman No9 L";
+match any family == "Courier New"	edit family =+ "Nimbus Mono L";
+
+# western fonts
+match any family == "Verdana"		edit family =+ "Blue Highway";
+
+# XFree86 default fonts
+match any family == "Verdana"   	edit family =+ "LuciduxSans";
+match any family == "Verdana"   	edit family =+ "Luxi Sans";
+match any family == "Times New Roman"  	edit family =+ "LuciduxSerif";
+match any family == "Times New Roman"  	edit family =+ "Luxi Serif";
+
+# very last ressort
+match any family == "serif"	edit family =+ "Code2000";
+match any family == "serif"  	edit family =+ "fixed";
+match any family == "serif"  	edit family =+ "sans";
+match any family == "serif"  	edit family =+ "mdk_teams";
+match any family == "sans"	edit family =+ "Code2000";
+match any family == "sans"  	edit family =+ "mdk_teams";
+match any family == "mono"	edit family =+ "Code2000";
+match any family == "mono"  	edit family =+ "mdk_teams";
+match any family == "mono"  	edit family =+ "serif";
+
+# Aditions from Danny Tholen
+
+match
+        any family == "symbol"
+edit
+        antialias = false;
+        encoding += "glyphs-fontspecific";
+
+match
+        any family == "Standard Symbols L"
+edit
+        antialias = false;
+        encoding += "glyphs-fontspecific";
+
+match
+        any family == "dingbats"
+edit
+        antialias = false;
+        encoding += "glyphs-fontspecific";
+
+
+match
+        any family == "Cursor"
+edit
+        antialias = false;
+        encoding += "glyphs-fontspecific";
+
+match
+        any family == "StarBats"
+edit
+        antialias = false;
+        encoding += "glyphs-fontspecific";
+
+match
+        any family == "StarMath"
+edit
+        antialias = false;
+        encoding += "glyphs-fontspecific";

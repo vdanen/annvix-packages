@@ -1,0 +1,57 @@
+--- portmap.c	1996-05-31 15:52:59.000000000 +0200
++++ portmap.c.oden	2004-11-16 06:05:17.387742680 +0100
+@@ -97,6 +97,7 @@
+ 
+ extern char *strerror();
+ #include <stdlib.h>
++#include <unistd.h>
+ 
+ #ifndef LOG_PERROR
+ #define LOG_PERROR 0
+@@ -137,8 +138,9 @@
+ 	struct sockaddr_in addr;
+ 	int len = sizeof(struct sockaddr_in);
+ 	register struct pmaplist *pml;
++	struct hostent *he = NULL;
+ 
+-	while ((c = getopt(argc, argv, "dv")) != EOF) {
++	while ((c = getopt(argc, argv, "dvi:")) != EOF) {
+ 		switch (c) {
+ 
+ 		case 'd':
+@@ -149,10 +151,20 @@
+ 			verboselog = 1;
+ 			break;
+ 
++		case 'i':
++			if ((he = gethostbyname(optarg)) == NULL) {
++				(void) fprintf(stderr,
++					"gethostbyname: %m: %s\n", optarg);
++				exit(1);
++			}
++			break;
++
+ 		default:
+-			(void) fprintf(stderr, "usage: %s [-dv]\n", argv[0]);
++			(void) fprintf(stderr, "usage: %s [-dvi]\n", argv[0]);
+ 			(void) fprintf(stderr, "-d: debugging mode\n");
+ 			(void) fprintf(stderr, "-v: verbose logging\n");
++			(void) fprintf(stderr, "-i <ip>|<host>: bind only to "
++				"the specified ip address\n");
+ 			exit(1);
+ 		}
+ 	}
+@@ -174,7 +186,12 @@
+ 		exit(1);
+ 	}
+ 
+-	addr.sin_addr.s_addr = 0;
++	if (he == NULL) {
++		addr.sin_addr.s_addr = 0;
++	} else {
++		memcpy((char*) &addr.sin_addr, *(he->h_addr_list),
++			he->h_length);
++	}
+ 	addr.sin_family = AF_INET;
+ 	addr.sin_port = htons(PMAPPORT);
+ 	if (bind(sock, (struct sockaddr *)&addr, len) != 0) {

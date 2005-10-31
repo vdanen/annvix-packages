@@ -1,0 +1,16 @@
+--- ./devfsd.conf.log	2003-04-30 10:37:55.000000000 +0200
++++ ./devfsd.conf	2003-04-30 10:39:06.000000000 +0200
+@@ -31,6 +31,13 @@
+ REGISTER	^pty/s.*	PERMISSIONS	-1.tty	0600
+ REGISTER	^pts/.*		PERMISSIONS	-1.tty	0600
+ 
++# Restoring /dev/log on startup would trigger the minilogd/initlog deadlock
++# (minilogd falsely assuming syslogd has been started).
++REGISTER	^log$		IGNORE
++CREATE		^log$		IGNORE
++CHANGE		^log$		IGNORE
++DELETE		^log$		IGNORE
++
+ #
+ # Uncomment this if you want permissions to be saved and restored
+ # Do not do this for pseudo-terminal devices

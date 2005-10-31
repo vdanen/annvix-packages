@@ -1,0 +1,30 @@
+--- util-linux-2.11t/text-utils/Makefile~	2002-07-05 22:31:32.000000000 +0200
++++ util-linux-2.11t/text-utils/Makefile	2002-07-29 14:30:22.000000000 +0200
+@@ -41,9 +41,8 @@
+ # more and pg and ul use curses - maybe we can't compile them
+ ifeq "$(HAVE_NCURSES)" "yes"
+ # Have ncurses - make more and pg and ul
+-more pg ul:
++pg ul:
+ 	$(CC) $(CFLAGS) $(LDFLAGS) $^ -o $@ $(LIBCURSES)
+-more: more.o $(LIB)/xstrncpy.o
+ pg: pg.o
+ ul: ul.o
+ else
+@@ -51,14 +50,10 @@
+ pg ul:
+ 	@echo $@ not made since it requires ncurses
+ # For more we can also try termcap
+-ifeq "$(HAVE_TERMCAP)" "yes"
++endif
++
+ more: more.o $(LIB)/xstrncpy.o
+ 	$(CC) $(CFLAGS) $(LDFLAGS) $^ -o $@ $(LIBTERMCAP)
+-else
+-more:
+-	@echo $@ not made since it requires ncurses or termcap
+-endif
+-endif
+ 
+ # Rules for hexdump
+ hexdump: hexdump.o conv.o display.o hexsyntax.o odsyntax.o parse.o
