@@ -9,7 +9,7 @@
 
 %define name		openldap
 %define version		2.3.9
-%define release		3avx
+%define release		4avx
 
 %define major 		2.3_0
 %define migtools_ver	45
@@ -814,14 +814,6 @@ fi
 %attr(750,ldap,ldap) %dir /var/log/ldap
 %config(noreplace) %{_sysconfdir}/logrotate.d/ldap
 
-%if %db4_internal
-# internal version of db4
-%{_libdir}/libslapd_db*
-%attr(755,root,root) %{_bindir}/slapd_db*
-%exclude %{_prefix}/docs
-%exclude %{_includedir}/db*.h
-%endif
-
 
 %files clients
 %defattr(-,root,root)
@@ -833,7 +825,13 @@ fi
 %files -n %{libname}
 %defattr(-,root,root)
 %{_libdir}/lib*.so.*
-
+%if %db4_internal
+# internal version of db4
+%{_libdir}/libslapd_db*
+%attr(755,root,root) %{_bindir}/slapd_db*
+%exclude %{_prefix}/docs
+%exclude %{_includedir}/db*.h
+%endif
 
 %files -n %{libname}-devel
 %defattr(-,root,root)
@@ -853,6 +851,11 @@ fi
 
 
 %changelog
+* Sat Oct 29 2005 Vincent Danen <vdanen@annvix.org> 2.3.9-4avx
+- move the internal db slapd_db stuff to the lib package otherwise we
+  always get openldap-server installed whether we want it or not
+- fix bug #13 (unused options in /etc/sysconfig/ldap)
+
 * Thu Oct 27 2005 Vincent Danen <vdanen@annvix.org> 2.3.9-3avx
 - fix the test for slapd running in the logrotate script
 

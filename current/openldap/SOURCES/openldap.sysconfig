@@ -4,13 +4,3 @@ SLAPDSYSLOGLOCALUSER="LOCAL4"
 
 # SLAPD URL list 
 #SLAPDURLLIST="ldap:/// ldaps:///"
-
-# Config file to use for slapd
-#SLAPDCONF=/etc/openldap/slapd.conf
-
-# Which user to run as
-#LDAPUSER=ldap
-#LDAPGROUP=ldap
-
-# Should file permissions on database files be fixed at startup
-# FIXPERMS=yes
