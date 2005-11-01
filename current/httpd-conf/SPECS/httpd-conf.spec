@@ -9,7 +9,7 @@
 
 %define name		httpd-conf
 %define version		2.0.54
-%define release		4avx
+%define release		5avx
 
 %define compat_dir	/etc/httpd
 %define compat_conf	/etc/httpd/conf
@@ -235,6 +235,9 @@ fi
 
 
 %changelog
+* Sat Oct 29 2005 Vincent Danen <vdanen@annvix.org> 2.0.54-5avx
+- rebuild so the fixed useradd script works
+
 * Fri Sep 16 2005 Sean P. Thomas <spt@annvix.org> 2.0.54-4avx
 - add relocation of log directories
 
