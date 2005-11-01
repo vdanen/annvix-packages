@@ -1,0 +1,61 @@
+
+This patch uses the test_config hook added in the -testhook patch to 
+add the feature that:
+
+   httpd -t -DDUMP_CERTS
+
+dumps the list of configured certificate files to stdout.
+
+Upstream-HEAD: committed
+Upstream-2.0: omit
+Upstream-Status: 2.0 backport would depend on the test_config hook backport
+
+--- httpd-2.0.46/modules/ssl/mod_ssl.c.dumpcerts
++++ httpd-2.0.46/modules/ssl/mod_ssl.c
+@@ -425,6 +425,7 @@
+     ssl_io_filter_register(p);
+ 
+     ap_hook_pre_connection(ssl_hook_pre_connection,NULL,NULL, APR_HOOK_MIDDLE);
++    ap_hook_test_config   (ssl_hook_ConfigTest,    NULL,NULL, APR_HOOK_MIDDLE);
+     ap_hook_post_config   (ssl_init_Module,        NULL,NULL, APR_HOOK_MIDDLE);
+     ap_hook_http_method   (ssl_hook_http_method,   NULL,NULL, APR_HOOK_MIDDLE);
+     ap_hook_default_port  (ssl_hook_default_port,  NULL,NULL, APR_HOOK_MIDDLE);
+--- httpd-2.0.46/modules/ssl/ssl_engine_config.c.dumpcerts
++++ httpd-2.0.46/modules/ssl/ssl_engine_config.c
+@@ -1406,2 +1406,26 @@
+ }
+ 
++void ssl_hook_ConfigTest(apr_pool_t *pconf, server_rec *s)
++{
++    
++    if (!ap_exists_config_define("DUMP_CERTS"))
++        return;
++
++    /* Dump the filenames of all configured server certificates to
++     * stdout. */
++    while (s) {
++        SSLSrvConfigRec *sc = mySrvConfig(s);
++
++        if (sc && sc->server && sc->server->pks) {
++            modssl_pk_server_t *const pks = sc->server->pks;
++            int i;
++
++            for (i = 0; (i < SSL_AIDX_MAX) && pks->cert_files[i]; i++) {
++                printf("%s\n", pks->cert_files[i]);
++            }
++        }
++
++        s = s->next;
++    }
++
++}
+--- httpd-2.0.46/modules/ssl/ssl_private.h.dumpcerts
++++ httpd-2.0.46/modules/ssl/ssl_private.h
+@@ -607,6 +607,7 @@
+ int          ssl_hook_Access(request_rec *);
+ int          ssl_hook_Fixup(request_rec *);
+ int          ssl_hook_ReadReq(request_rec *);
++void         ssl_hook_ConfigTest(apr_pool_t *pconf, server_rec *s);
+ 
+ /*  OpenSSL callbacks */
+ RSA         *ssl_callback_TmpRSA(SSL *, int, int);

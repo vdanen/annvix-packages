@@ -1,0 +1,10 @@
+--- screen-3.9.8/Makefile.in	Fri Sep  1 18:07:26 2000
++++ screen-3.9.8/Makefile.in.patch	Thu May 10 20:31:25 2001
+@@ -111,6 +111,7 @@
+ 	
+ term.h: term.c term.sh
+ 	AWK=$(AWK) srcdir=$(srcdir) sh $(srcdir)/term.sh
++	rm -f term.h; cp term.h.dist term.h
+ 
+ kmapdef.c: term.h
+ 

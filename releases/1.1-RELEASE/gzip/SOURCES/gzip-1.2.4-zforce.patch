@@ -1,0 +1,15 @@
+diff -U 3 -r gzip-1.2.4.orig/zforce.in gzip-1.2.4/zforce.in
+--- gzip-1.2.4.orig/zforce.in	Fri Jun 11 13:36:14 1993
++++ gzip-1.2.4/zforce.in	Thu Dec 16 11:45:16 1999
+@@ -25,9 +25,9 @@
+   test `expr "$i" : '.*[.-]gz$'` -eq 0 || continue
+   test `expr "$i" : '.*[.]t[ag]z$'` -eq 0 || continue
+ 
+-  if gzip -l < "$i" 2>/dev/null | grep '^defl' > /dev/null; then
++  if gzip --verbose -l < "$i" 2>/dev/null | grep '^defl' > /dev/null; then
+ 
+-    if test `expr "$i" : '^............'` -eq 12; then
++    if test `expr "$i" : '............'` -eq 12; then
+       new=`expr "$i" : '\(.*\)...$`.gz
+     else
+       new="$i.gz"

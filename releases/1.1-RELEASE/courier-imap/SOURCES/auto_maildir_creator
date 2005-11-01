@@ -1,0 +1,12 @@
+#!/bin/sh
+
+maildir=$1
+home=$(getent passwd $UID | awk -F: '{print $6}')
+gid=$(getent passwd $UID | awk -F: '{print $3}')
+
+/usr/bin/maildirmake++ $home/$maildir
+chown -R $UID.$gid $home/$maildir
+
+logger -p auth.notice -t courier Automagically created homedir "$1" \
+         for uid "$UID" aka "$AUTHADDR".
+

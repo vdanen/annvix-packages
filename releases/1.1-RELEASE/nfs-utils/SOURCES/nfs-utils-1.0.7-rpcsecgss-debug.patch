@@ -1,0 +1,96 @@
+--- nfs-utils-1.0.7/support/rpc/authgss_prot.c.orig	2004-10-18 20:23:05.000000000 -0400
++++ nfs-utils-1.0.7/support/rpc/authgss_prot.c	2005-03-02 13:08:38.103852000 -0500
+@@ -37,6 +37,7 @@
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <stdarg.h>
++#include <ctype.h>
+ #include <rpc/types.h>
+ #include <rpc/xdr.h>
+ #include <rpc/auth.h>
+@@ -44,6 +45,10 @@
+ #include <rpc/rpc.h>
+ #include <gssapi/gssapi.h>
+ 
++static char message_buf[500];
++static char tmp_buf[500];
++extern void printerr(int priority, char *format, ...);
++
+ bool_t
+ xdr_rpc_gss_cred(XDR *xdrs, struct rpc_gss_cred *p)
+ {
+@@ -265,8 +270,6 @@ xdr_rpc_gss_data(XDR *xdrs, xdrproc_t xd
+ 	return (FALSE);
+ }
+ 
+-#ifdef DEBUG
+-#include <ctype.h>
+ 
+ void
+ log_debug(const char *fmt, ...)
+@@ -274,10 +277,10 @@ log_debug(const char *fmt, ...)
+ 	va_list ap;
+ 
+ 	va_start(ap, fmt);
+-	fprintf(stderr, "rpcsec_gss: ");
+-	vfprintf(stderr, fmt, ap);
+-	fprintf(stderr, "\n");
++	vsnprintf(tmp_buf, sizeof(tmp_buf), fmt, ap);
+ 	va_end(ap);
++
++	printerr(2, "rpcsec_gss: %s\n", tmp_buf);
+ }
+ 
+ void
+@@ -286,20 +289,24 @@ log_status(char *m, OM_uint32 maj_stat, 
+ 	OM_uint32 min;
+ 	gss_buffer_desc msg;
+ 	int msg_ctx = 0;
++	char *ptr;
+ 
+-	fprintf(stderr, "rpcsec_gss: %s: ", m);
+-
++	ptr = message_buf;
++	ptr += sprintf(ptr, "%s: ", m);
+ 	gss_display_status(&min, maj_stat, GSS_C_GSS_CODE, GSS_C_NULL_OID,
+ 			   &msg_ctx, &msg);
+-	fprintf(stderr, "%s - ", (char *)msg.value);
++	ptr += sprintf(ptr, "%s - ", (char *)msg.value);
+ 	gss_release_buffer(&min, &msg);
+ 
+ 	gss_display_status(&min, min_stat, GSS_C_MECH_CODE, GSS_C_NULL_OID,
+ 			   &msg_ctx, &msg);
+-	fprintf(stderr, "%s\n", (char *)msg.value);
++	sprintf(ptr, "%s", (char *)msg.value);
+ 	gss_release_buffer(&min, &msg);
++
++	printerr(1, "rpcsec_gss: %s\n", message_buf);
+ }
+ 
++#ifdef DEBUG
+ void
+ log_hexdump(const u_char *buf, int len, int offset)
+ {
+@@ -334,22 +341,10 @@ log_hexdump(const u_char *buf, int len, 
+ }
+ 
+ #else
+-
+-void
+-log_debug(const char *fmt, ...)
+-{
+-}
+-
+-void
+-log_status(char *m, OM_uint32 maj_stat, OM_uint32 min_stat)
+-{
+-}
+-
+ void
+ log_hexdump(const u_char *buf, int len, int offset)
+ {
+ }
+-
+ #endif
+ 
+ 

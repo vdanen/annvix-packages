@@ -1,0 +1,96 @@
+--- mod_auth_pgsql-2.0.1/mod_auth_pgsql.c.static
++++ mod_auth_pgsql-2.0.1/mod_auth_pgsql.c
+@@ -191,12 +191,12 @@
+ 
+ 
+ 
+-int pg_log_auth_user(request_rec * r, pg_auth_config_rec * sec, char *user,
++static int pg_log_auth_user(request_rec * r, pg_auth_config_rec * sec, char *user,
+ 					 char *sent_pw);
+-char *do_pg_query(request_rec * r, char *query, pg_auth_config_rec * sec);
++static char *do_pg_query(request_rec * r, char *query, pg_auth_config_rec * sec);
+ 
+ 
+-void *create_pg_auth_dir_config(apr_pool_t * p, char *d)
++static void *create_pg_auth_dir_config(apr_pool_t * p, char *d)
+ {
+ 	pg_auth_config_rec *new_rec;
+ 
+@@ -267,7 +267,7 @@
+ }
+ 
+ 
+-const char *pg_set_hash_type(cmd_parms * cmd, void *mconfig,
++static const char *pg_set_hash_type(cmd_parms * cmd, void *mconfig,
+ 							 const char *hash_type)
+ {
+ 	pg_auth_config_rec *sec = mconfig;
+@@ -285,7 +285,7 @@
+ 	return NULL;
+ }
+ 
+-const char *pg_set_authoritative_flag(cmd_parms * cmd,
++static const char *pg_set_authoritative_flag(cmd_parms * cmd,
+ 									  pg_auth_config_rec * sec,
+ 									  const int arg)
+ {
+@@ -436,12 +436,12 @@
+ };
+ 
+ 
+-char pg_errstr[MAX_STRING_LEN];
++static char pg_errstr[MAX_STRING_LEN];
+ 		 /* global errno to be able to handle config/sql 
+ 		  * failures separately
+ 		  */
+ 
+-char *auth_pg_md5(char *pw)
++static char *auth_pg_md5(char *pw)
+ {
+ 	apr_md5_ctx_t ctx;
+ 	unsigned char digest[MD5_DIGESTSIZE];
+@@ -458,7 +458,7 @@
+ }
+ 
+ 
+-char *auth_pg_base64(char *pw)
++static char *auth_pg_base64(char *pw)
+ {
+ 	if (auth_pgsql_pool_base64 == NULL)
+ 		apr_pool_create_ex(&auth_pgsql_pool_base64, NULL, NULL, NULL);
+@@ -481,7 +481,7 @@
+  * ---------------
+  */
+ 
+-size_t pg_check_string(char *to, const char *from, size_t length)
++static size_t pg_check_string(char *to, const char *from, size_t length)
+ {
+ 	const char *source = from;
+ 	char *target = to;
+@@ -671,7 +671,7 @@
+ 	return do_pg_query(r, query, sec);
+ }
+ 
+-char *get_pg_grp(request_rec * r, char *group, char *user,
++static char *get_pg_grp(request_rec * r, char *group, char *user,
+ 				 pg_auth_config_rec * sec)
+ {
+ 	char query[MAX_STRING_LEN];
+@@ -748,7 +748,7 @@
+ }
+ 
+ /* Process authentication request from Apache*/
+-int pg_authenticate_basic_user(request_rec * r)
++static int pg_authenticate_basic_user(request_rec * r)
+ {
+ 	pg_auth_config_rec *sec =
+ 		(pg_auth_config_rec *) ap_get_module_config(r->per_dir_config,
+@@ -881,7 +881,7 @@
+ 
+ /* Checking ID */
+ 
+-int pg_check_auth(request_rec * r)
++static int pg_check_auth(request_rec * r)
+ {
+ 	pg_auth_config_rec *sec =
+ 		(pg_auth_config_rec *) ap_get_module_config(r->per_dir_config,

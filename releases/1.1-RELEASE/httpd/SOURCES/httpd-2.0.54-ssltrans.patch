@@ -1,0 +1,118 @@
+
+http://svn.apache.org/viewcvs?view=rev&rev=161958
+
+PR: 34452
+
+--- httpd-2.0.54/modules/ssl/ssl_engine_kernel.c.ssltrans
++++ httpd-2.0.54/modules/ssl/ssl_engine_kernel.c
+@@ -30,6 +30,8 @@
+                                             -- Unknown                */
+ #include "ssl_private.h"
+ 
++static void ssl_configure_env(request_rec *r, SSLConnRec *sslconn);
++
+ /*
+  *  Post Read Request Handler
+  */
+@@ -81,8 +83,31 @@
+      * Get the SSL connection structure and perform the
+      * delayed interlinking from SSL back to request_rec
+      */
+-    if ((ssl = sslconn->ssl)) {
++    ssl = sslconn->ssl;
++    if (!ssl) {
++        return DECLINED;
++    }
+         SSL_set_app_data2(ssl, r);
++
++    /*
++     * Log information about incoming HTTPS requests
++     */
++    if (r->server->loglevel >= APLOG_INFO && ap_is_initial_req(r)) {
++        ap_log_error(APLOG_MARK, APLOG_INFO, 0, r->server,
++                     "%s HTTPS request received for child %ld (server %s)",
++                     (r->connection->keepalives <= 0 ?
++                     "Initial (No.1)" :
++                     apr_psprintf(r->pool, "Subsequent (No.%d)",
++                                  r->connection->keepalives+1)),
++                     r->connection->id,
++                     ssl_util_vhostid(r->pool, r->server));
++    }
++
++    /* SetEnvIf ssl-*-shutdown flags can only be per-server,
++     * so they won't change across keepalive requests
++     */
++    if (sslconn->shutdown_type == SSL_SHUTDOWN_TYPE_UNSET) {
++        ssl_configure_env(r, sslconn);
+     }
+ 
+     return DECLINED;
+@@ -126,41 +151,6 @@
+ }
+ 
+ /*
+- *  URL Translation Handler
+- */
+-int ssl_hook_Translate(request_rec *r)
+-{
+-    SSLConnRec *sslconn = myConnConfig(r->connection);
+-
+-    if (!(sslconn && sslconn->ssl)) {
+-        return DECLINED;
+-    }
+-
+-    /*
+-     * Log information about incoming HTTPS requests
+-     */
+-    if (r->server->loglevel >= APLOG_INFO && ap_is_initial_req(r)) {
+-        ap_log_error(APLOG_MARK, APLOG_INFO, 0, r->server,
+-                     "%s HTTPS request received for child %ld (server %s)",
+-                     (r->connection->keepalives <= 0 ?
+-                     "Initial (No.1)" :
+-                     apr_psprintf(r->pool, "Subsequent (No.%d)",
+-                                  r->connection->keepalives+1)),
+-                     r->connection->id,
+-                     ssl_util_vhostid(r->pool, r->server));
+-    }
+-
+-    /* SetEnvIf ssl-*-shutdown flags can only be per-server,
+-     * so they won't change across keepalive requests
+-     */
+-    if (sslconn->shutdown_type == SSL_SHUTDOWN_TYPE_UNSET) {
+-        ssl_configure_env(r, sslconn);
+-    }
+-
+-    return DECLINED;
+-}
+-
+-/*
+  *  Access Handler
+  */
+ int ssl_hook_Access(request_rec *r)
+--- httpd-2.0.54/modules/ssl/mod_ssl.c.ssltrans
++++ httpd-2.0.54/modules/ssl/mod_ssl.c
+@@ -391,6 +391,10 @@
+ 
+ static void ssl_register_hooks(apr_pool_t *p)
+ {
++    /* ssl_hook_ReadReq needs to use the BrowserMatch settings so must
++     * run after mod_setenvif's post_read_request hook. */ 
++    static const char *pre_prr[] = { "mod_setenvif.c", NULL };
++
+     ssl_io_filter_register(p);
+ 
+     ap_hook_pre_connection(ssl_hook_pre_connection,NULL,NULL, APR_HOOK_MIDDLE);
+@@ -400,12 +404,11 @@
+     ap_hook_default_port  (ssl_hook_default_port,  NULL,NULL, APR_HOOK_MIDDLE);
+     ap_hook_pre_config    (ssl_hook_pre_config,    NULL,NULL, APR_HOOK_MIDDLE);
+     ap_hook_child_init    (ssl_init_Child,         NULL,NULL, APR_HOOK_MIDDLE);
+-    ap_hook_translate_name(ssl_hook_Translate,     NULL,NULL, APR_HOOK_MIDDLE);
+     ap_hook_check_user_id (ssl_hook_UserCheck,     NULL,NULL, APR_HOOK_FIRST);
+     ap_hook_fixups        (ssl_hook_Fixup,         NULL,NULL, APR_HOOK_MIDDLE);
+     ap_hook_access_checker(ssl_hook_Access,        NULL,NULL, APR_HOOK_MIDDLE);
+     ap_hook_auth_checker  (ssl_hook_Auth,          NULL,NULL, APR_HOOK_MIDDLE);
+-    ap_hook_post_read_request(ssl_hook_ReadReq,    NULL,NULL, APR_HOOK_MIDDLE);
++    ap_hook_post_read_request(ssl_hook_ReadReq, pre_prr,NULL, APR_HOOK_MIDDLE);
+ 
+     ssl_var_register();
+ 

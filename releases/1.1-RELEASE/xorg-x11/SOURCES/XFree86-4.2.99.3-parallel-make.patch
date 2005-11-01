@@ -1,0 +1,12 @@
+--- XFree86-4.2.99.3/xc/config/cf/Imake.tmpl.fred	2002-12-10 04:20:41.000000000 +0100
++++ XFree86-4.2.99.3/xc/config/cf/Imake.tmpl	2002-12-27 13:53:34.000000000 +0100
+@@ -1720,7 +1720,9 @@
+       LINTLIBFLAG = LintLibFlag
+          LINTOPTS = LintOpts
+                LN = LnCmd
++#ifndef UseImplicitMake
+              MAKE = MakeCmd
++#endif
+                MV = MvCmd
+                CP = CpCmd
+ #if DoRanlibCmd

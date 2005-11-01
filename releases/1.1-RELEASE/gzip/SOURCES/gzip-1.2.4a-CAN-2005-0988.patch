@@ -1,0 +1,56 @@
+--- gzip-1.2.4a/gzip.c.can-2005-0988	2005-05-18 11:30:57.511601605 -0600
++++ gzip-1.2.4a/gzip.c	2005-05-18 14:13:40.781418114 -0600
+@@ -835,6 +835,20 @@
+     }
+ 
+     close(ifd);
++    /* ofd ownership and permissions have to be set before close(ofd)*/
++    if (!to_stdout) {
++        if (fchmod(ofd, istat.st_mode & 07777)) {
++            int e = errno;
++	    WARN((stderr, "%s: ", progname));
++            if (!quiet) {
++	        errno = e;
++	        perror(ofname);
++	    }
++        } 						             
++#ifndef NO_CHOWN
++        fchown(ofd, istat.st_uid, istat.st_gid);  /* Copy ownership */
++#endif
++    }
+     if (!to_stdout && close(ofd)) {
+ 	write_error();
+     }
+@@ -856,7 +870,7 @@
+ 	}
+ 	fprintf(stderr, "\n");
+     }
+-    /* Copy modes, times, ownership, and remove the input file */
++    /* Copy times and remove the input file */
+     if (!to_stdout) {
+ 	copy_stat(&istat);
+     }
+@@ -1628,7 +1642,7 @@
+ 
+ 
+ /* ========================================================================
+- * Copy modes, times, ownership from input file to output file.
++ * Copy times from input file to output file.
+  * IN assertion: to_stdout is false.
+  */
+ local void copy_stat(ifstat)
+@@ -1643,14 +1657,6 @@
+     }
+     reset_times(ofname, ifstat);
+ #endif
+-    /* Copy the protection modes */
+-    if (chmod(ofname, ifstat->st_mode & 07777)) {
+-	WARN((stderr, "%s: ", progname));
+-	if (!quiet) perror(ofname);
+-    }
+-#ifndef NO_CHOWN
+-    chown(ofname, ifstat->st_uid, ifstat->st_gid);  /* Copy ownership */
+-#endif
+     remove_ofname = 0;
+     /* It's now safe to remove the input file: */
+     (void) chmod(ifname, 0777);

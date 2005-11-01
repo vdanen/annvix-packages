@@ -1,0 +1,142 @@
+--- tetex-src-3.0/texk/kpathsea/texmf.in-teTeX.texmfcnf	2005-01-30 00:09:42.000000000 +0100
++++ tetex-src-3.0/texk/kpathsea/texmf.in-teTeX	2005-02-06 21:34:58.064260071 +0100
+@@ -3,6 +3,9 @@
+ % distribution won't install its version over yours.)
+ % Public domain.
+ % 
++% [Modified for Mandrakelinux (and RedHat) teTeX RPM package by ]
++% [Giuseppe Ghib\`o, <ghibo@mandrakesoft.com>, 06/02/2005        ]
++#
+ % What follows is a super-summary of what this .cnf file can
+ % contain. Please read the Kpathsea manual for more information.
+ % 
+@@ -64,7 +67,7 @@
+ % A place for local additions to a "standard" texmf tree.
+ % This tree is not used for local configuration maintained by
+ % texconfig, it uses TEXMFCONFIG below.
+-TEXMFLOCAL = @texmf@-local
++TEXMFLOCAL = /usr/local/share/texmf
+ 
+ % TEXMFSYSVAR, where texconfig-sys stores variable runtime data.
+ % With teTeX-3.0 or later, this must be set.
+@@ -158,9 +161,10 @@
+ TEXINPUTS.csplain = .;$TEXMF/tex/{csplain,plain,generic,}//
+ TEXINPUTS.eplain  = .;$TEXMF/tex/{eplain,plain,generic,}//
+ TEXINPUTS.ftex = .;$TEXMF/tex/{formate,plain,generic,}//
+-TEXINPUTS.jadetex = .;$TEXMF/tex/{jadetex,plain,generic,}//
++TEXINPUTS.jadetex = .;$TEXMF/tex/{jadetex,generic,plain,}//
+ TEXINPUTS.mex = .;$TEXMF/tex/{mex,plain,generic,}//
+ TEXINPUTS.texinfo = .;$TEXMF/tex/{texinfo,plain,generic,}//
++TEXINPUTS.xmltex = .;$TEXMF/{pdftex,tex}/{xmltex,generic,plain,}//
+ 
+ % LaTeX 2e specific macros are stored in latex/, macros that can only be
+ % used with 2.09 in latex209/.  In addition, we look in the directory
+@@ -169,6 +173,7 @@
+ TEXINPUTS.cslatex = .;$TEXMF/tex/{cslatex,csplain,latex,generic,}//
+ TEXINPUTS.platex  = .;$TEXMF/tex/{platex,latex,generic,}//
+ TEXINPUTS.latex = .;$TEXMF/tex/{latex,generic,}//
++TEXINPUTS.hugelatex = .;$TEXMF/tex/{latex,generic,}//
+ TEXINPUTS.olatex = .;$TEXMF/tex/{latex,generic,}//
+ TEXINPUTS.latex209 = .;$TEXMF/tex/{latex209,generic,latex,}//
+ 
+@@ -190,13 +195,15 @@
+ % variant of TDS is assumed here, unaffected by the build variables.
+ TEXINPUTS.pdfcslatex = .;$TEXMF/tex/{cslatex,csplain,latex,generic,}//
+ TEXINPUTS.pdfcsplain = .;$TEXMF/tex/{csplain,plain,generic,}//
+-TEXINPUTS.pdfjadetex = .;$TEXMF/tex/{jadetex,plain,generic,}//
++TEXINPUTS.pdfjadetex = .;$TEXMF/tex/{jadetex,generic,plain,}//
+ TEXINPUTS.pdflatex = .;$TEXMF/tex/{latex,generic,}//
++TEXINPUTS.pdflatex209 = .;$TEXMF/tex/{latex209,generic,}//
+ TEXINPUTS.pdfmex   = .;$TEXMF/tex/{mex,plain,generic,}//
+ TEXINPUTS.utf8mex   = .;$TEXMF/tex/{mex,plain,generic,}//
+ TEXINPUTS.pdftex   = .;$TEXMF/tex/{plain,generic,}//
+ TEXINPUTS.pdftexinfo = .;$TEXMF/tex/{texinfo,plain,generic,}//
+ TEXINPUTS.pdfamstex = .;$TEXMF/tex/{amstex,plain,generic,}//
++TEXINPUTS.pdfxmltex = .;$TEXMF/tex/{xmltex,plain,generic,}//
+ 
+ % pdfeTeX.
+ TEXINPUTS.pdfelatex = .;$TEXMF/tex/{latex,generic,}//
+@@ -288,6 +295,8 @@
+ 
+ % TrueType outline fonts.
+ TTFONTS = .;$TEXMF/fonts/truetype//
++TTF2TFMINPUTS = .;$TEXMF/ttf2pk//
++TTF2PKINPUTS = .;$TEXMF/ttf2pk//
+ 
+ % Type 42 outline fonts.
+ T42FONTS = .;$TEXMF/fonts/type42//
+@@ -296,7 +305,7 @@
+ LIGFONTS =  .;$TEXMF/fonts/lig//
+ 
+ % Dvips' config.* files (this name should not start with `TEX'!).
+-TEXCONFIG = $TEXMF/dvips//
++TEXCONFIG = .;$TEXMF/dvips//
+ 
+ % Makeindex style (.ist) files.
+ INDEXSTYLE = .;$TEXMF/makeindex//
+@@ -325,8 +334,8 @@
+ % For xdvi to find mime.types and .mailcap, if they do not exist in
+ % $HOME.  These are single directories, not paths.
+ % (But the default mime.types, at least, may well suffice.)
+-MIMELIBDIR = @prefix@/etc
+-MAILCAPLIBDIR = @prefix@/etc
++MIMELIBDIR = /etc
++MAILCAPLIBDIR = /etc
+ 
+ % TeX documentation and source files, for use with kpsewhich.
+ TEXDOCS = .;$TEXMF/doc//
+@@ -368,7 +377,7 @@
+ %
+ % For security reasons, it is better not to have . part of the path.
+ % 
+-TEXMFCNF = {$SELFAUTOLOC,$SELFAUTODIR,$SELFAUTOPARENT}{,{/share,}/texmf{-local,}/web2c};$TETEXDIR;$TEXMF/web2c;@web2c@
++TEXMFCNF = $SELFAUTODIR/share/texmf/web2c:{$SELFAUTOLOC,$SELFAUTODIR,$SELFAUTOPARENT}{,{/share,}/texmf{-local,}/web2c};$TETEXDIR;$TEXMF/web2c;@web2c@
+ 
+ # $progname: kpathsea v. 3.5.3 or later overwrites this at runtime. To
+ # avoid empty expansions from binaries linked against an earlier
+@@ -465,7 +474,20 @@
+ extra_mem_top.context = 2000000
+ extra_mem_bot.context = 4000000
+ main_memory.context = 1500000
+-main_memory.mpost = 1500000
++
++# Other packages
++main_memory.mpost = 7500000
++main_memory.hugelatex = 7500000
++main_memory.cslatex = 1500000
++main_memory.hugetex = 1500000
++main_memory.jadetex = 1500000
++main_memory.pdftex = 4000000
++main_memory.pdfetex = 4000000
++main_memory.pdfjadetex = 4000000
++main_memory.pdflatex = 4000000
++main_memory.pdfelatex = 4000000
++main_memory.pdfxmltex = 4000000
++main_memory.xmltex = 4000000
+ 
+ % Words of font info for TeX (total size of all TFM files, approximately). 
+ font_mem_size = 500000
+@@ -483,7 +505,7 @@
+ % Minimum pool space after TeX/MP's own strings; must be at least
+ % 25000 less than pool_size, but doesn't need to be nearly that large.
+ string_vacancies = 90000
+-% Maximum number of strings.
++% Maximum number of strings (must be less than 262163).
+ max_strings = 100000
+ % min pool space left after loading .fmt
+ pool_free = 47500
+@@ -509,11 +531,11 @@
+ buf_size = 200000
+ 
+ hyph_size = 1000        % number of hyphenation exceptions, >610 and <32767.
+-nest_size = 500		% simultaneous semantic levels (e.g., groups)
++nest_size = 1500		% simultaneous semantic levels (e.g., groups)
+ max_in_open = 15	% simultaneous input files and error insertions
+ param_size = 5000	% simultaneous macro parameters
+-save_size = 5000	% for saving values outside current group
+-stack_size = 1500	% simultaneous input sources
++save_size = 15000	% for saving values outside current group
++stack_size = 3000	% simultaneous input sources
+ 
+ % These are Omega-specific.
+ ocp_buf_size = 20000	% character buffers for ocp filters.

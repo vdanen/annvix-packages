@@ -1,0 +1,20 @@
+--- apr-0.9.4/configure.in.noresolv
++++ apr-0.9.4/configure.in
+@@ -463,8 +463,7 @@
+ dnl It should check for LIBS being empty and set LIBS equal to the new value 
+ dnl without the extra " " in that case, but they didn't do that.  So, we
+ dnl end up LIBS="-lm -lcrypt -lnsl  -ldl" which is an annoyance.
+-AC_CHECK_LIB(resolv, res_init)
+-AC_CHECK_LIB(nsl, gethostbyname)
++AC_SEARCH_LIBS(gethostbyname, nsl)
+ AC_SEARCH_LIBS(gethostname, nsl)
+ AC_CHECK_LIB(socket, socket)
+ AC_SEARCH_LIBS(crypt, crypt ufc)
+@@ -1782,7 +1781,6 @@
+ AC_SUBST(have_sctp)
+ 
+ AC_CHECK_FUNCS(set_h_errno)
+-APR_CHECK_RESOLV_RETRANS
+ 
+ echo "${nl}Checking for IPv6 Networking support..."
+ dnl Start of checking for IPv6 support...

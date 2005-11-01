@@ -1,0 +1,11 @@
+--- slang-1.4.9/src/Makefile.in.revert	2004-07-21 18:44:41.000000000 +0200
++++ slang-1.4.9/src/Makefile.in	2004-07-22 17:32:51.663521494 +0200
+@@ -67,7 +67,7 @@
+ #---------------------------------------------------------------------------
+ # There should be no need to change anything below here.
+ #---------------------------------------------------------------------------
+-THIS_LIB		= slang-utf8#
++THIS_LIB		= slang#
+ OTHERSTUFF 		= 
+ THIS_LIB_DEFINES	= -DSLANG
+ ELF_MAJOR_VERSION	= @slang_major_version@#

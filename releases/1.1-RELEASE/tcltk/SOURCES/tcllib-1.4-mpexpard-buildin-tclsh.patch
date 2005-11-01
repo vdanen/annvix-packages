@@ -1,0 +1,20 @@
+--- tcllib-1.4/Makefile.in.orig	2003-04-24 23:16:52.000000000 +0200
++++ tcllib-1.4/Makefile.in	2003-11-25 17:01:34.000000000 +0100
+@@ -46,7 +46,7 @@
+ #========================================================================
+ 
+ all:
+-doc:     html-doc nroff-doc
++doc:    fix-mpexpand html-doc nroff-doc
+ 
+ install:
+ 	$(TCLSH_PROG) `$(CYGPATH) $(srcdir)/installer.tcl` \
+@@ -108,6 +108,8 @@
+ sak-help:
+ 	$(TCLSH_PROG) `$(CYGPATH) $(srcdir)/sak.tcl` help
+ 
++fix-mpexpand:
++	@sed -e "s|exec tclsh|exec $(TCLSH_PROG)|" < $(srcdir)/modules/doctools/mpexpand > $(srcdir)/modules/doctools/mpexpand.new ; mv -f $(srcdir)/modules/doctools/mpexpand.new $(srcdir)/modules/doctools/mpexpand ;chmod +x $(srcdir)/modules/doctools/mpexpand
+ 
+ .PHONY: all binaries clean depend distclean doc install installdirs libraries test
+ 

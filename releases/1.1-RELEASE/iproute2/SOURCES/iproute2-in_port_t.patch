@@ -1,0 +1,13 @@
+--- iproute2/include-glibc/glibc-bugs.h.glibc22	Tue Oct 10 20:12:59 2000
++++ iproute2/include-glibc/glibc-bugs.h	Fri Mar 15 00:32:59 2002
+@@ -12,8 +12,8 @@
+ 
+ #include <linux/types.h>
+ 
+-typedef __u16 in_port_t;
+-typedef __u32 in_addr_t;
++/* typedef __u16 in_port_t; */
++/* typedef __u32 in_addr_t; */
+ 
+ #endif
+ 

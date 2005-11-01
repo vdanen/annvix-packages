@@ -1,0 +1,25 @@
+Avoid tripping ElectricFence.  Purely for debugging.
+
+--- krb5/src/lib/krb5/krb/init_ctx.c	2004-03-09 19:06:49.000000000 -0500
++++ krb5/src/lib/krb5/krb/init_ctx.c	2004-03-09 19:09:58.000000000 -0500
+@@ -148,11 +148,15 @@
+ 	if ((retval = krb5_set_default_tgs_ktypes(ctx, NULL)))
+ 		goto cleanup;
+ 
+-	ctx->conf_tgs_ktypes = calloc(ctx->tgs_ktype_count, sizeof(krb5_enctype));
+-	if (ctx->conf_tgs_ktypes == NULL && ctx->tgs_ktype_count != 0)
+-	    goto cleanup;
+-	memcpy(ctx->conf_tgs_ktypes, ctx->tgs_ktypes,
+-	       sizeof(krb5_enctype) * ctx->tgs_ktype_count);
++	if (ctx->tgs_ktype_count > 0) {
++		ctx->conf_tgs_ktypes = calloc(ctx->tgs_ktype_count, sizeof(krb5_enctype));
++		if (ctx->conf_tgs_ktypes == NULL)
++		    goto cleanup;
++		memcpy(ctx->conf_tgs_ktypes, ctx->tgs_ktypes,
++		       sizeof(krb5_enctype) * ctx->tgs_ktype_count);
++	} else {
++		ctx->conf_tgs_ktypes = NULL;
++	}
+ 	ctx->conf_tgs_ktypes_count = ctx->tgs_ktype_count;
+ 
+ 	if ((retval = krb5_os_init_context(ctx)))
