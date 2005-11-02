@@ -9,7 +9,7 @@
 
 %define name		rkhunter
 %define version		1.2.7
-%define release		1avx
+%define release		2avx
 
 Summary:	Rootkit scans for rootkits, backdoors and local exploits
 Name:		%{name}
@@ -85,6 +85,9 @@ rm -rf %{buildroot}/lib/%{name}/docs
 
 
 %changelog
+* Sun Oct 30 2005 Vincent Danen <vdanen@annvix.org> 1.2.7-2avx
+- update P0 to make 1.1-RELEASE supported rather than 1.1-CURRENT
+
 * Thu Sep 25 2005 Vincent Danen <vdanen@annvix.org> 1.2.7-1avx
 - build for Annvix to replace chkrootkit
 - P0: add support for curl and Annvix

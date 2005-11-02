@@ -18,8 +18,8 @@
 -704:Gentoo Linux 1.6 (x86_64):/usr/bin/md5sum:/bin:
 \ No newline at end of file
 +704:Gentoo Linux 1.6 (x86_64):/usr/bin/md5sum:/bin:
-+800:Annvix release 1.1-CURRENT (Icarus) for i586:/usr/bin/md5sum:/bin:
-+801:Annvix release 1.1-CURRENT (Icarus) for x86_64:/usr/bin/md5sum:/bin:
++800:Annvix release 1.1-RELEASE (Bachus) for i586:/usr/bin/md5sum:/bin:
++801:Annvix release 1.1-RELEASE (Bachus) for x86_64:/usr/bin/md5sum:/bin:
 --- files/check_update.sh.avx	2005-09-16 12:18:52.000000000 -0400
 +++ files/check_update.sh	2005-09-16 12:28:51.000000000 -0400
 @@ -7,6 +7,7 @@
