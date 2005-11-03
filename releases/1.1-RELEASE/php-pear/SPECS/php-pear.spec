@@ -11,13 +11,13 @@
 %define version		%{phpversion}
 %define release		1avx
 
-%define phpversion	4.4.0
+%define phpversion	4.4.1
 %define phpsource       %{_prefix}/src/php-devel
 %define phpdir		%{_libdir}/php
 %define peardir		%{_datadir}/pear
 
 %define subname		pear
-%define pear_date	20050914
+%define pear_date	20050914-1
 
 Summary:	The PHP PEAR files
 Name:		%{name}
@@ -123,6 +123,10 @@ mkdir %{buildroot}%{peardir}/packages
 
 
 %changelog
+* Wed Nov 02 2005 Vincent Danen <vdanen@annvix.org> 4.4.1-1avx
+- php 4.4.1
+- regen the pear tarball as it was tainted with the 4.4.0 install path
+
 * Wed Sep 14 2005 Vincent Danen <vdanen@annvix.org> 4.4.0-1avx
 - php 4.4.0
 - refreshed the pear tarball so we now have:
