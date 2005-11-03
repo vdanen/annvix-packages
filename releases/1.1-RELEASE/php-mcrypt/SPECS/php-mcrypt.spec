@@ -11,7 +11,7 @@
 %define version		%{phpversion}
 %define release		1avx
 
-%define phpversion	4.4.0
+%define phpversion	4.4.1
 %define phpsource       %{_prefix}/src/php-devel
 %define phpdir		%{_libdir}/php
 
@@ -100,6 +100,9 @@ EOF
 
 
 %changelog
+* Wed Nov 02 2005 Vincent Danen <vdanen@annvix.org> 4.4.1-1avx
+- php 4.4.1
+
 * Wed Sep 14 2005 Vincent Danen <vdanen@annvix.org> 4.4.0-1avx
 - php 4.4.0
 

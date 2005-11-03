@@ -12,7 +12,7 @@
 %define rver		2.0.4
 %define release		1avx
 
-%define phpversion	4.4.0
+%define phpversion	4.4.1
 %define phpsource       %{_prefix}/src/php-devel
 %define phpdir		%{_libdir}/php
 
@@ -115,6 +115,9 @@ install -m 0755 %{soname} %{buildroot}%{phpdir}/extensions/
 
 
 %changelog
+* Wed Nov 02 2005 Vincent Danen <vdanen@annvix.org> 4.4.1_2.0.4-1avx
+- php 4.4.1
+
 * Wed Sep 14 2005 Vincent Danen <vdanen@annvix.org> 4.4.0_2.0.4-1avx
 - php 4.4.0
 

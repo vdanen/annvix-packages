@@ -8,8 +8,8 @@
 
 
 %define name		php-ini
-%define version		4.4.0
-%define release		3avx
+%define version		4.4.1
+%define release		1avx
 
 Summary:	INI files for PHP
 Name:		%{name}
@@ -57,6 +57,9 @@ perl -pi -e 's|EXTENSIONDIR|%{_libdir}/php/extensions|g' %{buildroot}%{_sysconfd
 
 
 %changelog
+* Wed Nov 02 2005 Vincent Danen <vdanen@annvix.org> 4.4.1-1avx
+- php 4.4.1
+
 * Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 4.4.0-3avx
 - reverse the perl call in %%install so we don't end up with
   /usr/lib6464 for the extension_dir
