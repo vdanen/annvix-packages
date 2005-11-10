@@ -8,8 +8,8 @@
 
 
 %define name		clamav
-%define version		0.87
-%define release		2avx
+%define version		0.87.1
+%define release		1avx
 
 %define	major		1
 %define libname		%mklibname %{name} %{major}
@@ -273,6 +273,10 @@ done
 
       
 %changelog
+* Mon Nov 07 2005 Vincent Danen <vdanen@annvix.org> 0.87.1-1avx
+- 0.87.1; security fixes for CVE-2005-3239, CVE-2005-3303, CVE-2005-3500,
+  CVE-2005-3501
+
 * Tue Sep 27 2005 Vincent Danen <vdanen@annvix.org> 0.87-2avx
 - clamav is static uid/gid 91, not 89 (clashes with dhcpd)
 - useradd only in clamav-db, not in clamav or clamd
