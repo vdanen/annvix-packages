@@ -1,0 +1,274 @@
+--- LVM/1.0.8/tools/lib/lvm_dir_cache.c.wrapper	2003-02-06 16:05:34.000000000 +0100
++++ LVM/1.0.8/tools/lib/lvm_dir_cache.c	2004-11-28 11:33:56.401582742 +0100
+@@ -142,6 +142,11 @@
+ 
+ int lvm_check_devfs()
+ {
++#ifdef WRAPPER
++	int ret;
++	debug_enter("lvm_check_devfs -- CALLED\n");
++    ret = !access(LVM_DIR_PREFIX "/.devfsd", F_OK);
++#else
+ 	int ret = 0, len;
+ 	char dir[NAME_LEN], line[512], *dev_prefix = LVM_DIR_PREFIX;
+ 	char type[32];
+@@ -170,6 +175,7 @@
+ 	fclose(mounts);
+ 
+  out:
++#endif /* WRAPPER */
+ 	debug_leave("lvm_check_devfs -- LEAVING with ret: %d\n", ret);
+ 	return ret;
+ }
+--- LVM/1.0.8/tools/lib/vg_create_dir_and_group.c.wrapper	2003-02-06 16:05:34.000000000 +0100
++++ LVM/1.0.8/tools/lib/vg_create_dir_and_group.c	2004-11-28 11:49:32.750734061 +0100
+@@ -90,7 +90,9 @@
+       if ( chmod ( buffer, 0555) == -1)
+          ret = -LVM_EVG_CREATE_DIR_AND_GROUP_CHMOD_DIR;
+       else {
++#if ! defined(WRAPPER) || defined(__dietlibc__)
+          if ( ( grent = getgrnam ( "disk")) != NULL) gid = grent->gr_gid;
++#endif
+          strcat ( buffer, "/group");
+          if ( ( ret = stat ( buffer, &statbuf)) == -1) {
+             if ( errno == ENOENT) {
+--- LVM/1.0.8/tools/lib/lv_create_node.c.wrapper	2003-02-06 16:05:33.000000000 +0100
++++ LVM/1.0.8/tools/lib/lv_create_node.c	2004-11-28 11:51:01.348049893 +0100
+@@ -63,7 +63,9 @@
+       }
+    }
+ 
++#if ! defined(WRAPPER) || defined(__dietlibc__)
+    if ( ( grent = getgrnam ( "disk")) != NULL) gid = grent->gr_gid;
++#endif
+    
+    if ( mknod ( lv->lv_name, S_IFBLK | S_IRUSR | S_IWUSR | S_IRGRP,
+                 lv->lv_dev) == -1)
+--- LVM/1.0.8/tools/vgchange.c.wrapper	2003-02-06 16:05:30.000000000 +0100
++++ LVM/1.0.8/tools/vgchange.c	2004-11-28 11:33:56.467571832 +0100
+@@ -63,16 +63,18 @@
+ 
+ #include <lvm_user.h>
+ 
++#ifndef WRAPPER
+ char *cmd = NULL;
+ 
+ #ifdef DEBUG
+ int opt_d = 0;
+ #endif
++#endif
+ 
+ #define	CREATE	1
+ #define	REMOVE	2
+ 
+-void usage ( int ret)
++void vgchange_usage ( int ret)
+ {
+     FILE *stream = stderr;
+ 
+@@ -96,7 +98,11 @@
+ }
+ 
+ 
++#ifdef WRAPPER
++int vgchange_main ( int argc, char **argv) {
++#else
+ int main ( int argc, char **argv) {
++#endif
+    int backup = FALSE;
+    int c = 0;
+    int l = 0;
+@@ -182,7 +188,7 @@
+ 
+          case 'h':
+          case '?':
+-	     usage(0);
++	     vgchange_usage(0);
+ 	     break;
+ 
+          case 'l':
+@@ -238,7 +244,7 @@
+          default:
+             fprintf ( stderr, "%s -- invalid command line option \"%c\"\n\n",
+                       cmd, c);
+-            usage ( LVM_EINVALID_CMD_LINE );
++            vgchange_usage ( LVM_EINVALID_CMD_LINE );
+       }
+    }
+   
+@@ -250,7 +256,7 @@
+       fprintf ( stderr, "%s -- you have to give the -a, -l or the -x "
+                         "option\n\n",
+                         cmd);
+-      usage (LVM_EINVALID_CMD_LINE);
++      vgchange_usage (LVM_EINVALID_CMD_LINE);
+    }
+    
+    if ( opt_a + opt_l + opt_x > 1 ) {
+--- LVM/1.0.8/tools/vgscan.c.wrapper	2003-09-03 17:16:06.000000000 +0200
++++ LVM/1.0.8/tools/vgscan.c	2004-11-28 11:33:56.534560756 +0100
+@@ -65,16 +65,17 @@
+ int _vgscan_do_insert ( char *);
+ int _vgscan_do_backup_and_create_group ( char *, vg_t *);
+ 
+-char *cmd = NULL;
+ int opt_v = 0;
+-
++#ifndef WRAPPER
++char *cmd = NULL;
+ 
+ #ifdef DEBUG
+ int opt_d = 0;
+ #endif
++#endif
+ 
+ 
+-void usage(int ret)
++void vgscan_usage(int ret)
+ {
+    FILE *stream = stderr;
+ 
+@@ -96,7 +97,11 @@
+ }
+ 
+ 
++#ifdef WRAPPER
++int vgscan_main ( int argc, char **argv)
++#else
+ int main ( int argc, char **argv)
++#endif
+ {
+    int blk_dev_free_count = 0;
+    int c = 0;
+@@ -137,7 +142,7 @@
+ 
+          case 'h':
+          case '?':
+-	    usage(0);
++	    vgscan_usage(0);
+             break;
+ 
+          case 'r':
+@@ -148,7 +153,7 @@
+          case 'v':
+             if ( opt_v > 0) {
+                fprintf ( stderr, "%s -- v option already given\n\n", cmd);
+-               usage(LVM_EINVALID_CMD_LINE);
++               vgscan_usage(LVM_EINVALID_CMD_LINE);
+             }
+             opt_v++;
+             break;
+@@ -156,7 +161,7 @@
+          default:
+             fprintf ( stderr, "%s -- invalid command line option \"%c\"\n",
+                       cmd, c);
+-            usage(LVM_EINVALID_CMD_LINE);
++            vgscan_usage(LVM_EINVALID_CMD_LINE);
+       }
+    }
+ 
+@@ -166,7 +171,7 @@
+ 
+    if ( optind < argc) {
+       fprintf ( stderr, "%s -- invalid command line\n\n", cmd);
+-      usage(LVM_EINVALID_CMD_LINE);
++      vgscan_usage(LVM_EINVALID_CMD_LINE);
+    }
+ 
+    lvm_dont_interrupt ( 0);
+--- LVM/1.0.8/tools/vgwrapper.c.wrapper	2004-11-28 11:33:56.600549846 +0100
++++ LVM/1.0.8/tools/vgwrapper.c	2004-11-28 11:33:56.601549680 +0100
+@@ -0,0 +1,39 @@
++#ifdef WRAPPER
++/*
++ * Silly wrapper program so that vgscan and vgchange can be in the
++ * same binary to make our initrd smaller.
++ *
++ * Copyright 2002 Red Hat, Inc.
++ *
++ * Jeremy Katz <katzj@redhat.com>
++ */
++
++#include <string.h>
++#include <stdio.h>
++
++char *cmd = NULL;
++
++#ifdef DEBUG
++int opt_d = 0;
++#endif
++
++int vgscan_main(int argc, char **argv);
++int vgchange_main(int argc, char **argv);
++
++int main(int argc, char **argv) {
++    char *p = strrchr(argv[0], '/');
++
++    p = p ? p + 1 : argv[0];
++    
++    if (strncmp(p, "vgscan", 6) == 0) {
++        return vgscan_main(argc, argv);
++    } else if (strncmp(p, "vgchange", 8) == 0) {
++        return vgchange_main(argc, argv);
++    } else {
++        printf("Unknown program name: %s\n", argv[0]);
++        return 1;
++    }
++}
++#else
++void main() {}
++#endif
+--- LVM/1.0.8/tools/Makefile.in.wrapper	2003-02-06 16:05:29.000000000 +0100
++++ LVM/1.0.8/tools/Makefile.in	2004-11-28 11:33:56.668538604 +0100
+@@ -41,8 +41,8 @@
+ include ../make.tmpl
+ include tools_and_lib.make.tmpl
+ 
+-LOADLIBES = -L$(topobjdir)/tools/lib
+-LDLIBS = -llvm-@iop_ver@
++LOADLIBES = $(TOP)/tools/lib/liblvm-@iop_ver@.a
++LDLIBS = 
+ LDFLAGS += @LDFLAGS@
+ 
+ ALL := $(notdir $(ALL_SOURCES:.c=))
+@@ -70,6 +70,11 @@
+ 
+ l:	list
+ 
++ifeq ($(WRAPPER),-DWRAPPER)
++vgwrapper: vgscan.o vgchange.o vgwrapper.o
++	$(CC) vgwrapper.o vgchange.o vgscan.o $(LDFLAGS) $(LOADLIBES) $(LDLIBS) -o vgwrapper
++endif
++
+ install-bin:	$(ALL_TARGETS) $(ALL_SCRIPTS)
+ 	@echo "*** Installing $(ALL_TARGETS) $(ALL_SCRIPTS) in $(DESTDIR)$(sbindir) ***"
+ 	@for f in $(ALL_TARGETS); \
+--- LVM/1.0.8/tools/lvm_user.h.wrapper	2003-08-08 14:39:57.000000000 +0200
++++ LVM/1.0.8/tools/lvm_user.h	2004-11-28 11:33:56.736527363 +0100
+@@ -57,9 +57,15 @@
+ #include <getopt.h>
+ #include <lvm.h>
+ 
++#ifdef WRAPPER
++static
++#endif
+ char *lvm_version = "Logical Volume Manager "LVM_RELEASE_NAME"\nHeinz Mauelshagen, Sistina Software  "LVM_RELEASE_DATE;
+ 
+ /* pvmove */
++#ifdef WRAPPER
++static
++#endif
+ int opt_ignore = 0;
+ 
+ #ifdef DEBUG
+--- LVM/1.0.8/make.tmpl.in.wrapper	2003-02-06 16:05:25.000000000 +0100
++++ LVM/1.0.8/make.tmpl.in	2004-11-28 11:33:56.798517114 +0100
+@@ -70,7 +70,7 @@
+ %:	%.o $(LIBS)
+ 	$(CC) $(LDFLAGS) $< $(LOADLIBES) $(LDLIBS) -o $@
+ 
+-CFLAGS+= @CFLAGS@ -Wall
++CFLAGS+= @CFLAGS@ $(WRAPPER) -Wall
+ 
+ ALL_SOURCES := $(foreach dir,. $(subst :, ,$(VPATH)),$(wildcard $(dir)/*.c))
+ ALL_TARGETS := $(notdir $(ALL_SOURCES:.c=))

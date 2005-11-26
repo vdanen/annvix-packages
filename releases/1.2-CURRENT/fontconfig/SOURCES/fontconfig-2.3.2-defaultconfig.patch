@@ -1,0 +1,255 @@
+--- fontconfig-2.3.2/fonts.conf.in.defaultconfig	2005-04-03 23:07:50.000000000 +0200
++++ fontconfig-2.3.2/fonts.conf.in	2005-08-12 14:01:09.000000000 +0200
+@@ -78,9 +78,15 @@
+ 		<family>Times</family>
+ 		<family>Nimbus Roman No9 L</family>
+ 		<family>Luxi Serif</family>
+-		<family>Kochi Mincho</family>
++		<family>Sazanami Gothic</family>
++		<family>SimSun</family>
++		<family>MingLiu</family>
++		<family>AR PL ShanHeiSun Uni</family>
++		<family>AR PL New Sung</family>
+ 		<family>AR PL SungtiL GB</family>
+ 		<family>AR PL Mingti2L Big5</family>
++		<family>IPAGothic</family>
++		<family>Sazanami Gothic</family>
+ 		<family>ＭＳ 明朝</family>
+ 		<family>Baekmuk Batang</family>
+ 		<family>FreeSerif</family>
+@@ -97,12 +103,16 @@
+ 		<family>Albany AMT</family>
+ 		<family>Nimbus Sans L</family>
+ 		<family>Luxi Sans</family>
+-		<family>Kochi Gothic</family>
++		<family>AR PL ZenKai Uni</family>
++		<family>SimSun</family>
++		<family>MingLiu</family>
++		<family>AR PL New Sung</family>
+ 		<family>AR PL KaitiM GB</family>
+ 		<family>AR PL KaitiM Big5</family>
++		<family>IPAGothic</family>
++		<family>Sazanami Gothic</family>
+ 		<family>ＭＳ ゴシック</family>
+ 		<family>Baekmuk Dotum</family>
+-		<family>SimSun</family>
+ 		<family>FreeSans</family>
+ 		<default><family>sans-serif</family></default>
+ 	</alias>
+@@ -118,6 +128,10 @@
+ 		<family>Cumberland AMT</family>
+ 		<family>Nimbus Mono L</family>
+ 		<family>NSimSun</family>
++		<family>PMingLiu</family>
++		<family>AR PL New Sung</family>
++		<family>IPAPGothic</family>
++		<family>Sazanami Gothic</family>
+ 		<family>FreeMono</family>
+ 		<default><family>monospace</family></default>
+ 	</alias>
+@@ -142,6 +156,11 @@
+ <!--
+   URW provides metric and shape compatible fonts for these 3 Adobe families.
+   -->
++ 	<alias>
++	  <family>Times New Roman</family>
++	  <accept><family>Nimbus Roman No9 L</family></accept>
++	</alias>
++
+         <alias>
+ 	  <family>Times</family>
+ 	  <accept><family>Nimbus Roman No9 L</family></accept>
+@@ -154,6 +173,14 @@
+ 	  <family>Courier</family>
+ 	  <accept><family>Nimbus Mono L</family></accept>
+ 	</alias>
++	<alias>
++  	  <family>Arial</family>
++  	  <accept>
++ 		<family>Nimbus Sans L</family>
++ 		<family>Arial</family>
++ 	  </accept>
++ 	</alias>
++
+ 
+ <!--
+  AMT provides metric and shape compatible fonts for these three web font
+@@ -177,6 +204,7 @@
+   in fact they are dual-spaced (half and full).  This makes
+   FreeType very confused as it forces all widths to match.
+   Undo this magic by disabling the width forcing code -->
++  <!-- not needed, replaced by 01-mdk-CJK-dualwidth.conf 
+ 	<match target="font">
+ 		<test name="family"><string>GulimChe</string></test>
+ 		<edit name="globaladvance"><bool>false</bool></edit>
+@@ -196,7 +224,7 @@
+ 		<test name="family"><string>GungsuhChe</string></test>
+ 		<edit name="globaladvance"><bool>false</bool></edit>
+ 	</match>
+-
++	-->
+ <!-- 
+ 	The Bitstream Vera fonts have GASP entries suggesting that hinting be
+ 	disabled below 8 ppem, but FreeType ignores those, preferring to use
+@@ -258,54 +286,138 @@
+ 	<alias>
+ 		<family>serif</family>
+ 		<prefer>
++			<family>DejaVu Serif</family>
+ 			<family>Bitstream Vera Serif</family>
+ 			<family>Times New Roman</family>
+ 			<family>Thorndale AMT</family>
+ 			<family>Luxi Serif</family>
+ 			<family>Nimbus Roman No9 L</family>
+ 			<family>Times</family>
+-			<family>Frank Ruehl</family>
++ 			<family>Artsounk</family> <!-- armenian -->
++			<family>BPG UTF8 M</family> <!-- georgian -->
++			<family>Phaisarn</family> <!-- thai -->
++			<family>Phaisarn98</family> <!-- thai -->
++			<family>Norasi</family> <!-- thai -->
++			<family>Frank Ruehl</family> <!-- hebrew -->
++			<family>Dror</family>  <!-- hebrew? -->
++			<family>JG LaoTimes</family>  <!-- lao -->
++			<family>Saysettha Unicode</family>  <!-- lao -->
++			<family>Pigiarniq</family> <!-- canadian syllabics -->
++			<family>B Davat</family> <!-- ??? -->
++			<family>B Compset</family>  <!-- ??? -->
++			<family>Roya</family> <!-- arabic (ar,fa) -->
++			<family>Kacst-Qr</family> <!-- arabic (ar) -->
++			<family>Urdu Nastaliq Unicode</family> <!-- arabic (ur) -->
++			<family>Raghindi</family> <!-- devanagari -->
++			<family>Mukti Narrow</family> <!-- bengali -->
++			<family>malayalam</family> <!-- malayalam -->
++			<family>Sampige</family> <!-- kannada -->
++			<family>padmaa</family> <!-- gujarati -->
++			<family>Hapax Berbère</family> <!-- tifinagh -->
++			<family>MS Gothic</family> <!-- han (ja) -->
++			<family>Sazanami Gothic</family> <!-- han (ja) -->
++			<family>SimSun</family> <!-- han (zh-cn,zh-tw) -->
++			<family>MingLiu</family> <!-- han (zh-tw) -->
++			<family>AR PL ShanHeiSun Uni</family> <!-- han (ja,zh-cn,zh-tw) -->
++			<family>AR PL New Sung</family> <!-- han (zh-cn,zh-tw) -->
++			<family>ZYSong18030</family> <!-- han (zh-cn,zh-tw) -->
++			<family>HanyiSong</family> <!-- han (zh-cn,zh-tw) -->
++			<family>MS Song</family> <!-- han (zh-cn) -->
++			<family>Baekmuk Batang</family> <!-- hangul -->
+ 			<family>Kochi Mincho</family>
+-			<family>AR PL SungtiL GB</family>
+-			<family>AR PL Mingti2L Big5</family>
+ 			<family>ＭＳ 明朝</family>
+-			<family>Baekmuk Batang</family>
+ 			<family>FreeSerif</family>
++			<family>TSCu_Times</family> <!-- tamil -->
++			<family>Code2000</family> <!-- almost everything -->
++			<family>Code2001</family> <!-- plane1 and beyond -->
+ 		</prefer>
+ 	</alias>
+ 	<alias>
+ 		<family>sans-serif</family>
+ 		<prefer>
++			<family>BPG Glaho International</family> <!-- lat,cyr,arab,geor -->
++			<family>DejaVu Sans</family>
+ 			<family>Bitstream Vera Sans</family>
+-			<family>Verdana</family>
+-			<family>Arial</family>
+-			<family>Albany AMT</family>
+ 			<family>Luxi Sans</family>
+ 			<family>Nimbus Sans L</family>
++			<family>Arial</family>
++			<family>Albany AMT</family>
+ 			<family>Helvetica</family>
+-			<family>Nachlieli</family>
+-			<family>Kochi Gothic</family>
++			<family>Verdana</family>
++			<family>Lucida Sans Unicode</family>
++			<family>Tahoma</family> <!-- lat,cyr,greek,heb,arab,thai -->
++			<family>Yudit Unicode</family> <!-- ?? -->
++			<family>Kerkis</family> <!-- greek -->
++			<family>ArmNet Helvetica</family> <!-- armenian --> 
++			<family>Artsounk</family> <!-- armenian -->
++			<family>BPG UTF8 M</family> <!-- georgian -->
++			<family>Norasi</family> <!-- thai -->
++			<family>Nachlieli</family> <!-- hebrew -->
++			<family>Saysettha Unicode</family> <!-- lao? -->
++			<family>JG Lao Old Arial</family> <!-- lao -->
++			<family>GF Zemen Unicode</family> <!-- ethiopic -->
++			<family>Pigiarniq</family> <!-- canadian syllabics -->
++			<family>B Davat</family> <!-- ?? -->
++			<family>B Compset</family> <!-- ?? -->
++			<family>Roya</family> <!-- arabic (ar,fa) -->
++			<family>Kacst-Qr</family> <!-- arabic (ar) -->
++			<family>Urdu Nastaliq Unicode</family> <!-- arabic (ur) -->
++			<family>Raghindi</family> <!-- devanagari -->
++			<family>Mukti Narrow</family> <!-- bengali -->
++			<family>malayalam</family> <!-- malayalam -->
++			<family>Sampige</family> <!-- kannada -->
++			<family>padmaa</family> <!-- gujarati -->
++			<family>Hapax Berbère</family> <!-- tifinagh -->
++			<family>MS Gothic</family> <!-- han (ja) -->
++			<family>Sazanami Gothic</family> <!-- han (ja) -->
++			<!-- chinese fonts are actually serifed -->
++			<family>SimSun</family> <!-- han (zh-cn,zh-tw) -->
++			<family>MingLiu</family> <!-- han (zh-tw) -->
++			<family>AR PL ShanHeiSun Uni</family> <!--han (ja,zh-cn,zh-tw) -->
++			<family>AR PL New Sung</family> <!-- han (zh-cn,zh-tw) -->
++			<family>ZYSong18030</family> <!-- han (zh-cn,zh-tw) -->
+ 			<family>AR PL KaitiM GB</family>
+ 			<family>AR PL KaitiM Big5</family>
++			<family>HanyiSong</family> <!-- han (zh-cn) -->
++			<family>Baekmuk Gulim</family> <!-- hangul -->
++			<family>Hapax Berbère</family> <!-- tifinagh -->
++			<family>Kochi Gothic</family>
+ 			<family>ＭＳ ゴシック</family>
+ 			<family>Baekmuk Dotum</family>
+-			<family>SimSun</family>
+ 			<family>FreeSans</family>
++			<family>TSCu_Paranar</family> <!-- tamil -->
++			<family>Arial Unicode</family>
++			<family>Code2000</family> <!-- almost everything; serif actually -->
++			<family>Code2001</family> <!-- plane1 and beyond -->
+ 		</prefer>
+ 	</alias>
+ 	<alias>
+ 		<family>monospace</family>
+ 		<prefer>
++			<family>DejaVu Sans Mono</family>
+ 			<family>Bitstream Vera Sans Mono</family>
++			<family>Luxi Mono</family>
++			<family>Nimbus Mono L</family>
+ 			<family>Andale Mono</family>
+ 			<family>Courier New</family>
+ 			<family>Cumberland AMT</family>
+-			<family>Luxi Mono</family>
+-			<family>Nimbus Mono L</family>
+ 			<family>Courier</family>
+-			<family>Miriam Mono</family>
++			<family>Courier MonoThai</family> <!-- thai -->
++			<family>Miriam Mono</family> <!-- hebrew -->
++			<family>Hasida</family> <!-- hebrew? -->
++			<family>Mitra Mono</family> <!-- bengali -->
++			<family>GF Zemen Unicode</family> <!-- ethiopic -->
++			<family>Hapax Berbère</family> <!-- tifinagh -->
++			<family>MS Gothic</family> <!-- han (ja) -->
++			<family>Sazanami Gothic</family> <!-- han (ja) -->
++			<family>NSimSun</family> <!-- han (zh-cn,zh-tw) -->
++			<family>PMingLiu</family> <!-- han (zh-tw) -->
++			<family>AR PL ShanHeiSun Uni</family> <!-- han (ja,zh-cn,zh-tw) -->
++			<family>AR PL New Sung</family> <!-- han (zh-cn,zh-tw) -->
++			<family>HanyiSong</family> <!-- han (zh-cn) -->
++			<family>ZYSong18030</family> <!-- han (zh-cn,zh-tw) -->
++			<family>Baekmuk Batang</family> <!-- hangul -->
+ 			<family>Kochi Gothic</family>
+-			<family>AR PL KaitiM GB</family>
+ 			<family>Baekmuk Dotum</family>
+ 			<family>FreeMono</family>
+ 		</prefer>
+@@ -350,7 +462,7 @@
+ 		</test>
+ 		<!-- check to see if the pattern requests bold -->
+ 		<test target="pattern" name="weight" compare="more_eq">
+-			<int>200</int>
++			<int>180</int>
+ 		</test>
+ 		<!-- set the embolden flag -->
+ 		<edit name="embolden" mode="assign">

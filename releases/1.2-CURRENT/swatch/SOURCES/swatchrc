@@ -1,0 +1,70 @@
+#
+# Swatch configuration file for constant monitoring
+#
+# Please read /usr/share/doc/swatch-*/README-mandrake for more information
+#
+
+# Bad login attempts
+watchfor   /INVALID|REPEATED|INCOMPLETE|[Ff]ail /
+	echo bold
+	bell 3
+	mail addresses=root@localhost, subject="Bad login attempt"
+
+# Machine room temperature
+watchfor   /WizMON/
+	echo inverse
+	bell
+
+# System crashes and halts
+watchfor   /(panic|halt)/
+	echo blink red
+	bell 3
+	mail addresses=root@localhost, subject="System crash or halt"
+
+# System reboots
+watchfor   /Linux  version/
+	echo red
+	bell
+	mail addresses=root@localhost, subject="System reboot"
+
+# Logins, password changes and such
+watchfor   /LOGIN/
+	echo yellow
+	bell 3
+watchfor   /passwd/
+	echo yellow
+	bell 3
+watchfor   /ruserok/
+	echo yellow
+	bell 3
+
+# Ignore this stuff
+ignore   /sendmail/,/nntp/,/xntp|ntpd/,/faxspooler/,/named/
+
+# Report unusual tftp info
+ignore   /tftpd.*(ncd|kfps|normal exit)/
+watchfor   /tftpd/
+	echo
+	bell 3
+
+# Kernel problems
+watchfor   /file system full/
+	echo green
+	bell 3
+
+watchfor   /fingerd.*(root|[Tt]ip|guest)/
+	echo
+	bell 3
+
+# su
+watchfor   /su:/
+	echo bold
+	mail addresses=root@localhost, subject="Successful su"
+	throttle 05:00
+
+# sudo
+watchfor   /sudo:/
+	echo bold
+	mail addresses=root@localhost, subject="Successful sudo"
+	throttle 15:00
+

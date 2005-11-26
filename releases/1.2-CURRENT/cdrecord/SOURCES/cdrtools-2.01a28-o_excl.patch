@@ -1,0 +1,213 @@
+--- cdrtools-2.01/libscg/scsi-linux-sg.c.o_excl	2004-04-18 12:26:44.000000000 +0200
++++ cdrtools-2.01/libscg/scsi-linux-sg.c	2004-04-22 13:52:59.592196127 +0200
+@@ -207,7 +207,7 @@
+ LOCAL	int	sg_rwsend	__PR((SCSI *scgp));
+ #endif
+ LOCAL	void	sg_clearnblock	__PR((int f));
+-LOCAL	BOOL	sg_setup	__PR((SCSI *scgp, int f, int busno, int tgt, int tlun, int ataidx));
++LOCAL	BOOL	sg_setup	__PR((SCSI *scgp, int f, int busno, int tgt, int tlun, int ataidx, char *devname));
+ LOCAL	void	sg_initdev	__PR((SCSI *scgp, int f));
+ LOCAL	int	sg_mapbus	__PR((SCSI *scgp, int busno, int ino));
+ LOCAL	BOOL	sg_mapdev	__PR((SCSI *scgp, int f, int *busp, int *tgtp, int *lunp,
+@@ -217,6 +217,27 @@
+ #endif
+ LOCAL	void	sg_settimeout	__PR((int f, int timeout));
+ 
++int	sg_open_excl	__PR((char *device, int mode));
++
++int
++sg_open_excl(device, mode)
++    	char 	*device;
++	int	mode;
++{
++	int f;
++	int i;
++       	f = open(device, mode|O_EXCL);
++	for (i = 0; (i < 10) && (f == -1 && (errno == EACCES || errno == EBUSY)); i++) {
++	    fprintf(stderr, "Error trying to open %s exclusively (%s)... retrying in 1 second.\n", device, strerror(errno));
++	    usleep(1000000 + 100000.0 * rand()/(RAND_MAX+1.0));
++	    f = open(device, mode|O_EXCL);
++	}
++	if (f == -1 && errno != EACCES && errno != EBUSY) {
++	    f = open(device, mode);
++	}
++	return f;
++}
++
+ /*
+  * Return version information for the low level SCSI transport code.
+  * This has been introduced to make it easier to trace down problems
+@@ -241,13 +262,13 @@
+ 		switch (what) {
+ 
+ 		case SCG_VERSION:
+-			return (_scg_trans_version);
++			return ("Mandrakelinux-scsi-linux-sg");
+ 		/*
+ 		 * If you changed this source, you are not allowed to
+ 		 * return "schily" for the SCG_AUTHOR request.
+ 		 */
+ 		case SCG_AUTHOR:
+-			return (_scg_auth_schily);
++			return ("warly");
+ 		case SCG_SCCS_ID:
+ 			return (__sccsid);
+ 		case SCG_KVERSION:
+@@ -358,7 +379,7 @@
+ 		for (b = 0; b < MAX_SCG; b++) {
+ 			scglocal(scgp)->buscookies[b] = (short)-1;
+ 			for (t = 0; t < MAX_TGT; t++) {
+-				for (l = 0; l < MAX_LUN; l++)
++			  	for (l = 0; l < MAX_LUN; l++)
+ 					scglocal(scgp)->scgfiles[b][t][l] = (short)-1;
+ 			}
+ 		}
+@@ -400,7 +421,7 @@
+ 				continue;
+ 			}
+ 			sg_clearnblock(f);	/* Be very proper about this */
+-			if (sg_setup(scgp, f, busno, tgt, tlun, i))
++			if (sg_setup(scgp, f, busno, tgt, tlun, i, devname))
+ 				return (++nopen);
+ 			if (busno < 0 && tgt < 0 && tlun < 0)
+ 				nopen++;
+@@ -423,7 +444,7 @@
+ 			if (scgp->errstr)
+ 				js_snprintf(scgp->errstr, SCSI_ERRSTR_SIZE,
+ 							"Cannot open '/dev/sg*'");
+-			if (errno != ENOENT && errno != ENXIO && errno != ENODEV) {
++			if (errno != ENOENT && errno != ENXIO && errno != ENODEV && errno != EACCES) {
+ 				if (scgp->errstr)
+ 					js_snprintf(scgp->errstr, SCSI_ERRSTR_SIZE,
+ 							"Cannot open '%s'", devname);
+@@ -431,7 +452,7 @@
+ 			}
+ 		} else {
+ 			sg_clearnblock(f);	/* Be very proper about this */
+-			if (sg_setup(scgp, f, busno, tgt, tlun, -1))
++			if (sg_setup(scgp, f, busno, tgt, tlun, -1, devname))
+ 				return (++nopen);
+ 			if (busno < 0 && tgt < 0 && tlun < 0)
+ 				nopen++;
+@@ -452,7 +473,7 @@
+ 			if (scgp->errstr)
+ 				js_snprintf(scgp->errstr, SCSI_ERRSTR_SIZE,
+ 							"Cannot open '/dev/sg*'");
+-			if (errno != ENOENT && errno != ENXIO && errno != ENODEV) {
++			if (errno != ENOENT && errno != ENXIO && errno != ENODEV && errno != EACCES) {
+ 				if (scgp->errstr)
+ 					js_snprintf(scgp->errstr, SCSI_ERRSTR_SIZE,
+ 							"Cannot open '%s'", devname);
+@@ -460,7 +481,7 @@
+ 			}
+ 		} else {
+ 			sg_clearnblock(f);	/* Be very proper about this */
+-			if (sg_setup(scgp, f, busno, tgt, tlun, -1))
++			if (sg_setup(scgp, f, busno, tgt, tlun, -1, devname))
+ 				return (++nopen);
+ 			if (busno < 0 && tgt < 0 && tlun < 0)
+ 				nopen++;
+@@ -471,6 +492,7 @@
+ 
+ openbydev:
+ 	if (device != NULL && *device != '\0') {
++	        int i;
+ 		b = -1;
+ 		if (strlen(device) == 8 && strncmp(device, "/dev/hd", 7) == 0) {
+ 			b = device[7] - 'a';
+@@ -479,9 +501,8 @@
+ 		}
+ 		if (scgp->overbose) {
+ 			js_fprintf((FILE *)scgp->errfile,
+-			"Warning: Open by 'devname' is unintentional and not supported.\n");
++				"Warning: Open by 'devname' is unintentional and not supported.\n");
+ 		}
+-					/* O_NONBLOCK is dangerous */
+ 		f = open(device, O_RDWR | O_NONBLOCK);
+ /*		if (f < 0 && errno == ENOENT)*/
+ /*			goto openpg;*/
+@@ -518,7 +539,7 @@
+ #endif
+ 
+ 		scg_settarget(scgp, busno, tgt, tlun);
+-		if (sg_setup(scgp, f, busno, tgt, tlun, b))
++		if (sg_setup(scgp, f, busno, tgt, tlun, b, device))
+ 			return (++nopen);
+ 	}
+ openpg:
+@@ -598,13 +619,14 @@
+ }
+ 
+ LOCAL BOOL
+-sg_setup(scgp, f, busno, tgt, tlun, ataidx)
++sg_setup(scgp, f, busno, tgt, tlun, ataidx, devname)
+ 	SCSI	*scgp;
+ 	int	f;
+ 	int	busno;
+ 	int	tgt;
+ 	int	tlun;
+ 	int	ataidx;
++	char    *devname;
+ {
+ 	int	n;
+ 	int	Chan;
+@@ -655,6 +677,9 @@
+ 
+ 	if (onetarget) {
+ 		if (Bus == busno && Target == tgt && Lun == tlun) {
++		    	close(f);
++			f = sg_open_excl(devname, O_RDWR | O_NONBLOCK);
++			if (f < 0) return FALSE;
+ 			sg_initdev(scgp, f);
+ 			scglocal(scgp)->scgfile = f;	/* remember file for ioctl's */
+ 			return (TRUE);
+--- cdrtools-2.01/libscg/scsi-linux-ata.c.o_excl	2004-01-15 00:36:46.000000000 +0100
++++ cdrtools-2.01/libscg/scsi-linux-ata.c	2004-04-22 13:38:20.954949110 +0200
+@@ -265,7 +265,7 @@
+ 	if (device != NULL && *device != '\0') {
+ 		int	schilly_bus,
+ 			starget,
+-			slun;
++			slun,
+ 
+ 		f = open(device, O_RDONLY | O_NONBLOCK);
+ 
+@@ -851,6 +851,9 @@
+ 			device, first_free_schilly_bus, t, l);
+ 		return (FALSE);
+ 	} else {
++	    	close(f);
++		f = sg_open_excl(device, O_RDONLY | O_NONBLOCK);
++		if (f < 0) return FALSE;
+ 		scglocal(scgp)->scgfiles[first_free_schilly_bus][t][l] = f;
+ 		typlocal(scgp, first_free_schilly_bus) = subsystem;
+ 		hostlocal(scgp, first_free_schilly_bus) = h;
+--- cdrtools-2.01/libscg/scsi-linux-pg.c.o_excl	2004-01-15 01:54:36.000000000 +0100
++++ cdrtools-2.01/libscg/scsi-linux-pg.c	2004-04-22 13:38:20.955948881 +0200
+@@ -207,7 +207,7 @@
+ 			return (0);
+ #endif
+ 		js_snprintf(devname, sizeof (devname), "/dev/pg%d", tgt);
+-		f = open(devname, O_RDWR | O_NONBLOCK);
++		f = sg_open_excl(devname, O_RDWR | O_NONBLOCK);
+ 		if (f < 0) {
+ 			if (scgp->errstr)
+ 				js_snprintf(scgp->errstr, SCSI_ERRSTR_SIZE,
+@@ -229,7 +229,7 @@
+ 				if (scgp->errstr)
+ 					js_snprintf(scgp->errstr, SCSI_ERRSTR_SIZE,
+ 							"Cannot open '/dev/pg*'");
+-				if (errno != ENOENT && errno != ENXIO && errno != ENODEV) {
++				if (errno != ENOENT && errno != ENXIO && errno != ENODEV && errno != EACCES) {
+ 					if (scgp->errstr)
+ 						js_snprintf(scgp->errstr, SCSI_ERRSTR_SIZE,
+ 							"Cannot open '%s'", devname);
+@@ -250,7 +250,7 @@
+ 
+ 		if (tlun < 0)
+ 			return (0);
+-		f = open(device, O_RDWR | O_NONBLOCK);
++		f = sg_open_excl(device, O_RDWR|O_NONBLOCK);
+ /*		if (f < 0 && errno == ENOENT) {*/
+ 		if (f < 0) {
+ 			if (scgp->errstr)

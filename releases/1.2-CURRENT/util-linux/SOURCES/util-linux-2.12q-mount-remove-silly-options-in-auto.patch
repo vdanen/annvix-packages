@@ -1,0 +1,113 @@
+--- util-linux-2.12q/mount/mount.c.silly	2005-09-18 02:31:01.000000000 +0200
++++ util-linux-2.12q/mount/mount.c	2005-09-18 02:31:22.000000000 +0200
+@@ -467,6 +467,101 @@
+ 	return ret;
+ }
+ 
++static void remove_non_handled_options(char* options, char* fs_type) {
++
++   static char *fs_using_iocharset[] = { "iso9660", "udf", "vfat", "msdos", "ntfs", "jfs", "smbfs", "befs", "cifs", NULL };
++   static char *fs_using_codepage[] = { "iso9660", "vfat", "msdos", "smbfs", NULL };
++   static char *fs_using_umask[] = { "iso9660", "udf", "vfat", "msdos", "ntfs", "hfs", "hfsplus", "hpfs", NULL };
++   static char *fs_using_mode[] = { "iso9660", "ncpfs", "affs", NULL };
++   static char *fs_using_nls[] = { "ntfs", NULL };
++   static char *fs_using_utf8[] = { "iso9660", "ntfs", "udf", "vfat", NULL };
++
++   static struct options_handled_for_some_fs {
++     char *handled_option;
++     char **fs_using_this_option;
++   } list[] = {
++     { "iocharset=", fs_using_iocharset },
++     { "codepage=", fs_using_codepage },
++     { "umask=", fs_using_umask },
++     { "mode=", fs_using_mode },
++     { "nls=", fs_using_nls },
++     { "utf8", fs_using_utf8 },
++     { NULL, NULL }
++   };
++
++   struct options_conflicting_from_some_fs {
++     char *type;
++     char *kept_option;
++     char *conflicting_option;
++     int match;
++   } conflict_list[] = {
++     { "udf", "iocharset=", "utf8", 0 },
++     { NULL, NULL, NULL, 0 },
++   };
++
++    if (options) {
++	char * newOpts = alloca(strlen(options) + 1);
++	char * end;
++	char * start = options;
++
++	/* tag options that can lead to conflicts */
++	while (*start) {
++	  int i;
++	  end = strchr(start, ',');
++	  if (end)
++	    end++;
++	  else
++	    end = start + strlen(start);
++	  for (i = 0; conflict_list[i].type; i++)
++	    if (strcmp(fs_type, conflict_list[i].type) == 0 &&
++		strncmp(start, conflict_list[i].kept_option, strlen(conflict_list[i].kept_option)) == 0)
++	      conflict_list[i].match = 1;
++	  start = end;
++	}
++        
++	*newOpts = '\0';
++        start = options;
++
++	while (*start) {
++	    int i, j, skip = 0;
++
++	    end = strchr(start, ',');
++	    if (!end) {
++		end = start + strlen(start);
++	    } else {
++		*end = '\0';
++		end++;
++	    }
++
++	    for (i = 0; list[i].handled_option; i++)
++	       if (strncmp(start, list[i].handled_option, strlen(list[i].handled_option)) == 0) {
++		  char **fs = list[i].fs_using_this_option;
++		  skip = 1;
++		  for (j = 0; fs[j]; j++)
++		    if (strcmp(fs[j], fs_type) == 0) {
++		       skip = 0;
++		       break;
++		    }
++	       }
++
++	    for (i = 0; conflict_list[i].type; i++)
++	      if (conflict_list[i].match &&
++		  strcmp(fs_type, conflict_list[i].type) == 0 &&
++		  strncmp(start, conflict_list[i].conflicting_option, strlen(conflict_list[i].conflicting_option)) == 0)
++		skip = 1;
++
++	    if (!skip) {
++	       if (*newOpts) strcat(newOpts, ",");
++	       strcat(newOpts, start);
++	    }
++
++	    start = end;
++	}
++
++	strcpy(options, newOpts);
++    }
++}
++
+ /*
+  * guess_fstype_and_mount()
+  *	Mount a single file system. Guess the type when unknown.
+@@ -494,6 +589,8 @@
+       }
+    }
+ 
++   if (*types) remove_non_handled_options(mount_opts, *types);
++
+    /* Accept a comma-separated list of types, and try them one by one */
+    /* A list like "nonfs,.." indicates types not to use */
+    if (*types && strncmp(*types, "no", 2) && index(*types,',')) {

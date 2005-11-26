@@ -1,0 +1,52 @@
+Include the info directory entry in the .info file so that we can install
+it without making something up later.
+
+--- krb5-1.3/doc/krb5-user.info
++++ krb5-1.3/doc/krb5-user.info
+@@ -1,7 +1,8 @@
+ This is krb5-user.info, produced by makeinfo version 4.0 from
+ user-guide.texinfo.
+-
+-
++START-INFO-DIR-ENTRY
++* Krb5-User: (krb5-user).         Kerberos 5 User's Guide.
++END-INFO-DIR-ENTRY
+ File: krb5-user.info,  Node: Top,  Next: Copyright,  Prev: (dir),  Up: (dir)
+ 
+ This file describes how to use the Kerberos V5 client programs.
+--- krb5-1.3/doc/krb425.info
++++ krb5-1.3/doc/krb425.info
+@@ -1,6 +1,8 @@
+ This is krb425.info, produced by makeinfo version 4.0 from
+ krb425.texinfo.
+-
++START-INFO-DIR-ENTRY
++* Krb425: (krb425).               Kerberos IV to Kerberos 5 Migration.
++END-INFO-DIR-ENTRY
+ 
+ File: krb425.info,  Node: Top,  Next: Copyright,  Prev: (dir),  Up: (dir)
+ 
+--- krb5-1.3/doc/krb5-admin.info
++++ krb5-1.3/doc/krb5-admin.info
+@@ -1,6 +1,8 @@
+ This is krb5-admin.info, produced by makeinfo version 4.0 from
+ admin.texinfo.
+-
++START-INFO-DIR-ENTRY
++* Krb5-Admin: (krb5-admin).       Kerberos 5 Administrator's Guide.
++END-INFO-DIR-ENTRY
+ 
+ Indirect:
+ krb5-admin.info-1: 79
+--- krb5-1.3/doc/krb5-install.info
++++ krb5-1.3/doc/krb5-install.info
+@@ -1,6 +1,8 @@
+ This is krb5-install.info, produced by makeinfo version 4.0 from
+ install.texinfo.
+-
++START-INFO-DIR-ENTRY
++* Krb5-Install: (krb5-install).   Kerberos 5 Installation Guide.
++END-INFO-DIR-ENTRY
+ 
+ Indirect:
+ krb5-install.info-1: 83

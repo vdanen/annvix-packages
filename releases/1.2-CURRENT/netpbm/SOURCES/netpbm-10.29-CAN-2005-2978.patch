@@ -1,0 +1,1624 @@
+--- netpbm-10.29/converter/other/pnmtopng.c	2005-08-06 11:26:55.000000000 -0600
++++ netpbm-10.30/converter/other/pnmtopng.c	2005-10-16 13:36:43.000000000 -0600
+@@ -58,26 +58,34 @@
+ #  define PNMTOPNG_WARNING_LEVEL 0   /* use 0 for backward compatibility, */
+ #endif                               /*  2 for warnings (1 == error) */
+ 
+-#include <string.h>	/* strcat() */
++#include <assert.h>
++#include <string.h> /* strcat() */
+ #include <limits.h>
+-#include <png.h>	/* includes zlib.h and setjmp.h */
++#include <png.h>    /* includes zlib.h and setjmp.h */
+ #include "pnm.h"
+ #include "pngtxt.h"
++#include "shhopt.h"
+ #include "mallocvar.h"
+ #include "nstring.h"
+ #include "version.h"
+ 
+-struct zlib_compression {
+-    /* These are parameters that describe a form of zlib compression. 
+-       In each of them, -1 means "don't care," and a nonnegative value is
+-       as defined by zlib.
++struct zlibCompression {
++    /* These are parameters that describe a form of zlib compression.
++       Values have the same meaning as the similarly named arguments to
++       zlib's deflateInit2().  See zlib.h.
+     */
+-    int level;
+-    int mem_level;
+-    int strategy;
+-    int window_bits;
+-    int method;
+-    int buffer_size;
++    unsigned int levelSpec;
++    unsigned int level;
++    unsigned int memLevelSpec;
++    unsigned int mem_level;
++    unsigned int strategySpec;
++    unsigned int strategy;
++    unsigned int windowBitsSpec;
++    unsigned int window_bits;
++    unsigned int methodSpec;
++    unsigned int method;
++    unsigned int bufferSizeSpec;
++    unsigned int buffer_size;
+ };
+ 
+ struct chroma {
+@@ -91,6 +99,12 @@
+     float by;
+ };
+ 
++struct phys {
++    int x;
++    int y;
++    int unit;
++};
++
+ typedef struct cahitem {
+     xel color;
+     gray alpha;
+@@ -100,6 +114,38 @@
+ 
+ typedef cahitem ** coloralphahash_table;
+ 
++struct cmdlineInfo {
++    /* All the information the user supplied in the command line,
++       in a form easy for the program to use.
++    */
++    const char *  inputFilename;  /* '-' if stdin */
++    const char *  alpha;
++    unsigned int  verbose;
++    unsigned int  downscale;
++    unsigned int  interlace;
++    const char *  transparent;  /* NULL if none */
++    const char *  background;   /* NULL if none */
++    unsigned int  gammaSpec;
++    float         gamma;        /* Meaningless if !gammaSpec */
++    unsigned int  hist;
++    unsigned int  rgbSpec;
++    struct chroma rgb;          /* Meaningless if !rgbSpec */
++    unsigned int  sizeSpec;
++    struct phys   size;         /* Meaningless if !sizeSpec */
++    const char *  text;         /* NULL if none */
++    const char *  ztxt;         /* NULL if none */
++    unsigned int  modtimeSpec;
++    time_t        modtime;      /* Meaningless if !modtimeSpec */
++    const char *  palette;      /* NULL if none */
++    int           filterSet;
++    unsigned int  force;
++    unsigned int  libversion;
++    unsigned int  compressionSpec;
++    struct zlibCompression zlibCompression;
++};
++
++
++
+ typedef struct _jmpbuf_wrapper {
+   jmp_buf jmpbuf;
+ } jmpbuf_wrapper;
+@@ -122,19 +168,302 @@
+ #define PALETTEOPAQUE 255
+ #define PALETTETRANSPARENT 0
+ 
+-/* function prototypes */
+-#ifdef __STDC__
+-static void pnmtopng_error_handler (png_structp png_ptr, png_const_charp msg);
+-int main (int argc, char *argv[]);
+-#endif
+-
+-static int verbose = FALSE;
++static bool verbose;
+ 
+ static jmpbuf_wrapper pnmtopng_jmpbuf_struct;
+ static int errorlevel;
+ 
+ 
+ 
++static void
++parseSizeOpt(const char *  const sizeOpt,
++             struct phys * const sizeP) {
++
++    int count;
++    
++    count = sscanf(sizeOpt, "%d %d %d", &sizeP->x, &sizeP->y, &sizeP->unit);
++
++    if (count != 3)
++        pm_error("Invalid syntax for the -size option value '%s'.  "
++                 "Should be 3 integers: x, y, and unit code", sizeOpt);
++}
++
++
++
++static void
++parseRgbOpt(const char *    const rgbOpt,
++            struct chroma * const rgbP) {
++
++    int count;
++    
++    count = sscanf(rgbOpt, "%f %f %f %f %f %f %f %f",
++                   &rgbP->wx, &rgbP->wy,
++                   &rgbP->rx, &rgbP->ry,
++                   &rgbP->gx, &rgbP->gy,
++                   &rgbP->bx, &rgbP->by);
++
++    if (count != 6)
++        pm_error("Invalid syntax for the -rgb option value '%s'.  "
++                 "Should be 6 floating point number: "
++                 "x and y for each of white, red, green, and blue",
++                 rgbOpt);
++}
++
++
++
++static void
++parseModtimeOpt(const char * const modtimeOpt,
++                time_t *     const modtimeP) {
++
++    /* It would be nice to validate this better, e.g. don't accept
++       month 42 or hour -4.
++    */
++
++    struct tm brokenTime;
++    int year;
++    int month;
++
++    sscanf(modtimeOpt, "%d-%d-%d %d:%d:%d",
++           &year,
++           &month,
++           &brokenTime.tm_mday,
++           &brokenTime.tm_hour,
++           &brokenTime.tm_min,
++           &brokenTime.tm_sec);
++
++    brokenTime.tm_mon = month - 1;
++    if (year >= 1900)
++        brokenTime.tm_year = year - 1900;
++    else
++        brokenTime.tm_year = year;
++
++    /* Note that mktime() considers brokeTime to be in local time.
++       This is what we want, since we got it from a user.  User should
++       set his local time zone to UTC if he wants absolute time.
++    */
++    *modtimeP = mktime(&brokenTime);
++}
++
++
++
++static void
++parseCommandLine (int argc, char ** argv,
++                  struct cmdlineInfo * const cmdlineP) {
++/*----------------------------------------------------------------------------
++   parse program command line described in Unix standard form by argc
++   and argv.  Return the information in the options as *cmdlineP.  
++
++   If command line is internally inconsistent (invalid options, etc.),
++   issue error message to stderr and abort program.
++
++   Note that the strings we return are stored in the storage that
++   was passed to us as the argv array.  We also trash *argv.
++-----------------------------------------------------------------------------*/
++    optEntry *option_def;
++        /* Instructions to optParseOptions3 on how to parse our options.
++         */
++    optStruct3 opt;
++
++    unsigned int option_def_index;
++
++    unsigned int alphaSpec, transparentSpec, backgroundSpec;
++    unsigned int textSpec, ztxtSpec, modtimeSpec, paletteSpec;
++    unsigned int filterSpec;
++
++    unsigned int nofilter, sub, up, avg, paeth, filter;
++    unsigned int chroma, phys, time;
++    const char * size;
++    const char * rgb;
++    const char * modtime;
++    const char * compMethod;
++    const char * compStrategy;
++
++    MALLOCARRAY_NOFAIL(option_def, 100);
++
++    option_def_index = 0;   /* incremented by OPTENT3 */
++    OPTENT3(0, "alpha",            OPT_STRING,    &cmdlineP->alpha,
++            &alphaSpec,            0);
++    OPTENT3(0, "transparent",      OPT_STRING,    &cmdlineP->transparent,
++            &transparentSpec,      0);
++    OPTENT3(0, "background",       OPT_STRING,    &cmdlineP->background,
++            &backgroundSpec,       0);
++    OPTENT3(0, "rgb",              OPT_STRING,    &rgb,
++            &cmdlineP->rgbSpec,    0);
++    OPTENT3(0, "size",             OPT_STRING,    &size,
++            &cmdlineP->sizeSpec,   0);
++    OPTENT3(0, "text",             OPT_STRING,    &cmdlineP->text,
++            &textSpec,             0);
++    OPTENT3(0, "ztxt",             OPT_STRING,    &cmdlineP->ztxt,
++            &ztxtSpec,             0);
++    OPTENT3(0, "modtime",          OPT_STRING,    &modtime,
++            &modtimeSpec,          0);
++    OPTENT3(0, "palette",          OPT_STRING,    &cmdlineP->palette,
++            &paletteSpec,          0);
++    OPTENT3(0, "compression",      OPT_UINT,
++            &cmdlineP->zlibCompression.level,
++            &cmdlineP->zlibCompression.levelSpec,            0);
++    OPTENT3(0, "comp_mem_level",   OPT_UINT,
++            &cmdlineP->zlibCompression.mem_level,
++            &cmdlineP->zlibCompression.memLevelSpec,         0);
++    OPTENT3(0, "comp_strategy",    OPT_STRING,    &compStrategy,
++            &cmdlineP->zlibCompression.strategySpec,         0);
++    OPTENT3(0, "comp_window_bits", OPT_UINT,
++            &cmdlineP->zlibCompression.window_bits,
++            &cmdlineP->zlibCompression.windowBitsSpec,       0);
++    OPTENT3(0, "comp_method",      OPT_STRING,    &compMethod,
++            &cmdlineP->zlibCompression.methodSpec,           0);
++    OPTENT3(0, "comp_buffer_size", OPT_UINT,
++            &cmdlineP->zlibCompression.buffer_size,
++            &cmdlineP->zlibCompression.bufferSizeSpec,       0);
++    OPTENT3(0, "gamma",            OPT_FLOAT,     &cmdlineP->gamma,
++            &cmdlineP->gammaSpec,  0);
++    OPTENT3(0, "hist",             OPT_FLAG,      NULL,
++            &cmdlineP->hist,       0);
++    OPTENT3(0, "downscale",        OPT_FLAG,      NULL,
++            &cmdlineP->downscale,  0);
++    OPTENT3(0, "interlace",        OPT_FLAG,      NULL,
++            &cmdlineP->interlace,  0);
++    OPTENT3(0, "force",            OPT_FLAG,      NULL,
++            &cmdlineP->force,      0);
++    OPTENT3(0, "libversion",       OPT_FLAG,      NULL,
++            &cmdlineP->libversion, 0);
++    OPTENT3(0, "verbose",          OPT_FLAG,      NULL,
++            &cmdlineP->verbose,    0);
++    OPTENT3(0, "nofilter",         OPT_FLAG,      NULL,
++            &nofilter,             0);
++    OPTENT3(0, "sub",              OPT_FLAG,      NULL,
++            &sub,                  0);
++    OPTENT3(0, "up",               OPT_FLAG,      NULL,
++            &up,                   0);
++    OPTENT3(0, "avg",              OPT_FLAG,      NULL,
++            &avg,                  0);
++    OPTENT3(0, "paeth",            OPT_FLAG,      NULL,
++            &paeth,                0);
++    OPTENT3(0, "filter",           OPT_INT,       &filter,
++            &filterSpec,           0);
++    OPTENT3(0, "verbose",          OPT_FLAG,      NULL,
++            &cmdlineP->verbose,    0);
++    OPTENT3(0, "chroma",           OPT_FLAG,      NULL,
++            &chroma,               0);
++    OPTENT3(0, "phys",             OPT_FLAG,      NULL,
++            &phys,                 0);
++    OPTENT3(0, "time",             OPT_FLAG,      NULL,
++            &time,                 0);
++
++
++    opt.opt_table = option_def;
++    opt.short_allowed = FALSE;  /* We have no short (old-fashioned) options */
++    opt.allowNegNum = FALSE;  /* We have no parms that are negative numbers */
++
++    optParseOptions3( &argc, argv, opt, sizeof(opt), 0);
++        /* Uses and sets argc, argv, and some of *cmdlineP and others. */
++
++
++    if (chroma)
++        pm_error("The -chroma option no longer exists.  Use -rgb instead.");
++    if (phys)
++        pm_error("The -phys option no longer exists.  Use -size instead.");
++    if (time)
++        pm_error("The -time option no longer exists.  Use -modtime instead.");
++
++    if (alphaSpec + transparentSpec > 1)
++        pm_error("You may not specify both -alpha and -transparent");
++    if (!alphaSpec)
++        cmdlineP->alpha = NULL;
++    if (!transparentSpec)
++        cmdlineP->transparent = NULL;
++    if (!backgroundSpec)
++        cmdlineP->background = NULL;
++    if (!textSpec)
++        cmdlineP->text = NULL;
++    if (!ztxtSpec)
++        cmdlineP->ztxt = NULL;
++    if (!paletteSpec)
++        cmdlineP->palette = NULL;
++    
++    if (filterSpec + nofilter + sub + up + avg + paeth > 1)
++        pm_error("You may specify at most one of "
++                 "-nofilter, -sub, -up, -avg, -paeth, and -filter");
++    
++    if (filterSpec) {
++        if (filter < 0 || filter > 4)
++            pm_error("-filter is obsolete.  Use -nofilter, -sub, -up, -avg, "
++                     "and -paeth options instead.");
++        else
++            switch (filter) {
++            case 0: cmdlineP->filterSet = PNG_FILTER_NONE;  break;
++            case 1: cmdlineP->filterSet = PNG_FILTER_SUB;   break;
++            case 2: cmdlineP->filterSet = PNG_FILTER_UP;    break;
++            case 3: cmdlineP->filterSet = PNG_FILTER_AVG;   break;
++            case 4: cmdlineP->filterSet = PNG_FILTER_PAETH; break;
++            }
++    } else {
++        if (nofilter)
++            cmdlineP->filterSet = PNG_FILTER_NONE;
++        else if (sub)
++            cmdlineP->filterSet = PNG_FILTER_SUB;
++        else if (up)
++            cmdlineP->filterSet = PNG_FILTER_UP;
++        else if (avg)
++            cmdlineP->filterSet = PNG_FILTER_AVG;
++        else if (paeth)
++            cmdlineP->filterSet = PNG_FILTER_PAETH;
++        else
++            cmdlineP->filterSet = PNG_FILTER_NONE;
++    }
++    
++    if (cmdlineP->sizeSpec)
++        parseSizeOpt(size, &cmdlineP->size);
++
++    if (cmdlineP->rgbSpec)
++        parseRgbOpt(rgb, &cmdlineP->rgb);
++    
++    if (cmdlineP->modtimeSpec)
++        parseModtimeOpt(modtime, &cmdlineP->modtime);
++
++    if (cmdlineP->zlibCompression.levelSpec &&
++        cmdlineP->zlibCompression.level > 9)
++        pm_error("-compression value must be from 0 (no compression) "
++                 "to 9 (maximum compression).  You specified %u",
++                 cmdlineP->zlibCompression.level);
++
++    if (cmdlineP->zlibCompression.memLevelSpec) {
++        if (cmdlineP->zlibCompression.mem_level  < 1 ||
++            cmdlineP->zlibCompression.mem_level > 9)
++        pm_error("-comp_mem_level value must be from 1 (minimum memory usage) "
++                 "to 9 (maximum memory usage).  You specified %u",
++                 cmdlineP->zlibCompression.mem_level);
++    }
++
++    if (cmdlineP->zlibCompression.methodSpec) {
++        if (STREQ(compMethod, "deflated"))
++            cmdlineP->zlibCompression.method = Z_DEFLATED;
++        else
++            pm_error("The only valid value for -method is 'deflated'.  "
++                     "You specified '%s'", compMethod);
++    }
++
++    if (cmdlineP->zlibCompression.strategySpec) {
++        if (STREQ(compStrategy, "huffman_only"))
++            cmdlineP->zlibCompression.strategy = Z_HUFFMAN_ONLY;
++        else if (STREQ(compStrategy, "filtered"))
++            cmdlineP->zlibCompression.strategy = Z_FILTERED;
++        else
++            pm_error("Valid values for -strategy are 'huffman_only' and "
++                     "filtered.  You specified '%s'", compStrategy);
++    }
++
++
++    if (argc-1 < 1)
++        cmdlineP->inputFilename = "-";
++    else if (argc-1 == 1)
++        cmdlineP->inputFilename = argv[1];
++    else
++        pm_error("Program takes at most one argument:  input file name");
++}
++
++
++
+ static png_color_16
+ xelToPngColor_16(xel const input, 
+                  xelval const maxval, 
+@@ -166,6 +495,8 @@
+     unsigned int bestIndex;
+     unsigned int bestMatch;
+ 
++    assert(paletteSize > 0);
++
+     bestMatch = UINT_MAX;
+     for (paletteIndex = 0; paletteIndex < paletteSize; ++paletteIndex) {
+         unsigned int const dist = 
+@@ -360,8 +691,62 @@
+ 
+ 
+ 
++static bool
++pgmBitsAreRepeated(unsigned int const repeatedSize,
++                   FILE *       const ifP,
++                   pm_filepos   const imagepos, 
++                   int          const cols,
++                   int          const rows,
++                   xelval       const maxval,
++                   int          const format) {
++/*----------------------------------------------------------------------------
++   Return TRUE iff all the samples in the image in file 'ifP',
++   described by 'cols', 'rows', 'maxval', and 'format', consist in the
++   rightmost 'repeatedSize' * 2 bits of two identical sets of
++   'repeatedSize' bits.
++
++   The file has arbitrary position, but the raster is at file position
++   'imagepos'.
++
++   E.g. for repeatedSize = 2, a sample value of 0xaa would qualify.
++   So would 0x0a.
++
++   Leave the file positioned where we found it.
++-----------------------------------------------------------------------------*/
++    unsigned int const mask2 = (1 << repeatedSize*2) - 1;
++    unsigned int const mask1 = (1 << repeatedSize) - 1;
++
++    bool mayscale;
++    unsigned int row;
++    xel * xelrow;
++
++    xelrow = pnm_allocrow(cols);
++    
++    pm_seek2(ifP, &imagepos, sizeof(imagepos));
++
++    mayscale = TRUE;  /* initial assumption */
++
++    for (row = 0; row < rows && mayscale; ++row) {
++        unsigned int col;
++        pnm_readpnmrow(ifP, xelrow, cols, maxval, format);
++        for (col = 0; col < cols && mayscale; ++col) {
++            xelval const testbits2 = PNM_GET1(xelrow[col]) & mask2;
++                /* The bits of interest in the sample */
++            xelval const testbits1 = testbits2 & mask1;
++                /* The lower half of the bits of interest in the sample */
++            if (((testbits1 << repeatedSize) | testbits1) != testbits2)
++                mayscale = FALSE;
++        }
++    }
++    pnm_freerow(xelrow);
++
++    return mayscale;
++}
++
++
++
+ static void
+-meaningful_bits_pgm(FILE *         const ifp, 
++meaningful_bits_pgm(FILE *         const ifP, 
+                     pm_filepos     const imagepos, 
+                     int            const cols,
+                     int            const rows,
+@@ -378,76 +763,40 @@
+    If this is the case, we find out and find out how small these repeated
+    groups of bits are and return the number of bits.
+ -----------------------------------------------------------------------------*/
+-    int mayscale;
+-    int x, y;
+-    xel * xelrow;
+-
+-    xelrow = pnm_allocrow(cols);
+-
+-    *retvalP = pm_maxvaltobits(maxval);
+-
+-    if (maxval == 65535) {
+-        mayscale = TRUE;   /* initial assumption */
+-        pm_seek2(ifp, &imagepos, sizeof(imagepos));
+-        for (y = 0 ; y < rows && mayscale ; y++) {
+-            pnm_readpnmrow(ifp, xelrow, cols, maxval, format);
+-            for (x = 0 ; x < cols && mayscale ; x++) {
+-                xel const p = xelrow[x];
+-                if ( (PNM_GET1 (p)&0xff)*0x101 != PNM_GET1 (p) )
+-                    mayscale = FALSE;
+-            }
+-        }
+-        if (mayscale)
+-            *retvalP = 8;
+-    }
+-    if (maxval == 255 || *retvalP == 8) {
+-        mayscale = TRUE;  /* initial assumption */
+-        pm_seek2(ifp, &imagepos, sizeof(imagepos));
+-        for (y = 0 ; y < rows && mayscale ; y++) {
+-            pnm_readpnmrow(ifp, xelrow, cols, maxval, format);
+-            for (x = 0 ; x < cols && mayscale ; x++) {
+-                if ((PNM_GET1 (xelrow[x]) & 0xf) * 0x11 
+-                    != PNM_GET1 (xelrow[x]))
+-                    mayscale = FALSE;
+-            }
+-        }
+-        if (mayscale)
+-            *retvalP = 4;
+-    }
++    unsigned int maxMeaningfulBits;
++        /* progressive estimate of the maximum number of meaningful
++           (nonrepeated) bits in the samples.
++        */
+ 
+-    if (maxval == 15 || *retvalP == 4) {
+-        mayscale = TRUE;   /* initial assumption */
+-        pm_seek2(ifp, &imagepos, sizeof(imagepos));
+-        for (y = 0 ; y < rows && mayscale ; y++) {
+-            pnm_readpnmrow(ifp, xelrow, cols, maxval, format);
+-            for (x = 0 ; x < cols && mayscale ; x++) {
+-                if ((PNM_GET1 (xelrow[x])&3) * 0x5 != PNM_GET1 (xelrow[x]))
+-                    mayscale = FALSE;
+-            }
+-        }
+-        if (mayscale) {
+-            *retvalP = 2;
+-        }
+-    }
++    maxMeaningfulBits = pm_maxvaltobits(maxval);  /* initial value */
+ 
+-    if (maxval == 3 || *retvalP == 2) {
+-        mayscale = TRUE;   /* initial assumption */
+-        pm_seek2(ifp, &imagepos, sizeof(imagepos));
+-        for (y = 0 ; y < rows && mayscale ; y++) {
+-            pnm_readpnmrow(ifp, xelrow, cols, maxval, format);
+-            for (x = 0 ; x < cols && mayscale ; x++) {
+-                if ((PNM_GET1 (xelrow[x])&1) * 0x3 != PNM_GET1 (xelrow[x]))
+-                    mayscale = FALSE;
+-            }
+-        }
+-        if (mayscale) {
+-            *retvalP = 1;
++    if (maxval == 0xffff || maxval == 0xff || maxval == 0xf || maxval == 0x3) {
++        if (maxMeaningfulBits == 16) {
++            if (pgmBitsAreRepeated(8,
++                                   ifP, imagepos, cols, rows, maxval, format))
++                maxMeaningfulBits = 8;
++        }
++        if (maxMeaningfulBits == 8) {
++            if (pgmBitsAreRepeated(4,
++                                   ifP, imagepos, cols, rows, maxval, format))
++                maxMeaningfulBits = 4;
++        }
++        if (maxMeaningfulBits == 4) {
++            if (pgmBitsAreRepeated(2,
++                                   ifP, imagepos, cols, rows, maxval, format))
++                maxMeaningfulBits = 2;
++        }
++        if (maxMeaningfulBits == 2) {
++            if (pgmBitsAreRepeated(1,
++                                   ifP, imagepos, cols, rows, maxval, format))
++                maxMeaningfulBits = 1;
+         }
+     }
+-    pnm_freerow(xelrow);
++    *retvalP = maxMeaningfulBits;
+ }
+ 
+ 
++
+ static void
+ meaningful_bits_ppm(FILE *         const ifp, 
+                     pm_filepos     const imagepos, 
+@@ -467,30 +816,37 @@
+    a sample without losing information (8 or all).
+ -----------------------------------------------------------------------------*/
+     int mayscale;
+-    int x, y;
++    unsigned int row;
+     xel * xelrow;
++    unsigned int maxMeaningfulBits;
++        /* progressive estimate of the maximum number of meaningful
++           (nonrepeated) bits in the samples.
++        */
+ 
+     xelrow = pnm_allocrow(cols);
+ 
+-    *retvalP = pm_maxvaltobits(maxval);
++    maxMeaningfulBits = pm_maxvaltobits(maxval);
+ 
+     if (maxval == 65535) {
+         mayscale = TRUE;   /* initial assumption */
+         pm_seek2(ifp, &imagepos, sizeof(imagepos));
+-        for (y = 0 ; y < rows && mayscale ; y++) {
++        for (row = 0; row < rows && mayscale; ++row) {
++            unsigned int col;
+             pnm_readpnmrow(ifp, xelrow, cols, maxval, format);
+-            for (x = 0 ; x < cols && mayscale ; x++) {
+-                xel const p = xelrow[x];
+-                if ( (PPM_GETR (p)&0xff)*0x101 != PPM_GETR (p) ||
+-                     (PPM_GETG (p)&0xff)*0x101 != PPM_GETG (p) ||
+-                     (PPM_GETB (p)&0xff)*0x101 != PPM_GETB (p) )
++            for (col = 0; col < cols && mayscale; ++col) {
++                xel const p = xelrow[col];
++                if ((PPM_GETR(p) & 0xff) * 0x101 != PPM_GETR(p) ||
++                    (PPM_GETG(p) & 0xff) * 0x101 != PPM_GETG(p) ||
++                    (PPM_GETB(p) & 0xff) * 0x101 != PPM_GETB(p))
+                     mayscale = FALSE;
+             }
+         }
+         if (mayscale)
+-            *retvalP = 8;
++            maxMeaningfulBits = 8;
+     }
+     pnm_freerow(xelrow);
++
++    *retvalP = maxMeaningfulBits;
+ }
+ 
+ 
+@@ -666,8 +1022,8 @@
+ 
+ 
+ static void
+-readOrderedPalette(FILE * const   pfp,
+-                   xel            ordered_palette[], 
++readOrderedPalette(FILE *         const pfp,
++                   xel                  ordered_palette[], 
+                    unsigned int * const ordered_palette_size_p) {
+ 
+     xel ** xels;
+@@ -676,9 +1032,9 @@
+     int format;
+     
+     if (verbose)
+-        pm_message ("reading ordered palette (colormap)...");
++        pm_message("reading ordered palette (colormap)...");
+ 
+-    xels = pnm_readpnm (pfp, &cols, &rows, &maxval, &format);
++    xels = pnm_readpnm(pfp, &cols, &rows, &maxval, &format);
+     
+     if (PNM_FORMAT_TYPE(format) != PPM_TYPE) 
+         pm_error("ordered palette must be a PPM file, not type %d", format);
+@@ -1002,12 +1358,10 @@
+         for (colorIndex = 0; colorIndex < colors + 1; ++colorIndex)
+             free(alphas_of_color[colorIndex]);
+     }
+-pm_message("returning alpha palette of size %u", *transSizeP);
+ } 
+ 
+ 
+ 
+-
+ static void
+ makeOneColorTransparentInPalette(xel            const transColor, 
+                                  bool           const exact,
+@@ -1030,9 +1384,13 @@
+    not there and exact == FALSE, just find the closest color.
+ 
+    We assume every entry in the palette is opaque upon entry.
++
++   A valid palette has at least one color.
+ -----------------------------------------------------------------------------*/
+     unsigned int transparentIndex;
+     unsigned int distance;
++
++    assert(paletteSize > 0);
+     
+     if (*transSizeP != 0)
+         pm_error("Internal error: trying to make a color in the palette "
+@@ -1117,8 +1475,8 @@
+             palette_pnm[*backgroundIndexP] = backColor;
+             if (verbose) {
+                 pixel const p = palette_pnm[*backgroundIndexP];
+-                pm_message ("added background color (%u, %u, %u) to palette.",
+-                            PPM_GETR(p), PPM_GETG(p), PPM_GETB(p));
++                pm_message("added background color (%u, %u, %u) to palette.",
++                           PPM_GETR(p), PPM_GETG(p), PPM_GETB(p));
+             }
+         } else {
+             closestColorInPalette(backColor, palette_pnm, *paletteSizeP,
+@@ -1321,10 +1679,10 @@
+                 bool           const force,
+                 FILE *         const pfP,
+                 bool           const alpha,
+-                int            const transparent,
++                bool           const transparent,
+                 pixel          const transcolor,
+                 bool           const transexact,
+-                int            const background,
++                bool           const background,
+                 pixel          const backcolor,
+                 gray **        const alpha_mask,
+                 unsigned int   const pnm_meaningful_bits,
+@@ -1348,6 +1706,10 @@
+   palette_pnm[] and trans_pnm[], allocated by Caller, with sizes
+   *paletteSizeP and *transSizeP.
+ 
++  'background' means the image is to have a background color, and that
++  color is 'backcolor'.  'backcolor' is meaningless when 'background'
++  is false.
++
+   If the image is to have a background color, we return the palette index
+   of that color as *backgroundIndexP.
+ -------------------------------------------------------------------------- */
+@@ -1407,14 +1769,14 @@
+                                                  palette_pnm, &paletteSize, 
+                                                  trans_pnm, &transSize);
+     
+-                        if (transparent != -1)
++                        if (transparent)
+                             makeOneColorTransparentInPalette(
+                                 transcolor, transexact, 
+                                 palette_pnm, paletteSize, trans_pnm, 
+                                 &transSize);
+                     }
+                     if (!*noColormapReasonP) {
+-                        if (background > -1)
++                        if (background)
+                             findOrAddBackgroundInPalette(
+                                 backcolor, palette_pnm, &paletteSize,
+                                 backgroundIndexP);
+@@ -1531,19 +1893,12 @@
+         palette[i].red   = PPM_GETR(p);
+         palette[i].green = PPM_GETG(p);
+         palette[i].blue  = PPM_GETB(p);
+-#ifdef DEBUG
+-        pm_message("palette[%u] = (%d, %d, %d)",
+-                   i, palette[i].red, palette[i].green, palette[i].blue);
+-#endif
+     }
+ 
+     for (i = 0; i < transSize; ++i) {
+         unsigned int const newmv = PALETTEMAXVAL;
+         unsigned int const oldmv = alpha_maxval;
+         trans[i] = (trans_pnm[i] * newmv + (oldmv/2)) / oldmv;
+-#ifdef DEBUG
+-        pm_message("trans[%u] = %d", i, trans[i]);
+-#endif
+     }
+ }
+ 
+@@ -1565,26 +1920,26 @@
+ 
+ 
+ static void
+-setZlibCompression(png_struct *            const png_ptr,
+-                   struct zlib_compression const zlib_compression) {
++setZlibCompression(png_struct *           const png_ptr,
++                   struct zlibCompression const zlibCompression) {
+ 
+-    if (zlib_compression.level >= 0)
+-        png_set_compression_level(png_ptr, zlib_compression.level);
++    if (zlibCompression.levelSpec)
++        png_set_compression_level(png_ptr, zlibCompression.level);
+ 
+-    if (zlib_compression.mem_level >= 0)
+-        png_set_compression_mem_level(png_ptr, zlib_compression.mem_level);
++    if (zlibCompression.memLevelSpec)
++        png_set_compression_mem_level(png_ptr, zlibCompression.mem_level);
+ 
+-    if (zlib_compression.strategy >= 0)
+-        png_set_compression_strategy(png_ptr, zlib_compression.strategy);
++    if (zlibCompression.strategySpec)
++        png_set_compression_strategy(png_ptr, zlibCompression.strategy);
+ 
+-    if (zlib_compression.window_bits >= 0)
+-        png_set_compression_window_bits(png_ptr, zlib_compression.window_bits);
++    if (zlibCompression.windowBitsSpec)
++        png_set_compression_window_bits(png_ptr, zlibCompression.window_bits);
+ 
+-    if (zlib_compression.method >= 0)
+-        png_set_compression_method(png_ptr, zlib_compression.method);
++    if (zlibCompression.methodSpec)
++        png_set_compression_method(png_ptr, zlibCompression.method);
+ 
+-    if (zlib_compression.buffer_size >= 0) {
+-        setCompressionSize(png_ptr, zlib_compression.buffer_size);
++    if (zlibCompression.bufferSizeSpec) {
++        setCompressionSize(png_ptr, zlibCompression.buffer_size);
+     }
+ }
+                   
+@@ -1670,9 +2025,11 @@
+    from file *ifP, position 'imagepos'.
+ 
+    The PNG raster consists of IDAT chunks.
++
++   'alpha_mask' is defined only if 'alpha' is true.
+ -----------------------------------------------------------------------------*/
+     xel * xelrow;
+-    png_byte *line;
++    png_byte * line;
+     unsigned int pass;
+ 
+     xelrow = pnm_allocrow(cols);
+@@ -1690,7 +2047,8 @@
+             pnm_promoteformatrow(xelrow, cols, maxval, format, maxval,
+                                  PPM_TYPE);
+             
+-            makePngLine(line, xelrow, cols, maxval, alpha, alpha_mask[row],
++            makePngLine(line, xelrow, cols, maxval,
++                        alpha, alpha ? alpha_mask[row] : NULL,
+                         cht, caht, info_ptr, png_maxval, depth);
+ 
+             png_write_row(png_ptr, line);
+@@ -1701,36 +2059,137 @@
+ 
+ 
+ 
+-static int 
+-convertpnm(FILE * const ifp, 
+-           FILE * const afp, 
+-           FILE * const pfp, 
+-           FILE * const tfp,
+-           float  const gamma,
+-           int    const interlace,
+-           int    const downscale,
+-           bool   const transparent_opt,
+-           char * const transstring,
+-           bool   const alpha_opt,
+-           char * const alpha_file,
+-           int    const background,
+-           char * const backstring,
+-           int    const hist,
+-           struct chroma const chroma,
+-           int    const phys_x,
+-           int    const phys_y,
+-           int    const phys_unit,
+-           int    const text,
+-           int    const ztxt,
+-           char * const text_file,
+-           int    const mtime,
+-           char * const date_string,
+-           char * const time_string,
+-           int    const filterSet,
+-           int    const force,
+-           struct zlib_compression zlib_compression
+-    ) {
++static void
++doGamaChunk(struct cmdlineInfo const cmdline,
++            png_info *         const info_ptr) {
++            
++    if (cmdline.gammaSpec) {
++        /* gAMA chunk */
++        info_ptr->valid |= PNG_INFO_gAMA;
++        info_ptr->gamma = cmdline.gamma;
++    }
++}
++
++
++
++static void
++doChrmChunk(struct cmdlineInfo const cmdline,
++            png_info *         const info_ptr) {
++
++    if (cmdline.rgbSpec) {
++        /* cHRM chunk */
++        info_ptr->valid |= PNG_INFO_cHRM;
++
++        info_ptr->x_white = cmdline.rgb.wx;
++        info_ptr->y_white = cmdline.rgb.wy;
++        info_ptr->x_red   = cmdline.rgb.rx;
++        info_ptr->y_red   = cmdline.rgb.ry;
++        info_ptr->x_green = cmdline.rgb.gx;
++        info_ptr->y_green = cmdline.rgb.gy;
++        info_ptr->x_blue  = cmdline.rgb.bx;
++        info_ptr->y_blue  = cmdline.rgb.by;
++    }
++}
++
++
++
++static void
++doPhysChunk(struct cmdlineInfo const cmdline,
++            png_info *         const info_ptr) {
++
++    if (cmdline.sizeSpec) {
++        /* pHYS chunk */
++        info_ptr->valid |= PNG_INFO_pHYs;
++
++        info_ptr->x_pixels_per_unit = cmdline.size.x;
++        info_ptr->y_pixels_per_unit = cmdline.size.y;
++        info_ptr->phys_unit_type    = cmdline.size.unit;
++    }
++}
++
++
++
++
++static void
++doTimeChunk(struct cmdlineInfo const cmdline,
++            png_info *         const info_ptr) {
++
++    if (cmdline.modtimeSpec) {
++        /* tIME chunk */
++        info_ptr->valid |= PNG_INFO_tIME;
++
++        png_convert_from_time_t(&info_ptr->mod_time, cmdline.modtime);
++    }
++}
++
+ 
++
++static void
++doSbitChunk(png_info * const pngInfoP,
++            xelval     const pngMaxval,
++            xelval     const maxval,
++            bool       const alpha,
++            xelval     const alphaMaxval) {
++
++    if (pngInfoP->color_type != PNG_COLOR_TYPE_PALETTE &&
++        (pngMaxval > maxval || (alpha && pngMaxval > alphaMaxval))) {
++
++        /* We're writing in a bit depth that doesn't match the maxval
++           of the input image and the alpha mask.  So we write an sBIT
++           chunk to tell what the original image's maxval was.  The
++           sBit chunk doesn't let us specify any maxval -- only powers
++           of two minus one.  So we pick the power of two minus one
++           which is greater than or equal to the actual input maxval.
++           
++           PNG also doesn't let an sBIT chunk indicate a maxval
++           _greater_ than the the PNG maxval.  The designers probably
++           did not conceive of the case where that would happen.  The
++           case is this: We detected redundancy in the bits so were
++           able to store fewer bits than the user provided.  But since
++           PNG doesn't allow it, we don't attempt to create such an
++           sBIT chunk.
++        */
++
++        pngInfoP->valid |= PNG_INFO_sBIT;
++
++        {
++            int const sbitval = pm_maxvaltobits(MIN(maxval, pngMaxval));
++
++            if (pngInfoP->color_type & PNG_COLOR_MASK_COLOR) {
++                pngInfoP->sig_bit.red   = sbitval;
++                pngInfoP->sig_bit.green = sbitval;
++                pngInfoP->sig_bit.blue  = sbitval;
++            } else
++                pngInfoP->sig_bit.gray = sbitval;
++            
++            if (verbose)
++                pm_message("Writing sBIT chunk with bits = %d", sbitval);
++        }
++        if (pngInfoP->color_type & PNG_COLOR_MASK_ALPHA) {
++            pngInfoP->sig_bit.alpha =
++                pm_maxvaltobits(MIN(alphaMaxval, pngMaxval));
++            if (verbose)
++                pm_message("  alpha bits = %d", pngInfoP->sig_bit.alpha);
++        }
++    }
++}
++
++
++
++static void 
++convertpnm(struct cmdlineInfo const cmdline,
++           FILE *             const ifp,
++           FILE *             const afp,
++           FILE *             const pfp,
++           FILE *             const tfp,
++           int *              const errorLevelP
++    ) {
++/*----------------------------------------------------------------------------
++   Design note:  It's is really a modularity violation that we have
++   all the command line parameters as an argument.  We do it because we're
++   lazy -- it takes a great deal of work to carry all that information as
++   separate arguments -- and it's only a very small violation.
++-----------------------------------------------------------------------------*/
+   xel p;
+   int rows, cols, format;
+   xelval maxval;
+@@ -1796,7 +2255,6 @@
+       /* The total number of bits per pixel in the (uncompressed) png
+          raster, including all channels 
+       */
+-  int x, y;
+   pm_filepos imagepos;  
+       /* file position in input image file of start of image (i.e. after
+          the header)
+@@ -1804,14 +2262,9 @@
+   xel *xelrow;    /* malloc'ed */
+       /* The row of the input image currently being processed */
+ 
+-  /* these variables are declared static because gcc wasn't kidding
+-   * about "variable XXX might be clobbered by `longjmp' or `vfork'"
+-   * (stack corruption observed on Solaris 2.6 with gcc 2.8.1, even
+-   * in the absence of any other error condition) */
+-  static int pnm_type;
+-  static xelval maxmaxval;
+-  static gray **alpha_mask;
+-  
++  int pnm_type;
++  xelval maxmaxval;
++  gray ** alpha_mask;
+ 
+   /* these guys are initialized to quiet compiler warnings: */
+   maxmaxval = 255;
+@@ -1859,24 +2312,24 @@
+   else if (pnm_type == PPM_TYPE)
+     maxmaxval = PPM_OVERALLMAXVAL;
+ 
+-  if (transparent_opt) {
+-    char * transstring2;  
+-      /* Same as transstring, but with possible leading '=' removed */
+-    if (transstring[0] == '=') {
+-      transexact = 1;
+-      transstring2 = transstring+1;
+-    } else {
+-      transexact = 0;
+-      transstring2 = transstring;
+-    }  
+-    /* We do this funny PPM_DEPTH thing instead of just passing 'maxval'
+-       to ppm_parsecolor() because ppm_parsecolor() does a cheap maxval
+-       scaling, and this is more precise.
+-    */
+-    PPM_DEPTH (transcolor, ppm_parsecolor(transstring2, maxmaxval),
+-               maxmaxval, maxval);
++  if (cmdline.transparent) {
++      const char * transstring2;  
++          /* The -transparent value, but with possible leading '=' removed */
++      if (cmdline.transparent[0] == '=') {
++          transexact = 1;
++          transstring2 = &cmdline.transparent[1];
++      } else {
++          transexact = 0;
++          transstring2 = cmdline.transparent;
++      }  
++      /* We do this funny PPM_DEPTH thing instead of just passing 'maxval'
++         to ppm_parsecolor() because ppm_parsecolor() does a cheap maxval
++         scaling, and this is more precise.
++      */
++      PPM_DEPTH (transcolor, ppm_parsecolor(transstring2, maxmaxval),
++                 maxmaxval, maxval);
+   }
+-  if (alpha_opt) {
++  if (cmdline.alpha) {
+     pixel alpha_transcolor;
+     bool alpha_can_be_transparency_index;
+     bool all_opaque;
+@@ -1894,7 +2347,7 @@
+                  alpha_mask, alpha_maxval, &all_opaque,
+                  &alpha_can_be_transparency_index, &alpha_transcolor);
+ 
+-    if (alpha_can_be_transparency_index && !force) {
++    if (alpha_can_be_transparency_index && !cmdline.force) {
+       if (verbose)
+         pm_message ("converting alpha mask to transparency index");
+       alpha = FALSE;
+@@ -1914,46 +2367,49 @@
+       */
+       alpha = FALSE;
+       alpha_maxval = 255;
+-      transparent = transparent_opt ? 1 : -1;
++      transparent = cmdline.transparent ? 1 : -1;
+   }
+-  /* gcc 2.7.0 -fomit-frame-pointer causes stack corruption here */
+-  if (background > -1) 
+-      PPM_DEPTH(backcolor, ppm_parsecolor (backstring, maxmaxval), 
++  if (cmdline.background) 
++      PPM_DEPTH(backcolor, ppm_parsecolor(cmdline.background, maxmaxval), 
+                 maxmaxval, maxval);;
+ 
+   /* first of all, check if we have a grayscale image written as PPM */
+ 
+-  if (pnm_type == PPM_TYPE && !force) {
+-    int isgray = TRUE;
+-
+-    pm_seek2(ifp, &imagepos, sizeof(imagepos));
+-    for (y = 0 ; y < rows && isgray ; y++) {
+-      pnm_readpnmrow(ifp, xelrow, cols, maxval, format);
+-      for (x = 0 ; x < cols && isgray ; x++) {
+-        p = xelrow[x];
+-        if (PPM_GETR (p) != PPM_GETG (p) || PPM_GETG (p) != PPM_GETB (p))
+-          isgray = FALSE;
++  if (pnm_type == PPM_TYPE && !cmdline.force) {
++      unsigned int row;
++      bool isgray;
++
++      isgray = TRUE;  /* initial assumption */
++      pm_seek2(ifp, &imagepos, sizeof(imagepos));
++      for (row = 0; row < rows && isgray; ++row) {
++          unsigned int col;
++          pnm_readpnmrow(ifp, xelrow, cols, maxval, format);
++          for (col = 0; col < cols && isgray; ++col) {
++              p = xelrow[col];
++              if (PPM_GETR(p) != PPM_GETG(p) || PPM_GETG(p) != PPM_GETB(p))
++                  isgray = FALSE;
++          }
+       }
+-    }
+-    if (isgray)
+-      pnm_type = PGM_TYPE;
++      if (isgray)
++          pnm_type = PGM_TYPE;
+   }
+ 
+   /* handle `odd' maxvalues */
+ 
+-    if (maxval > 65535 && !downscale) {
+-      png_destroy_write_struct (&png_ptr, &info_ptr);
+-      pm_closer (ifp);
+-      pm_error ("can only handle files up to 16-bit "
+-                "(use -downscale to override");
+-    }
++  if (maxval > 65535 && !cmdline.downscale) {
++      png_destroy_write_struct(&png_ptr, &info_ptr);
++      pm_closer(ifp);
++      pm_error("can only handle files up to 16-bit "
++               "(use -downscale to override");
++  }
+ 
+   findRedundantBits(ifp, imagepos, cols, rows, maxval, format, alpha,
+-                    force, &pnm_meaningful_bits);
++                    cmdline.force, &pnm_meaningful_bits);
+   
+   computeColorMap(ifp, imagepos, cols, rows, maxval, format,
+-                  force, pfp, alpha, transparent, transcolor, transexact, 
+-                  background, backcolor,
++                  cmdline.force, pfp,
++                  alpha, transparent >= 0, transcolor, transexact, 
++                  !!cmdline.background, backcolor,
+                   alpha_mask, pnm_meaningful_bits,
+                   palette_pnm, &palette_size, trans_pnm, &trans_size,
+                   &background_index, &noColormapReason);
+@@ -1983,7 +2439,7 @@
+                 colorMapped ? "palette": 
+                 (pnm_type == PPM_TYPE ? "RGB" : "gray"),
+                 alpha ? (colorMapped ? "+transparency" : "+alpha") : "",
+-                interlace? " (interlaced)" : "");
++                cmdline.interlace ? " (interlaced)" : "");
+ 
+   /* now write the file */
+ 
+@@ -2010,34 +2466,13 @@
+   if (alpha && info_ptr->color_type != PNG_COLOR_TYPE_PALETTE)
+     info_ptr->color_type |= PNG_COLOR_MASK_ALPHA;
+ 
+-  info_ptr->interlace_type = interlace;
++  info_ptr->interlace_type = cmdline.interlace;
+ 
+-  /* gAMA chunk */
+-  if (gamma != -1.0) {
+-    info_ptr->valid |= PNG_INFO_gAMA;
+-    info_ptr->gamma = gamma;
+-  }
++  doGamaChunk(cmdline, info_ptr);
+ 
+-  /* cHRM chunk */
+-  if (chroma.wx != -1.0) {
+-    info_ptr->valid |= PNG_INFO_cHRM;
+-    info_ptr->x_white = chroma.wx;
+-    info_ptr->y_white = chroma.wy;
+-    info_ptr->x_red = chroma.rx;
+-    info_ptr->y_red = chroma.ry;
+-    info_ptr->x_green = chroma.gx;
+-    info_ptr->y_green = chroma.gy;
+-    info_ptr->x_blue = chroma.bx;
+-    info_ptr->y_blue = chroma.by;
+-  }
++  doChrmChunk(cmdline, info_ptr);
+ 
+-  /* pHYS chunk */
+-  if (phys_unit != -1.0) {
+-    info_ptr->valid |= PNG_INFO_pHYs;
+-    info_ptr->x_pixels_per_unit = phys_x;
+-    info_ptr->y_pixels_per_unit = phys_y;
+-    info_ptr->phys_unit_type = phys_unit;
+-  }
++  doPhysChunk(cmdline, info_ptr);
+ 
+   if (info_ptr->color_type == PNG_COLOR_TYPE_PALETTE) {
+ 
+@@ -2055,7 +2490,7 @@
+         info_ptr->num_trans = trans_size;   /* omit opaque values */
+     }
+     /* creating hIST chunk */
+-    if (hist) {
++    if (cmdline.hist) {
+         colorhist_vector chv;
+         unsigned int colors;
+         colorhash_table cht;
+@@ -2110,7 +2545,7 @@
+   }
+ 
+   /* bKGD chunk */
+-  if (background > -1) {
++  if (cmdline.background) {
+       info_ptr->valid |= PNG_INFO_bKGD;
+       if (info_ptr->color_type == PNG_COLOR_TYPE_PALETTE) {
+           info_ptr->background.index = background_index;
+@@ -2127,73 +2562,29 @@
+       }
+   }
+ 
+-  if (!colorMapped && (png_maxval != maxval || 
+-                       (alpha && png_maxval != alpha_maxval))) {
+-    /* We're writing in a bit depth that doesn't match the maxval of the
+-       input image and the alpha mask.  So we write an sBIT chunk to tell
+-       what the original image's maxval was.  The sBit chunk doesn't let
+-       us specify any maxval -- only powers of two minus one.  So we pick
+-       the power of two minus one which is greater than or equal to the
+-       actual input maxval.
+-    */
+-    /* sBIT chunk */
+-    int sbitval;
+-
+-    info_ptr->valid |= PNG_INFO_sBIT;
+-
+-    sbitval = pm_maxvaltobits(maxval);
+-
+-    if (info_ptr->color_type & PNG_COLOR_MASK_COLOR) {
+-      info_ptr->sig_bit.red   = sbitval;
+-      info_ptr->sig_bit.green = sbitval;
+-      info_ptr->sig_bit.blue  = sbitval;
+-    } else {
+-      info_ptr->sig_bit.gray = sbitval;
+-    }
+-    if (verbose)
+-        pm_message("Writing sBIT chunk with sbitval = %d", sbitval);
+-
+-    if (info_ptr->color_type & PNG_COLOR_MASK_ALPHA) {
+-      info_ptr->sig_bit.alpha = pm_maxvaltobits(alpha_maxval);
+-    }
+-  }
++  doSbitChunk(info_ptr, png_maxval, maxval, alpha, alpha_maxval);
+ 
+   /* tEXT and zTXT chunks */
+-  if ((text) || (ztxt)) {
+-    pnmpng_read_text (info_ptr, tfp, ztxt, verbose);
+-  }
++  if (cmdline.text || cmdline.ztxt)
++      pnmpng_read_text(info_ptr, tfp, !!cmdline.ztxt, cmdline.verbose);
+ 
+-  /* tIME chunk */
+-  if (mtime) {
+-    struct tm time_struct;
+-    info_ptr->valid |= PNG_INFO_tIME;
+-    sscanf (date_string, "%d-%d-%d", &time_struct.tm_year,
+-                                     &time_struct.tm_mon,
+-                                     &time_struct.tm_mday);
+-    if (time_struct.tm_year > 1900)
+-      time_struct.tm_year -= 1900;
+-    time_struct.tm_mon--; /* tm has monthes 0..11 */
+-    sscanf (time_string, "%d:%d:%d", &time_struct.tm_hour,
+-                                     &time_struct.tm_min,
+-                                     &time_struct.tm_sec);
+-    png_convert_from_struct_tm (&info_ptr->mod_time, &time_struct);
+-  }
++  doTimeChunk(cmdline, info_ptr);
+ 
+-  if (filterSet != 0)
+-      png_set_filter(png_ptr, 0, filterSet);
++  if (cmdline.filterSet != 0)
++      png_set_filter(png_ptr, 0, cmdline.filterSet);
+ 
+-  setZlibCompression(png_ptr, zlib_compression);
++  setZlibCompression(png_ptr, cmdline.zlibCompression);
+ 
+   /* write the png-info struct */
+-  png_write_info (png_ptr, info_ptr);
++  png_write_info(png_ptr, info_ptr);
+ 
+-  if ((text) || (ztxt))
+-    /* prevent from being written twice with png_write_end */
+-    info_ptr->num_text = 0;
+-
+-  if (mtime)
+-    /* prevent from being written twice with png_write_end */
+-    info_ptr->valid &= ~PNG_INFO_tIME;
++  if (cmdline.text || cmdline.ztxt)
++      /* prevent from being written twice with png_write_end */
++      info_ptr->num_text = 0;
++
++  if (cmdline.modtime)
++      /* prevent from being written twice with png_write_end */
++      info_ptr->valid &= ~PNG_INFO_tIME;
+ 
+   /* let libpng take care of, e.g., bit-depth conversions */
+   png_set_packing (png_ptr);
+@@ -2231,7 +2622,7 @@
+   if (caht)
+       freecoloralphahash(caht);
+ 
+-  return errorlevel;
++  *errorLevelP = errorlevel;
+ }
+ 
+ 
+@@ -2266,274 +2657,54 @@
+ int 
+ main(int argc, char *argv[]) {
+ 
+-  float gamma = -1.0;
+-  int interlace = FALSE;
+-  int downscale = FALSE;
+-  bool transparent = FALSE;
+-  char *transstring;
+-  bool alpha = FALSE;
+-  char *alpha_file;
+-  int background = -1;
+-  char *backstring;
+-  int hist = FALSE;
+-  struct chroma chroma = {-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0};
+-  int phys_x = -1.0;
+-  int phys_y = -1.0;
+-  int phys_unit = -1.0;
+-  int text = FALSE;
+-  int ztxt = FALSE;
+-  char *text_file;
+-  int mtime = FALSE;
+-  char *date_string;
+-  char *time_string;
+-  int force = FALSE;
+-  int filterSet = 0;
+-  struct zlib_compression zlib_compression;
+-
+-  FILE *ifp, *tfp, *afp, *pfp;
+-  char *palette_file;
+-      /* Name of user-supplied palette, file; NULL if none */
+-  int argn, errorlevel=0;
+-
+-  pnm_init (&argc, argv);
+-  argn = 1;
+-
+-  zlib_compression.level = -1;  /* initial value */
+-  zlib_compression.mem_level = -1;
+-  zlib_compression.strategy = -1;
+-  zlib_compression.window_bits = -1;
+-  zlib_compression.method = -1;
+-  zlib_compression.buffer_size = -1;
+-  /* TODO: switch this to shhopt, and make options for the rest of
+-     zlib_compression.
+-  */
+-  
+-  palette_file = NULL;   /* Initial value */
++    struct cmdlineInfo cmdline;
++    FILE * ifP;
++    FILE * afP;
++    FILE * pfP;
++    FILE * tfP;
+ 
+-  while (argn < argc && argv[argn][0] == '-' && argv[argn][1] != '\0') {
+-    if (pm_keymatch (argv[argn], "-verbose", 2)) {
+-      verbose = TRUE;
+-    } else
+-    if (pm_keymatch (argv[argn], "-downscale", 2)) {
+-      downscale = TRUE;
+-    } else
+-    if (pm_keymatch (argv[argn], "-interlace", 2)) {
+-      interlace = TRUE;
+-    } else
+-    if (pm_keymatch (argv[argn], "-alpha", 2)) {
+-      if (transparent)
+-        pm_error ("-alpha and -transparent are mutually exclusive");
+-      alpha = TRUE;
+-      if (++argn < argc)
+-        alpha_file = argv[argn];
+-      else
+-        pm_error("-alpha requires a value");
+-    } else
+-    if (pm_keymatch (argv[argn], "-transparent", 3)) {
+-      if (alpha)
+-        pm_error ("-alpha and -transparent are mutually exclusive");
+-      transparent = TRUE;
+-      if (++argn < argc)
+-        transstring = argv[argn];
+-      else
+-        pm_error("-transparent requires a value");
+-    } else
+-    if (pm_keymatch (argv[argn], "-background", 2)) {
+-      background = 1;
+-      if (++argn < argc)
+-        backstring = argv[argn];
+-      else
+-        pm_error("-background requires a value");
+-    } else
+-    if (pm_keymatch (argv[argn], "-gamma", 2)) {
+-      if (++argn < argc)
+-        sscanf (argv[argn], "%f", &gamma);
+-      else
+-        pm_error("-gamma requires a value");
+-    } else
+-    if (pm_keymatch (argv[argn], "-hist", 2)) {
+-      hist = TRUE;
+-    } else
+-    if (pm_keymatch (argv[argn], "-chroma", 3)) {
+-      if (++argn < argc)
+-        sscanf (argv[argn], "%f", &chroma.wx);
+-      else
+-        pm_error("-chroma requires 6 values");
+-      if (++argn < argc)
+-        sscanf (argv[argn], "%f", &chroma.wy);
+-      else
+-        pm_error("-chroma requires 6 values");
+-      if (++argn < argc)
+-        sscanf (argv[argn], "%f", &chroma.rx);
+-      else
+-        pm_error("-chroma requires 6 values");
+-      if (++argn < argc)
+-        sscanf (argv[argn], "%f", &chroma.ry);
+-      else
+-        pm_error("-chroma requires 6 values");
+-      if (++argn < argc)
+-        sscanf (argv[argn], "%f", &chroma.gx);
+-      else
+-        pm_error("-chroma requires 6 values");
+-      if (++argn < argc)
+-        sscanf (argv[argn], "%f", &chroma.gy);
+-      else
+-        pm_error("-chroma requires 6 values");
+-      if (++argn < argc)
+-        sscanf (argv[argn], "%f", &chroma.bx);
+-      else
+-        pm_error("-chroma requires 6 values");
+-      if (++argn < argc)
+-        sscanf (argv[argn], "%f", &chroma.by);
+-      else
+-        pm_error("-chroma requires 6 values");
+-    } else
+-    if (pm_keymatch (argv[argn], "-phys", 3)) {
+-      if (++argn < argc)
+-        sscanf (argv[argn], "%d", &phys_x);
+-      else
+-        pm_error("-phys requires 3 values");
+-      if (++argn < argc)
+-        sscanf (argv[argn], "%d", &phys_y);
+-      else
+-        pm_error("-phys requires 3 values");
+-      if (++argn < argc)
+-        sscanf (argv[argn], "%d", &phys_unit);
+-      else
+-        pm_error("-phys requires 3 values");
+-    } else
+-    if (pm_keymatch (argv[argn], "-text", 3)) {
+-      text = TRUE;
+-      if (++argn < argc)
+-        text_file = argv[argn];
+-      else
+-        pm_error("-text requires a value");
+-    } else
+-    if (pm_keymatch (argv[argn], "-ztxt", 2)) {
+-      ztxt = TRUE;
+-      if (++argn < argc)
+-        text_file = argv[argn];
+-      else
+-        pm_error("-ztxt requires a value");
+-    } else
+-    if (pm_keymatch (argv[argn], "-time", 3)) {
+-      mtime = TRUE;
+-      if (++argn < argc) {
+-        date_string = argv[argn];
+-        if (++argn < argc)
+-          time_string = argv[argn];
+-        else
+-          pm_error("-time requires 2 values");
+-      } else {
+-        pm_error("-time requires 2 values");
+-      }
+-    } else 
+-    if (pm_keymatch (argv[argn], "-palette", 3)) {
+-      if (++argn < argc)
+-        palette_file = argv[argn];
+-      else
+-        pm_error("-palette requires a value");
+-    } else
+-    if (pm_keymatch (argv[argn], "-filter", 3)) {
+-      if (++argn < argc)
+-      {
+-        int filter;
+-        sscanf (argv[argn], "%d", &filter);
+-        if ((filter < 0) || (filter > 4))
+-          pm_error("-filter is obsolete.  Use -nofilter, -sub, -up, -avg, "
+-                   "and -paeth options instead.");
+-        else
+-          switch (filter) {
+-          case 0: filterSet = PNG_FILTER_NONE;  break;
+-          case 1: filterSet = PNG_FILTER_SUB;   break;
+-          case 2: filterSet = PNG_FILTER_UP;    break;
+-          case 3: filterSet = PNG_FILTER_AVG;   break;
+-          case 4: filterSet = PNG_FILTER_PAETH; break;
+-          }
+-      }
+-      else
+-        pm_error("-filter is obsolete.  Use -nofilter, -sub, -up, -avg, "
+-                 "and -paeth options instead.");
+-    } else
+-    if (pm_keymatch (argv[argn], "-nofilter", 4))
+-      filterSet |= PNG_FILTER_NONE;
+-    else if (pm_keymatch (argv[argn], "-sub", 3))
+-      filterSet |= PNG_FILTER_SUB;
+-    else if (pm_keymatch (argv[argn], "-up", 3))
+-      filterSet |= PNG_FILTER_UP;
+-    else if (pm_keymatch (argv[argn], "-avg", 3))
+-      filterSet |= PNG_FILTER_AVG;
+-    else if (pm_keymatch (argv[argn], "-paeth", 3))
+-      filterSet |= PNG_FILTER_PAETH;
++    int errorlevel;
++    
++    pnm_init (&argc, argv);
++    
++    parseCommandLine(argc, argv, &cmdline);
++    
++    if (cmdline.libversion) {
++        displayVersion();
++        return 0;
++    }
++    verbose = cmdline.verbose;
++    
++    ifP = pm_openr_seekable(cmdline.inputFilename);
++    
++    if (cmdline.alpha)
++        afP = pm_openr(cmdline.alpha);
+     else
+-    if (pm_keymatch (argv[argn], "-compression", 3)) {
+-      if (++argn < argc)
+-      {
+-        sscanf (argv[argn], "%d", &zlib_compression.level);
+-        if ((zlib_compression.level < 0) || (zlib_compression.level > 9))
+-        {
+-          pm_error("zlib compression must be between 0 (none) and 9 (max)");
+-        }
+-      }
+-      else
+-        pm_error("-compression requires a value");
+-    } else
+-    if (pm_keymatch (argv[argn], "-force", 3)) {
+-      force = TRUE;
+-    } else
+-    if (pm_keymatch (argv[argn], "-libversion", 3))
+-      displayVersion();  /* exits program */
++        afP = NULL;
++    
++    if (cmdline.palette)
++        pfP = pm_openr(cmdline.palette);
+     else
+-      pm_error("Unrecognized option: '%s'", argv[argn]);
+-    argn++;
+-  }
+-
+-  { 
+-      const char *input_file;
+-      if (argn == argc)
+-          input_file = "-";
+-      else {
+-          input_file = argv[argn];
+-          argn++;
+-      }
+-      ifp = pm_openr_seekable(input_file);
+-  }
+-
+-  if (argn != argc)
+-    pm_error("Too many arguments.");
+-
+-  if (alpha)
+-    afp = pm_openr (alpha_file);
+-  else
+-    afp = NULL;
+-
+-  if (palette_file)
+-    pfp = pm_openr (palette_file);
+-  else
+-    pfp = NULL;
+-
+-  if ((text) || (ztxt))
+-    tfp = pm_openr (text_file);
+-  else
+-    tfp = NULL;
++        pfP = NULL;
++    
++    if (cmdline.text)
++        tfP = pm_openr(cmdline.text);
++    else if (cmdline.ztxt)
++        tfP = pm_openr(cmdline.ztxt);
++    else
++        tfP = NULL;
+ 
+-  errorlevel = convertpnm(ifp, afp, pfp, tfp,
+-                          gamma, interlace, downscale, transparent,
+-                          transstring, alpha, alpha_file, background,
+-                          backstring, hist, chroma, phys_x, phys_y,
+-                          phys_unit, text, ztxt, text_file, mtime,
+-                          date_string, time_string, filterSet,
+-                          force, zlib_compression);
+-
+-  if (afp)
+-    pm_closer (afp);
+-  if (pfp)
+-    pm_closer (pfp);
+-  if (tfp)
+-    pm_closer (tfp);
++    convertpnm(cmdline, ifP, afP, pfP, tfP, &errorlevel);
++    
++    if (afP)
++        pm_close(afP);
++    if (pfP)
++        pm_close(pfP);
++    if (tfP)
++        pm_close(tfP);
+ 
+-  pm_closer (ifp);
+-  pm_closew (stdout);
++    pm_close(ifP);
++    pm_close(stdout);
+ 
+-  return errorlevel;
++    return errorlevel;
+ }

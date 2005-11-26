@@ -1,0 +1,11 @@
+--- tetex-src-3.0/texk/kpathsea/Makefile.in.pic	2005-01-30 11:56:30.000000000 -0500
++++ tetex-src-3.0/texk/kpathsea/Makefile.in	2005-08-31 09:24:27.000000000 -0400
+@@ -33,7 +33,7 @@ liblobjs = @LTLIBOBJS@
+ library = kpathsea
+ 
+ # We want to compile almost everything with libtool ...
+-KPATHSEA_CC = $(LIBTOOL) --mode=compile $(CC)
++KPATHSEA_CC = $(LIBTOOL) --mode=compile $(CC) -prefer-pic
+ .SUFFIXES: .lo
+ .c.lo:
+ 	$(KPATHSEA_CC) $(ALL_CFLAGS) -DMAKE_KPSE_DLL -c $<

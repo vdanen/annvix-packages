@@ -1,0 +1,52 @@
+--- expect-5.42/exp_command.c.alpha	2004-07-02 03:03:04.000000000 +0200
++++ expect-5.42/exp_command.c	2004-12-03 12:04:51.548504544 +0100
+@@ -799,16 +799,18 @@
+ 	    return TCL_ERROR;
+ 	}
+ 	if (mode & TCL_READABLE) {
+-	    if (TCL_ERROR == Tcl_GetChannelHandle(channel, TCL_READABLE, (ClientData *) &rfdc)) {
++	    ClientData rfd_data;
++	    if (TCL_ERROR == Tcl_GetChannelHandle(channel, TCL_READABLE, &rfd_data)) {
+ 		return TCL_ERROR;
+ 	    }
+-	    rfd = (int) rfdc;
++	    rfd = (int)rfd_data;
+ 	}
+ 	if (mode & TCL_WRITABLE) {
+-	    if (TCL_ERROR == Tcl_GetChannelHandle(channel, TCL_WRITABLE, (ClientData) &wfdc)) {
++	    ClientData wfd_data;
++	    if (TCL_ERROR == Tcl_GetChannelHandle(channel, TCL_WRITABLE, &wfd_data)) {
+ 		return TCL_ERROR;
+ 	    }
+-	    wfd = (int) wfdc;
++	    wfd = (int)wfd_data;
+ 	}
+ 	master = ((mode & TCL_READABLE)?rfd:wfd);
+ 
+@@ -1225,7 +1227,7 @@
+     Tcl_DStringFree(&dstring);
+     if (esPtr) {
+         exp_close(interp,esPtr);
+-	waitpid(esPtr->pid,&esPtr->wait,0);
++	waitpid(esPtr->pid,(int *) &esPtr->wait,0);
+ 	if (esPtr->registered) {
+ 	    Tcl_UnregisterChannel(interp,esPtr->channel);
+ 	}
+@@ -2576,7 +2578,7 @@
+ 			if (rc != TCL_OK) return(rc);
+ 		    }
+ 
+-		    result = waitpid(esPtr->pid,&esPtr->wait,0);
++		    result = waitpid(esPtr->pid,(int *) &esPtr->wait,0);
+ 		    if (result == esPtr->pid) break;
+ 		    if (result == -1) {
+ 			if (errno == EINTR) continue;
+@@ -2610,7 +2612,7 @@
+ 	    for (fp=forked_proc_base;fp;fp=fp->next) {
+ 		if (fp->link_status == not_in_use) continue;
+ 	restart:
+-		result = waitpid(fp->pid,&fp->wait_status,WNOHANG);
++		result = waitpid(fp->pid,(int *) &fp->wait_status,WNOHANG);
+ 		if (result == fp->pid) {
+ 		    waited_on_forked_process = 1;
+ 		    break;

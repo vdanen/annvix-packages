@@ -1,0 +1,20 @@
+--- tiff-v3.6.1/man/tiffsplit.1.range	1999-07-27 23:50:28.000000000 +0200
++++ tiff-v3.6.1/man/tiffsplit.1	2005-03-23 15:37:24.401242534 +0100
+@@ -45,13 +45,13 @@
+ files from it.
+ The output files are given names created by concatenating
+ a prefix, a lexically ordered
+-suffix in the range [\fIaa\fP-\fIzz\fP], the suffix
++suffix in the range [\fIaaa\fP-\fIzzz\fP], the suffix
+ .I .tif 
+ (e.g. 
+-.IR xaa.tif ,
+-.IR xab.tif ,
++.IR xaaa.tif ,
++.IR xaab.tif ,
+ \...
+-.IR xzz.tif ).
++.IR xzzz.tif ).
+ If a prefix is not specified on the command line,
+ the default prefix of
+ .I x

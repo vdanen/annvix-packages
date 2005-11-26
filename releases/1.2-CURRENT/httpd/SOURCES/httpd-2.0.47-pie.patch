@@ -1,0 +1,48 @@
+
+Add PIE support:
+- objects destined to be linked directly into a program are compiled using -fPIE
+- programs are linked using -pie
+- no need to use CPPFLAGS and INCLUDES on link line (unrelated)
+
+- define AP_FNAME for the debuglog patch
+  *note the -debuglog patch depends on this patch*
+
+Upstream-HEAD: committed
+Upstream-Status: committed for 2.1.3
+
+--- httpd-2.0.47/build/rules.mk.in.pie
++++ httpd-2.0.47/build/rules.mk.in
+@@ -69,21 +69,24 @@
+ ALL_INCLUDES = $(INCLUDES) $(EXTRA_INCLUDES)
+ 
+ # Compile commands
++BASE_CC	     = $(CC)  $(ALL_CFLAGS) $(ALL_CPPFLAGS) $(ALL_INCLUDES) -DAP_FNAME=\"$(notdir $<)\"
++BASE_CXX     = $(CXX) $(ALL_CXXFLAGS) $(ALL_CPPFLAGS) $(ALL_INCLUDES) -DAP_FNAME=\"$(notdir $<)\"
+ 
+-COMPILE      = $(CC)  $(ALL_CFLAGS) $(ALL_CPPFLAGS) $(ALL_INCLUDES)
+-CXX_COMPILE  = $(CXX) $(ALL_CXXFLAGS) $(ALL_CPPFLAGS) $(ALL_INCLUDES)
+ 
+-SH_COMPILE     = $(LIBTOOL) --mode=compile $(COMPILE) @SHLTCFLAGS@ -c $< && touch $@
+-SH_CXX_COMPILE = $(LIBTOOL) --mode=compile $(CXX_COMPILE) @SHLTCFLAGS@ -c $< && touch $@
++COMPILE      = $(BASE_CC) -fPIE
++CXX_COMPILE  = $(BASE_CXX) -fPIE
+ 
+-LT_COMPILE     = $(LIBTOOL) --mode=compile $(COMPILE) @LTCFLAGS@ -c $< && touch $@
+-LT_CXX_COMPILE = $(LIBTOOL) --mode=compile $(CXX_COMPILE) @LTCFLAGS@ -c $< && touch $@
++SH_COMPILE     = $(LIBTOOL) --mode=compile $(BASE_CC) @SHLTCFLAGS@ -c $< && touch $@
++SH_CXX_COMPILE = $(LIBTOOL) --mode=compile $(BASE_CXX) @SHLTCFLAGS@ -c $< && touch $@
++
++LT_COMPILE     = $(LIBTOOL) --mode=compile $(BASE_CC) -fPIE @LTCFLAGS@ -c $< && touch $@
++LT_CXX_COMPILE = $(LIBTOOL) --mode=compile $(BASE_CXX) -fPIE @LTCFLAGS@ -c $< && touch $@
+ 
+ # Link-related commands
+ 
+-LINK     = $(LIBTOOL) --mode=link $(COMPILE) $(LT_LDFLAGS) $(ALL_LDFLAGS) -o $@
+-SH_LINK  = $(SH_LIBTOOL) --mode=link $(COMPILE) $(LT_LDFLAGS) $(ALL_LDFLAGS) $(SH_LDFLAGS) $(CORE_IMPLIB) $(SH_LIBS) -o $@
+-MOD_LINK = $(LIBTOOL) --mode=link $(COMPILE) -module $(LT_LDFLAGS) $(ALL_LDFLAGS) -o $@
++LINK     = $(LIBTOOL) --mode=link $(CC) $(ALL_CFLAGS) -pie $(LT_LDFLAGS) $(ALL_LDFLAGS) -o $@
++SH_LINK  = $(SH_LIBTOOL) --mode=link $(CC) $(ALL_CFLAGS) $(LT_LDFLAGS) $(ALL_LDFLAGS) $(SH_LDFLAGS) $(CORE_IMPLIB) $(SH_LIBS) -o $@
++MOD_LINK = $(LIBTOOL) --mode=link $(CC) $(ALL_CFLAGS) -module $(LT_LDFLAGS) $(ALL_LDFLAGS) -o $@
+ 
+ # Cross compile commands
+ 

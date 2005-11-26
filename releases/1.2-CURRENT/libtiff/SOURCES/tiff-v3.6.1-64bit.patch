@@ -1,0 +1,11 @@
+--- tiff-v3.6.1/libtiff/tiff.h.64bit	2003-12-22 10:22:15.000000000 +0200
++++ tiff-v3.6.1/libtiff/tiff.h	2004-05-27 11:54:19.878908832 +0200
+@@ -79,7 +79,7 @@
+ typedef	unsigned char uint8;
+ typedef	short int16;
+ typedef	unsigned short uint16;	/* sizeof (uint16) must == 2 */
+-#if defined(__alpha) || (defined(_MIPS_SZLONG) && _MIPS_SZLONG == 64) || defined(__LP64__) || defined(__arch64__)
++#if defined(__s390x__) || defined(__ia64__) || defined(__alpha) || (defined(_MIPS_SZLONG) && _MIPS_SZLONG == 64) || defined(__LP64__) || defined(_LP64)
+ typedef	int int32;
+ typedef	unsigned int uint32;	/* sizeof (uint32) must == 4 */
+ #else

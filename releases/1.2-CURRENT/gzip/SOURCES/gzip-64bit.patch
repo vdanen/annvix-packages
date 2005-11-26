@@ -1,0 +1,11 @@
+--- gzip-1.2.4a/Makefile.in-orig	Tue Aug 17 13:12:40 1993
++++ gzip-1.2.4a/Makefile.in	Sat Mar 17 18:49:55 2001
+@@ -63,7 +63,7 @@
+ # -DNO_FSTAT            fstat() is not available
+ # -DNO_SIZE_CHECK       stat() does not give a reliable file size
+ 
+-DEFS = @DEFS@
++DEFS = @DEFS@ -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64
+ LIBS = @LIBS@
+ 
+ # additional assembly sources for particular systems may be required.

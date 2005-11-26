@@ -1,0 +1,11 @@
+--- nss_ldap-149/Makefile.am.old	Tue Mar 27 15:03:11 2001
++++ nss_ldap-149/Makefile.am	Tue Mar 27 15:03:14 2001
+@@ -15,7 +15,7 @@
+ 	ldap-bp.c util.c globals.c ltf.c snprintf.c resolve.c \
+ 	dnsconfig.c irs-nss.c
+ 
+-nss_ldap_so_LDFLAGS = @nss_ldap_so_LDFLAGS@
++nss_ldap_so_LDFLAGS = @nss_ldap_so_LDFLAGS@ $(VERSION_SCRIPT_FLAGS)
+ 
+ NSS_LDAP_SOURCES = ldap-nss.c ldap-grp.c ldap-pwd.c ldap-schema.c \
+ 	util.c globals.c ltf.c snprintf.c resolve.c dnsconfig.c \
