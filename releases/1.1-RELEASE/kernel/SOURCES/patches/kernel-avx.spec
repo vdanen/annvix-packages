@@ -7,8 +7,8 @@
 #
 
 %define kname		kernel
-%define sublevel	32
-%define avxrelease	1
+%define sublevel	31
+%define avxrelease	5
 
 %define tar_version	2.4.%{sublevel}
 %define patchversion	avx%{avxrelease}
@@ -112,7 +112,7 @@ Source15:	linux-annvix-config.h
 Source16:	annvix-linux-merge-config.awk
 Source17:	annvix-linux-merge-modules.awk
 
-#Source100:	linux-%{patches_ver}.tar.bz2
+Source100:	linux-%{patches_ver}.tar.bz2
 
 ####################################################################
 #
@@ -245,17 +245,8 @@ kernel modules at load time.
 #
 
 %prep
-# now that we build out of svn, we need to dynamically create the
-# patch tarball
-#pushd %{_sourcedir}     
-#cp -a patches linux-%{patches_ver}
-#tar cvjf linux-%{patches_ver}.tar.bz2 linux-%{patches_ver} && rm -rf linux-%{patches_ver}
-#popd
-
 %setup -q -n %{top_dir_name} -c
-#%setup -q -n %{top_dir_name} -D -T -a100
-
-cp -a %{_sourcedir}/patches %{build_dir}/%{patches_ver}
+%setup -q -n %{top_dir_name} -D -T -a100
 
 %define patches_dir ../%{patches_ver}/
 
@@ -505,11 +496,11 @@ chmod -R a+rX %{target_source}
 
 # we remove all the source files that we don't ship
 
-# first architecture files
-for i in alpha arm cris m68k mips mips64 parisc ppc ppc64 s390 s390x sh sh64 sparc sparc64; do
-    rm -rf %{target_source}/arch/$i
-    rm -rf %{target_source}/include/asm-$i
-done
+## first architecture files
+#for i in alpha arm cris m68k mips mips64 parisc ppc ppc64 s390 s390x sh sh64 sparc sparc64; do
+#    rm -rf %{target_source}/arch/$i
+#    rm -rf %{target_source}/include/asm-$i
+#done
 
 # my patches dir, this should go in other dir
 rm -rf %{target_source}/%{patches_ver}
@@ -519,9 +510,6 @@ rm -f %{target_source}/{.config.old,.depend,.hdepend}
 
 # We need this to prevent someone doing a make *config without mrproper
 touch %{target_source}/.need_mrproper
-
-# copy README.Annvix
-cp %{SOURCE5} %{target_source}/
 
 # We used to have a copy of DependKernel here
 # Now, we make sure that the thing in the linux dir is what we want it to be
@@ -766,7 +754,6 @@ exit 0
 %{_kerneldir}/MAINTAINERS
 %{_kerneldir}/Makefile
 %{_kerneldir}/README
-%{_kerneldir}/README.Annvix
 %{_kerneldir}/REPORTING-BUGS
 %{_kerneldir}/Rules.make
 %{_kerneldir}/arch/i386
@@ -821,14 +808,6 @@ exit 0
 
 
 %changelog
-* Wed Nov 30 2005 Vincent Danen <vdanen@annvix.org> 2.4.32-1avx
-- 2.4.32 and 2.4.32-ow1
-- fix build so we can work out of subversion
-- drop CA02; merged upstream
-
-* Mon Oct 24 2005 Vincent Danen <vdanen@annvix.org> 2.4.31-6avx
-- updated README.Annvix and put a copy in the source dir
-
 * Sun Oct 02 2005 Vincent Danen <vdanen@annvix.org> 2.4.31-5avx
 - enable CONFIG_FILTER and CONFIG_NETFILTER for the BOOT kernel
   (should fix the problem with dhcpcd not working properly)
