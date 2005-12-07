@@ -1,0 +1,103 @@
+
+
+
+Estructure of a patch name
+--------------------------
+
+From now on, I will call patch either to a tar file or patch file.
+Their only difference for the effect of this discussion is how they
+are applied, with patch or tar.
+
+serie[-local_version]_name_{external_version}.extension
+
+where the desc is:
+
+* order: is the way to order patches, it is composed of to letters and 
+         two digits.  It is intended that the two letters are for a 
+	 serie of patches, and the two numbers to sort inside a serie.
+
+* local_version, that is a hypen followed for a number, it indicates
+	the (local version) of the patch.  Each time that we change
+	the patch in any way, we increase this number.  The idea is
+	that if we change a patch, it needs to have a different name,
+	always.  If this is the first version of a patch, you can 
+        omit it.
+
+* name: it is the name of the patch.
+
+* external_version: a lot of patches and drivers have own versions.
+	We put that version number here.
+
+* extension: one patch can have the following extensions:
+	- patch: it is a patch file intended to be applied with patch -p1 
+	  in the toplevel directory.
+
+	- tar: it is a tar file intended to be decompressed in the
+	  toplevel directory.
+
+	- sh: it is a shell file intended to be run at the toplevel 
+	  directory.
+
+	- desc: it is a file describing the patch, where to find the
+	  patch, and how to go from the patch downloaded to the local 
+	  patch.  This is specially important for 3rdparty drivers,
+	  that are distributed to be compiled out of the tree, and
+	  need some "rearranging" to put then into the tree, document
+	  it here.
+
+
+Example:
+-------
+	AM03-2_swsuspend_beta15.patch	
+
+
+serie:			AM -> it belongs to patches form maintainers series
+			03 -> it is the 3rd patch in that serie
+
+local_version:		-2 -> the patch has changed at least once since it 
+			      was included.
+name:			swsuspend -> this is the name of the patch
+
+external_version:       beta15 -> version for which it is known for its
+	                           creators.
+extension:		patch -> it is a "patch" file.
+
+
+Conventions:
+-----------
+
+- The patch number 00 for each serie is reserved for the name of the
+  series, it should contain what kind of patches has that serie.
+
+- For each patch non-trivial patch, there should be a description file
+  that contain:
+	* from where get the patch (i.e. one URL or a pointer to
+	  a mailing list).  
+	* instructions to go from the downloaded patch to the included 
+	  patch.
+
+- The patch descrition when exist will have the form:
+	serie_name.extension
+  i.e. it is expected that we share the descritpion between different
+  versions of the patch.
+
+- The ZZ01 patch contains the sublevel of the set of patches, 
+  we add a -sls<number_of_set_for_this_kernel>.
+
+Todo:
+----
+
+It will be nice to have:
+- a script that checks:
+	* all the patches have different numbers
+	* all the files in that directory are proper patches or 
+	  description files.
+	* removes old patches sitting around (i.e. if there are a 
+	  -4 version patch, remove the -3 version patch.)
+	* let us modify the patches inplace, and that the script be able 
+	  to detect (comparing to a previous copy of the set of patches), 
+	  that one patch has changed and increase the version number.
+
+	* related with previous one, get the script to ask us to put
+	  something in a changelog in the description of the patch.
+	  
