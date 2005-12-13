@@ -5,11 +5,11 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-
+# $Id$
 
 %define name		php
 %define version		4.4.1
-%define release		1avx
+%define release		2avx
 %define epoch		2
 
 %define libversion	4
@@ -46,42 +46,43 @@ License:	PHP License
 Group:		Development/Other
 URL:		http://www.php.net
 Source0:	http://static.php.net/www.php.net/distributions/php-%{version}.tar.bz2
-Source3:	FAQ.php.bz2
-Source4:	php-4.3.10-php-test.bz2
-Patch0:		php-4.3.0-mdk-init.patch.bz2
-Patch1:		php-4.3.6-mdk-shared.patch.bz2
-Patch2:		php-4.3.0-mdk-imap.patch.bz2
-Patch4:		php-4.3.4RC3-mdk-64bit.patch.bz2
-Patch5:		php-4.4.0RC2-mdk-lib64.patch.bz2
-Patch6:		php-4.3.0-mdk-fix-pear.patch.bz2
-Patch7:		php-4.3.11-mdk-libtool.patch.bz2
-Patch9:		php-4.3.11-mdk-no_egg.patch.bz2
-Patch10:	php-4.4.0RC1-mdk-phpize.diff.bz2
-Patch11:	php-4.4.0RC2-mdk-run-tests.diff.bz2
+Source3:	FAQ.php
+Source4:	php-4.3.10-php-test
+Patch0:		php-4.3.0-mdk-init.patch
+Patch1:		php-4.3.6-mdk-shared.patch
+Patch2:		php-4.3.0-mdk-imap.patch
+Patch4:		php-4.3.4RC3-mdk-64bit.patch
+Patch5:		php-4.4.0RC2-mdk-lib64.patch
+Patch6:		php-4.3.0-mdk-fix-pear.patch
+Patch7:		php-4.3.11-mdk-libtool.patch
+Patch9:		php-4.3.11-mdk-no_egg.patch
+Patch10:	php-4.4.0RC1-mdk-phpize.diff
+Patch11:	php-4.4.0RC2-mdk-run-tests.diff
+Patch12:	php-4.4.1-bug35067.patch
 # from PLD (20-40)
-Patch20:	php-4.3.0-pld-mail.patch.bz2
-Patch21:	php-4.3.10-pld-mcal-shared-lib.patch.bz2
-Patch22:	php-4.3.6-pld-msession-shared-lib.patch.bz2
-Patch23:	php-4.3.11-pld-cpdf-fix.patch.bz2
-Patch24:	php-4.3.11-pld-db-shared.patch.bz2
-Patch25:	php-4.3.0-pld-hyperwave-fix.patch.bz2
-Patch27:	php-4.3.3RC3-pld-sybase-fix.patch.bz2
-Patch28:	php-4.3.0-pld-wddx-fix.patch.bz2
-Patch29:	php-4.3.0-pld-xmlrpc-fix.patch.bz2
+Patch20:	php-4.3.0-pld-mail.patch
+Patch21:	php-4.3.10-pld-mcal-shared-lib.patch
+Patch22:	php-4.3.6-pld-msession-shared-lib.patch
+Patch23:	php-4.3.11-pld-cpdf-fix.patch
+Patch24:	php-4.3.11-pld-db-shared.patch
+Patch25:	php-4.3.0-pld-hyperwave-fix.patch
+Patch27:	php-4.3.3RC3-pld-sybase-fix.patch
+Patch28:	php-4.3.0-pld-wddx-fix.patch
+Patch29:	php-4.3.0-pld-xmlrpc-fix.patch
 # from Fedora (50-60)
-Patch50:	php-4.3.6-rh-dlopen.patch.bz2
-Patch51:	php-4.2.1-fdr-ldap-TSRM.patch.bz2
-Patch52:	php-4.2.2-fdr-cxx.patch.bz2
-Patch53:	php-4.3.2-fdr-libtool15.patch.bz2
-Patch54:	php-4.3.1-fdr-odbc.patch.bz2
-Patch56:	php-4.3.10-fdr-umask.patch.bz2
+Patch50:	php-4.3.6-rh-dlopen.patch
+Patch51:	php-4.2.1-fdr-ldap-TSRM.patch
+Patch52:	php-4.2.2-fdr-cxx.patch
+Patch53:	php-4.3.2-fdr-libtool15.patch
+Patch54:	php-4.3.1-fdr-odbc.patch
+Patch56:	php-4.3.10-fdr-umask.patch
 # General fixes (70+)
 # make the tests work better
-Patch70:	php-4.3.3-mdk-make_those_darn_tests_work.patch.bz2
+Patch70:	php-4.3.3-mdk-make_those_darn_tests_work.patch
 # Bug fixes:
-Patch71:	php-4.3.4-mdk-bug-22414.patch.bz2
+Patch71:	php-4.3.4-mdk-bug-22414.patch
 # http://www.hardened-php.net/
-Patch100:	http://www.hardened-php.net/hardening-patch-4.4.1-0.4.5.patch.gz
+Patch100:	http://www.hardened-php.net/hardening-patch-4.4.1-0.4.5.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 # this is to prevent that it will build against old libs
@@ -99,7 +100,7 @@ BuildRequires:	gettext-devel
 BuildRequires:	openssl-devel >= 0.9.6, openssl >= 0.9.6
 BuildRequires:	pam-devel
 BuildRequires:	zlib-devel
-BuildRequires:	multiarch-utils >= 1.0.3
+BuildRequires:	multiarch-utils >= 1.0.3, automake1.7
 
 %description
 PHP4 is an HTML-embeddable scripting language.  PHP offers built-in database
@@ -227,6 +228,7 @@ perl -pi -e "s|_PHP_SONAME_|%{libversion}|g" Makefile.global
 %patch9 -p1
 %patch10 -p1 -b .phpize
 %patch11 -p0
+%patch12 -p1 -b .bug35067
 # from PLD
 %patch20 -p1
 %patch21 -p1
@@ -296,7 +298,7 @@ rm -f php-devel/sapi/cgi/php.sym
 rm -f php-devel/sapi/fastcgi/php.sym
 rm -f php-devel/sapi/pi3web/php.sym
 
-bzcat %{SOURCE3} > php-devel/PHP_FAQ.php
+cat %{SOURCE3} > php-devel/PHP_FAQ.php
 
 cat > php-devel/buildext <<EOF
 #!/bin/bash
@@ -524,7 +526,7 @@ ln -snf libphp_common.so.%{libversion} %{buildroot}%{_libdir}/libphp_common.so
 install -m 0755 sapi/cli/php %{buildroot}%{_bindir}/php
 install -m 0755 sapi/cgi/php %{buildroot}%{_bindir}/php-cgi
 
-bzcat %{SOURCE4} > %{buildroot}%{_bindir}/php-test
+cat %{SOURCE4} > %{buildroot}%{_bindir}/php-test
 cp -dpR php-devel/* %{buildroot}%{phpsrcdir}/
 install -m 0644 run-tests*.php %{buildroot}%{phpsrcdir}/
 install -m 0644 main/internal_functions.c %{buildroot}%{phpsrcdir}/
@@ -596,6 +598,10 @@ update-alternatives --remove php %{_bindir}/php-cli
 
 
 %changelog
+* Tue Dec 13 2005 Vincent Danen <vdanen@annvix.org> 4.4.41-2avx
+- P12: fix php bug #35067; should fix a squirrelmail issue
+- don't bzip patches or unnecessary source files anymore
+
 * Wed Nov 02 2005 Vincent Danen <vdanen@annvix.org> 4.4.41-1avx
 - 4.4.1; fixes several security issues (see http://www.php.net/release_4_4_1.php)
 - hardening patch 4.4.1-0.4.5
