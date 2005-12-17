@@ -5,14 +5,19 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-
+# $Id$
 
 %define name		spamassassin
 %define version		3.1.0
-%define release		2avx
+%define release		3avx
 
 %define fname		Mail-SpamAssassin
 %define instdir		vendor
+
+%global	with_TEST	1
+
+%{?_without_test: %global with_TEST 0}
+%{?_with_test:    %global with_TEST 1}
 
 Summary:	A spam filter for email which can be invoked from mail delivery agents
 Name:		%{name}
@@ -25,14 +30,15 @@ Source0:	http://www.eu.apache.org/dist/spamassassin/source/%{fname}-%{version}.t
 Source1:	http://www.eu.apache.org/dist/spamassassin/source/%{fname}-%{version}.tar.bz2.asc
 Source2:	spamd.run
 Source3:	spamd-log.run
-Source6:	spamd.sysconfig.bz2
+Source6:	spamd.sysconfig
 Source4:	spamassassin-default.rc
 Source5:	spamassassin-spamc.rc
 # (fc) 2.60-5mdk don't use version dependent perl call in #!
-Patch1:		spamassassin-3.1.0-avx-fixbang.patch.bz2
+Patch1:		spamassassin-3.1.0-avx-fixbang.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl-devel, perl-Time-HiRes, perl-HTML-Parser, perl-Digest-SHA1, openssl-devel, perl-IO-Socket-SSL
+BuildRequires:	perl-Net-DNS, perl-DB_File
 
 Prereq:		rpm-helper
 Requires:	perl-Mail-SpamAssassin = %{version}-%{release}
@@ -112,7 +118,9 @@ user's own mail user-agent application.
 
 %make OPTIMIZE="%{optflags}"
 
-make test
+%if %{with_TEST}
+  make test
+%endif
 
 
 %install
@@ -128,10 +136,9 @@ rewrite_header			Subject [**SPAM**]
 report_safe			0
 auto_whitelist_path		/var/spool/spamassassin/auto-whitelist
 auto_whitelist_file_mode	0666
-dcc_home			/var/lib/dcc
 EOF
 
-bzcat %{SOURCE6} >%{buildroot}%{_sysconfdir}/sysconfig/spamd
+cat %{SOURCE6} >%{buildroot}%{_sysconfdir}/sysconfig/spamd
 install -m 0644 %{SOURCE4} %{buildroot}%{_sysconfdir}/mail/spamassassin/
 install -m 0644 %{SOURCE5} %{buildroot}%{_sysconfdir}/mail/spamassassin/
 
@@ -174,7 +181,7 @@ perl -p -i -e 's/ --auto-whitelist//' /etc/sysconfig/spamd
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/mail/%{name}/*.cf
 %config(noreplace) %{_sysconfdir}/mail/%{name}/*.pre
 %config(noreplace) %{_sysconfdir}/mail/%{name}/spamassassin-default.rc
-%dir %attr(0777,root,root) /var/spool/spamassassin
+%dir %attr(0700,mail,mail) /var/spool/spamassassin
 %attr(0755,root,root) %{_bindir}/sa-learn
 %attr(0755,root,root) %{_bindir}/sa-update
 %attr(0755,root,root) %{_bindir}/spamassassin
@@ -211,6 +218,13 @@ perl -p -i -e 's/ --auto-whitelist//' /etc/sysconfig/spamd
 
 
 %changelog
+* Sat Dec 17 2005 Vincent Danen <vdanen@annvix.org> 3.1.0-3avx
+- uncompressed patches
+- fix bug #14 and make /var/spool/spamassassin read/write by mail only
+- remove dcc_home from the default local.cf
+- add perl-Net-DNS and perl-DB_File as BuildReqs
+- add a conditional to make test
+
 * Sun Oct 23 2005 Vincent Danen <vdanen@annvix.org> 3.1.0-2avx
 - both spamd/log/run and /etc/sysconfig/spamd were marked as SOURCE3 so the
   run script was actually the bzipped sysconfig file
