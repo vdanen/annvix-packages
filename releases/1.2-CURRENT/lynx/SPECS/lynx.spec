@@ -5,11 +5,11 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-
+# $Id$
 
 %define name		lynx
 %define version 	2.8.5
-%define release		6avx
+%define release		7avx
 %define epoch		1
 
 %define versio_		2-8-5
@@ -23,13 +23,13 @@ License:	GPL
 Group:		Networking/WWW
 URL:		http://lynx.isc.org
 Source0:	http://lynx.isc.org/current/%{name}%{version}.tar.bz2
-Patch0:		lynx2-8-5-adapt-to-modern-file-localizations.patch.bz2
-Patch1:		lynx-2.8.5-avx-config.patch.bz2
-Patch2:		lynx2-8-4-fix-ugly-color.patch.bz2
-Patch10:	lynx2-8-5-tmp_dir.patch.bz2
-Patch11:	lynx2-8-5-don-t-accept-command-line-args-to-telnet.patch.bz2
-Patch12:	lynx-2.8.5-CAN-2005-3120.patch.bz2
-
+Patch0:		lynx2-8-5-adapt-to-modern-file-localizations.patch
+Patch1:		lynx-2.8.5-avx-config.patch
+Patch2:		lynx2-8-4-fix-ugly-color.patch
+Patch10:	lynx2-8-5-tmp_dir.patch
+Patch11:	lynx2-8-5-don-t-accept-command-line-args-to-telnet.patch
+Patch12:	lynx-2.8.5-CAN-2005-3120.patch
+Patch13:	lynx-2.8.5-CVE-2005-2929.patch
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	openssl-devel, zlib-devel, gettext, ncurses-devel
 
@@ -52,6 +52,7 @@ This version includes support for SSL encryption.
 %patch10 -p1
 %patch11 -p1
 %patch12 -p1 -b .can-2005-3120
+%patch13 -p1 -b .cve-2005-2929
 
 
 %build
@@ -111,6 +112,10 @@ EOF
 
 
 %changelog
+* Wed Dec 21 2005 Vincent Danen <vdanen@annvix.org> 2.8.5-7avx
+- P13: fix for CVE-2005-2929
+- drop compressed patches
+
 * Wed Oct 26 2005 Vincent Danen <vdanen@annvix.org> 2.8.5-6avx
 - updated P12 to fully fix the issue
 
