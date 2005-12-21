@@ -5,11 +5,11 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-
+# $Id$
 
 %define name		curl
 %define version 	7.14.1
-%define release		1avx
+%define release		2avx
 
 %define major		3
 %define libname 	%mklibname %{name} %{major}
@@ -30,8 +30,10 @@ License:	MIT
 Group:		Networking/Other
 URL:		http://curl.haxx.se/
 Source:		http://curl.haxx.se/download/%{name}-%{version}.tar.bz2
-Patch1:		curl-7.10.4-compat-location-trusted.patch.bz2
-Patch2:		curl-7.13.0-64bit-fixes.patch.bz2
+Patch1:		curl-7.10.4-compat-location-trusted.patch
+Patch2:		curl-7.13.0-64bit-fixes.patch
+Patch3:		libcurl-7.14.1-CVE-2005-3185.patch
+Patch4:		libcurl-7.14.1-CVE-2005-4077.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	bison groff-for-man openssl-devel zlib-devel
@@ -77,6 +79,8 @@ various protocols, including http and ftp.
 %setup -q
 %patch1 -p1
 #%patch2 -p1 -b .64bit-fixes
+%patch3 -p0 -b .cve-2005-3185
+%patch4 -p0 -b .cve-2005-4077
 
 ## fix test517 with correct results according to curl_getdate() specs
 #cat > ptrsize.c << EOF
@@ -161,6 +165,11 @@ make check
 
 
 %changelog
+* Wed Dec 21 2005 Vincent Danen <vdanen@annvix.org> 7.14.1-2avx
+- P3: fix for CVE-2005-3185
+- P4: fix for CVE-2005-4077
+- uncompress patches
+
 * Sun Sep 11 2005 Vincent Danen <vdanen@annvix.org> 7.14.1-1avx
 - 7.14.1
 - drop P2 and remove the special test case for test 517 on x86_64; works ok now
