@@ -5,10 +5,11 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
 %define name		sudo
-%define version		1.6.8p9
-%define release		5avx
+%define version		1.6.8p12
+%define release		1avx
 %define epoch		1
 
 Summary:	Allows command execution as root for specified users
@@ -25,7 +26,6 @@ Source2:	sudoers.annvix
 Source3:	sudo.pam
 Source4:	sudo.logrotate
 Source4:	sudo.logrotate
-Patch0:		sudo-1.6.8p8-CAN-2005-2959.patch.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:  pam-devel
@@ -41,7 +41,6 @@ their work done.
 
 %prep
 %setup -q
-%patch0 -p1 -b .can-2005-2959
 
 %build
 CFLAGS="%{optflags} -D_GNU_SOURCE" \
@@ -102,6 +101,10 @@ install -m 0440 %{SOURCE2} %{buildroot}%{_sysconfdir}/sudoers
 
 
 %changelog
+* Wed Dec 21 2005 Vincent Danen <vdanen@annvix.org> 1:1.6.8p12-1avx
+- 1.6.8p12 (fixes CVE-2005-4158)
+- drop P0; merged upstream
+
 * Wed Oct 26 2005 Vincent Danen <vdanen@annvix.org> 1:1.6.8p9-5avx
 - P0: to fix CAN-2005-2959
 
