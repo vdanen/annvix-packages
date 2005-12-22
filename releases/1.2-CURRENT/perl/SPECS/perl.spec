@@ -6,11 +6,12 @@
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
 # cooker: perl-5.8.7-3mdk
-
+#
+# $Id$
 
 %define name		perl
 %define version		5.8.7
-%define release		1avx
+%define release		2avx
 %define epoch		2
 
 %define rel		%nil
@@ -42,22 +43,23 @@ URL:		http://www.perl.org
 Source0: ftp://cpan.mirrors.easynet.fr/pub/ftp.cpan.org/src/perl-%{version}.tar.bz2
 # taken from debian
 Source1:	perl-headers-wanted
-Source2:	perl-5.8.0-RC2-special-h2ph-not-failing-on-machine_ansi_header.patch.bz2
-Patch3:		perl-5.8.1-RC3-norootcheck.patch.bz2
-Patch6:		perl-5.8.0-RC2-fix-LD_RUN_PATH-for-MakeMaker.patch.bz2
-Patch12:	perl-5.8.1-RC3-automatic-migration-from--make-install-PREFIX--to--makeinstall_std.patch.bz2
-Patch14:	perl-5.8.1-RC3-install-files-using-chmod-644.patch.bz2
-Patch15:	perl-5.8.3-lib64.patch.bz2
-Patch16:	perl-5.8.5-RC1-perldoc-use-nroff-compatibility-option.patch.bz2
-Patch20:	perl-5.8.4-use_gzip_layer.patch.bz2
+Source2:	perl-5.8.0-RC2-special-h2ph-not-failing-on-machine_ansi_header.patch
+Patch3:		perl-5.8.1-RC3-norootcheck.patch
+Patch6:		perl-5.8.0-RC2-fix-LD_RUN_PATH-for-MakeMaker.patch
+Patch12:	perl-5.8.1-RC3-automatic-migration-from--make-install-PREFIX--to--makeinstall_std.patch
+Patch14:	perl-5.8.1-RC3-install-files-using-chmod-644.patch
+Patch15:	perl-5.8.3-lib64.patch
+Patch16:	perl-5.8.5-RC1-perldoc-use-nroff-compatibility-option.patch
+Patch20:	perl-5.8.4-use_gzip_layer.patch
 #(peroyvind) use -fPIC in stead of -fpic or else compile will fail on sparc (taken from redhat)
-Patch21:	perl-5.8.1-RC4-fpic-fPIC.patch.bz2
-Patch22:	perl-5.8.0-amd64.patch.bz2
-Patch23:	perl-5.8.7-patchlevel.patch.bz2
-Patch24:	perl-5.8.4-no-test-fcgi.patch.bz2
-Patch25:	perl-5.8.5-RC1-cpan-signature-test.patch.bz2
-Patch26:	perl-5.8.5-removeemptyrpath.patch.bz2
-Patch29:	perl-5.8.7-CAN-2005-0448.patch.bz2
+Patch21:	perl-5.8.1-RC4-fpic-fPIC.patch
+Patch22:	perl-5.8.0-amd64.patch
+Patch23:	perl-5.8.7-patchlevel.patch
+Patch24:	perl-5.8.4-no-test-fcgi.patch
+Patch25:	perl-5.8.5-RC1-cpan-signature-test.patch
+Patch26:	perl-5.8.5-removeemptyrpath.patch
+Patch29:	perl-5.8.7-CAN-2005-0448.patch
+Patch30:	perl-5.8.7-intwrap.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 # for NDBM
@@ -149,6 +151,7 @@ This is the documentation package for %{name}.  It also contains the
 %patch25 -p0
 %patch26 -p0
 %patch29 -p0
+%patch30 -p0
 
 %build
 %ifarch ppc
@@ -517,6 +520,10 @@ EOF
 
 
 %changelog
+* Wed Dec 21 2005 Vincent Danen <vdanen@annvix.org> 5.8.7-2avx
+- P30: fix for CVE-2005-3962
+- uncompress patches
+
 * Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 5.8.7-1avx
 - 5.8.7
 - on x86_64, bits/syscall.ph requires bits/wordsize.ph (pixel)

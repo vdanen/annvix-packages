@@ -1,0 +1,134 @@
+From patches 26235 to 26240
+
+--- t/lib/warnings/sv.intwrap	2004-03-18 13:51:14.000000000 +0100
++++ t/lib/warnings/sv	2005-12-01 19:19:17.000000000 +0100
+@@ -301,12 +301,12 @@
+ printf F "%\x02" ;
+ $a = sprintf "%\x02" ;
+ EXPECT
+-Invalid conversion in sprintf: "%z" at - line 5.
+-Invalid conversion in sprintf: end of string at - line 7.
+-Invalid conversion in sprintf: "%\002" at - line 9.
+ Invalid conversion in printf: "%z" at - line 4.
++Invalid conversion in sprintf: "%z" at - line 5.
+ Invalid conversion in printf: end of string at - line 6.
++Invalid conversion in sprintf: end of string at - line 7.
+ Invalid conversion in printf: "%\002" at - line 8.
++Invalid conversion in sprintf: "%\002" at - line 9.
+ ########
+ # sv.c
+ use warnings 'misc' ;
+--- t/op/sprintf.t.intwrap	2003-09-01 09:41:07.000000000 +0200
++++ t/op/sprintf.t	2005-12-01 19:03:16.000000000 +0100
+@@ -385,3 +385,6 @@
+ >%4$K %d<	>[45, 67]<	>%4$K 45 INVALID<
+ >%d %K %d<	>[23, 45]<	>23 %K 45 INVALID<
+ >%*v*999\$d %d %d<	>[11, 22, 33]<	>%*v*999\$d 11 22 INVALID<
++>%#b<		>0<	>0<
++>%#o<		>0<	>0<
++>%#x<		>0<	>0<
+--- opcode.h.intwrap	2005-05-27 18:29:50.000000000 +0200
++++ opcode.h	2005-12-01 19:03:16.000000000 +0100
+@@ -1585,7 +1585,7 @@
+ 	0x0022281c,	/* vec */
+ 	0x0122291c,	/* index */
+ 	0x0122291c,	/* rindex */
+-	0x0004280f,	/* sprintf */
++	0x0004280d,	/* sprintf */
+ 	0x00042805,	/* formline */
+ 	0x0001379e,	/* ord */
+ 	0x0001378e,	/* chr */
+--- perl.h.intwrap	2005-05-07 22:11:45.000000000 +0200
++++ perl.h	2005-12-01 19:03:16.000000000 +0100
+@@ -3326,10 +3326,8 @@
+   INIT("\"my\" variable %s can't be in a package");
+ EXTCONST char PL_no_localize_ref[]
+   INIT("Can't localize through a reference");
+-#ifdef PERL_MALLOC_WRAP
+ EXTCONST char PL_memory_wrap[]
+   INIT("panic: memory wrap");
+-#endif
+ 
+ EXTCONST char PL_uuemap[65]
+   INIT("`!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_");
+--- opcode.pl.intwrap	2004-12-01 14:54:30.000000000 +0100
++++ opcode.pl	2005-12-01 19:03:16.000000000 +0100
+@@ -606,7 +606,7 @@
+ index		index			ck_index	isT@	S S S?
+ rindex		rindex			ck_index	isT@	S S S?
+ 
+-sprintf		sprintf			ck_fun		mfst@	S L
++sprintf		sprintf			ck_fun		mst@	S L
+ formline	formline		ck_fun		ms@	S L
+ ord		ord			ck_fun		ifsTu%	S?
+ chr		chr			ck_fun		fsTu%	S?
+--- makedef.pl.intwrap	2005-05-09 15:27:41.000000000 +0200
++++ makedef.pl	2005-12-01 19:03:16.000000000 +0100
+@@ -635,11 +635,9 @@
+ 		    )];
+ }
+ 
+-if ($define{'PERL_MALLOC_WRAP'}) {
+-    emit_symbols [qw(
+-		    PL_memory_wrap
+-		    )];
+-}
++emit_symbols [qw(
++		PL_memory_wrap
++		)];
+ 
+ unless ($define{'USE_5005THREADS'} || $define{'USE_ITHREADS'}) {
+     skip_symbols [qw(
+--- op.c.intwrap	2005-04-22 16:12:32.000000000 +0200
++++ op.c	2005-12-01 19:03:16.000000000 +0100
+@@ -2076,7 +2076,6 @@ Perl_fold_constants(pTHX_ register OP *o
+ 	/* XXX might want a ck_negate() for this */
+ 	cUNOPo->op_first->op_private &= ~OPpCONST_STRICT;
+ 	break;
+-    case OP_SPRINTF:
+     case OP_UCFIRST:
+     case OP_LCFIRST:
+     case OP_UC:
+--- sv.c.intwrap	2005-05-27 12:38:11.000000000 +0200
++++ sv.c	2005-12-01 19:03:16.000000000 +0100
+@@ -8707,9 +8707,10 @@ Perl_sv_vcatpvfn(pTHX_ SV *sv, const cha
+ 
+ 	if (vectorize)
+ 	    argsv = vecsv;
+-	else if (!args)
+-	    argsv = (efix ? efix <= svmax : svix < svmax) ?
+-		    svargs[efix ? efix-1 : svix++] : &PL_sv_undef;
++	else if (!args) {
++	    I32 i = efix ? efix-1 : svix++;
++	    argsv = (i >= 0 && i < svmax) ? svargs[i] : &PL_sv_undef;
++	}
+ 
+ 	switch (c = *q++) {
+ 
+@@ -8972,6 +8973,8 @@ Perl_sv_vcatpvfn(pTHX_ SV *sv, const cha
+ 		    *--eptr = '0';
+ 		break;
+ 	    case 2:
++		if (!uv)
++		    alt = FALSE;
+ 		do {
+ 		    dig = uv & 1;
+ 		    *--eptr = '0' + dig;
+@@ -9274,6 +9277,8 @@ Perl_sv_vcatpvfn(pTHX_ SV *sv, const cha
+ 
+ 	/* calculate width before utf8_upgrade changes it */
+ 	have = esignlen + zeros + elen;
++	if (have < zeros)
++	    Perl_croak_nocontext(PL_memory_wrap);
+ 
+ 	if (is_utf8 != has_utf8) {
+ 	     if (is_utf8) {
+@@ -9301,6 +9306,8 @@ Perl_sv_vcatpvfn(pTHX_ SV *sv, const cha
+ 	need = (have > width ? have : width);
+ 	gap = need - have;
+ 
++	if (need >= (((STRLEN)~0) - SvCUR(sv) - dotstrlen - 1))
++	    Perl_croak_nocontext(PL_memory_wrap);
+ 	SvGROW(sv, SvCUR(sv) + need + dotstrlen + 1);
+ 	p = SvEND(sv);
+ 	if (esignlen && fill == '0') {
