@@ -5,12 +5,14 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
+#
 # mdk 1.5-1mdk
 
 
 %define name		rpm-annvix-setup
 %define version		1.5
-%define release		3avx
+%define release		4avx
 
 Summary:	The Annvix rpm configuration and scripts
 Name:		%{name}
@@ -79,6 +81,9 @@ mkdir -p %{buildroot}%{_sysconfdir}/rpm/macros.d
 
 
 %changelog
+* Fri Dec 23 2005 Vincent Danen <vdanen@annvix.org> 1.5-4avx
+- add back -fstack-protector-all to %%optflags
+
 * Sun Sep 25 2005 Vincent Danen <vdanen@annvix.org> 1.5-3avx
 - add the %%_mkdepends macro
 
