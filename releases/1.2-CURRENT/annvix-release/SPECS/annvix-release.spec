@@ -69,35 +69,38 @@ EOF
 
 
 %changelog
-* Fri Dec 23 2005 Vincent Danen <vdanen@annvix.org> 1.2-1avx
+* Fri Dec 23 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- obfuscate email addresses
+
+* Fri Dec 23 2005 Vincent Danen <vdanen-at-build.annvix.org>
 - 1.2-CURRENT (Ares)
 - add %%_revrel macro to dynamically set the release based on the subversion
   revision number
 - use CREDITS as the source file rather than a tarball
 
-* Fri Oct 28 2005 Vincent Danen <vdanen@annvix.org> 1.1-5avx
+* Fri Oct 28 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.1-5avx
 - 1.1-RELEASE rather
 
-* Fri Oct 28 2005 Vincent Danen <vdanen@annvix.org> 1.1-4avx
+* Fri Oct 28 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.1-4avx
 - 1.0-RELEASE: Bachus
 
-* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 1.1-3avx
+* Fri Sep 16 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.1-3avx
 - add a rpm macro file
 
-* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 1.1-2avx
+* Fri Sep 16 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.1-2avx
 - drop the redhat-release and mandrake-release files; we're pretty much
   incompatible with them now
 - s/Mandrake/Mandriva/ in the CREDITS file
 - updates to CREDITS file
 
-* Thu Jul 21 2005 Vincent Danen <vdanen@annvix.org> 1.1-1avx
+* Thu Jul 21 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.1-1avx
 - long overdue tagging of 1.1-CURRENT (actually got lost somewhere)
 - make /etc/release a symlink too
 
-* Thu Mar 17 2005 Vincent Danen <vdanen@annvix.org> 1.0-2avx
+* Thu Mar 17 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.0-2avx
 - 1.0-RELEASE
 
-* Thu Jun 17 2004 Vincent Danen <vdanen@annvix.org> 1.0-1avx
+* Thu Jun 17 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.0-1avx
 - Annvix build
 
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 1.0-0.2sls
