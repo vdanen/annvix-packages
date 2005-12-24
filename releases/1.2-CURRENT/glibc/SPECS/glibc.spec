@@ -5,6 +5,7 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
 #define _unpackaged_files_terminate_build 0
 
@@ -13,9 +14,10 @@
 #%%define snapshot	20050427
 %define crypt_bf_ver	0.4.7
 
+%define revision	$Rev$
 %define name		glibc
 %define version		%{basevers}%{?snapshot:.%snapshot}
-%define release		6avx
+%define release		%_revrel
 %define epoch		6
 
 # <version>-<release> tags from kernel package where headers were
@@ -116,11 +118,12 @@ Patch410:	glibc-2.3.3-owl-tmp-scripts.diff
 Patch411:	glibc-2.3.3-owl-rpcgen-cpp.diff
 Patch412:	glibc-2.3.5-owl-alt-sanitize-env.diff
 # Annvix
-Patch500:	glibc-2.3.5-arc4random-1.patch
+Patch500:	glibc-2.3.5-avx-ssp.patch
 Patch501:	glibc-2.3.5-fstack_protector-1.patch
-Patch502:	glibc-2.3.5-ssp-1.patch
-Patch503:       kernel-headers-include-%{kheaders_ver}.%{kheaders_rel}.patch.bz2
-Patch504:       kernel-headers-%{kheaders_ver}.%{kheaders_rel}-gnu-extensions.patch.bz2
+Patch502:	glibc-2.3.5-arc4random-1.patch
+Patch503:	glibc-2.3.5-ssp-1.patch
+Patch503:       kernel-headers-include-%{kheaders_ver}.%{kheaders_rel}.patch
+Patch504:       kernel-headers-%{kheaders_ver}.%{kheaders_rel}-gnu-extensions.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	patch, gettext, perl, autoconf2.5
@@ -354,9 +357,10 @@ cp %_sourcedir/crypt_freesec.[ch] crypt/
 %patch412 -p1
 
 # Annvix
-#%patch500 -p1 -b .arc4random
-#%patch501 -p1 -b .fstack-protector
-#%patch502 -p1 -b .ssp
+%patch500 -p1 -b .ssp
+%patch501 -p1 -b .fstack-protector
+#%patch502 -p1 -b .arc4random
+#%patch503 -p1 -b .ssp
 
 pushd kernel-headers/
 TARGET=%{_target_cpu}
@@ -1133,29 +1137,36 @@ fi
 
 
 %changelog
-* Sun Oct 09 2005 Vincent Danen <vdanen@annvix.org> 2.3.5-6avx
+* Fri Dec 23 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- uncompress patches
+- reorder SSP patches and include the original SSP patch (P500); this
+  doesn't integrate as nicely as it does for OpenBSD, HLFS, or Hardened
+  Gentoo but it will suffice for now
+- obfuscate email addresses
+
+* Sun Oct 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.3.5-6avx
 - fix call to srv
 - fix path to find-provides (/usr/lib/rpm/annvix/find-provides) so
   that the devel(foo) provides get generated properly
 
-* Mon Sep 05 2005 Vincent Danen <vdanen@annvix.org> 2.3.5-5avx
+* Mon Sep 05 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.3.5-5avx
 - use execlineb for run scripts
 - move logdir to /var/log/service/nscd
 - run scripts are now considered config files and are not replaceable
 - use kernel 2.4.31-2avx headers
 
-* Sat Aug 27 2005 Vincent Danen <vdanen@annvix.org> 2.3.5-4avx
+* Sat Aug 27 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.3.5-4avx
 - fix perms on run scripts
 
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 2.3.5-3avx
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.3.5-3avx
 - bootstrap build
 
-* Tue Aug 09 2005 Vincent Danen <vdanen@annvix.org> 2.3.5-2avx
+* Tue Aug 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.3.5-2avx
 - include the /usr/X11R6/lib* directories in ld.so.conf
 - in the merge forgot to build the x86 libs for x86_64
 - add back the BuildGlibc() function to properly build our libs
 
-* Sat Jul 23 2005 Vincent Danen <vdanen@annvix.org> 2.3.5-1avx
+* Sat Jul 23 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.3.5-1avx
 - 2.3.5
 - merge with openwall 2.3.5-5owl
 - P500-502 from HLFS; updates for -fstack-protector, SSP, and arc4random
@@ -1165,22 +1176,22 @@ fi
 - for some reason the devel.filelist isn't being created properly so
   specify it all in %%files
 
-* Thu Jun 02 2005 Vincent Danen <vdanen@annvix.org> 2.3.2-27avx
+* Thu Jun 02 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.3.2-27avx
 - build with -fno-stack-protector; we have to build glibc unprotected
   until we upgrade to 2.3.4 now that we're moving everything from
   libgcc to libc
 
-* Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 2.3.2-26avx
+* Thu Mar 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.3.2-26avx
 - user logger for logging
 
-* Fri Jan 21 2005 Vincent Danen <vdanen@annvix.org> 2.3.2-25avx
+* Fri Jan 21 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.3.2-25avx
 - P44: add SSP/frandom support from HLFS
 - P102: updated sysctl.h which includes [ef]random
 
-* Mon Dec 20 2004 Vincent Danen <vdanen@annvix.org> 2.3.2-24avx
+* Mon Dec 20 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.3.2-24avx
 - P43: patch from Trustix to fix CAN-2004-0968
 
-* Sat Sep 18 2004 Vincent Danen <vdanen@annvix.org> 2.3.2-23avx
+* Sat Sep 18 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.3.2-23avx
 - update run scripts
 - give nscd a finish script
 - s/mandrake/annvix/
@@ -1188,10 +1199,10 @@ fi
   --without check for now
 - remove the heap-protection patch since we're not using it
 
-* Wed Jul 14 2004 Vincent Danen <vdanen@annvix.org> 2.3.2-22avx
+* Wed Jul 14 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.3.2-22avx
 - x86_64 needs /usr/local/lib64 also
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 2.3.2-21avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.3.2-21avx
 - Annvix build
 - require packages not files
 - put "/usr/local/lib" into ld.so.conf by default
