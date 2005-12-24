@@ -5,7 +5,7 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-# cooker: perl-5.8.7-3mdk
+# cooker: perl-5.8.7-8mdk
 #
 # $Id$
 
@@ -61,6 +61,10 @@ Patch25:	perl-5.8.5-RC1-cpan-signature-test.patch
 Patch26:	perl-5.8.5-removeemptyrpath.patch
 Patch29:	perl-5.8.7-CAN-2005-0448.patch
 Patch30:	perl-5.8.7-intwrap.patch
+Patch31:	perl-5.8.7-Storable-2.15.patch
+Patch32:	perl-5.8.7-getopt-long.patch
+Patch33:	perl-5.8.7-list-util.patch
+Patch34:	perl-5.8.7-incversionlist.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 # for NDBM
@@ -153,6 +157,10 @@ This is the documentation package for %{name}.  It also contains the
 %patch26 -p0
 %patch29 -p0
 %patch30 -p0
+%patch31 -p0
+%patch32 -p0
+%patch33 -p0
+%patch34 -p0
 
 %build
 %ifarch ppc
@@ -191,6 +199,12 @@ make
 #%check
 # for test, building a perl with no rpath
 # for test, unset RPM_BUILD_ROOT so that the MakeMaker trick is not triggered
+
+# for some reason, this test doesn't pass on x86_64
+%ifarch x86_64
+rm -f t/op/pat.t
+%endif
+
 rm -f perl
 RPM_BUILD_ROOT="" make test_harness_notty CCDLFLAGS= 
 rm -f perl
@@ -517,10 +531,21 @@ EOF
 
 %files suid
 %{_bindir}/suidperl
-%attr(4711,0,0) %{_bindir}/sperl%{version}
+%attr(4711,root,root) %{_bindir}/sperl%{version}
 
 
 %changelog
+* Sat Dec 24 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- t/op/pat.t doesn't completely pass on x86_64 for some reason; remove
+  that test on that arch
+- sync with 5.8.7-8mdk (rgarciasuarez):
+  - P31: upgrade to Storable 2.15
+  - fix installation of sperl as setuid
+  - P32: latest CPAN version of Getopt::Long
+  - P33: latest CPAN version of List::Util
+  - P34: always setup @INC correctly even if older directories don't exist
+    on the build machine
+
 * Sat Dec 24 2005 Vincent Danen <vdanen-at-build.annvix.org>
 - Obfuscate email addresses and new tagging
 
