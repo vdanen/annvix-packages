@@ -5,12 +5,14 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
+#
 # mdk 2.16.91.0.2-3mdk
 
-
+%define revision	$Rev$
 %define name		binutils
 %define version		2.16.91.0.2
-%define release		2avx
+%define release		%_revrel
 
 %define lib_major	2
 %define libname_orig	%mklibname binutils
@@ -24,14 +26,14 @@ License:	GPL
 Group:		Development/Other
 URL:		http://sources.redhat.com/binutils/
 Source0:	http://ftp.kernel.org/pub/linux/devel/binutils/binutils-%{version}.tar.bz2
-Patch0:		binutils-2.15.92.0.2-x86_64-testsuite.patch.bz2
-Patch1:		binutils-2.14.90.0.5-testsuite-Wall-fixes.patch.bz2
-Patch2:		binutils-2.14.90.0.5-lt-relink.patch.bz2
-Patch3:		binutils-2.15.92.0.2-linux32.patch.bz2
-Patch4:		binutils-2.15.94.0.2-place-orphan.patch.bz2
-Patch5:		binutils-2.15.92.0.2-ppc64-pie.patch.bz2
-Patch6:		binutils-2.16.91.0.2-ppc32-got2.patch.bz2
-Patch7:		binutils-2.16.91.0.1-deps.patch.bz2
+Patch0:		binutils-2.15.92.0.2-x86_64-testsuite.patch
+Patch1:		binutils-2.14.90.0.5-testsuite-Wall-fixes.patch
+Patch2:		binutils-2.14.90.0.5-lt-relink.patch
+Patch3:		binutils-2.15.92.0.2-linux32.patch
+Patch4:		binutils-2.15.94.0.2-place-orphan.patch
+Patch5:		binutils-2.15.92.0.2-ppc64-pie.patch
+Patch6:		binutils-2.16.91.0.2-ppc32-got2.patch
+Patch7:		binutils-2.16.91.0.1-deps.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	autoconf automake bison flex gcc gettext texinfo glibc-static-devel
@@ -122,9 +124,9 @@ echo ====================TESTING=========================
 # because the S-records tests always fail for some reason (bi must be a
 # magic machine)
 rm -rf ld/testsuite/ld-srec
-make check
+make CFLAGS="-fno-stack-protector-all" check
 %else
-make -k check || echo make check failed
+make CFLAGS="-fno-stack-protector-all" -k check || echo make check failed
 %endif
 echo ====================TESTING END=====================
 
@@ -200,10 +202,15 @@ rm -rf %{buildroot}%{_datadir}/locale/
 
 
 %changelog
-* Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 2.16.91.0.2-2avx
+* Fri Dec 23 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- build with SSP
+- make check can't have stack protection or it will fail
+- obfuscate email addresses
+
+* Sat Sep 17 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.16.91.0.2-2avx
 - fix requires
 
-* Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 2.16.91.0.2-1avx
+* Sat Sep 17 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.16.91.0.2-1avx
 - 2.16.91.0.2:
   - update from binutils 2005 0720
   - add AMD SVME & Intel VMX support
@@ -218,25 +225,25 @@ rm -rf %{buildroot}%{_datadir}/locale/
 - new-style requires on info-install
 - use %%libname instead of %%lib_name (for consistency)
 
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 2.16.91.0.1-3avx
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.16.91.0.1-3avx
 - bootstrap build (new gcc, new glibc)
 
-* Mon Jul 25 2005 Vincent Danen <vdanen@annvix.org> 2.16.91.0.1-2avx
+* Mon Jul 25 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.16.91.0.1-2avx
 - rebuild for new gcc
 - spec cleanups
 - remove extraneous docs for all but the main package
 - remove -fno-stack-protector-all from CFLAGS for testing
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.16.91.0.1-1avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.16.91.0.1-1avx
 - 2.16.91.0.1
 - BuildRequires: glibc-static-devel
 - remove support for cross-compilation
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.14.90.0.7-4avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.14.90.0.7-4avx
 - bootstrap build
 - make tests without stack protection so we don't get failed tests
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 2.14.90.0.7-3avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.14.90.0.7-3avx
 - Annvix build
 
 * Tue Mar 02 2004 Vincent Danen <vdanen@opensls.org> 2.14.90.0.7-2sls
