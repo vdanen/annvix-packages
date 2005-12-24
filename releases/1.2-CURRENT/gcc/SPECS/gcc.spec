@@ -5,10 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
+%define revision		$Rev$
 %define name			gcc
 %define version			3.4.4
-%define release			5avx
+%define release			%_revrel
 
 %define _unpackaged_files_terminate_build 0
 
@@ -56,32 +58,24 @@ URL:		http://gcc.gnu.org/
 Source0:	ftp://ftp.gnu.org/gnu/gcc/gcc-%{version}/gcc-%{version}.tar.bz2
 Source1:	http://www.mindspring.com/~jamoyers/software/colorgcc/colorgcc-%{color_gcc_version}.tar.bz2
 # FIXME: unless we get proper help2man package
-Source6:	gcc33-help2man.pl.bz2
+Source6:	gcc33-help2man.pl
 
-Patch0:		colorgcc-1.3.2-mdk-conf.patch.bz2
+Patch0:		colorgcc-1.3.2-mdk-conf.patch
 # Stack-Smashing Protector http://www.research.ibm.com/trl/projects/security/ssp/
 # We're using the HLFS patches instead: http://www.linuxfromscratch.org/~robert/hlfs/current
-Patch1:		gcc-3.4.4-hlfs-hardened_cflags-1.patch.bz2
-Patch2:		gcc-3.4.4-hlfs-no_fixincludes-1.patch.bz2
-Patch3:		gcc-3.4.4-hlfs-ssp-1.patch.bz2
-Patch4:		gcc-3.4.4-hlfs-linkonce-1.patch.bz2
+Patch1:		gcc-3.4.4-hlfs-hardened_cflags-1.patch
+Patch2:		gcc-3.4.4-hlfs-no_fixincludes-1.patch
+Patch3:		gcc-3.4.4-hlfs-ssp-1.patch
+Patch4:		gcc-3.4.4-hlfs-linkonce-1.patch
 Patch5:		gcc-3.4.4-avx-hardened-specs.patch
-Patch6:		gcc-3.4.0-mdk-pchflags.patch.bz2
+Patch6:		gcc-3.4.0-mdk-pchflags.patch
+Patch7:		gcc-3.4.4-ssp.patch
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
 # Want updated alternatives priorities
 # We want -pie support
-%if %{mdkversion} >= 1020
-%define binutils_version	2.15.92.0.2-1mdk
-%else
-%if %{mdkversion} >= 1010
-%define binutils_version	2.15.90.0.3-1mdk
-%else
-%define binutils_version	2.14.90.0.5-1mdk
-%endif
-%endif
-Requires:	binutils >= %{binutils_version}
-BuildRequires:	binutils >= %{binutils_version}
+Requires:	binutils >= 2.15.92.0.2-1mdk
+BuildRequires:	binutils >= 2.15.92.0.2-1mdk
 # Make sure gdb will understand DW_FORM_strp
 Conflicts:	gdb < 5.1.1
 BuildRequires:	zlib-devel
@@ -310,16 +304,17 @@ popd
 #%patch3 -p1 -b .ssp
 #%patch4 -p1 -b .linkonce
 %patch6 -p1 -b .pch-mdkflags
+%patch7 -p1 -b .ssp
 
 # FIXME: use a configure flag
-optflags=`echo $RPM_OPT_FLAGS | sed -e 's/-mcpu=/-mtune=/'`
+optflags=`echo $RPM_OPT_FLAGS| sed -e 's/-mcpu=/-mtune=/'`
 perl -pi -e "s,\@MDK_OPT_FLAGS\@,$optflags," \
 	libstdc++-v3/include/Makefile.am \
 	libstdc++-v3/include/Makefile.in
 
 # Annvix information for bug reports
 perl -pi -e "/bug_report_url/ and s/\"[^\"]+\"/\"<URL:https:\/\/bugs.annvix.org\/>\"/;" \
-         -e '/version_string/ and s/([0-9]*(\.[0-9]*){1,3}).*(\";)$/\1 \(Annvix %{avx_version} %{version}-%{release}\)\3/;' \
+         -e '/version_string/ and s/([0-9]*(\.[0-9]*){1,3}).*(\";)$/\1 \(Annvix %{avx_version} %{version}-%{release} \[ssp\]\)\3/;' \
          gcc/version.c
 
 
@@ -331,7 +326,7 @@ cd obj-%{_target_platform}
 
 # FIXME: extra tools needed
 mkdir -p bin
-bzcat %{SOURCE6} >bin/help2man
+cat %{SOURCE6} >bin/help2man
 export PATH=$PATH:$PWD/bin
 
 # Make bootstrap-lean
@@ -340,7 +335,8 @@ OPT_FLAGS=`echo $RPM_OPT_FLAGS|sed -e 's/-fno-rtti//g' -e 's/-fno-exceptions//g'
 %if %{build_debug}
 OPT_FLAGS=`echo "$OPT_FLAGS -g" | sed -e "s/-fomit-frame-pointer//g"`
 %endif
-OPT_FLAGS=`echo $OPT_FLAGS|sed -e 's/-fomit-frame-pointer//g' -e 's/-fstack-protector-all//g'`
+OPT_FLAGS=`echo $OPT_FLAGS|sed -e 's/-fomit-frame-pointer//g'`
+# -e 's/-fstack-protector-all//g'`
 
 # update config.{sub,guess} scripts
 %{?__cputoolize: %{__cputoolize} -c ..}
@@ -362,7 +358,8 @@ CC="$CC" CFLAGS="$OPT_FLAGS" CXXFLAGS="$OPT_FLAGS" XCFLAGS="$OPT_FLAGS" TCFLAGS=
 	--enable-languages="c,c++,objc" \
 	--host=%{_target_platform} \
 	--target=%{_target_platform} \
-	--with-system-zlib
+	--with-system-zlib \
+        --enable-stack-protector
 touch ../gcc/c-gperf.h
 %ifarch %{ix86} x86_64
 %make profiledbootstrap BOOT_CFLAGS="$OPT_FLAGS"
@@ -921,27 +918,39 @@ if [ "$1" = "0" ];then /sbin/install-info %{_infodir}/gcc.info.bz2 --dir=%{_info
 %{_infodir}/gcc.info*
 
 %changelog
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 3.4.3-5avx
+* Fri Dec 23 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- rebuild with SSP enabled gcc, glibc, and binutils
+- don't patch the gcc specs just yet; for now direct the application
+  of -fstack-protector-all via the rpm %%optflags
+- use new %%_revrel macro
+- obfuscate emails
+
+* Wed Dec 21 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.4.3-6avx
+- uncompress patches
+- get rid of the binutils_version macro
+- re-enable the original SSP patch
+
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.4.3-5avx
 - rebuild on Annvix against new glibc
 
-* Tue Aug 09 2005 Vincent Danen <vdanen@annvix.org> 3.4.3-4avx
+* Tue Aug 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.4.3-4avx
 - rebuild on Mandrake 10.2 (aka a 100% non-SSP system)
 
-* Sat Jul 23 2005 Vincent Danen <vdanen@annvix.org> 3.4.3-3avx
+* Sat Jul 23 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.4.3-3avx
 - due to problems with compiling glibc, we are disabling SSP system-wide
   for the time being which will result in a full rebuild of the system
   but cannot be avoided... SSP support will hopefully be introduced at
   a later date; the important thing right now is to have a fully working
   and compilable system
 
-* Thu Jul 21 2005 Vincent Danen <vdanen@annvix.org> 3.4.3-2avx
+* Thu Jul 21 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.4.3-2avx
 - don't apply P2 as it messes up the x86_64 build
 - relocate where we apply the hardened specs patch so we can still
   use -bi --short-circuit
 - fix the x86_64 biarch stuff
 - fix the specs patch to not include PIE support for now
 
-* Wed Jul 20 2005 Vincent Danen <vdanen@annvix.org> 3.4.3-1avx
+* Wed Jul 20 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.4.3-1avx
 - 3.4.3
 - merge with mandrake 3.4.3-7mdk (from 10.2)
 - completely remove java support
@@ -964,12 +973,12 @@ if [ "$1" = "0" ];then /sbin/install-info %{_infodir}/gcc.info.bz2 --dir=%{_info
 - include the HLFS gcc patches (P1-P4)
 - update P5 to include PIE support
 
-* Thu Jun 02 2005 Vincent Danen <vdanen@annvix.org> 3.3.1-8avx
+* Thu Jun 02 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.3.1-8avx
 - recompile with stack protection enabled
 - note in version string that ssp is enabled
 - P302: patch the specs file during build; using perl seems to fail
 
-* Thu Jun 02 2005 Vincent Danen <vdanen@annvix.org> 3.3.1-7avx
+* Thu Jun 02 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.3.1-7avx
 - use the HLFS SSP patches (P301) and regen P300 for rejects
   [gcc/Makefile.in]
 - fix url for bug reports
@@ -981,7 +990,7 @@ if [ "$1" = "0" ];then /sbin/install-info %{_infodir}/gcc.info.bz2 --dir=%{_info
 - some macros
 - bootstrap build; don't build with -fstack-protector-all
 
-* Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 3.3.1-6avx
+* Fri Jun 18 2004 Vincent Danen <vdanen-at-build.annvix.org> 3.3.1-6avx
 - Annvix build
 - ssp 3.3.2-2; regenerated patch
 
