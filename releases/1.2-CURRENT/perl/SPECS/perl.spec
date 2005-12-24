@@ -9,9 +9,10 @@
 #
 # $Id$
 
+%define revision	$Rev$
 %define name		perl
 %define version		5.8.7
-%define release		2avx
+%define release		%_revrel
 %define epoch		2
 
 %define rel		%nil
@@ -520,11 +521,14 @@ EOF
 
 
 %changelog
-* Wed Dec 21 2005 Vincent Danen <vdanen@annvix.org> 5.8.7-2avx
+* Sat Dec 24 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+
+* Wed Dec 21 2005 Vincent Danen <vdanen-at-build.annvix.org> 5.8.7-2avx
 - P30: fix for CVE-2005-3962
 - uncompress patches
 
-* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 5.8.7-1avx
+* Sat Sep 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 5.8.7-1avx
 - 5.8.7
 - on x86_64, bits/syscall.ph requires bits/wordsize.ph (pixel)
 - dropped P27, P28, P30; merged upstream
@@ -532,24 +536,24 @@ EOF
 - define sitebin to /usr/local/bin and siteman* to /use/local/share/man
 - put sperl and suidperl in their own perl-suid package
 
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 5.8.6-6avx
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 5.8.6-6avx
 - bootstrap build (new gcc, new glibc)
 
-* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 5.8.6-5avx
+* Tue Jul 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 5.8.6-5avx
 - rebuild for new gcc
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 5.8.6-4avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 5.8.6-4avx
 - bootstrap build
 
-* Fri May 06 2005 Vincent Danen <vdanen@annvix.org> 5.8.6-3avx
+* Fri May 06 2005 Vincent Danen <vdanen-at-build.annvix.org> 5.8.6-3avx
 - P29: fix CAN-2005-448 (replaces and includes fix for CAN-2004-0452)
 - drop -b on patches
 
-* Tue Feb 08 2005 Vincent Danen <vdanen@annvix.org> 5.8.6-2avx
+* Tue Feb 08 2005 Vincent Danen <vdanen-at-build.annvix.org> 5.8.6-2avx
 - P29: fix CAN-2004-0452 (from Openwall)
 - P30: fix CAN-2004-0976
 
-* Wed Feb 02 2005 Vincent Danen <vdanen@annvix.org> 5.8.6-1avx
+* Wed Feb 02 2005 Vincent Danen <vdanen-at-build.annvix.org> 5.8.6-1avx
 - 5.8.6
 - merged with cooker 5.8.6-3mdk:
   - BuildRequires: libgdbm_compat (rgarciasuarez)
@@ -565,7 +569,7 @@ EOF
   - add Artistic license in doc
   - P28: fix for CAN-2005-0155, CAN-2005-0156
 
-* Fri Sep 10 2004 Vincent Danen <vdanen@annvix.org> 5.8.5-1avx
+* Fri Sep 10 2004 Vincent Danen <vdanen-at-build.annvix.org> 5.8.5-1avx
 - 5.8.5
 - define otherlibdirs to /usr/local/lib/perl5:/usr/local/lib/perl5/site_perl
   so one can install modules into /usr/local (eventually good for ports,
@@ -587,7 +591,7 @@ EOF
   - P26: prevent including an empty rpath in .so files produced by MakeMaker
   - fix for generation of unistd.ph on ppc (Christiaan Welvaart)
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 5.8.4-2avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 5.8.4-2avx
 - Annvix build
 
 * Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 5.8.4-1sls
