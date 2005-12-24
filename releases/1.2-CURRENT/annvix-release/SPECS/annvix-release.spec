@@ -5,14 +5,15 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		annvix-release
-%define version		1.1
-%define release		5avx
+%define version		1.2
+%define release		%_revrel
 
-%define distrib		Bachus
-%define realversion 	1.1-RELEASE
+%define distrib		Ares
+%define realversion 	1.2-CURRENT
 %define macrofile	%build_sysmacrospath
 
 Summary:	Annvix release file
@@ -22,7 +23,7 @@ Release:	%{release}
 License:	GPL
 URL:		http://annvix.org/
 Group:		System/Configuration/Other
-Source:		%{name}.tar.bz2
+Source0:	CREDITS
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
 
@@ -34,8 +35,8 @@ Annvix release and rpm macros files.
 
 
 %prep
-%setup -q -n annvix-release
-
+rm -rf %{_builddir}/%{name}-%{version} && mkdir %{_builddir}/%{name}-%{version}
+cp -av %{SOURCE0} %{_builddir}/%{name}-%{version}/
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -51,6 +52,7 @@ cat > %{buildroot}%{macrofile} <<EOF
 %%annvix_codename	%{distrib}
 %%annvix_arch		%{_target_cpu}
 %%annvix_os		%{_target_os}
+%%_revrel		%(echo %{revision}|cut -d ' ' -f 2)avx
 EOF
 
 
@@ -60,13 +62,19 @@ EOF
 
 %files
 %defattr(-,root,root)
-%doc CREDITS
+%doc %{name}-%{version}/CREDITS
 %{_sysconfdir}/annvix-release
 %{_sysconfdir}/release
 %{macrofile}
 
 
 %changelog
+* Fri Dec 23 2005 Vincent Danen <vdanen@annvix.org> 1.2-1avx
+- 1.2-CURRENT (Ares)
+- add %%_revrel macro to dynamically set the release based on the subversion
+  revision number
+- use CREDITS as the source file rather than a tarball
+
 * Fri Oct 28 2005 Vincent Danen <vdanen@annvix.org> 1.1-5avx
 - 1.1-RELEASE rather
 
