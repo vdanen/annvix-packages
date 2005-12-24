@@ -52,7 +52,7 @@ cat > %{buildroot}%{macrofile} <<EOF
 %%annvix_codename	%{distrib}
 %%annvix_arch		%{_target_cpu}
 %%annvix_os		%{_target_os}
-%%_revrel		%(echo %{revision}|cut -d ' ' -f 2)avx
+%%_revrel		%%(echo %{revision}|cut -d ' ' -f 2)avx
 EOF
 
 
