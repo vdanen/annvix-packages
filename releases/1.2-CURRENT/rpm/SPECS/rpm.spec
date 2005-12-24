@@ -5,12 +5,15 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
+#
 # mdk 4.4.2-4mdk
 
+%define revision	$Rev$
 %define name		rpm
 %define version		4.4.2
 %define poptver		1.10.2
-%define release		3avx
+%define release		%_revrel
 
 %define srcver		4.4.2
 %define libver		4.4
@@ -69,61 +72,61 @@ Group:		System/Configuration/Packaging
 URL:            http://www.rpm.org/
 Source:		ftp://ftp.jbj.org/pub/rpm-%{libver}.x/rpm-%{srcver}.tar.bz2
 # Add some undocumented feature to gendiff
-Patch17:	rpm-4.2-gendiff-improved.patch.bz2
+Patch17:	rpm-4.2-gendiff-improved.patch
 # (fredl) add loging facilities through syslog
-Patch31:	rpm-4.4.1-syslog.patch.bz2
+Patch31:	rpm-4.4.1-syslog.patch
 # Still need :(
 # Correctly check for PPC 74xx systems
-Patch41:	rpm-4.2-ppc-74xx.patch.bz2
+Patch41:	rpm-4.2-ppc-74xx.patch
 # Check amd64 vs x86_64, these arch are the same
-Patch44:	rpm-4.4.1-amd64.patch.bz2
+Patch44:	rpm-4.4.1-amd64.patch
 # Backport from 4.2.1 provides becoming obsoletes bug (fpons)
-Patch49:	rpm-4.4.1-provides-obsoleted.patch.bz2
+Patch49:	rpm-4.4.1-provides-obsoleted.patch
 # Still need
-Patch56:	rpm-4.2.2-ppc64.patch.bz2
+Patch56:	rpm-4.2.2-ppc64.patch
 # Colorize static archives and .so symlinks
-Patch62:	rpm-4.4.2-coloring.patch.bz2
+Patch62:	rpm-4.4.2-coloring.patch
 # ok for this
-Patch63:	rpm-4.2.3-dont-install-delta-rpms.patch.bz2
+Patch63:	rpm-4.2.3-dont-install-delta-rpms.patch
 # This patch ask to read /usr/lib/rpm/vendor/rpmpopt too
-Patch64:    rpm-4.4.1-morepopt.patch.bz2
+Patch64:    rpm-4.4.1-morepopt.patch
 # https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=114385
 # This patch fix set %_topdir to /usr/src/RPM
 # modified files: macros.in Makefile.am
-Patch66:    rpm-4.4.1-topdirinrpm.patch.bz2
+Patch66:    rpm-4.4.1-topdirinrpm.patch
 # Being able to read old rpm (build with rpm v3)
 # See https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=127113#c12
-Patch68:    rpm-4.4.1-region_trailer.patch.bz2
+Patch68:    rpm-4.4.1-region_trailer.patch
 # Fix some French translations
-Patch69:	rpm-4.4.1-fr.patch.bz2
+Patch69:	rpm-4.4.1-fr.patch
 # In original rpm, -bb --short-circuit does not work and run all stage
 # From popular request, we allow to do this
 # http://qa.mandriva.com/show_bug.cgi?id=15896
-Patch70:	rpm-4.4.1-bb-shortcircuit.patch.bz2
+Patch70:	rpm-4.4.1-bb-shortcircuit.patch
 # http://www.redhat.com/archives/rpm-list/2005-April/msg00131.html
 # http://www.redhat.com/archives/rpm-list/2005-April/msg00132.html
-Patch71:	rpm-4.4.1-ordererase.patch.bz2
+Patch71:	rpm-4.4.1-ordererase.patch
 # File conflicts when rpm -i
 # https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=151609
-Patch72:	rpm-4.4.1-fileconflicts.patch.bz2
+Patch72:	rpm-4.4.1-fileconflicts.patch
 # Fix pre/post when erasing
 # https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=155700
-Patch74:	rpm-4.4.1-prepostun.patch.bz2
+Patch74:	rpm-4.4.1-prepostun.patch
 # Allow to rebuild db with --root option
-Patch76:	rpm-4.4.1-rebuildchroot.patch.bz2
+Patch76:	rpm-4.4.1-rebuildchroot.patch
 # Allow to set %_srcdefattr for src.rpm
-Patch77:	rpm-source-defattr.patch.bz2
+Patch77:	rpm-source-defattr.patch
 # Do not use futex, but fcntl
-Patch78:	rpm-fcntl.patch.bz2
+Patch78:	rpm-fcntl.patch
 # from https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=146549
-Patch79:	rpm-4.4.2-deadlock.patch.bz2
+Patch79:	rpm-4.4.2-deadlock.patch
 # Fix: http://qa.mandriva.com/show_bug.cgi?id=17774
 # Patch from cvs HEAD (4.4.3)
-Patch80:	rpm-4.4.2-buildsubdir-for-scriptlet.patch.bz2
-Patch81:	rpm-4.4.2-legacyprereq.patch.bz2
-Patch82:	rpm-4.4.2-ordering.patch.bz2
+Patch80:	rpm-4.4.2-buildsubdir-for-scriptlet.patch
+Patch81:	rpm-4.4.2-legacyprereq.patch
+Patch82:	rpm-4.4.2-ordering.patch
 # don't conflict for doc files from colored packages
-Patch83:	rpm-4.2.3-no-doc-conflicts.patch.bz2
+Patch83:	rpm-4.2.3-no-doc-conflicts.patch
 
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -711,16 +714,20 @@ fi
 
 
 %changelog
-* Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 4.4.2-3avx
+* Sat Dec 24 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sat Sep 17 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.4.2-3avx
 - BuildRequires: rpm-annvix-setup-build
 - P83: no-doc-conflicts for colored packages (gbeauchesne)
 - update P62 (merge it correctly) (gbeauchesne)
 
-* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 4.4.2-2avx
+* Sat Sep 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.4.2-2avx
 - always build without nptl support as it craps out on our systems in
   x86_64
 
-* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 4.4.2-1avx
+* Sat Sep 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.4.2-1avx
 - 4.4.2
 - Requires: rpm-annvix-setup
 - merge with mandrake cooker 4.4.2-3mdk:
@@ -756,20 +763,20 @@ fi
   - P81, P82: should fix ordering issue (nanardon)
   - BuildRequires: bzip2-devel (nanardon)
 
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 4.2.3-9avx
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.2.3-9avx
 - bootstrap build (new gcc, new glibc)
 
-* Mon Aug 08 2005 Vincent Danen <vdanen@annvix.org> 4.2.3-8avx
+* Mon Aug 08 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.2.3-8avx
 - rebuild against rebuilt beecrypt
 
-* Fri Jul 29 2005 Vincent Danen <vdanen@annvix.org> 4.2.3-7avx
+* Fri Jul 29 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.2.3-7avx
 - split libs into separate package to make rpm update easier for URPM
   (nanardon)
 - bump multiarch-utils requires (gb)
 - encode ru man pages in KOI8-R (mdk bug #10219 and #12613) (flepied)
 - try building rpm static to work around some glibc issues
 
-* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 4.2.3-6avx
+* Tue Jul 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.2.3-6avx
 - get rid of silly %%poptrelease
 - rebuild for new gcc
 - new macro: %%_buildroot
@@ -777,24 +784,24 @@ fi
 - don't apply P52; we're not using SSP right now
 - s/-mcpu/-mtune/ for %%optflags
 
-* Thu Jun 02 2005 Vincent Danen <vdanen@annvix.org> 4.2.3-5avx
+* Thu Jun 02 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.2.3-5avx
 - rebuild with stack protection enabled
 - update macros to use -fstack-protector-all instead of -fstack-protector
 
-* Thu Jun 02 2005 Vincent Danen <vdanen@annvix.org> 4.2.3-4avx
+* Thu Jun 02 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.2.3-4avx
 - compile against ourself
 
-* Thu Jun 02 2005 Vincent Danen <vdanen@annvix.org> 4.2.3-3avx
+* Thu Jun 02 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.2.3-3avx
 - bootstrap build
 
-* Tue Mar 01 2005 Vincent Danen <vdanen@annvix.org> 4.2.3-2avx
+* Tue Mar 01 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.2.3-2avx
 - changed group System/XFree86 to System/X11
 - require multiarch-utils >= 1.0.7
 - drop P18; RPM_INSTALL_LANG support is obsolete (rafael)
 - popt is now a biarch package (gb)
 - rediff P54; get rid of mkrel macro
 
-* Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> 4.2.3-1avx
+* Thu Feb 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.2.3-1avx
 - 4.2.3
 - regen P52
 - drop %%build_ssp macro; always build with ssp
@@ -825,7 +832,7 @@ fi
   - P65: don't install .delta.rpm directly, use applydeltarpm first (SUSE) (gb)
   - generate package script autoreqs only if requested (#13268) (gb)
 
-* Sun Aug 08 2004 Vincent Danen <vdanen@annvix.org> 4.2.2-5avx
+* Sun Aug 08 2004 Vincent Danen <vdanen-at-build.annvix.org> 4.2.2-5avx
 - change %%build_propolice to %%build_ssp
 - change brp-mandrake to brp-annvix
 - on ppc builds use annvix rather than mandrake
@@ -840,10 +847,10 @@ fi
     (bug #7201)
   - use system zlib
 
-* Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 4.2.2-4avx
+* Fri Jun 18 2004 Vincent Danen <vdanen-at-build.annvix.org> 4.2.2-4avx
 - rebuild with new gcc
 
-* Thu Jun 17 2004 Vincent Danen <vdanen@annvix.org> 4.2.2-3avx
+* Thu Jun 17 2004 Vincent Danen <vdanen-at-build.annvix.org> 4.2.2-3avx
 - Annvix build
 
 * Thu Jun 03 2004 Vincent Danen <vdanen@opensls.org> 4.2.2-2sls
