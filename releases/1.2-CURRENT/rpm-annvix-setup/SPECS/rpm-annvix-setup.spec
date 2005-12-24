@@ -9,10 +9,10 @@
 #
 # mdk 1.5-1mdk
 
-
+%define revision	$Rev$
 %define name		rpm-annvix-setup
 %define version		1.5
-%define release		4avx
+%define release		%_revrel
 
 Summary:	The Annvix rpm configuration and scripts
 Name:		%{name}
@@ -81,18 +81,22 @@ mkdir -p %{buildroot}%{_sysconfdir}/rpm/macros.d
 
 
 %changelog
-* Fri Dec 23 2005 Vincent Danen <vdanen@annvix.org> 1.5-4avx
+* Fri Dec 23 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- use %%_revrel
+- obfuscate email addresses
+
+* Fri Dec 23 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.5-4avx
 - add back -fstack-protector-all to %%optflags
 
-* Sun Sep 25 2005 Vincent Danen <vdanen@annvix.org> 1.5-3avx
+* Sun Sep 25 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.5-3avx
 - add the %%_mkdepends macro
 
-* Thu Sep 15 2005 Vincent Danen <vdanen@annvix.org> 1.5-2avx
+* Thu Sep 15 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.5-2avx
 - dropt -Wp,-D_FORTIFY_SOURCE=2 from the optflags because I don't
   know what this does and if it's specific to gcc4 or not (we didn't
   have this prior to this package)
 
-* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 1.5-1avx
+* Sat Sep 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.5-1avx
 - first Annvix build for new rpm
 
 * Thu Aug 25 2005 Gwenole Beauchesne <gbeauchesne@mandriva.com> 1.5-1mdk
