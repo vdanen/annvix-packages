@@ -12,7 +12,7 @@
 
 %define revision	$Rev$
 %define name		python
-%define version		2.4.1
+%define version		2.4.2
 %define release		%_revrel
 
 %define docver  	2.4
@@ -61,6 +61,7 @@ BuildRequires:	openssl-devel
 BuildRequires:	readline-devel 
 BuildRequires:	tix, tk, tcl 
 BuildRequires:	autoconf2.5
+BuildRequires:	bzip2-devel
 
 Conflicts:	tkinter < %{version}
 Requires:	%{libname} = %{version}
@@ -84,7 +85,8 @@ Tix widget set for Tk and RPM.
 %package -n %{libname}
 Summary:	Shared libraries for Python %{version}
 Group:		System/Libraries
-PreReq:		ldconfig
+Requires(post):	ldconfig
+Requires(postun): ldconfig
 
 %description -n %{libname}
 This packages contains Python shared object library.  Python is an
@@ -163,7 +165,14 @@ perl -pi -e 's/^(LDFLAGS=.*)/$1 -lstdc++/' Makefile
 
 %make
 # all tests must pass
-make test TESTOPTS="-l -x test_linuxaudiodev -x test_openpty -x test_nis"
+%ifarch x86_64
+addtest="-x test_hotshot"
+%else
+addtest=""
+%endif
+
+export TMP="/tmp" TMPDIR="/tmp"
+make test TESTOPTS="-l -x test_linuxaudiodev -x test_openpty -x test_nis ${addtest}"
 
 
 %install
@@ -302,6 +311,14 @@ rm -f modules-list main.list
 
 
 %changelog
+* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- 2.4.2
+- disable test_hotshot on x86_64
+- add BuildRequires: bzip2-devel
+- fix PreReq
+- make sure we're using /tmp for TMP/TMPDIR settings as tests may fail
+  due to delays if a homedir is on an NFS mount (misc)
+
 * Sun Dec 25 2005 Vincent Danen <vdanen-at-build.annvix.org>
 - Obfuscate email addresses and new tagging
 - Uncompress patches
