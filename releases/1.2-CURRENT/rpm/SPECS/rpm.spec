@@ -714,6 +714,9 @@ fi
 
 
 %changelog
+* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- rebuild against new python
+
 * Sat Dec 24 2005 Vincent Danen <vdanen-at-build.annvix.org>
 - Obfuscate email addresses and new tagging
 - Uncompress patches
