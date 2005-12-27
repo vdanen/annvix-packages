@@ -5,12 +5,13 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-
+# $Id$
 
 %define	module		DBD-mysql
+%define	revision	$Rev$
 %define	name		perl-%{module}
 %define version 	3.0002
-%define release 	1avx
+%define release 	%_revrel
 
 Summary:	MySQL Perl bindings
 Name:		%{name}
@@ -66,17 +67,21 @@ will easily be portable to other DBMS's.
 
 
 %changelog
-* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 3.0002-1avx
+* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sat Sep 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.0002-1avx
 - 3.0002
 - rebuild against perl 5.8.7
 
-* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 2.9004-3avx
+* Thu Aug 11 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.9004-3avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.9004-2avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.9004-2avx
 - bootstrap build
 
-* Fri Feb 25 2005 Vincent Danen <vdanen@annvix.org> 2.9004-1avx
+* Fri Feb 25 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.9004-1avx
 - first annvix build
 
 * Wed Jan 26 2005 Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com> 2.9004-6mdk

@@ -5,12 +5,13 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-
+# $Id$
 
 %define module		Hdlist
+%define revision	$Rev$
 %define name		perl-%{module}
 %define version		0.08
-%define release 	3avx
+%define release 	%_revrel
 
 Summary:	Perl bindings to use rpmlib and manage hdlist files
 Name:		%{name}
@@ -21,8 +22,8 @@ Group:		Development/Perl
 URL:		http://cvs.mandrakesoft.com/cgi-bin/cvsweb.cgi/soft/perl-Hdlist/
 Source:		%{module}-%{version}.tar.bz2
 
-Buildroot:	%{_buildroot}/%{name}-%{version}
-BuildRequires: perl-devel >= 5.8.0, rpm-devel, perl-Digest-SHA1, librpmconstant-devel, rpmtools, gnupg
+BuildRoot:	%{_buildroot}/%{name}-%{version}
+BuildRequires:	perl-devel >= 5.8.0, rpm-devel, perl-Digest-SHA1, librpmconstant-devel, rpmtools, gnupg
 
 Requires:	perl
 
@@ -73,22 +74,26 @@ testing and development purposes only. API may change.
 %{_mandir}/*/*
 
 %changelog
-* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 0.08-3avx
+* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sat Sep 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.08-3avx
 - rebuild against new rpm
 
-* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 0.08-2avx
+* Sat Sep 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.08-2avx
 - rebuild against perl 5.8.7
 
-* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 0.08-1avx
+* Fri Aug 12 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.08-1avx
 - 0.08
 
-* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 0.07-3avx
+* Tue Jul 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.07-3avx
 - rebuild for new gcc
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.07-2avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.07-2avx
 - bootstrap build
 
-* Mon Mar 28 2005 Vincent Danen <vdanen@annvix.org> 0.07-1avx
+* Mon Mar 28 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.07-1avx
 - first Annvix build
 
 * Tue Mar 22 2005 Olivier Thauvin <nanardon@mandrake.org> 0.07-1mdk

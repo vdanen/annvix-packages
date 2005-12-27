@@ -5,12 +5,13 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-
+# $Id$
 
 %define modname		FCGI
+%define revision	$Rev$
 %define name		perl-%{modname}
 %define version		0.67
-%define release 	11avx
+%define release 	%_revrel
 
 Summary:	A Fast CGI module for Perl
 Name:		%{name}
@@ -66,19 +67,23 @@ echo | CFLAGS="%{optflags}" %{__perl} Makefile.PL INSTALLDIRS=vendor
 
 
 %changelog
-* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 0.67-11avx
+* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sat Sep 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.67-11avx
 - rebuild against perl 5.8.7
 
-* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 0.67-10avx
+* Thu Aug 11 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.67-10avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.67-9avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.67-9avx
 - bootstrap build
 
-* Wed Feb 02 2005 Vincent Danen <vdanen@annvix.org> 0.67-8avx
+* Wed Feb 02 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.67-8avx
 - rebuild against new perl
 
-* Sat Jun 26 2004 Vincent Danen <vdanen@annvix.org> 0.67-7avx
+* Sat Jun 26 2004 Vincent Danen <vdanen-at-build.annvix.org> 0.67-7avx
 - Annvix build
 
 * Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 0.67-6sls

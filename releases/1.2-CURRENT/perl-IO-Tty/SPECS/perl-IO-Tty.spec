@@ -5,12 +5,13 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-
+# $Id$
 
 %define	module		IO-Tty
+%define	revision	$Rev$
 %define	name		perl-%{module}
 %define	version		1.02
-%define	release		16avx
+%define	release		%_revrel
 
 Summary:	IO-Tty perl module: interface to pseudo tty's
 Name: 		%{name}
@@ -61,19 +62,23 @@ make test
 
 
 %changelog
-* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 1.02-16avx
+* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sat Sep 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.02-16avx
 - rebuild against perl 5.8.7
 
-* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 1.02-15avx
+* Thu Aug 11 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.02-15avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.02-14avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.02-14avx
 - bootstrap build
 
-* Wed Feb 02 2005 Vincent Danen <vdanen@annvix.org> 1.02-13avx
+* Wed Feb 02 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.02-13avx
 - rebuild against new perl
 
-* Sat Jun 26 2004 Vincent Danen <vdanen@annvix.org> 1.02-12avx
+* Sat Jun 26 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.02-12avx
 - Annvix build
 
 * Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 1.02-11sls

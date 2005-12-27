@@ -5,11 +5,13 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
 %define module		URPM
+%define revision	$Rev$
 %define name		perl-%{module}
 %define version 	1.28
-%define release 	1avx
+%define release 	%_revrel
 
 %define _require_exceptions perl(URPM::DB)\\|perl(URPM::Package)\\|perl(URPM::Transaction)
 
@@ -65,43 +67,47 @@ hdlist files and manage them in memory.
 
 
 %changelog
-* Wed Oct 19 2005 Vincent Danen <vdanen@annvix.org> 1.28-1avx
+* Tue Dec 27 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Wed Oct 19 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.28-1avx
 - 1.28
 
-* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 1.27-2avx
+* Sat Sep 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.27-2avx
 - rebuild against new rpm
 
-* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 1.27-1avx
+* Sat Sep 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.27-1avx
 - 1.27
 - rebuild against perl 5.8.7
 - spec cleanups
 
-* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 1.11-4avx
+* Thu Aug 11 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.11-4avx
 - bootstrap build (new gcc, new glibc)
 
-* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 1.11-3avx
+* Tue Jul 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.11-3avx
 - rebuild for new gcc
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.11-2avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.11-2avx
 - bootstrap build
 
-* Thu Mar 17 2005 Vincent Danen <vdanen@annvix.org> 1.11-1avx
+* Thu Mar 17 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.11-1avx
 - 1.11
 
-* Tue Mar 01 2005 Vincent Danen <vdanen@annvix.org> 1.09-1avx
+* Tue Mar 01 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.09-1avx
 - 1.09
 
-* Wed Feb 02 2005 Vincent Danen <vdanen@annvix.org> 1.07-1avx
+* Wed Feb 02 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.07-1avx
 - 1.07
 - remove unused requires (rgarciasuarez)
 - include ChangeLog
 - Requires: rpmtools >= 5.0.0
 - Requires: perl-base >= 5.8.6
 
-* Tue Sep 14 2004 Vincent Danen <vdanen@annvix.org> 1.03-1avx
+* Tue Sep 14 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.03-1avx
 - 1.03
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 0.94-14avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 0.94-14avx
 - Annvix build
 
 * Sat Jun 11 2004 Vincent Danen <vdanen@opensls.org> 0.94-13sls

@@ -5,12 +5,13 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-
+# $Id$
 
 %define module		XML-NamespaceSupport
+%define revision	$Rev$
 %define name		perl-%{module}
 %define version 	1.09
-%define release 	1avx
+%define release 	%_revrel
 
 Summary:	%{module} module for perl
 Name:		%{name}
@@ -63,20 +64,24 @@ make test
 
 
 %changelog
-* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 1.09-1avx
+* Tue Dec 27 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sat Sep 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.09-1avx
 - 1.09
 - rebuild against perl 5.8.7
 
-* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 1.08-10avx
+* Thu Aug 11 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.08-10avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.08-9avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.08-9avx
 - bootstrap build
 
-* Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> 1.08-8avx
+* Thu Feb 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.08-8avx
 - rebuild against new perl
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 1.08-7avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.08-7avx
 - Annvix build
 
 * Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 1.08-6sls

@@ -5,12 +5,14 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-
+# $Id$
 
 %define module		DBI
+
+%define revision	$Rev$
 %define name		perl-%{module}
 %define version 	1.48
-%define release 	1avx
+%define release 	%_revrel
 
 Summary:	The Perl Database Interface
 Name:		%{name}
@@ -120,26 +122,30 @@ rm -f %{buildroot}%{_mandir}/man3pm/Roadmap.3pm*
 
 
 %changelog
-* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 1.48-1avx
+* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sat Sep 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.48-1avx
 - 1.48
 - remove requires on release for sub-packages
 - rebuild against perl 2.8.7
 
-* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 1.47-3avx
+* Thu Aug 11 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.47-3avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.47-2avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.47-2avx
 - bootstrap build
 
-* Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> 1.47-1avx
+* Thu Feb 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.47-1avx
 - 1.47
 - use %%make and %%makeinstall_std macros (peroyvind)
 - remove manpages of Windows-specific modules (rgarciasuarez)
 
-* Wed Feb 02 2005 Vincent Danen <vdanen@annvix.org> 1.38-6avx
+* Wed Feb 02 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.38-6avx
 - rebuild against new perl
 
-* Fri Jun 26 2004 Vincent Danen <vdanen@annvix.org> 1.38-5avx
+* Fri Jun 26 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.38-5avx
 - Annvix build
 
 * Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 1.38-4sls

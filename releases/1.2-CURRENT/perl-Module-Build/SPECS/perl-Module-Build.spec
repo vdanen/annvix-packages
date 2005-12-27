@@ -5,12 +5,13 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-
+# $Id$
 
 %define	module		Module-Build
+%define	revision	$Rev$
 %define	name		perl-%{module}
 %define version 	0.2611
-%define release 	1avx
+%define release 	%_revrel
 
 Summary:	Build and install Perl modules
 Name:		%{name}
@@ -71,17 +72,21 @@ perl Build.PL installdirs=vendor
 
 
 %changelog
-* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 0.2611-1avx
+* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sat Sep 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.2611-1avx
 - 0.2611
 - rebuild against perl 5.8.7
 
-* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 0.2608-3avx
+* Thu Aug 11 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.2608-3avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.2608-2avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.2608-2avx
 - bootstrap build
 
-* Sat Feb 26 2005 Vincent Danen <vdanen@annvix.org> 0.2608-1avx
+* Sat Feb 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.2608-1avx
 - first Annvix build
 
 * Wed Feb 02 2005 Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com> 0.2608-1mdk

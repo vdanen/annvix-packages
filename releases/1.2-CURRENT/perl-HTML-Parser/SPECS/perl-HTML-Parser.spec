@@ -5,12 +5,13 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-
+# $Id$
 
 %define module		HTML-Parser
+%define revision	$Rev$
 %define name		perl-%{module}
 %define version 	3.45
-%define release 	4avx
+%define release 	%_revrel
 
 Summary: 	Perl module to parse HTML documents
 Name: 		%{name}
@@ -61,23 +62,27 @@ make test
 
 
 %changelog
-* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 3.45-4avx
+* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sat Sep 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.45-4avx
 - rebuild against perl 5.8.7
 
-* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 3.45-3avx
+* Thu Aug 11 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.45-3avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 3.45-2avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.45-2avx
 - bootstrap build
 
-* Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> 3.45-1avx
+* Thu Feb 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.45-1avx
 - 3.45
 - own dirs (thauvin)
 
-* Wed Feb 02 2005 Vincent Danen <vdanen@annvix.org> 3.31-6avx
+* Wed Feb 02 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.31-6avx
 - rebuild against new perl
 
-* Sat Jun 26 2004 Vincent Danen <vdanen@annvix.org> 3.31-5avx
+* Sat Jun 26 2004 Vincent Danen <vdanen-at-build.annvix.org> 3.31-5avx
 - Annvix build
 
 * Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 3.31-4sls

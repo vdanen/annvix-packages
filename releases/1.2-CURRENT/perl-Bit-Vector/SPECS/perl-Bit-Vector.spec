@@ -5,12 +5,13 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-
+# $Id$
 
 %define	module		Bit-Vector
+%define revision	$Rev$
 %define name		perl-%{module}
 %define	version		6.4
-%define	release		1avx
+%define	release		%_revrel
 %define	pdir		Bit
 
 Summary: 	%{module} module for perl
@@ -67,7 +68,11 @@ LANG=C %make test
 
 
 %changelog
-* Sat Sep 24 2005 Vincent Danen <vdanen@annvix.org> 6.4-1avx
+* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sat Sep 24 2005 Vincent Danen <vdanen-at-build.annvix.org> 6.4-1avx
 - first build for Annvix (required by perl-Date-Calc)
 
 * Sun Nov 21 2004 Stefan van der Eijk <stefan@mandrake.org> 6.4-2mdk

@@ -5,12 +5,13 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		perl-%{module}
 %define module		Apache-Session
 %define version		1.6
-%define release		4avx
+%define release		%_revrel
 %define epoch		1
 
 Summary:	%{module}: Apache persistent user sessions
@@ -69,24 +70,28 @@ find %{buildroot}%{_prefix} -type f -print | sed "s@^%{buildroot}@@g" | grep -v 
 
 
 %changelog
-* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 1.6-4avx
+* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sat Sep 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.6-4avx
 - rebuild against perl 5.8.7
 
-* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 1.6-3avx
+* Thu Aug 11 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.6-3avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.6-2avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.6-2avx
 - bootstrap build
 
-* Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> 1.6-1avx
+* Thu Feb 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.6-1avx
 - 1.6
 - spec cleanups
 - set epoch or rpm thinks that 1.54 > 1.6
 
-* Wed Feb 02 2005 Vincent Danen <vdanen@annvix.org> 1.54-11avx
+* Wed Feb 02 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.54-11avx
 - rebuild against new perl
 
-* Sat Jun 26 2004 Vincent Danen <vdanen@annvix.org> 1.54-10avx
+* Sat Jun 26 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.54-10avx
 - Annvix build
 
 * Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 1.54-9sls

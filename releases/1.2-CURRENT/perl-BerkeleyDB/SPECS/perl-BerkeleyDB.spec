@@ -5,12 +5,13 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-
+# $Id$
 
 %define module		BerkeleyDB
+%define revision	$Rev$
 %define name		perl-%{module}
 %define version		0.26
-%define release		4avx
+%define release		%_revrel
 
 Summary:	Perl module for BerkeleyDB 2.x and greater
 Name:		%{name}
@@ -67,16 +68,20 @@ make test
 
 
 %changelog
-* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 0.26-4avx
+* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sat Sep 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.26-4avx
 - rebuild against perl 5.8.7
 
-* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 0.26-3avx
+* Thu Aug 11 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.26-3avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.26-2avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.26-2avx
 - bootstrap build
 
-* Tue Mar 01 2005 Vincent Danen <vdanen@annvix.org> 0.26-1avx
+* Tue Mar 01 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.26-1avx
 - first Annvix build
 
 * Mon Nov 15 2004 Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com> 0.26-2mdk

@@ -5,12 +5,13 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-
+# $Id$
 
 %define module		libwww-perl
+%define revision	$Rev$
 %define name		perl-%{module}
 %define version 	5.803
-%define release 	4avx
+%define release 	%_revrel
 
 %define _requires_exceptions Authen::NTLM\\|HTTP::GHTTP\\|Win32
 
@@ -69,23 +70,27 @@ libwww-perl module for perl
 
 
 %changelog
-* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 5.803-4avx
+* Tue Dec 27 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sat Sep 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 5.803-4avx
 - rebuild against perl 5.8.7
 
-* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 5.803-3avx
+* Thu Aug 11 2005 Vincent Danen <vdanen-at-build.annvix.org> 5.803-3avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 5.803-2avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 5.803-2avx
 - bootstrap build
 
-* Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> 5.803-1avx
+* Thu Feb 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 5.803-1avx
 - 5.803
 - restore installation of GET, HEAD, and POST in /usr/bin (rgarciasuarez)
 
-* Wed Feb 02 2005 Vincent Danen <vdanen@annvix.org> 5.79-3avx
+* Wed Feb 02 2005 Vincent Danen <vdanen-at-build.annvix.org> 5.79-3avx
 - rebuild against new perl
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 5.79-2avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 5.79-2avx
 - Annvix build
 
 * Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 5.79-1sls

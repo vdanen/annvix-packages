@@ -5,12 +5,13 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-
+# $Id$
 
 %define	module		Carp-Clan
+%define revision	$Rev$
 %define name		perl-%{module}
 %define	version		5.3
-%define	release		1avx
+%define	release		%_revrel
 %define	pdir		Carp
 
 Summary: 	%{module} module for perl
@@ -66,7 +67,11 @@ LANG=C %make test
 
 
 %changelog
-* Sat Sep 24 2005 Vincent Danen <vdanen@annvix.org> 5.3-1avx
+* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sat Sep 24 2005 Vincent Danen <vdanen-at-build.annvix.org> 5.3-1avx
 - first build for Annvix (needed by perl-Bit-Vector)
 
 * Sat Jun 04 2005 Luca Berra <bluca@vodka.it> 5.3-2mdk 

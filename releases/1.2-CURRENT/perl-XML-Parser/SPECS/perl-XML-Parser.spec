@@ -5,12 +5,13 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-
+# $Id$
 
 %define	module		XML-Parser
+%define	revision	$Rev$
 %define	name		perl-%{module}
 %define	version		2.34
-%define	release		10avx
+%define	release		%_revrel
 
 Summary: 	A perl module for parsing XML documents
 Name: 		%{name}
@@ -60,22 +61,26 @@ install -m 0644 enc/koi8-r.enc %{buildroot}%{perl_vendorarch}/XML/Parser/Encodin
 
 
 %changelog
-* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 2.34-10avx
+* Tue Dec 27 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Fri Sep 16 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.34-10avx
 - rebuild against new expat
 
-* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 2.34-9avx
+* Sat Sep 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.34-9avx
 - rebuild against perl 5.8.7
 
-* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 2.34-8avx
+* Thu Aug 11 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.34-8avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.34-7avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.34-7avx
 - bootstrap build
 
-* Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> 2.34-6avx
+* Thu Feb 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.34-6avx
 - rebuild against new perl
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 2.34-5avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.34-5avx
 - Annvix build
 
 * Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 2.34-4sls

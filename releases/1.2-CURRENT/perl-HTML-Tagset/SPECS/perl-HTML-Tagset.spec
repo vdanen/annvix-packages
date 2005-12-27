@@ -5,12 +5,13 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-
+# $Id$
 
 %define	module		HTML-Tagset
+%define revision	$Rev$
 %define name		perl-%{module}
 %define	version		3.04
-%define	release		1avx
+%define	release		%_revrel
 
 Summary: 	This module contains data tables useful in dealing with HTML
 Name: 		%{name}
@@ -61,21 +62,25 @@ make test
 
 
 %changelog
-* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 3.04-1avx
+* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sat Sep 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.04-1avx
 - 3.04
 - rebuild for perl 5.8.7
 - fix changelog entries
 
-* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 3.03-14avx
+* Thu Aug 11 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.03-14avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 3.03-13avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.03-13avx
 - bootstrap build
 
-* Wed Feb 02 2005 Vincent Danen <vdanen@annvix.org> 3.03-12avx
+* Wed Feb 02 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.03-12avx
 - rebuild against new perl
 
-* Sat Jun 26 2004 Vincent Danen <vdanen@annvix.org> 3.03-11avx
+* Sat Jun 26 2004 Vincent Danen <vdanen-at-build.annvix.org> 3.03-11avx
 - Annvix build
 
 * Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 3.03-10sls

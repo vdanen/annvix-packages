@@ -5,12 +5,13 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-
+# $Id$
 
 %define module  	Tie-IxHash
+%define revision	$Rev$
 %define name		perl-%{module}
 %define version 	1.21
-%define release 	4avx
+%define release 	%_revrel
 %define	pdir		Tie
 
 
@@ -61,16 +62,20 @@ make test
 
 
 %changelog
-* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 1.21-4avx
+* Tue Dec 27 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sat Sep 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.21-4avx
 - rebuild against perl 5.8.7
 
-* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 1.21-3avx
+* Thu Aug 11 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.21-3avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.21-2avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.21-2avx
 - bootstrap build
 
-* Sat Feb 26 2005 Vincent Danen <vdanen@annvix.org> 1.21-1avx
+* Sat Feb 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.21-1avx
 - first Annvix build
 
 * Thu Sep 23 2004 Lenny Cartier <lenny@mandrakesoft.com> 1.21-7mdk

@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		perl-ldap
 %define version 	0.31
-%define release 	6avx
+%define release 	%_revrel
 
 Summary:	Perl module for ldap
 Name:		%{name}
@@ -67,19 +68,23 @@ make
 
 
 %changelog
-* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 0.31-6avx
+* Tue Dec 27 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sat Sep 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.31-6avx
 - rebuild against perl 5.8.7
 
-* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 0.31-5avx
+* Thu Aug 11 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.31-5avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.31-4avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.31-4avx
 - bootstrap build
 
-* Wed Feb 02 2005 Vincent Danen <vdanen@annvix.org> 0.31-3avx
+* Wed Feb 02 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.31-3avx
 - rebuild against new perl
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 0.31-2avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 0.31-2avx
 - Annvix build
 
 * Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 0.31-1sls

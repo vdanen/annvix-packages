@@ -5,12 +5,13 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-
+# $Id$
 
 %define	module		TimeDate
+%define	revision	$Rev$
 %define	name		perl-%{module}
 %define	version		1.16
-%define	release		1avx
+%define	release		%_revrel
 
 Summary:	%{module} module for perl (Data_Type_Utilities/Time)
 Name:		%{name}
@@ -62,7 +63,11 @@ make test
 
 
 %changelog
-* Sat Sep 24 2005 Vincent Danen <vdanen@annvix.org> 1.16-1avx
+* Tue Dec 27 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sat Sep 24 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.16-1avx
 - first Annvix build (needed by swatch)
 
 * Tue Jan 18 2005 Abel Cheung <deaddog@mandrake.org> 1.16-4mdk

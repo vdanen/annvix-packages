@@ -5,12 +5,13 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-
+# $Id$
 
 %define module		Crypt-SmbHash
+%define revision	$Rev$
 %define name		perl-%{module}
 %define version		0.12
-%define release		4avx
+%define release		%_revrel
 
 Summary:	Crypt::SmbHash Perl module - generate LM/NT hashes like smbpasswd
 Name:		%{name}
@@ -57,16 +58,20 @@ Samba's 'password' files, like smbpasswd.
 %{_mandir}/man3/*
 
 %changelog
-* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 0.12-4avx
+* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sat Sep 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.12-4avx
 - rebuild against perl 5.8.7
 
-* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 0.12-3avx
+* Thu Aug 11 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.12-3avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.12-2avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.12-2avx
 - bootstrap build
 
-* Tue Feb 15 2005 Vincent Danen <vdanen@annvix.org> 0.12-1avx
+* Tue Feb 15 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.12-1avx
 - initial Annvix package for new smbldap-tools in samba-3.0.11
 - major spec cleanup
 

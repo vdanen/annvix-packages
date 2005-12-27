@@ -5,12 +5,13 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-
+# $Id$
 
 %define module		AppConfig
+%define revision	$Rev$
 %define name		perl-%{module}
 %define	version		1.56
-%define release		3avx
+%define release		%_revrel
 
 Summary:  	Perl5 modules for reading configuration
 Name:		%{name}
@@ -59,14 +60,18 @@ CFLAGS="%{optflags}" %{__perl} Makefile.PL INSTALLDIRS=vendor
 
 
 %changelog
-* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 1.56-3avx
+* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sat Sep 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.56-3avx
 - rebuild against perl 5.8.7
 
-* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 1.56-2avx
+* Thu Aug 11 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.56-2avx
 - bootstrap build (new gcc, new glibc)
 - remove %%postun calling ldconfig (what?!?)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.56-1avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.56-1avx
 - first Annvix build
 
 * Tue May 04 2004 Michael Scherer <misc@mandrake.org> 1.56-1mdk

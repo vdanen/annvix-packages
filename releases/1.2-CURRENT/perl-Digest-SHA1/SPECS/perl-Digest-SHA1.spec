@@ -5,11 +5,13 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
 %define module		Digest-SHA1
+%define	revision	$Rev$
 %define	name		perl-%{module}
 %define	version		2.10
-%define	release		2avx
+%define	release		%_revrel
 
 Summary:	Perl interface to the SHA1 Algorithm	
 Name:		%{name}
@@ -58,23 +60,27 @@ make test
 
 
 %changelog
-* Thu Sep 15 2005 Vincent Danen <vdanen@annvix.org> 2.10-2avx
+* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Thu Sep 15 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.10-2avx
 - correct the buildroot
 
-* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 2.10-1avx
+* Sat Sep 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.10-1avx
 - 2.10
 - rebuild against perl 5.8.7
 
-* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 2.04-8avx
+* Thu Aug 11 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.04-8avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.04-7avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.04-7avx
 - bootstrap build
 
-* Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> 2.04-6avx
+* Thu Feb 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.04-6avx
 - rebuild against new perl
 
-* Sat Jun 26 2004 Vincent Danen <vdanen@annvix.org> 2.04-5avx
+* Sat Jun 26 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.04-5avx
 - Annvix build
 
 * Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 2.04-4sls

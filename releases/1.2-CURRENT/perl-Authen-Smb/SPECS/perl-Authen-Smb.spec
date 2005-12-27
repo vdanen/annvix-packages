@@ -5,12 +5,13 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-
+# $Id$
 
 %define module		Authen-Smb
+%define revision	$Rev$
 %define name		perl-%{module}
 %define version		0.91
-%define release		11avx
+%define release		%_revrel
 
 Summary:	Perl extension to authenticate against an SMB server
 Name:		%{name}
@@ -20,7 +21,7 @@ License:	GPL
 Group:		Development/Perl
 URL: 		http://search.cpan.org/dist/%{module}/
 Source0:	http://www.cpan.org/modules/by-module/Authen/%{module}-%{version}.tar.gz
-Patch0:		Authen-Smb-0.91-64bit-fixes.patch.bz2
+Patch0:		Authen-Smb-0.91-64bit-fixes.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl-devel >= 5.6
@@ -58,19 +59,23 @@ make test
 
 
 %changelog
-* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 0.91-11avx
+* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sat Sep 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.91-11avx
 - rebuild against perl 5.8.7
 
-* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 0.91-10avx
+* Thu Aug 11 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.91-10avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.91-9avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.91-9avx
 - bootstrap build
 
-* Wed Feb 02 2005 Vincent Danen <vdanen@annvix.org> 0.91-8avx
+* Wed Feb 02 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.91-8avx
 - rebuild against new perl
 
-* Sat Jun 26 2004 Vincent Danen <vdanen@annvix.org> 0.91-7avx
+* Sat Jun 26 2004 Vincent Danen <vdanen-at-build.annvix.org> 0.91-7avx
 - Annvix build
 
 * Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 0.91-6sls

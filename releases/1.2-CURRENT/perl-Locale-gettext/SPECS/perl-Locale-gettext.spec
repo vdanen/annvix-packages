@@ -5,12 +5,13 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-
+# $Id$
 
 %define module		Locale-gettext
+%define revision	$Rev$
 %define name		perl-%{module}
 %define version		1.05
-%define release		1avx
+%define release		%_revrel
 
 Summary:	Message handling functions for Perl
 Name:		%{name}
@@ -20,7 +21,7 @@ License:	GPL or Artistic
 Group:		Development/Perl
 URL:		http://www.cpan.org/modules/by-module/Locale
 Source:		http://www.cpan.org/modules/by-module/Locale/gettext-%{version}.tar.bz2
-Patch2:		gettext-1.04-add-iconv.patch.bz2
+Patch2:		gettext-1.04-add-iconv.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	gettext-devel perl-devel
@@ -66,20 +67,24 @@ make test
 
 
 %changelog
-* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 1.05-1avx
+* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sat Sep 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.05-1avx
 - 1.05
 - rebuild against new perl 5.8.7 and new gettext
 
-* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 1.01-17avx
+* Thu Aug 11 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.01-17avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.01-16avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.01-16avx
 - bootstrap build
 
-* Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> 1.01-15avx
+* Thu Feb 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.01-15avx
 - rebuild against new perl
 
-* Sat Jun 26 2004 Vincent Danen <vdanen@annvix.org> 1.01-14avx
+* Sat Jun 26 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.01-14avx
 - Annvix build
 
 * Fri May 07 2004 Vincent Danen <vdanen@opensls.org> 1.01-13sls

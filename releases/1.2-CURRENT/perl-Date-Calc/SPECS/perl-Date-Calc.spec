@@ -5,12 +5,13 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-
+# $Id$
 
 %define	module		Date-Calc
+%define revision	$Rev$
 %define name		perl-%{module}
 %define	version		5.4
-%define	release		1avx
+%define	release		%_revrel
 %define	pdir		Date
 
 Summary: 	Gregorian calendar date calculations
@@ -69,7 +70,11 @@ chmod -R u+w examples
 
 
 %changelog
-* Sat Sep 24 2005 Vincent Danen <vdanen@annvix.org> 5.4-1avx
+* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sat Sep 24 2005 Vincent Danen <vdanen-at-build.annvix.org> 5.4-1avx
 - first Annvix build (for swatch)
 
 * Wed Jun 15 2005 Rafael Garcia-Suarez <rgarciasuarez@mandriva.com> 5.4-3mdk

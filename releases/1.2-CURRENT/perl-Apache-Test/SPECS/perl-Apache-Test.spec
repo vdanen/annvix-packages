@@ -5,12 +5,13 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-
+# $Id$
 
 %define module		Apache-Test
+%define revision	$Rev$
 %define name		perl-%{module}
 %define version		1.25
-%define release		2avx
+%define release		%_revrel
 
 %define _requires_exceptions perl(Apache2::Const)\\|perl(ModPerl::Config)
 
@@ -65,21 +66,25 @@ developed for testing mod_perl 2.0.
 
 
 %changelog
-* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 1.25-2avx
+* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sat Sep 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.25-2avx
 - rebuild against perl 5.8.7
 - requires httpd-mod_perl, not apache2-mod_perl
 
-* Wed Sep 07 2005 Vincent Danen <vdanen@annvix.org> 1.25-1avx
+* Wed Sep 07 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.25-1avx
 - 1.25
 - rule out some perl auto-requires
 
-* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 1.20-3avx
+* Thu Aug 11 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.20-3avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.20-2avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.20-2avx
 - bootstrap build
 
-* Sat Feb 26 2005 Vincent Danen <vdanen@annvix.org> 1.20-1avx
+* Sat Feb 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.20-1avx
 - first Annvix build
 
 * Sat Jan 22 2005 Oden Eriksson <oden.eriksson@linux-mandrake.com> 1.20-1mdk

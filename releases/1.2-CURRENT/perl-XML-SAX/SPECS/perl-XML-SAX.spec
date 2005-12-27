@@ -5,12 +5,13 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-
+# $Id$
 
 %define module		XML-SAX
+%define revision	$Rev$
 %define name		perl-%{module}
 %define version 	0.12
-%define release 	11avx
+%define release 	%_revrel
 
 Summary:	%{module} module for perl
 Name:		%{name}
@@ -20,7 +21,7 @@ License:	GPL or Artistic
 Group:		Development/Perl
 URL:		http://www.cpan.org
 Source0:	%{module}-%{version}.tar.bz2
-Patch:		%{name}-0.05-build.patch.bz2
+Patch:		%{name}-0.05-build.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
@@ -72,19 +73,23 @@ make test
 
 
 %changelog
-* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 0.12-11avx
+* Tue Dec 27 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sat Sep 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.12-11avx
 - rebuild against perl 5.8.7
 
-* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 0.12-10avx
+* Thu Aug 11 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.12-10avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.12-9avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.12-9avx
 - bootstrap build
 
-* Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> 0.12-8avx
+* Thu Feb 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.12-8avx
 - rebuild against new perl
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 0.12-7avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 0.12-7avx
 - Annvix build
 
 * Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 0.12-6sls

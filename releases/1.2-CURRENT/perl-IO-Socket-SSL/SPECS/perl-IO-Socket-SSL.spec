@@ -5,12 +5,13 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-
+# $Id$
 
 %define	module		IO-Socket-SSL
+%define revision	$Rev$
 %define name		perl-%{module}
 %define version		0.97
-%define release		1avx
+%define release		%_revrel
 
 Summary:	%{module} perl module
 Name: 		%{name}
@@ -60,7 +61,11 @@ make
 
 
 %changelog
-* Thu Sep 22 2005 Vincent Danen <vdanen@annvix.org> 0.97-1avx
+* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Thu Sep 22 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.97-1avx
 - first Annvix build (for new spamassassin)
 
 * Mon Jul 18 2005 Rafael Garcia-Suarez <rgarciasuarez@mandriva.com> 0.97-1mdk

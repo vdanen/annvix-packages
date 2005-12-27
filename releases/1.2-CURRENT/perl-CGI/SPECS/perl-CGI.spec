@@ -5,12 +5,13 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-
+# $Id$
 
 %define module		CGI
+%define revision	$Rev$
 %define name		perl-%{module}
 %define version		3.05
-%define release		6avx
+%define release		%_revrel
 %define epoch		1
 
 Summary:        Simple Common Gateway Interface class for Perl
@@ -89,19 +90,23 @@ connections, will see large performance improvements.
 
 
 %changelog
-* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 3.05-6avx
+* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sat Sep 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.05-6avx
 - rebuild against perl 5.8.7
 
-* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 3.05-5avx
+* Thu Aug 11 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.05-5avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 3.05-4avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.05-4avx
 - bootstrap build
 
-* Wed Feb 02 2005 Vincent Danen <vdanen@annvix.org> 3.05-3avx
+* Wed Feb 02 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.05-3avx
 - rebuild against new perl
 
-* Sat Jun 26 2004 Vincent Danen <vdanen@annvix.org> 3.05-2avx
+* Sat Jun 26 2004 Vincent Danen <vdanen-at-build.annvix.org> 3.05-2avx
 - Annvix build
 
 * Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 3.05-1sls

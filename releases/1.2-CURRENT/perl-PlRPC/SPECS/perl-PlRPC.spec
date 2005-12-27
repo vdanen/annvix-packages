@@ -5,12 +5,13 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-
+# $Id$
 
 %define module 		PlRPC
+%define revision	$Rev$
 %define name		perl-%{module}
 %define version 	0.2018
-%define release 	1avx
+%define release 	%_revrel
 
 Summary:	%{module} perl module
 Name: 		%{name}
@@ -56,19 +57,23 @@ Buildarch:	noarch
 
 
 %changelog
-* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 0.2018-1avx
+* Tue Dec 27 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sat Sep 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.2018-1avx
 - 0.2018
 
-* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 0.2017-9avx
+* Thu Aug 11 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.2017-9avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.2017-8avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.2017-8avx
 - bootstrap build
 
-* Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> 0.2017-7avx
+* Thu Feb 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.2017-7avx
 - rebuild against new perl
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 0.2017-6avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 0.2017-6avx
 - Annvix build
 
 * Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 0.2017-5sls

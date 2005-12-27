@@ -5,12 +5,13 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-
+# $Id$
 
 %define module		YAML
+%define revision	$Rev$
 %define name		perl-%{module}
 %define version 	0.39
-%define release 	1avx
+%define release 	%_revrel
 
 Summary:	YAML Ain't Markup Language (tm)
 Name:		%{name}
@@ -65,17 +66,21 @@ make test
 
 
 %changelog
-* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 0.39-1avx
+* Tue Dec 27 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sat Sep 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.39-1avx
 - 0.39
 - rebuild against perl 5.8.7
 
-* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 0.36-3avx
+* Thu Aug 11 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.36-3avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.36-2avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.36-2avx
 - bootstrap build
 
-* Sat Feb 26 2005 Vincent Danen <vdanen@annvix.org> 0.36-1avx
+* Sat Feb 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.36-1avx
 - first Annvix build
 
 * Mon Jan 31 2005 Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com> 0.36-1mdk

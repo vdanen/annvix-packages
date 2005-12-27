@@ -5,12 +5,13 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-
+# $Id$
 
 %define module		Pg
+%define revision	$Rev$
 %define name		perl-%{module}
 %define version		2.1.1
-%define release		1avx
+%define release		%_revrel
 
 Summary:	A libpq-based PostgreSQL interface for Perl
 Name:		%{name}
@@ -73,20 +74,24 @@ export POSTGRES_LIB=`pg_config --libdir`
 
 
 %changelog
-* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 2.1.1-1avx
+* Tue Dec 27 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sat Sep 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.1.1-1avx
 - 2.1.1
 - rebuild against perl 5.8.7
 
-* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 2.0.2-11avx
+* Thu Aug 11 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.2-11avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.0.2-10avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.2-10avx
 - bootstrap build
 
-* Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> 2.0.2-9avx
+* Thu Feb 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.2-9avx
 - rebuild against new perl
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 2.0.2-8avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.0.2-8avx
 - Annvix build
 
 * Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 2.0.2-7sls

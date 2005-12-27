@@ -5,12 +5,13 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-
+# $Id$
 
 %define module		Term-ReadLine-Gnu
+%define revision	$Rev$
 %define name		perl-%{module}
 %define version 	1.15
-%define release 	5avx
+%define release 	%_revrel
 
 Summary:	GNU Readline for perl
 Name:		%{name}
@@ -75,25 +76,29 @@ perl -pi -e 's!/usr/local/bin/perl!/usr/bin/perl!g' %{buildroot}%{perl_vendorarc
 
 
 %changelog
-* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 1.15-5avx
+* Tue Dec 27 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sat Sep 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.15-5avx
 - rebuild against perl 5.8.7
 
-* Fri Sep 09 2005 Vincent Danen <vdanen@annvix.org> 1.15-4avx
+* Fri Sep 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.15-4avx
 - rebuild against new readline
 
-* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 1.15-3avx
+* Thu Aug 11 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.15-3avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.15-2avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.15-2avx
 - bootstrap build
 
-* Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> 1.15-1avx
+* Thu Feb 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.15-1avx
 - 1.15
 
-* Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> 1.14-9avx
+* Thu Feb 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.14-9avx
 - rebuild against new perl
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 1.14-8avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.14-8avx
 - Annvix build
 
 * Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 1.14-7sls

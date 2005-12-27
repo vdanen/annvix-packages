@@ -5,12 +5,13 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-
+# $Id$
 
 %define module		Net-IP
+%define revision	$Rev$
 %define name 		perl-%{module}
 %define version		1.23
-%define release 	1avx
+%define release 	%_revrel
 
 Summary:	Net::IP perl module
 Name:		%{name}
@@ -68,7 +69,11 @@ transparently.
 
 
 %changelog
-* Sun Oct 23 2005 Vincent Danen <vdanen@annvix.org> 1.23-1avx
+* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sun Oct 23 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.23-1avx
 - first Annvix build (needed by perl-Net-DNS)
 
 * Fri Jun 10 2005 Rafael Garcia-Suarez <rgarciasuarez@mandriva.com> 1.23-1mdk

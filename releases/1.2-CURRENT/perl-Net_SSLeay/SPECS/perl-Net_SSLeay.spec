@@ -5,12 +5,13 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-
+# $Id$
 
 %define module		Net_SSLeay
+%define revision	$Rev$
 %define name 		perl-%{module}
 %define version		1.25
-%define release		11avx
+%define release		%_revrel
 
 Summary:        Net::SSLeay (module for perl)
 Name: 		%{name}
@@ -21,7 +22,7 @@ Group: 		Development/Perl
 URL: 		http://www.bacus.pt/Net_SSLeay/index.html
 Source: 	%{module}.pm-%{version}.tar.bz2
 Patch:		%{module}.pm-1.25.large_tcp_read.patch.bz2
-Patch1:		Net_SSLeay-nobakus.patch.bz2
+Patch1:		Net_SSLeay-nobakus.patch
 
 BuildRoot: 	%{_buildroot}/%{name}-%{version}
 BuildRequires:	openssl-devel perl-devel
@@ -72,25 +73,29 @@ make test
 
 
 %changelog
-* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 1.25-11avx
+* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sat Sep 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.25-11avx
 - rebuild against perl 5.8.7
 
-* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 1.25-10avx
+* Thu Aug 11 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.25-10avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.25-9avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.25-9avx
 - bootstrap build
 
-* Wed Feb 02 2005 Vincent Danen <vdanen@annvix.org> 1.25-8avx
+* Wed Feb 02 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.25-8avx
 - rebuild against new perl
 
-* Thu Jan 06 2005 Vincent Danen <vdanen@annvix.org> 1.25-7avx
+* Thu Jan 06 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.25-7avx
 - rebuild against latest openssl
 
-* Tue Aug 17 2004 Vincent Danen <vdanen@annvix.org> 1.25-6avx
+* Tue Aug 17 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.25-6avx
 - rebuild against new openssl
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 1.25-5avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.25-5avx
 - Annvix build
 
 * Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 1.25-4sls

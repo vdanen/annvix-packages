@@ -5,12 +5,13 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-
+# $Id$
 
 %define module		Tk
+%define revision	$Rev$
 %define name		perl-%{module}
 %define version 	804.027
-%define release 	4avx
+%define release 	%_revrel
 
 %define _requires_exceptions Watch
 
@@ -127,23 +128,27 @@ rm -f %{buildroot}%{perl_vendorarch}/Tk/README.Adjust
 
 
 %changelog
-* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 800.027-4avx
+* Tue Dec 27 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sat Sep 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 800.027-4avx
 - rebuild against perl 5.8.7
 
-* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 800.027-3avx
+* Thu Aug 11 2005 Vincent Danen <vdanen-at-build.annvix.org> 800.027-3avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 800.027-2avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 800.027-2avx
 - bootstrap build
 
-* Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> 800.027-1avx
+* Thu Feb 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 800.027-1avx
 - 804.027
 - spec cleanups
 
-* Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> 800.024-9avx
+* Thu Feb 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 800.024-9avx
 - rebuild against new perl
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 800.024-8avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 800.024-8avx
 - Annvix build
 
 * Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 800.024-7sls

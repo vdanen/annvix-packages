@@ -5,12 +5,13 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-
+# $Id$
 
 %define module		Expect
+%define revision	$Rev$
 %define name		perl-%{module}
 %define version 	1.15
-%define release 	14avx
+%define release 	%_revrel
 
 Summary:	Expect perl module
 Name: 		%{name}
@@ -20,7 +21,7 @@ License: 	GPL
 Group: 		Development/Perl
 URL:		http://www.cpan.org
 Source:		ftp://ftp.perl.org/pub/CPAN/modules/by-module/Expect/Expect-%{version}.tar.bz2
-Patch0:		%{name}-paths.patch.bz2
+Patch0:		%{name}-paths.patch
 
 BuildRoot: 	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
@@ -62,19 +63,23 @@ make test
 
 
 %changelog
-* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 1.15-14avx
+* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sat Sep 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.15-14avx
 - rebuild against perl 5.8.7
 
-* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 1.15-13avx
+* Thu Aug 11 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.15-13avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.15-12avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.15-12avx
 - bootstrap build
 
-* Wed Feb 02 2005 Vincent Danen <vdanen@annvix.org> 1.15-11avx
+* Wed Feb 02 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.15-11avx
 - rebuild against new perl
 
-* Sat Jun 26 2004 Vincent Danen <vdanen@annvix.org> 1.15-10avx
+* Sat Jun 26 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.15-10avx
 - Annvix build
 
 * Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 1.15-9sls

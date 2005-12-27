@@ -5,12 +5,13 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-
+# $Id$
 
 %define module		Digest-HMAC
+%define	revision	$Rev$
 %define	name		perl-%{module}
 %define	version		1.01
-%define	release		19avx
+%define	release		%_revrel
 
 Summary:	Keyed-Hashing for Message Authentication
 Name:		%{name}
@@ -59,19 +60,23 @@ make test
 
 
 %changelog
-* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 1.01-19avx
+* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sat Sep 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.01-19avx
 - rebuild against perl 5.8.7
 
-* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 1.01-18avx
+* Thu Aug 11 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.01-18avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.01-17avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.01-17avx
 - bootstrap build
 
-* Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> 1.01-16avx
+* Thu Feb 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.01-16avx
 - rebuild against new perl
 
-* Sat Jun 26 2004 Vincent Danen <vdanen@annvix.org> 1.01-15avx
+* Sat Jun 26 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.01-15avx
 - Annvix build
 
 * Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 1.01-14sls

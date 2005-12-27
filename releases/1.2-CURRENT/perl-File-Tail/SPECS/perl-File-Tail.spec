@@ -5,12 +5,13 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-
+# $Id$
 
 %define module		File-Tail
+%define revision	$Rev$
 %define name		perl-%{module}
 %define version		0.99.1
-%define release		1avx
+%define release		%_revrel
 
 Summary:	File::Tail module for Perl
 Name:		%{name}
@@ -61,7 +62,11 @@ This Perl modules allows to read from continously updated files.
 
 
 %changelog
-* Sat Sep 24 2005 Vincent Danen <vdanen@annvix.org> 0.99.1-1avx
+* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sat Sep 24 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.99.1-1avx
 - first Annvix build (required by swatch)
 
 * Wed Jun 29 2005 Rafael Garcia-Suarez <rgarciasuarez@mandriva.com> 0.99.1-2mdk

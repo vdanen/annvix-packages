@@ -5,12 +5,13 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-
+# $Id$
 
 %define module		Net-DNS
+%define revision	$Rev$
 %define name		perl-%{module}
 %define version		0.53
-%define release		1avx
+%define release		%_revrel
 
 Summary:	Perl interface to the DNS resolver
 Name:		%{name}
@@ -67,7 +68,11 @@ its various sections. See RFC 1035 or DNS and BIND (Albitz & Liu) for details.
 
 
 %changelog
-* Sun Oct 23 2005 Vincent Danen <vdanen@annvix.org> 0.53-1avx
+* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sun Oct 23 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.53-1avx
 - first build for Annvix (required by spamd)
 
 * Mon Oct 03 2005 Guillaume Rousse <guillomovitch@mandriva.org> 0.53-1mdk
