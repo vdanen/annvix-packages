@@ -21,7 +21,7 @@ License: 	GPL
 Group: 		Development/Perl
 URL: 		http://www.bacus.pt/Net_SSLeay/index.html
 Source: 	%{module}.pm-%{version}.tar.bz2
-Patch:		%{module}.pm-1.25.large_tcp_read.patch.bz2
+Patch:		%{module}.pm-1.25.large_tcp_read.patch
 Patch1:		Net_SSLeay-nobakus.patch
 
 BuildRoot: 	%{_buildroot}/%{name}-%{version}
