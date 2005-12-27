@@ -23,7 +23,7 @@ License:	GPL or Artistic
 Group:		Development/Perl
 URL:		http://search.cpan.org/dist/DB_File/
 Source0:	%{module}-%{version}.tar.bz2
-Patch:		%{module}-1.805-makefile.patch.bz2
+Patch:		%{module}-1.805-makefile.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	db-devel perl-devel
