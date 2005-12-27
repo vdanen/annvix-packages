@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		urpmi
 %define version		4.7.16
-%define release 	1avx
+%define release 	%_revrel
 
 %{expand:%%define compat_perl_vendorlib %(perl -MConfig -e 'printf "%%s\n", "%{?perl_vendorlib:1}" ? "%%{perl_vendorlib}" : "$Config{installvendorlib}"')}
 
@@ -210,52 +211,56 @@ if (-e "/etc/urpmi/urpmi.cfg") {
 
 
 %changelog
-* Wed Oct 19 2005 Vincent Danen <vdanen@annvix.org> 4.7.16-1avx
+* Tue Dec 27 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Wed Oct 19 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.7.16-1avx
 - 4.7.16
 
-* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 4.7.15-1avx
+* Fri Sep 16 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.7.15-1avx
 - 4.7.15
 
-* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 4.7.14-1avx
+* Sat Sep 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.7.14-1avx
 - 4.7.14
 - new: rurpmi, an experimental restricted version of urpmi (intended to
   be used via sudoers)
 - new: ability to use ldap to configure repositories
 - new: support for rpm 4.4.1
 
-* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 4.6.23-5avx
+* Thu Aug 11 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.6.23-5avx
 - bootstrap build (new gcc, new glibc)
 
-* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 4.6.23-4avx
+* Tue Jul 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.6.23-4avx
 - rebuild for new gcc
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 4.6.23-3avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.6.23-3avx
 - bootstrap build
 
-* Mon Mar 28 2005 Vincent Danen <vdanen@annvix.org> 4.6.23-2avx
+* Mon Mar 28 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.6.23-2avx
 - sync with 4.6.23-5mdk
 
-* Thu Mar 17 2005 Vincent Danen <vdanen@annvix.org> 4.6.23-1avx
+* Thu Mar 17 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.6.23-1avx
 - 4.6.23
 
-* Tue Mar 01 2005 Vincent Danen <vdanen@annvix.org> 4.6.20-1avx
+* Tue Mar 01 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.6.20-1avx
 - 4.6.20
 - requires perl-URPM 1.08
 - conflicts curl < 7.13.0
 
-* Wed Feb 02 2005 Vincent Danen <vdanen@annvix.org> 4.6.14-1avx
+* Wed Feb 02 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.6.14-1avx
 - 4.6.14
 - update description
 - PreReq: perl-URPM >= 1.04, rpmtools >= 5.0.2
 
-* Tue Sep 14 2004 Vincent Danen <vdanen@annvix.org> 4.5-1avx
+* Tue Sep 14 2004 Vincent Danen <vdanen-at-build.annvix.org> 4.5-1avx
 - 4.5
 - Requires: perl (on urpmi-parallel-ssh)
 - remove gurpmi completely
 - remove bash_completion stuff
 - kernel stuff doesn't need to be in inst.lst anymore
 
-* Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 4.4-50avx
+* Fri Jun 18 2004 Vincent Danen <vdanen-at-build.annvix.org> 4.4-50avx
 - Annvix build
 
 * Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 4.4-49sls
