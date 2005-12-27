@@ -38,14 +38,15 @@ Requires(pre):	perl-URPM >= 1.22
 Conflicts:	curl < 7.13.0
 
 %description
-urpmi takes care of dependencies between rpms, using a pool (or pools) of rpms.
+urpmi takes care of dependencies between rpms, using a pool (or pools)
+of rpms.
 
-urpmi is Annvix's console-based software installation tool, developed by
-Mandriva. urpmi will follow package dependencies -- in other words, it will
-install all the other software required by the software you ask it to install --
-and it's capable of obtaining packages from a variety of media, including 
-installation CD-ROMs, your local hard disk, and remote sources such as web or FTP
-sites.
+urpmi is Annvix's console-based software installation tool, developed
+by Mandriva. urpmi will follow package dependencies -- in other words,
+it will install all the other software required by the software you ask
+it to install -- and it's capable of obtaining packages from a variety
+of media, including installation CD-ROMs, your local hard disk, and
+remote sources such as web or FTP sites.
 
 
 %if %{allow_karun}
