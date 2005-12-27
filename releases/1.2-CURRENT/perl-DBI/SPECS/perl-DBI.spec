@@ -24,7 +24,8 @@ URL:		http://dbi.perl.org
 Source:		%{module}-%{version}.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	perl-devel
+BuildRequires:	perl-devel, perl-Net-Daemon
+BuildConflicts:	perl-PlRPC
 
 Requires:	perl
 
@@ -122,6 +123,10 @@ rm -f %{buildroot}%{_mandir}/man3pm/Roadmap.3pm*
 
 
 %changelog
+* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- add BuildRequires: perl-Net-Daemon
+- add BuildConflicts: perl-PlRPC (or the tests fail on the proxy test)
+
 * Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org>
 - Obfuscate email addresses and new tagging
 - Uncompress patches
