@@ -52,7 +52,7 @@ install -m 0750 builder-wrapper %{buildroot}%{_bindir}/builder
 %post
 echo "
 # added by annvix-ports
-%admin  ALL= (builder) /usr/local/ports/builder
+%admin  ALL= (builder) /bin/sh /usr/local/ports/builder*
 builder ALL = NOPASSWD: /usr/sbin/urpmi.addmedia, /usr/sbin/urpmi.update, /usr/sbin/urpmi
 " >>/etc/sudoers
 
@@ -76,6 +76,9 @@ builder ALL = NOPASSWD: /usr/sbin/urpmi.addmedia, /usr/sbin/urpmi.update, /usr/s
 
 
 %changelog
+* Wed Dec 28 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- fix the sudo invocation for a cleaner environment
+
 * Wed Dec 28 2005 Vincent Danen <vdanen-at-build.annvix.org>
 - 1.2
 - hefty working to handle %%_revrel, sudo controls, and running as user
