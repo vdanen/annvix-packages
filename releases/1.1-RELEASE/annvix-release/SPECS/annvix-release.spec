@@ -9,7 +9,7 @@
 
 %define name		annvix-release
 %define version		1.1
-%define release		5avx
+%define release		6avx
 
 %define distrib		Bachus
 %define realversion 	1.1-RELEASE
@@ -51,6 +51,7 @@ cat > %{buildroot}%{macrofile} <<EOF
 %%annvix_codename	%{distrib}
 %%annvix_arch		%{_target_cpu}
 %%annvix_os		%{_target_os}
+%%_revrel		%%(echo %%{revision}|cut -d ' ' -f 2)avx
 EOF
 
 
@@ -67,6 +68,9 @@ EOF
 
 
 %changelog
+* Wed Dec 28 2005 Vincent Danen <vdanen@annvix.org> 1.1-6avx
+- add the %%_revrel macro from 1.2-CURRENT so we can use it with ports
+
 * Fri Oct 28 2005 Vincent Danen <vdanen@annvix.org> 1.1-5avx
 - 1.1-RELEASE rather
 
