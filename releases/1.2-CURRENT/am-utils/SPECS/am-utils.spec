@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		am-utils
 %define version		6.0.9
-%define release		11avx
+%define release		%_revrel
 %define epoch		3
 
 %define major		2
@@ -30,13 +31,15 @@ Source3:	amd.run
 Source4:	amd-log.run
 Source5:	AMDOPTS.env
 Source6: 	MOUNTPTS.env
-Patch:		am-utils-6.0.4-nfs3.patch.bz2
+Patch0:		am-utils-6.0.4-nfs3.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	bison, byacc, flex, gdbm-devel
 
-Prereq:		info-install, grep, rpm-helper, setup >= 2.4-16avx
-Requires:	portmap
+Requires(pre):	grep
+Requires(post):	rpm-helper, info-install
+Requires(preun): info-install, rpm-helper
+Requires:	portmap, setup >= 2.4-16avx
 Obsoletes:	amd
 Provides:	amd
 
@@ -169,39 +172,44 @@ fi
 
 
 %changelog
-* Tue Sep 27 2005 Vincent Danen <vdanen@annvix.org> 6.0.9-11avx
+* Thu Dec 29 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+- fix prereq
+
+* Tue Sep 27 2005 Vincent Danen <vdanen-at-build.annvix.org> 6.0.9-11avx
 - quotes in runscript
 
-* Sun Sep 25 2005 Vincent Danen <vdanen@annvix.org> 6.0.9-10avx
+* Sun Sep 25 2005 Vincent Danen <vdanen-at-build.annvix.org> 6.0.9-10avx
 - back down to 6.0.9 due to some very wierd amd behaviour with
   6.1.x
 - bump the epoch
 - change the logfile from syslog to /dev/stderr in amd.conf
 
-* Sun Sep 25 2005 Sean P. Thomas <vdanen@annvix.org> 6.1.2.1-1avx
+* Sun Sep 25 2005 Sean P. Thomas <vdanen-at-build.annvix.org> 6.1.2.1-1avx
 - Converted to env dirs, run script to execlineb, converted 
 - dependencies, and upgraded to newest version. 
 
-* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 6.1.1-2avx
+* Sat Sep 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 6.1.1-2avx
 - s/supervise/service/ in log/run
 
-* Fri Sep 02 2005 Vincent Danen <vdanen@annvix.org> 6.1.1-1avx
+* Fri Sep 02 2005 Vincent Danen <vdanen-at-build.annvix.org> 6.1.1-1avx
 - 6.1.1
 - use execlineb for run scripts
 - move logdir to /var/log/service/amd
 - run scripts are now considered config giles and are not replaceable
 
 
-* Fri Aug 26 2005 Vincent Danen <vdanen@annvix.org> 6.0.9-12avx
+* Fri Aug 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 6.0.9-12avx
 - fix perms on run scripts
 
-* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 6.0.9-11avx
+* Fri Aug 19 2005 Vincent Danen <vdanen-at-build.annvix.org> 6.0.9-11avx
 - bootstrap build (new gcc, new glibc)
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 6.0.9-10avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 6.0.9-10avx
 - rebuild
 
-* Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 6.0.9-9avx
+* Thu Mar 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 6.0.9-9avx
 - first Annvix build, to replace autofs
 
 * Thu Nov 18 2004 Olivier Thauvin <thauvin@aerov.jussieu.fr> 6.0.9-8mdk
