@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		zlib
 %define version		1.2.3
-%define release 	3avx
+%define release 	%_revrel
 
 %define lib_major	1
 %define lib_name	%{name}%{lib_major}
@@ -30,10 +31,10 @@ Group:		System/Libraries
 URL:		http://www.gzip.org/zlib/
 
 Source:		http://prdownloads.sourceforge.net/libpng/%{name}-%{version}.tar.bz2
-Patch0:		zlib-1.2.1-glibc.patch.bz2
-Patch1:		zlib-1.2.1-multibuild.patch.bz2
-Patch2:		zlib-1.2.2.2-build-fPIC.patch.bz2
-Patch3:		zlib-1.2.1.1-deb-alt-inflate.patch.bz2
+Patch0:		zlib-1.2.1-glibc.patch
+Patch1:		zlib-1.2.1-multibuild.patch
+Patch2:		zlib-1.2.2.2-build-fPIC.patch
+Patch3:		zlib-1.2.1.1-deb-alt-inflate.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
@@ -165,21 +166,25 @@ ln -s ../../%{_lib}/libz.so.%{version} %{buildroot}%{_libdir}/
 
 
 %changelog
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1.2.3-3avx
+* Wed Dec 28 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.2.3-3avx
 - bootstrap build (new gcc, new glibc)
 
-* Mon Jul 25 2005 Vincent Danen <vdanen@annvix.org> 1.2.3-2avx
+* Mon Jul 25 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.2.3-2avx
 - rebuild against new gcc
 - spec cleanups
 
-* Tue Jul 21 2005 Vincent Danen <vdanen@annvix.org> 1.2.3-1avx
+* Tue Jul 21 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.2.3-1avx
 - 1.2.3; also fixes CAN-2005-1849
 - remove P4; merged upstream
 
-* Tue Jul 19 2005 Vincent Danen <vdanen@annvix.org> 1.2.2.2-2avx
+* Tue Jul 19 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.2.2.2-2avx
 - P4: patch to fix CAN-2005-2096
 
-* Wed Jun 08 2005 Vincent Danen <vdanen@annvix.org> 1.2.2.2-1avx
+* Wed Jun 08 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.2.2.2-1avx
 - 1.2.2.2
 - enable biarch build for sparc64 (stefan)
 - updated P0 and P1 from Mandriva; old P3 merged upstream
@@ -188,10 +193,10 @@ ln -s ../../%{_lib}/libz.so.%{version} %{buildroot}%{_libdir}/
   tests (gbeauchesne)
 - start work to make specs more readable and "clean"
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.1.4-12avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.1.4-12avx
 - bootstrap build
 
-* Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 1.1.4-11avx
+* Fri Jun 18 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.1.4-11avx
 - Annvix build
 
 * Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 1.1.4-10sls
