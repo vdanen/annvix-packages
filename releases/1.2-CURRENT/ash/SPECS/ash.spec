@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		ash
 %define version		0.3.8
-%define release		3avx
+%define release		%_revrel
 
 Summary:	The Almquist shell
 Name:		%{name}
@@ -19,12 +20,12 @@ License:	BSD
 Group:		Shells
 
 Source:		%{name}-%{version}.tar.gz
-Patch0:		ash-0.3.8-gcc.patch.bz2
-Patch1:		ash-0.3.8-defpath.patch.bz2
-Patch2:		ash-0.3.8-dietlibc.patch.bz2
-Patch3:		ash-0.3.8-stat.patch.bz2
-Patch4:		ash-0.3.8-fixyaccparser.patch.bz2
-Patch5:		ash-0.3.8-getcwd.patch.bz2
+Patch0:		ash-0.3.8-gcc.patch
+Patch1:		ash-0.3.8-defpath.patch
+Patch2:		ash-0.3.8-dietlibc.patch
+Patch3:		ash-0.3.8-stat.patch
+Patch4:		ash-0.3.8-fixyaccparser.patch
+Patch5:		ash-0.3.8-getcwd.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	binutils, flex, gcc, make, byacc
@@ -105,13 +106,17 @@ fi
 
 
 %changelog
-* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 0.3.8-3avx
+* Thu Dec 29 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sat Sep 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.3.8-3avx
 - rebuild against new dietlibc
 
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 0.3.8-2avx
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.3.8-2avx
 - bootstrap build (new gcc, new glibc)
 
-* Mon Jul 25 2005 Vincent Danen <vdanen@annvix.org> 0.3.8-1avx
+* Mon Jul 25 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.3.8-1avx
 - first Annvix build
 - make it always build with dietlibc
 
