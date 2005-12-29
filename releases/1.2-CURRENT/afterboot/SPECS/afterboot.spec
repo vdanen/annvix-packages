@@ -25,7 +25,7 @@ BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
 
 Requires:	man
-PreReq:		rpm-helper
+Requires(post):	rpm-helper
 
 %description
 A tool to create the dynamic 'afterboot' manpage.
