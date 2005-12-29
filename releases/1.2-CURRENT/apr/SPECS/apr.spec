@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		apr
 %define version		0.9.6
-%define release		5avx
+%define release		%_revrel
 %define epoch		1
 
 %define aprver		0
@@ -24,20 +25,20 @@ Group:		System/Libraries
 URL:		http://apr.apache.org/
 Source0:	%{name}-%{version}.tar.gz
 Source1:	%{name}-%{version}.tar.gz.asc
-Patch0:		apr-0.9.3-deplibs.patch.bz2
-Patch1:		apr-0.9.5-config.diff.bz2
-Patch2:		apr-0.9.3-noipv6.patch.bz2
-Patch3:		apr-0.9.4-trimlibs.patch.bz2
-Patch4:		apr-0.9.4-tests.patch.bz2
-Patch5:		apr-0.9.5-mutextype_reorder.diff.bz2
-Patch6:		apr-0.9.6-guardsize.diff.bz2
-Patch7:		apr-0.9.4-cleanups.patch.bz2
-Patch8:		apr-0.9.4-cflags.patch.bz2
-Patch9:		apr-0.9.4-lp64psem.patch.bz2
-Patch10:	apr-0.9.4-attrerror.patch.bz2
-Patch11:	apr-0.9.6-readdir64.patch.bz2
-Patch12:	apr-0.9.6-uidgid.patch.bz2
-Patch13:	apr-0.9.6-flushbufs.patch.bz2
+Patch0:		apr-0.9.3-deplibs.patch
+Patch1:		apr-0.9.5-config.diff
+Patch2:		apr-0.9.3-noipv6.patch
+Patch3:		apr-0.9.4-trimlibs.patch
+Patch4:		apr-0.9.4-tests.patch
+Patch5:		apr-0.9.5-mutextype_reorder.diff
+Patch6:		apr-0.9.6-guardsize.diff
+Patch7:		apr-0.9.4-cleanups.patch
+Patch8:		apr-0.9.4-cflags.patch
+Patch9:		apr-0.9.4-lp64psem.patch
+Patch10:	apr-0.9.4-attrerror.patch
+Patch11:	apr-0.9.6-readdir64.patch
+Patch12:	apr-0.9.6-uidgid.patch
+Patch13:	apr-0.9.6-flushbufs.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildPrereq:	autoconf2.5
@@ -205,28 +206,32 @@ rm -f %{buildroot}%{_libdir}/apr.exp
 
 
 %changelog
-* Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 0.9.6-5avx
+* Thu Dec 29 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sat Sep 17 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.9.6-5avx
 - sync more patches with fedora
 
-* Wed Sep 07 2005 Vincent Danen <vdanen@annvix.org> 0.9.6-4avx
+* Wed Sep 07 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.9.6-4avx
 - sync with mandrake 0.9.6-4mdk:
   - sync with fedora (oden)
   - fix requires-on-release (oden)
   - drop the metux patch (P30)
 
-* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 0.9.6-3avx
+* Fri Aug 19 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.9.6-3avx
 - bootstrap build (new gcc, new glibc)
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 0.9.6-2avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.9.6-2avx
 - rebuild
 
-* Fri Feb 25 2005 Vincent Danen <vdanen@annvix.org> 0.9.6-1avx
+* Fri Feb 25 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.9.6-1avx
 - 0.9.6
 - drop P3 merged upstream
 - P19: rediffed; partially merged upstream (oden)
 - disable debug build support
 
-* Thu Oct 14 2004 Vincent Danen <vdanen@annvix.org> 0.9.5-1avx
+* Thu Oct 14 2004 Vincent Danen <vdanen-at-build.annvix.org> 0.9.5-1avx
 - first Annvix build for new-style apache2
 
 * Tue Aug 10 2004 Oden Eriksson <oeriksson@mandrakesoft.com> 0.9.5-11mdk
