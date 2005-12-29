@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		apr-util
 %define version		0.9.6
-%define release		4avx
+%define release		%_revrel
 
 %define apuver		0
 %define libname		%mklibname %{name} %{apuver}
@@ -24,13 +25,13 @@ URL:		http://apr.apache.org/
 Source0:	%{name}-%{version}.tar.gz
 Source1:	%{name}-%{version}.tar.gz.asc
 
-Patch0:		apr-util-0.9.5-lib64.diff.bz2
+Patch0:		apr-util-0.9.5-lib64.diff
 # OE: these are from fedora
-Patch1:		%{name}-0.9.3-deplibs.patch.bz2
-Patch2:		%{name}-0.9.5-config.diff.bz2
-Patch7:         %{name}-0.9.4-xlate.patch.bz2
+Patch1:		%{name}-0.9.3-deplibs.patch
+Patch2:		%{name}-0.9.5-config.diff
+Patch7:         %{name}-0.9.4-xlate.patch
 # http://www.outoforder.cc/projects/libs/apr_memcache/apr_reslist_invalidate.patch
-Patch8:		apr_reslist_invalidate.patch.bz2
+Patch8:		apr_reslist_invalidate.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildPrereq:	doxygen
@@ -169,25 +170,29 @@ rm -f %{buildroot}%{_libdir}/aprutil.exp
 
 
 %changelog
-* Wed Sep 07 2005 Vincent Danen <vdanen@annvix.org> 0.9.6-4avx
+* Thu Dec 29 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Wed Sep 07 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.9.6-4avx
 - sync with mandriva 0.9.6-8mdk:
   - enable gdbm linkage (oden)
   - P8: apr_memcache (oden)
 
-* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 0.9.6-3avx
+* Fri Aug 19 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.9.6-3avx
 - bootstrap build (new gcc, new glibc)
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 0.9.6-2avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.9.6-2avx
 - rebuild
 
-* Fri Feb 25 2005 Vincent Danen <vdanen@annvix.org> 0.9.6-1avx
+* Fri Feb 25 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.9.6-1avx
 - 0.9.6
 - P0: lib64 fixes (oden)
 - run tests in %%build
 - remove db4-devel requires from -devel pkg (mdk bug #13906) (stefan)
 - remove debug build support
 
-* Thu Oct 14 2004 Vincent Danen <vdanen@annvix.org> 0.9.5-1avx
+* Thu Oct 14 2004 Vincent Danen <vdanen-at-build.annvix.org> 0.9.5-1avx
 - first Annvix package for the new-style apache2
 
 * Wed Sep 15 2004 Oden Eriksson <oeriksson@mandrakesoft.com> 0.9.5-8mdk
