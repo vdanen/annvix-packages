@@ -5,12 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-# $Id: afterboot.spec,v 1.3 2004/07/15 04:05:34 vdanen Exp $
+# $Id$
 
-
+%define revision	$Rev$
 %define name		afterboot
 %define version 	0.2
-%define release 	4avx
+%define release 	%_revrel
 
 Summary:	Dynamic afterboot manpage
 Name: 		%{name}
@@ -18,7 +18,7 @@ Version:	%{version}
 Release: 	%{release}
 License:	GPL
 Group:		System/Base
-URL:		http://annvix.org/cgi-bin/viewcvs.cgi/tools/afterboot/
+URL:		http://svn.annvix.org/cgi-bin/viewcvs.cgi/afterboot/?root=tools
 Source:		%{name}-%{version}.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -64,10 +64,15 @@ touch %{buildroot}%{_mandir}/man8/afterboot.8.bz2
 
 
 %changelog
-* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 0.2-4avx
+* Thu Dec 29 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+- change URL
+
+* Fri Aug 19 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.2-4avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.2-3avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.2-3avx
 - bootstrap build
 
 * Sat Oct 09 2004 Vincent Danen <vdanen@opensls.org> 0.2-2avx
