@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		dietlibc
 %define version 	0.29
-%define release 	1avx
+%define release 	%_revrel
 
 # This is eventually a biarch package, so no %_lib for diethome
 %define diethome	%{_prefix}/lib/dietlibc
@@ -28,23 +29,24 @@ Group:		Development/Other
 URL:		http://www.fefe.de/dietlibc/
 Source0:	http://www.fefe.de/dietlibc/%{name}-%{version}.tar.bz2
 Source1:	http://www.fefe.de/dietlibc/%{name}-%{version}.tar.bz2.sig
-Patch0:		dietlibc-0.21-features.patch.bz2
-Patch1:		dietlibc-0.27-mdkconfig.patch.bz2
-Patch3:		dietlibc-0.22-tests.patch.bz2
-Patch4:		dietlibc-0.27-fix-getpriority.patch.bz2
-Patch5:		dietlibc-0.22-net-ethernet.patch.bz2
-Patch6:		dietlibc-0.24-rpc-types.patch.bz2
-Patch9:		dietlibc-0.27-glibc-nice.patch.bz2
-Patch13:	dietlibc-0.27-x86_64-lseek64.patch.bz2
+Patch0:		dietlibc-0.21-features.patch
+Patch1:		dietlibc-0.27-mdkconfig.patch
+Patch3:		dietlibc-0.22-tests.patch
+Patch4:		dietlibc-0.27-fix-getpriority.patch
+Patch5:		dietlibc-0.22-net-ethernet.patch
+Patch6:		dietlibc-0.24-rpc-types.patch
+Patch9:		dietlibc-0.27-glibc-nice.patch
+Patch13:	dietlibc-0.27-x86_64-lseek64.patch
 # (oe) http://synflood.at/patches/contrapolice/contrapolice-0.3.patch
-Patch14:	dietlibc-0.28-contrapolice.diff.bz2
-Patch16:	dietlibc-0.27-test-makefile-fix.patch.bz2
-Patch17:	dietlibc-0.27-x86_64-stat64.patch.bz2
-Patch23:	dietlibc-0.29-biarch.patch.bz2
-Patch24:	dietlibc-0.27-quiet.patch.bz2
-Patch26:	dietlibc-0.29-avx-stackgap_off.patch.bz2
-Patch27:	dietlibc-0.28-64bit-size_t.patch.bz2
-Patch28:	dietlibc-0.29-avx-fix_no_ipv6.patch.bz2
+Patch14:	dietlibc-0.28-contrapolice.diff
+Patch16:	dietlibc-0.27-test-makefile-fix.patch
+Patch17:	dietlibc-0.27-x86_64-stat64.patch
+Patch23:	dietlibc-0.29-biarch.patch
+Patch24:	dietlibc-0.27-quiet.patch
+Patch26:	dietlibc-0.29-avx-stackgap_off.patch
+Patch27:	dietlibc-0.28-64bit-size_t.patch
+Patch28:	dietlibc-0.29-avx-fix_no_ipv6.patch
+Patch29:	dietlibc-0.26-gentoo-ssp.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
@@ -81,6 +83,7 @@ Small libc for building embedded applications.
 %patch26 -p1 -b .stackgap_off
 %patch27 -p1 -b .64bit-size_t
 %patch28 -p1 -b .fix_no_ipv6
+%patch29 -p1 -b .ssp
 
 # fix execute permissions on test scripts
 chmod a+x test/{dirent,inet,stdio,string,stdlib,time}/runtests.sh
@@ -153,7 +156,12 @@ make MYARCH=i386 DESTDIR=%{buildroot} install
 
 
 %changelog
-* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 0.29-1avx
+* Thu Dec 29 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+- P29: make dietlibc SSP aware (from gentoo)
+
+* Sat Sep 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.29-1avx
 - 0.29
 - P27: fix <asm/types.h> size_t definition for 64bit platforms
   (gbeauchesne)
@@ -164,24 +172,24 @@ make MYARCH=i386 DESTDIR=%{buildroot} install
   install stuff in the spec instead
 - P28: fix build when WANT_IPV6_DNS is not set
 
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 0.28-4avx
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.28-4avx
 - bootstrap build (new gcc, new glibc)
 
-* Mon Jul 25 2005 Vincent Danen <vdanen@annvix.org> 0.28-3avx
+* Mon Jul 25 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.28-3avx
 - rebuild against new gcc
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.28-2avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.28-2avx
 - bootstrap build
 
-* Wed Feb 02 2005 Vincent Danen <vdanen@annvix.org> 0.28-1avx
+* Wed Feb 02 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.28-1avx
 - 0.28
 - drop P7, P8, P10, P11, P12, P19, P20 (merged upstream)
 - P26: disable WANT_STACKGAP as it interferes with our gcc+SSP
 
-* Thu Jan 20 2005 Vincent Danen <vdanen@annvix.org> 0.27-2avx
+* Thu Jan 20 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.27-2avx
 - some fixes
 
-* Thu Jan 20 2005 Vincent Danen <vdanen@annvix.org> 0.27-1avx
+* Thu Jan 20 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.27-1avx
 - 0.27
 - re-order patches to match mdk package
 - merge with mandrake 0.27-9mdk:
@@ -204,7 +212,7 @@ make MYARCH=i386 DESTDIR=%{buildroot} install
   - merge P2 and P4 into P1 (ppc64asppc and lib64 fixes are now in P1) (oden)
   - P8: fix strtol() + testcase on 64-bit platforms (gb)  
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 0.24-3avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 0.24-3avx
 - Annvix build
 
 * Thu Mar 04 2004 Vincent Danen <vdanen@opensls.org> 0.24-2sls
