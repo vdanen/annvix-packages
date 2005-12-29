@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		SysVinit
 %define version 	2.86
-%define release 	1avx
+%define release 	%_revrel
 
 Summary:	Programs which control basic system processes
 Name:		%{name}
@@ -21,16 +22,16 @@ URL:		ftp://ftp.cistron.nl/pub/people/miquels/software
 Source:		ftp://ftp.cistron.nl/pub/people/miquels/software/sysvinit-%{version}.tar.bz2
 Source1:	reboot.avx
 Source2:	halt.avx
-Patch0:		sysvinit-2.77-md5-be.patch.bz2
-Patch1:		sysvinit-2.78-halt.patch.bz2
-Patch2:		sysvinit-2.86-mdk-autofsck.patch.bz2
-Patch4:		sysvinit-2.85-walltty.patch.bz2
-Patch8:		sysvinit-2.86-mdk-shutdown.patch.bz2
-Patch9:		sysvinit-2.86-mdk-libcrypt.patch.bz2
-Patch10:	sysvinit-2.83-biarch-utmp.patch.bz2
-Patch11:	sysvinit-disable-respawn-more-quickly.patch.bz2
-Patch12:	sysvinit-2.85-avx-silent_no_runlevel.patch.bz2
-Patch13:	sysvinit-2.86-mdk-varargs.patch.bz2
+Patch0:		sysvinit-2.77-md5-be.patch
+Patch1:		sysvinit-2.78-halt.patch
+Patch2:		sysvinit-2.86-mdk-autofsck.patch
+Patch4:		sysvinit-2.85-walltty.patch
+Patch8:		sysvinit-2.86-mdk-shutdown.patch
+Patch9:		sysvinit-2.86-mdk-libcrypt.patch
+Patch10:	sysvinit-2.83-biarch-utmp.patch
+Patch11:	sysvinit-disable-respawn-more-quickly.patch
+Patch12:	sysvinit-2.85-avx-silent_no_runlevel.patch
+Patch13:	sysvinit-2.86-mdk-varargs.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	glibc-static-devel
@@ -135,30 +136,34 @@ exit 0
 
 
 %changelog
-* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 2.86-1avx
+* Wed Dec 28 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Fri Sep 16 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.86-1avx
 - 2.86
 - sync P2, P8, and P9 with mdk 2.86-3mdk
 - new P13 from mdk; varargs fixes (gbeauchesne)
 - dropped P3, P5, P6, and P7
 
-* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 2.85-11avx
+* Fri Aug 12 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.85-11avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.85-10avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.85-10avx
 - bootstrap build
 
-* Fri Mar 04 2005 Vincent Danen <vdanen@annvix.org> 2.85-9avx
+* Fri Mar 04 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.85-9avx
 - put back halt/reboot/poweroff and use P12 to silence warnings
 - renumber patches
 
-* Sat Feb 12 2005 Vincent Danen <vdanen@annvix.org> 2.85-8avx
+* Sat Feb 12 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.85-8avx
 - provide new halt/reboot scripts that are wrappers to shutdown
   (get rid of errors about not knowing the current runlevel due to runit)
 
-* Sat Sep 11 2004 Vincent Danen <vdanen@annvix.org> 2.85-7avx
+* Sat Sep 11 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.85-7avx
 - move /sbin/init to /sbin/init.sysv
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 2.85-6avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.85-6avx
 - Annvix release
 
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 2.85-5sls
