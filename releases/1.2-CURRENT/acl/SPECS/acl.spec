@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		acl
 %define version 	2.2.31
-%define release 	1avx
+%define release 	%_revrel
 
 %define libname_orig	lib%{name}
 %define major		1
@@ -46,7 +47,7 @@ control lists.
 
 
 %package -n %{libname}-devel
-Summary:	Access control list static libraries and headers.
+Summary:	Access control list static libraries and headers
 Group:		Development/C
 Requires:	%{libname} = %{version}-%{release}
 Provides:	%{libname_orig}-devel = %{version}-%{release}
@@ -113,20 +114,24 @@ rm -rf %{buildroot}%{_docdir}/acl
 %{_includedir}/sys/acl.h
 
 %changelog
-* Fri Sep 09 2005 Vincent Danen <vdanen@annvix.org> 2.2.31-1avx
+* Thu Dec 29 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Fri Sep 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.2.31-1avx
 - 2.2.31
 
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 2.2.23-4avx
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.2.23-4avx
 - bootstrap build (new gcc, new glibc)
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.2.23-3avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.2.23-3avx
 - rebuild
 
-* Fri Mar 04 2005 Vincent Danen <vdanen@annvix.org> 2.2.23-2avx
+* Fri Mar 04 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.2.23-2avx
 - if we list the libattr libtool file in our libtool file, at least
   ensure the location is right (bgmilne)
 
-* Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 2.2.23-1avx
+* Fri Jun 18 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.2.23-1avx
 - 2.2.23
 - Annvix build
 
