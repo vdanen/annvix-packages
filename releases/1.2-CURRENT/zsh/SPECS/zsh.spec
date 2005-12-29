@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		zsh
 %define version		4.2.5
-%define release		3avx
+%define release		%_revrel
 %define epoch		1
 
 Summary:	A shell with lots of features
@@ -22,16 +23,18 @@ Group:		Shells
 URL:		http://www.zsh.org
 Source0:	http://www.zsh.org/pub/%{name}-%{version}.tar.bz2
 Source2:	zcfg-avx.tar.bz2
-Source3:	zsh.urpmi_comp.bz2
-Patch1:		zsh-3.1.6-dev-22-path.patch.bz2
-Patch2:		zsh-4.0.1-pre-3-rpmnewopt.patch.bz2
-Patch101:	zsh-serial.patch.bz2
-Patch102:	zsh-4.1.0-dev-7-rebootin.patch.bz2
+Source3:	zsh.urpmi_comp
+Patch1:		zsh-3.1.6-dev-22-path.patch
+Patch2:		zsh-4.0.1-pre-3-rpmnewopt.patch
+Patch101:	zsh-serial.patch
+Patch102:	zsh-4.1.0-dev-7-rebootin.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	libtermcap-devel >= 2.0, texinfo, pcre-devel, ncurses-devel
 
-Prereq:		coreutils grep rpm-helper >= 0.7
+Requires(postun): rpm-helper
+Requires(post):	rpm-helper
+
 
 %description
 Zsh is a UNIX command interpreter (shell) usable as an
@@ -50,7 +53,7 @@ lots of other features
 %patch101 -p1
 %patch102 -p1
 
-bzcat %{SOURCE3} > Completion/Mandrake/Command/_urpmi
+cat %{SOURCE3} > Completion/Mandrake/Command/_urpmi
 
 # remove temporary files
 find | grep '~$' | xargs rm -f
@@ -122,30 +125,35 @@ rm -f %{buildroot}%{_bindir}/zsh-%{version}
 
 
 %changelog
-* Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 4.2.5-3avx
+* Wed Dec 28 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+- fix prereq
+
+* Sat Sep 17 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.2.5-3avx
 - rebuild against new pcre
 
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 4.2.5-2avx
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.2.5-2avx
 - bootstrap build (new gcc, new glibc)
 
-* Mon Jul 25 2005 Vincent Danen <vdanen@annvix.org> 4.2.5-1avx
+* Mon Jul 25 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.2.5-1avx
 - 4.2.5
 - spec cleanups
 - remove the %%doc_version define
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 4.2.4-3avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.2.4-3avx
 - bootstrap build
 
-* Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 4.2.4-2avx
+* Fri Jun 18 2004 Vincent Danen <vdanen-at-build.annvix.org> 4.2.4-2avx
 - update S2 to set resource limits in /etc/zshrc
 
-* Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 4.2.4-1avx
+* Fri Jun 18 2004 Vincent Danen <vdanen-at-build.annvix.org> 4.2.4-1avx
 - 4.2.4
 - drop doc sources
 - add urpmi completion
 - use ncurses instead of termcap
 
-* Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 4.1.1-8avx
+* Fri Jun 18 2004 Vincent Danen <vdanen-at-build.annvix.org> 4.1.1-8avx
 - Annvix build
 
 * Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 4.1.1-7sls
