@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		mingetty
 %define version		1.07
-%define release		1avx
+%define release		%_revrel
 
 Summary: 	A compact getty program for virtual consoles only
 Name: 		%{name}
@@ -20,7 +21,7 @@ Group: 		System/Base
 URL:		ftp://jurix.jura.uni-sb.de/pub/linux/source/system/daemon/
 Source0: 	ftp://jurix.jura.uni-sb.de/pub/linux/source/system/daemons/%{name}-%{version}.tar.bz2
 BuildRequires:	dietlibc-devel >= 0.27
-Patch0:		mingetty-1.00-opt.patch.bz2
+Patch0:		mingetty-1.00-opt.patch
 
 BuildRoot: 	%{_buildroot}/%{name}-%{version}
 
@@ -61,22 +62,26 @@ install -m 0644 mingetty.8 %{buildroot}/%{_mandir}/man8/
 
 
 %changelog
-* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 1.07-1avx
+* Thu Dec 29 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Fri Sep 16 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.07-1avx
 - 1.0.7
 
-* Wed Aug 17 2005 Vincent Danen <vdanen@annvix.org> 1.06-7avx
+* Wed Aug 17 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.06-7avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.06-6avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.06-6avx
 - bootstrap build
 
-* Fri Feb 04 2005 Vincent Danen <vdanen@annvix.org> 1.06-5avx
+* Fri Feb 04 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.06-5avx
 - rebuild against new dietlibc
 
-* Tue Jan 25 2005 Vincent Danen <vdanen@annvix.org> 1.06-4avx
+* Tue Jan 25 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.06-4avx
 - enable x86_64 build
 
-* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 1.06-3avx
+* Tue Jun 22 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.06-3avx
 - Annvix build
 
 * Wed Mar 17 2004 Oden Eriksson <oden.eriksson@opensls.org> 1.06-2sls
