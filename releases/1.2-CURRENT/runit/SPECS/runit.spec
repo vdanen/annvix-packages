@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define	revision	$Rev$
 %define	name		runit
 %define	version		1.3.1
-%define	release		6avx
+%define	release		%_revrel
 
 %define aver		0.3
 
@@ -23,7 +24,7 @@ URL:		http://smarden.org/runit/
 Source0:	%{name}-%{version}.tar.gz
 # available from http://annvix.org/cg-bin/viewcvs.cgi/tools/runit/
 Source1:	annvix-runit-%{aver}.tar.bz2
-Patch0:		runit-1.3.1-avx-localtime.patch.bz2
+Patch0:		runit-1.3.1-avx-localtime.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	dietlibc-devel >= 0.28
@@ -168,16 +169,20 @@ fi
 
 
 %changelog
-* Sat Oct 08 2005 Vincent Danen <vdanen@annvix.org> 1.3.1-6avx
+* Thu Dec 29 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sat Oct 08 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.3.1-6avx
 - don't use srv to bring up the mingetty services (in case we're in install mode)
 
-* Sat Oct 08 2005 Vincent Danen <vdanen@annvix.org> 1.3.1-5avx
+* Sat Oct 08 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.3.1-5avx
 - fix the ctrl-alt-del scripts so it reboots rather than halts
 
-* Mon Sep 05 2005 Sean P. Thomas <spt@annvix.org> 1.3.1-4avx
+* Mon Sep 05 2005 Sean P. Thomas <spt-at-build.annvix.org> 1.3.1-4avx
 - added ipsvd as a dependency now we are utilizing it more for services.
 
-* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 1.3.1-3avx
+* Sat Sep 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.3.1-3avx
 - stage 1, 2, 3, and ctrlaltdel scripts are in execlineb format (re: spt)
 - run scripts are now considered config files and are not replaceable
 - env/runit/TIMEOUT is a config file too
@@ -186,79 +191,79 @@ fi
 - add CTRLALTDEL_TIMEOUT to control timeout for ctrlaltdel (duh) and
   GETTY_TIMEOUT to control the timeout for getties
 
-* Mon Aug 29 2005 Vincent Danen <vdanen@annvix.org> 1.3.1-2avx
+* Mon Aug 29 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.3.1-2avx
 - added /etc/sysconfig/env/runit/TIMEOUT to control the delay for
   shutdowns (default is 180 seconds)
 - P0: log in local time rather than UTC
 
-* Mon Aug 29 2005 Vincent Danen <vdanen@annvix.org> 1.3.1-1avx
+* Mon Aug 29 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.3.1-1avx
 - 1.3.1
 
-* Fri Aug 26 2005 Vincent Danen <vdanen@annvix.org> 1.3.0-2avx
+* Fri Aug 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.3.0-2avx
 - fix perms on run scripts
 
-* Wed Aug 24 2005 Vincent Danen <vdanen@annvix.org> 1.3.0-1avx
+* Wed Aug 24 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.3.0-1avx
 - 1.3.0
 - Requires: execline
 - new tarball from cvs (tools/runit) for runit scripts
 - change run script ownership to root:admin and mode 0740
 - make runit and init mode 0700
 
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1.2.1-8avx
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.2.1-8avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.2.1-7avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.2.1-7avx
 - note the time we're waiting for service shutdowns (re: Sean Thomas)
 - fix changelog entries
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.2.1-6avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.2.1-6avx
 - bootstrap build
 
-* Fri Mar 04 2005 Vincent Danen <vdanen@annvix.org> 1.2.1-5avx
+* Fri Mar 04 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.2.1-5avx
 - instead of waiting 350secs for all services to stop, we wait
   180secs; this is because logged in ssh users will cause this
   timeout as sshd will not die with any children running.  3
   minutes is more than reasonable
 
-* Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> 1.2.1-4avx
+* Thu Feb 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.2.1-4avx
 - build against new dietlibc
 
-* Tue Jan 25 2005 Vincent Danen <vdanen@annvix.org> 1.2.1-3avx
+* Tue Jan 25 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.2.1-3avx
 - build without dietlibc
 - remove BuildRequires: dietlibc; add BuildRequires: glibc-static-devel
 
-* Thu Jan 20 2005 Vincent Danen <vdanen@annvix.org> 1.2.1-2avx
+* Thu Jan 20 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.2.1-2avx
 - rebuild against fixed dietlibc
 
-* Thu Jan 20 2005 Vincent Danen <vdanen@annvix.org> 1.2.1-1avx
+* Thu Jan 20 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.2.1-1avx
 - 1.2.1
 - don't set -march=pentium anymore
 
-* Wed Oct 13 2004 Vincent Danen <vdanen@annvix.org> 1.0.5-1avx
+* Wed Oct 13 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.0.5-1avx
 - 1.0.5
 
-* Fri Sep 17 2004 Vincent Danen <vdanen@annvix.org> 1.0.4-6avx
+* Fri Sep 17 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.0.4-6avx
 - own /service since daemontools will soon be removed
 
-* Tue Sep 14 2004 Vincent Danen <vdanen@annvix.org> 1.0.4-5avx
+* Tue Sep 14 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.0.4-5avx
 - don't ever restart the gettys
 - Requires: mingetty
 
-* Sat Sep 10 2004 Vincent Danen <vdanen@annvix.org> 1.0.4-4avx
+* Sat Sep 10 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.0.4-4avx
 - dammit... works good if you install from remote, but kicks you off your vc
   if you're local, so don't automatically add tty1; the installer will take
   care of this for new installs
 
-* Sat Sep 10 2004 Vincent Danen <vdanen@annvix.org> 1.0.4-3avx
+* Sat Sep 10 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.0.4-3avx
 - somewhat ugly means of getting the getty's up and running for the
   reboot, but necessary as %%_post_srv only checks to restart a service
   and doesn't set one up or make it ready to start
 
-* Sat Sep 10 2004 Vincent Danen <vdanen@annvix.org> 1.0.4-2avx
+* Sat Sep 10 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.0.4-2avx
 - Conflicts: SysVinit <= 2.85-6avx (7avx moves init to init.srv)
 - Requires SysVinit >= 2.86-7avx, initscripts, srv
 
-* Sat Sep 10 2004 Vincent Danen <vdanen@annvix.org> 1.0.4-1avx
+* Sat Sep 10 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.0.4-1avx
 - first Annvix build
 - S1: runit scripts
 
