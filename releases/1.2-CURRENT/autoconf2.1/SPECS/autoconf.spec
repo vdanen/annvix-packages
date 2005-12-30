@@ -5,12 +5,13 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		%{pkgname}2.1
 %define pkgname		autoconf
 %define version		2.13
-%define release 	25avx
+%define release 	%_revrel
 %define epoch		1
 
 # Factorize uses of autoconf libdir home and handle only one exception in rpmlint
@@ -30,12 +31,12 @@ Group:		Development/Other
 URL:		http://www.gnu.org/software/autoconf/
 Source:		ftp://ftp.gnu.org/pub/gnu/%{pkgname}/%{pkgname}-%{version}.tar.bz2
 Source3:	autoconf_special_readme2.1
-Patch0:		autoconf-2.12-race.patch.bz2
-Patch1:		autoconf-2.13-mawk.patch.bz2
-Patch2:		autoconf-2.13-notmp.patch.bz2
-Patch3:		autoconf-fix-for-gcc2.96-patch.bz2
-Patch4:		autoconf-2.13-versioned-info.patch.bz2
-Patch5:		autoconf-2.13-automake14.patch.bz2
+Patch0:		autoconf-2.12-race.patch
+Patch1:		autoconf-2.13-mawk.patch
+Patch2:		autoconf-2.13-notmp.patch
+Patch3:		autoconf-fix-for-gcc2.96-patch
+Patch4:		autoconf-2.13-versioned-info.patch
+Patch5:		autoconf-2.13-automake14.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
@@ -123,15 +124,19 @@ cp install-sh %{buildroot}%{_datadir}/autoconf
 
 
 %changelog
-* Thu Aug 18 2005 Vincent Danen <vdanen@annvix.org> 2.13-25avx
+* Fri Dec 30 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Thu Aug 18 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.13-25avx
 - bootstrap build (new gcc, new glibc)
 - disable the tests for now until we can patch out for F77/fortran
   tests since they always fail since we don't ship a fortran compiler
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.13-24avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.13-24avx
 - bootstrap build
 
-* Mon Feb 28 2005 Vincent Danen <vdanen@annvix.org> 2.13-23avx
+* Mon Feb 28 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.13-23avx
 - now known as autoconf2.1
 - wrapper script is in autoconf2.5
 - add --with-check option to enable make check
@@ -139,7 +144,7 @@ cp install-sh %{buildroot}%{_datadir}/autoconf
 - version of automake/aclocal in autoreconf (abel)
 - do make check
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 2.13-22avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.13-22avx
 - Annvix build
 - require packages not files
 

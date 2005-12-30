@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		autoconf2.5
 %define version		2.59
-%define release 	5avx
+%define release 	%_revrel
 %define epoch		1
 
 %define docheck		1
@@ -30,13 +31,14 @@ URL:		http://www.gnu.org/software/autoconf/
 Source:		ftp://ftp.gnu.org/gnu/autoconf/autoconf-%{version}.tar.bz2
 Source2:	autoconf_special_readme2.5
 Source3:	autoconf-ac-wrapper.pl
-Patch0:		autoconf-2.58-fix-info.patch.bz2
+Patch0:		autoconf-2.58-fix-info.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
 BuildRequires:	texinfo, m4
 
-Prereq:		info-install
+Requires(post):	info-install
+Requires(preun): info-install
 Requires:	gawk, m4, mktemp, perl
 # autoconf provides %{aclibdir}/ac-wrapper.pl, which we need
 Requires:	autoconf2.1
@@ -124,19 +126,23 @@ mv %{buildroot}%{_infodir}/autoconf.info %{buildroot}%{_infodir}/autoconf-2.5x.i
 
 
 %changelog
-* Thu Aug 18 2005 Vincent Danen <vdanen@annvix.org> 2.59-5avx
+* Fri Dec 30 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Thu Aug 18 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.59-5avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.59-4avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.59-4avx
 - bootstrap build
 
-* Mon Feb 28 2005 Vincent Danen <vdanen@annvix.org> 2.59-3avx
+* Mon Feb 28 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.59-3avx
 - requires autconf2.1 for wrapper
 - call this package's autoconf when no configure.in or configure.ac
   detected
 - so starts the mdk "BIG MOVE" (almost a year later =))
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 2.59-2avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.59-2avx
 - Annvix build
 - require packages not files
 
