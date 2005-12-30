@@ -49,13 +49,13 @@ handles the tasks necessary to shutdown and halt or reboot.
 
 %build
 %ifarch x86_64
-DIET=""
+COMP="diet x86_64-annvix-linux-gnu-gcc"
 %else
-DIET="diet"
+COMP="diet gcc"
 %endif
 pushd %{name}-%{version}/src
-    echo "$DIET gcc -Os -pipe" > conf-cc
-    echo "$DIET gcc -Os -static -s" > conf-ld
+    echo "$COMP -Os -pipe" > conf-cc
+    echo "$COMP -Os -static -s" > conf-ld
     make
 popd
 
@@ -174,6 +174,10 @@ fi
 
 
 %changelog
+* Fri Dec 30 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- re-enable dietlibc build on x86_64; have to specify the explicit
+  arch'd compiler to use for it to work properly
+
 * Thu Dec 29 2005 Vincent Danen <vdanen-at-build.annvix.org>
 - Obfuscate email addresses and new tagging
 - Uncompress patches

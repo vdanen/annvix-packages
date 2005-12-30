@@ -38,13 +38,14 @@ lines (you should use the mgetty program instead for that purpose).
 
 %build
 %ifarch x86_64
-%make
+COMP="diet x86_64-annvix-linux-gnu-gcc"
 %else
+COMP="diet gcc"
+%endif
 make \
-    CC="diet gcc" \
+    CC="$COMP" \
     CFLAGS="-Os -Wall -pipe -D_GNU_SOURCE -D_BSD_SOURCE" \
     LDFLAGS="-Os -static -s"
-%endif
 
 
 %install
@@ -66,6 +67,10 @@ install -m 0644 mingetty.8 %{buildroot}/%{_mandir}/man8/
 
 
 %changelog
+* Fri Dec 30 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- re-enable dietlibc build on x86_64; have to specify the explicit
+  arch'd compiler to use for it to work properly
+
 * Thu Dec 29 2005 Vincent Danen <vdanen-at-build.annvix.org>
 - Obfuscate email addresses and new tagging
 - Uncompress patches
