@@ -37,10 +37,14 @@ lines (you should use the mgetty program instead for that purpose).
 
 
 %build
+%ifarch x86_64
+%make
+%else
 make \
     CC="diet gcc" \
     CFLAGS="-Os -Wall -pipe -D_GNU_SOURCE -D_BSD_SOURCE" \
     LDFLAGS="-Os -static -s"
+%endif
 
 
 %install
@@ -65,6 +69,8 @@ install -m 0644 mingetty.8 %{buildroot}/%{_mandir}/man8/
 * Thu Dec 29 2005 Vincent Danen <vdanen-at-build.annvix.org>
 - Obfuscate email addresses and new tagging
 - Uncompress patches
+- once again there are problems building against dietlibc on x86_64;
+  this must be due to the SSP support
 
 * Fri Sep 16 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.07-1avx
 - 1.0.7
