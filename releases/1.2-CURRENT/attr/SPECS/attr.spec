@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		attr
 %define version 	2.4.23
-%define release 	1avx
+%define release 	%_revrel
 
 %define libname_orig	lib%{name}
 %define major		1
@@ -119,16 +120,20 @@ rm -rf %{buildroot}/%{_lib}/libattr.{a,la} %{buildroot}%{_libdir}/libattr.la
 %{_includedir}/%{name}/*
 
 %changelog
-* Fri Sep 09 2005 Vincent Danen <vdanen@annvix.org> 2.4.23-1avx
+* Fri Dec 30 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Fri Sep 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.4.23-1avx
 - 2.4.23
 
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 2.4.16-3avx
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.4.16-3avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.4.16-2avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.4.16-2avx
 - bootstrap build
 
-* Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 2.4.16-1avx
+* Fri Jun 18 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.4.16-1avx
 - 2.4.16
 - Annvix build
 
