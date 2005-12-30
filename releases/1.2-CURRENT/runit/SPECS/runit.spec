@@ -48,9 +48,14 @@ handles the tasks necessary to shutdown and halt or reboot.
 
 
 %build
+%ifarch x86_64
+DIET=""
+%else
+DIET="diet"
+%endif
 pushd %{name}-%{version}/src
-    echo "diet gcc -Os -pipe" > conf-cc
-    echo "diet gcc -Os -static -s" > conf-ld
+    echo "$DIET gcc -Os -pipe" > conf-cc
+    echo "$DIET gcc -Os -static -s" > conf-ld
     make
 popd
 
@@ -172,6 +177,7 @@ fi
 * Thu Dec 29 2005 Vincent Danen <vdanen-at-build.annvix.org>
 - Obfuscate email addresses and new tagging
 - Uncompress patches
+- dietlibc doesn't like us on x86_64
 
 * Sat Oct 08 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.3.1-6avx
 - don't use srv to bring up the mingetty services (in case we're in install mode)
