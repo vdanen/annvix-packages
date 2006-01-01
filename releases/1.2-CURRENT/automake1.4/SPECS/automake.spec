@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		%{amname}%{amversion}
 %define version 	1.4p6
-%define release 	31avx
+%define release 	%_revrel
 
 %define amname		automake
 %define amversion	1.4
@@ -26,14 +27,15 @@ License:	GPL
 Group:		Development/Other
 URL:		http://sourceware.cygnus.com/automake
 Source:		ftp://ftp.gnu.org/gnu/automake/%{amname}-%{amversion}-%{patchlevel}.tar.bz2
-Patch0:		automake-1.4p6-infofiles.patch.bz2
-Patch1:		automake-1.4-p6-stdc-headers.patch.bz2
+Patch0:		automake-1.4p6-infofiles.patch
+Patch1:		automake-1.4-p6-stdc-headers.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
 Buildrequires:	perl
 
-PreReq:		info-install
+Requires(post):	info-install
+Requires(preun): info-install
 Requires:	perl
 Conflicts:	automake1.5
 Obsoletes:	automake <= 1.4-0.p6.26avx
@@ -91,19 +93,24 @@ update-alternatives --remove automake %{_bindir}/automake-%{amversion}
 
 
 %changelog
-* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 1.4p6-31avx
+* Sat Dec 31 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+- fix prereq
+
+* Fri Sep 16 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.4p6-31avx
 - normalize the release tag
 
-* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 1.4-0.p6.30avx
+* Sat Sep 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.4-0.p6.30avx
 - this package is no longer an alternative for current "automake" (cjw)
 
-* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 1.4-0.p6.29avx
+* Fri Aug 19 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.4-0.p6.29avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.4-0.p6.28avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.4-0.p6.28avx
 - bootstrap build
 
-* Fri Sep 24 2004 Vincent Danen <vdanen@annvix.org> 1.4-0.p6.27avx
+* Fri Sep 24 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.4-0.p6.27avx
 - this is now automake1.4
 - add --without-check option to disable 'make check' (abel)
 - P0: use versioned name in info page nodes (abel)
@@ -111,7 +118,7 @@ update-alternatives --remove automake %{_bindir}/automake-%{amversion}
 - note: mdk dropped alternative priority of this but we're not going to because we
   want 1.4 to remain the default
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 1.4-0.p6.26avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.4-0.p6.26avx
 - Annvix build
 
 * Sun Feb 29 2004 Vincent Danen <vdanen@opensls.org> 1.4-0.p6.25sls

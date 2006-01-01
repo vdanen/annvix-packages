@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		automake%{pkgamversion}
 %define version 	1.9.4
-%define release 	3avx
+%define release 	%_revrel
 
 %define amversion	1.9
 %define pkgamversion	1.8
@@ -25,8 +26,8 @@ License:	GPL
 Group:		Development/Other
 URL:		http://sources.redhat.com/automake/
 Source0:	ftp://ftp.gnu.org/gnu/automake/automake-%{version}.tar.bz2
-Patch0:		automake-1.9.4-infofiles.patch.bz2
-Patch1:		automake-1.9.4-avx-skiptests.patch.bz2
+Patch0:		automake-1.9.4-infofiles.patch
+Patch1:		automake-1.9.4-avx-skiptests.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
@@ -40,7 +41,8 @@ Provides:	automake1.9 = %{version}-%{release}
 Conflicts:	automake1.5
 Conflicts:	automake < 1.4-0.p6.27avx
 Obsoletes:	automake1.9
-PreReq:		info-install /usr/sbin/update-alternatives
+Requires(post):	info-install /usr/sbin/update-alternatives
+Requires(preun): info-install /usr/sbin/update-alternatives
 
 # tests need these
 %if %{docheck}
@@ -126,13 +128,18 @@ fi
 
 
 %changelog
-* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 1.9.4-3avx
+* Sat Dec 31 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+- fix prereq
+
+* Fri Aug 19 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.9.4-3avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.9.4-2avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.9.4-2avx
 - bootstrap build
 
-* Mon Feb 28 2005 Vincent Danen <vdanen@annvix.org> 1.9.4-1avx
+* Mon Feb 28 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.9.4-1avx
 - first Annvix build
 - we get 10 tests failing: auxdir2.test, cond17.test, txinfo3.test,
   txinfo5.test, txinfo13.test, txinfo16.test, txinfo18.test, txinfo22.test,

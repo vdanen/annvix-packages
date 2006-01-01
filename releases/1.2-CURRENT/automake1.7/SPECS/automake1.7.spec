@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		automake%{amversion}
 %define version 	1.7.9
-%define release 	5avx
+%define release 	%_revrel
 
 %define amversion 	1.7
 
@@ -26,13 +27,14 @@ License:	GPL
 Group:		Development/Other
 URL:		http://sources.redhat.com/automake/
 Source:		ftp://ftp.gnu.org/gnu/automake/automake-%{version}.tar.bz2
-Patch:		automake-1.7.9-infofiles.patch.bz2
+Patch0:		automake-1.7.9-infofiles.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
 BuildRequires:	autoconf2.5 byacc flex gawk perl tetex texinfo
 
-PreReq:		info-install, update-alternatives
+Requires(post):	info-install, update-alternatives
+Requires(preun): info-install, update-alternatives
 Requires:	perl, autoconf2.5
 Provides:	automake = %{version}-%{release}
 Obsoletes:	automake1.5
@@ -105,23 +107,28 @@ fi
 
 
 %changelog
-* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 1.7.9-5avx
+* Sat Dec 31 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+- fix prereq
+
+* Sat Sep 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.7.9-5avx
 - set alternatives priority to 20
 
-* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 1.7.9-3avx
+* Fri Aug 19 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.7.9-3avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.7.9-2avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.7.9-2avx
 - bootstrap build
 
-* Fri Sep 24 2004 Vincent Danen <vdanen@annvix.org> 1.7.9-1avx
+* Fri Sep 24 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.7.9-1avx
 - 1.7.9
 - tune up alternative priority (abel)
 - add -with-check option to enable 'make check' (abel)
 - adjust P0 to refer to the actual command (*-1.7 rather than *1.7) (abel)
 - also owns /usr/share/aclocal (abel)
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 1.7.6-4avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.7.6-4avx
 - Annvix build
 - require packages not files
 
